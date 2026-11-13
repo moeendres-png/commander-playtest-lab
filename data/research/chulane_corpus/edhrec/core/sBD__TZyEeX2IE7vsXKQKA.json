@@ -1,0 +1,354 @@
+{
+ "urlhash": "sBD__TZyEeX2IE7vsXKQKA",
+ "variante": "core",
+ "bracket": 2,
+ "savedate": "2026-02-17",
+ "price": 479,
+ "salt": 44.526527946814895,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/fw90mN5ZHEqg3SRKhK21pQ?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Archive Dragon",
+   "quantity": 1
+  },
+  {
+   "name": "Archivist",
+   "quantity": 1
+  },
+  {
+   "name": "Archivist of Oghma",
+   "quantity": 1
+  },
+  {
+   "name": "Automatic Librarian",
+   "quantity": 1
+  },
+  {
+   "name": "Benalish Missionary",
+   "quantity": 1
+  },
+  {
+   "name": "Biblioplex Kraken",
+   "quantity": 1
+  },
+  {
+   "name": "Bookwurm",
+   "quantity": 1
+  },
+  {
+   "name": "Combat Calligrapher",
+   "quantity": 1
+  },
+  {
+   "name": "Combat Professor",
+   "quantity": 1
+  },
+  {
+   "name": "Curious Homunculus",
+   "quantity": 1
+  },
+  {
+   "name": "Disruptive Student",
+   "quantity": 1
+  },
+  {
+   "name": "Ethereal Investigator",
+   "quantity": 1
+  },
+  {
+   "name": "Faerie Vandal",
+   "quantity": 1
+  },
+  {
+   "name": "Geist of the Archives",
+   "quantity": 1
+  },
+  {
+   "name": "Guardian Naga",
+   "quantity": 1
+  },
+  {
+   "name": "Hapless Researcher",
+   "quantity": 1
+  },
+  {
+   "name": "Inspired Sphinx",
+   "quantity": 1
+  },
+  {
+   "name": "Jace's Archivist",
+   "quantity": 1
+  },
+  {
+   "name": "Ledger Shredder",
+   "quantity": 1
+  },
+  {
+   "name": "Lord of Change",
+   "quantity": 1
+  },
+  {
+   "name": "Ludevic's Test Subject",
+   "quantity": 1
+  },
+  {
+   "name": "Magus of the Disk",
+   "quantity": 1
+  },
+  {
+   "name": "Mangara, the Diplomat",
+   "quantity": 1
+  },
+  {
+   "name": "Mild-Mannered Librarian",
+   "quantity": 1
+  },
+  {
+   "name": "Ormos, Archive Keeper",
+   "quantity": 1
+  },
+  {
+   "name": "Overwhelmed Archivist",
+   "quantity": 1
+  },
+  {
+   "name": "Owl Familiar",
+   "quantity": 1
+  },
+  {
+   "name": "Reckless Scholar",
+   "quantity": 1
+  },
+  {
+   "name": "Sage Owl",
+   "quantity": 1
+  },
+  {
+   "name": "Sphinx of Forgotten Lore",
+   "quantity": 1
+  },
+  {
+   "name": "Suspicious Bookcase",
+   "quantity": 1
+  },
+  {
+   "name": "Wan Shi Tong, Librarian",
+   "quantity": 1
+  },
+  {
+   "name": "Wizards of Thay",
+   "quantity": 1
+  },
+  {
+   "name": "Archive Trap",
+   "quantity": 1
+  },
+  {
+   "name": "Bury in Books",
+   "quantity": 1
+  },
+  {
+   "name": "Catalog",
+   "quantity": 1
+  },
+  {
+   "name": "Curate",
+   "quantity": 1
+  },
+  {
+   "name": "Expose to Daylight",
+   "quantity": 1
+  },
+  {
+   "name": "Harsh Justice",
+   "quantity": 1
+  },
+  {
+   "name": "Miscast",
+   "quantity": 1
+  },
+  {
+   "name": "Muddle the Mixture",
+   "quantity": 1
+  },
+  {
+   "name": "Mystical Tutor",
+   "quantity": 1
+  },
+  {
+   "name": "Opt",
+   "quantity": 1
+  },
+  {
+   "name": "Thirst for Knowledge",
+   "quantity": 1
+  },
+  {
+   "name": "You Find the Villains' Lair",
+   "quantity": 1
+  },
+  {
+   "name": "Careful Study",
+   "quantity": 1
+  },
+  {
+   "name": "Compulsive Research",
+   "quantity": 1
+  },
+  {
+   "name": "Council's Judgment",
+   "quantity": 1
+  },
+  {
+   "name": "Investigator's Journal",
+   "quantity": 1
+  },
+  {
+   "name": "Jalum Tome",
+   "quantity": 1
+  },
+  {
+   "name": "Library of Leng",
+   "quantity": 1
+  },
+  {
+   "name": "Talisman of Curiosity",
+   "quantity": 1
+  },
+  {
+   "name": "Talisman of Progress",
+   "quantity": 1
+  },
+  {
+   "name": "Venser's Journal",
+   "quantity": 1
+  },
+  {
+   "name": "Haunted Library",
+   "quantity": 1
+  },
+  {
+   "name": "Hermetic Study",
+   "quantity": 1
+  },
+  {
+   "name": "Knowledge Is Power",
+   "quantity": 1
+  },
+  {
+   "name": "Rhystic Study",
+   "quantity": 1
+  },
+  {
+   "name": "Sylvan Library",
+   "quantity": 1
+  },
+  {
+   "name": "Virtue of Knowledge",
+   "quantity": 1
+  },
+  {
+   "name": "Jace, Unraveler of Secrets",
+   "quantity": 1
+  },
+  {
+   "name": "Barkchannel Pathway",
+   "quantity": 1
+  },
+  {
+   "name": "Botanical Sanctum",
+   "quantity": 1
+  },
+  {
+   "name": "City of Brass",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Dreamroot Cascade",
+   "quantity": 1
+  },
+  {
+   "name": "Flooded Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Floodfarm Verge",
+   "quantity": 1
+  },
+  {
+   "name": "Hinterland Harbor",
+   "quantity": 1
+  },
+  {
+   "name": "Horizon Canopy",
+   "quantity": 1
+  },
+  {
+   "name": "Hushwood Verge",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 13
+  },
+  {
+   "name": "Kor Haven",
+   "quantity": 1
+  },
+  {
+   "name": "Meticulous Archive",
+   "quantity": 1
+  },
+  {
+   "name": "Otawara, Soaring City",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 5
+  },
+  {
+   "name": "Rogue's Passage",
+   "quantity": 1
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Study",
+   "quantity": 1
+  },
+  {
+   "name": "Temple Garden",
+   "quantity": 1
+  },
+  {
+   "name": "The Biblioplex",
+   "quantity": 1
+  },
+  {
+   "name": "Tree of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Yavimaya Coast",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

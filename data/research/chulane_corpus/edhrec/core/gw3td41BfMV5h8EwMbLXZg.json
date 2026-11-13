@@ -1,0 +1,314 @@
+{
+ "urlhash": "gw3td41BfMV5h8EwMbLXZg",
+ "variante": "core",
+ "bracket": 2,
+ "savedate": "2025-12-17",
+ "price": 107,
+ "salt": 39.31019328767434,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/iHmAus025k6iJP8vAWhhNg?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Academy Loremaster",
+   "quantity": 1
+  },
+  {
+   "name": "Aether Channeler",
+   "quantity": 1
+  },
+  {
+   "name": "Archive Dragon",
+   "quantity": 1
+  },
+  {
+   "name": "Augury Owl",
+   "quantity": 1
+  },
+  {
+   "name": "Automatic Librarian",
+   "quantity": 1
+  },
+  {
+   "name": "Barrin, Tolarian Archmage",
+   "quantity": 1
+  },
+  {
+   "name": "Biblioplex Assistant",
+   "quantity": 1
+  },
+  {
+   "name": "Biblioplex Kraken",
+   "quantity": 1
+  },
+  {
+   "name": "Bookwurm",
+   "quantity": 1
+  },
+  {
+   "name": "Campus Guide",
+   "quantity": 1
+  },
+  {
+   "name": "Cephalid Sage",
+   "quantity": 1
+  },
+  {
+   "name": "Dour Port-Mage",
+   "quantity": 1
+  },
+  {
+   "name": "Duggan, Private Detective",
+   "quantity": 1
+  },
+  {
+   "name": "Ethereal Investigator",
+   "quantity": 1
+  },
+  {
+   "name": "Fblthp, the Lost",
+   "quantity": 1
+  },
+  {
+   "name": "Guardian Naga",
+   "quantity": 1
+  },
+  {
+   "name": "Inspired Sphinx",
+   "quantity": 1
+  },
+  {
+   "name": "Leonin Relic-Warder",
+   "quantity": 1
+  },
+  {
+   "name": "Loran of the Third Path",
+   "quantity": 1
+  },
+  {
+   "name": "Lord of Change",
+   "quantity": 1
+  },
+  {
+   "name": "Merfolk Pupil",
+   "quantity": 1
+  },
+  {
+   "name": "Overwhelmed Apprentice",
+   "quantity": 1
+  },
+  {
+   "name": "Owl Familiar",
+   "quantity": 1
+  },
+  {
+   "name": "Priest of Ancient Lore",
+   "quantity": 1
+  },
+  {
+   "name": "Sage Owl",
+   "quantity": 1
+  },
+  {
+   "name": "Silverquill Lecturer",
+   "quantity": 1
+  },
+  {
+   "name": "Tenacious Tomeseeker",
+   "quantity": 1
+  },
+  {
+   "name": "Tome Raider",
+   "quantity": 1
+  },
+  {
+   "name": "Volo, Guide to Monsters",
+   "quantity": 1
+  },
+  {
+   "name": "Volo, Itinerant Scholar",
+   "quantity": 1
+  },
+  {
+   "name": "Bury in Books",
+   "quantity": 1
+  },
+  {
+   "name": "Catalog",
+   "quantity": 1
+  },
+  {
+   "name": "Curate",
+   "quantity": 1
+  },
+  {
+   "name": "Defend the Campus",
+   "quantity": 1
+  },
+  {
+   "name": "Disorder in the Court",
+   "quantity": 1
+  },
+  {
+   "name": "Expose to Daylight",
+   "quantity": 1
+  },
+  {
+   "name": "Frantic Search",
+   "quantity": 1
+  },
+  {
+   "name": "Muddle the Mixture",
+   "quantity": 1
+  },
+  {
+   "name": "Perplexing Test",
+   "quantity": 1
+  },
+  {
+   "name": "Quick Study",
+   "quantity": 1
+  },
+  {
+   "name": "Rescind",
+   "quantity": 1
+  },
+  {
+   "name": "Stroke of Genius",
+   "quantity": 1
+  },
+  {
+   "name": "Wrong Turn",
+   "quantity": 1
+  },
+  {
+   "name": "You Find the Villains' Lair",
+   "quantity": 1
+  },
+  {
+   "name": "Farseek",
+   "quantity": 1
+  },
+  {
+   "name": "Index",
+   "quantity": 1
+  },
+  {
+   "name": "Library of Lat-Nam",
+   "quantity": 1
+  },
+  {
+   "name": "Mass Diminish",
+   "quantity": 1
+  },
+  {
+   "name": "Portent of Calamity",
+   "quantity": 1
+  },
+  {
+   "name": "Everflowing Chalice",
+   "quantity": 1
+  },
+  {
+   "name": "Letter of Acceptance",
+   "quantity": 1
+  },
+  {
+   "name": "Patriar's Seal",
+   "quantity": 1
+  },
+  {
+   "name": "Portal of Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Sky Diamond",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Talisman of Curiosity",
+   "quantity": 1
+  },
+  {
+   "name": "Thought Vessel",
+   "quantity": 1
+  },
+  {
+   "name": "Wayfarer's Bauble",
+   "quantity": 1
+  },
+  {
+   "name": "Restricted Office // Lecture Hall",
+   "quantity": 1
+  },
+  {
+   "name": "Virtue of Knowledge",
+   "quantity": 1
+  },
+  {
+   "name": "Adarkar Wastes",
+   "quantity": 1
+  },
+  {
+   "name": "Brushland",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 9
+  },
+  {
+   "name": "Island",
+   "quantity": 10
+  },
+  {
+   "name": "Plains",
+   "quantity": 10
+  },
+  {
+   "name": "Spara's Headquarters",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Enlightenment",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Mystery",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Plenty",
+   "quantity": 1
+  },
+  {
+   "name": "Vivid Creek",
+   "quantity": 1
+  },
+  {
+   "name": "Vivid Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Vivid Meadow",
+   "quantity": 1
+  },
+  {
+   "name": "Yavimaya Coast",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

@@ -1,0 +1,77 @@
+{
+ "id": 20170880,
+ "bracket": 2,
+ "bracket_detail": 2,
+ "name": "Chulane Merfolk",
+ "updated_at": "2026-02-23T01:48:27.901822Z",
+ "cards": [
+  {
+   "name": "Emperor Mihail II",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Lord of Atlantis",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Floodpits Drowner",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Stonybrook Schoolmaster",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Wanderwine Prophets",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hakbal of the Surging Soul",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Svyelun of Sea and Sky",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1,
+   "categories": [
+    "Commander"
+   ],
+   "companion": false
+  }
+ ],
+ "summe_hauptdeck": 8,
+ "summe_gesamt": 8,
+ "_name_missing": 0,
+ "_deleted_entries": 0
+}

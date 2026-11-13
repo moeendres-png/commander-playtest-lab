@@ -1,0 +1,306 @@
+{
+ "urlhash": "3dfssrZG1U4QAvF33cb1mA",
+ "variante": "core",
+ "bracket": 2,
+ "savedate": "2025-01-02",
+ "price": 92,
+ "salt": 40.68125860020518,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/-KuOGLmogEuELLVmaJJiIw?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Academy Loremaster",
+   "quantity": 1
+  },
+  {
+   "name": "Bookwurm",
+   "quantity": 1
+  },
+  {
+   "name": "Fabled Hero",
+   "quantity": 1
+  },
+  {
+   "name": "Hakim, Loreweaver",
+   "quantity": 1
+  },
+  {
+   "name": "Heartwood Storyteller",
+   "quantity": 1
+  },
+  {
+   "name": "Inkwell Leviathan",
+   "quantity": 1
+  },
+  {
+   "name": "Keeper of Fables",
+   "quantity": 1
+  },
+  {
+   "name": "Kitsune Loreweaver",
+   "quantity": 1
+  },
+  {
+   "name": "Lagonna-Band Storyteller",
+   "quantity": 1
+  },
+  {
+   "name": "Living Lore",
+   "quantity": 1
+  },
+  {
+   "name": "Magus of the Library",
+   "quantity": 1
+  },
+  {
+   "name": "Master Skald",
+   "quantity": 1
+  },
+  {
+   "name": "Mild-Mannered Librarian",
+   "quantity": 1
+  },
+  {
+   "name": "Monastery Loremaster",
+   "quantity": 1
+  },
+  {
+   "name": "Norika Yamazaki, the Poet",
+   "quantity": 1
+  },
+  {
+   "name": "Priest of Ancient Lore",
+   "quantity": 1
+  },
+  {
+   "name": "Psemilla, Meletian Poet",
+   "quantity": 1
+  },
+  {
+   "name": "Sage of Ancient Lore",
+   "quantity": 1
+  },
+  {
+   "name": "Sage of Fables",
+   "quantity": 1
+  },
+  {
+   "name": "Sentinel of Lost Lore",
+   "quantity": 1
+  },
+  {
+   "name": "Shrewd Storyteller",
+   "quantity": 1
+  },
+  {
+   "name": "Sphinx of Forgotten Lore",
+   "quantity": 1
+  },
+  {
+   "name": "Story Seeker",
+   "quantity": 1
+  },
+  {
+   "name": "Suspicious Bookcase",
+   "quantity": 1
+  },
+  {
+   "name": "Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Tenacious Tomeseeker",
+   "quantity": 1
+  },
+  {
+   "name": "Tome Anima",
+   "quantity": 1
+  },
+  {
+   "name": "Tragic Poet",
+   "quantity": 1
+  },
+  {
+   "name": "Viridian Lorebearers",
+   "quantity": 1
+  },
+  {
+   "name": "Warchanter Skald",
+   "quantity": 1
+  },
+  {
+   "name": "Banish into Fable",
+   "quantity": 1
+  },
+  {
+   "name": "Bury in Books",
+   "quantity": 1
+  },
+  {
+   "name": "Into the Story",
+   "quantity": 1
+  },
+  {
+   "name": "Song of Inspiration",
+   "quantity": 1
+  },
+  {
+   "name": "Storyweave",
+   "quantity": 1
+  },
+  {
+   "name": "Tale's End",
+   "quantity": 1
+  },
+  {
+   "name": "Words of Wisdom",
+   "quantity": 1
+  },
+  {
+   "name": "Calming Verse",
+   "quantity": 1
+  },
+  {
+   "name": "Forgotten Lore",
+   "quantity": 1
+  },
+  {
+   "name": "Library of Lat-Nam",
+   "quantity": 1
+  },
+  {
+   "name": "Open into Wonder",
+   "quantity": 1
+  },
+  {
+   "name": "Pore Over the Pages",
+   "quantity": 1
+  },
+  {
+   "name": "Tales of the Ancestors",
+   "quantity": 1
+  },
+  {
+   "name": "Winged Words",
+   "quantity": 1
+  },
+  {
+   "name": "Write into Being",
+   "quantity": 1
+  },
+  {
+   "name": "Jalum Tome",
+   "quantity": 1
+  },
+  {
+   "name": "Jayemdae Tome",
+   "quantity": 1
+  },
+  {
+   "name": "Library of Leng",
+   "quantity": 1
+  },
+  {
+   "name": "Staff of the Storyteller",
+   "quantity": 1
+  },
+  {
+   "name": "Tome of Legends",
+   "quantity": 1
+  },
+  {
+   "name": "A Tale for the Ages",
+   "quantity": 1
+  },
+  {
+   "name": "Curiosity",
+   "quantity": 1
+  },
+  {
+   "name": "Fable of Wolf and Owl",
+   "quantity": 1
+  },
+  {
+   "name": "Forbidden Lore",
+   "quantity": 1
+  },
+  {
+   "name": "Gift of Immortality",
+   "quantity": 1
+  },
+  {
+   "name": "Hard Cover",
+   "quantity": 1
+  },
+  {
+   "name": "Haunted Library",
+   "quantity": 1
+  },
+  {
+   "name": "Historian's Wisdom",
+   "quantity": 1
+  },
+  {
+   "name": "Redemption Arc",
+   "quantity": 1
+  },
+  {
+   "name": "Rousing Read",
+   "quantity": 1
+  },
+  {
+   "name": "Story Circle",
+   "quantity": 1
+  },
+  {
+   "name": "Tale of Tinúviel",
+   "quantity": 1
+  },
+  {
+   "name": "Tales of Master Seshiro",
+   "quantity": 1
+  },
+  {
+   "name": "Tamiyo Meets the Story Circle",
+   "quantity": 1
+  },
+  {
+   "name": "The Tale of Tamiyo",
+   "quantity": 1
+  },
+  {
+   "name": "Tamiyo, Collector of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Fabled Passage",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 10
+  },
+  {
+   "name": "Island",
+   "quantity": 12
+  },
+  {
+   "name": "Meticulous Archive",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 9
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

@@ -7,9 +7,11 @@ from pathlib import Path
 
 from scripts.collect_topdeck_decks import (
     DEFAULT_107_COMMANDERS,
+    anonymize_player_labels,
     export_results,
     extract_cards_from_section,
     parse_decklist_text,
+    player_initials,
     process_tournaments,
     to_safe_slug,
 )
@@ -148,14 +150,76 @@ def test_process_tournaments_and_completeness(tmp_path: Path) -> None:
         assert rows[0]["section"] == "commander"
         assert rows[0]["card_name"] == "The Gitrog Monster"
         assert rows[1]["section"] == "main"
-        assert rows[0]["player"] == "Alice"
+        assert rows[0]["player"] == "A"
         assert rows[0]["wins"] == "3"
+        assert "top_cut" in rows[0]
+        assert "wins_bracket" in rows[0]
+        assert "losses_bracket" in rows[0]
 
     readme_file = out_dir / "README.md"
     assert readme_file.is_file()
     readme_text = readme_file.read_text(encoding="utf-8")
     assert "Data provided by TopDeck.gg (https://topdeck.gg)" in readme_text
     assert "The Gitrog Monster" in readme_text
+
+
+def test_player_initials() -> None:
+    assert player_initials("Moritz") == "M"
+    assert player_initials("Toni Romero") == "T R"
+    # First alphabetic character per token; "[INTIM]" contributes "I"
+    assert player_initials("Void of Emperor [INTIM]") == "V O E I"
+    # Tokens without any letter are skipped
+    assert player_initials("Team 2 Cool") == "T C"
+    assert player_initials("NatHall98") == "N"
+
+
+def test_anonymize_player_labels() -> None:
+    labels = anonymize_player_labels(
+        ["Max Mustermann", "Maria Muster", "Max Mustermann", "Moritz Meyer"]
+    )
+    # First-appearance order; repeats keep their label; collisions get suffixes
+    assert labels == {
+        "Max Mustermann": "M M",
+        "Maria Muster": "M M 2",
+        "Moritz Meyer": "M M 3",
+    }
+
+
+def test_export_anonymizes_players_with_collisions(tmp_path: Path) -> None:
+    def complete_deck(player: str) -> dict[str, object]:
+        return {
+            "name": player,
+            "leader": "The Gitrog Monster",
+            "wins": 3,
+            "draws": 0,
+            "losses": 1,
+            "deckObj": {
+                "Commanders": {"The Gitrog Monster": {"count": 1}},
+                "Mainboard": {f"Card {i}": {"count": 1} for i in range(1, 100)},
+            },
+        }
+
+    mock_tournaments = [
+        {
+            "TID": "tourney_anon",
+            "tournamentName": "Anon Cup",
+            "startDate": 1780000000,
+            "standings": [complete_deck("Ann Alpha"), complete_deck("Aaron Albers")],
+        }
+    ]
+    stats, decks = process_tournaments(mock_tournaments, DEFAULT_107_COMMANDERS)
+    out_dir = tmp_path / "topdeck_out"
+    export_results(stats, decks, out_dir, DEFAULT_107_COMMANDERS)
+
+    deck_file = out_dir / "topdeck_the_gitrog_monster_decks.csv"
+    text = deck_file.read_text(encoding="utf-8")
+    assert "Ann Alpha" not in text
+    assert "Aaron Albers" not in text
+    with deck_file.open("r", encoding="utf-8") as f:
+        rows = list(csv.DictReader(f))
+    assert len(rows) == 200
+    assert {r["player"] for r in rows[:100]} == {"A A"}
+    assert {r["player"] for r in rows[100:]} == {"A A 2"}
 
 
 def test_get_api_key(monkeypatch) -> None:

@@ -1,0 +1,286 @@
+{
+ "urlhash": "eNjcF3Pmxim7wjvtjwM7-g",
+ "variante": "core",
+ "bracket": 2,
+ "savedate": "2024-11-18",
+ "price": 146,
+ "salt": 50.67262887209654,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/l6kgKo3NrU2jjE1bLmcrDg?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Avacyn's Pilgrim",
+   "quantity": 1
+  },
+  {
+   "name": "Body of Knowledge",
+   "quantity": 1
+  },
+  {
+   "name": "Drelnoch",
+   "quantity": 1
+  },
+  {
+   "name": "Elven Warhounds",
+   "quantity": 1
+  },
+  {
+   "name": "Engulfing Slagwurm",
+   "quantity": 1
+  },
+  {
+   "name": "Goldenhide Ox",
+   "quantity": 1
+  },
+  {
+   "name": "Grasping Giant",
+   "quantity": 1
+  },
+  {
+   "name": "Noble Quarry",
+   "quantity": 1
+  },
+  {
+   "name": "Phytohydra",
+   "quantity": 1
+  },
+  {
+   "name": "Polyraptor",
+   "quantity": 1
+  },
+  {
+   "name": "Predator Ooze",
+   "quantity": 1
+  },
+  {
+   "name": "Ranging Raptors",
+   "quantity": 1
+  },
+  {
+   "name": "Ripjaw Raptor",
+   "quantity": 1
+  },
+  {
+   "name": "Sakura-Tribe Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Saprazzan Heir",
+   "quantity": 1
+  },
+  {
+   "name": "Satyr Piper",
+   "quantity": 1
+  },
+  {
+   "name": "Shinen of Life's Roar",
+   "quantity": 1
+  },
+  {
+   "name": "Sylvan Basilisk",
+   "quantity": 1
+  },
+  {
+   "name": "Tangle Asp",
+   "quantity": 1
+  },
+  {
+   "name": "Tempting Licid",
+   "quantity": 1
+  },
+  {
+   "name": "Tolarian Entrancer",
+   "quantity": 1
+  },
+  {
+   "name": "An Offer You Can't Refuse",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Denial",
+   "quantity": 1
+  },
+  {
+   "name": "Blacksmith's Skill",
+   "quantity": 1
+  },
+  {
+   "name": "Bloodscent",
+   "quantity": 1
+  },
+  {
+   "name": "Cancel",
+   "quantity": 1
+  },
+  {
+   "name": "Collective Resistance",
+   "quantity": 1
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1
+  },
+  {
+   "name": "Dawn Charm",
+   "quantity": 1
+  },
+  {
+   "name": "Divine Resilience",
+   "quantity": 1
+  },
+  {
+   "name": "Generous Gift",
+   "quantity": 1
+  },
+  {
+   "name": "Negate",
+   "quantity": 1
+  },
+  {
+   "name": "Path to Exile",
+   "quantity": 1
+  },
+  {
+   "name": "Sejiri Shelter",
+   "quantity": 1
+  },
+  {
+   "name": "Stroke of Midnight",
+   "quantity": 1
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1
+  },
+  {
+   "name": "Unbreakable Formation",
+   "quantity": 1
+  },
+  {
+   "name": "Alluring Scent",
+   "quantity": 1
+  },
+  {
+   "name": "Cultivate",
+   "quantity": 1
+  },
+  {
+   "name": "Explore",
+   "quantity": 1
+  },
+  {
+   "name": "Farseek",
+   "quantity": 1
+  },
+  {
+   "name": "Kodama's Reach",
+   "quantity": 1
+  },
+  {
+   "name": "Migration Path",
+   "quantity": 1
+  },
+  {
+   "name": "Nature's Lore",
+   "quantity": 1
+  },
+  {
+   "name": "Open the Armory",
+   "quantity": 1
+  },
+  {
+   "name": "Rampant Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Regrowth",
+   "quantity": 1
+  },
+  {
+   "name": "Revenge of the Hunted",
+   "quantity": 1
+  },
+  {
+   "name": "Roar of Challenge",
+   "quantity": 1
+  },
+  {
+   "name": "Skyshroud Claim",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Grappling Hook",
+   "quantity": 1
+  },
+  {
+   "name": "Infiltration Lens",
+   "quantity": 1
+  },
+  {
+   "name": "Nemesis Mask",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Asceticism",
+   "quantity": 1
+  },
+  {
+   "name": "Indrik Umbra",
+   "quantity": 1
+  },
+  {
+   "name": "Lure",
+   "quantity": 1
+  },
+  {
+   "name": "Reconnaissance",
+   "quantity": 1
+  },
+  {
+   "name": "Seton's Desire",
+   "quantity": 1
+  },
+  {
+   "name": "Utopia Sprawl",
+   "quantity": 1
+  },
+  {
+   "name": "Wild Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 21
+  },
+  {
+   "name": "Island",
+   "quantity": 6
+  },
+  {
+   "name": "Maze of Ith",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 9
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

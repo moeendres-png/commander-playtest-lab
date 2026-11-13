@@ -1,0 +1,382 @@
+{
+ "urlhash": "po8R39fSCORrHym3uem1JA",
+ "variante": "core",
+ "bracket": 2,
+ "savedate": "2025-05-10",
+ "price": 211,
+ "salt": 34.05597963323817,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/SSw-oHAW10uN34BbULRO0g?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Beanstalk Giant",
+   "quantity": 1
+  },
+  {
+   "name": "Brigid, Hero of Kinsbaile",
+   "quantity": 1
+  },
+  {
+   "name": "Chronicler of Heroes",
+   "quantity": 1
+  },
+  {
+   "name": "Coiling Oracle",
+   "quantity": 1
+  },
+  {
+   "name": "Durnan of the Yawning Portal",
+   "quantity": 1
+  },
+  {
+   "name": "Eternal Witness",
+   "quantity": 1
+  },
+  {
+   "name": "Fabled Hero",
+   "quantity": 1
+  },
+  {
+   "name": "Heroes' Bane",
+   "quantity": 1
+  },
+  {
+   "name": "Inspiring Bard",
+   "quantity": 1
+  },
+  {
+   "name": "Intrepid Hero",
+   "quantity": 1
+  },
+  {
+   "name": "Kytheon, Hero of Akros",
+   "quantity": 1
+  },
+  {
+   "name": "Lovestruck Beast",
+   "quantity": 1
+  },
+  {
+   "name": "Magus of the Balance",
+   "quantity": 1
+  },
+  {
+   "name": "Noble Hierarch",
+   "quantity": 1
+  },
+  {
+   "name": "Oak Street Innkeeper",
+   "quantity": 1
+  },
+  {
+   "name": "Prosperous Innkeeper",
+   "quantity": 1
+  },
+  {
+   "name": "Questing Beast",
+   "quantity": 1
+  },
+  {
+   "name": "Realm-Cloaked Giant",
+   "quantity": 1
+  },
+  {
+   "name": "Solemn Simulacrum",
+   "quantity": 1
+  },
+  {
+   "name": "Spellbook Vendor",
+   "quantity": 1
+  },
+  {
+   "name": "Sword Coast Serpent",
+   "quantity": 1
+  },
+  {
+   "name": "The Tarrasque",
+   "quantity": 1
+  },
+  {
+   "name": "Thrasios, Triton Hero",
+   "quantity": 1
+  },
+  {
+   "name": "Yisan, the Wanderer Bard",
+   "quantity": 1
+  },
+  {
+   "name": "Act of Heroism",
+   "quantity": 1
+  },
+  {
+   "name": "Banish into Fable",
+   "quantity": 1
+  },
+  {
+   "name": "Bury in Books",
+   "quantity": 1
+  },
+  {
+   "name": "Fact or Fiction",
+   "quantity": 1
+  },
+  {
+   "name": "Heroic Intervention",
+   "quantity": 1
+  },
+  {
+   "name": "Moment of Heroism",
+   "quantity": 1
+  },
+  {
+   "name": "Once Upon a Time",
+   "quantity": 1
+  },
+  {
+   "name": "You Find the Villains' Lair",
+   "quantity": 1
+  },
+  {
+   "name": "You Happen On a Glade",
+   "quantity": 1
+  },
+  {
+   "name": "You Hear Something on Watch",
+   "quantity": 1
+  },
+  {
+   "name": "You Look Upon the Tarrasque",
+   "quantity": 1
+  },
+  {
+   "name": "You're Ambushed on the Road",
+   "quantity": 1
+  },
+  {
+   "name": "You're Confronted by Robbers",
+   "quantity": 1
+  },
+  {
+   "name": "Your Temple Is Under Attack",
+   "quantity": 1
+  },
+  {
+   "name": "Epic Confrontation",
+   "quantity": 1
+  },
+  {
+   "name": "Explore",
+   "quantity": 1
+  },
+  {
+   "name": "Fork in the Road",
+   "quantity": 1
+  },
+  {
+   "name": "Library of Lat-Nam",
+   "quantity": 1
+  },
+  {
+   "name": "Venture Forth",
+   "quantity": 1
+  },
+  {
+   "name": "You Meet in a Tavern",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Chalice of Life",
+   "quantity": 1
+  },
+  {
+   "name": "Folio of Fancies",
+   "quantity": 1
+  },
+  {
+   "name": "Hero's Blade",
+   "quantity": 1
+  },
+  {
+   "name": "Hero's Heirloom",
+   "quantity": 1
+  },
+  {
+   "name": "Horn of Valhalla",
+   "quantity": 1
+  },
+  {
+   "name": "Illuminated Folio",
+   "quantity": 1
+  },
+  {
+   "name": "Midnight Clock",
+   "quantity": 1
+  },
+  {
+   "name": "Monster Manual",
+   "quantity": 1
+  },
+  {
+   "name": "Mystery Key",
+   "quantity": 1
+  },
+  {
+   "name": "Sarpadian Empires, Vol. VII",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "The Book of Exalted Deeds",
+   "quantity": 1
+  },
+  {
+   "name": "Wizard's Spellbook",
+   "quantity": 1
+  },
+  {
+   "name": "Fable of Wolf and Owl",
+   "quantity": 1
+  },
+  {
+   "name": "Folk Hero",
+   "quantity": 1
+  },
+  {
+   "name": "Journey to the Lost City",
+   "quantity": 1
+  },
+  {
+   "name": "Ajani, Mentor of Heroes",
+   "quantity": 1
+  },
+  {
+   "name": "Elspeth, Undaunted Hero",
+   "quantity": 1
+  },
+  {
+   "name": "Blighted Woodland",
+   "quantity": 1
+  },
+  {
+   "name": "Brokers Hideout",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Cave of the Frost Dragon",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Edgewall Inn",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Exotic Orchard",
+   "quantity": 1
+  },
+  {
+   "name": "Fabled Passage",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 7
+  },
+  {
+   "name": "Forge of Heroes",
+   "quantity": 1
+  },
+  {
+   "name": "Glacial Fortress",
+   "quantity": 1
+  },
+  {
+   "name": "Hall of Storm Giants",
+   "quantity": 1
+  },
+  {
+   "name": "Hinterland Harbor",
+   "quantity": 1
+  },
+  {
+   "name": "Homeward Path",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 2
+  },
+  {
+   "name": "Lair of the Hydra",
+   "quantity": 1
+  },
+  {
+   "name": "Myriad Landscape",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 3
+  },
+  {
+   "name": "Plaza of Heroes",
+   "quantity": 1
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Spara's Headquarters",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of the False God",
+   "quantity": 1
+  },
+  {
+   "name": "Treasure Vault",
+   "quantity": 1
+  },
+  {
+   "name": "War Room",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

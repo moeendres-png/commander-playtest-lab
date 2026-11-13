@@ -1,0 +1,338 @@
+{
+ "urlhash": "yDvGWHgRRnx6H72rEgcq9Q",
+ "variante": "exhibition",
+ "bracket": 1,
+ "savedate": "2026-02-27",
+ "price": 62,
+ "salt": 37.91713151661679,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/19725569?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Acrobatic Cheerleader",
+   "quantity": 1
+  },
+  {
+   "name": "Action News Crew",
+   "quantity": 1
+  },
+  {
+   "name": "City Pigeon",
+   "quantity": 1
+  },
+  {
+   "name": "Civic Gardener",
+   "quantity": 1
+  },
+  {
+   "name": "Cleanup Crew",
+   "quantity": 1
+  },
+  {
+   "name": "Daily Bugle Reporters",
+   "quantity": 1
+  },
+  {
+   "name": "Damage Control Crew",
+   "quantity": 1
+  },
+  {
+   "name": "Gallant Citizen",
+   "quantity": 1
+  },
+  {
+   "name": "Gathering Throng",
+   "quantity": 1
+  },
+  {
+   "name": "Guy in the Chair",
+   "quantity": 1
+  },
+  {
+   "name": "Impassioned Orator",
+   "quantity": 1
+  },
+  {
+   "name": "Inside Source",
+   "quantity": 1
+  },
+  {
+   "name": "Kindly Customer",
+   "quantity": 1
+  },
+  {
+   "name": "News Helicopter",
+   "quantity": 1
+  },
+  {
+   "name": "Professional Wrestler",
+   "quantity": 1
+  },
+  {
+   "name": "Raucous Audience",
+   "quantity": 1
+  },
+  {
+   "name": "Reluctant Role Model",
+   "quantity": 1
+  },
+  {
+   "name": "Selfless Police Captain",
+   "quantity": 1
+  },
+  {
+   "name": "Sharp-Eyed Rookie",
+   "quantity": 1
+  },
+  {
+   "name": "Shrewd Storyteller",
+   "quantity": 1
+  },
+  {
+   "name": "Supportive Parents",
+   "quantity": 1
+  },
+  {
+   "name": "Town Greeter",
+   "quantity": 1
+  },
+  {
+   "name": "Vengeful Townsfolk",
+   "quantity": 1
+  },
+  {
+   "name": "Endless Detour",
+   "quantity": 1
+  },
+  {
+   "name": "Grand Crescendo",
+   "quantity": 1
+  },
+  {
+   "name": "Luxurious Libation",
+   "quantity": 1
+  },
+  {
+   "name": "Slip Out the Back",
+   "quantity": 1
+  },
+  {
+   "name": "Warm Welcome",
+   "quantity": 1
+  },
+  {
+   "name": "Bring to Trial",
+   "quantity": 1
+  },
+  {
+   "name": "Cultivate",
+   "quantity": 1
+  },
+  {
+   "name": "Fork in the Road",
+   "quantity": 1
+  },
+  {
+   "name": "Gather the Townsfolk",
+   "quantity": 1
+  },
+  {
+   "name": "Icatian Town",
+   "quantity": 1
+  },
+  {
+   "name": "Take to the Streets",
+   "quantity": 1
+  },
+  {
+   "name": "Bagel and Schmear",
+   "quantity": 1
+  },
+  {
+   "name": "Baseball Bat",
+   "quantity": 1
+  },
+  {
+   "name": "Brass Knuckles",
+   "quantity": 1
+  },
+  {
+   "name": "Campfire",
+   "quantity": 1
+  },
+  {
+   "name": "Ceremonial Groundbreaker",
+   "quantity": 1
+  },
+  {
+   "name": "Citizen's Crowbar",
+   "quantity": 1
+  },
+  {
+   "name": "Expert-Level Safe",
+   "quantity": 1
+  },
+  {
+   "name": "Fishing Pole",
+   "quantity": 1
+  },
+  {
+   "name": "Hot Dog Cart",
+   "quantity": 1
+  },
+  {
+   "name": "Hot Soup",
+   "quantity": 1
+  },
+  {
+   "name": "Instant Ramen",
+   "quantity": 1
+  },
+  {
+   "name": "Keys to the House",
+   "quantity": 1
+  },
+  {
+   "name": "Passenger Ferry",
+   "quantity": 1
+  },
+  {
+   "name": "Scepter of Celebration",
+   "quantity": 1
+  },
+  {
+   "name": "Sharpened Pitchfork",
+   "quantity": 1
+  },
+  {
+   "name": "Subway Train",
+   "quantity": 1
+  },
+  {
+   "name": "Wrench",
+   "quantity": 1
+  },
+  {
+   "name": "Citizen's Arrest",
+   "quantity": 1
+  },
+  {
+   "name": "Friendly Neighborhood",
+   "quantity": 1
+  },
+  {
+   "name": "Greenhouse // Rickety Gazebo",
+   "quantity": 1
+  },
+  {
+   "name": "Honest Work",
+   "quantity": 1
+  },
+  {
+   "name": "Idolized",
+   "quantity": 1
+  },
+  {
+   "name": "Moldering Gym // Weight Room",
+   "quantity": 1
+  },
+  {
+   "name": "Rabble Rousing",
+   "quantity": 1
+  },
+  {
+   "name": "Rent Is Due",
+   "quantity": 1
+  },
+  {
+   "name": "Restricted Office // Lecture Hall",
+   "quantity": 1
+  },
+  {
+   "name": "Spider-Man No More",
+   "quantity": 1
+  },
+  {
+   "name": "Well Rested",
+   "quantity": 1
+  },
+  {
+   "name": "Witness Protection",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Daily Bugle Building",
+   "quantity": 1
+  },
+  {
+   "name": "Exotic Orchard",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 8
+  },
+  {
+   "name": "Island",
+   "quantity": 8
+  },
+  {
+   "name": "Path of Ancestry",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 7
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1
+  },
+  {
+   "name": "Suburban Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Sungrass Prairie",
+   "quantity": 1
+  },
+  {
+   "name": "Sunpetal Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Landscape",
+   "quantity": 1
+  },
+  {
+   "name": "University Campus",
+   "quantity": 1
+  },
+  {
+   "name": "Urban Retreat",
+   "quantity": 1
+  },
+  {
+   "name": "Vibrant Cityscape",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

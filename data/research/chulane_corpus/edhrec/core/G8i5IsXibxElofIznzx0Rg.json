@@ -1,0 +1,358 @@
+{
+ "urlhash": "G8i5IsXibxElofIznzx0Rg",
+ "variante": "core",
+ "bracket": 2,
+ "savedate": "2025-04-27",
+ "price": 98,
+ "salt": 34.54289324814454,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/8btUblIZOkO97pq9xJmwkw?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Alabaster Dragon",
+   "quantity": 1
+  },
+  {
+   "name": "Ardenvale Tactician",
+   "quantity": 1
+  },
+  {
+   "name": "Beanstalk Giant",
+   "quantity": 1
+  },
+  {
+   "name": "Curious Pair",
+   "quantity": 1
+  },
+  {
+   "name": "Dawnglade Regent",
+   "quantity": 1
+  },
+  {
+   "name": "Eccentric Apprentice",
+   "quantity": 1
+  },
+  {
+   "name": "Emeria Captain",
+   "quantity": 1
+  },
+  {
+   "name": "Faerie Guidemother",
+   "quantity": 1
+  },
+  {
+   "name": "Garenbrig Carver",
+   "quantity": 1
+  },
+  {
+   "name": "Giant Killer",
+   "quantity": 1
+  },
+  {
+   "name": "Gretchen Titchwillow",
+   "quantity": 1
+  },
+  {
+   "name": "Hama Pashar, Ruin Seeker",
+   "quantity": 1
+  },
+  {
+   "name": "Horizon Chimera",
+   "quantity": 1
+  },
+  {
+   "name": "Imoen, Mystic Trickster",
+   "quantity": 1
+  },
+  {
+   "name": "Keeper of Keys",
+   "quantity": 1
+  },
+  {
+   "name": "Mage's Attendant",
+   "quantity": 1
+  },
+  {
+   "name": "Maja, Bretagard Protector",
+   "quantity": 1
+  },
+  {
+   "name": "Master Thief",
+   "quantity": 1
+  },
+  {
+   "name": "Merfolk Secretkeeper",
+   "quantity": 1
+  },
+  {
+   "name": "Midnight Pathlighter",
+   "quantity": 1
+  },
+  {
+   "name": "Moonshae Pixie",
+   "quantity": 1
+  },
+  {
+   "name": "Nadaar, Selfless Paladin",
+   "quantity": 1
+  },
+  {
+   "name": "Oakhame Ranger",
+   "quantity": 1
+  },
+  {
+   "name": "Oji, the Exquisite Blade",
+   "quantity": 1
+  },
+  {
+   "name": "Pegasus Guardian",
+   "quantity": 1
+  },
+  {
+   "name": "Prosperous Innkeeper",
+   "quantity": 1
+  },
+  {
+   "name": "Queen of Ice",
+   "quantity": 1
+  },
+  {
+   "name": "Radiant Solar",
+   "quantity": 1
+  },
+  {
+   "name": "Rosethorn Acolyte",
+   "quantity": 1
+  },
+  {
+   "name": "Sanctifier en-Vec",
+   "quantity": 1
+  },
+  {
+   "name": "Shepherd of the Flock",
+   "quantity": 1
+  },
+  {
+   "name": "Silverflame Squire",
+   "quantity": 1
+  },
+  {
+   "name": "Spara's Adjudicators",
+   "quantity": 1
+  },
+  {
+   "name": "Squad Commander",
+   "quantity": 1
+  },
+  {
+   "name": "Tajuru Paragon",
+   "quantity": 1
+  },
+  {
+   "name": "Tireless Provisioner",
+   "quantity": 1
+  },
+  {
+   "name": "Trelasarra, Moon Dancer",
+   "quantity": 1
+  },
+  {
+   "name": "Unsettled Mariner",
+   "quantity": 1
+  },
+  {
+   "name": "Varis, Silverymoon Ranger",
+   "quantity": 1
+  },
+  {
+   "name": "Wandering Troubadour",
+   "quantity": 1
+  },
+  {
+   "name": "Congregation at Dawn",
+   "quantity": 1
+  },
+  {
+   "name": "Spoils of Adventure",
+   "quantity": 1
+  },
+  {
+   "name": "You Find the Villains' Lair",
+   "quantity": 1
+  },
+  {
+   "name": "You Happen On a Glade",
+   "quantity": 1
+  },
+  {
+   "name": "Adventure Awaits",
+   "quantity": 1
+  },
+  {
+   "name": "You Find a Cursed Idol",
+   "quantity": 1
+  },
+  {
+   "name": "You Meet in a Tavern",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Cluestone",
+   "quantity": 1
+  },
+  {
+   "name": "Dragon's Hoard",
+   "quantity": 1
+  },
+  {
+   "name": "Dungeon Map",
+   "quantity": 1
+  },
+  {
+   "name": "Dungeoneer's Pack",
+   "quantity": 1
+  },
+  {
+   "name": "Fifty Feet of Rope",
+   "quantity": 1
+  },
+  {
+   "name": "Library of Leng",
+   "quantity": 1
+  },
+  {
+   "name": "Lucky Clover",
+   "quantity": 1
+  },
+  {
+   "name": "Mazemind Tome",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Cluestone",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Cluestone",
+   "quantity": 1
+  },
+  {
+   "name": "Sisay's Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Treasure Map",
+   "quantity": 1
+  },
+  {
+   "name": "Dungeon Delver",
+   "quantity": 1
+  },
+  {
+   "name": "Jugan Defends the Temple",
+   "quantity": 1
+  },
+  {
+   "name": "Story Circle",
+   "quantity": 1
+  },
+  {
+   "name": "Thorough Investigation",
+   "quantity": 1
+  },
+  {
+   "name": "Ellywick Tumblestrum",
+   "quantity": 1
+  },
+  {
+   "name": "Blossoming Sands",
+   "quantity": 1
+  },
+  {
+   "name": "Cave of the Frost Dragon",
+   "quantity": 1
+  },
+  {
+   "name": "Dungeon Descent",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 6
+  },
+  {
+   "name": "Hall of Storm Giants",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 6
+  },
+  {
+   "name": "Lair of the Hydra",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 6
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Roadside Reliquary",
+   "quantity": 1
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Spara's Headquarters",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Enlightenment",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Mystery",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Plenty",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of the False God",
+   "quantity": 1
+  },
+  {
+   "name": "Terramorphic Expanse",
+   "quantity": 1
+  },
+  {
+   "name": "Thornwood Falls",
+   "quantity": 1
+  },
+  {
+   "name": "Throne of the High City",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

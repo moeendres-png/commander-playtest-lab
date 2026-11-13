@@ -1,12 +1,13 @@
 """One checked import: every importer in the right order for one commander.
 
-``import-all`` runs the existing importers (collection, public card facts, roles, deck
-lists, usage signals, marks) inside the commander scoping of ``StudioStore.importing_for``,
-skips each step that was not given (``NOT_PROVIDED``) and ends with the counts-only data
-report and a completeness table per data layer: rows, cards of the commander's legal pool
-covered, pool size, and the status COMPLETE, PARTIAL or MISSING. A layer with no row is
-MISSING, a layer that covers the whole pool is COMPLETE, anything between is PARTIAL.
-Nothing here reads a network; a figure that cannot be told is missing, never 0 covered.
+``import-all`` runs the existing importers (collection, public card facts, roles, rulings,
+deck lists, usage signals, marks) inside the commander scoping of
+``StudioStore.importing_for``, skips each step that was not given (``NOT_PROVIDED``) and
+ends with the counts-only data report and a completeness table per data layer: rows, cards
+of the commander's legal pool covered, pool size, and the status COMPLETE, PARTIAL or
+MISSING. A layer with no row is MISSING, a layer that covers the whole pool is COMPLETE,
+anything between is PARTIAL. Nothing here reads a network; a figure that cannot be told is
+missing, never 0 covered.
 """
 
 from __future__ import annotations
@@ -100,6 +101,14 @@ def default_signal_folders() -> list[Path]:
     ]
 
 
+def default_rulings_files() -> list[Path]:
+    """The curated rulings files of the collection package under ``data/research``."""
+    folder = _RESEARCH / "deckbuilder_1655"
+    if not folder.is_dir():
+        return []
+    return sorted(folder.glob("card_rulings_*.jsonl"))
+
+
 def _status(rows: int, covered: int, pool: int) -> str:
     if rows <= 0 or pool <= 0:
         return MISSING
@@ -166,24 +175,21 @@ def completeness(store: StudioStore, commander: str) -> tuple[int | None, list[L
         _count(store, "SELECT COUNT(*) FROM card_role"),
         sum(1 for card in cards if card["roles"]),
     )
-    binding = builder.corpus_binding(store, [commander])
-    bound = binding["bound_decks"]
-    ruled = {
+    with_rulings = {
         str(row[0])
-        for row in store.connection.execute("SELECT DISTINCT oracle_id FROM card_ruling")
-    }
-    ids = {
-        str(row[0]): str(row[1])
         for row in store.connection.execute(
-            "SELECT card_id, oracle_id FROM card_fact WHERE oracle_id IS NOT NULL"
+            "SELECT DISTINCT f.card_id FROM card_fact f "
+            "JOIN card_ruling r ON r.oracle_id = f.oracle_id"
         )
     }
     add(
         "rulings",
-        "Rulings (Karten ohne Eintrag: keine veröffentlicht)",
-        store.count("card_ruling"),
-        sum(1 for card in cards if ids.get(str(card["card_id"])) in ruled),
+        "Regeltexte (Rulings)",
+        _count(store, "SELECT COUNT(*) FROM card_ruling"),
+        sum(1 for card in cards if str(card["card_id"]) in with_rulings),
     )
+    binding = builder.corpus_binding(store, [commander])
+    bound = binding["bound_decks"]
     add(
         "decklists",
         "Quelldecks (Decklisten)",
@@ -259,11 +265,10 @@ def layer_overview(store: StudioStore, commander: str) -> dict[str, object]:
 
 
 def _steps(
-    args: argparse.Namespace, signal_folders: list[Path]
+    args: argparse.Namespace, signal_folders: list[Path], rulings_files: list[Path]
 ) -> list[tuple[str, bool, Callable[[StudioStore], object]]]:
     commander: str = args.commander
     tagger_roles: str | None = getattr(args, "tagger_roles", None)
-    ruling_files: list[str] | None = getattr(args, "rulings", None)
     force: bool = bool(getattr(args, "force", False))
     plan: list[tuple[str, bool, Callable[[StudioStore], object]]] = [
         (
@@ -282,16 +287,16 @@ def _steps(
             lambda store: roles.import_roles(store, args.roles),
         ),
         (
+            "Regeltexte",
+            bool(rulings_files),
+            lambda store: rulings.import_rulings(store, rulings_files),
+        ),
+        (
             "Tagger-Rollen",
             bool(tagger_roles),
             lambda store: research_import.import_tagger_roles(
                 store, str(tagger_roles), force=force
             ),
-        ),
-        (
-            "Rulings",
-            bool(ruling_files),
-            lambda store: rulings.import_rulings(store, ruling_files or []),
         ),
         (
             "Decklisten",
@@ -325,9 +330,13 @@ def run(args: argparse.Namespace, store: StudioStore) -> ImportAllResult:
         signal_folders = default_signal_folders()
     else:
         signal_folders = [Path(folder) for folder in args.signals]
+    if args.rulings is None:
+        rulings_files = default_rulings_files()
+    else:
+        rulings_files = [Path(file) for file in args.rulings]
     steps: list[StepResult] = []
     failed = False
-    for name, provided, action in _steps(args, signal_folders):
+    for name, provided, action in _steps(args, signal_folders, rulings_files):
         if not provided:
             steps.append({"step": name, "status": NOT_PROVIDED, "detail": ""})
             continue
@@ -338,12 +347,11 @@ def run(args: argparse.Namespace, store: StudioStore) -> ImportAllResult:
             with store.importing_for(commander):
                 result = action(store)
             outcome = result.get("status") if isinstance(result, dict) else None
+            message = str(result.get("message", "")) if isinstance(result, dict) else ""
             if outcome == "NO_ROWS":
-                message = str(result.get("message", "")) if isinstance(result, dict) else ""
                 steps.append({"step": name, "status": FAILED, "detail": message})
                 failed = True
             elif outcome == "WARNUNG":
-                message = str(result.get("message", "")) if isinstance(result, dict) else ""
                 steps.append({"step": name, "status": WARNING, "detail": message})
             else:
                 steps.append({"step": name, "status": IMPORTED, "detail": _summary(result)})
@@ -358,9 +366,8 @@ def run(args: argparse.Namespace, store: StudioStore) -> ImportAllResult:
         except Exception as error:
             # Any failure of a step (a cut .gz, a file that is not a workbook ...) is reported
             # with its type and message, never as a traceback without the table.
-            steps.append(
-                {"step": name, "status": FAILED, "detail": f"{type(error).__name__}: {error}"}
-            )
+            text = f"{type(error).__name__}: {error}"
+            steps.append({"step": name, "status": FAILED, "detail": text})
             failed = True
     size, layers = completeness(store, commander)
     expected = args.expect_pool

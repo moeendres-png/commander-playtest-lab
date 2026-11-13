@@ -37,25 +37,18 @@ def _run(tmp_path: Path, files: dict[str, Path], *extra: str) -> int:
     )  # fmt: skip
 
 
-def test_tagger_roles_and_rulings_are_steps_and_layers(
+def test_tagger_roles_are_a_step_and_fill_the_roles_layer(
     tmp_path: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
     files = _files(tmp_path)
     tagger = _tagger(
         tmp_path / "bulk.csv", [("oracle-filler-03", "ramp"), ("oracle-forest", "anthem")]
     )
-    ruling = tmp_path / "rulings.jsonl"
-    ruling.write_text(
-        json.dumps({"oracle_id": "oracle-filler-03", "source": "wotc",
-                    "published_at": "2020-01-01", "comment": "A ruling."}) + "\n",
-        encoding="utf-8",
-    )  # fmt: skip
-    code = _run(tmp_path, files, "--tagger-roles", str(tagger), "--rulings", str(ruling))
+    code = _run(tmp_path, files, "--tagger-roles", str(tagger))
     out = capsys.readouterr().out
     assert code == 0, out
     layers = _layers(out)
     assert layers["Rollen"] == "PARTIAL"
-    assert layers["Rulings (Karten ohne Eintrag: keine veröffentlicht)"] == "PARTIAL"
     assert "Tagger-Rollen" in out
 
 

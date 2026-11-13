@@ -1,0 +1,45 @@
+{
+ "id": 28097373,
+ "bracket": 4,
+ "bracket_detail": 4,
+ "name": "extra turn tribal",
+ "updated_at": "2026-11-04T20:21:34.565495Z",
+ "cards": [
+  {
+   "name": "Wanderwine Prophets",
+   "quantity": 1,
+   "categories": [
+    "Finisher"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Adrix and Nev, Twincasters",
+   "quantity": 1,
+   "categories": [
+    "Tokens"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1,
+   "categories": [
+    "Commander"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Alandra, Sky Dreamer",
+   "quantity": 1,
+   "categories": [
+    "Tokens"
+   ],
+   "companion": false
+  }
+ ],
+ "summe_hauptdeck": 4,
+ "summe_gesamt": 4,
+ "_name_missing": 0,
+ "_deleted_entries": 0
+}

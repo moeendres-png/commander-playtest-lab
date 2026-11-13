@@ -1,0 +1,2619 @@
+{
+ "id": 20408237,
+ "bracket": 2,
+ "bracket_detail": 2,
+ "name": "WU Genku Bouncy Stuff",
+ "updated_at": "2026-11-08T20:40:55.446255Z",
+ "cards": [
+  {
+   "name": "Call to Heel",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mirrorform",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Scouting Hawk",
+   "quantity": 1,
+   "categories": [
+    "Catch Up Ramp",
+    "Creature",
+    "ETB"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Emeria Angel",
+   "quantity": 1,
+   "categories": [
+    "Token Generator",
+    "Landfall",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Wonderscape Sage",
+   "quantity": 1,
+   "categories": [
+    "Bounce Land",
+    "Creature",
+    "Advantage"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Opposition",
+   "quantity": 1,
+   "categories": [
+    "Interaction",
+    "Enchantment",
+    "Token Payoff"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mu Yanling, Wind Rider",
+   "quantity": 1,
+   "categories": [
+    "Advantage",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Spell Pierce",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Interaction",
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Soldier",
+   "quantity": 1,
+   "categories": [
+    "Tokens & Extras"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Spider-UK",
+   "quantity": 1,
+   "categories": [
+    "Bounce Creature",
+    "Creature",
+    "Advantage",
+    "Token Payoff"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Restricted Office // Lecture Hall",
+   "quantity": 1,
+   "categories": [
+    "Interaction",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Terrain Generator",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Aesi, Tyrant of Gyre Strait",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creature",
+    "Advantage",
+    "Additional Land Drops"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Simic Growth Chamber",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Budoka Gardener // Dokai, Weaver of Life",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creature",
+    "Additional Land Drops",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Manabond",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Additional Land Drops",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Llanowar Scout",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creature",
+    "Additional Land Drops",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "On the Trail",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Additional Land Drops",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Azusa, Lost but Seeking",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creature",
+    "Additional Land Drops"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creature",
+    "Advantage",
+    "Landfall"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Forest",
+   "quantity": 6,
+   "categories": [
+    "Maybeboard",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Yavimaya Coast",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fortified Village",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Windswept Heath",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Brushland",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Razorverge Thicket",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sunpetal Grove",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Flooded Grove",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Rain-Slicked Copse",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Zimone, Quandrix Prodigy",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creature",
+    "Advantage",
+    "Additional Land Drops"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Multani, Yavimaya's Avatar",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Scaled Herbalist",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Additional Land Drops",
+    "Creature",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Space Marine Scout",
+   "quantity": 1,
+   "categories": [
+    "Catch Up Ramp",
+    "Additional Land Drops",
+    "Creature",
+    "ETB"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Junk Winder",
+   "quantity": 1,
+   "categories": [
+    "Interaction",
+    "Token Payoff",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Cloud Cover",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Bounce Permanent",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Momo, Playful Pet",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Bounce Payoff",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Aerial Surveyor",
+   "quantity": 1,
+   "categories": [
+    "Catch Up Ramp",
+    "Additional Land Drops",
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Boreas Charger",
+   "quantity": 1,
+   "categories": [
+    "Catch Up Ramp",
+    "Additional Land Drops",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Claim Jumper",
+   "quantity": 1,
+   "categories": [
+    "Catch Up Ramp",
+    "Additional Land Drops",
+    "Creature",
+    "ETB"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Keeper of the Accord",
+   "quantity": 1,
+   "categories": [
+    "Catch Up Ramp",
+    "Additional Land Drops",
+    "Creature",
+    "Token Generator"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Loyal Warhound",
+   "quantity": 1,
+   "categories": [
+    "Catch Up Ramp",
+    "ETB",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "City Pigeon",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Bounce Payoff",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Don & Leo, Problem Solvers",
+   "quantity": 1,
+   "categories": [
+    "Blink",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Dour Port-Mage",
+   "quantity": 1,
+   "categories": [
+    "Advantage",
+    "Bounce Payoff",
+    "Creature",
+    "Bounce Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Dream Stalker",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Creature",
+    "Bounce Permanent",
+    "ETB"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hedron Crab",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Kor Skyfisher",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Creature",
+    "Bounce Permanent",
+    "ETB"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Reveillark",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Bounce Payoff",
+    "Creature",
+    "Recursion"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Starfield Vocalist",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Creature",
+    "ETB"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Perplexing Test",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Instant",
+    "Interaction",
+    "Bounce Permanent",
+    "Token Payoff"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Arid Archway",
+   "quantity": 1,
+   "categories": [
+    "Land",
+    "Bounce Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Coral Atoll",
+   "quantity": 1,
+   "categories": [
+    "Land",
+    "Bounce Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Time Wipe",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Interaction",
+    "Bounce Creature",
+    "Sorcery"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Crisis of Conscience",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Interaction",
+    "Token Payoff",
+    "Sorcery"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Shrieking Drake",
+   "quantity": 1,
+   "categories": [
+    "Bounce Creature",
+    "Creature",
+    "ETB"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Meloku the Clouded Mirror",
+   "quantity": 1,
+   "categories": [
+    "Bounce Land",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Trove Warden",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Featherbrained Filcher",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Bounce Payoff",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Plagon, Lord of the Beach",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Geistwave",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Instant",
+    "Bounce Creature",
+    "Advantage"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Idyllic Beachfront",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Promise of Tomorrow",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Enchantment",
+    "Recursion"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Exploration Broodship",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Additional Land Drops",
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Cat Bird",
+   "quantity": 1,
+   "categories": [
+    "Tokens & Extras"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Cat Beast",
+   "quantity": 1,
+   "categories": [
+    "Tokens & Extras"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Angel",
+   "quantity": 1,
+   "categories": [
+    "Tokens & Extras"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Rat",
+   "quantity": 1,
+   "categories": [
+    "Tokens & Extras"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Moonfolk",
+   "quantity": 1,
+   "categories": [
+    "Tokens & Extras"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Canyon Jerboa",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Creature",
+    "Landfall"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ennis, Debate Moderator",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Creature",
+    "Blink"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Flood of Tears",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Interaction",
+    "Sorcery"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Flickerwisp",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Creature",
+    "ETB",
+    "Blink"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Faces of the Past",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Azorius Aethermage",
+   "quantity": 1,
+   "categories": [
+    "Advantage",
+    "Bounce Payoff",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Aang, Airbending Master",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Bounce Payoff",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Requisition Raid",
+   "quantity": 1,
+   "categories": [
+    "Interaction",
+    "Sorcery",
+    "Token Payoff"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mass Polymorph",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Token Payoff",
+    "Sorcery",
+    "Advantage"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Cryogen Relic",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Bounce Payoff",
+    "Advantage",
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Disappearing Act",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Instant",
+    "Interaction",
+    "Bounce Permanent"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Karn's Temporal Sundering",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Additional Land Drops",
+    "Sorcery"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Archaeomancer's Map",
+   "quantity": 1,
+   "categories": [
+    "Catch Up Ramp",
+    "Additional Land Drops",
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Guildless Commons",
+   "quantity": 1,
+   "categories": [
+    "Land",
+    "Bounce Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Jungle Basin",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Selesnya Sanctuary",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Murasa Rootgrazer",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creature",
+    "Additional Land Drops",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ovinomancer",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Creature",
+    "Bounce Land",
+    "Interaction"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Wildfield Borderpost",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Bounce Land",
+    "Artifact",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Court of Bounty",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Additional Land Drops",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Elvish Pioneer",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Additional Land Drops",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Arboreal Grazer",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Additional Land Drops",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sakura-Tribe Scout",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creature",
+    "Additional Land Drops",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Prismatic Undercurrents",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Additional Land Drops",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Burgeoning",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Additional Land Drops",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Dryad of the Ilysian Grove",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creature",
+    "Additional Land Drops"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Exploration",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Additional Land Drops",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ice-Fang Coatl",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creature",
+    "Snow Permanent",
+    "Advantage",
+    "Snow Payoff"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Frost Augur",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Snow Payoff",
+    "Creature",
+    "Advantage"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Case of the Locked Hothouse",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Additional Land Drops",
+    "Enchantment",
+    "Advantage"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Rimewind Taskmage",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Interaction",
+    "Creature",
+    "Snow Payoff"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Iceberg Cancrix",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Mill",
+    "Creature",
+    "Snow Payoff"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ohran Frostfang",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Snow Permanent",
+    "Creature",
+    "Advantage"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Soratami Cloudskater",
+   "quantity": 1,
+   "categories": [
+    "Bounce Land",
+    "Creature",
+    "Advantage"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Into the North",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Additional Land Drops",
+    "Sorcery",
+    "Ramp",
+    "Snow Payoff"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Spelunking",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Additional Land Drops",
+    "Enchantment",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Morska, Undersea Sleuth",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Training Grounds",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Enchantment",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Biomancer's Familiar",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Ramp",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Loot, Exuberant Explorer",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creature",
+    "Additional Land Drops"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Isu the Abominable",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Commander",
+    "Creature",
+    "Snow Permanent",
+    "Snow Payoff"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Glacier Godmaw",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Landfall",
+    "Creature",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tragic Lesson",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Instant",
+    "Bounce Land",
+    "Advantage"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Curse of the Swine",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Interaction",
+    "Sorcery"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Glacial Floodplain",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Weathered Wayfarer",
+   "quantity": 1,
+   "categories": [
+    "Catch Up Ramp",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Scaretiller",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Creature",
+    "Additional Land Drops"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creature",
+    "Advantage",
+    "Additional Land Drops",
+    "Ramp",
+    "Commander"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Horn of Greed",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ruin Crab",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Creature",
+    "Landfall",
+    "Mill"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Soramaro, First to Dream",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Creature",
+    "Bounce Land",
+    "Advantage"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Guardian of Tazeem",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Creature",
+    "Landfall"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sunstar Expansionist",
+   "quantity": 1,
+   "categories": [
+    "Catch Up Ramp",
+    "ETB",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ambrosia Whiteheart",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Creature",
+    "Bounce Permanent",
+    "ETB",
+    "Landfall"
+   ],
+   "companion": false
+  },
+  {
+   "name": "The Enigma Jewel // Locus of Enlightenment",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Artifact",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ghost Town",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ensnare",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Instant",
+    "Bounce Land",
+    "Interaction"
+   ],
+   "companion": false
+  },
+  {
+   "name": "This Town Ain't Big Enough",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Instant",
+    "Interaction",
+    "Bounce Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Starfield Shepherd",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Creature",
+    "ETB",
+    "Tutor"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Land Equilibrium",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Alora, Merry Thief",
+   "quantity": 1,
+   "categories": [
+    "Bounce Creature",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Biblioplex Kraken",
+   "quantity": 1,
+   "categories": [
+    "Bounce Creature",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Cunning Evasion",
+   "quantity": 1,
+   "categories": [
+    "Bounce Creature",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Meticulous Archive",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Trusted Advisor",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Creature",
+    "Bounce Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sunken Hope",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Interaction",
+    "Enchantment",
+    "Bounce Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Vedalken Mastermind",
+   "quantity": 1,
+   "categories": [
+    "Bounce Permanent",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Umbilicus",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Interaction",
+    "Bounce Permanent",
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Essence Reliquary",
+   "quantity": 1,
+   "categories": [
+    "Bounce Permanent",
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Nesting Dovehawk",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Odric, Lunarch Marshal",
+   "quantity": 1,
+   "categories": [
+    "Token Payoff",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Skycat Sovereign",
+   "quantity": 1,
+   "categories": [
+    "Token Payoff",
+    "Creature",
+    "Token Generator"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tide Skimmer",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Creature",
+    "Token Payoff",
+    "Advantage"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Jeweled Amulet",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fountain of Youth",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Lodestone Bauble",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Barrin, Tolarian Archmage",
+   "quantity": 1,
+   "categories": [
+    "Advantage",
+    "Bounce Payoff",
+    "Creature",
+    "Bounce Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Spider-Sense",
+   "quantity": 1,
+   "categories": [
+    "Interaction",
+    "Instant",
+    "Bounce Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Duty Beyond Death",
+   "quantity": 1,
+   "categories": [
+    "Protection",
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Keep Watch",
+   "quantity": 1,
+   "categories": [
+    "Advantage",
+    "Instant",
+    "Token Payoff"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Uyo, Silent Prophet",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Creature",
+    "Bounce Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Patron of the Moon",
+   "quantity": 1,
+   "categories": [
+    "Additional Land Drops",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Phelia, Exuberant Shepherd",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Creature",
+    "Interaction",
+    "Blink"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Lulu, Loyal Hollyphant",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Cartographer's Hawk",
+   "quantity": 1,
+   "categories": [
+    "Catch Up Ramp",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Surveyor's Scope",
+   "quantity": 1,
+   "categories": [
+    "Catch Up Ramp",
+    "Additional Land Drops",
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Oreskos Explorer",
+   "quantity": 1,
+   "categories": [
+    "Catch Up Ramp",
+    "Creature",
+    "ETB"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Discerning Financier",
+   "quantity": 1,
+   "categories": [
+    "Catch Up Ramp",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Knight of the White Orchid",
+   "quantity": 1,
+   "categories": [
+    "Catch Up Ramp",
+    "Additional Land Drops",
+    "Creature",
+    "ETB"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Rescue Girl, First Responder",
+   "quantity": 1,
+   "categories": [
+    "Bounce Permanent",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Oboro Breezecaller",
+   "quantity": 1,
+   "categories": [
+    "Sideboard",
+    "Bounce Land",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Bird",
+   "quantity": 1,
+   "categories": [
+    "Tokens & Extras"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Clue",
+   "quantity": 1,
+   "categories": [
+    "Tokens & Extras"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fox",
+   "quantity": 1,
+   "categories": [
+    "Tokens & Extras"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Illusion",
+   "quantity": 1,
+   "categories": [
+    "Tokens & Extras"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Lander",
+   "quantity": 1,
+   "categories": [
+    "Tokens & Extras"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Cloudstone Curio",
+   "quantity": 1,
+   "categories": [
+    "Bounce Permanent",
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Trade Routes",
+   "quantity": 1,
+   "categories": [
+    "Bounce Land",
+    "Enchantment",
+    "Advantage"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Treasure",
+   "quantity": 1,
+   "categories": [
+    "Tokens & Extras"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Vehicle",
+   "quantity": 1,
+   "categories": [
+    "Tokens & Extras"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Karoo",
+   "quantity": 1,
+   "categories": [
+    "Land",
+    "Bounce Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sally Sparrow",
+   "quantity": 1,
+   "categories": [
+    "Sideboard",
+    "Advantage",
+    "Bounce Payoff",
+    "Creature",
+    "Token Payoff"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Portal of Sanctuary",
+   "quantity": 1,
+   "categories": [
+    "Bounce Creature",
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Flooded Shoreline",
+   "quantity": 1,
+   "categories": [
+    "Bounce Land",
+    "Enchantment",
+    "Interaction"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Curiosity Crafter",
+   "quantity": 1,
+   "categories": [
+    "Advantage",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tameshi, Reality Architect",
+   "quantity": 1,
+   "categories": [
+    "Advantage",
+    "Bounce Payoff",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Soratami Rainshaper",
+   "quantity": 1,
+   "categories": [
+    "Bounce Land",
+    "Creature",
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Soratami Savant",
+   "quantity": 1,
+   "categories": [
+    "Bounce Land",
+    "Creature",
+    "Interaction"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Isolated Watchtower",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Irrigated Farmland",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Grappling Kraken",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Landfall",
+    "Creature",
+    "Interaction"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Divine Visitation",
+   "quantity": 1,
+   "categories": [
+    "Token Payoff",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sephara, Sky's Blade",
+   "quantity": 1,
+   "categories": [
+    "Token Payoff",
+    "Protection",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Priest of the Blessed Graf",
+   "quantity": 1,
+   "categories": [
+    "Token Generator",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Toothy, Imaginary Friend",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Plains",
+   "quantity": 15,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Island",
+   "quantity": 10,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Lotus Field",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mister Fantastic, Reed Richards",
+   "quantity": 1,
+   "categories": [
+    "Advantage",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Moonbow Illusionist",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Creature",
+    "Bounce Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Soratami Mindsweeper",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Creature",
+    "Bounce Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Soratami Mirror-Guard",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Creature",
+    "Bounce Land",
+    "Interaction"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Soratami Mirror-Mage",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Creature",
+    "Bounce Land",
+    "Interaction"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Soratami Seer",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Creature",
+    "Bounce Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Daze",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Instant",
+    "Bounce Land",
+    "Interaction"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Deprive",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Instant",
+    "Bounce Land",
+    "Interaction"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Gush",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Instant",
+    "Bounce Land",
+    "Advantage"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Icebreaker Kraken",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Creature",
+    "Bounce Land",
+    "Interaction"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mana Breach",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Bounce Land",
+    "Interaction",
+    "Enchantment",
+    "Stax"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Overburden",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Bounce Land",
+    "Interaction",
+    "Enchantment",
+    "Stax"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Trench Behemoth",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Creature",
+    "Bounce Land",
+    "Interaction"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Aviary Mechanic",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Creature",
+    "Bounce Permanent",
+    "ETB"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fear of Isolation",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Creature",
+    "Bounce Permanent"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Marit Lage's Slumber",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Enchantment",
+    "Advantage",
+    "Snow Permanent",
+    "Snow Payoff"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tiller Engine",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Creature",
+    "Interaction",
+    "Landfall"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Suki, Courageous Rescuer",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Bounce Payoff",
+    "Creature",
+    "Token Generator"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Terramorphic Expanse",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "No More Lies",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Instant",
+    "Interaction"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Angelic Sleuth",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Aether Channeler",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Creature",
+    "Bounce Creature",
+    "ETB"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Charming Prince",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Creature",
+    "ETB",
+    "Blink"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Verge Rangers",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Creature",
+    "Additional Land Drops"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Felidar Guardian",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Creature",
+    "ETB",
+    "Blink"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Emrakul's Messenger",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Parallax Tide",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Bounce Land",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Splinter, Aging Champion",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Bounce Payoff",
+    "Creature",
+    "Interaction",
+    "ETB"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Twilight Drover",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Bounce Payoff",
+    "Creature",
+    "Token Payoff"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Land Tax",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Enchantment",
+    "Catch Up Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Retreat to Emeria",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Token Generator",
+    "Enchantment",
+    "Landfall"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Snap",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Instant",
+    "Bounce Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Run Away Together",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Instant",
+    "Interaction",
+    "Bounce Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Retreat to Coralhelm",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Caretaker's Talent",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Enchantment",
+    "Token Payoff",
+    "Advantage"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tideforce Elemental",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Realmbreaker, the Invasion Tree",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Meticulous Excavation",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Bounce Permanent",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Prehistoric Pet",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Creature",
+    "Bounce Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Saving Grasp",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Instant",
+    "Bounce Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Words of Wind",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Interaction",
+    "Bounce Permanent",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Securitron Squadron",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Creature",
+    "Token Payoff"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Pride of the Clouds",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Creature",
+    "Token Payoff"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Siani, Eye of the Storm",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Creature",
+    "Token Payoff",
+    "Advantage"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Darksteel Relic",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Paradise Mantle",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Crucible of Worlds",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Abdel Adrian, Gorion's Ward",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Niko, Light of Hope",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Creature",
+    "Blink"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Another Round",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sideboard",
+    "Sorcery"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Admonition Angel",
+   "quantity": 1,
+   "categories": [
+    "Interaction",
+    "Landfall",
+    "Creature",
+    "Bounce Permanent",
+    "Creature Bounce"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Cosima, God of the Voyage // The Omenkeel",
+   "quantity": 1,
+   "categories": [
+    "Advantage",
+    "Landfall",
+    "Creature",
+    "Blink"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Roil Cartographer",
+   "quantity": 1,
+   "categories": [
+    "Advantage",
+    "Landfall",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Felidar Retreat",
+   "quantity": 1,
+   "categories": [
+    "Token Payoff",
+    "Landfall",
+    "Enchantment",
+    "Token Generator"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Vulture, Feathered Fiend",
+   "quantity": 1,
+   "categories": [
+    "Advantage",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Genku, Future Shaper",
+   "quantity": 1,
+   "categories": [
+    "Commander",
+    "Token Generator"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Kefnet the Mindful",
+   "quantity": 1,
+   "categories": [
+    "Sideboard",
+    "Bounce Land",
+    "Creature",
+    "Advantage"
+   ],
+   "companion": false
+  },
+  {
+   "name": "An Unexpected Party // At the Door",
+   "quantity": 1,
+   "categories": [
+    "Sideboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "The Lord of the Eagles",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "The Eagles Are Coming!",
+   "quantity": 1,
+   "categories": [
+    "Sideboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Scotty, Miracle Worker",
+   "quantity": 1,
+   "categories": [
+    "Sideboard",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Miles O'Brien, Transporter Ops",
+   "quantity": 1,
+   "categories": [
+    "Sideboard",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fortune, Loyal Steed",
+   "quantity": 1,
+   "categories": [
+    "Blink",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Floodbringer",
+   "quantity": 1,
+   "categories": [
+    "Bounce Land",
+    "Creature"
+   ],
+   "companion": false
+  }
+ ],
+ "summe_hauptdeck": 100,
+ "summe_gesamt": 282,
+ "_name_missing": 0,
+ "_deleted_entries": 0
+}

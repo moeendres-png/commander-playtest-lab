@@ -1,0 +1,1072 @@
+{
+ "id": 14334533,
+ "bracket": 4,
+ "bracket_detail": 4,
+ "name": "Allies of House Targaryen",
+ "updated_at": "2026-08-03T15:06:19.659799Z",
+ "cards": [
+  {
+   "name": "The Eternity Elevator",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Artifacts (Mana)"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Command Beacon",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1,
+   "categories": [
+    "Artifacts (Mana)"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Seedborn Muse",
+   "quantity": 1,
+   "categories": [
+    "Creatures (Support)",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Decanter of Endless Water",
+   "quantity": 1,
+   "categories": [
+    "Artifacts (Mana)"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Yavimaya, Cradle of Growth",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Valor",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creatures (Graveyard Bound)",
+    "Anthem"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sigarda, Host of Herons",
+   "quantity": 1,
+   "categories": [
+    "Creatures (Support)",
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Arbor Adherent",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creatures (Ramp)",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Shadowspear",
+   "quantity": 1,
+   "categories": [
+    "Artifacts (Utility)",
+    "Lifegain",
+    "Hexproof/Shroud Remover"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Lightning Greaves",
+   "quantity": 1,
+   "categories": [
+    "Artifacts (Utility)",
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Swiftfoot Boots",
+   "quantity": 1,
+   "categories": [
+    "Artifacts (Utility)",
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Greater Good",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Enchantments",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Asceticism",
+   "quantity": 1,
+   "categories": [
+    "Enchantments",
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Elspeth, Storm Slayer",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Planeswalkers",
+    "Tokens",
+    "Counters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Terramorphic Expanse",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Lands (Fetch)"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Lands (Fetch)"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Brokers Hideout",
+   "quantity": 1,
+   "categories": [
+    "Lands (Fetch)"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Aura Shards",
+   "quantity": 1,
+   "categories": [
+    "Enchantments",
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Chimil, the Inner Sun",
+   "quantity": 1,
+   "categories": [
+    "Artifacts (Utility)",
+    "Draw",
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Scute Swarm",
+   "quantity": 1,
+   "categories": [
+    "Creatures (Landfall)"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Rampaging Baloths",
+   "quantity": 1,
+   "categories": [
+    "Creatures (Landfall)"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Plains",
+   "quantity": 5,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Emeria Angel",
+   "quantity": 1,
+   "categories": [
+    "Creatures (Landfall)",
+    "Landfall"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Maja, Bretagard Protector",
+   "quantity": 1,
+   "categories": [
+    "Creatures (Landfall)",
+    "Tokens",
+    "Anthem"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1,
+   "categories": [
+    "Creatures (Landfall)",
+    "Draw",
+    "Landfall"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Field of the Dead",
+   "quantity": 1,
+   "categories": [
+    "Land",
+    "Landfall"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Emeria Shepherd",
+   "quantity": 1,
+   "categories": [
+    "Creatures (Landfall)",
+    "Recursion",
+    "Landfall"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Greensleeves, Maro-Sorcerer",
+   "quantity": 1,
+   "categories": [
+    "Creatures (Landfall)",
+    "Landfall"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Oracle of Mul Daya",
+   "quantity": 1,
+   "categories": [
+    "Creatures (Ramp)",
+    "Creatures (Support)",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1,
+   "categories": [
+    "Instants",
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Karn's Bastion",
+   "quantity": 1,
+   "categories": [
+    "Land",
+    "Counters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Aesi, Tyrant of Gyre Strait",
+   "quantity": 1,
+   "categories": [
+    "Creatures (Landfall)",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Elfsworn Giant",
+   "quantity": 1,
+   "categories": [
+    "Creatures (Landfall)",
+    "Tokens",
+    "Landfall"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Gavony Township",
+   "quantity": 1,
+   "categories": [
+    "Land",
+    "Counters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Crashing Drawbridge",
+   "quantity": 1,
+   "categories": [
+    "Creatures (Support)"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Growth Spiral",
+   "quantity": 1,
+   "categories": [
+    "Instants",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Beast Within",
+   "quantity": 1,
+   "categories": [
+    "Instants",
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Crystal Shard",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Artifacts (Utility)",
+    "Bounce"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sublime Epiphany",
+   "quantity": 1,
+   "categories": [
+    "Instants",
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Generous Gift",
+   "quantity": 1,
+   "categories": [
+    "Instants",
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Negate",
+   "quantity": 1,
+   "categories": [
+    "Instants",
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Bonds of Mortality",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Enchantments",
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Dovin's Veto",
+   "quantity": 1,
+   "categories": [
+    "Instants",
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Farseek",
+   "quantity": 1,
+   "categories": [
+    "Sorceries",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Supreme Verdict",
+   "quantity": 1,
+   "categories": [
+    "Sorceries",
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Three Visits",
+   "quantity": 1,
+   "categories": [
+    "Sorceries",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Cultivate",
+   "quantity": 1,
+   "categories": [
+    "Sorceries",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Roil Elemental",
+   "quantity": 1,
+   "categories": [
+    "Creatures (Landfall)",
+    "Landfall"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Essence Warden",
+   "quantity": 1,
+   "categories": [
+    "Creatures (Support)",
+    "Lifegain"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Rewind",
+   "quantity": 1,
+   "categories": [
+    "Instants",
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Bala Ged Recovery // Bala Ged Sanctuary",
+   "quantity": 1,
+   "categories": [
+    "Sorceries",
+    "Recursion"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Admonition Angel",
+   "quantity": 1,
+   "categories": [
+    "Creatures (Landfall)",
+    "Removal",
+    "Landfall"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Grand Abolisher",
+   "quantity": 1,
+   "categories": [
+    "Creatures (Support)",
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Traverse the Outlands",
+   "quantity": 1,
+   "categories": [
+    "Sorceries",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Undergrowth Recon",
+   "quantity": 1,
+   "categories": [
+    "Enchantments",
+    "Recursion"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Overlord of the Hauntwoods",
+   "quantity": 1,
+   "categories": [
+    "Creatures (Ramp)",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Brawn",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creatures (Graveyard Bound)",
+    "Evasion"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Omniscience",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Enchantments",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sun Quan, Lord of Wu",
+   "quantity": 1,
+   "categories": [
+    "Creatures (Support)",
+    "Evasion"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Archetype of Endurance",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Wayward Swordtooth",
+   "quantity": 1,
+   "categories": [
+    "Creatures (Ramp)"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Empowered Autogenerator",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Artifacts (Mana)",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Dark Depths",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Koma, Cosmos Serpent",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creatures (Support)",
+    "Tokens"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Murasa Rootgrazer",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creatures (Support)",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Druid Class",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Enchantments",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Azusa, Lost but Seeking",
+   "quantity": 1,
+   "categories": [
+    "Creatures (Ramp)",
+    "Creatures (Support)",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Nature's Will",
+   "quantity": 1,
+   "categories": [
+    "Enchantments"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Doubling Season",
+   "quantity": 1,
+   "categories": [
+    "Enchantments",
+    "Tokens"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Winter Orb",
+   "quantity": 1,
+   "categories": [
+    "Artifacts (Utility)",
+    "Stax"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Dryad of the Ilysian Grove",
+   "quantity": 1,
+   "categories": [
+    "Creatures (Ramp)",
+    "Creatures (Support)",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Rhystic Study",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Enchantments",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Gilt-Leaf Archdruid",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creatures (Ramp)",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Conduit of Worlds",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Artifacts (Utility)",
+    "Recursion"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ancient Greenwarden",
+   "quantity": 1,
+   "categories": [
+    "Creatures (Ramp)",
+    "Recursion"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Panharmonicon",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Artifacts (Utility)"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Elesh Norn, Mother of Machines",
+   "quantity": 1,
+   "categories": [
+    "Creatures (Support)",
+    "Stax"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Divine Visitation",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Enchantments",
+    "Tokens"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Exploration Broodship",
+   "quantity": 1,
+   "categories": [
+    "Artifacts (Utility)",
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Staff of Titania",
+   "quantity": 1,
+   "categories": [
+    "Artifacts (Utility)",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Spara's Headquarters",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Breeding Pool",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Temple Garden",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Forest",
+   "quantity": 7,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1,
+   "categories": [
+    "Creatures (Support)",
+    "Commander",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Flooded Strand",
+   "quantity": 1,
+   "categories": [
+    "Lands (Fetch)",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Windswept Heath",
+   "quantity": 1,
+   "categories": [
+    "Lands (Fetch)",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Wonder",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creatures (Graveyard Bound)",
+    "Evasion"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mirror Room // Fractured Realm",
+   "quantity": 1,
+   "categories": [
+    "Enchantments",
+    "Copy"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fabled Passage",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Lands (Fetch)"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Evendo, Waking Haven",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Island",
+   "quantity": 7,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Amareth, the Lustrous",
+   "quantity": 1,
+   "categories": [
+    "Commander"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Thranduil the Strategist",
+   "quantity": 1,
+   "categories": [
+    "Creatures (Landfall)",
+    "Creature (Token Generator)"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Lifeforce",
+   "quantity": 1,
+   "categories": [
+    "Enchantments",
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sigarda, Font of Blessings",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creatures (Support)",
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Shalai, Voice of Plenty",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creatures (Support)",
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Karametra, God of Harvests",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creatures (Support)",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Railway Brawler",
+   "quantity": 1,
+   "categories": [
+    "Creatures (+1/+1 Counter Generators)",
+    "Counters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mycosynth Lattice",
+   "quantity": 1,
+   "categories": [
+    "Artifacts (Utility)",
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Curiosity Crafter",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creatures (Support)",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Horizon Stone",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Artifacts (Mana)",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Carpet of Flowers",
+   "quantity": 1,
+   "categories": [
+    "Enchantments",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Land Tax",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Enchantments",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Quicksilver Fountain",
+   "quantity": 1,
+   "categories": [
+    "Artifacts (Utility)",
+    "Stax"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Padeem, Consul of Innovation",
+   "quantity": 1,
+   "categories": [
+    "Creatures (Support)",
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mystic Confluence",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Instants",
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Felidar Retreat",
+   "quantity": 1,
+   "categories": [
+    "Enchantments",
+    "Tokens",
+    "Counters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Replicating Ring",
+   "quantity": 1,
+   "categories": [
+    "Artifacts (Mana)",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Cathars' Crusade",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Enchantments",
+    "Counters"
+   ],
+   "companion": false
+  }
+ ],
+ "summe_hauptdeck": 99,
+ "summe_gesamt": 132,
+ "_name_missing": 0,
+ "_deleted_entries": 0
+}

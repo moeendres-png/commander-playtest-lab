@@ -1,0 +1,330 @@
+{
+ "urlhash": "LUhIy5kyhRSGdPBVsF5Mqw",
+ "variante": "core",
+ "bracket": 2,
+ "savedate": "2026-01-01",
+ "price": 127,
+ "salt": 43.82529175793752,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/18589861?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Adrix and Nev, Twincasters",
+   "quantity": 1
+  },
+  {
+   "name": "Appa, Steadfast Guardian",
+   "quantity": 1
+  },
+  {
+   "name": "Chameleon, Master of Disguise",
+   "quantity": 1
+  },
+  {
+   "name": "Daily Bugle Reporters",
+   "quantity": 1
+  },
+  {
+   "name": "Doc Ock's Henchmen",
+   "quantity": 1
+  },
+  {
+   "name": "Duplicant",
+   "quantity": 1
+  },
+  {
+   "name": "Esix, Fractal Bloom",
+   "quantity": 1
+  },
+  {
+   "name": "Flash Thompson, Spider-Fan",
+   "quantity": 1
+  },
+  {
+   "name": "Fortress Kin-Guard",
+   "quantity": 1
+  },
+  {
+   "name": "Gallant Citizen",
+   "quantity": 1
+  },
+  {
+   "name": "Golden-Tail Trainer",
+   "quantity": 1
+  },
+  {
+   "name": "Koma, Cosmos Serpent",
+   "quantity": 1
+  },
+  {
+   "name": "Laboratory Maniac",
+   "quantity": 1
+  },
+  {
+   "name": "Lurking Lizards",
+   "quantity": 1
+  },
+  {
+   "name": "Manifestation Sage",
+   "quantity": 1
+  },
+  {
+   "name": "Mechanical Mobster",
+   "quantity": 1
+  },
+  {
+   "name": "Ostrich-Horse",
+   "quantity": 1
+  },
+  {
+   "name": "Otter-Penguin",
+   "quantity": 1
+  },
+  {
+   "name": "Peter Parker",
+   "quantity": 1
+  },
+  {
+   "name": "Rabaroo Troop",
+   "quantity": 1
+  },
+  {
+   "name": "Radioactive Spider",
+   "quantity": 1
+  },
+  {
+   "name": "Rebellious Captives",
+   "quantity": 1
+  },
+  {
+   "name": "SP//dr, Piloted by Peni",
+   "quantity": 1
+  },
+  {
+   "name": "Selfless Police Captain",
+   "quantity": 1
+  },
+  {
+   "name": "Snapping Voidcraw",
+   "quantity": 1
+  },
+  {
+   "name": "Spectacular Spider-Man",
+   "quantity": 1
+  },
+  {
+   "name": "Spider-Bot",
+   "quantity": 1
+  },
+  {
+   "name": "Spider-Byte, Web Warden",
+   "quantity": 1
+  },
+  {
+   "name": "Spider-Girl, Legacy Hero",
+   "quantity": 1
+  },
+  {
+   "name": "Spider-Man India",
+   "quantity": 1
+  },
+  {
+   "name": "Spider-Man, Miles Morales",
+   "quantity": 1
+  },
+  {
+   "name": "Spider-Rex, Daring Dino",
+   "quantity": 1
+  },
+  {
+   "name": "Spiders-Man, Heroic Horde",
+   "quantity": 1
+  },
+  {
+   "name": "Star Pupil",
+   "quantity": 1
+  },
+  {
+   "name": "Suki, Kyoshi Warrior",
+   "quantity": 1
+  },
+  {
+   "name": "Sunshower Druid",
+   "quantity": 1
+  },
+  {
+   "name": "The Lion-Turtle",
+   "quantity": 1
+  },
+  {
+   "name": "Web-Warriors",
+   "quantity": 1
+  },
+  {
+   "name": "Disallow",
+   "quantity": 1
+  },
+  {
+   "name": "Eureka Moment",
+   "quantity": 1
+  },
+  {
+   "name": "Grow Extra Arms",
+   "quantity": 1
+  },
+  {
+   "name": "Growth Spiral",
+   "quantity": 1
+  },
+  {
+   "name": "Run Away Together",
+   "quantity": 1
+  },
+  {
+   "name": "Sudden Strike",
+   "quantity": 1
+  },
+  {
+   "name": "Thwip!",
+   "quantity": 1
+  },
+  {
+   "name": "Unstable Experiment",
+   "quantity": 1
+  },
+  {
+   "name": "Whoosh!",
+   "quantity": 1
+  },
+  {
+   "name": "Kapow!",
+   "quantity": 1
+  },
+  {
+   "name": "Scout the City",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Conjurer's Closet",
+   "quantity": 1
+  },
+  {
+   "name": "Cultivator's Caravan",
+   "quantity": 1
+  },
+  {
+   "name": "Kyoshi Battle Fan",
+   "quantity": 1
+  },
+  {
+   "name": "Panharmonicon",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Talisman of Curiosity",
+   "quantity": 1
+  },
+  {
+   "name": "Talisman of Progress",
+   "quantity": 1
+  },
+  {
+   "name": "Talisman of Unity",
+   "quantity": 1
+  },
+  {
+   "name": "On the Trail",
+   "quantity": 1
+  },
+  {
+   "name": "Spider-Man No More",
+   "quantity": 1
+  },
+  {
+   "name": "Teferi's Ageless Insight",
+   "quantity": 1
+  },
+  {
+   "name": "Web Up",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Creosote Heath",
+   "quantity": 1
+  },
+  {
+   "name": "Daily Bugle Building",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 8
+  },
+  {
+   "name": "Island",
+   "quantity": 9
+  },
+  {
+   "name": "Multiversal Passage",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 8
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1
+  },
+  {
+   "name": "Rumble Arena",
+   "quantity": 1
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Skycloud Expanse",
+   "quantity": 1
+  },
+  {
+   "name": "Suburban Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of the False God",
+   "quantity": 1
+  },
+  {
+   "name": "University Campus",
+   "quantity": 1
+  },
+  {
+   "name": "Vibrant Cityscape",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

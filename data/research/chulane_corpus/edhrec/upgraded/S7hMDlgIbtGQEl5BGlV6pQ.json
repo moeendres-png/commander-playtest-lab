@@ -1,0 +1,314 @@
+{
+ "urlhash": "S7hMDlgIbtGQEl5BGlV6pQ",
+ "variante": "upgraded",
+ "bracket": 3,
+ "savedate": "2026-03-17",
+ "price": 287,
+ "salt": 52.97747540473938,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/20882360?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Apex Devastator",
+   "quantity": 1
+  },
+  {
+   "name": "Archon of Absolution",
+   "quantity": 1
+  },
+  {
+   "name": "Avenger of Zendikar",
+   "quantity": 1
+  },
+  {
+   "name": "Beanstalk Giant",
+   "quantity": 1
+  },
+  {
+   "name": "Benthic Infiltrator",
+   "quantity": 1
+  },
+  {
+   "name": "Biomancer's Familiar",
+   "quantity": 1
+  },
+  {
+   "name": "Biomechan Engineer",
+   "quantity": 1
+  },
+  {
+   "name": "Bronze Walrus",
+   "quantity": 1
+  },
+  {
+   "name": "Capricopian",
+   "quantity": 1
+  },
+  {
+   "name": "Cloudsteel Kirin",
+   "quantity": 1
+  },
+  {
+   "name": "Consuming Blob",
+   "quantity": 1
+  },
+  {
+   "name": "Decimator of the Provinces",
+   "quantity": 1
+  },
+  {
+   "name": "Dragonlord Dromoka",
+   "quantity": 1
+  },
+  {
+   "name": "Faerie Formation",
+   "quantity": 1
+  },
+  {
+   "name": "Fatestitcher",
+   "quantity": 1
+  },
+  {
+   "name": "First Sliver's Chosen",
+   "quantity": 1
+  },
+  {
+   "name": "Frilled Mystic",
+   "quantity": 1
+  },
+  {
+   "name": "Fyndhorn Brownie",
+   "quantity": 1
+  },
+  {
+   "name": "Great Whale",
+   "quantity": 1
+  },
+  {
+   "name": "Grolnok, the Omnivore",
+   "quantity": 1
+  },
+  {
+   "name": "Gyre Engineer",
+   "quantity": 1
+  },
+  {
+   "name": "Harmonic Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Helga, Skittish Seer",
+   "quantity": 1
+  },
+  {
+   "name": "Koma, Cosmos Serpent",
+   "quantity": 1
+  },
+  {
+   "name": "Kruphix, God of Horizons",
+   "quantity": 1
+  },
+  {
+   "name": "Magus of the Candelabra",
+   "quantity": 1
+  },
+  {
+   "name": "Magus of the Future",
+   "quantity": 1
+  },
+  {
+   "name": "Masako the Humorless",
+   "quantity": 1
+  },
+  {
+   "name": "Mistform Warchief",
+   "quantity": 1
+  },
+  {
+   "name": "Nezahal, Primal Tide",
+   "quantity": 1
+  },
+  {
+   "name": "Phyrexian Swarmlord",
+   "quantity": 1
+  },
+  {
+   "name": "Riptide Shapeshifter",
+   "quantity": 1
+  },
+  {
+   "name": "Rootwire Amalgam",
+   "quantity": 1
+  },
+  {
+   "name": "Shalai, Voice of Plenty",
+   "quantity": 1
+  },
+  {
+   "name": "Shrieking Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Sire of Seven Deaths",
+   "quantity": 1
+  },
+  {
+   "name": "Six",
+   "quantity": 1
+  },
+  {
+   "name": "Snapping Voidcraw",
+   "quantity": 1
+  },
+  {
+   "name": "Sweet-Gum Recluse",
+   "quantity": 1
+  },
+  {
+   "name": "Thorn Mammoth",
+   "quantity": 1
+  },
+  {
+   "name": "Trusted Advisor",
+   "quantity": 1
+  },
+  {
+   "name": "Virulent Silencer",
+   "quantity": 1
+  },
+  {
+   "name": "Volo, Guide to Monsters",
+   "quantity": 1
+  },
+  {
+   "name": "Volo, Itinerant Scholar",
+   "quantity": 1
+  },
+  {
+   "name": "Watchful Radstag",
+   "quantity": 1
+  },
+  {
+   "name": "Waterfront Bouncer",
+   "quantity": 1
+  },
+  {
+   "name": "White Plume Adventurer",
+   "quantity": 1
+  },
+  {
+   "name": "Wurmcoil Engine",
+   "quantity": 1
+  },
+  {
+   "name": "Yisan, the Wanderer Bard",
+   "quantity": 1
+  },
+  {
+   "name": "Energy Arc",
+   "quantity": 1
+  },
+  {
+   "name": "Finale of Devastation",
+   "quantity": 1
+  },
+  {
+   "name": "Harsh Mercy",
+   "quantity": 1
+  },
+  {
+   "name": "Rampant Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Temporal Fissure",
+   "quantity": 1
+  },
+  {
+   "name": "Heartstone",
+   "quantity": 1
+  },
+  {
+   "name": "Hivestone",
+   "quantity": 1
+  },
+  {
+   "name": "Court of Ardenvale",
+   "quantity": 1
+  },
+  {
+   "name": "Equilibrium",
+   "quantity": 1
+  },
+  {
+   "name": "Intruder Alarm",
+   "quantity": 1
+  },
+  {
+   "name": "Brushland",
+   "quantity": 1
+  },
+  {
+   "name": "Coral Atoll",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 10
+  },
+  {
+   "name": "Grasslands",
+   "quantity": 1
+  },
+  {
+   "name": "Hall of Tagsin",
+   "quantity": 1
+  },
+  {
+   "name": "Hedge Maze",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 9
+  },
+  {
+   "name": "Jungle Basin",
+   "quantity": 1
+  },
+  {
+   "name": "Lush Portico",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 10
+  },
+  {
+   "name": "Spara's Headquarters",
+   "quantity": 1
+  },
+  {
+   "name": "Tangled Islet",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Mystery",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

@@ -1,0 +1,278 @@
+{
+ "urlhash": "gn92x1dE4y19BR3x1JTXRw",
+ "variante": "core",
+ "bracket": 2,
+ "savedate": "2026-07-20",
+ "price": 142,
+ "salt": 51.18057035841048,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/40fapqfaLE2V6_pLmhVZzQ?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Angel of the Dawn",
+   "quantity": 1
+  },
+  {
+   "name": "Archangel of Tithes",
+   "quantity": 1
+  },
+  {
+   "name": "Arixmethes, Slumbering Isle",
+   "quantity": 1
+  },
+  {
+   "name": "Artificer's Assistant",
+   "quantity": 1
+  },
+  {
+   "name": "Avacyn's Pilgrim",
+   "quantity": 1
+  },
+  {
+   "name": "Azusa, Lost but Seeking",
+   "quantity": 1
+  },
+  {
+   "name": "Baird, Steward of Argive",
+   "quantity": 1
+  },
+  {
+   "name": "Cactuar",
+   "quantity": 1
+  },
+  {
+   "name": "Champion of Lambholt",
+   "quantity": 1
+  },
+  {
+   "name": "Cloakwood Swarmkeeper",
+   "quantity": 1
+  },
+  {
+   "name": "Clone",
+   "quantity": 1
+  },
+  {
+   "name": "Coeurl",
+   "quantity": 1
+  },
+  {
+   "name": "Copper Myr",
+   "quantity": 1
+  },
+  {
+   "name": "Cudgel Troll",
+   "quantity": 1
+  },
+  {
+   "name": "Death-Hood Cobra",
+   "quantity": 1
+  },
+  {
+   "name": "ED-E, Lonesome Eyebot",
+   "quantity": 1
+  },
+  {
+   "name": "Giant Ankheg",
+   "quantity": 1
+  },
+  {
+   "name": "Gold Myr",
+   "quantity": 1
+  },
+  {
+   "name": "Guerrilla Gorilla",
+   "quantity": 1
+  },
+  {
+   "name": "Heroes' Bane",
+   "quantity": 1
+  },
+  {
+   "name": "Kindly Customer",
+   "quantity": 1
+  },
+  {
+   "name": "Loam Lion",
+   "quantity": 1
+  },
+  {
+   "name": "Loot, Exuberant Explorer",
+   "quantity": 1
+  },
+  {
+   "name": "Loxodon Hierarch",
+   "quantity": 1
+  },
+  {
+   "name": "Lulu, Loyal Hollyphant",
+   "quantity": 1
+  },
+  {
+   "name": "Muse Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Ornithopter",
+   "quantity": 1
+  },
+  {
+   "name": "Peregrine Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Polukranos Reborn",
+   "quantity": 1
+  },
+  {
+   "name": "Pond Prophet",
+   "quantity": 1
+  },
+  {
+   "name": "Rampaging Baloths",
+   "quantity": 1
+  },
+  {
+   "name": "Recruitment Officer",
+   "quantity": 1
+  },
+  {
+   "name": "Roon of the Hidden Realm",
+   "quantity": 1
+  },
+  {
+   "name": "Scythecat Cub",
+   "quantity": 1
+  },
+  {
+   "name": "Sedge Scorpion",
+   "quantity": 1
+  },
+  {
+   "name": "Silverback Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Steadfast Unicorn",
+   "quantity": 1
+  },
+  {
+   "name": "Sunshower Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Sutina, Speaker of the Tajuru",
+   "quantity": 1
+  },
+  {
+   "name": "Sylvok Explorer",
+   "quantity": 1
+  },
+  {
+   "name": "Thrun, Breaker of Silence",
+   "quantity": 1
+  },
+  {
+   "name": "Tireless Provisioner",
+   "quantity": 1
+  },
+  {
+   "name": "Tome Raider",
+   "quantity": 1
+  },
+  {
+   "name": "Volo, Itinerant Scholar",
+   "quantity": 1
+  },
+  {
+   "name": "Vryn Wingmare",
+   "quantity": 1
+  },
+  {
+   "name": "Wall of Runes",
+   "quantity": 1
+  },
+  {
+   "name": "Warclamp Mastiff",
+   "quantity": 1
+  },
+  {
+   "name": "Woodborn Behemoth",
+   "quantity": 1
+  },
+  {
+   "name": "Blessed Breath",
+   "quantity": 1
+  },
+  {
+   "name": "Death Ward",
+   "quantity": 1
+  },
+  {
+   "name": "Decisive Denial",
+   "quantity": 1
+  },
+  {
+   "name": "Fog",
+   "quantity": 1
+  },
+  {
+   "name": "Harmless Assault",
+   "quantity": 1
+  },
+  {
+   "name": "Mysteries of the Deep",
+   "quantity": 1
+  },
+  {
+   "name": "Stroke of Midnight",
+   "quantity": 1
+  },
+  {
+   "name": "Cultivate",
+   "quantity": 1
+  },
+  {
+   "name": "Cut a Deal",
+   "quantity": 1
+  },
+  {
+   "name": "Decanter of Endless Water",
+   "quantity": 1
+  },
+  {
+   "name": "As Foretold",
+   "quantity": 1
+  },
+  {
+   "name": "Omniscience",
+   "quantity": 1
+  },
+  {
+   "name": "Zendikar Resurgent",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 12
+  },
+  {
+   "name": "Island",
+   "quantity": 14
+  },
+  {
+   "name": "Plains",
+   "quantity": 12
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

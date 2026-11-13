@@ -1,0 +1,298 @@
+{
+ "urlhash": "Nx_V2udF-Sw_Z8QKbNx-mw",
+ "variante": "core",
+ "bracket": 2,
+ "savedate": "2025-02-19",
+ "price": 48,
+ "salt": 45.796544305980206,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/BZHjjBnK7EmNXIOeuXhW_w?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Alchemist's Apprentice",
+   "quantity": 1
+  },
+  {
+   "name": "Augur of Autumn",
+   "quantity": 1
+  },
+  {
+   "name": "Avacyn's Pilgrim",
+   "quantity": 1
+  },
+  {
+   "name": "Bladegriff Prototype",
+   "quantity": 1
+  },
+  {
+   "name": "Bonded Fetch",
+   "quantity": 1
+  },
+  {
+   "name": "Cephalid Looter",
+   "quantity": 1
+  },
+  {
+   "name": "Clement, the Worrywort",
+   "quantity": 1
+  },
+  {
+   "name": "Coati Scavenger",
+   "quantity": 1
+  },
+  {
+   "name": "Coiling Oracle",
+   "quantity": 1
+  },
+  {
+   "name": "Curious Forager",
+   "quantity": 1
+  },
+  {
+   "name": "Deranged Assistant",
+   "quantity": 1
+  },
+  {
+   "name": "Devout Chaplain",
+   "quantity": 1
+  },
+  {
+   "name": "Devout Witness",
+   "quantity": 1
+  },
+  {
+   "name": "Dryad Greenseeker",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Mystic",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Visionary",
+   "quantity": 1
+  },
+  {
+   "name": "Enclave Cryptologist",
+   "quantity": 1
+  },
+  {
+   "name": "Fa'adiyah Seer",
+   "quantity": 1
+  },
+  {
+   "name": "Garruk's Horde",
+   "quantity": 1
+  },
+  {
+   "name": "Jacob Hauken, Inspector",
+   "quantity": 1
+  },
+  {
+   "name": "Jazal Goldmane",
+   "quantity": 1
+  },
+  {
+   "name": "Jolrael, Mwonvuli Recluse",
+   "quantity": 1
+  },
+  {
+   "name": "Krovikan Sorcerer",
+   "quantity": 1
+  },
+  {
+   "name": "Kwain, Itinerant Meddler",
+   "quantity": 1
+  },
+  {
+   "name": "Laboratory Maniac",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Scout",
+   "quantity": 1
+  },
+  {
+   "name": "Loamcrafter Faun",
+   "quantity": 1
+  },
+  {
+   "name": "Looter il-Kor",
+   "quantity": 1
+  },
+  {
+   "name": "Magus of the Future",
+   "quantity": 1
+  },
+  {
+   "name": "Mentor of the Meek",
+   "quantity": 1
+  },
+  {
+   "name": "Merfolk Looter",
+   "quantity": 1
+  },
+  {
+   "name": "Millikin",
+   "quantity": 1
+  },
+  {
+   "name": "Mindwhisker",
+   "quantity": 1
+  },
+  {
+   "name": "Murasa Rootgrazer",
+   "quantity": 1
+  },
+  {
+   "name": "Nightshade Dryad",
+   "quantity": 1
+  },
+  {
+   "name": "Oblivious Bookworm",
+   "quantity": 1
+  },
+  {
+   "name": "Pond Prophet",
+   "quantity": 1
+  },
+  {
+   "name": "Reckless Scholar",
+   "quantity": 1
+  },
+  {
+   "name": "Scaled Herbalist",
+   "quantity": 1
+  },
+  {
+   "name": "Selhoff Entomber",
+   "quantity": 1
+  },
+  {
+   "name": "Selvala, Explorer Returned",
+   "quantity": 1
+  },
+  {
+   "name": "Shrieking Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Sindbad",
+   "quantity": 1
+  },
+  {
+   "name": "Splitskin Doll",
+   "quantity": 1
+  },
+  {
+   "name": "Stubborn Burrowfiend",
+   "quantity": 1
+  },
+  {
+   "name": "Sylvok Explorer",
+   "quantity": 1
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Thought Courier",
+   "quantity": 1
+  },
+  {
+   "name": "Three Tree Rootweaver",
+   "quantity": 1
+  },
+  {
+   "name": "Triskaidekaphile",
+   "quantity": 1
+  },
+  {
+   "name": "Unctus, Grand Metatect",
+   "quantity": 1
+  },
+  {
+   "name": "Vortex Elemental",
+   "quantity": 1
+  },
+  {
+   "name": "Wonderscape Sage",
+   "quantity": 1
+  },
+  {
+   "name": "Wose Pathfinder",
+   "quantity": 1
+  },
+  {
+   "name": "Zimone, Quandrix Prodigy",
+   "quantity": 1
+  },
+  {
+   "name": "Dream Fracture",
+   "quantity": 1
+  },
+  {
+   "name": "Negate",
+   "quantity": 1
+  },
+  {
+   "name": "Refute",
+   "quantity": 1
+  },
+  {
+   "name": "Sinister Sabotage",
+   "quantity": 1
+  },
+  {
+   "name": "Dusk // Dawn",
+   "quantity": 1
+  },
+  {
+   "name": "Fell the Mighty",
+   "quantity": 1
+  },
+  {
+   "name": "Future Sight",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Chancery",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 13
+  },
+  {
+   "name": "Island",
+   "quantity": 14
+  },
+  {
+   "name": "Plains",
+   "quantity": 6
+  },
+  {
+   "name": "Selesnya Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Growth Chamber",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

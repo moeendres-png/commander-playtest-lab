@@ -1,0 +1,325 @@
+{
+ "urlhash": "THsD1CtHLvcq2r0l3E2W8w",
+ "variante": "core",
+ "bracket": 2,
+ "savedate": "2026-09-21",
+ "price": 144,
+ "salt": 39.17900524660945,
+ "tags": [
+  "Flashback",
+  "Morph"
+ ],
+ "source_url": "https://archidekt.com/decks/23084851?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Abhorrent Oculus",
+   "quantity": 1
+  },
+  {
+   "name": "Altanak, the Thrice-Called",
+   "quantity": 1
+  },
+  {
+   "name": "Bashful Beastie",
+   "quantity": 1
+  },
+  {
+   "name": "Bramble Wurm",
+   "quantity": 1
+  },
+  {
+   "name": "Challenger Troll",
+   "quantity": 1
+  },
+  {
+   "name": "Curator Beastie",
+   "quantity": 1
+  },
+  {
+   "name": "Defenestrated Phantom",
+   "quantity": 1
+  },
+  {
+   "name": "Defiant Survivor",
+   "quantity": 1
+  },
+  {
+   "name": "Ennis, Debate Moderator",
+   "quantity": 1
+  },
+  {
+   "name": "Essence of Antiquity",
+   "quantity": 1
+  },
+  {
+   "name": "Hauntwoods Shrieker",
+   "quantity": 1
+  },
+  {
+   "name": "Heroes' Bane",
+   "quantity": 1
+  },
+  {
+   "name": "Lilysplash Mentor",
+   "quantity": 1
+  },
+  {
+   "name": "Nervous Gardener",
+   "quantity": 1
+  },
+  {
+   "name": "Oji, the Exquisite Blade",
+   "quantity": 1
+  },
+  {
+   "name": "Overlord of the Hauntwoods",
+   "quantity": 1
+  },
+  {
+   "name": "Paranormal Analyst",
+   "quantity": 1
+  },
+  {
+   "name": "Pelakka Wurm",
+   "quantity": 1
+  },
+  {
+   "name": "Sifter Wurm",
+   "quantity": 1
+  },
+  {
+   "name": "Skyscythe Engulfer",
+   "quantity": 1
+  },
+  {
+   "name": "Topiary Panther",
+   "quantity": 1
+  },
+  {
+   "name": "Unsettling Twins",
+   "quantity": 1
+  },
+  {
+   "name": "Whisperwood Elemental",
+   "quantity": 1
+  },
+  {
+   "name": "Worldspine Wurm",
+   "quantity": 1
+  },
+  {
+   "name": "Zimone, Mystery Unraveler",
+   "quantity": 1
+  },
+  {
+   "name": "Airbending Lesson",
+   "quantity": 1
+  },
+  {
+   "name": "Disorder in the Court",
+   "quantity": 1
+  },
+  {
+   "name": "Getaway Glamer",
+   "quantity": 1
+  },
+  {
+   "name": "Hide on the Ceiling",
+   "quantity": 1
+  },
+  {
+   "name": "Justiciar's Portal",
+   "quantity": 1
+  },
+  {
+   "name": "Personify",
+   "quantity": 1
+  },
+  {
+   "name": "Phantom Interference",
+   "quantity": 1
+  },
+  {
+   "name": "Scrollshift",
+   "quantity": 1
+  },
+  {
+   "name": "Semester's End",
+   "quantity": 1
+  },
+  {
+   "name": "Teferi's Time Twist",
+   "quantity": 1
+  },
+  {
+   "name": "Twist Reality",
+   "quantity": 1
+  },
+  {
+   "name": "Against All Odds",
+   "quantity": 1
+  },
+  {
+   "name": "Daydream",
+   "quantity": 1
+  },
+  {
+   "name": "Eriette's Lullaby",
+   "quantity": 1
+  },
+  {
+   "name": "Manifest Dread",
+   "quantity": 1
+  },
+  {
+   "name": "Nature's Rhythm",
+   "quantity": 1
+  },
+  {
+   "name": "Recollect",
+   "quantity": 1
+  },
+  {
+   "name": "Soul Summons",
+   "quantity": 1
+  },
+  {
+   "name": "Under the Skin",
+   "quantity": 1
+  },
+  {
+   "name": "Unnerving Grasp",
+   "quantity": 1
+  },
+  {
+   "name": "Valgavoth's Onslaught",
+   "quantity": 1
+  },
+  {
+   "name": "Conductive Machete",
+   "quantity": 1
+  },
+  {
+   "name": "Cursed Windbreaker",
+   "quantity": 1
+  },
+  {
+   "name": "Ghost Vacuum",
+   "quantity": 1
+  },
+  {
+   "name": "Scroll of Fate",
+   "quantity": 1
+  },
+  {
+   "name": "Cloudform",
+   "quantity": 1
+  },
+  {
+   "name": "Escape Protocol",
+   "quantity": 1
+  },
+  {
+   "name": "Gift of Paradise",
+   "quantity": 1
+  },
+  {
+   "name": "Growing Dread",
+   "quantity": 1
+  },
+  {
+   "name": "Moldering Gym // Weight Room",
+   "quantity": 1
+  },
+  {
+   "name": "Oath of Teferi",
+   "quantity": 1
+  },
+  {
+   "name": "Stay Hidden, Stay Silent",
+   "quantity": 1
+  },
+  {
+   "name": "They Came from the Pipes",
+   "quantity": 1
+  },
+  {
+   "name": "Threats Around Every Corner",
+   "quantity": 1
+  },
+  {
+   "name": "The Eternal Wanderer",
+   "quantity": 1
+  },
+  {
+   "name": "Abandoned Campground",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Chancery",
+   "quantity": 1
+  },
+  {
+   "name": "Blossoming Sands",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Etched Cornfield",
+   "quantity": 1
+  },
+  {
+   "name": "Floodfarm Verge",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 20
+  },
+  {
+   "name": "Hushwood Verge",
+   "quantity": 1
+  },
+  {
+   "name": "Irrigated Farmland",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 5
+  },
+  {
+   "name": "Lush Portico",
+   "quantity": 1
+  },
+  {
+   "name": "Mystic Gate",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 2
+  },
+  {
+   "name": "Simic Growth Chamber",
+   "quantity": 1
+  },
+  {
+   "name": "Suburban Sanctuary",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

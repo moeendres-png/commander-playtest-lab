@@ -26,7 +26,7 @@ from commander_lab.studio import (
 from commander_lab.studio.__main__ import main as studio_main
 from commander_lab.studio.decks import deck_hash
 from commander_lab.studio.queries import corpus_inclusion, legal_pool
-from commander_lab.studio.store import SCHEMA_VERSION, STUDIO_DATA_ENV
+from commander_lab.studio.store import STUDIO_DATA_ENV
 
 IDENTITY_COLUMNS = [
     "card_id", "oracle_id", "oracle_name", "color_identity", "mana_cost", "mana_value",
@@ -754,7 +754,7 @@ def test_schema_12_adds_profile_lifecycle_columns_to_an_older_store(tmp_path: Pa
     version = store.connection.execute(
         "SELECT value FROM meta WHERE key = 'schema_version'"
     ).fetchone()[0]
-    assert version == str(SCHEMA_VERSION)
+    assert version == "13"
     profile = universe.get_profile(store, "alt")
     assert profile["version"] == 1 and profile["updated_at"] is None
     assert profile["created_at"] == "2026-01-01T00:00:00Z"

@@ -1,0 +1,330 @@
+{
+ "urlhash": "Lry-GRa4qk9htdTb9SFLCQ",
+ "variante": "core",
+ "bracket": 2,
+ "savedate": "2025-06-22",
+ "price": 191,
+ "salt": 47.704978477209806,
+ "tags": [
+  "Lands Matter",
+  "Flying",
+  "Enchantress"
+ ],
+ "source_url": "https://moxfield.com/decks/avtoX-JjQkWqfnZq1Iwf9w?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Azusa, Lost but Seeking",
+   "quantity": 1
+  },
+  {
+   "name": "Blossom Prancer",
+   "quantity": 1
+  },
+  {
+   "name": "Geothermal Kami",
+   "quantity": 1
+  },
+  {
+   "name": "Groundskeeper",
+   "quantity": 1
+  },
+  {
+   "name": "Kami of Transience",
+   "quantity": 1
+  },
+  {
+   "name": "Masako the Humorless",
+   "quantity": 1
+  },
+  {
+   "name": "Meloku the Clouded Mirror",
+   "quantity": 1
+  },
+  {
+   "name": "Moonfolk Puzzlemaker",
+   "quantity": 1
+  },
+  {
+   "name": "Oboro Envoy",
+   "quantity": 1
+  },
+  {
+   "name": "Patron of the Moon",
+   "quantity": 1
+  },
+  {
+   "name": "Sanctum Weaver",
+   "quantity": 1
+  },
+  {
+   "name": "Satsuki, the Living Lore",
+   "quantity": 1
+  },
+  {
+   "name": "Soratami Cloudskater",
+   "quantity": 1
+  },
+  {
+   "name": "Soratami Mirror-Mage",
+   "quantity": 1
+  },
+  {
+   "name": "Soratami Rainshaper",
+   "quantity": 1
+  },
+  {
+   "name": "Soratami Savant",
+   "quantity": 1
+  },
+  {
+   "name": "Spirited Companion",
+   "quantity": 1
+  },
+  {
+   "name": "Tameshi, Reality Architect",
+   "quantity": 1
+  },
+  {
+   "name": "Tamiyo, Inquisitive Student",
+   "quantity": 1
+  },
+  {
+   "name": "The Reality Chip",
+   "quantity": 1
+  },
+  {
+   "name": "Uyo, Silent Prophet",
+   "quantity": 1
+  },
+  {
+   "name": "Vizier of the Menagerie",
+   "quantity": 1
+  },
+  {
+   "name": "Walking Atlas",
+   "quantity": 1
+  },
+  {
+   "name": "Wonderscape Sage",
+   "quantity": 1
+  },
+  {
+   "name": "Access Denied",
+   "quantity": 1
+  },
+  {
+   "name": "Catalog",
+   "quantity": 1
+  },
+  {
+   "name": "Cut Short",
+   "quantity": 1
+  },
+  {
+   "name": "Essence Capture",
+   "quantity": 1
+  },
+  {
+   "name": "Foil",
+   "quantity": 1
+  },
+  {
+   "name": "Hinder",
+   "quantity": 1
+  },
+  {
+   "name": "Light the Way",
+   "quantity": 1
+  },
+  {
+   "name": "Spell Pierce",
+   "quantity": 1
+  },
+  {
+   "name": "Storyweave",
+   "quantity": 1
+  },
+  {
+   "name": "Tamiyo's Safekeeping",
+   "quantity": 1
+  },
+  {
+   "name": "Thwart",
+   "quantity": 1
+  },
+  {
+   "name": "Cathartic Parting",
+   "quantity": 1
+  },
+  {
+   "name": "Commune with Spirits",
+   "quantity": 1
+  },
+  {
+   "name": "Counsel of the Soratami",
+   "quantity": 1
+  },
+  {
+   "name": "Life from the Loam",
+   "quantity": 1
+  },
+  {
+   "name": "Lucky Offering",
+   "quantity": 1
+  },
+  {
+   "name": "Summer Bloom",
+   "quantity": 1
+  },
+  {
+   "name": "Tamiyo's Epiphany",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Commander's Sphere",
+   "quantity": 1
+  },
+  {
+   "name": "Heartstone",
+   "quantity": 1
+  },
+  {
+   "name": "Moonsnare Prototype",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Tamiyo's Journal",
+   "quantity": 1
+  },
+  {
+   "name": "Azusa's Many Journeys",
+   "quantity": 1
+  },
+  {
+   "name": "Careful Cultivation",
+   "quantity": 1
+  },
+  {
+   "name": "Flooded Shoreline",
+   "quantity": 1
+  },
+  {
+   "name": "Imprisoned in the Moon",
+   "quantity": 1
+  },
+  {
+   "name": "Inventive Iteration",
+   "quantity": 1
+  },
+  {
+   "name": "Lunar Force",
+   "quantity": 1
+  },
+  {
+   "name": "Michiko's Reign of Truth",
+   "quantity": 1
+  },
+  {
+   "name": "Sterling Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Tamiyo Meets the Story Circle",
+   "quantity": 1
+  },
+  {
+   "name": "The Mending of Dominaria",
+   "quantity": 1
+  },
+  {
+   "name": "The Tale of Tamiyo",
+   "quantity": 1
+  },
+  {
+   "name": "Touch the Spirit Realm",
+   "quantity": 1
+  },
+  {
+   "name": "Trade Routes",
+   "quantity": 1
+  },
+  {
+   "name": "Training Grounds",
+   "quantity": 1
+  },
+  {
+   "name": "Tamiyo, Compleated Sage",
+   "quantity": 1
+  },
+  {
+   "name": "Tamiyo, Field Researcher",
+   "quantity": 1
+  },
+  {
+   "name": "Blossoming Sands",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 7
+  },
+  {
+   "name": "Island",
+   "quantity": 14
+  },
+  {
+   "name": "Mystic Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 5
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Roadside Reliquary",
+   "quantity": 1
+  },
+  {
+   "name": "Spara's Headquarters",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of the False God",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Cove",
+   "quantity": 1
+  },
+  {
+   "name": "Vineglimmer Snarl",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

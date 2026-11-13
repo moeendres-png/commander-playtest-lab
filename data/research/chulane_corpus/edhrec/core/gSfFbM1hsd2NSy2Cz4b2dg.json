@@ -1,0 +1,286 @@
+{
+ "urlhash": "gSfFbM1hsd2NSy2Cz4b2dg",
+ "variante": "core",
+ "bracket": 2,
+ "savedate": "2026-08-03",
+ "price": 246,
+ "salt": 40.18689950928092,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/qaBYTP7gpUWT4A4TmLG_7g?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Abominable Treefolk",
+   "quantity": 1
+  },
+  {
+   "name": "Adarkar Valkyrie",
+   "quantity": 1
+  },
+  {
+   "name": "Aesi, Tyrant of Gyre Strait",
+   "quantity": 1
+  },
+  {
+   "name": "Avalanche Caller",
+   "quantity": 1
+  },
+  {
+   "name": "Berg Strider",
+   "quantity": 1
+  },
+  {
+   "name": "Boreal Centaur",
+   "quantity": 1
+  },
+  {
+   "name": "Boreal Griffin",
+   "quantity": 1
+  },
+  {
+   "name": "Boreal Outrider",
+   "quantity": 1
+  },
+  {
+   "name": "Braulios of Pheres Band",
+   "quantity": 1
+  },
+  {
+   "name": "Chasm Skulker",
+   "quantity": 1
+  },
+  {
+   "name": "Conifer Wurm",
+   "quantity": 1
+  },
+  {
+   "name": "Diamond Faerie",
+   "quantity": 1
+  },
+  {
+   "name": "Dryad of the Ilysian Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Emeria Shepherd",
+   "quantity": 1
+  },
+  {
+   "name": "Frost Augur",
+   "quantity": 1
+  },
+  {
+   "name": "Frostwalla",
+   "quantity": 1
+  },
+  {
+   "name": "Ice-Fang Coatl",
+   "quantity": 1
+  },
+  {
+   "name": "Icehide Troll",
+   "quantity": 1
+  },
+  {
+   "name": "Icetill Explorer",
+   "quantity": 1
+  },
+  {
+   "name": "Isu the Abominable",
+   "quantity": 1
+  },
+  {
+   "name": "Morska, Undersea Sleuth",
+   "quantity": 1
+  },
+  {
+   "name": "Ohran Frostfang",
+   "quantity": 1
+  },
+  {
+   "name": "Pilfering Hawk",
+   "quantity": 1
+  },
+  {
+   "name": "Psychosis Crawler",
+   "quantity": 1
+  },
+  {
+   "name": "Rime Tender",
+   "quantity": 1
+  },
+  {
+   "name": "Saddled Rimestag",
+   "quantity": 1
+  },
+  {
+   "name": "Spirit of the Aldergard",
+   "quantity": 1
+  },
+  {
+   "name": "Evasive Action",
+   "quantity": 1
+  },
+  {
+   "name": "Rending Vines",
+   "quantity": 1
+  },
+  {
+   "name": "Union of the Third Path",
+   "quantity": 1
+  },
+  {
+   "name": "Wildsize",
+   "quantity": 1
+  },
+  {
+   "name": "You Happen On a Glade",
+   "quantity": 1
+  },
+  {
+   "name": "Blessing of Frost",
+   "quantity": 1
+  },
+  {
+   "name": "Cultivate",
+   "quantity": 1
+  },
+  {
+   "name": "Kodama's Reach",
+   "quantity": 1
+  },
+  {
+   "name": "Search Warrant",
+   "quantity": 1
+  },
+  {
+   "name": "Search for Glory",
+   "quantity": 1
+  },
+  {
+   "name": "Adventuring Gear",
+   "quantity": 1
+  },
+  {
+   "name": "Bident of Thassa",
+   "quantity": 1
+  },
+  {
+   "name": "Icebind Pillar",
+   "quantity": 1
+  },
+  {
+   "name": "Library of Leng",
+   "quantity": 1
+  },
+  {
+   "name": "Skyclave Pick-Axe",
+   "quantity": 1
+  },
+  {
+   "name": "The Immortal Sun",
+   "quantity": 1
+  },
+  {
+   "name": "Venser's Journal",
+   "quantity": 1
+  },
+  {
+   "name": "Cover of Winter",
+   "quantity": 1
+  },
+  {
+   "name": "Exploration",
+   "quantity": 1
+  },
+  {
+   "name": "Felidar Retreat",
+   "quantity": 1
+  },
+  {
+   "name": "Ior Ruin Expedition",
+   "quantity": 1
+  },
+  {
+   "name": "Monastery Siege",
+   "quantity": 1
+  },
+  {
+   "name": "Nerd Rage",
+   "quantity": 1
+  },
+  {
+   "name": "Proft's Eidetic Memory",
+   "quantity": 1
+  },
+  {
+   "name": "Retreat to Kazandu",
+   "quantity": 1
+  },
+  {
+   "name": "Stark's Ingenuity",
+   "quantity": 1
+  },
+  {
+   "name": "Teferi's Ageless Insight",
+   "quantity": 1
+  },
+  {
+   "name": "Teferi, Hero of Dominaria",
+   "quantity": 1
+  },
+  {
+   "name": "Arctic Treeline",
+   "quantity": 1
+  },
+  {
+   "name": "Boreal Shelf",
+   "quantity": 1
+  },
+  {
+   "name": "Dark Depths",
+   "quantity": 1
+  },
+  {
+   "name": "Faceless Haven",
+   "quantity": 1
+  },
+  {
+   "name": "Glacial Floodplain",
+   "quantity": 1
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Rimewood Falls",
+   "quantity": 1
+  },
+  {
+   "name": "Shimmerdrift Vale",
+   "quantity": 1
+  },
+  {
+   "name": "Snow-Covered Forest",
+   "quantity": 14
+  },
+  {
+   "name": "Snow-Covered Island",
+   "quantity": 11
+  },
+  {
+   "name": "Snow-Covered Plains",
+   "quantity": 11
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

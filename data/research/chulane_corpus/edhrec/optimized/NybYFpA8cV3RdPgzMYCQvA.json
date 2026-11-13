@@ -1,0 +1,374 @@
+{
+ "urlhash": "NybYFpA8cV3RdPgzMYCQvA",
+ "variante": "optimized",
+ "bracket": 4,
+ "savedate": "2026-03-17",
+ "price": 90,
+ "salt": 38.105015171691775,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/XIVFSt4AVESvX096uCbcvg?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Angel of Invention",
+   "quantity": 1
+  },
+  {
+   "name": "Arboreal Grazer",
+   "quantity": 1
+  },
+  {
+   "name": "Breathkeeper Seraph",
+   "quantity": 1
+  },
+  {
+   "name": "Chasm Skulker",
+   "quantity": 1
+  },
+  {
+   "name": "Deadeye Navigator",
+   "quantity": 1
+  },
+  {
+   "name": "Druid's Familiar",
+   "quantity": 1
+  },
+  {
+   "name": "Elgaud Shieldmate",
+   "quantity": 1
+  },
+  {
+   "name": "Forgotten Ancient",
+   "quantity": 1
+  },
+  {
+   "name": "Geist Trappers",
+   "quantity": 1
+  },
+  {
+   "name": "Hedron Crab",
+   "quantity": 1
+  },
+  {
+   "name": "Imperious Mindbreaker",
+   "quantity": 1
+  },
+  {
+   "name": "Jaddi Offshoot",
+   "quantity": 1
+  },
+  {
+   "name": "Nearheath Pilgrim",
+   "quantity": 1
+  },
+  {
+   "name": "Nightshade Peddler",
+   "quantity": 1
+  },
+  {
+   "name": "Odric, Lunarch Marshal",
+   "quantity": 1
+  },
+  {
+   "name": "Ornithopter",
+   "quantity": 1
+  },
+  {
+   "name": "Pathbreaker Wurm",
+   "quantity": 1
+  },
+  {
+   "name": "Ruin Crab",
+   "quantity": 1
+  },
+  {
+   "name": "Silverblade Paladin",
+   "quantity": 1
+  },
+  {
+   "name": "Spectral Gateguards",
+   "quantity": 1
+  },
+  {
+   "name": "Tandem Lookout",
+   "quantity": 1
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Thundering Mightmare",
+   "quantity": 1
+  },
+  {
+   "name": "Wingcrafter",
+   "quantity": 1
+  },
+  {
+   "name": "Wolfir Silverheart",
+   "quantity": 1
+  },
+  {
+   "name": "Yisan, the Wanderer Bard",
+   "quantity": 1
+  },
+  {
+   "name": "Beast Within",
+   "quantity": 1
+  },
+  {
+   "name": "Fog",
+   "quantity": 1
+  },
+  {
+   "name": "Growth Spiral",
+   "quantity": 1
+  },
+  {
+   "name": "Naturalize",
+   "quantity": 1
+  },
+  {
+   "name": "Riot Control",
+   "quantity": 1
+  },
+  {
+   "name": "Skywhaler's Shot",
+   "quantity": 1
+  },
+  {
+   "name": "Unsummon",
+   "quantity": 1
+  },
+  {
+   "name": "Wildwood Rebirth",
+   "quantity": 1
+  },
+  {
+   "name": "Atraxa's Fall",
+   "quantity": 1
+  },
+  {
+   "name": "Concentrate",
+   "quantity": 1
+  },
+  {
+   "name": "Cultivate",
+   "quantity": 1
+  },
+  {
+   "name": "Farseek",
+   "quantity": 1
+  },
+  {
+   "name": "Harmonize",
+   "quantity": 1
+  },
+  {
+   "name": "Rampant Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Safewright Quest",
+   "quantity": 1
+  },
+  {
+   "name": "Secret Rendezvous",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Cathar's Shield",
+   "quantity": 1
+  },
+  {
+   "name": "Instrument of the Bards",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Spidersilk Net",
+   "quantity": 1
+  },
+  {
+   "name": "Anthem of Champions",
+   "quantity": 1
+  },
+  {
+   "name": "Azusa's Many Journeys",
+   "quantity": 1
+  },
+  {
+   "name": "Battle for Bretagard",
+   "quantity": 1
+  },
+  {
+   "name": "Citadel Siege",
+   "quantity": 1
+  },
+  {
+   "name": "Commander's Insignia",
+   "quantity": 1
+  },
+  {
+   "name": "Fall of the First Civilization",
+   "quantity": 1
+  },
+  {
+   "name": "Fall of the Thran",
+   "quantity": 1
+  },
+  {
+   "name": "Frontier Siege",
+   "quantity": 1
+  },
+  {
+   "name": "Glacierwood Siege",
+   "quantity": 1
+  },
+  {
+   "name": "Monastery Siege",
+   "quantity": 1
+  },
+  {
+   "name": "Retreat to Coralhelm",
+   "quantity": 1
+  },
+  {
+   "name": "Retreat to Emeria",
+   "quantity": 1
+  },
+  {
+   "name": "Retreat to Kazandu",
+   "quantity": 1
+  },
+  {
+   "name": "Siegecraft",
+   "quantity": 1
+  },
+  {
+   "name": "Talons of Wildwood",
+   "quantity": 1
+  },
+  {
+   "name": "The Legend of Kuruk",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Chancery",
+   "quantity": 1
+  },
+  {
+   "name": "Blighted Woodland",
+   "quantity": 1
+  },
+  {
+   "name": "Brokers Hideout",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Exotic Orchard",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 6
+  },
+  {
+   "name": "Glacial Fortress",
+   "quantity": 1
+  },
+  {
+   "name": "Hinterland Harbor",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 4
+  },
+  {
+   "name": "Plains",
+   "quantity": 4
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Growth Chamber",
+   "quantity": 1
+  },
+  {
+   "name": "Spara's Headquarters",
+   "quantity": 1
+  },
+  {
+   "name": "Sunpetal Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Enlightenment",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Mystery",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Plenty",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of the False God",
+   "quantity": 1
+  },
+  {
+   "name": "Terramorphic Expanse",
+   "quantity": 1
+  },
+  {
+   "name": "Vibrant Cityscape",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

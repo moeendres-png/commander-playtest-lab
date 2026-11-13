@@ -28,6 +28,7 @@ a location inside this repository. Card images are cached next to it in `images/
 | `import-simulation PATH [--engine-pin PIN] [--pilot-policy POLICY]` | `deckbau_eval.py` JSON simulation reports into `simulation_run` / `simulation_card` | simulated result |
 | `fetch-roles --identity WUG --out FILE.json [--replace-scope]` | public role tags (Scryfall tagger) for a color identity, written as a full snapshot of that identity and imported; the query names only the colors | original (public, community labels) |
 | `import-roles FILE.json [--replace-scope]` | a role file (format below) as claims | original, normalized or derived, by the file's origin |
+| `import-rulings FILE.jsonl [FILE.jsonl ...]` | official card rulings (Scryfall rulings bulk, one ruling per line: `oracle_id`, `source`, `published_at`, `comment`) into `card_ruling`; the rulings of each file replace the ones stored from a file of the same name, and a ruling stays as long as one imported file still lists it (per-file provenance in `card_ruling_source`); a card that is not in the table has no ruling published, an empty table means never imported | normalized (public) |
 | `check-role-labels FILE` | compares the role query slugs with a list of official tagger labels (JSON list or one label per line) and names every slug that is not a label | none (report) |
 | `fetch-images --commander NAME` | card images of the legal pool into the local cache | public images |
 | `data-report` | counts-only report: what the store has, lacks and does not know (collection coverage, public card data age, roles per origin, corpus, observations with unknown times and small denominators, marks, simulation runs) plus hashes of the role tables | none (report) |
@@ -313,7 +314,9 @@ Only image requests leave the machine, and they name single public cards (Owner 
 
 `import-all` runs the importers above in the right order for one commander and checks the
 result: collection (`--inventory`, required), public card facts (`--scryfall`), roles
-(`--roles`), deck lists (`--decklists`, with `--decklist-format edhrec|archidekt`, default
+(`--roles`), rulings (`--rulings FILE`, repeatable; without it the curated
+`card_rulings_*.jsonl` of `data/research/deckbuilder_1655` is used), deck lists
+(`--decklists`, with `--decklist-format edhrec|archidekt`, default
 `edhrec`), usage signals (`--signals FOLDER`, repeatable) and marks (`--marks`). Each step
 runs inside the commander scoping of `importing_for`; a step that was not given is reported
 as `NOT_PROVIDED`, a step that fails stops the rest (`SKIPPED_AFTER_ERROR`, exit code 1).
@@ -323,7 +326,8 @@ Without `--signals`, every folder under `data/research` that holds signal files 
 At the end it prints the counts-only data report (`data-report`) and one completeness table:
 per layer the rows, the cards of the commander's legal pool that the layer covers, the pool
 size and the status `COMPLETE` (the whole pool), `PARTIAL` or `MISSING` (no row). A layer
-that is `PARTIAL` is not an error: not every card has a role, a signal or a deck. With
+that is `PARTIAL` is not an error: not every card has a role, a signal, a deck or a
+published ruling. With
 `--expect-pool N` the command exits with code 3 when the legal pool has another size than
 `N`, so a wrong collection or card-fact import is caught before anything is built on it.
 

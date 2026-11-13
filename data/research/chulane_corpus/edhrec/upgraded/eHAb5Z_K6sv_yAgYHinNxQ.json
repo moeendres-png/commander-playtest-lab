@@ -1,0 +1,366 @@
+{
+ "urlhash": "eHAb5Z_K6sv_yAgYHinNxQ",
+ "variante": "upgraded",
+ "bracket": 3,
+ "savedate": "2025-10-01",
+ "price": 240,
+ "salt": 46.70043708849698,
+ "tags": [
+  "+1/+1 Counters",
+  "Extra Turns",
+  "Energy",
+  "Enchantress",
+  "Artifacts",
+  "Unnatural",
+  "Tokens"
+ ],
+ "source_url": "https://moxfield.com/decks/BiqB1LHV_0WgYQfjsQi5Sg?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Academy Manufactor",
+   "quantity": 1
+  },
+  {
+   "name": "Adrix and Nev, Twincasters",
+   "quantity": 1
+  },
+  {
+   "name": "Aethersquall Ancient",
+   "quantity": 1
+  },
+  {
+   "name": "Aethertide Whale",
+   "quantity": 1
+  },
+  {
+   "name": "Alandra, Sky Dreamer",
+   "quantity": 1
+  },
+  {
+   "name": "Aurora Shifter",
+   "quantity": 1
+  },
+  {
+   "name": "Chasm Skulker",
+   "quantity": 1
+  },
+  {
+   "name": "Detective of the Month",
+   "quantity": 1
+  },
+  {
+   "name": "Dreadlight Monstrosity",
+   "quantity": 1
+  },
+  {
+   "name": "Erdwal Illuminator",
+   "quantity": 1
+  },
+  {
+   "name": "Esix, Fractal Bloom",
+   "quantity": 1
+  },
+  {
+   "name": "Ethereal Investigator",
+   "quantity": 1
+  },
+  {
+   "name": "Evolution Witness",
+   "quantity": 1
+  },
+  {
+   "name": "Gilded Goose",
+   "quantity": 1
+  },
+  {
+   "name": "Glimmerbell",
+   "quantity": 1
+  },
+  {
+   "name": "Graf Mole",
+   "quantity": 1
+  },
+  {
+   "name": "Guard Gomazoa",
+   "quantity": 1
+  },
+  {
+   "name": "Hydroid Krasis",
+   "quantity": 1
+  },
+  {
+   "name": "Kiora's Dambreaker",
+   "quantity": 1
+  },
+  {
+   "name": "Mirror Image",
+   "quantity": 1
+  },
+  {
+   "name": "Mirrorshell Crab",
+   "quantity": 1
+  },
+  {
+   "name": "Morska, Undersea Sleuth",
+   "quantity": 1
+  },
+  {
+   "name": "Nadir Kraken",
+   "quantity": 1
+  },
+  {
+   "name": "Peregrin Took",
+   "quantity": 1
+  },
+  {
+   "name": "Piper Wright, Publick Reporter",
+   "quantity": 1
+  },
+  {
+   "name": "Reef Worm",
+   "quantity": 1
+  },
+  {
+   "name": "Roalesk, Apex Hybrid",
+   "quantity": 1
+  },
+  {
+   "name": "Roil Cartographer",
+   "quantity": 1
+  },
+  {
+   "name": "Sphinx of the Final Word",
+   "quantity": 1
+  },
+  {
+   "name": "Taigam, Master Opportunist",
+   "quantity": 1
+  },
+  {
+   "name": "Tangletrove Kelp",
+   "quantity": 1
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Tireless Provisioner",
+   "quantity": 1
+  },
+  {
+   "name": "Tireless Tracker",
+   "quantity": 1
+  },
+  {
+   "name": "Triton Shorestalker",
+   "quantity": 1
+  },
+  {
+   "name": "Cackling Counterpart",
+   "quantity": 1
+  },
+  {
+   "name": "Deduce",
+   "quantity": 1
+  },
+  {
+   "name": "Didn't Say Please",
+   "quantity": 1
+  },
+  {
+   "name": "For the Common Good",
+   "quantity": 1
+  },
+  {
+   "name": "Full Flowering",
+   "quantity": 1
+  },
+  {
+   "name": "Localized Destruction",
+   "quantity": 1
+  },
+  {
+   "name": "Rite of Replication",
+   "quantity": 1
+  },
+  {
+   "name": "Self-Reflection",
+   "quantity": 1
+  },
+  {
+   "name": "Time Warp",
+   "quantity": 1
+  },
+  {
+   "name": "Bespoke Battlewagon",
+   "quantity": 1
+  },
+  {
+   "name": "Bident of Thassa",
+   "quantity": 1
+  },
+  {
+   "name": "Bootleggers' Stash",
+   "quantity": 1
+  },
+  {
+   "name": "Contagion Clasp",
+   "quantity": 1
+  },
+  {
+   "name": "Decoction Module",
+   "quantity": 1
+  },
+  {
+   "name": "Everflowing Chalice",
+   "quantity": 1
+  },
+  {
+   "name": "Fishing Pole",
+   "quantity": 1
+  },
+  {
+   "name": "Maskwood Nexus",
+   "quantity": 1
+  },
+  {
+   "name": "Robe of the Archmagi",
+   "quantity": 1
+  },
+  {
+   "name": "Sapphire Medallion",
+   "quantity": 1
+  },
+  {
+   "name": "Stone Idol Generator",
+   "quantity": 1
+  },
+  {
+   "name": "Tamiyo's Journal",
+   "quantity": 1
+  },
+  {
+   "name": "Thought Vessel",
+   "quantity": 1
+  },
+  {
+   "name": "Brokers Ascendancy",
+   "quantity": 1
+  },
+  {
+   "name": "Inexorable Tide",
+   "quantity": 1
+  },
+  {
+   "name": "Knowledge Is Power",
+   "quantity": 1
+  },
+  {
+   "name": "Mirrormade",
+   "quantity": 1
+  },
+  {
+   "name": "On the Trail",
+   "quantity": 1
+  },
+  {
+   "name": "Primal Vigor",
+   "quantity": 1
+  },
+  {
+   "name": "Propaganda",
+   "quantity": 1
+  },
+  {
+   "name": "Reconnaissance Mission",
+   "quantity": 1
+  },
+  {
+   "name": "Rhystic Study",
+   "quantity": 1
+  },
+  {
+   "name": "Shark Typhoon",
+   "quantity": 1
+  },
+  {
+   "name": "Teferi's Ageless Insight",
+   "quantity": 1
+  },
+  {
+   "name": "Wilderness Reclamation",
+   "quantity": 1
+  },
+  {
+   "name": "Blossoming Sands",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 8
+  },
+  {
+   "name": "Graypelt Refuge",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 6
+  },
+  {
+   "name": "Meandering River",
+   "quantity": 1
+  },
+  {
+   "name": "Mistrise Village",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 4
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Guildgate",
+   "quantity": 1
+  },
+  {
+   "name": "The Gold Saucer",
+   "quantity": 1
+  },
+  {
+   "name": "Thornwood Falls",
+   "quantity": 1
+  },
+  {
+   "name": "Thriving Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Thriving Heath",
+   "quantity": 1
+  },
+  {
+   "name": "Thriving Isle",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Cove",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

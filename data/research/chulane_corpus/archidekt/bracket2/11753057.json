@@ -1,0 +1,1049 @@
+{
+ "id": 11753057,
+ "bracket": 2,
+ "bracket_detail": 2,
+ "name": "donjon, dés et dragons",
+ "updated_at": "2026-08-06T12:47:43.936697Z",
+ "cards": [
+  {
+   "name": "Emiel the Blessed",
+   "quantity": 1,
+   "categories": [
+    "Blink",
+    "Counters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hylda of the Icy Crown",
+   "quantity": 1,
+   "categories": [
+    "Draw",
+    "Counters",
+    "Tokens"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Giant Killer // Chop Down",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tomb of Horrors Adventurer",
+   "quantity": 1,
+   "categories": [
+    "Copy",
+    "Donjon",
+    "initiative"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Lotus Cobra",
+   "quantity": 1,
+   "categories": [
+    "Ramp",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fellwar Stone",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hengegate Pathway // Mistgate Pathway",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Idyllic Beachfront",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Cryptolith Rite",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Avacyn's Pilgrim",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Misty Rainforest",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Deserted Beach",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sword of Hours",
+   "quantity": 1,
+   "categories": [
+    "Counters",
+    "lancer de dés"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Scalelord Reckoner",
+   "quantity": 1,
+   "categories": [
+    "Dragon",
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Underdark Rift",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Divine Reckoning",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Birds of Paradise",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Bant Panorama",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mistmeadow Witch",
+   "quantity": 1,
+   "categories": [
+    "Blink"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Teleportation Circle",
+   "quantity": 1,
+   "categories": [
+    "Blink"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Barkchannel Pathway // Tidechannel Pathway",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Stroke of Midnight",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Doomskar",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Port Town",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Branchloft Pathway // Boulderloft Pathway",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Earthquake Dragon",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Recursion",
+    "Dragon"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Song of Inspiration",
+   "quantity": 1,
+   "categories": [
+    "Recursion",
+    "lancer de dés"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Beast Within",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "You Hear Something on Watch",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Amareth, the Lustrous",
+   "quantity": 1,
+   "categories": [
+    "Draw",
+    "Dragon"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fabled Passage",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Displacer Beast",
+   "quantity": 1,
+   "categories": [
+    "Creature",
+    "Donjon"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Undermountain Adventurer",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Ramp",
+    "Donjon",
+    "initiative"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Aberrant Mind Sorcerer",
+   "quantity": 1,
+   "categories": [
+    "Recursion",
+    "lancer de dés"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Midnight Pathlighter",
+   "quantity": 1,
+   "categories": [
+    "Evasion",
+    "Donjon"
+   ],
+   "companion": false
+  },
+  {
+   "name": "You Find a Cursed Idol",
+   "quantity": 1,
+   "categories": [
+    "Removal",
+    "Donjon"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Breeding Pool",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Krosan Verge",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Unsettled Mariner",
+   "quantity": 1,
+   "categories": [
+    "Protection",
+    "Dragon"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mox Jasper",
+   "quantity": 1,
+   "categories": [
+    "Ramp",
+    "Dragon"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Dragonlord Dromoka",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Protection",
+    "Dragon"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fortified Village",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Radiant Grove",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Overgrown Farmland",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Maelstrom of the Spirit Dragon",
+   "quantity": 1,
+   "categories": [
+    "Land",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Commander"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mana Vault",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Kinnan, Bonder Prodigy",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Aluren",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Voltaic Key",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Untap"
+   ],
+   "companion": false
+  },
+  {
+   "name": "White Plume Adventurer",
+   "quantity": 1,
+   "categories": [
+    "Untap",
+    "Donjon",
+    "initiative"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ancient Bronze Dragon",
+   "quantity": 1,
+   "categories": [
+    "Counters",
+    "Dragon",
+    "lancer de dés"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Shapesharer",
+   "quantity": 1,
+   "categories": [
+    "Copy",
+    "Dragon"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ancient Gold Dragon",
+   "quantity": 1,
+   "categories": [
+    "Tokens",
+    "Dragon",
+    "lancer de dés"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Planar Ally",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creature",
+    "Donjon"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Shrieking Drake",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Blink"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Radiant Solar",
+   "quantity": 1,
+   "categories": [
+    "Cycling",
+    "Donjon"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Cloister Gargoyle",
+   "quantity": 1,
+   "categories": [
+    "Creature",
+    "Donjon"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Cone of Cold",
+   "quantity": 1,
+   "categories": [
+    "Removal",
+    "lancer de dés"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Valiant Endeavor",
+   "quantity": 1,
+   "categories": [
+    "Removal",
+    "lancer de dés"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hama Pashar, Ruin Seeker",
+   "quantity": 1,
+   "categories": [
+    "Donjon"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Dragon's Hoard",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Ramp",
+    "Dragon",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Immovable Rod",
+   "quantity": 1,
+   "categories": [
+    "Removal",
+    "Donjon"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ellywick Tumblestrum",
+   "quantity": 1,
+   "categories": [
+    "Draw",
+    "Donjon"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Component Pouch",
+   "quantity": 1,
+   "categories": [
+    "Ramp",
+    "lancer de dés"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Urza's Incubator",
+   "quantity": 1,
+   "categories": [
+    "Ramp",
+    "Dragon"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Avenging Hunter",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Donjon",
+    "Dragon",
+    "initiative"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Iymrith, Desert Doom",
+   "quantity": 1,
+   "categories": [
+    "Draw",
+    "Dragon"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Yuan-Ti Malison",
+   "quantity": 1,
+   "categories": [
+    "Evasion",
+    "Donjon"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Wandering Troubadour",
+   "quantity": 1,
+   "categories": [
+    "Donjon",
+    "Dragon"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Druid of the Emerald Grove",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Ramp",
+    "lancer de dés"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mothdust Changeling",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Evasion",
+    "Dragon"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Masked Vandal",
+   "quantity": 1,
+   "categories": [
+    "Removal",
+    "Dragon"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Old Gnawbone",
+   "quantity": 1,
+   "categories": [
+    "Ramp",
+    "Dragon"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Nadaar, Selfless Paladin",
+   "quantity": 1,
+   "categories": [
+    "Dragon",
+    "Donjon"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Eccentric Apprentice",
+   "quantity": 1,
+   "categories": [
+    "Removal",
+    "Donjon"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Varis, Silverymoon Ranger",
+   "quantity": 1,
+   "categories": [
+    "Tokens",
+    "Donjon"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Contraband Livestock",
+   "quantity": 1,
+   "categories": [
+    "Removal",
+    "lancer de dés"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Arcane Endeavor",
+   "quantity": 1,
+   "categories": [
+    "Draw",
+    "lancer de dés"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Aura Shards",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Basalt Monolith",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "White Dragon",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Removal",
+    "Dragon"
+   ],
+   "companion": false
+  },
+  {
+   "name": "You Find the Villains' Lair",
+   "quantity": 1,
+   "categories": [
+    "Removal",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "You Happen On a Glade",
+   "quantity": 1,
+   "categories": [
+    "Ramp",
+    "Recursion"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Haven of the Spirit Dragon",
+   "quantity": 1,
+   "categories": [
+    "Land",
+    "Recursion"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Loran of the Third Path",
+   "quantity": 1,
+   "categories": [
+    "Removal",
+    "Creature",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Seasoned Dungeoneer",
+   "quantity": 1,
+   "categories": [
+    "Protection",
+    "Creature",
+    "Donjon",
+    "initiative",
+    "Evasion"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Phyrexian Altar",
+   "quantity": 1,
+   "categories": [
+    "Ramp",
+    "sacrifice"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Skyclave Apparition",
+   "quantity": 1,
+   "categories": [
+    "Removal",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Captain Sisay",
+   "quantity": 1,
+   "categories": [
+    "Tutor",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Adarkar Valkyrie",
+   "quantity": 1,
+   "categories": [
+    "Recursion",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Chromatic Orrery",
+   "quantity": 1,
+   "categories": [
+    "Ramp",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ashnod's Altar",
+   "quantity": 1,
+   "categories": [
+    "Ramp",
+    "sacrifice"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Pemmin's Aura",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Untap",
+    "Evasion",
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Freed from the Real",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Untap"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ilysian Caryatid",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Bloom Tender",
+   "quantity": 1,
+   "categories": [
+    "Ramp",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Moon-Blessed Cleric",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Tutor"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sephara, Sky's Blade",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sharae of Numbing Depths",
+   "quantity": 1,
+   "categories": [
+    "Draw",
+    "Creature",
+    "Tap"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Order of Whiteclay",
+   "quantity": 1,
+   "categories": [
+    "Recursion",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Animal Boneyard",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "sacrifice",
+    "lifegain"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Derevi, Empyrial Tactician",
+   "quantity": 1,
+   "categories": [
+    "Commander"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Forest",
+   "quantity": 4,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Plains",
+   "quantity": 8,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Samite Elder",
+   "quantity": 1,
+   "categories": [
+    "Protection",
+    "Creature",
+    "Evasion"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Generous Gift",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Island",
+   "quantity": 5,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Bountiful Promenade",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Soul-Guide Lantern",
+   "quantity": 1,
+   "categories": [
+    "pète cimetière"
+   ],
+   "companion": false
+  }
+ ],
+ "summe_hauptdeck": 100,
+ "summe_gesamt": 130,
+ "_name_missing": 0,
+ "_deleted_entries": 0
+}

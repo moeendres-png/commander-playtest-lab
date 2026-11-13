@@ -116,6 +116,7 @@ def test_a_step_that_is_not_given_is_not_provided(tmp_path: Path) -> None:
         inventory=str(files["inventory"]),
         scryfall=None,
         roles=None,
+        rulings=None,
         signals=None,
         decklists=None,
         decklist_format="edhrec",
@@ -222,6 +223,7 @@ _SIGNAL_LAYERS = {
     "signal:spellbook_variants",
     "signal:tournament_lists",
     "signal:edhtop16_commander_play_rate",
+    "signal:playgroup_observed_winrate_gap",
 }
 
 

@@ -1,0 +1,685 @@
+{
+ "id": 14076484,
+ "bracket": 1,
+ "bracket_detail": 1,
+ "name": "Chulane Goes Fishing",
+ "updated_at": "2026-10-08T20:08:41.690204Z",
+ "cards": [
+  {
+   "name": "Flooded Strand",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Coral Atoll",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Terramorphic Expanse",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Idyllic Tutor",
+   "quantity": 1,
+   "categories": [
+    "Sorcery"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Echoing Truth",
+   "quantity": 1,
+   "categories": [
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Unsettled Mariner",
+   "quantity": 1,
+   "categories": [
+    "Crew"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Growth Spiral",
+   "quantity": 1,
+   "categories": [
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Reef Roads",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Woodland Stream",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tangled Islet",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1,
+   "categories": [
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mystic Sanctuary",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1,
+   "categories": [
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sword Coast Sailor",
+   "quantity": 1,
+   "categories": [
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ominous Seas",
+   "quantity": 1,
+   "categories": [
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Shark Typhoon",
+   "quantity": 1,
+   "categories": [
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Thaumatic Compass // Spires of Orazca",
+   "quantity": 1,
+   "categories": [
+    "An Honest Day's Work"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Expedition Map",
+   "quantity": 1,
+   "categories": [
+    "An Honest Day's Work"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Swiftfoot Boots",
+   "quantity": 1,
+   "categories": [
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "High Tide",
+   "quantity": 1,
+   "categories": [
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Engulf the Shore",
+   "quantity": 1,
+   "categories": [
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sapphire Medallion",
+   "quantity": 1,
+   "categories": [
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "River's Rebuke",
+   "quantity": 1,
+   "categories": [
+    "Sorcery"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Arixmethes, Slumbering Isle",
+   "quantity": 1,
+   "categories": [
+    "Catch"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Cargo Ship",
+   "quantity": 1,
+   "categories": [
+    "B O A T"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Coastal Piracy",
+   "quantity": 1,
+   "categories": [
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Deadeye Navigator",
+   "quantity": 1,
+   "categories": [
+    "Crew"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fishliver Oil",
+   "quantity": 1,
+   "categories": [
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Raiders' Karve",
+   "quantity": 1,
+   "categories": [
+    "B O A T"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sidequest: Catch a Fish // Cooking Campsite",
+   "quantity": 1,
+   "categories": [
+    "An Honest Day's Work"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Siren Stormtamer",
+   "quantity": 1,
+   "categories": [
+    "Crew"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sleep with the Fishes",
+   "quantity": 1,
+   "categories": [
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hanna, Ship's Navigator",
+   "quantity": 1,
+   "categories": [
+    "Crew"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Pirate Ship",
+   "quantity": 1,
+   "categories": [
+    "B O A T"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Plains",
+   "quantity": 6,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Island",
+   "quantity": 15,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Forest",
+   "quantity": 8,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Shark",
+   "quantity": 1,
+   "categories": [
+    "Tokens & Extras"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Vehicle",
+   "quantity": 1,
+   "categories": [
+    "Tokens & Extras"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Clue",
+   "quantity": 1,
+   "categories": [
+    "Tokens & Extras"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Koma's Coil",
+   "quantity": 1,
+   "categories": [
+    "Tokens & Extras"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Kraken",
+   "quantity": 1,
+   "categories": [
+    "Tokens & Extras"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Kraken",
+   "quantity": 1,
+   "categories": [
+    "Tokens & Extras"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Octopus",
+   "quantity": 1,
+   "categories": [
+    "Tokens & Extras"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Pilot",
+   "quantity": 1,
+   "categories": [
+    "Tokens & Extras"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Shark",
+   "quantity": 1,
+   "categories": [
+    "Tokens & Extras"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fish",
+   "quantity": 1,
+   "categories": [
+    "Tokens & Extras"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Food",
+   "quantity": 1,
+   "categories": [
+    "Tokens & Extras"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Aesi, Tyrant of Gyre Strait",
+   "quantity": 1,
+   "categories": [
+    "Catch"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Kishla Trawlers",
+   "quantity": 1,
+   "categories": [
+    "Crew"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Vexing Gull",
+   "quantity": 1,
+   "categories": [
+    "Catch"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fathom Trawl",
+   "quantity": 1,
+   "categories": [
+    "Sorcery"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Glacial Fortress",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Port Town",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Rampant Growth",
+   "quantity": 1,
+   "categories": [
+    "Sorcery"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fish",
+   "quantity": 2,
+   "categories": [
+    "Tokens & Extras"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1,
+   "categories": [
+    "Commander"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Aven Fisher",
+   "quantity": 1,
+   "categories": [
+    "Crew"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Baithook Angler // Hook-Haunt Drifter",
+   "quantity": 1,
+   "categories": [
+    "Crew"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Grizzled Angler // Grisly Anglerfish",
+   "quantity": 1,
+   "categories": [
+    "Crew"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Deadeye Quartermaster",
+   "quantity": 1,
+   "categories": [
+    "Crew"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Spectral Sailor",
+   "quantity": 1,
+   "categories": [
+    "Crew"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Conqueror's Galleon // Conqueror's Foothold",
+   "quantity": 1,
+   "categories": [
+    "B O A T"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Cosima, God of the Voyage // The Omenkeel",
+   "quantity": 1,
+   "categories": [
+    "B O A T"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Morska, Undersea Sleuth",
+   "quantity": 1,
+   "categories": [
+    "Crew"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Dandân",
+   "quantity": 1,
+   "categories": [
+    "Catch"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fleet Swallower",
+   "quantity": 1,
+   "categories": [
+    "Catch"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Kenessos, Priest of Thassa",
+   "quantity": 1,
+   "categories": [
+    "Crew"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Reef Worm",
+   "quantity": 1,
+   "categories": [
+    "Catch"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mu Yanling, Wind Rider",
+   "quantity": 1,
+   "categories": [
+    "Crew"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Koma, World-Eater",
+   "quantity": 1,
+   "categories": [
+    "Catch"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Xolatoyac, the Smiling Flood",
+   "quantity": 1,
+   "categories": [
+    "Catch"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Koma, Cosmos Serpent",
+   "quantity": 1,
+   "categories": [
+    "Catch"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Serpent of Yawning Depths",
+   "quantity": 1,
+   "categories": [
+    "Catch"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Spawning Kraken",
+   "quantity": 1,
+   "categories": [
+    "Catch"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Eluge, the Shoreless Sea",
+   "quantity": 1,
+   "categories": [
+    "Catch"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Subterranean Schooner",
+   "quantity": 1,
+   "categories": [
+    "B O A T"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Skysovereign, Consul Flagship",
+   "quantity": 1,
+   "categories": [
+    "B O A T"
+   ],
+   "companion": false
+  },
+  {
+   "name": "The Indomitable",
+   "quantity": 1,
+   "categories": [
+    "B O A T"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fishing Pole",
+   "quantity": 1,
+   "categories": [
+    "An Honest Day's Work"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fisher's Talent",
+   "quantity": 1,
+   "categories": [
+    "An Honest Day's Work"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Explorer's Scope",
+   "quantity": 1,
+   "categories": [
+    "An Honest Day's Work"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Consulate Dreadnought",
+   "quantity": 1,
+   "categories": [
+    "B O A T"
+   ],
+   "companion": false
+  }
+ ],
+ "summe_hauptdeck": 98,
+ "summe_gesamt": 111,
+ "_name_missing": 0,
+ "_deleted_entries": 0
+}

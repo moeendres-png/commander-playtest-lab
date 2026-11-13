@@ -1,0 +1,406 @@
+{
+ "urlhash": "jwIl3WYDDOVpbR-No5Fing",
+ "variante": "core",
+ "bracket": 2,
+ "savedate": "2025-08-16",
+ "price": 475,
+ "salt": 37.91353469341993,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/BhFoF_8Jt0SBccK7Ebl0QQ?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Ancient Gold Dragon",
+   "quantity": 1
+  },
+  {
+   "name": "Ancient Silver Dragon",
+   "quantity": 1
+  },
+  {
+   "name": "Apothecary White",
+   "quantity": 1
+  },
+  {
+   "name": "Brazen Borrower",
+   "quantity": 1
+  },
+  {
+   "name": "Brightcap Badger",
+   "quantity": 1
+  },
+  {
+   "name": "Casal, Lurkwood Pathfinder",
+   "quantity": 1
+  },
+  {
+   "name": "Displacer Beast",
+   "quantity": 1
+  },
+  {
+   "name": "Displacer Kitten",
+   "quantity": 1
+  },
+  {
+   "name": "Edgewall Innkeeper",
+   "quantity": 1
+  },
+  {
+   "name": "Elusive Otter",
+   "quantity": 1
+  },
+  {
+   "name": "Giant Killer",
+   "quantity": 1
+  },
+  {
+   "name": "Gwafa Hazid, Profiteer",
+   "quantity": 1
+  },
+  {
+   "name": "Hypnotic Sprite",
+   "quantity": 1
+  },
+  {
+   "name": "Illithid Harvester",
+   "quantity": 1
+  },
+  {
+   "name": "James, Wandering Dad",
+   "quantity": 1
+  },
+  {
+   "name": "Kellan, Daring Traveler",
+   "quantity": 1
+  },
+  {
+   "name": "Kellan, Inquisitive Prodigy",
+   "quantity": 1
+  },
+  {
+   "name": "Nadaar, Selfless Paladin",
+   "quantity": 1
+  },
+  {
+   "name": "Ornithopter of Paradise",
+   "quantity": 1
+  },
+  {
+   "name": "Picklock Prankster",
+   "quantity": 1
+  },
+  {
+   "name": "Pollen-Shield Hare",
+   "quantity": 1
+  },
+  {
+   "name": "Radiant Solar",
+   "quantity": 1
+  },
+  {
+   "name": "Realm-Cloaked Giant",
+   "quantity": 1
+  },
+  {
+   "name": "Sapphire Dragon",
+   "quantity": 1
+  },
+  {
+   "name": "Seasoned Dungeoneer",
+   "quantity": 1
+  },
+  {
+   "name": "Sentinel of Lost Lore",
+   "quantity": 1
+  },
+  {
+   "name": "Shepherd of the Flock",
+   "quantity": 1
+  },
+  {
+   "name": "Threadbind Clique",
+   "quantity": 1
+  },
+  {
+   "name": "Tlincalli Hunter",
+   "quantity": 1
+  },
+  {
+   "name": "Tomb of Horrors Adventurer",
+   "quantity": 1
+  },
+  {
+   "name": "Twenty-Toed Toad",
+   "quantity": 1
+  },
+  {
+   "name": "Varis, Silverymoon Ranger",
+   "quantity": 1
+  },
+  {
+   "name": "Wandering Troubadour",
+   "quantity": 1
+  },
+  {
+   "name": "Wandermare",
+   "quantity": 1
+  },
+  {
+   "name": "Bar the Gate",
+   "quantity": 1
+  },
+  {
+   "name": "Contraband Livestock",
+   "quantity": 1
+  },
+  {
+   "name": "Galadhrim Ambush",
+   "quantity": 1
+  },
+  {
+   "name": "Illusionist's Gambit",
+   "quantity": 1
+  },
+  {
+   "name": "Lae'zel's Acrobatics",
+   "quantity": 1
+  },
+  {
+   "name": "Perplexing Test",
+   "quantity": 1
+  },
+  {
+   "name": "Explore the Underdark",
+   "quantity": 1
+  },
+  {
+   "name": "Hypergenesis",
+   "quantity": 1
+  },
+  {
+   "name": "Pir's Whim",
+   "quantity": 1
+  },
+  {
+   "name": "Venture Forth",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Cryogen Relic",
+   "quantity": 1
+  },
+  {
+   "name": "Dungeon Map",
+   "quantity": 1
+  },
+  {
+   "name": "Dungeoneer's Pack",
+   "quantity": 1
+  },
+  {
+   "name": "Fellwar Stone",
+   "quantity": 1
+  },
+  {
+   "name": "Immovable Rod",
+   "quantity": 1
+  },
+  {
+   "name": "Lucky Clover",
+   "quantity": 1
+  },
+  {
+   "name": "Monster Manual",
+   "quantity": 1
+  },
+  {
+   "name": "Sarevok's Tome",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "The Deck of Many Things",
+   "quantity": 1
+  },
+  {
+   "name": "Thought Vessel",
+   "quantity": 1
+  },
+  {
+   "name": "Thorough Investigation",
+   "quantity": 1
+  },
+  {
+   "name": "Ellywick Tumblestrum",
+   "quantity": 1
+  },
+  {
+   "name": "The Wanderer",
+   "quantity": 1
+  },
+  {
+   "name": "Wrenn and Seven",
+   "quantity": 1
+  },
+  {
+   "name": "Academy Ruins",
+   "quantity": 1
+  },
+  {
+   "name": "Adagia, Windswept Bastion",
+   "quantity": 1
+  },
+  {
+   "name": "Alchemist's Refuge",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Guildgate",
+   "quantity": 1
+  },
+  {
+   "name": "Baldur's Gate",
+   "quantity": 1
+  },
+  {
+   "name": "Basilisk Gate",
+   "quantity": 1
+  },
+  {
+   "name": "Citadel Gate",
+   "quantity": 1
+  },
+  {
+   "name": "Command Beacon",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Dungeon Descent",
+   "quantity": 1
+  },
+  {
+   "name": "Edgewall Inn",
+   "quantity": 1
+  },
+  {
+   "name": "Evendo, Waking Haven",
+   "quantity": 1
+  },
+  {
+   "name": "Fabled Passage",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 2
+  },
+  {
+   "name": "Gateway Plaza",
+   "quantity": 1
+  },
+  {
+   "name": "Gond Gate",
+   "quantity": 1
+  },
+  {
+   "name": "Great Hall of the Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Heap Gate",
+   "quantity": 1
+  },
+  {
+   "name": "Hedge Maze",
+   "quantity": 1
+  },
+  {
+   "name": "Ishgard, the Holy See",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 2
+  },
+  {
+   "name": "Jidoor, Aristocratic Capital",
+   "quantity": 1
+  },
+  {
+   "name": "Lush Portico",
+   "quantity": 1
+  },
+  {
+   "name": "Manor Gate",
+   "quantity": 1
+  },
+  {
+   "name": "Maze's End",
+   "quantity": 1
+  },
+  {
+   "name": "Meticulous Archive",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 2
+  },
+  {
+   "name": "Planar Nexus",
+   "quantity": 1
+  },
+  {
+   "name": "Sea Gate",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Guildgate",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Guildgate",
+   "quantity": 1
+  },
+  {
+   "name": "Spara's Headquarters",
+   "quantity": 1
+  },
+  {
+   "name": "Talon Gates of Madara",
+   "quantity": 1
+  },
+  {
+   "name": "Thran Portal",
+   "quantity": 1
+  },
+  {
+   "name": "Uthros, Titanic Godcore",
+   "quantity": 1
+  },
+  {
+   "name": "Zanarkand, Ancient Metropolis",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}
