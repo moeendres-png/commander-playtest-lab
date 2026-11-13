@@ -457,9 +457,11 @@ Deck, collection and ownership data, including partial lists and the single card
 asked for one after another, go to no external service. Allowed are requests that carry no
 Owner reference, namely bulk downloads of public card data by plain GET; the evaluation runs
 locally.
-One Owner exception (2026-11-10): card names may be sent to a free public card-image source
-to show card images, cached locally; nothing else about decks or the collection leaves the
-machine.
+Two Owner exceptions, card names only: (2026-11-10) to a free public card-image source to
+show card images, cached locally; (2026-11-13) to playgroup.gg to fetch the statistics it
+publishes per card (`scripts/collect_playgroup_card_atlas.py`), one request per card name,
+with no quantities, ownership, deck structure or other reference to the Owner. Nothing else
+about decks or the collection leaves the machine.
 
 ## 13. Semantic Completion Rule
 
