@@ -1,0 +1,26 @@
+KANONISCHER KARTENBESTAND – 15 Fotos | korrigierter Fotoabgleich 12.11.2026,
+Status,PHOTO15_QA_2026-11-12_TOTAL_377_PHYSICAL_PLAYABLE_TOKEN1; ECL_BATCH3_142; FRA72 SPM41 CLB1 CMR2 FIC1; PHOTO_POSITIONS_378; CONDITION_FINISH_NOT_REQUIRED_ALEN_LEON; VERSION_AMBIGUITY_FRA330_458_NOTED
+Zweck,"Physischer Eigenbestand + Provenienz. Keine Deckempfehlungen, keine historischen Deck-Priors."
+Physische Kartenidentitäten im eigenen Current-Bestand,1655
+Davon frei für eigene Decks,1652
+Beobachtete eigene physische Exemplare,2233
+Physischer Mindestbestand / Lower Bound,2438
+Für Gegner reservierte eigene Exemplare,3
+Frei verfügbarer Mindestbestand / Lower Bound,2435
+Physische Lots,1870
+Standardländer,Mindestens 50 insgesamt je Typ. Beobachtete Exemplare sind Teil dieser Untergrenze und werden NICHT zusätzlich auf 50 addiert.
+Reservierungen,"Reservierte Kopien bleiben eigener physischer Bestand, sind aber solange nicht für eigene Decks verfügbar."
+Lagerort ≠ Eigentum,Ein Lagerort wie „Alens Box“ beschreibt nur den physischen Ort und niemals automatisch einen Eigentumswechsel.
+Printing-Minimalismus,Konkrete Druckversion primär über printing_ref. Keine redundanten Setname-/Edition-/Foil-/Finish-Spalten im Physical-Lot-Layer.
+Deckbau,Candidate Pools werden ausschließlich aus freier physischer Verfügbarkeit + Legalität + Farbidentität + Copy-Constraints abgeleitet.
+Gegnerdaten,Synthetische/Proxy-Gegnerkarten gehören nicht in diese physische Inventarwahrheit.
+Historische Deck-Priors,Verboten. Aktuelle oder frühere Deckzugehörigkeit erzeugt keinen Fresh-Rebuild-Prior.
+Neuzugang 07.11.2026,"10 unterschiedliche Karten (ECL 3 / FRA 7), je 1 Exemplar; Alens Box; own_available, keine Reservierung; alle 10 NM (Near Mint), nonfoil durch Nutzer bestätigt. Druckvarianten per Set-Code und Nummer abgeglichen; optionale externe Oracle-UUID weiterhin offen. Details in 01/02/04/05/06/07/09."
+Neuzugang 11.11.2026 (Batch 1),"Batch 1: 5 Fotos, 117 neue physische Karten + 1 separat geführte Jace-Spielmarke. FRA 72, SPM 41, CLB 1, CMR 2, FIC 1. Vier zuvor ungeklärte Fremdsets am 11.11.2026 ausdrücklich vom Nutzer bestätigt und Scryfall-Drucknummern abgeglichen; keine Doppelzählung. 99 neue Oracle-Identitäten."
+Qualitätsprüfung Batch 1,Batch 1: Set-Konflikte für Durnan/Gilanra/Yavimaya/Tromell geklärt; alle Karten bleiben auf location:alen_box. Schmale Randfragmente gemäß Nutzerregel nicht zählen; vorherige fünf Foto-Randüberlappungen gesondert geprüft. Zustand und Foilstatus nicht unterstellen.
+Neuzugang 11.11.2026 (Batch 2),"Batch 2 (Fotos 4944–4948): 118 vollständige ECL-Karten, 71 verschiedene Oracle-Namen; nach Foto-QA 69 neue Identitäten (nicht 70), weil 4945 R3C2 vorher als Encumbered Reejerey fehlidentifiziert war. Korrekte Karte: English Deepchannel Duelist ECL#213, bereits 4946 R5C2 als German Deepchannel Duelist ECL#213 vertreten. Kein neues Exemplar durch diese Umbuchung."
+Qualitätsprüfung Batch 2,"Batch 2: 118 physische Lots/Ereignisse, Standort alen_box, own_available. QA 12.11.2026 berichtigt Lot/Ereignis 4945 R3C2 ohne Änderung der Gesamtmenge. Die vorbestehende 9-Identitäten-Lotzählkorrektur (+20) blieb unverändert erhalten."
+Neuzugang 11.11.2026 (Batch 3 / letzter Batch),"Batch 3 (Fotos 4949–4953): 142 vollständig sichtbare ECL-Karten nach Nachtrag der 6 bislang übersehenen Exemplare in 4950 R5C1–R5C6; 89 verschiedene Oracle-Namen, 73 neue Identitäten, 16 zuvor existierende Identitäten. 142 Lots und 142 Ereignisse, location:alen_box, own_available."
+Qualitätsprüfung Batch 3 (15 Fotos gesamt),"Foto-Audit enthält 378 sichtbare Positionen = 377 spielbare Karten + 1 Jace-Spielmarke. 4950 R5 mit 6 Lots/Ereignissen ergänzt; 4945 R3C2 auf Deepchannel Duelist ECL#213|en korrigiert; Jace TFRA#5 separat belegt. Gesamter physischer Mindestbestand=2438, beobachtet=2233, frei=2435, reserviert=3, Lots=1870, Identitäten=1655. Versionshinweis: FRA#330 vs FRA#458 finishabhängig nicht zweifelsfrei unterscheidbar; Zustand/Finish für Alen und Leon nicht bestandsrelevant."
+Qualitätsabgleich 12.11.2026,"Textliste 378 gegen Originalfotos und 10_PHOTO_AUDIT_20261111 geprüft. 6 real vorhandene zusätzliche Karten eingetragen; 1 falsche Zuordnung auf denselben Lot-/Event-IDs berichtigt; 1 Fehler nur in der Textliste (Goliath Daydreamer korrekt in Excel); 9 Sonderdruck-Positionen beibehalten, solange Art/Rahmen passt. Keine Randfragmente zusätzlich gezählt."
+Regel Zustand/Finish Alen und Leon,"Nur Identität, Druck-/Artversion soweit belegbar, Stückzahl, Lagerort und Verfügbarkeit zählen. Zustandsnote und Foilstatus optional/irrelevant, niemals schätzen."
