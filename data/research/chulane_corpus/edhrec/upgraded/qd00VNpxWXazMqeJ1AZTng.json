@@ -1,0 +1,346 @@
+{
+ "urlhash": "qd00VNpxWXazMqeJ1AZTng",
+ "variante": "upgraded",
+ "bracket": 3,
+ "savedate": "2026-03-30",
+ "price": 336,
+ "salt": 49.14101349376142,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/21260341?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Adaptive Automaton",
+   "quantity": 1
+  },
+  {
+   "name": "Adrix and Nev, Twincasters",
+   "quantity": 1
+  },
+  {
+   "name": "Benthic Biomancer",
+   "quantity": 1
+  },
+  {
+   "name": "Bloodline Pretender",
+   "quantity": 1
+  },
+  {
+   "name": "Cenote Scout",
+   "quantity": 1
+  },
+  {
+   "name": "Dakra Mystic",
+   "quantity": 1
+  },
+  {
+   "name": "Deepchannel Duelist",
+   "quantity": 1
+  },
+  {
+   "name": "Deepway Navigator",
+   "quantity": 1
+  },
+  {
+   "name": "Encumbered Reejerey",
+   "quantity": 1
+  },
+  {
+   "name": "Harbinger of the Tides",
+   "quantity": 1
+  },
+  {
+   "name": "Kiora's Follower",
+   "quantity": 1
+  },
+  {
+   "name": "Lyla, Holographic Assistant",
+   "quantity": 1
+  },
+  {
+   "name": "Merfolk Mistbinder",
+   "quantity": 1
+  },
+  {
+   "name": "Merfolk Skydiver",
+   "quantity": 1
+  },
+  {
+   "name": "Metallic Mimic",
+   "quantity": 1
+  },
+  {
+   "name": "Mindspring Merfolk",
+   "quantity": 1
+  },
+  {
+   "name": "Nicanzil, Current Conductor",
+   "quantity": 1
+  },
+  {
+   "name": "Roaming Throne",
+   "quantity": 1
+  },
+  {
+   "name": "Sahagin",
+   "quantity": 1
+  },
+  {
+   "name": "Shipwreck Dowser",
+   "quantity": 1
+  },
+  {
+   "name": "Silvergill Mentor",
+   "quantity": 1
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Thassa's Oracle",
+   "quantity": 1
+  },
+  {
+   "name": "Triton Shorestalker",
+   "quantity": 1
+  },
+  {
+   "name": "Umara Entangler",
+   "quantity": 1
+  },
+  {
+   "name": "Vineshaper Mystic",
+   "quantity": 1
+  },
+  {
+   "name": "Wanderbrine Trapper",
+   "quantity": 1
+  },
+  {
+   "name": "Accumulated Knowledge",
+   "quantity": 1
+  },
+  {
+   "name": "Auroral Procession",
+   "quantity": 1
+  },
+  {
+   "name": "Crop Rotation",
+   "quantity": 1
+  },
+  {
+   "name": "Heritage Reclamation",
+   "quantity": 1
+  },
+  {
+   "name": "Hindering Light",
+   "quantity": 1
+  },
+  {
+   "name": "Mental Modulation",
+   "quantity": 1
+  },
+  {
+   "name": "Nexus of Fate",
+   "quantity": 1
+  },
+  {
+   "name": "Pull from Tomorrow",
+   "quantity": 1
+  },
+  {
+   "name": "Read the Runes",
+   "quantity": 1
+  },
+  {
+   "name": "Sphinx's Revelation",
+   "quantity": 1
+  },
+  {
+   "name": "Stroke of Genius",
+   "quantity": 1
+  },
+  {
+   "name": "Explosive Vegetation",
+   "quantity": 1
+  },
+  {
+   "name": "Flood of Recollection",
+   "quantity": 1
+  },
+  {
+   "name": "Kodama's Reach",
+   "quantity": 1
+  },
+  {
+   "name": "Nylea's Intervention",
+   "quantity": 1
+  },
+  {
+   "name": "Wanderwine Farewell",
+   "quantity": 1
+  },
+  {
+   "name": "Bender's Waterskin",
+   "quantity": 1
+  },
+  {
+   "name": "Bilbo's Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Chromatic Lantern",
+   "quantity": 1
+  },
+  {
+   "name": "Commander's Sphere",
+   "quantity": 1
+  },
+  {
+   "name": "Howling Mine",
+   "quantity": 1
+  },
+  {
+   "name": "Obelisk of Urd",
+   "quantity": 1
+  },
+  {
+   "name": "Panharmonicon",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Stoneforge Masterwork",
+   "quantity": 1
+  },
+  {
+   "name": "Swiftfoot Boots",
+   "quantity": 1
+  },
+  {
+   "name": "Tamiyo's Journal",
+   "quantity": 1
+  },
+  {
+   "name": "Thought Vessel",
+   "quantity": 1
+  },
+  {
+   "name": "Vedalken Orrery",
+   "quantity": 1
+  },
+  {
+   "name": "Angelic Gift",
+   "quantity": 1
+  },
+  {
+   "name": "Curse of Bounty",
+   "quantity": 1
+  },
+  {
+   "name": "Deeproot Pilgrimage",
+   "quantity": 1
+  },
+  {
+   "name": "Retreat to Coralhelm",
+   "quantity": 1
+  },
+  {
+   "name": "Sandwurm Convergence",
+   "quantity": 1
+  },
+  {
+   "name": "Teferi's Ageless Insight",
+   "quantity": 1
+  },
+  {
+   "name": "Wilderness Reclamation",
+   "quantity": 1
+  },
+  {
+   "name": "Teferi, Master of Time",
+   "quantity": 1
+  },
+  {
+   "name": "Teferi, Temporal Pilgrim",
+   "quantity": 1
+  },
+  {
+   "name": "Adarkar Wastes",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Demolition Field",
+   "quantity": 1
+  },
+  {
+   "name": "Deserted Beach",
+   "quantity": 1
+  },
+  {
+   "name": "Flooded Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 7
+  },
+  {
+   "name": "Hinterland Harbor",
+   "quantity": 1
+  },
+  {
+   "name": "Holdout Settlement",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 7
+  },
+  {
+   "name": "Nesting Grounds",
+   "quantity": 1
+  },
+  {
+   "name": "Nykthos, Shrine to Nyx",
+   "quantity": 1
+  },
+  {
+   "name": "Overflowing Basin",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 7
+  },
+  {
+   "name": "Skycloud Expanse",
+   "quantity": 1
+  },
+  {
+   "name": "Spire of Industry",
+   "quantity": 1
+  },
+  {
+   "name": "Yavimaya Coast",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}
