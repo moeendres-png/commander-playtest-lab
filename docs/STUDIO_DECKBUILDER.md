@@ -379,5 +379,17 @@ this; shipping the page inside a wheel is a later step.
   (`Varianten-Diff`, including land-draw probability deltas, role deltas, and on-demand
   `HEURISTIC_MODEL` commander castability / mana-base pre-filtering via `POST /api/prefilter`),
   and 4P XMage simulation run summaries (`Simulation`).
+- Search ranks by fit (exact name, name prefix, word prefix, name contains, then type and
+  text), alphabetical inside a rank. Sort options include EDHREC share (from the older
+  tables, else the stored `import-signals` inclusion with numerator and denominator),
+  Synergie and Stärke-Index (the tier page's `/api/strength`, with the settings the tier page
+  remembers); an unknown value always sorts last.
+- "Nur Decks mit diesen Karten" (tabs Zahlen and Vergleich, `GET /api/deck-filter`): the
+  source-deck figures count only the commander's decks that contain all chosen cards, labelled
+  "Teilmenge: N von M Decks"; the chosen cards are "Filterkarte" and not ranked. Only cards of
+  the commander's pool can be chosen. Same machinery as the universe `must_contain` filter.
+- Pages show a data-state box (`GET /api/layers`): which data layers exist for the commander
+  and the exact `import-all` call for each missing one. Both pages share one header (Deckbau,
+  Tierliste, Partien, chosen commander, light/dark toggle remembered in the browser).
 - Drafts are kept automatically; a saved state is an immutable revision. Variants are named
   branches of a deck. Export as text list or as deck snapshot for the simulator.

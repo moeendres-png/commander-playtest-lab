@@ -189,7 +189,7 @@ const StudioUI = (() => {
       el("td", { class: "num" }, layer.pool === null ? "unbekannt" : `${layer.covered} von ${layer.pool}`),
       el("td", {}, el("span", { class: `badge status-${layer.status}` }, STATUS_TEXT[layer.status] || layer.status)),
       el("td", {}, layer.status === "MISSING" ? el("code", { class: "cmd" }, layer.command) : "")));
-    host.replaceChildren(el("details", { class: "datastate", open: missing.length > 0 },
+    host.replaceChildren(el("details", { class: "datastate", open: missing.some((layer) => ["inventory", "scryfall", "decklists"].includes(layer.key)) },
       el("summary", {}, missing.length ? `Es fehlen Daten: ${missing.length} von ${overview.layers.length} Schichten sind leer` : "Datenstand"),
       el("p", { class: "note" }, `Gezählt für ${StudioCommander.shortName(commander)}. Eine leere Schicht ist keine schwache Karte, sondern fehlende Beobachtung. ${overview.pool_size === null ? "Der Commander steht nicht in der Sammlung: zuerst die Sammlung importieren." : `Kartenpool: ${overview.pool_size} Karten.`}`),
       el("div", { class: "table-wrap" }, el("table", {},

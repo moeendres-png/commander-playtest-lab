@@ -3,8 +3,7 @@ body{height:auto;min-height:100%}
 #notice{padding:var(--s2) var(--s3);background:var(--panel2);border-bottom:1px solid var(--line);font-size:13px}
 #notice b{color:var(--warn)}
 #notice .summary{color:var(--muted);margin-top:2px}
-#pool-body{overflow:visible}
-#filters{position:sticky;top:0;z-index:5}
+#pool-body{overflow:auto;max-height:calc(100vh - 150px);min-height:320px;padding:var(--s3)}
 td.cardcell{white-space:nowrap}
 td.cardcell .thumb{display:inline-block;vertical-align:middle;margin-right:var(--s2)}
 .star{color:#ffd257}

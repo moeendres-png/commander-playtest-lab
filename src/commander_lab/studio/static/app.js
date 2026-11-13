@@ -1095,7 +1095,7 @@ async function saveRevision(branch = state.branch) {
   try {
     const result = await api(`/api/decks/${encodeURIComponent(state.deckId)}/revisions`, "POST", { cards: entries(), branch, note, parent_revision_id: state.baseRevision });
     if (branch !== state.branch) await api(`/api/decks/${encodeURIComponent(state.deckId)}/branches/${encodeURIComponent(state.branch)}/draft`, "DELETE");
-    state.branch = branch; state.baseRevision = result.revision_id; state.dirty = false;
+    state.branch = branch; state.baseRevision = result.revision_id; state.dirty = false; rememberVariant();
     await loadDecks(); renderHeader(); $("save-state").textContent = "gespeichert"; toast("Stand gespeichert.");
   } catch (error) { fail(error); }
 }
