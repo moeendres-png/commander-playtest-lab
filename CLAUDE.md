@@ -47,6 +47,24 @@ for a session, and it never replaces the independent review a MATERIAL change ne
 (`AGENTS.md` §10); Rules, evidence, containment and security changes also get
 `evidence-reviewer`.
 
+**Spend the quota where it decides something** (Owner instruction 2026-11-13).
+- One helper per PR-sized objective, with a complete brief: objective, files to read (named,
+  not "explore"), rules to hold, tests to write first, exact commands, report limit. The
+  brief contains the review checklist, so the first review finds little.
+- One independent review per head. After fixes the SAME reviewer re-checks only the delta.
+  No third round for wording.
+- Level by task: status, CI and log digestion on the smallest model at low effort;
+  implementation and ordinary review on Sonnet at medium; statistics, concurrency,
+  security and anything a wrong number would hide behind at high; the `evidence-reviewer`
+  only for Rules, evidence, gate and policy text.
+- Nothing may be lost to a usage limit: helpers commit a work-in-progress state after every
+  milestone and append findings to a file as they go. Resume a stopped helper instead of
+  starting a new one.
+- Waiting is a shell loop in the background, never a model poll. No background load (game
+  series, builds) while helpers run test suites.
+- Reuse what a helper already found: paste its facts into the next brief instead of having
+  the next helper rediscover them.
+
 Custom Claude helpers are flat: their tool allowlists contain no `Agent` tool, so they must not
 spawn children. Do not create agent teams or recursive coordinator/worker trees for normal work.
 
