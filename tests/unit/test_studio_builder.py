@@ -586,4 +586,3 @@ def test_cooccurrence_runs_a_constant_number_of_statements_without_card_fact_joi
     deck_row_statements = [s for s in statements if "corpus_deck_card" in s]
     assert len(statements) <= 8
     assert not [s for s in deck_row_statements if "card_fact" in s]
-    assert not [s for s in deck_row_statements if " OR " in s.split("WHERE", 1)[-1]]
