@@ -817,12 +817,15 @@ def test_the_tier_result_notices_unmatched_rows_of_the_counted_universe(
     result = _compute(store)
     assert result["universe_choice"]["counted"] == "counted:edhrec:3"
     found = [n for n in result["notices"] if "Nowhere Card" in n]
-    assert len(found) == 1 and "1 Zeilen" in found[0]
+    assert len(found) == 1 and "1 Zeilen" in found[0] and "Nowhere Card" in found[0]
     # The universe that was not used does not add a notice.
     other = _compute(store, universe_source="counted:archidekt:4")
     assert not [n for n in other["notices"] if "Nowhere Card" in n]
+    # the function that builds the "Index berechnet mit" block renders the notices list
     script = (Path(import_all.__file__).parent / "static" / "tierliste.js").read_text("utf-8")
-    assert "result.notices" in script and "Index berechnet mit" in script
+    start = script.index("function renderStrengthSummary()")
+    block = script[start : script.index("\nasync function ", start)]
+    assert "Index berechnet mit" in block and "result.notices" in block
 
 
 def test_the_builder_follows_the_strength_settings_of_the_tier_list(
