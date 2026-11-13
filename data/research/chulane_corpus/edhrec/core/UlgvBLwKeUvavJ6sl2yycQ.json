@@ -1,0 +1,338 @@
+{
+ "urlhash": "UlgvBLwKeUvavJ6sl2yycQ",
+ "variante": "core",
+ "bracket": 2,
+ "savedate": "2025-10-14",
+ "price": 225,
+ "salt": 47.1040223990567,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/4vZSHB28Wk65XrXMzi4BCA?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Abstruse Archaic",
+   "quantity": 1
+  },
+  {
+   "name": "Adric, Mathematical Genius",
+   "quantity": 1
+  },
+  {
+   "name": "Angel of Condemnation",
+   "quantity": 1
+  },
+  {
+   "name": "Ayesha Tanaka",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Guildmage",
+   "quantity": 1
+  },
+  {
+   "name": "Brown Ouphe",
+   "quantity": 1
+  },
+  {
+   "name": "Diplomatic Escort",
+   "quantity": 1
+  },
+  {
+   "name": "Drafna, Founder of Lat-Nam",
+   "quantity": 1
+  },
+  {
+   "name": "Echo Mage",
+   "quantity": 1
+  },
+  {
+   "name": "Emerald Dragon",
+   "quantity": 1
+  },
+  {
+   "name": "Galepowder Mage",
+   "quantity": 1
+  },
+  {
+   "name": "Green Slime",
+   "quantity": 1
+  },
+  {
+   "name": "Identity Thief",
+   "quantity": 1
+  },
+  {
+   "name": "Mirrorshell Crab",
+   "quantity": 1
+  },
+  {
+   "name": "Mistmeadow Vanisher",
+   "quantity": 1
+  },
+  {
+   "name": "Nacatl War-Pride",
+   "quantity": 1
+  },
+  {
+   "name": "Nimble Obstructionist",
+   "quantity": 1
+  },
+  {
+   "name": "Ouphe Vandals",
+   "quantity": 1
+  },
+  {
+   "name": "Overcharged Amalgam",
+   "quantity": 1
+  },
+  {
+   "name": "Phelia, Exuberant Shepherd",
+   "quantity": 1
+  },
+  {
+   "name": "Rimewind Cryomancer",
+   "quantity": 1
+  },
+  {
+   "name": "Roon of the Hidden Realm",
+   "quantity": 1
+  },
+  {
+   "name": "Siren Stormtamer",
+   "quantity": 1
+  },
+  {
+   "name": "Sister of Silence",
+   "quantity": 1
+  },
+  {
+   "name": "The Peregrine Dynamo",
+   "quantity": 1
+  },
+  {
+   "name": "Voidmage Husher",
+   "quantity": 1
+  },
+  {
+   "name": "Weaver of Harmony",
+   "quantity": 1
+  },
+  {
+   "name": "Beast Within",
+   "quantity": 1
+  },
+  {
+   "name": "Bind",
+   "quantity": 1
+  },
+  {
+   "name": "Brokers Confluence",
+   "quantity": 1
+  },
+  {
+   "name": "Consign to Memory",
+   "quantity": 1
+  },
+  {
+   "name": "Defabricate",
+   "quantity": 1
+  },
+  {
+   "name": "Disallow",
+   "quantity": 1
+  },
+  {
+   "name": "Disorder in the Court",
+   "quantity": 1
+  },
+  {
+   "name": "Double Major",
+   "quantity": 1
+  },
+  {
+   "name": "Generous Gift",
+   "quantity": 1
+  },
+  {
+   "name": "Interdict",
+   "quantity": 1
+  },
+  {
+   "name": "Intervention Pact",
+   "quantity": 1
+  },
+  {
+   "name": "Path to Exile",
+   "quantity": 1
+  },
+  {
+   "name": "Repudiate // Replicate",
+   "quantity": 1
+  },
+  {
+   "name": "Squelch",
+   "quantity": 1
+  },
+  {
+   "name": "Stifle",
+   "quantity": 1
+  },
+  {
+   "name": "Sublime Epiphany",
+   "quantity": 1
+  },
+  {
+   "name": "Summoner's Pact",
+   "quantity": 1
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1
+  },
+  {
+   "name": "Tale's End",
+   "quantity": 1
+  },
+  {
+   "name": "Trickbind",
+   "quantity": 1
+  },
+  {
+   "name": "Voidslime",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Commander's Sphere",
+   "quantity": 1
+  },
+  {
+   "name": "Conduit of Worlds",
+   "quantity": 1
+  },
+  {
+   "name": "Isochron Scepter",
+   "quantity": 1
+  },
+  {
+   "name": "Lithoform Engine",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Strionic Resonator",
+   "quantity": 1
+  },
+  {
+   "name": "Strixhaven Stadium",
+   "quantity": 1
+  },
+  {
+   "name": "Wizard's Spellbook",
+   "quantity": 1
+  },
+  {
+   "name": "Dual Nature",
+   "quantity": 1
+  },
+  {
+   "name": "Eye of the Storm",
+   "quantity": 1
+  },
+  {
+   "name": "Hive Mind",
+   "quantity": 1
+  },
+  {
+   "name": "Martyr's Bond",
+   "quantity": 1
+  },
+  {
+   "name": "Mind's Dilation",
+   "quantity": 1
+  },
+  {
+   "name": "Nine Lives",
+   "quantity": 1
+  },
+  {
+   "name": "Storm of Saruman",
+   "quantity": 1
+  },
+  {
+   "name": "Virtue of Knowledge",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Chancery",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Deserted Beach",
+   "quantity": 1
+  },
+  {
+   "name": "Dreamroot Cascade",
+   "quantity": 1
+  },
+  {
+   "name": "Flooded Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Littjara Mirrorlake",
+   "quantity": 1
+  },
+  {
+   "name": "Mystic Gate",
+   "quantity": 1
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Growth Chamber",
+   "quantity": 1
+  },
+  {
+   "name": "Snow-Covered Forest",
+   "quantity": 7
+  },
+  {
+   "name": "Snow-Covered Island",
+   "quantity": 9
+  },
+  {
+   "name": "Snow-Covered Plains",
+   "quantity": 7
+  },
+  {
+   "name": "Temple of Enlightenment",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Mystery",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

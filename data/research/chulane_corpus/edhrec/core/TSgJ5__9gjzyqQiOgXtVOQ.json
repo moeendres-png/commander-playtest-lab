@@ -1,0 +1,334 @@
+{
+ "urlhash": "TSgJ5__9gjzyqQiOgXtVOQ",
+ "variante": "core",
+ "bracket": 2,
+ "savedate": "2025-02-27",
+ "price": 48,
+ "salt": 38.917465006932616,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/dPFAENPgh0CK_Hixnwvmcg?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Altanak, the Thrice-Called",
+   "quantity": 1
+  },
+  {
+   "name": "Angel of Condemnation",
+   "quantity": 1
+  },
+  {
+   "name": "Angel of Salvation",
+   "quantity": 1
+  },
+  {
+   "name": "Archon of Justice",
+   "quantity": 1
+  },
+  {
+   "name": "Archon of Redemption",
+   "quantity": 1
+  },
+  {
+   "name": "Aven Mindcensor",
+   "quantity": 1
+  },
+  {
+   "name": "Bishop of Rebirth",
+   "quantity": 1
+  },
+  {
+   "name": "Body Double",
+   "quantity": 1
+  },
+  {
+   "name": "Briarhorn",
+   "quantity": 1
+  },
+  {
+   "name": "Coiling Oracle",
+   "quantity": 1
+  },
+  {
+   "name": "Daxos of Meletis",
+   "quantity": 1
+  },
+  {
+   "name": "Daxos, Blessed by the Sun",
+   "quantity": 1
+  },
+  {
+   "name": "Denizen of the Deep",
+   "quantity": 1
+  },
+  {
+   "name": "District Guide",
+   "quantity": 1
+  },
+  {
+   "name": "Djinn of Wishes",
+   "quantity": 1
+  },
+  {
+   "name": "Draining Whelk",
+   "quantity": 1
+  },
+  {
+   "name": "Emancipation Angel",
+   "quantity": 1
+  },
+  {
+   "name": "Fear of Failed Tests",
+   "quantity": 1
+  },
+  {
+   "name": "Golgari Raiders",
+   "quantity": 1
+  },
+  {
+   "name": "Horizon Chimera",
+   "quantity": 1
+  },
+  {
+   "name": "Imoti, Celebrant of Bounty",
+   "quantity": 1
+  },
+  {
+   "name": "Jace's Mindseeker",
+   "quantity": 1
+  },
+  {
+   "name": "Karmic Guide",
+   "quantity": 1
+  },
+  {
+   "name": "Knight of Autumn",
+   "quantity": 1
+  },
+  {
+   "name": "Lorescale Coatl",
+   "quantity": 1
+  },
+  {
+   "name": "Lumbering Battlement",
+   "quantity": 1
+  },
+  {
+   "name": "Magus of the Future",
+   "quantity": 1
+  },
+  {
+   "name": "Malcator, Purity Overseer",
+   "quantity": 1
+  },
+  {
+   "name": "Ornithopter",
+   "quantity": 1
+  },
+  {
+   "name": "Paladin of Predation",
+   "quantity": 1
+  },
+  {
+   "name": "Rampaging Baloths",
+   "quantity": 1
+  },
+  {
+   "name": "Ranging Raptors",
+   "quantity": 1
+  },
+  {
+   "name": "Resolute Watchdog",
+   "quantity": 1
+  },
+  {
+   "name": "Rip, Spawn Hunter",
+   "quantity": 1
+  },
+  {
+   "name": "Sagu Mauler",
+   "quantity": 1
+  },
+  {
+   "name": "Serpent-Blade Assailant",
+   "quantity": 1
+  },
+  {
+   "name": "Shanna, Sisay's Legacy",
+   "quantity": 1
+  },
+  {
+   "name": "Silverwing Squadron",
+   "quantity": 1
+  },
+  {
+   "name": "Splitskin Doll",
+   "quantity": 1
+  },
+  {
+   "name": "Steel Hellkite",
+   "quantity": 1
+  },
+  {
+   "name": "Tainted Observer",
+   "quantity": 1
+  },
+  {
+   "name": "Thrun, Breaker of Silence",
+   "quantity": 1
+  },
+  {
+   "name": "Troll Ascetic",
+   "quantity": 1
+  },
+  {
+   "name": "Tromokratis",
+   "quantity": 1
+  },
+  {
+   "name": "Trygon Predator",
+   "quantity": 1
+  },
+  {
+   "name": "Verdant Sun's Avatar",
+   "quantity": 1
+  },
+  {
+   "name": "Waker of the Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Yavimaya Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Charm",
+   "quantity": 1
+  },
+  {
+   "name": "Broken Wings",
+   "quantity": 1
+  },
+  {
+   "name": "Dismantling Blow",
+   "quantity": 1
+  },
+  {
+   "name": "Overrule",
+   "quantity": 1
+  },
+  {
+   "name": "Regenesis",
+   "quantity": 1
+  },
+  {
+   "name": "Relic Crush",
+   "quantity": 1
+  },
+  {
+   "name": "Fade into Antiquity",
+   "quantity": 1
+  },
+  {
+   "name": "Grow from the Ashes",
+   "quantity": 1
+  },
+  {
+   "name": "Reason // Believe",
+   "quantity": 1
+  },
+  {
+   "name": "Return from the Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Seek the Horizon",
+   "quantity": 1
+  },
+  {
+   "name": "Thunderherd Migration",
+   "quantity": 1
+  },
+  {
+   "name": "Vivid Revival",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Cluestone",
+   "quantity": 1
+  },
+  {
+   "name": "Garruk's Uprising",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Guildgate",
+   "quantity": 1
+  },
+  {
+   "name": "Bretagard Stronghold",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 9
+  },
+  {
+   "name": "Graypelt Refuge",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 7
+  },
+  {
+   "name": "Plains",
+   "quantity": 8
+  },
+  {
+   "name": "Radiant Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Sejiri Refuge",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Guildgate",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Guildgate",
+   "quantity": 1
+  },
+  {
+   "name": "Skybridge Towers",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Cove",
+   "quantity": 1
+  },
+  {
+   "name": "Treva's Ruins",
+   "quantity": 1
+  },
+  {
+   "name": "Woodland Stream",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

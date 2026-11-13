@@ -1,0 +1,282 @@
+{
+ "urlhash": "R0gWePu3zeUze_aTrUDhfQ",
+ "variante": "core",
+ "bracket": 2,
+ "savedate": "2025-02-05",
+ "price": 52,
+ "salt": 44.18445651978254,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/Hgus9hjfT0yJpjoAgNYDbw?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Aether Swooper",
+   "quantity": 1
+  },
+  {
+   "name": "Aether Theorist",
+   "quantity": 1
+  },
+  {
+   "name": "Aethersquall Ancient",
+   "quantity": 1
+  },
+  {
+   "name": "Aetherwind Basker",
+   "quantity": 1
+  },
+  {
+   "name": "Architect of the Untamed",
+   "quantity": 1
+  },
+  {
+   "name": "Aviary Mechanic",
+   "quantity": 1
+  },
+  {
+   "name": "Bristling Hydra",
+   "quantity": 1
+  },
+  {
+   "name": "Cloudblazer",
+   "quantity": 1
+  },
+  {
+   "name": "Coiling Oracle",
+   "quantity": 1
+  },
+  {
+   "name": "Flickerwisp",
+   "quantity": 1
+  },
+  {
+   "name": "Frilled Mystic",
+   "quantity": 1
+  },
+  {
+   "name": "Hexgold Slith",
+   "quantity": 1
+  },
+  {
+   "name": "Janjeet Sentry",
+   "quantity": 1
+  },
+  {
+   "name": "Kor Skyfisher",
+   "quantity": 1
+  },
+  {
+   "name": "Rampaging Baloths",
+   "quantity": 1
+  },
+  {
+   "name": "Razorfield Ripper",
+   "quantity": 1
+  },
+  {
+   "name": "Riddle Gate Gargoyle",
+   "quantity": 1
+  },
+  {
+   "name": "Rogue Refiner",
+   "quantity": 1
+  },
+  {
+   "name": "Roil Cartographer",
+   "quantity": 1
+  },
+  {
+   "name": "Salvation Colossus",
+   "quantity": 1
+  },
+  {
+   "name": "Servant of the Conduit",
+   "quantity": 1
+  },
+  {
+   "name": "Solstice Zealot",
+   "quantity": 1
+  },
+  {
+   "name": "Thriving Turtle",
+   "quantity": 1
+  },
+  {
+   "name": "Whitemane Lion",
+   "quantity": 1
+  },
+  {
+   "name": "Wispweaver Angel",
+   "quantity": 1
+  },
+  {
+   "name": "Alchemist's Retrieval",
+   "quantity": 1
+  },
+  {
+   "name": "Disorder in the Court",
+   "quantity": 1
+  },
+  {
+   "name": "Disperse",
+   "quantity": 1
+  },
+  {
+   "name": "Displace",
+   "quantity": 1
+  },
+  {
+   "name": "Flicker of Fate",
+   "quantity": 1
+  },
+  {
+   "name": "Generous Gift",
+   "quantity": 1
+  },
+  {
+   "name": "Ghostly Flicker",
+   "quantity": 1
+  },
+  {
+   "name": "Momentary Blink",
+   "quantity": 1
+  },
+  {
+   "name": "Negate",
+   "quantity": 1
+  },
+  {
+   "name": "Repulse",
+   "quantity": 1
+  },
+  {
+   "name": "Run Away Together",
+   "quantity": 1
+  },
+  {
+   "name": "Scrollshift",
+   "quantity": 1
+  },
+  {
+   "name": "Tune the Narrative",
+   "quantity": 1
+  },
+  {
+   "name": "Unsubstantiate",
+   "quantity": 1
+  },
+  {
+   "name": "Urgent Exorcism",
+   "quantity": 1
+  },
+  {
+   "name": "Aether Gale",
+   "quantity": 1
+  },
+  {
+   "name": "Against All Odds",
+   "quantity": 1
+  },
+  {
+   "name": "Consuming Tide",
+   "quantity": 1
+  },
+  {
+   "name": "Jolted Awake",
+   "quantity": 1
+  },
+  {
+   "name": "Settle Beyond Reality",
+   "quantity": 1
+  },
+  {
+   "name": "Suppression Ray",
+   "quantity": 1
+  },
+  {
+   "name": "Tragic Arrogance",
+   "quantity": 1
+  },
+  {
+   "name": "Void Snare",
+   "quantity": 1
+  },
+  {
+   "name": "Aetherworks Marvel",
+   "quantity": 1
+  },
+  {
+   "name": "Bespoke Battlewagon",
+   "quantity": 1
+  },
+  {
+   "name": "Decoction Module",
+   "quantity": 1
+  },
+  {
+   "name": "Dynavolt Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Fabrication Module",
+   "quantity": 1
+  },
+  {
+   "name": "Solar Transformer",
+   "quantity": 1
+  },
+  {
+   "name": "Consulate Surveillance",
+   "quantity": 1
+  },
+  {
+   "name": "Era of Innovation",
+   "quantity": 1
+  },
+  {
+   "name": "Primal Prayers",
+   "quantity": 1
+  },
+  {
+   "name": "Static Prison",
+   "quantity": 1
+  },
+  {
+   "name": "Aether Hub",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 11
+  },
+  {
+   "name": "Island",
+   "quantity": 13
+  },
+  {
+   "name": "Meandering River",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 13
+  },
+  {
+   "name": "Tranquil Expanse",
+   "quantity": 1
+  },
+  {
+   "name": "Woodland Stream",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}
