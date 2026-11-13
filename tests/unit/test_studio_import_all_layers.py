@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import csv
 import gzip
-import json
 from pathlib import Path
 
 import pytest
@@ -86,3 +85,20 @@ def test_unknown_commander_message_lists_the_available_ones(
     )  # fmt: skip
     assert code == 4
     assert COMMANDER in capsys.readouterr().err
+
+
+def test_salt_and_combo_signals_are_layers_with_their_own_owner(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    files = _files(tmp_path)
+    folder = files["signals"]
+    (folder / "edhrec_salt.csv").write_text("card_name,salt,rank\nFiller 03,2.5,1\n", "utf-8")
+    (folder / "edhrec_test_commander_combos.csv").write_text(
+        f"combo_label,cards,num_decks\nx,{COMMANDER};Filler 03;Filler 04,10\n", "utf-8"
+    )
+    code = _run(tmp_path, files, "--signals", str(folder))
+    out = capsys.readouterr().out
+    assert code == 0, out
+    layers = _layers(out)
+    assert layers["Signal edhrec_salt"] == "PARTIAL"
+    assert layers["Signal edhrec_combo_decks"] == "PARTIAL"

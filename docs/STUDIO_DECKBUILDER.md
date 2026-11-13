@@ -345,6 +345,22 @@ $env:PYTHONPATH = "src"
   --expect-pool <erwartete Poolgröße>
 ```
 
+Optional additions: `--tagger-roles "<CSV>"` (the tagger bulk `oracle_id,category,bulk_label` as a
+full role snapshot of its own scope; only the Studio roles are taken, other categories are
+counted; a file without a role row fails the step and changes nothing, a file that would remove
+more than half of the scope's earlier claims is a `WARNING` and changes nothing unless `--force`
+is given). The signal folders may also hold `edhrec_salt.csv` (published top list; a card not on
+it is unknown, not 0) and `edhrec_<commander>_combos.csv` (EDHREC combo lists of the commander;
+per card the number of combos and the largest deck count): layers `Signal edhrec_salt` and
+`Signal edhrec_combo_decks`. `import-signals` needs `--commander` and takes `--append` (only add
+and update; the default replaces each signal and commander the files write); CSV files with a
+byte order mark are read; the reasons a stored value stayed unknown are counted per file
+(`null_value_reasons`). Any failure of a step (a cut `.gz`, a file that is not a workbook) is
+shown as `FAILED` with its type and message, and the table still follows; an unknown commander
+exits with code 4 and names the commanders of the collection. `relink-corpus` (also run at the
+end of `import-scryfall` and `import-decklists`) gives deck-list cards their oracle ids, so deck
+statistics work in any import order.
+
 `--data` is a global option and comes before `import-all`. Leave out every line you do not
 have; the table then shows that layer as `MISSING`.
 

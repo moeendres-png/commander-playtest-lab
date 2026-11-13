@@ -200,8 +200,30 @@ def completeness(store: StudioStore, commander: str) -> tuple[int | None, list[L
         coverage = strength_view.signal_coverage(store, commander)
     except KeyError:
         coverage = {}
+    own_signals = {signals.SIGNAL_SALT: "", signals.SIGNAL_COMBO_DECKS: commander}
     for signal, item in coverage.items():
+        if signal in own_signals:
+            continue  # counted below with the right owner (strength_view reads it as the commander's)
         add(f"signal:{signal}", f"Signal {signal}", item["rows"], item["pool_cards_with_value"])
+    for signal, owner in own_signals.items():
+        found = {
+            str(row[0]).casefold()
+            for row in store.connection.execute(
+                "SELECT card_name FROM card_signal WHERE signal = ? AND commander_name = ? "
+                "AND value IS NOT NULL",
+                (signal, owner),
+            )
+        }
+        add(
+            signal,  # no "signal:" prefix: the signal layers of the pages stay the fixed list
+            f"Signal {signal}",
+            _count(
+                store,
+                "SELECT COUNT(*) FROM card_signal WHERE signal = ? AND commander_name = ?",
+                (signal, owner),
+            ),
+            sum(1 for card in cards if str(card["name"]).casefold() in found),
+        )
     # Marks are optional per card: present (with the count) or not provided, never partial.
     marked = sum(1 for card in cards if card["favorite"] or card["excluded"] or card["note"])
     layers.append(
@@ -240,6 +262,8 @@ _FLAG = {
     "rulings": ' --rulings "<Datei>"',
     "decklists": ' --decklists "<Ordner>"',
     "marks": ' --marks "<Datei>"',
+    "edhrec_salt": ' --signals "<Ordner>"',
+    "edhrec_combo_decks": ' --signals "<Ordner>"',
 }
 
 
