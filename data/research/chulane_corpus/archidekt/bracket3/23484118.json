@@ -1,0 +1,1634 @@
+{
+ "id": 23484118,
+ "bracket": 3,
+ "bracket_detail": 3,
+ "name": "Merfolk BR3",
+ "updated_at": "2026-06-14T03:16:49.359482Z",
+ "cards": [
+  {
+   "name": "Deeproot Pilgrimage",
+   "quantity": 1,
+   "categories": [
+    "Core"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Yuna, Grand Summoner",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Engine"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Galadriel, Light of Valinor",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Engine"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Deeproot Historian",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Value"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Kumena, Tyrant of Orazca",
+   "quantity": 1,
+   "categories": [
+    "Value"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Lord of Atlantis",
+   "quantity": 1,
+   "categories": [
+    "Lord"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Deeproot Elite",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Value"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hakbal of the Surging Soul",
+   "quantity": 1,
+   "categories": [
+    "Engine"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Svyelun of Sea and Sky",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Value"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mindspring Merfolk",
+   "quantity": 1,
+   "categories": [
+    "Value",
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Lullmage Mentor",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Tokens"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Deepway Navigator",
+   "quantity": 1,
+   "categories": [
+    "ETB"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Merfolk Sovereign",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Lord"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Singer of Swift Rivers",
+   "quantity": 1,
+   "categories": [
+    "ETB"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sygg's Command",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Emperor Mihail II",
+   "quantity": 1,
+   "categories": [
+    "Core"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mist Dancer",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Wincon"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Seahunter",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Value"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Kopala, Warden of Waves",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Value"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Master of the Pearl Trident",
+   "quantity": 1,
+   "categories": [
+    "Lord"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Seafloor Oracle",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Dawn-Blessed Pennant",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Value"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Vodalian Hexcatcher",
+   "quantity": 1,
+   "categories": [
+    "Lord"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Vodalian Wave-Knight",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Value"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Jungleborn Pioneer",
+   "quantity": 1,
+   "categories": [
+    "ETB"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Forerunner of the Heralds",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Silvergill Mentor",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "ETB"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Merrow Commerce",
+   "quantity": 1,
+   "categories": [
+    "Engine"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Deepchannel Duelist",
+   "quantity": 1,
+   "categories": [
+    "Lord"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Eclipsed Merrow",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Deeproot Waters",
+   "quantity": 1,
+   "categories": [
+    "Core"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Eclipsed Realms",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Meanders Guide",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Merfolk Mistbinder",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Lord"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Merrow Harbinger",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tidal Courier",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Merrow Reejerey",
+   "quantity": 1,
+   "categories": [
+    "Lord"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Aquitect's Will",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Wincon"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Silvergill Adept",
+   "quantity": 1,
+   "categories": [
+    "ETB",
+    "Maybeboard",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Stonybrook Schoolmaster",
+   "quantity": 1,
+   "categories": [
+    "Core"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Summon the School",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Tokens"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Stonybrook Banneret",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Chronicle of Victory",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Wincon"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Kolvori, God of Kinship // The Ringhart Crest",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Kindred Discovery",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Banner of Kinship",
+   "quantity": 1,
+   "categories": [
+    "Wincon"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Adaptive Automaton",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Lord"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Kindred Summons",
+   "quantity": 1,
+   "categories": [
+    "Wincon"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Door of Destinies",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Lord"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Realmwalker",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Raise the Palisade",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Wincon"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Metallic Mimic",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "+1/+1C"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Springleaf Parade",
+   "quantity": 1,
+   "categories": [
+    "Core"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Steely Resolve",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Rally the Ranks",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Lord"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Renewed Solidarity",
+   "quantity": 1,
+   "categories": [
+    "Core"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Gathering Stone",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Value"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Three Tree City",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "And They Shall Know No Fear",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Vanquisher's Banner",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Herald's Horn",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Value"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Secluded Courtyard",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Abundant Countryside",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Personify",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Tokens"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1,
+   "categories": [
+    "Commander"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Radiant Destiny",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Lord"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Attuma, Atlantean Warlord",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Lord"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Namor the Sub-Mariner",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Core"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Teleportation Circle",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Engine"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Namor, Atlantean King",
+   "quantity": 1,
+   "categories": [
+    "Core"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Namor, Scourge of the Seas",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Value"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Daughter of the Deep",
+   "quantity": 1,
+   "categories": [
+    "Core",
+    "Tokens"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Brago, King Eternal",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Engine"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Distant Melody",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Reflections of Littjara",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Value"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Conjurer's Closet",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Engine"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Elesh Norn, Mother of Machines",
+   "quantity": 1,
+   "categories": [
+    "Engine"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Toski, Bearer of Secrets",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Bident of Thassa",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Reconnaissance Mission",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Panharmonicon",
+   "quantity": 1,
+   "categories": [
+    "Engine"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Akroma's Will",
+   "quantity": 1,
+   "categories": [
+    "Wincon"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Beast Whisperer",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Guardian Project",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Earthcraft",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Value"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Overwhelming Stampede",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Wincon"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Cryptolith Rite",
+   "quantity": 1,
+   "categories": [
+    "Core"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Roaming Throne",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Engine"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Quest for Renewal",
+   "quantity": 1,
+   "categories": [
+    "Core"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Seedborn Muse",
+   "quantity": 1,
+   "categories": [
+    "Core"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ripples of Potential",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Guardian of Faith",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Harmonized Trio // Brainstorm",
+   "quantity": 1,
+   "categories": [
+    "Value"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Teferi's Protection",
+   "quantity": 1,
+   "categories": [
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Clever Concealment",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Adept Watershaper",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Value"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tishana's Tidebinder",
+   "quantity": 1,
+   "categories": [
+    "ETB"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Summon: Leviathan",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Wincon"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Harmonized Crescendo",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Harpoon Sniper",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Adrix and Nev, Twincasters",
+   "quantity": 1,
+   "categories": [
+    "Core"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Nicanzil, Current Conductor",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "The Great Henge",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Pestered Wellguard",
+   "quantity": 1,
+   "categories": [
+    "Core"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Elven Chorus",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Smothering Tithe",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Utopia Sprawl",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Farseek",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Nature's Lore",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Wild Growth",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fertile Ground",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Turbulent Wilderness",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Germination Practicum",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "+1/+1C"
+   ],
+   "companion": false
+  },
+  {
+   "name": "For the Ancestors",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Beast Within",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tribute to the World Tree",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Value"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Triumph of the Hordes",
+   "quantity": 1,
+   "categories": [
+    "Wincon"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Generous Gift",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Burgeoning",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Court of Garenbrig",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Exploration",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Spreading Seas",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Judge of Currents",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Pongify",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Strix Serenade",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Descendants' Path",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Engine"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Champions of the Shoal",
+   "quantity": 1,
+   "categories": [
+    "ETB"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sygg, Wanderwine Wisdom // Sygg, Wanderbrine Shield",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Value"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Disruptor of Currents",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "ETB"
+   ],
+   "companion": false
+  },
+  {
+   "name": "True-Name Nemesis",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "ETB"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Orysa, Tide Choreographer",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Thieving Skydiver",
+   "quantity": 1,
+   "categories": [
+    "ETB"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tidebinder Mage",
+   "quantity": 1,
+   "categories": [
+    "ETB"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Floodpits Drowner",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "ETB"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tempest Caller",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Wincon"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Merfolk Branchwalker",
+   "quantity": 1,
+   "categories": [
+    "ETB",
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Wistful Selkie",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "ETB"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Riverwise Augur",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "ETB"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Selkie Hedge-Mage",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "ETB"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Dazzling Theater // Prop Room",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Value"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sygg, River Guide",
+   "quantity": 1,
+   "categories": [
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Collected Company",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Value"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Enduring Vitality",
+   "quantity": 1,
+   "categories": [
+    "Core"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Shamanic Revelation",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Rite of Harmony",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Esper Sentinel",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Wooded Foothills",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Windswept Heath",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Verdant Catacombs",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Temple Garden",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Savannah",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Plains",
+   "quantity": 3,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Misty Rainforest",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Marsh Flats",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Gaea's Cradle",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Forest",
+   "quantity": 4,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Galadriel's Dismissal",
+   "quantity": 1,
+   "categories": [
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Three Visits",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Champions from Beyond",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Wincon"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ojer Taq, Deepest Foundation // Temple of Civilization",
+   "quantity": 1,
+   "categories": [
+    "Engine"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Elspeth, Storm Slayer",
+   "quantity": 1,
+   "categories": [
+    "Engine"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Anointed Procession",
+   "quantity": 1,
+   "categories": [
+    "Engine"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Caretaker's Talent",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Skullclamp",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Song of Freyalise",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Value"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Bloom Tender",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Birds of Paradise",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Parallel Lives",
+   "quantity": 1,
+   "categories": [
+    "Engine"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Path to Exile",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tale of Katara and Toph",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Value"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Rhystic Study",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Flooded Strand",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Exotic Orchard",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Cavern of Souls",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Bountiful Promenade",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Arid Mesa",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tropical Island",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tundra",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sea of Clouds",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Rejuvenating Springs",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Island",
+   "quantity": 2,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Breeding Pool",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Noble Hierarch",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Cyclonic Rift",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Wincon"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  }
+ ],
+ "summe_hauptdeck": 96,
+ "summe_gesamt": 196,
+ "_name_missing": 0,
+ "_deleted_entries": 0
+}

@@ -1,0 +1,263 @@
+{
+ "id": 25022173,
+ "bracket": 3,
+ "bracket_detail": 3,
+ "name": "Chulane, templar tales",
+ "updated_at": "2026-08-07T02:52:26.510347Z",
+ "cards": [
+  {
+   "name": "Case of the Locked Hothouse",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "The Ten Rings",
+   "quantity": 1,
+   "categories": [
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Memnarch",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Staff of Eden, Vault's Key",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Chronicle of Victory",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "The Great Henge",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Plains",
+   "quantity": 18,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Thrumming Stone",
+   "quantity": 1,
+   "categories": [
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Templar Knight",
+   "quantity": 44,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "The Immortal Sun",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Coat of Arms",
+   "quantity": 1,
+   "categories": [
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Akroma's Memorial",
+   "quantity": 1,
+   "categories": [
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Island",
+   "quantity": 14,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Forest",
+   "quantity": 14,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Oketra's Monument",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Aetherflux Reservoir",
+   "quantity": 1,
+   "categories": [
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Beck // Call",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sorcery"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Glimpse of Nature",
+   "quantity": 1,
+   "categories": [
+    "Sorcery"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Aurelia, the Warleader",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "The Walls of Ba Sing Se",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Warrior",
+   "quantity": 1,
+   "categories": [
+    "Tokens & Extras"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Doubling Chant",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sorcery"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Locket of Yesterdays",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Pack Hunt",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sorcery"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Nantuko Shrine",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Remembrance",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "The Reality Chip",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Raise the Past",
+   "quantity": 1,
+   "categories": [
+    "Sorcery"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Grimoire of the Dead",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1,
+   "categories": [
+    "Commander"
+   ],
+   "companion": false
+  }
+ ],
+ "summe_hauptdeck": 100,
+ "summe_gesamt": 116,
+ "_name_missing": 0,
+ "_deleted_entries": 0
+}
