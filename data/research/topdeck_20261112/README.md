@@ -8,19 +8,19 @@ Abrufdatum: 2026-11-13.
 
 ## 1. Zählprotokoll
 - **Untersuchungsfenster:** 90 Tage (2026-08-15 bis 2026-11-13)
-- **Erfasste Turniere (distinkt):** 4321
-- **Standings gesamt:** 70894
-- **Standings mit Leader:** 24583
+- **Erfasste Turniere (distinkt):** 4348
+- **Standings gesamt:** 71231
+- **Standings mit Leader:** 24618
 - **Untersuchte Commander:** 107
 - **Commander mit Turnier-Präsenz (>0 Einträge):** 30
 - **Exportierte Commander:** 30 (29 in `topdeck_20261112/` + Chulane in `deckbuilder_1655/`)
-- **Vollständige exportierte Decklisten (1 Commander + 99 Mainboard):** 339 (333 in `topdeck_20261112/` + 6 Chulane)
+- **Vollständige exportierte Decklisten (1 Commander + 99 Mainboard):** 342 (335 in `topdeck_20261112/` + 7 Chulane)
 - **Unvollständige Decklisten (gezählt, aber nicht exportiert):** 0
 
 ## 2. Dateien
 - `topdeck_commander_presence.csv`: Aktualisierte Präsenz-Zählung aller 107 Commander.
 - `topdeck_<commander_slug>_decks.csv`: Vollständige Decklisten je Commander mit mindestens 1 vollständiger Liste (inkl. Bracket-Feldern `top_cut`, `wins_bracket`, `losses_bracket`).
-- `topdeck_card_conversions.csv`: Berechnete TopDeck-Conversion je Karte × Commander gemäß docs/TOPDECK.md §6 (Refs #1205).
+- `topdeck_card_conversions.csv`: Berechnete TopDeck-Conversion je Karte x Commander gemäß docs/TOPDECK.md §6 (Refs #1205).
 
 ## 3. Übersicht je Commander mit Präsenz
 | Commander | Einträge 90d | Einträge mit Liste | Vollständig exportiert | Unvollständig |
@@ -36,18 +36,18 @@ Abrufdatum: 2026-11-13.
 | Selvala, Explorer Returned | 10 | 10 | 10 | 0 |
 | Adrix and Nev, Twincasters | 2 | 2 | 2 | 0 |
 | Rionya, Fire Dancer | 2 | 2 | 2 | 0 |
-| Fynn, the Fangbearer | 5 | 5 | 5 | 0 |
+| Fynn, the Fangbearer | 6 | 6 | 6 | 0 |
 | Veyran, Voice of Duality | 1 | 1 | 1 | 0 |
 | Lathliss, Dragon Queen | 16 | 16 | 16 | 0 |
 | Braids, Arisen Nightmare | 7 | 7 | 7 | 0 |
-| Chulane, Teller of Tales | 6 | 6 | 6 | 0 |
+| Chulane, Teller of Tales | 7 | 7 | 7 | 0 |
 | Omnath, Locus of Rage | 1 | 1 | 1 | 0 |
 | Ovika, Enigma Goliath | 1 | 1 | 1 | 0 |
 | Morska, Undersea Sleuth | 3 | 3 | 3 | 0 |
 | Szarel, Genesis Shepherd | 2 | 2 | 2 | 0 |
 | Doran, Besieged by Time | 2 | 2 | 2 | 0 |
 | Lluwen, Imperfect Naturalist | 1 | 1 | 1 | 0 |
-| Maralen, Fae Ascendant | 39 | 39 | 39 | 0 |
+| Maralen, Fae Ascendant | 40 | 40 | 40 | 0 |
 | Rootha, Mastering the Moment | 16 | 16 | 16 | 0 |
 | Muddle, the Ever-Changing | 1 | 1 | 1 | 0 |
 | Tinybones, Pocket Nuisance | 1 | 1 | 1 | 0 |
