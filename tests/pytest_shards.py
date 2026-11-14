@@ -51,6 +51,7 @@ from typing import Any
 import pytest
 
 WEIGHTS_PATH = Path(__file__).with_name("pytest_shard_weights.json")
+QUALIFICATION_WEIGHTS_PATH = Path(__file__).with_name("pytest_shard_weights_qualification.json")
 DOCS_TESTS_PATH = Path(__file__).with_name("pytest_docs_tests.json")
 # Owned by the ``infrastructure`` context (production-qualification.yml), never weighted.
 OTHER_OWNER_ROOTS = ("tests/qualification",)
@@ -344,24 +345,88 @@ def matrix_files(
     return plan_matrix(files, table, count)[index - 1]
 
 
-def complete_weights(measured: Mapping[str, float], rootdir: Path) -> dict[str, float]:
-    """``measured`` restricted to the tree's test files, every other test file at the 0.1 floor."""
-    names = discover_test_files(rootdir)
+def discover_qualification_files(rootdir: Path) -> list[str]:
+    """Every ``tests/qualification/**/test_*.py``: what the ``infrastructure`` context runs."""
+    return sorted(
+        path.relative_to(rootdir).as_posix()
+        for path in (rootdir / "tests" / "qualification").rglob("test_*.py")
+        if "__pycache__" not in path.parts
+    )
+
+
+def complete_weights(
+    measured: Mapping[str, float], rootdir: Path, *, qualification: bool = False
+) -> dict[str, float]:
+    """``measured`` restricted to the tree's test files, every other test file at the 0.1 floor.
+
+    ``qualification`` selects the table of ``tests/qualification`` (the ``infrastructure``
+    context) instead of the table of the ``quality`` matrix.
+    """
+    names = discover_qualification_files(rootdir) if qualification else discover_test_files(rootdir)
     return {name: measured.get(name, 0.1) for name in names}
+
+
+def download_junit(workflow: str, pattern: str, target: Path) -> list[Path]:
+    """JUnit reports of the artifacts ``pattern`` of the latest successful main push run.
+
+    Needs the GitHub CLI (``gh``) with access to the repository. Raises ``RuntimeError`` when no
+    run or no report is found.
+    """
+
+    def gh(*arguments: str) -> str:
+        done = subprocess.run(
+            ["gh", *arguments], capture_output=True, text=True, check=False, timeout=600
+        )
+        if done.returncode:
+            raise RuntimeError(f"gh {' '.join(arguments)} failed: {done.stderr.strip()}")
+        return done.stdout.strip()
+
+    run_id = gh(
+        "run", "list", "--workflow", workflow, "--branch", "main", "--event", "push",
+        "--status", "success", "--limit", "1", "--json", "databaseId", "--jq", ".[0].databaseId",
+    )  # fmt: skip
+    if not run_id:
+        raise RuntimeError(f"no successful main push run of {workflow}")
+    gh("run", "download", run_id, "--pattern", pattern, "--dir", str(target))
+    reports = sorted(target.rglob("*.xml"))
+    if not reports:
+        raise RuntimeError(f"run {run_id} of {workflow} has no JUnit report matching {pattern}")
+    return reports
 
 
 def main(argv: Sequence[str]) -> int:
     usage = (
-        "usage: python -m tests.pytest_shards weights JUNIT_XML...\n"
+        "usage: python -m tests.pytest_shards weights [--qualification] (--from-artifacts | JUNIT_XML...)\n"
         "       python -m tests.pytest_shards matrix --index I --count N [--scope all|docs]"
     )
     if argv and argv[0] == "weights" and len(argv) >= 2:
         rootdir = Path.cwd()
-        measured = weights_from_junit([Path(item) for item in argv[1:]], rootdir)
+        arguments = list(argv[1:])
+        qualification = "--qualification" in arguments
+        from_artifacts = "--from-artifacts" in arguments
+        arguments = [
+            item for item in arguments if item not in {"--qualification", "--from-artifacts"}
+        ]
+        if from_artifacts:
+            workflow, pattern = (
+                ("production-qualification.yml", "ci-evidence-qualification")
+                if qualification
+                else ("ci.yml", "ci-evidence-tests-*")
+            )
+            with tempfile.TemporaryDirectory(prefix="pytest-weights-") as scratch:
+                try:
+                    reports = download_junit(workflow, pattern, Path(scratch))
+                except RuntimeError as error:
+                    print(error, file=sys.stderr)
+                    return 1
+                measured = weights_from_junit(reports, rootdir)
+        else:
+            measured = weights_from_junit([Path(item) for item in arguments], rootdir)
         document: dict[str, Any] = {
             "comment": "Seconds per test file from a serial run; used only to balance --shards"
-            " and the CI matrix. Rebuild: python -m tests.pytest_shards weights JUNIT_XML...",
-            "files": complete_weights(measured, rootdir),
+            " and the CI matrix. Rebuild: python -m tests.pytest_shards weights"
+            f"{' --qualification' if qualification else ''} --from-artifacts (or JUNIT_XML...)",
+            "files": complete_weights(measured, rootdir, qualification=qualification),
         }
         print(json.dumps(document, indent=1, sort_keys=False))
         return 0

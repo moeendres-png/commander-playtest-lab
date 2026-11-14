@@ -352,6 +352,19 @@ no force/admin bypass/history rewrite is needed; the branch is the executor's ow
 canonical HEAD/TREE is re-read with a persisted receipt afterwards. Otherwise repair if
 technical and in scope, or stop on a genuine blocker.
 
+### CI checks (state 2026-11-14)
+
+Required contexts: `quality`, `security`, `infrastructure`, nothing else. `quality` is a gate job
+(`if: always()`, `scripts/ci_gate.py`) over `changes`, `lint`, a matrix of four `tests` slots and
+`packaging`; a skipped `packaging` counts only when no packaging input changed. A documents-only
+change runs one slot with the docs tests. `infrastructure` runs `tests/qualification` in four
+shards. PB-03, H4, conformance, the real four-player smoke, external integration and meta
+qualification start only for their own `paths:` (they are not required and are absent from the check
+list otherwise); sealing dispatches PB-03. `ci-definition-integrity-shadow` is informational: red
+means a human look (changed required-check definition, removed test or assertion, new skip, gate
+script), not "a test was added". The full table is `docs/CI_WHICH_CHECK_RUNS_WHEN.md`; changing a
+required check or gate definition stays an Owner decision.
+
 ### Owner-delegated self-merge
 
 `AGENT_SELF_MERGE = ENABLED` (Owner instruction, 2026-10-16).

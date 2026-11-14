@@ -58,14 +58,6 @@ touched.
 | 9 | Make `test_packaging_smoke` independent of the local environment (create its virtual environment with `python -m venv` and report a clear skip reason when `ensurepip` is missing). | The full suite can run in an agent session. | no gate weakened |
 | 10 | Record in the pull-request template the three lines an integrator needs: exact head, required checks on that head, review verdict. | Merges of several agents become comparable (`AGENTS.md` §10). | no |
 
-## Suggested order of work
-
-1. Recommendations 7, 6 and 9 first: they need no gate decision and reduce red runs at once.
-2. Recommendation 1 as a small pull request of its own.
-3. Recommendations 4 and 5 together, measured before and after on the same head.
-4. Recommendations 2, 3 and 8 after the Owner's decision, each alone, because each changes
-   what a green or red check means.
-
 ## Implemented: parallel `quality` graph (2026-11-14, Owner-approved)
 
 `quality` is now a gate job (`if: always()`, `needs: [changes, lint, tests, packaging]`, decision in
@@ -84,16 +76,35 @@ Accepted risk: a pull request that only edits an existing module under `src/` do
 the packaging inputs do). An edit that breaks the wheel or an entrypoint import is therefore
 caught by the `packaging` job of the push to `main`, not before the merge.
 
+## State reached (2026-11-14, Owner: complete CI and gate hygiene)
+
+| # | Recommendation | State |
+|---|---|---|
+| 1 | Upload step cannot hang `quality` | done: every evidence upload has a three-minute step timeout; `quality` is a gate job and does not upload |
+| 2 | Shadow check neutral for added or extended tests | done in package B: `PASS` with the files listed under `benign_test_changes`; still red for a changed required-check definition, removed test or assertion, new skip, `conftest.py`, other test data and gate scripts |
+| 3 | Documents-only fast path | done: `scripts/ci_change_scope.py`, one `tests` slot with the docs tests |
+| 4, 5 | Cheap checks first, split the suite | done: parallel `lint` and four `tests` slots; `infrastructure` runs four in-job shards (about 110 s instead of about 280 s) |
+| 6, 7, 9 | JVM marker, `check_fast.sh`, packaging smoke independent of the local environment | open (no gate decision needed) |
+| 8 | Comment-triggered workflows | gone: no workflow in `.github/workflows` listens to comments any more |
+| 10 | Pull-request template lines | open |
+
+Package B also: PB-03 and H4 start only on their own inputs; the three `*-scope` runners and the H4
+`preflight` runner are gone (path filters instead); `coverage-report`, `package-engine-bridge`,
+`copilot-setup-steps` and `run-manifest-integrity` (merged into `windows-runtime`) are deleted;
+timeouts are about three times the observed durations. The table of which check runs when is
+`docs/CI_WHICH_CHECK_RUNS_WHEN.md`.
+
 ## What stays as it is
 
 - The three required contexts and branch protection.
-- Path-filtered qualification workflows (PB-03, conformance, real four-player smoke): they
-  already run only when their inputs change, and cancelling superseded heads works.
-- Hash-pinned actions and the hash-locked install.
+- Hash-pinned actions and the hash-locked install; the XMage-pin consumers (external, meta,
+  conformance, smoke) keep their pin handling.
 - No automatic re-run of failed jobs, no empty commits to restart CI.
 
-## Open Owner decisions
+## Open points
 
-1. Whether `ci-definition-integrity-shadow` may end neutral for added tests (recommendation 2).
-2. Whether document-only changes get the fast path (recommendation 3).
-3. Whether the lane may change `ci.yml` step order and job split (recommendations 4 and 5).
+1. Recommendations 6, 7, 9 and 10 above.
+2. A PR that edits an existing `src/` module without touching a packaging input is checked by the
+   `packaging` job only on the push to `main`.
+3. PB-03 and H4 no longer start for general lab code; sealing dispatches PB-03, and `quality` plus
+   the conformance workflow cover the code paths for the rest.

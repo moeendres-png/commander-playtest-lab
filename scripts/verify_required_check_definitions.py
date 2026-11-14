@@ -9,6 +9,7 @@ semantic equivalence of arbitrary GitHub Actions programs.
 from __future__ import annotations
 
 import argparse
+import ast
 import json
 import re
 import shlex
@@ -1096,6 +1097,75 @@ def _unknown_report(trusted: str, head: str, comparison: str | None, reason: str
     }
 
 
+# Timing tables of the test matrix: data, never an assertion.
+BENIGN_TEST_DATA = frozenset(
+    {
+        "tests/pytest_shard_weights.json",
+        "tests/pytest_shard_weights_qualification.json",
+        "tests/pytest_docs_tests.json",
+    }
+)
+_WEAKENING_NAMES = frozenset({"skip", "skipif", "xfail"})
+_ASSERTING_CALLS = frozenset({"raises", "warns", "fail", "approx"})
+
+
+def _test_strength(source: str) -> tuple[set[str], int, int]:
+    """``(test function names, assertion-like nodes, skip/xfail markers)`` of one test module."""
+    tree = ast.parse(source)
+    names: set[str] = set()
+    asserting = 0
+    weakening = 0
+    for node in ast.walk(tree):
+        if isinstance(node, ast.FunctionDef | ast.AsyncFunctionDef) and node.name.startswith(
+            "test"
+        ):
+            names.add(node.name)
+        elif isinstance(node, ast.Assert):
+            asserting += 1
+        elif isinstance(node, ast.Call):
+            func = node.func
+            name = func.attr if isinstance(func, ast.Attribute) else getattr(func, "id", "")
+            asserting += name in _ASSERTING_CALLS
+            weakening += name in _WEAKENING_NAMES
+        elif isinstance(node, ast.Attribute) and node.attr in _WEAKENING_NAMES:
+            weakening += 1
+    return names, asserting, weakening
+
+
+def _benign_test_change(repo: Path, base: str, head: str, path: str) -> str | None:
+    """``added`` or ``extended`` when a test change cannot weaken a gate, else None.
+
+    Benign: a new test module, a module whose test functions are all still present with no fewer
+    assertions and no new skip/xfail markers, and the timing tables. Everything else (a removed
+    test file, a removed test function, fewer assertions, a new skip, conftest, other data) needs
+    a human look and keeps the review-required classification.
+    """
+    if path in BENIGN_TEST_DATA:
+        return "extended"
+    if not path.endswith(".py") or Path(path).name in {"conftest.py", "__init__.py"}:
+        return None
+    try:
+        head_source = _blob(repo, head, path).decode("utf-8")
+    except (InspectionError, UnicodeDecodeError):
+        return None
+    try:
+        base_source = _blob(repo, base, path).decode("utf-8")
+    except InspectionError:
+        base_source = None
+    except UnicodeDecodeError:
+        return None
+    try:
+        head_names, head_asserts, head_weak = _test_strength(head_source)
+        if base_source is None:
+            return "added" if head_weak == 0 else None
+        base_names, base_asserts, base_weak = _test_strength(base_source)
+    except SyntaxError:
+        return None
+    if base_names - head_names or head_asserts < base_asserts or head_weak > base_weak:
+        return None
+    return "extended"
+
+
 def _inspect(
     repo: Path, base: str, head: str, *, comparison_base: str, derivation: str
 ) -> dict[str, Any]:
@@ -1176,6 +1246,7 @@ def _inspect(
 
     protected_changes: list[dict[str, str]] = []
     review_reasons: list[str] = []
+    benign_test_changes: list[str] = []
     for path in changed:
         impact: str | None = None
         if path in WORKFLOW_SURFACES:
@@ -1187,6 +1258,12 @@ def _inspect(
         elif path in ENTRYPOINT_DEFINITION_SURFACES:
             impact = "required_check_entrypoint_or_configuration"
             review_reasons.append(f"required_check_entrypoint_changed:{path}")
+        elif path.startswith("tests/") and (
+            benign := _benign_test_change(repo, comparison_base, head, path)
+        ):
+            # Informational only: a test that was added or only grew cannot weaken a gate.
+            impact = f"test_{benign}_no_review_needed"
+            benign_test_changes.append(path)
         elif path.startswith("tests/qualification/"):
             impact = "quality_and_infrastructure_test_definition"
             review_reasons.append(f"qualification_test_definition_changed:{path}")
@@ -1235,6 +1312,8 @@ def _inspect(
     else:
         overall = "PASS"
         reasons.append("all_defined_invariants_satisfied_and_no_gate_definition_change_detected")
+        if benign_test_changes:
+            reasons.append(f"only_added_or_extended_tests_changed:{len(benign_test_changes)}")
 
     return {
         "schema_version": SCHEMA_VERSION,
@@ -1250,6 +1329,7 @@ def _inspect(
         "inspected_files": sorted(inspected),
         "changed_files": changed,
         "changed_protected_surfaces": protected_changes,
+        "benign_test_changes": sorted(benign_test_changes),
         "required_contexts": sorted(REQUIRED_CONTEXTS),
         "invariant_results": invariant_results,
         "overall_classification": overall,

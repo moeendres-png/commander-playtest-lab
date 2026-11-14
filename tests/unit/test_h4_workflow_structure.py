@@ -32,9 +32,7 @@ def _text(repo_root: Path) -> str:
 
 
 def _job_block(text: str, job: str) -> str:
-    if job == "preflight":
-        pattern = r"(?m)^  preflight:\s*$"
-    elif job == "h4-xmage":
+    if job == "h4-xmage":
         pattern = r"(?m)^  h4-xmage:\s*$"
     else:
         raise AssertionError(f"unknown job {job!r}")
@@ -49,7 +47,7 @@ def test_only_the_supported_docker_job_exists(repo_root):
     text = _text(repo_root)
     jobs = text.split("\njobs:\n", 1)[1]
     blocks = re.findall(r"(?m)^  [A-Za-z0-9_-]+:\s*$", jobs)
-    assert [block.strip().rstrip(":") for block in blocks] == ["preflight", "h4-xmage"]
+    assert [block.strip().rstrip(":") for block in blocks] == ["h4-xmage"]
 
 
 def test_xmage_job_defines_benign_build_time_start_command(repo_root):
@@ -121,10 +119,11 @@ def test_negatives_forward_pin_manifest_path_via_compose_run_e(repo_root):
 
 def test_workflow_dispatch_comment_matches_github_semantics(repo_root):
     text = _text(repo_root)
-    assert "`pull_request` is the initial remote-execution path" in text
-    assert "merge ref" in text
-    assert "once this workflow exists on the default branch" in text
-    assert "Do not attempt workflow_dispatch before merge" in text
+    # Package B rewrote the (no longer accurate) "initial remote-execution path" comment: the
+    # lane now runs on pull requests for its listed paths only, and dispatch may select any ref.
+    assert "`pull_request` for the paths listed below only" in text
+    assert "`workflow_dispatch`\n# may select any ref" in text
+    assert "initial remote-execution path" not in text
     assert "covers manual runs (post-merge or branch" not in text
 
 
@@ -166,8 +165,34 @@ def test_docker_heavy_jobs_use_no_setup_python_pip_cache(repo_root):
         )
 
 
-def test_preflight_may_retain_setup_python_pip_cache(repo_root):
+def test_there_is_no_separate_preflight_runner(repo_root):
+    # Package B: the scope decision is the workflow's top-level `paths:` filter, so no runner
+    # starts only to decide that the lane is out of scope; its cheap checks run in the job.
     text = _text(repo_root)
-    steps = _setup_python_blocks(_job_block(text, "preflight"))
-    assert len(steps) == 1, "preflight must keep exactly one setup-python step"
-    assert "cache: pip" in steps[0], "preflight is Docker-free and may retain the pip cache"
+    assert "preflight" not in text.split("\njobs:\n", 1)[1]
+    assert "change-scope" not in text
+    on_block = text.split("\non:\n", 1)[1].split("\npermissions:", 1)[0]
+    assert "paths:" in on_block and "docker/**" in on_block and "engine-bridge/**" in on_block
+
+
+def test_the_bridge_is_packaged_not_re_tested_here(repo_root):
+    # The bridge's Java suite runs in the conformance workflow on the same paths.
+    block = _job_block(_text(repo_root), "h4-xmage")
+    assert "mvn -B -ntp -DskipTests package" in block
+    assert "mvn -B -ntp verify" not in block
+
+
+def test_the_xmage_job_keeps_its_fail_fast_checks_and_a_bounded_timeout(repo_root):
+    block = _job_block(_text(repo_root), "h4-xmage")
+    for needle in (
+        "Lane inputs exist",
+        "Canonical identity resolution matrix",
+    ):
+        assert needle in block, needle
+    assert "timeout-minutes: 45" in block
+
+
+def test_the_python_batteries_are_not_repeated_here(repo_root):
+    # tests/unit (the H4 verifier, pin-authority and structure tests) and ruff run in `quality`.
+    block = _job_block(_text(repo_root), "h4-xmage")
+    assert "pytest" not in block and "ruff" not in block

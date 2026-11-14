@@ -88,12 +88,17 @@ changes to signed or sealed qualification records wait for the Owner's explicit 
   Commit before running tests: a dirty tree fails with "stale canonical inputs".
 - Long Java suites, PB-03 and CI waits run in the background, never as repeated polls.
 - GitHub GraphQL is unavailable: use `gh api` REST and the CCR routes.
-- `ci-definition-integrity-shadow` is red by design when gate tests or workflows change; it
-  is not required (required: `quality`, `security`, `infrastructure`); never weaken it.
-  A change to `.github/workflows/production-qualification.yml` needs its digest updated in
-  `WS17_SHA256SUMS`.
-- CI findings and recommendations: `docs/CI_GATES_IMPROVEMENT_PLAN_20261112.md`. It is a plan;
-  a change to a required check or gate definition is an Owner decision.
+- Required checks: `quality` (a gate over `lint`, four `tests` slots and `packaging`), `security`,
+  `infrastructure` (four in-job shards). Docs-only changes take a fast path. PB-03, H4, conformance,
+  smoke, external and meta start only for their own paths; the table is
+  `docs/CI_WHICH_CHECK_RUNS_WHEN.md`. A new test file needs no weight entry
+  (`python -m tests.pytest_shards weights --from-artifacts` rebuilds the table).
+- `ci-definition-integrity-shadow` is informational: green for added or extended tests, red for a
+  changed required-check definition, a removed test or assertion, a new skip or a gate script
+  (never weaken it). A change to `.github/workflows/production-qualification.yml` needs its
+  digest updated in `WS17_SHA256SUMS` (`python scripts/regenerate_hash_manifests.py`).
+- CI state and open points: `docs/CI_GATES_IMPROVEMENT_PLAN_20261112.md`. A change to a required
+  check or gate definition is an Owner decision.
 - `.claude/settings.json` sets `CLAUDE_CODE_SUBAGENT_MODEL=sonnet` only as the default for
   unassigned helpers; agent frontmatter wins. `log-scanner` and `ci-triage` use
   `omitClaudeMd: true` on purpose; `evidence-reviewer` keeps project context. No custom
