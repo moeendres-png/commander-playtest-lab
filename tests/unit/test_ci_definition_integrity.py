@@ -1385,3 +1385,38 @@ def test_gate_call_without_one_needed_result_is_not_a_gate(repository: tuple[Pat
         step["run"] = step["run"].replace(' --job lint="$LINT"', "")
 
     assert _quality_findings(_gated_report(repository, edit))["quality.needs"]["status"] != "PASS"
+
+
+@pytest.mark.parametrize(
+    "extra_step",
+    [
+        {"run": "cp /dev/null scripts/ci_gate.py"},
+        {"run": 'echo "$RUNNER_TEMP/fake-bin" >> "$GITHUB_PATH"'},
+        {"uses": "./.github/actions/quality-bootstrap"},
+        {"uses": "docker://alpine:3.20"},
+        {"uses": "actions/checkout@v5"},
+        {"name": "empty step"},
+    ],
+)
+def test_step_before_the_gate_that_can_alter_it_is_rejected(
+    repository: tuple[Path, str], extra_step: dict[str, Any]
+) -> None:
+    def edit(document: dict[Any, Any]) -> None:
+        document["jobs"]["quality"]["steps"].insert(1, extra_step)
+
+    report = _gated_report(repository, edit)
+    assert _quality_findings(report)["quality.needs"]["status"] != "PASS"
+
+
+def test_step_after_the_gate_is_rejected(repository: tuple[Path, str]) -> None:
+    def edit(document: dict[Any, Any]) -> None:
+        document["jobs"]["quality"]["steps"].append({"run": "echo done"})
+
+    assert _quality_findings(_gated_report(repository, edit))["quality.needs"]["status"] != "PASS"
+
+
+def test_pinned_actions_before_the_gate_are_accepted(repository: tuple[Path, str]) -> None:
+    def edit(document: dict[Any, Any]) -> None:
+        document["jobs"]["quality"]["steps"].insert(1, {"uses": f"actions/cache@{PIN}"})
+
+    assert not _flagged(_gated_report(repository, edit))

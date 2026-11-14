@@ -188,3 +188,29 @@ def test_the_selection_model(command, expected) -> None:
 def test_an_unmodelled_option_fails_closed() -> None:
     with pytest.raises(AssertionError, match="unmodelled pytest option"):
         selection(("pytest", "-k", "fast"), ["tests/a/test_x.py"])
+
+
+def test_in_slot_shards_of_every_matrix_slot_are_disjoint_and_cover_the_slot() -> None:
+    """The ``tests`` job splits each slot over ``--shards=N`` pytest processes; no file may run twice."""
+    command = next(
+        line.strip()
+        for step in _jobs(OWNERS["quality"][0])["tests"]["steps"]
+        for line in (step.get("run") or "").splitlines()
+        if line.strip().startswith("pytest")
+    )
+    count = int(
+        next(part for part in shlex.split(command) if part.startswith("--shards=")).split("=")[1]
+    )
+    weights = pytest_shards.load_weights(pytest_shards.WEIGHTS_PATH)
+    for index in range(1, _matrix_count() + 1):
+        slot = pytest_shards.matrix_files(REPO, index, _matrix_count(), "all", weights)
+        selection = pytest_shards.parse_arguments(["-q", *slot], ("tests",))
+        plan = pytest_shards.plan_for(pytest_shards.selected_files(weights, REPO, selection), count)
+        assert plan is not None
+        commands = [
+            pytest_shards.shard_arguments(selection, plan, shard) for shard in range(len(plan))
+        ]
+        listed = [[item for item in args if item.endswith(".py")] for args in commands]
+        flat = [name for shard in listed for name in shard]
+        assert sorted(flat) == sorted(slot), f"slot {index}: shards do not partition the slot"
+        assert all(not item.startswith("--ignore") for args in commands for item in args)
