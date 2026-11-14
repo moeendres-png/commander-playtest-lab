@@ -1,7 +1,47 @@
 name: External XMage Integration
 
 on:
+  # Package B: the pull request trigger is a path filter (formerly a `integration-scope` runner that
+  # started on every pull request only to decide that the heavy job was out of scope).
   pull_request:
+    paths:
+      - ".github/actions/**"
+      - "engine-bridge/**"
+      - "src/commander_lab/engine/rules/**"
+      - "src/commander_lab/evals/differential.py"
+      - "src/commander_lab/models/engine_runtime.py"
+      - "src/commander_lab/models/game.py"
+      - "src/commander_lab/models/rules.py"
+      - "src/commander_lab/candidates/**"
+      - "artifacts/architecture/FUTURE_XMAGE_SCENARIO_SCHEMA.json"
+      - "docs/architecture/deckbuilding-simulation-separation.md"
+      - "config/rules_engines.json"
+      - "data/evals/differential/rules_cases.json"
+      - "tests/differential/test_phase6_differential.py"
+      - "scripts/run_external_b3_regression.py"
+      - "scripts/run_external_b4a_regression.py"
+      - "scripts/run_external_b4b_regression.py"
+      - "scripts/run_external_b4c_regression.py"
+      - "scripts/run_external_b4d_regression.py"
+      - "scripts/run_external_b4f_replay.py"
+      - "scripts/run_external_b4f_illegal_action_regression.py"
+      - "scripts/run_external_b4f_capability_closeout.py"
+      - "scripts/run_external_b4f_provider_pin_validation.py"
+      - ".github/workflows/external-engine-integration.yml"
+      - "src/commander_lab/__init__.py"
+      - "src/commander_lab/agents/**"
+      - "src/commander_lab/cards/**"
+      - "src/commander_lab/engine/**"
+      - "src/commander_lab/evals/**"
+      - "src/commander_lab/models/**"
+      - "src/commander_lab/qualification/**"
+      - "src/commander_lab/storage/**"
+      - "tests/conftest.py"
+      - "tests/unit/test_models.py"
+      - "tests/unit/test_phase8_rules_models.py"
+      - "tests/unit/test_xmage_compatibility_provider.py"
+      - "src/commander_lab/semantic_replay/**"
+      - "src/commander_lab/freeze_readiness.py"
   workflow_dispatch:
     inputs:
       xmage_commit:
@@ -38,65 +78,9 @@ env:
     java -jar ${{ github.workspace }}/engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar phase6 {input} {output}
 
 jobs:
-  integration-scope:
-    # Always runs on pull requests so the heavy job below can be a required check;
-    # the heavy job is skipped (reported as success) only when this change
-    # provably touches none of its inputs.
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    outputs:
-      relevant: ${{ steps.scope.outputs.relevant }}
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          fetch-depth: 2
-      - id: scope
-        uses: ./.github/actions/change-scope
-        with:
-          paths: |
-            .github/actions/**
-            engine-bridge/**
-            src/commander_lab/engine/rules/**
-            src/commander_lab/evals/differential.py
-            src/commander_lab/models/engine_runtime.py
-            src/commander_lab/models/game.py
-            src/commander_lab/models/rules.py
-            src/commander_lab/candidates/**
-            artifacts/architecture/FUTURE_XMAGE_SCENARIO_SCHEMA.json
-            docs/architecture/deckbuilding-simulation-separation.md
-            config/rules_engines.json
-            data/evals/differential/rules_cases.json
-            tests/differential/test_phase6_differential.py
-            scripts/run_external_b3_regression.py
-            scripts/run_external_b4a_regression.py
-            scripts/run_external_b4b_regression.py
-            scripts/run_external_b4c_regression.py
-            scripts/run_external_b4d_regression.py
-            scripts/run_external_b4f_replay.py
-            scripts/run_external_b4f_illegal_action_regression.py
-            scripts/run_external_b4f_capability_closeout.py
-            scripts/run_external_b4f_provider_pin_validation.py
-            .github/workflows/external-engine-integration.yml
-            src/commander_lab/__init__.py
-            src/commander_lab/agents/**
-            src/commander_lab/cards/**
-            src/commander_lab/engine/**
-            src/commander_lab/evals/**
-            src/commander_lab/models/**
-            src/commander_lab/qualification/**
-            src/commander_lab/storage/**
-            tests/conftest.py
-            tests/unit/test_models.py
-            tests/unit/test_phase8_rules_models.py
-            tests/unit/test_xmage_compatibility_provider.py
-            src/commander_lab/semantic_replay/**
-            src/commander_lab/freeze_readiness.py
-
   build-and-integrate:
-    needs: [integration-scope]
-    if: ${{ !cancelled() && needs.integration-scope.outputs.relevant != 'false' }}
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 20
     steps:
       - name: Validate immutable XMage input
         shell: bash
@@ -244,15 +228,6 @@ jobs:
         if: always()
         with:
           name: external-engine-b4f-evidence-${{ github.sha }}
-          path: |
-            artifacts/external-engine/
-            engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar
-          if-no-files-found: error
-      - name: Upload legacy B4-D artifact-name compatibility alias
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        if: always()
-        with:
-          name: external-engine-b4d-evidence-${{ github.sha }}
           path: |
             artifacts/external-engine/
             engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar

@@ -1,52 +1,9 @@
 name: Decision Support Regression
 
 on:
-  pull_request:
-    paths:
-      - 'scripts/run_j_final_acceptance.py'
-      - '.github/workflows/decision-support-regression.yml'
-      - "src/commander_lab/__init__.py"
-      - "src/commander_lab/agents/**"
-      - "src/commander_lab/analysis/**"
-      - "src/commander_lab/candidates/**"
-      - "src/commander_lab/canonical_features.py"
-      - "src/commander_lab/cards/**"
-      - "src/commander_lab/counterfactual.py"
-      - "src/commander_lab/decision_statistics.py"
-      - "src/commander_lab/deck_registry.py"
-      - "src/commander_lab/diagnostics.py"
-      - "src/commander_lab/engine/**"
-      - "src/commander_lab/fresh_rebuild.py"
-      - "src/commander_lab/importers/**"
-      - "src/commander_lab/mana_analysis.py"
-      - "src/commander_lab/meta/**"
-      - "src/commander_lab/model_informativeness.py"
-      - "src/commander_lab/models/**"
-      - "src/commander_lab/mulligan/**"
-      - "src/commander_lab/opponent_ensembles/**"
-      - "src/commander_lab/optimization/**"
-      - "src/commander_lab/packages/**"
-      - "src/commander_lab/playstyle.py"
-      - "src/commander_lab/pod_scheduling.py"
-      - "src/commander_lab/pod_scheduling_5p.py"
-      - "src/commander_lab/primer/**"
-      - "src/commander_lab/priority_workflows.py"
-      - "src/commander_lab/project_context.py"
-      - "src/commander_lab/provenance/**"
-      - "src/commander_lab/repositories/**"
-      - "src/commander_lab/robustness.py"
-      - "src/commander_lab/semantic_evidence.py"
-      - "src/commander_lab/semantic_features.py"
-      - "src/commander_lab/storage/**"
-      - "src/commander_lab/tools/**"
-      - "src/commander_lab/whole_deck/**"
-      - "src/commander_lab/workflow_session.py"
-      - "src/commander_lab/semantic_replay/**"
-      - "src/commander_lab/freeze_readiness.py"
-      - "src/commander_lab/candidate_workflow/**"
-      - "src/commander_lab/decision/**"
-      - "src/commander_lab/identity/**"
-      - "src/commander_lab/owner_data.py"
+  # Package B (Owner decision 2026-11-14): dispatch only. This is the historical RogShai J-FINAL
+  # regression; RogShai is historical/regression data, not an active optimization lane
+  # (docs/OWNER_DECK_FOCUS_CURRENT.md), so it no longer starts on pull requests.
   workflow_dispatch:
 
 permissions:
@@ -65,7 +22,7 @@ env:
 jobs:
   historical-rogshai-regression:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
