@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Rechenskript zum Statistik-Plan fuer Deck-Vergleichs-Serien (Issue #1211).
 
 Erzeugt alle Fallzahl-Tabellen von ``docs/research/SERIES_STATISTICS_PLAN.md``
