@@ -335,6 +335,8 @@ def test_metric_5_tier_distribution_and_land_share() -> None:
         tier_cuts={"S": 90.0, "A": 75.0, "B": 55.0, "C": 35.0},
         min_components=1,
         min_coverage=0.1,
+        # u1 is not listed and stays unknown (tier U), as it is a missing observation here
+        missing_value={COMMANDER_INCLUSION: "skip"},
     )
     ctx = PoolContext(
         type_group={

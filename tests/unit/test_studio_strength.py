@@ -452,7 +452,9 @@ def test_missing_card_lowers_coverage_not_the_percentile(
     store: StudioStore, tmp_path: Path
 ) -> None:
     _import(store, tmp_path)
-    cards = _by_name(strength_view.compute(store, COMMANDER, StrengthSettings()))
+    cards = _by_name(
+        strength_view.compute(store, COMMANDER, StrengthSettings(missing_value=SKIP_MISSING))
+    )
     absent = _component(cards["Filler 09"], "commander_inclusion")
     assert absent["status"] == strength.NO_VALUE and absent["percentile"] is None
     listed = _component(cards["Filler 08"], "commander_inclusion")
@@ -467,9 +469,15 @@ def test_missing_card_lowers_coverage_not_the_percentile(
     assert _component(cards["Filler 00"], "synergy")["status"] == strength.NO_VALUE
     assert _component(cards["Filler 00"], "deck_universe")["status"] == strength.NOT_COLLECTED
     rank_cards = _by_name(
-        strength_view.compute(store, COMMANDER, StrengthSettings(share_scale="rank"))
+        strength_view.compute(
+            store, COMMANDER, StrengthSettings(share_scale="rank", missing_value=SKIP_MISSING)
+        )
     )
     assert _component(rank_cards["Filler 08"], "commander_inclusion")["percentile"] == 0.0
+    # the recommended default counts the unlisted card as the lowest rank instead (#1350)
+    lowest = _by_name(strength_view.compute(store, COMMANDER, StrengthSettings()))
+    unlisted = _component(lowest["Filler 09"], "commander_inclusion")
+    assert unlisted["status"] == strength.MISSING_AS_LOWEST and unlisted["percentile"] == 0.0
 
 
 def test_bracket_choice_changes_the_result(store: StudioStore, tmp_path: Path) -> None:
@@ -669,8 +677,14 @@ def test_tier_list_page_has_the_strength_panel_without_inline_code() -> None:
 # ---------- review of the merged tier list (Refs #1205) ----------
 
 
+SKIP_MISSING = {"commander_inclusion": "skip", "bracket_inclusion": "skip"}
+
+
 def _only(*components: str, **extra: object) -> StrengthSettings:
+    """One weight per named component; an unlisted card stays a missing observation unless the
+    test asks for ``missing_value`` (the recommended default counts it as the lowest rank)."""
     weights = {name: 0.0 for name in strength.COMPONENTS} | {name: 1.0 for name in components}
+    extra.setdefault("missing_value", dict(SKIP_MISSING))
     return StrengthSettings(weights=weights, min_coverage=0.0, min_components=1, **extra)  # type: ignore[arg-type]
 
 
@@ -967,8 +981,8 @@ def test_new_settings_are_validated_serialised_and_round_trip() -> None:
     )
     assert StrengthSettings.from_dict(settings.to_dict()) == settings
     assert settings.to_dict()["missing_value"] == {
-        "commander_inclusion": "skip",
-        "bracket_inclusion": "skip",
+        "commander_inclusion": "lowest",
+        "bracket_inclusion": "lowest",
         "deck_universe": "lowest",
     }
     for bad in (
@@ -1001,7 +1015,14 @@ def test_new_settings_are_validated_serialised_and_round_trip() -> None:
         "playgroup": 200,
     }
     assert default.rank_commander_and_basics is False
-    assert set(default.missing_value.values()) == {"skip"}
+    # EDHREC lists every card above its threshold: "not listed" counts as the lowest rank; the
+    # deck universe has counted zeros and stays "skip" (#1350)
+    assert default.missing_value == {
+        "commander_inclusion": "lowest",
+        "bracket_inclusion": "lowest",
+        "deck_universe": "skip",
+    }
+    assert default.missing_value == strength.DEFAULT_MISSING_VALUE
 
 
 # ---------- store side of the review ----------
@@ -1045,7 +1066,8 @@ def test_a_name_two_cards_claim_is_reported_not_dropped_and_exact_names_win(
         _put_signal(store, signals.SIGNAL_INCLUSION, name, 40, 100)
     _put_signal(store, signals.SIGNAL_INCLUSION, "Solo Card // Back Face", 10, 100)
     store.connection.commit()
-    result = strength_view.compute(store, COMMANDER, StrengthSettings())
+    settings = StrengthSettings(missing_value=SKIP_MISSING)
+    result = strength_view.compute(store, COMMANDER, settings)
     cards = _by_name(result)
     assert result["ambiguous_names"] == [
         {
@@ -1059,7 +1081,7 @@ def test_a_name_two_cards_claim_is_reported_not_dropped_and_exact_names_win(
     # "Solo Card" is the exact name of one card; the double-faced card keeps its own row
     assert _component(cards["Solo Card"], "commander_inclusion")["numerator"] == 40
     assert _component(cards["Solo Card // Back Face"], "commander_inclusion")["numerator"] == 10
-    again = strength_view.compute(store, COMMANDER, StrengthSettings())
+    again = strength_view.compute(store, COMMANDER, settings)
     assert again["ambiguous_names"] == result["ambiguous_names"]  # deterministic
 
 
@@ -1212,7 +1234,13 @@ def test_recommended_values_come_from_one_place_and_the_panel_texts_name_them(
     assert "200 Partien" in labels["min_denominators.playgroup"]
     assert "EDHREC-Kombos des Commanders" in labels["combo_source"]
     assert "Mindest-Universum" in labels["min_denominators.deck_universe"]
-    assert "(empfohlen: auslassen)" in labels["missing_value.commander_inclusion"]
+    assert "(empfohlen: als niedrigster Rang zählen)" in labels["missing_value.commander_inclusion"]
+    assert "(empfohlen: auslassen)" in labels["missing_value.deck_universe"]
+    for key in ("commander_inclusion", "bracket_inclusion", "deck_universe"):
+        recommended = [
+            c["value"] for c in meta["panel"]["choices"][f"missing_value.{key}"] if c["recommended"]
+        ]
+        assert recommended == [meta["recommended"]["missing_value"][key]]
     assert "(empfohlen: aus)" in labels["rank_commander_and_basics"]
     assert "(empfohlen: 25)" in labels["min_coverage"]  # the page field is in percent
     assert "(empfohlen: 2)" in labels["min_components"]
@@ -2396,3 +2424,50 @@ def test_presets_remain_distinct_under_signal_cleanup() -> None:
         len({(*tuple(sorted(p.weights.items())), p.bracket) for p in (balanced, near, tournament)})
         == 3
     )
+
+
+def test_lowest_for_an_unlisted_card_is_at_or_below_the_smallest_listed_card_never_above() -> None:
+    """#1350: under every share scale and comparison group an unlisted card counted as the
+    lowest rank scores 0, which is never above the smallest listed card; "skip" still works."""
+    listed = {
+        "big": Observation(900 / 1000, 900, 1000),
+        "mid": Observation(0.1, 100, 1000),
+        "tiny": Observation(1 / 1000, 1, 1000),
+        "zero": Observation(0.0, 0, 1000),
+    }
+    observations = {**{key: {"commander_inclusion": value} for key, value in listed.items()}}
+    observations["unlisted"] = {}
+    context = PoolContext(type_group=dict.fromkeys(observations, "Creature"))
+    for scale in ("share", "rank"):
+        for group in ("pool", "type"):
+            settings = _only(
+                "commander_inclusion",
+                share_scale=scale,
+                rank_group=group,
+                missing_value={"commander_inclusion": "lowest"},
+            )
+            scored = strength.score_pool(
+                settings, observations, {"commander_inclusion"}, context=context
+            )
+            smallest = min(scored[key]["index"] for key in listed)  # type: ignore[type-var]
+            assert scored["unlisted"]["index"] is not None
+            assert scored["unlisted"]["index"] <= smallest, (scale, group)
+            row = _row(scored, "unlisted", "commander_inclusion")
+            assert row["status"] == strength.MISSING_AS_LOWEST and row["percentile"] == 0.0
+            # the smallest listed card with a real count stays above the unlisted one
+            assert scored["tiny"]["index"] >= scored["unlisted"]["index"]
+    # the share scale keeps the listed cards apart: the unlisted card is below the tiny one
+    shared = strength.score_pool(
+        _only("commander_inclusion", missing_value={"commander_inclusion": "lowest"}),
+        observations,
+        {"commander_inclusion"},
+    )
+    assert shared["unlisted"]["index"] == 0.0 < shared["tiny"]["index"]  # type: ignore[operator]
+    # "skip" still leaves the unlisted card a missing observation
+    skipped = strength.score_pool(
+        _only("commander_inclusion", missing_value={"commander_inclusion": "skip"}),
+        observations,
+        {"commander_inclusion"},
+    )
+    assert skipped["unlisted"]["index"] is None
+    assert _row(skipped, "unlisted", "commander_inclusion")["status"] == strength.NO_VALUE

@@ -1083,9 +1083,12 @@ def _panel_texts() -> dict[str, object]:
             f"(empfohlen: {_MISSING_CHOICES[rec.missing_value[key]]})"
         )
         helps[f"missing_value.{key}"] = (
-            "auslassen: eine nicht gelistete Karte ist eine fehlende Beobachtung (Owner-"
-            "Entscheidung B5). als niedrigster Rang: nur sinnvoll, wenn die Quelle die "
-            "Karten des Commanders fast vollständig nennt."
+            "als niedrigster Rang: eine nicht gelistete Karte zählt mit dem Wert 0, also bei "
+            "oder unter der kleinsten gelisteten Karte, nie darüber. Sinnvoll, wenn die Quelle "
+            "alle Karten über ihrer Listenschwelle nennt (EDHREC): nicht gelistet heißt "
+            "darunter. auslassen: eine nicht gelistete Karte ist eine fehlende Beobachtung "
+            "(Owner-Entscheidung B5); ihr Gewicht entfällt dann und der Index mittelt über "
+            "die übrigen Signale."
         )
     labels["rank_commander_and_basics"] = (
         "Commander und Standardländer bewerten "
@@ -1188,7 +1191,10 @@ def _panel_texts() -> dict[str, object]:
             "rank_group": _choices(_GROUP_CHOICES, rec.rank_group),
             "share_measure": _choices(_MEASURE_CHOICES, rec.share_measure),
             "share_scale": _choices(_SCALE_CHOICES, rec.share_scale),
-            "missing_value": _choices(_MISSING_CHOICES, strength.MISSING_SKIP),
+            **{
+                f"missing_value.{key}": _choices(_MISSING_CHOICES, rec.missing_value[key])
+                for key in strength.MISSING_CAPABLE
+            },
             "universe_source": [
                 {
                     "value": strength.UNIVERSE_AUTO,

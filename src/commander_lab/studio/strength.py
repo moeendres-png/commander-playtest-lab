@@ -296,6 +296,18 @@ def rubric_value(h_mean: float) -> float | None:
 
 _EDHREC_SHARES = frozenset({COMMANDER_INCLUSION, BRACKET_INCLUSION, GLOBAL_INCLUSION})
 
+# What an unlisted card counts as, per source (recommended values). EDHREC lists every card of a
+# commander (and of a bracket page) above its listing threshold, so "not listed" there means
+# "below the threshold": it counts as ``MISSING_LOWEST``, a score of 0.0, which is at or below
+# the score of the smallest listed card under both share scales (``share_scale_values`` never
+# returns less than 0) and never above it. The deck universe stays ``MISSING_SKIP``: a counted
+# universe already gives every card without a row a counted zero (0 of N), a real value.
+DEFAULT_MISSING_VALUE: dict[str, str] = {
+    COMMANDER_INCLUSION: MISSING_LOWEST,
+    BRACKET_INCLUSION: MISSING_LOWEST,
+    DECK_UNIVERSE: MISSING_SKIP,
+}
+
 # The recommended values are the defaults of ``StrengthSettings`` and of these constants: one
 # place in Python. ``strength_view.presets`` serves them, the page never hard-codes them.
 DEFAULT_WEIGHTS: dict[str, float] = {
@@ -501,7 +513,10 @@ class StrengthSettings:
                 "missing_value can only be set for "
                 f"{', '.join(MISSING_CAPABLE)}, not for {', '.join(sorted(unknown_missing))}"
             )
-        missing = {name: self.missing_value.get(name, MISSING_SKIP) for name in MISSING_CAPABLE}
+        missing = {
+            name: self.missing_value.get(name, DEFAULT_MISSING_VALUE[name])
+            for name in MISSING_CAPABLE
+        }
         for name, choice in missing.items():
             if choice not in MISSING_CHOICES:
                 raise ValueError(f"missing_value {name} must be skip or lowest")

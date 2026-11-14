@@ -758,7 +758,7 @@ function fieldKind(key) {
   if (key === "min_components") return { type: "number", min: 0, max: meta.components.length, step: 1, scale: 1 };
   if (key.startsWith("tier_cuts.")) return { type: "number", min: 0, max: 100, step: 1, scale: 1 };
   if (key === "universe_source") return { type: "choice", choices: [...meta.panel.choices.universe_source, ...state.strength.counted.map((item) => ({ value: item.value, label: item.label, recommended: false }))] };
-  const choices = key.startsWith("missing_value.") ? meta.panel.choices.missing_value : meta.panel.choices[key];
+  const choices = meta.panel.choices[key];
   return { type: "choice", choices };
 }
 const settingKeys = () => state.strength.meta.panel.groups.flatMap((group) => group.keys);
