@@ -101,6 +101,41 @@ before anything is written, and a second identical import changes nothing. It re
 tier override is deliberately not imported). A marks file is private data and does not go into
 the repository.
 
+#### Where the old marks come from, and the per-row report
+
+The importer takes a local file the Owner provides; the old HTML studio files themselves are
+not in the repository and are not read. Two file formats are accepted (nothing else; a file
+of another shape is refused with "not a marks file"):
+
+1. The export of the old studio: one JSON object `{"app": "chulane-studio", "state": {...}}`.
+   Only `state.fav` (card id or name to true) and `state.notes` (card id or name to text) are
+   read. `wish`, `variants` and `tierOverride` are counted as ignored; a tier value is never
+   imported. The Owner produces this file with the export function of his old studio page
+   (it saves the page state as JSON). If the old page wrote another form, the Owner puts his
+   favorites, exclusions and notes into the second format.
+2. `studio-marks-1`: `{"format": "studio-marks-1", "marks": [{"card_name": "Forest",
+   "favorite": true, "excluded": false, "note": "text"}]}`. A key an entry leaves out stays as
+   it is. `card_id` is tried first, `card_name` second.
+
+```
+python -m commander_lab.studio import-owner-marks MARKS.json --rows
+```
+
+Without `--rows` the report holds counts only (entries, resolved, unresolved, conflicts,
+changed). With `--rows` it adds one line per entry of the file (`row`, `name`, `status`,
+`reason`):
+
+| status | meaning |
+|---|---|
+| `IMPORTED` | the card was found; the mark is applied (or was already stored) |
+| `NOT_FOUND` | no card of the Studio store has this id or name; nothing is applied |
+| `CONFLICT` | card id and name name different cards, or the file states different values for one card; nothing of that card is applied |
+| `IGNORED` | the entry states no favorite, exclusion or note |
+
+The step only writes `card_mark`; observations, ratings, tiers and the strength index are not
+touched (a marks file is private data and does not go into the repository). `import-all
+--marks FILE` runs the same import inside the all-in-one run.
+
 ### Evidence per card (R3 of #1185)
 
 `evidence.pool_evidence(store, commander_names, view=...)` and `evidence.card_evidence` give,
@@ -455,7 +490,7 @@ appending one only adds sets that are not stored yet.
 The deck check (`POST /api/check`, and a stored revision) returns `combos`: the listed combos
 the deck holds completely and the ones that lack exactly one card, each with the source's deck
 count. The statistics tab shows them under "Kombos im Deck" and says for a missing card whether
-it is in the pool. Names match by the full card name, then by the front face of a two-part card,
+it is in the pool, and names the source of the combo list (the title and snapshot date or import day of the imported file, `sources` in the result). Names match by the full card name, then by the front face of a two-part card,
 never by the back half. Limits: only listed combos are known; without a stored list the section
 says so and never claims "no combos"; the deck count is the source's count over all its decks,
 not a count for this commander; it is a comparison of card sets, not a rating.
@@ -602,6 +637,56 @@ adds the layers "Korpus (Decks, alle)", "EDHREC-Beobachtungen (Themen)" and "Pla
 The loaders are the functions of `studio/repo_import.py`; the scripts
 `scripts/build_inventory_workbook.py`, `scripts/import_chulane_corpus.py` and
 `scripts/map_corpus_oracle_ids.py` call them.
+
+### Engine check ("Prüfung durch die Engine")
+
+The tab "Prüfung" has two separately named checks. "Datenprüfung (gespeicherte Fakten)" reads
+stored card facts. "Prüfung durch die Engine" (button "Mit der Engine prüfen",
+`POST /api/engine-check`, `engine_check.py`) runs the full-game runner's own deck construction
+validation (`_validate_deck_construction`: content hash, duplicates, colour identity) on the
+current list, plus the cards the pinned engine cannot load (`launch.cards_unsupported_by_engine`,
+`launch.cards_unknown_to_pilots`, the logic of `/api/engine/missing-cards`). It starts no game and
+XMage's own deck import still runs at game start. Result: `FAIL` when anything is found, `PASS`
+only when nothing is found and the engine is provisioned, otherwise `UNKNOWN` with the headline
+"nicht geprüft: Engine nicht bereitgestellt" (never shown as green). A list that is not exactly
+100 cards cannot go through the runner's deck model: "Deck-Aufbau nicht geprüft" (UNKNOWN).
+
+### Play from the builder
+
+The button "Mit diesem Stand eine Partie spielen" opens `partie.html?neu=1&revision=ID` with the
+saved revision preselected in the new-game dialog. It plays the saved revision only: with an
+unsaved draft the button reads "Erst als Stand speichern, dann spielen" and a click explains it
+instead of using an older revision. The Partien page has no series start yet; series come with
+issue #1170.
+
+### Land advisor ("Länder im Vergleich zu den Farbsymbolen")
+
+Section of the tab "Zahlen" (`POST /api/land-advisor`, `land_advisor.py`): an observation, never
+a recommendation. Per colour: coloured symbols in the costs of the non-land cards (count and
+share), lands that can produce the colour, other sources (mana rocks, creatures) apart, next to
+median and middle half of the chosen comparison group of source decks for the same figures,
+with the land count. Groups below 30 decks are flagged. Rules: land means front type line Land;
+a modal spell-land is a spell (its land side is shown apart); a hybrid symbol counts for each of
+its colours, Phyrexian and "2 or colour" symbols for the colour, `{C}` as colourless, `{X}` and
+generic mana not at all; a split card counts both halves, other two-faced cards the front; a
+land counts for every colour it produces; a land with unknown colours is "unbekannt", never 0;
+the commander's own cost and its colour identity are named apart. Source decks with cards the
+card data does not know are left out and counted.
+
+### Archetype labels (schema 15)
+
+Free-form labels the Owner puts on a card (card window, "Archetyp-Marken") and on a saved deck
+(button "Marken" next to the deck choice). Tables `card_label` and `deck_label` in the Studio
+store; opening a schema 14 store creates them (nothing else changes, idempotent). Routes:
+`PUT /api/cards/{id}/labels`, `PUT /api/decks/{id}/labels` (`{"labels": [...]}`, at most 20 of
+at most 40 characters, unique ignoring case), `GET /api/labels`. The pool table filters by label
+("alle Marken", "ohne Marke") and has an optional column. Like favorites they never enter a tier,
+the strength index, the rating layers or any evidence figure (`archetype_label` in
+`evidence.TIER_POLICY["never_inputs"]`; `test_labels_never_change_tier_index_layers_or_evidence`).
+
+### Not built: purchase mode
+
+"Kauf-Modus" (try cards outside the collection) is explicitly later (issue #1174 item 7).
 
 ## Start
 

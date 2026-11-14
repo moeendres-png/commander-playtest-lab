@@ -62,16 +62,16 @@ def known_labels(store: StudioStore) -> list[str]:
     """All labels in use on cards or decks, one spelling each, for suggestions."""
     names: dict[str, str] = {}
     for table in ("card_label", "deck_label"):
-        for row in store.connection.execute(f"SELECT label FROM {table}"):  # noqa: S608
+        for row in store.connection.execute(f"SELECT label FROM {table}"):
             names.setdefault(str(row["label"]).casefold(), str(row["label"]))
     return sorted(names.values(), key=str.casefold)
 
 
 def _replace(store: StudioStore, table: str, key: str, owner: str, values: list[str]) -> None:
     with store.connection as db:
-        db.execute(f"DELETE FROM {table} WHERE {key} = ?", (owner,))  # noqa: S608
+        db.execute(f"DELETE FROM {table} WHERE {key} = ?", (owner,))
         db.executemany(
-            f"INSERT INTO {table}({key}, label, created_at) VALUES (?, ?, ?)",  # noqa: S608
+            f"INSERT INTO {table}({key}, label, created_at) VALUES (?, ?, ?)",
             [(owner, label, now_utc()) for label in values],
         )
 

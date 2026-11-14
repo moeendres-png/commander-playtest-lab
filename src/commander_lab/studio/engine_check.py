@@ -58,12 +58,12 @@ def _deck_input(rows: Sequence[Mapping[str, object] | sqlite3.Row]) -> object:
 
 def construction_check(rows: Sequence[Mapping[str, object] | sqlite3.Row]) -> dict[str, object]:
     """Run the runner's own ``_validate_deck_construction`` on the deck rows."""
+    from pydantic import ValidationError
+
     from commander_lab.engine.rules.full_game import (
         FullGameConformanceError,
         _validate_deck_construction,
     )
-
-    from pydantic import ValidationError
 
     try:
         deck = _deck_input(rows)

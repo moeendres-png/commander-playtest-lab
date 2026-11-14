@@ -597,6 +597,8 @@ function renderCombos(body) {
   if (combos.one_missing.length) {
     body.append(h("table", { id: "combos-missing" }, h("thead", {}, h("tr", {}, h("th", {}, "Es fehlt genau eine Karte"), h("th", { class: "num" }, "Decks der Quelle"))), h("tbody", {}, combos.one_missing.map(row))));
   }
+  const sources = combos.sources || [];
+  body.append(h("p", { class: "note", id: "combos-source" }, sources.length ? `Quelle der Kombo-Liste: ${sources.map((item) => item.title + (item.snapshot_date ? ` (Stand ${item.snapshot_date})` : ` (eingelesen ${item.imported_at.slice(0, 10)})`)).join("; ")}.` : "Quelle der Kombo-Liste: nicht bekannt."));
   body.append(h("p", { class: "note" }, combos.meaning));
 }
 const ENGINE_STATUS = { PASS: ["good", "bestanden"], FAIL: ["bad", "nicht bestanden"], UNKNOWN: ["warn", "nicht geprüft"] };
