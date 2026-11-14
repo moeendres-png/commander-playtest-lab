@@ -623,12 +623,19 @@ def card_cooccurrence(
     from .universe import cooccurrence_pairs, deck_sets, spelling_owners
 
     db = store.connection
-    target = db.execute(
-        "SELECT oracle_name FROM card_fact WHERE card_id = ?", (card_id,)
-    ).fetchone()
-    if target is None:
+    # One read serves the target and the pool ids: the statement count of this view is pinned
+    # by a test (one grouped pass over the deck rows, no card-fact join).
+    ids: dict[str, str] = {}
+    oracle_name = ""
+    for fact in db.execute(
+        "SELECT card_id, oracle_name FROM card_fact WHERE commander_legal = 1 OR card_id = ?",
+        (card_id,),
+    ):
+        ids[str(fact["oracle_name"])] = str(fact["card_id"])
+        if str(fact["card_id"]) == card_id:
+            oracle_name = str(fact["oracle_name"])
+    if not oracle_name:
         raise KeyError(card_id)
-    oracle_name = str(target["oracle_name"])
     cohort_join, bound_args = bound_to("corpus_deck", "d.deck_id", commander_names)
     params: list[object] = [*bound_args]
     if cohort != ALL_DECKS:
@@ -650,7 +657,8 @@ def card_cooccurrence(
         )
     }
     owners = spelling_owners(store)
-    own = deck_sets(store, candidates, owners).get(oracle_name, set())
+    sets = deck_sets(store, candidates, owners)
+    own = sets.get(oracle_name, set())
     card_decks = len(own)
     if card_decks == 0:
         return {
@@ -659,13 +667,9 @@ def card_cooccurrence(
             "data_class": "DERIVED_DESCRIPTIVE",
             "cards": [],
         }
-    together = deck_sets(store, own, owners)
-    ids = {
-        str(r["oracle_name"]): (str(r["card_id"]))
-        for r in db.execute("SELECT card_id, oracle_name FROM card_fact WHERE commander_legal = 1")
-    }
+    # cooccurrence_pairs intersects every card's decks with the target's decks.
     pairs = [
-        pair for pair in cooccurrence_pairs(together, oracle_name, None) if pair["card_name"] in ids
+        pair for pair in cooccurrence_pairs(sets, oracle_name, None) if pair["card_name"] in ids
     ][:limit]
     return {
         "cohort": cohort,

@@ -635,7 +635,9 @@ def resolve_universe(store: StudioStore, spec: Mapping[str, object]) -> list[str
     Resolved once per store state and spec (see ``cache.py``): one request that needs the
     universe several times (denominator, snapshot, exclusion counts, spread) pays for it once."""
     cleaned = _validate_spec(spec)
-    key = ("resolve", json.dumps(cleaned, sort_keys=True))
+    # min_universe is a threshold read by the callers, not a filter: it must not split the cache
+    selecting = {name: value for name, value in cleaned.items() if name != "min_universe"}
+    key = ("resolve", json.dumps(selecting, sort_keys=True))
     return list(cached(store, key, lambda: tuple(_resolve(store, cleaned))))
 
 
