@@ -56,14 +56,17 @@ UNRATED = "UNRATED"
 NO_VALIDATED_MODEL = "NO_VALIDATED_OUTCOME_MODEL"
 
 TIER_POLICY: dict[str, object] = {
-    "version": "tier-policy-1",
+    "version": "tier-policy-2",
     "tiers": ["S", "A", "B", "C", "D"],
     "validated_model": None,
     "rule": (
-        "A result tier needs a target defined in advance, a calibrated model and out-of-sample "
-        "(leave-commander-out) evidence. No such model exists, so every card is UNRATED. "
-        "Corpus frequency, EDHREC inclusion or lift, the Owner's marks and counts of any kind "
-        "never set a tier on their own. Missing evidence is never a low tier."
+        "A measured result rating needs a target defined in advance, a calibrated model and "
+        "out-of-sample (leave-commander-out) evidence. No such model exists, so the "
+        "outcome-based rating of every card is UNRATED. The only thing the page calls a Tier "
+        "(S to D, U) is the strength index of strength.py: an index from the Owner's weights "
+        "over counted usage data, not a measured strength. Corpus frequency, EDHREC inclusion "
+        "or lift, the Owner's marks and counts of any kind never set the outcome-based rating "
+        "on their own. Missing evidence is never a low tier."
     ),
     "never_inputs": ["favorite", "excluded", "note", "corpus_frequency", "edhrec_inclusion"],
 }
@@ -199,11 +202,38 @@ def _simulations(
     return totals
 
 
-def _edhrec_summary(items: list[dict[str, object]]) -> dict[str, object]:
-    """Compact view of the EDHREC rows. Inclusion, lift and synergy stay separate fields."""
+def _figure_row(figure: dict[str, object]) -> dict[str, object]:
+    """The commander's inclusion figure as one evidence row, with its origin."""
+    denominator = figure["denominator"]
+    captured = None
+    return {
+        "cohort": f"edhrec:{figure['page']}",
+        "metric": "inclusion_pct",
+        "value": figure["pct"],
+        "numerator": figure["numerator"],
+        "denominator": denominator,
+        "denominator_known": denominator is not None,
+        "small_denominator": isinstance(denominator, int) and denominator < SMALL_DENOMINATOR,
+        "snapshot": captured,
+        "snapshot_known": captured is not None,
+        "data_class": "NORMALIZED_SOURCE",
+        "url": None,
+        "source": "card_signal",
+    }
+
+
+def _edhrec_summary(
+    items: list[dict[str, object]], figure: dict[str, object] | None = None
+) -> dict[str, object]:
+    """Compact view of the EDHREC rows. Inclusion, lift and synergy stay separate fields.
+
+    ``widest_inclusion`` is the commander's figure of ``inclusion.commander_inclusion`` when
+    there is one: the same value the builder table and sort use."""
     inclusion = [item for item in items if item["metric"] == "inclusion_pct"]
     widest: dict[str, object] | None = None
-    for item in inclusion:
+    if figure is not None:
+        widest = _figure_row(figure)
+    for item in inclusion if widest is None else []:
         den = item["denominator"]
         if widest is None or (isinstance(den, int) and den > int(str(widest["denominator"] or 0))):
             widest = item
@@ -223,7 +253,9 @@ def _edhrec_summary(items: list[dict[str, object]]) -> dict[str, object]:
                 "small_denominator",
                 "snapshot_known",
                 "data_class",
+                "source",
             )
+            if key in widest
         },
         "any_snapshot_unknown": any(not item["snapshot_known"] for item in items),
         "any_small_denominator": any(item["small_denominator"] for item in items),
@@ -285,26 +317,44 @@ def _card_evidence(
             deck_status = PRESENT
     if commander_view:
         decks = card.get("decks")
+        # ``decks_known`` False: no source deck of the commander names the card, so its
+        # count is unknown, never 0; True: ``decks`` holds real counts per group.
         hits = decks if isinstance(decks, dict) else {}
+        decks_known = bool(card.get("decks_known"))
         for cohort, size in cohorts.items():
             deck_items.append(
                 {
                     "kind": "corpus",
                     "cohort": cohort,
-                    "decks": int(hits.get(cohort, 0)),
+                    # ``decks_known`` False: the card is unknown to the decks, never 0.
+                    "decks": int(hits.get(cohort, 0)) if decks_known else None,
+                    "decks_known": decks_known,
                     "of": size,
                     "small_denominator": size < SMALL_DENOMINATOR,
                     "data_class": "DERIVED_DESCRIPTIVE",
                 }
             )
         total = cohorts.get(ALL_DECKS, 0)
-        # A stored row without a value is an unknown, not an observation.
+        # The commander's inclusion comes from ONE function (``inclusion.commander_inclusion``,
+        # card_signal first, observations second): the figure the pool carries is the one
+        # shown here, whichever store it came from. A stored row without a value is unknown.
+        raw_figure = card.get("edhrec")
+        # An observation figure is one of the observation rows already listed (the widest).
+        figure = (
+            raw_figure
+            if isinstance(raw_figure, dict)
+            and raw_figure.get("origin") == "signal"
+            and raw_figure.get("pct") is not None
+            else None
+        )
+        if figure is not None:
+            edhrec_rows = [_figure_row(figure), *edhrec_rows]
         measured = [row for row in edhrec_rows if row["value"] is not None]
         if int(hits.get(ALL_DECKS, 0)) > 0 or measured:
             deck_status = PRESENT
         elif total > 0:
             deck_status = ABSENT_IN_KNOWN_CORPUS
-        edhrec = _edhrec_summary(measured)
+        edhrec = _edhrec_summary(measured, figure)
         edhrec["rows_without_value"] = len(edhrec_rows) - len(measured)
     deck_layer: dict[str, object] = {
         "status": deck_status,

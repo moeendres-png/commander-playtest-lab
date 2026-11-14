@@ -133,7 +133,7 @@ function sortValue(card, key) {
     return item && item.status === "OK" && item.percentile !== null ? item.percentile : null;
   }
   if (key === "layers") return presentCount(card);
-  if (key === "corpus") { const c = corpusAll(card); return c && c.of ? c.decks / c.of : null; }
+  if (key === "corpus") { const c = corpusAll(card); return c && c.decks_known !== false && c.decks !== null && c.of ? c.decks / c.of : null; }
   if (key === "edhrec") { const w = widest(card); return w ? w.value : null; }
   if (key === "games") { const a = layer(card, "observed_game").atlas; return a && a.status === "OK" ? a.times_brought : null; }
   if (key === "research") { const r = card.coverage.research_priority; return r ? r.score : null; }
@@ -236,6 +236,7 @@ function roleBadges(card) {
 function corpusCell(card) {
   const item = corpusAll(card);
   if (!item) return unknown(layer(card, "observed_deck").status === "NOT_COLLECTED" ? "keine Quelle" : "unbekannt");
+  if (item.decks_known === false || item.decks === null) return unknown("unbekannt (kein Quelldeck nennt diese Karte)");
   const text = `${item.decks}/${item.of} · ${pct(item.decks, item.of)}`;
   return h("span", { class: item.decks ? "" : "unknown", title: item.decks ? "Quelldecks mit der Karte, ohne Duplikate" : "0 in einem bekannten Korpus: fehlende Beobachtung, keine Schwäche" }, text);
 }
@@ -403,7 +404,7 @@ function drawer(card) {
   const rank = (deck.items || []).find((item) => item.kind === "edhrec_rank_global");
   const deckBox = h("div", { class: "layer" }, heading("observed_deck", deck.status));
   if (rank) deckBox.append(h("p", {}, `Globale Beliebtheit (Scryfall, EDHREC-Rang): ${rank.rank}. Niedriger ist beliebter. Das ist kein Stärkemaß.`));
-  if (corpus.length) deckBox.append(h("p", {}, "Quelldecks nach Gruppe, jeweils mit eigenem Nenner. Die Gruppen überlappen: nie addieren."), table(["Gruppe", "Decks mit Karte", "von", "Anteil", ""], corpus.map((item) => [item.cohort, item.decks, item.of, pct(item.decks, item.of), item.small_denominator ? h("span", { class: "badge warn" }, "n < 30") : ""])));
+  if (corpus.length) deckBox.append(h("p", {}, "Quelldecks nach Gruppe, jeweils mit eigenem Nenner. Die Gruppen überlappen: nie addieren."), table(["Gruppe", "Decks mit Karte", "von", "Anteil", ""], corpus.map((item) => { const known = item.decks_known !== false && item.decks !== null; return [item.cohort, known ? item.decks : unknown(), item.of, known ? pct(item.decks, item.of) : unknown("–"), item.small_denominator ? h("span", { class: "badge warn" }, "n < 30") : ""]; })));
   if (deck.edhrec_rows && deck.edhrec_rows.length) {
     deckBox.append(h("p", {}, "EDHREC-Beobachtungen. Inclusion, Lift und Synergy sind verschiedene Maße und nie ein gemeinsamer Wert."), table(["Ansicht", "Maß", "Wert", "Decks/Nenner", "Stand", "Datenklasse"], deck.edhrec_rows.map((row) => [row.cohort, row.metric, row.value === null ? unknown() : row.value, row.denominator_known ? `${row.numerator ?? "?"}/${row.denominator}${row.small_denominator ? " (n < 30)" : ""}` : unknown("Nenner unbekannt"), row.snapshot_known ? row.snapshot : unknown("Zeit unbekannt"), row.data_class])));
   } else if (state.view !== "global") {
@@ -448,8 +449,23 @@ function strengthBox(card) {
     item ? (label !== null ? neutral(label, STRENGTH_NOTE) : tierBadge(item.tier, item.index.toFixed(1), "Schätzung aus Nutzungsdaten")) : null),
     h("p", {}, STRENGTH_NOTE));
   if (!item) { box.append(h("p", {}, state.view === "global" ? "Der Index wird je Commander berechnet." : "Für diese Karte liegt keine Berechnung vor.")); return box; }
-  if (item.tier === "N") { box.append(h("p", {}, `${item.note}: ${item.reason === "NOT_RANKED_COMMANDER" ? "der Commander" : "ein Standardland"} bekommt keine Stufe und nimmt keinem Rang einen Platz weg. Die Einstellung „Commander und Standardländer bewerten“ ändert das.`)); }
-  else box.append(h("p", {}, `Datenlage ${(100 * item.coverage).toFixed(0)} % (Gewicht der Signale mit Wert an allen gewichteten). ${item.tier === "U" ? (item.reason === "NO_COMMANDER_SIGNAL" ? `Zu wenig Daten für eine Stufe: ${item.note}. „Aufnahme überhaupt“ und Kombos gelten für jeden Commander.` : "Zu wenig Daten für eine Stufe: das sagt nichts über die Stärke der Karte.") : ""}`));
+  if (item.tier === "N") {
+    const reasonText = item.reason === "NOT_RANKED_COMMANDER"
+      ? "der Commander bekommt keine Stufe und nimmt keinem Rang einen Platz weg. Die Einstellung „Commander und Standardländer bewerten“ ändert das."
+      : item.reason === "NOT_RANKED_OTHER_COMMANDER"
+      ? "eine Karte, die im Studio selbst ein Commander ist, bekommt keine Stufe und nimmt keinem Rang einen Platz weg. Die Einstellung „Andere Commander-Karten im Pool ranken“ ändert das."
+      : "ein Standardland bekommt keine Stufe und nimmt keinem Rang einen Platz weg. Die Einstellung „Commander und Standardländer bewerten“ ändert das.";
+    box.append(h("p", {}, `${item.note}: ${reasonText}`));
+  } else {
+    const reasonText = item.reason === "NO_COMMANDER_SIGNAL"
+      ? `Zu wenig Daten für eine Stufe: ${item.note}. „Aufnahme überhaupt“ und Kombos gelten für jeden Commander.`
+      : item.reason === "NO_POSITIVE_WEIGHT"
+      ? "Alle Signalgewichte stehen auf 0: ohne positives Gewicht wird kein Index berechnet."
+      : item.reason === "NO_SOURCE_FOR_COMMANDER"
+      ? "Für diesen Commander liegt bei keinem gewichteten Signal ein Wert im Pool vor."
+      : "Zu wenig Daten für eine Stufe: das sagt nichts über die Stärke der Karte.";
+    box.append(h("p", {}, `Datenlage ${(100 * item.coverage).toFixed(0)} % (Gewicht der Signale mit Wert an allen gewichteten). ${item.tier === "U" ? reasonText : ""}`));
+  }
   const used = state.strength.result && state.strength.result.universe_choice;
   if (used && used.kind !== "none") box.append(h("p", { class: "rule" }, `Decklisten-Universum: ${universeLine(used)}`));
   const universe = state.strength.result && state.strength.result.universe;
@@ -900,7 +916,7 @@ const SETTING_GROUPS = [
   ["Gewichte", (key) => key.startsWith("weights.")],
   ["Zusätzliche Ebenen", (key) => key.startsWith("layer_weights.") || key === "pod_size"],
   ["Decklisten-Universum", (key) => key === "universe_source"],
-  ["Vergleich", (key) => key === "bracket" || key === "rank_group" || key === "share_measure" || key === "rank_commander_and_basics" || key.startsWith("missing_value.")],
+  ["Vergleich", (key) => key === "bracket" || key === "rank_group" || key === "share_measure" || key === "rank_commander_and_basics" || key === "rank_other_commanders" || key.startsWith("missing_value.")],
   ["Mindestdaten", (key) => key.startsWith("min_denominators.") || key === "min_coverage" || key === "min_components" || key === "require_commander_signal"],
   ["Tier-Grenzen", (key) => key.startsWith("tier_cuts.")],
 ];
