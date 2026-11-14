@@ -3,7 +3,7 @@ from __future__ import annotations
 import itertools
 
 from commander_lab.repositories.opponents import CurrentOpponentRepository
-from commander_lab.whole_deck.scenarios import BalancedPodScenarioScheduler
+from commander_lab.pod_scheduling import BalancedPodScenarioScheduler
 
 
 def _scheduler(repo_root):

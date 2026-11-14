@@ -4,7 +4,7 @@ from commander_lab.models import PilotConfig, PilotDecisionMode, PilotStrength
 from commander_lab.repositories.opponents import CurrentOpponentRepository
 from commander_lab.tools.service import CommanderToolService
 from commander_lab.whole_deck.campaign import run_balanced_paired_campaign
-from commander_lab.whole_deck.scenarios import BalancedPodScenarioScheduler
+from commander_lab.pod_scheduling import BalancedPodScenarioScheduler
 
 
 def test_balanced_campaign_keeps_candidates_in_separate_matches(repo_root) -> None:
