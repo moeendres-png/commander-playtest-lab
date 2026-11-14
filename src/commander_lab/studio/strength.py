@@ -126,7 +126,8 @@ MISSING_LOWEST = "lowest"
 MISSING_CHOICES = (MISSING_SKIP, MISSING_LOWEST)
 MIN_EDHREC = "edhrec"
 MIN_TOURNAMENT = "tournament"
-MIN_DENOMINATOR_KEYS = (MIN_EDHREC, MIN_TOURNAMENT)
+MIN_CONVERSION = "conversion"
+MIN_DENOMINATOR_KEYS = (MIN_EDHREC, MIN_TOURNAMENT, MIN_CONVERSION)
 MAX_MIN_DENOMINATOR = 100000
 
 # Where the deck-universe component takes its counts from (setting ``universe_source``): "auto"
@@ -149,6 +150,7 @@ BRACKET_INCLUSION = "bracket_inclusion"
 DECK_UNIVERSE = "deck_universe"
 SYNERGY = "synergy"
 TOURNAMENT_LISTS = "tournament_lists"
+TOURNAMENT_CONVERSION = "tournament_conversion"
 GLOBAL_INCLUSION = "global_inclusion"
 COMBOS = "combos"
 PLAYGROUP_OBSERVED = "playgroup_observed"
@@ -160,6 +162,7 @@ COMPONENTS = (
     DECK_UNIVERSE,
     SYNERGY,
     TOURNAMENT_LISTS,
+    TOURNAMENT_CONVERSION,
     GLOBAL_INCLUSION,
     COMBOS,
     PLAYGROUP_OBSERVED,
@@ -171,6 +174,7 @@ LABELS: dict[str, str] = {
     DECK_UNIVERSE: "Decklisten-Universum (gezählt)",
     SYNERGY: "Synergie (EDHREC)",
     TOURNAMENT_LISTS: "Turnierlisten des Commanders",
+    TOURNAMENT_CONVERSION: "Turnier-Conversion (TopDeck)",
     GLOBAL_INCLUSION: "Aufnahme überhaupt (EDHREC)",
     COMBOS: "Kombos (Commander Spellbook)",
     PLAYGROUP_OBSERVED: "Beobachtete Sieg-Korrelation (Playgroup)",
@@ -213,7 +217,14 @@ def layer_component(key: str) -> str:
 UNCOLLECTED_BY_DESIGN = frozenset({SIMULATION})
 # Components whose value is a share with a numerator and a denominator (Wilson bound).
 SHARE_COMPONENTS = frozenset(
-    {COMMANDER_INCLUSION, BRACKET_INCLUSION, DECK_UNIVERSE, TOURNAMENT_LISTS, GLOBAL_INCLUSION}
+    {
+        COMMANDER_INCLUSION,
+        BRACKET_INCLUSION,
+        DECK_UNIVERSE,
+        TOURNAMENT_LISTS,
+        TOURNAMENT_CONVERSION,
+        GLOBAL_INCLUSION,
+    }
 )
 # The Playgroup component is an observed difference (percentage points), not a share.
 # It counts only from OBSERVED_MIN_SAMPLE games in which the card was cast, and its
@@ -247,13 +258,18 @@ DEFAULT_WEIGHTS: dict[str, float] = {
     DECK_UNIVERSE: 2.0,
     SYNERGY: 1.0,
     TOURNAMENT_LISTS: 1.0,
+    TOURNAMENT_CONVERSION: 1.0,
     GLOBAL_INCLUSION: 1.0,
     COMBOS: 1.0,
     PLAYGROUP_OBSERVED: 1.0,
     SIMULATION: 0.0,
 }
 DEFAULT_CUTS: dict[str, float] = {"S": 90.0, "A": 75.0, "B": 55.0, "C": 35.0}
-DEFAULT_MIN_DENOMINATORS: dict[str, int] = {MIN_EDHREC: 30, MIN_TOURNAMENT: 5}
+DEFAULT_MIN_DENOMINATORS: dict[str, int] = {
+    MIN_EDHREC: 30,
+    MIN_TOURNAMENT: 5,
+    MIN_CONVERSION: 20,
+}
 DEFAULT_BRACKET = "upgraded"
 DEFAULT_MIN_COVERAGE = 0.3
 DEFAULT_REQUIRE_COMMANDER_SIGNAL = True
@@ -306,6 +322,7 @@ def signal_for(component: str, bracket: str) -> str:
         DECK_UNIVERSE: "deck_list_share",
         SYNERGY: "edhrec_commander_synergy",
         TOURNAMENT_LISTS: "tournament_lists",
+        TOURNAMENT_CONVERSION: "topdeck_card_conversion",
         GLOBAL_INCLUSION: "edhrec_global_inclusion",
         COMBOS: COMBO_PART_VARIANTS,
         PLAYGROUP_OBSERVED: "playgroup_observed_winrate_gap",
@@ -476,6 +493,8 @@ class StrengthSettings:
             return self.min_denominators[MIN_EDHREC]
         if component == TOURNAMENT_LISTS:
             return self.min_denominators[MIN_TOURNAMENT]
+        if component == TOURNAMENT_CONVERSION:
+            return self.min_denominators[MIN_CONVERSION]
         if component == DECK_UNIVERSE:
             return universe_minimum
         return 0

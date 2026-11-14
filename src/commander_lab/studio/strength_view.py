@@ -48,6 +48,7 @@ from .strength import (
     GLOBAL_INCLUSION,
     PLAYGROUP_OBSERVED,
     SYNERGY,
+    TOURNAMENT_CONVERSION,
     TOURNAMENT_LISTS,
     CardStrength,
     Observation,
@@ -221,6 +222,7 @@ def expected_signals() -> list[str]:
         signals.SIGNAL_PARTNERS,
         strength.signal_for(TOURNAMENT_LISTS, strength.BRACKET_NONE),
         signals.SIGNAL_EDHTOP16,
+        signals.SIGNAL_CONVERSION,
         # One generic row: the counted universes are named by the file (source, bracket); the
         # stored ones are listed under their own names, this row stays while none exists.
         signals.SIGNAL_DECKLIST,
@@ -577,6 +579,7 @@ def compute(
         BRACKET_INCLUSION,
         SYNERGY,
         TOURNAMENT_LISTS,
+        TOURNAMENT_CONVERSION,
         GLOBAL_INCLUSION,
         COMBOS,
         PLAYGROUP_OBSERVED,
@@ -938,6 +941,15 @@ def _panel_texts() -> dict[str, object]:
         "Gibt es weniger Turnierlisten des Commanders, wird das Signal nicht verwendet. "
         "0 = kein Minimum."
     )
+    labels["min_denominators.conversion"] = (
+        "Mindest-Nenner Turnier-Conversion (empfohlen: "
+        f"{rec.min_denominators['conversion']} Decks mit bekanntem Top-Cut-Ausgang)"
+    )
+    helps["min_denominators.conversion"] = (
+        "Liegt der größte Nenner des Signals (Decks mit bekanntem Top-Cut-Ausgang) unter "
+        "dem Minimum, wird das Signal für alle Karten nicht verwendet; liegt nur der eigene "
+        "Nenner einer Karte darunter, entfällt es nur für diese Karte. 0 = kein Minimum."
+    )
     for key in strength.MISSING_CAPABLE:
         labels[f"missing_value.{key}"] = (
             f"Fehlender Wert bei „{strength.LABELS[key]}“ "
@@ -1006,6 +1018,7 @@ def _panel_texts() -> dict[str, object]:
                 "min_denominators.edhrec",
                 "min_denominators.deck_universe",
                 "min_denominators.tournament",
+                "min_denominators.conversion",
             ],
         },
         {
