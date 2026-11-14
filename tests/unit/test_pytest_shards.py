@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import ast
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -399,3 +401,62 @@ def test_matrix_files_plan_matrix_and_complete_weights(tmp_path: Path) -> None:
         shards.matrix_files(tmp_path, 3, 2)
     with pytest.raises(ValueError, match="unknown scope"):
         shards.matrix_files(tmp_path, 1, 1, "weird")
+
+
+# Test files that mention a documentation-looking string without reading repository documents.
+DOCS_SCAN_EXEMPT = {
+    # ".claude" is the directory of a skill script that is loaded as code, not a document.
+    "tests/unit/test_gh_ops_brief.py",
+}
+_DOCS_REFERENCE = re.compile(
+    r"^(?:docs|\.claude)$|docs/|\.md$|README|AGENTS|CLAUDE|CHANGELOG|\.claude/"
+)
+
+
+def _docs_references(path: Path) -> list[str]:
+    """String literals (docstrings excluded) that name a repository document."""
+    tree = ast.parse(path.read_text(encoding="utf-8"))
+    docstrings = {
+        id(node.body[0].value)
+        for node in ast.walk(tree)
+        if isinstance(node, ast.Module | ast.FunctionDef | ast.AsyncFunctionDef | ast.ClassDef)
+        and node.body
+        and isinstance(node.body[0], ast.Expr)
+        and isinstance(node.body[0].value, ast.Constant)
+    }
+    return [
+        node.value
+        for node in ast.walk(tree)
+        if isinstance(node, ast.Constant)
+        and isinstance(node.value, str)
+        and id(node) not in docstrings
+        and _DOCS_REFERENCE.search(node.value)
+    ]
+
+
+def test_every_test_that_reads_repository_documents_is_in_the_docs_list() -> None:
+    """A docs-only PR runs only the listed files, so a test that reads docs must be listed.
+
+    Files under tests/qualification (run by ``infrastructure``) and the packaging test
+    (``packaging`` job) are outside the matrix; ``DOCS_SCAN_EXEMPT`` names the files that only
+    mention such strings. This is a static scan of string literals, a guard rather than a proof:
+    a path built from non-literal parts is not seen.
+    """
+    listed = set(shards.load_docs_tests())
+    missing = {
+        name: _docs_references(REPO / name)[:3]
+        for name in shards.discover_test_files(REPO)
+        if name not in listed
+        and name != shards.PACKAGING_TEST
+        and name not in DOCS_SCAN_EXEMPT
+        and _docs_references(REPO / name)
+    }
+    assert not missing, (
+        "add these files to tests/pytest_docs_tests.json (or to DOCS_SCAN_EXEMPT with a reason): "
+        f"{missing}"
+    )
+    assert set(shards.discover_test_files(REPO)) >= DOCS_SCAN_EXEMPT
+
+
+def test_the_docs_scan_sees_a_known_docs_reader() -> None:
+    assert _docs_references(REPO / "tests/unit/test_docs_archive.py")

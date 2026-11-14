@@ -77,3 +77,21 @@ def test_ci_workflow_gate_step_uses_the_script_with_strict_shell() -> None:
     for needed in job["needs"]:
         assert f"needs.{needed}.result" in str(step["env"].values())
         assert f'--job {needed}="$' in step["run"]
+
+
+def test_tests_and_packaging_checkouts_fetch_full_history() -> None:
+    """Some tests diff against old commits; a shallow clone makes them fail or skip silently."""
+    workflow = yaml.safe_load((ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8"))
+    for name in ("tests", "packaging"):
+        checkouts = [
+            step
+            for step in workflow["jobs"][name]["steps"]
+            if "actions/checkout@" in step.get("uses", "")
+        ]
+        assert checkouts, name
+        for step in checkouts:
+            assert str((step.get("with") or {}).get("fetch-depth")) == "0", (
+                f"{name}: shallow checkout"
+            )
+    text = (ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
+    assert "--unshallow" not in text

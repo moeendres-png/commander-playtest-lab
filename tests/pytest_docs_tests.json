@@ -1,5 +1,5 @@
 {
- "comment": "Test files that read documentation or scan repository text; the docs-only fast path of ci.yml runs only these (tests/unit/test_pytest_shards.py keeps the list complete).",
+ "comment": "Test files that reference repository documents (string literals naming docs/, *.md, README, AGENTS, CLAUDE, CHANGELOG or .claude/) or scan repository text; the docs-only fast path of ci.yml runs only these. tests/unit/test_pytest_shards.py scans every other test file and fails when one reads documents and is missing here.",
  "files": [
   "tests/fuzz/test_boundary_fuzz.py",
   "tests/golden/test_j_p4_pilot_quality.py",

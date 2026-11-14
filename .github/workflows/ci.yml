@@ -155,6 +155,10 @@ jobs:
       matrix: ${{ fromJSON(needs.changes.outputs.test_matrix) }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # Full history: tests such as test_technical_truth and test_benchmark_xmage_full_games
+          # diff against old commits and must not skip or fail on a shallow clone.
+          fetch-depth: 0
       - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.0.0 immutable revision
         with:
           python-version: "3.12"
@@ -170,12 +174,6 @@ jobs:
           set -euo pipefail
           python -m tests.pytest_shards matrix --index "${{ matrix.index }}" --count "${{ matrix.count }}" --scope "${{ matrix.scope }}" > "$RUNNER_TEMP/test-files.txt"
           echo "$(wc -l < "$RUNNER_TEMP/test-files.txt") test files in this slot"
-          # Both test_technical_truth and test_benchmark_xmage_full_games inspect full git history.
-          if (grep -qx tests/unit/test_technical_truth.py "$RUNNER_TEMP/test-files.txt" \
-              || grep -qx tests/unit/test_benchmark_xmage_full_games.py "$RUNNER_TEMP/test-files.txt") \
-              && [ "$(git rev-parse --is-shallow-repository)" = true ]; then
-            git fetch --no-tags --unshallow
-          fi
       - name: Test suite
         shell: bash
         # Priority E1 (#479): per-test durations (log) and JUnit XML are reporting only; they
@@ -201,6 +199,10 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # Full history: tests such as test_technical_truth and test_benchmark_xmage_full_games
+          # diff against old commits and must not skip or fail on a shallow clone.
+          fetch-depth: 0
       - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.0.0 immutable revision
         with:
           python-version: "3.12"

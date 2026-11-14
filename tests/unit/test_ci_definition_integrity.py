@@ -1336,3 +1336,52 @@ def test_gate_helper_scripts_are_protected_entrypoint_surfaces(
         and item["impact"] == "required_check_entrypoint_or_configuration"
         for item in report["changed_protected_surfaces"]
     )
+
+
+_GATE_ENV = {
+    "CHANGES": "${{ needs.changes.result }}",
+    "LINT": "${{ needs.lint.result }}",
+    "TESTS": "${{ needs.tests.result }}",
+    "PACKAGING": "${{ needs.packaging.result }}",
+    "PACKAGING_NEEDED": "${{ needs.changes.outputs.packaging }}",
+}
+_GATE_CALL = (
+    'python3 scripts/ci_gate.py --job changes="$CHANGES" --job lint="$LINT" '
+    '--job tests="$TESTS" --job packaging="$PACKAGING" '
+    '--allow-skipped packaging --packaging-needed "$PACKAGING_NEEDED"'
+)
+
+
+@pytest.mark.parametrize(
+    "run",
+    [
+        'echo "$CHANGES $LINT $TESTS $PACKAGING $PACKAGING_NEEDED skipped"\n',
+        f"set -euo pipefail\nset +e\n{_GATE_CALL}\necho done\n",
+        '[ "$TESTS" != failure ] && echo fine\n',
+        f"set -euo pipefail\n{_GATE_CALL}\necho done\n",
+        f"set -euo pipefail\n{_GATE_CALL}\nexit 0\n",
+        f"set -euo pipefail\n{_GATE_CALL}; true\n",
+        f"set -euo pipefail\n{_GATE_CALL} || true\n",
+        f"set -euo pipefail\necho start\n{_GATE_CALL}\n",
+    ],
+)
+def test_text_mention_or_extra_command_does_not_make_a_gate(
+    repository: tuple[Path, str], run: str
+) -> None:
+    def edit(document: dict[Any, Any]) -> None:
+        document["jobs"]["quality"]["steps"][1] = {
+            "name": "forged",
+            "shell": "bash",
+            "env": dict(_GATE_ENV),
+            "run": run,
+        }
+
+    assert _quality_findings(_gated_report(repository, edit))["quality.needs"]["status"] != "PASS"
+
+
+def test_gate_call_without_one_needed_result_is_not_a_gate(repository: tuple[Path, str]) -> None:
+    def edit(document: dict[Any, Any]) -> None:
+        step = document["jobs"]["quality"]["steps"][1]
+        step["run"] = step["run"].replace(' --job lint="$LINT"', "")
+
+    assert _quality_findings(_gated_report(repository, edit))["quality.needs"]["status"] != "PASS"
