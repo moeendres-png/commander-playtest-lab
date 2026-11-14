@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -82,4 +83,5 @@ def test_module_entry_point_parses_arguments() -> None:
         check=False,
     )
     assert completed.returncode == 0
-    assert "--root" in completed.stdout
+    plain_stdout = re.sub(r"\x1b\[[0-9;?]*[ -/]*[@-~]", "", completed.stdout)
+    assert "--root" in plain_stdout
