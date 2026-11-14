@@ -987,13 +987,24 @@ def score_pool(
     for component in rated:
         skipped = set(unranked) | (filter_cards if component == DECK_UNIVERSE else set())
         rankings[component] = _rank_component(settings, ctx, component, observations, skipped)
-    # The coverage denominator holds the components that have data FOR THIS COMMANDER at all
-    # (collected, and at least one usable value in the pool): a source that was never imported
-    # for the commander, or whose signal is wholly unusable, counts against no card.
+    # Components with a weight and usable data FOR THIS COMMANDER (collected, and at least one
+    # usable value in the pool): decides the reason ``NO_SOURCE_FOR_COMMANDER`` only.
     commander_weight = {
         name: settings.effective_weight(name)
         for name in rated
         if settings.effective_weight(name) > 0 and name in collected and rankings[name].usable
+    }
+    # The coverage denominator stays main's rule (Owner-visible numbers such as "4 of 13"): every
+    # weighted component counts, except the by-design uncollected ones and layers that were
+    # not collected. A source never imported still counts against a card.
+    denominator_weight = {
+        name: settings.effective_weight(name)
+        for name in rated
+        if settings.effective_weight(name) > 0
+        and not (
+            (name in UNCOLLECTED_BY_DESIGN or name.startswith(LAYER_PREFIX))
+            and name not in collected
+        )
     }
     any_positive_weight = any(settings.effective_weight(name) > 0 for name in rated)
     result: dict[str, CardStrength] = {}
@@ -1096,7 +1107,7 @@ def score_pool(
         # applicable to it and leaves its denominator.
         possible = {
             name: weight
-            for name, weight in commander_weight.items()
+            for name, weight in denominator_weight.items()
             if not (name == DECK_UNIVERSE and card in filter_cards)
         }
         total_weight = sum(possible.values())
@@ -1110,7 +1121,7 @@ def score_pool(
         blocked = settings.require_commander_signal and not specific
         if not any_positive_weight:
             reason_code = "NO_POSITIVE_WEIGHT"
-        elif total_weight <= 0:
+        elif not commander_weight:
             reason_code = "NO_SOURCE_FOR_COMMANDER"
         elif blocked:
             reason_code = NO_COMMANDER_SIGNAL

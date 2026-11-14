@@ -518,14 +518,17 @@ little data or not rated (commander, basic lands), never a low tier.
 - The builder pool says whether a card's source-deck count is unknown: `decks_known` is false
   when no deck of the commander names the card under any spelling (`decks` is then empty); the
   evidence items carry the same flag. Unknown is never shown as 0.
-- Coverage of the strength index is the weight of the present components over the weight of
-  the components that have usable data for this commander (a source never imported, or a signal
-  wholly below its minimum denominator, counts against no card; a filter card leaves the
-  deck-universe component out of its denominator). The minimum number of signals never exceeds
-  what that data allows. The reason of a card is `NO_POSITIVE_WEIGHT`,
-  `NO_SOURCE_FOR_COMMANDER`, `TOO_LITTLE_DATA` or `ENOUGH_DATA`; the tier follows the unrounded
-  index. Other commanders known to the store are not ranked (like the chosen commander and
-  basic lands, tier `N`) unless "rank_commander_and_basics" is on.
+- Coverage of the strength index keeps its main definition (present weight over the weight of
+  every weighted component, see the "Mindest-Datenlage" above): a source never imported for the
+  commander still counts against a card. Not taken over from the follow-up branch (open
+  Owner decision, tests of both sides contradict): a denominator of only the sources that have
+  data for the commander. A filter card leaves the deck-universe component out of its
+  denominator. The minimum number of signals never exceeds what the weighted components allow.
+  The reason of a card is `NO_POSITIVE_WEIGHT` (no weight above 0), `NO_SOURCE_FOR_COMMANDER`
+  (no weighted component has usable data for the commander), `NO_COMMANDER_SIGNAL`,
+  `TOO_LITTLE_DATA` or `ENOUGH_DATA`; the tier follows the unrounded index. Other commanders
+  known to the store are not ranked (like the chosen commander and basic lands, tier `N`,
+  `NOT_RANKED_OTHER_COMMANDER`) unless "rank_commander_and_basics" is on.
 - The tier list's evidence reads the commander's EDHREC inclusion from `card_signal` when the
   older table has no value (the same entry the builder shows); spread levels carry a German
   `level_name` next to the stable level key.
