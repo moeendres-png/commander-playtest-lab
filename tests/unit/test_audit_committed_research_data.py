@@ -2,10 +2,32 @@
 
 from __future__ import annotations
 
+import csv
 from pathlib import Path
 
 import pytest
 from scripts.audit_committed_research_data import main, run_audit
+
+
+def test_card_global_signals_csv_has_no_price_columns() -> None:
+    csv_path = Path("data/research/deckbuilder_1655/card_global_signals.csv")
+    with csv_path.open("r", encoding="utf-8", newline="") as handle:
+        reader = csv.DictReader(handle)
+        fieldnames = list(reader.fieldnames or [])
+        rows = list(reader)
+    assert fieldnames == [
+        "card_name",
+        "card_slug",
+        "fetch_status",
+        "num_decks",
+        "potential_decks",
+        "inclusion_share",
+        "salt",
+        "rarity",
+        "source_file",
+    ]
+    assert all("price" not in col.lower() for col in fieldnames)
+    assert len(rows) == 1655
 
 
 def test_run_audit_against_repo() -> None:

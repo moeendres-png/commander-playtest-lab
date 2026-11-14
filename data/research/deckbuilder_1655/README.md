@@ -45,4 +45,4 @@ Die Spalte `player` der Turnierlisten enthält keine Namen. Jede Liste trägt ei
 
 ## Preisspalten in `card_global_signals.csv`
 
-Die Datei enthält aus dem EDHREC-Abruf die Spalten `price_cardmarket`, `price_tcgplayer` und `price_cardkingdom`. Das Studio liest diese Spalten nicht ein (Owner-Entscheid: keine Preise im Tool). Beim nächsten Abruf werden die Preisspalten weggelassen (Issue #1263).
+Die aus dem ursprünglichen EDHREC-Abruf stammenden Spalten `price_cardmarket`, `price_tcgplayer` und `price_cardkingdom` sind aus `card_global_signals.csv` vollständig entfernt (Owner-Entscheid: keine Preise im Tool, Issues #1263 / #1309 P10).
