@@ -507,9 +507,11 @@ def pool_cards(
         "sim_readiness": _sim_readiness_summary(cards),
         "cards": cards,
     }
-    if profile is None and len(commander_names) == 1:
+    if profile is None and with_signals and len(commander_names) == 1:
         # The counted deck-list universe the tier list chooses automatically (the same server
         # function, ``universe_choice.choose``, through ``strength_view``), if it picks one.
+        # Skipped for the light read (``with_signals=False``: ranking, import, which only need
+        # the cards): it would resolve and count a universe nobody reads.
         from . import strength_view
 
         found = strength_view.builder_counted_universe(

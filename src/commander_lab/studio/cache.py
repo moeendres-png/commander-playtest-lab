@@ -18,6 +18,7 @@ from collections.abc import Callable, Hashable
 from pathlib import Path
 from typing import cast
 
+from . import memo
 from .store import StudioStore
 
 MAX_ENTRIES = 48
@@ -65,9 +66,10 @@ def cached[T](store: StudioStore, key: tuple[Hashable, ...], compute: Callable[[
 
 
 def invalidate() -> None:
-    """Forget every cached figure."""
+    """Forget every cached figure, this module's and the data-epoch memo's (``memo.py``)."""
     with _lock:
         _entries.clear()
+    memo.clear()
 
 
 __all__ = ["cached", "invalidate", "store_stamp"]
