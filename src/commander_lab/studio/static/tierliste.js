@@ -458,7 +458,7 @@ function strengthBox(card) {
     box.append(h("p", {}, `${item.note}: ${reasonText}`));
   } else {
     const reasonText = item.reason === "NO_COMMANDER_SIGNAL"
-      ? `Zu wenig Daten für eine Stufe: ${item.note}. „Aufnahme überhaupt“ und Kombos gelten für jeden Commander.`
+      ? `Zu wenig Daten für eine Stufe: ${item.note}. Allgemeine Signale (z. B. „Aufnahme überhaupt“, Playgroup oder Spellbook-Kombos) reichen allein nicht.`
       : item.reason === "NO_POSITIVE_WEIGHT"
       ? "Alle Signalgewichte stehen auf 0: ohne positives Gewicht wird kein Index berechnet."
       : item.reason === "NO_SOURCE_FOR_COMMANDER"
@@ -916,7 +916,7 @@ const SETTING_GROUPS = [
   ["Gewichte", (key) => key.startsWith("weights.")],
   ["Zusätzliche Ebenen", (key) => key.startsWith("layer_weights.") || key === "pod_size"],
   ["Decklisten-Universum", (key) => key === "universe_source"],
-  ["Vergleich", (key) => key === "bracket" || key === "rank_group" || key === "share_measure" || key === "share_scale" || key === "rank_commander_and_basics" || key === "rank_other_commanders" || key.startsWith("missing_value.")],
+  ["Vergleich", (key) => key === "bracket" || key === "combo_source" || key === "rank_group" || key === "share_measure" || key === "share_scale" || key === "rank_commander_and_basics" || key === "rank_other_commanders" || key.startsWith("missing_value.")],
   ["Mindestdaten", (key) => key.startsWith("min_denominators.") || key === "min_coverage" || key === "min_components" || key === "require_commander_signal"],
   ["Tier-Grenzen", (key) => key.startsWith("tier_cuts.")],
 ];

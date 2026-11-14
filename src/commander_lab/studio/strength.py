@@ -105,6 +105,7 @@ NOT_RANKED_COMMANDER = "NOT_RANKED_COMMANDER"
 NOT_RANKED_BASIC_LAND = "NOT_RANKED_BASIC_LAND"
 NO_COMMANDER_SIGNAL = "NO_COMMANDER_SIGNAL"
 NOT_RANKED_OTHER_COMMANDER = "NOT_RANKED_OTHER_COMMANDER"
+NEGATIVE_NEUTRAL = "NEGATIVE_NEUTRAL"
 
 TIER_UNKNOWN = "U"
 TIER_NOT_RANKED = "N"
@@ -132,8 +133,14 @@ MISSING_CHOICES = (MISSING_SKIP, MISSING_LOWEST)
 MIN_EDHREC = "edhrec"
 MIN_TOURNAMENT = "tournament"
 MIN_CONVERSION = "conversion"
-MIN_DENOMINATOR_KEYS = (MIN_EDHREC, MIN_TOURNAMENT, MIN_CONVERSION)
+MIN_PLAYGROUP = "playgroup"
+MIN_DENOMINATOR_KEYS = (MIN_EDHREC, MIN_TOURNAMENT, MIN_CONVERSION, MIN_PLAYGROUP)
 MAX_MIN_DENOMINATOR = 100000
+
+COMBO_COMMANDER = "commander"
+COMBO_SPELLBOOK = "spellbook"
+COMBO_SOURCES = (COMBO_COMMANDER, COMBO_SPELLBOOK)
+DEFAULT_COMBO_SOURCE = COMBO_COMMANDER
 
 # Where the deck-universe component takes its counts from (setting ``universe_source``): "auto"
 # (recommended) chooses (see ``universe_choice``), "profile" is the stored profile of
@@ -181,7 +188,7 @@ LABELS: dict[str, str] = {
     TOURNAMENT_LISTS: "Turnierlisten des Commanders",
     TOURNAMENT_CONVERSION: "Turnier-Conversion (TopDeck)",
     GLOBAL_INCLUSION: "Aufnahme überhaupt (EDHREC)",
-    COMBOS: "Kombos (Commander Spellbook)",
+    COMBOS: "Kombos",
     PLAYGROUP_OBSERVED: "Beobachtete Sieg-Korrelation (Playgroup)",
     SIMULATION: "Simulation",
 }
@@ -233,19 +240,19 @@ SHARE_COMPONENTS = frozenset(
 )
 # The Playgroup component is an observed difference (percentage points), not a share.
 # It counts only from OBSERVED_MIN_SAMPLE games in which the card was cast, and its
-# published gap is shrunk towards zero by OBSERVED_SHRINKAGE (gap * n / (n + k)): the
-# same minimum-plus-shrinkage rule the deckbuilder applies to observed win signals, so
-# a gap that rests on few games cannot rank high by chance. The signal import applies
-# the same minimum before a row is stored at all (signals.ATLAS_MIN_SAMPLE).
+# published gap is shrunk towards zero by OBSERVED_SHRINKAGE (gap * n / (n + k)): a
+# gap that rests on few games is strongly damped towards zero (200 games = half the
+# published gap), and in the index the minimum denominator (default 200) drops thin
+# samples altogether. The signal import applies OBSERVED_MIN_SAMPLE before a row is stored.
 OBSERVED_MIN_SAMPLE = 25
-OBSERVED_SHRINKAGE = 25
+OBSERVED_SHRINKAGE = 200
 # Sources that list the commander's cards fairly completely: only for these may an unlisted
 # card be counted as the lowest rank (Owner decision B5 keeps "absent" a missing observation).
 MISSING_CAPABLE = (COMMANDER_INCLUSION, BRACKET_INCLUSION, DECK_UNIVERSE)
-# Components that say something about THIS commander (the others, global inclusion, combos, the
-# Playgroup observation and simulation, are independent of the commander): the rule
-# "require_commander_signal" asks for
-# at least one of them with a ranked value before a card gets a tier.
+# Components that say something about THIS commander (global inclusion, spellbook combos, the
+# Playgroup observation and simulation are independent of the commander): the rule
+# "require_commander_signal" asks for at least one of them (or commander-sourced combos)
+# with a ranked value before a card gets a tier.
 COMMANDER_SPECIFIC = (
     COMMANDER_INCLUSION,
     BRACKET_INCLUSION,
@@ -253,6 +260,15 @@ COMMANDER_SPECIFIC = (
     SYNERGY,
     TOURNAMENT_LISTS,
 )
+
+
+def is_commander_specific(component: str, combo_source: str = COMBO_COMMANDER) -> bool:
+    """Whether ``component`` provides a signal bound to the chosen commander."""
+    return component in COMMANDER_SPECIFIC or (
+        component == COMBOS and combo_source == COMBO_COMMANDER
+    )
+
+
 _EDHREC_SHARES = frozenset({COMMANDER_INCLUSION, BRACKET_INCLUSION, GLOBAL_INCLUSION})
 
 # The recommended values are the defaults of ``StrengthSettings`` and of these constants: one
@@ -261,22 +277,23 @@ DEFAULT_WEIGHTS: dict[str, float] = {
     COMMANDER_INCLUSION: 3.0,
     BRACKET_INCLUSION: 2.0,
     DECK_UNIVERSE: 2.0,
-    SYNERGY: 1.0,
+    SYNERGY: 0.0,
     TOURNAMENT_LISTS: 1.0,
     TOURNAMENT_CONVERSION: 1.0,
     GLOBAL_INCLUSION: 1.0,
     COMBOS: 1.0,
-    PLAYGROUP_OBSERVED: 1.0,
+    PLAYGROUP_OBSERVED: 0.0,
     SIMULATION: 0.0,
 }
 DEFAULT_CUTS: dict[str, float] = {"S": 70.0, "A": 55.0, "B": 35.0, "C": 20.0}
 DEFAULT_MIN_DENOMINATORS: dict[str, int] = {
     MIN_EDHREC: 30,
-    MIN_TOURNAMENT: 5,
+    MIN_TOURNAMENT: 20,
     MIN_CONVERSION: 20,
+    MIN_PLAYGROUP: 200,
 }
 DEFAULT_BRACKET = "upgraded"
-DEFAULT_MIN_COVERAGE = 0.3
+DEFAULT_MIN_COVERAGE = 0.25
 DEFAULT_REQUIRE_COMMANDER_SIGNAL = True
 DEFAULT_MIN_COMPONENTS = 2
 MAX_WEIGHT = 100.0
@@ -300,28 +317,28 @@ _SETTINGS_KEYS = frozenset(
         "require_commander_signal",
         "layer_weights",
         "pod_size",
+        "combo_source",
     }
 )
 
 
-# The combos component is the one component that reads several stored signals: the
-# quality parts of a card's combos (issue #1261, P3.7). The first part is the primary
-# signal (``signal_for``): it alone decides which cards the source lists at all. The
-# other parts refine the rank of the listed cards; a part a listed card has no value
-# in does not count for it, so a source file without the newer columns ranks exactly
-# as the variant count alone did. What the spellbook file does not publish — the
-# result a combo produces, which partners one single variant has — is not a part:
-# it stays unknown and never enters the rank.
+# The combos component can read either the commander's EDHREC combo deck counts (default,
+# ``commander``) or the Spellbook quality mixture across the three commander-independent
+# signals below (``spellbook``). In Spellbook mode, the first part is the primary signal and
+# decides which cards the source lists; the other parts refine the rank of listed cards.
 COMBO_PART_VARIANTS = "spellbook_variants"
 COMBO_PART_TWO_CARD = "spellbook_two_card_variants"
 COMBO_PART_PARTNERS = "spellbook_partners_in_collection"
 COMBO_PARTS = (COMBO_PART_VARIANTS, COMBO_PART_TWO_CARD, COMBO_PART_PARTNERS)
+SIGNAL_COMBO_COMMANDER = "edhrec_combo_decks"
 
 
-def signal_for(component: str, bracket: str) -> str:
+def signal_for(component: str, bracket: str, *, combo_source: str = COMBO_SPELLBOOK) -> str:
     """The stored signal name behind a component (empty when none is stored)."""
     if component == BRACKET_INCLUSION:
         return f"edhrec_bracket_inclusion:{bracket}" if bracket != BRACKET_NONE else ""
+    if component == COMBOS:
+        return SIGNAL_COMBO_COMMANDER if combo_source == COMBO_COMMANDER else COMBO_PART_VARIANTS
     if component.startswith(LAYER_PREFIX):
         return LAYER_SIGNALS[component[len(LAYER_PREFIX) :]]
     return {
@@ -331,7 +348,6 @@ def signal_for(component: str, bracket: str) -> str:
         TOURNAMENT_LISTS: "tournament_lists",
         TOURNAMENT_CONVERSION: "topdeck_card_conversion",
         GLOBAL_INCLUSION: "edhrec_global_inclusion",
-        COMBOS: COMBO_PART_VARIANTS,
         PLAYGROUP_OBSERVED: "playgroup_observed_winrate_gap",
         SIMULATION: "",
     }[component]
@@ -405,6 +421,7 @@ class StrengthSettings:
     require_commander_signal: bool = DEFAULT_REQUIRE_COMMANDER_SIGNAL
     layer_weights: dict[str, float] = field(default_factory=lambda: dict(DEFAULT_LAYER_WEIGHTS))
     pod_size: int = DEFAULT_POD_SIZE
+    combo_source: str = DEFAULT_COMBO_SOURCE
 
     def __post_init__(self) -> None:
         weights = {name: DEFAULT_WEIGHTS[name] for name in COMPONENTS}
@@ -442,6 +459,8 @@ class StrengthSettings:
             raise ValueError(f"share_measure must be one of {', '.join(SHARE_MEASURES)}")
         if self.share_scale not in SHARE_SCALES:
             raise ValueError(f"share_scale must be one of {', '.join(SHARE_SCALES)}")
+        if self.combo_source not in COMBO_SOURCES:
+            raise ValueError(f"combo_source must be one of {', '.join(COMBO_SOURCES)}")
         unknown_minimum = set(self.min_denominators) - set(MIN_DENOMINATOR_KEYS)
         if unknown_minimum:
             raise ValueError(f"unknown min_denominators: {', '.join(sorted(unknown_minimum))}")
@@ -503,13 +522,15 @@ class StrengthSettings:
         return tuple(layer_component(key) for key in LAYER_KEYS if self.layer_weights[key] > 0)
 
     def minimum_denominator(self, component: str, universe_minimum: int) -> int:
-        """The smallest denominator a share signal needs to be used (0 = no minimum)."""
+        """The smallest denominator a signal needs to be used (0 = no minimum)."""
         if component in _EDHREC_SHARES:
             return self.min_denominators[MIN_EDHREC]
         if component == TOURNAMENT_LISTS:
             return self.min_denominators[MIN_TOURNAMENT]
         if component == TOURNAMENT_CONVERSION:
             return self.min_denominators[MIN_CONVERSION]
+        if component == PLAYGROUP_OBSERVED:
+            return self.min_denominators[MIN_PLAYGROUP]
         if component == DECK_UNIVERSE:
             return universe_minimum
         return 0
@@ -533,6 +554,7 @@ class StrengthSettings:
             "require_commander_signal": self.require_commander_signal,
             "layer_weights": dict(self.layer_weights),
             "pod_size": self.pod_size,
+            "combo_source": self.combo_source,
         }
 
     @classmethod
@@ -571,12 +593,16 @@ class StrengthSettings:
         rank_group = raw.get("rank_group", defaults.rank_group)
         share_measure = raw.get("share_measure", defaults.share_measure)
         share_scale = raw.get("share_scale", defaults.share_scale)
+        combo_source = raw.get("combo_source", defaults.combo_source)
         if (
             not isinstance(rank_group, str)
             or not isinstance(share_measure, str)
             or not isinstance(share_scale, str)
+            or not isinstance(combo_source, str)
         ):
-            raise ValueError("rank_group, share_measure and share_scale must be texts")
+            raise ValueError(
+                "rank_group, share_measure, share_scale and combo_source must be texts"
+            )
         ranked = raw.get("rank_commander_and_basics", defaults.rank_commander_and_basics)
         if not isinstance(ranked, bool):
             raise ValueError("rank_commander_and_basics must be true or false")
@@ -628,6 +654,7 @@ class StrengthSettings:
                 **{str(k): _number(v, f"layer weight {k}") for k, v in layer_weights.items()},
             },
             pod_size=pod_size,
+            combo_source=combo_source,
         )
 
 
@@ -650,7 +677,7 @@ PRESETS: dict[str, StrengthSettings] = dict(
                 COMMANDER_INCLUSION: 3.0,
                 BRACKET_INCLUSION: 2.0,
                 DECK_UNIVERSE: 3.0,
-                SYNERGY: 2.0,
+                SYNERGY: 0.0,
                 TOURNAMENT_LISTS: 1.0,
                 GLOBAL_INCLUSION: 1.0,
                 COMBOS: 0.0,
@@ -669,7 +696,7 @@ PRESETS: dict[str, StrengthSettings] = dict(
                 SYNERGY: 0.0,
                 GLOBAL_INCLUSION: 1.0,
                 COMBOS: 1.0,
-                PLAYGROUP_OBSERVED: 1.0,
+                PLAYGROUP_OBSERVED: 0.0,
                 SIMULATION: 0.0,
             },
             "cedh",
@@ -944,7 +971,7 @@ def _rank_component(
             reasons[card] = BELOW_MIN_DENOMINATOR if whole_below else NOT_LISTED
             continue
         if whole_below or (
-            component in SHARE_COMPONENTS
+            (component in SHARE_COMPONENTS or component == PLAYGROUP_OBSERVED)
             and minimum > 0
             and observation.denominator is not None
             and observation.denominator < minimum
@@ -954,6 +981,9 @@ def _rank_component(
         value, bound = _scored_value(component, observation, settings.share_measure)
         if value is None:
             reasons[card] = VALUE_UNKNOWN
+            continue
+        if component == SYNERGY and value < 0.0:
+            reasons[card] = NEGATIVE_NEUTRAL
             continue
         values[card] = value
         wilson[card] = bound
@@ -995,6 +1025,8 @@ def _component_note(
         return "von der Quelle nicht gelistet (fehlende Beobachtung, keine Schwäche)"
     if reason == VALUE_UNKNOWN:
         return "die Quelle nennt keinen Wert (unbekannt, nicht 0)"
+    if reason == NEGATIVE_NEUTRAL:
+        return "negative Synergie (< 0) wirkt nicht als Abzug (neutral)"
     if reason == MISSING_AS_LOWEST:
         return "nicht gelistet, als niedrigster Rang gezählt (Einstellung)"
     if reason == ZERO_COUNT:
@@ -1011,10 +1043,16 @@ def _component_note(
     return NOT_RANKED_NOTES.get(reason, "")
 
 
-def component_label(component: str) -> str:
+def component_label(component: str, *, combo_source: str = COMBO_COMMANDER) -> str:
     """The German label of an index component or of a layer component."""
     if component.startswith(LAYER_PREFIX):
         return LAYER_LABELS[component[len(LAYER_PREFIX) :]]
+    if component == COMBOS:
+        return (
+            "Kombos (EDHREC, beim Commander)"
+            if combo_source == COMBO_COMMANDER
+            else "Kombos (Commander Spellbook)"
+        )
     return LABELS[component]
 
 
@@ -1139,7 +1177,7 @@ def score_pool(
             if (
                 percentile is not None
                 and weight > 0
-                and component in COMMANDER_SPECIFIC
+                and is_commander_specific(component, settings.combo_source)
                 and status in (PRESENT, ZERO_COUNT, MISSING_AS_LOWEST)
             ):
                 specific = True
@@ -1148,8 +1186,10 @@ def score_pool(
             components.append(
                 {
                     "component": component,
-                    "label": component_label(component),
-                    "signal": signal_for(component, settings.bracket),
+                    "label": component_label(component, combo_source=settings.combo_source),
+                    "signal": signal_for(
+                        component, settings.bracket, combo_source=settings.combo_source
+                    ),
                     "status": status,
                     "reason": GROUP_TOO_SMALL if group_fallback else reason,
                     "note": note,

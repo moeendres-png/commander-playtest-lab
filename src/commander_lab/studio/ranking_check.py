@@ -371,7 +371,7 @@ def check_ranking(
         stability_rows.append(
             {
                 "component": component,
-                "label": strength.component_label(component),
+                "label": strength.component_label(component, combo_source=settings.combo_source),
                 "weight": weight,
                 "tier_changes": changed,
                 "of_pool": pool_size,
@@ -491,10 +491,12 @@ def run_ranking_check(
         strength.COMBOS,
         strength.PLAYGROUP_OBSERVED,
     ):
-        signal = strength.signal_for(component, resolved.bracket)
+        signal = strength.signal_for(
+            component, resolved.bracket, combo_source=resolved.combo_source
+        )
         if not signal:
             continue
-        if component == strength.COMBOS:
+        if component == strength.COMBOS and resolved.combo_source == strength.COMBO_SPELLBOOK:
             observed, exists = strength_view._combo_observations(
                 store, commander, claims, display, ambiguous
             )

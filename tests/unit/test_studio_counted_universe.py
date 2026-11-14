@@ -442,18 +442,18 @@ def test_unlisted_card_coverage_with_the_new_default_reaches_the_minimum(
     _import_counted(store, _write_counted(tmp_path / "counted", _both()))
     without = _by_name(_compute(store, universe_source="none"))
     with_universe = _by_name(_compute(store))  # the recommended "auto" picks the counted file
-    # Weights 3 + 2 + 2 + 1 + 1 + 1 (conversion) + 1 + 1 + 1 (playgroup) = 13; simulation
-    # is 0. Filler 09 is in no commander signal, has no conversion row and no playgroup
-    # observation; global inclusion and combos exist.
+    # Weights 3 + 2 + 2 + 0 (synergy) + 1 + 1 + 1 + 1 (combos) + 0 (playgroup) + 0 (sim) = 11.
+    # Filler 09 is in no commander signal, has no conversion row, no EDHREC combo row and no
+    # playgroup observation; only global inclusion (1) exists.
     total = sum(strength.DEFAULT_WEIGHTS.values())
-    assert total == 13.0
-    assert without["Filler 09"]["coverage"] == pytest.approx(2 / total, abs=1e-4)
+    assert total == 11.0
+    assert without["Filler 09"]["coverage"] == pytest.approx(1 / total, abs=1e-4)
     assert without["Filler 09"]["tier"] == strength.TIER_UNKNOWN
-    # deck universe 2 + global 1 + combos 1 = 4 of 13 = 0.31, above the minimum 0.3 even
-    # WITHOUT a playgroup observation (with one it would be 5 of 13)
-    assert with_universe["Filler 09"]["coverage"] == pytest.approx(4 / total, abs=1e-4)
-    assert 4 / total >= StrengthSettings().min_coverage
-    assert StrengthSettings().min_coverage == 0.3
+    # deck universe 2 + global 1 = 3 of 11 = 0.2727, above the minimum 0.25 even WITHOUT an
+    # EDHREC combo row or playgroup observation.
+    assert with_universe["Filler 09"]["coverage"] == pytest.approx(3 / total, abs=1e-4)
+    assert 3 / total >= StrengthSettings().min_coverage
+    assert StrengthSettings().min_coverage == 0.25
     assert with_universe["Filler 09"]["tier"] in strength.TIERS
     assert with_universe["Filler 09"]["tier"] != strength.TIER_UNKNOWN
 
@@ -475,9 +475,8 @@ def test_a_zero_weight_universe_adds_neither_value_nor_coverage(
         )
     unlisted = _by_name(off)["Filler 09"]
     assert _component(unlisted, "deck_universe")["weight"] == 0.0
-    # 11 = the weights without the universe (3 + 2 + 1 + 1 + 1 conversion + 1 + 1 + 1);
-    # global and combos exist
-    assert unlisted["coverage"] == pytest.approx(2 / 11, abs=1e-4)
+    # 9 = weights without the universe (11 - 2); only global_inclusion exists for Filler 09.
+    assert unlisted["coverage"] == pytest.approx(1 / 9, abs=1e-4)
 
 
 # ---------- the choice of the universe ----------
@@ -647,7 +646,9 @@ def test_universe_source_values_and_stored_profiles_without_the_new_keys() -> No
     settings, ignored = StrengthSettings.from_stored({"weights": {"synergy": 2.0}})
     assert ignored == []
     assert settings.universe_source == "auto" and settings.require_commander_signal is True
-    assert settings.min_coverage == 0.3
+    assert settings.min_coverage == 0.25
+    assert settings.combo_source == strength.COMBO_COMMANDER
+    assert settings.min_denominators[strength.MIN_PLAYGROUP] == 200
     with pytest.raises(ValueError, match="require_commander_signal"):
         StrengthSettings.from_dict({"require_commander_signal": "yes"})
 
