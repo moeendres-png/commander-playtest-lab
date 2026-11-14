@@ -29,11 +29,17 @@ How it is computed, per commander and per signal:
    percentage points, not a share: it counts only from a minimum sample of games in
    which the card was cast, and the published gap is shrunk towards zero by that sample
    (``n / (n + k)``), so a small sample does not rank high by chance either.
+   The ``rubric`` component (#1358, Chulane only) is neither a share nor a rank: its value
+   ``(H_mean - 1) / 9`` of a frozen rating file is used directly as the 0..1 score, so the
+   magnitude of the rating is kept. It is commander specific and, for a commander without
+   the file, a missing source (``NOT_COLLECTED``) that does not lower any coverage.
 2. The value becomes a percentile rank (0..1) among the cards of the commander's legal pool
    that have a value for that signal and are ranked at all. The comparison group is the
    whole pool (default), the cards of the same main type or of the same mana value band
    (setting); a group with fewer than ``MIN_GROUP`` valued cards falls back to the pool
-   and the component row says so. Ties share the mean rank. The commander card and basic
+   and the component row says so. With ``separate_lands`` (default, #1353 part A) lands are
+   scaled against lands and spells against spells, so neither group sets the scale of the
+   other (a group below ``MIN_GROUP`` keeps the joint scale, said in the row). Ties share the mean rank. The commander card and basic
    lands are not ranked (tier ``N``, "nicht bewertet") unless the Owner switches that on;
    the cards a deck-universe card filter requires get status ``FILTER_CARD`` in the deck
    universe component (they are in every deck of the subset by definition: no value, not
@@ -44,7 +50,10 @@ How it is computed, per commander and per signal:
    coverage, not the percentile. Only for the commander inclusion, the bracket inclusion
    and the deck universe, sources that list the commander's cards fairly completely, the
    Owner can choose "als niedrigster Rang zählen": an unlisted card then gets percentile 0
-   in that component (status ``MISSING_AS_LOWEST``, named as such in the row). Note that
+   in that component (status ``MISSING_AS_LOWEST``, named as such in the row). That is the
+   recommended value for the commander and the bracket inclusion since #1350 (EDHREC lists every
+   card above its threshold, so "not listed" means "below it"; the 0 is at or below the smallest
+   listed card under both share scales); the deck universe stays "skip". Note that
    with ``min_coverage`` 0 an unlisted card (only its other signals count) can outrank a
    card that a source lists at 1 of 755 decks: the recommended minimum coverage exists for
    that reason.
@@ -82,6 +91,8 @@ MEANING = (
     "Prozentpunkte Spieler häufiger gewannen, wenn sie eine Karte gespielt haben, als wenn "
     "sie in der Bibliothek blieb (kleine Stichproben werden zur Null gezogen). Das ist eine "
     "Beobachtung, keine Kausalität und keine gemessene Siegrate der eigenen Partien. "
+    "Für Chulane zählt außerdem eine eingefrorene Raster-Bewertung (subjektiv, nach "
+    "festem Leitfaden von drei unabhängigen Bewertern). "
     "Fehlende Beobachtungen senken die Abdeckung, nie die Karte. Favoriten, Ausschlüsse "
     "und Notizen fließen nicht ein."
 )
