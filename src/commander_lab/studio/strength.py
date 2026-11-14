@@ -31,9 +31,12 @@ How it is computed, per commander and per signal:
    (``n / (n + k)``), so a small sample does not rank high by chance either.
 2. The value becomes a percentile rank (0..1) among the cards of the commander's legal pool
    that have a value for that signal and are ranked at all. The comparison group is the
-   whole pool (default), the cards of the same main type or of the same mana value band
-   (setting); a group with fewer than ``MIN_GROUP`` valued cards falls back to the pool
-   and the component row says so. Ties share the mean rank. The commander card and basic
+   whole pool (default), the cards of the same main type, of the same mana value band or
+   of the same role (setting); a group with fewer than ``MIN_GROUP`` valued cards falls
+   back to the pool and the component row says so. A card can have several roles: its
+   percentile is then the mean of its percentiles in each of its roles that is large
+   enough. A card without a role in the data keeps its pool rank (a missing role is
+   unknown, never a group of its own). Ties share the mean rank. The commander card and basic
    lands are not ranked (tier ``N``, "nicht bewertet") unless the Owner switches that on;
    the cards a deck-universe card filter requires get status ``FILTER_CARD`` in the deck
    universe component (they are in every deck of the subset by definition: no value, not
@@ -101,6 +104,7 @@ BELOW_MIN_DENOMINATOR = "BELOW_MIN_DENOMINATOR"
 NOT_LISTED = "NOT_LISTED"
 VALUE_UNKNOWN = "VALUE_UNKNOWN"
 GROUP_TOO_SMALL = "GROUP_TOO_SMALL"
+GROUP_UNKNOWN = "GROUP_UNKNOWN"  # the card has no comparison group in the data
 NOT_RANKED_COMMANDER = "NOT_RANKED_COMMANDER"
 NOT_RANKED_BASIC_LAND = "NOT_RANKED_BASIC_LAND"
 NO_COMMANDER_SIGNAL = "NO_COMMANDER_SIGNAL"
@@ -116,7 +120,8 @@ MIN_GROUP = 5
 GROUP_POOL = "pool"
 GROUP_TYPE = "type"
 GROUP_MANA_BAND = "mana_band"
-RANK_GROUPS = (GROUP_POOL, GROUP_TYPE, GROUP_MANA_BAND)
+GROUP_ROLE = "role"
+RANK_GROUPS = (GROUP_POOL, GROUP_TYPE, GROUP_MANA_BAND, GROUP_ROLE)
 MEASURE_WILSON = "wilson"
 MEASURE_RAW = "raw"
 SHARE_MEASURES = (MEASURE_WILSON, MEASURE_RAW)
@@ -630,7 +635,8 @@ class Observation:
 class PoolContext:
     """What ``score_pool`` needs to know about the cards besides their observations.
 
-    ``type_group`` and ``mana_band`` map a card key to its comparison group; ``unranked``
+    ``type_group`` and ``mana_band`` map a card key to its comparison group, ``roles`` to
+    the roles the imported sources give it (none: unknown); ``unranked``
     maps a card key to the reason it is not ranked (``NOT_RANKED_COMMANDER`` or
     ``NOT_RANKED_BASIC_LAND``); ``filter_cards`` are the cards a card filter of the deck
     universe requires; ``universe_minimum`` is the minimum universe of the chosen profile
@@ -641,6 +647,7 @@ class PoolContext:
     unranked: Mapping[str, str] = field(default_factory=dict)
     filter_cards: Collection[str] = field(default_factory=frozenset)
     universe_minimum: int = 0
+    roles: Mapping[str, Collection[str]] = field(default_factory=dict)
 
 
 class ComponentResult(TypedDict):
@@ -778,12 +785,17 @@ class _ComponentRanking:
         return bool(self.values)
 
 
-def _group_of(settings: StrengthSettings, context: PoolContext, card: str) -> str:
+def _groups_of(settings: StrengthSettings, context: PoolContext, card: str) -> tuple[str, ...]:
+    """The comparison groups of a card: one for type and mana band, every role for roles."""
     if settings.rank_group == GROUP_TYPE:
-        return context.type_group.get(card, "")
+        name = context.type_group.get(card, "")
+        return (name,) if name else ()
     if settings.rank_group == GROUP_MANA_BAND:
-        return context.mana_band.get(card, "")
-    return ""
+        name = context.mana_band.get(card, "")
+        return (name,) if name else ()
+    if settings.rank_group == GROUP_ROLE:
+        return tuple(sorted({role for role in context.roles.get(card, ()) if role}))
+    return ()
 
 
 def _rank_component(
@@ -830,12 +842,21 @@ def _rank_component(
     if settings.rank_group != GROUP_POOL:
         members: dict[str, dict[str, float]] = {}
         for card, value in values.items():
-            members.setdefault(_group_of(settings, context, card), {})[card] = value
-        for name, group_values in members.items():
-            if name and len(group_values) >= MIN_GROUP:
-                ranks = percentile_ranks(group_values)
-                for card in group_values:
-                    group_ranks[card] = (name, len(group_values), ranks)
+            for name in _groups_of(settings, context, card):
+                members.setdefault(name, {})[card] = value
+        ranked = {
+            name: percentile_ranks(group_values)
+            for name, group_values in members.items()
+            if len(group_values) >= MIN_GROUP
+        }
+        for card in values:
+            used = [name for name in _groups_of(settings, context, card) if name in ranked]
+            if not used:
+                continue
+            # several roles: the mean of the card's percentiles in each large enough role
+            mean = sum(ranked[name][card] for name in used) / len(used)
+            size = len(set().union(*(ranked[name] for name in used)))
+            group_ranks[card] = (", ".join(used), size, {card: mean})
     return _ComponentRanking(values, wilson, reasons, pool_ranks, group_ranks, reference, minimum)
 
 
@@ -958,7 +979,7 @@ def score_pool(
                         group, group_size = found[0], found[1]
                         percentile = found[2][card]
                     else:
-                        group = _group_of(settings, ctx, card) or None
+                        group = ", ".join(_groups_of(settings, ctx, card)) or None
                         group_fallback = True
             elif (
                 reason == NOT_LISTED
@@ -989,7 +1010,9 @@ def score_pool(
                     "label": component_label(component),
                     "signal": signal_for(component, settings.bracket),
                     "status": status,
-                    "reason": GROUP_TOO_SMALL if group_fallback else reason,
+                    "reason": (GROUP_TOO_SMALL if group else GROUP_UNKNOWN)
+                    if group_fallback
+                    else reason,
                     "note": note,
                     "value": observation.value if observation else None,
                     "numerator": observation.numerator if observation else None,
@@ -1039,13 +1062,19 @@ def _fallback_note(
     context: PoolContext,
     card: str,
 ) -> str:
-    size = sum(
-        1
-        for other in ranking.values
-        if _group_of(settings, context, other) == _group_of(settings, context, card)
+    own = _groups_of(settings, context, card)
+    if not own:
+        missing = (
+            "Keine Funktion in den Daten (unbekannt)"
+            if settings.rank_group == GROUP_ROLE
+            else "Keine Vergleichsgruppe bekannt"
+        )
+        return f"{missing}: Rang im ganzen Pool"
+    size = max(
+        sum(1 for other in ranking.values if name in _groups_of(settings, context, other))
+        for name in own
     )
-    name = group or "ohne Gruppe"
     return (
-        f"Vergleichsgruppe „{name}“ hat nur {size} Karten mit Wert (weniger als {MIN_GROUP}): "
+        f"Vergleichsgruppe „{group}“ hat nur {size} Karten mit Wert (weniger als {MIN_GROUP}): "
         "Rang im ganzen Pool"
     )

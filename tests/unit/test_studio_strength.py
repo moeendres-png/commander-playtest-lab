@@ -736,6 +736,49 @@ def test_percentiles_are_taken_within_the_chosen_group_with_a_pool_fallback() ->
     assert _row(banded, "a5", "synergy")["percentile"] == 1.0
 
 
+def test_rank_within_role_uses_the_mean_over_roles_and_keeps_unknown_roles_in_the_pool() -> None:
+    observations = {f"r{i}": {"synergy": Observation(float(i))} for i in range(6)}
+    observations |= {f"d{i}": {"synergy": Observation(100.0 + i)} for i in range(6)}
+    observations |= {"both": {"synergy": Observation(50.0)}}
+    observations |= {"none": {"synergy": Observation(3.5)}}
+    observations |= {f"t{i}": {"synergy": Observation(200.0 + i)} for i in range(2)}
+    roles: dict[str, tuple[str, ...]] = {f"r{i}": ("ramp",) for i in range(6)}
+    roles |= {f"d{i}": ("draw",) for i in range(6)}
+    roles |= {"both": ("ramp", "draw", "tiny")} | {f"t{i}": ("tiny",) for i in range(2)}
+    context = PoolContext(roles=roles)
+    pool = strength.score_pool(_only("synergy"), observations, {"synergy"}, context=context)
+    by_role = strength.score_pool(
+        _only("synergy", rank_group="role"), observations, {"synergy"}, context=context
+    )
+    # the best ramp card is weak in the pool and the best of its role
+    assert _row(pool, "r5", "synergy")["percentile"] < 0.5
+    best = _row(by_role, "r5", "synergy")
+    assert best["group"] == "ramp" and best["group_size"] == 7
+    assert best["percentile"] == 5 / 6  # only "both" (50.0) is above it among 7 ramp cards
+    # two large roles: best of ramp (1.0) and worst of draw (0.0) give the mean; the role
+    # with three cards is too small and is left out of the mean and of the label
+    both = _row(by_role, "both", "synergy")
+    assert both["percentile"] == 0.5 and both["group"] == "draw, ramp"
+    assert both["group_size"] == 13 and both["group_fallback"] is False
+    # a card without a role is unknown: pool rank, said in the row, never a group "no role"
+    unknown = _row(by_role, "none", "synergy")
+    assert unknown["group_fallback"] is True and unknown["group"] is None
+    assert unknown["reason"] == strength.GROUP_UNKNOWN
+    assert unknown["percentile"] == _row(pool, "none", "synergy")["percentile"]
+    assert "Keine Funktion in den Daten" in unknown["note"]
+    # a role with fewer than five valued cards falls back to the pool
+    small = _row(by_role, "t1", "synergy")
+    assert small["group_fallback"] is True and small["reason"] == strength.GROUP_TOO_SMALL
+    assert "„tiny“ hat nur 3 Karten" in small["note"]
+    assert small["percentile"] == _row(pool, "t1", "synergy")["percentile"]
+    # without any role data the setting changes nothing
+    bare = strength.score_pool(_only("synergy", rank_group="role"), observations, {"synergy"})
+    assert all(
+        _row(bare, key, "synergy")["percentile"] == _row(pool, key, "synergy")["percentile"]
+        for key in observations
+    )
+
+
 def test_mana_value_bands_and_lands() -> None:
     bands = [strength.mana_band(value, is_land=False) for value in (0, 1, 2, 3, 4, 5, 9)]
     assert bands == ["0-1", "0-1", "2", "3", "4", "5+", "5+"]
@@ -1554,7 +1597,8 @@ def test_the_page_names_a_pool_fallback_instead_of_a_null_group_size() -> None:
 
     script = (STATIC / "tierliste.js").read_text(encoding="utf-8")
     assert "c.group_fallback ?" in script
-    assert "Rang im ganzen Pool (Gruppe zu klein)" in script
+    assert "Rang im ganzen Pool" in script and "Gruppe zu klein" in script
+    assert "Gruppe unbekannt" in script
 
 
 # ---------- behaviours pinned after surviving mutants (Refs #1205) ----------

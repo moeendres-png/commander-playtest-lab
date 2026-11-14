@@ -556,13 +556,17 @@ def compute(
 
     type_group: dict[str, str] = {}
     bands: dict[str, str] = {}
+    roles: dict[str, tuple[str, ...]] = {}  # from card_role; no entry: role unknown
     unranked = _unranked_cards(raw_cards, commander_ids)
     for card in raw_cards:
         card_id = str(card["card_id"])
         group = str(card["group"])
+        found = card.get("roles")
+        if isinstance(found, list) and found:
+            roles[card_id] = tuple(str(role) for role in found)
         type_group[card_id] = group
         bands[card_id] = strength.mana_band(_float(card["mana_value"]), is_land=group == "Land")
-    context = PoolContext(type_group, bands, unranked, filter_cards, universe_minimum)
+    context = PoolContext(type_group, bands, unranked, filter_cards, universe_minimum, roles)
 
     # Rating layers (Bewertungsebenen): always computed for the page; they join the index only
     # with a positive weight (default 0), as one more rank-based component each.
@@ -731,6 +735,7 @@ _GROUP_CHOICES = {
     strength.GROUP_POOL: "ganzer Pool",
     strength.GROUP_TYPE: "gleicher Kartentyp",
     strength.GROUP_MANA_BAND: "gleiches Manawert-Band",
+    strength.GROUP_ROLE: "gleiche Funktion",
 }
 _MEASURE_CHOICES = {
     strength.MEASURE_WILSON: "Wilson-Untergrenze",
@@ -820,7 +825,11 @@ def _panel_texts() -> dict[str, object]:
     helps["rank_group"] = (
         "Gegen welche Karten der Rang berechnet wird. Eine Gruppe mit weniger als "
         f"{strength.MIN_GROUP} Karten mit Wert fällt auf den ganzen Pool zurück "
-        "(steht dann in der Signalzeile)."
+        "(steht dann in der Signalzeile). „Gleiche Funktion“ vergleicht eine Karte mit den "
+        "Karten derselben Funktion aus den importierten Rollen-Daten; bei mehreren Funktionen "
+        "zählt der Mittelwert ihrer Ränge. Eine Karte ohne Funktion in den Daten behält den "
+        "Rang im ganzen Pool; solange Rollen für viele Karten fehlen, bleibt der ganze Pool "
+        "die Empfehlung."
     )
     labels["share_measure"] = (
         f"Anteil messen als (empfohlen: {_MEASURE_CHOICES[rec.share_measure]})"

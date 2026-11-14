@@ -216,8 +216,15 @@ Formula, per commander (`strength.py`, pure):
    the minimum is not ranked (component status `BELOW_MIN_DENOMINATOR`, a missing
    observation). Synergy and combo counts are used as published.
 2. Each value becomes a percentile rank (0..1). The comparison group is the whole legal pool
-   (recommended) or the card's type group or mana-value band; a group of fewer than 5 cards
-   falls back to the whole pool and the card says so. Ties share the mean rank. The
+   (recommended) or the card's type group, mana-value band or role ("gleiche Funktion",
+   from the imported role data in `card_role`); a group of fewer than 5 cards falls back to
+   the whole pool and the card says so. A card with several roles gets the mean of its
+   percentiles in each role that is large enough. A card without a role in the data keeps
+   its pool rank (reason `GROUP_UNKNOWN`): a missing role is unknown, never a group of its
+   own. Measured on the repository-built store (2026-11-14, preset "Ausgewogen"): 551 of the
+   922 ranked Chulane cards are ranked within a role, 365 have no role yet, 6 only a role
+   that is too small, and 167 cards change their tier. The whole pool stays the
+   recommendation until the role gap is closed from source tags. Ties share the mean rank. The
    commander card and the basic lands are not ranked by default (tier `N`, "nicht
    bewertet"); the setting can include them. Cards the universe requires (card filter,
    `must_contain`) are filter cards: status `FILTER_CARD`, not ranked, labelled
