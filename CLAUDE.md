@@ -93,9 +93,12 @@ changes to signed or sealed qualification records wait for the Owner's explicit 
   smoke, external and meta start only for their own paths; the table is
   `docs/CI_WHICH_CHECK_RUNS_WHEN.md`. A new test file needs no weight entry
   (`python -m tests.pytest_shards weights --from-artifacts` rebuilds the table).
-- `ci-definition-integrity-shadow` is informational: green for added or extended tests, red for a
-  changed required-check definition, a removed test or assertion, a new skip or a gate script
-  (never weaken it). A change to `.github/workflows/production-qualification.yml` needs its
+- `ci-definition-integrity-shadow` is informational: green only for a new test file, a test module
+  that only adds (imports, constants, new test functions; every existing statement unchanged) or the
+  two shard weight tables; red/review-required for any changed or removed existing test function,
+  decorator, parametrize list or fixture, `conftest.py`, any other file under `tests/` (incl.
+  `tests/pytest_shards.py`, `tests/pytest_docs_tests.json`), gate scripts or a required-check
+  definition (never weaken it). A change to `.github/workflows/production-qualification.yml` needs its
   digest updated in `WS17_SHA256SUMS` (`python scripts/regenerate_hash_manifests.py`).
 - CI state and open points: `docs/CI_GATES_IMPROVEMENT_PLAN_20261112.md`. A change to a required
   check or gate definition is an Owner decision.

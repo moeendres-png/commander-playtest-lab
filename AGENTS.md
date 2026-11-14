@@ -360,9 +360,12 @@ Required contexts: `quality`, `security`, `infrastructure`, nothing else. `quali
 change runs one slot with the docs tests. `infrastructure` runs `tests/qualification` in four
 shards. PB-03, H4, conformance, the real four-player smoke, external integration and meta
 qualification start only for their own `paths:` (they are not required and are absent from the check
-list otherwise); sealing dispatches PB-03. `ci-definition-integrity-shadow` is informational: red
-means a human look (changed required-check definition, removed test or assertion, new skip, gate
-script), not "a test was added". The full table is `docs/CI_WHICH_CHECK_RUNS_WHEN.md`; changing a
+list otherwise); sealing dispatches PB-03. `ci-definition-integrity-shadow` is informational: it is green only when every changed test file
+is new or only adds to its test module (existing top-level statements unchanged, in order; added
+imports, constants, test functions) or is one of the two shard weight tables. Every other change is
+review-required: a changed or removed existing test function, a changed decorator, parametrize list
+or fixture, `conftest.py`, any non-test file under `tests/` (including `tests/pytest_shards.py` and
+`tests/pytest_docs_tests.json`), a gate script, or a required-check definition. The full table is `docs/CI_WHICH_CHECK_RUNS_WHEN.md`; changing a
 required check or gate definition stays an Owner decision.
 
 ### Owner-delegated self-merge

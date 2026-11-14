@@ -81,7 +81,7 @@ caught by the `packaging` job of the push to `main`, not before the merge.
 | # | Recommendation | State |
 |---|---|---|
 | 1 | Upload step cannot hang `quality` | done: every evidence upload has a three-minute step timeout; `quality` is a gate job and does not upload |
-| 2 | Shadow check neutral for added or extended tests | done in package B: `PASS` with the files listed under `benign_test_changes`; still red for a changed required-check definition, removed test or assertion, new skip, `conftest.py`, other test data and gate scripts |
+| 2 | Shadow check neutral for added tests | done in package B: `PASS` with the files listed under `benign_test_changes` only for a new test file, a module that only adds imports, constants or test functions (every existing statement unchanged, in order) and the two shard weight tables; any other change (existing test function, decorator, parametrize list, fixture, `conftest.py`, other files under `tests/`, gate scripts, required-check definitions) is review-required |
 | 3 | Documents-only fast path | done: `scripts/ci_change_scope.py`, one `tests` slot with the docs tests |
 | 4, 5 | Cheap checks first, split the suite | done: parallel `lint` and four `tests` slots; `infrastructure` runs four in-job shards (about 110 s instead of about 280 s) |
 | 6, 7, 9 | JVM marker, `check_fast.sh`, packaging smoke independent of the local environment | open (no gate decision needed) |

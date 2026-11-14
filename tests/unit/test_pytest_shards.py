@@ -572,3 +572,35 @@ def test_real_tree_in_slot_shards_never_repeat_a_file_of_another_shard() -> None
             assert not others & set(command)
             assert not any(item.startswith("--ignore") for item in command)
     assert files
+
+
+@pytest.mark.parametrize(
+    "table",
+    [
+        {},  # nothing weighted
+        {"tests/unit/test_a.py": 5.0},  # one file weighted
+        {f"tests/unit/test_{c}.py": 0.0 for c in "abcdefg"},  # zero weights
+        {f"tests/unit/test_{c}.py": 1.0 for c in "abcd"},  # half the files
+        {"tests/unit/test_gone.py": 9.0, "tests/unit/test_a.py": 1.0},  # names a missing file
+    ],
+)
+def test_any_weight_table_still_partitions_every_file(
+    tmp_path: Path, table: dict[str, float]
+) -> None:
+    """A weight change can only change the balance: every named file still runs exactly once.
+
+    This is why the shadow integrity check treats the weight tables as data.
+    """
+    names = [f"tests/unit/test_{letter}.py" for letter in "abcdefg"]
+    for name in names:
+        _write(tmp_path / name)
+    selection = shards.parse_arguments(["-q", *names], ("tests",))
+    plan = shards.plan_for(shards.selected_files(table, tmp_path, selection), 4)
+    if plan is None:
+        runs = [list(names)]  # fewer than two weighted files: one process runs all roots
+    else:
+        runs = [
+            [a for a in shards.shard_arguments(selection, plan, i) if a.endswith(".py")]
+            for i in range(len(plan))
+        ]
+    assert sorted(name for run in runs for name in run) == sorted(names)

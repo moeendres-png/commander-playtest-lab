@@ -637,15 +637,18 @@ def test_cardinality_lane_push_and_pr_filters_match(repo_root: Path) -> None:
     workflow = _workflow(repo_root)
     triggers = workflow[True] if True in workflow else workflow.get("on", {})
     pull_request = triggers.get("pull_request") or {}
-    # Pull requests always run the workflow (its job can be a required check); the
-    # relevance filter lives in the conformance-scope job, which skips the heavy job
-    # only when none of these paths changed.
-    assert "paths" not in pull_request, "PR runs are scoped by the conformance-scope job"
-    scope_step = next(
-        step for step in workflow["jobs"]["conformance-scope"]["steps"] if step.get("id") == "scope"
-    )
-    pr_paths = {line.strip() for line in scope_step["with"]["paths"].splitlines() if line.strip()}
+    # Package B: the pull-request trigger is itself a path filter (the former conformance-scope
+    # runner was replaced by it). It must list every push path; the only extra it may carry is the
+    # composite-action directory, whose change affects PR runs of the workflow but is not a path
+    # worth a run on every push to main.
+    assert pull_request.get("paths"), "PR runs must be scoped by pull_request.paths"
+    assert "conformance-scope" not in workflow["jobs"]
+    pr_paths = set(pull_request["paths"])
     push_paths = set((triggers.get("push") or {}).get("paths") or [])
+    assert push_paths <= pr_paths, (
+        f"push paths missing from the PR filter: {sorted(push_paths - pr_paths)}"
+    )
+    assert pr_paths - push_paths <= {".github/actions/**"}, sorted(pr_paths - push_paths)
     production = {
         "engine-bridge/**",
         "src/commander_lab/engine/rules/full_game.py",

@@ -67,6 +67,9 @@ ENTRYPOINT_DEFINITION_SURFACES = {
     "scripts/verify_packaging_smoke.py",
     "qualification/harness.py",
     "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json",
+    # The runner and the lists that decide what the required test checks execute.
+    "tests/pytest_shards.py",
+    "tests/pytest_docs_tests.json",
     "qualification/protocol/ws10r/candidate_fixture_manifest_v1.schema.json",
 }
 
@@ -1097,73 +1100,120 @@ def _unknown_report(trusted: str, head: str, comparison: str | None, reason: str
     }
 
 
-# Timing tables of the test matrix: data, never an assertion.
+# Timing tables of the test matrix. A weight change cannot drop a file from the run: the planner
+# gives an unweighted file the mean weight (matrix) or runs it in the last in-slot shard, every file
+# of the tree is assigned to exactly one slot and shard whatever the table says, and
+# tests/unit/test_required_test_ownership.py and tests/unit/test_pytest_shards.py
+# (test_any_weight_table_still_partitions_every_file) fail otherwise. They are therefore data.
 BENIGN_TEST_DATA = frozenset(
     {
         "tests/pytest_shard_weights.json",
         "tests/pytest_shard_weights_qualification.json",
-        "tests/pytest_docs_tests.json",
     }
 )
-_WEAKENING_NAMES = frozenset({"skip", "skipif", "xfail"})
-_ASSERTING_CALLS = frozenset({"raises", "warns", "fail", "approx"})
+_ADDABLE_TOP_LEVEL = (
+    ast.Import,
+    ast.ImportFrom,
+    ast.FunctionDef,
+    ast.AsyncFunctionDef,
+    ast.ClassDef,
+    ast.Assign,
+    ast.AnnAssign,
+)
 
 
-def _test_strength(source: str) -> tuple[set[str], int, int]:
-    """``(test function names, assertion-like nodes, skip/xfail markers)`` of one test module."""
-    tree = ast.parse(source)
-    names: set[str] = set()
-    asserting = 0
-    weakening = 0
-    for node in ast.walk(tree):
-        if isinstance(node, ast.FunctionDef | ast.AsyncFunctionDef) and node.name.startswith(
-            "test"
-        ):
-            names.add(node.name)
-        elif isinstance(node, ast.Assert):
-            asserting += 1
-        elif isinstance(node, ast.Call):
-            func = node.func
-            name = func.attr if isinstance(func, ast.Attribute) else getattr(func, "id", "")
-            asserting += name in _ASSERTING_CALLS
-            weakening += name in _WEAKENING_NAMES
-        elif isinstance(node, ast.Attribute) and node.attr in _WEAKENING_NAMES:
-            weakening += 1
-    return names, asserting, weakening
+def _is_test_module(path: str) -> bool:
+    name = Path(path).name
+    return path.startswith("tests/") and name.startswith("test_") and name.endswith(".py")
+
+
+def _bound_names(node: ast.stmt) -> set[str]:
+    if isinstance(node, ast.FunctionDef | ast.AsyncFunctionDef | ast.ClassDef):
+        return {node.name}
+    if isinstance(node, ast.Import | ast.ImportFrom):
+        return {(alias.asname or alias.name).split(".")[0] for alias in node.names}
+    if isinstance(node, ast.Assign):
+        return {n.id for t in node.targets for n in ast.walk(t) if isinstance(n, ast.Name)}
+    if isinstance(node, ast.AnnAssign):
+        return {n.id for n in ast.walk(node.target) if isinstance(n, ast.Name)}
+    return set()
+
+
+def _constant_assignment(node: ast.stmt) -> bool:
+    value = getattr(node, "value", None)
+    if value is None:
+        return False
+    try:
+        ast.literal_eval(value)
+    except (ValueError, SyntaxError, TypeError, MemoryError, RecursionError):
+        return False
+    return True
+
+
+def _benign_module_change(base_source: str | None, head_source: str) -> bool:
+    """True when ``head`` only adds to ``base`` and leaves every existing statement as it was.
+
+    A new module is benign. For an existing module every top-level statement of the base must
+    be present, unchanged (normalised AST, decorators, bodies, parametrize lists and fixtures
+    included), and the only additions are imports, constants and new functions or classes whose
+    names do not rebind a name the base already defined. A changed existing function is never
+    judged "at least as strong": it needs a human look.
+    """
+    head_tree = ast.parse(head_source)
+    if base_source is None:
+        return True
+    base_tree = ast.parse(base_source)
+    base_dumps = [ast.dump(node, include_attributes=False) for node in base_tree.body]
+    base_names: set[str] = set()
+    for node in base_tree.body:
+        base_names |= _bound_names(node)
+    pending = list(base_dumps)
+    for node in head_tree.body:
+        dump = ast.dump(node, include_attributes=False)
+        # Existing statements keep their order (a reordering can change which definition wins).
+        if pending and dump == pending[0]:
+            pending.pop(0)
+            continue
+        if dump in base_dumps:
+            return False
+        if not isinstance(node, _ADDABLE_TOP_LEVEL):
+            return False
+        if isinstance(node, ast.Assign | ast.AnnAssign) and not _constant_assignment(node):
+            return False
+        if _bound_names(node) & base_names:
+            return False
+    return not pending  # a pending statement of the base was removed or changed
 
 
 def _benign_test_change(repo: Path, base: str, head: str, path: str) -> str | None:
-    """``added`` or ``extended`` when a test change cannot weaken a gate, else None.
+    """``added`` or ``extended`` when a test change only adds, else None.
 
-    Benign: a new test module, a module whose test functions are all still present with no fewer
-    assertions and no new skip/xfail markers, and the timing tables. Everything else (a removed
-    test file, a removed test function, fewer assertions, a new skip, conftest, other data) needs
-    a human look and keeps the review-required classification.
+    Only a weight table or a ``tests/**/test_*.py`` module can be benign; every other file under
+    ``tests/`` (``conftest.py``, helpers, ``pytest_shards.py``, the docs-test list, other data) is
+    a gate input and always needs review. A test module is benign when it is new, or when every
+    statement it had is unchanged and the head only adds imports, constants, functions or classes.
     """
     if path in BENIGN_TEST_DATA:
         return "extended"
-    if not path.endswith(".py") or Path(path).name in {"conftest.py", "__init__.py"}:
+    if not _is_test_module(path):
         return None
     try:
         head_source = _blob(repo, head, path).decode("utf-8")
     except (InspectionError, UnicodeDecodeError):
         return None
     try:
-        base_source = _blob(repo, base, path).decode("utf-8")
+        base_source: str | None = _blob(repo, base, path).decode("utf-8")
     except InspectionError:
         base_source = None
     except UnicodeDecodeError:
         return None
     try:
-        head_names, head_asserts, head_weak = _test_strength(head_source)
-        if base_source is None:
-            return "added" if head_weak == 0 else None
-        base_names, base_asserts, base_weak = _test_strength(base_source)
-    except SyntaxError:
+        benign = _benign_module_change(base_source, head_source)
+    except (SyntaxError, ValueError, RecursionError):
         return None
-    if base_names - head_names or head_asserts < base_asserts or head_weak > base_weak:
+    if not benign:
         return None
-    return "extended"
+    return "added" if base_source is None else "extended"
 
 
 def _inspect(
