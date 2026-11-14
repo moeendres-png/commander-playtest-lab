@@ -23,8 +23,7 @@ ruff format --check src tests
 ```bash
 mypy <every changed module under src/>
 ```
-`mypy src/` also reports long-standing errors in `agents/openai_workflow.py`, `api/tool_server.py` and
-`cli/app.py` (optional dependencies); judge only the modules the change touches.
+`mypy src/` is expected to be clean; judge the modules the change touches first.
 
 ## 3. Python tests
 
