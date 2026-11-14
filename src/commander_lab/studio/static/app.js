@@ -363,6 +363,19 @@ function renderHeader() {
   pill.textContent = errors ? `${errors} Fehler` : warnings ? `${warnings} Hinweise` : "Datenprüfung ohne Befund";
   pill.className = "pill " + (errors ? "bad" : warnings ? "warn" : "good");
   $("save").disabled = !state.dirty;
+  renderPlayButton();
+}
+// The Partien page takes the saved revision, never the draft: an unsaved draft says so on the
+// button instead of silently playing an older state.
+function playAddress(revisionId) {
+  return `partie.html?neu=1&revision=${encodeURIComponent(revisionId)}`;
+}
+function renderPlayButton() {
+  const button = $("play-state");
+  const unsaved = state.dirty || !state.baseRevision;
+  button.textContent = unsaved ? "Erst als Stand speichern, dann spielen" : "Mit diesem Stand eine Partie spielen";
+  button.classList.toggle("warn", unsaved);
+  button.disabled = false;
 }
 function deckCards() {
   return [...state.list.keys()].map((id) => state.byId.get(id)).filter(Boolean);
@@ -1343,6 +1356,10 @@ function setupControls() {
   $("f-sim").addEventListener("change", () => {
     const info = state.simReadiness;
     if ($("f-sim").checked && info && info.available && info.ready === info.total) toast(`Alle ${info.total} Karten des Pools sind für den Simulator bereit: der Filter ändert nichts.`);
+  });
+  $("play-state").addEventListener("click", () => {
+    if (state.dirty || !state.baseRevision) { toast("Der Entwurf ist noch nicht als Stand gespeichert. Speichere ihn zuerst mit „Als Stand speichern“; gespielt wird immer der gespeicherte Stand."); return; }
+    location.href = playAddress(state.baseRevision);
   });
   $("save").addEventListener("click", () => StudioUI.busy($("save"), () => saveRevision()));
   $("history").addEventListener("click", showHistory);
