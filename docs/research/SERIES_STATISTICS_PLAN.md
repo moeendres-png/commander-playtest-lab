@@ -2,8 +2,15 @@
 
 - **Referenz:** GitHub-Issue #1211 (Recherche, Owner-Auftrag 2026-11-12)
 - **Art:** Reine Recherche, kein Produktcode. Alle Zahlen sind mit den angegebenen
-  Formeln nachgerechnet (Rechenskript liegt der PR als Anhang im Arbeitsordner bei;
-  die Formeln stehen im Anhang dieses Dokuments).
+  Formeln nachgerechnet; das Rechenskript liegt im Repo unter
+  `docs/research/series_statistics_calc.py` und erzeugt die Tabellen aus den
+  Formeln (die Formeln stehen auch im Anhang dieses Dokuments).
+- **Ergänzung 2026-11-14 (Refs #1211):** Power-90 %-Tabellen (Abschnitt 2.7),
+  geprüfte Alternativen zum sequenziellen Verfahren (Abschnitt 4) und die
+  Zell-für-Zelle-Verifikation aller Tabellen durch das Rechenskript (Anhang,
+  „Verifikation"). Zwei gerundete Werte des ursprünglichen Plans wurden dabei
+  korrigiert (Abschnitt 2.4: ≈ 2,5 statt 2,4 Stunden; Abschnitt 2.5: 33,5
+  statt 33,6 Prozentpunkte).
 - **Verbindliche Vorgaben:** `AGENTS.md` §4 (Evidenzsemantik), `docs/OWNER_DECISIONS_STUDIO_20261112.md`
   S3 (Ergebnisse sind Beobachtungen einer Serie: Nenner, Unsicherheitsbereich,
   Basis gegen Variante nur gepaart auf denselben Seeds, abgebrochene Partien
@@ -183,7 +190,7 @@ Seeds, also 69 · 4 · 2 = 552 Partien gesamt (beide Arme).
 
 Der Workflow nennt als gemessenen Anker 225 Partien/Stunde (4 Arbeiter,
 echter Pod, gemessen 2026-10-17/18, `docs/DECK_VARIANT_WORKFLOW.md` Schritt 2).
-`CODE_DERIVED`. Damit: 10 pp bei q = 0,20 ≈ 2,4 Stunden; 5 pp ungepaart
+`CODE_DERIVED`. Damit: 10 pp bei q = 0,20 ≈ 2,5 Stunden; 5 pp ungepaart
 (2.496 Partien) ≈ 11 Stunden; 5 pp gepaart bei q = 0,40 (4.368 Partien = 546 · 4 · 2)
 ≈ 19 Stunden. Die Größenordnung „ein Umbau-Entscheid an einem Abend,
 ein 5-pp-Nachweis nur als geplante Kampagne" folgt direkt daraus.
@@ -195,7 +202,7 @@ Umkehrung der Formeln: Welche Differenz konnte eine Serie gegebener Größe
 
 | Seriengröße | Erkennbare Differenz |
 |---|---|
-| 30 Partien je Arm, ungepaart, 4 Pl. | 33,6 pp |
+| 30 Partien je Arm, ungepaart, 4 Pl. | 33,5 pp |
 | 40 Partien je Arm, ungepaart, 4 Pl. | 29,2 pp |
 | 80 Partien je Arm, ungepaart, 4 Pl. | 20,7 pp |
 | 40 Paare, gepaart, σ_d = 0,63 (iid) | 27,9 pp |
@@ -248,6 +255,35 @@ der anderen Looks (Abschnitt 4) liegen niedriger, entscheiden aber nur bei
 überwältigender Evidenz; die Größe richtet sich nach dem letzten Look.
 Die Faktor-Tabelle in Abschnitt 8 (α/K gegenüber α = 0,05) bezieht sich auf
 den Altwert und ist mit dem Look-Faktor (a) zu multiplizieren.
+
+### 2.7 Power 90 % (Ergänzung 2026-11-14)
+
+Dieselben Formeln wie in 2.1 und 2.2, nur z₁₋β = 1,2816 statt 0,8416. Der
+Verhältnis-Faktor gegenüber Power 80 % ist in der ungepaarten Formel konstant
+≈ 1,34 (Abschnitt 2.1) und gilt in der gepaarten Planung näherungsweise ebenso
+(Rundung der Seeds). `MODELED`, aus dem Rechenskript erzeugt.
+
+Ungepaart, Partien **je Arm** (Power 90 %):
+
+| Plätze s | p₀ | 5 pp | 10 pp | 15 pp |
+|---|---|---|---|---|
+| 2 | 50,0 % | 2.091 | 515 | 223 |
+| 3 | 33,3 % | 1.928 | 492 | 221 |
+| 4 | 25,0 % | 1.671 | 437 | 200 |
+| 5 | 20,0 % | 1.461 | 389 | 181 |
+| 6 | 16,7 % | 1.298 | 352 | 166 |
+
+Gepaart, **Seeds** (Power 90 %, ρ = 0,25, Planungs-SD wie in 2.2):
+
+| Δ | q | Paare (iid) | 2 Pl. | 3 Pl. | 4 Pl. | 5 Pl. | 6 Pl. |
+|---|---|---|---|---|---|---|---|
+| 5 pp | 0,09 | 379 | 237 | 190 | 166 | 152 | 143 |
+| 5 pp | 0,20 | 841 | 526 | 421 | 368 | 337 | 316 |
+| 5 pp | 0,40 | 1.669 | 1.044 | 835 | 731 | 668 | 626 |
+| 10 pp | 0,20 | 211 | 132 | 106 | 93 | 85 | 80 |
+| 10 pp | 0,40 | 418 | 262 | 209 | 183 | 168 | 157 |
+| 15 pp | 0,20 | 94 | 59 | 47 | 42 | 38 | 36 |
+| 15 pp | 0,40 | 186 | 117 | 93 | 82 | 75 | 70 |
 
 ---
 
@@ -393,6 +429,32 @@ Ergebnis"):**
    reicht" laufen lassen will, braucht entweder den Vergleichs-Runner oder
    die Umsetzung dieser Regeln in #1267. Ein Wilson-Intervall, das man
    nach jedem Spiel prüft, ist **kein** gültiges Stopp-Verfahren.
+
+**Geprüfte Alternativen (Ergänzung 2026-11-14).** Drei weitere
+Verfahrensfamilien wurden gegen diese Empfehlung geprüft:
+
+- **SPRT (Wald 1945).** Der sequenzielle Likelihood-Quotienten-Test ist für die
+  einfache Frage „Δ = 0 gegen ein festes Δ = δ" im Erwartungswert optimal,
+  kennt aber keine zusammengesetzte Zielgröße bei unbekanntem q, keine
+  Cluster-Struktur (Seeds mit Rotationen) und keine obere Seriengröße — die
+  Serie liefe, bis eine Grenze fällt. Für ein Budget-Design mit festen Looks
+  ist er das falsche Werkzeug.
+- **Bayes-Faktoren.** Ihre Interpretation hängt nicht von der Stopp-Regel ab
+  (Rouder 2014); mit Standard-Priors („default priors") kann die Kalibrierung
+  unter optionalem Stoppen aber brechen (de Heide & Grünwald 2021). Vor allem:
+  Die Urteils-Skala des Repos ist über die E6-Simulationen frequentistisch
+  kalibriert; ein Rahmenwechsel würde diese Kalibrierung entwerten und eine
+  eigene Simulations-Kalibrierung verlangen.
+- **Konfidenz-Sequenzen / Always-valid-Verfahren (Howard u. a. 2021).**
+  Zeitgleich gültige Intervalle erlauben Nachschauen zu jedem beliebigen
+  Zeitpunkt ohne feste Looks. Sie sind an jedem festen Zeitpunkt aber breiter
+  als die OBF-Grenzen — der Preis der beliebigen Stoppzeit — und im Repo
+  weder gebaut noch kalibriert.
+
+Die Empfehlung bleibt: Lan-DeMets/O'Brien-Fleming mit festen Looks und Holm —
+gebaut, per Simulation kalibriert und im Workflow verankert. Ein Wechsel käme
+nur mit eigener Kalibrierungs-Simulation in Frage und ist für die Serienfrage
+dieses Plans nicht nötig.
 
 ---
 
@@ -715,6 +777,19 @@ Literatur (Verfahren):
 - Liang, K.-Y. & Zeger, S. L. (1986). Longitudinal data analysis using
   generalized linear models. *Biometrika* 73(1), 13–22.
   https://doi.org/10.1093/biomet/73.1.13
+- Wald, A. (1945). Sequential Tests of Statistical Hypotheses. *The
+  Annals of Mathematical Statistics* 16(2), 117–186.
+  https://doi.org/10.1214/aoms/1177731118
+- Rouder, J. N. (2014). Optional stopping: No problem for Bayesians.
+  *Psychonomic Bulletin & Review* 21(2), 301–308.
+  https://doi.org/10.3758/s13423-014-0595-4
+- de Heide, R. & Grünwald, P. D. (2021). Why optional stopping can be a
+  problem for Bayesians. *Psychonomic Bulletin & Review*.
+  https://doi.org/10.3758/s13423-020-01803-x
+- Howard, S. R., Ramdas, A., McAuliffe, J. & Sekhon, J. (2021).
+  Time-uniform, nonparametric, nonasymptotic confidence sequences.
+  *The Annals of Statistics* 49(2), 1055–1080.
+  https://doi.org/10.1214/20-AOS1991
 
 ---
 
@@ -762,3 +837,23 @@ Look-Level = Inkremente (Repo-Implementierung).
 - Keine neuen Partien und keine Pilot-Mikro-Messreihen für diese
   Recherche (Vorgabe des Issues und Owner-Entscheid S2); alle
   empirischen Anker stammen aus bereits vorhandenen Dokumenten.
+
+**Verifikation (Ergänzung 2026-11-14).** `docs/research/series_statistics_calc.py`
+rechnet jede Tabelle dieses Plans aus den Formeln nach und vergleicht sie
+Zelle für Zelle mit den gedruckten Werten (ungepaart 15 Zellen zu Power 80 %,
+gepaart 7 iid-Werte und 35 Seed-Zellen, dazu die Werte der Abschnitte 0,
+2.3–2.6, 3, 4, 6 und 8). Ergebnis: Alle Werte reproduziert bis auf zwei
+Rundungsreste, die im Text korrigiert sind (Abschnitt 2.4: 552/225 = 2,45,
+also ≈ 2,5 statt 2,4 Stunden; Abschnitt 2.5: erkennbare Differenz bei
+30 Partien je Arm = 33,5 statt 33,6 Prozentpunkte). Zwei Präzisierungen aus
+derselben Nachrechnung: (1) Die McNemar-Gegenprobe (Connor) liegt in sechs
+der sieben zulässigen Zellen 1,3 % bis 19,6 % unter der Repo-Planung, in der
+Zelle Δ = 5 pp/q = 0,40 aber 0,2 % darüber (1.250 gegen 1.247 Paare), weil
+der Repo-Anker σ_d = 0,63 knapp unter √0,40 = 0,632 liegt — der Satz in
+Abschnitt 2.2, die Repo-Methode sei die konservativere, gilt dort nur bis
+auf diese 3 Paare. (2) Die exakte Zeichentest-Power (Binomial-Enumeration im
+Rechenskript) liegt an zwei Planungszellen bei 78,0 % (628 Paare, q = 0,20,
+Δ = 5 pp) und 77,7 % (139 Paare, q = 0,40, Δ = 15 pp) statt der nominalen
+80 % der Normalapproximation — die Diskretheit des exakten Tests kostet rund
+2 Prozentpunkte Power; die Tabellen bleiben damit als Näherung
+gekennzeichnet, nicht als exakte Aussage.

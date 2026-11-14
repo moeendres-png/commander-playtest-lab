@@ -1,0 +1,6 @@
+bucket,seconds_total,seconds_per_game,share_of_python_cpu_pct
+audit,2.773,0.347,1.03
+pilot,192.425,24.053,71.59
+recorder,61.325,7.666,22.82
+json_read_bridge,17.239,2.155,6.41
+rest,-4.982,-0.623,-1.85

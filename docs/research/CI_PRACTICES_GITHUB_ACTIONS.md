@@ -75,7 +75,7 @@ jobs:
 ### Problemstellung
 In einem vorherigen CI-Lauf hing `actions/upload-artifact` 11 Minuten lang im Upload-Schritt fest und brach anschließend mit einem Fehler ab.
 
-### Offizielle Einstellungen und Verhalten von `actions/upload-artifact@v4`
+### Offizielle Einstellungen und Verhalten von `actions/upload-artifact` (`v4` / `v7.0.2`)
 
 1. **Step-Level Timeout (`timeout-minutes`):**
    - *Dokumentation:* [GitHub Docs: Workflow syntax for GitHub Actions - jobs.<job_id>.steps[*].timeout-minutes](https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idstepstimeout-minutes).
@@ -91,10 +91,21 @@ In einem vorherigen CI-Lauf hing `actions/upload-artifact` 11 Minuten lang im Up
    - *Dokumentation:* [actions/upload-artifact v4 README](https://github.com/actions/upload-artifact#retention-days).
    - *Optionen:* Standard ist die Repository-Einstellung (meist 90 Tage). Für flüchtige PR-Zwischenartefakte empfiehlt GitHub `retention-days: 1` oder `retention-days: 7`, um Speicherplatz und Index-Aufwand gering zu halten.
 
+4. **Wiederholung / Retry-Verhalten (Action-Inputs vs. internes `@actions/artifact`):**
+   - *Quelltext / Dokumentation:* [`actions/upload-artifact` `action.yml` (`cf430e030ddbb5b0abf93d22962f4752f3646cd9` / v7.0.2)](https://github.com/actions/upload-artifact/blob/cf430e030ddbb5b0abf93d22962f4752f3646cd9/action.yml) sowie [`@actions/artifact` (`artifact-twirp-client.ts`, `blob-upload.ts`, `config.ts`)](https://github.com/actions/toolkit/tree/main/packages/artifact/src/internal).
+   - *Befund zu Action-Inputs:* `actions/upload-artifact` besitzt **kein** Benutzer-Input für Wiederholungsversuche (`retries`, `retry` oder `max-attempts` existieren in `action.yml` nicht). Auch die GitHub-Workflow-Syntax `jobs.<job_id>.steps[*]` kennt kein eingebautes Step-Retry-Feld.
+   - *Internes Retry-Verhalten:*
+     - Kontroll-Anfragen über `ArtifactHttpClient` (`artifact-twirp-client.ts`) wiederholen fehlgeschlagene Aufrufe bei HTTP `429` (mit `Retry-After`), `500`, `502`, `503` und `504` intern bis zu `maxAttempts = 5` mit exponentiellem Backoff (`baseRetryIntervalMilliseconds = 8000` ms, Faktor `1.5`, gedeckelt auf `retryTimeoutMilliseconds = 120000` ms gesamte Wartezeit).
+     - Beim Streaming der 8-MB-Chunks ins Blob Storage (`blob-upload.ts`, `config.ts`) bricht ein Fortschritts-Timer nach `ACTIONS_ARTIFACT_UPLOAD_TIMEOUT_MS` (Standard `300000` ms = 5 Minuten ohne Fortschritt) mit `Upload progress stalled.` ab; die Default-Parallelität liegt bei `ACTIONS_ARTIFACT_UPLOAD_CONCURRENCY = 5`. Weitere interne Transport-Retries innerhalb von `@azure/storage-blob` über diesen Quelltext hinaus sind ohne Paketprüfung `UNKNOWN`.
+   - *Fallstricke bei eigener Wiederholung:*
+     - Da der Input `overwrite` standardmäßig `'false'` ist ([`action.yml`](https://github.com/actions/upload-artifact/blob/cf430e030ddbb5b0abf93d22962f4752f3646cd9/action.yml)), schlägt ein nachgeschalteter zweiter Upload-Schritt mit identischem `name` fehl, falls ein teilweises oder vorläufig registriertes Artefakt bereits existiert (außer bei `overwrite: true` oder eindeutigem Namen).
+     - Eine automatische Wiederholung ganzer CI-Jobs ist gemäß den Regeln dieses Projekts ausgeschlossen. Ein einzelner Upload-Schritt kann also neben den eingebauten `@actions/artifact`-Retries nur durch `timeout-minutes: 3` hart begrenzt werden (optional ergänzt um genau einen bedingten Fallback-Upload-Schritt unter `if: always() && steps.<id>.outcome == 'failure'` mit `overwrite: true`, falls im Workflow ein expliziter zweiter Upload-Versuch auf Step-Ebene gewünscht ist).
+
 ### Minimalbeispiel
 
 ```yaml
-      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+      - id: upload-ci-evidence
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         timeout-minutes: 3
         with:
@@ -104,12 +115,13 @@ In einem vorherigen CI-Lauf hing `actions/upload-artifact` 11 Minuten lang im Up
             artifacts/quality/
           compression-level: 0
           retention-days: 7
+          overwrite: true
           if-no-files-found: warn
 ```
 
 ### Empfehlung für dieses Repository
 - **Verweis:** Empfehlung E4 im CI-Verbesserungsplan.
-- **Konkrete Empfehlung:** An allen `actions/upload-artifact`-Aufrufen in `ci.yml` und `production-qualification.yml` ein striktes `timeout-minutes: 3` und `compression-level: 0` (da Wheels und Artefakt-Ordner bereits gepackt sind) hinterlegen.
+- **Konkrete Empfehlung:** An allen `actions/upload-artifact`-Aufrufen in `ci.yml` und `production-qualification.yml` ein striktes `timeout-minutes: 3` und `compression-level: 0` (da Wheels und Artefakt-Ordner bereits gepackt sind) hinterlegen. Auf keinen Fall ganze Jobs automatisch wiederholen; auf eigene Step-Retry-Schleifen verzichten und stattdessen auf die eingebauten `@actions/artifact`-Retries innerhalb des 3-Minuten-Step-Limits setzen (bei bedingten Wiederholungsschritten wäre `overwrite: true` zwingend nötig, um Namenskollisionen zu vermeiden).
 
 ---
 
@@ -289,7 +301,7 @@ jobs:
 | Frage / Thema | Belegtes Verfahren | Risiko / Fallstrick | Empfehlung für dieses Repository |
 |---|---|---|---|
 | **1. Doc-Only CI** | Klassifizierer-Schritt im Job (`git diff`); Job berichtet immer `success` | `paths-ignore` blockiert Required Checks auf `Pending` | Schrittweiser Filter in `ci.yml`, kein `paths-ignore` auf Workflow-Ebene |
-| **2. Artifact Upload** | `timeout-minutes: 3` auf Step-Ebene + `compression-level: 0` | 11-Minuten-Hänger blockiert Job-Timeout | Step-Timeout und `compression-level: 0` für gepackte Artefakte setzen |
+| **2. Artifact Upload** | `timeout-minutes: 3` + `compression-level: 0`; nur eingebaute `@actions/artifact`-Retries (kein `retries`-Input in `action.yml`) | 11-Minuten-Hänger blockiert Job-Timeout; Step-Wiederholung ohne `overwrite: true` kollidiert beim Namen | Step-Timeout (`3` Min), `compression-level: 0`, keine Job-Wiederholungen |
 | **3. Testlaufzeiten** | Multi-Prozess auf 1 Runner (`--shards=4`, `pytest_shards.py`) | Matrix-Jobs erschöpfen Concurrency-Limits öffentlicher Repos | Single-Runner 4-Prozess-Modell beibehalten |
 | **4. Issue Comments** | Frühes Job-`if` auf `pull_request` + Slash-Kommando-Präfix | Unnötige Workflow-Runs müllen PR-Checks-Tab zu | Strikte Filterung auf Job-Ebene, keine Bindung an PR-Head-Status |
 | **5. Hinweise/Advisories** | `$GITHUB_STEP_SUMMARY` und `::notice` / `::warning` | Falscher Exit-Code färbt PR rot | `exit 0` mit Step-Summary-Rendering kombinieren |

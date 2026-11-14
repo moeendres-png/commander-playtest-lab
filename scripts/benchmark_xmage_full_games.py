@@ -125,10 +125,17 @@ def _setup(paths: tuple[Path, ...]) -> tuple[Any, Any, Any]:
     return scenario, decks, pilots
 
 
-def _runner(command: tuple[str, ...], private: bool, frame_digest: bool) -> XmageFullGameRunner:
+def _runner(
+    command: tuple[str, ...],
+    private: bool,
+    frame_digest: bool,
+    skip_forced_frames: bool = False,
+) -> XmageFullGameRunner:
     """The full-game runner; with ``frame_digest`` an observer that does not change play."""
     if frame_digest:
-        return FrameDigestRunner(command, private_card_repository=private)
+        return FrameDigestRunner(
+            command, private_card_repository=private, skip_forced_frames=skip_forced_frames
+        )
     return XmageFullGameRunner(command, private_card_repository=private)
 
 
@@ -145,6 +152,7 @@ def _frame_fields(
         "frame_digest": found.digest,
         "frame_digest_by_seat": found.by_seat,
         "frames": found.frames,
+        "frames_skipped_forced": found.skipped,
     }
 
 
@@ -155,10 +163,11 @@ def _play(
     seed: int,
     private: bool,
     frame_digest: bool = False,
+    skip_forced_frames: bool = False,
 ) -> dict[str, Any]:
     scenario, decks, pilots = setup
     scenario = scenario.model_copy(update={"seed": seed})
-    runner = _runner(command, private, frame_digest)
+    runner = _runner(command, private, frame_digest, skip_forced_frames)
     before = resource.getrusage(resource.RUSAGE_CHILDREN)
     started = time.monotonic()
     row: dict[str, Any] = {"pod": pod, "seed": seed}
@@ -198,9 +207,10 @@ def _play_batch(
     jobs: list[tuple[str, tuple[Any, Any, Any], int]],
     private: bool,
     frame_digest: bool = False,
+    skip_forced_frames: bool = False,
 ) -> list[dict[str, Any]]:
     """Play ``jobs`` one after the other in one bridge process (wall and CPU: chunk average)."""
-    runner = _runner(command, private, frame_digest)
+    runner = _runner(command, private, frame_digest, skip_forced_frames)
     games = [
         (setup[0].model_copy(update={"seed": seed}), setup[1], setup[2]) for _, setup, seed in jobs
     ]
@@ -259,7 +269,15 @@ def run(args: argparse.Namespace) -> int:
 
     def play(job: tuple[str, tuple[Any, Any, Any], int]) -> dict[str, Any]:
         pod, setup, seed = job
-        return _play(command, pod, setup, seed, args.private_card_repository, args.frame_digest)
+        return _play(
+            command,
+            pod,
+            setup,
+            seed,
+            args.private_card_repository,
+            args.frame_digest,
+            args.frame_digest_skip_forced,
+        )
 
     with ThreadPoolExecutor(max_workers=args.workers) as pool:
         if args.games_per_jvm == 1:
@@ -271,7 +289,11 @@ def run(args: argparse.Namespace) -> int:
                 row
                 for chunk in pool.map(
                     lambda chunk: _play_batch(
-                        command, chunk, args.private_card_repository, args.frame_digest
+                        command,
+                        chunk,
+                        args.private_card_repository,
+                        args.frame_digest,
+                        args.frame_digest_skip_forced,
                     ),
                     chunks,
                 )
@@ -281,6 +303,7 @@ def run(args: argparse.Namespace) -> int:
         "jar": str(args.jar),
         "bridge_jar_sha256": file_sha256(args.jar),
         "frame_digest": args.frame_digest,
+        "frame_digest_skip_forced": args.frame_digest_skip_forced,
         "jvm_options": jvm_options,
         "games_per_jvm": args.games_per_jvm,
         "workers": args.workers,
@@ -377,6 +400,13 @@ def compare(args: argparse.Namespace) -> int:
         if duplicates:
             print(f"ERROR duplicate game rows in file {name}: {duplicates}")
             return 1
+    # Frame digests of different modes never compare: one side left the forced frames out.
+    if bool(base.get("frame_digest_skip_forced")) != bool(other.get("frame_digest_skip_forced")):
+        print(
+            "ERROR frame digest modes differ: one report skipped forced frames "
+            "and the other did not; their frame digests are not comparable"
+        )
+        return 1
     a = _games_by_key(base)
     b = _games_by_key(other)
     keys = sorted(a.keys() & b.keys())
@@ -592,6 +622,12 @@ def main(argv: list[str] | None = None) -> int:
         default=True,
         help="record a normalized digest of every decision request the pilots receive (default on)",
     )
+    play.add_argument(
+        "--frame-digest-skip-forced",
+        action="store_true",
+        help="leave forced frames (one legal option, exactly one selection) out of the "
+        "frame digest, so a run whose bridge answers them itself compares equal",
+    )
     play.set_defaults(func=run)
     diff = sub.add_parser("compare")
     diff.add_argument("a", type=Path)
@@ -616,6 +652,8 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     if args.cmd == "run" and args.games_per_jvm < 1:
         parser.error("--games-per-jvm must be positive")
+    if args.cmd == "run" and args.frame_digest_skip_forced and not args.frame_digest:
+        parser.error("--frame-digest-skip-forced needs --frame-digest")
     return int(args.func(args))
 
 

@@ -327,6 +327,75 @@ def test_weights_are_read_from_junit_class_names(tmp_path: Path) -> None:
 
 def test_the_checked_in_weight_table_is_usable() -> None:
     weights = shards.load_weights(shards.WEIGHTS_PATH)
-    assert weights
+    discovered = set(shards.discover_test_files(REPO))
+    assert set(weights) == discovered
     assert all(seconds > 0 for seconds in weights.values())
     assert not any(name.startswith("tests/qualification/") for name in weights)
+
+
+def test_the_checked_in_docs_test_list_is_complete_and_exists_on_disk() -> None:
+    raw = shards.DOCS_TESTS_PATH.read_text(encoding="utf-8")
+    import json
+
+    files = json.loads(raw)["files"]
+    assert files == sorted(set(files))
+    discovered = set(shards.discover_test_files(REPO))
+    assert set(files) <= discovered
+    assert not any(name.startswith("tests/qualification/") for name in files)
+    for required_guard in (
+        "tests/unit/test_ci_change_scope.py",
+        "tests/unit/test_ci_definition_integrity.py",
+        "tests/unit/test_ci_gate.py",
+        "tests/unit/test_ci_ruff_annotations.py",
+        "tests/unit/test_pytest_shards.py",
+        "tests/unit/test_required_test_ownership.py",
+    ):
+        assert required_guard in files
+
+
+def test_matrix_files_plan_matrix_and_complete_weights(tmp_path: Path) -> None:
+    _write(tmp_path / "tests/unit/test_a.py")
+    _write(tmp_path / "tests/unit/test_b.py")
+    _write(tmp_path / "tests/unit/test_c.py")
+    _write(tmp_path / shards.PACKAGING_TEST)
+    _write(tmp_path / "tests/qualification/test_q.py")
+    discovered = shards.discover_test_files(tmp_path)
+    assert discovered == [
+        "tests/unit/test_a.py",
+        "tests/unit/test_b.py",
+        "tests/unit/test_c.py",
+        shards.PACKAGING_TEST,
+    ]
+    completed = shards.complete_weights(
+        {"tests/unit/test_a.py": 4.0, "tests/gone.py": 9.0}, tmp_path
+    )
+    assert completed == {
+        "tests/unit/test_a.py": 4.0,
+        "tests/unit/test_b.py": 0.1,
+        "tests/unit/test_c.py": 0.1,
+        shards.PACKAGING_TEST: 0.1,
+    }
+    slots = [
+        shards.matrix_files(tmp_path, idx, 2, "all", weights={"tests/unit/test_a.py": 4.0})
+        for idx in (1, 2)
+    ]
+    assert sorted(slots[0] + slots[1]) == [
+        "tests/unit/test_a.py",
+        "tests/unit/test_b.py",
+        "tests/unit/test_c.py",
+    ]
+    docs_slot = shards.matrix_files(
+        tmp_path,
+        1,
+        1,
+        "docs",
+        weights=completed,
+        docs_tests=["tests/unit/test_a.py", "tests/unit/test_missing.py"],
+    )
+    assert docs_slot == ["tests/unit/test_a.py"]
+    with pytest.raises(ValueError, match="matrix count"):
+        shards.plan_matrix(["tests/unit/test_a.py"], {}, 0)
+    with pytest.raises(ValueError, match=r"outside 1\.\.2"):
+        shards.matrix_files(tmp_path, 3, 2)
+    with pytest.raises(ValueError, match="unknown scope"):
+        shards.matrix_files(tmp_path, 1, 1, "weird")

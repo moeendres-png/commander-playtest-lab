@@ -29,3 +29,17 @@ def test_annotation_format_and_escaping() -> None:
 def test_unreadable_report_prints_nothing_and_succeeds(tmp_path: Path) -> None:
     assert module.main([str(tmp_path / "missing.json")]) == 0
     assert module.annotations([]) == []
+
+
+def test_malformed_diagnostics_and_non_list_json_do_not_crash(tmp_path: Path) -> None:
+    lines = module.annotations(
+        [
+            {"code": None, "message": "x", "filename": "f.py", "location": None, "end_location": 1},
+            "not-a-dict",  # type: ignore[list-item]
+        ]
+    )
+    assert lines == ["::error title=Ruff (ruff),file=f.py,line=1,col=1,endLine=1,endColumn=1::x"]
+    non_list = tmp_path / "obj.json"
+    non_list.write_text('{"error": true}', encoding="utf-8")
+    assert module.main([str(non_list)]) == 0
+    assert module.main([]) == 2

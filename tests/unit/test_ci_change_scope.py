@@ -51,6 +51,10 @@ def test_docs_plus_one_code_file_runs_everything() -> None:
         "qualification/x.md",
         "scripts/x.md",
         "pyproject.toml",
+        "docs/tool.py",
+        "docs/run.sh",
+        "docs/run.ps1",
+        "docs/run.bat",
     ],
 )
 def test_markdown_under_code_roots_and_other_files_are_not_docs(path: str) -> None:
@@ -92,7 +96,9 @@ def test_other_events_always_run_everything(event: str) -> None:
         (("M", "src/commander_lab/cli/main.py"), "true"),
         (("A", "src/commander_lab/new_module.py"), "true"),
         (("D", "src/commander_lab/old_module.py"), "true"),
-        (("M", "src/commander_lab/ordinary.py"), "false"),
+        (("M", "src/commander_lab/ordinary.py"), "true"),
+        (("T", "src/commander_lab/ordinary.py"), "true"),
+        (("M", "src/commander_lab/studio/static/app.js"), "true"),
         (("M", "tests/unit/test_other.py"), "false"),
     ],
 )
@@ -150,6 +156,38 @@ def test_cli_writes_github_output_and_fails_closed(tmp_path: Path) -> None:
     assert (
         scope.main(["--event", "push", "--repo", str(tmp_path), "--github-output", str(out)]) == 0
     )
+
+
+def test_cli_with_corrupt_pyproject_fails_closed_even_on_docs_diff(tmp_path: Path) -> None:
+    _git(tmp_path, "init", "-q")
+    (tmp_path / "docs").mkdir()
+    (tmp_path / "docs" / "a.md").write_text("one\n")
+    (tmp_path / "pyproject.toml").write_text("[project]\nname = 'ok'\n")
+    _git(tmp_path, "add", "-A")
+    _git(tmp_path, "commit", "-qm", "base")
+    base = _git(tmp_path, "rev-parse", "HEAD")
+    (tmp_path / "docs" / "a.md").write_text("two\n")
+    _git(tmp_path, "add", "docs/a.md")
+    _git(tmp_path, "commit", "-qm", "docs head")
+    (tmp_path / "pyproject.toml").write_text("not valid toml = [\n")
+    out = tmp_path / "out.txt"
+    assert (
+        scope.main(
+            [
+                "--event",
+                "pull_request",
+                "--base",
+                base,
+                "--repo",
+                str(tmp_path),
+                "--github-output",
+                str(out),
+            ]
+        )
+        == 0
+    )
+    text = out.read_text()
+    assert "scope=full" in text and "packaging=true" in text
 
 
 def test_parse_name_status_rejects_unpaired_output() -> None:

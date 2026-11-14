@@ -257,7 +257,10 @@ def test_cooccurrence_has_both_denominators_and_checks_the_limit(client: TestCli
     assert data["decks_with_card"] == 27 and data["denominator"] == 43
     assert data["decks_with_card_label"] and data["denominator_label"]
     assert len(data["pairs"]) == 3
-    assert {"Forest", "Filler 03"} == {pair["card_name"] for pair in data["pairs"][:2]}
+    # Spellings merge into the card they name: "Filler 02" (10 decks) and the double-faced
+    # "Filler 02 // Back Side" (15 decks) are one card in 25 decks, not two partners.
+    merged = {pair["card_name"]: pair["decks_together"] for pair in data["pairs"]}
+    assert merged == {"Forest": 26, "Filler 02 // Back Side": 25, "Filler 03": 25}
     assert data["pairs"][0]["decks_together"] == 26
     assert client.get(url, params={"profile": "alle", "limit": 0}).status_code == 422
     unmatched = client.get(

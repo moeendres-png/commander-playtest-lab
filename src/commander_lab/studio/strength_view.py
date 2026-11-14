@@ -28,7 +28,16 @@ from collections.abc import Mapping, Sequence
 from dataclasses import replace
 from typing import TypedDict
 
-from . import layers, layers_view, signals, strength, universe, universe_choice, universe_view
+from . import (
+    layers,
+    layers_view,
+    roles,
+    signals,
+    strength,
+    universe,
+    universe_choice,
+    universe_view,
+)
 from .builder import pool_cards
 from .store import StudioStore, now_utc
 from .strength import (
@@ -39,6 +48,7 @@ from .strength import (
     GLOBAL_INCLUSION,
     PLAYGROUP_OBSERVED,
     SYNERGY,
+    TOURNAMENT_CONVERSION,
     TOURNAMENT_LISTS,
     CardStrength,
     Observation,
@@ -101,6 +111,8 @@ _INDEPENDENT = frozenset(
     {
         "edhrec_global_inclusion",
         "spellbook_variants",
+        signals.SIGNAL_TWO_CARD,
+        signals.SIGNAL_PARTNERS,
         "playgroup_observed_winrate_gap",
         # A marker layer only (no rated component): the salt list does not depend on a commander.
         signals.SIGNAL_SALT,
@@ -157,6 +169,32 @@ def _signal_observations(
     return {card_id: item[2] for card_id, item in best.items()}, bool(rows)
 
 
+def _combo_observations(
+    store: StudioStore,
+    commander: str,
+    claims: _Claims,
+    display: Mapping[str, str],
+    ambiguous: dict[tuple[str, str], list[str]],
+) -> tuple[dict[str, Observation], bool]:
+    """The combos observations: one per pool card the spellbook file lists, valued by
+    the combo quality mixture (``strength.combo_quality``) of the three spellbook
+    signals. Whether the source exists is decided by the primary signal alone, as
+    before; the two quality signals only refine the value of the listed cards."""
+    parts: dict[str, dict[str, float]] = {}
+    exists = False
+    for signal in strength.COMBO_PARTS:
+        observed, found = _signal_observations(store, commander, signal, claims, display, ambiguous)
+        if signal == strength.COMBO_PART_VARIANTS:
+            exists = found
+        parts[signal] = {
+            card_id: item.value for card_id, item in observed.items() if item.value is not None
+        }
+    return (
+        {card_id: Observation(value) for card_id, value in strength.combo_quality(parts).items()},
+        exists,
+    )
+
+
 def _strings(value: object) -> set[str]:
     if not isinstance(value, list):
         raise TypeError("pool_cards returned an unexpected shape")
@@ -180,8 +218,11 @@ def expected_signals() -> list[str]:
         strength.signal_for(SYNERGY, strength.BRACKET_NONE),
         strength.signal_for(GLOBAL_INCLUSION, strength.BRACKET_NONE),
         strength.signal_for(COMBOS, strength.BRACKET_NONE),
+        signals.SIGNAL_TWO_CARD,
+        signals.SIGNAL_PARTNERS,
         strength.signal_for(TOURNAMENT_LISTS, strength.BRACKET_NONE),
         signals.SIGNAL_EDHTOP16,
+        signals.SIGNAL_CONVERSION,
         # One generic row: the counted universes are named by the file (source, bracket); the
         # stored ones are listed under their own names, this row stays while none exists.
         signals.SIGNAL_DECKLIST,
@@ -438,6 +479,29 @@ def _optional_text(value: object) -> str | None:
     return str(value) if value else None
 
 
+_ROLE_ORDER = {role: index for index, role in enumerate(roles.ROLES)}
+
+
+def _function_groups(
+    store: StudioStore, raw_cards: Sequence[Mapping[str, object]]
+) -> dict[str, tuple[str, ...]]:
+    """The functional roles of every pool card (``card_role`` by oracle id), in the
+    canonical order of ``roles.ROLES``. A card without a sourced role is absent: the
+    function comparison group then falls back to the pool for it, said openly."""
+    by_oracle: dict[str, list[str]] = {}
+    with store.connection as db:
+        for oracle_id, role in db.execute("SELECT oracle_id, role FROM card_role"):
+            by_oracle.setdefault(str(oracle_id), []).append(str(role))
+    result: dict[str, tuple[str, ...]] = {}
+    for card in raw_cards:
+        found = by_oracle.get(_optional_text(card["oracle_id"]) or "")
+        if found:
+            result[str(card["card_id"])] = tuple(
+                sorted(found, key=lambda role: (_ROLE_ORDER.get(role, len(_ROLE_ORDER)), role))
+            )
+    return result
+
+
 def _float(value: object) -> float | None:
     return float(value) if isinstance(value, (int, float)) and not isinstance(value, bool) else None
 
@@ -460,6 +524,24 @@ def _fill_spread(
             )
         elif item["denominator"] > 0 and not item.get("ambiguous_front_face"):
             per_card[card_id][DECK_UNIVERSE] = Observation(0.0, 0, item["denominator"])
+
+
+def _other_commander_names(store: StudioStore, commander: str) -> set[str]:
+    """Casefolded names of the commanders the store knows besides ``commander``: the ones
+    source decks are bound to and the ones signals were imported for. Such a card is a
+    commander in its own right and, like the chosen one, not ranked in this commander's pool
+    unless the Owner switches that on."""
+    found: set[str] = set()
+    target = commander.casefold()
+    for (name,) in store.connection.execute(
+        "SELECT commander_name FROM commander_binding WHERE kind IN ('corpus_deck', "
+        "'neutral_source') UNION SELECT commander_name FROM card_signal "
+        "WHERE commander_name != ''"
+    ):
+        folded = str(name).casefold()
+        if folded != target:
+            found.add(folded)
+    return found
 
 
 def compute(
@@ -515,6 +597,7 @@ def compute(
         BRACKET_INCLUSION,
         SYNERGY,
         TOURNAMENT_LISTS,
+        TOURNAMENT_CONVERSION,
         GLOBAL_INCLUSION,
         COMBOS,
         PLAYGROUP_OBSERVED,
@@ -522,9 +605,12 @@ def compute(
         signal = strength.signal_for(component, settings.bracket)
         if not signal:
             continue
-        observed, exists = _signal_observations(
-            store, commander, signal, claims, display, ambiguous
-        )
+        if component == COMBOS:
+            observed, exists = _combo_observations(store, commander, claims, display, ambiguous)
+        else:
+            observed, exists = _signal_observations(
+                store, commander, signal, claims, display, ambiguous
+            )
         if exists:
             collected.add(component)
         for card_id, observation in observed.items():
@@ -562,8 +648,6 @@ def compute(
         group = str(card["group"])
         type_group[card_id] = group
         bands[card_id] = strength.mana_band(_float(card["mana_value"]), is_land=group == "Land")
-    context = PoolContext(type_group, bands, unranked, filter_cards, universe_minimum)
-
     # Rating layers (Bewertungsebenen): always computed for the page; they join the index only
     # with a positive weight (default 0), as one more rank-based component each.
     layer_result = _layer_result(
@@ -577,6 +661,22 @@ def compute(
             collected.add(strength.layer_component(key))
         else:
             notices.append(f"{strength.LAYER_LABELS[key]}: keine Daten, Gewicht ohne Wirkung")
+
+    # Other commanders known to the store are not ranked in this commander's pool (tier N).
+    others = _other_commander_names(store, commander)
+    tier_unranked = dict(unranked)
+    for card in raw_cards:
+        card_id = str(card["card_id"])
+        if card_id not in tier_unranked and str(card["name"]).casefold() in others:
+            tier_unranked[card_id] = strength.NOT_RANKED_OTHER_COMMANDER
+    context = PoolContext(
+        type_group,
+        bands,
+        tier_unranked,
+        filter_cards,
+        universe_minimum,
+        function_group=_function_groups(store, raw_cards),
+    )
 
     scored = strength.score_pool(settings, per_card, collected, context=context)
     notices.extend(strength.weights_without_effect(settings, collected))
@@ -731,6 +831,7 @@ _GROUP_CHOICES = {
     strength.GROUP_POOL: "ganzer Pool",
     strength.GROUP_TYPE: "gleicher Kartentyp",
     strength.GROUP_MANA_BAND: "gleiches Manawert-Band",
+    strength.GROUP_FUNCTION: "gleiche Funktion (Rolle)",
 }
 _MEASURE_CHOICES = {
     strength.MEASURE_WILSON: "Wilson-Untergrenze",
@@ -741,7 +842,7 @@ _MISSING_CHOICES = {
     strength.MISSING_LOWEST: "als niedrigster Rang zählen",
 }
 _BRACKET_CHOICES = {
-    "core": "Core (Bracket 1-2)",
+    "core": "Core (Bracket 2)",
     "upgraded": "Upgraded (Bracket 3)",
     "optimized": "Optimized (Bracket 4)",
     "cedh": "cEDH (Bracket 5)",
@@ -792,6 +893,15 @@ def _panel_texts() -> dict[str, object]:
     helps[f"weights.{strength.DECK_UNIVERSE}"] = (
         "Wie stark die Verbreitung in gezählten Decklisten zählt. 0 schaltet sie ab."
     )
+    helps[f"weights.{strength.COMBOS}"] = (
+        "Combo-Qualität statt reiner Anzahl (Commander Spellbook): der Rang mischt zu "
+        "gleichen Teilen, in wie vielen Combo-Varianten eine Karte steht, in wie vielen "
+        "ihrer Varianten mit genau zwei Karten und wie viele ihrer Combo-Partner in der "
+        "Sammlung sind. Eine 2-Karten-Kombo mit vorhandenem Partner zählt so mehr als "
+        "viele Varianten ohne Partner. Was eine Kombo erzeugt und welche Partner eine "
+        "einzelne Variante hat, veröffentlicht die Datei nicht: das bleibt unbekannt "
+        "und zählt nicht mit. 0 schaltet das Signal ab."
+    )
     for key in strength.LAYER_KEYS:
         labels[f"layer_weights.{key}"] = (
             f"{strength.LAYER_LABELS[key]} (empfohlen: {_number_text(rec.layer_weights[key])})"
@@ -820,7 +930,11 @@ def _panel_texts() -> dict[str, object]:
     helps["rank_group"] = (
         "Gegen welche Karten der Rang berechnet wird. Eine Gruppe mit weniger als "
         f"{strength.MIN_GROUP} Karten mit Wert fällt auf den ganzen Pool zurück "
-        "(steht dann in der Signalzeile)."
+        "(steht dann in der Signalzeile). „Gleiche Funktion“ vergleicht innerhalb der "
+        "belegten Rollen der Karte (card_role): eine Karte mit mehreren Rollen zählt in "
+        "jeder ihrer Rollengruppen, ihr Rang ist der Mittelwert daraus. Gruppen unter "
+        "der Mindestgröße zählen beim Mittelwert nicht mit. Eine Karte ohne "
+        "belegte Rolle fällt auf den ganzen Pool zurück und sagt das in der Signalzeile."
     )
     labels["share_measure"] = (
         f"Anteil messen als (empfohlen: {_MEASURE_CHOICES[rec.share_measure]})"
@@ -852,6 +966,15 @@ def _panel_texts() -> dict[str, object]:
         "Gibt es weniger Turnierlisten des Commanders, wird das Signal nicht verwendet. "
         "0 = kein Minimum."
     )
+    labels["min_denominators.conversion"] = (
+        "Mindest-Nenner Turnier-Conversion (empfohlen: "
+        f"{rec.min_denominators['conversion']} Decks mit bekanntem Top-Cut-Ausgang)"
+    )
+    helps["min_denominators.conversion"] = (
+        "Liegt der größte Nenner des Signals (Decks mit bekanntem Top-Cut-Ausgang) unter "
+        "dem Minimum, wird das Signal für alle Karten nicht verwendet; liegt nur der eigene "
+        "Nenner einer Karte darunter, entfällt es nur für diese Karte. 0 = kein Minimum."
+    )
     for key in strength.MISSING_CAPABLE:
         labels[f"missing_value.{key}"] = (
             f"Fehlender Wert bei „{strength.LABELS[key]}“ "
@@ -869,6 +992,15 @@ def _panel_texts() -> dict[str, object]:
     helps["rank_commander_and_basics"] = (
         "aus: der Commander und die Standardländer bekommen keine Stufe "
         "(„nicht bewertet“) und nehmen keinen Rang weg."
+    )
+    labels["rank_other_commanders"] = (
+        "Andere Commander-Karten im Pool ranken "
+        f"(empfohlen: {'ja' if rec.rank_other_commanders else 'nein'})"
+    )
+    helps["rank_other_commanders"] = (
+        "ja: eine Karte, die im Studio selbst ein Commander ist, aber für diesen Commander "
+        "ein legales Deckmitglied, wird wie jede andere Karte bewertet. nein: sie bekommt "
+        "keine Stufe („nicht bewertet, anderer Commander“) und nimmt keinen Rang weg."
     )
     labels["universe_source"] = "Decklisten-Universum (empfohlen: automatisch)"
     helps["universe_source"] = (
@@ -920,6 +1052,7 @@ def _panel_texts() -> dict[str, object]:
                 "min_denominators.edhrec",
                 "min_denominators.deck_universe",
                 "min_denominators.tournament",
+                "min_denominators.conversion",
             ],
         },
         {
@@ -928,6 +1061,7 @@ def _panel_texts() -> dict[str, object]:
         },
         {"title": "Decklisten-Universum", "keys": ["universe_source"]},
         {"title": "Commander und Standardländer", "keys": ["rank_commander_and_basics"]},
+        {"title": "Andere Commander im Pool", "keys": ["rank_other_commanders"]},
         {
             "title": "Mindestdaten für eine Stufe",
             "keys": ["min_coverage", "min_components", "require_commander_signal"],
@@ -966,6 +1100,10 @@ def _panel_texts() -> dict[str, object]:
             "rank_commander_and_basics": [
                 {"value": False, "label": "aus (empfohlen)", "recommended": True},
                 {"value": True, "label": "an", "recommended": False},
+            ],
+            "rank_other_commanders": [
+                {"value": True, "label": "ja (empfohlen)", "recommended": True},
+                {"value": False, "label": "nein", "recommended": False},
             ],
             "require_commander_signal": [
                 {"value": True, "label": "an (empfohlen)", "recommended": True},

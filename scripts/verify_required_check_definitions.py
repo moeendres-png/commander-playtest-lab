@@ -11,6 +11,7 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import shlex
 import subprocess
 from pathlib import Path
 from typing import Any
@@ -60,6 +61,9 @@ ENTRYPOINT_DEFINITION_SURFACES = {
     "setup.cfg",
     "setup.py",
     "requirements/lock.txt",
+    "scripts/ci_change_scope.py",
+    "scripts/ci_gate.py",
+    "scripts/verify_packaging_smoke.py",
     "qualification/harness.py",
     "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json",
     "qualification/protocol/ws10r/candidate_fixture_manifest_v1.schema.json",
@@ -376,7 +380,14 @@ def _action_status(uses: Any) -> tuple[str, str]:
     return "FAIL", f"third_party_action_not_immutable_sha:{uses}"
 
 
-_SKIPPED_WORD = re.compile(r"\bskipped\b")
+_CI_GATE_RE = re.compile(r"^python3?\s+scripts/ci_gate\.py(?:\s|$)")
+_STRICT_SET_RE = re.compile(r"^set\s+(?:-euo\s+pipefail|-eo\s+pipefail|-eu|-e)$")
+_SKIP_OUTPUT_IF_RE = re.compile(
+    r"^needs\.([A-Za-z0-9_-]+)\.outputs\.([A-Za-z0-9_-]+)\s*==\s*'true'$"
+)
+_MATRIX_OUTPUT_RE = re.compile(
+    r"^fromJSON\(\s*needs\.([A-Za-z0-9_-]+)\.outputs\.([A-Za-z0-9_-]+)\s*\)$"
+)
 
 
 def _needs_list(value: Any) -> list[str] | None:
@@ -387,30 +398,114 @@ def _needs_list(value: Any) -> list[str] | None:
     return None
 
 
-def _step_text(step: dict[str, Any]) -> str:
-    """The non-comment ``run`` lines and the ``env`` values of a step."""
-    run = step.get("run")
-    env = step.get("env")
-    parts = ["\n".join(_run_lines(run))] if isinstance(run, str) else []
-    if isinstance(env, dict):
-        parts.extend(str(value) for value in env.values())
-    return "\n".join(parts)
-
-
 def _step_always_blocks(step: dict[str, Any]) -> bool:
-    """True when the step always runs, cannot continue on error and its run is not masked."""
+    """True when the step always runs with fail-closed bash run lines and no masking."""
     if _normalize_if(step.get("if")) not in (None, "always()"):
         return False
     if _continue_on_error(step.get("continue-on-error"))[0] != "PASS":
         return False
     if _shell_status(step)[0] != "PASS":
         return False
+    if step.get("working-directory") is not None:
+        return False
     run = step.get("run")
-    if isinstance(run, str):
-        for command in _command_segments(run):
-            if _masked_line(command) or re.fullmatch(r"exit\s+0", command):
-                return False
+    if not isinstance(run, str) or not _run_lines(run):
+        return False
+    if "set +e" in run or any(ch in run for ch in (";", "|", "&", "<", ">", "`", "$(")):
+        return False
+    for command in _command_segments(run):
+        if _masked_line(command) or re.fullmatch(r"exit\s+0", command) or command == "true":
+            return False
+        if re.match(r"^(?:if|elif|while|until|case)\b|!", command):
+            return False
     return True
+
+
+def _resolve_env(text: str, env_map: dict[str, str]) -> str:
+    return re.sub(
+        r"\$\{([A-Za-z_][A-Za-z0-9_]*)\}|\$([A-Za-z_][A-Za-z0-9_]*)",
+        lambda match: env_map.get(match.group(1) or match.group(2), match.group(0)),
+        text,
+    )
+
+
+def _parse_ci_gate_invocation(
+    step: dict[str, Any],
+) -> tuple[dict[str, str], list[str], str] | None:
+    """Parse an enforcing ``scripts/ci_gate.py`` step into ``(jobs, allow_skipped, needed_flag)``."""
+    if not _step_always_blocks(step):
+        return None
+    run = step["run"]
+    if not _matching_command_is_enforcing(run, (_CI_GATE_RE,)):
+        return None
+    commands = _command_segments(run)
+    gate_segments = [seg for seg in commands if _CI_GATE_RE.search(seg)]
+    other_segments = [seg for seg in commands if not _CI_GATE_RE.search(seg)]
+    if len(gate_segments) != 1 or any(
+        _STRICT_SET_RE.fullmatch(seg) is None for seg in other_segments
+    ):
+        return None
+    if commands[-1] != gate_segments[0]:
+        return None
+    try:
+        tokens = shlex.split(gate_segments[0])
+    except ValueError:
+        return None
+    if len(tokens) < 2 or tokens[1] != "scripts/ci_gate.py":
+        return None
+    raw_env = step.get("env")
+    env_map = (
+        {str(k): str(v) for k, v in raw_env.items() if isinstance(v, (str, int, float, bool))}
+        if isinstance(raw_env, dict)
+        else {}
+    )
+    jobs_arg: dict[str, str] = {}
+    allow_skipped: list[str] = []
+    packaging_needed = ""
+    index = 2
+    while index < len(tokens):
+        tok = tokens[index]
+        if tok == "--job":
+            if index + 1 >= len(tokens):
+                return None
+            val = _resolve_env(tokens[index + 1], env_map)
+            index += 2
+        elif tok.startswith("--job="):
+            val = _resolve_env(tok.split("=", 1)[1], env_map)
+            index += 1
+        elif tok == "--allow-skipped":
+            if index + 1 >= len(tokens):
+                return None
+            name = _resolve_env(tokens[index + 1], env_map)
+            if not name:
+                return None
+            allow_skipped.append(name)
+            index += 2
+            continue
+        elif tok.startswith("--allow-skipped="):
+            name = _resolve_env(tok.split("=", 1)[1], env_map)
+            if not name:
+                return None
+            allow_skipped.append(name)
+            index += 1
+            continue
+        elif tok == "--packaging-needed":
+            if index + 1 >= len(tokens):
+                return None
+            packaging_needed = _resolve_env(tokens[index + 1], env_map)
+            index += 2
+            continue
+        elif tok.startswith("--packaging-needed="):
+            packaging_needed = _resolve_env(tok.split("=", 1)[1], env_map)
+            index += 1
+            continue
+        else:
+            return None
+        name, sep, rhs = val.partition("=")
+        if not sep or not name or name in jobs_arg:
+            return None
+        jobs_arg[name] = rhs
+    return jobs_arg, allow_skipped, packaging_needed
 
 
 def _gate_assessment(jobs: dict[str, Any], job: dict[str, Any]) -> tuple[list[str], list[str]]:
@@ -419,10 +514,12 @@ def _gate_assessment(jobs: dict[str, Any], job: dict[str, Any]) -> tuple[list[st
     Returns ``(violations, skippable)``: the violated conditions (empty when the job is a
     verified gate) and the needed jobs that may legitimately be skipped.  A gate is safe only
     when (a) its own ``if`` is exactly ``always()``, (b) a step that always runs and cannot
-    continue on error inspects ``needs.<id>.result`` of every needed job, (c) neither the gate
-    nor a needed job can fail silently (``continue-on-error``), and (d) no needed job can be
-    skipped unless its ``if`` reads another needed job's output and the gate step reads that
-    output and names ``skipped``.  Every dependency of a needed job must itself be needed.
+    continue on error invokes ``scripts/ci_gate.py`` with ``needs.<id>.result`` for every
+    needed job, (c) neither the gate nor a needed job can fail silently
+    (``continue-on-error``), and (d) no needed job can be skipped unless it has no matrix,
+    its ``if`` reads ``needs.changes.outputs.<out> == 'true'``, ``--allow-skipped`` names
+    that exact job, and ``--packaging-needed`` binds that exact output.  Every dependency of
+    a needed job must itself be needed.
     """
     violations: list[str] = []
     skippable: list[str] = []
@@ -436,7 +533,12 @@ def _gate_assessment(jobs: dict[str, Any], job: dict[str, Any]) -> tuple[list[st
     steps = job.get("steps")
     if not isinstance(steps, list) or not all(isinstance(step, dict) for step in steps):
         return [*violations, "gate_steps_not_static_list"], skippable
-    inspecting = [step for step in steps if _step_always_blocks(step)]
+    parsed_gates = [
+        parsed for step in steps if (parsed := _parse_ci_gate_invocation(step)) is not None
+    ]
+    if not parsed_gates:
+        return [*violations, "gate_does_not_execute_enforcing_ci_gate"], skippable
+    gate_jobs_arg, gate_allow_skipped, gate_packaging_needed = parsed_gates[0]
 
     for needed in needs:
         spec = jobs.get(needed)
@@ -445,36 +547,72 @@ def _gate_assessment(jobs: dict[str, Any], job: dict[str, Any]) -> tuple[list[st
             continue
         if spec.get("continue-on-error") not in (None, False):
             violations.append(f"needed_job_continue_on_error:{needed}")
+        spec_strategy = spec.get("strategy")
+        if spec_strategy is not None and not isinstance(spec_strategy, dict):
+            violations.append(f"needed_job_strategy_not_statically_safe:{needed}")
+        elif (
+            isinstance(spec_strategy, dict)
+            and _continue_on_error(spec_strategy.get("continue-on-error"))[0] != "PASS"
+        ):
+            violations.append(f"needed_job_strategy_continue_on_error:{needed}")
         for dependency in _needs_list(spec.get("needs")) or (
             [] if spec.get("needs") is None else ["?"]
         ):
             if dependency not in needs:
                 violations.append(f"needed_job_dependency_not_inspected:{needed}->{dependency}")
-        marker = f"needs.{needed}.result"
-        readers = [step for step in inspecting if marker in _step_text(step)]
-        if not readers:
+        if _normalize_if(gate_jobs_arg.get(needed)) != f"needs.{needed}.result":
             violations.append(f"gate_does_not_inspect_result_of:{needed}")
             continue
         condition = spec.get("if")
         if condition is None:
+            if needed in gate_allow_skipped:
+                violations.append(f"non_skippable_job_allowed_skipped:{needed}")
             continue
-        text = str(condition)
-        sources = [
-            other
-            for other in needs
-            if other != needed
-            and f"needs.{other}.outputs." in text
-            and any(
-                f"needs.{other}.outputs." in _step_text(step)
-                and _SKIPPED_WORD.search(str(step.get("run") or ""))
-                for step in readers
-            )
-        ]
-        if sources:
-            skippable.append(needed)
-        else:
+        if isinstance(spec_strategy, dict) and spec_strategy.get("matrix") is not None:
+            violations.append(f"matrix_job_cannot_be_skippable:{needed}")
+            continue
+        norm_cond = _normalize_if(condition) or ""
+        match = _SKIP_OUTPUT_IF_RE.fullmatch(norm_cond)
+        if match is None:
             violations.append(f"needed_job_can_be_skipped_unaccepted:{needed}")
+            continue
+        src_job, out_name = match.groups()
+        if (
+            src_job != "changes"
+            or src_job not in needs
+            or src_job == needed
+            or needed not in gate_allow_skipped
+            or _normalize_if(gate_packaging_needed) != f"needs.{src_job}.outputs.{out_name}"
+        ):
+            violations.append(f"needed_job_can_be_skipped_unaccepted:{needed}")
+            continue
+        skippable.append(needed)
     return violations, skippable
+
+
+def _needed_job_matrix_safe(matrix: Any, needed_ids: list[str], skippable: list[str]) -> bool:
+    if isinstance(matrix, str):
+        norm = _normalize_if(matrix) or ""
+        match = _MATRIX_OUTPUT_RE.fullmatch(norm)
+        return (
+            match is not None and match.group(1) in needed_ids and match.group(1) not in skippable
+        )
+    if not isinstance(matrix, dict) or not matrix:
+        return False
+    exclude = matrix.get("exclude")
+    if exclude is not None and exclude != []:
+        return False
+    include = matrix.get("include")
+    if include is not None and (
+        not isinstance(include, list)
+        or not include
+        or not all(isinstance(item, dict) and bool(item) for item in include)
+    ):
+        return False
+    axes = {k: v for k, v in matrix.items() if k not in {"include", "exclude"}}
+    if not axes and include is None:
+        return False
+    return all(isinstance(val, list) and bool(val) for val in axes.values())
 
 
 def _scan_steps(
@@ -619,6 +757,7 @@ def _job_analysis(
             }
         )
 
+    needed_ids: list[str] = []
     gate_jobs: list[tuple[str, dict[str, Any]]] = []
     gate_skippable: list[str] = []
     gate_verified = False
@@ -657,31 +796,64 @@ def _job_analysis(
         )
 
     strategy = job.get("strategy")
-    if isinstance(strategy, dict) and strategy.get("matrix") is not None:
+    if strategy is not None and not isinstance(strategy, dict):
         findings.append(
             {
-                "id": f"{context}.matrix",
+                "id": f"{context}.strategy",
                 "status": "UNKNOWN",
-                "reason": "required_job_matrix_can_change_check_context_identity",
+                "reason": "required_job_strategy_not_statically_understood",
                 "path": workflow_path,
             }
+        )
+    elif isinstance(strategy, dict):
+        if strategy.get("matrix") is not None:
+            findings.append(
+                {
+                    "id": f"{context}.matrix",
+                    "status": "UNKNOWN",
+                    "reason": "required_job_matrix_can_change_check_context_identity",
+                    "path": workflow_path,
+                }
+            )
+        scoe_status, scoe_reason = _continue_on_error(strategy.get("continue-on-error"))
+        if scoe_status != "PASS":
+            findings.append(
+                {
+                    "id": f"{context}.strategy_continue_on_error",
+                    "status": scoe_status,
+                    "reason": scoe_reason,
+                    "path": workflow_path,
+                }
+            )
+
+    def _defaults_safe(defaults: Any) -> bool:
+        if defaults is None:
+            return True
+        if not isinstance(defaults, dict):
+            return False
+        run_defaults = defaults.get("run")
+        if run_defaults is None:
+            return True
+        if not isinstance(run_defaults, dict):
+            return False
+        return (
+            run_defaults.get("shell") in (None, "bash")
+            and run_defaults.get("working-directory") is None
         )
 
     for defaults, scope in (
         (workflow.get("defaults"), "workflow"),
         (job.get("defaults"), "job"),
     ):
-        if isinstance(defaults, dict):
-            run_defaults = defaults.get("run")
-            if isinstance(run_defaults, dict) and run_defaults.get("shell") not in (None, "bash"):
-                findings.append(
-                    {
-                        "id": f"{context}.{scope}_default_shell",
-                        "status": "UNKNOWN",
-                        "reason": "required_job_default_shell_not_statically_safe",
-                        "path": workflow_path,
-                    }
-                )
+        if not _defaults_safe(defaults):
+            findings.append(
+                {
+                    "id": f"{context}.{scope}_default_shell",
+                    "status": "UNKNOWN",
+                    "reason": "required_job_default_shell_not_statically_safe",
+                    "path": workflow_path,
+                }
+            )
 
     job_if = _normalize_if(job.get("if"))
     if gate_verified:
@@ -750,6 +922,38 @@ def _job_analysis(
     scopes: list[tuple[str, list[dict[str, Any]]]] = [(context, steps)]
     category_steps = list(steps)
     for name, spec_job in gate_jobs:
+        if not _defaults_safe(spec_job.get("defaults")):
+            findings.append(
+                {
+                    "id": f"{context}.{name}_default_shell",
+                    "status": "UNKNOWN",
+                    "reason": "needed_job_default_shell_not_statically_safe",
+                    "path": workflow_path,
+                }
+            )
+        spec_strategy = spec_job.get("strategy")
+        if spec_strategy is not None and not isinstance(spec_strategy, dict):
+            findings.append(
+                {
+                    "id": f"{context}.{name}.matrix",
+                    "status": "UNKNOWN",
+                    "reason": "needed_job_matrix_not_statically_safe",
+                    "path": workflow_path,
+                }
+            )
+        elif isinstance(spec_strategy, dict):
+            spec_matrix = spec_strategy.get("matrix")
+            if spec_matrix is not None and not _needed_job_matrix_safe(
+                spec_matrix, needed_ids, gate_skippable
+            ):
+                findings.append(
+                    {
+                        "id": f"{context}.{name}.matrix",
+                        "status": "UNKNOWN",
+                        "reason": "needed_job_matrix_not_statically_safe",
+                        "path": workflow_path,
+                    }
+                )
         needed_steps = spec_job.get("steps")
         if not isinstance(needed_steps, list) or not all(
             isinstance(step, dict) for step in needed_steps

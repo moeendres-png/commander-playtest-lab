@@ -30,6 +30,20 @@ def test_run_audit_against_repo() -> None:
     ]
     assert r22.result == "ABWEICHUNG"
     assert r22.count == 6084
+    assert "- **Betroffene Karten (6084, alphabetisch sortiert):**" in markdown_text
+
+    # Count emitted card list entries directly between 2.2 heading and 2.3 heading
+    sec22_start = markdown_text.index("### 2.2 Inclusion-CSV-Karten ohne Gap-Matrix-Eintrag")
+    sec23_start = markdown_text.index("### 2.3 Dubletten je Datei")
+    sec22_block = markdown_text[sec22_start:sec23_start]
+    emitted_names = [
+        line.removeprefix("  * `").removesuffix("`")
+        for line in sec22_block.splitlines()
+        if line.startswith("  * `")
+    ]
+    assert len(emitted_names) == 6084
+    assert len(set(emitted_names)) == 6084
+    assert emitted_names == sorted(emitted_names)
 
     # 2.3 Duplicates
     assert results_by_check["2.3 Dubletten je Datei"].result == "OK"

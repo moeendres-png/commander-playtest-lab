@@ -46,6 +46,12 @@ def sim_readiness_status(card_name: str) -> str:
         return "UNKNOWN"
 
 
+def warm_up() -> None:
+    """Load the simulator card data once (about a second), so the first pool request of a
+    running Studio does not pay for it. Safe to call from a background thread."""
+    sim_readiness_status("Sol Ring")
+
+
 def sim_readiness_available() -> bool:
     """Whether the repo card-fact files behind the readiness status can be read at all."""
     try:
@@ -223,8 +229,8 @@ def cohort_sizes(store: StudioStore, commander_names: Sequence[str]) -> dict[str
 
 
 def _corpus_hits(store: StudioStore, commander_names: Sequence[str]) -> dict[str, dict[str, int]]:
-    """``{card key: {cohort: decks}}`` over the decks bound to the commander; the key is the
-    oracle id, else the card name. Memoized per data epoch (read-only result)."""
+    """``{card (oracle name): {group: decks}}`` over the non-duplicate source decks bound to the
+    commander (see ``_corpus_hits_uncached``). Memoized per data epoch (read-only result)."""
     return memo.cached(
         store,
         "corpus_hits",
@@ -236,10 +242,16 @@ def _corpus_hits(store: StudioStore, commander_names: Sequence[str]) -> dict[str
 def _corpus_hits_uncached(
     store: StudioStore, commander_names: Sequence[str]
 ) -> dict[str, dict[str, int]]:
+    """``{card (oracle name): {group: decks}}`` over the non-duplicate source decks bound to
+    the commander, counted by ``universe.deck_sets`` (counted sections, quantity above zero,
+    every spelling merged into the card it names). Groups: ``all``, each play group, each
+    cohort. A card absent from the result is unknown; a card present has a real count (0
+    included) in every group."""
+    from .universe import deck_sets, spelling_owners
+
     db = store.connection
-    hits: dict[str, dict[str, int]] = {}
     if not commander_names:
-        return hits
+        return {}
     # A commander without any bound source deck has no hits: skip the scan over the corpus
     # (the data report asks this for every commander of the collection).
     for name in set(commander_names):
@@ -251,30 +263,75 @@ def _corpus_hits_uncached(
             ).fetchone()
             is None
         ):
-            return hits
+            return {}
     bound, bound_args = bound_to("corpus_deck", "d.deck_id", commander_names)
-    key = "COALESCE(k.oracle_id, k.card_name)"
-    base = (
-        "FROM corpus_deck_card k JOIN corpus_deck d USING (deck_id) "
-        f"WHERE d.duplicate_of IS NULL AND k.section != 'sideboard'{bound}"
-    )
+    groups: dict[str, set[str]] = {ALL_DECKS: set()}
     for row in db.execute(
-        f"SELECT {key} AS card, d.play_group AS cohort, COUNT(DISTINCT k.deck_id) AS n {base} "
-        "GROUP BY 1, 2",
+        f"SELECT d.deck_id, d.play_group FROM corpus_deck d WHERE d.duplicate_of IS NULL{bound}",
         bound_args,
     ):
-        entry = hits.setdefault(str(row["card"]), {})
-        entry[str(row["cohort"])] = int(row["n"])
-        entry[ALL_DECKS] = entry.get(ALL_DECKS, 0) + int(row["n"])
+        groups[ALL_DECKS].add(str(row["deck_id"]))
+        groups.setdefault(str(row["play_group"]), set()).add(str(row["deck_id"]))
     for row in db.execute(
-        f"SELECT {key} AS card, c.cohort AS cohort, COUNT(DISTINCT k.deck_id) AS n "
-        "FROM corpus_deck_card k JOIN corpus_deck d USING (deck_id) "
-        "JOIN corpus_cohort c USING (deck_id) "
-        f"WHERE d.duplicate_of IS NULL AND k.section != 'sideboard'{bound} GROUP BY 1, 2",
+        "SELECT c.cohort, c.deck_id FROM corpus_cohort c JOIN corpus_deck d USING (deck_id) "
+        f"WHERE d.duplicate_of IS NULL{bound}",
         bound_args,
     ):
-        hits.setdefault(str(row["card"]), {})[str(row["cohort"])] = int(row["n"])
-    return hits
+        groups.setdefault(str(row["cohort"]), set()).add(str(row["deck_id"]))
+    sets = deck_sets(store, groups[ALL_DECKS], spelling_owners(store))
+    return {
+        card: {group: len(decks & members) for group, members in groups.items()}
+        for card, decks in sets.items()
+    }
+
+
+def read_marks(store: StudioStore) -> dict[str, dict[str, object]]:
+    """Marks per card id: only cards that carry a mark. Nothing else is read."""
+    return {
+        str(row["card_id"]): {
+            "favorite": bool(row["favorite"]),
+            "excluded": bool(row["excluded"]),
+            "note": row["note"] or "",
+        }
+        for row in store.connection.execute(
+            "SELECT card_id, favorite, excluded, note FROM card_mark"
+        )
+    }
+
+
+def commander_identity(
+    store: StudioStore, commander_names: Sequence[str]
+) -> tuple[frozenset[str], list[str]]:
+    """Colour identity of the commanders (all five colours without a commander) and their
+    card ids. Raises KeyError for a commander that is not in the collection."""
+    db = store.connection
+    identity: frozenset[str] = frozenset() if commander_names else frozenset("WUBRG")
+    commander_ids: list[str] = []
+    for name in commander_names:
+        row = db.execute(
+            "SELECT card_id, color_identity FROM card_fact WHERE oracle_name = ?", (name,)
+        ).fetchone()
+        if row is None:
+            raise KeyError(name)
+        identity |= color_set(row["color_identity"])
+        commander_ids.append(str(row["card_id"]))
+    return identity, commander_ids
+
+
+def pool_members(store: StudioStore, commander_names: Sequence[str]) -> list[sqlite3.Row]:
+    """The light form of the pool: the collection cards a deck under these commanders may
+    use (legal, in the collection, inside the colour identity), with the columns ranking
+    needs. ``pool_cards`` adds everything the builder shows per card."""
+    identity, _ids = commander_identity(store, commander_names)
+    return [
+        row
+        for row in store.connection.execute(
+            "SELECT c.card_id, c.oracle_name, c.engine_name, c.is_basic_land, c.color_identity "
+            "FROM card_fact c JOIN inventory i USING (card_id) "
+            "WHERE c.commander_legal = 1 ORDER BY c.oracle_name"
+        )
+        if color_set(row["color_identity"]) <= identity
+    ]
 
 
 def _edhrec_entry(widest: sqlite3.Row | None, signal: object) -> dict[str, object] | None:
@@ -335,16 +392,7 @@ def pool_cards(
     commander only) as ``signals`` per card. The older EDHREC value is used first; the
     stored inclusion signal fills the card's ``edhrec`` entry only where that has no value."""
     db = store.connection
-    identity: frozenset[str] = frozenset() if commander_names else frozenset("WUBRG")
-    commander_ids: list[str] = []
-    for name in commander_names:
-        row = db.execute(
-            "SELECT card_id, color_identity FROM card_fact WHERE oracle_name = ?", (name,)
-        ).fetchone()
-        if row is None:
-            raise KeyError(name)
-        identity |= color_set(row["color_identity"])
-        commander_ids.append(str(row["card_id"]))
+    identity, commander_ids = commander_identity(store, commander_names)
     hits = _corpus_hits(store, commander_names)
     edhrec: dict[str, sqlite3.Row] = {}
     cohort_bound, cohort_args = bound_to("observation_cohort", "o.cohort", commander_names)
@@ -426,7 +474,11 @@ def pool_cards(
                 "excluded": bool(row["excluded"]),
                 "note": row["note"] or "",
                 "roles": roles.get(str(row["oracle_id"]), []),
-                "decks": hits.get(str(row["oracle_id"]), hits.get(str(row["oracle_name"]), {})),
+                # ``decks_known`` False: no source deck of the commander names the card under
+                # any spelling, so its count is unknown (``decks`` stays empty, kept for older
+                # readers); True: ``decks`` holds real counts per group, 0 included.
+                "decks": hits.get(str(row["oracle_name"]), {}),
+                "decks_known": str(row["oracle_name"]) in hits,
                 "edhrec": _edhrec_entry(widest, signal_values.get(card_id, {}).get("inclusion")),
                 "signals": signal_values.get(card_id, {}),
                 "playgroup": None
@@ -455,9 +507,11 @@ def pool_cards(
         "sim_readiness": _sim_readiness_summary(cards),
         "cards": cards,
     }
-    if profile is None and len(commander_names) == 1:
+    if profile is None and with_signals and len(commander_names) == 1:
         # The counted deck-list universe the tier list chooses automatically (the same server
         # function, ``universe_choice.choose``, through ``strength_view``), if it picks one.
+        # Skipped for the light read (``with_signals=False``: ranking, import, which only need
+        # the cards): it would resolve and count a universe nobody reads.
         from . import strength_view
 
         found = strength_view.builder_counted_universe(
@@ -566,16 +620,24 @@ def card_cooccurrence(
 
     Pure count (``DERIVED_DESCRIPTIVE``): ``both_hits`` is the numerator and ``card_decks`` (the
     number of distinct non-duplicate source decks of the commander in ``cohort`` that contain
-    ``card_id``) is the denominator.
-    """
+    ``card_id``) is the denominator. Counted by the one primitive of ``universe.deck_sets``
+    (counted sections, every spelling merged), the same as the universe view."""
+    from .universe import cooccurrence_pairs, deck_sets, spelling_owners
+
     db = store.connection
-    target = db.execute(
-        "SELECT oracle_id, oracle_name FROM card_fact WHERE card_id = ?", (card_id,)
-    ).fetchone()
-    if target is None:
+    # One read serves the target and the pool ids: the statement count of this view is pinned
+    # by a test (one grouped pass over the deck rows, no card-fact join).
+    ids: dict[str, str] = {}
+    oracle_name = ""
+    for fact in db.execute(
+        "SELECT card_id, oracle_name FROM card_fact WHERE commander_legal = 1 OR card_id = ?",
+        (card_id,),
+    ):
+        ids[str(fact["oracle_name"])] = str(fact["card_id"])
+        if str(fact["card_id"]) == card_id:
+            oracle_name = str(fact["oracle_name"])
+    if not oracle_name:
         raise KeyError(card_id)
-    oracle_id = target["oracle_id"]
-    oracle_name = str(target["oracle_name"])
     cohort_join, bound_args = bound_to("corpus_deck", "d.deck_id", commander_names)
     params: list[object] = [*bound_args]
     if cohort != ALL_DECKS:
@@ -589,18 +651,17 @@ def card_cooccurrence(
                 "WHERE cc.deck_id = d.deck_id AND cc.cohort = ?)"
             )
             params.append(cohort)
-    match_clause = "(k.oracle_id = ? OR k.card_name = ?)" if oracle_id else "k.card_name = ?"
-    match_params: list[object] = [oracle_id, oracle_name] if oracle_id else [oracle_name]
-    deck_ids = [
+    candidates = {
         str(r[0])
         for r in db.execute(
-            "SELECT DISTINCT k.deck_id FROM corpus_deck_card k JOIN corpus_deck d USING (deck_id) "
-            f"WHERE d.duplicate_of IS NULL AND k.section != 'sideboard' AND {match_clause}"
-            f"{cohort_join}",
-            [*match_params, *params],
+            f"SELECT d.deck_id FROM corpus_deck d WHERE d.duplicate_of IS NULL{cohort_join}",
+            params,
         )
-    ]
-    card_decks = len(deck_ids)
+    }
+    owners = spelling_owners(store)
+    sets = deck_sets(store, candidates, owners)
+    own = sets.get(oracle_name, set())
+    card_decks = len(own)
     if card_decks == 0:
         return {
             "cohort": cohort,
@@ -608,64 +669,23 @@ def card_cooccurrence(
             "data_class": "DERIVED_DESCRIPTIVE",
             "cards": [],
         }
-    # One pass over the deck rows of the matching decks, grouped by the card key (oracle id,
-    # else the name), then mapped to the pool cards in memory. A join of every card fact to
-    # every deck row on an OR condition cannot use an index and ran for minutes.
-    hits = db.execute(
-        "SELECT k.oracle_id AS oid, CASE WHEN k.oracle_id IS NULL THEN k.card_name END AS cname, "
-        "COUNT(DISTINCT k.deck_id) AS n FROM corpus_deck_card k "
-        "WHERE k.deck_id IN (SELECT value FROM json_each(?)) AND k.section != 'sideboard' "
-        "GROUP BY 1, 2",
-        (json.dumps(deck_ids),),
-    ).fetchall()
-    by_oracle: dict[str, int] = {}
-    by_name: dict[str, int] = {}
-    for hit in hits:
-        if hit["oid"] is not None:
-            by_oracle[str(hit["oid"])] = by_oracle.get(str(hit["oid"]), 0) + int(hit["n"])
-        else:
-            by_name[str(hit["cname"])] = by_name.get(str(hit["cname"]), 0) + int(hit["n"])
-    rows = []
-    for fact in db.execute(
-        "SELECT card_id, oracle_id, oracle_name FROM card_fact "
-        "WHERE card_id != ? AND commander_legal = 1",
-        (card_id,),
-    ):
-        count = by_oracle.get(str(fact["oracle_id"])) if fact["oracle_id"] else None
-        named = by_name.get(str(fact["oracle_name"]))
-        if count is None:
-            count = named
-        elif named:
-            # Some lists carry the card by oracle id, others by name only: count the decks
-            # of both once (the two groups can share a deck).
-            count = int(
-                db.execute(
-                    "SELECT COUNT(DISTINCT k.deck_id) FROM corpus_deck_card k "
-                    "WHERE k.deck_id IN (SELECT value FROM json_each(?)) "
-                    "AND k.section != 'sideboard' AND (k.oracle_id = ? "
-                    "OR (k.oracle_id IS NULL AND k.card_name = ?))",
-                    (json.dumps(deck_ids), fact["oracle_id"], fact["oracle_name"]),
-                ).fetchone()[0]
-            )
-        if count:
-            rows.append(
-                {"card_id": fact["card_id"], "name": fact["oracle_name"], "both_hits": count}
-            )
-    rows.sort(key=lambda r: (-int(r["both_hits"]), str(r["name"])))
-    rows = rows[:limit]
+    # cooccurrence_pairs intersects every card's decks with the target's decks.
+    pairs = [
+        pair for pair in cooccurrence_pairs(sets, oracle_name, None) if pair["card_name"] in ids
+    ][:limit]
     return {
         "cohort": cohort,
         "card_decks": card_decks,
         "data_class": "DERIVED_DESCRIPTIVE",
         "cards": [
             {
-                "card_id": str(r["card_id"]),
-                "name": str(r["name"]),
-                "both_hits": int(r["both_hits"]),
+                "card_id": ids[pair["card_name"]],
+                "name": pair["card_name"],
+                "both_hits": pair["decks_together"],
                 "card_decks": card_decks,
-                "share": round(int(r["both_hits"]) / card_decks, 4),
+                "share": round(pair["decks_together"] / card_decks, 4),
             }
-            for r in rows
+            for pair in pairs
         ],
     }
 

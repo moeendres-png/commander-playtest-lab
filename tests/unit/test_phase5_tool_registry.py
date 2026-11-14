@@ -199,3 +199,15 @@ def test_goldfish_tool_seed_is_independent_of_storage_uuid() -> None:
     finally:
         for path in paths:
             shutil.rmtree(path, ignore_errors=True)
+
+
+def test_registry_invokes_public_decision_tool_by_name() -> None:
+    registry = ToolRegistry(CommanderToolService(ROOT))
+    response = registry.invoke("deck_decision_diagnose", {"comparison": {"status": "rejected"}})
+    assert response.model_dump(mode="json")["status"] == "completed"
+    unknown = None
+    try:
+        registry.invoke("does_not_exist", {})
+    except KeyError as exc:
+        unknown = exc
+    assert unknown is not None
