@@ -103,7 +103,7 @@ const StudioUI = (() => {
     const detail = error && error.detail !== undefined ? error.detail : error && error.message !== undefined ? error.message : String(error);
     if (Array.isArray(detail)) return detail.map(pydanticSentence).join(" ");
     const text = String(detail);
-    if (/[äöüß]|Wähle|Teilmenge|Diese Karte|Gib ein|im Deck/.test(text)) return text; // the server already wrote German
+    if (/[äöüß]|Wähle|Teilmenge|Diese Karte|Gib ein|im Deck|Sammlung|nicht erlaubt/.test(text)) return text; // the server already wrote German
     for (const [pattern, sentence] of KNOWN) if (pattern.test(text)) return sentence;
     return `Das hat nicht geklappt (${text}).`;
   }

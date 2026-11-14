@@ -1065,16 +1065,24 @@ async function initDecks() {
 }
 // ---------- marks and deck from the table (marks never change a rating) ----------
 async function toggleFavorite(card) {
-  const mark = state.marks.get(card.card_id) || { favorite: false, excluded: false, note: "" };
-  const next = { favorite: !mark.favorite, excluded: Boolean(mark.excluded), note: mark.note || "" };
+  // Only the favorite is sent: the note and the exclusion stay as the server holds them,
+  // also for a card this page has no mark of (a card outside the commander's pool).
+  const mark = state.marks.get(card.card_id) || {};
   try {
-    await api(`/api/cards/${encodeURIComponent(card.card_id)}/mark`, next, "PUT");
-    state.marks.set(card.card_id, next);
+    const next = await api(`/api/cards/${encodeURIComponent(card.card_id)}/favorite`, { favorite: !mark.favorite }, "PUT");
+    state.marks.set(card.card_id, { favorite: next.favorite, excluded: next.excluded, note: next.note });
     toast(next.favorite ? `${card.name} ist jetzt Favorit. Die Bewertung ändert sich dadurch nicht.` : `${card.name} ist kein Favorit mehr.`);
     render();
   } catch (error) { fail(error); }
 }
-async function changeDeck(card, delta) {
+let deckQueue = Promise.resolve(); // one deck change after the other, in click order
+function changeDeck(card, delta) {
+  deckQueue = deckQueue.then(() => changeDeckNow(card, delta));
+  return deckQueue;
+}
+// "+ Deck" only for a card of this commander's pool: the target decks belong to this commander.
+const inPool = (card) => state.pool.has(card.card_id);
+async function changeDeckNow(card, delta) {
   const deckId = $("deck-select").value, branch = $("branch-select").value;
   if (!deckId || !branch) { toast("Für diesen Commander gibt es noch kein Deck. Öffne einmal den Deckbau, dort wird es angelegt."); return; }
   try {
@@ -1092,7 +1100,7 @@ function markButtons(card, after) {
     h("button", { type: "button", class: "small fav" + (mark.favorite ? " on" : ""), title: mark.favorite ? "Favorit entfernen" : "Als Favorit markieren (ändert keine Bewertung)", "aria-label": `${card.name} Favorit`, "aria-pressed": mark.favorite ? "true" : "false", onclick: then(() => toggleFavorite(card)) }, mark.favorite ? "★" : "☆"),
     count
       ? h("button", { type: "button", class: "small indeck", title: "Im Ziel-Deck. Klick nimmt die Karte wieder heraus.", "aria-label": `${card.name} aus dem Deck`, onclick: then(() => changeDeck(card, -1)) }, count > 1 ? `✓ ${count}× im Deck` : "✓ im Deck")
-      : h("button", { type: "button", class: "small", title: state.decks.length ? "In das Ziel-Deck legen (oben wählbar)" : "Noch kein Deck für diesen Commander", "aria-label": `${card.name} ins Deck`, disabled: !(card.available > 0) || !state.decks.length, onclick: then(() => changeDeck(card, 1)) }, "+ Deck"),
+      : h("button", { type: "button", class: "small", title: !state.decks.length ? "Noch kein Deck für diesen Commander" : !inPool(card) ? "Diese Karte gehört nicht zum Pool dieses Commanders (Farbidentität, Legalität oder nicht in der Sammlung)" : "In das Ziel-Deck legen (oben wählbar)", "aria-label": `${card.name} ins Deck`, disabled: !(card.available > 0) || !state.decks.length || !inPool(card), onclick: then(() => changeDeck(card, 1)) }, "+ Deck"),
   ];
 }
 function fillBranches() {

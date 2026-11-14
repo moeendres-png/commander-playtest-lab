@@ -1021,3 +1021,19 @@ def test_a_layer_never_reads_the_owners_marks_or_prices() -> None:
     ).lower()
     for word in ("favorite", "excluded", "price", "card_mark"):
         assert word not in source, word
+
+
+def test_a_keyword_is_only_matched_on_a_keyword_line_and_long_lines_stay_fast() -> None:
+    import time
+
+    for text in (
+        "Myriad Landscape enters tapped.",
+        "When this creature enters, extort the truth from target player.",
+        "Melee weapons you control have haste.",
+    ):
+        assert classify_pod_scaling(text)["cls"] == layers.NEUTRAL, text
+    assert classify_pod_scaling("Flying, vigilance, myriad")["phrases"] == ["Myriad"]
+    assert classify_pod_scaling("Overload {3}{R}{R}{R}")["phrases"] == ["Overload"]
+    started = time.perf_counter()
+    classify_pod_scaling(", ".join(["flying"] * 40) + " and then some text that is no keyword")
+    assert time.perf_counter() - started < 0.5

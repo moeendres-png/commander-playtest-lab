@@ -463,16 +463,23 @@ not a count for this commander; it is a comparison of card sets, not a rating.
 ### Tier list and builder work together
 
 The tier list has a column "Favorit / Deck" and the same two buttons in its card window. The
-star sets or clears the favorite mark (`PUT /api/cards/{id}/mark`, the note and the exclusion of
-the card are kept); a mark never changes a rating. "+ Deck" puts one copy into the target deck
+star sets or clears only the favorite mark (`PUT /api/cards/{id}/favorite` with
+`{favorite}`, `builder.set_favorite`): the page never sends a whole mark, so the note and the
+exclusion stay as stored, also for a card outside the commander's pool. A mark never changes a
+rating. "+ Deck" puts one copy into the target deck
 ("Ziel-Deck" and "Variante" in the page header, preset to the deck the builder had open),
 "✓ im Deck" takes it out again. Both call
 `POST /api/decks/{deck}/branches/{branch}/draft/card` with `{card_id, delta: 1 | -1}`
 (`builder.change_draft_card`): the change starts from the working list (draft), else from the
-saved state, and is written as a draft, never as a saved state. The builder's limits hold on the
-server: one copy, any number only for basic lands and "any number of cards named" cards, never
+saved state, and is written as a draft, never as a saved state. Read and write are one write
+transaction (`BEGIN IMMEDIATE`), so changes at the same time lose no card; the page also sends
+its clicks one after the other. The builder's limits hold on the server: only a card of the
+commander's pool (in the collection, commander legal, inside the colour identity of the deck's
+commanders; the button is disabled for other cards, for example in the global view), one copy, any number only for basic lands and "any number of cards named" cards, never
 more than the free copies; the commander is refused. A refusal is HTTP 409 with a German sentence,
-an unknown deck, variant or card is 404. The builder shows the draft when it is opened next.
+an unknown deck, variant or card is 404. The builder shows the draft when it is opened next; a
+builder tab that was open in the background takes over the stored draft when it is looked at
+again (unless a change of its own is still being sent).
 
 The builder shows the current tier of every card (pool tiles, deck list, card window) while
 "Stufe zeigen" is ticked (default on, remembered in the browser as `studio.builder.show-tier`).

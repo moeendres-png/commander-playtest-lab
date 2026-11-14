@@ -100,6 +100,7 @@ def test_the_builders_copy_limits_hold(studio: StudioStore) -> None:
     studio.connection.execute(
         "UPDATE inventory SET available_lower_bound = 0 WHERE card_id = ?", (FILLER_OUT,)
     )
+    studio.connection.commit()
     with pytest.raises(builder.DraftChangeRefused, match="keine freie Kopie"):
         builder.change_draft_card(studio, "test", "main", FILLER_OUT, 1)
     assert builder.read_draft(studio, "test", "main") is not None
@@ -159,7 +160,7 @@ def test_the_tier_page_offers_favourite_and_deck_and_the_builder_shows_the_tier(
     tier = (STATIC / "tierliste.js").read_text(encoding="utf-8")
     assert '"Favorit / Deck"' in tier
     assert "/draft/card`" in tier
-    assert "note: mark.note" in tier  # a favourite click keeps the note of the card
+    assert "/favorite`" in tier and "/mark`" not in tier  # the page never sends a whole mark
     assert 'id="deck-select"' in (STATIC / "tierliste.html").read_text(encoding="utf-8")
     page = (STATIC / "index.html").read_text(encoding="utf-8")
     app = (STATIC / "app.js").read_text(encoding="utf-8")
@@ -167,3 +168,111 @@ def test_the_tier_page_offers_favourite_and_deck_and_the_builder_shows_the_tier(
     assert "studio.builder.show-tier" in app and "function tierMark" in app
     # shown messages of a refused change reach the page as written
     assert "im Deck" in (STATIC / "ui.js").read_text(encoding="utf-8")
+
+
+def test_a_favourite_click_keeps_note_and_exclusion_also_for_an_unknown_mark(
+    studio: StudioStore,
+) -> None:
+    """The tier list sends only the favorite. A note or exclusion set elsewhere (another
+    commander's builder, another tab) survives, and a card without a mark gets a clean one."""
+    builder.set_mark(studio, FILLER_OUT, favorite=False, excluded=True, note="keep")
+    assert builder.set_favorite(studio, FILLER_OUT, True) == {
+        "card_id": FILLER_OUT,
+        "favorite": True,
+        "excluded": True,
+        "note": "keep",
+    }
+    assert builder.set_favorite(studio, FILLER_OUT, False)["note"] == "keep"
+    assert builder.set_favorite(studio, FILLER_IN, True) == {
+        "card_id": FILLER_IN,
+        "favorite": True,
+        "excluded": False,
+        "note": "",
+    }
+    with pytest.raises(KeyError):
+        builder.set_favorite(studio, "card:project:9999", True)
+    assert studio.path is not None
+    folder = studio.path.parent
+    studio.close()
+    with TestClient(create_app(folder)) as client:
+        url = f"/api/cards/{FILLER_OUT}/favorite"
+        assert client.put(url, json={"favorite": True}).status_code == 403
+        done = client.put(url, json={"favorite": True}, headers={"X-Studio": "1"})
+        assert (done.status_code, done.json()["note"], done.json()["excluded"]) == (
+            200,
+            "keep",
+            True,
+        )
+        assert client.put(url, json={}, headers={"X-Studio": "1"}).status_code == 422
+        gone = client.put(
+            "/api/cards/nope/favorite", json={"favorite": True}, headers={"X-Studio": "1"}
+        )
+        assert gone.status_code == 404
+
+
+def test_only_a_card_of_the_commanders_pool_joins_the_deck(studio: StudioStore) -> None:
+    _saved(studio)
+    names = {
+        "Red Outsider": "Farbidentität",  # red card, the commander is green, white and blue
+        "Banned Relic": "nicht erlaubt",
+    }
+    for name, reason in names.items():
+        card_id = studio.connection.execute(
+            "SELECT card_id FROM card_fact WHERE oracle_name = ?", (name,)
+        ).fetchone()[0]
+        with pytest.raises(builder.DraftChangeRefused, match=reason):
+            builder.change_draft_card(studio, "test", "main", card_id, 1)
+    studio.connection.execute("DELETE FROM inventory WHERE card_id = ?", (FILLER_OUT,))
+    studio.connection.commit()
+    with pytest.raises(builder.DraftChangeRefused, match="nicht in deiner Sammlung"):
+        builder.change_draft_card(studio, "test", "main", FILLER_OUT, 1)
+    assert builder.read_draft(studio, "test", "main") is None
+
+
+def test_changes_at_the_same_time_lose_no_card(studio: StudioStore) -> None:
+    """Four connections add different cards to the same working list at once."""
+    import threading
+
+    create_revision(
+        studio,
+        deck_id="test",
+        name="Test",
+        cards=[RevisionCard(COMMANDER, 1, "commander"), RevisionCard(FOREST, 2)],
+    )
+    assert studio.path is not None
+    folder = studio.path.parent
+    studio.close()
+    wanted = [f"card:project:{100 + i:04d}" for i in range(40)]
+    errors: list[BaseException] = []
+
+    def work(part: list[str]) -> None:
+        store = StudioStore.open(folder)
+        try:
+            for card_id in part:
+                builder.change_draft_card(store, "test", "main", card_id, 1)
+        except BaseException as error:  # reported by the assertion below
+            errors.append(error)
+        finally:
+            store.close()
+
+    threads = [threading.Thread(target=work, args=(wanted[i::4],)) for i in range(4)]
+    for thread in threads:
+        thread.start()
+    for thread in threads:
+        thread.join()
+    assert errors == []
+    store = StudioStore.open(folder)
+    draft = builder.read_draft(store, "test", "main")
+    store.close()
+    assert draft is not None
+    stored = {c["card_id"] for c in draft["cards"]}  # type: ignore[attr-defined]
+    assert set(wanted) <= stored
+
+
+def test_a_refused_change_leaves_no_open_transaction(studio: StudioStore) -> None:
+    _saved(studio)
+    with pytest.raises(builder.DraftChangeRefused):
+        builder.change_draft_card(studio, "test", "main", FILLER_IN, 1)
+    assert not studio.connection.in_transaction
+    assert builder.change_draft_card(studio, "test", "main", FILLER_OUT, 1)["quantity"] == 1
+    assert not studio.connection.in_transaction

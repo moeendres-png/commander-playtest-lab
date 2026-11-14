@@ -311,7 +311,7 @@ function entries() {
 }
 let saveTimer = 0;
 function changed() {
-  state.dirty = true; renderAll();
+  state.dirty = true; state.savePending = true; renderAll();
   clearTimeout(saveTimer); saveTimer = setTimeout(syncDraft, 500);
 }
 async function syncDraft() {
@@ -324,8 +324,24 @@ async function syncDraft() {
     state.issues = result.issues; state.shape = result.shape; state.deckRoles = result.roles || {}; state.combos = result.combos || null;
     $("save-state").textContent = state.dirty ? "Entwurf gesichert, noch nicht als Stand gespeichert" : "gespeichert";
     renderHeader(); renderDeck();
-  } catch (error) { fail(error); }
+  } catch (error) { fail(error); } finally { state.savePending = false; }
 }
+// Another page (the tier list's "+ Deck") may have changed the working list while this tab
+// was in the background: when the tab is looked at again, the stored draft wins over the list
+// held here, unless a change of this tab is still on its way to the server.
+async function adoptForeignDraft() {
+  if (document.hidden || !state.deckId || state.savePending) return;
+  try {
+    const found = await api(`/api/decks/${encodeURIComponent(state.deckId)}/branches/${encodeURIComponent(state.branch)}/draft`);
+    if (!found.draft || state.savePending) return;
+    const key = (cards) => JSON.stringify(cards.filter((card) => card.zone === "main").map((card) => [card.card_id, card.quantity]).sort());
+    if (key(found.draft.cards) === key(entries())) return;
+    useCards(found.draft.cards); state.dirty = true; renderAll(); await syncDraft();
+    toast("Das Deck wurde auf einer anderen Seite geändert (zum Beispiel in der Tierliste). Die Liste hier ist jetzt aktuell.");
+  } catch (error) { /* the next look at the tab tries again */ }
+}
+document.addEventListener("visibilitychange", adoptForeignDraft);
+window.addEventListener("focus", adoptForeignDraft);
 function renderHeader() {
   const total = deckTotal();
   const counter = $("counter"); counter.textContent = `${total} / 100`;

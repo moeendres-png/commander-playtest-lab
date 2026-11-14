@@ -76,6 +76,10 @@ class DraftBody(BaseModel):
     base_revision_id: str | None = None
 
 
+class FavoriteBody(BaseModel):
+    favorite: bool
+
+
 class DraftCardBody(BaseModel):
     card_id: str = Field(min_length=1, max_length=200)
     delta: Literal[1, -1] = 1
@@ -837,6 +841,17 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
             )
         except KeyError as error:
             raise HTTPException(404, "unknown revision") from error
+        finally:
+            store.close()
+
+    @app.put("/api/cards/{card_id}/favorite")
+    def favorite(card_id: str, body: FavoriteBody) -> dict[str, object]:
+        """Only the favorite mark; the exclusion and the note of the card stay as stored."""
+        store = open_store()
+        try:
+            return builder.set_favorite(store, card_id, body.favorite)
+        except KeyError as error:
+            raise HTTPException(404, "unknown card") from error
         finally:
             store.close()
 

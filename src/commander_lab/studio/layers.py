@@ -163,7 +163,10 @@ _TRIGGER_PATTERNS: tuple[tuple[str, re.Pattern[str], bool], ...] = (
 )
 
 # The start of a keyword line up to one keyword of it: "myriad", "flying, myriad".
-_KEYWORD_LINE = r"^(?:[a-z' ]+,[ ]*)*"
+_KEYWORD_LINE = r"^(?:[a-z']+(?: [a-z']+)*, )*"
+# ... and what may follow the keyword: the next keyword, a cost, the end of the line. Running
+# text ("Myriad Landscape enters tapped", "When this enters, extort ...") is no keyword.
+_KEYWORD_END = r"(?=[ \t]*(?:,|$|\{|\u2014))"
 
 # Effects that apply per opponent or per player. ``each player`` also hits you (SYMMETRIC).
 _SCALE_PATTERNS: tuple[tuple[str, re.Pattern[str], bool], ...] = (
@@ -197,10 +200,10 @@ _SCALE_PATTERNS: tuple[tuple[str, re.Pattern[str], bool], ...] = (
     ("your opponents", re.compile(r"\byour opponents\b(?! control)"), False),
     # keywords whose per-opponent meaning sits in the (stripped) reminder text
     # (also inside a comma separated keyword line: "Flying, myriad")
-    ("Extort", re.compile(rf"{_KEYWORD_LINE}extort\b", re.M), False),
-    ("Myriad", re.compile(rf"{_KEYWORD_LINE}myriad\b", re.M), False),
-    ("Melee", re.compile(rf"{_KEYWORD_LINE}melee\b", re.M), False),
-    ("Overload", re.compile(rf"{_KEYWORD_LINE}overload\b", re.M), False),
+    ("Extort", re.compile(rf"{_KEYWORD_LINE}extort\b{_KEYWORD_END}", re.M), False),
+    ("Myriad", re.compile(rf"{_KEYWORD_LINE}myriad\b{_KEYWORD_END}", re.M), False),
+    ("Melee", re.compile(rf"{_KEYWORD_LINE}melee\b{_KEYWORD_END}", re.M), False),
+    ("Overload", re.compile(rf"{_KEYWORD_LINE}overload\b{_KEYWORD_END}", re.M), False),
     ("can't attack you unless", re.compile(r"\bcan't attack you unless\b"), False),
     ("creatures can't attack you", re.compile(r"\bcreatures can't attack you\b"), False),
 )
