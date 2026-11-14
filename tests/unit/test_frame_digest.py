@@ -286,3 +286,49 @@ def test_commander_status_order_is_stable_under_any_uuid_assignment() -> None:
         status.extend(pair)
         digests.add(_digest(frame))
     assert len(digests) == 1
+
+
+_TWIN_ONE = "11111111-1111-4111-8111-111111111111"
+_TWIN_TWO = "22222222-2222-4222-8222-222222222222"
+
+
+def _with_exile(entries: list[dict[str, object]]) -> dict[str, object]:
+    frame = _frame(_UUIDS)
+    frame["pilot_state"]["players"][0]["exile"] = entries  # type: ignore[index]
+    return frame
+
+
+def test_equal_exiled_cards_may_change_places_between_runs() -> None:
+    """Two copies of one card in exile come in UUID order, which differs from run to run."""
+
+    def frames(first: str, second: str) -> list[dict[str, object]]:
+        seen = _frame(_UUIDS)
+        # both objects were shown earlier, in the same order in both runs
+        seen["pilot_state"]["players"][0]["battlefield"] = [  # type: ignore[index]
+            {"name": "Twin", "object_id": _TWIN_ONE},
+            {"name": "Twin", "object_id": _TWIN_TWO},
+        ]
+        later = _with_exile(
+            [{"name": "Twin", "object_id": first}, {"name": "Twin", "object_id": second}]
+        )
+        return [seen, later]
+
+    assert _digest(*frames(_TWIN_ONE, _TWIN_TWO)) == _digest(*frames(_TWIN_TWO, _TWIN_ONE))
+
+
+def test_different_exiled_cards_are_still_told_apart() -> None:
+    def frame(second_name: str) -> dict[str, object]:
+        return _with_exile(
+            [
+                {"name": "Twin", "object_id": _TWIN_ONE},
+                {"name": second_name, "object_id": _TWIN_TWO},
+            ]
+        )
+
+    assert _digest(frame("Twin")) != _digest(frame("Other"))
+
+
+def test_a_face_down_exiled_card_is_still_told_apart() -> None:
+    plain = _with_exile([{"name": "Twin", "object_id": _TWIN_ONE}])
+    hidden = _with_exile([{"name": "Twin", "object_id": _TWIN_ONE, "face_down": True}])
+    assert _digest(plain) != _digest(hidden)
