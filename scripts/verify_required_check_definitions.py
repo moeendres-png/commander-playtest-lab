@@ -1111,15 +1111,23 @@ BENIGN_TEST_DATA = frozenset(
         "tests/pytest_shard_weights_qualification.json",
     }
 )
-_ADDABLE_TOP_LEVEL = (
-    ast.Import,
-    ast.ImportFrom,
-    ast.FunctionDef,
-    ast.AsyncFunctionDef,
-    ast.ClassDef,
-    ast.Assign,
-    ast.AnnAssign,
+_RESERVED_NAMES = frozenset(
+    {
+        "pytestmark",
+        "__test__",
+        "collect_ignore",
+        "collect_ignore_glob",
+        "setup_module",
+        "teardown_module",
+    }
 )
+# Names whose use at module level (class bodies, decorators and default values included) can
+# rewrite other tests while the module is imported or collected.
+_MODULE_LEVEL_FORBIDDEN = frozenset(
+    {"globals", "setattr", "delattr", "__import__", "importlib", "monkeypatch"}
+)
+_BODY_FORBIDDEN = frozenset({"globals", "__import__", "importlib"})
+_NOT_PLAIN_MARKERS = frozenset({"skip", "skipif", "xfail", "usefixtures"})
 
 
 def _is_test_module(path: str) -> bool:
@@ -1139,35 +1147,152 @@ def _bound_names(node: ast.stmt) -> set[str]:
     return set()
 
 
-def _constant_assignment(node: ast.stmt) -> bool:
-    value = getattr(node, "value", None)
-    if value is None:
+def _reserved(name: str) -> bool:
+    return name in _RESERVED_NAMES or name.startswith("pytest_")
+
+
+def _import_allowed(node: ast.stmt) -> bool:
+    """An import of a module outside ``tests`` (no relative import, no star import)."""
+    if isinstance(node, ast.ImportFrom):
+        if node.level or any(alias.name == "*" for alias in node.names):
+            return False
+        modules = [node.module or ""]
+    elif isinstance(node, ast.Import):
+        modules = [alias.name for alias in node.names]
+    else:
         return False
+    return not any(m == "tests" or m.startswith("tests.") or m == "conftest" for m in modules)
+
+
+def _names_used(nodes: list[ast.AST], forbidden: frozenset[str]) -> bool:
+    for root in nodes:
+        for node in ast.walk(root):
+            if isinstance(node, ast.Name) and node.id in forbidden:
+                return True
+            if isinstance(node, ast.alias) and node.name.split(".")[0] in forbidden:
+                return True
+            if not isinstance(node, ast.Attribute):
+                continue
+            sys_modules = (
+                node.attr == "modules"
+                and isinstance(node.value, ast.Name)
+                and node.value.id == "sys"
+            )
+            patching = node.attr in {"setattr", "delattr"} and "monkeypatch" in forbidden
+            if sys_modules or patching:
+                return True
+    return False
+
+
+def _executed_at_import(node: ast.stmt) -> list[ast.AST]:
+    """The parts of a statement that run when the module is imported (not function bodies)."""
+    if isinstance(node, ast.FunctionDef | ast.AsyncFunctionDef):
+        args = node.args
+        defaults = [*args.defaults, *[d for d in args.kw_defaults if d is not None]]
+        return [*node.decorator_list, *defaults]
+    if isinstance(node, ast.ClassDef):
+        parts: list[ast.AST] = [*node.decorator_list, *node.bases, *node.keywords]
+        for statement in node.body:
+            parts.extend(_executed_at_import(statement))
+        return parts
+    return [node]
+
+
+def _function_bodies(tree: ast.AST) -> list[ast.AST]:
+    return [
+        statement
+        for node in ast.walk(tree)
+        if isinstance(node, ast.FunctionDef | ast.AsyncFunctionDef)
+        for statement in node.body
+    ]
+
+
+def _plain_decorator(node: ast.expr) -> bool:
+    """``pytest.mark.parametrize(...)`` or a plain ``pytest.mark.<name>`` other than a skip."""
+    target = node.func if isinstance(node, ast.Call) else node
+    if not (
+        isinstance(target, ast.Attribute)
+        and isinstance(target.value, ast.Attribute)
+        and target.value.attr == "mark"
+        and isinstance(target.value.value, ast.Name)
+        and target.value.value.id == "pytest"
+    ):
+        return False
+    return target.attr not in _NOT_PLAIN_MARKERS
+
+
+def _literal_defaults(node: ast.FunctionDef) -> bool:
+    values = [*node.args.defaults, *[d for d in node.args.kw_defaults if d is not None]]
     try:
-        ast.literal_eval(value)
+        for value in values:
+            ast.literal_eval(value)
     except (ValueError, SyntaxError, TypeError, MemoryError, RecursionError):
         return False
     return True
 
 
-def _benign_module_change(base_source: str | None, head_source: str) -> bool:
-    """True when ``head`` only adds to ``base`` and leaves every existing statement as it was.
+def _addable_test_function(node: ast.stmt) -> bool:
+    if not isinstance(node, ast.FunctionDef) or not node.name.startswith("test_"):
+        return False
+    if not all(_plain_decorator(d) for d in node.decorator_list):
+        return False
+    if not _literal_defaults(node):
+        return False
+    if _names_used(_executed_at_import(node), _MODULE_LEVEL_FORBIDDEN):
+        return False
+    return not _names_used(list(node.body), _BODY_FORBIDDEN)
 
-    A new module is benign. For an existing module every top-level statement of the base must
-    be present, unchanged (normalised AST, decorators, bodies, parametrize lists and fixtures
-    included), and the only additions are imports, constants and new functions or classes whose
-    names do not rebind a name the base already defined. A changed existing function is never
-    judged "at least as strong": it needs a human look.
+
+def _benign_new_module(source: str) -> bool:
+    """A new test module is benign unless it can reach into other tests or the collection."""
+    tree = ast.parse(source)
+    for node in tree.body:
+        if isinstance(node, ast.Import | ast.ImportFrom):
+            if not _import_allowed(node):
+                return False
+            if _names_used([node], _MODULE_LEVEL_FORBIDDEN):
+                return False
+            continue
+        if any(_reserved(name) for name in _bound_names(node)):
+            return False
+        for part in _executed_at_import(node):
+            if _names_used([part], _MODULE_LEVEL_FORBIDDEN):
+                return False
+        for inner in ast.walk(node):
+            if isinstance(inner, ast.FunctionDef | ast.AsyncFunctionDef):
+                for decorator in inner.decorator_list:
+                    if isinstance(decorator, ast.Call) and any(
+                        kw.arg == "autouse"
+                        and not (isinstance(kw.value, ast.Constant) and kw.value.value is False)
+                        for kw in decorator.keywords
+                    ):
+                        return False
+    # Function bodies (also those inside classes) must not reach the interpreter's module table.
+    return not _names_used(_function_bodies(tree), _BODY_FORBIDDEN)
+
+
+def _benign_module_change(base_source: str | None, head_source: str) -> bool:
+    """True when ``head`` is a harmless new module, or only appends plain tests to ``base``.
+
+    A new module passes ``_benign_new_module``. For an existing module every top-level
+    statement of the base must be present, unchanged and in order (normalised AST: decorators,
+    bodies, parametrize lists and fixtures included). The only additions are imports of modules
+    outside ``tests`` (no relative or star import) and new top-level ``def test_*`` functions
+    that carry no decorator but plain ``pytest.mark`` markers (never skip, skipif, xfail or
+    usefixtures), have literal defaults and a name the base did not bind. Anything else
+    (classes, fixtures, helpers, constants, ``setup_*``, ``pytest_*``, ``pytestmark``) needs a
+    human look, as does any changed existing statement.
     """
     head_tree = ast.parse(head_source)
     if base_source is None:
-        return True
+        return _benign_new_module(head_source)
     base_tree = ast.parse(base_source)
     base_dumps = [ast.dump(node, include_attributes=False) for node in base_tree.body]
     base_names: set[str] = set()
     for node in base_tree.body:
         base_names |= _bound_names(node)
     pending = list(base_dumps)
+    added_names: set[str] = set()
     for node in head_tree.body:
         dump = ast.dump(node, include_attributes=False)
         # Existing statements keep their order (a reordering can change which definition wins).
@@ -1176,12 +1301,15 @@ def _benign_module_change(base_source: str | None, head_source: str) -> bool:
             continue
         if dump in base_dumps:
             return False
-        if not isinstance(node, _ADDABLE_TOP_LEVEL):
+        if isinstance(node, ast.Import | ast.ImportFrom):
+            if not _import_allowed(node) or _names_used([node], _MODULE_LEVEL_FORBIDDEN):
+                return False
+        elif not _addable_test_function(node):
             return False
-        if isinstance(node, ast.Assign | ast.AnnAssign) and not _constant_assignment(node):
+        names = _bound_names(node)
+        if names & base_names or names & added_names or any(_reserved(n) for n in names):
             return False
-        if _bound_names(node) & base_names:
-            return False
+        added_names |= names
     return not pending  # a pending statement of the base was removed or changed
 
 

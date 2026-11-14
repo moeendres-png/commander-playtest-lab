@@ -652,13 +652,17 @@ BASE_TEST = "def test_fixture(): assert True\n"
 @pytest.mark.parametrize(
     "new_text",
     [
-        BASE_TEST + "def test_more(): assert 1 == 1\n",  # a test function appended
+        BASE_TEST + "def test_more(): assert 1 == 1\n",  # a plain test function appended
+        "import os\n"
+        + BASE_TEST
+        + "def test_more(): assert os.sep\n",  # import of a non-test module
         BASE_TEST
-        + "import os\nLIMIT = 3\ndef _helper(): return LIMIT\n",  # import, constant, new helper
+        + "import pytest\n@pytest.mark.parametrize('x', [1, 2])\ndef test_p(x, y=3): assert x\n",
+        BASE_TEST + "import pytest\n@pytest.mark.slow\ndef test_marked(): assert True\n",
         "# a comment\n" + BASE_TEST,
     ],
 )
-def test_added_test_function_or_constant_needs_no_review(
+def test_appended_plain_test_function_needs_no_review(
     repository: tuple[Path, str], new_text: str
 ) -> None:
     repo, base = repository
@@ -681,6 +685,35 @@ def test_added_test_function_or_constant_needs_no_review(
         BASE_TEST + "import pytest\npytestmark = pytest.mark.skip\n",  # module-wide skip
         BASE_TEST + "def test_fixture(): pass\n",  # redefinition shadows the real test
         BASE_TEST + "if True:\n    pass\n",  # new module-level code
+        BASE_TEST + "import os\nLIMIT = 3\n",  # a constant is not an allowed addition
+        BASE_TEST + "def _helper(): return 1\n",  # nor is a helper function
+        BASE_TEST + "class TestMore:\n    def test_a(self): assert True\n",  # nor a class
+        # Probe (1): an added autouse fixture that skips every test of the module.
+        BASE_TEST
+        + "import pytest\n@pytest.fixture(autouse=True)\ndef _skip_all():\n    pytest.skip('x')\n",
+        # Probe (2): an added setup_module.
+        BASE_TEST
+        + "import pytest\ndef setup_module(module):\n    pytest.skip('x', allow_module_level=True)\n",
+        # Probe (3): an added class whose body rewrites the module namespace.
+        BASE_TEST + "class _Neuter:\n    globals().update({'test_fixture': lambda: None})\n",
+        # Probe (4): a decorator with a side effect on a new helper function.
+        BASE_TEST
+        + "def _hit(f):\n    globals().update({'test_fixture': lambda: None})\n    return f\n@_hit\ndef _helper(): pass\n",
+        # The same decorator on a new test function.
+        BASE_TEST + "def _hit(f):\n    return f\n@_hit\ndef test_x(): assert True\n",
+        # Probe (6): a star import.
+        "from os.path import *\n" + BASE_TEST,
+        BASE_TEST + "from os.path import *\n",
+        BASE_TEST + "from tests.unit import test_other\n",  # an import of another test module
+        BASE_TEST + "from . import helpers\n",  # a relative import
+        BASE_TEST
+        + "import pytest\n@pytest.mark.skip\ndef test_x(): assert True\n",  # a skip marker
+        BASE_TEST + "import pytest\n@pytest.mark.usefixtures('f')\ndef test_x(): assert True\n",
+        BASE_TEST + "def test_x(a=print('side effect')): assert True\n",  # non-literal default
+        BASE_TEST + "def test_x():\n    globals().update({'test_fixture': lambda: None})\n",
+        BASE_TEST + "pytestmark = 1\n",
+        BASE_TEST + "def pytest_collection_modifyitems(items): items.clear()\n",
+        BASE_TEST + "__test__ = False\n",
         "def test_fixture(: syntax error\n",
     ],
 )
@@ -1595,3 +1628,71 @@ def test_pinned_actions_before_the_gate_are_accepted(repository: tuple[Path, str
         document["jobs"]["quality"]["steps"].insert(1, {"uses": f"actions/cache@{PIN}"})
 
     assert not _flagged(_gated_report(repository, edit))
+
+
+NEW_MODULE_PROBES = {
+    "autouse fixture": "import pytest\n@pytest.fixture(autouse=True)\ndef _f():\n    pass\ndef test_a(): assert True\n",
+    "setup_module": "def setup_module(m): pass\ndef test_a(): assert True\n",
+    "teardown_module": "def teardown_module(m): pass\ndef test_a(): assert True\n",
+    "pytestmark": "import pytest\npytestmark = pytest.mark.skip\ndef test_a(): assert True\n",
+    "__test__": "__test__ = False\ndef test_a(): assert True\n",
+    "collect_ignore": "collect_ignore = ['x']\ndef test_a(): assert True\n",
+    "collect_ignore_glob": "collect_ignore_glob = ['x']\ndef test_a(): assert True\n",
+    "pytest_ hook": "def pytest_collection_modifyitems(items): items.clear()\ndef test_a(): assert True\n",
+    # Probe (5): a new file that rewrites another test module before collection.
+    "absolute test import": "import tests.unit.test_other as m\nm.test_x = lambda: None\ndef test_a(): assert True\n",
+    "from tests import": "from tests.unit import test_other\ndef test_a(): assert True\n",
+    "relative import": "from . import test_other\ndef test_a(): assert True\n",
+    "relative module import": "from .test_other import test_x\ndef test_a(): assert True\n",
+    "star import": "from os.path import *\ndef test_a(): assert True\n",
+    "importlib": "import importlib\nm = importlib.import_module('x')\ndef test_a(): assert True\n",
+    "__import__": "m = __import__('x')\ndef test_a(): assert True\n",
+    "globals at module level": "globals().update({})\ndef test_a(): assert True\n",
+    "setattr at module level": "import os\nsetattr(os, 'x', 1)\ndef test_a(): assert True\n",
+    "delattr at module level": "import os\ndelattr(os, 'x')\ndef test_a(): assert True\n",
+    "sys.modules": "import sys\nsys.modules['x'] = None\ndef test_a(): assert True\n",
+    "class body rewrite": "class _N:\n    globals().update({})\ndef test_a(): assert True\n",
+    "decorator side effect": "def _d(f):\n    return f\n@_d\ndef test_a(): assert True\n_x = globals()\n",
+    "monkeypatch at module level": "monkeypatch = None\ndef test_a(): assert True\n",
+    "importlib in a body": "def test_a():\n    import importlib\n    importlib.reload(importlib)\n",
+    "globals in a body": "def test_a():\n    globals().update({})\n",
+}
+
+
+@pytest.mark.parametrize("name", sorted(NEW_MODULE_PROBES))
+def test_new_test_module_that_can_reach_other_tests_requires_review(
+    repository: tuple[Path, str], name: str
+) -> None:
+    repo, base = repository
+    head = candidate(
+        repo,
+        base,
+        lambda root: write(root, "tests/unit/test_aaa_probe.py", NEW_MODULE_PROBES[name]),
+        "probe",
+    )
+    report = guard.inspect_required_check_definitions(repo, base, head)
+    assert report["overall_classification"] == "GATE_DEFINITION_CHANGED_REVIEW_REQUIRED", name
+    assert report["benign_test_changes"] == []
+
+
+def test_ordinary_new_test_module_with_fixtures_helpers_and_classes_is_benign(
+    repository: tuple[Path, str],
+) -> None:
+    text = (
+        "import json\nimport pytest\nfrom pathlib import Path\n"
+        "LIMIT = 3\n"
+        "@pytest.fixture\ndef data(tmp_path):\n    return tmp_path / 'x'\n"
+        "def _helper(value):\n    return value + LIMIT\n"
+        "class TestThing:\n"
+        "    def test_one(self, data, monkeypatch):\n"
+        "        monkeypatch.setenv('A', '1')\n"
+        "        assert _helper(1) == 4\n"
+        "@pytest.mark.parametrize('x', [1, 2])\ndef test_two(x):\n    assert x\n"
+    )
+    repo, base = repository
+    head = candidate(
+        repo, base, lambda root: write(root, "tests/unit/test_ordinary.py", text), "ordinary"
+    )
+    report = guard.inspect_required_check_definitions(repo, base, head)
+    assert report["overall_classification"] == "PASS"
+    assert report["benign_test_changes"] == ["tests/unit/test_ordinary.py"]
