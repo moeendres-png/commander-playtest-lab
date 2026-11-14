@@ -21,6 +21,7 @@ alpha = 0,05 zweiseitig, p0 = 1/s, rho = 0,25, DEFF = 1 + (s-1)*rho).
 
 from __future__ import annotations
 
+import itertools
 import math
 import sys
 from statistics import NormalDist
@@ -47,6 +48,7 @@ def zsum(alpha: float, power: float) -> float:
 # Ungepaart: zwei unabhaengige Arme (Plan Abschnitt 2.1)
 # ---------------------------------------------------------------------------
 
+
 def unpaired_n(seats: int, delta: float, power: float = 0.80, alpha: float = ALPHA) -> int:
     p0 = 1.0 / seats
     p1 = p0 + delta
@@ -72,6 +74,7 @@ def detectable_unpaired(n: int, seats: int, power: float = 0.80, alpha: float = 
 # Gepaart: Paardifferenz d in {-1, 0, +1}, Var(d) ~= q (Plan Abschnitt 2.2)
 # ---------------------------------------------------------------------------
 
+
 def plan_sd(q: float) -> float:
     """Planungs-SD des Dokuments: Repo-Anker 0,63 fuer q = 0,40, sonst sqrt(q)."""
     return REPO_ANCHOR_SD if q == 0.40 else math.sqrt(q)
@@ -86,7 +89,11 @@ def deff(seats: int, rho: float = RHO) -> float:
 
 
 def paired_seeds(
-    delta: float, q: float, seats: int, power: float = 0.80, alpha: float = ALPHA,
+    delta: float,
+    q: float,
+    seats: int,
+    power: float = 0.80,
+    alpha: float = ALPHA,
     sd: float | None = None,
 ) -> tuple[int, int, int]:
     """(iid-Paare, Cluster-Paare, Seeds) nach der Repo-Planungsmethode."""
@@ -106,18 +113,19 @@ def detectable_paired(pairs: int, sd: float, power: float = 0.80, alpha: float =
 # a(t) = 2 - 2*Phi(z/sqrt(t)) = erfc(z/sqrt(2t)); Look-Level = Inkremente.
 # ---------------------------------------------------------------------------
 
+
 def look_levels(cumulative: list[int], alpha: float = ALPHA) -> list[float]:
     quantile = z(1.0 - alpha / 2.0)
     spent = [
-        math.erfc(quantile / math.sqrt(2.0 * (count / cumulative[-1])))
-        for count in cumulative[:-1]
+        math.erfc(quantile / math.sqrt(2.0 * (count / cumulative[-1]))) for count in cumulative[:-1]
     ] + [alpha]
-    return [spent[0]] + [b - a for a, b in zip(spent, spent[1:])]
+    return [spent[0]] + [b - a for a, b in itertools.pairwise(spent)]
 
 
 # ---------------------------------------------------------------------------
 # Wilson-Intervall wie wilson_score_interval in studio/simulations.py
 # ---------------------------------------------------------------------------
+
 
 def wilson(p_hat: float, n: int, confidence: float = 0.95) -> tuple[float, float]:
     zz = 2.576 if confidence >= 0.99 else 1.95996
@@ -130,6 +138,7 @@ def wilson(p_hat: float, n: int, confidence: float = 0.95) -> tuple[float, float
 # ---------------------------------------------------------------------------
 # McNemar-Gegenprobe (Connor 1987), Form des Plan-Anhangs
 # ---------------------------------------------------------------------------
+
 
 def connor_total_pairs(delta: float, q: float, power: float = 0.80, alpha: float = ALPHA) -> float:
     pi = (1.0 + delta / q) / 2.0
@@ -153,7 +162,7 @@ def exact_sign_power(n_pairs: int, q: float, delta: float, alpha: float = ALPHA)
     M ~ Bin(N, q) diskordante Paare, davon gewinnt die Variante unter H1
     den Anteil pi = (1 + delta/q)/2. Ablehnung: exakter zweiseitiger
     Zeichentest auf den M Diskordanten zum Niveau alpha; wegen der
-    Symmetrie von Bin(m, 1/2) ist die Ablehnungsregion {k <= c} ∪ {k >= m-c}
+    Symmetrie von Bin(m, 1/2) ist die Ablehnungsregion {k <= c} U {k >= m-c}
     mit dem groessten c, fuer das 2*P(X <= c) <= alpha gilt.
     """
     pi = (1.0 + delta / q) / 2.0
@@ -174,7 +183,7 @@ def exact_sign_power(n_pairs: int, q: float, delta: float, alpha: float = ALPHA)
         if cutoff < 0:
             continue
         alt_row = _binom_pmf_row(m, pi)
-        tail = sum(alt_row[: cutoff + 1]) + sum(alt_row[m - cutoff:])
+        tail = sum(alt_row[: cutoff + 1]) + sum(alt_row[m - cutoff :])
         power += p_m_row[m] * tail
     return power
 
@@ -183,14 +192,17 @@ def exact_sign_power(n_pairs: int, q: float, delta: float, alpha: float = ALPHA)
 # Tabellen (Ausgabe)
 # ---------------------------------------------------------------------------
 
+
 def fmt_int(n: int) -> str:
     return f"{n:,}".replace(",", ".")
 
 
 def table_unpaired(power: float) -> str:
-    lines = [f"Ungepaart, Partien je Arm (Power {power:.0%}, alpha = 0,05):",
-             "| Plätze | p0 | Δ = 5 pp | Δ = 10 pp | Δ = 15 pp |",
-             "|---|---|---|---|---|"]
+    lines = [
+        f"Ungepaart, Partien je Arm (Power {power:.0%}, alpha = 0,05):",
+        "| Plätze | p0 | Δ = 5 pp | Δ = 10 pp | Δ = 15 pp |",
+        "|---|---|---|---|---|",
+    ]
     for s in SEATS:
         row = " | ".join(fmt_int(unpaired_n(s, d, power)) for d in DELTAS)
         lines.append(f"| {s} | {1.0 / s:.1%} | {row} |")
@@ -198,9 +210,11 @@ def table_unpaired(power: float) -> str:
 
 
 def table_paired_seeds(power: float) -> str:
-    lines = [f"Gepaart, Seeds je Platzzahl (Power {power:.0%}, alpha = 0,05, rho = 0,25):",
-             "| Δ | q | Paare (iid) | " + " | ".join(f"{s} Pl." for s in SEATS) + " |",
-             "|---|---|---|" + "---|" * len(SEATS)]
+    lines = [
+        f"Gepaart, Seeds je Platzzahl (Power {power:.0%}, alpha = 0,05, rho = 0,25):",
+        "| Δ | q | Paare (iid) | " + " | ".join(f"{s} Pl." for s in SEATS) + " |",
+        "|---|---|---|" + "---|" * len(SEATS),
+    ]
     for d in DELTAS:
         for q in QS:
             if d > q:
@@ -230,11 +244,21 @@ def verify() -> None:
 
     print("-- Abschnitt 2.1, ungepaart, Power 80 %")
     expected_unpaired = {
-        (2, 0.05): 1562, (2, 0.10): 385, (2, 0.15): 167,
-        (3, 0.05): 1440, (3, 0.10): 368, (3, 0.15): 165,
-        (4, 0.05): 1248, (4, 0.10): 326, (4, 0.15): 150,
-        (5, 0.05): 1091, (5, 0.10): 291, (5, 0.15): 136,
-        (6, 0.05): 969, (6, 0.10): 263, (6, 0.15): 124,
+        (2, 0.05): 1562,
+        (2, 0.10): 385,
+        (2, 0.15): 167,
+        (3, 0.05): 1440,
+        (3, 0.10): 368,
+        (3, 0.15): 165,
+        (4, 0.05): 1248,
+        (4, 0.10): 326,
+        (4, 0.15): 150,
+        (5, 0.05): 1091,
+        (5, 0.10): 291,
+        (5, 0.15): 136,
+        (6, 0.05): 969,
+        (6, 0.10): 263,
+        (6, 0.15): 124,
     }
     for (s, d), want in expected_unpaired.items():
         check(f"ungepaart s={s} Δ={d:.0%}", unpaired_n(s, d), want)
@@ -287,41 +311,70 @@ def verify() -> None:
     print("-- Abschnitt 2.5, erkennbare Differenzen (pp, Toleranz 0,1)")
     for n, want in ((30, 33.5), (40, 29.2), (80, 20.7)):
         check(f"ungepaart n={n}/Arm", round(detectable_unpaired(n, 4) * 100, 1), want, tol=0.1)
-    check("gepaart 40 Paare iid", round(detectable_paired(40, REPO_ANCHOR_SD) * 100, 1), 27.9, tol=0.1)
+    check(
+        "gepaart 40 Paare iid", round(detectable_paired(40, REPO_ANCHOR_SD) * 100, 1), 27.9, tol=0.1
+    )
     check(
         "gepaart 40 Paare Cluster",
         round(detectable_paired(40, REPO_ANCHOR_SD) * math.sqrt(deff(4)) * 100, 1),
-        36.9, tol=0.1,
+        36.9,
+        tol=0.1,
     )
 
-    print("-- Abschnitt 2.6, mehrere Looks / Varianten (Seeds, 4 Plätze, σ = √q)")
+    print("-- Abschnitt 2.6, mehrere Looks / Varianten (Seeds, 4 Plätze, sigma = √q)")
     alpha_last, alpha_bonf = 0.026, 0.026 / 5
     expected_26 = {
-        # (q, Δ): (alt α=0,05, (a) α=0,026, (b) α=0,0052)
-        (0.40, 0.05): (550, 659, 926), (0.40, 0.10): (138, 165, 232), (0.40, 0.15): (62, 74, 104),
-        (0.20, 0.05): (275, 330, 463), (0.20, 0.10): (69, 83, 116), (0.20, 0.15): (31, 37, 52),
+        # (q, Δ): (alt alpha=0,05, (a) alpha=0,026, (b) alpha=0,0052)
+        (0.40, 0.05): (550, 659, 926),
+        (0.40, 0.10): (138, 165, 232),
+        (0.40, 0.15): (62, 74, 104),
+        (0.20, 0.05): (275, 330, 463),
+        (0.20, 0.10): (69, 83, 116),
+        (0.20, 0.15): (31, 37, 52),
     }
     for (q, d), (w_old, w_a, w_b) in expected_26.items():
         sd = math.sqrt(q)
         check(f"2.6 q={q:.2f} Δ={d:.0%} alt", paired_seeds(d, q, 4, alpha=ALPHA, sd=sd)[2], w_old)
-        check(f"2.6 q={q:.2f} Δ={d:.0%} (a)", paired_seeds(d, q, 4, alpha=alpha_last, sd=sd)[2], w_a)
-        check(f"2.6 q={q:.2f} Δ={d:.0%} (b)", paired_seeds(d, q, 4, alpha=alpha_bonf, sd=sd)[2], w_b)
-    for alpha, wants in ((ALPHA, (1248, 326, 150)), (alpha_last, (1497, 391, 179)),
-                         (alpha_bonf, (2103, 549, 252))):
-        for d, want in zip(DELTAS, wants):
-            check(f"2.6 ungepaart iid α={alpha} Δ={d:.0%}", unpaired_n(4, d, alpha=alpha), want)
+        check(
+            f"2.6 q={q:.2f} Δ={d:.0%} (a)", paired_seeds(d, q, 4, alpha=alpha_last, sd=sd)[2], w_a
+        )
+        check(
+            f"2.6 q={q:.2f} Δ={d:.0%} (b)", paired_seeds(d, q, 4, alpha=alpha_bonf, sd=sd)[2], w_b
+        )
+    for alpha, wants in (
+        (ALPHA, (1248, 326, 150)),
+        (alpha_last, (1497, 391, 179)),
+        (alpha_bonf, (2103, 549, 252)),
+    ):
+        for d, want in zip(DELTAS, wants, strict=True):
+            check(f"2.6 ungepaart iid alpha={alpha} Δ={d:.0%}", unpaired_n(4, d, alpha=alpha), want)
 
     print("-- Abschnitt 3, Varianzgewinn und Break-even")
-    gains = {(0.05, 0.09): 4.5, (0.05, 0.20): 2.0, (0.05, 0.40): 1.0,
-             (0.10, 0.20): 2.2, (0.10, 0.40): 1.1}
+    gains = {
+        (0.05, 0.09): 4.5,
+        (0.05, 0.20): 2.0,
+        (0.05, 0.40): 1.0,
+        (0.10, 0.20): 2.2,
+        (0.10, 0.40): 1.1,
+    }
     for (d, q), want in gains.items():
         p0, p1 = 0.25, 0.25 + d
         gain = (p0 * (1 - p0) + p1 * (1 - p1)) / (q - d**2)
         check(f"Gewinn Δ={d:.0%} q={q:.2f}", round(gain, 1), want, tol=0.05)
-    breakeven = {(4, 0.05): 0.3975, (4, 0.10): 0.415, (4, 0.15): 0.4275,
-                 (5, 0.05): 0.3475, (5, 0.10): 0.37, (5, 0.15): 0.3875,
-                 (6, 0.05): 0.3086, (6, 0.10): 0.3344, (6, 0.15): 0.3553,
-                 (2, 0.05): 0.4975, (2, 0.10): 0.49, (2, 0.15): 0.4775}
+    breakeven = {
+        (4, 0.05): 0.3975,
+        (4, 0.10): 0.415,
+        (4, 0.15): 0.4275,
+        (5, 0.05): 0.3475,
+        (5, 0.10): 0.37,
+        (5, 0.15): 0.3875,
+        (6, 0.05): 0.3086,
+        (6, 0.10): 0.3344,
+        (6, 0.15): 0.3553,
+        (2, 0.05): 0.4975,
+        (2, 0.10): 0.49,
+        (2, 0.15): 0.4775,
+    }
     for (s, d), want in breakeven.items():
         p0, p1 = 1.0 / s, 1.0 / s + d
         rhs = p0 * (1 - p0) + p1 * (1 - p1)
@@ -332,13 +385,15 @@ def verify() -> None:
 
     print("-- Abschnitt 4, Look-Level (Lan-DeMets/OBF, alpha = 0,05)")
     lv = look_levels([30, 60, 90, 120])
-    for got, want in zip(lv, (0.0001, 0.0055, 0.0181, 0.0264)):
+    for got, want in zip(lv, (0.0001, 0.0055, 0.0181, 0.0264), strict=True):
         check("Look-Level 120/30", round(got, 4), want, tol=0.00005)
     lv2 = look_levels([1, 2])
     check("Look-Level 2 Looks, erster", round(lv2[0], 4), 0.0056, tol=0.00005)
     check("Look-Level 2 Looks, letzter", round(lv2[1], 4), 0.0444, tol=0.00005)
     lv8 = look_levels([20, 40, 60, 80, 100, 120, 140, 160])
-    for got, want in zip(lv8, (0.0000, 0.0001, 0.0013, 0.0042, 0.0076, 0.0105, 0.0125, 0.0139)):
+    for got, want in zip(
+        lv8, (0.0000, 0.0001, 0.0013, 0.0042, 0.0076, 0.0105, 0.0125, 0.0139), strict=True
+    ):
         check("Look-Level 160/20", round(got, 4), want, tol=0.00005)
 
     print("-- Abschnitt 6, Pod-Streuung (Zaehlungen 2/12, 3/12, 0/12)")
@@ -354,9 +409,15 @@ def verify() -> None:
         check(f"Faktor K={k}", round(factor, 2), want, tol=0.005)
 
     print("-- Abschnitt 8, Wilson-Intervalle bei p̂ = 25 % (Prozent, 1 Dezimale)")
-    expected_wilson = {12: (8.9, 53.2), 30: (13.0, 42.7), 50: (15.1, 38.5),
-                       100: (17.5, 34.3), 200: (19.5, 31.4), 400: (21.0, 29.5),
-                       1248: (22.7, 27.5)}
+    expected_wilson = {
+        12: (8.9, 53.2),
+        30: (13.0, 42.7),
+        50: (15.1, 38.5),
+        100: (17.5, 34.3),
+        200: (19.5, 31.4),
+        400: (21.0, 29.5),
+        1248: (22.7, 27.5),
+    }
     for n, (wlo, whi) in expected_wilson.items():
         lo, hi = wilson(0.25, n)
         check(f"Wilson n={n} unten", round(lo * 100, 1), wlo, tol=0.05)
@@ -372,8 +433,9 @@ def verify() -> None:
             connor = connor_total_pairs(d, q)
             deviation = (repo - connor) / repo
             worst = max(worst, deviation)
-            print(f"    Δ={d:.0%} q={q:.2f}: Connor {connor:.0f} vs. Repo {repo} "
-                  f"({deviation:+.1%})")
+            print(
+                f"    Δ={d:.0%} q={q:.2f}: Connor {connor:.0f} vs. Repo {repo} ({deviation:+.1%})"
+            )
     print(f"    groesste Abweichung nach unten: {worst:.1%} (Dokument: 'hoechstens rund 20 %')")
     if worst > 0.22:
         FAILURES.append(f"Connor-Abweichung {worst:.1%} > rund 20 %")
