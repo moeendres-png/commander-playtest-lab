@@ -215,3 +215,13 @@ def test_bracket_labels_follow_the_bracket_column_of_the_imported_files() -> Non
     served = {choice["value"]: choice["label"] for choice in choices}
     for variant, number in seen.items():
         assert f"Bracket {number})" in served[variant], (variant, served[variant])
+
+
+def test_the_two_ranking_switches_are_independent() -> None:
+    store = _store()
+    both = StrengthSettings(rank_commander_and_basics=True, rank_other_commanders=False)
+    cards = _cards(strength_view.compute(store, CMD, both))
+    # the commander card and basics are ranked, the other commander card still is not
+    assert cards["Other Cmd"]["tier"] == "N"
+    assert cards["Other Cmd"]["reason"] == strength.NOT_RANKED_OTHER_COMMANDER
+    assert cards["Forest"]["tier"] != "N"
