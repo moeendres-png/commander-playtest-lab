@@ -151,6 +151,13 @@ INVALID_UNIVERSE_NAME = "INVALID_UNIVERSE_NAME"  # a ":" in the source or bracke
 INVALID_COUNT = "INVALID_COUNT"
 DECKLIST_COLUMNS = {"card_name", "source", "bracket", "decks_with_card", "universe_decks"}
 SIGNAL_PLAYGROUP = "playgroup_observed_winrate_gap"
+# The rubric (research_import.import_rubric): mean H of the raters, its spread and the number
+# of raters, one stored signal each. Only the first one is a strength component; the other two
+# are companion rows that give the figures behind it.
+SIGNAL_RUBRIC = "rubric_h_mean"
+SIGNAL_RUBRIC_SD = "rubric_h_sd"
+SIGNAL_RUBRIC_RATERS = "rubric_raters"
+RUBRIC_COMPANIONS = frozenset({SIGNAL_RUBRIC_SD, SIGNAL_RUBRIC_RATERS})
 
 _Row = tuple[str, str, str, float | None, int | None, int | None]  # commander, signal, card, ...
 

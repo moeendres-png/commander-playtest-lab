@@ -417,6 +417,7 @@ def test_settings_are_validated_and_round_trip() -> None:
         strength.GLOBAL_INCLUSION: 1.0,
         strength.COMBOS: 0.0,
         strength.PLAYGROUP_OBSERVED: 0.0,
+        strength.RUBRIC: 0.0,
         strength.SIMULATION: 0.0,
     }
     tournament = strength.PRESETS["Turniernah"]
@@ -431,6 +432,7 @@ def test_settings_are_validated_and_round_trip() -> None:
         strength.GLOBAL_INCLUSION: 1.0,
         strength.COMBOS: 1.0,
         strength.PLAYGROUP_OBSERVED: 0.0,
+        strength.RUBRIC: 0.0,
         strength.SIMULATION: 0.0,
     }
     assert strength.DEFAULT_WEIGHTS[strength.SYNERGY] == 0.0

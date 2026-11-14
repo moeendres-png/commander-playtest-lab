@@ -17,7 +17,7 @@ import sqlite3
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from . import decklist_import
+from . import decklist_import, research_import
 from .store import StudioStore
 
 SHEET_ORDER = (
@@ -193,6 +193,7 @@ class RepoFiles:
     edhrec_parts: list[Path] = field(default_factory=list)
     playgroup_parts: list[Path] = field(default_factory=list)
     tagger_bulk: Path | None = None
+    rubric_folders: list[Path] = field(default_factory=list)
 
     @classmethod
     def discover(cls, research: Path) -> RepoFiles:
@@ -208,6 +209,7 @@ class RepoFiles:
             edhrec_parts=_parts(research / EDHREC_FOLDER, "edhrec_table_*.csv"),
             playgroup_parts=_parts(research / PLAYGROUP_FOLDER, "playgroup_card_atlas_*.jsonl"),
             tagger_bulk=tagger if tagger.is_file() else None,
+            rubric_folders=research_import.find_rubric_folders(research),
         )
 
 

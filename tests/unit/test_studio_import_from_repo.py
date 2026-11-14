@@ -238,6 +238,47 @@ def test_repo_files_are_found_from_a_root_folder(tmp_path: Path) -> None:
         repo_import.build_inventory_workbook(tmp_path / "nothing", tmp_path / "out.xlsx")
 
 
+def test_from_repo_imports_the_rubric_once_and_reports_its_step(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, scryfall: str
+) -> None:
+    research = _research(tmp_path)
+    folder = research / "chulane_rubric_20261114"
+    folder.mkdir()
+    header = ["card", "H_mean", "H_sd", "raters", "anchor", "E_mean", "F_mean", "T_mean"]
+    _write_csv(
+        folder / "summary.csv",
+        [
+            {"card": "Filler 00", "H_mean": 6.0, "H_sd": 0.5, "raters": 3, "anchor": 0}
+            | {"E_mean": 1, "F_mean": 1, "T_mean": 1, "R_mean": 1, "W_mean": 1}
+        ],
+        [*header, "R_mean", "W_mean"],
+    )
+    monkeypatch.setattr(import_all, "_RESEARCH", research)
+    store = StudioStore.open(tmp_path / "studio")
+    result = import_all.run(_args(scryfall=scryfall), store)
+    step = _steps(result)["Raster-Bewertung (Repo)"]
+    assert step["status"] == "IMPORTED" and "rows_written=3" in step["detail"], step
+    again = _steps(import_all.run(_args(scryfall=scryfall), store))["Raster-Bewertung (Repo)"]
+    assert "rows_replaced=3" in again["detail"]
+    rows = store.connection.execute(
+        "SELECT commander_name, value FROM card_signal WHERE signal = 'rubric_h_mean'"
+    ).fetchall()
+    assert [(row[0], row[1]) for row in rows] == [("Chulane, Teller of Tales", 6.0)]
+    layers = {layer["key"]: layer for layer in result["layers"]}
+    # the rows belong to Chulane: for this commander the layer exists and is missing, not 0 covered
+    assert layers["signal:rubric_h_mean"]["rows"] == 0
+    assert layers["signal:rubric_h_mean"]["status"] == "MISSING"
+    assert "--from-repo" in import_all.import_command("signal:rubric_h_mean", COMMANDER)
+    store.close()
+    # without a rubric folder the step is reported as not provided
+    (tmp_path / "plain").mkdir()
+    monkeypatch.setattr(import_all, "_RESEARCH", _research(tmp_path / "plain"))
+    plain = StudioStore.open(tmp_path / "plain-studio")
+    step = _steps(import_all.run(_args(scryfall=scryfall), plain))["Raster-Bewertung (Repo)"]
+    assert step["status"] == "NOT_PROVIDED"
+    plain.close()
+
+
 def test_the_workbook_built_from_csvs_is_the_one_the_importer_reads(tmp_path: Path) -> None:
     research = _research(tmp_path, only=("collection",))
     out = tmp_path / "built.xlsx"

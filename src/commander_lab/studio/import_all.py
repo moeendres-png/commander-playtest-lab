@@ -365,7 +365,7 @@ _FROM_REPO_LAYERS = frozenset({"corpus", "observations", "playgroup"})
 
 def import_command(layer_key: str, commander: str) -> str:
     """The exact ``import-all`` call that fills one layer (angle brackets: your path)."""
-    if layer_key in _FROM_REPO_LAYERS:
+    if layer_key in _FROM_REPO_LAYERS or layer_key == f"signal:{signals.SIGNAL_RUBRIC}":
         return (
             f'python -m commander_lab.studio import-all --commander "{commander}" '
             '--from-repo --scryfall "<Scryfall-Datei>"'
@@ -504,6 +504,16 @@ def _steps(
                 _each(
                     repo.playgroup_parts,
                     lambda store, path: importers.import_playgroup_atlas(store, path),
+                ),
+            )
+        )
+        plan.append(
+            (
+                "Raster-Bewertung (Repo)",
+                bool(repo.rubric_folders),
+                _each(
+                    repo.rubric_folders,
+                    lambda store, path: research_import.import_rubric(store, path),
                 ),
             )
         )

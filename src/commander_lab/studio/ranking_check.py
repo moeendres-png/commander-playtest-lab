@@ -490,6 +490,7 @@ def run_ranking_check(
         strength.GLOBAL_INCLUSION,
         strength.COMBOS,
         strength.PLAYGROUP_OBSERVED,
+        strength.RUBRIC,
     ):
         signal = strength.signal_for(
             component, resolved.bracket, combo_source=resolved.combo_source
@@ -498,6 +499,10 @@ def run_ranking_check(
             continue
         if component == strength.COMBOS and resolved.combo_source == strength.COMBO_SPELLBOOK:
             observed, exists = strength_view._combo_observations(
+                store, commander, claims, display, ambiguous
+            )
+        elif component == strength.RUBRIC:
+            observed, exists = strength_view._rubric_observations(
                 store, commander, claims, display, ambiguous
             )
         else:

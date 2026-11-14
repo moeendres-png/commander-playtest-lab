@@ -47,6 +47,7 @@ from .strength import (
     DECK_UNIVERSE,
     GLOBAL_INCLUSION,
     PLAYGROUP_OBSERVED,
+    RUBRIC,
     SYNERGY,
     TOURNAMENT_CONVERSION,
     TOURNAMENT_LISTS,
@@ -195,6 +196,60 @@ def _combo_observations(
     )
 
 
+def _number_text(value: float) -> str:
+    """A number the way the Owner reads it: 3 not 3.0, 0,4 with a decimal comma."""
+    return (f"{value:g}").replace(".", ",")
+
+
+def rubric_note(h_mean: float, h_sd: float | None, raters: float | None) -> str:
+    """The row text of a rubric value: H, the spread of the raters and their number. A card
+    with no rater is an anchor of the guide (a fixed value, not a rating)."""
+    if raters is not None and raters <= 0:
+        return f"H {_number_text(h_mean)} (fester Ankerwert des Leitfadens, kein Rating)"
+    spread = "" if h_sd is None else f", Streuung {_number_text(h_sd)}"
+    count = "" if raters is None else f", {_number_text(raters)} Bewerter"
+    return f"H {_number_text(h_mean)} von 10{spread}{count}"
+
+
+def _rubric_observations(
+    store: StudioStore,
+    commander: str,
+    claims: _Claims,
+    display: Mapping[str, str],
+    ambiguous: dict[tuple[str, str], list[str]],
+) -> tuple[dict[str, Observation], bool]:
+    """The rubric observations: the value is ``strength.rubric_value`` of the mean rating H
+    (used directly as the 0..1 score), the note names H, its spread and the raters. Whether the
+    source exists is decided by the H signal alone; the spread and the rater count only add
+    to the note. A card the file does not list has no observation (unknown, never 0)."""
+    means, exists = _signal_observations(
+        store, commander, signals.SIGNAL_RUBRIC, claims, display, ambiguous
+    )
+    spreads, _found = _signal_observations(
+        store, commander, signals.SIGNAL_RUBRIC_SD, claims, display, {}
+    )
+    raters, _found = _signal_observations(
+        store, commander, signals.SIGNAL_RUBRIC_RATERS, claims, display, {}
+    )
+    result: dict[str, Observation] = {}
+    for card_id, item in means.items():
+        if item.value is None:
+            continue
+        value = strength.rubric_value(item.value)
+        if value is None:
+            continue
+        spread, count = spreads.get(card_id), raters.get(card_id)
+        result[card_id] = Observation(
+            value,
+            note=rubric_note(
+                item.value,
+                spread.value if spread is not None else None,
+                count.value if count is not None else None,
+            ),
+        )
+    return result, exists
+
+
 def _strings(value: object) -> set[str]:
     if not isinstance(value, list):
         raise TypeError("pool_cards returned an unexpected shape")
@@ -218,6 +273,7 @@ def expected_signals() -> list[str]:
         strength.signal_for(SYNERGY, strength.BRACKET_NONE),
         strength.signal_for(GLOBAL_INCLUSION, strength.BRACKET_NONE),
         strength.signal_for(COMBOS, strength.BRACKET_NONE),
+        strength.signal_for(RUBRIC, strength.BRACKET_NONE),
         signals.SIGNAL_TWO_CARD,
         signals.SIGNAL_PARTNERS,
         strength.signal_for(TOURNAMENT_LISTS, strength.BRACKET_NONE),
@@ -253,7 +309,7 @@ def signal_coverage(store: StudioStore, commander: str) -> dict[str, SignalCover
     names = expected_signals()
     if counted_signals:
         names.remove(signals.SIGNAL_DECKLIST)
-    for signal in sorted(set(stored) - set(names)):
+    for signal in sorted(set(stored) - set(names) - signals.RUBRIC_COMPANIONS):
         if signal.startswith(f"{signals.SIGNAL_DECKLIST}:") and signal not in counted_signals:
             continue  # a counted universe of another commander
         names.append(signal)
@@ -614,6 +670,7 @@ def compute(
         GLOBAL_INCLUSION,
         COMBOS,
         PLAYGROUP_OBSERVED,
+        RUBRIC,
     ):
         signal = strength.signal_for(
             component, settings.bracket, combo_source=settings.combo_source
@@ -622,6 +679,8 @@ def compute(
             continue
         if component == COMBOS and settings.combo_source == strength.COMBO_SPELLBOOK:
             observed, exists = _combo_observations(store, commander, claims, display, ambiguous)
+        elif component == RUBRIC:
+            observed, exists = _rubric_observations(store, commander, claims, display, ambiguous)
         else:
             observed, exists = _signal_observations(
                 store, commander, signal, claims, display, ambiguous
@@ -835,11 +894,6 @@ def delete_profile(store: StudioStore, name: str) -> None:
     with store.connection as db:
         if db.execute("DELETE FROM strength_profile WHERE name = ?", (name,)).rowcount == 0:
             raise KeyError(name)
-
-
-def _number_text(value: float) -> str:
-    """A number the way the Owner reads it: 3 not 3.0, 0,4 with a decimal comma."""
-    return (f"{value:g}").replace(".", ",")
 
 
 _GROUP_CHOICES = {

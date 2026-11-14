@@ -166,6 +166,7 @@ TOURNAMENT_CONVERSION = "tournament_conversion"
 GLOBAL_INCLUSION = "global_inclusion"
 COMBOS = "combos"
 PLAYGROUP_OBSERVED = "playgroup_observed"
+RUBRIC = "rubric"
 SIMULATION = "simulation"
 
 COMPONENTS = (
@@ -178,6 +179,7 @@ COMPONENTS = (
     GLOBAL_INCLUSION,
     COMBOS,
     PLAYGROUP_OBSERVED,
+    RUBRIC,
     SIMULATION,
 )
 LABELS: dict[str, str] = {
@@ -190,6 +192,7 @@ LABELS: dict[str, str] = {
     GLOBAL_INCLUSION: "Aufnahme überhaupt (EDHREC)",
     COMBOS: "Kombos",
     PLAYGROUP_OBSERVED: "Beobachtete Sieg-Korrelation (Playgroup)",
+    RUBRIC: "Raster-Bewertung (Chulane)",
     SIMULATION: "Simulation",
 }
 # Additional rating layers (``layers.py``) that may join the index as one more rank-based
@@ -246,6 +249,13 @@ SHARE_COMPONENTS = frozenset(
 # samples altogether. The signal import applies OBSERVED_MIN_SAMPLE before a row is stored.
 OBSERVED_MIN_SAMPLE = 25
 OBSERVED_SHRINKAGE = 200
+# Components whose value is already a 0..1 score and is used as it is (no percentile rank, no
+# share scale): the magnitude of the rating is kept. The rubric value is ``(H_mean - 1) / 9``.
+DIRECT_COMPONENTS = frozenset({RUBRIC})
+# Components that exist for some commanders only. For a commander without a source they are
+# ``NOT_COLLECTED`` (a missing source, never 0) and, unlike a source that was merely not
+# imported yet, they do not lower the coverage: the source cannot exist for that commander.
+COMMANDER_ONLY_SOURCES = frozenset({RUBRIC})
 # Sources that list the commander's cards fairly completely: only for these may an unlisted
 # card be counted as the lowest rank (Owner decision B5 keeps "absent" a missing observation).
 MISSING_CAPABLE = (COMMANDER_INCLUSION, BRACKET_INCLUSION, DECK_UNIVERSE)
@@ -259,6 +269,7 @@ COMMANDER_SPECIFIC = (
     DECK_UNIVERSE,
     SYNERGY,
     TOURNAMENT_LISTS,
+    RUBRIC,
 )
 
 
@@ -267,6 +278,20 @@ def is_commander_specific(component: str, combo_source: str = COMBO_COMMANDER) -
     return component in COMMANDER_SPECIFIC or (
         component == COMBOS and combo_source == COMBO_COMMANDER
     )
+
+
+# The rubric rates every card with a holistic value H from 1 to 10; the component value is the
+# fraction of that range, so 1 is 0.0 and 10 is 1.0 (a magnitude, not a share and not a rank).
+RUBRIC_H_MIN = 1.0
+RUBRIC_H_MAX = 10.0
+
+
+def rubric_value(h_mean: float) -> float | None:
+    """The rubric component value ``(H - 1) / 9`` of a mean rating, ``None`` when it lies
+    outside 1..10 or is not a finite number (unknown, never clipped to a bound)."""
+    if not math.isfinite(h_mean) or not RUBRIC_H_MIN <= h_mean <= RUBRIC_H_MAX:
+        return None
+    return (h_mean - RUBRIC_H_MIN) / (RUBRIC_H_MAX - RUBRIC_H_MIN)
 
 
 _EDHREC_SHARES = frozenset({COMMANDER_INCLUSION, BRACKET_INCLUSION, GLOBAL_INCLUSION})
@@ -283,6 +308,7 @@ DEFAULT_WEIGHTS: dict[str, float] = {
     GLOBAL_INCLUSION: 1.0,
     COMBOS: 1.0,
     PLAYGROUP_OBSERVED: 0.0,
+    RUBRIC: 0.0,
     SIMULATION: 0.0,
 }
 DEFAULT_CUTS: dict[str, float] = {"S": 70.0, "A": 55.0, "B": 35.0, "C": 20.0}
@@ -349,6 +375,7 @@ def signal_for(component: str, bracket: str, *, combo_source: str = COMBO_SPELLB
         TOURNAMENT_CONVERSION: "topdeck_card_conversion",
         GLOBAL_INCLUSION: "edhrec_global_inclusion",
         PLAYGROUP_OBSERVED: "playgroup_observed_winrate_gap",
+        RUBRIC: "rubric_h_mean",
         SIMULATION: "",
     }[component]
 
@@ -712,6 +739,8 @@ class Observation:
     value: float | None
     numerator: int | None = None
     denominator: int | None = None
+    # Free text a source adds to the row of a present value (the rubric: H, spread, raters).
+    note: str = ""
 
 
 @dataclass(frozen=True)
@@ -878,6 +907,8 @@ def _scored_value(
         return _share_values(component, observation, measure)
     if observation.value is None or not math.isfinite(observation.value):
         return None, None
+    if component in DIRECT_COMPONENTS and not 0.0 <= observation.value <= 1.0:
+        return None, None  # a score outside 0..1 is not a score: unknown, never clipped
     return observation.value, None
 
 
@@ -939,9 +970,12 @@ def _scale_component_values(
     component: str, values: Mapping[str, float], settings: StrengthSettings
 ) -> dict[str, float]:
     """Convert component values to 0..1 scores: share components use ``settings.share_scale``,
-    non-share components (synergy, combos, playgroup, layers) always use ``percentile_ranks``."""
+    direct components (the rubric) keep their 0..1 value, the other non-share components
+    (synergy, combos, playgroup, layers) always use ``percentile_ranks``."""
     if component in SHARE_COMPONENTS:
         return share_scale_values(values, settings.share_scale)
+    if component in DIRECT_COMPONENTS:
+        return dict(values)
     return percentile_ranks(values)
 
 
@@ -1113,7 +1147,11 @@ def score_pool(
         for name in rated
         if settings.effective_weight(name) > 0
         and not (
-            (name in UNCOLLECTED_BY_DESIGN or name.startswith(LAYER_PREFIX))
+            (
+                name in UNCOLLECTED_BY_DESIGN
+                or name in COMMANDER_ONLY_SOURCES
+                or name.startswith(LAYER_PREFIX)
+            )
             and name not in collected
         )
     }
@@ -1174,6 +1212,8 @@ def score_pool(
                 weighted += weight * percentile
                 present += 1
             note = _component_note(reason, ranking, observation) if reason else ""
+            if status == PRESENT and observation is not None and observation.note:
+                note = observation.note
             if (
                 percentile is not None
                 and weight > 0
