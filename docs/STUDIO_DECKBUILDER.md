@@ -271,7 +271,7 @@ bracket (`core`, `upgraded`, `optimized`, `cedh`, `none`), the universe profile 
 the Universum selector), the comparison group (`rank_group`: `pool`), the share measure
 (`share_measure`: `wilson`), the minimum denominators (`min_denominators`: EDHREC 30,
 tournament 5, conversion 20; the deck-universe minimum is the universe's own `min_universe`), the missing
-value per share signal (`skip`), commander and basics (`rank_commander_and_basics`: off),
+value per share signal (`skip`), commander and basics (`rank_commander_and_basics`: off), other commanders in the pool (`rank_other_commanders`: on, ranked like any card),
 `min_coverage` (0.3, "Mindest-Datenlage"), `min_components` (2), `universe_source` (`auto`), `require_commander_signal` (on) and the editable cuts (`tier_cuts` 90/75/55/35).
 The page also filters by tier (S/A/B/C/D/U) and sorts by the percentile of any single
 component. Presets (weights commander inclusion / bracket / deck universe / synergy / tournament /
@@ -502,6 +502,39 @@ The builder shows the current tier of every card (pool tiles, deck list, card wi
 "Stufe zeigen" is ticked (default on, remembered in the browser as `studio.builder.show-tier`).
 It is the tier of the strength index with the settings the tier list remembers; "–" means too
 little data or not rated (commander, basic lands), never a low tier.
+
+### Counting rules behind the shown numbers (follow-up to #1275)
+
+- Cohorts of one family (the text before the first `:`, e.g. `bracket:3` and `bracket:4`) are
+  alternatives (OR); cohorts of different families narrow each other (AND). A universe without a
+  deck is an explicit state: `empty: true` with `empty_reason` (`NO_SOURCE_DECKS_FOR_COMMANDER`
+  or `FILTERS_EXCLUDE_ALL_DECKS`) in the summary, the spread and the co-occurrence, and the
+  cards' reason is `UNIVERSE_EMPTY`.
+- One list of counted sections everywhere (`store.COUNTED_SECTIONS`: main, mainboard,
+  commander, companion): sideboard, maybeboard and cuts count in no figure (universe spread,
+  builder frequencies, role counts). Card-level counts, co-occurrence and lift use one
+  primitive (`universe.deck_sets`): every spelling of a card is merged into the card, for the
+  partner of a pair exactly as for the card itself.
+- The builder pool says whether a card's source-deck count is unknown: `decks_known` is false
+  when no deck of the commander names the card under any spelling (`decks` is then empty); the
+  evidence items carry the same flag. Unknown is never shown as 0.
+- Coverage of the strength index keeps its main definition (present weight over the weight of
+  every weighted component, see the "Mindest-Datenlage" above): a source never imported for the
+  commander still counts against a card. Not taken over from the follow-up branch (open
+  Owner decision, tests of both sides contradict): a denominator of only the sources that have
+  data for the commander. A filter card leaves the deck-universe component out of its
+  denominator. The minimum number of signals never exceeds what the weighted components allow.
+  The reason of a card is `NO_POSITIVE_WEIGHT` (no weight above 0), `NO_SOURCE_FOR_COMMANDER`
+  (no weighted component has usable data for the commander), `NO_COMMANDER_SIGNAL`,
+  `TOO_LITTLE_DATA` or `ENOUGH_DATA`; the tier follows the index as shown (rounded to one decimal), so a card shown at a cut has the tier of that cut. Other commanders
+  known to the store are ordinary cards of the 99 and ranked by default; with
+  `rank_other_commanders` off they are not ranked (tier `N`, `NOT_RANKED_OTHER_COMMANDER`).
+- The tier list's evidence reads the commander's EDHREC inclusion from `card_signal` when the
+  older table has no value (the same entry the builder shows); spread levels carry a German
+  `level_name` next to the stable level key.
+- Derived figures are computed once per store state: `cache.py` keeps the resolved universe,
+  the per-card spread and the builder counts keyed by the store file's change counter, so any
+  committed write recomputes them. `GET /api/marks` reads the marks without building the pool.
 
 ### Data report
 
