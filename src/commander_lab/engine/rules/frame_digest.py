@@ -74,6 +74,15 @@ _UUID_RE = re.compile(r"(?i)\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0
 _DERIVED_HASH_RE = re.compile(r"(?P<prefix>(?:public-view:|actor-view:)?)(?P<hash>[0-9a-f]{64})")
 
 
+#: Parents of an unordered list (all but the last path element of ``UNORDERED_LISTS``): only a
+#: mapping directly below one of them can hold such a key.
+_UNORDERED_PARENTS: frozenset[tuple[str, ...]] = frozenset(path[:-1] for path in UNORDERED_LISTS)
+
+#: Normalized text of text leaves that carry no UUID (the result is the same in every game).
+_PLAIN_TEXT: dict[str, str] = {}
+_PLAIN_TEXT_LIMIT = 200_000
+
+
 def _dump(value: Json) -> str:
     return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
 
@@ -98,27 +107,50 @@ class _Normalizer:
         return placeholder
 
     def _text(self, raw: str) -> str:
+        known = _PLAIN_TEXT.get(raw)
+        if known is not None:
+            return known
         # Cheap guards: a text without these characters cannot match the patterns below.
-        mapped = _UUID_RE.sub(lambda match: self._ident(match.group(0)), raw) if "-" in raw else raw
+        if "-" in raw:
+            mapped = _UUID_RE.sub(lambda match: self._ident(match.group(0)), raw)
+            if mapped != raw:  # numbering depends on this game: not cacheable
+                return self._plain(mapped)
+        result = self._plain(raw)
+        # A text without a UUID maps to the same result in every game and every mode.
+        if len(_PLAIN_TEXT) < _PLAIN_TEXT_LIMIT:
+            _PLAIN_TEXT[raw] = result
+        return result
+
+    @staticmethod
+    def _plain(mapped: str) -> str:
         if "[" not in mapped and "object_id" not in mapped.lower():
             return mapped
         return str(XmageFullGameRunner._semantic_text(mapped))
 
     def value(self, value: object, path: tuple[str, ...] = ()) -> Json:
+        kind = type(value)
+        if kind is str:
+            return self._text(value)  # type: ignore[arg-type]
+        if kind is int or kind is bool or kind is float or value is None:
+            return value  # type: ignore[return-value]
+        if kind is list and path not in UNORDERED_LISTS:
+            return [self.value(item, path) for item in value]  # type: ignore[attr-defined]
         if isinstance(value, str):
             return self._text(value)
         if isinstance(value, Mapping):
             # Unordered lists are numbered last, so their arbitrary order cannot decide numbers.
             keys = sorted(str(key) for key in value)
-            keys.sort(key=lambda key: (*path, key) in UNORDERED_LISTS)
+            if path in _UNORDERED_PARENTS:
+                keys.sort(key=lambda key: (*path, key) in UNORDERED_LISTS)
             out: dict[str, Json] = {}
             for key in keys:
                 item = value[key]
-                derived = _DERIVED_HASH_RE.fullmatch(item) if isinstance(item, str) else None
-                if key in DERIVED_ID_KEYS and derived is not None:
-                    out[self._text(key)] = derived["prefix"] + self._ident(derived["hash"])
-                else:
-                    out[self._text(key)] = self.value(item, (*path, key))
+                if key in DERIVED_ID_KEYS and isinstance(item, str):
+                    derived = _DERIVED_HASH_RE.fullmatch(item)
+                    if derived is not None:
+                        out[self._text(key)] = derived["prefix"] + self._ident(derived["hash"])
+                        continue
+                out[_PLAIN_TEXT.get(key) or self._text(key)] = self.value(item, (*path, key))
             return out
         if isinstance(value, Sequence) and not isinstance(value, bytes | bytearray):
             if path in UNORDERED_LISTS:
