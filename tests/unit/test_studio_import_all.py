@@ -228,7 +228,6 @@ _SIGNAL_LAYERS = {
     "signal:topdeck_card_conversion",
     "signal:decklist_universe",
     "signal:playgroup_observed_winrate_gap",
-    "signal:rubric_h_mean",
 }
 
 

@@ -15,6 +15,7 @@ import pytest
 
 from commander_lab.studio import (
     StudioStore,
+    import_all,
     repo_import,
     research_import,
     signals,
@@ -250,6 +251,44 @@ def test_rubric_is_commander_specific_for_the_commander_signal_rule() -> None:
     )
 
 
+def test_global_inclusion_alone_gives_no_tier_under_the_default_settings() -> None:
+    # DEFAULT weights and the default missing_value (lowest): an unlisted card gets a lowest
+    # value, which must not count as commander-specific evidence
+    settings = StrengthSettings()
+    assert settings.require_commander_signal
+    assert settings.missing_value[strength.COMMANDER_INCLUSION] == strength.MISSING_LOWEST
+    observations: dict[str, dict[str, Observation]] = {}
+    for n in range(10):
+        observations[f"c{n}"] = {
+            strength.COMMANDER_INCLUSION: Observation(0.9 - n * 0.05, 900 - n * 50, 1000),
+            strength.BRACKET_INCLUSION: Observation(0.9 - n * 0.05, 900 - n * 50, 1000),
+            strength.GLOBAL_INCLUSION: Observation(0.5, 500, 1000),
+        }
+    observations["only global"] = {strength.GLOBAL_INCLUSION: Observation(0.9, 900, 1000)}
+    collected = {
+        strength.COMMANDER_INCLUSION,
+        strength.BRACKET_INCLUSION,
+        strength.GLOBAL_INCLUSION,
+    }
+    scored = strength.score_pool(settings, observations, collected)
+    odd = scored["only global"]
+    assert odd["tier"] == strength.TIER_UNKNOWN and odd["reason"] == strength.NO_COMMANDER_SIGNAL
+    assert odd["index"] is not None  # the lowest value still counts for the index
+    assert scored["c0"]["reason"] == "ENOUGH_DATA"
+
+
+def test_the_rubric_is_expected_only_for_commanders_with_a_rubric_file(
+    store: StudioStore,
+) -> None:
+    assert "rubric_h_mean" in strength_view.expected_signals(CHULANE)
+    assert "rubric_h_mean" not in strength_view.expected_signals(COMMANDER)
+    assert "rubric_h_mean" not in strength_view.expected_signals()
+    coverage = strength_view.signal_coverage(store, COMMANDER)
+    assert "rubric_h_mean" not in coverage
+    layers = import_all.layer_overview(store, COMMANDER)["layers"]
+    assert not any(str(item["key"]).startswith("signal:rubric") for item in layers)
+
+
 # ---------- store side ----------
 
 
@@ -278,7 +317,7 @@ def test_store_side_gives_the_rubric_to_its_commander_with_h_spread_and_raters(
     assert unlisted["percentile"] is None and unlisted["status"] == strength.NO_VALUE
     assert cards["Filler 05"]["index"] is None
     assert row("Filler 01")["signal"] == "rubric_h_mean"
-    assert "rubric_h_mean" in strength_view.expected_signals()
+    assert "rubric_h_mean" in strength_view.expected_signals(COMMANDER)
     coverage = strength_view.signal_coverage(store, COMMANDER)
     assert coverage["rubric_h_mean"]["pool_cards_with_value"] == 4
     assert "rubric_h_sd" not in coverage and "rubric_raters" not in coverage

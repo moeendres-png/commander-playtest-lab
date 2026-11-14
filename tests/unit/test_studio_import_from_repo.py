@@ -265,9 +265,9 @@ def test_from_repo_imports_the_rubric_once_and_reports_its_step(
     ).fetchall()
     assert [(row[0], row[1]) for row in rows] == [("Chulane, Teller of Tales", 6.0)]
     layers = {layer["key"]: layer for layer in result["layers"]}
-    # the rows belong to Chulane: for this commander the layer exists and is missing, not 0 covered
-    assert layers["signal:rubric_h_mean"]["rows"] == 0
-    assert layers["signal:rubric_h_mean"]["status"] == "MISSING"
+    # the rows belong to Chulane: another commander has no rubric file, so the layer is not
+    # listed for it at all (no missing layer with an import call that cannot help)
+    assert "signal:rubric_h_mean" not in layers
     assert "--from-repo" in import_all.import_command("signal:rubric_h_mean", COMMANDER)
     store.close()
     # without a rubric folder the step is reported as not provided

@@ -1324,8 +1324,10 @@ def score_pool(
                 percentile is not None
                 and weight > 0
                 and is_commander_specific(component, settings.combo_source)
-                and status in (PRESENT, ZERO_COUNT, MISSING_AS_LOWEST)
+                and status in (PRESENT, ZERO_COUNT)
             ):
+                # MISSING_AS_LOWEST counts as a value for the index and the coverage, but a
+                # card the commander's lists do not name is no evidence about this commander
                 specific = True
             if group_fallback and settings.rank_group == GROUP_POOL:
                 note = (

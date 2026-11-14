@@ -750,6 +750,9 @@ universe is never an option of `universe_source`. Duplicate
 card rows keep the first and are counted. `expected_signals()`, the completeness table and
 `/api/layers` list the stored universes, or one generic row `Signal decklist_universe` as
 `MISSING` while none exists.
+`expected_signals(commander)` lists the rubric signal `rubric_h_mean` only for a commander that
+has a rubric file (`RUBRIC_COMMANDERS`, today Chulane); for every other commander the rubric is
+neither a missing layer in the completeness table nor an import command offered.
 
 The deck-universe component takes its counts from ONE universe, chosen by the setting
 `universe_source` (`universe_choice.choose`, the one place that decides; the builder asks the
@@ -779,13 +782,19 @@ builder and the tier list both use those.
 Tier rule "commander-specific evidence" (`require_commander_signal`, recommended on): a card
 gets a tier only if at least one commander-specific component (commander inclusion, bracket
 inclusion, deck universe, synergy, tournament lists, or `combos` with `combo_source = "commander"`)
-has a ranked value with a weight above 0;
-global inclusion, Spellbook combos (`combo_source = "spellbook"`) and the Playgroup observation are the same for every commander and
-never give a tier alone
+has a ranked value with a weight above 0. A value that stands in only because of
+`missing_value = lowest` (the card is in none of the commander's lists, #1350) is not such
+evidence: it counts for the index and the coverage, but a card with nothing else than global
+inclusion stays at tier `U`. Global inclusion, Spellbook combos (`combo_source = "spellbook"`)
+and the Playgroup observation are the same for every commander and never give a tier alone
 (tier `U`, reason `NO_COMMANDER_SIGNAL`, "kein Signal speziell für diesen Commander"; simulation
 never counts). The recommended minimum data situation (`min_coverage`, shown as
-"Mindest-Datenlage") is 0.25: with a counted universe an unlisted card has deck universe 2 +
-global 1 = 3 of 11 = 0.2727 (total weight 11 with synergy and Playgroup observation at 0).
+"Mindest-Datenlage") is 0.25. With the default `missing_value` (commander and bracket
+inclusion lowest) an unlisted card has commander inclusion 3 + bracket inclusion 2 + global 1 =
+6 of 11 (0.5455) and, with a counted universe, deck universe 2 as well: the coverage threshold
+no longer separates it, the commander-specific rule above does. With `missing_value = skip` an
+unlisted card with a counted universe has deck universe 2 + global 1 = 3 of 11 = 0.2727 (total
+weight 11 with synergy and Playgroup observation at 0).
 
 ### Combos in the deck (schema 14)
 

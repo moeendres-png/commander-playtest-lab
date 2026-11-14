@@ -31,6 +31,7 @@ from typing import TypedDict
 from . import (
     layers,
     layers_view,
+    research_import,
     roles,
     signals,
     strength,
@@ -264,16 +265,16 @@ class SignalCoverage(TypedDict):
     pool_size: int
 
 
-def expected_signals() -> list[str]:
+def expected_signals(commander: str = "") -> list[str]:
     """The usage signals the importers can store, a fixed list from the code (not from what
-    happens to be stored): a signal without rows is then shown as missing, never left out."""
-    return [
+    happens to be stored): a signal without rows is then shown as missing, never left out.
+    The rubric is expected only for the commanders that have a rubric file."""
+    names = [
         strength.signal_for(COMMANDER_INCLUSION, strength.BRACKET_NONE),
         *(f"{signals.SIGNAL_BRACKET}:{variant}" for variant in signals.BRACKET_VARIANTS),
         strength.signal_for(SYNERGY, strength.BRACKET_NONE),
         strength.signal_for(GLOBAL_INCLUSION, strength.BRACKET_NONE),
         strength.signal_for(COMBOS, strength.BRACKET_NONE),
-        strength.signal_for(RUBRIC, strength.BRACKET_NONE),
         signals.SIGNAL_TWO_CARD,
         signals.SIGNAL_PARTNERS,
         strength.signal_for(TOURNAMENT_LISTS, strength.BRACKET_NONE),
@@ -286,6 +287,12 @@ def expected_signals() -> list[str]:
         signals.SIGNAL_SALT,
         signals.SIGNAL_COMBO_DECKS,
     ]
+    if commander in research_import.RUBRIC_COMMANDERS.values():
+        names.insert(
+            names.index(strength.signal_for(COMBOS, strength.BRACKET_NONE)) + 1,
+            strength.signal_for(RUBRIC, strength.BRACKET_NONE),
+        )
+    return names
 
 
 def signal_coverage(store: StudioStore, commander: str) -> dict[str, SignalCoverage]:
@@ -306,10 +313,14 @@ def signal_coverage(store: StudioStore, commander: str) -> dict[str, SignalCover
     counted_signals = {
         item["signal"]: item for item in universe_choice.counted_universes(store, commander)
     }
-    names = expected_signals()
+    names = expected_signals(commander)
     if counted_signals:
         names.remove(signals.SIGNAL_DECKLIST)
-    for signal in sorted(set(stored) - set(names) - signals.RUBRIC_COMPANIONS):
+    rubric_signals = {
+        strength.signal_for(RUBRIC, strength.BRACKET_NONE),
+        *signals.RUBRIC_COMPANIONS,
+    }
+    for signal in sorted(set(stored) - set(names) - rubric_signals):
         if signal.startswith(f"{signals.SIGNAL_DECKLIST}:") and signal not in counted_signals:
             continue  # a counted universe of another commander
         names.append(signal)
