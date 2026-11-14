@@ -456,10 +456,16 @@ function strengthBox(card) {
   if (universe && universe.subset_note) box.append(h("p", { class: "rule" }, `Decklisten-Universum ${universe.profile}: ${universe.denominator} Decks. ${universe.subset_note}.`));
   box.append(table(["Signal", "Wert", "Zähler/Nenner", "Wilson-Untergrenze", "Perzentil", "Gewicht", "Status", "Hinweis"], item.components.map((c) => {
     const [text, kind] = COMPONENT_STATUS[c.status] || [c.status, "dim"];
-    const percentile = c.percentile === null ? unknown("–") : c.group_fallback ? `${c.percentile.toFixed(3)} (Rang im ganzen Pool${c.reason === "GROUP_UNKNOWN" ? ", Gruppe unbekannt" : ", Gruppe zu klein"})` : `${c.percentile.toFixed(3)}${c.group ? ` (Gruppe ${c.group}, ${c.group_size})` : ""}`;
+    const percentile = c.percentile === null ? unknown("–") : c.group_fallback ? `${c.percentile.toFixed(3)} (Rang im ganzen Pool${c.reason === "GROUP_UNKNOWN" ? ", Gruppe unbekannt" : ", Gruppe zu klein"})` : `${c.percentile.toFixed(3)}${c.group ? ` (Gruppe ${groupLabel(c.group)}, ${c.group_size})` : ""}`;
     return [h("span", { title: c.signal }, c.label), c.value === null ? unknown() : Number(c.value.toPrecision(4)), c.denominator ? (c.numerator === null || c.numerator === undefined ? `n = ${c.denominator}` : `${c.numerator}/${c.denominator}`) : unknown("–"), c.wilson === null ? unknown("–") : c.wilson.toFixed(4), percentile, c.weight, h("span", { class: `badge ${kind}` }, text), c.note ? h("span", { class: "rule" }, c.note) : ""];
   })));
   return box;
+}
+// Comparison group of a signal row; role keys are shown with their German names.
+function groupLabel(group) {
+  const settings = state.strength.result && state.strength.result.settings;
+  if (!settings || settings.rank_group !== "role") return group;
+  return group.split(", ").map((part) => roleName(part)).join(", ");
 }
 function layersBox(card) {
   const box = h("div", { class: "layer" }, h("h3", {}, "Bewertungsebenen"));
