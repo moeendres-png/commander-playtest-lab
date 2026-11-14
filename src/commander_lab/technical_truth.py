@@ -250,9 +250,6 @@ def build_technical_truth(root: str | Path) -> dict[str, Any]:
             "exact_result_cache_surface_present": (
                 root_path / "src/commander_lab/storage/result_cache.py"
             ).is_file(),
-            "production_adaptive_scheduler_present": (
-                root_path / "src/commander_lab/adaptive_budget.py"
-            ).is_file(),
             "model_informativeness_gate_present": (
                 root_path / "src/commander_lab/model_informativeness.py"
             ).is_file(),
@@ -281,12 +278,6 @@ def build_technical_truth(root: str | Path) -> dict[str, Any]:
             ),
         },
         "first_run_readiness": {
-            "preparation_surface_present": (
-                root_path / "scripts/prepare_rogshai_first_serious_experiment.py"
-            ).is_file(),
-            "authorized_runner_surface_present": (
-                root_path / "scripts/run_rogshai_first_serious_experiment.py"
-            ).is_file(),
             "preliminary_run": {
                 "classification": "preliminary_noncanonical_decision_support",
                 "official_first_run": False,

@@ -59,7 +59,6 @@ BASELINE: dict[str, int] = {
     "src/commander_lab/robustness.py": 1,
     "src/commander_lab/semantic_replay/consumer.py": 2,
     "src/commander_lab/tools/service.py": 1,
-    "scripts/run_candidate_handoff_conformance.py": 1,
     "scripts/run_external_b4c_regression.py": 2,
     "scripts/run_external_b4d_regression.py": 1,
     "scripts/run_external_b4f_illegal_action_regression.py": 1,
