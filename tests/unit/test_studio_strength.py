@@ -2471,3 +2471,152 @@ def test_lowest_for_an_unlisted_card_is_at_or_below_the_smallest_listed_card_nev
     )
     assert skipped["unlisted"]["index"] is None
     assert _row(skipped, "unlisted", "commander_inclusion")["status"] == strength.NO_VALUE
+
+
+# ---------- lands ranked apart from spells (#1353 part A) ----------
+
+
+def _land_pool(
+    land_counts: list[int], spell_counts: list[int]
+) -> tuple[dict[str, dict[str, Observation]], PoolContext]:
+    observations: dict[str, dict[str, Observation]] = {}
+    groups: dict[str, str] = {}
+    for prefix, group, counts in (("l", "Land", land_counts), ("s", "Creature", spell_counts)):
+        for index, count in enumerate(counts):
+            observations[f"{prefix}{index}"] = {
+                "deck_universe": Observation(count / 1000, count, 1000)
+            }
+            groups[f"{prefix}{index}"] = group
+    return observations, PoolContext(type_group=groups)
+
+
+def _land_settings(**extra: object) -> StrengthSettings:
+    return _only("deck_universe", min_denominators={"edhrec": 0, "tournament": 0}, **extra)
+
+
+def _index(scored: dict[str, strength.CardStrength], card: str) -> float:
+    value = scored[card]["index"]
+    assert value is not None
+    return value
+
+
+def test_lands_and_spells_are_scaled_inside_their_own_group() -> None:
+    lands = [800, 400, 200, 100, 50, 10]
+    spells = [300, 150, 100, 60, 30, 5]
+    observations, context = _land_pool(lands, spells)
+    collected = {"deck_universe"}
+    for scale in ("share", "rank"):
+        on = strength.score_pool(
+            _land_settings(share_scale=scale), observations, collected, context=context
+        )
+        # a land at the land maximum and a spell at the spell maximum both score 100
+        assert _index(on, "l0") == 100.0 and _index(on, "s0") == 100.0
+        if scale == "rank":
+            assert _index(on, "l5") == _index(on, "s5") == 0.0
+    shared = strength.score_pool(_land_settings(), observations, collected, context=context)
+    # share scale inside the group: sqrt of the wilson bound relative to the group maximum
+    assert _index(shared, "l1") == pytest.approx(_index(shared, "s1"), abs=15.0)
+    # a land's score does not change when a spell's share changes, and vice versa
+    bigger_spell, ctx2 = _land_pool(lands, [990, *spells[1:]])
+    again = strength.score_pool(_land_settings(), bigger_spell, collected, context=ctx2)
+    for card in ("l0", "l1", "l2", "l3", "l4", "l5"):
+        assert _index(again, card) == _index(shared, card)
+    assert _index(again, "s1") != _index(shared, "s1")
+    bigger_land, ctx3 = _land_pool([990, *lands[1:]], spells)
+    third = strength.score_pool(_land_settings(), bigger_land, collected, context=ctx3)
+    for card in ("s0", "s1", "s2", "s3", "s4", "s5"):
+        assert _index(third, card) == _index(shared, card)
+    assert _index(third, "l1") != _index(shared, "l1")
+    # the group is named in the row, with its size
+    row = _row(shared, "l0", "deck_universe")
+    assert (row["group"], row["group_size"], row["group_fallback"]) == ("Länder", 6, False)
+    row = _row(shared, "s0", "deck_universe")
+    assert (row["group"], row["group_size"]) == ("Zauber", 6)
+
+
+def test_with_the_setting_off_lands_and_spells_share_one_scale_like_before() -> None:
+    observations, context = _land_pool([800, 400, 200, 100, 50, 10], [300, 150, 100, 60, 30, 5])
+    collected = {"deck_universe"}
+    off = strength.score_pool(
+        _land_settings(separate_lands=False), observations, collected, context=context
+    )
+    plain = strength.score_pool(_land_settings(separate_lands=False), observations, collected)
+    assert {k: v["index"] for k, v in off.items()} == {k: v["index"] for k, v in plain.items()}
+    assert _index(off, "l0") == 100.0 and _index(off, "s0") < 100.0  # one scale: the top land
+    bigger, ctx2 = _land_pool([800, 400, 200, 100, 50, 10], [990, 150, 100, 60, 30, 5])
+    moved = strength.score_pool(
+        _land_settings(separate_lands=False), bigger, collected, context=ctx2
+    )
+    assert _index(moved, "l0") != _index(off, "l0")  # lands depend on spells again
+    assert _row(off, "l0", "deck_universe")["group"] is None
+
+
+def test_a_group_below_the_minimum_keeps_the_whole_pool_scale_and_says_so() -> None:
+    observations, context = _land_pool([800, 400, 200], [300, 150, 100, 60, 30, 5])
+    collected = {"deck_universe"}
+    on = strength.score_pool(_land_settings(), observations, collected, context=context)
+    off = strength.score_pool(
+        _land_settings(separate_lands=False), observations, collected, context=context
+    )
+    for card in ("l0", "l1", "l2"):  # only 3 lands (< MIN_GROUP): the old, joint scale
+        assert _index(on, card) == _index(off, card)
+        row = _row(on, card, "deck_universe")
+        assert row["group_fallback"] is True and row["reason"] == strength.GROUP_TOO_SMALL
+        assert "weniger als 5" in row["note"] and "Länder" in row["note"]
+    # the spells (6 cards) are scaled alone, against their own maximum
+    assert _index(on, "s0") == 100.0 and _index(off, "s0") < 100.0
+
+
+def test_the_same_cuts_apply_to_lands_and_spells_and_basics_stay_unranked() -> None:
+    observations, context = _land_pool([800, 400, 200, 100, 50, 10], [300, 150, 100, 60, 30, 5])
+    observations["basic"] = {"deck_universe": Observation(0.99, 990, 1000)}
+    ctx = PoolContext(
+        type_group={**context.type_group, "basic": "Land"},
+        unranked={"basic": strength.NOT_RANKED_BASIC_LAND},
+    )
+    scored = strength.score_pool(_land_settings(), observations, {"deck_universe"}, context=ctx)
+    assert scored["basic"]["tier"] == "N" and scored["basic"]["index"] is None
+    assert scored["l0"]["tier"] == scored["s0"]["tier"] == "S"  # both 100, one set of cuts
+    # the basic land did not take part in the land scale: l0 is still the land maximum
+    assert _index(scored, "l0") == 100.0
+    # no card type is given (as in older callers): everything is one group of spells
+    plain = strength.score_pool(_land_settings(), observations, {"deck_universe"})
+    assert _row(plain, "l0", "deck_universe")["group"] == "Zauber"
+
+
+def test_comparison_groups_by_function_never_mix_lands_and_spells() -> None:
+    observations, context = _land_pool(
+        [800, 400, 200, 100, 50, 10, 5], [300, 150, 100, 60, 30, 5, 3]
+    )
+    ctx = PoolContext(
+        type_group=context.type_group,
+        function_group={card: ("ramp",) for card in observations},
+    )
+    for separate, expected_size in ((True, 7), (False, 14)):
+        scored = strength.score_pool(
+            _land_settings(rank_group="function", separate_lands=separate),
+            observations,
+            {"deck_universe"},
+            context=ctx,
+        )
+        row = _row(scored, "l0", "deck_universe")
+        assert (row["group"], row["group_size"]) == ("ramp", expected_size)
+
+
+def test_separate_lands_is_validated_serialised_and_recommended() -> None:
+    default = StrengthSettings()
+    assert default.separate_lands is True and default.to_dict()["separate_lands"] is True
+    assert StrengthSettings.from_dict({"separate_lands": False}).separate_lands is False
+    assert StrengthSettings.from_dict(default.to_dict()) == default
+    for bad in ({"separate_lands": "yes"}, {"separate_lands": 1}):
+        with pytest.raises(ValueError, match="separate_lands"):
+            StrengthSettings.from_dict(bad)
+    with pytest.raises(ValueError, match="separate_lands"):
+        StrengthSettings(separate_lands=1)  # type: ignore[arg-type]
+    # an older stored profile without the key takes the recommended value
+    assert StrengthSettings.from_stored({"bracket": "core"})[0].separate_lands is True
+    panel = strength_view.presets()["panel"]
+    assert "(empfohlen: an)" in panel["labels"]["separate_lands"]  # type: ignore[index]
+    assert "separate_lands" in {key for g in panel["groups"] for key in g["keys"]}  # type: ignore[index]
+    choices = panel["choices"]["separate_lands"]  # type: ignore[index]
+    assert [c["value"] for c in choices if c["recommended"]] == [True]

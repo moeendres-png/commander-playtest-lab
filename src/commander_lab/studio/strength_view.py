@@ -1022,6 +1022,18 @@ def _panel_texts() -> dict[str, object]:
         "der Mindestgröße zählen beim Mittelwert nicht mit. Eine Karte ohne "
         "belegte Rolle fällt auf den ganzen Pool zurück und sagt das in der Signalzeile."
     )
+    labels["separate_lands"] = (
+        f"Länder getrennt von Zaubern ranken (empfohlen: {'an' if rec.separate_lands else 'aus'})"
+    )
+    helps["separate_lands"] = (
+        "an: Länder werden nur mit Ländern und Zauber nur mit Zaubern verglichen. Der "
+        "Anteil relativ zum Maximum (und jeder Rang) wird in den beiden Gruppen „Länder“ "
+        "und „Zauber“ getrennt berechnet; die Stufen-Grenzen sind für beide gleich. So legt "
+        "Command Tower den Maßstab nicht für die Zauber fest und umgekehrt. aus: ein "
+        "gemeinsamer Vergleich über den ganzen Pool. Eine Gruppe mit weniger als "
+        f"{strength.MIN_GROUP} Karten mit Wert bleibt im gemeinsamen Vergleich (steht in der "
+        "Signalzeile). Standardländer und der Commander bekommen weiterhin keine Stufe."
+    )
     labels["share_measure"] = (
         f"Anteil messen als (empfohlen: {_MEASURE_CHOICES[rec.share_measure]})"
     )
@@ -1149,7 +1161,7 @@ def _panel_texts() -> dict[str, object]:
             "keys": [*(f"layer_weights.{key}" for key in strength.LAYER_KEYS), "pod_size"],
         },
         {"title": "Bracket", "keys": ["bracket", "combo_source"]},
-        {"title": "Vergleichsgruppe für den Rang", "keys": ["rank_group"]},
+        {"title": "Vergleichsgruppe für den Rang", "keys": ["rank_group", "separate_lands"]},
         {"title": "Anteil messen als", "keys": ["share_measure", "share_scale"]},
         {
             "title": "Mindest-Nenner je Signal",
@@ -1207,6 +1219,10 @@ def _panel_texts() -> dict[str, object]:
                     "recommended": False,
                 },
                 {"value": strength.UNIVERSE_NONE, "label": "keines", "recommended": False},
+            ],
+            "separate_lands": [
+                {"value": True, "label": "an (empfohlen)", "recommended": True},
+                {"value": False, "label": "aus", "recommended": False},
             ],
             "rank_commander_and_basics": [
                 {"value": False, "label": "aus (empfohlen)", "recommended": True},

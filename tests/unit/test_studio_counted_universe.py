@@ -116,7 +116,13 @@ def _file_report(report: dict[str, object]) -> signals.FileReport:
     return files["synthetic_decklist_inclusion_20261112"]  # type: ignore[no-any-return]
 
 
+# These tests are about the counted universe and the coverage of a card that no EDHREC signal
+# lists: that card stays a missing observation ("skip"), not the lowest rank (#1350 default).
+SKIP_UNLISTED = {"commander_inclusion": "skip", "bracket_inclusion": "skip"}
+
+
 def _compute(store: StudioStore, **settings: object) -> strength_view.StrengthResult:
+    settings.setdefault("missing_value", dict(SKIP_UNLISTED))
     return strength_view.compute(store, COMMANDER, StrengthSettings(**settings))  # type: ignore[arg-type]
 
 

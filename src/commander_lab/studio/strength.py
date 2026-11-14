@@ -115,6 +115,9 @@ BRACKET_NONE = "none"
 Z_95 = 1.959963984540054
 MIN_GROUP = 5
 
+TYPE_LAND = "Land"  # the type group of a land card (``PoolContext.type_group``)
+GROUP_LANDS = "Länder"
+GROUP_SPELLS = "Zauber"  # every card that is not a land
 GROUP_POOL = "pool"
 GROUP_TYPE = "type"
 GROUP_MANA_BAND = "mana_band"
@@ -331,6 +334,10 @@ DEFAULT_MIN_DENOMINATORS: dict[str, int] = {
     MIN_PLAYGROUP: 200,
 }
 DEFAULT_BRACKET = "upgraded"
+# Lands are ranked against lands and spells against spells (#1353 part A): share scaling
+# (v / v_max) and percentile ranks are computed inside the two groups, so a land with the most
+# decks does not set the scale of the spells and the other way round.
+DEFAULT_SEPARATE_LANDS = True
 DEFAULT_MIN_COVERAGE = 0.25
 DEFAULT_REQUIRE_COMMANDER_SIGNAL = True
 DEFAULT_MIN_COMPONENTS = 2
@@ -356,6 +363,7 @@ _SETTINGS_KEYS = frozenset(
         "layer_weights",
         "pod_size",
         "combo_source",
+        "separate_lands",
     }
 )
 
@@ -461,6 +469,7 @@ class StrengthSettings:
     layer_weights: dict[str, float] = field(default_factory=lambda: dict(DEFAULT_LAYER_WEIGHTS))
     pod_size: int = DEFAULT_POD_SIZE
     combo_source: str = DEFAULT_COMBO_SOURCE
+    separate_lands: bool = DEFAULT_SEPARATE_LANDS
 
     def __post_init__(self) -> None:
         weights = {name: DEFAULT_WEIGHTS[name] for name in COMPONENTS}
@@ -524,6 +533,8 @@ class StrengthSettings:
             raise ValueError("rank_commander_and_basics must be true or false")
         if not isinstance(self.rank_other_commanders, bool):
             raise ValueError("rank_other_commanders must be true or false")
+        if not isinstance(self.separate_lands, bool):
+            raise ValueError("separate_lands must be true or false")
         if not isinstance(self.require_commander_signal, bool):
             raise ValueError("require_commander_signal must be true or false")
         if parse_universe_source(self.universe_source) is None:
@@ -597,6 +608,7 @@ class StrengthSettings:
             "layer_weights": dict(self.layer_weights),
             "pod_size": self.pod_size,
             "combo_source": self.combo_source,
+            "separate_lands": self.separate_lands,
         }
 
     @classmethod
@@ -663,6 +675,9 @@ class StrengthSettings:
         pod_size = raw.get("pod_size", defaults.pod_size)
         if isinstance(pod_size, bool) or not isinstance(pod_size, int):
             raise ValueError("pod_size must be an integer")
+        separate = raw.get("separate_lands", defaults.separate_lands)
+        if not isinstance(separate, bool):
+            raise ValueError("separate_lands must be true or false")
         return cls(
             weights={
                 **DEFAULT_WEIGHTS,
@@ -697,6 +712,7 @@ class StrengthSettings:
             },
             pod_size=pod_size,
             combo_source=combo_source,
+            separate_lands=separate,
         )
 
 
@@ -955,6 +971,9 @@ class _ComponentRanking:
     group_ranks: dict[str, tuple[tuple[str, ...], dict[str, int], float]]
     reference_denominator: int | None
     minimum: int
+    # separate lands under the pool comparison: card -> (group name, valued cards in it,
+    # fell back to the whole pool because the group was smaller than ``MIN_GROUP``)
+    land_split: dict[str, tuple[str, int, bool]] = field(default_factory=dict)
 
     @property
     def usable(self) -> bool:
@@ -992,6 +1011,46 @@ def _scale_component_values(
     if component in DIRECT_COMPONENTS:
         return dict(values)
     return percentile_ranks(values)
+
+
+def _is_land(context: PoolContext, card: str) -> bool:
+    return context.type_group.get(card) == TYPE_LAND
+
+
+def _split_scale(
+    component: str,
+    values: Mapping[str, float],
+    settings: StrengthSettings,
+    context: PoolContext,
+) -> tuple[dict[str, float], dict[str, tuple[str, int, bool]]]:
+    """Pool-level 0..1 scores of ``values`` and, when ``settings.separate_lands`` is on, the
+    land split behind them: lands are scaled against lands and spells against spells. A group
+    with fewer than ``MIN_GROUP`` valued cards keeps its score from the whole population (said in
+    the row), like every too small comparison group. Without ``separate_lands`` it is the
+    plain scaling of the whole pool."""
+    if not settings.separate_lands or component in DIRECT_COMPONENTS:
+        # a direct score does not depend on the other cards: nothing to split
+        return _scale_component_values(component, values, settings), {}
+    parts = (
+        (GROUP_LANDS, {card: v for card, v in values.items() if _is_land(context, card)}),
+        (GROUP_SPELLS, {card: v for card, v in values.items() if not _is_land(context, card)}),
+    )
+    scores: dict[str, float] = {}
+    info: dict[str, tuple[str, int, bool]] = {}
+    whole: dict[str, float] | None = None
+    for name, part in parts:
+        if not part:
+            continue
+        small = len(part) < MIN_GROUP
+        if small:
+            if whole is None:
+                whole = _scale_component_values(component, values, settings)
+            scaled = {card: whole[card] for card in part}
+        else:
+            scaled = _scale_component_values(component, part, settings)
+        scores.update(scaled)
+        info.update({card: (name, len(part), small) for card in part})
+    return scores, info
 
 
 def _rank_component(
@@ -1036,15 +1095,17 @@ def _rank_component(
             continue
         values[card] = value
         wilson[card] = bound
-    pool_ranks = _scale_component_values(component, values, settings)
+    pool_ranks, land_split = _split_scale(component, values, settings, context)
     group_ranks: dict[str, tuple[tuple[str, ...], dict[str, int], float]] = {}
     if settings.rank_group != GROUP_POOL:
-        members: dict[str, dict[str, float]] = {}
+        # a comparison group never mixes lands and spells while ``separate_lands`` is on
+        members: dict[tuple[str, bool], dict[str, float]] = {}
         for card, value in values.items():
+            land = settings.separate_lands and _is_land(context, card)
             for name in _groups_of(settings, context, card):
-                members.setdefault(name, {})[card] = value
+                members.setdefault((name, land), {})[card] = value
         found: dict[str, dict[str, tuple[int, float]]] = {}
-        for name, group_values in members.items():
+        for (name, _land), group_values in members.items():
             if len(group_values) >= MIN_GROUP:
                 ranks = _scale_component_values(component, group_values, settings)
                 for card, rank in ranks.items():
@@ -1054,7 +1115,9 @@ def _rank_component(
             sizes = {name: per_group[name][0] for name in names}
             percentile = sum(per_group[name][1] for name in names) / len(names)
             group_ranks[card] = (names, sizes, percentile)
-    return _ComponentRanking(values, wilson, reasons, pool_ranks, group_ranks, reference, minimum)
+    return _ComponentRanking(
+        values, wilson, reasons, pool_ranks, group_ranks, reference, minimum, land_split
+    )
 
 
 def _component_note(
@@ -1213,6 +1276,8 @@ def score_pool(
                     else:
                         group = " + ".join(_groups_of(settings, ctx, card)) or None
                         group_fallback = True
+                elif card in ranking.land_split:
+                    group, group_size, group_fallback = ranking.land_split[card]
             elif (
                 reason == NOT_LISTED
                 and component in collected
@@ -1236,7 +1301,12 @@ def score_pool(
                 and status in (PRESENT, ZERO_COUNT, MISSING_AS_LOWEST)
             ):
                 specific = True
-            if group_fallback:
+            if group_fallback and settings.rank_group == GROUP_POOL:
+                note = (
+                    f"Vergleichsgruppe „{group}“ hat nur {group_size} Karten mit Wert "
+                    f"(weniger als {MIN_GROUP}): Rang im ganzen Pool (Länder und Zauber zusammen)"
+                )
+            elif group_fallback:
                 note = _fallback_note(group, ranking, settings, ctx, card)
             components.append(
                 {
@@ -1319,13 +1389,19 @@ def _fallback_note(
     groups = _groups_of(settings, context, card)
     if settings.rank_group == GROUP_FUNCTION and not groups:
         return "Keine Funktion bekannt (keine Rolle aus den Quellen belegt): Rang im ganzen Pool"
+    # a comparison group never mixes lands and spells while ``separate_lands`` is on
+    same_kind = [
+        other
+        for other in ranking.values
+        if not settings.separate_lands or _is_land(context, other) == _is_land(context, card)
+    ]
     if groups:
         size = max(
-            sum(1 for other in ranking.values if name in _groups_of(settings, context, other))
+            sum(1 for other in same_kind if name in _groups_of(settings, context, other))
             for name in groups
         )
     else:
-        size = sum(1 for other in ranking.values if not _groups_of(settings, context, other))
+        size = sum(1 for other in same_kind if not _groups_of(settings, context, other))
     name = group or "ohne Gruppe"
     return (
         f"Vergleichsgruppe „{name}“ hat nur {size} Karten mit Wert (weniger als {MIN_GROUP}): "
