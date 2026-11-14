@@ -169,6 +169,7 @@ def test_the_tier_page_offers_favourite_and_deck_and_the_builder_shows_the_tier(
     # a background builder tab adopts the stored draft only when all its own changes are saved
     assert "state.savedSeq !== seq" in app and "state.changeSeq !== seq" in app
     assert "savePending" not in app
+    assert "syncQueue = syncQueue.then(syncDraftNow)" in app  # saves never overtake each other
     # shown messages of a refused change reach the page as written
     assert "im Deck" in (STATIC / "ui.js").read_text(encoding="utf-8")
 
