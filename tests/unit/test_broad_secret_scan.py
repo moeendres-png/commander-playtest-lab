@@ -124,7 +124,7 @@ def test_the_project_sentinel_is_retained_as_a_separate_signal() -> None:
     workflow = yaml.safe_load((REPO / ".github/workflows/ci.yml").read_text(encoding="utf-8"))
     sentinel = [
         step
-        for step in workflow["jobs"]["quality"]["steps"]
+        for step in workflow["jobs"]["lint"]["steps"]
         if step.get("name") == "Secret-pattern scan"
     ]
     assert len(sentinel) == 1

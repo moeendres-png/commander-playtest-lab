@@ -21,13 +21,36 @@ env:
   PYTHONHASHSEED: "0"
 
 jobs:
-  quality:
+  # The required `quality` context is the small gate job at the end of this graph. The work
+  # runs in parallel jobs: lint, a matrix of test slots, and (only for a push to main or a
+  # pull request that changes a packaging input) the packaging job. `changes` decides how much
+  # of that work a pull request needs; scripts/ci_change_scope.py states the rules.
+  changes:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 3
+    outputs:
+      scope: ${{ steps.scope.outputs.scope }}
+      packaging: ${{ steps.scope.outputs.packaging }}
+      test_matrix: ${{ steps.scope.outputs.test_matrix }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          fetch-depth: 0
+      - name: Classify the change
+        id: scope
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          set -euo pipefail
+          if [ "$EVENT_NAME" = pull_request ]; then
+            git fetch --no-tags --depth=1 origin "$BASE_SHA"
+          fi
+          python3 scripts/ci_change_scope.py --event "$EVENT_NAME" --base "$BASE_SHA" --github-output "$GITHUB_OUTPUT"
+
+  lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.0.0 immutable revision
         with:
           python-version: "3.12"
@@ -45,15 +68,15 @@ jobs:
           set +e
           ruff check . --output-format=json > artifacts/quality/ruff.json
           rc=$?
-          ruff check . --output-format=github || true
+          python scripts/ci_ruff_annotations.py artifacts/quality/ruff.json || true
           exit "$rc"
       - name: Ruff format
         if: ${{ success() || failure() }}
         shell: bash
         run: |
+          set -o pipefail
           mkdir -p artifacts/quality
-          ruff format --diff . > artifacts/quality/ruff-format.diff || true
-          ruff format --check .
+          ruff format --check --diff . | tee artifacts/quality/ruff-format.diff
       - name: Mypy strict
         if: ${{ success() || failure() }}
         shell: bash
@@ -61,17 +84,6 @@ jobs:
           mkdir -p artifacts/quality
           set -o pipefail
           mypy src/commander_lab 2>&1 | tee artifacts/quality/mypy.txt
-      - name: Test suite
-        if: ${{ success() || failure() }}
-        # B5 (#486): tests/qualification is owned by the required infrastructure
-        # context (production-qualification.yml); every other test runs here.
-        # tests/unit/test_required_test_ownership.py keeps each file to one owner.
-        # Priority E1 (#479): per-test durations (log) and JUnit XML (ci-evidence
-        # artifact) are reporting only; they never change collection or outcome.
-        # --shards=4 (tests/pytest_shards.py) runs the same selection as four parallel pytest
-        # processes on the 4-core runner, each in its own checkout copy; the last shard runs
-        # everything the weight table does not list, so no test can fall out of the run.
-        run: pytest -q --durations=50 --junitxml=artifacts/quality/pytest-junit.xml --shards=4 --ignore=tests/qualification
       - name: Compile
         if: ${{ success() || failure() }}
         run: python -m compileall -q src tests
@@ -117,6 +129,88 @@ jobs:
       - name: Build wheel
         if: ${{ success() || failure() }}
         run: python -m pip wheel --no-deps --wheel-dir dist .
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2 immutable revision
+        if: always()
+        timeout-minutes: 3
+        with:
+          name: ci-evidence-lint
+          path: |
+            dist/
+            artifacts/quality/
+          if-no-files-found: warn
+
+  tests:
+    # B5 (#486): tests/qualification is owned by the required infrastructure context
+    # (production-qualification.yml); every other test runs here, except the packaging test,
+    # which the packaging job owns. tests/unit/test_required_test_ownership.py proves that the
+    # slots below, the packaging job and the infrastructure context cover every test file once.
+    # Each slot is a full 4-core runner: `python -m tests.pytest_shards matrix` names its files
+    # and `--shards=4` (tests/pytest_shards.py) splits them over four pytest processes.
+    needs: changes
+    name: tests ${{ matrix.index }}/${{ matrix.count }} (${{ matrix.scope }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.changes.outputs.test_matrix) }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.0.0 immutable revision
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements/lock.txt
+      - name: Install project and quality tools
+        run: |
+          python -m pip install --require-hashes -r requirements/lock.txt
+          python -m pip install --no-deps --no-build-isolation -e .
+      - name: Select the test files of this slot
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m tests.pytest_shards matrix --index "${{ matrix.index }}" --count "${{ matrix.count }}" --scope "${{ matrix.scope }}" > "$RUNNER_TEMP/test-files.txt"
+          echo "$(wc -l < "$RUNNER_TEMP/test-files.txt") test files in this slot"
+          # test_technical_truth proves ancestry from full history; only its slot fetches it.
+          if grep -qx tests/unit/test_technical_truth.py "$RUNNER_TEMP/test-files.txt" \
+              && [ "$(git rev-parse --is-shallow-repository)" = true ]; then
+            git fetch --no-tags --unshallow
+          fi
+      - name: Test suite
+        shell: bash
+        # Priority E1 (#479): per-test durations (log) and JUnit XML are reporting only; they
+        # never change collection or outcome.
+        run: |
+          set -euo pipefail
+          mapfile -t files < "$RUNNER_TEMP/test-files.txt"
+          pytest -q --durations=50 --junitxml=artifacts/quality/pytest-junit.xml --shards=4 "${files[@]}"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2 immutable revision
+        if: always()
+        timeout-minutes: 3
+        with:
+          name: ci-evidence-tests-${{ matrix.index }}
+          path: artifacts/quality/
+          if-no-files-found: warn
+
+  packaging:
+    # Runs on every push to main and on a pull request that changes a packaging input
+    # (scripts/ci_change_scope.py); otherwise it is skipped and `quality` accepts the skip.
+    needs: changes
+    if: ${{ needs.changes.outputs.packaging == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.0.0 immutable revision
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements/lock.txt
+      - name: Install project and quality tools
+        run: |
+          python -m pip install --require-hashes -r requirements/lock.txt
+          python -m pip install --no-deps --no-build-isolation -e .
+      - name: Build wheel
+        run: python -m pip wheel --no-deps --wheel-dir dist .
       - name: Packaging smoke (isolated wheel install, import and CLI)
         # Issue #490. Wheel construction above proves packaging can produce an
         # artifact; this proves the artifact installs into a clean isolated
@@ -128,7 +222,7 @@ jobs:
         # and probes imports with -I so no worktree PYTHONPATH can substitute the
         # source tree for the installation. No continue-on-error, no || true and
         # no skip condition: a broken wheel, entrypoint or evidence document
-        # fails this required context.
+        # fails this job and with it the required quality context.
         if: ${{ success() || failure() }}
         run: |
           python scripts/verify_packaging_smoke.py smoke \
@@ -147,14 +241,55 @@ jobs:
             --repo . \
             --wheel-dir dist \
             --evidence artifacts/quality/PACKAGING_SMOKE.json
+      - name: Packaging tests
+        if: ${{ success() || failure() }}
+        run: pytest -q --durations=50 --junitxml=artifacts/quality/pytest-junit-packaging.xml tests/unit/test_packaging_smoke.py
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2 immutable revision
         if: always()
+        timeout-minutes: 3
         with:
-          name: ci-evidence
+          name: ci-evidence-packaging
           path: |
             dist/
             artifacts/quality/
           if-no-files-found: warn
+
+  quality:
+    # The required context. It is green only when every job it needs ended `success`; the one
+    # accepted `skipped` is the packaging job on a pull request whose diff has no packaging
+    # input (changes.outputs.packaging == 'false', and `changes` itself succeeded). `always()`
+    # keeps it from being skipped when a needed job fails, and it fails then.
+    if: always()
+    needs: [changes, lint, tests, packaging]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Every needed job succeeded
+        shell: bash
+        env:
+          CHANGES: ${{ needs.changes.result }}
+          LINT: ${{ needs.lint.result }}
+          TESTS: ${{ needs.tests.result }}
+          PACKAGING: ${{ needs.packaging.result }}
+          PACKAGING_NEEDED: ${{ needs.changes.outputs.packaging }}
+        run: |
+          set -u
+          status=0
+          require() {
+            if [ "$2" != success ]; then
+              echo "::error::job $1 finished as '$2', not success"
+              status=1
+            fi
+          }
+          require changes "$CHANGES"
+          require lint "$LINT"
+          require tests "$TESTS"
+          if [ "$PACKAGING" = skipped ] && [ "$CHANGES" = success ] && [ "$PACKAGING_NEEDED" = false ]; then
+            echo "packaging skipped: no packaging input changed"
+          else
+            require packaging "$PACKAGING"
+          fi
+          exit "$status"
 
   security:
     runs-on: ubuntu-latest

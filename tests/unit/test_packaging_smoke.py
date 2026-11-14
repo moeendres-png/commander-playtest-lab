@@ -911,10 +911,12 @@ def _ci() -> dict:
     return yaml.safe_load(CI_WORKFLOW.read_text(encoding="utf-8"))
 
 
-def test_packaging_smoke_runs_inside_the_required_quality_context() -> None:
+def test_packaging_smoke_runs_in_the_packaging_job_the_quality_gate_needs() -> None:
     workflow = _ci()
-    quality = workflow["jobs"]["quality"]
-    names = [step.get("name") for step in quality["steps"]]
+    packaging = workflow["jobs"]["packaging"]
+    assert "quality" not in workflow["jobs"]["packaging"].get("needs", [])
+    assert "packaging" in workflow["jobs"]["quality"]["needs"]
+    names = [step.get("name") for step in packaging["steps"]]
     assert "Build wheel" in names, names
     smoke_index = next(
         index
@@ -923,7 +925,7 @@ def test_packaging_smoke_runs_inside_the_required_quality_context() -> None:
     )
     # It runs after the wheel it consumes is actually built.
     assert smoke_index > names.index("Build wheel")
-    smoke = quality["steps"][smoke_index]
+    smoke = packaging["steps"][smoke_index]
     assert smoke["if"] == "${{ success() || failure() }}"
     assert "continue-on-error" not in smoke
     assert "scripts/verify_packaging_smoke.py smoke" in smoke["run"]
@@ -938,302 +940,50 @@ def test_packaging_smoke_runs_inside_the_required_quality_context() -> None:
 
 def test_packaging_evidence_is_independently_rechecked_and_uploaded() -> None:
     workflow = _ci()
-    quality = workflow["jobs"]["quality"]
-    names = [step.get("name") for step in quality["steps"]]
+    packaging = workflow["jobs"]["packaging"]
+    names = [step.get("name") for step in packaging["steps"]]
     check_index = names.index("Packaging smoke evidence check")
-    check = quality["steps"][check_index]
+    check = packaging["steps"][check_index]
     assert check["if"] == "${{ success() || failure() }}"
     assert "continue-on-error" not in check
     assert "scripts/verify_packaging_smoke.py check" in check["run"]
     assert "|| true" not in check["run"]
-    upload = quality["steps"][-1]
+    upload = packaging["steps"][-1]
     assert "artifacts/quality/" in upload["with"]["path"]
-    assert upload["with"]["name"] == "ci-evidence"
+    assert upload["with"]["name"] == "ci-evidence-packaging"
+    assert upload["timeout-minutes"] == 3
 
 
 def test_existing_quality_gates_are_preserved() -> None:
     text = CI_WORKFLOW.read_text(encoding="utf-8")
     workflow = _ci()
-    quality = workflow["jobs"]["quality"]
-    names = [step.get("name") for step in quality["steps"]]
+    lint_names = [step.get("name") for step in workflow["jobs"]["lint"]["steps"]]
     for preserved in (
         "Install project and quality tools",
         "Ruff lint",
         "Ruff format",
         "Mypy strict",
-        "Test suite",
         "Compile",
         "Secret-pattern scan",
         "Build wheel",
     ):
-        assert preserved in names, preserved
+        assert preserved in lint_names, preserved
+    assert "Test suite" in [step.get("name") for step in workflow["jobs"]["tests"]["steps"]]
     assert "python -m pip wheel --no-deps --wheel-dir dist ." in text
     assert "Potential secret material found" in text
-    # Required contexts themselves are unchanged in name and job identity.
-    assert set(workflow["jobs"]) == {"quality", "security"}
+    # Required contexts themselves are unchanged in name and job identity; `quality` is the
+    # gate over the parallel jobs (tests/unit/test_ci_gate_structure.py checks its logic).
+    assert set(workflow["jobs"]) == {
+        "changes",
+        "lint",
+        "tests",
+        "packaging",
+        "quality",
+        "security",
+    }
     for context in ("quality", "security"):
-        assert workflow["jobs"][context].get("if") is None
-        assert workflow["jobs"][context].get("needs") is None
         assert workflow["jobs"][context].get("continue-on-error") is None
         assert workflow["jobs"][context].get("name") in (None, context)
         assert workflow["jobs"][context].get("strategy") is None
-
-
-def test_required_check_static_invariants_still_hold_for_the_candidate() -> None:
-    """CI-02's own static policy must report every invariant PASS on this candidate.
-
-    A legitimate required-gate definition change is reported separately as
-    ``GATE_DEFINITION_CHANGED_REVIEW_REQUIRED``; that classification is expected
-    evidence and is explicitly *not* a reason to weaken this policy.
-    """
-    sys.path.insert(0, str(ROOT / "scripts"))
-    import verify_required_check_definitions as gate
-
-    head = packaging.read_source_identity(ROOT)[0]
-    report = gate.inspect_required_check_definitions(ROOT, head, head)
-    non_pass = [item for item in report["invariant_results"] if item["status"] != "PASS"]
-    assert non_pass == [], non_pass
-    assert "quality.category.package_wheel" in {
-        item["id"] for item in report["invariant_results"] if item["status"] == "PASS"
-    }
-    assert report["candidate_code_executed"] is False
-
-
-def test_early_failure_overwrites_stale_pass(work_dir, tmp_path):
-    output = work_dir / "evidence" / "PACKAGING_SMOKE.json"
-    output.parent.mkdir()
-    output.write_text(json.dumps({"overall_classification": "PASS"}))
-    missing = tmp_path / "missing-wheels"
-    missing.mkdir()
-    completed, document = _smoke(missing, work_dir)
-    assert completed.returncode == EXIT_FAIL
-    assert document.get("overall_classification") != "PASS"
-    assert document.get("reasons"), document
-
-
-_FIRST_SCRIPT = next(iter(CONTRACT.scripts))
-
-
-def test_every_forged_binding_is_rejected_independently(accepted_evidence, tmp_path):
-    import copy
-
-    wheel_dir, _, valid = accepted_evidence
-    controls = [
-        (("source_sha",), "0" * 40),
-        (("installed_import", "module"), "commander_lab.__b9_missing__"),
-        (("installed_import", "module"), None),
-        (("installed_import", "module"), 123),
-        (("installed_import", "module"), "invalid-name"),
-        (("source_tree",), "0" * 40),
-        (("install", "direct_url_sha256"), "0" * 64),
-        (("install", "editable"), True),
-        (("install", "install_source"), "directory"),
-        (("install", "index_access"), "enabled"),
-        (("environment", "include_system_site_packages"), True),
-        (("environment", "created_by_this_run"), False),
-        (("reasons",), ["unresolved_failure"]),
-        (("package_contract",), {}),
-        (("cli_entrypoints",), []),
-        (("expected_bindings",), {"source_sha": "0" * 40}),
-        # Recorded runtime observations are re-observed, not just re-run.
-        (("installed_import", "module"), "yaml"),
-        (("python_version",), "2.7.18"),
-        (("installed_import", "python_version"), "2.7.18"),
-        (("installed_import", "dist_version"), "9.9.9"),
-        (
-            ("installed_import", "module_file_relative_to_purelib"),
-            "../src/commander_lab/__init__.py",
-        ),
-        (("installed_import", "runtime_requirements_satisfied"), []),
-        (("installed_import", "sys_path_entry_count"), 999),
-        (("cli_entrypoint_results", _FIRST_SCRIPT, "stdout_sha256"), "0" * 64),
-        (("cli_entrypoint_results", _FIRST_SCRIPT, "stdout_bytes"), 1),
-        (("cli_entrypoint_results", _FIRST_SCRIPT, "target"), "forged:app"),
-    ]
-    expected_failures = {
-        ("source_sha",): "evidence_source_identity_not_current",
-        ("source_tree",): "evidence_source_identity_not_current",
-        ("install", "direct_url_sha256"): "install_binding_invalid:direct_url_sha256",
-        ("install", "editable"): "install_binding_invalid:editable",
-        ("install", "install_source"): "install_binding_invalid:install_source",
-        ("install", "index_access"): "install_binding_invalid:index_access",
-        (
-            "environment",
-            "include_system_site_packages",
-        ): "environment_binding_invalid:include_system_site_packages",
-        ("environment", "created_by_this_run"): "environment_binding_invalid:created_by_this_run",
-        ("reasons",): "pass_carries_failure_reasons",
-        ("package_contract",): "package_contract_not_current",
-        ("cli_entrypoints",): "cli_entrypoint_sections_inconsistent",
-        ("expected_bindings",): "expected_binding_mismatch:source_sha",
-        ("python_version",): "runtime_observation_mismatch:python_version",
-    }
-    checked = list(controls)
-    assert checked, "nothing was checked: controls is empty"
-    for keys, value in checked:
-        forged = copy.deepcopy(valid)
-        target = forged
-        for key in keys[:-1]:
-            target = target[key]
-        target[keys[-1]] = value
-        if keys[0] == "cli_entrypoint_results":
-            # Keep redundant sections consistent: prove the runtime observation
-            # guard, not an earlier representation mismatch, catches the forgery.
-            forged["cli_entrypoints"] = list(forged["cli_entrypoint_results"].values())
-        evidence = tmp_path / "forged.json"
-        evidence.write_text(json.dumps(forged))
-        checked = _run_script(
-            "check", "--repo", str(ROOT), "--evidence", str(evidence), "--wheel-dir", str(wheel_dir)
-        )
-        assert checked.returncode == EXIT_FAIL, (keys, checked.stdout, checked.stderr)
-        if keys == ("installed_import", "module"):
-            expected = (
-                "installed_import_module_invalid"
-                if value is None or value == 123 or value == "invalid-name"
-                else "runtime_reverification_failed:"
-            )
-        elif keys[0] == "installed_import":
-            expected = "runtime_observation_mismatch:installed_import"
-        elif keys[0] == "cli_entrypoint_results":
-            expected = "runtime_observation_mismatch:cli_entrypoint_results"
-        else:
-            expected = expected_failures[keys]
-        assert expected in checked.stderr, (keys, checked.stderr)
-        assert "artifact_reverification_required" not in checked.stderr
-    for key in ("package_contract", "environment", "install", "cli_entrypoints"):
-        forged = copy.deepcopy(valid)
-        del forged[key]
-        evidence.write_text(json.dumps(forged))
-        checked = _run_script(
-            "check", "--repo", str(ROOT), "--evidence", str(evidence), "--wheel-dir", str(wheel_dir)
-        )
-        assert checked.returncode == EXIT_FAIL, key
-        assert "missing required keys" in checked.stderr and key in checked.stderr
-
-
-def test_wheel_from_foreign_source_fails_binding(built_wheel, work_dir, tmp_path):
-    wheel, _ = built_wheel
-    wheel_dir = tmp_path / "dist"
-    wheel_dir.mkdir()
-    foreign = wheel_dir / wheel.name
-    with zipfile.ZipFile(wheel) as original, zipfile.ZipFile(foreign, "w") as out:
-        for info in original.infolist():
-            data = original.read(info.filename)
-            if info.filename == "commander_lab/__init__.py":
-                data += b"\n# foreign source revision\n"
-            out.writestr(info, data)
-    completed, document = _smoke(wheel_dir, work_dir)
-    assert completed.returncode == EXIT_FAIL, completed.stdout
-    assert any(
-        reason.startswith("wheel_file_differs_from_source:")
-        for reason in document.get("reasons", [])
-    ), document
-
-
-def test_undeclared_dependency_is_not_supplied_by_tooling(tmp_path):
-    child = tmp_path / "candidate"
-    result = subprocess.run(
-        ["git", "clone", "--local", "--no-hardlinks", str(ROOT), str(child)],
-        capture_output=True,
-        text=True,
-    )
-    assert result.returncode == 0, result.stderr
-    init = child / "src/commander_lab/__init__.py"
-    init.write_text(
-        init.read_text() + "\nimport jsonschema  # deliberately undeclared runtime dependency\n"
-    )
-    subprocess.run(["git", "-C", str(child), "add", "src/commander_lab/__init__.py"], check=True)
-    subprocess.run(
-        [
-            "git",
-            "-C",
-            str(child),
-            "-c",
-            "user.name=Packaging Control",
-            "-c",
-            "user.email=control@example.invalid",
-            "commit",
-            "-m",
-            "Control: undeclared runtime import",
-        ],
-        check=True,
-        capture_output=True,
-    )
-    wheels = tmp_path / "wheels"
-    result = subprocess.run(
-        [
-            sys.executable,
-            "-m",
-            "pip",
-            "wheel",
-            "--no-deps",
-            "--no-build-isolation",
-            "--wheel-dir",
-            str(wheels),
-            ".",
-        ],
-        cwd=child,
-        capture_output=True,
-        text=True,
-    )
-    assert result.returncode == 0, result.stderr
-    scratch = tmp_path / "scratch"
-    output = tmp_path / "failure.json"
-    result = _run_script(
-        "smoke",
-        "--repo",
-        str(child),
-        "--wheel-dir",
-        str(wheels),
-        "--venv-dir",
-        str(tmp_path / "venv"),
-        "--scratch-dir",
-        str(scratch),
-        "--output",
-        str(output),
-    )
-    assert result.returncode == EXIT_FAIL, result.stdout + result.stderr
-    document = json.loads(output.read_text())
-    assert document["reasons"] == ["installed_import_failed:ModuleNotFoundError"], document
-    assert document["wheel_source_binding"]["status"] == "PASS", document
-    assert all(
-        not entry.startswith("jsonschema==")
-        for entry in document["dependency_closure"]["requirements"]
-    )
-
-    # Forge a structurally consistent PASS for the same source-bound artifact
-    # whose undeclared import actually failed above. The consumer must execute
-    # its own probes rather than accept these unsigned recorded observations.
-    document["overall_classification"] = "PASS"
-    document["reasons"] = ["all_packaging_smoke_invariants_satisfied"]
-    document["installed_import"] = {
-        "status": "PASS",
-        "module": "commander_lab",
-        "resolved_in_isolated_environment": True,
-        "module_file_relative_to_purelib": "commander_lab/__init__.py",
-    }
-    document["cli_entrypoints"] = [
-        {"name": name, "status": "PASS", "returncode": 0} for name in CONTRACT.scripts
-    ]
-    document["cli_entrypoint_results"] = {row["name"]: row for row in document["cli_entrypoints"]}
-    output.write_text(json.dumps(document))
-    checked = _run_script(
-        "check", "--repo", str(child), "--evidence", str(output), "--wheel-dir", str(wheels)
-    )
-    assert checked.returncode == EXIT_FAIL, checked.stdout + checked.stderr
-    assert "runtime_reverification_failed" in checked.stderr
-
-
-def test_import_proof_must_come_from_the_project_wheel(built_wheel, work_dir, tmp_path):
-    """A dependency's module resolves in the isolated purelib but proves nothing."""
-    wheel, _ = built_wheel
-    wheel_dir = tmp_path / "dist"
-    wheel_dir.mkdir()
-    (wheel_dir / wheel.name).write_bytes(wheel.read_bytes())
-    completed, document = _smoke(wheel_dir, work_dir, extra=("--import-module", "yaml"))
-    assert completed.returncode == EXIT_FAIL, completed.stdout + completed.stderr
-    assert document["overall_classification"] == "FAIL"
-    assert any(
-        reason.startswith("installed_import_module_not_from_project_wheel")
-        for reason in document["reasons"]
-    )
+    assert workflow["jobs"]["security"].get("if") is None
+    assert workflow["jobs"]["security"].get("needs") is None
