@@ -25,6 +25,7 @@ from . import (
     card_outcomes,
     combos,
     data_report,
+    engine_check,
     games,
     import_all,
     launch,
@@ -1021,6 +1022,16 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
                 "roles": builder.deck_roles(store, _cards(body.cards)),
                 "combos": combos.deck_combos(store, rows),
             }
+        finally:
+            store.close()
+
+    @app.post("/api/engine-check")
+    def engine_check_route(body: ListBody) -> dict[str, object]:
+        """The runner's deck validation and the engine's card list for a list, no game."""
+        store = open_store()
+        try:
+            rows = list_rows(store, _cards(body.cards))
+            return engine_check.check_rows(rows, games_home())
         finally:
             store.close()
 
