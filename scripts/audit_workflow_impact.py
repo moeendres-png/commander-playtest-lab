@@ -264,7 +264,15 @@ def audit(workflow_path: Path) -> dict[str, Any] | None:
 
 
 # Workflows whose gates this tool must not rewrite, with the owner and reason.
-NOT_REWRITTEN: dict[str, str] = {}
+NOT_REWRITTEN: dict[str, str] = {
+    "pb03-runtime-qualification.yml": (
+        "Package B (Owner decision 2026-11-14): the 30 min runtime qualification deliberately does "
+        "not start on a pull request for the general lab code it imports (src/commander_lab/"
+        "{agents,candidates,cards,engine,models,storage,semantic_replay}); `quality` tests that "
+        "code and sealing dispatches PB-03. tests/qualification/test_pb03_trigger_completeness.py "
+        "(NOT_A_PR_TRIGGER) records the excluded paths and keeps every other input gated."
+    )
+}
 
 
 def cover_glob(path: str) -> str:
