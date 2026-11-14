@@ -15,7 +15,8 @@ Counting rules (every one of them is shown on the page):
   only its front.
 * A land counts as a source of every colour it can produce, so a three-colour land counts
   three times. Producers that are not lands (mana rocks, creatures) are ``other_sources``.
-* A land whose colours are not in the card data and cannot be read from a basic land type is
+* A land the card data says produces no mana (a fetch land) is ``lands_no_mana``. A land with
+  no card data at all, whose colours cannot be read from a basic land type either, is
   ``lands_unknown_colours``: unknown, never zero.
 * The commander's own cost is ``commander_pips`` and is not part of the deck's pips.
 * Groups of fewer than 30 decks are flagged.
@@ -33,6 +34,7 @@ from .store import StudioStore
 
 SCHEMA = "studio-land-advisor-1"
 SMALL_GROUP = 30
+_CHUNK = 500  # deck ids per query, below SQLite's variable limit
 COLOURS = "WUBRG"
 _SYMBOL = re.compile(r"\{([^}]+)\}")
 _BASIC_COLOUR = {"Plains": "W", "Island": "U", "Swamp": "B", "Mountain": "R", "Forest": "G"}
@@ -71,6 +73,15 @@ def _pips(row: _Row) -> tuple[Counter[str], int]:
     return found, colourless
 
 
+def _has_data(row: _Row) -> bool:
+    """False when the row carries no card data for the mana a card produces (``None``); an
+    empty string is the card data saying that the card produces none."""
+    try:
+        return row["produced_mana"] is not None
+    except (KeyError, IndexError):
+        return False
+
+
 def _produced(row: _Row, type_line: str) -> tuple[set[str], bool]:
     """Colours a land can produce, and whether they are known."""
     letters = {letter for letter in _text(row, "produced_mana") if letter in COLOURS}
@@ -81,7 +92,7 @@ def _produced(row: _Row, type_line: str) -> tuple[set[str], bool]:
     basic = {_BASIC_COLOUR[word] for word in type_line.split() if word in _BASIC_COLOUR}
     if basic:
         return basic, True
-    return set(), False
+    return set(), _has_data(row)
 
 
 def deck_profile(rows: Iterable[_Row]) -> dict[str, object]:
@@ -94,6 +105,7 @@ def deck_profile(rows: Iterable[_Row]) -> dict[str, object]:
     modal_sources: Counter[str] = Counter()
     identity: set[str] = set()
     lands = nonland = modal_backs = unknown_lands = colourless_pips = colourless_lands = 0
+    no_mana_lands = 0
     for row in rows:
         quantity = int(_text(row, "quantity") or "1")
         type_line = _text(row, "type_line")
@@ -110,7 +122,10 @@ def deck_profile(rows: Iterable[_Row]) -> dict[str, object]:
             for colour in colours:
                 land_sources[colour] += quantity
             if known and not colours:
-                colourless_lands += quantity
+                if "C" in _text(row, "produced_mana"):
+                    colourless_lands += quantity
+                else:
+                    no_mana_lands += quantity
             continue
         nonland += quantity
         coloured, plain = _pips(row)
@@ -146,6 +161,7 @@ def deck_profile(rows: Iterable[_Row]) -> dict[str, object]:
         "total_pips": total,
         "colourless_pips": colourless_pips,
         "colourless_lands": colourless_lands,
+        "lands_no_mana": no_mana_lands,
         "commander_pips": {c: commander_pips[c] for c in COLOURS if commander_pips[c]},
         "modal_land_backs": modal_backs,
         "lands_unknown_colours": unknown_lands,
@@ -230,13 +246,16 @@ def source_deck_groups(
         return []
     wanted = {str(row["deck_id"]) for group in members.values() for row in group}
     cards: dict[str, list[sqlite3.Row]] = {deck_id: [] for deck_id in wanted}
-    query = (
-        "SELECT k.deck_id, k.quantity, s.type_line, s.mana_cost, s.produced_mana, s.layout "
-        "FROM corpus_deck_card k JOIN scryfall_card s ON s.oracle_id = k.oracle_id "
-        "WHERE LOWER(k.section) = 'mainboard'"
-    )
-    for row in store.connection.execute(query):
-        if str(row["deck_id"]) in cards:
+    ordered = sorted(wanted)
+    for start in range(0, len(ordered), _CHUNK):
+        chunk = ordered[start : start + _CHUNK]
+        marks = ", ".join("?" for _ in chunk)
+        query = (
+            "SELECT k.deck_id, k.quantity, s.type_line, s.mana_cost, s.produced_mana, s.layout "
+            "FROM corpus_deck_card k JOIN scryfall_card s ON s.oracle_id = k.oracle_id "
+            f"WHERE k.deck_id IN ({marks}) AND LOWER(k.section) = 'mainboard'"
+        )
+        for row in store.connection.execute(query, chunk):
             cards[str(row["deck_id"])].append(row)
     compact: dict[str, dict[str, object]] = {}
     for deck_id, rows in cards.items():

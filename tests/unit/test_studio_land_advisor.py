@@ -18,7 +18,7 @@ def _row(
     quantity: int = 1,
     type_line: str = "Creature",
     cost: str = "",
-    produced: str = "",
+    produced: str | None = "",
     layout: str = "normal",
     identity: str = "",
 ) -> dict[str, object]:
@@ -124,8 +124,8 @@ def test_a_modal_two_faced_spell_land_is_a_spell_with_its_land_side_named_apart(
 def test_a_land_without_a_known_colour_is_unknown_not_zero() -> None:
     rows = [
         _row("Cmdr", zone="commander", identity="G"),
-        _row("Mystery Land", type_line="Land", produced=""),
-        _row("Forest", type_line="Basic Land — Forest", produced=""),
+        _row("Mystery Land", type_line="Land", produced=None),
+        _row("Forest", type_line="Basic Land — Forest", produced=None),
     ]
     profile = land_advisor.deck_profile(rows)
     assert profile["lands_unknown_colours"] == 1  # the basic type tells its colour, the other not
@@ -211,3 +211,69 @@ def test_source_deck_groups_match_a_hand_count(tmp_path: Path) -> None:
     nobody = land_advisor.source_deck_groups(store, ["Nobody"])
     assert [(g["decks"], g["decks_counted"], g["lands"]) for g in nobody] == [(0, 0, None)]
     assert land_advisor.source_deck_groups(store, []) == []
+
+
+def test_the_source_query_touches_only_the_wanted_decks(tmp_path: Path) -> None:
+    from tests.unit.test_studio_builder import _fill
+
+    store = StudioStore.open(tmp_path / "studio")
+    _fill(store, tmp_path)
+    source_id = str(store.connection.execute("SELECT source_id FROM source LIMIT 1").fetchone()[0])
+    with store.connection as db:  # many decks of nobody this commander is bound to
+        for index in range(300):
+            deck = f"foreign-{index}"
+            db.execute(
+                "INSERT INTO corpus_deck VALUES (?, 'c', 'u', 'p', 'community', NULL, '', ?, "
+                "NULL, 'legal', ?)",
+                (deck, f"fp-{deck}", source_id),
+            )
+            db.execute(
+                "INSERT INTO corpus_deck_card VALUES (?, 'Forest', 'oracle-forest', 30, "
+                "'mainboard', 'exact')",
+                (deck,),
+            )
+    statements: list[str] = []
+    store.connection.set_trace_callback(statements.append)
+    groups = land_advisor.source_deck_groups(store, ["Test Commander"])
+    store.connection.set_trace_callback(None)
+    assert {g["cohort"]: g["decks"] for g in groups}["all"] == 3  # foreign decks are no members
+    card_reads = [s for s in statements if "corpus_deck_card" in s and s.lstrip().startswith("SELECT")]
+    assert card_reads, "the card rows are read"
+    for text in card_reads:
+        assert "deck_id IN (" in text
+        assert "foreign-" not in text
+        assert "'d1'" in text or "'d2'" in text
+    # the answer is the same as before
+    everyone = next(g for g in groups if g["cohort"] == "all")
+    assert everyone["lands"] == {"median": 33.0, "p25": 31.5, "p75": 34.5}
+
+
+def test_the_commanders_own_cost_is_its_own_line_and_not_in_the_deck_symbols() -> None:
+    rows = [
+        _row("Cmdr", zone="commander", cost="{1}{G}{W}", identity="GW"),
+        _row("Spell", cost="{G}"),
+    ]
+    profile = land_advisor.deck_profile(rows)
+    assert profile["commander_pips"] == {"G": 1, "W": 1}
+    assert _by_colour(profile)["W"]["pips"] == 0 and profile["total_pips"] == 1
+    from commander_lab.studio.web import STATIC
+
+    script = (STATIC / "app.js").read_text(encoding="utf-8")
+    assert "commander_pips" in script
+    assert "nicht in den Zahlen des Decks" in script
+
+
+def test_a_fetch_land_is_not_a_land_without_data() -> None:
+    rows = [
+        _row("Cmdr", zone="commander", identity="G"),
+        _row("Fetch", type_line="Land", produced=""),  # the card data lists no mana: known
+        _row("Mystery", type_line="Land", produced=None),  # no card data at all: unknown
+    ]
+    profile = land_advisor.deck_profile(rows)
+    assert profile["lands_no_mana"] == 1
+    assert profile["lands_unknown_colours"] == 1
+    from commander_lab.studio.web import STATIC
+
+    script = (STATIC / "app.js").read_text(encoding="utf-8")
+    assert "Länder, die selbst kein Mana erzeugen" in script
+    assert "Länder ohne Angabe" in script
