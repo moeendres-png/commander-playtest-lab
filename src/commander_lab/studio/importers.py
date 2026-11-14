@@ -119,10 +119,10 @@ def _detail_variants(
             set_code, number, lang, finish = parsed
         else:
             set_raw = _text(row.get("Set-Code"))
-            number = _collector_text(row.get("Sammlernr."))
-            if set_raw is None or number is None:
+            num_raw = _collector_text(row.get("Sammlernr."))
+            if set_raw is None or num_raw is None:
                 continue
-            set_code, lang, finish = set_raw.lower(), None, None
+            set_code, number, lang, finish = set_raw.lower(), num_raw, None, None
         language = _text(row.get("Sprache"))
         finish_word = _text(row.get("Finish"))
         lang = lang or (language.lower() if language else None)
@@ -312,14 +312,14 @@ def import_inventory_workbook(store: StudioStore, path: str | Path) -> dict[str,
         }
         db.execute("DELETE FROM card_printing")
         resolved_rows: list[tuple[object, ...]] = []
-        for row in printing_rows:
-            old = previous.get(row[0])
+        for printing_row in printing_rows:
+            old = previous.get(printing_row[0])
             carried: tuple[object, object, object, object] = (None, None, None, None)
             if (
                 old is not None
                 and old["basis"] is not None
                 and (old["set_code"], old["collector_number"], old["lang"], old["finish"])
-                == (row[1], row[2], row[3], row[4])
+                == (printing_row[1], printing_row[2], printing_row[3], printing_row[4])
             ):
                 carried = (
                     old["scryfall_id"],
@@ -327,7 +327,7 @@ def import_inventory_workbook(store: StudioStore, path: str | Path) -> dict[str,
                     old["image_back"],
                     old["basis"],
                 )
-            resolved_rows.append((*row[:8], *carried))
+            resolved_rows.append((*printing_row[:8], *carried))
         db.executemany(
             "INSERT INTO card_printing(card_id, set_code, collector_number, lang, finish, "
             "copies, distinct_printings, ref_status, scryfall_id, image_front, image_back, "

@@ -233,7 +233,7 @@ def _bulk_found(
             if key in wanted:
                 found.append(card)
                 seen.add(key)
-    missed = [
+    missed: list[Mapping[str, str]] = [
         {"set": set_code, "collector_number": number}
         for set_code, number in keys
         if (set_code, _number_key(number)) not in seen

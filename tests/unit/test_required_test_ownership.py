@@ -1,7 +1,8 @@
 """B5 (#486): every test file has exactly one required-context owner.
 
-The required ``quality`` context (``ci.yml``) runs the universal pytest suite and
-the required ``infrastructure`` context (``production-qualification.yml``) runs
+The required ``quality`` context (``ci.yml``) is a gate over the ``tests`` matrix (the universal
+pytest suite, split into slots by ``tests/pytest_shards.py``) and the ``packaging`` job (the
+packaging test); the required ``infrastructure`` context (``production-qualification.yml``) runs
 ``tests/qualification``. Before B5 the qualification tests ran in both. This guard
 derives each context's selection from its workflow command and requires every
 test file to be selected by exactly one of them, so no file is run twice and no
@@ -10,6 +11,7 @@ file is left without a required owner.
 
 from __future__ import annotations
 
+import importlib.util
 import shlex
 from functools import cache
 from pathlib import Path
@@ -26,18 +28,37 @@ OWNERS = {
 }
 
 
+def _jobs(workflow: str) -> dict:
+    return yaml.safe_load((REPO / workflow).read_text(encoding="utf-8"))["jobs"]
+
+
 @cache
-def _pytest_command(context: str) -> tuple[str, ...]:
-    workflow, job = OWNERS[context]
-    document = yaml.safe_load((REPO / workflow).read_text(encoding="utf-8"))
-    commands = [
+def _pytest_commands(workflow: str, job: str) -> list[tuple[str, ...]]:
+    return [
         tuple(shlex.split(line.strip()))
-        for step in document["jobs"][job]["steps"]
+        for step in _jobs(workflow)[job]["steps"]
         for line in (step.get("run") or "").splitlines()
         if line.strip().startswith(("pytest", "python -m pytest"))
     ]
+
+
+@cache
+def _pytest_command(context: str) -> tuple[str, ...]:
+    workflow, job = OWNERS[context]
+    commands = _pytest_commands(workflow, job)
     assert len(commands) == 1, f"{context}: expected one pytest command, found {commands}"
     return commands[0]
+
+
+def _matrix_count() -> int:
+    """The number of slots the ``changes`` job publishes for a full run."""
+    spec = importlib.util.spec_from_file_location(
+        "ci_change_scope", REPO / "scripts" / "ci_change_scope.py"
+    )
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return int(module.MATRIX_COUNT)
 
 
 def selection(command: tuple[str, ...], test_files: list[str]) -> set[str]:
@@ -84,9 +105,28 @@ def _test_files() -> list[str]:
     )
 
 
+def _quality_slots(files: list[str]) -> list[set[str]]:
+    """The files of every ``tests`` matrix slot of a full run, as the workflow computes them."""
+    count = _matrix_count()
+    return [
+        set(pytest_shards.matrix_files(REPO, index, count, "all")) for index in range(1, count + 1)
+    ]
+
+
+def _quality_selection(files: list[str]) -> set[str]:
+    packaging = _pytest_commands(*OWNERS["quality"][:1], "packaging")
+    assert len(packaging) == 1
+    owned = selection(packaging[0], files)
+    assert owned == {pytest_shards.PACKAGING_TEST}
+    return set().union(*_quality_slots(files)) | owned
+
+
 def test_every_test_file_has_exactly_one_required_owner() -> None:
     files = _test_files()
-    selected = {context: selection(_pytest_command(context), files) for context in OWNERS}
+    selected = {
+        "quality": _quality_selection(files),
+        "infrastructure": selection(_pytest_command("infrastructure"), files),
+    }
     twice = sorted(selected["quality"] & selected["infrastructure"])
     orphan = sorted(set(files) - selected["quality"] - selected["infrastructure"])
     assert not twice, f"run by both required contexts: {twice[:10]} ({len(twice)} files)"
@@ -98,28 +138,28 @@ def test_infrastructure_owns_the_qualification_tests() -> None:
     qualification = {path for path in files if path.startswith("tests/qualification/")}
     assert qualification
     assert selection(_pytest_command("infrastructure"), files) == qualification
-    assert _pytest_command("quality")[-1] == "--ignore=tests/qualification"
+    assert not any(path.startswith("tests/qualification/") for path in _quality_selection(files))
 
 
-def test_the_shards_of_the_quality_command_select_each_quality_file_exactly_once() -> None:
-    command = _pytest_command("quality")
-    shard_option = [arg for arg in command if arg.startswith("--shards=")]
-    assert len(shard_option) == 1
-    count = int(shard_option[0].split("=", 1)[1])
+def test_the_matrix_slots_select_each_quality_file_exactly_once() -> None:
     files = _test_files()
-    quality = selection(command, files)
-    parsed = pytest_shards.parse_arguments(command[command.index("pytest") + 1 :], ("tests",))
-    weights = pytest_shards.selected_files(
-        pytest_shards.load_weights(pytest_shards.WEIGHTS_PATH), REPO, parsed
-    )
-    plan = pytest_shards.plan_for(weights, count)
-    assert plan is not None
-    chosen = [
-        selection(("pytest", *pytest_shards.shard_arguments(parsed, plan, index)), files)
-        for index in range(len(plan))
+    slots = _quality_slots(files)
+    assert len(slots) >= 2
+    assert sum(len(slot) for slot in slots) == len(set().union(*slots)), "a file is in two slots"
+    expected = {path for path in files if not path.startswith("tests/qualification/")}
+    assert set().union(*slots) == expected - {pytest_shards.PACKAGING_TEST}
+
+
+def test_the_tests_job_runs_its_slot_through_the_in_job_shards() -> None:
+    commands = [
+        command
+        for step in _jobs(OWNERS["quality"][0])["tests"]["steps"]
+        for line in (step.get("run") or "").splitlines()
+        if (command := line.strip()).startswith("pytest")
     ]
-    assert set().union(*chosen) == quality
-    assert sum(len(shard) for shard in chosen) == len(quality)
+    assert len(commands) == 1 and "--shards=4" in commands[0]
+    assert '"${files[@]}"' in commands[0]
+    assert "tests/qualification" not in commands[0]
 
 
 @pytest.mark.parametrize(
@@ -148,3 +188,29 @@ def test_the_selection_model(command, expected) -> None:
 def test_an_unmodelled_option_fails_closed() -> None:
     with pytest.raises(AssertionError, match="unmodelled pytest option"):
         selection(("pytest", "-k", "fast"), ["tests/a/test_x.py"])
+
+
+def test_in_slot_shards_of_every_matrix_slot_are_disjoint_and_cover_the_slot() -> None:
+    """The ``tests`` job splits each slot over ``--shards=N`` pytest processes; no file may run twice."""
+    command = next(
+        line.strip()
+        for step in _jobs(OWNERS["quality"][0])["tests"]["steps"]
+        for line in (step.get("run") or "").splitlines()
+        if line.strip().startswith("pytest")
+    )
+    count = int(
+        next(part for part in shlex.split(command) if part.startswith("--shards=")).split("=")[1]
+    )
+    weights = pytest_shards.load_weights(pytest_shards.WEIGHTS_PATH)
+    for index in range(1, _matrix_count() + 1):
+        slot = pytest_shards.matrix_files(REPO, index, _matrix_count(), "all", weights)
+        selection = pytest_shards.parse_arguments(["-q", *slot], ("tests",))
+        plan = pytest_shards.plan_for(pytest_shards.selected_files(weights, REPO, selection), count)
+        assert plan is not None
+        commands = [
+            pytest_shards.shard_arguments(selection, plan, shard) for shard in range(len(plan))
+        ]
+        listed = [[item for item in args if item.endswith(".py")] for args in commands]
+        flat = [name for shard in listed for name in shard]
+        assert sorted(flat) == sorted(slot), f"slot {index}: shards do not partition the slot"
+        assert all(not item.startswith("--ignore") for args in commands for item in args)

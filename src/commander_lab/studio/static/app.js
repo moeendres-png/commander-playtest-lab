@@ -133,6 +133,7 @@ function filtered() {
   const query = $("q").value.trim();
   const type = $("type-filter").value;
   const role = $("role-filter").value;
+  const label = $("label-filter").value;
   const min = $("mv-min").value === "" ? null : Number($("mv-min").value);
   const max = $("mv-max").value === "" ? null : Number($("mv-max").value);
   const free = $("f-free").checked, notIn = $("f-notin").checked, fav = $("f-fav").checked, showExcluded = $("f-excl").checked;
@@ -145,6 +146,7 @@ function filtered() {
     if (!showExcluded && card.excluded) return false;
     if (simReady && card.sim_status !== "OK") return false;
     if (type && card.group !== type) return false;
+    if (label === "-" ? card.labels.length > 0 : label && !card.labels.some((item) => item.toLowerCase() === label.toLowerCase())) return false;
     if (role === "-" ? card.roles.length > 0 : role && !card.roles.includes(role)) return false;
     if (min !== null && !(card.mana_value >= min)) return false;
     if (max !== null && !(card.mana_value <= max)) return false;
@@ -213,7 +215,7 @@ const COLUMNS = [
   ["type_line", "Typ", "type_line"], ["text", "Text", null], ["pt", "S/W", null], ["available", "frei", "available"], ["owned", "Besitz", "owned"],
   ["reserved", "reserviert", "reserved"], ["freq", "Quelldecks", "freq"], ["edhrec", "EDHREC", "edhrec"], ["edhrec_rank", "EDHREC-Rang", "edhrec_rank"], ["synergy", "Synergie", "synergy"], ["strength", "Stärke-Index", "strength"],
   ["playgroup", "Playgroup", "playgroup"],
-  ["roles", "Rollen", null], ["produced_mana", "erzeugt Mana", null], ["sim_status", "Simulator", "sim_status"], ["note", "Notiz", null],
+  ["roles", "Rollen", null], ["labels", "Archetyp-Marken", null], ["produced_mana", "erzeugt Mana", null], ["sim_status", "Simulator", "sim_status"], ["note", "Notiz", null],
 ];
 // The current tier of a card as a small mark (tiles, deck list, card window). Shown only
 // while "Stufe zeigen" is on and the index is loaded; U and N are named, never hidden as a low tier.
@@ -234,6 +236,7 @@ function cell(card, key) {
   if (key === "mana_cost") return h("td", {}, mana(card.mana_cost));
   if (key === "text") return h("td", { class: "text" }, card.text);
   if (key === "roles") return h("td", {}, card.roles.map(roleName).join(", "));
+  if (key === "labels") return h("td", { class: "labels" }, card.labels.join(", "));
   if (key === "pt") return h("td", {}, card.power !== null ? `${card.power}/${card.toughness}` : "");
   if (key === "freq") { const f = displayFreq(card); return h("td", { class: "num" + (f.total && f.total < state.small ? " low" : "") }, displayFreqText(card)); }
   if (key === "edhrec") {
@@ -365,6 +368,19 @@ function renderHeader() {
   pill.textContent = errors ? `${errors} Fehler` : warnings ? `${warnings} Hinweise` : "Datenprüfung ohne Befund";
   pill.className = "pill " + (errors ? "bad" : warnings ? "warn" : "good");
   $("save").disabled = !state.dirty;
+  renderPlayButton();
+}
+// The Partien page takes the saved revision, never the draft: an unsaved draft says so on the
+// button instead of silently playing an older state.
+function playAddress(revisionId) {
+  return `partie.html?neu=1&revision=${encodeURIComponent(revisionId)}`;
+}
+function renderPlayButton() {
+  const button = $("play-state");
+  const unsaved = state.dirty || !state.baseRevision;
+  button.textContent = unsaved ? "Erst als Stand speichern, dann spielen" : "Mit diesem Stand eine Partie spielen";
+  button.classList.toggle("warn", unsaved);
+  button.disabled = false;
 }
 function deckCards() {
   return [...state.list.keys()].map((id) => state.byId.get(id)).filter(Boolean);
@@ -506,7 +522,54 @@ function renderNumbers(body) {
     body.append(h("h3", {}, `Land-Ziehwahrscheinlichkeiten (${dp.lands} Länder in ${dp.main_cards} Maindeck-Karten)`), probTable,
       h("p", { class: "note" }, "Exakte hypergeometrische Kombinatorik ohne Mulligan-Heuristik."));
   }
+  renderLandAdvisor(body);
   renderCombos(body);
+}
+// Land advisor: an observation of the mana base against the coloured symbols, next to the
+// figures of the chosen comparison group. It never says what to add or cut.
+function loadLandAdvisor() {
+  const seq = state.changeSeq;
+  if (state.landAdvisor && state.landAdvisor.seq === seq) return;
+  if (state.landAdvisorBusy === seq) return;
+  state.landAdvisorBusy = seq;
+  api("/api/land-advisor", "POST", { cards: entries(), owned_only: true }).then((data) => {
+    state.landAdvisor = { seq, data };
+    if (state.tab === "numbers") renderDeck();
+  }, (error) => { state.landAdvisorBusy = null; fail(error); });
+}
+function renderLandAdvisor(body) {
+  body.append(h("h3", {}, "Länder im Vergleich zu den Farbsymbolen"));
+  loadLandAdvisor();
+  const found = state.landAdvisor && state.landAdvisor.seq === state.changeSeq ? state.landAdvisor : null;
+  if (!found) { body.append(h("p", { class: "muted", id: "land-advisor-wait" }, "Wird berechnet.")); return; }
+  const deck = found.data.deck;
+  const group = found.data.groups.find((item) => item.cohort === state.cohort);
+  const spanText = (entry, digits = 1) => entry ? `${entry.median.toFixed(digits)} (${entry.p25.toFixed(digits)}–${entry.p75.toFixed(digits)})` : "unbekannt";
+  const percent = (value) => value === null || value === undefined ? "keine Symbole" : `${(100 * value).toFixed(0)} %`;
+  const shareSpan = (entry) => entry ? `${(100 * entry.median).toFixed(0)} % (${(100 * entry.p25).toFixed(0)}–${(100 * entry.p75).toFixed(0)})` : "unbekannt";
+  const groupName = cohortName(state.cohort);
+  const swatch = (entry) => h("td", {}, h("span", { class: "ms ms-" + entry.colour }, entry.colour), entry.in_identity ? "" : h("span", { class: "muted", title: "Diese Farbe liegt außerhalb der Farbidentität des Commanders" }, " außerhalb"));
+  const own = h("table", { id: "land-advisor" }, h("thead", {}, h("tr", {}, h("th", {}, "Farbe"), h("th", { class: "num", title: "Farbsymbole in den Kosten der Nicht-Land-Karten" }, "Symbole"), h("th", { class: "num", title: "Anteil an allen Farbsymbolen" }, "Anteil"),
+    h("th", { class: "num", title: "Länder, die diese Farbe erzeugen können" }, "Länder"), h("th", { class: "num", title: "Quellen, die keine Länder sind" }, "andere"))),
+    h("tbody", {}, deck.colours.map((entry) => h("tr", {}, swatch(entry), h("td", { class: "num" }, entry.pips), h("td", { class: "num" }, percent(entry.pip_share)),
+      h("td", { class: "num" }, entry.land_sources), h("td", { class: "num" }, entry.other_sources + (entry.modal_sources ? ` (+${entry.modal_sources} mit Landseite)` : ""))))));
+  const compare = group ? h("table", { id: "land-advisor-group" }, h("thead", {}, h("tr", {}, h("th", {}, "Farbe"), h("th", { class: "num" }, "Symbole"), h("th", { class: "num" }, "Anteil"), h("th", { class: "num" }, "Länder"))),
+    h("tbody", {}, deck.colours.map((entry) => {
+      const figures = group.colours[entry.colour];
+      return h("tr", {}, swatch(entry), h("td", { class: "num" }, figures ? spanText(figures.pips) : "0"),
+        h("td", { class: "num" }, figures ? shareSpan(figures.pip_share) : (Object.keys(group.colours).length ? "0 %" : "unbekannt")),
+        h("td", { class: "num" }, figures ? spanText(figures.land_sources) : "0"));
+    }))) : null;
+  const landLine = group && group.lands ? `${deck.lands} Länder im Deck. Vergleich „${groupName}“: Median ${spanText(group.lands)} (in Klammern die mittlere Hälfte), gezählt in ${group.decks_counted} Decks.` : `${deck.lands} Länder im Deck. Für „${groupName}“ liegen keine Vergleichszahlen vor.`;
+  body.append(h("p", { id: "land-advisor-lands" }, landLine));
+  if (group && group.small) body.append(h("p", { class: "pill warn", id: "land-advisor-small" }, `Nur ${group.decks_counted} Decks in dieser Gruppe (unter ${found.data.small_group}): die Vergleichszahlen sind unsicher.`));
+  body.append(own);
+  if (compare) body.append(h("p", { class: "note", id: "land-advisor-group-title" }, `Vergleichsgruppe: ${groupName} (Median, mittlere Hälfte in Klammern)`), compare);
+  const commanderPips = Object.entries(deck.commander_pips || {});
+  body.append(h("p", { id: "land-advisor-commander" }, commanderPips.length ? `Farbsymbole der Kosten des Commanders: ${commanderPips.map(([colour, count]) => `${colour} ${count}`).join(", ")} (nicht in den Zahlen des Decks).` : "Der Commander hat keine Farbsymbole in seinen Kosten (nicht in den Zahlen des Decks)."));
+  if (deck.lands_no_mana) body.append(h("p", { class: "note", id: "land-advisor-nomana" }, `Länder, die selbst kein Mana erzeugen: ${deck.lands_no_mana} (laut Kartendaten, zum Beispiel Fetchländer). Sie stehen bei keiner Farbe.`));
+  if (deck.lands_unknown_colours) body.append(h("p", { class: "note", id: "land-advisor-unknown" }, `Länder ohne Angabe: ${deck.lands_unknown_colours} (keine Kartendaten zum erzeugten Mana). Unbekannt, nicht als null gezählt.`));
+  body.append(h("p", { class: "note" }, "Beobachtung, keine Vorschrift. Farbsymbole stehen in den Manakosten der Nicht-Land-Karten; ein Hybrid-Symbol zählt für beide Farben, Generisches und X zählen nicht, eine geteilte Karte zählt beide Hälften. Die Kosten des Commanders zählen nicht mit. Ein Land zählt für jede Farbe, die es erzeugt. Quellen, die keine Länder sind (Manasteine, Kreaturen), stehen getrennt. Vergleich: Median und mittlere Hälfte der Quelldecks der gewählten Vergleichsgruppe."));
 }
 // Listed combos of the commander against the deck: complete, or one card short. A count
 // over the source's list, never a rating; without a stored list the section says so.
@@ -540,14 +603,53 @@ function renderCombos(body) {
   if (combos.one_missing.length) {
     body.append(h("table", { id: "combos-missing" }, h("thead", {}, h("tr", {}, h("th", {}, "Es fehlt genau eine Karte"), h("th", { class: "num" }, "Decks der Quelle"))), h("tbody", {}, combos.one_missing.map(row))));
   }
+  const sources = combos.sources || [];
+  body.append(h("p", { class: "note", id: "combos-source" }, sources.length ? `Quelle der Kombo-Liste: ${sources.map((item) => item.title + (item.snapshot_date ? ` (Stand ${item.snapshot_date})` : ` (eingelesen ${item.imported_at.slice(0, 10)})`)).join("; ")}.` : "Quelle der Kombo-Liste: nicht bekannt."));
   body.append(h("p", { class: "note" }, combos.meaning));
 }
+const ENGINE_STATUS = { PASS: ["good", "bestanden"], FAIL: ["bad", "nicht bestanden"], UNKNOWN: ["warn", "nicht geprüft"] };
+async function runEngineCheck() {
+  const seq = state.changeSeq;
+  state.engineCheck = { busy: true };
+  renderDeck();
+  try {
+    const result = await api("/api/engine-check", "POST", { cards: entries(), owned_only: true });
+    state.engineCheck = { result, seq };
+  } catch (error) { state.engineCheck = null; fail(error); }
+  renderDeck();
+}
+function renderEngineCheck(body) {
+  const check = state.engineCheck;
+  const box = h("section", { id: "engine-check" }, h("h3", {}, "Prüfung durch die Engine"));
+  body.append(box);
+  box.append(h("button", { type: "button", id: "engine-check-run", disabled: !!(check && check.busy), onclick: runEngineCheck }, check && check.busy ? "Wird geprüft ..." : "Mit der Engine prüfen"));
+  if (!check || check.busy) {
+    box.append(h("p", { class: "note" }, "Prüft vor einer Partie, was der Spielstarter prüft, und welche Karten die Engine nicht laden kann. Es wird keine Partie gestartet."));
+    return;
+  }
+  const result = check.result;
+  const [tone, word] = ENGINE_STATUS[result.status] || ["warn", "nicht geprüft"];
+  box.append(h("p", { class: "pill " + tone, id: "engine-check-status" }, result.status === "UNKNOWN" ? result.headline : `${word}: ${result.headline}`));
+  if (check.seq !== state.changeSeq) box.append(h("p", { class: "note", id: "engine-check-stale" }, "Das Deck wurde seit dieser Prüfung geändert. Bitte noch einmal prüfen."));
+  if (!result.engine_ready) box.append(h("p", { class: "note" }, `Die Engine ist auf diesem Rechner nicht bereitgestellt. Ein Deck ohne Befund gilt dann nicht als geprüft. ${result.engine_reason || ""}`));
+  const construction = result.construction;
+  if (result.precondition_failures.length) box.append(h("div", { class: "issue error", id: "engine-check-preconditions" }, h("b", {}, "Voraussetzung nicht erfüllt"), h("div", {}, result.precondition_failures.join(" ")), h("div", {}, "Der Spielstarter kann dieses Deck nicht prüfen, solange das so ist.")));
+  if (construction.status === "FAIL") box.append(h("div", { class: "issue error" }, h("b", {}, "Deck-Aufbau"), h("div", {}, construction.text)));
+  else if (construction.status === "NOT_CHECKED") { if (!result.precondition_failures.length) box.append(h("div", { class: "issue warning" }, h("b", {}, "Deck-Aufbau nicht geprüft"), h("div", {}, construction.text))); }
+  else box.append(h("p", {}, "Deck-Aufbau (Prüfsumme, Einzelkarten, Farbidentität): ohne Befund."));
+  if (!result.cards_consulted) box.append(h("div", { class: "issue warning" }, h("b", {}, "Kartenliste der Engine nicht lesbar"), h("div", {}, "Welche Karten die Engine nicht laden kann, ist unbekannt.")));
+  if (result.unsupported_by_engine.length) box.append(h("div", { class: "issue error" }, h("b", {}, "Die Engine kann diese Karten nicht laden"), h("div", {}, result.unsupported_by_engine.join(", "))));
+  if (result.unknown_to_pilots.length) box.append(h("div", { class: "issue error" }, h("b", {}, "Dem Kartenwissen der Spieler-KI fehlen diese Karten"), h("div", {}, result.unknown_to_pilots.join(", "))));
+  box.append(h("p", { class: "note" }, result.meaning));
+}
 function renderCheck(body) {
+  body.append(h("h3", {}, "Datenprüfung (gespeicherte Fakten)"));
   if (!state.issues.length) { body.append(h("p", {}, "Die Datenprüfung findet nichts.")); }
   for (const issue of state.issues) {
     body.append(h("div", { class: "issue " + issue.severity }, h("b", {}, ISSUE_NAMES[issue.code] || issue.code), h("div", {}, issue.message)));
   }
   body.append(h("p", { class: "note" }, "Diese Prüfung liest gespeicherte Kartendaten: 100 Karten, Commander, Farbidentität, Einzelkarten-Regel, Legalität, Besitz und freie Kopien. Verbindlich für das Spiel ist erst die Prüfung durch die Regel-Engine."));
+  renderEngineCheck(body);
   const currentCards = [...state.commanderIds.map((id) => state.byId.get(id)), ...deckCards()].filter(Boolean);
   const notReady = currentCards.filter((card) => card.sim_status && card.sim_status !== "OK");
   body.append(h("h3", {}, "Simulator-Bereitschaft"));
@@ -965,6 +1067,13 @@ async function openCard(card) {
     try { await api(`/api/cards/${encodeURIComponent(card.card_id)}/mark`, "PUT", { favorite: card.favorite, excluded: card.excluded, note: card.note }); renderPool(); openCard(card); }
     catch (error) { fail(error); }
   };
+  const labelInput = h("input", { type: "text", id: "card-labels", placeholder: "Archetyp-Marken, mit Komma getrennt", maxlength: "400" }); labelInput.value = card.labels.join(", ");
+  const saveLabels = async () => {
+    try {
+      const done = await api(`/api/cards/${encodeURIComponent(card.card_id)}/labels`, "PUT", { labels: labelList(labelInput.value) });
+      card.labels = done.labels; renderLabelFilter(); renderPool(); openCard(card);
+    } catch (error) { fail(error); }
+  };
   const count = qty(card.card_id);
   const frequencies = h("table", {}, h("thead", {}, h("tr", {}, h("th", {}, "Quelldecks"), h("th", { class: "num" }, "mit Karte"), h("th", { class: "num" }, "Decks"), h("th", { class: "num" }, "Anteil"))),
     h("tbody", {}, Object.keys(state.cohorts).map((key) => { const f = freq(card, key); return h("tr", { class: f.total < state.small ? "low" : "" }, h("td", {}, cohortName(key)), h("td", { class: "num" }, f.hits === null ? "unbekannt" : f.hits), h("td", { class: "num" }, f.total), h("td", { class: "num" }, f.hits !== null && f.total ? (100 * f.share).toFixed(1) + " %" : "unbekannt")); })));
@@ -982,6 +1091,9 @@ async function openCard(card) {
       h("button", { type: "button", onclick: () => saveMark({ excluded: !card.excluded }) }, card.excluded ? "Ausschluss aufheben" : "Ausschließen"),
       h("button", { type: "button", onclick: closeModal }, "Schließen")),
     note, h("div", { class: "actions" }, h("button", { type: "button", onclick: () => saveMark({ note: note.value }) }, "Notiz speichern")),
+    h("h3", {}, "Archetyp-Marken"),
+    card.labels.length ? h("p", { id: "card-label-chips" }, card.labels.map((name) => h("span", { class: "chip", style: "cursor:default;margin-right:4px" }, name))) : h("p", { class: "muted" }, "Keine Marken. Sie ordnen deine Karten und zählen nirgends als Wertung."),
+    h("div", { class: "actions" }, labelInput, h("button", { type: "button", id: "card-labels-save", onclick: saveLabels }, "Marken speichern")),
     h("h3", {}, "Häufigkeit in den Quelldecks"), frequencies, h("p", { class: "note" }, "Gelb: Gruppe mit weniger als 30 Decks."),
     card.universe ? h("p", { class: "note" }, `Im Universum ${state.universe}: ${card.universe.filter_card ? "Filterkarte des Universums (steht per Definition in jedem Deck der Teilmenge, ohne Zählung und ohne Stufe)" : card.universe.matched ? `${card.universe.hits}/${card.universe.denominator} Decks, Stufe ${card.universe.level} (Verbreitung gezählt, keine Stärke)` : "unbekannt (kein Deck des Universums nennt diese Karte unter einem bekannten Namen)"}`) : null,
     card.universe && state.universeInfo && state.universeInfo.subset_note ? h("p", { class: "note" }, state.universeInfo.subset_note) : null, layerBox, extra);
@@ -1168,7 +1280,31 @@ function applyPool(pool) {
   state.universeInfo = pool.universe || null;
   state.countedUniverse = pool.counted_universe || null;
   state.simReadiness = pool.sim_readiness || null;
-  renderUniverseInfo(); renderSimReadiness();
+  renderUniverseInfo(); renderSimReadiness(); renderLabelFilter();
+}
+// Archetype labels are the Owner's own words for ordering cards and decks: a filter and a
+// display, never a rating.
+const labelList = (text) => text.split(",").map((item) => item.trim()).filter(Boolean);
+function renderLabelFilter() {
+  const select = $("label-filter"), wanted = select.value;
+  const seen = new Map();
+  for (const card of state.pool) for (const item of card.labels) seen.set(item.toLowerCase(), item);
+  const names = [...seen.values()].sort((x, y) => x.localeCompare(y));
+  select.replaceChildren(h("option", { value: "" }, "alle Marken"), ...names.map((name) => h("option", { value: name }, name)), h("option", { value: "-" }, "ohne Marke"));
+  select.value = names.some((name) => name === wanted) || wanted === "-" ? wanted : "";
+}
+function renderDeckLabels() {
+  const deck = state.decks.find((item) => item.deck_id === state.deckId);
+  const names = deck && deck.labels ? deck.labels : [];
+  $("deck-labels").textContent = names.length ? `Marken: ${names.join(", ")}` : "Marken: keine";
+}
+async function editDeckLabels() {
+  const deck = state.decks.find((item) => item.deck_id === state.deckId);
+  if (!deck) return;
+  const text = prompt("Archetyp-Marken dieses Decks, mit Komma getrennt (leer löscht sie):", (deck.labels || []).join(", "));
+  if (text === null) return;
+  try { const done = await api(`/api/decks/${encodeURIComponent(deck.deck_id)}/labels`, "PUT", { labels: labelList(text) }); deck.labels = done.labels; renderDeckLabels(); }
+  catch (error) { fail(error); }
 }
 // The universe source and bracket the tier list remembers: the builder asks for the same counted universe.
 function strengthQuery() {
@@ -1215,6 +1351,7 @@ async function loadDecks() {
   if (!state.decks.some((deck) => deck.deck_id === state.deckId)) state.deckId = state.decks[0].deck_id;
   const deck = state.decks.find((item) => item.deck_id === state.deckId);
   if (!deck.branches.some((item) => item.branch === state.branch)) state.branch = deck.branches[0].branch;
+  renderDeckLabels();
   $("deck-select").replaceChildren(...state.decks.map((item) => h("option", { value: item.deck_id, selected: item.deck_id === state.deckId }, item.name)));
   $("branch-select").replaceChildren(...deck.branches.map((item) => h("option", { value: item.branch, selected: item.branch === state.branch }, `${item.branch} (${item.cards})${item.has_draft ? " *" : ""}`)));
 }
@@ -1288,7 +1425,7 @@ function setupControls() {
   if (savedSort && sorts.some((item) => item[0] === savedSort)) { const [key, dir] = savedSort.split(":"); state.sortKey = key; state.sortDir = Number(dir); $("sort").value = savedSort; if (key === "strength") loadStrength(); }
   $("sort").addEventListener("change", () => { if (!$("sort").value) return; const [key, dir] = $("sort").value.split(":"); state.sortKey = key; state.sortDir = Number(dir); StudioUI.remember("studio.builder.sort", $("sort").value); if (key === "strength") loadStrength(); renderPool(); });
   $("cohort").addEventListener("change", () => { state.cohort = $("cohort").value; renderPool(); renderDeck(); });
-  for (const id of ["q", "type-filter", "role-filter", "mv-min", "mv-max", "f-free", "f-notin", "f-fav", "f-excl", "f-sim"]) if ($(id)) $(id).addEventListener("input", () => { state.shown = 120; renderPool(); });
+  for (const id of ["q", "type-filter", "role-filter", "label-filter", "mv-min", "mv-max", "f-free", "f-notin", "f-fav", "f-excl", "f-sim"]) if ($(id)) $(id).addEventListener("input", () => { state.shown = 120; renderPool(); });
   // "Stufe zeigen": the current tier on every card (view setting, on unless switched off).
   state.showTier = StudioUI.recall("studio.builder.show-tier", "1") !== "0";
   $("f-tier").checked = state.showTier;
@@ -1311,9 +1448,14 @@ function setupControls() {
     const info = state.simReadiness;
     if ($("f-sim").checked && info && info.available && info.ready === info.total) toast(`Alle ${info.total} Karten des Pools sind für den Simulator bereit: der Filter ändert nichts.`);
   });
+  $("play-state").addEventListener("click", () => {
+    if (state.dirty || !state.baseRevision) { toast("Der Entwurf ist noch nicht als Stand gespeichert. Speichere ihn zuerst mit „Als Stand speichern“; gespielt wird immer der gespeicherte Stand."); return; }
+    location.href = playAddress(state.baseRevision);
+  });
   $("save").addEventListener("click", () => StudioUI.busy($("save"), () => saveRevision()));
   $("history").addEventListener("click", showHistory);
   $("export").addEventListener("click", showExport);
+  $("deck-labels").addEventListener("click", editDeckLabels);
   $("new-branch").addEventListener("click", () => { const name = prompt("Name der neuen Variante:", ""); if (name && name.trim()) saveRevision(name.trim().slice(0, 60)); });
   $("deck-select").addEventListener("change", async () => { state.deckId = $("deck-select").value; await loadDecks(); await loadBranch(); });
   $("branch-select").addEventListener("change", async () => { state.branch = $("branch-select").value; await loadBranch(); });

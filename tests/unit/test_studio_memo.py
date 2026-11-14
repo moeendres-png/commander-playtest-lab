@@ -196,3 +196,18 @@ def test_memo_is_off_for_an_in_memory_store() -> None:
 
     assert memo.cached(store, "x", None, compute) == 1
     assert memo.cached(store, "x", None, compute) == 2
+
+
+def test_an_in_place_change_of_a_card_gives_fresh_deck_counts(folder: Path) -> None:
+    """A relink changes a card row in place: no new row, no new source. The deck counts per
+    card depend on the card names, so they must not be served from before the change."""
+    store = StudioStore.open(folder)
+    before = builder._corpus_hits(store, COMMANDER)
+    assert builder._corpus_hits(store, COMMANDER) is before
+    row = store.connection.execute("SELECT card_id, oracle_id FROM card LIMIT 1").fetchone()
+    store.connection.execute(
+        "UPDATE card SET oracle_id = ? WHERE card_id = ?", (f"relinked-{row[1]}", row[0])
+    )
+    store.connection.commit()
+    assert builder._corpus_hits(store, COMMANDER) is not before
+    store.close()

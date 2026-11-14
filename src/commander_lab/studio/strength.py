@@ -991,9 +991,17 @@ def score_pool(
     ``NO_VALUE`` (with a reason). The keys of ``observations`` are the commander's legal
     pool: percentile ranks are taken among its ranked cards only (see ``PoolContext``)."""
     ctx = context or PoolContext()
-    unranked = {} if settings.rank_commander_and_basics else dict(ctx.unranked)
-    if settings.rank_other_commanders:
-        unranked = {k: v for k, v in unranked.items() if v != NOT_RANKED_OTHER_COMMANDER}
+    # two independent switches: one for the commander card and basic lands, one for the
+    # other commander cards of the pool
+    unranked = {
+        key: why
+        for key, why in ctx.unranked.items()
+        if not (
+            settings.rank_other_commanders
+            if why == NOT_RANKED_OTHER_COMMANDER
+            else settings.rank_commander_and_basics
+        )
+    }
     filter_cards = frozenset(ctx.filter_cards)
     rated = (*COMPONENTS, *settings.active_layers())
     rankings: dict[str, _ComponentRanking] = {}
@@ -1125,10 +1133,9 @@ def score_pool(
         }
         total_weight = sum(possible.values())
         coverage = present_weight / total_weight if total_weight > 0 else 0.0
-        raw_index = 100.0 * weighted / present_weight if present_weight > 0 else None
-        index = None if raw_index is None else round(raw_index, 1)
-        # A commander with one source cannot show two signals: the minimum number of signals
-        # never exceeds what the commander's data allows for this card.
+        index = round(100.0 * weighted / present_weight, 1) if present_weight > 0 else None
+        # The minimum number of signals never exceeds the number of weighted components of
+        # this card: a profile with one positive weight cannot show two signals.
         needed = min(settings.min_components, len(possible))
         enough = present > 0 and coverage >= settings.min_coverage and present >= needed
         blocked = settings.require_commander_signal and not specific

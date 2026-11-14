@@ -27,8 +27,11 @@ from . import (
     card_outcomes,
     combos,
     data_report,
+    engine_check,
     games,
     import_all,
+    labels,
+    land_advisor,
     launch,
     queries,
     signals,
@@ -71,6 +74,11 @@ class CardEntry(BaseModel):
 class ListBody(BaseModel):
     cards: list[CardEntry]
     owned_only: bool = True
+
+
+class LabelsBody(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    labels: list[str] = Field(max_length=100)
 
 
 class DraftBody(BaseModel):
@@ -894,6 +902,45 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         finally:
             store.close()
 
+    @app.get("/api/labels")
+    def known_labels() -> dict[str, object]:
+        store = open_store()
+        try:
+            return {"known": labels.known_labels(store)}
+        finally:
+            store.close()
+
+    @app.put("/api/cards/{card_id}/labels")
+    def card_labels(card_id: str, body: LabelsBody) -> dict[str, object]:
+        """The Owner's archetype labels of a card. Never an input of a tier or the index."""
+        store = open_store()
+        try:
+            return {
+                "card_id": card_id,
+                "labels": labels.set_card_labels(store, card_id, body.labels),
+            }
+        except KeyError as error:
+            raise HTTPException(404, "unknown card") from error
+        except ValueError as error:
+            raise HTTPException(422, str(error)) from error
+        finally:
+            store.close()
+
+    @app.put("/api/decks/{deck_id}/labels")
+    def deck_labels(deck_id: str, body: LabelsBody) -> dict[str, object]:
+        store = open_store()
+        try:
+            return {
+                "deck_id": deck_id,
+                "labels": labels.set_deck_labels(store, deck_id, body.labels),
+            }
+        except KeyError as error:
+            raise HTTPException(404, "unknown deck") from error
+        except ValueError as error:
+            raise HTTPException(422, str(error)) from error
+        finally:
+            store.close()
+
     @app.get("/api/decks")
     def decks() -> list[dict[str, object]]:
         store = open_store()
@@ -1047,6 +1094,32 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
                 "roles": builder.deck_roles(store, _cards(body.cards)),
                 "combos": combos.deck_combos(store, rows),
             }
+        finally:
+            store.close()
+
+    @app.post("/api/land-advisor")
+    def land_advisor_route(body: ListBody) -> dict[str, object]:
+        """Land count and coloured sources against the coloured symbols, with the figures of
+        the commander's source-deck groups. An observation, no recommendation."""
+        store = open_store()
+        try:
+            rows = list_rows(store, _cards(body.cards))
+            commanders = [str(row["oracle_name"]) for row in rows if row["zone"] == "commander"]
+            return {
+                "deck": land_advisor.deck_profile(rows),
+                "groups": land_advisor.source_deck_groups(store, commanders),
+                "small_group": land_advisor.SMALL_GROUP,
+            }
+        finally:
+            store.close()
+
+    @app.post("/api/engine-check")
+    def engine_check_route(body: ListBody) -> dict[str, object]:
+        """The runner's deck validation and the engine's card list for a list, no game."""
+        store = open_store()
+        try:
+            rows = list_rows(store, _cards(body.cards))
+            return engine_check.check_rows(rows, games_home())
         finally:
             store.close()
 

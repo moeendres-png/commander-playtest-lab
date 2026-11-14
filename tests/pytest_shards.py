@@ -22,6 +22,14 @@ instead of running tests itself, and they run side by side:
 Only the options the required check uses are modelled (see ``parse_arguments``); anything else
 is refused rather than guessed, like ``tests/unit/test_required_test_ownership.py`` does.
 ``python -m tests.pytest_shards weights JUNIT_XML...`` rewrites the table from a run.
+
+CI (``.github/workflows/ci.yml``) adds one level above ``--shards``: the ``tests`` job is a
+matrix of runners and each runner executes ``python -m tests.pytest_shards matrix --index I
+--count N``, which prints the files of matrix slot I. Every file of ``tests/`` outside
+``tests/qualification`` (owned by the ``infrastructure`` context) and outside the packaging
+test (its own ``packaging`` job) belongs to exactly one slot; a file the weight table does not
+know is still assigned (at the mean weight), so the table going stale only costs balance, and
+``tests/unit/test_pytest_shards.py`` fails when the table does not cover the tree.
 """
 
 from __future__ import annotations
@@ -43,6 +51,12 @@ from typing import Any
 import pytest
 
 WEIGHTS_PATH = Path(__file__).with_name("pytest_shard_weights.json")
+DOCS_TESTS_PATH = Path(__file__).with_name("pytest_docs_tests.json")
+# Owned by the ``infrastructure`` context (production-qualification.yml), never weighted.
+OTHER_OWNER_ROOTS = ("tests/qualification",)
+# Owned by the ``packaging`` job of ci.yml: 33 tests that build real wheels and virtual
+# environments (about 330 s); the matrix slots never run it.
+PACKAGING_TEST = "tests/unit/test_packaging_smoke.py"
 CHILD_ENV = "COMMANDER_LAB_PYTEST_SHARD"
 # Reporting-only options: they never change which tests are collected or how they run.
 REPORTING_FLAGS = frozenset({"-q", "-ra", "-rs"})
@@ -146,14 +160,29 @@ def plan_for(files: Mapping[str, float], count: int) -> list[list[str]] | None:
 
 
 def shard_arguments(selection: Selection, plan: Sequence[Sequence[str]], index: int) -> list[str]:
-    """pytest arguments of shard ``index`` (without interpreter and without ``--junitxml``)."""
+    """pytest arguments of shard ``index`` (without interpreter and without ``--junitxml``).
+
+    Explicit test files (roots ending in ``.py``) go to exactly one shard each: pytest applies
+    ``--ignore`` only to directory collection, never to a file named on the command line, so a
+    "roots plus --ignore" last shard would rerun every file of the other shards. A named file the
+    weight table does not know is run by the last shard. Directory roots keep the old shape for
+    the last shard: the roots, ignoring every file the other shards run.
+    """
     arguments = list(selection.options)
     if index < len(plan) - 1:
         return [*arguments, *plan[index]]
+    planned = {name for shard in plan for name in shard}
+    directory_roots = [root for root in selection.roots if not root.endswith(".py")]
+    unplanned = [root for root in selection.roots if root.endswith(".py") and root not in planned]
+    own = [name for name in plan[index] if not any(_under(name, root) for root in directory_roots)]
+    if not directory_roots:
+        return [*arguments, *own, *unplanned]
     others = [name for shard in plan[:-1] for name in shard]
     return [
         *arguments,
-        *selection.roots,
+        *directory_roots,
+        *own,
+        *unplanned,
         *(f"--ignore={name}" for name in (*selection.ignores, *others)),
     ]
 
@@ -258,16 +287,96 @@ def weights_from_junit(reports: Sequence[Path], rootdir: Path) -> dict[str, floa
     return {name: max(round(value, 1), 0.1) for name, value in sorted(seconds.items())}
 
 
+def discover_test_files(rootdir: Path, ignores: Sequence[str] = OTHER_OWNER_ROOTS) -> list[str]:
+    """Every ``tests/**/test_*.py`` outside ``ignores``: what ``pytest tests --ignore=...`` collects."""
+    return sorted(
+        name
+        for name in (
+            path.relative_to(rootdir).as_posix()
+            for path in (rootdir / "tests").rglob("test_*.py")
+            if "__pycache__" not in path.parts
+        )
+        if not any(_under(name, ignored) for ignored in ignores)
+    )
+
+
+def load_docs_tests(path: Path = DOCS_TESTS_PATH) -> list[str]:
+    """The test files that read documentation (the docs-only fast path runs only these)."""
+    document = json.loads(path.read_text(encoding="utf-8"))
+    return sorted(str(name) for name in document["files"])
+
+
+def plan_matrix(files: Sequence[str], weights: Mapping[str, float], count: int) -> list[list[str]]:
+    """Assign every file to exactly one of ``count`` matrix slots (balanced by weight).
+
+    A file without a weight counts as the mean of the known weights, so it is still placed.
+    """
+    if count < 1:
+        raise ValueError("matrix count must be at least 1")
+    known = [weights[name] for name in files if name in weights]
+    default = sum(known) / len(known) if known else 1.0
+    return plan_shards({name: weights.get(name, default) for name in files}, count)
+
+
+def matrix_files(
+    rootdir: Path,
+    index: int,
+    count: int,
+    scope: str = "all",
+    weights: Mapping[str, float] | None = None,
+    docs_tests: Sequence[str] | None = None,
+) -> list[str]:
+    """The test files of matrix slot ``index`` (1-based) of ``count``.
+
+    ``all`` is every test the ``quality`` context owns except the packaging test; ``docs`` is the
+    docs-only subset. Existing files only: a listed file that left the repository is dropped.
+    """
+    if not 1 <= index <= count:
+        raise ValueError(f"matrix index {index} is outside 1..{count}")
+    if scope == "all":
+        files = [name for name in discover_test_files(rootdir) if name != PACKAGING_TEST]
+    elif scope == "docs":
+        listed = load_docs_tests() if docs_tests is None else docs_tests
+        files = [name for name in listed if (rootdir / name).is_file()]
+    else:
+        raise ValueError(f"unknown scope {scope!r}")
+    table = load_weights(WEIGHTS_PATH) if weights is None else weights
+    return plan_matrix(files, table, count)[index - 1]
+
+
+def complete_weights(measured: Mapping[str, float], rootdir: Path) -> dict[str, float]:
+    """``measured`` restricted to the tree's test files, every other test file at the 0.1 floor."""
+    names = discover_test_files(rootdir)
+    return {name: measured.get(name, 0.1) for name in names}
+
+
 def main(argv: Sequence[str]) -> int:
-    if len(argv) < 2 or argv[0] != "weights":
-        print("usage: python -m tests.pytest_shards weights JUNIT_XML...", file=sys.stderr)
-        return 2
-    document: dict[str, Any] = {
-        "comment": "Seconds per test file from a serial run; used only to balance --shards.",
-        "files": weights_from_junit([Path(item) for item in argv[1:]], Path.cwd()),
-    }
-    print(json.dumps(document, indent=1, sort_keys=False))
-    return 0
+    usage = (
+        "usage: python -m tests.pytest_shards weights JUNIT_XML...\n"
+        "       python -m tests.pytest_shards matrix --index I --count N [--scope all|docs]"
+    )
+    if argv and argv[0] == "weights" and len(argv) >= 2:
+        rootdir = Path.cwd()
+        measured = weights_from_junit([Path(item) for item in argv[1:]], rootdir)
+        document: dict[str, Any] = {
+            "comment": "Seconds per test file from a serial run; used only to balance --shards"
+            " and the CI matrix. Rebuild: python -m tests.pytest_shards weights JUNIT_XML...",
+            "files": complete_weights(measured, rootdir),
+        }
+        print(json.dumps(document, indent=1, sort_keys=False))
+        return 0
+    if argv and argv[0] == "matrix":
+        options = dict(zip(argv[1::2], argv[2::2], strict=False))
+        try:
+            index, count = int(options["--index"]), int(options["--count"])
+            names = matrix_files(Path.cwd(), index, count, options.get("--scope", "all"))
+        except (KeyError, ValueError) as error:
+            print(f"{error}\n{usage}", file=sys.stderr)
+            return 2
+        print("\n".join(names))
+        return 0
+    print(usage, file=sys.stderr)
+    return 2
 
 
 if __name__ == "__main__":

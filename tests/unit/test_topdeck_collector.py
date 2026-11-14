@@ -165,14 +165,14 @@ def test_process_tournaments_and_completeness(tmp_path: Path) -> None:
 
 def test_neutral_player_labels() -> None:
     labels = neutral_player_labels(
-        ["Max Mustermann", "Maria Muster", "Max Mustermann", "Moritz Meyer"]
+        ["Max Mustermann", "Maria Muster", "Max Mustermann", "Paul Meyer"]
     )
     # First-appearance order per file; repeats keep their label; no part of
     # any name (not even initials) leaks into a label (#1263).
     assert labels == {
         "Max Mustermann": "Liste 1",
         "Maria Muster": "Liste 2",
-        "Moritz Meyer": "Liste 3",
+        "Paul Meyer": "Liste 3",
     }
     assert neutral_player_labels([]) == {}
 

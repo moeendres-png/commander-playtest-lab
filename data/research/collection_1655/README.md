@@ -2,11 +2,11 @@
 
 The complete, corrected inventory workbook of the CPL collection
 (1,655 card identities, 1,870 physical lots, 2,233 counted copies;
-status 2026-11-12, "15 Fotos Alens Box korrigiert"), exported as one
+status 2026-11-12, "15 Fotos A Box korrigiert"), exported as one
 CSV per workbook sheet. This is the dataset the Studio store's `card`
 and `inventory` tables are built from.
 
-**Owner decision (Moritz, 2026-11-13):** the collection file and the
+**Owner decision (M, 2026-11-13):** the collection file and the
 ownership data (lots, counts, locations) may be kept in this
 repository — the repository is being switched to private, and all
 agents working on the project are to see and use the full data. This

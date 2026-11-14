@@ -12,7 +12,7 @@ import pytest
 from commander_lab.studio import StudioStore, import_all, rulings
 from commander_lab.studio.__main__ import main as studio_main
 from commander_lab.studio.data_report import data_report
-from commander_lab.studio.store import DataClass
+from commander_lab.studio.store import SCHEMA_VERSION, DataClass
 from tests.unit.test_studio_store import _synthetic_cards, _workbook
 
 ORACLE_A = "11111111-1111-4111-8111-111111111111"
@@ -253,7 +253,7 @@ def test_schema_13_migration_opens_a_schema_12_store(tmp_path: Path) -> None:
     version = store.connection.execute(
         "SELECT value FROM meta WHERE key = 'schema_version'"
     ).fetchone()[0]
-    assert version == "15"
+    assert version == str(SCHEMA_VERSION)
     assert store.count("card_ruling") == 0
     assert store.count("card_ruling_source") == 0
     assert store.connection.execute("SELECT COUNT(*) FROM universe_profile").fetchone()[0] == 1

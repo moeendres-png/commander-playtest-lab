@@ -53,6 +53,28 @@ def stored_combos(store: StudioStore, commander: str) -> list[tuple[list[str], i
     return found
 
 
+def combo_sources(store: StudioStore, commanders: Iterable[str]) -> list[dict[str, object]]:
+    """Where the stored combo list of each commander comes from: the imported source file's
+    title and times. Empty without a stored list."""
+    found: dict[str, dict[str, object]] = {}
+    for commander in commanders:
+        for row in store.connection.execute(
+            "SELECT DISTINCT s.source_id, s.title, s.snapshot_date, s.imported_at "
+            "FROM commander_combo c JOIN source s USING (source_id) "
+            "WHERE c.commander_name = ? COLLATE NOCASE ORDER BY s.imported_at",
+            (commander,),
+        ):
+            found.setdefault(
+                str(row["source_id"]),
+                {
+                    "title": str(row["title"]),
+                    "snapshot_date": row["snapshot_date"],
+                    "imported_at": str(row["imported_at"]),
+                },
+            )
+    return list(found.values())
+
+
 def deck_combos(
     store: StudioStore, rows: Sequence[sqlite3.Row], commanders: Iterable[str] | None = None
 ) -> dict[str, object]:
@@ -93,6 +115,7 @@ def deck_combos(
         "schema": SCHEMA,
         "commanders": chosen,
         "listed": listed,
+        "sources": combo_sources(store, chosen),
         "complete": complete,
         "one_missing": one_missing,
         "meaning": (

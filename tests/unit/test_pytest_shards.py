@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import ast
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -327,6 +329,209 @@ def test_weights_are_read_from_junit_class_names(tmp_path: Path) -> None:
 
 def test_the_checked_in_weight_table_is_usable() -> None:
     weights = shards.load_weights(shards.WEIGHTS_PATH)
-    assert weights
+    discovered = set(shards.discover_test_files(REPO))
+    assert set(weights) == discovered
     assert all(seconds > 0 for seconds in weights.values())
     assert not any(name.startswith("tests/qualification/") for name in weights)
+
+
+def test_the_checked_in_docs_test_list_is_complete_and_exists_on_disk() -> None:
+    raw = shards.DOCS_TESTS_PATH.read_text(encoding="utf-8")
+    import json
+
+    files = json.loads(raw)["files"]
+    assert files == sorted(set(files))
+    discovered = set(shards.discover_test_files(REPO))
+    assert set(files) <= discovered
+    assert not any(name.startswith("tests/qualification/") for name in files)
+    for required_guard in (
+        "tests/unit/test_ci_change_scope.py",
+        "tests/unit/test_ci_definition_integrity.py",
+        "tests/unit/test_ci_gate.py",
+        "tests/unit/test_ci_ruff_annotations.py",
+        "tests/unit/test_pytest_shards.py",
+        "tests/unit/test_required_test_ownership.py",
+    ):
+        assert required_guard in files
+
+
+def test_matrix_files_plan_matrix_and_complete_weights(tmp_path: Path) -> None:
+    _write(tmp_path / "tests/unit/test_a.py")
+    _write(tmp_path / "tests/unit/test_b.py")
+    _write(tmp_path / "tests/unit/test_c.py")
+    _write(tmp_path / shards.PACKAGING_TEST)
+    _write(tmp_path / "tests/qualification/test_q.py")
+    discovered = shards.discover_test_files(tmp_path)
+    assert discovered == [
+        "tests/unit/test_a.py",
+        "tests/unit/test_b.py",
+        "tests/unit/test_c.py",
+        shards.PACKAGING_TEST,
+    ]
+    completed = shards.complete_weights(
+        {"tests/unit/test_a.py": 4.0, "tests/gone.py": 9.0}, tmp_path
+    )
+    assert completed == {
+        "tests/unit/test_a.py": 4.0,
+        "tests/unit/test_b.py": 0.1,
+        "tests/unit/test_c.py": 0.1,
+        shards.PACKAGING_TEST: 0.1,
+    }
+    slots = [
+        shards.matrix_files(tmp_path, idx, 2, "all", weights={"tests/unit/test_a.py": 4.0})
+        for idx in (1, 2)
+    ]
+    assert sorted(slots[0] + slots[1]) == [
+        "tests/unit/test_a.py",
+        "tests/unit/test_b.py",
+        "tests/unit/test_c.py",
+    ]
+    docs_slot = shards.matrix_files(
+        tmp_path,
+        1,
+        1,
+        "docs",
+        weights=completed,
+        docs_tests=["tests/unit/test_a.py", "tests/unit/test_missing.py"],
+    )
+    assert docs_slot == ["tests/unit/test_a.py"]
+    with pytest.raises(ValueError, match="matrix count"):
+        shards.plan_matrix(["tests/unit/test_a.py"], {}, 0)
+    with pytest.raises(ValueError, match=r"outside 1\.\.2"):
+        shards.matrix_files(tmp_path, 3, 2)
+    with pytest.raises(ValueError, match="unknown scope"):
+        shards.matrix_files(tmp_path, 1, 1, "weird")
+
+
+# Test files that mention a documentation-looking string without reading repository documents.
+DOCS_SCAN_EXEMPT = {
+    # ".claude" is the directory of a skill script that is loaded as code, not a document.
+    "tests/unit/test_gh_ops_brief.py",
+}
+_DOCS_REFERENCE = re.compile(
+    r"^(?:docs|\.claude)$|docs/|\.md$|README|AGENTS|CLAUDE|CHANGELOG|\.claude/"
+)
+
+
+def _docs_references(path: Path) -> list[str]:
+    """String literals (docstrings excluded) that name a repository document."""
+    tree = ast.parse(path.read_text(encoding="utf-8"))
+    docstrings = {
+        id(node.body[0].value)
+        for node in ast.walk(tree)
+        if isinstance(node, ast.Module | ast.FunctionDef | ast.AsyncFunctionDef | ast.ClassDef)
+        and node.body
+        and isinstance(node.body[0], ast.Expr)
+        and isinstance(node.body[0].value, ast.Constant)
+    }
+    return [
+        node.value
+        for node in ast.walk(tree)
+        if isinstance(node, ast.Constant)
+        and isinstance(node.value, str)
+        and id(node) not in docstrings
+        and _DOCS_REFERENCE.search(node.value)
+    ]
+
+
+def test_every_test_that_reads_repository_documents_is_in_the_docs_list() -> None:
+    """A docs-only PR runs only the listed files, so a test that reads docs must be listed.
+
+    Files under tests/qualification (run by ``infrastructure``) and the packaging test
+    (``packaging`` job) are outside the matrix; ``DOCS_SCAN_EXEMPT`` names the files that only
+    mention such strings. This is a static scan of string literals, a guard rather than a proof:
+    a path built from non-literal parts is not seen.
+    """
+    listed = set(shards.load_docs_tests())
+    missing = {
+        name: _docs_references(REPO / name)[:3]
+        for name in shards.discover_test_files(REPO)
+        if name not in listed
+        and name != shards.PACKAGING_TEST
+        and name not in DOCS_SCAN_EXEMPT
+        and _docs_references(REPO / name)
+    }
+    assert not missing, (
+        "add these files to tests/pytest_docs_tests.json (or to DOCS_SCAN_EXEMPT with a reason): "
+        f"{missing}"
+    )
+    assert set(shards.discover_test_files(REPO)) >= DOCS_SCAN_EXEMPT
+
+
+def test_the_docs_scan_sees_a_known_docs_reader() -> None:
+    assert _docs_references(REPO / "tests/unit/test_docs_archive.py")
+
+
+def _shard_commands(
+    rootdir: Path, files: list[str], count: int, weights: dict[str, float] | None = None
+) -> list[list[str]]:
+    """The pytest argument lists of every in-slot shard for explicit ``files`` (as ci.yml runs)."""
+    table = shards.load_weights(shards.WEIGHTS_PATH) if weights is None else weights
+    selection = shards.parse_arguments(["-q", *files], ("tests",))
+    plan = shards.plan_for(shards.selected_files(table, rootdir, selection), count)
+    assert plan is not None
+    return [shards.shard_arguments(selection, plan, index) for index in range(len(plan))]
+
+
+def _listed_files(arguments: list[str]) -> list[str]:
+    return [item for item in arguments if item.endswith(".py")]
+
+
+def test_explicit_files_are_split_into_disjoint_shards_that_cover_the_list(
+    tmp_path: Path,
+) -> None:
+    names = [f"tests/unit/test_{letter}.py" for letter in "abcdefghij"]
+    for name in names:
+        _write(tmp_path / name)
+    weights = {name: float(index + 1) for index, name in enumerate(names)}
+    commands = _shard_commands(tmp_path, names, 4, weights)
+    per_shard = [_listed_files(command) for command in commands]
+    flat = [name for shard in per_shard for name in shard]
+    assert sorted(flat) == sorted(names), "every file exactly once"
+    assert len(flat) == len(set(flat))
+    for command in commands:
+        # --ignore never applies to a file named on the command line, so none may be used.
+        assert not any(item.startswith("--ignore") for item in command)
+
+
+def test_unweighted_explicit_file_is_still_run_exactly_once(tmp_path: Path) -> None:
+    names = [f"tests/unit/test_{letter}.py" for letter in "abcd"]
+    for name in names:
+        _write(tmp_path / name)
+    weights = {name: 1.0 for name in names[:3]}
+    flat = [
+        name
+        for command in _shard_commands(tmp_path, names, 2, weights)
+        for name in _listed_files(command)
+    ]
+    assert sorted(flat) == sorted(names)
+
+
+def test_directory_roots_keep_the_last_shard_ignore_behaviour(tmp_path: Path) -> None:
+    names = [f"tests/unit/test_{letter}.py" for letter in "abc"]
+    for name in names:
+        _write(tmp_path / name)
+    selection = shards.parse_arguments(["tests"], ("tests",))
+    plan = shards.plan_for({name: 1.0 for name in names}, 2)
+    assert plan is not None
+    last = shards.shard_arguments(selection, plan, len(plan) - 1)
+    assert "tests" in last
+    assert {item for item in last if item.startswith("--ignore=")} == {
+        f"--ignore={name}" for name in plan[0]
+    }
+
+
+def test_real_tree_in_slot_shards_never_repeat_a_file_of_another_shard() -> None:
+    weights = shards.load_weights(shards.WEIGHTS_PATH)
+    files = [name for name in shards.discover_test_files(REPO) if name != shards.PACKAGING_TEST]
+    for index in range(1, 5):
+        slot = shards.matrix_files(REPO, index, 4, "all", weights)
+        commands = _shard_commands(REPO, slot, 4, weights)
+        per_shard = [_listed_files(command) for command in commands]
+        flat = [name for shard in per_shard for name in shard]
+        assert sorted(flat) == sorted(slot), f"slot {index}: shards do not partition the slot"
+        for command, own in zip(commands, per_shard, strict=True):
+            others = set(flat) - set(own)
+            assert not others & set(command)
+            assert not any(item.startswith("--ignore") for item in command)
+    assert files

@@ -62,3 +62,21 @@ def test_collection_and_deck_data_carry_no_purchase_records() -> None:
         if PURCHASE_TEXT.search(path.read_text(encoding="utf-8"))
     ]
     assert offenders == []
+
+
+PERSONAL_NAME_TOKEN = re.compile(
+    r"\b(?:Moritz|Alen|Alens|Leon|Leons)\b|(?<=[:_])(?:alen|leon|moritz|ALEN|LEON)(?=[_-]|$)"
+)
+
+
+def test_collection_1655_and_topdeck_tests_carry_only_initials_for_personal_names() -> None:
+    targets = [
+        *sorted((ROOT / "data/research/collection_1655").iterdir()),
+        ROOT / "tests/unit/test_topdeck_collector.py",
+    ]
+    offenders = [
+        str(path.relative_to(ROOT))
+        for path in targets
+        if path.is_file() and PERSONAL_NAME_TOKEN.search(path.read_text(encoding="utf-8"))
+    ]
+    assert offenders == []

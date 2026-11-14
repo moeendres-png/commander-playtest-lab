@@ -7,7 +7,7 @@
     "-Xmx3g",
     "-Dcommanderlab.fullGame.gamesPerJvm=8",
     "-jar",
-    "/home/hatch/workspace/github/wt-1298/engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar",
+    "engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar",
     "full-game"
   ],
   "total_wall_s": 502.682,
