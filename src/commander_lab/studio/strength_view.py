@@ -991,6 +991,15 @@ def _panel_texts() -> dict[str, object]:
         "aus: der Commander und die Standardländer bekommen keine Stufe "
         "(„nicht bewertet“) und nehmen keinen Rang weg."
     )
+    labels["rank_other_commanders"] = (
+        "Andere Commander-Karten im Pool ranken "
+        f"(empfohlen: {'ja' if rec.rank_other_commanders else 'nein'})"
+    )
+    helps["rank_other_commanders"] = (
+        "ja: eine Karte, die im Studio selbst ein Commander ist, aber für diesen Commander "
+        "ein legales Deckmitglied, wird wie jede andere Karte bewertet. nein: sie bekommt "
+        "keine Stufe („nicht bewertet, anderer Commander“) und nimmt keinen Rang weg."
+    )
     labels["universe_source"] = "Decklisten-Universum (empfohlen: automatisch)"
     helps["universe_source"] = (
         "Woher die Zählung „Decklisten-Universum“ kommt. Automatisch: ein oben gewähltes "
@@ -1050,6 +1059,7 @@ def _panel_texts() -> dict[str, object]:
         },
         {"title": "Decklisten-Universum", "keys": ["universe_source"]},
         {"title": "Commander und Standardländer", "keys": ["rank_commander_and_basics"]},
+        {"title": "Andere Commander im Pool", "keys": ["rank_other_commanders"]},
         {
             "title": "Mindestdaten für eine Stufe",
             "keys": ["min_coverage", "min_components", "require_commander_signal"],
@@ -1088,6 +1098,10 @@ def _panel_texts() -> dict[str, object]:
             "rank_commander_and_basics": [
                 {"value": False, "label": "aus (empfohlen)", "recommended": True},
                 {"value": True, "label": "an", "recommended": False},
+            ],
+            "rank_other_commanders": [
+                {"value": True, "label": "ja (empfohlen)", "recommended": True},
+                {"value": False, "label": "nein", "recommended": False},
             ],
             "require_commander_signal": [
                 {"value": True, "label": "an (empfohlen)", "recommended": True},

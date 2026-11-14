@@ -290,6 +290,7 @@ _SETTINGS_KEYS = frozenset(
         "min_denominators",
         "missing_value",
         "rank_commander_and_basics",
+        "rank_other_commanders",
         "universe_source",
         "require_commander_signal",
         "layer_weights",
@@ -391,6 +392,9 @@ class StrengthSettings:
     min_denominators: dict[str, int] = field(default_factory=lambda: dict(DEFAULT_MIN_DENOMINATORS))
     missing_value: dict[str, str] = field(default_factory=dict)
     rank_commander_and_basics: bool = False
+    # Other commanders known to the store are ordinary cards of the 99 for this commander:
+    # ranked by default; off marks them tier N (NOT_RANKED_OTHER_COMMANDER).
+    rank_other_commanders: bool = True
     universe_source: str = DEFAULT_UNIVERSE_SOURCE
     require_commander_signal: bool = DEFAULT_REQUIRE_COMMANDER_SIGNAL
     layer_weights: dict[str, float] = field(default_factory=lambda: dict(DEFAULT_LAYER_WEIGHTS))
@@ -449,6 +453,8 @@ class StrengthSettings:
                 raise ValueError(f"missing_value {name} must be skip or lowest")
         if not isinstance(self.rank_commander_and_basics, bool):
             raise ValueError("rank_commander_and_basics must be true or false")
+        if not isinstance(self.rank_other_commanders, bool):
+            raise ValueError("rank_other_commanders must be true or false")
         if not isinstance(self.require_commander_signal, bool):
             raise ValueError("require_commander_signal must be true or false")
         if parse_universe_source(self.universe_source) is None:
@@ -513,6 +519,7 @@ class StrengthSettings:
             "min_denominators": dict(self.min_denominators),
             "missing_value": dict(self.missing_value),
             "rank_commander_and_basics": self.rank_commander_and_basics,
+            "rank_other_commanders": self.rank_other_commanders,
             "universe_source": self.universe_source,
             "require_commander_signal": self.require_commander_signal,
             "layer_weights": dict(self.layer_weights),
@@ -559,6 +566,9 @@ class StrengthSettings:
         ranked = raw.get("rank_commander_and_basics", defaults.rank_commander_and_basics)
         if not isinstance(ranked, bool):
             raise ValueError("rank_commander_and_basics must be true or false")
+        other_ranked = raw.get("rank_other_commanders", defaults.rank_other_commanders)
+        if not isinstance(other_ranked, bool):
+            raise ValueError("rank_other_commanders must be true or false")
         universe_source = raw.get("universe_source", defaults.universe_source)
         if not isinstance(universe_source, str):
             raise ValueError("universe_source must be a text")
@@ -595,6 +605,7 @@ class StrengthSettings:
             },
             missing_value={str(k): str(v) for k, v in _mapping(missing).items()},
             rank_commander_and_basics=ranked,
+            rank_other_commanders=other_ranked,
             universe_source=universe_source,
             require_commander_signal=require,
             layer_weights={
@@ -981,6 +992,8 @@ def score_pool(
     pool: percentile ranks are taken among its ranked cards only (see ``PoolContext``)."""
     ctx = context or PoolContext()
     unranked = {} if settings.rank_commander_and_basics else dict(ctx.unranked)
+    if settings.rank_other_commanders:
+        unranked = {k: v for k, v in unranked.items() if v != NOT_RANKED_OTHER_COMMANDER}
     filter_cards = frozenset(ctx.filter_cards)
     rated = (*COMPONENTS, *settings.active_layers())
     rankings: dict[str, _ComponentRanking] = {}

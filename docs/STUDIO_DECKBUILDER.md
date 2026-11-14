@@ -271,7 +271,7 @@ bracket (`core`, `upgraded`, `optimized`, `cedh`, `none`), the universe profile 
 the Universum selector), the comparison group (`rank_group`: `pool`), the share measure
 (`share_measure`: `wilson`), the minimum denominators (`min_denominators`: EDHREC 30,
 tournament 5, conversion 20; the deck-universe minimum is the universe's own `min_universe`), the missing
-value per share signal (`skip`), commander and basics (`rank_commander_and_basics`: off),
+value per share signal (`skip`), commander and basics (`rank_commander_and_basics`: off), other commanders in the pool (`rank_other_commanders`: on, ranked like any card),
 `min_coverage` (0.3, "Mindest-Datenlage"), `min_components` (2), `universe_source` (`auto`), `require_commander_signal` (on) and the editable cuts (`tier_cuts` 90/75/55/35).
 The page also filters by tier (S/A/B/C/D/U) and sorts by the percentile of any single
 component. Presets (weights commander inclusion / bracket / deck universe / synergy / tournament /
@@ -527,8 +527,8 @@ little data or not rated (commander, basic lands), never a low tier.
   The reason of a card is `NO_POSITIVE_WEIGHT` (no weight above 0), `NO_SOURCE_FOR_COMMANDER`
   (no weighted component has usable data for the commander), `NO_COMMANDER_SIGNAL`,
   `TOO_LITTLE_DATA` or `ENOUGH_DATA`; the tier follows the unrounded index. Other commanders
-  known to the store are not ranked (like the chosen commander and basic lands, tier `N`,
-  `NOT_RANKED_OTHER_COMMANDER`) unless "rank_commander_and_basics" is on.
+  known to the store are ordinary cards of the 99 and ranked by default; with
+  `rank_other_commanders` off they are not ranked (tier `N`, `NOT_RANKED_OTHER_COMMANDER`).
 - The tier list's evidence reads the commander's EDHREC inclusion from `card_signal` when the
   older table has no value (the same entry the builder shows); spread levels carry a German
   `level_name` next to the stable level key.

@@ -81,9 +81,12 @@ def test_the_tier_follows_the_unrounded_index() -> None:
     assert result["c"]["tier"] == "B"  # but below the cut 66.7
 
 
-def test_other_commanders_are_not_ranked_unless_switched_on() -> None:
+def test_other_commanders_are_ranked_by_default_and_not_when_switched_off() -> None:
     store = _store()
-    cards = _cards(strength_view.compute(store, CMD, StrengthSettings()))
+    default = _cards(strength_view.compute(store, CMD, StrengthSettings()))
+    assert default["Other Cmd"]["tier"] != "N"  # ranked like any card by default
+    assert StrengthSettings().rank_other_commanders is True
+    cards = _cards(strength_view.compute(store, CMD, StrengthSettings(rank_other_commanders=False)))
     assert cards["Other Cmd"]["tier"] == "N"
     assert cards["Other Cmd"]["reason"] == strength.NOT_RANKED_OTHER_COMMANDER
     assert cards[CMD]["tier"] == "N" and cards["Forest"]["tier"] == "N"
