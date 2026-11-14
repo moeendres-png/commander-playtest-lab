@@ -92,8 +92,8 @@ remaining path coupling without changing deck semantics.
 | CI | PR, main, manual | Quality + Security | central generic checks | keep as quality owner |
 | Core Workflow Acceptance | relevant PR/main, manual | decision-context + current E2E reference contract | bounded semantic smoke | replaces J-P6 Acceptance |
 | Decision Support Regression | own workflow/script PR, manual | historical J-FINAL RogShai regression | historical regression | replaces J-FINAL Acceptance |
-| Optimizer Workflow Acceptance | optimizer paths, manual | evidence partition + CLI contract | bounded semantic gate | deduplicated |
-| Model Resolution Measurement | relevant paths, manual | technical structural resolution measurement | bounded measurement | keep |
+| Optimizer Workflow Acceptance | - | - | - | removed with the optimizer code (#1268) |
+| Model Resolution Measurement | - | - | - | removed with the optimizer code (#1268) |
 | Windows Runtime Hygiene | relevant paths/main, manual | Windows filesystem/runtime behavior | platform-specific | slimmed; no full duplicate suite |
 | Release Artifacts | release contract PR, main/release/manual | SHA-bound packaging + roundtrip + truth manifest | packaging only | no broad PR full-suite duplication |
 | Optimizer v2 Technical Benchmark | manual | expensive technical A/B | benchmark | keep on demand |
