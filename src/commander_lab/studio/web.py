@@ -28,6 +28,7 @@ from . import (
     engine_check,
     games,
     import_all,
+    land_advisor,
     launch,
     queries,
     signals,
@@ -1021,6 +1022,22 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
                 "shape": builder.deck_shape(rows),
                 "roles": builder.deck_roles(store, _cards(body.cards)),
                 "combos": combos.deck_combos(store, rows),
+            }
+        finally:
+            store.close()
+
+    @app.post("/api/land-advisor")
+    def land_advisor_route(body: ListBody) -> dict[str, object]:
+        """Land count and coloured sources against the coloured symbols, with the figures of
+        the commander's source-deck groups. An observation, no recommendation."""
+        store = open_store()
+        try:
+            rows = list_rows(store, _cards(body.cards))
+            commanders = [str(row["oracle_name"]) for row in rows if row["zone"] == "commander"]
+            return {
+                "deck": land_advisor.deck_profile(rows),
+                "groups": land_advisor.source_deck_groups(store, commanders),
+                "small_group": land_advisor.SMALL_GROUP,
             }
         finally:
             store.close()

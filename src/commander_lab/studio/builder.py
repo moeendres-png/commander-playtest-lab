@@ -892,13 +892,14 @@ def _percentile(values: list[float], share: float) -> float:
     return ordered[low] + (ordered[high] - ordered[low]) * (position - low)
 
 
-def cohort_shapes(store: StudioStore, commander_names: Sequence[str]) -> list[dict[str, object]]:
-    """How the source decks of the commander are built, per cohort: lands, creatures, average mana value of
-    nonland cards (median and middle half). Decks with unresolved cards are left out and
-    counted."""
+def cohort_members(
+    store: StudioStore, commander_names: Sequence[str]
+) -> dict[str, list[sqlite3.Row]]:
+    """The commander's source decks (``corpus_deck_stat`` rows) per comparison group: all, each
+    play group and each named cohort."""
     db = store.connection
     if not commander_names:
-        return []
+        return {}
     bound, bound_args = bound_to("corpus_deck", "d.deck_id", commander_names)
     rows = db.execute(
         "SELECT s.*, d.play_group FROM corpus_deck_stat s JOIN corpus_deck d USING (deck_id) "
@@ -914,6 +915,17 @@ def cohort_shapes(store: StudioStore, commander_names: Sequence[str]) -> list[di
         found = by_id.get(str(item["deck_id"]))
         if found is not None:
             members.setdefault(str(item["cohort"]), []).append(found)
+    return members
+
+
+def cohort_shapes(store: StudioStore, commander_names: Sequence[str]) -> list[dict[str, object]]:
+    """How the source decks of the commander are built, per cohort: lands, creatures, average mana value of
+    nonland cards (median and middle half). Decks with unresolved cards are left out and
+    counted."""
+    db = store.connection
+    if not commander_names:
+        return []
+    members = cohort_members(store, commander_names)
     role_names = [str(r[0]) for r in db.execute("SELECT DISTINCT role FROM card_role ORDER BY 1")]
     role_cards: dict[tuple[str, str], int] = {
         (str(r["deck_id"]), str(r["role"])): int(r["cards"])

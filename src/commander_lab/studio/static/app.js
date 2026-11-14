@@ -517,7 +517,50 @@ function renderNumbers(body) {
     body.append(h("h3", {}, `Land-Ziehwahrscheinlichkeiten (${dp.lands} Länder in ${dp.main_cards} Maindeck-Karten)`), probTable,
       h("p", { class: "note" }, "Exakte hypergeometrische Kombinatorik ohne Mulligan-Heuristik."));
   }
+  renderLandAdvisor(body);
   renderCombos(body);
+}
+// Land advisor: an observation of the mana base against the coloured symbols, next to the
+// figures of the chosen comparison group. It never says what to add or cut.
+function loadLandAdvisor() {
+  const seq = state.changeSeq;
+  if (state.landAdvisor && state.landAdvisor.seq === seq) return;
+  if (state.landAdvisorBusy === seq) return;
+  state.landAdvisorBusy = seq;
+  api("/api/land-advisor", "POST", { cards: entries(), owned_only: true }).then((data) => {
+    state.landAdvisor = { seq, data };
+    if (state.tab === "numbers") renderDeck();
+  }, (error) => { state.landAdvisorBusy = null; fail(error); });
+}
+function renderLandAdvisor(body) {
+  body.append(h("h3", {}, "Länder im Vergleich zu den Farbsymbolen"));
+  loadLandAdvisor();
+  const found = state.landAdvisor;
+  if (!found) { body.append(h("p", { class: "muted", id: "land-advisor-wait" }, "Wird berechnet.")); return; }
+  const deck = found.data.deck;
+  const group = found.data.groups.find((item) => item.cohort === state.cohort);
+  const spanText = (entry, digits = 1) => entry ? `${entry.median.toFixed(digits)} (${entry.p25.toFixed(digits)} bis ${entry.p75.toFixed(digits)})` : "unbekannt";
+  const percent = (value) => value === null || value === undefined ? "keine Symbole" : `${(100 * value).toFixed(0)} %`;
+  const shareSpan = (entry) => entry ? `${(100 * entry.median).toFixed(0)} % (${(100 * entry.p25).toFixed(0)} bis ${(100 * entry.p75).toFixed(0)})` : "unbekannt";
+  const groupName = cohortName(state.cohort);
+  const head = h("tr", {}, h("th", {}, "Farbe"), h("th", { class: "num" }, "Farbsymbole"), h("th", { class: "num" }, "Anteil"),
+    h("th", { class: "num" }, "Länder, die die Farbe erzeugen"), h("th", { class: "num" }, "andere Quellen"),
+    h("th", { class: "num" }, `Vergleich Symbole: ${groupName}`), h("th", { class: "num" }, `Vergleich Anteil: ${groupName}`), h("th", { class: "num" }, `Vergleich Länder: ${groupName}`));
+  const rows = deck.colours.map((entry) => {
+    const figures = group && group.colours[entry.colour];
+    return h("tr", {}, h("td", {}, h("span", { class: "ms ms-" + entry.colour }, entry.colour), entry.in_identity ? "" : " (außerhalb der Farbidentität)"),
+      h("td", { class: "num" }, entry.pips), h("td", { class: "num" }, percent(entry.pip_share)),
+      h("td", { class: "num" }, entry.land_sources), h("td", { class: "num" }, entry.other_sources + (entry.modal_sources ? ` (+${entry.modal_sources} Zauber mit Landseite)` : "")),
+      h("td", { class: "num" }, group ? (figures ? spanText(figures.pips) : "0") : "–"),
+      h("td", { class: "num" }, group ? shareSpan(figures && figures.pip_share) : "–"),
+      h("td", { class: "num" }, group ? (figures ? spanText(figures.land_sources) : "0") : "–"));
+  });
+  const landLine = group && group.lands ? `${deck.lands} Länder im Deck. ${groupName}: ${spanText(group.lands)} (Median, mittlere Hälfte) in ${group.decks_counted} Decks.` : `${deck.lands} Länder im Deck. Für ${groupName} liegen keine Vergleichszahlen vor.`;
+  body.append(h("p", { id: "land-advisor-lands" }, landLine));
+  if (group && group.small) body.append(h("p", { class: "pill warn", id: "land-advisor-small" }, `Nur ${group.decks_counted} Decks in dieser Gruppe (unter ${found.data.small_group}): die Vergleichszahlen sind unsicher.`));
+  body.append(h("table", { id: "land-advisor" }, h("thead", {}, head), h("tbody", {}, rows)));
+  if (deck.lands_unknown_colours) body.append(h("p", { class: "note" }, `${deck.lands_unknown_colours} Länder ohne bekannte Farben: unbekannt, nicht als null gezählt.`));
+  body.append(h("p", { class: "note" }, "Beobachtung, keine Vorschrift. Farbsymbole stehen in den Manakosten der Nicht-Land-Karten; ein Hybrid-Symbol zählt für beide Farben, Generisches und X zählen nicht, eine geteilte Karte zählt beide Hälften. Ein Land zählt für jede Farbe, die es erzeugt. Quellen, die keine Länder sind (Manasteine, Kreaturen), stehen getrennt. Vergleich: Median und mittlere Hälfte der Quelldecks der gewählten Vergleichsgruppe."));
 }
 // Listed combos of the commander against the deck: complete, or one card short. A count
 // over the source's list, never a rating; without a stored list the section says so.
