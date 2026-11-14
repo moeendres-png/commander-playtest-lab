@@ -16,6 +16,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from commander_lab.studio import StudioStore, builder, signals, strength, strength_view
+from commander_lab.studio.store import DataClass
 from commander_lab.studio.strength import Observation, PoolContext, StrengthSettings
 from commander_lab.studio.web import create_app
 from tests.unit.test_studio_builder import _fill
@@ -736,6 +737,60 @@ def test_percentiles_are_taken_within_the_chosen_group_with_a_pool_fallback() ->
     assert _row(banded, "a5", "synergy")["percentile"] == 1.0
 
 
+def _function_grouped() -> tuple[dict[str, dict[str, Observation]], PoolContext]:
+    observations: dict[str, dict[str, Observation]] = {}
+    groups: dict[str, tuple[str, ...]] = {}
+    for index in range(6):
+        observations[f"r{index}"] = {"synergy": Observation(float(index))}
+        groups[f"r{index}"] = ("ramp",)
+    for index in range(6):
+        observations[f"d{index}"] = {"synergy": Observation(100.0 + index)}
+        groups[f"d{index}"] = ("card_draw",)
+    # one card in both groups: midfield among the ramp cards, last among the draw cards
+    observations["both"] = {"synergy": Observation(2.5)}
+    groups["both"] = ("ramp", "card_draw")
+    # a role with too few valued cards, and a card without any role
+    for index in range(3):
+        observations[f"f{index}"] = {"synergy": Observation(200.0 + index)}
+        groups[f"f{index}"] = ("flicker",)
+    observations["none"] = {"synergy": Observation(50.0)}
+    return observations, PoolContext(function_group=groups)
+
+
+def test_percentiles_are_taken_within_the_function_groups() -> None:
+    observations, context = _function_grouped()
+    pool = strength.score_pool(_only("synergy"), observations, {"synergy"}, context=context)
+    func = strength.score_pool(
+        _only("synergy", rank_group="function"), observations, {"synergy"}, context=context
+    )
+    # one role: ranked inside the role group only (seven cards: the six and "both")
+    row = _row(func, "r5", "synergy")
+    assert row["percentile"] == 1.0 and row["group"] == "ramp" and row["group_size"] == 7
+    assert _row(func, "r0", "synergy")["percentile"] == 0.0
+    assert _row(func, "d5", "synergy")["group"] == "card_draw"
+    # several roles: the rank is the mean of the ranks in its role groups, all of them named
+    both = _row(func, "both", "synergy")
+    assert both["percentile"] == 0.25
+    assert both["group"] == "ramp + card_draw" and both["group_size"] is None
+    # a role group below the minimum keeps the pool rank and the row says so
+    small = _row(func, "f1", "synergy")
+    assert small["group_fallback"] is True and small["reason"] == strength.GROUP_TOO_SMALL
+    assert small["group"] == "flicker" and "nur 3 Karten mit Wert" in small["note"]
+    assert small["percentile"] == _row(pool, "f1", "synergy")["percentile"]
+    # no role at all: pool rank, named as an unknown function, never as a group of its own
+    unknown = _row(func, "none", "synergy")
+    assert unknown["group_fallback"] is True and unknown["group"] is None
+    assert "Keine Funktion bekannt" in unknown["note"]
+    assert unknown["percentile"] == _row(pool, "none", "synergy")["percentile"]
+
+
+def test_function_is_a_rank_group_setting() -> None:
+    settings = StrengthSettings.from_dict({"rank_group": "function"})
+    assert settings.rank_group == strength.GROUP_FUNCTION == "function"
+    assert StrengthSettings.from_dict(settings.to_dict()) == settings
+    assert StrengthSettings().rank_group == "pool"  # the recommendation stays the pool
+
+
 def test_mana_value_bands_and_lands() -> None:
     bands = [strength.mana_band(value, is_land=False) for value in (0, 1, 2, 3, 4, 5, 9)]
     assert bands == ["0-1", "0-1", "2", "3", "4", "5+", "5+"]
@@ -1031,6 +1086,42 @@ def test_the_group_setting_reaches_the_component_rows_of_a_real_pool(
     assert (band["group"], band["group_size"]) == ("2", 8)  # Filler 01 to 08 have mana value 2
     lone = _component(_by_name(banded)["Filler 00"], "commander_inclusion")
     assert lone["group"] == "3" and lone["group_fallback"] is True  # the only card of its band
+
+
+def test_the_function_group_setting_reaches_the_component_rows_of_a_real_pool(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    _import(store, tmp_path)
+    source_id = store.register_source(
+        data_class=DataClass.ORIGINAL_SOURCE, title="Rollen (Test)", sha256="f" * 64
+    )
+    with store.connection as db:
+        oracle = {
+            str(row["oracle_name"]): str(row["oracle_id"])
+            for row in db.execute("SELECT oracle_name, oracle_id FROM card")
+        }
+        db.executemany(
+            "INSERT INTO card_role(oracle_id, role, source_id) VALUES (?, ?, ?)",
+            [(oracle[f"Filler {index:02d}"], "ramp", source_id) for index in range(6)],
+        )
+    result = strength_view.compute(store, COMMANDER, StrengthSettings(rank_group="function"))
+    assert result["settings"]["rank_group"] == "function"
+    by_name = _by_name(result)
+    row = _component(by_name["Filler 02"], "commander_inclusion")
+    assert (row["group"], row["group_size"], row["group_fallback"]) == ("ramp", 6, False)
+    assert row["percentile"] == pytest.approx(0.6)  # three of the six ramp cards below it
+    # Filler 07 has a value but no role: pool rank, and the row says no function is known
+    pool = strength_view.compute(store, COMMANDER, StrengthSettings())
+    func_row = _component(by_name["Filler 07"], "commander_inclusion")
+    pool_row = _component(_by_name(pool)["Filler 07"], "commander_inclusion")
+    assert func_row["group_fallback"] is True and "Keine Funktion bekannt" in func_row["note"]
+    assert func_row["percentile"] == pool_row["percentile"]
+
+
+def test_panel_offers_the_function_rank_group(client: TestClient) -> None:
+    meta = client.get("/api/strength/presets").json()
+    values = [choice["value"] for choice in meta["panel"]["choices"]["rank_group"]]
+    assert values == ["pool", "type", "mana_band", "function"]
 
 
 def test_recommended_values_come_from_one_place_and_the_panel_texts_name_them(
