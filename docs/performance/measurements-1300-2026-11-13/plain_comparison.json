@@ -1,0 +1,21 @@
+{
+  "profiled": {
+    "wall_s": 720.079,
+    "python_cpu_s": 268.78,
+    "children_cpu_s": 457.016,
+    "peak_rss_mb": 784.47
+  },
+  "plain": {
+    "wall_s": 502.682,
+    "python_cpu_s": 104.423,
+    "children_cpu_s": 445.125,
+    "peak_rss_mb": 794.96
+  },
+  "profiler_inflation_python_cpu_factor": 2.574,
+  "identity_identical": true,
+  "per_game_plain": {
+    "wall_s": 62.835,
+    "python_cpu_s": 13.053,
+    "jvm_cpu_s": 55.641
+  }
+}

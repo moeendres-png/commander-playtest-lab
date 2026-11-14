@@ -1,0 +1,25 @@
+== pilot module functions by cumtime
+  ct=   644.65 tt=    0.35 nc=   75357 engine/rules/full_game_pilot/common.py:782 guarded
+  ct=   192.42 tt=    1.97 nc=   37626 engine/rules/full_game_pilot/policy.py:51 decide
+  ct=    89.06 tt=    2.38 nc=   25863 engine/rules/full_game_pilot/priority.py:41 _decide_priority
+  ct=    81.30 tt=    2.68 nc=   17774 engine/rules/full_game_pilot/state.py:354 _pilot_state
+  ct=    63.49 tt=    3.14 nc=  131961 engine/rules/full_game_pilot_views.py:438 player_threat
+  ct=    46.33 tt=    0.11 nc=    7092 engine/rules/full_game_pilot/payment.py:876 _decide_mana
+  ct=    45.96 tt=    0.08 nc=    7092 engine/rules/full_game_pilot/payment.py:1000 _complete_payment
+  ct=    45.61 tt=    7.65 nc= 2042566 engine/rules/full_game_pilot_views.py:395 entry_value
+  ct=    35.05 tt=    0.21 nc=    7092 engine/rules/full_game_pilot_payment_plan.py:356 completing_options
+  ct=    33.91 tt=    0.11 nc=   55965 engine/rules/full_game_pilot_payment_plan.py:255 _completes
+  ct=    33.80 tt=    9.94 nc=  946152 engine/rules/full_game_pilot_payment_plan.py:263 solve
+  ct=    32.45 tt=   13.42 nc=11010448 engine/rules/full_game_pilot_views.py:359 is_land_entry
+  ct=    30.99 tt=    0.05 nc=   52215 engine/rules/full_game_pilot_payment_plan.py:383 <genexpr>
+  ct=    29.76 tt=    1.19 nc= 6445185 engine/rules/full_game_pilot_payment_plan.py:286 <genexpr>
+  ct=    29.54 tt=    3.49 nc=  200165 engine/rules/full_game_pilot_views.py:414 board_summary
+== anchors with counts
+  ct=   254.13 tt=    0.24 nc=   37626 studio/games.py:324 decide
+  ct=   192.42 tt=    1.97 nc=   37626 engine/rules/full_game_pilot/policy.py:51 decide
+  ct=    61.32 tt=    1.53 nc=   37626 studio/games.py:246 record
+  ct=    17.47 tt=    0.17 nc=   37950 /usr/lib/python3.12/json/__init__.py:299 loads
+  ct=     7.21 tt=    0.44 nc=   75903 /usr/lib/python3.12/json/__init__.py:183 dumps
+  ct=     2.77 tt=    1.07 nc=   37626 engine/rules/full_game.py:172 audit_actor_scoped_frame
+pilot decide callers: {('common.py', 'guarded'): 192.42}
+recorder record nc/ct: 37626 61.32
