@@ -194,7 +194,14 @@ per commander of the files, `edhrec_global_inclusion`, `spellbook_variants`,
 `spellbook_two_card_variants` and `spellbook_partners_in_collection` commander
 independent (commander name empty), and
 `tournament_lists` (lists of the commander that contain the card over all its lists, main and
-commander section only) under `--commander` (default: the standard commander). Tournament
+commander section only) under `--commander` (default: the standard commander). The counted
+research file `topdeck_card_conversions.csv` stores `topdeck_card_conversion` under each
+commander of its own commander column: the value is the published conversion rate (decks
+with the card that reached the top cut over the decks whose top-cut outcome is known), the
+stored denominator is that known-outcome base — never the appearances, which also count
+decks of unknown outcome — and where the source publishes no rate (base below 10, the
+literal `NULL` in the file) the value stays NULL while numerator and denominator are
+stored as counted. Tournament
 files are any `topdeck_*_decks.csv` (split parts `_1`, `_2` allowed); the commander of a
 file is taken from its commander section and matched case-insensitively against the commander
 names of the store, so a file of another commander is never stored under the wrong name. The commander
@@ -212,7 +219,8 @@ is never stored. Re-importing replaces the rows of the signals it writes.
 
 Formula, per commander (`strength.py`, pure):
 
-1. Share signals (inclusion, bracket inclusion, deck lists, tournament lists, global) use the
+1. Share signals (inclusion, bracket inclusion, deck lists, tournament lists, tournament
+   conversion, global) use the
    share measure from the settings: the lower bound of the 95 % Wilson interval of
    numerator/denominator (recommended) or the raw share. Caveat: at one fixed denominator
    the Wilson bound is monotone in the numerator, so it keeps the raw order; it does not
@@ -258,11 +266,11 @@ Settings (every label on the page carries its recommendation in parentheses; the
 recommended values live in one place, `StrengthSettings` defaults in `strength.py`, and are
 served by `GET /api/strength/presets` as `recommended`; the button "Empfohlene Werte" applies
 them, an empty weight field means the recommended value and shows it): a weight per component (commander inclusion 3, bracket inclusion 2, deck-list
-universe 2, synergy 1, tournament lists 1, global inclusion 1, combos 1, simulation 0), the
+universe 2, synergy 1, tournament lists 1, tournament conversion 1, global inclusion 1, combos 1, simulation 0), the
 bracket (`core`, `upgraded`, `optimized`, `cedh`, `none`), the universe profile (the page uses
 the Universum selector), the comparison group (`rank_group`: `pool`), the share measure
 (`share_measure`: `wilson`), the minimum denominators (`min_denominators`: EDHREC 30,
-tournament 5; the deck-universe minimum is the universe's own `min_universe`), the missing
+tournament 5, conversion 20; the deck-universe minimum is the universe's own `min_universe`), the missing
 value per share signal (`skip`), commander and basics (`rank_commander_and_basics`: off),
 `min_coverage` (0.3, "Mindest-Datenlage"), `min_components` (2), `universe_source` (`auto`), `require_commander_signal` (on) and the editable cuts (`tier_cuts` 90/75/55/35).
 The page also filters by tier (S/A/B/C/D/U) and sorts by the percentile of any single

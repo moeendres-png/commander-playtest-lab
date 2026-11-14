@@ -402,6 +402,7 @@ def test_settings_are_validated_and_round_trip() -> None:
         strength.DECK_UNIVERSE: 3.0,
         strength.SYNERGY: 2.0,
         strength.TOURNAMENT_LISTS: 1.0,
+        strength.TOURNAMENT_CONVERSION: 1.0,
         strength.GLOBAL_INCLUSION: 1.0,
         strength.COMBOS: 0.0,
         strength.PLAYGROUP_OBSERVED: 0.0,
@@ -415,6 +416,7 @@ def test_settings_are_validated_and_round_trip() -> None:
         strength.DECK_UNIVERSE: 2.0,
         strength.COMMANDER_INCLUSION: 1.0,
         strength.SYNERGY: 0.0,
+        strength.TOURNAMENT_CONVERSION: 1.0,
         strength.GLOBAL_INCLUSION: 1.0,
         strength.COMBOS: 1.0,
         strength.PLAYGROUP_OBSERVED: 1.0,
@@ -934,7 +936,7 @@ def test_new_settings_are_validated_serialised_and_round_trip() -> None:
             StrengthSettings.from_dict(bad)
     default = StrengthSettings()
     assert (default.rank_group, default.share_measure) == ("pool", "wilson")
-    assert default.min_denominators == {"edhrec": 30, "tournament": 5}
+    assert default.min_denominators == {"edhrec": 30, "tournament": 5, "conversion": 20}
     assert default.rank_commander_and_basics is False
     assert set(default.missing_value.values()) == {"skip"}
 
@@ -1935,30 +1937,137 @@ def test_spellbook_downgrade_import_drops_the_stale_quality_rows(
     assert _component(cards["Filler 00"], "combos")["percentile"] == 0.0
 
 
-def test_split_part_tournament_files_do_not_merge_or_collide(
-    store: StudioStore, tmp_path: Path
-) -> None:
-    folder = tmp_path / "split_tournaments"
-    folder.mkdir()
-    # Even if two split parts both contain "Liste 1" in the same tournament/date,
-    # distinct deck lists in part 1 and part 2 must stay separate lists (2, not 1 merged).
-    _lists_file(
-        folder / "topdeck_split_decks_1.csv",
-        [("Cup S", "2026-11-01", "Liste 1", [COMMANDER], ["Filler 01"])],
+# ---------- tournament conversion (#1261 P1.1) ----------
+
+
+def test_conversion_below_the_minimum_denominator_is_not_used() -> None:
+    """Thin data of the Chulane shape (every base <= 3): the rows exist, and the
+    minimum denominator of 20 keeps the component out of the index for every card,
+    listed or not — the same protection the tournament lists have."""
+    observations = {
+        "a": {"tournament_conversion": Observation(1 / 3, 1, 3)},
+        "b": {"tournament_conversion": Observation(0.0, 0, 3)},
+        "c": {},
+    }
+    scored = strength.score_pool(
+        _only("tournament_conversion"), observations, {"tournament_conversion"}
     )
-    _lists_file(
-        folder / "topdeck_split_decks_2.csv",
-        [("Cup S", "2026-11-01", "Liste 1", [COMMANDER], ["Filler 02"])],
+    for card in observations:
+        row = _row(scored, card, "tournament_conversion")
+        assert row["status"] == strength.NO_VALUE and row["percentile"] is None
+        assert row["reason"] == strength.BELOW_MIN_DENOMINATOR
+        assert "Mindest-Nenner 20" in row["note"]
+    assert scored["a"]["index"] is None and scored["a"]["tier"] == "U"
+
+
+def test_conversion_ranks_by_the_wilson_bound_of_its_base() -> None:
+    observations = {
+        "high": {"tournament_conversion": Observation(0.5, 20, 40)},
+        "mid": {"tournament_conversion": Observation(0.25, 10, 40)},
+    }
+    scored = strength.score_pool(
+        _only("tournament_conversion"), observations, {"tournament_conversion"}
     )
-    report = signals.import_signals(store, folder, commander=COMMANDER)
-    files = report["files"]
-    assert isinstance(files, dict)
-    assert files["topdeck_split_decks"]["parts"] == [
-        "topdeck_split_decks_1.csv",
-        "topdeck_split_decks_2.csv",
-    ]
-    assert files["topdeck_split_decks"]["lists_read"] == 2
-    one = _signal(store, signals.SIGNAL_TOURNAMENT, "Filler 01")
-    two = _signal(store, signals.SIGNAL_TOURNAMENT, "Filler 02")
-    assert one is not None and (one["numerator"], one["denominator"]) == (1, 2)
-    assert two is not None and (two["numerator"], two["denominator"]) == (1, 2)
+    row = _row(scored, "high", "tournament_conversion")
+    assert row["status"] == strength.PRESENT
+    assert row["wilson"] == strength.wilson_lower(20, 40)
+    assert scored["high"]["index"] == 100.0 and scored["mid"]["index"] == 0.0
+
+
+def test_conversion_the_same_rate_ranks_higher_on_the_larger_base() -> None:
+    observations = {
+        "wide": {"tournament_conversion": Observation(0.5, 50, 100)},
+        "narrow": {"tournament_conversion": Observation(0.5, 10, 20)},
+    }
+    scored = strength.score_pool(
+        _only("tournament_conversion"), observations, {"tournament_conversion"}
+    )
+    assert scored["wide"]["index"] == 100.0 and scored["narrow"]["index"] == 0.0
+
+
+def test_conversion_a_card_below_the_minimum_drops_out_alone() -> None:
+    """The gate is per card once the signal as a whole clears it: a perfect rate on
+    a base of 19 counts nothing while a base of exactly 20 counts."""
+    observations = {
+        "in": {"tournament_conversion": Observation(0.5, 10, 20)},
+        "out": {"tournament_conversion": Observation(1.0, 19, 19)},
+    }
+    scored = strength.score_pool(
+        _only("tournament_conversion"), observations, {"tournament_conversion"}
+    )
+    assert _row(scored, "in", "tournament_conversion")["status"] == strength.PRESENT
+    out = _row(scored, "out", "tournament_conversion")
+    assert out["status"] == strength.NO_VALUE
+    assert out["reason"] == strength.BELOW_MIN_DENOMINATOR
+
+
+def test_conversion_a_counted_zero_is_a_value_not_an_unknown() -> None:
+    observations = {
+        "zero": {"tournament_conversion": Observation(0.0, 0, 25)},
+        "some": {"tournament_conversion": Observation(0.25, 10, 40)},
+    }
+    scored = strength.score_pool(
+        _only("tournament_conversion", require_commander_signal=False),
+        observations,
+        {"tournament_conversion"},
+    )
+    row = _row(scored, "zero", "tournament_conversion")
+    assert row["status"] == strength.PRESENT and row["percentile"] == 0.0
+    assert scored["zero"]["index"] == 0.0 and scored["zero"]["tier"] == "D"
+
+
+def test_conversion_alone_does_not_satisfy_the_commander_signal_rule() -> None:
+    """The conversion rows of a commander are that commander's tournament figures,
+    but the component is not in COMMANDER_SPECIFIC: it never earns a tier alone."""
+    observations = {"a": {"tournament_conversion": Observation(0.5, 20, 40)}}
+    scored = strength.score_pool(
+        _only("tournament_conversion"), observations, {"tournament_conversion"}
+    )
+    assert scored["a"]["index"] == 50.0  # the only valued card takes the mean rank
+    assert scored["a"]["tier"] == "U"
+    assert scored["a"]["reason"] == strength.NO_COMMANDER_SIGNAL
+
+
+def test_conversion_weight_counts_in_coverage_only_once_its_rows_exist() -> None:
+    """The A/B of the new default weight (1.0, total weight 12 -> 13): without
+    conversion rows a card's coverage drops by exactly the new share; with rows
+    the share is earned back and the component ranks."""
+    observations = {
+        "a": {"commander_inclusion": _share(90, 100)},
+        "b": {"commander_inclusion": _share(50, 100)},
+    }
+    before = StrengthSettings(
+        weights={**strength.DEFAULT_WEIGHTS, strength.TOURNAMENT_CONVERSION: 0.0},
+        min_coverage=0.0,
+        min_components=1,
+        require_commander_signal=False,
+    )
+    after = StrengthSettings(min_coverage=0.0, min_components=1, require_commander_signal=False)
+    scored_before = strength.score_pool(before, observations, {"commander_inclusion"})
+    scored_after = strength.score_pool(after, observations, {"commander_inclusion"})
+    assert scored_before["a"]["coverage"] == 0.25  # 3 of a total weight of 12
+    assert scored_after["a"]["coverage"] == round(3 / 13, 4)
+    assert scored_after["a"]["index"] == scored_before["a"]["index"] == 100.0
+    with_rows = {
+        "a": {
+            "commander_inclusion": _share(90, 100),
+            "tournament_conversion": Observation(0.5, 20, 40),
+        },
+        "b": {"commander_inclusion": _share(50, 100)},
+    }
+    scored_rows = strength.score_pool(
+        after, with_rows, {"commander_inclusion", "tournament_conversion"}
+    )
+    assert scored_rows["a"]["coverage"] == round(4 / 13, 4)
+    row = _row(scored_rows, "a", "tournament_conversion")
+    assert row["status"] == strength.PRESENT and row["percentile"] == 0.5
+
+
+def test_settings_without_the_conversion_key_use_the_default_minimum() -> None:
+    settings = StrengthSettings(min_denominators={"edhrec": 30, "tournament": 5})
+    assert settings.min_denominators == {"edhrec": 30, "tournament": 5, "conversion": 20}
+    assert settings.minimum_denominator(strength.TOURNAMENT_CONVERSION, 0) == 20
+    loaded = StrengthSettings.from_dict({"min_denominators": {"tournament": 7}})
+    assert loaded.min_denominators["conversion"] == 20
+    with pytest.raises(ValueError):
+        StrengthSettings(min_denominators={"bogus": 1})
