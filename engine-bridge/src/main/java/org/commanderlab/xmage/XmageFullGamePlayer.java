@@ -4136,7 +4136,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
      * canPlay applies to every other ability (available mana includes the pool).
      * Non-mana abilities are left to the engine's playable calculation.
      */
-    private boolean manaCostAffordable(ActivatedAbility ability, ManaOptions available, Game game) {
+    boolean manaCostAffordable(ActivatedAbility ability, ManaOptions available, Game game) {
         if (!ability.isManaAbility() || ability.getManaCostsToPay().isEmpty()) {
             return true;
         }
