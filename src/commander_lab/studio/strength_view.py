@@ -526,6 +526,22 @@ def _fill_spread(
             per_card[card_id][DECK_UNIVERSE] = Observation(0.0, 0, item["denominator"])
 
 
+def _other_commander_names(store: StudioStore, commander: str) -> set[str]:
+    """Casefolded names of the commanders the store knows besides ``commander``: the ones
+    source decks are bound to and the ones signals were imported for. Such a card is a
+    commander in its own right and, like the chosen one, not ranked in this commander's pool
+    unless the Owner switches that on."""
+    found: set[str] = set()
+    for (name,) in store.connection.execute(
+        "SELECT commander_name FROM commander_binding WHERE kind IN ('corpus_deck', "
+        "'neutral_source') UNION SELECT commander_name FROM card_signal "
+        "WHERE commander_name != ''"
+    ):
+        if str(name) != commander:
+            found.add(str(name).casefold())
+    return found
+
+
 def compute(
     store: StudioStore,
     commander: str,
@@ -630,15 +646,6 @@ def compute(
         group = str(card["group"])
         type_group[card_id] = group
         bands[card_id] = strength.mana_band(_float(card["mana_value"]), is_land=group == "Land")
-    context = PoolContext(
-        type_group,
-        bands,
-        unranked,
-        filter_cards,
-        universe_minimum,
-        function_group=_function_groups(store, raw_cards),
-    )
-
     # Rating layers (Bewertungsebenen): always computed for the page; they join the index only
     # with a positive weight (default 0), as one more rank-based component each.
     layer_result = _layer_result(
@@ -652,6 +659,22 @@ def compute(
             collected.add(strength.layer_component(key))
         else:
             notices.append(f"{strength.LAYER_LABELS[key]}: keine Daten, Gewicht ohne Wirkung")
+
+    # Other commanders known to the store are not ranked in this commander's pool (tier N).
+    others = _other_commander_names(store, commander)
+    tier_unranked = dict(unranked)
+    for card in raw_cards:
+        card_id = str(card["card_id"])
+        if card_id not in tier_unranked and str(card["name"]).casefold() in others:
+            tier_unranked[card_id] = strength.NOT_RANKED_OTHER_COMMANDER
+    context = PoolContext(
+        type_group,
+        bands,
+        tier_unranked,
+        filter_cards,
+        universe_minimum,
+        function_group=_function_groups(store, raw_cards),
+    )
 
     scored = strength.score_pool(settings, per_card, collected, context=context)
     notices.extend(strength.weights_without_effect(settings, collected))
@@ -817,7 +840,7 @@ _MISSING_CHOICES = {
     strength.MISSING_LOWEST: "als niedrigster Rang zählen",
 }
 _BRACKET_CHOICES = {
-    "core": "Core (Bracket 1-2)",
+    "core": "Core (Bracket 2)",
     "upgraded": "Upgraded (Bracket 3)",
     "optimized": "Optimized (Bracket 4)",
     "cedh": "cEDH (Bracket 5)",

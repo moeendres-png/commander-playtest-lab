@@ -104,6 +104,7 @@ GROUP_TOO_SMALL = "GROUP_TOO_SMALL"
 NOT_RANKED_COMMANDER = "NOT_RANKED_COMMANDER"
 NOT_RANKED_BASIC_LAND = "NOT_RANKED_BASIC_LAND"
 NO_COMMANDER_SIGNAL = "NO_COMMANDER_SIGNAL"
+NOT_RANKED_OTHER_COMMANDER = "NOT_RANKED_OTHER_COMMANDER"
 
 TIER_UNKNOWN = "U"
 TIER_NOT_RANKED = "N"
@@ -813,6 +814,7 @@ NO_COMMANDER_SIGNAL_NOTE = "kein Signal speziell für diesen Commander"
 NOT_RANKED_NOTES = {
     NOT_RANKED_COMMANDER: "nicht bewertet (Commander)",
     NOT_RANKED_BASIC_LAND: "nicht bewertet (Standardland)",
+    NOT_RANKED_OTHER_COMMANDER: "nicht bewertet (anderer Commander)",
 }
 
 
@@ -985,15 +987,15 @@ def score_pool(
     for component in rated:
         skipped = set(unranked) | (filter_cards if component == DECK_UNIVERSE else set())
         rankings[component] = _rank_component(settings, ctx, component, observations, skipped)
-    total_weight = sum(
-        settings.effective_weight(name)
+    # The coverage denominator holds the components that have data FOR THIS COMMANDER at all
+    # (collected, and at least one usable value in the pool): a source that was never imported
+    # for the commander, or whose signal is wholly unusable, counts against no card.
+    commander_weight = {
+        name: settings.effective_weight(name)
         for name in rated
-        if settings.effective_weight(name) > 0
-        and not (
-            (name in UNCOLLECTED_BY_DESIGN or name.startswith(LAYER_PREFIX))
-            and name not in collected
-        )
-    )
+        if settings.effective_weight(name) > 0 and name in collected and rankings[name].usable
+    }
+    any_positive_weight = any(settings.effective_weight(name) > 0 for name in rated)
     result: dict[str, CardStrength] = {}
     for card, per_card in observations.items():
         components: list[ComponentResult] = []
@@ -1090,18 +1092,39 @@ def score_pool(
                 "components": components,
             }
             continue
+        # A filter card has no deck-universe value by definition: that component is not
+        # applicable to it and leaves its denominator.
+        possible = {
+            name: weight
+            for name, weight in commander_weight.items()
+            if not (name == DECK_UNIVERSE and card in filter_cards)
+        }
+        total_weight = sum(possible.values())
         coverage = present_weight / total_weight if total_weight > 0 else 0.0
-        index = round(100.0 * weighted / present_weight, 1) if present_weight > 0 else None
-        enough = coverage >= settings.min_coverage and present >= settings.min_components
+        raw_index = 100.0 * weighted / present_weight if present_weight > 0 else None
+        index = None if raw_index is None else round(raw_index, 1)
+        # A commander with one source cannot show two signals: the minimum number of signals
+        # never exceeds what the commander's data allows for this card.
+        needed = min(settings.min_components, len(possible))
+        enough = coverage >= settings.min_coverage and present >= needed
         blocked = settings.require_commander_signal and not specific
+        if not any_positive_weight:
+            reason_code = "NO_POSITIVE_WEIGHT"
+        elif total_weight <= 0:
+            reason_code = "NO_SOURCE_FOR_COMMANDER"
+        elif blocked:
+            reason_code = NO_COMMANDER_SIGNAL
+        else:
+            reason_code = "ENOUGH_DATA" if enough else "TOO_LITTLE_DATA"
+        if reason_code in ("NO_POSITIVE_WEIGHT", "NO_SOURCE_FOR_COMMANDER"):
+            enough = False
         result[card] = {
             "index": index,
             "coverage": round(coverage, 4),
-            "tier": _tier(index, settings, enough and not blocked),
-            "reason": NO_COMMANDER_SIGNAL
-            if blocked
-            else ("ENOUGH_DATA" if enough else "TOO_LITTLE_DATA"),
-            "note": NO_COMMANDER_SIGNAL_NOTE if blocked else "",
+            # the tier follows the UNROUNDED index: a displayed 74.96 never tips over a cut
+            "tier": _tier(raw_index, settings, enough and not blocked),
+            "reason": reason_code,
+            "note": NO_COMMANDER_SIGNAL_NOTE if reason_code == NO_COMMANDER_SIGNAL else "",
             "present": present,
             "components": components,
         }
