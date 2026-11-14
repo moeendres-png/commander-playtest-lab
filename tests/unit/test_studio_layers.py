@@ -953,7 +953,7 @@ def test_a_layer_with_weight_zero_changes_nothing_in_the_index() -> None:
 
 def test_a_weighted_layer_joins_the_index_as_one_more_ranked_component() -> None:
     collected = {strength.COMMANDER_INCLUSION, strength.layer_component("tempo")}
-    settings = _only({}, layer_weights={"tempo": 1.0})
+    settings = _only({}, layer_weights={"tempo": 1.0}, share_scale="rank")
     scored = strength.score_pool(settings, _two_signal_pool(), collected)
     # inclusion percentile a 0, b .5, c 1; tempo percentile a 1, b .5, c 0: the mean is .5 each
     assert [scored[card]["index"] for card in "abc"] == [50.0, 50.0, 50.0]
@@ -966,9 +966,14 @@ def test_a_weighted_layer_joins_the_index_as_one_more_ranked_component() -> None
     )
     assert row["signal"] == "playgroup_on_curve_pct" and row["status"] == strength.PRESENT
     lopsided = strength.score_pool(
-        _only({}, layer_weights={"tempo": 3.0}), _two_signal_pool(), collected
+        _only({}, layer_weights={"tempo": 3.0}, share_scale="rank"), _two_signal_pool(), collected
     )
     assert [lopsided[card]["index"] for card in "abc"] == [75.0, 50.0, 25.0]
+    # Under default share_scale="share", the layer itself still ranks by percentile (1, 0.5, 0)
+    default_scored = strength.score_pool(
+        _only({}, layer_weights={"tempo": 1.0}), _two_signal_pool(), collected
+    )
+    assert [default_scored[c]["components"][-1]["percentile"] for c in "abc"] == [1.0, 0.5, 0.0]
 
 
 def test_a_weighted_layer_counts_in_the_coverage_of_cards_without_a_value() -> None:
@@ -1004,7 +1009,7 @@ def test_the_commander_and_basics_stay_unranked_with_a_weighted_layer() -> None:
     pool = _two_signal_pool()
     context = PoolContext(unranked={"a": strength.NOT_RANKED_COMMANDER})
     scored = strength.score_pool(
-        _only({}, layer_weights={"tempo": 1.0}),
+        _only({}, layer_weights={"tempo": 1.0}, share_scale="rank"),
         pool,
         {strength.COMMANDER_INCLUSION, strength.layer_component("tempo")},
         context=context,

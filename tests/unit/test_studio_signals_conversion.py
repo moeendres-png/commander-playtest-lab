@@ -294,5 +294,16 @@ def test_conversion_ranks_end_to_end_from_a_real_base(store: StudioStore, tmp_pa
 
     assert conversion("Filler 00")["status"] == strength.PRESENT
     assert conversion("Filler 00")["percentile"] == 1.0
-    assert conversion("Filler 01")["percentile"] == 0.0
+    w_high = strength.wilson_lower(20, 40)
+    w_low = strength.wilson_lower(10, 40)
+    assert w_high is not None and w_low is not None
+    assert conversion("Filler 01")["percentile"] == pytest.approx((w_low / w_high) ** 0.5)
     assert conversion("Filler 00")["denominator"] == 40
+    ranked = strength_view.compute(store, COMMANDER, strength.StrengthSettings(share_scale="rank"))
+    ranked_cards = {card["name"]: card for card in ranked["cards"]}
+    ranked_low = next(
+        item
+        for item in ranked_cards["Filler 01"]["components"]
+        if item["component"] == strength.TOURNAMENT_CONVERSION
+    )
+    assert ranked_low["percentile"] == 0.0
