@@ -24,7 +24,7 @@ from commander_lab.deck_readiness import (
 from commander_lab.deck_variant import compare_variant, comparison_to_dict
 from commander_lab.models import RulesDeckInput
 
-from . import memo
+from . import cache
 from .decks import RevisionCard, color_set, list_rows
 from .store import BINDING_KINDS, StudioStore, now_utc
 
@@ -230,11 +230,14 @@ def cohort_sizes(store: StudioStore, commander_names: Sequence[str]) -> dict[str
 
 def _corpus_hits(store: StudioStore, commander_names: Sequence[str]) -> dict[str, dict[str, int]]:
     """``{card (oracle name): {group: decks}}`` over the non-duplicate source decks bound to the
-    commander (see ``_corpus_hits_uncached``). Memoized per data epoch (read-only result)."""
-    return memo.cached(
+    commander (see ``_corpus_hits_uncached``). Remembered per store state (read-only result).
+
+    The keys depend on the collection's card names and oracle links, which an importer can
+    change in place without moving the data epoch of ``memo``: so this uses the file stamp of
+    ``cache``, which every commit changes."""
+    return cache.cached(
         store,
-        "corpus_hits",
-        tuple(commander_names),
+        ("corpus_hits", tuple(commander_names)),
         lambda: _corpus_hits_uncached(store, commander_names),
     )
 
