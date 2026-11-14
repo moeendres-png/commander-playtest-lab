@@ -335,6 +335,7 @@
     "tests/unit/test_studio_playgroup_component.py": 0.6,
     "tests/unit/test_studio_printing_images.py": 1.5,
     "tests/unit/test_studio_printings.py": 1.5,
+    "tests/unit/test_studio_ranking_check.py": 0.25,
     "tests/unit/test_studio_roles_import.py": 3.1,
     "tests/unit/test_studio_round2.py": 2.2,
     "tests/unit/test_studio_rulings.py": 0.3,

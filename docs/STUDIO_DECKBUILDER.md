@@ -33,6 +33,7 @@ a location inside this repository. Card images are cached next to it in `images/
 | `check-role-labels FILE` | compares the role query slugs with a list of official tagger labels (JSON list or one label per line) and names every slug that is not a label | none (report) |
 | `fetch-images --commander NAME` | card images of the legal pool into the local cache | public images |
 | `data-report` | counts-only report: what the store has, lacks and does not know (collection coverage, public card data age, roles per origin, corpus, observations with unknown times and small denominators, marks, simulation runs) plus hashes of the role tables | none (report) |
+| `ranking-check --commander NAME [--profile NAME \| --preset NAME] [--json]` | objective quality check of the strength-index ranking (`ranking_check.py`): Spearman correlation against counted deck lists, marginal cards at top, staples at bottom, thin coverage at top, tier and land distribution, leave-one-out stability | none (report) |
 | `import-owner-marks FILE.json` | the Owner's own favorites, exclusions and notes (format below) merged into `card_mark`; the report holds counts only | the Owner's own marks, never a rating |
 
 ### Role files and the lossless role import (schema 5)
@@ -436,6 +437,49 @@ spell out (Fireball, whose damage is divided among any number of targets, is `NE
 is matched on its keyword line, its reminder text is removed like any other; a card without oracle text in the store is `UNKNOWN`
 (`NO_TEXT`), a vanilla card with empty text is `NEUTRAL`. Favorites, exclusions and notes are not read, and
 no price data is involved.
+
+### Prüfzahlen für die Rangfolge (`ranking-check`, #1349)
+
+`ranking_check.check_ranking` (pure function) and the command
+`python -m commander_lab.studio --data <ordner> ranking-check --commander "Chulane, Teller of Tales" [--profile <name> | --preset <name>] [--json]`
+report six objective diagnostic figures for any strength-index setting (both as human-readable
+German text and as JSON `studio-ranking-check-1`):
+
+1. **Agreement with the counted deck lists (Spearman $r$):** rank correlation between the
+   strength index and the card's share in the counted lists of the commander (denominator
+   2,823 for Chulane), over all ranked cards (`S`–`D`), for non-lands and for lands. Because
+   the counted lists are themselves an index signal, the report labels this figure explicitly
+   as a plausibility anchor ("wird für diesen Commander wirklich gespielt"), never as a proof
+   of causal card strength.
+2. **Marginal cards at the top ("Randkarten oben"):** count, denominator (all cards in `S` or
+   `A`) and names of cards in `S` or `A` with strictly less than 5 % share in the counted
+   lists.
+3. **Staples at the bottom ("Stammkarten unten"):** count, denominator (all cards above 30 %
+   share) and names of cards with strictly more than 30 % share in the counted lists that
+   stand in `C` or `D`.
+4. **Thin data coverage at the top ("Dünne Datenlage oben"):** count and signal-count
+   breakdown of cards in `S` or `A` with fewer than 5 present weighted signals.
+5. **Tier distribution ("Stufen-Verteilung"):** per tier (`S, A, B, C, D, U, N`) the card
+   count, pool denominator, non-land and land counts, and land share (`unbekannt` / `null`
+   when a tier holds 0 cards).
+6. **Leave-one-out stability ("Stabilität"):** for each active weighted signal, how many pool
+   cards change tier when that signal alone is given weight 0, plus the single signal with the
+   largest impact.
+
+Baseline on the repository store (`import-all --from-repo`, Chulane pool 927, 922 ranked
+cards, 2,823 counted lists, before any index change of #1350–#1353):
+
+| Metric | `Ausgewogen` (default) | `Commander-nah` | `Turniernah` |
+|---|---|---|---|
+| Spearman $r$ (all ranked, 922 / 922) | `0.8785` | `0.9182` | `0.8956` |
+| Spearman $r$ (non-lands, 857 / 857) | `0.8809` | `0.9217` | `0.8963` |
+| Spearman $r$ (lands, 65 / 65) | `0.5322` | `0.5024` | `0.5415` |
+| Randkarten oben (`S`/`A` with `< 5 %` share) | `65 / 87` | `130 / 164` | `65 / 94` |
+| Stammkarten unten (`> 30 %` share in `C`/`D`) | `0 / 27` | `0 / 27` | `2 / 27` (`Counterspell`, `Canopy Vista`) |
+| Dünne Datenlage oben (`S`/`A` with `< 5` signals) | `72 / 87` (`4 Signale: 72`) | `145 / 164` (`2 Signale: 144, 3 Signale: 1`) | `72 / 94` (`4 Signale: 72`) |
+| Tier counts `S / A / B / C / D / U / N` (of 927) | `6 / 81 / 257 / 256 / 322 / 0 / 5` | `30 / 134 / 221 / 171 / 366 / 0 / 5` | `9 / 85 / 254 / 253 / 321 / 0 / 5` |
+| Land share in `S / A / B / C / D` | `33.3 % / 12.3 % / 12.8 % / 7.0 % / 0.6 %` | `46.7 % / 13.4 % / 9.0 % / 4.7 % / 1.4 %` | `22.2 % / 14.1 % / 13.0 % / 6.3 % / 0.6 %` |
+| Largest leave-one-out tier impact | `deck_universe` (`879 / 927`), `combos` (`578 / 927`), `global_inclusion` (`560 / 927`) | `deck_universe` (`889 / 927`), `global_inclusion` (`857 / 927`) | `deck_universe` (`884 / 927`), `combos` (`581 / 927`), `global_inclusion` (`561 / 927`) |
 
 ### Counted deck-list universes, `universe_source` and the commander-signal rule
 

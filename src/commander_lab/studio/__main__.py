@@ -242,6 +242,16 @@ def _parser() -> argparse.ArgumentParser:
     tiers_cmd.add_argument("--commander", default=LEGACY_COMMANDER)
     tiers_cmd.add_argument("--min-universe", type=int)
     tiers_cmd.add_argument("--limit", type=int, default=50)
+    ranking_check_cmd = commands.add_parser(
+        "ranking-check",
+        help="objective quality figures for the strength-index ranking of one commander",
+    )
+    ranking_check_cmd.add_argument("--commander", default=LEGACY_COMMANDER)
+    ranking_check_cmd.add_argument("--profile", help="saved strength settings profile name")
+    ranking_check_cmd.add_argument(
+        "--preset", help="built-in preset name (Ausgewogen, Commander-nah, Turniernah)"
+    )
+    ranking_check_cmd.add_argument("--json", action="store_true", help="print only the JSON report")
     commander_help = (
         "commander this source data belongs to (default: the commander of the standard "
         "data packages); figures of two commanders are never counted together"
@@ -884,6 +894,10 @@ def main(argv: list[str] | None = None) -> int:
         from .import_all import run_command
 
         return run_command(args)
+    if args.command == "ranking-check":
+        from .ranking_check import run_command as run_ranking_check_command
+
+        return run_ranking_check_command(args)
     if args.command == "card-outcomes":
         return _card_outcomes(args)
     if args.command == "compare-decks":
