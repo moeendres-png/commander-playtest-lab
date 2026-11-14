@@ -5,8 +5,8 @@ per card out. No I/O, no clock, no store. The store side lives in ``strength_vie
 
 What the index is. It is ``DERIVED_DESCRIPTIVE``: a weighted mean of percentile ranks of
 usage signals (how often a card is played in decks of one commander, in a bracket, in the
-deck lists the Owner chose, in tournament lists, how many combos it is part of, how
-popular it is overall) plus one observed outcome correlation: the Playgroup atlas gap
+deck lists the Owner chose, in tournament lists, the quality of the combos it is part
+of, how popular it is overall) plus one observed outcome correlation: the Playgroup atlas gap
 between the win rate of players who cast a card and of players who never took it out of
 their library. That component is an observation from other players' games, not a causal
 effect and not a win rate measured in the Owner's own games. The outcome-based field of
@@ -280,6 +280,20 @@ _SETTINGS_KEYS = frozenset(
 )
 
 
+# The combos component is the one component that reads several stored signals: the
+# quality parts of a card's combos (issue #1261, P3.7). The first part is the primary
+# signal (``signal_for``): it alone decides which cards the source lists at all. The
+# other parts refine the rank of the listed cards; a part a listed card has no value
+# in does not count for it, so a source file without the newer columns ranks exactly
+# as the variant count alone did. What the spellbook file does not publish — the
+# result a combo produces, which partners one single variant has — is not a part:
+# it stays unknown and never enters the rank.
+COMBO_PART_VARIANTS = "spellbook_variants"
+COMBO_PART_TWO_CARD = "spellbook_two_card_variants"
+COMBO_PART_PARTNERS = "spellbook_partners_in_collection"
+COMBO_PARTS = (COMBO_PART_VARIANTS, COMBO_PART_TWO_CARD, COMBO_PART_PARTNERS)
+
+
 def signal_for(component: str, bracket: str) -> str:
     """The stored signal name behind a component (empty when none is stored)."""
     if component == BRACKET_INCLUSION:
@@ -292,7 +306,7 @@ def signal_for(component: str, bracket: str) -> str:
         SYNERGY: "edhrec_commander_synergy",
         TOURNAMENT_LISTS: "tournament_lists",
         GLOBAL_INCLUSION: "edhrec_global_inclusion",
-        COMBOS: "spellbook_variants",
+        COMBOS: COMBO_PART_VARIANTS,
         PLAYGROUP_OBSERVED: "playgroup_observed_winrate_gap",
         SIMULATION: "",
     }[component]
@@ -701,6 +715,24 @@ def percentile_ranks(values: Mapping[str, float]) -> dict[str, float]:
         first.setdefault(value, position)
         last[value] = position
     return {key: (first[value] + last[value]) / 2.0 / (count - 1) for key, value in values.items()}
+
+
+def combo_quality(parts: Mapping[str, Mapping[str, float]]) -> dict[str, float]:
+    """The combos value of a card: the mean of its percentile ranks in the combo
+    quality parts (``COMBO_PARTS``), over the cards the primary part (variant count)
+    lists. A card the primary part does not list gets no value (not listed, not 0);
+    a part beyond the primary one counts only for the cards that have a value in it,
+    so the mean of a card with fewer parts is the mean of the parts it has. The value
+    is itself a rank mixture in 0..1: ``score_pool`` ranks it among the pool like
+    every other component value, which keeps the order of this mixture."""
+    primary = parts.get(COMBO_PART_VARIANTS, {})
+    ranks = {name: percentile_ranks(values) for name, values in parts.items() if values}
+    result: dict[str, float] = {}
+    for card in primary:
+        found = [ranks[name][card] for name in ranks if card in ranks[name]]
+        if found:
+            result[card] = sum(found) / len(found)
+    return result
 
 
 def _share_values(

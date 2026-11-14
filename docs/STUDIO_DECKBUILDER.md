@@ -190,17 +190,22 @@ the commander names it imported and the names it did not recognise; when nothing
 replaced the status is `NOTHING_REPLACED`. Signals are stored in
 `card_signal(commander_name, signal, card_name, value, numerator, denominator, source_id)`:
 `edhrec_commander_inclusion|synergy` and `edhrec_bracket_inclusion:<core|upgraded|optimized|cedh>`
-per commander of the files, `edhrec_global_inclusion` and `spellbook_variants` commander
+per commander of the files, `edhrec_global_inclusion`, `spellbook_variants`,
+`spellbook_two_card_variants` and `spellbook_partners_in_collection` commander
 independent (commander name empty), and
 `tournament_lists` (lists of the commander that contain the card over all its lists, main and
 commander section only) under `--commander` (default: the standard commander). Tournament
 files are any `topdeck_*_decks.csv` (split parts `_1`, `_2` allowed); the commander of a
 file is taken from its commander section and matched case-insensitively against the commander
 names of the store, so a file of another commander is never stored under the wrong name. The commander
-file's lift column and the spellbook file's partner count are not stored: no strength
-component reads them, and the values remain in the source files (the lift also in the
-observation pipeline). Stores imported earlier keep the rows of the two signals they
-already hold until `card_signal` is rebuilt; nothing reads them. A value the
+file's lift column is not stored: no strength component reads it, and the value remains
+in the source file (and in the observation pipeline). The spellbook file's partner count
+and variant ids are stored (as the two signals above; the two-card count is derived from
+the ids, one id per card slot of a variant): the combos component of the strength index
+ranks variant count, two-card variant count and partners in the collection together, so
+combo quality counts, not the raw variant count alone. What the spellbook file does not
+publish — the result a combo produces, the partners of one single variant — is not
+stored either; it stays unknown. A value the
 source does not publish is NULL (unknown), never 0; a card a source does not list has no row;
 rows of a source fetch that was not `AVAILABLE` are not stored. The tournament player column
 is never stored. Re-importing replaces the rows of the signals it writes.
@@ -214,7 +219,10 @@ Formula, per commander (`strength.py`, pure):
    protect against small samples by itself, and `wilson_lower(0, n)` is exactly 0.0. The
    protection is the **minimum denominator per signal**: a share whose denominator is below
    the minimum is not ranked (component status `BELOW_MIN_DENOMINATOR`, a missing
-   observation). Synergy and combo counts are used as published.
+   observation). Synergy is used as published. The combos component value is a quality
+   mixture, not a published count: the mean of the card's percentile ranks in variant
+   count, two-card variant count and partners in the collection (`strength.combo_quality`);
+   that mixture is then ranked like every other value.
 2. Each value becomes a percentile rank (0..1). The comparison group is the whole legal pool
    (recommended) or the card's type group or mana-value band; a group of fewer than 5 cards
    falls back to the whole pool and the card says so. Ties share the mean rank. The
