@@ -1,0 +1,44 @@
+{
+  "games": 8,
+  "decisions": 37626,
+  "wall_s": 720.079,
+  "python_process_cpu_s": 268.78,
+  "children_cpu_s": 457.016,
+  "cprofile_total_tottime_s": 722.27,
+  "buckets_s": {
+    "audit": 2.773,
+    "pilot": 192.425,
+    "recorder": 61.325,
+    "json_read_bridge": 17.239
+  },
+  "rest_s": -4.982,
+  "shares_of_python_cpu_pct": {
+    "audit": 1.03,
+    "pilot": 71.59,
+    "recorder": 22.82,
+    "json_read_bridge": 6.41,
+    "rest": -1.85
+  },
+  "per_game_s": {
+    "audit": 0.347,
+    "pilot": 24.053,
+    "recorder": 7.666,
+    "json_read_bridge": 2.155,
+    "rest": -0.623,
+    "python_cpu": 33.597
+  },
+  "recorder_parts_s": {
+    "record_incl_frame_of_and_write": 61.322,
+    "frame_of": 47.402,
+    "write_dumps_flush": 9.958,
+    "close_gzip": 0,
+    "save_event_log": 0.003
+  },
+  "memo_s": {
+    "client_request_cumtime": 451.875,
+    "waiting_inside_request_derived": 432.255,
+    "json_loads_total_all_callers": 17.474,
+    "json_dumps_from_client_request": 1.243,
+    "json_dumps_from_pilot_choices_state_hash": 0.002
+  }
+}
