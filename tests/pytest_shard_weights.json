@@ -338,6 +338,7 @@
   "tests/unit/test_studio_ranking_check.py": 0.4,
   "tests/unit/test_studio_roles_import.py": 4.8,
   "tests/unit/test_studio_round2.py": 3.3,
+  "tests/unit/test_studio_rubric.py": 0.1,
   "tests/unit/test_studio_rulings.py": 0.8,
   "tests/unit/test_studio_schema_migration.py": 0.3,
   "tests/unit/test_studio_scope_per_commander.py": 1.6,

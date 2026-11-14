@@ -31,6 +31,7 @@ from typing import TypedDict
 from . import (
     layers,
     layers_view,
+    research_import,
     roles,
     signals,
     strength,
@@ -47,6 +48,7 @@ from .strength import (
     DECK_UNIVERSE,
     GLOBAL_INCLUSION,
     PLAYGROUP_OBSERVED,
+    RUBRIC,
     SYNERGY,
     TOURNAMENT_CONVERSION,
     TOURNAMENT_LISTS,
@@ -195,6 +197,60 @@ def _combo_observations(
     )
 
 
+def _number_text(value: float) -> str:
+    """A number the way the Owner reads it: 3 not 3.0, 0,4 with a decimal comma."""
+    return (f"{value:g}").replace(".", ",")
+
+
+def rubric_note(h_mean: float, h_sd: float | None, raters: float | None) -> str:
+    """The row text of a rubric value: H, the spread of the raters and their number. A card
+    with no rater is an anchor of the guide (a fixed value, not a rating)."""
+    if raters is not None and raters <= 0:
+        return f"H {_number_text(h_mean)} (fester Ankerwert des Leitfadens, kein Rating)"
+    spread = "" if h_sd is None else f", Streuung {_number_text(h_sd)}"
+    count = "" if raters is None else f", {_number_text(raters)} Bewerter"
+    return f"H {_number_text(h_mean)} von 10{spread}{count}"
+
+
+def _rubric_observations(
+    store: StudioStore,
+    commander: str,
+    claims: _Claims,
+    display: Mapping[str, str],
+    ambiguous: dict[tuple[str, str], list[str]],
+) -> tuple[dict[str, Observation], bool]:
+    """The rubric observations: the value is ``strength.rubric_value`` of the mean rating H
+    (used directly as the 0..1 score), the note names H, its spread and the raters. Whether the
+    source exists is decided by the H signal alone; the spread and the rater count only add
+    to the note. A card the file does not list has no observation (unknown, never 0)."""
+    means, exists = _signal_observations(
+        store, commander, signals.SIGNAL_RUBRIC, claims, display, ambiguous
+    )
+    spreads, _found = _signal_observations(
+        store, commander, signals.SIGNAL_RUBRIC_SD, claims, display, {}
+    )
+    raters, _found = _signal_observations(
+        store, commander, signals.SIGNAL_RUBRIC_RATERS, claims, display, {}
+    )
+    result: dict[str, Observation] = {}
+    for card_id, item in means.items():
+        if item.value is None:
+            continue
+        value = strength.rubric_value(item.value)
+        if value is None:
+            continue
+        spread, count = spreads.get(card_id), raters.get(card_id)
+        result[card_id] = Observation(
+            value,
+            note=rubric_note(
+                item.value,
+                spread.value if spread is not None else None,
+                count.value if count is not None else None,
+            ),
+        )
+    return result, exists
+
+
 def _strings(value: object) -> set[str]:
     if not isinstance(value, list):
         raise TypeError("pool_cards returned an unexpected shape")
@@ -209,10 +265,11 @@ class SignalCoverage(TypedDict):
     pool_size: int
 
 
-def expected_signals() -> list[str]:
+def expected_signals(commander: str = "") -> list[str]:
     """The usage signals the importers can store, a fixed list from the code (not from what
-    happens to be stored): a signal without rows is then shown as missing, never left out."""
-    return [
+    happens to be stored): a signal without rows is then shown as missing, never left out.
+    The rubric is expected only for the commanders that have a rubric file."""
+    names = [
         strength.signal_for(COMMANDER_INCLUSION, strength.BRACKET_NONE),
         *(f"{signals.SIGNAL_BRACKET}:{variant}" for variant in signals.BRACKET_VARIANTS),
         strength.signal_for(SYNERGY, strength.BRACKET_NONE),
@@ -230,6 +287,12 @@ def expected_signals() -> list[str]:
         signals.SIGNAL_SALT,
         signals.SIGNAL_COMBO_DECKS,
     ]
+    if commander in research_import.RUBRIC_COMMANDERS.values():
+        names.insert(
+            names.index(strength.signal_for(COMBOS, strength.BRACKET_NONE)) + 1,
+            strength.signal_for(RUBRIC, strength.BRACKET_NONE),
+        )
+    return names
 
 
 def signal_coverage(store: StudioStore, commander: str) -> dict[str, SignalCoverage]:
@@ -250,10 +313,14 @@ def signal_coverage(store: StudioStore, commander: str) -> dict[str, SignalCover
     counted_signals = {
         item["signal"]: item for item in universe_choice.counted_universes(store, commander)
     }
-    names = expected_signals()
+    names = expected_signals(commander)
     if counted_signals:
         names.remove(signals.SIGNAL_DECKLIST)
-    for signal in sorted(set(stored) - set(names)):
+    rubric_signals = {
+        strength.signal_for(RUBRIC, strength.BRACKET_NONE),
+        *signals.RUBRIC_COMPANIONS,
+    }
+    for signal in sorted(set(stored) - set(names) - rubric_signals):
         if signal.startswith(f"{signals.SIGNAL_DECKLIST}:") and signal not in counted_signals:
             continue  # a counted universe of another commander
         names.append(signal)
@@ -614,6 +681,7 @@ def compute(
         GLOBAL_INCLUSION,
         COMBOS,
         PLAYGROUP_OBSERVED,
+        RUBRIC,
     ):
         signal = strength.signal_for(
             component, settings.bracket, combo_source=settings.combo_source
@@ -622,6 +690,8 @@ def compute(
             continue
         if component == COMBOS and settings.combo_source == strength.COMBO_SPELLBOOK:
             observed, exists = _combo_observations(store, commander, claims, display, ambiguous)
+        elif component == RUBRIC:
+            observed, exists = _rubric_observations(store, commander, claims, display, ambiguous)
         else:
             observed, exists = _signal_observations(
                 store, commander, signal, claims, display, ambiguous
@@ -837,11 +907,6 @@ def delete_profile(store: StudioStore, name: str) -> None:
             raise KeyError(name)
 
 
-def _number_text(value: float) -> str:
-    """A number the way the Owner reads it: 3 not 3.0, 0,4 with a decimal comma."""
-    return (f"{value:g}").replace(".", ",")
-
-
 _GROUP_CHOICES = {
     strength.GROUP_POOL: "ganzer Pool",
     strength.GROUP_TYPE: "gleicher Kartentyp",
@@ -920,6 +985,11 @@ def _panel_texts() -> dict[str, object]:
         "als Spalte „Sieg-Abstand“ gezeigt (Gewicht 0). Gilt für jeden Commander und reicht "
         "für eine Stufe allein nicht. 0 schaltet das Signal ab."
     )
+    helps[f"weights.{strength.RUBRIC}"] = (
+        f"Strukturierte Bewertung von drei Bewertern (Übereinstimmung ICC 0,94), nur für Chulane; "
+        f"empfohlen {_number_text(rec.weights[strength.RUBRIC])} (etwa 30 % des Gewichts für eine "
+        "typische Karte), 0 schaltet das Signal ab."
+    )
     helps[f"weights.{strength.DECK_UNIVERSE}"] = (
         "Wie stark die Verbreitung in gezählten Decklisten zählt. 0 schaltet sie ab."
     )
@@ -967,6 +1037,18 @@ def _panel_texts() -> dict[str, object]:
         "jeder ihrer Rollengruppen, ihr Rang ist der Mittelwert daraus. Gruppen unter "
         "der Mindestgröße zählen beim Mittelwert nicht mit. Eine Karte ohne "
         "belegte Rolle fällt auf den ganzen Pool zurück und sagt das in der Signalzeile."
+    )
+    labels["separate_lands"] = (
+        f"Länder getrennt von Zaubern ranken (empfohlen: {'an' if rec.separate_lands else 'aus'})"
+    )
+    helps["separate_lands"] = (
+        "an: Länder werden nur mit Ländern und Zauber nur mit Zaubern verglichen. Der "
+        "Anteil relativ zum Maximum (und jeder Rang) wird in den beiden Gruppen „Länder“ "
+        "und „Zauber“ getrennt berechnet; die Stufen-Grenzen sind für beide gleich. So legt "
+        "Command Tower den Maßstab nicht für die Zauber fest und umgekehrt. aus: ein "
+        "gemeinsamer Vergleich über den ganzen Pool. Eine Gruppe mit weniger als "
+        f"{strength.MIN_GROUP} Karten mit Wert bleibt im gemeinsamen Vergleich (steht in der "
+        "Signalzeile). Standardländer und der Commander bekommen weiterhin keine Stufe."
     )
     labels["share_measure"] = (
         f"Anteil messen als (empfohlen: {_MEASURE_CHOICES[rec.share_measure]})"
@@ -1029,9 +1111,12 @@ def _panel_texts() -> dict[str, object]:
             f"(empfohlen: {_MISSING_CHOICES[rec.missing_value[key]]})"
         )
         helps[f"missing_value.{key}"] = (
-            "auslassen: eine nicht gelistete Karte ist eine fehlende Beobachtung (Owner-"
-            "Entscheidung B5). als niedrigster Rang: nur sinnvoll, wenn die Quelle die "
-            "Karten des Commanders fast vollständig nennt."
+            "als niedrigster Rang: eine nicht gelistete Karte zählt mit dem Wert 0, also bei "
+            "oder unter der kleinsten gelisteten Karte, nie darüber. Sinnvoll, wenn die Quelle "
+            "alle Karten über ihrer Listenschwelle nennt (EDHREC): nicht gelistet heißt "
+            "darunter. auslassen: eine nicht gelistete Karte ist eine fehlende Beobachtung "
+            "(Owner-Entscheidung B5); ihr Gewicht entfällt dann und der Index mittelt über "
+            "die übrigen Signale."
         )
     labels["rank_commander_and_basics"] = (
         "Commander und Standardländer bewerten "
@@ -1092,7 +1177,7 @@ def _panel_texts() -> dict[str, object]:
             "keys": [*(f"layer_weights.{key}" for key in strength.LAYER_KEYS), "pod_size"],
         },
         {"title": "Bracket", "keys": ["bracket", "combo_source"]},
-        {"title": "Vergleichsgruppe für den Rang", "keys": ["rank_group"]},
+        {"title": "Vergleichsgruppe für den Rang", "keys": ["rank_group", "separate_lands"]},
         {"title": "Anteil messen als", "keys": ["share_measure", "share_scale"]},
         {
             "title": "Mindest-Nenner je Signal",
@@ -1134,7 +1219,10 @@ def _panel_texts() -> dict[str, object]:
             "rank_group": _choices(_GROUP_CHOICES, rec.rank_group),
             "share_measure": _choices(_MEASURE_CHOICES, rec.share_measure),
             "share_scale": _choices(_SCALE_CHOICES, rec.share_scale),
-            "missing_value": _choices(_MISSING_CHOICES, strength.MISSING_SKIP),
+            **{
+                f"missing_value.{key}": _choices(_MISSING_CHOICES, rec.missing_value[key])
+                for key in strength.MISSING_CAPABLE
+            },
             "universe_source": [
                 {
                     "value": strength.UNIVERSE_AUTO,
@@ -1147,6 +1235,10 @@ def _panel_texts() -> dict[str, object]:
                     "recommended": False,
                 },
                 {"value": strength.UNIVERSE_NONE, "label": "keines", "recommended": False},
+            ],
+            "separate_lands": [
+                {"value": True, "label": "an (empfohlen)", "recommended": True},
+                {"value": False, "label": "aus", "recommended": False},
             ],
             "rank_commander_and_basics": [
                 {"value": False, "label": "aus (empfohlen)", "recommended": True},

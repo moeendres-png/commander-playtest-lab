@@ -29,11 +29,17 @@ How it is computed, per commander and per signal:
    percentage points, not a share: it counts only from a minimum sample of games in
    which the card was cast, and the published gap is shrunk towards zero by that sample
    (``n / (n + k)``), so a small sample does not rank high by chance either.
+   The ``rubric`` component (#1358, Chulane only) is neither a share nor a rank: its value
+   ``(H_mean - 1) / 9`` of a frozen rating file is used directly as the 0..1 score, so the
+   magnitude of the rating is kept. It is commander specific and, for a commander without
+   the file, a missing source (``NOT_COLLECTED``) that does not lower any coverage.
 2. The value becomes a percentile rank (0..1) among the cards of the commander's legal pool
    that have a value for that signal and are ranked at all. The comparison group is the
    whole pool (default), the cards of the same main type or of the same mana value band
    (setting); a group with fewer than ``MIN_GROUP`` valued cards falls back to the pool
-   and the component row says so. Ties share the mean rank. The commander card and basic
+   and the component row says so. With ``separate_lands`` (default, #1353 part A) lands are
+   scaled against lands and spells against spells, so neither group sets the scale of the
+   other (a group below ``MIN_GROUP`` keeps the joint scale, said in the row). Ties share the mean rank. The commander card and basic
    lands are not ranked (tier ``N``, "nicht bewertet") unless the Owner switches that on;
    the cards a deck-universe card filter requires get status ``FILTER_CARD`` in the deck
    universe component (they are in every deck of the subset by definition: no value, not
@@ -44,7 +50,10 @@ How it is computed, per commander and per signal:
    coverage, not the percentile. Only for the commander inclusion, the bracket inclusion
    and the deck universe, sources that list the commander's cards fairly completely, the
    Owner can choose "als niedrigster Rang zählen": an unlisted card then gets percentile 0
-   in that component (status ``MISSING_AS_LOWEST``, named as such in the row). Note that
+   in that component (status ``MISSING_AS_LOWEST``, named as such in the row). That is the
+   recommended value for the commander and the bracket inclusion since #1350 (EDHREC lists every
+   card above its threshold, so "not listed" means "below it"; the 0 is at or below the smallest
+   listed card under both share scales); the deck universe stays "skip". Note that
    with ``min_coverage`` 0 an unlisted card (only its other signals count) can outrank a
    card that a source lists at 1 of 755 decks: the recommended minimum coverage exists for
    that reason.
@@ -82,6 +91,8 @@ MEANING = (
     "Prozentpunkte Spieler häufiger gewannen, wenn sie eine Karte gespielt haben, als wenn "
     "sie in der Bibliothek blieb (kleine Stichproben werden zur Null gezogen). Das ist eine "
     "Beobachtung, keine Kausalität und keine gemessene Siegrate der eigenen Partien. "
+    "Für Chulane zählt außerdem eine eingefrorene Raster-Bewertung (subjektiv, nach "
+    "festem Leitfaden von drei unabhängigen Bewertern). "
     "Fehlende Beobachtungen senken die Abdeckung, nie die Karte. Favoriten, Ausschlüsse "
     "und Notizen fließen nicht ein."
 )
@@ -115,6 +126,9 @@ BRACKET_NONE = "none"
 Z_95 = 1.959963984540054
 MIN_GROUP = 5
 
+TYPE_LAND = "Land"  # the type group of a land card (``PoolContext.type_group``)
+GROUP_LANDS = "Länder"
+GROUP_SPELLS = "Zauber"  # every card that is not a land
 GROUP_POOL = "pool"
 GROUP_TYPE = "type"
 GROUP_MANA_BAND = "mana_band"
@@ -166,6 +180,7 @@ TOURNAMENT_CONVERSION = "tournament_conversion"
 GLOBAL_INCLUSION = "global_inclusion"
 COMBOS = "combos"
 PLAYGROUP_OBSERVED = "playgroup_observed"
+RUBRIC = "rubric"
 SIMULATION = "simulation"
 
 COMPONENTS = (
@@ -178,6 +193,7 @@ COMPONENTS = (
     GLOBAL_INCLUSION,
     COMBOS,
     PLAYGROUP_OBSERVED,
+    RUBRIC,
     SIMULATION,
 )
 LABELS: dict[str, str] = {
@@ -190,6 +206,7 @@ LABELS: dict[str, str] = {
     GLOBAL_INCLUSION: "Aufnahme überhaupt (EDHREC)",
     COMBOS: "Kombos",
     PLAYGROUP_OBSERVED: "Beobachtete Sieg-Korrelation (Playgroup)",
+    RUBRIC: "Raster-Bewertung (Chulane)",
     SIMULATION: "Simulation",
 }
 # Additional rating layers (``layers.py``) that may join the index as one more rank-based
@@ -246,6 +263,13 @@ SHARE_COMPONENTS = frozenset(
 # samples altogether. The signal import applies OBSERVED_MIN_SAMPLE before a row is stored.
 OBSERVED_MIN_SAMPLE = 25
 OBSERVED_SHRINKAGE = 200
+# Components whose value is already a 0..1 score and is used as it is (no percentile rank, no
+# share scale): the magnitude of the rating is kept. The rubric value is ``(H_mean - 1) / 9``.
+DIRECT_COMPONENTS = frozenset({RUBRIC})
+# Components that exist for some commanders only. For a commander without a source they are
+# ``NOT_COLLECTED`` (a missing source, never 0) and, unlike a source that was merely not
+# imported yet, they do not lower the coverage: the source cannot exist for that commander.
+COMMANDER_ONLY_SOURCES = frozenset({RUBRIC})
 # Sources that list the commander's cards fairly completely: only for these may an unlisted
 # card be counted as the lowest rank (Owner decision B5 keeps "absent" a missing observation).
 MISSING_CAPABLE = (COMMANDER_INCLUSION, BRACKET_INCLUSION, DECK_UNIVERSE)
@@ -259,6 +283,7 @@ COMMANDER_SPECIFIC = (
     DECK_UNIVERSE,
     SYNERGY,
     TOURNAMENT_LISTS,
+    RUBRIC,
 )
 
 
@@ -269,7 +294,33 @@ def is_commander_specific(component: str, combo_source: str = COMBO_COMMANDER) -
     )
 
 
+# The rubric rates every card with a holistic value H from 1 to 10; the component value is the
+# fraction of that range, so 1 is 0.0 and 10 is 1.0 (a magnitude, not a share and not a rank).
+RUBRIC_H_MIN = 1.0
+RUBRIC_H_MAX = 10.0
+
+
+def rubric_value(h_mean: float) -> float | None:
+    """The rubric component value ``(H - 1) / 9`` of a mean rating, ``None`` when it lies
+    outside 1..10 or is not a finite number (unknown, never clipped to a bound)."""
+    if not math.isfinite(h_mean) or not RUBRIC_H_MIN <= h_mean <= RUBRIC_H_MAX:
+        return None
+    return (h_mean - RUBRIC_H_MIN) / (RUBRIC_H_MAX - RUBRIC_H_MIN)
+
+
 _EDHREC_SHARES = frozenset({COMMANDER_INCLUSION, BRACKET_INCLUSION, GLOBAL_INCLUSION})
+
+# What an unlisted card counts as, per source (recommended values). EDHREC lists every card of a
+# commander (and of a bracket page) above its listing threshold, so "not listed" there means
+# "below the threshold": it counts as ``MISSING_LOWEST``, a score of 0.0, which is at or below
+# the score of the smallest listed card under both share scales (``share_scale_values`` never
+# returns less than 0) and never above it. The deck universe stays ``MISSING_SKIP``: a counted
+# universe already gives every card without a row a counted zero (0 of N), a real value.
+DEFAULT_MISSING_VALUE: dict[str, str] = {
+    COMMANDER_INCLUSION: MISSING_LOWEST,
+    BRACKET_INCLUSION: MISSING_LOWEST,
+    DECK_UNIVERSE: MISSING_SKIP,
+}
 
 # The recommended values are the defaults of ``StrengthSettings`` and of these constants: one
 # place in Python. ``strength_view.presets`` serves them, the page never hard-codes them.
@@ -283,9 +334,20 @@ DEFAULT_WEIGHTS: dict[str, float] = {
     GLOBAL_INCLUSION: 1.0,
     COMBOS: 1.0,
     PLAYGROUP_OBSERVED: 0.0,
+    # Rubric is about 30 % of the present weight for a typical Chulane card: of the 922 ranked
+    # cards, 909 have commander, bracket, deck universe and global inclusion (weight 3 + 2 + 2 +
+    # 1 = 8; the 13 cards with a combo row have 9), so 3.5 / (8 + 3.5) = 30.4 %. Only "a little"
+    # subjectivity is wanted, and at 50 % the index follows the rubric almost entirely (Spearman
+    # 0.98). Not tuned to any card. Other commanders have no rubric: it is left out.
+    RUBRIC: 3.5,
     SIMULATION: 0.0,
 }
-DEFAULT_CUTS: dict[str, float] = {"S": 70.0, "A": 55.0, "B": 35.0, "C": 20.0}
+# Derived once (#1358) from the default index of the 857 ranked non-land Chulane cards, with the
+# targets fixed in advance: S about 3 %, A about 10 %, B about 22 %, C about 30 %, D the rest. The
+# cuts are the whole numbers whose cumulative shares (3.0 / 12.8 / 34.1 / 62.4 %) come closest to
+# the cumulative targets 3 / 13 / 35 / 65 %: S 3.0 %, A 9.8 %, B 21.2 %, C 28.4 %, D 37.6 %.
+# They are the same for lands. Not tuned to any card; before them the cuts were 70 / 55 / 35 / 20.
+DEFAULT_CUTS: dict[str, float] = {"S": 47.0, "A": 17.0, "B": 9.0, "C": 4.0}
 DEFAULT_MIN_DENOMINATORS: dict[str, int] = {
     MIN_EDHREC: 30,
     MIN_TOURNAMENT: 20,
@@ -293,6 +355,10 @@ DEFAULT_MIN_DENOMINATORS: dict[str, int] = {
     MIN_PLAYGROUP: 200,
 }
 DEFAULT_BRACKET = "upgraded"
+# Lands are ranked against lands and spells against spells (#1353 part A): share scaling
+# (v / v_max) and percentile ranks are computed inside the two groups, so a land with the most
+# decks does not set the scale of the spells and the other way round.
+DEFAULT_SEPARATE_LANDS = True
 DEFAULT_MIN_COVERAGE = 0.25
 DEFAULT_REQUIRE_COMMANDER_SIGNAL = True
 DEFAULT_MIN_COMPONENTS = 2
@@ -318,6 +384,7 @@ _SETTINGS_KEYS = frozenset(
         "layer_weights",
         "pod_size",
         "combo_source",
+        "separate_lands",
     }
 )
 
@@ -349,6 +416,7 @@ def signal_for(component: str, bracket: str, *, combo_source: str = COMBO_SPELLB
         TOURNAMENT_CONVERSION: "topdeck_card_conversion",
         GLOBAL_INCLUSION: "edhrec_global_inclusion",
         PLAYGROUP_OBSERVED: "playgroup_observed_winrate_gap",
+        RUBRIC: "rubric_h_mean",
         SIMULATION: "",
     }[component]
 
@@ -422,6 +490,7 @@ class StrengthSettings:
     layer_weights: dict[str, float] = field(default_factory=lambda: dict(DEFAULT_LAYER_WEIGHTS))
     pod_size: int = DEFAULT_POD_SIZE
     combo_source: str = DEFAULT_COMBO_SOURCE
+    separate_lands: bool = DEFAULT_SEPARATE_LANDS
 
     def __post_init__(self) -> None:
         weights = {name: DEFAULT_WEIGHTS[name] for name in COMPONENTS}
@@ -474,7 +543,10 @@ class StrengthSettings:
                 "missing_value can only be set for "
                 f"{', '.join(MISSING_CAPABLE)}, not for {', '.join(sorted(unknown_missing))}"
             )
-        missing = {name: self.missing_value.get(name, MISSING_SKIP) for name in MISSING_CAPABLE}
+        missing = {
+            name: self.missing_value.get(name, DEFAULT_MISSING_VALUE[name])
+            for name in MISSING_CAPABLE
+        }
         for name, choice in missing.items():
             if choice not in MISSING_CHOICES:
                 raise ValueError(f"missing_value {name} must be skip or lowest")
@@ -482,6 +554,8 @@ class StrengthSettings:
             raise ValueError("rank_commander_and_basics must be true or false")
         if not isinstance(self.rank_other_commanders, bool):
             raise ValueError("rank_other_commanders must be true or false")
+        if not isinstance(self.separate_lands, bool):
+            raise ValueError("separate_lands must be true or false")
         if not isinstance(self.require_commander_signal, bool):
             raise ValueError("require_commander_signal must be true or false")
         if parse_universe_source(self.universe_source) is None:
@@ -555,6 +629,7 @@ class StrengthSettings:
             "layer_weights": dict(self.layer_weights),
             "pod_size": self.pod_size,
             "combo_source": self.combo_source,
+            "separate_lands": self.separate_lands,
         }
 
     @classmethod
@@ -621,6 +696,9 @@ class StrengthSettings:
         pod_size = raw.get("pod_size", defaults.pod_size)
         if isinstance(pod_size, bool) or not isinstance(pod_size, int):
             raise ValueError("pod_size must be an integer")
+        separate = raw.get("separate_lands", defaults.separate_lands)
+        if not isinstance(separate, bool):
+            raise ValueError("separate_lands must be true or false")
         return cls(
             weights={
                 **DEFAULT_WEIGHTS,
@@ -655,6 +733,7 @@ class StrengthSettings:
             },
             pod_size=pod_size,
             combo_source=combo_source,
+            separate_lands=separate,
         )
 
 
@@ -682,6 +761,8 @@ PRESETS: dict[str, StrengthSettings] = dict(
                 GLOBAL_INCLUSION: 1.0,
                 COMBOS: 0.0,
                 PLAYGROUP_OBSERVED: 0.0,
+                # the typical Chulane card has 3 + 2 + 3 + 1 = 9 usage weight present: ~30 %
+                RUBRIC: 4.0,
                 SIMULATION: 0.0,
             },
             DEFAULT_BRACKET,
@@ -697,6 +778,9 @@ PRESETS: dict[str, StrengthSettings] = dict(
                 GLOBAL_INCLUSION: 1.0,
                 COMBOS: 1.0,
                 PLAYGROUP_OBSERVED: 0.0,
+                # the typical Chulane card has 1 + 2 + 2 + 1 = 6 usage weight present (it has no
+                # tournament lists); the same rule as the other presets (~30 %)
+                RUBRIC: 2.5,
                 SIMULATION: 0.0,
             },
             "cedh",
@@ -712,6 +796,8 @@ class Observation:
     value: float | None
     numerator: int | None = None
     denominator: int | None = None
+    # Free text a source adds to the row of a present value (the rubric: H, spread, raters).
+    note: str = ""
 
 
 @dataclass(frozen=True)
@@ -878,6 +964,8 @@ def _scored_value(
         return _share_values(component, observation, measure)
     if observation.value is None or not math.isfinite(observation.value):
         return None, None
+    if component in DIRECT_COMPONENTS and not 0.0 <= observation.value <= 1.0:
+        return None, None  # a score outside 0..1 is not a score: unknown, never clipped
     return observation.value, None
 
 
@@ -909,6 +997,9 @@ class _ComponentRanking:
     group_ranks: dict[str, tuple[tuple[str, ...], dict[str, int], float]]
     reference_denominator: int | None
     minimum: int
+    # separate lands under the pool comparison: card -> (group name, valued cards in it,
+    # fell back to the whole pool because the group was smaller than ``MIN_GROUP``)
+    land_split: dict[str, tuple[str, int, bool]] = field(default_factory=dict)
 
     @property
     def usable(self) -> bool:
@@ -939,10 +1030,53 @@ def _scale_component_values(
     component: str, values: Mapping[str, float], settings: StrengthSettings
 ) -> dict[str, float]:
     """Convert component values to 0..1 scores: share components use ``settings.share_scale``,
-    non-share components (synergy, combos, playgroup, layers) always use ``percentile_ranks``."""
+    direct components (the rubric) keep their 0..1 value, the other non-share components
+    (synergy, combos, playgroup, layers) always use ``percentile_ranks``."""
     if component in SHARE_COMPONENTS:
         return share_scale_values(values, settings.share_scale)
+    if component in DIRECT_COMPONENTS:
+        return dict(values)
     return percentile_ranks(values)
+
+
+def _is_land(context: PoolContext, card: str) -> bool:
+    return context.type_group.get(card) == TYPE_LAND
+
+
+def _split_scale(
+    component: str,
+    values: Mapping[str, float],
+    settings: StrengthSettings,
+    context: PoolContext,
+) -> tuple[dict[str, float], dict[str, tuple[str, int, bool]]]:
+    """Pool-level 0..1 scores of ``values`` and, when ``settings.separate_lands`` is on, the
+    land split behind them: lands are scaled against lands and spells against spells. A group
+    with fewer than ``MIN_GROUP`` valued cards keeps its score from the whole population (said in
+    the row), like every too small comparison group. Without ``separate_lands`` it is the
+    plain scaling of the whole pool."""
+    if not settings.separate_lands or component in DIRECT_COMPONENTS:
+        # a direct score does not depend on the other cards: nothing to split
+        return _scale_component_values(component, values, settings), {}
+    parts = (
+        (GROUP_LANDS, {card: v for card, v in values.items() if _is_land(context, card)}),
+        (GROUP_SPELLS, {card: v for card, v in values.items() if not _is_land(context, card)}),
+    )
+    scores: dict[str, float] = {}
+    info: dict[str, tuple[str, int, bool]] = {}
+    whole: dict[str, float] | None = None
+    for name, part in parts:
+        if not part:
+            continue
+        small = len(part) < MIN_GROUP
+        if small:
+            if whole is None:
+                whole = _scale_component_values(component, values, settings)
+            scaled = {card: whole[card] for card in part}
+        else:
+            scaled = _scale_component_values(component, part, settings)
+        scores.update(scaled)
+        info.update({card: (name, len(part), small) for card in part})
+    return scores, info
 
 
 def _rank_component(
@@ -987,15 +1121,17 @@ def _rank_component(
             continue
         values[card] = value
         wilson[card] = bound
-    pool_ranks = _scale_component_values(component, values, settings)
+    pool_ranks, land_split = _split_scale(component, values, settings, context)
     group_ranks: dict[str, tuple[tuple[str, ...], dict[str, int], float]] = {}
     if settings.rank_group != GROUP_POOL:
-        members: dict[str, dict[str, float]] = {}
+        # a comparison group never mixes lands and spells while ``separate_lands`` is on
+        members: dict[tuple[str, bool], dict[str, float]] = {}
         for card, value in values.items():
+            land = settings.separate_lands and _is_land(context, card)
             for name in _groups_of(settings, context, card):
-                members.setdefault(name, {})[card] = value
+                members.setdefault((name, land), {})[card] = value
         found: dict[str, dict[str, tuple[int, float]]] = {}
-        for name, group_values in members.items():
+        for (name, _land), group_values in members.items():
             if len(group_values) >= MIN_GROUP:
                 ranks = _scale_component_values(component, group_values, settings)
                 for card, rank in ranks.items():
@@ -1005,7 +1141,9 @@ def _rank_component(
             sizes = {name: per_group[name][0] for name in names}
             percentile = sum(per_group[name][1] for name in names) / len(names)
             group_ranks[card] = (names, sizes, percentile)
-    return _ComponentRanking(values, wilson, reasons, pool_ranks, group_ranks, reference, minimum)
+    return _ComponentRanking(
+        values, wilson, reasons, pool_ranks, group_ranks, reference, minimum, land_split
+    )
 
 
 def _component_note(
@@ -1113,7 +1251,11 @@ def score_pool(
         for name in rated
         if settings.effective_weight(name) > 0
         and not (
-            (name in UNCOLLECTED_BY_DESIGN or name.startswith(LAYER_PREFIX))
+            (
+                name in UNCOLLECTED_BY_DESIGN
+                or name in COMMANDER_ONLY_SOURCES
+                or name.startswith(LAYER_PREFIX)
+            )
             and name not in collected
         )
     }
@@ -1160,6 +1302,8 @@ def score_pool(
                     else:
                         group = " + ".join(_groups_of(settings, ctx, card)) or None
                         group_fallback = True
+                elif card in ranking.land_split:
+                    group, group_size, group_fallback = ranking.land_split[card]
             elif (
                 reason == NOT_LISTED
                 and component in collected
@@ -1174,14 +1318,23 @@ def score_pool(
                 weighted += weight * percentile
                 present += 1
             note = _component_note(reason, ranking, observation) if reason else ""
+            if status == PRESENT and observation is not None and observation.note:
+                note = observation.note
             if (
                 percentile is not None
                 and weight > 0
                 and is_commander_specific(component, settings.combo_source)
-                and status in (PRESENT, ZERO_COUNT, MISSING_AS_LOWEST)
+                and status in (PRESENT, ZERO_COUNT)
             ):
+                # MISSING_AS_LOWEST counts as a value for the index and the coverage, but a
+                # card the commander's lists do not name is no evidence about this commander
                 specific = True
-            if group_fallback:
+            if group_fallback and settings.rank_group == GROUP_POOL:
+                note = (
+                    f"Vergleichsgruppe „{group}“ hat nur {group_size} Karten mit Wert "
+                    f"(weniger als {MIN_GROUP}): Rang im ganzen Pool (Länder und Zauber zusammen)"
+                )
+            elif group_fallback:
                 note = _fallback_note(group, ranking, settings, ctx, card)
             components.append(
                 {
@@ -1264,13 +1417,19 @@ def _fallback_note(
     groups = _groups_of(settings, context, card)
     if settings.rank_group == GROUP_FUNCTION and not groups:
         return "Keine Funktion bekannt (keine Rolle aus den Quellen belegt): Rang im ganzen Pool"
+    # a comparison group never mixes lands and spells while ``separate_lands`` is on
+    same_kind = [
+        other
+        for other in ranking.values
+        if not settings.separate_lands or _is_land(context, other) == _is_land(context, card)
+    ]
     if groups:
         size = max(
-            sum(1 for other in ranking.values if name in _groups_of(settings, context, other))
+            sum(1 for other in same_kind if name in _groups_of(settings, context, other))
             for name in groups
         )
     else:
-        size = sum(1 for other in ranking.values if not _groups_of(settings, context, other))
+        size = sum(1 for other in same_kind if not _groups_of(settings, context, other))
     name = group or "ohne Gruppe"
     return (
         f"Vergleichsgruppe „{name}“ hat nur {size} Karten mit Wert (weniger als {MIN_GROUP}): "

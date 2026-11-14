@@ -193,12 +193,15 @@ function cardRoles(card) { return layer(card, "fact").roles.map((claim) => claim
 function visibleCards() {
   const words = $("q").value.trim().toLowerCase().split(/\s+/).filter(Boolean);
   const type = $("type-filter").value, role = $("role-filter").value;
+  const landKind = $("land-filter") ? $("land-filter").value : "";
   const spreadLevel = $("spread-filter") ? $("spread-filter").value : "";
   const free = $("f-free").checked, fav = $("f-fav").checked, showExcluded = $("f-excl").checked;
   let rows = state.data.cards.filter((card) => {
     const mark = state.marks.get(card.card_id) || {};
     if (state.view === "deck" && !(state.deckCards && state.deckCards.has(card.card_id))) return false;
     if (type && card.group !== type) return false;
+    if (landKind === "lands" && card.group !== "Land") return false;
+    if (landKind === "spells" && card.group === "Land") return false;
     if (role && !cardRoles(card).includes(role)) return false;
     if (state.podFilter && state.view !== "global") { const cls = podClass(card); if (state.podFilter === "NONE" ? cls !== null : cls !== state.podFilter) return false; }
     if (state.strength.tiers.size && state.strength.map) { const item = state.strength.map.get(card.card_id); if (!item || !state.strength.tiers.has(item.tier)) return false; }
@@ -758,7 +761,7 @@ function fieldKind(key) {
   if (key === "min_components") return { type: "number", min: 0, max: meta.components.length, step: 1, scale: 1 };
   if (key.startsWith("tier_cuts.")) return { type: "number", min: 0, max: 100, step: 1, scale: 1 };
   if (key === "universe_source") return { type: "choice", choices: [...meta.panel.choices.universe_source, ...state.strength.counted.map((item) => ({ value: item.value, label: item.label, recommended: false }))] };
-  const choices = key.startsWith("missing_value.") ? meta.panel.choices.missing_value : meta.panel.choices[key];
+  const choices = meta.panel.choices[key];
   return { type: "choice", choices };
 }
 const settingKeys = () => state.strength.meta.panel.groups.flatMap((group) => group.keys);
@@ -822,6 +825,19 @@ function universeLine(choice) {
   const what = choice.kind === "counted" ? `Verbreitung (gezählt): ${choice.short_label}` : choice.label;
   return `${what} · Nenner ${choice.denominator} Decks · ${verb}${choice.reason ? ` (${choice.reason.replace(/^automatisch gewählt: /, "")})` : ""}`;
 }
+// Lands are ranked against lands and spells against spells (setting "separate_lands"): the page
+// shows the tier counts of the two groups next to the pool total.
+function landSplitLine(result) {
+  if (!result.settings.separate_lands || !state.data) return [];
+  const group = new Map(state.data.cards.map((card) => [card.card_id, card.group]));
+  const count = { Zauber: {}, Länder: {} };
+  for (const item of result.cards) {
+    const key = group.get(item.card_id) === "Land" ? "Länder" : "Zauber";
+    count[key][item.tier] = (count[key][item.tier] || 0) + 1;
+  }
+  const text = (tiers) => ["S", "A", "B", "C", "D"].map((tier) => `${tier} ${tiers[tier] || 0}`).join(" · ");
+  return [h("div", { class: "rule", id: "land-split" }, `Länder und Zauber getrennt gerankt. Zauber: ${text(count.Zauber)}. Länder: ${text(count.Länder)}. Mit dem Filter „nur Länder“ siehst du die Länder allein.`)];
+}
 function renderStrengthSummary() {
   const s = state.strength, box = $("strength-summary");
   if (!box) return;
@@ -832,7 +848,7 @@ function renderStrengthSummary() {
   const universeText = `Index berechnet mit: ${choice ? universeLine(choice) : "kein Decklisten-Universum"}${universe && universe.subset_note ? `; ${universe.subset_note}` : ""}${choice && choice.kind !== "none" ? (universeWeight > 0 ? `; zählt in die Stufe mit Gewicht ${universeWeight}` : "; Gewicht 0: zählt nicht in die Stufe") : ""}`;
   // Sources that can exist for these settings: no simulation (not collected), no bracket source without a
   // bracket, no deck universe without one.
-  const possible = s.meta.components.filter((c) => c.key !== "simulation" && !(c.key === "bracket_inclusion" && result.settings.bracket === "none") && !(c.key === "deck_universe" && !(result.universe_choice && result.universe_choice.kind !== "none"))).length;
+  const possible = s.meta.components.filter((c) => c.key !== "simulation" && !(c.key === "bracket_inclusion" && result.settings.bracket === "none") && !(c.key === "deck_universe" && !(result.universe_choice && result.universe_choice.kind !== "none")) && !(c.key === "rubric" && !result.collected.includes("rubric"))).length;
   const notices = (result.notices || []).map((text) => h("div", { class: "badge warn" }, text));
   const ambiguous = result.ambiguous_names || [];
   const shown = ambiguous.slice(0, 10).map((item) => `${item.name} (${item.candidates.join(" / ")})`).join("; ");
@@ -841,6 +857,7 @@ function renderStrengthSummary() {
     neutral(`${UNKNOWN_TIER} ${counts.U}`, "Zu wenig Daten für eine Stufe: das sagt nichts über die Stärke der Karte."),
     neutral(`nicht bewertet ${counts.N || 0}`, "Commander und Standardländer, wenn sie nicht bewertet werden"),
     h("span", { class: "muted" }, `von ${result.cards.length} Karten · ${universeText} · Quellen vorhanden: ${result.collected.length}/${possible}`),
+    ...landSplitLine(result),
     ...notices,
     ...(result.layer_summary ? result.layer_summary.layers.filter((item) => item.source_discrepancies > 0).map((item) => h("div", { class: "rule" }, `${item.label}: bei ${item.source_discrepancies} Karten nennt die Quelle einen anderen Prozentwert als Zähler/Nenner; die Zelle zeigt Zähler/Nenner, der genannte Wert steht im Tooltip.`)) : []),
     ...(result.layer_summary ? [h("div", { class: "rule", title: `${result.layer_summary.measured_note} ${result.layer_summary.pod_note}` }, `Ebenen (eigene Spalten): ${result.layer_summary.layers.map((item) => `${item.label} ${item.with_value}/${item.pool_cards} (${LAYER_KIND_SHORT[item.kind] || item.kind})`).join(" · ")}${result.layer_summary.weighted.length ? `. Im Index mit Gewicht: ${result.layer_summary.weighted.map((key) => (layerMetas().find((meta) => meta.key === key) || { label: key }).label).join(", ")}` : ". Keine Ebene hat ein Gewicht: die Stufen entsprechen dem Index ohne Ebenen"}`)] : []),
@@ -916,7 +933,7 @@ const SETTING_GROUPS = [
   ["Gewichte", (key) => key.startsWith("weights.")],
   ["Zusätzliche Ebenen", (key) => key.startsWith("layer_weights.") || key === "pod_size"],
   ["Decklisten-Universum", (key) => key === "universe_source"],
-  ["Vergleich", (key) => key === "bracket" || key === "combo_source" || key === "rank_group" || key === "share_measure" || key === "share_scale" || key === "rank_commander_and_basics" || key === "rank_other_commanders" || key.startsWith("missing_value.")],
+  ["Vergleich", (key) => key === "bracket" || key === "combo_source" || key === "rank_group" || key === "separate_lands" || key === "share_measure" || key === "share_scale" || key === "rank_commander_and_basics" || key === "rank_other_commanders" || key.startsWith("missing_value.")],
   ["Mindestdaten", (key) => key.startsWith("min_denominators.") || key === "min_coverage" || key === "min_components" || key === "require_commander_signal"],
   ["Tier-Grenzen", (key) => key.startsWith("tier_cuts.")],
 ];
@@ -1153,7 +1170,7 @@ async function init() {
   const savedSort = StudioUI.recall(SORT_KEY, "");
   if (savedSort && (SORTS.some((item) => item[0] === savedSort) || savedSort.startsWith(PERCENTILE_SORT) || savedSort.startsWith(LAYER_SORT))) { state.sortKey = savedSort; state.sortDir = SMALL_FIRST.has(savedSort) ? 1 : -1; $("sort").value = savedSort; }
   $("sort").addEventListener("change", () => { state.sortKey = $("sort").value; state.sortDir = SMALL_FIRST.has(state.sortKey) ? 1 : -1; StudioUI.remember(SORT_KEY, state.sortKey); render(); });
-  for (const id of ["q", "type-filter", "role-filter", "spread-filter", "f-free", "f-fav", "f-excl"]) $(id).addEventListener("input", () => { state.shown = 150; render(); });
+  for (const id of ["q", "type-filter", "land-filter", "role-filter", "spread-filter", "f-free", "f-fav", "f-excl"]) $(id).addEventListener("input", () => { state.shown = 150; render(); });
   document.addEventListener("keydown", (event) => { if (event.key === "Escape") $("modal").hidden = true; });
   renderTabs();
   $("pool-body").replaceChildren(StudioUI.loading("Tierliste lädt …"));
