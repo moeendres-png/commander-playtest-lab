@@ -415,7 +415,7 @@ def _parser() -> argparse.ArgumentParser:
     sources_cmd.add_argument(
         "--gap-report",
         action="store_true",
-        help="calculate and export the 801-card pool gap matrix",
+        help="calculate and export the 927-card pool gap matrix",
     )
     sources_cmd.add_argument(
         "--gap-out",
