@@ -1001,7 +1001,7 @@ def cooccurrence(
 
 
 class UniverseDecks(TypedDict):
-    """One resolved universe with the deck ids behind every raw card name."""
+    """One resolved universe with the deck ids behind every raw card name (and per oracle id)."""
 
     spec: UniverseSpec
     denominator: int
@@ -1013,6 +1013,7 @@ class UniverseDecks(TypedDict):
     empty_reason: str | None
     deck_ids: list[str]
     decks_by_name: dict[str, set[str]]
+    decks_by_oracle: dict[str, dict[str, set[str]]]
 
 
 NO_COMMANDER_DECKS = "NO_SOURCE_DECKS_FOR_COMMANDER"
@@ -1058,10 +1059,40 @@ def universe_decks(
     )
 
 
+def _universe_raw_sets(
+    store: StudioStore, deck_ids: Collection[str]
+) -> tuple[dict[str, set[str]], dict[str, dict[str, set[str]]]]:
+    if not deck_ids:
+        return {}, {}
+    by_name: dict[str, set[str]] = {}
+    by_oracle: dict[str, dict[str, set[str]]] = {}
+    marks = ", ".join("?" for _ in COUNTED_SECTIONS)
+    with _universe_table(store, sorted(deck_ids)) as universe_deck:
+        for name, oracle_id, joined in store.connection.execute(
+            f"SELECT c.card_name, c.oracle_id, group_concat(c.deck_id, char(31)) "
+            f"FROM corpus_deck_card c JOIN {universe_deck} u ON u.deck_id = c.deck_id "
+            f"WHERE c.section IN ({marks}) AND c.quantity > 0 GROUP BY c.card_name, c.oracle_id",
+            COUNTED_SECTIONS,
+        ):
+            decks = set(str(joined).split("\x1f"))
+            raw = str(name)
+            existing = by_name.get(raw)
+            if existing is None:
+                by_name[raw] = decks
+            else:
+                by_name[raw] = existing | decks
+            if oracle_id:
+                per_raw = by_oracle.setdefault(str(oracle_id), {})
+                prev = per_raw.get(raw)
+                per_raw[raw] = decks if prev is None else prev | decks
+    return by_name, by_oracle
+
+
 def _universe_decks_of(store: StudioStore, spec: UniverseSpec) -> UniverseDecks:
     deck_ids = resolve_universe(store, spec)
     by_platform, by_bracket = _composition(store, deck_ids)
     reason = empty_reason(store, spec, deck_ids)
+    decks_by_name, decks_by_oracle = _universe_raw_sets(store, deck_ids)
     return {
         "spec": spec,
         "denominator": len(deck_ids),
@@ -1072,7 +1103,8 @@ def _universe_decks_of(store: StudioStore, spec: UniverseSpec) -> UniverseDecks:
         "empty": reason is not None,
         "empty_reason": reason,
         "deck_ids": deck_ids,
-        "decks_by_name": deck_sets(store, deck_ids),
+        "decks_by_name": decks_by_name,
+        "decks_by_oracle": decks_by_oracle,
     }
 
 

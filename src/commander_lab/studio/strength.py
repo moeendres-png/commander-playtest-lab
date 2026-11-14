@@ -1130,7 +1130,7 @@ def score_pool(
         # A commander with one source cannot show two signals: the minimum number of signals
         # never exceeds what the commander's data allows for this card.
         needed = min(settings.min_components, len(possible))
-        enough = coverage >= settings.min_coverage and present >= needed
+        enough = present > 0 and coverage >= settings.min_coverage and present >= needed
         blocked = settings.require_commander_signal and not specific
         if not any_positive_weight:
             reason_code = "NO_POSITIVE_WEIGHT"
@@ -1145,7 +1145,7 @@ def score_pool(
         result[card] = {
             "index": index,
             "coverage": round(coverage, 4),
-            # the tier follows the UNROUNDED index: a displayed 74.96 never tips over a cut
+            # the tier follows the index as shown (rounded to one decimal)
             "tier": _tier(index, settings, enough and not blocked),
             "reason": reason_code,
             "note": NO_COMMANDER_SIGNAL_NOTE if reason_code == NO_COMMANDER_SIGNAL else "",

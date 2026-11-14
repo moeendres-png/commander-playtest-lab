@@ -229,14 +229,18 @@ def _name_keys(card: CardRow, taken: Counter[str]) -> tuple[list[str], bool]:
     return keys, ambiguous
 
 
-CardRow = tuple[str, str, str]
+CardRow = tuple[str, str, str, str]
 
 
 def _all_card_rows(store: StudioStore) -> list[CardRow]:
     rows = store.connection.execute(
-        "SELECT card_id, oracle_name, engine_name FROM card_fact ORDER BY oracle_name, card_id"
+        "SELECT card_id, oracle_name, engine_name, COALESCE(oracle_id, '') AS oracle_id "
+        "FROM card_fact ORDER BY oracle_name, card_id"
     ).fetchall()
-    return [(str(r["card_id"]), str(r["oracle_name"]), str(r["engine_name"])) for r in rows]
+    return [
+        (str(r["card_id"]), str(r["oracle_name"]), str(r["engine_name"]), str(r["oracle_id"]))
+        for r in rows
+    ]
 
 
 def _chosen(rows: list[CardRow], card_ids: Sequence[str] | None) -> list[CardRow]:
@@ -291,15 +295,29 @@ def _build_context(
     for raw in universe["decks_by_name"]:
         by_key.setdefault(raw.casefold(), []).append(raw)
     decks_by_name = universe["decks_by_name"]
-    entries: dict[str, _Entry] = {}
+    decks_by_oracle = universe["decks_by_oracle"]
+    keys_by_card: list[tuple[CardRow, list[str], bool]] = []
+    claimed_keys: set[str] = set()
     for card in rows:
         keys, ambiguous = _name_keys(card, taken)
-        raw_names = sorted({raw for key in keys for raw in by_key.get(key, [])})
+        keys_by_card.append((card, keys, ambiguous))
+        claimed_keys.update(keys)
+    entries: dict[str, _Entry] = {}
+    for card, keys, ambiguous in keys_by_card:
+        raw_hits: dict[str, set[str]] = {}
+        for key in keys:
+            for raw in by_key.get(key, []):
+                raw_hits.setdefault(raw, set()).update(decks_by_name[raw])
+        oracle_id = card[3]
+        if oracle_id:
+            for raw, decks in decks_by_oracle.get(oracle_id, {}).items():
+                if raw.casefold() not in claimed_keys:
+                    raw_hits.setdefault(raw, set()).update(decks)
         union: set[str] = set()
-        for raw in raw_names:
-            union |= decks_by_name[raw]
+        for decks in raw_hits.values():
+            union |= decks
         spellings: list[Spelling] = sorted(
-            ({"name": raw, "hits": len(decks_by_name[raw])} for raw in raw_names),
+            ({"name": raw, "hits": len(decks)} for raw, decks in raw_hits.items()),
             key=lambda item: (-item["hits"], item["name"]),
         )
         entries[card[0]] = _Entry(
@@ -369,7 +387,7 @@ def _spread_of(entry: _Entry, context: _Context, params: TierParams) -> CardSpre
 
 def _taken_names(rows: list[CardRow]) -> Counter[str]:
     taken: Counter[str] = Counter()
-    for _, oracle_name, engine_name in rows:
+    for _, oracle_name, engine_name, _oracle_id in rows:
         for name in {oracle_name.casefold(), engine_name.casefold()}:
             taken[name] += 1
     return taken

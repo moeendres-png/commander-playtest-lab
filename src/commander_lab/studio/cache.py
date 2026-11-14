@@ -26,7 +26,7 @@ _lock = threading.Lock()
 _entries: OrderedDict[tuple[Hashable, ...], object] = OrderedDict()
 
 
-def store_stamp(store: StudioStore) -> tuple[str, int, int, int] | None:
+def store_stamp(store: StudioStore) -> tuple[str, int, int, int, int, int] | None:
     """Identity of the committed state of the store file, or ``None`` when it cannot be
     vouched for (in-memory store, open transaction, unreadable file)."""
     path = store.path
@@ -38,10 +38,14 @@ def store_stamp(store: StudioStore) -> tuple[str, int, int, int] | None:
         counter = int.from_bytes(header[24:28], "big")
         stat = os.stat(path)
         wal = Path(f"{path}-wal")
-        wal_stamp = wal.stat().st_mtime_ns if wal.exists() else 0
+        try:
+            wal_stat = wal.stat()
+            wal_size, wal_mtime = wal_stat.st_size, wal_stat.st_mtime_ns
+        except OSError:
+            wal_size, wal_mtime = 0, 0
     except OSError:
         return None
-    return (str(path), counter + wal_stamp, stat.st_size, stat.st_mtime_ns)
+    return (str(path), counter, stat.st_size, stat.st_mtime_ns, wal_size, wal_mtime)
 
 
 def cached[T](store: StudioStore, key: tuple[Hashable, ...], compute: Callable[[], T]) -> T:

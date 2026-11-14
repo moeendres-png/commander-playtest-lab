@@ -73,11 +73,13 @@ function mana(cost) {
 }
 function freq(card, cohort = state.cohort) {
   const total = state.cohorts[cohort] || 0;
+  if (card.decks_known === false) return { hits: null, total, share: null };
   const hits = (card.decks && card.decks[cohort]) || 0;
   return { hits, total, share: total ? hits / total : null };
 }
 function freqText(card, cohort = state.cohort) {
   const f = freq(card, cohort);
+  if (f.hits === null) return "unbekannt";
   return f.total ? `${f.hits}/${f.total} · ${(100 * f.share).toFixed(0)} %` : "unbekannt";
 }
 // With a universe profile chosen, the pool shows that universe's counted spread
@@ -965,7 +967,7 @@ async function openCard(card) {
   };
   const count = qty(card.card_id);
   const frequencies = h("table", {}, h("thead", {}, h("tr", {}, h("th", {}, "Quelldecks"), h("th", { class: "num" }, "mit Karte"), h("th", { class: "num" }, "Decks"), h("th", { class: "num" }, "Anteil"))),
-    h("tbody", {}, Object.keys(state.cohorts).map((key) => { const f = freq(card, key); return h("tr", { class: f.total < state.small ? "low" : "" }, h("td", {}, cohortName(key)), h("td", { class: "num" }, f.hits), h("td", { class: "num" }, f.total), h("td", { class: "num" }, f.total ? (100 * f.share).toFixed(1) + " %" : "unbekannt")); })));
+    h("tbody", {}, Object.keys(state.cohorts).map((key) => { const f = freq(card, key); return h("tr", { class: f.total < state.small ? "low" : "" }, h("td", {}, cohortName(key)), h("td", { class: "num" }, f.hits === null ? "unbekannt" : f.hits), h("td", { class: "num" }, f.total), h("td", { class: "num" }, f.hits !== null && f.total ? (100 * f.share).toFixed(1) + " %" : "unbekannt")); })));
   const extra = h("div", {}, h("p", { class: "muted" }, "Lädt EDHREC-Zeilen."));
   const layerBox = h("div", {});
   const right = h("div", {},

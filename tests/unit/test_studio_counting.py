@@ -127,7 +127,9 @@ def test_evidence_corpus_items_flag_an_unknown_card(tmp_path: Path) -> None:
         i for i in cards["Delta"]["layers"]["observed_deck"]["items"] if i["kind"] == "corpus"
     ]
     assert known[0]["decks"] == 1 and known[0]["decks_known"] is True
-    assert unknown[0]["decks_known"] is False and unknown[0]["of"] == 1
+    assert (
+        unknown[0]["decks"] is None and unknown[0]["decks_known"] is False and unknown[0]["of"] == 1
+    )
 
 
 # ---------- item 4 and 5: one binding rule, one section list, one co-occurrence ----------
@@ -448,3 +450,32 @@ def test_an_uncommitted_change_is_never_served_stale() -> None:
     calls: list[int] = []
     assert cache.cached(store, ("k",), lambda: calls.append(1) or len(calls)) == 1
     assert cache.cached(store, ("k",), lambda: calls.append(1) or len(calls)) == 2
+
+
+def test_pages_distinguish_unknown_decks_and_other_commander_reasons() -> None:
+    from commander_lab.studio.web import STATIC
+
+    tier_js = (STATIC / "tierliste.js").read_text(encoding="utf-8")
+    app_js = (STATIC / "app.js").read_text(encoding="utf-8")
+
+    box_start = tier_js.index("function strengthBox(card)")
+    box_end = tier_js.index("function groupLabel(group)", box_start)
+    strength_box = tier_js[box_start:box_end]
+    assert "NOT_RANKED_OTHER_COMMANDER" in strength_box
+    assert "Andere Commander-Karten im Pool ranken" in strength_box
+    assert "NO_POSITIVE_WEIGHT" in strength_box
+    assert "NO_SOURCE_FOR_COMMANDER" in strength_box
+
+    cell_start = tier_js.index("function corpusCell(card)")
+    cell_end = tier_js.index("function edhrecCell(card)", cell_start)
+    assert "decks_known === false" in tier_js[cell_start:cell_end]
+    drawer_block = tier_js[tier_js.index("function drawer(card)") : box_start]
+    assert "decks_known !== false" in drawer_block and "decks !== null" in drawer_block
+    sort_start = tier_js.index('if (key === "corpus")')
+    assert "decks_known !== false" in tier_js[sort_start : sort_start + 160]
+
+    freq_start = app_js.index("function freq(card")
+    freq_end = app_js.index("function displayFreq(card)", freq_start)
+    assert "card.decks_known === false" in app_js[freq_start:freq_end]
+    modal_start = app_js.index("async function openCard(card)")
+    assert 'f.hits === null ? "unbekannt"' in app_js[modal_start:]

@@ -1,5 +1,5 @@
-"""Strength index follow-up to #1275: coverage counts only sources the commander has, truthful
-reasons, tiers on the shown index, other commanders not ranked. Synthetic data only."""
+"""Strength index follow-up to #1275: truthful reasons, tiers on the shown index, configurable
+other commanders, oracle_id fallback parity. Synthetic data only."""
 
 from __future__ import annotations
 
@@ -126,12 +126,12 @@ def test_the_minimum_number_of_signals_never_exceeds_the_weighted_components() -
 
 
 def test_a_deck_row_with_an_oracle_id_counts_for_the_card_under_any_spelling() -> None:
-    from commander_lab.studio import builder
+    from commander_lab.studio import builder, universe_view
 
     store = make_store()
     add_card(store, CMD, type_line="Legendary Creature — Test")
-    add_card(store, "Fire // Ice")
-    add_card(store, "Lim-Dûl's Vault")
+    fire_id = add_card(store, "Fire // Ice")
+    vault_id = add_card(store, "Lim-Dûl's Vault")
     db = store.connection
     db.execute("UPDATE card SET oracle_id = 'o-fire' WHERE oracle_name = 'Fire // Ice'")
     db.execute("UPDATE card SET oracle_id = 'o-vault' WHERE oracle_name = 'Lim-Dûl''s Vault'")
@@ -145,6 +145,57 @@ def test_a_deck_row_with_an_oracle_id_counts_for_the_card_under_any_spelling() -
     assert cards["Fire // Ice"]["decks"]["all"] == 2  # front face "Fire" + the full name
     assert cards["Lim-Dûl's Vault"]["decks"]["all"] == 1  # accent spelling, found by its id
     assert cards["Lim-Dûl's Vault"]["decks_known"] is True
+
+    universe.save_profile(store, "alle", {"min_universe": 1})
+    spread = {
+        c["name"]: c
+        for c in universe_view.pool_spread(store, "alle", commander_names=[CMD])["cards"]
+    }
+    assert spread["Lim-Dûl's Vault"]["matched"] is True
+    assert spread["Lim-Dûl's Vault"]["matched_name"] == "Lim-Dul's Vault"
+    assert spread["Lim-Dûl's Vault"]["hits"] == 1
+
+    co_fire = universe_view.card_cooccurrence(store, "alle", fire_id, commander_names=[CMD])
+    co_vault = universe_view.card_cooccurrence(store, "alle", vault_id, commander_names=[CMD])
+    assert co_vault["matched"] is True and co_vault["decks_with_card"] == 1
+    assert any(
+        p["card_name"] == "Lim-Dûl's Vault" and p["decks_together"] == 1 for p in co_fire["pairs"]
+    )
+    assert any(
+        p["card_name"] == "Fire // Ice" and p["decks_together"] == 1 for p in co_vault["pairs"]
+    )
+
+    computed = _cards(strength_view.compute(store, CMD, StrengthSettings(universe_profile="alle")))
+    vault_comp = next(
+        c for c in computed["Lim-Dûl's Vault"]["components"] if c["component"] == "deck_universe"
+    )
+    assert vault_comp["status"] == strength.PRESENT
+    assert vault_comp["numerator"] == 1 and vault_comp["denominator"] == 2
+
+
+def test_other_commander_names_matches_case_insensitively() -> None:
+    store = _store()
+    others = strength_view._other_commander_names(store, "other cmd")
+    assert "other cmd" not in others
+    assert "cmd a" in others
+
+
+def test_filter_card_removing_sole_weighted_signal_gets_too_little_data() -> None:
+    settings = StrengthSettings(
+        weights={name: 0.0 for name in strength.COMPONENTS} | {"deck_universe": 1.0},
+        min_coverage=0.0,
+        min_components=1,
+        require_commander_signal=False,
+    )
+    obs = {"x": {}, "y": {"deck_universe": Observation(0.5, 5, 10)}}
+    scored = strength.score_pool(
+        settings,
+        obs,
+        {strength.DECK_UNIVERSE},
+        context=PoolContext(filter_cards=frozenset({"x"})),
+    )
+    assert scored["x"]["tier"] == "U"
+    assert scored["x"]["reason"] == "TOO_LITTLE_DATA"
 
 
 def test_bracket_labels_follow_the_bracket_column_of_the_imported_files() -> None:

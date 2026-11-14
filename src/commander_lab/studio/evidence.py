@@ -326,9 +326,8 @@ def _card_evidence(
                 {
                     "kind": "corpus",
                     "cohort": cohort,
-                    # ``decks_known`` False: the card is unknown to the decks, not 0 (``decks``
-                    # stays 0 for readers that do not read the flag yet).
-                    "decks": int(hits.get(cohort, 0)),
+                    # ``decks_known`` False: the card is unknown to the decks, never 0.
+                    "decks": int(hits.get(cohort, 0)) if decks_known else None,
                     "decks_known": decks_known,
                     "of": size,
                     "small_denominator": size < SMALL_DENOMINATOR,

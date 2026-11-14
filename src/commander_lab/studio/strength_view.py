@@ -532,13 +532,15 @@ def _other_commander_names(store: StudioStore, commander: str) -> set[str]:
     commander in its own right and, like the chosen one, not ranked in this commander's pool
     unless the Owner switches that on."""
     found: set[str] = set()
+    target = commander.casefold()
     for (name,) in store.connection.execute(
         "SELECT commander_name FROM commander_binding WHERE kind IN ('corpus_deck', "
         "'neutral_source') UNION SELECT commander_name FROM card_signal "
         "WHERE commander_name != ''"
     ):
-        if str(name) != commander:
-            found.add(str(name).casefold())
+        folded = str(name).casefold()
+        if folded != target:
+            found.add(folded)
     return found
 
 
