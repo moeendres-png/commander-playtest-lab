@@ -326,3 +326,9 @@ def test_different_exiled_cards_are_still_told_apart() -> None:
         )
 
     assert _digest(frame("Twin")) != _digest(frame("Other"))
+
+
+def test_a_face_down_exiled_card_is_still_told_apart() -> None:
+    plain = _with_exile([{"name": "Twin", "object_id": _TWIN_ONE}])
+    hidden = _with_exile([{"name": "Twin", "object_id": _TWIN_ONE, "face_down": True}])
+    assert _digest(plain) != _digest(hidden)

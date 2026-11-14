@@ -26,8 +26,9 @@ Normalization of one request (documented here because it is the proof obligation
   keyed by UUID, so its entry order follows the run's UUIDs. Its entries are sorted by their
   normalized text with unnumbered UUIDs masked, then numbered in that order.
 * ``pilot_state.players[].exile`` is unordered among equal cards: the bridge sorts a player's
-  exiled cards by a content key and breaks ties by UUID, so two equal cards (two copies of one
-  card) change places from run to run on the same build. It is sorted the same way.
+  exiled cards by name and zone-change counter and breaks ties by UUID, so two such cards (two
+  copies of one card) change places from run to run on the same build. It is sorted the same
+  way; the exile zone has no order in the rules and the pilots only test membership.
   Every other list keeps its order (battlefield, hand, options, stack ...).
 
 Everything else is digested as it is.
@@ -59,7 +60,7 @@ EXCLUDED_TRANSPORT_FIELDS: frozenset[str] = frozenset(
 DERIVED_ID_KEYS: frozenset[str] = frozenset(
     {"option_id", "decision_id", "public_state_reference", "private_actor_state_reference"}
 )
-#: Lists (path from the request root) whose order the bridge takes from UUID-keyed maps.
+#: Lists (path from the request root) whose order depends on the run's UUIDs (see module text).
 UNORDERED_LISTS: frozenset[tuple[str, ...]] = frozenset(
     {("pilot_state", "commander_status"), ("pilot_state", "players", "exile")}
 )
