@@ -364,14 +364,15 @@ def is_land_entry(item: Mapping[str, Any]) -> bool:
 
 
 def is_creature_entry(item: Mapping[str, Any]) -> bool:
-    facts = card_facts(str(item.get("name") or ""))
+    name = str(item.get("name") or "")
+    facts = card_facts(name)
     if facts is not None and facts.is_creature:
         return True
     # Tokens and animated permanents are unknown to the printed catalog; a
     # non-land with positive toughness on the board is treated as a creature.
     toughness = item.get("toughness")
     return (
-        not is_land_entry(item)
+        not (facts.is_land if facts is not None else is_basic_land_name(name))
         and isinstance(toughness, int)
         and toughness > 0
         and (facts is None or "creature" in " ".join(item.get("abilities") or ()).casefold())
@@ -392,14 +393,19 @@ def creature_toughness_left(item: Mapping[str, Any]) -> int:
     return max(0, left)
 
 
-def entry_value(item: Mapping[str, Any], state: Mapping[str, Any]) -> float:
+def entry_value(
+    item: Mapping[str, Any], state: Mapping[str, Any], commanders: frozenset[str] | None = None
+) -> float:
+    """Value of one permanent; ``commanders`` is ``commander_names(state)`` when already at hand."""
     name = str(item.get("name") or "")
     creature = is_creature_entry(item)
     power = item.get("power") if creature and isinstance(item.get("power"), int) else None
     toughness = (
         item.get("toughness") if creature and isinstance(item.get("toughness"), int) else None
     )
-    return _entry_value(name, power, toughness, name.casefold() in commander_names(state))
+    if commanders is None:
+        commanders = commander_names(state)
+    return _entry_value(name, power, toughness, name.casefold() in commanders)
 
 
 @lru_cache(maxsize=16384)
@@ -448,12 +454,15 @@ def player_threat(player: Mapping[str, Any], state: Mapping[str, Any]) -> float:
         return 0.0
     board_value = 0.0
     lands = 0
+    power = 0.0
+    commanders = commander_names(state)
     for item in _items(player.get("battlefield")):
         if is_land_entry(item):
             lands += 1
             continue
-        board_value += min(12.0, entry_value(item, state))
-    power = board_summary(player)["creature_power"]
+        board_value += min(12.0, entry_value(item, state, commanders))
+        if is_creature_entry(item):  # the creature power ``board_summary`` reports
+            power += creature_power(item)
     hand = player.get("hand_count")
     hand_count = (
         hand
@@ -736,11 +745,12 @@ def boardwipe_risk(state: Mapping[str, Any]) -> float:
     own = 0.0
     others: list[float] = []
     hands: list[int] = []
+    commanders = commander_names(state)
     for player in players(state):
         if not _alive(player):
             continue
         value = sum(
-            min(12.0, entry_value(item, state))
+            min(12.0, entry_value(item, state, commanders))
             for item in _items(player.get("battlefield"))
             if not is_land_entry(item)
         )
@@ -787,8 +797,9 @@ def stack_pressure(state: Mapping[str, Any], own_stack_names: frozenset[str]) ->
 
 def creature_board_value(player: Mapping[str, Any], state: Mapping[str, Any]) -> float:
     """Summed value of one player's creatures: what a creature wipe destroys."""
+    commanders = commander_names(state)
     return sum(
-        min(12.0, entry_value(item, state))
+        min(12.0, entry_value(item, state, commanders))
         for item in _items(player.get("battlefield"))
         if is_creature_entry(item)
     )

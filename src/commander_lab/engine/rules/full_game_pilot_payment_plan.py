@@ -22,6 +22,7 @@ from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 
 _TYPES = "wubrgc"
+_INDEX = {kind: index for index, kind in enumerate(_TYPES)}
 _SYMBOL = re.compile(r"\{([^}]*)\}")
 _POOL_TYPES = {
     "white": "w",
@@ -191,14 +192,14 @@ def _spend(generic: int, pips: tuple[Pip, ...], kind: str) -> tuple[int, tuple[P
 
 
 def _take(pool: tuple[int, ...], kind: str) -> tuple[int, ...]:
-    index = _TYPES.index(kind)
+    index = _INDEX[kind]
     return (*pool[:index], pool[index] - 1, *pool[index + 1 :])
 
 
 def _give(pool: tuple[int, ...], kinds: Sequence[str]) -> tuple[int, ...]:
     counts = list(pool)
     for kind in kinds:
-        counts[_TYPES.index(kind)] += 1
+        counts[_INDEX[kind]] += 1
     return tuple(counts)
 
 
@@ -212,7 +213,7 @@ def _pay_cost(
             _take(current, kind)
             for current in pools
             for kind in sorted(pip)
-            if current[_TYPES.index(kind)] > 0
+            if current[_INDEX[kind]] > 0
         ]
         if not pools:
             return []
@@ -220,11 +221,11 @@ def _pay_cost(
     for current in pools:
         left = current
         for _ in range(ability.generic):
-            owned = [kind for kind in _TYPES if left[_TYPES.index(kind)] > 0]
+            owned = [kind for kind in _TYPES if left[_INDEX[kind]] > 0]
             if not owned:
                 break
             # generic mana is paid with whatever the rest of the cost needs least
-            kind = min(owned, key=lambda item: (item in wanted, -left[_TYPES.index(item)], item))
+            kind = min(owned, key=lambda item: (item in wanted, -left[_INDEX[item]], item))
             left = _take(left, kind)
         else:
             result.append(left)
@@ -255,38 +256,64 @@ def _activate(state: _State, ability: Ability, useful: frozenset[str]) -> list[_
 def _completes(start: _State, abilities: Sequence[Ability], useful: frozenset[str]) -> bool:
     seen: dict[_State, bool] = {}
     nodes = 0
+    # Mana still to come from the abilities whose source is not used yet: the total less the
+    # slots of the used sources (an ability counts once, whatever else shares its source).
+    all_slots = sum(len(a.slots) for a in abilities)
+    slots_of_source: dict[str, int] = {}
+    for a in abilities:
+        slots_of_source[a.source] = slots_of_source.get(a.source, 0) + len(a.slots)
+    produced_of: dict[int, list[tuple[str, ...]]] = {}  # what an ability adds: fixed per search
 
-    def key(state: _State) -> _State:
+    def activate(state: _State, ability: Ability) -> list[_State]:
         generic, pips, pool, used = state
-        return generic, tuple(sorted(pips, key=sorted)), pool, used
+        if ability.source in used:
+            return []
+        wanted = frozenset().union(*pips) if pips else frozenset()
+        paid_pools = _pay_cost(ability, pool, wanted)
+        if not paid_pools:
+            return []
+        produced_list = produced_of.get(id(ability))
+        if produced_list is None:
+            produced_list = produced_of[id(ability)] = _produced(ability, useful)
+        after_used = used | {ability.source}
+        return [
+            (generic, pips, _give(paid, produced), after_used)
+            for paid in paid_pools
+            for produced in produced_list
+        ]
 
     def solve(state: _State) -> bool:
         nonlocal nodes
         generic, pips, pool, used = state
         if generic == 0 and not pips:
             return True
-        cached = seen.get(key(state))
+        key = (generic, tuple(sorted(pips, key=sorted)), pool, used)
+        cached = seen.get(key)
         if cached is not None:
             return cached
         nodes += 1
         if nodes > _NODE_CAP:
             raise _Capped
         owed = generic + len(pips)
-        supply = sum(pool) + sum(len(a.slots) for a in abilities if a.source not in used)
+        supply = (
+            sum(pool)
+            + all_slots
+            - sum(slots_of_source.get(source, 0) for source in used)
+        )
         outcome = False
         if supply >= owed:
             for kind in _TYPES:
-                if pool[_TYPES.index(kind)] > 0:
+                if pool[_INDEX[kind]] > 0:
                     paid = _spend(generic, pips, kind)
                     if paid is not None and solve((paid[0], paid[1], _take(pool, kind), used)):
                         outcome = True
                         break
             if not outcome:
                 for ability in abilities:
-                    if any(solve(after) for after in _activate(state, ability, useful)):
+                    if any(solve(after) for after in activate(state, ability)):
                         outcome = True
                         break
-        seen[key(state)] = outcome
+        seen[key] = outcome
         return outcome
 
     return solve(start)
