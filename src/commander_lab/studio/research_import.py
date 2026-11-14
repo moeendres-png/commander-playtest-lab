@@ -7,22 +7,45 @@ one transaction, replacing only its own scope, so repeating it changes nothing.
   ``bulk_label``) is converted into a full role snapshot and merged through
   ``roles.import_role_snapshot``. Only the roles of the Studio vocabulary (``roles.ROLES``)
   are taken; a category outside it is counted and listed, never turned into a role.
+* ``import_rubric``: the Chulane rating rubric (``summary.csv`` of a ``chulane_rubric_<date>``
+  folder) becomes three stored signals of one commander (``signals.SIGNAL_RUBRIC`` and its two
+  companions), recorded as a source with its SHA-256; a repeated import replaces only these
+  signals of that commander.
 * ``capture_date``: the date a research file was fetched, read from the folder's README table.
 """
 
 from __future__ import annotations
 
 import csv
+import math
 import re
 from pathlib import Path
 
-from . import roles
-from .store import StudioStore, sha256_file
+from . import roles, signals, strength
+from .store import DataClass, StudioStore, sha256_file
 
 _DATE = re.compile(r"\d{4}-\d{2}-\d{2}")
 _TAGGER_REQUIRED = {"oracle_id", "category", "bulk_label"}
 _SCOPE_CHARS = re.compile(r"[^A-Za-z0-9_.-]+")
 CROSSWALK_VERSION = "category-column-1"
+
+# The commander a rubric folder belongs to, by the folder name without its date. An explicit
+# table: a rubric folder whose name is not in it is not imported (no guessing a commander).
+RUBRIC_COMMANDERS: dict[str, str] = {"chulane_rubric": "Chulane, Teller of Tales"}
+RUBRIC_SUMMARY = "summary.csv"
+RUBRIC_COLUMNS = (
+    "card",
+    "H_mean",
+    "H_sd",
+    "raters",
+    "anchor",
+    "E_mean",
+    "F_mean",
+    "T_mean",
+    "R_mean",
+    "W_mean",
+)
+_RUBRIC_FOLDER = re.compile(r"^(?P<key>[a-z0-9_]+_rubric)_(?P<date>\d{8})$")
 
 
 def capture_date(readme: Path, file_stem: str) -> str | None:
@@ -134,4 +157,150 @@ def import_tagger_roles(
         **counts,
         "status": "IMPORTED",
         "roles_without_cards": sorted(role for role, ids in members.items() if not ids),
+    }
+
+
+def rubric_folder_key(folder: Path) -> tuple[str, str] | None:
+    """``(commander, date)`` of a rubric folder (``<key>_rubric_<YYYYMMDD>``), ``None`` when
+    the name has another shape or its key is not in ``RUBRIC_COMMANDERS``."""
+    match = _RUBRIC_FOLDER.match(folder.name)
+    if match is None or match.group("key") not in RUBRIC_COMMANDERS:
+        return None
+    return RUBRIC_COMMANDERS[match.group("key")], match.group("date")
+
+
+def find_rubric_folders(research: Path) -> list[Path]:
+    """The rubric folders of ``research`` that hold a ``summary.csv``: per commander only the
+    newest one (by the date in its name), in commander order."""
+    newest: dict[str, tuple[str, Path]] = {}
+    if research.is_dir():
+        for folder in sorted(research.iterdir()):
+            found = rubric_folder_key(folder)
+            if found is None or not (folder / RUBRIC_SUMMARY).is_file():
+                continue
+            commander, date = found
+            if commander not in newest or date > newest[commander][0]:
+                newest[commander] = (date, folder)
+    return [item[1] for _commander, item in sorted(newest.items())]
+
+
+def _rubric_number(text: str, name: str, line: int) -> float:
+    try:
+        value = float(text)
+    except ValueError:
+        raise ValueError(
+            f"{RUBRIC_SUMMARY} line {line}: {name} is not a number: {text!r}"
+        ) from None
+    if not math.isfinite(value):
+        raise ValueError(f"{RUBRIC_SUMMARY} line {line}: {name} must be finite")
+    return value
+
+
+def read_rubric(path: Path) -> list[dict[str, str | float | int]]:
+    """The rows of a rubric ``summary.csv``, checked. The header must be exactly
+    ``RUBRIC_COLUMNS`` (an unknown layout raises ValueError), ``H_mean`` must lie in 1..10,
+    ``H_sd`` and the criterion means must not be negative, ``raters`` must be a whole number
+    and ``anchor`` 0 or 1; a card named twice raises, nothing is dropped silently."""
+    rows: list[dict[str, str | float | int]] = []
+    seen: set[str] = set()
+    with path.open(newline="", encoding="utf-8-sig") as handle:
+        reader = csv.DictReader(handle)
+        if tuple(reader.fieldnames or ()) != RUBRIC_COLUMNS:
+            raise ValueError(
+                f"{path.name}: unknown column layout {list(reader.fieldnames or [])}, "
+                f"expected {list(RUBRIC_COLUMNS)}"
+            )
+        for number, row in enumerate(reader, start=2):
+            card = (row["card"] or "").strip()
+            if not card:
+                raise ValueError(f"{path.name} line {number}: card name is empty")
+            if card.casefold() in seen:
+                raise ValueError(f"{path.name} line {number}: card {card!r} appears twice")
+            seen.add(card.casefold())
+            h_mean = _rubric_number(row["H_mean"] or "", "H_mean", number)
+            if strength.rubric_value(h_mean) is None:
+                raise ValueError(f"{path.name} line {number}: H_mean {h_mean} is outside 1..10")
+            h_sd = _rubric_number(row["H_sd"] or "", "H_sd", number)
+            raters = _rubric_number(row["raters"] or "", "raters", number)
+            anchor = _rubric_number(row["anchor"] or "", "anchor", number)
+            if h_sd < 0 or raters < 0 or raters != int(raters) or anchor not in (0.0, 1.0):
+                raise ValueError(f"{path.name} line {number}: H_sd, raters or anchor is invalid")
+            for column in RUBRIC_COLUMNS[5:]:
+                if _rubric_number(row[column] or "", column, number) < 0:
+                    raise ValueError(f"{path.name} line {number}: {column} is negative")
+            rows.append(
+                {
+                    "card": card,
+                    "H_mean": h_mean,
+                    "H_sd": h_sd,
+                    "raters": int(raters),
+                    "anchor": int(anchor),
+                }
+            )
+    if not rows:
+        raise ValueError(f"{path.name}: the file has no rating row")
+    return rows
+
+
+def import_rubric(store: StudioStore, folder: str | Path) -> dict[str, object]:
+    """Import ``summary.csv`` of a rubric folder as signals of the folder's commander.
+
+    The commander comes from ``RUBRIC_COMMANDERS`` by the folder name (ValueError for a folder
+    that is not in it). The file is recorded as a source with its SHA-256 (data class
+    ``HEURISTIC_MODEL``: a rating, not a measurement). Written in one transaction, replacing
+    only the three rubric signals of that commander, so repeating the import changes nothing.
+    ``rows_unmatched`` counts the cards that no card of the store carries by name (0 for a
+    store that holds no card at all: nothing to match against)."""
+    root = Path(folder)
+    found = rubric_folder_key(root)
+    if found is None:
+        raise ValueError(
+            f"{root.name}: not a known rubric folder (known: {sorted(RUBRIC_COMMANDERS)})"
+        )
+    commander, date = found
+    path = root / RUBRIC_SUMMARY
+    rows = read_rubric(path)
+    digest = sha256_file(path)
+    known = signals.known_card_names(store)
+    unmatched = sorted(
+        str(row["card"]) for row in rows if known and str(row["card"]).casefold() not in known
+    )
+    names = (signals.SIGNAL_RUBRIC, signals.SIGNAL_RUBRIC_SD, signals.SIGNAL_RUBRIC_RATERS)
+    with store.connection as db:
+        source_id = store.register_source(
+            data_class=DataClass.HEURISTIC_MODEL,
+            title=f"{root.name}/{RUBRIC_SUMMARY}",
+            sha256=digest,
+        )
+        marks = ", ".join("?" for _ in names)
+        replaced = int(
+            db.execute(
+                f"SELECT COUNT(*) FROM card_signal WHERE commander_name = ? AND signal IN ({marks})",
+                (commander, *names),
+            ).fetchone()[0]
+        )
+        db.execute(
+            f"DELETE FROM card_signal WHERE commander_name = ? AND signal IN ({marks})",
+            (commander, *names),
+        )
+        db.executemany(
+            "INSERT INTO card_signal(commander_name, signal, card_name, value, numerator, "
+            "denominator, source_id) VALUES (?, ?, ?, ?, NULL, NULL, ?)",
+            [
+                (commander, signal, row["card"], row[column], source_id)
+                for row in rows
+                for signal, column in zip(names, ("H_mean", "H_sd", "raters"), strict=True)
+            ],
+        )
+    return {
+        "rows_read": len(rows),
+        "rows_written": len(rows) * len(names),
+        "rows_replaced": replaced,
+        "rows_unmatched": len(unmatched),
+        "anchors": sum(1 for row in rows if row["anchor"] == 1),
+        "commander": commander,
+        "folder_date": date,
+        "source_id": source_id,
+        "sha256": digest,
+        "unmatched": unmatched,
     }

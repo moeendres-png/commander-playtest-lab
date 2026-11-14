@@ -229,7 +229,8 @@ replaced the status is `NOTHING_REPLACED`. Signals are stored in
 `edhrec_commander_inclusion|synergy` and `edhrec_bracket_inclusion:<core|upgraded|optimized|cedh>`
 per commander of the files, `edhrec_global_inclusion`, `spellbook_variants`,
 `spellbook_two_card_variants` and `spellbook_partners_in_collection` commander
-independent (commander name empty), and
+independent (commander name empty), the rubric (`rubric_h_mean`, `rubric_h_sd`, `rubric_raters`;
+imported by `import-all --from-repo`, below) under the commander of its folder, and
 `tournament_lists` (lists of the commander that contain the card over all its lists, main and
 commander section only) under `--commander` (default: the standard commander). The counted
 research file `topdeck_card_conversions.csv` stores `topdeck_card_conversion` under each
@@ -278,9 +279,16 @@ Formula, per commander (`strength.py`, pure):
    between 3 % marginal cards and 60 % staples so long zero tails do not push marginal cards to
    percentile `0.89`; `rank` = percentile rank `0..1`, bit-identical to the legacy ranking).
    Non-share components (`synergy`, `combos`, `playgroup_observed`, and weighted rating layers)
-   always use percentile ranks (`0..1`). The comparison group is the whole legal pool
+   always use percentile ranks (`0..1`). The `rubric` component (below) is neither: its
+   `(H - 1) / 9` is used directly as the `0..1` score, so its magnitude is kept. The comparison
+   group is the whole legal pool
    (recommended) or the card's type group, mana-value band or function role; a group of fewer
-   than 5 cards falls back to the whole pool and the card says so. Ties share the mean rank. The
+   than 5 cards falls back to the whole pool and the card says so. Lands and spells are scaled
+   apart (`separate_lands`, recommended on, #1353 part A): $v_{\max}$ and every percentile
+   rank are taken within the group "Länder" and within the group "Zauber" (every non-land),
+   so a land does not set the scale of the spells and the other way round; a group with
+   fewer than 5 valued cards keeps the joint scale and says so in the row. A comparison group
+   by type, mana band or function never mixes the two either. Ties share the mean rank. The
    commander card and the basic lands are not ranked by default (tier `N`, "nicht
    bewertet"); the setting can include them. Cards the universe requires (card filter,
    `must_contain`) are filter cards: status `FILTER_CARD`, not ranked, labelled
@@ -291,10 +299,14 @@ Formula, per commander (`strength.py`, pure):
 4. Tier `U` ("zu wenig Daten") when coverage is below `min_coverage` or fewer than
    `min_components` weighted components are present, or (rule `require_commander_signal`) no
    commander-specific component has a ranked value; otherwise S/A/B/C/D by the index cuts
-   (default 70/55/35/20, editable; legacy rank-mode cuts were 90/75/55/35). A card absent from a source is a missing observation: it
+   (default 47/17/9/4 since #1358, editable; before 70/55/35/20; legacy rank-mode cuts were
+   90/75/55/35). A card absent from a source is a missing observation: it
    lowers the coverage, never the percentile. The setting "missing value" decides per share
-   signal what a card without a value does: `skip` (recommended, the component is left out)
-   or `lowest` (counts as the lowest percentile, 0; an explicit choice, never the default). With
+   signal what a card without a value does: `skip` (the component is left out) or `lowest`
+   (counts as the lowest score, 0). Recommended since #1350: `lowest` for the commander
+   inclusion and the bracket inclusion (EDHREC lists every card above its listing threshold,
+   so "not listed" means "below the threshold"), `skip` for the deck universe (it already
+   counts a card in no deck as a real 0 of N). With `skip` and
    `min_coverage` 0 a card with a single weak signal can outrank a card listed by a source at
    1 of 755 decks, which is why the recommendation is a minimum (0.25, see below).
 5. A deck universe that is a subset (card filter) says so wherever its denominator is shown:
@@ -313,18 +325,19 @@ Settings (every label on the page carries its recommendation in parentheses; the
 recommended values live in one place, `StrengthSettings` defaults in `strength.py`, and are
 served by `GET /api/strength/presets` as `recommended`; the button "Empfohlene Werte" applies
 them, an empty weight field means the recommended value and shows it): a weight per component (commander inclusion 3, bracket inclusion 2, deck-list
-universe 2, synergy 0, tournament lists 1, tournament conversion 1, global inclusion 1, combos 1, Playgroup observation 0, simulation 0), the
+universe 2, synergy 0, tournament lists 1, tournament conversion 1, global inclusion 1, combos 1, Playgroup observation 0, rubric 3.5, simulation 0), the
 bracket (`core`, `upgraded`, `optimized`, `cedh`, `none`), the combo source (`combo_source`: `commander` default, or `spellbook`), the universe profile (the page uses
 the Universum selector), the comparison group (`rank_group`: `pool`), the share measure
-(`share_measure`: `wilson`), the share scale (`share_scale`: `share`, or `rank` for pure percentile ranks), the minimum denominators (`min_denominators`: EDHREC 30,
+(`share_measure`: `wilson`), the share scale (`share_scale`: `share`, or `rank` for pure percentile ranks), lands apart from spells (`separate_lands`: on), the minimum denominators (`min_denominators`: EDHREC 30,
 tournament 20, conversion 20, playgroup 200; the deck-universe minimum is the universe's own `min_universe`), the missing
-value per share signal (`skip`), commander and basics (`rank_commander_and_basics`: off), other commanders in the pool (`rank_other_commanders`: on, ranked like any card),
-`min_coverage` (0.25, "Mindest-Datenlage"), `min_components` (2), `universe_source` (`auto`), `require_commander_signal` (on) and the editable cuts (`tier_cuts` 70/55/35/20).
+value per share signal (`lowest` for commander and bracket inclusion, `skip` for the deck universe), commander and basics (`rank_commander_and_basics`: off), other commanders in the pool (`rank_other_commanders`: on, ranked like any card),
+`min_coverage` (0.25, "Mindest-Datenlage"), `min_components` (2), `universe_source` (`auto`), `require_commander_signal` (on) and the editable cuts (`tier_cuts` 47/17/9/4).
 The page also filters by tier (S/A/B/C/D/U) and sorts by the percentile of any single
 component. Presets (weights commander inclusion / bracket / deck universe / synergy / tournament /
 conversion / global / combos / Playgroup observation; simulation is 0 in all):
 Ausgewogen 3/2/2/0/1/1/1/1/0 (the defaults), Commander-nah 3/2/3/0/1/1/1/0/0 (bracket upgraded),
-Turniernah 1/2/2/0/3/1/1/1/0 (bracket cedh). Every preset counts the deck universe, the most
+Turniernah 1/2/2/0/3/1/1/1/0 (bracket cedh); the rubric weight is 3.5 / 4 / 2.5 (see the rubric
+section). Every preset counts the deck universe, the most
 commander-specific source. The Playgroup observation (`playgroup_observed`, import minimum
 25 games, index minimum 200 games, shrunk towards zero via $n / (n + 200)$) is commander
 independent: it is not one of the signals `require_commander_signal` asks for. Owner settings are saved by name. Simulation results
@@ -338,6 +351,8 @@ pinned by a test). On the page the settings panel "Stärke-Index" holds preset, 
 input per weight, the minimum coverage and a named save; the choice is remembered in the
 browser. The new column sorts by index with tier U last; the card drawer lists every
 component with value, numerator/denominator, Wilson bound, percentile, weight and status.
+The tier page has a filter "Länder und Zauber / nur Zauber / nur Länder" and shows the tier
+counts of lands and spells next to the pool total.
 
 Routes: `POST /api/strength` (body `commander` plus at most one of `preset`, `profile`,
 `settings`; needs the `X-Studio` header like every non-GET route, 422 without commander),
@@ -552,6 +567,167 @@ Measured isolated steps (`k = 200` baseline on the 927-card Chulane store) and a
 
 Land shares across `S / A / B / C / D` in final `#1352`: `Ausgewogen` `33.3 % / 42.9 % / 37.5 % / 30.0 % / 3.9 %`, `Commander-nah` `33.3 % / 46.7 % / 34.8 % / 31.3 % / 3.9 %`, `Turniernah` `14.3 % / 38.5 % / 38.7 % / 32.6 % / 3.9 %`. Largest leave-one-out tier impact: `deck_universe` (`857 / 927` in `Ausgewogen` & `Commander-nah`, `889 / 927` in `Turniernah`), `global_inclusion` (`855 / 856 / 862`), `commander_inclusion` (`6 / 6 / 6`).
 
+#### Rubric, missing EDHREC values, lands apart, new cuts (`#1358`, `#1350`, `#1353` part A)
+
+After `#1352` the index followed the counted deck lists closely (Spearman `0.9255`) but it had
+three weaknesses on the Chulane pool of 922 ranked cards: 756 cards are in none of the 2,823
+counted lists, so for them the index rested on a handful of near-zero signals; about 850 cards
+had no EDHREC row, so the weight of that signal simply vanished for them (`skip`); and lands
+(65 ranked) shared the scale of the spells, so the land with the most decks (`Command Tower`)
+set $v_{\max}$ for everybody. Four changes, one PR; the cuts were re-derived once at the end.
+
+**1. Rubric component (`rubric`, "Raster-Bewertung (Chulane)", #1358).** A structured, subjective
+rating of every rankable Chulane card, frozen in `data/research/chulane_rubric_20261114/`
+(`GUIDE.md`, `ratings.csv`, `summary.csv`, `README.md`). The question: how much better does a
+tuned Chulane deck (Bracket 3, four players) get when the card takes a slot, as a holistic value
+H from 1 to 10 from five criteria (efficiency, fit with Chulane, table impact, reliability, win
+contribution). Three independent automated raters (`R1`, `R2`, `R3`, not people) rated blind to
+usage (name, cost, type line, rules text and the guide only); ten anchors keep fixed values.
+`H_mean` is the mean of the raters.
+
+- Method in the index: the observation is $(H_{\text{mean}} - 1) / 9$ in `0..1`, used **directly**
+  as the component score. It is not a share (no Wilson bound, no `share_scale`) and not a
+  percentile rank, so the magnitude of the rating is kept. The row names `H`, the spread of the
+  raters and their number (anchors: "fester Ankerwert"). The signal is
+  commander-specific: it counts for `require_commander_signal`, and for any other commander it
+  is a missing source (`NOT_COLLECTED`, never 0) that does not lower the coverage.
+- Import: `import-all --from-repo` reads `summary.csv` into `rubric_h_mean`, `rubric_h_sd` and
+  `rubric_raters` of "Chulane, Teller of Tales" (explicit folder-name table, no guessing),
+  with source and SHA-256, idempotent. All 922 rows match a pool card by name (`rows_unmatched`
+  0); the header is checked exactly and a changed layout fails the import (tests).
+- Reliability (from the data README, over the 912 rated cards): ICC(2,1) of one rater `0.84`,
+  ICC(2,3) of the mean of three (the value used) `0.94` (95 % interval `0.93` to `0.95`),
+  Krippendorff's $\alpha$ `0.84`; pairwise Spearman of the raters `0.79` / `0.80` / `0.89`.
+  The single criteria reach ICC(2,3) `0.88` to `0.91`.
+- Validity: Spearman of `H_mean` with the card's share in the counted lists `0.62` (all 922
+  cards; `0.44` among the 162 cards in at least 1 % of the lists), with global EDHREC inclusion
+  `0.52`, with the Playgroup win gap `-0.19` (as found in `#1352`, that gap is not a strength
+  signal).
+- Limits: the raters share a model family, so part of their agreement can be shared bias;
+  validity against real deck lists is the check on that, and the index never uses the rubric
+  alone. They judge rules text and play knowledge, not testing; `H_sd` (five cards have a spread
+  of 2 or more, e.g. `Psychosis Crawler`) shows where a rating is unsure. The rubric covers
+  Chulane only. It is the one subjective input of the index and is a frozen file: no rank is
+  assigned by hand, no weight or cut was tuned to move a named card. Owner marks and simulation
+  results play no part.
+
+**2. Missing EDHREC values (`missing_value`, #1350).** For the commander inclusion and the
+bracket inclusion the recommended value is now `lowest` (`skip` stays selectable; the deck
+universe stays `skip`, its zeros are counted). EDHREC lists every card above its listing
+threshold, so a card that is not listed is below it. What `lowest` yields under
+`share_scale = "share"`: the component score 0.0, which is at or below the score of the smallest
+listed card ($\sqrt{v / v_{\max}} \geq 0$ for every listed card, so never above it; a listed
+card with a count of 0 gets the same 0). That is the meaning intended ("below the smallest listed
+share"), so no code fix was needed, only the default and the per-signal panel recommendation.
+Pinned by a test for both scales and both comparison groups. Consequence: an unlisted card now
+counts as a present component (its weight is in the coverage), which is why the coverage no
+longer separates cards that EDHREC lists from those it does not.
+
+**3. Lands apart (`separate_lands`, #1353 part A).** Recommended on: share scaling and percentile
+ranks are computed within "Länder" and within "Zauber"; the tier cuts are the same for both.
+Basic lands and the commander stay unranked (tier `N`). A group below five valued cards keeps the
+joint scale and says so. The tier page filters "nur Länder" / "nur Zauber" and shows the tier
+counts of both groups. A land's score does not change when a spell's share changes and the
+other way round (test); with the setting off the old joint scale is restored exactly.
+
+**4. Default weights and tier cuts.** The Owner allowed only "a little" subjectivity, so the
+rubric is about 30 % of the present weight for a typical Chulane card. In `Ausgewogen` it
+weighs 3.5: for 909 of the 922 ranked cards the usage block present is commander (3) + bracket
+(2) + deck universe (2) + global (1) = 8 (the 13 cards with a combo row have 9; Chulane has no
+tournament lists above the minimum), and 3.5 / (8 + 3.5) = 30.4 %. `Commander-nah` uses 4
+(usage 9) and `Turniernah` 2.5 (usage 6) by the same rule. A first version used 50 %; there the
+index followed the rubric almost entirely (Spearman with `H` `0.98`), see the sensitivity table.
+The tier cuts were derived once from the resulting default index of the 857 ranked non-lands
+with the targets fixed in advance (S about 3 %, A about 10 %, B about 22 %, C about 30 %, D the
+rest): the whole numbers whose cumulative shares (3.0 / 12.8 / 34.1 / 62.4 %) come closest to
+3 / 13 / 35 / 65 % are **47 / 17 / 9 / 4** (before 70 / 55 / 35 / 20). Achieved on the
+non-lands: S `3.0 %`, A `9.8 %`, B `21.2 %`, C `28.4 %`, D `37.6 %` (26 / 84 / 182 / 243 / 322
+of 857); on the 65 lands (same cuts) 12 / 12 / 15 / 17 / 9. Whole-number cuts are coarse at the
+low end (cut 4 gives C a cumulative 62.4 %); the page's cut fields step by 1.
+
+**5. Stored profiles.** A saved profile has no `rubric` key (and no `separate_lands` key) if it
+was written before this change: on load such a profile gets the default weight (3.5) and the
+default setting, so it changes its result. A profile that was saved with all keys keeps them.
+
+Measured on a fresh store from the repository (`import-all --from-repo`, pool 927, 922 ranked,
+2,823 counted lists), `ranking-check --commander "Chulane, Teller of Tales"`. "Before" is main's
+default (`#1352`), reproduced exactly by the new code with the old settings.
+
+| Metric (`Ausgewogen`) | Before (`#1352`, cuts 70/55/35/20) | After (rubric 3.5, cuts 47/17/9/4) |
+|---|---|---|
+| Spearman with counted share, all / non-lands / lands | `0.9255 / 0.9147 / 0.9864` | `0.7388 / 0.7135 / 0.9465` |
+| Spearman with counted share among cards with $\ge 1\,\%$ share (n = 162) | `0.9699` | `0.8661` |
+| Spearman with rubric `H`, all / non-lands / lands | `0.6101 / 0.6009 / 0.7453` | `0.9670 / 0.9760 / 0.8794` |
+| Randkarten oben | `0 / 23` | `59 / 134` |
+| Stammkarten unten | `0 / 27` | `0 / 27` |
+| Dünne Datenlage oben (`< 5` signals) | `17 / 23` | `0 / 134` |
+| Tiers `S / A / B / C / D / U / N` | `9 / 14 / 24 / 50 / 825 / 0 / 5` | `38 / 96 / 197 / 260 / 331 / 0 / 5` |
+| Land share `S / A / B / C / D` | `33.3 / 42.9 / 37.5 / 30.0 / 3.9 %` | `31.6 / 12.5 / 7.6 / 6.5 / 2.7 %` |
+| Leave-one-out tier changes | `deck_universe` 857, `global_inclusion` 855, `commander_inclusion` 6 | `rubric` 504, `commander_inclusion` 270, `bracket_inclusion` 177, `deck_universe` 121, `global_inclusion` 42, `combos` 0 |
+
+Each change on its own, added one after the other:
+
+| Step (`Ausgewogen`) | Spearman counted all / non-lands / lands | $\ge 1\,\%$ (n = 162) | vs rubric `H` (all) | Randkarten oben | Dünne oben (`< 5`) | Tiers `S / A / B / C / D / U / N` |
+|---|---|---|---|---|---|---|
+| Before | `0.9255 / 0.9147 / 0.9864` | `0.9699` | `0.6101` | `0 / 23` | `17 / 23` | `9 / 14 / 24 / 50 / 825 / 0 / 5` |
+| + unlisted = lowest (#1350) | `0.9255 / 0.9148 / 0.9860` | `0.9638` | `0.6109` | `0 / 23` | `17 / 23` | `9 / 14 / 23 / 19 / 857 / 0 / 5` |
+| + lands apart (#1353 A) | `0.9297 / 0.9198 / 0.9856` | `0.9652` | `0.6122` | `0 / 27` | `21 / 27` | `13 / 14 / 22 / 20 / 853 / 0 / 5` |
+| + rubric weight 3.5 (old cuts) | `0.7388 / 0.7135 / 0.9465` | `0.8661` | `0.9670` | `0 / 25` | `0 / 25` | `10 / 15 / 27 / 46 / 824 / 0 / 5` |
+| **+ cuts 47/17/9/4 (after)** | **`0.7388 / 0.7135 / 0.9465`** | **`0.8661`** | **`0.9670`** | **`59 / 134`** | **`0 / 134`** | **`38 / 96 / 197 / 260 / 331 / 0 / 5`** |
+
+The other presets, before then after (same new cuts and settings):
+
+| Preset | Spearman counted all / non-lands / lands | $\ge 1\,\%$ (n = 162) | vs rubric | Randkarten oben | Dünne oben | Tiers `S / A / B / C / D / U / N` |
+|---|---|---|---|---|---|---|
+| `Commander-nah` before | `0.9410 / 0.9319 / 0.9917` | `0.9805` | `0.6142` | `0 / 24` | `24 / 24` | `9 / 15 / 23 / 48 / 827 / 0 / 5` |
+| `Commander-nah` after (rubric 4) | `0.7481 / 0.7230 / 0.9543` | `0.8727` | `0.9648` | `62 / 139` | `0 / 139` | `38 / 101 / 206 / 250 / 327 / 0 / 5` |
+| `Turniernah` before | `0.9255 / 0.9148 / 0.9840` | `0.9660` | `0.6099` | `0 / 20` | `15 / 20` | `7 / 13 / 31 / 46 / 825 / 0 / 5` |
+| `Turniernah` after (rubric 2.5) | `0.7627 / 0.7373 / 0.9572` | `0.8670` | `0.9577` | `66 / 145` | `0 / 145` | `26 / 119 / 200 / 260 / 317 / 0 / 5` |
+
+Sensitivity to the rubric's share of the weight (`Ausgewogen`, usage weights unchanged, the
+cuts 47/17/9/4 kept for every row, so the tier counts of the other rows are not re-derived):
+
+| Rubric share (weight) | Spearman counted all / non-lands / lands | $\ge 1\,\%$ (n = 162) | vs rubric all / non-lands / lands | Randkarten oben | Dünne oben | Tiers `S / A / B / C / D` | Largest leave-one-out |
+|---|---|---|---|---|---|---|---|
+| 20 % (2) | `0.7804 / 0.7552 / 0.9634` | `0.9002` | `0.9466 / 0.9579 / 0.8506` | `15 / 85` | `0 / 85` | `37 / 48 / 144 / 281 / 412` | `rubric` `408` |
+| **30 % (3.5, default)** | `0.7388 / 0.7135 / 0.9465` | `0.8661` | `0.9670 / 0.9760 / 0.8794` | `59 / 134` | `0 / 134` | `38 / 96 / 197 / 260 / 331` | `rubric` `504` |
+| 40 % (5.33) | `0.7134 / 0.6887 / 0.9319` | `0.8322` | `0.9765 / 0.9838 / 0.8986` | `115 / 191` | `0 / 191` | `37 / 154 / 233 / 222 / 276` | `rubric` `567` |
+| 50 % (8) | `0.6965 / 0.6737 / 0.9110` | `0.7889` | `0.9829 / 0.9884 / 0.9270` | `171 / 251` | `0 / 251` | `34 / 217 / 238 / 185 / 248` | `rubric` `608` |
+| 60 % (12) | `0.6847 / 0.6644 / 0.8879` | `0.7332` | `0.9877 / 0.9915 / 0.9513` | `217 / 295` | `0 / 295` | `41 / 254 / 242 / 195 / 190` | `rubric` `671` |
+
+Reading it plainly: a weight share is not an equal share of influence. Of the 922 ranked cards
+756 are in no counted list, so the usage block is close to 0 for most cards and the rubric's
+spread decides their order; even at 30 % the index correlates `0.97` with the rubric, and the
+agreement with the counted lists falls from `0.93` to `0.74` (the rubric alone reaches `0.62`;
+among the 162 cards in at least 1 % of the lists from `0.97` to `0.87`). The usage block still
+decides among the top: only 80 ranked cards have a counted share of at least 5 %, so "Randkarten
+oben" cannot stay at 0 once `S`/`A` holds 134 cards (at least 54 of them must be below 5 %). A
+higher rubric share lets more marginal cards reach `S`/`A`. "Dünne Datenlage oben" is `0`
+because the rubric and the lowest-rank default give every `S`/`A` card five or more present
+signals; it no longer tells thin from thick data. The share is a setting; the weight and the
+cuts are the recommended starting point, not a validated optimum.
+
+Ranks of eleven named cards (rank within lands or within spells by index; spells 857, lands 65):
+
+| Card | Before: tier, index, rank | After: tier, index, rank |
+|---|---|---|
+| `Sol Ring` | `S`, 91.6, 1 | `S`, 100.0, 1 |
+| `Swords to Plowshares` | `S`, 80.5, 2 | `S`, 89.0, 2 |
+| `Arcane Signet` | `S`, 76.9, 3 | `S`, 82.7, 3 |
+| `Counterspell` | `A`, 66.0, 8 | `S`, 71.1, 9 |
+| `Farseek` | `B`, 51.3, 16 | `S`, 56.2, 16 |
+| `Cultivate` | `A`, 58.2, 13 | `S`, 58.2, 13 |
+| `Mystic Sanctuary` (land) | `C`, 23.0, 30 | `C`, 8.5, 41 |
+| `Psychosis Crawler` | `D`, 19.2, 66 | `B`, 15.6, 125 |
+| `Zuran Orb` | `D`, 6.3, 230 | `D`, 1.7, 693 |
+| `Command Tower` (land) | `S`, 99.3, 1 | `S`, 100.0, 1 |
+| `Maze's End` (land) | `D`, 7.7, 45 | `D`, 2.1, 60 |
+
+`ranking-check` reports the agreement of the index with the rubric as block `1b` (key
+`spearman.vs_rubric`): the rubric is itself a component, so it shows how much of the order the
+rubric sets, not that the order is right. The tier cuts and the 30 % weight rest on a rule fixed
+in advance, not on a validation; judging them is the Owner's decision.
+
 ### Counted deck-list universes, `universe_source` and the commander-signal rule
 
 The repository holds complete deck lists that were counted, as one file per commander:
@@ -574,6 +750,9 @@ universe is never an option of `universe_source`. Duplicate
 card rows keep the first and are counted. `expected_signals()`, the completeness table and
 `/api/layers` list the stored universes, or one generic row `Signal decklist_universe` as
 `MISSING` while none exists.
+`expected_signals(commander)` lists the rubric signal `rubric_h_mean` only for a commander that
+has a rubric file (`RUBRIC_COMMANDERS`, today Chulane); for every other commander the rubric is
+neither a missing layer in the completeness table nor an import command offered.
 
 The deck-universe component takes its counts from ONE universe, chosen by the setting
 `universe_source` (`universe_choice.choose`, the one place that decides; the builder asks the
@@ -603,13 +782,19 @@ builder and the tier list both use those.
 Tier rule "commander-specific evidence" (`require_commander_signal`, recommended on): a card
 gets a tier only if at least one commander-specific component (commander inclusion, bracket
 inclusion, deck universe, synergy, tournament lists, or `combos` with `combo_source = "commander"`)
-has a ranked value with a weight above 0;
-global inclusion, Spellbook combos (`combo_source = "spellbook"`) and the Playgroup observation are the same for every commander and
-never give a tier alone
+has a ranked value with a weight above 0. A value that stands in only because of
+`missing_value = lowest` (the card is in none of the commander's lists, #1350) is not such
+evidence: it counts for the index and the coverage, but a card with nothing else than global
+inclusion stays at tier `U`. Global inclusion, Spellbook combos (`combo_source = "spellbook"`)
+and the Playgroup observation are the same for every commander and never give a tier alone
 (tier `U`, reason `NO_COMMANDER_SIGNAL`, "kein Signal speziell für diesen Commander"; simulation
 never counts). The recommended minimum data situation (`min_coverage`, shown as
-"Mindest-Datenlage") is 0.25: with a counted universe an unlisted card has deck universe 2 +
-global 1 = 3 of 11 = 0.2727 (total weight 11 with synergy and Playgroup observation at 0).
+"Mindest-Datenlage") is 0.25. With the default `missing_value` (commander and bracket
+inclusion lowest) an unlisted card has commander inclusion 3 + bracket inclusion 2 + global 1 =
+6 of 11 (0.5455) and, with a counted universe, deck universe 2 as well: the coverage threshold
+no longer separates it, the commander-specific rule above does. With `missing_value = skip` an
+unlisted card with a counted universe has deck universe 2 + global 1 = 3 of 11 = 0.2727 (total
+weight 11 with synergy and Playgroup observation at 0).
 
 ### Combos in the deck (schema 14)
 
@@ -836,7 +1021,13 @@ is built into a temporary file from `data/research/collection_1655`; `--inventor
 Scryfall card facts, roles (`roles_1655`; `--roles` replaces them), rulings, the deck list corpus
 (`chulane_corpus`, all ten folders, then the oracle id mapping of its card rows; `--decklists`
 replaces the corpus step), EDHREC observations (`edhrec_observations_chulane`, three parts),
-Playgroup atlas (`playgroup`, three parts), signals (every signal folder below `data/research`
+Playgroup atlas (`playgroup`, three parts), the rating rubric (`chulane_rubric_<date>`, step
+"Raster-Bewertung (Repo)": `summary.csv` as three signals of the commander the folder name
+stands for, recorded as a source with its SHA-256, idempotent, replacing only its own signals
+of that commander; the folder name is looked up in an explicit table
+(`research_import.RUBRIC_COMMANDERS`), a folder that is not in it is not imported; the file's
+header must be exactly the known columns and every row is checked, otherwise the step fails;
+`rows_unmatched` counts rating rows whose card the store does not know, expected 0), signals (every signal folder below `data/research`
 and `data/research` itself for the counted deck-list file) and marks. The completeness table
 adds the layers "Korpus (Decks, alle)", "EDHREC-Beobachtungen (Themen)" and "Playgroup-Atlas".
 The loaders are the functions of `studio/repo_import.py`; the scripts

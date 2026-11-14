@@ -417,6 +417,7 @@ def test_settings_are_validated_and_round_trip() -> None:
         strength.GLOBAL_INCLUSION: 1.0,
         strength.COMBOS: 0.0,
         strength.PLAYGROUP_OBSERVED: 0.0,
+        strength.RUBRIC: 4.0,
         strength.SIMULATION: 0.0,
     }
     tournament = strength.PRESETS["Turniernah"]
@@ -431,6 +432,7 @@ def test_settings_are_validated_and_round_trip() -> None:
         strength.GLOBAL_INCLUSION: 1.0,
         strength.COMBOS: 1.0,
         strength.PLAYGROUP_OBSERVED: 0.0,
+        strength.RUBRIC: 2.5,
         strength.SIMULATION: 0.0,
     }
     assert strength.DEFAULT_WEIGHTS[strength.SYNERGY] == 0.0
@@ -450,7 +452,9 @@ def test_missing_card_lowers_coverage_not_the_percentile(
     store: StudioStore, tmp_path: Path
 ) -> None:
     _import(store, tmp_path)
-    cards = _by_name(strength_view.compute(store, COMMANDER, StrengthSettings()))
+    cards = _by_name(
+        strength_view.compute(store, COMMANDER, StrengthSettings(missing_value=SKIP_MISSING))
+    )
     absent = _component(cards["Filler 09"], "commander_inclusion")
     assert absent["status"] == strength.NO_VALUE and absent["percentile"] is None
     listed = _component(cards["Filler 08"], "commander_inclusion")
@@ -465,9 +469,15 @@ def test_missing_card_lowers_coverage_not_the_percentile(
     assert _component(cards["Filler 00"], "synergy")["status"] == strength.NO_VALUE
     assert _component(cards["Filler 00"], "deck_universe")["status"] == strength.NOT_COLLECTED
     rank_cards = _by_name(
-        strength_view.compute(store, COMMANDER, StrengthSettings(share_scale="rank"))
+        strength_view.compute(
+            store, COMMANDER, StrengthSettings(share_scale="rank", missing_value=SKIP_MISSING)
+        )
     )
     assert _component(rank_cards["Filler 08"], "commander_inclusion")["percentile"] == 0.0
+    # the recommended default counts the unlisted card as the lowest rank instead (#1350)
+    lowest = _by_name(strength_view.compute(store, COMMANDER, StrengthSettings()))
+    unlisted = _component(lowest["Filler 09"], "commander_inclusion")
+    assert unlisted["status"] == strength.MISSING_AS_LOWEST and unlisted["percentile"] == 0.0
 
 
 def test_bracket_choice_changes_the_result(store: StudioStore, tmp_path: Path) -> None:
@@ -667,8 +677,14 @@ def test_tier_list_page_has_the_strength_panel_without_inline_code() -> None:
 # ---------- review of the merged tier list (Refs #1205) ----------
 
 
+SKIP_MISSING = {"commander_inclusion": "skip", "bracket_inclusion": "skip"}
+
+
 def _only(*components: str, **extra: object) -> StrengthSettings:
+    """One weight per named component; an unlisted card stays a missing observation unless the
+    test asks for ``missing_value`` (the recommended default counts it as the lowest rank)."""
     weights = {name: 0.0 for name in strength.COMPONENTS} | {name: 1.0 for name in components}
+    extra.setdefault("missing_value", dict(SKIP_MISSING))
     return StrengthSettings(weights=weights, min_coverage=0.0, min_components=1, **extra)  # type: ignore[arg-type]
 
 
@@ -965,8 +981,8 @@ def test_new_settings_are_validated_serialised_and_round_trip() -> None:
     )
     assert StrengthSettings.from_dict(settings.to_dict()) == settings
     assert settings.to_dict()["missing_value"] == {
-        "commander_inclusion": "skip",
-        "bracket_inclusion": "skip",
+        "commander_inclusion": "lowest",
+        "bracket_inclusion": "lowest",
         "deck_universe": "lowest",
     }
     for bad in (
@@ -999,7 +1015,14 @@ def test_new_settings_are_validated_serialised_and_round_trip() -> None:
         "playgroup": 200,
     }
     assert default.rank_commander_and_basics is False
-    assert set(default.missing_value.values()) == {"skip"}
+    # EDHREC lists every card above its threshold: "not listed" counts as the lowest rank; the
+    # deck universe has counted zeros and stays "skip" (#1350)
+    assert default.missing_value == {
+        "commander_inclusion": "lowest",
+        "bracket_inclusion": "lowest",
+        "deck_universe": "skip",
+    }
+    assert default.missing_value == strength.DEFAULT_MISSING_VALUE
 
 
 # ---------- store side of the review ----------
@@ -1043,7 +1066,8 @@ def test_a_name_two_cards_claim_is_reported_not_dropped_and_exact_names_win(
         _put_signal(store, signals.SIGNAL_INCLUSION, name, 40, 100)
     _put_signal(store, signals.SIGNAL_INCLUSION, "Solo Card // Back Face", 10, 100)
     store.connection.commit()
-    result = strength_view.compute(store, COMMANDER, StrengthSettings())
+    settings = StrengthSettings(missing_value=SKIP_MISSING)
+    result = strength_view.compute(store, COMMANDER, settings)
     cards = _by_name(result)
     assert result["ambiguous_names"] == [
         {
@@ -1057,7 +1081,7 @@ def test_a_name_two_cards_claim_is_reported_not_dropped_and_exact_names_win(
     # "Solo Card" is the exact name of one card; the double-faced card keeps its own row
     assert _component(cards["Solo Card"], "commander_inclusion")["numerator"] == 40
     assert _component(cards["Solo Card // Back Face"], "commander_inclusion")["numerator"] == 10
-    again = strength_view.compute(store, COMMANDER, StrengthSettings())
+    again = strength_view.compute(store, COMMANDER, settings)
     assert again["ambiguous_names"] == result["ambiguous_names"]  # deterministic
 
 
@@ -1210,12 +1234,18 @@ def test_recommended_values_come_from_one_place_and_the_panel_texts_name_them(
     assert "200 Partien" in labels["min_denominators.playgroup"]
     assert "EDHREC-Kombos des Commanders" in labels["combo_source"]
     assert "Mindest-Universum" in labels["min_denominators.deck_universe"]
-    assert "(empfohlen: auslassen)" in labels["missing_value.commander_inclusion"]
+    assert "(empfohlen: als niedrigster Rang zählen)" in labels["missing_value.commander_inclusion"]
+    assert "(empfohlen: auslassen)" in labels["missing_value.deck_universe"]
+    for key in ("commander_inclusion", "bracket_inclusion", "deck_universe"):
+        recommended = [
+            c["value"] for c in meta["panel"]["choices"][f"missing_value.{key}"] if c["recommended"]
+        ]
+        assert recommended == [meta["recommended"]["missing_value"][key]]
     assert "(empfohlen: aus)" in labels["rank_commander_and_basics"]
     assert "(empfohlen: 25)" in labels["min_coverage"]  # the page field is in percent
     assert "(empfohlen: 2)" in labels["min_components"]
     assert [group["title"] for group in meta["panel"]["groups"]][-1].endswith(
-        "(empfohlen: 70 / 55 / 35 / 20)"
+        "(empfohlen: 47 / 17 / 9 / 4)"
     )
     for group in meta["panel"]["groups"]:
         assert all(key in labels and key in meta["panel"]["help"] for key in group["keys"])
@@ -2394,3 +2424,199 @@ def test_presets_remain_distinct_under_signal_cleanup() -> None:
         len({(*tuple(sorted(p.weights.items())), p.bracket) for p in (balanced, near, tournament)})
         == 3
     )
+
+
+def test_lowest_for_an_unlisted_card_is_at_or_below_the_smallest_listed_card_never_above() -> None:
+    """#1350: under every share scale and comparison group an unlisted card counted as the
+    lowest rank scores 0, which is never above the smallest listed card; "skip" still works."""
+    listed = {
+        "big": Observation(900 / 1000, 900, 1000),
+        "mid": Observation(0.1, 100, 1000),
+        "tiny": Observation(1 / 1000, 1, 1000),
+        "zero": Observation(0.0, 0, 1000),
+    }
+    observations = {**{key: {"commander_inclusion": value} for key, value in listed.items()}}
+    observations["unlisted"] = {}
+    context = PoolContext(type_group=dict.fromkeys(observations, "Creature"))
+    for scale in ("share", "rank"):
+        for group in ("pool", "type"):
+            settings = _only(
+                "commander_inclusion",
+                share_scale=scale,
+                rank_group=group,
+                missing_value={"commander_inclusion": "lowest"},
+            )
+            scored = strength.score_pool(
+                settings, observations, {"commander_inclusion"}, context=context
+            )
+            smallest = min(scored[key]["index"] for key in listed)  # type: ignore[type-var]
+            assert scored["unlisted"]["index"] is not None
+            assert scored["unlisted"]["index"] <= smallest, (scale, group)
+            row = _row(scored, "unlisted", "commander_inclusion")
+            assert row["status"] == strength.MISSING_AS_LOWEST and row["percentile"] == 0.0
+            # the smallest listed card with a real count stays above the unlisted one
+            assert scored["tiny"]["index"] >= scored["unlisted"]["index"]
+    # the share scale keeps the listed cards apart: the unlisted card is below the tiny one
+    shared = strength.score_pool(
+        _only("commander_inclusion", missing_value={"commander_inclusion": "lowest"}),
+        observations,
+        {"commander_inclusion"},
+    )
+    assert shared["unlisted"]["index"] == 0.0 < shared["tiny"]["index"]  # type: ignore[operator]
+    # "skip" still leaves the unlisted card a missing observation
+    skipped = strength.score_pool(
+        _only("commander_inclusion", missing_value={"commander_inclusion": "skip"}),
+        observations,
+        {"commander_inclusion"},
+    )
+    assert skipped["unlisted"]["index"] is None
+    assert _row(skipped, "unlisted", "commander_inclusion")["status"] == strength.NO_VALUE
+
+
+# ---------- lands ranked apart from spells (#1353 part A) ----------
+
+
+def _land_pool(
+    land_counts: list[int], spell_counts: list[int]
+) -> tuple[dict[str, dict[str, Observation]], PoolContext]:
+    observations: dict[str, dict[str, Observation]] = {}
+    groups: dict[str, str] = {}
+    for prefix, group, counts in (("l", "Land", land_counts), ("s", "Creature", spell_counts)):
+        for index, count in enumerate(counts):
+            observations[f"{prefix}{index}"] = {
+                "deck_universe": Observation(count / 1000, count, 1000)
+            }
+            groups[f"{prefix}{index}"] = group
+    return observations, PoolContext(type_group=groups)
+
+
+def _land_settings(**extra: object) -> StrengthSettings:
+    return _only("deck_universe", min_denominators={"edhrec": 0, "tournament": 0}, **extra)
+
+
+def _index(scored: dict[str, strength.CardStrength], card: str) -> float:
+    value = scored[card]["index"]
+    assert value is not None
+    return value
+
+
+def test_lands_and_spells_are_scaled_inside_their_own_group() -> None:
+    lands = [800, 400, 200, 100, 50, 10]
+    spells = [300, 150, 100, 60, 30, 5]
+    observations, context = _land_pool(lands, spells)
+    collected = {"deck_universe"}
+    for scale in ("share", "rank"):
+        on = strength.score_pool(
+            _land_settings(share_scale=scale), observations, collected, context=context
+        )
+        # a land at the land maximum and a spell at the spell maximum both score 100
+        assert _index(on, "l0") == 100.0 and _index(on, "s0") == 100.0
+        if scale == "rank":
+            assert _index(on, "l5") == _index(on, "s5") == 0.0
+    shared = strength.score_pool(_land_settings(), observations, collected, context=context)
+    # share scale inside the group: sqrt of the wilson bound relative to the group maximum
+    assert _index(shared, "l1") == pytest.approx(_index(shared, "s1"), abs=15.0)
+    # a land's score does not change when a spell's share changes, and vice versa
+    bigger_spell, ctx2 = _land_pool(lands, [990, *spells[1:]])
+    again = strength.score_pool(_land_settings(), bigger_spell, collected, context=ctx2)
+    for card in ("l0", "l1", "l2", "l3", "l4", "l5"):
+        assert _index(again, card) == _index(shared, card)
+    assert _index(again, "s1") != _index(shared, "s1")
+    bigger_land, ctx3 = _land_pool([990, *lands[1:]], spells)
+    third = strength.score_pool(_land_settings(), bigger_land, collected, context=ctx3)
+    for card in ("s0", "s1", "s2", "s3", "s4", "s5"):
+        assert _index(third, card) == _index(shared, card)
+    assert _index(third, "l1") != _index(shared, "l1")
+    # the group is named in the row, with its size
+    row = _row(shared, "l0", "deck_universe")
+    assert (row["group"], row["group_size"], row["group_fallback"]) == ("Länder", 6, False)
+    row = _row(shared, "s0", "deck_universe")
+    assert (row["group"], row["group_size"]) == ("Zauber", 6)
+
+
+def test_with_the_setting_off_lands_and_spells_share_one_scale_like_before() -> None:
+    observations, context = _land_pool([800, 400, 200, 100, 50, 10], [300, 150, 100, 60, 30, 5])
+    collected = {"deck_universe"}
+    off = strength.score_pool(
+        _land_settings(separate_lands=False), observations, collected, context=context
+    )
+    plain = strength.score_pool(_land_settings(separate_lands=False), observations, collected)
+    assert {k: v["index"] for k, v in off.items()} == {k: v["index"] for k, v in plain.items()}
+    assert _index(off, "l0") == 100.0 and _index(off, "s0") < 100.0  # one scale: the top land
+    bigger, ctx2 = _land_pool([800, 400, 200, 100, 50, 10], [990, 150, 100, 60, 30, 5])
+    moved = strength.score_pool(
+        _land_settings(separate_lands=False), bigger, collected, context=ctx2
+    )
+    assert _index(moved, "l0") != _index(off, "l0")  # lands depend on spells again
+    assert _row(off, "l0", "deck_universe")["group"] is None
+
+
+def test_a_group_below_the_minimum_keeps_the_whole_pool_scale_and_says_so() -> None:
+    observations, context = _land_pool([800, 400, 200], [300, 150, 100, 60, 30, 5])
+    collected = {"deck_universe"}
+    on = strength.score_pool(_land_settings(), observations, collected, context=context)
+    off = strength.score_pool(
+        _land_settings(separate_lands=False), observations, collected, context=context
+    )
+    for card in ("l0", "l1", "l2"):  # only 3 lands (< MIN_GROUP): the old, joint scale
+        assert _index(on, card) == _index(off, card)
+        row = _row(on, card, "deck_universe")
+        assert row["group_fallback"] is True and row["reason"] == strength.GROUP_TOO_SMALL
+        assert "weniger als 5" in row["note"] and "Länder" in row["note"]
+    # the spells (6 cards) are scaled alone, against their own maximum
+    assert _index(on, "s0") == 100.0 and _index(off, "s0") < 100.0
+
+
+def test_the_same_cuts_apply_to_lands_and_spells_and_basics_stay_unranked() -> None:
+    observations, context = _land_pool([800, 400, 200, 100, 50, 10], [300, 150, 100, 60, 30, 5])
+    observations["basic"] = {"deck_universe": Observation(0.99, 990, 1000)}
+    ctx = PoolContext(
+        type_group={**context.type_group, "basic": "Land"},
+        unranked={"basic": strength.NOT_RANKED_BASIC_LAND},
+    )
+    scored = strength.score_pool(_land_settings(), observations, {"deck_universe"}, context=ctx)
+    assert scored["basic"]["tier"] == "N" and scored["basic"]["index"] is None
+    assert scored["l0"]["tier"] == scored["s0"]["tier"] == "S"  # both 100, one set of cuts
+    # the basic land did not take part in the land scale: l0 is still the land maximum
+    assert _index(scored, "l0") == 100.0
+    # no card type is given (as in older callers): everything is one group of spells
+    plain = strength.score_pool(_land_settings(), observations, {"deck_universe"})
+    assert _row(plain, "l0", "deck_universe")["group"] == "Zauber"
+
+
+def test_comparison_groups_by_function_never_mix_lands_and_spells() -> None:
+    observations, context = _land_pool(
+        [800, 400, 200, 100, 50, 10, 5], [300, 150, 100, 60, 30, 5, 3]
+    )
+    ctx = PoolContext(
+        type_group=context.type_group,
+        function_group={card: ("ramp",) for card in observations},
+    )
+    for separate, expected_size in ((True, 7), (False, 14)):
+        scored = strength.score_pool(
+            _land_settings(rank_group="function", separate_lands=separate),
+            observations,
+            {"deck_universe"},
+            context=ctx,
+        )
+        row = _row(scored, "l0", "deck_universe")
+        assert (row["group"], row["group_size"]) == ("ramp", expected_size)
+
+
+def test_separate_lands_is_validated_serialised_and_recommended() -> None:
+    default = StrengthSettings()
+    assert default.separate_lands is True and default.to_dict()["separate_lands"] is True
+    assert StrengthSettings.from_dict({"separate_lands": False}).separate_lands is False
+    assert StrengthSettings.from_dict(default.to_dict()) == default
+    for bad in ({"separate_lands": "yes"}, {"separate_lands": 1}):
+        with pytest.raises(ValueError, match="separate_lands"):
+            StrengthSettings.from_dict(bad)
+    with pytest.raises(ValueError, match="separate_lands"):
+        StrengthSettings(separate_lands=1)  # type: ignore[arg-type]
+    # an older stored profile without the key takes the recommended value
+    assert StrengthSettings.from_stored({"bracket": "core"})[0].separate_lands is True
+    panel = strength_view.presets()["panel"]
+    assert "(empfohlen: an)" in panel["labels"]["separate_lands"]  # type: ignore[index]
+    assert "separate_lands" in {key for g in panel["groups"] for key in g["keys"]}  # type: ignore[index]
+    choices = panel["choices"]["separate_lands"]  # type: ignore[index]
+    assert [c["value"] for c in choices if c["recommended"]] == [True]
