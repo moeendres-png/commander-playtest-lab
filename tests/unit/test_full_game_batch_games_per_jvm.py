@@ -316,7 +316,7 @@ def test_only_known_files_can_batch_games() -> None:
     """The evidence and gate lanes keep one game per process (Owner decision 2026-10-15)."""
     users = _files_using_batched_play()
     assert users - _BATCH_CALLERS == set(), users - _BATCH_CALLERS
-    for gate in ("run_real_deck_gate.py", "run_optimizer_v2_full_game_route.py"):
+    for gate in ("run_real_deck_gate.py",):
         assert "XmageFullGameBatchRunner(" in (ROOT / "scripts" / gate).read_text(encoding="utf-8")
         assert f"scripts/{gate}" not in users
 

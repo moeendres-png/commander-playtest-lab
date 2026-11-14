@@ -151,8 +151,6 @@ For deck, physical inventory, allocation and opponent truth, use the current can
 
 ```text
 data/decision/DECISION_CONTRACT_CURRENT.json
-src/commander_lab/whole_deck/mechanics_fidelity.py
-src/commander_lab/whole_deck/optimizer_search.py
 src/commander_lab/engine/structural/fact_fidelity.py
 src/commander_lab/engine/structural/simulator_fidelity.py
 ```
@@ -252,8 +250,6 @@ commander-lab generate-structural-profiles --root .
 commander-lab validate-structural --iterations 24 --workers 2 --seed 20260804 --root .
 commander-lab validate-pilots --iterations 24 --workers 2 --seed 20260804 --root .
 commander-lab probe-rules-engines --root .
-python -m commander_lab.optimizer_v2_cli preflight --manifest <manifest> --root .
-python -m commander_lab.optimizer_v2_cli fidelity --frontier <frontier> --root .
 ```
 
 ## Optimization rule

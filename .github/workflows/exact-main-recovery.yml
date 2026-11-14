@@ -36,8 +36,6 @@ jobs:
       - name: Focused exact-main architecture conformance
         run: |
           pytest -q tests/test_candidate_lossless_handoff.py tests/unit/test_xmage_full_game.py
-          python scripts/run_candidate_handoff_conformance.py \
-            --root . --output-dir artifacts/candidate-handoff
           python scripts/generate_full_game_contract_artifacts.py
       - name: Build exact-main recovery payload
         shell: bash
@@ -59,7 +57,6 @@ jobs:
           git archive --format=tar.gz --output="$inner/source-${commit}.tar.gz" "$commit"
           git bundle create "$inner/repository-${commit}.bundle" HEAD --branches --tags
           cp -R artifacts/architecture "$inner/architecture-artifacts"
-          cp -R artifacts/candidate-handoff "$inner/candidate-handoff-validation"
           cp -R artifacts/xmage-full-game "$inner/xmage-full-game-contracts"
           cp ARCHITECTURE_MIGRATION_REPORT.md "$inner/ARCHITECTURE_MIGRATION_REPORT.md"
           cp MIGRATION_CLOSEOUT.md "$inner/MIGRATION_CLOSEOUT.md"
@@ -72,8 +69,7 @@ jobs:
           python scripts/build_exact_main_recovery_payload.py \
             --root . --inner "$inner" \
             --commit "$commit" --tree "$tree" --version "$version" \
-            --focused-test "pytest -q tests/test_candidate_lossless_handoff.py tests/unit/test_xmage_full_game.py" \
-            --focused-test "python scripts/run_candidate_handoff_conformance.py --root . --output-dir artifacts/candidate-handoff"
+            --focused-test "pytest -q tests/test_candidate_lossless_handoff.py tests/unit/test_xmage_full_game.py"
           verify="$RUNNER_TEMP/recovery-bundle-clone"
           rm -rf "$verify"
           git clone "$inner/repository-${commit}.bundle" "$verify"

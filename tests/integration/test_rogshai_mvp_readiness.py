@@ -10,10 +10,6 @@ from commander_lab.fresh_rebuild import (
     load_fresh_rogshai_universe,
     run_k2_bias_suite,
 )
-from commander_lab.rogshai.mvp_acceptance import (
-    PRIMARY_OPPONENT_IDS,
-    run_rogshai_mvp_acceptance,
-)
 
 
 def test_current_drive_universe_is_complete_and_k2_bias_suite_passes(repo_root: Path) -> None:
@@ -68,49 +64,3 @@ def test_independent_smoke_build_never_reads_current_rogshai_control(
     assert profile.commander_strategy == "rogshai"
     assert profile.deck_id.startswith("rogshai/fresh/")
     assert profile.data_snapshot_hash == universe.runtime_sha256
-
-
-def test_rogshai_mvp_end_to_end_acceptance(repo_root: Path) -> None:
-    report = run_rogshai_mvp_acceptance(repo_root, iterations=1, seed=20260810)
-
-    assert report["ROGSHAI_MVP_READY"] is True
-    assert report["smoke_test_only"] is True
-    assert report["deck_strength_inference_allowed"] is False
-    assert report["estimate_type"] == "structural_model_estimates"
-    assert report["primary_4p_opponents"] == list(PRIMARY_OPPONENT_IDS)
-    assert all(report["technical_checks"].values())
-
-    paired = report["paired_comparison"]
-    assert paired["same_seed_reproducible"] is True
-    assert paired["actual_sample_size"] == 1
-
-    package = report["package_ablation"]
-    assert package["package_id"].startswith("package:rogshai:")
-    assert len(package["cards"]) == 2
-    assert package["actual_sample_size"] == 1
-
-    denial = report["commander_denial"]
-    assert set(denial) == {"Ishai", "Rograkh", "both"}
-    assert all(row["actual_sample_size"] == 1 for row in denial.values())
-
-    sensitivity = report["sensitivity"]
-    assert sensitivity["axis"] == "opponent_composition"
-    assert sensitivity["result"]["estimate_type"] == "structural_model_estimates"
-
-    search = report["bounded_search_pareto"]
-    assert search["legal_single_swaps"] > 0
-    assert search["variants_evaluated"] == 2
-    assert search["pareto_front_ids"]
-
-    identity = report["run_identity"]
-    assert identity["canonical_input_status"] == "current"
-    assert identity["engine_mode"] == "structural"
-    assert len(identity["run_identity_hash"]) == 64
-
-    evidence = report["opponent_evidence"]
-    morcant = evidence["alen_high_perfect_morcant"]
-    cosmic = evidence["cosmic_spider_man"]
-    assert morcant["deck_status"] == "partially_observed"
-    assert cosmic["deck_status"] == "partially_observed"
-    assert "synthetic" in morcant["deck_source_type"]
-    assert "synthetic" in cosmic["deck_source_type"]

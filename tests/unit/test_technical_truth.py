@@ -56,7 +56,6 @@ def test_technical_truth_derives_current_versions_scope_and_engine_boundary() ->
     assert truth["roadmap_mvp_state"]["priority_context_surface_present"] is True
     assert truth["roadmap_mvp_state"]["priority_workflow_surface_present"] is True
     assert truth["roadmap_mvp_state"]["exact_result_cache_surface_present"] is True
-    assert truth["roadmap_mvp_state"]["production_adaptive_scheduler_present"] is True
     assert truth["roadmap_mvp_state"]["model_informativeness_gate_present"] is True
     assert truth["roadmap_mvp_state"]["workflow_session_present"] is True
     assert truth["roadmap_mvp_state"]["public_high_level_workflow_surface_present"] is True
@@ -77,8 +76,6 @@ def test_technical_truth_derives_current_versions_scope_and_engine_boundary() ->
     pending = rules["primary_engine"]["commit"] != current["engine_commit"]
     assert ("live_pin_requalification_pending" in truth["documented_limitations"]) is pending
     readiness = truth["first_run_readiness"]
-    assert readiness["preparation_surface_present"] is True
-    assert readiness["authorized_runner_surface_present"] is True
     assert readiness["preliminary_run"]["official_first_run"] is False
     official = readiness["official_run"]
     assert official["status"] == "completed"

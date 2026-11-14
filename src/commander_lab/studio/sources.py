@@ -304,8 +304,8 @@ QUALIFIED_SOURCES: tuple[EvidenceSource, ...] = (
         ),
         status="VERIFIED",
         status_rationale=(
-            "Fully open and licensed REST API. Adapter in src/commander_lab/commander_spellbook.py "
-            "is verified and operational."
+            "Fully open and licensed REST API. The adapter module was removed (#1268); "
+            "no code in this repository calls the API today."
         ),
     ),
     EvidenceSource(
