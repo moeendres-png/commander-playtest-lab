@@ -544,10 +544,14 @@ async function openCard(card) {
     const detail = await api(`/api/cards/${encodeURIComponent(card.card_id)}/evidence?${query}`);
     const full = detail.card;
     const strengthSection = strengthBox(card);
+    let face = "front";
+    const picture = full.has_image ? h("img", { class: "big", alt: full.name, src: `/img/${encodeURIComponent(full.card_id)}` }) : h("div", { class: "muted" }, "Kein Bild in den Kartendaten.");
+    const picBox = h("div", {}, picture, full.has_back ? h("div", { class: "actions" }, h("button", { type: "button", onclick: () => { face = face === "front" ? "back" : "front"; picture.src = `/img/${encodeURIComponent(full.card_id)}?face=${face}`; } }, "Rückseite / Vorderseite")) : null);
     content.replaceChildren(
       h("div", { class: "actions" }, ...markButtons(card, () => openCard(card)), h("button", { type: "button", onclick: () => { modal.hidden = true; } }, "Schließen")),
       h("h2", {}, full.name),
       h("p", { class: "muted" }, full.type_line),
+      picBox,
       h("div", { class: "policy" }, h("b", {}, `${OUTCOME_HEADING}. `), "Es gibt kein geprüftes Modell mit Partiedaten. Fehlende Beobachtung ist nie ein niedriger Tier. Favoriten, Ausschlüsse und Notizen fließen nicht ein."),
       strengthSection,
       layersBox(card),
