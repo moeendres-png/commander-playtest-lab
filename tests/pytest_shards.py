@@ -160,14 +160,29 @@ def plan_for(files: Mapping[str, float], count: int) -> list[list[str]] | None:
 
 
 def shard_arguments(selection: Selection, plan: Sequence[Sequence[str]], index: int) -> list[str]:
-    """pytest arguments of shard ``index`` (without interpreter and without ``--junitxml``)."""
+    """pytest arguments of shard ``index`` (without interpreter and without ``--junitxml``).
+
+    Explicit test files (roots ending in ``.py``) go to exactly one shard each: pytest applies
+    ``--ignore`` only to directory collection, never to a file named on the command line, so a
+    "roots plus --ignore" last shard would rerun every file of the other shards. A named file the
+    weight table does not know is run by the last shard. Directory roots keep the old shape for
+    the last shard: the roots, ignoring every file the other shards run.
+    """
     arguments = list(selection.options)
     if index < len(plan) - 1:
         return [*arguments, *plan[index]]
+    planned = {name for shard in plan for name in shard}
+    directory_roots = [root for root in selection.roots if not root.endswith(".py")]
+    unplanned = [root for root in selection.roots if root.endswith(".py") and root not in planned]
+    own = [name for name in plan[index] if not any(_under(name, root) for root in directory_roots)]
+    if not directory_roots:
+        return [*arguments, *own, *unplanned]
     others = [name for shard in plan[:-1] for name in shard]
     return [
         *arguments,
-        *selection.roots,
+        *directory_roots,
+        *own,
+        *unplanned,
         *(f"--ignore={name}" for name in (*selection.ignores, *others)),
     ]
 

@@ -515,7 +515,8 @@ def _gate_assessment(jobs: dict[str, Any], job: dict[str, Any]) -> tuple[list[st
     verified gate) and the needed jobs that may legitimately be skipped.  A gate is safe only
     when (a) its own ``if`` is exactly ``always()``, (b) a step that always runs and cannot
     continue on error invokes ``scripts/ci_gate.py`` with ``needs.<id>.result`` for every
-    needed job, (c) neither the gate nor a needed job can fail silently
+    needed job, and it is the single last step of a job whose other steps are all full-SHA-pinned
+    actions of other repositories, (c) neither the gate nor a needed job can fail silently
     (``continue-on-error``), and (d) no needed job can be skipped unless it has no matrix,
     its ``if`` reads ``needs.changes.outputs.<out> == 'true'``, ``--allow-skipped`` names
     that exact job, and ``--packaging-needed`` binds that exact output.  Every dependency of
@@ -534,11 +535,30 @@ def _gate_assessment(jobs: dict[str, Any], job: dict[str, Any]) -> tuple[list[st
     if not isinstance(steps, list) or not all(isinstance(step, dict) for step in steps):
         return [*violations, "gate_steps_not_static_list"], skippable
     parsed_gates = [
-        parsed for step in steps if (parsed := _parse_ci_gate_invocation(step)) is not None
+        (index, parsed)
+        for index, step in enumerate(steps)
+        if (parsed := _parse_ci_gate_invocation(step)) is not None
     ]
     if not parsed_gates:
         return [*violations, "gate_does_not_execute_enforcing_ci_gate"], skippable
-    gate_jobs_arg, gate_allow_skipped, gate_packaging_needed = parsed_gates[0]
+    gate_index, (gate_jobs_arg, gate_allow_skipped, gate_packaging_needed) = parsed_gates[0]
+    if len(parsed_gates) != 1 or gate_index != len(steps) - 1:
+        violations.append("gate_step_is_not_the_single_last_step")
+    # Nothing may run before the gate that could change what it executes (a rewritten
+    # scripts/ci_gate.py, a prepended PATH entry, a local action): every other step must be a
+    # full-SHA-pinned action of another repository.
+    for index, step in enumerate(steps):
+        if index == gate_index:
+            continue
+        uses = step.get("uses")
+        if (
+            "run" in step
+            or not isinstance(uses, str)
+            or uses.startswith(("./", "docker://"))
+            or "${{" in uses
+            or IMMUTABLE_ACTION_RE.fullmatch(uses) is None
+        ):
+            violations.append(f"gate_job_has_a_step_that_is_not_a_pinned_action:{index}")
 
     for needed in needs:
         spec = jobs.get(needed)
