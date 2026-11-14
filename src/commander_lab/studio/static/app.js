@@ -314,7 +314,14 @@ function changed() {
   state.dirty = true; state.changeSeq += 1; renderAll();
   clearTimeout(saveTimer); saveTimer = setTimeout(syncDraft, 500);
 }
-async function syncDraft() {
+// One save after the other: two saves in the air could reach the server in the wrong order
+// and leave the older list stored.
+let syncQueue = Promise.resolve();
+function syncDraft() {
+  syncQueue = syncQueue.then(syncDraftNow, syncDraftNow); // a failed save never blocks the next one
+  return syncQueue;
+}
+async function syncDraftNow() {
   const seq = state.changeSeq; // the list as of this change is what this call saves
   try {
     const cards = entries();
