@@ -126,7 +126,7 @@ Die Qualifizierung erfolgt in der vom Owner verbindlich festgelegten Reihenfolge
 - **Evidenzschicht:** `COMBO_VERIFIED`.
 - **Zähler / Nenner:** Diskrete Varianten-ID, genaue Anzahl beteiligter Teile und Schritte.
 - **Doppelzählungs-Risiko:** Gering auf Kombo-Ebene; funktionale Klone (z. B. Shrieking Drake vs. Man-o'-War) bilden separate Varianten.
-- **Lizenz & Abrufmethode:** **Open Source (MIT License & CC BY 4.0)**; uneingeschränkt frei nutzbar via REST-API. Adapter in [`src/commander_lab/commander_spellbook.py`](../../src/commander_lab/commander_spellbook.py) bereits implementiert.
+- **Lizenz & Abrufmethode:** **Open Source (MIT License & CC BY 4.0)**; uneingeschränkt frei nutzbar via REST-API. Ladefunktionen in [`src/commander_lab/studio/sources.py`](../../src/commander_lab/studio/sources.py) und [`src/commander_lab/whole_deck/meta.py`](../../src/commander_lab/whole_deck/meta.py) (das ältere Modul `src/commander_lab/commander_spellbook.py` wurde in #1318 entfernt).
 - **Reproduzierbarkeit:** `REPRODUCIBLE_API`.
 - **Bias & Grenzen:**
   - Die bloße Existenz einer Kombo ist **kein Beleg für Konsistenz, Spielstärke oder Siegquote**.

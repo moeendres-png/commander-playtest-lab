@@ -7,6 +7,7 @@ import multiprocessing
 import os
 import threading
 import time
+import zlib
 from collections.abc import Iterator
 from concurrent.futures import (
     Executor,
@@ -17,7 +18,7 @@ from concurrent.futures import (
 )
 from enum import StrEnum
 from pathlib import Path
-from typing import Any, Literal, Protocol, TypedDict
+from typing import Any, BinaryIO, Literal, Protocol, TypedDict
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -217,30 +218,59 @@ class ExecutionIdentity(TypedDict):
     bridge_artifacts: dict[str, str]
 
 
-# SHA-256 of a bridge artifact by (resolved path, size, mtime_ns): the ~79 MB
-# jar is read once per batch rather than once per case lookup. A file whose
-# size or modification time changed is hashed again.
-_ARTIFACT_DIGESTS: dict[tuple[str, int, int], str] = {}
+# SHA-256 of a bridge artifact keyed by (resolved path, inode, size, mtime_ns,
+# ctime_ns). Small (<=1 MiB) or recently modified (<2 s) artifacts are verified
+# with streaming CRC-32 so same-size, same-tick rebuilds cannot hit stale cache.
+_ARTIFACT_DIGESTS: dict[tuple[str, int, int, int, int], str] = {}
+_ARTIFACT_CRC32: dict[tuple[str, int, int, int, int], int] = {}
 _ARTIFACT_DIGESTS_LOCK = threading.Lock()
+_SMALL_ARTIFACT_RECHECK_BYTES = 1 << 20
+_RECENT_ARTIFACT_RECHECK_NS = 2_000_000_000
+
+
+def _read_crc32(handle: BinaryIO) -> int:
+    crc = 0
+    for chunk in iter(lambda: handle.read(1 << 20), b""):
+        crc = zlib.crc32(chunk, crc)
+    return crc
 
 
 def _artifact_sha256(path: Path) -> str:
     resolved = path.resolve()
     with resolved.open("rb") as handle:
         stat = os.fstat(handle.fileno())
-        key = (str(resolved), stat.st_size, stat.st_mtime_ns)
+        key = (
+            str(resolved),
+            stat.st_ino,
+            stat.st_size,
+            stat.st_mtime_ns,
+            stat.st_ctime_ns,
+        )
         with _ARTIFACT_DIGESTS_LOCK:
             cached = _ARTIFACT_DIGESTS.get(key)
-        if cached is not None:
-            return cached
+            cached_crc = _ARTIFACT_CRC32.get(key)
+        if cached is not None and cached_crc is not None:
+            recently_modified = (
+                abs(time.time_ns() - max(stat.st_mtime_ns, stat.st_ctime_ns))
+                < _RECENT_ARTIFACT_RECHECK_NS
+            )
+            if stat.st_size > _SMALL_ARTIFACT_RECHECK_BYTES and not recently_modified:
+                return cached
+            if _read_crc32(handle) == cached_crc:
+                return cached
+            handle.seek(0)
         digest = hashlib.sha256()
+        crc = 0
         for chunk in iter(lambda: handle.read(1 << 20), b""):
             digest.update(chunk)
+            crc = zlib.crc32(chunk, crc)
     result = digest.hexdigest()
     with _ARTIFACT_DIGESTS_LOCK:
         for stale in [k for k in _ARTIFACT_DIGESTS if k[0] == key[0]]:
             del _ARTIFACT_DIGESTS[stale]
+            _ARTIFACT_CRC32.pop(stale, None)
         _ARTIFACT_DIGESTS[key] = result
+        _ARTIFACT_CRC32[key] = crc
     return result
 
 
