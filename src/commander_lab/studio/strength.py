@@ -116,7 +116,8 @@ MIN_GROUP = 5
 GROUP_POOL = "pool"
 GROUP_TYPE = "type"
 GROUP_MANA_BAND = "mana_band"
-RANK_GROUPS = (GROUP_POOL, GROUP_TYPE, GROUP_MANA_BAND)
+GROUP_FUNCTION = "function"
+RANK_GROUPS = (GROUP_POOL, GROUP_TYPE, GROUP_MANA_BAND, GROUP_FUNCTION)
 MEASURE_WILSON = "wilson"
 MEASURE_RAW = "raw"
 SHARE_MEASURES = (MEASURE_WILSON, MEASURE_RAW)
@@ -634,13 +635,16 @@ class PoolContext:
     maps a card key to the reason it is not ranked (``NOT_RANKED_COMMANDER`` or
     ``NOT_RANKED_BASIC_LAND``); ``filter_cards`` are the cards a card filter of the deck
     universe requires; ``universe_minimum`` is the minimum universe of the chosen profile
-    (the minimum denominator of the deck-universe component)."""
+    (the minimum denominator of the deck-universe component). ``function_group`` maps a
+    card key to its functional roles (``card_role``): a card can carry several roles and
+    then belongs to each of its role groups (see ``_groups_of``)."""
 
     type_group: Mapping[str, str] = field(default_factory=dict)
     mana_band: Mapping[str, str] = field(default_factory=dict)
     unranked: Mapping[str, str] = field(default_factory=dict)
     filter_cards: Collection[str] = field(default_factory=frozenset)
     universe_minimum: int = 0
+    function_group: Mapping[str, tuple[str, ...]] = field(default_factory=dict)
 
 
 class ComponentResult(TypedDict):
@@ -769,7 +773,7 @@ class _ComponentRanking:
     wilson: dict[str, float | None]
     reasons: dict[str, str]
     pool_ranks: dict[str, float]
-    group_ranks: dict[str, tuple[str, int, dict[str, float]]]
+    group_ranks: dict[str, tuple[tuple[str, ...], dict[str, int], float]]
     reference_denominator: int | None
     minimum: int
 
@@ -778,12 +782,24 @@ class _ComponentRanking:
         return bool(self.values)
 
 
-def _group_of(settings: StrengthSettings, context: PoolContext, card: str) -> str:
+def _groups_of(settings: StrengthSettings, context: PoolContext, card: str) -> tuple[str, ...]:
+    """The comparison groups of a card under the chosen ``rank_group``.
+
+    Type and mana band give one group each. The function gives one group per functional
+    role of the card, so a card with several roles belongs to several groups; its group
+    rank is the mean of its ranks in those groups (``_rank_component``). The pool gives
+    no group. A card of which no group of the chosen kind is known has none — under the
+    function that is a card without a sourced role, said openly, never a group of its own.
+    """
     if settings.rank_group == GROUP_TYPE:
-        return context.type_group.get(card, "")
+        name = context.type_group.get(card, "")
+        return (name,) if name else ()
     if settings.rank_group == GROUP_MANA_BAND:
-        return context.mana_band.get(card, "")
-    return ""
+        name = context.mana_band.get(card, "")
+        return (name,) if name else ()
+    if settings.rank_group == GROUP_FUNCTION:
+        return tuple(context.function_group.get(card, ()))
+    return ()
 
 
 def _rank_component(
@@ -826,16 +842,23 @@ def _rank_component(
         values[card] = value
         wilson[card] = bound
     pool_ranks = percentile_ranks(values)
-    group_ranks: dict[str, tuple[str, int, dict[str, float]]] = {}
+    group_ranks: dict[str, tuple[tuple[str, ...], dict[str, int], float]] = {}
     if settings.rank_group != GROUP_POOL:
         members: dict[str, dict[str, float]] = {}
         for card, value in values.items():
-            members.setdefault(_group_of(settings, context, card), {})[card] = value
+            for name in _groups_of(settings, context, card):
+                members.setdefault(name, {})[card] = value
+        found: dict[str, dict[str, tuple[int, float]]] = {}
         for name, group_values in members.items():
-            if name and len(group_values) >= MIN_GROUP:
+            if len(group_values) >= MIN_GROUP:
                 ranks = percentile_ranks(group_values)
-                for card in group_values:
-                    group_ranks[card] = (name, len(group_values), ranks)
+                for card, rank in ranks.items():
+                    found.setdefault(card, {})[name] = (len(group_values), rank)
+        for card, per_group in found.items():
+            names = tuple(name for name in _groups_of(settings, context, card) if name in per_group)
+            sizes = {name: per_group[name][0] for name in names}
+            percentile = sum(per_group[name][1] for name in names) / len(names)
+            group_ranks[card] = (names, sizes, percentile)
     return _ComponentRanking(values, wilson, reasons, pool_ranks, group_ranks, reference, minimum)
 
 
@@ -955,10 +978,12 @@ def score_pool(
                 if settings.rank_group != GROUP_POOL:
                     found = ranking.group_ranks.get(card)
                     if found is not None:
-                        group, group_size = found[0], found[1]
-                        percentile = found[2][card]
+                        names, sizes, group_percentile = found
+                        group = " + ".join(names)
+                        group_size = sizes[names[0]] if len(names) == 1 else None
+                        percentile = group_percentile
                     else:
-                        group = _group_of(settings, ctx, card) or None
+                        group = " + ".join(_groups_of(settings, ctx, card)) or None
                         group_fallback = True
             elif (
                 reason == NOT_LISTED
@@ -1039,11 +1064,16 @@ def _fallback_note(
     context: PoolContext,
     card: str,
 ) -> str:
-    size = sum(
-        1
-        for other in ranking.values
-        if _group_of(settings, context, other) == _group_of(settings, context, card)
-    )
+    groups = _groups_of(settings, context, card)
+    if settings.rank_group == GROUP_FUNCTION and not groups:
+        return "Keine Funktion bekannt (keine Rolle aus den Quellen belegt): Rang im ganzen Pool"
+    if groups:
+        size = max(
+            sum(1 for other in ranking.values if name in _groups_of(settings, context, other))
+            for name in groups
+        )
+    else:
+        size = sum(1 for other in ranking.values if not _groups_of(settings, context, other))
     name = group or "ohne Gruppe"
     return (
         f"Vergleichsgruppe „{name}“ hat nur {size} Karten mit Wert (weniger als {MIN_GROUP}): "
