@@ -163,38 +163,22 @@ def to_safe_slug(name: str) -> str:
     return s
 
 
-def player_initials(name: str) -> str:
-    """Reduce a player name to its initials (Owner decision #1108).
+def neutral_player_labels(names: Iterable[str]) -> dict[str, str]:
+    """Map distinct player names to neutral "Liste N" labels.
 
-    For each space-separated token, take its first alphabetic character,
-    uppercased; tokens without any letter contribute nothing.
-    Example: "Void of Emperor [INTIM]" becomes "V O E I".
-    """
-    initials: list[str] = []
-    for token in name.split():
-        for char in token:
-            if char.isalpha():
-                initials.append(char.upper())
-                break
-    return " ".join(initials)
-
-
-def anonymize_player_labels(names: Iterable[str]) -> dict[str, str]:
-    """Map distinct player names to initials labels in first-appearance order.
-
-    If several distinct names reduce to the same initials, the second one
-    (in first-appearance order) gets the suffix " 2", the third " 3", and
-    so on, so labels stay unique within one export file and deck grouping
-    and counts are preserved exactly.
+    Numbering is per export file, in order of first appearance: the first
+    distinct name becomes "Liste 1", the second "Liste 2", and so on. The
+    same name keeps its label everywhere within one file, also across
+    tournaments, so deck grouping and counts are preserved exactly
+    (Owner decision #1108/#1246; Issue #1263). The name itself never
+    reaches an export file or a log line; locally it exists only in
+    the raw API cache under ``.cache/``, which is git-ignored and
+    never committed.
     """
     labels: dict[str, str] = {}
-    counts: dict[str, int] = {}
     for name in names:
-        if name in labels:
-            continue
-        base = player_initials(name)
-        counts[base] = counts.get(base, 0) + 1
-        labels[name] = base if counts[base] == 1 else f"{base} {counts[base]}"
+        if name not in labels:
+            labels[name] = f"Liste {len(labels) + 1}"
     return labels
 
 
@@ -484,8 +468,9 @@ def export_results(
 ) -> dict[str, object]:
     """Export presence CSV and per-commander deck CSVs.
 
-    Player names are anonymized to initials in every exported deck CSV
-    (Owner decision #1108, 2026-11-13); see anonymize_player_labels.
+    Player names are replaced by neutral "Liste N" labels in every
+    exported deck CSV (Owner decision #1108/#1246; Issue #1263); see
+    neutral_player_labels.
     """
     output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -548,7 +533,7 @@ def export_results(
                 slug = to_safe_slug(cname)
                 deck_csv_path = output_dir / f"topdeck_{slug}_decks.csv"
 
-            labels = anonymize_player_labels(d.player_name for d in complete_decks)
+            labels = neutral_player_labels(d.player_name for d in complete_decks)
 
             with deck_csv_path.open("w", encoding="utf-8", newline="") as f:
                 writer = csv.writer(f)
@@ -663,7 +648,7 @@ Abrufdatum: {datetime.date.today().isoformat()}.
 
 ## 2. Dateien
 - `topdeck_commander_presence.csv`: Aktualisierte Präsenz-Zählung aller {len(commander_names)} Commander.
-- `topdeck_<commander_slug>_decks.csv`: Vollständige Decklisten je Commander mit mindestens 1 vollständiger Liste (inkl. Bracket-Feldern `top_cut`, `wins_bracket`, `losses_bracket`).
+- `topdeck_<commander_slug>_decks.csv`: Vollständige Decklisten je Commander mit mindestens 1 vollständiger Liste (inkl. Bracket-Feldern `top_cut`, `wins_bracket`, `losses_bracket`). Die Spalte `player` enthält keine Namen, sondern neutrale Kennungen (`Liste 1`, `Liste 2`, …) je Datei in Reihenfolge des ersten Auftretens.
 - `topdeck_card_conversions.csv`: Berechnete TopDeck-Conversion je Karte x Commander gemäß docs/TOPDECK.md §6 (Refs #1205).
 
 ## 3. Übersicht je Commander mit Präsenz
@@ -682,7 +667,7 @@ Abrufdatum: {datetime.date.today().isoformat()}.
     readme_content += """
 ## Spielernamen
 
-Die Spalte `player` der Turnierlisten enthält keine Klarnamen. Jede Liste trägt die Initialen des Spielers: je Namensbestandteil der erste Buchstabe, großgeschrieben (aus `Void of Emperor [INTIM]` wird so `V O E I`). Haben in einer Datei mehrere Spieler dieselben Initialen, erhält der in der Reihenfolge des ersten Auftretens zweite den Zusatz ` 2`, der dritte den Zusatz ` 3` usw. (Owner-Entscheid 2026-11-13, Issue #1108). Turnier, Datum, Ergebnis und Karten sind unverändert.
+Die Spalte `player` der Turnierlisten enthält keine Namen. Jede Liste trägt eine neutrale Nummer (`Liste 1`, `Liste 2`, …) je Datei, in der Reihenfolge des ersten Auftretens (Owner-Entscheid 2026-11-12, Issue #1108). Turnier, Datum, Ergebnis und Karten sind unverändert.
 """
 
     readme_path.write_text(readme_content, encoding="utf-8")

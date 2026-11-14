@@ -754,7 +754,7 @@ def test_schema_12_adds_profile_lifecycle_columns_to_an_older_store(tmp_path: Pa
     version = store.connection.execute(
         "SELECT value FROM meta WHERE key = 'schema_version'"
     ).fetchone()[0]
-    assert version == "13"
+    assert version == "14"
     profile = universe.get_profile(store, "alt")
     assert profile["version"] == 1 and profile["updated_at"] is None
     assert profile["created_at"] == "2026-01-01T00:00:00Z"

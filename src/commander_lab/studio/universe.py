@@ -57,6 +57,7 @@ from collections.abc import Iterator, Mapping, Sequence
 from contextlib import contextmanager
 from typing import TypedDict, cast
 
+from . import memo
 from ._coerce import to_int
 from .store import StudioStore, now_utc
 
@@ -407,6 +408,12 @@ def get_profile(store: StudioStore, name: str) -> Profile:
 
 
 def options(store: StudioStore, *, commander_names: Sequence[str] | None = None) -> UniverseOptions:
+    """Memoized per data epoch (read-only result); see ``_options`` for the meaning."""
+    scope = tuple(sorted(set(commander_names))) if commander_names else None
+    return memo.cached(store, "universe_options", scope, lambda: _options(store, commander_names))
+
+
+def _options(store: StudioStore, commander_names: Sequence[str] | None) -> UniverseOptions:
     """The spec values the store holds, each with the decks a universe would count.
 
     The count of a value is the size of the universe that selects only decks of that
@@ -922,8 +929,18 @@ def universe_decks(
     spec: Mapping[str, object] | None = None,
 ) -> UniverseDecks:
     """Resolve a profile (or a free ``spec``) once: its figures and, per raw card name, the
-    universe decks that list it in a counted section with a quantity above zero."""
-    spec = _universe_spec(store, profile, spec, commander_names)
+    universe decks that list it in a counted section with a quantity above zero. Memoized per
+    data epoch (the result is read-only)."""
+    resolved = _universe_spec(store, profile, spec, commander_names)
+    return memo.cached(
+        store,
+        "universe_decks",
+        json.dumps(resolved, sort_keys=True, default=str),
+        lambda: _universe_decks_of(store, resolved),
+    )
+
+
+def _universe_decks_of(store: StudioStore, spec: UniverseSpec) -> UniverseDecks:
     deck_ids = resolve_universe(store, spec)
     by_platform, by_bracket = _composition(store, deck_ids)
     decks_by_name: dict[str, set[str]] = {}

@@ -2,7 +2,7 @@
 
 Fetches publicly available card statistics from Playgroup.gg:
 - Respects CC BY 4.0 license and attribution requirements.
-- Uses descriptive identifying User-Agent: CommanderLabResearch/1.0 (+https://github.com/moeendres-png/commander-playtest-lab).
+- Uses a generic client User-Agent without any owner or repository reference.
 - Enforces conservative rate-limiting (~1 request/second) with caching and resumption.
 - Prioritizes 801 Chulane-legal cards, followed by remaining 613 cards.
 - Exports structured TSV and JSON conforming to STUDIO_PLAYGROUP_ATLAS_SCHEMA.md.
@@ -32,6 +32,7 @@ _REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(_REPO_ROOT / "src") not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT / "src"))
 
+from commander_lab.storage.atomic import atomic_write_text  # noqa: E402
 from commander_lab.studio.playgroup_parser import (  # noqa: E402
     PLAYGROUP_ATTRIBUTION,
     PLAYGROUP_DISCLOSURE,
@@ -43,10 +44,22 @@ from commander_lab.studio.playgroup_parser import (  # noqa: E402
 
 logger = logging.getLogger("collect_playgroup")
 
-DEFAULT_USER_AGENT = (
-    "CommanderLabResearch/1.0 (+https://github.com/moeendres-png/commander-playtest-lab)"
-)
+DEFAULT_USER_AGENT = "card-statistics-research/1.0"
+MAX_RETRY_AFTER_SECONDS = 60.0
 PLAYGROUP_BASE_URL = "https://playgroup.gg/cards"
+
+
+def _dedupe_targets(cards: list[dict[str, object]]) -> list[dict[str, object]]:
+    """Drop repeated card names, keeping the first occurrence."""
+    seen: set[str] = set()
+    unique: list[dict[str, object]] = []
+    for card in cards:
+        key = str(card["card_name"])
+        if key in seen:
+            continue
+        seen.add(key)
+        unique.append(card)
+    return unique
 
 
 def load_target_cards(
@@ -124,6 +137,7 @@ def load_target_cards(
                     if not c.get("card_id") and snap.get("card_id"):
                         c["card_id"] = snap["card_id"]
 
+        cards = _dedupe_targets(cards)
         pool_cards = sorted([c for c in cards if c["is_pool"]], key=lambda c: str(c["card_name"]))
         rest_cards = sorted(
             [c for c in cards if not c["is_pool"]], key=lambda c: str(c["card_name"])
@@ -178,6 +192,7 @@ def load_target_cards(
             finally:
                 conn.close()
 
+        cards = _dedupe_targets(cards)
         pool_cards = sorted([c for c in cards if c["is_pool"]], key=lambda c: str(c["card_name"]))
         rest_cards = sorted(
             [c for c in cards if not c["is_pool"]], key=lambda c: str(c["card_name"])
@@ -200,6 +215,7 @@ def load_target_cards(
                         "is_pool": name in pool_card_names,
                     }
                 )
+        cards = _dedupe_targets(cards)
         pool_cards = sorted([c for c in cards if c["is_pool"]], key=lambda c: str(c["card_name"]))
         rest_cards = sorted(
             [c for c in cards if not c["is_pool"]], key=lambda c: str(c["card_name"])
@@ -257,6 +273,7 @@ def load_target_cards(
                     )
         finally:
             conn.close()
+        cards = _dedupe_targets(cards)
         pool_cards = sorted([c for c in cards if c["is_pool"]], key=lambda c: str(c["card_name"]))
         rest_cards = sorted(
             [c for c in cards if not c["is_pool"]], key=lambda c: str(c["card_name"])
@@ -269,6 +286,21 @@ def load_target_cards(
 
 
 TTL_404_SECONDS = 7 * 86400  # 7 days expiration for 404 cache
+
+
+def capped_retry_after(value: str | None, default: float = 10.0) -> float:
+    """Parse a Retry-After header value and cap it at MAX_RETRY_AFTER_SECONDS."""
+    wait = float(value) if value is not None and value.isdigit() else default
+    return min(wait, MAX_RETRY_AFTER_SECONDS)
+
+
+def is_404_marker_valid(marker: Path, *, now: float | None = None) -> bool:
+    """A 404 marker is valid only while 0 <= age < TTL; future mtimes count as expired."""
+    try:
+        age = (time.time() if now is None else now) - marker.stat().st_mtime
+    except OSError:
+        return False
+    return 0 <= age < TTL_404_SECONDS
 
 
 def fetch_card_html(
@@ -287,20 +319,18 @@ def fetch_card_html(
     cache_file = cache_dir / f"{slug}.html"
     if not refresh and cache_file.exists():
         try:
-            return cache_file.read_text(encoding="utf-8"), 200, ""
+            cached = cache_file.read_text(encoding="utf-8")
+            if cached:
+                return cached, 200, ""
+            cache_file.unlink(missing_ok=True)
         except Exception as e:
             logger.warning("Failed to read cache file %s: %s", cache_file, e)
 
     cache_404 = cache_dir / f"{slug}.404"
     if not refresh and cache_404.exists():
-        try:
-            age = time.time() - cache_404.stat().st_mtime
-            if age < TTL_404_SECONDS:
-                return None, 404, "Cached HTTP 404: Not Found"
-            else:
-                cache_404.unlink(missing_ok=True)
-        except Exception:
-            cache_404.unlink(missing_ok=True)
+        if is_404_marker_valid(cache_404):
+            return None, 404, "Cached HTTP 404: Not Found"
+        cache_404.unlink(missing_ok=True)
 
     if offline_only:
         # Uncached in offline mode is UNKNOWN (status 0), not NOT_FOUND
@@ -321,8 +351,10 @@ def fetch_card_html(
         with urllib.request.urlopen(req, timeout=20) as response:
             status = response.status
             content = response.read().decode("utf-8", errors="replace")
+            if not content.strip():
+                return None, 0, "Empty HTTP 200 response (not cached)"
             cache_file.parent.mkdir(parents=True, exist_ok=True)
-            cache_file.write_text(content, encoding="utf-8")
+            atomic_write_text(cache_file, content)
             return content, status, ""
     except urllib.error.HTTPError as e:
         if e.code == 404:
@@ -330,19 +362,13 @@ def fetch_card_html(
             (cache_dir / f"{slug}.404").touch()
             return None, 404, "HTTP 404: Not Found"
         if e.code in (403, 429):
-            retry_after = e.headers.get("Retry-After", "10")
-            wait_time = float(retry_after) if retry_after.isdigit() else 10.0
-            logger.warning("HTTP %d Rate limited/blocked. Waiting %s seconds...", e.code, wait_time)
-            time.sleep(wait_time)
-            # Retry once
-            try:
-                with urllib.request.urlopen(req, timeout=20) as retry_resp:
-                    content = retry_resp.read().decode("utf-8", errors="replace")
-                    cache_file.parent.mkdir(parents=True, exist_ok=True)
-                    cache_file.write_text(content, encoding="utf-8")
-                    return content, retry_resp.status, ""
-            except Exception as retry_err:
-                return None, e.code, str(retry_err)
+            wait_time = capped_retry_after(e.headers.get("Retry-After") if e.headers else None)
+            logger.error(
+                "HTTP %d Rate limited/blocked (Retry-After %.0f s, capped). Run aborts.",
+                e.code,
+                wait_time,
+            )
+            return None, e.code, f"HTTP {e.code}: blocked (retry after {wait_time:.0f} s)"
         return None, e.code, str(e)
     except Exception as e:
         return None, 0, str(e)
@@ -427,8 +453,8 @@ def run_collection(
         cache_file = cache_dir / f"{slug}.html"
         cache_404 = cache_dir / f"{slug}.404"
         is_cached = not refresh and (
-            cache_file.exists()
-            or (cache_404.exists() and (time.time() - cache_404.stat().st_mtime < TTL_404_SECONDS))
+            (cache_file.exists() and cache_file.stat().st_size > 0)
+            or is_404_marker_valid(cache_404)
         )
         if is_cached:
             cache_hits += 1
@@ -551,6 +577,7 @@ def run_collection(
         "cards": [r.to_dict() for r in records],
     }
     json_path.write_text(json.dumps(json_payload, indent=2, ensure_ascii=False), encoding="utf-8")
+    blocked = total_status_counts["BLOCKED"] > 0
 
     # Export TSV (main table)
     tsv_path = out_dir / "playgroup_card_atlas.tsv"
@@ -690,12 +717,20 @@ def run_collection(
         "pool_substatus_counts": pool_substatus_counts,
         "rest_substatus_counts": rest_substatus_counts,
         "status_counts": total_substatus_counts,
+        "blocked": blocked,
         "json_path": str(json_path),
         "tsv_path": str(tsv_path),
         "jsonl_path": str(jsonl_path),
     }
     logger.info("Collection complete. %s", summary)
     return summary
+
+
+def _positive_int(value: str) -> int:
+    number = int(value)
+    if number < 1:
+        raise argparse.ArgumentTypeError("must be a positive integer")
+    return number
 
 
 def main() -> int:
@@ -719,7 +754,7 @@ def main() -> int:
     parser.add_argument(
         "--refresh", action="store_true", help="Bypass cache and re-fetch from network"
     )
-    parser.add_argument("--limit", type=int, help="Limit number of cards processed")
+    parser.add_argument("--limit", type=_positive_int, help="Limit number of cards processed")
     parser.add_argument("--user-agent", default=DEFAULT_USER_AGENT, help="User-Agent string")
 
     args = parser.parse_args()
@@ -752,7 +787,7 @@ def main() -> int:
     )
 
     logger.info("Loaded %d target cards.", len(targets))
-    run_collection(
+    summary = run_collection(
         targets,
         out_dir=Path(args.out_dir),
         cache_dir=Path(args.cache_dir),
@@ -763,6 +798,9 @@ def main() -> int:
         refresh=args.refresh,
         out_jsonl=Path(args.out_jsonl) if args.out_jsonl else None,
     )
+    if summary["blocked"]:
+        logger.error("Run ended BLOCKED (HTTP 403/429).")
+        return 1
     return 0
 
 

@@ -125,7 +125,9 @@ def _parser() -> argparse.ArgumentParser:
         "--append",
         action="store_true",
         help="only add and update rows; the default replaces every signal and commander "
-        "the files write",
+        "the files write. A usable counted universe (decklist_universe:<source>:<bracket>) is "
+        "still replaced as a whole, so rows of two snapshots never mix denominators; a "
+        "refused universe is never deleted",
     )
     import_all = commands.add_parser(
         "import-all",
@@ -346,11 +348,50 @@ def _parser() -> argparse.ArgumentParser:
         "card-outcomes",
         help="per-card win rate with the card in the first dealt hand versus not (simulated games)",
     )
-    outcomes.add_argument("--deck-id", required=True)
+    outcomes.add_argument("--deck-id", help="one deck (default: every deck in the logs)")
     outcomes.add_argument("--games-dir", help="folder of game logs (default: the Studio games)")
     outcomes.add_argument("--min-exposed", type=int, default=100)
     outcomes.add_argument("--out", help="write the full table as JSON to this file")
     outcomes.add_argument(
+        "--allow-mixed", action="store_true", help="pool mixed engine commits or pilots"
+    )
+    compare = commands.add_parser(
+        "compare-decks",
+        help="paired comparison of two deck lists on the same seeds and tables, "
+        "stopping by itself once the difference is decided (simulated games)",
+    )
+    compare.add_argument("--base-deck", required=True, help="deck file of the base list")
+    compare.add_argument("--variant-deck", required=True, help="deck file of the variant list")
+    compare.add_argument(
+        "--opponent",
+        action="append",
+        required=True,
+        help="deck file of one opponent seat (repeat for each, 1 to 5)",
+    )
+    compare.add_argument(
+        "--pairs", type=int, default=40, help="budget: most pairs to play (default 40)"
+    )
+    compare.add_argument(
+        "--look-every", type=int, default=10, help="pairs between two looks (default 10)"
+    )
+    compare.add_argument("--base-seed", type=int, default=1000, help="first seed (default 1000)")
+    compare.add_argument(
+        "--threshold-pp",
+        type=float,
+        default=0.0,
+        help="the question: is the difference greater than this many percentage points?",
+    )
+    compare.add_argument(
+        "--seat", type=int, default=0, help="tested seat without rotation (default 0)"
+    )
+    compare.add_argument(
+        "--rotate-seats",
+        action="store_true",
+        help="rotate the tested seat through all seats of the table",
+    )
+    compare.add_argument("--series-id", help="game id prefix (default: cmp-<timestamp>)")
+    compare.add_argument("--out", help="write the full comparison as JSON to this file")
+    compare.add_argument(
         "--allow-mixed", action="store_true", help="pool mixed engine commits or pilots"
     )
     commands.add_parser("status")
@@ -400,18 +441,91 @@ def _card_outcomes(args: argparse.Namespace) -> int:
         else games_folder(Path(args.data).resolve() if args.data else studio_data_dir())
     )
     try:
-        table = card_outcomes.outcomes_for_folder(
+        if args.deck_id:
+            tables = {
+                args.deck_id: card_outcomes.outcomes_for_folder(
+                    folder,
+                    deck_id=args.deck_id,
+                    min_exposed=args.min_exposed,
+                    allow_mixed=args.allow_mixed,
+                )
+            }
+        else:
+            tables = card_outcomes.outcomes_for_all_decks(
+                folder, min_exposed=args.min_exposed, allow_mixed=args.allow_mixed
+            )
+    except ValueError as error:
+        print(f"refused: {error}", file=sys.stderr)
+        return 2
+    if args.out:
+        payload = tables[args.deck_id] if args.deck_id else tables
+        Path(args.out).write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", "utf-8")
+    for table in tables.values():
+        print(card_outcomes.format_table(table))
+    return 0
+
+
+def _compare_decks(args: argparse.Namespace) -> int:
+    import sys
+    import time
+
+    from commander_lab.engine.rules.project import load_rules_deck_snapshot
+
+    from . import paired_comparison
+    from .games import games_folder
+    from .store import studio_data_dir
+
+    folder = Path(args.data).resolve() if args.data else studio_data_dir()
+    paths = [Path(args.base_deck), Path(args.variant_deck)]
+    paths += [Path(path) for path in args.opponent]
+    try:
+        decks = [load_rules_deck_snapshot(path) for path in paths]
+        base, variant, opponents = decks[0], decks[1], decks[2:]
+        deck_ids = [deck.deck_id for deck in decks]
+        if len(set(deck_ids)) != len(deck_ids):
+            raise ValueError("base, variant and opponents need distinct deck ids")
+        if args.rotate_seats:
+            tested_seats = list(range(len(decks)))
+        elif 0 <= args.seat < len(decks):
+            tested_seats = [args.seat]
+        else:
+            raise ValueError(f"seat must be within 0..{len(decks) - 1}")
+        needed_seeds = -(-args.pairs // len(tested_seats))
+        seeds = [args.base_seed + index for index in range(needed_seeds)]
+        series_id = args.series_id or f"cmp-{int(time.time())}"
+        play = paired_comparison.recorded_game_player(
             folder,
-            deck_id=args.deck_id,
-            min_exposed=args.min_exposed,
+            series_id=series_id,
+            base_deck=base,
+            variant_deck=variant,
+            opponents=opponents,
+            paths_by_deck_id=dict(zip(deck_ids, paths, strict=True)),
+        )
+        result = paired_comparison.run_comparison_series(
+            base_deck_id=base.deck_id,
+            variant_deck_id=variant.deck_id,
+            seeds=seeds,
+            tested_seats=tested_seats,
+            budget_pairs=args.pairs,
+            look_every_pairs=args.look_every,
+            threshold_pp=args.threshold_pp,
             allow_mixed=args.allow_mixed,
+            play=play,
+            execution={
+                "series_id": series_id,
+                "command": "studio compare-decks",
+                "rotate_seats": args.rotate_seats,
+                "look_every_pairs": args.look_every,
+                "budget_pairs": args.pairs,
+                "games_dir": str(games_folder(folder)),
+            },
         )
     except ValueError as error:
         print(f"refused: {error}", file=sys.stderr)
         return 2
     if args.out:
-        Path(args.out).write_text(json.dumps(table, indent=2, ensure_ascii=False) + "\n", "utf-8")
-    print(card_outcomes.format_table(table))
+        Path(args.out).write_text(json.dumps(result, indent=2, ensure_ascii=False) + "\n", "utf-8")
+    print(paired_comparison.format_comparison(result))
     return 0
 
 
@@ -486,6 +600,32 @@ def _play_batch(args: argparse.Namespace) -> int:
     return 0 if all(item["status"] == "finished" for item in summaries) else 1
 
 
+def _warm_caches(data: str | None) -> None:
+    """Fill the data-epoch memo for the commanders that have source data, in the background, so
+    the first pool or tier call of the Owner does not pay for the corpus counts."""
+    from . import builder, import_all, strength_view, universe
+
+    try:
+        store = StudioStore.open(data)
+    except Exception:  # a warm-up must never stop the server
+        return
+    try:
+        for item in builder.list_commanders(store):
+            if item.get("has_data") and item.get("in_collection"):
+                name = str(item["name"])
+                builder.pool_cards(store, [name])
+                settings = strength_view.resolve_settings(
+                    store, preset=None, profile=None, settings=None
+                )
+                strength_view.compute(store, name, settings)
+                universe.options(store, commander_names=[name])
+                import_all.layer_overview(store, name)
+    except Exception:  # best effort only
+        pass
+    finally:
+        store.close()
+
+
 def _serve(data: str | None, port: int, open_browser: bool) -> int:
     import threading
     import webbrowser
@@ -495,6 +635,7 @@ def _serve(data: str | None, port: int, open_browser: bool) -> int:
     from .web import create_app
 
     StudioStore.open(data).close()
+    threading.Thread(target=_warm_caches, args=(data,), daemon=True).start()
     address = f"http://127.0.0.1:{port}/"
     print(f"Commander Studio: {address}  (stop with Ctrl+C)")
     if open_browser:
@@ -702,6 +843,8 @@ def main(argv: list[str] | None = None) -> int:
         return run_command(args)
     if args.command == "card-outcomes":
         return _card_outcomes(args)
+    if args.command == "compare-decks":
+        return _compare_decks(args)
     if args.command in {"play", "games"}:
         return _games(args)
     if args.command == "play-batch":

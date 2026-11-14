@@ -24,7 +24,7 @@ const state = {
   pool: [], byId: new Map(), cohorts: {}, small: 30, commanderIds: [],
   universe: "", universeInfo: null, countedUniverse: null,
   decks: [], deckId: null, branch: "main", baseRevision: null,
-  list: new Map(), dirty: false, issues: [], shape: null, deckRoles: {}, roles: [], shapes: [],
+  list: new Map(), dirty: false, issues: [], shape: null, deckRoles: {}, combos: null, roles: [], shapes: [],
   simulations: [], diffBaseRev: null, diffData: null, activeBatch: null, batchPollTimer: null,
   view: "grid", tab: "list", shown: 120, sortKey: "freq", sortDir: -1, cohort: "all",
   subset: null, subsetNames: [], subsetWanted: null, strength: null, layers: null, diffDefault: null,
@@ -51,7 +51,16 @@ function h(tag, props, ...children) {
 const api = StudioUI.request;
 const toast = (text) => StudioUI.toast(text);
 const fail = (error) => StudioUI.fail(StudioUI.germanError(error));
-const cohortName = (key) => COHORT_NAMES[key] || key;
+// Cohort keys of the corpus ("bracket:3", "source:edhrec", "variant:cedh") in plain words.
+const COHORT_PREFIX = { bracket: "Bracket", source: "Quelle", variant: "Variante", commander: "Commander", theme: "Thema", tag: "Marke" };
+const COHORT_VALUES = { cedh: "cEDH", core: "Core", upgraded: "Upgraded", optimized: "Optimized", exhibition: "Exhibition", edhrec: "EDHREC", archidekt: "Archidekt", moxfield: "Moxfield", topdeck: "TopDeck" };
+const cohortName = (key) => {
+  if (COHORT_NAMES[key]) return COHORT_NAMES[key];
+  const at = String(key).indexOf(":");
+  if (at < 0 || !COHORT_PREFIX[key.slice(0, at)]) return key;
+  const value = key.slice(at + 1);
+  return `${COHORT_PREFIX[key.slice(0, at)]} ${COHORT_VALUES[value] || value.charAt(0).toUpperCase() + value.slice(1)}`;
+};
 function mana(cost) {
   const span = h("span", {});
   for (const match of String(cost || "").matchAll(/\{([^}]+)\}|(\/\/)/g)) {
@@ -302,7 +311,7 @@ async function syncDraft() {
       api("/api/check", "POST", { cards, owned_only: true }),
       state.dirty ? api(`/api/decks/${encodeURIComponent(state.deckId)}/branches/${encodeURIComponent(state.branch)}/draft`, "PUT", { cards, base_revision_id: state.baseRevision }) : null,
     ]);
-    state.issues = result.issues; state.shape = result.shape; state.deckRoles = result.roles || {};
+    state.issues = result.issues; state.shape = result.shape; state.deckRoles = result.roles || {}; state.combos = result.combos || null;
     $("save-state").textContent = state.dirty ? "Entwurf gesichert, noch nicht als Stand gespeichert" : "gespeichert";
     renderHeader(); renderDeck();
   } catch (error) { fail(error); }
@@ -456,8 +465,39 @@ function renderNumbers(body) {
         h("tr", {}, h("td", {}, "Bis Zug 3"), h("td", { class: "num" }, dp.turn_3_draw_9.draws), h("td", { class: "num" }, "–"), h("td", { class: "num" }, "–"), h("td", { class: "num" }, pct(dp.turn_3_draw_9.at_least_3_lands)), h("td", { class: "num" }, pct(dp.turn_3_draw_9.at_least_4_lands))),
         h("tr", {}, h("td", {}, "Bis Zug 4"), h("td", { class: "num" }, dp.turn_4_draw_10.draws), h("td", { class: "num" }, "–"), h("td", { class: "num" }, "–"), h("td", { class: "num" }, pct(dp.turn_4_draw_10.at_least_3_lands)), h("td", { class: "num" }, pct(dp.turn_4_draw_10.at_least_4_lands)))));
     body.append(h("h3", {}, `Land-Ziehwahrscheinlichkeiten (${dp.lands} Länder in ${dp.main_cards} Maindeck-Karten)`), probTable,
-      h("p", { class: "note" }, "Exakte hypergeometrische Kombinatorik (DERIVED_DESCRIPTIVE) ohne Mulligan-Heuristik."));
+      h("p", { class: "note" }, "Exakte hypergeometrische Kombinatorik ohne Mulligan-Heuristik."));
   }
+  renderCombos(body);
+}
+// Listed combos of the commander against the deck: complete, or one card short. A count
+// over the source's list, never a rating; without a stored list the section says so.
+function comboLine(combo) {
+  return combo.cards.map((name) => name === combo.missing ? `[fehlt: ${name}]` : name).join(" + ");
+}
+function renderCombos(body) {
+  const combos = state.combos;
+  body.append(h("h3", {}, "Kombos im Deck"));
+  if (!combos || !combos.listed) {
+    body.append(h("p", { class: "muted", id: "combos-empty" }, "Für diesen Commander ist keine Kombo-Liste gespeichert. Das heißt nicht, dass das Deck keine Kombos hat."));
+    return;
+  }
+  const names = poolNames();
+  const row = (combo) => {
+    const known = combo.missing ? names.has(combo.missing.toLowerCase()) : null;
+    const card = known ? state.pool.find((item) => item.name.toLowerCase() === combo.missing.toLowerCase()) : null;
+    const where = combo.missing === undefined ? null
+      : !known ? "nicht in deinem Pool"
+      : card && card.available > 0 ? "im Pool, frei" : "im Pool, keine freie Kopie";
+    return h("tr", {}, h("td", {}, comboLine(combo), where === null ? null : h("div", { class: "muted" }, `Fehlende Karte: ${where}`)), h("td", { class: "num" }, combo.num_decks.toLocaleString("de-DE")));
+  };
+  body.append(h("p", {}, `${combos.complete.length} von ${combos.listed} gelisteten Kombos sind vollständig im Deck, bei ${combos.one_missing.length} fehlt genau eine Karte.`));
+  if (combos.complete.length) {
+    body.append(h("table", { id: "combos-complete" }, h("thead", {}, h("tr", {}, h("th", {}, "Vollständig im Deck"), h("th", { class: "num" }, "Decks der Quelle"))), h("tbody", {}, combos.complete.map(row))));
+  }
+  if (combos.one_missing.length) {
+    body.append(h("table", { id: "combos-missing" }, h("thead", {}, h("tr", {}, h("th", {}, "Es fehlt genau eine Karte"), h("th", { class: "num" }, "Decks der Quelle"))), h("tbody", {}, combos.one_missing.map(row))));
+  }
+  body.append(h("p", { class: "note" }, combos.meaning));
 }
 function renderCheck(body) {
   if (!state.issues.length) { body.append(h("p", {}, "Die Datenprüfung findet nichts.")); }
@@ -467,7 +507,7 @@ function renderCheck(body) {
   body.append(h("p", { class: "note" }, "Diese Prüfung liest gespeicherte Kartendaten: 100 Karten, Commander, Farbidentität, Einzelkarten-Regel, Legalität, Besitz und freie Kopien. Verbindlich für das Spiel ist erst die Prüfung durch die Regel-Engine."));
   const currentCards = [...state.commanderIds.map((id) => state.byId.get(id)), ...deckCards()].filter(Boolean);
   const notReady = currentCards.filter((card) => card.sim_status && card.sim_status !== "OK");
-  body.append(h("h3", {}, "Simulator-Bereitschaft (CODE_DERIVED)"));
+  body.append(h("h3", {}, "Simulator-Bereitschaft"));
   if (!notReady.length) {
     body.append(h("p", {}, `Alle ${currentCards.length} eindeutigen Karten im aktuellen Deck haben XMage-Card-Facts und Pilot-Wissen (OK).`));
   } else {
@@ -562,7 +602,7 @@ async function renderDiff(body) {
           h("tr", {}, h("td", {}, label), h("td", { class: "num" }, bVal), h("td", { class: "num" }, tVal), h("td", { class: "num" }, (tVal - bVal > 0 ? "+" : "") + (tVal - bVal)))),
         h("tr", {}, h("td", {}, "Ø Manawert"), h("td", { class: "num" }, bs.mana_value ?? "–"), h("td", { class: "num" }, ts.mana_value ?? "–"),
           h("td", { class: "num" }, bs.mana_value !== null && ts.mana_value !== null ? ((ts.mana_value - bs.mana_value >= 0 ? "+" : "") + (ts.mana_value - bs.mana_value).toFixed(2)) : "–"))));
-    box.append(h("h3", {}, "Struktur-Delta (DERIVED_DESCRIPTIVE)"), shapeTable);
+    box.append(h("h3", {}, "Struktur-Delta"), shapeTable);
     const bdp = bs.draw_probabilities && bs.draw_probabilities.opening_7 ? bs.draw_probabilities : null;
     const tdp = ts.draw_probabilities && ts.draw_probabilities.opening_7 ? ts.draw_probabilities : null;
     if (bdp && tdp) {
@@ -575,7 +615,7 @@ async function renderDiff(body) {
            ["Starthand 3–4 Länder (7)", bdp.opening_7.between_3_and_4_lands, tdp.opening_7.between_3_and_4_lands],
            ["Bis Zug 4 ≥ 4 Länder (10)", bdp.turn_4_draw_10.at_least_4_lands, tdp.turn_4_draw_10.at_least_4_lands]].map(([label, bV, tV]) =>
             h("tr", {}, h("td", {}, label), h("td", { class: "num" }, pct(bV)), h("td", { class: "num" }, pct(tV)), h("td", { class: "num" }, dpDelta(bV, tV))))));
-      box.append(h("h3", {}, "Land-Ziehwahrscheinlichkeiten-Delta (DERIVED_DESCRIPTIVE)"), probDiffTable);
+      box.append(h("h3", {}, "Land-Ziehwahrscheinlichkeiten-Delta"), probDiffTable);
     }
     if (diff.role_deltas && Object.keys(diff.role_deltas).length) {
       const roleRows = Object.entries(diff.role_deltas).sort((a, b) => roleName(a[0]).localeCompare(roleName(b[0])));
@@ -586,7 +626,7 @@ async function renderDiff(body) {
           h("td", { class: "num" }, vals.base),
           h("td", { class: "num" }, vals.target),
           h("td", { class: "num" }, (vals.delta > 0 ? "+" : "") + vals.delta)))));
-      box.append(h("h3", {}, "Rollen-Delta (DERIVED_DESCRIPTIVE)"), roleDiffTable);
+      box.append(h("h3", {}, "Rollen-Delta"), roleDiffTable);
     }
     if (diff.added.length) {
       box.append(h("h3", {}, `Hinzugefügt (+${diff.added.length})`), h("div", {}, diff.added.map((item) => h("div", { class: "row" }, h("span", { class: "qty" }, "+" + item.quantity), h("span", { class: "nm", onclick: () => { const c = state.byId.get(item.card_id); if (c) openCard(c); } }, item.name), h("span", { class: "muted" }, GROUP_NAMES[item.group] || item.group)))));
@@ -688,7 +728,7 @@ function renderSimulations(body) {
 
   // Batch simulation launcher & live monitor
   const bBox = h("div", { class: "sim-box" },
-    h("h3", { style: "margin-top:0" }, "Neue Simulationsserie starten (M5 Batch-Simulation)"),
+    h("h3", { style: "margin-top:0" }, "Neue Simulationsserie starten"),
     h("p", { class: "note" }, "Spielt mehrere vollständige 4-Spieler-Partien nacheinander in prozessisolierten Durchläufen mit deterministischen Seeds. Berechnet Siegrate mit Nenner und 95%-Wilson-Konfidenzintervall.")
   );
 
@@ -782,7 +822,7 @@ function renderSimulations(body) {
       const s = b.summary;
       const ci = s.confidence_interval_95 || {};
       const sumBox = h("div", { style: "margin-top:10px;background:var(--panel);padding:10px;border-radius:6px" },
-        h("h4", { style: "margin:0 0 6px" }, "Ergebnis der Serie (SIMULATED_RESULT)"),
+        h("h4", { style: "margin:0 0 6px" }, "Ergebnis der Serie"),
         h("div", { style: "display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px" },
           h("div", {}, h("span", { class: "muted" }, "Siege: "), h("b", {}, `${s.wins_fractional} / ${s.games_completed}`)),
           h("div", {}, h("span", { class: "muted" }, "Siegrate: "), h("b", {}, s.win_rate !== null ? `${s.win_rate_percent} %` : "–")),
@@ -828,10 +868,10 @@ function renderSimulations(body) {
           h("td", {}, end),
           h("td", {}, h("a", { href: `partie.html?partie=${encodeURIComponent(g.game_id)}` }, "Ansehen →")));
       })));
-    body.append(h("h3", {}, "Aufgezeichnete Einzelpartien (SIMULATED_RESULT)"), gTable);
+    body.append(h("h3", {}, "Aufgezeichnete Einzelpartien"), gTable);
   }
   if (!state.simulations || !state.simulations.length) {
-    body.append(h("p", { class: "muted" }, "Keine Batch-Simulationsläufe (SIMULATED_RESULT) im Store hinterlegt."));
+    body.append(h("p", { class: "muted" }, "Keine Batch-Simulationsläufe im Store hinterlegt."));
     return;
   }
   const runTable = h("table", {},
@@ -844,7 +884,7 @@ function renderSimulations(body) {
       h("td", { class: "num" }, run.wins_fractional),
       h("td", { class: "num" }, run.win_rate === null ? "unbekannt" : `${(100 * run.win_rate).toFixed(1)} %`),
       h("td", { class: "num" }, run.mean_rounds ?? "unbekannt")))));
-  body.append(h("h3", {}, "4P-Simulationsläufe (SIMULATED_RESULT)"), runTable,
+  body.append(h("h3", {}, "4P-Simulationsläufe"), runTable,
     h("p", { class: "note" }, "Ergebnisse aus echten XMage-Regelkern-Spielen, gebunden an Deck, Engine-Pin, Pilot-Policy und Seeds. Kein Beleg für reale Tisch-Siegraten. Exakte Handverweildauer: unbekannt (nicht gemessen)."));
   for (const run of state.simulations) {
     const inDeckCards = (run.cards || []).filter((c) => !c.card_id || qty(c.card_id) > 0 || state.commanderIds.includes(c.card_id));
@@ -886,6 +926,7 @@ async function openCard(card) {
   const frequencies = h("table", {}, h("thead", {}, h("tr", {}, h("th", {}, "Quelldecks"), h("th", { class: "num" }, "mit Karte"), h("th", { class: "num" }, "Decks"), h("th", { class: "num" }, "Anteil"))),
     h("tbody", {}, Object.keys(state.cohorts).map((key) => { const f = freq(card, key); return h("tr", { class: f.total < state.small ? "low" : "" }, h("td", {}, cohortName(key)), h("td", { class: "num" }, f.hits), h("td", { class: "num" }, f.total), h("td", { class: "num" }, f.total ? (100 * f.share).toFixed(1) + " %" : "unbekannt")); })));
   const extra = h("div", {}, h("p", { class: "muted" }, "Lädt EDHREC-Zeilen."));
+  const layerBox = h("div", {});
   const right = h("div", {},
     h("h2", {}, card.name), h("div", {}, mana(card.mana_cost), " ", h("span", { class: "muted" }, card.type_line), card.power !== null ? ` · ${card.power}/${card.toughness}` : ""),
     h("p", { style: "white-space:pre-line" }, card.text),
@@ -900,8 +941,9 @@ async function openCard(card) {
     note, h("div", { class: "actions" }, h("button", { type: "button", onclick: () => saveMark({ note: note.value }) }, "Notiz speichern")),
     h("h3", {}, "Häufigkeit in den Quelldecks"), frequencies, h("p", { class: "note" }, "Gelb: Gruppe mit weniger als 30 Decks."),
     card.universe ? h("p", { class: "note" }, `Im Universum ${state.universe}: ${card.universe.filter_card ? "Filterkarte des Universums (steht per Definition in jedem Deck der Teilmenge, ohne Zählung und ohne Stufe)" : card.universe.matched ? `${card.universe.hits}/${card.universe.denominator} Decks, Stufe ${card.universe.level} (Verbreitung gezählt, keine Stärke)` : "unbekannt (kein Deck des Universums nennt diese Karte unter einem bekannten Namen)"}`) : null,
-    card.universe && state.universeInfo && state.universeInfo.subset_note ? h("p", { class: "note" }, state.universeInfo.subset_note) : null, extra);
+    card.universe && state.universeInfo && state.universeInfo.subset_note ? h("p", { class: "note" }, state.universeInfo.subset_note) : null, layerBox, extra);
   box.append(left, right); $("modal").hidden = false;
+  showLayers(layerBox, card);
   try {
     const detail = await api(`/api/cards/${encodeURIComponent(card.card_id)}?${StudioCommander.query}&cohort=${encodeURIComponent(state.cohort)}`);
     const parts = [];
@@ -924,7 +966,7 @@ async function openCard(card) {
                 h("td", { class: "num" }, `${(100 * pair.decks_together / co.decks_with_card).toFixed(1)} %`),
                 h("td", { class: "num" }, pair.lift === null ? "unbekannt" : pair.lift.toFixed(2)),
                 h("td", {}, pair.combo_partner ? "ja (Spellbook-Kombo)" : "–"))))),
-            h("p", { class: "note" }, "Reine Zählung im gewählten Universum (DERIVED_DESCRIPTIVE). Lift: Anteil unter den Decks mit dieser Karte geteilt durch den Anteil im ganzen Universum; über 1 heißt überproportional oft zusammen gespielt. Kombo-Partner: beide Karten stehen in einer geprüften Spellbook-Kombo dieses Commanders." + (co.excluded_no_date ? ` ${co.excluded_no_date} Decks ohne Zeitstempel fallen durch den Datumsfilter heraus.` : "")),
+            h("p", { class: "note" }, "Reine Zählung im gewählten Universum. Lift: Anteil unter den Decks mit dieser Karte geteilt durch den Anteil im ganzen Universum; über 1 heißt überproportional oft zusammen gespielt. Kombo-Partner: beide Karten stehen in einer geprüften Spellbook-Kombo dieses Commanders." + (co.excluded_no_date ? ` ${co.excluded_no_date} Decks ohne Zeitstempel fallen durch den Datumsfilter heraus.` : "")),
             ...(co.subset_note ? [h("p", { class: "note" }, `${co.subset_note}. Der Nenner ${co.denominator} ist diese Teilmenge, nicht alle Decks des Commanders.${co.filter_card ? " Diese Karte ist eine Filterkarte: sie steht in allen Decks der Teilmenge." : ""}`)] : []));
         }
       } catch (error) { parts.push(h("p", { class: "muted" }, "Universum-Kookkurrenz nicht lesbar: " + error.message)); }
@@ -933,7 +975,7 @@ async function openCard(card) {
       const co = detail.cooccurrence;
       const coRows = co.cards.filter((item) => {
         const other = state.byId.get(item.card_id);
-        return !other || !other.basic;
+        return !state.commanderIds.includes(item.card_id) && (!other || !other.basic);
       });
       parts.push(h("h3", {}, `Zusammen gespielt in Quelldecks (${cohortName(co.cohort)}, Nenner: ${co.card_decks} Decks mit dieser Karte)`),
         h("table", {},
@@ -946,7 +988,7 @@ async function openCard(card) {
               h("td", { class: "num" }, `${(100 * item.share).toFixed(1)} %`),
               h("td", {}, other && !qty(other.card_id) && maxCopies(other) > 0 ? h("button", { class: "small", type: "button", onclick: () => { add(other); openCard(card); } }, "+") : null));
           }))),
-        h("p", { class: "note" }, "Reine Zählung (DERIVED_DESCRIPTIVE): wie oft eine andere Karte deiner Sammlung in denselben Quelldecks vorkommt."));
+        h("p", { class: "note" }, "Reine Zählung: wie oft eine andere Karte deiner Sammlung in denselben Quelldecks vorkommt."));
     }
     if (detail.neutral_boards && detail.neutral_boards.sections && detail.neutral_boards.sections.length) {
       const nb = detail.neutral_boards;
@@ -961,7 +1003,7 @@ async function openCard(card) {
         h("p", { class: "note" }, "Neutrale Quellkategorie der Deckautoren (Maybeboard = Überlegung, Cuts = vom Autor separiert). Keine negative Bewertung und niemals mit Mainboard-Frequenzen vermischt."));
     }
     if (detail.simulations && detail.simulations.length) {
-      parts.push(h("h3", {}, "Simulationsergebnisse (SIMULATED_RESULT)"),
+      parts.push(h("h3", {}, "Simulationsergebnisse"),
         h("table", {},
           h("thead", {}, h("tr", {}, h("th", {}, "Pod (Pin)"), h("th", { class: "num" }, "Spiele angeboten"), h("th", { class: "num" }, "Spiele gewirkt"), h("th", { class: "num" }, "ungespielt"), h("th", { class: "num" }, "Ø 1. Runde"), h("th", {}, "Handverweildauer"))),
           h("tbody", {}, detail.simulations.map((s) => h("tr", {},
@@ -1009,6 +1051,27 @@ async function openCard(card) {
     }
     extra.replaceChildren(...parts);
   } catch (error) { extra.replaceChildren(h("p", { class: "muted" }, "Zusatzdaten nicht lesbar: " + error.message)); }
+}
+// The rating layers of one card as a small table; loaded on its own, so the slower detail request does not hold it back.
+async function showLayers(into, card) {
+  try {
+    const found = await ratingLayers();
+    const mine = found.cards[card.card_id];
+    if (mine) into.replaceChildren(h("h3", {}, "Bewertungsebenen"), StudioUI.layerTable(mine, found.layers),
+      h("p", { class: "note" }, `Eigene Spalten der Tierliste, kein Teil des Stärke-Index (nur mit Gewicht, empfohlen: 0). Ein unbekannter Wert steht als „–“ mit Grund und ist nie 0. ${found.measured_note} ${found.pod_note}`));
+  } catch (error) { into.replaceChildren(h("p", { class: "muted" }, "Bewertungsebenen nicht lesbar: " + StudioUI.germanError(error))); }
+}
+// The rating layers of the pool (one request per commander and pod size, kept while the page is open).
+function ratingLayers() {
+  let size = 4;
+  try { const saved = JSON.parse(StudioUI.recall("studio.strength.settings", "null")); if (saved && Number.isInteger(saved.pod_size) && saved.pod_size >= 2 && saved.pod_size <= 6) size = saved.pod_size; } catch (error) { /* view setting only */ }
+  const key = `${COMMANDER}|${size}`;
+  if (!state.ratingLayers || state.ratingLayers.key !== key) {
+    const promise = api(`/api/rating-layers?commander=${encodeURIComponent(COMMANDER)}&pod_size=${size}`);
+    state.ratingLayers = { key, promise };
+    promise.catch(() => { state.ratingLayers = null; });
+  }
+  return state.ratingLayers.promise;
 }
 
 // ---------- Stärke-Index for the sort (the tier page's function, never a copy of its scoring) ----------
@@ -1127,7 +1190,7 @@ async function loadBranch() {
     api(`/api/decks/${encodeURIComponent(state.deckId)}/branches/${encodeURIComponent(state.branch)}/draft`),
   ]);
   if (draft.draft) { useCards(draft.draft.cards); state.dirty = true; }
-  else { useCards(revision.cards); state.dirty = false; state.issues = revision.issues; state.shape = revision.shape; state.deckRoles = revision.roles || {}; }
+  else { useCards(revision.cards); state.dirty = false; state.issues = revision.issues; state.shape = revision.shape; state.deckRoles = revision.roles || {}; state.combos = revision.combos || null; }
   renderAll(); await syncDraft();
 }
 async function saveRevision(branch = state.branch) {

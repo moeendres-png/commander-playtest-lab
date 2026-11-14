@@ -1,0 +1,936 @@
+{
+  "parse_path": "json-streaming",
+  "total_samples_game_main": 19885,
+  "by_thread_total": {
+    "main": 1875,
+    "GAME": 18010
+  },
+  "copy_samples": 7482,
+  "by_thread_copy": {
+    "GAME": 7482
+  },
+  "broad_copy_samples_E_or_ctor": 7484,
+  "trigger_classes": {
+    "a_bookmark": 1012,
+    "b_playable": 5066,
+    "f_other": 1286,
+    "c_trigger": 118
+  },
+  "class_evidence_frames": {
+    "a_bookmark": [
+      [
+        "mage.game.GameStates.save",
+        1012
+      ]
+    ],
+    "b_playable": [
+      [
+        "mage.players.PlayerImpl.getPlayable",
+        4784
+      ],
+      [
+        "mage.players.PlayerImpl.canPlay",
+        171
+      ],
+      [
+        "mage.players.PlayerImpl.getPlayableFromObjectSingle",
+        111
+      ]
+    ],
+    "f_other": [
+      [
+        "mage.game.permanent.PermanentCard.copyFromCard",
+        684
+      ],
+      [
+        "org.commanderlab.xmage.XmageFullGamePlayer.manaCostAffordable",
+        331
+      ],
+      [
+        "mage.players.PlayerImpl.getManaAvailable",
+        229
+      ],
+      [
+        "mage.game.permanent.PermanentImpl.addAbility",
+        20
+      ],
+      [
+        "mage.game.GameImpl.ownGameCard",
+        5
+      ],
+      [
+        "org.commanderlab.xmage.XmageFullGamePlayer.crewPayableWithoutSource",
+        5
+      ],
+      [
+        "mage.game.GameImpl.getLastKnownInformation",
+        2
+      ],
+      [
+        "mage.game.GameImpl.rememberLKI",
+        2
+      ],
+      [
+        "mage.players.PlayerImpl.activateAbility",
+        2
+      ],
+      [
+        "<root>",
+        1
+      ]
+    ],
+    "c_trigger": [
+      [
+        "mage.game.GameState.triggers",
+        82
+      ],
+      [
+        "mage.game.GameImpl.checkTriggered",
+        19
+      ],
+      [
+        "mage.game.GameImpl.checkStateAndTriggered",
+        16
+      ],
+      [
+        "mage.game.GameImpl.addTriggeredAbility",
+        1
+      ]
+    ]
+  },
+  "top_anchors": [
+    [
+      "mage.game.GameImpl.createSimulationForPlayableCalc",
+      4461
+    ],
+    [
+      "mage.game.GameState.copy",
+      1012
+    ],
+    [
+      "mage.abilities.AbilitiesImpl.copy",
+      687
+    ],
+    [
+      "mage.abilities.TriggeredAbilities.copy",
+      585
+    ],
+    [
+      "mage.util.CardUtil.deepCopyObject",
+      472
+    ],
+    [
+      "mage.abilities.SpellAbility.copy",
+      67
+    ],
+    [
+      "mage.abilities.mana.ManaOptions.copy",
+      42
+    ],
+    [
+      "mage.abilities.common.SimpleActivatedAbility.copy",
+      33
+    ],
+    [
+      "mage.abilities.costs.mana.ManaCostsImpl.copy",
+      30
+    ],
+    [
+      "mage.abilities.mana.GreenManaAbility.copy",
+      16
+    ],
+    [
+      "mage.abilities.LoyaltyAbility.copy",
+      8
+    ],
+    [
+      "mage.abilities.common.ActivateIfConditionActivatedAbility.copy",
+      6
+    ],
+    [
+      "mage.abilities.mana.WhiteManaAbility.copy",
+      4
+    ],
+    [
+      "mage.game.permanent.PermanentCard.copy",
+      4
+    ],
+    [
+      "mage.abilities.common.ActivateAsSorceryActivatedAbility.copy",
+      3
+    ],
+    [
+      "mage.abilities.token.FoodAbility.copy",
+      3
+    ],
+    [
+      "mage.game.permanent.PermanentToken.copy",
+      2
+    ],
+    [
+      "mage.abilities.PlayLandAbility.copy",
+      2
+    ],
+    [
+      "mage.abilities.mana.BlueManaAbility.copy",
+      2
+    ],
+    [
+      "mage.target.targetpointer.FirstTargetPointer.copy",
+      2
+    ]
+  ],
+  "anchor_direct_callers": {
+    "mage.game.GameState.copy": [
+      [
+        "mage.game.GameStates.save",
+        1012
+      ]
+    ],
+    "mage.game.GameImpl.createSimulationForPlayableCalc": [
+      [
+        "mage.players.PlayerImpl.getPlayable",
+        2199
+      ],
+      [
+        "mage.players.PlayerImpl.getManaAvailable",
+        1926
+      ],
+      [
+        "org.commanderlab.xmage.XmageFullGamePlayer.manaCostAffordable",
+        331
+      ],
+      [
+        "org.commanderlab.xmage.XmageFullGamePlayer.crewPayableWithoutSource",
+        5
+      ]
+    ],
+    "mage.util.CardUtil.deepCopyObject": [
+      [
+        "mage.game.GameImpl.ownGameCard",
+        472
+      ]
+    ],
+    "mage.abilities.AbilitiesImpl.copy": [
+      [
+        "mage.game.permanent.PermanentCard.copyFromCard",
+        686
+      ],
+      [
+        "<root>",
+        1
+      ]
+    ],
+    "mage.abilities.TriggeredAbilities.copy": [
+      [
+        "mage.game.GameState.triggers",
+        585
+      ]
+    ],
+    "mage.abilities.SpellAbility.copy": [
+      [
+        "mage.players.PlayerImpl.canPlay",
+        65
+      ],
+      [
+        "mage.players.PlayerImpl$$Lambda$233+0x00007e85242db478.705113059.apply",
+        2
+      ]
+    ],
+    "mage.abilities.common.SimpleActivatedAbility.copy": [
+      [
+        "mage.players.PlayerImpl.canPlay",
+        27
+      ],
+      [
+        "mage.game.permanent.PermanentImpl.addAbility",
+        6
+      ]
+    ],
+    "mage.abilities.LoyaltyAbility.copy": [
+      [
+        "mage.players.PlayerImpl.canPlay",
+        7
+      ],
+      [
+        "mage.abilities.costs.common.PayLoyaltyCost.canPay",
+        1
+      ]
+    ],
+    "mage.abilities.costs.mana.ManaCostsImpl.copy": [
+      [
+        "mage.game.permanent.PermanentCard.copyFromCard",
+        30
+      ]
+    ],
+    "mage.abilities.common.ActivateAsSorceryActivatedAbility.copy": [
+      [
+        "mage.players.PlayerImpl.canPlay",
+        3
+      ]
+    ],
+    "mage.abilities.common.SimpleStaticAbility.copy": [
+      [
+        "mage.game.permanent.PermanentImpl.addAbility",
+        1
+      ]
+    ],
+    "mage.abilities.mana.ManaOptions.copy": [
+      [
+        "mage.players.PlayerImpl.findActivatedAbilityFromPlayable",
+        39
+      ],
+      [
+        "org.commanderlab.xmage.XmageFullGamePlayer.getManaAvailable",
+        2
+      ],
+      [
+        "mage.players.PlayerImpl.getManaAvailable",
+        1
+      ]
+    ],
+    "mage.abilities.token.FoodAbility.copy": [
+      [
+        "mage.players.PlayerImpl.canPlay",
+        3
+      ]
+    ],
+    "mage.abilities.common.ActivateIfConditionActivatedAbility.copy": [
+      [
+        "mage.players.PlayerImpl.canPlay",
+        6
+      ]
+    ],
+    "mage.game.permanent.PermanentToken.copy": [
+      [
+        "mage.game.GameImpl.getLastKnownInformation",
+        2
+      ]
+    ],
+    "mage.abilities.keyword.EquipAbility.copy": [
+      [
+        "mage.players.PlayerImpl.canPlay",
+        1
+      ]
+    ],
+    "mage.abilities.triggers.BeginningOfEndStepTriggeredAbility.copy": [
+      [
+        "mage.game.GameImpl.addTriggeredAbility",
+        1
+      ]
+    ],
+    "mage.abilities.common.LandfallAbility.copy": [
+      [
+        "mage.players.PlayerImpl.triggerAbility",
+        1
+      ]
+    ],
+    "mage.cards.a.AdrixAndNevTwincasters.copy": [
+      [
+        "mage.abilities.SpellAbility.getCharacteristics",
+        1
+      ]
+    ],
+    "mage.cards.s.SereneSleuth.copy": [
+      [
+        "mage.abilities.SpellAbility.getCharacteristics",
+        1
+      ]
+    ],
+    "mage.filter.common.FilterControlledPermanent.copy": [
+      [
+        "mage.abilities.condition.common.PermanentsOnTheBattlefieldCondition.apply",
+        1
+      ]
+    ],
+    "mage.cards.h.HourOfReckoning.copy": [
+      [
+        "mage.abilities.SpellAbility.getCharacteristics",
+        1
+      ]
+    ],
+    "mage.cards.c.CitanulHierophants.copy": [
+      [
+        "mage.abilities.SpellAbility.getCharacteristics",
+        1
+      ]
+    ],
+    "mage.cards.a.AjaniCallerOfThePride.copy": [
+      [
+        "mage.abilities.SpellAbility.getCharacteristics",
+        1
+      ]
+    ],
+    "mage.cards.c.CollectiveBlessing.copy": [
+      [
+        "mage.abilities.SpellAbility.getCharacteristics",
+        1
+      ]
+    ],
+    "mage.cards.s.Sporemound.copy": [
+      [
+        "mage.abilities.SpellAbility.getCharacteristics",
+        1
+      ]
+    ],
+    "mage.abilities.PlayLandAbility.copy": [
+      [
+        "mage.players.PlayerImpl.canPlay",
+        2
+      ]
+    ],
+    "mage.counters.Counters.copy": [
+      [
+        "mage.players.PlayerImpl.getCountersAsCopy",
+        1
+      ]
+    ],
+    "mage.abilities.mana.GreenManaAbility.copy": [
+      [
+        "mage.game.permanent.PermanentImpl.addAbility",
+        11
+      ],
+      [
+        "mage.players.PlayerImpl$$Lambda$233+0x00007e85242db478.705113059.apply",
+        4
+      ],
+      [
+        "mage.players.PlayerImpl.activateAbility",
+        1
+      ]
+    ],
+    "mage.abilities.keyword.EncoreAbility.copy": [
+      [
+        "mage.players.PlayerImpl.canPlay",
+        1
+      ]
+    ],
+    "mage.abilities.mana.RedManaAbility.copy": [
+      [
+        "mage.players.PlayerImpl$$Lambda$233+0x00007e85242db478.705113059.apply",
+        1
+      ]
+    ],
+    "mage.abilities.mana.WhiteManaAbility.copy": [
+      [
+        "mage.players.PlayerImpl$$Lambda$233+0x00007e85242db478.705113059.apply",
+        4
+      ]
+    ],
+    "mage.game.permanent.PermanentCard.copy": [
+      [
+        "mage.MageObjectImpl.setCopy",
+        2
+      ],
+      [
+        "mage.game.GameImpl.rememberLKI",
+        1
+      ],
+      [
+        "mage.game.GameImpl.getLastKnownInformation",
+        1
+      ]
+    ],
+    "mage.cards.l.LlanowarElves.copy": [
+      [
+        "mage.abilities.SpellAbility.getCharacteristics",
+        1
+      ]
+    ],
+    "mage.cards.f.FelidarRetreat.copy": [
+      [
+        "mage.abilities.SpellAbility.getCharacteristics",
+        1
+      ]
+    ],
+    "mage.cards.e.EnvironmentalScientist.copy": [
+      [
+        "mage.abilities.SpellAbility.getCharacteristics",
+        1
+      ]
+    ],
+    "mage.abilities.mana.BlueManaAbility.copy": [
+      [
+        "mage.players.PlayerImpl$$Lambda$233+0x00007e85242db478.705113059.apply",
+        1
+      ],
+      [
+        "mage.players.PlayerImpl.activateAbility",
+        1
+      ]
+    ],
+    "mage.cards.basiclands.Island.copy": [
+      [
+        "mage.game.ZonesHandler.prepareBlueprintCardFromSpell",
+        1
+      ]
+    ],
+    "mage.abilities.token.ClueAbility.copy": [
+      [
+        "mage.players.PlayerImpl.canPlay",
+        1
+      ]
+    ],
+    "mage.cards.s.SerraParagon.copy": [
+      [
+        "mage.abilities.SpellAbility.getCharacteristics",
+        1
+      ]
+    ],
+    "mage.cards.q.QuintoriusFieldHistorian.copy": [
+      [
+        "mage.abilities.SpellAbility.getCharacteristics",
+        1
+      ]
+    ],
+    "mage.cards.g.GildedLotus.copy": [
+      [
+        "mage.abilities.SpellAbility.getCharacteristics",
+        1
+      ]
+    ],
+    "mage.target.targetpointer.FirstTargetPointer.copy": [
+      [
+        "mage.abilities.decorator.ConditionalRestrictionEffect.applies",
+        2
+      ]
+    ],
+    "mage.abilities.keyword.FlashbackAbility.copy": [
+      [
+        "mage.players.PlayerImpl.canPlay",
+        1
+      ]
+    ],
+    "mage.abilities.keyword.CyclingAbility.copy": [
+      [
+        "mage.players.PlayerImpl.canPlay",
+        1
+      ]
+    ],
+    "mage.cards.s.SkyclaveApparition.copy": [
+      [
+        "mage.abilities.SpellAbility.getCharacteristics",
+        1
+      ]
+    ],
+    "mage.cards.h.HarvestSeason.copy": [
+      [
+        "mage.abilities.SpellAbility.getCharacteristics",
+        1
+      ]
+    ],
+    "mage.cards.h.Harmonize.copy": [
+      [
+        "mage.abilities.SpellAbility.getCharacteristics",
+        1
+      ]
+    ],
+    "mage.cards.v.VoraciousGreatshark.copy": [
+      [
+        "mage.abilities.SpellAbility.getCharacteristics",
+        1
+      ]
+    ],
+    "mage.cards.d.DauntlessEscort.copy": [
+      [
+        "mage.abilities.SpellAbility.getCharacteristics",
+        1
+      ]
+    ],
+    "mage.cards.e.ElvishMystic.copy": [
+      [
+        "mage.abilities.SpellAbility.getCharacteristics",
+        1
+      ]
+    ],
+    "mage.cards.s.ScatterTheSeeds.copy": [
+      [
+        "mage.abilities.SpellAbility.getCharacteristics",
+        1
+      ]
+    ],
+    "mage.cards.r.RishkarPeemaRenegade.copy": [
+      [
+        "mage.abilities.SpellAbility.getCharacteristics",
+        1
+      ]
+    ],
+    "mage.cards.s.SwordsToPlowshares.copy": [
+      [
+        "mage.abilities.SpellAbility.getCharacteristics",
+        1
+      ]
+    ],
+    "mage.cards.e.ErdwalIlluminator.copy": [
+      [
+        "mage.abilities.SpellAbility.getCharacteristics",
+        1
+      ]
+    ],
+    "mage.cards.c.Camaraderie.copy": [
+      [
+        "mage.abilities.SpellAbility.getCharacteristics",
+        1
+      ]
+    ],
+    "mage.cards.w.WhiteSunsZenith.copy": [
+      [
+        "mage.abilities.SpellAbility.getCharacteristics",
+        1
+      ]
+    ],
+    "mage.abilities.common.AttacksTriggeredAbility.copy": [
+      [
+        "mage.game.permanent.PermanentImpl.addAbility",
+        2
+      ]
+    ],
+    "mage.game.stack.StackAbility.copy": [
+      [
+        "mage.game.GameImpl.rememberLKI",
+        1
+      ]
+    ],
+    "mage.target.Targets.copy": [
+      [
+        "mage.abilities.costs.CostImpl.<init>",
+        1
+      ]
+    ]
+  },
+  "samples_with_createSimulationForPlayableCalc_frame": 4461,
+  "samples_with_getPlayable_frame": 7193,
+  "top_leaf_frames_in_copy_samples": [
+    [
+      "java.util.HashMap.putVal",
+      1205
+    ],
+    [
+      "mage.util.CardUtil.deepCopyObject",
+      672
+    ],
+    [
+      "mage.abilities.mana.ManaOptions.<init>",
+      459
+    ],
+    [
+      "java.util.Arrays.copyOf",
+      361
+    ],
+    [
+      "mage.util.CardUtil.deepCopyList",
+      358
+    ],
+    [
+      "mage.util.CardUtil.deepCopyEnumMap",
+      357
+    ],
+    [
+      "mage.abilities.effects.Effects.<init>",
+      297
+    ],
+    [
+      "mage.util.CardUtil.deepCopyHashMap",
+      271
+    ],
+    [
+      "java.util.HashMap.resize",
+      266
+    ],
+    [
+      "java.util.ArrayList.addAll",
+      221
+    ],
+    [
+      "java.util.HashMap.putAll",
+      220
+    ],
+    [
+      "mage.abilities.costs.mana.ManaCostsImpl.copy",
+      215
+    ],
+    [
+      "mage.abilities.AbilitiesImpl.<init>",
+      206
+    ],
+    [
+      "mage.abilities.Modes.getSelectedModes",
+      152
+    ],
+    [
+      "mage.abilities.costs.mana.ManaCostsImpl.<init>",
+      143
+    ],
+    [
+      "java.lang.reflect.AccessibleObject.checkCanSetAccessible",
+      127
+    ],
+    [
+      "mage.util.CardUtil.deepCopyHashSet",
+      122
+    ],
+    [
+      "mage.abilities.AbilityImpl.<init>",
+      102
+    ],
+    [
+      "mage.abilities.Modes.<init>",
+      94
+    ],
+    [
+      "java.util.Arrays$ArrayList.toArray",
+      74
+    ]
+  ],
+  "alloc_events_total": 157864,
+  "alloc_weight_total": 346938300400,
+  "alloc_top_classes": [
+    {
+      "class": "[B",
+      "events": 30834,
+      "weight_bytes": 40860980672
+    },
+    {
+      "class": "com.google.gson.internal.LinkedTreeMap$Node",
+      "events": 27597,
+      "weight_bytes": 17894507648
+    },
+    {
+      "class": "[Ljava.lang.Object;",
+      "events": 12197,
+      "weight_bytes": 42913434384
+    },
+    {
+      "class": "java.util.ArrayList",
+      "events": 7480,
+      "weight_bytes": 23686138720
+    },
+    {
+      "class": "java.util.LinkedHashMap",
+      "events": 5362,
+      "weight_bytes": 22296990088
+    },
+    {
+      "class": "[Ljava.util.HashMap$Node;",
+      "events": 4153,
+      "weight_bytes": 15037769904
+    },
+    {
+      "class": "java.lang.String",
+      "events": 4080,
+      "weight_bytes": 6788536952
+    },
+    {
+      "class": "com.google.gson.internal.LinkedTreeMap",
+      "events": 3906,
+      "weight_bytes": 2459546456
+    },
+    {
+      "class": "java.util.ArrayList$Itr",
+      "events": 3709,
+      "weight_bytes": 9346587168
+    },
+    {
+      "class": "[Z",
+      "events": 3462,
+      "weight_bytes": 1299291408
+    },
+    {
+      "class": "java.util.HashMap",
+      "events": 3399,
+      "weight_bytes": 13367161856
+    },
+    {
+      "class": "mage.Mana",
+      "events": 3141,
+      "weight_bytes": 12047787928
+    },
+    {
+      "class": "[I",
+      "events": 3044,
+      "weight_bytes": 4249577464
+    },
+    {
+      "class": "com.google.gson.JsonObject",
+      "events": 2428,
+      "weight_bytes": 1280258248
+    },
+    {
+      "class": "java.util.HashMap$Node",
+      "events": 2349,
+      "weight_bytes": 7556781888
+    },
+    {
+      "class": "java.util.LinkedHashMap$Entry",
+      "events": 1908,
+      "weight_bytes": 7510761472
+    },
+    {
+      "class": "mage.abilities.Modes",
+      "events": 1859,
+      "weight_bytes": 8306102664
+    },
+    {
+      "class": "mage.abilities.costs.mana.ManaCostsImpl",
+      "events": 1513,
+      "weight_bytes": 5665291160
+    },
+    {
+      "class": "mage.target.targetpointer.FirstTargetPointer",
+      "events": 1464,
+      "weight_bytes": 6080729368
+    },
+    {
+      "class": "mage.counters.Counters",
+      "events": 1426,
+      "weight_bytes": 5570100424
+    },
+    {
+      "class": "com.google.gson.internal.LinkedTreeMap$EntrySet$1",
+      "events": 1332,
+      "weight_bytes": 728736792
+    },
+    {
+      "class": "com.google.gson.JsonArray",
+      "events": 1212,
+      "weight_bytes": 935718432
+    },
+    {
+      "class": "java.util.LinkedHashMap$LinkedKeyIterator",
+      "events": 1106,
+      "weight_bytes": 4170962008
+    },
+    {
+      "class": "java.util.stream.ReferencePipeline$Head",
+      "events": 904,
+      "weight_bytes": 3580100304
+    },
+    {
+      "class": "mage.game.CardState",
+      "events": 896,
+      "weight_bytes": 3265336920
+    },
+    {
+      "class": "com.google.gson.internal.LinkedTreeMap$EntrySet",
+      "events": 782,
+      "weight_bytes": 571468864
+    },
+    {
+      "class": "[C",
+      "events": 769,
+      "weight_bytes": 188608264
+    },
+    {
+      "class": "com.google.gson.JsonPrimitive",
+      "events": 740,
+      "weight_bytes": 1489537976
+    },
+    {
+      "class": "java.util.regex.Matcher",
+      "events": 737,
+      "weight_bytes": 1664897872
+    },
+    {
+      "class": "mage.abilities.AbilitiesImpl",
+      "events": 710,
+      "weight_bytes": 2778326920
+    }
+  ],
+  "alloc_mage_classes_of_interest": [
+    {
+      "class": "mage.abilities.AbilitiesImpl",
+      "events": 710,
+      "weight_bytes": 2778326920
+    },
+    {
+      "class": "mage.abilities.AbilitiesImpl$$Lambda$198+0x00007e85242cbae8.1159734494",
+      "events": 35,
+      "weight_bytes": 91932208
+    },
+    {
+      "class": "mage.abilities.AbilitiesImpl$$Lambda$223+0x00007e85242d9558.640112561",
+      "events": 14,
+      "weight_bytes": 81518432
+    },
+    {
+      "class": "mage.abilities.AbilitiesImpl$$Lambda$224+0x00007e85242d97b0.1667832398",
+      "events": 11,
+      "weight_bytes": 42044184
+    },
+    {
+      "class": "mage.abilities.AbilitiesImpl$$Lambda$225+0x00007e85242d9a08.328617052",
+      "events": 14,
+      "weight_bytes": 36188632
+    },
+    {
+      "class": "mage.abilities.AbilitiesImpl$$Lambda$226+0x00007e85242d9c50.1002190481",
+      "events": 21,
+      "weight_bytes": 51897112
+    },
+    {
+      "class": "mage.abilities.AbilitiesImpl$$Lambda$257+0x00007e85242fc768.668897104",
+      "events": 14,
+      "weight_bytes": 94655264
+    },
+    {
+      "class": "mage.abilities.AbilitiesImpl$$Lambda$258+0x00007e85242fc9c0.1154028440",
+      "events": 8,
+      "weight_bytes": 16332136
+    },
+    {
+      "class": "mage.abilities.AbilitiesImpl$$Lambda$259+0x00007e85242fcc18.1069381194",
+      "events": 9,
+      "weight_bytes": 19385056
+    },
+    {
+      "class": "mage.abilities.AbilitiesImpl$$Lambda$295+0x00007e852430c228.1271655918",
+      "events": 1,
+      "weight_bytes": 1659616
+    },
+    {
+      "class": "mage.abilities.AbilitiesImpl$$Lambda$74+0x00007e851ffffda0.1952473604",
+      "events": 1,
+      "weight_bytes": 448872
+    },
+    {
+      "class": "mage.abilities.AbilitiesImpl$$Lambda$75+0x00007e851ffefcf0.1802415698",
+      "events": 1,
+      "weight_bytes": 2119968
+    },
+    {
+      "class": "mage.abilities.Modes",
+      "events": 1859,
+      "weight_bytes": 8306102664
+    },
+    {
+      "class": "mage.abilities.effects.Effects",
+      "events": 520,
+      "weight_bytes": 1753341576
+    },
+    {
+      "class": "mage.game.GameImpl$$Lambda$213+0x00007e85242d2770.50377945",
+      "events": 1,
+      "weight_bytes": 3354408
+    },
+    {
+      "class": "mage.game.GameImpl$$Lambda$214+0x00007e85242d29a8.1921494709",
+      "events": 1,
+      "weight_bytes": 2126360
+    },
+    {
+      "class": "mage.game.GameImpl$$Lambda$306+0x00007e85243104a0.994840829",
+      "events": 5,
+      "weight_bytes": 7771840
+    },
+    {
+      "class": "mage.game.GameState",
+      "events": 7,
+      "weight_bytes": 87831888
+    },
+    {
+      "class": "mage.watchers.Watchers",
+      "events": 2,
+      "weight_bytes": 10548800
+    }
+  ]
+}

@@ -947,7 +947,7 @@ def main() -> int:
                 "## 5. Java Flight Recorder (JFR) Profil in warmer JVM (Part B)",
                 "",
                 "- **Aufzeichnungs-Fenster:** 10 warme Partien (Seeds 3 bis 12, nach 2 Aufwärm-Partien verworfen).",
-                "- **Profil-Datei:** `docs/performance/measurements-2026-11-13/warm_profile.jfr`",
+                "- **Profil-Datei:** nicht im Repository. Eine JFR-Aufzeichnung enthält die Umgebungsvariablen und Systemeigenschaften des aufzeichnenden Rechners; committed wird nur die Auswertung (`warm_profile_summary.json`).",
                 f"- **Gesamte CPU-Samples:** {jfr_analysis.get('cpu_samples')}",
                 "",
                 "### Zeitanteile der Subsysteme (in % der CPU-Zeit)",
