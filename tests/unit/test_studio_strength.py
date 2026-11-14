@@ -417,7 +417,7 @@ def test_settings_are_validated_and_round_trip() -> None:
         strength.GLOBAL_INCLUSION: 1.0,
         strength.COMBOS: 0.0,
         strength.PLAYGROUP_OBSERVED: 0.0,
-        strength.RUBRIC: 9.0,
+        strength.RUBRIC: 4.0,
         strength.SIMULATION: 0.0,
     }
     tournament = strength.PRESETS["Turniernah"]
@@ -432,7 +432,7 @@ def test_settings_are_validated_and_round_trip() -> None:
         strength.GLOBAL_INCLUSION: 1.0,
         strength.COMBOS: 1.0,
         strength.PLAYGROUP_OBSERVED: 0.0,
-        strength.RUBRIC: 6.0,
+        strength.RUBRIC: 2.5,
         strength.SIMULATION: 0.0,
     }
     assert strength.DEFAULT_WEIGHTS[strength.SYNERGY] == 0.0
@@ -1245,7 +1245,7 @@ def test_recommended_values_come_from_one_place_and_the_panel_texts_name_them(
     assert "(empfohlen: 25)" in labels["min_coverage"]  # the page field is in percent
     assert "(empfohlen: 2)" in labels["min_components"]
     assert [group["title"] for group in meta["panel"]["groups"]][-1].endswith(
-        "(empfohlen: 46 / 25 / 13 / 5)"
+        "(empfohlen: 47 / 17 / 9 / 4)"
     )
     for group in meta["panel"]["groups"]:
         assert all(key in labels and key in meta["panel"]["help"] for key in group["keys"])

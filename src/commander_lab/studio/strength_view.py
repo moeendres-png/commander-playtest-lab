@@ -974,6 +974,11 @@ def _panel_texts() -> dict[str, object]:
         "als Spalte „Sieg-Abstand“ gezeigt (Gewicht 0). Gilt für jeden Commander und reicht "
         "für eine Stufe allein nicht. 0 schaltet das Signal ab."
     )
+    helps[f"weights.{strength.RUBRIC}"] = (
+        f"Strukturierte Bewertung von drei Bewertern (Übereinstimmung ICC 0,94), nur für Chulane; "
+        f"empfohlen {_number_text(rec.weights[strength.RUBRIC])} (etwa 30 % des Gewichts für eine "
+        "typische Karte), 0 schaltet das Signal ab."
+    )
     helps[f"weights.{strength.DECK_UNIVERSE}"] = (
         "Wie stark die Verbreitung in gezählten Decklisten zählt. 0 schaltet sie ab."
     )

@@ -327,7 +327,7 @@ def test_every_preset_weights_the_rubric_and_keeps_simulation_and_layers_at_zero
         assert all(weight == 0.0 for weight in settings.layer_weights.values()), name
         assert settings.weights[strength.PLAYGROUP_OBSERVED] == 0.0, name
     assert strength.PRESETS["Ausgewogen"] == StrengthSettings()
-    # "Ausgewogen": rubric and the usage block weigh the same for a typical Chulane card, which has
+    # "Ausgewogen": the rubric is about 30 % of the present weight for a typical Chulane card, which has
     # commander, bracket, deck universe and global inclusion (and no tournament or combo row)
     weights = StrengthSettings().weights
     usage = sum(
@@ -339,15 +339,18 @@ def test_every_preset_weights_the_rubric_and_keeps_simulation_and_layers_at_zero
             strength.GLOBAL_INCLUSION,
         )
     )
-    assert weights[strength.RUBRIC] == usage == 8.0
-    assert strength.DEFAULT_WEIGHTS[strength.RUBRIC] == 8.0
+    assert usage == 8.0 and weights[strength.RUBRIC] == 3.5
+    assert weights[strength.RUBRIC] / (usage + weights[strength.RUBRIC]) == pytest.approx(
+        0.304, abs=1e-3
+    )
+    assert strength.DEFAULT_WEIGHTS[strength.RUBRIC] == 3.5
     assert strength_view.presets()["components"]  # the page lists the rubric like every component
     keys = [item["key"] for item in strength_view.presets()["components"]]  # type: ignore[attr-defined]
     assert strength.RUBRIC in keys
 
 
 def test_the_default_cuts_fall_strictly_and_are_the_recorded_derivation() -> None:
-    assert strength.DEFAULT_CUTS == {"S": 46.0, "A": 25.0, "B": 13.0, "C": 5.0}
+    assert strength.DEFAULT_CUTS == {"S": 47.0, "A": 17.0, "B": 9.0, "C": 4.0}
     assert StrengthSettings().tier_cuts == strength.DEFAULT_CUTS
 
 
@@ -370,3 +373,11 @@ def test_owner_marks_never_move_a_card_with_the_rubric_in_the_index(
     assert before == after
     # and no simulation value is read: the component stays not collected
     assert "simulation" not in after["collected"]
+
+
+def test_the_rubric_weight_has_a_german_panel_text_with_the_recommendation() -> None:
+    panel = strength_view.presets()["panel"]
+    assert "(empfohlen: 3,5)" in panel["labels"]["weights.rubric"]  # type: ignore[index]
+    text = panel["help"]["weights.rubric"]  # type: ignore[index]
+    assert "drei Bewertern" in text and "ICC 0,94" in text and "0 schaltet" in text
+    assert "3,5" in text

@@ -299,7 +299,7 @@ Formula, per commander (`strength.py`, pure):
 4. Tier `U` ("zu wenig Daten") when coverage is below `min_coverage` or fewer than
    `min_components` weighted components are present, or (rule `require_commander_signal`) no
    commander-specific component has a ranked value; otherwise S/A/B/C/D by the index cuts
-   (default 46/25/13/5 since #1358, editable; before 70/55/35/20; legacy rank-mode cuts were
+   (default 47/17/9/4 since #1358, editable; before 70/55/35/20; legacy rank-mode cuts were
    90/75/55/35). A card absent from a source is a missing observation: it
    lowers the coverage, never the percentile. The setting "missing value" decides per share
    signal what a card without a value does: `skip` (the component is left out) or `lowest`
@@ -325,18 +325,18 @@ Settings (every label on the page carries its recommendation in parentheses; the
 recommended values live in one place, `StrengthSettings` defaults in `strength.py`, and are
 served by `GET /api/strength/presets` as `recommended`; the button "Empfohlene Werte" applies
 them, an empty weight field means the recommended value and shows it): a weight per component (commander inclusion 3, bracket inclusion 2, deck-list
-universe 2, synergy 0, tournament lists 1, tournament conversion 1, global inclusion 1, combos 1, Playgroup observation 0, rubric 8, simulation 0), the
+universe 2, synergy 0, tournament lists 1, tournament conversion 1, global inclusion 1, combos 1, Playgroup observation 0, rubric 3.5, simulation 0), the
 bracket (`core`, `upgraded`, `optimized`, `cedh`, `none`), the combo source (`combo_source`: `commander` default, or `spellbook`), the universe profile (the page uses
 the Universum selector), the comparison group (`rank_group`: `pool`), the share measure
 (`share_measure`: `wilson`), the share scale (`share_scale`: `share`, or `rank` for pure percentile ranks), lands apart from spells (`separate_lands`: on), the minimum denominators (`min_denominators`: EDHREC 30,
 tournament 20, conversion 20, playgroup 200; the deck-universe minimum is the universe's own `min_universe`), the missing
 value per share signal (`lowest` for commander and bracket inclusion, `skip` for the deck universe), commander and basics (`rank_commander_and_basics`: off), other commanders in the pool (`rank_other_commanders`: on, ranked like any card),
-`min_coverage` (0.25, "Mindest-Datenlage"), `min_components` (2), `universe_source` (`auto`), `require_commander_signal` (on) and the editable cuts (`tier_cuts` 46/25/13/5).
+`min_coverage` (0.25, "Mindest-Datenlage"), `min_components` (2), `universe_source` (`auto`), `require_commander_signal` (on) and the editable cuts (`tier_cuts` 47/17/9/4).
 The page also filters by tier (S/A/B/C/D/U) and sorts by the percentile of any single
 component. Presets (weights commander inclusion / bracket / deck universe / synergy / tournament /
 conversion / global / combos / Playgroup observation; simulation is 0 in all):
 Ausgewogen 3/2/2/0/1/1/1/1/0 (the defaults), Commander-nah 3/2/3/0/1/1/1/0/0 (bracket upgraded),
-Turniernah 1/2/2/0/3/1/1/1/0 (bracket cedh); the rubric weight is 8 / 9 / 6 (see the rubric
+Turniernah 1/2/2/0/3/1/1/1/0 (bracket cedh); the rubric weight is 3.5 / 4 / 2.5 (see the rubric
 section). Every preset counts the deck universe, the most
 commander-specific source. The Playgroup observation (`playgroup_observed`, import minimum
 25 games, index minimum 200 games, shrunk towards zero via $n / (n + 200)$) is commander
@@ -630,87 +630,102 @@ joint scale and says so. The tier page filters "nur Länder" / "nur Zauber" and 
 counts of both groups. A land's score does not change when a spell's share changes and the
 other way round (test); with the setting off the old joint scale is restored exactly.
 
-**4. Default weights and tier cuts.** In `Ausgewogen` the rubric weighs 8: for 909 of the 922
-ranked cards the usage block present is commander (3) + bracket (2) + deck universe (2) +
-global (1) = 8 (the 13 cards with a combo row have 9; Chulane has no tournament lists above the
-minimum), so rubric and usage block weigh 50 / 50 for the typical card. `Commander-nah` uses 9 and
-`Turniernah` 6 by the same rule (the usage weight a typical Chulane card has under that preset).
-The tier cuts were then derived once from the resulting default index of the 857 ranked
-non-lands with the targets fixed in advance (S about 3 %, A about 10 %, B about 22 %, C about
-30 %, D the rest): the whole numbers whose cumulative shares come closest to 3 / 13 / 35 / 65 %
-are **46 / 25 / 13 / 5** (before 70 / 55 / 35 / 20). Achieved on the non-lands: S `3.0 %`, A
-`10.0 %`, B `23.9 %`, C `30.2 %`, D `32.8 %` (26 / 86 / 205 / 259 / 281 of 857); on the 65
-lands (same cuts) 13 / 9 / 15 / 20 / 8. A whole-number cut cannot reach B 22 % exactly (13.5
-would give 21.5 %; the page's cut fields step by 1).
+**4. Default weights and tier cuts.** The Owner allowed only "a little" subjectivity, so the
+rubric is about 30 % of the present weight for a typical Chulane card. In `Ausgewogen` it
+weighs 3.5: for 909 of the 922 ranked cards the usage block present is commander (3) + bracket
+(2) + deck universe (2) + global (1) = 8 (the 13 cards with a combo row have 9; Chulane has no
+tournament lists above the minimum), and 3.5 / (8 + 3.5) = 30.4 %. `Commander-nah` uses 4
+(usage 9) and `Turniernah` 2.5 (usage 6) by the same rule. A first version used 50 %; there the
+index followed the rubric almost entirely (Spearman with `H` `0.98`), see the sensitivity table.
+The tier cuts were derived once from the resulting default index of the 857 ranked non-lands
+with the targets fixed in advance (S about 3 %, A about 10 %, B about 22 %, C about 30 %, D the
+rest): the whole numbers whose cumulative shares (3.0 / 12.8 / 34.1 / 62.4 %) come closest to
+3 / 13 / 35 / 65 % are **47 / 17 / 9 / 4** (before 70 / 55 / 35 / 20). Achieved on the
+non-lands: S `3.0 %`, A `9.8 %`, B `21.2 %`, C `28.4 %`, D `37.6 %` (26 / 84 / 182 / 243 / 322
+of 857); on the 65 lands (same cuts) 12 / 12 / 15 / 17 / 9. Whole-number cuts are coarse at the
+low end (cut 4 gives C a cumulative 62.4 %); the page's cut fields step by 1.
+
+**5. Stored profiles.** A saved profile has no `rubric` key (and no `separate_lands` key) if it
+was written before this change: on load such a profile gets the default weight (3.5) and the
+default setting, so it changes its result. A profile that was saved with all keys keeps them.
 
 Measured on a fresh store from the repository (`import-all --from-repo`, pool 927, 922 ranked,
 2,823 counted lists), `ranking-check --commander "Chulane, Teller of Tales"`. "Before" is main's
-default (`#1352`), reproduced exactly by the new code with the old settings; each row adds one
-change:
+default (`#1352`), reproduced exactly by the new code with the old settings.
 
-| Step (`Ausgewogen`) | Spearman counted all / non-lands / lands | Spearman vs rubric `H` (all) | Randkarten oben | Stammkarten unten | Dünne oben (`< 5`) | Tiers `S / A / B / C / D / U / N` |
+| Metric (`Ausgewogen`) | Before (`#1352`, cuts 70/55/35/20) | After (rubric 3.5, cuts 47/17/9/4) |
+|---|---|---|
+| Spearman with counted share, all / non-lands / lands | `0.9255 / 0.9147 / 0.9864` | `0.7388 / 0.7135 / 0.9465` |
+| Spearman with counted share among cards with $\ge 1\,\%$ share (n = 162) | `0.9699` | `0.8661` |
+| Spearman with rubric `H`, all / non-lands / lands | `0.6101 / 0.6009 / 0.7453` | `0.9670 / 0.9760 / 0.8794` |
+| Randkarten oben | `0 / 23` | `59 / 134` |
+| Stammkarten unten | `0 / 27` | `0 / 27` |
+| Dünne Datenlage oben (`< 5` signals) | `17 / 23` | `0 / 134` |
+| Tiers `S / A / B / C / D / U / N` | `9 / 14 / 24 / 50 / 825 / 0 / 5` | `38 / 96 / 197 / 260 / 331 / 0 / 5` |
+| Land share `S / A / B / C / D` | `33.3 / 42.9 / 37.5 / 30.0 / 3.9 %` | `31.6 / 12.5 / 7.6 / 6.5 / 2.7 %` |
+| Leave-one-out tier changes | `deck_universe` 857, `global_inclusion` 855, `commander_inclusion` 6 | `rubric` 504, `commander_inclusion` 270, `bracket_inclusion` 177, `deck_universe` 121, `global_inclusion` 42, `combos` 0 |
+
+Each change on its own, added one after the other:
+
+| Step (`Ausgewogen`) | Spearman counted all / non-lands / lands | $\ge 1\,\%$ (n = 162) | vs rubric `H` (all) | Randkarten oben | Dünne oben (`< 5`) | Tiers `S / A / B / C / D / U / N` |
 |---|---|---|---|---|---|---|
-| Before (`#1352`, cuts 70/55/35/20) | `0.9255 / 0.9147 / 0.9864` | `0.6101` | `0 / 23` | `0 / 27` | `17 / 23` | `9 / 14 / 24 / 50 / 825 / 0 / 5` |
-| + unlisted = lowest (#1350) | `0.9255 / 0.9148 / 0.9860` | `0.6109` | `0 / 23` | `0 / 27` | `17 / 23` | `9 / 14 / 23 / 19 / 857 / 0 / 5` |
-| + lands apart (#1353 A) | `0.9297 / 0.9198 / 0.9856` | `0.6122` | `0 / 27` | `0 / 27` | `21 / 27` | `13 / 14 / 22 / 20 / 853 / 0 / 5` |
-| + rubric weight 8 (old cuts) | `0.6965 / 0.6737 / 0.9110` | `0.9829` | `0 / 26` | `0 / 27` | `0 / 26` | `11 / 15 / 40 / 128 / 728 / 0 / 5` |
-| **After (+ cuts 46/25/13/5)** | **`0.6965 / 0.6737 / 0.9110`** | **`0.9829`** (non-lands `0.9884`, lands `0.9270`) | **`63 / 134`** | **`0 / 27`** | **`0 / 134`** | **`39 / 95 / 220 / 279 / 289 / 0 / 5`** |
+| Before | `0.9255 / 0.9147 / 0.9864` | `0.9699` | `0.6101` | `0 / 23` | `17 / 23` | `9 / 14 / 24 / 50 / 825 / 0 / 5` |
+| + unlisted = lowest (#1350) | `0.9255 / 0.9148 / 0.9860` | `0.9638` | `0.6109` | `0 / 23` | `17 / 23` | `9 / 14 / 23 / 19 / 857 / 0 / 5` |
+| + lands apart (#1353 A) | `0.9297 / 0.9198 / 0.9856` | `0.9652` | `0.6122` | `0 / 27` | `21 / 27` | `13 / 14 / 22 / 20 / 853 / 0 / 5` |
+| + rubric weight 3.5 (old cuts) | `0.7388 / 0.7135 / 0.9465` | `0.8661` | `0.9670` | `0 / 25` | `0 / 25` | `10 / 15 / 27 / 46 / 824 / 0 / 5` |
+| **+ cuts 47/17/9/4 (after)** | **`0.7388 / 0.7135 / 0.9465`** | **`0.8661`** | **`0.9670`** | **`59 / 134`** | **`0 / 134`** | **`38 / 96 / 197 / 260 / 331 / 0 / 5`** |
 
-After: land share in `S / A / B / C / D` `33.3 % / 9.5 % / 6.8 % / 7.2 % / 2.8 %` (before
-`33.3 % / 42.9 % / 37.5 % / 30.0 % / 3.9 %`). Leave-one-out tier changes (largest first) after:
-`rubric` `575 / 927`, `commander_inclusion` `172`, `bracket_inclusion` `101`, `deck_universe`
-`67`, `global_inclusion` `15`, `combos` `1` (before: `deck_universe` `857`, `global_inclusion`
-`855`, `commander_inclusion` `6`). The same two rows for the other presets, before then after:
+The other presets, before then after (same new cuts and settings):
 
-| Preset | Spearman counted all / non-lands / lands | vs rubric | Randkarten oben | Dünne oben | Tiers `S / A / B / C / D / U / N` |
-|---|---|---|---|---|---|
-| `Commander-nah` before | `0.9410 / 0.9319 / 0.9917` | `0.6142` | `0 / 24` | `24 / 24` | `9 / 15 / 23 / 48 / 827 / 0 / 5` |
-| `Commander-nah` after (rubric 9) | `0.7025 / 0.6790 / 0.9150` | `0.9822` | `64 / 135` | `0 / 135` | `39 / 96 / 221 / 280 / 286 / 0 / 5` |
-| `Turniernah` before | `0.9255 / 0.9148 / 0.9840` | `0.6099` | `0 / 20` | `15 / 20` | `7 / 13 / 31 / 46 / 825 / 0 / 5` |
-| `Turniernah` after (rubric 6) | `0.7061 / 0.6829 / 0.9150` | `0.9820` | `67 / 137` | `0 / 137` | `30 / 107 / 225 / 279 / 281 / 0 / 5` |
-
-Sensitivity to the rubric's share of the weight (`Ausgewogen`, same cuts 46/25/13/5, usage
-weights unchanged; the two rows marked "info" are not part of the planned table):
-
-| Rubric share (weight) | Spearman counted all / non-lands / lands | vs rubric all / non-lands / lands | Randkarten oben | Dünne oben | Tiers `S / A / B / C / D` | Largest leave-one-out |
+| Preset | Spearman counted all / non-lands / lands | $\ge 1\,\%$ (n = 162) | vs rubric | Randkarten oben | Dünne oben | Tiers `S / A / B / C / D / U / N` |
 |---|---|---|---|---|---|---|
-| 20 % (2), info | `0.7804 / 0.7552 / 0.9634` | `0.9466 / – / –` | `4 / 68` | `0 / 68` | `38 / 30 / 63 / 304 / 487` | `rubric` `349` |
-| 30 % (3.43), info | `0.7404 / 0.7153 / 0.9466` | `0.9664 / – / –` | `10 / 76` | `0 / 76` | `39 / 37 / 131 / 320 / 395` | `rubric` `456` |
-| 40 % (5.33) | `0.7134 / 0.6887 / 0.9319` | `0.9765 / 0.9838 / 0.8986` | `28 / 94` | `0 / 94` | `40 / 54 / 182 / 308 / 338` | `rubric` `521` |
-| **50 % (8, default)** | `0.6965 / 0.6737 / 0.9110` | `0.9829 / 0.9884 / 0.9270` | `63 / 134` | `0 / 134` | `39 / 95 / 220 / 279 / 289` | `rubric` `575` |
-| 60 % (12) | `0.6847 / 0.6644 / 0.8879` | `0.9877 / 0.9915 / 0.9513` | `99 / 171` | `0 / 171` | `44 / 127 / 247 / 234 / 270` | `rubric` `599` |
+| `Commander-nah` before | `0.9410 / 0.9319 / 0.9917` | `0.9805` | `0.6142` | `0 / 24` | `24 / 24` | `9 / 15 / 23 / 48 / 827 / 0 / 5` |
+| `Commander-nah` after (rubric 4) | `0.7481 / 0.7230 / 0.9543` | `0.8727` | `0.9648` | `62 / 139` | `0 / 139` | `38 / 101 / 206 / 250 / 327 / 0 / 5` |
+| `Turniernah` before | `0.9255 / 0.9148 / 0.9840` | `0.9660` | `0.6099` | `0 / 20` | `15 / 20` | `7 / 13 / 31 / 46 / 825 / 0 / 5` |
+| `Turniernah` after (rubric 2.5) | `0.7627 / 0.7373 / 0.9572` | `0.8670` | `0.9577` | `66 / 145` | `0 / 145` | `26 / 119 / 200 / 260 / 317 / 0 / 5` |
 
-Reading it plainly: an equal weight share is not an equal influence on the order. Of the 922
-ranked cards 756 are in no counted list, so the usage block is close to 0 for most cards and the
-rubric's spread decides their order; the index then follows the rubric (Spearman `0.98`) and the
-agreement with the counted lists falls from `0.93` to `0.70` (the rubric itself reaches `0.62`).
-The usage block still decides among the top: only 80 ranked cards have a counted share of at
-least 5 %, so "Randkarten oben" cannot stay at 0 once `S`/`A` holds 134 cards (at least 54 of them
-must be below 5 %). A lower rubric share lets fewer marginal cards reach `S`/`A` (`4 / 68` at
-20 %), a higher one more (`99 / 171` at 60 %). "Dünne Datenlage oben" is `0` because the rubric
-and the lowest-rank default give every `S`/`A` card five or more present signals; it no longer
-tells thin from thick data. The share is a setting; the weight and the cuts are the recommended
-starting point, not a validated optimum.
+Sensitivity to the rubric's share of the weight (`Ausgewogen`, usage weights unchanged, the
+cuts 47/17/9/4 kept for every row, so the tier counts of the other rows are not re-derived):
+
+| Rubric share (weight) | Spearman counted all / non-lands / lands | $\ge 1\,\%$ (n = 162) | vs rubric all / non-lands / lands | Randkarten oben | Dünne oben | Tiers `S / A / B / C / D` | Largest leave-one-out |
+|---|---|---|---|---|---|---|---|
+| 20 % (2) | `0.7804 / 0.7552 / 0.9634` | `0.9002` | `0.9466 / 0.9579 / 0.8506` | `15 / 85` | `0 / 85` | `37 / 48 / 144 / 281 / 412` | `rubric` `408` |
+| **30 % (3.5, default)** | `0.7388 / 0.7135 / 0.9465` | `0.8661` | `0.9670 / 0.9760 / 0.8794` | `59 / 134` | `0 / 134` | `38 / 96 / 197 / 260 / 331` | `rubric` `504` |
+| 40 % (5.33) | `0.7134 / 0.6887 / 0.9319` | `0.8322` | `0.9765 / 0.9838 / 0.8986` | `115 / 191` | `0 / 191` | `37 / 154 / 233 / 222 / 276` | `rubric` `567` |
+| 50 % (8) | `0.6965 / 0.6737 / 0.9110` | `0.7889` | `0.9829 / 0.9884 / 0.9270` | `171 / 251` | `0 / 251` | `34 / 217 / 238 / 185 / 248` | `rubric` `608` |
+| 60 % (12) | `0.6847 / 0.6644 / 0.8879` | `0.7332` | `0.9877 / 0.9915 / 0.9513` | `217 / 295` | `0 / 295` | `41 / 254 / 242 / 195 / 190` | `rubric` `671` |
+
+Reading it plainly: a weight share is not an equal share of influence. Of the 922 ranked cards
+756 are in no counted list, so the usage block is close to 0 for most cards and the rubric's
+spread decides their order; even at 30 % the index correlates `0.97` with the rubric, and the
+agreement with the counted lists falls from `0.93` to `0.74` (the rubric alone reaches `0.62`;
+among the 162 cards in at least 1 % of the lists from `0.97` to `0.87`). The usage block still
+decides among the top: only 80 ranked cards have a counted share of at least 5 %, so "Randkarten
+oben" cannot stay at 0 once `S`/`A` holds 134 cards (at least 54 of them must be below 5 %). A
+higher rubric share lets more marginal cards reach `S`/`A`. "Dünne Datenlage oben" is `0`
+because the rubric and the lowest-rank default give every `S`/`A` card five or more present
+signals; it no longer tells thin from thick data. The share is a setting; the weight and the
+cuts are the recommended starting point, not a validated optimum.
 
 Ranks of eleven named cards (rank within lands or within spells by index; spells 857, lands 65):
 
 | Card | Before: tier, index, rank | After: tier, index, rank |
 |---|---|---|
 | `Sol Ring` | `S`, 91.6, 1 | `S`, 100.0, 1 |
-| `Swords to Plowshares` | `S`, 80.5, 2 | `S`, 88.9, 2 |
-| `Arcane Signet` | `S`, 76.9, 3 | `S`, 81.3, 3 |
-| `Counterspell` | `A`, 66.0, 8 | `S`, 69.8, 10 |
-| `Farseek` | `B`, 51.3, 16 | `S`, 56.0, 15 |
-| `Cultivate` | `A`, 58.2, 13 | `S`, 54.3, 20 |
-| `Mystic Sanctuary` (land) | `C`, 23.0, 30 | `C`, 8.2, 52 |
-| `Psychosis Crawler` | `D`, 19.2, 66 | `B`, 20.6, 160 |
-| `Zuran Orb` | `D`, 6.3, 230 | `D`, 1.2, 735 |
+| `Swords to Plowshares` | `S`, 80.5, 2 | `S`, 89.0, 2 |
+| `Arcane Signet` | `S`, 76.9, 3 | `S`, 82.7, 3 |
+| `Counterspell` | `A`, 66.0, 8 | `S`, 71.1, 9 |
+| `Farseek` | `B`, 51.3, 16 | `S`, 56.2, 16 |
+| `Cultivate` | `A`, 58.2, 13 | `S`, 58.2, 13 |
+| `Mystic Sanctuary` (land) | `C`, 23.0, 30 | `C`, 8.5, 41 |
+| `Psychosis Crawler` | `D`, 19.2, 66 | `B`, 15.6, 125 |
+| `Zuran Orb` | `D`, 6.3, 230 | `D`, 1.7, 693 |
 | `Command Tower` (land) | `S`, 99.3, 1 | `S`, 100.0, 1 |
-| `Maze's End` (land) | `D`, 7.7, 45 | `D`, 1.5, 62 |
+| `Maze's End` (land) | `D`, 7.7, 45 | `D`, 2.1, 60 |
 
 `ranking-check` reports the agreement of the index with the rubric as block `1b` (key
 `spearman.vs_rubric`): the rubric is itself a component, so it shows how much of the order the
-rubric sets, not that the order is right. The tier cuts and the 50 % weight rest on a rule fixed
+rubric sets, not that the order is right. The tier cuts and the 30 % weight rest on a rule fixed
 in advance, not on a validation; judging them is the Owner's decision.
 
 ### Counted deck-list universes, `universe_source` and the commander-signal rule
