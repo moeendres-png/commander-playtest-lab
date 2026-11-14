@@ -7,12 +7,7 @@
       "original_sha256": "7e2fd57695ba410461bfe20c71d2963c6c814900db6a0ca4bd6a765d10ac622c",
       "gzip_size": 237014,
       "gzip_sha256": "47d6b6ee4ce6cb81fc82e5a32c3a19d2fdbc0c5c1ebe5b98aee71633fdfafb38",
-      "part_count": 3,
-      "parts": [
-        "full.pstats.gz.b64.p000",
-        "full.pstats.gz.b64.p001",
-        "full.pstats.gz.b64.p002"
-      ]
+      "part_count": 3
     },
     {
       "original_file": "smoke.pstats",
@@ -20,12 +15,8 @@
       "original_sha256": "622bfae757b1abbdb3286d7f9fcae8c9731c9dd195ebf21cde70289492b20b3a",
       "gzip_size": 228312,
       "gzip_sha256": "aa3f9d7e252891f0fe1e3c720de8646886993ebec788ab35061d9c7e3f8e95fe",
-      "part_count": 3,
-      "parts": [
-        "smoke.pstats.gz.b64.p000",
-        "smoke.pstats.gz.b64.p001",
-        "smoke.pstats.gz.b64.p002"
-      ]
+      "part_count": 3
     }
-  ]
+  ],
+  "note": "The profile files are not in the repository (AGENTS.md section 12). The digests identify the files the analysis read."
 }
