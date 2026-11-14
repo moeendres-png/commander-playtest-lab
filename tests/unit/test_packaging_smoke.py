@@ -911,10 +911,12 @@ def _ci() -> dict:
     return yaml.safe_load(CI_WORKFLOW.read_text(encoding="utf-8"))
 
 
-def test_packaging_smoke_runs_inside_the_required_quality_context() -> None:
+def test_packaging_smoke_runs_in_the_packaging_job_the_quality_gate_needs() -> None:
     workflow = _ci()
-    quality = workflow["jobs"]["quality"]
-    names = [step.get("name") for step in quality["steps"]]
+    packaging = workflow["jobs"]["packaging"]
+    assert "quality" not in workflow["jobs"]["packaging"].get("needs", [])
+    assert "packaging" in workflow["jobs"]["quality"]["needs"]
+    names = [step.get("name") for step in packaging["steps"]]
     assert "Build wheel" in names, names
     smoke_index = next(
         index
@@ -923,7 +925,7 @@ def test_packaging_smoke_runs_inside_the_required_quality_context() -> None:
     )
     # It runs after the wheel it consumes is actually built.
     assert smoke_index > names.index("Build wheel")
-    smoke = quality["steps"][smoke_index]
+    smoke = packaging["steps"][smoke_index]
     assert smoke["if"] == "${{ success() || failure() }}"
     assert "continue-on-error" not in smoke
     assert "scripts/verify_packaging_smoke.py smoke" in smoke["run"]
@@ -938,45 +940,53 @@ def test_packaging_smoke_runs_inside_the_required_quality_context() -> None:
 
 def test_packaging_evidence_is_independently_rechecked_and_uploaded() -> None:
     workflow = _ci()
-    quality = workflow["jobs"]["quality"]
-    names = [step.get("name") for step in quality["steps"]]
+    packaging = workflow["jobs"]["packaging"]
+    names = [step.get("name") for step in packaging["steps"]]
     check_index = names.index("Packaging smoke evidence check")
-    check = quality["steps"][check_index]
+    check = packaging["steps"][check_index]
     assert check["if"] == "${{ success() || failure() }}"
     assert "continue-on-error" not in check
     assert "scripts/verify_packaging_smoke.py check" in check["run"]
     assert "|| true" not in check["run"]
-    upload = quality["steps"][-1]
+    upload = packaging["steps"][-1]
     assert "artifacts/quality/" in upload["with"]["path"]
-    assert upload["with"]["name"] == "ci-evidence"
+    assert upload["with"]["name"] == "ci-evidence-packaging"
+    assert upload["timeout-minutes"] == 3
 
 
 def test_existing_quality_gates_are_preserved() -> None:
     text = CI_WORKFLOW.read_text(encoding="utf-8")
     workflow = _ci()
-    quality = workflow["jobs"]["quality"]
-    names = [step.get("name") for step in quality["steps"]]
+    lint_names = [step.get("name") for step in workflow["jobs"]["lint"]["steps"]]
     for preserved in (
         "Install project and quality tools",
         "Ruff lint",
         "Ruff format",
         "Mypy strict",
-        "Test suite",
         "Compile",
         "Secret-pattern scan",
         "Build wheel",
     ):
-        assert preserved in names, preserved
+        assert preserved in lint_names, preserved
+    assert "Test suite" in [step.get("name") for step in workflow["jobs"]["tests"]["steps"]]
     assert "python -m pip wheel --no-deps --wheel-dir dist ." in text
     assert "Potential secret material found" in text
-    # Required contexts themselves are unchanged in name and job identity.
-    assert set(workflow["jobs"]) == {"quality", "security"}
+    # Required contexts themselves are unchanged in name and job identity; `quality` is the
+    # gate over the parallel jobs (tests/unit/test_ci_gate.py checks its logic).
+    assert set(workflow["jobs"]) == {
+        "changes",
+        "lint",
+        "tests",
+        "packaging",
+        "quality",
+        "security",
+    }
     for context in ("quality", "security"):
-        assert workflow["jobs"][context].get("if") is None
-        assert workflow["jobs"][context].get("needs") is None
         assert workflow["jobs"][context].get("continue-on-error") is None
         assert workflow["jobs"][context].get("name") in (None, context)
         assert workflow["jobs"][context].get("strategy") is None
+    assert workflow["jobs"]["security"].get("if") is None
+    assert workflow["jobs"]["security"].get("needs") is None
 
 
 def test_required_check_static_invariants_still_hold_for_the_candidate() -> None:
