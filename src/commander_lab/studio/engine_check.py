@@ -20,6 +20,17 @@ from pathlib import Path
 
 LABEL = "Prüfung durch die Engine"
 SCHEMA = "studio-engine-check-1"
+_CODE_TEXT = {
+    "deck_hash_mismatch": "Die Prüfsumme passt nicht zum Inhalt.",
+    "deck_duplicate_card": "Eine Karte außer Standardländern ist mehrfach im Deck.",
+    "deck_color_identity_violation": (
+        "Mindestens eine Karte liegt außerhalb der Farbidentität des Commanders."
+    ),
+    "deck_color_identity_unknown": (
+        "Für mindestens eine Karte kennt der Spielstarter keine Farbidentität."
+    ),
+    "deck_not_buildable": "Das Deck hat nicht genau 100 Karten; die Prüfung des Starters ist nicht möglich.",
+}
 UNKNOWN_HEADLINE = "nicht geprüft: Engine nicht bereitgestellt"
 
 
@@ -52,13 +63,32 @@ def construction_check(rows: Sequence[Mapping[str, object] | sqlite3.Row]) -> di
         _validate_deck_construction,
     )
 
+    from pydantic import ValidationError
+
     try:
-        _validate_deck_construction(_deck_input(rows))  # type: ignore[arg-type]
+        deck = _deck_input(rows)
+    except ValidationError as error:
+        # the runner's deck model takes exactly 100 cards: a draft of another size cannot be put
+        # through its validation, which is "not checked", never a pass
+        reason = "; ".join(str(item["msg"]) for item in error.errors())
+        return {
+            "status": "NOT_CHECKED",
+            "code": "deck_not_buildable",
+            "message": reason,
+            "text": _CODE_TEXT["deck_not_buildable"],
+        }
+    try:
+        _validate_deck_construction(deck)  # type: ignore[arg-type]
     except FullGameConformanceError as error:
         message = str(error)
         code = message.split(":", 1)[0].strip()
-        return {"status": "FAIL", "code": code, "message": message}
-    return {"status": "PASS", "code": None, "message": ""}
+        return {
+            "status": "FAIL",
+            "code": code,
+            "message": message,
+            "text": _CODE_TEXT.get(code, "Der Spielstarter lehnt das Deck ab."),
+        }
+    return {"status": "PASS", "code": None, "message": "", "text": ""}
 
 
 def check_rows(
@@ -98,7 +128,7 @@ def check_rows(
         "unsupported_by_engine": unsupported,
         "unknown_to_pilots": unknown,
         "meaning": (
-            "Geprüft wird, was der Spielstarter vor einer Partie prüft: Hash, Einzelkarten-Regel "
+            "Geprüft wird, was der Spielstarter vor einer Partie prüft: Prüfsumme, Einzelkarten-Regel "
             "und Farbidentität sowie die Karten, die die Engine nicht laden kann. Es wird keine "
             "Partie gestartet. Den Deck-Import selbst macht XMage erst beim Spielstart."
         ),

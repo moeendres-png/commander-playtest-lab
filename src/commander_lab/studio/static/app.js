@@ -540,12 +540,47 @@ function renderCombos(body) {
   }
   body.append(h("p", { class: "note" }, combos.meaning));
 }
+const ENGINE_STATUS = { PASS: ["good", "bestanden"], FAIL: ["bad", "nicht bestanden"], UNKNOWN: ["warn", "nicht geprüft"] };
+async function runEngineCheck() {
+  const seq = state.changeSeq;
+  state.engineCheck = { busy: true };
+  renderDeck();
+  try {
+    const result = await api("/api/engine-check", "POST", { cards: entries(), owned_only: true });
+    state.engineCheck = { result, seq };
+  } catch (error) { state.engineCheck = null; fail(error); }
+  renderDeck();
+}
+function renderEngineCheck(body) {
+  const check = state.engineCheck;
+  const box = h("section", { id: "engine-check" }, h("h3", {}, "Prüfung durch die Engine"));
+  body.append(box);
+  box.append(h("button", { type: "button", id: "engine-check-run", disabled: !!(check && check.busy), onclick: runEngineCheck }, check && check.busy ? "Wird geprüft ..." : "Mit der Engine prüfen"));
+  if (!check || check.busy) {
+    box.append(h("p", { class: "note" }, "Prüft vor einer Partie, was der Spielstarter prüft, und welche Karten die Engine nicht laden kann. Es wird keine Partie gestartet."));
+    return;
+  }
+  const result = check.result;
+  const [tone, word] = ENGINE_STATUS[result.status] || ["warn", "nicht geprüft"];
+  box.append(h("p", { class: "pill " + tone, id: "engine-check-status" }, `${word}: ${result.headline}`));
+  if (check.seq !== state.changeSeq) box.append(h("p", { class: "note", id: "engine-check-stale" }, "Das Deck wurde seit dieser Prüfung geändert. Bitte noch einmal prüfen."));
+  if (!result.engine_ready) box.append(h("p", { class: "note" }, "Die Engine ist auf diesem Rechner nicht bereitgestellt. Ein Deck ohne Befund gilt dann nicht als geprüft."));
+  const construction = result.construction;
+  if (construction.status === "FAIL") box.append(h("div", { class: "issue error" }, h("b", {}, "Deck-Aufbau"), h("div", {}, construction.text)));
+  else if (construction.status === "NOT_CHECKED") box.append(h("div", { class: "issue warning" }, h("b", {}, "Deck-Aufbau nicht geprüft"), h("div", {}, construction.text)));
+  else box.append(h("p", {}, "Deck-Aufbau (Prüfsumme, Einzelkarten, Farbidentität): ohne Befund."));
+  if (result.unsupported_by_engine.length) box.append(h("div", { class: "issue error" }, h("b", {}, "Die Engine kann diese Karten nicht laden"), h("div", {}, result.unsupported_by_engine.join(", "))));
+  if (result.unknown_to_pilots.length) box.append(h("div", { class: "issue error" }, h("b", {}, "Dem Kartenwissen der Spieler-KI fehlen diese Karten"), h("div", {}, result.unknown_to_pilots.join(", "))));
+  box.append(h("p", { class: "note" }, result.meaning));
+}
 function renderCheck(body) {
+  body.append(h("h3", {}, "Datenprüfung (gespeicherte Fakten)"));
   if (!state.issues.length) { body.append(h("p", {}, "Die Datenprüfung findet nichts.")); }
   for (const issue of state.issues) {
     body.append(h("div", { class: "issue " + issue.severity }, h("b", {}, ISSUE_NAMES[issue.code] || issue.code), h("div", {}, issue.message)));
   }
   body.append(h("p", { class: "note" }, "Diese Prüfung liest gespeicherte Kartendaten: 100 Karten, Commander, Farbidentität, Einzelkarten-Regel, Legalität, Besitz und freie Kopien. Verbindlich für das Spiel ist erst die Prüfung durch die Regel-Engine."));
+  renderEngineCheck(body);
   const currentCards = [...state.commanderIds.map((id) => state.byId.get(id)), ...deckCards()].filter(Boolean);
   const notReady = currentCards.filter((card) => card.sim_status && card.sim_status !== "OK");
   body.append(h("h3", {}, "Simulator-Bereitschaft"));

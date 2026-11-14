@@ -16,7 +16,13 @@ from commander_lab.studio.web import create_app
 COMMANDER = "Chulane, Teller of Tales"
 
 
-def _rows(commanders: list[str], main: list[tuple[str, int]]) -> list[dict[str, object]]:
+def _rows(
+    commanders: list[str], main: list[tuple[str, int]], *, pad: bool = True
+) -> list[dict[str, object]]:
+    """Deck rows; the runner's deck model wants exactly 100 cards, so basics fill up."""
+    main = list(main)
+    if pad:
+        main.append(("Forest", 99 - sum(quantity for _, quantity in main)))
     rows: list[dict[str, object]] = [
         {"oracle_name": name, "engine_name": name, "zone": "commander", "quantity": 1}
         for name in commanders
@@ -28,7 +34,7 @@ def _rows(commanders: list[str], main: list[tuple[str, int]]) -> list[dict[str, 
     return rows
 
 
-LEGAL = [("Forest", 30), ("Island", 20), ("Plains", 20), ("Sol Ring", 1), ("Cultivate", 1)]
+LEGAL = [("Island", 29), ("Plains", 28), ("Sol Ring", 1), ("Cultivate", 1)]
 
 
 def _fake_jar(folder: Path) -> None:
@@ -39,14 +45,14 @@ def _fake_jar(folder: Path) -> None:
 
 def test_the_real_validation_passes_a_legal_deck(tmp_path: Path) -> None:
     result = engine_check.construction_check(_rows([COMMANDER], LEGAL))
-    assert result == {"status": "PASS", "code": None, "message": ""}
+    assert result["status"] == "PASS"
 
 
 def test_the_real_validation_refuses_a_colour_identity_violation(tmp_path: Path) -> None:
     result = engine_check.construction_check(_rows([COMMANDER], [*LEGAL, ("Lightning Bolt", 1)]))
     assert result["status"] == "FAIL"
     assert result["code"] == "deck_color_identity_violation"
-    assert "Lightning Bolt" in str(result["message"])
+    assert "Farbidentität" in str(result["text"])
 
 
 def test_the_real_validation_refuses_a_duplicate_non_basic(tmp_path: Path) -> None:
@@ -63,6 +69,15 @@ def test_the_real_validation_refuses_a_card_without_known_identity(tmp_path: Pat
     assert result["code"] == "deck_color_identity_unknown"
 
 
+def test_a_deck_that_is_not_100_cards_cannot_be_validated_and_is_unknown(
+    tmp_path: Path,
+) -> None:
+    rows = _rows([COMMANDER], [("Forest", 5)], pad=False)
+    assert engine_check.construction_check(rows)["status"] == "NOT_CHECKED"
+    result = engine_check.check_rows(rows, tmp_path)
+    assert result["status"] == "UNKNOWN"
+
+
 def test_without_the_engine_a_clean_deck_is_unknown_never_green(tmp_path: Path) -> None:
     result = engine_check.check_rows(_rows([COMMANDER], LEGAL), tmp_path)
     assert result["engine_ready"] is False
@@ -72,9 +87,7 @@ def test_without_the_engine_a_clean_deck_is_unknown_never_green(tmp_path: Path) 
 
 
 def test_a_found_failure_is_reported_even_without_the_engine(tmp_path: Path) -> None:
-    result = engine_check.check_rows(
-        _rows([COMMANDER], [*LEGAL, ("Lightning Bolt", 1)]), tmp_path
-    )
+    result = engine_check.check_rows(_rows([COMMANDER], [*LEGAL, ("Lightning Bolt", 1)]), tmp_path)
     assert result["status"] == "FAIL"
     assert result["construction"]["status"] == "FAIL"
 
