@@ -60,18 +60,6 @@ jobs:
       - name: External-runtime boundary contracts on Windows
         shell: pwsh
         run: python -m pytest -q tests/contract/test_phase86_phase85_claims.py tests/integration/test_phase85_validation.py
-      - name: Doctor must not dirty repository
-        shell: pwsh
-        run: commander-lab doctor --root . | Out-File -Encoding utf8 "$env:RUNNER_TEMP/doctor.json"
-      - name: Rules-engine probe must not dirty repository
-        shell: pwsh
-        run: commander-lab probe-rules-engines --root . | Out-File -Encoding utf8 "$env:RUNNER_TEMP/rules-probe.json"
-      - name: Structural validation must not dirty repository
-        shell: pwsh
-        run: commander-lab validate-structural --iterations 1 --workers 1 --root . | Out-File -Encoding utf8 "$env:RUNNER_TEMP/structural.json"
-      - name: Tactical validation must not dirty repository
-        shell: pwsh
-        run: commander-lab validate-rules-phase8 --output data/runs/ci_phase8_windows --root . | Out-File -Encoding utf8 "$env:RUNNER_TEMP/tactical.json"
       - name: Assert repository remains clean
         shell: pwsh
         run: |

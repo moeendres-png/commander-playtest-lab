@@ -22,10 +22,10 @@ Status legend: **active** = product path, **qual** = qualification / evidence ma
 
 ## Entry points
 
-`pyproject.toml` defines two console scripts:
+`pyproject.toml` defines one console script:
 
-- `commander-lab` -> `commander_lab.cli.main:app` (`cli/app.py` holds the commands).
-- `commander-lab-optimizer` -> `commander_lab.optimizer_v2_cli:app`.
+- `commander-lab` -> `commander_lab.cli.main:app` (`candidates ...` and `engine-verify`;
+  `python -m commander_lab.engine.verify_cli` runs the engine check alone).
 
 ## Packages in `src/commander_lab/`
 
@@ -77,7 +77,7 @@ Remaining top-level modules (about 40 `*.py` in `src/commander_lab/`, incl. shim
   `tactical_evidence`, `counterfactual`, `robustness`, `model_*`, `opponent_uncertainty`.
 - Qualification / freeze: `meta_qualification`, `freeze_readiness`, `technical_truth`,
   `fresh_rebuild` (the Rogshai experiment modules live in `rogshai/`).
-- Data: `deck_registry`, `data_sync`, `commander_spellbook`, `mana_analysis`,
+- Data: `deck_registry`, `commander_spellbook`, `mana_analysis`,
   `pod_scheduling*`, `playstyle`, `project_context`, `diagnostics`.
 
 ## Active scripts in `scripts/`
@@ -93,8 +93,8 @@ About 100 files. Referenced by CI workflows (`.github/workflows/`, 24 files) or 
 | `run_candidate_handoff_conformance.py`, `run_candidate_paired_triage.py`, `run_candidate_evaluation_frontier.py` | Candidate workflows (CI) |
 | `derive_rules_engines_capabilities.py`, `generate_full_game_contract_artifacts.py`, `seal_xmage_full_game_artifacts.py` | Contract/capability derivation and sealing |
 | `verify_packaging_smoke.py`, `verify_container_provenance.py`, `verify_engine.sh`, `run_broad_secret_scan.py`, `security_evidence.py` | Packaging, provenance, engine and security checks |
-| `bootstrap_engine_*.sh`, `start_engine.sh`, `stop_engine.sh`, `docker_*` | Engine setup and lifecycle |
-| `run_isolated_pytest_suite.py`, `audit_workflow_impact.py` | Test isolation and workflow-impact auditing |
+| `bootstrap_engine_*.sh`, `verify_engine.sh`, `docker_*` | Engine setup and lifecycle |
+| `audit_workflow_impact.py` | Test isolation and workflow-impact auditing |
 | `determinism_probe.py`, `precon_pod_sweep.py`, `benchmark_xmage_full_games.py`, `measure_precon_imports.py`, `pilot_decision_report.py` | Real-game measurement: determinism, precon pod sweeps, speed and identity benchmarks, import coverage, pilot decision reports (`docs/performance/`) |
 | `regenerate_hash_manifests.py` | Rebuilds `qualification/SHA256SUMS` and `WS17_SHA256SUMS` (run after every change under `qualification/`) |
 | `claude_handoff.py` | Regenerates `docs/claude/state/HANDOFF.md` (engine pin and newest sealed epoch from `config/rules_engines.json`, open lanes, heads) |
