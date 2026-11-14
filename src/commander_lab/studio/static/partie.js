@@ -529,7 +529,7 @@ async function newGame(wantedRevision) {
   });
   box.append(
     h("p", { class: "muted" }, `Alle Plätze spielt die KI. XMage entscheidet jede Regel (${table.engine && table.engine.pin ? table.engine.pin.slice(0, 10) : "gepinnt"}). Die Partie wird mitgeschrieben und läuft hier direkt mit.`),
-    table.engine && table.engine.warning ? h("p", { class: "pill warn", style: "display:inline-block;margin:4px 0" }, table.engine.warning) : null,
+    ...(table.engine && table.engine.warning ? [h("p", { class: "pill warn", style: "display:inline-block;margin:4px 0" }, table.engine.warning)] : []),
     h("div", { class: "form" },
       h("label", null, "Dein Deck auf Sitz 1 (KI) ", own, " Stil ", ownStyle),
       h("label", null, "Tisch ", count),
@@ -538,7 +538,7 @@ async function newGame(wantedRevision) {
         h("button", { type: "button", onclick: () => { seats.textContent = ""; fill(); } }, "Andere Gegner würfeln"),
         ...podButtons),
       h("label", null, "Seed ", seed)),
-    typeof wantedRevision === "string" && !preselected ? h("p", { class: "pill warn" }, "Der gewünschte Stand ist nicht mehr gespeichert. Bitte ein Deck wählen.") : null,
+    ...(typeof wantedRevision === "string" && !preselected ? [h("p", { class: "pill warn" }, "Der gewünschte Stand ist nicht mehr gespeichert. Bitte ein Deck wählen.")] : []),
     note, h("p", null, go, " ", close));
 }
 async function listGames(wanted) {
