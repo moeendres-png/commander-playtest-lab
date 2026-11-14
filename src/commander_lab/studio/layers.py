@@ -319,14 +319,20 @@ REASON_TEXT[NO_TEXT] = "kein Regeltext im Store (unbekannt, nicht neutral)"
 KIND_MEASURED = "measured"
 KIND_DERIVED = "derived"
 WIN_GAP = "win_gap"
-ALL_LAYER_KEYS = (*LAYER_KEYS, WIN_GAP)
-LABELS: dict[str, str] = {**LAYER_LABELS, WIN_GAP: "Sieg-Abstand"}
+COMMANDER_FIT = "commander_fit"
+ALL_LAYER_KEYS = (*LAYER_KEYS, WIN_GAP, COMMANDER_FIT)
+LABELS: dict[str, str] = {
+    **LAYER_LABELS,
+    WIN_GAP: "Sieg-Abstand",
+    COMMANDER_FIT: "Passt zum Commander",
+}
 SOURCES: dict[str, str] = {
     "pod_scaling": "Regeltext der Karte (Oracle), feste Regeln",
     "tempo": "Playgroup Card Atlas: on_curve_pct",
     "playability": "Playgroup Card Atlas: drawn_to_played_pct",
     "staying": "Playgroup Card Atlas: battlefield_survival_pct",
     WIN_GAP: "Playgroup Card Atlas: beobachteter Siegraten-Abstand (wie im Index)",
+    COMMANDER_FIT: "EDHREC-Synergie je Commander (wie viel häufiger hier als anderswo)",
 }
 KINDS: dict[str, str] = {
     "pod_scaling": KIND_DERIVED,
@@ -334,6 +340,7 @@ KINDS: dict[str, str] = {
     "playability": KIND_MEASURED,
     "staying": KIND_MEASURED,
     WIN_GAP: KIND_MEASURED,
+    COMMANDER_FIT: KIND_MEASURED,
 }
 DENOMINATORS: dict[str, str] = {
     "pod_scaling": "kein Nenner (Regel auf dem Text)",
@@ -341,6 +348,7 @@ DENOMINATORS: dict[str, str] = {
     "playability": "ever_drawn_n: Partien, in denen die Karte gezogen wurde",
     "staying": "reached_battlefield_n: Karten, die das Schlachtfeld erreicht haben",
     WIN_GAP: "winrate_when_cast_n: Partien, in denen die Karte gewirkt wurde",
+    COMMANDER_FIT: "kein Nenner (Abweichung in Prozentpunkten gegenüber anderen Commandern)",
 }
 DESCRIPTIONS: dict[str, str] = {
     "pod_scaling": (
@@ -352,6 +360,10 @@ DESCRIPTIONS: dict[str, str] = {
     WIN_GAP: (
         "Beobachteter Unterschied der Siegrate, wenn die Karte gewirkt wurde (Prozentpunkte, "
         "bei kleiner Stichprobe zur Null gedämpft)."
+    ),
+    COMMANDER_FIT: (
+        "EDHREC-Synergiewert beim gewählten Commander: um wie viele Prozentpunkte diese Karte "
+        "hier häufiger vorkommt als in Decks insgesamt (keine Kartenstärke; Spalte ohne Gewicht)."
     ),
 }
 MEASURED_NOTE = (
@@ -612,6 +624,25 @@ def _gap_value(observation: Observation | None) -> LayerValue:
     )
 
 
+def _synergy_value(observation: Observation | None) -> LayerValue:
+    if observation is None:
+        return _value(
+            COMMANDER_FIT,
+            UNKNOWN,
+            NO_RECORD,
+            note="keine EDHREC-Synergiezeile für diesen Commander gespeichert",
+        )
+    if observation.value is None or not math.isfinite(observation.value):
+        return _value(COMMANDER_FIT, UNKNOWN, NO_VALUE_PUBLISHED)
+    return _value(
+        COMMANDER_FIT,
+        OK,
+        value=float(observation.value),
+        raw=float(observation.value),
+        note="EDHREC-Synergie je Commander (Abweichung vom Grundanteil); Spalte ohne eigenes Gewicht",
+    )
+
+
 def _rank(values: dict[str, LayerValue]) -> None:
     """Fill the percentile (0..100, ties share the mean rank) of the valued cards in place."""
     ranks = percentile_ranks(
@@ -640,7 +671,7 @@ def _summary(layer: str, items: list[LayerValue]) -> LayerSummary:
             if item["detail"] is not None
             and (item["detail"].get("discrepancy") or "published_pct" in item["detail"])
         ),
-        "min_sample": None if layer == "pod_scaling" else MIN_SAMPLE,
+        "min_sample": None if layer in ("pod_scaling", COMMANDER_FIT) else MIN_SAMPLE,
     }
 
 
@@ -649,12 +680,14 @@ def compute_layers(
     atlas: Mapping[str, AtlasRecord],
     gap: Mapping[str, Observation],
     pod_size: int = POD_DEFAULT,
+    synergy: Mapping[str, Observation] | None = None,
 ) -> LayerResult:
     """Every layer for every pool card (card key -> layer -> value) and a summary per layer.
 
-    ``atlas`` and ``gap`` map a card key to its atlas record or Playgroup gap observation; a
-    card without an entry is ``NO_RECORD``. The commander and basic lands (``unranked``) get no
-    value and take no rank away from the others; the summaries count the ranked cards only."""
+    ``atlas``, ``gap`` and ``synergy`` map a card key to its atlas record, Playgroup gap or
+    EDHREC synergy observation; a card without an entry is ``NO_RECORD``. The commander and
+    basic lands (``unranked``) get no value and take no rank away from the others; the
+    summaries count the ranked cards only."""
     if not POD_MIN <= pod_size <= POD_MAX:
         raise ValueError(f"pod size must be between {POD_MIN} and {POD_MAX}")
     result: dict[str, dict[str, LayerValue]] = {card_id: {} for card_id in cards}
@@ -669,6 +702,8 @@ def compute_layers(
                 item = _pod_value(card, pod_size)
             elif layer == WIN_GAP:
                 item = _gap_value(gap.get(card_id))
+            elif layer == COMMANDER_FIT:
+                item = _synergy_value((synergy or {}).get(card_id))
             else:
                 item = _measured(layer, card, atlas.get(card_id))
             result[card_id][layer] = item

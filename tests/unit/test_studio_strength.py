@@ -411,7 +411,7 @@ def test_settings_are_validated_and_round_trip() -> None:
         strength.COMMANDER_INCLUSION: 3.0,
         strength.BRACKET_INCLUSION: 2.0,
         strength.DECK_UNIVERSE: 3.0,
-        strength.SYNERGY: 2.0,
+        strength.SYNERGY: 0.0,
         strength.TOURNAMENT_LISTS: 1.0,
         strength.TOURNAMENT_CONVERSION: 1.0,
         strength.GLOBAL_INCLUSION: 1.0,
@@ -430,10 +430,11 @@ def test_settings_are_validated_and_round_trip() -> None:
         strength.TOURNAMENT_CONVERSION: 1.0,
         strength.GLOBAL_INCLUSION: 1.0,
         strength.COMBOS: 1.0,
-        strength.PLAYGROUP_OBSERVED: 1.0,
+        strength.PLAYGROUP_OBSERVED: 0.0,
         strength.SIMULATION: 0.0,
     }
-    assert strength.DEFAULT_WEIGHTS[strength.PLAYGROUP_OBSERVED] == 1.0
+    assert strength.DEFAULT_WEIGHTS[strength.SYNERGY] == 0.0
+    assert strength.DEFAULT_WEIGHTS[strength.PLAYGROUP_OBSERVED] == 0.0
     # The Playgroup observation is commander independent: it never satisfies the rule
     # "require_commander_signal" and is not in the set of commander-specific components.
     assert strength.PLAYGROUP_OBSERVED not in strength.COMMANDER_SPECIFIC
@@ -704,7 +705,7 @@ def test_without_a_minimum_three_lists_still_spread_percentiles_over_zero_to_one
         row = _row(guarded, card, "tournament_lists")
         assert row["status"] == strength.NO_VALUE and row["percentile"] is None
         assert row["reason"] == strength.BELOW_MIN_DENOMINATOR
-        assert "Mindest-Nenner 5" in row["note"] and "Nenner 3" in row["note"]
+        assert "Mindest-Nenner 20" in row["note"] and "Nenner 3" in row["note"]
         assert guarded[card]["index"] is None and guarded[card]["tier"] == "U"
 
 
@@ -955,7 +956,8 @@ def test_new_settings_are_validated_serialised_and_round_trip() -> None:
             "rank_group": "type",
             "share_measure": "raw",
             "share_scale": "rank",
-            "min_denominators": {"edhrec": 50, "tournament": 8},
+            "combo_source": "spellbook",
+            "min_denominators": {"edhrec": 50, "tournament": 8, "playgroup": 50},
             "missing_value": {"deck_universe": "lowest"},
             "rank_commander_and_basics": True,
             "tier_cuts": {"S": 95, "A": 80, "B": 60, "C": 40},
@@ -972,6 +974,8 @@ def test_new_settings_are_validated_serialised_and_round_trip() -> None:
         {"share_measure": "mean"},
         {"share_scale": "linear"},
         {"share_scale": 1},
+        {"combo_source": "moxfield"},
+        {"combo_source": 1},
         {"min_denominators": {"edhrec": -1}},
         {"min_denominators": {"edhrec": 1.5}},
         {"min_denominators": {"universe": 3}},
@@ -987,7 +991,13 @@ def test_new_settings_are_validated_serialised_and_round_trip() -> None:
         "wilson",
         "share",
     )
-    assert default.min_denominators == {"edhrec": 30, "tournament": 5, "conversion": 20}
+    assert default.combo_source == strength.COMBO_COMMANDER
+    assert default.min_denominators == {
+        "edhrec": 30,
+        "tournament": 20,
+        "conversion": 20,
+        "playgroup": 200,
+    }
     assert default.rank_commander_and_basics is False
     assert set(default.missing_value.values()) == {"skip"}
 
@@ -1196,11 +1206,13 @@ def test_recommended_values_come_from_one_place_and_the_panel_texts_name_them(
     assert "(empfohlen: Wilson-Untergrenze)" in labels["share_measure"]
     assert "(empfohlen: Anteil (Wurzel relativ zum Maximum))" in labels["share_scale"]
     assert "30 Decks" in labels["min_denominators.edhrec"]
-    assert "5 Listen" in labels["min_denominators.tournament"]
+    assert "20 Listen" in labels["min_denominators.tournament"]
+    assert "200 Partien" in labels["min_denominators.playgroup"]
+    assert "EDHREC-Kombos des Commanders" in labels["combo_source"]
     assert "Mindest-Universum" in labels["min_denominators.deck_universe"]
     assert "(empfohlen: auslassen)" in labels["missing_value.commander_inclusion"]
     assert "(empfohlen: aus)" in labels["rank_commander_and_basics"]
-    assert "(empfohlen: 30)" in labels["min_coverage"]  # the page field is in percent
+    assert "(empfohlen: 25)" in labels["min_coverage"]  # the page field is in percent
     assert "(empfohlen: 2)" in labels["min_components"]
     assert [group["title"] for group in meta["panel"]["groups"]][-1].endswith(
         "(empfohlen: 70 / 55 / 35 / 20)"
@@ -1422,7 +1434,7 @@ def test_the_server_serves_the_recommendations_the_page_shows(tmp_path: Path) ->
     client = TestClient(create_app(tmp_path / "studio.db"))
     meta = client.get("/api/strength/presets").json()
     assert meta["recommended"]["weights"]["simulation"] == 0.0
-    assert meta["panel"]["labels"]["min_coverage"] == "Mindest-Datenlage in % (empfohlen: 30)"
+    assert meta["panel"]["labels"]["min_coverage"] == "Mindest-Datenlage in % (empfohlen: 25)"
     assert (
         meta["panel"]["labels"]["weights.simulation"]
         == "Simulation (empfohlen: 0, derzeit ohne Daten)"
@@ -1907,7 +1919,11 @@ def test_combo_quality_mixes_the_parts_and_keeps_unlisted_cards_out() -> None:
 def _combos_only() -> StrengthSettings:
     weights = {name: 0.0 for name in strength.COMPONENTS} | {strength.COMBOS: 1.0}
     return StrengthSettings(
-        weights=weights, min_coverage=0.0, min_components=1, require_commander_signal=False
+        weights=weights,
+        min_coverage=0.0,
+        min_components=1,
+        require_commander_signal=False,
+        combo_source=strength.COMBO_SPELLBOOK,
     )
 
 
@@ -2110,9 +2126,9 @@ def test_conversion_alone_does_not_satisfy_the_commander_signal_rule() -> None:
 
 
 def test_conversion_weight_counts_in_coverage_only_once_its_rows_exist() -> None:
-    """The A/B of the new default weight (1.0, total weight 12 -> 13): without
-    conversion rows a card's coverage drops by exactly the new share; with rows
-    the share is earned back and the component ranks."""
+    """The A/B of the conversion weight (1.0, total weight 10 -> 11): without conversion rows
+    a card's coverage drops by that share; with rows the share is earned back and the
+    component ranks."""
     observations = {
         "a": {"commander_inclusion": _share(90, 100)},
         "b": {"commander_inclusion": _share(50, 100)},
@@ -2126,8 +2142,8 @@ def test_conversion_weight_counts_in_coverage_only_once_its_rows_exist() -> None
     after = StrengthSettings(min_coverage=0.0, min_components=1, require_commander_signal=False)
     scored_before = strength.score_pool(before, observations, {"commander_inclusion"})
     scored_after = strength.score_pool(after, observations, {"commander_inclusion"})
-    assert scored_before["a"]["coverage"] == 0.25  # 3 of a total weight of 12
-    assert scored_after["a"]["coverage"] == round(3 / 13, 4)
+    assert scored_before["a"]["coverage"] == round(3 / 10, 4)
+    assert scored_after["a"]["coverage"] == round(3 / 11, 4)
     assert scored_after["a"]["index"] == scored_before["a"]["index"] == 100.0
     with_rows = {
         "a": {
@@ -2139,17 +2155,24 @@ def test_conversion_weight_counts_in_coverage_only_once_its_rows_exist() -> None
     scored_rows = strength.score_pool(
         after, with_rows, {"commander_inclusion", "tournament_conversion"}
     )
-    assert scored_rows["a"]["coverage"] == round(4 / 13, 4)
+    assert scored_rows["a"]["coverage"] == round(4 / 11, 4)
     row = _row(scored_rows, "a", "tournament_conversion")
     assert row["status"] == strength.PRESENT and row["percentile"] == 0.5
 
 
 def test_settings_without_the_conversion_key_use_the_default_minimum() -> None:
     settings = StrengthSettings(min_denominators={"edhrec": 30, "tournament": 5})
-    assert settings.min_denominators == {"edhrec": 30, "tournament": 5, "conversion": 20}
+    assert settings.min_denominators == {
+        "edhrec": 30,
+        "tournament": 5,
+        "conversion": 20,
+        "playgroup": 200,
+    }
     assert settings.minimum_denominator(strength.TOURNAMENT_CONVERSION, 0) == 20
+    assert settings.minimum_denominator(strength.PLAYGROUP_OBSERVED, 0) == 200
     loaded = StrengthSettings.from_dict({"min_denominators": {"tournament": 7}})
     assert loaded.min_denominators["conversion"] == 20
+    assert loaded.min_denominators["playgroup"] == 200
     with pytest.raises(ValueError):
         StrengthSettings(min_denominators={"bogus": 1})
 
@@ -2179,12 +2202,12 @@ def test_share_scale_preserves_distance_despite_a_long_zero_tail() -> None:
 
 
 def test_share_scale_leaves_non_share_components_on_percentile_ranks() -> None:
-    """Synergy, combos and playgroup_observed have no share in [0, 1] and always use
+    """Synergy (>= 0), combos and playgroup_observed have no share in [0, 1] and always use
     percentile_ranks regardless of share_scale."""
     observations = {
         "a": {
             "commander_inclusion": _share(90, 100),
-            "synergy": Observation(-0.10),
+            "synergy": Observation(0.01),
             "combos": Observation(0.1),
             "playgroup_observed": Observation(-5.0, None, 100),
         },
@@ -2204,12 +2227,22 @@ def test_share_scale_leaves_non_share_components_on_percentile_ranks() -> None:
     collected = {"commander_inclusion", "synergy", "combos", "playgroup_observed"}
     for non_share in ("synergy", "combos", "playgroup_observed"):
         s_share = strength.score_pool(
-            _only(non_share, share_scale="share", require_commander_signal=False),
+            _only(
+                non_share,
+                share_scale="share",
+                require_commander_signal=False,
+                min_denominators={"playgroup": 25},
+            ),
             observations,
             collected,
         )
         s_rank = strength.score_pool(
-            _only(non_share, share_scale="rank", require_commander_signal=False),
+            _only(
+                non_share,
+                share_scale="rank",
+                require_commander_signal=False,
+                min_denominators={"playgroup": 25},
+            ),
             observations,
             collected,
         )
@@ -2244,3 +2277,120 @@ def test_share_scale_rank_is_bit_identical_to_the_previous_ranking(
     assert strength.share_scale_values({"a": 0.0, "b": 0.0}, "share") == {"a": 0.0, "b": 0.0}
     with pytest.raises(ValueError, match="share_scale"):
         strength.share_scale_values({"a": 0.5, "b": 1.0}, "bogus")
+
+
+# ---------- signal cleanup (#1352) ----------
+
+
+def test_negative_synergy_is_neutral_and_never_lowers_the_index() -> None:
+    """Negative synergy (< 0) is treated as NEGATIVE_NEUTRAL (NO_VALUE, no rank, no penalty)
+    even when synergy weight is positive; zero and positive synergy still rank normally."""
+    observations = {
+        "neg_staple": {
+            "commander_inclusion": _share(90, 100),
+            "synergy": Observation(-0.20),
+        },
+        "zero_syn": {
+            "commander_inclusion": _share(60, 100),
+            "synergy": Observation(0.0),
+        },
+        "pos_syn": {
+            "commander_inclusion": _share(60, 100),
+            "synergy": Observation(0.50),
+        },
+    }
+    weighted_syn = StrengthSettings(
+        weights={**strength.DEFAULT_WEIGHTS, strength.SYNERGY: 3.0},
+        min_coverage=0.0,
+        min_components=1,
+        require_commander_signal=False,
+    )
+    scored = strength.score_pool(
+        weighted_syn, observations, {strength.COMMANDER_INCLUSION, strength.SYNERGY}
+    )
+    neg_row = _row(scored, "neg_staple", strength.SYNERGY)
+    assert neg_row["status"] == strength.NO_VALUE
+    assert neg_row["reason"] == strength.NEGATIVE_NEUTRAL
+    assert neg_row["percentile"] is None
+    assert "neutral" in neg_row["note"]
+    assert scored["neg_staple"]["index"] == 100.0  # synergy weight dropped from denominator cleanly
+    zero_row = _row(scored, "zero_syn", strength.SYNERGY)
+    pos_row = _row(scored, "pos_syn", strength.SYNERGY)
+    assert (zero_row["status"], zero_row["percentile"]) == (strength.PRESENT, 0.0)
+    assert (pos_row["status"], pos_row["percentile"]) == (strength.PRESENT, 1.0)
+    # When all valued cards have negative synergy, none ranks and score_pool handles it cleanly.
+    all_neg = strength.score_pool(
+        _only(strength.SYNERGY),
+        {"a": {strength.SYNERGY: Observation(-0.1)}, "b": {strength.SYNERGY: Observation(-0.5)}},
+        {strength.SYNERGY},
+    )
+    assert all_neg["a"]["index"] is None and all_neg["a"]["tier"] == strength.TIER_UNKNOWN
+    assert _row(all_neg, "a", strength.SYNERGY)["reason"] == strength.NEGATIVE_NEUTRAL
+
+
+def test_combo_source_switches_between_commander_edhrec_and_spellbook(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    _import(store, tmp_path)
+    combo_dir = tmp_path / "cmd_combos"
+    combo_dir.mkdir()
+    _write(
+        combo_dir / "edhrec_test_commander_combos.csv",
+        [
+            {"cards": "Filler 02;Filler 03", "num_decks": 80},
+            {"cards": "Filler 04;Filler 05", "num_decks": 20},
+        ],
+        ["cards", "num_decks"],
+    )
+    signals.import_signals(store, combo_dir, commander=COMMANDER)
+
+    only_combos = {name: 0.0 for name in strength.COMPONENTS} | {strength.COMBOS: 2.0}
+    cmd_settings = StrengthSettings(
+        weights=only_combos,
+        min_coverage=0.0,
+        min_components=1,
+        combo_source=strength.COMBO_COMMANDER,
+    )
+    sb_settings = StrengthSettings(
+        weights=only_combos,
+        min_coverage=0.0,
+        min_components=1,
+        combo_source=strength.COMBO_SPELLBOOK,
+    )
+    cmd_res = _by_name(strength_view.compute(store, COMMANDER, cmd_settings))
+    sb_res = _by_name(strength_view.compute(store, COMMANDER, sb_settings))
+
+    # EDHREC commander combos satisfy require_commander_signal and carry the commander label.
+    row_cmd = _component(cmd_res["Filler 02"], strength.COMBOS)
+    assert row_cmd["label"] == "Kombos (EDHREC, beim Commander)"
+    assert row_cmd["signal"] == strength.SIGNAL_COMBO_COMMANDER
+    assert row_cmd["percentile"] == pytest.approx(5 / 6)
+    assert row_cmd["value"] == 80.0
+    assert cmd_res["Filler 02"]["tier"] == "S"
+    assert (
+        _component(cmd_res["Filler 02"], strength.COMBOS)["percentile"]
+        > _component(cmd_res["Filler 04"], strength.COMBOS)["percentile"]
+    )
+    assert _component(cmd_res["Filler 08"], strength.COMBOS)["status"] == strength.NO_VALUE
+
+    # Spellbook combos do NOT satisfy require_commander_signal alone and use Spellbook data.
+    row_sb = _component(sb_res["Filler 09"], strength.COMBOS)
+    assert row_sb["label"] == "Kombos (Commander Spellbook)"
+    assert row_sb["signal"] == strength.COMBO_PART_VARIANTS
+    assert row_sb["percentile"] == 1.0
+    assert _component(sb_res["Filler 08"], strength.COMBOS)["percentile"] == pytest.approx(8 / 9)
+    assert sb_res["Filler 09"]["tier"] == strength.TIER_UNKNOWN
+    assert sb_res["Filler 09"]["reason"] == strength.NO_COMMANDER_SIGNAL
+
+
+def test_presets_remain_distinct_under_signal_cleanup() -> None:
+    balanced = strength.PRESETS["Ausgewogen"]
+    near = strength.PRESETS["Commander-nah"]
+    tournament = strength.PRESETS["Turniernah"]
+    assert balanced != near
+    assert balanced != tournament
+    assert near != tournament
+    assert (
+        len({(*tuple(sorted(p.weights.items())), p.bracket) for p in (balanced, near, tournament)})
+        == 3
+    )

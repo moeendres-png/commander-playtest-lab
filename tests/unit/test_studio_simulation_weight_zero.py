@@ -37,8 +37,14 @@ def test_no_component_but_the_adjustable_simulation_weight_is_simulation_derived
     assert derived == {strength.SIMULATION}
     assert strength.signal_for(strength.SIMULATION, "upgraded") == ""  # no stored signal feeds it
     for component in strength_view.presets()["components"]:  # type: ignore[attr-defined]
-        if component["key"] != strength.SIMULATION:
-            assert component["default_weight"] > 0 or component["key"] == "simulation"
+        if component["key"] not in (
+            strength.SIMULATION,
+            strength.SYNERGY,
+            strength.PLAYGROUP_OBSERVED,
+        ):
+            assert component["default_weight"] > 0
+        else:
+            assert component["default_weight"] == 0.0
 
 
 def _observations(with_simulation: bool) -> dict[str, dict[str, Observation]]:

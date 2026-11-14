@@ -411,8 +411,9 @@ def _layer_result(
     per_card: Mapping[str, Mapping[str, Observation]],
     pod_size: int,
 ) -> layers.LayerResult:
-    """The rating layers of the pool cards. ``per_card`` carries the Playgroup gap
-    observations the index reads (the layer "Sieg-Abstand" reuses them)."""
+    """The rating layers of the pool cards. ``per_card`` carries the Playgroup gap and EDHREC
+    synergy observations the index reads (the layers "Sieg-Abstand" and "Passt zum Commander"
+    reuse them)."""
     return layers.compute_layers(
         layers_view.layer_cards(
             store,
@@ -431,6 +432,11 @@ def _layer_result(
             if (observation := per.get(PLAYGROUP_OBSERVED)) is not None
         },
         pod_size,
+        synergy={
+            card_id: observation
+            for card_id, per in per_card.items()
+            if (observation := per.get(SYNERGY)) is not None
+        },
     )
 
 
@@ -445,19 +451,26 @@ def rating_layers(store: StudioStore, commander: str, pod_size: int) -> layers.L
     display = {str(card["card_id"]): str(card["name"]) for card in raw_cards}
     commander_ids = _strings(pool["commander_ids"])
     claims = _claim_index(store, ids)
-    gap: dict[str, dict[str, Observation]] = {card_id: {} for card_id in ids}
-    observed, _exists = _signal_observations(
-        store,
-        commander,
-        strength.signal_for(PLAYGROUP_OBSERVED, strength.BRACKET_NONE),
-        claims,
-        display,
-        {},
-    )
-    for card_id, observation in observed.items():
-        gap[card_id][PLAYGROUP_OBSERVED] = observation
+    per_card: dict[str, dict[str, Observation]] = {card_id: {} for card_id in ids}
+    for component in (PLAYGROUP_OBSERVED, SYNERGY):
+        observed, _exists = _signal_observations(
+            store,
+            commander,
+            strength.signal_for(component, strength.BRACKET_NONE),
+            claims,
+            display,
+            {},
+        )
+        for card_id, observation in observed.items():
+            per_card[card_id][component] = observation
     return _layer_result(
-        store, raw_cards, display, claims, _unranked_cards(raw_cards, commander_ids), gap, pod_size
+        store,
+        raw_cards,
+        display,
+        claims,
+        _unranked_cards(raw_cards, commander_ids),
+        per_card,
+        pod_size,
     )
 
 
@@ -602,10 +615,12 @@ def compute(
         COMBOS,
         PLAYGROUP_OBSERVED,
     ):
-        signal = strength.signal_for(component, settings.bracket)
+        signal = strength.signal_for(
+            component, settings.bracket, combo_source=settings.combo_source
+        )
         if not signal:
             continue
-        if component == COMBOS:
+        if component == COMBOS and settings.combo_source == strength.COMBO_SPELLBOOK:
             observed, exists = _combo_observations(store, commander, claims, display, ambiguous)
         else:
             observed, exists = _signal_observations(
@@ -852,6 +867,10 @@ _BRACKET_CHOICES = {
     "cedh": "cEDH (Bracket 5)",
     "none": "kein Bracket",
 }
+_COMBO_SOURCE_CHOICES = {
+    strength.COMBO_COMMANDER: "EDHREC-Kombos des Commanders",
+    strength.COMBO_SPELLBOOK: "Commander Spellbook (alle Commander)",
+}
 
 
 def _choices(names: Mapping[str, str], recommended: str) -> list[dict[str, object]]:
@@ -880,6 +899,11 @@ def _panel_texts() -> dict[str, object]:
             "Gewicht des Signals im Mittel der Ränge. 0 schaltet das Signal ab; "
             "ein leeres Feld nimmt den empfohlenen Wert."
         )
+    helps[f"weights.{strength.SYNERGY}"] = (
+        "EDHREC-Synergie beim Commander („hier häufiger als anderswo“). Standardmäßig "
+        "aus dem Index genommen (Gewicht 0) und als Spalte „Passt zum Commander“ gezeigt. "
+        "Bei positivem Gewicht wirkt negative Synergie (< 0) neutral (kein Abzug)."
+    )
     labels[f"weights.{strength.SIMULATION}"] = (
         f"{strength.LABELS[strength.SIMULATION]} (empfohlen: "
         f"{_number_text(rec.weights[strength.SIMULATION])}, derzeit ohne Daten)"
@@ -890,21 +914,19 @@ def _panel_texts() -> dict[str, object]:
     )
     helps[f"weights.{strength.PLAYGROUP_OBSERVED}"] = (
         "Beobachteter Unterschied der Siegrate, wenn die Karte gewirkt wurde (Playgroup-Live-"
-        f"Partien, alle Commander). Zählt erst ab {strength.OBSERVED_MIN_SAMPLE} Partien mit "
-        "der Karte und wird bei kleinen Stichproben zur Null hin gedämpft. Gilt für jeden "
-        "Commander und reicht für eine Stufe allein nicht. 0 schaltet das Signal ab."
+        f"Partien, alle Commander). Zählt erst ab {rec.min_denominators['playgroup']} Partien "
+        f"(Import-Minimum {strength.OBSERVED_MIN_SAMPLE}) mit der Karte und wird über "
+        f"n / (n + {strength.OBSERVED_SHRINKAGE}) zur Null hin gedämpft. Standardmäßig nur "
+        "als Spalte „Sieg-Abstand“ gezeigt (Gewicht 0). Gilt für jeden Commander und reicht "
+        "für eine Stufe allein nicht. 0 schaltet das Signal ab."
     )
     helps[f"weights.{strength.DECK_UNIVERSE}"] = (
         "Wie stark die Verbreitung in gezählten Decklisten zählt. 0 schaltet sie ab."
     )
     helps[f"weights.{strength.COMBOS}"] = (
-        "Combo-Qualität statt reiner Anzahl (Commander Spellbook): der Rang mischt zu "
-        "gleichen Teilen, in wie vielen Combo-Varianten eine Karte steht, in wie vielen "
-        "ihrer Varianten mit genau zwei Karten und wie viele ihrer Combo-Partner in der "
-        "Sammlung sind. Eine 2-Karten-Kombo mit vorhandenem Partner zählt so mehr als "
-        "viele Varianten ohne Partner. Was eine Kombo erzeugt und welche Partner eine "
-        "einzelne Variante hat, veröffentlicht die Datei nicht: das bleibt unbekannt "
-        "und zählt nicht mit. 0 schaltet das Signal ab."
+        "Je nach „Combo-Quelle“ zählt EDHREC-Kombos des Commanders (Standard: wie viele Decks "
+        "dieses Commanders die Karte in Kombinationen spielen) oder Commander Spellbook "
+        "(Qualitäts-Mix über alle Commander). 0 schaltet das Signal ab."
     )
     for key in strength.LAYER_KEYS:
         labels[f"layer_weights.{key}"] = (
@@ -928,6 +950,12 @@ def _panel_texts() -> dict[str, object]:
         "Bracket-Signal (empfohlen: upgraded, passend zum Bracket 3; bei Turnierausrichtung cedh)"
     )
     helps["bracket"] = "Welche Bracket-Seite von EDHREC als Bracket-Signal zählt."
+    labels["combo_source"] = f"Combo-Quelle (empfohlen: {_COMBO_SOURCE_CHOICES[rec.combo_source]})"
+    helps["combo_source"] = (
+        "„EDHREC-Kombos des Commanders“ nutzt die beim Commander gezählten Combo-Decks "
+        "(commander-spezifisch). „Commander Spellbook“ mischt alle Commander über Varianten, "
+        "2-Karten-Varianten und vorhandene Partner."
+    )
     labels["rank_group"] = (
         f"Vergleichsgruppe für den Rang (empfohlen: {_GROUP_CHOICES[rec.rank_group]})"
     )
@@ -987,6 +1015,14 @@ def _panel_texts() -> dict[str, object]:
         "dem Minimum, wird das Signal für alle Karten nicht verwendet; liegt nur der eigene "
         "Nenner einer Karte darunter, entfällt es nur für diese Karte. 0 = kein Minimum."
     )
+    labels["min_denominators.playgroup"] = (
+        f"Mindest-Nenner Playgroup (empfohlen: {rec.min_denominators['playgroup']} Partien)"
+    )
+    helps["min_denominators.playgroup"] = (
+        "Liegt die Stichprobe (Partien, in denen die Karte gewirkt wurde) unter dem Minimum, "
+        "zählt das Playgroup-Signal im Index für diese Karte nicht. 0 = nur Import-Minimum "
+        f"({strength.OBSERVED_MIN_SAMPLE} Partien)."
+    )
     for key in strength.MISSING_CAPABLE:
         labels[f"missing_value.{key}"] = (
             f"Fehlender Wert bei „{strength.LABELS[key]}“ "
@@ -1031,9 +1067,9 @@ def _panel_texts() -> dict[str, object]:
     helps["require_commander_signal"] = (
         "an: eine Karte bekommt nur dann eine Stufe, wenn mindestens ein Signal speziell für "
         "diesen Commander einen Rang hat (Aufnahme beim Commander, im Bracket, Decklisten-"
-        "Universum, Synergie, Turnierlisten). „Aufnahme überhaupt“, Kombos und die Playgroup-"
-        "Beobachtung gelten für jeden Commander und reichen allein nicht: die Karte bleibt "
-        "„zu wenig Daten“."
+        "Universum, Synergie, Turnierlisten oder EDHREC-Kombos). „Aufnahme überhaupt“, "
+        "Spellbook-Kombos und die Playgroup-Beobachtung gelten für jeden Commander und "
+        "reichen allein nicht: die Karte bleibt „zu wenig Daten“."
     )
     labels["min_coverage"] = (
         f"Mindest-Datenlage in % (empfohlen: {_number_text(round(rec.min_coverage * 100, 1))})"
@@ -1055,7 +1091,7 @@ def _panel_texts() -> dict[str, object]:
             "title": "Zusätzliche Ebenen",
             "keys": [*(f"layer_weights.{key}" for key in strength.LAYER_KEYS), "pod_size"],
         },
-        {"title": "Bracket", "keys": ["bracket"]},
+        {"title": "Bracket", "keys": ["bracket", "combo_source"]},
         {"title": "Vergleichsgruppe für den Rang", "keys": ["rank_group"]},
         {"title": "Anteil messen als", "keys": ["share_measure", "share_scale"]},
         {
@@ -1065,6 +1101,7 @@ def _panel_texts() -> dict[str, object]:
                 "min_denominators.deck_universe",
                 "min_denominators.tournament",
                 "min_denominators.conversion",
+                "min_denominators.playgroup",
             ],
         },
         {
@@ -1093,6 +1130,7 @@ def _panel_texts() -> dict[str, object]:
         "groups": groups,
         "choices": {
             "bracket": _choices(_BRACKET_CHOICES, rec.bracket),
+            "combo_source": _choices(_COMBO_SOURCE_CHOICES, rec.combo_source),
             "rank_group": _choices(_GROUP_CHOICES, rec.rank_group),
             "share_measure": _choices(_MEASURE_CHOICES, rec.share_measure),
             "share_scale": _choices(_SCALE_CHOICES, rec.share_scale),

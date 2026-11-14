@@ -225,7 +225,12 @@ def test_the_win_gap_column_is_the_index_component_not_a_second_reading(
     component = next(
         row for row in cards["Filler 01"]["components"] if row["component"] == "playgroup_observed"
     )
-    assert (gap["status"], gap["n"], gap["raw"], gap["value"]) == (layers.OK, 100, 10.0, 8.0)
+    assert (gap["status"], gap["n"], gap["raw"], gap["value"]) == (
+        layers.OK,
+        100,
+        10.0,
+        pytest.approx(10.0 * 100 / 300),
+    )
     assert component["denominator"] == gap["n"] and component["value"] == gap["raw"]
     assert strength.observed_gap(strength.Observation(10.0, None, 100)) == gap["value"]
 
@@ -258,6 +263,7 @@ def test_the_tier_endpoint_returns_layers_and_takes_the_layer_settings(
     assert [row["component"] for row in first["components"]][-1] == "layer_tempo"
     for bad in (
         {"layer_weights": {"win_gap": 1}},
+        {"layer_weights": {"commander_fit": 1}},
         {"pod_size": 9},
         {"layer_weights": {"tempo": -1}},
     ):
@@ -286,7 +292,14 @@ def test_the_settings_panel_has_a_separate_group_with_the_recommendation_zero(
     assert "nur die angezeigte Zahl" in panel["help"]["pod_size"]
     assert meta["recommended"]["layer_weights"] == {key: 0.0 for key in strength.LAYER_KEYS}
     assert [item["key"] for item in meta["layers"]] == list(layers.ALL_LAYER_KEYS)
-    assert [item["weight_allowed"] for item in meta["layers"]] == [True, True, True, True, False]
+    assert [item["weight_allowed"] for item in meta["layers"]] == [
+        True,
+        True,
+        True,
+        True,
+        False,
+        False,
+    ]
     assert len(meta["presets"]) == 3
     for preset in meta["presets"]:
         assert preset["settings"]["layer_weights"] == meta["recommended"]["layer_weights"]
@@ -318,3 +331,31 @@ def test_the_rating_layers_endpoint_serves_the_card_window(client: TestClient) -
 def _ids_by_client(client: TestClient) -> list[dict[str, str]]:
     pool = client.get("/api/pool", params={"commander": COMMANDER}).json()
     return [{"oracle_name": card["name"], "card_id": card["card_id"]} for card in pool["cards"]]
+
+
+def test_commander_fit_layer_reads_edhrec_synergy_in_tier_and_rating_layers_and_ui(
+    client: TestClient,
+) -> None:
+    from commander_lab.studio.web import STATIC
+
+    ids = {row["oracle_name"]: row["card_id"] for row in _ids_by_client(client)}
+    # Filler 00 has empty synergy in _write_signals, Filler 01..08 have increasing positive synergy.
+    strength_body = client.post(
+        "/api/strength", json={"commander": COMMANDER}, headers=HEADER
+    ).json()
+    by_name = {card["name"]: card for card in strength_body["cards"]}
+    assert by_name["Filler 00"]["layers"]["commander_fit"]["status"] == layers.UNKNOWN
+    assert by_name["Filler 08"]["layers"]["commander_fit"]["status"] == layers.OK
+    assert by_name["Filler 08"]["layers"]["commander_fit"]["raw"] == pytest.approx(0.08)
+    assert by_name["Filler 08"]["layers"]["commander_fit"]["percentile"] == 100.0
+    assert by_name["Filler 01"]["layers"]["commander_fit"]["percentile"] == 0.0
+    assert by_name["Test Commander"]["layers"]["commander_fit"]["status"] == layers.NOT_APPLICABLE
+
+    rating = client.get("/api/rating-layers", params={"commander": COMMANDER}).json()
+    assert rating["cards"][ids["Filler 08"]]["commander_fit"]["raw"] == pytest.approx(0.08)
+    assert rating["cards"][ids["Filler 00"]]["commander_fit"]["status"] == layers.UNKNOWN
+
+    ui_js = (STATIC / "ui.js").read_text(encoding="utf-8")
+    tier_js = (STATIC / "tierliste.js").read_text(encoding="utf-8")
+    assert 'key === "commander_fit"' in ui_js
+    assert 'key === "combo_source"' in tier_js
