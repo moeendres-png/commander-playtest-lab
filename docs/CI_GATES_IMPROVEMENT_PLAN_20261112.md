@@ -66,6 +66,24 @@ touched.
 4. Recommendations 2, 3 and 8 after the Owner's decision, each alone, because each changes
    what a green or red check means.
 
+## Implemented: parallel `quality` graph (2026-11-14, Owner-approved)
+
+`quality` is now a gate job (`if: always()`, `needs: [changes, lint, tests, packaging]`, decision in
+`scripts/ci_gate.py`). `changes` classifies the diff (`scripts/ci_change_scope.py`); `lint` runs
+ruff, format, mypy, compile, the secret scan and the wheel build; `tests` is a matrix of four
+runners (`python -m tests.pytest_shards matrix`), each with `--shards=4`; `packaging` runs on a
+push to `main` and on a pull request that changes a packaging input. A document-only pull request
+runs one `tests` slot with the documentation tests (`tests/pytest_docs_tests.json`, 42 files) and
+skips `packaging`. When this was written the tree had 403 test files outside
+`tests/qualification`: 402 in the matrix and the packaging test, which only the `packaging` job
+runs. The integrity guard (`scripts/verify_required_check_definitions.py`) accepts this gate
+pattern by parsing, not by name.
+
+Accepted risk: a pull request that only edits an existing module under `src/` does not run the
+`packaging` job (an added or deleted module, a package `__init__.py`, a console-script target and
+the packaging inputs do). An edit that breaks the wheel or an entrypoint import is therefore
+caught by the `packaging` job of the push to `main`, not before the merge.
+
 ## What stays as it is
 
 - The three required contexts and branch protection.
