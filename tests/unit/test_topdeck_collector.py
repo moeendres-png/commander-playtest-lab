@@ -280,3 +280,39 @@ def test_get_api_key(monkeypatch) -> None:
     monkeypatch.delenv("TOPDECK_API_KEY", raising=False)
     with pytest.raises(RuntimeError, match="TOPDECK_API_KEY environment variable"):
         get_api_key()
+
+
+def test_split_commander_parts_assign_commander_wide_liste_labels(tmp_path: Path) -> None:
+    # Issue #1309, item 9: split files (_decks_1.csv, _decks_2.csv) must keep
+    # one commander-wide Liste N sequence so part 2 never restarts at Liste 1.
+    mock_tournaments = [
+        {
+            "TID": "t1",
+            "tournamentName": "Split Cup",
+            "startDate": 1780000000,
+            "standings": [
+                _complete_deck("Alice"),
+                _complete_deck("Bob"),
+                _complete_deck("Carol"),
+                _complete_deck("Alice"),
+            ],
+        }
+    ]
+    stats, decks = process_tournaments(mock_tournaments, DEFAULT_107_COMMANDERS)
+    out_dir = tmp_path / "split_out"
+    summary = export_results(
+        stats,
+        decks,
+        out_dir,
+        DEFAULT_107_COMMANDERS,
+        max_decks_per_file=2,
+    )
+    assert summary["exported_files"] == [
+        "topdeck_commander_presence.csv",
+        "topdeck_the_gitrog_monster_decks_1.csv",
+        "topdeck_the_gitrog_monster_decks_2.csv",
+    ]
+    part1 = list(csv.DictReader((out_dir / "topdeck_the_gitrog_monster_decks_1.csv").open()))
+    part2 = list(csv.DictReader((out_dir / "topdeck_the_gitrog_monster_decks_2.csv").open()))
+    assert [r["player"] for r in part1[::100]] == ["Liste 1", "Liste 2"]
+    assert [r["player"] for r in part2[::100]] == ["Liste 3", "Liste 1"]

@@ -208,14 +208,22 @@ def _parts(folder: Path, base: str) -> list[Path]:
 
 
 def _rows(paths: list[Path], required: set[str]) -> Iterator[dict[str, str]]:
-    for path in paths:
+    for _part_index, row in _rows_by_part(paths, required):
+        yield row
+
+
+def _rows_by_part(paths: list[Path], required: set[str]) -> Iterator[tuple[int, dict[str, str]]]:
+    for part_index, path in enumerate(paths):
         with path.open(newline="", encoding="utf-8-sig") as handle:
             reader = csv.DictReader(handle)
             missing = required - set(reader.fieldnames or [])
             if missing:
                 raise ValueError(f"{path.name}: missing column(s) {', '.join(sorted(missing))}")
             for row in reader:
-                yield {key: (value or "") for key, value in row.items() if key is not None}
+                yield (
+                    part_index,
+                    {key: (value or "") for key, value in row.items() if key is not None},
+                )
 
 
 def _share(numerator: int | None, denominator: int | None) -> float | None:
@@ -626,8 +634,8 @@ def _read_tournament_lists(
     required and read: it is only an in-memory grouping key that tells two lists of one
     tournament and date apart. Its value is never stored, logged or reported."""
     required = {"tournament", "date", "card_name", "section"}
-    lists: dict[tuple[str, str, str], tuple[set[str], set[str]]] = {}
-    for row in _rows(paths, required | {"player"}):
+    lists: dict[tuple[int, str, str, str], tuple[set[str], set[str]]] = {}
+    for part_index, row in _rows_by_part(paths, required | {"player"}):
         report["rows_read"] += 1
         if row["section"].strip() not in LIST_SECTIONS:
             report["rows_skipped"] += 1
@@ -635,7 +643,9 @@ def _read_tournament_lists(
                 report["skipped_reasons"].get("SECTION_NOT_COUNTED", 0) + 1
             )
             continue
-        identity = (row["tournament"], row["date"], row["player"])
+        # Scope list assembly per part file so legacy splits that reset "Liste 1"
+        # per file do not merge two different decks before deduplication via _ListKey.
+        identity = (part_index, row["tournament"], row["date"], row["player"])
         cards, listed_commanders = lists.setdefault(identity, (set(), set()))
         name = row["card_name"].strip()
         if row["section"].strip() == "commander":
@@ -663,7 +673,7 @@ def _read_tournament_lists(
     commander = commanders.resolve(chosen)
     report["commander"] = commander
     valid: set[_ListKey] = {
-        (identity[0], identity[1], identity[2], frozenset(cards))
+        (identity[1], identity[2], identity[3], frozenset(cards))
         for identity, (cards, listed) in lists.items()
         if listed == {chosen}
     }

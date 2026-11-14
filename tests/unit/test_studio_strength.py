@@ -1933,3 +1933,32 @@ def test_spellbook_downgrade_import_drops_the_stale_quality_rows(
     cards = _by_name(strength_view.compute(store, COMMANDER, _combos_only()))
     assert _component(cards["Filler 01"], "combos")["percentile"] == 1.0
     assert _component(cards["Filler 00"], "combos")["percentile"] == 0.0
+
+
+def test_split_part_tournament_files_do_not_merge_or_collide(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    folder = tmp_path / "split_tournaments"
+    folder.mkdir()
+    # Even if two split parts both contain "Liste 1" in the same tournament/date,
+    # distinct deck lists in part 1 and part 2 must stay separate lists (2, not 1 merged).
+    _lists_file(
+        folder / "topdeck_split_decks_1.csv",
+        [("Cup S", "2026-11-01", "Liste 1", [COMMANDER], ["Filler 01"])],
+    )
+    _lists_file(
+        folder / "topdeck_split_decks_2.csv",
+        [("Cup S", "2026-11-01", "Liste 1", [COMMANDER], ["Filler 02"])],
+    )
+    report = signals.import_signals(store, folder, commander=COMMANDER)
+    files = report["files"]
+    assert isinstance(files, dict)
+    assert files["topdeck_split_decks"]["parts"] == [
+        "topdeck_split_decks_1.csv",
+        "topdeck_split_decks_2.csv",
+    ]
+    assert files["topdeck_split_decks"]["lists_read"] == 2
+    one = _signal(store, signals.SIGNAL_TOURNAMENT, "Filler 01")
+    two = _signal(store, signals.SIGNAL_TOURNAMENT, "Filler 02")
+    assert one is not None and (one["numerator"], one["denominator"]) == (1, 2)
+    assert two is not None and (two["numerator"], two["denominator"]) == (1, 2)
