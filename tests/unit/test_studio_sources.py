@@ -2,7 +2,7 @@
 
 Verifies the systematic qualification of the 9 prioritized sources, schema integrity,
 explicit null-timestamp preservation, JSON inventory generation, card coverage record calculation,
-long-tail candidate identification, and full 801-card pool gap matrix calculation.
+long-tail candidate identification, and full 927-card pool gap matrix calculation.
 """
 
 from __future__ import annotations
@@ -251,6 +251,31 @@ def test_calculate_card_coverage_record_grades_and_scores() -> None:
     assert "0/975 corpus hits with engine relevance" in rec_unobs.notes
     assert rec_unobs.research_priority_score == pytest.approx(0.48, abs=0.01)
 
+    # Notes texts follow the caller-supplied corpus denominator (canonical 2823),
+    # not a hardcoded value.
+    rec_unobs_2823 = calculate_card_coverage_record(
+        unobserved_card, spellbook_cards, corpus_denominator=2823
+    )
+    assert "0/2823 corpus hits with engine relevance" in rec_unobs_2823.notes
+
+    unobserved_plain_card: dict[str, object] = {
+        "name": "Test Sorcery",
+        "oracle_id": "test-sorcery-id",
+        "mana_value": 5.0,
+        "colors": "G",
+        "type_line": "Sorcery",
+        "group": "Sorcery",
+        "has_image": True,
+        "sim_status": "OK",
+        "decks": {"all": 0},
+        "roles": [],
+    }
+    rec_unobs_plain = calculate_card_coverage_record(
+        unobserved_plain_card, spellbook_cards, corpus_denominator=2823
+    )
+    assert rec_unobs_plain.is_long_tail_candidate is False
+    assert "Unobserved in curated 2823-deck corpus" in rec_unobs_plain.notes
+
     # 2. Sparse card (1-4 hits)
     sparse_card: dict[str, object] = {
         "name": "Cloudstone Curio",
@@ -318,28 +343,28 @@ def test_calculate_pool_gap_matrix_integration_and_write(tmp_path: Path) -> None
     matrix = calculate_pool_gap_matrix(store)
 
     assert matrix["schema_version"] == "pool-gap-matrix-1.1.0"
-    assert matrix["total_cards"] == 801
-    assert matrix["corpus_denominator"] == 975
+    assert matrix["total_cards"] == 927
+    assert matrix["corpus_denominator"] == 2823
     assert matrix["commander"] == "Chulane, Teller of Tales"
 
     summary = matrix["summary_counts"]
     grades = summary["coverage_grades"]
     assert isinstance(grades, dict)
-    assert grades["COMPLETE"] == 219
-    assert grades["SPARSE"] == 202
-    assert grades["PARTIAL"] == 8
-    assert grades["UNOBSERVED_IN_CORPUS"] == 372
-    assert summary["long_tail_candidates_count"] == 413
-    assert summary["observed_in_corpus_count"] == 429
-    assert summary["unobserved_in_corpus_count"] == 372
-    assert summary["xmage_ready_count"] == 801
+    assert grades["COMPLETE"] == 291
+    assert grades["SPARSE"] == 209
+    assert grades["PARTIAL"] == 73
+    assert grades["UNOBSERVED_IN_CORPUS"] == 354
+    assert summary["long_tail_candidates_count"] == 395
+    assert summary["observed_in_corpus_count"] == 573
+    assert summary["unobserved_in_corpus_count"] == 354
+    assert summary["xmage_ready_count"] == 927
 
     cards = matrix["cards"]
-    assert len(cards) == 801
+    assert len(cards) == 927
 
     # Verify descending sort by research_priority_score
     scores = [float(c["research_priority_score"]) for c in cards]  # type: ignore[arg-type]
-    assert len(scores) == 801
+    assert len(scores) == 927
     for i in range(len(scores) - 1):
         assert scores[i] >= scores[i + 1]
 
@@ -349,9 +374,9 @@ def test_calculate_pool_gap_matrix_integration_and_write(tmp_path: Path) -> None
     assert written_path.is_file()
 
     loaded = json.loads(written_path.read_text(encoding="utf-8"))
-    assert loaded["total_cards"] == 801
+    assert loaded["total_cards"] == 927
     assert loaded["schema_version"] == "pool-gap-matrix-1.1.0"
-    assert len(loaded["cards"]) == 801
+    assert len(loaded["cards"]) == 927
 
 
 def test_source_inventory_payload_filtered_by_status() -> None:
@@ -520,7 +545,7 @@ def test_cli_sources_commands(tmp_path: Path, capsys: pytest.CaptureFixture[str]
         assert rc_gap == 0
         captured_gap = capsys.readouterr()
         summary = json.loads(captured_gap.out)
-        assert summary["total_cards"] == 801
+        assert summary["total_cards"] == 927
         assert gap_out_file.is_file()
 
         # 5. Example report CLI
@@ -529,5 +554,5 @@ def test_cli_sources_commands(tmp_path: Path, capsys: pytest.CaptureFixture[str]
         captured_ex = capsys.readouterr()
         ex_report = json.loads(captured_ex.out)
         assert ex_report["schema_version"] == "gap-example-report-1.0.0"
-        assert ex_report["total_pool_cards"] == 801
+        assert ex_report["total_pool_cards"] == 927
         assert "UNOBSERVED_IN_CORPUS" in ex_report["examples_by_grade"]

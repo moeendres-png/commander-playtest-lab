@@ -28,7 +28,16 @@ from collections.abc import Mapping, Sequence
 from dataclasses import replace
 from typing import TypedDict
 
-from . import layers, layers_view, signals, strength, universe, universe_choice, universe_view
+from . import (
+    layers,
+    layers_view,
+    roles,
+    signals,
+    strength,
+    universe,
+    universe_choice,
+    universe_view,
+)
 from .builder import pool_cards
 from .store import StudioStore, now_utc
 from .strength import (
@@ -438,6 +447,29 @@ def _optional_text(value: object) -> str | None:
     return str(value) if value else None
 
 
+_ROLE_ORDER = {role: index for index, role in enumerate(roles.ROLES)}
+
+
+def _function_groups(
+    store: StudioStore, raw_cards: Sequence[Mapping[str, object]]
+) -> dict[str, tuple[str, ...]]:
+    """The functional roles of every pool card (``card_role`` by oracle id), in the
+    canonical order of ``roles.ROLES``. A card without a sourced role is absent: the
+    function comparison group then falls back to the pool for it, said openly."""
+    by_oracle: dict[str, list[str]] = {}
+    with store.connection as db:
+        for oracle_id, role in db.execute("SELECT oracle_id, role FROM card_role"):
+            by_oracle.setdefault(str(oracle_id), []).append(str(role))
+    result: dict[str, tuple[str, ...]] = {}
+    for card in raw_cards:
+        found = by_oracle.get(_optional_text(card["oracle_id"]) or "")
+        if found:
+            result[str(card["card_id"])] = tuple(
+                sorted(found, key=lambda role: (_ROLE_ORDER.get(role, len(_ROLE_ORDER)), role))
+            )
+    return result
+
+
 def _float(value: object) -> float | None:
     return float(value) if isinstance(value, (int, float)) and not isinstance(value, bool) else None
 
@@ -562,7 +594,14 @@ def compute(
         group = str(card["group"])
         type_group[card_id] = group
         bands[card_id] = strength.mana_band(_float(card["mana_value"]), is_land=group == "Land")
-    context = PoolContext(type_group, bands, unranked, filter_cards, universe_minimum)
+    context = PoolContext(
+        type_group,
+        bands,
+        unranked,
+        filter_cards,
+        universe_minimum,
+        function_group=_function_groups(store, raw_cards),
+    )
 
     # Rating layers (Bewertungsebenen): always computed for the page; they join the index only
     # with a positive weight (default 0), as one more rank-based component each.
@@ -731,6 +770,7 @@ _GROUP_CHOICES = {
     strength.GROUP_POOL: "ganzer Pool",
     strength.GROUP_TYPE: "gleicher Kartentyp",
     strength.GROUP_MANA_BAND: "gleiches Manawert-Band",
+    strength.GROUP_FUNCTION: "gleiche Funktion (Rolle)",
 }
 _MEASURE_CHOICES = {
     strength.MEASURE_WILSON: "Wilson-Untergrenze",
@@ -820,7 +860,11 @@ def _panel_texts() -> dict[str, object]:
     helps["rank_group"] = (
         "Gegen welche Karten der Rang berechnet wird. Eine Gruppe mit weniger als "
         f"{strength.MIN_GROUP} Karten mit Wert fällt auf den ganzen Pool zurück "
-        "(steht dann in der Signalzeile)."
+        "(steht dann in der Signalzeile). „Gleiche Funktion“ vergleicht innerhalb der "
+        "belegten Rollen der Karte (card_role): eine Karte mit mehreren Rollen zählt in "
+        "jeder ihrer Rollengruppen, ihr Rang ist der Mittelwert daraus. Gruppen unter "
+        "der Mindestgröße zählen beim Mittelwert nicht mit. Eine Karte ohne "
+        "belegte Rolle fällt auf den ganzen Pool zurück und sagt das in der Signalzeile."
     )
     labels["share_measure"] = (
         f"Anteil messen als (empfohlen: {_MEASURE_CHOICES[rec.share_measure]})"
