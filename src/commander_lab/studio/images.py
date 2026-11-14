@@ -207,9 +207,11 @@ def cached_image_by_name(store: StudioStore, name: str, *, fetch: bool = True) -
     if _has_table(store, "card_printing"):
         row = store.connection.execute(
             "SELECT p.image_front FROM card_printing p "
-            "JOIN scryfall_card s ON s.scryfall_id = p.scryfall_id "
-            "WHERE s.oracle_id = ? AND p.image_front IS NOT NULL",
-            (oracle_id,),
+            "LEFT JOIN card_fact f ON f.card_id = p.card_id "
+            "LEFT JOIN scryfall_card s ON s.scryfall_id = p.scryfall_id "
+            "WHERE (f.oracle_id = ? OR s.oracle_id = ?) AND p.image_front IS NOT NULL "
+            "ORDER BY f.oracle_id = ? DESC LIMIT 1",
+            (oracle_id, oracle_id, oracle_id),
         ).fetchone()
         if row is not None:
             return _cached(store, oracle_id, str(row["image_front"]), "front", fetch=fetch)

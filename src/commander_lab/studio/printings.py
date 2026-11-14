@@ -194,6 +194,9 @@ def _apply(
                     report["ambiguous"] += 1
                 continue
             front, back = _images(chosen)
+            if front is None:
+                report["not_found"] += 1
+                continue
             scryfall_id = chosen.get("id")
             updates.append(
                 (

@@ -355,10 +355,12 @@ def test_by_name_serves_the_collection_printing(
         _recorder(monkeypatch, calls)
         path = cached_image_by_name(store, "Forest")
         assert path is not None and path.name == "oracle-forest-front.jpg"
-        _owned(store, "card:project:0002", "1", scryfall_id="print-forest", image_front=PRINT_FRONT)
+        _owned(store, "card:project:0002", "1", scryfall_id="print-owned", image_front=PRINT_FRONT)
         path = cached_image_by_name(store, "Forest")
         assert path is not None and path.name == "oracle-forest-front.jpg"
-        # the second call replaced the representative printing with the owned one
+        # the second call replaced the representative printing with the owned one,
+        # and a subsequent by-card_id lookup reuses the same stamped file without re-downloading
+        assert cached_image(store, "card:project:0002") == path
         assert calls == [FRONT, PRINT_FRONT]
     finally:
         store.close()

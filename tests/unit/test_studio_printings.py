@@ -455,12 +455,15 @@ CREATE TABLE scryfall_card (
 """  # fmt: skip
 
 
-def test_schema_15_upgrades_an_existing_store_idempotently(tmp_path: Path) -> None:
-    folder = tmp_path / "studio"
+@pytest.mark.parametrize("old_version", ["14", "15"])
+def test_schema_16_upgrades_an_existing_store_idempotently(
+    tmp_path: Path, old_version: str
+) -> None:
+    folder = tmp_path / f"studio-{old_version}"
     folder.mkdir()
     connection = sqlite3.connect(folder / "studio.sqlite3")
     connection.execute("CREATE TABLE meta (key TEXT PRIMARY KEY, value TEXT NOT NULL)")
-    connection.execute("INSERT INTO meta VALUES ('schema_version', '14')")
+    connection.execute("INSERT INTO meta VALUES ('schema_version', ?)", (old_version,))
     connection.execute(
         "CREATE TABLE source (source_id TEXT PRIMARY KEY, data_class TEXT NOT NULL, "
         "title TEXT NOT NULL, sha256 TEXT NOT NULL, snapshot_date TEXT, url TEXT, "

@@ -13,6 +13,7 @@ a location inside this repository. Card images are cached next to it in `images/
 | Command (`python -m commander_lab.studio ...`) | Reads | Data class |
 |---|---|---|
 | `import-inventory FILE.xlsx` | card identities and inventory of the collection | original |
+| `import-printings FILE.xlsx --bulk PATH` | collection printings (`card_printing`) matched locally against a Scryfall default-cards bulk file or folder | original |
 | `import-scryfall PATH [--disambiguation FILE.csv]` | public card data (single `.jsonl`/`.jsonl.gz` or folder of split parts); links the collection | original (public) |
 | `import-corpus-register FILE.csv` | source decks | normalized |
 | `import-corpus-cards FILE.csv [FILE.csv ...] [--allow-deck-move]` | the cards of the source decks, one or several part files in one transaction (see below) | normalized |
@@ -602,7 +603,7 @@ the public card data once a card is linked; the workbook stays the source of wha
 Only image requests leave the machine, and they name single public cards (Owner exception in
 `AGENTS.md` §12). The image host is fixed in `images.py`.
 
-### Which printing is shown (schema 15, #1342)
+### Which printing is shown (schema 16, #1342)
 
 A card is pictured as the printing the collection itself holds when that printing is
 identifiable, and as a plain standard printing otherwise — never as a full-art or
