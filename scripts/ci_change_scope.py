@@ -77,8 +77,8 @@ def is_docs_only(paths: Sequence[str]) -> bool:
 
 def console_script_modules(pyproject: Path) -> set[str]:
     """Source files of the modules the declared console scripts import (``pkg.mod:attr``)."""
-    scripts = tomllib.loads(pyproject.read_text(encoding="utf-8")).get("project", {}).get(
-        "scripts", {}
+    scripts = (
+        tomllib.loads(pyproject.read_text(encoding="utf-8")).get("project", {}).get("scripts", {})
     )
     files: set[str] = set()
     for target in scripts.values():
@@ -131,7 +131,9 @@ def matrix_for(scope: str, count: int = MATRIX_COUNT) -> dict[str, list[dict[str
     if scope == "docs":
         return {"include": [{"index": 1, "count": 1, "scope": "docs"}]}
     return {
-        "include": [{"index": index, "count": count, "scope": "all"} for index in range(1, count + 1)]
+        "include": [
+            {"index": index, "count": count, "scope": "all"} for index in range(1, count + 1)
+        ]
     }
 
 
@@ -153,7 +155,9 @@ def decide(
         trigger = packaging_reason(changes, entrypoint_files)
         scope, packaging = "full", trigger is not None
         reason = (
-            f"code change, packaging input {trigger}" if trigger else "code change, no packaging input"
+            f"code change, packaging input {trigger}"
+            if trigger
+            else "code change, no packaging input"
         )
     return {
         "scope": scope,

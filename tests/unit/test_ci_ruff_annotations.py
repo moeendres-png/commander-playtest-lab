@@ -4,7 +4,9 @@ import importlib.util
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-_spec = importlib.util.spec_from_file_location("ci_ruff_annotations", ROOT / "scripts/ci_ruff_annotations.py")
+_spec = importlib.util.spec_from_file_location(
+    "ci_ruff_annotations", ROOT / "scripts/ci_ruff_annotations.py"
+)
 assert _spec is not None and _spec.loader is not None
 module = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(module)

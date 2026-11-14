@@ -7,6 +7,7 @@ file, instead of running the whole check a second time with ``--output-format=gi
 
 from __future__ import annotations
 
+import contextlib
 import json
 import sys
 from collections.abc import Sequence
@@ -17,7 +18,9 @@ def _escape(text: str) -> str:
     return text.replace("%", "%25").replace("\r", "%0D").replace("\n", "%0A")
 
 
-def annotations(diagnostics: Sequence[dict[str, object]], workspace: Path | None = None) -> list[str]:
+def annotations(
+    diagnostics: Sequence[dict[str, object]], workspace: Path | None = None
+) -> list[str]:
     lines = []
     for item in diagnostics:
         location = item.get("location") or {}
@@ -25,10 +28,8 @@ def annotations(diagnostics: Sequence[dict[str, object]], workspace: Path | None
         assert isinstance(location, dict) and isinstance(end, dict)
         name = Path(str(item.get("filename", "")))
         if workspace is not None:
-            try:
+            with contextlib.suppress(ValueError):
                 name = name.relative_to(workspace)
-            except ValueError:
-                pass
         code = item.get("code") or "ruff"
         lines.append(
             f"::error title=Ruff ({code}),file={name},line={location.get('row', 1)},"

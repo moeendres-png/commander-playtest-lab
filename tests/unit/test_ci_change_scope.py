@@ -27,7 +27,9 @@ def decide(*changes: tuple[str, str], event: str = "pull_request") -> dict[str, 
 def test_docs_only_runs_the_docs_subset_without_packaging() -> None:
     out = decide(("M", "docs/a.md"), ("A", "README.md"), ("M", "docs/data.json"))
     assert out["scope"] == "docs" and out["packaging"] == "false"
-    assert json.loads(out["test_matrix"]) == {"include": [{"index": 1, "count": 1, "scope": "docs"}]}
+    assert json.loads(out["test_matrix"]) == {
+        "include": [{"index": 1, "count": 1, "scope": "docs"}]
+    }
 
 
 def test_docs_plus_one_code_file_runs_everything() -> None:
@@ -137,10 +139,17 @@ def test_real_git_diff_with_rename_and_delete(tmp_path: Path) -> None:
 
 def test_cli_writes_github_output_and_fails_closed(tmp_path: Path) -> None:
     out = tmp_path / "out.txt"
-    assert scope.main(["--event", "pull_request", "--repo", str(tmp_path), "--github-output", str(out)]) == 0
+    assert (
+        scope.main(
+            ["--event", "pull_request", "--repo", str(tmp_path), "--github-output", str(out)]
+        )
+        == 0
+    )
     text = out.read_text()
     assert "scope=full" in text and "packaging=true" in text and "test_matrix=" in text
-    assert scope.main(["--event", "push", "--repo", str(tmp_path), "--github-output", str(out)]) == 0
+    assert (
+        scope.main(["--event", "push", "--repo", str(tmp_path), "--github-output", str(out)]) == 0
+    )
 
 
 def test_parse_name_status_rejects_unpaired_output() -> None:

@@ -272,9 +272,7 @@ def weights_from_junit(reports: Sequence[Path], rootdir: Path) -> dict[str, floa
     return {name: max(round(value, 1), 0.1) for name, value in sorted(seconds.items())}
 
 
-def discover_test_files(
-    rootdir: Path, ignores: Sequence[str] = OTHER_OWNER_ROOTS
-) -> list[str]:
+def discover_test_files(rootdir: Path, ignores: Sequence[str] = OTHER_OWNER_ROOTS) -> list[str]:
     """Every ``tests/**/test_*.py`` outside ``ignores``: what ``pytest tests --ignore=...`` collects."""
     return sorted(
         name
@@ -293,9 +291,7 @@ def load_docs_tests(path: Path = DOCS_TESTS_PATH) -> list[str]:
     return sorted(str(name) for name in document["files"])
 
 
-def plan_matrix(
-    files: Sequence[str], weights: Mapping[str, float], count: int
-) -> list[list[str]]:
+def plan_matrix(files: Sequence[str], weights: Mapping[str, float], count: int) -> list[list[str]]:
     """Assign every file to exactly one of ``count`` matrix slots (balanced by weight).
 
     A file without a weight counts as the mean of the known weights, so it is still placed.
@@ -323,9 +319,7 @@ def matrix_files(
     if not 1 <= index <= count:
         raise ValueError(f"matrix index {index} is outside 1..{count}")
     if scope == "all":
-        files = [
-            name for name in discover_test_files(rootdir) if name != PACKAGING_TEST
-        ]
+        files = [name for name in discover_test_files(rootdir) if name != PACKAGING_TEST]
     elif scope == "docs":
         listed = load_docs_tests() if docs_tests is None else docs_tests
         files = [name for name in listed if (rootdir / name).is_file()]
