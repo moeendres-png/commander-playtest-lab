@@ -110,6 +110,8 @@ _INDEPENDENT = frozenset(
     {
         "edhrec_global_inclusion",
         "spellbook_variants",
+        signals.SIGNAL_TWO_CARD,
+        signals.SIGNAL_PARTNERS,
         "playgroup_observed_winrate_gap",
         # A marker layer only (no rated component): the salt list does not depend on a commander.
         signals.SIGNAL_SALT,
@@ -166,6 +168,32 @@ def _signal_observations(
     return {card_id: item[2] for card_id, item in best.items()}, bool(rows)
 
 
+def _combo_observations(
+    store: StudioStore,
+    commander: str,
+    claims: _Claims,
+    display: Mapping[str, str],
+    ambiguous: dict[tuple[str, str], list[str]],
+) -> tuple[dict[str, Observation], bool]:
+    """The combos observations: one per pool card the spellbook file lists, valued by
+    the combo quality mixture (``strength.combo_quality``) of the three spellbook
+    signals. Whether the source exists is decided by the primary signal alone, as
+    before; the two quality signals only refine the value of the listed cards."""
+    parts: dict[str, dict[str, float]] = {}
+    exists = False
+    for signal in strength.COMBO_PARTS:
+        observed, found = _signal_observations(store, commander, signal, claims, display, ambiguous)
+        if signal == strength.COMBO_PART_VARIANTS:
+            exists = found
+        parts[signal] = {
+            card_id: item.value for card_id, item in observed.items() if item.value is not None
+        }
+    return (
+        {card_id: Observation(value) for card_id, value in strength.combo_quality(parts).items()},
+        exists,
+    )
+
+
 def _strings(value: object) -> set[str]:
     if not isinstance(value, list):
         raise TypeError("pool_cards returned an unexpected shape")
@@ -189,6 +217,8 @@ def expected_signals() -> list[str]:
         strength.signal_for(SYNERGY, strength.BRACKET_NONE),
         strength.signal_for(GLOBAL_INCLUSION, strength.BRACKET_NONE),
         strength.signal_for(COMBOS, strength.BRACKET_NONE),
+        signals.SIGNAL_TWO_CARD,
+        signals.SIGNAL_PARTNERS,
         strength.signal_for(TOURNAMENT_LISTS, strength.BRACKET_NONE),
         signals.SIGNAL_EDHTOP16,
         # One generic row: the counted universes are named by the file (source, bracket); the
@@ -554,9 +584,12 @@ def compute(
         signal = strength.signal_for(component, settings.bracket)
         if not signal:
             continue
-        observed, exists = _signal_observations(
-            store, commander, signal, claims, display, ambiguous
-        )
+        if component == COMBOS:
+            observed, exists = _combo_observations(store, commander, claims, display, ambiguous)
+        else:
+            observed, exists = _signal_observations(
+                store, commander, signal, claims, display, ambiguous
+            )
         if exists:
             collected.add(component)
         for card_id, observation in observed.items():
@@ -831,6 +864,15 @@ def _panel_texts() -> dict[str, object]:
     )
     helps[f"weights.{strength.DECK_UNIVERSE}"] = (
         "Wie stark die Verbreitung in gezählten Decklisten zählt. 0 schaltet sie ab."
+    )
+    helps[f"weights.{strength.COMBOS}"] = (
+        "Combo-Qualität statt reiner Anzahl (Commander Spellbook): der Rang mischt zu "
+        "gleichen Teilen, in wie vielen Combo-Varianten eine Karte steht, in wie vielen "
+        "ihrer Varianten mit genau zwei Karten und wie viele ihrer Combo-Partner in der "
+        "Sammlung sind. Eine 2-Karten-Kombo mit vorhandenem Partner zählt so mehr als "
+        "viele Varianten ohne Partner. Was eine Kombo erzeugt und welche Partner eine "
+        "einzelne Variante hat, veröffentlicht die Datei nicht: das bleibt unbekannt "
+        "und zählt nicht mit. 0 schaltet das Signal ab."
     )
     for key in strength.LAYER_KEYS:
         labels[f"layer_weights.{key}"] = (

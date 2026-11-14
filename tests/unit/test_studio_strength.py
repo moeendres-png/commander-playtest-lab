@@ -261,9 +261,11 @@ def test_import_rejects_a_file_without_its_columns(store: StudioStore, tmp_path:
 
 
 def test_import_stores_no_dead_signals(store: StudioStore, tmp_path: Path) -> None:
-    # The fixture files still carry the lift and partners_in_collection columns (as the
-    # real dataset files do); the importer must ignore them, because no strength
-    # component reads either signal.
+    # The fixture files still carry the lift column (as the real dataset files do); the
+    # importer must ignore it, because no strength component reads it. The spellbook
+    # file's partners_in_collection column IS stored since #1261 P3.7: the combos
+    # component reads it as one of its quality parts. The fixture carries no
+    # variant_ids column, so no two-card rows are stored for it.
     report = _import(store, tmp_path)
     stored = {row[0] for row in store.connection.execute("SELECT DISTINCT signal FROM card_signal")}
     assert stored == {
@@ -273,12 +275,13 @@ def test_import_stores_no_dead_signals(store: StudioStore, tmp_path: Path) -> No
         "edhrec_bracket_inclusion:cedh",
         "edhrec_global_inclusion",
         "spellbook_variants",
+        "spellbook_partners_in_collection",
         "tournament_lists",
     }
     files = report["files"]
     assert isinstance(files, dict)
     assert files[signals.CARD_FILE]["rows_written"] == 22  # 11 cards x inclusion + synergy
-    assert files[signals.SPELLBOOK_FILE]["rows_written"] == 10  # variants only, no partners
+    assert files[signals.SPELLBOOK_FILE]["rows_written"] == 20  # variants + partners
 
 
 def test_import_does_not_require_the_dead_columns(store: StudioStore, tmp_path: Path) -> None:
@@ -1735,3 +1738,198 @@ def test_a_mana_value_of_five_is_the_last_band_and_four_is_not() -> None:
     assert strength.mana_band(4.5, is_land=False) == "4"
     assert strength.mana_band(1.5, is_land=False) == "0-1"
     assert strength.mana_band(2, is_land=False) == "2"
+
+
+# ---------- combo quality (#1261 P3.7) ----------
+
+QUALITY_FIELDS = [
+    "card_name",
+    "fetch_status",
+    "variant_count",
+    "distinct_partner_cards",
+    "partners_in_collection",
+    "variant_ids",
+]
+
+
+def _quality_folder(tmp_path: Path, rows: list[dict[str, object]]) -> Path:
+    folder = tmp_path / "quality"
+    folder.mkdir(exist_ok=True)
+    _write(folder / "spellbook_card_links.csv", rows, QUALITY_FIELDS)
+    return folder
+
+
+def _quality_row(name: str, variants: int, partners: object, ids: str) -> dict[str, object]:
+    return {
+        "card_name": name,
+        "fetch_status": "AVAILABLE",
+        "variant_count": variants,
+        "distinct_partner_cards": 0,
+        "partners_in_collection": partners,
+        "variant_ids": ids,
+    }
+
+
+def test_variant_id_token_count_is_the_card_count_of_the_combo() -> None:
+    # The id of a spellbook variant joins the card ids of the combo (it is the combo's
+    # page address); a template slot is a negative id and counts as one card.
+    assert signals._variant_card_slots("147-1235") == 2
+    assert signals._variant_card_slots("1368-3518-4856") == 3
+    assert signals._variant_card_slots("1486-3734-4231-4452--108--119") == 6
+    assert signals._variant_card_slots("10--108") == 2
+
+
+def test_spellbook_import_stores_the_combo_quality_signals(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    folder = _quality_folder(
+        tmp_path,
+        [
+            # three variants: one of two cards, one of three, one of four
+            _quality_row("Filler 00", 3, 1, "1-2;1-2-3;1-2-3-4"),
+            # a two-card variant whose partner is a template slot
+            _quality_row("Filler 01", 1, 0, "10--108"),
+            # no variants at all: the two-card count is a counted 0, not unknown
+            _quality_row("Filler 02", 0, 0, ""),
+            # partners not numeric and no variant ids: both quality figures unknown
+            _quality_row("Filler 03", 4, "many", ""),
+        ],
+    )
+    report = signals.import_signals(store, folder, commander=COMMANDER)
+    two = _signal(store, signals.SIGNAL_TWO_CARD, "Filler 00", commander="")
+    assert two is not None and two["value"] == 1.0
+    partners = _signal(store, signals.SIGNAL_PARTNERS, "Filler 00", commander="")
+    assert partners is not None and partners["value"] == 1.0
+    template = _signal(store, signals.SIGNAL_TWO_CARD, "Filler 01", commander="")
+    assert template is not None and template["value"] == 1.0
+    empty = _signal(store, signals.SIGNAL_TWO_CARD, "Filler 02", commander="")
+    assert empty is not None and empty["value"] == 0.0
+    unknown_partners = _signal(store, signals.SIGNAL_PARTNERS, "Filler 03", commander="")
+    assert unknown_partners is not None and unknown_partners["value"] is None
+    unknown_two = _signal(store, signals.SIGNAL_TWO_CARD, "Filler 03", commander="")
+    assert unknown_two is not None and unknown_two["value"] is None
+    files = report["files"]
+    assert isinstance(files, dict)
+    reasons = files[signals.SPELLBOOK_FILE]["null_value_reasons"]
+    assert reasons == {"PARTNER_COUNT_NOT_NUMERIC": 1, "VARIANT_IDS_MISSING": 1}
+    # the quality signals are commander independent, like the variant count
+    assert _signal(store, signals.SIGNAL_TWO_CARD, "Filler 00", commander=COMMANDER) is None
+
+
+def test_combo_quality_mixes_the_parts_and_keeps_unlisted_cards_out() -> None:
+    parts = {
+        strength.COMBO_PART_VARIANTS: {"a": 1.0, "b": 9.0},
+        strength.COMBO_PART_TWO_CARD: {"a": 1.0, "b": 0.0},
+        strength.COMBO_PART_PARTNERS: {"a": 1.0, "b": 0.0},
+    }
+    quality = strength.combo_quality(parts)
+    # one two-card combo with its partner in the collection outranks nine variants
+    # without either quality mark
+    assert quality == {"a": pytest.approx(2 / 3), "b": pytest.approx(1 / 3)}
+    # a card the primary part does not list gets no value, however good its parts are
+    parts[strength.COMBO_PART_TWO_CARD]["unlisted"] = 5.0
+    assert "unlisted" not in strength.combo_quality(parts)
+    # a listed card without a value in a later part is averaged over the parts it has
+    partial = {
+        strength.COMBO_PART_VARIANTS: {"a": 1.0, "b": 9.0},
+        strength.COMBO_PART_TWO_CARD: {"a": 3.0},
+    }
+    assert strength.combo_quality(partial) == {"a": 0.25, "b": 1.0}
+    assert strength.combo_quality({}) == {}
+
+
+def _combos_only() -> StrengthSettings:
+    weights = {name: 0.0 for name in strength.COMPONENTS} | {strength.COMBOS: 1.0}
+    return StrengthSettings(
+        weights=weights, min_coverage=0.0, min_components=1, require_commander_signal=False
+    )
+
+
+def test_combo_quality_outranks_the_raw_variant_count(store: StudioStore, tmp_path: Path) -> None:
+    rows = [
+        # one variant, but a two-card combo whose partner is in the collection
+        _quality_row("Filler 00", 1, 1, "1-2"),
+        # nine variants, none of two cards, every partner outside the collection
+        {
+            **_quality_row("Filler 01", 9, 0, ";".join(["1-2-3"] * 9)),
+            "distinct_partner_cards": 4,
+        },
+        *[_quality_row(name, 0, 0, "") for name in CARDS[2:]],
+    ]
+    signals.import_signals(store, _quality_folder(tmp_path, rows), commander=COMMANDER)
+    cards = _by_name(strength_view.compute(store, COMMANDER, _combos_only()))
+    quality = _component(cards["Filler 00"], "combos")
+    bulk = _component(cards["Filler 01"], "combos")
+    none = _component(cards["Filler 02"], "combos")
+    assert quality["percentile"] == 1.0
+    assert bulk["percentile"] is not None and none["percentile"] is not None
+    assert bulk["percentile"] > none["percentile"]  # the variant count still counts
+    assert quality["percentile"] > bulk["percentile"]  # but quality outranks it
+    assert cards["Filler 00"]["index"] == 100.0
+
+
+def test_combo_quality_falls_back_to_the_variant_count_without_the_new_columns(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    # A spellbook file of the old shape (no partner and no variant-id column) ranks
+    # exactly as the variant count alone did before P3.7.
+    folder = tmp_path / "lean_quality"
+    folder.mkdir()
+    _write(
+        folder / "spellbook_card_links.csv",
+        [
+            {"card_name": "Filler 00", "fetch_status": "AVAILABLE", "variant_count": 1},
+            {"card_name": "Filler 01", "fetch_status": "AVAILABLE", "variant_count": 9},
+        ],
+        ["card_name", "fetch_status", "variant_count"],
+    )
+    signals.import_signals(store, folder, commander=COMMANDER)
+    cards = _by_name(strength_view.compute(store, COMMANDER, _combos_only()))
+    assert _component(cards["Filler 01"], "combos")["percentile"] == 1.0
+    assert _component(cards["Filler 00"], "combos")["percentile"] == 0.0
+
+
+def test_spellbook_downgrade_import_drops_the_stale_quality_rows(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    # A replacing import of a spellbook file of the old shape into a store that
+    # already holds the quality signals: the file declares all three signals, so
+    # the rows of the two it does not write go with the import instead of staying
+    # behind as stale rows, and the ranking is the variant count's alone again.
+    signals.import_signals(
+        store,
+        _quality_folder(
+            tmp_path,
+            [
+                _quality_row("Filler 00", 1, 1, "1-2"),
+                _quality_row("Filler 01", 9, 0, ";".join(["1-2-3"] * 9)),
+            ],
+        ),
+        commander=COMMANDER,
+    )
+    assert _signal(store, signals.SIGNAL_PARTNERS, "Filler 00", commander="") is not None
+    assert _signal(store, signals.SIGNAL_TWO_CARD, "Filler 00", commander="") is not None
+
+    folder = tmp_path / "lean_downgrade"
+    folder.mkdir()
+    _write(
+        folder / "spellbook_card_links.csv",
+        [
+            {"card_name": "Filler 00", "fetch_status": "AVAILABLE", "variant_count": 1},
+            {"card_name": "Filler 01", "fetch_status": "AVAILABLE", "variant_count": 9},
+        ],
+        ["card_name", "fetch_status", "variant_count"],
+    )
+    report = signals.import_signals(store, folder, commander=COMMANDER)
+
+    for name in ("Filler 00", "Filler 01"):
+        assert _signal(store, signals.SIGNAL_PARTNERS, name, commander="") is None
+        assert _signal(store, signals.SIGNAL_TWO_CARD, name, commander="") is None
+        assert _signal(store, signals.SIGNAL_VARIANTS, name, commander="") is not None
+    files = report["files"]
+    assert isinstance(files, dict)
+    # both cards held three signal rows: the report counts all six as replaced
+    assert files[signals.SPELLBOOK_FILE]["rows_replaced"] == 6
+    cards = _by_name(strength_view.compute(store, COMMANDER, _combos_only()))
+    assert _component(cards["Filler 01"], "combos")["percentile"] == 1.0
+    assert _component(cards["Filler 00"], "combos")["percentile"] == 0.0
