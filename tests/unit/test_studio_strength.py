@@ -1644,3 +1644,32 @@ def test_a_mana_value_of_five_is_the_last_band_and_four_is_not() -> None:
     assert strength.mana_band(4.5, is_land=False) == "4"
     assert strength.mana_band(1.5, is_land=False) == "0-1"
     assert strength.mana_band(2, is_land=False) == "2"
+
+
+def test_split_part_tournament_files_do_not_merge_or_collide(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    folder = tmp_path / "split_tournaments"
+    folder.mkdir()
+    # Even if two split parts both contain "Liste 1" in the same tournament/date,
+    # distinct deck lists in part 1 and part 2 must stay separate lists (2, not 1 merged).
+    _lists_file(
+        folder / "topdeck_split_decks_1.csv",
+        [("Cup S", "2026-11-01", "Liste 1", [COMMANDER], ["Filler 01"])],
+    )
+    _lists_file(
+        folder / "topdeck_split_decks_2.csv",
+        [("Cup S", "2026-11-01", "Liste 1", [COMMANDER], ["Filler 02"])],
+    )
+    report = signals.import_signals(store, folder, commander=COMMANDER)
+    files = report["files"]
+    assert isinstance(files, dict)
+    assert files["topdeck_split_decks"]["parts"] == [
+        "topdeck_split_decks_1.csv",
+        "topdeck_split_decks_2.csv",
+    ]
+    assert files["topdeck_split_decks"]["lists_read"] == 2
+    one = _signal(store, signals.SIGNAL_TOURNAMENT, "Filler 01")
+    two = _signal(store, signals.SIGNAL_TOURNAMENT, "Filler 02")
+    assert one is not None and (one["numerator"], one["denominator"]) == (1, 2)
+    assert two is not None and (two["numerator"], two["denominator"]) == (1, 2)

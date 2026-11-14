@@ -52,7 +52,10 @@ ESTIMAND = (
 )
 DEFAULT_SIGNIFICANCE_LEVEL = 0.05
 DEFAULT_THRESHOLD_PP = 0.0
+DEFAULT_MAX_CENSORED_SHARE = 0.05
+ASYMMETRIC_CENSORING_P_MAX = 0.25
 MIN_BUDGET_PAIRS = 2
+MAX_BUDGET_PAIRS = 1000
 ARMS = ("base", "variant")
 
 Answer = Literal["ABOVE", "NOT_ABOVE"]
@@ -102,6 +105,9 @@ class PairedComparison(TypedDict):
     variant_rate: float | None
     difference_pp: float | None
     difference_ci95_pp: list[float] | None
+    decision_alpha: float | None
+    decision_level_pct: float | None
+    decision_ci_pp: list[float] | None
     detectable_difference_pp: float | None
     variant_only_wins: int
     baseline_only_wins: int
@@ -238,6 +244,64 @@ def pair_exposures(
     return pairs, unpaired_base, unpaired_variant, base_seedless + variant_seedless
 
 
+def _censoring_issues(
+    *,
+    censored: int,
+    played: int,
+    failed_base: int,
+    failed_variant: int,
+    max_censored_share: float,
+) -> tuple[str | None, list[str]]:
+    """Refusal reason and warnings when censoring spoils a comparison series."""
+    warnings: list[str] = []
+    reason: str | None = None
+    if played > 0 and censored / played > max_censored_share:
+        reason = "CENSORING_LIMIT"
+        warnings.append(
+            f"censored pair share {censored}/{played} ({censored / played:.1%}) "
+            f"exceeds max_censored_share={max_censored_share:.1%}"
+        )
+    fail_p = sign_test_p_value(failed_base, failed_variant)
+    if fail_p <= ASYMMETRIC_CENSORING_P_MAX:
+        reason = reason or "ASYMMETRIC_CENSORING"
+        warnings.append(
+            f"one-sided censoring between arms (base failed {failed_base}, "
+            f"variant failed {failed_variant}, sign test p={fail_p:.4f})"
+        )
+    return reason, warnings
+
+
+def _check_provenance(
+    exposures: Sequence[GameExposure], *, allow_mixed: bool
+) -> tuple[dict[str, list[str]], list[str]]:
+    """Collect provenance values across exposures and fail closed on mixed origins."""
+    warnings: list[str] = []
+    provenance: dict[str, list[str]] = {}
+    for label, field, values in (
+        (
+            "engine commits",
+            "engine_commit",
+            sorted({v for v in (game["engine_commit"] for game in exposures) if v}),
+        ),
+        (
+            "pilot versions",
+            "pilot",
+            sorted({v for v in (game["pilot"] for game in exposures) if v}),
+        ),
+        (
+            "decision policies",
+            "decision_policy",
+            sorted({v for v in (game["decision_policy"] for game in exposures) if v}),
+        ),
+    ):
+        provenance[field] = values
+        if len(values) > 1:
+            if not allow_mixed:
+                raise ValueError(f"mixed {label} in one comparison: {', '.join(values)}")
+            warnings.append(f"mixed {label} pooled: {', '.join(values)}")
+    return provenance, warnings
+
+
 def _summarize(
     pairs: Sequence[PairRecord],
     *,
@@ -279,6 +343,7 @@ def _summarize(
     seed_sign_p = sign_test_p_value(seeds_variant, seeds_base) if n else None
 
     answer: Answer | None = None
+    decision_ci: list[float] | None = None
     if difference is not None and se is not None:
         threshold = threshold_pp / 100.0
         if se == 0.0:
@@ -291,6 +356,7 @@ def _summarize(
         else:
             df = len({seed for seed, _ in clustered}) - 1
             half = student_t_quantile(1.0 - alpha / 2.0, df) * se
+            decision_ci = [_pp(difference - half), _pp(difference + half)]
             if difference - half > threshold:
                 answer = "ABOVE"
             elif difference + half <= threshold:
@@ -300,30 +366,7 @@ def _summarize(
         game_id for pair in pairs for game_id in (pair["base_game_id"], pair["variant_game_id"])
     }
     involved = [game for game in exposures if game["game_id"] in pair_games]
-    warnings: list[str] = []
-    provenance: dict[str, list[str]] = {}
-    for label, field, values in (
-        (
-            "engine commits",
-            "engine_commit",
-            sorted({v for v in (game["engine_commit"] for game in involved) if v}),
-        ),
-        (
-            "pilot versions",
-            "pilot",
-            sorted({v for v in (game["pilot"] for game in involved) if v}),
-        ),
-        (
-            "decision policies",
-            "decision_policy",
-            sorted({v for v in (game["decision_policy"] for game in involved) if v}),
-        ),
-    ):
-        provenance[field] = values
-        if len(values) > 1:
-            if not allow_mixed:
-                raise ValueError(f"mixed {label} in one comparison: {', '.join(values)}")
-            warnings.append(f"mixed {label} pooled: {', '.join(values)}")
+    provenance, warnings = _check_provenance(involved, allow_mixed=allow_mixed)
     if any(game["engine_commit"] is None for game in involved):
         warnings.append("some paired games carry no engine commit")
     pods: Counter[tuple[str, ...]] = Counter(tuple(pair["opponents"]) for pair in pairs)
@@ -354,6 +397,9 @@ def _summarize(
         "difference_ci95_pp": (
             None if interval is None else [_pp(interval.low), _pp(interval.high)]
         ),
+        "decision_alpha": round(alpha, 6) if n else None,
+        "decision_level_pct": round((1.0 - alpha) * 100.0, 4) if n else None,
+        "decision_ci_pp": decision_ci,
         "detectable_difference_pp": None if detectable is None else _pp(detectable),
         "variant_only_wins": variant_only,
         "baseline_only_wins": baseline_only,
@@ -462,6 +508,7 @@ def run_comparison_series(
     look_every_pairs: int,
     threshold_pp: float = DEFAULT_THRESHOLD_PP,
     significance_level: float = DEFAULT_SIGNIFICANCE_LEVEL,
+    max_censored_share: float = DEFAULT_MAX_CENSORED_SHARE,
     allow_mixed: bool = False,
     play: PairPlayer,
     execution: Mapping[str, object] | None = None,
@@ -474,14 +521,21 @@ def run_comparison_series(
     of the engine lane's ``plan_comparison_cases``. Looks sit at fixed cumulative
     pair counts (``sequential_look_seed_counts`` over the budget); the level of a
     look is its O'Brien-Fleming increment (``sequential_look_alphas``). The series
-    ends at the first deciding look, else at the budget with ``NOT_DECIDED``.
+    ends at the first deciding look (unless censoring exceeds ``max_censored_share``
+    or is one-sided across arms), else at the budget with ``NOT_DECIDED``.
     """
     if base_deck_id == variant_deck_id:
         raise ValueError("base and variant must be two different decks")
     if budget_pairs < MIN_BUDGET_PAIRS:
         raise ValueError(f"budget_pairs must be at least {MIN_BUDGET_PAIRS}")
+    if budget_pairs > MAX_BUDGET_PAIRS:
+        raise ValueError(f"budget_pairs must be at most {MAX_BUDGET_PAIRS}")
     if look_every_pairs < 1:
         raise ValueError("look_every_pairs must be at least 1")
+    if not 0.0 < significance_level < 1.0:
+        raise ValueError("significance_level must be within (0, 1)")
+    if not 0.0 <= max_censored_share <= 1.0:
+        raise ValueError("max_censored_share must be within [0, 1]")
     if not seeds or not tested_seats:
         raise ValueError("seeds and tested_seats must not be empty")
     units = [(seed, seat) for seed in seeds for seat in tested_seats]
@@ -506,10 +560,11 @@ def run_comparison_series(
     attempted_seeds: list[int] = []
     for index, (seed, seat) in enumerate(units):
         attempted_seeds.append(seed)
-        played: dict[str, PlayedGame] = {arm: play(arm, seed, seat) for arm in ARMS}
+        played: dict[str, PlayedGame] = {}
         credits: dict[str, float | None] = {}
         for arm, deck_id in (("base", base_deck_id), ("variant", variant_deck_id)):
-            game = played[arm]
+            game = play(arm, seed, seat)
+            played[arm] = game
             exposure = game["exposure"]
             if exposure is None:
                 failed[arm] += 1
@@ -517,6 +572,7 @@ def run_comparison_series(
                 credits[arm] = None
                 continue
             exposures.append(exposure)
+            _check_provenance(exposures, allow_mixed=allow_mixed)
             credit = _credit_at(exposure, seat, deck_id)
             if credit is None:
                 # The game finished but does not seat the arm's deck at the tested
@@ -561,7 +617,14 @@ def run_comparison_series(
                 allow_mixed=allow_mixed,
                 series=True,
             )
-            if answer is not None:
+            blocker_reason, _ = _censoring_issues(
+                censored=censored,
+                played=attempted,
+                failed_base=failed["base"],
+                failed_variant=failed["variant"],
+                max_censored_share=max_censored_share,
+            )
+            if answer is not None and blocker_reason is None:
                 break
     result, _ = _summarize(
         pairs,
@@ -588,7 +651,20 @@ def run_comparison_series(
         result["warnings"].append(
             f"{misseated} finished game(s) did not seat the compared deck at the tested seat"
         )
-    if result["status"] == "DECIDED":
+    blocker_reason, blocker_warnings = _censoring_issues(
+        censored=censored,
+        played=attempted,
+        failed_base=failed["base"],
+        failed_variant=failed["variant"],
+        max_censored_share=max_censored_share,
+    )
+    if blocker_reason is not None:
+        result["warnings"].extend(blocker_warnings)
+        if result["pairs_completed"] > 0:
+            result["status"] = "NOT_DECIDED"
+            result["answer"] = None
+            result["stop_reason"] = blocker_reason
+    elif result["status"] == "DECIDED":
         result["stop_reason"] = "DECIDED_" + str(result["answer"])
     elif result["status"] == "NOT_DECIDED":
         result["stop_reason"] = "BUDGET_EXHAUSTED"
@@ -655,11 +731,20 @@ def format_comparison(result: PairedComparison) -> str:
         f"{result['looks_planned']}",
     ]
     if result["difference_pp"] is not None:
-        ci = result["difference_ci95_pp"] or [0.0, 0.0]
+        ci95 = result["difference_ci95_pp"]
+        ci95_text = f"95% CI [{ci95[0]}, {ci95[1]}]" if ci95 is not None else "95% CI -"
+        dci = result.get("decision_ci_pp")
+        level = result.get("decision_level_pct")
+        alpha_used = result.get("decision_alpha")
+        decision_ci_text = (
+            f"  {level:g}% decision CI (alpha {alpha_used}) [{dci[0]}, {dci[1]}]"
+            if dci is not None and level is not None and alpha_used is not None
+            else ""
+        )
         lines.append(
             f"win rate base {_fmt_rate(result['base_rate'])}  variant "
             f"{_fmt_rate(result['variant_rate'])}  difference {result['difference_pp']} pp "
-            f"[{ci[0]}, {ci[1]}]  (discordant {result['variant_only_wins']} : "
+            f"{ci95_text}{decision_ci_text}  (discordant {result['variant_only_wins']} : "
             f"{result['baseline_only_wins']}, sign test p {result['sign_test_p_value']})"
         )
     lines.append(
