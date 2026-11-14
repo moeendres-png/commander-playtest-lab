@@ -23,9 +23,12 @@ def annotations(
 ) -> list[str]:
     lines = []
     for item in diagnostics:
-        location = item.get("location") or {}
-        end = item.get("end_location") or {}
-        assert isinstance(location, dict) and isinstance(end, dict)
+        if not isinstance(item, dict):
+            continue
+        raw_location = item.get("location")
+        location = raw_location if isinstance(raw_location, dict) else {}
+        raw_end = item.get("end_location")
+        end = raw_end if isinstance(raw_end, dict) else {}
         name = Path(str(item.get("filename", "")))
         if workspace is not None:
             with contextlib.suppress(ValueError):
@@ -47,6 +50,8 @@ def main(argv: Sequence[str]) -> int:
         diagnostics = json.loads(Path(argv[0]).read_text(encoding="utf-8"))
     except (OSError, ValueError) as error:
         print(f"no annotations: {error}", file=sys.stderr)
+        return 0
+    if not isinstance(diagnostics, list):
         return 0
     print("\n".join(annotations(diagnostics, Path.cwd())))
     return 0

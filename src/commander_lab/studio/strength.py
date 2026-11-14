@@ -104,6 +104,7 @@ GROUP_TOO_SMALL = "GROUP_TOO_SMALL"
 NOT_RANKED_COMMANDER = "NOT_RANKED_COMMANDER"
 NOT_RANKED_BASIC_LAND = "NOT_RANKED_BASIC_LAND"
 NO_COMMANDER_SIGNAL = "NO_COMMANDER_SIGNAL"
+NOT_RANKED_OTHER_COMMANDER = "NOT_RANKED_OTHER_COMMANDER"
 
 TIER_UNKNOWN = "U"
 TIER_NOT_RANKED = "N"
@@ -289,6 +290,7 @@ _SETTINGS_KEYS = frozenset(
         "min_denominators",
         "missing_value",
         "rank_commander_and_basics",
+        "rank_other_commanders",
         "universe_source",
         "require_commander_signal",
         "layer_weights",
@@ -390,6 +392,9 @@ class StrengthSettings:
     min_denominators: dict[str, int] = field(default_factory=lambda: dict(DEFAULT_MIN_DENOMINATORS))
     missing_value: dict[str, str] = field(default_factory=dict)
     rank_commander_and_basics: bool = False
+    # Other commanders known to the store are ordinary cards of the 99 for this commander:
+    # ranked by default; off marks them tier N (NOT_RANKED_OTHER_COMMANDER).
+    rank_other_commanders: bool = True
     universe_source: str = DEFAULT_UNIVERSE_SOURCE
     require_commander_signal: bool = DEFAULT_REQUIRE_COMMANDER_SIGNAL
     layer_weights: dict[str, float] = field(default_factory=lambda: dict(DEFAULT_LAYER_WEIGHTS))
@@ -448,6 +453,8 @@ class StrengthSettings:
                 raise ValueError(f"missing_value {name} must be skip or lowest")
         if not isinstance(self.rank_commander_and_basics, bool):
             raise ValueError("rank_commander_and_basics must be true or false")
+        if not isinstance(self.rank_other_commanders, bool):
+            raise ValueError("rank_other_commanders must be true or false")
         if not isinstance(self.require_commander_signal, bool):
             raise ValueError("require_commander_signal must be true or false")
         if parse_universe_source(self.universe_source) is None:
@@ -512,6 +519,7 @@ class StrengthSettings:
             "min_denominators": dict(self.min_denominators),
             "missing_value": dict(self.missing_value),
             "rank_commander_and_basics": self.rank_commander_and_basics,
+            "rank_other_commanders": self.rank_other_commanders,
             "universe_source": self.universe_source,
             "require_commander_signal": self.require_commander_signal,
             "layer_weights": dict(self.layer_weights),
@@ -558,6 +566,9 @@ class StrengthSettings:
         ranked = raw.get("rank_commander_and_basics", defaults.rank_commander_and_basics)
         if not isinstance(ranked, bool):
             raise ValueError("rank_commander_and_basics must be true or false")
+        other_ranked = raw.get("rank_other_commanders", defaults.rank_other_commanders)
+        if not isinstance(other_ranked, bool):
+            raise ValueError("rank_other_commanders must be true or false")
         universe_source = raw.get("universe_source", defaults.universe_source)
         if not isinstance(universe_source, str):
             raise ValueError("universe_source must be a text")
@@ -594,6 +605,7 @@ class StrengthSettings:
             },
             missing_value={str(k): str(v) for k, v in _mapping(missing).items()},
             rank_commander_and_basics=ranked,
+            rank_other_commanders=other_ranked,
             universe_source=universe_source,
             require_commander_signal=require,
             layer_weights={
@@ -813,6 +825,7 @@ NO_COMMANDER_SIGNAL_NOTE = "kein Signal speziell für diesen Commander"
 NOT_RANKED_NOTES = {
     NOT_RANKED_COMMANDER: "nicht bewertet (Commander)",
     NOT_RANKED_BASIC_LAND: "nicht bewertet (Standardland)",
+    NOT_RANKED_OTHER_COMMANDER: "nicht bewertet (anderer Commander)",
 }
 
 
@@ -979,21 +992,34 @@ def score_pool(
     pool: percentile ranks are taken among its ranked cards only (see ``PoolContext``)."""
     ctx = context or PoolContext()
     unranked = {} if settings.rank_commander_and_basics else dict(ctx.unranked)
+    if settings.rank_other_commanders:
+        unranked = {k: v for k, v in unranked.items() if v != NOT_RANKED_OTHER_COMMANDER}
     filter_cards = frozenset(ctx.filter_cards)
     rated = (*COMPONENTS, *settings.active_layers())
     rankings: dict[str, _ComponentRanking] = {}
     for component in rated:
         skipped = set(unranked) | (filter_cards if component == DECK_UNIVERSE else set())
         rankings[component] = _rank_component(settings, ctx, component, observations, skipped)
-    total_weight = sum(
-        settings.effective_weight(name)
+    # Components with a weight and usable data FOR THIS COMMANDER (collected, and at least one
+    # usable value in the pool): decides the reason ``NO_SOURCE_FOR_COMMANDER`` only.
+    commander_weight = {
+        name: settings.effective_weight(name)
+        for name in rated
+        if settings.effective_weight(name) > 0 and name in collected and rankings[name].usable
+    }
+    # The coverage denominator stays main's rule (Owner-visible numbers such as "4 of 13"): every
+    # weighted component counts, except the by-design uncollected ones and layers that were
+    # not collected. A source never imported still counts against a card.
+    denominator_weight = {
+        name: settings.effective_weight(name)
         for name in rated
         if settings.effective_weight(name) > 0
         and not (
             (name in UNCOLLECTED_BY_DESIGN or name.startswith(LAYER_PREFIX))
             and name not in collected
         )
-    )
+    }
+    any_positive_weight = any(settings.effective_weight(name) > 0 for name in rated)
     result: dict[str, CardStrength] = {}
     for card, per_card in observations.items():
         components: list[ComponentResult] = []
@@ -1090,18 +1116,39 @@ def score_pool(
                 "components": components,
             }
             continue
+        # A filter card has no deck-universe value by definition: that component is not
+        # applicable to it and leaves its denominator.
+        possible = {
+            name: weight
+            for name, weight in denominator_weight.items()
+            if not (name == DECK_UNIVERSE and card in filter_cards)
+        }
+        total_weight = sum(possible.values())
         coverage = present_weight / total_weight if total_weight > 0 else 0.0
-        index = round(100.0 * weighted / present_weight, 1) if present_weight > 0 else None
-        enough = coverage >= settings.min_coverage and present >= settings.min_components
+        raw_index = 100.0 * weighted / present_weight if present_weight > 0 else None
+        index = None if raw_index is None else round(raw_index, 1)
+        # A commander with one source cannot show two signals: the minimum number of signals
+        # never exceeds what the commander's data allows for this card.
+        needed = min(settings.min_components, len(possible))
+        enough = present > 0 and coverage >= settings.min_coverage and present >= needed
         blocked = settings.require_commander_signal and not specific
+        if not any_positive_weight:
+            reason_code = "NO_POSITIVE_WEIGHT"
+        elif not commander_weight:
+            reason_code = "NO_SOURCE_FOR_COMMANDER"
+        elif blocked:
+            reason_code = NO_COMMANDER_SIGNAL
+        else:
+            reason_code = "ENOUGH_DATA" if enough else "TOO_LITTLE_DATA"
+        if reason_code in ("NO_POSITIVE_WEIGHT", "NO_SOURCE_FOR_COMMANDER"):
+            enough = False
         result[card] = {
             "index": index,
             "coverage": round(coverage, 4),
+            # the tier follows the index as shown (rounded to one decimal)
             "tier": _tier(index, settings, enough and not blocked),
-            "reason": NO_COMMANDER_SIGNAL
-            if blocked
-            else ("ENOUGH_DATA" if enough else "TOO_LITTLE_DATA"),
-            "note": NO_COMMANDER_SIGNAL_NOTE if blocked else "",
+            "reason": reason_code,
+            "note": NO_COMMANDER_SIGNAL_NOTE if reason_code == NO_COMMANDER_SIGNAL else "",
             "present": present,
             "components": components,
         }

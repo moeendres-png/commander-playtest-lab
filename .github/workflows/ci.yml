@@ -170,8 +170,9 @@ jobs:
           set -euo pipefail
           python -m tests.pytest_shards matrix --index "${{ matrix.index }}" --count "${{ matrix.count }}" --scope "${{ matrix.scope }}" > "$RUNNER_TEMP/test-files.txt"
           echo "$(wc -l < "$RUNNER_TEMP/test-files.txt") test files in this slot"
-          # test_technical_truth proves ancestry from full history; only its slot fetches it.
-          if grep -qx tests/unit/test_technical_truth.py "$RUNNER_TEMP/test-files.txt" \
+          # Both test_technical_truth and test_benchmark_xmage_full_games inspect full git history.
+          if (grep -qx tests/unit/test_technical_truth.py "$RUNNER_TEMP/test-files.txt" \
+              || grep -qx tests/unit/test_benchmark_xmage_full_games.py "$RUNNER_TEMP/test-files.txt") \
               && [ "$(git rev-parse --is-shallow-repository)" = true ]; then
             git fetch --no-tags --unshallow
           fi

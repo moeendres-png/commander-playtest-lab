@@ -65,7 +65,7 @@ SOURCE_PYTHON = re.compile(r"^src/.+\.py$")
 
 
 def is_docs_path(path: str) -> bool:
-    if path.startswith(NON_DOCS_ROOTS):
+    if path.startswith(NON_DOCS_ROOTS) or path.endswith((".py", ".sh", ".ps1", ".bat")):
         return False
     return path.startswith("docs/") or path.endswith(".md")
 
@@ -92,17 +92,15 @@ def packaging_reason(
 ) -> str | None:
     """The first changed path that makes the packaging job necessary, else None.
 
-    ``changes`` are ``(status, path)`` pairs. Besides the named inputs, a package ``__init__.py``,
-    a console-script target module and any *added or deleted* ``.py`` file below ``src/`` count
-    (they change what the wheel contains); an ordinary edit inside an existing module does not.
+    ``changes`` are ``(status, path)`` pairs. Besides the named packaging inputs and declared
+    console-script target modules, any change (add, modify, delete, typechange) below ``src/``
+    triggers the packaging smoke check because it changes the built wheel or its imports.
     """
     targets = set(entrypoint_files)
-    for status, path in changes:
+    for _status, path in changes:
         if path in PACKAGING_FILES or path.startswith(PACKAGING_PREFIXES):
             return path
-        if PACKAGE_INIT.match(path) or path in targets:
-            return path
-        if status in {"A", "D"} and SOURCE_PYTHON.match(path):
+        if path.startswith("src/") or PACKAGE_INIT.match(path) or path in targets:
             return path
     return None
 
@@ -188,8 +186,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         entrypoints = console_script_modules(args.repo / "pyproject.toml")
     except (OSError, ValueError):
         entrypoints = set()
-        if changes is not None and not changes:
-            changes = None
+        changes = None
     outputs = decide(args.event, changes, entrypoints)
     for key, value in outputs.items():
         print(f"{key}={value}")
