@@ -205,7 +205,9 @@ def test_an_in_place_change_of_a_card_gives_fresh_deck_counts(folder: Path) -> N
     before = builder._corpus_hits(store, COMMANDER)
     assert builder._corpus_hits(store, COMMANDER) is before
     row = store.connection.execute("SELECT card_id, oracle_id FROM card LIMIT 1").fetchone()
-    store.connection.execute("UPDATE card SET oracle_id = ? WHERE card_id = ?", (row[1], row[0]))
+    store.connection.execute(
+        "UPDATE card SET oracle_id = ? WHERE card_id = ?", (f"relinked-{row[1]}", row[0])
+    )
     store.connection.commit()
     assert builder._corpus_hits(store, COMMANDER) is not before
     store.close()
