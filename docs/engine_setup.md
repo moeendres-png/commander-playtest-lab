@@ -141,10 +141,9 @@ or placed below `vendor/engine-source/<provider>` and
 ## Start, status and stop
 
 ```bash
-./scripts/start_engine.sh        # foreground supervisor
-commander-lab engine-status
-./scripts/stop_engine.sh
+./scripts/verify_engine.sh       # start, handshake and stop once
 ./scripts/collect_engine_logs.sh
+# The start_engine.sh / stop_engine.sh supervisor scripts and the engine-status command were removed.
 ```
 
 A failed external start never silently falls back. Tactical fallback requires an

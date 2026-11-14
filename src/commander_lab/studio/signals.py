@@ -13,9 +13,17 @@ has its own header and the parts are read one after another in number order):
 - ``commander_bracket_signals_<core|upgraded|optimized|cedh>``: the same per bracket page.
 - ``card_global_signals``: EDHREC inclusion over all decks (commander independent). Price
   columns of this file are not read.
-- ``spellbook_card_links``: number of combo variants a card is part of (commander
-  independent). The file's partner count is not stored: no strength component reads it,
-  and the value stays available in the source file.
+- ``spellbook_card_links``: combo quality of a card (commander independent): the number
+  of combo variants it is part of, the number of its distinct combo partners that are
+  in the collection (``partners_in_collection``, when the file carries the column) and
+  the number of its variants that use exactly two cards (derived from ``variant_ids``
+  when the file carries that column: a variant id joins the spellbook card ids of the
+  variant, one id per card slot, a template slot counting as one card). The strength
+  index's combos component ranks the three figures together (``strength.combo_quality``),
+  so a two-card combo with its partner in the collection counts more than a long list of
+  variants nobody can build. What the file does not publish stays unknown: the result a
+  combo produces and the partners of one single variant are not in the file, so neither
+  is stored.
 - ``topdeck_<name>_decks`` (any file of that shape, one commander per file): complete
   tournament lists. The commander of a file is the one written ALONE in the commander
   section of its lists (the most common one; ``--commander`` breaks a tie); a list counts
@@ -33,6 +41,16 @@ has its own header and the parts are read one after another in number order):
   Per-card conversion is not published by the source either and is never stored.
   Rows the fetch did not attribute to the commander (``fetch_status`` other than
   AVAILABLE, e.g. the API's global-staples fallback rows) are not imported.
+- ``topdeck_card_conversions``: per commander and card, the TopDeck conversion:
+  decks with the card that reached the tournament's top cut over the decks
+  whose top-cut outcome is known at all (``sample_size_base``); that base is
+  the stored denominator, so the strength component's Wilson bound is computed
+  from the same figures the source published. The source publishes the rate
+  only from a base of 10 (below it the file carries the literal ``NULL``);
+  the numerator and denominator are stored anyway and the value stays NULL.
+  ``appearances`` (every deck with the card, outcome known or not) is not
+  stored: no strength component reads it, and the figure stays available in
+  the source file.
 - ``playgroup_card_atlas_signals``: the observed win-rate gap of the Playgroup card
   atlas (commander independent): how much more often players won when they cast a card
   than when it never left their library, in percentage points, as published by the
@@ -71,9 +89,11 @@ recognised, next to the names that were imported.
 A value the source does not publish is stored as NULL (unknown), never as 0. A card a
 source does not list gets no row. When a card is listed under several headings of one
 commander page with the same figures, the first row is kept. Re-importing replaces the rows
-of each signal and commander the import writes, so the import is idempotent; a file with no
-valid row replaces nothing and the report says so (``NOTHING_REPLACED``, with the number of
-existing rows that were kept). Source rows of
+of each signal a file declares, for every commander the import writes, so the import is
+idempotent; a declared signal the file no longer writes (an older file shape) loses its
+stored rows with the import instead of keeping stale ones, and the report counts them as
+replaced. A file with no valid row replaces nothing and the report says so
+(``NOTHING_REPLACED``, with the number of existing rows that were kept). Source rows of
 a commander are never mixed with another commander's.
 """
 
@@ -96,6 +116,7 @@ GLOBAL_FILE = "card_global_signals"
 SPELLBOOK_FILE = "spellbook_card_links"
 TOURNAMENT_FILE = "topdeck_chulane_decks"
 EDHTOP16_FILE = "edhtop16_commander_signals"
+CONVERSION_FILE = "topdeck_card_conversions"
 ATLAS_FILE = "playgroup_card_atlas_signals"
 BRACKET_VARIANTS = ("core", "upgraded", "optimized", "cedh")
 AVAILABLE = "AVAILABLE"
@@ -113,12 +134,15 @@ SIGNAL_SYNERGY = "edhrec_commander_synergy"
 SIGNAL_BRACKET = "edhrec_bracket_inclusion"
 SIGNAL_GLOBAL = "edhrec_global_inclusion"
 SIGNAL_VARIANTS = "spellbook_variants"
+SIGNAL_PARTNERS = "spellbook_partners_in_collection"
+SIGNAL_TWO_CARD = "spellbook_two_card_variants"
 SIGNAL_TOURNAMENT = "tournament_lists"
 SIGNAL_SALT = "edhrec_salt"
 SIGNAL_COMBO_DECKS = "edhrec_combo_decks"
 SALT_FILE = "edhrec_salt"
 COMBOS_FILE = "edhrec_chulane_combos"
 SIGNAL_EDHTOP16 = "edhtop16_commander_play_rate"
+SIGNAL_CONVERSION = "topdeck_card_conversion"
 SIGNAL_DECKLIST = "decklist_universe"
 REFUSED = "REFUSED"
 COMMANDER_NOT_IN_EVERY_DECK = "COMMANDER_NOT_IN_EVERY_DECK"
@@ -395,12 +419,55 @@ def _global_rows(row: dict[str, str], card: str, report: FileReport) -> list[_Ro
     return [("", SIGNAL_GLOBAL, card, _share(numerator, denominator), numerator, denominator)]
 
 
+_VARIANT_ID_TOKEN = re.compile(r"-?\d+")
+
+
+def _variant_card_slots(variant_id: str) -> int:
+    """The card slots of one spellbook variant: its id joins the spellbook card ids of
+    the cards it uses (the id is the combo's page address), so the token count is the
+    card count of the combo. A template slot is written as a negative id (``--108`` in
+    the joined form) and counts as the one card it stands for."""
+    return len(_VARIANT_ID_TOKEN.findall(variant_id))
+
+
+def _two_card_variants(row: dict[str, str], variant_count: float | None) -> float | None:
+    """How many of the card's variants use exactly two cards, from the file's
+    ``variant_ids``. A card without variants has none of them (a counted 0, not an
+    unknown); without the ids of a card that has variants the figure is unknown."""
+    if variant_count is not None and variant_count == 0:
+        return 0.0
+    ids = row.get("variant_ids")
+    if ids is None or not ids.strip():
+        return None
+    return float(
+        sum(
+            1
+            for variant_id in ids.split(";")
+            if variant_id.strip() and _variant_card_slots(variant_id) == 2
+        )
+    )
+
+
 def _spellbook_rows(row: dict[str, str], card: str, report: FileReport) -> list[_Row]:
+    rows: list[_Row] = []
     value = _number(row.get("variant_count"))
     if value is None:
         reasons = report["null_value_reasons"]
         reasons["VARIANT_COUNT_NOT_NUMERIC"] = reasons.get("VARIANT_COUNT_NOT_NUMERIC", 0) + 1
-    return [("", SIGNAL_VARIANTS, card, value, None, None)]
+    rows.append(("", SIGNAL_VARIANTS, card, value, None, None))
+    if "partners_in_collection" in row:
+        partners = _number(row.get("partners_in_collection"))
+        if partners is None:
+            reasons = report["null_value_reasons"]
+            reasons["PARTNER_COUNT_NOT_NUMERIC"] = reasons.get("PARTNER_COUNT_NOT_NUMERIC", 0) + 1
+        rows.append(("", SIGNAL_PARTNERS, card, partners, None, None))
+    if "variant_ids" in row:
+        two_card = _two_card_variants(row, value)
+        if two_card is None:
+            reasons = report["null_value_reasons"]
+            reasons["VARIANT_IDS_MISSING"] = reasons.get("VARIANT_IDS_MISSING", 0) + 1
+        rows.append(("", SIGNAL_TWO_CARD, card, two_card, None, None))
+    return rows
 
 
 def _read_salt(paths: list[Path], report: FileReport) -> list[_Row]:
@@ -504,6 +571,80 @@ def _read_edhtop16(paths: list[Path], report: FileReport, commanders: _Commander
         if entries == 0:
             entries = None
         item: _Row = (commanders.resolve(commander), SIGNAL_EDHTOP16, card, rate, None, entries)
+        pairs.append(((item[0], item[1], item[2]), item))
+    return list(_first_wins(iter(pairs), report).values())
+
+
+def _read_topdeck_conversion(
+    paths: list[Path], report: FileReport, commanders: _Commanders
+) -> list[_Row]:
+    """TopDeck conversion per commander and card, from the counted research file.
+
+    The published rate is the conversions over the decks whose top-cut outcome
+    is known at all (``sample_size_base``), and that base is the stored
+    denominator — not ``appearances``, which also counts decks whose outcome
+    is unknown, so a Wilson bound from it would rate a different figure than
+    the one the source published. The source publishes the rate only from a
+    base of 10; below it the file carries the literal ``NULL`` and the value
+    stays NULL, while numerator and denominator are stored as counted, so the
+    strength component's own minimum decides from real figures. A published
+    rate that disagrees with its own numerator and denominator is refused,
+    never silently trusted."""
+    required = {
+        "commander",
+        "card_name",
+        "appearances",
+        "conversions",
+        "conversion_rate",
+        "sample_size_base",
+    }
+    pairs: list[tuple[tuple[str, str, str], _Row]] = []
+    for row in _rows(paths, required):
+        report["rows_read"] += 1
+        commander, card = row["commander"].strip(), row["card_name"].strip()
+        if not commander or not card:
+            report["rows_skipped"] += 1
+            report["skipped_reasons"]["NAME_MISSING"] = (
+                report["skipped_reasons"].get("NAME_MISSING", 0) + 1
+            )
+            continue
+        appearances = _count(row.get("appearances"))
+        conversions = _count(row.get("conversions"))
+        base = _count(row.get("sample_size_base"))
+        if (
+            appearances is None
+            or conversions is None
+            or base is None
+            or conversions > base
+            or base > appearances
+        ):
+            report["rows_skipped"] += 1
+            report["skipped_reasons"]["CONVERSION_FIGURES_INVALID"] = (
+                report["skipped_reasons"].get("CONVERSION_FIGURES_INVALID", 0) + 1
+            )
+            continue
+        raw_rate = row.get("conversion_rate", "").strip()
+        value: float | None = None
+        if raw_rate and raw_rate != "NULL":
+            rate = _number(raw_rate)
+            if rate is None or base == 0 or abs(rate - conversions / base) > 1e-6:
+                report["rows_skipped"] += 1
+                report["skipped_reasons"]["INCONSISTENT_RATE"] = (
+                    report["skipped_reasons"].get("INCONSISTENT_RATE", 0) + 1
+                )
+                continue
+            value = rate
+        else:
+            reasons = report["null_value_reasons"]
+            reasons["RATE_NOT_PUBLISHED"] = reasons.get("RATE_NOT_PUBLISHED", 0) + 1
+        item: _Row = (
+            commanders.resolve(commander),
+            SIGNAL_CONVERSION,
+            card,
+            value,
+            conversions,
+            base,
+        )
         pairs.append(((item[0], item[1], item[2]), item))
     return list(_first_wins(iter(pairs), report).values())
 
@@ -631,12 +772,24 @@ def _tournament_signal_rows(commander: str, lists: set[_ListKey]) -> list[_Row]:
 
 
 def _store_rows(
-    store: StudioStore, rows: list[_Row], source_id: str, *, replace: bool = True
+    store: StudioStore,
+    rows: list[_Row],
+    source_id: str,
+    *,
+    replace: bool = True,
+    declared: Sequence[str] | None = None,
 ) -> tuple[int, int]:
     """Replace the rows of every (commander, signal) pair of ``rows``; returns (rows written,
-    existing rows that were replaced)."""
+    existing rows that were replaced).
+
+    ``declared`` names every signal the file declares: a replacing import then replaces the
+    rows of those signals wholesale (for the commanders of ``rows``), so the stored rows of
+    a declared signal this file did not write — an older file shape, say — go with the
+    import instead of staying behind as stale rows of the file, and count as replaced."""
     db = store.connection
     pairs = sorted({(row[0], row[1]) for row in rows})
+    if declared is not None:
+        pairs = sorted({(row[0], signal) for row in rows for signal in declared} | set(pairs))
     replaced = 0
     for pair in pairs:
         replaced += int(
@@ -911,9 +1064,11 @@ def _file_signals(file_name: str, variant: str | None) -> list[str]:
     if file_name == GLOBAL_FILE:
         return [SIGNAL_GLOBAL]
     if file_name == SPELLBOOK_FILE:
-        return [SIGNAL_VARIANTS]
+        return [SIGNAL_VARIANTS, SIGNAL_PARTNERS, SIGNAL_TWO_CARD]
     if file_name == EDHTOP16_FILE:
         return [SIGNAL_EDHTOP16]
+    if file_name == CONVERSION_FILE:
+        return [SIGNAL_CONVERSION]
     if file_name == ATLAS_FILE:
         return [SIGNAL_PLAYGROUP]
     if file_name == SALT_FILE:
@@ -952,6 +1107,8 @@ def _read_file(
         return _read_independent(paths, required, _spellbook_rows, report)
     if file_name == EDHTOP16_FILE:
         return _read_edhtop16(paths, report, commanders)
+    if file_name == CONVERSION_FILE:
+        return _read_topdeck_conversion(paths, report, commanders)
     if file_name == ATLAS_FILE:
         return _read_atlas(paths, report)
     if file_name == SALT_FILE:
@@ -1008,6 +1165,7 @@ def has_signal_files(folder: str | Path) -> bool:
         GLOBAL_FILE,
         SPELLBOOK_FILE,
         EDHTOP16_FILE,
+        CONVERSION_FILE,
         ATLAS_FILE,
         SALT_FILE,
         COMBOS_FILE,
@@ -1181,6 +1339,7 @@ def import_signals(
     plan += [(GLOBAL_FILE, None), (SPELLBOOK_FILE, None)]
     plan += [(EDHTOP16_FILE, None), (SALT_FILE, None)]
     plan += [(ATLAS_FILE, None)]
+    plan += [(CONVERSION_FILE, None)]
     commanders = _Commanders(store)
     preferred = commanders.resolve(name)
     commanders.imported.discard(preferred)  # only commanders the files name are "imported"
@@ -1201,13 +1360,20 @@ def import_signals(
                 EDHTOP16_FILE,
                 ATLAS_FILE,
                 SALT_FILE,
+                CONVERSION_FILE,
             )
             base = file_name if file_name in independent else None
             kind = base or BRACKET_FILE
             rows = _read_file(kind, paths, variant, report, commanders)
             source_id = _register(store, paths)
             if source_id is not None and rows:
-                written, replaced = _store_rows(store, rows, source_id, replace=replace)
+                written, replaced = _store_rows(
+                    store,
+                    rows,
+                    source_id,
+                    replace=replace,
+                    declared=_file_signals(kind, variant),
+                )
                 report["rows_written"], report["rows_replaced"] = written, replaced
             else:
                 report["status"] = "NOTHING_REPLACED"

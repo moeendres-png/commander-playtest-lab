@@ -37,9 +37,7 @@ The structural simulator, tactical oracle, CLI demo and local API demo do not re
 ## Verification
 
 ```bash
-commander-lab doctor --root .
 pytest -q
-commander-lab accept-phase10 --iterations 12 --workers 2 --root .
 ```
 
 ## External rules engine

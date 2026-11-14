@@ -221,8 +221,11 @@ _SIGNAL_LAYERS = {
     "signal:edhrec_commander_synergy",
     "signal:edhrec_global_inclusion",
     "signal:spellbook_variants",
+    "signal:spellbook_two_card_variants",
+    "signal:spellbook_partners_in_collection",
     "signal:tournament_lists",
     "signal:edhtop16_commander_play_rate",
+    "signal:topdeck_card_conversion",
     "signal:decklist_universe",
     "signal:playgroup_observed_winrate_gap",
 }

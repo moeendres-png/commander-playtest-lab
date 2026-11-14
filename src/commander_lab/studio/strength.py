@@ -5,8 +5,8 @@ per card out. No I/O, no clock, no store. The store side lives in ``strength_vie
 
 What the index is. It is ``DERIVED_DESCRIPTIVE``: a weighted mean of percentile ranks of
 usage signals (how often a card is played in decks of one commander, in a bracket, in the
-deck lists the Owner chose, in tournament lists, how many combos it is part of, how
-popular it is overall) plus one observed outcome correlation: the Playgroup atlas gap
+deck lists the Owner chose, in tournament lists, the quality of the combos it is part
+of, how popular it is overall) plus one observed outcome correlation: the Playgroup atlas gap
 between the win rate of players who cast a card and of players who never took it out of
 their library. That component is an observation from other players' games, not a causal
 effect and not a win rate measured in the Owner's own games. The outcome-based field of
@@ -116,7 +116,8 @@ MIN_GROUP = 5
 GROUP_POOL = "pool"
 GROUP_TYPE = "type"
 GROUP_MANA_BAND = "mana_band"
-RANK_GROUPS = (GROUP_POOL, GROUP_TYPE, GROUP_MANA_BAND)
+GROUP_FUNCTION = "function"
+RANK_GROUPS = (GROUP_POOL, GROUP_TYPE, GROUP_MANA_BAND, GROUP_FUNCTION)
 MEASURE_WILSON = "wilson"
 MEASURE_RAW = "raw"
 SHARE_MEASURES = (MEASURE_WILSON, MEASURE_RAW)
@@ -125,7 +126,8 @@ MISSING_LOWEST = "lowest"
 MISSING_CHOICES = (MISSING_SKIP, MISSING_LOWEST)
 MIN_EDHREC = "edhrec"
 MIN_TOURNAMENT = "tournament"
-MIN_DENOMINATOR_KEYS = (MIN_EDHREC, MIN_TOURNAMENT)
+MIN_CONVERSION = "conversion"
+MIN_DENOMINATOR_KEYS = (MIN_EDHREC, MIN_TOURNAMENT, MIN_CONVERSION)
 MAX_MIN_DENOMINATOR = 100000
 
 # Where the deck-universe component takes its counts from (setting ``universe_source``): "auto"
@@ -148,6 +150,7 @@ BRACKET_INCLUSION = "bracket_inclusion"
 DECK_UNIVERSE = "deck_universe"
 SYNERGY = "synergy"
 TOURNAMENT_LISTS = "tournament_lists"
+TOURNAMENT_CONVERSION = "tournament_conversion"
 GLOBAL_INCLUSION = "global_inclusion"
 COMBOS = "combos"
 PLAYGROUP_OBSERVED = "playgroup_observed"
@@ -159,6 +162,7 @@ COMPONENTS = (
     DECK_UNIVERSE,
     SYNERGY,
     TOURNAMENT_LISTS,
+    TOURNAMENT_CONVERSION,
     GLOBAL_INCLUSION,
     COMBOS,
     PLAYGROUP_OBSERVED,
@@ -170,6 +174,7 @@ LABELS: dict[str, str] = {
     DECK_UNIVERSE: "Decklisten-Universum (gezählt)",
     SYNERGY: "Synergie (EDHREC)",
     TOURNAMENT_LISTS: "Turnierlisten des Commanders",
+    TOURNAMENT_CONVERSION: "Turnier-Conversion (TopDeck)",
     GLOBAL_INCLUSION: "Aufnahme überhaupt (EDHREC)",
     COMBOS: "Kombos (Commander Spellbook)",
     PLAYGROUP_OBSERVED: "Beobachtete Sieg-Korrelation (Playgroup)",
@@ -212,7 +217,14 @@ def layer_component(key: str) -> str:
 UNCOLLECTED_BY_DESIGN = frozenset({SIMULATION})
 # Components whose value is a share with a numerator and a denominator (Wilson bound).
 SHARE_COMPONENTS = frozenset(
-    {COMMANDER_INCLUSION, BRACKET_INCLUSION, DECK_UNIVERSE, TOURNAMENT_LISTS, GLOBAL_INCLUSION}
+    {
+        COMMANDER_INCLUSION,
+        BRACKET_INCLUSION,
+        DECK_UNIVERSE,
+        TOURNAMENT_LISTS,
+        TOURNAMENT_CONVERSION,
+        GLOBAL_INCLUSION,
+    }
 )
 # The Playgroup component is an observed difference (percentage points), not a share.
 # It counts only from OBSERVED_MIN_SAMPLE games in which the card was cast, and its
@@ -246,13 +258,18 @@ DEFAULT_WEIGHTS: dict[str, float] = {
     DECK_UNIVERSE: 2.0,
     SYNERGY: 1.0,
     TOURNAMENT_LISTS: 1.0,
+    TOURNAMENT_CONVERSION: 1.0,
     GLOBAL_INCLUSION: 1.0,
     COMBOS: 1.0,
     PLAYGROUP_OBSERVED: 1.0,
     SIMULATION: 0.0,
 }
 DEFAULT_CUTS: dict[str, float] = {"S": 90.0, "A": 75.0, "B": 55.0, "C": 35.0}
-DEFAULT_MIN_DENOMINATORS: dict[str, int] = {MIN_EDHREC: 30, MIN_TOURNAMENT: 5}
+DEFAULT_MIN_DENOMINATORS: dict[str, int] = {
+    MIN_EDHREC: 30,
+    MIN_TOURNAMENT: 5,
+    MIN_CONVERSION: 20,
+}
 DEFAULT_BRACKET = "upgraded"
 DEFAULT_MIN_COVERAGE = 0.3
 DEFAULT_REQUIRE_COMMANDER_SIGNAL = True
@@ -280,6 +297,20 @@ _SETTINGS_KEYS = frozenset(
 )
 
 
+# The combos component is the one component that reads several stored signals: the
+# quality parts of a card's combos (issue #1261, P3.7). The first part is the primary
+# signal (``signal_for``): it alone decides which cards the source lists at all. The
+# other parts refine the rank of the listed cards; a part a listed card has no value
+# in does not count for it, so a source file without the newer columns ranks exactly
+# as the variant count alone did. What the spellbook file does not publish — the
+# result a combo produces, which partners one single variant has — is not a part:
+# it stays unknown and never enters the rank.
+COMBO_PART_VARIANTS = "spellbook_variants"
+COMBO_PART_TWO_CARD = "spellbook_two_card_variants"
+COMBO_PART_PARTNERS = "spellbook_partners_in_collection"
+COMBO_PARTS = (COMBO_PART_VARIANTS, COMBO_PART_TWO_CARD, COMBO_PART_PARTNERS)
+
+
 def signal_for(component: str, bracket: str) -> str:
     """The stored signal name behind a component (empty when none is stored)."""
     if component == BRACKET_INCLUSION:
@@ -291,8 +322,9 @@ def signal_for(component: str, bracket: str) -> str:
         DECK_UNIVERSE: "deck_list_share",
         SYNERGY: "edhrec_commander_synergy",
         TOURNAMENT_LISTS: "tournament_lists",
+        TOURNAMENT_CONVERSION: "topdeck_card_conversion",
         GLOBAL_INCLUSION: "edhrec_global_inclusion",
-        COMBOS: "spellbook_variants",
+        COMBOS: COMBO_PART_VARIANTS,
         PLAYGROUP_OBSERVED: "playgroup_observed_winrate_gap",
         SIMULATION: "",
     }[component]
@@ -461,6 +493,8 @@ class StrengthSettings:
             return self.min_denominators[MIN_EDHREC]
         if component == TOURNAMENT_LISTS:
             return self.min_denominators[MIN_TOURNAMENT]
+        if component == TOURNAMENT_CONVERSION:
+            return self.min_denominators[MIN_CONVERSION]
         if component == DECK_UNIVERSE:
             return universe_minimum
         return 0
@@ -634,13 +668,16 @@ class PoolContext:
     maps a card key to the reason it is not ranked (``NOT_RANKED_COMMANDER`` or
     ``NOT_RANKED_BASIC_LAND``); ``filter_cards`` are the cards a card filter of the deck
     universe requires; ``universe_minimum`` is the minimum universe of the chosen profile
-    (the minimum denominator of the deck-universe component)."""
+    (the minimum denominator of the deck-universe component). ``function_group`` maps a
+    card key to its functional roles (``card_role``): a card can carry several roles and
+    then belongs to each of its role groups (see ``_groups_of``)."""
 
     type_group: Mapping[str, str] = field(default_factory=dict)
     mana_band: Mapping[str, str] = field(default_factory=dict)
     unranked: Mapping[str, str] = field(default_factory=dict)
     filter_cards: Collection[str] = field(default_factory=frozenset)
     universe_minimum: int = 0
+    function_group: Mapping[str, tuple[str, ...]] = field(default_factory=dict)
 
 
 class ComponentResult(TypedDict):
@@ -701,6 +738,24 @@ def percentile_ranks(values: Mapping[str, float]) -> dict[str, float]:
         first.setdefault(value, position)
         last[value] = position
     return {key: (first[value] + last[value]) / 2.0 / (count - 1) for key, value in values.items()}
+
+
+def combo_quality(parts: Mapping[str, Mapping[str, float]]) -> dict[str, float]:
+    """The combos value of a card: the mean of its percentile ranks in the combo
+    quality parts (``COMBO_PARTS``), over the cards the primary part (variant count)
+    lists. A card the primary part does not list gets no value (not listed, not 0);
+    a part beyond the primary one counts only for the cards that have a value in it,
+    so the mean of a card with fewer parts is the mean of the parts it has. The value
+    is itself a rank mixture in 0..1: ``score_pool`` ranks it among the pool like
+    every other component value, which keeps the order of this mixture."""
+    primary = parts.get(COMBO_PART_VARIANTS, {})
+    ranks = {name: percentile_ranks(values) for name, values in parts.items() if values}
+    result: dict[str, float] = {}
+    for card in primary:
+        found = [ranks[name][card] for name in ranks if card in ranks[name]]
+        if found:
+            result[card] = sum(found) / len(found)
+    return result
 
 
 def _share_values(
@@ -769,7 +824,7 @@ class _ComponentRanking:
     wilson: dict[str, float | None]
     reasons: dict[str, str]
     pool_ranks: dict[str, float]
-    group_ranks: dict[str, tuple[str, int, dict[str, float]]]
+    group_ranks: dict[str, tuple[tuple[str, ...], dict[str, int], float]]
     reference_denominator: int | None
     minimum: int
 
@@ -778,12 +833,24 @@ class _ComponentRanking:
         return bool(self.values)
 
 
-def _group_of(settings: StrengthSettings, context: PoolContext, card: str) -> str:
+def _groups_of(settings: StrengthSettings, context: PoolContext, card: str) -> tuple[str, ...]:
+    """The comparison groups of a card under the chosen ``rank_group``.
+
+    Type and mana band give one group each. The function gives one group per functional
+    role of the card, so a card with several roles belongs to several groups; its group
+    rank is the mean of its ranks in those groups (``_rank_component``). The pool gives
+    no group. A card of which no group of the chosen kind is known has none — under the
+    function that is a card without a sourced role, said openly, never a group of its own.
+    """
     if settings.rank_group == GROUP_TYPE:
-        return context.type_group.get(card, "")
+        name = context.type_group.get(card, "")
+        return (name,) if name else ()
     if settings.rank_group == GROUP_MANA_BAND:
-        return context.mana_band.get(card, "")
-    return ""
+        name = context.mana_band.get(card, "")
+        return (name,) if name else ()
+    if settings.rank_group == GROUP_FUNCTION:
+        return tuple(context.function_group.get(card, ()))
+    return ()
 
 
 def _rank_component(
@@ -826,16 +893,23 @@ def _rank_component(
         values[card] = value
         wilson[card] = bound
     pool_ranks = percentile_ranks(values)
-    group_ranks: dict[str, tuple[str, int, dict[str, float]]] = {}
+    group_ranks: dict[str, tuple[tuple[str, ...], dict[str, int], float]] = {}
     if settings.rank_group != GROUP_POOL:
         members: dict[str, dict[str, float]] = {}
         for card, value in values.items():
-            members.setdefault(_group_of(settings, context, card), {})[card] = value
+            for name in _groups_of(settings, context, card):
+                members.setdefault(name, {})[card] = value
+        found: dict[str, dict[str, tuple[int, float]]] = {}
         for name, group_values in members.items():
-            if name and len(group_values) >= MIN_GROUP:
+            if len(group_values) >= MIN_GROUP:
                 ranks = percentile_ranks(group_values)
-                for card in group_values:
-                    group_ranks[card] = (name, len(group_values), ranks)
+                for card, rank in ranks.items():
+                    found.setdefault(card, {})[name] = (len(group_values), rank)
+        for card, per_group in found.items():
+            names = tuple(name for name in _groups_of(settings, context, card) if name in per_group)
+            sizes = {name: per_group[name][0] for name in names}
+            percentile = sum(per_group[name][1] for name in names) / len(names)
+            group_ranks[card] = (names, sizes, percentile)
     return _ComponentRanking(values, wilson, reasons, pool_ranks, group_ranks, reference, minimum)
 
 
@@ -955,10 +1029,12 @@ def score_pool(
                 if settings.rank_group != GROUP_POOL:
                     found = ranking.group_ranks.get(card)
                     if found is not None:
-                        group, group_size = found[0], found[1]
-                        percentile = found[2][card]
+                        names, sizes, group_percentile = found
+                        group = " + ".join(names)
+                        group_size = sizes[names[0]] if len(names) == 1 else None
+                        percentile = group_percentile
                     else:
-                        group = _group_of(settings, ctx, card) or None
+                        group = " + ".join(_groups_of(settings, ctx, card)) or None
                         group_fallback = True
             elif (
                 reason == NOT_LISTED
@@ -1039,11 +1115,16 @@ def _fallback_note(
     context: PoolContext,
     card: str,
 ) -> str:
-    size = sum(
-        1
-        for other in ranking.values
-        if _group_of(settings, context, other) == _group_of(settings, context, card)
-    )
+    groups = _groups_of(settings, context, card)
+    if settings.rank_group == GROUP_FUNCTION and not groups:
+        return "Keine Funktion bekannt (keine Rolle aus den Quellen belegt): Rang im ganzen Pool"
+    if groups:
+        size = max(
+            sum(1 for other in ranking.values if name in _groups_of(settings, context, other))
+            for name in groups
+        )
+    else:
+        size = sum(1 for other in ranking.values if not _groups_of(settings, context, other))
     name = group or "ohne Gruppe"
     return (
         f"Vergleichsgruppe „{name}“ hat nur {size} Karten mit Wert (weniger als {MIN_GROUP}): "

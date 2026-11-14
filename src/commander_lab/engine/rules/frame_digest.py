@@ -32,6 +32,18 @@ Normalization of one request (documented here because it is the proof obligation
   Every other list keeps its order (battlefield, hand, options, stack ...).
 
 Everything else is digested as it is.
+
+Optional forced-frame skipping (#1299, condition 2): a ``FrameDigest`` created with
+``skip_forced=True`` leaves forced frames out of the digest entirely — a frame is forced when
+it offers exactly one legal option and requires exactly that one selection
+(``minimum_selections == maximum_selections == 1``; the ``min_selections``/``max_selections``
+spellings the pilot also accepts count the same). Such a frame carries no discretion, so a
+bridge that answers it itself never shows it to a pilot; skipping it here — before any
+normalization, so it also assigns no run-identity numbers — makes the digest of the remaining
+frames comparable between a run that was shown every frame and a run that was shown only the
+discretionary ones. A frame whose selection bounds are missing or not plain integers is
+never skipped: without the bounds the frame is not proven forced. The default is off, and
+the default digest is byte-identical to the digest before this mode existed.
 """
 
 from __future__ import annotations
@@ -186,13 +198,41 @@ def _normalize_request(norm: _Normalizer, request: Mapping[str, object]) -> dict
     return cast(dict[str, Json], norm.value(kept))
 
 
+def _selection_bound(request: Mapping[str, object], *keys: str) -> object:
+    for key in keys:
+        if key in request:
+            return request[key]
+    return None
+
+
+def is_forced_frame(request: Mapping[str, object]) -> bool:
+    """Whether the frame leaves no choice: one legal option, and exactly it must be taken.
+
+    Only plain integers prove the bounds (a bool or a float is not the bridge's bound), and
+    a missing bound proves nothing: such a frame is digested, never skipped.
+    """
+    options = request.get("legal_options")
+    if not isinstance(options, Sequence) or isinstance(options, str | bytes | bytearray):
+        return False
+    if len(options) != 1:
+        return False
+    minimum = _selection_bound(request, "minimum_selections", "min_selections")
+    maximum = _selection_bound(request, "maximum_selections", "max_selections")
+    return type(minimum) is int and type(maximum) is int and minimum == 1 and maximum == 1
+
+
 @dataclass(frozen=True)
 class FrameDigestResult:
-    """Digest of all frames of one game, per seat, and the frame count."""
+    """Digest of all frames of one game, per seat, and the frame counts.
+
+    ``frames`` counts the digested frames; ``skipped`` counts the forced frames a
+    ``skip_forced`` digest left out (always 0 for a default digest).
+    """
 
     digest: str
     by_seat: dict[str, str]
     frames: int
+    skipped: int = 0
 
 
 @dataclass
@@ -203,8 +243,13 @@ class FrameDigest:
     _all: hashlib._Hash = field(default_factory=hashlib.sha256)
     _seats: dict[str, hashlib._Hash] = field(default_factory=dict)
     frames: int = 0
+    skip_forced: bool = False
+    skipped: int = 0
 
     def observe(self, request: Mapping[str, object]) -> None:
+        if self.skip_forced and is_forced_frame(request):
+            self.skipped += 1
+            return
         text = _dump(_normalize_request(self._norm, request)).encode("ascii") + b"\n"
         seat = request.get("seat")
         label = str(seat) if type(seat) is int else "unknown"
@@ -217,7 +262,7 @@ class FrameDigest:
             seat: self._seats[seat].hexdigest()
             for seat in sorted(self._seats, key=lambda item: (len(item), item))
         }
-        return FrameDigestResult(self._all.hexdigest(), by_seat, self.frames)
+        return FrameDigestResult(self._all.hexdigest(), by_seat, self.frames, self.skipped)
 
 
 class _ObservingPolicy(ExternalPilotDecisionPolicy):
@@ -250,6 +295,7 @@ class FrameDigestRunner(XmageFullGameRunner):
         max_decisions: int = 50_000,
         private_card_repository: bool = False,
         shutdown_grace_seconds: float = 5.0,
+        skip_forced_frames: bool = False,
     ) -> None:
         super().__init__(
             command,
@@ -260,6 +306,7 @@ class FrameDigestRunner(XmageFullGameRunner):
             shutdown_grace_seconds=shutdown_grace_seconds,
         )
         self._digests: dict[tuple[int, tuple[str, ...]], FrameDigest] = {}
+        self._skip_forced_frames = skip_forced_frames
 
     @staticmethod
     def _game_key(seed: int, decks: Sequence[RulesDeckInput]) -> tuple[int, tuple[str, ...]]:
@@ -272,7 +319,7 @@ class FrameDigestRunner(XmageFullGameRunner):
         pilots: tuple[FullGamePilotBinding, ...],
     ) -> ExternalPilotDecisionPolicy:
         base = super()._validated_policy(scenario, decks, pilots)
-        digest = FrameDigest()
+        digest = FrameDigest(skip_forced=self._skip_forced_frames)
         self._digests[self._game_key(base.scenario_seed, decks)] = digest
         return _ObservingPolicy(base, digest)
 
