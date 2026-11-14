@@ -24,7 +24,11 @@ Normalization of one request (documented here because it is the proof obligation
   ``object_id=`` attributes of prompt markup.
 * ``pilot_state.commander_status`` is an unordered collection: the bridge builds it from a map
   keyed by UUID, so its entry order follows the run's UUIDs. Its entries are sorted by their
-  normalized text with unnumbered UUIDs masked, then numbered in that order. Every other list keeps its order (battlefield, hand, options, stack ...).
+  normalized text with unnumbered UUIDs masked, then numbered in that order.
+* ``pilot_state.players[].exile`` is unordered among equal cards: the bridge sorts a player's
+  exiled cards by a content key and breaks ties by UUID, so two equal cards (two copies of one
+  card) change places from run to run on the same build. It is sorted the same way.
+  Every other list keeps its order (battlefield, hand, options, stack ...).
 
 Everything else is digested as it is.
 """
@@ -56,7 +60,9 @@ DERIVED_ID_KEYS: frozenset[str] = frozenset(
     {"option_id", "decision_id", "public_state_reference", "private_actor_state_reference"}
 )
 #: Lists (path from the request root) whose order the bridge takes from UUID-keyed maps.
-UNORDERED_LISTS: frozenset[tuple[str, ...]] = frozenset({("pilot_state", "commander_status")})
+UNORDERED_LISTS: frozenset[tuple[str, ...]] = frozenset(
+    {("pilot_state", "commander_status"), ("pilot_state", "players", "exile")}
+)
 
 # The pattern of ``XmageFullGameRunner._semantic_text`` for engine object ids; a test pins that
 # both agree.
