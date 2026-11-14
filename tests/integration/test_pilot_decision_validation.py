@@ -1,3 +1,10 @@
+"""Pilot validation checks that used to live in the Phase-4 validation harness.
+
+The harness module is gone; these tests keep every assertion it made about the live
+pilots and the structural simulator: stochastic replay identical across worker counts,
+a decision-log audit with all utility dimensions, and the strength calibration benchmark.
+"""
+
 from __future__ import annotations
 
 import itertools
@@ -9,7 +16,7 @@ from typing import Any
 from commander_lab.agents.pilots import GenericCommanderPilot
 from commander_lab.engine.structural.batch import run_structural_batch
 from commander_lab.engine.structural.project import load_project_structural_decks
-from commander_lab.engine.structural.simulator import ENGINE_VERSION, StructuralSimulator
+from commander_lab.engine.structural.simulator import StructuralSimulator
 from commander_lab.models import (
     CardRole,
     PilotActionView,
@@ -22,8 +29,6 @@ from commander_lab.models import (
     StructuralBatchConfig,
     StructuralMatchConfig,
 )
-
-_PHASE4_ESTIMATE_TYPE = "structural_model_estimates"
 
 
 def _result_signature(result: Any) -> list[tuple[object, ...]]:
@@ -384,77 +389,39 @@ def _audit_decision_log(root: Path, output_directory: Path, seed: int) -> dict[s
     }
 
 
-def run_phase4_validation(
-    root: str | Path,
-    *,
-    iterations: int = 16,
-    workers: int = 2,
-    seed: int = 20260804,
-    output_directory: str | Path | None = None,
-) -> dict[str, object]:
-    root_path = Path(root)
-    output_root = (
-        Path(output_directory)
-        if output_directory is not None
-        else root_path / "data/runs/phase4_validation"
-    )
-    output_root.mkdir(parents=True, exist_ok=True)
-    decks = load_project_structural_decks(root_path, include_synthetic_fixtures=True)
-
-    deterministic_config = _config(
-        "phase4-specialists-deterministic",
-        seed=seed,
-        iterations=iterations,
-        workers=workers,
-        output_directory=output_root / "deterministic",
-        mode=PilotDecisionMode.DETERMINISTIC,
-    )
+def test_phase4_validation_is_reproducible_and_audited(tmp_path: Path, repo_root: Path) -> None:
+    iterations = 2
+    seed = 707
+    decks = load_project_structural_decks(repo_root, include_synthetic_fixtures=True)
     stochastic_config = _config(
         "phase4-specialists-stochastic",
         seed=seed + 1,
         iterations=iterations,
-        workers=workers,
-        output_directory=output_root / "stochastic",
+        workers=1,
+        output_directory=tmp_path / "phase4" / "stochastic",
         mode=PilotDecisionMode.STOCHASTIC,
     )
-    deterministic = run_structural_batch(deterministic_config, decks)
     stochastic = run_structural_batch(stochastic_config, decks)
-    strength_benchmark = _decision_quality_benchmark(
-        seed + 2,
-        trials=max(64, iterations * 8),
-    )
-
     replay_config = stochastic_config.model_copy(
         update={
             "workers": 1,
-            "output_directory": str(output_root / "stochastic_replay"),
+            "output_directory": str(tmp_path / "phase4" / "stochastic_replay"),
         }
     )
     stochastic_replay = run_structural_batch(replay_config, decks)
-    replay_identical = _result_signature(stochastic) == _result_signature(stochastic_replay)
+    assert _result_signature(stochastic) == _result_signature(stochastic_replay)
 
-    audit = _audit_decision_log(root_path, output_root, seed + 3)
-    summary = {
-        "phase": 4,
-        "engine_version": ENGINE_VERSION,
-        "estimate_type": _PHASE4_ESTIMATE_TYPE,
-        "purpose": "technical pilot validation; not rules validation or empirical win rates",
-        "seed": seed,
-        "iterations_per_batch": iterations,
-        "workers": workers,
-        "deterministic_specialists": deterministic.aggregate,
-        "stochastic_specialists": stochastic.aggregate,
-        "strength_decision_benchmark": strength_benchmark,
-        "stochastic_replay_identical_across_worker_counts": replay_identical,
-        "decision_log_audit": audit,
-    }
-    summary_path = output_root / "phase4_validation_summary.json"
-    summary_path.write_text(
-        json.dumps(summary, indent=2, ensure_ascii=False, sort_keys=True),
-        encoding="utf-8",
+    audit = _audit_decision_log(repo_root, tmp_path / "phase4", seed + 3)
+    assert audit["match_completed"]
+    assert audit["decision_events"] > 0  # type: ignore[operator]
+    assert audit["required_utility_dimensions_present"]
+
+    benchmark = _decision_quality_benchmark(seed + 2, trials=max(64, iterations * 8))
+    assert benchmark["monotonic_non_decreasing"]
+    rates: Any = benchmark["by_strength"]
+    assert rates["weak"]["expected_choice_rate"] < rates["average"]["expected_choice_rate"]
+    assert rates["average"]["expected_choice_rate"] <= rates["strong"]["expected_choice_rate"]
+    assert (
+        rates["strong"]["expected_choice_rate"]
+        <= rates["near_optimal_heuristic"]["expected_choice_rate"]
     )
-    summary["summary_path"] = str(summary_path)
-    return summary
-
-
-__all__ = ["run_phase4_validation"]

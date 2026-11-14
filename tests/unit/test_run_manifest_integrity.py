@@ -226,17 +226,19 @@ def test_existing_run_statuses_round_trip(sealed_run: Path, status: str) -> None
     assert result.checked_files == 1
 
 
-def test_cli_emits_structured_rejection_for_malformed_manifest(sealed_run: Path) -> None:
-    from typer.testing import CliRunner
-
-    from commander_lab.cli.app import app
-
+def test_malformed_manifest_is_rejected_without_leaking_its_content(sealed_run: Path) -> None:
     _replace(sealed_run, ["private-marker-invalid-manifest"])
-    result = CliRunner().invoke(app, ["runs-verify", str(sealed_run)])
-    assert result.exit_code == 1
-    payload = json.loads(result.stdout)
-    assert payload["valid"] is False and payload["status"] == "corrupt"
-    assert "private-marker" not in result.stdout
+    result = verify_run(sealed_run)
+    assert result.valid is False and result.status == "corrupt"
+    rendered = json.dumps(
+        {
+            "valid": result.valid,
+            "status": result.status,
+            "errors": result.errors,
+            "checked_files": result.checked_files,
+        }
+    )
+    assert "private-marker" not in rendered
 
 
 def test_unreadable_artifact_fails_closed_without_raw_diagnostics(

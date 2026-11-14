@@ -72,22 +72,18 @@ jobs:
             src/commander_lab/engine/rules/bridge.py
             src/commander_lab/engine/process_manager.py
             src/commander_lab/models/engine_runtime.py
-            src/commander_lab/cli/app.py
+            src/commander_lab/engine/verify_cli.py
             tests/unit/test_h4_verify_materialization_evidence.py
             tests/unit/test_ws_a1d_docker_pin_authority.py
             .github/actions/**
             src/commander_lab/__init__.py
-            src/commander_lab/acceptance/**
             src/commander_lab/agents/**
             src/commander_lab/analysis/**
-            src/commander_lab/api/**
-            src/commander_lab/audit/**
             src/commander_lab/candidates/**
             src/commander_lab/canonical_features.py
             src/commander_lab/cards/**
             src/commander_lab/cli/**
             src/commander_lab/counterfactual.py
-            src/commander_lab/data_sync.py
             src/commander_lab/decision_statistics.py
             src/commander_lab/deck_registry.py
             src/commander_lab/diagnostics.py
@@ -96,7 +92,6 @@ jobs:
             src/commander_lab/fresh_rebuild.py
             src/commander_lab/importers/**
             src/commander_lab/mana_analysis.py
-            src/commander_lab/mcp/**
             src/commander_lab/meta/**
             src/commander_lab/model_informativeness.py
             src/commander_lab/models/**
@@ -363,7 +358,7 @@ jobs:
           export ENGINE_PROVIDER=xmage ENGINE_MODE=external
           export ENGINE_START_COMMAND="java -jar $PWD/vendor/engine-binaries/xmage/bridge.jar full-game"
           set +e
-          python -m commander_lab.cli.app engine-verify --root "$PWD" > h4-evidence-xmage/engine-verify.json 2>h4-evidence-xmage/engine-verify-stderr.log
+          python -m commander_lab.engine.verify_cli --root "$PWD" > h4-evidence-xmage/engine-verify.json 2>h4-evidence-xmage/engine-verify-stderr.log
           rc=$?
           set -e
           echo "$rc" > h4-evidence-xmage/engine-verify-exit.txt
