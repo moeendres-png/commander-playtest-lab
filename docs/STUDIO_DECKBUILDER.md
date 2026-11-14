@@ -479,7 +479,8 @@ commanders; the button is disabled for other cards, for example in the global vi
 more than the free copies; the commander is refused. A refusal is HTTP 409 with a German sentence,
 an unknown deck, variant or card is 404. The builder shows the draft when it is opened next; a
 builder tab that was open in the background takes over the stored draft when it is looked at
-again (unless a change of its own is still being sent).
+again, but only while every change of its own has reached the server (changes are counted;
+a change that is waiting, being sent or whose save failed keeps the tab's own list).
 
 The builder shows the current tier of every card (pool tiles, deck list, card window) while
 "Stufe zeigen" is ticked (default on, remembered in the browser as `studio.builder.show-tier`).

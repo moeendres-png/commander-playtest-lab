@@ -27,7 +27,7 @@ const state = {
   list: new Map(), dirty: false, issues: [], shape: null, deckRoles: {}, combos: null, roles: [], shapes: [],
   simulations: [], diffBaseRev: null, diffData: null, activeBatch: null, batchPollTimer: null,
   view: "grid", tab: "list", shown: 120, sortKey: "freq", sortDir: -1, cohort: "all",
-  subset: null, subsetNames: [], subsetWanted: null, strength: null, showTier: true, layers: null, diffDefault: null,
+  subset: null, subsetNames: [], subsetWanted: null, strength: null, showTier: true, changeSeq: 0, savedSeq: 0, layers: null, diffDefault: null,
   colors: new Set(), columns: new Set(["img", "name", "mana_cost", "type_line", "available", "freq", "edhrec"]),
 };
 
@@ -311,29 +311,33 @@ function entries() {
 }
 let saveTimer = 0;
 function changed() {
-  state.dirty = true; state.savePending = true; renderAll();
+  state.dirty = true; state.changeSeq += 1; renderAll();
   clearTimeout(saveTimer); saveTimer = setTimeout(syncDraft, 500);
 }
 async function syncDraft() {
+  const seq = state.changeSeq; // the list as of this change is what this call saves
   try {
     const cards = entries();
     const [result] = await Promise.all([
       api("/api/check", "POST", { cards, owned_only: true }),
       state.dirty ? api(`/api/decks/${encodeURIComponent(state.deckId)}/branches/${encodeURIComponent(state.branch)}/draft`, "PUT", { cards, base_revision_id: state.baseRevision }) : null,
     ]);
+    state.savedSeq = Math.max(state.savedSeq, seq); // only a save that reached the server counts
     state.issues = result.issues; state.shape = result.shape; state.deckRoles = result.roles || {}; state.combos = result.combos || null;
     $("save-state").textContent = state.dirty ? "Entwurf gesichert, noch nicht als Stand gespeichert" : "gespeichert";
     renderHeader(); renderDeck();
-  } catch (error) { fail(error); } finally { state.savePending = false; }
+  } catch (error) { fail(error); }
 }
 // Another page (the tier list's "+ Deck") may have changed the working list while this tab
 // was in the background: when the tab is looked at again, the stored draft wins over the list
-// held here, unless a change of this tab is still on its way to the server.
+// held here, unless a change of this tab has not reached the server (still waiting, being
+// sent, or failed): changes are counted, and only a tab whose every change is saved adopts.
 async function adoptForeignDraft() {
-  if (document.hidden || !state.deckId || state.savePending) return;
+  const seq = state.changeSeq;
+  if (document.hidden || !state.deckId || state.savedSeq !== seq) return; // an edit of this tab is unsent (or its save failed)
   try {
     const found = await api(`/api/decks/${encodeURIComponent(state.deckId)}/branches/${encodeURIComponent(state.branch)}/draft`);
-    if (!found.draft || state.savePending) return;
+    if (!found.draft || state.changeSeq !== seq) return; // edited while the question was on its way
     const key = (cards) => JSON.stringify(cards.filter((card) => card.zone === "main").map((card) => [card.card_id, card.quantity]).sort());
     if (key(found.draft.cards) === key(entries())) return;
     useCards(found.draft.cards); state.dirty = true; renderAll(); await syncDraft();
@@ -1219,6 +1223,7 @@ async function loadBranch() {
     api(`/api/revisions/${encodeURIComponent(branch.revision_id)}`),
     api(`/api/decks/${encodeURIComponent(state.deckId)}/branches/${encodeURIComponent(state.branch)}/draft`),
   ]);
+  state.savedSeq = state.changeSeq; // the list comes from the server: nothing of this tab is unsent
   if (draft.draft) { useCards(draft.draft.cards); state.dirty = true; }
   else { useCards(revision.cards); state.dirty = false; state.issues = revision.issues; state.shape = revision.shape; state.deckRoles = revision.roles || {}; state.combos = revision.combos || null; }
   renderAll(); await syncDraft();
@@ -1226,10 +1231,11 @@ async function loadBranch() {
 async function saveRevision(branch = state.branch) {
   const note = prompt("Kurze Notiz zu diesem Stand (darf leer sein):", "");
   if (note === null) return;
+  const seq = state.changeSeq;
   try {
     const result = await api(`/api/decks/${encodeURIComponent(state.deckId)}/revisions`, "POST", { cards: entries(), branch, note, parent_revision_id: state.baseRevision });
     if (branch !== state.branch) await api(`/api/decks/${encodeURIComponent(state.deckId)}/branches/${encodeURIComponent(state.branch)}/draft`, "DELETE");
-    state.branch = branch; state.baseRevision = result.revision_id; state.dirty = false; rememberVariant();
+    state.branch = branch; state.baseRevision = result.revision_id; state.dirty = state.changeSeq !== seq; state.savedSeq = Math.max(state.savedSeq, seq); rememberVariant();
     await loadDecks(); renderHeader(); $("save-state").textContent = "gespeichert"; toast("Stand gespeichert.");
   } catch (error) { fail(error); }
 }

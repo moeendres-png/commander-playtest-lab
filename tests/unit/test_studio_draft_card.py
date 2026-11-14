@@ -166,6 +166,9 @@ def test_the_tier_page_offers_favourite_and_deck_and_the_builder_shows_the_tier(
     app = (STATIC / "app.js").read_text(encoding="utf-8")
     assert 'id="f-tier"' in page and "Stufe zeigen" in page
     assert "studio.builder.show-tier" in app and "function tierMark" in app
+    # a background builder tab adopts the stored draft only when all its own changes are saved
+    assert "state.savedSeq !== seq" in app and "state.changeSeq !== seq" in app
+    assert "savePending" not in app
     # shown messages of a refused change reach the page as written
     assert "im Deck" in (STATIC / "ui.js").read_text(encoding="utf-8")
 
