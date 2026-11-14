@@ -12,8 +12,12 @@ import json
 import os
 import warnings
 from pathlib import Path
+from typing import Any
 
 import pytest
+
+from commander_lab.engine.rules.frame_digest import FrameDigest
+from tests.unit.test_xmage_full_game import _binding, _boolean_request, _decks, _scenario
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -554,6 +558,91 @@ def test_require_different_jars(tmp_path: Path, capsys) -> None:
     assert _gate(tmp_path, same_a, other, "--require-different-jars") == 0
     unknown = _framed(tmp_path / "d.json", _GAMES, jar=None)
     assert _gate(tmp_path, same_a, unknown, "--require-different-jars") == 1
+
+
+def _with_skip_mode(path: Path) -> Path:
+    doc = json.loads(path.read_text(encoding="utf-8"))
+    doc["frame_digest_skip_forced"] = True
+    path.write_text(json.dumps(doc), encoding="utf-8")
+    return path
+
+
+def test_compare_rejects_mixed_frame_digest_modes(tmp_path: Path, capsys) -> None:
+    plain = _framed(tmp_path / "a.json", _GAMES)
+    skipped = _with_skip_mode(_framed(tmp_path / "b.json", _GAMES, jar="jar-b"))
+    assert _gate(tmp_path, plain, skipped) == 1
+    assert "frame digest modes differ" in capsys.readouterr().out
+    also_skipped = _with_skip_mode(_framed(tmp_path / "c.json", _GAMES, jar="jar-b"))
+    assert _gate(tmp_path, skipped, also_skipped) == 0
+
+
+def test_compare_rejects_mixed_frame_digest_modes_in_the_other_direction(
+    tmp_path: Path, capsys
+) -> None:
+    skipped = _with_skip_mode(_framed(tmp_path / "a.json", _GAMES, jar="jar-b"))
+    plain = _framed(tmp_path / "b.json", _GAMES)
+    assert _gate(tmp_path, skipped, plain) == 1
+    assert "frame digest modes differ" in capsys.readouterr().out
+
+
+def test_compare_rejects_a_legacy_report_against_a_skip_mode_report(tmp_path: Path, capsys) -> None:
+    legacy = _framed(tmp_path / "a.json", _GAMES)
+    # Premise of the case: a report written before the mode existed carries no field.
+    assert "frame_digest_skip_forced" not in json.loads(legacy.read_text(encoding="utf-8"))
+    skipped = _with_skip_mode(_framed(tmp_path / "b.json", _GAMES, jar="jar-b"))
+    assert _gate(tmp_path, legacy, skipped) == 1
+    assert "frame digest modes differ" in capsys.readouterr().out
+    assert _gate(tmp_path, skipped, legacy) == 1
+    assert "frame digest modes differ" in capsys.readouterr().out
+
+
+def test_skip_forced_flag_needs_the_frame_digest(tmp_path: Path) -> None:
+    with pytest.raises(SystemExit):
+        _module().main(
+            [
+                "run",
+                "--jar",
+                str(tmp_path / "bridge.jar"),
+                "--out",
+                str(tmp_path / "out.json"),
+                "--no-frame-digest",
+                "--frame-digest-skip-forced",
+            ]
+        )
+
+
+def _forced_boolean_request(offset: int) -> dict[str, Any]:
+    """A decidable request with no choice in it: one option, and it must be taken."""
+    request = _boolean_request(decision_id=f"forced-{offset}", offset=offset)
+    request["legal_options"] = request["legal_options"][:1]
+    return request
+
+
+def _digest_after_requests(skip_forced_frames: bool, requests: list[dict[str, Any]]):
+    """Requests decided through the benchmark runner's policy; the digest it recorded."""
+    decks = _decks()
+    scenario = _scenario(decks)
+    pilots = tuple(_binding(seat, f"fixture-{seat}") for seat in range(1, 5))
+    runner = _module()._runner(
+        ("java", "-jar", "unused.jar", "full-game"), False, True, skip_forced_frames
+    )
+    policy = runner._validated_policy(scenario, decks, pilots)
+    for request in requests:
+        policy.decide(request)
+    return runner.digest_for(scenario.seed, decks)
+
+
+def test_the_runner_skips_forced_frames_only_when_the_mode_is_on() -> None:
+    requests = [_forced_boolean_request(3), _boolean_request(decision_id="open-5", offset=5)]
+    skipped = _digest_after_requests(True, requests)
+    assert skipped is not None and skipped.skipped == 1 and skipped.frames == 1
+    # The runner's digest is the digest of the remaining frames alone.
+    manual = FrameDigest()
+    manual.observe(_boolean_request(decision_id="open-5", offset=5))
+    assert skipped.digest == manual.result().digest
+    plain = _digest_after_requests(False, requests)
+    assert plain is not None and plain.skipped == 0 and plain.frames == 2
+    assert plain.digest != skipped.digest
 
 
 def test_file_sha256_is_the_sha256_of_the_bytes(tmp_path: Path) -> None:
