@@ -376,6 +376,146 @@ def _action_status(uses: Any) -> tuple[str, str]:
     return "FAIL", f"third_party_action_not_immutable_sha:{uses}"
 
 
+_SKIPPED_WORD = re.compile(r"\bskipped\b")
+
+
+def _needs_list(value: Any) -> list[str] | None:
+    if isinstance(value, str):
+        return [value]
+    if isinstance(value, list) and all(isinstance(item, str) for item in value):
+        return list(value)
+    return None
+
+
+def _step_text(step: dict[str, Any]) -> str:
+    """The non-comment ``run`` lines and the ``env`` values of a step."""
+    run = step.get("run")
+    env = step.get("env")
+    parts = ["\n".join(_run_lines(run))] if isinstance(run, str) else []
+    if isinstance(env, dict):
+        parts.extend(str(value) for value in env.values())
+    return "\n".join(parts)
+
+
+def _step_always_blocks(step: dict[str, Any]) -> bool:
+    """True when the step always runs, cannot continue on error and its run is not masked."""
+    if _normalize_if(step.get("if")) not in (None, "always()"):
+        return False
+    if _continue_on_error(step.get("continue-on-error"))[0] != "PASS":
+        return False
+    if _shell_status(step)[0] != "PASS":
+        return False
+    run = step.get("run")
+    if isinstance(run, str):
+        for command in _command_segments(run):
+            if _masked_line(command) or re.fullmatch(r"exit\s+0", command):
+                return False
+    return True
+
+
+def _gate_assessment(jobs: dict[str, Any], job: dict[str, Any]) -> tuple[list[str], list[str]]:
+    """Check the gate pattern of a required job that has ``needs``.
+
+    Returns ``(violations, skippable)``: the violated conditions (empty when the job is a
+    verified gate) and the needed jobs that may legitimately be skipped.  A gate is safe only
+    when (a) its own ``if`` is exactly ``always()``, (b) a step that always runs and cannot
+    continue on error inspects ``needs.<id>.result`` of every needed job, (c) neither the gate
+    nor a needed job can fail silently (``continue-on-error``), and (d) no needed job can be
+    skipped unless its ``if`` reads another needed job's output and the gate step reads that
+    output and names ``skipped``.  Every dependency of a needed job must itself be needed.
+    """
+    violations: list[str] = []
+    skippable: list[str] = []
+    needs = _needs_list(job.get("needs"))
+    if not needs:
+        return ["needs_not_a_static_job_list"], skippable
+    if _normalize_if(job.get("if")) != "always()":
+        violations.append("gate_job_if_is_not_exactly_always()")
+    if job.get("continue-on-error") not in (None, False):
+        violations.append("gate_job_continue_on_error")
+    steps = job.get("steps")
+    if not isinstance(steps, list) or not all(isinstance(step, dict) for step in steps):
+        return [*violations, "gate_steps_not_static_list"], skippable
+    inspecting = [step for step in steps if _step_always_blocks(step)]
+
+    for needed in needs:
+        spec = jobs.get(needed)
+        if not isinstance(spec, dict):
+            violations.append(f"needed_job_missing_or_not_mapping:{needed}")
+            continue
+        if spec.get("continue-on-error") not in (None, False):
+            violations.append(f"needed_job_continue_on_error:{needed}")
+        for dependency in _needs_list(spec.get("needs")) or (
+            [] if spec.get("needs") is None else ["?"]
+        ):
+            if dependency not in needs:
+                violations.append(f"needed_job_dependency_not_inspected:{needed}->{dependency}")
+        marker = f"needs.{needed}.result"
+        readers = [step for step in inspecting if marker in _step_text(step)]
+        if not readers:
+            violations.append(f"gate_does_not_inspect_result_of:{needed}")
+            continue
+        condition = spec.get("if")
+        if condition is None:
+            continue
+        text = str(condition)
+        sources = [
+            other
+            for other in needs
+            if other != needed
+            and f"needs.{other}.outputs." in text
+            and any(
+                f"needs.{other}.outputs." in _step_text(step)
+                and _SKIPPED_WORD.search(str(step.get("run") or ""))
+                for step in readers
+            )
+        ]
+        if sources:
+            skippable.append(needed)
+        else:
+            violations.append(f"needed_job_can_be_skipped_unaccepted:{needed}")
+    return violations, skippable
+
+
+def _scan_steps(
+    prefix: str,
+    steps: list[dict[str, Any]],
+    workflow_path: str,
+    findings: list[dict[str, str]],
+    counters: list[int],
+    local_actions: set[str],
+) -> None:
+    """Per-step continue-on-error and action-trust findings; ``counters`` is [fail, unknown]."""
+    for index, step in enumerate(steps):
+        coe_status, coe_reason = _continue_on_error(step.get("continue-on-error"))
+        if coe_status != "PASS":
+            findings.append(
+                {
+                    "id": f"{prefix}.step_{index}.continue_on_error",
+                    "status": coe_status,
+                    "reason": coe_reason,
+                    "path": workflow_path,
+                }
+            )
+        if "uses" in step:
+            uses = step.get("uses")
+            status, reason = _action_status(uses)
+            if status == "FAIL":
+                counters[0] += 1
+            elif status == "UNKNOWN":
+                counters[1] += 1
+            findings.append(
+                {
+                    "id": f"{prefix}.step_{index}.action_trust",
+                    "status": status,
+                    "reason": reason,
+                    "path": workflow_path,
+                }
+            )
+            if isinstance(uses, str) and uses.startswith("./"):
+                local_actions.add(uses[2:].rstrip("/"))
+
+
 def _job_analysis(
     repo: Path,
     revision: str,
@@ -479,15 +619,33 @@ def _job_analysis(
             }
         )
 
+    gate_jobs: list[tuple[str, dict[str, Any]]] = []
+    gate_skippable: list[str] = []
+    gate_verified = False
     if job.get("needs") is not None:
-        findings.append(
-            {
-                "id": f"{context}.needs",
-                "status": "UNKNOWN",
-                "reason": "required_job_needs_dependency_can_suppress_context_execution",
-                "path": workflow_path,
-            }
-        )
+        violations, gate_skippable = _gate_assessment(jobs, job)
+        gate_verified = not violations
+        if gate_verified:
+            needed_ids = _needs_list(job.get("needs")) or []
+            gate_jobs = [(name, jobs[name]) for name in needed_ids]
+            findings.append(
+                {
+                    "id": f"{context}.needs",
+                    "status": "PASS",
+                    "reason": "required_job_is_a_verified_gate_over_its_needs",
+                    "path": workflow_path,
+                }
+            )
+        else:
+            findings.append(
+                {
+                    "id": f"{context}.needs",
+                    "status": "UNKNOWN",
+                    "reason": "required_job_needs_dependency_can_suppress_context_execution",
+                    "detail": ",".join(violations),
+                    "path": workflow_path,
+                }
+            )
     else:
         findings.append(
             {
@@ -526,7 +684,16 @@ def _job_analysis(
                 )
 
     job_if = _normalize_if(job.get("if"))
-    if job_if in {"false", "cancelled()"}:
+    if gate_verified:
+        findings.append(
+            {
+                "id": f"{context}.job_if",
+                "status": "PASS",
+                "reason": "required_gate_job_always_runs",
+                "path": workflow_path,
+            }
+        )
+    elif job_if in {"false", "cancelled()"}:
         findings.append(
             {
                 "id": f"{context}.job_if",
@@ -577,36 +744,32 @@ def _job_analysis(
         return findings, set()
 
     local_actions: set[str] = set()
-    action_failures = 0
-    action_unknowns = 0
-    for index, step in enumerate(steps):
-        coe_status, coe_reason = _continue_on_error(step.get("continue-on-error"))
-        if coe_status != "PASS":
+    counters = [0, 0]
+    # A verified gate also owns the steps of the jobs it needs; steps of a job that may be
+    # skipped never count towards a required category.
+    scopes: list[tuple[str, list[dict[str, Any]]]] = [(context, steps)]
+    category_steps = list(steps)
+    for name, spec_job in gate_jobs:
+        needed_steps = spec_job.get("steps")
+        if not isinstance(needed_steps, list) or not all(
+            isinstance(step, dict) for step in needed_steps
+        ):
             findings.append(
                 {
-                    "id": f"{context}.step_{index}.continue_on_error",
-                    "status": coe_status,
-                    "reason": coe_reason,
+                    "id": f"{context}.{name}.steps",
+                    "status": "UNKNOWN",
+                    "reason": "needed_job_steps_not_static_list",
                     "path": workflow_path,
                 }
             )
-        if "uses" in step:
-            uses = step.get("uses")
-            status, reason = _action_status(uses)
-            if status == "FAIL":
-                action_failures += 1
-            elif status == "UNKNOWN":
-                action_unknowns += 1
-            findings.append(
-                {
-                    "id": f"{context}.step_{index}.action_trust",
-                    "status": status,
-                    "reason": reason,
-                    "path": workflow_path,
-                }
-            )
-            if isinstance(uses, str) and uses.startswith("./"):
-                local_actions.add(uses[2:].rstrip("/"))
+            continue
+        scopes.append((f"{context}.{name}", needed_steps))
+        if name not in gate_skippable:
+            category_steps.extend(needed_steps)
+
+    for prefix, scope_steps in scopes:
+        _scan_steps(prefix, scope_steps, workflow_path, findings, counters, local_actions)
+    action_failures, action_unknowns = counters
 
     if action_failures == 0 and action_unknowns == 0:
         findings.append(
@@ -619,7 +782,7 @@ def _job_analysis(
         )
 
     for category in spec["categories"]:
-        status, reason = _category_status(category, steps)
+        status, reason = _category_status(category, category_steps)
         findings.append(
             {
                 "id": f"{context}.category.{category}",

@@ -846,3 +846,294 @@ def test_cli_three_identity_mode_writes_a_source_bound_report(
     }
     for key in ("trusted_validator", "comparison_base", "candidate"):
         assert report[key]["tree"] == git(repo, "rev-parse", f"{report[key]['sha']}^{{tree}}")
+
+
+# --------------------------------------------------------------------------- #
+# A required job that is a gate over other jobs (`needs`): precise acceptance.
+# --------------------------------------------------------------------------- #
+
+GATED_CI_YAML = f"""name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      packaging: ${{{{ steps.scope.outputs.packaging }}}}
+    steps:
+      - uses: actions/checkout@{PIN}
+      - id: scope
+        run: python3 scripts/ci_change_scope.py
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@{PIN}
+      - uses: ./.github/actions/quality-bootstrap
+      - name: Ruff lint
+        run: ruff check .
+      - name: Ruff format
+        if: ${{{{ success() || failure() }}}}
+        run: ruff format --check .
+      - name: Mypy strict
+        if: ${{{{ success() || failure() }}}}
+        run: |
+          set -o pipefail
+          mypy src/commander_lab | tee mypy.txt
+      - name: Compile
+        if: ${{{{ success() || failure() }}}}
+        run: python -m compileall -q src tests
+      - name: Secret-pattern scan
+        if: ${{{{ success() || failure() }}}}
+        run: |
+          matches="$(git grep -n secret || true)"
+          if [[ -n "$matches" ]]; then
+            echo "Potential secret material found."
+            exit 1
+          fi
+      - name: Build wheel
+        if: ${{{{ success() || failure() }}}}
+        run: python -m pip wheel --no-deps --wheel-dir dist .
+  tests:
+    needs: changes
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix: ${{{{ fromJSON(needs.changes.outputs.test_matrix) }}}}
+    steps:
+      - uses: actions/checkout@{PIN}
+      - name: Test suite
+        run: |
+          set -euo pipefail
+          pytest -q --shards=4 tests/unit
+  packaging:
+    needs: changes
+    if: ${{{{ needs.changes.outputs.packaging == 'true' }}}}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@{PIN}
+      - run: python scripts/verify_packaging_smoke.py smoke
+  quality:
+    if: always()
+    needs: [changes, lint, tests, packaging]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@{PIN}
+      - name: Every needed job succeeded
+        shell: bash
+        env:
+          CHANGES: ${{{{ needs.changes.result }}}}
+          LINT: ${{{{ needs.lint.result }}}}
+          TESTS: ${{{{ needs.tests.result }}}}
+          PACKAGING: ${{{{ needs.packaging.result }}}}
+          PACKAGING_NEEDED: ${{{{ needs.changes.outputs.packaging }}}}
+        run: |
+          set -euo pipefail
+          python3 scripts/ci_gate.py --job changes="$CHANGES" --job lint="$LINT" --job tests="$TESTS" --job packaging="$PACKAGING" --allow-skipped packaging --packaging-needed "$PACKAGING_NEEDED"
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@{PIN}
+      - name: Dependency audit
+        run: pip-audit --strict --no-deps -r requirements.txt
+      - name: CycloneDX SBOM
+        run: cyclonedx-py environment --output-format JSON --output-file sbom.json
+      - name: License report
+        run: pip-licenses --format=json --output-file=licenses.json
+"""
+
+
+def _gated_report(
+    repository: tuple[Path, str], edit: Callable[[dict[Any, Any]], None] | None = None
+) -> dict[str, Any]:
+    repo, base = repository
+
+    def mutate(root: Path) -> None:
+        write(root, ".github/workflows/ci.yml", GATED_CI_YAML)
+        if edit is not None:
+            mutate_yaml(root, ".github/workflows/ci.yml", edit)
+
+    head = candidate(repo, base, mutate, "gated quality")
+    return guard.inspect_required_check_definitions(repo, base, head)
+
+
+def _quality_findings(report: dict[str, Any]) -> dict[str, dict[str, str]]:
+    return {
+        item["id"]: item
+        for item in report["invariant_results"]
+        if str(item["id"]).startswith("quality.")
+    }
+
+
+def _gate_step(document: dict[Any, Any]) -> dict[str, Any]:
+    return document["jobs"]["quality"]["steps"][1]
+
+
+def test_gate_job_with_complete_pattern_is_accepted(repository: tuple[Path, str]) -> None:
+    report = _gated_report(repository)
+    findings = _quality_findings(report)
+    assert [k for k, v in findings.items() if v["status"] != "PASS"] == []
+    assert report["overall_classification"] == "GATE_DEFINITION_CHANGED_REVIEW_REQUIRED"
+
+
+def _flagged(report: dict[str, Any]) -> bool:
+    return any(item["status"] != "PASS" for item in _quality_findings(report).values())
+
+
+@pytest.mark.parametrize(
+    "condition",
+    ["success() || failure()", "!cancelled()", "${{ needs.lint.result == 'success' }}", None],
+)
+def test_gate_requires_job_if_exactly_always(
+    repository: tuple[Path, str], condition: str | None
+) -> None:
+    def edit(document: dict[Any, Any]) -> None:
+        if condition is None:
+            document["jobs"]["quality"].pop("if")
+        else:
+            document["jobs"]["quality"]["if"] = condition
+
+    report = _gated_report(repository, edit)
+    assert _flagged(report)
+    assert _quality_findings(report)["quality.job_if"]["status"] != "PASS" or (
+        _quality_findings(report)["quality.needs"]["status"] != "PASS"
+    )
+
+
+def test_gate_accepts_the_expression_spelling_of_always(repository: tuple[Path, str]) -> None:
+    report = _gated_report(
+        repository, lambda d: d["jobs"]["quality"].update({"if": "${{ always() }}"})
+    )
+    assert not _flagged(report)
+
+
+@pytest.mark.parametrize("dropped", ["changes", "lint", "tests", "packaging"])
+def test_gate_must_inspect_every_needed_job_result(
+    repository: tuple[Path, str], dropped: str
+) -> None:
+    def edit(document: dict[Any, Any]) -> None:
+        env = _gate_step(document)["env"]
+        env[dropped.upper()] = "success"
+
+    report = _gated_report(repository, edit)
+    assert _quality_findings(report)["quality.needs"]["status"] != "PASS"
+
+
+@pytest.mark.parametrize(
+    "step_edit",
+    [
+        {"if": "failure()"},
+        {"if": "success()"},
+        {"if": "${{ success() || failure() }}"},
+        {"continue-on-error": True},
+    ],
+)
+def test_gate_step_inspecting_results_must_always_run_and_block(
+    repository: tuple[Path, str], step_edit: dict[str, Any]
+) -> None:
+    report = _gated_report(repository, lambda d: _gate_step(d).update(step_edit))
+    assert _flagged(report)
+    assert _quality_findings(report)["quality.needs"]["status"] != "PASS"
+
+
+def test_gate_step_masked_with_or_true_is_not_inspection(repository: tuple[Path, str]) -> None:
+    def edit(document: dict[Any, Any]) -> None:
+        step = _gate_step(document)
+        step["run"] = step["run"].rstrip("\n") + " || true\n"
+
+    assert _quality_findings(_gated_report(repository, edit))["quality.needs"]["status"] != "PASS"
+
+
+def test_gate_job_continue_on_error_is_flagged(repository: tuple[Path, str]) -> None:
+    report = _gated_report(
+        repository, lambda d: d["jobs"]["quality"].update({"continue-on-error": True})
+    )
+    assert _flagged(report)
+
+
+@pytest.mark.parametrize("needed", ["lint", "tests", "changes"])
+def test_needed_job_that_may_fail_silently_is_flagged(
+    repository: tuple[Path, str], needed: str
+) -> None:
+    report = _gated_report(
+        repository, lambda d: d["jobs"][needed].update({"continue-on-error": True})
+    )
+    assert _quality_findings(report)["quality.needs"]["status"] != "PASS"
+
+
+@pytest.mark.parametrize("needed", ["lint", "tests"])
+def test_needed_job_with_skip_condition_is_flagged(
+    repository: tuple[Path, str], needed: str
+) -> None:
+    report = _gated_report(
+        repository,
+        lambda d: d["jobs"][needed].update({"if": "${{ github.event_name == 'push' }}"}),
+    )
+    assert _quality_findings(report)["quality.needs"]["status"] != "PASS"
+
+
+def test_skippable_job_requires_gate_to_mention_skipped(repository: tuple[Path, str]) -> None:
+    def edit(document: dict[Any, Any]) -> None:
+        step = _gate_step(document)
+        step["run"] = step["run"].replace("--allow-skipped packaging ", "")
+
+    assert _quality_findings(_gated_report(repository, edit))["quality.needs"]["status"] != "PASS"
+
+
+def test_skippable_job_condition_must_come_from_a_needed_jobs_output(
+    repository: tuple[Path, str],
+) -> None:
+    report = _gated_report(
+        repository,
+        lambda d: d["jobs"]["packaging"].update({"if": "${{ github.actor != 'nobody' }}"}),
+    )
+    assert _quality_findings(report)["quality.needs"]["status"] != "PASS"
+
+
+def test_skippable_job_condition_output_must_be_inspected_by_the_gate(
+    repository: tuple[Path, str],
+) -> None:
+    def edit(document: dict[Any, Any]) -> None:
+        _gate_step(document)["env"].pop("PACKAGING_NEEDED")
+
+    assert _quality_findings(_gated_report(repository, edit))["quality.needs"]["status"] != "PASS"
+
+
+def test_transitive_dependency_outside_the_gate_needs_is_flagged(
+    repository: tuple[Path, str],
+) -> None:
+    def edit(document: dict[Any, Any]) -> None:
+        document["jobs"]["prepare"] = {"runs-on": "ubuntu-latest", "steps": [{"run": "true"}]}
+        document["jobs"]["tests"]["needs"] = ["changes", "prepare"]
+
+    assert _quality_findings(_gated_report(repository, edit))["quality.needs"]["status"] != "PASS"
+
+
+def test_needs_naming_a_missing_job_is_flagged(repository: tuple[Path, str]) -> None:
+    report = _gated_report(
+        repository, lambda d: d["jobs"]["quality"].update({"needs": ["changes", "lint", "ghost"]})
+    )
+    assert _quality_findings(report)["quality.needs"]["status"] != "PASS"
+
+
+@pytest.mark.parametrize(
+    ("job", "needle"),
+    [("lint", "ruff check"), ("lint", "mypy src"), ("tests", "pytest -q")],
+)
+def test_gate_does_not_hide_a_missing_required_command_in_a_needed_job(
+    repository: tuple[Path, str], job: str, needle: str
+) -> None:
+    report = _gated_report(repository, lambda d: remove_step_containing(d, job, needle))
+    assert report["overall_classification"] == "FAIL"
+
+
+def test_commands_only_in_a_skippable_job_do_not_count(repository: tuple[Path, str]) -> None:
+    def edit(document: dict[Any, Any]) -> None:
+        remove_step_containing(document, "tests", "pytest -q")
+        document["jobs"]["packaging"]["steps"].append({"run": "pytest -q"})
+
+    assert _gated_report(repository, edit)["overall_classification"] == "FAIL"

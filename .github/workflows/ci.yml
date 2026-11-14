@@ -257,13 +257,16 @@ jobs:
   quality:
     # The required context. It is green only when every job it needs ended `success`; the one
     # accepted `skipped` is the packaging job on a pull request whose diff has no packaging
-    # input (changes.outputs.packaging == 'false', and `changes` itself succeeded). `always()`
-    # keeps it from being skipped when a needed job fails, and it fails then.
+    # input (changes.outputs.packaging == 'false', and `changes` itself succeeded).
+    # `if: always()` keeps it from being skipped when a needed job fails or is cancelled; it
+    # fails then. scripts/ci_gate.py holds the decision (tests/unit/test_ci_gate.py) and
+    # scripts/verify_required_check_definitions.py verifies this exact pattern.
     if: always()
     needs: [changes, lint, tests, packaging]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Every needed job succeeded
         shell: bash
         env:
@@ -273,23 +276,8 @@ jobs:
           PACKAGING: ${{ needs.packaging.result }}
           PACKAGING_NEEDED: ${{ needs.changes.outputs.packaging }}
         run: |
-          set -u
-          status=0
-          require() {
-            if [ "$2" != success ]; then
-              echo "::error::job $1 finished as '$2', not success"
-              status=1
-            fi
-          }
-          require changes "$CHANGES"
-          require lint "$LINT"
-          require tests "$TESTS"
-          if [ "$PACKAGING" = skipped ] && [ "$CHANGES" = success ] && [ "$PACKAGING_NEEDED" = false ]; then
-            echo "packaging skipped: no packaging input changed"
-          else
-            require packaging "$PACKAGING"
-          fi
-          exit "$status"
+          set -euo pipefail
+          python3 scripts/ci_gate.py --job changes="$CHANGES" --job lint="$LINT" --job tests="$TESTS" --job packaging="$PACKAGING" --allow-skipped packaging --packaging-needed "$PACKAGING_NEEDED"
 
   security:
     runs-on: ubuntu-latest
