@@ -1,0 +1,28 @@
+{
+  "mode": "smoke",
+  "command": [
+    "java",
+    "-XX:+UseSerialGC",
+    "-Dh2.bindAddress=127.0.0.1",
+    "-Xmx3g",
+    "-jar",
+    "/home/hatch/workspace/github/wt-1298/engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar",
+    "full-game"
+  ],
+  "total_wall_s": 115.145,
+  "python_process_cpu_s": 13.749,
+  "children_cpu_s": 127.094,
+  "peak_rss_mb": 1138.32,
+  "games": [
+    {
+      "seed": 1,
+      "game_in_jvm": 1,
+      "status": "finished",
+      "winner": 3,
+      "decisions": 3193,
+      "semantic_hash": "1009e97ca3ea9f10aa9d2f011b78a248029b54553d2cc7d610ac5e162d798b61",
+      "wall_s": 112.95,
+      "jvm_cpu_s": 126.65
+    }
+  ]
+}
