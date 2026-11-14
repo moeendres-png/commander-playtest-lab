@@ -253,7 +253,7 @@ def test_schema_13_migration_opens_a_schema_12_store(tmp_path: Path) -> None:
     version = store.connection.execute(
         "SELECT value FROM meta WHERE key = 'schema_version'"
     ).fetchone()[0]
-    assert version == "14"
+    assert version == "15"
     assert store.count("card_ruling") == 0
     assert store.count("card_ruling_source") == 0
     assert store.connection.execute("SELECT COUNT(*) FROM universe_profile").fetchone()[0] == 1
