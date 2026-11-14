@@ -62,7 +62,6 @@ jobs:
             src/commander_lab/models/game.py
             src/commander_lab/models/rules.py
             src/commander_lab/candidates/**
-            src/commander_lab/whole_deck/decision_authority.py
             artifacts/architecture/FUTURE_XMAGE_SCENARIO_SCHEMA.json
             docs/architecture/deckbuilding-simulation-separation.md
             config/rules_engines.json

@@ -5,7 +5,7 @@ from pathlib import Path
 
 from typer.testing import CliRunner
 
-from commander_lab.cli.app import app
+from commander_lab.cli.main import app
 from commander_lab.models import RuntimeValidationLevel
 from commander_lab.models.rules import ValidationLevel
 from commander_lab.storage import check_database, migrate_database

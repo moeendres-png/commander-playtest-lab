@@ -3,7 +3,6 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from commander_lab.whole_deck.knowledge_quality import build_knowledge_quality_report
 from commander_lab.whole_deck.models import PolicyId
 from commander_lab.whole_deck.policies import get_policy
 from commander_lab.whole_deck.search import (
@@ -49,11 +48,10 @@ def test_search_archive_persists_required_provenance(tmp_path: Path) -> None:
         assert key in row
 
 
-def test_project_pool_smoke_uses_all_795_candidates_and_preserves_unknown_semantics(
+def test_project_pool_has_795_candidates_and_preserves_unknown_semantics(
     repo_root: Path,
 ) -> None:
     context = WholeDeckSearchContext.from_project(repo_root)
-    quality = build_knowledge_quality_report(repo_root, context=context)
     structurally_modeled = sum(
         card.effective_semantic_state == SEMANTIC_STRUCTURALLY_MODELED
         for card in context.cards.values()
@@ -68,10 +66,6 @@ def test_project_pool_smoke_uses_all_795_candidates_and_preserves_unknown_semant
 
     assert len(context.cards) == 795
     assert structurally_modeled + known_no_functional + unknown == len(context.cards)
-    assert structurally_modeled == quality["structurally_usable_count"] == 542
-    assert known_no_functional == quality["known_no_functional_rules_role_count"] == 18
-    assert unknown == quality["semantic_unknown_count"] == 235
-    assert quality["structurally_unmodeled_count"] == 253
     assert all(
         card.semantic_known == (card.effective_semantic_state == SEMANTIC_STRUCTURALLY_MODELED)
         for card in context.cards.values()

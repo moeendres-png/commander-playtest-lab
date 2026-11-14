@@ -1,0 +1,99 @@
+{
+  "mode": "full",
+  "command": [
+    "java",
+    "-XX:+UseSerialGC",
+    "-Dh2.bindAddress=127.0.0.1",
+    "-Xmx3g",
+    "-Dcommanderlab.fullGame.gamesPerJvm=8",
+    "-jar",
+    "/home/hatch/workspace/github/wt-1298/engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar",
+    "full-game"
+  ],
+  "total_wall_s": 720.079,
+  "python_process_cpu_s": 268.78,
+  "children_cpu_s": 457.016,
+  "peak_rss_mb": 784.47,
+  "games": [
+    {
+      "seed": 1,
+      "game_in_jvm": 1,
+      "status": "finished",
+      "winner": 3,
+      "decisions": 3193,
+      "semantic_hash": "1009e97ca3ea9f10aa9d2f011b78a248029b54553d2cc7d610ac5e162d798b61",
+      "wall_s": 67.306,
+      "jvm_cpu_s": 76.34
+    },
+    {
+      "seed": 2,
+      "game_in_jvm": 2,
+      "status": "finished",
+      "winner": 1,
+      "decisions": 4219,
+      "semantic_hash": "8380b87b6fb9cbbaa819bf4b4bc588c58e1fe00eb66b3d44c09fa878dbd9d43f",
+      "wall_s": 102.189,
+      "jvm_cpu_s": 63.64
+    },
+    {
+      "seed": 3,
+      "game_in_jvm": 3,
+      "status": "finished",
+      "winner": 3,
+      "decisions": 8498,
+      "semantic_hash": "31a85fde5ea0d17be35ea6e87424a70aaf4724aa028c4760b4a5150e6f87b19b",
+      "wall_s": 206.096,
+      "jvm_cpu_s": 131.83
+    },
+    {
+      "seed": 4,
+      "game_in_jvm": 4,
+      "status": "finished",
+      "winner": 1,
+      "decisions": 5255,
+      "semantic_hash": "40f7c1fd326c70a4fa82c8ba4c0efa63f73e5566d52a368bb6ee2735ae40eff9",
+      "wall_s": 77.067,
+      "jvm_cpu_s": 45.1
+    },
+    {
+      "seed": 5,
+      "game_in_jvm": 5,
+      "status": "finished",
+      "winner": 0,
+      "decisions": 5446,
+      "semantic_hash": "8167562b6c8e065e8076072e69800511f4614da21ce11ba675243245f53aee75",
+      "wall_s": 126.666,
+      "jvm_cpu_s": 57.37
+    },
+    {
+      "seed": 6,
+      "game_in_jvm": 6,
+      "status": "finished",
+      "winner": 1,
+      "decisions": 5065,
+      "semantic_hash": "dce2fcb30fcb40ef096f4ebc52cb14ee0ee66213bc4002e4d47f1fd90ea8640a",
+      "wall_s": 73.776,
+      "jvm_cpu_s": 43.95
+    },
+    {
+      "seed": 7,
+      "game_in_jvm": 7,
+      "status": "finished",
+      "winner": 1,
+      "decisions": 2715,
+      "semantic_hash": "afe8ce78a496b85c3c8da31a03433d9ccab8c237bda83757af399aa19ba849e3",
+      "wall_s": 25.341,
+      "jvm_cpu_s": 16.01
+    },
+    {
+      "seed": 8,
+      "game_in_jvm": 8,
+      "status": "finished",
+      "winner": 1,
+      "decisions": 3235,
+      "semantic_hash": "0f6f440d1129bef43f3acefc6fd8c86b17c3979093c4f51604bd8c53c1632c79",
+      "wall_s": 34.86,
+      "jvm_cpu_s": 22.13
+    }
+  ]
+}

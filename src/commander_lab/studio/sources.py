@@ -304,8 +304,8 @@ QUALIFIED_SOURCES: tuple[EvidenceSource, ...] = (
         ),
         status="VERIFIED",
         status_rationale=(
-            "Fully open and licensed REST API. Adapter in src/commander_lab/commander_spellbook.py "
-            "is verified and operational."
+            "Fully open and licensed REST API. The adapter module was removed (#1268); "
+            "no code in this repository calls the API today."
         ),
     ),
     EvidenceSource(
@@ -685,11 +685,14 @@ def calculate_card_coverage_record(
     notes: str
     if is_long_tail_candidate:
         notes = (
-            f"Long-tail candidate: {corpus_hits}/975 corpus hits with engine relevance "
+            f"Long-tail candidate: {corpus_hits}/{corpus_denominator} corpus hits with engine relevance "
             f"(group={group}, MV={mana_value:g}, roles={roles or 'none'})."
         )
     elif corpus_hits == 0:
-        notes = "Unobserved in curated 975-deck corpus (0 hits != weak; missing observation)."
+        notes = (
+            f"Unobserved in curated {corpus_denominator}-deck corpus "
+            "(0 hits != weak; missing observation)."
+        )
     else:
         notes = f"Corpus observed ({corpus_hits}/{corpus_denominator} hits)."
 
@@ -734,7 +737,7 @@ def calculate_pool_gap_matrix(
     commander_names: Sequence[str] = ("Chulane, Teller of Tales",),
     combos_path: str | Path | None = None,
 ) -> PoolGapMatrixPayload:
-    """Calculate the 801-card data gap matrix and research priority scores (P0 Deliverable 2)."""
+    """Calculate the 927-card data gap matrix and research priority scores (P0 Deliverable 2)."""
     pool = pool_cards(store, commander_names)
     raw_cards = pool.get("cards", [])
     if not isinstance(raw_cards, list):
@@ -855,7 +858,7 @@ def write_gap_matrix_json(
     *,
     payload: PoolGapMatrixPayload | None = None,
 ) -> Path:
-    """Calculate and write the 801-card gap matrix JSON to disk."""
+    """Calculate and write the 927-card gap matrix JSON to disk."""
     out_path = Path(path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     if payload is None:

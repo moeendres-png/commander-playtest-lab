@@ -7,7 +7,6 @@ from commander_lab.pod_scheduling_5p import BalancedFivePlayerSensitivitySchedul
 from commander_lab.repositories.opponents import CurrentOpponentRepository
 from commander_lab.tools import CommanderToolService
 from commander_lab.whole_deck.discoverability import build_discoverability_report
-from commander_lab.whole_deck.knowledge_quality import build_knowledge_quality_report
 from commander_lab.whole_deck.models import PolicyId
 from commander_lab.whole_deck.multiplayer import (
     card_multiplayer_leverage,
@@ -19,7 +18,6 @@ from commander_lab.whole_deck.orchestrator import (
     WholeDeckCampaignOrchestrator,
 )
 from commander_lab.whole_deck.policies import get_policy
-from commander_lab.whole_deck.readiness import build_campaign_readiness
 from commander_lab.whole_deck.search import WholeDeckSearchContext, WholeDeckSearchEngine
 from commander_lab.whole_deck.search_context import SearchCard
 from commander_lab.whole_deck.search_models import (
@@ -225,30 +223,6 @@ def test_seeded_package_exploration_does_not_starve_smaller_viable_package() -> 
         if additions and additions[0].startswith("zeta-small"):
             seen_packages.add("zeta-small")
     assert seen_packages == {"alpha-large", "zeta-small"}
-
-
-def test_unknown_cause_audit_reconciles_current_unknowns(repo_root) -> None:
-    report = build_knowledge_quality_report(repo_root)
-    assert sum(report["semantic_unknown_cause_counts"].values()) == report["semantic_unknown_count"]
-    assert report["semantic_recoverable_parser_gap_count"] == 0
-    assert report["semantic_unknown_count"] > 0
-
-
-def test_campaign_readiness_includes_separate_five_player_sensitivity(repo_root) -> None:
-    gates = {
-        "ci_status": "PASS",
-        "security_status": "PASS",
-        "windows_status": "PASS",
-        "j_p6_status": "PASS",
-        "j_final_status": "PASS",
-        "release_status": "PASS",
-    }
-    report = build_campaign_readiness(repo_root, external_gates=gates, smoke_status="PASS")
-    assert report["primary_pod_scheduler_status"] == "PASS"
-    assert report["five_player_sensitivity_status"] == "PASS"
-    assert report["five_player_full_cycle_combinations"] == 1365
-    assert report["five_player_full_cycle_coverage"]["primary_evidence"] is False
-    assert report["ready_for_official_campaign"] is True
 
 
 def test_public_whole_deck_run_can_add_five_player_sensitivity(repo_root) -> None:

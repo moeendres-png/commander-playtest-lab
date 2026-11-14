@@ -52,22 +52,22 @@ attached. Read the packet's own status/contract before relying on it.
 
 `decision_quality/` (underscore) and `decision-quality/` (hyphen) both exist and are
 non-empty. **They are not equivalent, and an earlier version of this file wrongly implied
-they were.** Adjudicated 2026-09-29:
+they were.** Adjudicated 2026-09-29 and re-checked 2026-11-14:
 
 | | `decision_quality/` | `decision-quality/` |
 |---|---|---|
-| Referenced by workflows / `src/` | 2 / 1 | 0 / 0 |
+| Referenced by workflows / `src/` (historical 2026-09-29) | 2 / 1 (both retired on `main`) | 0 / 0 |
 | Last content change | 2026-08-20 / 08-21 | 2026-08-15 |
-| Status | **live and machine-enforced** | **orphaned provenance** |
+| Status | **policy record (consumers retired)** | **orphaned provenance** |
 
-`decision_quality/MODEL_PRECISION_POLICY_CURRENT.md` is read by a CI gate that fails the job
-unless three exact retirement markers are present
-(`.github/workflows/model-resolution-measurement.yml:65-72`), and by production code
-(`src/commander_lab/whole_deck/optimizer_v2_decision_runtime.py:49`).
+`decision_quality/MODEL_PRECISION_POLICY_CURRENT.md` documents the retirement of the legacy
+model-precision scalar gate; both historical enforcement consumers cited in the 2026-09-29 audit
+(`.github/workflows/model-resolution-measurement.yml` and
+`src/commander_lab/whole_deck/optimizer_v2_decision_runtime.py`) have since been retired on `main`.
 
-That makes it a **documented exception** to the `AGENTS.md` §3 rule below: the rule is the
-correct default, and this one file is independently corroborated by enforcement. It is not a
-precedent for naming other documents `..._CURRENT`.
+That makes it a **documented exception** to the `AGENTS.md` §3 rule below (originally
+corroborated by CI enforcement when created). It is not a precedent for naming other
+documents `..._CURRENT`.
 
 Read the `README.md` inside each directory before assuming anything about either.
 

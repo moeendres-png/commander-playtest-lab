@@ -19,7 +19,6 @@ from commander_lab.pod_scheduling_5p import BalancedFivePlayerSensitivitySchedul
 from commander_lab.repositories.opponents import CurrentOpponentRepository
 from commander_lab.whole_deck.campaign import run_balanced_paired_campaign
 from commander_lab.whole_deck.discoverability import build_forced_inclusion_feasibility_report
-from commander_lab.whole_deck.knowledge_quality import build_knowledge_quality_report
 from commander_lab.whole_deck.models import PolicyId
 from commander_lab.whole_deck.multiplayer import multiplayer_damage_attribution
 from commander_lab.whole_deck.policies import get_policy
@@ -40,43 +39,6 @@ def _search_engine(context, *, seed: int = 7) -> WholeDeckSearchEngine:
             archive_limit=32,
         ),
     )
-
-
-def test_verified_empty_rules_text_is_complete_fact_not_missing_oracle(repo_root) -> None:
-    report = build_knowledge_quality_report(repo_root)
-    expected = {
-        "Armored Cancrix",
-        "Balduvian Barbarians",
-        "Bonebreaker Giant",
-        "Canyon Minotaur",
-        "Coral Eel",
-        "Coral Merfolk",
-        "Glory Seeker",
-        "Goblin Piker",
-        "Goblin Roughrider",
-        "Hill Giant",
-        "Jhessian Lookout",
-        "Maritime Guard",
-        "Ogre Resister",
-        "Phyrexian Hulk",
-        "Savannah Lions",
-        "Scoria Elemental",
-        "Siege Mastodon",
-        "Stonework Puma",
-    }
-    assert set(report["verified_empty_rules_text_cards"]) == expected
-    assert report["verified_empty_rules_text_count"] == 18
-    assert report["candidate_fact_coverage_count"] == report["candidate_universe_count"] == 795
-    assert report["truly_missing_fact_count"] == 0
-    assert report["rules_text_nonempty_count"] == 777
-    assert report["structurally_usable_count"] == 542
-    assert report["structurally_unmodeled_count"] == 253
-    assert report["known_no_functional_rules_role_count"] == 18
-    assert report["semantic_unknown_count"] == 235
-    assert report["semantic_resolved_count"] == 560
-    assert report["known_no_functional_evidence_count"] == 18
-    assert "known_no_functional_rules_role" not in report["semantic_unknown_cause_counts"]
-    assert report["semantic_unknown_cause_counts"].get("oracle_facts_missing", 0) == 0
 
 
 def test_unknown_search_prior_uses_separate_neutral_land_and_nonland_medians() -> None:

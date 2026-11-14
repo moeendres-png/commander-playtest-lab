@@ -13,9 +13,17 @@ has its own header and the parts are read one after another in number order):
 - ``commander_bracket_signals_<core|upgraded|optimized|cedh>``: the same per bracket page.
 - ``card_global_signals``: EDHREC inclusion over all decks (commander independent). Price
   columns of this file are not read.
-- ``spellbook_card_links``: number of combo variants a card is part of (commander
-  independent). The file's partner count is not stored: no strength component reads it,
-  and the value stays available in the source file.
+- ``spellbook_card_links``: combo quality of a card (commander independent): the number
+  of combo variants it is part of, the number of its distinct combo partners that are
+  in the collection (``partners_in_collection``, when the file carries the column) and
+  the number of its variants that use exactly two cards (derived from ``variant_ids``
+  when the file carries that column: a variant id joins the spellbook card ids of the
+  variant, one id per card slot, a template slot counting as one card). The strength
+  index's combos component ranks the three figures together (``strength.combo_quality``),
+  so a two-card combo with its partner in the collection counts more than a long list of
+  variants nobody can build. What the file does not publish stays unknown: the result a
+  combo produces and the partners of one single variant are not in the file, so neither
+  is stored.
 - ``topdeck_<name>_decks`` (any file of that shape, one commander per file): complete
   tournament lists. The commander of a file is the one written ALONE in the commander
   section of its lists (the most common one; ``--commander`` breaks a tie); a list counts
@@ -71,9 +79,11 @@ recognised, next to the names that were imported.
 A value the source does not publish is stored as NULL (unknown), never as 0. A card a
 source does not list gets no row. When a card is listed under several headings of one
 commander page with the same figures, the first row is kept. Re-importing replaces the rows
-of each signal and commander the import writes, so the import is idempotent; a file with no
-valid row replaces nothing and the report says so (``NOTHING_REPLACED``, with the number of
-existing rows that were kept). Source rows of
+of each signal a file declares, for every commander the import writes, so the import is
+idempotent; a declared signal the file no longer writes (an older file shape) loses its
+stored rows with the import instead of keeping stale ones, and the report counts them as
+replaced. A file with no valid row replaces nothing and the report says so
+(``NOTHING_REPLACED``, with the number of existing rows that were kept). Source rows of
 a commander are never mixed with another commander's.
 """
 
@@ -113,6 +123,8 @@ SIGNAL_SYNERGY = "edhrec_commander_synergy"
 SIGNAL_BRACKET = "edhrec_bracket_inclusion"
 SIGNAL_GLOBAL = "edhrec_global_inclusion"
 SIGNAL_VARIANTS = "spellbook_variants"
+SIGNAL_PARTNERS = "spellbook_partners_in_collection"
+SIGNAL_TWO_CARD = "spellbook_two_card_variants"
 SIGNAL_TOURNAMENT = "tournament_lists"
 SIGNAL_SALT = "edhrec_salt"
 SIGNAL_COMBO_DECKS = "edhrec_combo_decks"
@@ -196,14 +208,22 @@ def _parts(folder: Path, base: str) -> list[Path]:
 
 
 def _rows(paths: list[Path], required: set[str]) -> Iterator[dict[str, str]]:
-    for path in paths:
+    for _part_index, row in _rows_by_part(paths, required):
+        yield row
+
+
+def _rows_by_part(paths: list[Path], required: set[str]) -> Iterator[tuple[int, dict[str, str]]]:
+    for part_index, path in enumerate(paths):
         with path.open(newline="", encoding="utf-8-sig") as handle:
             reader = csv.DictReader(handle)
             missing = required - set(reader.fieldnames or [])
             if missing:
                 raise ValueError(f"{path.name}: missing column(s) {', '.join(sorted(missing))}")
             for row in reader:
-                yield {key: (value or "") for key, value in row.items() if key is not None}
+                yield (
+                    part_index,
+                    {key: (value or "") for key, value in row.items() if key is not None},
+                )
 
 
 def _share(numerator: int | None, denominator: int | None) -> float | None:
@@ -395,12 +415,55 @@ def _global_rows(row: dict[str, str], card: str, report: FileReport) -> list[_Ro
     return [("", SIGNAL_GLOBAL, card, _share(numerator, denominator), numerator, denominator)]
 
 
+_VARIANT_ID_TOKEN = re.compile(r"-?\d+")
+
+
+def _variant_card_slots(variant_id: str) -> int:
+    """The card slots of one spellbook variant: its id joins the spellbook card ids of
+    the cards it uses (the id is the combo's page address), so the token count is the
+    card count of the combo. A template slot is written as a negative id (``--108`` in
+    the joined form) and counts as the one card it stands for."""
+    return len(_VARIANT_ID_TOKEN.findall(variant_id))
+
+
+def _two_card_variants(row: dict[str, str], variant_count: float | None) -> float | None:
+    """How many of the card's variants use exactly two cards, from the file's
+    ``variant_ids``. A card without variants has none of them (a counted 0, not an
+    unknown); without the ids of a card that has variants the figure is unknown."""
+    if variant_count is not None and variant_count == 0:
+        return 0.0
+    ids = row.get("variant_ids")
+    if ids is None or not ids.strip():
+        return None
+    return float(
+        sum(
+            1
+            for variant_id in ids.split(";")
+            if variant_id.strip() and _variant_card_slots(variant_id) == 2
+        )
+    )
+
+
 def _spellbook_rows(row: dict[str, str], card: str, report: FileReport) -> list[_Row]:
+    rows: list[_Row] = []
     value = _number(row.get("variant_count"))
     if value is None:
         reasons = report["null_value_reasons"]
         reasons["VARIANT_COUNT_NOT_NUMERIC"] = reasons.get("VARIANT_COUNT_NOT_NUMERIC", 0) + 1
-    return [("", SIGNAL_VARIANTS, card, value, None, None)]
+    rows.append(("", SIGNAL_VARIANTS, card, value, None, None))
+    if "partners_in_collection" in row:
+        partners = _number(row.get("partners_in_collection"))
+        if partners is None:
+            reasons = report["null_value_reasons"]
+            reasons["PARTNER_COUNT_NOT_NUMERIC"] = reasons.get("PARTNER_COUNT_NOT_NUMERIC", 0) + 1
+        rows.append(("", SIGNAL_PARTNERS, card, partners, None, None))
+    if "variant_ids" in row:
+        two_card = _two_card_variants(row, value)
+        if two_card is None:
+            reasons = report["null_value_reasons"]
+            reasons["VARIANT_IDS_MISSING"] = reasons.get("VARIANT_IDS_MISSING", 0) + 1
+        rows.append(("", SIGNAL_TWO_CARD, card, two_card, None, None))
+    return rows
 
 
 def _read_salt(paths: list[Path], report: FileReport) -> list[_Row]:
@@ -571,8 +634,8 @@ def _read_tournament_lists(
     required and read: it is only an in-memory grouping key that tells two lists of one
     tournament and date apart. Its value is never stored, logged or reported."""
     required = {"tournament", "date", "card_name", "section"}
-    lists: dict[tuple[str, str, str], tuple[set[str], set[str]]] = {}
-    for row in _rows(paths, required | {"player"}):
+    lists: dict[tuple[int, str, str, str], tuple[set[str], set[str]]] = {}
+    for part_index, row in _rows_by_part(paths, required | {"player"}):
         report["rows_read"] += 1
         if row["section"].strip() not in LIST_SECTIONS:
             report["rows_skipped"] += 1
@@ -580,7 +643,9 @@ def _read_tournament_lists(
                 report["skipped_reasons"].get("SECTION_NOT_COUNTED", 0) + 1
             )
             continue
-        identity = (row["tournament"], row["date"], row["player"])
+        # Scope list assembly per part file so legacy splits that reset "Liste 1"
+        # per file do not merge two different decks before deduplication via _ListKey.
+        identity = (part_index, row["tournament"], row["date"], row["player"])
         cards, listed_commanders = lists.setdefault(identity, (set(), set()))
         name = row["card_name"].strip()
         if row["section"].strip() == "commander":
@@ -608,7 +673,7 @@ def _read_tournament_lists(
     commander = commanders.resolve(chosen)
     report["commander"] = commander
     valid: set[_ListKey] = {
-        (identity[0], identity[1], identity[2], frozenset(cards))
+        (identity[1], identity[2], identity[3], frozenset(cards))
         for identity, (cards, listed) in lists.items()
         if listed == {chosen}
     }
@@ -631,12 +696,24 @@ def _tournament_signal_rows(commander: str, lists: set[_ListKey]) -> list[_Row]:
 
 
 def _store_rows(
-    store: StudioStore, rows: list[_Row], source_id: str, *, replace: bool = True
+    store: StudioStore,
+    rows: list[_Row],
+    source_id: str,
+    *,
+    replace: bool = True,
+    declared: Sequence[str] | None = None,
 ) -> tuple[int, int]:
     """Replace the rows of every (commander, signal) pair of ``rows``; returns (rows written,
-    existing rows that were replaced)."""
+    existing rows that were replaced).
+
+    ``declared`` names every signal the file declares: a replacing import then replaces the
+    rows of those signals wholesale (for the commanders of ``rows``), so the stored rows of
+    a declared signal this file did not write — an older file shape, say — go with the
+    import instead of staying behind as stale rows of the file, and count as replaced."""
     db = store.connection
     pairs = sorted({(row[0], row[1]) for row in rows})
+    if declared is not None:
+        pairs = sorted({(row[0], signal) for row in rows for signal in declared} | set(pairs))
     replaced = 0
     for pair in pairs:
         replaced += int(
@@ -911,7 +988,7 @@ def _file_signals(file_name: str, variant: str | None) -> list[str]:
     if file_name == GLOBAL_FILE:
         return [SIGNAL_GLOBAL]
     if file_name == SPELLBOOK_FILE:
-        return [SIGNAL_VARIANTS]
+        return [SIGNAL_VARIANTS, SIGNAL_PARTNERS, SIGNAL_TWO_CARD]
     if file_name == EDHTOP16_FILE:
         return [SIGNAL_EDHTOP16]
     if file_name == ATLAS_FILE:
@@ -1207,7 +1284,13 @@ def import_signals(
             rows = _read_file(kind, paths, variant, report, commanders)
             source_id = _register(store, paths)
             if source_id is not None and rows:
-                written, replaced = _store_rows(store, rows, source_id, replace=replace)
+                written, replaced = _store_rows(
+                    store,
+                    rows,
+                    source_id,
+                    replace=replace,
+                    declared=_file_signals(kind, variant),
+                )
                 report["rows_written"], report["rows_replaced"] = written, replaced
             else:
                 report["status"] = "NOTHING_REPLACED"

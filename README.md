@@ -151,8 +151,6 @@ For deck, physical inventory, allocation and opponent truth, use the current can
 
 ```text
 data/decision/DECISION_CONTRACT_CURRENT.json
-src/commander_lab/whole_deck/mechanics_fidelity.py
-src/commander_lab/whole_deck/optimizer_search.py
 src/commander_lab/engine/structural/fact_fidelity.py
 src/commander_lab/engine/structural/simulator_fidelity.py
 ```
@@ -244,17 +242,9 @@ alignment (`slot_alignment`, with the hash of the list that was actually played)
 games started before this alignment have other batch keys and are played again; baseline
 games are reused.
 
-Useful project commands include:
-
-```bash
-commander-lab validate-local --root .
-commander-lab generate-structural-profiles --root .
-commander-lab validate-structural --iterations 24 --workers 2 --seed 20260804 --root .
-commander-lab validate-pilots --iterations 24 --workers 2 --seed 20260804 --root .
-commander-lab probe-rules-engines --root .
-python -m commander_lab.optimizer_v2_cli preflight --manifest <manifest> --root .
-python -m commander_lab.optimizer_v2_cli fidelity --frontier <frontier> --root .
-```
+The `commander-lab` console script exposes `candidates normalize|validate|prepare-simulation`
+and `engine-verify` (the same check as `python -m commander_lab.engine.verify_cli`). The former
+validation, profile, probe, MCP and tool-server commands were removed.
 
 ## Optimization rule
 

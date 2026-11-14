@@ -166,14 +166,14 @@ def to_safe_slug(name: str) -> str:
 def neutral_player_labels(names: Iterable[str]) -> dict[str, str]:
     """Map distinct player names to neutral "Liste N" labels.
 
-    Numbering is per export file, in order of first appearance: the first
-    distinct name becomes "Liste 1", the second "Liste 2", and so on. The
-    same name keeps its label everywhere within one file, also across
-    tournaments, so deck grouping and counts are preserved exactly
-    (Owner decision #1108/#1246; Issue #1263). The name itself never
-    reaches an export file or a log line; locally it exists only in
-    the raw API cache under ``.cache/``, which is git-ignored and
-    never committed.
+    Numbering is per commander across all export files for that commander,
+    in order of first appearance: the first distinct name becomes "Liste 1",
+    the second "Liste 2", and so on. The same name keeps its label across
+    tournaments and across any split part files, so deck grouping and counts
+    are preserved without collisions (Owner decision #1108/#1246; Issue #1263,
+    #1309). The name itself never reaches an export file or a log line;
+    locally it exists only in the raw API cache under ``.cache/``, which is
+    git-ignored and never committed.
     """
     labels: dict[str, str] = {}
     for name in names:
@@ -459,19 +459,38 @@ def process_tournaments(
     return stats, decks_by_commander
 
 
+def _deck_part_chunks(
+    base_path: Path,
+    decks: list[DecklistRecord],
+    max_decks_per_file: int | None,
+) -> list[tuple[Path, list[DecklistRecord]]]:
+    if max_decks_per_file is None or len(decks) <= max_decks_per_file:
+        return [(base_path, decks)]
+    return [
+        (
+            base_path.with_name(f"{base_path.stem}_{part_index}{base_path.suffix}"),
+            decks[start : start + max_decks_per_file],
+        )
+        for part_index, start in enumerate(range(0, len(decks), max_decks_per_file), start=1)
+    ]
+
+
 def export_results(
     stats: dict[str, object],
     decks_by_commander: dict[str, list[DecklistRecord]],
     output_dir: Path,
     commander_names: list[str],
     chulane_out_path: Path | None = None,
+    max_decks_per_file: int | None = None,
 ) -> dict[str, object]:
     """Export presence CSV and per-commander deck CSVs.
 
-    Player names are replaced by neutral "Liste N" labels in every
-    exported deck CSV (Owner decision #1108/#1246; Issue #1263); see
-    neutral_player_labels.
+    Player names are replaced by neutral "Liste N" labels across all exported
+    files of each commander (Owner decision #1108/#1246; Issue #1263, #1309);
+    see neutral_player_labels.
     """
+    if max_decks_per_file is not None and max_decks_per_file < 1:
+        raise ValueError("max_decks_per_file must be positive")
     output_dir.mkdir(parents=True, exist_ok=True)
 
     presence_counts = stats["presence_counts"]  # type: ignore
@@ -534,75 +553,77 @@ def export_results(
                 deck_csv_path = output_dir / f"topdeck_{slug}_decks.csv"
 
             labels = neutral_player_labels(d.player_name for d in complete_decks)
-
-            with deck_csv_path.open("w", encoding="utf-8", newline="") as f:
-                writer = csv.writer(f)
-                writer.writerow(
-                    [
-                        "tournament",
-                        "date",
-                        "player",
-                        "wins",
-                        "draws",
-                        "losses",
-                        "card_name",
-                        "quantity",
-                        "section",
-                        "top_cut",
-                        "wins_bracket",
-                        "losses_bracket",
-                    ]
+            for part_path, part_decks in _deck_part_chunks(
+                deck_csv_path, complete_decks, max_decks_per_file
+            ):
+                with part_path.open("w", encoding="utf-8", newline="") as f:
+                    writer = csv.writer(f)
+                    writer.writerow(
+                        [
+                            "tournament",
+                            "date",
+                            "player",
+                            "wins",
+                            "draws",
+                            "losses",
+                            "card_name",
+                            "quantity",
+                            "section",
+                            "top_cut",
+                            "wins_bracket",
+                            "losses_bracket",
+                        ]
+                    )
+                    for d in part_decks:
+                        player_label = labels[d.player_name]
+                        wb_str = str(d.wins_bracket) if d.wins_bracket is not None else ""
+                        lb_str = str(d.losses_bracket) if d.losses_bracket is not None else ""
+                        for card_name, qty in d.commanders:
+                            writer.writerow(
+                                [
+                                    d.tournament_name,
+                                    d.date_str,
+                                    player_label,
+                                    d.wins,
+                                    d.draws,
+                                    d.losses,
+                                    card_name,
+                                    qty,
+                                    "commander",
+                                    d.top_cut,
+                                    wb_str,
+                                    lb_str,
+                                ]
+                            )
+                        # Sort mainboard cards alphabetically
+                        sorted_mb = sorted(d.mainboard, key=lambda x: x[0].lower())
+                        for card_name, qty in sorted_mb:
+                            writer.writerow(
+                                [
+                                    d.tournament_name,
+                                    d.date_str,
+                                    player_label,
+                                    d.wins,
+                                    d.draws,
+                                    d.losses,
+                                    card_name,
+                                    qty,
+                                    "main",
+                                    d.top_cut,
+                                    wb_str,
+                                    lb_str,
+                                ]
+                            )
+                exported_files.append(part_path.name)
+                logger.info(
+                    "Exported %d complete deck(s) for %s to %s",
+                    len(part_decks),
+                    cname,
+                    part_path.name,
                 )
-                for d in complete_decks:
-                    player_label = labels[d.player_name]
-                    wb_str = str(d.wins_bracket) if d.wins_bracket is not None else ""
-                    lb_str = str(d.losses_bracket) if d.losses_bracket is not None else ""
-                    for card_name, qty in d.commanders:
-                        writer.writerow(
-                            [
-                                d.tournament_name,
-                                d.date_str,
-                                player_label,
-                                d.wins,
-                                d.draws,
-                                d.losses,
-                                card_name,
-                                qty,
-                                "commander",
-                                d.top_cut,
-                                wb_str,
-                                lb_str,
-                            ]
-                        )
-                    # Sort mainboard cards alphabetically
-                    sorted_mb = sorted(d.mainboard, key=lambda x: x[0].lower())
-                    for card_name, qty in sorted_mb:
-                        writer.writerow(
-                            [
-                                d.tournament_name,
-                                d.date_str,
-                                player_label,
-                                d.wins,
-                                d.draws,
-                                d.losses,
-                                card_name,
-                                qty,
-                                "main",
-                                d.top_cut,
-                                wb_str,
-                                lb_str,
-                            ]
-                        )
 
             exported_commanders_count += 1
             total_exported_decks += len(complete_decks)
-            exported_files.append(deck_csv_path.name)
-            logger.info(
-                "Exported %d complete deck(s) for %s to %s",
-                len(complete_decks),
-                cname,
-                deck_csv_path.name,
-            )
 
     # 3. Export README.md
     readme_path = output_dir / "README.md"
@@ -648,7 +669,7 @@ Abrufdatum: {datetime.date.today().isoformat()}.
 
 ## 2. Dateien
 - `topdeck_commander_presence.csv`: Aktualisierte Präsenz-Zählung aller {len(commander_names)} Commander.
-- `topdeck_<commander_slug>_decks.csv`: Vollständige Decklisten je Commander mit mindestens 1 vollständiger Liste (inkl. Bracket-Feldern `top_cut`, `wins_bracket`, `losses_bracket`). Die Spalte `player` enthält keine Namen, sondern neutrale Kennungen (`Liste 1`, `Liste 2`, …) je Datei in Reihenfolge des ersten Auftretens.
+- `topdeck_<commander_slug>_decks.csv`: Vollständige Decklisten je Commander mit mindestens 1 vollständiger Liste (inkl. Bracket-Feldern `top_cut`, `wins_bracket`, `losses_bracket`). Die Spalte `player` enthält keine Namen, sondern neutrale Kennungen (`Liste 1`, `Liste 2`, …) je Commander (über allfällige Teildateien hinweg) in Reihenfolge des ersten Auftretens.
 - `topdeck_card_conversions.csv`: Berechnete TopDeck-Conversion je Karte x Commander gemäß docs/TOPDECK.md §6 (Refs #1205).
 
 ## 3. Übersicht je Commander mit Präsenz
@@ -667,7 +688,7 @@ Abrufdatum: {datetime.date.today().isoformat()}.
     readme_content += """
 ## Spielernamen
 
-Die Spalte `player` der Turnierlisten enthält keine Namen. Jede Liste trägt eine neutrale Nummer (`Liste 1`, `Liste 2`, …) je Datei, in der Reihenfolge des ersten Auftretens (Owner-Entscheid 2026-11-12, Issue #1108). Turnier, Datum, Ergebnis und Karten sind unverändert.
+Die Spalte `player` der Turnierlisten enthält keine Namen. Jede Liste trägt eine neutrale Nummer (`Liste 1`, `Liste 2`, …) je Commander (über allfällige Teildateien hinweg), in der Reihenfolge des ersten Auftretens (Owner-Entscheid 2026-11-12, Issue #1108). Turnier, Datum, Ergebnis und Karten sind unverändert.
 """
 
     readme_path.write_text(readme_content, encoding="utf-8")
@@ -744,6 +765,12 @@ def main() -> None:
         action="store_true",
         help="Do not make network requests; use existing cached slices",
     )
+    parser.add_argument(
+        "--max-decks-per-file",
+        type=int,
+        default=None,
+        help="Optional split limit per commander deck CSV (writes _1, _2 parts with commander-wide Liste N labels)",
+    )
     args = parser.parse_args()
 
     logging.basicConfig(
@@ -814,6 +841,7 @@ def main() -> None:
         args.output_dir,
         DEFAULT_107_COMMANDERS,
         chulane_out_path=args.chulane_out,
+        max_decks_per_file=args.max_decks_per_file,
     )
 
     logger.info("Collection and export complete: %s", summary)
