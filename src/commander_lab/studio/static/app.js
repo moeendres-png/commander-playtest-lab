@@ -565,8 +565,11 @@ function renderLandAdvisor(body) {
   if (group && group.small) body.append(h("p", { class: "pill warn", id: "land-advisor-small" }, `Nur ${group.decks_counted} Decks in dieser Gruppe (unter ${found.data.small_group}): die Vergleichszahlen sind unsicher.`));
   body.append(own);
   if (compare) body.append(h("p", { class: "note", id: "land-advisor-group-title" }, `Vergleichsgruppe: ${groupName} (Median, mittlere Hälfte in Klammern)`), compare);
-  if (deck.lands_unknown_colours) body.append(h("p", { class: "note" }, `${deck.lands_unknown_colours} Länder ohne bekannte Farben: unbekannt, nicht als null gezählt.`));
-  body.append(h("p", { class: "note" }, "Beobachtung, keine Vorschrift. Farbsymbole stehen in den Manakosten der Nicht-Land-Karten; ein Hybrid-Symbol zählt für beide Farben, Generisches und X zählen nicht, eine geteilte Karte zählt beide Hälften. Ein Land zählt für jede Farbe, die es erzeugt. Quellen, die keine Länder sind (Manasteine, Kreaturen), stehen getrennt. Vergleich: Median und mittlere Hälfte der Quelldecks der gewählten Vergleichsgruppe."));
+  const commanderPips = Object.entries(deck.commander_pips || {});
+  body.append(h("p", { id: "land-advisor-commander" }, commanderPips.length ? `Farbsymbole der Kosten des Commanders: ${commanderPips.map(([colour, count]) => `${colour} ${count}`).join(", ")} (nicht in den Zahlen des Decks).` : "Der Commander hat keine Farbsymbole in seinen Kosten (nicht in den Zahlen des Decks)."));
+  if (deck.lands_no_mana) body.append(h("p", { class: "note", id: "land-advisor-nomana" }, `Länder, die selbst kein Mana erzeugen: ${deck.lands_no_mana} (laut Kartendaten, zum Beispiel Fetchländer). Sie stehen bei keiner Farbe.`));
+  if (deck.lands_unknown_colours) body.append(h("p", { class: "note", id: "land-advisor-unknown" }, `Länder ohne Angabe: ${deck.lands_unknown_colours} (keine Kartendaten zum erzeugten Mana). Unbekannt, nicht als null gezählt.`));
+  body.append(h("p", { class: "note" }, "Beobachtung, keine Vorschrift. Farbsymbole stehen in den Manakosten der Nicht-Land-Karten; ein Hybrid-Symbol zählt für beide Farben, Generisches und X zählen nicht, eine geteilte Karte zählt beide Hälften. Die Kosten des Commanders zählen nicht mit. Ein Land zählt für jede Farbe, die es erzeugt. Quellen, die keine Länder sind (Manasteine, Kreaturen), stehen getrennt. Vergleich: Median und mittlere Hälfte der Quelldecks der gewählten Vergleichsgruppe."));
 }
 // Listed combos of the commander against the deck: complete, or one card short. A count
 // over the source's list, never a rating; without a stored list the section says so.

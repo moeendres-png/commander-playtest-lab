@@ -605,7 +605,10 @@ async function start() {
   let any = false;
   try { any = await listGames(new URLSearchParams(location.search).get("partie")); } catch (error) { toast(`Partien konnten nicht geladen werden: ${error.message}`); return; }
   const query = new URLSearchParams(location.search);
-  if (query.get("neu") === "1") await newGame(query.get("revision") || "");
+  if (query.get("neu") === "1") {
+    history.replaceState(null, "", location.pathname); // a reload must not reopen the dialog
+    await newGame(query.get("revision") || "");
+  }
   if (!any) {
     $("table").classList.add("one");
     $("table").textContent = "";

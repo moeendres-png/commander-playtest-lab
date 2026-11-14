@@ -179,3 +179,21 @@ def test_the_routes(tmp_path: Path) -> None:
         "Spielerabend"
     ]
     assert "Aufbau" in client.get("/api/labels").json()["known"]
+
+
+def test_label_limits_and_error_precedence_through_the_route(tmp_path: Path) -> None:
+    opened = StudioStore.open(tmp_path / "studio")
+    _fill(opened, tmp_path)
+    forest = _card(opened, "Forest")
+    opened.close()
+    client = TestClient(create_app(tmp_path / "studio"), headers=HEADER)
+    many = [f"label{i}" for i in range(labels.MAX_LABELS + 1)]
+    assert client.put(f"/api/cards/{forest}/labels", json={"labels": many}).status_code == 422
+    long_one = ["x" * (labels.MAX_LABEL_LENGTH + 1)]
+    assert client.put(f"/api/cards/{forest}/labels", json={"labels": long_one}).status_code == 422
+    exactly = [f"label{i}" for i in range(labels.MAX_LABELS)]
+    assert client.put(f"/api/cards/{forest}/labels", json={"labels": exactly}).status_code == 200
+    # an unknown card with invalid text: the text is checked first, so 422 wins over 404
+    bad = client.put("/api/cards/card:nope/labels", json={"labels": ["<b>"]})
+    assert bad.status_code == 422
+    assert client.put("/api/cards/card:nope/labels", json={"labels": ["ok"]}).status_code == 404

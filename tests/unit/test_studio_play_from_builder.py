@@ -48,3 +48,5 @@ def test_the_partie_page_reads_the_parameters() -> None:
     assert 'query.get("neu") === "1"' in script
     assert 'query.get("revision")' in script
     assert "own.value = wantedRevision" in script
+    # the parameters leave the address once the dialog is open, so a reload does not reopen it
+    assert script.index("history.replaceState") < script.index("await newGame(query.get")

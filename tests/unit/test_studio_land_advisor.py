@@ -237,7 +237,9 @@ def test_the_source_query_touches_only_the_wanted_decks(tmp_path: Path) -> None:
     groups = land_advisor.source_deck_groups(store, ["Test Commander"])
     store.connection.set_trace_callback(None)
     assert {g["cohort"]: g["decks"] for g in groups}["all"] == 3  # foreign decks are no members
-    card_reads = [s for s in statements if "corpus_deck_card" in s and s.lstrip().startswith("SELECT")]
+    card_reads = [
+        s for s in statements if "corpus_deck_card" in s and s.lstrip().startswith("SELECT")
+    ]
     assert card_reads, "the card rows are read"
     for text in card_reads:
         assert "deck_id IN (" in text
