@@ -295,11 +295,7 @@ def _completes(start: _State, abilities: Sequence[Ability], useful: frozenset[st
         if nodes > _NODE_CAP:
             raise _Capped
         owed = generic + len(pips)
-        supply = (
-            sum(pool)
-            + all_slots
-            - sum(slots_of_source.get(source, 0) for source in used)
-        )
+        supply = sum(pool) + all_slots - sum(slots_of_source.get(source, 0) for source in used)
         outcome = False
         if supply >= owed:
             for kind in _TYPES:
