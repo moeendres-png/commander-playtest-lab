@@ -421,6 +421,7 @@ def _card_evidence(
         "group": card["group"],
         "colors": card["colors"],
         "has_image": card["has_image"],
+        "has_back": card["has_back"],
         "available": card["available"],
         "rating": {
             "status": UNRATED,
