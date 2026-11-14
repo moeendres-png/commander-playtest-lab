@@ -131,6 +131,7 @@ function filtered() {
   const query = $("q").value.trim();
   const type = $("type-filter").value;
   const role = $("role-filter").value;
+  const label = $("label-filter").value;
   const min = $("mv-min").value === "" ? null : Number($("mv-min").value);
   const max = $("mv-max").value === "" ? null : Number($("mv-max").value);
   const free = $("f-free").checked, notIn = $("f-notin").checked, fav = $("f-fav").checked, showExcluded = $("f-excl").checked;
@@ -143,6 +144,7 @@ function filtered() {
     if (!showExcluded && card.excluded) return false;
     if (simReady && card.sim_status !== "OK") return false;
     if (type && card.group !== type) return false;
+    if (label === "-" ? card.labels.length > 0 : label && !card.labels.some((item) => item.toLowerCase() === label.toLowerCase())) return false;
     if (role === "-" ? card.roles.length > 0 : role && !card.roles.includes(role)) return false;
     if (min !== null && !(card.mana_value >= min)) return false;
     if (max !== null && !(card.mana_value <= max)) return false;
@@ -211,7 +213,7 @@ const COLUMNS = [
   ["type_line", "Typ", "type_line"], ["text", "Text", null], ["pt", "S/W", null], ["available", "frei", "available"], ["owned", "Besitz", "owned"],
   ["reserved", "reserviert", "reserved"], ["freq", "Quelldecks", "freq"], ["edhrec", "EDHREC", "edhrec"], ["edhrec_rank", "EDHREC-Rang", "edhrec_rank"], ["synergy", "Synergie", "synergy"], ["strength", "Stärke-Index", "strength"],
   ["playgroup", "Playgroup", "playgroup"],
-  ["roles", "Rollen", null], ["produced_mana", "erzeugt Mana", null], ["sim_status", "Simulator", "sim_status"], ["note", "Notiz", null],
+  ["roles", "Rollen", null], ["labels", "Archetyp-Marken", null], ["produced_mana", "erzeugt Mana", null], ["sim_status", "Simulator", "sim_status"], ["note", "Notiz", null],
 ];
 // The current tier of a card as a small mark (tiles, deck list, card window). Shown only
 // while "Stufe zeigen" is on and the index is loaded; U and N are named, never hidden as a low tier.
@@ -232,6 +234,7 @@ function cell(card, key) {
   if (key === "mana_cost") return h("td", {}, mana(card.mana_cost));
   if (key === "text") return h("td", { class: "text" }, card.text);
   if (key === "roles") return h("td", {}, card.roles.map(roleName).join(", "));
+  if (key === "labels") return h("td", { class: "labels" }, card.labels.join(", "));
   if (key === "pt") return h("td", {}, card.power !== null ? `${card.power}/${card.toughness}` : "");
   if (key === "freq") { const f = displayFreq(card); return h("td", { class: "num" + (f.total && f.total < state.small ? " low" : "") }, displayFreqText(card)); }
   if (key === "edhrec") {
@@ -535,7 +538,7 @@ function loadLandAdvisor() {
 function renderLandAdvisor(body) {
   body.append(h("h3", {}, "Länder im Vergleich zu den Farbsymbolen"));
   loadLandAdvisor();
-  const found = state.landAdvisor;
+  const found = state.landAdvisor && state.landAdvisor.seq === state.changeSeq ? state.landAdvisor : null;
   if (!found) { body.append(h("p", { class: "muted", id: "land-advisor-wait" }, "Wird berechnet.")); return; }
   const deck = found.data.deck;
   const group = found.data.groups.find((item) => item.cohort === state.cohort);
@@ -1054,6 +1057,13 @@ async function openCard(card) {
     try { await api(`/api/cards/${encodeURIComponent(card.card_id)}/mark`, "PUT", { favorite: card.favorite, excluded: card.excluded, note: card.note }); renderPool(); openCard(card); }
     catch (error) { fail(error); }
   };
+  const labelInput = h("input", { type: "text", id: "card-labels", placeholder: "Archetyp-Marken, mit Komma getrennt", maxlength: "400" }); labelInput.value = card.labels.join(", ");
+  const saveLabels = async () => {
+    try {
+      const done = await api(`/api/cards/${encodeURIComponent(card.card_id)}/labels`, "PUT", { labels: labelList(labelInput.value) });
+      card.labels = done.labels; renderLabelFilter(); renderPool(); openCard(card);
+    } catch (error) { fail(error); }
+  };
   const count = qty(card.card_id);
   const frequencies = h("table", {}, h("thead", {}, h("tr", {}, h("th", {}, "Quelldecks"), h("th", { class: "num" }, "mit Karte"), h("th", { class: "num" }, "Decks"), h("th", { class: "num" }, "Anteil"))),
     h("tbody", {}, Object.keys(state.cohorts).map((key) => { const f = freq(card, key); return h("tr", { class: f.total < state.small ? "low" : "" }, h("td", {}, cohortName(key)), h("td", { class: "num" }, f.hits), h("td", { class: "num" }, f.total), h("td", { class: "num" }, f.total ? (100 * f.share).toFixed(1) + " %" : "unbekannt")); })));
@@ -1071,6 +1081,9 @@ async function openCard(card) {
       h("button", { type: "button", onclick: () => saveMark({ excluded: !card.excluded }) }, card.excluded ? "Ausschluss aufheben" : "Ausschließen"),
       h("button", { type: "button", onclick: closeModal }, "Schließen")),
     note, h("div", { class: "actions" }, h("button", { type: "button", onclick: () => saveMark({ note: note.value }) }, "Notiz speichern")),
+    h("h3", {}, "Archetyp-Marken"),
+    card.labels.length ? h("p", { id: "card-label-chips" }, card.labels.map((name) => h("span", { class: "chip", style: "cursor:default;margin-right:4px" }, name))) : h("p", { class: "muted" }, "Keine Marken. Sie ordnen deine Karten und zählen nirgends als Wertung."),
+    h("div", { class: "actions" }, labelInput, h("button", { type: "button", id: "card-labels-save", onclick: saveLabels }, "Marken speichern")),
     h("h3", {}, "Häufigkeit in den Quelldecks"), frequencies, h("p", { class: "note" }, "Gelb: Gruppe mit weniger als 30 Decks."),
     card.universe ? h("p", { class: "note" }, `Im Universum ${state.universe}: ${card.universe.filter_card ? "Filterkarte des Universums (steht per Definition in jedem Deck der Teilmenge, ohne Zählung und ohne Stufe)" : card.universe.matched ? `${card.universe.hits}/${card.universe.denominator} Decks, Stufe ${card.universe.level} (Verbreitung gezählt, keine Stärke)` : "unbekannt (kein Deck des Universums nennt diese Karte unter einem bekannten Namen)"}`) : null,
     card.universe && state.universeInfo && state.universeInfo.subset_note ? h("p", { class: "note" }, state.universeInfo.subset_note) : null, layerBox, extra);
@@ -1257,7 +1270,31 @@ function applyPool(pool) {
   state.universeInfo = pool.universe || null;
   state.countedUniverse = pool.counted_universe || null;
   state.simReadiness = pool.sim_readiness || null;
-  renderUniverseInfo(); renderSimReadiness();
+  renderUniverseInfo(); renderSimReadiness(); renderLabelFilter();
+}
+// Archetype labels are the Owner's own words for ordering cards and decks: a filter and a
+// display, never a rating.
+const labelList = (text) => text.split(",").map((item) => item.trim()).filter(Boolean);
+function renderLabelFilter() {
+  const select = $("label-filter"), wanted = select.value;
+  const seen = new Map();
+  for (const card of state.pool) for (const item of card.labels) seen.set(item.toLowerCase(), item);
+  const names = [...seen.values()].sort((x, y) => x.localeCompare(y));
+  select.replaceChildren(h("option", { value: "" }, "alle Marken"), ...names.map((name) => h("option", { value: name }, name)), h("option", { value: "-" }, "ohne Marke"));
+  select.value = names.some((name) => name === wanted) || wanted === "-" ? wanted : "";
+}
+function renderDeckLabels() {
+  const deck = state.decks.find((item) => item.deck_id === state.deckId);
+  const names = deck && deck.labels ? deck.labels : [];
+  $("deck-labels").textContent = names.length ? `Marken: ${names.join(", ")}` : "Marken: keine";
+}
+async function editDeckLabels() {
+  const deck = state.decks.find((item) => item.deck_id === state.deckId);
+  if (!deck) return;
+  const text = prompt("Archetyp-Marken dieses Decks, mit Komma getrennt (leer löscht sie):", (deck.labels || []).join(", "));
+  if (text === null) return;
+  try { const done = await api(`/api/decks/${encodeURIComponent(deck.deck_id)}/labels`, "PUT", { labels: labelList(text) }); deck.labels = done.labels; renderDeckLabels(); }
+  catch (error) { fail(error); }
 }
 // The universe source and bracket the tier list remembers: the builder asks for the same counted universe.
 function strengthQuery() {
@@ -1304,6 +1341,7 @@ async function loadDecks() {
   if (!state.decks.some((deck) => deck.deck_id === state.deckId)) state.deckId = state.decks[0].deck_id;
   const deck = state.decks.find((item) => item.deck_id === state.deckId);
   if (!deck.branches.some((item) => item.branch === state.branch)) state.branch = deck.branches[0].branch;
+  renderDeckLabels();
   $("deck-select").replaceChildren(...state.decks.map((item) => h("option", { value: item.deck_id, selected: item.deck_id === state.deckId }, item.name)));
   $("branch-select").replaceChildren(...deck.branches.map((item) => h("option", { value: item.branch, selected: item.branch === state.branch }, `${item.branch} (${item.cards})${item.has_draft ? " *" : ""}`)));
 }
@@ -1377,7 +1415,7 @@ function setupControls() {
   if (savedSort && sorts.some((item) => item[0] === savedSort)) { const [key, dir] = savedSort.split(":"); state.sortKey = key; state.sortDir = Number(dir); $("sort").value = savedSort; if (key === "strength") loadStrength(); }
   $("sort").addEventListener("change", () => { if (!$("sort").value) return; const [key, dir] = $("sort").value.split(":"); state.sortKey = key; state.sortDir = Number(dir); StudioUI.remember("studio.builder.sort", $("sort").value); if (key === "strength") loadStrength(); renderPool(); });
   $("cohort").addEventListener("change", () => { state.cohort = $("cohort").value; renderPool(); renderDeck(); });
-  for (const id of ["q", "type-filter", "role-filter", "mv-min", "mv-max", "f-free", "f-notin", "f-fav", "f-excl", "f-sim"]) if ($(id)) $(id).addEventListener("input", () => { state.shown = 120; renderPool(); });
+  for (const id of ["q", "type-filter", "role-filter", "label-filter", "mv-min", "mv-max", "f-free", "f-notin", "f-fav", "f-excl", "f-sim"]) if ($(id)) $(id).addEventListener("input", () => { state.shown = 120; renderPool(); });
   // "Stufe zeigen": the current tier on every card (view setting, on unless switched off).
   state.showTier = StudioUI.recall("studio.builder.show-tier", "1") !== "0";
   $("f-tier").checked = state.showTier;
@@ -1407,6 +1445,7 @@ function setupControls() {
   $("save").addEventListener("click", () => StudioUI.busy($("save"), () => saveRevision()));
   $("history").addEventListener("click", showHistory);
   $("export").addEventListener("click", showExport);
+  $("deck-labels").addEventListener("click", editDeckLabels);
   $("new-branch").addEventListener("click", () => { const name = prompt("Name der neuen Variante:", ""); if (name && name.trim()) saveRevision(name.trim().slice(0, 60)); });
   $("deck-select").addEventListener("change", async () => { state.deckId = $("deck-select").value; await loadDecks(); await loadBranch(); });
   $("branch-select").addEventListener("change", async () => { state.branch = $("branch-select").value; await loadBranch(); });

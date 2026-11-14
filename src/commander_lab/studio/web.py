@@ -28,6 +28,7 @@ from . import (
     engine_check,
     games,
     import_all,
+    labels,
     land_advisor,
     launch,
     queries,
@@ -71,6 +72,11 @@ class CardEntry(BaseModel):
 class ListBody(BaseModel):
     cards: list[CardEntry]
     owned_only: bool = True
+
+
+class LabelsBody(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    labels: list[str] = Field(max_length=100)
 
 
 class DraftBody(BaseModel):
@@ -867,6 +873,45 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
             return {"card_id": card_id, **body.model_dump()}
         except KeyError as error:
             raise HTTPException(404, "unknown card") from error
+        finally:
+            store.close()
+
+    @app.get("/api/labels")
+    def known_labels() -> dict[str, object]:
+        store = open_store()
+        try:
+            return {"known": labels.known_labels(store)}
+        finally:
+            store.close()
+
+    @app.put("/api/cards/{card_id}/labels")
+    def card_labels(card_id: str, body: LabelsBody) -> dict[str, object]:
+        """The Owner's archetype labels of a card. Never an input of a tier or the index."""
+        store = open_store()
+        try:
+            return {
+                "card_id": card_id,
+                "labels": labels.set_card_labels(store, card_id, body.labels),
+            }
+        except KeyError as error:
+            raise HTTPException(404, "unknown card") from error
+        except ValueError as error:
+            raise HTTPException(422, str(error)) from error
+        finally:
+            store.close()
+
+    @app.put("/api/decks/{deck_id}/labels")
+    def deck_labels(deck_id: str, body: LabelsBody) -> dict[str, object]:
+        store = open_store()
+        try:
+            return {
+                "deck_id": deck_id,
+                "labels": labels.set_deck_labels(store, deck_id, body.labels),
+            }
+        except KeyError as error:
+            raise HTTPException(404, "unknown deck") from error
+        except ValueError as error:
+            raise HTTPException(422, str(error)) from error
         finally:
             store.close()
 

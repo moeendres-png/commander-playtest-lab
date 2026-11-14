@@ -24,6 +24,7 @@
   <span id="save-state" class="muted"></span>
   <span class="spacer"></span>
   <button id="save" type="button" class="primary">Als Stand speichern</button>
+  <button id="deck-labels" type="button" title="Deine Archetyp-Marken für dieses Deck (nur zum Ordnen, keine Wertung)">Marken: keine</button>
   <button id="history" type="button">Verlauf</button>
   <button id="export" type="button">Export</button>
   <button id="play-state" type="button" title="Öffnet die Seite Partien mit diesem gespeicherten Stand als Deck auf Sitz 1.">Mit diesem Stand eine Partie spielen</button>
@@ -36,6 +37,7 @@
       <span id="color-filter" class="chips"></span>
       <select id="type-filter"></select>
       <select id="role-filter"></select>
+      <select id="label-filter" title="Nach deinen Archetyp-Marken filtern"></select>
       <label>Manawert <input id="mv-min" type="number" min="0" max="20" placeholder="von">
         <input id="mv-max" type="number" min="0" max="20" placeholder="bis"></label>
       <label><input id="f-free" type="checkbox" checked> nur freie</label>

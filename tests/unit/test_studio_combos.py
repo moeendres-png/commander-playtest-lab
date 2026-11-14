@@ -36,7 +36,7 @@ def test_the_schema_is_14_and_holds_the_combo_table() -> None:
         str(row[0])
         for row in store.connection.execute("SELECT name FROM sqlite_master WHERE type='table'")
     }
-    assert SCHEMA_VERSION == 14
+    assert SCHEMA_VERSION == 15
     assert "commander_combo" in tables
 
 

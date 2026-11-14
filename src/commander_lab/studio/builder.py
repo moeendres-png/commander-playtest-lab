@@ -384,6 +384,9 @@ def pool_cards(
                 store, commander_names[0], list(names), names
             ).items()
         }
+    from .labels import card_labels as _card_labels
+
+    card_labels = _card_labels(store)
     cards: list[dict[str, object]] = []
     for row in db.execute(
         "SELECT c.*, i.owned_lower_bound, i.available_lower_bound, i.reserved, "
@@ -425,6 +428,7 @@ def pool_cards(
                 "favorite": bool(row["favorite"]),
                 "excluded": bool(row["excluded"]),
                 "note": row["note"] or "",
+                "labels": card_labels.get(card_id, []),
                 "roles": roles.get(str(row["oracle_id"]), []),
                 "decks": hits.get(str(row["oracle_id"]), hits.get(str(row["oracle_name"]), {})),
                 "edhrec": _edhrec_entry(widest, signal_values.get(card_id, {}).get("inclusion")),
@@ -1440,7 +1444,10 @@ def set_mark(
 
 
 def list_decks(store: StudioStore) -> list[dict[str, object]]:
+    from .labels import deck_labels as _deck_labels
+
     db = store.connection
+    deck_labels = _deck_labels(store)
     decks: list[dict[str, object]] = []
     for deck in db.execute("SELECT deck_id, name, created_at FROM deck ORDER BY name"):
         branches = [
@@ -1465,7 +1472,14 @@ def list_decks(store: StudioStore) -> list[dict[str, object]]:
                 (deck["deck_id"],),
             )
         ]
-        decks.append({**dict(deck), "commanders": commanders, "branches": branches})
+        decks.append(
+            {
+                **dict(deck),
+                "commanders": commanders,
+                "branches": branches,
+                "labels": deck_labels.get(str(deck["deck_id"]), []),
+            }
+        )
     return decks
 
 

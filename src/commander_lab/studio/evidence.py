@@ -65,7 +65,14 @@ TIER_POLICY: dict[str, object] = {
         "Corpus frequency, EDHREC inclusion or lift, the Owner's marks and counts of any kind "
         "never set a tier on their own. Missing evidence is never a low tier."
     ),
-    "never_inputs": ["favorite", "excluded", "note", "corpus_frequency", "edhrec_inclusion"],
+    "never_inputs": [
+        "favorite",
+        "excluded",
+        "note",
+        "archetype_label",
+        "corpus_frequency",
+        "edhrec_inclusion",
+    ],
 }
 
 _COMBOS_PATH = Path(__file__).resolve().parents[3] / "data" / "meta" / "spellbook_combos.json"
