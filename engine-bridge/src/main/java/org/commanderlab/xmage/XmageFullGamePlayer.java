@@ -383,7 +383,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
     public ManaOptions getManaAvailable(Game game) {
         boolean capture = captureManaAvailable;
         captureManaAvailable = false;
-        ManaOptions available = NESTED_COPY_SKIP && game.isSimulation() && game.inCheckPlayableState()
+        ManaOptions available = nestedCopySkip && game.isSimulation() && game.inCheckPlayableState()
                 ? manaAvailableInPlayableCalcCopy(game)
                 : super.getManaAvailable(game);
         if (capture) {
@@ -405,6 +405,19 @@ final class XmageFullGamePlayer extends PlayerImpl {
      */
     private static final boolean NESTED_COPY_SKIP =
             !"false".equals(System.getProperty("commanderlab.nestedCopySkip"));
+
+    /** The live switch; starts at the property default. Tests flip it to compare both paths in one JVM. */
+    static volatile boolean nestedCopySkip = NESTED_COPY_SKIP;
+
+    /** The engine's own computation (it copies the game itself); for the differential test. */
+    ManaOptions manaAvailableEnginePathForTest(Game game) {
+        return super.getManaAvailable(game);
+    }
+
+    /** The mirrored computation, run on the given playable-calculation copy; for the differential test. */
+    ManaOptions manaAvailableMirroredForTest(Game playableCalcCopy) {
+        return manaAvailableInPlayableCalcCopy(playableCalcCopy);
+    }
 
     private ManaOptions manaAvailableInPlayableCalcCopy(Game game) {
         ManaOptions availableMana = new ManaOptions();
