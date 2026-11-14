@@ -923,18 +923,33 @@ def deck_sets(
     with _universe_table(store, sorted(deck_ids)) as universe_deck:
         # The aggregation runs inside SQLite: one row per raw card name, with the decks
         # listing it (unit-separator joined; a deck listed twice collapses in the set), instead of one Python step per (deck, card) row.
-        for name, joined in store.connection.execute(
-            f"SELECT c.card_name, group_concat(c.deck_id, char(31)) FROM corpus_deck_card c "
-            f"JOIN {universe_deck} u ON u.deck_id = c.deck_id "
-            f"WHERE c.section IN ({marks}) AND c.quantity > 0 GROUP BY c.card_name",
+        by_id: dict[str, str] | None = None
+        for name, oracle_id, joined in store.connection.execute(
+            f"SELECT c.card_name, c.oracle_id, group_concat(c.deck_id, char(31)) "
+            f"FROM corpus_deck_card c JOIN {universe_deck} u ON u.deck_id = c.deck_id "
+            f"WHERE c.section IN ({marks}) AND c.quantity > 0 GROUP BY c.card_name, c.oracle_id",
             COUNTED_SECTIONS,
         ):
             decks = set(str(joined).split("\x1f"))
             if group_of is None:
                 sets.setdefault(str(name), set()).update(decks)
                 continue
+            groups = group_of.get(str(name).casefold())
+            if groups is None and oracle_id:
+                # A spelling no name rule knows (an accent, a different face spelling) but with
+                # the card's oracle id: the id names the card.
+                if by_id is None:
+                    by_id = {
+                        str(row[0]): str(row[1])
+                        for row in store.connection.execute(
+                            "SELECT oracle_id, oracle_name FROM card_fact "
+                            "WHERE oracle_id IS NOT NULL"
+                        )
+                    }
+                if str(oracle_id) in by_id:
+                    groups = (by_id[str(oracle_id)],)
             # A spelling that names no collection card stays under its own raw name.
-            for group in group_of.get(str(name).casefold(), (str(name),)):
+            for group in groups or (str(name),):
                 sets.setdefault(group, set()).update(decks)
     return sets
 

@@ -31,33 +31,10 @@ def _cards(result: strength_view.StrengthResult) -> dict[str, strength_view.Stre
     return {card["name"]: card for card in result["cards"]}
 
 
-def test_one_source_does_not_make_every_card_unknown() -> None:
-    cards = _cards(strength_view.compute(_store(), CMD, StrengthSettings()))
-    top = cards["Card 00"]
-    # Sources never imported for this commander count against no card; the card is graded.
-    assert top["coverage"] == 1.0 and top["tier"] != "U" and top["reason"] == "ENOUGH_DATA"
-    assert cards["Card 05"]["coverage"] == 0.0  # listed nowhere: lower coverage, no index
-    assert cards["Card 05"]["tier"] == "U"
-
-
-def test_score_pool_coverage_ignores_components_never_collected_and_unusable_ones() -> None:
-    settings = StrengthSettings(min_coverage=0.4, min_components=2)
-    obs = {
-        "a": {"commander_inclusion": Observation(0.9, 90, 100)},
-        "b": {"commander_inclusion": Observation(0.5, 50, 100)},
-    }
-    scored = strength.score_pool(settings, obs, {strength.COMMANDER_INCLUSION})
-    assert scored["a"]["coverage"] == 1.0 and scored["a"]["tier"] != "U"  # min_components capped
-    # A collected signal whose every denominator is below the minimum is wholly unusable and
-    # leaves the denominator as well.
-    tiny = {"a": {"tournament_lists": Observation(0.5, 1, 2)}, **obs}
-    both = strength.score_pool(
-        settings, tiny, {strength.COMMANDER_INCLUSION, strength.TOURNAMENT_LISTS}
-    )
-    assert both["b"]["coverage"] == 1.0
-
-
 def test_a_filter_card_leaves_the_deck_universe_out_of_its_denominator() -> None:
+    """Main's denominator (every weighted component, here 13) minus the deck universe (2) for a
+    filter card: 3 of 11 for a card with only the commander inclusion; the control card, which is
+    no filter card, has the same signal and the universe too: 5 of 13."""
     settings = StrengthSettings(min_coverage=0.0, min_components=1)
     obs = {
         "x": {"commander_inclusion": Observation(0.9, 90, 100)},
@@ -69,12 +46,15 @@ def test_a_filter_card_leaves_the_deck_universe_out_of_its_denominator() -> None
             "commander_inclusion": Observation(0.1, 10, 100),
             "deck_universe": Observation(0.1, 10, 100),
         },
+        "w": {"commander_inclusion": Observation(0.3, 30, 100)},  # control: not a filter card
     }
     collected = {strength.COMMANDER_INCLUSION, strength.DECK_UNIVERSE}
     scored = strength.score_pool(
         settings, obs, collected, context=PoolContext(filter_cards=frozenset({"x"}))
     )
-    assert scored["x"]["coverage"] == 1.0  # the filter card is not punished for the filter
+    assert scored["x"]["coverage"] == pytest.approx(3 / 11, abs=1e-4)
+    assert scored["w"]["coverage"] == pytest.approx(3 / 13, abs=1e-4)
+    assert scored["y"]["coverage"] == pytest.approx(5 / 13, abs=1e-4)
 
 
 def test_no_positive_weight_and_no_source_have_their_own_reasons() -> None:
@@ -114,18 +94,54 @@ def test_other_commanders_are_not_ranked_unless_switched_on() -> None:
     assert on["Other Cmd"]["tier"] != "N"
 
 
-def test_the_deck_universe_filter_card_keeps_its_full_coverage() -> None:
+def test_the_deck_universe_filter_card_has_the_universe_out_of_its_denominator() -> None:
     store = _store()
     for index in range(40):
         add_deck(store, f"d{index}", ["Card 00", "Card 01"])
     universe.save_profile(store, "mit", {"min_universe": 5, "must_contain": ["Card 00"]})
     result = strength_view.compute(store, CMD, StrengthSettings(universe_profile="mit"))
     cards = _cards(result)
-    assert cards["Card 00"]["coverage"] == 1.0
     status = {c["component"]: c["status"] for c in cards["Card 00"]["components"]}
     assert status["deck_universe"] == strength.FILTER_CARD
+    # the filter card has the universe weight (2) out of its denominator: 3 of 11; the control
+    # card of the same pool has the commander inclusion and the universe present: 5 of 13
+    assert cards["Card 00"]["coverage"] == pytest.approx(3 / 11, abs=1e-4)
+    assert cards["Card 01"]["coverage"] == pytest.approx(5 / 13, abs=1e-4)
     with pytest.raises(KeyError):
         strength_view.compute(store, CMD, StrengthSettings(universe_profile="nope"))
+
+
+def test_the_minimum_number_of_signals_never_exceeds_the_weighted_components() -> None:
+    settings = StrengthSettings(
+        weights={name: 0.0 for name in strength.COMPONENTS} | {"commander_inclusion": 1.0},
+        min_coverage=0.0,
+        min_components=3,
+    )
+    obs = {"a": {"commander_inclusion": Observation(0.9, 90, 100)}}
+    scored = strength.score_pool(settings, obs, {strength.COMMANDER_INCLUSION})
+    assert scored["a"]["tier"] != "U" and scored["a"]["reason"] == "ENOUGH_DATA"
+
+
+def test_a_deck_row_with_an_oracle_id_counts_for_the_card_under_any_spelling() -> None:
+    from commander_lab.studio import builder
+
+    store = make_store()
+    add_card(store, CMD, type_line="Legendary Creature — Test")
+    add_card(store, "Fire // Ice")
+    add_card(store, "Lim-Dûl's Vault")
+    db = store.connection
+    db.execute("UPDATE card SET oracle_id = 'o-fire' WHERE oracle_name = 'Fire // Ice'")
+    db.execute("UPDATE card SET oracle_id = 'o-vault' WHERE oracle_name = 'Lim-Dûl''s Vault'")
+    add_deck(store, "d1", ["Fire", "Lim-Dul's Vault"])
+    add_deck(store, "d2", ["Fire // Ice"])
+    db.execute(
+        "UPDATE corpus_deck_card SET oracle_id = 'o-vault' WHERE card_name = 'Lim-Dul''s Vault'"
+    )
+    pool = builder.pool_cards(store, [CMD], with_signals=False)
+    cards = {str(c["name"]): c for c in pool["cards"]}  # type: ignore[attr-defined]
+    assert cards["Fire // Ice"]["decks"]["all"] == 2  # front face "Fire" + the full name
+    assert cards["Lim-Dûl's Vault"]["decks"]["all"] == 1  # accent spelling, found by its id
+    assert cards["Lim-Dûl's Vault"]["decks_known"] is True
 
 
 def test_bracket_labels_follow_the_bracket_column_of_the_imported_files() -> None:
