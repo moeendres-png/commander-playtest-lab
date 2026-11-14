@@ -1,5 +1,5 @@
 """Strength index follow-up to #1275: coverage counts only sources the commander has, truthful
-reasons, tiers on the unrounded index, other commanders not ranked. Synthetic data only."""
+reasons, tiers on the shown index, other commanders not ranked. Synthetic data only."""
 
 from __future__ import annotations
 
@@ -67,7 +67,7 @@ def test_no_positive_weight_and_no_source_have_their_own_reasons() -> None:
     assert nothing["reason"] == "NO_SOURCE_FOR_COMMANDER" and nothing["tier"] == "U"
 
 
-def test_the_tier_follows_the_unrounded_index() -> None:
+def test_the_tier_follows_the_index_as_shown() -> None:
     settings = StrengthSettings(
         weights={name: 0.0 for name in strength.COMPONENTS} | {"synergy": 1.0},
         tier_cuts={"S": 90.0, "A": 66.7, "B": 40.0, "C": 10.0},
@@ -78,7 +78,7 @@ def test_the_tier_follows_the_unrounded_index() -> None:
     obs = {key: {"synergy": Observation(value)} for key, value in values}
     result = strength.score_pool(settings, obs, {"synergy"})
     assert result["c"]["index"] == 66.7  # raw 66.666...: shown as 66.7
-    assert result["c"]["tier"] == "B"  # but below the cut 66.7
+    assert result["c"]["tier"] == "A"  # the shown value meets the cut 66.7: never "66.7 but B"
 
 
 def test_other_commanders_are_ranked_by_default_and_not_when_switched_off() -> None:

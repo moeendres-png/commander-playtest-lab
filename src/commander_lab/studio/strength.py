@@ -1146,7 +1146,7 @@ def score_pool(
             "index": index,
             "coverage": round(coverage, 4),
             # the tier follows the UNROUNDED index: a displayed 74.96 never tips over a cut
-            "tier": _tier(raw_index, settings, enough and not blocked),
+            "tier": _tier(index, settings, enough and not blocked),
             "reason": reason_code,
             "note": NO_COMMANDER_SIGNAL_NOTE if reason_code == NO_COMMANDER_SIGNAL else "",
             "present": present,

@@ -526,7 +526,7 @@ little data or not rated (commander, basic lands), never a low tier.
   denominator. The minimum number of signals never exceeds what the weighted components allow.
   The reason of a card is `NO_POSITIVE_WEIGHT` (no weight above 0), `NO_SOURCE_FOR_COMMANDER`
   (no weighted component has usable data for the commander), `NO_COMMANDER_SIGNAL`,
-  `TOO_LITTLE_DATA` or `ENOUGH_DATA`; the tier follows the unrounded index. Other commanders
+  `TOO_LITTLE_DATA` or `ENOUGH_DATA`; the tier follows the index as shown (rounded to one decimal), so a card shown at a cut has the tier of that cut. Other commanders
   known to the store are ordinary cards of the 99 and ranked by default; with
   `rank_other_commanders` off they are not ranked (tier `N`, `NOT_RANKED_OTHER_COMMANDER`).
 - The tier list's evidence reads the commander's EDHREC inclusion from `card_signal` when the
