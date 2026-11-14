@@ -695,10 +695,15 @@ stored card facts. "Prüfung durch die Engine" (button "Mit der Engine prüfen",
 validation (`_validate_deck_construction`: content hash, duplicates, colour identity) on the
 current list, plus the cards the pinned engine cannot load (`launch.cards_unsupported_by_engine`,
 `launch.cards_unknown_to_pilots`, the logic of `/api/engine/missing-cards`). It starts no game and
-XMage's own deck import still runs at game start. Result: `FAIL` when anything is found, `PASS`
-only when nothing is found and the engine is provisioned, otherwise `UNKNOWN` with the headline
-"nicht geprüft: Engine nicht bereitgestellt" (never shown as green). A list that is not exactly
-100 cards cannot go through the runner's deck model: "Deck-Aufbau nicht geprüft" (UNKNOWN).
+XMage's own deck import still runs at game start. Result: `FAIL` when anything is found. `PASS`
+needs all three: the construction validation really ran and found nothing, the engine's card
+list was read and names no card of the deck, and the engine is provisioned (the configured
+command resolves and the file after `-jar` exists; a Java that cannot be read counts as not
+provisioned). Everything else is `UNKNOWN`, never shown as green, with one of four headlines:
+"nicht geprüft: Voraussetzung nicht erfüllt" (the list is not exactly 100 cards, has no
+commander or more than two; the reason is named, e.g. "Das Deck hat 5 statt 100 Karten."),
+"nicht geprüft: Deck-Aufbau nicht prüfbar", "nicht geprüft: Engine nicht bereitgestellt" and
+"nicht geprüft: Kartenliste der Engine nicht lesbar".
 
 ### Play from the builder
 
