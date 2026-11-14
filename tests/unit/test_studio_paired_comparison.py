@@ -827,24 +827,29 @@ def test_equal_threshold_decides_not_above_zero_spread_and_positive_se(tmp_path:
 def test_paired_comparison_and_card_outcomes_never_import_strength_or_tiers() -> None:
     studio_dir = Path(paired_comparison.__file__).resolve().parent
     forbidden = {"strength", "tiers"}
+    offending: list[str] = []
     for filename in ("paired_comparison.py", "card_outcomes.py"):
         tree = ast.parse((studio_dir / filename).read_text(encoding="utf-8"), filename=filename)
+        import_count = 0
         for node in ast.walk(tree):
             if isinstance(node, ast.Import):
+                import_count += 1
                 for alias in node.names:
                     parts = set(alias.name.split("."))
-                    assert not (parts & forbidden), (
-                        f"{filename} imports forbidden module {alias.name}"
-                    )
+                    if parts & forbidden:
+                        offending.append(f"{filename} imports forbidden module {alias.name}")
             elif isinstance(node, ast.ImportFrom):
+                import_count += 1
                 module_parts = set((node.module or "").split("."))
                 imported_names = {alias.name for alias in node.names}
-                assert not (module_parts & forbidden), (
-                    f"{filename} imports from forbidden module {node.module}"
-                )
-                if node.module in (None, "commander_lab.studio") or (node.module or "").startswith(
-                    "."
-                ):
-                    assert not (imported_names & forbidden), (
+                if module_parts & forbidden:
+                    offending.append(f"{filename} imports from forbidden module {node.module}")
+                if (
+                    node.module in (None, "commander_lab.studio")
+                    or (node.module or "").startswith(".")
+                ) and (imported_names & forbidden):
+                    offending.append(
                         f"{filename} imports forbidden symbol {imported_names & forbidden}"
                     )
+        assert import_count > 0, f"{filename} unexpectedly parsed zero import statements"
+    assert offending == []
