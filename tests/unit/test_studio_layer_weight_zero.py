@@ -101,9 +101,11 @@ def test_layer_data_does_not_change_tier_or_index_at_weight_zero(
     assert all(any(tier != strength.TIER_UNKNOWN or index is not None for _, tier, index in rows)
                for rows in with_layers.values())  # fmt: skip
 
-    # The layer source is made empty: no atlas record and no oracle text for any card.
+    # The layer source is made empty: no atlas record, no oracle text and no commander synergy.
     monkeypatch.setattr(layers_view, "atlas_records", lambda *args, **kwargs: {})
     monkeypatch.setattr(layers_view, "pool_texts", lambda *args, **kwargs: {})
+    store.connection.execute("DELETE FROM card_signal WHERE signal = 'edhrec_commander_synergy'")
+    store.connection.commit()
     emptied = strength_view.compute(store, COMMANDER, StrengthSettings())
     assert not any(
         item["status"] == layers.OK for card in emptied["cards"] for item in card["layers"].values()

@@ -32,9 +32,9 @@ def _cards(result: strength_view.StrengthResult) -> dict[str, strength_view.Stre
 
 
 def test_a_filter_card_leaves_the_deck_universe_out_of_its_denominator() -> None:
-    """Main's denominator (every weighted component, here 13) minus the deck universe (2) for a
-    filter card: 3 of 11 for a card with only the commander inclusion; the control card, which is
-    no filter card, has the same signal and the universe too: 5 of 13."""
+    """Main's denominator (every weighted component, here 11) minus the deck universe (2) for a
+    filter card: 3 of 9 for a card with only the commander inclusion; the control card, which is
+    no filter card, has the same signal and the universe too: 5 of 11."""
     settings = StrengthSettings(min_coverage=0.0, min_components=1)
     obs = {
         "x": {"commander_inclusion": Observation(0.9, 90, 100)},
@@ -52,9 +52,9 @@ def test_a_filter_card_leaves_the_deck_universe_out_of_its_denominator() -> None
     scored = strength.score_pool(
         settings, obs, collected, context=PoolContext(filter_cards=frozenset({"x"}))
     )
-    assert scored["x"]["coverage"] == pytest.approx(3 / 11, abs=1e-4)
-    assert scored["w"]["coverage"] == pytest.approx(3 / 13, abs=1e-4)
-    assert scored["y"]["coverage"] == pytest.approx(5 / 13, abs=1e-4)
+    assert scored["x"]["coverage"] == pytest.approx(3 / 9, abs=1e-4)
+    assert scored["w"]["coverage"] == pytest.approx(3 / 11, abs=1e-4)
+    assert scored["y"]["coverage"] == pytest.approx(5 / 11, abs=1e-4)
 
 
 def test_no_positive_weight_and_no_source_have_their_own_reasons() -> None:
@@ -106,10 +106,10 @@ def test_the_deck_universe_filter_card_has_the_universe_out_of_its_denominator()
     cards = _cards(result)
     status = {c["component"]: c["status"] for c in cards["Card 00"]["components"]}
     assert status["deck_universe"] == strength.FILTER_CARD
-    # the filter card has the universe weight (2) out of its denominator: 3 of 11; the control
-    # card of the same pool has the commander inclusion and the universe present: 5 of 13
-    assert cards["Card 00"]["coverage"] == pytest.approx(3 / 11, abs=1e-4)
-    assert cards["Card 01"]["coverage"] == pytest.approx(5 / 13, abs=1e-4)
+    # the filter card has the universe weight (2) out of its denominator: 3 of 9; the control
+    # card of the same pool has the commander inclusion and the universe present: 5 of 11
+    assert cards["Card 00"]["coverage"] == pytest.approx(3 / 9, abs=1e-4)
+    assert cards["Card 01"]["coverage"] == pytest.approx(5 / 11, abs=1e-4)
     with pytest.raises(KeyError):
         strength_view.compute(store, CMD, StrengthSettings(universe_profile="nope"))
 

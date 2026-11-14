@@ -76,11 +76,11 @@ def test_a_schema_13_file_is_upgraded_and_keeps_every_row(schema_13: Path) -> No
         "SELECT 1 FROM sqlite_master WHERE name = 'commander_combo'"
     ).fetchone()
     connection.close()
-    assert SCHEMA_VERSION == 15
+    assert SCHEMA_VERSION == 16
 
     store = StudioStore.open(schema_13)
     try:
-        assert _meta_version(path) == "15"
+        assert _meta_version(path) == "16"
         columns = [
             r["name"] for r in store.connection.execute("PRAGMA table_info(commander_combo)")
         ]
@@ -113,7 +113,7 @@ def test_opening_the_upgraded_file_again_changes_nothing(schema_13: Path) -> Non
     path = _database(schema_13)
     first = _snapshot(path)
     StudioStore.open(schema_13).close()
-    assert _meta_version(path) == "15"
+    assert _meta_version(path) == "16"
     assert _snapshot(path) == first
 
 

@@ -13,6 +13,7 @@ a location inside this repository. Card images are cached next to it in `images/
 | Command (`python -m commander_lab.studio ...`) | Reads | Data class |
 |---|---|---|
 | `import-inventory FILE.xlsx` | card identities and inventory of the collection | original |
+| `import-printings FILE.xlsx --bulk PATH` | collection printings (`card_printing`) matched locally against a Scryfall default-cards bulk file or folder | original |
 | `import-scryfall PATH [--disambiguation FILE.csv]` | public card data (single `.jsonl`/`.jsonl.gz` or folder of split parts); links the collection | original (public) |
 | `import-corpus-register FILE.csv` | source decks | normalized |
 | `import-corpus-cards FILE.csv [FILE.csv ...] [--allow-deck-move]` | the cards of the source decks, one or several part files in one transaction (see below) | normalized |
@@ -32,6 +33,7 @@ a location inside this repository. Card images are cached next to it in `images/
 | `check-role-labels FILE` | compares the role query slugs with a list of official tagger labels (JSON list or one label per line) and names every slug that is not a label | none (report) |
 | `fetch-images --commander NAME` | card images of the legal pool into the local cache | public images |
 | `data-report` | counts-only report: what the store has, lacks and does not know (collection coverage, public card data age, roles per origin, corpus, observations with unknown times and small denominators, marks, simulation runs) plus hashes of the role tables | none (report) |
+| `ranking-check --commander NAME [--profile NAME \| --preset NAME] [--json]` | objective quality check of the strength-index ranking (`ranking_check.py`): Spearman correlation against counted deck lists, marginal cards at top, staples at bottom, thin coverage at top, tier and land distribution, leave-one-out stability | none (report) |
 | `import-owner-marks FILE.json` | the Owner's own favorites, exclusions and notes (format below) merged into `card_mark`; the report holds counts only | the Owner's own marks, never a rating |
 
 ### Role files and the lossless role import (schema 5)
@@ -259,32 +261,42 @@ Formula, per commander (`strength.py`, pure):
    share measure from the settings: the lower bound of the 95 % Wilson interval of
    numerator/denominator (recommended) or the raw share. Caveat: at one fixed denominator
    the Wilson bound is monotone in the numerator, so it keeps the raw order; it does not
-   protect against small samples by itself, and `wilson_lower(0, n)` is exactly 0.0. The
-   protection is the **minimum denominator per signal**: a share whose denominator is below
-   the minimum is not ranked (component status `BELOW_MIN_DENOMINATOR`, a missing
-   observation). Synergy is used as published. The combos component value is a quality
-   mixture, not a published count: the mean of the card's percentile ranks in variant
-   count, two-card variant count and partners in the collection (`strength.combo_quality`);
-   that mixture is then ranked like every other value.
-2. Each value becomes a percentile rank (0..1). The comparison group is the whole legal pool
-   (recommended) or the card's type group or mana-value band; a group of fewer than 5 cards
-   falls back to the whole pool and the card says so. Ties share the mean rank. The
+   protect against small samples by itself, and `wilson_lower(0, n)` is exactly 0.0.
+   The protection is the **minimum denominator per signal**: a share whose denominator is
+   below the minimum is not ranked (component status `BELOW_MIN_DENOMINATOR`, a missing
+   observation); the same minimum gate applies to `playgroup_observed` (default 200 games).
+    Synergy (`synergy`) has default weight 0 (moved into its own layer column
+    `commander_fit`); when weighted positively, negative synergy (`< 0`) is treated as
+    `NEGATIVE_NEUTRAL` (missing observation / no penalty, never lowers the index). The combos
+    component reads either the commander's EDHREC combo deck counts (`combo_source = "commander"`,
+    default, commander-specific) or Commander Spellbook quality (`combo_source = "spellbook"`,
+    the mean of the card's percentile ranks in variant count, two-card variant count and
+    partners in the collection via `strength.combo_quality`); that value is then ranked like
+    every other component.
+2. Share signals become a scaled value in `0..1` according to `share_scale` (recommended
+   `share` = $\sqrt{v / v_{\max}}$ within the comparison group, preserving the magnitude gap
+   between 3 % marginal cards and 60 % staples so long zero tails do not push marginal cards to
+   percentile `0.89`; `rank` = percentile rank `0..1`, bit-identical to the legacy ranking).
+   Non-share components (`synergy`, `combos`, `playgroup_observed`, and weighted rating layers)
+   always use percentile ranks (`0..1`). The comparison group is the whole legal pool
+   (recommended) or the card's type group, mana-value band or function role; a group of fewer
+   than 5 cards falls back to the whole pool and the card says so. Ties share the mean rank. The
    commander card and the basic lands are not ranked by default (tier `N`, "nicht
    bewertet"); the setting can include them. Cards the universe requires (card filter,
    `must_contain`) are filter cards: status `FILTER_CARD`, not ranked, labelled
    "Filterkarte".
-3. Index = weighted mean of the present percentiles x 100 (one decimal); a missing component
+3. Index = weighted mean of the present scaled values x 100 (one decimal); a missing component
    is left out and the weights are renormalised. `coverage` = weight of present components /
    weight of all components with a weight above 0.
 4. Tier `U` ("zu wenig Daten") when coverage is below `min_coverage` or fewer than
    `min_components` weighted components are present, or (rule `require_commander_signal`) no
    commander-specific component has a ranked value; otherwise S/A/B/C/D by the index cuts
-   (default 90/75/55/35, editable). A card absent from a source is a missing observation: it
+   (default 70/55/35/20, editable; legacy rank-mode cuts were 90/75/55/35). A card absent from a source is a missing observation: it
    lowers the coverage, never the percentile. The setting "missing value" decides per share
    signal what a card without a value does: `skip` (recommended, the component is left out)
    or `lowest` (counts as the lowest percentile, 0; an explicit choice, never the default). With
    `min_coverage` 0 a card with a single weak signal can outrank a card listed by a source at
-   1 of 755 decks, which is why the recommendation is a minimum (0.3, see below).
+   1 of 755 decks, which is why the recommendation is a minimum (0.25, see below).
 5. A deck universe that is a subset (card filter) says so wherever its denominator is shown:
    "Teilmenge: nur Decks mit ..." with the number of excluded decks. The universe's
    `min_universe` is honoured by the strength view (below it: `UNIVERSE_TOO_SMALL`).
@@ -301,21 +313,21 @@ Settings (every label on the page carries its recommendation in parentheses; the
 recommended values live in one place, `StrengthSettings` defaults in `strength.py`, and are
 served by `GET /api/strength/presets` as `recommended`; the button "Empfohlene Werte" applies
 them, an empty weight field means the recommended value and shows it): a weight per component (commander inclusion 3, bracket inclusion 2, deck-list
-universe 2, synergy 1, tournament lists 1, tournament conversion 1, global inclusion 1, combos 1, simulation 0), the
-bracket (`core`, `upgraded`, `optimized`, `cedh`, `none`), the universe profile (the page uses
+universe 2, synergy 0, tournament lists 1, tournament conversion 1, global inclusion 1, combos 1, Playgroup observation 0, simulation 0), the
+bracket (`core`, `upgraded`, `optimized`, `cedh`, `none`), the combo source (`combo_source`: `commander` default, or `spellbook`), the universe profile (the page uses
 the Universum selector), the comparison group (`rank_group`: `pool`), the share measure
-(`share_measure`: `wilson`), the minimum denominators (`min_denominators`: EDHREC 30,
-tournament 5, conversion 20; the deck-universe minimum is the universe's own `min_universe`), the missing
+(`share_measure`: `wilson`), the share scale (`share_scale`: `share`, or `rank` for pure percentile ranks), the minimum denominators (`min_denominators`: EDHREC 30,
+tournament 20, conversion 20, playgroup 200; the deck-universe minimum is the universe's own `min_universe`), the missing
 value per share signal (`skip`), commander and basics (`rank_commander_and_basics`: off), other commanders in the pool (`rank_other_commanders`: on, ranked like any card),
-`min_coverage` (0.3, "Mindest-Datenlage"), `min_components` (2), `universe_source` (`auto`), `require_commander_signal` (on) and the editable cuts (`tier_cuts` 90/75/55/35).
+`min_coverage` (0.25, "Mindest-Datenlage"), `min_components` (2), `universe_source` (`auto`), `require_commander_signal` (on) and the editable cuts (`tier_cuts` 70/55/35/20).
 The page also filters by tier (S/A/B/C/D/U) and sorts by the percentile of any single
 component. Presets (weights commander inclusion / bracket / deck universe / synergy / tournament /
-global / combos / Playgroup observation; simulation is 0 in all):
-Ausgewogen 3/2/2/1/1/1/1/1 (the defaults), Commander-nah 3/2/3/2/1/1/0/0 (bracket upgraded),
-Turniernah 1/2/2/0/3/1/1/1 (bracket cedh). Every preset counts the deck universe, the most
-commander-specific source. The Playgroup observation (`playgroup_observed`, from 25 games,
-shrunk towards zero) is commander independent: it is not one of the signals
-`require_commander_signal` asks for. Owner settings are saved by name. Simulation results
+conversion / global / combos / Playgroup observation; simulation is 0 in all):
+Ausgewogen 3/2/2/0/1/1/1/1/0 (the defaults), Commander-nah 3/2/3/0/1/1/1/0/0 (bracket upgraded),
+Turniernah 1/2/2/0/3/1/1/1/0 (bracket cedh). Every preset counts the deck universe, the most
+commander-specific source. The Playgroup observation (`playgroup_observed`, import minimum
+25 games, index minimum 200 games, shrunk towards zero via $n / (n + 200)$) is commander
+independent: it is not one of the signals `require_commander_signal` asks for. Owner settings are saved by name. Simulation results
 do not count in the tier list and are for now neither collected nor processed for it (Owner
 decision B11, 2026-11-12): the `simulation` weight stays as an option, is 0 in the defaults
 and in every preset, and the component is `NOT_COLLECTED`. The page's layer count ("Schichten",
@@ -345,9 +357,7 @@ the card window of the tier list and of the builder. A layer never changes the t
 the settings group "Zusätzliche Ebenen" gives each of four layers an optional weight in the
 strength index, **default and recommendation 0** (all three presets keep 0). With every weight
 at 0 the tier and the index of every card are bit-identical to a run without layers (pinned by
-`tests/unit/test_studio_layers_view.py`; on the Chulane store of the repository the tier counts
-stay S5 A83 B259 C253 D322 U0 N5 and every card's index, coverage and present count equal the
-run before the change). A weighted layer joins like any other component: its percentile among the ranked
+`tests/unit/test_studio_layers_view.py`). A weighted layer joins like any other component: its percentile among the ranked
 pool cards (rank group setting applies), its weight counts in the coverage, a card without a value
 lowers the coverage and never the card. No layer is commander specific, so none satisfies
 `require_commander_signal`. A weighted layer with no value for any card is named in `notices`
@@ -365,7 +375,8 @@ serves the same layers without the index for the builder. The percentile shown p
 is pool-wide (all valued pool cards, ties share the mean rank; a single valued card is 50); only
 the index component of a weighted layer follows the `rank_group` setting. "Sieg-Abstand" shows
 the damped gap the index reads first and the measured gap beside it; the column sorts by the
-damped value. A weighted `pod_scaling` has a value for every card with oracle text, so it counts
+damped value. "Passt zum Commander" (`commander_fit`) shows EDHREC's per-commander synergy as a
+column only (without index weight). A weighted `pod_scaling` has a value for every card with oracle text, so it counts
 as a present component for nearly every card and raises their coverage: a card can pass the
 "Mindest-Datenlage" on a text rule alone. That is why its recommended weight stays 0.
 
@@ -376,6 +387,7 @@ as a present component for nearly every card and raises their coverage: a card c
 | "Ausspielquote" (`playability`) | `drawn_to_played_pct` | `ever_drawn_n` | measured correlation |
 | "Standfestigkeit" (`staying`) | `battlefield_survival_pct` | `reached_battlefield_n` | measured correlation, permanents only |
 | "Sieg-Abstand" (`win_gap`) | the Playgroup observed gap | `winrate_when_cast_n` | measured correlation, column only |
+| "Passt zum Commander" (`commander_fit`) | `edhrec_commander_synergy` | none (percentage-point deviation) | measured correlation, column only |
 
 **Measured share layers** (tempo, playability, staying). A value counts only from `n >= 25` and
 when the atlas record is not flagged `insufficient_sample`. The ranking value is the 95 %
@@ -397,9 +409,10 @@ marking. A record without count or denominator is `UNKNOWN` (`NO_COUNT`), never 
 percent.
 
 **"Sieg-Abstand"** is `strength.observed_gap`, the function behind the index component
-`playgroup_observed`: the same minimum of 25 games in which the card was cast and the same
-shrinkage `gap * n / (n + 25)`; there is no second implementation. It has no weight of its own,
-because the index already counts it (a second weight would count it twice); it is a column only.
+`playgroup_observed`: import minimum 25 games in which the card was cast, shrinkage
+`gap * n / (n + 200)` (`OBSERVED_SHRINKAGE = 200`, index minimum 200 games); there is no second
+implementation. It has no weight of its own, because the index can optionally count it (a second
+weight would count it twice); it is a column only.
 
 **"Großpod-Wirkung"** is derived from the oracle text by fixed rules
 (`layers.classify_pod_scaling`, table-driven test with 68 real card texts). Reminder text in
@@ -435,6 +448,109 @@ spell out (Fireball, whose damage is divided among any number of targets, is `NE
 is matched on its keyword line, its reminder text is removed like any other; a card without oracle text in the store is `UNKNOWN`
 (`NO_TEXT`), a vanilla card with empty text is `NEUTRAL`. Favorites, exclusions and notes are not read, and
 no price data is involved.
+
+### Prüfzahlen für die Rangfolge (`ranking-check`, #1349)
+
+`ranking_check.check_ranking` (pure function) and the command
+`python -m commander_lab.studio --data <ordner> ranking-check --commander "Chulane, Teller of Tales" [--profile <name> | --preset <name>] [--json]`
+report six objective diagnostic figures for any strength-index setting (both as human-readable
+German text and as JSON `studio-ranking-check-1`):
+
+1. **Agreement with the counted deck lists (Spearman $r$):** rank correlation between the
+   strength index and the card's share in the counted lists of the commander (denominator
+   2,823 for Chulane), over all ranked cards (`S`–`D`), for non-lands and for lands. Because
+   the counted lists are themselves an index signal, the report labels this figure explicitly
+   as a plausibility anchor ("wird für diesen Commander wirklich gespielt"), never as a proof
+   of causal card strength.
+2. **Marginal cards at the top ("Randkarten oben"):** count, denominator (all cards in `S` or
+   `A`) and names of cards in `S` or `A` with strictly less than 5 % share in the counted
+   lists.
+3. **Staples at the bottom ("Stammkarten unten"):** count, denominator (all cards above 30 %
+   share) and names of cards with strictly more than 30 % share in the counted lists that
+   stand in `C` or `D`.
+4. **Thin data coverage at the top ("Dünne Datenlage oben"):** count and signal-count
+   breakdown of cards in `S` or `A` with fewer than 5 present weighted signals.
+5. **Tier distribution ("Stufen-Verteilung"):** per tier (`S, A, B, C, D, U, N`) the card
+   count, pool denominator, non-land and land counts, and land share (`unbekannt` / `null`
+   when a tier holds 0 cards).
+6. **Leave-one-out stability ("Stabilität"):** for each active weighted signal, how many pool
+   cards change tier when that signal alone is given weight 0, plus the single signal with the
+   largest impact.
+
+Baseline on the repository store (`import-all --from-repo`, Chulane pool 927, 922 ranked
+cards, 2,823 counted lists, before any index change of #1350–#1353):
+
+| Metric | `Ausgewogen` (default) | `Commander-nah` | `Turniernah` |
+|---|---|---|---|
+| Spearman $r$ (all ranked, 922 / 922) | `0.8785` | `0.9182` | `0.8956` |
+| Spearman $r$ (non-lands, 857 / 857) | `0.8809` | `0.9217` | `0.8963` |
+| Spearman $r$ (lands, 65 / 65) | `0.5322` | `0.5024` | `0.5415` |
+| Randkarten oben (`S`/`A` with `< 5 %` share) | `65 / 87` | `130 / 164` | `65 / 94` |
+| Stammkarten unten (`> 30 %` share in `C`/`D`) | `0 / 27` | `0 / 27` | `2 / 27` (`Counterspell`, `Canopy Vista`) |
+| Dünne Datenlage oben (`S`/`A` with `< 5` signals) | `72 / 87` (`4 Signale: 72`) | `145 / 164` (`2 Signale: 144, 3 Signale: 1`) | `72 / 94` (`4 Signale: 72`) |
+| Tier counts `S / A / B / C / D / U / N` (of 927) | `6 / 81 / 257 / 256 / 322 / 0 / 5` | `30 / 134 / 221 / 171 / 366 / 0 / 5` | `9 / 85 / 254 / 253 / 321 / 0 / 5` |
+| Land share in `S / A / B / C / D` | `33.3 % / 12.3 % / 12.8 % / 7.0 % / 0.6 %` | `46.7 % / 13.4 % / 9.0 % / 4.7 % / 1.4 %` | `22.2 % / 14.1 % / 13.0 % / 6.3 % / 0.6 %` |
+| Largest leave-one-out tier impact | `deck_universe` (`879 / 927`), `combos` (`578 / 927`), `global_inclusion` (`560 / 927`) | `deck_universe` (`889 / 927`), `global_inclusion` (`857 / 927`) | `deck_universe` (`884 / 927`), `combos` (`581 / 927`), `global_inclusion` (`561 / 927`) |
+
+#### Share scaling (`share_scale`: `share` vs `rank`, #1351)
+
+In the Chulane pool (922 ranked cards), 756 cards have 0 of 2,823 counted lists. Under pure
+percentile ranks (`share_scale = "rank"`), those 756 zeros share mean rank `0.409` (`377.5 / 921`),
+and a card played in only 3 % of decks jumps to percentile `0.89`, right next to a 60 % staple.
+Consequently, among the 166 cards actually played in $\ge 1\,\%$ of counted lists, the rank-mode
+index had a slightly negative Spearman correlation (`r = -0.0357`) with counted-list share, and
+65 of 87 `S`/`A` cards had `< 5 %` share (`Psychosis Crawler` 4.1 %, `Mystic Sanctuary` 3.1 %,
+`Rite of Replication` 1.6 % in Tier `S` ahead of `Sol Ring` 73.2 % and `Llanowar Elves` 60.0 %).
+
+Four share-scaling candidates were evaluated against `rank` on the 927-card Chulane store:
+
+| Variant (`Ausgewogen`) | Cuts `S/A/B/C` | Spearman $r$ (all 922) | Spearman $r$ (lands 65) | Spearman $r$ ($\ge 1\,\%$ share, $n=166$) | Spearman $r$ ($\ge 5\,\%$ share, $n=84$) | Randkarten oben (`< 5 %` in `S`/`A`) | Stammkarten unten (`> 30 %` in `C`/`D`) | Dünne Datenlage oben (`< 5` signals in `S`/`A`) | Tier counts `S/A/B/C/D` |
+|---|---|---|---|---|---|---|---|---|---|
+| `rank` (legacy) | `90/75/55/35` | `0.8785` | `0.5322` | `-0.0357` | `0.5020` | `65 / 87` | `0 / 27` | `72 / 87` | `6 / 81 / 257 / 256 / 322` |
+| `linear` ($v / v_{\max}$) | `70/55/35/20` | `0.6771` | `0.8400` | `0.5153` | `0.7851` | `0 / 2` | `2 / 27` | `0 / 2` | `1 / 1 / 46 / 199 / 675` |
+| `blend` ($0.5\,\text{rank} + 0.5\,v/v_{\max}$) | `70/55/35/20` | `0.8588` | `0.6748` | `0.2218` | `0.7082` | `36 / 59` | `0 / 27` | `38 / 59` | `12 / 47 / 266 / 275 / 322` |
+| `log` ($\log_{10}(1 + 9 v / v_{\max})$) | `70/55/35/20` | `0.7520` | `0.8414` | `0.7871` | `0.9260` | `0 / 27` | `0 / 27` | `0 / 27` | `11 / 16 / 97 / 267 / 531` |
+| **`share` ($\sqrt{v / v_{\max}}$, recommended)** | **`70/55/35/20`** | **`0.8013`** | **`0.8423`** | **`0.7589`** | **`0.9063`** | **`0 / 20`** | **`0 / 27`** | **`0 / 20`** | **`8 / 12 / 103 / 272 / 527`** |
+
+Across all three presets after `#1351` (`share_scale = "share"`, `tier_cuts = 70 / 55 / 35 / 20`):
+
+| Metric | `Ausgewogen` (default) | `Commander-nah` | `Turniernah` |
+|---|---|---|---|
+| Spearman $r$ (all ranked, 922 / 922) | `0.8013` | `0.9408` | `0.8024` |
+| Spearman $r$ (non-lands, 857 / 857) | `0.7867` | `0.9439` | `0.7878` |
+| Spearman $r$ (lands, 65 / 65) | `0.8423` | `0.8535` | `0.8424` |
+| Randkarten oben (`S`/`A` with `< 5 %` share) | `0 / 20` | `0 / 19` | `0 / 18` |
+| Stammkarten unten (`> 30 %` share in `C`/`D`) | `0 / 27` | `0 / 27` | `0 / 27` |
+| Dünne Datenlage oben (`S`/`A` with `< 5` signals) | `0 / 20` | `0 / 19` | `0 / 18` |
+| Tier counts `S / A / B / C / D / U / N` (of 927) | `8 / 12 / 103 / 272 / 527 / 0 / 5` | `5 / 14 / 37 / 87 / 779 / 0 / 5` | `8 / 10 / 103 / 274 / 527 / 0 / 5` |
+| Land share in `S / A / B / C / D` | `12.5 % / 33.3 % / 9.7 % / 6.2 % / 6.3 %` | `20.0 % / 28.6 % / 18.9 % / 6.9 % / 6.0 %` | `12.5 % / 30.0 % / 10.7 % / 5.8 % / 6.5 %` |
+| Largest leave-one-out tier impact | `combos` (`182 / 927`), `synergy` (`157 / 927`), `deck_universe` (`48 / 927`) | `synergy` (`96 / 927`), `deck_universe` (`40 / 927`) | `combos` (`180 / 927`), `synergy` (`160 / 927`), `deck_universe` (`47 / 927`) |
+
+#### Signal cleanup (`#1352`)
+
+Four per-signal defects identified on the 927-card Chulane store were cleaned up in `#1352`:
+
+1. **`synergy` (`weight = 0`, `< 0` neutral, layer `commander_fit`):** EDHREC synergy measures relative enrichment over all decks rather than card strength (`Sol Ring -0.0738`, `Arcane Signet -0.1722`, `Farseek -0.2089`). Its default weight in all presets is `0.0`, it is exposed as the weightless layer column `"Passt zum Commander"` (`commander_fit`), and when weighted positively any value `< 0` gets `status = NO_VALUE`, `reason = NEGATIVE_NEUTRAL` (never penalizing).
+2. **`playgroup_observed` (`weight = 0`, $k = 200$, `min_denominators.playgroup = 200`):** already shown as layer `"Sieg-Abstand"` (`win_gap`); shrinkage $k$ was raised from `25` to `200`, the index gate was set to `200` games (import minimum remains `25`), and its default weight in all presets is `0.0`.
+3. **`tournament_lists` (`min_denominators.tournament = 20`):** Chulane has 7 tournament lists, which stayed noisy despite top-deck sharing; raising the default gate from `5` to `20` disables `tournament_lists` for Chulane while keeping commanders with $\ge 20$ lists active.
+4. **`combos` (`combo_source = "commander"` default, `min_coverage = 0.25`):** replaces the generic Spellbook mixture (`spellbook`) by default with `edhrec_combo_decks` (which counts as commander-specific under `require_commander_signal`), and lowers `min_coverage` from `0.30` to `0.25` so cards with `deck_universe(2) + global_inclusion(1) = 3 / 11 = 0.2727` stay ranked (`U = 0`).
+
+Measured isolated steps (`k = 200` baseline on the 927-card Chulane store) and all three final `#1352` presets:
+
+| Step / Preset | Spearman $r$ (all 922) | Non-lands (857) | Lands (65) | Randkarten oben | Stammkarten unten | Dünne oben (`< 5`) | Tier counts `S / A / B / C / D / U / N` |
+|---|---|---|---|---|---|---|---|
+| Baseline `#1351` (`Ausgewogen`, $k=25$) | `0.8013` | `0.7867` | `0.8423` | `0 / 20` | `0 / 27` | `0 / 20` | `8 / 12 / 103 / 272 / 527 / 0 / 5` |
+| Baseline mit $k = 200$ | `0.8135` | `0.7965` | `0.8778` | `0 / 27` | `—` | `—` | `9 / 18 / 96 / 249 / 550 / 0 / 5` |
+| Only `synergy = 0` | `0.8137` | `0.7967` | `0.8809` | `0 / 26` | `—` | `—` | `9 / 17 / 97 / 249 / 550 / 0 / 5` |
+| Only `min_denominators.playgroup = 200` | `0.8184` | `0.7983` | `0.8883` | `0 / 22` | `—` | `—` | `9 / 13 / 75 / 225 / 600 / 0 / 5` |
+| Only `playgroup_observed = 0` | `0.8124` | `0.7905` | `0.9207` | `0 / 23` | `—` | `—` | `9 / 14 / 52 / 227 / 620 / 0 / 5` |
+| Only `min_denominators.tournament = 20` | `0.8133` | `0.7964` | `0.8779` | `0 / 26` | `—` | `—` | `10 / 16 / 95 / 251 / 550 / 0 / 5` |
+| Only `combo_source = "commander"` (`min_coverage = 0.30`) | `0.7935` | `0.7537` | `0.9155` | `0 / 23` | `—` | `—` | `9 / 14 / 53 / 136 / 223 / 487 / 5` |
+| **`Ausgewogen` (final `#1352`)** | **`0.9255`** | **`0.9147`** | **`0.9864`** | **`0 / 23`** | **`0 / 27`** | **`17 / 23`** | **`9 / 14 / 24 / 50 / 825 / 0 / 5`** |
+| **`Commander-nah` (final `#1352`)** | **`0.9410`** | **`0.9319`** | **`0.9917`** | **`0 / 24`** | **`0 / 27`** | **`24 / 24`** | **`9 / 15 / 23 / 48 / 827 / 0 / 5`** |
+| **`Turniernah` (final `#1352`)** | **`0.9255`** | **`0.9148`** | **`0.9840`** | **`0 / 20`** | **`0 / 27`** | **`15 / 20`** | **`7 / 13 / 31 / 46 / 825 / 0 / 5`** |
+
+Land shares across `S / A / B / C / D` in final `#1352`: `Ausgewogen` `33.3 % / 42.9 % / 37.5 % / 30.0 % / 3.9 %`, `Commander-nah` `33.3 % / 46.7 % / 34.8 % / 31.3 % / 3.9 %`, `Turniernah` `14.3 % / 38.5 % / 38.7 % / 32.6 % / 3.9 %`. Largest leave-one-out tier impact: `deck_universe` (`857 / 927` in `Ausgewogen` & `Commander-nah`, `889 / 927` in `Turniernah`), `global_inclusion` (`855 / 856 / 862`), `commander_inclusion` (`6 / 6 / 6`).
 
 ### Counted deck-list universes, `universe_source` and the commander-signal rule
 
@@ -486,20 +602,20 @@ builder and the tier list both use those.
 
 Tier rule "commander-specific evidence" (`require_commander_signal`, recommended on): a card
 gets a tier only if at least one commander-specific component (commander inclusion, bracket
-inclusion, deck universe, synergy, tournament lists) has a ranked value with a weight above 0;
-global inclusion, combos and the Playgroup observation are the same for every commander and
+inclusion, deck universe, synergy, tournament lists, or `combos` with `combo_source = "commander"`)
+has a ranked value with a weight above 0;
+global inclusion, Spellbook combos (`combo_source = "spellbook"`) and the Playgroup observation are the same for every commander and
 never give a tier alone
 (tier `U`, reason `NO_COMMANDER_SIGNAL`, "kein Signal speziell für diesen Commander"; simulation
 never counts). The recommended minimum data situation (`min_coverage`, shown as
-"Mindest-Datenlage") is 0.3: with a counted universe an unlisted card has deck universe 2 +
-global 1 + combos 1 = 4 of 12 = 0.33 (total weight 12 with the Playgroup observation at 1; the
-minimum is reached without a Playgroup observation, with one it is 5 of 12).
+"Mindest-Datenlage") is 0.25: with a counted universe an unlisted card has deck universe 2 +
+global 1 = 3 of 11 = 0.2727 (total weight 11 with synergy and Playgroup observation at 0).
 
 ### Combos in the deck (schema 14)
 
 The combo list of a commander (`edhrec_<commander>_combos.csv`: `cards` separated by `;`,
 `num_decks`) is stored twice by the signal import: per card as the signal
-`edhrec_combo_decks` (a marker layer, never a rated component) and, since schema 14, as full
+`edhrec_combo_decks` (used by `combos` under the default `combo_source = "commander"`) and, since schema 14, as full
 card sets in the table `commander_combo`. A replacing import swaps the commander's list, an
 appending one only adds sets that are not stored yet.
 
@@ -601,6 +717,46 @@ the public card data once a card is linked; the workbook stays the source of wha
 
 Only image requests leave the machine, and they name single public cards (Owner exception in
 `AGENTS.md` §12). The image host is fixed in `images.py`.
+
+### Which printing is shown (schema 16, #1342)
+
+A card is pictured as the printing the collection itself holds when that printing is
+identifiable, and as a plain standard printing otherwise — never as a full-art or
+promo variant chosen by chance. The precedence is:
+
+1. **Exact collection printing** (`EXACT_COLLECTION`): the inventory import reads the
+   workbook's lot sheet into `card_printing` (one primary printing per card: the
+   printing of the most copies; a reference that names no single printing stays
+   `UNRESOLVED` and is counted, never guessed). `import-printings <workbook>
+   --bulk <default-cards file>` resolves that printing's image addresses by matching
+   locally against the public default-cards bulk file — nothing about the collection
+   leaves the machine. The same
+   precedence applies inside the Scryfall fold below: a candidate whose set and
+   collector number (and language, when the reference names one) match an owned
+   printing wins before every other criterion.
+2. **Standard rule** (`STANDARD_RULE`): among the remaining candidates of an oracle,
+   a standard printing beats a non-standard one. Standard means: not `full_art`, not
+   `border_color = borderless`, no `showcase` or `extendedart` frame effect, and no
+   promo marking (`promo` false, `promo_types` empty). Paper, non-digital, English,
+   image present and commander-legal keep their previous order after that.
+3. **Scryfall default** (`SCRYFALL_DEFAULT`): a single candidate, or no standard one,
+   keeps the choice the criteria above make; the stored `printing_basis` says which
+   of the three rules produced the picture, and the import report counts all three
+   (`printings_exact` / `printings_standard` / `printings_default`).
+
+The rule can only choose when the import actually sees several printings: it needs
+the **default-cards** bulk file (all printings). The oracle-cards file carries one
+preselected printing per oracle, so with it every card is `SCRYFALL_DEFAULT` unless
+it matches an owned printing.
+
+The image cache is bound to the chosen printing by an address stamp: next to each
+cached file (`images/<oracle_id>-<face>.jpg`) lies a `<oracle_id>-<face>.stamp` file
+holding the exact address the picture was downloaded from. A cached file whose stamp
+names another address is replaced on the next fetch; a file without a stamp (cached
+before the stamp existed) counts as valid and is stamped in place. `fetch-images`
+is stricter: there an unstamped or differently stamped file is fetched and stamped
+once, so after `import-printings` changes any picture, one `fetch-images` run brings
+the whole cache onto the new printings.
 
 ### Alles importieren
 

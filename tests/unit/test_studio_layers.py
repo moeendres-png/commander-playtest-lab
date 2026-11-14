@@ -824,17 +824,18 @@ def test_the_win_gap_layer_is_the_gap_exactly_as_the_index_reads_it() -> None:
     cards = {key: _card() for key in (*observations, "none")}
     result = compute_layers(cards, {}, observations)["cards"]
     assert result["large"]["win_gap"]["value"] == strength.observed_gap(observations["large"])
-    assert result["large"]["win_gap"]["value"] == 8.0
+    assert result["large"]["win_gap"]["value"] == pytest.approx(10.0 * 100 / 300)
     assert (result["large"]["win_gap"]["raw"], result["large"]["win_gap"]["n"]) == (10.0, 100)
-    assert result["small"]["win_gap"]["value"] == 5.0
+    assert result["small"]["win_gap"]["value"] == pytest.approx(10.0 * 25 / 225)
     for key, reason in (("thin", layers.SAMPLE_TOO_SMALL), ("none", layers.NO_RECORD)):
         item = result[key]["win_gap"]
         assert (item["status"], item["reason"], item["value"]) == (layers.UNKNOWN, reason, None)
-    # the layer ranks the cards like the index component does
+    # the layer ranks the cards like the index component does (when the component minimum is 25)
     only_gap = StrengthSettings(
         weights={name: 0.0 for name in strength.COMPONENTS} | {strength.PLAYGROUP_OBSERVED: 1.0},
         min_coverage=0.0,
         min_components=1,
+        min_denominators={"playgroup": 25},
     )
     scored = strength.score_pool(
         only_gap,
@@ -851,13 +852,22 @@ def test_the_summary_counts_values_unknowns_and_the_kind_of_every_layer() -> Non
     cards = {name: _card() for name in "abc"}
     atlas = {"a": AtlasRecord(on_curve_count=10, on_curve_denominator=100)}
     summary = {item["key"]: item for item in compute_layers(cards, atlas, {})["layers"]}
-    assert list(summary) == ["pod_scaling", "tempo", "playability", "staying", "win_gap"]
+    assert list(summary) == [
+        "pod_scaling",
+        "tempo",
+        "playability",
+        "staying",
+        "win_gap",
+        "commander_fit",
+    ]
     assert (summary["tempo"]["with_value"], summary["tempo"]["unknown"]) == (1, 2)
     assert summary["pod_scaling"]["with_value"] == 3
     assert summary["pod_scaling"]["kind"] == layers.KIND_DERIVED
     assert summary["tempo"]["kind"] == layers.KIND_MEASURED
     assert summary["playability"]["denominator"].startswith("ever_drawn_n")
     assert summary["win_gap"]["weight_allowed"] is False
+    assert summary["commander_fit"]["weight_allowed"] is False
+    assert summary["commander_fit"]["min_sample"] is None
     assert summary["tempo"]["weight_allowed"] is True
 
 
@@ -953,7 +963,7 @@ def test_a_layer_with_weight_zero_changes_nothing_in_the_index() -> None:
 
 def test_a_weighted_layer_joins_the_index_as_one_more_ranked_component() -> None:
     collected = {strength.COMMANDER_INCLUSION, strength.layer_component("tempo")}
-    settings = _only({}, layer_weights={"tempo": 1.0})
+    settings = _only({}, layer_weights={"tempo": 1.0}, share_scale="rank")
     scored = strength.score_pool(settings, _two_signal_pool(), collected)
     # inclusion percentile a 0, b .5, c 1; tempo percentile a 1, b .5, c 0: the mean is .5 each
     assert [scored[card]["index"] for card in "abc"] == [50.0, 50.0, 50.0]
@@ -966,9 +976,14 @@ def test_a_weighted_layer_joins_the_index_as_one_more_ranked_component() -> None
     )
     assert row["signal"] == "playgroup_on_curve_pct" and row["status"] == strength.PRESENT
     lopsided = strength.score_pool(
-        _only({}, layer_weights={"tempo": 3.0}), _two_signal_pool(), collected
+        _only({}, layer_weights={"tempo": 3.0}, share_scale="rank"), _two_signal_pool(), collected
     )
     assert [lopsided[card]["index"] for card in "abc"] == [75.0, 50.0, 25.0]
+    # Under default share_scale="share", the layer itself still ranks by percentile (1, 0.5, 0)
+    default_scored = strength.score_pool(
+        _only({}, layer_weights={"tempo": 1.0}), _two_signal_pool(), collected
+    )
+    assert [default_scored[c]["components"][-1]["percentile"] for c in "abc"] == [1.0, 0.5, 0.0]
 
 
 def test_a_weighted_layer_counts_in_the_coverage_of_cards_without_a_value() -> None:
@@ -1004,7 +1019,7 @@ def test_the_commander_and_basics_stay_unranked_with_a_weighted_layer() -> None:
     pool = _two_signal_pool()
     context = PoolContext(unranked={"a": strength.NOT_RANKED_COMMANDER})
     scored = strength.score_pool(
-        _only({}, layer_weights={"tempo": 1.0}),
+        _only({}, layer_weights={"tempo": 1.0}, share_scale="rank"),
         pool,
         {strength.COMMANDER_INCLUSION, strength.layer_component("tempo")},
         context=context,
@@ -1037,3 +1052,47 @@ def test_a_keyword_is_only_matched_on_a_keyword_line_and_long_lines_stay_fast() 
     started = time.perf_counter()
     classify_pod_scaling(", ".join(["flying"] * 40) + " and then some text that is no keyword")
     assert time.perf_counter() - started < 0.5
+
+
+def test_commander_fit_layer_reads_synergy_without_denominator_or_weight() -> None:
+    cards = {"pos": _card(), "neg": _card(), "missing": _card(), "none_val": _card()}
+    synergy = {
+        "pos": Observation(0.42),
+        "neg": Observation(-0.15),
+        "none_val": Observation(None),
+    }
+    res = compute_layers(cards, {}, {}, synergy=synergy)
+    pos = res["cards"]["pos"][layers.COMMANDER_FIT]
+    neg = res["cards"]["neg"][layers.COMMANDER_FIT]
+    missing = res["cards"]["missing"][layers.COMMANDER_FIT]
+    none_val = res["cards"]["none_val"][layers.COMMANDER_FIT]
+    assert (pos["status"], pos["value"], pos["raw"], pos["percentile"]) == (
+        layers.OK,
+        0.42,
+        0.42,
+        100.0,
+    )
+    assert (neg["status"], neg["value"], neg["raw"], neg["percentile"]) == (
+        layers.OK,
+        -0.15,
+        -0.15,
+        0.0,
+    )
+    assert (missing["status"], missing["reason"], missing["value"]) == (
+        layers.UNKNOWN,
+        layers.NO_RECORD,
+        None,
+    )
+    assert (none_val["status"], none_val["reason"], none_val["value"]) == (
+        layers.UNKNOWN,
+        layers.NO_VALUE_PUBLISHED,
+        None,
+    )
+    fit_summary = next(item for item in res["layers"] if item["key"] == layers.COMMANDER_FIT)
+    assert fit_summary["label"] == "Passt zum Commander"
+    assert (fit_summary["with_value"], fit_summary["unknown"], fit_summary["weight_allowed"]) == (
+        2,
+        2,
+        False,
+    )
+    assert fit_summary["min_sample"] is None

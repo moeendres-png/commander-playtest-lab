@@ -159,10 +159,15 @@ def test_import_rejects_an_atlas_file_without_its_columns(
 # ---------- pure scoring ----------
 
 
-def _only_observed() -> StrengthSettings:
+def _only_observed(*, min_playgroup: int = 25) -> StrengthSettings:
     weights = {name: 0.0 for name in strength.COMPONENTS}
     weights[strength.PLAYGROUP_OBSERVED] = 1.0
-    return StrengthSettings(weights=weights, min_coverage=0.0, min_components=1)
+    return StrengthSettings(
+        weights=weights,
+        min_coverage=0.0,
+        min_components=1,
+        min_denominators={"playgroup": min_playgroup},
+    )
 
 
 def test_observed_gap_is_shrunk_by_its_sample_and_needs_the_minimum() -> None:
@@ -182,8 +187,8 @@ def test_observed_gap_is_shrunk_by_its_sample_and_needs_the_minimum() -> None:
             if item["component"] == strength.PLAYGROUP_OBSERVED
         )
 
-    # The same published gap ranks higher on the larger sample: 10 * 25/50 = 5.0
-    # against 10 * 100/125 = 8.0, and the negative gap ranks last.
+    # The same published gap ranks higher on the larger sample: 10 * 25/225 = 1.111...
+    # against 10 * 100/300 = 3.333..., and the negative gap ranks last.
     assert component("large")["percentile"] == 1.0
     assert component("small")["percentile"] == 0.5
     assert component("negative")["percentile"] == 0.0
@@ -193,6 +198,28 @@ def test_observed_gap_is_shrunk_by_its_sample_and_needs_the_minimum() -> None:
         result = component(card)
         assert result["status"] == strength.NO_VALUE and result["percentile"] is None
         assert scored[card]["index"] is None and scored[card]["tier"] == "U"
+    # With the default minimum (200), n=100 is also dropped cleanly as BELOW_MIN_DENOMINATOR.
+    default_min = strength.score_pool(
+        _only_observed(min_playgroup=200),
+        {"edge": {strength.PLAYGROUP_OBSERVED: Observation(10.0, None, 200)}, **observations},
+        {strength.PLAYGROUP_OBSERVED},
+    )
+    assert (
+        next(
+            c
+            for c in default_min["edge"]["components"]
+            if c["component"] == strength.PLAYGROUP_OBSERVED
+        )["status"]
+        == strength.PRESENT
+    )
+    assert (
+        next(
+            c
+            for c in default_min["large"]["components"]
+            if c["component"] == strength.PLAYGROUP_OBSERVED
+        )["reason"]
+        == strength.BELOW_MIN_DENOMINATOR
+    )
     # The breakdown keeps the published gap and its sample size next to the label.
     shown = component("small")
     assert shown["label"] == "Beobachtete Sieg-Korrelation (Playgroup)"
@@ -219,7 +246,8 @@ def test_compute_reads_the_atlas_as_a_commander_independent_component(
         folder,
         [
             _atlas_row("Filler 01", "OK", gap=6.0, n=500),
-            _atlas_row("Filler 02", "OK", gap=6.0, n=25),
+            _atlas_row("Filler 02", "OK", gap=6.0, n=200),
+            _atlas_row("Filler 04", "OK", gap=6.0, n=25),
         ],
     )
     _import(store, folder)
@@ -230,9 +258,13 @@ def test_compute_reads_the_atlas_as_a_commander_independent_component(
     assert strong["status"] == strength.PRESENT
     assert strong["value"] == 6.0 and strong["denominator"] == 500
     edge = _component(cards["Filler 02"], strength.PLAYGROUP_OBSERVED)
-    assert edge["status"] == strength.PRESENT and edge["denominator"] == 25
+    assert edge["status"] == strength.PRESENT and edge["denominator"] == 200
     # Same gap, smaller sample: the shrunk value ranks lower.
     assert (strong["percentile"] or 0) > (edge["percentile"] or 0)
+    # n=25 passes import minimum (25) but is below the default index minimum (200).
+    below = _component(cards["Filler 04"], strength.PLAYGROUP_OBSERVED)
+    assert below["status"] == strength.NO_VALUE
+    assert below["reason"] == strength.BELOW_MIN_DENOMINATOR
     missing = _component(cards["Filler 03"], strength.PLAYGROUP_OBSERVED)
     assert missing["status"] == strength.NO_VALUE and missing["percentile"] is None
 
@@ -243,13 +275,16 @@ def test_a_card_with_only_a_playgroup_observation_gets_no_tier(
     folder = tmp_path / "signals"
     _write_atlas(folder, [_atlas_row("Filler 01", "OK", gap=6.0, n=500)])
     _import(store, folder)
+    weighted = {**strength.DEFAULT_WEIGHTS, strength.PLAYGROUP_OBSERVED: 1.0}
     # Under the defaults the observation alone is too little data.
-    default = _by_name(strength_view.compute(store, COMMANDER, StrengthSettings()))["Filler 01"]
+    default = _by_name(strength_view.compute(store, COMMANDER, StrengthSettings(weights=weighted)))[
+        "Filler 01"
+    ]
     assert _component(default, strength.PLAYGROUP_OBSERVED)["status"] == strength.PRESENT
     assert default["tier"] == strength.TIER_UNKNOWN
     # Even with the data minimum out of the way it does not satisfy the rule "commander
     # signal": the card stays U, and only switching the rule off lets it have a tier.
-    loose = {"min_coverage": 0.0, "min_components": 1}
+    loose = {"weights": weighted, "min_coverage": 0.0, "min_components": 1}
     on = _by_name(strength_view.compute(store, COMMANDER, StrengthSettings(**loose)))["Filler 01"]
     assert on["tier"] == strength.TIER_UNKNOWN and on["reason"] == strength.NO_COMMANDER_SIGNAL
     off_settings = StrengthSettings(require_commander_signal=False, **loose)
@@ -278,12 +313,13 @@ def test_presets_offer_the_component_with_its_observed_label() -> None:
     offered = {item["key"]: item for item in strength_view.presets()["components"]}  # type: ignore[union-attr]
     entry = offered[strength.PLAYGROUP_OBSERVED]
     assert "Beobachtete" in str(entry["label"]) and "Korrelation" in str(entry["label"])
-    assert entry["default_weight"] == 1.0
+    assert entry["default_weight"] == 0.0
     panel = strength_view.presets()["panel"]  # type: ignore[index]
     key = f"weights.{strength.PLAYGROUP_OBSERVED}"
-    assert panel["labels"][key] == "Beobachtete Sieg-Korrelation (Playgroup) (empfohlen: 1)"
+    assert panel["labels"][key] == "Beobachtete Sieg-Korrelation (Playgroup) (empfohlen: 0)"
     assert (
-        "ab 25 Partien" in panel["help"][key]
+        "ab 200 Partien" in panel["help"][key]
+        and "n / (n + 200)" in panel["help"][key]
         and "reicht für eine Stufe allein nicht" in panel["help"][key]
     )
     assert key in panel["groups"][0]["keys"]

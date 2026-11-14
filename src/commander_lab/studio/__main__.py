@@ -14,6 +14,7 @@ from . import (
     catalog,
     decklist_import,
     importers,
+    printings,
     research_import,
     roles,
     rulings,
@@ -68,6 +69,18 @@ def _parser() -> argparse.ArgumentParser:
         "import-hub",
     ):
         commands.add_parser(name).add_argument("path")
+    printings_cmd = commands.add_parser(
+        "import-printings",
+        help="the collection workbook plus the images of its own printings, matched "
+        "locally against a Scryfall default-cards bulk file",
+    )
+    printings_cmd.add_argument("path")
+    printings_cmd.add_argument(
+        "--bulk",
+        required=True,
+        help="Scryfall default-cards bulk file (or folder of its parts); the owned "
+        "printings are matched locally, nothing is sent anywhere",
+    )
     corpus_cards = commands.add_parser(
         "import-corpus-cards",
         help="source-deck card rows from one or several part files (one transaction)",
@@ -229,6 +242,16 @@ def _parser() -> argparse.ArgumentParser:
     tiers_cmd.add_argument("--commander", default=LEGACY_COMMANDER)
     tiers_cmd.add_argument("--min-universe", type=int)
     tiers_cmd.add_argument("--limit", type=int, default=50)
+    ranking_check_cmd = commands.add_parser(
+        "ranking-check",
+        help="objective quality figures for the strength-index ranking of one commander",
+    )
+    ranking_check_cmd.add_argument("--commander", default=LEGACY_COMMANDER)
+    ranking_check_cmd.add_argument("--profile", help="saved strength settings profile name")
+    ranking_check_cmd.add_argument(
+        "--preset", help="built-in preset name (Ausgewogen, Commander-nah, Turniernah)"
+    )
+    ranking_check_cmd.add_argument("--json", action="store_true", help="print only the JSON report")
     commander_help = (
         "commander this source data belongs to (default: the commander of the standard "
         "data packages); figures of two commanders are never counted together"
@@ -691,6 +714,9 @@ def _run(args: argparse.Namespace, store: StudioStore) -> object:
         result = list_commanders(store)
     elif args.command == "import-inventory":
         result = importers.import_inventory_workbook(store, args.path)
+    elif args.command == "import-printings":
+        imported = importers.import_inventory_workbook(store, args.path)
+        result = {**imported, **printings.resolve_printing_images(store, bulk_path=args.bulk)}
     elif args.command == "import-corpus-register":
         result = importers.import_corpus_register(store, args.path)
     elif args.command == "import-corpus-cards":
@@ -868,6 +894,10 @@ def main(argv: list[str] | None = None) -> int:
         from .import_all import run_command
 
         return run_command(args)
+    if args.command == "ranking-check":
+        from .ranking_check import run_command as run_ranking_check_command
+
+        return run_ranking_check_command(args)
     if args.command == "card-outcomes":
         return _card_outcomes(args)
     if args.command == "compare-decks":

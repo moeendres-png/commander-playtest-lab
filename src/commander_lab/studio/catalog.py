@@ -55,7 +55,9 @@ def _image(holder: dict[str, object]) -> str | None:
     return _text(uris.get("normal")) if isinstance(uris, dict) else None
 
 
-def _row(card: dict[str, object], source_id: str) -> tuple[object, ...] | None:
+def _row(
+    card: dict[str, object], source_id: str, basis: str = "SCRYFALL_DEFAULT"
+) -> tuple[object, ...] | None:
     oracle_id = _text(card.get("oracle_id"))
     name = _text(card.get("name"))
     layout = _text(card.get("layout")) or ""
@@ -99,19 +101,101 @@ def _row(card: dict[str, object], source_id: str) -> tuple[object, ...] | None:
         front,
         back,
         source_id,
+        _text(card.get("set")),
+        _text(card.get("collector_number")),
+        basis,
+    )
+
+
+def _is_standard(card: dict[str, object]) -> bool:
+    """A plain standard printing (issue #1342): no full art, no borderless frame, no
+    showcase or extended-art frame effect, and no promo marking of any kind."""
+    if card.get("full_art"):
+        return False
+    if card.get("border_color") == "borderless":
+        return False
+    effects = card.get("frame_effects")
+    if isinstance(effects, list) and {"showcase", "extendedart"} & {
+        str(effect) for effect in effects
+    }:
+        return False
+    if card.get("promo"):
+        return False
+    promo_types = card.get("promo_types")
+    return not (isinstance(promo_types, list) and promo_types)
+
+
+def _number_key(value: str) -> str:
+    """Collector numbers compare without padding: ``067`` and ``67`` are one printing."""
+    number = value.strip()
+    return str(int(number)) if number.isdigit() else number.casefold()
+
+
+def _owned_printings(store: StudioStore) -> dict[str, set[tuple[str, str, str | None]]]:
+    """Owned printings by oracle name: ``(set, collector number, language)`` per name.
+
+    Read from ``card_printing`` (the workbook's lot references, resolved to one primary
+    printing per collection card). A database old enough to lack the table simply owns
+    nothing, so no candidate can match exactly.
+    """
+    db = store.connection
+    found = db.execute(
+        "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'card_printing'"
+    ).fetchone()
+    if found is None:
+        return {}
+    owned: dict[str, set[tuple[str, str, str | None]]] = {}
+    for row in db.execute(
+        "SELECT c.oracle_name AS name, p.set_code, p.collector_number, p.lang "
+        "FROM card_printing p JOIN card c USING (card_id)"
+    ):
+        if row["set_code"] is None or row["collector_number"] is None:
+            continue
+        owned.setdefault(str(row["name"]), set()).add(
+            (
+                str(row["set_code"]).casefold(),
+                _number_key(str(row["collector_number"])),
+                _text(row["lang"]),
+            )
+        )
+    return owned
+
+
+def _is_exact(
+    card: dict[str, object], owned: Mapping[str, set[tuple[str, str, str | None]]]
+) -> bool:
+    """Whether this candidate is a printing the collection itself holds.
+
+    The reference names the candidate by set and collector number; when it also names
+    a language, the candidate must be printed in that language. A reference without a
+    language matches any language.
+    """
+    name = _text(card.get("name"))
+    refs = owned.get(name or "") or owned.get((name or "").split(" // ")[0])
+    if not refs:
+        return False
+    key = (
+        str(card.get("set") or "").casefold(),
+        _number_key(str(card.get("collector_number") or "")),
+    )
+    lang = _text(card.get("lang"))
+    return any(
+        (ref_set, ref_number) == key
+        and (ref_lang is None or (lang is not None and ref_lang.casefold() == lang.casefold()))
+        for ref_set, ref_number, ref_lang in refs
     )
 
 
 def _printing_rank(
-    card: dict[str, object], row: tuple[object, ...]
-) -> tuple[int, int, int, int, int]:
+    card: dict[str, object], row: tuple[object, ...], exact: bool, standard: bool
+) -> tuple[int, int, int, int, int, int, int]:
     games = card.get("games")
     in_paper = int(isinstance(games, list) and "paper" in games)
     not_digital = int(not bool(card.get("digital")))
     english = int(card.get("lang") in {None, "en"})
     has_image = int(row[18] is not None)
     legal = int(row[10] == "legal" and row[4] != "reversible_card")
-    return (in_paper, not_digital, english, has_image, legal)
+    return (int(exact), int(standard), in_paper, not_digital, english, has_image, legal)
 
 
 def _source_files(path: Path) -> list[Path]:
@@ -168,26 +252,48 @@ def import_scryfall_oracle(
         sha256=_source_digest(files),
         url="https://scryfall.com/docs/api/bulk-data",
     )
-    by_oracle: dict[str, tuple[tuple[int, int, int, int, int], tuple[object, ...]]] = {}
+    owned = _owned_printings(store)
+    by_oracle: dict[
+        str, tuple[tuple[int, int, int, int, int, int, int], tuple[object, ...], bool, bool]
+    ] = {}
+    candidates: dict[str, int] = {}
     for file_path in files:
         for card in _objects(file_path):
-            row = _row(card, source_id)
+            exact = _is_exact(card, owned)
+            row = _row(card, source_id, basis="EXACT_COLLECTION" if exact else "SCRYFALL_DEFAULT")
             if row is None:
                 continue
             oracle_id = str(row[0])
-            rank = _printing_rank(card, row)
+            candidates[oracle_id] = candidates.get(oracle_id, 0) + 1
+            standard = _is_standard(card)
+            rank = _printing_rank(card, row, exact, standard)
             previous = by_oracle.get(oracle_id)
             if previous is None or rank > previous[0]:
-                by_oracle[oracle_id] = (rank, row)
-    rows = [entry[1] for entry in by_oracle.values()]
+                by_oracle[oracle_id] = (rank, row, exact, standard)
+    rows: list[tuple[object, ...]] = []
+    basis_counts = {"EXACT_COLLECTION": 0, "STANDARD_RULE": 0, "SCRYFALL_DEFAULT": 0}
+    for oracle_id, (_, row, exact, standard) in by_oracle.items():
+        basis = str(row[23])
+        if not exact and standard and candidates[oracle_id] > 1:
+            # the standard rule actually chose between several printings
+            basis = "STANDARD_RULE"
+            row = (*row[:23], basis)
+        basis_counts[basis] += 1
+        rows.append(row)
     with store.connection as db:
         db.execute("DELETE FROM scryfall_card")
         db.executemany(
             "INSERT OR REPLACE INTO scryfall_card VALUES "
-            "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             rows,
         )
-    report: dict[str, object] = {"oracle_cards": len(rows), "files": len(files)}
+    report: dict[str, object] = {
+        "oracle_cards": len(rows),
+        "files": len(files),
+        "printings_exact": basis_counts["EXACT_COLLECTION"],
+        "printings_standard": basis_counts["STANDARD_RULE"],
+        "printings_default": basis_counts["SCRYFALL_DEFAULT"],
+    }
     report.update(link_collection(store, disambiguation=_load_disambiguation(disambiguation_path)))
     report.update(relink_corpus(store))
     return report
