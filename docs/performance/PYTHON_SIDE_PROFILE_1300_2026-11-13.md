@@ -145,6 +145,13 @@ Messung. Am Schwellen-Urteil ändert die Übertragung nichts.
 
 ## Schwellen-Urteil für die Umsetzung (Schritt 2+, #1300 Punkt 4)
 
+> **Überholt (2026-11-14).** #1300 ist entschieden und geschlossen. Die 5-%-Schwelle gilt
+> für die Laufzeit einer Partie, nicht für den Anteil an der Python-CPU. Gegen die Laufzeit
+> gerechnet ergeben die Zahlen dieses Berichts: Pilot rund 14,9 %, Recorder rund 4,7 %,
+> JSON-Lesen rund 1,3 %. Die gleichheitsgeprüften Piloten-Änderungen sparten gemessen rund
+> 1 s von 216 s und wurden nicht gemergt; der Rahmen-Digest des Messwerkzeugs ist mit #1317
+> beschleunigt. Die folgende Einstufung „optimierbar“ ist deshalb keine Arbeitsanweisung.
+
 Nach der 5-%-Regel aus #1300 darf später nur an Töpfen über 5 % optimiert
 werden:
 
@@ -193,11 +200,12 @@ aus #1264/#1298. Das deckt sich mit #1251 (Pilot dort 10,5 % der Wanduhr).
 `docs/performance/measurements-1300-2026-11-13/`:
 - `run_python_profile_1300.py` — Treiber (Smoke/Vollkette, beide Modi)
 - `analyze_python_profile.py` — Topf-Auswertung (Regeln im Docstring)
-- `smoke_result.json`, `smoke.pstats` — Smoke (Seed 1, Hash = #1281)
-- `full_result.json`, `full.pstats` — Vollkette profiliert (8 Partien)
+- `smoke_result.json` — Smoke (Seed 1, Hash = #1281)
+- `full_result.json` — Vollkette profiliert (8 Partien)
 - `plain_result.json`, `plain_comparison.json` — Vollkette unprofiliert +
   Vergleich (Identität identisch, Inflationsfaktor 2,57)
 - `buckets.json`, `buckets.csv` — Topf-Tabelle
 - `cprofile_top60.txt` — pstats-Auszug (Top 60 kumulativ)
-- `pilot_internals.txt` — Pilot-/
-...[truncated 2087 chars]
+- `pilot_internals.txt` — Innen-Posten des Piloten
+
+Die Profil-Dateien selbst liegen nicht im Repository (`AGENTS.md` §12); `MANIFEST.json` nennt ihre Digests.

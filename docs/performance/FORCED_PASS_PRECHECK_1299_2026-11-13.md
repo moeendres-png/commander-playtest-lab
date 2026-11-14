@@ -195,11 +195,11 @@ nie übersprungen.
    Bridge-Design mit Übergangs-Meldung).
 2. `decision_count`/`max_decisions` in `_drive` zählen heute alle Fragen;
    beantwortet die Bridge erzwungene selbst, sinkt der Python-Zähler —
-   Semantik-Frage für das Studio-Tor (Claude), kein Pilot-Zustand.
+   Semantik-Frage für das Studio-Tor, kein Pilot-Zustand.
 3. Menschen-Platz (Bedingung 5): nicht geprüft, Einstellung bleibt dort
    aus; die menschliche Policy ist nicht `ExternalPilotDecisionPolicy`.
 
-## Fazit für die Bridge-Umsetzung (Claude)
+## Fazit für die Bridge-Umsetzung
 
 - **Teil B steht:** Der Digest-Modus ist implementiert und getestet;
   das Tor kann Vorher/Nachher mit `--frame-digest-skip-forced` auf beiden
