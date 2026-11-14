@@ -1,5 +1,5 @@
 location_id,location_name,location_type,ownership_semantics
-location:alen_box,Alens Box,physical_storage,Location only; does not imply Alen owns the card.
-location:leon_box,Leons Box,physical_storage,Location only; does not imply Leon owns the card.
-location:moritz_box,Moritz Box,physical_storage,Location only.
+location:a_box,A Box,physical_storage,Location only; does not imply A owns the card.
+location:l_box,L Box,physical_storage,Location only; does not imply L owns the card.
+location:m_box,M Box,physical_storage,Location only.
 location:unknown,Unbekannt / nicht direkt belegt,unknown,Do not infer ownership or physical placement.
