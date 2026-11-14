@@ -620,9 +620,9 @@ def test_critical_command_or_success_masking_is_not_enforcing() -> None:
     )
 
 
-def test_general_test_definition_change_requires_review(
-    repository: tuple[Path, str],
-) -> None:
+def test_added_test_is_reported_but_needs_no_review(repository: tuple[Path, str]) -> None:
+    # Package B (2026-11-14, Owner): a new test module cannot weaken a gate, so it no longer
+    # makes the shadow check red; the report still lists it.
     repo, base = repository
     head = candidate(
         repo,
@@ -630,13 +630,86 @@ def test_general_test_definition_change_requires_review(
         lambda root: write(
             root, "tests/unit/test_new_gate_signal.py", "def test_signal(): assert True\n"
         ),
-        "change quality test definition",
+        "add quality test",
     )
     report = guard.inspect_required_check_definitions(repo, base, head)
-    assert report["overall_classification"] == "GATE_DEFINITION_CHANGED_REVIEW_REQUIRED"
+    assert report["overall_classification"] == "PASS"
+    assert report["benign_test_changes"] == ["tests/unit/test_new_gate_signal.py"]
     assert any(
-        item["impact"] == "quality_test_definition" for item in report["changed_protected_surfaces"]
+        item["impact"] == "test_added_no_review_needed"
+        for item in report["changed_protected_surfaces"]
     )
+    assert guard._exit_code(report["overall_classification"]) == 0
+
+
+def _qualification_test(root: Path, text: str) -> None:
+    write(root, "tests/qualification/test_fixture.py", text)
+
+
+@pytest.mark.parametrize(
+    "new_text",
+    [
+        "def test_fixture(): assert True\ndef test_more(): assert 1 == 1\n",
+        "def test_fixture():\n    assert True\n    assert 2 > 1\n",
+    ],
+)
+def test_extended_test_needs_no_review(repository: tuple[Path, str], new_text: str) -> None:
+    repo, base = repository
+    head = candidate(repo, base, lambda root: _qualification_test(root, new_text), "extend test")
+    assert classification(repo, base, head) == "PASS"
+
+
+@pytest.mark.parametrize(
+    "new_text",
+    [
+        "def test_other(): assert True\n",  # test_fixture removed
+        "def test_fixture(): pass\n",  # assertion dropped
+        "import pytest\n@pytest.mark.skip\ndef test_fixture(): assert True\n",  # newly skipped
+        "def test_fixture(: syntax error\n",
+    ],
+)
+def test_weakened_test_still_requires_review(repository: tuple[Path, str], new_text: str) -> None:
+    repo, base = repository
+    head = candidate(repo, base, lambda root: _qualification_test(root, new_text), "weaken test")
+    report = guard.inspect_required_check_definitions(repo, base, head)
+    assert report["overall_classification"] == "GATE_DEFINITION_CHANGED_REVIEW_REQUIRED"
+    assert report["benign_test_changes"] == []
+
+
+def test_removed_test_file_still_requires_review(repository: tuple[Path, str]) -> None:
+    repo, base = repository
+    head = candidate(
+        repo, base, lambda root: (root / "tests/qualification/test_fixture.py").unlink(), "remove"
+    )
+    assert classification(repo, base, head) == "GATE_DEFINITION_CHANGED_REVIEW_REQUIRED"
+
+
+def test_conftest_and_other_test_data_still_require_review(repository: tuple[Path, str]) -> None:
+    repo, base = repository
+    for path in ("tests/conftest.py", "tests/unit/data.json"):
+        head = candidate(repo, base, lambda root, p=path: write(root, p, "x = 1\n"), "control")
+        assert classification(repo, base, head) == "GATE_DEFINITION_CHANGED_REVIEW_REQUIRED", path
+
+
+def test_a_gate_script_change_still_requires_review(repository: tuple[Path, str]) -> None:
+    repo, base = repository
+    head = candidate(
+        repo, base, lambda root: write(root, "scripts/ci_gate.py", "# changed\n"), "gate script"
+    )
+    assert classification(repo, base, head) == "GATE_DEFINITION_CHANGED_REVIEW_REQUIRED"
+
+
+def test_a_removed_test_in_a_mixed_change_keeps_the_review_requirement(
+    repository: tuple[Path, str],
+) -> None:
+    repo, base = repository
+
+    def mutate(root: Path) -> None:
+        write(root, "tests/unit/test_new.py", "def test_a(): assert True\n")
+        (root / "tests/qualification/test_fixture.py").unlink()
+
+    head = candidate(repo, base, mutate, "mixed")
+    assert classification(repo, base, head) == "GATE_DEFINITION_CHANGED_REVIEW_REQUIRED"
 
 
 @pytest.mark.parametrize(
