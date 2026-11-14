@@ -11,6 +11,7 @@ import csv
 import hashlib
 import json
 from collections.abc import Iterable, Iterator, Mapping, Sequence
+from functools import partial
 from pathlib import Path
 
 from openpyxl import load_workbook
@@ -18,19 +19,26 @@ from openpyxl import load_workbook
 from .catalog import refresh_corpus_stats
 from .decks import RevisionCard, create_revision
 from .edhrec_capture_proof import verify_captures
+from .printings import EXACT_CANDIDATE, UNRESOLVED, parse_printing_ref
 from .store import DataClass, StudioStore, now_utc, rebuild_corpus_deck_role, sha256_file
 
 IDENTITY_SHEET = "01_CARD_IDENTITY"
 INVENTORY_SHEET = "05_INVENTORY_CURRENT"
+LOTS_SHEET = "02_PHYSICAL_LOTS"
+DETAILS_SHEET = "09_PRINTING_DETAILS"
 
 
-def _sheet_rows(path: Path, sheet: str) -> list[dict[str, object]]:
+def _read_sheet(path: Path, sheet: str) -> list[dict[str, object]] | None:
+    """Rows of one sheet as header-keyed dicts, or None when the workbook has no such sheet."""
     workbook = load_workbook(filename=path, read_only=True, data_only=True)
     try:
         if sheet not in workbook.sheetnames:
-            raise ValueError(f"{path.name}: sheet {sheet} is missing")
+            return None
         rows = workbook[sheet].iter_rows(values_only=True)
-        header = [str(value) if value is not None else "" for value in next(rows)]
+        header_row = next(rows, None)
+        if header_row is None:
+            return []
+        header = [str(value) if value is not None else "" for value in header_row]
         return [
             dict(zip(header, row, strict=False))
             for row in rows
@@ -38,6 +46,18 @@ def _sheet_rows(path: Path, sheet: str) -> list[dict[str, object]]:
         ]
     finally:
         workbook.close()
+
+
+def _sheet_rows(path: Path, sheet: str) -> list[dict[str, object]]:
+    rows = _read_sheet(path, sheet)
+    if rows is None:
+        raise ValueError(f"{path.name}: sheet {sheet} is missing")
+    return rows
+
+
+def _optional_sheet_rows(path: Path, sheet: str) -> list[dict[str, object]]:
+    """Rows of a sheet a workbook may not carry; a missing sheet simply has no rows."""
+    return _read_sheet(path, sheet) or []
 
 
 def _text(value: object) -> str | None:
@@ -71,6 +91,125 @@ def _real(value: object) -> float | None:
     return float(value) if isinstance(value, int | float) else float(str(value))
 
 
+def _lot_quantity(value: object) -> int:
+    if value is None or value == "":
+        return 0
+    return _whole(value)
+
+
+def _collector_text(value: object) -> str | None:
+    """A collector number as text; a spreadsheet may hold it as a whole number."""
+    if isinstance(value, float) and value.is_integer():
+        return str(int(value))
+    return _text(value)
+
+
+def _detail_variants(
+    details: list[dict[str, object]],
+) -> dict[tuple[str, str, str], tuple[str | None, str | None]]:
+    """(card, set, number) -> (lang, finish) of the printing-details sheet, where the lot
+    references themselves stay silent about language or finish."""
+    found: dict[tuple[str, str, str], tuple[str | None, str | None]] = {}
+    for row in details:
+        card_id = _text(row.get("card_id"))
+        if card_id is None:
+            continue
+        parsed = parse_printing_ref(row.get("printing_ref"))
+        if parsed is not None:
+            set_code, number, lang, finish = parsed
+        else:
+            set_raw = _text(row.get("Set-Code"))
+            num_raw = _collector_text(row.get("Sammlernr."))
+            if set_raw is None or num_raw is None:
+                continue
+            set_code, number, lang, finish = set_raw.lower(), num_raw, None, None
+        language = _text(row.get("Sprache"))
+        finish_word = _text(row.get("Finish"))
+        lang = lang or (language.lower() if language else None)
+        finish = finish or (finish_word.lower() if finish_word else None)
+        if finish == "finish_unknown":
+            finish = None
+        found.setdefault((card_id, set_code, number), (lang, finish))
+    return found
+
+
+# One card_printing row before resolution:
+# (card_id, set_code, collector_number, lang, finish, copies, distinct_printings, ref_status)
+_PrintingRow = tuple[str, str | None, str | None, str | None, str | None, int, int, str]
+
+
+def _printing_rows(
+    lots: list[dict[str, object]], details: list[dict[str, object]]
+) -> list[_PrintingRow]:
+    """Aggregate the lot sheet to one primary printing per card.
+
+    The primary printing of a card is the one with the most physical copies; ties go to
+    a printing the details sheet describes, then to the lowest (set, number). A card
+    whose lots name no readable printing keeps an UNRESOLVED row: the standard-printing
+    rule of the Scryfall import decides its picture, nothing is guessed here."""
+    detail = _detail_variants(details)
+    totals: dict[str, int] = {}
+    variants: dict[tuple[str, str, str], dict[tuple[str | None, str | None], int]] = {}
+    for row in lots:
+        card_id = _text(row.get("card_id"))
+        if card_id is None:
+            continue
+        quantity = _lot_quantity(row.get("quantity_observed"))
+        totals[card_id] = totals.get(card_id, 0) + quantity
+        parsed = parse_printing_ref(row.get("printing_ref"))
+        if parsed is None:
+            continue
+        set_code, number, lang, finish = parsed
+        per_variant = variants.setdefault((card_id, set_code, number), {})
+        key = (lang, finish)
+        per_variant[key] = per_variant.get(key, 0) + quantity
+    by_card: dict[str, dict[tuple[str, str], dict[tuple[str | None, str | None], int]]] = {}
+    for (card_id, set_code, number), per_variant in variants.items():
+        by_card.setdefault(card_id, {})[(set_code, number)] = per_variant
+
+    def base_rank(
+        card_id: str,
+        item: tuple[tuple[str, str], dict[tuple[str | None, str | None], int]],
+    ) -> tuple[int, bool, str, str]:
+        (set_code, number), per_variant = item
+        return (
+            -sum(per_variant.values()),
+            (card_id, set_code, number) not in detail,
+            set_code,
+            number,
+        )
+
+    rows: list[_PrintingRow] = []
+    for card_id in sorted(totals):
+        bases = by_card.get(card_id, {})
+        if not bases:
+            rows.append((card_id, None, None, None, None, totals[card_id], 0, UNRESOLVED))
+            continue
+        (set_code, number), per_variant = min(bases.items(), key=partial(base_rank, card_id))
+        (lang, finish), _copies = min(
+            per_variant.items(),
+            key=lambda item: (-item[1], item[0][0] is None, item[0][0] or "",
+                              item[0][1] is None, item[0][1] or ""),
+        )  # fmt: skip
+        known = detail.get((card_id, set_code, number))
+        if known is not None:
+            lang = lang if lang is not None else known[0]
+            finish = finish if finish is not None else known[1]
+        rows.append(
+            (
+                card_id,
+                set_code,
+                number,
+                lang,
+                finish,
+                sum(per_variant.values()),
+                len(bases),
+                EXACT_CANDIDATE,
+            )
+        )
+    return rows
+
+
 def import_inventory_workbook(store: StudioStore, path: str | Path) -> dict[str, int]:
     """Read card identities and the current inventory from the Owner's inventory workbook."""
     workbook_path = Path(path)
@@ -81,6 +220,15 @@ def import_inventory_workbook(store: StudioStore, path: str | Path) -> dict[str,
     )
     identities = _sheet_rows(workbook_path, IDENTITY_SHEET)
     inventory = _sheet_rows(workbook_path, INVENTORY_SHEET)
+    printing_rows = _printing_rows(
+        _optional_sheet_rows(workbook_path, LOTS_SHEET),
+        _optional_sheet_rows(workbook_path, DETAILS_SHEET),
+    )
+    # Lots of a card the identity sheet does not carry cannot be stored (the printing
+    # table keys on card); the identity and inventory sheets keep their own strict
+    # reading, the auxiliary printing rows of unknown cards are left out.
+    known_cards = {_text(row.get("card_id")) for row in identities}
+    printing_rows = [row for row in printing_rows if row[0] in known_cards]
     db = store.connection
     with db:
         for row in identities:
@@ -152,7 +300,47 @@ def import_inventory_workbook(store: StudioStore, path: str | Path) -> dict[str,
                     source_id,
                 ),
             )
-    return {"cards": len(identities), "inventory": len(inventory)}
+        # The printing rows state what the workbook says now; a resolution (Scryfall id
+        # and image addresses) survives the re-import only for a card whose primary
+        # printing is unchanged in set, number, language and finish.
+        previous = {
+            str(row["card_id"]): row
+            for row in db.execute(
+                "SELECT card_id, set_code, collector_number, lang, finish, scryfall_id, "
+                "image_front, image_back, basis FROM card_printing"
+            )
+        }
+        db.execute("DELETE FROM card_printing")
+        resolved_rows: list[tuple[object, ...]] = []
+        for printing_row in printing_rows:
+            old = previous.get(printing_row[0])
+            carried: tuple[object, object, object, object] = (None, None, None, None)
+            if (
+                old is not None
+                and old["basis"] is not None
+                and (old["set_code"], old["collector_number"], old["lang"], old["finish"])
+                == (printing_row[1], printing_row[2], printing_row[3], printing_row[4])
+            ):
+                carried = (
+                    old["scryfall_id"],
+                    old["image_front"],
+                    old["image_back"],
+                    old["basis"],
+                )
+            resolved_rows.append((*printing_row[:8], *carried))
+        db.executemany(
+            "INSERT INTO card_printing(card_id, set_code, collector_number, lang, finish, "
+            "copies, distinct_printings, ref_status, scryfall_id, image_front, image_back, "
+            "basis) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            resolved_rows,
+        )
+    return {
+        "cards": len(identities),
+        "inventory": len(inventory),
+        "printings_exact_candidate": sum(1 for row in printing_rows if row[7] == EXACT_CANDIDATE),
+        "printings_unresolved": sum(1 for row in printing_rows if row[7] == UNRESOLVED),
+        "printings_multi": sum(1 for row in printing_rows if row[6] > 1),
+    }
 
 
 def import_studio_selection(

@@ -14,6 +14,7 @@ from . import (
     catalog,
     decklist_import,
     importers,
+    printings,
     research_import,
     roles,
     rulings,
@@ -68,6 +69,18 @@ def _parser() -> argparse.ArgumentParser:
         "import-hub",
     ):
         commands.add_parser(name).add_argument("path")
+    printings_cmd = commands.add_parser(
+        "import-printings",
+        help="the collection workbook plus the images of its own printings, matched "
+        "locally against a Scryfall default-cards bulk file",
+    )
+    printings_cmd.add_argument("path")
+    printings_cmd.add_argument(
+        "--bulk",
+        required=True,
+        help="Scryfall default-cards bulk file (or folder of its parts); the owned "
+        "printings are matched locally, nothing is sent anywhere",
+    )
     corpus_cards = commands.add_parser(
         "import-corpus-cards",
         help="source-deck card rows from one or several part files (one transaction)",
@@ -691,6 +704,9 @@ def _run(args: argparse.Namespace, store: StudioStore) -> object:
         result = list_commanders(store)
     elif args.command == "import-inventory":
         result = importers.import_inventory_workbook(store, args.path)
+    elif args.command == "import-printings":
+        imported = importers.import_inventory_workbook(store, args.path)
+        result = {**imported, **printings.resolve_printing_images(store, bulk_path=args.bulk)}
     elif args.command == "import-corpus-register":
         result = importers.import_corpus_register(store, args.path)
     elif args.command == "import-corpus-cards":

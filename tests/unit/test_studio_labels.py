@@ -50,7 +50,7 @@ def test_the_schema_is_15_and_holds_the_label_tables() -> None:
         str(row[0])
         for row in store.connection.execute("SELECT name FROM sqlite_master WHERE type='table'")
     }
-    assert SCHEMA_VERSION == 15
+    assert SCHEMA_VERSION >= 15
     assert {"card_label", "deck_label"} <= tables
 
 
@@ -145,7 +145,7 @@ def test_a_schema_14_database_is_lifted_on_open_and_keeps_every_row(tmp_path: Pa
     version = lifted.connection.execute(
         "SELECT value FROM meta WHERE key = 'schema_version'"
     ).fetchone()[0]
-    assert version == str(SCHEMA_VERSION) == "15"
+    assert version == str(SCHEMA_VERSION) == "16"
     assert lifted.count("card_label") == 0 and lifted.count("deck_label") == 0
     marks_after = lifted.connection.execute("SELECT * FROM card_mark ORDER BY card_id").fetchall()
     assert [tuple(r) for r in marks_after] == [tuple(r) for r in marks_before]

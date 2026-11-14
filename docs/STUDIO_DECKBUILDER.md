@@ -13,6 +13,7 @@ a location inside this repository. Card images are cached next to it in `images/
 | Command (`python -m commander_lab.studio ...`) | Reads | Data class |
 |---|---|---|
 | `import-inventory FILE.xlsx` | card identities and inventory of the collection | original |
+| `import-printings FILE.xlsx --bulk PATH` | collection printings (`card_printing`) matched locally against a Scryfall default-cards bulk file or folder | original |
 | `import-scryfall PATH [--disambiguation FILE.csv]` | public card data (single `.jsonl`/`.jsonl.gz` or folder of split parts); links the collection | original (public) |
 | `import-corpus-register FILE.csv` | source decks | normalized |
 | `import-corpus-cards FILE.csv [FILE.csv ...] [--allow-deck-move]` | the cards of the source decks, one or several part files in one transaction (see below) | normalized |
@@ -601,6 +602,46 @@ the public card data once a card is linked; the workbook stays the source of wha
 
 Only image requests leave the machine, and they name single public cards (Owner exception in
 `AGENTS.md` §12). The image host is fixed in `images.py`.
+
+### Which printing is shown (schema 16, #1342)
+
+A card is pictured as the printing the collection itself holds when that printing is
+identifiable, and as a plain standard printing otherwise — never as a full-art or
+promo variant chosen by chance. The precedence is:
+
+1. **Exact collection printing** (`EXACT_COLLECTION`): the inventory import reads the
+   workbook's lot sheet into `card_printing` (one primary printing per card: the
+   printing of the most copies; a reference that names no single printing stays
+   `UNRESOLVED` and is counted, never guessed). `import-printings <workbook>
+   --bulk <default-cards file>` resolves that printing's image addresses by matching
+   locally against the public default-cards bulk file — nothing about the collection
+   leaves the machine. The same
+   precedence applies inside the Scryfall fold below: a candidate whose set and
+   collector number (and language, when the reference names one) match an owned
+   printing wins before every other criterion.
+2. **Standard rule** (`STANDARD_RULE`): among the remaining candidates of an oracle,
+   a standard printing beats a non-standard one. Standard means: not `full_art`, not
+   `border_color = borderless`, no `showcase` or `extendedart` frame effect, and no
+   promo marking (`promo` false, `promo_types` empty). Paper, non-digital, English,
+   image present and commander-legal keep their previous order after that.
+3. **Scryfall default** (`SCRYFALL_DEFAULT`): a single candidate, or no standard one,
+   keeps the choice the criteria above make; the stored `printing_basis` says which
+   of the three rules produced the picture, and the import report counts all three
+   (`printings_exact` / `printings_standard` / `printings_default`).
+
+The rule can only choose when the import actually sees several printings: it needs
+the **default-cards** bulk file (all printings). The oracle-cards file carries one
+preselected printing per oracle, so with it every card is `SCRYFALL_DEFAULT` unless
+it matches an owned printing.
+
+The image cache is bound to the chosen printing by an address stamp: next to each
+cached file (`images/<oracle_id>-<face>.jpg`) lies a `<oracle_id>-<face>.stamp` file
+holding the exact address the picture was downloaded from. A cached file whose stamp
+names another address is replaced on the next fetch; a file without a stamp (cached
+before the stamp existed) counts as valid and is stamped in place. `fetch-images`
+is stricter: there an unstamped or differently stamped file is fetched and stamped
+once, so after `import-printings` changes any picture, one `fetch-images` run brings
+the whole cache onto the new printings.
 
 ### Alles importieren
 
