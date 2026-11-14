@@ -72,7 +72,7 @@ jobs:
             src/commander_lab/engine/rules/bridge.py
             src/commander_lab/engine/process_manager.py
             src/commander_lab/models/engine_runtime.py
-            src/commander_lab/cli/app.py
+            src/commander_lab/engine/verify_cli.py
             tests/unit/test_h4_verify_materialization_evidence.py
             tests/unit/test_ws_a1d_docker_pin_authority.py
             .github/actions/**
@@ -363,7 +363,7 @@ jobs:
           export ENGINE_PROVIDER=xmage ENGINE_MODE=external
           export ENGINE_START_COMMAND="java -jar $PWD/vendor/engine-binaries/xmage/bridge.jar full-game"
           set +e
-          python -m commander_lab.cli.app engine-verify --root "$PWD" > h4-evidence-xmage/engine-verify.json 2>h4-evidence-xmage/engine-verify-stderr.log
+          python -m commander_lab.engine.verify_cli --root "$PWD" > h4-evidence-xmage/engine-verify.json 2>h4-evidence-xmage/engine-verify-stderr.log
           rc=$?
           set -e
           echo "$rc" > h4-evidence-xmage/engine-verify-exit.txt
