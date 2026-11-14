@@ -315,3 +315,58 @@ def test_rubric_rows_of_another_commander_are_not_read(store: StudioStore, tmp_p
     assert rows == 0
     observed, exists = strength_view._rubric_observations(store, COMMANDER, {}, {}, {})
     assert observed == {} and exists is False
+
+
+# ---------- defaults, presets and the rules that hold ----------
+
+
+def test_every_preset_weights_the_rubric_and_keeps_simulation_and_layers_at_zero() -> None:
+    for name, settings in strength.PRESETS.items():
+        assert settings.weights[strength.RUBRIC] > 0, name
+        assert settings.weights[strength.SIMULATION] == 0.0, name
+        assert all(weight == 0.0 for weight in settings.layer_weights.values()), name
+        assert settings.weights[strength.PLAYGROUP_OBSERVED] == 0.0, name
+    assert strength.PRESETS["Ausgewogen"] == StrengthSettings()
+    # "Ausgewogen": rubric and the usage block weigh the same for a typical Chulane card, which has
+    # commander, bracket, deck universe and global inclusion (and no tournament or combo row)
+    weights = StrengthSettings().weights
+    usage = sum(
+        weights[key]
+        for key in (
+            strength.COMMANDER_INCLUSION,
+            strength.BRACKET_INCLUSION,
+            strength.DECK_UNIVERSE,
+            strength.GLOBAL_INCLUSION,
+        )
+    )
+    assert weights[strength.RUBRIC] == usage == 8.0
+    assert strength.DEFAULT_WEIGHTS[strength.RUBRIC] == 8.0
+    assert strength_view.presets()["components"]  # the page lists the rubric like every component
+    keys = [item["key"] for item in strength_view.presets()["components"]]  # type: ignore[attr-defined]
+    assert strength.RUBRIC in keys
+
+
+def test_the_default_cuts_fall_strictly_and_are_the_recorded_derivation() -> None:
+    assert strength.DEFAULT_CUTS == {"S": 46.0, "A": 25.0, "B": 13.0, "C": 5.0}
+    assert StrengthSettings().tier_cuts == strength.DEFAULT_CUTS
+
+
+def test_owner_marks_never_move_a_card_with_the_rubric_in_the_index(
+    store: StudioStore, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from commander_lab.studio import builder
+
+    monkeypatch.setattr(research_import, "RUBRIC_COMMANDERS", {"chulane_rubric": COMMANDER})
+    research_import.import_rubric(store, _summary(tmp_path / "chulane_rubric_20261114", ROWS))
+    before = strength_view.compute(store, COMMANDER, StrengthSettings())
+    assert "rubric" in before["collected"]
+    pool = builder.pool_cards(store, [COMMANDER])["cards"]
+    assert isinstance(pool, list)
+    for card in pool[:6]:
+        builder.set_mark(
+            store, str(card["card_id"]), favorite=True, excluded=True, note="mein Liebling"
+        )
+    after = strength_view.compute(store, COMMANDER, StrengthSettings())
+    assert before == after
+    # and no simulation value is read: the component stays not collected
+    assert "simulation" not in after["collected"]

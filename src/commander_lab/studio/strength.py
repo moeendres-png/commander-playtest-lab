@@ -323,10 +323,19 @@ DEFAULT_WEIGHTS: dict[str, float] = {
     GLOBAL_INCLUSION: 1.0,
     COMBOS: 1.0,
     PLAYGROUP_OBSERVED: 0.0,
-    RUBRIC: 0.0,
+    # Rubric and usage block count about equally (50 / 50) for a typical Chulane card: of the
+    # 922 ranked cards, 909 have commander, bracket, deck universe and global inclusion (weight
+    # 3 + 2 + 2 + 1 = 8; the 13 cards with a combo row have 9), so the rubric weighs 8. Derived
+    # from that count, not tuned to any card. Other commanders have no rubric: it is left out.
+    RUBRIC: 8.0,
     SIMULATION: 0.0,
 }
-DEFAULT_CUTS: dict[str, float] = {"S": 70.0, "A": 55.0, "B": 35.0, "C": 20.0}
+# Derived once (#1358) from the default index of the 857 ranked non-land Chulane cards, with the
+# targets fixed in advance: S about 3 %, A about 10 %, B about 22 %, C about 30 %, D the rest. The
+# cuts are the whole numbers whose cumulative shares (3.0 / 13.1 / 37.0 / 67.2 %) come closest to
+# the cumulative targets 3 / 13 / 35 / 65 %: S 3.0 %, A 10.0 %, B 23.9 %, C 30.2 %, D 32.8 %.
+# They are the same for lands. Not tuned to any card; before them the cuts were 70 / 55 / 35 / 20.
+DEFAULT_CUTS: dict[str, float] = {"S": 46.0, "A": 25.0, "B": 13.0, "C": 5.0}
 DEFAULT_MIN_DENOMINATORS: dict[str, int] = {
     MIN_EDHREC: 30,
     MIN_TOURNAMENT: 20,
@@ -740,6 +749,8 @@ PRESETS: dict[str, StrengthSettings] = dict(
                 GLOBAL_INCLUSION: 1.0,
                 COMBOS: 0.0,
                 PLAYGROUP_OBSERVED: 0.0,
+                # the typical Chulane card has 3 + 2 + 3 + 1 = 9 usage weight present
+                RUBRIC: 9.0,
                 SIMULATION: 0.0,
             },
             DEFAULT_BRACKET,
@@ -755,6 +766,9 @@ PRESETS: dict[str, StrengthSettings] = dict(
                 GLOBAL_INCLUSION: 1.0,
                 COMBOS: 1.0,
                 PLAYGROUP_OBSERVED: 0.0,
+                # the typical Chulane card has 1 + 2 + 2 + 1 = 6 usage weight present (it has no
+                # tournament lists); the same 50 / 50 rule as the other presets
+                RUBRIC: 6.0,
                 SIMULATION: 0.0,
             },
             "cedh",

@@ -451,7 +451,8 @@ def test_unlisted_card_coverage_with_the_new_default_reaches_the_minimum(
     # Weights 3 + 2 + 2 + 0 (synergy) + 1 + 1 + 1 + 1 (combos) + 0 (playgroup) + 0 (sim) = 11.
     # Filler 09 is in no commander signal, has no conversion row, no EDHREC combo row and no
     # playgroup observation; only global inclusion (1) exists.
-    total = sum(strength.DEFAULT_WEIGHTS.values())
+    # (the rubric has no source for this commander and leaves the denominator: Chulane only)
+    total = sum(w for name, w in strength.DEFAULT_WEIGHTS.items() if name != strength.RUBRIC)
     assert total == 11.0
     assert without["Filler 09"]["coverage"] == pytest.approx(1 / total, abs=1e-4)
     assert without["Filler 09"]["tier"] == strength.TIER_UNKNOWN
