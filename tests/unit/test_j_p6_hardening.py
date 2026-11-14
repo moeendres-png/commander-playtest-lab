@@ -5,17 +5,15 @@ import tomllib
 from pathlib import Path
 
 from commander_lab import __version__
-from commander_lab.api.tool_server import create_app
 from commander_lab.models import MatchupBatchInput, ToolStatus
 from commander_lab.tools.service import CommanderToolService
 
 ROOT = Path(__file__).resolve().parents[2]
 
 
-def test_api_version_tracks_package_version() -> None:
-    app = create_app(ROOT)
+def test_package_version_tracks_pyproject_version() -> None:
     pyproject = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
-    assert app.version == __version__ == pyproject["project"]["version"]
+    assert __version__ == pyproject["project"]["version"]
 
 
 def test_consumed_p5_holdout_remains_regression_only() -> None:

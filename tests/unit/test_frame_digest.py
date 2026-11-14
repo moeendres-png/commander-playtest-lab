@@ -9,6 +9,7 @@ from collections.abc import Callable
 from commander_lab.engine.rules.frame_digest import (
     EXCLUDED_TRANSPORT_FIELDS,
     FrameDigest,
+    is_forced_frame,
     normalize_frame,
 )
 from commander_lab.engine.rules.full_game import XmageFullGameRunner
@@ -201,6 +202,104 @@ def test_the_semantic_transcript_hash_is_unchanged() -> None:
         XmageFullGameRunner._sha256(semantic)
         == "6e16673fccad6e59bf9b1aeeefc29d4fcb1289e4a2ed599056221b7d4fe84b02"
     )
+
+
+# --- forced-frame skipping (#1299, condition 2) -----------------------------------------------
+
+
+def _forced(uuids: list[str], *, life: int = 40, seat: int = 1) -> dict[str, object]:
+    """A frame with no choice in it: the pass is the only option, and it must be taken."""
+    frame = _frame(uuids, life=life)
+    frame["seat"] = seat
+    frame["legal_options"] = [{"option_id": "2" * 64, "label": "Pass", "metadata": {}}]
+    frame["minimum_selections"] = 1
+    frame["maximum_selections"] = 1
+    return frame
+
+
+def _digest_mode(frames: list[dict[str, object]], *, skip: bool) -> FrameDigest:
+    digest = FrameDigest(skip_forced=skip)
+    for frame in frames:
+        digest.observe(frame)
+    return digest
+
+
+def test_skip_forced_is_off_by_default_and_the_default_digest_is_unchanged() -> None:
+    frames = [_frame(_UUIDS), _forced(_UUIDS), _frame(_UUIDS, life=39)]
+    default = FrameDigest()
+    for frame in frames:
+        default.observe(frame)
+    explicit_off = _digest_mode(frames, skip=False)
+    assert default.result() == explicit_off.result()
+    assert default.result().frames == 3 and default.result().skipped == 0
+    # Today a forced frame is digest content like any other: dropping it by hand differs.
+    assert _digest(_frame(_UUIDS), _frame(_UUIDS, life=39)) != default.result().digest
+
+
+def test_skip_forced_ignores_forced_frames_and_nothing_else() -> None:
+    first, last = _frame(_UUIDS), _frame(_UUIDS, life=39)
+    with_forced = _digest_mode([first, _forced(_UUIDS, seat=2), last], skip=True).result()
+    forced_altered = _digest_mode(
+        [first, _forced(_UUIDS, life=13, seat=2), last], skip=True
+    ).result()
+    without_forced = _digest_mode([first, last], skip=True).result()
+    # Same remaining frames, so same digest — per game and per seat — whatever the
+    # forced frame carried; its seat never enters the per-seat digests either.
+    assert with_forced.digest == forced_altered.digest == without_forced.digest
+    assert with_forced.by_seat == without_forced.by_seat == {"1": without_forced.by_seat["1"]}
+    assert with_forced.frames == 2 and with_forced.skipped == 1
+    # Without the mode the same two sequences differ: the mode, not the data, skips.
+    plain_a = _digest_mode([first, _forced(_UUIDS, seat=2), last], skip=False).result()
+    plain_b = _digest_mode([first, _forced(_UUIDS, life=13, seat=2), last], skip=False).result()
+    assert plain_a.digest != plain_b.digest
+
+
+def test_skip_forced_still_notices_a_changed_discretionary_frame() -> None:
+    forced = _forced(_UUIDS)
+    base = _digest_mode([_frame(_UUIDS), forced], skip=True).result()
+    changed = _digest_mode([_frame(_UUIDS, life=39), forced], skip=True).result()
+    assert base.digest != changed.digest
+
+
+def test_is_forced_frame_needs_one_option_and_proven_bounds() -> None:
+    assert is_forced_frame(_forced(_UUIDS))
+    alt = _forced(_UUIDS)
+    del alt["minimum_selections"], alt["maximum_selections"]
+    alt["min_selections"], alt["max_selections"] = 1, 1
+    assert is_forced_frame(alt)  # the spellings the pilot also accepts
+
+    missing = _forced(_UUIDS)
+    del missing["minimum_selections"], missing["maximum_selections"]
+    assert not is_forced_frame(missing)  # no bounds: not proven forced
+    for key, value in (
+        ("minimum_selections", 0),
+        ("maximum_selections", 2),
+        ("minimum_selections", 1.0),
+        ("minimum_selections", True),
+        ("maximum_selections", "1"),
+    ):
+        frame = _forced(_UUIDS)
+        frame[key] = value
+        assert not is_forced_frame(frame), (key, value)
+    two_options = _forced(_UUIDS)
+    two_options["legal_options"] = [*two_options["legal_options"], {"option_id": "3" * 64}]  # type: ignore[operator]
+    assert not is_forced_frame(two_options)
+    no_options = _forced(_UUIDS)
+    no_options["legal_options"] = []
+    assert not is_forced_frame(no_options)
+    not_a_list = _forced(_UUIDS)
+    not_a_list["legal_options"] = "Pass"
+    assert not is_forced_frame(not_a_list)
+
+
+def test_a_frame_without_proven_bounds_is_digested_even_in_skip_mode() -> None:
+    unproven = _forced(_UUIDS)
+    del unproven["minimum_selections"], unproven["maximum_selections"]
+    result = _digest_mode([unproven], skip=True).result()
+    assert result.frames == 1 and result.skipped == 0
+    altered = _forced(_UUIDS, life=13)
+    del altered["minimum_selections"], altered["maximum_selections"]
+    assert _digest_mode([altered], skip=True).result().digest != result.digest
 
 
 # --- review findings -------------------------------------------------------------------------

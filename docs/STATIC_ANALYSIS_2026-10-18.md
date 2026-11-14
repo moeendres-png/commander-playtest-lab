@@ -39,7 +39,7 @@ eine bewusste Designentscheidung (Security).
 
 ## Java Hot Paths (aus Subagent-Audit)
 
-Siehe `AUDIT_2026-10-18.md` für Details. Zusammenfassung:
+Siehe [`docs/archive/AUDIT_2026-10-18.md`](archive/AUDIT_2026-10-18.md) für Details. Zusammenfassung:
 
 | # | Datei | Problem | Risiko | Status |
 |---|-------|---------|--------|--------|

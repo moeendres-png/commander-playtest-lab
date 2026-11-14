@@ -16,6 +16,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from commander_lab.studio import StudioStore, builder, signals, strength, strength_view
+from commander_lab.studio.store import DataClass
 from commander_lab.studio.strength import Observation, PoolContext, StrengthSettings
 from commander_lab.studio.web import create_app
 from tests.unit.test_studio_builder import _fill
@@ -260,9 +261,11 @@ def test_import_rejects_a_file_without_its_columns(store: StudioStore, tmp_path:
 
 
 def test_import_stores_no_dead_signals(store: StudioStore, tmp_path: Path) -> None:
-    # The fixture files still carry the lift and partners_in_collection columns (as the
-    # real dataset files do); the importer must ignore them, because no strength
-    # component reads either signal.
+    # The fixture files still carry the lift column (as the real dataset files do); the
+    # importer must ignore it, because no strength component reads it. The spellbook
+    # file's partners_in_collection column IS stored since #1261 P3.7: the combos
+    # component reads it as one of its quality parts. The fixture carries no
+    # variant_ids column, so no two-card rows are stored for it.
     report = _import(store, tmp_path)
     stored = {row[0] for row in store.connection.execute("SELECT DISTINCT signal FROM card_signal")}
     assert stored == {
@@ -272,12 +275,13 @@ def test_import_stores_no_dead_signals(store: StudioStore, tmp_path: Path) -> No
         "edhrec_bracket_inclusion:cedh",
         "edhrec_global_inclusion",
         "spellbook_variants",
+        "spellbook_partners_in_collection",
         "tournament_lists",
     }
     files = report["files"]
     assert isinstance(files, dict)
     assert files[signals.CARD_FILE]["rows_written"] == 22  # 11 cards x inclusion + synergy
-    assert files[signals.SPELLBOOK_FILE]["rows_written"] == 10  # variants only, no partners
+    assert files[signals.SPELLBOOK_FILE]["rows_written"] == 20  # variants + partners
 
 
 def test_import_does_not_require_the_dead_columns(store: StudioStore, tmp_path: Path) -> None:
@@ -398,6 +402,7 @@ def test_settings_are_validated_and_round_trip() -> None:
         strength.DECK_UNIVERSE: 3.0,
         strength.SYNERGY: 2.0,
         strength.TOURNAMENT_LISTS: 1.0,
+        strength.TOURNAMENT_CONVERSION: 1.0,
         strength.GLOBAL_INCLUSION: 1.0,
         strength.COMBOS: 0.0,
         strength.PLAYGROUP_OBSERVED: 0.0,
@@ -411,6 +416,7 @@ def test_settings_are_validated_and_round_trip() -> None:
         strength.DECK_UNIVERSE: 2.0,
         strength.COMMANDER_INCLUSION: 1.0,
         strength.SYNERGY: 0.0,
+        strength.TOURNAMENT_CONVERSION: 1.0,
         strength.GLOBAL_INCLUSION: 1.0,
         strength.COMBOS: 1.0,
         strength.PLAYGROUP_OBSERVED: 1.0,
@@ -736,6 +742,60 @@ def test_percentiles_are_taken_within_the_chosen_group_with_a_pool_fallback() ->
     assert _row(banded, "a5", "synergy")["percentile"] == 1.0
 
 
+def _function_grouped() -> tuple[dict[str, dict[str, Observation]], PoolContext]:
+    observations: dict[str, dict[str, Observation]] = {}
+    groups: dict[str, tuple[str, ...]] = {}
+    for index in range(6):
+        observations[f"r{index}"] = {"synergy": Observation(float(index))}
+        groups[f"r{index}"] = ("ramp",)
+    for index in range(6):
+        observations[f"d{index}"] = {"synergy": Observation(100.0 + index)}
+        groups[f"d{index}"] = ("card_draw",)
+    # one card in both groups: midfield among the ramp cards, last among the draw cards
+    observations["both"] = {"synergy": Observation(2.5)}
+    groups["both"] = ("ramp", "card_draw")
+    # a role with too few valued cards, and a card without any role
+    for index in range(3):
+        observations[f"f{index}"] = {"synergy": Observation(200.0 + index)}
+        groups[f"f{index}"] = ("flicker",)
+    observations["none"] = {"synergy": Observation(50.0)}
+    return observations, PoolContext(function_group=groups)
+
+
+def test_percentiles_are_taken_within_the_function_groups() -> None:
+    observations, context = _function_grouped()
+    pool = strength.score_pool(_only("synergy"), observations, {"synergy"}, context=context)
+    func = strength.score_pool(
+        _only("synergy", rank_group="function"), observations, {"synergy"}, context=context
+    )
+    # one role: ranked inside the role group only (seven cards: the six and "both")
+    row = _row(func, "r5", "synergy")
+    assert row["percentile"] == 1.0 and row["group"] == "ramp" and row["group_size"] == 7
+    assert _row(func, "r0", "synergy")["percentile"] == 0.0
+    assert _row(func, "d5", "synergy")["group"] == "card_draw"
+    # several roles: the rank is the mean of the ranks in its role groups, all of them named
+    both = _row(func, "both", "synergy")
+    assert both["percentile"] == 0.25
+    assert both["group"] == "ramp + card_draw" and both["group_size"] is None
+    # a role group below the minimum keeps the pool rank and the row says so
+    small = _row(func, "f1", "synergy")
+    assert small["group_fallback"] is True and small["reason"] == strength.GROUP_TOO_SMALL
+    assert small["group"] == "flicker" and "nur 3 Karten mit Wert" in small["note"]
+    assert small["percentile"] == _row(pool, "f1", "synergy")["percentile"]
+    # no role at all: pool rank, named as an unknown function, never as a group of its own
+    unknown = _row(func, "none", "synergy")
+    assert unknown["group_fallback"] is True and unknown["group"] is None
+    assert "Keine Funktion bekannt" in unknown["note"]
+    assert unknown["percentile"] == _row(pool, "none", "synergy")["percentile"]
+
+
+def test_function_is_a_rank_group_setting() -> None:
+    settings = StrengthSettings.from_dict({"rank_group": "function"})
+    assert settings.rank_group == strength.GROUP_FUNCTION == "function"
+    assert StrengthSettings.from_dict(settings.to_dict()) == settings
+    assert StrengthSettings().rank_group == "pool"  # the recommendation stays the pool
+
+
 def test_mana_value_bands_and_lands() -> None:
     bands = [strength.mana_band(value, is_land=False) for value in (0, 1, 2, 3, 4, 5, 9)]
     assert bands == ["0-1", "0-1", "2", "3", "4", "5+", "5+"]
@@ -876,7 +936,7 @@ def test_new_settings_are_validated_serialised_and_round_trip() -> None:
             StrengthSettings.from_dict(bad)
     default = StrengthSettings()
     assert (default.rank_group, default.share_measure) == ("pool", "wilson")
-    assert default.min_denominators == {"edhrec": 30, "tournament": 5}
+    assert default.min_denominators == {"edhrec": 30, "tournament": 5, "conversion": 20}
     assert default.rank_commander_and_basics is False
     assert set(default.missing_value.values()) == {"skip"}
 
@@ -1031,6 +1091,42 @@ def test_the_group_setting_reaches_the_component_rows_of_a_real_pool(
     assert (band["group"], band["group_size"]) == ("2", 8)  # Filler 01 to 08 have mana value 2
     lone = _component(_by_name(banded)["Filler 00"], "commander_inclusion")
     assert lone["group"] == "3" and lone["group_fallback"] is True  # the only card of its band
+
+
+def test_the_function_group_setting_reaches_the_component_rows_of_a_real_pool(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    _import(store, tmp_path)
+    source_id = store.register_source(
+        data_class=DataClass.ORIGINAL_SOURCE, title="Rollen (Test)", sha256="f" * 64
+    )
+    with store.connection as db:
+        oracle = {
+            str(row["oracle_name"]): str(row["oracle_id"])
+            for row in db.execute("SELECT oracle_name, oracle_id FROM card")
+        }
+        db.executemany(
+            "INSERT INTO card_role(oracle_id, role, source_id) VALUES (?, ?, ?)",
+            [(oracle[f"Filler {index:02d}"], "ramp", source_id) for index in range(6)],
+        )
+    result = strength_view.compute(store, COMMANDER, StrengthSettings(rank_group="function"))
+    assert result["settings"]["rank_group"] == "function"
+    by_name = _by_name(result)
+    row = _component(by_name["Filler 02"], "commander_inclusion")
+    assert (row["group"], row["group_size"], row["group_fallback"]) == ("ramp", 6, False)
+    assert row["percentile"] == pytest.approx(0.6)  # three of the six ramp cards below it
+    # Filler 07 has a value but no role: pool rank, and the row says no function is known
+    pool = strength_view.compute(store, COMMANDER, StrengthSettings())
+    func_row = _component(by_name["Filler 07"], "commander_inclusion")
+    pool_row = _component(_by_name(pool)["Filler 07"], "commander_inclusion")
+    assert func_row["group_fallback"] is True and "Keine Funktion bekannt" in func_row["note"]
+    assert func_row["percentile"] == pool_row["percentile"]
+
+
+def test_panel_offers_the_function_rank_group(client: TestClient) -> None:
+    meta = client.get("/api/strength/presets").json()
+    values = [choice["value"] for choice in meta["panel"]["choices"]["rank_group"]]
+    assert values == ["pool", "type", "mana_band", "function"]
 
 
 def test_recommended_values_come_from_one_place_and_the_panel_texts_name_them(
@@ -1644,3 +1740,334 @@ def test_a_mana_value_of_five_is_the_last_band_and_four_is_not() -> None:
     assert strength.mana_band(4.5, is_land=False) == "4"
     assert strength.mana_band(1.5, is_land=False) == "0-1"
     assert strength.mana_band(2, is_land=False) == "2"
+
+
+# ---------- combo quality (#1261 P3.7) ----------
+
+QUALITY_FIELDS = [
+    "card_name",
+    "fetch_status",
+    "variant_count",
+    "distinct_partner_cards",
+    "partners_in_collection",
+    "variant_ids",
+]
+
+
+def _quality_folder(tmp_path: Path, rows: list[dict[str, object]]) -> Path:
+    folder = tmp_path / "quality"
+    folder.mkdir(exist_ok=True)
+    _write(folder / "spellbook_card_links.csv", rows, QUALITY_FIELDS)
+    return folder
+
+
+def _quality_row(name: str, variants: int, partners: object, ids: str) -> dict[str, object]:
+    return {
+        "card_name": name,
+        "fetch_status": "AVAILABLE",
+        "variant_count": variants,
+        "distinct_partner_cards": 0,
+        "partners_in_collection": partners,
+        "variant_ids": ids,
+    }
+
+
+def test_variant_id_token_count_is_the_card_count_of_the_combo() -> None:
+    # The id of a spellbook variant joins the card ids of the combo (it is the combo's
+    # page address); a template slot is a negative id and counts as one card.
+    assert signals._variant_card_slots("147-1235") == 2
+    assert signals._variant_card_slots("1368-3518-4856") == 3
+    assert signals._variant_card_slots("1486-3734-4231-4452--108--119") == 6
+    assert signals._variant_card_slots("10--108") == 2
+
+
+def test_spellbook_import_stores_the_combo_quality_signals(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    folder = _quality_folder(
+        tmp_path,
+        [
+            # three variants: one of two cards, one of three, one of four
+            _quality_row("Filler 00", 3, 1, "1-2;1-2-3;1-2-3-4"),
+            # a two-card variant whose partner is a template slot
+            _quality_row("Filler 01", 1, 0, "10--108"),
+            # no variants at all: the two-card count is a counted 0, not unknown
+            _quality_row("Filler 02", 0, 0, ""),
+            # partners not numeric and no variant ids: both quality figures unknown
+            _quality_row("Filler 03", 4, "many", ""),
+        ],
+    )
+    report = signals.import_signals(store, folder, commander=COMMANDER)
+    two = _signal(store, signals.SIGNAL_TWO_CARD, "Filler 00", commander="")
+    assert two is not None and two["value"] == 1.0
+    partners = _signal(store, signals.SIGNAL_PARTNERS, "Filler 00", commander="")
+    assert partners is not None and partners["value"] == 1.0
+    template = _signal(store, signals.SIGNAL_TWO_CARD, "Filler 01", commander="")
+    assert template is not None and template["value"] == 1.0
+    empty = _signal(store, signals.SIGNAL_TWO_CARD, "Filler 02", commander="")
+    assert empty is not None and empty["value"] == 0.0
+    unknown_partners = _signal(store, signals.SIGNAL_PARTNERS, "Filler 03", commander="")
+    assert unknown_partners is not None and unknown_partners["value"] is None
+    unknown_two = _signal(store, signals.SIGNAL_TWO_CARD, "Filler 03", commander="")
+    assert unknown_two is not None and unknown_two["value"] is None
+    files = report["files"]
+    assert isinstance(files, dict)
+    reasons = files[signals.SPELLBOOK_FILE]["null_value_reasons"]
+    assert reasons == {"PARTNER_COUNT_NOT_NUMERIC": 1, "VARIANT_IDS_MISSING": 1}
+    # the quality signals are commander independent, like the variant count
+    assert _signal(store, signals.SIGNAL_TWO_CARD, "Filler 00", commander=COMMANDER) is None
+
+
+def test_combo_quality_mixes_the_parts_and_keeps_unlisted_cards_out() -> None:
+    parts = {
+        strength.COMBO_PART_VARIANTS: {"a": 1.0, "b": 9.0},
+        strength.COMBO_PART_TWO_CARD: {"a": 1.0, "b": 0.0},
+        strength.COMBO_PART_PARTNERS: {"a": 1.0, "b": 0.0},
+    }
+    quality = strength.combo_quality(parts)
+    # one two-card combo with its partner in the collection outranks nine variants
+    # without either quality mark
+    assert quality == {"a": pytest.approx(2 / 3), "b": pytest.approx(1 / 3)}
+    # a card the primary part does not list gets no value, however good its parts are
+    parts[strength.COMBO_PART_TWO_CARD]["unlisted"] = 5.0
+    assert "unlisted" not in strength.combo_quality(parts)
+    # a listed card without a value in a later part is averaged over the parts it has
+    partial = {
+        strength.COMBO_PART_VARIANTS: {"a": 1.0, "b": 9.0},
+        strength.COMBO_PART_TWO_CARD: {"a": 3.0},
+    }
+    assert strength.combo_quality(partial) == {"a": 0.25, "b": 1.0}
+    assert strength.combo_quality({}) == {}
+
+
+def _combos_only() -> StrengthSettings:
+    weights = {name: 0.0 for name in strength.COMPONENTS} | {strength.COMBOS: 1.0}
+    return StrengthSettings(
+        weights=weights, min_coverage=0.0, min_components=1, require_commander_signal=False
+    )
+
+
+def test_combo_quality_outranks_the_raw_variant_count(store: StudioStore, tmp_path: Path) -> None:
+    rows = [
+        # one variant, but a two-card combo whose partner is in the collection
+        _quality_row("Filler 00", 1, 1, "1-2"),
+        # nine variants, none of two cards, every partner outside the collection
+        {
+            **_quality_row("Filler 01", 9, 0, ";".join(["1-2-3"] * 9)),
+            "distinct_partner_cards": 4,
+        },
+        *[_quality_row(name, 0, 0, "") for name in CARDS[2:]],
+    ]
+    signals.import_signals(store, _quality_folder(tmp_path, rows), commander=COMMANDER)
+    cards = _by_name(strength_view.compute(store, COMMANDER, _combos_only()))
+    quality = _component(cards["Filler 00"], "combos")
+    bulk = _component(cards["Filler 01"], "combos")
+    none = _component(cards["Filler 02"], "combos")
+    assert quality["percentile"] == 1.0
+    assert bulk["percentile"] is not None and none["percentile"] is not None
+    assert bulk["percentile"] > none["percentile"]  # the variant count still counts
+    assert quality["percentile"] > bulk["percentile"]  # but quality outranks it
+    assert cards["Filler 00"]["index"] == 100.0
+
+
+def test_combo_quality_falls_back_to_the_variant_count_without_the_new_columns(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    # A spellbook file of the old shape (no partner and no variant-id column) ranks
+    # exactly as the variant count alone did before P3.7.
+    folder = tmp_path / "lean_quality"
+    folder.mkdir()
+    _write(
+        folder / "spellbook_card_links.csv",
+        [
+            {"card_name": "Filler 00", "fetch_status": "AVAILABLE", "variant_count": 1},
+            {"card_name": "Filler 01", "fetch_status": "AVAILABLE", "variant_count": 9},
+        ],
+        ["card_name", "fetch_status", "variant_count"],
+    )
+    signals.import_signals(store, folder, commander=COMMANDER)
+    cards = _by_name(strength_view.compute(store, COMMANDER, _combos_only()))
+    assert _component(cards["Filler 01"], "combos")["percentile"] == 1.0
+    assert _component(cards["Filler 00"], "combos")["percentile"] == 0.0
+
+
+def test_spellbook_downgrade_import_drops_the_stale_quality_rows(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    # A replacing import of a spellbook file of the old shape into a store that
+    # already holds the quality signals: the file declares all three signals, so
+    # the rows of the two it does not write go with the import instead of staying
+    # behind as stale rows, and the ranking is the variant count's alone again.
+    signals.import_signals(
+        store,
+        _quality_folder(
+            tmp_path,
+            [
+                _quality_row("Filler 00", 1, 1, "1-2"),
+                _quality_row("Filler 01", 9, 0, ";".join(["1-2-3"] * 9)),
+            ],
+        ),
+        commander=COMMANDER,
+    )
+    assert _signal(store, signals.SIGNAL_PARTNERS, "Filler 00", commander="") is not None
+    assert _signal(store, signals.SIGNAL_TWO_CARD, "Filler 00", commander="") is not None
+
+    folder = tmp_path / "lean_downgrade"
+    folder.mkdir()
+    _write(
+        folder / "spellbook_card_links.csv",
+        [
+            {"card_name": "Filler 00", "fetch_status": "AVAILABLE", "variant_count": 1},
+            {"card_name": "Filler 01", "fetch_status": "AVAILABLE", "variant_count": 9},
+        ],
+        ["card_name", "fetch_status", "variant_count"],
+    )
+    report = signals.import_signals(store, folder, commander=COMMANDER)
+
+    for name in ("Filler 00", "Filler 01"):
+        assert _signal(store, signals.SIGNAL_PARTNERS, name, commander="") is None
+        assert _signal(store, signals.SIGNAL_TWO_CARD, name, commander="") is None
+        assert _signal(store, signals.SIGNAL_VARIANTS, name, commander="") is not None
+    files = report["files"]
+    assert isinstance(files, dict)
+    # both cards held three signal rows: the report counts all six as replaced
+    assert files[signals.SPELLBOOK_FILE]["rows_replaced"] == 6
+    cards = _by_name(strength_view.compute(store, COMMANDER, _combos_only()))
+    assert _component(cards["Filler 01"], "combos")["percentile"] == 1.0
+    assert _component(cards["Filler 00"], "combos")["percentile"] == 0.0
+
+
+# ---------- tournament conversion (#1261 P1.1) ----------
+
+
+def test_conversion_below_the_minimum_denominator_is_not_used() -> None:
+    """Thin data of the Chulane shape (every base <= 3): the rows exist, and the
+    minimum denominator of 20 keeps the component out of the index for every card,
+    listed or not — the same protection the tournament lists have."""
+    observations = {
+        "a": {"tournament_conversion": Observation(1 / 3, 1, 3)},
+        "b": {"tournament_conversion": Observation(0.0, 0, 3)},
+        "c": {},
+    }
+    scored = strength.score_pool(
+        _only("tournament_conversion"), observations, {"tournament_conversion"}
+    )
+    for card in observations:
+        row = _row(scored, card, "tournament_conversion")
+        assert row["status"] == strength.NO_VALUE and row["percentile"] is None
+        assert row["reason"] == strength.BELOW_MIN_DENOMINATOR
+        assert "Mindest-Nenner 20" in row["note"]
+    assert scored["a"]["index"] is None and scored["a"]["tier"] == "U"
+
+
+def test_conversion_ranks_by_the_wilson_bound_of_its_base() -> None:
+    observations = {
+        "high": {"tournament_conversion": Observation(0.5, 20, 40)},
+        "mid": {"tournament_conversion": Observation(0.25, 10, 40)},
+    }
+    scored = strength.score_pool(
+        _only("tournament_conversion"), observations, {"tournament_conversion"}
+    )
+    row = _row(scored, "high", "tournament_conversion")
+    assert row["status"] == strength.PRESENT
+    assert row["wilson"] == strength.wilson_lower(20, 40)
+    assert scored["high"]["index"] == 100.0 and scored["mid"]["index"] == 0.0
+
+
+def test_conversion_the_same_rate_ranks_higher_on_the_larger_base() -> None:
+    observations = {
+        "wide": {"tournament_conversion": Observation(0.5, 50, 100)},
+        "narrow": {"tournament_conversion": Observation(0.5, 10, 20)},
+    }
+    scored = strength.score_pool(
+        _only("tournament_conversion"), observations, {"tournament_conversion"}
+    )
+    assert scored["wide"]["index"] == 100.0 and scored["narrow"]["index"] == 0.0
+
+
+def test_conversion_a_card_below_the_minimum_drops_out_alone() -> None:
+    """The gate is per card once the signal as a whole clears it: a perfect rate on
+    a base of 19 counts nothing while a base of exactly 20 counts."""
+    observations = {
+        "in": {"tournament_conversion": Observation(0.5, 10, 20)},
+        "out": {"tournament_conversion": Observation(1.0, 19, 19)},
+    }
+    scored = strength.score_pool(
+        _only("tournament_conversion"), observations, {"tournament_conversion"}
+    )
+    assert _row(scored, "in", "tournament_conversion")["status"] == strength.PRESENT
+    out = _row(scored, "out", "tournament_conversion")
+    assert out["status"] == strength.NO_VALUE
+    assert out["reason"] == strength.BELOW_MIN_DENOMINATOR
+
+
+def test_conversion_a_counted_zero_is_a_value_not_an_unknown() -> None:
+    observations = {
+        "zero": {"tournament_conversion": Observation(0.0, 0, 25)},
+        "some": {"tournament_conversion": Observation(0.25, 10, 40)},
+    }
+    scored = strength.score_pool(
+        _only("tournament_conversion", require_commander_signal=False),
+        observations,
+        {"tournament_conversion"},
+    )
+    row = _row(scored, "zero", "tournament_conversion")
+    assert row["status"] == strength.PRESENT and row["percentile"] == 0.0
+    assert scored["zero"]["index"] == 0.0 and scored["zero"]["tier"] == "D"
+
+
+def test_conversion_alone_does_not_satisfy_the_commander_signal_rule() -> None:
+    """The conversion rows of a commander are that commander's tournament figures,
+    but the component is not in COMMANDER_SPECIFIC: it never earns a tier alone."""
+    observations = {"a": {"tournament_conversion": Observation(0.5, 20, 40)}}
+    scored = strength.score_pool(
+        _only("tournament_conversion"), observations, {"tournament_conversion"}
+    )
+    assert scored["a"]["index"] == 50.0  # the only valued card takes the mean rank
+    assert scored["a"]["tier"] == "U"
+    assert scored["a"]["reason"] == strength.NO_COMMANDER_SIGNAL
+
+
+def test_conversion_weight_counts_in_coverage_only_once_its_rows_exist() -> None:
+    """The A/B of the new default weight (1.0, total weight 12 -> 13): without
+    conversion rows a card's coverage drops by exactly the new share; with rows
+    the share is earned back and the component ranks."""
+    observations = {
+        "a": {"commander_inclusion": _share(90, 100)},
+        "b": {"commander_inclusion": _share(50, 100)},
+    }
+    before = StrengthSettings(
+        weights={**strength.DEFAULT_WEIGHTS, strength.TOURNAMENT_CONVERSION: 0.0},
+        min_coverage=0.0,
+        min_components=1,
+        require_commander_signal=False,
+    )
+    after = StrengthSettings(min_coverage=0.0, min_components=1, require_commander_signal=False)
+    scored_before = strength.score_pool(before, observations, {"commander_inclusion"})
+    scored_after = strength.score_pool(after, observations, {"commander_inclusion"})
+    assert scored_before["a"]["coverage"] == 0.25  # 3 of a total weight of 12
+    assert scored_after["a"]["coverage"] == round(3 / 13, 4)
+    assert scored_after["a"]["index"] == scored_before["a"]["index"] == 100.0
+    with_rows = {
+        "a": {
+            "commander_inclusion": _share(90, 100),
+            "tournament_conversion": Observation(0.5, 20, 40),
+        },
+        "b": {"commander_inclusion": _share(50, 100)},
+    }
+    scored_rows = strength.score_pool(
+        after, with_rows, {"commander_inclusion", "tournament_conversion"}
+    )
+    assert scored_rows["a"]["coverage"] == round(4 / 13, 4)
+    row = _row(scored_rows, "a", "tournament_conversion")
+    assert row["status"] == strength.PRESENT and row["percentile"] == 0.5
+
+
+def test_settings_without_the_conversion_key_use_the_default_minimum() -> None:
+    settings = StrengthSettings(min_denominators={"edhrec": 30, "tournament": 5})
+    assert settings.min_denominators == {"edhrec": 30, "tournament": 5, "conversion": 20}
+    assert settings.minimum_denominator(strength.TOURNAMENT_CONVERSION, 0) == 20
+    loaded = StrengthSettings.from_dict({"min_denominators": {"tournament": 7}})
+    assert loaded.min_denominators["conversion"] == 20
+    with pytest.raises(ValueError):
+        StrengthSettings(min_denominators={"bogus": 1})

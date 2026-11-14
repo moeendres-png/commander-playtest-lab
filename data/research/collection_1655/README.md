@@ -12,7 +12,7 @@ repository — the repository is being switched to private, and all
 agents working on the project are to see and use the full data. This
 folder is the in-repo form of that decision. (Third-party names are
 unaffected by the decision: player names in tournament data stay
-anonymized to initials, see issue #1108.)
+replaced with neutral "Liste N" labels, see issues #1108 and #1263.)
 
 ## Files
 

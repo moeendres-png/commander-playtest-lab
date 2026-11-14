@@ -28,8 +28,10 @@ from .images import fetch_images
 from .launch import (
     DEFAULT_GAMES_PER_JVM,
     MAX_GAMES_PER_JVM,
+    MAX_SEATS,
     MAX_WORKERS,
     MIN_GAMES_PER_JVM,
+    MIN_SEATS,
     MIN_WORKERS,
     checked_series_settings,
 )
@@ -374,7 +376,10 @@ def _parser() -> argparse.ArgumentParser:
         help="deck file of one opponent seat (repeat for each, 1 to 5)",
     )
     compare.add_argument(
-        "--pairs", type=int, default=40, help="budget: most pairs to play (default 40)"
+        "--pairs",
+        type=int,
+        default=40,
+        help="budget: most pairs to play, 2 to 1000 (default 40)",
     )
     compare.add_argument(
         "--look-every", type=int, default=10, help="pairs between two looks (default 10)"
@@ -415,7 +420,7 @@ def _parser() -> argparse.ArgumentParser:
     sources_cmd.add_argument(
         "--gap-report",
         action="store_true",
-        help="calculate and export the 801-card pool gap matrix",
+        help="calculate and export the 927-card pool gap matrix",
     )
     sources_cmd.add_argument(
         "--gap-out",
@@ -480,21 +485,38 @@ def _compare_decks(args: argparse.Namespace) -> int:
     from .games import games_folder
     from .store import studio_data_dir
 
-    folder = Path(args.data).resolve() if args.data else studio_data_dir()
-    paths = [Path(args.base_deck), Path(args.variant_deck)]
-    paths += [Path(path) for path in args.opponent]
     try:
+        opponents_count = len(args.opponent)
+        min_opponents, max_opponents = MIN_SEATS - 1, MAX_SEATS - 1
+        if not min_opponents <= opponents_count <= max_opponents:
+            raise ValueError(
+                f"compare-decks requires {min_opponents} to {max_opponents} opponents "
+                f"(table size {MIN_SEATS} to {MAX_SEATS}), got {opponents_count}"
+            )
+        table_size = 1 + opponents_count
+        if not (
+            paired_comparison.MIN_BUDGET_PAIRS <= args.pairs <= paired_comparison.MAX_BUDGET_PAIRS
+        ):
+            raise ValueError(
+                f"pairs must be between {paired_comparison.MIN_BUDGET_PAIRS} and "
+                f"{paired_comparison.MAX_BUDGET_PAIRS}"
+            )
+        if args.look_every < 1:
+            raise ValueError("look-every must be at least 1")
+        if args.rotate_seats:
+            tested_seats = list(range(table_size))
+        elif 0 <= args.seat < table_size:
+            tested_seats = [args.seat]
+        else:
+            raise ValueError(f"seat must be within 0..{table_size - 1}")
+        folder = Path(args.data).resolve() if args.data else studio_data_dir()
+        paths = [Path(args.base_deck), Path(args.variant_deck)]
+        paths += [Path(path) for path in args.opponent]
         decks = [load_rules_deck_snapshot(path) for path in paths]
         base, variant, opponents = decks[0], decks[1], decks[2:]
         deck_ids = [deck.deck_id for deck in decks]
         if len(set(deck_ids)) != len(deck_ids):
             raise ValueError("base, variant and opponents need distinct deck ids")
-        if args.rotate_seats:
-            tested_seats = list(range(len(decks)))
-        elif 0 <= args.seat < len(decks):
-            tested_seats = [args.seat]
-        else:
-            raise ValueError(f"seat must be within 0..{len(decks) - 1}")
         needed_seeds = -(-args.pairs // len(tested_seats))
         seeds = [args.base_seed + index for index in range(needed_seeds)]
         series_id = args.series_id or f"cmp-{int(time.time())}"

@@ -166,3 +166,4 @@ code.cmd{white-space:pre-wrap;word-break:break-all;font-size:12px}
 #play-state.warn{border-color:var(--warn);color:var(--warn)}
 #land-advisor,#land-advisor-group{width:100%;margin-bottom:var(--s2)}
 #land-advisor td,#land-advisor-group td{vertical-align:top}
+@media (max-width:600px){select,input[type="search"],input[type="text"]{max-width:100%;min-width:0}label:has(> select){display:flex;flex-wrap:wrap;align-items:center;gap:4px;max-width:100%}.tier-filter,.layer-controls{flex-wrap:wrap;max-width:100%}}

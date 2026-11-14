@@ -225,31 +225,47 @@ the commander names it imported and the names it did not recognise; when nothing
 replaced the status is `NOTHING_REPLACED`. Signals are stored in
 `card_signal(commander_name, signal, card_name, value, numerator, denominator, source_id)`:
 `edhrec_commander_inclusion|synergy` and `edhrec_bracket_inclusion:<core|upgraded|optimized|cedh>`
-per commander of the files, `edhrec_global_inclusion` and `spellbook_variants` commander
+per commander of the files, `edhrec_global_inclusion`, `spellbook_variants`,
+`spellbook_two_card_variants` and `spellbook_partners_in_collection` commander
 independent (commander name empty), and
 `tournament_lists` (lists of the commander that contain the card over all its lists, main and
-commander section only) under `--commander` (default: the standard commander). Tournament
+commander section only) under `--commander` (default: the standard commander). The counted
+research file `topdeck_card_conversions.csv` stores `topdeck_card_conversion` under each
+commander of its own commander column: the value is the published conversion rate (decks
+with the card that reached the top cut over the decks whose top-cut outcome is known), the
+stored denominator is that known-outcome base — never the appearances, which also count
+decks of unknown outcome — and where the source publishes no rate (base below 10, the
+literal `NULL` in the file) the value stays NULL while numerator and denominator are
+stored as counted. Tournament
 files are any `topdeck_*_decks.csv` (split parts `_1`, `_2` allowed); the commander of a
 file is taken from its commander section and matched case-insensitively against the commander
 names of the store, so a file of another commander is never stored under the wrong name. The commander
-file's lift column and the spellbook file's partner count are not stored: no strength
-component reads them, and the values remain in the source files (the lift also in the
-observation pipeline). Stores imported earlier keep the rows of the two signals they
-already hold until `card_signal` is rebuilt; nothing reads them. A value the
+file's lift column is not stored: no strength component reads it, and the value remains
+in the source file (and in the observation pipeline). The spellbook file's partner count
+and variant ids are stored (as the two signals above; the two-card count is derived from
+the ids, one id per card slot of a variant): the combos component of the strength index
+ranks variant count, two-card variant count and partners in the collection together, so
+combo quality counts, not the raw variant count alone. What the spellbook file does not
+publish — the result a combo produces, the partners of one single variant — is not
+stored either; it stays unknown. A value the
 source does not publish is NULL (unknown), never 0; a card a source does not list has no row;
 rows of a source fetch that was not `AVAILABLE` are not stored. The tournament player column
 is never stored. Re-importing replaces the rows of the signals it writes.
 
 Formula, per commander (`strength.py`, pure):
 
-1. Share signals (inclusion, bracket inclusion, deck lists, tournament lists, global) use the
+1. Share signals (inclusion, bracket inclusion, deck lists, tournament lists, tournament
+   conversion, global) use the
    share measure from the settings: the lower bound of the 95 % Wilson interval of
    numerator/denominator (recommended) or the raw share. Caveat: at one fixed denominator
    the Wilson bound is monotone in the numerator, so it keeps the raw order; it does not
    protect against small samples by itself, and `wilson_lower(0, n)` is exactly 0.0. The
    protection is the **minimum denominator per signal**: a share whose denominator is below
    the minimum is not ranked (component status `BELOW_MIN_DENOMINATOR`, a missing
-   observation). Synergy and combo counts are used as published.
+   observation). Synergy is used as published. The combos component value is a quality
+   mixture, not a published count: the mean of the card's percentile ranks in variant
+   count, two-card variant count and partners in the collection (`strength.combo_quality`);
+   that mixture is then ranked like every other value.
 2. Each value becomes a percentile rank (0..1). The comparison group is the whole legal pool
    (recommended) or the card's type group or mana-value band; a group of fewer than 5 cards
    falls back to the whole pool and the card says so. Ties share the mean rank. The
@@ -285,12 +301,12 @@ Settings (every label on the page carries its recommendation in parentheses; the
 recommended values live in one place, `StrengthSettings` defaults in `strength.py`, and are
 served by `GET /api/strength/presets` as `recommended`; the button "Empfohlene Werte" applies
 them, an empty weight field means the recommended value and shows it): a weight per component (commander inclusion 3, bracket inclusion 2, deck-list
-universe 2, synergy 1, tournament lists 1, global inclusion 1, combos 1, simulation 0), the
+universe 2, synergy 1, tournament lists 1, tournament conversion 1, global inclusion 1, combos 1, simulation 0), the
 bracket (`core`, `upgraded`, `optimized`, `cedh`, `none`), the universe profile (the page uses
 the Universum selector), the comparison group (`rank_group`: `pool`), the share measure
 (`share_measure`: `wilson`), the minimum denominators (`min_denominators`: EDHREC 30,
-tournament 5; the deck-universe minimum is the universe's own `min_universe`), the missing
-value per share signal (`skip`), commander and basics (`rank_commander_and_basics`: off),
+tournament 5, conversion 20; the deck-universe minimum is the universe's own `min_universe`), the missing
+value per share signal (`skip`), commander and basics (`rank_commander_and_basics`: off), other commanders in the pool (`rank_other_commanders`: on, ranked like any card),
 `min_coverage` (0.3, "Mindest-Datenlage"), `min_components` (2), `universe_source` (`auto`), `require_commander_signal` (on) and the editable cuts (`tier_cuts` 90/75/55/35).
 The page also filters by tier (S/A/B/C/D/U) and sorts by the percentile of any single
 component. Presets (weights commander inclusion / bracket / deck universe / synergy / tournament /
@@ -521,6 +537,39 @@ The builder shows the current tier of every card (pool tiles, deck list, card wi
 "Stufe zeigen" is ticked (default on, remembered in the browser as `studio.builder.show-tier`).
 It is the tier of the strength index with the settings the tier list remembers; "–" means too
 little data or not rated (commander, basic lands), never a low tier.
+
+### Counting rules behind the shown numbers (follow-up to #1275)
+
+- Cohorts of one family (the text before the first `:`, e.g. `bracket:3` and `bracket:4`) are
+  alternatives (OR); cohorts of different families narrow each other (AND). A universe without a
+  deck is an explicit state: `empty: true` with `empty_reason` (`NO_SOURCE_DECKS_FOR_COMMANDER`
+  or `FILTERS_EXCLUDE_ALL_DECKS`) in the summary, the spread and the co-occurrence, and the
+  cards' reason is `UNIVERSE_EMPTY`.
+- One list of counted sections everywhere (`store.COUNTED_SECTIONS`: main, mainboard,
+  commander, companion): sideboard, maybeboard and cuts count in no figure (universe spread,
+  builder frequencies, role counts). Card-level counts, co-occurrence and lift use one
+  primitive (`universe.deck_sets`): every spelling of a card is merged into the card, for the
+  partner of a pair exactly as for the card itself.
+- The builder pool says whether a card's source-deck count is unknown: `decks_known` is false
+  when no deck of the commander names the card under any spelling (`decks` is then empty); the
+  evidence items carry the same flag. Unknown is never shown as 0.
+- Coverage of the strength index keeps its main definition (present weight over the weight of
+  every weighted component, see the "Mindest-Datenlage" above): a source never imported for the
+  commander still counts against a card. Not taken over from the follow-up branch (open
+  Owner decision, tests of both sides contradict): a denominator of only the sources that have
+  data for the commander. A filter card leaves the deck-universe component out of its
+  denominator. The minimum number of signals never exceeds what the weighted components allow.
+  The reason of a card is `NO_POSITIVE_WEIGHT` (no weight above 0), `NO_SOURCE_FOR_COMMANDER`
+  (no weighted component has usable data for the commander), `NO_COMMANDER_SIGNAL`,
+  `TOO_LITTLE_DATA` or `ENOUGH_DATA`; the tier follows the index as shown (rounded to one decimal), so a card shown at a cut has the tier of that cut. Other commanders
+  known to the store are ordinary cards of the 99 and ranked by default; with
+  `rank_other_commanders` off they are not ranked (tier `N`, `NOT_RANKED_OTHER_COMMANDER`).
+- The tier list's evidence reads the commander's EDHREC inclusion from `card_signal` when the
+  older table has no value (the same entry the builder shows); spread levels carry a German
+  `level_name` next to the stable level key.
+- Derived figures are computed once per store state: `cache.py` keeps the resolved universe,
+  the per-card spread and the builder counts keyed by the store file's change counter, so any
+  committed write recomputes them. `GET /api/marks` reads the marks without building the pool.
 
 ### Data report
 

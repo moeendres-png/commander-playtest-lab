@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import json
 import re
+import threading
 from collections.abc import Awaitable, Callable
 from dataclasses import asdict
 from pathlib import Path
@@ -22,6 +23,7 @@ from pydantic import BaseModel, ConfigDict, Field, StrictInt
 
 from . import (
     builder,
+    cache,
     card_outcomes,
     combos,
     data_report,
@@ -207,10 +209,22 @@ def _cards(entries: list[CardEntry]) -> list[RevisionCard]:
     return [RevisionCard(entry.card_id, entry.quantity, entry.zone) for entry in entries]
 
 
+_warmed = threading.Event()
+
+
+def _warm_up_once() -> None:
+    """Start the one-time card-data load in the background, once per process."""
+    if _warmed.is_set():
+        return
+    _warmed.set()
+    threading.Thread(target=builder.warm_up, name="studio-warm-up", daemon=True).start()
+
+
 def create_app(data_folder: str | Path | None = None) -> FastAPI:
     """The Studio application. ``data_folder`` is the Studio data folder (default: from the
     environment)."""
     app = FastAPI(title="Commander Studio", docs_url=None, redoc_url=None, openapi_url=None)
+    _warm_up_once()
 
     def open_store() -> StudioStore:
         return StudioStore.open(data_folder)
@@ -316,6 +330,16 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
             if profile is not None and str(error).strip("'") == profile:
                 raise HTTPException(404, f"unknown universe profile: {error}") from error
             raise HTTPException(404, f"commander not in the collection: {error}") from error
+        finally:
+            store.close()
+
+    @app.get("/api/marks")
+    def marks() -> dict[str, dict[str, object]]:
+        """The Owner's marks per card id (favourite, excluded, note), without any pool,
+        count or figure: the light read for pages that only need to know what is marked."""
+        store = open_store()
+        try:
+            return builder.read_marks(store)
         finally:
             store.close()
 
@@ -552,6 +576,7 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
                     f"the universe is defined for {sorted(body.commanders)}, not for {commander}",
                 )
             universe.save_profile(store, name, body.model_dump(exclude_none=True))
+            cache.invalidate()
             return dict(universe_view.profile_summary(store, name, commander_names=[commander]))
         except ValueError as error:
             raise HTTPException(422, _german(error)) from error
@@ -565,6 +590,7 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         store = open_store()
         try:
             universe.delete_profile(store, name)
+            cache.invalidate()
             return {"deleted": name}
         except KeyError as error:
             raise HTTPException(404, "unknown universe profile") from error

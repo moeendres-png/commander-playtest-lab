@@ -211,6 +211,16 @@ def run_audit(repo_root: Path) -> tuple[list[AuditRow], str]:
         f"{pool_in_inclusion} der {len(gap_cards)} Chulane-Pool-Karten erscheinen in der Inclusion-CSV; "
         f"{len(inc_missing_gap)} Universumskarten liegen außerhalb des {len(gap_cards)}-Pools."
     )
+    if inc_missing_gap:
+        lines.append(f"- **Betroffene Karten ({len(inc_missing_gap)}, alphabetisch sortiert):**")
+        lines.append("")
+        lines.append("<details>")
+        lines.append(f"<summary>Vollständige Namensliste ({len(inc_missing_gap)} Karten)</summary>")
+        lines.append("")
+        for name in inc_missing_gap:
+            lines.append(f"  * `{name}`")
+        lines.append("")
+        lines.append("</details>")
     lines.append("")
 
     # 2.3 Dubletten je Datei
