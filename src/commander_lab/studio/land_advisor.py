@@ -187,7 +187,8 @@ def _span(values: Sequence[float]) -> dict[str, float]:
 
 def _compact(profile: Mapping[str, object]) -> dict[str, object]:
     colours = profile["colours"]
-    assert isinstance(colours, list)
+    if not isinstance(colours, list):
+        raise TypeError("profile colours must be a list")
     return {
         "lands": profile["lands"],
         "colours": {str(entry["colour"]): entry for entry in colours},
@@ -214,14 +215,16 @@ def group_figures(
     seen: set[str] = set()
     for deck in decks:
         colours = deck["colours"]
-        assert isinstance(colours, Mapping)
+        if not isinstance(colours, Mapping):
+            raise TypeError("deck colours must be a mapping")
         seen.update(str(key) for key in colours)
     out: dict[str, dict[str, object]] = {}
     for colour in (c for c in COLOURS if c in seen):
         figures: dict[str, list[float]] = {"land_sources": [], "pips": [], "pip_share": []}
         for deck in decks:
             colours = deck["colours"]
-            assert isinstance(colours, Mapping)
+            if not isinstance(colours, Mapping):
+                raise TypeError("deck colours must be a mapping")
             entry = colours.get(colour)
             for key in ("land_sources", "pips"):
                 figures[key].append(float(str(entry[key])) if entry else 0.0)
