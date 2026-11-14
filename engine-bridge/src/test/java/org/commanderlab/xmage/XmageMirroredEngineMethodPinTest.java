@@ -2,36 +2,27 @@ package org.commanderlab.xmage;
 
 import org.junit.jupiter.api.Test;
 
-import java.io.InputStream;
-import java.security.MessageDigest;
-import java.util.HexFormat;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
- * Pins the engine class that {@code XmageFullGamePlayer.manaAvailableInPlayableCalcCopy}
- * mirrors. The method source is not available from the jar and no bytecode library is on the
- * test classpath (and none may be added), so the whole {@code mage/players/PlayerImpl.class}
- * resource is hashed with SHA-256. Any repin that changes that class trips this test, which
- * is the cue to re-compare the mirror.
+ * Ties {@code XmageFullGamePlayer.manaAvailableInPlayableCalcCopy} to the engine commit whose
+ * {@code PlayerImpl.getManaAvailable} it mirrors. The engine jar is not byte-reproducible, so
+ * the class bytes cannot be pinned; the commit can. A repin changes
+ * {@code XmageProvider.ENGINE_COMMIT} and trips this test, which is the cue to re-compare the
+ * mirror with the engine method and then move this constant.
+ * {@code XmageNestedCopySkipDifferentialTest} checks the behaviour against the engine method.
  */
 class XmageMirroredEngineMethodPinTest {
 
-    static final String PINNED_SHA256 = "708373ab3b3a5af2d1859db6dd81157bb46220ef35fe7839b670ca0636e82b5d";
+    /** The engine commit at which the mirror was last compared with the engine method. */
+    static final String MIRROR_COMPARED_AT = "f4d12f6e8066203fba7aa38bd35ea3358117393d";
 
     @Test
-    void engineMirroredClassIsUnchanged() throws Exception {
-        try (InputStream in = mage.players.PlayerImpl.class
-                .getResourceAsStream("/mage/players/PlayerImpl.class")) {
-            assertNotNull(in, "PlayerImpl.class is on the classpath");
-            String actual = HexFormat.of().formatHex(
-                    MessageDigest.getInstance("SHA-256").digest(in.readAllBytes()));
-            assertEquals(PINNED_SHA256, actual,
-                    "The engine's PlayerImpl changed. Re-compare "
-                            + "XmageFullGamePlayer.manaAvailableInPlayableCalcCopy with "
-                            + "PlayerImpl.getManaAvailable (docs/claude/REPIN_RUNBOOK.md), "
-                            + "then update this digest.");
-        }
+    void mirrorWasComparedAtThePinnedEngineCommit() {
+        assertEquals(MIRROR_COMPARED_AT, XmageProvider.ENGINE_COMMIT,
+                "The engine pin moved. Re-compare "
+                        + "XmageFullGamePlayer.manaAvailableInPlayableCalcCopy with "
+                        + "PlayerImpl.getManaAvailable at the new commit "
+                        + "(docs/claude/REPIN_RUNBOOK.md), then set MIRROR_COMPARED_AT to it.");
     }
 }
