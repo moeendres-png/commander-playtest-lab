@@ -837,6 +837,10 @@ _MEASURE_CHOICES = {
     strength.MEASURE_WILSON: "Wilson-Untergrenze",
     strength.MEASURE_RAW: "roher Anteil",
 }
+_SCALE_CHOICES = {
+    strength.SCALE_SHARE: "Anteil (Wurzel relativ zum Maximum)",
+    strength.SCALE_RANK: "Rang (Perzentil)",
+}
 _MISSING_CHOICES = {
     strength.MISSING_SKIP: "auslassen",
     strength.MISSING_LOWEST: "als niedrigster Rang zählen",
@@ -944,6 +948,14 @@ def _panel_texts() -> dict[str, object]:
         "bei gleichem Nenner ändert sie die Reihenfolge nicht. Gegen kleine Stichproben "
         "schützt der Mindest-Nenner."
     )
+    labels["share_scale"] = f"Anteil skalieren als (empfohlen: {_SCALE_CHOICES[rec.share_scale]})"
+    helps["share_scale"] = (
+        "Wie Anteils-Signale in einen Wert von 0 bis 1 umgerechnet werden. „Anteil (Wurzel "
+        "relativ zum Maximum)“ bewahrt den Abstand zwischen selten und häufig gespielten "
+        "Karten (√(Anteil / Maximalanteil) in der Vergleichsgruppe). „Rang (Perzentil)“ "
+        "nutzt nur die Reihenfolge und drückt lange Null-Schwänze nach oben. Synergie, "
+        "Kombos und Playgroup bleiben immer auf Perzentil-Rängen."
+    )
     labels["min_denominators.edhrec"] = (
         f"Mindest-Nenner EDHREC-Signale (empfohlen: {rec.min_denominators['edhrec']} Decks)"
     )
@@ -1045,7 +1057,7 @@ def _panel_texts() -> dict[str, object]:
         },
         {"title": "Bracket", "keys": ["bracket"]},
         {"title": "Vergleichsgruppe für den Rang", "keys": ["rank_group"]},
-        {"title": "Anteil messen als", "keys": ["share_measure"]},
+        {"title": "Anteil messen als", "keys": ["share_measure", "share_scale"]},
         {
             "title": "Mindest-Nenner je Signal",
             "keys": [
@@ -1083,6 +1095,7 @@ def _panel_texts() -> dict[str, object]:
             "bracket": _choices(_BRACKET_CHOICES, rec.bracket),
             "rank_group": _choices(_GROUP_CHOICES, rec.rank_group),
             "share_measure": _choices(_MEASURE_CHOICES, rec.share_measure),
+            "share_scale": _choices(_SCALE_CHOICES, rec.share_scale),
             "missing_value": _choices(_MISSING_CHOICES, strength.MISSING_SKIP),
             "universe_source": [
                 {

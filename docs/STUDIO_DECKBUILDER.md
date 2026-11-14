@@ -268,20 +268,25 @@ Formula, per commander (`strength.py`, pure):
    mixture, not a published count: the mean of the card's percentile ranks in variant
    count, two-card variant count and partners in the collection (`strength.combo_quality`);
    that mixture is then ranked like every other value.
-2. Each value becomes a percentile rank (0..1). The comparison group is the whole legal pool
-   (recommended) or the card's type group or mana-value band; a group of fewer than 5 cards
-   falls back to the whole pool and the card says so. Ties share the mean rank. The
+2. Share signals become a scaled value in `0..1` according to `share_scale` (recommended
+   `share` = $\sqrt{v / v_{\max}}$ within the comparison group, preserving the magnitude gap
+   between 3 % marginal cards and 60 % staples so long zero tails do not push marginal cards to
+   percentile `0.89`; `rank` = percentile rank `0..1`, bit-identical to the legacy ranking).
+   Non-share components (`synergy`, `combos`, `playgroup_observed`, and weighted rating layers)
+   always use percentile ranks (`0..1`). The comparison group is the whole legal pool
+   (recommended) or the card's type group, mana-value band or function role; a group of fewer
+   than 5 cards falls back to the whole pool and the card says so. Ties share the mean rank. The
    commander card and the basic lands are not ranked by default (tier `N`, "nicht
    bewertet"); the setting can include them. Cards the universe requires (card filter,
    `must_contain`) are filter cards: status `FILTER_CARD`, not ranked, labelled
    "Filterkarte".
-3. Index = weighted mean of the present percentiles x 100 (one decimal); a missing component
+3. Index = weighted mean of the present scaled values x 100 (one decimal); a missing component
    is left out and the weights are renormalised. `coverage` = weight of present components /
    weight of all components with a weight above 0.
 4. Tier `U` ("zu wenig Daten") when coverage is below `min_coverage` or fewer than
    `min_components` weighted components are present, or (rule `require_commander_signal`) no
    commander-specific component has a ranked value; otherwise S/A/B/C/D by the index cuts
-   (default 90/75/55/35, editable). A card absent from a source is a missing observation: it
+   (default 70/55/35/20, editable; legacy rank-mode cuts were 90/75/55/35). A card absent from a source is a missing observation: it
    lowers the coverage, never the percentile. The setting "missing value" decides per share
    signal what a card without a value does: `skip` (recommended, the component is left out)
    or `lowest` (counts as the lowest percentile, 0; an explicit choice, never the default). With
@@ -306,10 +311,10 @@ them, an empty weight field means the recommended value and shows it): a weight 
 universe 2, synergy 1, tournament lists 1, tournament conversion 1, global inclusion 1, combos 1, simulation 0), the
 bracket (`core`, `upgraded`, `optimized`, `cedh`, `none`), the universe profile (the page uses
 the Universum selector), the comparison group (`rank_group`: `pool`), the share measure
-(`share_measure`: `wilson`), the minimum denominators (`min_denominators`: EDHREC 30,
+(`share_measure`: `wilson`), the share scale (`share_scale`: `share`, or `rank` for pure percentile ranks), the minimum denominators (`min_denominators`: EDHREC 30,
 tournament 5, conversion 20; the deck-universe minimum is the universe's own `min_universe`), the missing
 value per share signal (`skip`), commander and basics (`rank_commander_and_basics`: off), other commanders in the pool (`rank_other_commanders`: on, ranked like any card),
-`min_coverage` (0.3, "Mindest-Datenlage"), `min_components` (2), `universe_source` (`auto`), `require_commander_signal` (on) and the editable cuts (`tier_cuts` 90/75/55/35).
+`min_coverage` (0.3, "Mindest-Datenlage"), `min_components` (2), `universe_source` (`auto`), `require_commander_signal` (on) and the editable cuts (`tier_cuts` 70/55/35/20).
 The page also filters by tier (S/A/B/C/D/U) and sorts by the percentile of any single
 component. Presets (weights commander inclusion / bracket / deck universe / synergy / tournament /
 global / combos / Playgroup observation; simulation is 0 in all):
@@ -480,6 +485,40 @@ cards, 2,823 counted lists, before any index change of #1350–#1353):
 | Tier counts `S / A / B / C / D / U / N` (of 927) | `6 / 81 / 257 / 256 / 322 / 0 / 5` | `30 / 134 / 221 / 171 / 366 / 0 / 5` | `9 / 85 / 254 / 253 / 321 / 0 / 5` |
 | Land share in `S / A / B / C / D` | `33.3 % / 12.3 % / 12.8 % / 7.0 % / 0.6 %` | `46.7 % / 13.4 % / 9.0 % / 4.7 % / 1.4 %` | `22.2 % / 14.1 % / 13.0 % / 6.3 % / 0.6 %` |
 | Largest leave-one-out tier impact | `deck_universe` (`879 / 927`), `combos` (`578 / 927`), `global_inclusion` (`560 / 927`) | `deck_universe` (`889 / 927`), `global_inclusion` (`857 / 927`) | `deck_universe` (`884 / 927`), `combos` (`581 / 927`), `global_inclusion` (`561 / 927`) |
+
+#### Share scaling (`share_scale`: `share` vs `rank`, #1351)
+
+In the Chulane pool (922 ranked cards), 756 cards have 0 of 2,823 counted lists. Under pure
+percentile ranks (`share_scale = "rank"`), those 756 zeros share mean rank `0.409` (`377.5 / 921`),
+and a card played in only 3 % of decks jumps to percentile `0.89`, right next to a 60 % staple.
+Consequently, among the 166 cards actually played in $\ge 1\,\%$ of counted lists, the rank-mode
+index had a slightly negative Spearman correlation (`r = -0.0357`) with counted-list share, and
+65 of 87 `S`/`A` cards had `< 5 %` share (`Psychosis Crawler` 4.1 %, `Mystic Sanctuary` 3.1 %,
+`Rite of Replication` 1.6 % in Tier `S` ahead of `Sol Ring` 73.2 % and `Llanowar Elves` 60.0 %).
+
+Four share-scaling candidates were evaluated against `rank` on the 927-card Chulane store:
+
+| Variant (`Ausgewogen`) | Cuts `S/A/B/C` | Spearman $r$ (all 922) | Spearman $r$ (lands 65) | Spearman $r$ ($\ge 1\,\%$ share, $n=166$) | Spearman $r$ ($\ge 5\,\%$ share, $n=84$) | Randkarten oben (`< 5 %` in `S`/`A`) | Stammkarten unten (`> 30 %` in `C`/`D`) | Dünne Datenlage oben (`< 5` signals in `S`/`A`) | Tier counts `S/A/B/C/D` |
+|---|---|---|---|---|---|---|---|---|---|
+| `rank` (legacy) | `90/75/55/35` | `0.8785` | `0.5322` | `-0.0357` | `0.5020` | `65 / 87` | `0 / 27` | `72 / 87` | `6 / 81 / 257 / 256 / 322` |
+| `linear` ($v / v_{\max}$) | `70/55/35/20` | `0.6771` | `0.8400` | `0.5153` | `0.7851` | `0 / 2` | `2 / 27` | `0 / 2` | `1 / 1 / 46 / 199 / 675` |
+| `blend` ($0.5\,\text{rank} + 0.5\,v/v_{\max}$) | `70/55/35/20` | `0.8588` | `0.6748` | `0.2218` | `0.7082` | `36 / 59` | `0 / 27` | `38 / 59` | `12 / 47 / 266 / 275 / 322` |
+| `log` ($\log_{10}(1 + 9 v / v_{\max})$) | `70/55/35/20` | `0.7520` | `0.8414` | `0.7871` | `0.9260` | `0 / 27` | `0 / 27` | `0 / 27` | `11 / 16 / 97 / 267 / 531` |
+| **`share` ($\sqrt{v / v_{\max}}$, recommended)** | **`70/55/35/20`** | **`0.8013`** | **`0.8423`** | **`0.7589`** | **`0.9063`** | **`0 / 20`** | **`0 / 27`** | **`0 / 20`** | **`8 / 12 / 103 / 272 / 527`** |
+
+Across all three presets after `#1351` (`share_scale = "share"`, `tier_cuts = 70 / 55 / 35 / 20`):
+
+| Metric | `Ausgewogen` (default) | `Commander-nah` | `Turniernah` |
+|---|---|---|---|
+| Spearman $r$ (all ranked, 922 / 922) | `0.8013` | `0.9408` | `0.8024` |
+| Spearman $r$ (non-lands, 857 / 857) | `0.7867` | `0.9439` | `0.7878` |
+| Spearman $r$ (lands, 65 / 65) | `0.8423` | `0.8535` | `0.8424` |
+| Randkarten oben (`S`/`A` with `< 5 %` share) | `0 / 20` | `0 / 19` | `0 / 18` |
+| Stammkarten unten (`> 30 %` share in `C`/`D`) | `0 / 27` | `0 / 27` | `0 / 27` |
+| Dünne Datenlage oben (`S`/`A` with `< 5` signals) | `0 / 20` | `0 / 19` | `0 / 18` |
+| Tier counts `S / A / B / C / D / U / N` (of 927) | `8 / 12 / 103 / 272 / 527 / 0 / 5` | `5 / 14 / 37 / 87 / 779 / 0 / 5` | `8 / 10 / 103 / 274 / 527 / 0 / 5` |
+| Land share in `S / A / B / C / D` | `12.5 % / 33.3 % / 9.7 % / 6.2 % / 6.3 %` | `20.0 % / 28.6 % / 18.9 % / 6.9 % / 6.0 %` | `12.5 % / 30.0 % / 10.7 % / 5.8 % / 6.5 %` |
+| Largest leave-one-out tier impact | `combos` (`182 / 927`), `synergy` (`157 / 927`), `deck_universe` (`48 / 927`) | `synergy` (`96 / 927`), `deck_universe` (`40 / 927`) | `combos` (`180 / 927`), `synergy` (`160 / 927`), `deck_universe` (`47 / 927`) |
 
 ### Counted deck-list universes, `universe_source` and the commander-signal rule
 

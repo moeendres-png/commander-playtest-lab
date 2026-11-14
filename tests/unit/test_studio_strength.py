@@ -337,6 +337,7 @@ def test_missing_components_renormalise_the_weights_and_lower_coverage() -> None
     settings = StrengthSettings(
         weights={name: 0.0 for name in strength.COMPONENTS}
         | {strength.COMMANDER_INCLUSION: 3.0, strength.SYNERGY: 1.0},
+        share_scale="rank",
         min_coverage=0.0,
         min_components=1,
     )
@@ -367,12 +368,22 @@ def test_low_coverage_or_few_components_give_tier_u_not_a_weak_tier() -> None:
         "c": {"commander_inclusion": _share(100, 1000), "synergy": Observation(0.1)},
     }
     collected = {strength.COMMANDER_INCLUSION, strength.SYNERGY}
-    lax = StrengthSettings(weights=weights, min_coverage=0.5, min_components=1)
+    lax = StrengthSettings(
+        weights=weights,
+        share_scale="rank",
+        tier_cuts={"S": 90.0, "A": 75.0, "B": 55.0, "C": 35.0},
+        min_coverage=0.5,
+        min_components=1,
+    )
     assert strength.score_pool(lax, observations, collected)["b"]["tier"] == "C"
-    strict_coverage = StrengthSettings(weights=weights, min_coverage=0.8, min_components=1)
+    strict_coverage = StrengthSettings(
+        weights=weights, share_scale="rank", min_coverage=0.8, min_components=1
+    )
     result = strength.score_pool(strict_coverage, observations, collected)["b"]
     assert result["tier"] == "U" and result["index"] == 50.0
-    strict_count = StrengthSettings(weights=weights, min_coverage=0.0, min_components=2)
+    strict_count = StrengthSettings(
+        weights=weights, share_scale="rank", min_coverage=0.0, min_components=2
+    )
     assert strength.score_pool(strict_count, observations, collected)["b"]["tier"] == "U"
     assert strength.score_pool(strict_count, observations, collected)["a"]["tier"] == "S"
     assert strength.score_pool(strict_count, observations, collected)["c"]["tier"] == "D"
@@ -442,20 +453,33 @@ def test_missing_card_lowers_coverage_not_the_percentile(
     absent = _component(cards["Filler 09"], "commander_inclusion")
     assert absent["status"] == strength.NO_VALUE and absent["percentile"] is None
     listed = _component(cards["Filler 08"], "commander_inclusion")
-    assert listed["status"] == strength.PRESENT and listed["percentile"] == 0.0
+    w10 = strength.wilson_lower(10, 100)
+    w90 = strength.wilson_lower(90, 100)
+    assert w10 is not None and w90 is not None
+    assert listed["status"] == strength.PRESENT and listed["percentile"] == pytest.approx(
+        (w10 / w90) ** 0.5
+    )
     assert listed["wilson"] is not None and listed["numerator"] == 10
     assert cards["Filler 09"]["coverage"] < cards["Filler 00"]["coverage"]
     assert _component(cards["Filler 00"], "synergy")["status"] == strength.NO_VALUE
     assert _component(cards["Filler 00"], "deck_universe")["status"] == strength.NOT_COLLECTED
+    rank_cards = _by_name(
+        strength_view.compute(store, COMMANDER, StrengthSettings(share_scale="rank"))
+    )
+    assert _component(rank_cards["Filler 08"], "commander_inclusion")["percentile"] == 0.0
 
 
 def test_bracket_choice_changes_the_result(store: StudioStore, tmp_path: Path) -> None:
     _import(store, tmp_path)
     only_bracket = {name: 0.0 for name in strength.COMPONENTS} | {strength.BRACKET_INCLUSION: 1.0}
 
-    def index(bracket: str) -> dict[str, float | None]:
+    def index(bracket: str, scale: str = "share") -> dict[str, float | None]:
         settings = StrengthSettings(
-            weights=only_bracket, bracket=bracket, min_coverage=0.0, min_components=1
+            weights=only_bracket,
+            bracket=bracket,
+            share_scale=scale,
+            min_coverage=0.0,
+            min_components=1,
         )
         return {
             n: c["index"]
@@ -463,8 +487,12 @@ def test_bracket_choice_changes_the_result(store: StudioStore, tmp_path: Path) -
         }
 
     core, cedh = index("core"), index("cedh")
-    assert core["Filler 08"] == 100.0 and cedh["Filler 08"] == 0.0
-    assert core["Filler 00"] == 0.0 and cedh["Filler 00"] == 100.0
+    assert core["Filler 08"] == 100.0 and cedh["Filler 00"] == 100.0
+    assert core["Filler 00"] is not None and cedh["Filler 08"] is not None
+    assert core["Filler 00"] < core["Filler 08"] and cedh["Filler 08"] < cedh["Filler 00"]
+    core_rank, cedh_rank = index("core", "rank"), index("cedh", "rank")
+    assert core_rank["Filler 08"] == 100.0 and cedh_rank["Filler 08"] == 0.0
+    assert core_rank["Filler 00"] == 0.0 and cedh_rank["Filler 00"] == 100.0
     assert index("upgraded")["Filler 08"] is None  # no upgraded file imported: no value
     none = strength_view.compute(
         store, COMMANDER, StrengthSettings(bracket="none", min_coverage=0.0, min_components=1)
@@ -663,9 +691,14 @@ def test_without_a_minimum_three_lists_still_spread_percentiles_over_zero_to_one
         key: {"tournament_lists": Observation(n / 3, n, 3)}
         for key, n in (("a", 3), ("b", 2), ("c", 1), ("d", 1))
     }
-    open_settings = _only("tournament_lists", min_denominators={"edhrec": 30, "tournament": 0})
-    scored = strength.score_pool(open_settings, observations, {"tournament_lists"})
-    assert scored["a"]["index"] == 100.0 and scored["c"]["index"] == 16.7  # spread from 3 lists
+    open_rank = _only(
+        "tournament_lists", share_scale="rank", min_denominators={"edhrec": 30, "tournament": 0}
+    )
+    scored_rank = strength.score_pool(open_rank, observations, {"tournament_lists"})
+    assert scored_rank["a"]["index"] == 100.0 and scored_rank["c"]["index"] == 16.7
+    open_share = _only("tournament_lists", min_denominators={"edhrec": 30, "tournament": 0})
+    scored_share = strength.score_pool(open_share, observations, {"tournament_lists"})
+    assert scored_share["a"]["index"] == 100.0 and 0.0 < scored_share["c"]["index"] < 100.0
     guarded = strength.score_pool(_only("tournament_lists"), observations, {"tournament_lists"})
     for card in observations:
         row = _row(guarded, card, "tournament_lists")
@@ -818,10 +851,21 @@ def test_raw_share_and_wilson_differ_across_denominators() -> None:
         {"deck_universe"},
         context=context,
     )
-    assert wilson["big"]["index"] == 100.0 and wilson["tiny"]["index"] == 0.0
-    assert raw["tiny"]["index"] == 100.0 and raw["big"]["index"] == 0.0
+    assert wilson["big"]["index"] == 100.0 and wilson["tiny"]["index"] < wilson["big"]["index"]
+    assert raw["tiny"]["index"] == 100.0 and raw["big"]["index"] == round(100 * 0.5**0.5, 1)
     assert _row(raw, "big", "deck_universe")["wilson"] is None
     assert _row(wilson, "big", "deck_universe")["wilson"] is not None
+    wilson_rank = strength.score_pool(
+        _only("deck_universe", share_scale="rank"), observations, {"deck_universe"}, context=context
+    )
+    raw_rank = strength.score_pool(
+        _only("deck_universe", share_measure="raw", share_scale="rank"),
+        observations,
+        {"deck_universe"},
+        context=context,
+    )
+    assert wilson_rank["big"]["index"] == 100.0 and wilson_rank["tiny"]["index"] == 0.0
+    assert raw_rank["tiny"]["index"] == 100.0 and raw_rank["big"]["index"] == 0.0
 
 
 def test_missing_as_lowest_is_a_setting_for_three_signals_and_named_in_the_row() -> None:
@@ -891,7 +935,7 @@ def test_filter_cards_are_marked_not_ranked_and_do_not_move_the_others() -> None
         "p": {"deck_universe": _share(2, 2)},
         "q": {"deck_universe": _share(1, 2)},
     }
-    settings = _only("deck_universe")
+    settings = _only("deck_universe", share_scale="rank")
     base = PoolContext(universe_minimum=0)
     marked = PoolContext(universe_minimum=0, filter_cards={"need"})
     without = strength.score_pool(settings, observations, {"deck_universe"}, context=base)
@@ -910,6 +954,7 @@ def test_new_settings_are_validated_serialised_and_round_trip() -> None:
         {
             "rank_group": "type",
             "share_measure": "raw",
+            "share_scale": "rank",
             "min_denominators": {"edhrec": 50, "tournament": 8},
             "missing_value": {"deck_universe": "lowest"},
             "rank_commander_and_basics": True,
@@ -925,6 +970,8 @@ def test_new_settings_are_validated_serialised_and_round_trip() -> None:
     for bad in (
         {"rank_group": "colour"},
         {"share_measure": "mean"},
+        {"share_scale": "linear"},
+        {"share_scale": 1},
         {"min_denominators": {"edhrec": -1}},
         {"min_denominators": {"edhrec": 1.5}},
         {"min_denominators": {"universe": 3}},
@@ -935,7 +982,11 @@ def test_new_settings_are_validated_serialised_and_round_trip() -> None:
         with pytest.raises(ValueError):
             StrengthSettings.from_dict(bad)
     default = StrengthSettings()
-    assert (default.rank_group, default.share_measure) == ("pool", "wilson")
+    assert (default.rank_group, default.share_measure, default.share_scale) == (
+        "pool",
+        "wilson",
+        "share",
+    )
     assert default.min_denominators == {"edhrec": 30, "tournament": 5, "conversion": 20}
     assert default.rank_commander_and_basics is False
     assert set(default.missing_value.values()) == {"skip"}
@@ -1109,14 +1160,16 @@ def test_the_function_group_setting_reaches_the_component_rows_of_a_real_pool(
             "INSERT INTO card_role(oracle_id, role, source_id) VALUES (?, ?, ?)",
             [(oracle[f"Filler {index:02d}"], "ramp", source_id) for index in range(6)],
         )
-    result = strength_view.compute(store, COMMANDER, StrengthSettings(rank_group="function"))
+    result = strength_view.compute(
+        store, COMMANDER, StrengthSettings(rank_group="function", share_scale="rank")
+    )
     assert result["settings"]["rank_group"] == "function"
     by_name = _by_name(result)
     row = _component(by_name["Filler 02"], "commander_inclusion")
     assert (row["group"], row["group_size"], row["group_fallback"]) == ("ramp", 6, False)
     assert row["percentile"] == pytest.approx(0.6)  # three of the six ramp cards below it
     # Filler 07 has a value but no role: pool rank, and the row says no function is known
-    pool = strength_view.compute(store, COMMANDER, StrengthSettings())
+    pool = strength_view.compute(store, COMMANDER, StrengthSettings(share_scale="rank"))
     func_row = _component(by_name["Filler 07"], "commander_inclusion")
     pool_row = _component(_by_name(pool)["Filler 07"], "commander_inclusion")
     assert func_row["group_fallback"] is True and "Keine Funktion bekannt" in func_row["note"]
@@ -1141,6 +1194,7 @@ def test_recommended_values_come_from_one_place_and_the_panel_texts_name_them(
     assert "für alle Karten" in edhrec_help and "einzelnen Karte" in edhrec_help
     assert "(empfohlen: ganzer Pool)" in labels["rank_group"]
     assert "(empfohlen: Wilson-Untergrenze)" in labels["share_measure"]
+    assert "(empfohlen: Anteil (Wurzel relativ zum Maximum))" in labels["share_scale"]
     assert "30 Decks" in labels["min_denominators.edhrec"]
     assert "5 Listen" in labels["min_denominators.tournament"]
     assert "Mindest-Universum" in labels["min_denominators.deck_universe"]
@@ -1149,7 +1203,7 @@ def test_recommended_values_come_from_one_place_and_the_panel_texts_name_them(
     assert "(empfohlen: 30)" in labels["min_coverage"]  # the page field is in percent
     assert "(empfohlen: 2)" in labels["min_components"]
     assert [group["title"] for group in meta["panel"]["groups"]][-1].endswith(
-        "(empfohlen: 90 / 75 / 55 / 35)"
+        "(empfohlen: 70 / 55 / 35 / 20)"
     )
     for group in meta["panel"]["groups"]:
         assert all(key in labels and key in meta["panel"]["help"] for key in group["keys"])
@@ -1689,8 +1743,18 @@ def test_the_minimum_denominator_is_checked_per_card_with_mixed_denominators() -
     assert small["reason"] == strength.BELOW_MIN_DENOMINATOR and small["percentile"] is None
     assert "Nenner 10" in small["note"]
     assert _row(scored, "big", "commander_inclusion")["status"] == strength.PRESENT
-    assert _row(scored, "other", "commander_inclusion")["percentile"] == 0.0
+    w50 = strength.wilson_lower(50, 100)
+    w90 = strength.wilson_lower(90, 100)
+    assert w50 is not None and w90 is not None
+    assert _row(scored, "other", "commander_inclusion")["percentile"] == pytest.approx(
+        (w50 / w90) ** 0.5
+    )
     assert _row(scored, "big", "commander_inclusion")["percentile"] == 1.0
+    scored_rank = strength.score_pool(
+        _only("commander_inclusion", share_scale="rank"), observations, {"commander_inclusion"}
+    )
+    assert _row(scored_rank, "other", "commander_inclusion")["percentile"] == 0.0
+    assert _row(scored_rank, "big", "commander_inclusion")["percentile"] == 1.0
 
 
 def test_the_reference_denominator_is_the_largest_one_of_the_signal() -> None:
@@ -1971,7 +2035,18 @@ def test_conversion_ranks_by_the_wilson_bound_of_its_base() -> None:
     row = _row(scored, "high", "tournament_conversion")
     assert row["status"] == strength.PRESENT
     assert row["wilson"] == strength.wilson_lower(20, 40)
-    assert scored["high"]["index"] == 100.0 and scored["mid"]["index"] == 0.0
+    w_high = strength.wilson_lower(20, 40)
+    w_mid = strength.wilson_lower(10, 40)
+    assert w_high is not None and w_mid is not None
+    assert scored["high"]["index"] == 100.0 and scored["mid"]["index"] == round(
+        100 * (w_mid / w_high) ** 0.5, 1
+    )
+    ranked = strength.score_pool(
+        _only("tournament_conversion", share_scale="rank"),
+        observations,
+        {"tournament_conversion"},
+    )
+    assert ranked["high"]["index"] == 100.0 and ranked["mid"]["index"] == 0.0
 
 
 def test_conversion_the_same_rate_ranks_higher_on_the_larger_base() -> None:
@@ -1982,7 +2057,13 @@ def test_conversion_the_same_rate_ranks_higher_on_the_larger_base() -> None:
     scored = strength.score_pool(
         _only("tournament_conversion"), observations, {"tournament_conversion"}
     )
-    assert scored["wide"]["index"] == 100.0 and scored["narrow"]["index"] == 0.0
+    assert scored["wide"]["index"] == 100.0 and scored["narrow"]["index"] < 100.0
+    ranked = strength.score_pool(
+        _only("tournament_conversion", share_scale="rank"),
+        observations,
+        {"tournament_conversion"},
+    )
+    assert ranked["wide"]["index"] == 100.0 and ranked["narrow"]["index"] == 0.0
 
 
 def test_conversion_a_card_below_the_minimum_drops_out_alone() -> None:
@@ -2071,3 +2152,95 @@ def test_settings_without_the_conversion_key_use_the_default_minimum() -> None:
     assert loaded.min_denominators["conversion"] == 20
     with pytest.raises(ValueError):
         StrengthSettings(min_denominators={"bogus": 1})
+
+
+# ---------- share_scale: preserve share magnitude vs rank (#1351) ----------
+
+
+def test_share_scale_preserves_distance_despite_a_long_zero_tail() -> None:
+    """In a pool with 80 counted-zero cards, a 3 % marginal card and a 60 % staple:
+    'rank' pushes the 3 % card to percentile ~0.99 (right next to the 60 % staple),
+    whereas 'share' keeps the 3 % card far below the 60 % staple."""
+    observations = {f"z{i}": {"deck_universe": _share(0, 1000)} for i in range(80)}
+    observations["marginal"] = {"deck_universe": _share(30, 1000)}  # 3 %
+    observations["staple"] = {"deck_universe": _share(600, 1000)}  # 60 %
+    observations["top"] = {"deck_universe": _share(900, 1000)}  # 90 %
+    by_rank = strength.score_pool(
+        _only("deck_universe", share_scale="rank"), observations, {"deck_universe"}
+    )
+    by_share = strength.score_pool(
+        _only("deck_universe", share_scale="share"), observations, {"deck_universe"}
+    )
+    assert by_rank["marginal"]["index"] == 97.6  # 80 / 82 -> inflated by the 80 zeros!
+    assert by_share["marginal"]["index"] < 20.0  # sqrt(wilson(30,1000)/wilson(900,1000)) ~ 16.0
+    assert by_share["staple"]["index"] > 80.0
+    assert by_share["top"]["index"] == 100.0
+    assert by_share["z0"]["index"] == 0.0
+
+
+def test_share_scale_leaves_non_share_components_on_percentile_ranks() -> None:
+    """Synergy, combos and playgroup_observed have no share in [0, 1] and always use
+    percentile_ranks regardless of share_scale."""
+    observations = {
+        "a": {
+            "commander_inclusion": _share(90, 100),
+            "synergy": Observation(-0.10),
+            "combos": Observation(0.1),
+            "playgroup_observed": Observation(-5.0, None, 100),
+        },
+        "b": {
+            "commander_inclusion": _share(60, 100),
+            "synergy": Observation(0.05),
+            "combos": Observation(0.5),
+            "playgroup_observed": Observation(2.0, None, 100),
+        },
+        "c": {
+            "commander_inclusion": _share(30, 100),
+            "synergy": Observation(0.25),
+            "combos": Observation(0.9),
+            "playgroup_observed": Observation(8.0, None, 100),
+        },
+    }
+    collected = {"commander_inclusion", "synergy", "combos", "playgroup_observed"}
+    for non_share in ("synergy", "combos", "playgroup_observed"):
+        s_share = strength.score_pool(
+            _only(non_share, share_scale="share", require_commander_signal=False),
+            observations,
+            collected,
+        )
+        s_rank = strength.score_pool(
+            _only(non_share, share_scale="rank", require_commander_signal=False),
+            observations,
+            collected,
+        )
+        for k in ("a", "b", "c"):
+            assert _row(s_share, k, non_share) == _row(s_rank, k, non_share), non_share
+            assert s_share[k]["index"] == s_rank[k]["index"], non_share
+            assert s_share[k]["tier"] == s_rank[k]["tier"], non_share
+        assert [s_share[k]["index"] for k in ("a", "b", "c")] == [0.0, 50.0, 100.0]
+
+
+def test_share_scale_rank_is_bit_identical_to_the_previous_ranking(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    """With share_scale='rank' and tier_cuts 90/75/55/35, every card's percentile, index,
+    coverage and tier match pure percentile_ranks scoring bit-for-bit."""
+    _import(store, tmp_path)
+    legacy = StrengthSettings(
+        share_scale="rank",
+        tier_cuts={"S": 90.0, "A": 75.0, "B": 55.0, "C": 35.0},
+    )
+    result = strength_view.compute(store, COMMANDER, legacy)
+    by_name = _by_name(result)
+    # Filler 00 has the highest inclusion (90/100 -> 1.0), Filler 08 the lowest (10/100 -> 0.0)
+    inc_ranks = [
+        _component(by_name[f"Filler {i:02d}"], "commander_inclusion")["percentile"]
+        for i in range(9)
+    ]
+    assert inc_ranks == [pytest.approx((8 - i) / 8) for i in range(9)]
+    # Pure function edge cases for share_scale_values
+    assert strength.share_scale_values({}, "share") == {}
+    assert strength.share_scale_values({"only": 0.4}, "share") == {"only": 0.5}
+    assert strength.share_scale_values({"a": 0.0, "b": 0.0}, "share") == {"a": 0.0, "b": 0.0}
+    with pytest.raises(ValueError, match="share_scale"):
+        strength.share_scale_values({"a": 0.5, "b": 1.0}, "bogus")

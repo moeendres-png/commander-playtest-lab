@@ -122,6 +122,10 @@ RANK_GROUPS = (GROUP_POOL, GROUP_TYPE, GROUP_MANA_BAND, GROUP_FUNCTION)
 MEASURE_WILSON = "wilson"
 MEASURE_RAW = "raw"
 SHARE_MEASURES = (MEASURE_WILSON, MEASURE_RAW)
+SCALE_RANK = "rank"
+SCALE_SHARE = "share"
+SHARE_SCALES = (SCALE_RANK, SCALE_SHARE)
+DEFAULT_SHARE_SCALE = SCALE_SHARE
 MISSING_SKIP = "skip"
 MISSING_LOWEST = "lowest"
 MISSING_CHOICES = (MISSING_SKIP, MISSING_LOWEST)
@@ -265,7 +269,7 @@ DEFAULT_WEIGHTS: dict[str, float] = {
     PLAYGROUP_OBSERVED: 1.0,
     SIMULATION: 0.0,
 }
-DEFAULT_CUTS: dict[str, float] = {"S": 90.0, "A": 75.0, "B": 55.0, "C": 35.0}
+DEFAULT_CUTS: dict[str, float] = {"S": 70.0, "A": 55.0, "B": 35.0, "C": 20.0}
 DEFAULT_MIN_DENOMINATORS: dict[str, int] = {
     MIN_EDHREC: 30,
     MIN_TOURNAMENT: 5,
@@ -287,6 +291,7 @@ _SETTINGS_KEYS = frozenset(
         "tier_cuts",
         "rank_group",
         "share_measure",
+        "share_scale",
         "min_denominators",
         "missing_value",
         "rank_commander_and_basics",
@@ -389,6 +394,7 @@ class StrengthSettings:
     tier_cuts: dict[str, float] = field(default_factory=lambda: dict(DEFAULT_CUTS))
     rank_group: str = GROUP_POOL
     share_measure: str = MEASURE_WILSON
+    share_scale: str = DEFAULT_SHARE_SCALE
     min_denominators: dict[str, int] = field(default_factory=lambda: dict(DEFAULT_MIN_DENOMINATORS))
     missing_value: dict[str, str] = field(default_factory=dict)
     rank_commander_and_basics: bool = False
@@ -434,6 +440,8 @@ class StrengthSettings:
             raise ValueError(f"rank_group must be one of {', '.join(RANK_GROUPS)}")
         if self.share_measure not in SHARE_MEASURES:
             raise ValueError(f"share_measure must be one of {', '.join(SHARE_MEASURES)}")
+        if self.share_scale not in SHARE_SCALES:
+            raise ValueError(f"share_scale must be one of {', '.join(SHARE_SCALES)}")
         unknown_minimum = set(self.min_denominators) - set(MIN_DENOMINATOR_KEYS)
         if unknown_minimum:
             raise ValueError(f"unknown min_denominators: {', '.join(sorted(unknown_minimum))}")
@@ -516,6 +524,7 @@ class StrengthSettings:
             "tier_cuts": dict(self.tier_cuts),
             "rank_group": self.rank_group,
             "share_measure": self.share_measure,
+            "share_scale": self.share_scale,
             "min_denominators": dict(self.min_denominators),
             "missing_value": dict(self.missing_value),
             "rank_commander_and_basics": self.rank_commander_and_basics,
@@ -561,8 +570,13 @@ class StrengthSettings:
             raise ValueError("min_components must be an integer")
         rank_group = raw.get("rank_group", defaults.rank_group)
         share_measure = raw.get("share_measure", defaults.share_measure)
-        if not isinstance(rank_group, str) or not isinstance(share_measure, str):
-            raise ValueError("rank_group and share_measure must be texts")
+        share_scale = raw.get("share_scale", defaults.share_scale)
+        if (
+            not isinstance(rank_group, str)
+            or not isinstance(share_measure, str)
+            or not isinstance(share_scale, str)
+        ):
+            raise ValueError("rank_group, share_measure and share_scale must be texts")
         ranked = raw.get("rank_commander_and_basics", defaults.rank_commander_and_basics)
         if not isinstance(ranked, bool):
             raise ValueError("rank_commander_and_basics must be true or false")
@@ -596,6 +610,7 @@ class StrengthSettings:
             },
             rank_group=rank_group,
             share_measure=share_measure,
+            share_scale=share_scale,
             min_denominators={
                 **DEFAULT_MIN_DENOMINATORS,
                 **{
@@ -752,6 +767,33 @@ def percentile_ranks(values: Mapping[str, float]) -> dict[str, float]:
     return {key: (first[value] + last[value]) / 2.0 / (count - 1) for key, value in values.items()}
 
 
+def share_scale_values(
+    values: Mapping[str, float], scale: str = DEFAULT_SHARE_SCALE
+) -> dict[str, float]:
+    """Convert share-signal values into 0..1 component scores under ``scale`` (issue #1351).
+
+    - ``rank``: percentile rank 0..1 via ``percentile_ranks`` (identical to the rank-only
+      index).
+    - ``share``: square root of the share relative to the largest value in ``values``
+      (``sqrt(v / max_v)``), dampening the very top while keeping 3 % and 30 % far apart.
+      A single valued card takes ``0.5`` (or ``0.0`` when its value is 0), and an all-zero
+      population gets ``0.0``.
+    """
+    if scale == SCALE_RANK:
+        return percentile_ranks(values)
+    if scale != SCALE_SHARE:
+        raise ValueError(f"share_scale must be one of {', '.join(SHARE_SCALES)}")
+    count = len(values)
+    if count == 0:
+        return {}
+    if count == 1:
+        return {key: (0.5 if val > 0.0 else 0.0) for key, val in values.items()}
+    highest = max(values.values())
+    if highest <= 0.0:
+        return {key: 0.0 for key in values}
+    return {key: math.sqrt(max(0.0, value) / highest) for key, value in values.items()}
+
+
 def combo_quality(parts: Mapping[str, Mapping[str, float]]) -> dict[str, float]:
     """The combos value of a card: the mean of its percentile ranks in the combo
     quality parts (``COMBO_PARTS``), over the cards the primary part (variant count)
@@ -866,6 +908,16 @@ def _groups_of(settings: StrengthSettings, context: PoolContext, card: str) -> t
     return ()
 
 
+def _scale_component_values(
+    component: str, values: Mapping[str, float], settings: StrengthSettings
+) -> dict[str, float]:
+    """Convert component values to 0..1 scores: share components use ``settings.share_scale``,
+    non-share components (synergy, combos, playgroup, layers) always use ``percentile_ranks``."""
+    if component in SHARE_COMPONENTS:
+        return share_scale_values(values, settings.share_scale)
+    return percentile_ranks(values)
+
+
 def _rank_component(
     settings: StrengthSettings,
     context: PoolContext,
@@ -905,7 +957,7 @@ def _rank_component(
             continue
         values[card] = value
         wilson[card] = bound
-    pool_ranks = percentile_ranks(values)
+    pool_ranks = _scale_component_values(component, values, settings)
     group_ranks: dict[str, tuple[tuple[str, ...], dict[str, int], float]] = {}
     if settings.rank_group != GROUP_POOL:
         members: dict[str, dict[str, float]] = {}
@@ -915,7 +967,7 @@ def _rank_component(
         found: dict[str, dict[str, tuple[int, float]]] = {}
         for name, group_values in members.items():
             if len(group_values) >= MIN_GROUP:
-                ranks = percentile_ranks(group_values)
+                ranks = _scale_component_values(component, group_values, settings)
                 for card, rank in ranks.items():
                     found.setdefault(card, {})[name] = (len(group_values), rank)
         for card, per_group in found.items():

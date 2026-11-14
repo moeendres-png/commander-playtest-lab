@@ -916,7 +916,7 @@ const SETTING_GROUPS = [
   ["Gewichte", (key) => key.startsWith("weights.")],
   ["Zusätzliche Ebenen", (key) => key.startsWith("layer_weights.") || key === "pod_size"],
   ["Decklisten-Universum", (key) => key === "universe_source"],
-  ["Vergleich", (key) => key === "bracket" || key === "rank_group" || key === "share_measure" || key === "rank_commander_and_basics" || key === "rank_other_commanders" || key.startsWith("missing_value.")],
+  ["Vergleich", (key) => key === "bracket" || key === "rank_group" || key === "share_measure" || key === "share_scale" || key === "rank_commander_and_basics" || key === "rank_other_commanders" || key.startsWith("missing_value.")],
   ["Mindestdaten", (key) => key.startsWith("min_denominators.") || key === "min_coverage" || key === "min_components" || key === "require_commander_signal"],
   ["Tier-Grenzen", (key) => key.startsWith("tier_cuts.")],
 ];

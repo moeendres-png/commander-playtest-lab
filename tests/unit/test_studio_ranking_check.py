@@ -156,6 +156,8 @@ def test_metric_2_marginal_cards_at_top_and_counterexample() -> None:
             COMBOS: 0.0,
             PLAYGROUP_OBSERVED: 0.0,
         },
+        share_scale="rank",
+        tier_cuts={"S": 90.0, "A": 75.0, "B": 55.0, "C": 35.0},
         min_components=1,
         min_coverage=0.1,
     )
@@ -211,6 +213,8 @@ def test_metric_3_staples_at_bottom_and_counterexample() -> None:
             COMBOS: 0.0,
             PLAYGROUP_OBSERVED: 0.0,
         },
+        share_scale="rank",
+        tier_cuts={"S": 90.0, "A": 75.0, "B": 55.0, "C": 35.0},
         min_components=1,
         min_coverage=0.1,
     )
@@ -277,6 +281,8 @@ def test_metric_4_thin_coverage_at_top_and_counterexample() -> None:
             COMBOS: 0.0,
             PLAYGROUP_OBSERVED: 0.0,
         },
+        share_scale="rank",
+        tier_cuts={"S": 90.0, "A": 75.0, "B": 55.0, "C": 35.0},
         min_components=2,
         min_coverage=0.2,
     )
@@ -325,6 +331,8 @@ def test_metric_5_tier_distribution_and_land_share() -> None:
             COMBOS: 0.0,
             PLAYGROUP_OBSERVED: 0.0,
         },
+        share_scale="rank",
+        tier_cuts={"S": 90.0, "A": 75.0, "B": 55.0, "C": 35.0},
         min_components=1,
         min_coverage=0.1,
     )
