@@ -1252,6 +1252,160 @@ def write_draft(
         )
 
 
+class DraftChangeRefused(ValueError):
+    """A single-card change the deck rules or the collection do not allow (German sentence)."""
+
+
+def change_draft_card(
+    store: StudioStore, deck_id: str, branch: str, card_id: str, delta: int
+) -> dict[str, object]:
+    """Add one copy of a card to the working list of a variant, or take one out.
+
+    This is the change another page (the tier list) makes without holding the whole list: it
+    starts from the draft, else from the saved state of the variant, and writes a draft. The
+    limits are the builder's: only a card of the commander's pool (in the collection,
+    commander legal, inside the colour identity of the deck's commanders), one copy, any
+    number only for basic lands and "any number of cards named" cards, never more than the
+    free copies of the collection. Read and write happen in one write transaction, so two
+    changes at the same time never lose a card. Nothing is saved as a revision. ``KeyError``
+    for an unknown deck, variant or card.
+    """
+    if delta not in (1, -1):
+        raise ValueError("delta must be 1 or -1")
+    db = store.connection
+    if db.in_transaction:
+        raise RuntimeError("change_draft_card needs its own transaction")
+    db.execute("BEGIN IMMEDIATE")
+    try:
+        result = _change_draft_card(store, deck_id, branch, card_id, delta)
+    except BaseException:
+        db.rollback()
+        raise
+    db.commit()
+    return result
+
+
+def _change_draft_card(
+    store: StudioStore, deck_id: str, branch: str, card_id: str, delta: int
+) -> dict[str, object]:
+    db = store.connection
+    base = db.execute(
+        "SELECT revision_id FROM deck_branch WHERE deck_id = ? AND branch = ?", (deck_id, branch)
+    ).fetchone()
+    if base is None:
+        raise KeyError(f"{deck_id}/{branch}")
+    card = db.execute(
+        "SELECT c.oracle_name, c.is_basic_land, c.oracle_text, c.commander_legal, "
+        "c.color_identity, i.card_id AS owned_id, i.available_lower_bound "
+        "FROM card_fact c LEFT JOIN inventory i USING (card_id) WHERE c.card_id = ?",
+        (card_id,),
+    ).fetchone()
+    if card is None:
+        raise KeyError(card_id)
+    payload = db.execute(
+        "SELECT cards, base_revision_id FROM deck_draft WHERE deck_id = ? AND branch = ?",
+        (deck_id, branch),
+    ).fetchone()
+    if payload is not None:
+        entries = [
+            RevisionCard(str(e["card_id"]), int(e["quantity"]), str(e["zone"]))
+            for e in json.loads(payload["cards"])
+        ]
+        base_revision = payload["base_revision_id"]
+    else:
+        entries = [
+            RevisionCard(str(row["card_id"]), int(row["quantity"]), str(row["zone"]))
+            for row in db.execute(
+                "SELECT card_id, quantity, zone FROM deck_revision_card WHERE revision_id = ? "
+                "ORDER BY zone, card_id",
+                (base["revision_id"],),
+            )
+        ]
+        base_revision = base["revision_id"]
+    name = str(card["oracle_name"])
+    commanders = [e.card_id for e in entries if e.zone == "commander"]
+    if card_id in commanders:
+        raise DraftChangeRefused(f"{name} ist der Commander dieses Decks und zählt schon mit.")
+    current = sum(e.quantity for e in entries if e.card_id == card_id and e.zone == "main")
+    if delta == 1:
+        # only a card the builder would offer: owned, commander legal, inside the identity
+        identity: frozenset[str] = frozenset()
+        for commander_id in commanders:
+            row = db.execute(
+                "SELECT color_identity FROM card_fact WHERE card_id = ?", (commander_id,)
+            ).fetchone()
+            identity |= color_set(row["color_identity"] if row else None)
+        if card["owned_id"] is None:
+            raise DraftChangeRefused(f"{name} ist nicht in deiner Sammlung.")
+        if not card["commander_legal"]:
+            raise DraftChangeRefused(f"{name} ist im Commander-Format nicht erlaubt.")
+        if commanders and not color_set(card["color_identity"]) <= identity:
+            raise DraftChangeRefused(
+                f"{name} passt nicht in die Farbidentität des Commanders dieses Decks."
+            )
+        free = max(int(card["available_lower_bound"] or 0), 0)
+        any_number = bool(card["is_basic_land"]) or (
+            "A deck can have any number of cards named" in str(card["oracle_text"] or "")
+        )
+        if current >= (free if any_number else min(1, free)):
+            if free < 1:
+                raise DraftChangeRefused(f"Für {name} ist keine freie Kopie in der Sammlung.")
+            if any_number:
+                raise DraftChangeRefused(f"Alle freien Kopien von {name} sind schon im Deck.")
+            raise DraftChangeRefused(f"{name} ist schon im Deck (nur eine Kopie erlaubt).")
+    elif current < 1:
+        raise DraftChangeRefused(f"{name} ist nicht im Deck, es gibt nichts zu entfernen.")
+    quantity = current + delta
+    kept = [e for e in entries if not (e.card_id == card_id and e.zone == "main")]
+    if quantity:
+        kept.append(RevisionCard(card_id, quantity, "main"))
+    db.execute(
+        "INSERT INTO deck_draft(deck_id, branch, cards, base_revision_id, updated_at) "
+        "VALUES (?, ?, ?, ?, ?) ON CONFLICT(deck_id, branch) DO UPDATE SET "
+        "cards = excluded.cards, base_revision_id = excluded.base_revision_id, "
+        "updated_at = excluded.updated_at",
+        (
+            deck_id,
+            branch,
+            json.dumps(
+                [{"card_id": c.card_id, "quantity": c.quantity, "zone": c.zone} for c in kept]
+            ),
+            base_revision,
+            now_utc(),
+        ),
+    )
+    return {
+        "card_id": card_id,
+        "name": name,
+        "quantity": quantity,
+        "deck_cards": sum(e.quantity for e in kept),
+        "draft": True,
+    }
+
+
+def set_favorite(store: StudioStore, card_id: str, favorite: bool) -> dict[str, object]:
+    """Set or clear only the favorite mark of a card; its exclusion and note stay as stored.
+    Returns the whole mark. ``KeyError`` for an unknown card."""
+    with store.connection as db:
+        if db.execute("SELECT 1 FROM card WHERE card_id = ?", (card_id,)).fetchone() is None:
+            raise KeyError(card_id)
+        db.execute(
+            "INSERT INTO card_mark(card_id, favorite, excluded, note, updated_at) "
+            "VALUES (?, ?, 0, '', ?) ON CONFLICT(card_id) DO UPDATE SET "
+            "favorite = excluded.favorite, updated_at = excluded.updated_at",
+            (card_id, int(favorite), now_utc()),
+        )
+        row = db.execute(
+            "SELECT favorite, excluded, note FROM card_mark WHERE card_id = ?", (card_id,)
+        ).fetchone()
+    return {
+        "card_id": card_id,
+        "favorite": bool(row["favorite"]),
+        "excluded": bool(row["excluded"]),
+        "note": str(row["note"] or ""),
+    }
+
+
 def drop_draft(store: StudioStore, deck_id: str, branch: str) -> None:
     with store.connection as db:
         db.execute("DELETE FROM deck_draft WHERE deck_id = ? AND branch = ?", (deck_id, branch))

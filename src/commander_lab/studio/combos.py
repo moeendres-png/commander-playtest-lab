@@ -32,7 +32,8 @@ def _keys(name: str) -> list[str]:
 def stored_combos(store: StudioStore, commander: str) -> list[tuple[list[str], int]]:
     """Every stored combo of ``commander``: (card names, deck count), in list order."""
     rows = store.connection.execute(
-        "SELECT cards, num_decks FROM commander_combo WHERE commander_name = ? ORDER BY ordinal",
+        "SELECT cards, num_decks FROM commander_combo WHERE commander_name = ? COLLATE NOCASE "
+        "ORDER BY ordinal",
         (commander,),
     ).fetchall()
     found: list[tuple[list[str], int]] = []

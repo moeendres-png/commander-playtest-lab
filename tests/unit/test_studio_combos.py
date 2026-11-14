@@ -151,3 +151,20 @@ def test_a_damaged_row_is_skipped_and_the_deck_check_still_answers(tmp_path: Pat
     assert [entry["cards"] for entry in found["complete"]] == [
         ["Intruder Alarm", "Shrieking Drake"]
     ]
+
+
+def test_the_commander_name_matches_whatever_its_case(tmp_path: Path) -> None:
+    store, rows = _store_with_cards(
+        [(COMMANDER.lower(), "commander"), ("Intruder Alarm", "main"), ("Shrieking Drake", "main")]
+    )
+    _combo_file(tmp_path, ["y,Intruder Alarm;Shrieking Drake,6671"])
+    _import(store, tmp_path)
+    assert combos.deck_combos(store, rows)["listed"] == 1
+
+
+def test_a_list_without_a_commander_names_no_commander() -> None:
+    store, rows = _store_with_cards([("Intruder Alarm", "main")])
+    found = combos.deck_combos(store, rows)
+    assert (found["commanders"], found["listed"]) == ([], 0)
+    app = (Path(combos.__file__).parent / "static" / "app.js").read_text(encoding="utf-8")
+    assert "Kein Commander gewählt" in app
