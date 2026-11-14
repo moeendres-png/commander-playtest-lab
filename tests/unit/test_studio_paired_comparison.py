@@ -7,15 +7,20 @@ does, so the tests cover the whole log path without an engine.
 
 from __future__ import annotations
 
+import ast
 import json
+import math
 from collections.abc import Callable
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
+from commander_lab.engine.rules.full_game_comparison import cluster_difference_stats
 from commander_lab.qualification.current_boundary.bridge_launcher import (
     canonical_xmage_engine_pin,
 )
+from commander_lab.studio import __main__ as studio_cli
 from commander_lab.studio import paired_comparison
 from commander_lab.studio.card_outcomes import game_exposures
 from commander_lab.studio.paired_comparison import (
@@ -42,7 +47,7 @@ def _write_log(
     commit: str = COMMIT,
     status: str | None = "finished",
 ) -> Path:
-    header = {
+    header: dict[str, object] = {
         "kind": "header",
         "schema": "studio-game-log-1",
         "game_id": game_id,
@@ -246,6 +251,7 @@ def test_failed_game_censors_its_pair_and_is_never_a_loss(tmp_path: Path) -> Non
         tested_seats=[0],
         budget_pairs=10,
         look_every_pairs=5,
+        max_censored_share=0.2,
         play=player,
     )
     assert result["pairs_completed"] == 9 and result["pairs_censored"] == 1
@@ -513,3 +519,337 @@ def test_series_configuration_is_refused_before_any_game() -> None:
             look_every_pairs=1,
             play=forbidden,
         )
+
+
+# --- regression tests from the #1309 review ----------------------------------------------
+
+
+def test_censoring_above_threshold_stays_not_decided_with_reason(tmp_path: Path) -> None:
+    player = _ScriptedPlayer(
+        tmp_path,
+        _variant_sweeps,
+        fail=lambda arm, seed, seat: "EngineError" if (arm, seed) == ("variant", 3) else None,
+    )
+    result = run_comparison_series(
+        base_deck_id=BASE,
+        variant_deck_id=VARIANT,
+        seeds=list(range(1, 11)),
+        tested_seats=[0],
+        budget_pairs=10,
+        look_every_pairs=5,
+        play=player,
+    )
+    assert result["pairs_completed"] == 9 and result["pairs_censored"] == 1
+    assert result["status"] == "NOT_DECIDED"
+    assert result["answer"] is None
+    assert result["stop_reason"] == "CENSORING_LIMIT"
+    assert any("max_censored_share" in w for w in result["warnings"])
+
+
+def test_asymmetric_censoring_blocks_decision_even_below_share_limit(tmp_path: Path) -> None:
+    # 3 failures in 80 pairs = 3.75% (below 5%), yet all 3 strike the variant arm (p = 0.25).
+    player = _ScriptedPlayer(
+        tmp_path,
+        _variant_sweeps,
+        fail=lambda arm, seed, seat: (
+            "EngineError" if arm == "variant" and seed in (1, 2, 3) else None
+        ),
+    )
+    result = run_comparison_series(
+        base_deck_id=BASE,
+        variant_deck_id=VARIANT,
+        seeds=list(range(1, 81)),
+        tested_seats=[0],
+        budget_pairs=80,
+        look_every_pairs=40,
+        play=player,
+    )
+    assert result["pairs_censored"] == 3
+    assert result["games_failed_base"] == 0 and result["games_failed_variant"] == 3
+    assert result["status"] == "NOT_DECIDED"
+    assert result["answer"] is None
+    assert result["stop_reason"] == "ASYMMETRIC_CENSORING"
+    assert any("one-sided censoring" in w for w in result["warnings"])
+
+
+def test_minor_balanced_censoring_within_limit_still_decides(tmp_path: Path) -> None:
+    # 1 censored pair in 40 (2.5% <= 5%, p = 1.0) is within the censoring guard.
+    player = _ScriptedPlayer(
+        tmp_path,
+        _variant_sweeps,
+        fail=lambda arm, seed, seat: "EngineError" if (arm, seed) == ("variant", 5) else None,
+    )
+    result = run_comparison_series(
+        base_deck_id=BASE,
+        variant_deck_id=VARIANT,
+        seeds=list(range(1, 41)),
+        tested_seats=[0],
+        budget_pairs=40,
+        look_every_pairs=40,
+        play=player,
+    )
+    assert result["pairs_censored"] == 1
+    assert result["status"] == "DECIDED" and result["answer"] == "ABOVE"
+
+
+def test_decision_ci_uses_look_alpha_and_formats_distinct_label(tmp_path: Path) -> None:
+    player = _ScriptedPlayer(tmp_path, _thirty_wins_ten_ties)
+    # 95% CI is ~[60.98, 89.02] (contains 62.0); at significance_level=0.10 the 90%
+    # decision CI is ~[63.32, 86.68] (strictly above 62.0), so the result decides ABOVE.
+    result = run_comparison_series(
+        base_deck_id=BASE,
+        variant_deck_id=VARIANT,
+        seeds=list(range(1, 41)),
+        tested_seats=[0],
+        budget_pairs=40,
+        look_every_pairs=40,
+        threshold_pp=62.0,
+        significance_level=0.10,
+        play=player,
+    )
+    assert result["status"] == "DECIDED" and result["answer"] == "ABOVE"
+    assert result["decision_alpha"] == 0.1
+    assert result["decision_level_pct"] == 90.0
+    ci95 = result["difference_ci95_pp"]
+    dci = result["decision_ci_pp"]
+    assert ci95 is not None and dci is not None
+    assert ci95[0] < 62.0 < dci[0]
+    text = paired_comparison.format_comparison(result)
+    assert "95% CI" in text
+    assert "90% decision CI (alpha 0.1)" in text
+
+
+def test_series_stops_on_first_mixed_game_before_playing_more(tmp_path: Path) -> None:
+    calls: list[tuple[str, int, int]] = []
+
+    def play(arm: str, seed: int, seat: int) -> PlayedGame:
+        calls.append((arm, seed, seat))
+        commit = COMMIT if arm == "base" else "b" * 40
+        path = _write_log(
+            tmp_path,
+            f"{arm}-s{seed}-t{seat}",
+            decks=_table(arm, seat),
+            winners=[seat],
+            seed=seed,
+            commit=commit,
+        )
+        return {"exposure": game_exposures(path), "failure_class": None}
+
+    with pytest.raises(ValueError, match="mixed engine commits"):
+        run_comparison_series(
+            base_deck_id=BASE,
+            variant_deck_id=VARIANT,
+            seeds=list(range(1, 21)),
+            tested_seats=[0],
+            budget_pairs=20,
+            look_every_pairs=10,
+            play=play,
+        )
+    # Stopped right after pair 1 variant; never played pairs 2..20.
+    assert len(calls) == 2
+
+
+def test_compare_decks_cli_validates_bounds_and_seats_before_loading_files(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    missing = [str(tmp_path / f"missing-{i}.json") for i in range(8)]
+    # Too many opponents (6 -> 7 seats > 6 max) fails before reading any file.
+    args_too_many_opponents = [
+        "compare-decks",
+        "--base-deck",
+        missing[0],
+        "--variant-deck",
+        missing[1],
+        *[item for path in missing[2:] for item in ("--opponent", path)],
+    ]
+    assert studio_cli.main(args_too_many_opponents) == 2
+    assert "1 to 5 opponents" in capsys.readouterr().err
+
+    # Out-of-bounds --pairs fails before reading any file.
+    for bad_pairs in ("1", "1001"):
+        code = studio_cli.main(
+            [
+                "compare-decks",
+                "--base-deck",
+                missing[0],
+                "--variant-deck",
+                missing[1],
+                "--opponent",
+                missing[2],
+                "--pairs",
+                bad_pairs,
+            ]
+        )
+        assert code == 2
+        assert "pairs must be between" in capsys.readouterr().err
+
+    # --seat 4 on a 4-seat table (3 opponents) must be rejected (formerly len(decks)==5 allowed it).
+    code = studio_cli.main(
+        [
+            "compare-decks",
+            "--base-deck",
+            missing[0],
+            "--variant-deck",
+            missing[1],
+            "--opponent",
+            missing[2],
+            "--opponent",
+            missing[3],
+            "--opponent",
+            missing[4],
+            "--seat",
+            "4",
+        ]
+    )
+    assert code == 2
+    assert "0..3" in capsys.readouterr().err
+
+    # --rotate-seats rotates only across table_size = 1 + len(opponents), not len(decks).
+    seen_tested_seats: list[int] = []
+    monkeypatch.setattr(
+        "commander_lab.engine.rules.project.load_rules_deck_snapshot",
+        lambda path: SimpleNamespace(deck_id=Path(path).stem),
+    )
+    monkeypatch.setattr(
+        paired_comparison,
+        "recorded_game_player",
+        lambda *args, **kwargs: lambda arm, seed, seat: {"exposure": None, "failure_class": None},
+    )
+
+    def fake_run(**kwargs: object) -> dict[str, object]:
+        seen_tested_seats.extend(list(kwargs["tested_seats"]))  # type: ignore[call-overload]
+        return {
+            "base_deck_id": BASE,
+            "variant_deck_id": VARIANT,
+            "data_class": "SIMULATED_RESULT",
+            "status": "NO_PAIRS",
+            "answer": None,
+            "stop_reason": "NO_PAIRS",
+            "question": {"threshold_pp": 0.0, "significance_level": 0.05, "method": "m"},
+            "pairs_completed": 0,
+            "pairs_censored": 0,
+            "unpaired_base": 0,
+            "unpaired_variant": 0,
+            "games_failed_base": 0,
+            "games_failed_variant": 0,
+            "looks_used": 0,
+            "looks_planned": 1,
+            "difference_pp": None,
+            "seeds_completed": [],
+            "pods": [],
+            "tested_seats": list(kwargs["tested_seats"]),  # type: ignore[call-overload]
+            "engine_commits": [],
+            "engine_pin": "0" * 40,
+            "pilots": [],
+            "warnings": [],
+        }
+
+    monkeypatch.setattr(paired_comparison, "run_comparison_series", fake_run)
+    rotate_code = studio_cli.main(
+        [
+            "--data",
+            str(tmp_path),
+            "compare-decks",
+            "--base-deck",
+            str(tmp_path / "base.json"),
+            "--variant-deck",
+            str(tmp_path / "var.json"),
+            "--opponent",
+            str(tmp_path / "o1.json"),
+            "--opponent",
+            str(tmp_path / "o2.json"),
+            "--opponent",
+            str(tmp_path / "o3.json"),
+            "--pairs",
+            "8",
+            "--look-every",
+            "4",
+            "--rotate-seats",
+        ]
+    )
+    assert rotate_code == 0
+    assert seen_tested_seats == [0, 1, 2, 3]
+
+
+def test_arm_index_uses_lowest_seat_when_deck_is_seated_twice(tmp_path: Path) -> None:
+    path = _write_log(
+        tmp_path,
+        "dup-seat",
+        decks=[OPP1, BASE, BASE, OPP2],
+        winners=[2],
+        seed=9,
+    )
+    exposure = game_exposures(path)
+    assert exposure is not None
+    # Seat 2 won (win_credit=1.0) while lowest seat 1 lost (win_credit=0.0): seat 1 governs.
+    index, seedless = paired_comparison._arm_index([exposure], BASE)
+    assert seedless == 0
+    assert index == {(9, 1, (OPP1, BASE, OPP2)): [("dup-seat", 0.0)]}
+
+
+def test_equal_threshold_decides_not_above_zero_spread_and_positive_se(tmp_path: Path) -> None:
+    # Zero spread: difference == 100.0 pp == threshold_pp must yield NOT_ABOVE (not ABOVE).
+    sweep_player = _ScriptedPlayer(tmp_path / "sweep", _variant_sweeps)
+    zero_spread = run_comparison_series(
+        base_deck_id=BASE,
+        variant_deck_id=VARIANT,
+        seeds=list(range(1, 11)),
+        tested_seats=[0],
+        budget_pairs=10,
+        look_every_pairs=10,
+        threshold_pp=100.0,
+        play=sweep_player,
+    )
+    assert zero_spread["status"] == "DECIDED"
+    assert zero_spread["answer"] == "NOT_ABOVE"
+
+    # Positive SE: difference + half == threshold (interval upper bound hits threshold) -> NOT_ABOVE.
+    interval, _, se = cluster_difference_stats([(s, 1.0 if s <= 30 else 0.0) for s in range(1, 41)])
+    assert interval is not None and se is not None and se > 0.0
+    upper_pp = interval.high * 100.0
+    if upper_pp / 100.0 < interval.high:
+        upper_pp = math.nextafter(upper_pp, math.inf)
+    mixed_player = _ScriptedPlayer(tmp_path / "mixed", _thirty_wins_ten_ties)
+    positive_se = run_comparison_series(
+        base_deck_id=BASE,
+        variant_deck_id=VARIANT,
+        seeds=list(range(1, 41)),
+        tested_seats=[0],
+        budget_pairs=40,
+        look_every_pairs=40,
+        threshold_pp=upper_pp,
+        play=mixed_player,
+    )
+    assert positive_se["status"] == "DECIDED"
+    assert positive_se["answer"] == "NOT_ABOVE"
+
+
+def test_paired_comparison_and_card_outcomes_never_import_strength_or_tiers() -> None:
+    studio_dir = Path(paired_comparison.__file__).resolve().parent
+    forbidden = {"strength", "tiers"}
+    offending: list[str] = []
+    for filename in ("paired_comparison.py", "card_outcomes.py"):
+        tree = ast.parse((studio_dir / filename).read_text(encoding="utf-8"), filename=filename)
+        import_count = 0
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Import):
+                import_count += 1
+                for alias in node.names:
+                    parts = set(alias.name.split("."))
+                    if parts & forbidden:
+                        offending.append(f"{filename} imports forbidden module {alias.name}")
+            elif isinstance(node, ast.ImportFrom):
+                import_count += 1
+                module_parts = set((node.module or "").split("."))
+                imported_names = {alias.name for alias in node.names}
+                if module_parts & forbidden:
+                    offending.append(f"{filename} imports from forbidden module {node.module}")
+                if (
+                    node.module in (None, "commander_lab.studio")
+                    or (node.module or "").startswith(".")
+                ) and (imported_names & forbidden):
+                    offending.append(
+                        f"{filename} imports forbidden symbol {imported_names & forbidden}"
+                    )
+        assert import_count > 0, f"{filename} unexpectedly parsed zero import statements"
+    assert offending == []
