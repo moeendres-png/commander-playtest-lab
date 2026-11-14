@@ -2213,11 +2213,11 @@ def test_share_scale_leaves_non_share_components_on_percentile_ranks() -> None:
             observations,
             collected,
         )
-        for k in "abc":
+        for k in ("a", "b", "c"):
             assert _row(s_share, k, non_share) == _row(s_rank, k, non_share), non_share
             assert s_share[k]["index"] == s_rank[k]["index"], non_share
             assert s_share[k]["tier"] == s_rank[k]["tier"], non_share
-        assert [s_share[k]["index"] for k in "abc"] == [0.0, 50.0, 100.0]
+        assert [s_share[k]["index"] for k in ("a", "b", "c")] == [0.0, 50.0, 100.0]
 
 
 def test_share_scale_rank_is_bit_identical_to_the_previous_ranking(
