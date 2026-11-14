@@ -69,3 +69,5 @@ pre.error-out{background:var(--panel2);border:1px solid var(--line);border-radiu
 .form select.style-pick{max-width:180px}
 .plan-details{font-size:0.9rem;line-height:1.4}
 .form input[type=number]{width:130px}
+.seat-picks label{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.seat-picks select.opp-deck{flex:1 1 240px;min-width:0}

@@ -76,13 +76,24 @@ def _entries(data: object) -> tuple[list[dict[str, object]], dict[str, int]]:
     raise ValueError(f"not a marks file: expected format {MARKS_FORMAT!r} or the old studio export")
 
 
-def import_owner_marks(store: StudioStore, path: str | Path) -> dict[str, object]:
-    """Merge marks from ``path`` into ``card_mark``. All or nothing; the report holds counts only."""
+def _label(entry: dict[str, object]) -> str:
+    return str(entry.get("card_name") or entry.get("card_id") or "")
+
+
+def import_owner_marks(
+    store: StudioStore, path: str | Path, *, detail: bool = False
+) -> dict[str, object]:
+    """Merge marks from ``path`` into ``card_mark``. All or nothing; the report holds counts
+    only, unless ``detail`` asks for one line per entry: ``IMPORTED`` (applied or already
+    stored), ``NOT_FOUND`` (no card of the store), ``CONFLICT`` (card id and name name
+    different cards, or the file states different values for one card; nothing of it is
+    applied) or ``IGNORED`` (the entry states no mark). Ratings are never touched."""
     data = json.loads(Path(path).read_text(encoding="utf-8"))
     entries, ignored = _entries(data)
-    plan: list[tuple[str, dict[str, object]]] = []
+    plan: list[tuple[int, str, dict[str, object]]] = []
+    rows: list[dict[str, object]] = []
     unresolved = 0
-    for entry in entries:
+    for number, entry in enumerate(entries, start=1):
         keys: dict[str, object] = {}
         if "favorite" in entry:
             keys["favorite"] = _flag(entry["favorite"], "favorite")
@@ -93,9 +104,11 @@ def import_owner_marks(store: StudioStore, path: str | Path) -> dict[str, object
             if not isinstance(note, str):
                 raise ValueError("note must be text")
             keys["note"] = note
+        row: dict[str, object] = {"row": number, "name": _label(entry), "status": "IGNORED"}
+        rows.append(row)
         if not keys:
             continue
-        card_id: str | None = None
+        by_id: str | None = None
         wanted = str(entry.get("card_id") or "").strip()
         if (
             wanted
@@ -103,19 +116,41 @@ def import_owner_marks(store: StudioStore, path: str | Path) -> dict[str, object
                 "SELECT 1 FROM card WHERE card_id = ?", (wanted,)
             ).fetchone()
         ):
-            card_id = wanted
-        if card_id is None:
-            card_id = store.card_id_by_oracle_or_name(
-                None, str(entry.get("card_name") or "").strip() or None
+            by_id = wanted
+        by_name = store.card_id_by_oracle_or_name(
+            None, str(entry.get("card_name") or "").strip() or None
+        )
+        if by_id is not None and by_name is not None and by_id != by_name:
+            row.update(
+                status="CONFLICT",
+                reason="Kartenkennung und Name zeigen auf verschiedene Karten",
             )
+            continue
+        card_id = by_id or by_name
         if card_id is None:
             unresolved += 1
+            row.update(status="NOT_FOUND", reason="keine Karte dieses Namens im Studio")
             continue
-        plan.append((card_id, keys))
+        row["status"] = "IMPORTED"
+        plan.append((number, card_id, keys))
+    clashing: set[str] = set()
+    seen: dict[tuple[str, str], object] = {}
+    for _number, card_id, keys in plan:
+        for key, value in keys.items():
+            if seen.setdefault((card_id, key), value) != value:
+                clashing.add(card_id)
+    conflicting = [number for number, card_id, _keys in plan if card_id in clashing]
+    for number in conflicting:
+        rows[number - 1].update(
+            status="CONFLICT", reason="die Datei nennt für dieselbe Karte verschiedene Werte"
+        )
+    plan = [(number, card_id, keys) for number, card_id, keys in plan if card_id not in clashing]
+    conflicts = sum(1 for row in rows if row["status"] == "CONFLICT")
+    plan_marks = [(card_id, keys) for _number, card_id, keys in plan]
 
     changed = 0
     with store.connection as db:
-        for card_id, keys in plan:
+        for card_id, keys in plan_marks:
             row = db.execute(
                 "SELECT favorite, excluded, note FROM card_mark WHERE card_id = ?", (card_id,)
             ).fetchone()
@@ -138,11 +173,15 @@ def import_owner_marks(store: StudioStore, path: str | Path) -> dict[str, object
     favorites = int(
         store.connection.execute("SELECT COUNT(*) FROM card_mark WHERE favorite = 1").fetchone()[0]
     )
-    return {
+    report: dict[str, object] = {
         "entries": len(entries),
         "resolved": len(plan),
         "unresolved": unresolved,
+        "conflicts": conflicts,
         "changed": changed,
         "favorites_after": favorites,
         "ignored_fields": ignored,
     }
+    if detail:
+        report["rows"] = rows
+    return report

@@ -275,6 +275,11 @@ def _parser() -> argparse.ArgumentParser:
         help="merge favorites, exclusions and notes from a marks file (never a rating)",
     )
     owner_marks.add_argument("path")
+    owner_marks.add_argument(
+        "--rows",
+        action="store_true",
+        help="also print one line per entry: IMPORTED, NOT_FOUND, CONFLICT or IGNORED",
+    )
     labels = commands.add_parser(
         "check-role-labels", help="compare the role query slugs with a list of tagger labels"
     )
@@ -755,7 +760,7 @@ def _run(args: argparse.Namespace, store: StudioStore) -> object:
         except (ValueError, OSError) as error:
             raise SystemExit(f"import-rulings: {error}") from None
     elif args.command == "import-owner-marks":
-        result = import_owner_marks(store, args.path)
+        result = import_owner_marks(store, args.path, detail=args.rows)
     elif args.command == "import-selection":
         result = importers.import_studio_selection(
             store, args.path, deck_id=args.deck_id, name=args.name,

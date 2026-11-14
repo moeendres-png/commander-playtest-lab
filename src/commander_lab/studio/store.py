@@ -14,7 +14,7 @@ from pathlib import Path
 from commander_lab.owner_data import owner_data_root
 
 STUDIO_DATA_ENV = "COMMANDER_LAB_STUDIO_DATA"
-SCHEMA_VERSION = 14
+SCHEMA_VERSION = 15
 DATABASE_NAME = "studio.sqlite3"
 # The sections a source deck's cards are counted in, everywhere (universe spread, deck-builder
 # frequencies, co-occurrence, role counts). The corpus importer stores the main deck as
@@ -394,6 +394,19 @@ CREATE TABLE IF NOT EXISTS strength_profile (
     spec TEXT NOT NULL,
     created_at TEXT NOT NULL
 );
+CREATE TABLE IF NOT EXISTS card_label (
+    card_id TEXT NOT NULL REFERENCES card(card_id),
+    label TEXT NOT NULL COLLATE NOCASE,
+    created_at TEXT NOT NULL,
+    PRIMARY KEY (card_id, label)
+);
+CREATE INDEX IF NOT EXISTS card_label_label ON card_label(label);
+CREATE TABLE IF NOT EXISTS deck_label (
+    deck_id TEXT NOT NULL REFERENCES deck(deck_id),
+    label TEXT NOT NULL COLLATE NOCASE,
+    created_at TEXT NOT NULL,
+    PRIMARY KEY (deck_id, label)
+);
 CREATE TABLE IF NOT EXISTS commander_combo (
     commander_name TEXT NOT NULL,
     ordinal INTEGER NOT NULL,
@@ -618,7 +631,9 @@ class StudioStore:
             # Every schema step so far only adds tables and views (created above); schema 11
             # adds card_signal and strength_profile, schema 13 adds card_ruling and its
             # per-file provenance table card_ruling_source. Schema 14 adds commander_combo
-            # (the full card set of each listed combo of a commander).
+            # (the full card set of each listed combo of a commander). Schema 15 adds card_label and
+            # deck_label (the Owner's archetype labels); both are created above and an older
+            # file is lifted by opening it.
             if int(row["value"]) < 12:
                 # Schema 12 adds the universe profile lifecycle columns (version,
                 # updated_at) to the existing table; purely additive, existing rows
@@ -831,7 +846,7 @@ class StudioStore:
             "card_role_claim", "corpus_deck_role", "neutral_board_row", "simulation_run", "simulation_card",
             "source_capture_event", "playgroup_card_atlas", "playgroup_top_commander", "playgroup_final_zone",
             "universe_profile", "commander_binding", "card_signal", "strength_profile", "card_ruling",
-            "card_ruling_source",
+            "card_ruling_source", "card_label", "deck_label",
         }:  # fmt: skip
             raise ValueError(table)
         return int(self.connection.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0])

@@ -36,7 +36,7 @@ def test_the_schema_is_14_and_holds_the_combo_table() -> None:
         str(row[0])
         for row in store.connection.execute("SELECT name FROM sqlite_master WHERE type='table'")
     }
-    assert SCHEMA_VERSION == 14
+    assert SCHEMA_VERSION == 15
     assert "commander_combo" in tables
 
 
@@ -168,3 +168,14 @@ def test_a_list_without_a_commander_names_no_commander() -> None:
     assert (found["commanders"], found["listed"]) == ([], 0)
     app = (Path(combos.__file__).parent / "static" / "app.js").read_text(encoding="utf-8")
     assert "Kein Commander gewählt" in app
+
+
+def test_the_result_names_the_source_of_the_combo_list(tmp_path: Path) -> None:
+    store, rows = _store_with_cards([(COMMANDER, "commander"), ("Intruder Alarm", "main")])
+    assert combos.deck_combos(store, rows)["sources"] == []  # type: ignore[arg-type]
+    _combo_file(tmp_path, ["y,Intruder Alarm;Shrieking Drake,6671"])
+    _import(store, tmp_path)
+    sources = combos.deck_combos(store, rows)["sources"]  # type: ignore[arg-type]
+    assert isinstance(sources, list) and len(sources) == 1
+    assert sources[0]["title"] and sources[0]["imported_at"]
+    assert set(sources[0]) == {"title", "snapshot_date", "imported_at"}

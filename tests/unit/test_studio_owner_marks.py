@@ -65,6 +65,7 @@ def test_import_merges_resolves_by_id_then_name_and_is_idempotent(
         "entries": 4,
         "resolved": 2,
         "unresolved": 1,
+        "conflicts": 0,
         "changed": 2,
         "favorites_after": 2,
         "ignored_fields": {},
@@ -142,3 +143,75 @@ def test_command_prints_counts_only(tmp_path: Path, capsys: pytest.CaptureFixtur
     out = capsys.readouterr().out
     assert json.loads(out)["favorites_after"] == 1
     assert "Forest" not in out
+
+
+def test_rows_report_imported_not_found_and_conflict_and_leave_ratings_alone(
+    studio: StudioStore, tmp_path: Path
+) -> None:
+    forest = _id(studio, "Forest")
+    rat = _id(studio, "Swarm Rat")
+    before_signals = studio.count("observation")
+    path = _write(
+        tmp_path / "marks.json",
+        {
+            "format": "studio-marks-1",
+            "marks": [
+                {"card_name": "Forest", "favorite": True},  # row 1
+                {"card_name": "No Such Card", "favorite": True},  # row 2
+                {"card_id": forest, "card_name": "Swarm Rat", "favorite": True},  # row 3
+                {"card_name": "Swarm Rat", "note": "one"},  # row 4
+                {"card_name": "Swarm Rat", "note": "two"},  # row 5
+                {"card_name": "Island"},  # row 6 states nothing
+            ],
+        },
+    )
+    report = import_owner_marks(studio, path, detail=True)
+    rows = report["rows"]
+    assert isinstance(rows, list)
+    assert [(row["row"], row["status"]) for row in rows] == [
+        (1, "IMPORTED"),
+        (2, "NOT_FOUND"),
+        (3, "CONFLICT"),
+        (4, "CONFLICT"),
+        (5, "CONFLICT"),
+        (6, "IGNORED"),
+    ]
+    assert rows[2]["reason"] and rows[3]["reason"]
+    assert report["conflicts"] == 3 and report["unresolved"] == 1
+    assert _mark(studio, forest) == (1, 0, "")  # only the clean row was applied
+    assert _mark(studio, rat) is None  # a conflict is never applied
+    assert studio.count("observation") == before_signals  # ratings untouched
+    assert "rows" not in import_owner_marks(studio, path)  # counts only unless asked
+
+
+def test_the_same_card_twice_with_the_same_values_is_no_conflict(
+    studio: StudioStore, tmp_path: Path
+) -> None:
+    path = _write(
+        tmp_path / "marks.json",
+        {
+            "format": "studio-marks-1",
+            "marks": [
+                {"card_name": "Forest", "favorite": True},
+                {"card_name": "Forest", "favorite": True},
+            ],
+        },
+    )
+    report = import_owner_marks(studio, path, detail=True)
+    assert [row["status"] for row in report["rows"]] == ["IMPORTED", "IMPORTED"]  # type: ignore[union-attr]
+    assert report["conflicts"] == 0
+
+
+def test_the_command_prints_the_rows_on_request(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    data = tmp_path / "data"
+    store = StudioStore.open(data)
+    _fill(store, tmp_path)
+    store.close()
+    path = _write(
+        tmp_path / "marks.json",
+        {"format": "studio-marks-1", "marks": [{"card_name": "Nobody", "favorite": True}]},
+    )
+    assert main(["--data", str(data), "import-owner-marks", str(path), "--rows"]) == 0
+    assert json.loads(capsys.readouterr().out)["rows"][0]["status"] == "NOT_FOUND"

@@ -448,7 +448,7 @@ function gameTitle(game) {
   return `${seats} · Seed ${game.header.seed} · ${game.frames} Entscheidungen · ${end}`;
 }
 // ---- new game ------------------------------------------------------------------------------
-async function newGame() {
+async function newGame(wantedRevision) {
   let table;
   try { table = await api("/api/table"); } catch (error) { toast(`Fehler: ${error.message}`); return; }
   const box = $("modal-box"); box.textContent = "";
@@ -462,6 +462,8 @@ async function newGame() {
   const revisions = table.decks.flatMap((deck) => deck.branches.map((branch) => ({ id: branch.revision_id, label: `${deck.name} · ${branch.branch} (${branch.cards} Karten)`, cards: branch.cards })));
   if (!revisions.length) { box.append(h("p", null, "Es gibt noch kein gespeichertes Deck. Speichere zuerst im Deckbau einen Stand."), h("p", null, close)); return; }
   const own = h("select", null, revisions.map((entry) => h("option", { value: entry.id }, entry.label)));
+  const preselected = typeof wantedRevision === "string" && revisions.some((entry) => entry.id === wantedRevision);
+  if (preselected) own.value = wantedRevision;
   const styleOptions = () => [
     h("option", { value: "0.0" }, "0.0 · Aggressiv"),
     h("option", { value: "0.25" }, "0.25 · Druckvoll"),
@@ -527,7 +529,7 @@ async function newGame() {
   });
   box.append(
     h("p", { class: "muted" }, `Alle Plätze spielt die KI. XMage entscheidet jede Regel (${table.engine && table.engine.pin ? table.engine.pin.slice(0, 10) : "gepinnt"}). Die Partie wird mitgeschrieben und läuft hier direkt mit.`),
-    table.engine && table.engine.warning ? h("p", { class: "pill warn", style: "display:inline-block;margin:4px 0" }, table.engine.warning) : null,
+    ...(table.engine && table.engine.warning ? [h("p", { class: "pill warn", style: "display:inline-block;margin:4px 0" }, table.engine.warning)] : []),
     h("div", { class: "form" },
       h("label", null, "Dein Deck auf Sitz 1 (KI) ", own, " Stil ", ownStyle),
       h("label", null, "Tisch ", count),
@@ -536,6 +538,7 @@ async function newGame() {
         h("button", { type: "button", onclick: () => { seats.textContent = ""; fill(); } }, "Andere Gegner würfeln"),
         ...podButtons),
       h("label", null, "Seed ", seed)),
+    ...(typeof wantedRevision === "string" && !preselected ? [h("p", { class: "pill warn" }, "Der gewünschte Stand ist nicht mehr gespeichert. Bitte ein Deck wählen.")] : []),
     note, h("p", null, go, " ", close));
 }
 async function listGames(wanted) {
@@ -598,9 +601,14 @@ async function start() {
     else if (event.key === "ArrowLeft") { event.preventDefault(); step(-1); }
     else if (event.key === "Escape") $("modal").hidden = true;
   });
-  $("new-game").addEventListener("click", newGame);
+  $("new-game").addEventListener("click", () => newGame());
   let any = false;
   try { any = await listGames(new URLSearchParams(location.search).get("partie")); } catch (error) { toast(`Partien konnten nicht geladen werden: ${error.message}`); return; }
+  const query = new URLSearchParams(location.search);
+  if (query.get("neu") === "1") {
+    history.replaceState(null, "", location.pathname); // a reload must not reopen the dialog
+    await newGame(query.get("revision") || "");
+  }
   if (!any) {
     $("table").classList.add("one");
     $("table").textContent = "";
