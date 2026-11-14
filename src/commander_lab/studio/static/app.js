@@ -626,11 +626,13 @@ function renderEngineCheck(body) {
   const [tone, word] = ENGINE_STATUS[result.status] || ["warn", "nicht geprüft"];
   box.append(h("p", { class: "pill " + tone, id: "engine-check-status" }, result.status === "UNKNOWN" ? result.headline : `${word}: ${result.headline}`));
   if (check.seq !== state.changeSeq) box.append(h("p", { class: "note", id: "engine-check-stale" }, "Das Deck wurde seit dieser Prüfung geändert. Bitte noch einmal prüfen."));
-  if (!result.engine_ready) box.append(h("p", { class: "note" }, "Die Engine ist auf diesem Rechner nicht bereitgestellt. Ein Deck ohne Befund gilt dann nicht als geprüft."));
+  if (!result.engine_ready) box.append(h("p", { class: "note" }, `Die Engine ist auf diesem Rechner nicht bereitgestellt. Ein Deck ohne Befund gilt dann nicht als geprüft. ${result.engine_reason || ""}`));
   const construction = result.construction;
+  if (result.precondition_failures.length) box.append(h("div", { class: "issue error", id: "engine-check-preconditions" }, h("b", {}, "Voraussetzung nicht erfüllt"), h("div", {}, result.precondition_failures.join(" ")), h("div", {}, "Der Spielstarter kann dieses Deck nicht prüfen, solange das so ist.")));
   if (construction.status === "FAIL") box.append(h("div", { class: "issue error" }, h("b", {}, "Deck-Aufbau"), h("div", {}, construction.text)));
-  else if (construction.status === "NOT_CHECKED") box.append(h("div", { class: "issue warning" }, h("b", {}, "Deck-Aufbau nicht geprüft"), h("div", {}, construction.text)));
+  else if (construction.status === "NOT_CHECKED") { if (!result.precondition_failures.length) box.append(h("div", { class: "issue warning" }, h("b", {}, "Deck-Aufbau nicht geprüft"), h("div", {}, construction.text))); }
   else box.append(h("p", {}, "Deck-Aufbau (Prüfsumme, Einzelkarten, Farbidentität): ohne Befund."));
+  if (!result.cards_consulted) box.append(h("div", { class: "issue warning" }, h("b", {}, "Kartenliste der Engine nicht lesbar"), h("div", {}, "Welche Karten die Engine nicht laden kann, ist unbekannt.")));
   if (result.unsupported_by_engine.length) box.append(h("div", { class: "issue error" }, h("b", {}, "Die Engine kann diese Karten nicht laden"), h("div", {}, result.unsupported_by_engine.join(", "))));
   if (result.unknown_to_pilots.length) box.append(h("div", { class: "issue error" }, h("b", {}, "Dem Kartenwissen der Spieler-KI fehlen diese Karten"), h("div", {}, result.unknown_to_pilots.join(", "))));
   box.append(h("p", { class: "note" }, result.meaning));
