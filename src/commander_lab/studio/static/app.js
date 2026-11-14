@@ -318,7 +318,7 @@ function changed() {
 // and leave the older list stored.
 let syncQueue = Promise.resolve();
 function syncDraft() {
-  syncQueue = syncQueue.then(syncDraftNow);
+  syncQueue = syncQueue.then(syncDraftNow, syncDraftNow); // a failed save never blocks the next one
   return syncQueue;
 }
 async function syncDraftNow() {

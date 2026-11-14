@@ -19,6 +19,10 @@ the content hash, so an import of changed data always adds a source row and chan
 epoch. A change made to existing import rows by hand (plain SQL, no importer) can keep counts
 and row ids as they were and is not seen; ``clear()`` or a restart drops the memo.
 
+The file check relies on a local data folder (the default). On a network or synced folder a
+file's time and size can be reported late, and an import made from another machine is then
+seen late as well.
+
 Size: at most ``_MAX_ENTRIES`` entries in total and at most ``_MAX_PER_NAME`` entries of one
 kind. The large kind is ``universe_decks`` (the decks behind every card name of one universe:
 7.5 MB serialized for the 2,823 Chulane decks, measured 2026-11-14, and a few times that in
