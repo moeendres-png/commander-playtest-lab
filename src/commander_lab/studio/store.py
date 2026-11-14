@@ -14,7 +14,7 @@ from pathlib import Path
 from commander_lab.owner_data import owner_data_root
 
 STUDIO_DATA_ENV = "COMMANDER_LAB_STUDIO_DATA"
-SCHEMA_VERSION = 14
+SCHEMA_VERSION = 15
 DATABASE_NAME = "studio.sqlite3"
 # The sections a source deck's cards are counted in, everywhere (universe spread, deck-builder
 # frequencies, co-occurrence, role counts). The corpus importer stores the main deck as
@@ -163,10 +163,27 @@ CREATE TABLE IF NOT EXISTS scryfall_card (
     released_at TEXT,
     image_front TEXT,
     image_back TEXT,
-    source_id TEXT NOT NULL REFERENCES source(source_id)
+    source_id TEXT NOT NULL REFERENCES source(source_id),
+    printing_set TEXT,
+    printing_number TEXT,
+    printing_basis TEXT
 );
 CREATE INDEX IF NOT EXISTS scryfall_name ON scryfall_card(name);
 CREATE INDEX IF NOT EXISTS scryfall_front_name ON scryfall_card(front_name);
+CREATE TABLE IF NOT EXISTS card_printing (
+    card_id TEXT PRIMARY KEY REFERENCES card(card_id),
+    set_code TEXT,
+    collector_number TEXT,
+    lang TEXT,
+    finish TEXT,
+    copies INTEGER NOT NULL DEFAULT 0,
+    distinct_printings INTEGER NOT NULL DEFAULT 0,
+    ref_status TEXT NOT NULL DEFAULT 'UNRESOLVED',
+    scryfall_id TEXT,
+    image_front TEXT,
+    image_back TEXT,
+    basis TEXT
+);
 CREATE TABLE IF NOT EXISTS card_mark (
     card_id TEXT PRIMARY KEY REFERENCES card(card_id),
     favorite INTEGER NOT NULL DEFAULT 0,
@@ -618,7 +635,18 @@ class StudioStore:
             # Every schema step so far only adds tables and views (created above); schema 11
             # adds card_signal and strength_profile, schema 13 adds card_ruling and its
             # per-file provenance table card_ruling_source. Schema 14 adds commander_combo
-            # (the full card set of each listed combo of a commander).
+            # (the full card set of each listed combo of a commander). Schema 15 adds
+            # card_printing (the collection's own printing per card, from the workbook's
+            # lot sheet) and the printing provenance columns of scryfall_card below.
+            if int(row["value"]) < 15:
+                # Schema 15: existing scryfall_card tables gain the printing columns;
+                # purely additive, existing rows keep NULL (printing unknown).
+                columns = {
+                    str(r["name"]) for r in connection.execute("PRAGMA table_info(scryfall_card)")
+                }
+                for column in ("printing_set", "printing_number", "printing_basis"):
+                    if column not in columns:
+                        connection.execute(f"ALTER TABLE scryfall_card ADD COLUMN {column} TEXT")
             if int(row["value"]) < 12:
                 # Schema 12 adds the universe profile lifecycle columns (version,
                 # updated_at) to the existing table; purely additive, existing rows
@@ -831,7 +859,7 @@ class StudioStore:
             "card_role_claim", "corpus_deck_role", "neutral_board_row", "simulation_run", "simulation_card",
             "source_capture_event", "playgroup_card_atlas", "playgroup_top_commander", "playgroup_final_zone",
             "universe_profile", "commander_binding", "card_signal", "strength_profile", "card_ruling",
-            "card_ruling_source",
+            "card_ruling_source", "card_printing",
         }:  # fmt: skip
             raise ValueError(table)
         return int(self.connection.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0])
