@@ -49,7 +49,7 @@ def test_an_import_of_changed_data_gives_a_fresh_result(
     monkeypatch.setattr(memo, "_STAT_GUARD_NS", 0)
     store = StudioStore.open(folder)
     before = builder._corpus_hits(store, COMMANDER)
-    assert "oracle-forest" in before
+    assert "Forest" in before
     assert builder._corpus_hits(store, COMMANDER) is before  # memoized
     store.close()
     store = StudioStore.open(folder)
@@ -67,8 +67,8 @@ def test_an_import_of_changed_data_gives_a_fresh_result(
     store = StudioStore.open(folder)
     after = builder._corpus_hits(store, COMMANDER)
     assert after is not before
-    assert sum(after["oracle-swarm-rat"].values()) > sum(before["oracle-swarm-rat"].values())
-    assert sum(after["oracle-forest"].values()) < sum(before["oracle-forest"].values())
+    assert sum(after["Swarm Rat"].values()) > sum(before["Swarm Rat"].values())
+    assert sum(after["Forest"].values()) < sum(before["Forest"].values())
     store.close()
 
 

@@ -50,5 +50,6 @@ th.layer-head{white-space:normal;min-width:120px}
 #modal{inset:auto 0 0 auto;top:0;width:min(600px,46vw);background:transparent;display:block;z-index:30;pointer-events:none}
 #modal[hidden]{display:none}
 #modal-box.plain{pointer-events:auto;position:absolute;inset:0;max-width:none;width:100%;max-height:none;height:100%;border-radius:0;border-width:0 0 0 1px;box-shadow:var(--shadow);overflow:auto}
+#modal-box img.big{display:block;width:100%;max-width:320px;margin:0 auto 12px;border-radius:14px}
 @media (max-width:1100px){.setting{grid-template-columns:1fr 130px;}.setting .help{grid-column:1 / -1}}
 @media (max-width:900px){#modal{width:min(520px,60vw)}}

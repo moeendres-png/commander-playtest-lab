@@ -53,16 +53,15 @@ from __future__ import annotations
 
 import datetime
 import json
-from collections.abc import Iterator, Mapping, Sequence
+from collections.abc import Collection, Iterator, Mapping, Sequence
 from contextlib import contextmanager
 from typing import TypedDict, cast
 
 from . import memo
 from ._coerce import to_int
-from .store import StudioStore, now_utc
+from .cache import cached
+from .store import COUNTED_SECTIONS, StudioStore, now_utc
 
-# The corpus importer stores the main deck as "mainboard", the decklist importer as "main".
-COUNTED_SECTIONS = ("main", "mainboard", "commander", "companion")
 # The sections a ``must_contain`` requirement reads: the main deck only. Deliberately
 # narrower than COUNTED_SECTIONS — a commander or companion row is not a main-deck card
 # (the commander exception is the binding rule in ``resolve_universe``, not a section).
@@ -125,6 +124,8 @@ class InclusionResult(TypedDict):
     denominator_by_bracket: dict[str, int]
     excluded_no_date: int
     excluded_by_card_filter: int
+    empty: bool
+    empty_reason: str | None
     rows: list[InclusionRow]
     data_class: str
 
@@ -212,11 +213,33 @@ def _validate_spec(spec: Mapping[str, object]) -> UniverseSpec:
     return cleaned
 
 
+def cohort_family(cohort: str) -> str:
+    """The family of a cohort: the text before the first ``:`` (``bracket`` for
+    ``bracket:3``); a cohort without a colon is a family of its own."""
+    return cohort.split(":", 1)[0]
+
+
+def cohort_families(cohorts: Sequence[str]) -> dict[str, list[str]]:
+    """Cohorts grouped by family, in stable order. Within a family they are OR, across
+    families AND (see ``resolve_universe``)."""
+    families: dict[str, list[str]] = {}
+    for cohort in sorted(set(cohorts)):
+        families.setdefault(cohort_family(cohort), []).append(cohort)
+    return families
+
+
 def _known_values(store: StudioStore, sql: str) -> set[str]:
     return {str(row[0]) for row in store.connection.execute(sql)}
 
 
 def _card_name_index(
+    store: StudioStore,
+) -> tuple[dict[str, frozenset[str]], dict[str, str]]:
+    """Cached form of ``_build_card_name_index`` (read-only result)."""
+    return cached(store, ("card_name_index",), lambda: _build_card_name_index(store))
+
+
+def _build_card_name_index(
     store: StudioStore,
 ) -> tuple[dict[str, frozenset[str]], dict[str, str]]:
     """The collection's name discipline, shared with the counted spread.
@@ -607,8 +630,18 @@ def excluded_by_card_filter(store: StudioStore, spec: Mapping[str, object]) -> i
 
 
 def resolve_universe(store: StudioStore, spec: Mapping[str, object]) -> list[str]:
-    """Deck ids of the universe a spec selects, in stable order."""
+    """Deck ids of the universe a spec selects, in stable order.
+
+    Resolved once per store state and spec (see ``cache.py``): one request that needs the
+    universe several times (denominator, snapshot, exclusion counts, spread) pays for it once."""
     cleaned = _validate_spec(spec)
+    # min_universe is a threshold read by the callers, not a filter: it must not split the cache
+    selecting = {name: value for name, value in cleaned.items() if name != "min_universe"}
+    key = ("resolve", json.dumps(selecting, sort_keys=True))
+    return list(cached(store, key, lambda: tuple(_resolve(store, cleaned))))
+
+
+def _resolve(store: StudioStore, cleaned: UniverseSpec) -> list[str]:
     where = ["1 = 1"]
     parameters: list[str] = []
     if cleaned.get("platforms"):
@@ -624,21 +657,15 @@ def resolve_universe(store: StudioStore, spec: Mapping[str, object]) -> list[str
     sql = f"SELECT d.deck_id, d.fingerprint FROM corpus_deck d WHERE {' AND '.join(where)}"
     selected = [(str(row[0]), str(row[1])) for row in store.connection.execute(sql, parameters)]
     deck_ids = [deck_id for deck_id, _ in selected]
-    counted_marks = ", ".join("?" for _ in COUNTED_SECTIONS)
-    with_cards = {
-        str(row[0])
-        for row in store.connection.execute(
-            f"SELECT DISTINCT deck_id FROM corpus_deck_card "
-            f"WHERE section IN ({counted_marks}) AND quantity > 0",
-            COUNTED_SECTIONS,
-        )
-    }
-    deck_ids = [deck_id for deck_id in deck_ids if deck_id in with_cards]
-    for cohort in cleaned.get("cohorts", []):
+    for family_cohorts in cohort_families(cleaned.get("cohorts", [])).values():
+        # Cohorts of one family (``bracket:3`` and ``bracket:4``) are alternatives: a deck
+        # belongs to the family when it is in ANY of the ticked cohorts. Different families
+        # (a bracket and a platform) narrow each other.
+        marks = ", ".join("?" for _ in family_cohorts)
         members = {
             str(row[0])
             for row in store.connection.execute(
-                "SELECT deck_id FROM corpus_cohort WHERE cohort = ?", (cohort,)
+                f"SELECT deck_id FROM corpus_cohort WHERE cohort IN ({marks})", family_cohorts
             )
         }
         deck_ids = [deck_id for deck_id in deck_ids if deck_id in members]
@@ -656,23 +683,32 @@ def resolve_universe(store: StudioStore, spec: Mapping[str, object]) -> list[str
         deck_ids = [
             deck_id for deck_id in deck_ids if bound_sets.get(deck_id, set()) == wanted_commanders
         ]
+    # The card-table checks run only over the decks the cheap filters left: a deck is part of
+    # a universe only with a counted card row (quantity above zero), and the minimum deck size
+    # counts each card once per deck and section group ("main" and "mainboard" are one section:
+    # per (deck, card) the larger quantity).
     minimum = cleaned.get("min_main_cards")
+    sections = ", ".join("?" for _ in COUNTED_SECTIONS)
+    with _universe_table(store, deck_ids, "universe_resolve") as table:
+        rows = store.connection.execute(
+            f"SELECT c.deck_id, SUM(c.quantity), MAX(c.quantity > 0) FROM corpus_deck_card c "
+            f"JOIN {table} u ON u.deck_id = c.deck_id WHERE c.section IN ({sections}) "
+            f"GROUP BY c.deck_id",
+            COUNTED_SECTIONS,
+        ).fetchall()
+        sizes = {str(row[0]): int(row[1]) for row in rows if row[2]}
+        if minimum:
+            # sum(max) = sum(main) + sum(mainboard) - sum(min) over the cards listed in both
+            for deck_id, overlap in store.connection.execute(
+                f"SELECT a.deck_id, SUM(MIN(a.quantity, b.quantity)) FROM corpus_deck_card a "
+                f"JOIN corpus_deck_card b ON b.deck_id = a.deck_id AND b.card_name = a.card_name "
+                f"JOIN {table} u ON u.deck_id = a.deck_id "
+                f"WHERE a.section = 'main' AND b.section = 'mainboard' GROUP BY a.deck_id"
+            ):
+                sizes[str(deck_id)] -= int(overlap)
+    deck_ids = [deck_id for deck_id in deck_ids if deck_id in sizes]
     if minimum:
-        sections = ", ".join("?" for _ in COUNTED_SECTIONS)
-        # "main" and "mainboard" are one section: per (deck, card) the larger quantity.
-        sizes = {
-            str(row[0]): int(row[1])
-            for row in store.connection.execute(
-                f"SELECT deck_id, SUM(quantity) FROM ("
-                f"SELECT deck_id, card_name, "
-                f"CASE WHEN section IN ('main', 'mainboard') THEN 'main' ELSE section END AS grp, "
-                f"MAX(quantity) AS quantity FROM corpus_deck_card "
-                f"WHERE section IN ({sections}) GROUP BY deck_id, card_name, grp) "
-                f"GROUP BY deck_id",
-                COUNTED_SECTIONS,
-            )
-        }
-        deck_ids = [deck_id for deck_id in deck_ids if sizes.get(deck_id, 0) >= minimum]
+        deck_ids = [deck_id for deck_id in deck_ids if sizes[deck_id] >= minimum]
     required_names = cleaned.get("must_contain")
     if required_names:
         # A deck contains a required card when one of its main-section rows names the
@@ -718,19 +754,23 @@ def resolve_universe(store: StudioStore, spec: Mapping[str, object]) -> list[str
 
 
 @contextmanager
-def _universe_table(store: StudioStore, deck_ids: list[str]) -> Iterator[str]:
+def _universe_table(
+    store: StudioStore, deck_ids: Sequence[str], table: str = "universe_deck"
+) -> Iterator[str]:
     """Load the deck ids into a TEMP table so queries never bind one variable per deck.
 
     SQLite caps bound variables (999 on older builds); a universe can be larger."""
-    name = "temp.universe_deck"
+    name = f"temp.{table}"
     db = store.connection
     db.execute(f"DROP TABLE IF EXISTS {name}")
     # CREATE ... AS SELECT is one statement with one bound variable and, unlike an INSERT,
     # opens no implicit transaction: a read-only query must not leave the connection locked.
     db.execute(
-        "CREATE TEMP TABLE universe_deck AS SELECT value AS deck_id FROM json_each(?)",
+        f"CREATE TEMP TABLE {table} AS SELECT DISTINCT value AS deck_id FROM json_each(?)",
         (json.dumps(deck_ids),),
     )
+    # An index makes the join with the (large) card table a lookup per row, not a scan.
+    db.execute(f"CREATE UNIQUE INDEX temp.{table}_id ON {table}(deck_id)")
     try:
         yield name
     finally:
@@ -838,9 +878,95 @@ def inclusion(
         "denominator_by_bracket": by_bracket,
         "excluded_no_date": excluded_no_date(store, resolved_spec),
         "excluded_by_card_filter": excluded_by_card_filter(store, resolved_spec),
+        "empty": not deck_ids,
+        "empty_reason": empty_reason(store, resolved_spec, deck_ids),
         "rows": rows,
         "data_class": "DERIVED_DESCRIPTIVE",
     }
+
+
+def spelling_owners(store: StudioStore) -> dict[str, list[str]]:
+    """Cached form of ``_build_spelling_owners`` (read-only result)."""
+    return cached(store, ("spelling_owners",), lambda: _build_spelling_owners(store))
+
+
+def _build_spelling_owners(store: StudioStore) -> dict[str, list[str]]:
+    """Casefolded deck-card spelling -> the collection cards (oracle names) it names.
+
+    A spelling is a card's oracle name, its engine name or a front face no card owns as its
+    exact name; a front face several cards share names each of them (a deck listing it counts
+    for every one). This is the one name discipline of every card-level count."""
+    by_oracle, _unique = _card_name_index(store)
+    owners: dict[str, list[str]] = {}
+    for oracle, keys in by_oracle.items():
+        for key in keys:
+            owners.setdefault(key, []).append(oracle)
+    return owners
+
+
+def deck_sets(
+    store: StudioStore,
+    deck_ids: Collection[str],
+    group_of: Mapping[str, Sequence[str]] | None = None,
+) -> dict[str, set[str]]:
+    """The decks (of ``deck_ids``) that list each card, in counted sections (quantity above
+    zero): the ONE counting primitive behind inclusion, co-occurrence and lift.
+
+    Without ``group_of`` a card is its raw ``card_name``. With ``group_of`` (casefolded spelling
+    -> card names, see ``spelling_owners``) every spelling is merged into the card it names, so
+    a deck listing two spellings counts once and spellings are never summed; a spelling that
+    names no card keeps its raw name."""
+    if not deck_ids:
+        return {}
+    sets: dict[str, set[str]] = {}
+    marks = ", ".join("?" for _ in COUNTED_SECTIONS)
+    with _universe_table(store, sorted(deck_ids)) as universe_deck:
+        # The aggregation runs inside SQLite: one row per raw card name, with the decks
+        # listing it (unit-separator joined; a deck listed twice collapses in the set), instead of one Python step per (deck, card) row.
+        by_id: dict[str, str] | None = None
+        for name, oracle_id, joined in store.connection.execute(
+            f"SELECT c.card_name, c.oracle_id, group_concat(c.deck_id, char(31)) "
+            f"FROM corpus_deck_card c JOIN {universe_deck} u ON u.deck_id = c.deck_id "
+            f"WHERE c.section IN ({marks}) AND c.quantity > 0 GROUP BY c.card_name, c.oracle_id",
+            COUNTED_SECTIONS,
+        ):
+            decks = set(str(joined).split("\x1f"))
+            if group_of is None:
+                sets.setdefault(str(name), set()).update(decks)
+                continue
+            groups = group_of.get(str(name).casefold())
+            if groups is None and oracle_id:
+                # A spelling no name rule knows (an accent, a different face spelling) but with
+                # the card's oracle id: the id names the card.
+                if by_id is None:
+                    by_id = {
+                        str(row[0]): str(row[1])
+                        for row in store.connection.execute(
+                            "SELECT oracle_id, oracle_name FROM card_fact "
+                            "WHERE oracle_id IS NOT NULL"
+                        )
+                    }
+                if str(oracle_id) in by_id:
+                    groups = (by_id[str(oracle_id)],)
+            # A spelling that names no collection card stays under its own raw name.
+            for group in groups or (str(name),):
+                sets.setdefault(group, set()).update(decks)
+    return sets
+
+
+def cooccurrence_pairs(
+    sets: Mapping[str, set[str]], target: str, limit: int | None
+) -> list[CooccurrenceRow]:
+    """Cards listed together with ``target`` in the decks of ``sets`` (from ``deck_sets``),
+    most common first, ties by name. ``limit`` caps the list (``None`` = all pairs)."""
+    own = sets.get(target, set())
+    pairs: list[CooccurrenceRow] = [
+        {"card_name": name, "decks_together": len(decks & own)}
+        for name, decks in sets.items()
+        if name != target and decks & own
+    ]
+    pairs.sort(key=lambda item: (-item["decks_together"], item["card_name"]))
+    return pairs if limit is None else pairs[:limit]
 
 
 def cooccurrence(
@@ -854,63 +980,28 @@ def cooccurrence(
 ) -> CooccurrenceResult:
     """How many universe decks contain ``card_name`` together with each other card.
 
-    ``limit`` caps the pair list (``None`` = all pairs); it must be at least 1."""
+    Counted raw-name-wise through ``deck_sets`` (the same primitive the card-level views
+    use). ``limit`` caps the pair list (``None`` = all pairs); it must be at least 1."""
     if limit is not None and limit < 1:
         raise ValueError("limit must be at least 1 (or None for no limit)")
     deck_ids = resolve_universe(store, _universe_spec(store, profile, spec, commander_names))
-    universe_size = len(deck_ids)
     by_platform, by_bracket = _composition(store, deck_ids)
-    denominator = 0
-    pairs: list[CooccurrenceRow] = []
-    if deck_ids:
-        sections = ", ".join("?" for _ in COUNTED_SECTIONS)
-        with _universe_table(store, deck_ids) as universe_deck:
-            denominator = int(
-                store.connection.execute(
-                    f"SELECT COUNT(DISTINCT c.deck_id) FROM corpus_deck_card c "
-                    f"JOIN {universe_deck} u ON u.deck_id = c.deck_id "
-                    f"WHERE c.section IN ({sections}) AND c.quantity > 0 AND c.card_name = ?",
-                    [*COUNTED_SECTIONS, card_name],
-                ).fetchone()[0]
-            )
-            if denominator:
-                pairs = [
-                    {"card_name": str(row[0]), "decks_together": int(row[1])}
-                    for row in store.connection.execute(
-                        f"SELECT o.card_name, COUNT(DISTINCT o.deck_id) AS decks_together "
-                        f"FROM corpus_deck_card o JOIN {universe_deck} u "
-                        f"ON u.deck_id = o.deck_id "
-                        f"WHERE o.section IN ({sections}) AND o.quantity > 0 "
-                        f"AND o.card_name != ? AND o.deck_id IN ("
-                        f"SELECT c.deck_id FROM corpus_deck_card c "
-                        f"JOIN {universe_deck} v ON v.deck_id = c.deck_id "
-                        f"WHERE c.section IN ({sections}) AND c.quantity > 0 "
-                        f"AND c.card_name = ?) "
-                        f"GROUP BY o.card_name "
-                        f"ORDER BY decks_together DESC, o.card_name LIMIT ?",
-                        [
-                            *COUNTED_SECTIONS,
-                            card_name,
-                            *COUNTED_SECTIONS,
-                            card_name,
-                            -1 if limit is None else limit,
-                        ],
-                    )
-                ]
+    sets = deck_sets(store, deck_ids)
+    pairs = cooccurrence_pairs(sets, card_name, limit)
     return {
         "card_name": card_name,
         "profile": profile,
-        "denominator": universe_size,
+        "denominator": len(deck_ids),
         "denominator_by_platform": by_platform,
         "denominator_by_bracket": by_bracket,
-        "decks_with_card": denominator,
+        "decks_with_card": len(sets.get(card_name, set())),
         "pairs": pairs,
         "data_class": "DERIVED_DESCRIPTIVE",
     }
 
 
 class UniverseDecks(TypedDict):
-    """One resolved universe with the deck ids behind every raw card name."""
+    """One resolved universe with the deck ids behind every raw card name (and per oracle id)."""
 
     spec: UniverseSpec
     denominator: int
@@ -918,7 +1009,35 @@ class UniverseDecks(TypedDict):
     denominator_by_bracket: dict[str, int]
     snapshot_id: str
     data_class: str
+    empty: bool
+    empty_reason: str | None
+    deck_ids: list[str]
     decks_by_name: dict[str, set[str]]
+    decks_by_oracle: dict[str, dict[str, set[str]]]
+
+
+NO_COMMANDER_DECKS = "NO_SOURCE_DECKS_FOR_COMMANDER"
+FILTERS_EXCLUDE_ALL = "FILTERS_EXCLUDE_ALL_DECKS"
+EMPTY_REASONS: dict[str, str] = {
+    NO_COMMANDER_DECKS: "Für diesen Commander sind keine Quelldecks importiert.",
+    FILTERS_EXCLUDE_ALL: "Die Filter des Universums lassen kein Deck übrig.",
+}
+
+
+def empty_reason(store: StudioStore, spec: UniverseSpec, deck_ids: Sequence[str]) -> str | None:
+    """Why a universe is empty (``None`` when it holds a deck): an empty universe is an
+    explicit state, never a silent zero. Tells "no decks of the commander at all" from
+    "the filters (e.g. two cohorts of different families) exclude every deck"."""
+    if deck_ids:
+        return None
+    scope: UniverseSpec = {}
+    if spec.get("commanders"):
+        scope["commanders"] = spec["commanders"]
+    if scope and not resolve_universe(store, scope):
+        return NO_COMMANDER_DECKS
+    if not scope and not resolve_universe(store, {}):
+        return NO_COMMANDER_DECKS
+    return FILTERS_EXCLUDE_ALL
 
 
 def universe_decks(
@@ -940,20 +1059,40 @@ def universe_decks(
     )
 
 
+def _universe_raw_sets(
+    store: StudioStore, deck_ids: Collection[str]
+) -> tuple[dict[str, set[str]], dict[str, dict[str, set[str]]]]:
+    if not deck_ids:
+        return {}, {}
+    by_name: dict[str, set[str]] = {}
+    by_oracle: dict[str, dict[str, set[str]]] = {}
+    marks = ", ".join("?" for _ in COUNTED_SECTIONS)
+    with _universe_table(store, sorted(deck_ids)) as universe_deck:
+        for name, oracle_id, joined in store.connection.execute(
+            f"SELECT c.card_name, c.oracle_id, group_concat(c.deck_id, char(31)) "
+            f"FROM corpus_deck_card c JOIN {universe_deck} u ON u.deck_id = c.deck_id "
+            f"WHERE c.section IN ({marks}) AND c.quantity > 0 GROUP BY c.card_name, c.oracle_id",
+            COUNTED_SECTIONS,
+        ):
+            decks = set(str(joined).split("\x1f"))
+            raw = str(name)
+            existing = by_name.get(raw)
+            if existing is None:
+                by_name[raw] = decks
+            else:
+                by_name[raw] = existing | decks
+            if oracle_id:
+                per_raw = by_oracle.setdefault(str(oracle_id), {})
+                prev = per_raw.get(raw)
+                per_raw[raw] = decks if prev is None else prev | decks
+    return by_name, by_oracle
+
+
 def _universe_decks_of(store: StudioStore, spec: UniverseSpec) -> UniverseDecks:
     deck_ids = resolve_universe(store, spec)
     by_platform, by_bracket = _composition(store, deck_ids)
-    decks_by_name: dict[str, set[str]] = {}
-    if deck_ids:
-        sections = ", ".join("?" for _ in COUNTED_SECTIONS)
-        with _universe_table(store, deck_ids) as universe_deck:
-            for name, deck_id in store.connection.execute(
-                f"SELECT DISTINCT c.card_name, c.deck_id FROM corpus_deck_card c "
-                f"JOIN {universe_deck} u ON u.deck_id = c.deck_id "
-                f"WHERE c.section IN ({sections}) AND c.quantity > 0",
-                COUNTED_SECTIONS,
-            ):
-                decks_by_name.setdefault(str(name), set()).add(str(deck_id))
+    reason = empty_reason(store, spec, deck_ids)
+    decks_by_name, decks_by_oracle = _universe_raw_sets(store, deck_ids)
     return {
         "spec": spec,
         "denominator": len(deck_ids),
@@ -961,34 +1100,12 @@ def _universe_decks_of(store: StudioStore, spec: UniverseSpec) -> UniverseDecks:
         "denominator_by_bracket": by_bracket,
         "snapshot_id": _snapshot_of(store, spec, deck_ids),
         "data_class": "DERIVED_DESCRIPTIVE",
+        "empty": reason is not None,
+        "empty_reason": reason,
+        "deck_ids": deck_ids,
         "decks_by_name": decks_by_name,
+        "decks_by_oracle": decks_by_oracle,
     }
-
-
-def cooccurrence_in_decks(
-    store: StudioStore, deck_ids: set[str], exclude: set[str], limit: int
-) -> list[CooccurrenceRow]:
-    """Cards listed together within ``deck_ids`` (a card's own decks), most common first.
-
-    ``exclude`` holds casefolded names left out of the pairs (the card's own spellings)."""
-    if not deck_ids:
-        return []
-    sections = ", ".join("?" for _ in COUNTED_SECTIONS)
-    with _universe_table(store, sorted(deck_ids)) as universe_deck:
-        rows = [
-            (str(row[0]), int(row[1]))
-            for row in store.connection.execute(
-                f"SELECT o.card_name, COUNT(DISTINCT o.deck_id) FROM corpus_deck_card o "
-                f"JOIN {universe_deck} u ON u.deck_id = o.deck_id "
-                f"WHERE o.section IN ({sections}) AND o.quantity > 0 GROUP BY o.card_name",
-                COUNTED_SECTIONS,
-            )
-        ]
-    kept = sorted(
-        (item for item in rows if item[0].casefold() not in exclude),
-        key=lambda item: (-item[1], item[0]),
-    )
-    return [{"card_name": name, "decks_together": count} for name, count in kept[:limit]]
 
 
 def snapshot_id(
@@ -1026,6 +1143,7 @@ def _snapshot_of(store: StudioStore, cleaned: UniverseSpec, deck_ids: list[str])
 
 __all__ = [
     "COUNTED_SECTIONS",
+    "EMPTY_REASONS",
     "CooccurrenceResult",
     "InclusionResult",
     "OptionValue",
@@ -1035,8 +1153,12 @@ __all__ = [
     "UniverseOptions",
     "UniverseSpec",
     "bound_commander_sets",
+    "cohort_families",
+    "cohort_family",
     "cooccurrence",
-    "cooccurrence_in_decks",
+    "cooccurrence_pairs",
+    "deck_sets",
+    "empty_reason",
     "excluded_no_date",
     "get_profile",
     "inclusion",
@@ -1045,5 +1167,6 @@ __all__ = [
     "resolve_universe",
     "save_profile",
     "snapshot_id",
+    "spelling_owners",
     "universe_decks",
 ]
