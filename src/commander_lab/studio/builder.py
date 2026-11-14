@@ -1252,6 +1252,84 @@ def write_draft(
         )
 
 
+class DraftChangeRefused(ValueError):
+    """A single-card change the deck rules or the collection do not allow (German sentence)."""
+
+
+def change_draft_card(
+    store: StudioStore, deck_id: str, branch: str, card_id: str, delta: int
+) -> dict[str, object]:
+    """Add one copy of a card to the working list of a variant, or take one out.
+
+    This is the change another page (the tier list) makes without holding the whole list: it
+    starts from the draft, else from the saved state of the variant, and writes a draft. The
+    limits are the builder's: one copy, any number only for basic lands and "any number of
+    cards named" cards, never more than the free copies of the collection. Nothing is saved
+    as a revision. ``KeyError`` for an unknown deck, variant or card.
+    """
+    if delta not in (1, -1):
+        raise ValueError("delta must be 1 or -1")
+    db = store.connection
+    base = db.execute(
+        "SELECT revision_id FROM deck_branch WHERE deck_id = ? AND branch = ?", (deck_id, branch)
+    ).fetchone()
+    if base is None:
+        raise KeyError(f"{deck_id}/{branch}")
+    card = db.execute(
+        "SELECT c.oracle_name, c.is_basic_land, c.oracle_text, i.available_lower_bound "
+        "FROM card_fact c LEFT JOIN inventory i USING (card_id) WHERE c.card_id = ?",
+        (card_id,),
+    ).fetchone()
+    if card is None:
+        raise KeyError(card_id)
+    draft = read_draft(store, deck_id, branch)
+    if draft is not None:
+        entries = [
+            RevisionCard(str(e["card_id"]), int(e["quantity"]), str(e["zone"]))
+            for e in draft["cards"]  # type: ignore[attr-defined]
+        ]
+        base_revision = draft["base_revision_id"]
+    else:
+        entries = [
+            RevisionCard(str(row["card_id"]), int(row["quantity"]), str(row["zone"]))
+            for row in db.execute(
+                "SELECT card_id, quantity, zone FROM deck_revision_card WHERE revision_id = ? "
+                "ORDER BY zone, card_id",
+                (base["revision_id"],),
+            )
+        ]
+        base_revision = base["revision_id"]
+    name = str(card["oracle_name"])
+    if any(e.card_id == card_id and e.zone == "commander" for e in entries):
+        raise DraftChangeRefused(f"{name} ist der Commander dieses Decks und zählt schon mit.")
+    current = sum(e.quantity for e in entries if e.card_id == card_id and e.zone == "main")
+    if delta == 1:
+        free = max(int(card["available_lower_bound"] or 0), 0)
+        any_number = bool(card["is_basic_land"]) or (
+            "A deck can have any number of cards named" in str(card["oracle_text"] or "")
+        )
+        if current >= (free if any_number else min(1, free)):
+            if free < 1:
+                raise DraftChangeRefused(f"Für {name} ist keine freie Kopie in der Sammlung.")
+            if any_number:
+                raise DraftChangeRefused(f"Alle freien Kopien von {name} sind schon im Deck.")
+            raise DraftChangeRefused(f"{name} ist schon im Deck (nur eine Kopie erlaubt).")
+    elif current < 1:
+        raise DraftChangeRefused(f"{name} ist nicht im Deck, es gibt nichts zu entfernen.")
+    quantity = current + delta
+    kept = [e for e in entries if not (e.card_id == card_id and e.zone == "main")]
+    if quantity:
+        kept.append(RevisionCard(card_id, quantity, "main"))
+    write_draft(store, deck_id, branch, kept, None if base_revision is None else str(base_revision))
+    return {
+        "card_id": card_id,
+        "name": name,
+        "quantity": quantity,
+        "deck_cards": sum(e.quantity for e in kept),
+        "draft": True,
+    }
+
+
 def drop_draft(store: StudioStore, deck_id: str, branch: str) -> None:
     with store.connection as db:
         db.execute("DELETE FROM deck_draft WHERE deck_id = ? AND branch = ?", (deck_id, branch))

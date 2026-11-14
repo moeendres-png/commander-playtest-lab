@@ -27,7 +27,7 @@ const state = {
   list: new Map(), dirty: false, issues: [], shape: null, deckRoles: {}, combos: null, roles: [], shapes: [],
   simulations: [], diffBaseRev: null, diffData: null, activeBatch: null, batchPollTimer: null,
   view: "grid", tab: "list", shown: 120, sortKey: "freq", sortDir: -1, cohort: "all",
-  subset: null, subsetNames: [], subsetWanted: null, strength: null, layers: null, diffDefault: null,
+  subset: null, subsetNames: [], subsetWanted: null, strength: null, showTier: true, layers: null, diffDefault: null,
   colors: new Set(), columns: new Set(["img", "name", "mana_cost", "type_line", "available", "freq", "edhrec"]),
 };
 
@@ -197,7 +197,7 @@ function tile(card) {
   const f = displayFreq(card);
   const subsetTitle = state.subset ? ` (${state.subset.info.label})` : "";
   return h("div", { class: "tile" + (count ? " in" : "") + (card.available < 1 ? " none" : "") },
-    face, card.favorite && h("span", { class: "star" }, "★"),
+    face, card.favorite && h("span", { class: "star" }, "★"), tierMark(card, " corner"),
     h("div", { class: "bar" },
       h("button", { class: "small", type: "button", title: "ins Deck", "aria-label": `${card.name} ins Deck`, disabled: count >= maxCopies(card), onclick: () => add(card) }, "+"),
       h("b", { class: "count", title: "Kopien im Deck" }, count ? count + "×" : "0×"),
@@ -213,6 +213,16 @@ const COLUMNS = [
   ["playgroup", "Playgroup", "playgroup"],
   ["roles", "Rollen", null], ["produced_mana", "erzeugt Mana", null], ["sim_status", "Simulator", "sim_status"], ["note", "Notiz", null],
 ];
+// The current tier of a card as a small mark (tiles, deck list, card window). Shown only
+// while "Stufe zeigen" is on and the index is loaded; U and N are named, never hidden as a low tier.
+const TIER_WORDS = { U: "zu wenig Daten für eine Stufe", N: "nicht bewertet (Commander oder Standardland)" };
+function tierMark(card, extra = "") {
+  if (!state.showTier || !state.strength) return null;
+  const item = state.strength.map.get(card.card_id);
+  if (!item) return null;
+  const known = !TIER_WORDS[item.tier];
+  return h("span", { class: `tier-mark t-${item.tier}${extra}`, title: known ? `Stufe ${item.tier}, Stärke-Index ${item.index.toFixed(1)} (Schätzung aus Nutzungsdaten, keine Siegrate)` : TIER_WORDS[item.tier] }, known ? item.tier : "–");
+}
 function tierBadge(tier, text) {
   return h("span", { class: `tier-badge t-${tier}`, title: `Stufe ${tier}: Schätzung aus Nutzungsdaten` }, h("span", { class: "letter" }, tier), text);
 }
@@ -350,7 +360,7 @@ function renderList(body) {
       const name = h("span", { class: "nm", onclick: () => openCard(card) }, card.name);
       hoverPreview(name, card);
       box.append(h("div", { class: "row" + (problems.has(card.card_id) ? " problem" : "") },
-        h("span", { class: "qty" }, qty(card.card_id)), name, mana(card.mana_cost),
+        h("span", { class: "qty" }, qty(card.card_id)), tierMark(card), name, mana(card.mana_cost),
         card.basic ? h("button", { class: "small", type: "button", disabled: qty(card.card_id) >= maxCopies(card), onclick: () => add(card) }, "+") : null,
         h("button", { class: "small", type: "button", onclick: () => remove(card) }, "−")));
     }
@@ -477,6 +487,10 @@ function comboLine(combo) {
 function renderCombos(body) {
   const combos = state.combos;
   body.append(h("h3", {}, "Kombos im Deck"));
+  if (combos && !(combos.commanders || []).length) {
+    body.append(h("p", { class: "muted", id: "combos-empty" }, "Kein Commander gewählt. Die Kombo-Liste gehört zu einem Commander."));
+    return;
+  }
   if (!combos || !combos.listed) {
     body.append(h("p", { class: "muted", id: "combos-empty" }, "Für diesen Commander ist keine Kombo-Liste gespeichert. Das heißt nicht, dass das Deck keine Kombos hat."));
     return;
@@ -928,7 +942,7 @@ async function openCard(card) {
   const extra = h("div", {}, h("p", { class: "muted" }, "Lädt EDHREC-Zeilen."));
   const layerBox = h("div", {});
   const right = h("div", {},
-    h("h2", {}, card.name), h("div", {}, mana(card.mana_cost), " ", h("span", { class: "muted" }, card.type_line), card.power !== null ? ` · ${card.power}/${card.toughness}` : ""),
+    h("h2", {}, card.name, " ", tierMark(card)), h("div", {}, mana(card.mana_cost), " ", h("span", { class: "muted" }, card.type_line), card.power !== null ? ` · ${card.power}/${card.toughness}` : ""),
     h("p", { style: "white-space:pre-line" }, card.text),
     card.roles.length ? h("p", {}, card.roles.map((role) => h("span", { class: "chip", style: "cursor:default;margin-right:4px" }, roleName(role)))) : null,
     h("p", { class: "note" }, `Sammlung: ${card.owned} im Besitz, ${card.available} frei` + (card.reserved ? `, ${card.reserved} reserviert` : "") + ` · Kartendaten: ${card.fact_source === "scryfall" ? "Scryfall" : "deine Tabelle"}` + (card.edhrec_rank ? ` · EDHREC-Rang ${card.edhrec_rank}` : "") + (card.game_changer ? " · Game Changer" : "") + ` · Simulator: ${card.sim_status || "unbekannt"}`),
@@ -1085,8 +1099,8 @@ async function loadStrength() {
     try { result = await api("/api/strength", "POST", settings ? { commander: COMMANDER, settings } : { commander: COMMANDER }); }
     catch (error) { result = await api("/api/strength", "POST", { commander: COMMANDER }); } // remembered settings may be outdated
     state.strength = { map: new Map(result.cards.map((item) => [item.card_id, item])) };
-    toast("Stärke-Index geladen (Schätzung aus Nutzungsdaten, Einstellungen der Tierliste).");
-    renderPool();
+    if (state.sortKey === "strength") toast("Stärke-Index geladen (Schätzung aus Nutzungsdaten, Einstellungen der Tierliste).");
+    renderPool(); if (state.deckId) renderDeck();
   } catch (error) { fail(error); } finally { state.strengthLoading = false; }
 }
 function renderSimReadiness() {
@@ -1244,6 +1258,15 @@ function setupControls() {
   $("sort").addEventListener("change", () => { if (!$("sort").value) return; const [key, dir] = $("sort").value.split(":"); state.sortKey = key; state.sortDir = Number(dir); StudioUI.remember("studio.builder.sort", $("sort").value); if (key === "strength") loadStrength(); renderPool(); });
   $("cohort").addEventListener("change", () => { state.cohort = $("cohort").value; renderPool(); renderDeck(); });
   for (const id of ["q", "type-filter", "role-filter", "mv-min", "mv-max", "f-free", "f-notin", "f-fav", "f-excl", "f-sim"]) if ($(id)) $(id).addEventListener("input", () => { state.shown = 120; renderPool(); });
+  // "Stufe zeigen": the current tier on every card (view setting, on unless switched off).
+  state.showTier = StudioUI.recall("studio.builder.show-tier", "1") !== "0";
+  $("f-tier").checked = state.showTier;
+  if (state.showTier) loadStrength();
+  $("f-tier").addEventListener("change", () => {
+    state.showTier = $("f-tier").checked; StudioUI.remember("studio.builder.show-tier", state.showTier ? "1" : "0");
+    if (state.showTier) loadStrength();
+    renderPool(); renderDeck();
+  });
   const views = [["grid", "Bilder"], ["table", "Tabelle"]];
   const drawViews = () => $("view-toggle").replaceChildren(...views.map(([key, label]) => h("button", { type: "button", class: "chip" + (state.view === key ? " on" : ""), "aria-pressed": state.view === key, onclick: () => { state.view = key; drawViews(); renderPool(); } }, label)));
   drawViews();

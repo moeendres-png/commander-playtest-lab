@@ -7,6 +7,10 @@ body{height:auto;min-height:100%}
 td.cardcell{white-space:nowrap}
 td.cardcell .thumb{display:inline-block;vertical-align:middle;margin-right:var(--s2)}
 .star{color:#ffd257}
+td.acts{white-space:nowrap}
+td.acts button{margin-right:4px}
+button.small.fav.on{color:#b8860b;border-color:#d4a514}
+button.small.indeck{border-color:var(--good);color:var(--good)}
 .unknown{color:var(--muted);font-style:italic}
 .layer{border:1px solid var(--line);border-radius:var(--radius);padding:var(--s2) 10px;margin:10px 0;background:var(--panel2)}
 .layer h3{margin:0 0 var(--s1);font-size:14px;display:flex;gap:var(--s2);align-items:center;flex-wrap:wrap}

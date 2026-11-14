@@ -79,7 +79,7 @@ const state = {
   view: "commander", tab: "cards", data: null, marks: new Map(), decks: [],
   universe: { profiles: [], name: "", summary: null, spread: null, options: null },
   strength: { meta: null, settings: null, profiles: [], counted: [], result: null, map: null, ticket: 0, tiers: new Set(), selectedProfile: "", good: null, note: "", draft: { fields: {}, name: "" } },
-  deckCards: null, deckRoles: {}, ticket: 0, need: "", sortKey: "strength", sortDir: -1, shown: 150,
+  deckCards: new Map(), deckRoles: {}, pool: new Map(), ticket: 0, need: "", sortKey: "strength", sortDir: -1, shown: 150,
   layerCols: new Set(), podFilter: "",
 };
 
@@ -306,13 +306,14 @@ function cardsTable(cards) {
   // The counted spread is its own column only while a stored universe is chosen. There is no
   // outcome column: no card has a result from games ("Unbewertet"), the pill above says so.
   const spread = Boolean(state.universe.name && state.universe.spread);
-  const head = ["Stärke-Index (Schätzung)", "Karte", ...metas.map(layerHead), ...(spread ? [SPREAD_LABEL] : []), "MW", "Mechanik", "Rollen", ...(commander ? ["Quelldecks", "EDHREC Inclusion", "Echte Spiele"] : ["Beliebtheit (global)", "Echte Spiele"]), "Schichten", ...(state.view === "deck" ? ["im Deck"] : [])];
+  const head = ["Stärke-Index (Schätzung)", "Karte", "Favorit / Deck", ...metas.map(layerHead), ...(spread ? [SPREAD_LABEL] : []), "MW", "Mechanik", "Rollen", ...(commander ? ["Quelldecks", "EDHREC Inclusion", "Echte Spiele"] : ["Beliebtheit (global)", "Echte Spiele"]), "Schichten", ...(state.view === "deck" ? ["im Deck"] : [])];
   const rows = cards.slice(0, state.shown).map((card) => {
     const mark = state.marks.get(card.card_id) || {};
     const rank = (layer(card, "observed_deck").items || []).find((item) => item.kind === "edhrec_rank_global");
     return h("tr", {},
       h("td", {}, strengthCell(card)),
       h("td", { class: "cardcell name", onclick: () => openCard(card) }, thumb(card), mark.favorite ? h("span", { class: "star" }, "★ ") : null, card.name),
+      h("td", { class: "acts" }, markButtons(card)),
       ...metas.map((meta) => h("td", {}, layerCell(card, meta))),
       ...(spread ? [h("td", {}, spreadCell(card))] : []),
       h("td", { class: "num" }, card.mana_value),
@@ -538,7 +539,7 @@ async function openCard(card) {
     const full = detail.card;
     const strengthSection = strengthBox(card);
     content.replaceChildren(
-      h("div", { class: "actions" }, h("button", { type: "button", onclick: () => { modal.hidden = true; } }, "Schließen")),
+      h("div", { class: "actions" }, ...markButtons(card, () => openCard(card)), h("button", { type: "button", onclick: () => { modal.hidden = true; } }, "Schließen")),
       h("h2", {}, full.name),
       h("p", { class: "muted" }, full.type_line),
       h("div", { class: "policy" }, h("b", {}, `${OUTCOME_HEADING}. `), "Es gibt kein geprüftes Modell mit Partiedaten. Fehlende Beobachtung ist nie ein niedriger Tier. Favoriten, Ausschlüsse und Notizen fließen nicht ein."),
@@ -1037,11 +1038,62 @@ async function loadDeck() {
   const branch = deck && deck.branches.find((entry) => entry.branch === $("branch-select").value);
   state.deckCards = new Map();
   if (branch) {
-    const revision = await api(`/api/revisions/${encodeURIComponent(branch.revision_id)}`);
-    for (const entry of revision.cards) if (entry.zone !== "commander") state.deckCards.set(entry.card_id, entry.quantity);
+    // The working list (draft) wins over the saved state: it is what the builder shows.
+    const [revision, draft] = await Promise.all([
+      api(`/api/revisions/${encodeURIComponent(branch.revision_id)}`),
+      api(`/api/decks/${encodeURIComponent(deck.deck_id)}/branches/${encodeURIComponent(branch.branch)}/draft`),
+    ]);
+    for (const entry of (draft.draft ? draft.draft.cards : revision.cards)) if (entry.zone !== "commander") state.deckCards.set(entry.card_id, entry.quantity);
     state.deckRoles = revision.roles || {};
+    StudioUI.remember(`studio.builder.${COMMANDER}.deck`, deck.deck_id);
+    StudioUI.remember(`studio.builder.${COMMANDER}.branch`, branch.branch);
   }
   render();
+}
+// The target deck of "ins Deck": the deck and variant the builder had open, else the first.
+async function initDecks() {
+  try {
+    state.decks = (await api("/api/decks")).filter((deck) => (deck.commanders || []).includes(COMMANDER));
+    const wantedDeck = StudioUI.recall(`studio.builder.${COMMANDER}.deck`, "");
+    $("deck-select").replaceChildren(...state.decks.map((deck) => h("option", { value: deck.deck_id, selected: deck.deck_id === wantedDeck }, deck.name)));
+    fillBranches();
+    const wantedBranch = StudioUI.recall(`studio.builder.${COMMANDER}.branch`, "");
+    if ([...$("branch-select").options].some((option) => option.value === wantedBranch)) $("branch-select").value = wantedBranch;
+    $("deck-pick").hidden = !state.decks.length;
+    await loadDeck();
+  } catch (error) { fail(error); }
+}
+// ---------- marks and deck from the table (marks never change a rating) ----------
+async function toggleFavorite(card) {
+  const mark = state.marks.get(card.card_id) || { favorite: false, excluded: false, note: "" };
+  const next = { favorite: !mark.favorite, excluded: Boolean(mark.excluded), note: mark.note || "" };
+  try {
+    await api(`/api/cards/${encodeURIComponent(card.card_id)}/mark`, next, "PUT");
+    state.marks.set(card.card_id, next);
+    toast(next.favorite ? `${card.name} ist jetzt Favorit. Die Bewertung ändert sich dadurch nicht.` : `${card.name} ist kein Favorit mehr.`);
+    render();
+  } catch (error) { fail(error); }
+}
+async function changeDeck(card, delta) {
+  const deckId = $("deck-select").value, branch = $("branch-select").value;
+  if (!deckId || !branch) { toast("Für diesen Commander gibt es noch kein Deck. Öffne einmal den Deckbau, dort wird es angelegt."); return; }
+  try {
+    const result = await api(`/api/decks/${encodeURIComponent(deckId)}/branches/${encodeURIComponent(branch)}/draft/card`, { card_id: card.card_id, delta });
+    if (result.quantity) state.deckCards.set(card.card_id, result.quantity); else state.deckCards.delete(card.card_id);
+    toast(delta > 0 ? `${card.name} liegt im Deck (${result.deck_cards} von 100 Karten). Gesichert als Entwurf, im Deckbau speicherst du den Stand.` : `${card.name} ist aus dem Deck genommen (${result.deck_cards} von 100 Karten).`);
+    render();
+  } catch (error) { fail(error); }
+}
+function markButtons(card, after) {
+  const mark = state.marks.get(card.card_id) || {};
+  const count = state.deckCards.get(card.card_id) || 0;
+  const then = (work) => async () => { await work(); if (after) after(); };
+  return [
+    h("button", { type: "button", class: "small fav" + (mark.favorite ? " on" : ""), title: mark.favorite ? "Favorit entfernen" : "Als Favorit markieren (ändert keine Bewertung)", "aria-label": `${card.name} Favorit`, "aria-pressed": mark.favorite ? "true" : "false", onclick: then(() => toggleFavorite(card)) }, mark.favorite ? "★" : "☆"),
+    count
+      ? h("button", { type: "button", class: "small indeck", title: "Im Ziel-Deck. Klick nimmt die Karte wieder heraus.", "aria-label": `${card.name} aus dem Deck`, onclick: then(() => changeDeck(card, -1)) }, count > 1 ? `✓ ${count}× im Deck` : "✓ im Deck")
+      : h("button", { type: "button", class: "small", title: state.decks.length ? "In das Ziel-Deck legen (oben wählbar)" : "Noch kein Deck für diesen Commander", "aria-label": `${card.name} ins Deck`, disabled: !(card.available > 0) || !state.decks.length, onclick: then(() => changeDeck(card, 1)) }, "+ Deck"),
+  ];
 }
 function fillBranches() {
   const deck = state.decks.find((entry) => entry.deck_id === $("deck-select").value);
@@ -1049,12 +1101,6 @@ function fillBranches() {
 }
 async function setView(view) {
   state.view = view;
-  $("deck-pick").hidden = view !== "deck";
-  if (view === "deck" && !state.decks.length) {
-    state.decks = (await api("/api/decks")).filter((deck) => (deck.commanders || []).includes(COMMANDER));
-    $("deck-select").replaceChildren(...state.decks.map((deck) => h("option", { value: deck.deck_id }, deck.name)));
-    fillBranches();
-  }
   await loadEvidence();
   if (view === "deck") await loadDeck();
 }
@@ -1081,9 +1127,10 @@ async function init() {
   StudioUI.dataState($("data-state"), COMMANDER);
   try {
     const pool = await api(`/api/pool?commander=${encodeURIComponent(COMMANDER)}`);
-    for (const card of pool.cards) state.marks.set(card.card_id, { favorite: card.favorite, excluded: card.excluded });
+    for (const card of pool.cards) { state.marks.set(card.card_id, { favorite: card.favorite, excluded: card.excluded, note: card.note || "" }); state.pool.set(card.card_id, card); }
   } catch (error) { fail(error); }
   await Promise.all([setView("commander"), initUniverse()]);
+  await initDecks();
   await initStrength();
 }
 init().catch((error) => fail(error));

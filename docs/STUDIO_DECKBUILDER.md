@@ -304,7 +304,7 @@ and leaves the coverage of every card alone. The commander and basic lands get n
 (same exemption as tier `N`). Names are matched by oracle id, else exact oracle (or engine) name,
 else the FRONT face only; a back half never matches.
 
-Every value has a status: `OK`, `UNKNOWN` (reason `NO_RECORD`, `NO_VALUE_PUBLISHED`,
+Every value has a status: `OK`, `UNKNOWN` (reason `NO_RECORD`, `NO_COUNT`, `NO_VALUE_PUBLISHED`,
 `SAMPLE_TOO_SMALL`, `INSUFFICIENT_SAMPLE`, `NO_TEXT`) or `NOT_APPLICABLE` (`NOT_A_PERMANENT`,
 `NOT_RANKED`). **Unknown is shown as "–" with its reason and is never 0.** Per card the tier
 endpoint returns `layers` (value, raw share, Wilson bound, `n`, percentile 0 to 100, status,
@@ -334,8 +334,8 @@ the count behind the bound is `round(share * n)`. Missing or thin is `UNKNOWN`. 
 these are correlations observed in other players' multiplayer games (Playgroup.gg, CC BY 4.0),
 not causal card strength, not a win rate of the Owner's games, and the source has no breakdown by
 pod size. The playability share is cast-over-drawn: its denominator is the funnel count
-`ever_drawn_n` (games in which the card was drawn), not `first_cast_n` (its numerator); only a
-record without `ever_drawn_n` falls back to `first_cast_n` and says so. In the repository atlas
+`ever_drawn_n` (games in which the card was drawn), not `first_cast_n` (its numerator); a
+record without `ever_drawn_n` has no value (`NO_COUNT`), no other count stands in. In the repository atlas
 (1,655 records) 73 playability percents differ from `first_cast_n / ever_drawn_n` by more than
 one percentage point, all of them legendary creatures (a cast from the command zone is not a
 draw). Tempo: the share is the record's own `on_curve_count / on_curve_denominator` (that is the
@@ -351,22 +351,23 @@ shrinkage `gap * n / (n + 25)`; there is no second implementation. It has no wei
 because the index already counts it (a second weight would count it twice); it is a column only.
 
 **"Großpod-Wirkung"** is derived from the oracle text by fixed rules
-(`layers.classify_pod_scaling`, table-driven test with 63 real card texts). Reminder text in
+(`layers.classify_pod_scaling`, table-driven test with 68 real card texts). Reminder text in
 parentheses is removed first; matching is on the lower-cased text. Classes, strongest first (the
 rank value is the ordinal 3, 2, 1, 0):
 
 1. `SCALES` "wirkt auf jeden Gegner": "each opponent", "each other player", "each player",
    "for each opponent", "number of opponents", "each of your opponents", the plural "your
-   opponents" unless it is part of "your opponents control" (a protective or static clause on
-   their permanents: `NEUTRAL`), the keyword "Overload" (the card then affects each target, so
-   it works on every opponent) and the attack taxes "can't attack you unless" and
+   opponents", an effect on or a count of the permanents "your opponents control" ("creatures
+   your opponents control ...", "number of/for each ... your opponents control"; a protective
+   clause on "spells or abilities your opponents control" is no match), the keywords "Overload",
+   "Extort", "Myriad" and "Melee" (also inside a keyword line such as "Flying, myriad") and the attack taxes "can't attack you unless" and
    "creatures can't attack you" (Ghostly Prison, Propaganda, Sphere of Safety).
 2. `OPPONENT_TRIGGER`: "whenever an opponent", "whenever a player", "whenever ... an opponent
    controls", "at the beginning of each opponent's/other player's/player's ...". These are
    matched first and removed, so the "each player" in "at the beginning of each player's" does not
    count as a scaling clause.
-3. `SINGLE_TARGET`: none of the above, and the card names "target opponent" or "target player",
-   or has one removal or counter on one target ("destroy/exile/counter/gain control of target
+3. `SINGLE_TARGET`: none of the above, and the card names "target opponent" (a "target
+   player" alone is often aimed at yourself and stays `NEUTRAL`), or has one removal or counter on one target ("destroy/exile/counter/gain control of target
    creature|permanent|spell|artifact|enchantment|planeswalker|battle", "return target ... to its
    owner's hand", "deals N damage to any target/target ...", "target ... gets -X/-X").
 4. `NEUTRAL`: nothing of the above.
@@ -379,9 +380,8 @@ pod size setting "Pod-Größe" (2 to 6, default and recommendation 4) only chang
 "wirkt auf N-1 Gegner" of a `SCALES` card; no class, rank or index depends on it. The page labels
 the layer "aus dem Regeltext abgeleitet, keine Messung". Limits: it is a rule on text, not a
 measurement; it cannot see what a card does through a keyword or a static ability it does not
-spell out (Fireball, whose damage is divided among any number of targets, is `NEUTRAL`; "Creatures
-your opponents control enter tapped" is `NEUTRAL` although it hits every opponent); "Overload"
-is matched as the keyword line, its reminder text is removed like any other; a card without oracle text in the store is `UNKNOWN`
+spell out (Fireball, whose damage is divided among any number of targets, is `NEUTRAL`); a keyword
+is matched on its keyword line, its reminder text is removed like any other; a card without oracle text in the store is `UNKNOWN`
 (`NO_TEXT`), a vanilla card with empty text is `NEUTRAL`. Favorites, exclusions and notes are not read, and
 no price data is involved.
 
@@ -459,6 +459,25 @@ it is in the pool. Names match by the full card name, then by the front face of 
 never by the back half. Limits: only listed combos are known; without a stored list the section
 says so and never claims "no combos"; the deck count is the source's count over all its decks,
 not a count for this commander; it is a comparison of card sets, not a rating.
+
+### Tier list and builder work together
+
+The tier list has a column "Favorit / Deck" and the same two buttons in its card window. The
+star sets or clears the favorite mark (`PUT /api/cards/{id}/mark`, the note and the exclusion of
+the card are kept); a mark never changes a rating. "+ Deck" puts one copy into the target deck
+("Ziel-Deck" and "Variante" in the page header, preset to the deck the builder had open),
+"✓ im Deck" takes it out again. Both call
+`POST /api/decks/{deck}/branches/{branch}/draft/card` with `{card_id, delta: 1 | -1}`
+(`builder.change_draft_card`): the change starts from the working list (draft), else from the
+saved state, and is written as a draft, never as a saved state. The builder's limits hold on the
+server: one copy, any number only for basic lands and "any number of cards named" cards, never
+more than the free copies; the commander is refused. A refusal is HTTP 409 with a German sentence,
+an unknown deck, variant or card is 404. The builder shows the draft when it is opened next.
+
+The builder shows the current tier of every card (pool tiles, deck list, card window) while
+"Stufe zeigen" is ticked (default on, remembered in the browser as `studio.builder.show-tier`).
+It is the tier of the strength index with the settings the tier list remembers; "–" means too
+little data or not rated (commander, basic lands), never a low tier.
 
 ### Data report
 

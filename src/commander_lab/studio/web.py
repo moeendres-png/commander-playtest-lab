@@ -12,7 +12,7 @@ import re
 from collections.abc import Awaitable, Callable
 from dataclasses import asdict
 from pathlib import Path
-from typing import cast
+from typing import Literal, cast
 
 from fastapi import FastAPI, HTTPException, Query, Request, Response
 from fastapi import Path as PathParam
@@ -74,6 +74,11 @@ class ListBody(BaseModel):
 class DraftBody(BaseModel):
     cards: list[CardEntry]
     base_revision_id: str | None = None
+
+
+class DraftCardBody(BaseModel):
+    card_id: str = Field(min_length=1, max_length=200)
+    delta: Literal[1, -1] = 1
 
 
 class RevisionBody(BaseModel):
@@ -902,6 +907,20 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
                 raise HTTPException(404, "unknown deck")
             builder.write_draft(store, deck_id, branch, _cards(body.cards), body.base_revision_id)
             return {"saved": True}
+        finally:
+            store.close()
+
+    @app.post("/api/decks/{deck_id}/branches/{branch}/draft/card")
+    def change_draft_card(deck_id: str, branch: str, body: DraftCardBody) -> dict[str, object]:
+        """One copy of a card into the working list of a variant, or out of it (the tier
+        list's "ins Deck"). Writes a draft, never a saved state."""
+        store = open_store()
+        try:
+            return builder.change_draft_card(store, deck_id, branch, body.card_id, body.delta)
+        except KeyError as error:
+            raise HTTPException(404, "unknown deck, variant or card") from error
+        except builder.DraftChangeRefused as error:
+            raise HTTPException(409, str(error)) from error
         finally:
             store.close()
 

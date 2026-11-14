@@ -20,8 +20,8 @@ card was cast at all).
 ``playability`` "Ausspielquote": the Playgroup ``drawn_to_played_pct``, the share of the games
 in which the card was drawn and then cast. The true denominator of that share is the funnel
 count ``ever_drawn_n`` (games in which the card was drawn), not ``first_cast_n`` (the games in
-which it was cast, which is the numerator). ``first_cast_n`` is used only when a record has no
-``ever_drawn_n``.
+which it was cast, which is the numerator). A record without ``ever_drawn_n`` has no value
+(``NO_COUNT``): no other count stands in for the denominator.
 
 ``staying`` "Standfestigkeit": the Playgroup ``battlefield_survival_pct``, the share of the
 cards that reached the battlefield and were still there at the end of the game. Denominator:
@@ -162,6 +162,9 @@ _TRIGGER_PATTERNS: tuple[tuple[str, re.Pattern[str], bool], ...] = (
     ),
 )
 
+# The start of a keyword line up to one keyword of it: "myriad", "flying, myriad".
+_KEYWORD_LINE = r"^(?:[a-z' ]+,[ ]*)*"
+
 # Effects that apply per opponent or per player. ``each player`` also hits you (SYMMETRIC).
 _SCALE_PATTERNS: tuple[tuple[str, re.Pattern[str], bool], ...] = (
     ("each of your opponents", re.compile(r"\beach of your opponents\b"), False),
@@ -170,27 +173,41 @@ _SCALE_PATTERNS: tuple[tuple[str, re.Pattern[str], bool], ...] = (
     ("each opponent", re.compile(r"\beach opponent\b"), False),
     ("each other player", re.compile(r"\beach other player\b"), False),
     ("each player", re.compile(r"\beach player\b"), True),
-    # "your opponents control" is a protective or static clause on their permanents: not a match
-    ("your opponents", re.compile(r"\byour opponents\b(?! control)"), False),
     # counting what the opponents control grows with their number
     (
         "number of … your opponents control",
         re.compile(r"\bnumber of [^.\n]*?\byour opponents control\b"),
         False,
     ),
+    (
+        "for each … your opponents control",
+        re.compile(r"\bfor each [^.\n]*?\byour opponents control\b"),
+        False,
+    ),
+    # an effect on the permanents of all opponents ("Creatures your opponents control get
+    # -1/-1"). A protective clause ("spells or abilities your opponents control") is no match.
+    (
+        "… your opponents control",
+        re.compile(
+            r"\b(?:creatures|permanents|artifacts|enchantments|lands|planeswalkers|tokens)"
+            r" your opponents control\b"
+        ),
+        False,
+    ),
+    ("your opponents", re.compile(r"\byour opponents\b(?! control)"), False),
     # keywords whose per-opponent meaning sits in the (stripped) reminder text
-    ("Extort", re.compile(r"^extort\b", re.M), False),
-    ("Myriad", re.compile(r"^myriad\b", re.M), False),
-    ("Melee", re.compile(r"^melee\b", re.M), False),
-    ("Overload", re.compile(r"^overload\b", re.M), False),
+    # (also inside a comma separated keyword line: "Flying, myriad")
+    ("Extort", re.compile(rf"{_KEYWORD_LINE}extort\b", re.M), False),
+    ("Myriad", re.compile(rf"{_KEYWORD_LINE}myriad\b", re.M), False),
+    ("Melee", re.compile(rf"{_KEYWORD_LINE}melee\b", re.M), False),
+    ("Overload", re.compile(rf"{_KEYWORD_LINE}overload\b", re.M), False),
     ("can't attack you unless", re.compile(r"\bcan't attack you unless\b"), False),
     ("creatures can't attack you", re.compile(r"\bcreatures can't attack you\b"), False),
 )
 
-_SINGLE_PLAYER = (
-    ("target opponent", re.compile(r"\btarget opponent\b")),
-    ("target player", re.compile(r"\btarget player\b")),
-)
+# "target player" alone is no interaction with one opponent: it is often aimed at yourself
+# ("Target player draws two cards"), so it stays neutral.
+_SINGLE_PLAYER = (("target opponent", re.compile(r"\btarget opponent\b")),)
 _OBJECT = (
     r"(?:(?:non\w+|legendary|tapped|untapped|attacking|blocking|artifact|enchantment|"
     r"planeswalker|land|creature|permanent|spell|battle)\s+)*"
@@ -226,12 +243,13 @@ def classify_pod_scaling(text: str) -> PodScaling:
     removed. The strongest class that applies wins, in this order:
 
     1. ``SCALES``: "each opponent", "each other player", "each player", "for each opponent",
-       "number of opponents", "each of your opponents", and the plural forms "opponents
-       control" and "your opponents" (an effect on all opponents' permanents or spells).
+       "number of opponents", "each of your opponents", "your opponents" and an effect on
+       the permanents "your opponents control" (a protective clause on "spells or abilities
+       your opponents control" does not count), and the keywords extort, myriad, melee and
+       overload.
     2. ``OPPONENT_TRIGGER``: "whenever an opponent", "whenever a player", "whenever ... an
        opponent controls", "at the beginning of each opponent's/player's/other player's ...".
-    3. ``SINGLE_TARGET``: no clause of 1 or 2, and the card names "target opponent" or
-       "target player", or has one removal or counter effect on one target (destroy, exile,
+    3. ``SINGLE_TARGET``: no clause of 1 or 2, and the card names "target opponent", or has one removal or counter effect on one target (destroy, exile,
        counter, return, gain control, damage, -X/-X on "target creature/permanent/spell/...").
     4. ``NEUTRAL``: nothing of the above.
 
