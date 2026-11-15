@@ -124,6 +124,7 @@ def test_owner_decision_documents_are_never_archived() -> None:
 
 def test_archive_topics_have_readme() -> None:
     module = _load_classifier()
+    assert module.TOPICS
     for topic in module.TOPICS:
         readme = ROOT / "docs/archive" / topic / "README.md"
         assert readme.is_file(), topic
