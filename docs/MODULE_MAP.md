@@ -93,8 +93,8 @@ Current / governing (start here):
   continuation index only (git, tests and sealed evidence remain source truth).
 - `docs/performance/` - dated speed and determinism measurements; each file's header names the pin and commit.
 - `docs/architecture/` and `docs/architecture.md` - design direction; `docs/engine_*.md`,
-  `docs/rules-engine-bridge-protocol.md`, `docs/validation_levels.md`, `docs/installation.md`,
-  `docs/known_limitations.md` - reference/how-to (guess: current, check dates).
+  `docs/engine_adapter_protocol.md`, `docs/installation.md` -
+  reference/how-to (guess: current, check dates; superseded pages are in `docs/archive/`).
 - `docs/architecture_freeze_20261010/`, `docs/owner_decision_20261013_forge_removal/`,
   `docs/engine_strategy_20261009/` - latest owner/architecture decisions (newest dated dirs).
 
@@ -111,9 +111,9 @@ code or a sealed manifest and stays in place:
 | AF-lane and erratum records | `docs/af0*`, `docs/af456_*`, `docs/*_erratum_*`, `docs/forge_*`, `docs/xmage_*` |
 | CI/PR-specific records | `docs/ci479_*`, `docs/pr*`, `docs/b8_takeover_*`, `docs/oc572_*` |
 | Integrity/hygiene sweeps | `docs/project_integrity_*`, `docs/project_hygiene_*`, `docs/project_integration_hygiene_*`, `docs/test_signal_integrity_*` |
-| Superseded authority | `docs/COORDINATOR_EXECUTION_AUTHORITY_2026-09-27.md`, the 2026-09-10 coordinator authority file (superseded by `CURRENT_EXECUTION_AUTHORITY.md`; `docs/README.md` now points at `CURRENT_EXECUTION_AUTHORITY.md`) |
+| Superseded authority | `docs/archive/opencode-foundry/` (the 2026-09-27 and 2026-09-10 coordinator authority files; superseded by `CURRENT_EXECUTION_AUTHORITY.md`) |
 | PROJECT_UPDATE_* | `docs/PROJECT_UPDATE_*.md` (Aug 2026 scope snapshots) |
 
 Dated directories are the freshest *work*, not necessarily the current *policy*; the 2026-09 to
-2026-10 ones (for example `af07_actual_card_campaign_20261001`, `provider_readiness_packet_20261007`)
+2026-10 ones (for example `af09_replay_twins_20261001`, `provider_readiness_packet_20261007`)
 are recent evidence packets that policy documents cite.
