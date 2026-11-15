@@ -77,7 +77,25 @@ class StrengthCard(TypedDict):
     note: str
     present: int
     components: list[strength.ComponentResult]
+    confidence: float | None
+    confidence_level: str | None
+    borderline: bool
+    borderline_cut: str | None
+    cut_distance: float | None
+    is_land: bool
     layers: dict[str, layers.LayerValue]
+
+
+class UnknownBreakdown(TypedDict):
+    """Tier U split (#1365): cards whose only evidence is counted zeros (0 of N decks, setting
+    ``zero_count_tier`` = U) against cards with missing or too little data. ``denominator`` is the
+    counted corpus the zeros refer to."""
+
+    total: int
+    zero_count: int
+    missing_data: int
+    by_reason: dict[str, int]
+    denominator: int
 
 
 class LayerSummaryBlock(TypedDict):
@@ -107,6 +125,9 @@ class StrengthResult(TypedDict):
     notices: list[str]
     collected: list[str]
     tier_counts: dict[str, int]
+    tier_counts_by_kind: dict[str, dict[str, int]]
+    unknown_breakdown: UnknownBreakdown
+    borderline_count: int
     ambiguous_names: list[AmbiguousName]
     layer_summary: LayerSummaryBlock
     # #1364: the rule of the EDHREC weights (E2.a), the weights actually used, the counted corpus
@@ -1030,10 +1051,29 @@ def compute(
                 "card_id": card_id,
                 "name": prepared.display[card_id],
                 **result,
+                "is_land": prepared.context.type_group.get(card_id) == "Land",
                 "layers": layer_result["cards"][card_id],
             }
         )
     tiers = Counter(card["tier"] for card in cards)
+    tier_order = (*strength.TIERS, "U", "N")
+    by_kind = {
+        kind: {tier: sum(1 for c in group if c["tier"] == tier) for tier in tier_order}
+        for kind, group in (
+            ("spells", [c for c in cards if not c["is_land"]]),
+            ("lands", [c for c in cards if c["is_land"]]),
+        )
+    }
+    unknown = [card for card in cards if card["tier"] == "U"]
+    unknown_reasons = Counter(card["reason"] for card in unknown)
+    zero_only = unknown_reasons.get(strength.ZERO_COUNT_ONLY, 0)
+    breakdown: UnknownBreakdown = {
+        "total": len(unknown),
+        "zero_count": zero_only,
+        "missing_data": len(unknown) - zero_only,
+        "by_reason": dict(sorted(unknown_reasons.items())),
+        "denominator": prepared.corpus["decks"],
+    }
     shrinkage = diagnostics["shrinkage"]
     return {
         "schema": strength.SCHEMA,
@@ -1051,7 +1091,10 @@ def compute(
         "collected": sorted(
             name for name in prepared.collected if not name.startswith(strength.LAYER_PREFIX)
         ),
-        "tier_counts": {tier: tiers.get(tier, 0) for tier in (*strength.TIERS, "U", "N")},
+        "tier_counts": {tier: tiers.get(tier, 0) for tier in tier_order},
+        "tier_counts_by_kind": by_kind,
+        "unknown_breakdown": breakdown,
+        "borderline_count": sum(1 for card in cards if card["borderline"]),
         "ambiguous_names": [
             {"signal": signal, "name": name, "candidates": candidates}
             for (signal, name), candidates in sorted(prepared.ambiguous.items())
@@ -1554,6 +1597,14 @@ def _panel_texts() -> dict[str, object]:
         "Anteil des Gewichts der Signale, die zu dieser Karte einen Wert haben. Darunter steht "
         "„zu wenig Daten“. Das ist keine Schwelle für den Anteil in Decks."
     )
+    labels["borderline_distance"] = (
+        f"Grenzwertig-Abstand in Punkten (empfohlen: {_number_text(rec.borderline_distance)})"
+    )
+    helps["borderline_distance"] = (
+        "Liegt der Index einer Karte näher als dieser Abstand an einer Tier-Grenze, trägt sie die "
+        "Markierung „grenzwertig“: eine kleine Änderung der Gewichte kann ihre Stufe ändern. 0 "
+        "schaltet die Markierung aus."
+    )
     labels["min_components"] = f"Mindestzahl Signale (empfohlen: {rec.min_components})"
     helps["min_components"] = "Wie viele gewichtete Signale mindestens vorhanden sein müssen."
     for tier in ("S", "A", "B", "C"):
@@ -1602,7 +1653,10 @@ def _panel_texts() -> dict[str, object]:
                 + " / ".join(_number_text(cuts[tier]) for tier in ("S", "A", "B", "C"))
                 + ")"
             ),
-            "keys": [f"tier_cuts.{tier}" for tier in ("S", "A", "B", "C")],
+            "keys": [
+                *(f"tier_cuts.{tier}" for tier in ("S", "A", "B", "C")),
+                "borderline_distance",
+            ],
         },
     ]
     return {
