@@ -1,0 +1,310 @@
+{
+ "urlhash": "tEHTHCaLVyWUcSd37fXoog",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-12-27",
+ "price": 53,
+ "salt": 43.313822369556874,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/5PERLNt7mke6Zp7dhJ1Fvg?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Ainok Survivalist",
+   "quantity": 1
+  },
+  {
+   "name": "Alora, Merry Thief",
+   "quantity": 1
+  },
+  {
+   "name": "Beanstalk Giant",
+   "quantity": 1
+  },
+  {
+   "name": "Canyon Jerboa",
+   "quantity": 1
+  },
+  {
+   "name": "Clement, the Worrywort",
+   "quantity": 1
+  },
+  {
+   "name": "Crowd-Control Warden",
+   "quantity": 1
+  },
+  {
+   "name": "Den Protector",
+   "quantity": 1
+  },
+  {
+   "name": "Esperzoa",
+   "quantity": 1
+  },
+  {
+   "name": "Essence of Antiquity",
+   "quantity": 1
+  },
+  {
+   "name": "Exit Specialist",
+   "quantity": 1
+  },
+  {
+   "name": "Experiment Twelve",
+   "quantity": 1
+  },
+  {
+   "name": "Fear of Impostors",
+   "quantity": 1
+  },
+  {
+   "name": "First Responder",
+   "quantity": 1
+  },
+  {
+   "name": "Flourishing Bloom-Kin",
+   "quantity": 1
+  },
+  {
+   "name": "Granite Witness",
+   "quantity": 1
+  },
+  {
+   "name": "Greenbelt Radical",
+   "quantity": 1
+  },
+  {
+   "name": "Hauntwoods Shrieker",
+   "quantity": 1
+  },
+  {
+   "name": "Hidden Dragonslayer",
+   "quantity": 1
+  },
+  {
+   "name": "Hypnotic Sprite",
+   "quantity": 1
+  },
+  {
+   "name": "Icefeather Aven",
+   "quantity": 1
+  },
+  {
+   "name": "Ixidron",
+   "quantity": 1
+  },
+  {
+   "name": "Kefnet the Mindful",
+   "quantity": 1
+  },
+  {
+   "name": "Lilysplash Mentor",
+   "quantity": 1
+  },
+  {
+   "name": "Maja, Bretagard Protector",
+   "quantity": 1
+  },
+  {
+   "name": "Nantuko Vigilante",
+   "quantity": 1
+  },
+  {
+   "name": "Nervous Gardener",
+   "quantity": 1
+  },
+  {
+   "name": "Neverwinter Dryad",
+   "quantity": 1
+  },
+  {
+   "name": "Printlifter Ooze",
+   "quantity": 1
+  },
+  {
+   "name": "Salt Road Ambushers",
+   "quantity": 1
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Territorial Scythecat",
+   "quantity": 1
+  },
+  {
+   "name": "Thousand Winds",
+   "quantity": 1
+  },
+  {
+   "name": "Trailtracker Scout",
+   "quantity": 1
+  },
+  {
+   "name": "Tunnel Tipster",
+   "quantity": 1
+  },
+  {
+   "name": "Unyielding Gatekeeper",
+   "quantity": 1
+  },
+  {
+   "name": "Vengeful Creeper",
+   "quantity": 1
+  },
+  {
+   "name": "Voidmage Apprentice",
+   "quantity": 1
+  },
+  {
+   "name": "Volo, Guide to Monsters",
+   "quantity": 1
+  },
+  {
+   "name": "Yedora, Grave Gardener",
+   "quantity": 1
+  },
+  {
+   "name": "Aetherize",
+   "quantity": 1
+  },
+  {
+   "name": "Commit // Memory",
+   "quantity": 1
+  },
+  {
+   "name": "Disdainful Stroke",
+   "quantity": 1
+  },
+  {
+   "name": "Familiar's Ruse",
+   "quantity": 1
+  },
+  {
+   "name": "Out of Air",
+   "quantity": 1
+  },
+  {
+   "name": "Rakshasa's Disdain",
+   "quantity": 1
+  },
+  {
+   "name": "Citywide Bust",
+   "quantity": 1
+  },
+  {
+   "name": "Consuming Tide",
+   "quantity": 1
+  },
+  {
+   "name": "Nissa's Expedition",
+   "quantity": 1
+  },
+  {
+   "name": "Nissa's Triumph",
+   "quantity": 1
+  },
+  {
+   "name": "Path to the Festival",
+   "quantity": 1
+  },
+  {
+   "name": "Step Through",
+   "quantity": 1
+  },
+  {
+   "name": "Time Wipe",
+   "quantity": 1
+  },
+  {
+   "name": "Conduit of Worlds",
+   "quantity": 1
+  },
+  {
+   "name": "Heirloom Epic",
+   "quantity": 1
+  },
+  {
+   "name": "Panoptic Projektor",
+   "quantity": 1
+  },
+  {
+   "name": "Abundance",
+   "quantity": 1
+  },
+  {
+   "name": "Meticulous Excavation",
+   "quantity": 1
+  },
+  {
+   "name": "Obscuring Aether",
+   "quantity": 1
+  },
+  {
+   "name": "Primeval Bounty",
+   "quantity": 1
+  },
+  {
+   "name": "Restricted Office // Lecture Hall",
+   "quantity": 1
+  },
+  {
+   "name": "Secret Plans",
+   "quantity": 1
+  },
+  {
+   "name": "Trail of Mystery",
+   "quantity": 1
+  },
+  {
+   "name": "True Identity",
+   "quantity": 1
+  },
+  {
+   "name": "Branch of Vitu-Ghazi",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 10
+  },
+  {
+   "name": "Island",
+   "quantity": 10
+  },
+  {
+   "name": "Plains",
+   "quantity": 10
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1
+  },
+  {
+   "name": "Radiant Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Scattered Groves",
+   "quantity": 1
+  },
+  {
+   "name": "Tangled Islet",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

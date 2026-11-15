@@ -1,0 +1,358 @@
+{
+ "urlhash": "tYv9PXVNGy_9uL4U2OgITg",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-08-17",
+ "price": 718,
+ "salt": 52.297813260927796,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/3036504?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Aesi, Tyrant of Gyre Strait",
+   "quantity": 1
+  },
+  {
+   "name": "Augur of Autumn",
+   "quantity": 1
+  },
+  {
+   "name": "Beanstalk Giant",
+   "quantity": 1
+  },
+  {
+   "name": "Beast Whisperer",
+   "quantity": 1
+  },
+  {
+   "name": "Biomancer's Familiar",
+   "quantity": 1
+  },
+  {
+   "name": "Circle of Elders",
+   "quantity": 1
+  },
+  {
+   "name": "Craterhoof Behemoth",
+   "quantity": 1
+  },
+  {
+   "name": "District Guide",
+   "quantity": 1
+  },
+  {
+   "name": "Dream Trawler",
+   "quantity": 1
+  },
+  {
+   "name": "Elesh Norn, Grand Cenobite",
+   "quantity": 1
+  },
+  {
+   "name": "Emeria Shepherd",
+   "quantity": 1
+  },
+  {
+   "name": "End-Raze Forerunners",
+   "quantity": 1
+  },
+  {
+   "name": "Faeburrow Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Frilled Mystic",
+   "quantity": 1
+  },
+  {
+   "name": "Gyre Engineer",
+   "quantity": 1
+  },
+  {
+   "name": "Incubation Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Karametra, God of Harvests",
+   "quantity": 1
+  },
+  {
+   "name": "Laboratory Maniac",
+   "quantity": 1
+  },
+  {
+   "name": "Leafkin Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Scout",
+   "quantity": 1
+  },
+  {
+   "name": "Loaming Shaman",
+   "quantity": 1
+  },
+  {
+   "name": "Maraleaf Pixie",
+   "quantity": 1
+  },
+  {
+   "name": "Mystic Snake",
+   "quantity": 1
+  },
+  {
+   "name": "Paradise Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Rampaging Baloths",
+   "quantity": 1
+  },
+  {
+   "name": "Rosethorn Acolyte",
+   "quantity": 1
+  },
+  {
+   "name": "Silhana Wayfinder",
+   "quantity": 1
+  },
+  {
+   "name": "Silverback Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Sphinx of Magosi",
+   "quantity": 1
+  },
+  {
+   "name": "Steelbane Hydra",
+   "quantity": 1
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1
+  },
+  {
+   "name": "The Council of Four",
+   "quantity": 1
+  },
+  {
+   "name": "Growth Spiral",
+   "quantity": 1
+  },
+  {
+   "name": "Heroic Intervention",
+   "quantity": 1
+  },
+  {
+   "name": "Root Snare",
+   "quantity": 1
+  },
+  {
+   "name": "Run Away Together",
+   "quantity": 1
+  },
+  {
+   "name": "Verdant Rebirth",
+   "quantity": 1
+  },
+  {
+   "name": "Broken Bond",
+   "quantity": 1
+  },
+  {
+   "name": "Circuitous Route",
+   "quantity": 1
+  },
+  {
+   "name": "Grow from the Ashes",
+   "quantity": 1
+  },
+  {
+   "name": "Incubation // Incongruity",
+   "quantity": 1
+  },
+  {
+   "name": "Kodama's Reach",
+   "quantity": 1
+  },
+  {
+   "name": "Praetor's Counsel",
+   "quantity": 1
+  },
+  {
+   "name": "Time Wipe",
+   "quantity": 1
+  },
+  {
+   "name": "Aetherflux Reservoir",
+   "quantity": 1
+  },
+  {
+   "name": "Akroma's Memorial",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Chromatic Lantern",
+   "quantity": 1
+  },
+  {
+   "name": "Firemind Vessel",
+   "quantity": 1
+  },
+  {
+   "name": "Folio of Fancies",
+   "quantity": 1
+  },
+  {
+   "name": "Panharmonicon",
+   "quantity": 1
+  },
+  {
+   "name": "Shadowspear",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Swiftfoot Boots",
+   "quantity": 1
+  },
+  {
+   "name": "The Great Henge",
+   "quantity": 1
+  },
+  {
+   "name": "Earthcraft",
+   "quantity": 1
+  },
+  {
+   "name": "Leyline of Anticipation",
+   "quantity": 1
+  },
+  {
+   "name": "Ominous Seas",
+   "quantity": 1
+  },
+  {
+   "name": "Rancor",
+   "quantity": 1
+  },
+  {
+   "name": "Smothering Tithe",
+   "quantity": 1
+  },
+  {
+   "name": "Vivien, Champion of the Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Alchemist's Refuge",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Guildgate",
+   "quantity": 1
+  },
+  {
+   "name": "Blossoming Sands",
+   "quantity": 1
+  },
+  {
+   "name": "Castle Garenbrig",
+   "quantity": 1
+  },
+  {
+   "name": "Castle Vantress",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Elfhame Palace",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 8
+  },
+  {
+   "name": "Gateway Plaza",
+   "quantity": 1
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 5
+  },
+  {
+   "name": "Meandering River",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 5
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Guildgate",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Guildgate",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Mystery",
+   "quantity": 1
+  },
+  {
+   "name": "Thornwood Falls",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Cove",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Expanse",
+   "quantity": 1
+  },
+  {
+   "name": "Transguild Promenade",
+   "quantity": 1
+  },
+  {
+   "name": "Woodland Stream",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

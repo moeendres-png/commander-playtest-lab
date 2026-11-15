@@ -1,0 +1,390 @@
+{
+ "urlhash": "tpZUID82keziEND2OuCRZA",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-09-02",
+ "price": 224,
+ "salt": 35.27673689229414,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/GO_Y0ij1tUq5y3yN9UpuNg?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Academy Manufactor",
+   "quantity": 1
+  },
+  {
+   "name": "Adrix and Nev, Twincasters",
+   "quantity": 1
+  },
+  {
+   "name": "Alandra, Sky Dreamer",
+   "quantity": 1
+  },
+  {
+   "name": "Apothecary White",
+   "quantity": 1
+  },
+  {
+   "name": "Bennie Bracks, Zoologist",
+   "quantity": 1
+  },
+  {
+   "name": "Detective of the Month",
+   "quantity": 1
+  },
+  {
+   "name": "Emissary Green",
+   "quantity": 1
+  },
+  {
+   "name": "Esix, Fractal Bloom",
+   "quantity": 1
+  },
+  {
+   "name": "Ethereal Investigator",
+   "quantity": 1
+  },
+  {
+   "name": "Ezrim, Agency Chief",
+   "quantity": 1
+  },
+  {
+   "name": "Kellan, Inquisitive Prodigy",
+   "quantity": 1
+  },
+  {
+   "name": "Koma, Cosmos Serpent",
+   "quantity": 1
+  },
+  {
+   "name": "Lavinia of the Tenth",
+   "quantity": 1
+  },
+  {
+   "name": "Lavinia, Foil to Conspiracy",
+   "quantity": 1
+  },
+  {
+   "name": "Living Conundrum",
+   "quantity": 1
+  },
+  {
+   "name": "Lonis, Cryptozoologist",
+   "quantity": 1
+  },
+  {
+   "name": "Lonis, Genetics Expert",
+   "quantity": 1
+  },
+  {
+   "name": "Merchant of Truth",
+   "quantity": 1
+  },
+  {
+   "name": "Morska, Undersea Sleuth",
+   "quantity": 1
+  },
+  {
+   "name": "Novice Inspector",
+   "quantity": 1
+  },
+  {
+   "name": "Private Eye",
+   "quantity": 1
+  },
+  {
+   "name": "Psychosis Crawler",
+   "quantity": 1
+  },
+  {
+   "name": "Saryth, the Viper's Fang",
+   "quantity": 1
+  },
+  {
+   "name": "Senator Peacock",
+   "quantity": 1
+  },
+  {
+   "name": "Sharp-Eyed Rookie",
+   "quantity": 1
+  },
+  {
+   "name": "Sophia, Dogged Detective",
+   "quantity": 1
+  },
+  {
+   "name": "Tangletrove Kelp",
+   "quantity": 1
+  },
+  {
+   "name": "The Pride of Hull Clade",
+   "quantity": 1
+  },
+  {
+   "name": "Tireless Tracker",
+   "quantity": 1
+  },
+  {
+   "name": "Trostani Discordant",
+   "quantity": 1
+  },
+  {
+   "name": "Trostani, Three Whispers",
+   "quantity": 1
+  },
+  {
+   "name": "Wojek Investigator",
+   "quantity": 1
+  },
+  {
+   "name": "Auspicious Arrival",
+   "quantity": 1
+  },
+  {
+   "name": "Deduce",
+   "quantity": 1
+  },
+  {
+   "name": "Disorder in the Court",
+   "quantity": 1
+  },
+  {
+   "name": "On the Job",
+   "quantity": 1
+  },
+  {
+   "name": "Nature's Lore",
+   "quantity": 1
+  },
+  {
+   "name": "No Witnesses",
+   "quantity": 1
+  },
+  {
+   "name": "They Went This Way",
+   "quantity": 1
+  },
+  {
+   "name": "Three Visits",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Candlestick",
+   "quantity": 1
+  },
+  {
+   "name": "Krovod Haunch",
+   "quantity": 1
+  },
+  {
+   "name": "Ransom Note",
+   "quantity": 1
+  },
+  {
+   "name": "Rope",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Talisman of Curiosity",
+   "quantity": 1
+  },
+  {
+   "name": "Talisman of Progress",
+   "quantity": 1
+  },
+  {
+   "name": "Talisman of Unity",
+   "quantity": 1
+  },
+  {
+   "name": "Thinking Cap",
+   "quantity": 1
+  },
+  {
+   "name": "Thought Vessel",
+   "quantity": 1
+  },
+  {
+   "name": "Wrench",
+   "quantity": 1
+  },
+  {
+   "name": "Armed with Proof",
+   "quantity": 1
+  },
+  {
+   "name": "Case of the Filched Falcon",
+   "quantity": 1
+  },
+  {
+   "name": "Case of the Pilfered Proof",
+   "quantity": 1
+  },
+  {
+   "name": "Chalk Outline",
+   "quantity": 1
+  },
+  {
+   "name": "Curious Inquiry",
+   "quantity": 1
+  },
+  {
+   "name": "Knowledge Is Power",
+   "quantity": 1
+  },
+  {
+   "name": "Ongoing Investigation",
+   "quantity": 1
+  },
+  {
+   "name": "Proft's Eidetic Memory",
+   "quantity": 1
+  },
+  {
+   "name": "Search the Premises",
+   "quantity": 1
+  },
+  {
+   "name": "Teferi's Ageless Insight",
+   "quantity": 1
+  },
+  {
+   "name": "Ulvenwald Mysteries",
+   "quantity": 1
+  },
+  {
+   "name": "Elspeth, Sun's Champion",
+   "quantity": 1
+  },
+  {
+   "name": "Ash Barrens",
+   "quantity": 1
+  },
+  {
+   "name": "Breeding Pool",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Conservatory",
+   "quantity": 1
+  },
+  {
+   "name": "Escape Tunnel",
+   "quantity": 1
+  },
+  {
+   "name": "Exotic Orchard",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 4
+  },
+  {
+   "name": "Fortified Village",
+   "quantity": 1
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1
+  },
+  {
+   "name": "Hedge Maze",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 3
+  },
+  {
+   "name": "Kitchen",
+   "quantity": 1
+  },
+  {
+   "name": "Krosan Verge",
+   "quantity": 1
+  },
+  {
+   "name": "Lush Portico",
+   "quantity": 1
+  },
+  {
+   "name": "Meticulous Archive",
+   "quantity": 1
+  },
+  {
+   "name": "Mosswort Bridge",
+   "quantity": 1
+  },
+  {
+   "name": "Myriad Landscape",
+   "quantity": 1
+  },
+  {
+   "name": "Path of Ancestry",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 3
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1
+  },
+  {
+   "name": "Public Thoroughfare",
+   "quantity": 1
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Rogue's Passage",
+   "quantity": 1
+  },
+  {
+   "name": "Scene of the Crime",
+   "quantity": 1
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Study",
+   "quantity": 1
+  },
+  {
+   "name": "Temple Garden",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

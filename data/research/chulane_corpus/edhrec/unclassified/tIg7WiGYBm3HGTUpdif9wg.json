@@ -1,0 +1,346 @@
+{
+ "urlhash": "tIg7WiGYBm3HGTUpdif9wg",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-10-25",
+ "price": 448,
+ "salt": 53.946108852978796,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/C_5LpeVRoU6LOqGcFYawrg?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Admonition Angel",
+   "quantity": 1
+  },
+  {
+   "name": "Aerial Extortionist",
+   "quantity": 1
+  },
+  {
+   "name": "Alseid of Life's Bounty",
+   "quantity": 1
+  },
+  {
+   "name": "Amareth, the Lustrous",
+   "quantity": 1
+  },
+  {
+   "name": "Ambitious Farmhand",
+   "quantity": 1
+  },
+  {
+   "name": "Ancient Imperiosaur",
+   "quantity": 1
+  },
+  {
+   "name": "Angel of Serenity",
+   "quantity": 1
+  },
+  {
+   "name": "Avacyn's Pilgrim",
+   "quantity": 1
+  },
+  {
+   "name": "Aven Interrupter",
+   "quantity": 1
+  },
+  {
+   "name": "Barrin, Tolarian Archmage",
+   "quantity": 1
+  },
+  {
+   "name": "Beast Whisperer",
+   "quantity": 1
+  },
+  {
+   "name": "Birds of Paradise",
+   "quantity": 1
+  },
+  {
+   "name": "Brazen Borrower",
+   "quantity": 1
+  },
+  {
+   "name": "Coiling Oracle",
+   "quantity": 1
+  },
+  {
+   "name": "Craterhoof Behemoth",
+   "quantity": 1
+  },
+  {
+   "name": "Eight-and-a-Half-Tails",
+   "quantity": 1
+  },
+  {
+   "name": "Ephara, God of the Polis",
+   "quantity": 1
+  },
+  {
+   "name": "Ertai, Wizard Adept",
+   "quantity": 1
+  },
+  {
+   "name": "Esper Sentinel",
+   "quantity": 1
+  },
+  {
+   "name": "Faeburrow Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Farhaven Elf",
+   "quantity": 1
+  },
+  {
+   "name": "Frilled Mystic",
+   "quantity": 1
+  },
+  {
+   "name": "Giver of Runes",
+   "quantity": 1
+  },
+  {
+   "name": "Gretchen Titchwillow",
+   "quantity": 1
+  },
+  {
+   "name": "Hypnotic Siren",
+   "quantity": 1
+  },
+  {
+   "name": "Inga and Esika",
+   "quantity": 1
+  },
+  {
+   "name": "Karametra, God of Harvests",
+   "quantity": 1
+  },
+  {
+   "name": "Kodama of the East Tree",
+   "quantity": 1
+  },
+  {
+   "name": "Lotus Cobra",
+   "quantity": 1
+  },
+  {
+   "name": "Maraleaf Pixie",
+   "quantity": 1
+  },
+  {
+   "name": "Medomai the Ageless",
+   "quantity": 1
+  },
+  {
+   "name": "Moonshaker Cavalry",
+   "quantity": 1
+  },
+  {
+   "name": "Mother of Runes",
+   "quantity": 1
+  },
+  {
+   "name": "Mystic Snake",
+   "quantity": 1
+  },
+  {
+   "name": "Noble Hierarch",
+   "quantity": 1
+  },
+  {
+   "name": "Paradise Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Pippin, Guard of the Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Reclamation Sage",
+   "quantity": 1
+  },
+  {
+   "name": "Riptide Gearhulk",
+   "quantity": 1
+  },
+  {
+   "name": "Roil Elemental",
+   "quantity": 1
+  },
+  {
+   "name": "Saryth, the Viper's Fang",
+   "quantity": 1
+  },
+  {
+   "name": "Shalai, Voice of Plenty",
+   "quantity": 1
+  },
+  {
+   "name": "Silverback Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Smirking Spelljacker",
+   "quantity": 1
+  },
+  {
+   "name": "Sphinx of Magosi",
+   "quantity": 1
+  },
+  {
+   "name": "Sunscorch Regent",
+   "quantity": 1
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Tidespout Tyrant",
+   "quantity": 1
+  },
+  {
+   "name": "Topiary Stomper",
+   "quantity": 1
+  },
+  {
+   "name": "Vendilion Clique",
+   "quantity": 1
+  },
+  {
+   "name": "Venser, Shaper Savant",
+   "quantity": 1
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1
+  },
+  {
+   "name": "Cyclonic Rift",
+   "quantity": 1
+  },
+  {
+   "name": "Pongify",
+   "quantity": 1
+  },
+  {
+   "name": "Rapid Hybridization",
+   "quantity": 1
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1
+  },
+  {
+   "name": "River's Rebuke",
+   "quantity": 1
+  },
+  {
+   "name": "Lightning Greaves",
+   "quantity": 1
+  },
+  {
+   "name": "Robe of Stars",
+   "quantity": 1
+  },
+  {
+   "name": "Swiftfoot Boots",
+   "quantity": 1
+  },
+  {
+   "name": "Bountiful Promenade",
+   "quantity": 1
+  },
+  {
+   "name": "Breeding Pool",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Deserted Beach",
+   "quantity": 1
+  },
+  {
+   "name": "Dreamroot Cascade",
+   "quantity": 1
+  },
+  {
+   "name": "Fabled Passage",
+   "quantity": 1
+  },
+  {
+   "name": "Flooded Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 7
+  },
+  {
+   "name": "Glacial Fortress",
+   "quantity": 1
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1
+  },
+  {
+   "name": "Hinterland Harbor",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 7
+  },
+  {
+   "name": "Overgrown Farmland",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 7
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1
+  },
+  {
+   "name": "Rejuvenating Springs",
+   "quantity": 1
+  },
+  {
+   "name": "Sea of Clouds",
+   "quantity": 1
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Sunpetal Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Temple Garden",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

@@ -1,0 +1,286 @@
+{
+ "urlhash": "uBvQHv6q4Zy_1kJRQyVRVw",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-09-03",
+ "price": 302,
+ "salt": 66.43919321149588,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/23975966?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Arbor Elf",
+   "quantity": 1
+  },
+  {
+   "name": "Avacyn's Pilgrim",
+   "quantity": 1
+  },
+  {
+   "name": "Aven Mindcensor",
+   "quantity": 1
+  },
+  {
+   "name": "Birds of Paradise",
+   "quantity": 1
+  },
+  {
+   "name": "Coiling Oracle",
+   "quantity": 1
+  },
+  {
+   "name": "Craterhoof Behemoth",
+   "quantity": 1
+  },
+  {
+   "name": "Deadeye Navigator",
+   "quantity": 1
+  },
+  {
+   "name": "Dour Port-Mage",
+   "quantity": 1
+  },
+  {
+   "name": "Eldrazi Displacer",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Mystic",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Visionary",
+   "quantity": 1
+  },
+  {
+   "name": "Emiel the Blessed",
+   "quantity": 1
+  },
+  {
+   "name": "Eternal Witness",
+   "quantity": 1
+  },
+  {
+   "name": "Fyndhorn Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Incubation Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Jumbo Cactuar",
+   "quantity": 1
+  },
+  {
+   "name": "Kutzil, Malamet Exemplar",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Lotus Cobra",
+   "quantity": 1
+  },
+  {
+   "name": "Mulldrifter",
+   "quantity": 1
+  },
+  {
+   "name": "Mystic Snake",
+   "quantity": 1
+  },
+  {
+   "name": "Noble Hierarch",
+   "quantity": 1
+  },
+  {
+   "name": "Peregrine Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Reclamation Sage",
+   "quantity": 1
+  },
+  {
+   "name": "Sakura-Tribe Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Shrieking Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Sun Titan",
+   "quantity": 1
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Tireless Provisioner",
+   "quantity": 1
+  },
+  {
+   "name": "Whitemane Lion",
+   "quantity": 1
+  },
+  {
+   "name": "Wood Elves",
+   "quantity": 1
+  },
+  {
+   "name": "An Offer You Can't Refuse",
+   "quantity": 1
+  },
+  {
+   "name": "Beast Within",
+   "quantity": 1
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1
+  },
+  {
+   "name": "Displace",
+   "quantity": 1
+  },
+  {
+   "name": "Dovin's Veto",
+   "quantity": 1
+  },
+  {
+   "name": "Eladamri's Call",
+   "quantity": 1
+  },
+  {
+   "name": "Generous Gift",
+   "quantity": 1
+  },
+  {
+   "name": "Ghostly Flicker",
+   "quantity": 1
+  },
+  {
+   "name": "Heroic Intervention",
+   "quantity": 1
+  },
+  {
+   "name": "Negate",
+   "quantity": 1
+  },
+  {
+   "name": "Path to Exile",
+   "quantity": 1
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1
+  },
+  {
+   "name": "Cultivate",
+   "quantity": 1
+  },
+  {
+   "name": "Doppelgang",
+   "quantity": 1
+  },
+  {
+   "name": "Farewell",
+   "quantity": 1
+  },
+  {
+   "name": "Farseek",
+   "quantity": 1
+  },
+  {
+   "name": "Finale of Devastation",
+   "quantity": 1
+  },
+  {
+   "name": "Kodama's Reach",
+   "quantity": 1
+  },
+  {
+   "name": "Three Visits",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Emerald Medallion",
+   "quantity": 1
+  },
+  {
+   "name": "Gilded Lotus",
+   "quantity": 1
+  },
+  {
+   "name": "Pearl Medallion",
+   "quantity": 1
+  },
+  {
+   "name": "Sapphire Medallion",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Thought Vessel",
+   "quantity": 1
+  },
+  {
+   "name": "Thran Dynamo",
+   "quantity": 1
+  },
+  {
+   "name": "Felidar Retreat",
+   "quantity": 1
+  },
+  {
+   "name": "Freed from the Real",
+   "quantity": 1
+  },
+  {
+   "name": "Intruder Alarm",
+   "quantity": 1
+  },
+  {
+   "name": "Mana Breach",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 17
+  },
+  {
+   "name": "Island",
+   "quantity": 12
+  },
+  {
+   "name": "Plains",
+   "quantity": 7
+  },
+  {
+   "name": "Terramorphic Expanse",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

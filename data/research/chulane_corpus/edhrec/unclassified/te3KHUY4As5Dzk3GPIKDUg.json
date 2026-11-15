@@ -1,0 +1,346 @@
+{
+ "urlhash": "te3KHUY4As5Dzk3GPIKDUg",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-09-03",
+ "price": 329,
+ "salt": 48.49738986743614,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/26044905?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Arboreal Grazer",
+   "quantity": 1
+  },
+  {
+   "name": "Avacyn's Pilgrim",
+   "quantity": 1
+  },
+  {
+   "name": "Avenger of Zendikar",
+   "quantity": 1
+  },
+  {
+   "name": "Beast Whisperer",
+   "quantity": 1
+  },
+  {
+   "name": "Boreal Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Boromir, Warden of the Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Cathar Commando",
+   "quantity": 1
+  },
+  {
+   "name": "Coiling Oracle",
+   "quantity": 1
+  },
+  {
+   "name": "Dauntless Escort",
+   "quantity": 1
+  },
+  {
+   "name": "Dream Stalker",
+   "quantity": 1
+  },
+  {
+   "name": "Elesh Norn, Mother of Machines",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Mystic",
+   "quantity": 1
+  },
+  {
+   "name": "Eternal Witness",
+   "quantity": 1
+  },
+  {
+   "name": "Extraction Specialist",
+   "quantity": 1
+  },
+  {
+   "name": "Fleetfoot Panther",
+   "quantity": 1
+  },
+  {
+   "name": "Fyndhorn Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Greenbelt Rampager",
+   "quantity": 1
+  },
+  {
+   "name": "Ice-Fang Coatl",
+   "quantity": 1
+  },
+  {
+   "name": "Karmic Guide",
+   "quantity": 1
+  },
+  {
+   "name": "Knight of Autumn",
+   "quantity": 1
+  },
+  {
+   "name": "Knight of the White Orchid",
+   "quantity": 1
+  },
+  {
+   "name": "Kor Skyfisher",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Lotus Cobra",
+   "quantity": 1
+  },
+  {
+   "name": "Maja, Bretagard Protector",
+   "quantity": 1
+  },
+  {
+   "name": "Manglehorn",
+   "quantity": 1
+  },
+  {
+   "name": "Mentor of the Meek",
+   "quantity": 1
+  },
+  {
+   "name": "Qasali Pridemage",
+   "quantity": 1
+  },
+  {
+   "name": "Rampaging Baloths",
+   "quantity": 1
+  },
+  {
+   "name": "Ramunap Excavator",
+   "quantity": 1
+  },
+  {
+   "name": "Reclamation Sage",
+   "quantity": 1
+  },
+  {
+   "name": "Reflector Mage",
+   "quantity": 1
+  },
+  {
+   "name": "Renegade Rallier",
+   "quantity": 1
+  },
+  {
+   "name": "Reveillark",
+   "quantity": 1
+  },
+  {
+   "name": "Ruin Crab",
+   "quantity": 1
+  },
+  {
+   "name": "Rumor Gatherer",
+   "quantity": 1
+  },
+  {
+   "name": "Saffi Eriksdotter",
+   "quantity": 1
+  },
+  {
+   "name": "Sakura-Tribe Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Scute Swarm",
+   "quantity": 1
+  },
+  {
+   "name": "Selfless Spirit",
+   "quantity": 1
+  },
+  {
+   "name": "Shrieking Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Skyclave Apparition",
+   "quantity": 1
+  },
+  {
+   "name": "Spore Frog",
+   "quantity": 1
+  },
+  {
+   "name": "Springbloom Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Stonecloaker",
+   "quantity": 1
+  },
+  {
+   "name": "Sun Titan",
+   "quantity": 1
+  },
+  {
+   "name": "Sythis, Harvest's Hand",
+   "quantity": 1
+  },
+  {
+   "name": "Tiller Engine",
+   "quantity": 1
+  },
+  {
+   "name": "Timeless Witness",
+   "quantity": 1
+  },
+  {
+   "name": "Tireless Provisioner",
+   "quantity": 1
+  },
+  {
+   "name": "Toothy, Imaginary Friend",
+   "quantity": 1
+  },
+  {
+   "name": "Vinelasher Kudzu",
+   "quantity": 1
+  },
+  {
+   "name": "Wall of Blossoms",
+   "quantity": 1
+  },
+  {
+   "name": "Wall of Omens",
+   "quantity": 1
+  },
+  {
+   "name": "Welcoming Vampire",
+   "quantity": 1
+  },
+  {
+   "name": "Whitemane Lion",
+   "quantity": 1
+  },
+  {
+   "name": "Wood Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Chord of Calling",
+   "quantity": 1
+  },
+  {
+   "name": "Cloudstone Curio",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Aluren",
+   "quantity": 1
+  },
+  {
+   "name": "Adarkar Wastes",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Chancery",
+   "quantity": 1
+  },
+  {
+   "name": "Bant Panorama",
+   "quantity": 1
+  },
+  {
+   "name": "Blighted Woodland",
+   "quantity": 1
+  },
+  {
+   "name": "Brushland",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Exotic Orchard",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 10
+  },
+  {
+   "name": "Island",
+   "quantity": 6
+  },
+  {
+   "name": "Krosan Verge",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 5
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Growth Chamber",
+   "quantity": 1
+  },
+  {
+   "name": "Spara's Headquarters",
+   "quantity": 1
+  },
+  {
+   "name": "Terramorphic Expanse",
+   "quantity": 1
+  },
+  {
+   "name": "Yavimaya Coast",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}
