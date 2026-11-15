@@ -1,0 +1,130 @@
+{
+  "schema": "studio-edhrec-threshold-audit-1",
+  "commander": "Chulane, Teller of Tales",
+  "commander_slug": "chulane-teller-of-tales",
+  "snapshot_date": "2026-11-12",
+  "live_check_date": "2026-11-15",
+  "cardlists_present": 12,
+  "distinct_cards_snapshot": 241,
+  "distinct_cards_live_check": 242,
+  "live_check_added_card_outside_collection": "Carpet of Flowers",
+  "chulane_pool_total": 927,
+  "chulane_pool_ranked": 922,
+  "pool_cards_with_commander_signal_before": 68,
+  "pool_cards_with_commander_signal_after": 68,
+  "pool_cards_including_basics_with_commander_signal": 71,
+  "counted_lists_pool_cards_with_value": 564,
+  "sections": {
+    "creatures": {
+      "cards": 50,
+      "min_numerator": 1071,
+      "min_denominator": 9824,
+      "min_share": 0.109019
+    },
+    "enchantments": {
+      "cards": 24,
+      "min_numerator": 519,
+      "min_denominator": 9824,
+      "min_share": 0.05283
+    },
+    "highliftcards": {
+      "cards": 10,
+      "min_numerator": 656,
+      "min_denominator": 9824,
+      "min_share": 0.066775
+    },
+    "instants": {
+      "cards": 37,
+      "min_numerator": 529,
+      "min_denominator": 9824,
+      "min_share": 0.053848
+    },
+    "lands": {
+      "cards": 50,
+      "min_numerator": 958,
+      "min_denominator": 9824,
+      "min_share": 0.097516
+    },
+    "manaartifacts": {
+      "cards": 13,
+      "min_numerator": 505,
+      "min_denominator": 9824,
+      "min_share": 0.051405
+    },
+    "newcards": {
+      "cards": 5,
+      "min_numerator": 29,
+      "min_denominator": 1221,
+      "min_share": 0.023751
+    },
+    "planeswalkers": {
+      "cards": 3,
+      "min_numerator": 514,
+      "min_denominator": 9824,
+      "min_share": 0.052321
+    },
+    "sorceries": {
+      "cards": 20,
+      "min_numerator": 519,
+      "min_denominator": 9824,
+      "min_share": 0.05283
+    },
+    "topcards": {
+      "cards": 10,
+      "min_numerator": 4700,
+      "min_denominator": 9824,
+      "min_share": 0.47842
+    },
+    "utilityartifacts": {
+      "cards": 6,
+      "min_numerator": 519,
+      "min_denominator": 9824,
+      "min_share": 0.05283
+    },
+    "utilitylands": {
+      "cards": 13,
+      "min_numerator": 584,
+      "min_denominator": 9824,
+      "min_share": 0.059446
+    }
+  },
+  "brackets": {
+    "core": {
+      "distinct_cards": 210,
+      "regular_min_numerator": 28,
+      "regular_min_denominator": 558,
+      "regular_min_share": 0.050179,
+      "newcards_min_numerator": 1,
+      "newcards_min_denominator": 48,
+      "newcards_min_share": 0.020833
+    },
+    "upgraded": {
+      "distinct_cards": 233,
+      "regular_min_numerator": 38,
+      "regular_min_denominator": 755,
+      "regular_min_share": 0.050331,
+      "newcards_min_numerator": 3,
+      "newcards_min_denominator": 137,
+      "newcards_min_share": 0.021898
+    },
+    "optimized": {
+      "distinct_cards": 247,
+      "regular_min_numerator": 35,
+      "regular_min_denominator": 695,
+      "regular_min_share": 0.05036,
+      "newcards_min_numerator": 4,
+      "newcards_min_denominator": 115,
+      "newcards_min_share": 0.034783
+    },
+    "cedh": {
+      "distinct_cards": 222,
+      "regular_min_numerator": 12,
+      "regular_min_denominator": 233,
+      "regular_min_share": 0.051502,
+      "newcards_min_numerator": 1,
+      "newcards_min_denominator": 38,
+      "newcards_min_share": 0.026316
+    }
+  },
+  "note": "All 12 EDHREC page cardlists (241 distinct cards in the 2026-11-12 snapshot) are already imported identically by commander_card_signals_*.csv and edhrec_table_chulane_1..3.csv (theme chulane-teller-of-tales). Non-tag subpages (/creatures.json, /top-cards.json, /lands.json, /average-deck.json) return HTTP 403. EDHREC enforces a ~5.0 % inclusion floor (and 50-card cap on creatures/lands) on regular cardlists and ~2.3-3.5 % on newcards."
+}

@@ -728,6 +728,30 @@ Ranks of eleven named cards (rank within lands or within spells by index; spells
 rubric sets, not that the order is right. The tier cuts and the 30 % weight rest on a rule fixed
 in advance, not on a validation; judging them is the Owner's decision.
 
+#### EDHREC cardlist audit & role expansion (`#1353` parts B and C)
+
+- **EDHREC Chulane cardlists (part B, `data/research/edhrec_observations_chulane/edhrec_chulane_threshold_audit.json`):**
+  Both `commander_card_signals_*.csv` and the `chulane-teller-of-tales` theme cohort of
+  `edhrec_table_chulane_1..3.csv` already contain **all 12 cardlists** of the EDHREC Chulane
+  page (`241` distinct cards in the `2026-11-12` snapshot, `0` symmetric difference; live
+  verification `2026-11-15`: `242` distinct cards, only `Carpet of Flowers` added outside the
+  collection). Pool coverage stays **68 / 922 ranked cards** (**71 / 927** including 3 basic
+  lands) before and after; the listed share threshold is **~5.0 %** (`505 / 9,824 = 5.1405 %`
+  on regular lists with a 50-card cap on `creatures` and `lands`, `29 / 1,221 = 2.3751 %` on
+  `newcards`; brackets `5.0179 %–5.1502 %` regular, `2.0833 %–3.4783 %` `newcards`), while
+  non-tag subpages (`/creatures.json`, `/top-cards.json`, `/lands.json`, `/average-deck.json`)
+  return HTTP 403.
+- **Role gap closure (part C):** `roles.ROLES` expands from `17` to **34** canonical Scryfall
+  `otag:` roles (`roles_s4_tagger_expansion_wug.json`, 15,422 `SCRYFALL_TAGGER_ORIGINAL` claims)
+  plus deterministic Oracle-text classification (`roles.classify_oracle_roles`,
+  `roles_s5_oracle_expansion.json`, 1,570 `ORACLE_TEXT_REVIEW` claims). Chulane 927-pool
+  coverage rises from **558 / 927 (60.2 %)** to **817 / 927 (88.1 %)** (20 roles `≥ 30`
+  cards, 11 roles `10–29`, 3 roles `< 10`). Measuring `ranking-check` (`Ausgewogen`) shows that
+  `rank_group = "pool"` stays recommended (Spearman `0.9297` vs `0.8819` for `"function"`,
+  Randkarten oben `5 / 71` vs `19 / 94` because small-role leaders with `< 5 %` deck share
+  scale to `S/A` inside isolated role groups).
+
+
 ### Counted deck-list universes, `universe_source` and the commander-signal rule
 
 The repository holds complete deck lists that were counted, as one file per commander:
