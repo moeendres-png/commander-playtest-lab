@@ -1,0 +1,334 @@
+{
+ "urlhash": "TghmLDlaVHVne4vPeAIZug",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-11-13",
+ "price": 66,
+ "salt": 36.17442776076496,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/rRw41NlAbUeYmRxds7ovmw?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Bartered Cow",
+   "quantity": 1
+  },
+  {
+   "name": "Beanstalk Giant",
+   "quantity": 1
+  },
+  {
+   "name": "Beanstalk Wurm",
+   "quantity": 1
+  },
+  {
+   "name": "Beloved Princess",
+   "quantity": 1
+  },
+  {
+   "name": "Chancellor of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Charming Prince",
+   "quantity": 1
+  },
+  {
+   "name": "Curious Pair",
+   "quantity": 1
+  },
+  {
+   "name": "Emry, Lurker of the Loch",
+   "quantity": 1
+  },
+  {
+   "name": "Faerie Guidemother",
+   "quantity": 1
+  },
+  {
+   "name": "Flaxen Intruder",
+   "quantity": 1
+  },
+  {
+   "name": "Giant Killer",
+   "quantity": 1
+  },
+  {
+   "name": "Gilded Goose",
+   "quantity": 1
+  },
+  {
+   "name": "Good-Fortune Unicorn",
+   "quantity": 1
+  },
+  {
+   "name": "Gorion, Wise Mentor",
+   "quantity": 1
+  },
+  {
+   "name": "Hollow Scavenger",
+   "quantity": 1
+  },
+  {
+   "name": "Inquisitive Puppet",
+   "quantity": 1
+  },
+  {
+   "name": "Intrepid Trufflesnout",
+   "quantity": 1
+  },
+  {
+   "name": "Lathiel, the Bounteous Dawn",
+   "quantity": 1
+  },
+  {
+   "name": "Lonesome Unicorn",
+   "quantity": 1
+  },
+  {
+   "name": "Lovestruck Beast",
+   "quantity": 1
+  },
+  {
+   "name": "Maraleaf Pixie",
+   "quantity": 1
+  },
+  {
+   "name": "Merfolk Secretkeeper",
+   "quantity": 1
+  },
+  {
+   "name": "Mysterious Pathlighter",
+   "quantity": 1
+  },
+  {
+   "name": "Neighborhood Guardian",
+   "quantity": 1
+  },
+  {
+   "name": "Opaline Unicorn",
+   "quantity": 1
+  },
+  {
+   "name": "Pests of Honor",
+   "quantity": 1
+  },
+  {
+   "name": "Queen of Ice",
+   "quantity": 1
+  },
+  {
+   "name": "Rosethorn Acolyte",
+   "quantity": 1
+  },
+  {
+   "name": "Velvetwing Butterflies",
+   "quantity": 1
+  },
+  {
+   "name": "Wishful Merfolk",
+   "quantity": 1
+  },
+  {
+   "name": "Banish into Fable",
+   "quantity": 1
+  },
+  {
+   "name": "Fell the Pheasant",
+   "quantity": 1
+  },
+  {
+   "name": "Insatiable Appetite",
+   "quantity": 1
+  },
+  {
+   "name": "Into the Story",
+   "quantity": 1
+  },
+  {
+   "name": "Once Upon a Time",
+   "quantity": 1
+  },
+  {
+   "name": "Return to Nature",
+   "quantity": 1
+  },
+  {
+   "name": "Tale's End",
+   "quantity": 1
+  },
+  {
+   "name": "True Love's Kiss",
+   "quantity": 1
+  },
+  {
+   "name": "Turn into a Pumpkin",
+   "quantity": 1
+  },
+  {
+   "name": "Bountiful Harvest",
+   "quantity": 1
+  },
+  {
+   "name": "Brave the Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Giant Opportunity",
+   "quantity": 1
+  },
+  {
+   "name": "Wolf's Quarry",
+   "quantity": 1
+  },
+  {
+   "name": "Enchanted Carriage",
+   "quantity": 1
+  },
+  {
+   "name": "Glass Casket",
+   "quantity": 1
+  },
+  {
+   "name": "Golden Egg",
+   "quantity": 1
+  },
+  {
+   "name": "Lucky Clover",
+   "quantity": 1
+  },
+  {
+   "name": "Midnight Clock",
+   "quantity": 1
+  },
+  {
+   "name": "Spinning Wheel",
+   "quantity": 1
+  },
+  {
+   "name": "The Magic Mirror",
+   "quantity": 1
+  },
+  {
+   "name": "Tome of Legends",
+   "quantity": 1
+  },
+  {
+   "name": "Witch's Oven",
+   "quantity": 1
+  },
+  {
+   "name": "Witching Well",
+   "quantity": 1
+  },
+  {
+   "name": "All That Glitters",
+   "quantity": 1
+  },
+  {
+   "name": "As Foretold",
+   "quantity": 1
+  },
+  {
+   "name": "Axis of Mortality",
+   "quantity": 1
+  },
+  {
+   "name": "Blessed Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Charmed Sleep",
+   "quantity": 1
+  },
+  {
+   "name": "Compulsion",
+   "quantity": 1
+  },
+  {
+   "name": "Frogify",
+   "quantity": 1
+  },
+  {
+   "name": "Happily Ever After",
+   "quantity": 1
+  },
+  {
+   "name": "Love Song of Night and Day",
+   "quantity": 1
+  },
+  {
+   "name": "Tale of Tinúviel",
+   "quantity": 1
+  },
+  {
+   "name": "The Princess Takes Flight",
+   "quantity": 1
+  },
+  {
+   "name": "Three Blind Mice",
+   "quantity": 1
+  },
+  {
+   "name": "Trail of Crumbs",
+   "quantity": 1
+  },
+  {
+   "name": "Trapped in the Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Welcome to Sweettooth",
+   "quantity": 1
+  },
+  {
+   "name": "Branch of Vitu-Ghazi",
+   "quantity": 1
+  },
+  {
+   "name": "Castle Ardenvale",
+   "quantity": 1
+  },
+  {
+   "name": "Crossroads Village",
+   "quantity": 1
+  },
+  {
+   "name": "Dreamroot Cascade",
+   "quantity": 1
+  },
+  {
+   "name": "Edgewall Inn",
+   "quantity": 1
+  },
+  {
+   "name": "Fabled Passage",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 10
+  },
+  {
+   "name": "Gingerbread Cabin",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 7
+  },
+  {
+   "name": "Plains",
+   "quantity": 7
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}
