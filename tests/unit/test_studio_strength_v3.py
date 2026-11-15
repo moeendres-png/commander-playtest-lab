@@ -98,6 +98,7 @@ def test_every_new_component_is_derived_descriptive_and_commander_only() -> None
         strength.TOURNAMENT,
         strength.EDHREC_THEME_REACH,
     )
+    assert len(new) == 5
     for component in new:
         assert strength.COMPONENT_DATA_CLASS[component] == "DERIVED_DESCRIPTIVE"
         # a commander without the source gets NOT_COLLECTED and no coverage penalty
