@@ -76,6 +76,7 @@ def test_active_validation_levels_are_exactly_the_non_empirical_three() -> None:
 
 
 def test_removed_manual_playtest_models_and_schemas_are_not_active(repo_root: Path) -> None:
+    assert not (repo_root / "schemas" / "models").exists()
     schema_names = {path.name.lower() for path in (repo_root / "schemas").rglob("*.json")}
     assert schema_names and not any(
         "playtest" in name or "calibrat" in name for name in schema_names
