@@ -282,7 +282,7 @@ def test_conversion_ranks_end_to_end_from_a_real_base(store: StudioStore, tmp_pa
         ],
     )
     signals.import_signals(store, wide, commander=COMMANDER)
-    result = strength_view.compute(store, COMMANDER, strength.StrengthSettings())
+    result = strength_view.compute(store, COMMANDER, strength.StrengthSettings(share_scale="share"))
     cards = {card["name"]: card for card in result["cards"]}
 
     def conversion(name: str) -> strength.ComponentResult:

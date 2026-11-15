@@ -918,8 +918,17 @@ _MEASURE_CHOICES = {
     strength.MEASURE_RAW: "roher Anteil",
 }
 _SCALE_CHOICES = {
+    strength.SCALE_LOG: "Anteil (Logarithmus relativ zum Maximum)",
     strength.SCALE_SHARE: "Anteil (Wurzel relativ zum Maximum)",
     strength.SCALE_RANK: "Rang (Perzentil)",
+}
+_ZERO_TIER_CHOICES = {
+    strength.ZERO_TIER_D: "Stufe D (gezählte Null zählt voll)",
+    strength.ZERO_TIER_U: "zu wenig Daten (U)",
+}
+_EDHREC_WITH_CORPUS_CHOICES = {
+    False: "aus: der Korpus ersetzt die EDHREC-Gewichte",
+    True: "an: EDHREC-Gewichte auch mit Korpus",
 }
 _MISSING_CHOICES = {
     strength.MISSING_SKIP: "auslassen",
@@ -986,12 +995,63 @@ def _panel_texts() -> dict[str, object]:
         "für eine Stufe allein nicht. 0 schaltet das Signal ab."
     )
     helps[f"weights.{strength.RUBRIC}"] = (
-        f"Strukturierte Bewertung von drei Bewertern (Übereinstimmung ICC 0,94), nur für Chulane; "
-        f"empfohlen {_number_text(rec.weights[strength.RUBRIC])} (etwa 30 % des Gewichts für eine "
-        "typische Karte), 0 schaltet das Signal ab."
+        "Bewertung nach festem Leitfaden von drei Bewertern (nur für Chulane), subjektiv und "
+        "kein objektives Signal. Das Gewicht steht auf 0 (Owner-Entscheidung E1.a); die "
+        "Bewertung bleibt als Spalte und Komponente erhalten, wer ihr ein Gewicht gibt, "
+        "mischt Meinung in einen empirischen Index."
+    )
+    labels[f"weights.{strength.RUBRIC}"] = (
+        f"{strength.LABELS[strength.RUBRIC]} (empfohlen: "
+        f"{_number_text(rec.weights[strength.RUBRIC])})"
     )
     helps[f"weights.{strength.DECK_UNIVERSE}"] = (
         "Wie stark die Verbreitung in gezählten Decklisten zählt. 0 schaltet sie ab."
+    )
+    for key in strength.EDHREC_RULE_COMPONENTS:
+        helps[f"weights.{key}"] = (
+            "Rückfall-Gewicht der EDHREC-Aufnahme (Regel E2.a): Es gilt nur, solange für den "
+            f"Commander kein gezählter lokaler Korpus mit mindestens {universe_minimum} Decks "
+            "vorliegt. Mit Korpus ist das wirksame Gewicht 0, außer die Einstellung "
+            "„EDHREC-Gewichte mit Korpus behalten“ ist an. Das Ergebnis nennt die angewandte Regel."
+        )
+    helps[f"weights.{strength.CORPUS_TUNED}"] = (
+        "Anteil der Karte in den gezählten Decks der Brackets 4 und 5 (Zähler / Nenner steht in "
+        "der Signalzeile). Bei kleinem Nenner zum Prior gezogen (empirisches Bayes). Nur für "
+        "Commander mit lokalem Korpus."
+    )
+    helps[f"weights.{strength.CORPUS_LOG_LIFT}"] = (
+        "Wie viel häufiger die Karte im Korpus dieses Commanders steht als in allen Decks "
+        "(EDHREC „Aufnahme überhaupt“): log10 des Verhältnisses, mit n / (n + "
+        f"{strength.LOG_RATIO_DAMPING}) gedämpft (n = Decks mit der Karte), auf ±"
+        f"{_number_text(strength.LOG_RATIO_CAP)} begrenzt (Faktor 100) und als (Wert + 2) / 4 auf "
+        "0 bis 1 gelegt. Nur für Karten mit mindestens einem Treffer."
+    )
+    helps[f"weights.{strength.CORPUS_BRACKET_SLOPE}"] = (
+        "Gefälle des Anteils zwischen den Brackets 4+5 und Bracket 2 im Korpus: log10 des "
+        "Verhältnisses, wie beim Lift gedämpft und begrenzt. Nur ab "
+        f"{strength.SLOPE_MIN_HITS} Treffern insgesamt."
+    )
+    helps[f"weights.{strength.TOURNAMENT}"] = (
+        "EDHTop16-Spielrate (Turnierzeitraum, Nenner = Einträge des Commanders) und Anteil im "
+        "Korpus-Bracket 5 als ein Signal: die Zähler und Nenner beider Quellen werden "
+        "zusammengelegt (Anteil = Summe Zähler / Summe Nenner), danach wie jeder kleine Nenner "
+        "zum Prior gezogen. Eine Karte ohne EDHTop16-Zeile zählt nur mit dem Korpus-Bracket 5."
+    )
+    helps[f"weights.{strength.TOURNAMENT_LISTS}"] = (
+        "TopDeck-Turnierlisten des Commanders: derzeit nur wenige Listen (Mindest-Nenner nicht "
+        "erreicht). Standardmäßig 0, die Spalte bleibt."
+    )
+    helps[f"weights.{strength.TOURNAMENT_CONVERSION}"] = (
+        "TopDeck-Conversion: derzeit ohne Werte. Standardmäßig 0, die Spalte bleibt."
+    )
+    helps[f"weights.{strength.EDHREC_THEME_REACH}"] = (
+        "Höchster Anteil der Karte über die EDHREC-Themen des Commanders (nur Themen mit "
+        "mindestens dem Mindest-Nenner EDHREC an Decks), mit dem Thema und seinem Zähler und "
+        "Nenner in der Signalzeile. Ein Maximum über viele Themen ist nach oben verzerrt; "
+        "deshalb nur ein kleines Gewicht."
+    )
+    helps[f"weights.{strength.GLOBAL_INCLUSION}"] = (
+        "Anteil der Karte in allen EDHREC-Decks, unabhängig vom Commander. 0 schaltet ab."
     )
     helps[f"weights.{strength.COMBOS}"] = (
         "Je nach „Combo-Quelle“ zählt EDHREC-Kombos des Commanders (Standard: wie viele Decks "
@@ -1055,16 +1115,22 @@ def _panel_texts() -> dict[str, object]:
     )
     helps["share_measure"] = (
         "Die Wilson-Untergrenze ordnet Karten mit verschieden großen Nennern vorsichtiger; "
-        "bei gleichem Nenner ändert sie die Reihenfolge nicht. Gegen kleine Stichproben "
-        "schützt der Mindest-Nenner."
+        "bei gleichem Nenner ändert sie die Reihenfolge nicht. Anteile mit einem Nenner unter "
+        f"{strength.EB_MAX_DENOMINATOR} werden stattdessen zum Prior der Komponente gezogen "
+        "(empirisches Bayes: Beta-Binomial-Mittel, Prior-Mittel und -Stärke aus dem Pool nach "
+        f"der Momentenmethode, Stärke begrenzt auf {strength.EB_STRENGTH_MIN:g} bis "
+        f"{strength.EB_STRENGTH_MAX:g}); das Ergebnis nennt beide. Gegen kleine Stichproben "
+        "schützt zusätzlich der Mindest-Nenner. Bei „roher Anteil“ gibt es keine Schrumpfung."
     )
     labels["share_scale"] = f"Anteil skalieren als (empfohlen: {_SCALE_CHOICES[rec.share_scale]})"
     helps["share_scale"] = (
-        "Wie Anteils-Signale in einen Wert von 0 bis 1 umgerechnet werden. „Anteil (Wurzel "
-        "relativ zum Maximum)“ bewahrt den Abstand zwischen selten und häufig gespielten "
-        "Karten (√(Anteil / Maximalanteil) in der Vergleichsgruppe). „Rang (Perzentil)“ "
-        "nutzt nur die Reihenfolge und drückt lange Null-Schwänze nach oben. Synergie, "
-        "Kombos und Playgroup bleiben immer auf Perzentil-Rängen."
+        "Wie Anteils-Signale in einen Wert von 0 bis 1 umgerechnet werden. „Anteil (Logarithmus "
+        f"relativ zum Maximum)“ (Standard) rechnet ln(1 + k·Anteil) / ln(1 + k·Maximalanteil) "
+        f"mit k = {strength.LOG_SHARE_K:g} in der Vergleichsgruppe: seltene Karten bleiben "
+        "sichtbar über null, die Spitze wird abgeflacht. „Anteil (Wurzel relativ zum Maximum)“ "
+        "nimmt √(Anteil / Maximalanteil). „Rang (Perzentil)“ nutzt nur die Reihenfolge und drückt "
+        "lange Null-Schwänze nach oben. Synergie, Kombos und Playgroup bleiben immer auf "
+        "Perzentil-Rängen."
     )
     labels["min_denominators.edhrec"] = (
         f"Mindest-Nenner EDHREC-Signale (empfohlen: {rec.min_denominators['edhrec']} Decks)"
@@ -1111,12 +1177,13 @@ def _panel_texts() -> dict[str, object]:
             f"(empfohlen: {_MISSING_CHOICES[rec.missing_value[key]]})"
         )
         helps[f"missing_value.{key}"] = (
+            "auslassen (empfohlen, Owner-Entscheidung E4.b): eine nicht gelistete Karte ist eine "
+            "fehlende Beobachtung („nicht gelistet“), nie eine Null; ihr Gewicht entfällt und der "
+            "Index mittelt über die übrigen Signale. Eine GEZÄHLTE Null (0 von N Decks im "
+            "vollständig gezählten Korpus) ist dagegen ein Befund und zählt immer voll. "
             "als niedrigster Rang: eine nicht gelistete Karte zählt mit dem Wert 0, also bei "
-            "oder unter der kleinsten gelisteten Karte, nie darüber. Sinnvoll, wenn die Quelle "
-            "alle Karten über ihrer Listenschwelle nennt (EDHREC): nicht gelistet heißt "
-            "darunter. auslassen: eine nicht gelistete Karte ist eine fehlende Beobachtung "
-            "(Owner-Entscheidung B5); ihr Gewicht entfällt dann und der Index mittelt über "
-            "die übrigen Signale."
+            "oder unter der kleinsten gelisteten Karte, nie darüber. Nur sinnvoll, wenn die Quelle "
+            "alle Karten über ihrer Listenschwelle nennt (EDHREC): nicht gelistet heißt darunter."
         )
     labels["rank_commander_and_basics"] = (
         "Commander und Standardländer bewerten "
@@ -1156,6 +1223,25 @@ def _panel_texts() -> dict[str, object]:
         "Spellbook-Kombos und die Playgroup-Beobachtung gelten für jeden Commander und "
         "reichen allein nicht: die Karte bleibt „zu wenig Daten“."
     )
+    labels["zero_count_tier"] = (
+        f"Stufe bei nur gezählten Nullen (empfohlen: {_ZERO_TIER_CHOICES[rec.zero_count_tier]})"
+    )
+    helps["zero_count_tier"] = (
+        "Eine Karte, deren einziger Beleg zu diesem Commander gezählte Nullen sind (0 von N Decks "
+        "im vollständig gezählten Korpus) und die sonst nur ein commanderunabhängiges Signal hat. "
+        "Stufe D (E4.b, empfohlen): die Null ist ein Befund und zählt voll. U (E4.a): zu wenig "
+        "Daten, Grund ZERO_COUNT_ONLY."
+    )
+    labels["edhrec_with_corpus"] = (
+        "EDHREC-Gewichte mit Korpus behalten "
+        f"(empfohlen: {_EDHREC_WITH_CORPUS_CHOICES[rec.edhrec_with_corpus]})"
+    )
+    helps["edhrec_with_corpus"] = (
+        "Regel E2.a: Gibt es für den Commander einen gezählten lokalen Korpus mit mindestens "
+        f"{universe_minimum} Decks, sind die Gewichte „Aufnahme beim Commander“ und „Aufnahme im "
+        "Bracket“ wirksam 0 (aus). Ohne Korpus gelten sie wie eingestellt (Rückfall). An: sie "
+        "gelten auch mit Korpus."
+    )
     labels["min_coverage"] = (
         f"Mindest-Datenlage in % (empfohlen: {_number_text(round(rec.min_coverage * 100, 1))})"
     )
@@ -1193,12 +1279,17 @@ def _panel_texts() -> dict[str, object]:
             "title": "Fehlender Wert",
             "keys": [f"missing_value.{key}" for key in strength.MISSING_CAPABLE],
         },
-        {"title": "Decklisten-Universum", "keys": ["universe_source"]},
+        {"title": "Decklisten-Universum", "keys": ["universe_source", "edhrec_with_corpus"]},
         {"title": "Commander und Standardländer", "keys": ["rank_commander_and_basics"]},
         {"title": "Andere Commander im Pool", "keys": ["rank_other_commanders"]},
         {
             "title": "Mindestdaten für eine Stufe",
-            "keys": ["min_coverage", "min_components", "require_commander_signal"],
+            "keys": [
+                "min_coverage",
+                "min_components",
+                "require_commander_signal",
+                "zero_count_tier",
+            ],
         },
         {
             "title": (
@@ -1236,6 +1327,15 @@ def _panel_texts() -> dict[str, object]:
                 },
                 {"value": strength.UNIVERSE_NONE, "label": "keines", "recommended": False},
             ],
+            "zero_count_tier": _choices(_ZERO_TIER_CHOICES, rec.zero_count_tier),
+            "edhrec_with_corpus": [
+                {
+                    "value": value,
+                    "label": f"{label} (empfohlen)" if value == rec.edhrec_with_corpus else label,
+                    "recommended": value == rec.edhrec_with_corpus,
+                }
+                for value, label in _EDHREC_WITH_CORPUS_CHOICES.items()
+            ],
             "separate_lands": [
                 {"value": True, "label": "an (empfohlen)", "recommended": True},
                 {"value": False, "label": "aus", "recommended": False},
@@ -1266,7 +1366,14 @@ def presets() -> dict[str, object]:
             {"name": name, "settings": item.to_dict()} for name, item in strength.PRESETS.items()
         ],
         "components": [
-            {"key": key, "label": strength.LABELS[key], "default_weight": weight}
+            {
+                "key": key,
+                "label": strength.LABELS[key],
+                "default_weight": weight,
+                "data_class": strength.COMPONENT_DATA_CLASS[key],
+                "subjective": key == strength.RUBRIC,
+                "commander_only": key in strength.COMMANDER_ONLY_SOURCES,
+            }
             for key, weight in strength.DEFAULT_WEIGHTS.items()
         ],
         "layers": [
@@ -1296,6 +1403,13 @@ def presets() -> dict[str, object]:
         "defaults": recommended,
         "recommended": recommended,
         "missing_capable": list(strength.MISSING_CAPABLE),
+        "edhrec_rule_components": list(strength.EDHREC_RULE_COMPONENTS),
+        "log_share_k": strength.LOG_SHARE_K,
+        "empirical_bayes": {
+            "max_denominator": strength.EB_MAX_DENOMINATOR,
+            "strength_range": [strength.EB_STRENGTH_MIN, strength.EB_STRENGTH_MAX],
+            "min_cards": strength.EB_MIN_CARDS,
+        },
         "min_group": strength.MIN_GROUP,
         "panel": _panel_texts(),
         "meaning": strength.MEANING,
