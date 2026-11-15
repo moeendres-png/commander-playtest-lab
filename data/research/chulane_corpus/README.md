@@ -2,8 +2,11 @@
 
 The canonical Chulane corpus itself: 3,023 public decklists
 (2,300 EDHREC + 723 Archidekt) as normalized per-deck JSON files —
-268,204 card rows in the Studio store, 2,861 canonical decks
-(162 exact duplicates). This is the deck population the counted
+268,204 card rows in the Studio store, 2,639 canonical decks
+(384 duplicates: 162 spelling-identical, and 222 that are the same physical
+deck under the other source's spelling of a two-part card — since #1394 the
+content fingerprint is re-derived over oracle ids at link time, so the two
+spellings collapse). This is the deck population the counted
 spread ("Verbreitung, gezählt") and, per the Owner decision of
 2026-11-13, the decklist component of the strength index are computed
 from. Until now only the derived inclusion count file
@@ -36,7 +39,7 @@ python scripts/import_chulane_corpus.py
 python scripts/map_corpus_oracle_ids.py
 ```
 
-Acceptance: `corpus_deck` = 3,023 (2,861 with `duplicate_of IS NULL`),
+Acceptance: `corpus_deck` = 3,023 (2,639 with `duplicate_of IS NULL`),
 `corpus_deck_card` = 268,204, `corpus_cohort` = 11,369; after step 2,
 268,031 of 268,204 card rows carry an `oracle_id` (99.94%, measured on
 a fresh store build 2026-11-15; the residue is names with no unambiguous

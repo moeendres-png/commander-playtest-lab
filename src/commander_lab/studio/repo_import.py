@@ -17,7 +17,7 @@ import sqlite3
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from . import decklist_import, research_import
+from . import catalog, decklist_import, research_import
 from .store import StudioStore
 
 SHEET_ORDER = (
@@ -157,6 +157,9 @@ def map_corpus_oracle_ids(db: sqlite3.Connection) -> dict[str, int | list[str]]:
         unresolved.append(name)
     with db:
         db.executemany("UPDATE corpus_deck_card SET oracle_id = ? WHERE card_name = ?", updates)
+        # The mapping just changed what the deck fingerprints derive from: re-derive
+        # them over the oracle keys (a no-op for decks this mapping did not touch).
+        fingerprints = catalog.refresh_corpus_fingerprints(db)
     mapped = int(
         db.execute("SELECT COUNT(*) FROM corpus_deck_card WHERE oracle_id IS NOT NULL").fetchone()[
             0
@@ -171,6 +174,7 @@ def map_corpus_oracle_ids(db: sqlite3.Connection) -> dict[str, int | list[str]]:
         "rows_with_oracle_id": mapped,
         "rows_total": total,
         "unresolved": unresolved,
+        **fingerprints,
     }
 
 
