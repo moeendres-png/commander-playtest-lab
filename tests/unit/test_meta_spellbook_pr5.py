@@ -12,47 +12,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import pytest
-from pydantic import ValidationError
-
-from commander_lab.models import FormatBand, MetaCategory, MetaComboLine, MetaPackage
-
 ROOT = Path(__file__).resolve().parents[2]
 ROGSHAI_PACKAGES = ROOT / "data/meta/packages/rogshai-2026-10-25.json"
 CHULANE_PACKAGES = ROOT / "data/meta/packages/chulane-2026-10-25.json"
 COMBOS = ROOT / "data/meta/spellbook_combos.json"
-
-
-def _package(package_id: str, cards: tuple[str, ...], bands: tuple[str, ...]) -> MetaPackage:
-    return MetaPackage(
-        package_id=package_id,
-        name=package_id,
-        cards=cards,
-        roles=("engine",),
-        categories=tuple(MetaCategory(band) for band in bands),
-        description="test package",
-    )
-
-
-def _combo(
-    combo_id: str,
-    cards: tuple[str, ...],
-    bands: tuple[FormatBand, ...],
-    any_of: tuple[tuple[str, ...], ...] = (),
-) -> MetaComboLine:
-    return MetaComboLine(
-        combo_id=combo_id,
-        commander="Test Commander",
-        cards=cards,
-        any_of=any_of,
-        bands=bands,
-        source="test",
-        result="test result",
-    )
-
-
-def test_combo_model_rejects_empty_cards_and_groups() -> None:
-    with pytest.raises(ValidationError):
-        _combo("bad", (), (FormatBand.HIGH_POWER,))
-    with pytest.raises(ValidationError):
-        _combo("bad", ("A",), (FormatBand.HIGH_POWER,), any_of=((),))

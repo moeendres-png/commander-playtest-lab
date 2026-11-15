@@ -13,12 +13,9 @@ from .candidates import (
     load_current_candidate_eligibility,
     load_current_optimization_availability,
 )
-from .opponents import CurrentOpponentRecord, CurrentOpponentRepository
 
 __all__ = [
     "BASIC_LANDS",
-    "CurrentOpponentRecord",
-    "CurrentOpponentRepository",
     "canonical_feature_fusion_summary",
     "inventory_rows",
     "load_candidate_profiles",

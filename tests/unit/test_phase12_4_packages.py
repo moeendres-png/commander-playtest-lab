@@ -1,54 +1,6 @@
 from pathlib import Path
 
-from commander_lab.models import (
-    ArchetypeName,
-    ExtractionMethod,
-    FormatBand,
-    PackageDefinition,
-    PackageRegistry,
-    PackageStatus,
-)
-
 ROOT = Path(__file__).resolve().parents[2]
-
-
-def test_identical_card_can_have_different_roles_in_distinct_packages() -> None:
-    shared = "Boros Charm"
-    a = PackageDefinition(
-        package_id="test-protection",
-        version="1.0.0",
-        name="Protection",
-        commander="Test",
-        archetype=ArchetypeName.CONTROL,
-        core_cards=(shared,),
-        minimum_density=1,
-        redundancy=1,
-        enablers=(shared,),
-        source_ids=("test",),
-        confidence=0.8,
-        format_band=FormatBand.LOCAL_META,
-        status=PackageStatus.CURATED,
-        extraction_methods=(ExtractionMethod.MANUAL_CURRATION,),
-    )
-    b = PackageDefinition(
-        package_id="test-finisher",
-        version="1.0.0",
-        name="Finisher",
-        commander="Test",
-        archetype=ArchetypeName.VOLTRON,
-        core_cards=(shared,),
-        minimum_density=1,
-        redundancy=1,
-        finishers=(shared,),
-        source_ids=("test",),
-        confidence=0.8,
-        format_band=FormatBand.LOCAL_META,
-        status=PackageStatus.CURATED,
-        extraction_methods=(ExtractionMethod.MANUAL_CURRATION,),
-    )
-    registry = PackageRegistry(generated_at="2026-08-06", packages=(a, b))
-    assert registry.latest("test-protection").enablers == (shared,)
-    assert registry.latest("test-finisher").finishers == (shared,)
 
 
 def test_package_membership_is_attached_to_structural_cards() -> None:

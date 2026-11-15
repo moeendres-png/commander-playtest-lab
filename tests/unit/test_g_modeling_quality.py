@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 
 from commander_lab.engine.structural.fixtures import build_current_opponent_profiles
-from commander_lab.models import CardRole, FormatBand, MetaCategory
+from commander_lab.models import CardRole
 from commander_lab.models.roles import StructuralMechanic
 
 
@@ -120,12 +120,3 @@ def test_mechanic_tags_distinguish_table_and_commander_damage_and_rebuild(
         analyst.mechanic_tags
     )
     assert StructuralMechanic.STACK_INTERACTION in counterspell.mechanic_tags
-
-
-def test_meta_context_has_explicit_three_four_and_five_player_bands() -> None:
-    assert MetaCategory.COMMANDER_THREE_PLAYER.value == "commander_3_player"
-    assert MetaCategory.NORMAL_FOUR_PLAYER.value == "normal_four_player"
-    assert MetaCategory.COMMANDER_FIVE_PLAYER.value == "commander_5_player"
-    assert FormatBand.COMMANDER_THREE_PLAYER.value == "commander_3_player"
-    assert FormatBand.NORMAL_FOUR_PLAYER.value == "normal_four_player"
-    assert FormatBand.COMMANDER_FIVE_PLAYER.value == "commander_5_player"

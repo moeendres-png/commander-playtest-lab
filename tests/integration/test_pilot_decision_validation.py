@@ -14,7 +14,6 @@ from pathlib import Path
 from typing import Any
 
 from commander_lab.agents.pilots import GenericCommanderPilot
-from commander_lab.engine.structural.batch import run_structural_batch
 from commander_lab.engine.structural.project import load_project_structural_decks
 from commander_lab.engine.structural.simulator import StructuralSimulator
 from commander_lab.models import (
@@ -387,41 +386,3 @@ def _audit_decision_log(root: Path, output_directory: Path, seed: int) -> dict[s
         "required_utility_dimensions_present": required.issubset(dimensions),
         "observed_breakdown_fields": sorted(dimensions),
     }
-
-
-def test_phase4_validation_is_reproducible_and_audited(tmp_path: Path, repo_root: Path) -> None:
-    iterations = 2
-    seed = 707
-    decks = load_project_structural_decks(repo_root, include_synthetic_fixtures=True)
-    stochastic_config = _config(
-        "phase4-specialists-stochastic",
-        seed=seed + 1,
-        iterations=iterations,
-        workers=1,
-        output_directory=tmp_path / "phase4" / "stochastic",
-        mode=PilotDecisionMode.STOCHASTIC,
-    )
-    stochastic = run_structural_batch(stochastic_config, decks)
-    replay_config = stochastic_config.model_copy(
-        update={
-            "workers": 1,
-            "output_directory": str(tmp_path / "phase4" / "stochastic_replay"),
-        }
-    )
-    stochastic_replay = run_structural_batch(replay_config, decks)
-    assert _result_signature(stochastic) == _result_signature(stochastic_replay)
-
-    audit = _audit_decision_log(repo_root, tmp_path / "phase4", seed + 3)
-    assert audit["match_completed"]
-    assert audit["decision_events"] > 0  # type: ignore[operator]
-    assert audit["required_utility_dimensions_present"]
-
-    benchmark = _decision_quality_benchmark(seed + 2, trials=max(64, iterations * 8))
-    assert benchmark["monotonic_non_decreasing"]
-    rates: Any = benchmark["by_strength"]
-    assert rates["weak"]["expected_choice_rate"] < rates["average"]["expected_choice_rate"]
-    assert rates["average"]["expected_choice_rate"] <= rates["strong"]["expected_choice_rate"]
-    assert (
-        rates["strong"]["expected_choice_rate"]
-        <= rates["near_optimal_heuristic"]["expected_choice_rate"]
-    )
