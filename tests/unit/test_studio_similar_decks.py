@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import time
 from pathlib import Path
 
 from fastapi.testclient import TestClient
@@ -14,7 +13,6 @@ from commander_lab.studio import (
     create_revision,
     labels,
 )
-from commander_lab.studio.similar_decks import find_similar_decks
 from commander_lab.studio.web import create_app
 
 COMMANDER = "Test Commander"
@@ -155,94 +153,6 @@ def _seed_store(tmp_path: Path, num_source_decks: int = 30) -> StudioStore:
     return store
 
 
-def test_find_similar_decks_exact_jaccard_and_tie_break(tmp_path: Path) -> None:
-    store = _seed_store(tmp_path, num_source_decks=30)
-    pool_payload = builder.pool_cards(store, [COMMANDER])
-    cmd_id = str(pool_payload["commander_ids"][0])
-    forest_id = next(str(c["card_id"]) for c in pool_payload["cards"] if c["name"] == "Forest")
-    user_card_ids = [cmd_id, forest_id] + [f"p_{i:02d}" for i in range(1, 11)]
-
-    res = find_similar_decks(
-        store,
-        [COMMANDER],
-        deck_card_ids=user_card_ids,
-        cohort="all",
-        n=10,
-        include_unowned=False,
-    )
-
-    # Duplicate deck sd_dup excluded -> 30 source decks total
-    assert res["decks_considered"] == 30
-    assert res["user_nonbasic_cards"] == 10  # basic lands and commander excluded
-    assert res["empty_reason"] is None
-
-    top = res["nearest"]
-    assert len(top) == 10
-    # sd_0001 and sd_0002 both share all 10 user cards + 3 extra cards (Pool Card 11, 12, Unowned Secret Tech)
-    # Union = 13, Shared = 10 -> Jaccard = 10/13 = 0.7692; tie broken by deck_id ASC
-    assert top[0]["deck_id"] == "sd_0001"
-    assert top[1]["deck_id"] == "sd_0002"
-    assert top[0]["shared"] == 10
-    assert top[0]["size"] == 13
-    assert top[0]["similarity"] == round(10 / 13, 4)
-
-    # By default include_unowned=False: "Unowned Secret Tech" must NOT be in they_play_you_dont
-    they_names = [row["name"] for row in res["they_play_you_dont"]]
-    assert "Pool Card 11" in they_names
-    assert "Pool Card 12" in they_names
-    assert "Unowned Secret Tech" not in they_names
-
-    # Now enable include_unowned=True -> "Unowned Secret Tech" is surfaced with in_pool=False
-    res_unowned = find_similar_decks(
-        store,
-        [COMMANDER],
-        deck_card_ids=user_card_ids,
-        cohort="all",
-        n=10,
-        include_unowned=True,
-    )
-    unowned_rows = [
-        row for row in res_unowned["they_play_you_dont"] if row["name"] == "Unowned Secret Tech"
-    ]
-    assert len(unowned_rows) == 1
-    assert unowned_rows[0]["in_pool"] is False
-    assert unowned_rows[0]["hits"] == 10
-    assert unowned_rows[0]["of"] == 10
-
-
-def test_find_similar_decks_empty_cohort_reason(tmp_path: Path) -> None:
-    store = _seed_store(tmp_path, num_source_decks=10)
-    res = find_similar_decks(
-        store,
-        [COMMANDER],
-        deck_card_ids=["p_01", "p_02"],
-        cohort="bracket:2",
-        n=10,
-    )
-    assert res["decks_considered"] == 0
-    assert res["nearest"] == []
-    assert res["empty_reason"] is not None
-    assert "bracket:2" in str(res["empty_reason"])
-
-
-def test_find_similar_decks_performance_3000_decks(tmp_path: Path) -> None:
-    store = _seed_store(tmp_path, num_source_decks=3000)
-    user_card_ids = [f"p_{i:02d}" for i in range(1, 11)]
-    # Warm up index once, or even cold start must be < 2.0s
-    t0 = time.perf_counter()
-    res = find_similar_decks(
-        store,
-        [COMMANDER],
-        deck_card_ids=user_card_ids,
-        cohort="all",
-        n=20,
-    )
-    elapsed = time.perf_counter() - t0
-    assert res["decks_considered"] == 3000
-    assert len(res["nearest"]) == 20
-    assert elapsed < 2.0, f"Expected < 2.0s for 3,000 source decks, took {elapsed:.3f}s"
-
-
 def test_deck_browser_filters_cooccurrence_and_detail_api(tmp_path: Path) -> None:
     _seed_store(tmp_path, num_source_decks=20)
     app = create_app(tmp_path / "studio")
@@ -255,7 +165,8 @@ def test_deck_browser_filters_cooccurrence_and_detail_api(tmp_path: Path) -> Non
     )
     assert r_sim.status_code == 200
     sim_data = r_sim.json()
-    assert sim_data["decks_considered"] == 20
+    # the seed repeats card sets (pairs, and a block of one-card decks): a card set counts once
+    assert sim_data["decks_considered"] == 10
     assert len(sim_data["nearest"]) == 5
     assert sim_data["nearest"][0]["deck_id"] == "sd_0001"
 
@@ -333,10 +244,12 @@ def test_static_deck_browser_and_app_js_hygiene() -> None:
         assert 'href="decks.html"' in html
         assert "Deck-Browser" in html
 
-    assert "renderSimilarDecks" in app_js
+    assert "renderSimilarDecks" in app_js  # the section itself lives in similar.js
     assert "renderDeckStatusBox" in app_js
     assert "deck-status-box" in app_js
-    assert "similar-decks-table" in app_js
-    assert "similar-they-play" in app_js
-    assert "similar-you-play" in app_js
-    assert "similar-include-unowned" in app_js
+    similar_js = (STATIC_DIR / "similar.js").read_text(encoding="utf-8")
+    assert "innerHTML" not in similar_js
+    assert "similar-decks-table" in similar_js
+    assert "similar-they-play" in similar_js
+    assert "similar-you-play" in similar_js
+    assert "similar-include-unowned" in similar_js

@@ -570,26 +570,6 @@ function sourceDecks() {
   if (state.countedUniverse && !(state.cohorts[state.cohort] || 0)) return state.countedUniverse.denominator;
   return state.cohorts[state.cohort] || 0;
 }
-function similarCacheKey() {
-  return `${state.deckId || ""}|${state.branch || ""}|${state.changeSeq}|${state.cohort}|${Boolean(state.similarIncludeUnowned)}`;
-}
-function loadSimilarDecks() {
-  const incUnowned = Boolean(state.similarIncludeUnowned);
-  const key = similarCacheKey();
-  if (state.similarDecks && state.similarDecks.key === key) return;
-  if (state.similarDecksBusy === key) return;
-  state.similarDecksBusy = key;
-  api("/api/similar-decks", "POST", {
-    commander: COMMANDER,
-    deck_card_ids: [...state.list.keys()],
-    cohort: state.cohort,
-    n: 20,
-    include_unowned: incUnowned,
-  }).then((data) => {
-    state.similarDecks = { key, data };
-    if (state.tab === "similar" || state.tab === "numbers") renderDeck();
-  }, (error) => { state.similarDecksBusy = null; fail(error); });
-}
 function renderDeckStatusBox(body) {
   loadSimilarDecks();
   const shape = state.shape;
@@ -599,10 +579,12 @@ function renderDeckStatusBox(body) {
   const ownWithRole = ownNonlandCards.filter((card) => card.roles && card.roles.length).reduce((sum, card) => sum + qty(card.card_id), 0);
   const simKey = similarCacheKey();
   const simData = state.similarDecks && state.similarDecks.key === simKey ? state.similarDecks.data : null;
-  const simSummary = !simData ? "wird berechnet …"
+  const simFailed = state.similarDecks && state.similarDecks.key === simKey && state.similarDecks.error;
+  const simSummary = simFailed ? "nicht berechnet"
+    : !simData ? "wird berechnet …"
     : !simData.decks_considered ? "keine Quelldecks in dieser Gruppe"
     : simData.nearest && simData.nearest.length
-      ? `Nächstes Quelldeck: ${(100 * simData.nearest[0].similarity).toFixed(1)} % Übereinstimmung (${simData.nearest[0].shared} gemeinsame Karten) · Median über ${simData.decks_considered} Decks: ${simData.median_similarity_all !== null ? (100 * simData.median_similarity_all).toFixed(1) + " %" : "unbekannt"}`
+      ? `Nächstes Quelldeck: ${similarPercent(simData.nearest[0].similarity)} Übereinstimmung (${simData.nearest[0].shared} von ${simData.nearest[0].size} Karten) · Median über ${similarNumber(simData.decks_considered)} Decks: ${simData.median_similarity_all !== null ? similarPercent(simData.median_similarity_all) : "unbekannt"}`
       : "keine Übereinstimmung";
   const combos = state.combos;
   const comboSummary = combos && combos.listed
@@ -619,138 +601,6 @@ function renderDeckStatusBox(body) {
       h("tr", {}, h("td", {}, "Rollen-Abdeckung"), h("td", {}, `${ownWithRole} von ${ownNonlandTotal} Nicht-Land-Karten mit Rolle (${roleMed})`)),
       h("tr", {}, h("td", {}, "Ähnlichkeit zu Quelldecks"), h("td", {}, simSummary)),
       h("tr", {}, h("td", {}, "Kombos (Spellbook)"), h("td", {}, comboSummary))))));
-}
-async function openSourceDeckModal(deckId) {
-  try {
-    const incUnowned = Boolean(state.similarIncludeUnowned);
-    const detail = await api(`/api/deck-browser/source:${encodeURIComponent(deckId)}`);
-    const box = $("modal-box"); box.className = "plain";
-    const cards = detail.cards || [];
-    const ownedRows = cards.filter((c) => c.in_collection);
-    const unownedRows = cards.filter((c) => !c.in_collection);
-    const makeRow = (c) => {
-      const poolCard = c.card_id ? state.byId.get(c.card_id) : null;
-      return h("tr", {},
-        h("td", { class: "num" }, c.quantity || 1),
-        h("td", {}, c.name),
-        h("td", {}, c.section || "main"),
-        h("td", {}, c.in_collection ? (c.available > 0 ? `im Pool (${c.available} frei)` : "im Pool (0 frei)") : "nicht in Sammlung"),
-        h("td", {}, poolCard && poolCard.available > 0 && !qty(poolCard.card_id) ? h("button", { class: "small", type: "button", onclick: () => add(poolCard) }, "+") : null));
-    };
-    box.replaceChildren(
-      h("h2", {}, detail.name || `Quelldeck ${deckId}`),
-      h("p", { class: "note" }, `Plattform: ${detail.platform || "–"} · Kohorte: ${cohortName(detail.cohort || "all")} · Karten: ${cards.length} (${ownedRows.length} in deiner Sammlung, ${unownedRows.length} außerhalb)`),
-      detail.url ? h("p", {}, h("a", { href: detail.url, target: "_blank", rel: "noopener noreferrer" }, "Quelldeck extern öffnen ↗")) : null,
-      h("h3", {}, `Karten in deiner Sammlung (${ownedRows.length})`),
-      h("table", {},
-        h("thead", {}, h("tr", {}, h("th", { class: "num" }, "Anz."), h("th", {}, "Karte"), h("th", {}, "Sektion"), h("th", {}, "Sammlung"), h("th", {}, ""))),
-        h("tbody", {}, ownedRows.map(makeRow))),
-      incUnowned && unownedRows.length ? h("details", {},
-        h("summary", {}, `Karten außerhalb deiner Sammlung (${unownedRows.length})`),
-        h("table", {},
-          h("thead", {}, h("tr", {}, h("th", { class: "num" }, "Anz."), h("th", {}, "Karte"), h("th", {}, "Sektion"), h("th", {}, "Sammlung"), h("th", {}, ""))),
-          h("tbody", {}, unownedRows.map(makeRow)))) : null,
-      h("div", { class: "actions" }, h("button", { type: "button", onclick: closeModal }, "Schließen"))
-    );
-    $("modal").hidden = false;
-  } catch (error) { fail(error); }
-}
-function renderSimilarDecks(body) {
-  renderDeckStatusBox(body);
-  body.append(h("h3", {}, `Ähnliche Quelldecks (${cohortName(state.cohort)})`));
-  loadSimilarDecks();
-  const incUnowned = Boolean(state.similarIncludeUnowned);
-  const toggleInput = h("input", {
-    type: "checkbox",
-    id: "similar-include-unowned",
-    checked: incUnowned,
-    onchange: (event) => {
-      state.similarIncludeUnowned = event.target.checked;
-      renderDeck();
-    },
-  });
-  body.append(
-    h("p", { class: "note", id: "similar-disclosure" }, "Ähnlich heißt gleiche Karten (ohne Standardländer und Commander, Jaccard-Übereinstimmung), nicht erfolgreich. Zeigt, welche Quelldecks deiner aktuellen Liste am nächsten liegen."),
-    h("div", { class: "actions" },
-      h("label", {}, toggleInput, " Auch Karten außerhalb deiner Sammlung zeigen (nur Ansicht)"),
-      h("a", { class: "nav", href: "decks.html" }, "Deck-Browser öffnen →")));
-  const key = similarCacheKey();
-  const found = state.similarDecks && state.similarDecks.key === key ? state.similarDecks.data : null;
-  if (!found) {
-    body.append(h("p", { class: "muted", id: "similar-wait" }, "Wird berechnet …"));
-    return;
-  }
-  if (found.empty_reason || !found.decks_considered) {
-    body.append(h("p", { class: "muted", id: "similar-empty" }, found.empty_reason || "Keine Quelldecks in dieser Vergleichsgruppe."));
-    return;
-  }
-  if (found.decks_considered < (state.small || 30)) {
-    body.append(h("p", { class: "pill warn", id: "similar-small" }, `Kleine Stichprobe: nur ${found.decks_considered} Quelldecks in „${cohortName(state.cohort)}“ (unter ${state.small || 30}).`));
-  }
-  const simDecks = found.nearest || [];
-  if (simDecks.length) {
-    body.append(h("table", { id: "similar-decks-table" },
-      h("thead", {}, h("tr", {},
-        h("th", {}, "Quelldeck"),
-        h("th", {}, "Kohorte"),
-        h("th", { class: "num" }, "Übereinstimmung"),
-        h("th", { class: "num" }, "Gemeinsam"),
-        h("th", { class: "num" }, "Karten (ohne Standardländer)"),
-        h("th", {}, ""))),
-      h("tbody", {}, simDecks.map((d) => h("tr", {},
-        h("td", {}, h("b", {}, d.deck_id), h("span", { class: "muted" }, ` (${d.platform || "Korpus"})`)),
-        h("td", {}, cohortName(d.bracket || d.cohort)),
-        h("td", { class: "num" }, `${(100 * d.similarity).toFixed(1)} %`),
-        h("td", { class: "num" }, d.shared),
-        h("td", { class: "num" }, d.size),
-        h("td", {}, h("button", { class: "small", type: "button", onclick: () => openSourceDeckModal(d.deck_id) }, "Ansehen")))))));
-  }
-  const theyPlay = found.they_play_you_dont || [];
-  body.append(h("h4", {}, `In diesen ${simDecks.length} ähnlichen Decks oft gespielt, fehlt in deinem Deck`));
-  if (theyPlay.length) {
-    body.append(h("table", { id: "similar-they-play" },
-      h("thead", {}, h("tr", {},
-        h("th", {}, "Karte"),
-        h("th", { class: "num" }, "In ähnlichen Decks (n/N)"),
-        h("th", { class: "num" }, "Anteil"),
-        h("th", {}, "Sammlung"),
-        h("th", {}, ""))),
-      h("tbody", {}, theyPlay.map((item) => {
-        const poolCard = item.card_id ? state.byId.get(item.card_id) : null;
-        const nameEl = h("span", { class: poolCard ? "nm" : "", onclick: () => { if (poolCard) openCard(poolCard); } }, item.name);
-        if (poolCard) hoverPreview(nameEl, poolCard);
-        return h("tr", {},
-          h("td", {}, nameEl),
-          h("td", { class: "num" }, `${item.hits}/${item.of}`),
-          h("td", { class: "num" }, `${(100 * item.share).toFixed(0)} %`),
-          h("td", {}, item.in_pool ? (item.available > 0 ? `frei (${item.available})` : "0 frei") : "nicht in Sammlung"),
-          h("td", {}, poolCard && poolCard.available > 0 && !qty(poolCard.card_id) ? h("button", { class: "small", type: "button", onclick: () => add(poolCard) }, "+") : null));
-      }))));
-  } else {
-    body.append(h("p", { class: "muted" }, "Keine weiteren Karten in den ähnlichen Decks."));
-  }
-  const youPlay = found.you_play_they_dont || [];
-  body.append(h("h4", {}, `In deinem Deck, aber selten in diesen ${simDecks.length} ähnlichen Decks`));
-  if (youPlay.length) {
-    body.append(h("table", { id: "similar-you-play" },
-      h("thead", {}, h("tr", {},
-        h("th", {}, "Karte"),
-        h("th", { class: "num" }, "In ähnlichen Decks (n/N)"),
-        h("th", { class: "num" }, "Anteil"),
-        h("th", {}, ""))),
-      h("tbody", {}, youPlay.map((item) => {
-        const poolCard = item.card_id ? state.byId.get(item.card_id) : null;
-        const nameEl = h("span", { class: poolCard ? "nm" : "", onclick: () => { if (poolCard) openCard(poolCard); } }, item.name);
-        if (poolCard) hoverPreview(nameEl, poolCard);
-        return h("tr", {},
-          h("td", {}, nameEl),
-          h("td", { class: "num" }, `${item.hits}/${item.of}`),
-          h("td", { class: "num" }, `${(100 * item.share).toFixed(0)} %`),
-          h("td", {}, poolCard ? h("button", { class: "small", type: "button", onclick: () => remove(poolCard) }, "−") : null));
-      }))));
-  } else {
-    body.append(h("p", { class: "muted" }, "Keine Abweichungen angezeigt."));
-  }
 }
 function renderNumbers(body) {
   renderDeckStatusBox(body);
