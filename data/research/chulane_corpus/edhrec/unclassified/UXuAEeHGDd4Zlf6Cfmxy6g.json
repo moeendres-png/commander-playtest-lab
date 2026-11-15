@@ -1,0 +1,342 @@
+{
+ "urlhash": "UXuAEeHGDd4Zlf6Cfmxy6g",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-09-01",
+ "price": 97,
+ "salt": 40.38197667291388,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/ZTjVWBG4r0StsknG7U-ywg?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Augur of Autumn",
+   "quantity": 1
+  },
+  {
+   "name": "Avacyn's Pilgrim",
+   "quantity": 1
+  },
+  {
+   "name": "Beastcaller Savant",
+   "quantity": 1
+  },
+  {
+   "name": "Blossom Dryad",
+   "quantity": 1
+  },
+  {
+   "name": "Citanul Hierophants",
+   "quantity": 1
+  },
+  {
+   "name": "Clement, the Worrywort",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Mystic",
+   "quantity": 1
+  },
+  {
+   "name": "Environmental Scientist",
+   "quantity": 1
+  },
+  {
+   "name": "Farhaven Elf",
+   "quantity": 1
+  },
+  {
+   "name": "Floodbringer",
+   "quantity": 1
+  },
+  {
+   "name": "Fyndhorn Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Harvester Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Horizon Explorer",
+   "quantity": 1
+  },
+  {
+   "name": "Ilysian Caryatid",
+   "quantity": 1
+  },
+  {
+   "name": "Inga and Esika",
+   "quantity": 1
+  },
+  {
+   "name": "Intrepid Adversary",
+   "quantity": 1
+  },
+  {
+   "name": "Knight of Autumn",
+   "quantity": 1
+  },
+  {
+   "name": "Leafkin Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Ley Weaver",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Lore Weaver",
+   "quantity": 1
+  },
+  {
+   "name": "Maraleaf Pixie",
+   "quantity": 1
+  },
+  {
+   "name": "Mnemonic Wall",
+   "quantity": 1
+  },
+  {
+   "name": "Momir Vig, Simic Visionary",
+   "quantity": 1
+  },
+  {
+   "name": "Paradise Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Springbloom Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Stone-Seeder Hierophant",
+   "quantity": 1
+  },
+  {
+   "name": "Sunscape Familiar",
+   "quantity": 1
+  },
+  {
+   "name": "Sutina, Speaker of the Tajuru",
+   "quantity": 1
+  },
+  {
+   "name": "Tangled Florahedron",
+   "quantity": 1
+  },
+  {
+   "name": "Thranduil, Sindarin Liege",
+   "quantity": 1
+  },
+  {
+   "name": "Tireless Provisioner",
+   "quantity": 1
+  },
+  {
+   "name": "Tolarian Kraken",
+   "quantity": 1
+  },
+  {
+   "name": "Trostani, Three Whispers",
+   "quantity": 1
+  },
+  {
+   "name": "Cosmic Rebirth",
+   "quantity": 1
+  },
+  {
+   "name": "Disenchant",
+   "quantity": 1
+  },
+  {
+   "name": "Evacuation",
+   "quantity": 1
+  },
+  {
+   "name": "Filter Out",
+   "quantity": 1
+  },
+  {
+   "name": "Fracturing Gust",
+   "quantity": 1
+  },
+  {
+   "name": "Hinder",
+   "quantity": 1
+  },
+  {
+   "name": "Make Your Move",
+   "quantity": 1
+  },
+  {
+   "name": "Nature's Claim",
+   "quantity": 1
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1
+  },
+  {
+   "name": "Vastwood Fortification",
+   "quantity": 1
+  },
+  {
+   "name": "Voidslime",
+   "quantity": 1
+  },
+  {
+   "name": "Beyond the Quiet",
+   "quantity": 1
+  },
+  {
+   "name": "Exhaustion",
+   "quantity": 1
+  },
+  {
+   "name": "Flare of Cultivation",
+   "quantity": 1
+  },
+  {
+   "name": "Fortunate Few",
+   "quantity": 1
+  },
+  {
+   "name": "Lay of the Land",
+   "quantity": 1
+  },
+  {
+   "name": "Many Partings",
+   "quantity": 1
+  },
+  {
+   "name": "Play of the Game",
+   "quantity": 1
+  },
+  {
+   "name": "Rampant Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Reclaiming Vines",
+   "quantity": 1
+  },
+  {
+   "name": "Revive the Shire",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Chromatic Lantern",
+   "quantity": 1
+  },
+  {
+   "name": "Cloud Key",
+   "quantity": 1
+  },
+  {
+   "name": "Emerald Medallion",
+   "quantity": 1
+  },
+  {
+   "name": "Expedition Map",
+   "quantity": 1
+  },
+  {
+   "name": "Rhonas's Monument",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Signet",
+   "quantity": 1
+  },
+  {
+   "name": "World Map",
+   "quantity": 1
+  },
+  {
+   "name": "Finest Hour",
+   "quantity": 1
+  },
+  {
+   "name": "Spelunking",
+   "quantity": 1
+  },
+  {
+   "name": "Alchemist's Refuge",
+   "quantity": 1
+  },
+  {
+   "name": "Balamb Garden, SeeD Academy",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Dreamroot Cascade",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 7
+  },
+  {
+   "name": "Ghost Town",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 7
+  },
+  {
+   "name": "Path of Ancestry",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 8
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Growth Chamber",
+   "quantity": 1
+  },
+  {
+   "name": "Treva's Ruins",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}
