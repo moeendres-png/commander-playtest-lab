@@ -136,9 +136,23 @@ def test_render_covers_lanes_heads_and_worktrees(tmp_path, fake_env):
     assert "next=land the fix" in text
     assert "lab HEAD main@aaaaaaaa (clean) origin/main=dddddddd" in text
     assert "PR #574 opencode/x -> ffffffff" in text
-    assert "/wt/feature [feat] dirty=2 unpushed=3" in text
-    assert "/wt/detached" not in text
+    assert "feature [feat] dirty=2 unpushed=3" in text
+    assert "detached" not in text.split("## Local worktrees")[1]
+    assert "/wt/" not in text
     assert "Open Coordinator decisions" not in text
+
+
+@pytest.mark.parametrize(
+    ("worktree", "repo_dir", "shown"),
+    [
+        ("/wt/main", "/wt/main", "."),
+        ("/wt/main/sub/tree", "/wt/main", "sub/tree"),
+        ("/wt/feature", "/wt/main", "../feature"),
+        ("/srv/elsewhere/feature", "/wt/main", "feature"),
+    ],
+)
+def test_worktree_paths_are_repository_relative_never_absolute(worktree, repo_dir, shown):
+    assert handoff.display_path(Path(worktree), Path(repo_dir)) == shown
 
 
 def test_lanes_are_the_open_issues_without_pull_requests(fake_env):

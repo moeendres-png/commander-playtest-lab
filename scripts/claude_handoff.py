@@ -62,6 +62,17 @@ def clip(text: str, limit: int) -> str:
     return flat if len(flat) <= limit else flat[: limit - 1].rstrip() + "\u2026"
 
 
+def display_path(path: Path, repo_dir: Path) -> str:
+    """A worktree path relative to the repository: never an absolute local path."""
+    if path == repo_dir:
+        return "."
+    if repo_dir in path.parents:
+        return path.relative_to(repo_dir).as_posix()
+    if path.parent == repo_dir.parent:
+        return f"../{path.name}"
+    return path.name
+
+
 def worktree_lines(repo_dir: Path) -> list[str]:
     raw = git(repo_dir, "worktree", "list", "--porcelain") or ""
     blocks: list[dict[str, str]] = []
@@ -78,6 +89,7 @@ def worktree_lines(repo_dir: Path) -> list[str]:
     for wt in blocks:
         path = Path(wt.get("worktree", "."))
         branch = wt.get("branch", "").replace("refs/heads/", "") or "(detached)"
+        shown = display_path(path, repo_dir)
         dirty = len((git(path, "status", "--porcelain") or "").splitlines())
         if branch == "(detached)" and not dirty:
             continue  # prunable audit/baseline checkouts are not continuations
@@ -88,9 +100,9 @@ def worktree_lines(repo_dir: Path) -> list[str]:
             ahead = git(path, "rev-list", "--count", f"origin/{branch}..HEAD")
             unpushed = ahead if ahead and ahead.isdigit() else "?"
         if dirty or unpushed not in ("0", "no-remote"):
-            lines.append(f"{path} [{branch}] dirty={dirty} unpushed={unpushed}")
+            lines.append(f"{shown} [{branch}] dirty={dirty} unpushed={unpushed}")
         elif unpushed == "no-remote":
-            lines.append(f"{path} [{branch}] dirty={dirty} unpushed=no-remote")
+            lines.append(f"{shown} [{branch}] dirty={dirty} unpushed=no-remote")
     return lines[:6] or ["(none dirty or unpushed)"]
 
 
