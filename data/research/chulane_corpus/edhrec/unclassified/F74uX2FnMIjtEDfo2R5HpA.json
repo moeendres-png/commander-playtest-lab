@@ -1,0 +1,282 @@
+{
+ "urlhash": "F74uX2FnMIjtEDfo2R5HpA",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-09-10",
+ "price": 104,
+ "salt": 48.28113288804889,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/15891294?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Ambush Viper",
+   "quantity": 1
+  },
+  {
+   "name": "Anafenza, Unyielding Lineage",
+   "quantity": 1
+  },
+  {
+   "name": "Ancient Stone Idol",
+   "quantity": 1
+  },
+  {
+   "name": "Angel of Grace",
+   "quantity": 1
+  },
+  {
+   "name": "Angel of the Dire Hour",
+   "quantity": 1
+  },
+  {
+   "name": "Archivist of Oghma",
+   "quantity": 1
+  },
+  {
+   "name": "Brineborn Cutthroat",
+   "quantity": 1
+  },
+  {
+   "name": "Clone",
+   "quantity": 1
+  },
+  {
+   "name": "Cogwork Wrestler",
+   "quantity": 1
+  },
+  {
+   "name": "Coiling Oracle",
+   "quantity": 1
+  },
+  {
+   "name": "Crafty Cutpurse",
+   "quantity": 1
+  },
+  {
+   "name": "Deputy of Acquittals",
+   "quantity": 1
+  },
+  {
+   "name": "Dragon Turtle",
+   "quantity": 1
+  },
+  {
+   "name": "Draining Whelk",
+   "quantity": 1
+  },
+  {
+   "name": "Dust Elemental",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Mystic",
+   "quantity": 1
+  },
+  {
+   "name": "Eternal Witness",
+   "quantity": 1
+  },
+  {
+   "name": "Faerie Mastermind",
+   "quantity": 1
+  },
+  {
+   "name": "Faerie Vandal",
+   "quantity": 1
+  },
+  {
+   "name": "Fear of Impostors",
+   "quantity": 1
+  },
+  {
+   "name": "Fleetfeather Cockatrice",
+   "quantity": 1
+  },
+  {
+   "name": "Fleetfoot Panther",
+   "quantity": 1
+  },
+  {
+   "name": "Floodpits Drowner",
+   "quantity": 1
+  },
+  {
+   "name": "Frilled Mystic",
+   "quantity": 1
+  },
+  {
+   "name": "Guardian Augmenter",
+   "quantity": 1
+  },
+  {
+   "name": "Guardian of Faith",
+   "quantity": 1
+  },
+  {
+   "name": "Ice-Fang Coatl",
+   "quantity": 1
+  },
+  {
+   "name": "Illvoi Galeblade",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Merfolk Trickster",
+   "quantity": 1
+  },
+  {
+   "name": "Mystic Snake",
+   "quantity": 1
+  },
+  {
+   "name": "Phantom Steed",
+   "quantity": 1
+  },
+  {
+   "name": "Plaxmanta",
+   "quantity": 1
+  },
+  {
+   "name": "Plumecreed Escort",
+   "quantity": 1
+  },
+  {
+   "name": "Psionic Snoop",
+   "quantity": 1
+  },
+  {
+   "name": "Qasali Ambusher",
+   "quantity": 1
+  },
+  {
+   "name": "Quickling",
+   "quantity": 1
+  },
+  {
+   "name": "Ravener",
+   "quantity": 1
+  },
+  {
+   "name": "Reclamation Sage",
+   "quantity": 1
+  },
+  {
+   "name": "Saiba Cryptomancer",
+   "quantity": 1
+  },
+  {
+   "name": "Sakashima's Protege",
+   "quantity": 1
+  },
+  {
+   "name": "Sandstalker Moloch",
+   "quantity": 1
+  },
+  {
+   "name": "Scuttling Sentinel",
+   "quantity": 1
+  },
+  {
+   "name": "Seht's Tiger",
+   "quantity": 1
+  },
+  {
+   "name": "Selfless Squire",
+   "quantity": 1
+  },
+  {
+   "name": "Shadow Kin",
+   "quantity": 1
+  },
+  {
+   "name": "Sicarian Infiltrator",
+   "quantity": 1
+  },
+  {
+   "name": "Sigarda's Vanguard",
+   "quantity": 1
+  },
+  {
+   "name": "Silumgar Sorcerer",
+   "quantity": 1
+  },
+  {
+   "name": "Singer of Swift Rivers",
+   "quantity": 1
+  },
+  {
+   "name": "Sister of Silence",
+   "quantity": 1
+  },
+  {
+   "name": "Slippery Bogbonder",
+   "quantity": 1
+  },
+  {
+   "name": "Snapping Sailback",
+   "quantity": 1
+  },
+  {
+   "name": "Spectral Sailor",
+   "quantity": 1
+  },
+  {
+   "name": "Stunt Double",
+   "quantity": 1
+  },
+  {
+   "name": "Sweet-Gum Recluse",
+   "quantity": 1
+  },
+  {
+   "name": "The Wandering Rescuer",
+   "quantity": 1
+  },
+  {
+   "name": "Thijarian Witness",
+   "quantity": 1
+  },
+  {
+   "name": "Transcendent Dragon",
+   "quantity": 1
+  },
+  {
+   "name": "Voracious Greatshark",
+   "quantity": 1
+  },
+  {
+   "name": "Whitemane Lion",
+   "quantity": 1
+  },
+  {
+   "name": "Winged Coatl",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 10
+  },
+  {
+   "name": "Island",
+   "quantity": 18
+  },
+  {
+   "name": "Plains",
+   "quantity": 9
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}
