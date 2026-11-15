@@ -10,7 +10,7 @@ Current provider decision: `NO_PROVIDER_READY`. Phase 8.5 ended with `external_r
 4. Build or install a provider-specific bridge implementing protocol 2.0.0.
 5. Set `ENGINE_START_COMMAND` to that bridge.
 6. Run `scripts/verify_engine.sh`.
-7. Run `commander-lab validate-engine-phase85`.
+7. Run `commander-lab engine-verify`.
 8. Preserve `artifacts/engine_setup` and collect logs.
 
 ## Acceptance sequence

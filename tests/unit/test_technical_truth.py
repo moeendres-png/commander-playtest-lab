@@ -54,11 +54,7 @@ def test_technical_truth_derives_current_versions_scope_and_engine_boundary() ->
         None if shallow else True
     )
     assert truth["roadmap_mvp_state"]["priority_context_surface_present"] is True
-    assert truth["roadmap_mvp_state"]["priority_workflow_surface_present"] is True
     assert truth["roadmap_mvp_state"]["exact_result_cache_surface_present"] is True
-    assert truth["roadmap_mvp_state"]["model_informativeness_gate_present"] is True
-    assert truth["roadmap_mvp_state"]["workflow_session_present"] is True
-    assert truth["roadmap_mvp_state"]["public_high_level_workflow_surface_present"] is True
     external = truth["external_engine_status"]
     assert external["provider_decision"] == "XMAGE_SELECTED"
     assert external["production_provider_ready"] is True

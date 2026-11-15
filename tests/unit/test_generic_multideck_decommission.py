@@ -34,9 +34,6 @@ RETIRED_KORVOLD_CLASSES = (
 ALLOWED_LEGACY_BUILD_PILOT_CALLERS = frozenset(
     {
         "src/commander_lab/agents/live_routing.py",
-        "src/commander_lab/agents/ensemble.py",
-        "src/commander_lab/tools/service_knowledge.py",
-        "src/commander_lab/tools/service_pilots.py",
     }
 )
 

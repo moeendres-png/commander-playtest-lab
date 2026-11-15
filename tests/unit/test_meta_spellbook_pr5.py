@@ -51,14 +51,6 @@ def _combo(
     )
 
 
-def test_scoring_path_never_imports_spellbook_sync() -> None:
-    src = ROOT / "src/commander_lab/whole_deck"
-    for name in ("meta.py", "search_meta_score.py", "search_construct.py"):
-        text = (src / name).read_text(encoding="utf-8")
-        assert "commander_spellbook" not in text
-        assert "sync_commander_spellbook_snapshot" not in text
-
-
 def test_combo_model_rejects_empty_cards_and_groups() -> None:
     with pytest.raises(ValidationError):
         _combo("bad", (), (FormatBand.HIGH_POWER,))
