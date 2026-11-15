@@ -61,10 +61,11 @@ def test_confidence_is_higher_with_more_coverage_and_has_a_level() -> None:
 
 def test_a_card_without_a_tier_has_no_confidence() -> None:
     cards = _cards(_compute(_store(), rank_commander_and_basics=False, rank_other_commanders=False))
-    for card in cards.values():
-        if card["tier"] == "N":
-            assert card["confidence"] is None and card["confidence_level"] is None
-            assert card["borderline"] is False
+    unranked = [card for card in cards.values() if card["tier"] == "N"]
+    assert unranked
+    for card in unranked:
+        assert card["confidence"] is None and card["confidence_level"] is None
+        assert card["borderline"] is False
 
 
 def test_borderline_is_the_distance_to_the_nearest_cut() -> None:
