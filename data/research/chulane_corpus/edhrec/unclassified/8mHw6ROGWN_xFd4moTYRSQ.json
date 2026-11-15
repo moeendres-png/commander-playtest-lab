@@ -1,0 +1,374 @@
+{
+ "urlhash": "8mHw6ROGWN_xFd4moTYRSQ",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-08-25",
+ "price": 234,
+ "salt": 41.3019064553082,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/WtDkgCXSc0izY9RGY0SHhw?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Anafenza, Unyielding Lineage",
+   "quantity": 1
+  },
+  {
+   "name": "Arcanis the Omnipotent",
+   "quantity": 1
+  },
+  {
+   "name": "Atlantean Cavalry",
+   "quantity": 1
+  },
+  {
+   "name": "Eladamri, Korvecdal",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Rejuvenator",
+   "quantity": 1
+  },
+  {
+   "name": "Faerie Vandal",
+   "quantity": 1
+  },
+  {
+   "name": "Fatespinner",
+   "quantity": 1
+  },
+  {
+   "name": "Gretchen Titchwillow",
+   "quantity": 1
+  },
+  {
+   "name": "Guardian of Faith",
+   "quantity": 1
+  },
+  {
+   "name": "Gyre Engineer",
+   "quantity": 1
+  },
+  {
+   "name": "Incubation Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Kinsbaile Cavalier",
+   "quantity": 1
+  },
+  {
+   "name": "Knight Exemplar",
+   "quantity": 1
+  },
+  {
+   "name": "Knight of Meadowgrain",
+   "quantity": 1
+  },
+  {
+   "name": "Knight of the Reliquary",
+   "quantity": 1
+  },
+  {
+   "name": "Knight of the White Orchid",
+   "quantity": 1
+  },
+  {
+   "name": "Knotvine Paladin",
+   "quantity": 1
+  },
+  {
+   "name": "Kutzil, Malamet Exemplar",
+   "quantity": 1
+  },
+  {
+   "name": "Leafkin Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Lighthouse Chronologist",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Maraleaf Pixie",
+   "quantity": 1
+  },
+  {
+   "name": "Metropolis Reformer",
+   "quantity": 1
+  },
+  {
+   "name": "Nadaar, Selfless Paladin",
+   "quantity": 1
+  },
+  {
+   "name": "Nightshade Dryad",
+   "quantity": 1
+  },
+  {
+   "name": "Noxious Newt",
+   "quantity": 1
+  },
+  {
+   "name": "Paladin of Prahv",
+   "quantity": 1
+  },
+  {
+   "name": "Paradise Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Prosperous Innkeeper",
+   "quantity": 1
+  },
+  {
+   "name": "Sakura-Tribe Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Scavenging Ooze",
+   "quantity": 1
+  },
+  {
+   "name": "Shalai, Voice of Plenty",
+   "quantity": 1
+  },
+  {
+   "name": "Silver Knight",
+   "quantity": 1
+  },
+  {
+   "name": "Skyshroud Ranger",
+   "quantity": 1
+  },
+  {
+   "name": "Thalakos Deceiver",
+   "quantity": 1
+  },
+  {
+   "name": "Tolarian Entrancer",
+   "quantity": 1
+  },
+  {
+   "name": "Twitching Doll",
+   "quantity": 1
+  },
+  {
+   "name": "Warden of the Grove",
+   "quantity": 1
+  },
+  {
+   "name": "White Knight",
+   "quantity": 1
+  },
+  {
+   "name": "Wildgrowth Archaic",
+   "quantity": 1
+  },
+  {
+   "name": "Bar the Gate",
+   "quantity": 1
+  },
+  {
+   "name": "Blossoming Defense",
+   "quantity": 1
+  },
+  {
+   "name": "Boomerang",
+   "quantity": 1
+  },
+  {
+   "name": "Collective Resistance",
+   "quantity": 1
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1
+  },
+  {
+   "name": "Growth Spiral",
+   "quantity": 1
+  },
+  {
+   "name": "Heliod's Intervention",
+   "quantity": 1
+  },
+  {
+   "name": "Negate",
+   "quantity": 1
+  },
+  {
+   "name": "Remand",
+   "quantity": 1
+  },
+  {
+   "name": "Rewind",
+   "quantity": 1
+  },
+  {
+   "name": "Run Away Together",
+   "quantity": 1
+  },
+  {
+   "name": "Snakeskin Veil",
+   "quantity": 1
+  },
+  {
+   "name": "Unsummon",
+   "quantity": 1
+  },
+  {
+   "name": "Cultivate",
+   "quantity": 1
+  },
+  {
+   "name": "Flower // Flourish",
+   "quantity": 1
+  },
+  {
+   "name": "Delver's Torch",
+   "quantity": 1
+  },
+  {
+   "name": "Isochron Scepter",
+   "quantity": 1
+  },
+  {
+   "name": "Lotus Petal",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Diplomatic Immunity",
+   "quantity": 1
+  },
+  {
+   "name": "Find the Path",
+   "quantity": 1
+  },
+  {
+   "name": "Sylvan Scavenging",
+   "quantity": 1
+  },
+  {
+   "name": "Treachery",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Chancery",
+   "quantity": 1
+  },
+  {
+   "name": "Blossoming Sands",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Creosote Heath",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Flooded Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 6
+  },
+  {
+   "name": "Gathering Place",
+   "quantity": 1
+  },
+  {
+   "name": "Glacial Fortress",
+   "quantity": 1
+  },
+  {
+   "name": "Gleaming Bastion",
+   "quantity": 1
+  },
+  {
+   "name": "Grasslands",
+   "quantity": 1
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 4
+  },
+  {
+   "name": "Plains",
+   "quantity": 4
+  },
+  {
+   "name": "Razorverge Thicket",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Guildgate",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Guildgate",
+   "quantity": 1
+  },
+  {
+   "name": "Sungrass Prairie",
+   "quantity": 1
+  },
+  {
+   "name": "Temple Garden",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Mystery",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Plenty",
+   "quantity": 1
+  },
+  {
+   "name": "Thornwood Falls",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Cove",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Garden",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

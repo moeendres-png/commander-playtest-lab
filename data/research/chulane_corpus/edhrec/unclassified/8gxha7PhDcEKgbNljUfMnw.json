@@ -1,0 +1,398 @@
+{
+ "urlhash": "8gxha7PhDcEKgbNljUfMnw",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-07-31",
+ "price": 474,
+ "salt": 60.22751199034974,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/14924369?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Aesi, Tyrant of Gyre Strait",
+   "quantity": 1
+  },
+  {
+   "name": "Beast Whisperer",
+   "quantity": 1
+  },
+  {
+   "name": "Birds of Paradise",
+   "quantity": 1
+  },
+  {
+   "name": "Cemetery Prowler",
+   "quantity": 1
+  },
+  {
+   "name": "Dour Port-Mage",
+   "quantity": 1
+  },
+  {
+   "name": "Drift of Phantasms",
+   "quantity": 1
+  },
+  {
+   "name": "Grand Abolisher",
+   "quantity": 1
+  },
+  {
+   "name": "Grand Arbiter Augustin IV",
+   "quantity": 1
+  },
+  {
+   "name": "Gretchen Titchwillow",
+   "quantity": 1
+  },
+  {
+   "name": "Kodama of the East Tree",
+   "quantity": 1
+  },
+  {
+   "name": "Kutzil, Malamet Exemplar",
+   "quantity": 1
+  },
+  {
+   "name": "Lotus Cobra",
+   "quantity": 1
+  },
+  {
+   "name": "Mentor of the Meek",
+   "quantity": 1
+  },
+  {
+   "name": "Mulldrifter",
+   "quantity": 1
+  },
+  {
+   "name": "Nissa, Resurgent Animist",
+   "quantity": 1
+  },
+  {
+   "name": "Noble Hierarch",
+   "quantity": 1
+  },
+  {
+   "name": "Nylea, Keen-Eyed",
+   "quantity": 1
+  },
+  {
+   "name": "Rescuer Chwinga",
+   "quantity": 1
+  },
+  {
+   "name": "Sakura-Tribe Scout",
+   "quantity": 1
+  },
+  {
+   "name": "Scaled Herbalist",
+   "quantity": 1
+  },
+  {
+   "name": "Shrieking Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Skyshroud Ranger",
+   "quantity": 1
+  },
+  {
+   "name": "Stonecloaker",
+   "quantity": 1
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Thassa's Oracle",
+   "quantity": 1
+  },
+  {
+   "name": "Thrasios, Triton Hero",
+   "quantity": 1
+  },
+  {
+   "name": "Tireless Provisioner",
+   "quantity": 1
+  },
+  {
+   "name": "Triskaidekaphile",
+   "quantity": 1
+  },
+  {
+   "name": "Uro, Titan of Nature's Wrath",
+   "quantity": 1
+  },
+  {
+   "name": "Voice of Victory",
+   "quantity": 1
+  },
+  {
+   "name": "Whitemane Lion",
+   "quantity": 1
+  },
+  {
+   "name": "Yasharn, Implacable Earth",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Denial",
+   "quantity": 1
+  },
+  {
+   "name": "Beast Within",
+   "quantity": 1
+  },
+  {
+   "name": "Chord of Calling",
+   "quantity": 1
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1
+  },
+  {
+   "name": "Delay",
+   "quantity": 1
+  },
+  {
+   "name": "Generous Gift",
+   "quantity": 1
+  },
+  {
+   "name": "Get Lost",
+   "quantity": 1
+  },
+  {
+   "name": "Growth Spiral",
+   "quantity": 1
+  },
+  {
+   "name": "Krosan Grip",
+   "quantity": 1
+  },
+  {
+   "name": "Path to Exile",
+   "quantity": 1
+  },
+  {
+   "name": "Pull from Tomorrow",
+   "quantity": 1
+  },
+  {
+   "name": "Resculpt",
+   "quantity": 1
+  },
+  {
+   "name": "Return to Nature",
+   "quantity": 1
+  },
+  {
+   "name": "Sphinx's Revelation",
+   "quantity": 1
+  },
+  {
+   "name": "Swan Song",
+   "quantity": 1
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1
+  },
+  {
+   "name": "Explore",
+   "quantity": 1
+  },
+  {
+   "name": "Farewell",
+   "quantity": 1
+  },
+  {
+   "name": "Farseek",
+   "quantity": 1
+  },
+  {
+   "name": "Nature's Lore",
+   "quantity": 1
+  },
+  {
+   "name": "Supreme Verdict",
+   "quantity": 1
+  },
+  {
+   "name": "Three Visits",
+   "quantity": 1
+  },
+  {
+   "name": "Wargate",
+   "quantity": 1
+  },
+  {
+   "name": "Cloudstone Curio",
+   "quantity": 1
+  },
+  {
+   "name": "Lightning Greaves",
+   "quantity": 1
+  },
+  {
+   "name": "Swiftfoot Boots",
+   "quantity": 1
+  },
+  {
+   "name": "Amphibian Downpour",
+   "quantity": 1
+  },
+  {
+   "name": "Aura Shards",
+   "quantity": 1
+  },
+  {
+   "name": "Guardian Project",
+   "quantity": 1
+  },
+  {
+   "name": "Mana Breach",
+   "quantity": 1
+  },
+  {
+   "name": "Overburden",
+   "quantity": 1
+  },
+  {
+   "name": "Rest in Peace",
+   "quantity": 1
+  },
+  {
+   "name": "Sheltered by Ghosts",
+   "quantity": 1
+  },
+  {
+   "name": "Adarkar Wastes",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Chancery",
+   "quantity": 1
+  },
+  {
+   "name": "Brushland",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Floodfarm Verge",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 4
+  },
+  {
+   "name": "Glacial Fortress",
+   "quantity": 1
+  },
+  {
+   "name": "Guildless Commons",
+   "quantity": 1
+  },
+  {
+   "name": "Hinterland Harbor",
+   "quantity": 1
+  },
+  {
+   "name": "Hushwood Verge",
+   "quantity": 1
+  },
+  {
+   "name": "Irrigated Farmland",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 2
+  },
+  {
+   "name": "Mystic Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 2
+  },
+  {
+   "name": "Port Town",
+   "quantity": 1
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Rimewood Falls",
+   "quantity": 1
+  },
+  {
+   "name": "Scattered Groves",
+   "quantity": 1
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Growth Chamber",
+   "quantity": 1
+  },
+  {
+   "name": "Spara's Headquarters",
+   "quantity": 1
+  },
+  {
+   "name": "Sunpetal Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Treva's Ruins",
+   "quantity": 1
+  },
+  {
+   "name": "Vineglimmer Snarl",
+   "quantity": 1
+  },
+  {
+   "name": "Willowrush Verge",
+   "quantity": 1
+  },
+  {
+   "name": "Yavimaya Coast",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

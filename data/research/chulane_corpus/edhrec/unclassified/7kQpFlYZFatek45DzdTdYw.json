@@ -1,0 +1,338 @@
+{
+ "urlhash": "7kQpFlYZFatek45DzdTdYw",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-09-21",
+ "price": 248,
+ "salt": 51.0306122303009,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/23436911?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Ambrosia Whiteheart",
+   "quantity": 1
+  },
+  {
+   "name": "Arbor Elf",
+   "quantity": 1
+  },
+  {
+   "name": "Arboreal Grazer",
+   "quantity": 1
+  },
+  {
+   "name": "Basking Broodscale",
+   "quantity": 1
+  },
+  {
+   "name": "Cactuar",
+   "quantity": 1
+  },
+  {
+   "name": "Champion of Lambholt",
+   "quantity": 1
+  },
+  {
+   "name": "Devoted Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Emergent Woodwurm",
+   "quantity": 1
+  },
+  {
+   "name": "Enduring Vitality",
+   "quantity": 1
+  },
+  {
+   "name": "Eternal Witness",
+   "quantity": 1
+  },
+  {
+   "name": "Fear of Isolation",
+   "quantity": 1
+  },
+  {
+   "name": "Forgotten Ancient",
+   "quantity": 1
+  },
+  {
+   "name": "Goobbue Gardener",
+   "quantity": 1
+  },
+  {
+   "name": "Great Forest Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Heartwood Storyteller",
+   "quantity": 1
+  },
+  {
+   "name": "Heronblade Elite",
+   "quantity": 1
+  },
+  {
+   "name": "Hullbreaker Horror",
+   "quantity": 1
+  },
+  {
+   "name": "Ilysian Caryatid",
+   "quantity": 1
+  },
+  {
+   "name": "Incubation Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Ivy Lane Denizen",
+   "quantity": 1
+  },
+  {
+   "name": "Jin-Gitaxias",
+   "quantity": 1
+  },
+  {
+   "name": "Krosan Restorer",
+   "quantity": 1
+  },
+  {
+   "name": "Laboratory Maniac",
+   "quantity": 1
+  },
+  {
+   "name": "Lilysplash Mentor",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Midnight Guard",
+   "quantity": 1
+  },
+  {
+   "name": "Moonshaker Cavalry",
+   "quantity": 1
+  },
+  {
+   "name": "Nissa, Worldsoul Speaker",
+   "quantity": 1
+  },
+  {
+   "name": "Nurturing Pixie",
+   "quantity": 1
+  },
+  {
+   "name": "Ornithopter",
+   "quantity": 1
+  },
+  {
+   "name": "Oviya, Automech Artisan",
+   "quantity": 1
+  },
+  {
+   "name": "Peregrine Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Rift Sower",
+   "quantity": 1
+  },
+  {
+   "name": "Saryth, the Viper's Fang",
+   "quantity": 1
+  },
+  {
+   "name": "Scurry Oak",
+   "quantity": 1
+  },
+  {
+   "name": "Supportive Parents",
+   "quantity": 1
+  },
+  {
+   "name": "Sylvan Safekeeper",
+   "quantity": 1
+  },
+  {
+   "name": "Three Tree Rootweaver",
+   "quantity": 1
+  },
+  {
+   "name": "Tireless Tracker",
+   "quantity": 1
+  },
+  {
+   "name": "Vizier of Remedies",
+   "quantity": 1
+  },
+  {
+   "name": "Vorinclex",
+   "quantity": 1
+  },
+  {
+   "name": "Wirewood Symbiote",
+   "quantity": 1
+  },
+  {
+   "name": "Wose Pathfinder",
+   "quantity": 1
+  },
+  {
+   "name": "Zack Fair",
+   "quantity": 1
+  },
+  {
+   "name": "Harsh Annotation",
+   "quantity": 1
+  },
+  {
+   "name": "Nature's Chant",
+   "quantity": 1
+  },
+  {
+   "name": "Negate",
+   "quantity": 1
+  },
+  {
+   "name": "Path to Exile",
+   "quantity": 1
+  },
+  {
+   "name": "Slash of Light",
+   "quantity": 1
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1
+  },
+  {
+   "name": "Unwanted Remake",
+   "quantity": 1
+  },
+  {
+   "name": "Voidslime",
+   "quantity": 1
+  },
+  {
+   "name": "Celestial Reunion",
+   "quantity": 1
+  },
+  {
+   "name": "Cultivate",
+   "quantity": 1
+  },
+  {
+   "name": "Genesis Wave",
+   "quantity": 1
+  },
+  {
+   "name": "Kodama's Reach",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Dusk Rose Reliquary",
+   "quantity": 1
+  },
+  {
+   "name": "Champions from Beyond",
+   "quantity": 1
+  },
+  {
+   "name": "Kasmina's Transmutation",
+   "quantity": 1
+  },
+  {
+   "name": "Nature's Will",
+   "quantity": 1
+  },
+  {
+   "name": "Presence of Gond",
+   "quantity": 1
+  },
+  {
+   "name": "Rhystic Study",
+   "quantity": 1
+  },
+  {
+   "name": "Oko, Lorwyn Liege",
+   "quantity": 1
+  },
+  {
+   "name": "Arctic Treeline",
+   "quantity": 1
+  },
+  {
+   "name": "Arid Archway",
+   "quantity": 1
+  },
+  {
+   "name": "Blighted Woodland",
+   "quantity": 1
+  },
+  {
+   "name": "Crossroads Village",
+   "quantity": 1
+  },
+  {
+   "name": "Etched Cornfield",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 9
+  },
+  {
+   "name": "Guadosalam, Farplane Gateway",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 5
+  },
+  {
+   "name": "Khalni Garden",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 9
+  },
+  {
+   "name": "Selesnya Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Suburban Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Survivors' Encampment",
+   "quantity": 1
+  },
+  {
+   "name": "Terramorphic Expanse",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Landscape",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

@@ -1,0 +1,362 @@
+{
+ "urlhash": "7GVQ9t7vY0SvapeSZketjw",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-02-11",
+ "price": 770,
+ "salt": 63.093717265408486,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/2811072?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Acidic Slime",
+   "quantity": 1
+  },
+  {
+   "name": "Amphin Mutineer",
+   "quantity": 1
+  },
+  {
+   "name": "Arboreal Grazer",
+   "quantity": 1
+  },
+  {
+   "name": "Avacyn's Pilgrim",
+   "quantity": 1
+  },
+  {
+   "name": "Azusa, Lost but Seeking",
+   "quantity": 1
+  },
+  {
+   "name": "Beast Whisperer",
+   "quantity": 1
+  },
+  {
+   "name": "Birds of Paradise",
+   "quantity": 1
+  },
+  {
+   "name": "Boreal Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Brazen Borrower",
+   "quantity": 1
+  },
+  {
+   "name": "Clever Impersonator",
+   "quantity": 1
+  },
+  {
+   "name": "Craterhoof Behemoth",
+   "quantity": 1
+  },
+  {
+   "name": "Elesh Norn, Grand Cenobite",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Mystic",
+   "quantity": 1
+  },
+  {
+   "name": "Esper Sentinel",
+   "quantity": 1
+  },
+  {
+   "name": "Eternal Witness",
+   "quantity": 1
+  },
+  {
+   "name": "Faeburrow Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Fierce Empath",
+   "quantity": 1
+  },
+  {
+   "name": "Fyndhorn Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Gilded Goose",
+   "quantity": 1
+  },
+  {
+   "name": "Incubation Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Laboratory Maniac",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Lotus Cobra",
+   "quantity": 1
+  },
+  {
+   "name": "Maraleaf Pixie",
+   "quantity": 1
+  },
+  {
+   "name": "Masako the Humorless",
+   "quantity": 1
+  },
+  {
+   "name": "Meddling Mage",
+   "quantity": 1
+  },
+  {
+   "name": "Mother of Runes",
+   "quantity": 1
+  },
+  {
+   "name": "Mystic Snake",
+   "quantity": 1
+  },
+  {
+   "name": "Nissa, Vastwood Seer",
+   "quantity": 1
+  },
+  {
+   "name": "Nyxbloom Ancient",
+   "quantity": 1
+  },
+  {
+   "name": "Omnath, Locus of Mana",
+   "quantity": 1
+  },
+  {
+   "name": "Oracle of Mul Daya",
+   "quantity": 1
+  },
+  {
+   "name": "Pathbreaker Ibex",
+   "quantity": 1
+  },
+  {
+   "name": "Quirion Ranger",
+   "quantity": 1
+  },
+  {
+   "name": "Reclamation Sage",
+   "quantity": 1
+  },
+  {
+   "name": "Risen Reef",
+   "quantity": 1
+  },
+  {
+   "name": "Roil Elemental",
+   "quantity": 1
+  },
+  {
+   "name": "Sanctifier en-Vec",
+   "quantity": 1
+  },
+  {
+   "name": "Scryb Ranger",
+   "quantity": 1
+  },
+  {
+   "name": "Seedborn Muse",
+   "quantity": 1
+  },
+  {
+   "name": "Serra Ascendant",
+   "quantity": 1
+  },
+  {
+   "name": "Shaman of Forgotten Ways",
+   "quantity": 1
+  },
+  {
+   "name": "Shrieking Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Somberwald Sage",
+   "quantity": 1
+  },
+  {
+   "name": "Soul Warden",
+   "quantity": 1
+  },
+  {
+   "name": "Stonecloaker",
+   "quantity": 1
+  },
+  {
+   "name": "Sylvan Safekeeper",
+   "quantity": 1
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Temur Sabertooth",
+   "quantity": 1
+  },
+  {
+   "name": "Tireless Provisioner",
+   "quantity": 1
+  },
+  {
+   "name": "Vizier of the Menagerie",
+   "quantity": 1
+  },
+  {
+   "name": "Whitemane Lion",
+   "quantity": 1
+  },
+  {
+   "name": "Primal Surge",
+   "quantity": 1
+  },
+  {
+   "name": "Aetherflux Reservoir",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Crystal Shard",
+   "quantity": 1
+  },
+  {
+   "name": "Lightning Greaves",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Vedalken Orrery",
+   "quantity": 1
+  },
+  {
+   "name": "Aluren",
+   "quantity": 1
+  },
+  {
+   "name": "Bear Umbra",
+   "quantity": 1
+  },
+  {
+   "name": "Intruder Alarm",
+   "quantity": 1
+  },
+  {
+   "name": "Mirri's Guile",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Chancery",
+   "quantity": 1
+  },
+  {
+   "name": "Bant Panorama",
+   "quantity": 1
+  },
+  {
+   "name": "Breeding Pool",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Celestial Colonnade",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Field of the Dead",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 6
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1
+  },
+  {
+   "name": "Hinterland Harbor",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 6
+  },
+  {
+   "name": "Krosan Verge",
+   "quantity": 1
+  },
+  {
+   "name": "Minamo, School at Water's Edge",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 5
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1
+  },
+  {
+   "name": "Snow-Covered Forest",
+   "quantity": 1
+  },
+  {
+   "name": "Snow-Covered Island",
+   "quantity": 1
+  },
+  {
+   "name": "Snow-Covered Plains",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Mystery",
+   "quantity": 1
+  },
+  {
+   "name": "Thawing Glaciers",
+   "quantity": 1
+  },
+  {
+   "name": "Thornwood Falls",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

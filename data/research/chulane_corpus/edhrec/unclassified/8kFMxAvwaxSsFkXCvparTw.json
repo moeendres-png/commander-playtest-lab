@@ -1,0 +1,390 @@
+{
+ "urlhash": "8kFMxAvwaxSsFkXCvparTw",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-10-01",
+ "price": 101,
+ "salt": 28.425040983129293,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/Hhrv0lwCeUe9kdatCRPipQ?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Anaconda",
+   "quantity": 1
+  },
+  {
+   "name": "Arctic Foxes",
+   "quantity": 1
+  },
+  {
+   "name": "Arctic Wolves",
+   "quantity": 1
+  },
+  {
+   "name": "Birds of Paradise",
+   "quantity": 1
+  },
+  {
+   "name": "Camel",
+   "quantity": 1
+  },
+  {
+   "name": "Chambered Nautilus",
+   "quantity": 1
+  },
+  {
+   "name": "Coral Eel",
+   "quantity": 1
+  },
+  {
+   "name": "Emerald Dragonfly",
+   "quantity": 1
+  },
+  {
+   "name": "Giant Octopus",
+   "quantity": 1
+  },
+  {
+   "name": "Giant Tortoise",
+   "quantity": 1
+  },
+  {
+   "name": "Goliath Beetle",
+   "quantity": 1
+  },
+  {
+   "name": "Grizzly Bears",
+   "quantity": 1
+  },
+  {
+   "name": "Hammerhead Shark",
+   "quantity": 1
+  },
+  {
+   "name": "Humble Naturalist",
+   "quantity": 1
+  },
+  {
+   "name": "Killer Bees",
+   "quantity": 1
+  },
+  {
+   "name": "Killer Whale",
+   "quantity": 1
+  },
+  {
+   "name": "King Crab",
+   "quantity": 1
+  },
+  {
+   "name": "Kingfisher",
+   "quantity": 1
+  },
+  {
+   "name": "Lynx",
+   "quantity": 1
+  },
+  {
+   "name": "Man-o'-War",
+   "quantity": 1
+  },
+  {
+   "name": "Manta Ray",
+   "quantity": 1
+  },
+  {
+   "name": "Mockingbird",
+   "quantity": 1
+  },
+  {
+   "name": "Poison Dart Frog",
+   "quantity": 1
+  },
+  {
+   "name": "Prairie Dog",
+   "quantity": 1
+  },
+  {
+   "name": "Pygmy Hippo",
+   "quantity": 1
+  },
+  {
+   "name": "School of Piranha",
+   "quantity": 1
+  },
+  {
+   "name": "Sea Eagle",
+   "quantity": 1
+  },
+  {
+   "name": "Spiny Starfish",
+   "quantity": 1
+  },
+  {
+   "name": "Spitting Spider",
+   "quantity": 1
+  },
+  {
+   "name": "Stag Beetle",
+   "quantity": 1
+  },
+  {
+   "name": "Stampeding Wildebeests",
+   "quantity": 1
+  },
+  {
+   "name": "Tarpan",
+   "quantity": 1
+  },
+  {
+   "name": "Timber Wolves",
+   "quantity": 1
+  },
+  {
+   "name": "Tundra Wolves",
+   "quantity": 1
+  },
+  {
+   "name": "Warthog",
+   "quantity": 1
+  },
+  {
+   "name": "Whippoorwill",
+   "quantity": 1
+  },
+  {
+   "name": "Wild Dogs",
+   "quantity": 1
+  },
+  {
+   "name": "Wild Elephant",
+   "quantity": 1
+  },
+  {
+   "name": "Choking Vines",
+   "quantity": 1
+  },
+  {
+   "name": "Don't Make a Sound",
+   "quantity": 1
+  },
+  {
+   "name": "Fog",
+   "quantity": 1
+  },
+  {
+   "name": "Run Wild",
+   "quantity": 1
+  },
+  {
+   "name": "Sprouting Vines",
+   "quantity": 1
+  },
+  {
+   "name": "Stampede",
+   "quantity": 1
+  },
+  {
+   "name": "View from Above",
+   "quantity": 1
+  },
+  {
+   "name": "Emerge from the Cocoon",
+   "quantity": 1
+  },
+  {
+   "name": "Environmental Sciences",
+   "quantity": 1
+  },
+  {
+   "name": "Guiding Voice",
+   "quantity": 1
+  },
+  {
+   "name": "Irresistible Prey",
+   "quantity": 1
+  },
+  {
+   "name": "Life's Legacy",
+   "quantity": 1
+  },
+  {
+   "name": "Overwhelming Stampede",
+   "quantity": 1
+  },
+  {
+   "name": "Prey Upon",
+   "quantity": 1
+  },
+  {
+   "name": "Seek the Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Call of the Wild",
+   "quantity": 1
+  },
+  {
+   "name": "Lifeforce",
+   "quantity": 1
+  },
+  {
+   "name": "Lost in the Woods",
+   "quantity": 1
+  },
+  {
+   "name": "Predatory Hunger",
+   "quantity": 1
+  },
+  {
+   "name": "Trapped in the Screen",
+   "quantity": 1
+  },
+  {
+   "name": "Wild Pair",
+   "quantity": 1
+  },
+  {
+   "name": "Animal Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Arctic Flats",
+   "quantity": 1
+  },
+  {
+   "name": "Arctic Treeline",
+   "quantity": 1
+  },
+  {
+   "name": "Blossoming Sands",
+   "quantity": 1
+  },
+  {
+   "name": "Boreal Shelf",
+   "quantity": 1
+  },
+  {
+   "name": "Brushland",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Coral Atoll",
+   "quantity": 1
+  },
+  {
+   "name": "Deserted Beach",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Exotic Orchard",
+   "quantity": 1
+  },
+  {
+   "name": "Fertile Thicket",
+   "quantity": 1
+  },
+  {
+   "name": "Flooded Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 4
+  },
+  {
+   "name": "Glacial Floodplain",
+   "quantity": 1
+  },
+  {
+   "name": "Grasslands",
+   "quantity": 1
+  },
+  {
+   "name": "Idyllic Beachfront",
+   "quantity": 1
+  },
+  {
+   "name": "Irrigated Farmland",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 4
+  },
+  {
+   "name": "Jungle Basin",
+   "quantity": 1
+  },
+  {
+   "name": "Lonely Sandbar",
+   "quantity": 1
+  },
+  {
+   "name": "Lush Oasis",
+   "quantity": 1
+  },
+  {
+   "name": "Meandering River",
+   "quantity": 1
+  },
+  {
+   "name": "Overflowing Basin",
+   "quantity": 1
+  },
+  {
+   "name": "Overgrown Farmland",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 2
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1
+  },
+  {
+   "name": "Radiant Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Rejuvenating Springs",
+   "quantity": 1
+  },
+  {
+   "name": "Remote Isle",
+   "quantity": 1
+  },
+  {
+   "name": "Restless Prairie",
+   "quantity": 1
+  },
+  {
+   "name": "Scattered Groves",
+   "quantity": 1
+  },
+  {
+   "name": "Woodland Stream",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

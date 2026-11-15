@@ -1,0 +1,362 @@
+{
+ "urlhash": "8FQ3HvYW4C2IPuiZS9VGqw",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-08-29",
+ "price": 383,
+ "salt": 58.50530016794801,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/ostL3gmRU0uL2TcUDkat7Q?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Acidic Slime",
+   "quantity": 1
+  },
+  {
+   "name": "Agent of Treachery",
+   "quantity": 1
+  },
+  {
+   "name": "Anticausal Vestige",
+   "quantity": 1
+  },
+  {
+   "name": "Apex Devastator",
+   "quantity": 1
+  },
+  {
+   "name": "Astral Dragon",
+   "quantity": 1
+  },
+  {
+   "name": "Avenger of Zendikar",
+   "quantity": 1
+  },
+  {
+   "name": "Bard, King of Dale",
+   "quantity": 1
+  },
+  {
+   "name": "Captain Marvel, Earth's Protector",
+   "quantity": 1
+  },
+  {
+   "name": "Champion of Lambholt",
+   "quantity": 1
+  },
+  {
+   "name": "Deadeye Navigator",
+   "quantity": 1
+  },
+  {
+   "name": "Elesh Norn, Grand Cenobite",
+   "quantity": 1
+  },
+  {
+   "name": "Elesh Norn, Mother of Machines",
+   "quantity": 1
+  },
+  {
+   "name": "Esix, Fractal Bloom",
+   "quantity": 1
+  },
+  {
+   "name": "Faeburrow Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Farhaven Elf",
+   "quantity": 1
+  },
+  {
+   "name": "Gilanra, Caller of Wirewood",
+   "quantity": 1
+  },
+  {
+   "name": "Guardian Augmenter",
+   "quantity": 1
+  },
+  {
+   "name": "Imoti, Celebrant of Bounty",
+   "quantity": 1
+  },
+  {
+   "name": "Jin-Gitaxias, Core Augur",
+   "quantity": 1
+  },
+  {
+   "name": "Kamahl, Fist of Krosa",
+   "quantity": 1
+  },
+  {
+   "name": "Karametra, God of Harvests",
+   "quantity": 1
+  },
+  {
+   "name": "Kodama of the East Tree",
+   "quantity": 1
+  },
+  {
+   "name": "Koma, Cosmos Serpent",
+   "quantity": 1
+  },
+  {
+   "name": "Koma, World-Eater",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Visionary",
+   "quantity": 1
+  },
+  {
+   "name": "Luminate Primordial",
+   "quantity": 1
+  },
+  {
+   "name": "Mossborn Hydra",
+   "quantity": 1
+  },
+  {
+   "name": "Mulldrifter",
+   "quantity": 1
+  },
+  {
+   "name": "Mystic Snake",
+   "quantity": 1
+  },
+  {
+   "name": "Nissa, Vastwood Seer",
+   "quantity": 1
+  },
+  {
+   "name": "Oracle of Mul Daya",
+   "quantity": 1
+  },
+  {
+   "name": "Pilgrim's Eye",
+   "quantity": 1
+  },
+  {
+   "name": "Radagast of Rhosgobel",
+   "quantity": 1
+  },
+  {
+   "name": "Regal Behemoth",
+   "quantity": 1
+  },
+  {
+   "name": "Restoration Angel",
+   "quantity": 1
+  },
+  {
+   "name": "Sun Titan",
+   "quantity": 1
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1
+  },
+  {
+   "name": "The Tarrasque",
+   "quantity": 1
+  },
+  {
+   "name": "Thryx, the Sudden Storm",
+   "quantity": 1
+  },
+  {
+   "name": "Titan of Industry",
+   "quantity": 1
+  },
+  {
+   "name": "Ulvenwald Hydra",
+   "quantity": 1
+  },
+  {
+   "name": "Volo, Guide to Monsters",
+   "quantity": 1
+  },
+  {
+   "name": "Vorinclex",
+   "quantity": 1
+  },
+  {
+   "name": "Vorinclex, Voice of Hunger",
+   "quantity": 1
+  },
+  {
+   "name": "Wood Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Woodfall Primus",
+   "quantity": 1
+  },
+  {
+   "name": "Yorion, Sky Nomad",
+   "quantity": 1
+  },
+  {
+   "name": "Glen Elendra's Answer",
+   "quantity": 1
+  },
+  {
+   "name": "Kodama's Reach",
+   "quantity": 1
+  },
+  {
+   "name": "Primal Surge",
+   "quantity": 1
+  },
+  {
+   "name": "Solve the Equation",
+   "quantity": 1
+  },
+  {
+   "name": "Starfall Invocation",
+   "quantity": 1
+  },
+  {
+   "name": "Tempt with Discovery",
+   "quantity": 1
+  },
+  {
+   "name": "Through the Forest Gate",
+   "quantity": 1
+  },
+  {
+   "name": "Champion's Helm",
+   "quantity": 1
+  },
+  {
+   "name": "Panharmonicon",
+   "quantity": 1
+  },
+  {
+   "name": "Wizard's Staff",
+   "quantity": 1
+  },
+  {
+   "name": "Mirari's Wake",
+   "quantity": 1
+  },
+  {
+   "name": "Virtue of Knowledge",
+   "quantity": 1
+  },
+  {
+   "name": "Zendikar Resurgent",
+   "quantity": 1
+  },
+  {
+   "name": "Wrenn and Realmbreaker",
+   "quantity": 1
+  },
+  {
+   "name": "Alchemist's Refuge",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Chancery",
+   "quantity": 1
+  },
+  {
+   "name": "Breeding Pool",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Eiganjo Castle",
+   "quantity": 1
+  },
+  {
+   "name": "Emergence Zone",
+   "quantity": 1
+  },
+  {
+   "name": "Exotic Orchard",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 7
+  },
+  {
+   "name": "Glacial Fortress",
+   "quantity": 1
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 5
+  },
+  {
+   "name": "Lush Portico",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 5
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Sunpetal Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Temple Garden",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Enlightenment",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Mystery",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Plenty",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of the False God",
+   "quantity": 1
+  },
+  {
+   "name": "Waterlogged Grove",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

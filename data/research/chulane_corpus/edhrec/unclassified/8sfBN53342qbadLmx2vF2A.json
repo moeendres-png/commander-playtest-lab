@@ -1,0 +1,334 @@
+{
+ "urlhash": "8sfBN53342qbadLmx2vF2A",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-02-24",
+ "price": 144,
+ "salt": 39.37593846023083,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/16459668?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Amareth, the Lustrous",
+   "quantity": 1
+  },
+  {
+   "name": "Aquatic Alchemist",
+   "quantity": 1
+  },
+  {
+   "name": "Archmage Emeritus",
+   "quantity": 1
+  },
+  {
+   "name": "Archmage of Runes",
+   "quantity": 1
+  },
+  {
+   "name": "Beanstalk Giant",
+   "quantity": 1
+  },
+  {
+   "name": "Beanstalk Wurm",
+   "quantity": 1
+  },
+  {
+   "name": "Blessed Hippogriff",
+   "quantity": 1
+  },
+  {
+   "name": "Bloomvine Regent",
+   "quantity": 1
+  },
+  {
+   "name": "Bramble Familiar",
+   "quantity": 1
+  },
+  {
+   "name": "Chancellor of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Crystal Dragon",
+   "quantity": 1
+  },
+  {
+   "name": "Doc Aurlock, Grizzled Genius",
+   "quantity": 1
+  },
+  {
+   "name": "Dragonsguard Elite",
+   "quantity": 1
+  },
+  {
+   "name": "Edgewall Innkeeper",
+   "quantity": 1
+  },
+  {
+   "name": "Emerald Dragon",
+   "quantity": 1
+  },
+  {
+   "name": "Giant Killer",
+   "quantity": 1
+  },
+  {
+   "name": "Gorion, Wise Mentor",
+   "quantity": 1
+  },
+  {
+   "name": "Grazilaxx, Illithid Scholar",
+   "quantity": 1
+  },
+  {
+   "name": "Guardian Naga",
+   "quantity": 1
+  },
+  {
+   "name": "Horned Loch-Whale",
+   "quantity": 1
+  },
+  {
+   "name": "Hypnotic Sprite",
+   "quantity": 1
+  },
+  {
+   "name": "Ivy, Gleeful Spellthief",
+   "quantity": 1
+  },
+  {
+   "name": "Kellan, Inquisitive Prodigy",
+   "quantity": 1
+  },
+  {
+   "name": "Lovestruck Beast",
+   "quantity": 1
+  },
+  {
+   "name": "Moonshae Pixie",
+   "quantity": 1
+  },
+  {
+   "name": "Pathbreaker Ibex",
+   "quantity": 1
+  },
+  {
+   "name": "Sailors' Bane",
+   "quantity": 1
+  },
+  {
+   "name": "Sapphire Dragon",
+   "quantity": 1
+  },
+  {
+   "name": "Savvy Trader",
+   "quantity": 1
+  },
+  {
+   "name": "Sentinel of Lost Lore",
+   "quantity": 1
+  },
+  {
+   "name": "Stormkeld Vanguard",
+   "quantity": 1
+  },
+  {
+   "name": "Storyteller Pixie",
+   "quantity": 1
+  },
+  {
+   "name": "Talrand, Sky Summoner",
+   "quantity": 1
+  },
+  {
+   "name": "Threadbind Clique",
+   "quantity": 1
+  },
+  {
+   "name": "Tireless Provisioner",
+   "quantity": 1
+  },
+  {
+   "name": "Tireless Tracker",
+   "quantity": 1
+  },
+  {
+   "name": "Tlincalli Hunter",
+   "quantity": 1
+  },
+  {
+   "name": "Twining Twins",
+   "quantity": 1
+  },
+  {
+   "name": "Vega, the Watcher",
+   "quantity": 1
+  },
+  {
+   "name": "Wandermare",
+   "quantity": 1
+  },
+  {
+   "name": "Witch Enchanter",
+   "quantity": 1
+  },
+  {
+   "name": "Woodland Acolyte",
+   "quantity": 1
+  },
+  {
+   "name": "Young Blue Dragon",
+   "quantity": 1
+  },
+  {
+   "name": "Cycle of Renewal",
+   "quantity": 1
+  },
+  {
+   "name": "Heritage Reclamation",
+   "quantity": 1
+  },
+  {
+   "name": "Path to Exile",
+   "quantity": 1
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1
+  },
+  {
+   "name": "Candlekeep Inspiration",
+   "quantity": 1
+  },
+  {
+   "name": "Harmonize",
+   "quantity": 1
+  },
+  {
+   "name": "Pull Through the Weft",
+   "quantity": 1
+  },
+  {
+   "name": "Rampant Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Shared Roots",
+   "quantity": 1
+  },
+  {
+   "name": "Three Visits",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Bounty Board",
+   "quantity": 1
+  },
+  {
+   "name": "Dragonfire Blade",
+   "quantity": 1
+  },
+  {
+   "name": "Lucky Clover",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Talisman of Curiosity",
+   "quantity": 1
+  },
+  {
+   "name": "Talisman of Unity",
+   "quantity": 1
+  },
+  {
+   "name": "Brokers Ascendancy",
+   "quantity": 1
+  },
+  {
+   "name": "Cunning Evasion",
+   "quantity": 1
+  },
+  {
+   "name": "Virtue of Strength",
+   "quantity": 1
+  },
+  {
+   "name": "Invasion of Moag",
+   "quantity": 1
+  },
+  {
+   "name": "Adventurer's Inn",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 10
+  },
+  {
+   "name": "Guadosalam, Farplane Gateway",
+   "quantity": 1
+  },
+  {
+   "name": "Idyllic Beachfront",
+   "quantity": 1
+  },
+  {
+   "name": "Ishgard, the Holy See",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 8
+  },
+  {
+   "name": "Plains",
+   "quantity": 6
+  },
+  {
+   "name": "Radiant Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Sharlayan, Nation of Scholars",
+   "quantity": 1
+  },
+  {
+   "name": "Spara's Headquarters",
+   "quantity": 1
+  },
+  {
+   "name": "Tangled Islet",
+   "quantity": 1
+  },
+  {
+   "name": "Windurst, Federation Center",
+   "quantity": 1
+  },
+  {
+   "name": "Zanarkand, Ancient Metropolis",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}
