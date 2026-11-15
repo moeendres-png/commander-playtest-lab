@@ -1,0 +1,350 @@
+{
+ "urlhash": "H38tj8VrnrLSZk8mT_8LDA",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-05-18",
+ "price": 244,
+ "salt": 35.305224783718586,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/13214930?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Akrasan Squire",
+   "quantity": 1
+  },
+  {
+   "name": "Aven Squire",
+   "quantity": 1
+  },
+  {
+   "name": "Battlegrace Angel",
+   "quantity": 1
+  },
+  {
+   "name": "Brine Comber",
+   "quantity": 1
+  },
+  {
+   "name": "Court Archers",
+   "quantity": 1
+  },
+  {
+   "name": "Dawnray Archer",
+   "quantity": 1
+  },
+  {
+   "name": "Emissary of Soulfire",
+   "quantity": 1
+  },
+  {
+   "name": "Ethercaste Knight",
+   "quantity": 1
+  },
+  {
+   "name": "Frontline Sage",
+   "quantity": 1
+  },
+  {
+   "name": "Galea, Kindler of Hope",
+   "quantity": 1
+  },
+  {
+   "name": "Giltspire Avenger",
+   "quantity": 1
+  },
+  {
+   "name": "Guardians of Akrasa",
+   "quantity": 1
+  },
+  {
+   "name": "Halvar, God of Battle",
+   "quantity": 1
+  },
+  {
+   "name": "Kestia, the Cultivator",
+   "quantity": 1
+  },
+  {
+   "name": "Knight of Glory",
+   "quantity": 1
+  },
+  {
+   "name": "Merchant of Truth",
+   "quantity": 1
+  },
+  {
+   "name": "Morska, Undersea Sleuth",
+   "quantity": 1
+  },
+  {
+   "name": "Noble Hierarch",
+   "quantity": 1
+  },
+  {
+   "name": "Qasali Pridemage",
+   "quantity": 1
+  },
+  {
+   "name": "Rafiq of the Many",
+   "quantity": 1
+  },
+  {
+   "name": "Rashel, Fist of Torm",
+   "quantity": 1
+  },
+  {
+   "name": "Sighted-Caste Sorcerer",
+   "quantity": 1
+  },
+  {
+   "name": "Sigiled Paladin",
+   "quantity": 1
+  },
+  {
+   "name": "Sovereigns of Lost Alara",
+   "quantity": 1
+  },
+  {
+   "name": "Sublime Archangel",
+   "quantity": 1
+  },
+  {
+   "name": "Kodama's Reach",
+   "quantity": 1
+  },
+  {
+   "name": "Rampant Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Shamanic Revelation",
+   "quantity": 1
+  },
+  {
+   "name": "Avarice Amulet",
+   "quantity": 1
+  },
+  {
+   "name": "Basilisk Collar",
+   "quantity": 1
+  },
+  {
+   "name": "Behemoth Sledge",
+   "quantity": 1
+  },
+  {
+   "name": "Bilbo's Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Brawler's Plate",
+   "quantity": 1
+  },
+  {
+   "name": "Caduceus, Staff of Hermes",
+   "quantity": 1
+  },
+  {
+   "name": "Commander's Sphere",
+   "quantity": 1
+  },
+  {
+   "name": "Decanter of Endless Water",
+   "quantity": 1
+  },
+  {
+   "name": "Empyrial Plate",
+   "quantity": 1
+  },
+  {
+   "name": "Explorer's Scope",
+   "quantity": 1
+  },
+  {
+   "name": "Goggles of Night",
+   "quantity": 1
+  },
+  {
+   "name": "Obelisk of Bant",
+   "quantity": 1
+  },
+  {
+   "name": "Rammas Echor, Ancient Shield",
+   "quantity": 1
+  },
+  {
+   "name": "Spellbook",
+   "quantity": 1
+  },
+  {
+   "name": "The Book of Exalted Deeds",
+   "quantity": 1
+  },
+  {
+   "name": "Thought Vessel",
+   "quantity": 1
+  },
+  {
+   "name": "Abundant Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Aether Meltdown",
+   "quantity": 1
+  },
+  {
+   "name": "Aether Tunnel",
+   "quantity": 1
+  },
+  {
+   "name": "Aether Web",
+   "quantity": 1
+  },
+  {
+   "name": "All That Glitters",
+   "quantity": 1
+  },
+  {
+   "name": "Alpha Authority",
+   "quantity": 1
+  },
+  {
+   "name": "Ancestral Mask",
+   "quantity": 1
+  },
+  {
+   "name": "Angelic Benediction",
+   "quantity": 1
+  },
+  {
+   "name": "Arcanum Wings",
+   "quantity": 1
+  },
+  {
+   "name": "Ardent Plea",
+   "quantity": 1
+  },
+  {
+   "name": "Armadillo Cloak",
+   "quantity": 1
+  },
+  {
+   "name": "Armored Ascension",
+   "quantity": 1
+  },
+  {
+   "name": "Aura of Dominion",
+   "quantity": 1
+  },
+  {
+   "name": "Battle Mastery",
+   "quantity": 1
+  },
+  {
+   "name": "Bear Umbra",
+   "quantity": 1
+  },
+  {
+   "name": "Blanchwood Armor",
+   "quantity": 1
+  },
+  {
+   "name": "Brokers Ascendancy",
+   "quantity": 1
+  },
+  {
+   "name": "Chamber of Manipulation",
+   "quantity": 1
+  },
+  {
+   "name": "Finest Hour",
+   "quantity": 1
+  },
+  {
+   "name": "Estrid, the Masked",
+   "quantity": 1
+  },
+  {
+   "name": "Vivien, Champion of the Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Academy Ruins",
+   "quantity": 1
+  },
+  {
+   "name": "Alchemist's Refuge",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Chancery",
+   "quantity": 1
+  },
+  {
+   "name": "Cathedral of War",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Deserted Beach",
+   "quantity": 1
+  },
+  {
+   "name": "Dreamroot Cascade",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 5
+  },
+  {
+   "name": "Hall of Heliod's Generosity",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 5
+  },
+  {
+   "name": "Myriad Landscape",
+   "quantity": 1
+  },
+  {
+   "name": "Overgrown Farmland",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 10
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Growth Chamber",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

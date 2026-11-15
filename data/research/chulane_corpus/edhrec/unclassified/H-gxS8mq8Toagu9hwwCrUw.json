@@ -1,0 +1,342 @@
+{
+ "urlhash": "H-gxS8mq8Toagu9hwwCrUw",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-09-21",
+ "price": 112,
+ "salt": 40.39141642488539,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/N2a3lljdz0-T1MncIP6sPA?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Adipose Offspring",
+   "quantity": 1
+  },
+  {
+   "name": "Adorned Pouncer",
+   "quantity": 1
+  },
+  {
+   "name": "Aether Channeler",
+   "quantity": 1
+  },
+  {
+   "name": "Alaborn Zealot",
+   "quantity": 1
+  },
+  {
+   "name": "Anara, Wolvid Familiar",
+   "quantity": 1
+  },
+  {
+   "name": "Apprentice Wizard",
+   "quantity": 1
+  },
+  {
+   "name": "Augur of Autumn",
+   "quantity": 1
+  },
+  {
+   "name": "Bashful Beastie",
+   "quantity": 1
+  },
+  {
+   "name": "Beloved Princess",
+   "quantity": 1
+  },
+  {
+   "name": "Blossom Prancer",
+   "quantity": 1
+  },
+  {
+   "name": "Dawnglade Regent",
+   "quantity": 1
+  },
+  {
+   "name": "End-Raze Forerunners",
+   "quantity": 1
+  },
+  {
+   "name": "Faceless One",
+   "quantity": 1
+  },
+  {
+   "name": "Icefeather Aven",
+   "quantity": 1
+  },
+  {
+   "name": "Kami of Transience",
+   "quantity": 1
+  },
+  {
+   "name": "Katilda, Dawnhart Prime",
+   "quantity": 1
+  },
+  {
+   "name": "Keiga, the Tide Star",
+   "quantity": 1
+  },
+  {
+   "name": "Lier, Disciple of the Drowned",
+   "quantity": 1
+  },
+  {
+   "name": "Lovestruck Beast",
+   "quantity": 1
+  },
+  {
+   "name": "Mistmeadow Witch",
+   "quantity": 1
+  },
+  {
+   "name": "Mockingbird",
+   "quantity": 1
+  },
+  {
+   "name": "Mulldrifter",
+   "quantity": 1
+  },
+  {
+   "name": "Pond Prophet",
+   "quantity": 1
+  },
+  {
+   "name": "Promised Kannushi",
+   "quantity": 1
+  },
+  {
+   "name": "Sacred Wolf",
+   "quantity": 1
+  },
+  {
+   "name": "Samite Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Selfless Spirit",
+   "quantity": 1
+  },
+  {
+   "name": "Shire Scarecrow",
+   "quantity": 1
+  },
+  {
+   "name": "Sorcerer's Broom",
+   "quantity": 1
+  },
+  {
+   "name": "Takeno's Cavalry",
+   "quantity": 1
+  },
+  {
+   "name": "Thassa, God of the Sea",
+   "quantity": 1
+  },
+  {
+   "name": "Transit Mage",
+   "quantity": 1
+  },
+  {
+   "name": "Tree of Redemption",
+   "quantity": 1
+  },
+  {
+   "name": "Wandering Ones",
+   "quantity": 1
+  },
+  {
+   "name": "Animate Land",
+   "quantity": 1
+  },
+  {
+   "name": "Cease-Fire",
+   "quantity": 1
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1
+  },
+  {
+   "name": "Into the Story",
+   "quantity": 1
+  },
+  {
+   "name": "March of Otherworldly Light",
+   "quantity": 1
+  },
+  {
+   "name": "March of Swirling Mist",
+   "quantity": 1
+  },
+  {
+   "name": "Moment of Heroism",
+   "quantity": 1
+  },
+  {
+   "name": "Moment of Silence",
+   "quantity": 1
+  },
+  {
+   "name": "Mystic Confluence",
+   "quantity": 1
+  },
+  {
+   "name": "Shrink",
+   "quantity": 1
+  },
+  {
+   "name": "Commune with Spirits",
+   "quantity": 1
+  },
+  {
+   "name": "Curse of the Swine",
+   "quantity": 1
+  },
+  {
+   "name": "Drawn from Dreams",
+   "quantity": 1
+  },
+  {
+   "name": "Eldritch Evolution",
+   "quantity": 1
+  },
+  {
+   "name": "Farewell",
+   "quantity": 1
+  },
+  {
+   "name": "Grow from the Ashes",
+   "quantity": 1
+  },
+  {
+   "name": "Regrowth",
+   "quantity": 1
+  },
+  {
+   "name": "Relm's Sketching",
+   "quantity": 1
+  },
+  {
+   "name": "Shimmer of Possibility",
+   "quantity": 1
+  },
+  {
+   "name": "Esika's Chariot",
+   "quantity": 1
+  },
+  {
+   "name": "Fellwar Stone",
+   "quantity": 1
+  },
+  {
+   "name": "Hunter's Bow",
+   "quantity": 1
+  },
+  {
+   "name": "The Prima Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Carpet of Flowers",
+   "quantity": 1
+  },
+  {
+   "name": "Fly",
+   "quantity": 1
+  },
+  {
+   "name": "Mantle of the Wolf",
+   "quantity": 1
+  },
+  {
+   "name": "The Bath Song",
+   "quantity": 1
+  },
+  {
+   "name": "Touch the Spirit Realm",
+   "quantity": 1
+  },
+  {
+   "name": "Abandoned Campground",
+   "quantity": 1
+  },
+  {
+   "name": "Animal Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Argoth, Sanctum of Nature",
+   "quantity": 1
+  },
+  {
+   "name": "Ash Barrens",
+   "quantity": 1
+  },
+  {
+   "name": "Aysen Abbey",
+   "quantity": 1
+  },
+  {
+   "name": "Branch of Vitu-Ghazi",
+   "quantity": 1
+  },
+  {
+   "name": "Celestial Colonnade",
+   "quantity": 1
+  },
+  {
+   "name": "Crossroads Village",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Exotic Orchard",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 6
+  },
+  {
+   "name": "Fortified Village",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 8
+  },
+  {
+   "name": "Khalni Garden",
+   "quantity": 1
+  },
+  {
+   "name": "Mosswort Bridge",
+   "quantity": 1
+  },
+  {
+   "name": "Mystic Gate",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 8
+  },
+  {
+   "name": "Witch's Clinic",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}
