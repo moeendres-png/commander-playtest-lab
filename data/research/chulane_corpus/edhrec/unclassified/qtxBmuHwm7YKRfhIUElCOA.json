@@ -1,0 +1,318 @@
+{
+ "urlhash": "qtxBmuHwm7YKRfhIUElCOA",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-11-10",
+ "price": 346,
+ "salt": 51.744552962481976,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/17199111?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Aeon Chronicler",
+   "quantity": 1
+  },
+  {
+   "name": "Archivist of Oghma",
+   "quantity": 1
+  },
+  {
+   "name": "Biblioplex Kraken",
+   "quantity": 1
+  },
+  {
+   "name": "Body of Knowledge",
+   "quantity": 1
+  },
+  {
+   "name": "Bookwurm",
+   "quantity": 1
+  },
+  {
+   "name": "Curious Homunculus",
+   "quantity": 1
+  },
+  {
+   "name": "Disruptive Student",
+   "quantity": 1
+  },
+  {
+   "name": "Epistolary Librarian",
+   "quantity": 1
+  },
+  {
+   "name": "Forensic Researcher",
+   "quantity": 1
+  },
+  {
+   "name": "Glyph Keeper",
+   "quantity": 1
+  },
+  {
+   "name": "Grazilaxx, Illithid Scholar",
+   "quantity": 1
+  },
+  {
+   "name": "Ink Dissolver",
+   "quantity": 1
+  },
+  {
+   "name": "Innocuous Researcher",
+   "quantity": 1
+  },
+  {
+   "name": "Linvala, Keeper of Silence",
+   "quantity": 1
+  },
+  {
+   "name": "Merfolk Secretkeeper",
+   "quantity": 1
+  },
+  {
+   "name": "Oblivious Bookworm",
+   "quantity": 1
+  },
+  {
+   "name": "Ormos, Archive Keeper",
+   "quantity": 1
+  },
+  {
+   "name": "Overbeing of Myth",
+   "quantity": 1
+  },
+  {
+   "name": "Scrawling Crawler",
+   "quantity": 1
+  },
+  {
+   "name": "Shrewd Storyteller",
+   "quantity": 1
+  },
+  {
+   "name": "Silverquill Lecturer",
+   "quantity": 1
+  },
+  {
+   "name": "Suspicious Bookcase",
+   "quantity": 1
+  },
+  {
+   "name": "Talas Researcher",
+   "quantity": 1
+  },
+  {
+   "name": "Tamiyo, Inquisitive Student",
+   "quantity": 1
+  },
+  {
+   "name": "Tome Anima",
+   "quantity": 1
+  },
+  {
+   "name": "Unblinking Observer",
+   "quantity": 1
+  },
+  {
+   "name": "Vhal, Candlekeep Researcher",
+   "quantity": 1
+  },
+  {
+   "name": "Volo, Itinerant Scholar",
+   "quantity": 1
+  },
+  {
+   "name": "Walking Archive",
+   "quantity": 1
+  },
+  {
+   "name": "Wan Shi Tong, Librarian",
+   "quantity": 1
+  },
+  {
+   "name": "Zimone, Mystery Unraveler",
+   "quantity": 1
+  },
+  {
+   "name": "Bury in Books",
+   "quantity": 1
+  },
+  {
+   "name": "Moment of Silence",
+   "quantity": 1
+  },
+  {
+   "name": "Resounding Silence",
+   "quantity": 1
+  },
+  {
+   "name": "Silence",
+   "quantity": 1
+  },
+  {
+   "name": "Swift Silence",
+   "quantity": 1
+  },
+  {
+   "name": "Body of Research",
+   "quantity": 1
+  },
+  {
+   "name": "Compulsive Research",
+   "quantity": 1
+  },
+  {
+   "name": "Tome Scour",
+   "quantity": 1
+  },
+  {
+   "name": "Alhammarret's Archive",
+   "quantity": 1
+  },
+  {
+   "name": "Jalum Tome",
+   "quantity": 1
+  },
+  {
+   "name": "Library of Leng",
+   "quantity": 1
+  },
+  {
+   "name": "Monster Manual",
+   "quantity": 1
+  },
+  {
+   "name": "Mysterious Tome",
+   "quantity": 1
+  },
+  {
+   "name": "Spellbook",
+   "quantity": 1
+  },
+  {
+   "name": "Tamiyo's Logbook",
+   "quantity": 1
+  },
+  {
+   "name": "The Book of Exalted Deeds",
+   "quantity": 1
+  },
+  {
+   "name": "Tome of Legends",
+   "quantity": 1
+  },
+  {
+   "name": "Urza's Tome",
+   "quantity": 1
+  },
+  {
+   "name": "Venser's Journal",
+   "quantity": 1
+  },
+  {
+   "name": "Wizard's Spellbook",
+   "quantity": 1
+  },
+  {
+   "name": "Aura of Silence",
+   "quantity": 1
+  },
+  {
+   "name": "Bound in Silence",
+   "quantity": 1
+  },
+  {
+   "name": "Combat Research",
+   "quantity": 1
+  },
+  {
+   "name": "Curse of Silence",
+   "quantity": 1
+  },
+  {
+   "name": "Curse of the Bloody Tome",
+   "quantity": 1
+  },
+  {
+   "name": "Haunted Library",
+   "quantity": 1
+  },
+  {
+   "name": "Immobilizing Ink",
+   "quantity": 1
+  },
+  {
+   "name": "Nerd Rage",
+   "quantity": 1
+  },
+  {
+   "name": "Rhystic Study",
+   "quantity": 1
+  },
+  {
+   "name": "Mordenkainen",
+   "quantity": 1
+  },
+  {
+   "name": "Tamiyo, Field Researcher",
+   "quantity": 1
+  },
+  {
+   "name": "Academy Ruins",
+   "quantity": 1
+  },
+  {
+   "name": "Balamb Garden, SeeD Academy",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 9
+  },
+  {
+   "name": "Island",
+   "quantity": 10
+  },
+  {
+   "name": "Meticulous Archive",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 9
+  },
+  {
+   "name": "Quandrix Campus",
+   "quantity": 1
+  },
+  {
+   "name": "Sharlayan, Nation of Scholars",
+   "quantity": 1
+  },
+  {
+   "name": "Study",
+   "quantity": 1
+  },
+  {
+   "name": "Study Hall",
+   "quantity": 1
+  },
+  {
+   "name": "The Biblioplex",
+   "quantity": 1
+  },
+  {
+   "name": "University Campus",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

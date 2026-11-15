@@ -1,0 +1,354 @@
+{
+ "urlhash": "s8AN4f4qoH9lB6azPVur7Q",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-03-14",
+ "price": 662,
+ "salt": 60.612345207482576,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/13005822?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Arcum Dagsson",
+   "quantity": 1
+  },
+  {
+   "name": "Circuit Mender",
+   "quantity": 1
+  },
+  {
+   "name": "Derevi, Empyrial Tactician",
+   "quantity": 1
+  },
+  {
+   "name": "Drafna, Founder of Lat-Nam",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Archivist",
+   "quantity": 1
+  },
+  {
+   "name": "Esper Sentinel",
+   "quantity": 1
+  },
+  {
+   "name": "Foundry Inspector",
+   "quantity": 1
+  },
+  {
+   "name": "Herald of Secret Streams",
+   "quantity": 1
+  },
+  {
+   "name": "Jalira, Master Polymorphist",
+   "quantity": 1
+  },
+  {
+   "name": "Junk Winder",
+   "quantity": 1
+  },
+  {
+   "name": "Kuldotha Forgemaster",
+   "quantity": 1
+  },
+  {
+   "name": "Liberator, Urza's Battlethopter",
+   "quantity": 1
+  },
+  {
+   "name": "Lodestone Myr",
+   "quantity": 1
+  },
+  {
+   "name": "Master Transmuter",
+   "quantity": 1
+  },
+  {
+   "name": "Memnarch",
+   "quantity": 1
+  },
+  {
+   "name": "Memnite",
+   "quantity": 1
+  },
+  {
+   "name": "Metalworker",
+   "quantity": 1
+  },
+  {
+   "name": "Mirran Spy",
+   "quantity": 1
+  },
+  {
+   "name": "Mycosynth Golem",
+   "quantity": 1
+  },
+  {
+   "name": "Myr Battlesphere",
+   "quantity": 1
+  },
+  {
+   "name": "Myr Galvanizer",
+   "quantity": 1
+  },
+  {
+   "name": "Myr Retriever",
+   "quantity": 1
+  },
+  {
+   "name": "Myr Welder",
+   "quantity": 1
+  },
+  {
+   "name": "Ornithopter",
+   "quantity": 1
+  },
+  {
+   "name": "Padeem, Consul of Innovation",
+   "quantity": 1
+  },
+  {
+   "name": "Reclamation Sage",
+   "quantity": 1
+  },
+  {
+   "name": "Sai, Master Thopterist",
+   "quantity": 1
+  },
+  {
+   "name": "Scrap Trawler",
+   "quantity": 1
+  },
+  {
+   "name": "Scrawling Crawler",
+   "quantity": 1
+  },
+  {
+   "name": "Solemn Simulacrum",
+   "quantity": 1
+  },
+  {
+   "name": "Steel Overseer",
+   "quantity": 1
+  },
+  {
+   "name": "The Reality Chip",
+   "quantity": 1
+  },
+  {
+   "name": "Urza, Lord High Artificer",
+   "quantity": 1
+  },
+  {
+   "name": "Vedalken Humiliator",
+   "quantity": 1
+  },
+  {
+   "name": "Whirler Rogue",
+   "quantity": 1
+  },
+  {
+   "name": "Willbreaker",
+   "quantity": 1
+  },
+  {
+   "name": "Wurmcoil Engine",
+   "quantity": 1
+  },
+  {
+   "name": "Epiphany at the Drownyard",
+   "quantity": 1
+  },
+  {
+   "name": "Polymorphist's Jest",
+   "quantity": 1
+  },
+  {
+   "name": "Distant Melody",
+   "quantity": 1
+  },
+  {
+   "name": "Farewell",
+   "quantity": 1
+  },
+  {
+   "name": "Ashnod's Altar",
+   "quantity": 1
+  },
+  {
+   "name": "Chromatic Lantern",
+   "quantity": 1
+  },
+  {
+   "name": "Encroaching Mycosynth",
+   "quantity": 1
+  },
+  {
+   "name": "Expedition Map",
+   "quantity": 1
+  },
+  {
+   "name": "Forsaken Monument",
+   "quantity": 1
+  },
+  {
+   "name": "Genesis Chamber",
+   "quantity": 1
+  },
+  {
+   "name": "Grafted Exoskeleton",
+   "quantity": 1
+  },
+  {
+   "name": "Luxior, Giada's Gift",
+   "quantity": 1
+  },
+  {
+   "name": "Maskwood Nexus",
+   "quantity": 1
+  },
+  {
+   "name": "Mirrorworks",
+   "quantity": 1
+  },
+  {
+   "name": "Ozolith, the Shattered Spire",
+   "quantity": 1
+  },
+  {
+   "name": "Pennon Blade",
+   "quantity": 1
+  },
+  {
+   "name": "Portal of Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Scourglass",
+   "quantity": 1
+  },
+  {
+   "name": "Sculpting Steel",
+   "quantity": 1
+  },
+  {
+   "name": "Skullclamp",
+   "quantity": 1
+  },
+  {
+   "name": "Unwinding Clock",
+   "quantity": 1
+  },
+  {
+   "name": "Aura Shards",
+   "quantity": 1
+  },
+  {
+   "name": "Efficient Construction",
+   "quantity": 1
+  },
+  {
+   "name": "Primal Vigor",
+   "quantity": 1
+  },
+  {
+   "name": "Tezzeret, Betrayer of Flesh",
+   "quantity": 1
+  },
+  {
+   "name": "The Eternal Wanderer",
+   "quantity": 1
+  },
+  {
+   "name": "Ancient Den",
+   "quantity": 1
+  },
+  {
+   "name": "Archway of Innovation",
+   "quantity": 1
+  },
+  {
+   "name": "Barkchannel Pathway",
+   "quantity": 1
+  },
+  {
+   "name": "Buried Ruin",
+   "quantity": 1
+  },
+  {
+   "name": "Fabled Passage",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 6
+  },
+  {
+   "name": "Island",
+   "quantity": 7
+  },
+  {
+   "name": "Plains",
+   "quantity": 6
+  },
+  {
+   "name": "Power Depot",
+   "quantity": 1
+  },
+  {
+   "name": "Rogue's Passage",
+   "quantity": 1
+  },
+  {
+   "name": "Seat of the Synod",
+   "quantity": 1
+  },
+  {
+   "name": "Shimmerdrift Vale",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of the False God",
+   "quantity": 1
+  },
+  {
+   "name": "Tocasia's Dig Site",
+   "quantity": 1
+  },
+  {
+   "name": "Tomb of the Spirit Dragon",
+   "quantity": 1
+  },
+  {
+   "name": "Tree of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Uncharted Haven",
+   "quantity": 1
+  },
+  {
+   "name": "Urza's Mine",
+   "quantity": 1
+  },
+  {
+   "name": "Urza's Power Plant",
+   "quantity": 1
+  },
+  {
+   "name": "Urza's Tower",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

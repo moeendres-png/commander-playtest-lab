@@ -1,0 +1,238 @@
+{
+ "urlhash": "qsrV0KOxdXclA0iBY1P7Yw",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-10-20",
+ "price": 342,
+ "salt": 57.28728189691901,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/Y5d-J2bk10qJ_VWzHlQd_A?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Aang, at the Crossroads",
+   "quantity": 1
+  },
+  {
+   "name": "Amareth, the Lustrous",
+   "quantity": 1
+  },
+  {
+   "name": "Archmage of Runes",
+   "quantity": 1
+  },
+  {
+   "name": "Avatar Kyoshi, Earthbender",
+   "quantity": 1
+  },
+  {
+   "name": "Badgermole",
+   "quantity": 1
+  },
+  {
+   "name": "Baral, Chief of Compliance",
+   "quantity": 1
+  },
+  {
+   "name": "Bumi, Eclectic Earthbender",
+   "quantity": 1
+  },
+  {
+   "name": "Earth Kingdom General",
+   "quantity": 1
+  },
+  {
+   "name": "Earthbending Student",
+   "quantity": 1
+  },
+  {
+   "name": "Noyan Dar, Roil Shaper",
+   "quantity": 1
+  },
+  {
+   "name": "Roaming Throne",
+   "quantity": 1
+  },
+  {
+   "name": "The Boulder, Ready to Rumble",
+   "quantity": 1
+  },
+  {
+   "name": "Toph, Earthbending Master",
+   "quantity": 1
+  },
+  {
+   "name": "Toph, the Blind Bandit",
+   "quantity": 1
+  },
+  {
+   "name": "Archdruid's Charm",
+   "quantity": 1
+  },
+  {
+   "name": "Awakening of Vitu-Ghazi",
+   "quantity": 1
+  },
+  {
+   "name": "Brush Off",
+   "quantity": 1
+  },
+  {
+   "name": "Calculated Dismissal",
+   "quantity": 1
+  },
+  {
+   "name": "Congregation at Dawn",
+   "quantity": 1
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1
+  },
+  {
+   "name": "Earthshape",
+   "quantity": 1
+  },
+  {
+   "name": "Enlightened Tutor",
+   "quantity": 1
+  },
+  {
+   "name": "Sandbenders' Storm",
+   "quantity": 1
+  },
+  {
+   "name": "Call to Mind",
+   "quantity": 1
+  },
+  {
+   "name": "Cracked Earth Technique",
+   "quantity": 1
+  },
+  {
+   "name": "Cultivate",
+   "quantity": 1
+  },
+  {
+   "name": "Earth Rumble",
+   "quantity": 1
+  },
+  {
+   "name": "Earthbending Lesson",
+   "quantity": 1
+  },
+  {
+   "name": "Flare of Cultivation",
+   "quantity": 1
+  },
+  {
+   "name": "Rockalanche",
+   "quantity": 1
+  },
+  {
+   "name": "Adaptive Training Post",
+   "quantity": 1
+  },
+  {
+   "name": "Agility Bobblehead",
+   "quantity": 1
+  },
+  {
+   "name": "Arc Reactor",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Bag of Holding",
+   "quantity": 1
+  },
+  {
+   "name": "Bag of Tricks",
+   "quantity": 1
+  },
+  {
+   "name": "Caged Sun",
+   "quantity": 1
+  },
+  {
+   "name": "Charisma Bobblehead",
+   "quantity": 1
+  },
+  {
+   "name": "Cloud Key",
+   "quantity": 1
+  },
+  {
+   "name": "Coin of Mastery",
+   "quantity": 1
+  },
+  {
+   "name": "Fractured Powerstone",
+   "quantity": 1
+  },
+  {
+   "name": "Gilded Lotus",
+   "quantity": 1
+  },
+  {
+   "name": "Luck Bobblehead",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Case of the Ransacked Lab",
+   "quantity": 1
+  },
+  {
+   "name": "Chakra Meditation",
+   "quantity": 1
+  },
+  {
+   "name": "Curse of Echoes",
+   "quantity": 1
+  },
+  {
+   "name": "Earthbender Ascension",
+   "quantity": 1
+  },
+  {
+   "name": "Solid Ground",
+   "quantity": 1
+  },
+  {
+   "name": "The Legend of Kyoshi",
+   "quantity": 1
+  },
+  {
+   "name": "Ba Sing Se",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 16
+  },
+  {
+   "name": "Island",
+   "quantity": 16
+  },
+  {
+   "name": "Plains",
+   "quantity": 16
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}
