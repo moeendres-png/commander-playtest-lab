@@ -1,0 +1,378 @@
+{
+ "urlhash": "ns5zZb5c-a24M800t1E9Bw",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-09-19",
+ "price": 367,
+ "salt": 50.55015500634909,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/vgPejwb-r0ud1l583-0PGg?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Blighted Agent",
+   "quantity": 1
+  },
+  {
+   "name": "Blightwidow",
+   "quantity": 1
+  },
+  {
+   "name": "Bloated Contaminator",
+   "quantity": 1
+  },
+  {
+   "name": "Champion of Lambholt",
+   "quantity": 1
+  },
+  {
+   "name": "Contaminant Grafter",
+   "quantity": 1
+  },
+  {
+   "name": "Defiler of Vigor",
+   "quantity": 1
+  },
+  {
+   "name": "Doc Samson, Super Psychiatrist",
+   "quantity": 1
+  },
+  {
+   "name": "Dreamtide Whale",
+   "quantity": 1
+  },
+  {
+   "name": "Evolution Sage",
+   "quantity": 1
+  },
+  {
+   "name": "Grateful Apparition",
+   "quantity": 1
+  },
+  {
+   "name": "Heronblade Elite",
+   "quantity": 1
+  },
+  {
+   "name": "Jawbone Duelist",
+   "quantity": 1
+  },
+  {
+   "name": "Kami of Whispered Hopes",
+   "quantity": 1
+  },
+  {
+   "name": "Loyal Guardian",
+   "quantity": 1
+  },
+  {
+   "name": "Master Biomancer",
+   "quantity": 1
+  },
+  {
+   "name": "Metastatic Evangel",
+   "quantity": 1
+  },
+  {
+   "name": "Mistbreath Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Mona Lisa, Science Geek",
+   "quantity": 1
+  },
+  {
+   "name": "Mycoloth",
+   "quantity": 1
+  },
+  {
+   "name": "Ob Nixilis, the Ascended",
+   "quantity": 1
+  },
+  {
+   "name": "Ouroboroid",
+   "quantity": 1
+  },
+  {
+   "name": "Phyrexian Swarmlord",
+   "quantity": 1
+  },
+  {
+   "name": "Scute Swarm",
+   "quantity": 1
+  },
+  {
+   "name": "Shrieking Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Stonecloaker",
+   "quantity": 1
+  },
+  {
+   "name": "Tainted Observer",
+   "quantity": 1
+  },
+  {
+   "name": "Tekuthal, Inquiry Dominus",
+   "quantity": 1
+  },
+  {
+   "name": "Utopia Mycon",
+   "quantity": 1
+  },
+  {
+   "name": "Venerated Rotpriest",
+   "quantity": 1
+  },
+  {
+   "name": "Viral Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Whitemane Lion",
+   "quantity": 1
+  },
+  {
+   "name": "Zopandrel, Hunger Dominus",
+   "quantity": 1
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1
+  },
+  {
+   "name": "Fuel for the Cause",
+   "quantity": 1
+  },
+  {
+   "name": "Ice Magic",
+   "quantity": 1
+  },
+  {
+   "name": "Prologue to Phyresis",
+   "quantity": 1
+  },
+  {
+   "name": "Radstorm",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Charm",
+   "quantity": 1
+  },
+  {
+   "name": "Snap",
+   "quantity": 1
+  },
+  {
+   "name": "Snapback",
+   "quantity": 1
+  },
+  {
+   "name": "Steady Progress",
+   "quantity": 1
+  },
+  {
+   "name": "Contingency Plan",
+   "quantity": 1
+  },
+  {
+   "name": "Distorted Curiosity",
+   "quantity": 1
+  },
+  {
+   "name": "Tezzeret's Gambit",
+   "quantity": 1
+  },
+  {
+   "name": "White Sun's Twilight",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Decimator Web",
+   "quantity": 1
+  },
+  {
+   "name": "Glistening Sphere",
+   "quantity": 1
+  },
+  {
+   "name": "Phyrexian Atlas",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "The Eternity Elevator",
+   "quantity": 1
+  },
+  {
+   "name": "Thought Vessel",
+   "quantity": 1
+  },
+  {
+   "name": "Ajani's Welcome",
+   "quantity": 1
+  },
+  {
+   "name": "Brokers Ascendancy",
+   "quantity": 1
+  },
+  {
+   "name": "Corrupted Conscience",
+   "quantity": 1
+  },
+  {
+   "name": "Felidar Retreat",
+   "quantity": 1
+  },
+  {
+   "name": "Inexorable Tide",
+   "quantity": 1
+  },
+  {
+   "name": "Norn's Decree",
+   "quantity": 1
+  },
+  {
+   "name": "Thought Reflection",
+   "quantity": 1
+  },
+  {
+   "name": "Ajani Goldmane",
+   "quantity": 1
+  },
+  {
+   "name": "Ajani Steadfast",
+   "quantity": 1
+  },
+  {
+   "name": "Ajani, Sleeper Agent",
+   "quantity": 1
+  },
+  {
+   "name": "Ajani, Valiant Protector",
+   "quantity": 1
+  },
+  {
+   "name": "Ajani, Wise Counselor",
+   "quantity": 1
+  },
+  {
+   "name": "Ajani, the Greathearted",
+   "quantity": 1
+  },
+  {
+   "name": "Barkchannel Pathway",
+   "quantity": 1
+  },
+  {
+   "name": "Breeding Pool",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Flooded Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Floodfarm Verge",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 6
+  },
+  {
+   "name": "Gemstone Mine",
+   "quantity": 1
+  },
+  {
+   "name": "Glacial Fortress",
+   "quantity": 1
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1
+  },
+  {
+   "name": "Hinterland Harbor",
+   "quantity": 1
+  },
+  {
+   "name": "Hushwood Verge",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 5
+  },
+  {
+   "name": "Karn's Bastion",
+   "quantity": 1
+  },
+  {
+   "name": "Mirrodin's Core",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 2
+  },
+  {
+   "name": "Reflecting Pool",
+   "quantity": 1
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Spara's Headquarters",
+   "quantity": 1
+  },
+  {
+   "name": "Sunpetal Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Temple Garden",
+   "quantity": 1
+  },
+  {
+   "name": "Tendo Ice Bridge",
+   "quantity": 1
+  },
+  {
+   "name": "Treva's Ruins",
+   "quantity": 1
+  },
+  {
+   "name": "Willowrush Verge",
+   "quantity": 1
+  },
+  {
+   "name": "Yavimaya Coast",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

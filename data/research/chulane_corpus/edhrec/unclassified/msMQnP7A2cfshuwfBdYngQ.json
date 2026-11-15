@@ -1,0 +1,374 @@
+{
+ "urlhash": "msMQnP7A2cfshuwfBdYngQ",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-03-19",
+ "price": 2973,
+ "salt": 53.351603684946895,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/EKDOZ2lI2ku8nR3qyjk2fg?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Adaptive Automaton",
+   "quantity": 1
+  },
+  {
+   "name": "Augmenter Pugilist",
+   "quantity": 1
+  },
+  {
+   "name": "Beastcaller Savant",
+   "quantity": 1
+  },
+  {
+   "name": "Bloodline Pretender",
+   "quantity": 1
+  },
+  {
+   "name": "Brenard, Ginger Sculptor",
+   "quantity": 1
+  },
+  {
+   "name": "Clone",
+   "quantity": 1
+  },
+  {
+   "name": "Elesh Norn, Mother of Machines",
+   "quantity": 1
+  },
+  {
+   "name": "Expedition Envoy",
+   "quantity": 1
+  },
+  {
+   "name": "Glasspool Mimic",
+   "quantity": 1
+  },
+  {
+   "name": "Graypelt Hunter",
+   "quantity": 1
+  },
+  {
+   "name": "Grovetender Druids",
+   "quantity": 1
+  },
+  {
+   "name": "Hada Freeblade",
+   "quantity": 1
+  },
+  {
+   "name": "Halimar Excavator",
+   "quantity": 1
+  },
+  {
+   "name": "Harabaz Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Hero of Goma Fada",
+   "quantity": 1
+  },
+  {
+   "name": "Hulking Metamorph",
+   "quantity": 1
+  },
+  {
+   "name": "Inga and Esika",
+   "quantity": 1
+  },
+  {
+   "name": "Irregular Cohort",
+   "quantity": 1
+  },
+  {
+   "name": "Jwari Shapeshifter",
+   "quantity": 1
+  },
+  {
+   "name": "Kabira Evangel",
+   "quantity": 1
+  },
+  {
+   "name": "Kazandu Blademaster",
+   "quantity": 1
+  },
+  {
+   "name": "Masked Vandal",
+   "quantity": 1
+  },
+  {
+   "name": "Metallic Mimic",
+   "quantity": 1
+  },
+  {
+   "name": "Mirror Entity",
+   "quantity": 1
+  },
+  {
+   "name": "Ondu Cleric",
+   "quantity": 1
+  },
+  {
+   "name": "Oran-Rief Survivalist",
+   "quantity": 1
+  },
+  {
+   "name": "Phantasmal Image",
+   "quantity": 1
+  },
+  {
+   "name": "Phyrexian Metamorph",
+   "quantity": 1
+  },
+  {
+   "name": "Realmwalker",
+   "quantity": 1
+  },
+  {
+   "name": "Roaming Throne",
+   "quantity": 1
+  },
+  {
+   "name": "Tajuru Archer",
+   "quantity": 1
+  },
+  {
+   "name": "Tajuru Warcaller",
+   "quantity": 1
+  },
+  {
+   "name": "Talus Paladin",
+   "quantity": 1
+  },
+  {
+   "name": "Thassa's Oracle",
+   "quantity": 1
+  },
+  {
+   "name": "Turntimber Ranger",
+   "quantity": 1
+  },
+  {
+   "name": "Umara Raptor",
+   "quantity": 1
+  },
+  {
+   "name": "Universal Automaton",
+   "quantity": 1
+  },
+  {
+   "name": "Unsettled Mariner",
+   "quantity": 1
+  },
+  {
+   "name": "Veteran Warleader",
+   "quantity": 1
+  },
+  {
+   "name": "Beast Within",
+   "quantity": 1
+  },
+  {
+   "name": "Congregation at Dawn",
+   "quantity": 1
+  },
+  {
+   "name": "Cyclonic Rift",
+   "quantity": 1
+  },
+  {
+   "name": "Eladamri's Call",
+   "quantity": 1
+  },
+  {
+   "name": "Enlightened Tutor",
+   "quantity": 1
+  },
+  {
+   "name": "Generous Gift",
+   "quantity": 1
+  },
+  {
+   "name": "Settle the Wreckage",
+   "quantity": 1
+  },
+  {
+   "name": "Stroke of Midnight",
+   "quantity": 1
+  },
+  {
+   "name": "Worldly Tutor",
+   "quantity": 1
+  },
+  {
+   "name": "Altar of Bone",
+   "quantity": 1
+  },
+  {
+   "name": "Clone Legion",
+   "quantity": 1
+  },
+  {
+   "name": "Distant Melody",
+   "quantity": 1
+  },
+  {
+   "name": "Idyllic Tutor",
+   "quantity": 1
+  },
+  {
+   "name": "Maskwood Nexus",
+   "quantity": 1
+  },
+  {
+   "name": "Panharmonicon",
+   "quantity": 1
+  },
+  {
+   "name": "Cryptolith Rite",
+   "quantity": 1
+  },
+  {
+   "name": "Elven Chorus",
+   "quantity": 1
+  },
+  {
+   "name": "Growing Rites of Itlimoc",
+   "quantity": 1
+  },
+  {
+   "name": "Intruder Alarm",
+   "quantity": 1
+  },
+  {
+   "name": "Kindred Discovery",
+   "quantity": 1
+  },
+  {
+   "name": "Reflections of Littjara",
+   "quantity": 1
+  },
+  {
+   "name": "Gideon, Ally of Zendikar",
+   "quantity": 1
+  },
+  {
+   "name": "Teferi, Time Raveler",
+   "quantity": 1
+  },
+  {
+   "name": "Venser, the Sojourner",
+   "quantity": 1
+  },
+  {
+   "name": "Adarkar Wastes",
+   "quantity": 1
+  },
+  {
+   "name": "Ally Encampment",
+   "quantity": 1
+  },
+  {
+   "name": "Barkchannel Pathway",
+   "quantity": 1
+  },
+  {
+   "name": "Branchloft Pathway",
+   "quantity": 1
+  },
+  {
+   "name": "Breeding Pool",
+   "quantity": 1
+  },
+  {
+   "name": "Brushland",
+   "quantity": 1
+  },
+  {
+   "name": "Cavern of Souls",
+   "quantity": 1
+  },
+  {
+   "name": "Fabled Passage",
+   "quantity": 1
+  },
+  {
+   "name": "Flooded Strand",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 4
+  },
+  {
+   "name": "Gaea's Cradle",
+   "quantity": 1
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1
+  },
+  {
+   "name": "Hengegate Pathway",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 6
+  },
+  {
+   "name": "Misty Rainforest",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 4
+  },
+  {
+   "name": "Prismatic Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Secluded Courtyard",
+   "quantity": 1
+  },
+  {
+   "name": "Spara's Headquarters",
+   "quantity": 1
+  },
+  {
+   "name": "Temple Garden",
+   "quantity": 1
+  },
+  {
+   "name": "Treva's Ruins",
+   "quantity": 1
+  },
+  {
+   "name": "Unclaimed Territory",
+   "quantity": 1
+  },
+  {
+   "name": "Windswept Heath",
+   "quantity": 1
+  },
+  {
+   "name": "Yavimaya Coast",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

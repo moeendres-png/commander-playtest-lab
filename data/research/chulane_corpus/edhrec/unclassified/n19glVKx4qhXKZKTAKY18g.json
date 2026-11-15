@@ -1,0 +1,350 @@
+{
+ "urlhash": "n19glVKx4qhXKZKTAKY18g",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-07-23",
+ "price": 215,
+ "salt": 48.128920291084796,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/24610722?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Ainok Wayfarer",
+   "quantity": 1
+  },
+  {
+   "name": "Archaeomancer",
+   "quantity": 1
+  },
+  {
+   "name": "Birds of Paradise",
+   "quantity": 1
+  },
+  {
+   "name": "Burnished Hart",
+   "quantity": 1
+  },
+  {
+   "name": "Dragon Sniper",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Visionary",
+   "quantity": 1
+  },
+  {
+   "name": "Embermouth Sentinel",
+   "quantity": 1
+  },
+  {
+   "name": "End-Raze Forerunners",
+   "quantity": 1
+  },
+  {
+   "name": "Eternal Witness",
+   "quantity": 1
+  },
+  {
+   "name": "Fierce Empath",
+   "quantity": 1
+  },
+  {
+   "name": "Fyndhorn Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Landscape Painter",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Manakin",
+   "quantity": 1
+  },
+  {
+   "name": "Manglehorn",
+   "quantity": 1
+  },
+  {
+   "name": "Mother of Runes",
+   "quantity": 1
+  },
+  {
+   "name": "Opaline Unicorn",
+   "quantity": 1
+  },
+  {
+   "name": "Paradise Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Reclamation Sage",
+   "quantity": 1
+  },
+  {
+   "name": "Risen Reef",
+   "quantity": 1
+  },
+  {
+   "name": "Shrieking Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Silver Myr",
+   "quantity": 1
+  },
+  {
+   "name": "Spectral Sailor",
+   "quantity": 1
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Whirler Rogue",
+   "quantity": 1
+  },
+  {
+   "name": "Wood Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Denial",
+   "quantity": 1
+  },
+  {
+   "name": "Bewildering Blizzard",
+   "quantity": 1
+  },
+  {
+   "name": "Brainstorm",
+   "quantity": 1
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1
+  },
+  {
+   "name": "Cyclonic Rift",
+   "quantity": 1
+  },
+  {
+   "name": "Dispel",
+   "quantity": 1
+  },
+  {
+   "name": "Dramatic Reversal",
+   "quantity": 1
+  },
+  {
+   "name": "Erase",
+   "quantity": 1
+  },
+  {
+   "name": "Frantic Search",
+   "quantity": 1
+  },
+  {
+   "name": "Ghostly Flicker",
+   "quantity": 1
+  },
+  {
+   "name": "Growth Spiral",
+   "quantity": 1
+  },
+  {
+   "name": "Mana Leak",
+   "quantity": 1
+  },
+  {
+   "name": "Negate",
+   "quantity": 1
+  },
+  {
+   "name": "Opt",
+   "quantity": 1
+  },
+  {
+   "name": "Return to Nature",
+   "quantity": 1
+  },
+  {
+   "name": "Rewind",
+   "quantity": 1
+  },
+  {
+   "name": "Shore Up",
+   "quantity": 1
+  },
+  {
+   "name": "Snakeskin Veil",
+   "quantity": 1
+  },
+  {
+   "name": "Deep Analysis",
+   "quantity": 1
+  },
+  {
+   "name": "Excoriate",
+   "quantity": 1
+  },
+  {
+   "name": "Explosive Vegetation",
+   "quantity": 1
+  },
+  {
+   "name": "Fumigate",
+   "quantity": 1
+  },
+  {
+   "name": "Nature's Lore",
+   "quantity": 1
+  },
+  {
+   "name": "Overrun",
+   "quantity": 1
+  },
+  {
+   "name": "Rampant Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Rite of Replication",
+   "quantity": 1
+  },
+  {
+   "name": "Time Wipe",
+   "quantity": 1
+  },
+  {
+   "name": "Dragonfire Blade",
+   "quantity": 1
+  },
+  {
+   "name": "Gilded Lotus",
+   "quantity": 1
+  },
+  {
+   "name": "Howling Mine",
+   "quantity": 1
+  },
+  {
+   "name": "Isochron Scepter",
+   "quantity": 1
+  },
+  {
+   "name": "Lotus Petal",
+   "quantity": 1
+  },
+  {
+   "name": "Mind Stone",
+   "quantity": 1
+  },
+  {
+   "name": "Sky Diamond",
+   "quantity": 1
+  },
+  {
+   "name": "Alpha Authority",
+   "quantity": 1
+  },
+  {
+   "name": "Aura of Silence",
+   "quantity": 1
+  },
+  {
+   "name": "Light of Day",
+   "quantity": 1
+  },
+  {
+   "name": "Mystic Remora",
+   "quantity": 1
+  },
+  {
+   "name": "Staggering Insight",
+   "quantity": 1
+  },
+  {
+   "name": "Wild Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Adarkar Wastes",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Guildgate",
+   "quantity": 1
+  },
+  {
+   "name": "Blossoming Sands",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 8
+  },
+  {
+   "name": "Irrigated Farmland",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 7
+  },
+  {
+   "name": "Plains",
+   "quantity": 5
+  },
+  {
+   "name": "Reflecting Pool",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Guildgate",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Guildgate",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Enlightenment",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Mystery",
+   "quantity": 1
+  },
+  {
+   "name": "The Grey Havens",
+   "quantity": 1
+  },
+  {
+   "name": "Thornwood Falls",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Cove",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

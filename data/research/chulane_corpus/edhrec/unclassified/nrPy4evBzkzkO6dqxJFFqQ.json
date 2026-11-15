@@ -1,0 +1,314 @@
+{
+ "urlhash": "nrPy4evBzkzkO6dqxJFFqQ",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-09-16",
+ "price": 205,
+ "salt": 48.4404365811497,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/tH4yos5zP0apRzkqTD97vA?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Aang, the Last Airbender",
+   "quantity": 1
+  },
+  {
+   "name": "Bigfin Bouncer",
+   "quantity": 1
+  },
+  {
+   "name": "Curator of Destinies",
+   "quantity": 1
+  },
+  {
+   "name": "Dazzling Angel",
+   "quantity": 1
+  },
+  {
+   "name": "Drix Fatemaker",
+   "quantity": 1
+  },
+  {
+   "name": "Dust Animus",
+   "quantity": 1
+  },
+  {
+   "name": "Dwynen, Gilt-Leaf Daen",
+   "quantity": 1
+  },
+  {
+   "name": "Elesh Norn, Mother of Machines",
+   "quantity": 1
+  },
+  {
+   "name": "Floodpits Drowner",
+   "quantity": 1
+  },
+  {
+   "name": "Glen Elendra Archmage",
+   "quantity": 1
+  },
+  {
+   "name": "Hatut Zeraze Strike Force",
+   "quantity": 1
+  },
+  {
+   "name": "Heir of the Ancient Fang",
+   "quantity": 1
+  },
+  {
+   "name": "Herald of Eternal Dawn",
+   "quantity": 1
+  },
+  {
+   "name": "Hornet Queen",
+   "quantity": 1
+  },
+  {
+   "name": "Mighty Mutanimals",
+   "quantity": 1
+  },
+  {
+   "name": "Moon-Circuit Hacker",
+   "quantity": 1
+  },
+  {
+   "name": "Moonsnare Specialist",
+   "quantity": 1
+  },
+  {
+   "name": "Ori, Plate Stacker",
+   "quantity": 1
+  },
+  {
+   "name": "Overgrown Zealot",
+   "quantity": 1
+  },
+  {
+   "name": "Overlord of the Floodpits",
+   "quantity": 1
+  },
+  {
+   "name": "Quistis Trepe",
+   "quantity": 1
+  },
+  {
+   "name": "Roon of the Hidden Realm",
+   "quantity": 1
+  },
+  {
+   "name": "S.H.I.E.L.D. Deployment Drone",
+   "quantity": 1
+  },
+  {
+   "name": "Soulherder",
+   "quantity": 1
+  },
+  {
+   "name": "Spark Double",
+   "quantity": 1
+  },
+  {
+   "name": "Starfield Vocalist",
+   "quantity": 1
+  },
+  {
+   "name": "Storm, Shaker of Skies",
+   "quantity": 1
+  },
+  {
+   "name": "Vanguard Seraph",
+   "quantity": 1
+  },
+  {
+   "name": "Vaultborn Tyrant",
+   "quantity": 1
+  },
+  {
+   "name": "Victor Timely, Wily Tycoon",
+   "quantity": 1
+  },
+  {
+   "name": "Wary Thespian",
+   "quantity": 1
+  },
+  {
+   "name": "Embrace the Paradox",
+   "quantity": 1
+  },
+  {
+   "name": "Get Out",
+   "quantity": 1
+  },
+  {
+   "name": "Giant Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Growth Spiral",
+   "quantity": 1
+  },
+  {
+   "name": "Ice Magic",
+   "quantity": 1
+  },
+  {
+   "name": "Proctor's Gaze",
+   "quantity": 1
+  },
+  {
+   "name": "Smuggler's Surprise",
+   "quantity": 1
+  },
+  {
+   "name": "Spell Pierce",
+   "quantity": 1
+  },
+  {
+   "name": "Think Twice",
+   "quantity": 1
+  },
+  {
+   "name": "Colossal Collision",
+   "quantity": 1
+  },
+  {
+   "name": "Farseek",
+   "quantity": 1
+  },
+  {
+   "name": "Fell the Mighty",
+   "quantity": 1
+  },
+  {
+   "name": "Go Nuts!",
+   "quantity": 1
+  },
+  {
+   "name": "Hop to It",
+   "quantity": 1
+  },
+  {
+   "name": "Lunar Insight",
+   "quantity": 1
+  },
+  {
+   "name": "Multiversal Recruitment",
+   "quantity": 1
+  },
+  {
+   "name": "Relm's Sketching",
+   "quantity": 1
+  },
+  {
+   "name": "Roamer's Routine",
+   "quantity": 1
+  },
+  {
+   "name": "Shared Roots",
+   "quantity": 1
+  },
+  {
+   "name": "Sleight of Hand",
+   "quantity": 1
+  },
+  {
+   "name": "Time Warp",
+   "quantity": 1
+  },
+  {
+   "name": "Zimone's Experiment",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Accelerated Evolution",
+   "quantity": 1
+  },
+  {
+   "name": "Bottomless Pool // Locker Room",
+   "quantity": 1
+  },
+  {
+   "name": "Buried in the Garden",
+   "quantity": 1
+  },
+  {
+   "name": "Kellan Joins Up",
+   "quantity": 1
+  },
+  {
+   "name": "Knightly Valor",
+   "quantity": 1
+  },
+  {
+   "name": "Training Regimen",
+   "quantity": 1
+  },
+  {
+   "name": "Unable to Scream",
+   "quantity": 1
+  },
+  {
+   "name": "Ajani, Outland Chaperone",
+   "quantity": 1
+  },
+  {
+   "name": "Blossoming Sands",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Elvenking's Halls",
+   "quantity": 1
+  },
+  {
+   "name": "Exotic Orchard",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 9
+  },
+  {
+   "name": "Hobbit Hole",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 10
+  },
+  {
+   "name": "Plains",
+   "quantity": 10
+  },
+  {
+   "name": "Rogue's Passage",
+   "quantity": 1
+  },
+  {
+   "name": "Sandstorm Verge",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

@@ -1,0 +1,390 @@
+{
+ "urlhash": "mpHM7mktVVgnr9pVlmHQbQ",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-12-02",
+ "price": 184,
+ "salt": 43.921041193883866,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/5900208?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Barrin, Tolarian Archmage",
+   "quantity": 1
+  },
+  {
+   "name": "Beast Whisperer",
+   "quantity": 1
+  },
+  {
+   "name": "Biomancer's Familiar",
+   "quantity": 1
+  },
+  {
+   "name": "Destiny Spinner",
+   "quantity": 1
+  },
+  {
+   "name": "District Guide",
+   "quantity": 1
+  },
+  {
+   "name": "Emancipation Angel",
+   "quantity": 1
+  },
+  {
+   "name": "Emeria Angel",
+   "quantity": 1
+  },
+  {
+   "name": "Emeria Shepherd",
+   "quantity": 1
+  },
+  {
+   "name": "End-Raze Forerunners",
+   "quantity": 1
+  },
+  {
+   "name": "Faerie Vandal",
+   "quantity": 1
+  },
+  {
+   "name": "Frilled Mystic",
+   "quantity": 1
+  },
+  {
+   "name": "God-Eternal Oketra",
+   "quantity": 1
+  },
+  {
+   "name": "Gyre Engineer",
+   "quantity": 1
+  },
+  {
+   "name": "Hypnotic Siren",
+   "quantity": 1
+  },
+  {
+   "name": "Incubation Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Kiora's Follower",
+   "quantity": 1
+  },
+  {
+   "name": "Kor Skyfisher",
+   "quantity": 1
+  },
+  {
+   "name": "Kruphix, God of Horizons",
+   "quantity": 1
+  },
+  {
+   "name": "Leafkin Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Mangara of Corondor",
+   "quantity": 1
+  },
+  {
+   "name": "Maraleaf Pixie",
+   "quantity": 1
+  },
+  {
+   "name": "Meteor Golem",
+   "quantity": 1
+  },
+  {
+   "name": "Moritte of the Frost",
+   "quantity": 1
+  },
+  {
+   "name": "Mulldrifter",
+   "quantity": 1
+  },
+  {
+   "name": "Mystic Snake",
+   "quantity": 1
+  },
+  {
+   "name": "Paradise Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Peregrine Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Risen Reef",
+   "quantity": 1
+  },
+  {
+   "name": "Rosethorn Acolyte",
+   "quantity": 1
+  },
+  {
+   "name": "Scute Swarm",
+   "quantity": 1
+  },
+  {
+   "name": "Seedborn Muse",
+   "quantity": 1
+  },
+  {
+   "name": "Shrieking Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Silhana Wayfinder",
+   "quantity": 1
+  },
+  {
+   "name": "Spectral Sailor",
+   "quantity": 1
+  },
+  {
+   "name": "Steelbane Hydra",
+   "quantity": 1
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Thorn Mammoth",
+   "quantity": 1
+  },
+  {
+   "name": "Tireless Provisioner",
+   "quantity": 1
+  },
+  {
+   "name": "Whiptongue Hydra",
+   "quantity": 1
+  },
+  {
+   "name": "Whitemane Lion",
+   "quantity": 1
+  },
+  {
+   "name": "Wood Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Growth Spiral",
+   "quantity": 1
+  },
+  {
+   "name": "Run Away Together",
+   "quantity": 1
+  },
+  {
+   "name": "Circuitous Route",
+   "quantity": 1
+  },
+  {
+   "name": "Incubation // Incongruity",
+   "quantity": 1
+  },
+  {
+   "name": "Ondu Inversion",
+   "quantity": 1
+  },
+  {
+   "name": "Spoils of Victory",
+   "quantity": 1
+  },
+  {
+   "name": "Stolen by the Fae",
+   "quantity": 1
+  },
+  {
+   "name": "Time Wipe",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Crystal Shard",
+   "quantity": 1
+  },
+  {
+   "name": "Firemind Vessel",
+   "quantity": 1
+  },
+  {
+   "name": "Kefnet's Monument",
+   "quantity": 1
+  },
+  {
+   "name": "Nevinyrral's Disk",
+   "quantity": 1
+  },
+  {
+   "name": "Oketra's Monument",
+   "quantity": 1
+  },
+  {
+   "name": "Rhonas's Monument",
+   "quantity": 1
+  },
+  {
+   "name": "Abundance",
+   "quantity": 1
+  },
+  {
+   "name": "Guardian Project",
+   "quantity": 1
+  },
+  {
+   "name": "Leyline of Anticipation",
+   "quantity": 1
+  },
+  {
+   "name": "Mana Breach",
+   "quantity": 1
+  },
+  {
+   "name": "Retreat to Coralhelm",
+   "quantity": 1
+  },
+  {
+   "name": "Retreat to Emeria",
+   "quantity": 1
+  },
+  {
+   "name": "Arctic Treeline",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Chancery",
+   "quantity": 1
+  },
+  {
+   "name": "Barkchannel Pathway",
+   "quantity": 1
+  },
+  {
+   "name": "Branchloft Pathway",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Field of the Dead",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 5
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1
+  },
+  {
+   "name": "Hengegate Pathway",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 3
+  },
+  {
+   "name": "Lotus Field",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 2
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Rimewood Falls",
+   "quantity": 1
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Growth Chamber",
+   "quantity": 1
+  },
+  {
+   "name": "Snow-Covered Forest",
+   "quantity": 1
+  },
+  {
+   "name": "Snow-Covered Island",
+   "quantity": 1
+  },
+  {
+   "name": "Snow-Covered Plains",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Mystery",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Plenty",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of the False God",
+   "quantity": 1
+  },
+  {
+   "name": "Thornwood Falls",
+   "quantity": 1
+  },
+  {
+   "name": "Thriving Isle",
+   "quantity": 1
+  },
+  {
+   "name": "Treva's Ruins",
+   "quantity": 1
+  },
+  {
+   "name": "Warped Landscape",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

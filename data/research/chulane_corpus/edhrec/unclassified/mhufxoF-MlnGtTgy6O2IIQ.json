@@ -1,0 +1,326 @@
+{
+ "urlhash": "mhufxoF-MlnGtTgy6O2IIQ",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-02-03",
+ "price": 2503,
+ "salt": 58.38007723540068,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/TTEiV1MlREeG8dM228A2Zw?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Angel of the Dire Hour",
+   "quantity": 1
+  },
+  {
+   "name": "Angel of the Ruins",
+   "quantity": 1
+  },
+  {
+   "name": "Armada Wurm",
+   "quantity": 1
+  },
+  {
+   "name": "Basri's Acolyte",
+   "quantity": 1
+  },
+  {
+   "name": "Bloom Tender",
+   "quantity": 1
+  },
+  {
+   "name": "Bond Beetle",
+   "quantity": 1
+  },
+  {
+   "name": "Breaching Leviathan",
+   "quantity": 1
+  },
+  {
+   "name": "Coiling Oracle",
+   "quantity": 1
+  },
+  {
+   "name": "Craterhoof Behemoth",
+   "quantity": 1
+  },
+  {
+   "name": "Druid of Purification",
+   "quantity": 1
+  },
+  {
+   "name": "Dust Elemental",
+   "quantity": 1
+  },
+  {
+   "name": "Eagle of Deliverance",
+   "quantity": 1
+  },
+  {
+   "name": "Elesh Norn, Mother of Machines",
+   "quantity": 1
+  },
+  {
+   "name": "Eternal Witness",
+   "quantity": 1
+  },
+  {
+   "name": "Faeburrow Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Felidar Guardian",
+   "quantity": 1
+  },
+  {
+   "name": "Frilled Mystic",
+   "quantity": 1
+  },
+  {
+   "name": "Glint Weaver",
+   "quantity": 1
+  },
+  {
+   "name": "Hornet Queen",
+   "quantity": 1
+  },
+  {
+   "name": "Howling Giant",
+   "quantity": 1
+  },
+  {
+   "name": "Knight of Autumn",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Monk Gyatso",
+   "quantity": 1
+  },
+  {
+   "name": "Mystic Snake",
+   "quantity": 1
+  },
+  {
+   "name": "Overlord of the Hauntwoods",
+   "quantity": 1
+  },
+  {
+   "name": "Peregrine Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Primeval Protector",
+   "quantity": 1
+  },
+  {
+   "name": "Shrieking Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Terastodon",
+   "quantity": 1
+  },
+  {
+   "name": "Trostani's Summoner",
+   "quantity": 1
+  },
+  {
+   "name": "Whitemane Lion",
+   "quantity": 1
+  },
+  {
+   "name": "Woodfall Primus",
+   "quantity": 1
+  },
+  {
+   "name": "An Offer You Can't Refuse",
+   "quantity": 1
+  },
+  {
+   "name": "Brainstorm",
+   "quantity": 1
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1
+  },
+  {
+   "name": "Eureka Moment",
+   "quantity": 1
+  },
+  {
+   "name": "Growth Spiral",
+   "quantity": 1
+  },
+  {
+   "name": "Negate",
+   "quantity": 1
+  },
+  {
+   "name": "Path to Exile",
+   "quantity": 1
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1
+  },
+  {
+   "name": "Unbreakable Formation",
+   "quantity": 1
+  },
+  {
+   "name": "Enlarge",
+   "quantity": 1
+  },
+  {
+   "name": "Finale of Devastation",
+   "quantity": 1
+  },
+  {
+   "name": "Finale of Glory",
+   "quantity": 1
+  },
+  {
+   "name": "Last March of the Ents",
+   "quantity": 1
+  },
+  {
+   "name": "Lórien Revealed",
+   "quantity": 1
+  },
+  {
+   "name": "Ponder",
+   "quantity": 1
+  },
+  {
+   "name": "Wrath of God",
+   "quantity": 1
+  },
+  {
+   "name": "Aetherflux Conduit",
+   "quantity": 1
+  },
+  {
+   "name": "Aetherflux Reservoir",
+   "quantity": 1
+  },
+  {
+   "name": "Cloudstone Curio",
+   "quantity": 1
+  },
+  {
+   "name": "Panharmonicon",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Airbender Ascension",
+   "quantity": 1
+  },
+  {
+   "name": "Cathars' Crusade",
+   "quantity": 1
+  },
+  {
+   "name": "Cloud Cover",
+   "quantity": 1
+  },
+  {
+   "name": "Primeval Bounty",
+   "quantity": 1
+  },
+  {
+   "name": "Unnatural Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Virtue of Knowledge",
+   "quantity": 1
+  },
+  {
+   "name": "Virtue of Strength",
+   "quantity": 1
+  },
+  {
+   "name": "Breeding Pool",
+   "quantity": 1
+  },
+  {
+   "name": "Flooded Strand",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 9
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1
+  },
+  {
+   "name": "Hedge Maze",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 8
+  },
+  {
+   "name": "Lush Portico",
+   "quantity": 1
+  },
+  {
+   "name": "Meticulous Archive",
+   "quantity": 1
+  },
+  {
+   "name": "Misty Rainforest",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 9
+  },
+  {
+   "name": "Savannah",
+   "quantity": 1
+  },
+  {
+   "name": "Spara's Headquarters",
+   "quantity": 1
+  },
+  {
+   "name": "Temple Garden",
+   "quantity": 1
+  },
+  {
+   "name": "Tropical Island",
+   "quantity": 1
+  },
+  {
+   "name": "Tundra",
+   "quantity": 1
+  },
+  {
+   "name": "Windswept Heath",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}
