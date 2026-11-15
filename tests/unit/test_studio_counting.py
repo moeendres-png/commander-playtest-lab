@@ -414,10 +414,16 @@ def test_a_request_resolves_the_universe_once(
     assert client.post("/api/strength", json=body).status_code == 200
     # The profile has no date or card filter: its universe is one spec, resolved once, and
     # the context (spread of every card) is built once although the request reads the
-    # summary and the spread.
-    assert len(resolved) == 1 and len(built) == 1
+    # summary and the spread. The counted corpus (#1364) adds the commander's local spec (the
+    # same decks as this profile: resolved once together, but built as its own context) and one
+    # spec per bracket cohort group (4+5, 2, 5), each resolved and built once.
+    from commander_lab.studio import corpus_signals
+
+    groups = len(corpus_signals.COHORT_GROUPS)
+    assert len(resolved) == 1 + groups and len(built) == 2 + groups
     assert client.post("/api/strength", json=body).status_code == 200
-    assert len(resolved) == 1 and len(built) == 1  # the second request is served from memory
+    # the second request is served from memory
+    assert len(resolved) == 1 + groups and len(built) == 2 + groups
     cache.invalidate()
     resolved.clear()
     built.clear()

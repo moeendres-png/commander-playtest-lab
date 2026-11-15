@@ -441,6 +441,11 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
                         if body.profile is not None
                         else ()
                     ),
+                    saved_weights=(
+                        strength_view.profile_saved_weights(store, body.profile)
+                        if body.profile is not None
+                        else None
+                    ),
                 )
             )
         except ValueError as error:
