@@ -426,9 +426,7 @@ def inventory(path: str) -> int:
         describes = TOPICS[topic][0] if topic else "current"
         for m in ents[name]:
             text = _read(m)
-            anchor = (_anchor_of(name, [m], words, paths, counts) if topic else None) or (
-                "" if cls != "keep-anchored" else str(plan["kept_anchored"][name])
-            )  # type: ignore[index]
+            anchor = _anchor_of(name, [m], words, paths, counts) or ""
             rows.append(
                 "\t".join(
                     [
