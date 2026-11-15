@@ -397,6 +397,14 @@ COMBO_PART_VARIANTS = "spellbook_variants"
 COMBO_PART_TWO_CARD = "spellbook_two_card_variants"
 COMBO_PART_PARTNERS = "spellbook_partners_in_collection"
 COMBO_PARTS = (COMBO_PART_VARIANTS, COMBO_PART_TWO_CARD, COMBO_PART_PARTNERS)
+# The shell parts (#1366): distinct spellbook combos instead of raw variants.
+# When the store holds them, they replace the variant parts in the mixture and
+# the shell count is the primary part; the variant count stays a stored signal
+# for display only.
+COMBO_PART_SHELLS = "spellbook_shells"
+COMBO_PART_TWO_CARD_SHELLS = "spellbook_two_card_shells"
+COMBO_PART_COMMANDER_SHELLS = "spellbook_commander_shells"
+COMBO_SHELL_PARTS = (COMBO_PART_SHELLS, COMBO_PART_TWO_CARD_SHELLS, COMBO_PART_COMMANDER_SHELLS)
 SIGNAL_COMBO_COMMANDER = "edhrec_combo_decks"
 
 
@@ -907,18 +915,21 @@ def share_scale_values(
     return {key: math.sqrt(max(0.0, value) / highest) for key, value in values.items()}
 
 
-def combo_quality(parts: Mapping[str, Mapping[str, float]]) -> dict[str, float]:
+def combo_quality(
+    parts: Mapping[str, Mapping[str, float]], primary: str = COMBO_PART_VARIANTS
+) -> dict[str, float]:
     """The combos value of a card: the mean of its percentile ranks in the combo
-    quality parts (``COMBO_PARTS``), over the cards the primary part (variant count)
-    lists. A card the primary part does not list gets no value (not listed, not 0);
-    a part beyond the primary one counts only for the cards that have a value in it,
-    so the mean of a card with fewer parts is the mean of the parts it has. The value
-    is itself a rank mixture in 0..1: ``score_pool`` ranks it among the pool like
-    every other component value, which keeps the order of this mixture."""
-    primary = parts.get(COMBO_PART_VARIANTS, {})
+    quality parts, over the cards the primary part lists (the variant count, or
+    the shell count when the store holds the shell parts, #1366). A card the
+    primary part does not list gets no value (not listed, not 0); a part beyond
+    the primary one counts only for the cards that have a value in it, so the
+    mean of a card with fewer parts is the mean of the parts it has. The value
+    is itself a rank mixture in 0..1: ``score_pool`` ranks it among the pool
+    like every other component value, which keeps the order of this mixture."""
+    primary_values = parts.get(primary, {})
     ranks = {name: percentile_ranks(values) for name, values in parts.items() if values}
     result: dict[str, float] = {}
-    for card in primary:
+    for card in primary_values:
         found = [ranks[name][card] for name in ranks if card in ranks[name]]
         if found:
             result[card] = sum(found) / len(found)

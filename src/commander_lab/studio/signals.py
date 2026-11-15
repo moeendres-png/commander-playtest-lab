@@ -114,6 +114,7 @@ CARD_FILE = "commander_card_signals"
 BRACKET_FILE = "commander_bracket_signals"
 GLOBAL_FILE = "card_global_signals"
 SPELLBOOK_FILE = "spellbook_card_links"
+SHELLS_FILE = "spellbook_shells"
 TOURNAMENT_FILE = "topdeck_chulane_decks"
 EDHTOP16_FILE = "edhtop16_commander_signals"
 CONVERSION_FILE = "topdeck_card_conversions"
@@ -136,6 +137,9 @@ SIGNAL_GLOBAL = "edhrec_global_inclusion"
 SIGNAL_VARIANTS = "spellbook_variants"
 SIGNAL_PARTNERS = "spellbook_partners_in_collection"
 SIGNAL_TWO_CARD = "spellbook_two_card_variants"
+SIGNAL_SHELLS = "spellbook_shells"
+SIGNAL_TWO_CARD_SHELLS = "spellbook_two_card_shells"
+SIGNAL_COMMANDER_SHELLS = "spellbook_commander_shells"
 SIGNAL_TOURNAMENT = "tournament_lists"
 SIGNAL_SALT = "edhrec_salt"
 SIGNAL_COMBO_DECKS = "edhrec_combo_decks"
@@ -474,6 +478,33 @@ def _spellbook_rows(row: dict[str, str], card: str, report: FileReport) -> list[
             reasons = report["null_value_reasons"]
             reasons["VARIANT_IDS_MISSING"] = reasons.get("VARIANT_IDS_MISSING", 0) + 1
         rows.append(("", SIGNAL_TWO_CARD, card, two_card, None, None))
+    return rows
+
+
+def _shells_rows(row: dict[str, str], card: str, report: FileReport) -> list[_Row]:
+    """The shell counts of one card (#1366): distinct spellbook combos instead of
+    raw variants, split by card count and commander involvement. The file lists
+    every card of the collection, so a card without a qualifying shell holds a
+    counted 0; a non-numeric count is unknown. The breakdown columns are
+    optional in the file the same way the variant quality columns are: a file
+    without them declares the signals and writes no rows for them."""
+    rows: list[_Row] = []
+    value = _number(row.get("shell_count"))
+    if value is None:
+        reasons = report["null_value_reasons"]
+        reasons["SHELL_COUNT_NOT_NUMERIC"] = reasons.get("SHELL_COUNT_NOT_NUMERIC", 0) + 1
+    rows.append(("", SIGNAL_SHELLS, card, value, None, None))
+    for column, signal, reason_name in (
+        ("shell_count_2card", SIGNAL_TWO_CARD_SHELLS, "SHELL_TWO_CARD_NOT_NUMERIC"),
+        ("shell_count_commander", SIGNAL_COMMANDER_SHELLS, "SHELL_COMMANDER_NOT_NUMERIC"),
+    ):
+        if column not in row:
+            continue
+        part = _number(row.get(column))
+        if part is None:
+            reasons = report["null_value_reasons"]
+            reasons[reason_name] = reasons.get(reason_name, 0) + 1
+        rows.append(("", signal, card, part, None, None))
     return rows
 
 
@@ -1072,6 +1103,8 @@ def _file_signals(file_name: str, variant: str | None) -> list[str]:
         return [SIGNAL_GLOBAL]
     if file_name == SPELLBOOK_FILE:
         return [SIGNAL_VARIANTS, SIGNAL_PARTNERS, SIGNAL_TWO_CARD]
+    if file_name == SHELLS_FILE:
+        return [SIGNAL_SHELLS, SIGNAL_TWO_CARD_SHELLS, SIGNAL_COMMANDER_SHELLS]
     if file_name == EDHTOP16_FILE:
         return [SIGNAL_EDHTOP16]
     if file_name == CONVERSION_FILE:
@@ -1112,6 +1145,9 @@ def _read_file(
     if file_name == SPELLBOOK_FILE:
         required = {"card_name", "fetch_status", "variant_count"}
         return _read_independent(paths, required, _spellbook_rows, report)
+    if file_name == SHELLS_FILE:
+        required = {"card_name", "fetch_status", "shell_count"}
+        return _read_independent(paths, required, _shells_rows, report)
     if file_name == EDHTOP16_FILE:
         return _read_edhtop16(paths, report, commanders)
     if file_name == CONVERSION_FILE:
@@ -1171,6 +1207,7 @@ def has_signal_files(folder: str | Path) -> bool:
         CARD_FILE,
         GLOBAL_FILE,
         SPELLBOOK_FILE,
+        SHELLS_FILE,
         EDHTOP16_FILE,
         CONVERSION_FILE,
         ATLAS_FILE,
@@ -1343,7 +1380,7 @@ def import_signals(
     reports: dict[str, FileReport] = {}
     plan: list[tuple[str, str | None]] = [(CARD_FILE, None)]
     plan += [(f"{BRACKET_FILE}_{variant}", variant) for variant in BRACKET_VARIANTS]
-    plan += [(GLOBAL_FILE, None), (SPELLBOOK_FILE, None)]
+    plan += [(GLOBAL_FILE, None), (SPELLBOOK_FILE, None), (SHELLS_FILE, None)]
     plan += [(EDHTOP16_FILE, None), (SALT_FILE, None)]
     plan += [(ATLAS_FILE, None)]
     plan += [(CONVERSION_FILE, None)]
@@ -1364,6 +1401,7 @@ def import_signals(
                 CARD_FILE,
                 GLOBAL_FILE,
                 SPELLBOOK_FILE,
+                SHELLS_FILE,
                 EDHTOP16_FILE,
                 ATLAS_FILE,
                 SALT_FILE,

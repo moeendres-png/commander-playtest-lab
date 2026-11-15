@@ -115,6 +115,9 @@ _INDEPENDENT = frozenset(
         "spellbook_variants",
         signals.SIGNAL_TWO_CARD,
         signals.SIGNAL_PARTNERS,
+        signals.SIGNAL_SHELLS,
+        signals.SIGNAL_TWO_CARD_SHELLS,
+        signals.SIGNAL_COMMANDER_SHELLS,
         "playgroup_observed_winrate_gap",
         # A marker layer only (no rated component): the salt list does not depend on a commander.
         signals.SIGNAL_SALT,
@@ -171,6 +174,17 @@ def _signal_observations(
     return {card_id: item[2] for card_id, item in best.items()}, bool(rows)
 
 
+def shell_note(shells: float, two_card: float, commander: float) -> str:
+    """The row text of a shell count (#1366): the total and its breakdown by card
+    count and commander involvement, the figures the detail modal shows."""
+    three_plus = shells - two_card
+    return (
+        f"{_number_text(shells)} Combo-Shells (davon {_number_text(two_card)} mit 2 Karten, "
+        f"{_number_text(three_plus)} mit 3+ Karten, "
+        f"{_number_text(commander)} mit Commander-Beteiligung)"
+    )
+
+
 def _combo_observations(
     store: StudioStore,
     commander: str,
@@ -178,10 +192,37 @@ def _combo_observations(
     display: Mapping[str, str],
     ambiguous: dict[tuple[str, str], list[str]],
 ) -> tuple[dict[str, Observation], bool]:
-    """The combos observations: one per pool card the spellbook file lists, valued by
-    the combo quality mixture (``strength.combo_quality``) of the three spellbook
-    signals. Whether the source exists is decided by the primary signal alone, as
-    before; the two quality signals only refine the value of the listed cards."""
+    """The combos observations: one per pool card the spellbook source lists, valued
+    by the combo quality mixture (``strength.combo_quality``). Whether the source
+    exists is decided by the primary signal alone; the other parts only refine
+    the value of the listed cards.
+
+    When the store holds the shell signals (#1366), the mixture reads the shell
+    parts and the shell count is the primary part — distinct combos instead of
+    raw variants — and the note carries the shell breakdown. The variant count
+    is then a stored display value only. Without the shell signals, the variant
+    mixture ranks exactly as before."""
+    shell_raw: dict[str, dict[str, Observation]] = {}
+    shell_parts: dict[str, dict[str, float]] = {}
+    shell_exists = False
+    for signal in strength.COMBO_SHELL_PARTS:
+        observed, found = _signal_observations(store, commander, signal, claims, display, ambiguous)
+        if signal == strength.COMBO_PART_SHELLS:
+            shell_exists = found
+        shell_raw[signal] = observed
+        shell_parts[signal] = {
+            card_id: item.value for card_id, item in observed.items() if item.value is not None
+        }
+    if shell_exists:
+        quality = strength.combo_quality(shell_parts, primary=strength.COMBO_PART_SHELLS)
+        result: dict[str, Observation] = {}
+        for card_id, value in quality.items():
+            counts: list[float] = []
+            for signal in strength.COMBO_SHELL_PARTS:
+                item = shell_raw[signal].get(card_id)
+                counts.append(item.value if item is not None and item.value is not None else 0.0)
+            result[card_id] = Observation(value, note=shell_note(counts[0], counts[1], counts[2]))
+        return result, True
     parts: dict[str, dict[str, float]] = {}
     exists = False
     for signal in strength.COMBO_PARTS:
