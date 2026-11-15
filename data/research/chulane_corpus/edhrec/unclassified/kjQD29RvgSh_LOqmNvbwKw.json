@@ -1,0 +1,294 @@
+{
+ "urlhash": "kjQD29RvgSh_LOqmNvbwKw",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-07-25",
+ "price": 170,
+ "salt": 49.76523332670331,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/Ka3BG7ftdkmzcSrTISaj1w?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Archetype of Endurance",
+   "quantity": 1
+  },
+  {
+   "name": "Brindle Boar",
+   "quantity": 1
+  },
+  {
+   "name": "Brindle Shoat",
+   "quantity": 1
+  },
+  {
+   "name": "Bristling Boar",
+   "quantity": 1
+  },
+  {
+   "name": "Chicken Troupe",
+   "quantity": 1
+  },
+  {
+   "name": "Copperhoof Vorrac",
+   "quantity": 1
+  },
+  {
+   "name": "Crashing Boars",
+   "quantity": 1
+  },
+  {
+   "name": "Crystal Dragon",
+   "quantity": 1
+  },
+  {
+   "name": "Curious Colossus",
+   "quantity": 1
+  },
+  {
+   "name": "Curious Farm Animals",
+   "quantity": 1
+  },
+  {
+   "name": "Decimator of the Provinces",
+   "quantity": 1
+  },
+  {
+   "name": "Druid of Purification",
+   "quantity": 1
+  },
+  {
+   "name": "Eager Trufflesnout",
+   "quantity": 1
+  },
+  {
+   "name": "End-Raze Forerunners",
+   "quantity": 1
+  },
+  {
+   "name": "Gaea's Herald",
+   "quantity": 1
+  },
+  {
+   "name": "Gristleback",
+   "quantity": 1
+  },
+  {
+   "name": "Henchbots",
+   "quantity": 1
+  },
+  {
+   "name": "High-Flying Ace",
+   "quantity": 1
+  },
+  {
+   "name": "Intrepid Trufflesnout",
+   "quantity": 1
+  },
+  {
+   "name": "Jennika, Bad Apple Big Sister",
+   "quantity": 1
+  },
+  {
+   "name": "Lairwatch Giant",
+   "quantity": 1
+  },
+  {
+   "name": "Nessian Boar",
+   "quantity": 1
+  },
+  {
+   "name": "Prize Pig",
+   "quantity": 1
+  },
+  {
+   "name": "Rampaging Baloths",
+   "quantity": 1
+  },
+  {
+   "name": "Rural Recruit",
+   "quantity": 1
+  },
+  {
+   "name": "Spider-Ham, Peter Porker",
+   "quantity": 1
+  },
+  {
+   "name": "Spinner of Souls",
+   "quantity": 1
+  },
+  {
+   "name": "Stonehoof Chieftain",
+   "quantity": 1
+  },
+  {
+   "name": "Trufflesnout",
+   "quantity": 1
+  },
+  {
+   "name": "Warthog",
+   "quantity": 1
+  },
+  {
+   "name": "Woolly Razorback",
+   "quantity": 1
+  },
+  {
+   "name": "Zodiac Rooster",
+   "quantity": 1
+  },
+  {
+   "name": "Contraband Livestock",
+   "quantity": 1
+  },
+  {
+   "name": "Dream Fracture",
+   "quantity": 1
+  },
+  {
+   "name": "Path to Exile",
+   "quantity": 1
+  },
+  {
+   "name": "Polymorphous Rush",
+   "quantity": 1
+  },
+  {
+   "name": "Second Breakfast",
+   "quantity": 1
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1
+  },
+  {
+   "name": "Time Stop",
+   "quantity": 1
+  },
+  {
+   "name": "Unbreakable Formation",
+   "quantity": 1
+  },
+  {
+   "name": "Worldly Tutor",
+   "quantity": 1
+  },
+  {
+   "name": "Approach of the Second Sun",
+   "quantity": 1
+  },
+  {
+   "name": "Body of Research",
+   "quantity": 1
+  },
+  {
+   "name": "Curse of the Swine",
+   "quantity": 1
+  },
+  {
+   "name": "Eldritch Evolution",
+   "quantity": 1
+  },
+  {
+   "name": "Overrun",
+   "quantity": 1
+  },
+  {
+   "name": "Predatory Rampage",
+   "quantity": 1
+  },
+  {
+   "name": "Shamanic Revelation",
+   "quantity": 1
+  },
+  {
+   "name": "Wolf's Quarry",
+   "quantity": 1
+  },
+  {
+   "name": "Commander's Sphere",
+   "quantity": 1
+  },
+  {
+   "name": "Instrument of the Bards",
+   "quantity": 1
+  },
+  {
+   "name": "Beastmaster Ascension",
+   "quantity": 1
+  },
+  {
+   "name": "Boar Umbra",
+   "quantity": 1
+  },
+  {
+   "name": "Gadwick's First Duel",
+   "quantity": 1
+  },
+  {
+   "name": "Kindred Discovery",
+   "quantity": 1
+  },
+  {
+   "name": "Pacifism",
+   "quantity": 1
+  },
+  {
+   "name": "Wild Pair",
+   "quantity": 1
+  },
+  {
+   "name": "Castle Ardenvale",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 12
+  },
+  {
+   "name": "Irrigated Farmland",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 12
+  },
+  {
+   "name": "Plains",
+   "quantity": 10
+  },
+  {
+   "name": "Restless Prairie",
+   "quantity": 1
+  },
+  {
+   "name": "Shire Terrace",
+   "quantity": 1
+  },
+  {
+   "name": "Springjack Pasture",
+   "quantity": 1
+  },
+  {
+   "name": "Stardew Valley",
+   "quantity": 1
+  },
+  {
+   "name": "Thriving Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Yavimaya, Cradle of Growth",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}
