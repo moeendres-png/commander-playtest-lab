@@ -37,6 +37,7 @@ from . import (
     signals,
     strength,
     strength_view,
+    swap,
     universe,
     universe_choice,
     universe_view,
@@ -47,6 +48,7 @@ from .decks import (
     create_revision,
     lab_snapshot,
     list_rows,
+    parse_decklist_text,
     revision_rows,
     validate_rows,
 )
@@ -74,6 +76,26 @@ class CardEntry(BaseModel):
 class ListBody(BaseModel):
     cards: list[CardEntry]
     owned_only: bool = True
+
+
+class LandAdvisorBody(ListBody):
+    cohort: str = Field(default="all", min_length=1, max_length=120)
+    min_share: float = Field(default=0.20, ge=0.0, le=1.0)
+
+
+class SwapBody(BaseModel):
+    commander: str | list[str]
+    deck_card_ids: list[str] = Field(default_factory=list, max_length=300)
+    card_id: str = Field(min_length=1, max_length=200)
+    mode: Literal["replace", "cut"] = "replace"
+    cohort: str = Field(default="all", min_length=1, max_length=120)
+    universe: str | None = Field(default=None, max_length=120)
+    exclude_marked: bool = True
+
+
+class DecklistParseBody(BaseModel):
+    commander: str | list[str]
+    text: str = Field(max_length=100_000)
 
 
 class LabelsBody(BaseModel):
@@ -1130,18 +1152,65 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
             store.close()
 
     @app.post("/api/land-advisor")
-    def land_advisor_route(body: ListBody) -> dict[str, object]:
+    def land_advisor_route(body: LandAdvisorBody) -> dict[str, object]:
         """Land count and coloured sources against the coloured symbols, with the figures of
-        the commander's source-deck groups. An observation, no recommendation."""
+        the commander's source-deck groups and free pool land candidates. An observation, no
+        recommendation."""
         store = open_store()
         try:
-            rows = list_rows(store, _cards(body.cards))
+            cards = _cards(body.cards)
+            rows = list_rows(store, cards)
             commanders = [str(row["oracle_name"]) for row in rows if row["zone"] == "commander"]
             return {
                 "deck": land_advisor.deck_profile(rows),
                 "groups": land_advisor.source_deck_groups(store, commanders),
                 "small_group": land_advisor.SMALL_GROUP,
+                "land_candidates": land_advisor.land_candidates(
+                    store,
+                    commanders,
+                    cards,
+                    cohort=body.cohort,
+                    min_share=body.min_share,
+                ),
             }
+        finally:
+            store.close()
+
+    @app.post("/api/swap")
+    def swap_route(body: SwapBody) -> dict[str, object]:
+        """Role-matched swap candidates (`mode="replace"` or `mode="cut"`) in the builder."""
+        store = open_store()
+        try:
+            return swap.swap_candidates(
+                store,
+                commander=body.commander,
+                deck_card_ids=body.deck_card_ids,
+                card_id=body.card_id,
+                mode=body.mode,
+                cohort=body.cohort,
+                universe=body.universe,
+                exclude_marked=body.exclude_marked,
+            )
+        except KeyError as error:
+            raise HTTPException(404, f"unknown card or commander: {error}") from error
+        except ValueError as error:
+            raise HTTPException(422, str(error)) from error
+        finally:
+            store.close()
+
+    @app.post("/api/decklist-parse")
+    def decklist_parse_route(body: DecklistParseBody) -> dict[str, object]:
+        """Parse plain decklist text against the commander's legal collection pool."""
+        store = open_store()
+        try:
+            commanders = (
+                [body.commander] if isinstance(body.commander, str) else list(body.commander)
+            )
+            return parse_decklist_text(store, commanders, body.text)
+        except KeyError as error:
+            raise HTTPException(404, f"unknown commander: {error}") from error
+        except ValueError as error:
+            raise HTTPException(422, str(error)) from error
         finally:
             store.close()
 

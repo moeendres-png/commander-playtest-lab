@@ -959,6 +959,32 @@ def cohort_shapes(store: StudioStore, commander_names: Sequence[str]) -> list[di
         (str(r["deck_id"]), str(r["role"])): int(r["cards"])
         for r in db.execute("SELECT deck_id, role, cards FROM corpus_deck_role")
     }
+    nonland_role_by_deck: dict[str, int] = {}
+    if role_names:
+        all_complete_ids = sorted(
+            {
+                str(row["deck_id"])
+                for group in members.values()
+                for row in group
+                if row["resolved"] == row["cards"]
+            }
+        )
+        for start in range(0, len(all_complete_ids), 500):
+            chunk = all_complete_ids[start : start + 500]
+            marks = ", ".join("?" for _ in chunk)
+            for row in db.execute(
+                "SELECT k.deck_id, SUM(k.quantity) AS cnt "
+                "FROM corpus_deck_card k "
+                "JOIN (SELECT DISTINCT oracle_id FROM card_role) r ON r.oracle_id = k.oracle_id "
+                "LEFT JOIN scryfall_card s ON s.oracle_id = k.oracle_id "
+                f"WHERE k.deck_id IN ({marks}) AND LOWER(k.section) IN ('main', 'mainboard') "
+                "AND k.quantity > 0 "
+                "AND SUBSTR(COALESCE(s.type_line, ''), 1, "
+                "INSTR(COALESCE(s.type_line, '') || ' // ', ' // ') - 1) NOT LIKE '%Land%' "
+                "GROUP BY k.deck_id",
+                chunk,
+            ):
+                nonland_role_by_deck[str(row["deck_id"])] = int(row["cnt"] or 0)
     shapes: list[dict[str, object]] = []
     for cohort, group in members.items():
         complete = [row for row in group if row["resolved"] == row["cards"]]
@@ -996,6 +1022,10 @@ def cohort_shapes(store: StudioStore, commander_names: Sequence[str]) -> list[di
                     "p75": round(_percentile(counts, 0.75), 2),
                 }
             shape["roles"] = spans
+            cov_counts = [
+                float(nonland_role_by_deck.get(str(row["deck_id"]), 0)) for row in complete
+            ]
+            shape["role_coverage_median"] = round(median(cov_counts), 2)
         shapes.append(shape)
     return shapes
 

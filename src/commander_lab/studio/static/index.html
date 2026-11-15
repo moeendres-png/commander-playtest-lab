@@ -17,6 +17,8 @@
 </header>
 <header id="top">
   <label>Deck <select id="deck-select"></select></label>
+  <button id="new-deck" type="button">Neues Deck</button>
+  <button id="import-text" type="button">Deckliste einfügen</button>
   <label>Variante <select id="branch-select"></select></label>
   <button id="new-branch" type="button">Neue Variante</button>
   <span id="counter" class="pill">0 / 100</span>
@@ -46,6 +48,7 @@
       <label title="Zeigt an jeder Karte die aktuelle Stufe des Stärke-Index (Schätzung aus Nutzungsdaten, Einstellungen der Tierliste)."><input id="f-tier" type="checkbox" checked> Stufe zeigen</label>
       <label id="f-sim-label"><input id="f-sim" type="checkbox"> <span id="f-sim-text">Simulator-bereit</span></label>
       <label>Vergleichsgruppe <select id="cohort"></select></label>
+      <span id="bracket-bar" class="chips" aria-label="Bracket-Schnellwahl"></span>
       <label>Universum <select id="universe"></select></label>
       <span id="universe-info" class="muted"></span>
       <label>Sortierung <select id="sort"></select></label>
