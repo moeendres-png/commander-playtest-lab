@@ -8,9 +8,9 @@ import. A reference that cannot be read (``unmapped[...]``, ``unknown``, a colle
 number without a set) is never guessed: the row stays UNRESOLVED and the standard-printing
 rule of the Scryfall import decides the picture instead.
 
-Nothing about the collection leaves the machine (``AGENTS.md`` §12): the printings are
-matched locally against the public bulk file, a plain GET download of public card data;
-the evaluation runs locally, exactly as for the Scryfall catalogue import.
+Matching printings locally against the public default-cards bulk file is deterministic and
+offline (no batch API calls needed; public MTG metadata and image requests are permitted
+under ``AGENTS.md`` §12 per Owner relaxation 2026-11-15).
 """
 
 from __future__ import annotations

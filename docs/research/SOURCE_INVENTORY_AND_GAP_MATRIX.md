@@ -24,7 +24,7 @@ Die Bewertung von Karten im Commander Studio BUILD erfordert eine **evidenzbasie
    - `SIMULATED_RESULT`: Deterministische XMage-4P-Simulationen (eigene Messung mit Pin, Seed, Policy).
    - `MODELED` / `EXTERNAL_OPINION`: Heuristiken oder Meinungs-Tierlisten (stets separat ausgewiesen).
 3. **Datenschutz & Kostenfreiheit ($0\text{ €}$):**  
-   Keine kostenpflichtigen APIs. Keine Weitergabe von privaten Sammlungs- oder Deckbeständen nach außen (`AGENTS.md` §12). Lokale Berechnungen und Scryfall/Spellbook-Abfragen erfolgen höflich gedrosselt und ToS-konform.
+   Keine kostenpflichtigen APIs. Keine Preis-/Zukaufsignale für Chulane und kein Referrer-Leak bei Web-Bildabrufen (`AGENTS.md` §12). Sammlungs- und Decklisten dürfen lokal sowie gegen öffentliche MTG-Metadatenquellen verarbeitet werden (`data/research/collection_1655/` im Repo); Scryfall-/Spellbook-/EDHREC-Abfragen erfolgen höflich gedrosselt und ToS-konform.
 
 ---
 
@@ -126,7 +126,7 @@ Die Qualifizierung erfolgt in der vom Owner verbindlich festgelegten Reihenfolge
 - **Evidenzschicht:** `COMBO_VERIFIED`.
 - **Zähler / Nenner:** Diskrete Varianten-ID, genaue Anzahl beteiligter Teile und Schritte.
 - **Doppelzählungs-Risiko:** Gering auf Kombo-Ebene; funktionale Klone (z. B. Shrieking Drake vs. Man-o'-War) bilden separate Varianten.
-- **Lizenz & Abrufmethode:** **Open Source (MIT License & CC BY 4.0)**; uneingeschränkt frei nutzbar via REST-API. Ladefunktionen in [`src/commander_lab/studio/sources.py`](../../src/commander_lab/studio/sources.py) und [`src/commander_lab/whole_deck/meta.py`](../../src/commander_lab/whole_deck/meta.py) (das ältere Modul `src/commander_lab/commander_spellbook.py` wurde in #1318 entfernt).
+- **Lizenz & Abrufmethode:** **Open Source (MIT License & CC BY 4.0)**; uneingeschränkt frei nutzbar via REST-API. Aktive Abruf-/Verarbeitungsskripte: [`scripts/spellbook_combos_fetch.py`](../../scripts/spellbook_combos_fetch.py) und [`scripts/build_spellbook_shells.py`](../../scripts/build_spellbook_shells.py) (frühere Module `src/commander_lab/commander_spellbook.py` und `src/commander_lab/whole_deck/meta.py` wurden in `#1318`/`#1370` entfernt).
 - **Reproduzierbarkeit:** `REPRODUCIBLE_API`.
 - **Bias & Grenzen:**
   - Die bloße Existenz einer Kombo ist **kein Beleg für Konsistenz, Spielstärke oder Siegquote**.
@@ -146,7 +146,7 @@ Die Qualifizierung erfolgt in der vom Owner verbindlich festgelegten Reihenfolge
 - **Evidenzschicht:** `OBSERVED_DECK`.
 - **Zähler / Nenner:** Exakt $x$ Treffer von $N = 975$ deduplizierten Decks.
 - **Doppelzählungs-Risiko:** Vollständig gelöst; die 19 Dubletten sind im 975er-Nenner bereinigt.
-- **Lizenz & Abrufmethode:** Lokale Projektdaten; verbleiben lokal auf dem Rechner (`AGENTS.md` §12).
+- **Lizenz & Abrufmethode:** Projektdaten gemäß `AGENTS.md` §12 (Lockerung 2026-11-15: im Repo/lokal und für öffentliche MTG-Metadatenabfragen nutzbar; keine Preis-/Zukaufdaten für Chulane).
 - **Reproduzierbarkeit:** `DETERMINISTIC_OFFLINE_SNAPSHOT` (in `studio.sqlite3`).
 - **Bias & Grenzen:**
   - Spiegelt historische Vorlieben und gesammelte Webquellen wider.

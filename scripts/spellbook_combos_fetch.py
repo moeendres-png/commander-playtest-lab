@@ -7,8 +7,9 @@ project's source register states for ``spellbook:variants-api`` ("all known and
 rule-verified MTG combos matching Chulane color identity (Bant / WUG)") narrowed
 by the local project scope:
 
-* the API query is ``identity<=WUG`` — a public parameter only; no deck, pool or
-  collection data leaves the machine (repo rule section 12). All further
+* the API query is ``identity<=WUG`` — a deterministic public filter (under the
+  2026-11-15 AGENTS.md §12 relaxation, collection/deck lists are also permitted for
+  Studio tools; price/purchase signals remain excluded for Chulane). All further
   filtering is local;
 * a variant is kept when its identity letters are a subset of WUG (colorless
   ``C`` counts as inside every identity), its status is ``OK``, it is legal in
