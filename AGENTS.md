@@ -13,7 +13,8 @@ plays real 100-card Commander decks rules-correctly, so simulated games can stan
 
 - Rules-correct play is required, but not at any cost: where full correctness for a rare interaction
   is unreachable, record the gap visibly and move on. Simulate as many cards as possible, including
-  cards the base XMage engine lacks. Four players is the usual game; two to six seats are supported.
+  cards the base XMage engine lacks. Four players is the usual game; two to six seats are supported
+  (five and six seats only after the Owner's go).
 - The simulator is one part of the local Commander Studio (BUILD, PLAY, SIMULATE):
   `docs/OWNER_DECISION_STUDIO_BUILD_PLAY_SIMULATE_20261110.md`. The Owner decisions for the three
   areas are in `docs/OWNER_DECISIONS_STUDIO_20261112.md` and `docs/STUDIO_PLAN_SIMULATOR.md`; read
@@ -134,8 +135,8 @@ never a model poll.
 - A helper's result counts only after the lead has checked it against §4. Neither that check nor an
   implementation pass inside the same editing flow is the independent review of §10.
 - Fixed minimums: unless the Owner specifies otherwise, review and delegated subagents of the Lead
-  or Coordinator inherit its model and effort, and nothing silently drops below the Owner floor;
-  **Muse** runs at `high` to `max`, including its subagents.
+  or Coordinator inherit its model and effort; the Lead may lower them only for status, CI and log
+  digestion; **Muse** runs at `high` to `max`, including its subagents.
 
 Tiering never lowers the level the Owner selected, is not a fallback between executors and never
 changes authority: the session that owns the work stays accountable for it.
@@ -191,7 +192,7 @@ By direct Owner instruction, the appointed Orchestrator and Development Lead, al
 explicitly launched Coordinator session, holds the project's maximum delegated decision authority:
 MTG Rules adjudication; evidence promotion, research and data integration, and evidence-policy
 decisions; qualification design and Studio bridge-gate adjudication; gate decisions and
-`AUTHORITY_GATE` resolution; shared architecture; dead-code and document cleanup (including the
+`AUTHORITY_GATE` resolution; shared architecture; S3 dead-code/doc cleanup (including the
 `pyproject.toml` console scripts under `docs/STUDIO_PLAN_SIMULATOR.md` D5); Studio database, storage
 and UI optimization; Studio product and calibration decisions within approved scope (tier cuts,
 signal choices, weights, derived local cohorts, coverage refreshes); cross-workstream integration,
@@ -206,10 +207,13 @@ Owner-only decisions, which need a new direct Owner statement: changing this del
 Owner-only list; Production Provider selection; Architecture Freeze claim or revocation; Production
 Repository creation; pushes to the `moeendres-png/mage` fork, engine repins, rewriting or unsealing
 `qualification/` records, and touching `WS17_SHA256SUMS` outside the D5 regeneration for
-`pyproject.toml`; setting or rotating secrets, paid services, account or repository visibility
-changes; releasing five- and six-seat play; lifting paused or externally gated items (the
-all-commander harvest #1210, the Drive-dependent import #1187/#1176, scraping a site without a
-public API, removing a required check, activating purchase mode or price features).
+`pyproject.toml` (regenerating it with `scripts/regenerate_hash_manifests.py` within the change that
+needs it, such as a change to `.github/workflows/production-qualification.yml`, is allowed); setting
+or rotating secrets, paid services, account or repository visibility changes (privatizing
+repositories, external Drive sharing) and publication; releasing five- and six-seat play or
+qualification; lifting paused or externally gated items (the all-commander harvest #1210, the
+Drive-dependent import #1187/#1176, scraping a site without a public API, removing a required check,
+activating purchase mode or price features).
 
 The delegation never relaxes Rules Core authority (§2), evidence semantics (§4), hidden information
 in play (§5), the secret, credential and personal-data rules (§12), the Git hard boundaries and
@@ -231,8 +235,9 @@ reused.
 
 **Cleanups.** Code or a document is kept because something machine-read, imported or executed needs
 it, or a JSON/manifest record under `qualification/` names it by path; a mention in prose does not
-keep it. A test is deleted only when its subject is gone; a test of living code that merely used
-removed helpers for setup is re-hosted, not deleted.
+keep it. A document that records an Owner decision is archived, never deleted. A test is deleted
+only when its subject is gone; a test of living code that merely used removed helpers for setup is
+re-hosted, not deleted.
 
 ## 10. Workstream contract
 
@@ -249,8 +254,8 @@ Inside an owned workstream the executor may, without routine confirmation: fetch
 branches and worktrees; merge the current base INTO the owned branch (normal merge only); bounded
 cherry-pick; commit; push the owned non-protected branch; create and update PRs; comment on PRs and
 issues; repair attributable CI failures; mark ready; and merge under the conditions below. All work
-goes through a branch and a pull request; commits and PRs reference issues with `Refs #N`, not
-`Closes`.
+goes through a branch and a pull request; commits and pull request bodies say `Refs #N`, never
+`Closes #N`; only the Lead or the author of the last part closes a tracking issue by hand.
 
 Hard boundaries (never evaded by wrappers, alternate binaries or shell indirection): no force push
 in any spelling; no direct push to or commit on `main`/`master`; no history rewriting; no general
@@ -266,13 +271,17 @@ The Development Lead, Claude sessions (Coordinator and thread sessions) and Muse
 PRs, and the Development Lead also handed-over or completed PRs, through the normal GitHub merge
 path when: ownership is exclusive (or transferred to the Lead); exact head and target SHAs are
 freshly verified and target drift is adjudicated; the required checks and every applicable
-qualification gate PASS on the exact head; there is no merge conflict and no unresolved review
-thread or P1/P2; no FAIL/UNKNOWN/BLOCKED is hidden; and a MATERIAL change has an independent review
-PASS from a fresh context that did not write it (at the Lead's inherited level unless the Owner
-specifies otherwise), with no blocking findings. A MATERIAL change is not merged before that review
-is recorded on the pull request with its verdict and the exact head SHA it reviewed; green required
-checks alone are not enough. One review per head; after fixes the same reviewer re-checks only the
-delta. After merging, the session reports the merge in one line with the PR link.
+qualification gate PASS on the exact head; Rules and evidence integrity hold; there is no
+source-lock conflict, no merge conflict and no unresolved review thread or P1/P2; no
+FAIL/UNKNOWN/BLOCKED is hidden; and a MATERIAL change (one to the engine, the bridge, qualification,
+gates, the pilots' decision logic, Rules/evidence/privacy text, or more than about 300 changed
+lines) has an independent review PASS from a fresh context that did not write it (at the Lead's
+inherited level unless the Owner specifies otherwise), with no blocking findings. A MATERIAL change
+is not merged before that review is recorded on the pull request with its verdict and the exact head
+SHA it reviewed, and that SHA is the head being merged; green required checks alone are not enough.
+One review per head; after fixes the same reviewer re-checks only the delta. After merging, the
+session reads back the merge commit and the resulting `main` HEAD/TREE (`commander-quality-gate`,
+Phase 6) and reports the merge in one line with the PR link.
 
 These need the Owner's explicit go before merge: pushes to the engine fork (`moeendres-png/mage`),
 repins, and any change to signed or sealed qualification records or, outside a reseal or the D5 go
@@ -284,10 +293,15 @@ boundaries above.
 
 Required checks: `quality`, `security`, `infrastructure`, nothing else. `quality` is a gate job
 (`scripts/ci_gate.py`) over parallel jobs (`changes`, `lint`, four `tests` slots, `packaging`); a
-documents-only change takes a fast path with the docs tests only. Other workflows start only for
-their own paths. `ci-definition-integrity-shadow` is an aid for reviewers, not a gate, and is never
-weakened. Which check runs when: `docs/CI_WHICH_CHECK_RUNS_WHEN.md`. Changing a required check or
-gate definition is an Owner decision.
+documents-only change takes a fast path with the docs tests only. `infrastructure`
+(`production-qualification.yml`) runs on every pull request and push to `main`;
+`ci-definition-integrity-shadow` and repository-tree-integrity run on every pull request, exact-main
+recovery on every push to `main`. PB-03, H4, conformance, the real four-player smoke, external
+integration, meta qualification, Windows runtime hygiene and release artifacts start on a pull
+request only for their own paths; determinism multi-seed by label or dispatch; the rest by dispatch
+only. `ci-definition-integrity-shadow` is an aid for reviewers, not a gate, and is never weakened.
+Which check runs when: `docs/CI_WHICH_CHECK_RUNS_WHEN.md`. Changing a required check or gate
+definition is an Owner decision.
 
 **Local tests.** `python -m pytest -q --shards=4 <paths>` runs the shard runner locally. Unit tests
 run on a dirty tree; only `tests/unit/test_packaging_smoke.py` needs `src` edits committed (it
@@ -320,12 +334,13 @@ commands: `docs/STUDIO_PLAN_SIMULATOR.md`, `docs/STUDIO_BRIDGE_GATE_TOOLING.md`)
 - **PB-03** still runs. A real failure blocks; a result that fails only because there is no new seal
   is recorded as `NOT_SEALED`, never as PASS. Review and checks as for every MATERIAL change.
 
-Once a change has merged under this gate the running bridge is no longer the sealed one. Game logs
-and series results record the bridge jar SHA-256, and wherever the current qualification is reported
-a visible `BRIDGE_AHEAD_OF_QUALIFICATION` state is shown while `engine-bridge/` differs from the
-sealed source. Nothing produced on a later bridge is presented as covered by the sealed epoch. A
-bridge change never decides a rule, never picks an option for a seat and never widens what a
-principal may see (§2, §5).
+Once a change has merged under this gate (the first was #1316) the running bridge is no longer the
+sealed one. Open obligation, tracked in #1401, which the next bridge pull request meets or the Lead
+tracks: game logs and Studio series results record the bridge jar SHA-256, and wherever the current
+qualification is reported a visible `BRIDGE_AHEAD_OF_QUALIFICATION` state is shown while
+`engine-bridge/` differs from the sealed source. Neither exists yet. Nothing produced on a later
+bridge is presented as covered by the sealed epoch. A bridge change never decides a rule, never
+picks an option for a seat and never widens what a principal may see (§2, §5).
 
 ## 11. Git, worktree, ownership
 
@@ -334,16 +349,15 @@ branches and unique unintegrated work; never force a result toward PASS. Before 
 branch, HEAD, tree and `git status`, and resume from the newest verified state without redoing valid
 evidence. Agents never use sudo or bypass a sandbox.
 
-**Parallel agents and handover.** One issue has one working owner at a time. Outside the Development
-Lead's integration mandate, an agent merges only pull requests it opened itself and does not push
-to, rebase, merge `main` into, copy or overwrite another active agent's branch or open pull request
-unless that agent's handover, the Development Lead or the Owner says so. A draft pull request, or
-one whose text says "do not merge", is not merged without Lead adjudication, the required checks and
-a recorded fresh-context review PASS. When another agent's work is needed, comment on its pull
-request or open an issue. A pull request body says "Refs #N" and never "Closes #N" for a tracking
-issue with several parts; only the author of the last part closes it. Reason: on 2026-11-14
-unfinished branches were copied and merged before their review ended, and content a review had
-rejected reached `main`.
+**Parallel agents and handover.** One issue has one working owner at a time. An agent merges only
+pull requests it opened itself. The Development Lead's integration mandate is reviewing,
+adjudicating and merging other agents' pull requests that are complete or handed over; pushing to,
+rebasing, copying or merging `main` into another agent's ACTIVE branch needs that agent's handover
+or the Owner, for the Lead too. A draft pull request, or one whose text says "do not merge", is
+merged only after Lead adjudication, the required checks and a recorded fresh-context review PASS.
+When another agent's work is needed, comment on its pull request or open an issue. Issue references
+follow §10 (`Refs #N`). Reason: on 2026-11-14 unfinished branches were copied and merged before
+their review ended, and content a review had rejected reached `main`.
 
 **Cross-workstream access.** Project-wide understanding does not imply project-wide write authority.
 A normal run owns one writable worktree; a bounded integration task may declare more surfaces, each
@@ -357,8 +371,9 @@ artifacts, build output, logs, Git metadata, engine sources, package caches, pro
 and MTG deck, card, collection and gameplay data. Do not expose unrelated personal data or
 third-party real names. Raw credentials, keys and tokens are `LOCAL_ONLY`: tools may use them
 locally, but values never appear in prompts, logs, evidence, commits or handoffs. Deny explicit
-secret-extraction operations. Automatic session sharing is disabled. Repository content names no AI
-model or vendor outside the executor rules of this policy.
+secret-extraction operations. Automatic session sharing is disabled. New repository content names no
+AI model or vendor; exempt are §6 and §7 of this file, `CLAUDE.md`, `.claude/` configuration and
+agent/skill files, dated records and commit trailers.
 
 Binary recordings and dumps (Java Flight Recorder files, heap dumps, core dumps, process listings)
 are never committed, in any encoding: they embed the recording machine's environment variables,
@@ -370,8 +385,8 @@ Collection, deck, store and ownership card data may leave the Owner's machine (O
 `data/research/collection_1655/` is in the repository): executors and Studio tools may process these
 lists in agent environments and fetch card images and public MTG metadata from public sources (such
 as Scryfall, EDHREC, Commander Spellbook, playgroup.gg, Archidekt). Studio web image requests carry
-no referrer or credentials (`referrerpolicy="no-referrer"`). Purchase data and card prices stay out
-unless the Owner orders the purchase mode.
+no referrer or credentials (`referrerpolicy="no-referrer"`). Purchase data and card prices are never
+collected or committed unless the Owner orders the purchase mode.
 
 ## 13. Semantic Completion Rule
 
