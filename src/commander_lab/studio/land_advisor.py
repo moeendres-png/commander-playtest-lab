@@ -291,9 +291,13 @@ def land_candidates(
     min_share: float = 0.20,
 ) -> list[dict[str, object]]:
     """Free non-basic lands of the commander's legal collection pool that are not in the
-    deck and appear in at least ``min_share`` of ``cohort`` (unknown frequencies sorted last).
+    deck and appear in at least ``min_share`` of ``cohort``: ``decks`` of ``of`` source decks.
 
-    Marks are never read or used for ordering. Unknown produced colours stay ``None``.
+    Order: share descending, then name. A land no source deck names has an unknown frequency
+    (``decks`` and ``share`` are ``None``, never 0); it cannot be judged against the line and
+    sorts last. A group without decks gives no candidates. The line is read on the exact
+    share, not on the rounded one that is shown. Marks, labels and favourites are never read:
+    they change neither the list nor its order. Unknown produced colours stay ``None``.
     """
     from . import builder
 
@@ -329,6 +333,10 @@ def land_candidates(
     cohorts = builder.cohort_sizes(store, commander_names)
     hits = builder._corpus_hits(store, commander_names)
     of = int(cohorts.get(cohort, 0))
+    if of <= 0:
+        # No source deck in this group: no frequency is known for any land, and a list of
+        # lands that all say "unbekannt" under a share line would say nothing.
+        return []
     small_group = of < SMALL_GROUP
 
     from .decks import color_set
@@ -359,14 +367,13 @@ def land_candidates(
             [c for c in COLOURS if c in colours_set] if known_colours else None
         )
         name = str(row["oracle_name"])
-        if of > 0 and name in hits and cohort in hits[name]:
+        if name in hits and cohort in hits[name]:
             hits_int = int(hits[name][cohort])
-            share_float = round(hits_int / of, 4)
-            if share_float < min_share:
+            if hits_int / of < min_share:  # the line is read on the exact share, not the shown one
                 continue
             decks_val: int | None = hits_int
-            share_val: float | None = share_float
-            sort_key = (0, -share_float, name)
+            share_val: float | None = round(hits_int / of, 4)
+            sort_key = (0, -float(hits_int), name)  # one denominator: hits order is share order
         else:
             decks_val = None
             share_val = None
