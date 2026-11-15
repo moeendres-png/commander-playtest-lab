@@ -7,7 +7,6 @@ data/evals/holdout/pilot_decisions_j_p4_v1.json -text
 # the sealed SHA-256 values remain valid on Windows as well as POSIX runners.
 data/evals/holdout/J_P5_OPTIMIZER_HOLDOUT_v1.json -text
 docs/J_P5_HOLDOUT_SEAL.json -text
-docs/J_P5_DEVELOPMENT_FREEZE.json -text
 docs/J_P5_FROZEN_FINALISTS.json -text
 config/J_P5_ROBUST_OBJECTIVE_v1.json -text
 config/J_P5_SEARCH_POLICY_v1.json -text

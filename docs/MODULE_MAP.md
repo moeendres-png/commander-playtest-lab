@@ -65,7 +65,7 @@ Moved modules keep a shim at their old path (`commander_lab.decision_bundle`, `c
 `variant_identity`, `rogshai_mvp_acceptance`, ... ) that aliases the new module object, so old imports,
 monkeypatching and pickles keep working (`tests/unit/test_moved_module_aliases.py`). New code imports
 the new paths. Modules deliberately left at top level because their file path is hashed or read by
-path (`model_resolution_software_identity` scope, `decision_statistics` in `docs/J_P5_DEVELOPMENT_FREEZE.json`,
+path (`model_resolution_software_identity` scope, `decision_statistics` in `docs/archive/optimizer-freeze/J_P5_DEVELOPMENT_FREEZE.json`,
 `robustness` in the first-option ratchet, `technical_truth` presence checks of `project_context`,
 `priority_workflows`, `adaptive_budget`, `model_informativeness`, `workflow_session`) must not move.
 
