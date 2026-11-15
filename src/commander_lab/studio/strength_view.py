@@ -1328,7 +1328,7 @@ def _panel_texts() -> dict[str, object]:
         "(EDHREC „Aufnahme überhaupt“): log10 des Verhältnisses, mit n / (n + "
         f"{strength.LOG_RATIO_DAMPING}) gedämpft (n = Decks mit der Karte), auf ±"
         f"{_number_text(strength.LOG_RATIO_CAP)} begrenzt (Faktor 100) und als (Wert + 2) / 4 auf "
-        "0 bis 1 gelegt (0,5 = neutral); der Index zählt nur den Teil über neutral, max(0, 2·Wert − 1). "
+        "0 bis 1 gelegt (0,5 = neutral); der Index zählt nur den Teil über neutral, max(0, 2·Wert - 1). "
         "Nur für Karten mit mindestens einem Treffer."
     )
     helps[f"weights.{strength.CORPUS_BRACKET_SLOPE}"] = (
