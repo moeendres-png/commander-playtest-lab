@@ -21,8 +21,9 @@ unknown (``None``), never a number.
 from __future__ import annotations
 
 import math
+import re
 from collections.abc import Iterable, Mapping, Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 TAG_LANDFALL = "landfall"
 TAG_BLINK_BOUNCE = "blink_bounce"
@@ -55,17 +56,43 @@ class CardInfo:
     extra_land: bool
 
 
+_CLUE_TEXT = re.compile(r"investigate\b|create[^.\n]*\bclue\b", re.IGNORECASE)
+_EXTRA_LAND_TEXT = re.compile(
+    r"play (?:up to )?(?:an|one|two|three|four|five|six|seven|eight|nine|ten|\d+)"
+    r" additional lands?\b",
+    re.IGNORECASE,
+)
+
+
+def creates_clue(oracle_text: str) -> bool:
+    """Whether an Oracle text creates Clue tokens: it says ``investigate`` or creates
+    a Clue. A text that only mentions Clues (sacrificing or counting them) does not."""
+    return bool(_CLUE_TEXT.search(oracle_text))
+
+
+def plays_extra_land(oracle_text: str) -> bool:
+    """Whether an Oracle text lets its controller play an additional land (``play an
+    additional land``, ``play two additional lands``, ``play up to three additional
+    lands``). Putting a land card onto the battlefield is not playing it and does
+    not count."""
+    return bool(_EXTRA_LAND_TEXT.search(oracle_text))
+
+
 @dataclass(frozen=True)
 class DeckInput:
-    """One deck of the analysed set: its distinct counted-section cards by oracle id,
-    the name keys its cards answer to (full names and front faces, casefolded, the
-    ``combos.py`` discipline) and its bracket (``None`` when no bracket cohort names
-    one)."""
+    """One deck of the analysed set: its distinct composition cards by oracle id
+    (the sections the analysis composes shares over), the name keys those cards
+    answer to (full names and front faces, casefolded, the ``combos.py`` discipline),
+    its bracket (``None`` when no bracket cohort names one) and ``combo_names``:
+    the name keys over all counted sections including the commander and companion
+    sections, used only for combo completeness — the basis ``combos.deck_combos``
+    checks a deck on, where a combo that names the commander can complete."""
 
     deck_id: str
     bracket: int | None
     oracle_ids: frozenset[str]
     names: frozenset[str]
+    combo_names: frozenset[str] = field(default=frozenset())
 
 
 @dataclass(frozen=True)
@@ -111,7 +138,10 @@ def tag_deck(
     thresholds: TagThresholds,
 ) -> DeckTags:
     """Tag one deck. ``combos`` are casefolded name sets of listed combos; only the
-    two-card ones can tag (a complete three-card combo never does)."""
+    two-card ones can tag (a complete three-card combo never does). A combo is
+    complete when all its names are among the deck's composition names plus its
+    ``combo_names`` (all counted sections, the ``combos.deck_combos`` basis), so a
+    combo naming the commander can complete."""
     nonland = [
         oracle_id
         for oracle_id in deck.oracle_ids
@@ -134,7 +164,8 @@ def tag_deck(
         share = hits / len(nonland)
         shares[tag] = share
         tags[tag] = share >= minimum[tag]
-    complete = sum(1 for combo in combos if len(combo) == 2 and combo <= deck.names)
+    answer_names = deck.names | deck.combo_names
+    complete = sum(1 for combo in combos if len(combo) == 2 and combo <= answer_names)
     tags[TAG_CEDH_COMBO] = complete > 0
     return DeckTags(tags=tags, shares=shares, complete_two_card=complete)
 
@@ -165,6 +196,36 @@ def bracket_slope(tuned: Mapping[str, float], low: Mapping[str, float], oracle_i
     """Tuned share minus bracket-2 share of one card; a card absent from a side counts
     as the counted 0 of that side."""
     return tuned.get(oracle_id, 0.0) - low.get(oracle_id, 0.0)
+
+
+def signal_vectors(
+    decks: Iterable[DeckInput],
+    pool: Sequence[str],
+    global_inclusion: Mapping[str, float | None],
+) -> dict[str, dict[str, float | None]]:
+    """The four corpus signals of one deck set, per pool card (oracle id).
+
+    The two bracket signals are decoupled: ``corpus_tuned`` needs only the set's
+    bracket-4+5 decks, ``corpus_bracket_slope`` needs bracket 2 as well. A set
+    without bracket-2 decks still gets its tuned shares (the slope stays unknown,
+    ``None``); a set without tuned decks gets neither. ``global_inclusion`` must
+    cover every pool card (a missing card is a KeyError, never a silent 0)."""
+    deck_list = list(decks)
+    shares = inclusion_shares(deck_list)
+    tuned_decks = [deck for deck in deck_list if deck.bracket in (4, 5)]
+    low_decks = [deck for deck in deck_list if deck.bracket == 2]
+    tuned = inclusion_shares(tuned_decks)
+    low = inclusion_shares(low_decks)
+    vectors: dict[str, dict[str, float | None]] = {signal: {} for signal in SIGNALS}
+    for oracle_id in pool:
+        share = shares.get(oracle_id, 0.0)
+        vectors[SIGNAL_DECK_UNIVERSE][oracle_id] = share
+        vectors[SIGNAL_LOG_LIFT][oracle_id] = log_lift(share, global_inclusion[oracle_id])
+        vectors[SIGNAL_TUNED][oracle_id] = tuned.get(oracle_id, 0.0) if tuned_decks else None
+        vectors[SIGNAL_BRACKET_SLOPE][oracle_id] = (
+            bracket_slope(tuned, low, oracle_id) if tuned_decks and low_decks else None
+        )
+    return vectors
 
 
 def _ranks(values: Sequence[float]) -> list[float]:
@@ -223,8 +284,11 @@ __all__ = [
     "DeckTags",
     "TagThresholds",
     "bracket_slope",
+    "creates_clue",
     "inclusion_shares",
     "log_lift",
+    "plays_extra_land",
+    "signal_vectors",
     "spearman",
     "tag_deck",
 ]

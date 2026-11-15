@@ -27,10 +27,12 @@ The counted universe of the tier list, resolved the way `universe.py` resolves i
 (`resolve_universe` with the commander binding `{"commanders": ["Chulane, Teller of
 Tales"]}`): **2,823 decks**. The unfiltered resolution gives 2,845; the difference
 is exactly the 22 Archidekt lists that state another commander and carry no Chulane
-binding (corpus README). Store acceptance: `corpus_deck` 3,004 (159 duplicates
-marked), `corpus_deck_card` 266,539 rows, 266,366 with an `oracle_id` (99.94 %),
-role claims 21,272 from the five repo role files plus 1,770 tagger-bulk claims,
-legal pool 927 cards.
+binding (corpus README). Store acceptance (all counts emitted by the script):
+`corpus_deck` 3,004 (159 duplicates marked), `corpus_deck_card` 266,539 rows,
+266,366 with an `oracle_id` (99.94 %), 23,042 role claims (17,048 from the
+Scryfall tagger bulk; 5,994 from the repo's own curation — 3,397
+crosswalk-normalized, 2,597 oracle-text review), legal pool 927 cards (every
+pool row matched a `card_fact` oracle id by name; 0 unmatched).
 
 Bracket of a deck = its stored `bracket:N` cohort (the store's own assignment;
 every canonical deck carries exactly one): B1 66, B2 645, B3 958, B4 889, B5 265.
@@ -41,9 +43,15 @@ and `mainboard` sections** with quantity above zero (median 88 distinct cards, 6
 of them nonland). The commander/companion sections are not part of a deck's
 composition here — the commander is the same card in every deck and would only
 shift denominators; this is a deliberate, disclosed deviation from the
-`COUNTED_SECTIONS` of `deck_sets`, which does count them. Cards are keyed by
-`oracle_id`; the 163 corpus card rows without an unambiguous `oracle_id` are kept
-under a name key and count as plain nonland cards (unknown is never a theme card).
+`COUNTED_SECTIONS` of `deck_sets`, which does count them. Combo completeness
+(§2) is the one exception: it is checked on the counted sections, commander and
+companion included, as `combos.deck_combos` does. Cards are keyed by `oracle_id`.
+Of the 266,539 `corpus_deck_card` rows, 173 carry no `oracle_id`; 163 of those
+rows belong to the canonical decks, and 160 of them fall in this composition
+subset (canonical decks, `main`/`mainboard`, quantity above zero) — those 160
+rows are kept under a name key and count as plain nonland cards (unknown is
+never a theme card). The remaining 13 rows sit in non-canonical decks (10) or
+in the canonical decks' other sections (3).
 2 decks hold no nonland card in these sections; they receive no share tag.
 
 ## 2. Tag rules (all thresholds disclosed)
@@ -51,6 +59,8 @@ under a name key and count as plain nonland cards (unknown is never a theme card
 A share is always over the deck's distinct **nonland** cards. A deck may carry
 several tags. Each threshold sits near the 80th–90th percentile of its measured
 share distribution, so a tag marks a defining theme share, not a splash.
+Percentiles in this report use the script's floor-index convention: the value
+at index ⌊f·n⌋ of the sorted list.
 
 | Tag | Rule | Threshold | Share p50 / p90 | Decks |
 |---|---|---|---|---|
@@ -58,18 +68,26 @@ share distribution, so a tag marks a defining theme share, not a splash.
 | `blink_bounce` | share of cards with role `flicker` or `bounce` | ≥ 0.04 | 0.018 / 0.048 | **471** (16.7 %) |
 | `big_mana` | share of cards with mana value ≥ 6 ("Koma/Big-Mana") | ≥ 0.12 | 0.063 / 0.159 | **599** (21.2 %) |
 | `clue_artifact` | share of cards that are artifacts or whose Oracle text creates Clue tokens / investigates | ≥ 0.15 | 0.095 / 0.182 | **515** (18.2 %) |
-| `cedh_combo` | the deck holds **all cards of at least one listed two-card combo** of the commander's combo list (`combos.stored_combos`, the EDHREC combo list: 97 listed combos, 43 of them two-card; name matching by full name and front face, the `combos.py` discipline) | ≥ 1 complete | — | **1,520** (53.9 %) |
+| `cedh_combo` | the deck holds **all cards of at least one listed two-card combo** of the commander's combo list (`combos.stored_combos`, the EDHREC combo list: 97 listed combos, 43 of them two-card; name matching by full name and front face, the `combos.py` discipline, over all counted sections — commander and companion included) | ≥ 1 complete | — | **1,626** (57.6 %) |
 
-Sensitivity (decks at neighbouring thresholds): landfall 773 / 545 / 401 / 279 at
+Sensitivity (decks at neighbouring thresholds): landfall 774 / 545 / 401 / 281 at
 0.08 / 0.10 / 0.12 / 0.15; blink_bounce 1,161 / 471 / 163 / 14 at 0.03 / 0.04 /
 0.05 / 0.08 (steep: shares cluster at 2–3 theme cards per deck, so this count is
 threshold-sensitive); big_mana 825 / 599 / 335 at 0.10 / 0.12 / 0.15;
 clue_artifact 894 / 515 / 209 at 0.12 / 0.15 / 0.20. Complete two-card combos per
-deck: 0 in 1,303 decks, 1 in 290, 2 in 250, 3 in 230, 4 in 207, 5 in 159, ≥ 6 in
-384 — the `cedh_combo` line at ≥ 2 would give 1,230 decks, at ≥ 3 it gives 980.
+deck: 0 in 1,197 decks, 1 in 327, 2 in 193, 3 in 216, 4 in 205, 5 in 175, ≥ 6 in
+510 — the `cedh_combo` line at ≥ 2 would give 1,299 decks, at ≥ 3 it gives 1,106.
 
-Tag multiplicity over the 2,823 decks: no tag 462 (16.4 %), one tag 1,327, two
-tags 803, three tags 207, four tags 24, five tags 0.
+Tag multiplicity over the 2,823 decks: no tag 394 (14.0 %), one tag 1,362, two
+tags 831, three tags 212, four tags 24, five tags 0.
+
+**Method correction (from the review of the first version).** The first version
+matched combo names only against the composition sections (`main`/`mainboard`),
+so a listed combo naming the commander could never complete — unlike
+`combos.deck_combos`, which checks a deck on all its rows. On the corrected
+counted-sections basis the tag holds for 1,626 decks instead of 1,520 (+106);
+every figure derived from the tag (histogram above, bracket profile, overlaps,
+the §5 signal vectors) is recomputed on the corrected basis.
 
 ## 3. Data coverage — where a tag is only partly derivable
 
@@ -92,10 +110,10 @@ bound of its theme, never an inflated one.
   artifacts alone). Read the tag as "artifact/clue-token shell", not as a pure
   clue archetype.
 - **`cedh_combo` is broad by construction.** The EDHREC combo list also lists
-  casual engine pairs (the classic Chulane bounce engines among them), so 53.9 %
-  of all decks — including 168 bracket-2 decks — hold a complete two-card combo.
+  casual engine pairs (the classic Chulane bounce engines among them), so 57.6 %
+  of all decks — including 187 bracket-2 decks — hold a complete two-card combo.
   The tag says "holds a listed two-card combo", not "is a cEDH deck"; its
-  bracket profile (B4 692 + B5 247 of 1,520) does rise steeply with bracket.
+  bracket profile (B4 724 + B5 247 of 1,626) does rise steeply with bracket.
   The curated `data/meta/spellbook_combos.json` was checked as an alternative
   source and is too thin for tagging: it holds 7 Chulane combos, only 2 of them
   two-card, both including the commander itself.
@@ -113,14 +131,14 @@ listing the card; corpus reference: p50 0.001, p75 0.005, p90 0.042, max 0.927,
 | blink_bounce | 471 | 10 / 96 / 151 / 174 / 40 | 0.002 / 0.040 / 0.979 | 17 |
 | big_mana | 599 | 20 / 217 / 230 / 127 / 5 | 0.007 / 0.057 / 0.955 | 7 |
 | clue_artifact | 515 | 24 / 149 / 172 / 133 / 37 | 0.008 / 0.043 / 0.880 | 6 |
-| cedh_combo | 1,520 | 9 / 168 / 404 / 692 / 247 | 0.002 / 0.033 / 0.953 | 12 |
+| cedh_combo | 1,626 | 9 / 187 / 459 / 724 / 247 | 0.002 / 0.033 / 0.950 | 11 |
 
 Overlaps (decks carrying both tags): landfall∩blink_bounce 93,
-landfall∩big_mana 192, landfall∩clue_artifact 63, landfall∩cedh_combo 274,
+landfall∩big_mana 192, landfall∩clue_artifact 63, landfall∩cedh_combo 287,
 blink_bounce∩big_mana 50, blink_bounce∩clue_artifact 45,
 blink_bounce∩cedh_combo 348 (of 471 blink_bounce decks — the bounce engine is
-largely a combo engine), big_mana∩clue_artifact 121, big_mana∩cedh_combo 202,
-clue_artifact∩cedh_combo 180.
+largely a combo engine), big_mana∩clue_artifact 121, big_mana∩cedh_combo 213,
+clue_artifact∩cedh_combo 199.
 
 Cards that define each archetype most (inclusion inside the archetype vs in the
 whole corpus; pool card names only):
@@ -137,9 +155,9 @@ whole corpus; pool card names only):
 - **clue_artifact:** Sol Ring 0.852 vs 0.732; Arcane Signet 0.711 vs 0.498;
   Talisman of Curiosity 0.208 vs 0.069; Talisman of Progress 0.196 vs 0.058;
   Fellwar Stone 0.165 vs 0.059 — mana artifacts, as §3 warns.
-- **cedh_combo:** Shrieking Drake 0.822 vs 0.570; Llanowar Elves 0.751 vs 0.600;
-  Avacyn's Pilgrim 0.700 vs 0.526; Whitemane Lion 0.694 vs 0.484; Elvish Mystic
-  0.686 vs 0.530 — the fast-mana and bounce core of the high brackets.
+- **cedh_combo:** Shrieking Drake 0.769 vs 0.570; Whitemane Lion 0.649 vs
+  0.484; Avacyn's Pilgrim 0.672 vs 0.526; Elvish Mystic 0.668 vs 0.530; Llanowar
+  Elves 0.732 vs 0.600 — the fast-mana and bounce core of the high brackets.
 
 ## 5. Do the corpus signals diverge per archetype?
 
@@ -156,15 +174,15 @@ Against the whole-corpus vector:
 
 | Signal | landfall | blink_bounce | big_mana | clue_artifact | cedh_combo |
 |---|---|---|---|---|---|
-| deck_universe | 0.830 | 0.790 | 0.887 | 0.894 | 0.858 |
-| corpus_log_lift | 0.805 | 0.864 | 0.812 | 0.741 | 0.902 |
-| corpus_tuned | 0.779 | 0.819 | 0.826 | 0.813 | 0.921 |
-| corpus_bracket_slope | **0.539** | **0.560** | **0.523** | **0.715** | **0.654** |
+| deck_universe | 0.830 | 0.790 | 0.887 | 0.894 | 0.872 |
+| corpus_log_lift | 0.805 | 0.864 | 0.812 | 0.741 | 0.907 |
+| corpus_tuned | 0.779 | 0.819 | 0.826 | 0.813 | 0.928 |
+| corpus_bracket_slope | **0.539** | **0.560** | **0.523** | **0.715** | **0.665** |
 
 Pairwise between archetypes, the ranges tell the same story: `deck_universe`
-0.734–0.877, `corpus_log_lift` 0.627–0.843, `corpus_tuned` 0.744–0.844 — but
-`corpus_bracket_slope` only **0.297–0.612** (lowest: big_mana vs blink_bounce
-0.297, big_mana vs cedh_combo 0.356, landfall vs big_mana 0.404).
+0.734–0.867, `corpus_log_lift` 0.627–0.846, `corpus_tuned` 0.744–0.842 — but
+`corpus_bracket_slope` only **0.297–0.596** (lowest: big_mana vs blink_bounce
+0.297, big_mana vs cedh_combo 0.372, landfall vs big_mana 0.404).
 
 **Interpretation.** The prevalence-type signals do **not** diverge materially per
 archetype: which cards are widespread is largely the same ranking inside every
@@ -185,7 +203,7 @@ Reasons, each tied to a measured figure above:
 
 1. A filter would buy almost nothing for the prevalence signals: their rankings
    are archetype-stable (ρ ≥ 0.74 vs the corpus everywhere), so filtering the
-   universe to 471–1,520 decks would mostly shrink denominators and add noise.
+   universe to 471–1,626 decks would mostly shrink denominators and add noise.
 2. The one signal that does diverge — `corpus_bracket_slope` — is exactly the
    one whose per-archetype denominators collapse (archetype ∩ B5 as low as 5
    decks for big_mana, 7 for landfall). A per-archetype slope would be a
@@ -196,7 +214,7 @@ Reasons, each tied to a measured figure above:
 3. Two of the five tags are not clean enough to gate an index on: `blink_bounce`
    cannot see its flicker side in the stored roles (7 cards), and
    `clue_artifact` selects artifact density more than a clue theme (101 decks
-   hold ≥ 2 clue makers). `cedh_combo` at 53.9 % of the corpus discriminates
+   hold ≥ 2 clue makers). `cedh_combo` at 57.6 % of the corpus discriminates
    too weakly to stratify an index by.
 
 Keep the archetypes as what they are here: a descriptive stratification of the
