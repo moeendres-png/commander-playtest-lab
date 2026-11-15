@@ -315,6 +315,11 @@ and obligation names are evidence labels, not architecture requirements: before 
 decision class or protocol surface, check whether a generic existing decision family plus
 an engine-supplied domain already covers it.
 
+**Cleanups.** Code or a document is kept because something machine-read, imported or executed
+needs it, or a JSON/manifest record under `qualification/` names it by path; a mention in prose
+does not keep it. A test is deleted only when its subject is gone; a test of living code that
+merely used removed helpers for setup is re-hosted, not deleted.
+
 ## 10. Workstream contract
 
 One session owns one primary workstream and one primary mutation surface by default. A
@@ -375,6 +380,11 @@ Every other change is review-required: any other addition (class, fixture, helpe
 required-check definition. The full table is `docs/CI_WHICH_CHECK_RUNS_WHEN.md`; changing a
 required check or gate definition stays an Owner decision.
 
+**Local tests.** `python -m pytest -q --shards=4 <paths>` runs the shard runner locally. Unit
+tests run on a dirty tree; only `tests/unit/test_packaging_smoke.py` needs `src` edits
+committed (it compares the built wheel with the committed source). A new test file needs no
+entry in a shard weight table.
+
 ### Owner-delegated self-merge
 
 `AGENT_SELF_MERGE = ENABLED` (Owner instruction, 2026-10-16).
@@ -384,7 +394,9 @@ Claude sessions (Coordinator and thread sessions) and Muse may merge their own P
 merge-ready: the required checks (`quality`, `security`, `infrastructure`) are green on the
 exact head, there is no merge conflict, no review thread is unresolved, and a MATERIAL
 change has an independent review PASS (an independent Claude review with
-no blocking findings). After merging, the agent reports
+no blocking findings). A MATERIAL change is not merged before that review is recorded on the
+pull request with its verdict and the head SHA it reviewed; green required checks alone are
+not enough. After merging, the agent reports
 the merge in one line with the PR link. The session that owns the PR merges it.
 
 These still need the Owner's explicit go before merge: pushes to the engine fork
@@ -450,6 +462,15 @@ selection and Architecture Freeze stay outside ordinary executor authority, exce
 reserved in §8. Before material work verify branch, HEAD, tree, `git status` and the
 contract/state or checkpoint, and resume from the newest verified state without redoing
 valid evidence.
+
+### Parallel agents
+
+An agent merges only pull requests it opened itself. It does not push to, rebase, merge `main`
+into, copy or merge another agent's branch or open pull request unless that agent's
+owner-facing handover or the Owner says so. A draft pull request, or one whose text says "do
+not merge", is merged by nobody but its author. When another agent's work is needed, comment
+on its pull request or open an issue. Reason: on 2026-11-14 unfinished branches were copied
+and merged before their review ended, and content a review had rejected reached `main`.
 
 ### Cross-workstream access
 
