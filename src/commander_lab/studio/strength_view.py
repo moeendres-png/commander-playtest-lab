@@ -25,10 +25,11 @@ from __future__ import annotations
 import json
 from collections import Counter
 from collections.abc import Mapping, Sequence
-from dataclasses import replace
+from dataclasses import dataclass, replace
 from typing import TypedDict
 
 from . import (
+    corpus_signals,
     layers,
     layers_view,
     research_import,
@@ -46,10 +47,12 @@ from .strength import (
     COMBOS,
     COMMANDER_INCLUSION,
     DECK_UNIVERSE,
+    EDHREC_THEME_REACH,
     GLOBAL_INCLUSION,
     PLAYGROUP_OBSERVED,
     RUBRIC,
     SYNERGY,
+    TOURNAMENT,
     TOURNAMENT_CONVERSION,
     TOURNAMENT_LISTS,
     CardStrength,
@@ -106,6 +109,12 @@ class StrengthResult(TypedDict):
     tier_counts: dict[str, int]
     ambiguous_names: list[AmbiguousName]
     layer_summary: LayerSummaryBlock
+    # #1364: the rule of the EDHREC weights (E2.a), the weights actually used, the counted corpus
+    # and the empirical Bayes priors of the components with small denominators
+    weight_rule: strength.WeightRule
+    effective_weights: dict[str, float]
+    corpus: corpus_signals.CorpusInfo
+    shrinkage: dict[str, object]
     cards: list[StrengthCard]
 
 
@@ -120,6 +129,12 @@ _INDEPENDENT = frozenset(
         signals.SIGNAL_SALT,
     }
 )
+# Signals stored with a published rate and a denominator but no card count (the EDHTop16 play
+# rate: the entries of the commander are published, how many of them hold the card is not). The
+# reader derives the numerator ``round(rate * denominator)``; the stored row stays as published.
+# Other signals with a value and a denominator but no numerator are NOT shares (the Playgroup gap
+# is a difference with its sample as denominator): they keep their NULL numerator.
+_RATE_ONLY_SIGNALS = frozenset({signals.SIGNAL_EDHTOP16})
 # claim key -> [(claim kind, card id)]
 _Claims = dict[str, list[tuple[int, str]]]
 
@@ -130,6 +145,26 @@ def _claim_index(store: StudioStore, ids: list[str]) -> _Claims:
         for key, kind in claims:
             index.setdefault(key, []).append((kind, card_id))
     return index
+
+
+def _claim(
+    name: str,
+    signal: str,
+    claims: _Claims,
+    display: Mapping[str, str],
+    ambiguous: dict[tuple[str, str], list[str]],
+) -> tuple[int, str] | None:
+    """``(claim kind, card id)`` of the pool card a stored name belongs to, ``None`` when no
+    card claims it or several claim it equally (then it is listed in ``ambiguous``)."""
+    found = claims.get(name.casefold())
+    if not found:
+        return None
+    kind = min(item[0] for item in found)
+    owners = sorted({card for item_kind, card in found if item_kind == kind})
+    if len(owners) > 1:
+        ambiguous[(signal, name)] = sorted(display[card] for card in owners)
+        return None
+    return kind, owners[0]
 
 
 def _signal_observations(
@@ -151,24 +186,83 @@ def _signal_observations(
     ).fetchall()
     for row in rows:
         name = str(row["card_name"])
-        found = claims.get(name.casefold())
-        if not found:
+        claim = _claim(name, signal, claims, display, ambiguous)
+        if claim is None:
             continue
-        kind = min(item[0] for item in found)
-        owners = sorted({card for item_kind, card in found if item_kind == kind})
-        if len(owners) > 1:
-            ambiguous[(signal, name)] = sorted(display[card] for card in owners)
-            continue
-        card_id = owners[0]
+        kind, card_id = claim
         rank = (kind, name)
         current = best.get(card_id)
         if current is None or rank < (current[0], current[1]):
+            numerator = row["numerator"]
+            if (
+                numerator is None
+                and signal in _RATE_ONLY_SIGNALS
+                and row["value"] is not None
+                and row["denominator"]
+            ):
+                numerator = round(float(row["value"]) * int(row["denominator"]))
             best[card_id] = (
                 kind,
                 name,
-                Observation(row["value"], row["numerator"], row["denominator"]),
+                Observation(row["value"], numerator, row["denominator"]),
             )
     return {card_id: item[2] for card_id, item in best.items()}, bool(rows)
+
+
+def _theme_reach_observations(
+    store: StudioStore,
+    commander: str,
+    claims: _Claims,
+    display: Mapping[str, str],
+    ambiguous: dict[tuple[str, str], list[str]],
+    minimum_denominator: int,
+) -> tuple[dict[str, Observation], bool]:
+    """``edhrec_theme_reach``: per pool card the highest share over the EDHREC themes of the
+    commander (observation cohorts ``edhrec:<commander>/<theme>``). The commander page itself and
+    the bracket and price pages are no themes; a theme row counts only when its own denominator
+    reaches ``minimum_denominator`` (a card in 1 of 1 decks of a tiny theme is no reach). The
+    observation carries the numerator and denominator of the winning theme and names it; the
+    maximum over many themes leans upward, which is why it only has a small weight. Whether the
+    source exists is decided by any theme row of the commander."""
+    rows = store.connection.execute(
+        "SELECT o.card_name, o.cohort, o.numerator, o.denominator FROM observation o "
+        "JOIN commander_binding b ON b.kind = 'observation_cohort' AND b.key = o.cohort "
+        "AND b.commander_name = ? "
+        "WHERE o.metric = 'inclusion_pct' AND o.numerator IS NOT NULL AND o.denominator > 0 "
+        "AND o.numerator <= o.denominator ORDER BY o.cohort, o.card_name",
+        (commander,),
+    ).fetchall()
+    candidates: dict[str, list[tuple[float, int, str, int]]] = {}
+    exists = False
+    for row in rows:
+        cohort = str(row["cohort"])
+        _page, _slash, theme = cohort.partition("/")
+        if not theme or theme in corpus_signals.VARIANT_PAGES:
+            continue
+        exists = True
+        denominator, numerator = int(row["denominator"]), int(row["numerator"])
+        if denominator < minimum_denominator:
+            continue
+        claim = _claim(str(row["card_name"]), "edhrec_theme_inclusion", claims, display, ambiguous)
+        if claim is None:
+            continue
+        candidates.setdefault(claim[1], []).append(
+            (numerator / denominator, denominator, theme, numerator)
+        )
+    result: dict[str, Observation] = {}
+    for card_id, found in candidates.items():
+        share, denominator, theme, numerator = sorted(
+            found, key=lambda item: (-item[0], -item[1], item[2])
+        )[0]
+        result[card_id] = Observation(
+            share,
+            numerator,
+            denominator,
+            note=(
+                f"Maximum über {len(found)} EDHREC-Themen: {theme} ({numerator} von {denominator} Decks)"
+            ),
+        )
+    return result, exists
 
 
 def _combo_observations(
@@ -624,20 +718,46 @@ def _other_commander_names(store: StudioStore, commander: str) -> set[str]:
     return found
 
 
-def compute(
+@dataclass
+class Prepared:
+    """Everything the scoring needs, read from the store once: the one place that builds the
+    observations for the tier list (``compute``) and for the ranking check."""
+
+    commander: str
+    settings: StrengthSettings  # as requested (a dangling universe profile already dropped)
+    effective: StrengthSettings  # with the E2.a rule applied: what the scoring uses
+    weight_rule: strength.WeightRule
+    ids: list[str]
+    display: dict[str, str]
+    raw_cards: list[Mapping[str, object]]
+    per_card: dict[str, dict[str, Observation]]
+    collected: set[str]
+    context: PoolContext
+    choice: UniverseChoice
+    summary: ProfileSummary | None
+    universe_missing: str | None
+    notices: list[str]
+    ambiguous: dict[tuple[str, str], list[str]]
+    layer_result: layers.LayerResult | None
+    weighted_layers: list[str]
+    corpus: corpus_signals.CorpusInfo
+
+
+def prepare(
     store: StudioStore,
     commander: str,
     settings: StrengthSettings,
     *,
     dangling_universe_ok: bool = False,
     notices: Sequence[str] = (),
-) -> StrengthResult:
-    """Index and tier for every legal pool card of ``commander``.
+    with_layers: bool = True,
+) -> Prepared:
+    """Read the observations of ``commander``'s legal pool and the rule-adjusted settings.
 
-    Raises KeyError when the commander is not in the collection or the universe profile of
-    the settings is unknown. With ``dangling_universe_ok`` (settings read from a saved
-    profile) a universe profile that was deleted meanwhile is not an error: the index runs
-    with "kein Universum" and the result carries a notice and ``universe_missing``."""
+    Raises KeyError when the commander is not in the collection or the universe profile of the
+    settings is unknown; with ``dangling_universe_ok`` a deleted profile gives a notice and the
+    automatic choice instead. ``with_layers`` False computes the rating layers only when a layer
+    has a weight (the ranking check does not need the page columns)."""
     pool = pool_cards(store, [commander], with_signals=False)
     raw_cards = pool["cards"]
     if not isinstance(raw_cards, list):
@@ -725,6 +845,47 @@ def compute(
                 ).items():
                     per_card[card_id][DECK_UNIVERSE] = observation
 
+    # Corpus components (#1364): the counted local corpus of the commander, its cohorts, EDHTop16
+    # and the EDHREC themes. A source that does not exist for the commander is not collected
+    # (``NOT_COLLECTED``, no coverage penalty).
+    corpus_minimum = TierParams().min_universe
+    local_decks = universe_choice.local_deck_count(store, commander)
+    counts = corpus_signals.count_corpus(store, commander, ids, corpus_minimum)
+    corpus = (
+        counts.info(corpus_minimum)
+        if counts is not None
+        else corpus_signals.no_corpus(local_decks, corpus_minimum)
+    )
+    global_inclusion = {
+        card_id: per[GLOBAL_INCLUSION]
+        for card_id, per in per_card.items()
+        if GLOBAL_INCLUSION in per
+    }
+    if counts is not None:
+        for component, found in corpus_signals.corpus_observations(
+            counts, global_inclusion
+        ).items():
+            if not found:
+                continue  # no card has a value (e.g. no global share for the lift): not collected
+            collected.add(component)
+            for card_id, observation in found.items():
+                per_card[card_id][component] = observation
+    top16, top16_exists = _signal_observations(
+        store, commander, signals.SIGNAL_EDHTOP16, claims, display, ambiguous
+    )
+    tournament = corpus_signals.tournament_observations(counts, top16)
+    if tournament or top16_exists:
+        collected.add(TOURNAMENT)
+    for card_id, observation in tournament.items():
+        per_card[card_id][TOURNAMENT] = observation
+    themes, themes_exist = _theme_reach_observations(
+        store, commander, claims, display, ambiguous, settings.min_denominators[strength.MIN_EDHREC]
+    )
+    if themes_exist:
+        collected.add(EDHREC_THEME_REACH)
+    for card_id, observation in themes.items():
+        per_card[card_id][EDHREC_THEME_REACH] = observation
+
     type_group: dict[str, str] = {}
     bands: dict[str, str] = {}
     unranked = _unranked_cards(raw_cards, commander_ids)
@@ -735,17 +896,19 @@ def compute(
         bands[card_id] = strength.mana_band(_float(card["mana_value"]), is_land=group == "Land")
     # Rating layers (Bewertungsebenen): always computed for the page; they join the index only
     # with a positive weight (default 0), as one more rank-based component each.
-    layer_result = _layer_result(
-        store, raw_cards, display, claims, unranked, per_card, settings.pod_size
-    )
     weighted = [key for key in strength.LAYER_KEYS if settings.layer_weights[key] > 0]
-    for card_id, found in layers.index_observations(layer_result, weighted).items():
-        per_card[card_id].update(found)
-    for key in weighted:
-        if any(item[key]["status"] == layers.OK for item in layer_result["cards"].values()):
-            collected.add(strength.layer_component(key))
-        else:
-            notices.append(f"{strength.LAYER_LABELS[key]}: keine Daten, Gewicht ohne Wirkung")
+    layer_result: layers.LayerResult | None = None
+    if with_layers or weighted:
+        layer_result = _layer_result(
+            store, raw_cards, display, claims, unranked, per_card, settings.pod_size
+        )
+        for card_id, found in layers.index_observations(layer_result, weighted).items():
+            per_card[card_id].update(found)
+        for key in weighted:
+            if any(item[key]["status"] == layers.OK for item in layer_result["cards"].values()):
+                collected.add(strength.layer_component(key))
+            else:
+                notices.append(f"{strength.LAYER_LABELS[key]}: keine Daten, Gewicht ohne Wirkung")
 
     # Other commanders known to the store are not ranked in this commander's pool (tier N).
     others = _other_commander_names(store, commander)
@@ -762,48 +925,110 @@ def compute(
         universe_minimum,
         function_group=_function_groups(store, raw_cards),
     )
+    # E2.a: while a counted local corpus exists the EDHREC inclusion weights are 0 (the rule is
+    # explicit and reported); without one they are the fallback.
+    effective, weight_rule = strength.apply_corpus_rule(
+        settings, corpus_decks=local_decks, min_universe=corpus_minimum
+    )
+    return Prepared(
+        commander,
+        settings,
+        effective,
+        weight_rule,
+        ids,
+        display,
+        raw_cards,
+        per_card,
+        collected,
+        context,
+        choice,
+        summary,
+        universe_missing,
+        notices,
+        ambiguous,
+        layer_result,
+        weighted,
+        corpus,
+    )
 
-    scored = strength.score_pool(settings, per_card, collected, context=context)
-    notices.extend(strength.weights_without_effect(settings, collected))
+
+def compute(
+    store: StudioStore,
+    commander: str,
+    settings: StrengthSettings,
+    *,
+    dangling_universe_ok: bool = False,
+    notices: Sequence[str] = (),
+) -> StrengthResult:
+    """Index and tier for every legal pool card of ``commander``.
+
+    Raises KeyError when the commander is not in the collection or the universe profile of
+    the settings is unknown. With ``dangling_universe_ok`` (settings read from a saved
+    profile) a universe profile that was deleted meanwhile is not an error: the index runs
+    with "kein Universum" and the result carries a notice and ``universe_missing``."""
+    prepared = prepare(
+        store, commander, settings, dangling_universe_ok=dangling_universe_ok, notices=notices
+    )
+    settings = prepared.settings
+    diagnostics: dict[str, object] = {}
+    scored = strength.score_pool(
+        prepared.effective,
+        prepared.per_card,
+        prepared.collected,
+        context=prepared.context,
+        diagnostics=diagnostics,
+    )
+    notices_out = prepared.notices
+    notices_out.extend(strength.weights_without_effect(prepared.effective, prepared.collected))
+    layer_result = prepared.layer_result
+    if layer_result is None:  # prepare computes the layers when asked to (the default)
+        raise TypeError("the layer result is missing")
     cards: list[StrengthCard] = []
-    for card_id in ids:
+    for card_id in prepared.ids:
         result: CardStrength = scored[card_id]
         cards.append(
             {
                 "card_id": card_id,
-                "name": display[card_id],
+                "name": prepared.display[card_id],
                 **result,
                 "layers": layer_result["cards"][card_id],
             }
         )
     tiers = Counter(card["tier"] for card in cards)
+    shrinkage = diagnostics["shrinkage"]
     return {
         "schema": strength.SCHEMA,
         "data_class": strength.DATA_CLASS,
         "meaning": strength.MEANING,
         "commander": commander,
         "settings": settings.to_dict(),
-        "universe": summary if choice["kind"] == universe_choice.KIND_PROFILE else None,
-        "universe_choice": choice,
-        "universe_missing": universe_missing,
-        "notices": notices,
+        "universe": prepared.summary
+        if prepared.choice["kind"] == universe_choice.KIND_PROFILE
+        else None,
+        "universe_choice": prepared.choice,
+        "universe_missing": prepared.universe_missing,
+        "notices": notices_out,
         # the index sources; a weighted layer is listed in ``layer_summary.weighted`` instead
         "collected": sorted(
-            name for name in collected if not name.startswith(strength.LAYER_PREFIX)
+            name for name in prepared.collected if not name.startswith(strength.LAYER_PREFIX)
         ),
         "tier_counts": {tier: tiers.get(tier, 0) for tier in (*strength.TIERS, "U", "N")},
         "ambiguous_names": [
             {"signal": signal, "name": name, "candidates": candidates}
-            for (signal, name), candidates in sorted(ambiguous.items())
+            for (signal, name), candidates in sorted(prepared.ambiguous.items())
         ],
         "layer_summary": {
             "schema": layer_result["schema"],
             "pod_size": layer_result["pod_size"],
             "pod_note": layer_result["pod_note"],
             "measured_note": layer_result["measured_note"],
-            "weighted": weighted,
+            "weighted": prepared.weighted_layers,
             "layers": layer_result["layers"],
         },
+        "weight_rule": prepared.weight_rule,
+        "effective_weights": dict(prepared.effective.weights),
+        "corpus": prepared.corpus,
+        "shrinkage": dict(shrinkage) if isinstance(shrinkage, dict) else {},
         "cards": cards,
     }
 

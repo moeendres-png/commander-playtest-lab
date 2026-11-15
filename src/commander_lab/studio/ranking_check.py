@@ -42,8 +42,7 @@ from collections.abc import Collection, Mapping, Sequence
 from dataclasses import replace
 from typing import TypedDict
 
-from . import layers, strength, strength_view, tiers, universe_choice, universe_view
-from .builder import pool_cards
+from . import strength, strength_view, universe_choice, universe_view
 from .store import LEGACY_COMMANDER, StudioStore
 from .strength import (
     DECK_UNIVERSE,
@@ -498,132 +497,20 @@ def run_ranking_check(
     preset: str | None = None,
     settings: Mapping[str, object] | None = None,
 ) -> RankingCheckReport:
-    """Compute the #1349 ranking check against ``store`` for ``commander``."""
+    """Compute the #1349 ranking check against ``store`` for ``commander``. The observations,
+    the corpus rule (E2.a) and the settings are exactly those of the tier list
+    (``strength_view.prepare``)."""
     resolved = strength_view.resolve_settings(
         store, preset=preset, profile=profile, settings=settings
     )
     label = profile or preset or "Ausgewogen"
-    pool = pool_cards(store, [commander], with_signals=False)
-    raw_cards = pool["cards"]
-    if not isinstance(raw_cards, list):
-        raise TypeError("pool_cards returned an unexpected shape")
-    ids = [str(card["card_id"]) for card in raw_cards]
-    display = {str(card["card_id"]): str(card["name"]) for card in raw_cards}
-    commander_ids = strength_view._strings(pool["commander_ids"])
-    claims = strength_view._claim_index(store, ids)
-    ambiguous: dict[tuple[str, str], list[str]] = {}
-
-    summary: universe_view.ProfileSummary | None = None
-    kind, _source, _bracket = strength.parse_universe_source(resolved.universe_source) or ("",) * 3
-    if resolved.universe_profile and kind in (strength.UNIVERSE_AUTO, strength.UNIVERSE_PROFILE):
-        try:
-            summary = universe_view.profile_summary(
-                store, resolved.universe_profile, commander_names=[commander]
-            )
-        except KeyError:
-            resolved = replace(resolved, universe_profile=None)
-    choice = universe_choice.choose(store, commander, resolved, summary)
-
-    per_card: dict[str, dict[str, Observation]] = {card_id: {} for card_id in ids}
-    collected: set[str] = set()
-    for component in (
-        strength.COMMANDER_INCLUSION,
-        strength.BRACKET_INCLUSION,
-        strength.SYNERGY,
-        strength.TOURNAMENT_LISTS,
-        strength.TOURNAMENT_CONVERSION,
-        strength.GLOBAL_INCLUSION,
-        strength.COMBOS,
-        strength.PLAYGROUP_OBSERVED,
-        strength.RUBRIC,
-    ):
-        signal = strength.signal_for(
-            component, resolved.bracket, combo_source=resolved.combo_source
-        )
-        if not signal:
-            continue
-        if component == strength.COMBOS and resolved.combo_source == strength.COMBO_SPELLBOOK:
-            observed, exists = strength_view._combo_observations(
-                store, commander, claims, display, ambiguous
-            )
-        elif component == strength.RUBRIC:
-            observed, exists = strength_view._rubric_observations(
-                store, commander, claims, display, ambiguous
-            )
-        else:
-            observed, exists = strength_view._signal_observations(
-                store, commander, signal, claims, display, ambiguous
-            )
-        if exists:
-            collected.add(component)
-        for card_id, observation in observed.items():
-            per_card[card_id][component] = observation
-
-    filter_cards: set[str] = set()
-    universe_minimum = tiers.TierParams().min_universe
-    if choice["kind"] == universe_choice.KIND_PROFILE and summary is not None:
-        universe_minimum = summary["min_universe"]
-        if summary["denominator"] > 0:
-            collected.add(DECK_UNIVERSE)
-            spread = universe_view.pool_spread(
-                store, summary["profile"], ids, commander_names=[commander]
-            )
-            strength_view._fill_spread(per_card, filter_cards, spread["cards"])
-    elif choice["kind"] == universe_choice.KIND_LOCAL:
-        local_total, _snapshot, local_cards = universe_view.spread_for_spec(
-            store, universe_choice.local_spec(store, commander), ids, commander_names=[commander]
-        )
-        if local_total > 0:
-            collected.add(DECK_UNIVERSE)
-            strength_view._fill_spread(per_card, filter_cards, local_cards)
-    elif choice["kind"] == universe_choice.KIND_COUNTED:
-        for item in universe_choice.counted_universes(store, commander):
-            if item["value"] == choice["counted"]:
-                collected.add(DECK_UNIVERSE)
-                for card_id, observation in strength_view.counted_observations(
-                    store, commander, item, claims, display, ambiguous
-                ).items():
-                    per_card[card_id][DECK_UNIVERSE] = observation
-
-    type_group: dict[str, str] = {}
-    bands: dict[str, str] = {}
-    unranked = strength_view._unranked_cards(raw_cards, commander_ids)
-    for card in raw_cards:
-        card_id = str(card["card_id"])
-        group = str(card["group"])
-        type_group[card_id] = group
-        bands[card_id] = strength.mana_band(
-            strength_view._float(card["mana_value"]), is_land=group == "Land"
-        )
-
-    weighted = [key for key in strength.LAYER_KEYS if resolved.layer_weights[key] > 0]
-    if weighted:
-        layer_result = strength_view._layer_result(
-            store, raw_cards, display, claims, unranked, per_card, resolved.pod_size
-        )
-        for card_id, found in layers.index_observations(layer_result, weighted).items():
-            per_card[card_id].update(found)
-        for key in weighted:
-            if any(item[key]["status"] == layers.OK for item in layer_result["cards"].values()):
-                collected.add(strength.layer_component(key))
-
-    others = strength_view._other_commander_names(store, commander)
-    tier_unranked = dict(unranked)
-    for card in raw_cards:
-        card_id = str(card["card_id"])
-        if card_id not in tier_unranked and str(card["name"]).casefold() in others:
-            tier_unranked[card_id] = strength.NOT_RANKED_OTHER_COMMANDER
-
-    context = PoolContext(
-        type_group,
-        bands,
-        tier_unranked,
-        filter_cards,
-        universe_minimum,
-        function_group=strength_view._function_groups(store, raw_cards),
+    prepared = strength_view.prepare(
+        store, commander, resolved, dangling_universe_ok=True, with_layers=False
     )
-
-    if DECK_UNIVERSE in collected and choice["kind"] in (
+    ids = prepared.ids
+    display = prepared.display
+    per_card = prepared.per_card
+    if DECK_UNIVERSE in prepared.collected and prepared.choice["kind"] in (
         universe_choice.KIND_LOCAL,
         universe_choice.KIND_COUNTED,
     ):
@@ -632,16 +519,16 @@ def run_ranking_check(
             for card_id, per in per_card.items()
             if (obs := per.get(DECK_UNIVERSE)) is not None
         }
-        counted_label = choice["label"]
+        counted_label = prepared.choice["label"]
     else:
         counted_lists, counted_label = _reference_counted_lists(store, commander, ids, display)
 
     return check_ranking(
-        resolved,
+        prepared.effective,
         per_card,
-        collected,
+        prepared.collected,
         names=display,
-        context=context,
+        context=prepared.context,
         counted_lists=counted_lists,
         counted_lists_label=counted_label,
         commander=commander,

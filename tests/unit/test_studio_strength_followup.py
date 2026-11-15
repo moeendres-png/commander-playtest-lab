@@ -103,7 +103,11 @@ def test_the_deck_universe_filter_card_has_the_universe_out_of_its_denominator()
     for index in range(40):
         add_deck(store, f"d{index}", ["Card 00", "Card 01"])
     universe.save_profile(store, "mit", {"min_universe": 5, "must_contain": ["Card 00"]})
-    result = strength_view.compute(store, CMD, StrengthSettings(universe_profile="mit"))
+    # 40 local decks are a counted corpus: keep the EDHREC weights (E2.a off) so that the control
+    # card still has its commander inclusion in the denominator, as this test measures
+    result = strength_view.compute(
+        store, CMD, StrengthSettings(universe_profile="mit", edhrec_with_corpus=True)
+    )
     cards = _cards(result)
     status = {c["component"]: c["status"] for c in cards["Card 00"]["components"]}
     assert status["deck_universe"] == strength.FILTER_CARD
