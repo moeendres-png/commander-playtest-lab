@@ -207,13 +207,13 @@ Owner-only decisions, which need a new direct Owner statement: changing this del
 Owner-only list; Production Provider selection; Architecture Freeze claim or revocation; Production
 Repository creation; pushes to the `moeendres-png/mage` fork, engine repins, rewriting or unsealing
 `qualification/` records, and touching `WS17_SHA256SUMS` outside the D5 regeneration for
-`pyproject.toml` (regenerating it with `scripts/regenerate_hash_manifests.py` within the change that
-needs it, such as a change to `.github/workflows/production-qualification.yml`, is allowed); setting
-or rotating secrets, paid services, account or repository visibility changes (privatizing
-repositories, external Drive sharing) and publication; releasing five- and six-seat play or
-qualification; lifting paused or externally gated items (the all-commander harvest #1210, the
-Drive-dependent import #1187/#1176, scraping a site without a public API, removing a required check,
-activating purchase mode or price features).
+`pyproject.toml` (regenerating its digest line is allowed only within a change to
+`.github/workflows/production-qualification.yml`; any other change to `WS17_SHA256SUMS` needs the
+Owner's go); setting or rotating secrets, paid services, account or repository visibility changes
+(privatizing repositories, external Drive sharing) and publication; releasing five- and six-seat
+play or qualification; lifting paused or externally gated items (the all-commander harvest #1210,
+the Drive-dependent import #1187/#1176, scraping a site without a public API, removing a required
+check, activating purchase mode or price features).
 
 The delegation never relaxes Rules Core authority (§2), evidence semantics (§4), hidden information
 in play (§5), the secret, credential and personal-data rules (§12), the Git hard boundaries and
@@ -274,14 +274,16 @@ freshly verified and target drift is adjudicated; the required checks and every 
 qualification gate PASS on the exact head; Rules and evidence integrity hold; there is no
 source-lock conflict, no merge conflict and no unresolved review thread or P1/P2; no
 FAIL/UNKNOWN/BLOCKED is hidden; and a MATERIAL change (one to the engine, the bridge, qualification,
-gates, the pilots' decision logic, Rules/evidence/privacy text, or more than about 300 changed
-lines) has an independent review PASS from a fresh context that did not write it (at the Lead's
-inherited level unless the Owner specifies otherwise), with no blocking findings. A MATERIAL change
-is not merged before that review is recorded on the pull request with its verdict and the exact head
-SHA it reviewed, and that SHA is the head being merged; green required checks alone are not enough.
-One review per head; after fixes the same reviewer re-checks only the delta. After merging, the
-session reads back the merge commit and the resulting `main` HEAD/TREE (`commander-quality-gate`,
-Phase 6) and reports the merge in one line with the PR link.
+gates, the pilots' decision logic, Rules/evidence/privacy text, policy text (`AGENTS.md`,
+`CLAUDE.md`, `docs/CURRENT_EXECUTION_AUTHORITY.md`, the Owner-only list, Git boundaries),
+containment and security configuration, workflow files, or more than 300 changed lines) has an
+independent review PASS from a fresh context that did not write it (at the Lead's inherited level
+unless the Owner specifies otherwise), with no blocking findings. A MATERIAL change is not merged
+before that review is recorded on the pull request with its verdict and the exact head SHA it
+reviewed, and that SHA is the head being merged; green required checks alone are not enough. One
+review per head; after fixes the same reviewer re-checks only the delta. After merging, the session
+reads back the merge commit and the resulting `main` HEAD/TREE (`commander-quality-gate`, Phase 6)
+and reports the merge in one line with the PR link.
 
 These need the Owner's explicit go before merge: pushes to the engine fork (`moeendres-png/mage`),
 repins, and any change to signed or sealed qualification records or, outside a reseal or the D5 go
@@ -335,12 +337,12 @@ commands: `docs/STUDIO_PLAN_SIMULATOR.md`, `docs/STUDIO_BRIDGE_GATE_TOOLING.md`)
   is recorded as `NOT_SEALED`, never as PASS. Review and checks as for every MATERIAL change.
 
 Once a change has merged under this gate (the first was #1316) the running bridge is no longer the
-sealed one. Open obligation, tracked in #1401, which the next bridge pull request meets or the Lead
-tracks: game logs and Studio series results record the bridge jar SHA-256, and wherever the current
-qualification is reported a visible `BRIDGE_AHEAD_OF_QUALIFICATION` state is shown while
-`engine-bridge/` differs from the sealed source. Neither exists yet. Nothing produced on a later
-bridge is presented as covered by the sealed epoch. A bridge change never decides a rule, never
-picks an option for a seat and never widens what a principal may see (§2, §5).
+sealed one. Open obligation, tracked in #1401, which the next bridge pull request meets: game logs
+and Studio series results record the bridge jar SHA-256, and wherever the current qualification is
+reported a visible `BRIDGE_AHEAD_OF_QUALIFICATION` state is shown while `engine-bridge/` differs
+from the sealed source. Neither exists yet. Nothing produced on a later bridge is presented as
+covered by the sealed epoch. A bridge change never decides a rule, never picks an option for a seat
+and never widens what a principal may see (§2, §5).
 
 ## 11. Git, worktree, ownership
 
@@ -372,8 +374,8 @@ and MTG deck, card, collection and gameplay data. Do not expose unrelated person
 third-party real names. Raw credentials, keys and tokens are `LOCAL_ONLY`: tools may use them
 locally, but values never appear in prompts, logs, evidence, commits or handoffs. Deny explicit
 secret-extraction operations. Automatic session sharing is disabled. New repository content names no
-AI model or vendor; exempt are §6 and §7 of this file, `CLAUDE.md`, `.claude/` configuration and
-agent/skill files, dated records and commit trailers.
+AI model or vendor; exempt are this file, `CLAUDE.md`, `.claude/` configuration and agent/skill
+files, dated records and commit trailers.
 
 Binary recordings and dumps (Java Flight Recorder files, heap dumps, core dumps, process listings)
 are never committed, in any encoding: they embed the recording machine's environment variables,
