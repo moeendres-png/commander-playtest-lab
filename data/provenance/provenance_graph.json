@@ -479,7 +479,7 @@
       "derived_ids": [
         "derived-mulligan-korvold-v1.8"
       ],
-      "location": "docs/mulligan_lab/MULLIGAN_LAB_LIMITATIONS.md",
+      "location": "docs/archive/mulligan-lab/mulligan_lab/MULLIGAN_LAB_LIMITATIONS.md",
       "source_ids": []
     },
     {
@@ -491,7 +491,7 @@
       "derived_ids": [
         "derived-counterfactual-korvold-v1.9"
       ],
-      "location": "docs/counterfactual/COUNTERFACTUAL_REPLAY_REPORT.md",
+      "location": "docs/archive/structural-simulator/counterfactual/COUNTERFACTUAL_REPLAY_REPORT.md",
       "source_ids": []
     },
     {
@@ -516,7 +516,7 @@
         "derived-mulligan-korvold-v1.10.1",
         "derived-mulligan-rogshai-v1.10.1"
       ],
-      "location": "docs/mulligan_lab/MULLIGAN_LAB_USAGE_GUIDE.md",
+      "location": "docs/archive/mulligan-lab/mulligan_lab/MULLIGAN_LAB_USAGE_GUIDE.md",
       "source_ids": []
     },
     {
@@ -528,7 +528,7 @@
       "derived_ids": [
         "derived-counterfactual-korvold-v1.10.1"
       ],
-      "location": "docs/counterfactual/COUNTERFACTUAL_REPLAY_REPORT.md",
+      "location": "docs/archive/structural-simulator/counterfactual/COUNTERFACTUAL_REPLAY_REPORT.md",
       "source_ids": []
     },
     {
@@ -541,7 +541,7 @@
         "derived-diagnostic-smoke-v1.10.1",
         "derived-diagnostic-dataset-v1.10.1"
       ],
-      "location": "docs/diagnostics/DECISION_DIAGNOSTICS_REPORT.md",
+      "location": "docs/archive/structural-simulator/diagnostics/DECISION_DIAGNOSTICS_REPORT.md",
       "source_ids": []
     }
   ],

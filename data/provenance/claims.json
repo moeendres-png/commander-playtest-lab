@@ -38,13 +38,13 @@
     "claim_id": "claim-mulligan-model-boundary",
     "claim_kind": "model_output",
     "claim_text": "Generated Mulligan keep rules are model-based and not absolute.",
-    "location": "docs/mulligan_lab/MULLIGAN_LAB_LIMITATIONS.md"
+    "location": "docs/archive/mulligan-lab/mulligan_lab/MULLIGAN_LAB_LIMITATIONS.md"
   },
   {
     "claim_id": "claim-counterfactual-boundary",
     "claim_kind": "model_output",
     "claim_text": "Counterfactual results are model alternatives rather than historical facts.",
-    "location": "docs/counterfactual/COUNTERFACTUAL_REPLAY_REPORT.md"
+    "location": "docs/archive/structural-simulator/counterfactual/COUNTERFACTUAL_REPLAY_REPORT.md"
   },
   {
     "claim_id": "claim-diagnostic-smoke",
