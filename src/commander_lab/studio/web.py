@@ -87,13 +87,17 @@ class LandAdvisorBody(ListBody):
 
 
 class SwapBody(BaseModel):
-    commander: str | list[str]
+    """Swap helper request. Marks never filter or order the answer, so there is no field for them."""
+
+    model_config = ConfigDict(extra="forbid")
+    commander: str | list[str] = Field(max_length=200)
     deck_card_ids: list[str] = Field(default_factory=list, max_length=300)
     card_id: str = Field(min_length=1, max_length=200)
     mode: Literal["replace", "cut"] = "replace"
     cohort: str = Field(default="all", min_length=1, max_length=120)
     universe: str | None = Field(default=None, max_length=120)
-    exclude_marked: bool = True
+    include_unowned: bool = False
+    limit: int = Field(default=swap.DEFAULT_LIMIT, ge=1, le=swap.MAX_LIMIT)
 
 
 class DecklistParseBody(BaseModel):
@@ -1193,7 +1197,9 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
 
     @app.post("/api/swap")
     def swap_route(body: SwapBody) -> dict[str, object]:
-        """Role-matched swap candidates (`mode="replace"` or `mode="cut"`) in the builder."""
+        """The swap helper: ``mode="replace"`` lists cards that share a role with a card of the
+        deck, most played first; ``mode="cut"`` lists the deck cards that share a role with a
+        pool card, rarest first. Frequencies are n of N decks of the chosen group."""
         store = open_store()
         try:
             return swap.swap_candidates(
@@ -1204,12 +1210,17 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
                 mode=body.mode,
                 cohort=body.cohort,
                 universe=body.universe,
-                exclude_marked=body.exclude_marked,
+                include_unowned=body.include_unowned,
+                limit=body.limit,
             )
+        except swap.UnknownCommander as error:
+            raise HTTPException(404, f"commander not in the collection: {error}") from error
+        except swap.UnknownUniverse as error:
+            raise HTTPException(404, f"unknown universe profile: {error}") from error
         except KeyError as error:
-            raise HTTPException(404, f"unknown card or commander: {error}") from error
+            raise HTTPException(404, f"unknown card: {error}") from error
         except ValueError as error:
-            raise HTTPException(422, str(error)) from error
+            raise HTTPException(422, _german(error)) from error
         finally:
             store.close()
 
