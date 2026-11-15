@@ -1,0 +1,286 @@
+{
+ "urlhash": "57xipYXKtQzCK3HYXG87nA",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-12-11",
+ "price": 120,
+ "salt": 53.28153660334647,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/dKRy9ogCW0yiiBTykgBcVA?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Alloy Myr",
+   "quantity": 1
+  },
+  {
+   "name": "Arbor Elf",
+   "quantity": 1
+  },
+  {
+   "name": "Avacyn's Pilgrim",
+   "quantity": 1
+  },
+  {
+   "name": "Basking Broodscale",
+   "quantity": 1
+  },
+  {
+   "name": "Beast Whisperer",
+   "quantity": 1
+  },
+  {
+   "name": "Beastcaller Savant",
+   "quantity": 1
+  },
+  {
+   "name": "Bugenhagen, Wise Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Copper Myr",
+   "quantity": 1
+  },
+  {
+   "name": "Dream Stalker",
+   "quantity": 1
+  },
+  {
+   "name": "Eternal Witness",
+   "quantity": 1
+  },
+  {
+   "name": "Faeburrow Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Gold Myr",
+   "quantity": 1
+  },
+  {
+   "name": "Intrepid Paleontologist",
+   "quantity": 1
+  },
+  {
+   "name": "Ivy Lane Denizen",
+   "quantity": 1
+  },
+  {
+   "name": "Kor Skyfisher",
+   "quantity": 1
+  },
+  {
+   "name": "Laboratory Maniac",
+   "quantity": 1
+  },
+  {
+   "name": "Ornithopter",
+   "quantity": 1
+  },
+  {
+   "name": "Ornithopter of Paradise",
+   "quantity": 1
+  },
+  {
+   "name": "Paradise Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Peregrin Took",
+   "quantity": 1
+  },
+  {
+   "name": "Priest of Titania",
+   "quantity": 1
+  },
+  {
+   "name": "Quirion Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Rampaging Baloths",
+   "quantity": 1
+  },
+  {
+   "name": "Rosie Cotton of South Lane",
+   "quantity": 1
+  },
+  {
+   "name": "Sakura-Tribe Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Scurry Oak",
+   "quantity": 1
+  },
+  {
+   "name": "Selvala, Eager Trailblazer",
+   "quantity": 1
+  },
+  {
+   "name": "Shrieking Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Silver Myr",
+   "quantity": 1
+  },
+  {
+   "name": "Sylvan Caryatid",
+   "quantity": 1
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Tender Wildguide",
+   "quantity": 1
+  },
+  {
+   "name": "Trailtracker Scout",
+   "quantity": 1
+  },
+  {
+   "name": "Vine Trellis",
+   "quantity": 1
+  },
+  {
+   "name": "Whitemane Lion",
+   "quantity": 1
+  },
+  {
+   "name": "Absorb",
+   "quantity": 1
+  },
+  {
+   "name": "Growth Spiral",
+   "quantity": 1
+  },
+  {
+   "name": "Last Word",
+   "quantity": 1
+  },
+  {
+   "name": "Memory Lapse",
+   "quantity": 1
+  },
+  {
+   "name": "Negate",
+   "quantity": 1
+  },
+  {
+   "name": "No More Lies",
+   "quantity": 1
+  },
+  {
+   "name": "Rewind",
+   "quantity": 1
+  },
+  {
+   "name": "Cultivate",
+   "quantity": 1
+  },
+  {
+   "name": "Kodama's Reach",
+   "quantity": 1
+  },
+  {
+   "name": "Rampant Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Shamanic Revelation",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Dragon Throne of Tarkir",
+   "quantity": 1
+  },
+  {
+   "name": "Kefnet's Monument",
+   "quantity": 1
+  },
+  {
+   "name": "Rhonas's Monument",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Cathars' Crusade",
+   "quantity": 1
+  },
+  {
+   "name": "Colossification",
+   "quantity": 1
+  },
+  {
+   "name": "Intruder Alarm",
+   "quantity": 1
+  },
+  {
+   "name": "Knowledge Is Power",
+   "quantity": 1
+  },
+  {
+   "name": "Primeval Bounty",
+   "quantity": 1
+  },
+  {
+   "name": "Squirrel Nest",
+   "quantity": 1
+  },
+  {
+   "name": "Teferi's Ageless Insight",
+   "quantity": 1
+  },
+  {
+   "name": "Jace, Wielder of Mysteries",
+   "quantity": 1
+  },
+  {
+   "name": "Tamiyo, Field Researcher",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 12
+  },
+  {
+   "name": "Island",
+   "quantity": 12
+  },
+  {
+   "name": "Plains",
+   "quantity": 12
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}
