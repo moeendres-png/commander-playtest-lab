@@ -1,0 +1,378 @@
+{
+ "urlhash": "3MXM2G3OfbFQd8oAd6JHsQ",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-11-05",
+ "price": 342,
+ "salt": 48.13018845859915,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/SCR8PPH9HEKMo2ftPkNx-A?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Adept Watershaper",
+   "quantity": 1
+  },
+  {
+   "name": "Adrix and Nev, Twincasters",
+   "quantity": 1
+  },
+  {
+   "name": "Alandra, Sky Dreamer",
+   "quantity": 1
+  },
+  {
+   "name": "Appa, Steadfast Guardian",
+   "quantity": 1
+  },
+  {
+   "name": "Bennie Bracks, Zoologist",
+   "quantity": 1
+  },
+  {
+   "name": "Bofur, Reliable Guardian",
+   "quantity": 1
+  },
+  {
+   "name": "Detective of the Month",
+   "quantity": 1
+  },
+  {
+   "name": "Elven Raft-Steerer",
+   "quantity": 1
+  },
+  {
+   "name": "Esix, Fractal Bloom",
+   "quantity": 1
+  },
+  {
+   "name": "Ghalta the Unstoppable",
+   "quantity": 1
+  },
+  {
+   "name": "Great Forest Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Hexhaven Invigorator",
+   "quantity": 1
+  },
+  {
+   "name": "Hydroelectric Specimen",
+   "quantity": 1
+  },
+  {
+   "name": "Hydroid Krasis",
+   "quantity": 1
+  },
+  {
+   "name": "Jolrael, Mwonvuli Recluse",
+   "quantity": 1
+  },
+  {
+   "name": "Koma, Cosmos Serpent",
+   "quantity": 1
+  },
+  {
+   "name": "Nadir Kraken",
+   "quantity": 1
+  },
+  {
+   "name": "Naga Vitalist",
+   "quantity": 1
+  },
+  {
+   "name": "Noxious Newt",
+   "quantity": 1
+  },
+  {
+   "name": "Psychosis Crawler",
+   "quantity": 1
+  },
+  {
+   "name": "Rescue Girl, First Responder",
+   "quantity": 1
+  },
+  {
+   "name": "Selvala, Explorer Returned",
+   "quantity": 1
+  },
+  {
+   "name": "Studious First-Year",
+   "quantity": 1
+  },
+  {
+   "name": "Tam, Mindful First-Year",
+   "quantity": 1
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Thranduil, Sindarin Liege",
+   "quantity": 1
+  },
+  {
+   "name": "Thrasios, Triton Hero",
+   "quantity": 1
+  },
+  {
+   "name": "Virulent Emissary",
+   "quantity": 1
+  },
+  {
+   "name": "Weaver of Currents",
+   "quantity": 1
+  },
+  {
+   "name": "Wood Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Wose Pathfinder",
+   "quantity": 1
+  },
+  {
+   "name": "Aetherize",
+   "quantity": 1
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1
+  },
+  {
+   "name": "Familiar's Ruse",
+   "quantity": 1
+  },
+  {
+   "name": "Growth Spiral",
+   "quantity": 1
+  },
+  {
+   "name": "Legolas's Quick Reflexes",
+   "quantity": 1
+  },
+  {
+   "name": "Negate",
+   "quantity": 1
+  },
+  {
+   "name": "Pongify",
+   "quantity": 1
+  },
+  {
+   "name": "Royal Treatment",
+   "quantity": 1
+  },
+  {
+   "name": "Run Away Together",
+   "quantity": 1
+  },
+  {
+   "name": "Snap",
+   "quantity": 1
+  },
+  {
+   "name": "Curse of the Swine",
+   "quantity": 1
+  },
+  {
+   "name": "Eldritch Evolution",
+   "quantity": 1
+  },
+  {
+   "name": "Finale of Revelation",
+   "quantity": 1
+  },
+  {
+   "name": "Growth Curve",
+   "quantity": 1
+  },
+  {
+   "name": "Pick Your Poison",
+   "quantity": 1
+  },
+  {
+   "name": "Season of Weaving",
+   "quantity": 1
+  },
+  {
+   "name": "Through the Forest Gate",
+   "quantity": 1
+  },
+  {
+   "name": "Titania's Command",
+   "quantity": 1
+  },
+  {
+   "name": "Aetherflux Reservoir",
+   "quantity": 1
+  },
+  {
+   "name": "Bident of Thassa",
+   "quantity": 1
+  },
+  {
+   "name": "Essence Reliquary",
+   "quantity": 1
+  },
+  {
+   "name": "Necklace of Girion",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Swiftfoot Boots",
+   "quantity": 1
+  },
+  {
+   "name": "Talisman of Progress",
+   "quantity": 1
+  },
+  {
+   "name": "Talisman of Unity",
+   "quantity": 1
+  },
+  {
+   "name": "Caretaker's Talent",
+   "quantity": 1
+  },
+  {
+   "name": "Dazzling Theater // Prop Room",
+   "quantity": 1
+  },
+  {
+   "name": "Intruder Alarm",
+   "quantity": 1
+  },
+  {
+   "name": "Propaganda",
+   "quantity": 1
+  },
+  {
+   "name": "Agna Qel'a",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Chancery",
+   "quantity": 1
+  },
+  {
+   "name": "Brushland",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Exotic Orchard",
+   "quantity": 1
+  },
+  {
+   "name": "Floodfarm Verge",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 5
+  },
+  {
+   "name": "Irrigated Farmland",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 6
+  },
+  {
+   "name": "Krosan Verge",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Reborn",
+   "quantity": 1
+  },
+  {
+   "name": "Overgrown Farmland",
+   "quantity": 1
+  },
+  {
+   "name": "Path of Ancestry",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 2
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Scattered Groves",
+   "quantity": 1
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Shire Terrace",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Growth Chamber",
+   "quantity": 1
+  },
+  {
+   "name": "Skycloud Expanse",
+   "quantity": 1
+  },
+  {
+   "name": "Skycoach Waypoint",
+   "quantity": 1
+  },
+  {
+   "name": "Sungrass Prairie",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Enlightenment",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Mystery",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Plenty",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of the False God",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}
