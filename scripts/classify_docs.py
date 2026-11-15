@@ -42,7 +42,6 @@ ROOT = Path(__file__).resolve().parents[1]
 DOCS = "docs"
 ARCHIVE = "docs/archive"
 
-# Entries that are current by decision (never archived), whatever references them.
 
 # topic -> (what the topic holds, entry names).  An entry is a top-level name under docs/
 # or the nested unit "claude/handoffs".  Each topic gets a README.md in docs/archive/<topic>/.
