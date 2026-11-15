@@ -389,7 +389,9 @@ def expected_signals(commander: str = "") -> list[str]:
     return names
 
 
-def signal_coverage(store: StudioStore, commander: str) -> dict[str, SignalCoverage]:
+def signal_coverage(
+    store: StudioStore, commander: str, *, include_commanders: bool = True
+) -> dict[str, SignalCoverage]:
     """Per stored signal: its rows and how many of the commander's pool cards it gives a
     value (the same name matching as the index). Counts only. A signal without rows for
     this commander is listed with 0 rows: missing, not a weak signal. Raises KeyError when
@@ -398,8 +400,11 @@ def signal_coverage(store: StudioStore, commander: str) -> dict[str, SignalCover
     raw_cards = pool["cards"]
     if not isinstance(raw_cards, list):
         raise TypeError("pool_cards returned an unexpected shape")
+    commander_ids = _strings(pool["commander_ids"])
     ids = [str(card["card_id"]) for card in raw_cards]
     display = {str(card["card_id"]): str(card["name"]) for card in raw_cards}
+    non_cmd_cards = [card for card in raw_cards if str(card["card_id"]) not in commander_ids]
+    display_non_cmd = {str(card["card_id"]): str(card["name"]) for card in non_cmd_cards}
     claims = _claim_index(store, ids)
     db = store.connection
     result: dict[str, SignalCoverage] = {}
@@ -419,7 +424,9 @@ def signal_coverage(store: StudioStore, commander: str) -> dict[str, SignalCover
             continue  # a counted universe of another commander
         names.append(signal)
     for signal in names:
-        owner = "" if signal in _INDEPENDENT else commander
+        independent = signal in _INDEPENDENT
+        owner = "" if independent else commander
+        scoped_display = display if (include_commanders or independent) else display_non_cmd
         counted = db.execute(
             "SELECT COUNT(*), COUNT(value) FROM card_signal "
             "WHERE commander_name = ? AND signal = ?",
@@ -431,16 +438,20 @@ def signal_coverage(store: StudioStore, commander: str) -> dict[str, SignalCover
             full = counted_observations(
                 store, commander, counted_signals[signal], claims, display, {}
             )
-            valued = len(full)
+            valued = sum(1 for cid in scoped_display if cid in full)
         else:
             observed, _exists = _signal_observations(store, commander, signal, claims, display, {})
-            valued = sum(1 for item in observed.values() if item.value is not None)
+            valued = sum(
+                1
+                for cid in scoped_display
+                if (item := observed.get(cid)) is not None and item.value is not None
+            )
         result[signal] = {
-            "scope": "independent" if signal in _INDEPENDENT else "commander",
+            "scope": "independent" if independent else "commander",
             "rows": int(counted[0]),
             "rows_with_value": int(counted[1]),
             "pool_cards_with_value": valued,
-            "pool_size": len(ids),
+            "pool_size": len(scoped_display),
         }
     return result
 

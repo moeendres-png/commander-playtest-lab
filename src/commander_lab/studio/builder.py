@@ -13,6 +13,7 @@ import re
 import sqlite3
 from collections import Counter
 from collections.abc import Iterable, Sequence
+from datetime import UTC, datetime, timedelta
 from statistics import median
 from typing import TYPE_CHECKING
 
@@ -1255,6 +1256,28 @@ def prefilter_lists(
     }
 
 
+class DraftConflict(ValueError):
+    """The stored draft or branch state changed in another tab or page."""
+
+
+def _next_draft_stamp(previous: str | None) -> str:
+    """UTC timestamp with microsecond precision that always advances beyond ``previous``."""
+    now = datetime.now(UTC)
+    if previous:
+        try:
+            prev_dt = datetime.fromisoformat(previous.replace("Z", "+00:00"))
+            if prev_dt.tzinfo is None:
+                prev_dt = prev_dt.replace(tzinfo=UTC)
+            if now <= prev_dt:
+                now = prev_dt + timedelta(microseconds=1)
+        except ValueError:
+            pass
+    stamp = now.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+    if previous and stamp <= previous:
+        stamp = (now + timedelta(microseconds=1)).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+    return stamp
+
+
 def read_draft(store: StudioStore, deck_id: str, branch: str) -> dict[str, object] | None:
     row = store.connection.execute(
         "SELECT cards, base_revision_id, updated_at FROM deck_draft WHERE deck_id = ? "
@@ -1276,19 +1299,68 @@ def write_draft(
     branch: str,
     cards: Sequence[RevisionCard],
     base_revision_id: str | None,
-) -> None:
-    """Keep the list being worked on. A draft is not a revision: it is overwritten."""
+    *,
+    expected_updated_at: str | None = None,
+    expected_base_revision_id: str | None = None,
+    check_conflict: bool = False,
+) -> str:
+    """Keep the list being worked on. When ``check_conflict`` is set, refuse stale overwrites
+    with ``DraftConflict`` inside the same write transaction."""
     payload = json.dumps(
         [{"card_id": c.card_id, "quantity": c.quantity, "zone": c.zone} for c in cards]
     )
-    with store.connection as db:
+    db = store.connection
+    own_tx = not db.in_transaction
+    if own_tx:
+        db.execute("BEGIN IMMEDIATE")
+    try:
+        draft_row = db.execute(
+            "SELECT updated_at, base_revision_id FROM deck_draft WHERE deck_id = ? AND branch = ?",
+            (deck_id, branch),
+        ).fetchone()
+        if check_conflict:
+            expected_ts = expected_updated_at or None
+            if draft_row is not None:
+                if expected_ts != str(draft_row["updated_at"]):
+                    raise DraftConflict(
+                        "Der Entwurf wurde in einem anderen Tab oder auf einer anderen Seite "
+                        "geändert. Lade den aktuellen Stand, um nichts zu überschreiben."
+                    )
+            else:
+                if expected_ts is not None:
+                    raise DraftConflict(
+                        "Der Entwurf wurde in einem anderen Tab gespeichert oder verworfen. "
+                        "Lade den aktuellen Stand, um nichts zu überschreiben."
+                    )
+                if expected_base_revision_id is not None:
+                    branch_row = db.execute(
+                        "SELECT revision_id FROM deck_branch WHERE deck_id = ? AND branch = ?",
+                        (deck_id, branch),
+                    ).fetchone()
+                    if (
+                        branch_row is not None
+                        and str(branch_row["revision_id"]) != expected_base_revision_id
+                    ):
+                        raise DraftConflict(
+                            "In einem anderen Tab wurde ein neuer Stand gespeichert. "
+                            "Lade den aktuellen Stand, um nichts zu überschreiben."
+                        )
+        previous = str(draft_row["updated_at"]) if draft_row is not None else None
+        stamp = _next_draft_stamp(previous)
         db.execute(
             "INSERT INTO deck_draft(deck_id, branch, cards, base_revision_id, updated_at) "
             "VALUES (?, ?, ?, ?, ?) ON CONFLICT(deck_id, branch) DO UPDATE SET "
             "cards = excluded.cards, base_revision_id = excluded.base_revision_id, "
             "updated_at = excluded.updated_at",
-            (deck_id, branch, payload, base_revision_id, now_utc()),
+            (deck_id, branch, payload, base_revision_id, stamp),
         )
+    except BaseException:
+        if own_tx:
+            db.rollback()
+        raise
+    if own_tx:
+        db.commit()
+    return stamp
 
 
 class DraftChangeRefused(ValueError):
@@ -1342,7 +1414,8 @@ def _change_draft_card(
     if card is None:
         raise KeyError(card_id)
     payload = db.execute(
-        "SELECT cards, base_revision_id FROM deck_draft WHERE deck_id = ? AND branch = ?",
+        "SELECT cards, base_revision_id, updated_at FROM deck_draft "
+        "WHERE deck_id = ? AND branch = ?",
         (deck_id, branch),
     ).fetchone()
     if payload is not None:
@@ -1351,6 +1424,7 @@ def _change_draft_card(
             for e in json.loads(payload["cards"])
         ]
         base_revision = payload["base_revision_id"]
+        previous_stamp: str | None = str(payload["updated_at"])
     else:
         entries = [
             RevisionCard(str(row["card_id"]), int(row["quantity"]), str(row["zone"]))
@@ -1361,6 +1435,7 @@ def _change_draft_card(
             )
         ]
         base_revision = base["revision_id"]
+        previous_stamp = None
     name = str(card["oracle_name"])
     commanders = [e.card_id for e in entries if e.zone == "commander"]
     if card_id in commanders:
@@ -1410,7 +1485,7 @@ def _change_draft_card(
                 [{"card_id": c.card_id, "quantity": c.quantity, "zone": c.zone} for c in kept]
             ),
             base_revision,
-            now_utc(),
+            _next_draft_stamp(previous_stamp),
         ),
     )
     return {
