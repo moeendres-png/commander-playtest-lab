@@ -37,6 +37,7 @@ import re
 import subprocess
 import sys
 from pathlib import Path
+from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 DOCS = "docs"
@@ -244,7 +245,7 @@ def _anchors(files: list[str]) -> tuple[set[str], set[str], dict[str, int]]:
 
 
 def _anchor_of(
-    name: str, members: list[str], words: set[str], paths: set[str], counts
+    name: str, members: list[str], words: set[str], paths: set[str], counts: dict[str, int]
 ) -> str | None:
     if f"{DOCS}/{name}" in paths:
         return f"referenced path docs/{name}"
@@ -257,7 +258,7 @@ def _anchor_of(
     return None
 
 
-def classify(files: list[str] | None = None) -> dict[str, object]:
+def classify(files: list[str] | None = None) -> dict[str, Any]:
     files = files if files is not None else _git_files()
     ents = entries(files)
     words, paths, counts = _anchors(files)
@@ -286,7 +287,7 @@ def check(files: list[str] | None = None) -> list[str]:
     files = files if files is not None else _git_files()
     problems: list[str] = []
     plan = classify(files)
-    for name, topic in plan["archive"].items():  # type: ignore[union-attr]
+    for name, topic in plan["archive"].items():
         problems.append(f"archivable doc outside archive: docs/{name} (topic {topic})")
     for f in referencer_files(files):
         if DOC_REF.search(_read(f)) and f not in _ARCHIVE_POINTERS:
@@ -316,7 +317,7 @@ def _split_target(t: str) -> tuple[str, str] | None:
     return t, ""
 
 
-def iter_links(rel: str, text: str):
+def iter_links(rel: str, text: str) -> Any:
     """Yield (match, path_part, suffix) for relative markdown links."""
     for m in LINK.finditer(text):
         sp = _split_target(m.group(3))
@@ -382,7 +383,7 @@ def apply_moves(plan: dict[str, str]) -> None:
                 new_rel += "/"
             return m.group(1) + m.group(2) + new_rel + sp[1]
 
-        new_text = LINK.sub(repl, text)  # type: ignore[arg-type]
+        new_text = LINK.sub(repl, text)
         if new_text != text:
             edits[f] = new_text
     for n, dest in moved.items():
@@ -416,13 +417,13 @@ def inventory(path: str) -> int:
     plan = classify(files)
     words, paths, counts = _anchors(files)
     modified = _last_modified()
-    ents: dict[str, list[str]] = plan["entries"]  # type: ignore[assignment]
+    ents: dict[str, list[str]] = plan["entries"]
     rows = ["path\tlines\tlast_modified\tclass\tdescribes\tanchor\tdecision"]
     for name in sorted(ents):
         topic = TOPIC_OF.get(name)
-        if name in plan["archive"]:  # type: ignore[operator]
+        if name in plan["archive"]:
             cls, decision = "archive", f"ARCHIVE({topic})"
-        elif name in plan["kept_anchored"]:  # type: ignore[operator]
+        elif name in plan["kept_anchored"]:
             cls, decision = "keep-anchored", "KEEP-ANCHORED"
         else:
             cls, decision = "current", "KEEP"
@@ -469,13 +470,13 @@ def main(argv: list[str] | None = None) -> int:
         return inventory(ns.inventory)
     plan = classify()
     if ns.apply:
-        apply_moves(dict(plan["archive"]))  # type: ignore[arg-type]
+        apply_moves(dict(plan["archive"]))
         return 0
     summary = {"archive": plan["archive"], "kept_anchored": plan["kept_anchored"]}
     if ns.json:
         print(json.dumps(summary, indent=2))
     else:
-        for n, t in plan["archive"].items():  # type: ignore[union-attr]
+        for n, t in plan["archive"].items():
             print(f"{t}\t{n}")
     return 0
 

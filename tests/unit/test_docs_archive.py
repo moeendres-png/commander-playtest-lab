@@ -5,6 +5,9 @@ from __future__ import annotations
 import subprocess
 import sys
 from pathlib import Path
+from typing import Any
+
+import pytest
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -26,7 +29,7 @@ def test_archive_readme_declares_provenance_only() -> None:
     assert "not current instruction" in text
 
 
-def _load_classifier():
+def _load_classifier() -> Any:
     import importlib.util
 
     spec = importlib.util.spec_from_file_location(
@@ -38,7 +41,9 @@ def _load_classifier():
     return module
 
 
-def _plan(tmp_path, monkeypatch, docs: dict[str, str], others: dict[str, str]):
+def _plan(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, docs: dict[str, str], others: dict[str, str]
+) -> Any:
     module = _load_classifier()
     files = []
     for rel, text in {**docs, **others}.items():
@@ -50,17 +55,19 @@ def _plan(tmp_path, monkeypatch, docs: dict[str, str], others: dict[str, str]):
     return module.classify(files)
 
 
-def test_topic_entry_without_anchor_is_archived(tmp_path, monkeypatch) -> None:
+def test_topic_entry_without_anchor_is_archived(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     plan = _plan(tmp_path, monkeypatch, {"docs/mulligan_lab/README.md": "x"}, {"src/a.py": "pass"})
     assert plan["archive"] == {"mulligan_lab": "mulligan-lab"}
 
 
-def test_entry_without_topic_is_current(tmp_path, monkeypatch) -> None:
+def test_entry_without_topic_is_current(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     plan = _plan(tmp_path, monkeypatch, {"docs/installation.md": "x"}, {})
     assert plan["archive"] == {} and "installation.md" in plan["current"]
 
 
-def test_code_reference_anchors_entry(tmp_path, monkeypatch) -> None:
+def test_code_reference_anchors_entry(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     plan = _plan(
         tmp_path,
         monkeypatch,
@@ -70,7 +77,9 @@ def test_code_reference_anchors_entry(tmp_path, monkeypatch) -> None:
     assert "known_limitations.md" in plan["kept_anchored"] and not plan["archive"]
 
 
-def test_pathlib_style_reference_anchors_directory(tmp_path, monkeypatch) -> None:
+def test_pathlib_style_reference_anchors_directory(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     plan = _plan(
         tmp_path,
         monkeypatch,
@@ -80,7 +89,9 @@ def test_pathlib_style_reference_anchors_directory(tmp_path, monkeypatch) -> Non
     assert "meta" in plan["kept_anchored"]
 
 
-def test_prose_in_sealed_tree_is_no_anchor_but_machine_record_is(tmp_path, monkeypatch) -> None:
+def test_prose_in_sealed_tree_is_no_anchor_but_machine_record_is(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     docs = {"docs/known_limitations.md": "x", "docs/validation_levels.md": "x"}
     others = {
         "qualification/e/VALIDATION.md": "see docs/known_limitations.md",
@@ -91,7 +102,9 @@ def test_prose_in_sealed_tree_is_no_anchor_but_machine_record_is(tmp_path, monke
     assert "validation_levels.md" in plan["kept_anchored"]
 
 
-def test_entry_document_link_anchors_but_archive_pointer_does_not(tmp_path, monkeypatch) -> None:
+def test_entry_document_link_anchors_but_archive_pointer_does_not(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     docs = {"docs/known_limitations.md": "x", "docs/validation_levels.md": "x"}
     others = {
         "README.md": "[a](docs/known_limitations.md) docs/archive/superseded/validation_levels.md"
@@ -101,7 +114,7 @@ def test_entry_document_link_anchors_but_archive_pointer_does_not(tmp_path, monk
     assert "validation_levels.md" in plan["archive"]
 
 
-def test_owner_decision_documents_are_never_archived(tmp_path, monkeypatch) -> None:
+def test_owner_decision_documents_are_never_archived() -> None:
     module = _load_classifier()
     assert module.PROTECTED_ENTRY.search("owner_decision_20261013_forge_removal")
     assert not any(
