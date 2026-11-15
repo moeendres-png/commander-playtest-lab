@@ -1,0 +1,274 @@
+{
+ "urlhash": "cjftQ9mEZobJ_S9kLyLsPg",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-07-31",
+ "price": 266,
+ "salt": 54.98290905402973,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/L_KHCpXHhkC03SH6dLiKyw?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Arboreal Grazer",
+   "quantity": 1
+  },
+  {
+   "name": "Avenger of Zendikar",
+   "quantity": 1
+  },
+  {
+   "name": "Deranged Assistant",
+   "quantity": 1
+  },
+  {
+   "name": "Endurance",
+   "quantity": 1
+  },
+  {
+   "name": "Enduring Innocence",
+   "quantity": 1
+  },
+  {
+   "name": "Fyndhorn Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Hare Apparent",
+   "quantity": 25
+  },
+  {
+   "name": "Hinterland Sanctifier",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Moonshaker Cavalry",
+   "quantity": 1
+  },
+  {
+   "name": "Reclamation Sage",
+   "quantity": 1
+  },
+  {
+   "name": "Solitude",
+   "quantity": 1
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Tetsuko Umezawa, Fugitive",
+   "quantity": 1
+  },
+  {
+   "name": "An Offer You Can't Refuse",
+   "quantity": 1
+  },
+  {
+   "name": "Annul",
+   "quantity": 1
+  },
+  {
+   "name": "Disdainful Stroke",
+   "quantity": 1
+  },
+  {
+   "name": "Mana Tithe",
+   "quantity": 1
+  },
+  {
+   "name": "Return to Nature",
+   "quantity": 1
+  },
+  {
+   "name": "Unwanted Remake",
+   "quantity": 1
+  },
+  {
+   "name": "Clarion Ultimatum",
+   "quantity": 1
+  },
+  {
+   "name": "Doubling Chant",
+   "quantity": 1
+  },
+  {
+   "name": "Fell the Mighty",
+   "quantity": 1
+  },
+  {
+   "name": "Of One Mind",
+   "quantity": 1
+  },
+  {
+   "name": "Pack Hunt",
+   "quantity": 1
+  },
+  {
+   "name": "Planar Engineering",
+   "quantity": 1
+  },
+  {
+   "name": "Preposterous Proportions",
+   "quantity": 1
+  },
+  {
+   "name": "Raise the Past",
+   "quantity": 1
+  },
+  {
+   "name": "Requisition Raid",
+   "quantity": 1
+  },
+  {
+   "name": "Shared Roots",
+   "quantity": 1
+  },
+  {
+   "name": "Diviner's Lockbox",
+   "quantity": 1
+  },
+  {
+   "name": "Library of Leng",
+   "quantity": 1
+  },
+  {
+   "name": "Skullclamp",
+   "quantity": 1
+  },
+  {
+   "name": "Thrumming Stone",
+   "quantity": 1
+  },
+  {
+   "name": "Reflections of Littjara",
+   "quantity": 1
+  },
+  {
+   "name": "Remembrance",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Chancery",
+   "quantity": 1
+  },
+  {
+   "name": "Blossoming Sands",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Dreamroot Cascade",
+   "quantity": 1
+  },
+  {
+   "name": "Escape Tunnel",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Fabled Passage",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 3
+  },
+  {
+   "name": "Fortified Village",
+   "quantity": 1
+  },
+  {
+   "name": "Grasslands",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 3
+  },
+  {
+   "name": "Meandering River",
+   "quantity": 1
+  },
+  {
+   "name": "Oakhollow Village",
+   "quantity": 1
+  },
+  {
+   "name": "Paradox Gardens",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 9
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Growth Chamber",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Guildgate",
+   "quantity": 1
+  },
+  {
+   "name": "Skycloud Expanse",
+   "quantity": 1
+  },
+  {
+   "name": "Terramorphic Expanse",
+   "quantity": 1
+  },
+  {
+   "name": "Thornwood Falls",
+   "quantity": 1
+  },
+  {
+   "name": "Thriving Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Thriving Heath",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Cove",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Expanse",
+   "quantity": 1
+  },
+  {
+   "name": "Woodland Stream",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

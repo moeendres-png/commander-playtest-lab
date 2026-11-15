@@ -1,0 +1,286 @@
+{
+ "urlhash": "chKt7CbkTWXtmdl6yXn_xA",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-07-03",
+ "price": 252,
+ "salt": 53.89419538155198,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/14252057?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Acidic Slime",
+   "quantity": 1
+  },
+  {
+   "name": "Arboreal Grazer",
+   "quantity": 1
+  },
+  {
+   "name": "Auramancer",
+   "quantity": 1
+  },
+  {
+   "name": "Beanstalk Giant",
+   "quantity": 1
+  },
+  {
+   "name": "Beast Whisperer",
+   "quantity": 1
+  },
+  {
+   "name": "Eidolon of Blossoms",
+   "quantity": 1
+  },
+  {
+   "name": "Gyre Engineer",
+   "quantity": 1
+  },
+  {
+   "name": "Laboratory Maniac",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Maraleaf Pixie",
+   "quantity": 1
+  },
+  {
+   "name": "Paradise Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Persistent Petitioners",
+   "quantity": 16
+  },
+  {
+   "name": "Scaretiller",
+   "quantity": 1
+  },
+  {
+   "name": "Shalai, Voice of Plenty",
+   "quantity": 1
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Tishana, Voice of Thunder",
+   "quantity": 1
+  },
+  {
+   "name": "Anticipate",
+   "quantity": 1
+  },
+  {
+   "name": "Emergency Powers",
+   "quantity": 1
+  },
+  {
+   "name": "Evacuation",
+   "quantity": 1
+  },
+  {
+   "name": "Growth Spiral",
+   "quantity": 1
+  },
+  {
+   "name": "Once and Future",
+   "quantity": 1
+  },
+  {
+   "name": "Opt",
+   "quantity": 1
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1
+  },
+  {
+   "name": "Bond of Flourishing",
+   "quantity": 1
+  },
+  {
+   "name": "Finale of Revelation",
+   "quantity": 1
+  },
+  {
+   "name": "Flower // Flourish",
+   "quantity": 1
+  },
+  {
+   "name": "Genesis Storm",
+   "quantity": 1
+  },
+  {
+   "name": "Kruphix's Insight",
+   "quantity": 1
+  },
+  {
+   "name": "Sprouting Renewal",
+   "quantity": 1
+  },
+  {
+   "name": "Untamed Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Windfall",
+   "quantity": 1
+  },
+  {
+   "name": "Chromatic Lantern",
+   "quantity": 1
+  },
+  {
+   "name": "Folio of Fancies",
+   "quantity": 1
+  },
+  {
+   "name": "Midnight Clock",
+   "quantity": 1
+  },
+  {
+   "name": "Riptide Replicator",
+   "quantity": 1
+  },
+  {
+   "name": "Traveler's Amulet",
+   "quantity": 1
+  },
+  {
+   "name": "Abundance",
+   "quantity": 1
+  },
+  {
+   "name": "Aluren",
+   "quantity": 1
+  },
+  {
+   "name": "Gaea's Touch",
+   "quantity": 1
+  },
+  {
+   "name": "Intruder Alarm",
+   "quantity": 1
+  },
+  {
+   "name": "Mirrormade",
+   "quantity": 1
+  },
+  {
+   "name": "Parallel Thoughts",
+   "quantity": 1
+  },
+  {
+   "name": "Psychic Corrosion",
+   "quantity": 1
+  },
+  {
+   "name": "Recycle",
+   "quantity": 1
+  },
+  {
+   "name": "Search for Azcanta",
+   "quantity": 1
+  },
+  {
+   "name": "Jace, Wielder of Mysteries",
+   "quantity": 1
+  },
+  {
+   "name": "Tamiyo, Collector of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Teferi, Hero of Dominaria",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Chancery",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Guildgate",
+   "quantity": 1
+  },
+  {
+   "name": "Blossoming Sands",
+   "quantity": 1
+  },
+  {
+   "name": "Castle Vantress",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 8
+  },
+  {
+   "name": "Gateway Plaza",
+   "quantity": 1
+  },
+  {
+   "name": "Hinterland Harbor",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 8
+  },
+  {
+   "name": "Plains",
+   "quantity": 5
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Guildgate",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Growth Chamber",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Guildgate",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Mystery",
+   "quantity": 1
+  },
+  {
+   "name": "Terramorphic Expanse",
+   "quantity": 1
+  },
+  {
+   "name": "Thornwood Falls",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Cove",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

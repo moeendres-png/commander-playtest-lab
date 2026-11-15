@@ -1,0 +1,406 @@
+{
+ "urlhash": "chsAu4PmuMQl0SfP3KZaDA",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-11-14",
+ "price": 8360,
+ "salt": 83.97548770532012,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/22146042?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Azusa, Lost but Seeking",
+   "quantity": 1
+  },
+  {
+   "name": "Badgermole Cub",
+   "quantity": 1
+  },
+  {
+   "name": "Biomancer's Familiar",
+   "quantity": 1
+  },
+  {
+   "name": "Birds of Paradise",
+   "quantity": 1
+  },
+  {
+   "name": "Bloom Tender",
+   "quantity": 1
+  },
+  {
+   "name": "Devoted Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Dour Port-Mage",
+   "quantity": 1
+  },
+  {
+   "name": "Dream Stalker",
+   "quantity": 1
+  },
+  {
+   "name": "Dryad of the Ilysian Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Eternal Witness",
+   "quantity": 1
+  },
+  {
+   "name": "Gilded Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Incubation Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Kinnan, Bonder Prodigy",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Loot, Exuberant Explorer",
+   "quantity": 1
+  },
+  {
+   "name": "Lotus Cobra",
+   "quantity": 1
+  },
+  {
+   "name": "Noble Hierarch",
+   "quantity": 1
+  },
+  {
+   "name": "Oboro Breezecaller",
+   "quantity": 1
+  },
+  {
+   "name": "Paradise Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Pia, Aether Ascetic",
+   "quantity": 1
+  },
+  {
+   "name": "Ramunap Excavator",
+   "quantity": 1
+  },
+  {
+   "name": "Ranger-Captain of Eos",
+   "quantity": 1
+  },
+  {
+   "name": "Shang-Chi, Master of Kung Fu",
+   "quantity": 1
+  },
+  {
+   "name": "Shrieking Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Simulacrum Shaper",
+   "quantity": 1
+  },
+  {
+   "name": "Springheart Nantuko",
+   "quantity": 1
+  },
+  {
+   "name": "Thrasios, Triton Hero",
+   "quantity": 1
+  },
+  {
+   "name": "Tireless Provisioner",
+   "quantity": 1
+  },
+  {
+   "name": "Traveling Chocobo",
+   "quantity": 1
+  },
+  {
+   "name": "Vizier of Remedies",
+   "quantity": 1
+  },
+  {
+   "name": "Walking Ballista",
+   "quantity": 1
+  },
+  {
+   "name": "Whitemane Lion",
+   "quantity": 1
+  },
+  {
+   "name": "Brought Back",
+   "quantity": 1
+  },
+  {
+   "name": "Congregation at Dawn",
+   "quantity": 1
+  },
+  {
+   "name": "Crop Rotation",
+   "quantity": 1
+  },
+  {
+   "name": "Heroic Intervention",
+   "quantity": 1
+  },
+  {
+   "name": "Path to Exile",
+   "quantity": 1
+  },
+  {
+   "name": "Sunder",
+   "quantity": 1
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1
+  },
+  {
+   "name": "Teferi's Protection",
+   "quantity": 1
+  },
+  {
+   "name": "Worldly Tutor",
+   "quantity": 1
+  },
+  {
+   "name": "Armageddon",
+   "quantity": 1
+  },
+  {
+   "name": "Catastrophe",
+   "quantity": 1
+  },
+  {
+   "name": "Finale of Devastation",
+   "quantity": 1
+  },
+  {
+   "name": "Green Sun's Zenith",
+   "quantity": 1
+  },
+  {
+   "name": "Life from the Loam",
+   "quantity": 1
+  },
+  {
+   "name": "Ravages of War",
+   "quantity": 1
+  },
+  {
+   "name": "Sylvan Tutor",
+   "quantity": 1
+  },
+  {
+   "name": "Chrome Mox",
+   "quantity": 1
+  },
+  {
+   "name": "Cloudstone Curio",
+   "quantity": 1
+  },
+  {
+   "name": "Crucible of Worlds",
+   "quantity": 1
+  },
+  {
+   "name": "Lotus Petal",
+   "quantity": 1
+  },
+  {
+   "name": "Mox Amber",
+   "quantity": 1
+  },
+  {
+   "name": "Mox Diamond",
+   "quantity": 1
+  },
+  {
+   "name": "Mox Opal",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Aluren",
+   "quantity": 1
+  },
+  {
+   "name": "Aura Shards",
+   "quantity": 1
+  },
+  {
+   "name": "Exploration",
+   "quantity": 1
+  },
+  {
+   "name": "Mana Breach",
+   "quantity": 1
+  },
+  {
+   "name": "Overburden",
+   "quantity": 1
+  },
+  {
+   "name": "Terra Eternal",
+   "quantity": 1
+  },
+  {
+   "name": "Training Grounds",
+   "quantity": 1
+  },
+  {
+   "name": "Arid Mesa",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Chancery",
+   "quantity": 1
+  },
+  {
+   "name": "Breeding Pool",
+   "quantity": 1
+  },
+  {
+   "name": "Dryad Arbor",
+   "quantity": 1
+  },
+  {
+   "name": "Flooded Strand",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 2
+  },
+  {
+   "name": "Gaea's Cradle",
+   "quantity": 1
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1
+  },
+  {
+   "name": "Hedge Maze",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 2
+  },
+  {
+   "name": "Lotus Field",
+   "quantity": 1
+  },
+  {
+   "name": "Lotus Vale",
+   "quantity": 1
+  },
+  {
+   "name": "Lush Portico",
+   "quantity": 1
+  },
+  {
+   "name": "Marsh Flats",
+   "quantity": 1
+  },
+  {
+   "name": "Meticulous Archive",
+   "quantity": 1
+  },
+  {
+   "name": "Minamo, School at Water's Edge",
+   "quantity": 1
+  },
+  {
+   "name": "Misty Rainforest",
+   "quantity": 1
+  },
+  {
+   "name": "Oboro, Palace in the Clouds",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 2
+  },
+  {
+   "name": "Polluted Delta",
+   "quantity": 1
+  },
+  {
+   "name": "Savannah",
+   "quantity": 1
+  },
+  {
+   "name": "Scalding Tarn",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Growth Chamber",
+   "quantity": 1
+  },
+  {
+   "name": "Spara's Headquarters",
+   "quantity": 1
+  },
+  {
+   "name": "Strip Mine",
+   "quantity": 1
+  },
+  {
+   "name": "Temple Garden",
+   "quantity": 1
+  },
+  {
+   "name": "Tropical Island",
+   "quantity": 1
+  },
+  {
+   "name": "Tundra",
+   "quantity": 1
+  },
+  {
+   "name": "Urban Retreat",
+   "quantity": 1
+  },
+  {
+   "name": "Verdant Catacombs",
+   "quantity": 1
+  },
+  {
+   "name": "Windswept Heath",
+   "quantity": 1
+  },
+  {
+   "name": "Wooded Foothills",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

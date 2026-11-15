@@ -1,0 +1,342 @@
+{
+ "urlhash": "cxcy2IWUQ6VQYbannRRyhw",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-10-08",
+ "price": 489,
+ "salt": 54.72937773959711,
+ "tags": [
+  "Keruga Companion"
+ ],
+ "source_url": "https://archidekt.com/decks/12202923?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Augur of Autumn",
+   "quantity": 1
+  },
+  {
+   "name": "Beast Whisperer",
+   "quantity": 1
+  },
+  {
+   "name": "Craterhoof Behemoth",
+   "quantity": 1
+  },
+  {
+   "name": "Disciple of Freyalise",
+   "quantity": 1
+  },
+  {
+   "name": "Eternal Witness",
+   "quantity": 1
+  },
+  {
+   "name": "Faeburrow Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Green Slime",
+   "quantity": 1
+  },
+  {
+   "name": "Helga, Skittish Seer",
+   "quantity": 1
+  },
+  {
+   "name": "Inga and Esika",
+   "quantity": 1
+  },
+  {
+   "name": "Jin-Gitaxias",
+   "quantity": 1
+  },
+  {
+   "name": "Keruga, the Macrosage",
+   "quantity": 1
+  },
+  {
+   "name": "Koma, Cosmos Serpent",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Visionary",
+   "quantity": 1
+  },
+  {
+   "name": "Moritte of the Frost",
+   "quantity": 1
+  },
+  {
+   "name": "Nissa, Resurgent Animist",
+   "quantity": 1
+  },
+  {
+   "name": "Othelm, Sigardian Outcast",
+   "quantity": 1
+  },
+  {
+   "name": "Platinum Angel",
+   "quantity": 1
+  },
+  {
+   "name": "Questing Beast",
+   "quantity": 1
+  },
+  {
+   "name": "Rampaging Baloths",
+   "quantity": 1
+  },
+  {
+   "name": "Solitude",
+   "quantity": 1
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Undermountain Adventurer",
+   "quantity": 1
+  },
+  {
+   "name": "Vizier of the Menagerie",
+   "quantity": 1
+  },
+  {
+   "name": "Woodfall Primus",
+   "quantity": 1
+  },
+  {
+   "name": "Xolatoyac, the Smiling Flood",
+   "quantity": 1
+  },
+  {
+   "name": "Yeva, Nature's Herald",
+   "quantity": 1
+  },
+  {
+   "name": "Zopandrel, Hunger Dominus",
+   "quantity": 1
+  },
+  {
+   "name": "Aetherize",
+   "quantity": 1
+  },
+  {
+   "name": "Capsize",
+   "quantity": 1
+  },
+  {
+   "name": "Crib Swap",
+   "quantity": 1
+  },
+  {
+   "name": "Flare of Fortitude",
+   "quantity": 1
+  },
+  {
+   "name": "Force of Vigor",
+   "quantity": 1
+  },
+  {
+   "name": "Khalni Ambush",
+   "quantity": 1
+  },
+  {
+   "name": "Oblation",
+   "quantity": 1
+  },
+  {
+   "name": "Plasm Capture",
+   "quantity": 1
+  },
+  {
+   "name": "Rebuild",
+   "quantity": 1
+  },
+  {
+   "name": "Return to Dust",
+   "quantity": 1
+  },
+  {
+   "name": "Rewind",
+   "quantity": 1
+  },
+  {
+   "name": "Sink into Stupor",
+   "quantity": 1
+  },
+  {
+   "name": "Aether Gale",
+   "quantity": 1
+  },
+  {
+   "name": "Bala Ged Recovery",
+   "quantity": 1
+  },
+  {
+   "name": "Cultivate",
+   "quantity": 1
+  },
+  {
+   "name": "Emeria's Call",
+   "quantity": 1
+  },
+  {
+   "name": "Harmonize",
+   "quantity": 1
+  },
+  {
+   "name": "Idyllic Tutor",
+   "quantity": 1
+  },
+  {
+   "name": "Kodama's Reach",
+   "quantity": 1
+  },
+  {
+   "name": "Search for Tomorrow",
+   "quantity": 1
+  },
+  {
+   "name": "Sevinne's Reclamation",
+   "quantity": 1
+  },
+  {
+   "name": "Time Wipe",
+   "quantity": 1
+  },
+  {
+   "name": "Wargate",
+   "quantity": 1
+  },
+  {
+   "name": "Chromatic Lantern",
+   "quantity": 1
+  },
+  {
+   "name": "Decanter of Endless Water",
+   "quantity": 1
+  },
+  {
+   "name": "Relic of Legends",
+   "quantity": 1
+  },
+  {
+   "name": "Unstable Obelisk",
+   "quantity": 1
+  },
+  {
+   "name": "Amphibian Downpour",
+   "quantity": 1
+  },
+  {
+   "name": "Cathars' Crusade",
+   "quantity": 1
+  },
+  {
+   "name": "Cowardice",
+   "quantity": 1
+  },
+  {
+   "name": "Felidar Retreat",
+   "quantity": 1
+  },
+  {
+   "name": "Garruk's Uprising",
+   "quantity": 1
+  },
+  {
+   "name": "Guardian Project",
+   "quantity": 1
+  },
+  {
+   "name": "Retreat to Coralhelm",
+   "quantity": 1
+  },
+  {
+   "name": "Zendikar's Roil",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Exotic Orchard",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 10
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1
+  },
+  {
+   "name": "Hinterland Harbor",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 7
+  },
+  {
+   "name": "Marsh Flats",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 7
+  },
+  {
+   "name": "Polluted Delta",
+   "quantity": 1
+  },
+  {
+   "name": "Rejuvenating Springs",
+   "quantity": 1
+  },
+  {
+   "name": "Scalding Tarn",
+   "quantity": 1
+  },
+  {
+   "name": "Sea of Clouds",
+   "quantity": 1
+  },
+  {
+   "name": "Spara's Headquarters",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Enlightenment",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Mystery",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Plenty",
+   "quantity": 1
+  },
+  {
+   "name": "Verdant Catacombs",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 101,
+ "parse_status": "error",
+ "parse_notes": [
+  "summe_101_statt_100"
+ ]
+}
