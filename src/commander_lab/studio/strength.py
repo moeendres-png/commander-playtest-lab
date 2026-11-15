@@ -1012,7 +1012,7 @@ def percentile_ranks(values: Mapping[str, float]) -> dict[str, float]:
 
 
 def share_scale_values(
-    values: Mapping[str, float], scale: str = DEFAULT_SHARE_SCALE
+    values: Mapping[str, float], scale: str = DEFAULT_SHARE_SCALE, log_k: float = LOG_SHARE_K
 ) -> dict[str, float]:
     """Convert share-signal values into 0..1 component scores under ``scale`` (issue #1351).
 
@@ -1040,7 +1040,7 @@ def share_scale_values(
     if highest <= 0.0:
         return {key: 0.0 for key in values}
     if scale == SCALE_LOG:
-        return log_share_scores(values, highest)
+        return log_share_scores(values, highest, log_k)
     return {key: math.sqrt(max(0.0, value) / highest) for key, value in values.items()}
 
 
@@ -1369,13 +1369,16 @@ def _groups_of(settings: StrengthSettings, context: PoolContext, card: str) -> t
 
 
 def _scale_component_values(
-    component: str, values: Mapping[str, float], settings: StrengthSettings
+    component: str,
+    values: Mapping[str, float],
+    settings: StrengthSettings,
+    log_k: float = LOG_SHARE_K,
 ) -> dict[str, float]:
     """Convert component values to 0..1 scores: share components use ``settings.share_scale``,
     direct components (the rubric) keep their 0..1 value, the other non-share components
     (synergy, combos, playgroup, layers) always use ``percentile_ranks``."""
     if component in SHARE_COMPONENTS:
-        return share_scale_values(values, settings.share_scale)
+        return share_scale_values(values, settings.share_scale, log_k)
     if component in DIRECT_COMPONENTS:
         return dict(values)
     return percentile_ranks(values)
@@ -1390,6 +1393,7 @@ def _split_scale(
     values: Mapping[str, float],
     settings: StrengthSettings,
     context: PoolContext,
+    log_k: float = LOG_SHARE_K,
 ) -> tuple[dict[str, float], dict[str, tuple[str, int, bool]]]:
     """Pool-level 0..1 scores of ``values`` and, when ``settings.separate_lands`` is on, the
     land split behind them: lands are scaled against lands and spells against spells. A group
@@ -1398,7 +1402,7 @@ def _split_scale(
     plain scaling of the whole pool."""
     if not settings.separate_lands or component in DIRECT_COMPONENTS:
         # a direct score does not depend on the other cards: nothing to split
-        return _scale_component_values(component, values, settings), {}
+        return _scale_component_values(component, values, settings, log_k), {}
     parts = (
         (GROUP_LANDS, {card: v for card, v in values.items() if _is_land(context, card)}),
         (GROUP_SPELLS, {card: v for card, v in values.items() if not _is_land(context, card)}),
@@ -1412,10 +1416,10 @@ def _split_scale(
         small = len(part) < MIN_GROUP
         if small:
             if whole is None:
-                whole = _scale_component_values(component, values, settings)
+                whole = _scale_component_values(component, values, settings, log_k)
             scaled = {card: whole[card] for card in part}
         else:
-            scaled = _scale_component_values(component, part, settings)
+            scaled = _scale_component_values(component, part, settings, log_k)
         scores.update(scaled)
         info.update({card: (name, len(part), small) for card in part})
     return scores, info
@@ -1427,6 +1431,7 @@ def _rank_component(
     component: str,
     observations: Mapping[str, Mapping[str, Observation]],
     skipped: Collection[str],
+    log_k: float = LOG_SHARE_K,
 ) -> _ComponentRanking:
     minimum = settings.minimum_denominator(component, context.universe_minimum)
     denominators = [
@@ -1478,7 +1483,7 @@ def _rank_component(
         for card, (numerator, denominator) in small.items():
             shrunk[card] = values[card] = shrunk_share(numerator, denominator, prior)
             wilson[card] = None
-    pool_ranks, land_split = _split_scale(component, values, settings, context)
+    pool_ranks, land_split = _split_scale(component, values, settings, context, log_k)
     group_ranks: dict[str, tuple[tuple[str, ...], dict[str, int], float]] = {}
     if settings.rank_group != GROUP_POOL:
         # a comparison group never mixes lands and spells while ``separate_lands`` is on
@@ -1490,7 +1495,7 @@ def _rank_component(
         found: dict[str, dict[str, tuple[int, float]]] = {}
         for (name, _land), group_values in members.items():
             if len(group_values) >= MIN_GROUP:
-                ranks = _scale_component_values(component, group_values, settings)
+                ranks = _scale_component_values(component, group_values, settings, log_k)
                 for card, rank in ranks.items():
                     found.setdefault(card, {})[name] = (len(group_values), rank)
         for card, per_group in found.items():
@@ -1578,11 +1583,14 @@ def score_pool(
     *,
     context: PoolContext | None = None,
     diagnostics: dict[str, object] | None = None,
+    log_k: float = LOG_SHARE_K,
 ) -> dict[str, CardStrength]:
     """Index and tier for every card of ``observations`` (card key -> component -> value).
 
     ``diagnostics`` (optional) is filled with ``shrinkage``: per component the empirical Bayes
     prior (mean, strength, cards) of the shares with a denominator below ``EB_MAX_DENOMINATOR``.
+    ``log_k`` is the curvature of the log share scale: always ``LOG_SHARE_K`` except for the
+    sensitivity test of the ranking check (k = 100 / 150 / 200).
 
     ``collected`` names the components that have a source for this commander at all; a
     component outside it is ``NOT_COLLECTED``, one inside it without a value for a card is
@@ -1605,7 +1613,9 @@ def score_pool(
     rankings: dict[str, _ComponentRanking] = {}
     for component in rated:
         skipped = set(unranked) | (filter_cards if component == DECK_UNIVERSE else set())
-        rankings[component] = _rank_component(settings, ctx, component, observations, skipped)
+        rankings[component] = _rank_component(
+            settings, ctx, component, observations, skipped, log_k
+        )
     # Components with a weight and usable data FOR THIS COMMANDER (collected, and at least one
     # usable value in the pool): decides the reason ``NO_SOURCE_FOR_COMMANDER`` only.
     commander_weight = {

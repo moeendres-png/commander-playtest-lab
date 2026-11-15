@@ -8,6 +8,7 @@ bracket 5). Every number here is invented.
 from __future__ import annotations
 
 import math
+from pathlib import Path
 
 import pytest
 
@@ -60,8 +61,8 @@ def _theme(store: StudioStore, cohort: str, rows: dict[str, tuple[int, int]]) ->
     )
 
 
-def _store(*, corpus: bool = True) -> StudioStore:
-    store = make_store()
+def _store(*, corpus: bool = True, folder: Path | None = None) -> StudioStore:
+    store = make_store(folder)
     add_card(store, CMD, type_line="Legendary Creature — Test")
     for name in NAMES:
         add_card(store, name)

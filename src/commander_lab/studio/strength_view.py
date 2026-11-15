@@ -741,6 +741,8 @@ class Prepared:
     layer_result: layers.LayerResult | None
     weighted_layers: list[str]
     corpus: corpus_signals.CorpusInfo
+    corpus_counts: corpus_signals.CorpusCounts | None
+    edhtop16: dict[str, Observation]
 
 
 def prepare(
@@ -949,6 +951,8 @@ def prepare(
         layer_result,
         weighted,
         corpus,
+        counts,
+        top16,
     )
 
 
