@@ -84,6 +84,9 @@ class LabelsBody(BaseModel):
 class DraftBody(BaseModel):
     cards: list[CardEntry]
     base_revision_id: str | None = None
+    expected_updated_at: str | None = None
+    expected_base_revision_id: str | None = None
+    check_conflict: bool = False
 
 
 class FavoriteBody(BaseModel):
@@ -474,7 +477,7 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         finally:
             store.close()
 
-    @app.get("/api/strength/profiles/{name}")
+    @app.get("/api/strength/profiles/{name:path}")
     def get_strength_profile(
         name: str = PathParam(min_length=1, max_length=80),
     ) -> dict[str, object]:
@@ -486,7 +489,7 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         finally:
             store.close()
 
-    @app.put("/api/strength/profiles/{name}")
+    @app.put("/api/strength/profiles/{name:path}")
     def save_strength_profile(
         body: StrengthProfileBody, name: str = PathParam(min_length=1, max_length=80)
     ) -> dict[str, object]:
@@ -501,7 +504,7 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         finally:
             store.close()
 
-    @app.delete("/api/strength/profiles/{name}")
+    @app.delete("/api/strength/profiles/{name:path}")
     def delete_strength_profile(
         name: str = PathParam(min_length=1, max_length=80),
     ) -> dict[str, object]:
@@ -562,7 +565,22 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         finally:
             store.close()
 
-    @app.put("/api/universe/profiles/{name}")
+    @app.get("/api/universe/profiles/{name:path}/summary")
+    def universe_profile_summary(
+        name: str = PathParam(min_length=1, max_length=80),
+        commander: str = Query(min_length=1, max_length=200),
+    ) -> dict[str, object]:
+        store = open_store()
+        try:
+            return dict(universe_view.profile_summary(store, name, commander_names=[commander]))
+        except ValueError as error:
+            raise HTTPException(422, str(error)) from error
+        except KeyError as error:
+            raise HTTPException(404, "unknown universe profile") from error
+        finally:
+            store.close()
+
+    @app.put("/api/universe/profiles/{name:path}")
     def save_universe_profile(
         body: UniverseBody,
         name: str = PathParam(min_length=1, max_length=80),
@@ -583,7 +601,7 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         finally:
             store.close()
 
-    @app.delete("/api/universe/profiles/{name}")
+    @app.delete("/api/universe/profiles/{name:path}")
     def delete_universe_profile(
         name: str = PathParam(min_length=1, max_length=80),
     ) -> dict[str, object]:
@@ -592,20 +610,6 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
             universe.delete_profile(store, name)
             cache.invalidate()
             return {"deleted": name}
-        except KeyError as error:
-            raise HTTPException(404, "unknown universe profile") from error
-        finally:
-            store.close()
-
-    @app.get("/api/universe/profiles/{name}/summary")
-    def universe_profile_summary(
-        name: str, commander: str = Query(min_length=1, max_length=200)
-    ) -> dict[str, object]:
-        store = open_store()
-        try:
-            return dict(universe_view.profile_summary(store, name, commander_names=[commander]))
-        except ValueError as error:
-            raise HTTPException(422, str(error)) from error
         except KeyError as error:
             raise HTTPException(404, "unknown universe profile") from error
         finally:
@@ -977,29 +981,12 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         finally:
             store.close()
 
-    @app.get("/api/decks/{deck_id}/branches/{branch}/draft")
-    def get_draft(deck_id: str, branch: str) -> dict[str, object]:
-        store = open_store()
-        try:
-            return {"draft": builder.read_draft(store, deck_id, branch)}
-        finally:
-            store.close()
-
-    @app.put("/api/decks/{deck_id}/branches/{branch}/draft")
-    def put_draft(deck_id: str, branch: str, body: DraftBody) -> dict[str, object]:
-        store = open_store()
-        try:
-            if not store.connection.execute(
-                "SELECT 1 FROM deck WHERE deck_id = ?", (deck_id,)
-            ).fetchone():
-                raise HTTPException(404, "unknown deck")
-            builder.write_draft(store, deck_id, branch, _cards(body.cards), body.base_revision_id)
-            return {"saved": True}
-        finally:
-            store.close()
-
-    @app.post("/api/decks/{deck_id}/branches/{branch}/draft/card")
-    def change_draft_card(deck_id: str, branch: str, body: DraftCardBody) -> dict[str, object]:
+    @app.post("/api/decks/{deck_id}/branches/{branch:path}/draft/card")
+    def change_draft_card(
+        deck_id: str,
+        body: DraftCardBody,
+        branch: str = PathParam(min_length=1, max_length=60),
+    ) -> dict[str, object]:
         """One copy of a card into the working list of a variant, or out of it (the tier
         list's "ins Deck"). Writes a draft, never a saved state."""
         store = open_store()
@@ -1012,8 +999,48 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         finally:
             store.close()
 
-    @app.delete("/api/decks/{deck_id}/branches/{branch}/draft")
-    def delete_draft(deck_id: str, branch: str) -> dict[str, object]:
+    @app.get("/api/decks/{deck_id}/branches/{branch:path}/draft")
+    def get_draft(
+        deck_id: str, branch: str = PathParam(min_length=1, max_length=60)
+    ) -> dict[str, object]:
+        store = open_store()
+        try:
+            return {"draft": builder.read_draft(store, deck_id, branch)}
+        finally:
+            store.close()
+
+    @app.put("/api/decks/{deck_id}/branches/{branch:path}/draft")
+    def put_draft(
+        deck_id: str,
+        body: DraftBody,
+        branch: str = PathParam(min_length=1, max_length=60),
+    ) -> dict[str, object]:
+        store = open_store()
+        try:
+            if not store.connection.execute(
+                "SELECT 1 FROM deck WHERE deck_id = ?", (deck_id,)
+            ).fetchone():
+                raise HTTPException(404, "unknown deck")
+            updated_at = builder.write_draft(
+                store,
+                deck_id,
+                branch,
+                _cards(body.cards),
+                body.base_revision_id,
+                expected_updated_at=body.expected_updated_at,
+                expected_base_revision_id=body.expected_base_revision_id,
+                check_conflict=body.check_conflict,
+            )
+            return {"saved": True, "updated_at": updated_at}
+        except builder.DraftConflict as error:
+            raise HTTPException(409, str(error)) from error
+        finally:
+            store.close()
+
+    @app.delete("/api/decks/{deck_id}/branches/{branch:path}/draft")
+    def delete_draft(
+        deck_id: str, branch: str = PathParam(min_length=1, max_length=60)
+    ) -> dict[str, object]:
         store = open_store()
         try:
             builder.drop_draft(store, deck_id, branch)

@@ -321,6 +321,7 @@
     "tests/unit/test_studio_import_all_corpus_link.py": 0.1,
     "tests/unit/test_studio_import_all_layers.py": 1.5,
     "tests/unit/test_studio_import_from_repo.py": 2.5,
+    "tests/unit/test_studio_issue_1307.py": 1.0,
     "tests/unit/test_studio_labels.py": 1.5,
     "tests/unit/test_studio_land_advisor.py": 0.3,
     "tests/unit/test_studio_layer_weight_zero.py": 0.4,
