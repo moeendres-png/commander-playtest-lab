@@ -244,9 +244,6 @@ def build_technical_truth(root: str | Path) -> dict[str, Any]:
             "priority_context_surface_present": (
                 root_path / "src/commander_lab/project_context.py"
             ).is_file(),
-            "exact_result_cache_surface_present": (
-                root_path / "src/commander_lab/storage/result_cache.py"
-            ).is_file(),
         },
         "external_engine_status": {
             "provider_decision": provider_status,

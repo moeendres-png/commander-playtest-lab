@@ -52,4 +52,4 @@ The 36-seed reference `REFERENCE_36_SEEDS_2026-10-29.md` is stale for the pilot 
 change (the staleness check says so); a fresh twin-run reference is a separate step.
 
 The fixture `real_pod_v1` is re-recorded (2 seeds, the new pilot), and the counts in
-`test_measure_commander_visibility.py` follow it.
+`test_measure_commander_visibility.py` (script and test removed, see git history) followed it.

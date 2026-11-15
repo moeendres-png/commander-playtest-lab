@@ -4,7 +4,6 @@ import json
 from pathlib import Path
 
 from commander_lab.decision_statistics import holm_adjust, paired_randomization_p_value
-from commander_lab.models import ObjectiveVector
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -21,22 +20,6 @@ def test_p5_holdout_is_sealed_and_untouched() -> None:
     assert payload["status"] == "sealed_untouched"
     assert payload["outcomes_evaluated_at_seal"] is False
     assert payload["scenario_count"] == 24
-
-
-def test_robust_objective_has_exact_required_axes() -> None:
-    fields = set(ObjectiveVector.model_fields)
-    assert fields == {
-        "central_performance",
-        "worst_quartile",
-        "commander_independence",
-        "rebuild",
-        "finish_reliability",
-        "matchup_robustness",
-        "pod_size_robustness",
-        "seat_robustness",
-        "opponent_uncertainty",
-        "physical_allocation",
-    }
 
 
 def test_paired_randomization_and_holm_are_deterministic() -> None:

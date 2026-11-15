@@ -3,36 +3,9 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-import pytest
-from pydantic import ValidationError
-
 from commander_lab.engine.rules.tactical import TacticalRuleOracle
-from commander_lab.models import (
-    PilotRule,
-    PrimerEvidenceType,
-    PrimerRuleStatus,
-)
 
 ROOT = Path(__file__).resolve().parents[2]
-
-
-def _rules(path: str) -> tuple[PilotRule, ...]:
-    payload = json.loads((ROOT / path).read_text(encoding="utf-8"))
-    return tuple(PilotRule.model_validate(row) for row in payload["rules"])
-
-
-def test_inferred_rule_cannot_be_activated_without_manual_approval() -> None:
-    row = _rules("data/primer_rules/rules/automatic_candidates.json")[0].model_dump(mode="json")
-    row["status"] = "active"
-    with pytest.raises(ValidationError, match="manual approval"):
-        PilotRule.model_validate(row)
-
-
-def test_automatic_extraction_remains_disabled() -> None:
-    rules = _rules("data/primer_rules/rules/automatic_candidates.json")
-    assert len(rules) == 8
-    assert all(rule.status == PrimerRuleStatus.NEEDS_REVIEW for rule in rules)
-    assert all(rule.evidence_type == PrimerEvidenceType.PRIMER_INFERRED for rule in rules)
 
 
 def test_tactical_oracle_semantics_used_by_curated_rules() -> None:

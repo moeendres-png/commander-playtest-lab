@@ -84,7 +84,7 @@ About 100 files. Referenced by CI workflows (`.github/workflows/`, 24 files) or 
 | `claude_handoff.py` | Regenerates `docs/claude/state/HANDOFF.md` (engine pin and newest sealed epoch from `config/rules_engines.json`, open lanes, heads) |
 
 Likely historical (not referenced by workflows; guess from names): `run_external_b3/b4*_regression.py`,
-`run_j_p4_*`, `run_j_p5_*`, `run_j_p6_*`, `run_phase8_validation.py`. Note some `run_external_b4*`
+`run_j_p4_*`, `run_j_p5_*`, `run_j_p6_*`, `run_phase8_validation.py` (removed). Note some `run_external_b4*`
 are referenced by `external-engine-integration.yml`; verify before removing anything.
 
 ## Other top-level directories
