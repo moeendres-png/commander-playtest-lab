@@ -5,7 +5,6 @@ from pathlib import Path
 
 import pytest
 
-from commander_lab.candidate_workflow.screening import CandidateScreener
 from commander_lab.canonical_features import (
     CanonicalFeatureError,
     load_canonical_feature_annotations,
@@ -237,7 +236,7 @@ def test_feature_projection_is_deck_scoped_and_prefix_guarded(tmp_path: Path) ->
         load_canonical_feature_annotations(tmp_path, deck_id="fixture/alpha", registry=registry)
 
 
-def test_candidate_profiles_and_screening_do_not_leak_between_decks(tmp_path: Path) -> None:
+def test_candidate_profiles_do_not_leak_between_decks(tmp_path: Path) -> None:
     tracked = _fixture_project(tmp_path)
     before = {path: path.read_bytes() for path in tracked}
 
@@ -257,11 +256,6 @@ def test_candidate_profiles_and_screening_do_not_leak_between_decks(tmp_path: Pa
     assert [row.card.oracle_name for row in beta_profiles] == ["Blue Denial"]
     assert alpha_profiles[0].card.package_ids == frozenset({"package:alpha:draw"})
     assert beta_profiles[0].card.package_ids == frozenset({"package:beta:counter"})
-
-    alpha_screen = CandidateScreener(tmp_path, service=object()).screen_pool("fixture/alpha")
-    beta_screen = CandidateScreener(tmp_path, service=object()).screen_pool("fixture/beta")
-    assert [row["oracle_name"] for row in alpha_screen["rows"]] == ["White Insight"]
-    assert [row["oracle_name"] for row in beta_screen["rows"]] == ["Blue Denial"]
 
     after = {path: path.read_bytes() for path in tracked}
     assert before == after

@@ -1,5 +1,3 @@
-from pathlib import Path
-
 import pytest
 
 from commander_lab.models import (
@@ -11,7 +9,6 @@ from commander_lab.models import (
     OpponentVariant,
     VariantWeight,
 )
-from commander_lab.opponent_ensembles import OpponentEnsembleStore
 
 
 def v(vid="v", known=(), assumed=(), weight=None, colors=frozenset({"U"})):
@@ -77,22 +74,6 @@ def test_observed_constraint_enforced():
         )
 
 
-def test_seed_ensembles_unweighted_and_no_confirmed_assumptions(repo_root: Path):
-    s = OpponentEnsembleStore(repo_root)
-    ens = s.list()
-    assert len(ens) == 3
-    assert all(e.weight_mode == EnsembleWeightMode.UNWEIGHTED for e in ens)
-    assert all(
-        not any(
-            c.status == ObservationStatus.DIRECTLY_OBSERVED
-            for v in e.variants
-            for c in v.assumed_cards
-        )
-        for e in ens
-    )
-    assert all(not e.automatic_profile_overwrite for e in ens)
-
-
 def test_equal_and_worst_case_modes_need_no_fake_percentages():
     for mode in (EnsembleWeightMode.EQUAL, EnsembleWeightMode.WORST_CASE):
         ensemble = OpponentEnsemble(
@@ -141,30 +122,3 @@ def test_observed_absence_rejects_assumed_card():
             variants=[v("a", assumed=(assumed,))],
             observed_constraints=(constraint,),
         )
-
-
-def test_ensemble_versioning_retains_old_variant_set(tmp_path: Path):
-    store = OpponentEnsembleStore(tmp_path)
-    original = OpponentEnsemble(
-        ensemble_id="versioned-ensemble-v1",
-        name="e",
-        commander="C",
-        commander_color_identity=frozenset({"U"}),
-        variants=[v("a")],
-    )
-    store.save(original)
-    updated = store.add_variant("versioned-ensemble-v1", v("b"), "versioned-ensemble-v2")
-    assert updated.version == 2
-    assert updated.supersedes_ensemble_id == "versioned-ensemble-v1"
-    assert [variant.variant_id for variant in store.load("versioned-ensemble-v1").variants] == ["a"]
-    assert [variant.variant_id for variant in updated.variants] == ["a", "b"]
-
-
-def test_seed_reports_disclose_uncertainty(repo_root: Path):
-    store = OpponentEnsembleStore(repo_root)
-    report = store.report("cosmic-spiderman-ensemble-v1")
-    assert "Synthetic:" in report
-    assert "Known cards:" in report
-    assert "Assumed cards:" in report
-    assert "Roles:" in report
-    assert "Sources:" in report

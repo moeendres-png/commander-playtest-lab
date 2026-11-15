@@ -5,8 +5,6 @@ import tomllib
 from pathlib import Path
 
 from commander_lab import __version__
-from commander_lab.models import MatchupBatchInput, ToolStatus
-from commander_lab.tools.service import CommanderToolService
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -34,29 +32,6 @@ def test_j_p6_baseline_is_bound_to_final_j_p5_main() -> None:
     assert freeze["p5_holdout_evaluation_count"] == 1
     assert freeze["p5_post_holdout_tuning"] is False
     assert policy["holdout_policy"].startswith("P4 and P5 consumed holdouts are regression-only")
-
-
-def test_fixed_seed_structural_result_is_deterministic() -> None:
-    service = CommanderToolService(ROOT)
-    request = MatchupBatchInput(
-        deck_ids=(
-            "rogshai/current",
-            "opponent/morcant-elves",
-            "opponent/doom-prevails-precon",
-            "opponent/cosmic-spiderman-midbudget",
-        ),
-        iterations=2,
-        workers=1,
-        seed=20260811,
-    )
-    first = service.run_matchup_batch(request)
-    second = service.run_matchup_batch(request)
-    assert first.status == second.status == ToolStatus.COMPLETED
-    first_result = dict(first.result)
-    second_result = dict(second.result)
-    first_result.pop("result_path", None)
-    second_result.pop("result_path", None)
-    assert first_result == second_result
 
 
 def test_release_truth_includes_real_p3_feasibility_evidence() -> None:

@@ -244,20 +244,8 @@ def build_technical_truth(root: str | Path) -> dict[str, Any]:
             "priority_context_surface_present": (
                 root_path / "src/commander_lab/project_context.py"
             ).is_file(),
-            "priority_workflow_surface_present": (
-                root_path / "src/commander_lab/priority_workflows.py"
-            ).is_file(),
             "exact_result_cache_surface_present": (
                 root_path / "src/commander_lab/storage/result_cache.py"
-            ).is_file(),
-            "model_informativeness_gate_present": (
-                root_path / "src/commander_lab/model_informativeness.py"
-            ).is_file(),
-            "workflow_session_present": (
-                root_path / "src/commander_lab/workflow_session.py"
-            ).is_file(),
-            "public_high_level_workflow_surface_present": (
-                root_path / "src/commander_lab/tools/registry.py"
             ).is_file(),
         },
         "external_engine_status": {

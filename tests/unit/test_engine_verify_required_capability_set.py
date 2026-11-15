@@ -12,7 +12,7 @@ health, and each is bound to that one authority by a different mechanism:
   ``current_runtime.required_missing_capabilities`` field and hard-codes no capability name of its
   own, so its required set IS the derived set by construction. H4 keeps expecting
   ``engine-verify=degraded`` while that runtime list is non-empty.
-* ``EngineProcessManager.healthcheck`` -- the code behind ``commander_lab.cli.app engine-verify``
+* ``EngineProcessManager.healthcheck`` -- the code behind ``commander-lab engine-verify``
   -- requires ``tuple(REQUIRED_CAPABILITIES)`` from the handshake (``EngineCapabilityHandshake``,
   which carries every one of the 11 flags). Until #691 was closed it used its own six-flag tuple,
   a strict subset missing five flags; that tuple is gone, and this module goes red if any literal

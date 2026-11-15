@@ -4,14 +4,23 @@ import json
 from pathlib import Path
 
 from commander_lab.engine.structural.project import load_project_structural_decks
-from commander_lab.importers.opponents import OpponentProfileImporter
+from commander_lab.models import OpponentProfile
 
 ROOT = Path(__file__).resolve().parents[2]
 
 
+def _import_profiles(path: Path) -> list[OpponentProfile]:
+    payload = json.loads(path.read_text(encoding="utf-8-sig"))
+    if isinstance(payload, dict) and "profiles" in payload:
+        payload = payload["profiles"]
+    if isinstance(payload, dict):
+        payload = [payload]
+    return [OpponentProfile.model_validate(item) for item in payload]
+
+
 def test_hosts_of_mordor_official_precon_imports_as_exact_100() -> None:
     path = ROOT / "data/opponents/hosts_of_mordor_precon.json"
-    profiles = OpponentProfileImporter().import_file(path)
+    profiles = _import_profiles(path)
 
     assert len(profiles) == 1
     profile = profiles[0]

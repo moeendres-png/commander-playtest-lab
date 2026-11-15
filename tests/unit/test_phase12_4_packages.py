@@ -1,41 +1,15 @@
 from pathlib import Path
 
-import pytest
-
 from commander_lab.models import (
     ArchetypeName,
     ExtractionMethod,
     FormatBand,
-    PackageAblationInput,
     PackageDefinition,
     PackageRegistry,
     PackageStatus,
 )
-from commander_lab.packages import ArchetypePackageExtractor, PackageExtractionError
-from commander_lab.tools import CommanderToolService, ToolRegistry
 
 ROOT = Path(__file__).resolve().parents[2]
-
-
-def extractor() -> ArchetypePackageExtractor:
-    return ArchetypePackageExtractor(ROOT)
-
-
-def test_archetype_weights_are_multi_axis_and_normalized() -> None:
-    for deck_id in ("rogshai/current",):
-        profile = extractor().extract_archetypes(deck_id)
-        assert len(profile.weights) >= 4
-        assert sum(item.weight for item in profile.weights) == pytest.approx(1.0)
-        assert profile.automatic_deck_application is False
-
-
-def test_curated_and_machine_extracted_statuses_are_separate() -> None:
-    result = extractor().packages_for_deck("rogshai/current")
-    assert result["curated_packages"]
-    assert all(item["status"] in {"curated", "validated"} for item in result["curated_packages"])
-    assert all(item["status"] == "machine_extracted" for item in result["machine_candidates"])
-    assert result["machine_candidates_are_confirmed"] is False
-    assert result["automatic_deck_application"] is False
 
 
 def test_identical_card_can_have_different_roles_in_distinct_packages() -> None:
@@ -75,135 +49,6 @@ def test_identical_card_can_have_different_roles_in_distinct_packages() -> None:
     registry = PackageRegistry(generated_at="2026-08-06", packages=(a, b))
     assert registry.latest("test-protection").enablers == (shared,)
     assert registry.latest("test-finisher").finishers == (shared,)
-
-
-def test_incomplete_package_and_minimum_density_are_reported() -> None:
-    result = extractor().evaluate("rogshai/current", "rogshai-protection-counter")
-    assert result.minimum_density >= 1
-    assert isinstance(result.minimum_density_met, bool)
-    assert result.package_completeness <= 1.0
-    assert result.warnings  # sample and/or deck-scope warning remains explicit
-
-
-def test_redundant_payoffs_are_counted_without_isolated_card_claim() -> None:
-    result = extractor().evaluate("rogshai/current", "rogshai-commander-damage")
-    assert result.redundancy_present >= 2
-    assert result.redundancy_met is True
-    assert "Ishai, Ojutai Dragonspeaker" in result.present_cards
-
-
-def test_false_cooccurrence_never_becomes_curated() -> None:
-    result = extractor().packages_for_deck("rogshai/current")
-    assert result["machine_candidates"] == []
-    assert result["machine_rejections"]
-    assert all(row["sample_size"] < 3 for row in result["machine_rejections"])
-    assert all("same-format" in row["reason"] for row in result["machine_rejections"])
-
-
-def test_package_version_comparison_is_explicit() -> None:
-    comparison = extractor().compare_versions("korvold-land-sacrifice-recursion", "1.0.0", "1.1.0")
-    assert comparison.added_core_cards == ("Aftermath Analyst",)
-    assert comparison.minimum_density_delta == 1
-
-
-def test_deck_version_mismatch_is_warned() -> None:
-    x = extractor()
-    original = x.decks["rogshai/current"]
-    x.decks["rogshai/current"] = original.model_copy(update={"deck_hash": "0" * 64})
-    result = x.evaluate("rogshai/current", "rogshai-protection-counter")
-    assert "deck version is outside curated supported_deck_hashes" in result.warnings
-
-
-def test_current_rogshai_packages_support_current_deck_hash() -> None:
-    x = extractor()
-    current_hash = x.decks["rogshai/current"].deck_hash
-    package_ids = {
-        package.package_id
-        for package in x.registry.packages
-        if package.package_id.startswith("rogshai-")
-    }
-
-    assert package_ids
-    for package_id in package_ids:
-        package = x.registry.latest(package_id)
-        assert current_hash in package.supported_deck_hashes
-        result = x.evaluate("rogshai/current", package_id)
-        assert "deck version is outside curated supported_deck_hashes" not in result.warnings
-
-
-def test_korvold_and_rogshai_packages_cannot_mix() -> None:
-    with pytest.raises(PackageExtractionError, match="commander mismatch"):
-        extractor().evaluate("rogshai/current", "korvold-independent-finishers")
-
-
-def test_orphaned_support_and_payoff_without_enabler_are_detected() -> None:
-    x = extractor()
-    package = PackageDefinition(
-        package_id="orphan-test",
-        version="1.0.0",
-        name="Orphan test",
-        commander="Ishai, Ojutai Dragonspeaker / Rograkh, Son of Rohgahh",
-        archetype=ArchetypeName.CONTROL,
-        core_cards=("Counterspell",),
-        support_cards=("Preordain",),
-        optional_cards=("Nonexistent Payoff", "Nonexistent Enabler"),
-        minimum_density=1,
-        redundancy=1,
-        enablers=("Nonexistent Enabler",),
-        payoffs=("Nonexistent Payoff",),
-        source_ids=("test",),
-        confidence=0.5,
-        format_band=FormatBand.LOCAL_META,
-        status=PackageStatus.CURATED,
-        extraction_methods=(ExtractionMethod.MANUAL_CURRATION,),
-        supported_deck_hashes=(x.decks["rogshai/current"].deck_hash,),
-    )
-    x.registry = PackageRegistry(generated_at="2026-08-06", packages=(package,))
-    result = x.detect_orphans("rogshai/current")
-    assert result["orphaned_support_cards"] == ["Preordain"]
-    assert result["automatic_deck_application"] is False
-
-
-def test_existing_package_ablation_tool_accepts_registry_package_id() -> None:
-    request = PackageAblationInput(
-        deck_id="rogshai/current",
-        package_id="rogshai-protection-counter",
-        iterations=1,
-        seed=20260806,
-        max_turns=8,
-    )
-    result = CommanderToolService(ROOT).run_package_ablation(request)
-    assert result.status.value == "completed"
-    assert result.result["package_id"] == "rogshai-protection-counter"
-    assert result.result["automatic_deck_application"] is False
-
-
-def test_all_package_tools_are_invokable() -> None:
-    registry = ToolRegistry(CommanderToolService(ROOT), surface="expert")
-    archetypes = registry.invoke("extract_archetypes", {"deck_id": "rogshai/current"})
-    packages = registry.invoke("extract_packages", {"deck_id": "rogshai/current"})
-    density = registry.invoke(
-        "evaluate_package_density",
-        {"deck_id": "rogshai/current", "package_id": "rogshai-combat-draw"},
-    )
-    inspect = registry.invoke("inspect_package", {"package_id": "rogshai-combat-draw"})
-    compare = registry.invoke(
-        "compare_package_versions",
-        {
-            "package_id": "korvold-land-sacrifice-recursion",
-            "older_version": "1.0.0",
-            "newer_version": "1.1.0",
-        },
-    )
-    orphans = registry.invoke("detect_orphaned_cards", {"deck_id": "rogshai/current"})
-    report = registry.invoke(
-        "generate_package_report",
-        {"deck_id": "rogshai/current", "output_name": "phase12_4_test_report.md"},
-    )
-    assert all(
-        item.status.value == "completed"
-        for item in (archetypes, packages, density, inspect, compare, orphans, report)
-    )
 
 
 def test_package_membership_is_attached_to_structural_cards() -> None:
@@ -267,19 +112,3 @@ def test_package_membership_influences_specialized_pilot_score() -> None:
         pilot.evaluate_action(state, with_package).total_utility
         > pilot.evaluate_action(state, without).total_utility
     )
-
-
-def test_deck_inspection_and_meta_comparison_include_package_diagnostics() -> None:
-    from commander_lab.models import CompareDeckToMetaInput, InspectDeckInput
-
-    service = CommanderToolService(ROOT)
-    inspect = service.inspect_deck(InspectDeckInput(deck_id="rogshai/current"))
-    assert inspect.result["package_diagnostics"]["automatic_deck_application"] is False
-    compare = service.compare_deck_to_meta(
-        CompareDeckToMetaInput(
-            deck_id="rogshai/current",
-            commander="Ishai, Ojutai Dragonspeaker / Rograkh, Son of Rohgahh",
-        )
-    )
-    assert "local_package_evaluations" in compare.result
-    assert compare.result["automatic_deck_application"] is False

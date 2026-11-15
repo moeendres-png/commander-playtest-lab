@@ -180,14 +180,11 @@ CI splits the suite in two: `ci.yml` runs everything except `tests/qualification
 Skipping the hash-locked install produces failures that are **environmental, not product
 defects**:
 
-- `tests/integration/test_phase5_server.py` and `tests/unit/test_phase5_openai_adapter.py`
-  fail to **collect** when `httpx2` and `pytest-asyncio` (dev extras) are absent, and
-  `test_phase10_acceptance.py` then reports `failed` instead of `passed_with_limitations`.
 - Tests that spawn a child interpreter rely on the `subprocess_env` fixture in
   `tests/conftest.py`, because `pythonpath = ["src"]` applies to the pytest process only.
 
 A full run writes only `.pytest_cache/`, which is gitignored, so running the suite does not
-make canonical inputs look stale to `src/commander_lab/tools/service.py`.
+leave the tracked tree dirty.
 
 ### Bridge and a real XMage game
 

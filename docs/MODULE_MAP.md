@@ -38,26 +38,15 @@ Churn = number of file touches since 2026-09-01 (a rough activity signal only).
 | `storage/` | Atomic JSON/DB stores, hashing, run identity and integrity, result cache | active |
 | `repositories/` | Read-only repositories over canonical project data | active |
 | `cards/` | Card catalog and normalization | active |
-| `importers/` | Deck/collection importers (CSV, XLSX, plaintext, Google Drive, opponents) | active |
-| `primer/` | Primer-to-pilot compiler | active |
 | `agents/` | Card knowledge, pilots, ensembles, guardrails, tracing, orchestration | active (guess: part is legacy demo/OpenAI workflow) |
 | `engine/` | Engine boundary: action validation, process manager, runtime evidence, `structural/` model, `rules/` bridge to the external rules engine (XMage) incl. full-game drivers | active (churn 127, most active) |
-| `whole_deck/` | Whole-deck lab: campaigns, decision authority, knowledge quality, mana, enrichment (60 files) | active (churn 125) |
-| `mulligan/` | Mulligan lab and canonical mulligan logic | active |
-| `optimization/` | Constraints, experiments, search, `jp5` | active (guess: `jp5` is phase-specific) |
 | `candidates/` | External complete-deck candidate contracts and lossless gameplay handoff | active |
-| `tools/` | Tool/service layer (registry, service, whole-deck prepare/run, candidate snapshots); `*_v120` files are versioned variants | active |
-| `api/`, `mcp/` | Tool server and MCP server surfaces | active (guess, small) |
 | `semantic_replay/` | Engine-neutral semantic replay tape contract | qual / active |
 | `evals/` | Evals: golden, differential, invariants, agent eval | qual |
 | `audit/` | Invariant audit runner/runtime | qual |
 | `qualification/current_boundary/` | Current-boundary qualification: bridge launcher, game driver, midgame rows, replay twins, freeze record, knowledge projection | qual (churn 85) |
-| `meta/`, `opponent_ensembles/` | Meta and opponent-ensemble stores | active (small) |
-| `features/`, `analysis/`, `reporting/`, `observability/`, `provenance/`, `packages/` | Support: replay debugger/scenario editor, validation analysis, reporting helpers, local tracing, provenance graph, package extraction | active (guess, small) |
+| `features/`, `reporting/`, `observability/` | Support: replay debugger/scenario editor, reporting helpers, local tracing | active (guess, small) |
 | `acceptance/` | Phase 10 acceptance | hist (guess) |
-| `decision/` | Decision-support modules: `bundle`, `context`, `information`, `quality` | active |
-| `candidate_workflow/` | Candidate evaluation workflow: `screening`, `evaluation`, `cut_frontier`, `advancement` | active |
-| `identity/` | `variant` and `workflow` identity helpers | active |
 | `studio/` | Commander Studio (`docs/STUDIO_DECKBUILDER.md`): SQLite store in the Owner data folder (never in the Git tree), importers, public card data, immutable deck revisions, data check, deck builder read models, the local web application (`web.py`, `static/`), and game logs with the spectator page for simulated games (`games.py`, `play.py`, `launch.py`, `docs/STUDIO_GAME_VIEWER.md`) | active |
 | `rogshai/` | Rogshai MVP experiment: `first_run_preparation`, `experiments`, `mvp_acceptance` | qual / hist (guess) |
 
@@ -65,20 +54,15 @@ Moved modules keep a shim at their old path (`commander_lab.decision_bundle`, `c
 `variant_identity`, `rogshai_mvp_acceptance`, ... ) that aliases the new module object, so old imports,
 monkeypatching and pickles keep working (`tests/unit/test_moved_module_aliases.py`). New code imports
 the new paths. Modules deliberately left at top level because their file path is hashed or read by
-path (`model_resolution_software_identity` scope, `decision_statistics` in `docs/J_P5_DEVELOPMENT_FREEZE.json`,
-`robustness` in the first-option ratchet, `technical_truth` presence checks of `project_context`,
-`priority_workflows`, `adaptive_budget`, `model_informativeness`, `workflow_session`) must not move.
+path (`technical_truth` presence checks of `project_context`) must not move.
 
 Remaining top-level modules (about 40 `*.py` in `src/commander_lab/`, incl. shims), grouped by name:
 
-- Optimizer workflow: `optimizer_cli`, `optimizer_v2_cli`, `adaptive_budget`, `priority_workflows`,
-  `workflow_session`.
 - Decision quality and statistics: `decision_statistics`, `canonical_features`, `semantic_*`,
-  `tactical_evidence`, `counterfactual`, `robustness`, `model_*`, `opponent_uncertainty`.
-- Qualification / freeze: `meta_qualification`, `freeze_readiness`, `technical_truth`,
-  `fresh_rebuild` (the Rogshai experiment modules live in `rogshai/`).
-- Data: `deck_registry`, `commander_spellbook`, `mana_analysis`,
-  `pod_scheduling*`, `playstyle`, `project_context`, `diagnostics`.
+  `tactical_evidence`, `model_*`, `opponent_uncertainty`.
+- Qualification / freeze: `meta_qualification`, `freeze_readiness`, `technical_truth`
+  (the Rogshai experiment modules live in `rogshai/`).
+- Data: `deck_registry`, `commander_spellbook`, `mana_analysis`, `project_context`.
 
 ## Active scripts in `scripts/`
 

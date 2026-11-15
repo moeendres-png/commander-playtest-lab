@@ -1,13 +1,24 @@
 from __future__ import annotations
 
+import json
 from collections import Counter
 from pathlib import Path
 
 from commander_lab.engine.structural.project import load_project_structural_decks
-from commander_lab.importers.opponents import OpponentProfileImporter
+from commander_lab.models import OpponentProfile
 from commander_lab.repositories.opponents import CurrentOpponentRepository
 
 ROOT = Path(__file__).resolve().parents[2]
+
+
+def _import_profiles(path: Path) -> list[OpponentProfile]:
+    payload = json.loads(path.read_text(encoding="utf-8-sig"))
+    if isinstance(payload, dict) and "profiles" in payload:
+        payload = payload["profiles"]
+    if isinstance(payload, dict):
+        payload = [payload]
+    return [OpponentProfile.model_validate(item) for item in payload]
+
 
 EXPECTED_IDS = {
     "opponent/scions-spellcraft-precon",
@@ -28,9 +39,7 @@ EXACT_LIST_IDS = EXPECTED_IDS | {
 
 
 def test_official_precon_benchmarks_are_exact_known_100_card_lists() -> None:
-    profiles = OpponentProfileImporter().import_file(
-        ROOT / "data/opponents/official_precon_profiles.json"
-    )
+    profiles = _import_profiles(ROOT / "data/opponents/official_precon_profiles.json")
 
     assert {profile.profile_id for profile in profiles} == EXACT_LIST_IDS
     for profile in profiles:
@@ -46,9 +55,7 @@ def test_official_precon_benchmarks_are_exact_known_100_card_lists() -> None:
 def test_structural_runtime_preserves_every_official_card_identity_and_quantity() -> None:
     profiles = {
         profile.profile_id: profile
-        for profile in OpponentProfileImporter().import_file(
-            ROOT / "data/opponents/official_precon_profiles.json"
-        )
+        for profile in _import_profiles(ROOT / "data/opponents/official_precon_profiles.json")
     }
     structural = load_project_structural_decks(ROOT, include_current_opponents=True)
 
