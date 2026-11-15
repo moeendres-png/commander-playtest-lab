@@ -181,7 +181,7 @@ def validate_rows(rows: Sequence[sqlite3.Row], *, owned_only: bool = True) -> li
                     "commander_type",
                     "warning",
                     f"{row['oracle_name']}: Typzeile ist nicht legendär; die Commander-Eignung "
-                    "entscheidet der Regelkern",
+                    "entscheidet die Regel-Engine",
                     row["card_id"],
                 )
             )
