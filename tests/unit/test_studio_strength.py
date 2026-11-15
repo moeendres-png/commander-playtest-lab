@@ -7,6 +7,7 @@ never enter it, and the figures of two commanders are never combined.
 from __future__ import annotations
 
 import csv
+import hashlib
 import sqlite3
 from collections.abc import Iterator
 from itertools import pairwise
@@ -1275,7 +1276,7 @@ def test_recommended_values_come_from_one_place_and_the_panel_texts_name_them(
     assert "(empfohlen: 25)" in labels["min_coverage"]  # the page field is in percent
     assert "(empfohlen: 2)" in labels["min_components"]
     assert [group["title"] for group in meta["panel"]["groups"]][-1].endswith(
-        "(empfohlen: 72 / 50 / 28 / 14)"
+        "(empfohlen: 54 / 35 / 20 / 5)"
     )
     for group in meta["panel"]["groups"]:
         assert all(key in labels and key in meta["panel"]["help"] for key in group["keys"])
@@ -2075,6 +2076,201 @@ def test_spellbook_downgrade_import_drops_the_stale_quality_rows(
     cards = _by_name(strength_view.compute(store, COMMANDER, _combos_only()))
     assert _component(cards["Filler 01"], "combos")["percentile"] == 1.0
     assert _component(cards["Filler 00"], "combos")["percentile"] == 0.0
+
+
+# ---------- spellbook shells (#1366) ----------
+
+SHELL_FIELDS = [
+    "card_name",
+    "fetch_status",
+    "shell_count",
+    "shell_count_2card",
+    "shell_count_3plus",
+    "shell_count_commander",
+    "shell_ids",
+]
+
+
+def _shells_folder(tmp_path: Path, rows: list[dict[str, object]]) -> Path:
+    folder = tmp_path / "shells"
+    folder.mkdir(exist_ok=True)
+    _write(folder / "spellbook_shells.csv", rows, SHELL_FIELDS)
+    return folder
+
+
+def _shell_row(name: str, shells: object, two_card: object, commander: object) -> dict[str, object]:
+    shells_int = int(str(shells)) if str(shells).isdigit() else 0
+    two_int = int(str(two_card)) if str(two_card).isdigit() else 0
+    return {
+        "card_name": name,
+        "fetch_status": "AVAILABLE",
+        "shell_count": shells,
+        "shell_count_2card": two_card,
+        "shell_count_3plus": shells_int - two_int,
+        "shell_count_commander": commander,
+        "shell_ids": ";".join(str(100 + index) for index in range(shells_int)),
+    }
+
+
+def test_shells_import_stores_the_shell_signals(store: StudioStore, tmp_path: Path) -> None:
+    folder = _shells_folder(
+        tmp_path,
+        [
+            _shell_row("Filler 00", 3, 1, 1),
+            # no qualifying shell: the counts are counted zeros, not unknown
+            _shell_row("Filler 01", 0, 0, 0),
+            # a non-numeric shell count is unknown, with the reason reported
+            _shell_row("Filler 02", "many", 0, 0),
+        ],
+    )
+    report = signals.import_signals(store, folder, commander=COMMANDER)
+    shells = _signal(store, signals.SIGNAL_SHELLS, "Filler 00", commander="")
+    assert shells is not None and shells["value"] == 3.0
+    two = _signal(store, signals.SIGNAL_TWO_CARD_SHELLS, "Filler 00", commander="")
+    assert two is not None and two["value"] == 1.0
+    commander_shells = _signal(store, signals.SIGNAL_COMMANDER_SHELLS, "Filler 00", commander="")
+    assert commander_shells is not None and commander_shells["value"] == 1.0
+    empty = _signal(store, signals.SIGNAL_SHELLS, "Filler 01", commander="")
+    assert empty is not None and empty["value"] == 0.0
+    unknown = _signal(store, signals.SIGNAL_SHELLS, "Filler 02", commander="")
+    assert unknown is not None and unknown["value"] is None
+    files = report["files"]
+    assert isinstance(files, dict)
+    reasons = files[signals.SHELLS_FILE]["null_value_reasons"]
+    assert reasons == {"SHELL_COUNT_NOT_NUMERIC": 1}
+    # the shell signals are commander independent, like the variant count
+    assert _signal(store, signals.SIGNAL_SHELLS, "Filler 00", commander=COMMANDER) is None
+    # a re-import of the same file is idempotent: same rows, same source, the
+    # source registered under the SHA-256 of the file bytes
+    digest = hashlib.sha256((folder / "spellbook_shells.csv").read_bytes()).hexdigest()
+    sources = store.count("source")
+    rows_before = [
+        tuple(row) for row in store.connection.execute("SELECT * FROM card_signal ORDER BY 1, 2, 3")
+    ]
+    signals.import_signals(store, folder, commander=COMMANDER)
+    again = _signal(store, signals.SIGNAL_SHELLS, "Filler 00", commander="")
+    assert again is not None and again["value"] == 3.0
+    assert store.count("source") == sources
+    assert rows_before == [
+        tuple(row) for row in store.connection.execute("SELECT * FROM card_signal ORDER BY 1, 2, 3")
+    ]
+    registered = {
+        row[0] for row in store.connection.execute("SELECT sha256 FROM source").fetchall()
+    }
+    assert digest in registered
+    assert shells["source_id"] == f"src:{digest[:16]}"
+
+
+def test_combo_quality_with_shells_as_primary() -> None:
+    parts = {
+        strength.COMBO_PART_SHELLS: {"a": 1.0, "b": 9.0},
+        strength.COMBO_PART_TWO_CARD_SHELLS: {"a": 1.0, "b": 0.0},
+        strength.COMBO_PART_COMMANDER_SHELLS: {"a": 1.0, "b": 0.0},
+    }
+    quality = strength.combo_quality(parts, primary=strength.COMBO_PART_SHELLS)
+    assert quality == {"a": pytest.approx(2 / 3), "b": pytest.approx(1 / 3)}
+    parts[strength.COMBO_PART_TWO_CARD_SHELLS]["unlisted"] = 5.0
+    assert "unlisted" not in strength.combo_quality(parts, primary=strength.COMBO_PART_SHELLS)
+
+
+def test_a_counted_zero_scores_zero_in_the_combo_component() -> None:
+    # A card with no qualifying combo ranks below every card that has one: its value is 0, not the
+    # tie-mean rank of the zero group (about 0.5 when almost every card holds a counted 0).
+    parts = {
+        strength.COMBO_PART_SHELLS: {"a": 2.0, "b": 0.0, "c": 0.0, "d": 0.0, "e": 0.0},
+        strength.COMBO_PART_TWO_CARD_SHELLS: {"a": 0.0, "b": 0.0, "c": 0.0, "d": 0.0, "e": 0.0},
+        strength.COMBO_PART_COMMANDER_SHELLS: {"a": 1.0, "b": 0.0, "c": 0.0, "d": 0.0, "e": 0.0},
+    }
+    quality = strength.combo_quality(parts, primary=strength.COMBO_PART_SHELLS)
+    assert quality["a"] > 0.0
+    assert [quality[card] for card in "bcde"] == [0.0, 0.0, 0.0, 0.0]
+    scored = strength._scale_component_values(
+        strength.COMBOS, quality, StrengthSettings(), strength.LOG_SHARE_K
+    )
+    assert scored["a"] > 0.9
+    assert [scored[card] for card in "bcde"] == [0.0, 0.0, 0.0, 0.0]
+
+
+def test_shell_counts_drive_the_combo_component(store: StudioStore, tmp_path: Path) -> None:
+    # The variant counts say the opposite of the shell counts: nine variants of
+    # one shell against two shells of one variant each. With the shells file
+    # imported, the shells decide the component and the variant count is only
+    # display; the note carries the shell breakdown of the detail modal.
+    folder = _quality_folder(
+        tmp_path,
+        [
+            # the variant mixture would rank this card first: nine variants, all
+            # of two cards, every partner in the collection
+            _quality_row("Filler 00", 9, 9, ";".join(["1-2"] * 9)),
+            _quality_row("Filler 01", 1, 0, "1-2-3"),
+            *[_quality_row(name, 0, 0, "") for name in CARDS[2:]],
+        ],
+    )
+    _write(
+        folder / "spellbook_shells.csv",
+        [
+            _shell_row("Filler 00", 1, 0, 0),
+            _shell_row("Filler 01", 2, 2, 1),
+            # the real file lists every card; the rest hold counted zeros
+            *[_shell_row(name, 0, 0, 0) for name in CARDS[2:]],
+        ],
+        SHELL_FIELDS,
+    )
+    signals.import_signals(store, folder, commander=COMMANDER)
+    cards = _by_name(strength_view.compute(store, COMMANDER, _combos_only()))
+    one_shell = _component(cards["Filler 00"], "combos")
+    two_shells = _component(cards["Filler 01"], "combos")
+    assert two_shells["percentile"] == 1.0
+    assert one_shell["percentile"] is not None and one_shell["percentile"] < 1.0
+    assert "2 Combo-Shells" in two_shells["note"]
+    assert "2 mit 2 Karten" in two_shells["note"]
+    assert "0 mit 3+ Karten" in two_shells["note"]
+    assert "1 mit Commander" in two_shells["note"]
+    # the counted zeros of the real file score 0 in the component, not the tie-mean rank
+    zero = _component(cards["Filler 02"], "combos")
+    assert zero["percentile"] == 0.0
+    assert zero["status"] == "PRESENT"
+
+
+def test_combo_component_falls_back_to_variants_without_a_shells_file(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    # A store whose folder never held a shells file ranks by the variant
+    # mixture exactly as before #1366.
+    folder = _quality_folder(
+        tmp_path,
+        [
+            _quality_row("Filler 00", 1, 1, "1-2"),
+            _quality_row("Filler 01", 9, 0, ";".join(["1-2-3"] * 9)),
+        ],
+    )
+    signals.import_signals(store, folder, commander=COMMANDER)
+    cards = _by_name(strength_view.compute(store, COMMANDER, _combos_only()))
+    assert _component(cards["Filler 00"], "combos")["percentile"] == 1.0
+
+
+def test_shells_downgrade_import_drops_the_stale_breakdown_rows(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    # A shells file without the breakdown columns declares all three signals,
+    # so a replacing import drops the stale breakdown rows it does not write.
+    signals.import_signals(
+        store,
+        _shells_folder(tmp_path, [_shell_row("Filler 00", 3, 1, 1)]),
+        commander=COMMANDER,
+    )
+    assert _signal(store, signals.SIGNAL_TWO_CARD_SHELLS, "Filler 00", commander="") is not None
+    folder = tmp_path / "lean_shells"
+    folder.mkdir()
+    _write(
+        folder / "spellbook_shells.csv",
+        [{"card_name": "Filler 00", "fetch_status": "AVAILABLE", "shell_count": 3}],
+        ["card_name", "fetch_status", "shell_count"],
+    )
+    signals.import_signals(store, folder, commander=COMMANDER)
+    assert _signal(store, signals.SIGNAL_SHELLS, "Filler 00", commander="") is not None
+    assert _signal(store, signals.SIGNAL_TWO_CARD_SHELLS, "Filler 00", commander="") is None
+    assert _signal(store, signals.SIGNAL_COMMANDER_SHELLS, "Filler 00", commander="") is None
 
 
 # ---------- tournament conversion (#1261 P1.1) ----------
