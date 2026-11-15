@@ -484,7 +484,7 @@ function renderList(body) {
       hoverPreview(name, card);
       box.append(h("div", { class: "row" + (problems.has(card.card_id) ? " problem" : "") },
         h("span", { class: "qty" }, qty(card.card_id)), tierMark(card), name, mana(card.mana_cost),
-        !card.basic && card.roles && card.roles.length ? h("button", { class: "small", type: "button", title: "Tausch-Helfer: Karten mit gleicher Rolle", onclick: () => openCard(card, "replace") }, "⇄") : null,
+        !card.basic && card.roles && card.roles.length ? h("button", { class: "small", type: "button", title: "Was ersetzt diese Karte?", onclick: () => openCard(card, "replace") }, "⇄") : null,
         card.basic ? h("button", { class: "small", type: "button", disabled: qty(card.card_id) >= maxCopies(card), onclick: () => add(card) }, "+") : null,
         h("button", { class: "small", type: "button", onclick: () => remove(card) }, "−")));
     }
@@ -1375,76 +1375,14 @@ function renderDeck() {
 }
 function renderAll() { renderHeader(); renderPool(); renderDeck(); }
 
-async function renderSwapBox(into, card, initialMode = null) {
-  const inDeck = qty(card.card_id) > 0;
-  let mode = initialMode || (inDeck ? "replace" : "cut");
-  const load = async () => {
-    into.replaceChildren(h("h3", {}, "Tausch-Helfer (gleiche Rolle)"), h("p", { class: "muted" }, "Lädt Kandidaten …"));
-    try {
-      const res = await api("/api/swap", "POST", {
-        commander: COMMANDER,
-        deck_card_ids: [...state.list.keys()],
-        card_id: card.card_id,
-        mode,
-        cohort: state.cohort,
-        universe: state.universe || null,
-        exclude_marked: true,
-      });
-      const modeSwitch = h("div", { class: "actions" },
-        h("button", { type: "button", class: "chip" + (mode === "replace" ? " on" : ""), onclick: () => { mode = "replace"; load(); } }, inDeck ? "Ersatz im Pool suchen" : "Andere Pool-Karten dieser Rolle"),
-        h("button", { type: "button", class: "chip" + (mode === "cut" ? " on" : ""), onclick: () => { mode = "cut"; load(); } }, inDeck ? "Streichkandidaten im Deck" : "Was im Deck streichen?"));
-      if (!res.roles || !res.roles.length) {
-        into.replaceChildren(h("h3", {}, "Tausch-Helfer (gleiche Rolle)"), modeSwitch, h("p", { class: "muted" }, res.note || "Keine Rolle für diese Karte hinterlegt."));
-        return;
-      }
-      const roleBadges = res.roles.map((r) => roleName(r)).join(", ");
-      const headerNote = h("p", { class: "note" },
-        `Rollen: ${roleBadges} · Sortiert nach Häufigkeit in „${res.source_label}“ (Nenner: ${res.of} Decks). `,
-        res.small_sample ? h("span", { class: "pill low" }, `Kleine Stichprobe (< ${state.small} Decks)`) : null,
-        res.unknown_count ? ` · ${res.unknown_count} Karte(n) mit unbekannter Häufigkeit stehen am Ende (unbekannt ist nie „selten gespielt“).` : "");
-      if (!res.candidates || !res.candidates.length) {
-        into.replaceChildren(h("h3", {}, "Tausch-Helfer (gleiche Rolle)"), modeSwitch, headerNote, h("p", { class: "muted" }, "Keine passenden Karten mit gleicher Rolle gefunden."));
-        return;
-      }
-      const shown = res.candidates.slice(0, 10);
-      const tbl = h("table", {},
-        h("thead", {}, h("tr", {},
-          h("th", {}, mode === "replace" ? "Ersatz-Kandidat (frei im Pool)" : "Kandidat im Deck (zum Streichen)"),
-          h("th", {}, "Gemeinsame Rolle"),
-          h("th", { class: "num" }, "Decks (n/N)"),
-          h("th", { class: "num" }, "Anteil"),
-          h("th", {}, ""))),
-        h("tbody", {}, shown.map((cand) => {
-          const other = state.byId.get(cand.card_id);
-          const freqText = cand.decks_known && cand.decks !== null && cand.of ? `${cand.decks}/${cand.of}` : "unbekannt";
-          const pctText = cand.decks_known && cand.share !== null ? `${(100 * cand.share).toFixed(1)} %` : "unbekannt";
-          let actionBtn = null;
-          if (mode === "replace" && other) {
-            if (inDeck && maxCopies(other) > 0) {
-              actionBtn = h("button", { type: "button", class: "small", onclick: () => { remove(card); add(other); openCard(other, "replace"); } }, "Tauschen");
-            } else if (!inDeck && maxCopies(other) > 0) {
-              actionBtn = h("button", { type: "button", class: "small", onclick: () => { add(other); openCard(card, mode); } }, "+");
-            }
-          } else if (mode === "cut" && other) {
-            if (!inDeck && maxCopies(card) > 0) {
-              actionBtn = h("button", { type: "button", class: "small", onclick: () => { remove(other); add(card); openCard(card, "replace"); } }, "Gegen diese tauschen");
-            } else if (inDeck) {
-              actionBtn = h("button", { type: "button", class: "small", onclick: () => { remove(other); openCard(card, "cut"); } }, "Streichen");
-            }
-          }
-          return h("tr", { class: res.small_sample ? "low" : "" },
-            h("td", { class: "name", onclick: () => { if (other) openCard(other); } }, cand.name),
-            h("td", {}, (cand.shared_roles || []).map((r) => roleName(r)).join(", ")),
-            h("td", { class: "num" }, freqText),
-            h("td", { class: "num" }, pctText),
-            h("td", {}, actionBtn));
-        })));
-      into.replaceChildren(h("h3", {}, "Tausch-Helfer (gleiche Rolle)"), modeSwitch, headerNote, tbl);
-    } catch (error) {
-      into.replaceChildren(h("h3", {}, "Tausch-Helfer (gleiche Rolle)"), h("p", { class: "muted" }, "Tausch-Kandidaten nicht lesbar: " + error.message));
-    }
-  };
-  await load();
+// Tausch-Helfer: the panel lives in swap.js; this is what it may use of the builder.
+function renderSwapBox(into, card, initialMode = null) {
+  StudioSwap.mount(into, card, {
+    commander: COMMANDER, deckIds: () => [...state.list.keys()], cohort: () => state.cohort, universe: () => state.universe,
+    inDeck: (c) => qty(c.card_id) > 0, byId: (id) => state.byId.get(id), maxCopies, add, remove, open: openCard,
+    roleName, typeName: (type) => GROUP_NAMES[type] || type, small: () => state.small,
+    groupName: (group) => (group.kind === "universe" ? `Universum ${group.name}` : cohortName(group.name)),
+  }, initialMode);
 }
 
 // ---------- card window ----------
