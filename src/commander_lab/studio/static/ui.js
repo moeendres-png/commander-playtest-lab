@@ -178,10 +178,11 @@ const StudioUI = (() => {
 
   // ---------- data state: which layers are there, which are missing ----------
   const STATUS_TEXT = { COMPLETE: "vollständig", PARTIAL: "teilweise", MISSING: "fehlt", PRESENT: "vorhanden", NOT_PROVIDED: "nicht angegeben" };
-  async function dataState(host, commander, { onlyWhenMissing = true } = {}) {
+  async function dataState(host, commander, { onlyWhenMissing = true, only = null } = {}) {
     let overview;
     try { overview = await request(`/api/layers?commander=${encodeURIComponent(commander)}`); } catch (error) { host.replaceChildren(); return; }
-    const missing = overview.layers.filter((layer) => layer.status === "MISSING");
+    // ``only`` limits the check to the named layer keys (the tier list needs just the sources of the index)
+    const missing = overview.layers.filter((layer) => layer.status === "MISSING" && (!only || only.includes(layer.key)));
     if (onlyWhenMissing && !missing.length) { host.replaceChildren(); return; }
     const rows = overview.layers.map((layer) => el("tr", {},
       el("td", {}, layer.layer),
