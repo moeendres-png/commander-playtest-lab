@@ -1,0 +1,318 @@
+{
+ "urlhash": "9zWfkcnCDEabhY3adKIzOw",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-11-12",
+ "price": 427,
+ "salt": 48.633024245500565,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/17391984?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Ambitious Farmhand",
+   "quantity": 1
+  },
+  {
+   "name": "Annoyed Altisaur",
+   "quantity": 1
+  },
+  {
+   "name": "Apex Altisaur",
+   "quantity": 1
+  },
+  {
+   "name": "Balamb T-Rexaur",
+   "quantity": 1
+  },
+  {
+   "name": "Bronzebeak Foragers",
+   "quantity": 1
+  },
+  {
+   "name": "Carnage Tyrant",
+   "quantity": 1
+  },
+  {
+   "name": "Clever Impersonator",
+   "quantity": 1
+  },
+  {
+   "name": "Clone",
+   "quantity": 1
+  },
+  {
+   "name": "Copycrook",
+   "quantity": 1
+  },
+  {
+   "name": "Cresting Mosasaurus",
+   "quantity": 1
+  },
+  {
+   "name": "Curious Altisaur",
+   "quantity": 1
+  },
+  {
+   "name": "Deathgorge Scavenger",
+   "quantity": 1
+  },
+  {
+   "name": "Deceptive Frostkite",
+   "quantity": 1
+  },
+  {
+   "name": "Dinosaur Egg",
+   "quantity": 1
+  },
+  {
+   "name": "Earthshaker Dreadmaw",
+   "quantity": 1
+  },
+  {
+   "name": "Embodiment of Spring",
+   "quantity": 1
+  },
+  {
+   "name": "Formidable Speaker",
+   "quantity": 1
+  },
+  {
+   "name": "Ghalta and Mavren",
+   "quantity": 1
+  },
+  {
+   "name": "Ghalta, Primal Hunger",
+   "quantity": 1
+  },
+  {
+   "name": "Ghalta, Stampede Tyrant",
+   "quantity": 1
+  },
+  {
+   "name": "Glasspool Mimic",
+   "quantity": 1
+  },
+  {
+   "name": "Kinjalli's Sunwing",
+   "quantity": 1
+  },
+  {
+   "name": "Mirror Image",
+   "quantity": 1
+  },
+  {
+   "name": "Mirrorhall Mimic",
+   "quantity": 1
+  },
+  {
+   "name": "Mocking Doppelganger",
+   "quantity": 1
+  },
+  {
+   "name": "Moritte of the Frost",
+   "quantity": 1
+  },
+  {
+   "name": "Nezahal, Primal Tide",
+   "quantity": 1
+  },
+  {
+   "name": "Phantasmal Image",
+   "quantity": 1
+  },
+  {
+   "name": "Phyrexian Metamorph",
+   "quantity": 1
+  },
+  {
+   "name": "Pugnacious Hammerskull",
+   "quantity": 1
+  },
+  {
+   "name": "Ranging Raptors",
+   "quantity": 1
+  },
+  {
+   "name": "Regal Behemoth",
+   "quantity": 1
+  },
+  {
+   "name": "Regal Imperiosaur",
+   "quantity": 1
+  },
+  {
+   "name": "Ripjaw Raptor",
+   "quantity": 1
+  },
+  {
+   "name": "Sakashima of a Thousand Faces",
+   "quantity": 1
+  },
+  {
+   "name": "Shifting Ceratops",
+   "quantity": 1
+  },
+  {
+   "name": "Spark Double",
+   "quantity": 1
+  },
+  {
+   "name": "Stunt Double",
+   "quantity": 1
+  },
+  {
+   "name": "Temple Altisaur",
+   "quantity": 1
+  },
+  {
+   "name": "The Tarrasque",
+   "quantity": 1
+  },
+  {
+   "name": "Thrashing Brontodon",
+   "quantity": 1
+  },
+  {
+   "name": "Thundering Spineback",
+   "quantity": 1
+  },
+  {
+   "name": "Topiary Stomper",
+   "quantity": 1
+  },
+  {
+   "name": "Visage Bandit",
+   "quantity": 1
+  },
+  {
+   "name": "Wakening Sun's Avatar",
+   "quantity": 1
+  },
+  {
+   "name": "Wayward Swordtooth",
+   "quantity": 1
+  },
+  {
+   "name": "Zetalpa, Primal Dawn",
+   "quantity": 1
+  },
+  {
+   "name": "Archdruid's Charm",
+   "quantity": 1
+  },
+  {
+   "name": "Entish Restoration",
+   "quantity": 1
+  },
+  {
+   "name": "Altar of Bone",
+   "quantity": 1
+  },
+  {
+   "name": "Bridgeworks Battle",
+   "quantity": 1
+  },
+  {
+   "name": "Combat Tutorial",
+   "quantity": 1
+  },
+  {
+   "name": "Cultivate",
+   "quantity": 1
+  },
+  {
+   "name": "Dance of the Tumbleweeds",
+   "quantity": 1
+  },
+  {
+   "name": "Rampant Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Rishkar's Expertise",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Infinite Reflection",
+   "quantity": 1
+  },
+  {
+   "name": "Up the Beanstalk",
+   "quantity": 1
+  },
+  {
+   "name": "Invasion of Ikoria",
+   "quantity": 1
+  },
+  {
+   "name": "Invasion of Ixalan",
+   "quantity": 1
+  },
+  {
+   "name": "Barkchannel Pathway",
+   "quantity": 1
+  },
+  {
+   "name": "Botanical Sanctum",
+   "quantity": 1
+  },
+  {
+   "name": "Branchloft Pathway",
+   "quantity": 1
+  },
+  {
+   "name": "Breeding Pool",
+   "quantity": 1
+  },
+  {
+   "name": "Castle Garenbrig",
+   "quantity": 1
+  },
+  {
+   "name": "Cavern of Souls",
+   "quantity": 1
+  },
+  {
+   "name": "Dreamroot Cascade",
+   "quantity": 1
+  },
+  {
+   "name": "Evendo, Waking Haven",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 12
+  },
+  {
+   "name": "Island",
+   "quantity": 8
+  },
+  {
+   "name": "Plains",
+   "quantity": 8
+  },
+  {
+   "name": "Spara's Headquarters",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}
