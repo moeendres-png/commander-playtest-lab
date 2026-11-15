@@ -3,6 +3,7 @@ from __future__ import annotations
 import math
 from pathlib import Path
 
+from commander_lab.engine.structural import load_project_structural_decks
 from commander_lab.mana_analysis import (
     CastabilityLibraryCard,
     CommanderCastCost,
@@ -15,8 +16,7 @@ from commander_lab.models import (
     StructuralCardProfile,
     StructuralDeckProfile,
 )
-from commander_lab.mulligan import MulliganLab
-from commander_lab.tools.current_candidates import load_candidate_profiles
+from commander_lab.repositories.candidates import load_candidate_profiles
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -26,6 +26,14 @@ def _candidate_by_name(name: str):
         if candidate.card.oracle_name == name:
             return candidate.card
     raise AssertionError(f"missing candidate fixture: {name}")
+
+
+def _rogshai_deck() -> StructuralDeckProfile:
+    return load_project_structural_decks(
+        ROOT,
+        include_synthetic_fixtures=True,
+        include_current_opponents=True,
+    )["rogshai/current"]
 
 
 def test_tapped_land_classifier_distinguishes_definite_and_conditional() -> None:
@@ -39,9 +47,9 @@ def test_tapped_land_classifier_distinguishes_definite_and_conditional() -> None
 
 
 def test_current_rogshai_mana_report_covers_colors_commanders_and_early_signals() -> None:
-    lab = MulliganLab(ROOT)
-    report = lab.analyze_deck_mana("rogshai/current")
-    assert report.deck_hash == lab.deck("rogshai/current").deck_hash
+    deck = _rogshai_deck()
+    report = ManaAnalyzer(ROOT).analyze_deck(deck)
+    assert report.deck_hash == deck.deck_hash
     assert report.land_count == 36
     assert report.colored_sources["W"] > 0
     assert report.colored_sources["U"] > 0
@@ -59,8 +67,7 @@ def test_current_rogshai_mana_report_covers_colors_commanders_and_early_signals(
 
 
 def test_opening_hand_reports_approximate_castability_ishai_and_hold_up() -> None:
-    lab = MulliganLab(ROOT)
-    deck = lab.deck("rogshai/current")
+    deck = _rogshai_deck()
     by_name = {card.oracle_name: card for card in deck.cards}
     test_counter = StructuralCardProfile(
         oracle_name="Deterministic Test Counter",
@@ -75,7 +82,7 @@ def test_opening_hand_reports_approximate_castability_ishai_and_hold_up() -> Non
         by_name["Plains"],
         test_counter,
     )
-    report = lab.mana_analyzer.analyze_opening_hand(deck, hand)
+    report = ManaAnalyzer(ROOT).analyze_opening_hand(deck, hand)
     assert report.ishai_wu_color_ready is True
     assert report.t2_interaction_hold_up_ready is True
     assert report.approximate_castable_card_count_by_turn[1] == 0
@@ -84,33 +91,14 @@ def test_opening_hand_reports_approximate_castability_ishai_and_hold_up() -> Non
 
 
 def test_mana_delta_is_deterministic_and_zero_for_same_deck() -> None:
-    lab = MulliganLab(ROOT)
-    deck = lab.deck("rogshai/current")
-    delta = lab.mana_analyzer.compare_decks(deck, deck)
+    deck = _rogshai_deck()
+    delta = ManaAnalyzer(ROOT).compare_decks(deck, deck)
     assert delta.colored_source_delta == {}
     assert delta.flexible_source_delta == 0
     assert delta.definitely_tapped_land_delta == 0
     assert delta.conditionally_tapped_land_delta == 0
     assert delta.t1_untapped_source_delta == {}
     assert delta.ishai_wu_source_delta == {"W": 0, "U": 0}
-
-
-def test_mulligan_features_use_oracle_tapped_source_classification() -> None:
-    lab = MulliganLab(ROOT)
-    deck = lab.deck("rogshai/current")
-    by_name = {card.oracle_name: card for card in deck.cards}
-    hand = (
-        by_name["Island"],
-        by_name["Mountain"],
-        by_name["Plains"],
-        _candidate_by_name("Temple of Epiphany"),
-    )
-    features = lab.features(deck, hand)
-    assert features.colored_sources["W"] >= 1
-    assert features.colored_sources["U"] >= 1
-    assert features.colored_sources["R"] >= 1
-    assert features.color_stability_score == 1.0
-    assert features.tapped_source_count >= 1
 
 
 def _castability_card(

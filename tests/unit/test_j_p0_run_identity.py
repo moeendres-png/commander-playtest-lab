@@ -9,11 +9,8 @@ from pydantic import ValidationError
 
 from commander_lab import __version__
 from commander_lab.evals.golden import load_golden_cases
-from commander_lab.models import InspectDeckInput, SwapMatrixInput, ToolStatus
-from commander_lab.models.run_identity import CanonicalInputStatus, IdentityStatus, RunIdentity
+from commander_lab.models.run_identity import IdentityStatus, RunIdentity
 from commander_lab.storage.run_identity import normalize_run_paths, sha256_run_value
-from commander_lab.tools import CommanderToolService
-from commander_lab.tools.service import ToolExecutionError
 
 
 def test_canonical_run_hash_is_mapping_order_and_unicode_stable(tmp_path: Path) -> None:
@@ -83,107 +80,3 @@ def test_runtime_version_matches_declared_package_version(repo_root: Path) -> No
         "version"
     ]
     assert __version__ == declared
-
-
-def test_tool_metadata_contains_universal_run_identity(repo_root: Path) -> None:
-    service = CommanderToolService(repo_root)
-    response = service.inspect_deck(InspectDeckInput(deck_id="rogshai/current"))
-
-    assert response.status == ToolStatus.COMPLETED
-    identity = response.metadata.run_identity
-    assert identity.software_commit == service.git_commit
-    assert identity.software_tree == service.git_tree
-    assert identity.package_version == __version__
-    assert identity.inventory_source_id
-    assert identity.inventory_hash
-    assert identity.commander_configuration_hash
-    assert identity.data_source_manifest_hash
-    assert identity.canonical_input_status == CanonicalInputStatus.CURRENT
-    assert identity.component_status["software_tree"] == IdentityStatus.PRESENT
-    assert response.metadata.run_identity_hash == identity.run_identity_hash
-
-
-def test_stale_deck_fails_canonical_run_but_historical_replay_is_explicit(repo_root: Path) -> None:
-    service = CommanderToolService(repo_root)
-    current = service.decks["rogshai/current"]
-    service.decks["rogshai/current"] = current.model_copy(update={"deck_hash": "0" * 64})
-
-    with pytest.raises(ToolExecutionError, match="stale canonical inputs rejected"):
-        service.build_run_identity(
-            {"deck_id": "rogshai/current", "canonical_inputs_required": True},
-            ("rogshai/current",),
-            tool_name="inspect_deck",
-        )
-
-    replay = service.build_run_identity(
-        {
-            "deck_id": "rogshai/current",
-            "canonical_inputs_required": True,
-            "historical_replay": True,
-        },
-        ("rogshai/current",),
-        tool_name="inspect_deck",
-    )
-    assert replay.historical_replay is True
-    assert replay.canonical_input_status == CanonicalInputStatus.HISTORICAL_REPLAY
-    assert replay.stale_reasons
-
-
-def test_tactical_and_external_engine_identity_are_not_conflated(repo_root: Path) -> None:
-    service = CommanderToolService(repo_root)
-    tactical = service.build_run_identity(
-        {"canonical_inputs_required": True},
-        tool_name="run_tactical_fixture",
-        estimate_type="tactical_oracle_results",
-    )
-    external = service.build_run_identity(
-        {"canonical_inputs_required": True, "provider": "xmage"},
-        tool_name="run_engine_backed_matchup",
-        estimate_type="external_rules_engine_results",
-    )
-
-    assert tactical.engine_mode == "tactical_oracle"
-    assert tactical.engine_provider == "tactical_oracle"
-    assert external.engine_mode == "external"
-    assert external.engine_provider == "xmage"
-    assert external.component_status["engine_provider_version_or_pin"] == IdentityStatus.UNKNOWN
-    assert external.component_status["engine_capability_hash"] == IdentityStatus.UNKNOWN
-
-
-def test_optimizer_tool_response_carries_source_identity(repo_root: Path) -> None:
-    service = CommanderToolService(repo_root)
-    response = service.generate_swap_matrix(
-        SwapMatrixInput(
-            deck_id="rogshai/current",
-            remove_cards=("Kykar, Wind's Fury",),
-            add_candidate_ids=("inventory/disorder-in-the-court-f673274a",),
-            simulate_valid_cells=False,
-            iterations_per_cell=1,
-        )
-    )
-
-    assert response.status == ToolStatus.COMPLETED
-    identity = response.metadata.run_identity
-    assert identity.deck_hashes["rogshai/current"] == service.decks["rogshai/current"].deck_hash
-    assert identity.inventory_hash
-    assert identity.policy_hash
-    assert identity.data_source_manifest_hash
-
-
-def test_pilot_ensemble_id_is_not_treated_as_opponent_ensemble(repo_root: Path) -> None:
-    from commander_lab.models import RunPilotEnsembleInput
-
-    service = CommanderToolService(repo_root)
-    identity = service.build_run_identity(
-        RunPilotEnsembleInput(
-            deck_id="rogshai/current",
-            ensemble_id="rogshai.equal.v1",
-            iterations=1,
-            seed=731,
-            max_turns=8,
-        ),
-        ("rogshai/current",),
-        tool_name="run_pilot_ensemble",
-    )
-    assert identity.opponent_ensemble_hash is None
-    assert identity.component_status["opponent_ensemble_hash"] == IdentityStatus.NOT_APPLICABLE

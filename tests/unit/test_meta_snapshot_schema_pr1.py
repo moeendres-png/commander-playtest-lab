@@ -14,7 +14,6 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
-from commander_lab.meta.store import stable_deck_hash
 from commander_lab.models import (
     BudgetBand,
     FormatBand,
@@ -30,9 +29,10 @@ from commander_lab.models import (
     MetaTier,
 )
 from commander_lab.models.meta import META_SCHEMA_VERSION, expires_at_for
-from commander_lab.whole_deck.meta import build_meta_functional_profile
 
 COMMANDER = "Ishai, Ojutai Dragonspeaker / Rograkh, Son of Rohgahh"
+# Stable hash of the three-card list below (sorted, casefolded, sha256 of the JSON list).
+DECK_HASH = "6005593206d664b77ee02cd16c9c7d445111eeba9e9e4d9d5310f51955b15330"
 
 
 def _source(**overrides: object) -> MetaSource:
@@ -54,7 +54,7 @@ def _deck(**overrides: object) -> MetaDeckSnapshot:
     fields: dict[str, object] = {
         "source_id": "src-a",
         "commander": COMMANDER,
-        "deck_hash": stable_deck_hash(cards),
+        "deck_hash": DECK_HASH,
         "retrieved_at": datetime(2026, 8, 5, tzinfo=UTC),
         "format_band": FormatBand.HIGH_POWER,
         "categories": (MetaCategory.HIGH_POWER,),
@@ -189,54 +189,6 @@ def test_package_veto_defaults_to_false() -> None:
         categories=(MetaCategory.HIGH_POWER,),
     )
     assert package.vetoed_by_games is False
-
-
-def test_new_fields_do_not_change_functional_profile() -> None:
-    """PR1 promises no scoring change: profiles built from a snapshot with
-    all new fields populated must equal profiles from the same snapshot
-    without them (only new fields differ).
-
-    PR4 keeps that promise for every new field except tier, which now
-    rides the profile so the guardrail caps can apply; the profile hash
-    and all dimensions stay identical.
-    """
-
-    plain = _snapshot(_source(), _deck())
-    enriched = _snapshot(
-        _source(
-            tier=MetaTier.A,
-            band=MetaCategory.HIGH_POWER,
-            sample_size=53,
-            expires_at=datetime(2027, 8, 5, tzinfo=UTC),
-        ),
-        _deck(
-            band=FormatBand.HIGH_POWER,
-            target_deck_ref=MetaTargetDeckRef(
-                path="handover/2026-10-22/example-deck/",
-                commit="0123456789abcdef0123456789abcdef01234567",
-            ),
-        ),
-    )
-    plain_profile = build_meta_functional_profile(
-        plain,
-        commander=COMMANDER,
-        format_band=FormatBand.HIGH_POWER,
-        profiles={},
-        now=datetime(2026, 10, 26, tzinfo=UTC),
-    )
-    enriched_profile = build_meta_functional_profile(
-        enriched,
-        commander=COMMANDER,
-        format_band=FormatBand.HIGH_POWER,
-        profiles={},
-        now=datetime(2026, 10, 26, tzinfo=UTC),
-    )
-    plain_dump = plain_profile.model_dump(mode="json")
-    enriched_dump = enriched_profile.model_dump(mode="json")
-    assert plain_dump.pop("source_tier") is None
-    assert enriched_dump.pop("source_tier") == "A"
-    assert plain_dump == enriched_dump
-    assert plain_profile.profile_hash == enriched_profile.profile_hash
 
 
 def test_card_frequency_fields_unchanged() -> None:

@@ -111,7 +111,7 @@
 - Synchronized Korvold and RogShai program snapshots to the canonical 2026-08-07 final workbook without performing a new deck optimization.
 - Synchronized the current physical inventory and opponent evidence boundaries, including Morcant 54 hard / 18 provisional / 28 synthetic-basic slots and verified Kaervek correction.
 - Expanded structural identity/profile coverage from 161 to 195 retained card profiles and rebuilt rules coverage for the current candidate universe.
-- Added explicit `commander-lab data audit` and non-mutating `commander-lab data sync --dry-run` source gates.
+- Added explicit `commander-lab data audit` and non-mutating `commander-lab data sync --dry-run` source gates (both removed again with the `data_sync` module; `tests/unit/test_current_sources_registry.py` now guards the registry).
 - Migrated 12 pilot profiles to current deck hashes, retained 13 compatible active primer rules, deactivated one stale combat-draw-aura rule, and classified 14 compatible versus 6 historical/stale package records.
 - Replaced obsolete current-deck optimization test fixtures with explicit technical smoke candidates; no smoke candidate is an upgrade recommendation.
 - Real playtest calibration remains outside the active project scope; external XMage/Forge validation remains pending with zero external observations.

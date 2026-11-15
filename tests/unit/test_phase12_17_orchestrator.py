@@ -3,7 +3,6 @@ from commander_lab.agents.optimization_orchestrator import (
     build_optimization_plan,
     select_run_profile,
 )
-from commander_lab.tools.registry import TOOL_DEFINITIONS
 
 
 def test_run_profile_selection_is_goal_sensitive() -> None:
@@ -20,7 +19,15 @@ def test_run_profile_selection_is_goal_sensitive() -> None:
 
 
 def test_plan_uses_available_registry_and_never_applies_changes() -> None:
-    available = [row.name for row in TOOL_DEFINITIONS]
+    available = [
+        "build_optimization_context",
+        "generate_candidate_swaps",
+        "generate_candidate_packages",
+        "optimize_multiple_decks_with_allocation",
+        "optimize_deck_against_meta",
+        "run_robustness_suite",
+        "rank_variants",
+    ]
     plan = build_optimization_plan(
         "Optimiere Korvold und RogShai gleichzeitig ohne Doppelbelegung",
         available_tools=available,
@@ -28,4 +35,5 @@ def test_plan_uses_available_registry_and_never_applies_changes() -> None:
     assert plan.profile == RunProfile.FULL_OPTIMIZATION
     assert plan.tools[0] == "build_optimization_context"
     assert "optimize_multiple_decks_with_allocation" in plan.tools
+    assert set(plan.tools) <= set(available)
     assert plan.applies_changes is False

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import ast
+import json
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -19,11 +20,8 @@ from commander_lab.agents import (
     auto_pilot_name,
     build_pilot,
 )
-from commander_lab.agents.ensemble import PilotRegistry
 from commander_lab.engine.structural.project import live_commander_strategy
-from commander_lab.models import PilotConfig
-from commander_lab.models.mulligan import MulliganPolicyName
-from commander_lab.mulligan import MulliganLab, MulliganLabError
+from commander_lab.models import PilotConfig, PilotProfile
 
 ROOT = Path(__file__).resolve().parents[2]
 RETIRED_KORVOLD_CLASSES = (
@@ -37,15 +35,30 @@ RETIRED_KORVOLD_CLASSES = (
 ALLOWED_LEGACY_BUILD_PILOT_CALLERS = frozenset(
     {
         "src/commander_lab/agents/live_routing.py",
-        "src/commander_lab/agents/ensemble.py",
-        "src/commander_lab/tools/service_knowledge.py",
-        "src/commander_lab/tools/service_pilots.py",
     }
 )
 
 
 def _deck_with_commanders(*commanders: str) -> SimpleNamespace:
     return SimpleNamespace(commander=SimpleNamespace(commanders=commanders))
+
+
+def test_canonical_pilot_registry_contains_generic_and_rogshai_but_no_korvold() -> None:
+    payload = json.loads((ROOT / "data/pilots/pilot_registry.json").read_text(encoding="utf-8"))
+    profiles = tuple(PilotProfile.model_validate(row) for row in payload["profiles"])
+    families = {profile.commander_family for profile in profiles}
+    names = {profile.pilot_name for profile in profiles}
+    assert families == {"generic", "rogshai"}
+    assert "GenericCommanderPilot" in names
+    assert not any(name.casefold().startswith("korvold") for name in names)
+    generic = next(profile for profile in profiles if profile.pilot_name == "GenericCommanderPilot")
+    assert generic.supported_deck_hashes == ()
+    assert all(
+        value == 1.0
+        for key, value in generic.weights.as_dict().items()
+        if key != "political_visibility"
+    )
+    assert generic.weights.political_visibility == -0.65
 
 
 def test_live_commander_strategy_is_explicit_rogshai_or_generic() -> None:
@@ -130,56 +143,4 @@ def test_live_builder_preserves_rogshai_and_kaervek_families() -> None:
     assert (
         type(build_pilot(PilotConfig(), strategy="punisher_control_reanimation"))
         is KaervekOpponentPilot
-    )
-
-
-def test_canonical_pilot_registry_contains_generic_and_rogshai_but_no_korvold() -> None:
-    profiles = PilotRegistry(ROOT).profiles()
-    families = {profile.commander_family for profile in profiles}
-    names = {profile.pilot_name for profile in profiles}
-    assert families == {"generic", "rogshai"}
-    assert "GenericCommanderPilot" in names
-    assert not any(name.casefold().startswith("korvold") for name in names)
-    generic = next(profile for profile in profiles if profile.pilot_name == "GenericCommanderPilot")
-    assert generic.supported_deck_hashes == ()
-    assert all(
-        value == 1.0
-        for key, value in generic.weights.as_dict().items()
-        if key != "political_visibility"
-    )
-    assert generic.weights.political_visibility == -0.65
-
-
-def test_canonical_mulligan_routes_non_rogshai_fixture_to_generic() -> None:
-    lab = MulliganLab(ROOT)
-    generic_deck = next(
-        deck
-        for deck in lab.decks.values()
-        if deck.commander_strategy in {"aggro", "control", "engine"}
-    )
-    assert (
-        lab._pilot_name_for_policy(
-            generic_deck.deck_id,
-            MulliganPolicyName.CURRENT_PILOT,
-            "baseline",
-        )
-        == "GenericCommanderPilot"
-    )
-    with pytest.raises(MulliganLabError, match="family mismatch"):
-        lab._pilot_name_for_policy(
-            generic_deck.deck_id,
-            MulliganPolicyName.CURRENT_PILOT,
-            "RogShaiPilot",
-        )
-
-
-def test_canonical_mulligan_keeps_rogshai_specialization() -> None:
-    lab = MulliganLab(ROOT)
-    assert (
-        lab._pilot_name_for_policy(
-            "rogshai/current",
-            MulliganPolicyName.CURRENT_PILOT,
-            "baseline",
-        )
-        == "RogShaiPilot"
     )

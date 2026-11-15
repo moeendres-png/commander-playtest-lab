@@ -3,8 +3,6 @@
  "files": [
   "tests/fuzz/test_boundary_fuzz.py",
   "tests/golden/test_j_p4_pilot_quality.py",
-  "tests/integration/test_multi_pilot_tools.py",
-  "tests/integration/test_opponent_ensemble_tools.py",
   "tests/unit/test_any_usage_ratchet.py",
   "tests/unit/test_audit_committed_research_data.py",
   "tests/unit/test_benchmark_xmage_full_games.py",

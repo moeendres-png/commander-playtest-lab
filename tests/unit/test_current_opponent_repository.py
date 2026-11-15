@@ -38,30 +38,3 @@ def test_opponent_evidence_and_frozen_kaervek_are_preserved(repo_root) -> None:
     assert "partially_observed" in {
         kind.value for kind in records["opponent/morcant-elves"].evidence_kinds
     }
-
-
-def test_service_robustness_fallback_uses_repository_before_synthetic(repo_root) -> None:
-    from commander_lab.tools import CommanderToolService
-
-    service = CommanderToolService(repo_root)
-    current = CurrentOpponentRepository(repo_root).current_deck_ids()
-    pod = service._opponent_pod_for_size((), 15)
-
-    assert len(pod) == 14
-    assert set(pod) <= set(current)
-    assert "opponent/lorehold-spirit-precon" in pod
-    assert not any(deck_id.startswith("synthetic/") for deck_id in pod)
-
-
-def test_default_pilot_reference_pod_is_balanced_scheduler_output(repo_root) -> None:
-    from commander_lab.tools import CommanderToolService
-
-    service = CommanderToolService(repo_root)
-    first = service._balanced_reference_opponents((), seed=20260814)
-    second = service._balanced_reference_opponents((), seed=20260814)
-    current = set(CurrentOpponentRepository(repo_root).current_deck_ids())
-
-    assert first == second
-    assert len(first) == 3
-    assert len(set(first)) == 3
-    assert set(first) <= current
