@@ -1,0 +1,354 @@
+{
+ "urlhash": "-poYFvD5q5xJdjv5_3xBjA",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-02-28",
+ "price": 379,
+ "salt": 50.4841192252934,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/hHsOPmdMckmr39-PacTetg?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Alandra, Sky Dreamer",
+   "quantity": 1
+  },
+  {
+   "name": "Augur of Autumn",
+   "quantity": 1
+  },
+  {
+   "name": "Beast Whisperer",
+   "quantity": 1
+  },
+  {
+   "name": "Bloom Tender",
+   "quantity": 1
+  },
+  {
+   "name": "Boreal Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Bristly Bill, Spine Sower",
+   "quantity": 1
+  },
+  {
+   "name": "Circle of Dreams Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Coiling Oracle",
+   "quantity": 1
+  },
+  {
+   "name": "Druid of Purification",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Mystic",
+   "quantity": 1
+  },
+  {
+   "name": "Faeburrow Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Fanatic of Rhonas",
+   "quantity": 1
+  },
+  {
+   "name": "Fyndhorn Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Gala Greeters",
+   "quantity": 1
+  },
+  {
+   "name": "Gilt-Leaf Archdruid",
+   "quantity": 1
+  },
+  {
+   "name": "Grazilaxx, Illithid Scholar",
+   "quantity": 1
+  },
+  {
+   "name": "Gretchen Titchwillow",
+   "quantity": 1
+  },
+  {
+   "name": "Hydroid Krasis",
+   "quantity": 1
+  },
+  {
+   "name": "Jolrael, Mwonvuli Recluse",
+   "quantity": 1
+  },
+  {
+   "name": "Kamahl, Heart of Krosa",
+   "quantity": 1
+  },
+  {
+   "name": "Leafkin Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Luminarch Aspirant",
+   "quantity": 1
+  },
+  {
+   "name": "Outcaster Trailblazer",
+   "quantity": 1
+  },
+  {
+   "name": "Priest of Titania",
+   "quantity": 1
+  },
+  {
+   "name": "Prince Imrahil the Fair",
+   "quantity": 1
+  },
+  {
+   "name": "Psychosis Crawler",
+   "quantity": 1
+  },
+  {
+   "name": "Questing Beast",
+   "quantity": 1
+  },
+  {
+   "name": "Scute Swarm",
+   "quantity": 1
+  },
+  {
+   "name": "Social Climber",
+   "quantity": 1
+  },
+  {
+   "name": "Surrak and Goreclaw",
+   "quantity": 1
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Titan of Industry",
+   "quantity": 1
+  },
+  {
+   "name": "Toski, Bearer of Secrets",
+   "quantity": 1
+  },
+  {
+   "name": "Zopandrel, Hunger Dominus",
+   "quantity": 1
+  },
+  {
+   "name": "Biomass Mutation",
+   "quantity": 1
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1
+  },
+  {
+   "name": "Path to Exile",
+   "quantity": 1
+  },
+  {
+   "name": "Pull from Tomorrow",
+   "quantity": 1
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1
+  },
+  {
+   "name": "Three Steps Ahead",
+   "quantity": 1
+  },
+  {
+   "name": "Camaraderie",
+   "quantity": 1
+  },
+  {
+   "name": "Finale of Revelation",
+   "quantity": 1
+  },
+  {
+   "name": "Nature's Lore",
+   "quantity": 1
+  },
+  {
+   "name": "Rampant Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Shatter the Sky",
+   "quantity": 1
+  },
+  {
+   "name": "Three Visits",
+   "quantity": 1
+  },
+  {
+   "name": "Vanquish the Horde",
+   "quantity": 1
+  },
+  {
+   "name": "Mind Stone",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Thought Vessel",
+   "quantity": 1
+  },
+  {
+   "name": "Knowledge Is Power",
+   "quantity": 1
+  },
+  {
+   "name": "On the Trail",
+   "quantity": 1
+  },
+  {
+   "name": "Proft's Eidetic Memory",
+   "quantity": 1
+  },
+  {
+   "name": "Rhystic Study",
+   "quantity": 1
+  },
+  {
+   "name": "Roaring Earth",
+   "quantity": 1
+  },
+  {
+   "name": "Spelunking",
+   "quantity": 1
+  },
+  {
+   "name": "Teferi's Ageless Insight",
+   "quantity": 1
+  },
+  {
+   "name": "Unnatural Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Valor in Akros",
+   "quantity": 1
+  },
+  {
+   "name": "Wizard Class",
+   "quantity": 1
+  },
+  {
+   "name": "Teferi, Temporal Pilgrim",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Chancery",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Darksteel Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Exotic Orchard",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 9
+  },
+  {
+   "name": "Gavony Township",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 5
+  },
+  {
+   "name": "Path of Ancestry",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 5
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1
+  },
+  {
+   "name": "Rogue's Passage",
+   "quantity": 1
+  },
+  {
+   "name": "Scattered Groves",
+   "quantity": 1
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Growth Chamber",
+   "quantity": 1
+  },
+  {
+   "name": "Spara's Headquarters",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Enlightenment",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Mystery",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Plenty",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of the False God",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

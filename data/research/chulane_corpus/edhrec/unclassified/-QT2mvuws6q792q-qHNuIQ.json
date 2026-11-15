@@ -1,0 +1,294 @@
+{
+ "urlhash": "-QT2mvuws6q792q-qHNuIQ",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-09-15",
+ "price": 175,
+ "salt": 52.99357137456536,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/13098347?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Acidic Slime",
+   "quantity": 1
+  },
+  {
+   "name": "Augury Owl",
+   "quantity": 1
+  },
+  {
+   "name": "Briarbridge Patrol",
+   "quantity": 1
+  },
+  {
+   "name": "Bygone Bishop",
+   "quantity": 1
+  },
+  {
+   "name": "Byway Courier",
+   "quantity": 1
+  },
+  {
+   "name": "Daring Sleuth",
+   "quantity": 1
+  },
+  {
+   "name": "Drannith Magistrate",
+   "quantity": 1
+  },
+  {
+   "name": "Drownyard Explorers",
+   "quantity": 1
+  },
+  {
+   "name": "Elusive Krasis",
+   "quantity": 1
+  },
+  {
+   "name": "Emrakul, the Promised End",
+   "quantity": 1
+  },
+  {
+   "name": "Erdwal Illuminator",
+   "quantity": 1
+  },
+  {
+   "name": "Garruk's Packleader",
+   "quantity": 1
+  },
+  {
+   "name": "Graf Mole",
+   "quantity": 1
+  },
+  {
+   "name": "Incubation Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Steelbane Hydra",
+   "quantity": 1
+  },
+  {
+   "name": "Thalia, Heretic Cathar",
+   "quantity": 1
+  },
+  {
+   "name": "Thorn Mammoth",
+   "quantity": 1
+  },
+  {
+   "name": "Thraben Inspector",
+   "quantity": 1
+  },
+  {
+   "name": "Tireless Tracker",
+   "quantity": 1
+  },
+  {
+   "name": "Ulvenwald Hydra",
+   "quantity": 1
+  },
+  {
+   "name": "Vigor",
+   "quantity": 1
+  },
+  {
+   "name": "Cloudshift",
+   "quantity": 1
+  },
+  {
+   "name": "Confirm Suspicions",
+   "quantity": 1
+  },
+  {
+   "name": "Confront the Unknown",
+   "quantity": 1
+  },
+  {
+   "name": "Convolute",
+   "quantity": 1
+  },
+  {
+   "name": "Displace",
+   "quantity": 1
+  },
+  {
+   "name": "Essence Flux",
+   "quantity": 1
+  },
+  {
+   "name": "Expose Evil",
+   "quantity": 1
+  },
+  {
+   "name": "Humble the Brute",
+   "quantity": 1
+  },
+  {
+   "name": "Jace's Scrutiny",
+   "quantity": 1
+  },
+  {
+   "name": "Second Harvest",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Charm",
+   "quantity": 1
+  },
+  {
+   "name": "Survive the Night",
+   "quantity": 1
+  },
+  {
+   "name": "Thought Scour",
+   "quantity": 1
+  },
+  {
+   "name": "Gone Missing",
+   "quantity": 1
+  },
+  {
+   "name": "Ponder",
+   "quantity": 1
+  },
+  {
+   "name": "Press for Answers",
+   "quantity": 1
+  },
+  {
+   "name": "Rampant Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Root Out",
+   "quantity": 1
+  },
+  {
+   "name": "Supreme Verdict",
+   "quantity": 1
+  },
+  {
+   "name": "Coalition Relic",
+   "quantity": 1
+  },
+  {
+   "name": "Elixir of Immortality",
+   "quantity": 1
+  },
+  {
+   "name": "Expedition Map",
+   "quantity": 1
+  },
+  {
+   "name": "Explorer's Scope",
+   "quantity": 1
+  },
+  {
+   "name": "Magnifying Glass",
+   "quantity": 1
+  },
+  {
+   "name": "Mana Geode",
+   "quantity": 1
+  },
+  {
+   "name": "Prophetic Prism",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Tamiyo's Journal",
+   "quantity": 1
+  },
+  {
+   "name": "Voltaic Key",
+   "quantity": 1
+  },
+  {
+   "name": "Worn Powerstone",
+   "quantity": 1
+  },
+  {
+   "name": "Always Watching",
+   "quantity": 1
+  },
+  {
+   "name": "Authority of the Consuls",
+   "quantity": 1
+  },
+  {
+   "name": "Colossification",
+   "quantity": 1
+  },
+  {
+   "name": "Cryptolith Rite",
+   "quantity": 1
+  },
+  {
+   "name": "Curiosity",
+   "quantity": 1
+  },
+  {
+   "name": "Fleeting Memories",
+   "quantity": 1
+  },
+  {
+   "name": "Invocation of Saint Traft",
+   "quantity": 1
+  },
+  {
+   "name": "Ongoing Investigation",
+   "quantity": 1
+  },
+  {
+   "name": "Trail of Evidence",
+   "quantity": 1
+  },
+  {
+   "name": "Ulvenwald Mysteries",
+   "quantity": 1
+  },
+  {
+   "name": "Weirding Wood",
+   "quantity": 1
+  },
+  {
+   "name": "Jace, Unraveler of Secrets",
+   "quantity": 1
+  },
+  {
+   "name": "Tamiyo, Field Researcher",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 15
+  },
+  {
+   "name": "Island",
+   "quantity": 12
+  },
+  {
+   "name": "Plains",
+   "quantity": 7
+  },
+  {
+   "name": "Port Town",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}
