@@ -1,0 +1,318 @@
+{
+ "urlhash": "irIh1TnvgHVy9rGO62m9KA",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-06-03",
+ "price": 101,
+ "salt": 38.79870710289106,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/23161513?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Ascendant Acolyte",
+   "quantity": 1
+  },
+  {
+   "name": "Bloodline Pretender",
+   "quantity": 1
+  },
+  {
+   "name": "Changeling Wayfinder",
+   "quantity": 1
+  },
+  {
+   "name": "Chocobo Knights",
+   "quantity": 1
+  },
+  {
+   "name": "Forgotten Ancient",
+   "quantity": 1
+  },
+  {
+   "name": "Grateful Apparition",
+   "quantity": 1
+  },
+  {
+   "name": "Graypelt Hunter",
+   "quantity": 1
+  },
+  {
+   "name": "Grovetender Druids",
+   "quantity": 1
+  },
+  {
+   "name": "Hada Freeblade",
+   "quantity": 1
+  },
+  {
+   "name": "Harabaz Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Hero of Goma Fada",
+   "quantity": 1
+  },
+  {
+   "name": "Impostor of the Sixth Pride",
+   "quantity": 1
+  },
+  {
+   "name": "Irregular Cohort",
+   "quantity": 1
+  },
+  {
+   "name": "Jwari Shapeshifter",
+   "quantity": 1
+  },
+  {
+   "name": "Kabira Evangel",
+   "quantity": 1
+  },
+  {
+   "name": "Kazandu Blademaster",
+   "quantity": 1
+  },
+  {
+   "name": "Kor Entanglers",
+   "quantity": 1
+  },
+  {
+   "name": "Kor Scythemaster",
+   "quantity": 1
+  },
+  {
+   "name": "Moritte of the Frost",
+   "quantity": 1
+  },
+  {
+   "name": "Munda's Vanguard",
+   "quantity": 1
+  },
+  {
+   "name": "Ondu Cleric",
+   "quantity": 1
+  },
+  {
+   "name": "Oran-Rief Survivalist",
+   "quantity": 1
+  },
+  {
+   "name": "Realmwalker",
+   "quantity": 1
+  },
+  {
+   "name": "Rikku, Resourceful Guardian",
+   "quantity": 1
+  },
+  {
+   "name": "Sea Gate Loremaster",
+   "quantity": 1
+  },
+  {
+   "name": "Serene Steward",
+   "quantity": 1
+  },
+  {
+   "name": "Skyrider Elf",
+   "quantity": 1
+  },
+  {
+   "name": "Spawnbinder Mage",
+   "quantity": 1
+  },
+  {
+   "name": "Tajuru Archer",
+   "quantity": 1
+  },
+  {
+   "name": "Tajuru Stalwart",
+   "quantity": 1
+  },
+  {
+   "name": "Talus Paladin",
+   "quantity": 1
+  },
+  {
+   "name": "Three Tree Mascot",
+   "quantity": 1
+  },
+  {
+   "name": "Turntimber Ranger",
+   "quantity": 1
+  },
+  {
+   "name": "Umara Raptor",
+   "quantity": 1
+  },
+  {
+   "name": "Universal Automaton",
+   "quantity": 1
+  },
+  {
+   "name": "Vastwood Animist",
+   "quantity": 1
+  },
+  {
+   "name": "Veteran Warleader",
+   "quantity": 1
+  },
+  {
+   "name": "Clever Concealment",
+   "quantity": 1
+  },
+  {
+   "name": "Endless Detour",
+   "quantity": 1
+  },
+  {
+   "name": "Inspiring Call",
+   "quantity": 1
+  },
+  {
+   "name": "Join the Ranks",
+   "quantity": 1
+  },
+  {
+   "name": "Allied Reinforcements",
+   "quantity": 1
+  },
+  {
+   "name": "Bushwhack",
+   "quantity": 1
+  },
+  {
+   "name": "Collective Effort",
+   "quantity": 1
+  },
+  {
+   "name": "Rite of Replication",
+   "quantity": 1
+  },
+  {
+   "name": "Roamer's Routine",
+   "quantity": 1
+  },
+  {
+   "name": "Tend the Sprigs",
+   "quantity": 1
+  },
+  {
+   "name": "Unified Front",
+   "quantity": 1
+  },
+  {
+   "name": "Captain's Claws",
+   "quantity": 1
+  },
+  {
+   "name": "Maskwood Nexus",
+   "quantity": 1
+  },
+  {
+   "name": "Pillar of Origins",
+   "quantity": 1
+  },
+  {
+   "name": "Bred for the Hunt",
+   "quantity": 1
+  },
+  {
+   "name": "Far Traveler",
+   "quantity": 1
+  },
+  {
+   "name": "Hardened Scales",
+   "quantity": 1
+  },
+  {
+   "name": "Inexorable Tide",
+   "quantity": 1
+  },
+  {
+   "name": "Intruder Alarm",
+   "quantity": 1
+  },
+  {
+   "name": "Reflections of Littjara",
+   "quantity": 1
+  },
+  {
+   "name": "Resourceful Defense",
+   "quantity": 1
+  },
+  {
+   "name": "Retreat to Emeria",
+   "quantity": 1
+  },
+  {
+   "name": "Sphere Grid",
+   "quantity": 1
+  },
+  {
+   "name": "Together Forever",
+   "quantity": 1
+  },
+  {
+   "name": "Gideon, Ally of Zendikar",
+   "quantity": 1
+  },
+  {
+   "name": "Ally Encampment",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Dreamroot Cascade",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 7
+  },
+  {
+   "name": "Glacial Fortress",
+   "quantity": 1
+  },
+  {
+   "name": "Hinterland Harbor",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 7
+  },
+  {
+   "name": "Plains",
+   "quantity": 14
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Sunpetal Grove",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

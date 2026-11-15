@@ -1,0 +1,294 @@
+{
+ "urlhash": "h3iBDx0TVzSxG44tQKo3Pw",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-09-22",
+ "price": 315,
+ "salt": 51.420526357367635,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/26347024?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Academy Manufactor",
+   "quantity": 1
+  },
+  {
+   "name": "Aerith, Last Ancient",
+   "quantity": 1
+  },
+  {
+   "name": "Arbor Adherent",
+   "quantity": 1
+  },
+  {
+   "name": "Augmenter Pugilist",
+   "quantity": 1
+  },
+  {
+   "name": "Baru, Fist of Krosa",
+   "quantity": 1
+  },
+  {
+   "name": "Beast Whisperer",
+   "quantity": 1
+  },
+  {
+   "name": "Berta, Wise Extrapolator",
+   "quantity": 1
+  },
+  {
+   "name": "Casal, Lurkwood Pathfinder",
+   "quantity": 1
+  },
+  {
+   "name": "Centaur Nurturer",
+   "quantity": 1
+  },
+  {
+   "name": "Circle of Dreams Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Citanul Hierophants",
+   "quantity": 1
+  },
+  {
+   "name": "Citanul Woodreaders",
+   "quantity": 1
+  },
+  {
+   "name": "Drumhunter",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Regrower",
+   "quantity": 1
+  },
+  {
+   "name": "Fang Guardian",
+   "quantity": 1
+  },
+  {
+   "name": "Gilt-Leaf Archdruid",
+   "quantity": 1
+  },
+  {
+   "name": "Helga, Skittish Seer",
+   "quantity": 1
+  },
+  {
+   "name": "Honor Troll",
+   "quantity": 1
+  },
+  {
+   "name": "Imoti, Celebrant of Bounty",
+   "quantity": 1
+  },
+  {
+   "name": "Jiang Yanggu, Never Alone",
+   "quantity": 1
+  },
+  {
+   "name": "Jolrael, Voice of Zhalfir",
+   "quantity": 1
+  },
+  {
+   "name": "Karok Wrangler",
+   "quantity": 1
+  },
+  {
+   "name": "Lilysplash Mentor",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Visionary",
+   "quantity": 1
+  },
+  {
+   "name": "Lord Magnus",
+   "quantity": 1
+  },
+  {
+   "name": "Master Symmetrist",
+   "quantity": 1
+  },
+  {
+   "name": "Master of Ceremonies",
+   "quantity": 1
+  },
+  {
+   "name": "Mesa Enchantress",
+   "quantity": 1
+  },
+  {
+   "name": "Moon-Vigil Adherents",
+   "quantity": 1
+  },
+  {
+   "name": "Octomancer",
+   "quantity": 1
+  },
+  {
+   "name": "Ondu Giant",
+   "quantity": 1
+  },
+  {
+   "name": "Professor of Zoomancy",
+   "quantity": 1
+  },
+  {
+   "name": "Rootpath Purifier",
+   "quantity": 1
+  },
+  {
+   "name": "Seedguide Ash",
+   "quantity": 1
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Titanbones, Towering Heart",
+   "quantity": 1
+  },
+  {
+   "name": "Wild Wanderer",
+   "quantity": 1
+  },
+  {
+   "name": "Absorb",
+   "quantity": 1
+  },
+  {
+   "name": "Admiral's Order",
+   "quantity": 1
+  },
+  {
+   "name": "Collective Resistance",
+   "quantity": 1
+  },
+  {
+   "name": "Kamahl's Will",
+   "quantity": 1
+  },
+  {
+   "name": "Moogles' Valor",
+   "quantity": 1
+  },
+  {
+   "name": "Crashing Footfalls",
+   "quantity": 1
+  },
+  {
+   "name": "Inevitable Betrayal",
+   "quantity": 1
+  },
+  {
+   "name": "Mentor's Guidance",
+   "quantity": 1
+  },
+  {
+   "name": "Outmuscle",
+   "quantity": 1
+  },
+  {
+   "name": "Resurgent Belief",
+   "quantity": 1
+  },
+  {
+   "name": "Skyreaping",
+   "quantity": 1
+  },
+  {
+   "name": "Caduceus, Staff of Hermes",
+   "quantity": 1
+  },
+  {
+   "name": "Captain America's Shield",
+   "quantity": 1
+  },
+  {
+   "name": "Darksteel Plate",
+   "quantity": 1
+  },
+  {
+   "name": "Darksteel Reactor",
+   "quantity": 1
+  },
+  {
+   "name": "Mithril Coat",
+   "quantity": 1
+  },
+  {
+   "name": "Nutrient Block",
+   "quantity": 1
+  },
+  {
+   "name": "Pariah's Shield",
+   "quantity": 1
+  },
+  {
+   "name": "Additive Evolution",
+   "quantity": 1
+  },
+  {
+   "name": "Almost Perfect",
+   "quantity": 1
+  },
+  {
+   "name": "An Unexpected Party",
+   "quantity": 1
+  },
+  {
+   "name": "Anointed Procession",
+   "quantity": 1
+  },
+  {
+   "name": "Battle at the Helvault",
+   "quantity": 1
+  },
+  {
+   "name": "Campsite Cuisine",
+   "quantity": 1
+  },
+  {
+   "name": "Kindred Boon",
+   "quantity": 1
+  },
+  {
+   "name": "Pariah",
+   "quantity": 1
+  },
+  {
+   "name": "Invasion of Gobakhan",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 20
+  },
+  {
+   "name": "Island",
+   "quantity": 5
+  },
+  {
+   "name": "Jidoor, Aristocratic Capital",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 9
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

@@ -1,0 +1,358 @@
+{
+ "urlhash": "YYsw1Vnofn9Gr_Fq5lplhA",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-02-12",
+ "price": 223,
+ "salt": 43.806091466452926,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/Hf33BztxEk6rdeASDT8bbg?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Adaptive Sporesinger",
+   "quantity": 1
+  },
+  {
+   "name": "Arena Rector",
+   "quantity": 1
+  },
+  {
+   "name": "Bloated Contaminator",
+   "quantity": 1
+  },
+  {
+   "name": "Cankerbloom",
+   "quantity": 1
+  },
+  {
+   "name": "Copper Longlegs",
+   "quantity": 1
+  },
+  {
+   "name": "Curious Forager",
+   "quantity": 1
+  },
+  {
+   "name": "Djeru, With Eyes Open",
+   "quantity": 1
+  },
+  {
+   "name": "Dreamtide Whale",
+   "quantity": 1
+  },
+  {
+   "name": "Evolution Sage",
+   "quantity": 1
+  },
+  {
+   "name": "Evolution Witness",
+   "quantity": 1
+  },
+  {
+   "name": "Flensing Raptor",
+   "quantity": 1
+  },
+  {
+   "name": "Grateful Apparition",
+   "quantity": 1
+  },
+  {
+   "name": "Guildpact Informant",
+   "quantity": 1
+  },
+  {
+   "name": "Martyr for the Cause",
+   "quantity": 1
+  },
+  {
+   "name": "Metastatic Evangel",
+   "quantity": 1
+  },
+  {
+   "name": "Pollenbright Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Proud Pack-Rhino",
+   "quantity": 1
+  },
+  {
+   "name": "Tainted Observer",
+   "quantity": 1
+  },
+  {
+   "name": "Tekuthal, Inquiry Dominus",
+   "quantity": 1
+  },
+  {
+   "name": "Tireless Provisioner",
+   "quantity": 1
+  },
+  {
+   "name": "Venerated Rotpriest",
+   "quantity": 1
+  },
+  {
+   "name": "An Offer You Can't Refuse",
+   "quantity": 1
+  },
+  {
+   "name": "Arachnogenesis",
+   "quantity": 1
+  },
+  {
+   "name": "Aspirant's Ascent",
+   "quantity": 1
+  },
+  {
+   "name": "Brokers Confluence",
+   "quantity": 1
+  },
+  {
+   "name": "Brought Back",
+   "quantity": 1
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1
+  },
+  {
+   "name": "Experimental Augury",
+   "quantity": 1
+  },
+  {
+   "name": "Ignite the Beacon",
+   "quantity": 1
+  },
+  {
+   "name": "Parting Gust",
+   "quantity": 1
+  },
+  {
+   "name": "Prologue to Phyresis",
+   "quantity": 1
+  },
+  {
+   "name": "Radstorm",
+   "quantity": 1
+  },
+  {
+   "name": "Steady Progress",
+   "quantity": 1
+  },
+  {
+   "name": "Unbounded Potential",
+   "quantity": 1
+  },
+  {
+   "name": "Aether Helix",
+   "quantity": 1
+  },
+  {
+   "name": "Call the Gatewatch",
+   "quantity": 1
+  },
+  {
+   "name": "Contentious Plan",
+   "quantity": 1
+  },
+  {
+   "name": "Deploy the Gatewatch",
+   "quantity": 1
+  },
+  {
+   "name": "Invoke Justice",
+   "quantity": 1
+  },
+  {
+   "name": "Road of Return",
+   "quantity": 1
+  },
+  {
+   "name": "Tezzeret's Gambit",
+   "quantity": 1
+  },
+  {
+   "name": "Thirsting Roots",
+   "quantity": 1
+  },
+  {
+   "name": "Wanderer's Strike",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Chromatic Lantern",
+   "quantity": 1
+  },
+  {
+   "name": "Glistening Sphere",
+   "quantity": 1
+  },
+  {
+   "name": "Ichormoon Gauntlet",
+   "quantity": 1
+  },
+  {
+   "name": "Relic of Legends",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Thought Vessel",
+   "quantity": 1
+  },
+  {
+   "name": "Builder's Talent",
+   "quantity": 1
+  },
+  {
+   "name": "Inexorable Tide",
+   "quantity": 1
+  },
+  {
+   "name": "Ajani, Sleeper Agent",
+   "quantity": 1
+  },
+  {
+   "name": "Kasmina, Enigma Sage",
+   "quantity": 1
+  },
+  {
+   "name": "Narset, Parter of Veils",
+   "quantity": 1
+  },
+  {
+   "name": "Nissa, Vital Force",
+   "quantity": 1
+  },
+  {
+   "name": "Oko, the Ringleader",
+   "quantity": 1
+  },
+  {
+   "name": "Tamiyo, Compleated Sage",
+   "quantity": 1
+  },
+  {
+   "name": "Tamiyo, Field Researcher",
+   "quantity": 1
+  },
+  {
+   "name": "Tamiyo, the Moon Sage",
+   "quantity": 1
+  },
+  {
+   "name": "Adarkar Wastes",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Chancery",
+   "quantity": 1
+  },
+  {
+   "name": "Brushland",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Creosote Heath",
+   "quantity": 1
+  },
+  {
+   "name": "Dreamroot Cascade",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 6
+  },
+  {
+   "name": "Island",
+   "quantity": 6
+  },
+  {
+   "name": "Lonely Arroyo",
+   "quantity": 1
+  },
+  {
+   "name": "Lush Oasis",
+   "quantity": 1
+  },
+  {
+   "name": "Overflowing Basin",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 6
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Growth Chamber",
+   "quantity": 1
+  },
+  {
+   "name": "Skycloud Expanse",
+   "quantity": 1
+  },
+  {
+   "name": "Sungrass Prairie",
+   "quantity": 1
+  },
+  {
+   "name": "Yavimaya Coast",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

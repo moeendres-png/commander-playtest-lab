@@ -1,0 +1,374 @@
+{
+ "urlhash": "daoMbQA-Ra8wvQhJapEv_g",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-07-21",
+ "price": 882,
+ "salt": 49.39394609630108,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/8339205?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Alistair, the Brigadier",
+   "quantity": 1
+  },
+  {
+   "name": "Angel of the Ruins",
+   "quantity": 1
+  },
+  {
+   "name": "Auton Soldier",
+   "quantity": 1
+  },
+  {
+   "name": "Blightsteel Colossus",
+   "quantity": 1
+  },
+  {
+   "name": "Boromir, Warden of the Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Captain Sisay",
+   "quantity": 1
+  },
+  {
+   "name": "Daring Archaeologist",
+   "quantity": 1
+  },
+  {
+   "name": "Delighted Halfling",
+   "quantity": 1
+  },
+  {
+   "name": "Diligent Excavator",
+   "quantity": 1
+  },
+  {
+   "name": "Displaced Dinosaurs",
+   "quantity": 1
+  },
+  {
+   "name": "Foggy Nelson, On Retainer",
+   "quantity": 1
+  },
+  {
+   "name": "Galadriel, Light of Valinor",
+   "quantity": 1
+  },
+  {
+   "name": "Gandalf the White",
+   "quantity": 1
+  },
+  {
+   "name": "Goldbug, Humanity's Ally",
+   "quantity": 1
+  },
+  {
+   "name": "Gregor, Shrewd Magistrate",
+   "quantity": 1
+  },
+  {
+   "name": "Haruspex",
+   "quantity": 1
+  },
+  {
+   "name": "Jamie McCrimmon",
+   "quantity": 1
+  },
+  {
+   "name": "Jennifer Walters",
+   "quantity": 1
+  },
+  {
+   "name": "Jhoira's Familiar",
+   "quantity": 1
+  },
+  {
+   "name": "K-9, Mark I",
+   "quantity": 1
+  },
+  {
+   "name": "Lady Octopus, Inspired Inventor",
+   "quantity": 1
+  },
+  {
+   "name": "Layla Hassan",
+   "quantity": 1
+  },
+  {
+   "name": "Peter Parker",
+   "quantity": 1
+  },
+  {
+   "name": "Prowl, Stoic Strategist",
+   "quantity": 1
+  },
+  {
+   "name": "Puresteel Paladin",
+   "quantity": 1
+  },
+  {
+   "name": "Raff Capashen, Ship's Mage",
+   "quantity": 1
+  },
+  {
+   "name": "Reki, the History of Kamigawa",
+   "quantity": 1
+  },
+  {
+   "name": "Samwise Gamgee",
+   "quantity": 1
+  },
+  {
+   "name": "Sarah Jane Smith",
+   "quantity": 1
+  },
+  {
+   "name": "Senu, Keen-Eyed Protector",
+   "quantity": 1
+  },
+  {
+   "name": "Sokrates, Athenian Teacher",
+   "quantity": 1
+  },
+  {
+   "name": "Tadeas, Juniper Ascendant",
+   "quantity": 1
+  },
+  {
+   "name": "Tegan Jovanka",
+   "quantity": 1
+  },
+  {
+   "name": "Teshar, Ancestor's Apostle",
+   "quantity": 1
+  },
+  {
+   "name": "The Capitoline Triad",
+   "quantity": 1
+  },
+  {
+   "name": "The Eighth Doctor",
+   "quantity": 1
+  },
+  {
+   "name": "The Fourth Doctor",
+   "quantity": 1
+  },
+  {
+   "name": "The Sixth Doctor",
+   "quantity": 1
+  },
+  {
+   "name": "Willie Lumpkin, Postman",
+   "quantity": 1
+  },
+  {
+   "name": "Yoshimaru, Ever Faithful",
+   "quantity": 1
+  },
+  {
+   "name": "Zack Fair",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Denial",
+   "quantity": 1
+  },
+  {
+   "name": "Cyber Conversion",
+   "quantity": 1
+  },
+  {
+   "name": "Desynchronization",
+   "quantity": 1
+  },
+  {
+   "name": "Krosan Grip",
+   "quantity": 1
+  },
+  {
+   "name": "Reprieve",
+   "quantity": 1
+  },
+  {
+   "name": "What Must Be Done",
+   "quantity": 1
+  },
+  {
+   "name": "Crown of Gondor",
+   "quantity": 1
+  },
+  {
+   "name": "Crystal Skull, Isu Spyglass",
+   "quantity": 1
+  },
+  {
+   "name": "Excalibur, Sword of Eden",
+   "quantity": 1
+  },
+  {
+   "name": "Heroes' Podium",
+   "quantity": 1
+  },
+  {
+   "name": "Mithril Coat",
+   "quantity": 1
+  },
+  {
+   "name": "Pip-Boy 3000",
+   "quantity": 1
+  },
+  {
+   "name": "Relic of Legends",
+   "quantity": 1
+  },
+  {
+   "name": "Shadowspear",
+   "quantity": 1
+  },
+  {
+   "name": "Sonic Screwdriver",
+   "quantity": 1
+  },
+  {
+   "name": "The One Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Banish to Another Universe",
+   "quantity": 1
+  },
+  {
+   "name": "Flowering of the White Tree",
+   "quantity": 1
+  },
+  {
+   "name": "Kellan Joins Up",
+   "quantity": 1
+  },
+  {
+   "name": "Search for Azcanta",
+   "quantity": 1
+  },
+  {
+   "name": "Abstergo Entertainment",
+   "quantity": 1
+  },
+  {
+   "name": "Academy Ruins",
+   "quantity": 1
+  },
+  {
+   "name": "Boseiju, Who Endures",
+   "quantity": 1
+  },
+  {
+   "name": "Botanical Sanctum",
+   "quantity": 1
+  },
+  {
+   "name": "Deserted Beach",
+   "quantity": 1
+  },
+  {
+   "name": "Eiganjo Castle",
+   "quantity": 1
+  },
+  {
+   "name": "Eiganjo, Seat of the Empire",
+   "quantity": 1
+  },
+  {
+   "name": "Exotic Orchard",
+   "quantity": 1
+  },
+  {
+   "name": "Fabled Passage",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 5
+  },
+  {
+   "name": "Fortified Village",
+   "quantity": 1
+  },
+  {
+   "name": "Hedge Maze",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 4
+  },
+  {
+   "name": "Lush Portico",
+   "quantity": 1
+  },
+  {
+   "name": "Meticulous Archive",
+   "quantity": 1
+  },
+  {
+   "name": "Minamo, School at Water's Edge",
+   "quantity": 1
+  },
+  {
+   "name": "Minas Tirith",
+   "quantity": 1
+  },
+  {
+   "name": "Monumental Henge",
+   "quantity": 1
+  },
+  {
+   "name": "Otawara, Soaring City",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 5
+  },
+  {
+   "name": "Plaza of Heroes",
+   "quantity": 1
+  },
+  {
+   "name": "Reflecting Pool",
+   "quantity": 1
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Rivendell",
+   "quantity": 1
+  },
+  {
+   "name": "The Shire",
+   "quantity": 1
+  },
+  {
+   "name": "Trenzalore Clocktower",
+   "quantity": 1
+  },
+  {
+   "name": "Urza's Saga",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

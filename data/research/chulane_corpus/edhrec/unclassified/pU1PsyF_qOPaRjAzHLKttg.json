@@ -1,0 +1,302 @@
+{
+ "urlhash": "pU1PsyF_qOPaRjAzHLKttg",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-05-16",
+ "price": 74,
+ "salt": 40.9567446783185,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/22629695?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Augury Adept",
+   "quantity": 1
+  },
+  {
+   "name": "Ballynock Trapper",
+   "quantity": 1
+  },
+  {
+   "name": "Ballyrush Banneret",
+   "quantity": 1
+  },
+  {
+   "name": "Brigid, Clachan's Heart",
+   "quantity": 1
+  },
+  {
+   "name": "Brigid, Hero of Kinsbaile",
+   "quantity": 1
+  },
+  {
+   "name": "Burrenton Forge-Tender",
+   "quantity": 1
+  },
+  {
+   "name": "Cenn's Heir",
+   "quantity": 1
+  },
+  {
+   "name": "Cenn's Tactician",
+   "quantity": 1
+  },
+  {
+   "name": "Changeling Wayfinder",
+   "quantity": 1
+  },
+  {
+   "name": "Chomping Changeling",
+   "quantity": 1
+  },
+  {
+   "name": "Figure of Fable",
+   "quantity": 1
+  },
+  {
+   "name": "Flock Impostor",
+   "quantity": 1
+  },
+  {
+   "name": "Gaddock Teeg",
+   "quantity": 1
+  },
+  {
+   "name": "Goldmeadow Dodger",
+   "quantity": 1
+  },
+  {
+   "name": "Goldmeadow Harrier",
+   "quantity": 1
+  },
+  {
+   "name": "Goldmeadow Stalwart",
+   "quantity": 1
+  },
+  {
+   "name": "Kinsbaile Aspirant",
+   "quantity": 1
+  },
+  {
+   "name": "Kinsbaile Cavalier",
+   "quantity": 1
+  },
+  {
+   "name": "Kinsbaile Courier",
+   "quantity": 1
+  },
+  {
+   "name": "Kinsbaile Skirmisher",
+   "quantity": 1
+  },
+  {
+   "name": "Knight of Meadowgrain",
+   "quantity": 1
+  },
+  {
+   "name": "Mistmeadow Vanisher",
+   "quantity": 1
+  },
+  {
+   "name": "Mistmeadow Witch",
+   "quantity": 1
+  },
+  {
+   "name": "Mosquito Guard",
+   "quantity": 1
+  },
+  {
+   "name": "Omni-Changeling",
+   "quantity": 1
+  },
+  {
+   "name": "Order of Whiteclay",
+   "quantity": 1
+  },
+  {
+   "name": "Patrol Signaler",
+   "quantity": 1
+  },
+  {
+   "name": "Preeminent Captain",
+   "quantity": 1
+  },
+  {
+   "name": "Rooftop Percher",
+   "quantity": 1
+  },
+  {
+   "name": "Springjack Shepherd",
+   "quantity": 1
+  },
+  {
+   "name": "Thistledown Duo",
+   "quantity": 1
+  },
+  {
+   "name": "Thistledown Liege",
+   "quantity": 1
+  },
+  {
+   "name": "Thoughtweft Lieutenant",
+   "quantity": 1
+  },
+  {
+   "name": "Thoughtweft Trio",
+   "quantity": 1
+  },
+  {
+   "name": "Wizened Cenn",
+   "quantity": 1
+  },
+  {
+   "name": "Endure",
+   "quantity": 1
+  },
+  {
+   "name": "Fated Retribution",
+   "quantity": 1
+  },
+  {
+   "name": "Protective Response",
+   "quantity": 1
+  },
+  {
+   "name": "Pyrrhic Strike",
+   "quantity": 1
+  },
+  {
+   "name": "Repel Intruders",
+   "quantity": 1
+  },
+  {
+   "name": "Riverguard's Reflexes",
+   "quantity": 1
+  },
+  {
+   "name": "Thoughtweft Charge",
+   "quantity": 1
+  },
+  {
+   "name": "Thoughtweft Gambit",
+   "quantity": 1
+  },
+  {
+   "name": "Unforgiving Aim",
+   "quantity": 1
+  },
+  {
+   "name": "Brigid's Command",
+   "quantity": 1
+  },
+  {
+   "name": "Cenn's Enlistment",
+   "quantity": 1
+  },
+  {
+   "name": "Spry and Mighty",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Bark of Doran",
+   "quantity": 1
+  },
+  {
+   "name": "Commander's Sphere",
+   "quantity": 1
+  },
+  {
+   "name": "Cultist's Staff",
+   "quantity": 1
+  },
+  {
+   "name": "Dawn-Blessed Pennant",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Blossombind",
+   "quantity": 1
+  },
+  {
+   "name": "Clachan Festival",
+   "quantity": 1
+  },
+  {
+   "name": "Evershrike's Gift",
+   "quantity": 1
+  },
+  {
+   "name": "Gilt-Leaf's Embrace",
+   "quantity": 1
+  },
+  {
+   "name": "Kinbinding",
+   "quantity": 1
+  },
+  {
+   "name": "Militia's Pride",
+   "quantity": 1
+  },
+  {
+   "name": "Noggle the Mind",
+   "quantity": 1
+  },
+  {
+   "name": "Spiral into Solitude",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 11
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 11
+  },
+  {
+   "name": "Mystic Gate",
+   "quantity": 1
+  },
+  {
+   "name": "Path of Ancestry",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 10
+  },
+  {
+   "name": "Rustic Clachan",
+   "quantity": 1
+  },
+  {
+   "name": "Temple Garden",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

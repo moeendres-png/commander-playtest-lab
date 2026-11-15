@@ -1,0 +1,170 @@
+{
+ "urlhash": "ogRCS1nWZoppzcwvVl34uw",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-05-11",
+ "price": 110,
+ "salt": 50.19807389983907,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/AavlydHEEkmZEIWEqCD0Cw?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Cynette, Jelly Drover",
+   "quantity": 1
+  },
+  {
+   "name": "Donal, Herald of Wings",
+   "quantity": 1
+  },
+  {
+   "name": "Errant and Giada",
+   "quantity": 1
+  },
+  {
+   "name": "Gwaihir the Windlord",
+   "quantity": 1
+  },
+  {
+   "name": "Inniaz, the Gale Force",
+   "quantity": 1
+  },
+  {
+   "name": "Kangee, Sky Warden",
+   "quantity": 1
+  },
+  {
+   "name": "Kastral, the Windcrested",
+   "quantity": 1
+  },
+  {
+   "name": "Laboratory Maniac",
+   "quantity": 1
+  },
+  {
+   "name": "Stormscape Familiar",
+   "quantity": 1
+  },
+  {
+   "name": "Tempest Hawk",
+   "quantity": 33
+  },
+  {
+   "name": "Warden of Evos Isle",
+   "quantity": 1
+  },
+  {
+   "name": "Watcher of the Spheres",
+   "quantity": 1
+  },
+  {
+   "name": "Cleansing Nova",
+   "quantity": 1
+  },
+  {
+   "name": "Dusk // Dawn",
+   "quantity": 1
+  },
+  {
+   "name": "Fell the Mighty",
+   "quantity": 1
+  },
+  {
+   "name": "Martial Coup",
+   "quantity": 1
+  },
+  {
+   "name": "Rampant Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Slaughter the Strong",
+   "quantity": 1
+  },
+  {
+   "name": "Three Visits",
+   "quantity": 1
+  },
+  {
+   "name": "Decanter of Endless Water",
+   "quantity": 1
+  },
+  {
+   "name": "Folio of Fancies",
+   "quantity": 1
+  },
+  {
+   "name": "Pearl Medallion",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Always Watching",
+   "quantity": 1
+  },
+  {
+   "name": "Divine Sacrament",
+   "quantity": 1
+  },
+  {
+   "name": "Honor of the Pure",
+   "quantity": 1
+  },
+  {
+   "name": "Arctic Treeline",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 11
+  },
+  {
+   "name": "Island",
+   "quantity": 11
+  },
+  {
+   "name": "Plains",
+   "quantity": 11
+  },
+  {
+   "name": "Radiant Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Scattered Groves",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Enlightenment",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Mystery",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Plenty",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

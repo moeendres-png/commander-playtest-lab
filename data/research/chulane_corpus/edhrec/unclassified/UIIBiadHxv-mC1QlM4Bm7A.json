@@ -1,0 +1,374 @@
+{
+ "urlhash": "UIIBiadHxv-mC1QlM4Bm7A",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-03-25",
+ "price": 193,
+ "salt": 46.36413589119911,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/Z4BLvY5ibE60T5glML6ikQ?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Annex Sentry",
+   "quantity": 1
+  },
+  {
+   "name": "Avacyn's Pilgrim",
+   "quantity": 1
+  },
+  {
+   "name": "Blight Mamba",
+   "quantity": 1
+  },
+  {
+   "name": "Blighted Agent",
+   "quantity": 1
+  },
+  {
+   "name": "Bloated Contaminator",
+   "quantity": 1
+  },
+  {
+   "name": "Bloodroot Apothecary",
+   "quantity": 1
+  },
+  {
+   "name": "Cankerbloom",
+   "quantity": 1
+  },
+  {
+   "name": "Contaminant Grafter",
+   "quantity": 1
+  },
+  {
+   "name": "Crawling Chorus",
+   "quantity": 1
+  },
+  {
+   "name": "Dreamtide Whale",
+   "quantity": 1
+  },
+  {
+   "name": "Evolution Sage",
+   "quantity": 1
+  },
+  {
+   "name": "Glissa's Retriever",
+   "quantity": 1
+  },
+  {
+   "name": "Glistener Elf",
+   "quantity": 1
+  },
+  {
+   "name": "Grateful Apparition",
+   "quantity": 1
+  },
+  {
+   "name": "Jawbone Duelist",
+   "quantity": 1
+  },
+  {
+   "name": "Metastatic Evangel",
+   "quantity": 1
+  },
+  {
+   "name": "Nightshade Dryad",
+   "quantity": 1
+  },
+  {
+   "name": "Norn's Choirmaster",
+   "quantity": 1
+  },
+  {
+   "name": "Phyrexian Swarmlord",
+   "quantity": 1
+  },
+  {
+   "name": "Plague Myr",
+   "quantity": 1
+  },
+  {
+   "name": "Sakura-Tribe Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Skrelv, Defector Mite",
+   "quantity": 1
+  },
+  {
+   "name": "Slaughter Singer",
+   "quantity": 1
+  },
+  {
+   "name": "Tainted Observer",
+   "quantity": 1
+  },
+  {
+   "name": "Tetsuko Umezawa, Fugitive",
+   "quantity": 1
+  },
+  {
+   "name": "Thrummingbird",
+   "quantity": 1
+  },
+  {
+   "name": "Tyrranax Rex",
+   "quantity": 1
+  },
+  {
+   "name": "Venerated Rotpriest",
+   "quantity": 1
+  },
+  {
+   "name": "Venomous Brutalizer",
+   "quantity": 1
+  },
+  {
+   "name": "Viridian Corrupter",
+   "quantity": 1
+  },
+  {
+   "name": "Aspirant's Ascent",
+   "quantity": 1
+  },
+  {
+   "name": "Charge of the Mites",
+   "quantity": 1
+  },
+  {
+   "name": "Endless Detour",
+   "quantity": 1
+  },
+  {
+   "name": "Experimental Augury",
+   "quantity": 1
+  },
+  {
+   "name": "Infectious Bite",
+   "quantity": 1
+  },
+  {
+   "name": "Negate",
+   "quantity": 1
+  },
+  {
+   "name": "Path to Exile",
+   "quantity": 1
+  },
+  {
+   "name": "Prologue to Phyresis",
+   "quantity": 1
+  },
+  {
+   "name": "Quick Study",
+   "quantity": 1
+  },
+  {
+   "name": "Serum Snare",
+   "quantity": 1
+  },
+  {
+   "name": "Snakeskin Veil",
+   "quantity": 1
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1
+  },
+  {
+   "name": "Thraben Charm",
+   "quantity": 1
+  },
+  {
+   "name": "Expand the Sphere",
+   "quantity": 1
+  },
+  {
+   "name": "Helping Hand",
+   "quantity": 1
+  },
+  {
+   "name": "Noxious Assault",
+   "quantity": 1
+  },
+  {
+   "name": "Sunfall",
+   "quantity": 1
+  },
+  {
+   "name": "Unnatural Restoration",
+   "quantity": 1
+  },
+  {
+   "name": "White Sun's Twilight",
+   "quantity": 1
+  },
+  {
+   "name": "Wurmquake",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Contagion Clasp",
+   "quantity": 1
+  },
+  {
+   "name": "Glistening Sphere",
+   "quantity": 1
+  },
+  {
+   "name": "Norn's Annex",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Swiftfoot Boots",
+   "quantity": 1
+  },
+  {
+   "name": "Talisman of Curiosity",
+   "quantity": 1
+  },
+  {
+   "name": "Talisman of Unity",
+   "quantity": 1
+  },
+  {
+   "name": "Norn's Decree",
+   "quantity": 1
+  },
+  {
+   "name": "Propaganda",
+   "quantity": 1
+  },
+  {
+   "name": "Skrelv's Hive",
+   "quantity": 1
+  },
+  {
+   "name": "Ajani, Sleeper Agent",
+   "quantity": 1
+  },
+  {
+   "name": "Nissa, Ascended Animist",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Chancery",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Dreamroot Cascade",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Exotic Orchard",
+   "quantity": 1
+  },
+  {
+   "name": "Flooded Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 5
+  },
+  {
+   "name": "Glacial Fortress",
+   "quantity": 1
+  },
+  {
+   "name": "Hushwood Verge",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 4
+  },
+  {
+   "name": "Karn's Bastion",
+   "quantity": 1
+  },
+  {
+   "name": "Mirrex",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 5
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Growth Chamber",
+   "quantity": 1
+  },
+  {
+   "name": "Skycloud Expanse",
+   "quantity": 1
+  },
+  {
+   "name": "Sungrass Prairie",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Enlightenment",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Mystery",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Landscape",
+   "quantity": 1
+  },
+  {
+   "name": "Vineglimmer Snarl",
+   "quantity": 1
+  },
+  {
+   "name": "Yavimaya Coast",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

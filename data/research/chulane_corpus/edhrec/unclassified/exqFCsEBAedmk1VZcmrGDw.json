@@ -1,0 +1,278 @@
+{
+ "urlhash": "exqFCsEBAedmk1VZcmrGDw",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-05-07",
+ "price": 543,
+ "salt": 50.935573380440474,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/1lfTbiA-IUihKkQyVcFosw?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Beast Whisperer",
+   "quantity": 1
+  },
+  {
+   "name": "Charix, the Raging Isle",
+   "quantity": 1
+  },
+  {
+   "name": "Chromeshell Crab",
+   "quantity": 1
+  },
+  {
+   "name": "Hedron Crab",
+   "quantity": 1
+  },
+  {
+   "name": "Homarid Explorer",
+   "quantity": 1
+  },
+  {
+   "name": "Homarid Shaman",
+   "quantity": 1
+  },
+  {
+   "name": "Horseshoe Crab",
+   "quantity": 1
+  },
+  {
+   "name": "Iceberg Cancrix",
+   "quantity": 1
+  },
+  {
+   "name": "King Crab",
+   "quantity": 1
+  },
+  {
+   "name": "Kinnan, Bonder Prodigy",
+   "quantity": 1
+  },
+  {
+   "name": "Mentor of the Meek",
+   "quantity": 1
+  },
+  {
+   "name": "Mirrorshell Crab",
+   "quantity": 1
+  },
+  {
+   "name": "Nyxbloom Ancient",
+   "quantity": 1
+  },
+  {
+   "name": "Oraxid",
+   "quantity": 1
+  },
+  {
+   "name": "Purple-Crystal Crab",
+   "quantity": 1
+  },
+  {
+   "name": "Riptide Crab",
+   "quantity": 1
+  },
+  {
+   "name": "Ruin Crab",
+   "quantity": 1
+  },
+  {
+   "name": "Salvage Scuttler",
+   "quantity": 1
+  },
+  {
+   "name": "Scuttlegator",
+   "quantity": 1
+  },
+  {
+   "name": "Shambleshark",
+   "quantity": 1
+  },
+  {
+   "name": "Sharktocrab",
+   "quantity": 1
+  },
+  {
+   "name": "Skitter Eel",
+   "quantity": 1
+  },
+  {
+   "name": "Skittering Crustacean",
+   "quantity": 1
+  },
+  {
+   "name": "Thassa's Emissary",
+   "quantity": 1
+  },
+  {
+   "name": "Thassa, God of the Sea",
+   "quantity": 1
+  },
+  {
+   "name": "Viscerid Deepwalker",
+   "quantity": 1
+  },
+  {
+   "name": "Wormfang Crab",
+   "quantity": 1
+  },
+  {
+   "name": "Bant Charm",
+   "quantity": 1
+  },
+  {
+   "name": "Brainstorm",
+   "quantity": 1
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1
+  },
+  {
+   "name": "Disallow",
+   "quantity": 1
+  },
+  {
+   "name": "Dive Down",
+   "quantity": 1
+  },
+  {
+   "name": "Generous Gift",
+   "quantity": 1
+  },
+  {
+   "name": "Keep Safe",
+   "quantity": 1
+  },
+  {
+   "name": "Mana Drain",
+   "quantity": 1
+  },
+  {
+   "name": "Negate",
+   "quantity": 1
+  },
+  {
+   "name": "Pongify",
+   "quantity": 1
+  },
+  {
+   "name": "Shell Shield",
+   "quantity": 1
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1
+  },
+  {
+   "name": "Cultivate",
+   "quantity": 1
+  },
+  {
+   "name": "Distant Melody",
+   "quantity": 1
+  },
+  {
+   "name": "Explore",
+   "quantity": 1
+  },
+  {
+   "name": "Farseek",
+   "quantity": 1
+  },
+  {
+   "name": "Kodama's Reach",
+   "quantity": 1
+  },
+  {
+   "name": "Rampant Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Spectral Deluge",
+   "quantity": 1
+  },
+  {
+   "name": "Three Visits",
+   "quantity": 1
+  },
+  {
+   "name": "Akroma's Memorial",
+   "quantity": 1
+  },
+  {
+   "name": "Bident of Thassa",
+   "quantity": 1
+  },
+  {
+   "name": "Door of Destinies",
+   "quantity": 1
+  },
+  {
+   "name": "Machine God's Effigy",
+   "quantity": 1
+  },
+  {
+   "name": "Mana Vault",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Keyrune",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Vanquisher's Banner",
+   "quantity": 1
+  },
+  {
+   "name": "Cathars' Crusade",
+   "quantity": 1
+  },
+  {
+   "name": "Crab Umbra",
+   "quantity": 1
+  },
+  {
+   "name": "Hermetic Study",
+   "quantity": 1
+  },
+  {
+   "name": "Homarid Spawning Bed",
+   "quantity": 1
+  },
+  {
+   "name": "Rhystic Study",
+   "quantity": 1
+  },
+  {
+   "name": "Shared Triumph",
+   "quantity": 1
+  },
+  {
+   "name": "Snow-Covered Forest",
+   "quantity": 13
+  },
+  {
+   "name": "Snow-Covered Island",
+   "quantity": 16
+  },
+  {
+   "name": "Snow-Covered Plains",
+   "quantity": 9
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

@@ -1,0 +1,370 @@
+{
+ "urlhash": "0ef9ku3ZqNC-T7RO-VWI7g",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-05-04",
+ "price": 153,
+ "salt": 37.29155055945739,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/U2Vgm_ucH0GXhN3XDNPslA?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Acidic Slime",
+   "quantity": 1
+  },
+  {
+   "name": "Adipose Offspring",
+   "quantity": 1
+  },
+  {
+   "name": "Akroan Horse",
+   "quantity": 1
+  },
+  {
+   "name": "Angelic Wall",
+   "quantity": 1
+  },
+  {
+   "name": "Avacyn's Pilgrim",
+   "quantity": 1
+  },
+  {
+   "name": "Belligerent Brontodon",
+   "quantity": 1
+  },
+  {
+   "name": "Coral Colony",
+   "quantity": 1
+  },
+  {
+   "name": "Courser of Kruphix",
+   "quantity": 1
+  },
+  {
+   "name": "Daxos, Blessed by the Sun",
+   "quantity": 1
+  },
+  {
+   "name": "Dazzling Ramparts",
+   "quantity": 1
+  },
+  {
+   "name": "Defiler of Dreams",
+   "quantity": 1
+  },
+  {
+   "name": "Defiler of Faith",
+   "quantity": 1
+  },
+  {
+   "name": "Defiler of Vigor",
+   "quantity": 1
+  },
+  {
+   "name": "Doorkeeper",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Mystic",
+   "quantity": 1
+  },
+  {
+   "name": "Evolution Sage",
+   "quantity": 1
+  },
+  {
+   "name": "Faeburrow Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Faithbound Judge",
+   "quantity": 1
+  },
+  {
+   "name": "Floriferous Vinewall",
+   "quantity": 1
+  },
+  {
+   "name": "Geralf, Visionary Stitcher",
+   "quantity": 1
+  },
+  {
+   "name": "Gold Myr",
+   "quantity": 1
+  },
+  {
+   "name": "Guardians of Meletis",
+   "quantity": 1
+  },
+  {
+   "name": "Junktroller",
+   "quantity": 1
+  },
+  {
+   "name": "Kaijin of the Vanishing Touch",
+   "quantity": 1
+  },
+  {
+   "name": "Kiora's Follower",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Manglehorn",
+   "quantity": 1
+  },
+  {
+   "name": "Manor Gargoyle",
+   "quantity": 1
+  },
+  {
+   "name": "Mentor of the Meek",
+   "quantity": 1
+  },
+  {
+   "name": "Militia Bugler",
+   "quantity": 1
+  },
+  {
+   "name": "Mnemonic Wall",
+   "quantity": 1
+  },
+  {
+   "name": "Moorland Rescuer",
+   "quantity": 1
+  },
+  {
+   "name": "Pit Automaton",
+   "quantity": 1
+  },
+  {
+   "name": "Portcullis Vine",
+   "quantity": 1
+  },
+  {
+   "name": "Pride Guardian",
+   "quantity": 1
+  },
+  {
+   "name": "Primal Plasma",
+   "quantity": 1
+  },
+  {
+   "name": "Psychic Membrane",
+   "quantity": 1
+  },
+  {
+   "name": "Rasaad yn Bashir",
+   "quantity": 1
+  },
+  {
+   "name": "Reclamation Sage",
+   "quantity": 1
+  },
+  {
+   "name": "Sanctum Plowbeast",
+   "quantity": 1
+  },
+  {
+   "name": "Shield-Wall Sentinel",
+   "quantity": 1
+  },
+  {
+   "name": "Silver Myr",
+   "quantity": 1
+  },
+  {
+   "name": "Skyclave Apparition",
+   "quantity": 1
+  },
+  {
+   "name": "Traproot Kami",
+   "quantity": 1
+  },
+  {
+   "name": "Vertigo Spawn",
+   "quantity": 1
+  },
+  {
+   "name": "Wakestone Gargoyle",
+   "quantity": 1
+  },
+  {
+   "name": "Walking Bulwark",
+   "quantity": 1
+  },
+  {
+   "name": "Wall of Frost",
+   "quantity": 1
+  },
+  {
+   "name": "Wall of Mist",
+   "quantity": 1
+  },
+  {
+   "name": "Wall of Mourning",
+   "quantity": 1
+  },
+  {
+   "name": "Wall of Omens",
+   "quantity": 1
+  },
+  {
+   "name": "Wall of Runes",
+   "quantity": 1
+  },
+  {
+   "name": "Wingmantle Chaplain",
+   "quantity": 1
+  },
+  {
+   "name": "Everybody Lives!",
+   "quantity": 1
+  },
+  {
+   "name": "Heroic Intervention",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Talisman of Progress",
+   "quantity": 1
+  },
+  {
+   "name": "Talisman of Unity",
+   "quantity": 1
+  },
+  {
+   "name": "Trailblazer's Torch",
+   "quantity": 1
+  },
+  {
+   "name": "Propaganda",
+   "quantity": 1
+  },
+  {
+   "name": "Spelunking",
+   "quantity": 1
+  },
+  {
+   "name": "Adarkar Wastes",
+   "quantity": 1
+  },
+  {
+   "name": "Brokers Hideout",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Deserted Beach",
+   "quantity": 1
+  },
+  {
+   "name": "Dreamroot Cascade",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 5
+  },
+  {
+   "name": "Glacial Fortress",
+   "quantity": 1
+  },
+  {
+   "name": "Hall of Storm Giants",
+   "quantity": 1
+  },
+  {
+   "name": "Horizon Canopy",
+   "quantity": 1
+  },
+  {
+   "name": "Ishgard, the Holy See",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 5
+  },
+  {
+   "name": "Overgrown Farmland",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 5
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1
+  },
+  {
+   "name": "Razorverge Thicket",
+   "quantity": 1
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Skycloud Expanse",
+   "quantity": 1
+  },
+  {
+   "name": "Sungrass Prairie",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Mystery",
+   "quantity": 1
+  },
+  {
+   "name": "Waterlogged Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Yavimaya Coast",
+   "quantity": 1
+  },
+  {
+   "name": "Yavimaya, Cradle of Growth",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

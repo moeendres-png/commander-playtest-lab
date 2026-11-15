@@ -1,0 +1,262 @@
+{
+ "urlhash": "OPSQ5oh0N04aODxlT69rMQ",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-07-16",
+ "price": 181,
+ "salt": 51.175742922350764,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/ZBmpirQOH0uDurxVdhp2Ag?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Body Double",
+   "quantity": 1
+  },
+  {
+   "name": "Burnished Hart",
+   "quantity": 1
+  },
+  {
+   "name": "Clone",
+   "quantity": 1
+  },
+  {
+   "name": "Copycrook",
+   "quantity": 1
+  },
+  {
+   "name": "Hare Apparent",
+   "quantity": 23
+  },
+  {
+   "name": "Lifecreed Duo",
+   "quantity": 1
+  },
+  {
+   "name": "Naga Fleshcrafter",
+   "quantity": 1
+  },
+  {
+   "name": "Niko, Light of Hope",
+   "quantity": 1
+  },
+  {
+   "name": "Pattern Matcher",
+   "quantity": 1
+  },
+  {
+   "name": "Sagu Wildling",
+   "quantity": 1
+  },
+  {
+   "name": "Salt Road Packbeast",
+   "quantity": 1
+  },
+  {
+   "name": "Sun-Blessed Healer",
+   "quantity": 1
+  },
+  {
+   "name": "Supply Runners",
+   "quantity": 1
+  },
+  {
+   "name": "Toby, Beastie Befriender",
+   "quantity": 1
+  },
+  {
+   "name": "Visage Bandit",
+   "quantity": 1
+  },
+  {
+   "name": "Coordinated Maneuver",
+   "quantity": 1
+  },
+  {
+   "name": "Duty Beyond Death",
+   "quantity": 1
+  },
+  {
+   "name": "Hindering Light",
+   "quantity": 1
+  },
+  {
+   "name": "Inspired Charge",
+   "quantity": 1
+  },
+  {
+   "name": "Second Harvest",
+   "quantity": 1
+  },
+  {
+   "name": "Transcendent Message",
+   "quantity": 1
+  },
+  {
+   "name": "Abundant Harvest",
+   "quantity": 1
+  },
+  {
+   "name": "For the Common Good",
+   "quantity": 1
+  },
+  {
+   "name": "Helping Hand",
+   "quantity": 1
+  },
+  {
+   "name": "Pack Hunt",
+   "quantity": 1
+  },
+  {
+   "name": "Raise the Past",
+   "quantity": 1
+  },
+  {
+   "name": "Unending Whisper",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Combine Chrysalis",
+   "quantity": 1
+  },
+  {
+   "name": "Commander's Sphere",
+   "quantity": 1
+  },
+  {
+   "name": "Conjurer's Closet",
+   "quantity": 1
+  },
+  {
+   "name": "Gilded Lotus",
+   "quantity": 1
+  },
+  {
+   "name": "Honored Heirloom",
+   "quantity": 1
+  },
+  {
+   "name": "Nyx Lotus",
+   "quantity": 1
+  },
+  {
+   "name": "Oketra's Monument",
+   "quantity": 1
+  },
+  {
+   "name": "Extravagant Replication",
+   "quantity": 1
+  },
+  {
+   "name": "Fresh Start",
+   "quantity": 1
+  },
+  {
+   "name": "Intangible Virtue",
+   "quantity": 1
+  },
+  {
+   "name": "Journey to Nowhere",
+   "quantity": 1
+  },
+  {
+   "name": "Mirror Mockery",
+   "quantity": 1
+  },
+  {
+   "name": "Stormplain Detainment",
+   "quantity": 1
+  },
+  {
+   "name": "Worship",
+   "quantity": 1
+  },
+  {
+   "name": "Niko Aris",
+   "quantity": 1
+  },
+  {
+   "name": "Tamiyo, Collector of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Blossoming Sands",
+   "quantity": 1
+  },
+  {
+   "name": "Creosote Heath",
+   "quantity": 1
+  },
+  {
+   "name": "Cryptic Caves",
+   "quantity": 1
+  },
+  {
+   "name": "Drifting Meadow",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 5
+  },
+  {
+   "name": "Grasslands",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 6
+  },
+  {
+   "name": "Lush Oasis",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 9
+  },
+  {
+   "name": "Sandstorm Verge",
+   "quantity": 1
+  },
+  {
+   "name": "Sea of Clouds",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Plenty",
+   "quantity": 1
+  },
+  {
+   "name": "Terramorphic Expanse",
+   "quantity": 1
+  },
+  {
+   "name": "Thornwood Falls",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Landscape",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

@@ -1,0 +1,318 @@
+{
+ "urlhash": "YNLOEiiUyQX7mbzmy4V8rg",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-08-25",
+ "price": 559,
+ "salt": 61.33058421360329,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/10379809?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Alseid of Life's Bounty",
+   "quantity": 1
+  },
+  {
+   "name": "Archon of Absolution",
+   "quantity": 1
+  },
+  {
+   "name": "Azor, the Lawbringer",
+   "quantity": 1
+  },
+  {
+   "name": "Bitterbow Sharpshooters",
+   "quantity": 1
+  },
+  {
+   "name": "Champion of Rhonas",
+   "quantity": 1
+  },
+  {
+   "name": "Consecrated Sphinx",
+   "quantity": 1
+  },
+  {
+   "name": "Deep-Sea Kraken",
+   "quantity": 1
+  },
+  {
+   "name": "Ephara, God of the Polis",
+   "quantity": 1
+  },
+  {
+   "name": "Esper Sentinel",
+   "quantity": 1
+  },
+  {
+   "name": "Eutropia the Twice-Favored",
+   "quantity": 1
+  },
+  {
+   "name": "Everdawn Champion",
+   "quantity": 1
+  },
+  {
+   "name": "Frilled Mystic",
+   "quantity": 1
+  },
+  {
+   "name": "Glyph Keeper",
+   "quantity": 1
+  },
+  {
+   "name": "God-Eternal Oketra",
+   "quantity": 1
+  },
+  {
+   "name": "Jareth, Leonine Titan",
+   "quantity": 1
+  },
+  {
+   "name": "Kiora's Follower",
+   "quantity": 1
+  },
+  {
+   "name": "Kruphix, God of Horizons",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Merfolk Trickster",
+   "quantity": 1
+  },
+  {
+   "name": "Nadir Kraken",
+   "quantity": 1
+  },
+  {
+   "name": "Niblis of Frost",
+   "quantity": 1
+  },
+  {
+   "name": "Protean Thaumaturge",
+   "quantity": 1
+  },
+  {
+   "name": "Roil Elemental",
+   "quantity": 1
+  },
+  {
+   "name": "Senate Guildmage",
+   "quantity": 1
+  },
+  {
+   "name": "Sentinel of the Pearl Trident",
+   "quantity": 1
+  },
+  {
+   "name": "Thassa, God of the Sea",
+   "quantity": 1
+  },
+  {
+   "name": "Thryx, the Sudden Storm",
+   "quantity": 1
+  },
+  {
+   "name": "Uro, Titan of Nature's Wrath",
+   "quantity": 1
+  },
+  {
+   "name": "Wavebreak Hippocamp",
+   "quantity": 1
+  },
+  {
+   "name": "Cyclonic Rift",
+   "quantity": 1
+  },
+  {
+   "name": "Deny the Divine",
+   "quantity": 1
+  },
+  {
+   "name": "Disenchant",
+   "quantity": 1
+  },
+  {
+   "name": "Farm // Market",
+   "quantity": 1
+  },
+  {
+   "name": "Outflank",
+   "quantity": 1
+  },
+  {
+   "name": "Path to Exile",
+   "quantity": 1
+  },
+  {
+   "name": "Plasm Capture",
+   "quantity": 1
+  },
+  {
+   "name": "Reclaim",
+   "quantity": 1
+  },
+  {
+   "name": "Repudiate // Replicate",
+   "quantity": 1
+  },
+  {
+   "name": "Snap",
+   "quantity": 1
+  },
+  {
+   "name": "Swan Song",
+   "quantity": 1
+  },
+  {
+   "name": "Teferi's Protection",
+   "quantity": 1
+  },
+  {
+   "name": "Teferi's Time Twist",
+   "quantity": 1
+  },
+  {
+   "name": "Void Shatter",
+   "quantity": 1
+  },
+  {
+   "name": "Whirlwind Denial",
+   "quantity": 1
+  },
+  {
+   "name": "Beacon of Tomorrows",
+   "quantity": 1
+  },
+  {
+   "name": "Clear the Mind",
+   "quantity": 1
+  },
+  {
+   "name": "Unexplained Vision",
+   "quantity": 1
+  },
+  {
+   "name": "Winds of Abandon",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Bident of Thassa",
+   "quantity": 1
+  },
+  {
+   "name": "Lightning Greaves",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Soul-Guide Lantern",
+   "quantity": 1
+  },
+  {
+   "name": "Bounty of the Luxa",
+   "quantity": 1
+  },
+  {
+   "name": "Mind's Dilation",
+   "quantity": 1
+  },
+  {
+   "name": "Omen of the Sea",
+   "quantity": 1
+  },
+  {
+   "name": "On Serra's Wings",
+   "quantity": 1
+  },
+  {
+   "name": "Rhystic Study",
+   "quantity": 1
+  },
+  {
+   "name": "Ajani Goldmane",
+   "quantity": 1
+  },
+  {
+   "name": "Gideon Blackblade",
+   "quantity": 1
+  },
+  {
+   "name": "The Wandering Emperor",
+   "quantity": 1
+  },
+  {
+   "name": "Boseiju, Who Endures",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Dreamroot Cascade",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Exotic Orchard",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 9
+  },
+  {
+   "name": "Island",
+   "quantity": 10
+  },
+  {
+   "name": "Misty Rainforest",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 9
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Strip Mine",
+   "quantity": 1
+  },
+  {
+   "name": "Sunpetal Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Enlightenment",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

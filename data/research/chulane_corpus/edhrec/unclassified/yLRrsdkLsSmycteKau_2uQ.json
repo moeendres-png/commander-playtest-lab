@@ -1,0 +1,342 @@
+{
+ "urlhash": "yLRrsdkLsSmycteKau_2uQ",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-11-04",
+ "price": 922,
+ "salt": 47.07983750849962,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/28058445?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Avatar of Burgeoning Echoes",
+   "quantity": 1
+  },
+  {
+   "name": "Baral, Chief of Compliance",
+   "quantity": 1
+  },
+  {
+   "name": "Blossom-Blessed Angel",
+   "quantity": 1
+  },
+  {
+   "name": "Brawn",
+   "quantity": 1
+  },
+  {
+   "name": "Carnivorous Cultivator",
+   "quantity": 1
+  },
+  {
+   "name": "Dawnhart Rejuvenator",
+   "quantity": 1
+  },
+  {
+   "name": "Elvenking's Harper",
+   "quantity": 1
+  },
+  {
+   "name": "Eternal Witness",
+   "quantity": 1
+  },
+  {
+   "name": "Fatehold Chronologist",
+   "quantity": 1
+  },
+  {
+   "name": "Guiding Hydra",
+   "quantity": 1
+  },
+  {
+   "name": "Hexhaven Invigorator",
+   "quantity": 1
+  },
+  {
+   "name": "Honor Troll",
+   "quantity": 1
+  },
+  {
+   "name": "Karmic Guide",
+   "quantity": 1
+  },
+  {
+   "name": "Keeper of the Mind",
+   "quantity": 1
+  },
+  {
+   "name": "King Darien XLVIII",
+   "quantity": 1
+  },
+  {
+   "name": "Marwyn, the Preserver",
+   "quantity": 1
+  },
+  {
+   "name": "Morska, Undersea Sleuth",
+   "quantity": 1
+  },
+  {
+   "name": "Mother of Runes",
+   "quantity": 1
+  },
+  {
+   "name": "Multani's Acolyte",
+   "quantity": 1
+  },
+  {
+   "name": "Multani, Maro-Sorcerer",
+   "quantity": 1
+  },
+  {
+   "name": "Pippin, Guard of the Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Regal Force",
+   "quantity": 1
+  },
+  {
+   "name": "Ruric Thar, Biomagus",
+   "quantity": 1
+  },
+  {
+   "name": "Ruric Thar, Magecrusher",
+   "quantity": 1
+  },
+  {
+   "name": "Shanna, Purifying Blade",
+   "quantity": 1
+  },
+  {
+   "name": "Skyshroud Ranger",
+   "quantity": 1
+  },
+  {
+   "name": "Stockpiling Celebrant",
+   "quantity": 1
+  },
+  {
+   "name": "Verdant Kraken",
+   "quantity": 1
+  },
+  {
+   "name": "Victory's Herald",
+   "quantity": 1
+  },
+  {
+   "name": "Vinelasher Adept",
+   "quantity": 1
+  },
+  {
+   "name": "Weatherseed Treefolk",
+   "quantity": 1
+  },
+  {
+   "name": "Westfold Rider",
+   "quantity": 1
+  },
+  {
+   "name": "Absorb",
+   "quantity": 1
+  },
+  {
+   "name": "Brainstorm",
+   "quantity": 1
+  },
+  {
+   "name": "Capsize",
+   "quantity": 1
+  },
+  {
+   "name": "Collective Resistance",
+   "quantity": 1
+  },
+  {
+   "name": "Consider",
+   "quantity": 1
+  },
+  {
+   "name": "Crop Rotation",
+   "quantity": 1
+  },
+  {
+   "name": "Frantic Search",
+   "quantity": 1
+  },
+  {
+   "name": "Generous Gift",
+   "quantity": 1
+  },
+  {
+   "name": "Germinate Recruits",
+   "quantity": 1
+  },
+  {
+   "name": "Settle the Wreckage",
+   "quantity": 1
+  },
+  {
+   "name": "Snap",
+   "quantity": 1
+  },
+  {
+   "name": "Thraben Charm",
+   "quantity": 1
+  },
+  {
+   "name": "Cut a Deal",
+   "quantity": 1
+  },
+  {
+   "name": "Nature's Lore",
+   "quantity": 1
+  },
+  {
+   "name": "Pick Your Poison",
+   "quantity": 1
+  },
+  {
+   "name": "Rampant Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Winding Way",
+   "quantity": 1
+  },
+  {
+   "name": "Crystal Ball",
+   "quantity": 1
+  },
+  {
+   "name": "Grim Monolith",
+   "quantity": 1
+  },
+  {
+   "name": "Hunter's Axe",
+   "quantity": 1
+  },
+  {
+   "name": "Lotus Petal",
+   "quantity": 1
+  },
+  {
+   "name": "The Aetherspark",
+   "quantity": 1
+  },
+  {
+   "name": "Blessed Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Defense of the Heart",
+   "quantity": 1
+  },
+  {
+   "name": "Eagle's Rescue",
+   "quantity": 1
+  },
+  {
+   "name": "Elven Chorus",
+   "quantity": 1
+  },
+  {
+   "name": "Flickering Ward",
+   "quantity": 1
+  },
+  {
+   "name": "Mystic Remora",
+   "quantity": 1
+  },
+  {
+   "name": "Rancor",
+   "quantity": 1
+  },
+  {
+   "name": "The Theorist, Jace Beleren",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Citadel Gate",
+   "quantity": 1
+  },
+  {
+   "name": "Coastal Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 11
+  },
+  {
+   "name": "Ghost Town",
+   "quantity": 1
+  },
+  {
+   "name": "Glacial Floodplain",
+   "quantity": 1
+  },
+  {
+   "name": "Glacial Fortress",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 5
+  },
+  {
+   "name": "Manor Gate",
+   "quantity": 1
+  },
+  {
+   "name": "Overgrown Farmland",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 6
+  },
+  {
+   "name": "Remote Farm",
+   "quantity": 1
+  },
+  {
+   "name": "Sea Gate",
+   "quantity": 1
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Skycloud Expanse",
+   "quantity": 1
+  },
+  {
+   "name": "Spara's Headquarters",
+   "quantity": 1
+  },
+  {
+   "name": "Transformative Commons",
+   "quantity": 1
+  },
+  {
+   "name": "Yavimaya Coast",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

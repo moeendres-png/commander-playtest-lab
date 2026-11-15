@@ -1,0 +1,286 @@
+{
+ "urlhash": "hJh6OVp9cSfA9nRik9mO3w",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-04-21",
+ "price": 234,
+ "salt": 50.715016569942236,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/12196478?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Bashful Beastie",
+   "quantity": 1
+  },
+  {
+   "name": "Enduring Curiosity",
+   "quantity": 1
+  },
+  {
+   "name": "Enduring Innocence",
+   "quantity": 1
+  },
+  {
+   "name": "Enduring Vitality",
+   "quantity": 1
+  },
+  {
+   "name": "Fear of Exposure",
+   "quantity": 1
+  },
+  {
+   "name": "Fear of Failed Tests",
+   "quantity": 1
+  },
+  {
+   "name": "Fear of Isolation",
+   "quantity": 1
+  },
+  {
+   "name": "Friendly Ghost",
+   "quantity": 1
+  },
+  {
+   "name": "Glimmer Seeker",
+   "quantity": 1
+  },
+  {
+   "name": "Gremlin Tamer",
+   "quantity": 1
+  },
+  {
+   "name": "Horseshoe Crab",
+   "quantity": 1
+  },
+  {
+   "name": "House Cartographer",
+   "quantity": 1
+  },
+  {
+   "name": "Inquisitive Glimmer",
+   "quantity": 1
+  },
+  {
+   "name": "Kona, Rescue Beastie",
+   "quantity": 1
+  },
+  {
+   "name": "Lionheart Glimmer",
+   "quantity": 1
+  },
+  {
+   "name": "Moon-Blessed Cleric",
+   "quantity": 1
+  },
+  {
+   "name": "Omnivorous Flytrap",
+   "quantity": 1
+  },
+  {
+   "name": "Optimistic Scavenger",
+   "quantity": 1
+  },
+  {
+   "name": "Orphans of the Wheat",
+   "quantity": 1
+  },
+  {
+   "name": "Overlord of the Hauntwoods",
+   "quantity": 1
+  },
+  {
+   "name": "Overlord of the Mistmoors",
+   "quantity": 1
+  },
+  {
+   "name": "Reluctant Role Model",
+   "quantity": 1
+  },
+  {
+   "name": "Savior of the Small",
+   "quantity": 1
+  },
+  {
+   "name": "Soaring Lightbringer",
+   "quantity": 1
+  },
+  {
+   "name": "Toby, Beastie Befriender",
+   "quantity": 1
+  },
+  {
+   "name": "Tunnel Surveyor",
+   "quantity": 1
+  },
+  {
+   "name": "Tyvar, the Pummeler",
+   "quantity": 1
+  },
+  {
+   "name": "Wake Thrasher",
+   "quantity": 1
+  },
+  {
+   "name": "Wary Watchdog",
+   "quantity": 1
+  },
+  {
+   "name": "Zimone, All-Questioning",
+   "quantity": 1
+  },
+  {
+   "name": "Zimone, Paradox Sculptor",
+   "quantity": 1
+  },
+  {
+   "name": "Get Out",
+   "quantity": 1
+  },
+  {
+   "name": "Glimmerburst",
+   "quantity": 1
+  },
+  {
+   "name": "Jump Scare",
+   "quantity": 1
+  },
+  {
+   "name": "Twist Reality",
+   "quantity": 1
+  },
+  {
+   "name": "Coordinated Clobbering",
+   "quantity": 1
+  },
+  {
+   "name": "Oversimplify",
+   "quantity": 1
+  },
+  {
+   "name": "Portent",
+   "quantity": 1
+  },
+  {
+   "name": "Redress Fate",
+   "quantity": 1
+  },
+  {
+   "name": "Terminus",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Baseball Bat",
+   "quantity": 1
+  },
+  {
+   "name": "Ghost Vacuum",
+   "quantity": 1
+  },
+  {
+   "name": "Glimmerlight",
+   "quantity": 1
+  },
+  {
+   "name": "Godsend",
+   "quantity": 1
+  },
+  {
+   "name": "Keys to the House",
+   "quantity": 1
+  },
+  {
+   "name": "Nautiloid Ship",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Bottomless Pool // Locker Room",
+   "quantity": 1
+  },
+  {
+   "name": "Central Elevator // Promising Stairs",
+   "quantity": 1
+  },
+  {
+   "name": "Dazzling Theater // Prop Room",
+   "quantity": 1
+  },
+  {
+   "name": "Dollmaker's Shop // Porcelain Gallery",
+   "quantity": 1
+  },
+  {
+   "name": "Eldrazi Conscription",
+   "quantity": 1
+  },
+  {
+   "name": "Ethereal Armor",
+   "quantity": 1
+  },
+  {
+   "name": "Fisher's Talent",
+   "quantity": 1
+  },
+  {
+   "name": "Greenhouse // Rickety Gazebo",
+   "quantity": 1
+  },
+  {
+   "name": "Moldering Gym // Weight Room",
+   "quantity": 1
+  },
+  {
+   "name": "Omniscience",
+   "quantity": 1
+  },
+  {
+   "name": "Retreat to Coralhelm",
+   "quantity": 1
+  },
+  {
+   "name": "Sphere of Safety",
+   "quantity": 1
+  },
+  {
+   "name": "Stay Hidden, Stay Silent",
+   "quantity": 1
+  },
+  {
+   "name": "Surgical Suite // Hospital Room",
+   "quantity": 1
+  },
+  {
+   "name": "They Came from the Pipes",
+   "quantity": 1
+  },
+  {
+   "name": "Unable to Scream",
+   "quantity": 1
+  },
+  {
+   "name": "Elspeth, Storm Slayer",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 34
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

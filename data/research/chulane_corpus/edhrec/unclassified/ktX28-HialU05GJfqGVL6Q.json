@@ -1,0 +1,310 @@
+{
+ "urlhash": "ktX28-HialU05GJfqGVL6Q",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-12-15",
+ "price": 49,
+ "salt": 42.33550268039107,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/vAVCPiPzrUCfJEIV0hU7ww?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Acidic Slime",
+   "quantity": 1
+  },
+  {
+   "name": "Aeon Chronicler",
+   "quantity": 1
+  },
+  {
+   "name": "Aether Adept",
+   "quantity": 1
+  },
+  {
+   "name": "Aether Figment",
+   "quantity": 1
+  },
+  {
+   "name": "Ageless Entity",
+   "quantity": 1
+  },
+  {
+   "name": "Ajani's Pridemate",
+   "quantity": 1
+  },
+  {
+   "name": "Body Double",
+   "quantity": 1
+  },
+  {
+   "name": "Cavalry Pegasus",
+   "quantity": 1
+  },
+  {
+   "name": "Chronomaton",
+   "quantity": 1
+  },
+  {
+   "name": "Crowned Ceratok",
+   "quantity": 1
+  },
+  {
+   "name": "Deadly Recluse",
+   "quantity": 1
+  },
+  {
+   "name": "Death-Hood Cobra",
+   "quantity": 1
+  },
+  {
+   "name": "Dream Stalker",
+   "quantity": 1
+  },
+  {
+   "name": "Fencing Ace",
+   "quantity": 1
+  },
+  {
+   "name": "Festerhide Boar",
+   "quantity": 1
+  },
+  {
+   "name": "Fleetfoot Panther",
+   "quantity": 1
+  },
+  {
+   "name": "Freewind Equenaut",
+   "quantity": 1
+  },
+  {
+   "name": "Gatecreeper Vine",
+   "quantity": 1
+  },
+  {
+   "name": "Grazing Gladehart",
+   "quantity": 1
+  },
+  {
+   "name": "Jace's Mindseeker",
+   "quantity": 1
+  },
+  {
+   "name": "Jace's Phantasm",
+   "quantity": 1
+  },
+  {
+   "name": "Jade Mage",
+   "quantity": 1
+  },
+  {
+   "name": "Kavu Predator",
+   "quantity": 1
+  },
+  {
+   "name": "Krosan Tusker",
+   "quantity": 1
+  },
+  {
+   "name": "Krovikan Mist",
+   "quantity": 1
+  },
+  {
+   "name": "Loxodon Hierarch",
+   "quantity": 1
+  },
+  {
+   "name": "Merfolk Wayfinder",
+   "quantity": 1
+  },
+  {
+   "name": "Mold Shambler",
+   "quantity": 1
+  },
+  {
+   "name": "Ohran Viper",
+   "quantity": 1
+  },
+  {
+   "name": "Phantasmal Dragon",
+   "quantity": 1
+  },
+  {
+   "name": "Polukranos, World Eater",
+   "quantity": 1
+  },
+  {
+   "name": "Pride of Lions",
+   "quantity": 1
+  },
+  {
+   "name": "Qasali Pridemage",
+   "quantity": 1
+  },
+  {
+   "name": "River Boa",
+   "quantity": 1
+  },
+  {
+   "name": "Sea Gate Oracle",
+   "quantity": 1
+  },
+  {
+   "name": "Spawnwrithe",
+   "quantity": 1
+  },
+  {
+   "name": "Sun Titan",
+   "quantity": 1
+  },
+  {
+   "name": "Sylvan Ranger",
+   "quantity": 1
+  },
+  {
+   "name": "Troll Ascetic",
+   "quantity": 1
+  },
+  {
+   "name": "Vinelasher Kudzu",
+   "quantity": 1
+  },
+  {
+   "name": "Beast Within",
+   "quantity": 1
+  },
+  {
+   "name": "Condemn",
+   "quantity": 1
+  },
+  {
+   "name": "Into the Roil",
+   "quantity": 1
+  },
+  {
+   "name": "Jace's Ingenuity",
+   "quantity": 1
+  },
+  {
+   "name": "Memory Lapse",
+   "quantity": 1
+  },
+  {
+   "name": "Remand",
+   "quantity": 1
+  },
+  {
+   "name": "Smite the Monstrous",
+   "quantity": 1
+  },
+  {
+   "name": "Sylvan Bounty",
+   "quantity": 1
+  },
+  {
+   "name": "Terrifying Presence",
+   "quantity": 1
+  },
+  {
+   "name": "Vapor Snag",
+   "quantity": 1
+  },
+  {
+   "name": "Lead the Stampede",
+   "quantity": 1
+  },
+  {
+   "name": "Regrowth",
+   "quantity": 1
+  },
+  {
+   "name": "Winds of Rath",
+   "quantity": 1
+  },
+  {
+   "name": "Behemoth Sledge",
+   "quantity": 1
+  },
+  {
+   "name": "Battle Mastery",
+   "quantity": 1
+  },
+  {
+   "name": "Bonds of Faith",
+   "quantity": 1
+  },
+  {
+   "name": "Claustrophobia",
+   "quantity": 1
+  },
+  {
+   "name": "Control Magic",
+   "quantity": 1
+  },
+  {
+   "name": "Daily Regimen",
+   "quantity": 1
+  },
+  {
+   "name": "Griffin Guide",
+   "quantity": 1
+  },
+  {
+   "name": "Recumbent Bliss",
+   "quantity": 1
+  },
+  {
+   "name": "Jace, Architect of Thought",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 11
+  },
+  {
+   "name": "Graypelt Refuge",
+   "quantity": 1
+  },
+  {
+   "name": "Halimar Depths",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 10
+  },
+  {
+   "name": "New Benalia",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 9
+  },
+  {
+   "name": "Rogue's Passage",
+   "quantity": 1
+  },
+  {
+   "name": "Rupture Spire",
+   "quantity": 1
+  },
+  {
+   "name": "Terramorphic Expanse",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

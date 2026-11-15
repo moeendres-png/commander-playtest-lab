@@ -1,0 +1,306 @@
+{
+ "urlhash": "Iyt4VNhr6QaM7Q4Vpbhh5w",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-03-02",
+ "price": 104,
+ "salt": 46.3496762663126,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/5VeUGbpenEOb1mVJsZ37eg?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Aether Channeler",
+   "quantity": 1
+  },
+  {
+   "name": "Archaeomender",
+   "quantity": 1
+  },
+  {
+   "name": "Artificer's Assistant",
+   "quantity": 1
+  },
+  {
+   "name": "Barrin, Tolarian Archmage",
+   "quantity": 1
+  },
+  {
+   "name": "Bouncing Beebles",
+   "quantity": 1
+  },
+  {
+   "name": "Cold Case Cracker",
+   "quantity": 1
+  },
+  {
+   "name": "Daily Bugle Reporters",
+   "quantity": 1
+  },
+  {
+   "name": "Dour Port-Mage",
+   "quantity": 1
+  },
+  {
+   "name": "Drownyard Explorers",
+   "quantity": 1
+  },
+  {
+   "name": "Duggan, Private Detective",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Archivist",
+   "quantity": 1
+  },
+  {
+   "name": "Enduring Curiosity",
+   "quantity": 1
+  },
+  {
+   "name": "Ethereal Investigator",
+   "quantity": 1
+  },
+  {
+   "name": "Fear of Failed Tests",
+   "quantity": 1
+  },
+  {
+   "name": "Forecasting Fortune Teller",
+   "quantity": 1
+  },
+  {
+   "name": "Gadwick, the Wizened",
+   "quantity": 1
+  },
+  {
+   "name": "Ghostly Pilferer",
+   "quantity": 1
+  },
+  {
+   "name": "Hanna, Ship's Navigator",
+   "quantity": 1
+  },
+  {
+   "name": "Krile Baldesion",
+   "quantity": 1
+  },
+  {
+   "name": "Loran of the Third Path",
+   "quantity": 1
+  },
+  {
+   "name": "Loyal Inventor",
+   "quantity": 1
+  },
+  {
+   "name": "Magus of the Disk",
+   "quantity": 1
+  },
+  {
+   "name": "Novice Inspector",
+   "quantity": 1
+  },
+  {
+   "name": "Sage Owl",
+   "quantity": 1
+  },
+  {
+   "name": "Slickshot Lockpicker",
+   "quantity": 1
+  },
+  {
+   "name": "Solemn Recruit",
+   "quantity": 1
+  },
+  {
+   "name": "Spellbook Vendor",
+   "quantity": 1
+  },
+  {
+   "name": "Suspicious Bookcase",
+   "quantity": 1
+  },
+  {
+   "name": "Vhal, Candlekeep Researcher",
+   "quantity": 1
+  },
+  {
+   "name": "War Priest of Thune",
+   "quantity": 1
+  },
+  {
+   "name": "Zimone, All-Questioning",
+   "quantity": 1
+  },
+  {
+   "name": "Zimone, Quandrix Prodigy",
+   "quantity": 1
+  },
+  {
+   "name": "Apostle's Blessing",
+   "quantity": 1
+  },
+  {
+   "name": "Bury in Books",
+   "quantity": 1
+  },
+  {
+   "name": "Defend the Campus",
+   "quantity": 1
+  },
+  {
+   "name": "Disorder in the Court",
+   "quantity": 1
+  },
+  {
+   "name": "Expose to Daylight",
+   "quantity": 1
+  },
+  {
+   "name": "Impulse",
+   "quantity": 1
+  },
+  {
+   "name": "Learn from the Past",
+   "quantity": 1
+  },
+  {
+   "name": "Muddle the Mixture",
+   "quantity": 1
+  },
+  {
+   "name": "Opt",
+   "quantity": 1
+  },
+  {
+   "name": "Perplexing Test",
+   "quantity": 1
+  },
+  {
+   "name": "Rescind",
+   "quantity": 1
+  },
+  {
+   "name": "War Report",
+   "quantity": 1
+  },
+  {
+   "name": "Portent of Calamity",
+   "quantity": 1
+  },
+  {
+   "name": "Investigator's Journal",
+   "quantity": 1
+  },
+  {
+   "name": "Letter of Acceptance",
+   "quantity": 1
+  },
+  {
+   "name": "Mercadian Atlas",
+   "quantity": 1
+  },
+  {
+   "name": "Patriar's Seal",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Talisman of Curiosity",
+   "quantity": 1
+  },
+  {
+   "name": "Tamiyo's Journal",
+   "quantity": 1
+  },
+  {
+   "name": "Thought Vessel",
+   "quantity": 1
+  },
+  {
+   "name": "Wizard's Spellbook",
+   "quantity": 1
+  },
+  {
+   "name": "Armed with Proof",
+   "quantity": 1
+  },
+  {
+   "name": "Combat Research",
+   "quantity": 1
+  },
+  {
+   "name": "Nerd Rage",
+   "quantity": 1
+  },
+  {
+   "name": "Restricted Office // Lecture Hall",
+   "quantity": 1
+  },
+  {
+   "name": "Trade Routes",
+   "quantity": 1
+  },
+  {
+   "name": "Jace, Unraveler of Secrets",
+   "quantity": 1
+  },
+  {
+   "name": "Tamiyo, Field Researcher",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 8
+  },
+  {
+   "name": "Ghost Quarter",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 14
+  },
+  {
+   "name": "Lonely Arroyo",
+   "quantity": 1
+  },
+  {
+   "name": "Lush Oasis",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 9
+  },
+  {
+   "name": "Rogue's Passage",
+   "quantity": 1
+  },
+  {
+   "name": "Study",
+   "quantity": 1
+  },
+  {
+   "name": "Study Hall",
+   "quantity": 1
+  },
+  {
+   "name": "Urban Retreat",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

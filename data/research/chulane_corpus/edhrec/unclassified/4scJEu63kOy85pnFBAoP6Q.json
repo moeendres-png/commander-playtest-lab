@@ -1,0 +1,266 @@
+{
+ "urlhash": "4scJEu63kOy85pnFBAoP6Q",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-12-24",
+ "price": 113,
+ "salt": 59.63533169403672,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/18294929?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Adaptive Sporesinger",
+   "quantity": 1
+  },
+  {
+   "name": "Aegis Turtle",
+   "quantity": 1
+  },
+  {
+   "name": "Arasta of the Endless Web",
+   "quantity": 1
+  },
+  {
+   "name": "Archangel of Strife",
+   "quantity": 1
+  },
+  {
+   "name": "Archetype of Imagination",
+   "quantity": 1
+  },
+  {
+   "name": "Benthic Anomaly",
+   "quantity": 1
+  },
+  {
+   "name": "Dazzling Sphinx",
+   "quantity": 1
+  },
+  {
+   "name": "Emrakul's Messenger",
+   "quantity": 1
+  },
+  {
+   "name": "Guy in the Chair",
+   "quantity": 1
+  },
+  {
+   "name": "Healer's Hawk",
+   "quantity": 1
+  },
+  {
+   "name": "Hornet Queen",
+   "quantity": 1
+  },
+  {
+   "name": "Jumbo Cactuar",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Monstrosity of the Lake",
+   "quantity": 1
+  },
+  {
+   "name": "Mulldrifter",
+   "quantity": 1
+  },
+  {
+   "name": "Prince Imrahil the Fair",
+   "quantity": 1
+  },
+  {
+   "name": "Sakura-Tribe Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Saryth, the Viper's Fang",
+   "quantity": 1
+  },
+  {
+   "name": "Scute Swarm",
+   "quantity": 1
+  },
+  {
+   "name": "Selfless Squire",
+   "quantity": 1
+  },
+  {
+   "name": "Shrieking Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Slinn Voda, the Rising Deep",
+   "quantity": 1
+  },
+  {
+   "name": "Spectral Sailor",
+   "quantity": 1
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1
+  },
+  {
+   "name": "The Blue Spirit",
+   "quantity": 1
+  },
+  {
+   "name": "The Goose Mother",
+   "quantity": 1
+  },
+  {
+   "name": "Tireless Provisioner",
+   "quantity": 1
+  },
+  {
+   "name": "Tishana's Tidebinder",
+   "quantity": 1
+  },
+  {
+   "name": "Toski, Bearer of Secrets",
+   "quantity": 1
+  },
+  {
+   "name": "Triskaidekaphile",
+   "quantity": 1
+  },
+  {
+   "name": "Wall of Runes",
+   "quantity": 1
+  },
+  {
+   "name": "Abjure",
+   "quantity": 1
+  },
+  {
+   "name": "Absorb",
+   "quantity": 1
+  },
+  {
+   "name": "Absorb Identity",
+   "quantity": 1
+  },
+  {
+   "name": "Arachnogenesis",
+   "quantity": 1
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1
+  },
+  {
+   "name": "High Tide",
+   "quantity": 1
+  },
+  {
+   "name": "Leadership Vacuum",
+   "quantity": 1
+  },
+  {
+   "name": "Repel the Vile",
+   "quantity": 1
+  },
+  {
+   "name": "Weather the Storm",
+   "quantity": 1
+  },
+  {
+   "name": "Aerial Assault",
+   "quantity": 1
+  },
+  {
+   "name": "Devastation Tide",
+   "quantity": 1
+  },
+  {
+   "name": "Life from the Loam",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Abiding Grace",
+   "quantity": 1
+  },
+  {
+   "name": "Aboshan's Desire",
+   "quantity": 1
+  },
+  {
+   "name": "Absolute Grace",
+   "quantity": 1
+  },
+  {
+   "name": "Absolute Law",
+   "quantity": 1
+  },
+  {
+   "name": "Abundant Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Copy Land",
+   "quantity": 1
+  },
+  {
+   "name": "Garruk's Uprising",
+   "quantity": 1
+  },
+  {
+   "name": "Monastery Siege",
+   "quantity": 1
+  },
+  {
+   "name": "One with the Multiverse",
+   "quantity": 1
+  },
+  {
+   "name": "Sphinx's Tutelage",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 15
+  },
+  {
+   "name": "Island",
+   "quantity": 16
+  },
+  {
+   "name": "Krosan Verge",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 10
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Landscape",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

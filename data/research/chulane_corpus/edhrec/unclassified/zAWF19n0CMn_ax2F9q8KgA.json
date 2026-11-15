@@ -1,0 +1,366 @@
+{
+ "urlhash": "zAWF19n0CMn_ax2F9q8KgA",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-10-23",
+ "price": 356,
+ "salt": 49.80929430015385,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/N8qIGUxcyk6DxroQAC2Qog?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Aang, at the Crossroads",
+   "quantity": 1
+  },
+  {
+   "name": "Ancient Bronze Dragon",
+   "quantity": 1
+  },
+  {
+   "name": "Avenging Hunter",
+   "quantity": 1
+  },
+  {
+   "name": "Beorn the Fierce",
+   "quantity": 1
+  },
+  {
+   "name": "Bilbo, Thief in the Night",
+   "quantity": 1
+  },
+  {
+   "name": "Curious Farm Animals",
+   "quantity": 1
+  },
+  {
+   "name": "Darksteel Angel",
+   "quantity": 1
+  },
+  {
+   "name": "Diligent Zookeeper",
+   "quantity": 1
+  },
+  {
+   "name": "Earth Kingdom Jailer",
+   "quantity": 1
+  },
+  {
+   "name": "Great Divide Guide",
+   "quantity": 1
+  },
+  {
+   "name": "Helga, Skittish Seer",
+   "quantity": 1
+  },
+  {
+   "name": "Hexhaven Invigorator",
+   "quantity": 1
+  },
+  {
+   "name": "Jaheira, Friend of the Forest",
+   "quantity": 1
+  },
+  {
+   "name": "Knight of the White Orchid",
+   "quantity": 1
+  },
+  {
+   "name": "Lae'zel, Vlaakith's Champion",
+   "quantity": 1
+  },
+  {
+   "name": "Managorger Hydra",
+   "quantity": 1
+  },
+  {
+   "name": "Silvan Reveler",
+   "quantity": 1
+  },
+  {
+   "name": "South Pole Voyager",
+   "quantity": 1
+  },
+  {
+   "name": "The Council of Four",
+   "quantity": 1
+  },
+  {
+   "name": "The Queen of Dale",
+   "quantity": 1
+  },
+  {
+   "name": "The Walls of Ba Sing Se",
+   "quantity": 1
+  },
+  {
+   "name": "Toph, the Blind Bandit",
+   "quantity": 1
+  },
+  {
+   "name": "Verdant Kraken",
+   "quantity": 1
+  },
+  {
+   "name": "Wan Shi Tong, Librarian",
+   "quantity": 1
+  },
+  {
+   "name": "Welcoming Vampire",
+   "quantity": 1
+  },
+  {
+   "name": "Accumulate Wisdom",
+   "quantity": 1
+  },
+  {
+   "name": "Aetherize",
+   "quantity": 1
+  },
+  {
+   "name": "Airbender's Reversal",
+   "quantity": 1
+  },
+  {
+   "name": "Heroic Intervention",
+   "quantity": 1
+  },
+  {
+   "name": "It'll Quench Ya!",
+   "quantity": 1
+  },
+  {
+   "name": "Lae'zel's Acrobatics",
+   "quantity": 1
+  },
+  {
+   "name": "Magnificent End",
+   "quantity": 1
+  },
+  {
+   "name": "Negate",
+   "quantity": 1
+  },
+  {
+   "name": "Plasm Capture",
+   "quantity": 1
+  },
+  {
+   "name": "Send to Sleep",
+   "quantity": 1
+  },
+  {
+   "name": "Settle the Wreckage",
+   "quantity": 1
+  },
+  {
+   "name": "The Eagles Are Coming!",
+   "quantity": 1
+  },
+  {
+   "name": "Animist's Awakening",
+   "quantity": 1
+  },
+  {
+   "name": "Ascend from Avernus",
+   "quantity": 1
+  },
+  {
+   "name": "Avatar's Wrath",
+   "quantity": 1
+  },
+  {
+   "name": "Destined Confrontation",
+   "quantity": 1
+  },
+  {
+   "name": "Explore",
+   "quantity": 1
+  },
+  {
+   "name": "Spirit Water Revival",
+   "quantity": 1
+  },
+  {
+   "name": "Sunlance",
+   "quantity": 1
+  },
+  {
+   "name": "Glamdring, Foe-hammer",
+   "quantity": 1
+  },
+  {
+   "name": "Orcrist, Goblin-cleaver",
+   "quantity": 1
+  },
+  {
+   "name": "Springleaf Drum",
+   "quantity": 1
+  },
+  {
+   "name": "The Arkenstone",
+   "quantity": 1
+  },
+  {
+   "name": "The Echoverse Fulcrum",
+   "quantity": 1
+  },
+  {
+   "name": "Aang's Iceberg",
+   "quantity": 1
+  },
+  {
+   "name": "Airbender Ascension",
+   "quantity": 1
+  },
+  {
+   "name": "Authority of the Consuls",
+   "quantity": 1
+  },
+  {
+   "name": "Beorn's Hospitality",
+   "quantity": 1
+  },
+  {
+   "name": "Celebrate the Mountain-king",
+   "quantity": 1
+  },
+  {
+   "name": "Dancing from Dark to Dawn",
+   "quantity": 1
+  },
+  {
+   "name": "Earthbender Ascension",
+   "quantity": 1
+  },
+  {
+   "name": "Legion Loyalty",
+   "quantity": 1
+  },
+  {
+   "name": "Path to Redemption",
+   "quantity": 1
+  },
+  {
+   "name": "Roads Go Ever, Ever On",
+   "quantity": 1
+  },
+  {
+   "name": "Roll-Roll-Roll-Roll",
+   "quantity": 1
+  },
+  {
+   "name": "Team Avatar",
+   "quantity": 1
+  },
+  {
+   "name": "Tectonic Split",
+   "quantity": 1
+  },
+  {
+   "name": "The Legend of Yangchen",
+   "quantity": 1
+  },
+  {
+   "name": "Uncover the Moon-Letters",
+   "quantity": 1
+  },
+  {
+   "name": "Unnatural Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Waterbender Ascension",
+   "quantity": 1
+  },
+  {
+   "name": "Zendikar's Roil",
+   "quantity": 1
+  },
+  {
+   "name": "Elspeth, Sun's Champion",
+   "quantity": 1
+  },
+  {
+   "name": "Kiora, the Crashing Wave",
+   "quantity": 1
+  },
+  {
+   "name": "Abandoned Air Temple",
+   "quantity": 1
+  },
+  {
+   "name": "Agna Qel'a",
+   "quantity": 1
+  },
+  {
+   "name": "Ba Sing Se",
+   "quantity": 1
+  },
+  {
+   "name": "Elvenking's Halls",
+   "quantity": 1
+  },
+  {
+   "name": "Fabled Passage",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 5
+  },
+  {
+   "name": "Island",
+   "quantity": 5
+  },
+  {
+   "name": "Jasmine Dragon Tea Shop",
+   "quantity": 1
+  },
+  {
+   "name": "Kyoshi Village",
+   "quantity": 1
+  },
+  {
+   "name": "Lake-town",
+   "quantity": 1
+  },
+  {
+   "name": "Mage-Ring Network",
+   "quantity": 1
+  },
+  {
+   "name": "Meditation Pools",
+   "quantity": 1
+  },
+  {
+   "name": "North Pole Gates",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 6
+  },
+  {
+   "name": "Rivendell",
+   "quantity": 1
+  },
+  {
+   "name": "Rumble Arena",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of the False God",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

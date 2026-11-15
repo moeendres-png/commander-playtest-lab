@@ -1,0 +1,290 @@
+{
+ "urlhash": "a3AVZmMK1l8nXz_1sICliA",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-10-02",
+ "price": 97,
+ "salt": 45.90693233907223,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/8-6DSpgQEEewupG1oa24Wg?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Arni, Humble Scribe",
+   "quantity": 1
+  },
+  {
+   "name": "Coveted Falcon",
+   "quantity": 1
+  },
+  {
+   "name": "Eccentric Farmer",
+   "quantity": 1
+  },
+  {
+   "name": "Elrond, Lord of Rivendell",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Regrower",
+   "quantity": 1
+  },
+  {
+   "name": "Evie Frye",
+   "quantity": 1
+  },
+  {
+   "name": "Fblthp, Impossibly Lost",
+   "quantity": 1
+  },
+  {
+   "name": "Fear of Failed Tests",
+   "quantity": 1
+  },
+  {
+   "name": "Fear of Surveillance",
+   "quantity": 1
+  },
+  {
+   "name": "Furtive Courier",
+   "quantity": 1
+  },
+  {
+   "name": "Groundskeeper",
+   "quantity": 1
+  },
+  {
+   "name": "Hare Apparent",
+   "quantity": 2
+  },
+  {
+   "name": "Kishla Skimmer",
+   "quantity": 1
+  },
+  {
+   "name": "Living Conundrum",
+   "quantity": 1
+  },
+  {
+   "name": "Loaming Shaman",
+   "quantity": 1
+  },
+  {
+   "name": "Malevolent Chandelier",
+   "quantity": 1
+  },
+  {
+   "name": "Matoya, Archon Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Merfolk Pupil",
+   "quantity": 1
+  },
+  {
+   "name": "Molt Tender",
+   "quantity": 1
+  },
+  {
+   "name": "Mysterio's Phantasm",
+   "quantity": 1
+  },
+  {
+   "name": "Oblivious Bookworm",
+   "quantity": 1
+  },
+  {
+   "name": "Patchwork Beastie",
+   "quantity": 1
+  },
+  {
+   "name": "Patient Naturalist",
+   "quantity": 1
+  },
+  {
+   "name": "Proctor of Potential",
+   "quantity": 1
+  },
+  {
+   "name": "Saltwater Stalwart",
+   "quantity": 1
+  },
+  {
+   "name": "Shoreline Looter",
+   "quantity": 1
+  },
+  {
+   "name": "Silent Hallcreeper",
+   "quantity": 1
+  },
+  {
+   "name": "Sokka, Lateral Strategist",
+   "quantity": 1
+  },
+  {
+   "name": "Somberwald Sage",
+   "quantity": 1
+  },
+  {
+   "name": "Sparring Dummy",
+   "quantity": 1
+  },
+  {
+   "name": "Spore Flower",
+   "quantity": 1
+  },
+  {
+   "name": "Thassa's Devourer",
+   "quantity": 1
+  },
+  {
+   "name": "Towering-Wave Mystic",
+   "quantity": 1
+  },
+  {
+   "name": "Watcher of the Wayside",
+   "quantity": 1
+  },
+  {
+   "name": "Cache Grab",
+   "quantity": 1
+  },
+  {
+   "name": "Don't Make a Sound",
+   "quantity": 1
+  },
+  {
+   "name": "Otherworldly Gaze",
+   "quantity": 1
+  },
+  {
+   "name": "Peerless Recycling",
+   "quantity": 1
+  },
+  {
+   "name": "Restore with Empathy",
+   "quantity": 1
+  },
+  {
+   "name": "Something Worth Saving",
+   "quantity": 1
+  },
+  {
+   "name": "Veil of Summer",
+   "quantity": 1
+  },
+  {
+   "name": "Cruel Calculations",
+   "quantity": 1
+  },
+  {
+   "name": "Cut Your Losses",
+   "quantity": 1
+  },
+  {
+   "name": "Field Research",
+   "quantity": 1
+  },
+  {
+   "name": "Malevolent Rumble",
+   "quantity": 1
+  },
+  {
+   "name": "Say Its Name",
+   "quantity": 1
+  },
+  {
+   "name": "Scout the City",
+   "quantity": 1
+  },
+  {
+   "name": "Slime Against Humanity",
+   "quantity": 5
+  },
+  {
+   "name": "Aether Syphon",
+   "quantity": 1
+  },
+  {
+   "name": "Hedge Shredder",
+   "quantity": 1
+  },
+  {
+   "name": "Thrór's Map",
+   "quantity": 1
+  },
+  {
+   "name": "Builder's Talent",
+   "quantity": 1
+  },
+  {
+   "name": "Cloakwood Hermit",
+   "quantity": 1
+  },
+  {
+   "name": "Dredger's Insight",
+   "quantity": 1
+  },
+  {
+   "name": "Greenhouse // Rickety Gazebo",
+   "quantity": 1
+  },
+  {
+   "name": "Nightmares and Daydreams",
+   "quantity": 1
+  },
+  {
+   "name": "The Tale of Tamiyo",
+   "quantity": 1
+  },
+  {
+   "name": "Jace, Wielder of Mysteries",
+   "quantity": 1
+  },
+  {
+   "name": "Abandoned Campground",
+   "quantity": 1
+  },
+  {
+   "name": "Arctic Flats",
+   "quantity": 1
+  },
+  {
+   "name": "Bant Panorama",
+   "quantity": 1
+  },
+  {
+   "name": "Fatehold Annex",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 13
+  },
+  {
+   "name": "Guadosalam, Farplane Gateway",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 13
+  },
+  {
+   "name": "Kishla Village",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 4
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

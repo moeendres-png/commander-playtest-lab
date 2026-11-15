@@ -1,0 +1,346 @@
+{
+ "urlhash": "9T4uIyGjv5fkw5Q69Wav8g",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-04-17",
+ "price": 310,
+ "salt": 40.06538663804531,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/12473183?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Ascendant Spirit",
+   "quantity": 1
+  },
+  {
+   "name": "Battle Mammoth",
+   "quantity": 1
+  },
+  {
+   "name": "Beast Whisperer",
+   "quantity": 1
+  },
+  {
+   "name": "Bloodline Pretender",
+   "quantity": 1
+  },
+  {
+   "name": "Boreal Outrider",
+   "quantity": 1
+  },
+  {
+   "name": "Brawn",
+   "quantity": 1
+  },
+  {
+   "name": "Elrond, Master of Healing",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Mariner",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Warmaster",
+   "quantity": 1
+  },
+  {
+   "name": "Fang of Shigeki",
+   "quantity": 1
+  },
+  {
+   "name": "Gandalf, White Rider",
+   "quantity": 1
+  },
+  {
+   "name": "Guardian Gladewalker",
+   "quantity": 1
+  },
+  {
+   "name": "Hooded Hydra",
+   "quantity": 1
+  },
+  {
+   "name": "Jukai Naturalist",
+   "quantity": 1
+  },
+  {
+   "name": "Kaseto, Orochi Archmage",
+   "quantity": 1
+  },
+  {
+   "name": "Kashi-Tribe Elite",
+   "quantity": 1
+  },
+  {
+   "name": "Legolas, Counter of Kills",
+   "quantity": 1
+  },
+  {
+   "name": "Littjara Kinseekers",
+   "quantity": 1
+  },
+  {
+   "name": "Masked Vandal",
+   "quantity": 1
+  },
+  {
+   "name": "Matsu-Tribe Decoy",
+   "quantity": 1
+  },
+  {
+   "name": "Moritte of the Frost",
+   "quantity": 1
+  },
+  {
+   "name": "Moss Viper",
+   "quantity": 1
+  },
+  {
+   "name": "Nightshade Dryad",
+   "quantity": 1
+  },
+  {
+   "name": "Ohran Frostfang",
+   "quantity": 1
+  },
+  {
+   "name": "Orochi Merge-Keeper",
+   "quantity": 1
+  },
+  {
+   "name": "Orochi Sustainer",
+   "quantity": 1
+  },
+  {
+   "name": "Realmwalker",
+   "quantity": 1
+  },
+  {
+   "name": "Rumor Gatherer",
+   "quantity": 1
+  },
+  {
+   "name": "Sakura-Tribe Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Sculptor of Winter",
+   "quantity": 1
+  },
+  {
+   "name": "Seshiro the Anointed",
+   "quantity": 1
+  },
+  {
+   "name": "Sosuke, Son of Seshiro",
+   "quantity": 1
+  },
+  {
+   "name": "Tireless Provisioner",
+   "quantity": 1
+  },
+  {
+   "name": "Unassuming Sage",
+   "quantity": 1
+  },
+  {
+   "name": "Usher of the Fallen",
+   "quantity": 1
+  },
+  {
+   "name": "Veteran Beastrider",
+   "quantity": 1
+  },
+  {
+   "name": "Vorinclex, Monstrous Raider",
+   "quantity": 1
+  },
+  {
+   "name": "Disdainful Stroke",
+   "quantity": 1
+  },
+  {
+   "name": "Gift of the Viper",
+   "quantity": 1
+  },
+  {
+   "name": "Reject",
+   "quantity": 1
+  },
+  {
+   "name": "Shower of Arrows",
+   "quantity": 1
+  },
+  {
+   "name": "Snakeskin Veil",
+   "quantity": 1
+  },
+  {
+   "name": "Take Up the Shield",
+   "quantity": 1
+  },
+  {
+   "name": "Cultivate",
+   "quantity": 1
+  },
+  {
+   "name": "Full Steam Ahead",
+   "quantity": 1
+  },
+  {
+   "name": "Rampant Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Lifecrafter's Bestiary",
+   "quantity": 1
+  },
+  {
+   "name": "Maskwood Nexus",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Arachnoform",
+   "quantity": 1
+  },
+  {
+   "name": "Aura Shards",
+   "quantity": 1
+  },
+  {
+   "name": "Careful Cultivation",
+   "quantity": 1
+  },
+  {
+   "name": "Elven Chorus",
+   "quantity": 1
+  },
+  {
+   "name": "Fall of Gil-galad",
+   "quantity": 1
+  },
+  {
+   "name": "Forced Adaptation",
+   "quantity": 1
+  },
+  {
+   "name": "Hydra's Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Jugan Defends the Temple",
+   "quantity": 1
+  },
+  {
+   "name": "Roaring Earth",
+   "quantity": 1
+  },
+  {
+   "name": "Snake Umbra",
+   "quantity": 1
+  },
+  {
+   "name": "Wild Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Arctic Treeline",
+   "quantity": 1
+  },
+  {
+   "name": "Barkchannel Pathway",
+   "quantity": 1
+  },
+  {
+   "name": "Boseiju, Who Endures",
+   "quantity": 1
+  },
+  {
+   "name": "Botanical Sanctum",
+   "quantity": 1
+  },
+  {
+   "name": "Bretagard Stronghold",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Eiganjo, Seat of the Empire",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 8
+  },
+  {
+   "name": "Glacial Floodplain",
+   "quantity": 1
+  },
+  {
+   "name": "Graypelt Refuge",
+   "quantity": 1
+  },
+  {
+   "name": "Hengegate Pathway",
+   "quantity": 1
+  },
+  {
+   "name": "Hushwood Verge",
+   "quantity": 1
+  },
+  {
+   "name": "Littjara Mirrorlake",
+   "quantity": 1
+  },
+  {
+   "name": "Rimewood Falls",
+   "quantity": 1
+  },
+  {
+   "name": "Snow-Covered Forest",
+   "quantity": 6
+  },
+  {
+   "name": "Snow-Covered Island",
+   "quantity": 4
+  },
+  {
+   "name": "Snow-Covered Plains",
+   "quantity": 4
+  },
+  {
+   "name": "Temple of Plenty",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Cove",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

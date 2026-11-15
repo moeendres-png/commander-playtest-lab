@@ -1,0 +1,334 @@
+{
+ "urlhash": "VWr97A46YfH3ys7t5R8r4g",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-11-13",
+ "price": 58,
+ "salt": 35.2150915376842,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/10370045?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Arasta of the Endless Web",
+   "quantity": 1
+  },
+  {
+   "name": "Bronzehide Lion",
+   "quantity": 1
+  },
+  {
+   "name": "Callaphe, Beloved of the Sea",
+   "quantity": 1
+  },
+  {
+   "name": "Carnage Wurm",
+   "quantity": 1
+  },
+  {
+   "name": "Celestial Archon",
+   "quantity": 1
+  },
+  {
+   "name": "Cloudthresher",
+   "quantity": 1
+  },
+  {
+   "name": "Combine Guildmage",
+   "quantity": 1
+  },
+  {
+   "name": "Danitha Capashen, Paragon",
+   "quantity": 1
+  },
+  {
+   "name": "Dream Trawler",
+   "quantity": 1
+  },
+  {
+   "name": "Eidolon of Inspiration",
+   "quantity": 1
+  },
+  {
+   "name": "Eidolon of Philosophy",
+   "quantity": 1
+  },
+  {
+   "name": "Eutropia the Twice-Favored",
+   "quantity": 1
+  },
+  {
+   "name": "Favored of Iroas",
+   "quantity": 1
+  },
+  {
+   "name": "Fear of Falling",
+   "quantity": 1
+  },
+  {
+   "name": "Fearless Fledgling",
+   "quantity": 1
+  },
+  {
+   "name": "Fleecemane Lion",
+   "quantity": 1
+  },
+  {
+   "name": "Ghostblade Eidolon",
+   "quantity": 1
+  },
+  {
+   "name": "Giant Killer",
+   "quantity": 1
+  },
+  {
+   "name": "Heart Warden",
+   "quantity": 1
+  },
+  {
+   "name": "Heroes' Bane",
+   "quantity": 1
+  },
+  {
+   "name": "Humbler of Mortals",
+   "quantity": 1
+  },
+  {
+   "name": "Maja, Bretagard Protector",
+   "quantity": 1
+  },
+  {
+   "name": "Maraleaf Pixie",
+   "quantity": 1
+  },
+  {
+   "name": "Mesa Enchantress",
+   "quantity": 1
+  },
+  {
+   "name": "Nexus Wardens",
+   "quantity": 1
+  },
+  {
+   "name": "Nylea's Emissary",
+   "quantity": 1
+  },
+  {
+   "name": "Nylea's Forerunner",
+   "quantity": 1
+  },
+  {
+   "name": "Nyx Herald",
+   "quantity": 1
+  },
+  {
+   "name": "Nyxborn Colossus",
+   "quantity": 1
+  },
+  {
+   "name": "Nyxborn Courser",
+   "quantity": 1
+  },
+  {
+   "name": "Nyxborn Wolf",
+   "quantity": 1
+  },
+  {
+   "name": "Prognostic Sphinx",
+   "quantity": 1
+  },
+  {
+   "name": "Pursued Whale",
+   "quantity": 1
+  },
+  {
+   "name": "Realm-Cloaked Giant",
+   "quantity": 1
+  },
+  {
+   "name": "Rosethorn Acolyte",
+   "quantity": 1
+  },
+  {
+   "name": "Sapphire Dragon",
+   "quantity": 1
+  },
+  {
+   "name": "Satyr Enchanter",
+   "quantity": 1
+  },
+  {
+   "name": "Skola Grovedancer",
+   "quantity": 1
+  },
+  {
+   "name": "Slumbering Keepguard",
+   "quantity": 1
+  },
+  {
+   "name": "Spinewoods Armadillo",
+   "quantity": 1
+  },
+  {
+   "name": "Starfield Mystic",
+   "quantity": 1
+  },
+  {
+   "name": "Syr Armont, the Redeemer",
+   "quantity": 1
+  },
+  {
+   "name": "The Mindskinner",
+   "quantity": 1
+  },
+  {
+   "name": "Tolarian Kraken",
+   "quantity": 1
+  },
+  {
+   "name": "Transcendent Envoy",
+   "quantity": 1
+  },
+  {
+   "name": "Tromokratis",
+   "quantity": 1
+  },
+  {
+   "name": "Wild Wanderer",
+   "quantity": 1
+  },
+  {
+   "name": "Eerie Interference",
+   "quantity": 1
+  },
+  {
+   "name": "Reclaim the Wastes",
+   "quantity": 1
+  },
+  {
+   "name": "Relentless Pursuit",
+   "quantity": 1
+  },
+  {
+   "name": "Scale the Heights",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Horn of Valhalla",
+   "quantity": 1
+  },
+  {
+   "name": "Enchantress's Presence",
+   "quantity": 1
+  },
+  {
+   "name": "Gift of Paradise",
+   "quantity": 1
+  },
+  {
+   "name": "Lawmage's Binding",
+   "quantity": 1
+  },
+  {
+   "name": "Moonlit Wake",
+   "quantity": 1
+  },
+  {
+   "name": "New Horizons",
+   "quantity": 1
+  },
+  {
+   "name": "Nissa's Zendikon",
+   "quantity": 1
+  },
+  {
+   "name": "Retreat to Kazandu",
+   "quantity": 1
+  },
+  {
+   "name": "Sterling Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Urban Utopia",
+   "quantity": 1
+  },
+  {
+   "name": "Verdant Haven",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Chancery",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Guildgate",
+   "quantity": 1
+  },
+  {
+   "name": "Bant Panorama",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 8
+  },
+  {
+   "name": "Island",
+   "quantity": 7
+  },
+  {
+   "name": "Plains",
+   "quantity": 9
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Guildgate",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Shimmering Grotto",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Guildgate",
+   "quantity": 1
+  },
+  {
+   "name": "Thriving Isle",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Landscape",
+   "quantity": 1
+  },
+  {
+   "name": "Uncharted Haven",
+   "quantity": 1
+  },
+  {
+   "name": "Woodland Stream",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

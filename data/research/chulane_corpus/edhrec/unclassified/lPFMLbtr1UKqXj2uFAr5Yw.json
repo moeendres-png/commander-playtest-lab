@@ -1,0 +1,318 @@
+{
+ "urlhash": "lPFMLbtr1UKqXj2uFAr5Yw",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-03-06",
+ "price": 293,
+ "salt": 44.61836323514581,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/20577152?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Automatic Librarian",
+   "quantity": 1
+  },
+  {
+   "name": "Bookwurm",
+   "quantity": 1
+  },
+  {
+   "name": "Chancellor of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Disruptive Student",
+   "quantity": 1
+  },
+  {
+   "name": "Ellie and Alan, Paleontologists",
+   "quantity": 1
+  },
+  {
+   "name": "Facet Reader",
+   "quantity": 1
+  },
+  {
+   "name": "Heartwood Storyteller",
+   "quantity": 1
+  },
+  {
+   "name": "Lagonna-Band Storyteller",
+   "quantity": 1
+  },
+  {
+   "name": "Library Larcenist",
+   "quantity": 1
+  },
+  {
+   "name": "Magus of the Library",
+   "quantity": 1
+  },
+  {
+   "name": "Oblivious Bookworm",
+   "quantity": 1
+  },
+  {
+   "name": "Scholar of the Ages",
+   "quantity": 1
+  },
+  {
+   "name": "Shrewd Storyteller",
+   "quantity": 1
+  },
+  {
+   "name": "Sokrates, Athenian Teacher",
+   "quantity": 1
+  },
+  {
+   "name": "Story Seeker",
+   "quantity": 1
+  },
+  {
+   "name": "Storyteller Pixie",
+   "quantity": 1
+  },
+  {
+   "name": "Tamiyo, Inquisitive Student",
+   "quantity": 1
+  },
+  {
+   "name": "Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Tolarian Scholar",
+   "quantity": 1
+  },
+  {
+   "name": "Volo, Itinerant Scholar",
+   "quantity": 1
+  },
+  {
+   "name": "Wan Shi Tong, All-Knowing",
+   "quantity": 1
+  },
+  {
+   "name": "Wan Shi Tong, Librarian",
+   "quantity": 1
+  },
+  {
+   "name": "Bury in Books",
+   "quantity": 1
+  },
+  {
+   "name": "Into the Story",
+   "quantity": 1
+  },
+  {
+   "name": "Last Word",
+   "quantity": 1
+  },
+  {
+   "name": "Mental Note",
+   "quantity": 1
+  },
+  {
+   "name": "Once Upon a Time",
+   "quantity": 1
+  },
+  {
+   "name": "Plagiarize",
+   "quantity": 1
+  },
+  {
+   "name": "Soul Read",
+   "quantity": 1
+  },
+  {
+   "name": "Stern Lesson",
+   "quantity": 1
+  },
+  {
+   "name": "Storyweave",
+   "quantity": 1
+  },
+  {
+   "name": "Summary Dismissal",
+   "quantity": 1
+  },
+  {
+   "name": "Summary Judgment",
+   "quantity": 1
+  },
+  {
+   "name": "Suspend",
+   "quantity": 1
+  },
+  {
+   "name": "Tale's End",
+   "quantity": 1
+  },
+  {
+   "name": "Tragic Lesson",
+   "quantity": 1
+  },
+  {
+   "name": "Transcendent Message",
+   "quantity": 1
+  },
+  {
+   "name": "Truth or Tale",
+   "quantity": 1
+  },
+  {
+   "name": "Words of Wisdom",
+   "quantity": 1
+  },
+  {
+   "name": "All of History, All at Once",
+   "quantity": 1
+  },
+  {
+   "name": "Kefnet's Last Word",
+   "quantity": 1
+  },
+  {
+   "name": "Lessons from Life",
+   "quantity": 1
+  },
+  {
+   "name": "Library of Lat-Nam",
+   "quantity": 1
+  },
+  {
+   "name": "Pore Over the Pages",
+   "quantity": 1
+  },
+  {
+   "name": "Tales of the Ancestors",
+   "quantity": 1
+  },
+  {
+   "name": "Winged Words",
+   "quantity": 1
+  },
+  {
+   "name": "Investigator's Journal",
+   "quantity": 1
+  },
+  {
+   "name": "Library of Leng",
+   "quantity": 1
+  },
+  {
+   "name": "Monster Manual",
+   "quantity": 1
+  },
+  {
+   "name": "Spellbook",
+   "quantity": 1
+  },
+  {
+   "name": "Staff of the Storyteller",
+   "quantity": 1
+  },
+  {
+   "name": "Tamiyo's Journal",
+   "quantity": 1
+  },
+  {
+   "name": "Venser's Journal",
+   "quantity": 1
+  },
+  {
+   "name": "A Tale for the Ages",
+   "quantity": 1
+  },
+  {
+   "name": "Haunted Library",
+   "quantity": 1
+  },
+  {
+   "name": "Kellan Joins Up",
+   "quantity": 1
+  },
+  {
+   "name": "Knowledge Is Power",
+   "quantity": 1
+  },
+  {
+   "name": "Story Circle",
+   "quantity": 1
+  },
+  {
+   "name": "Sylvan Library",
+   "quantity": 1
+  },
+  {
+   "name": "Tale of Katara and Toph",
+   "quantity": 1
+  },
+  {
+   "name": "Tales of Master Seshiro",
+   "quantity": 1
+  },
+  {
+   "name": "Tamiyo Meets the Story Circle",
+   "quantity": 1
+  },
+  {
+   "name": "The Tale of Tamiyo",
+   "quantity": 1
+  },
+  {
+   "name": "Virtue of Knowledge",
+   "quantity": 1
+  },
+  {
+   "name": "Tamiyo, Collector of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Academy Ruins",
+   "quantity": 1
+  },
+  {
+   "name": "Balamb Garden, SeeD Academy",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 9
+  },
+  {
+   "name": "Island",
+   "quantity": 10
+  },
+  {
+   "name": "Minamo, School at Water's Edge",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 9
+  },
+  {
+   "name": "School of the Unseen",
+   "quantity": 1
+  },
+  {
+   "name": "Sharlayan, Nation of Scholars",
+   "quantity": 1
+  },
+  {
+   "name": "Tree of Tales",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

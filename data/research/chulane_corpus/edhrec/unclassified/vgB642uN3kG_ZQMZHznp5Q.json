@@ -1,0 +1,338 @@
+{
+ "urlhash": "vgB642uN3kG_ZQMZHznp5Q",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-11-06",
+ "price": 254,
+ "salt": 41.973586827516556,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/KCDCbSOwWEaYN8i3FubGQA?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Admonition Angel",
+   "quantity": 1
+  },
+  {
+   "name": "Aegis Angel",
+   "quantity": 1
+  },
+  {
+   "name": "Aggressive Mammoth",
+   "quantity": 1
+  },
+  {
+   "name": "Akroma, Angel of Wrath",
+   "quantity": 1
+  },
+  {
+   "name": "Angel of Deliverance",
+   "quantity": 1
+  },
+  {
+   "name": "Angel of Finality",
+   "quantity": 1
+  },
+  {
+   "name": "Angel of Grace",
+   "quantity": 1
+  },
+  {
+   "name": "Angel of Light",
+   "quantity": 1
+  },
+  {
+   "name": "Angelheart Protector",
+   "quantity": 1
+  },
+  {
+   "name": "Angelic Aberration",
+   "quantity": 1
+  },
+  {
+   "name": "Angelic Arbiter",
+   "quantity": 1
+  },
+  {
+   "name": "Angelic Field Marshal",
+   "quantity": 1
+  },
+  {
+   "name": "Angelic Wall",
+   "quantity": 1
+  },
+  {
+   "name": "Archangel",
+   "quantity": 1
+  },
+  {
+   "name": "Avacyn, Guardian Angel",
+   "quantity": 1
+  },
+  {
+   "name": "Avian Changeling",
+   "quantity": 1
+  },
+  {
+   "name": "Barrin, Master Wizard",
+   "quantity": 1
+  },
+  {
+   "name": "Copper-Leaf Angel",
+   "quantity": 1
+  },
+  {
+   "name": "Dawn Evangel",
+   "quantity": 1
+  },
+  {
+   "name": "Dazzling Angel",
+   "quantity": 1
+  },
+  {
+   "name": "Defiant Elf",
+   "quantity": 1
+  },
+  {
+   "name": "Elf Replica",
+   "quantity": 1
+  },
+  {
+   "name": "Elfhame Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Elfhame Wurm",
+   "quantity": 1
+  },
+  {
+   "name": "Empyrial Archangel",
+   "quantity": 1
+  },
+  {
+   "name": "Emrakul's Evangel",
+   "quantity": 1
+  },
+  {
+   "name": "Erudite Wizard",
+   "quantity": 1
+  },
+  {
+   "name": "Esper Sentinel",
+   "quantity": 1
+  },
+  {
+   "name": "Farhaven Elf",
+   "quantity": 1
+  },
+  {
+   "name": "Glistener Elf",
+   "quantity": 1
+  },
+  {
+   "name": "Hurkyl, Master Wizard",
+   "quantity": 1
+  },
+  {
+   "name": "Lena, Selfless Champion",
+   "quantity": 1
+  },
+  {
+   "name": "Naru Meha, Master Wizard",
+   "quantity": 1
+  },
+  {
+   "name": "Pirated Copy",
+   "quantity": 1
+  },
+  {
+   "name": "Prosperous Pirates",
+   "quantity": 1
+  },
+  {
+   "name": "Radagast, Wizard of Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Selfless Cathar",
+   "quantity": 1
+  },
+  {
+   "name": "Selfless Savior",
+   "quantity": 1
+  },
+  {
+   "name": "Sharpshooter Elf",
+   "quantity": 1
+  },
+  {
+   "name": "Skyrider Elf",
+   "quantity": 1
+  },
+  {
+   "name": "Sunblade Elf",
+   "quantity": 1
+  },
+  {
+   "name": "Thornweald Archer",
+   "quantity": 1
+  },
+  {
+   "name": "Warren-Scourge Elf",
+   "quantity": 1
+  },
+  {
+   "name": "Whispering Wizard",
+   "quantity": 1
+  },
+  {
+   "name": "Wispweaver Angel",
+   "quantity": 1
+  },
+  {
+   "name": "Woodland Changeling",
+   "quantity": 1
+  },
+  {
+   "name": "Angel's Grace",
+   "quantity": 1
+  },
+  {
+   "name": "Angel's Mercy",
+   "quantity": 1
+  },
+  {
+   "name": "Angelic Ascension",
+   "quantity": 1
+  },
+  {
+   "name": "Angelic Intervention",
+   "quantity": 1
+  },
+  {
+   "name": "Angelsong",
+   "quantity": 1
+  },
+  {
+   "name": "Duel for Dominance",
+   "quantity": 1
+  },
+  {
+   "name": "Expel from Orazca",
+   "quantity": 1
+  },
+  {
+   "name": "Peel from Reality",
+   "quantity": 1
+  },
+  {
+   "name": "Wizard's Retort",
+   "quantity": 1
+  },
+  {
+   "name": "Angelic Edict",
+   "quantity": 1
+  },
+  {
+   "name": "Angelic Purge",
+   "quantity": 1
+  },
+  {
+   "name": "Archangel's Light",
+   "quantity": 1
+  },
+  {
+   "name": "Pirate's Prize",
+   "quantity": 1
+  },
+  {
+   "name": "Angel's Feather",
+   "quantity": 1
+  },
+  {
+   "name": "Angel's Tomb",
+   "quantity": 1
+  },
+  {
+   "name": "Angel's Trumpet",
+   "quantity": 1
+  },
+  {
+   "name": "Horn of Gondor",
+   "quantity": 1
+  },
+  {
+   "name": "Pirate's Cutlass",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Wizard's Rockets",
+   "quantity": 1
+  },
+  {
+   "name": "Wizard's Spellbook",
+   "quantity": 1
+  },
+  {
+   "name": "Angelic Benediction",
+   "quantity": 1
+  },
+  {
+   "name": "Angelic Chorus",
+   "quantity": 1
+  },
+  {
+   "name": "Angelic Destiny",
+   "quantity": 1
+  },
+  {
+   "name": "Angelic Gift",
+   "quantity": 1
+  },
+  {
+   "name": "Angelic Renewal",
+   "quantity": 1
+  },
+  {
+   "name": "Angelic Shield",
+   "quantity": 1
+  },
+  {
+   "name": "Angelic Voices",
+   "quantity": 1
+  },
+  {
+   "name": "Rhystic Study",
+   "quantity": 1
+  },
+  {
+   "name": "Archangel Elspeth",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 8
+  },
+  {
+   "name": "Island",
+   "quantity": 7
+  },
+  {
+   "name": "Plains",
+   "quantity": 8
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

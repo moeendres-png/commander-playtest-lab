@@ -1,0 +1,374 @@
+{
+ "urlhash": "rsuI51ClzekADwlZtrx82Q",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-05-22",
+ "price": 578,
+ "salt": 47.8291035592556,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/22430410?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Beast Whisperer",
+   "quantity": 1
+  },
+  {
+   "name": "Broodstar",
+   "quantity": 1
+  },
+  {
+   "name": "Butterbur, Bree Innkeeper",
+   "quantity": 1
+  },
+  {
+   "name": "Celebrity Fencer",
+   "quantity": 1
+  },
+  {
+   "name": "Chief Engineer",
+   "quantity": 1
+  },
+  {
+   "name": "Danitha, New Benalia's Light",
+   "quantity": 1
+  },
+  {
+   "name": "Digsite Engineer",
+   "quantity": 1
+  },
+  {
+   "name": "Ellie and Alan, Paleontologists",
+   "quantity": 1
+  },
+  {
+   "name": "Ellivere of the Wild Court",
+   "quantity": 1
+  },
+  {
+   "name": "Enlightened Maniac",
+   "quantity": 1
+  },
+  {
+   "name": "Gylwain, Casting Director",
+   "quantity": 1
+  },
+  {
+   "name": "Heidegger, Shinra Executive",
+   "quantity": 1
+  },
+  {
+   "name": "Jugan, the Rising Star",
+   "quantity": 1
+  },
+  {
+   "name": "Light-Paws, Emperor's Voice",
+   "quantity": 1
+  },
+  {
+   "name": "Lighthouse Chronologist",
+   "quantity": 1
+  },
+  {
+   "name": "Lita, Mechanical Engineer",
+   "quantity": 1
+  },
+  {
+   "name": "Mendicant Core, Guidelight",
+   "quantity": 1
+  },
+  {
+   "name": "Noble Hierarch",
+   "quantity": 1
+  },
+  {
+   "name": "Pearl-Ear, Imperial Advisor",
+   "quantity": 1
+  },
+  {
+   "name": "Powerstone Engineer",
+   "quantity": 1
+  },
+  {
+   "name": "Spellbook Vendor",
+   "quantity": 1
+  },
+  {
+   "name": "The Gaffer",
+   "quantity": 1
+  },
+  {
+   "name": "Tireless Provisioner",
+   "quantity": 1
+  },
+  {
+   "name": "Urza, Lord Protector",
+   "quantity": 1
+  },
+  {
+   "name": "Wary Thespian",
+   "quantity": 1
+  },
+  {
+   "name": "An Offer You Can't Refuse",
+   "quantity": 1
+  },
+  {
+   "name": "Consult the Star Charts",
+   "quantity": 1
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1
+  },
+  {
+   "name": "Don't Make a Sound",
+   "quantity": 1
+  },
+  {
+   "name": "Dovin's Veto",
+   "quantity": 1
+  },
+  {
+   "name": "Path to Exile",
+   "quantity": 1
+  },
+  {
+   "name": "Permission Denied",
+   "quantity": 1
+  },
+  {
+   "name": "Run Away Together",
+   "quantity": 1
+  },
+  {
+   "name": "Swan Song",
+   "quantity": 1
+  },
+  {
+   "name": "Asinine Antics",
+   "quantity": 1
+  },
+  {
+   "name": "Contingency Plan",
+   "quantity": 1
+  },
+  {
+   "name": "Cultivate",
+   "quantity": 1
+  },
+  {
+   "name": "Cut a Deal",
+   "quantity": 1
+  },
+  {
+   "name": "Don't Move",
+   "quantity": 1
+  },
+  {
+   "name": "Farseek",
+   "quantity": 1
+  },
+  {
+   "name": "Nature's Lore",
+   "quantity": 1
+  },
+  {
+   "name": "Rampant Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Rootcast Apprenticeship",
+   "quantity": 1
+  },
+  {
+   "name": "Write into Being",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Extraplanar Lens",
+   "quantity": 1
+  },
+  {
+   "name": "Glaring Spotlight",
+   "quantity": 1
+  },
+  {
+   "name": "Glimmerlight",
+   "quantity": 1
+  },
+  {
+   "name": "Lightning Coils",
+   "quantity": 1
+  },
+  {
+   "name": "Livewire Lash",
+   "quantity": 1
+  },
+  {
+   "name": "Peter Parker's Camera",
+   "quantity": 1
+  },
+  {
+   "name": "Scroll Rack",
+   "quantity": 1
+  },
+  {
+   "name": "Tangle Wire",
+   "quantity": 1
+  },
+  {
+   "name": "The Mightstone and Weakstone",
+   "quantity": 1
+  },
+  {
+   "name": "All That Glitters",
+   "quantity": 1
+  },
+  {
+   "name": "Bear Umbra",
+   "quantity": 1
+  },
+  {
+   "name": "Campsite Cuisine",
+   "quantity": 1
+  },
+  {
+   "name": "Killer Service",
+   "quantity": 1
+  },
+  {
+   "name": "Mechanized Production",
+   "quantity": 1
+  },
+  {
+   "name": "Smothering Tithe",
+   "quantity": 1
+  },
+  {
+   "name": "Trapped in the Screen",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Lighthouse",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Dreamroot Cascade",
+   "quantity": 1
+  },
+  {
+   "name": "Exotic Orchard",
+   "quantity": 1
+  },
+  {
+   "name": "Fabled Passage",
+   "quantity": 1
+  },
+  {
+   "name": "Flooded Strand",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 4
+  },
+  {
+   "name": "Glacial Fortress",
+   "quantity": 1
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1
+  },
+  {
+   "name": "Hinterland Harbor",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 5
+  },
+  {
+   "name": "Misty Rainforest",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 5
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Spara's Headquarters",
+   "quantity": 1
+  },
+  {
+   "name": "Sunpetal Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Enlightenment",
+   "quantity": 1
+  },
+  {
+   "name": "Thespian's Stage",
+   "quantity": 1
+  },
+  {
+   "name": "Urza's Factory",
+   "quantity": 1
+  },
+  {
+   "name": "Urza's Mine",
+   "quantity": 1
+  },
+  {
+   "name": "Urza's Power Plant",
+   "quantity": 1
+  },
+  {
+   "name": "Urza's Saga",
+   "quantity": 1
+  },
+  {
+   "name": "Urza's Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Urza's Workshop",
+   "quantity": 1
+  },
+  {
+   "name": "Windswept Heath",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

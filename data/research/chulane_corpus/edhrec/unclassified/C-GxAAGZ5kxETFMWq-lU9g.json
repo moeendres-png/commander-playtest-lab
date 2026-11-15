@@ -1,0 +1,346 @@
+{
+ "urlhash": "C-GxAAGZ5kxETFMWq-lU9g",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-07-09",
+ "price": 87,
+ "salt": 38.573933033272624,
+ "tags": [
+  "Pillow Fort",
+  "Midrange",
+  "Defenders"
+ ],
+ "source_url": "https://moxfield.com/decks/__rK3MMBp02w8gA1HHMT4Q?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Admonition Angel",
+   "quantity": 1
+  },
+  {
+   "name": "Angel of Finality",
+   "quantity": 1
+  },
+  {
+   "name": "Arasta of the Endless Web",
+   "quantity": 1
+  },
+  {
+   "name": "Arcades Sabboth",
+   "quantity": 1
+  },
+  {
+   "name": "Axebane Guardian",
+   "quantity": 1
+  },
+  {
+   "name": "Baldin, Century Herdmaster",
+   "quantity": 1
+  },
+  {
+   "name": "Birds of Paradise",
+   "quantity": 1
+  },
+  {
+   "name": "Carven Caryatid",
+   "quantity": 1
+  },
+  {
+   "name": "Charix, the Raging Isle",
+   "quantity": 1
+  },
+  {
+   "name": "Empyrial Archangel",
+   "quantity": 1
+  },
+  {
+   "name": "Fear of Failed Tests",
+   "quantity": 1
+  },
+  {
+   "name": "Floriferous Vinewall",
+   "quantity": 1
+  },
+  {
+   "name": "Fog Bank",
+   "quantity": 1
+  },
+  {
+   "name": "Generous Ent",
+   "quantity": 1
+  },
+  {
+   "name": "Grothama, All-Devouring",
+   "quantity": 1
+  },
+  {
+   "name": "Hornet Nest",
+   "quantity": 1
+  },
+  {
+   "name": "Indomitable Ancients",
+   "quantity": 1
+  },
+  {
+   "name": "Kellan, Inquisitive Prodigy",
+   "quantity": 1
+  },
+  {
+   "name": "Loch Mare",
+   "quantity": 1
+  },
+  {
+   "name": "Overgrown Battlement",
+   "quantity": 1
+  },
+  {
+   "name": "Poison Dart Frog",
+   "quantity": 1
+  },
+  {
+   "name": "Rasaad yn Bashir",
+   "quantity": 1
+  },
+  {
+   "name": "Savior of Ollenbock",
+   "quantity": 1
+  },
+  {
+   "name": "Sidar Kondo of Jamuraa",
+   "quantity": 1
+  },
+  {
+   "name": "Stormkeld Vanguard",
+   "quantity": 1
+  },
+  {
+   "name": "Sylvan Caryatid",
+   "quantity": 1
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1
+  },
+  {
+   "name": "The Pride of Hull Clade",
+   "quantity": 1
+  },
+  {
+   "name": "Towering Titan",
+   "quantity": 1
+  },
+  {
+   "name": "Toxicrene",
+   "quantity": 1
+  },
+  {
+   "name": "Trygon Predator",
+   "quantity": 1
+  },
+  {
+   "name": "Wakestone Gargoyle",
+   "quantity": 1
+  },
+  {
+   "name": "Walking Bulwark",
+   "quantity": 1
+  },
+  {
+   "name": "Wall of Blossoms",
+   "quantity": 1
+  },
+  {
+   "name": "Wall of Omens",
+   "quantity": 1
+  },
+  {
+   "name": "Weathered Sentinels",
+   "quantity": 1
+  },
+  {
+   "name": "Wingmantle Chaplain",
+   "quantity": 1
+  },
+  {
+   "name": "Zetalpa, Primal Dawn",
+   "quantity": 1
+  },
+  {
+   "name": "Battle Menu",
+   "quantity": 1
+  },
+  {
+   "name": "Behold the Multiverse",
+   "quantity": 1
+  },
+  {
+   "name": "Contact Other Plane",
+   "quantity": 1
+  },
+  {
+   "name": "Dream Fracture",
+   "quantity": 1
+  },
+  {
+   "name": "Fact or Fiction",
+   "quantity": 1
+  },
+  {
+   "name": "Harrow",
+   "quantity": 1
+  },
+  {
+   "name": "Negate",
+   "quantity": 1
+  },
+  {
+   "name": "Return to Nature",
+   "quantity": 1
+  },
+  {
+   "name": "Thirst for Meaning",
+   "quantity": 1
+  },
+  {
+   "name": "Tower Defense",
+   "quantity": 1
+  },
+  {
+   "name": "Your Temple Is Under Attack",
+   "quantity": 1
+  },
+  {
+   "name": "Counsel of the Soratami",
+   "quantity": 1
+  },
+  {
+   "name": "Cultivate",
+   "quantity": 1
+  },
+  {
+   "name": "Divination",
+   "quantity": 1
+  },
+  {
+   "name": "Expel the Interlopers",
+   "quantity": 1
+  },
+  {
+   "name": "Explore",
+   "quantity": 1
+  },
+  {
+   "name": "Farseek",
+   "quantity": 1
+  },
+  {
+   "name": "Rampant Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Search for Tomorrow",
+   "quantity": 1
+  },
+  {
+   "name": "Slaughter the Strong",
+   "quantity": 1
+  },
+  {
+   "name": "Colfenor's Urn",
+   "quantity": 1
+  },
+  {
+   "name": "Assault Formation",
+   "quantity": 1
+  },
+  {
+   "name": "Intruder Alarm",
+   "quantity": 1
+  },
+  {
+   "name": "Propaganda",
+   "quantity": 1
+  },
+  {
+   "name": "Stoneskin",
+   "quantity": 1
+  },
+  {
+   "name": "Ash Barrens",
+   "quantity": 1
+  },
+  {
+   "name": "Blossoming Sands",
+   "quantity": 1
+  },
+  {
+   "name": "Botanical Plaza",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Desert of the Indomitable",
+   "quantity": 1
+  },
+  {
+   "name": "Desert of the Mindful",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Exotic Orchard",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 7
+  },
+  {
+   "name": "Island",
+   "quantity": 6
+  },
+  {
+   "name": "Plains",
+   "quantity": 9
+  },
+  {
+   "name": "Selesnya Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Growth Chamber",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Mystery",
+   "quantity": 1
+  },
+  {
+   "name": "Thornwood Falls",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Expanse",
+   "quantity": 1
+  },
+  {
+   "name": "Yavimaya Coast",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

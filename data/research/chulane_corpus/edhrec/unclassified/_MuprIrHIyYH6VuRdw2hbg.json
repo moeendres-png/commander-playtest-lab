@@ -1,0 +1,286 @@
+{
+ "urlhash": "_MuprIrHIyYH6VuRdw2hbg",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-10-29",
+ "price": 84,
+ "salt": 42.97663499228656,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/27730831?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Basking Broodscale",
+   "quantity": 1
+  },
+  {
+   "name": "Biomancer's Familiar",
+   "quantity": 1
+  },
+  {
+   "name": "Bloom Tender",
+   "quantity": 1
+  },
+  {
+   "name": "Blossom-Blessed Angel",
+   "quantity": 1
+  },
+  {
+   "name": "Changeling Wayfinder",
+   "quantity": 1
+  },
+  {
+   "name": "Cloudfin Raptor",
+   "quantity": 1
+  },
+  {
+   "name": "Combine Guildmage",
+   "quantity": 1
+  },
+  {
+   "name": "Curious Colossus",
+   "quantity": 1
+  },
+  {
+   "name": "Dreamtide Whale",
+   "quantity": 1
+  },
+  {
+   "name": "Drix Fatemaker",
+   "quantity": 1
+  },
+  {
+   "name": "Eclipsed Merrow",
+   "quantity": 1
+  },
+  {
+   "name": "Edgar, Moonlit Sovereign",
+   "quantity": 1
+  },
+  {
+   "name": "Emergency Phytomedic",
+   "quantity": 1
+  },
+  {
+   "name": "Encumbered Reejerey",
+   "quantity": 1
+  },
+  {
+   "name": "Experiment Kraj",
+   "quantity": 1
+  },
+  {
+   "name": "Faithful Watchdog",
+   "quantity": 1
+  },
+  {
+   "name": "Fathom Mage",
+   "quantity": 1
+  },
+  {
+   "name": "Fblthp, Knows the Way",
+   "quantity": 1
+  },
+  {
+   "name": "Forbidding Spirit",
+   "quantity": 1
+  },
+  {
+   "name": "Frilled Mystic",
+   "quantity": 1
+  },
+  {
+   "name": "Geist of Saint Thalia",
+   "quantity": 1
+  },
+  {
+   "name": "Glyph Elemental",
+   "quantity": 1
+  },
+  {
+   "name": "Golden-Tail Trainer",
+   "quantity": 1
+  },
+  {
+   "name": "Guiding Hydra",
+   "quantity": 1
+  },
+  {
+   "name": "Gyre Engineer",
+   "quantity": 1
+  },
+  {
+   "name": "Inspiring Paladin",
+   "quantity": 1
+  },
+  {
+   "name": "Koth of the Homestead",
+   "quantity": 1
+  },
+  {
+   "name": "Loot, the Nexus",
+   "quantity": 1
+  },
+  {
+   "name": "Maraleaf Pixie",
+   "quantity": 1
+  },
+  {
+   "name": "Noxious Newt",
+   "quantity": 1
+  },
+  {
+   "name": "Nyxborn Unicorn",
+   "quantity": 1
+  },
+  {
+   "name": "Pia, Aether Ascetic",
+   "quantity": 1
+  },
+  {
+   "name": "Propagator Drone",
+   "quantity": 1
+  },
+  {
+   "name": "Renata, Called to the Hunt",
+   "quantity": 1
+  },
+  {
+   "name": "Ruric Thar, Biomagus",
+   "quantity": 1
+  },
+  {
+   "name": "Ruric Thar, Magecrusher",
+   "quantity": 1
+  },
+  {
+   "name": "Sharktocrab",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Guildmage",
+   "quantity": 1
+  },
+  {
+   "name": "Skatewing Spy",
+   "quantity": 1
+  },
+  {
+   "name": "Snapping Voidcraw",
+   "quantity": 1
+  },
+  {
+   "name": "Steward of Valeron",
+   "quantity": 1
+  },
+  {
+   "name": "Sunshower Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Thalia, the Survivor",
+   "quantity": 1
+  },
+  {
+   "name": "Vigorbloom Vanguard",
+   "quantity": 1
+  },
+  {
+   "name": "Vinelasher Adept",
+   "quantity": 1
+  },
+  {
+   "name": "Vorel of the Hull Clade",
+   "quantity": 1
+  },
+  {
+   "name": "Worldsoul Colossus",
+   "quantity": 1
+  },
+  {
+   "name": "Yoshimaru, Beloved Companion",
+   "quantity": 1
+  },
+  {
+   "name": "Zameck Guildmage",
+   "quantity": 1
+  },
+  {
+   "name": "Practiced Offense",
+   "quantity": 1
+  },
+  {
+   "name": "Requisition Raid",
+   "quantity": 1
+  },
+  {
+   "name": "Atmospheric Greenhouse",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Ozolith, the Shattered Spire",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Locket",
+   "quantity": 1
+  },
+  {
+   "name": "Talisman of Progress",
+   "quantity": 1
+  },
+  {
+   "name": "Tangle Tumbler",
+   "quantity": 1
+  },
+  {
+   "name": "A Killer Among Us",
+   "quantity": 1
+  },
+  {
+   "name": "Bred for the Hunt",
+   "quantity": 1
+  },
+  {
+   "name": "Builder's Talent",
+   "quantity": 1
+  },
+  {
+   "name": "Dormant Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Laid to Rest",
+   "quantity": 1
+  },
+  {
+   "name": "Shimmerwilds Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 12
+  },
+  {
+   "name": "Island",
+   "quantity": 12
+  },
+  {
+   "name": "Plains",
+   "quantity": 12
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

@@ -1,0 +1,274 @@
+{
+ "urlhash": "xDvp4zSD-bxHejbUhTB54w",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-06-26",
+ "price": 346,
+ "salt": 42.31942797079682,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/23670862?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Arcbound Javelineer",
+   "quantity": 1
+  },
+  {
+   "name": "Arcbound Mouser",
+   "quantity": 1
+  },
+  {
+   "name": "Arcbound Prototype",
+   "quantity": 1
+  },
+  {
+   "name": "Arcbound Ravager",
+   "quantity": 1
+  },
+  {
+   "name": "Arcbound Reclaimer",
+   "quantity": 1
+  },
+  {
+   "name": "Arcbound Slith",
+   "quantity": 1
+  },
+  {
+   "name": "Arcbound Stinger",
+   "quantity": 1
+  },
+  {
+   "name": "Arcbound Worker",
+   "quantity": 1
+  },
+  {
+   "name": "Brightglass Gearhulk",
+   "quantity": 1
+  },
+  {
+   "name": "Copper Myr",
+   "quantity": 1
+  },
+  {
+   "name": "Crystalline Crawler",
+   "quantity": 1
+  },
+  {
+   "name": "Dauntless Scrapbot",
+   "quantity": 1
+  },
+  {
+   "name": "Diversion Unit",
+   "quantity": 1
+  },
+  {
+   "name": "Dockworker Drone",
+   "quantity": 1
+  },
+  {
+   "name": "Extruder",
+   "quantity": 1
+  },
+  {
+   "name": "Fugitive Droid",
+   "quantity": 1
+  },
+  {
+   "name": "Giggling Skitterspike",
+   "quantity": 1
+  },
+  {
+   "name": "Gold Myr",
+   "quantity": 1
+  },
+  {
+   "name": "H.E.R.B.I.E., Lovable Robot",
+   "quantity": 1
+  },
+  {
+   "name": "Haywire Mite",
+   "quantity": 1
+  },
+  {
+   "name": "Hedron Crawler",
+   "quantity": 1
+  },
+  {
+   "name": "Iron Apprentice",
+   "quantity": 1
+  },
+  {
+   "name": "Lion Sash",
+   "quantity": 1
+  },
+  {
+   "name": "Manakin",
+   "quantity": 1
+  },
+  {
+   "name": "Mirrorshell Crab",
+   "quantity": 1
+  },
+  {
+   "name": "Myr Retriever",
+   "quantity": 1
+  },
+  {
+   "name": "Neurok Replica",
+   "quantity": 1
+  },
+  {
+   "name": "Ornithopter of Paradise",
+   "quantity": 1
+  },
+  {
+   "name": "Oswald Fiddlebender",
+   "quantity": 1
+  },
+  {
+   "name": "Page, Loose Leaf",
+   "quantity": 1
+  },
+  {
+   "name": "Plague Myr",
+   "quantity": 1
+  },
+  {
+   "name": "Riptide Gearhulk",
+   "quantity": 1
+  },
+  {
+   "name": "Scrap Trawler",
+   "quantity": 1
+  },
+  {
+   "name": "Scrapyard Recombiner",
+   "quantity": 1
+  },
+  {
+   "name": "Silver Myr",
+   "quantity": 1
+  },
+  {
+   "name": "Spellskite",
+   "quantity": 1
+  },
+  {
+   "name": "Sylvok Replica",
+   "quantity": 1
+  },
+  {
+   "name": "Teshar, Ancestor's Apostle",
+   "quantity": 1
+  },
+  {
+   "name": "Thermal Navigator",
+   "quantity": 1
+  },
+  {
+   "name": "Walking Ballista",
+   "quantity": 1
+  },
+  {
+   "name": "Wizard Replica",
+   "quantity": 1
+  },
+  {
+   "name": "Workhorse",
+   "quantity": 1
+  },
+  {
+   "name": "Damning Verdict",
+   "quantity": 1
+  },
+  {
+   "name": "Eldritch Evolution",
+   "quantity": 1
+  },
+  {
+   "name": "Neoform",
+   "quantity": 1
+  },
+  {
+   "name": "Reshape",
+   "quantity": 1
+  },
+  {
+   "name": "Search for Glory",
+   "quantity": 1
+  },
+  {
+   "name": "Agatha's Soul Cauldron",
+   "quantity": 1
+  },
+  {
+   "name": "Animation Module",
+   "quantity": 1
+  },
+  {
+   "name": "Birthing Pod",
+   "quantity": 1
+  },
+  {
+   "name": "Ozolith, the Shattered Spire",
+   "quantity": 1
+  },
+  {
+   "name": "Repurposing Bay",
+   "quantity": 1
+  },
+  {
+   "name": "The Ozolith",
+   "quantity": 1
+  },
+  {
+   "name": "Hardened Scales",
+   "quantity": 1
+  },
+  {
+   "name": "Resourceful Defense",
+   "quantity": 1
+  },
+  {
+   "name": "Together Forever",
+   "quantity": 1
+  },
+  {
+   "name": "Arctic Treeline",
+   "quantity": 1
+  },
+  {
+   "name": "Glacial Floodplain",
+   "quantity": 1
+  },
+  {
+   "name": "Power Depot",
+   "quantity": 1
+  },
+  {
+   "name": "Rimewood Falls",
+   "quantity": 1
+  },
+  {
+   "name": "Snow-Covered Forest",
+   "quantity": 13
+  },
+  {
+   "name": "Snow-Covered Island",
+   "quantity": 13
+  },
+  {
+   "name": "Snow-Covered Plains",
+   "quantity": 13
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

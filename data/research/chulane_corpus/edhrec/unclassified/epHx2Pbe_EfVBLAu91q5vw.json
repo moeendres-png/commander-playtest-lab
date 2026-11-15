@@ -1,0 +1,406 @@
+{
+ "urlhash": "epHx2Pbe_EfVBLAu91q5vw",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-11-04",
+ "price": 374,
+ "salt": 26.415227759629488,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/17192389?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Algae Gharial",
+   "quantity": 1
+  },
+  {
+   "name": "Apex Hawks",
+   "quantity": 1
+  },
+  {
+   "name": "Arctic Foxes",
+   "quantity": 1
+  },
+  {
+   "name": "Basking Capybara",
+   "quantity": 1
+  },
+  {
+   "name": "Bay Falcon",
+   "quantity": 1
+  },
+  {
+   "name": "Bellowing Elk",
+   "quantity": 1
+  },
+  {
+   "name": "Birds of Paradise",
+   "quantity": 1
+  },
+  {
+   "name": "Bond Beetle",
+   "quantity": 1
+  },
+  {
+   "name": "Bounding Wolf",
+   "quantity": 1
+  },
+  {
+   "name": "Brightcap Badger",
+   "quantity": 1
+  },
+  {
+   "name": "Brindle Shoat",
+   "quantity": 1
+  },
+  {
+   "name": "Bubble Smuggler",
+   "quantity": 1
+  },
+  {
+   "name": "Caustic Caterpillar",
+   "quantity": 1
+  },
+  {
+   "name": "Clinging Anemones",
+   "quantity": 1
+  },
+  {
+   "name": "Cloudchaser Kestrel",
+   "quantity": 1
+  },
+  {
+   "name": "Colorful Feiyi Sparrow",
+   "quantity": 1
+  },
+  {
+   "name": "Coral Eel",
+   "quantity": 1
+  },
+  {
+   "name": "Crash of Rhinos",
+   "quantity": 1
+  },
+  {
+   "name": "Dawnfeather Eagle",
+   "quantity": 1
+  },
+  {
+   "name": "Devilthorn Fox",
+   "quantity": 1
+  },
+  {
+   "name": "Earth-Origin Yak",
+   "quantity": 1
+  },
+  {
+   "name": "Elusive Otter",
+   "quantity": 1
+  },
+  {
+   "name": "Emerald Oryx",
+   "quantity": 1
+  },
+  {
+   "name": "Ferocious Pup",
+   "quantity": 1
+  },
+  {
+   "name": "Frilled Sandwalla",
+   "quantity": 1
+  },
+  {
+   "name": "Generous Stray",
+   "quantity": 1
+  },
+  {
+   "name": "Giant Beaver",
+   "quantity": 1
+  },
+  {
+   "name": "Giant Octopus",
+   "quantity": 1
+  },
+  {
+   "name": "Giant Shark",
+   "quantity": 1
+  },
+  {
+   "name": "Great Hart",
+   "quantity": 1
+  },
+  {
+   "name": "Greater Tanuki",
+   "quantity": 1
+  },
+  {
+   "name": "Grizzly Bears",
+   "quantity": 1
+  },
+  {
+   "name": "Horned Turtle",
+   "quantity": 1
+  },
+  {
+   "name": "Ironshell Beetle",
+   "quantity": 1
+  },
+  {
+   "name": "Joven's Ferrets",
+   "quantity": 1
+  },
+  {
+   "name": "Leapfrog",
+   "quantity": 1
+  },
+  {
+   "name": "Lifecreed Duo",
+   "quantity": 1
+  },
+  {
+   "name": "Lurking Crocodile",
+   "quantity": 1
+  },
+  {
+   "name": "Lynx",
+   "quantity": 1
+  },
+  {
+   "name": "Manta Ray",
+   "quantity": 1
+  },
+  {
+   "name": "Moonwing Moth",
+   "quantity": 1
+  },
+  {
+   "name": "Nessian Hornbeetle",
+   "quantity": 1
+  },
+  {
+   "name": "Poison Dart Frog",
+   "quantity": 1
+  },
+  {
+   "name": "Pouncing Cheetah",
+   "quantity": 1
+  },
+  {
+   "name": "Prowling Caracal",
+   "quantity": 1
+  },
+  {
+   "name": "Rampaging Hippo",
+   "quantity": 1
+  },
+  {
+   "name": "Rootwalla",
+   "quantity": 1
+  },
+  {
+   "name": "Savannah Lions",
+   "quantity": 1
+  },
+  {
+   "name": "Silverchase Fox",
+   "quantity": 1
+  },
+  {
+   "name": "Skyshroud Condor",
+   "quantity": 1
+  },
+  {
+   "name": "Solitary Camel",
+   "quantity": 1
+  },
+  {
+   "name": "Spinewoods Armadillo",
+   "quantity": 1
+  },
+  {
+   "name": "Squirrel Sovereign",
+   "quantity": 1
+  },
+  {
+   "name": "Stinging Lionfish",
+   "quantity": 1
+  },
+  {
+   "name": "Tempest Hawk",
+   "quantity": 2
+  },
+  {
+   "name": "Thornscape Familiar",
+   "quantity": 1
+  },
+  {
+   "name": "Thriving Ibex",
+   "quantity": 1
+  },
+  {
+   "name": "Tree Monkey",
+   "quantity": 1
+  },
+  {
+   "name": "Venomous Dragonfly",
+   "quantity": 1
+  },
+  {
+   "name": "Walking Sponge",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Bant Panorama",
+   "quantity": 1
+  },
+  {
+   "name": "Boseiju, Who Endures",
+   "quantity": 1
+  },
+  {
+   "name": "Bountiful Promenade",
+   "quantity": 1
+  },
+  {
+   "name": "Breeding Pool",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Deserted Beach",
+   "quantity": 1
+  },
+  {
+   "name": "Dreamroot Cascade",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Fabled Passage",
+   "quantity": 1
+  },
+  {
+   "name": "Flooded Strand",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 3
+  },
+  {
+   "name": "Glacial Fortress",
+   "quantity": 1
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1
+  },
+  {
+   "name": "Hinterland Harbor",
+   "quantity": 1
+  },
+  {
+   "name": "Hushwood Verge",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 1
+  },
+  {
+   "name": "Misty Rainforest",
+   "quantity": 1
+  },
+  {
+   "name": "Otawara, Soaring City",
+   "quantity": 1
+  },
+  {
+   "name": "Overgrown Farmland",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 1
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1
+  },
+  {
+   "name": "Prismatic Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Rejuvenating Springs",
+   "quantity": 1
+  },
+  {
+   "name": "Sea of Clouds",
+   "quantity": 1
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Spara's Headquarters",
+   "quantity": 1
+  },
+  {
+   "name": "Sunpetal Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Temple Garden",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Enlightenment",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Mystery",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Plenty",
+   "quantity": 1
+  },
+  {
+   "name": "Willowrush Verge",
+   "quantity": 1
+  },
+  {
+   "name": "Windswept Heath",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

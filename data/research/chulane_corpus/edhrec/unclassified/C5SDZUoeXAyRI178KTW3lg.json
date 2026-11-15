@@ -1,0 +1,390 @@
+{
+ "urlhash": "C5SDZUoeXAyRI178KTW3lg",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-09-06",
+ "price": 704,
+ "salt": 40.22210903838277,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/tSYVhf3BhE6NX9I_LqT1xA?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Darien, King of Kjeldor",
+   "quantity": 1
+  },
+  {
+   "name": "Destiny Spinner",
+   "quantity": 1
+  },
+  {
+   "name": "Eternal Witness",
+   "quantity": 1
+  },
+  {
+   "name": "Giggling Skitterspike",
+   "quantity": 1
+  },
+  {
+   "name": "Ifh-Bíff Efreet",
+   "quantity": 1
+  },
+  {
+   "name": "Lotus Cobra",
+   "quantity": 1
+  },
+  {
+   "name": "Recruiter of the Guard",
+   "quantity": 1
+  },
+  {
+   "name": "Sakura-Tribe Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Soul Warden",
+   "quantity": 1
+  },
+  {
+   "name": "Squallmonger",
+   "quantity": 1
+  },
+  {
+   "name": "Stuffy Doll",
+   "quantity": 1
+  },
+  {
+   "name": "Transit Mage",
+   "quantity": 1
+  },
+  {
+   "name": "Tribute Mage",
+   "quantity": 1
+  },
+  {
+   "name": "Weathered Wayfarer",
+   "quantity": 1
+  },
+  {
+   "name": "An Offer You Can't Refuse",
+   "quantity": 1
+  },
+  {
+   "name": "Hornet Sting",
+   "quantity": 1
+  },
+  {
+   "name": "Martyrdom",
+   "quantity": 1
+  },
+  {
+   "name": "Path to Exile",
+   "quantity": 1
+  },
+  {
+   "name": "Psionic Blast",
+   "quantity": 1
+  },
+  {
+   "name": "Sandstorm",
+   "quantity": 1
+  },
+  {
+   "name": "Squall Line",
+   "quantity": 1
+  },
+  {
+   "name": "Storm Seeker",
+   "quantity": 1
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1
+  },
+  {
+   "name": "Borrowing the East Wind",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Surge",
+   "quantity": 1
+  },
+  {
+   "name": "Claws of Wirewood",
+   "quantity": 1
+  },
+  {
+   "name": "Cultivate",
+   "quantity": 1
+  },
+  {
+   "name": "Fabricate",
+   "quantity": 1
+  },
+  {
+   "name": "Farseek",
+   "quantity": 1
+  },
+  {
+   "name": "Hurricane",
+   "quantity": 1
+  },
+  {
+   "name": "Life from the Loam",
+   "quantity": 1
+  },
+  {
+   "name": "Mind Bomb",
+   "quantity": 1
+  },
+  {
+   "name": "Nature's Lore",
+   "quantity": 1
+  },
+  {
+   "name": "Rampant Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Skyshroud Claim",
+   "quantity": 1
+  },
+  {
+   "name": "Sunlance",
+   "quantity": 1
+  },
+  {
+   "name": "Three Visits",
+   "quantity": 1
+  },
+  {
+   "name": "Titania's Command",
+   "quantity": 1
+  },
+  {
+   "name": "Unyaro Bee Sting",
+   "quantity": 1
+  },
+  {
+   "name": "Amulet of Vigor",
+   "quantity": 1
+  },
+  {
+   "name": "Ankh of Mishra",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Barbed Wire",
+   "quantity": 1
+  },
+  {
+   "name": "Cloudstone Curio",
+   "quantity": 1
+  },
+  {
+   "name": "Copper Tablet",
+   "quantity": 1
+  },
+  {
+   "name": "Darksteel Plate",
+   "quantity": 1
+  },
+  {
+   "name": "Dawnsire, Sunstar Dreadnought",
+   "quantity": 1
+  },
+  {
+   "name": "Pariah's Shield",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Thought Vessel",
+   "quantity": 1
+  },
+  {
+   "name": "Wayfarer's Bauble",
+   "quantity": 1
+  },
+  {
+   "name": "Guilty Conscience",
+   "quantity": 1
+  },
+  {
+   "name": "Hermetic Study",
+   "quantity": 1
+  },
+  {
+   "name": "Intruder Alarm",
+   "quantity": 1
+  },
+  {
+   "name": "Inviolability",
+   "quantity": 1
+  },
+  {
+   "name": "Pariah",
+   "quantity": 1
+  },
+  {
+   "name": "Predatory Urge",
+   "quantity": 1
+  },
+  {
+   "name": "Primal Order",
+   "quantity": 1
+  },
+  {
+   "name": "Saving Grace",
+   "quantity": 1
+  },
+  {
+   "name": "Soul Barrier",
+   "quantity": 1
+  },
+  {
+   "name": "Wanderlust",
+   "quantity": 1
+  },
+  {
+   "name": "With Great Power . . .",
+   "quantity": 1
+  },
+  {
+   "name": "Adarkar Wastes",
+   "quantity": 1
+  },
+  {
+   "name": "Breeding Pool",
+   "quantity": 1
+  },
+  {
+   "name": "Brushland",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Centaur Garden",
+   "quantity": 1
+  },
+  {
+   "name": "Cephalid Coliseum",
+   "quantity": 1
+  },
+  {
+   "name": "City of Brass",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 4
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1
+  },
+  {
+   "name": "Hedge Maze",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 3
+  },
+  {
+   "name": "Lush Portico",
+   "quantity": 1
+  },
+  {
+   "name": "Meticulous Archive",
+   "quantity": 1
+  },
+  {
+   "name": "Nomad Stadium",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 3
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1
+  },
+  {
+   "name": "Rain-Slicked Copse",
+   "quantity": 1
+  },
+  {
+   "name": "Scattered Groves",
+   "quantity": 1
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Skyshroud Forest",
+   "quantity": 1
+  },
+  {
+   "name": "Sodden Verdure",
+   "quantity": 1
+  },
+  {
+   "name": "Spara's Headquarters",
+   "quantity": 1
+  },
+  {
+   "name": "Temple Garden",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Enlightenment",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Mystery",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Plenty",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Landscape",
+   "quantity": 1
+  },
+  {
+   "name": "Turbulent Wilderness",
+   "quantity": 1
+  },
+  {
+   "name": "Urban Retreat",
+   "quantity": 1
+  },
+  {
+   "name": "Yavimaya Coast",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

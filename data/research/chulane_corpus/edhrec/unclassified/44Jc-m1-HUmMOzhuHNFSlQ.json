@@ -1,0 +1,270 @@
+{
+ "urlhash": "44Jc-m1-HUmMOzhuHNFSlQ",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-09-06",
+ "price": 276,
+ "salt": 44.31000665202737,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/t9gFF-wP50q5MAfRE8JeuA?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Agent of Treachery",
+   "quantity": 1
+  },
+  {
+   "name": "Cavalier of Gales",
+   "quantity": 1
+  },
+  {
+   "name": "Charming Prince",
+   "quantity": 1
+  },
+  {
+   "name": "Clever Impersonator",
+   "quantity": 1
+  },
+  {
+   "name": "Frilled Sandwalla",
+   "quantity": 1
+  },
+  {
+   "name": "Frost Titan",
+   "quantity": 1
+  },
+  {
+   "name": "Glacial Wall",
+   "quantity": 1
+  },
+  {
+   "name": "Icehide Golem",
+   "quantity": 1
+  },
+  {
+   "name": "Linden, the Steadfast Queen",
+   "quantity": 1
+  },
+  {
+   "name": "Nightpack Ambusher",
+   "quantity": 1
+  },
+  {
+   "name": "Queen of Ice",
+   "quantity": 1
+  },
+  {
+   "name": "Rafiq of the Many",
+   "quantity": 1
+  },
+  {
+   "name": "Saffi Eriksdotter",
+   "quantity": 1
+  },
+  {
+   "name": "Snow Fortress",
+   "quantity": 1
+  },
+  {
+   "name": "Stampeding Elk Herd",
+   "quantity": 1
+  },
+  {
+   "name": "Thalia, Guardian of Thraben",
+   "quantity": 1
+  },
+  {
+   "name": "Thalia, Heretic Cathar",
+   "quantity": 1
+  },
+  {
+   "name": "Tolsimir, Friend to Wolves",
+   "quantity": 1
+  },
+  {
+   "name": "Wall of Mist",
+   "quantity": 1
+  },
+  {
+   "name": "Wind Spirit",
+   "quantity": 1
+  },
+  {
+   "name": "Capsize",
+   "quantity": 1
+  },
+  {
+   "name": "Cyclonic Rift",
+   "quantity": 1
+  },
+  {
+   "name": "Galestrike",
+   "quantity": 1
+  },
+  {
+   "name": "Icy Blast",
+   "quantity": 1
+  },
+  {
+   "name": "Once and Future",
+   "quantity": 1
+  },
+  {
+   "name": "Path to Exile",
+   "quantity": 1
+  },
+  {
+   "name": "Realms Uncharted",
+   "quantity": 1
+  },
+  {
+   "name": "Release to the Wind",
+   "quantity": 1
+  },
+  {
+   "name": "Settle the Wreckage",
+   "quantity": 1
+  },
+  {
+   "name": "Adventurous Impulse",
+   "quantity": 1
+  },
+  {
+   "name": "Broken Bond",
+   "quantity": 1
+  },
+  {
+   "name": "Enter the Unknown",
+   "quantity": 1
+  },
+  {
+   "name": "Entrancing Melody",
+   "quantity": 1
+  },
+  {
+   "name": "Into the North",
+   "quantity": 1
+  },
+  {
+   "name": "Journey of Discovery",
+   "quantity": 1
+  },
+  {
+   "name": "Relentless Pursuit",
+   "quantity": 1
+  },
+  {
+   "name": "Remember the Fallen",
+   "quantity": 1
+  },
+  {
+   "name": "See the Truth",
+   "quantity": 1
+  },
+  {
+   "name": "Coldsteel Heart",
+   "quantity": 1
+  },
+  {
+   "name": "Expedition Map",
+   "quantity": 1
+  },
+  {
+   "name": "Sword of Fire and Ice",
+   "quantity": 1
+  },
+  {
+   "name": "Trading Post",
+   "quantity": 1
+  },
+  {
+   "name": "Betrayal",
+   "quantity": 1
+  },
+  {
+   "name": "Exploration",
+   "quantity": 1
+  },
+  {
+   "name": "Frozen Solid",
+   "quantity": 1
+  },
+  {
+   "name": "Ice Cave",
+   "quantity": 1
+  },
+  {
+   "name": "Ice Over",
+   "quantity": 1
+  },
+  {
+   "name": "Lost in the Woods",
+   "quantity": 1
+  },
+  {
+   "name": "New Horizons",
+   "quantity": 1
+  },
+  {
+   "name": "Search for Azcanta",
+   "quantity": 1
+  },
+  {
+   "name": "Time of Ice",
+   "quantity": 1
+  },
+  {
+   "name": "Treachery",
+   "quantity": 1
+  },
+  {
+   "name": "Castle Vantress",
+   "quantity": 1
+  },
+  {
+   "name": "Exotic Orchard",
+   "quantity": 1
+  },
+  {
+   "name": "Frostwalk Bastion",
+   "quantity": 1
+  },
+  {
+   "name": "Glacial Fortress",
+   "quantity": 1
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1
+  },
+  {
+   "name": "Remote Isle",
+   "quantity": 1
+  },
+  {
+   "name": "Snow-Covered Forest",
+   "quantity": 14
+  },
+  {
+   "name": "Snow-Covered Island",
+   "quantity": 13
+  },
+  {
+   "name": "Snow-Covered Plains",
+   "quantity": 13
+  },
+  {
+   "name": "Tendo Ice Bridge",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

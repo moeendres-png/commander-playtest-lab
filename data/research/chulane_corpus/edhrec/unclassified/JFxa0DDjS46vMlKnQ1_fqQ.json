@@ -1,0 +1,318 @@
+{
+ "urlhash": "JFxa0DDjS46vMlKnQ1_fqQ",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-07-12",
+ "price": 184,
+ "salt": 39.91026796773076,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/badQQlwxxEeeDgfBrjTkyg?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Ajani's Pridemate",
+   "quantity": 1
+  },
+  {
+   "name": "Angel of Vitality",
+   "quantity": 1
+  },
+  {
+   "name": "Auriok Champion",
+   "quantity": 1
+  },
+  {
+   "name": "Círdan the Shipwright",
+   "quantity": 1
+  },
+  {
+   "name": "Darien, King of Kjeldor",
+   "quantity": 1
+  },
+  {
+   "name": "Dawnhart Geist",
+   "quantity": 1
+  },
+  {
+   "name": "Daxos, Blessed by the Sun",
+   "quantity": 1
+  },
+  {
+   "name": "Diamond Mare",
+   "quantity": 1
+  },
+  {
+   "name": "Distinguished Conjurer",
+   "quantity": 1
+  },
+  {
+   "name": "Essence Warden",
+   "quantity": 1
+  },
+  {
+   "name": "Guide of Souls",
+   "quantity": 1
+  },
+  {
+   "name": "Herald of the Pantheon",
+   "quantity": 1
+  },
+  {
+   "name": "Heron of Hope",
+   "quantity": 1
+  },
+  {
+   "name": "Hinterland Sanctifier",
+   "quantity": 1
+  },
+  {
+   "name": "Honor Troll",
+   "quantity": 1
+  },
+  {
+   "name": "Impassioned Orator",
+   "quantity": 1
+  },
+  {
+   "name": "Jaddi Offshoot",
+   "quantity": 1
+  },
+  {
+   "name": "Kazandu Nectarpot",
+   "quantity": 1
+  },
+  {
+   "name": "Knight of Dawn's Light",
+   "quantity": 1
+  },
+  {
+   "name": "Kor Firewalker",
+   "quantity": 1
+  },
+  {
+   "name": "Leonin Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Lifecreed Duo",
+   "quantity": 1
+  },
+  {
+   "name": "Merchant Ship",
+   "quantity": 1
+  },
+  {
+   "name": "Prize Pig",
+   "quantity": 1
+  },
+  {
+   "name": "Rhox Faithmender",
+   "quantity": 1
+  },
+  {
+   "name": "Soldier of the Pantheon",
+   "quantity": 1
+  },
+  {
+   "name": "Soul Warden",
+   "quantity": 1
+  },
+  {
+   "name": "Soul's Attendant",
+   "quantity": 1
+  },
+  {
+   "name": "Spectrum Sentinel",
+   "quantity": 1
+  },
+  {
+   "name": "Sythis, Harvest's Hand",
+   "quantity": 1
+  },
+  {
+   "name": "Angel's Feather",
+   "quantity": 1
+  },
+  {
+   "name": "Angelheart Vial",
+   "quantity": 1
+  },
+  {
+   "name": "Contested Game Ball",
+   "quantity": 1
+  },
+  {
+   "name": "Coveted Jewel",
+   "quantity": 1
+  },
+  {
+   "name": "Dragon's Claw",
+   "quantity": 1
+  },
+  {
+   "name": "Farsight Mask",
+   "quantity": 1
+  },
+  {
+   "name": "Golem's Heart",
+   "quantity": 1
+  },
+  {
+   "name": "Prism Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Profane Memento",
+   "quantity": 1
+  },
+  {
+   "name": "Sun Droplet",
+   "quantity": 1
+  },
+  {
+   "name": "Tablet of the Guilds",
+   "quantity": 1
+  },
+  {
+   "name": "The Wind Crystal",
+   "quantity": 1
+  },
+  {
+   "name": "Wurm's Tooth",
+   "quantity": 1
+  },
+  {
+   "name": "Boon Reflection",
+   "quantity": 1
+  },
+  {
+   "name": "Cleric Class",
+   "quantity": 1
+  },
+  {
+   "name": "Curse of Echoes",
+   "quantity": 1
+  },
+  {
+   "name": "Curse of Inertia",
+   "quantity": 1
+  },
+  {
+   "name": "Curse of Verbosity",
+   "quantity": 1
+  },
+  {
+   "name": "Curse of Vitality",
+   "quantity": 1
+  },
+  {
+   "name": "Dawn of Hope",
+   "quantity": 1
+  },
+  {
+   "name": "Druid Class",
+   "quantity": 1
+  },
+  {
+   "name": "Ever-Watching Threshold",
+   "quantity": 1
+  },
+  {
+   "name": "Leyline of Hope",
+   "quantity": 1
+  },
+  {
+   "name": "Lifetap",
+   "quantity": 1
+  },
+  {
+   "name": "Living Artifact",
+   "quantity": 1
+  },
+  {
+   "name": "Sanctimony",
+   "quantity": 1
+  },
+  {
+   "name": "Sunspring Expedition",
+   "quantity": 1
+  },
+  {
+   "name": "Thoughtleech",
+   "quantity": 1
+  },
+  {
+   "name": "Warmth",
+   "quantity": 1
+  },
+  {
+   "name": "Adventurer's Inn",
+   "quantity": 1
+  },
+  {
+   "name": "Blighted Steppe",
+   "quantity": 1
+  },
+  {
+   "name": "Blossoming Sands",
+   "quantity": 1
+  },
+  {
+   "name": "Brokers Hideout",
+   "quantity": 1
+  },
+  {
+   "name": "Cabaretti Courtyard",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 9
+  },
+  {
+   "name": "Graypelt Refuge",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 9
+  },
+  {
+   "name": "Kabira Crossroads",
+   "quantity": 1
+  },
+  {
+   "name": "Obscura Storefront",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 10
+  },
+  {
+   "name": "Radiant Fountain",
+   "quantity": 1
+  },
+  {
+   "name": "Sejiri Refuge",
+   "quantity": 1
+  },
+  {
+   "name": "Thornwood Falls",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Cove",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

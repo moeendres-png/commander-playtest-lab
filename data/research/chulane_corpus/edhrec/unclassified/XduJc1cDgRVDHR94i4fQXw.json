@@ -1,0 +1,314 @@
+{
+ "urlhash": "XduJc1cDgRVDHR94i4fQXw",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-10-07",
+ "price": 364,
+ "salt": 44.18183083459735,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/16222883?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Abzan Battle Priest",
+   "quantity": 1
+  },
+  {
+   "name": "Abzan Beastmaster",
+   "quantity": 1
+  },
+  {
+   "name": "Ainok Artillerist",
+   "quantity": 1
+  },
+  {
+   "name": "Ainok Bond-Kin",
+   "quantity": 1
+  },
+  {
+   "name": "Ainok Guide",
+   "quantity": 1
+  },
+  {
+   "name": "Ainok Wayfarer",
+   "quantity": 1
+  },
+  {
+   "name": "Akroan Mastiff",
+   "quantity": 1
+  },
+  {
+   "name": "Anara, Wolvid Familiar",
+   "quantity": 1
+  },
+  {
+   "name": "Armorcraft Judge",
+   "quantity": 1
+  },
+  {
+   "name": "Boros Mastiff",
+   "quantity": 1
+  },
+  {
+   "name": "District Mascot",
+   "quantity": 1
+  },
+  {
+   "name": "Faithful Watchdog",
+   "quantity": 1
+  },
+  {
+   "name": "Generous Pup",
+   "quantity": 1
+  },
+  {
+   "name": "Hamza, Guardian of Arashin",
+   "quantity": 1
+  },
+  {
+   "name": "Howlgeist",
+   "quantity": 1
+  },
+  {
+   "name": "Katara, Water Tribe's Hope",
+   "quantity": 1
+  },
+  {
+   "name": "Lone Wolf",
+   "quantity": 1
+  },
+  {
+   "name": "Mirror Entity",
+   "quantity": 1
+  },
+  {
+   "name": "Mowu, Loyal Companion",
+   "quantity": 1
+  },
+  {
+   "name": "Pack Leader",
+   "quantity": 1
+  },
+  {
+   "name": "Phelia, Exuberant Shepherd",
+   "quantity": 1
+  },
+  {
+   "name": "Primal Adversary",
+   "quantity": 1
+  },
+  {
+   "name": "Rambunctious Mutt",
+   "quantity": 1
+  },
+  {
+   "name": "Resolute Watchdog",
+   "quantity": 1
+  },
+  {
+   "name": "Rex, Cyber-Hound",
+   "quantity": 1
+  },
+  {
+   "name": "Rinoa Heartilly",
+   "quantity": 1
+  },
+  {
+   "name": "Sacred Wolf",
+   "quantity": 1
+  },
+  {
+   "name": "Skalla Wolf",
+   "quantity": 1
+  },
+  {
+   "name": "Spirited Companion",
+   "quantity": 1
+  },
+  {
+   "name": "Summon: Fenrir",
+   "quantity": 1
+  },
+  {
+   "name": "Tanuki Transplanter",
+   "quantity": 1
+  },
+  {
+   "name": "Torgal, A Fine Hound",
+   "quantity": 1
+  },
+  {
+   "name": "Trade Route Envoy",
+   "quantity": 1
+  },
+  {
+   "name": "Trusty Retriever",
+   "quantity": 1
+  },
+  {
+   "name": "Wandering Wolf",
+   "quantity": 1
+  },
+  {
+   "name": "Warclamp Mastiff",
+   "quantity": 1
+  },
+  {
+   "name": "Yuna, Grand Summoner",
+   "quantity": 1
+  },
+  {
+   "name": "Invigorating Surge",
+   "quantity": 1
+  },
+  {
+   "name": "Cultivate",
+   "quantity": 1
+  },
+  {
+   "name": "Fangs of Kalonia",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Fractal Harness",
+   "quantity": 1
+  },
+  {
+   "name": "Ozolith, the Shattered Spire",
+   "quantity": 1
+  },
+  {
+   "name": "Power Fist",
+   "quantity": 1
+  },
+  {
+   "name": "Ring of the Lucii",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "The Earth Crystal",
+   "quantity": 1
+  },
+  {
+   "name": "The Ozolith",
+   "quantity": 1
+  },
+  {
+   "name": "Thran Dynamo",
+   "quantity": 1
+  },
+  {
+   "name": "Doubling Season",
+   "quantity": 1
+  },
+  {
+   "name": "Hadana's Climb",
+   "quantity": 1
+  },
+  {
+   "name": "Hardened Scales",
+   "quantity": 1
+  },
+  {
+   "name": "Hydra's Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Loading Zone",
+   "quantity": 1
+  },
+  {
+   "name": "Resourceful Defense",
+   "quantity": 1
+  },
+  {
+   "name": "Rhystic Study",
+   "quantity": 1
+  },
+  {
+   "name": "Sphere Grid",
+   "quantity": 1
+  },
+  {
+   "name": "Thickest in the Thicket",
+   "quantity": 1
+  },
+  {
+   "name": "Triumph of Ferocity",
+   "quantity": 1
+  },
+  {
+   "name": "Jiang Yanggu, Wildcrafter",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Flooded Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Flooded Strand",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 14
+  },
+  {
+   "name": "Island",
+   "quantity": 5
+  },
+  {
+   "name": "Mystic Gate",
+   "quantity": 1
+  },
+  {
+   "name": "Opal Palace",
+   "quantity": 1
+  },
+  {
+   "name": "Overflowing Basin",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 10
+  },
+  {
+   "name": "Skycloud Expanse",
+   "quantity": 1
+  },
+  {
+   "name": "Sungrass Prairie",
+   "quantity": 1
+  },
+  {
+   "name": "Wooded Bastion",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

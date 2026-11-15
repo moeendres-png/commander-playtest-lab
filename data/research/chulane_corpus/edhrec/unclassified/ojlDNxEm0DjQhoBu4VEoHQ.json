@@ -1,0 +1,322 @@
+{
+ "urlhash": "ojlDNxEm0DjQhoBu4VEoHQ",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-05-30",
+ "price": 104,
+ "salt": 43.20660403044894,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/13462352?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Ancient Adamantoise",
+   "quantity": 1
+  },
+  {
+   "name": "Augmenter Pugilist",
+   "quantity": 1
+  },
+  {
+   "name": "Byrke, Long Ear of the Law",
+   "quantity": 1
+  },
+  {
+   "name": "Cankerbloom",
+   "quantity": 1
+  },
+  {
+   "name": "District Mascot",
+   "quantity": 1
+  },
+  {
+   "name": "Draining Whelk",
+   "quantity": 1
+  },
+  {
+   "name": "Evolution Sage",
+   "quantity": 1
+  },
+  {
+   "name": "Ezuri, Claw of Progress",
+   "quantity": 1
+  },
+  {
+   "name": "Fathom Mage",
+   "quantity": 1
+  },
+  {
+   "name": "Floodchaser",
+   "quantity": 1
+  },
+  {
+   "name": "Floodhound",
+   "quantity": 1
+  },
+  {
+   "name": "Floodpits Drowner",
+   "quantity": 1
+  },
+  {
+   "name": "Good-Fortune Unicorn",
+   "quantity": 1
+  },
+  {
+   "name": "Huatli's Raptor",
+   "quantity": 1
+  },
+  {
+   "name": "Kazandu Nectarpot",
+   "quantity": 1
+  },
+  {
+   "name": "Lorescale Coatl",
+   "quantity": 1
+  },
+  {
+   "name": "Lumbering Satyr",
+   "quantity": 1
+  },
+  {
+   "name": "Martyr for the Cause",
+   "quantity": 1
+  },
+  {
+   "name": "Mindless Automaton",
+   "quantity": 1
+  },
+  {
+   "name": "Omo, Queen of Vesuva",
+   "quantity": 1
+  },
+  {
+   "name": "Park Heights Maverick",
+   "quantity": 1
+  },
+  {
+   "name": "Riftwing Cloudskate",
+   "quantity": 1
+  },
+  {
+   "name": "Roalesk, Apex Hybrid",
+   "quantity": 1
+  },
+  {
+   "name": "Scute Swarm",
+   "quantity": 1
+  },
+  {
+   "name": "Snapping Voidcraw",
+   "quantity": 1
+  },
+  {
+   "name": "Spore Crawler",
+   "quantity": 1
+  },
+  {
+   "name": "Tangled Florahedron",
+   "quantity": 1
+  },
+  {
+   "name": "Terrian, World Tyrant",
+   "quantity": 1
+  },
+  {
+   "name": "Thrummingbird",
+   "quantity": 1
+  },
+  {
+   "name": "Tromell, Seymour's Butler",
+   "quantity": 1
+  },
+  {
+   "name": "Xolatoyac, the Smiling Flood",
+   "quantity": 1
+  },
+  {
+   "name": "Behind the Mask",
+   "quantity": 1
+  },
+  {
+   "name": "Bioshift",
+   "quantity": 1
+  },
+  {
+   "name": "Bounce Off",
+   "quantity": 1
+  },
+  {
+   "name": "Bovine Intervention",
+   "quantity": 1
+  },
+  {
+   "name": "Brackish Blunder",
+   "quantity": 1
+  },
+  {
+   "name": "Experimental Augury",
+   "quantity": 1
+  },
+  {
+   "name": "Radstorm",
+   "quantity": 1
+  },
+  {
+   "name": "Atraxa's Fall",
+   "quantity": 1
+  },
+  {
+   "name": "Basic Conjuration",
+   "quantity": 1
+  },
+  {
+   "name": "Blue Sun's Twilight",
+   "quantity": 1
+  },
+  {
+   "name": "Borrowing 100,000 Arrows",
+   "quantity": 1
+  },
+  {
+   "name": "Breaking Wave",
+   "quantity": 1
+  },
+  {
+   "name": "Chatterstorm",
+   "quantity": 1
+  },
+  {
+   "name": "Needle Storm",
+   "quantity": 1
+  },
+  {
+   "name": "Tezzeret's Gambit",
+   "quantity": 1
+  },
+  {
+   "name": "Thirsting Roots",
+   "quantity": 1
+  },
+  {
+   "name": "Wave of Vitriol",
+   "quantity": 1
+  },
+  {
+   "name": "Cryptolith Fragment",
+   "quantity": 1
+  },
+  {
+   "name": "Ichor Wellspring",
+   "quantity": 1
+  },
+  {
+   "name": "Eye of the Storm",
+   "quantity": 1
+  },
+  {
+   "name": "Growing Rites of Itlimoc",
+   "quantity": 1
+  },
+  {
+   "name": "Adarkar Wastes",
+   "quantity": 1
+  },
+  {
+   "name": "Alchemist's Refuge",
+   "quantity": 1
+  },
+  {
+   "name": "Blighted Woodland",
+   "quantity": 1
+  },
+  {
+   "name": "Bretagard Stronghold",
+   "quantity": 1
+  },
+  {
+   "name": "Brushland",
+   "quantity": 1
+  },
+  {
+   "name": "Cephalid Coliseum",
+   "quantity": 1
+  },
+  {
+   "name": "Dreamroot Cascade",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 9
+  },
+  {
+   "name": "Irrigation Ditch",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 9
+  },
+  {
+   "name": "Littjara Mirrorlake",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 9
+  },
+  {
+   "name": "Restless Anchorage",
+   "quantity": 1
+  },
+  {
+   "name": "Restless Prairie",
+   "quantity": 1
+  },
+  {
+   "name": "Restless Vinestalk",
+   "quantity": 1
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Enlightenment",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Mystery",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Plenty",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Landscape",
+   "quantity": 1
+  },
+  {
+   "name": "Treva's Ruins",
+   "quantity": 1
+  },
+  {
+   "name": "Willowrush Verge",
+   "quantity": 1
+  },
+  {
+   "name": "Yavimaya Coast",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

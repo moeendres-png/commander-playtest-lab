@@ -1,0 +1,286 @@
+{
+ "urlhash": "LooDCU_NGGOQQ07ZQ3FiVw",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-08-05",
+ "price": 251,
+ "salt": 53.968631867319345,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/3TAeGoJzkkm61DMOxIU5GQ?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Amareth, the Lustrous",
+   "quantity": 1
+  },
+  {
+   "name": "Arasta of the Endless Web",
+   "quantity": 1
+  },
+  {
+   "name": "Azor, the Lawbringer",
+   "quantity": 1
+  },
+  {
+   "name": "Barrin, Tolarian Archmage",
+   "quantity": 1
+  },
+  {
+   "name": "Callaphe, Beloved of the Sea",
+   "quantity": 1
+  },
+  {
+   "name": "Cho-Manno, Revolutionary",
+   "quantity": 1
+  },
+  {
+   "name": "Commander Eesha",
+   "quantity": 1
+  },
+  {
+   "name": "Darien, King of Kjeldor",
+   "quantity": 1
+  },
+  {
+   "name": "Daxos, Blessed by the Sun",
+   "quantity": 1
+  },
+  {
+   "name": "Djeru, With Eyes Open",
+   "quantity": 1
+  },
+  {
+   "name": "Ephara, God of the Polis",
+   "quantity": 1
+  },
+  {
+   "name": "Fblthp, the Lost",
+   "quantity": 1
+  },
+  {
+   "name": "Gadwick, the Wizened",
+   "quantity": 1
+  },
+  {
+   "name": "Gor Muldrak, Amphinologist",
+   "quantity": 1
+  },
+  {
+   "name": "Hixus, Prison Warden",
+   "quantity": 1
+  },
+  {
+   "name": "Isperia, Supreme Judge",
+   "quantity": 1
+  },
+  {
+   "name": "Jazal Goldmane",
+   "quantity": 1
+  },
+  {
+   "name": "Jolrael, Empress of Beasts",
+   "quantity": 1
+  },
+  {
+   "name": "Jolrael, Mwonvuli Recluse",
+   "quantity": 1
+  },
+  {
+   "name": "Karametra, God of Harvests",
+   "quantity": 1
+  },
+  {
+   "name": "Kira, Great Glass-Spinner",
+   "quantity": 1
+  },
+  {
+   "name": "Kiyomaro, First to Stand",
+   "quantity": 1
+  },
+  {
+   "name": "Lu Xun, Scholar General",
+   "quantity": 1
+  },
+  {
+   "name": "Mangara, the Diplomat",
+   "quantity": 1
+  },
+  {
+   "name": "Masako the Humorless",
+   "quantity": 1
+  },
+  {
+   "name": "Medomai the Ageless",
+   "quantity": 1
+  },
+  {
+   "name": "Mirri, Weatherlight Duelist",
+   "quantity": 1
+  },
+  {
+   "name": "Multani, Yavimaya's Avatar",
+   "quantity": 1
+  },
+  {
+   "name": "Myojin of Cleansing Fire",
+   "quantity": 1
+  },
+  {
+   "name": "Myojin of Life's Web",
+   "quantity": 1
+  },
+  {
+   "name": "Myojin of Seeing Winds",
+   "quantity": 1
+  },
+  {
+   "name": "Niambi, Esteemed Speaker",
+   "quantity": 1
+  },
+  {
+   "name": "Noyan Dar, Roil Shaper",
+   "quantity": 1
+  },
+  {
+   "name": "Odric, Lunarch Marshal",
+   "quantity": 1
+  },
+  {
+   "name": "Prime Speaker Zegana",
+   "quantity": 1
+  },
+  {
+   "name": "Raff Capashen, Ship's Mage",
+   "quantity": 1
+  },
+  {
+   "name": "Reki, the History of Kamigawa",
+   "quantity": 1
+  },
+  {
+   "name": "Reya Dawnbringer",
+   "quantity": 1
+  },
+  {
+   "name": "Saffi Eriksdotter",
+   "quantity": 1
+  },
+  {
+   "name": "Sigarda, Heron's Grace",
+   "quantity": 1
+  },
+  {
+   "name": "Sun Ce, Young Conquerer",
+   "quantity": 1
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Teshar, Ancestor's Apostle",
+   "quantity": 1
+  },
+  {
+   "name": "Thada Adel, Acquisitor",
+   "quantity": 1
+  },
+  {
+   "name": "Thryx, the Sudden Storm",
+   "quantity": 1
+  },
+  {
+   "name": "Tishana, Voice of Thunder",
+   "quantity": 1
+  },
+  {
+   "name": "Titania, Protector of Argoth",
+   "quantity": 1
+  },
+  {
+   "name": "Tomik, Distinguished Advokist",
+   "quantity": 1
+  },
+  {
+   "name": "Tromokratis",
+   "quantity": 1
+  },
+  {
+   "name": "Yasharn, Implacable Earth",
+   "quantity": 1
+  },
+  {
+   "name": "Yomiji, Who Bars the Way",
+   "quantity": 1
+  },
+  {
+   "name": "Zetalpa, Primal Dawn",
+   "quantity": 1
+  },
+  {
+   "name": "Kamahl's Druidic Vow",
+   "quantity": 1
+  },
+  {
+   "name": "Karn's Temporal Sundering",
+   "quantity": 1
+  },
+  {
+   "name": "Urza's Ruinous Blast",
+   "quantity": 1
+  },
+  {
+   "name": "Dragon Throne of Tarkir",
+   "quantity": 1
+  },
+  {
+   "name": "Heroes' Podium",
+   "quantity": 1
+  },
+  {
+   "name": "Parhelion II",
+   "quantity": 1
+  },
+  {
+   "name": "Weatherlight",
+   "quantity": 1
+  },
+  {
+   "name": "Day of Destiny",
+   "quantity": 1
+  },
+  {
+   "name": "Legion's Landing",
+   "quantity": 1
+  },
+  {
+   "name": "Gideon Blackblade",
+   "quantity": 1
+  },
+  {
+   "name": "The Wanderer",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 12
+  },
+  {
+   "name": "Island",
+   "quantity": 12
+  },
+  {
+   "name": "Plains",
+   "quantity": 12
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

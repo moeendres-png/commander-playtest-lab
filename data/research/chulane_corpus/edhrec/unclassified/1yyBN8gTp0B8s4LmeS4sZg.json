@@ -1,0 +1,378 @@
+{
+ "urlhash": "1yyBN8gTp0B8s4LmeS4sZg",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-02-26",
+ "price": 2731,
+ "salt": 49.46359112113714,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/20360831?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Academy Manufactor",
+   "quantity": 1
+  },
+  {
+   "name": "Arcbound Ravager",
+   "quantity": 1
+  },
+  {
+   "name": "Banquet Guests",
+   "quantity": 1
+  },
+  {
+   "name": "Big Mother Mouser",
+   "quantity": 1
+  },
+  {
+   "name": "Curious Pair",
+   "quantity": 1
+  },
+  {
+   "name": "Feasting Troll King",
+   "quantity": 1
+  },
+  {
+   "name": "Fierce Witchstalker",
+   "quantity": 1
+  },
+  {
+   "name": "Gilded Goose",
+   "quantity": 1
+  },
+  {
+   "name": "Hollow Scavenger",
+   "quantity": 1
+  },
+  {
+   "name": "Intrepid Trufflesnout",
+   "quantity": 1
+  },
+  {
+   "name": "Jaheira, Friend of the Forest",
+   "quantity": 1
+  },
+  {
+   "name": "Lita, Little Orphan Amphibian",
+   "quantity": 1
+  },
+  {
+   "name": "Maraleaf Rider",
+   "quantity": 1
+  },
+  {
+   "name": "Michelangelo, the Heart",
+   "quantity": 1
+  },
+  {
+   "name": "Peregrin Took",
+   "quantity": 1
+  },
+  {
+   "name": "Roadkill Rodney",
+   "quantity": 1
+  },
+  {
+   "name": "Rosie Cotton of South Lane",
+   "quantity": 1
+  },
+  {
+   "name": "Skybeast Tracker",
+   "quantity": 1
+  },
+  {
+   "name": "The Cabbage Merchant",
+   "quantity": 1
+  },
+  {
+   "name": "The Goose Mother",
+   "quantity": 1
+  },
+  {
+   "name": "Wicked Wolf",
+   "quantity": 1
+  },
+  {
+   "name": "Fell the Pheasant",
+   "quantity": 1
+  },
+  {
+   "name": "Long River's Pull",
+   "quantity": 1
+  },
+  {
+   "name": "Turn into a Pumpkin",
+   "quantity": 1
+  },
+  {
+   "name": "Replication Technique",
+   "quantity": 1
+  },
+  {
+   "name": "Spider Food",
+   "quantity": 1
+  },
+  {
+   "name": "Wear Down",
+   "quantity": 1
+  },
+  {
+   "name": "Amulet of Vigor",
+   "quantity": 1
+  },
+  {
+   "name": "Arcade Cabinet",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Candy Trail",
+   "quantity": 1
+  },
+  {
+   "name": "Chromatic Lantern",
+   "quantity": 1
+  },
+  {
+   "name": "Clock of Omens",
+   "quantity": 1
+  },
+  {
+   "name": "Coin of Mastery",
+   "quantity": 1
+  },
+  {
+   "name": "Eriette's Tempting Apple",
+   "quantity": 1
+  },
+  {
+   "name": "Hot Dog Cart",
+   "quantity": 1
+  },
+  {
+   "name": "Idol of Oblivion",
+   "quantity": 1
+  },
+  {
+   "name": "Krark-Clan Ironworks",
+   "quantity": 1
+  },
+  {
+   "name": "Krovod Haunch",
+   "quantity": 1
+  },
+  {
+   "name": "Marble Diamond",
+   "quantity": 1
+  },
+  {
+   "name": "Mirrormind Crown",
+   "quantity": 1
+  },
+  {
+   "name": "Moss Diamond",
+   "quantity": 1
+  },
+  {
+   "name": "Nettlecyst",
+   "quantity": 1
+  },
+  {
+   "name": "Novel Nunchaku",
+   "quantity": 1
+  },
+  {
+   "name": "Nuka-Cola Vending Machine",
+   "quantity": 1
+  },
+  {
+   "name": "Sky Diamond",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "The Great Henge",
+   "quantity": 1
+  },
+  {
+   "name": "The One Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Three Bowls of Porridge",
+   "quantity": 1
+  },
+  {
+   "name": "Doubling Season",
+   "quantity": 1
+  },
+  {
+   "name": "Fortifying Provisions",
+   "quantity": 1
+  },
+  {
+   "name": "Hardened Scales",
+   "quantity": 1
+  },
+  {
+   "name": "Level Up",
+   "quantity": 1
+  },
+  {
+   "name": "Night of the Sweets' Revenge",
+   "quantity": 1
+  },
+  {
+   "name": "Ninja Pizza",
+   "quantity": 1
+  },
+  {
+   "name": "Parallel Lives",
+   "quantity": 1
+  },
+  {
+   "name": "Party Dude",
+   "quantity": 1
+  },
+  {
+   "name": "Sphere Grid",
+   "quantity": 1
+  },
+  {
+   "name": "Terrasymbiosis",
+   "quantity": 1
+  },
+  {
+   "name": "Trail of Crumbs",
+   "quantity": 1
+  },
+  {
+   "name": "Wizard Class",
+   "quantity": 1
+  },
+  {
+   "name": "Elspeth, Storm Slayer",
+   "quantity": 1
+  },
+  {
+   "name": "Academy Ruins",
+   "quantity": 1
+  },
+  {
+   "name": "Aysen Abbey",
+   "quantity": 1
+  },
+  {
+   "name": "Cabaretti Courtyard",
+   "quantity": 1
+  },
+  {
+   "name": "City of Brass",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Fabled Passage",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 5
+  },
+  {
+   "name": "Gingerbread Cabin",
+   "quantity": 1
+  },
+  {
+   "name": "Hall of Heliod's Generosity",
+   "quantity": 1
+  },
+  {
+   "name": "Hidden Hideout",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 4
+  },
+  {
+   "name": "Maestros Theater",
+   "quantity": 1
+  },
+  {
+   "name": "Obscura Storefront",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 4
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Riveteers Overlook",
+   "quantity": 1
+  },
+  {
+   "name": "Rogue's Passage",
+   "quantity": 1
+  },
+  {
+   "name": "Savannah",
+   "quantity": 1
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Spara's Headquarters",
+   "quantity": 1
+  },
+  {
+   "name": "Treva's Ruins",
+   "quantity": 1
+  },
+  {
+   "name": "Tropical Island",
+   "quantity": 1
+  },
+  {
+   "name": "Tundra",
+   "quantity": 1
+  },
+  {
+   "name": "Urban Retreat",
+   "quantity": 1
+  },
+  {
+   "name": "Uthros, Titanic Godcore",
+   "quantity": 1
+  },
+  {
+   "name": "Yavimaya, Cradle of Growth",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}
