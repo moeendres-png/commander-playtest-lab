@@ -168,6 +168,7 @@ WORD = re.compile(r"[A-Za-z0-9_.\-]+")
 DOC_PATH = re.compile(r"docs/[A-Za-z0-9_./\-]+")
 TEXT_LIMIT = 8_000_000
 DOC_REF = re.compile(r"docs/archive/")
+ARCHIVED_PATH = re.compile(r"docs/archive/[A-Za-z0-9_./\-]*")
 
 
 def _git_files() -> list[str]:
@@ -231,7 +232,7 @@ def _anchors(files: list[str]) -> tuple[set[str], set[str], dict[str, int]]:
     words: set[str] = set()
     paths: set[str] = set()
     for f in referencer_files(files):
-        text = _read(f)
+        text = ARCHIVED_PATH.sub(" ", _read(f))  # a pointer into the archive anchors nothing
         words.update(WORD.findall(text))
         paths.update(p.rstrip(".") for p in DOC_PATH.findall(text))
         paths.update(f"{DOCS}/{c}" for c in DOC_CHILD.findall(text))
@@ -298,6 +299,8 @@ _ARCHIVE_POINTERS = {
     ".gitattributes",  # byte-identity (-text) rules for archived sealed records
     "README.md",
     "docs/README.md",
+    "data/provenance/claims.json",  # provenance claims cite archived reports by location
+    "data/provenance/provenance_graph.json",
 }
 
 
