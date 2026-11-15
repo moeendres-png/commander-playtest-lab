@@ -35,6 +35,7 @@ from . import (
     launch,
     queries,
     signals,
+    similar_decks,
     strength,
     strength_view,
     swap,
@@ -96,6 +97,17 @@ class SwapBody(BaseModel):
 class DecklistParseBody(BaseModel):
     commander: str | list[str]
     text: str = Field(max_length=100_000)
+
+
+class SimilarDecksBody(BaseModel):
+    commander: str | list[str]
+    deck_card_ids: list[str] = Field(default_factory=list, max_length=300)
+    revision: str | None = Field(default=None, max_length=120)
+    deck_id: str | None = Field(default=None, max_length=120)
+    branch: str = Field(default="main", min_length=1, max_length=80)
+    cohort: str = Field(default="all", min_length=1, max_length=120)
+    n: int = Field(default=20, ge=1, le=100)
+    include_unowned: bool = False
 
 
 class LabelsBody(BaseModel):
@@ -1211,6 +1223,115 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
             raise HTTPException(404, f"unknown commander: {error}") from error
         except ValueError as error:
             raise HTTPException(422, str(error)) from error
+        finally:
+            store.close()
+
+    @app.get("/api/similar-decks")
+    def similar_decks_get(
+        commander: list[str] = Query(min_length=1, max_length=2),
+        revision: str | None = Query(default=None, max_length=120),
+        deck_id: str | None = Query(default=None, max_length=120),
+        branch: str = Query(default="main", min_length=1, max_length=80),
+        card_id: list[str] = Query(default=[]),
+        cohort: str = Query(default="all", min_length=1, max_length=120),
+        n: int = Query(default=20, ge=1, le=100),
+        include_unowned: bool = Query(default=False),
+    ) -> dict[str, object]:
+        """Nearest non-duplicate source decks by Jaccard similarity without basic lands."""
+        store = open_store()
+        try:
+            resolved_ids = similar_decks.resolve_user_deck_cards(
+                store,
+                revision_id=revision,
+                deck_id=deck_id,
+                branch=branch,
+                card_ids=card_id if card_id else None,
+            )
+            return similar_decks.find_similar_decks(
+                store,
+                commander,
+                deck_card_ids=resolved_ids,
+                cohort=cohort,
+                n=n,
+                include_unowned=include_unowned,
+            )
+        except KeyError as error:
+            raise HTTPException(404, f"unknown commander: {error}") from error
+        except ValueError as error:
+            raise HTTPException(422, str(error)) from error
+        finally:
+            store.close()
+
+    @app.post("/api/similar-decks")
+    def similar_decks_post(body: SimilarDecksBody) -> dict[str, object]:
+        """Nearest non-duplicate source decks by Jaccard similarity for a live draft list."""
+        store = open_store()
+        try:
+            commanders = (
+                [body.commander] if isinstance(body.commander, str) else list(body.commander)
+            )
+            resolved_ids = similar_decks.resolve_user_deck_cards(
+                store,
+                revision_id=body.revision,
+                deck_id=body.deck_id,
+                branch=body.branch,
+                card_ids=body.deck_card_ids if body.deck_card_ids else None,
+            )
+            return similar_decks.find_similar_decks(
+                store,
+                commanders,
+                deck_card_ids=resolved_ids,
+                cohort=body.cohort,
+                n=body.n,
+                include_unowned=body.include_unowned,
+            )
+        except KeyError as error:
+            raise HTTPException(404, f"unknown commander: {error}") from error
+        except ValueError as error:
+            raise HTTPException(422, str(error)) from error
+        finally:
+            store.close()
+
+    @app.get("/api/deck-browser")
+    def deck_browser_route(
+        commander: str = Query(default="", max_length=200),
+        q: str = Query(default="", max_length=200),
+        origin: str = Query(default="all", max_length=40),
+        cohort: str = Query(default="all", max_length=120),
+        label: str = Query(default="", max_length=120),
+        must_contain: list[str] = Query(default=[]),
+        must_not_contain: list[str] = Query(default=[]),
+        include_unowned: bool = Query(default=False),
+        limit_decks: int = Query(default=100, ge=1, le=500),
+        limit_cards: int = Query(default=60, ge=1, le=300),
+    ) -> dict[str, object]:
+        """Read-only Deck-Browser (#1323): filter saved and source decks + card co-occurrence."""
+        store = open_store()
+        try:
+            return similar_decks.browse_decks(
+                store,
+                commander=commander,
+                q=q,
+                origin=origin,
+                cohort=cohort,
+                label=label,
+                must_contain=must_contain,
+                must_not_contain=must_not_contain,
+                include_unowned=include_unowned,
+                limit_decks=limit_decks,
+                limit_cards=limit_cards,
+            )
+        finally:
+            store.close()
+
+    @app.get("/api/deck-browser/{item_id:path}")
+    def deck_browser_detail_route(item_id: str) -> dict[str, object]:
+        """Read-only card list for a single saved or source deck in the Deck-Browser."""
+        store = open_store()
+        try:
+            return similar_decks.get_browser_deck_detail(store, item_id)
+        except KeyError as error:
+            raise HTTPException(404, f"unknown deck: {error}") from error
         finally:
             store.close()
 
