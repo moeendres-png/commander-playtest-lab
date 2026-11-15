@@ -17,12 +17,14 @@ total is preserved in the deck tags for reference.
 
 Card rows with a quantity of zero or less are dropped. An exact duplicate (same card
 multiset in the same sections) stored under another deck id is marked in
-``duplicate_of`` (informational; the first imported copy wins, and marks left stale by a
-changed re-import are released). Universe counts do not read this mark: they collapse
-decks with the same content fingerprint inside the selected universe (``universe.py``).
+``duplicate_of`` (informational; the first imported copy wins at import time, and marks
+left stale by a changed re-import are released). Universe counts do not read this mark:
+they collapse decks with the same content fingerprint inside the selected universe
+(``universe.py``).
 The fingerprint is first hashed over the source spellings of the card names; once the
 names are linked to oracle ids, the link step re-derives it over oracle keys
-(``catalog.refresh_corpus_fingerprints``), so one physical deck that two sources spell
+(``catalog.refresh_corpus_fingerprints``) and re-derives ``duplicate_of`` with it, the
+lowest deck id of a group becoming canonical, so one physical deck that two sources spell
 differently (front face against the full ``Front // Back`` name) collapses to one
 fingerprint after all. Re-importing the same folder replaces the decks it contains and
 leaves every other deck alone. Legality of the imported lists is ``not_audited``: the
@@ -141,10 +143,24 @@ def _edhrec_deck(raw: Mapping[str, object], path: Path) -> _Deck:
         section = "commander" if name in commanders else "main"
         rows.append((name, section, to_int(card["quantity"])))
     variant = str(raw.get("variante") or "")
-    bracket = _bracket(raw, path)
-    tags = [f"bracket:{bracket}", f"variant:{variant}", f"sum:{raw.get('karten_summe')}"]
+    # An EDHREC list may state no bracket (the index leaves most decks
+    # unclassified, an explicit null in the file): such a list joins no bracket
+    # cohort and gets no bracket tag — never a substitute bracket number. Its
+    # variant names the cohort instead. A file without the field at all stays
+    # broken, as before.
+    if "bracket" not in raw:
+        raise ValueError(f"{path.name}: deck file without a bracket")
+    raw_bracket = raw.get("bracket")
+    bracket = None if raw_bracket is None else to_int(raw_bracket)
+    tags = [f"variant:{variant}", f"sum:{raw.get('karten_summe')}"]
+    if bracket is not None:
+        tags.insert(0, f"bracket:{bracket}")
     if raw.get("parse_status"):
         tags.append(f"parse:{raw['parse_status']}")
+    cohorts = ["source:edhrec"]
+    if bracket is not None:
+        cohorts.append(f"bracket:{bracket}")
+    cohorts += [f"variant:{variant}", f"commander:{COMMANDER_COHORT}"]
     return {
         "deck_id": f"edhrec:{urlhash}",
         "url": str(raw.get("source_url") or f"https://edhrec.com/deckpreview/{urlhash}"),
@@ -152,12 +168,7 @@ def _edhrec_deck(raw: Mapping[str, object], path: Path) -> _Deck:
         "deck_date": str(raw.get("savedate") or "")[:10] or None,
         "tags": tags,
         "rows": rows,
-        "cohorts": [
-            "source:edhrec",
-            f"bracket:{bracket}",
-            f"variant:{variant}",
-            f"commander:{COMMANDER_COHORT}",
-        ],
+        "cohorts": cohorts,
         "title": path.name,
         "commanders": sorted(commanders),
     }

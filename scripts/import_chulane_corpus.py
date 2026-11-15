@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Import the Chulane decklist corpus from ``data/research/chulane_corpus/``.
 
-The corpus is ten folders (five EDHREC variants, five Archidekt
-brackets). The Studio CLI's ``import-decklists`` reads one folder at a
+The corpus is eleven folders (five EDHREC variants, the bracket-less
+EDHREC cohort, five Archidekt brackets). The Studio CLI's ``import-decklists`` reads one folder at a
 time and always applies its commander guard with the legacy default
 commander — which refuses 22 Archidekt lists whose stated commander is
 a different card (they carry Chulane in the mainboard; the harvest
@@ -14,9 +14,9 @@ reproduces the live store's corpus exactly.
 
     python scripts/import_chulane_corpus.py [--data DIR] [--root FOLDER]
 
-Acceptance after a run on an empty store: ``corpus_deck`` = 3,023
-(2,639 canonical), ``corpus_deck_card`` = 268,204, ``corpus_cohort``
-= 11,369. Afterwards fill ``corpus_deck_card.oracle_id`` with
+Acceptance after a run on an empty store: ``corpus_deck`` = 10,551
+(10,150 canonical), ``corpus_deck_card`` = 913,063, ``corpus_cohort``
+= 33,953. Afterwards fill ``corpus_deck_card.oracle_id`` with
 ``scripts/map_corpus_oracle_ids.py``.
 """
 
