@@ -152,3 +152,22 @@ Für die Umsetzung der Einstellung müssen die Claims in den Store
 mit Mapping-Regel, S3 als `ORACLE_TEXT_REVIEW`. Die Umwandlung der
 vorliegenden CSVs in Rollen-Dateien ist mechanisch und ohne neue
 inhaltliche Entscheidung möglich.
+
+## Nachtrag #1353 Teil C (Stand 2026-11-15: 34 Rollen statt 17)
+
+Mit #1353 Teil C wurde `roles.ROLES` um 17 kanonische Scryfall-`otag:`-Rollen
+(`roles_s4_tagger_expansion_wug.json`, 15.422 Claims) sowie eine deterministische
+Regel-Klassifizierung aus öffentlichem Typ-/Oracle-Text (`roles.classify_oracle_roles`,
+`roles_s5_oracle_expansion.json`, 1.570 Claims) auf **34 Rollen** erweitert:
+
+- **Pool-Abdeckung Chulane (Nenner 927):** vorher **558 / 927 (60,2 %)** → nachher **817 / 927 (88,1 %)**.
+- **Peer-Größen (34 Rollen im 927er Pool):**
+  - **Tragfähig (≥ 30): 20 Rollen** (`card_advantage` 172, `evasion` 156, `card_draw` 149, `removal` 132, `combat_trick` 120, `ramp` 110, `hate` 98, `lifegain` 93, `tutor` 65, `counters` 62, `token_production` 62, `land_ramp` 61, `protection` 60, `card_selection` 48, `bounce` 39, `utility_land` 37, `mana_sink` 36, `recursion` 33, `mill` 31, `cantrip` 30).
+  - **Grob brauchbar (10–29): 11 Rollen** (`counterspell` 27, `tapper` 27, `sacrifice_outlet` 25, `mana_rock` 24, `landfall` 20, `mana_dork` 20, `cost_reduction` 19, `tax` 16, `untapper` 16, `anthem` 16, `copy` 12).
+  - **Unter 10: 3 Rollen** (`board_wipe` 9, `flicker` 8, `graveyard_hate` 7).
+- **Einfluss auf `ranking-check` (`Ausgewogen`, Chulane 922 gerankte Karten):**
+  - `rank_group = pool` (Standard/Empfehlung): Spearman `0,9297` (`0,9198` Nicht-Länder / `0,9856` Länder), Randkarten oben `5 / 71`, Stammkarten unten `0 / 27`.
+  - `rank_group = function` vorher (558 / 927): Spearman `0,9010` (`0,8905` / `0,9399`), Randkarten oben `9 / 83`.
+  - `rank_group = function` nachher (817 / 927): Spearman `0,8819` (`0,8666` / `0,9548`), Randkarten oben `19 / 94`.
+  - Empfehlung bleibt daher **`pool` (`ganzer Pool`)**, weil Funktionsgruppen kleine Rollen-Peaks (`< 5 %` Deckanteil) auf `1,00` (`S/A`) hochskalieren; als optionale Ansicht steht `gleiche Funktion` nun aber mit 88,1 % Pool-Abdeckung deutlich vollständiger bereit.
+

@@ -41,7 +41,8 @@ def test_tagger_roles_are_a_step_and_fill_the_roles_layer(
 ) -> None:
     files = _files(tmp_path)
     tagger = _tagger(
-        tmp_path / "bulk.csv", [("oracle-filler-03", "ramp"), ("oracle-forest", "anthem")]
+        tmp_path / "bulk.csv",
+        [("oracle-filler-03", "ramp"), ("oracle-forest", "not_a_studio_role")],
     )
     code = _run(tmp_path, files, "--tagger-roles", str(tagger))
     out = capsys.readouterr().out
@@ -55,7 +56,7 @@ def test_tagger_file_without_role_rows_fails_the_step(
     tmp_path: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
     files = _files(tmp_path)
-    tagger = _tagger(tmp_path / "bulk.csv", [("oracle-forest", "anthem")])
+    tagger = _tagger(tmp_path / "bulk.csv", [("oracle-forest", "not_a_studio_role")])
     assert _run(tmp_path, files, "--tagger-roles", str(tagger)) == 1
     assert "unchanged" in capsys.readouterr().out
 

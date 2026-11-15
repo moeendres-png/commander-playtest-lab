@@ -35,7 +35,7 @@ from .store import DataClass, StudioStore, now_utc, rebuild_corpus_deck_role, sh
 SEARCH = "https://api.scryfall.com/cards/search"
 _USER_AGENT = "CommanderStudio/0.1 (local deck builder)"
 
-# role -> tagger tag
+# role -> tagger tag (every value is a canonical otag: slug verified 200 OK on api.scryfall.com)
 ROLES: dict[str, str] = {
     "ramp": "ramp",
     "mana_rock": "mana-rock",
@@ -44,6 +44,7 @@ ROLES: dict[str, str] = {
     "card_draw": "draw",
     "card_advantage": "card-advantage",
     "cantrip": "cantrip",
+    "card_selection": "topdeck-manipulation",
     "tutor": "tutor",
     "removal": "removal",
     "board_wipe": "board-wipe",
@@ -54,6 +55,22 @@ ROLES: dict[str, str] = {
     "protection": "protection",
     "graveyard_hate": "graveyard-hate",
     "lifegain": "lifegain",
+    "evasion": "evasion",
+    "hate": "hate",
+    "tax": "tax",
+    "combat_trick": "combat-trick",
+    "counters": "gives-pp-counters",
+    "token_production": "repeatable-creature-tokens",
+    "utility_land": "utility-land",
+    "mana_sink": "mana-sink",
+    "mill": "mill",
+    "tapper": "tapper",
+    "untapper": "untapper",
+    "sacrifice_outlet": "sacrifice-outlet",
+    "anthem": "anthem",
+    "landfall": "landfall",
+    "copy": "copy",
+    "cost_reduction": "cost-reducer",
 }
 
 # Scryfall's card search resolves these query slugs to the canonical label on the right
@@ -439,3 +456,98 @@ def import_role_snapshot(
         "card_role_rows": card_role_total,
         "source_id": source_id,
     }
+
+
+_ORACLE_RULES: tuple[tuple[str, re.Pattern[str]], ...] = (
+    ("counters", re.compile(r"\+1/\+1 counter")),
+    ("token_production", re.compile(r"\bcreate\b[^.\n]*\bcreature token|\bliving weapon\b")),
+    (
+        "card_selection",
+        re.compile(r"\b(?:scry|surveil) \d+\b|look at the top \w+ cards? of your library"),
+    ),
+    (
+        "evasion",
+        re.compile(
+            r"(?:^|\n|, |has |have |gains |gain )"
+            r"(?:flying|menace|shadow|fear|intimidate|horsemanship|unblockable|can't be blocked)"
+        ),
+    ),
+    (
+        "untapper",
+        re.compile(r"\buntap (?:up to \w+ )?(?:other )?target\b|\buntap all\b|\buntap that\b"),
+    ),
+    ("tapper", re.compile(r"\btap (?:up to \w+ )?(?:target|all)\b|\bdetain target\b")),
+    (
+        "mill",
+        re.compile(
+            r"\bmills? (?:a|\w+) cards?\b|"
+            r"\bput the top \w+ cards? of [^\n.]*library into [^\n.]*graveyard"
+        ),
+    ),
+    (
+        "copy",
+        re.compile(r"\bcopy target\b|\bcreate a token that's a copy\b|\bbecomes? a copy of\b"),
+    ),
+    (
+        "cost_reduction",
+        re.compile(r"spells? (?:you cast )?cost \{\d+\} less to cast|costs? \{\d+\} less to cast"),
+    ),
+    ("landfall", re.compile(r"landfall —|whenever a land you control enters")),
+    ("card_draw", re.compile(r"\bdraws? (?:a|\w+) cards?\b")),
+    (
+        "removal",
+        re.compile(
+            r"\b(?:destroy|exile) target\b|"
+            r"deals? \d+ damage to (?:any target|target (?:creature|planeswalker))"
+        ),
+    ),
+    (
+        "board_wipe",
+        re.compile(
+            r"\b(?:destroy|exile) all (?:creatures|nonland permanents|artifacts|enchantments)\b"
+        ),
+    ),
+    ("bounce", re.compile(r"\breturn target [^\n.]* to its owner's hand\b")),
+    ("counterspell", re.compile(r"\bcounter target [^\n.]*spell\b")),
+    ("lifegain", re.compile(r"\bgain[s]? \d+ life\b")),
+    ("protection", re.compile(r"\bhexproof\b|\bindestructible\b|\bward \{|\bprotection from\b")),
+)
+_ANTHEM_RE = re.compile(r"(?:other )?creatures you control get \+\d+/\+\d+")
+_LAND_RAMP_RE = re.compile(
+    r"search your library for [^\n.]*land card[^\n.]*put[^\n.]*(?:onto|into) the battlefield"
+)
+_TEMP_BOOST_RE = re.compile(
+    r"get[s]? \+[\dx]+/\+?[\dx-]* until end of turn|gains? [^\n.]* until end of turn"
+)
+
+
+def classify_oracle_roles(type_line: str, oracle_text: str) -> tuple[str, ...]:
+    """Derive deterministic functional roles from public card ``type_line`` and ``oracle_text``.
+
+    Pure and rule-based (origin ``ORACLE_TEXT_REVIEW``): only clear Oracle text mechanics map
+    to roles; vanilla text yields ``()``. Never guesses, never overwrites tagger claims.
+    """
+    t = (type_line or "").casefold()
+    o = (oracle_text or "").casefold()
+    if not o.strip():
+        return ()
+    found = {role for role, pattern in _ORACLE_RULES if pattern.search(o)}
+    if re.search(r"\bbattle cry\b", o) or any(
+        _ANTHEM_RE.search(clause) and "until end of turn" not in clause
+        for clause in re.split(r"[.\n]+", o)
+    ):
+        found.add("anthem")
+    if _TEMP_BOOST_RE.search(o) and (
+        "instant" in t or "sorcery" in t or "{" in o or "when" in o or "whenever" in o
+    ):
+        found.add("combat_trick")
+    if "add " in o and "{t}:" in o and "land" not in t:
+        found.add("ramp")
+        if "creature" in t:
+            found.add("mana_dork")
+        elif "artifact" in t:
+            found.add("mana_rock")
+    if _LAND_RAMP_RE.search(o):
+        found.add("land_ramp")
+        found.add("ramp")
+    return tuple(sorted(found))

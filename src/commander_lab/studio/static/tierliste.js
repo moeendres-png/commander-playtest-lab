@@ -5,7 +5,19 @@
 
 const COMMANDER = StudioCommander.current;
 const VIEW_NAMES = { commander: StudioCommander.shortName(COMMANDER), global: "Global (ohne Commander)", deck: "Aktuelle Deckrevision" };
-const ROLE_NAMES = { ramp: "Ramp", mana_rock: "Manastein", mana_dork: "Mana-Kreatur", land_ramp: "Land-Ramp", card_draw: "Karten ziehen", card_advantage: "Kartenvorteil", cantrip: "Cantrip", tutor: "Tutor", removal: "Entfernung", board_wipe: "Massenentfernung", counterspell: "Konter", bounce: "Bounce", flicker: "Blink", recursion: "Rückholen", protection: "Schutz", graveyard_hate: "Friedhofshass", lifegain: "Lebensgewinn" };
+const ROLE_NAMES = {
+  ramp: "Ramp", mana_rock: "Manastein", mana_dork: "Mana-Kreatur", land_ramp: "Land-Ramp",
+  card_draw: "Karten ziehen", card_advantage: "Kartenvorteil", cantrip: "Cantrip",
+  card_selection: "Kartenauswahl", tutor: "Tutor", removal: "Entfernung",
+  board_wipe: "Massenentfernung", counterspell: "Konter", bounce: "Bounce", flicker: "Blink",
+  recursion: "Rückholen", protection: "Schutz", graveyard_hate: "Friedhofshass",
+  lifegain: "Lebensgewinn", evasion: "Umgehung (Evasion)", hate: "Störung (Hate)",
+  tax: "Steuer / Bremse (Tax)", combat_trick: "Kampftrick", counters: "+1/+1-Marken",
+  token_production: "Spielsteine", utility_land: "Funktionsland", mana_sink: "Mana-Senke",
+  mill: "Millen", tapper: "Tappen", untapper: "Enttappen", sacrifice_outlet: "Opferquelle",
+  anthem: "Gruppenstärkung (Anthem)", landfall: "Landfall", copy: "Kopie",
+  cost_reduction: "Kostenreduktion",
+};
 const ORIGIN_NAMES = { SCRYFALL_TAGGER_ORIGINAL: "Tagger", CROSSWALK_NORMALIZED: "Zuordnung", ORACLE_TEXT_REVIEW: "Oracle-Text", LEGACY_UNSPECIFIED: "Altbestand" };
 const FEATURE_NAMES = { creature_spell: "Kreaturenzauber", land: "Land", enters_trigger_text: "ETB-Text", produces_mana: "erzeugt Mana" };
 const LAYER_NAMES = { fact: "Fakten und Mechanik", observed_deck: "In Decks beobachtet", observed_game: "In echten Spielen beobachtet", combo_verified: "Geprüfte Kombos", simulated_result: "Simulation (XMage)" };

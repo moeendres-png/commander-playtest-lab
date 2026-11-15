@@ -16,7 +16,19 @@ const COHORT_NAMES = {
   no_koma_in_99: "ohne Koma im 99er",
   koma_31: "Koma-C084 (31)",
 };
-const ROLE_NAMES = { ramp: "Ramp", mana_rock: "Manastein", mana_dork: "Mana-Kreatur", land_ramp: "Land-Ramp", card_draw: "Karten ziehen", card_advantage: "Kartenvorteil", cantrip: "Cantrip", tutor: "Tutor", removal: "Entfernung", board_wipe: "Massenentfernung", counterspell: "Konter", bounce: "Bounce", flicker: "Blink", recursion: "Rückholen", protection: "Schutz", graveyard_hate: "Friedhofshass", lifegain: "Lebensgewinn" };
+const ROLE_NAMES = {
+  ramp: "Ramp", mana_rock: "Manastein", mana_dork: "Mana-Kreatur", land_ramp: "Land-Ramp",
+  card_draw: "Karten ziehen", card_advantage: "Kartenvorteil", cantrip: "Cantrip",
+  card_selection: "Kartenauswahl", tutor: "Tutor", removal: "Entfernung",
+  board_wipe: "Massenentfernung", counterspell: "Konter", bounce: "Bounce", flicker: "Blink",
+  recursion: "Rückholen", protection: "Schutz", graveyard_hate: "Friedhofshass",
+  lifegain: "Lebensgewinn", evasion: "Umgehung (Evasion)", hate: "Störung (Hate)",
+  tax: "Steuer / Bremse (Tax)", combat_trick: "Kampftrick", counters: "+1/+1-Marken",
+  token_production: "Spielsteine", utility_land: "Funktionsland", mana_sink: "Mana-Senke",
+  mill: "Millen", tapper: "Tappen", untapper: "Enttappen", sacrifice_outlet: "Opferquelle",
+  anthem: "Gruppenstärkung (Anthem)", landfall: "Landfall", copy: "Kopie",
+  cost_reduction: "Kostenreduktion",
+};
 const roleName = (key) => ROLE_NAMES[key] || key;
 const ISSUE_NAMES = { deck_size: "Deckgröße", commander_count: "Commander", commander_type: "Commander-Typ", color_identity: "Farbidentität", singleton: "Mehrfach", legality_unknown: "Legalität unbekannt", not_legal: "Nicht legal", not_owned: "Nicht in der Sammlung", not_available: "Nicht frei" };
 
