@@ -1,0 +1,270 @@
+{
+ "urlhash": "WNDJQ8L5uO9F65xJubsw_g",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-11-05",
+ "price": 91,
+ "salt": 51.023547541350126,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/13582855?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Ayumi, the Last Visitor",
+   "quantity": 1
+  },
+  {
+   "name": "Bounteous Kirin",
+   "quantity": 1
+  },
+  {
+   "name": "Briarknit Kami",
+   "quantity": 1
+  },
+  {
+   "name": "Celestial Kirin",
+   "quantity": 1
+  },
+  {
+   "name": "Cloudhoof Kirin",
+   "quantity": 1
+  },
+  {
+   "name": "Forked-Branch Garami",
+   "quantity": 1
+  },
+  {
+   "name": "Haru-Onna",
+   "quantity": 1
+  },
+  {
+   "name": "Hundred-Talon Kami",
+   "quantity": 1
+  },
+  {
+   "name": "Iname, Life Aspect",
+   "quantity": 1
+  },
+  {
+   "name": "Jugan, the Rising Star",
+   "quantity": 1
+  },
+  {
+   "name": "Kaijin of the Vanishing Touch",
+   "quantity": 1
+  },
+  {
+   "name": "Kami of False Hope",
+   "quantity": 1
+  },
+  {
+   "name": "Kami of the Honored Dead",
+   "quantity": 1
+  },
+  {
+   "name": "Kataki, War's Wage",
+   "quantity": 1
+  },
+  {
+   "name": "Keiga, the Tide Star",
+   "quantity": 1
+  },
+  {
+   "name": "Kiyomaro, First to Stand",
+   "quantity": 1
+  },
+  {
+   "name": "Kodama of the Center Tree",
+   "quantity": 1
+  },
+  {
+   "name": "Kodama of the South Tree",
+   "quantity": 1
+  },
+  {
+   "name": "Kura, the Boundless Sky",
+   "quantity": 1
+  },
+  {
+   "name": "Lifespinner",
+   "quantity": 1
+  },
+  {
+   "name": "Loam Dweller",
+   "quantity": 1
+  },
+  {
+   "name": "Myojin of Cleansing Fire",
+   "quantity": 1
+  },
+  {
+   "name": "Myojin of Life's Web",
+   "quantity": 1
+  },
+  {
+   "name": "Myojin of Seeing Winds",
+   "quantity": 1
+  },
+  {
+   "name": "Nikko-Onna",
+   "quantity": 1
+  },
+  {
+   "name": "Oyobi, Who Split the Heavens",
+   "quantity": 1
+  },
+  {
+   "name": "Patron of the Moon",
+   "quantity": 1
+  },
+  {
+   "name": "Rushing-Tide Zubera",
+   "quantity": 1
+  },
+  {
+   "name": "Sekki, Seasons' Guide",
+   "quantity": 1
+  },
+  {
+   "name": "Shape Stealer",
+   "quantity": 1
+  },
+  {
+   "name": "Shimmering Glasskite",
+   "quantity": 1
+  },
+  {
+   "name": "Sire of the Storm",
+   "quantity": 1
+  },
+  {
+   "name": "Wandering Ones",
+   "quantity": 1
+  },
+  {
+   "name": "Yosei, the Morning Star",
+   "quantity": 1
+  },
+  {
+   "name": "Blessed Breath",
+   "quantity": 1
+  },
+  {
+   "name": "Ethereal Haze",
+   "quantity": 1
+  },
+  {
+   "name": "Evermind",
+   "quantity": 1
+  },
+  {
+   "name": "Hisoka's Defiance",
+   "quantity": 1
+  },
+  {
+   "name": "Hundred-Talon Strike",
+   "quantity": 1
+  },
+  {
+   "name": "Murmurs from Beyond",
+   "quantity": 1
+  },
+  {
+   "name": "Reach Through Mists",
+   "quantity": 1
+  },
+  {
+   "name": "Rending Vines",
+   "quantity": 1
+  },
+  {
+   "name": "Roar of Jukai",
+   "quantity": 1
+  },
+  {
+   "name": "Shifting Borders",
+   "quantity": 1
+  },
+  {
+   "name": "Spiritual Visit",
+   "quantity": 1
+  },
+  {
+   "name": "Strength of Cedars",
+   "quantity": 1
+  },
+  {
+   "name": "Veil of Secrecy",
+   "quantity": 1
+  },
+  {
+   "name": "Cleanfall",
+   "quantity": 1
+  },
+  {
+   "name": "Eerie Procession",
+   "quantity": 1
+  },
+  {
+   "name": "Heed the Mists",
+   "quantity": 1
+  },
+  {
+   "name": "Ideas Unbound",
+   "quantity": 1
+  },
+  {
+   "name": "Kodama's Reach",
+   "quantity": 1
+  },
+  {
+   "name": "Petals of Insight",
+   "quantity": 1
+  },
+  {
+   "name": "Ribbons of the Reikai",
+   "quantity": 1
+  },
+  {
+   "name": "Terashi's Grasp",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Back to Basics",
+   "quantity": 1
+  },
+  {
+   "name": "Exploration",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 14
+  },
+  {
+   "name": "Island",
+   "quantity": 14
+  },
+  {
+   "name": "Plains",
+   "quantity": 12
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}
