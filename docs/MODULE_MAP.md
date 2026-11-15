@@ -36,13 +36,13 @@ Status legend: **active** = product path, **qual** = qualification / evidence ma
 | `cli/` | Typer CLI (`app.py`, `main.py`) — `candidates ...` and `engine-verify` | active |
 | `models/` | Pydantic data models (cards, core/rules enums, structural deck profiles, engine runtime) | active |
 | `storage/` | Atomic JSON/SQLite stores, hashing, run identity and integrity, result cache | active |
-| `repositories/` | Read-only repositories over canonical project data (`catalog`, `decks`, `rules`) | active |
+| `repositories/` | Candidate repositories (`candidates.py`) | active |
 | `cards/` | Card catalog and normalization, `commander_flags` | active |
-| `agents/` | Card knowledge, pilots, deck plan, style slider, ensembles, guardrails, tracing | active |
+| `agents/` | Card knowledge, deck guides, deck plan, live routing, pilots, style | active |
 | `engine/` | Engine boundary: action validation, process manager, runtime evidence, `structural/` model, `rules/` bridge to XMage incl. full-game drivers | active |
 | `candidates/` | External complete-deck candidate contracts and lossless gameplay handoff | active |
 | `semantic_replay/` | Engine-neutral semantic replay tape contract and canonicalizer | qual / active |
-| `evals/` | Determinism regression helpers (`seed_harness`) | qual |
+| `evals/` | Differential evaluation and scoring models (`differential`, `models`) | qual |
 | `qualification/current_boundary/` | Current-boundary qualification: bridge launcher, game driver, midgame rows, replay twins, freeze record, knowledge projection | qual |
 | `studio/` | Commander Studio (`docs/STUDIO_DECKBUILDER.md`): SQLite store (`studio.sqlite3`), importers, public card data, immutable deck revisions, counted universes, strength index, local web UI (`web.py`, `static/`), and game logs / spectator & play views (`games.py`, `play.py`, `play_batch.py`, `launch.py`, `docs/STUDIO_GAME_VIEWER.md`) | active |
 
@@ -55,14 +55,13 @@ Modules whose paths are checked or hashed by qualification or truth code (`proje
 
 ## Active scripts in `scripts/`
 
-112 scripts (`.py`/`.sh`), referenced by the 17 workflows in `.github/workflows/` or used for Studio data and game measurements:
+114 scripts (`.py`/`.sh`), referenced by the 17 workflows in `.github/workflows/` or used for Studio data and game measurements:
 
 | Script | Why it matters |
 |---|---|
 | `run_current_boundary_qualification.py`, `assemble_current_boundary_evidence.py`, `assemble_freeze_record.py` | Current-boundary qualification, freeze record, and evidence assembly |
 | `run_external_full_game_conformance.py`, `run_real_4p_full_game_smoke.py`, `run_midgame_capability_probe.py` | Real-engine conformance and smoke workflows |
 | `run_full_game_deck_comparison.py`, `run_replay_twin_campaign.py` | Paired full-game deck comparison and replay twins |
-| `run_candidate_handoff_conformance.py`, `run_candidate_paired_triage.py`, `run_candidate_evaluation_frontier.py` | Candidate handoff and paired triage workflows |
 | `derive_rules_engines_capabilities.py`, `generate_full_game_contract_artifacts.py`, `seal_xmage_full_game_artifacts.py` | Contract/capability derivation and sealing |
 | `verify_packaging_smoke.py`, `verify_container_provenance.py`, `verify_engine.sh`, `run_broad_secret_scan.py`, `security_evidence.py`, `ci_gate.py` | Packaging, provenance, engine, security, and CI gate checks |
 | `bootstrap_engine_*.sh`, `docker_resolve_engine_pin.py` | Engine setup and pin resolution |
