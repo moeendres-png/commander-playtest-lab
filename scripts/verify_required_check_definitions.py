@@ -9,6 +9,7 @@ semantic equivalence of arbitrary GitHub Actions programs.
 from __future__ import annotations
 
 import argparse
+import ast
 import json
 import re
 import shlex
@@ -66,6 +67,9 @@ ENTRYPOINT_DEFINITION_SURFACES = {
     "scripts/verify_packaging_smoke.py",
     "qualification/harness.py",
     "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json",
+    # The runner and the lists that decide what the required test checks execute.
+    "tests/pytest_shards.py",
+    "tests/pytest_docs_tests.json",
     "qualification/protocol/ws10r/candidate_fixture_manifest_v1.schema.json",
 }
 
@@ -1096,6 +1100,250 @@ def _unknown_report(trusted: str, head: str, comparison: str | None, reason: str
     }
 
 
+# Timing tables of the test matrix. A weight change cannot drop a file from the run: the planner
+# gives an unweighted file the mean weight (matrix) or runs it in the last in-slot shard, every file
+# of the tree is assigned to exactly one slot and shard whatever the table says, and
+# tests/unit/test_required_test_ownership.py and tests/unit/test_pytest_shards.py
+# (test_any_weight_table_still_partitions_every_file) fail otherwise. They are therefore data.
+BENIGN_TEST_DATA = frozenset(
+    {
+        "tests/pytest_shard_weights.json",
+        "tests/pytest_shard_weights_qualification.json",
+    }
+)
+_RESERVED_NAMES = frozenset(
+    {
+        "pytestmark",
+        "__test__",
+        "collect_ignore",
+        "collect_ignore_glob",
+        "setup_module",
+        "teardown_module",
+    }
+)
+# Names whose use at module level (class bodies, decorators and default values included) can
+# rewrite other tests while the module is imported or collected.
+_MODULE_LEVEL_FORBIDDEN = frozenset(
+    {"globals", "setattr", "delattr", "__import__", "importlib", "monkeypatch"}
+)
+_BODY_FORBIDDEN = frozenset({"globals", "__import__", "importlib"})
+_NOT_PLAIN_MARKERS = frozenset({"skip", "skipif", "xfail", "usefixtures"})
+
+
+def _is_test_module(path: str) -> bool:
+    name = Path(path).name
+    return path.startswith("tests/") and name.startswith("test_") and name.endswith(".py")
+
+
+def _bound_names(node: ast.stmt) -> set[str]:
+    if isinstance(node, ast.FunctionDef | ast.AsyncFunctionDef | ast.ClassDef):
+        return {node.name}
+    if isinstance(node, ast.Import | ast.ImportFrom):
+        return {(alias.asname or alias.name).split(".")[0] for alias in node.names}
+    if isinstance(node, ast.Assign):
+        return {n.id for t in node.targets for n in ast.walk(t) if isinstance(n, ast.Name)}
+    if isinstance(node, ast.AnnAssign):
+        return {n.id for n in ast.walk(node.target) if isinstance(n, ast.Name)}
+    return set()
+
+
+def _reserved(name: str) -> bool:
+    return name in _RESERVED_NAMES or name.startswith("pytest_")
+
+
+def _import_allowed(node: ast.stmt) -> bool:
+    """An import of a module outside ``tests`` (no relative import, no star import)."""
+    if isinstance(node, ast.ImportFrom):
+        if node.level or any(alias.name == "*" for alias in node.names):
+            return False
+        modules = [node.module or ""]
+    elif isinstance(node, ast.Import):
+        modules = [alias.name for alias in node.names]
+    else:
+        return False
+    return not any(m == "tests" or m.startswith("tests.") or m == "conftest" for m in modules)
+
+
+def _names_used(nodes: list[ast.AST], forbidden: frozenset[str]) -> bool:
+    for root in nodes:
+        for node in ast.walk(root):
+            if isinstance(node, ast.Name) and node.id in forbidden:
+                return True
+            if isinstance(node, ast.alias) and node.name.split(".")[0] in forbidden:
+                return True
+            if not isinstance(node, ast.Attribute):
+                continue
+            sys_modules = (
+                node.attr == "modules"
+                and isinstance(node.value, ast.Name)
+                and node.value.id == "sys"
+            )
+            patching = node.attr in {"setattr", "delattr"} and "monkeypatch" in forbidden
+            if sys_modules or patching:
+                return True
+    return False
+
+
+def _executed_at_import(node: ast.stmt) -> list[ast.AST]:
+    """The parts of a statement that run when the module is imported (not function bodies)."""
+    if isinstance(node, ast.FunctionDef | ast.AsyncFunctionDef):
+        args = node.args
+        defaults = [*args.defaults, *[d for d in args.kw_defaults if d is not None]]
+        return [*node.decorator_list, *defaults]
+    if isinstance(node, ast.ClassDef):
+        parts: list[ast.AST] = [*node.decorator_list, *node.bases, *node.keywords]
+        for statement in node.body:
+            parts.extend(_executed_at_import(statement))
+        return parts
+    return [node]
+
+
+def _function_bodies(tree: ast.AST) -> list[ast.AST]:
+    return [
+        statement
+        for node in ast.walk(tree)
+        if isinstance(node, ast.FunctionDef | ast.AsyncFunctionDef)
+        for statement in node.body
+    ]
+
+
+def _plain_decorator(node: ast.expr) -> bool:
+    """``pytest.mark.parametrize(...)`` or a plain ``pytest.mark.<name>`` other than a skip."""
+    target = node.func if isinstance(node, ast.Call) else node
+    if not (
+        isinstance(target, ast.Attribute)
+        and isinstance(target.value, ast.Attribute)
+        and target.value.attr == "mark"
+        and isinstance(target.value.value, ast.Name)
+        and target.value.value.id == "pytest"
+    ):
+        return False
+    return target.attr not in _NOT_PLAIN_MARKERS
+
+
+def _literal_defaults(node: ast.FunctionDef) -> bool:
+    values = [*node.args.defaults, *[d for d in node.args.kw_defaults if d is not None]]
+    try:
+        for value in values:
+            ast.literal_eval(value)
+    except (ValueError, SyntaxError, TypeError, MemoryError, RecursionError):
+        return False
+    return True
+
+
+def _addable_test_function(node: ast.stmt) -> bool:
+    if not isinstance(node, ast.FunctionDef) or not node.name.startswith("test_"):
+        return False
+    if not all(_plain_decorator(d) for d in node.decorator_list):
+        return False
+    if not _literal_defaults(node):
+        return False
+    if _names_used(_executed_at_import(node), _MODULE_LEVEL_FORBIDDEN):
+        return False
+    return not _names_used(list(node.body), _BODY_FORBIDDEN)
+
+
+def _benign_new_module(source: str) -> bool:
+    """A new test module is benign unless it can reach into other tests or the collection."""
+    tree = ast.parse(source)
+    for node in tree.body:
+        if isinstance(node, ast.Import | ast.ImportFrom):
+            if not _import_allowed(node):
+                return False
+            if _names_used([node], _MODULE_LEVEL_FORBIDDEN):
+                return False
+            continue
+        if any(_reserved(name) for name in _bound_names(node)):
+            return False
+        for part in _executed_at_import(node):
+            if _names_used([part], _MODULE_LEVEL_FORBIDDEN):
+                return False
+        for inner in ast.walk(node):
+            if isinstance(inner, ast.FunctionDef | ast.AsyncFunctionDef):
+                for decorator in inner.decorator_list:
+                    if isinstance(decorator, ast.Call) and any(
+                        kw.arg == "autouse"
+                        and not (isinstance(kw.value, ast.Constant) and kw.value.value is False)
+                        for kw in decorator.keywords
+                    ):
+                        return False
+    # Function bodies (also those inside classes) must not reach the interpreter's module table.
+    return not _names_used(_function_bodies(tree), _BODY_FORBIDDEN)
+
+
+def _benign_module_change(base_source: str | None, head_source: str) -> bool:
+    """True when ``head`` is a harmless new module, or only appends plain tests to ``base``.
+
+    A new module passes ``_benign_new_module``. For an existing module every top-level
+    statement of the base must be present, unchanged and in order (normalised AST: decorators,
+    bodies, parametrize lists and fixtures included). The only additions are imports of modules
+    outside ``tests`` (no relative or star import) and new top-level ``def test_*`` functions
+    that carry no decorator but plain ``pytest.mark`` markers (never skip, skipif, xfail or
+    usefixtures), have literal defaults and a name the base did not bind. Anything else
+    (classes, fixtures, helpers, constants, ``setup_*``, ``pytest_*``, ``pytestmark``) needs a
+    human look, as does any changed existing statement.
+    """
+    head_tree = ast.parse(head_source)
+    if base_source is None:
+        return _benign_new_module(head_source)
+    base_tree = ast.parse(base_source)
+    base_dumps = [ast.dump(node, include_attributes=False) for node in base_tree.body]
+    base_names: set[str] = set()
+    for node in base_tree.body:
+        base_names |= _bound_names(node)
+    pending = list(base_dumps)
+    added_names: set[str] = set()
+    for node in head_tree.body:
+        dump = ast.dump(node, include_attributes=False)
+        # Existing statements keep their order (a reordering can change which definition wins).
+        if pending and dump == pending[0]:
+            pending.pop(0)
+            continue
+        if dump in base_dumps:
+            return False
+        if isinstance(node, ast.Import | ast.ImportFrom):
+            if not _import_allowed(node) or _names_used([node], _MODULE_LEVEL_FORBIDDEN):
+                return False
+        elif not _addable_test_function(node):
+            return False
+        names = _bound_names(node)
+        if names & base_names or names & added_names or any(_reserved(n) for n in names):
+            return False
+        added_names |= names
+    return not pending  # a pending statement of the base was removed or changed
+
+
+def _benign_test_change(repo: Path, base: str, head: str, path: str) -> str | None:
+    """``added`` or ``extended`` when a test change only adds, else None.
+
+    Only a weight table or a ``tests/**/test_*.py`` module can be benign; every other file under
+    ``tests/`` (``conftest.py``, helpers, ``pytest_shards.py``, the docs-test list, other data) is
+    a gate input and always needs review. A test module is benign when it is new, or when every
+    statement it had is unchanged and the head only adds imports, constants, functions or classes.
+    """
+    if path in BENIGN_TEST_DATA:
+        return "extended"
+    if not _is_test_module(path):
+        return None
+    try:
+        head_source = _blob(repo, head, path).decode("utf-8")
+    except (InspectionError, UnicodeDecodeError):
+        return None
+    try:
+        base_source: str | None = _blob(repo, base, path).decode("utf-8")
+    except InspectionError:
+        base_source = None
+    except UnicodeDecodeError:
+        return None
+    try:
+        benign = _benign_module_change(base_source, head_source)
+    except (SyntaxError, ValueError, RecursionError):
+        return None
+    if not benign:
+        return None
+    return "added" if base_source is None else "extended"
+
+
 def _inspect(
     repo: Path, base: str, head: str, *, comparison_base: str, derivation: str
 ) -> dict[str, Any]:
@@ -1176,6 +1424,7 @@ def _inspect(
 
     protected_changes: list[dict[str, str]] = []
     review_reasons: list[str] = []
+    benign_test_changes: list[str] = []
     for path in changed:
         impact: str | None = None
         if path in WORKFLOW_SURFACES:
@@ -1187,6 +1436,12 @@ def _inspect(
         elif path in ENTRYPOINT_DEFINITION_SURFACES:
             impact = "required_check_entrypoint_or_configuration"
             review_reasons.append(f"required_check_entrypoint_changed:{path}")
+        elif path.startswith("tests/") and (
+            benign := _benign_test_change(repo, comparison_base, head, path)
+        ):
+            # Informational only: a test that was added or only grew cannot weaken a gate.
+            impact = f"test_{benign}_no_review_needed"
+            benign_test_changes.append(path)
         elif path.startswith("tests/qualification/"):
             impact = "quality_and_infrastructure_test_definition"
             review_reasons.append(f"qualification_test_definition_changed:{path}")
@@ -1235,6 +1490,8 @@ def _inspect(
     else:
         overall = "PASS"
         reasons.append("all_defined_invariants_satisfied_and_no_gate_definition_change_detected")
+        if benign_test_changes:
+            reasons.append(f"only_added_or_extended_tests_changed:{len(benign_test_changes)}")
 
     return {
         "schema_version": SCHEMA_VERSION,
@@ -1250,6 +1507,7 @@ def _inspect(
         "inspected_files": sorted(inspected),
         "changed_files": changed,
         "changed_protected_surfaces": protected_changes,
+        "benign_test_changes": sorted(benign_test_changes),
         "required_contexts": sorted(REQUIRED_CONTEXTS),
         "invariant_results": invariant_results,
         "overall_classification": overall,

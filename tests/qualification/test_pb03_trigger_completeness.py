@@ -172,14 +172,39 @@ def test_the_measurement_sees_the_contract_and_the_code() -> None:
     assert "src/commander_lab/qualification/current_boundary/materialization.py" in inputs
 
 
+# Package B (2026-11-14, Owner: complete CI hygiene): the 30 min runtime qualification no longer
+# starts on a PR for changes to the general Python lab that it merely imports. The ``quality``
+# context tests those modules; PB-03 for them runs through ``workflow_dispatch`` (sealing).
+# PB-03 still triggers on its own package, fixtures, scripts, engine bridge, pins and install inputs.
+NOT_A_PR_TRIGGER = (
+    "src/commander_lab/agents/",
+    "src/commander_lab/candidates/",
+    "src/commander_lab/cards/",
+    "src/commander_lab/engine/",
+    "src/commander_lab/models/",
+    "src/commander_lab/storage/",
+    "src/commander_lab/semantic_replay/",
+)
+
+
 def test_every_measured_input_triggers_pb03() -> None:
     # Only tracked files can change in a PR. An untracked file the run reads, such
     # as the src/*.egg-info a local ``pip install -e .`` writes, needs no trigger.
     tracked = set(_tracked_files())
     uncovered = sorted(
-        path for path in _measured_inputs() if path in tracked and not _covered(path)
+        path
+        for path in _measured_inputs()
+        if path in tracked and not _covered(path) and not path.startswith(NOT_A_PR_TRIGGER)
     )
     assert not uncovered, f"PB-03 inputs that do not trigger PB-03 on a PR: {uncovered}"
+
+
+def test_the_general_lab_code_is_deliberately_not_a_pb03_pr_trigger() -> None:
+    """The exemption list is a recorded decision: these paths must stay out of the trigger."""
+    assert not any(_covered(f"{root}some_module.py") for root in NOT_A_PR_TRIGGER)
+    assert _covered("src/commander_lab/qualification/current_boundary/materialization.py")
+    assert _covered("engine-bridge/src/main/java/X.java")
+    assert _covered("candidate-qualification/x.json")
 
 
 def _packaging_inputs() -> set[str]:
@@ -427,7 +452,11 @@ def test_workflow_test_data_inputs_trigger_pb03() -> None:
         "qualification/pb03-fresh-main-reconciliation-20260929/MIDGAME_CAPABILITY_PROBE.json"
         in inputs
     )
-    uncovered = [path for path in inputs if not path.startswith(".git/") and not _covered(path)]
+    uncovered = [
+        path
+        for path in inputs
+        if not path.startswith((".git/", *NOT_A_PR_TRIGGER)) and not _covered(path)
+    ]
     assert not uncovered, f"PB-03 offline test inputs without a trigger: {uncovered}"
 
 
@@ -507,4 +536,4 @@ def test_the_registry_preflight_runs_before_the_engine_builds() -> None:
         for index, step in enumerate(steps)
         if "tests/qualification/test_lane_registry_declarations.py" in (step.get("run") or "")
     )
-    assert preflight < names.index("Build pinned XMage")
+    assert preflight < names.index("Pinned XMage engine (restored by pin commit, built on a miss)")

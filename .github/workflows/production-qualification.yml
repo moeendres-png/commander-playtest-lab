@@ -25,6 +25,7 @@ concurrency:
 jobs:
   infrastructure:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -39,9 +40,22 @@ jobs:
           python -m pip install --require-hashes -r requirements/lock.txt
           python -m pip install --no-deps --no-build-isolation -e .
       - name: Validate WS-17 qualification infrastructure
-        run: pytest -q tests/qualification
+        # The four cores of the runner each run a share of tests/qualification (a process per
+        # shard, balanced by tests/pytest_shard_weights_qualification.json); every file runs
+        # exactly once and the merged JUnit report holds all of them.
+        run: pytest -q --durations=25 --junitxml=artifacts/qualification/pytest-junit.xml --shards=4 --shard-weights=tests/pytest_shard_weights_qualification.json tests/qualification
       - name: Validate canonical fixture manifest
         run: python qualification/harness.py validate qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json qualification/protocol/ws10r/candidate_fixture_manifest_v1.schema.json
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        timeout-minutes: 3
+        with:
+          # Timing evidence: `python -m tests.pytest_shards weights --qualification --from-artifacts`
+          # rebuilds the shard weights from it.
+          name: ci-evidence-qualification
+          path: artifacts/qualification/
+          if-no-files-found: warn
+          retention-days: 14
 
   exact-main-admission:
     if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}

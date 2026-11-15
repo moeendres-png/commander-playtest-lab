@@ -1,6 +1,10 @@
 name: PB-03 Current Boundary Runtime Qualification
 
 on:
+  # PR trigger: only what this runtime qualification itself consumes or produces (the engine
+  # bridge, the qualification package and its fixtures and scripts, the pins and install inputs).
+  # Changes to the rest of the Python lab (src/commander_lab/engine, agents, models, ...) are
+  # checked by quality; PB-03 for them runs through workflow_dispatch (sealing dispatches it).
   pull_request:
     paths:
       - ".github/workflows/pb03-runtime-qualification.yml"
@@ -11,6 +15,7 @@ on:
       - "qualification/CURRENT_PRE_FREEZE_CONTRACT.json"
       - "qualification/pre-freeze-successor/**"
       - "qualification/ws47/**"
+      - "candidate-qualification/**"
       - "qualification/manifests/**"
       # Committed inputs consumed by the workflow's offline tests (audit measured).
       - "qualification/final-current-boundary-20260927/**"
@@ -45,14 +50,7 @@ on:
       - "docs/arrival_history_erratum_*/generate_contract_*.py"
       - "docs/final_prefreeze_evidence_closure_20261001/FIXTURE_ERRATA_LEDGER.json"
       - "src/commander_lab/__init__.py"
-      - "src/commander_lab/agents/**"
-      - "src/commander_lab/candidates/**"
-      - "src/commander_lab/cards/**"
-      - "src/commander_lab/engine/**"
-      - "src/commander_lab/models/**"
-      - "src/commander_lab/storage/**"
       - "tests/conftest.py"
-      - "src/commander_lab/semantic_replay/**"
   workflow_dispatch:
 
 permissions:
@@ -140,15 +138,10 @@ jobs:
           set -euo pipefail
           test "$(git rev-parse HEAD)" = "$XMAGE_COMMIT"
 
-      - name: Build pinned XMage
-        working-directory: vendor/engine-source/xmage
-        run: |
-          set -euo pipefail
-          if test -x ./mvnw; then
-            ./mvnw -B -ntp -DskipTests install
-          else
-            mvn -B -ntp -DskipTests install
-          fi
+      - name: Pinned XMage engine (restored by pin commit, built on a miss)
+        uses: ./.github/actions/pinned-xmage-engine
+        with:
+          commit: ${{ env.XMAGE_COMMIT }}
 
       - name: Resolve the runtime evidence epoch
         run: |

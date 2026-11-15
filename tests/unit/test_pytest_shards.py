@@ -327,12 +327,49 @@ def test_weights_are_read_from_junit_class_names(tmp_path: Path) -> None:
     assert shards.weights_from_junit([report], tmp_path) == {"tests/unit/test_alpha.py": 3.5}
 
 
+REGENERATE = (
+    "python -m tests.pytest_shards weights --from-artifacts > tests/pytest_shard_weights.json "
+    "(rebuilds the table from the JUnit artifacts of the latest main CI run), or "
+    "python -m tests.pytest_shards weights JUNIT_XML... > tests/pytest_shard_weights.json"
+)
+# A test file without a weight is planned at the mean weight and runs in the last in-slot shard,
+# so adding a test never breaks CI; the table only has to stay mostly current.
+UNWEIGHTED_SHARE = 0.05
+
+
+def _unweighted(table: dict[str, float], discovered: list[str]) -> list[str]:
+    return [name for name in discovered if name not in table]
+
+
 def test_the_checked_in_weight_table_is_usable() -> None:
     weights = shards.load_weights(shards.WEIGHTS_PATH)
-    discovered = set(shards.discover_test_files(REPO))
-    assert set(weights) == discovered
+    discovered = shards.discover_test_files(REPO)
+    stale = sorted(set(weights) - set(discovered))
+    assert not stale, f"the weight table names files that do not exist: {stale[:10]}. {REGENERATE}"
+    unweighted = _unweighted(weights, discovered)
+    assert len(unweighted) <= UNWEIGHTED_SHARE * len(discovered), (
+        f"{len(unweighted)} of {len(discovered)} test files have no weight "
+        f"(limit {UNWEIGHTED_SHARE:.0%}), e.g. {unweighted[:5]}. {REGENERATE}"
+    )
     assert all(seconds > 0 for seconds in weights.values())
     assert not any(name.startswith("tests/qualification/") for name in weights)
+
+
+def test_the_weight_guard_tolerates_a_few_new_files_but_not_many() -> None:
+    discovered = [f"tests/unit/test_{index}.py" for index in range(100)]
+    table = {name: 1.0 for name in discovered[:96]}
+    assert len(_unweighted(table, discovered)) <= UNWEIGHTED_SHARE * len(discovered)
+    assert len(_unweighted({name: 1.0 for name in discovered[:90]}, discovered)) > (
+        UNWEIGHTED_SHARE * len(discovered)
+    )
+
+
+def test_the_qualification_weight_table_is_usable() -> None:
+    weights = shards.load_weights(shards.QUALIFICATION_WEIGHTS_PATH)
+    discovered = shards.discover_qualification_files(REPO)
+    stale = sorted(set(weights) - set(discovered))
+    assert not stale, f"stale qualification weights: {stale[:10]}. {REGENERATE}"
+    assert len(_unweighted(weights, discovered)) <= UNWEIGHTED_SHARE * len(discovered), REGENERATE
 
 
 def test_the_checked_in_docs_test_list_is_complete_and_exists_on_disk() -> None:
@@ -535,3 +572,35 @@ def test_real_tree_in_slot_shards_never_repeat_a_file_of_another_shard() -> None
             assert not others & set(command)
             assert not any(item.startswith("--ignore") for item in command)
     assert files
+
+
+@pytest.mark.parametrize(
+    "table",
+    [
+        {},  # nothing weighted
+        {"tests/unit/test_a.py": 5.0},  # one file weighted
+        {f"tests/unit/test_{c}.py": 0.0 for c in "abcdefg"},  # zero weights
+        {f"tests/unit/test_{c}.py": 1.0 for c in "abcd"},  # half the files
+        {"tests/unit/test_gone.py": 9.0, "tests/unit/test_a.py": 1.0},  # names a missing file
+    ],
+)
+def test_any_weight_table_still_partitions_every_file(
+    tmp_path: Path, table: dict[str, float]
+) -> None:
+    """A weight change can only change the balance: every named file still runs exactly once.
+
+    This is why the shadow integrity check treats the weight tables as data.
+    """
+    names = [f"tests/unit/test_{letter}.py" for letter in "abcdefg"]
+    for name in names:
+        _write(tmp_path / name)
+    selection = shards.parse_arguments(["-q", *names], ("tests",))
+    plan = shards.plan_for(shards.selected_files(table, tmp_path, selection), 4)
+    if plan is None:
+        runs = [list(names)]  # fewer than two weighted files: one process runs all roots
+    else:
+        runs = [
+            [a for a in shards.shard_arguments(selection, plan, i) if a.endswith(".py")]
+            for i in range(len(plan))
+        ]
+    assert sorted(name for run in runs for name in run) == sorted(names)

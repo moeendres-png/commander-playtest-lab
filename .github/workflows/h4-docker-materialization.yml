@@ -14,15 +14,36 @@ name: H4 Docker Materialization
 # PASS/FAIL/PARTIAL/UNKNOWN stays a Coordinator adjudication over the
 # uploaded verdicts; this lane fails closed (non-zero) on any mismatch.
 #
-# Triggering: `pull_request` is the initial remote-execution path for this new
-# workflow: PR runs evaluate the workflow file from the PR merge ref, so
-# opening or updating a PR that touches the paths below executes this lane.
-# `workflow_dispatch` is available once this workflow exists on the default branch;
-# after that, `--ref` may select another ref for execution.
-# Do not attempt workflow_dispatch before merge merely to test it.
+# Triggering: `pull_request` for the paths listed below only; `workflow_dispatch`
+# may select any ref. The engine bridge's Java test suite is not run here (the
+# conformance workflow runs it on the same paths); this lane builds the bridge
+# with `mvn package` and proves the Docker materialization.
 
 on:
+  # Docker/engine materialization inputs only (Package B, 2026-11-14): the Docker image, the
+  # compose wrapper, the engine bridge, the pin authority and the H4 scripts and their tests.
+  # The lab's general Python code is tested by `quality`; this lane no longer starts a runner
+  # on every pull request just to decide that it is out of scope.
   pull_request:
+    paths:
+      - ".github/workflows/h4-docker-materialization.yml"
+      - "config/rules_engines.json"
+      - "docker/**"
+      - "docker-compose.engine.yml"
+      - "engine-bridge/**"
+      - "scripts/docker_build_engine.sh"
+      - "scripts/docker_resolve_engine_pin.py"
+      - "scripts/verify_container_provenance.py"
+      - "scripts/engine_container_entrypoint.sh"
+      - "scripts/verify_engine.sh"
+      - "scripts/h4_verify_materialization_evidence.py"
+      - "src/commander_lab/engine/rules/bridge.py"
+      - "src/commander_lab/engine/process_manager.py"
+      - "src/commander_lab/engine/verify_cli.py"
+      - "src/commander_lab/models/engine_runtime.py"
+      - "tests/unit/test_h4_verify_materialization_evidence.py"
+      - "tests/unit/test_ws_a1d_docker_pin_authority.py"
+      - "tests/unit/test_h4_workflow_structure.py"
   workflow_dispatch:
 
 permissions:
@@ -40,164 +61,9 @@ env:
   PYTHONHASHSEED: "0"
 
 jobs:
-  preflight:
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    outputs:
-      xmage: ${{ steps.scope.outputs.xmage }}
-    steps:
-      - name: Checkout lab
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          # The PR merge commit and its base parent, for the provider scope below.
-          fetch-depth: 2
-      - name: Is this change relevant to H4 at all?
-        id: relevant
-        uses: ./.github/actions/change-scope
-        with:
-          paths: |
-            .github/workflows/h4-docker-materialization.yml
-            config/rules_engines.json
-            docker/**
-            docker-compose.engine.yml
-            engine-bridge/**
-            integrations/xmage/README.md
-            docs/engine_setup.md
-            scripts/docker_build_engine.sh
-            scripts/docker_resolve_engine_pin.py
-            scripts/verify_container_provenance.py
-            scripts/engine_container_entrypoint.sh
-            scripts/verify_engine.sh
-            scripts/h4_verify_materialization_evidence.py
-            src/commander_lab/engine/rules/bridge.py
-            src/commander_lab/engine/process_manager.py
-            src/commander_lab/models/engine_runtime.py
-            src/commander_lab/engine/verify_cli.py
-            tests/unit/test_h4_verify_materialization_evidence.py
-            tests/unit/test_ws_a1d_docker_pin_authority.py
-            .github/actions/**
-            src/commander_lab/__init__.py
-            src/commander_lab/agents/**
-            src/commander_lab/analysis/**
-            src/commander_lab/candidates/**
-            src/commander_lab/canonical_features.py
-            src/commander_lab/cards/**
-            src/commander_lab/cli/**
-            src/commander_lab/counterfactual.py
-            src/commander_lab/decision_statistics.py
-            src/commander_lab/deck_registry.py
-            src/commander_lab/diagnostics.py
-            src/commander_lab/engine/**
-            src/commander_lab/evals/**
-            src/commander_lab/fresh_rebuild.py
-            src/commander_lab/importers/**
-            src/commander_lab/mana_analysis.py
-            src/commander_lab/meta/**
-            src/commander_lab/model_informativeness.py
-            src/commander_lab/models/**
-            src/commander_lab/mulligan/**
-            src/commander_lab/opponent_ensembles/**
-            src/commander_lab/optimization/**
-            src/commander_lab/packages/**
-            src/commander_lab/playstyle.py
-            src/commander_lab/pod_scheduling.py
-            src/commander_lab/pod_scheduling_5p.py
-            src/commander_lab/primer/**
-            src/commander_lab/priority_workflows.py
-            src/commander_lab/project_context.py
-            src/commander_lab/provenance/**
-            src/commander_lab/repositories/**
-            src/commander_lab/robustness.py
-            src/commander_lab/semantic_evidence.py
-            src/commander_lab/semantic_features.py
-            src/commander_lab/storage/**
-            src/commander_lab/tools/**
-            src/commander_lab/whole_deck/**
-            src/commander_lab/workflow_session.py
-            tests/conftest.py
-            tests/unit/test_h4_workflow_structure.py
-            src/commander_lab/semantic_replay/**
-            src/commander_lab/freeze_readiness.py
-            src/commander_lab/candidate_workflow/**
-            src/commander_lab/decision/**
-            src/commander_lab/identity/**
-            src/commander_lab/owner_data.py
-      - name: Provider scope of this change
-        id: scope
-        shell: bash
-        env:
-          EVENT: ${{ github.event_name }}
-          RELEVANT: ${{ steps.relevant.outputs.relevant }}
-        run: |
-          set -euo pipefail
-          xmage=true
-          changed=""
-          if [ "$EVENT" = "pull_request" ]; then
-            changed="$(git diff --name-only HEAD^1 HEAD)"
-          fi
-          if [ "$RELEVANT" = "false" ]; then
-            # The workflow always runs on pull requests (its jobs can be required
-            # checks); the image is not built when no H4 input changed.
-            xmage=false
-          elif [ -n "$changed" ]; then
-            printf '%s\n' "$changed"
-            # Skip the XMage image build only when every changed file is provably
-            # irrelevant to it: Markdown only. Anything else builds the image.
-            if ! printf '%s\n' "$changed" | grep -vE '\.md$' | grep -q .; then
-              xmage=false
-            fi
-          fi
-          echo "xmage=$xmage" >> "$GITHUB_OUTPUT"
-          echo "H4 provider scope: xmage=$xmage"
-      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.0.0 immutable revision
-        with:
-          python-version: "3.12"
-          cache: pip
-          cache-dependency-path: requirements/lock.txt
-      - name: Install lab (test deps for the H4-adjacent unit batteries)
-        run: |
-          python -m pip install --require-hashes -r requirements/lock.txt
-          python -m pip install --no-deps --no-build-isolation -e .
-      - name: Lane inputs exist (fail fast before heavy builds)
-        shell: bash
-        run: |
-          set -euo pipefail
-          for f in \
-            config/rules_engines.json \
-            docker/xmage/Dockerfile \
-            docker-compose.engine.yml \
-            scripts/docker_build_engine.sh \
-            scripts/docker_resolve_engine_pin.py \
-            scripts/verify_container_provenance.py \
-            scripts/engine_container_entrypoint.sh \
-            scripts/verify_engine.sh \
-            scripts/h4_verify_materialization_evidence.py \
-            engine-bridge/pom.xml ; do
-            test -f "$f" || { echo "H4 lane input is missing: $f" >&2; exit 3; }
-          done
-      - name: Canonical identity resolution matrix (no Docker needed)
-        shell: bash
-        run: |
-          set -euo pipefail
-          python3 scripts/docker_resolve_engine_pin.py --provider xmage
-          if python3 scripts/docker_resolve_engine_pin.py --provider unknown; then
-            echo "unknown provider must fail closed" >&2
-            exit 1
-          fi
-      - name: WS-A1D authority battery + H4 verifier battery + H4 workflow-structure battery
-        run: pytest -q tests/unit/test_ws_a1d_docker_pin_authority.py tests/unit/test_h4_verify_materialization_evidence.py tests/unit/test_h4_workflow_structure.py
-      - name: Ruff on H4 harness files
-        shell: bash
-        run: |
-          set -euo pipefail
-          ruff check scripts/h4_verify_materialization_evidence.py tests/unit/test_h4_verify_materialization_evidence.py
-          ruff format --check scripts/h4_verify_materialization_evidence.py tests/unit/test_h4_verify_materialization_evidence.py
-
   h4-xmage:
-    needs: [preflight]
-    if: needs.preflight.outputs.xmage == 'true'
     runs-on: ubuntu-latest
-    timeout-minutes: 300
+    timeout-minutes: 45
     env:
       ENGINE_PROVIDER: xmage
       ENGINE_MODE: external
@@ -231,6 +97,32 @@ jobs:
         run: |
           python -m pip install --require-hashes -r requirements/lock.txt
           python -m pip install --no-deps --no-build-isolation -e .
+      - name: Lane inputs exist (fail fast before heavy builds)
+        shell: bash
+        run: |
+          set -euo pipefail
+          for f in \
+            config/rules_engines.json \
+            docker/xmage/Dockerfile \
+            docker-compose.engine.yml \
+            scripts/docker_build_engine.sh \
+            scripts/docker_resolve_engine_pin.py \
+            scripts/verify_container_provenance.py \
+            scripts/engine_container_entrypoint.sh \
+            scripts/verify_engine.sh \
+            scripts/h4_verify_materialization_evidence.py \
+            engine-bridge/pom.xml ; do
+            test -f "$f" || { echo "H4 lane input is missing: $f" >&2; exit 3; }
+          done
+      - name: Canonical identity resolution matrix (no Docker needed)
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/docker_resolve_engine_pin.py --provider xmage
+          if python3 scripts/docker_resolve_engine_pin.py --provider unknown; then
+            echo "unknown provider must fail closed" >&2
+            exit 1
+          fi
       - name: Resolve canonical XMage pin from manifest authority
         shell: bash
         run: |
@@ -259,12 +151,12 @@ jobs:
         run: |
           set -o pipefail
           if test -x ./mvnw; then ./mvnw -B -ntp -DskipTests install; else mvn -B -ntp -DskipTests install; fi 2>&1 | tee "$GITHUB_WORKSPACE/h4-evidence-xmage/xmage-mvn-install.log"
-      - name: Build + verify Lab XMage bridge, stage documented container path
+      - name: Build Lab XMage bridge (package, tests run in conformance), stage documented container path
         shell: bash
         working-directory: engine-bridge
         run: |
           set -o pipefail
-          mvn -B -ntp verify 2>&1 | tee "$GITHUB_WORKSPACE/h4-evidence-xmage/bridge-mvn-verify.log"
+          mvn -B -ntp -DskipTests package 2>&1 | tee "$GITHUB_WORKSPACE/h4-evidence-xmage/bridge-mvn-package.log"
           sha256sum target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar | tee "$GITHUB_WORKSPACE/h4-evidence-xmage/xmage-bridge.sha256"
           mkdir -p "$GITHUB_WORKSPACE/vendor/engine-binaries/xmage"
           cp target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar "$GITHUB_WORKSPACE/vendor/engine-binaries/xmage/bridge.jar"

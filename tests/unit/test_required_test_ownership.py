@@ -75,7 +75,7 @@ def selection(command: tuple[str, ...], test_files: list[str]) -> set[str]:
             continue
         # Reporting only: they never change which tests are collected. ``--shards=N``
         # splits the same selection over N processes (test_every_shard_selection_...).
-        if arg.startswith(("--durations=", "--junitxml=", "--shards=")):
+        if arg.startswith(("--durations=", "--junitxml=", "--shards=", "--shard-weights=")):
             continue
         if arg.startswith("--ignore="):
             ignored.append(arg.split("=", 1)[1].rstrip("/"))

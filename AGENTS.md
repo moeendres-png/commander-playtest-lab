@@ -352,6 +352,29 @@ no force/admin bypass/history rewrite is needed; the branch is the executor's ow
 canonical HEAD/TREE is re-read with a persisted receipt afterwards. Otherwise repair if
 technical and in scope, or stop on a genuine blocker.
 
+### CI checks (state 2026-11-14)
+
+Required contexts: `quality`, `security`, `infrastructure`, nothing else. `quality` is a gate job
+(`if: always()`, `scripts/ci_gate.py`) over `changes`, `lint`, a matrix of four `tests` slots and
+`packaging`; a skipped `packaging` counts only when no packaging input changed. A documents-only
+change runs one slot with the docs tests. `infrastructure` runs `tests/qualification` in four
+shards. PB-03, H4, conformance, the real four-player smoke, external integration and meta
+qualification start only for their own `paths:` (they are not required and are absent from the check
+list otherwise); sealing dispatches PB-03. `ci-definition-integrity-shadow` is an aid for reviewers, not a gate: what decides a merge are the
+three required checks and the review. It is green only when every changed test file is a new test
+module that cannot reach other tests (no import of anything under `tests`, no relative or star
+import, no `pytest_*` hook, `pytestmark`, `__test__`, `collect_ignore*`, `setup_module` or
+`teardown_module`, no `autouse` fixture, no module-level `globals`, `setattr`, `delattr`,
+`__import__`, `importlib`, `sys.modules` or `monkeypatch`), an existing test module that only gains
+imports of modules outside `tests` and plain top-level `def test_*` functions (new name, only
+`pytest.mark.parametrize` or a plain marker other than skip, skipif, xfail, usefixtures, literal
+default values, existing statements unchanged and in order), or one of the two shard weight tables.
+Every other change is review-required: any other addition (class, fixture, helper, constant,
+`setup_*`), a changed or removed existing statement, `conftest.py`, any non-test file under `tests/`
+(including `tests/pytest_shards.py` and `tests/pytest_docs_tests.json`), a gate script, or a
+required-check definition. The full table is `docs/CI_WHICH_CHECK_RUNS_WHEN.md`; changing a
+required check or gate definition stays an Owner decision.
+
 ### Owner-delegated self-merge
 
 `AGENT_SELF_MERGE = ENABLED` (Owner instruction, 2026-10-16).

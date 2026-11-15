@@ -63,3 +63,7 @@ tests/qualification/_bridge_stubs/
 *.jfr
 *.jfr.gz
 *.jfr.gz.b64*
+
+# Per-shard logs of tests/pytest_shards.py (written next to the JUnit report)
+pytest-shard-*.log
+.pytest-junit-shard-*.xml

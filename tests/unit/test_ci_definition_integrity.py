@@ -620,9 +620,9 @@ def test_critical_command_or_success_masking_is_not_enforcing() -> None:
     )
 
 
-def test_general_test_definition_change_requires_review(
-    repository: tuple[Path, str],
-) -> None:
+def test_added_test_is_reported_but_needs_no_review(repository: tuple[Path, str]) -> None:
+    # Package B (2026-11-14, Owner): a new test module cannot weaken a gate, so it no longer
+    # makes the shadow check red; the report still lists it.
     repo, base = repository
     head = candidate(
         repo,
@@ -630,13 +630,221 @@ def test_general_test_definition_change_requires_review(
         lambda root: write(
             root, "tests/unit/test_new_gate_signal.py", "def test_signal(): assert True\n"
         ),
-        "change quality test definition",
+        "add quality test",
     )
     report = guard.inspect_required_check_definitions(repo, base, head)
-    assert report["overall_classification"] == "GATE_DEFINITION_CHANGED_REVIEW_REQUIRED"
+    assert report["overall_classification"] == "PASS"
+    assert report["benign_test_changes"] == ["tests/unit/test_new_gate_signal.py"]
     assert any(
-        item["impact"] == "quality_test_definition" for item in report["changed_protected_surfaces"]
+        item["impact"] == "test_added_no_review_needed"
+        for item in report["changed_protected_surfaces"]
     )
+    assert guard._exit_code(report["overall_classification"]) == 0
+
+
+def _qualification_test(root: Path, text: str) -> None:
+    write(root, "tests/qualification/test_fixture.py", text)
+
+
+BASE_TEST = "def test_fixture(): assert True\n"
+
+
+@pytest.mark.parametrize(
+    "new_text",
+    [
+        BASE_TEST + "def test_more(): assert 1 == 1\n",  # a plain test function appended
+        "import os\n"
+        + BASE_TEST
+        + "def test_more(): assert os.sep\n",  # import of a non-test module
+        BASE_TEST
+        + "import pytest\n@pytest.mark.parametrize('x', [1, 2])\ndef test_p(x, y=3): assert x\n",
+        BASE_TEST + "import pytest\n@pytest.mark.slow\ndef test_marked(): assert True\n",
+        "# a comment\n" + BASE_TEST,
+    ],
+)
+def test_appended_plain_test_function_needs_no_review(
+    repository: tuple[Path, str], new_text: str
+) -> None:
+    repo, base = repository
+    head = candidate(repo, base, lambda root: _qualification_test(root, new_text), "extend")
+    assert classification(repo, base, head) == "PASS"
+
+
+@pytest.mark.parametrize(
+    "new_text",
+    [
+        "def test_other(): assert True\n",  # test_fixture removed
+        "def test_renamed(): assert True\n",  # renamed
+        "def test_fixture(): pass\n",  # assertion dropped
+        "def test_fixture():\n    assert True\n    assert 2 > 1\n",  # existing body changed, even if stronger
+        "def test_fixture():\n    return\n    assert True\n",  # early return
+        "def test_fixture():\n    assert True is True\n",
+        "import pytest\n@pytest.mark.skip\ndef test_fixture(): assert True\n",
+        "import pytest\n@getattr(pytest.mark, 'skip')\ndef test_fixture(): assert True\n",
+        "import pytest\n@pytest.mark.parametrize('x', [1])\ndef test_fixture(x=1): assert True\n",
+        BASE_TEST + "import pytest\npytestmark = pytest.mark.skip\n",  # module-wide skip
+        BASE_TEST + "def test_fixture(): pass\n",  # redefinition shadows the real test
+        BASE_TEST + "if True:\n    pass\n",  # new module-level code
+        BASE_TEST + "import os\nLIMIT = 3\n",  # a constant is not an allowed addition
+        BASE_TEST + "def _helper(): return 1\n",  # nor is a helper function
+        BASE_TEST + "class TestMore:\n    def test_a(self): assert True\n",  # nor a class
+        # Probe (1): an added autouse fixture that skips every test of the module.
+        BASE_TEST
+        + "import pytest\n@pytest.fixture(autouse=True)\ndef _skip_all():\n    pytest.skip('x')\n",
+        # Probe (2): an added setup_module.
+        BASE_TEST
+        + "import pytest\ndef setup_module(module):\n    pytest.skip('x', allow_module_level=True)\n",
+        # Probe (3): an added class whose body rewrites the module namespace.
+        BASE_TEST + "class _Neuter:\n    globals().update({'test_fixture': lambda: None})\n",
+        # Probe (4): a decorator with a side effect on a new helper function.
+        BASE_TEST
+        + "def _hit(f):\n    globals().update({'test_fixture': lambda: None})\n    return f\n@_hit\ndef _helper(): pass\n",
+        # The same decorator on a new test function.
+        BASE_TEST + "def _hit(f):\n    return f\n@_hit\ndef test_x(): assert True\n",
+        # Probe (6): a star import.
+        "from os.path import *\n" + BASE_TEST,
+        BASE_TEST + "from os.path import *\n",
+        BASE_TEST + "from tests.unit import test_other\n",  # an import of another test module
+        BASE_TEST + "from . import helpers\n",  # a relative import
+        BASE_TEST
+        + "import pytest\n@pytest.mark.skip\ndef test_x(): assert True\n",  # a skip marker
+        BASE_TEST + "import pytest\n@pytest.mark.usefixtures('f')\ndef test_x(): assert True\n",
+        BASE_TEST + "def test_x(a=print('side effect')): assert True\n",  # non-literal default
+        BASE_TEST + "def test_x():\n    globals().update({'test_fixture': lambda: None})\n",
+        BASE_TEST + "pytestmark = 1\n",
+        BASE_TEST + "def pytest_collection_modifyitems(items): items.clear()\n",
+        BASE_TEST + "__test__ = False\n",
+        "def test_fixture(: syntax error\n",
+    ],
+)
+def test_weakened_test_still_requires_review(repository: tuple[Path, str], new_text: str) -> None:
+    repo, base = repository
+    head = candidate(repo, base, lambda root: _qualification_test(root, new_text), "weaken test")
+    report = guard.inspect_required_check_definitions(repo, base, head)
+    assert report["overall_classification"] == "GATE_DEFINITION_CHANGED_REVIEW_REQUIRED"
+    assert report["benign_test_changes"] == []
+
+
+PARAM_BASE = "import pytest\nCASES = [1, 2, 3]\n@pytest.mark.parametrize('x', CASES)\ndef test_p(x): assert x\n"
+
+
+@pytest.mark.parametrize(
+    "new_text",
+    [
+        PARAM_BASE.replace("[1, 2, 3]", "[1]"),  # shrunk parametrize list
+        PARAM_BASE.replace("CASES, ", "").replace("'x', CASES", "'x', [1]"),
+        PARAM_BASE.replace("import pytest\n", "import pytest\nimport os\n") + "CASES = [1]\n",
+    ],
+)
+def test_shrunk_parametrization_still_requires_review(
+    repository: tuple[Path, str], new_text: str
+) -> None:
+    repo, base = repository
+
+    def mutate(root: Path) -> None:
+        _qualification_test(root, PARAM_BASE)
+
+    base_with_params = candidate(repo, base, mutate, "param base")
+    head = candidate(
+        repo, base_with_params, lambda root: _qualification_test(root, new_text), "shrink"
+    )
+    report = guard.inspect_required_check_definitions(repo, base_with_params, head)
+    assert report["overall_classification"] == "GATE_DEFINITION_CHANGED_REVIEW_REQUIRED"
+
+
+def test_new_test_file_needs_no_review(repository: tuple[Path, str]) -> None:
+    repo, base = repository
+    head = candidate(
+        repo,
+        base,
+        lambda root: write(root, "tests/unit/test_brand_new.py", "def test_new(): assert True\n"),
+        "new file",
+    )
+    assert classification(repo, base, head) == "PASS"
+
+
+# The runner and lists of the required test checks are gate inputs, never benign.
+@pytest.mark.parametrize(
+    ("path", "text"),
+    [
+        ("tests/pytest_shards.py", "def exit_status(codes):\n    return 0\n"),  # probe (a)
+        ("tests/pytest_docs_tests.json", '{"files": ["tests/unit/test_one.py"]}\n'),  # probe (c)
+        ("scripts/ci_change_scope.py", "# changed\n"),
+        ("scripts/ci_gate.py", "# changed\n"),
+        ("tests/conftest.py", "import pytest\n"),
+        ("tests/unit/helpers.py", "VALUE = 1\n"),  # a non-test helper under tests/
+        ("tests/unit/conftest.py", "import pytest\n"),
+    ],
+)
+def test_gate_inputs_under_tests_and_scripts_always_require_review(
+    repository: tuple[Path, str], path: str, text: str
+) -> None:
+    repo, base = repository
+    head = candidate(repo, base, lambda root: write(root, path, text), "gate input")
+    assert classification(repo, base, head) == "GATE_DEFINITION_CHANGED_REVIEW_REQUIRED"
+
+
+def test_every_assert_replaced_by_assert_true_requires_review(
+    repository: tuple[Path, str],
+) -> None:
+    # Probe (b): the assertion count per file stays the same, the strength does not.
+    repo, base = repository
+    head = candidate(
+        repo,
+        base,
+        lambda root: _qualification_test(root, "def test_fixture(): assert True is not False\n"),
+        "assert true",
+    )
+    assert classification(repo, base, head) == "GATE_DEFINITION_CHANGED_REVIEW_REQUIRED"
+
+
+def test_weight_table_change_needs_no_review(repository: tuple[Path, str]) -> None:
+    repo, base = repository
+    head = candidate(
+        repo,
+        base,
+        lambda root: write(root, "tests/pytest_shard_weights.json", '{"files": {}}\n'),
+        "weights",
+    )
+    report = guard.inspect_required_check_definitions(repo, base, head)
+    assert report["overall_classification"] == "PASS"
+    assert report["benign_test_changes"] == ["tests/pytest_shard_weights.json"]
+
+
+def test_removed_test_file_still_requires_review(repository: tuple[Path, str]) -> None:
+    repo, base = repository
+    head = candidate(
+        repo, base, lambda root: (root / "tests/qualification/test_fixture.py").unlink(), "remove"
+    )
+    assert classification(repo, base, head) == "GATE_DEFINITION_CHANGED_REVIEW_REQUIRED"
+
+
+def test_conftest_and_other_test_data_still_require_review(repository: tuple[Path, str]) -> None:
+    repo, base = repository
+    for path in ("tests/conftest.py", "tests/unit/data.json", "tests/pytest_docs_tests.json"):
+        head = candidate(repo, base, lambda root, p=path: write(root, p, "x = 1\n"), "control")
+        assert classification(repo, base, head) == "GATE_DEFINITION_CHANGED_REVIEW_REQUIRED", path
+
+
+def test_a_gate_script_change_still_requires_review(repository: tuple[Path, str]) -> None:
+    repo, base = repository
+    head = candidate(
+        repo, base, lambda root: write(root, "scripts/ci_gate.py", "# changed\n"), "gate script"
+    )
+    assert classification(repo, base, head) == "GATE_DEFINITION_CHANGED_REVIEW_REQUIRED"
+
+
+def test_a_removed_test_in_a_mixed_change_keeps_the_review_requirement(
+    repository: tuple[Path, str],
+) -> None:
+    repo, base = repository
+
+    def mutate(root: Path) -> None:
+        write(root, "tests/unit/test_new.py", "def test_a(): assert True\n")
+        (root / "tests/qualification/test_fixture.py").unlink()
+
+    head = candidate(repo, base, mutate, "mixed")
+    assert classification(repo, base, head) == "GATE_DEFINITION_CHANGED_REVIEW_REQUIRED"
 
 
 @pytest.mark.parametrize(
@@ -1420,3 +1628,71 @@ def test_pinned_actions_before_the_gate_are_accepted(repository: tuple[Path, str
         document["jobs"]["quality"]["steps"].insert(1, {"uses": f"actions/cache@{PIN}"})
 
     assert not _flagged(_gated_report(repository, edit))
+
+
+NEW_MODULE_PROBES = {
+    "autouse fixture": "import pytest\n@pytest.fixture(autouse=True)\ndef _f():\n    pass\ndef test_a(): assert True\n",
+    "setup_module": "def setup_module(m): pass\ndef test_a(): assert True\n",
+    "teardown_module": "def teardown_module(m): pass\ndef test_a(): assert True\n",
+    "pytestmark": "import pytest\npytestmark = pytest.mark.skip\ndef test_a(): assert True\n",
+    "__test__": "__test__ = False\ndef test_a(): assert True\n",
+    "collect_ignore": "collect_ignore = ['x']\ndef test_a(): assert True\n",
+    "collect_ignore_glob": "collect_ignore_glob = ['x']\ndef test_a(): assert True\n",
+    "pytest_ hook": "def pytest_collection_modifyitems(items): items.clear()\ndef test_a(): assert True\n",
+    # Probe (5): a new file that rewrites another test module before collection.
+    "absolute test import": "import tests.unit.test_other as m\nm.test_x = lambda: None\ndef test_a(): assert True\n",
+    "from tests import": "from tests.unit import test_other\ndef test_a(): assert True\n",
+    "relative import": "from . import test_other\ndef test_a(): assert True\n",
+    "relative module import": "from .test_other import test_x\ndef test_a(): assert True\n",
+    "star import": "from os.path import *\ndef test_a(): assert True\n",
+    "importlib": "import importlib\nm = importlib.import_module('x')\ndef test_a(): assert True\n",
+    "__import__": "m = __import__('x')\ndef test_a(): assert True\n",
+    "globals at module level": "globals().update({})\ndef test_a(): assert True\n",
+    "setattr at module level": "import os\nsetattr(os, 'x', 1)\ndef test_a(): assert True\n",
+    "delattr at module level": "import os\ndelattr(os, 'x')\ndef test_a(): assert True\n",
+    "sys.modules": "import sys\nsys.modules['x'] = None\ndef test_a(): assert True\n",
+    "class body rewrite": "class _N:\n    globals().update({})\ndef test_a(): assert True\n",
+    "decorator side effect": "def _d(f):\n    return f\n@_d\ndef test_a(): assert True\n_x = globals()\n",
+    "monkeypatch at module level": "monkeypatch = None\ndef test_a(): assert True\n",
+    "importlib in a body": "def test_a():\n    import importlib\n    importlib.reload(importlib)\n",
+    "globals in a body": "def test_a():\n    globals().update({})\n",
+}
+
+
+@pytest.mark.parametrize("name", sorted(NEW_MODULE_PROBES))
+def test_new_test_module_that_can_reach_other_tests_requires_review(
+    repository: tuple[Path, str], name: str
+) -> None:
+    repo, base = repository
+    head = candidate(
+        repo,
+        base,
+        lambda root: write(root, "tests/unit/test_aaa_probe.py", NEW_MODULE_PROBES[name]),
+        "probe",
+    )
+    report = guard.inspect_required_check_definitions(repo, base, head)
+    assert report["overall_classification"] == "GATE_DEFINITION_CHANGED_REVIEW_REQUIRED", name
+    assert report["benign_test_changes"] == []
+
+
+def test_ordinary_new_test_module_with_fixtures_helpers_and_classes_is_benign(
+    repository: tuple[Path, str],
+) -> None:
+    text = (
+        "import json\nimport pytest\nfrom pathlib import Path\n"
+        "LIMIT = 3\n"
+        "@pytest.fixture\ndef data(tmp_path):\n    return tmp_path / 'x'\n"
+        "def _helper(value):\n    return value + LIMIT\n"
+        "class TestThing:\n"
+        "    def test_one(self, data, monkeypatch):\n"
+        "        monkeypatch.setenv('A', '1')\n"
+        "        assert _helper(1) == 4\n"
+        "@pytest.mark.parametrize('x', [1, 2])\ndef test_two(x):\n    assert x\n"
+    )
+    repo, base = repository
+    head = candidate(
+        repo, base, lambda root: write(root, "tests/unit/test_ordinary.py", text), "ordinary"
+    )
+    report = guard.inspect_required_check_definitions(repo, base, head)
+    assert report["overall_classification"] == "PASS"
+    assert report["benign_test_changes"] == ["tests/unit/test_ordinary.py"]
