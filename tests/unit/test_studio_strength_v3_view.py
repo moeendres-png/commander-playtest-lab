@@ -135,7 +135,8 @@ def test_corpus_log_lift_is_the_damped_log_ratio_against_the_global_share() -> N
     assert expected is not None
     assert row["status"] == "PRESENT"
     assert row["value"] == pytest.approx(expected)
-    assert row["percentile"] == pytest.approx(expected)  # used directly, never ranked
+    # never ranked: the index counts only the part above neutral (0.5), max(0, 2v - 1)
+    assert row["percentile"] == pytest.approx(max(0.0, 2 * expected - 1))
     assert (row["numerator"], row["denominator"]) == (30, 80)
     assert "Lift" in row["note"] and "30 von 80" in row["note"]
     # one hit, a tiny global share: damped to near the middle, never an extreme
@@ -363,3 +364,60 @@ def test_the_default_share_scale_is_the_log_scale_in_the_result() -> None:
         assert rows[name]["percentile"] == pytest.approx(
             math.log1p(strength.LOG_SHARE_K * value) / math.log1p(strength.LOG_SHARE_K * top)
         )
+
+
+def test_the_highest_theme_is_taken_after_each_theme_is_shrunk() -> None:
+    store = _store()
+    # many small themes at a low share give the pool prior; Card 03 sits in a small theme at a
+    # high raw share (12 of 30) and in a large one at a slightly lower share (228 of 600)
+    for index in range(6):
+        _theme(store, f"edhrec:cmd-a/filler{index}", {f"Card {n:02d}": (3, 40) for n in (4, 5, 6)})
+    _theme(store, "edhrec:cmd-a/small", {"Card 03": (12, 30)})
+    _theme(store, "edhrec:cmd-a/large", {"Card 03": (228, 600)})
+    assert 12 / 30 > 228 / 600  # the raw maximum would be the small theme
+    result = _compute(store, separate_lands=False)
+    row = _row(_cards(result)["Card 03"], "edhrec_theme_reach")
+    assert (row["numerator"], row["denominator"]) == (228, 600)
+    assert "large" in row["note"] and "Schrumpfung" in row["note"]
+    assert row["prior_mean"] is not None  # the prior of the theme rows is reported
+    assert "edhrec_theme_reach" in result["shrinkage"]
+
+
+def _saved(store: StudioStore, name: str, **weights: float) -> StrengthSettings:
+    settings = StrengthSettings(weights=strength.DEFAULT_WEIGHTS | weights)
+    strength_view.save_profile(store, name, settings)
+    return strength_view.resolve_settings(store, preset=None, profile=name, settings=None)
+
+
+def test_a_loaded_profile_with_a_rubric_weight_says_the_subjective_signal_is_active() -> None:
+    store = _store()
+    loaded = _saved(store, "mit Raster", rubric=2.0)
+    result = strength_view.compute(
+        store,
+        CMD,
+        loaded,
+        dangling_universe_ok=True,
+        saved_weights=strength_view.profile_saved_weights(store, "mit Raster"),
+    )
+    assert any("subjektives Signal aktiv" in note for note in result["notices"])
+    plain = strength_view.compute(store, CMD, StrengthSettings())
+    assert not any("subjektives Signal" in note for note in plain["notices"])
+
+
+def test_the_corpus_rule_names_the_saved_edhrec_weights_it_zeroes() -> None:
+    store = _store()
+    loaded = _saved(store, "alt")
+    saved = strength_view.profile_saved_weights(store, "alt")
+    assert saved["commander_inclusion"] == 3.0
+    result = strength_view.compute(
+        store, CMD, loaded, dangling_universe_ok=True, saved_weights=saved
+    )
+    note = next(n for n in result["notices"] if "Gespeicherte EDHREC-Gewichte" in n)
+    assert "gespeichert 3" in note and "wirksam 0" in note and "CORPUS_ZERO" in note
+    # no notice when the profile keeps the EDHREC weights (the setting is on) or has none saved
+    kept = strength_view.compute(
+        store, CMD, StrengthSettings(edhrec_with_corpus=True), saved_weights=saved
+    )
+    assert not any("Gespeicherte EDHREC" in n for n in kept["notices"])
+    none_saved = strength_view.compute(store, CMD, loaded, dangling_universe_ok=True)
+    assert not any("Gespeicherte EDHREC" in n for n in none_saved["notices"])

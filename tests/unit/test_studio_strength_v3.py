@@ -606,8 +606,13 @@ def test_a_direct_corpus_component_is_used_as_the_score_without_ranking() -> Non
         require_commander_signal=False,
     )
     scored = strength.score_pool(settings, observations, {strength.CORPUS_LOG_LIFT})
-    assert scored["c2"]["index"] == 90.0
-    assert _row(scored["c2"], "corpus_log_lift")["percentile"] == 0.9
+    # 0.9 is shown as it is; the index counts the part above neutral: max(0, 2 * 0.9 - 1) = 0.8
+    assert _row(scored["c2"], "corpus_log_lift")["value"] == 0.9
+    assert scored["c2"]["index"] == pytest.approx(80.0)
+    assert _row(scored["c2"], "corpus_log_lift")["percentile"] == pytest.approx(0.8)
+    # neutral and below neutral score 0, never a positive amount
+    assert scored["c1"]["index"] == 0.0 and scored["c0"]["index"] == 0.0
+    assert _row(scored["c4"], "corpus_log_lift")["value"] == 0.3
     assert _row(scored["c2"], "corpus_log_lift")["data_class"] == "DERIVED_DESCRIPTIVE"
 
 
@@ -635,3 +640,42 @@ def test_a_commander_without_the_corpus_has_no_coverage_penalty_for_it() -> None
         )
     }
     assert set(uncollected.values()) == {"NOT_COLLECTED"}
+
+
+@pytest.mark.parametrize("component", ["corpus_log_lift", "corpus_bracket_slope"])
+def test_a_lift_or_slope_below_neutral_never_raises_the_index_or_the_tier(component: str) -> None:
+    """The weighted mean would raise a card whose other scores are near 0 by any positive
+    score, so the index counts only the part above neutral (0.5)."""
+    base = {name: 0.0 for name in strength.COMPONENTS}
+
+    def settings(weight: float) -> StrengthSettings:
+        return StrengthSettings(
+            weights=base | {"deck_universe": 4.0, component: weight},
+            share_scale="share",
+            min_coverage=0.0,
+            min_components=1,
+            require_commander_signal=False,
+            separate_lands=False,
+        )
+
+    cards = [f"x{i}" for i in range(12)]
+    observations: dict[str, dict[str, Observation]] = {}
+    for i, card in enumerate(cards):
+        share = 0.0 if i == 0 else 0.002 * i  # x0: a counted zero, the others near 0 too
+        observations[card] = {"deck_universe": Observation(share, round(share * 2000), 2000)}
+    below = [0.0, 0.1, 0.3, 0.49, 0.5]
+    for i, value in enumerate(below):
+        observations[cards[i]][component] = Observation(value, 20, 2823)
+    collected = {strength.DECK_UNIVERSE, component}
+    with_weight = strength.score_pool(settings(2.0), observations, collected)
+    without = strength.score_pool(settings(0.0), observations, collected)
+    order = {tier: rank for rank, tier in enumerate(("S", "A", "B", "C", "D"))}
+    for card in cards[: len(below)]:
+        low, high = with_weight[card]["index"], without[card]["index"]
+        assert low is not None and high is not None
+        assert low <= high + 1e-9, (card, low, high)
+        assert order[with_weight[card]["tier"]] >= order[without[card]["tier"]]
+    # an above-neutral value does raise it
+    observations[cards[0]][component] = Observation(0.9, 20, 2823)
+    raised = strength.score_pool(settings(2.0), observations, collected)[cards[0]]["index"]
+    assert raised is not None and raised > without[cards[0]]["index"]

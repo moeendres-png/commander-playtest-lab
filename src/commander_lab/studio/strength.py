@@ -333,6 +333,18 @@ OBSERVED_SHRINKAGE = 200
 # share scale): the magnitude is kept. The rubric value is ``(H_mean - 1) / 9``; the corpus lift
 # and slope are ``(clip(damped log10 ratio, +-2) + 2) / 4``.
 DIRECT_COMPONENTS = frozenset({RUBRIC, CORPUS_LOG_LIFT, CORPUS_BRACKET_SLOPE})
+# Signed log ratios mapped to 0..1 with 0.5 = neutral (ratio 1). In the weighted mean a value
+# below neutral would still raise a card whose other scores are near 0, so the index score is
+# ``max(0, 2 v - 1)``: only an above-neutral lift or slope adds, neutral or negative is 0. The
+# raw signed value stays in the row (``value``, and the note).
+ABOVE_NEUTRAL_COMPONENTS = frozenset({CORPUS_LOG_LIFT, CORPUS_BRACKET_SLOPE})
+
+
+def above_neutral_score(value: float) -> float:
+    """The index score of a signed log ratio held in 0..1 (0.5 = neutral): ``max(0, 2v - 1)``."""
+    return max(0.0, 2.0 * value - 1.0)
+
+
 # Components that exist for some commanders only. For a commander without a source they are
 # ``NOT_COLLECTED`` (a missing source, never 0) and, unlike a source that was merely not
 # imported yet, they do not lower the coverage: the source cannot exist for that commander.
@@ -931,6 +943,11 @@ class Observation:
     denominator: int | None = None
     # Free text a source adds to the row of a present value (the rubric: H, spread, raters).
     note: str = ""
+    # A producer that picks one value among several shares (the highest EDHREC theme) shrinks
+    # each share first and takes the maximum of the posterior means: ``shrunk`` is that value,
+    # ``prior`` the prior it used. ``score_pool`` ranks it as it is, without shrinking again.
+    shrunk: float | None = None
+    prior: SharePrior | None = None
 
 
 @dataclass(frozen=True)
@@ -1387,6 +1404,8 @@ def _scale_component_values(
     (synergy, combos, playgroup, layers) always use ``percentile_ranks``."""
     if component in SHARE_COMPONENTS:
         return share_scale_values(values, settings.share_scale, log_k)
+    if component in ABOVE_NEUTRAL_COMPONENTS:
+        return {card: above_neutral_score(value) for card, value in values.items()}
     if component in DIRECT_COMPONENTS:
         return dict(values)
     return percentile_ranks(values)
@@ -1453,6 +1472,8 @@ def _rank_component(
     wilson: dict[str, float | None] = {}
     reasons: dict[str, str] = {}
     small: dict[str, tuple[int, int]] = {}
+    pre_shrunk: dict[str, float] = {}
+    pre_prior: SharePrior | None = None
     for card, per_card in observations.items():
         if card in skipped:
             continue
@@ -1480,13 +1501,24 @@ def _rank_component(
         if (
             component in SHARE_COMPONENTS
             and settings.share_measure == MEASURE_WILSON
+            and observation.shrunk is not None
+            and observation.prior is not None
+        ):
+            values[card] = pre_shrunk[card] = observation.shrunk
+            wilson[card] = None
+            pre_prior = observation.prior
+        elif (
+            component in SHARE_COMPONENTS
+            and settings.share_measure == MEASURE_WILSON
             and observation.numerator is not None
             and observation.denominator is not None
             and 0 < observation.denominator < EB_MAX_DENOMINATOR
         ):
             small[card] = (observation.numerator, observation.denominator)
     prior = beta_binomial_prior(list(small.values())) if small else None
-    shrunk: dict[str, float] = {}
+    shrunk: dict[str, float] = dict(pre_shrunk)
+    if prior is None:
+        prior = pre_prior
     if prior is not None:
         for card, (numerator, denominator) in small.items():
             shrunk[card] = values[card] = shrunk_share(numerator, denominator, prior)

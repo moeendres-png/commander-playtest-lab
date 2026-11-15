@@ -148,6 +148,13 @@ def _percent(share: float) -> str:
     return f"{share * 100:.1f}".replace(".", ",") + " %"
 
 
+def _signed(value: float) -> str:
+    """The signed damped log10 ratio behind a 0..1 value (0.5 = neutral), shown in the note: the
+    index counts only the part above neutral (``strength.above_neutral_score``)."""
+    signed = (value - 0.5) * 4.0
+    return f"{signed:+.2f}".replace(".", ",")
+
+
 def global_share(observation: Observation | None) -> float | None:
     """The share of a card in all decks (EDHREC "Aufnahme überhaupt"): the counts when they
     are published, else the stored rate."""
@@ -187,7 +194,8 @@ def corpus_observations(
                 counts.decks,
                 note=(
                     f"Korpus {_percent(hits / counts.decks)} ({hits} von {counts.decks} Decks) "
-                    f"gegen alle Decks {_percent(share)}: Lift {factor}"
+                    f"gegen alle Decks {_percent(share)}: Lift {factor}, "
+                    f"Wert {_signed(lift)} (log10, gedämpft; der Index zählt nur über 0)"
                 ),
             )
     if tuned_group.denominator > 0 and low_group.denominator > 0:
@@ -207,7 +215,8 @@ def corpus_observations(
                         f"Bracket 4+5: {high_hits} von {tuned_group.denominator} "
                         f"({_percent(high_hits / tuned_group.denominator)}), Bracket 2: "
                         f"{low_hits} von {low_group.denominator} "
-                        f"({_percent(low_hits / low_group.denominator)})"
+                        f"({_percent(low_hits / low_group.denominator)}), "
+                        f"Wert {_signed(slope)} (log10, gedämpft; der Index zählt nur über 0)"
                     ),
                 )
     return result

@@ -32,7 +32,10 @@ Since #1364 (Tierliste v3) the report adds, measured and never tuned to a card:
 
 7. **Counter-checks (Gegenproben):** Spearman correlation of the index with the card's share in
    the corpus bracket-5 decks and with the EDHTop16 play rate, each over all ranked cards, over
-   spells and over lands. Both are independent of the rubric and of the main corpus count.
+   spells and over lands. Both OVERLAP with the index (bracket 5 is a subset of the corpus and
+   feeds the tournament signal, EDHTop16 feeds the tournament signal), so each also carries a
+   held-out variant: the index recomputed with the overlapping components at weight 0
+   (``COUNTER_OVERLAP``) against the same reference.
 8. **Redundancy matrix:** Spearman correlation between the active weighted components over the
    cards where both have a value; a pair above ``REDUNDANCY_THRESHOLD`` (0.90) is flagged: two
    signals that say the same thing count twice.
@@ -77,9 +80,22 @@ MIN_STRONG_SIGNALS = 5
 REDUNDANCY_THRESHOLD = 0.90
 SENSITIVITY_KS = (100.0, 150.0, 200.0)
 COUNTER_NOTE = (
-    "Gegenprobe: eine unabhängige Referenz, nicht der Hauptkorpus des Index; zeigt, ob die "
-    "Reihenfolge auch gegen sie hält, kein Beweis für Stärke."
+    "Gegenprobe (überlappend): die Referenz ist Teil der Daten des Index (Bracket 5 steckt im "
+    "Korpus und im Turnier-Signal, EDHTop16 im Turnier-Signal), die Zahl ist also nicht "
+    "unabhängig. Die Zeile „ohne Überlappung“ rechnet den Index mit den überlappenden "
+    "Komponenten auf Gewicht 0 neu und ist die ausgehaltene Gegenprobe; kein Beweis für Stärke."
 )
+# Components that share data with a counter reference: they are set to weight 0 for the
+# held-out variant of the counter-check.
+COUNTER_OVERLAP: dict[str, tuple[str, ...]] = {
+    "bracket_5": (
+        strength.DECK_UNIVERSE,
+        strength.CORPUS_TUNED,
+        strength.TOURNAMENT,
+        strength.CORPUS_BRACKET_SLOPE,
+    ),
+    "edhtop16": (strength.TOURNAMENT,),
+}
 REDUNDANCY_NOTE = (
     "Spearman zwischen den Rang-Werten zweier aktiver Komponenten über die Karten, bei denen "
     f"beide einen Wert haben. r > {REDUNDANCY_THRESHOLD:.2f} heißt: das Signal zählt doppelt."
@@ -182,9 +198,19 @@ class StabilityBlock(TypedDict):
     largest_impact: SignalStabilityRow | None
 
 
+class HeldOutCheck(TypedDict):
+    """The counter-check with the components that share data with the reference at weight 0."""
+
+    zeroed: list[str]
+    all_ranked: CorrelationEntry
+    non_lands: CorrelationEntry
+    lands: CorrelationEntry
+
+
 class CounterCheck(TypedDict):
-    """Agreement of the index with one independent reference share (``bracket_5``,
-    ``edhtop16``); the denominator is the reference's largest denominator."""
+    """Agreement of the index with one overlapping reference share (``bracket_5``,
+    ``edhtop16``) and, held out, without the overlapping components; the denominator is the
+    reference's largest denominator."""
 
     key: str
     label: str
@@ -193,6 +219,7 @@ class CounterCheck(TypedDict):
     all_ranked: CorrelationEntry
     non_lands: CorrelationEntry
     lands: CorrelationEntry
+    held_out: HeldOutCheck | None
 
 
 class RedundancyPair(TypedDict):
@@ -522,6 +549,32 @@ def check_ranking(
             for obs in reference.values()
             if obs.denominator is not None and obs.denominator > 0
         ]
+        held_out: HeldOutCheck | None = None
+        zeroed = [
+            name for name in COUNTER_OVERLAP.get(key, ()) if settings.effective_weight(name) > 0
+        ]
+        if zeroed:
+            held_settings = settings
+            for name in zeroed:
+                held_settings = _without_component(held_settings, name)
+            held_scored = strength.score_pool(held_settings, observations, collected, context=ctx)
+            held_all = {
+                card: float(item["index"])
+                for card, item in held_scored.items()
+                if item["tier"] in TIERS and item["index"] is not None
+            }
+            held_non_lands = {
+                card: idx for card, idx in held_all.items() if ctx.type_group.get(card) != "Land"
+            }
+            held_lands = {
+                card: idx for card, idx in held_all.items() if ctx.type_group.get(card) == "Land"
+            }
+            held_out = {
+                "zeroed": zeroed,
+                "all_ranked": _entry(held_all, reference_shares),
+                "non_lands": _entry(held_non_lands, reference_shares),
+                "lands": _entry(held_lands, reference_shares),
+            }
         counter_checks.append(
             {
                 "key": key,
@@ -531,6 +584,7 @@ def check_ranking(
                 "all_ranked": _entry(ranked_indices, reference_shares),
                 "non_lands": _entry(non_land_indices, reference_shares),
                 "lands": _entry(land_indices, reference_shares),
+                "held_out": held_out,
             }
         )
 
@@ -890,7 +944,7 @@ def _entry_text(entry: CorrelationEntry) -> str:
 
 def _extra_lines(report: RankingCheckReport) -> list[str]:
     """Sections 7 to 9 of #1364 and the rule and prior block."""
-    lines: list[str] = ["", "7. Gegenproben (Spearman des Index gegen unabhängige Referenzen):"]
+    lines: list[str] = ["", "7. Gegenproben (Spearman des Index gegen überlappende Referenzen):"]
     if report["counter_checks"]:
         lines.append(f"   Hinweis: {COUNTER_NOTE}")
         lines.append(
@@ -905,6 +959,19 @@ def _extra_lines(report: RankingCheckReport) -> list[str]:
                         _entry_text(item["lands"]),
                     )
                     for item in report["counter_checks"]
+                ]
+                + [
+                    (
+                        f"{item['label']}, ohne Überlappung (Gewicht 0: "
+                        + ", ".join(held["zeroed"])
+                        + ")",
+                        "",
+                        _entry_text(held["all_ranked"]),
+                        _entry_text(held["non_lands"]),
+                        _entry_text(held["lands"]),
+                    )
+                    for item in report["counter_checks"]
+                    if (held := item["held_out"]) is not None
                 ],
             )
         )

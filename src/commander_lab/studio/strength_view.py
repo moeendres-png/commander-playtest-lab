@@ -249,18 +249,37 @@ def _theme_reach_observations(
         candidates.setdefault(claim[1], []).append(
             (numerator / denominator, denominator, theme, numerator)
         )
+    # Each theme share is shrunk on its own, then the highest posterior mean wins: shrinking
+    # the raw maximum would let a 1 of 3 theme beat a 50 of 400 one (the maximum of noisy
+    # shares leans upward, the more the smaller the theme).
+    pairs = [(item[3], item[1]) for found in candidates.values() for item in found]
+    prior = strength.beta_binomial_prior(
+        [pair for pair in pairs if pair[1] < strength.EB_MAX_DENOMINATOR]
+    )
     result: dict[str, Observation] = {}
     for card_id, found in candidates.items():
-        share, denominator, theme, numerator = sorted(
-            found, key=lambda item: (-item[0], -item[1], item[2])
+        scored = [
+            (
+                strength.shrunk_share(item[3], item[1], prior)
+                if prior is not None and item[1] < strength.EB_MAX_DENOMINATOR
+                else item[0],
+                item,
+            )
+            for item in found
+        ]
+        best, (share, denominator, theme, numerator) = sorted(
+            scored, key=lambda entry: (-entry[0], -entry[1][1], entry[1][2])
         )[0]
         result[card_id] = Observation(
             share,
             numerator,
             denominator,
             note=(
-                f"Maximum über {len(found)} EDHREC-Themen: {theme} ({numerator} von {denominator} Decks)"
+                f"Maximum über {len(found)} EDHREC-Themen nach Schrumpfung je Thema: {theme} "
+                f"({numerator} von {denominator} Decks)"
             ),
+            shrunk=best if prior is not None else None,
+            prior=prior,
         )
     return result, exists
 
@@ -974,8 +993,12 @@ def compute(
     *,
     dangling_universe_ok: bool = False,
     notices: Sequence[str] = (),
+    saved_weights: Mapping[str, float] | None = None,
 ) -> StrengthResult:
     """Index and tier for every legal pool card of ``commander``.
+
+    ``saved_weights`` are the weights a loaded profile stored (``profile_saved_weights``): the
+    result then says when the E2.a rule zeroes a stored EDHREC weight.
 
     Raises KeyError when the commander is not in the collection or the universe profile of
     the settings is unknown. With ``dangling_universe_ok`` (settings read from a saved
@@ -995,6 +1018,7 @@ def compute(
     )
     notices_out = prepared.notices
     notices_out.extend(strength.weights_without_effect(prepared.effective, prepared.collected))
+    notices_out.extend(_weight_notices(settings, prepared.weight_rule, saved_weights or {}))
     layer_result = prepared.layer_result
     if layer_result is None:  # prepare computes the layers when asked to (the default)
         raise TypeError("the layer result is missing")
@@ -1110,6 +1134,46 @@ def _entry(store: StudioStore, row: Mapping[str, object]) -> ProfileEntry:
         "reason": None,
         "universe_missing": missing,
         "ignored_keys": ignored,
+    }
+
+
+def _weight_notices(
+    settings: StrengthSettings, rule: strength.WeightRule, saved: Mapping[str, float]
+) -> list[str]:
+    """Notices on weights that do not act as the person may expect: a positive rubric weight
+    (the rubric is a subjective signal) and stored EDHREC weights the E2.a rule sets to 0."""
+    found: list[str] = []
+    rubric = settings.weights.get(strength.RUBRIC, 0.0)
+    if rubric > 0:
+        found.append(
+            f"Raster-Bewertung: subjektives Signal aktiv (Gewicht {rubric:g}); es ist kein "
+            "objektives Signal und zählt nur auf ausdrücklichen Wunsch."
+        )
+    if rule["rule"] == strength.RULE_CORPUS_ZERO:
+        zeroed = [
+            f"{strength.LABELS[name]} (gespeichert {saved[name]:g}, wirksam 0)"
+            for name in strength.EDHREC_RULE_COMPONENTS
+            if saved.get(name, 0.0) > 0
+        ]
+        if zeroed:
+            found.append(
+                "Gespeicherte EDHREC-Gewichte werden vom gezählten Korpus auf 0 gesetzt "
+                f"(Regel {strength.RULE_CORPUS_ZERO}): "
+                + "; ".join(zeroed)
+                + ". Einstellung „EDHREC-Gewichte mit Korpus behalten“ (an) hebt das auf."
+            )
+    return found
+
+
+def profile_saved_weights(store: StudioStore, name: str) -> dict[str, float]:
+    """The weights the stored profile ``name`` holds for its own (known) keys."""
+    entry = get_profile(store, name)
+    stored = entry["settings"]
+    weights = stored.get("weights") if stored is not None else None
+    if not isinstance(weights, Mapping):
+        return {}
+    return {
+        str(key): float(value) for key, value in weights.items() if isinstance(value, (int, float))
     }
 
 

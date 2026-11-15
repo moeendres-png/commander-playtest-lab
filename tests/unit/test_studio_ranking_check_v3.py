@@ -108,6 +108,51 @@ def test_counter_checks_correlate_the_index_with_each_reference_for_spells_and_l
     assert t16["lands"]["spearman_rho"] is None
     assert t16["lands"]["compared"] == 0
     assert "kein Beweis" in b5["note"] or "Gegenprobe" in b5["note"]
+    assert "überlappend" in b5["note"] and "unabhängige Referenz" not in b5["note"]
+    # held out: the overlapping components are at weight 0 (global_inclusion alone stays), so
+    # the index runs the other way round than bracket 5
+    held = b5["held_out"]
+    assert held["zeroed"] == ["deck_universe", "corpus_tuned"]
+    assert held["all_ranked"]["spearman_rho"] is not None
+    assert held["all_ranked"]["spearman_rho"] < 0
+    assert t16["held_out"] is None  # the tournament component has weight 0 here
+
+
+def test_the_held_out_counter_check_zeroes_exactly_the_overlapping_components() -> None:
+    bracket_5 = {card: _share(5 + 10 * index, 265) for index, card in enumerate(CARDS)}
+    top16 = {card: _share(2 + index, 48) for index, card in enumerate(SPELLS)}
+    observations = _observations()
+    for index, card in enumerate(CARDS):
+        observations[card]["tournament"] = _share(5 + 10 * index, 265)
+        observations[card]["corpus_bracket_slope"] = Observation(0.5, 20, 100)
+    report = check_ranking(
+        _settings(
+            deck_universe=1.0,
+            corpus_tuned=1.0,
+            tournament=1.0,
+            corpus_bracket_slope=1.0,
+            global_inclusion=2.0,
+        ),
+        observations,
+        COLLECTED | {strength.TOURNAMENT, strength.CORPUS_BRACKET_SLOPE},
+        context=_context(),
+        counter_shares={"bracket_5": ("B5", bracket_5), "edhtop16": ("T16", top16)},
+    )
+    checks = {item["key"]: item for item in report["counter_checks"]}
+    assert checks["bracket_5"]["held_out"]["zeroed"] == [
+        "deck_universe",
+        "corpus_tuned",
+        "tournament",
+        "corpus_bracket_slope",
+    ]
+    assert checks["edhtop16"]["held_out"]["zeroed"] == ["tournament"]
+    # with the overlap the index follows bracket 5 (rho > 0); held out only global_inclusion
+    # (which runs the other way round) is left, so the held-out value is clearly lower
+    full = checks["bracket_5"]["all_ranked"]["spearman_rho"]
+    held = checks["bracket_5"]["held_out"]["all_ranked"]["spearman_rho"]
+    assert full is not None and held is not None and held < full
+    text = render_ranking_check(report)
+    assert "ohne Überlappung" in text
 
 
 def test_without_references_there_are_no_counter_checks() -> None:
