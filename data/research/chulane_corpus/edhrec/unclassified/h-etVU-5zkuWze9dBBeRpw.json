@@ -1,0 +1,366 @@
+{
+ "urlhash": "h-etVU-5zkuWze9dBBeRpw",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-06-27",
+ "price": 138,
+ "salt": 33.52011823095381,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/14063520?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Abuelo, Ancestral Echo",
+   "quantity": 1
+  },
+  {
+   "name": "Ambush Viper",
+   "quantity": 1
+  },
+  {
+   "name": "Bennie Bracks, Zoologist",
+   "quantity": 1
+  },
+  {
+   "name": "Bigfin Bouncer",
+   "quantity": 1
+  },
+  {
+   "name": "Cadira, Caller of the Small",
+   "quantity": 1
+  },
+  {
+   "name": "Cankerbloom",
+   "quantity": 1
+  },
+  {
+   "name": "Elfsworn Giant",
+   "quantity": 1
+  },
+  {
+   "name": "Ellyn Harbreeze, Busybody",
+   "quantity": 1
+  },
+  {
+   "name": "Errand-Rider of Gondor",
+   "quantity": 1
+  },
+  {
+   "name": "Faramir, Prince of Ithilien",
+   "quantity": 1
+  },
+  {
+   "name": "Farhaven Elf",
+   "quantity": 1
+  },
+  {
+   "name": "Gluntch, the Bestower",
+   "quantity": 1
+  },
+  {
+   "name": "Hope-Ender Coatl",
+   "quantity": 1
+  },
+  {
+   "name": "Ivy, Gleeful Spellthief",
+   "quantity": 1
+  },
+  {
+   "name": "Jaheira, Friend of the Forest",
+   "quantity": 1
+  },
+  {
+   "name": "Judge's Familiar",
+   "quantity": 1
+  },
+  {
+   "name": "Keening Apparition",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Martyr of Dusk",
+   "quantity": 1
+  },
+  {
+   "name": "Mentor of the Meek",
+   "quantity": 1
+  },
+  {
+   "name": "Mistbreath Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Morska, Undersea Sleuth",
+   "quantity": 1
+  },
+  {
+   "name": "Naga Fleshcrafter",
+   "quantity": 1
+  },
+  {
+   "name": "Nurturing Pixie",
+   "quantity": 1
+  },
+  {
+   "name": "Pond Prophet",
+   "quantity": 1
+  },
+  {
+   "name": "Priest of Titania",
+   "quantity": 1
+  },
+  {
+   "name": "Prince Imrahil the Fair",
+   "quantity": 1
+  },
+  {
+   "name": "Queen Allenal of Ruadach",
+   "quantity": 1
+  },
+  {
+   "name": "Selvala, Explorer Returned",
+   "quantity": 1
+  },
+  {
+   "name": "Shrieking Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Sunpearl Kirin",
+   "quantity": 1
+  },
+  {
+   "name": "Undergrowth Leopard",
+   "quantity": 1
+  },
+  {
+   "name": "Welcoming Vampire",
+   "quantity": 1
+  },
+  {
+   "name": "Wingblade Disciple",
+   "quantity": 1
+  },
+  {
+   "name": "Winter Eladrin",
+   "quantity": 1
+  },
+  {
+   "name": "Auroral Procession",
+   "quantity": 1
+  },
+  {
+   "name": "Coordinated Maneuver",
+   "quantity": 1
+  },
+  {
+   "name": "Rally the Monastery",
+   "quantity": 1
+  },
+  {
+   "name": "Return to Dust",
+   "quantity": 1
+  },
+  {
+   "name": "Think Twice",
+   "quantity": 1
+  },
+  {
+   "name": "Austere Command",
+   "quantity": 1
+  },
+  {
+   "name": "Dance of the Tumbleweeds",
+   "quantity": 1
+  },
+  {
+   "name": "Fumigate",
+   "quantity": 1
+  },
+  {
+   "name": "Glimpse the Core",
+   "quantity": 1
+  },
+  {
+   "name": "Increasing Devotion",
+   "quantity": 1
+  },
+  {
+   "name": "Preordain",
+   "quantity": 1
+  },
+  {
+   "name": "Sprouting Renewal",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Champion's Helm",
+   "quantity": 1
+  },
+  {
+   "name": "Commander's Sphere",
+   "quantity": 1
+  },
+  {
+   "name": "Horn of Gondor",
+   "quantity": 1
+  },
+  {
+   "name": "Mind Stone",
+   "quantity": 1
+  },
+  {
+   "name": "Mithril Coat",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Talisman of Unity",
+   "quantity": 1
+  },
+  {
+   "name": "Wayfarer's Bauble",
+   "quantity": 1
+  },
+  {
+   "name": "A Killer Among Us",
+   "quantity": 1
+  },
+  {
+   "name": "Pacifism",
+   "quantity": 1
+  },
+  {
+   "name": "Primal Vigor",
+   "quantity": 1
+  },
+  {
+   "name": "The Bath Song",
+   "quantity": 1
+  },
+  {
+   "name": "Elspeth, Sun's Champion",
+   "quantity": 1
+  },
+  {
+   "name": "Abandoned Campground",
+   "quantity": 1
+  },
+  {
+   "name": "Blossoming Sands",
+   "quantity": 1
+  },
+  {
+   "name": "Botanical Plaza",
+   "quantity": 1
+  },
+  {
+   "name": "Brokers Hideout",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Crystal Grotto",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 4
+  },
+  {
+   "name": "Hidden Grotto",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 5
+  },
+  {
+   "name": "Krosan Verge",
+   "quantity": 1
+  },
+  {
+   "name": "Lilypad Village",
+   "quantity": 1
+  },
+  {
+   "name": "Minas Tirith",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 7
+  },
+  {
+   "name": "Promising Vein",
+   "quantity": 1
+  },
+  {
+   "name": "Scattered Groves",
+   "quantity": 1
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Shire Terrace",
+   "quantity": 1
+  },
+  {
+   "name": "Sungrass Prairie",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Plenty",
+   "quantity": 1
+  },
+  {
+   "name": "The Grey Havens",
+   "quantity": 1
+  },
+  {
+   "name": "Thornwood Falls",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Cove",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

@@ -1,0 +1,338 @@
+{
+ "urlhash": "hPEZwuVA5qGUnp9Dt5eKIw",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-09-28",
+ "price": 275,
+ "salt": 58.770491659641266,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/9WGSaDCGd0OFPCMuy8WQag?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Academy Manufactor",
+   "quantity": 1
+  },
+  {
+   "name": "Aesi, Tyrant of Gyre Strait",
+   "quantity": 1
+  },
+  {
+   "name": "Ambrosia Whiteheart",
+   "quantity": 1
+  },
+  {
+   "name": "Craterhoof Behemoth",
+   "quantity": 1
+  },
+  {
+   "name": "Displaced Dinosaurs",
+   "quantity": 1
+  },
+  {
+   "name": "Dryad Militant",
+   "quantity": 1
+  },
+  {
+   "name": "Elanor Gardner",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Regrower",
+   "quantity": 1
+  },
+  {
+   "name": "Hinterland Sanctifier",
+   "quantity": 1
+  },
+  {
+   "name": "Ignis Scientia",
+   "quantity": 1
+  },
+  {
+   "name": "Kinjalli's Dawnrunner",
+   "quantity": 1
+  },
+  {
+   "name": "Koma, World-Eater",
+   "quantity": 1
+  },
+  {
+   "name": "Lavinia, Azorius Renegade",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Mangara, the Diplomat",
+   "quantity": 1
+  },
+  {
+   "name": "Mary Jane Watson",
+   "quantity": 1
+  },
+  {
+   "name": "Nadir Kraken",
+   "quantity": 1
+  },
+  {
+   "name": "Peregrin Took",
+   "quantity": 1
+  },
+  {
+   "name": "Predator Ooze",
+   "quantity": 1
+  },
+  {
+   "name": "Prime Speaker Zegana",
+   "quantity": 1
+  },
+  {
+   "name": "Professional Wrestler",
+   "quantity": 1
+  },
+  {
+   "name": "Quirion Ranger",
+   "quantity": 1
+  },
+  {
+   "name": "Rampaging Baloths",
+   "quantity": 1
+  },
+  {
+   "name": "Sandman, Shifting Scoundrel",
+   "quantity": 1
+  },
+  {
+   "name": "Scute Swarm",
+   "quantity": 1
+  },
+  {
+   "name": "Solemn Simulacrum",
+   "quantity": 1
+  },
+  {
+   "name": "Spectacular Spider-Man",
+   "quantity": 1
+  },
+  {
+   "name": "Synth Infiltrator",
+   "quantity": 1
+  },
+  {
+   "name": "Tifa Lockhart",
+   "quantity": 1
+  },
+  {
+   "name": "Trygon Predator",
+   "quantity": 1
+  },
+  {
+   "name": "Wilt-Leaf Liege",
+   "quantity": 1
+  },
+  {
+   "name": "Akroma's Will",
+   "quantity": 1
+  },
+  {
+   "name": "Biomass Mutation",
+   "quantity": 1
+  },
+  {
+   "name": "Chant of Vitu-Ghazi",
+   "quantity": 1
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1
+  },
+  {
+   "name": "Growth Spiral",
+   "quantity": 1
+  },
+  {
+   "name": "Join Shields",
+   "quantity": 1
+  },
+  {
+   "name": "Negate",
+   "quantity": 1
+  },
+  {
+   "name": "Path to Exile",
+   "quantity": 1
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1
+  },
+  {
+   "name": "Think Twice",
+   "quantity": 1
+  },
+  {
+   "name": "Tifa's Limit Break",
+   "quantity": 1
+  },
+  {
+   "name": "Worldly Tutor",
+   "quantity": 1
+  },
+  {
+   "name": "Dance of the Tumbleweeds",
+   "quantity": 1
+  },
+  {
+   "name": "Farewell",
+   "quantity": 1
+  },
+  {
+   "name": "Many Partings",
+   "quantity": 1
+  },
+  {
+   "name": "Overrun",
+   "quantity": 1
+  },
+  {
+   "name": "Revive the Shire",
+   "quantity": 1
+  },
+  {
+   "name": "Nuka-Cola Vending Machine",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Veilstone Amulet",
+   "quantity": 1
+  },
+  {
+   "name": "Wayfarer's Bauble",
+   "quantity": 1
+  },
+  {
+   "name": "World Map",
+   "quantity": 1
+  },
+  {
+   "name": "A Realm Reborn",
+   "quantity": 1
+  },
+  {
+   "name": "Ghostly Prison",
+   "quantity": 1
+  },
+  {
+   "name": "Intruder Alarm",
+   "quantity": 1
+  },
+  {
+   "name": "March of the World Ooze",
+   "quantity": 1
+  },
+  {
+   "name": "Mechanized Production",
+   "quantity": 1
+  },
+  {
+   "name": "Overencumbered",
+   "quantity": 1
+  },
+  {
+   "name": "Primeval Bounty",
+   "quantity": 1
+  },
+  {
+   "name": "Sandwurm Convergence",
+   "quantity": 1
+  },
+  {
+   "name": "Training Grounds",
+   "quantity": 1
+  },
+  {
+   "name": "Wilderness Reclamation",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Command Bridge",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 8
+  },
+  {
+   "name": "Island",
+   "quantity": 8
+  },
+  {
+   "name": "Plains",
+   "quantity": 7
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Guildgate",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Mystery",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Plenty",
+   "quantity": 1
+  },
+  {
+   "name": "Thornwood Falls",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Cove",
+   "quantity": 1
+  },
+  {
+   "name": "Urban Retreat",
+   "quantity": 1
+  },
+  {
+   "name": "Vineglimmer Snarl",
+   "quantity": 1
+  },
+  {
+   "name": "Windurst, Federation Center",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

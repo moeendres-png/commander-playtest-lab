@@ -1,0 +1,326 @@
+{
+ "urlhash": "hR24mGXXL0TIrlhIbPQQ5g",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-07-24",
+ "price": 588,
+ "salt": 60.95439297892153,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/17789273?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Birds of Paradise",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Gargantuan",
+   "quantity": 1
+  },
+  {
+   "name": "Gargos, Vicious Watcher",
+   "quantity": 1
+  },
+  {
+   "name": "Goldvein Hydra",
+   "quantity": 1
+  },
+  {
+   "name": "Helga, Skittish Seer",
+   "quantity": 1
+  },
+  {
+   "name": "Herald of Secret Streams",
+   "quantity": 1
+  },
+  {
+   "name": "Hungering Hydra",
+   "quantity": 1
+  },
+  {
+   "name": "Hydra Omnivore",
+   "quantity": 1
+  },
+  {
+   "name": "Hydroid Krasis",
+   "quantity": 1
+  },
+  {
+   "name": "Kalonian Hydra",
+   "quantity": 1
+  },
+  {
+   "name": "Kogla, the Titan Ape",
+   "quantity": 1
+  },
+  {
+   "name": "Lifeblood Hydra",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Tribe",
+   "quantity": 1
+  },
+  {
+   "name": "Managorger Hydra",
+   "quantity": 1
+  },
+  {
+   "name": "Mistcutter Hydra",
+   "quantity": 1
+  },
+  {
+   "name": "Mossborn Hydra",
+   "quantity": 1
+  },
+  {
+   "name": "Ohran Frostfang",
+   "quantity": 1
+  },
+  {
+   "name": "Ouroboroid",
+   "quantity": 1
+  },
+  {
+   "name": "Paradise Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Polukranos Reborn",
+   "quantity": 1
+  },
+  {
+   "name": "Primordial Hydra",
+   "quantity": 1
+  },
+  {
+   "name": "Selvala, Heart of the Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Sigarda, Host of Herons",
+   "quantity": 1
+  },
+  {
+   "name": "Silverback Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Steelbane Hydra",
+   "quantity": 1
+  },
+  {
+   "name": "Stonecoil Serpent",
+   "quantity": 1
+  },
+  {
+   "name": "Voracious Hydra",
+   "quantity": 1
+  },
+  {
+   "name": "Vorinclex",
+   "quantity": 1
+  },
+  {
+   "name": "Vorinclex, Monstrous Raider",
+   "quantity": 1
+  },
+  {
+   "name": "Warden of the Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Yedora, Grave Gardener",
+   "quantity": 1
+  },
+  {
+   "name": "Zopandrel, Hunger Dominus",
+   "quantity": 1
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1
+  },
+  {
+   "name": "Erode",
+   "quantity": 1
+  },
+  {
+   "name": "Heroic Intervention",
+   "quantity": 1
+  },
+  {
+   "name": "Inspiring Call",
+   "quantity": 1
+  },
+  {
+   "name": "Path to Exile",
+   "quantity": 1
+  },
+  {
+   "name": "Smuggler's Surprise",
+   "quantity": 1
+  },
+  {
+   "name": "Spell Pierce",
+   "quantity": 1
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1
+  },
+  {
+   "name": "Austere Command",
+   "quantity": 1
+  },
+  {
+   "name": "Cultivate",
+   "quantity": 1
+  },
+  {
+   "name": "Explore",
+   "quantity": 1
+  },
+  {
+   "name": "Farseek",
+   "quantity": 1
+  },
+  {
+   "name": "Kodama's Reach",
+   "quantity": 1
+  },
+  {
+   "name": "Last March of the Ents",
+   "quantity": 1
+  },
+  {
+   "name": "Nature's Lore",
+   "quantity": 1
+  },
+  {
+   "name": "Three Visits",
+   "quantity": 1
+  },
+  {
+   "name": "Traverse the Outlands",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "The Earth Crystal",
+   "quantity": 1
+  },
+  {
+   "name": "The Great Henge",
+   "quantity": 1
+  },
+  {
+   "name": "Branching Evolution",
+   "quantity": 1
+  },
+  {
+   "name": "Burgeoning",
+   "quantity": 1
+  },
+  {
+   "name": "Defense of the Heart",
+   "quantity": 1
+  },
+  {
+   "name": "Elemental Bond",
+   "quantity": 1
+  },
+  {
+   "name": "Garruk's Uprising",
+   "quantity": 1
+  },
+  {
+   "name": "Land Tax",
+   "quantity": 1
+  },
+  {
+   "name": "Nature's Will",
+   "quantity": 1
+  },
+  {
+   "name": "Sphere Grid",
+   "quantity": 1
+  },
+  {
+   "name": "Unbound Flourishing",
+   "quantity": 1
+  },
+  {
+   "name": "Unnatural Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Abandoned Air Temple",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Dreamroot Cascade",
+   "quantity": 1
+  },
+  {
+   "name": "Exotic Orchard",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 12
+  },
+  {
+   "name": "Glacial Fortress",
+   "quantity": 1
+  },
+  {
+   "name": "Hinterland Harbor",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 7
+  },
+  {
+   "name": "Oran-Rief, the Vastwood",
+   "quantity": 1
+  },
+  {
+   "name": "Path of Ancestry",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 7
+  },
+  {
+   "name": "Rogue's Passage",
+   "quantity": 1
+  },
+  {
+   "name": "Sunpetal Grove",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

@@ -1,0 +1,310 @@
+{
+ "urlhash": "h9i4HXS2R1q-tCvnkffUDA",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-06-06",
+ "price": 158,
+ "salt": 56.17876022402197,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/fLAH5Esu_0iAbPQ-sESk4w?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Adric, Mathematical Genius",
+   "quantity": 1
+  },
+  {
+   "name": "Archon of Emeria",
+   "quantity": 1
+  },
+  {
+   "name": "Basking Broodscale",
+   "quantity": 1
+  },
+  {
+   "name": "Beast Whisperer",
+   "quantity": 1
+  },
+  {
+   "name": "Bladegriff Prototype",
+   "quantity": 1
+  },
+  {
+   "name": "Clement, the Worrywort",
+   "quantity": 1
+  },
+  {
+   "name": "Cogwork Assembler",
+   "quantity": 1
+  },
+  {
+   "name": "Coiling Oracle",
+   "quantity": 1
+  },
+  {
+   "name": "Dazzling Angel",
+   "quantity": 1
+  },
+  {
+   "name": "Devoted Caretaker",
+   "quantity": 1
+  },
+  {
+   "name": "Devout Chaplain",
+   "quantity": 1
+  },
+  {
+   "name": "Elite Arcanist",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Skysweeper",
+   "quantity": 1
+  },
+  {
+   "name": "Fairgrounds Warden",
+   "quantity": 1
+  },
+  {
+   "name": "Fear of Impostors",
+   "quantity": 1
+  },
+  {
+   "name": "Isamaru, Hound of Konda",
+   "quantity": 1
+  },
+  {
+   "name": "Kami of the Crescent Moon",
+   "quantity": 1
+  },
+  {
+   "name": "Krosan Restorer",
+   "quantity": 1
+  },
+  {
+   "name": "Laboratory Maniac",
+   "quantity": 1
+  },
+  {
+   "name": "Leveler",
+   "quantity": 1
+  },
+  {
+   "name": "Ley Weaver",
+   "quantity": 1
+  },
+  {
+   "name": "Magus of the Disk",
+   "quantity": 1
+  },
+  {
+   "name": "Manglehorn",
+   "quantity": 1
+  },
+  {
+   "name": "Mentor of the Meek",
+   "quantity": 1
+  },
+  {
+   "name": "Meteor Golem",
+   "quantity": 1
+  },
+  {
+   "name": "Nightshade Dryad",
+   "quantity": 1
+  },
+  {
+   "name": "Overgrown Zealot",
+   "quantity": 1
+  },
+  {
+   "name": "Peregrine Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Pond Prophet",
+   "quantity": 1
+  },
+  {
+   "name": "Psychosis Crawler",
+   "quantity": 1
+  },
+  {
+   "name": "Reclamation Sage",
+   "quantity": 1
+  },
+  {
+   "name": "Reclusive Taxidermist",
+   "quantity": 1
+  },
+  {
+   "name": "Rosie Cotton of South Lane",
+   "quantity": 1
+  },
+  {
+   "name": "Sage of the Maze",
+   "quantity": 1
+  },
+  {
+   "name": "Savannah Lions",
+   "quantity": 1
+  },
+  {
+   "name": "Selvala, Explorer Returned",
+   "quantity": 1
+  },
+  {
+   "name": "Shrieking Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Soul of the Harvest",
+   "quantity": 1
+  },
+  {
+   "name": "Spiketail Drakeling",
+   "quantity": 1
+  },
+  {
+   "name": "Spirit of the Labyrinth",
+   "quantity": 1
+  },
+  {
+   "name": "Sylvok Explorer",
+   "quantity": 1
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Temur Sabertooth",
+   "quantity": 1
+  },
+  {
+   "name": "Thassa's Oracle",
+   "quantity": 1
+  },
+  {
+   "name": "The Fifth Doctor",
+   "quantity": 1
+  },
+  {
+   "name": "The Reality Chip",
+   "quantity": 1
+  },
+  {
+   "name": "Three Tree Rootweaver",
+   "quantity": 1
+  },
+  {
+   "name": "Timeless Witness",
+   "quantity": 1
+  },
+  {
+   "name": "Tyvar, the Pummeler",
+   "quantity": 1
+  },
+  {
+   "name": "Vigean Graftmage",
+   "quantity": 1
+  },
+  {
+   "name": "Village Bell-Ringer",
+   "quantity": 1
+  },
+  {
+   "name": "Whitemane Lion",
+   "quantity": 1
+  },
+  {
+   "name": "Wose Pathfinder",
+   "quantity": 1
+  },
+  {
+   "name": "Zimone, Quandrix Prodigy",
+   "quantity": 1
+  },
+  {
+   "name": "To Arms!",
+   "quantity": 1
+  },
+  {
+   "name": "Finale of Revelation",
+   "quantity": 1
+  },
+  {
+   "name": "Powerstone Shard",
+   "quantity": 1
+  },
+  {
+   "name": "Battle of Hoover Dam",
+   "quantity": 1
+  },
+  {
+   "name": "Blind Obedience",
+   "quantity": 1
+  },
+  {
+   "name": "Ghostly Prison",
+   "quantity": 1
+  },
+  {
+   "name": "Propaganda",
+   "quantity": 1
+  },
+  {
+   "name": "Solitary Confinement",
+   "quantity": 1
+  },
+  {
+   "name": "Teferi's Ageless Insight",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Chancery",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 10
+  },
+  {
+   "name": "Island",
+   "quantity": 10
+  },
+  {
+   "name": "Plains",
+   "quantity": 10
+  },
+  {
+   "name": "Selesnya Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Growth Chamber",
+   "quantity": 1
+  },
+  {
+   "name": "Thriving Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Thriving Heath",
+   "quantity": 1
+  },
+  {
+   "name": "Thriving Isle",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}
