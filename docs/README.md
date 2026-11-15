@@ -48,7 +48,8 @@ guidance. `orientation` pages kept for a test (`architecture.md`, `REPOSITORY_TR
 (`archive/README.md`). Topics: `opencode-foundry`, `tool-service-mcp`,
 `deck-optimizer-j-phases`, `mulligan-lab`, `meta-store-primer`, `structural-simulator`,
 `rogshai-campaigns`, `audits-and-hygiene`, `handoffs-and-reviews`, `prefreeze-campaigns`,
-`superseded`, plus the older dated packets directly under `archive/`. Each topic folder has a
+`superseded`, `artifacts-history` (generated outputs moved from `artifacts/`), plus the older
+dated packets directly under `archive/`. Each topic folder has a
 README with why it was archived and the last commit at which the described code existed.
 
 Selection is reproducible: `python scripts/classify_docs.py` (plan),

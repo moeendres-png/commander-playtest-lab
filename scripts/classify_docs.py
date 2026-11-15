@@ -328,7 +328,14 @@ def iter_links(rel: str, text: str) -> Any:
 def broken_links(files: list[str]) -> list[str]:
     out = []
     for f in files:
-        if not (f.startswith("docs/") and f.endswith(".md")) or not (ROOT / f).exists():
+        if not f.endswith(".md"):
+            continue
+        if f.startswith(ARCHIVE + "/"):
+            if f != f"{ARCHIVE}/README.md" and not (f.endswith("/README.md") and f.count("/") == 3):
+                continue
+        elif f != "README.md" and not f.startswith(DOCS + "/"):
+            continue
+        if not (ROOT / f).exists():
             continue
         base = (ROOT / f).parent
         for _m, path, _s in iter_links(f, _read(f)):

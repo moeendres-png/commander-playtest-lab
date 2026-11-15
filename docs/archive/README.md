@@ -20,6 +20,8 @@ commit at which the described code existed), moved by issue #1268 part d; conten
   and the removed deck optimizer, simulator layer and campaigns.
 - `audits-and-hygiene/`, `handoffs-and-reviews/`, `prefreeze-campaigns/`, `superseded/` — dated
   audits, closed handoffs and reviews, a finished evidence campaign, replaced guidance.
+- `artifacts-history/` — historical generated outputs moved from `artifacts/` (`audit/`,
+  `engine_setup/`, `phase12_13/`, `phase12_15/`).
 
 The older entries below keep the relative sub-paths they had under `docs/`, so `docs/<name>` is now
 `docs/archive/<name>`.

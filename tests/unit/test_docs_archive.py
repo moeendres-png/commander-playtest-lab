@@ -124,10 +124,35 @@ def test_owner_decision_documents_are_never_archived() -> None:
 
 def test_archive_topics_have_readme() -> None:
     module = _load_classifier()
-    assert module.TOPICS
-    for topic in module.TOPICS:
+    topics = (*module.TOPICS, "artifacts-history")
+    assert len(topics) == 12
+    for topic in topics:
         readme = ROOT / "docs/archive" / topic / "README.md"
         assert readme.is_file(), topic
-        assert "Last commit at which the described code existed" in readme.read_text(
-            encoding="utf-8"
-        )
+        text = readme.read_text(encoding="utf-8")
+        assert "Last commit at which the described code existed" in text, topic
+        assert "not current instruction" in text.lower(), topic
+
+
+def test_broken_links_checks_root_readme_and_skips_archived_bodies(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    module = _load_classifier()
+    assert module.broken_links(module._git_files()) == []
+
+    files_map = {
+        "README.md": "[ok](docs/guide.md) [bad](docs/missing.md)",
+        "docs/guide.md": "# guide\n",
+        "docs/archive/README.md": "[ok](../guide.md) [bad](missing-topic/README.md)",
+        "docs/archive/old_topic/old_doc.md": "[frozen](historical/missing.md)",
+    }
+    for rel, text in files_map.items():
+        path = tmp_path / rel
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text, encoding="utf-8")
+    monkeypatch.setattr(module, "ROOT", tmp_path)
+    broken = module.broken_links(sorted(files_map))
+    assert broken == [
+        "README.md -> docs/missing.md",
+        "docs/archive/README.md -> missing-topic/README.md",
+    ]
