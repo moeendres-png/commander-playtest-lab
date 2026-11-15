@@ -57,6 +57,7 @@ incomplete, or the run ends without resumable state.
 - GitHub GraphQL is unavailable: use `gh api` REST and the CCR routes.
 - A change to `.github/workflows/production-qualification.yml` needs its digest updated in
   `WS17_SHA256SUMS` (`python scripts/regenerate_hash_manifests.py`).
+- Open CI points: `docs/CI_GATES_IMPROVEMENT_PLAN_20261112.md` (a plan, not a gate).
 - `.claude/settings.json` sets `CLAUDE_CODE_SUBAGENT_MODEL=sonnet` only as the default for
   unassigned helpers; agent frontmatter wins. `log-scanner` and `ci-triage` use
   `omitClaudeMd: true` on purpose; `evidence-reviewer` keeps project context. No custom
