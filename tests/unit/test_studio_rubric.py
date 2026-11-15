@@ -252,9 +252,14 @@ def test_rubric_is_commander_specific_for_the_commander_signal_rule() -> None:
 
 
 def test_global_inclusion_alone_gives_no_tier_under_the_default_settings() -> None:
-    # DEFAULT weights and the default missing_value (lowest): an unlisted card gets a lowest
-    # value, which must not count as commander-specific evidence
-    settings = StrengthSettings()
+    # DEFAULT weights with missing_value "lowest" switched on (no default since E4.b of #1364):
+    # an unlisted card gets a lowest value, which must not count as commander-specific evidence
+    settings = StrengthSettings(
+        missing_value={
+            strength.COMMANDER_INCLUSION: strength.MISSING_LOWEST,
+            strength.BRACKET_INCLUSION: strength.MISSING_LOWEST,
+        }
+    )
     assert settings.require_commander_signal
     assert settings.missing_value[strength.COMMANDER_INCLUSION] == strength.MISSING_LOWEST
     observations: dict[str, dict[str, Observation]] = {}
@@ -359,37 +364,24 @@ def test_rubric_rows_of_another_commander_are_not_read(store: StudioStore, tmp_p
 # ---------- defaults, presets and the rules that hold ----------
 
 
-def test_every_preset_weights_the_rubric_and_keeps_simulation_and_layers_at_zero() -> None:
+def test_every_preset_keeps_the_rubric_at_zero_and_simulation_and_layers_too() -> None:
+    """E1.a of #1364: the rubric is subjective, its weight is 0 in the default and in every
+    preset; the component, its importer and its column stay."""
     for name, settings in strength.PRESETS.items():
-        assert settings.weights[strength.RUBRIC] > 0, name
+        assert settings.weights[strength.RUBRIC] == 0.0, name
         assert settings.weights[strength.SIMULATION] == 0.0, name
         assert all(weight == 0.0 for weight in settings.layer_weights.values()), name
         assert settings.weights[strength.PLAYGROUP_OBSERVED] == 0.0, name
     assert strength.PRESETS["Ausgewogen"] == StrengthSettings()
-    # "Ausgewogen": the rubric is about 30 % of the present weight for a typical Chulane card, which has
-    # commander, bracket, deck universe and global inclusion (and no tournament or combo row)
-    weights = StrengthSettings().weights
-    usage = sum(
-        weights[key]
-        for key in (
-            strength.COMMANDER_INCLUSION,
-            strength.BRACKET_INCLUSION,
-            strength.DECK_UNIVERSE,
-            strength.GLOBAL_INCLUSION,
-        )
-    )
-    assert usage == 8.0 and weights[strength.RUBRIC] == 3.5
-    assert weights[strength.RUBRIC] / (usage + weights[strength.RUBRIC]) == pytest.approx(
-        0.304, abs=1e-3
-    )
-    assert strength.DEFAULT_WEIGHTS[strength.RUBRIC] == 3.5
+    assert strength.DEFAULT_WEIGHTS[strength.RUBRIC] == 0.0
     assert strength_view.presets()["components"]  # the page lists the rubric like every component
     keys = [item["key"] for item in strength_view.presets()["components"]]  # type: ignore[attr-defined]
     assert strength.RUBRIC in keys
 
 
 def test_the_default_cuts_fall_strictly_and_are_the_recorded_derivation() -> None:
-    assert strength.DEFAULT_CUTS == {"S": 47.0, "A": 17.0, "B": 9.0, "C": 4.0}
+    # Owner decision E5.a (#1364): 72 / 50 / 28 / 14 for the log share scale, the same for lands
+    assert strength.DEFAULT_CUTS == {"S": 72.0, "A": 50.0, "B": 28.0, "C": 14.0}
     assert StrengthSettings().tier_cuts == strength.DEFAULT_CUTS
 
 
@@ -416,7 +408,8 @@ def test_owner_marks_never_move_a_card_with_the_rubric_in_the_index(
 
 def test_the_rubric_weight_has_a_german_panel_text_with_the_recommendation() -> None:
     panel = strength_view.presets()["panel"]
-    assert "(empfohlen: 3,5)" in panel["labels"]["weights.rubric"]  # type: ignore[index]
+    label = panel["labels"]["weights.rubric"]  # type: ignore[index]
+    assert "(empfohlen: 0)" in label
+    assert "subjektiv" in label and "kein objektives Signal" in label
     text = panel["help"]["weights.rubric"]  # type: ignore[index]
-    assert "drei Bewertern" in text and "ICC 0,94" in text and "0 schaltet" in text
-    assert "3,5" in text
+    assert "drei Bewertern" in text and "subjektiv" in text and "E1.a" in text

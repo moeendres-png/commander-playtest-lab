@@ -493,7 +493,43 @@ _ORACLE_RULES: tuple[tuple[str, re.Pattern[str]], ...] = (
         re.compile(r"spells? (?:you cast )?cost \{\d+\} less to cast|costs? \{\d+\} less to cast"),
     ),
     ("landfall", re.compile(r"landfall —|whenever a land you control enters")),
-    ("card_draw", re.compile(r"\bdraws? (?:a|\w+) cards?\b")),
+    (
+        "flicker",
+        re.compile(
+            r"\bexile\b[^\n.]*, then return (?:it|that card|them|those cards) "
+            r"to the battlefield\b"
+            r"|\bexile\b[^.\n]*\. return (?:it|that card) to the battlefield\b"
+        ),
+    ),
+    (
+        "recursion",
+        re.compile(
+            r"\breturns? [^\n.]*from (?:your|a|an opponent's|any|their|that player's) "
+            r"graveyard to (?:the battlefield|your hand)\b"
+            r"|\bput [^\n.]*from (?:your|a|an opponent's|any) graveyard "
+            r"(?:onto|on) the battlefield\b"
+        ),
+    ),
+    (
+        "graveyard_hate",
+        re.compile(
+            r"\bexile (?:target|up to \w+ target) cards? from a graveyard\b"
+            r"|\bexile all cards from [^\n.]*graveyards?\b"
+            r"|\bexile (?:all|each opponent's) graveyards?\b"
+            r"|\bexile [^\n.]*player's graveyard\b"
+        ),
+    ),
+    (
+        "tutor",
+        re.compile(
+            r"\bsearch your library for [^\n.]*, reveal it, [^\n.]*into your hand\b"
+            r"|\bsearch your library for a card[^\n.]*put that card on top of "
+            r"your library\b"
+            r"|\bsearch your library for (?:a|an) [^\n.]*?"
+            r"(?:creature|artifact|enchantment|planeswalker|instant|sorcery) card"
+            r"[^\n.]*, put (?:it|that card) onto the battlefield\b"
+        ),
+    ),
     (
         "removal",
         re.compile(
@@ -510,15 +546,97 @@ _ORACLE_RULES: tuple[tuple[str, re.Pattern[str]], ...] = (
     ("bounce", re.compile(r"\breturn target [^\n.]* to its owner's hand\b")),
     ("counterspell", re.compile(r"\bcounter target [^\n.]*spell\b")),
     ("lifegain", re.compile(r"\bgain[s]? \d+ life\b")),
-    ("protection", re.compile(r"\bhexproof\b|\bindestructible\b|\bward \{|\bprotection from\b")),
+    (
+        "protection",
+        re.compile(r"\bhexproof\b|\bshroud\b|\bindestructible\b|\bward \{|\bprotection from\b"),
+    ),
 )
 _ANTHEM_RE = re.compile(r"(?:other )?creatures you control get \+\d+/\+\d+")
 _LAND_RAMP_RE = re.compile(
-    r"search your library for [^\n.]*land card[^\n.]*put[^\n.]*(?:onto|into) the battlefield"
+    r"search your library for [^\n.]*"
+    r"(?:land|plains|island|swamp|mountain|forest) card"
+    r"[^\n.]*put[^\n.]*(?:onto|into) the battlefield"
 )
+# A mana ability whose tap cost carries an extra component ("{T}, Sacrifice this
+# artifact: Add three mana ..."): the plain "{t}:" check misses it. It reads the
+# reminder-stripped text and is anchored at a line start, so a Treasure token's
+# reminder text does not count: the token has the ability, not the card that
+# creates it.
+_TAP_ADD_RE = re.compile(r"(?:^|\n)\{t\},[^\n:]*: add (?:\{|\w+ mana)")
 _TEMP_BOOST_RE = re.compile(
     r"get[s]? \+[\dx]+/\+?[\dx-]* until end of turn|gains? [^\n.]* until end of turn"
 )
+# Parenthesised reminder text explains an ability of another object (a token
+# the card creates) or of a keyword; the mana and search rules below read the
+# text with it removed, the same convention as layers.py: the token has the
+# ability, not the card that creates it.
+_REMINDER = re.compile(r"\([^)]*\)")
+_DRAW_RE = re.compile(r"\bdraws? (?:a |an |\w+ |that many )?cards?\b")
+_DRAW_TRIGGER_RE = re.compile(r"\b(?:whenever|when|if)\b")
+# A negation counts only directly at the draw phrase (last words of the
+# clause): an unrelated "can't" earlier in the clause ("enchanted creature
+# can't attack or block and has '{7}: … draws a card'") negates something
+# else, not the draw.
+_DRAW_NEGATION_TAIL_RE = re.compile(r"\b(?:can't|cannot|don't|doesn't)(?:\s+\w+){0,2}\s*$")
+_DRAW_OPPONENT_SUBJECT_RE = re.compile(r"\bopponents?\s+(?:would\s+|may\s+)?$")
+_TAX_RE = re.compile(r"\bcosts? \{\d+\} more to cast\b")
+_TAX_SELF_COST_RE = re.compile(r"\bthis spell costs? \{\d+\} more to cast\b")
+
+
+def _clause_prefix(text: str, start: int) -> str:
+    """The clause the position ``start`` sits in: the text since the last
+    comma, full stop, semicolon or line break before it."""
+    boundary = max(text.rfind(sep, 0, start) for sep in ",.;\n")
+    return text[boundary + 1 : start]
+
+
+def _has_card_draw(o: str) -> bool:
+    """A draw phrase counts only as the controller's own draw effect.
+
+    A phrase inside a trigger condition draws nothing ("whenever you draw a
+    card" is a payoff trigger; the draw is the condition, not the effect),
+    and neither does a negated one ("players can't draw cards") or one whose
+    only drawer is an opponent ("target opponent draws a card"). The clause
+    decides: what follows the comma of "when this creature enters, draw a
+    card" is the effect and counts, and so does the real draw after a
+    replaced opponent draw ("if an opponent would draw a card, instead you
+    draw a card")."""
+    for match in _DRAW_RE.finditer(o):
+        prefix = _clause_prefix(o, match.start())
+        if _DRAW_TRIGGER_RE.search(prefix):
+            continue
+        if _DRAW_NEGATION_TAIL_RE.search(prefix):
+            continue
+        if _DRAW_OPPONENT_SUBJECT_RE.search(prefix):
+            continue
+        return True
+    return False
+
+
+def _has_tax(o: str) -> bool:
+    """A "costs {N} more to cast" phrase is a tax effect on spells in
+    general. A spell's own escalating cost formula ("this spell costs {1}
+    more to cast for each target beyond the first") taxes nobody and is
+    removed before the match."""
+    return bool(_TAX_RE.search(_TAX_SELF_COST_RE.sub(" ", o)))
+
+
+def _has_utility_ability(oracle: str) -> bool:
+    """A land has a utility ability when one of its lines is an activated ability
+    (a cost with a mana symbol or a sacrifice, then a colon) whose effect neither
+    produces mana nor searches the library (a fetch land's search is land ramp,
+    not utility). Static and triggered text has no such colon and never counts."""
+    for line in oracle.split("\n"):
+        cost, sep, effect = line.partition(":")
+        if not sep or ("{" not in cost and "sacrifice" not in cost):
+            continue
+        effect = effect.strip()
+        if effect.startswith("add ") or effect.startswith("add{"):
+            continue
+        if "search your library" in effect:
+            continue
+        return True
+    return False
 
 
 def classify_oracle_roles(type_line: str, oracle_text: str) -> tuple[str, ...]:
@@ -532,6 +650,10 @@ def classify_oracle_roles(type_line: str, oracle_text: str) -> tuple[str, ...]:
     if not o.strip():
         return ()
     found = {role for role, pattern in _ORACLE_RULES if pattern.search(o)}
+    if _has_card_draw(o):
+        found.add("card_draw")
+    if _has_tax(o):
+        found.add("tax")
     if re.search(r"\bbattle cry\b", o) or any(
         _ANTHEM_RE.search(clause) and "until end of turn" not in clause
         for clause in re.split(r"[.\n]+", o)
@@ -541,13 +663,16 @@ def classify_oracle_roles(type_line: str, oracle_text: str) -> tuple[str, ...]:
         "instant" in t or "sorcery" in t or "{" in o or "when" in o or "whenever" in o
     ):
         found.add("combat_trick")
-    if "add " in o and "{t}:" in o and "land" not in t:
+    bare = _REMINDER.sub(" ", o)
+    if "land" not in t and (("add " in bare and "{t}:" in bare) or _TAP_ADD_RE.search(bare)):
         found.add("ramp")
         if "creature" in t:
             found.add("mana_dork")
         elif "artifact" in t:
             found.add("mana_rock")
-    if _LAND_RAMP_RE.search(o):
+    if _LAND_RAMP_RE.search(bare):
         found.add("land_ramp")
         found.add("ramp")
+    if "land" in t and _has_utility_ability(o):
+        found.add("utility_land")
     return tuple(sorted(found))

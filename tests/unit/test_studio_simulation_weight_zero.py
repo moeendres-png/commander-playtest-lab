@@ -41,6 +41,9 @@ def test_no_component_but_the_adjustable_simulation_weight_is_simulation_derived
             strength.SIMULATION,
             strength.SYNERGY,
             strength.PLAYGROUP_OBSERVED,
+            strength.RUBRIC,  # subjective, weight 0 (E1.a of #1364)
+            strength.TOURNAMENT_LISTS,  # TopDeck columns stay with weight 0
+            strength.TOURNAMENT_CONVERSION,
         ):
             assert component["default_weight"] > 0
         else:

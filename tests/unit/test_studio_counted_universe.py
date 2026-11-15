@@ -448,18 +448,23 @@ def test_unlisted_card_coverage_with_the_new_default_reaches_the_minimum(
     _import_counted(store, _write_counted(tmp_path / "counted", _both()))
     without = _by_name(_compute(store, universe_source="none"))
     with_universe = _by_name(_compute(store))  # the recommended "auto" picks the counted file
-    # Weights 3 + 2 + 2 + 0 (synergy) + 1 + 1 + 1 + 1 (combos) + 0 (playgroup) + 0 (sim) = 11.
-    # Filler 09 is in no commander signal, has no conversion row, no EDHREC combo row and no
-    # playgroup observation; only global inclusion (1) exists.
-    # (the rubric has no source for this commander and leaves the denominator: Chulane only)
-    total = sum(w for name, w in strength.DEFAULT_WEIGHTS.items() if name != strength.RUBRIC)
-    assert total == 11.0
+    # Weights 3 + 2 + 4 + 0 (synergy) + 1 + 0.5 (combos) + 0 (playgroup, sim, TopDeck) = 10.5.
+    # Filler 09 is in no commander signal, no EDHREC combo row and has no playgroup
+    # observation; only global inclusion (1) exists.
+    # (the rubric and the corpus signals have no source for this commander and leave the
+    # denominator: they exist for commanders with the file or the counted corpus only)
+    total = sum(
+        w
+        for name, w in strength.DEFAULT_WEIGHTS.items()
+        if name not in strength.COMMANDER_ONLY_SOURCES
+    )
+    assert total == 10.5
     assert without["Filler 09"]["coverage"] == pytest.approx(1 / total, abs=1e-4)
     assert without["Filler 09"]["tier"] == strength.TIER_UNKNOWN
-    # deck universe 2 + global 1 = 3 of 11 = 0.2727, above the minimum 0.25 even WITHOUT an
+    # deck universe 4 + global 1 = 5 of 10.5 = 0.476, above the minimum 0.25 even WITHOUT an
     # EDHREC combo row or playgroup observation.
-    assert with_universe["Filler 09"]["coverage"] == pytest.approx(3 / total, abs=1e-4)
-    assert 3 / total >= StrengthSettings().min_coverage
+    assert with_universe["Filler 09"]["coverage"] == pytest.approx(5 / total, abs=1e-4)
+    assert 5 / total >= StrengthSettings().min_coverage
     assert StrengthSettings().min_coverage == 0.25
     assert with_universe["Filler 09"]["tier"] in strength.TIERS
     assert with_universe["Filler 09"]["tier"] != strength.TIER_UNKNOWN
@@ -482,8 +487,8 @@ def test_a_zero_weight_universe_adds_neither_value_nor_coverage(
         )
     unlisted = _by_name(off)["Filler 09"]
     assert _component(unlisted, "deck_universe")["weight"] == 0.0
-    # 9 = weights without the universe (11 - 2); only global_inclusion exists for Filler 09.
-    assert unlisted["coverage"] == pytest.approx(1 / 9, abs=1e-4)
+    # 6.5 = weights without the universe (10.5 - 4); only global_inclusion exists for Filler 09.
+    assert unlisted["coverage"] == pytest.approx(1 / 6.5, abs=1e-4)
 
 
 # ---------- the choice of the universe ----------

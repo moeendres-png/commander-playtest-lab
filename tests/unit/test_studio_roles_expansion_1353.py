@@ -135,7 +135,12 @@ def test_expanded_role_vocabulary_and_repo_files_import_idempotently(tmp_path: P
         claims_total = int(
             store.connection.execute("SELECT COUNT(*) FROM card_role_claim").fetchone()[0]
         )
-        assert claims_total == 21272
+        # 21,272 from #1353; #1379 regenerated s5 with the extended Oracle rules
+        # and added s6, the same rules over the canonical corpus. The review
+        # follow-up guards (draw context, reminder-stripped mana/search text,
+        # tax self-cost) removed only false positives: s5 1,570 -> 1,734 and
+        # s6 10,548 claims: 21,272 - 1,570 + 1,734 + 10,548 = 31,984.
+        assert claims_total == 31984
     finally:
         store.close()
 

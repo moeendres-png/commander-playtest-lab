@@ -53,3 +53,23 @@ th.layer-head{white-space:normal;min-width:120px}
 #modal-box img.big{display:block;width:100%;max-width:320px;margin:0 auto 12px;border-radius:14px}
 @media (max-width:1100px){.setting{grid-template-columns:1fr 130px;}.setting .help{grid-column:1 / -1}}
 @media (max-width:900px){#modal{width:min(520px,60vw)}}
+/* #1365: tier header, distribution, U cell, confidence and borderline marks, detail blocks */
+.tier-block{flex:1 1 100%;min-width:0}
+.tier-head{display:flex;gap:var(--s2);flex-wrap:wrap;align-items:center;margin:6px 0}
+.u-split{display:inline-flex;gap:var(--s2);align-items:center;flex-wrap:wrap}
+.dist-wrap{max-width:100%;overflow-x:auto;margin:var(--s1) 0}
+table.dist{width:auto;font-size:12px;border-collapse:collapse}
+table.dist th,table.dist td{padding:2px var(--s2);border-bottom:1px solid var(--line);text-align:right}
+table.dist th[scope=row],table.dist thead th:first-child{text-align:left}
+.tcell{display:inline-flex;gap:var(--s2);align-items:center;flex-wrap:wrap}
+.ucell{display:inline-flex;flex-direction:column;gap:2px;align-items:flex-start}
+.reason-code{font-family:ui-monospace,monospace;font-size:10px}
+.conf{font-size:10px;letter-spacing:1px;color:var(--muted);cursor:help}
+.conf-high{color:var(--good)}
+.conf-low{color:var(--warn)}
+.borderline{display:inline-block;padding:0 var(--s2);border-radius:var(--radius-s);border:1px solid var(--warn);color:var(--warn);font-size:11px;cursor:help;white-space:nowrap}
+.layer h4{margin:var(--s2) 0 var(--s1);font-size:13px}
+.block-subjective,.block-simulation{border-top:1px dashed var(--muted);margin-top:var(--s3);padding-top:var(--s1)}
+.layer table{display:block;overflow-x:auto}
+#data-state .badge{display:block;margin:var(--s1) var(--s3)}
+@media (max-width:600px){#modal{width:100vw}table.dist{font-size:11px}}

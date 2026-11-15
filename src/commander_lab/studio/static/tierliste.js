@@ -40,6 +40,7 @@ const SORTS = [
   ["name", "Name"],
   ["mv", "Manawert"],
   ["strength", "Stärke-Index (Schätzung, zu wenig Daten zuletzt)"],
+  ["confidence", "Konfidenz (Datenlage und Nenner)"],
   ["spread", "Verbreitung (gezählt): Anteil im Universum"],
   ["spread_level", "Verbreitung (gezählt): Stufe im Universum"],
   ["layers", "Anzahl vorhandener Schichten"],
@@ -75,9 +76,24 @@ const COMPONENT_STATUS = {
   FILTER_CARD: ["Filterkarte (nicht gerankt)", "dim"],
   NOT_RANKED: ["nicht bewertet", "dim"],
   MISSING_AS_LOWEST: ["nicht gelistet, als niedrigster Rang gezählt", "warn"],
-  ZERO_COUNT: ["gezählt: in keinem Deck (0 von N)", "warn"],
+  ZERO_COUNT: ["gezählt 0 von N (ZERO_COUNT)", "warn"],
 };
+// A row without a value: NOT_LISTED (the source does not list the card) is told apart from a counted zero.
+function componentStatus(c) {
+  if (c.status === "NO_VALUE" && c.reason === "NOT_LISTED") return ["nicht gelistet (NOT_LISTED): fehlende Beobachtung", "warn"];
+  if (c.status === "NO_VALUE" && c.reason) return [`kein Wert (${c.reason})`, "warn"];
+  if (c.status === "NOT_COLLECTED") return ["nicht erhoben (NOT_COLLECTED)", "dim"];
+  return COMPONENT_STATUS[c.status] || [c.status, "dim"];
+}
 const STRENGTH_TIERS = ["S", "A", "B", "C", "D", "U", "N"];
+const nf = (value) => Number(value).toLocaleString("de-DE");
+const DATA_CLASS_NAMES = {
+  ORIGINAL_SOURCE: "Originalquelle", NORMALIZED_SOURCE: "Quelle, normalisiert", DERIVED_DESCRIPTIVE: "abgeleitet, beschreibend",
+  SUBJECTIVE_RATING: "subjektiv", SIMULATED_RESULT: "Simulation",
+};
+const CONFIDENCE_NAMES = { high: "hoch", medium: "mittel", low: "niedrig" };
+const CONFIDENCE_TEXT = "Konfidenz = Datenlage mal Verlässlichkeit der Nenner (n / (n + 30), gewichtet). Ein Hinweis auf die Belege, nicht auf die Karte; sie ändert weder Index noch Stufe.";
+const REASON_SHORT = { ZERO_COUNT_ONLY: "nur gezählte Nullen", TOO_LITTLE_DATA: "zu wenig Daten", NO_COMMANDER_SIGNAL: "kein Commander-Signal", NO_SOURCE_FOR_COMMANDER: "keine Quelle für den Commander", NO_POSITIVE_WEIGHT: "alle Gewichte 0" };
 const TIER_FILTER_NAMES = { U: "zu wenig Daten", N: "nicht bewertet" };
 const PERCENTILE_SORT = "pct:";
 const LAYER_SORT = "layer:";
@@ -134,6 +150,7 @@ function sortValue(card, key) {
   if (key === "strength") { const item = strengthItem(card); return item && item.tier !== "U" && item.tier !== "N" ? item.index : null; } // tier U sorts last
   if (key === "spread") { const item = state.universe.spread ? state.universe.spread.get(card.card_id) : undefined; return item && item.share !== null && item.share !== undefined ? item.share : null; }
   if (key === "spread_level") { const item = state.universe.spread ? state.universe.spread.get(card.card_id) : undefined; return item && !item.filter_card ? (LEVEL_RANK[item.level] ?? 0) + (item.share || 0) : null; }
+  if (key === "confidence") { const item = strengthItem(card); return item && item.confidence !== null && item.confidence !== undefined ? item.confidence : null; }
   if (key.startsWith(PERCENTILE_SORT)) { // percentile of one single component; no value sorts last
     const item = strengthItem(card);
     const row = item ? item.components.find((c) => c.component === key.slice(PERCENTILE_SORT.length)) : null;
@@ -279,14 +296,33 @@ const neutral = (text, title) => h("span", { class: "badge-neutral", title }, te
 function tierBadge(tier, text, title) {
   return h("span", { class: `tier-badge t-${tier}`, title }, h("span", { class: "level letter" }, tier), text);
 }
+// Cell of a tier U card: never a score, never "0.0". A counted zero names its count (0/N), a gap names
+// the reason code.
+function unknownCell(card, item) {
+  const zero = item.components.find((c) => c.status === "ZERO_COUNT" && c.denominator);
+  const code = item.reason || "TOO_LITTLE_DATA";
+  const text = item.reason === "ZERO_COUNT_ONLY" && zero ? `unbekannt (0/${nf(zero.denominator)})` : "unbekannt (zu wenig Daten)";
+  const why = `${REASON_SHORT[code] || code} (${code})`;
+  return h("span", { class: "ucell" }, neutral(text, `Zu wenig Daten für eine Stufe: ${why}. Das sagt nichts über die Stärke der Karte.`), h("span", { class: "rule reason-code" }, code));
+}
+function confidenceMark(item) {
+  if (item.confidence === null || item.confidence === undefined) return null;
+  const level = CONFIDENCE_NAMES[item.confidence_level] || item.confidence_level;
+  const dots = item.confidence_level === "high" ? "●●●" : item.confidence_level === "medium" ? "●●○" : "●○○";
+  return h("span", { class: `conf conf-${item.confidence_level}`, title: `Konfidenz ${level} (${item.confidence.toFixed(2)}). ${CONFIDENCE_TEXT}`, "aria-label": `Konfidenz ${level}` }, dots);
+}
+function borderlineMark(item) {
+  if (!item.borderline) return null;
+  return h("span", { class: "borderline", title: `grenzwertig: ${item.cut_distance.toFixed(1)} Punkte von der Grenze ${item.borderline_cut}. Eine kleine Änderung der Gewichte kann die Stufe ändern.` }, "grenzwertig");
+}
 function strengthCell(card) {
   if (state.view === "global") return neutral("nur je Commander", "Der Stärke-Index wird je Commander berechnet.");
   const item = strengthItem(card);
   if (!item) return neutral(state.strength.map ? "nicht berechnet" : "–", "Für diese Karte liegt keine Berechnung vor.");
   const title = `Schätzung aus Nutzungssignalen, keine Siegrate. Abdeckung ${(100 * item.coverage).toFixed(0)} %, ${item.present} Signale vorhanden.`;
   if (item.tier === "N") return neutral(item.note, `${item.note}: Commander und Standardländer bekommen keine Stufe.`);
-  if (item.tier === "U") return neutral(UNKNOWN_TIER, `Zu wenig Daten für eine Stufe. ${title} Das sagt nichts über die Stärke der Karte.`);
-  return tierBadge(item.tier, item.index.toFixed(1), title);
+  if (item.tier === "U") return unknownCell(card, item);
+  return h("span", { class: "tcell" }, tierBadge(item.tier, item.index.toFixed(1), title), confidenceMark(item), borderlineMark(item));
 }
 function spreadCell(card) {
   const uni = state.universe;
@@ -477,6 +513,8 @@ function strengthBox(card) {
   } else {
     const reasonText = item.reason === "NO_COMMANDER_SIGNAL"
       ? `Zu wenig Daten für eine Stufe: ${item.note}. Allgemeine Signale (z. B. „Aufnahme überhaupt“, Playgroup oder Spellbook-Kombos) reichen allein nicht.`
+      : item.reason === "ZERO_COUNT_ONLY"
+      ? `Zu wenig Daten für eine Stufe: der einzige Beleg zu diesem Commander sind gezählte Nullen (${item.note}). Einstellung „Stufe bei nur gezählten Nullen“.`
       : item.reason === "NO_POSITIVE_WEIGHT"
       ? "Alle Signalgewichte stehen auf 0: ohne positives Gewicht wird kein Index berechnet."
       : item.reason === "NO_SOURCE_FOR_COMMANDER"
@@ -488,12 +526,34 @@ function strengthBox(card) {
   if (used && used.kind !== "none") box.append(h("p", { class: "rule" }, `Decklisten-Universum: ${universeLine(used)}`));
   const universe = state.strength.result && state.strength.result.universe;
   if (universe && universe.subset_note) box.append(h("p", { class: "rule" }, `Decklisten-Universum ${universe.profile}: ${universe.denominator} Decks. ${universe.subset_note}.`));
-  box.append(table(["Signal", "Wert", "Zähler/Nenner", "Wilson-Untergrenze", "Perzentil", "Gewicht", "Status", "Hinweis"], item.components.map((c) => {
-    const [text, kind] = COMPONENT_STATUS[c.status] || [c.status, "dim"];
-    const percentile = c.percentile === null ? unknown("–") : c.group_fallback ? `${c.percentile.toFixed(3)} (Rang im ganzen Pool (Gruppe zu klein))` : `${c.percentile.toFixed(3)}${c.group ? ` (Gruppe ${groupLabel(c.group)}${c.group_size ? `, ${c.group_size}` : ""})` : ""}`;
-    return [h("span", { title: c.signal }, c.label), c.value === null ? unknown() : Number(c.value.toPrecision(4)), c.denominator ? (c.numerator === null || c.numerator === undefined ? `n = ${c.denominator}` : `${c.numerator}/${c.denominator}`) : unknown("–"), c.wilson === null ? unknown("–") : c.wilson.toFixed(4), percentile, c.weight, h("span", { class: `badge ${kind}` }, text), c.note ? h("span", { class: "rule" }, c.note) : ""];
-  })));
+  box.append(...strengthDetail(item));
   return box;
+}
+// One signal row of the detail table (#1365): raw value, numerator/denominator, score 0..100, effective
+// weight, status and data class.
+function signalRow(c) {
+  const [text, kind] = componentStatus(c);
+  const score = c.percentile === null ? unknown("–") : `${(100 * c.percentile).toFixed(1)}${c.group_fallback ? " (Rang im ganzen Pool (Gruppe zu klein))" : c.group ? ` (Gruppe ${groupLabel(c.group)}${c.group_size ? `, ${c.group_size}` : ""})` : ""}`;
+  const requested = state.strength.result && state.strength.result.settings.weights[c.component];
+  const weightText = requested !== undefined && Math.abs(requested - c.weight) > 1e-9 ? `${c.weight} (angefragt ${requested})` : `${c.weight}`;
+  const counted = c.denominator ? (c.numerator === null || c.numerator === undefined ? `n = ${nf(c.denominator)}` : `${nf(c.numerator)}/${nf(c.denominator)}`) : unknown("–");
+  return [h("span", { title: c.signal }, c.label), c.value === null ? unknown() : Number(c.value.toPrecision(4)), counted, score, weightText, h("span", { class: `badge ${kind}` }, text), h("span", { title: c.data_class }, `${DATA_CLASS_NAMES[c.data_class] || c.data_class} (${c.data_class})`), c.note ? h("span", { class: "rule" }, c.note) : ""];
+}
+const SIGNAL_HEADS = ["Signal", "Rohwert", "Zähler/Nenner", "Score 0 bis 100", "Gewicht (wirksam)", "Status", "Datenklasse", "Hinweis"];
+function strengthDetail(item) {
+  const subjective = item.components.filter((c) => c.component === "rubric");
+  const simulation = item.components.filter((c) => c.component === "simulation");
+  const objective = item.components.filter((c) => c.component !== "rubric" && c.component !== "simulation");
+  const out = [];
+  if (item.confidence !== null && item.confidence !== undefined) {
+    const level = CONFIDENCE_NAMES[item.confidence_level] || item.confidence_level;
+    out.push(h("p", { id: "confidence-line" }, `Konfidenz ${level} (${item.confidence.toFixed(2)}). ${CONFIDENCE_TEXT}`));
+  }
+  if (item.borderline) out.push(h("p", { id: "borderline-detail" }, h("span", { class: "borderline" }, "grenzwertig"), ` Der Index ${item.index.toFixed(1)} liegt ${item.cut_distance.toFixed(1)} Punkte von der Grenze ${item.borderline_cut}.`));
+  out.push(h("h4", {}, "Objektive Signale (zählen mit Gewicht)"), table(SIGNAL_HEADS, objective.map(signalRow)));
+  if (subjective.length) out.push(h("div", { class: "block-subjective", id: "block-subjective" }, h("h4", {}, subjective[0].weight > 0 ? `Subjektiv, Gewicht ${subjective[0].weight}: zählt mit (Einstellung)` : "Subjektiv, Gewicht 0: zählt nicht"), h("p", {}, subjective[0].weight > 0 ? "Die Raster-Bewertung ist eine persönliche Einschätzung, kein objektives Signal. Dieses Profil gibt ihr ein Gewicht; die Empfehlung ist 0." : "Die Raster-Bewertung ist eine persönliche Einschätzung, kein objektives Signal. Sie fließt nicht in Index und Stufe ein."), table(SIGNAL_HEADS, subjective.map(signalRow))));
+  if (simulation.length) out.push(h("div", { class: "block-simulation", id: "block-simulation" }, h("h4", {}, "Simulation: Gewicht 0, nicht erhoben"), h("p", {}, "Ergebnisse aus Simulationen sind keine Beobachtung aus echten Partien und fließen nie in den Index."), table(SIGNAL_HEADS, simulation.map(signalRow))));
+  return out;
 }
 // Comparison group of a signal row; under "gleiche Funktion" the role keys get German names.
 function groupLabel(group) {
@@ -775,6 +835,7 @@ function fieldKind(key) {
   if (key.startsWith("min_denominators.")) return { type: "number", min: 0, max: 100000, step: 1, scale: 1 };
   if (key === "min_coverage") return { type: "number", min: 0, max: 100, step: 5, scale: 100 };
   if (key === "min_components") return { type: "number", min: 0, max: meta.components.length, step: 1, scale: 1 };
+  if (key === "borderline_distance") return { type: "number", min: 0, max: 50, step: 0.5, scale: 1 };
   if (key.startsWith("tier_cuts.")) return { type: "number", min: 0, max: 100, step: 1, scale: 1 };
   if (key === "universe_source") return { type: "choice", choices: [...meta.panel.choices.universe_source, ...state.strength.counted.map((item) => ({ value: item.value, label: item.label, recommended: false }))] };
   const choices = meta.panel.choices[key];
@@ -841,18 +902,40 @@ function universeLine(choice) {
   const what = choice.kind === "counted" ? `Verbreitung (gezählt): ${choice.short_label}` : choice.label;
   return `${what} · Nenner ${choice.denominator} Decks · ${verb}${choice.reason ? ` (${choice.reason.replace(/^automatisch gewählt: /, "")})` : ""}`;
 }
-// Lands are ranked against lands and spells against spells (setting "separate_lands"): the page
-// shows the tier counts of the two groups next to the pool total.
-function landSplitLine(result) {
-  if (!result.settings.separate_lands || !state.data) return [];
-  const group = new Map(state.data.cards.map((card) => [card.card_id, card.group]));
-  const count = { Zauber: {}, Länder: {} };
-  for (const item of result.cards) {
-    const key = group.get(item.card_id) === "Land" ? "Länder" : "Zauber";
-    count[key][item.tier] = (count[key][item.tier] || 0) + 1;
-  }
-  const text = (tiers) => ["S", "A", "B", "C", "D"].map((tier) => `${tier} ${tiers[tier] || 0}`).join(" · ");
-  return [h("div", { class: "rule", id: "land-split" }, `Länder und Zauber getrennt gerankt. Zauber: ${text(count.Zauber)}. Länder: ${text(count.Länder)}. Mit dem Filter „nur Länder“ siehst du die Länder allein.`)];
+// Tier header (#1365): S to D, U split into counted zeros and missing data, N; spells and lands counted
+// apart; the counted corpus (universe and denominator) always in view.
+function corpusLine(result) {
+  const corpus = result.corpus;
+  if (!corpus) return "Korpus: keine Angabe";
+  if (!corpus.available) return `Kein gezählter Korpus: ${nf(corpus.decks)} lokale Decklisten, Minimum ${nf(corpus.min_universe)}. Die EDHREC-Gewichte gelten als Rückfall.`;
+  const cohorts = corpus.cohorts.map((item) => `${item.label} ${nf(item.denominator)}`).join(" · ");
+  return `Korpus-Universum: ${nf(corpus.decks)} gezählte Decklisten (Nenner)${cohorts ? ` · ${cohorts}` : ""}`;
+}
+function distributionTable(result) {
+  const kinds = result.tier_counts_by_kind;
+  const cols = STRENGTH_TIERS;
+  const row = (label, counts) => h("tr", {}, h("th", { scope: "row" }, label), cols.map((tier) => h("td", { class: "num" }, nf(counts[tier] || 0))), h("td", { class: "num" }, nf(cols.reduce((sum, tier) => sum + (counts[tier] || 0), 0))));
+  const note = result.settings.separate_lands ? "Länder und Zauber werden getrennt gerankt." : "Länder und Zauber werden gemeinsam gerankt (Einstellung); die Zählung ist trotzdem getrennt.";
+  return h("div", { class: "dist-wrap" },
+    h("table", { class: "dist", id: "tier-distribution", title: note },
+      h("thead", {}, h("tr", {}, h("th", {}, ""), cols.map((tier) => h("th", { class: "num", title: TIER_FILTER_NAMES[tier] || `Stufe ${tier}` }, tier)), h("th", { class: "num" }, "Σ"))),
+      h("tbody", {}, row("Zauber", kinds.spells), row("Länder", kinds.lands), row("Alle", result.tier_counts))),
+    h("div", { class: "rule" }, note));
+}
+function tierHeader(result) {
+  const counts = result.tier_counts, u = result.unknown_breakdown;
+  const unknownText = `unbekannt (U) ${nf(counts.U)}`;
+  const zeroText = u.denominator === null ? "nur gezählte Nullen" : `gezählt 0 von ${nf(u.denominator)} Decks`;
+  const breakdown = `${zeroText}: ${nf(u.zero_count)} Karten · fehlende Daten: ${nf(u.missing_data)} Karten`;
+  const codes = Object.entries(u.by_reason).map(([code, n]) => `${code} ${n}`).join(", ");
+  return [h("div", { class: "tier-block" },
+    h("div", { class: "tier-head", id: "tier-head" },
+      ...["S", "A", "B", "C", "D"].map((tier) => tierBadge(tier, nf(counts[tier]), `Stufe ${tier}: ${nf(counts[tier])} Karten`)),
+      h("span", { class: "u-split", id: "u-split" }, neutral(unknownText, `Keine Stufe, weil Belege fehlen: das sagt nichts über die Stärke. ${codes}`), h("span", { class: "rule" }, breakdown)),
+      neutral(`N ${nf(counts.N || 0)}`, "nicht bewertet: Commander und Standardländer, wenn sie nicht bewertet werden")),
+    distributionTable(result),
+    h("div", { class: "rule", id: "corpus-line" }, corpusLine(result)),
+    h("div", { class: "rule", id: "borderline-line" }, `grenzwertig (näher als ${result.settings.borderline_distance} Punkte an einer Stufengrenze): ${nf(result.borderline_count)} Karten. ${CONFIDENCE_TEXT}`))];
 }
 function renderStrengthSummary() {
   const s = state.strength, box = $("strength-summary");
@@ -869,11 +952,8 @@ function renderStrengthSummary() {
   const ambiguous = result.ambiguous_names || [];
   const shown = ambiguous.slice(0, 10).map((item) => `${item.name} (${item.candidates.join(" / ")})`).join("; ");
   box.replaceChildren(
-    ...["S", "A", "B", "C", "D"].map((tier) => tierBadge(tier, counts[tier], `Stufe ${tier}: ${counts[tier]} Karten`)),
-    neutral(`${UNKNOWN_TIER} ${counts.U}`, "Zu wenig Daten für eine Stufe: das sagt nichts über die Stärke der Karte."),
-    neutral(`nicht bewertet ${counts.N || 0}`, "Commander und Standardländer, wenn sie nicht bewertet werden"),
+    ...tierHeader(result),
     h("span", { class: "muted" }, `von ${result.cards.length} Karten · ${universeText} · Quellen vorhanden: ${result.collected.length}/${possible}`),
-    ...landSplitLine(result),
     ...notices,
     ...(result.layer_summary ? result.layer_summary.layers.filter((item) => item.source_discrepancies > 0).map((item) => h("div", { class: "rule" }, `${item.label}: bei ${item.source_discrepancies} Karten nennt die Quelle einen anderen Prozentwert als Zähler/Nenner; die Zelle zeigt Zähler/Nenner, der genannte Wert steht im Tooltip.`)) : []),
     ...(result.layer_summary ? [h("div", { class: "rule", title: `${result.layer_summary.measured_note} ${result.layer_summary.pod_note}` }, `Ebenen (eigene Spalten): ${result.layer_summary.layers.map((item) => `${item.label} ${item.with_value}/${item.pool_cards} (${LAYER_KIND_SHORT[item.kind] || item.kind})`).join(" · ")}${result.layer_summary.weighted.length ? `. Im Index mit Gewicht: ${result.layer_summary.weighted.map((key) => (layerMetas().find((meta) => meta.key === key) || { label: key }).label).join(", ")}` : ". Keine Ebene hat ein Gewicht: die Stufen entsprechen dem Index ohne Ebenen"}`)] : []),
@@ -948,10 +1028,10 @@ function updateDeviations() {
 const SETTING_GROUPS = [
   ["Gewichte", (key) => key.startsWith("weights.")],
   ["Zusätzliche Ebenen", (key) => key.startsWith("layer_weights.") || key === "pod_size"],
-  ["Decklisten-Universum", (key) => key === "universe_source"],
+  ["Decklisten-Universum", (key) => key === "universe_source" || key === "edhrec_with_corpus"],
   ["Vergleich", (key) => key === "bracket" || key === "combo_source" || key === "rank_group" || key === "separate_lands" || key === "share_measure" || key === "share_scale" || key === "rank_commander_and_basics" || key === "rank_other_commanders" || key.startsWith("missing_value.")],
-  ["Mindestdaten", (key) => key.startsWith("min_denominators.") || key === "min_coverage" || key === "min_components" || key === "require_commander_signal"],
-  ["Tier-Grenzen", (key) => key.startsWith("tier_cuts.")],
+  ["Mindestdaten", (key) => key.startsWith("min_denominators.") || key === "min_coverage" || key === "min_components" || key === "require_commander_signal" || key === "zero_count_tier"],
+  ["Tier-Grenzen", (key) => key.startsWith("tier_cuts.") || key === "borderline_distance"],
 ];
 const OPEN_GROUPS_KEY = "studio.strength.open-groups";
 const SETTINGS_OPEN_KEY = "studio.strength.settings-open";
@@ -1079,6 +1159,20 @@ async function initStrength() {
   }
 }
 
+// ---------- data state banner ----------
+// Only a real finding shows a banner (#1365): a source layer the index needs is empty, or deck-list rows
+// have no real oracle_id (they cannot be matched to a card). Otherwise there is none.
+async function dataBanner() {
+  const host = $("data-state");
+  let report = null;
+  try { report = await api("/api/data-report"); } catch (error) { report = null; }
+  const rows = report && report.corpus ? report.corpus.card_rows_without_oracle_id : null;
+  await StudioUI.dataState(host, COMMANDER, { only: ["inventory", "scryfall", "decklists"] });
+  if (rows && rows.count > 0) {
+    host.append(h("div", { class: "badge warn", id: "oracle-banner", role: "status" }, `Datenbefund: ${nf(rows.count)} von ${nf(rows.of)} Deckkarten-Zeilen haben keine echte oracle_id und werden keiner Karte zugeordnet (fehlende Beobachtung, keine Schwäche).`));
+  }
+}
+
 // ---------- loading ----------
 async function loadEvidence() {
   const apiView = state.view === "global" ? "global" : "commander";
@@ -1199,7 +1293,7 @@ async function init() {
   renderTabs();
   $("pool-body").replaceChildren(StudioUI.loading("Tierliste lädt …"));
   await StudioCommander.fill($("commander-select"));
-  StudioUI.dataState($("data-state"), COMMANDER);
+  dataBanner().catch(() => {});
   try {
     const marks = await api("/api/marks");
     for (const [cardId, mark] of Object.entries(marks)) state.marks.set(cardId, { favorite: mark.favorite, excluded: mark.excluded, note: mark.note || "" });
