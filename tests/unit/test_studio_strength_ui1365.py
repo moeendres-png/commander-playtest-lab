@@ -119,6 +119,9 @@ def test_the_unknown_breakdown_separates_counted_zero_from_missing_data() -> Non
     assert breakdown["zero_count"] + breakdown["missing_data"] == breakdown["total"]
     assert sum(breakdown["by_reason"].values()) == breakdown["total"]
     assert breakdown["denominator"] == result["corpus"]["decks"]
+    for card in unknown:
+        assert card["confidence"] is None and card["confidence_level"] is None
+        assert card["borderline"] is False
     default = _compute(_store())["unknown_breakdown"]
     assert default["zero_count"] == 0
 
@@ -156,3 +159,11 @@ def test_the_route_returns_the_new_fields(tmp_path: Path) -> None:
         assert set(data["tier_counts_by_kind"]) == {"spells", "lands"}
         zero = next(item for item in card["components"] if item["component"] == "deck_universe")
         assert zero["status"] in ("PRESENT", "ZERO_COUNT", "NO_VALUE", "NOT_COLLECTED")
+
+
+def test_the_borderline_setting_never_changes_index_or_tier() -> None:
+    store = _store()
+    runs = [_compute(store, borderline_distance=d)["cards"] for d in (0.0, 2.0, 50.0)]
+    assert runs[0]
+    keyed = [{c["name"]: (c["index"], c["tier"], c["coverage"]) for c in run} for run in runs]
+    assert keyed[0] == keyed[1] == keyed[2]

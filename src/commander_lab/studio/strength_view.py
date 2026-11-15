@@ -89,13 +89,13 @@ class StrengthCard(TypedDict):
 class UnknownBreakdown(TypedDict):
     """Tier U split (#1365): cards whose only evidence is counted zeros (0 of N decks, setting
     ``zero_count_tier`` = U) against cards with missing or too little data. ``denominator`` is the
-    counted corpus the zeros refer to."""
+    deck count of the cards' own ZERO_COUNT deck-universe rows, or None when there is no single one."""
 
     total: int
     zero_count: int
     missing_data: int
     by_reason: dict[str, int]
-    denominator: int
+    denominator: int | None
 
 
 class LayerSummaryBlock(TypedDict):
@@ -1067,12 +1067,23 @@ def compute(
     unknown = [card for card in cards if card["tier"] == "U"]
     unknown_reasons = Counter(card["reason"] for card in unknown)
     zero_only = unknown_reasons.get(strength.ZERO_COUNT_ONLY, 0)
+    # the deck count the zeros refer to, taken from the cards' own ZERO_COUNT rows; None when
+    # the rows name more than one denominator (then the header names no single N)
+    zero_denominators = {
+        row["denominator"]
+        for card in unknown
+        if card["reason"] == strength.ZERO_COUNT_ONLY
+        for row in card["components"]
+        if row["status"] == strength.ZERO_COUNT
+        and row["component"] == strength.DECK_UNIVERSE
+        and row["denominator"]
+    }
     breakdown: UnknownBreakdown = {
         "total": len(unknown),
         "zero_count": zero_only,
         "missing_data": len(unknown) - zero_only,
         "by_reason": dict(sorted(unknown_reasons.items())),
-        "denominator": prepared.corpus["decks"],
+        "denominator": next(iter(zero_denominators)) if len(zero_denominators) == 1 else None,
     }
     shrinkage = diagnostics["shrinkage"]
     return {

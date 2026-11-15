@@ -925,7 +925,8 @@ function distributionTable(result) {
 function tierHeader(result) {
   const counts = result.tier_counts, u = result.unknown_breakdown;
   const unknownText = `unbekannt (U) ${nf(counts.U)}`;
-  const breakdown = `gezählt 0 von ${nf(u.denominator)} Decks: ${nf(u.zero_count)} Karten · fehlende Daten: ${nf(u.missing_data)} Karten`;
+  const zeroText = u.denominator === null ? "nur gezählte Nullen" : `gezählt 0 von ${nf(u.denominator)} Decks`;
+  const breakdown = `${zeroText}: ${nf(u.zero_count)} Karten · fehlende Daten: ${nf(u.missing_data)} Karten`;
   const codes = Object.entries(u.by_reason).map(([code, n]) => `${code} ${n}`).join(", ");
   return [h("div", { class: "tier-block" },
     h("div", { class: "tier-head", id: "tier-head" },

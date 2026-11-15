@@ -1920,8 +1920,11 @@ def score_pool(
             reason_code = "ENOUGH_DATA" if enough else "TOO_LITTLE_DATA"
         if reason_code in ("NO_POSITIVE_WEIGHT", "NO_SOURCE_FOR_COMMANDER"):
             enough = False
-        confidence = confidence_value(coverage, components) if index is not None else None
         tier = _tier(index, settings, enough and not blocked and not zero_only)
+        # confidence describes a tier; a card without one (U, N) has no confidence to show
+        confidence = (
+            confidence_value(coverage, components) if index is not None and tier in TIERS else None
+        )
         # a card without a tier (U) is not near a cut: it has no tier to change
         borderline, cut_tier, cut_gap = borderline_info(
             index if tier in TIERS else None, settings.tier_cuts, settings.borderline_distance
