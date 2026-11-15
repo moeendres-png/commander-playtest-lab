@@ -1,0 +1,338 @@
+{
+ "urlhash": "CaS-YA4lzKeQhBrVxuUA4g",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-10-02",
+ "price": 93,
+ "salt": 38.56662497483194,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/LeB7O6hU102Dg2fhC-J-Rg?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Arboreal Grazer",
+   "quantity": 1
+  },
+  {
+   "name": "Aven Surveyor",
+   "quantity": 1
+  },
+  {
+   "name": "Bellowing Crier",
+   "quantity": 1
+  },
+  {
+   "name": "Brightblade Stoat",
+   "quantity": 1
+  },
+  {
+   "name": "Bronzebeak Moa",
+   "quantity": 1
+  },
+  {
+   "name": "Burrowguard Mentor",
+   "quantity": 1
+  },
+  {
+   "name": "Clement, the Worrywort",
+   "quantity": 1
+  },
+  {
+   "name": "Clifftop Lookout",
+   "quantity": 1
+  },
+  {
+   "name": "Dour Port-Mage",
+   "quantity": 1
+  },
+  {
+   "name": "Dreamdew Entrancer",
+   "quantity": 1
+  },
+  {
+   "name": "Harrier Strix",
+   "quantity": 1
+  },
+  {
+   "name": "Kastral, the Windcrested",
+   "quantity": 1
+  },
+  {
+   "name": "Knightfisher",
+   "quantity": 1
+  },
+  {
+   "name": "Ledger Shredder",
+   "quantity": 1
+  },
+  {
+   "name": "Lilysplash Mentor",
+   "quantity": 1
+  },
+  {
+   "name": "Long River Lurker",
+   "quantity": 1
+  },
+  {
+   "name": "Pileated Provisioner",
+   "quantity": 1
+  },
+  {
+   "name": "Plumecreed Escort",
+   "quantity": 1
+  },
+  {
+   "name": "Plumecreed Mentor",
+   "quantity": 1
+  },
+  {
+   "name": "Pond Prophet",
+   "quantity": 1
+  },
+  {
+   "name": "Salvation Swan",
+   "quantity": 1
+  },
+  {
+   "name": "Seedpod Squire",
+   "quantity": 1
+  },
+  {
+   "name": "Shrike Force",
+   "quantity": 1
+  },
+  {
+   "name": "Skyskipper Duo",
+   "quantity": 1
+  },
+  {
+   "name": "Skyward Eye Prophets",
+   "quantity": 1
+  },
+  {
+   "name": "Splash Lasher",
+   "quantity": 1
+  },
+  {
+   "name": "Stickytongue Sentinel",
+   "quantity": 1
+  },
+  {
+   "name": "Sunshower Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Three Tree Scribe",
+   "quantity": 1
+  },
+  {
+   "name": "Twenty-Toed Toad",
+   "quantity": 1
+  },
+  {
+   "name": "Wingspan Mentor",
+   "quantity": 1
+  },
+  {
+   "name": "Consuming Vortex",
+   "quantity": 1
+  },
+  {
+   "name": "Crumb and Get It",
+   "quantity": 1
+  },
+  {
+   "name": "Dazzling Denial",
+   "quantity": 1
+  },
+  {
+   "name": "Drown in Shapelessness",
+   "quantity": 1
+  },
+  {
+   "name": "Eladamri's Call",
+   "quantity": 1
+  },
+  {
+   "name": "Keep Safe",
+   "quantity": 1
+  },
+  {
+   "name": "Lofty Denial",
+   "quantity": 1
+  },
+  {
+   "name": "Momentary Blink",
+   "quantity": 1
+  },
+  {
+   "name": "Negate",
+   "quantity": 1
+  },
+  {
+   "name": "Overprotect",
+   "quantity": 1
+  },
+  {
+   "name": "Repel Calamity",
+   "quantity": 1
+  },
+  {
+   "name": "Run Away Together",
+   "quantity": 1
+  },
+  {
+   "name": "Select for Inspection",
+   "quantity": 1
+  },
+  {
+   "name": "Turn Aside",
+   "quantity": 1
+  },
+  {
+   "name": "Unsubstantiate",
+   "quantity": 1
+  },
+  {
+   "name": "Altar of Bone",
+   "quantity": 1
+  },
+  {
+   "name": "Cultivate",
+   "quantity": 1
+  },
+  {
+   "name": "Gust of Wind",
+   "quantity": 1
+  },
+  {
+   "name": "Splash Portal",
+   "quantity": 1
+  },
+  {
+   "name": "Time Wipe",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquility",
+   "quantity": 1
+  },
+  {
+   "name": "Winged Words",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Cluestone",
+   "quantity": 1
+  },
+  {
+   "name": "Raven Wings",
+   "quantity": 1
+  },
+  {
+   "name": "Starforged Sword",
+   "quantity": 1
+  },
+  {
+   "name": "Aqueous Form",
+   "quantity": 1
+  },
+  {
+   "name": "Frogify",
+   "quantity": 1
+  },
+  {
+   "name": "Ghostly Wings",
+   "quantity": 1
+  },
+  {
+   "name": "Mystic Subdual",
+   "quantity": 1
+  },
+  {
+   "name": "Sunspring Expedition",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Guildgate",
+   "quantity": 1
+  },
+  {
+   "name": "Blossoming Sands",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Exotic Orchard",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 6
+  },
+  {
+   "name": "Island",
+   "quantity": 10
+  },
+  {
+   "name": "Lilypad Village",
+   "quantity": 1
+  },
+  {
+   "name": "Oakhollow Village",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 7
+  },
+  {
+   "name": "Radiant Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Sapseep Forest",
+   "quantity": 1
+  },
+  {
+   "name": "Scavenger Grounds",
+   "quantity": 1
+  },
+  {
+   "name": "Secluded Steppe",
+   "quantity": 1
+  },
+  {
+   "name": "Sejiri Steppe",
+   "quantity": 1
+  },
+  {
+   "name": "Thriving Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Uncharted Haven",
+   "quantity": 1
+  },
+  {
+   "name": "Vivid Grove",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

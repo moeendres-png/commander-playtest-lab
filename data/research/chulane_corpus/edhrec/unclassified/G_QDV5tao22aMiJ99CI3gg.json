@@ -1,0 +1,326 @@
+{
+ "urlhash": "G_QDV5tao22aMiJ99CI3gg",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-07-14",
+ "price": 233,
+ "salt": 45.434790457598865,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/pygHIab270aMpHOx0S_Kag?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Aerith, Last Ancient",
+   "quantity": 1
+  },
+  {
+   "name": "Ashaya, Soul of the Wild",
+   "quantity": 1
+  },
+  {
+   "name": "Augmenter Pugilist",
+   "quantity": 1
+  },
+  {
+   "name": "Augur of Autumn",
+   "quantity": 1
+  },
+  {
+   "name": "Avenger of Zendikar",
+   "quantity": 1
+  },
+  {
+   "name": "Brightcap Badger",
+   "quantity": 1
+  },
+  {
+   "name": "Calix, Guided by Fate",
+   "quantity": 1
+  },
+  {
+   "name": "Cultivator Colossus",
+   "quantity": 1
+  },
+  {
+   "name": "Eidolon of Blossoms",
+   "quantity": 1
+  },
+  {
+   "name": "Emeritus of Abundance",
+   "quantity": 1
+  },
+  {
+   "name": "Environmental Scientist",
+   "quantity": 1
+  },
+  {
+   "name": "Eutropia the Twice-Favored",
+   "quantity": 1
+  },
+  {
+   "name": "Faeburrow Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Flourishing Bloom-Kin",
+   "quantity": 1
+  },
+  {
+   "name": "Great Forest Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Jasmine Boreal of the Seven",
+   "quantity": 1
+  },
+  {
+   "name": "Jukai Naturalist",
+   "quantity": 1
+  },
+  {
+   "name": "Kestia, the Cultivator",
+   "quantity": 1
+  },
+  {
+   "name": "Leafkin Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Mycologist",
+   "quantity": 1
+  },
+  {
+   "name": "Mycoloth",
+   "quantity": 1
+  },
+  {
+   "name": "Phytotitan",
+   "quantity": 1
+  },
+  {
+   "name": "Rhox War Monk",
+   "quantity": 1
+  },
+  {
+   "name": "Satyr Enchanter",
+   "quantity": 1
+  },
+  {
+   "name": "Slumbering Trudge",
+   "quantity": 1
+  },
+  {
+   "name": "Steward of Valeron",
+   "quantity": 1
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Tendershoot Dryad",
+   "quantity": 1
+  },
+  {
+   "name": "Tuvasa the Sunlit",
+   "quantity": 1
+  },
+  {
+   "name": "Wayfaring Temple",
+   "quantity": 1
+  },
+  {
+   "name": "Yavimaya Enchantress",
+   "quantity": 1
+  },
+  {
+   "name": "Cultivate",
+   "quantity": 1
+  },
+  {
+   "name": "Farseek",
+   "quantity": 1
+  },
+  {
+   "name": "Nature's Lore",
+   "quantity": 1
+  },
+  {
+   "name": "Rampant Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Three Visits",
+   "quantity": 1
+  },
+  {
+   "name": "Dolmen Gate",
+   "quantity": 1
+  },
+  {
+   "name": "Staff of Titania",
+   "quantity": 1
+  },
+  {
+   "name": "Swiftfoot Boots",
+   "quantity": 1
+  },
+  {
+   "name": "Zuran Orb",
+   "quantity": 1
+  },
+  {
+   "name": "Aura Shards",
+   "quantity": 1
+  },
+  {
+   "name": "Bear Umbra",
+   "quantity": 1
+  },
+  {
+   "name": "Boar Umbra",
+   "quantity": 1
+  },
+  {
+   "name": "Enchanted Evening",
+   "quantity": 1
+  },
+  {
+   "name": "Favor of the Overbeing",
+   "quantity": 1
+  },
+  {
+   "name": "Felidar Umbra",
+   "quantity": 1
+  },
+  {
+   "name": "Hyena Umbra",
+   "quantity": 1
+  },
+  {
+   "name": "Indrik Umbra",
+   "quantity": 1
+  },
+  {
+   "name": "Kindred Boon",
+   "quantity": 1
+  },
+  {
+   "name": "Kindred Discovery",
+   "quantity": 1
+  },
+  {
+   "name": "Life and Limb",
+   "quantity": 1
+  },
+  {
+   "name": "Mantle of the Ancients",
+   "quantity": 1
+  },
+  {
+   "name": "Oath of the Ancient Wood",
+   "quantity": 1
+  },
+  {
+   "name": "Pollenbright Wings",
+   "quantity": 1
+  },
+  {
+   "name": "Shield of the Oversoul",
+   "quantity": 1
+  },
+  {
+   "name": "Snake Umbra",
+   "quantity": 1
+  },
+  {
+   "name": "Spider Umbra",
+   "quantity": 1
+  },
+  {
+   "name": "Sterling Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Strength of the Harvest",
+   "quantity": 1
+  },
+  {
+   "name": "Sylvan Anthem",
+   "quantity": 1
+  },
+  {
+   "name": "Treefolk Umbra",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 9
+  },
+  {
+   "name": "Hinterland Harbor",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 8
+  },
+  {
+   "name": "Plains",
+   "quantity": 9
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1
+  },
+  {
+   "name": "Radiant Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Rain-Slicked Copse",
+   "quantity": 1
+  },
+  {
+   "name": "Scattered Groves",
+   "quantity": 1
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Sunpetal Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Enlightenment",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Mystery",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Plenty",
+   "quantity": 1
+  },
+  {
+   "name": "Turbulent Wilderness",
+   "quantity": 1
+  },
+  {
+   "name": "Woodland Stream",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

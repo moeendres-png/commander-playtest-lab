@@ -1,0 +1,362 @@
+{
+ "urlhash": "wH-9d6pqhzJ0WXCbanGNBg",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-10-28",
+ "price": 2904,
+ "salt": 64.9848465397954,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/enn-huuT_UKVGeOxj7xirA?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Aphetto Alchemist",
+   "quantity": 1
+  },
+  {
+   "name": "Apprentice Wizard",
+   "quantity": 1
+  },
+  {
+   "name": "Archangel of Thune",
+   "quantity": 1
+  },
+  {
+   "name": "Augur of Autumn",
+   "quantity": 1
+  },
+  {
+   "name": "Birds of Paradise",
+   "quantity": 1
+  },
+  {
+   "name": "Consecrated Sphinx",
+   "quantity": 1
+  },
+  {
+   "name": "Derevi, Empyrial Tactician",
+   "quantity": 1
+  },
+  {
+   "name": "Devoted Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Discerning Financier",
+   "quantity": 1
+  },
+  {
+   "name": "Endbringer",
+   "quantity": 1
+  },
+  {
+   "name": "Envoy of the Ancestors",
+   "quantity": 1
+  },
+  {
+   "name": "Fyndhorn Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Gold Myr",
+   "quantity": 1
+  },
+  {
+   "name": "Heliod, Sun-Crowned",
+   "quantity": 1
+  },
+  {
+   "name": "Ioreth of the Healing House",
+   "quantity": 1
+  },
+  {
+   "name": "Jenara, Asura of War",
+   "quantity": 1
+  },
+  {
+   "name": "Kelpie Guide",
+   "quantity": 1
+  },
+  {
+   "name": "Kiora's Follower",
+   "quantity": 1
+  },
+  {
+   "name": "Lesser Masticore",
+   "quantity": 1
+  },
+  {
+   "name": "Looter il-Kor",
+   "quantity": 1
+  },
+  {
+   "name": "Marvin, Murderous Mimic",
+   "quantity": 1
+  },
+  {
+   "name": "Morska, Undersea Sleuth",
+   "quantity": 1
+  },
+  {
+   "name": "Reveka, Wizard Savant",
+   "quantity": 1
+  },
+  {
+   "name": "Sakashima of a Thousand Faces",
+   "quantity": 1
+  },
+  {
+   "name": "Shanna, Purifying Blade",
+   "quantity": 1
+  },
+  {
+   "name": "Silver Myr",
+   "quantity": 1
+  },
+  {
+   "name": "Soltari Champion",
+   "quantity": 1
+  },
+  {
+   "name": "Soltari Monk",
+   "quantity": 1
+  },
+  {
+   "name": "Soltari Visionary",
+   "quantity": 1
+  },
+  {
+   "name": "Spike Feeder",
+   "quantity": 1
+  },
+  {
+   "name": "Triskelion",
+   "quantity": 1
+  },
+  {
+   "name": "Vizier of Remedies",
+   "quantity": 1
+  },
+  {
+   "name": "Vizier of Tumbling Sands",
+   "quantity": 1
+  },
+  {
+   "name": "Walking Ballista",
+   "quantity": 1
+  },
+  {
+   "name": "Whitemane Lion",
+   "quantity": 1
+  },
+  {
+   "name": "Yuna, Grand Summoner",
+   "quantity": 1
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1
+  },
+  {
+   "name": "Dramatic Reversal",
+   "quantity": 1
+  },
+  {
+   "name": "Enlightened Tutor",
+   "quantity": 1
+  },
+  {
+   "name": "Mana Drain",
+   "quantity": 1
+  },
+  {
+   "name": "Mystical Tutor",
+   "quantity": 1
+  },
+  {
+   "name": "Worldly Tutor",
+   "quantity": 1
+  },
+  {
+   "name": "Idyllic Tutor",
+   "quantity": 1
+  },
+  {
+   "name": "Prosperity",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Blasting Station",
+   "quantity": 1
+  },
+  {
+   "name": "Font of Mythos",
+   "quantity": 1
+  },
+  {
+   "name": "Isochron Scepter",
+   "quantity": 1
+  },
+  {
+   "name": "Panoptic Mirror",
+   "quantity": 1
+  },
+  {
+   "name": "The One Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Cleric Class",
+   "quantity": 1
+  },
+  {
+   "name": "Daybreak Coronet",
+   "quantity": 1
+  },
+  {
+   "name": "Freed from the Real",
+   "quantity": 1
+  },
+  {
+   "name": "Gift of Immortality",
+   "quantity": 1
+  },
+  {
+   "name": "Hydra's Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Intruder Alarm",
+   "quantity": 1
+  },
+  {
+   "name": "Monologue Tax",
+   "quantity": 1
+  },
+  {
+   "name": "Rhystic Study",
+   "quantity": 1
+  },
+  {
+   "name": "Sage's Reverie",
+   "quantity": 1
+  },
+  {
+   "name": "Shield of the Oversoul",
+   "quantity": 1
+  },
+  {
+   "name": "Smothering Tithe",
+   "quantity": 1
+  },
+  {
+   "name": "Steel of the Godhead",
+   "quantity": 1
+  },
+  {
+   "name": "Teferi, Master of Time",
+   "quantity": 1
+  },
+  {
+   "name": "Adagia, Windswept Bastion",
+   "quantity": 1
+  },
+  {
+   "name": "Blossoming Sands",
+   "quantity": 1
+  },
+  {
+   "name": "Botanical Sanctum",
+   "quantity": 1
+  },
+  {
+   "name": "Evendo, Waking Haven",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 5
+  },
+  {
+   "name": "Hedge Maze",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 6
+  },
+  {
+   "name": "Lush Portico",
+   "quantity": 1
+  },
+  {
+   "name": "Meticulous Archive",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 6
+  },
+  {
+   "name": "Restless Anchorage",
+   "quantity": 1
+  },
+  {
+   "name": "Restless Prairie",
+   "quantity": 1
+  },
+  {
+   "name": "Restless Vinestalk",
+   "quantity": 1
+  },
+  {
+   "name": "Savannah",
+   "quantity": 1
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Spara's Headquarters",
+   "quantity": 1
+  },
+  {
+   "name": "Thornwood Falls",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Cove",
+   "quantity": 1
+  },
+  {
+   "name": "Treva's Ruins",
+   "quantity": 1
+  },
+  {
+   "name": "Tropical Island",
+   "quantity": 1
+  },
+  {
+   "name": "Tundra",
+   "quantity": 1
+  },
+  {
+   "name": "Urban Retreat",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

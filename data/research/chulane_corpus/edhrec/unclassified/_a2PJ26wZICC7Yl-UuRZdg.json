@@ -1,0 +1,326 @@
+{
+ "urlhash": "_a2PJ26wZICC7Yl-UuRZdg",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-08-11",
+ "price": 621,
+ "salt": 51.97137130796909,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/25249312?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Aang, Airbending Master",
+   "quantity": 1
+  },
+  {
+   "name": "Aarakocra Sneak",
+   "quantity": 1
+  },
+  {
+   "name": "Abuelo, Ancestral Echo",
+   "quantity": 1
+  },
+  {
+   "name": "Appa, Steadfast Guardian",
+   "quantity": 1
+  },
+  {
+   "name": "Astral Dragon",
+   "quantity": 1
+  },
+  {
+   "name": "Avenging Hunter",
+   "quantity": 1
+  },
+  {
+   "name": "Charming Prince",
+   "quantity": 1
+  },
+  {
+   "name": "Curious Colossus",
+   "quantity": 1
+  },
+  {
+   "name": "Displacer Beast",
+   "quantity": 1
+  },
+  {
+   "name": "Displacer Kitten",
+   "quantity": 1
+  },
+  {
+   "name": "Eldrazi Displacer",
+   "quantity": 1
+  },
+  {
+   "name": "Emiel the Blessed",
+   "quantity": 1
+  },
+  {
+   "name": "End-Raze Forerunners",
+   "quantity": 1
+  },
+  {
+   "name": "Eternal Witness",
+   "quantity": 1
+  },
+  {
+   "name": "Feywild Caretaker",
+   "quantity": 1
+  },
+  {
+   "name": "Gallant Citizen",
+   "quantity": 1
+  },
+  {
+   "name": "Goliath Paladin",
+   "quantity": 1
+  },
+  {
+   "name": "Joraga Visionary",
+   "quantity": 1
+  },
+  {
+   "name": "Kitchen Finks",
+   "quantity": 1
+  },
+  {
+   "name": "Knight of Autumn",
+   "quantity": 1
+  },
+  {
+   "name": "Lake-town Mariners",
+   "quantity": 1
+  },
+  {
+   "name": "Long-Bodied Grey Dog",
+   "quantity": 1
+  },
+  {
+   "name": "Old Thrush",
+   "quantity": 1
+  },
+  {
+   "name": "Pathbreaker Ibex",
+   "quantity": 1
+  },
+  {
+   "name": "Phelia, Exuberant Shepherd",
+   "quantity": 1
+  },
+  {
+   "name": "Phyrexian Metamorph",
+   "quantity": 1
+  },
+  {
+   "name": "Preston, the Vanisher",
+   "quantity": 1
+  },
+  {
+   "name": "Quantum Riddler",
+   "quantity": 1
+  },
+  {
+   "name": "Roving Harper",
+   "quantity": 1
+  },
+  {
+   "name": "Scholar of the Ages",
+   "quantity": 1
+  },
+  {
+   "name": "Seasoned Dungeoneer",
+   "quantity": 1
+  },
+  {
+   "name": "Skycoach Conductor",
+   "quantity": 1
+  },
+  {
+   "name": "Solemn Simulacrum",
+   "quantity": 1
+  },
+  {
+   "name": "Solitude",
+   "quantity": 1
+  },
+  {
+   "name": "Thassa, Deep-Dwelling",
+   "quantity": 1
+  },
+  {
+   "name": "Tomb of Horrors Adventurer",
+   "quantity": 1
+  },
+  {
+   "name": "Undermountain Adventurer",
+   "quantity": 1
+  },
+  {
+   "name": "Uro, Titan of Nature's Wrath",
+   "quantity": 1
+  },
+  {
+   "name": "White Plume Adventurer",
+   "quantity": 1
+  },
+  {
+   "name": "Y'shtola Rhul",
+   "quantity": 1
+  },
+  {
+   "name": "Yorion, Sky Nomad",
+   "quantity": 1
+  },
+  {
+   "name": "Blur",
+   "quantity": 1
+  },
+  {
+   "name": "Eerie Interlude",
+   "quantity": 1
+  },
+  {
+   "name": "Ephemerate",
+   "quantity": 1
+  },
+  {
+   "name": "Lae'zel's Acrobatics",
+   "quantity": 1
+  },
+  {
+   "name": "Parting Gust",
+   "quantity": 1
+  },
+  {
+   "name": "Path to Exile",
+   "quantity": 1
+  },
+  {
+   "name": "Perch Protection",
+   "quantity": 1
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1
+  },
+  {
+   "name": "The Eagles Are Coming!",
+   "quantity": 1
+  },
+  {
+   "name": "Waterbender's Restoration",
+   "quantity": 1
+  },
+  {
+   "name": "Approach of the Second Sun",
+   "quantity": 1
+  },
+  {
+   "name": "Avatar's Wrath",
+   "quantity": 1
+  },
+  {
+   "name": "Doppelgang",
+   "quantity": 1
+  },
+  {
+   "name": "Explore the Underdark",
+   "quantity": 1
+  },
+  {
+   "name": "Morningtide's Light",
+   "quantity": 1
+  },
+  {
+   "name": "Nature's Lore",
+   "quantity": 1
+  },
+  {
+   "name": "Crystal Shard",
+   "quantity": 1
+  },
+  {
+   "name": "Fellwar Stone",
+   "quantity": 1
+  },
+  {
+   "name": "Mirror of Life Trapping",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "The Mind Stone",
+   "quantity": 1
+  },
+  {
+   "name": "Trailblazer's Torch",
+   "quantity": 1
+  },
+  {
+   "name": "Airbender Ascension",
+   "quantity": 1
+  },
+  {
+   "name": "Dungeon Delver",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Fabled Passage",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 8
+  },
+  {
+   "name": "Gathering Place",
+   "quantity": 1
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 8
+  },
+  {
+   "name": "Kor Haven",
+   "quantity": 1
+  },
+  {
+   "name": "Mystic Gate",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 10
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Urban Retreat",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

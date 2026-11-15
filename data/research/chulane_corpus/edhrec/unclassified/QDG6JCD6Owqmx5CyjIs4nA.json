@@ -1,0 +1,386 @@
+{
+ "urlhash": "QDG6JCD6Owqmx5CyjIs4nA",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-02-25",
+ "price": 188,
+ "salt": 39.799055974930525,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/T94EQVaiIUu1eAkPEbiLpg?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Bant Sureblade",
+   "quantity": 1
+  },
+  {
+   "name": "Falco Spara, Pactweaver",
+   "quantity": 1
+  },
+  {
+   "name": "Fallaji Wayfarer",
+   "quantity": 1
+  },
+  {
+   "name": "Fathom Mage",
+   "quantity": 1
+  },
+  {
+   "name": "Gargoyle Flock",
+   "quantity": 1
+  },
+  {
+   "name": "Hero of Precinct One",
+   "quantity": 1
+  },
+  {
+   "name": "Hydroid Krasis",
+   "quantity": 1
+  },
+  {
+   "name": "Kellan, Inquisitive Prodigy",
+   "quantity": 1
+  },
+  {
+   "name": "Malanthrope",
+   "quantity": 1
+  },
+  {
+   "name": "Maraleaf Pixie",
+   "quantity": 1
+  },
+  {
+   "name": "Marcus, Mutant Mayor",
+   "quantity": 1
+  },
+  {
+   "name": "Master Biomancer",
+   "quantity": 1
+  },
+  {
+   "name": "Merfolk Skydiver",
+   "quantity": 1
+  },
+  {
+   "name": "Momir Vig, Simic Visionary",
+   "quantity": 1
+  },
+  {
+   "name": "Moon-Blessed Cleric",
+   "quantity": 1
+  },
+  {
+   "name": "Ms. Bumbleflower",
+   "quantity": 1
+  },
+  {
+   "name": "Murkfiend Liege",
+   "quantity": 1
+  },
+  {
+   "name": "Overbeing of Myth",
+   "quantity": 1
+  },
+  {
+   "name": "Prime Speaker Zegana",
+   "quantity": 1
+  },
+  {
+   "name": "Rashmi, Eternities Crafter",
+   "quantity": 1
+  },
+  {
+   "name": "River Hoopoe",
+   "quantity": 1
+  },
+  {
+   "name": "Roalesk, Apex Hybrid",
+   "quantity": 1
+  },
+  {
+   "name": "Shardless Agent",
+   "quantity": 1
+  },
+  {
+   "name": "Tanazir Quandrix",
+   "quantity": 1
+  },
+  {
+   "name": "The Goose Mother",
+   "quantity": 1
+  },
+  {
+   "name": "Wavesifter",
+   "quantity": 1
+  },
+  {
+   "name": "Welcoming Vampire",
+   "quantity": 1
+  },
+  {
+   "name": "Zegana, Utopian Speaker",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Denial",
+   "quantity": 1
+  },
+  {
+   "name": "Bant Charm",
+   "quantity": 1
+  },
+  {
+   "name": "Biomass Mutation",
+   "quantity": 1
+  },
+  {
+   "name": "Brokers Charm",
+   "quantity": 1
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1
+  },
+  {
+   "name": "Endless Detour",
+   "quantity": 1
+  },
+  {
+   "name": "Eureka Moment",
+   "quantity": 1
+  },
+  {
+   "name": "Growth Spiral",
+   "quantity": 1
+  },
+  {
+   "name": "Path to Exile",
+   "quantity": 1
+  },
+  {
+   "name": "Planar Genesis",
+   "quantity": 1
+  },
+  {
+   "name": "Stroke of Midnight",
+   "quantity": 1
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1
+  },
+  {
+   "name": "Beck // Call",
+   "quantity": 1
+  },
+  {
+   "name": "Body of Research",
+   "quantity": 1
+  },
+  {
+   "name": "Depopulate",
+   "quantity": 1
+  },
+  {
+   "name": "Golden Ratio",
+   "quantity": 1
+  },
+  {
+   "name": "Hour of Reckoning",
+   "quantity": 1
+  },
+  {
+   "name": "Idyllic Tutor",
+   "quantity": 1
+  },
+  {
+   "name": "Incubation // Incongruity",
+   "quantity": 1
+  },
+  {
+   "name": "Make Your Own Luck",
+   "quantity": 1
+  },
+  {
+   "name": "Oversimplify",
+   "quantity": 1
+  },
+  {
+   "name": "Plea for Guidance",
+   "quantity": 1
+  },
+  {
+   "name": "Wargate",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Fellwar Stone",
+   "quantity": 1
+  },
+  {
+   "name": "Obsidian Obelisk",
+   "quantity": 1
+  },
+  {
+   "name": "Tome of the Guildpact",
+   "quantity": 1
+  },
+  {
+   "name": "Urza's Filter",
+   "quantity": 1
+  },
+  {
+   "name": "Bounty of the Luxa",
+   "quantity": 1
+  },
+  {
+   "name": "Concordant Crossroads",
+   "quantity": 1
+  },
+  {
+   "name": "Fable of Wolf and Owl",
+   "quantity": 1
+  },
+  {
+   "name": "Primal Empathy",
+   "quantity": 1
+  },
+  {
+   "name": "Song of Eärendil",
+   "quantity": 1
+  },
+  {
+   "name": "Sterling Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Tocasia's Welcome",
+   "quantity": 1
+  },
+  {
+   "name": "Invasion of Ravnica",
+   "quantity": 1
+  },
+  {
+   "name": "Oko, Thief of Crowns",
+   "quantity": 1
+  },
+  {
+   "name": "Ash Barrens",
+   "quantity": 1
+  },
+  {
+   "name": "Botanical Sanctum",
+   "quantity": 1
+  },
+  {
+   "name": "Brokers Hideout",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Dreamroot Cascade",
+   "quantity": 1
+  },
+  {
+   "name": "Exotic Orchard",
+   "quantity": 1
+  },
+  {
+   "name": "Flood Plain",
+   "quantity": 1
+  },
+  {
+   "name": "Flooded Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 5
+  },
+  {
+   "name": "Grand Coliseum",
+   "quantity": 1
+  },
+  {
+   "name": "Grasslands",
+   "quantity": 1
+  },
+  {
+   "name": "Guildmages' Forum",
+   "quantity": 1
+  },
+  {
+   "name": "Hinterland Harbor",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 5
+  },
+  {
+   "name": "Mirrodin's Core",
+   "quantity": 1
+  },
+  {
+   "name": "Myriad Landscape",
+   "quantity": 1
+  },
+  {
+   "name": "Path of Ancestry",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 1
+  },
+  {
+   "name": "Rejuvenating Springs",
+   "quantity": 1
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Growth Chamber",
+   "quantity": 1
+  },
+  {
+   "name": "Tangled Islet",
+   "quantity": 1
+  },
+  {
+   "name": "Vineglimmer Snarl",
+   "quantity": 1
+  },
+  {
+   "name": "Vivid Creek",
+   "quantity": 1
+  },
+  {
+   "name": "Vivid Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Yavimaya Coast",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

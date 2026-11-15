@@ -1,0 +1,279 @@
+{
+ "urlhash": "67CGx7M1LbmzerBz7hcq_g",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-01-20",
+ "price": 298,
+ "salt": 54.426829770207405,
+ "tags": [
+  "Storm",
+  "Landfall",
+  "Elves",
+  "Lands Matter"
+ ],
+ "source_url": "https://archidekt.com/decks/19170309?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Aerith Gainsborough",
+   "quantity": 1
+  },
+  {
+   "name": "Aesi, Tyrant of Gyre Strait",
+   "quantity": 1
+  },
+  {
+   "name": "Ajani's Pridemate",
+   "quantity": 1
+  },
+  {
+   "name": "Allosaurus Shepherd",
+   "quantity": 1
+  },
+  {
+   "name": "Arbor Elf",
+   "quantity": 1
+  },
+  {
+   "name": "Boreal Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Celestial Unicorn",
+   "quantity": 1
+  },
+  {
+   "name": "Citanul Stalwart",
+   "quantity": 1
+  },
+  {
+   "name": "Copperhorn Scout",
+   "quantity": 1
+  },
+  {
+   "name": "Courser of Kruphix",
+   "quantity": 1
+  },
+  {
+   "name": "Drogskol Reaver",
+   "quantity": 1
+  },
+  {
+   "name": "Elenda's Hierophant",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Herder",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Hexhunter",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Lookout",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Lyrist",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Mystic",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Pioneer",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Scrapper",
+   "quantity": 1
+  },
+  {
+   "name": "Essence Warden",
+   "quantity": 1
+  },
+  {
+   "name": "Eumidian Terrabotanist",
+   "quantity": 1
+  },
+  {
+   "name": "Exemplar of Light",
+   "quantity": 1
+  },
+  {
+   "name": "Fa'adiyah Seer",
+   "quantity": 1
+  },
+  {
+   "name": "Fyndhorn Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Gideon's Company",
+   "quantity": 1
+  },
+  {
+   "name": "Gladecover Scout",
+   "quantity": 1
+  },
+  {
+   "name": "Glistener Elf",
+   "quantity": 1
+  },
+  {
+   "name": "Grazing Gladehart",
+   "quantity": 1
+  },
+  {
+   "name": "Heliod, Sun-Crowned",
+   "quantity": 1
+  },
+  {
+   "name": "Jaddi Offshoot",
+   "quantity": 1
+  },
+  {
+   "name": "Kazandu Nectarpot",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Elves",
+   "quantity": 1
+  },
+  {
+   "name": "MJ, Rising Star",
+   "quantity": 1
+  },
+  {
+   "name": "Noble Hierarch",
+   "quantity": 1
+  },
+  {
+   "name": "Soul of the Harvest",
+   "quantity": 1
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Trelasarra, Moon Dancer",
+   "quantity": 1
+  },
+  {
+   "name": "Twinblade Paladin",
+   "quantity": 1
+  },
+  {
+   "name": "Virulent Emissary",
+   "quantity": 1
+  },
+  {
+   "name": "Voice of the Blessed",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Denial",
+   "quantity": 1
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1
+  },
+  {
+   "name": "Deprive",
+   "quantity": 1
+  },
+  {
+   "name": "Diviner's Portent",
+   "quantity": 1
+  },
+  {
+   "name": "Hindering Light",
+   "quantity": 1
+  },
+  {
+   "name": "It'll Quench Ya!",
+   "quantity": 1
+  },
+  {
+   "name": "Mana Drain",
+   "quantity": 1
+  },
+  {
+   "name": "Mana Leak",
+   "quantity": 1
+  },
+  {
+   "name": "Phantom Interference",
+   "quantity": 1
+  },
+  {
+   "name": "Spectral Interference",
+   "quantity": 1
+  },
+  {
+   "name": "Glimpse of Nature",
+   "quantity": 1
+  },
+  {
+   "name": "Dawn-Blessed Pennant",
+   "quantity": 1
+  },
+  {
+   "name": "Skullclamp",
+   "quantity": 1
+  },
+  {
+   "name": "Vanquisher's Banner",
+   "quantity": 1
+  },
+  {
+   "name": "Druid Class",
+   "quantity": 1
+  },
+  {
+   "name": "Fecundity",
+   "quantity": 1
+  },
+  {
+   "name": "Guardian Project",
+   "quantity": 1
+  },
+  {
+   "name": "Primeval Bounty",
+   "quantity": 1
+  },
+  {
+   "name": "Retreat to Kazandu",
+   "quantity": 1
+  },
+  {
+   "name": "Sunbond",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 13
+  },
+  {
+   "name": "Island",
+   "quantity": 13
+  },
+  {
+   "name": "Plains",
+   "quantity": 13
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

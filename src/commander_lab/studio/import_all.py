@@ -627,6 +627,8 @@ def run(args: argparse.Namespace, store: StudioStore) -> ImportAllResult:
             text = f"{type(error).__name__}: {error}"
             steps.append({"step": name, "status": FAILED, "detail": text})
             failed = True
+    if not failed:
+        store.compact()
     size, layers = completeness(store, commander)
     expected = args.expect_pool
     return {

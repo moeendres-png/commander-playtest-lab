@@ -1,0 +1,370 @@
+{
+ "urlhash": "mYKxjer842vvVAw6U3sZXQ",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-08-11",
+ "price": 2540,
+ "salt": 43.80286205932498,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/g7_Delj9kk-cslO0KYk7eQ?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Beast Whisperer",
+   "quantity": 1
+  },
+  {
+   "name": "Body of Knowledge",
+   "quantity": 1
+  },
+  {
+   "name": "Chambered Nautilus",
+   "quantity": 1
+  },
+  {
+   "name": "Cockatrice",
+   "quantity": 1
+  },
+  {
+   "name": "Drelnoch",
+   "quantity": 1
+  },
+  {
+   "name": "Elven Warhounds",
+   "quantity": 1
+  },
+  {
+   "name": "Engulfing Slagwurm",
+   "quantity": 1
+  },
+  {
+   "name": "Farhaven Elf",
+   "quantity": 1
+  },
+  {
+   "name": "Golgari Decoy",
+   "quantity": 1
+  },
+  {
+   "name": "Grasping Giant",
+   "quantity": 1
+  },
+  {
+   "name": "Grazilaxx, Illithid Scholar",
+   "quantity": 1
+  },
+  {
+   "name": "Gustcloak Savior",
+   "quantity": 1
+  },
+  {
+   "name": "Hydra Omnivore",
+   "quantity": 1
+  },
+  {
+   "name": "Jangling Automaton",
+   "quantity": 1
+  },
+  {
+   "name": "Noble Quarry",
+   "quantity": 1
+  },
+  {
+   "name": "Nurturing Licid",
+   "quantity": 1
+  },
+  {
+   "name": "Rust Scarab",
+   "quantity": 1
+  },
+  {
+   "name": "Saprazzan Heir",
+   "quantity": 1
+  },
+  {
+   "name": "Shinen of Life's Roar",
+   "quantity": 1
+  },
+  {
+   "name": "Slith Strider",
+   "quantity": 1
+  },
+  {
+   "name": "Stormsurge Kraken",
+   "quantity": 1
+  },
+  {
+   "name": "Sylvan Basilisk",
+   "quantity": 1
+  },
+  {
+   "name": "Tangle Asp",
+   "quantity": 1
+  },
+  {
+   "name": "Taunting Elf",
+   "quantity": 1
+  },
+  {
+   "name": "Tempting Licid",
+   "quantity": 1
+  },
+  {
+   "name": "Thresher Beast",
+   "quantity": 1
+  },
+  {
+   "name": "Thunderfoot Baloth",
+   "quantity": 1
+  },
+  {
+   "name": "Tolarian Entrancer",
+   "quantity": 1
+  },
+  {
+   "name": "Topiary Stomper",
+   "quantity": 1
+  },
+  {
+   "name": "Venomous Dragonfly",
+   "quantity": 1
+  },
+  {
+   "name": "Vortex Elemental",
+   "quantity": 1
+  },
+  {
+   "name": "Wood Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Benefactor's Draught",
+   "quantity": 1
+  },
+  {
+   "name": "Bloodscent",
+   "quantity": 1
+  },
+  {
+   "name": "Debt of Loyalty",
+   "quantity": 1
+  },
+  {
+   "name": "Venomous Breath",
+   "quantity": 1
+  },
+  {
+   "name": "You Look Upon the Tarrasque",
+   "quantity": 1
+  },
+  {
+   "name": "Alluring Scent",
+   "quantity": 1
+  },
+  {
+   "name": "Cultivate",
+   "quantity": 1
+  },
+  {
+   "name": "Kodama's Reach",
+   "quantity": 1
+  },
+  {
+   "name": "Noxious Assault",
+   "quantity": 1
+  },
+  {
+   "name": "Revenge of the Hunted",
+   "quantity": 1
+  },
+  {
+   "name": "Roar of Challenge",
+   "quantity": 1
+  },
+  {
+   "name": "Taunting Challenge",
+   "quantity": 1
+  },
+  {
+   "name": "Triumph of the Hordes",
+   "quantity": 1
+  },
+  {
+   "name": "Decanter of Endless Water",
+   "quantity": 1
+  },
+  {
+   "name": "Godsend",
+   "quantity": 1
+  },
+  {
+   "name": "Infiltration Lens",
+   "quantity": 1
+  },
+  {
+   "name": "Nemesis Mask",
+   "quantity": 1
+  },
+  {
+   "name": "Ring of Xathrid",
+   "quantity": 1
+  },
+  {
+   "name": "Thought Vessel",
+   "quantity": 1
+  },
+  {
+   "name": "Asceticism",
+   "quantity": 1
+  },
+  {
+   "name": "Broken Fall",
+   "quantity": 1
+  },
+  {
+   "name": "Cunning Evasion",
+   "quantity": 1
+  },
+  {
+   "name": "Gaea's Embrace",
+   "quantity": 1
+  },
+  {
+   "name": "Indrik Umbra",
+   "quantity": 1
+  },
+  {
+   "name": "Lure",
+   "quantity": 1
+  },
+  {
+   "name": "Molting Skin",
+   "quantity": 1
+  },
+  {
+   "name": "Reconnaissance",
+   "quantity": 1
+  },
+  {
+   "name": "Regeneration",
+   "quantity": 1
+  },
+  {
+   "name": "Venom",
+   "quantity": 1
+  },
+  {
+   "name": "Boseiju, Who Endures",
+   "quantity": 1
+  },
+  {
+   "name": "Bountiful Promenade",
+   "quantity": 1
+  },
+  {
+   "name": "Breeding Pool",
+   "quantity": 1
+  },
+  {
+   "name": "City of Brass",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Exotic Orchard",
+   "quantity": 1
+  },
+  {
+   "name": "Flooded Strand",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 8
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 5
+  },
+  {
+   "name": "Mana Confluence",
+   "quantity": 1
+  },
+  {
+   "name": "Maze of Ith",
+   "quantity": 1
+  },
+  {
+   "name": "Misty Rainforest",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 2
+  },
+  {
+   "name": "Reflecting Pool",
+   "quantity": 1
+  },
+  {
+   "name": "Rejuvenating Springs",
+   "quantity": 1
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Savannah",
+   "quantity": 1
+  },
+  {
+   "name": "Sea of Clouds",
+   "quantity": 1
+  },
+  {
+   "name": "Spara's Headquarters",
+   "quantity": 1
+  },
+  {
+   "name": "Temple Garden",
+   "quantity": 1
+  },
+  {
+   "name": "Tropical Island",
+   "quantity": 1
+  },
+  {
+   "name": "Tundra",
+   "quantity": 1
+  },
+  {
+   "name": "Windswept Heath",
+   "quantity": 1
+  },
+  {
+   "name": "Yavimaya Hollow",
+   "quantity": 1
+  },
+  {
+   "name": "Yavimaya, Cradle of Growth",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

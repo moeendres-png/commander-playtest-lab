@@ -1,0 +1,290 @@
+{
+ "urlhash": "oflac3Swz-bP9NUL3dr7jw",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-04-23",
+ "price": 468,
+ "salt": 79.25982717052102,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/21934058?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Alseid of Life's Bounty",
+   "quantity": 1
+  },
+  {
+   "name": "Archon of Emeria",
+   "quantity": 1
+  },
+  {
+   "name": "Avacyn's Pilgrim",
+   "quantity": 1
+  },
+  {
+   "name": "Beast Whisperer",
+   "quantity": 1
+  },
+  {
+   "name": "Birds of Paradise",
+   "quantity": 1
+  },
+  {
+   "name": "Bruna, the Fading Light",
+   "quantity": 1
+  },
+  {
+   "name": "Collector Ouphe",
+   "quantity": 1
+  },
+  {
+   "name": "Containment Priest",
+   "quantity": 1
+  },
+  {
+   "name": "Curious Colossus",
+   "quantity": 1
+  },
+  {
+   "name": "Delighted Halfling",
+   "quantity": 1
+  },
+  {
+   "name": "Doorkeeper Thrull",
+   "quantity": 1
+  },
+  {
+   "name": "Drannith Magistrate",
+   "quantity": 1
+  },
+  {
+   "name": "Eladamri, Korvecdal",
+   "quantity": 1
+  },
+  {
+   "name": "Elesh Norn, Grand Cenobite",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Mystic",
+   "quantity": 1
+  },
+  {
+   "name": "Esper Sentinel",
+   "quantity": 1
+  },
+  {
+   "name": "Ethersworn Canonist",
+   "quantity": 1
+  },
+  {
+   "name": "Faeburrow Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Fauna Shaman",
+   "quantity": 1
+  },
+  {
+   "name": "Formidable Speaker",
+   "quantity": 1
+  },
+  {
+   "name": "Foundation Breaker",
+   "quantity": 1
+  },
+  {
+   "name": "Gaddock Teeg",
+   "quantity": 1
+  },
+  {
+   "name": "Gisela, the Broken Blade",
+   "quantity": 1
+  },
+  {
+   "name": "Hushbringer",
+   "quantity": 1
+  },
+  {
+   "name": "Hushwing Gryff",
+   "quantity": 1
+  },
+  {
+   "name": "Jin-Gitaxias, Progress Tyrant",
+   "quantity": 1
+  },
+  {
+   "name": "Kudo, King Among Bears",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Loyal Retainers",
+   "quantity": 1
+  },
+  {
+   "name": "Nissa, Resurgent Animist",
+   "quantity": 1
+  },
+  {
+   "name": "Noble Hierarch",
+   "quantity": 1
+  },
+  {
+   "name": "Phyrexian Censor",
+   "quantity": 1
+  },
+  {
+   "name": "Recruiter of the Guard",
+   "quantity": 1
+  },
+  {
+   "name": "Sakura-Tribe Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Shrieking Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Sigarda, Font of Blessings",
+   "quantity": 1
+  },
+  {
+   "name": "Soulless Jailer",
+   "quantity": 1
+  },
+  {
+   "name": "Studious First-Year",
+   "quantity": 1
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Thalia's Lancers",
+   "quantity": 1
+  },
+  {
+   "name": "Wistfulness",
+   "quantity": 1
+  },
+  {
+   "name": "Chord of Calling",
+   "quantity": 1
+  },
+  {
+   "name": "Congregation at Dawn",
+   "quantity": 1
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1
+  },
+  {
+   "name": "Dusk // Dawn",
+   "quantity": 1
+  },
+  {
+   "name": "Eldritch Evolution",
+   "quantity": 1
+  },
+  {
+   "name": "Expel the Interlopers",
+   "quantity": 1
+  },
+  {
+   "name": "Flood of Tears",
+   "quantity": 1
+  },
+  {
+   "name": "The Battle of Bywater",
+   "quantity": 1
+  },
+  {
+   "name": "Meekstone",
+   "quantity": 1
+  },
+  {
+   "name": "The Seriema",
+   "quantity": 1
+  },
+  {
+   "name": "Torpor Orb",
+   "quantity": 1
+  },
+  {
+   "name": "Abundance",
+   "quantity": 1
+  },
+  {
+   "name": "Counterbalance",
+   "quantity": 1
+  },
+  {
+   "name": "Deafening Silence",
+   "quantity": 1
+  },
+  {
+   "name": "Rest in Peace",
+   "quantity": 1
+  },
+  {
+   "name": "Restricted Office // Lecture Hall",
+   "quantity": 1
+  },
+  {
+   "name": "Rule of Law",
+   "quantity": 1
+  },
+  {
+   "name": "Swift Reconfiguration",
+   "quantity": 1
+  },
+  {
+   "name": "Touch the Spirit Realm",
+   "quantity": 1
+  },
+  {
+   "name": "Vivien, Champion of the Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Dryad Arbor",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 33
+  },
+  {
+   "name": "Ghost Quarter",
+   "quantity": 1
+  },
+  {
+   "name": "Mistrise Village",
+   "quantity": 1
+  },
+  {
+   "name": "Oboro, Palace in the Clouds",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of the False God",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

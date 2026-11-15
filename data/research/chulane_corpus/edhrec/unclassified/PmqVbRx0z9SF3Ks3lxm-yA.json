@@ -1,0 +1,338 @@
+{
+ "urlhash": "PmqVbRx0z9SF3Ks3lxm-yA",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-09-17",
+ "price": 2639,
+ "salt": 54.11467992141843,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/JG2yK-QBTkayXhZukD4bhQ?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Abominable Treefolk",
+   "quantity": 1
+  },
+  {
+   "name": "Beast Whisperer",
+   "quantity": 1
+  },
+  {
+   "name": "Bloodroot Apothecary",
+   "quantity": 1
+  },
+  {
+   "name": "Bloom Tender",
+   "quantity": 1
+  },
+  {
+   "name": "Boreal Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Bosk Banneret",
+   "quantity": 1
+  },
+  {
+   "name": "Casal, Lurkwood Pathfinder",
+   "quantity": 1
+  },
+  {
+   "name": "Circle of Dreams Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Craterhoof Behemoth",
+   "quantity": 1
+  },
+  {
+   "name": "Druid of the Cowl",
+   "quantity": 1
+  },
+  {
+   "name": "Elfhame Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Mystic",
+   "quantity": 1
+  },
+  {
+   "name": "Everbark Shaman",
+   "quantity": 1
+  },
+  {
+   "name": "Ezzaroot Channeler",
+   "quantity": 1
+  },
+  {
+   "name": "Faeburrow Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Fangorn, Tree Shepherd",
+   "quantity": 1
+  },
+  {
+   "name": "Fyndhorn Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Ghoultree",
+   "quantity": 1
+  },
+  {
+   "name": "Imoti, Celebrant of Bounty",
+   "quantity": 1
+  },
+  {
+   "name": "Indomitable Ancients",
+   "quantity": 1
+  },
+  {
+   "name": "Jolrael, Mwonvuli Recluse",
+   "quantity": 1
+  },
+  {
+   "name": "Joraga Treespeaker",
+   "quantity": 1
+  },
+  {
+   "name": "Juniper Order Rootweaver",
+   "quantity": 1
+  },
+  {
+   "name": "Kinnan, Bonder Prodigy",
+   "quantity": 1
+  },
+  {
+   "name": "Kurbis, Harvest Celebrant",
+   "quantity": 1
+  },
+  {
+   "name": "Leaf Gilder",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Tribe",
+   "quantity": 1
+  },
+  {
+   "name": "Mossbeard Ancient",
+   "quantity": 1
+  },
+  {
+   "name": "Nantuko Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Orchard Strider",
+   "quantity": 1
+  },
+  {
+   "name": "Orchard Warden",
+   "quantity": 1
+  },
+  {
+   "name": "Priest of Titania",
+   "quantity": 1
+  },
+  {
+   "name": "Seton, Krosan Protector",
+   "quantity": 1
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Tilling Treefolk",
+   "quantity": 1
+  },
+  {
+   "name": "Timber Protector",
+   "quantity": 1
+  },
+  {
+   "name": "Treebeard, Gracious Host",
+   "quantity": 1
+  },
+  {
+   "name": "Treefolk Harbinger",
+   "quantity": 1
+  },
+  {
+   "name": "Treefolk Healer",
+   "quantity": 1
+  },
+  {
+   "name": "Ulvenwald Observer",
+   "quantity": 1
+  },
+  {
+   "name": "Unstoppable Ash",
+   "quantity": 1
+  },
+  {
+   "name": "Verdeloth the Ancient",
+   "quantity": 1
+  },
+  {
+   "name": "Weaver of Currents",
+   "quantity": 1
+  },
+  {
+   "name": "Woodfall Primus",
+   "quantity": 1
+  },
+  {
+   "name": "Yedora, Grave Gardener",
+   "quantity": 1
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1
+  },
+  {
+   "name": "Cyclonic Rift",
+   "quantity": 1
+  },
+  {
+   "name": "Disallow",
+   "quantity": 1
+  },
+  {
+   "name": "Dovin's Veto",
+   "quantity": 1
+  },
+  {
+   "name": "Force of Negation",
+   "quantity": 1
+  },
+  {
+   "name": "Hindering Light",
+   "quantity": 1
+  },
+  {
+   "name": "Path to Exile",
+   "quantity": 1
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1
+  },
+  {
+   "name": "Farewell",
+   "quantity": 1
+  },
+  {
+   "name": "Green Sun's Zenith",
+   "quantity": 1
+  },
+  {
+   "name": "Last March of the Ents",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "The Great Henge",
+   "quantity": 1
+  },
+  {
+   "name": "Exploration",
+   "quantity": 1
+  },
+  {
+   "name": "Lignify",
+   "quantity": 1
+  },
+  {
+   "name": "Mystic Remora",
+   "quantity": 1
+  },
+  {
+   "name": "Sapling Nursery",
+   "quantity": 1
+  },
+  {
+   "name": "Breeding Pool",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Dryad Arbor",
+   "quantity": 1
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1
+  },
+  {
+   "name": "Hedge Maze",
+   "quantity": 1
+  },
+  {
+   "name": "Lush Portico",
+   "quantity": 1
+  },
+  {
+   "name": "Meticulous Archive",
+   "quantity": 1
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Savannah",
+   "quantity": 1
+  },
+  {
+   "name": "Snow-Covered Forest",
+   "quantity": 9
+  },
+  {
+   "name": "Snow-Covered Island",
+   "quantity": 6
+  },
+  {
+   "name": "Snow-Covered Plains",
+   "quantity": 8
+  },
+  {
+   "name": "Spara's Headquarters",
+   "quantity": 1
+  },
+  {
+   "name": "Temple Garden",
+   "quantity": 1
+  },
+  {
+   "name": "Tropical Island",
+   "quantity": 1
+  },
+  {
+   "name": "Tundra",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

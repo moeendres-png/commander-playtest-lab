@@ -28,10 +28,12 @@ instead of growing one giant conversation.
    (Sonnet, medium), built-in `Explore` for read-only lookups. Claude Sonnet may also be an
    implementation worker; the evidence and review rules apply to it.
 
-**Model tiers and quota** (`AGENTS.md` §7). Level by task: status, CI and log digestion on the
-smallest model at low effort; implementation and ordinary review on Sonnet at medium;
-statistics, concurrency, security and anything a wrong number would hide behind at high;
-`evidence-reviewer` for Rules, evidence, containment, security, gate and policy text. A brief
+**Model tiers and quota** (`AGENTS.md` §7). Helpers and reviewers inherit the lead's model and
+effort unless the Owner says otherwise; the lead may lower them only for status, CI and log
+digestion (`log-scanner`, `ci-triage`). The defaults in `.claude/settings.json` and the fixed
+levels in `.claude/agents/*.md` are Owner-set exceptions to this inheritance; the lead may not
+raise or lower them silently. `evidence-reviewer` reviews Rules, evidence,
+containment, security, gate and policy text. A brief
 contains the review checklist, so the first review finds little. No third review round for
 wording. No background load (game series, builds) while helpers run test suites. Paste what a
 helper already found into the next brief instead of having the next helper rediscover it.
@@ -55,8 +57,9 @@ incomplete, or the run ends without resumable state.
   testing: `AGENTS.md` §10).
 - Long Java suites, PB-03 and CI waits run in the background, never as repeated polls.
 - GitHub GraphQL is unavailable: use `gh api` REST and the CCR routes.
-- A change to `.github/workflows/production-qualification.yml` needs its digest updated in
-  `WS17_SHA256SUMS` (`python scripts/regenerate_hash_manifests.py`).
+- `WS17_SHA256SUMS`: regenerating its digest line (`python scripts/regenerate_hash_manifests.py`)
+  is allowed only within a change to `.github/workflows/production-qualification.yml`; any
+  other change to it needs the Owner's go (`AGENTS.md` §8).
 - Open CI points: `docs/CI_GATES_IMPROVEMENT_PLAN_20261112.md` (a plan, not a gate).
 - `.claude/settings.json` sets `CLAUDE_CODE_SUBAGENT_MODEL=sonnet` only as the default for
   unassigned helpers; agent frontmatter wins. `log-scanner` and `ci-triage` use

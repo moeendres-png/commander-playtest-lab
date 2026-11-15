@@ -1,0 +1,298 @@
+{
+ "urlhash": "hqQOkE9uCC2A2NDVOOyQKQ",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-02-04",
+ "price": 96,
+ "salt": 46.75218032300472,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/5CNaISDKgku7JvLHBiUkbg?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Aang, Air Nomad",
+   "quantity": 1
+  },
+  {
+   "name": "Appa, Aang's Companion",
+   "quantity": 1
+  },
+  {
+   "name": "Appa, the Vigilant",
+   "quantity": 1
+  },
+  {
+   "name": "Arwen, Mortal Queen",
+   "quantity": 1
+  },
+  {
+   "name": "Badgermole",
+   "quantity": 1
+  },
+  {
+   "name": "Botanical Brawler",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Gargantuan",
+   "quantity": 1
+  },
+  {
+   "name": "Cat-Owl",
+   "quantity": 1
+  },
+  {
+   "name": "Cloudblazer",
+   "quantity": 1
+  },
+  {
+   "name": "Coiling Oracle",
+   "quantity": 1
+  },
+  {
+   "name": "Coliseum Behemoth",
+   "quantity": 1
+  },
+  {
+   "name": "Conclave Mentor",
+   "quantity": 1
+  },
+  {
+   "name": "Crowd-Control Warden",
+   "quantity": 1
+  },
+  {
+   "name": "Eel-Hounds",
+   "quantity": 1
+  },
+  {
+   "name": "Flopsie, Bumi's Buddy",
+   "quantity": 1
+  },
+  {
+   "name": "Foggy Swamp Vinebender",
+   "quantity": 1
+  },
+  {
+   "name": "Giant Koi",
+   "quantity": 1
+  },
+  {
+   "name": "Good-Fortune Unicorn",
+   "quantity": 1
+  },
+  {
+   "name": "Haliya, Ascendant Cadet",
+   "quantity": 1
+  },
+  {
+   "name": "Hamza, Guardian of Arashin",
+   "quantity": 1
+  },
+  {
+   "name": "Herald of Secret Streams",
+   "quantity": 1
+  },
+  {
+   "name": "Katara, Bending Prodigy",
+   "quantity": 1
+  },
+  {
+   "name": "Katara, Heroic Healer",
+   "quantity": 1
+  },
+  {
+   "name": "Kutzil, Malamet Exemplar",
+   "quantity": 1
+  },
+  {
+   "name": "Legolas, Counter of Kills",
+   "quantity": 1
+  },
+  {
+   "name": "Lorescale Coatl",
+   "quantity": 1
+  },
+  {
+   "name": "North Pole Patrol",
+   "quantity": 1
+  },
+  {
+   "name": "Raucous Audience",
+   "quantity": 1
+  },
+  {
+   "name": "Rowdy Snowballers",
+   "quantity": 1
+  },
+  {
+   "name": "Sokka, Lateral Strategist",
+   "quantity": 1
+  },
+  {
+   "name": "Suki, Kyoshi Warrior",
+   "quantity": 1
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Ty Lee, Chi Blocker",
+   "quantity": 1
+  },
+  {
+   "name": "Allies at Last",
+   "quantity": 1
+  },
+  {
+   "name": "Amazing Acrobatics",
+   "quantity": 1
+  },
+  {
+   "name": "Decommission",
+   "quantity": 1
+  },
+  {
+   "name": "Deny Entry",
+   "quantity": 1
+  },
+  {
+   "name": "It'll Quench Ya!",
+   "quantity": 1
+  },
+  {
+   "name": "Katara's Reversal",
+   "quantity": 1
+  },
+  {
+   "name": "Pillar Launch",
+   "quantity": 1
+  },
+  {
+   "name": "Prishe's Wanderings",
+   "quantity": 1
+  },
+  {
+   "name": "Rewind",
+   "quantity": 1
+  },
+  {
+   "name": "Rocky Rebuke",
+   "quantity": 1
+  },
+  {
+   "name": "Spellgyre",
+   "quantity": 1
+  },
+  {
+   "name": "Syncopate",
+   "quantity": 1
+  },
+  {
+   "name": "Explore",
+   "quantity": 1
+  },
+  {
+   "name": "Match the Odds",
+   "quantity": 1
+  },
+  {
+   "name": "Waterbending Lesson",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Bender's Waterskin",
+   "quantity": 1
+  },
+  {
+   "name": "Commander's Sphere",
+   "quantity": 1
+  },
+  {
+   "name": "Mind Stone",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Trusty Boomerang",
+   "quantity": 1
+  },
+  {
+   "name": "Allied Teamwork",
+   "quantity": 1
+  },
+  {
+   "name": "Cloak of Invisibility",
+   "quantity": 1
+  },
+  {
+   "name": "Hydra's Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Jeskai Runemark",
+   "quantity": 1
+  },
+  {
+   "name": "Seismic Tutelage",
+   "quantity": 1
+  },
+  {
+   "name": "Setessan Training",
+   "quantity": 1
+  },
+  {
+   "name": "Sokka's Charge",
+   "quantity": 1
+  },
+  {
+   "name": "Spirit Link",
+   "quantity": 1
+  },
+  {
+   "name": "Watery Grasp",
+   "quantity": 1
+  },
+  {
+   "name": "Agna Qel'a",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 12
+  },
+  {
+   "name": "Island",
+   "quantity": 11
+  },
+  {
+   "name": "Plains",
+   "quantity": 10
+  },
+  {
+   "name": "Thriving Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Thriving Isle",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

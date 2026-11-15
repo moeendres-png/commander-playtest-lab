@@ -36,13 +36,23 @@ SHEET_ORDER = (
 )
 TYPED_SHEETS = frozenset({"01_CARD_IDENTITY", "05_INVENTORY_CURRENT"})
 
-# (folder below the corpus root, deck list format): five EDHREC variants, five Archidekt brackets
+# (folder below the corpus root, deck list format): five EDHREC variants, the
+# bracket-less EDHREC cohort (listed after the variants, which only steers which
+# copy the importer marks as the duplicate at import time), five Archidekt
+# brackets. Final canonicality is not decided by this order: the link step
+# re-derives duplicate_of over oracle ids (#1394) with the lowest deck id
+# canonical — on the merged corpus 13 of the 16 unclassified duplicates point
+# at Archidekt decks, and one classified EDHREC deck loses its canonical status
+# to an unclassified copy. That is inconsequential: every fingerprint group
+# counts exactly once in every universe, and the bracket universes are
+# unchanged by the cohort.
 CORPUS_FOLDERS: tuple[tuple[str, str], ...] = (
     ("edhrec/cedh", "edhrec"),
     ("edhrec/core", "edhrec"),
     ("edhrec/exhibition", "edhrec"),
     ("edhrec/optimized", "edhrec"),
     ("edhrec/upgraded", "edhrec"),
+    ("edhrec/unclassified", "edhrec"),
     ("archidekt/bracket1", "archidekt"),
     ("archidekt/bracket2", "archidekt"),
     ("archidekt/bracket3", "archidekt"),
@@ -101,7 +111,7 @@ def build_inventory_workbook(csv_dir: Path, out: Path) -> list[str]:
 
 
 def import_corpus(store: StudioStore, root: Path) -> dict[str, int]:
-    """Import the ten folders of the deck list corpus below ``root``.
+    """Import the eleven folders of the deck list corpus below ``root``.
 
     The importer's own commander guard is off (``commander=None``): the corpus holds 22
     Archidekt lists whose stated commander is another card; they belong to this corpus and,

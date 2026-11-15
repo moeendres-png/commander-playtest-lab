@@ -1,0 +1,354 @@
+{
+ "urlhash": "c5SCXkELUkqmPngoajKHRQ",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-08-08",
+ "price": 159,
+ "salt": 40.9466771739535,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/15029708?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Aggressive Mammoth",
+   "quantity": 1
+  },
+  {
+   "name": "Anticausal Vestige",
+   "quantity": 1
+  },
+  {
+   "name": "Avenger of Zendikar",
+   "quantity": 1
+  },
+  {
+   "name": "Biomechan Engineer",
+   "quantity": 1
+  },
+  {
+   "name": "Corrupted Shapeshifter",
+   "quantity": 1
+  },
+  {
+   "name": "Distinguished Conjurer",
+   "quantity": 1
+  },
+  {
+   "name": "Dour Port-Mage",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Piper",
+   "quantity": 1
+  },
+  {
+   "name": "Esper Sentinel",
+   "quantity": 1
+  },
+  {
+   "name": "Exclusion Mage",
+   "quantity": 1
+  },
+  {
+   "name": "Farhaven Elf",
+   "quantity": 1
+  },
+  {
+   "name": "Fierce Empath",
+   "quantity": 1
+  },
+  {
+   "name": "Galepowder Mage",
+   "quantity": 1
+  },
+  {
+   "name": "Genku, Future Shaper",
+   "quantity": 1
+  },
+  {
+   "name": "Kappa Tech-Wrecker",
+   "quantity": 1
+  },
+  {
+   "name": "Kishla Trawlers",
+   "quantity": 1
+  },
+  {
+   "name": "Mischievous Mystic",
+   "quantity": 1
+  },
+  {
+   "name": "Mistbreath Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Moon-Circuit Hacker",
+   "quantity": 1
+  },
+  {
+   "name": "Moonsnare Specialist",
+   "quantity": 1
+  },
+  {
+   "name": "Nimble Thopterist",
+   "quantity": 1
+  },
+  {
+   "name": "Sagu Wildling",
+   "quantity": 1
+  },
+  {
+   "name": "Serpent-Blade Assailant",
+   "quantity": 1
+  },
+  {
+   "name": "Shrieking Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Skyskipper Duo",
+   "quantity": 1
+  },
+  {
+   "name": "Solemn Simulacrum",
+   "quantity": 1
+  },
+  {
+   "name": "Spineseeker Centipede",
+   "quantity": 1
+  },
+  {
+   "name": "Sunpearl Kirin",
+   "quantity": 1
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Tireless Provisioner",
+   "quantity": 1
+  },
+  {
+   "name": "Tireless Tracker",
+   "quantity": 1
+  },
+  {
+   "name": "Treeguard Duo",
+   "quantity": 1
+  },
+  {
+   "name": "Acrobatic Maneuver",
+   "quantity": 1
+  },
+  {
+   "name": "Annul",
+   "quantity": 1
+  },
+  {
+   "name": "Aura Blast",
+   "quantity": 1
+  },
+  {
+   "name": "Brainstorm",
+   "quantity": 1
+  },
+  {
+   "name": "Consign to Memory",
+   "quantity": 1
+  },
+  {
+   "name": "Deny the Divine",
+   "quantity": 1
+  },
+  {
+   "name": "Geistwave",
+   "quantity": 1
+  },
+  {
+   "name": "Ice Magic",
+   "quantity": 1
+  },
+  {
+   "name": "Refute",
+   "quantity": 1
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1
+  },
+  {
+   "name": "Teferi's Time Twist",
+   "quantity": 1
+  },
+  {
+   "name": "Abundant Harvest",
+   "quantity": 1
+  },
+  {
+   "name": "Fumigate",
+   "quantity": 1
+  },
+  {
+   "name": "Genesis Wave",
+   "quantity": 1
+  },
+  {
+   "name": "Late to Dinner",
+   "quantity": 1
+  },
+  {
+   "name": "Martial Coup",
+   "quantity": 1
+  },
+  {
+   "name": "Primal Might",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Chromatic Lantern",
+   "quantity": 1
+  },
+  {
+   "name": "Commander's Sphere",
+   "quantity": 1
+  },
+  {
+   "name": "Essence Reliquary",
+   "quantity": 1
+  },
+  {
+   "name": "Lifecrafter's Bestiary",
+   "quantity": 1
+  },
+  {
+   "name": "Lightning Greaves",
+   "quantity": 1
+  },
+  {
+   "name": "Skullclamp",
+   "quantity": 1
+  },
+  {
+   "name": "Felidar Retreat",
+   "quantity": 1
+  },
+  {
+   "name": "Mana Reflection",
+   "quantity": 1
+  },
+  {
+   "name": "Season of Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Blossoming Sands",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Command Bridge",
+   "quantity": 1
+  },
+  {
+   "name": "Desert of the Mindful",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 9
+  },
+  {
+   "name": "Gates of Istfell",
+   "quantity": 1
+  },
+  {
+   "name": "Idyllic Beachfront",
+   "quantity": 1
+  },
+  {
+   "name": "Idyllic Grange",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 6
+  },
+  {
+   "name": "Lonely Arroyo",
+   "quantity": 1
+  },
+  {
+   "name": "Lonely Sandbar",
+   "quantity": 1
+  },
+  {
+   "name": "Mistveil Plains",
+   "quantity": 1
+  },
+  {
+   "name": "Mystic Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 4
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1
+  },
+  {
+   "name": "Radiant Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Remote Isle",
+   "quantity": 1
+  },
+  {
+   "name": "Sharlayan, Nation of Scholars",
+   "quantity": 1
+  },
+  {
+   "name": "Stirring Wildwood",
+   "quantity": 1
+  },
+  {
+   "name": "Tangled Islet",
+   "quantity": 1
+  },
+  {
+   "name": "Terramorphic Expanse",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Cove",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

@@ -1,0 +1,334 @@
+{
+ "urlhash": "JGheA1kGQLIbZwMf3pvHfg",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-04-20",
+ "price": 357,
+ "salt": 50.08330118842423,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/11648850?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Aegis Turtle",
+   "quantity": 1
+  },
+  {
+   "name": "Ambling Stormshell",
+   "quantity": 1
+  },
+  {
+   "name": "Angler Turtle",
+   "quantity": 1
+  },
+  {
+   "name": "Baldin, Century Herdmaster",
+   "quantity": 1
+  },
+  {
+   "name": "Bedrock Tortoise",
+   "quantity": 1
+  },
+  {
+   "name": "Blossoming Tortoise",
+   "quantity": 1
+  },
+  {
+   "name": "Calcite Snapper",
+   "quantity": 1
+  },
+  {
+   "name": "Clever Impersonator",
+   "quantity": 1
+  },
+  {
+   "name": "Colossal Skyturtle",
+   "quantity": 1
+  },
+  {
+   "name": "Dragon Turtle",
+   "quantity": 1
+  },
+  {
+   "name": "Fecund Greenshell",
+   "quantity": 1
+  },
+  {
+   "name": "Glasspool Mimic",
+   "quantity": 1
+  },
+  {
+   "name": "Hexbane Tortoise",
+   "quantity": 1
+  },
+  {
+   "name": "Horned Turtle",
+   "quantity": 1
+  },
+  {
+   "name": "Kappa Cannoneer",
+   "quantity": 1
+  },
+  {
+   "name": "Kappa Tech-Wrecker",
+   "quantity": 1
+  },
+  {
+   "name": "Mistford River Turtle",
+   "quantity": 1
+  },
+  {
+   "name": "Phantasmal Shieldback",
+   "quantity": 1
+  },
+  {
+   "name": "Plagon, Lord of the Beach",
+   "quantity": 1
+  },
+  {
+   "name": "Quandrix Cultivator",
+   "quantity": 1
+  },
+  {
+   "name": "Rasaad yn Bashir",
+   "quantity": 1
+  },
+  {
+   "name": "Snapping Voidcraw",
+   "quantity": 1
+  },
+  {
+   "name": "Spikeshell Harrier",
+   "quantity": 1
+  },
+  {
+   "name": "Steelbane Hydra",
+   "quantity": 1
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1
+  },
+  {
+   "name": "The Pride of Hull Clade",
+   "quantity": 1
+  },
+  {
+   "name": "Thriving Turtle",
+   "quantity": 1
+  },
+  {
+   "name": "Thunderous Snapper",
+   "quantity": 1
+  },
+  {
+   "name": "Tidepool Turtle",
+   "quantity": 1
+  },
+  {
+   "name": "Wonder",
+   "quantity": 1
+  },
+  {
+   "name": "Beast Within",
+   "quantity": 1
+  },
+  {
+   "name": "Cyclonic Rift",
+   "quantity": 1
+  },
+  {
+   "name": "Path to Exile",
+   "quantity": 1
+  },
+  {
+   "name": "Rapid Hybridization",
+   "quantity": 1
+  },
+  {
+   "name": "Reverse the Polarity",
+   "quantity": 1
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1
+  },
+  {
+   "name": "Tower Defense",
+   "quantity": 1
+  },
+  {
+   "name": "Bala Ged Recovery",
+   "quantity": 1
+  },
+  {
+   "name": "Cultivate",
+   "quantity": 1
+  },
+  {
+   "name": "Farseek",
+   "quantity": 1
+  },
+  {
+   "name": "Harsh Mercy",
+   "quantity": 1
+  },
+  {
+   "name": "Kodama's Reach",
+   "quantity": 1
+  },
+  {
+   "name": "Last March of the Ents",
+   "quantity": 1
+  },
+  {
+   "name": "Overwhelming Stampede",
+   "quantity": 1
+  },
+  {
+   "name": "Raise the Palisade",
+   "quantity": 1
+  },
+  {
+   "name": "Three Visits",
+   "quantity": 1
+  },
+  {
+   "name": "Akroma's Memorial",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Chromatic Lantern",
+   "quantity": 1
+  },
+  {
+   "name": "Lightning Greaves",
+   "quantity": 1
+  },
+  {
+   "name": "Patchwork Banner",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Swiftfoot Boots",
+   "quantity": 1
+  },
+  {
+   "name": "Urza's Incubator",
+   "quantity": 1
+  },
+  {
+   "name": "Vanquisher's Banner",
+   "quantity": 1
+  },
+  {
+   "name": "Assault Formation",
+   "quantity": 1
+  },
+  {
+   "name": "Guardian Project",
+   "quantity": 1
+  },
+  {
+   "name": "High Alert",
+   "quantity": 1
+  },
+  {
+   "name": "Kindred Discovery",
+   "quantity": 1
+  },
+  {
+   "name": "Levitation",
+   "quantity": 1
+  },
+  {
+   "name": "Sight of the Scalelords",
+   "quantity": 1
+  },
+  {
+   "name": "Spidersilk Armor",
+   "quantity": 1
+  },
+  {
+   "name": "Huatli, the Sun's Heart",
+   "quantity": 1
+  },
+  {
+   "name": "Alchemist's Refuge",
+   "quantity": 1
+  },
+  {
+   "name": "Blighted Woodland",
+   "quantity": 1
+  },
+  {
+   "name": "Breeding Pool",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 10
+  },
+  {
+   "name": "Island",
+   "quantity": 9
+  },
+  {
+   "name": "Krosan Verge",
+   "quantity": 1
+  },
+  {
+   "name": "Misty Rainforest",
+   "quantity": 1
+  },
+  {
+   "name": "Myriad Landscape",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 5
+  },
+  {
+   "name": "Rimewood Falls",
+   "quantity": 1
+  },
+  {
+   "name": "Spara's Headquarters",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Mystery",
+   "quantity": 1
+  },
+  {
+   "name": "Terramorphic Expanse",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

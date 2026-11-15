@@ -1,0 +1,342 @@
+{
+ "urlhash": "czBBh0C6RnF4VbXQYdfn9Q",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-10-04",
+ "price": 129,
+ "salt": 35.96693939343095,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/pXc263jrlkuTiIus52vGJA?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Adaptive Automaton",
+   "quantity": 1
+  },
+  {
+   "name": "Amrou Kithkin",
+   "quantity": 1
+  },
+  {
+   "name": "Amrou Scout",
+   "quantity": 1
+  },
+  {
+   "name": "Apothecary Initiate",
+   "quantity": 1
+  },
+  {
+   "name": "Ballynock Trapper",
+   "quantity": 1
+  },
+  {
+   "name": "Ballyrush Banneret",
+   "quantity": 1
+  },
+  {
+   "name": "Battletide Alchemist",
+   "quantity": 1
+  },
+  {
+   "name": "Brigid, Hero of Kinsbaile",
+   "quantity": 1
+  },
+  {
+   "name": "Cenn's Tactician",
+   "quantity": 1
+  },
+  {
+   "name": "Goldmeadow Harrier",
+   "quantity": 1
+  },
+  {
+   "name": "Goldmeadow Lookout",
+   "quantity": 1
+  },
+  {
+   "name": "Guardian of Cloverdell",
+   "quantity": 1
+  },
+  {
+   "name": "Kinsbaile Balloonist",
+   "quantity": 1
+  },
+  {
+   "name": "Kinsbaile Borderguard",
+   "quantity": 1
+  },
+  {
+   "name": "Kinsbaile Cavalier",
+   "quantity": 1
+  },
+  {
+   "name": "Kinsbaile Courier",
+   "quantity": 1
+  },
+  {
+   "name": "Kinsbaile Skirmisher",
+   "quantity": 1
+  },
+  {
+   "name": "Kinscaer Harpoonist",
+   "quantity": 1
+  },
+  {
+   "name": "Kithkin Mourncaller",
+   "quantity": 1
+  },
+  {
+   "name": "Kithkin Shielddare",
+   "quantity": 1
+  },
+  {
+   "name": "Knight of Meadowgrain",
+   "quantity": 1
+  },
+  {
+   "name": "Mistmeadow Witch",
+   "quantity": 1
+  },
+  {
+   "name": "Order of Whiteclay",
+   "quantity": 1
+  },
+  {
+   "name": "Patrol Signaler",
+   "quantity": 1
+  },
+  {
+   "name": "Plover Knights",
+   "quantity": 1
+  },
+  {
+   "name": "Preeminent Captain",
+   "quantity": 1
+  },
+  {
+   "name": "Resplendent Mentor",
+   "quantity": 1
+  },
+  {
+   "name": "Thistledown Liege",
+   "quantity": 1
+  },
+  {
+   "name": "Thoughtweft Trio",
+   "quantity": 1
+  },
+  {
+   "name": "Wizened Cenn",
+   "quantity": 1
+  },
+  {
+   "name": "Luminescent Rain",
+   "quantity": 1
+  },
+  {
+   "name": "Make a Stand",
+   "quantity": 1
+  },
+  {
+   "name": "Mirrorweave",
+   "quantity": 1
+  },
+  {
+   "name": "Surge of Thoughtweft",
+   "quantity": 1
+  },
+  {
+   "name": "Thoughtweft Gambit",
+   "quantity": 1
+  },
+  {
+   "name": "Unbreakable Formation",
+   "quantity": 1
+  },
+  {
+   "name": "Distant Melody",
+   "quantity": 1
+  },
+  {
+   "name": "Harsh Mercy",
+   "quantity": 1
+  },
+  {
+   "name": "Mass Calcify",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Bow of Nylea",
+   "quantity": 1
+  },
+  {
+   "name": "Door of Destinies",
+   "quantity": 1
+  },
+  {
+   "name": "Gauntlet of Power",
+   "quantity": 1
+  },
+  {
+   "name": "Heraldic Banner",
+   "quantity": 1
+  },
+  {
+   "name": "Icon of Ancestry",
+   "quantity": 1
+  },
+  {
+   "name": "Obelisk of Urd",
+   "quantity": 1
+  },
+  {
+   "name": "Oketra's Monument",
+   "quantity": 1
+  },
+  {
+   "name": "Patchwork Banner",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Spear of Heliod",
+   "quantity": 1
+  },
+  {
+   "name": "Always Watching",
+   "quantity": 1
+  },
+  {
+   "name": "Beastmaster Ascension",
+   "quantity": 1
+  },
+  {
+   "name": "Glorious Anthem",
+   "quantity": 1
+  },
+  {
+   "name": "Honor of the Pure",
+   "quantity": 1
+  },
+  {
+   "name": "Levitation",
+   "quantity": 1
+  },
+  {
+   "name": "Light from Within",
+   "quantity": 1
+  },
+  {
+   "name": "Militia's Pride",
+   "quantity": 1
+  },
+  {
+   "name": "Prison Term",
+   "quantity": 1
+  },
+  {
+   "name": "Radiant Destiny",
+   "quantity": 1
+  },
+  {
+   "name": "Rally the Ranks",
+   "quantity": 1
+  },
+  {
+   "name": "Steel of the Godhead",
+   "quantity": 1
+  },
+  {
+   "name": "Ajani Goldmane",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Chancery",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Guildgate",
+   "quantity": 1
+  },
+  {
+   "name": "Boreal Shelf",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Celestial Colonnade",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Conservatory",
+   "quantity": 1
+  },
+  {
+   "name": "Creosote Heath",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 6
+  },
+  {
+   "name": "Fortified Beachhead",
+   "quantity": 1
+  },
+  {
+   "name": "Gavony Township",
+   "quantity": 1
+  },
+  {
+   "name": "Glacial Fortress",
+   "quantity": 1
+  },
+  {
+   "name": "Graypelt Refuge",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 5
+  },
+  {
+   "name": "Karoo",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 11
+  },
+  {
+   "name": "Rustic Clachan",
+   "quantity": 1
+  },
+  {
+   "name": "Secluded Courtyard",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

@@ -1,0 +1,294 @@
+{
+ "urlhash": "zyNvspIe8k8KPgOssd416Q",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-05-12",
+ "price": 372,
+ "salt": 52.4744180701673,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/XdfHe8_Np0uWC59NzY1ABA?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Abdel Adrian, Gorion's Ward",
+   "quantity": 1
+  },
+  {
+   "name": "Admonition Angel",
+   "quantity": 1
+  },
+  {
+   "name": "Aesi, Tyrant of Gyre Strait",
+   "quantity": 1
+  },
+  {
+   "name": "Ancient Silver Dragon",
+   "quantity": 1
+  },
+  {
+   "name": "Augur of Autumn",
+   "quantity": 1
+  },
+  {
+   "name": "Azusa, Lost but Seeking",
+   "quantity": 1
+  },
+  {
+   "name": "Baxter, Fly in the Ointment",
+   "quantity": 1
+  },
+  {
+   "name": "Beanstalk Wurm",
+   "quantity": 1
+  },
+  {
+   "name": "Body of Knowledge",
+   "quantity": 1
+  },
+  {
+   "name": "Chasm Skulker",
+   "quantity": 1
+  },
+  {
+   "name": "Clinquant Skymage",
+   "quantity": 1
+  },
+  {
+   "name": "Dream Trawler",
+   "quantity": 1
+  },
+  {
+   "name": "Dryad of the Ilysian Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Horizon Chimera",
+   "quantity": 1
+  },
+  {
+   "name": "Jace's Projection",
+   "quantity": 1
+  },
+  {
+   "name": "Kianne, Corrupted Memory",
+   "quantity": 1
+  },
+  {
+   "name": "Loot, Exuberant Explorer",
+   "quantity": 1
+  },
+  {
+   "name": "Lorescale Coatl",
+   "quantity": 1
+  },
+  {
+   "name": "Lyla, Holographic Assistant",
+   "quantity": 1
+  },
+  {
+   "name": "Nadir Kraken",
+   "quantity": 1
+  },
+  {
+   "name": "Nezahal, Primal Tide",
+   "quantity": 1
+  },
+  {
+   "name": "Oneirophage",
+   "quantity": 1
+  },
+  {
+   "name": "Psychosis Crawler",
+   "quantity": 1
+  },
+  {
+   "name": "Shabraz, the Skyshark",
+   "quantity": 1
+  },
+  {
+   "name": "Tamiyo, Inquisitive Student",
+   "quantity": 1
+  },
+  {
+   "name": "The Second Doctor",
+   "quantity": 1
+  },
+  {
+   "name": "The Watcher in the Water",
+   "quantity": 1
+  },
+  {
+   "name": "Tishana, Voice of Thunder",
+   "quantity": 1
+  },
+  {
+   "name": "Toothy, Imaginary Friend",
+   "quantity": 1
+  },
+  {
+   "name": "Triskaidekaphile",
+   "quantity": 1
+  },
+  {
+   "name": "Archmage's Charm",
+   "quantity": 1
+  },
+  {
+   "name": "Diviner's Portent",
+   "quantity": 1
+  },
+  {
+   "name": "Hithlain Knots",
+   "quantity": 1
+  },
+  {
+   "name": "Joint Exploration",
+   "quantity": 1
+  },
+  {
+   "name": "Opt",
+   "quantity": 1
+  },
+  {
+   "name": "Path to Exile",
+   "quantity": 1
+  },
+  {
+   "name": "Return of the Wildspeaker",
+   "quantity": 1
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1
+  },
+  {
+   "name": "Explore",
+   "quantity": 1
+  },
+  {
+   "name": "Overrun",
+   "quantity": 1
+  },
+  {
+   "name": "Sea Gate Restoration",
+   "quantity": 1
+  },
+  {
+   "name": "Spirit Water Revival",
+   "quantity": 1
+  },
+  {
+   "name": "Alhammarret's Archive",
+   "quantity": 1
+  },
+  {
+   "name": "Decanter of Endless Water",
+   "quantity": 1
+  },
+  {
+   "name": "Diviner's Wand",
+   "quantity": 1
+  },
+  {
+   "name": "Goggles of Night",
+   "quantity": 1
+  },
+  {
+   "name": "Lifecrafter's Bestiary",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Thought Vessel",
+   "quantity": 1
+  },
+  {
+   "name": "Azusa's Many Journeys",
+   "quantity": 1
+  },
+  {
+   "name": "Burgeoning",
+   "quantity": 1
+  },
+  {
+   "name": "Case of the Locked Hothouse",
+   "quantity": 1
+  },
+  {
+   "name": "Druid Class",
+   "quantity": 1
+  },
+  {
+   "name": "Nerd Rage",
+   "quantity": 1
+  },
+  {
+   "name": "Ominous Seas",
+   "quantity": 1
+  },
+  {
+   "name": "Proft's Eidetic Memory",
+   "quantity": 1
+  },
+  {
+   "name": "Wizard Class",
+   "quantity": 1
+  },
+  {
+   "name": "Jace, Mirror Mage",
+   "quantity": 1
+  },
+  {
+   "name": "Teferi, Temporal Pilgrim",
+   "quantity": 1
+  },
+  {
+   "name": "Abundant Countryside",
+   "quantity": 1
+  },
+  {
+   "name": "Adarkar Wastes",
+   "quantity": 1
+  },
+  {
+   "name": "Ancient Ziggurat",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Guildgate",
+   "quantity": 1
+  },
+  {
+   "name": "Blighted Woodland",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 11
+  },
+  {
+   "name": "Island",
+   "quantity": 12
+  },
+  {
+   "name": "Plains",
+   "quantity": 11
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

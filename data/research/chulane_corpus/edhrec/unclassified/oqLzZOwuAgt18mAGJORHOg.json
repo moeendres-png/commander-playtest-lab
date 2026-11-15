@@ -1,0 +1,342 @@
+{
+ "urlhash": "oqLzZOwuAgt18mAGJORHOg",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-08-05",
+ "price": 278,
+ "salt": 45.38337313570082,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/19_elMKmNEKhDW6u0fDM6g?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Adeline, Resplendent Cathar",
+   "quantity": 1
+  },
+  {
+   "name": "Aegis of the Gods",
+   "quantity": 1
+  },
+  {
+   "name": "Axgard Braggart",
+   "quantity": 1
+  },
+  {
+   "name": "Battlefield Scrounger",
+   "quantity": 1
+  },
+  {
+   "name": "Braulios of Pheres Band",
+   "quantity": 1
+  },
+  {
+   "name": "Brightcap Badger",
+   "quantity": 1
+  },
+  {
+   "name": "Bronzehide Lion",
+   "quantity": 1
+  },
+  {
+   "name": "Colossal Badger",
+   "quantity": 1
+  },
+  {
+   "name": "Dryad of the Ilysian Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Dutiful Knowledge Seeker",
+   "quantity": 1
+  },
+  {
+   "name": "Dáin, Lord of the Iron Hills",
+   "quantity": 1
+  },
+  {
+   "name": "Gallant Cavalry",
+   "quantity": 1
+  },
+  {
+   "name": "Garrison Griffin",
+   "quantity": 1
+  },
+  {
+   "name": "Gigantic Big Bear",
+   "quantity": 1
+  },
+  {
+   "name": "Giltspire Avenger",
+   "quantity": 1
+  },
+  {
+   "name": "God-Favored General",
+   "quantity": 1
+  },
+  {
+   "name": "Hylda of the Icy Crown",
+   "quantity": 1
+  },
+  {
+   "name": "Ivy Dancer",
+   "quantity": 1
+  },
+  {
+   "name": "Jace, Vryn's Prodigy",
+   "quantity": 1
+  },
+  {
+   "name": "Knight of Autumn",
+   "quantity": 1
+  },
+  {
+   "name": "Knight of the White Orchid",
+   "quantity": 1
+  },
+  {
+   "name": "Master of the Wild Hunt",
+   "quantity": 1
+  },
+  {
+   "name": "Saddled Rimestag",
+   "quantity": 1
+  },
+  {
+   "name": "Saffi Eriksdotter",
+   "quantity": 1
+  },
+  {
+   "name": "Satyr Piper",
+   "quantity": 1
+  },
+  {
+   "name": "Satyr Wayfinder",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Eulogist",
+   "quantity": 1
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1
+  },
+  {
+   "name": "Faith's Shield",
+   "quantity": 1
+  },
+  {
+   "name": "Generous Gift",
+   "quantity": 1
+  },
+  {
+   "name": "Gods Willing",
+   "quantity": 1
+  },
+  {
+   "name": "Growth Spiral",
+   "quantity": 1
+  },
+  {
+   "name": "Join Shields",
+   "quantity": 1
+  },
+  {
+   "name": "Repel Calamity",
+   "quantity": 1
+  },
+  {
+   "name": "Revitalize",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Charm",
+   "quantity": 1
+  },
+  {
+   "name": "Abundant Harvest",
+   "quantity": 1
+  },
+  {
+   "name": "Approach of the Second Sun",
+   "quantity": 1
+  },
+  {
+   "name": "Austere Command",
+   "quantity": 1
+  },
+  {
+   "name": "Commune with Beavers",
+   "quantity": 1
+  },
+  {
+   "name": "Cultivate",
+   "quantity": 1
+  },
+  {
+   "name": "Day of Judgment",
+   "quantity": 1
+  },
+  {
+   "name": "Hop to It",
+   "quantity": 1
+  },
+  {
+   "name": "Inevitable Betrayal",
+   "quantity": 1
+  },
+  {
+   "name": "Natural Order",
+   "quantity": 1
+  },
+  {
+   "name": "Primal Command",
+   "quantity": 1
+  },
+  {
+   "name": "Regrowth",
+   "quantity": 1
+  },
+  {
+   "name": "Wrath of God",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Conjurer's Closet",
+   "quantity": 1
+  },
+  {
+   "name": "Crown of Convergence",
+   "quantity": 1
+  },
+  {
+   "name": "Horn of Gondor",
+   "quantity": 1
+  },
+  {
+   "name": "Lightning Greaves",
+   "quantity": 1
+  },
+  {
+   "name": "Phyrexian Altar",
+   "quantity": 1
+  },
+  {
+   "name": "Potion of Healing",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Swiftfoot Boots",
+   "quantity": 1
+  },
+  {
+   "name": "A Realm Reborn",
+   "quantity": 1
+  },
+  {
+   "name": "Abundant Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Alpha Authority",
+   "quantity": 1
+  },
+  {
+   "name": "Descendants' Path",
+   "quantity": 1
+  },
+  {
+   "name": "Doubling Season",
+   "quantity": 1
+  },
+  {
+   "name": "Castle Ardenvale",
+   "quantity": 1
+  },
+  {
+   "name": "Castle Garenbrig",
+   "quantity": 1
+  },
+  {
+   "name": "Castle Vantress",
+   "quantity": 1
+  },
+  {
+   "name": "Coastal Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Dreamroot Cascade",
+   "quantity": 1
+  },
+  {
+   "name": "Dryad Arbor",
+   "quantity": 1
+  },
+  {
+   "name": "Elfhame Palace",
+   "quantity": 1
+  },
+  {
+   "name": "Flooded Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 8
+  },
+  {
+   "name": "Graypelt Refuge",
+   "quantity": 1
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1
+  },
+  {
+   "name": "Hinterland Harbor",
+   "quantity": 1
+  },
+  {
+   "name": "Idyllic Beachfront",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 7
+  },
+  {
+   "name": "Lake-town",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 7
+  },
+  {
+   "name": "Rimewood Falls",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

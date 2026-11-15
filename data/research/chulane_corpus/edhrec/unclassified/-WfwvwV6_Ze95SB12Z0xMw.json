@@ -1,0 +1,288 @@
+{
+ "urlhash": "-WfwvwV6_Ze95SB12Z0xMw",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-01-02",
+ "price": 197,
+ "salt": 53.16737553477287,
+ "tags": [
+  "Energy"
+ ],
+ "source_url": "https://moxfield.com/decks/F4EI7eHoME-lc4NTOTnxKQ?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Aethersquall Ancient",
+   "quantity": 1
+  },
+  {
+   "name": "Aetherstorm Roc",
+   "quantity": 1
+  },
+  {
+   "name": "Aethertide Whale",
+   "quantity": 1
+  },
+  {
+   "name": "Aetherwind Basker",
+   "quantity": 1
+  },
+  {
+   "name": "Architect of the Untamed",
+   "quantity": 1
+  },
+  {
+   "name": "Bloated Contaminator",
+   "quantity": 1
+  },
+  {
+   "name": "Bloodroot Apothecary",
+   "quantity": 1
+  },
+  {
+   "name": "Contaminant Grafter",
+   "quantity": 1
+  },
+  {
+   "name": "Dreamtide Whale",
+   "quantity": 1
+  },
+  {
+   "name": "Eddytrail Hawk",
+   "quantity": 1
+  },
+  {
+   "name": "Electrostatic Pummeler",
+   "quantity": 1
+  },
+  {
+   "name": "Emissary of Soulfire",
+   "quantity": 1
+  },
+  {
+   "name": "Empyreal Voyager",
+   "quantity": 1
+  },
+  {
+   "name": "Evolution Sage",
+   "quantity": 1
+  },
+  {
+   "name": "Flux Channeler",
+   "quantity": 1
+  },
+  {
+   "name": "Glissa's Retriever",
+   "quantity": 1
+  },
+  {
+   "name": "Greenbelt Rampager",
+   "quantity": 1
+  },
+  {
+   "name": "Guide of Souls",
+   "quantity": 1
+  },
+  {
+   "name": "Janjeet Sentry",
+   "quantity": 1
+  },
+  {
+   "name": "Metastatic Evangel",
+   "quantity": 1
+  },
+  {
+   "name": "Mite Overseer",
+   "quantity": 1
+  },
+  {
+   "name": "Myr Convert",
+   "quantity": 1
+  },
+  {
+   "name": "Peema Aether-Seer",
+   "quantity": 1
+  },
+  {
+   "name": "Phyrexian Swarmlord",
+   "quantity": 1
+  },
+  {
+   "name": "Riddle Gate Gargoyle",
+   "quantity": 1
+  },
+  {
+   "name": "Rogue Refiner",
+   "quantity": 1
+  },
+  {
+   "name": "Roil Cartographer",
+   "quantity": 1
+  },
+  {
+   "name": "Servant of the Conduit",
+   "quantity": 1
+  },
+  {
+   "name": "Shielded Aether Thief",
+   "quantity": 1
+  },
+  {
+   "name": "Skrelv, Defector Mite",
+   "quantity": 1
+  },
+  {
+   "name": "Slaughter Singer",
+   "quantity": 1
+  },
+  {
+   "name": "Sphinx of the Revelation",
+   "quantity": 1
+  },
+  {
+   "name": "Tainted Observer",
+   "quantity": 1
+  },
+  {
+   "name": "Tekuthal, Inquiry Dominus",
+   "quantity": 1
+  },
+  {
+   "name": "Tyrranax Rex",
+   "quantity": 1
+  },
+  {
+   "name": "Venerated Rotpriest",
+   "quantity": 1
+  },
+  {
+   "name": "Voltstorm Angel",
+   "quantity": 1
+  },
+  {
+   "name": "Aether Spike",
+   "quantity": 1
+  },
+  {
+   "name": "Corrupted Resolve",
+   "quantity": 1
+  },
+  {
+   "name": "Infectious Bite",
+   "quantity": 1
+  },
+  {
+   "name": "Attune with Aether",
+   "quantity": 1
+  },
+  {
+   "name": "Jolted Awake",
+   "quantity": 1
+  },
+  {
+   "name": "Localized Destruction",
+   "quantity": 1
+  },
+  {
+   "name": "Unnatural Restoration",
+   "quantity": 1
+  },
+  {
+   "name": "Wrath of the Skies",
+   "quantity": 1
+  },
+  {
+   "name": "Aetherworks Marvel",
+   "quantity": 1
+  },
+  {
+   "name": "Conversion Apparatus",
+   "quantity": 1
+  },
+  {
+   "name": "Decoction Module",
+   "quantity": 1
+  },
+  {
+   "name": "Fabrication Module",
+   "quantity": 1
+  },
+  {
+   "name": "Glistening Sphere",
+   "quantity": 1
+  },
+  {
+   "name": "Ichormoon Gauntlet",
+   "quantity": 1
+  },
+  {
+   "name": "Phyrexian Atlas",
+   "quantity": 1
+  },
+  {
+   "name": "Solar Transformer",
+   "quantity": 1
+  },
+  {
+   "name": "Staff of Compleation",
+   "quantity": 1
+  },
+  {
+   "name": "Consulate Surveillance",
+   "quantity": 1
+  },
+  {
+   "name": "Goliath Hatchery",
+   "quantity": 1
+  },
+  {
+   "name": "Norn's Decree",
+   "quantity": 1
+  },
+  {
+   "name": "Primal Prayers",
+   "quantity": 1
+  },
+  {
+   "name": "Skrelv's Hive",
+   "quantity": 1
+  },
+  {
+   "name": "Static Prison",
+   "quantity": 1
+  },
+  {
+   "name": "Aether Hub",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 14
+  },
+  {
+   "name": "Island",
+   "quantity": 11
+  },
+  {
+   "name": "Karn's Bastion",
+   "quantity": 1
+  },
+  {
+   "name": "Mirrex",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 11
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

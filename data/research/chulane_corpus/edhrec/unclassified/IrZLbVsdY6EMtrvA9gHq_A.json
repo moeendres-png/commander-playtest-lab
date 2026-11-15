@@ -1,0 +1,374 @@
+{
+ "urlhash": "IrZLbVsdY6EMtrvA9gHq_A",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-09-05",
+ "price": 211,
+ "salt": 44.953362045343965,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/fYdwMJdAG0CBGM8tXU9NDA?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Academy Manufactor",
+   "quantity": 1
+  },
+  {
+   "name": "Adrix and Nev, Twincasters",
+   "quantity": 1
+  },
+  {
+   "name": "Alandra, Sky Dreamer",
+   "quantity": 1
+  },
+  {
+   "name": "Bennie Bracks, Zoologist",
+   "quantity": 1
+  },
+  {
+   "name": "Erdwal Illuminator",
+   "quantity": 1
+  },
+  {
+   "name": "Ethereal Investigator",
+   "quantity": 1
+  },
+  {
+   "name": "Forensic Gadgeteer",
+   "quantity": 1
+  },
+  {
+   "name": "Jaheira, Friend of the Forest",
+   "quantity": 1
+  },
+  {
+   "name": "Jolrael, Mwonvuli Recluse",
+   "quantity": 1
+  },
+  {
+   "name": "Kappa Cannoneer",
+   "quantity": 1
+  },
+  {
+   "name": "Kellan, Inquisitive Prodigy",
+   "quantity": 1
+  },
+  {
+   "name": "Lonis, Cryptozoologist",
+   "quantity": 1
+  },
+  {
+   "name": "Morska, Undersea Sleuth",
+   "quantity": 1
+  },
+  {
+   "name": "Shimmer Dragon",
+   "quantity": 1
+  },
+  {
+   "name": "Tangled Florahedron",
+   "quantity": 1
+  },
+  {
+   "name": "Tangletrove Kelp",
+   "quantity": 1
+  },
+  {
+   "name": "Thunderfoot Baloth",
+   "quantity": 1
+  },
+  {
+   "name": "Tireless Tracker",
+   "quantity": 1
+  },
+  {
+   "name": "Urza, Lord High Artificer",
+   "quantity": 1
+  },
+  {
+   "name": "Wavesifter",
+   "quantity": 1
+  },
+  {
+   "name": "Wojek Investigator",
+   "quantity": 1
+  },
+  {
+   "name": "Beast Within",
+   "quantity": 1
+  },
+  {
+   "name": "Confirm Suspicions",
+   "quantity": 1
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1
+  },
+  {
+   "name": "Crush Contraband",
+   "quantity": 1
+  },
+  {
+   "name": "Disdainful Stroke",
+   "quantity": 1
+  },
+  {
+   "name": "Disruption Protocol",
+   "quantity": 1
+  },
+  {
+   "name": "Essence Scatter",
+   "quantity": 1
+  },
+  {
+   "name": "Generous Gift",
+   "quantity": 1
+  },
+  {
+   "name": "Jwari Disruption",
+   "quantity": 1
+  },
+  {
+   "name": "Khalni Ambush",
+   "quantity": 1
+  },
+  {
+   "name": "Mana Leak",
+   "quantity": 1
+  },
+  {
+   "name": "Mystic Confluence",
+   "quantity": 1
+  },
+  {
+   "name": "Officious Interrogation",
+   "quantity": 1
+  },
+  {
+   "name": "Path to Exile",
+   "quantity": 1
+  },
+  {
+   "name": "Sundering Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1
+  },
+  {
+   "name": "Syncopate",
+   "quantity": 1
+  },
+  {
+   "name": "Cultivate",
+   "quantity": 1
+  },
+  {
+   "name": "Curse of the Swine",
+   "quantity": 1
+  },
+  {
+   "name": "Farewell",
+   "quantity": 1
+  },
+  {
+   "name": "Makindi Stampede",
+   "quantity": 1
+  },
+  {
+   "name": "Ondu Inversion",
+   "quantity": 1
+  },
+  {
+   "name": "Organic Extinction",
+   "quantity": 1
+  },
+  {
+   "name": "Rise and Shine",
+   "quantity": 1
+  },
+  {
+   "name": "Root Out",
+   "quantity": 1
+  },
+  {
+   "name": "Sublime Exhalation",
+   "quantity": 1
+  },
+  {
+   "name": "Urban Evolution",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Eye of Vecna",
+   "quantity": 1
+  },
+  {
+   "name": "Five Hundred Year Diary",
+   "quantity": 1
+  },
+  {
+   "name": "Idol of Oblivion",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Soul-Guide Lantern",
+   "quantity": 1
+  },
+  {
+   "name": "Talisman of Curiosity",
+   "quantity": 1
+  },
+  {
+   "name": "Talisman of Progress",
+   "quantity": 1
+  },
+  {
+   "name": "Talisman of Unity",
+   "quantity": 1
+  },
+  {
+   "name": "Tamiyo's Journal",
+   "quantity": 1
+  },
+  {
+   "name": "Mechanized Production",
+   "quantity": 1
+  },
+  {
+   "name": "Ongoing Investigation",
+   "quantity": 1
+  },
+  {
+   "name": "Search the Premises",
+   "quantity": 1
+  },
+  {
+   "name": "Teferi's Ageless Insight",
+   "quantity": 1
+  },
+  {
+   "name": "Thorough Investigation",
+   "quantity": 1
+  },
+  {
+   "name": "Tezzeret, Betrayer of Flesh",
+   "quantity": 1
+  },
+  {
+   "name": "Blighted Woodland",
+   "quantity": 1
+  },
+  {
+   "name": "Breeding Pool",
+   "quantity": 1
+  },
+  {
+   "name": "Brushland",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Conservatory",
+   "quantity": 1
+  },
+  {
+   "name": "Exotic Orchard",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 4
+  },
+  {
+   "name": "Glacial Fortress",
+   "quantity": 1
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1
+  },
+  {
+   "name": "Hinterland Harbor",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 6
+  },
+  {
+   "name": "Kitchen",
+   "quantity": 1
+  },
+  {
+   "name": "Krosan Verge",
+   "quantity": 1
+  },
+  {
+   "name": "Mariposa Military Base",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 4
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1
+  },
+  {
+   "name": "Spara's Headquarters",
+   "quantity": 1
+  },
+  {
+   "name": "Spire of Industry",
+   "quantity": 1
+  },
+  {
+   "name": "Study",
+   "quantity": 1
+  },
+  {
+   "name": "Temple Garden",
+   "quantity": 1
+  },
+  {
+   "name": "Vineglimmer Snarl",
+   "quantity": 1
+  },
+  {
+   "name": "Waterlogged Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Yavimaya Coast",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

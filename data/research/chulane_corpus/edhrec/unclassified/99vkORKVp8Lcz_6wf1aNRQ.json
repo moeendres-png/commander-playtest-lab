@@ -1,0 +1,334 @@
+{
+ "urlhash": "99vkORKVp8Lcz_6wf1aNRQ",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-04-23",
+ "price": 450,
+ "salt": 52.565152214840055,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/21971083?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Adept Watershaper",
+   "quantity": 1
+  },
+  {
+   "name": "Champions of the Shoal",
+   "quantity": 1
+  },
+  {
+   "name": "Coral Trickster",
+   "quantity": 1
+  },
+  {
+   "name": "Deepchannel Duelist",
+   "quantity": 1
+  },
+  {
+   "name": "Deepway Navigator",
+   "quantity": 1
+  },
+  {
+   "name": "Disruptor of Currents",
+   "quantity": 1
+  },
+  {
+   "name": "Drowner of Secrets",
+   "quantity": 1
+  },
+  {
+   "name": "Encumbered Reejerey",
+   "quantity": 1
+  },
+  {
+   "name": "Fallowsage",
+   "quantity": 1
+  },
+  {
+   "name": "Floodpits Drowner",
+   "quantity": 1
+  },
+  {
+   "name": "Forensic Researcher",
+   "quantity": 1
+  },
+  {
+   "name": "Gravelgill Scoundrel",
+   "quantity": 1
+  },
+  {
+   "name": "Gray Harbor Merfolk",
+   "quantity": 1
+  },
+  {
+   "name": "Harbinger of the Tides",
+   "quantity": 1
+  },
+  {
+   "name": "Harmonized Trio",
+   "quantity": 1
+  },
+  {
+   "name": "Harpoon Sniper",
+   "quantity": 1
+  },
+  {
+   "name": "Judge of Currents",
+   "quantity": 1
+  },
+  {
+   "name": "Kelpie Guide",
+   "quantity": 1
+  },
+  {
+   "name": "Kiora's Follower",
+   "quantity": 1
+  },
+  {
+   "name": "Kumena, Tyrant of Orazca",
+   "quantity": 1
+  },
+  {
+   "name": "Lord of Atlantis",
+   "quantity": 1
+  },
+  {
+   "name": "Lullmage Mentor",
+   "quantity": 1
+  },
+  {
+   "name": "Master of the Pearl Trident",
+   "quantity": 1
+  },
+  {
+   "name": "Meanders Guide",
+   "quantity": 1
+  },
+  {
+   "name": "Merrow Harbinger",
+   "quantity": 1
+  },
+  {
+   "name": "Merrow Reejerey",
+   "quantity": 1
+  },
+  {
+   "name": "Mist Dancer",
+   "quantity": 1
+  },
+  {
+   "name": "Mist-Cloaked Herald",
+   "quantity": 1
+  },
+  {
+   "name": "Murkfiend Liege",
+   "quantity": 1
+  },
+  {
+   "name": "Pestered Wellguard",
+   "quantity": 1
+  },
+  {
+   "name": "Seahunter",
+   "quantity": 1
+  },
+  {
+   "name": "Seasinger",
+   "quantity": 1
+  },
+  {
+   "name": "Seedborn Muse",
+   "quantity": 1
+  },
+  {
+   "name": "Sigil Tracer",
+   "quantity": 1
+  },
+  {
+   "name": "Silvergill Peddler",
+   "quantity": 1
+  },
+  {
+   "name": "Stonybrook Schoolmaster",
+   "quantity": 1
+  },
+  {
+   "name": "Surgespanner",
+   "quantity": 1
+  },
+  {
+   "name": "Tempest Caller",
+   "quantity": 1
+  },
+  {
+   "name": "Tributary Vaulter",
+   "quantity": 1
+  },
+  {
+   "name": "Wanderbrine Preacher",
+   "quantity": 1
+  },
+  {
+   "name": "Wanderbrine Trapper",
+   "quantity": 1
+  },
+  {
+   "name": "Enlightened Tutor",
+   "quantity": 1
+  },
+  {
+   "name": "Harmonized Crescendo",
+   "quantity": 1
+  },
+  {
+   "name": "Farseek",
+   "quantity": 1
+  },
+  {
+   "name": "Harvest Season",
+   "quantity": 1
+  },
+  {
+   "name": "Kodama's Reach",
+   "quantity": 1
+  },
+  {
+   "name": "Rampant Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Summon the School",
+   "quantity": 1
+  },
+  {
+   "name": "Sygg's Command",
+   "quantity": 1
+  },
+  {
+   "name": "Winnowing",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Chronicle of Victory",
+   "quantity": 1
+  },
+  {
+   "name": "Herald's Horn",
+   "quantity": 1
+  },
+  {
+   "name": "Magewright's Stone",
+   "quantity": 1
+  },
+  {
+   "name": "Patchwork Banner",
+   "quantity": 1
+  },
+  {
+   "name": "Patriar's Seal",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Thousand-Year Elixir",
+   "quantity": 1
+  },
+  {
+   "name": "Deeproot Pilgrimage",
+   "quantity": 1
+  },
+  {
+   "name": "Deeproot Waters",
+   "quantity": 1
+  },
+  {
+   "name": "Intruder Alarm",
+   "quantity": 1
+  },
+  {
+   "name": "Merrow Commerce",
+   "quantity": 1
+  },
+  {
+   "name": "Opposition",
+   "quantity": 1
+  },
+  {
+   "name": "Breeding Pool",
+   "quantity": 1
+  },
+  {
+   "name": "Cavern of Souls",
+   "quantity": 1
+  },
+  {
+   "name": "Eclipsed Realms",
+   "quantity": 1
+  },
+  {
+   "name": "Flooded Strand",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 1
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 21
+  },
+  {
+   "name": "Misty Rainforest",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 2
+  },
+  {
+   "name": "Secluded Courtyard",
+   "quantity": 1
+  },
+  {
+   "name": "Temple Garden",
+   "quantity": 1
+  },
+  {
+   "name": "Three Tree City",
+   "quantity": 1
+  },
+  {
+   "name": "Unclaimed Territory",
+   "quantity": 1
+  },
+  {
+   "name": "Wanderwine Hub",
+   "quantity": 1
+  },
+  {
+   "name": "Windswept Heath",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

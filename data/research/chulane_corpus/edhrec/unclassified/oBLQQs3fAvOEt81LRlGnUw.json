@@ -1,0 +1,310 @@
+{
+ "urlhash": "oBLQQs3fAvOEt81LRlGnUw",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-11-12",
+ "price": 493,
+ "salt": 63.12831807881594,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/17384684?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Abzan Battle Priest",
+   "quantity": 1
+  },
+  {
+   "name": "Champion of Lambholt",
+   "quantity": 1
+  },
+  {
+   "name": "Chasm Skulker",
+   "quantity": 1
+  },
+  {
+   "name": "Chocobo Knights",
+   "quantity": 1
+  },
+  {
+   "name": "Denry Klin, Editor in Chief",
+   "quantity": 1
+  },
+  {
+   "name": "Discerning Financier",
+   "quantity": 1
+  },
+  {
+   "name": "Drumbellower",
+   "quantity": 1
+  },
+  {
+   "name": "Forgotten Ancient",
+   "quantity": 1
+  },
+  {
+   "name": "Generous Pup",
+   "quantity": 1
+  },
+  {
+   "name": "Glen Elendra Archmage",
+   "quantity": 1
+  },
+  {
+   "name": "Gyre Sage",
+   "quantity": 1
+  },
+  {
+   "name": "Invisible Stalker",
+   "quantity": 1
+  },
+  {
+   "name": "Kros, Defense Contractor",
+   "quantity": 1
+  },
+  {
+   "name": "Lae'zel, Vlaakith's Champion",
+   "quantity": 1
+  },
+  {
+   "name": "Lion Sash",
+   "quantity": 1
+  },
+  {
+   "name": "Lulu, Stern Guardian",
+   "quantity": 1
+  },
+  {
+   "name": "Luminarch Aspirant",
+   "quantity": 1
+  },
+  {
+   "name": "Luminous Broodmoth",
+   "quantity": 1
+  },
+  {
+   "name": "Mikaeus, the Lunarch",
+   "quantity": 1
+  },
+  {
+   "name": "Mist-Cloaked Herald",
+   "quantity": 1
+  },
+  {
+   "name": "O'aka, Traveling Merchant",
+   "quantity": 1
+  },
+  {
+   "name": "Rampant Rejuvenator",
+   "quantity": 1
+  },
+  {
+   "name": "Sage of Hours",
+   "quantity": 1
+  },
+  {
+   "name": "Sin, Unending Cataclysm",
+   "quantity": 1
+  },
+  {
+   "name": "Soltari Monk",
+   "quantity": 1
+  },
+  {
+   "name": "Soltari Priest",
+   "quantity": 1
+  },
+  {
+   "name": "Soratami Rainshaper",
+   "quantity": 1
+  },
+  {
+   "name": "Sunscorch Regent",
+   "quantity": 1
+  },
+  {
+   "name": "Tidus, Yuna's Guardian",
+   "quantity": 1
+  },
+  {
+   "name": "Triton Shorestalker",
+   "quantity": 1
+  },
+  {
+   "name": "Veteran Ice Climber",
+   "quantity": 1
+  },
+  {
+   "name": "Xolatoyac, the Smiling Flood",
+   "quantity": 1
+  },
+  {
+   "name": "Yuna, Grand Summoner",
+   "quantity": 1
+  },
+  {
+   "name": "Aetherize",
+   "quantity": 1
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1
+  },
+  {
+   "name": "Endless Detour",
+   "quantity": 1
+  },
+  {
+   "name": "Heroic Intervention",
+   "quantity": 1
+  },
+  {
+   "name": "March of Swirling Mist",
+   "quantity": 1
+  },
+  {
+   "name": "Reverse the Polarity",
+   "quantity": 1
+  },
+  {
+   "name": "Snap",
+   "quantity": 1
+  },
+  {
+   "name": "Damning Verdict",
+   "quantity": 1
+  },
+  {
+   "name": "Farewell",
+   "quantity": 1
+  },
+  {
+   "name": "Ashnod's Altar",
+   "quantity": 1
+  },
+  {
+   "name": "Luxior, Giada's Gift",
+   "quantity": 1
+  },
+  {
+   "name": "Midnight Clock",
+   "quantity": 1
+  },
+  {
+   "name": "Robe of Stars",
+   "quantity": 1
+  },
+  {
+   "name": "Silver Shroud Costume",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "The Ozolith",
+   "quantity": 1
+  },
+  {
+   "name": "Aura of Dominion",
+   "quantity": 1
+  },
+  {
+   "name": "Cathars' Crusade",
+   "quantity": 1
+  },
+  {
+   "name": "Felidar Retreat",
+   "quantity": 1
+  },
+  {
+   "name": "Fight Rigging",
+   "quantity": 1
+  },
+  {
+   "name": "Gossip's Talent",
+   "quantity": 1
+  },
+  {
+   "name": "Resourceful Defense",
+   "quantity": 1
+  },
+  {
+   "name": "Rhystic Study",
+   "quantity": 1
+  },
+  {
+   "name": "Roaring Earth",
+   "quantity": 1
+  },
+  {
+   "name": "Sphere Grid",
+   "quantity": 1
+  },
+  {
+   "name": "Wiretapping",
+   "quantity": 1
+  },
+  {
+   "name": "Wizard Class",
+   "quantity": 1
+  },
+  {
+   "name": "Venser, the Sojourner",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 10
+  },
+  {
+   "name": "Gavony Township",
+   "quantity": 1
+  },
+  {
+   "name": "Glacial Chasm",
+   "quantity": 1
+  },
+  {
+   "name": "Hinterland Harbor",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 10
+  },
+  {
+   "name": "Maze of Ith",
+   "quantity": 1
+  },
+  {
+   "name": "Nykthos, Shrine to Nyx",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 10
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Sunpetal Grove",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

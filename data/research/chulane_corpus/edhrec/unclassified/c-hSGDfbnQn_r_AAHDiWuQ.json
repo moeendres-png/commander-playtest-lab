@@ -1,0 +1,286 @@
+{
+ "urlhash": "c-hSGDfbnQn_r_AAHDiWuQ",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-10-25",
+ "price": 292,
+ "salt": 48.58841043896973,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/24321042?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Abu Ja'far",
+   "quantity": 1
+  },
+  {
+   "name": "Aegis Turtle",
+   "quantity": 1
+  },
+  {
+   "name": "Allosaurus Shepherd",
+   "quantity": 1
+  },
+  {
+   "name": "Almighty Brushwagg",
+   "quantity": 1
+  },
+  {
+   "name": "Alseid of Life's Bounty",
+   "quantity": 1
+  },
+  {
+   "name": "Arbor Elf",
+   "quantity": 1
+  },
+  {
+   "name": "Beastbreaker of Bala Ged",
+   "quantity": 1
+  },
+  {
+   "name": "Birchlore Rangers",
+   "quantity": 1
+  },
+  {
+   "name": "Birds of Paradise",
+   "quantity": 1
+  },
+  {
+   "name": "Boreal Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Caravan Escort",
+   "quantity": 1
+  },
+  {
+   "name": "Cenote Scout",
+   "quantity": 1
+  },
+  {
+   "name": "Centaur's Herald",
+   "quantity": 1
+  },
+  {
+   "name": "Children of Korlis",
+   "quantity": 1
+  },
+  {
+   "name": "Citanul Stalwart",
+   "quantity": 1
+  },
+  {
+   "name": "Copperhorn Scout",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Eulogist",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Herder",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Lyrist",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Mystic",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Pioneer",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Scrapper",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Skysweeper",
+   "quantity": 1
+  },
+  {
+   "name": "Empty-Shrine Kannushi",
+   "quantity": 1
+  },
+  {
+   "name": "Endless One",
+   "quantity": 1
+  },
+  {
+   "name": "Esper Sentinel",
+   "quantity": 1
+  },
+  {
+   "name": "Essence Warden",
+   "quantity": 1
+  },
+  {
+   "name": "Fyndhorn Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Gala Greeters",
+   "quantity": 1
+  },
+  {
+   "name": "Giver of Runes",
+   "quantity": 1
+  },
+  {
+   "name": "Haldir, Lórien Lieutenant",
+   "quantity": 1
+  },
+  {
+   "name": "Hangarback Walker",
+   "quantity": 1
+  },
+  {
+   "name": "Hedron Crab",
+   "quantity": 1
+  },
+  {
+   "name": "Heritage Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Hexdrinker",
+   "quantity": 1
+  },
+  {
+   "name": "Hinterland Sanctifier",
+   "quantity": 1
+  },
+  {
+   "name": "Ikiral Outrider",
+   "quantity": 1
+  },
+  {
+   "name": "Jaddi Offshoot",
+   "quantity": 1
+  },
+  {
+   "name": "Jaspera Sentinel",
+   "quantity": 1
+  },
+  {
+   "name": "Joraga Treespeaker",
+   "quantity": 1
+  },
+  {
+   "name": "Joraga Warcaller",
+   "quantity": 1
+  },
+  {
+   "name": "Kami of False Hope",
+   "quantity": 1
+  },
+  {
+   "name": "Kazandu Tuskcaller",
+   "quantity": 1
+  },
+  {
+   "name": "Krosan Wayfarer",
+   "quantity": 1
+  },
+  {
+   "name": "Lighthouse Chronologist",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Mentor",
+   "quantity": 1
+  },
+  {
+   "name": "Lunarch Veteran",
+   "quantity": 1
+  },
+  {
+   "name": "Marketback Walker",
+   "quantity": 1
+  },
+  {
+   "name": "Memnite",
+   "quantity": 1
+  },
+  {
+   "name": "Ornithopter",
+   "quantity": 1
+  },
+  {
+   "name": "Phyrexian Marauder",
+   "quantity": 1
+  },
+  {
+   "name": "Phyrexian Walker",
+   "quantity": 1
+  },
+  {
+   "name": "Rhys the Redeemed",
+   "quantity": 1
+  },
+  {
+   "name": "Ruin Crab",
+   "quantity": 1
+  },
+  {
+   "name": "Sazh's Chocobo",
+   "quantity": 1
+  },
+  {
+   "name": "Shield Sphere",
+   "quantity": 1
+  },
+  {
+   "name": "Shifting Wall",
+   "quantity": 1
+  },
+  {
+   "name": "Stonecoil Serpent",
+   "quantity": 1
+  },
+  {
+   "name": "Student of Warfare",
+   "quantity": 1
+  },
+  {
+   "name": "Ugin's Conjurant",
+   "quantity": 1
+  },
+  {
+   "name": "Walking Ballista",
+   "quantity": 1
+  },
+  {
+   "name": "Starlight Spectacular",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 18
+  },
+  {
+   "name": "Island",
+   "quantity": 7
+  },
+  {
+   "name": "Plains",
+   "quantity": 11
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

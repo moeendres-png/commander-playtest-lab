@@ -1,0 +1,286 @@
+{
+ "urlhash": "IP3MkQ3GjsTqFpPek4CgBA",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-03-13",
+ "price": 43,
+ "salt": 41.76951504871249,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/gZgTSuHtVEyp_5qJWTw7aw?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Aegis Turtle",
+   "quantity": 1
+  },
+  {
+   "name": "Almighty Brushwagg",
+   "quantity": 1
+  },
+  {
+   "name": "Angel's Herald",
+   "quantity": 1
+  },
+  {
+   "name": "Ankle Biter",
+   "quantity": 1
+  },
+  {
+   "name": "Anointed Chorister",
+   "quantity": 1
+  },
+  {
+   "name": "Anointer of Champions",
+   "quantity": 1
+  },
+  {
+   "name": "Arbor Elf",
+   "quantity": 1
+  },
+  {
+   "name": "Arcbound Mouser",
+   "quantity": 1
+  },
+  {
+   "name": "Armored Armadillo",
+   "quantity": 1
+  },
+  {
+   "name": "Beloved Princess",
+   "quantity": 1
+  },
+  {
+   "name": "Blisterpod",
+   "quantity": 1
+  },
+  {
+   "name": "Bond Beetle",
+   "quantity": 1
+  },
+  {
+   "name": "Bonded Construct",
+   "quantity": 1
+  },
+  {
+   "name": "Cactuar",
+   "quantity": 1
+  },
+  {
+   "name": "Caustic Caterpillar",
+   "quantity": 1
+  },
+  {
+   "name": "Cenote Scout",
+   "quantity": 1
+  },
+  {
+   "name": "Centaur's Herald",
+   "quantity": 1
+  },
+  {
+   "name": "Chainweb Aracnir",
+   "quantity": 1
+  },
+  {
+   "name": "Citanul Stalwart",
+   "quantity": 1
+  },
+  {
+   "name": "Copperhorn Scout",
+   "quantity": 1
+  },
+  {
+   "name": "Deathbonnet Sprout",
+   "quantity": 1
+  },
+  {
+   "name": "Empyrial Archangel",
+   "quantity": 1
+  },
+  {
+   "name": "Ajani's Presence",
+   "quantity": 1
+  },
+  {
+   "name": "Alley Evasion",
+   "quantity": 1
+  },
+  {
+   "name": "Aspect of Hydra",
+   "quantity": 1
+  },
+  {
+   "name": "Awe Strike",
+   "quantity": 1
+  },
+  {
+   "name": "Blossoming Wreath",
+   "quantity": 1
+  },
+  {
+   "name": "Blustersquall",
+   "quantity": 1
+  },
+  {
+   "name": "Charge Through",
+   "quantity": 1
+  },
+  {
+   "name": "Crossbow Ambush",
+   "quantity": 1
+  },
+  {
+   "name": "Abundant Harvest",
+   "quantity": 1
+  },
+  {
+   "name": "Adventurous Impulse",
+   "quantity": 1
+  },
+  {
+   "name": "Aether Tide",
+   "quantity": 1
+  },
+  {
+   "name": "Analyze the Pollen",
+   "quantity": 1
+  },
+  {
+   "name": "Ancient Stirrings",
+   "quantity": 1
+  },
+  {
+   "name": "Attune with Aether",
+   "quantity": 1
+  },
+  {
+   "name": "Breakthrough",
+   "quantity": 1
+  },
+  {
+   "name": "Bushwhack",
+   "quantity": 1
+  },
+  {
+   "name": "Caravan Vigil",
+   "quantity": 1
+  },
+  {
+   "name": "Chatter of the Squirrel",
+   "quantity": 1
+  },
+  {
+   "name": "Commune with Beavers",
+   "quantity": 1
+  },
+  {
+   "name": "Commune with Dinosaurs",
+   "quantity": 1
+  },
+  {
+   "name": "Commune with Spirits",
+   "quantity": 1
+  },
+  {
+   "name": "Corrosive Gale",
+   "quantity": 1
+  },
+  {
+   "name": "Adventuring Gear",
+   "quantity": 1
+  },
+  {
+   "name": "Aether Spellbomb",
+   "quantity": 1
+  },
+  {
+   "name": "Arcum's Astrolabe",
+   "quantity": 1
+  },
+  {
+   "name": "Avarice Totem",
+   "quantity": 1
+  },
+  {
+   "name": "Bag of Holding",
+   "quantity": 1
+  },
+  {
+   "name": "Bagel and Schmear",
+   "quantity": 1
+  },
+  {
+   "name": "Cement Shoes",
+   "quantity": 1
+  },
+  {
+   "name": "Chimeric Coils",
+   "quantity": 1
+  },
+  {
+   "name": "Chromatic Sphere",
+   "quantity": 1
+  },
+  {
+   "name": "Chromatic Star",
+   "quantity": 1
+  },
+  {
+   "name": "Aboshan's Desire",
+   "quantity": 1
+  },
+  {
+   "name": "Air Bladder",
+   "quantity": 1
+  },
+  {
+   "name": "Alms",
+   "quantity": 1
+  },
+  {
+   "name": "Apathy",
+   "quantity": 1
+  },
+  {
+   "name": "Archery Training",
+   "quantity": 1
+  },
+  {
+   "name": "Audacity",
+   "quantity": 1
+  },
+  {
+   "name": "Bequeathal",
+   "quantity": 1
+  },
+  {
+   "name": "Betrayal",
+   "quantity": 1
+  },
+  {
+   "name": "Cocoon",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 14
+  },
+  {
+   "name": "Island",
+   "quantity": 11
+  },
+  {
+   "name": "Plains",
+   "quantity": 11
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

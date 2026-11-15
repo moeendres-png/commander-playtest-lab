@@ -1,0 +1,318 @@
+{
+ "urlhash": "V-C3J_gEi2o_aRLjF9U54w",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-01-16",
+ "price": 267,
+ "salt": 48.519148144871,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/16094919?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Aesi, Tyrant of Gyre Strait",
+   "quantity": 1
+  },
+  {
+   "name": "Arcade Gannon",
+   "quantity": 1
+  },
+  {
+   "name": "Aunt May",
+   "quantity": 1
+  },
+  {
+   "name": "Barbara Wright",
+   "quantity": 1
+  },
+  {
+   "name": "Birds of Paradise",
+   "quantity": 1
+  },
+  {
+   "name": "City Pigeon",
+   "quantity": 1
+  },
+  {
+   "name": "Daily Bugle Reporters",
+   "quantity": 1
+  },
+  {
+   "name": "Damage Control Crew",
+   "quantity": 1
+  },
+  {
+   "name": "Danny Pink",
+   "quantity": 1
+  },
+  {
+   "name": "Duggan, Private Detective",
+   "quantity": 1
+  },
+  {
+   "name": "Flash Thompson, Spider-Fan",
+   "quantity": 1
+  },
+  {
+   "name": "Gallant Citizen",
+   "quantity": 1
+  },
+  {
+   "name": "Gilded Goose",
+   "quantity": 1
+  },
+  {
+   "name": "Graham O'Brien",
+   "quantity": 1
+  },
+  {
+   "name": "Greymond, Avacyn's Stalwart",
+   "quantity": 1
+  },
+  {
+   "name": "Guy in the Chair",
+   "quantity": 1
+  },
+  {
+   "name": "Hargilde, Kindly Runechanter",
+   "quantity": 1
+  },
+  {
+   "name": "Ian Chesterton",
+   "quantity": 1
+  },
+  {
+   "name": "Jo Grant",
+   "quantity": 1
+  },
+  {
+   "name": "MJ, Rising Star",
+   "quantity": 1
+  },
+  {
+   "name": "Martha Jones",
+   "quantity": 1
+  },
+  {
+   "name": "Mary Jane Watson",
+   "quantity": 1
+  },
+  {
+   "name": "News Helicopter",
+   "quantity": 1
+  },
+  {
+   "name": "Othelm, Sigardian Outcast",
+   "quantity": 1
+  },
+  {
+   "name": "Peri Brown",
+   "quantity": 1
+  },
+  {
+   "name": "Piper Wright, Publick Reporter",
+   "quantity": 1
+  },
+  {
+   "name": "Professional Wrestler",
+   "quantity": 1
+  },
+  {
+   "name": "Sally Sparrow",
+   "quantity": 1
+  },
+  {
+   "name": "Sarah Jane Smith",
+   "quantity": 1
+  },
+  {
+   "name": "Selfless Police Captain",
+   "quantity": 1
+  },
+  {
+   "name": "Sergeant John Benton",
+   "quantity": 1
+  },
+  {
+   "name": "Shrewd Storyteller",
+   "quantity": 1
+  },
+  {
+   "name": "Tegan Jovanka",
+   "quantity": 1
+  },
+  {
+   "name": "Wilfred Mott",
+   "quantity": 1
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1
+  },
+  {
+   "name": "Permission Denied",
+   "quantity": 1
+  },
+  {
+   "name": "Swan Song",
+   "quantity": 1
+  },
+  {
+   "name": "Council's Judgment",
+   "quantity": 1
+  },
+  {
+   "name": "Steelshaper's Gift",
+   "quantity": 1
+  },
+  {
+   "name": "Tasha's Hideous Laughter",
+   "quantity": 1
+  },
+  {
+   "name": "Ace's Baseball Bat",
+   "quantity": 1
+  },
+  {
+   "name": "Bagel and Schmear",
+   "quantity": 1
+  },
+  {
+   "name": "Baseball Bat",
+   "quantity": 1
+  },
+  {
+   "name": "Basilisk Collar",
+   "quantity": 1
+  },
+  {
+   "name": "Candlestick",
+   "quantity": 1
+  },
+  {
+   "name": "Colossus Hammer",
+   "quantity": 1
+  },
+  {
+   "name": "Hot Dog Cart",
+   "quantity": 1
+  },
+  {
+   "name": "Instant Ramen",
+   "quantity": 1
+  },
+  {
+   "name": "Keys to the House",
+   "quantity": 1
+  },
+  {
+   "name": "Lightning Greaves",
+   "quantity": 1
+  },
+  {
+   "name": "Nuka-Cola Vending Machine",
+   "quantity": 1
+  },
+  {
+   "name": "River Song's Diary",
+   "quantity": 1
+  },
+  {
+   "name": "Rope",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Wrench",
+   "quantity": 1
+  },
+  {
+   "name": "Four Knocks",
+   "quantity": 1
+  },
+  {
+   "name": "Friendly Neighborhood",
+   "quantity": 1
+  },
+  {
+   "name": "Ghostly Prison",
+   "quantity": 1
+  },
+  {
+   "name": "Rent Is Due",
+   "quantity": 1
+  },
+  {
+   "name": "Stay Hidden, Stay Silent",
+   "quantity": 1
+  },
+  {
+   "name": "Vault 101: Birthday Party",
+   "quantity": 1
+  },
+  {
+   "name": "Welcome to Sweettooth",
+   "quantity": 1
+  },
+  {
+   "name": "Abstergo Entertainment",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Conservatory",
+   "quantity": 1
+  },
+  {
+   "name": "Daily Bugle Building",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 7
+  },
+  {
+   "name": "Island",
+   "quantity": 7
+  },
+  {
+   "name": "Kitchen",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 14
+  },
+  {
+   "name": "Study",
+   "quantity": 1
+  },
+  {
+   "name": "Suburban Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "University Campus",
+   "quantity": 1
+  },
+  {
+   "name": "Urban Retreat",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

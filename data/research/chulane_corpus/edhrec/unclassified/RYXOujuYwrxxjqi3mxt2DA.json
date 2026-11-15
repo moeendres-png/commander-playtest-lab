@@ -1,0 +1,286 @@
+{
+ "urlhash": "RYXOujuYwrxxjqi3mxt2DA",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-11-02",
+ "price": 125,
+ "salt": 49.99250354245305,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/27277263?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Avacyn's Pilgrim",
+   "quantity": 1
+  },
+  {
+   "name": "Bard, King of Dale",
+   "quantity": 1
+  },
+  {
+   "name": "Berta, Wise Extrapolator",
+   "quantity": 1
+  },
+  {
+   "name": "Brigid, Clachan's Heart",
+   "quantity": 1
+  },
+  {
+   "name": "Burrowguard Mentor",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Mystic",
+   "quantity": 1
+  },
+  {
+   "name": "Esix, Fractal Bloom",
+   "quantity": 1
+  },
+  {
+   "name": "Faramir, Prince of Ithilien",
+   "quantity": 1
+  },
+  {
+   "name": "Geist of Saint Thalia",
+   "quantity": 1
+  },
+  {
+   "name": "Gene Pollinator",
+   "quantity": 1
+  },
+  {
+   "name": "Herald of the Pantheon",
+   "quantity": 1
+  },
+  {
+   "name": "Inquisitive Glimmer",
+   "quantity": 1
+  },
+  {
+   "name": "Ironroot Warlord",
+   "quantity": 1
+  },
+  {
+   "name": "Jukai Naturalist",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Lyse Hext",
+   "quantity": 1
+  },
+  {
+   "name": "Queen Allenal of Ruadach",
+   "quantity": 1
+  },
+  {
+   "name": "Regal Bunnicorn",
+   "quantity": 1
+  },
+  {
+   "name": "Rhys the Redeemed",
+   "quantity": 1
+  },
+  {
+   "name": "Scion of the Wild",
+   "quantity": 1
+  },
+  {
+   "name": "Selvala, Eager Trailblazer",
+   "quantity": 1
+  },
+  {
+   "name": "Selvala, Heart of the Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Starnheim Courser",
+   "quantity": 1
+  },
+  {
+   "name": "Station Monitor",
+   "quantity": 1
+  },
+  {
+   "name": "Titan of Industry",
+   "quantity": 1
+  },
+  {
+   "name": "Tomb Trawler",
+   "quantity": 1
+  },
+  {
+   "name": "Torens, Fist of the Angels",
+   "quantity": 1
+  },
+  {
+   "name": "Valeria Richards, Precocious",
+   "quantity": 1
+  },
+  {
+   "name": "Vernal Sovereign",
+   "quantity": 1
+  },
+  {
+   "name": "Veteran Warleader",
+   "quantity": 1
+  },
+  {
+   "name": "Voice of Resurgence",
+   "quantity": 1
+  },
+  {
+   "name": "Wayfaring Temple",
+   "quantity": 1
+  },
+  {
+   "name": "An Offer You Can't Refuse",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Denial",
+   "quantity": 1
+  },
+  {
+   "name": "Controvert",
+   "quantity": 1
+  },
+  {
+   "name": "Cryptic Command",
+   "quantity": 1
+  },
+  {
+   "name": "Ceaseless Conflict",
+   "quantity": 1
+  },
+  {
+   "name": "Fell the Mighty",
+   "quantity": 1
+  },
+  {
+   "name": "Restoration Seminar",
+   "quantity": 1
+  },
+  {
+   "name": "Slash the Ranks",
+   "quantity": 1
+  },
+  {
+   "name": "Supreme Verdict",
+   "quantity": 1
+  },
+  {
+   "name": "Time Wipe",
+   "quantity": 1
+  },
+  {
+   "name": "Argent Dais",
+   "quantity": 1
+  },
+  {
+   "name": "Elixir of Immortality",
+   "quantity": 1
+  },
+  {
+   "name": "Skull of Orm",
+   "quantity": 1
+  },
+  {
+   "name": "Unstable Glyphbridge",
+   "quantity": 1
+  },
+  {
+   "name": "Battle for Bretagard",
+   "quantity": 1
+  },
+  {
+   "name": "Colossal Majesty",
+   "quantity": 1
+  },
+  {
+   "name": "Court of Vantress",
+   "quantity": 1
+  },
+  {
+   "name": "Dollmaker's Shop // Porcelain Gallery",
+   "quantity": 1
+  },
+  {
+   "name": "Elemental Bond",
+   "quantity": 1
+  },
+  {
+   "name": "Extravagant Replication",
+   "quantity": 1
+  },
+  {
+   "name": "Followed Footsteps",
+   "quantity": 1
+  },
+  {
+   "name": "Gardenize",
+   "quantity": 1
+  },
+  {
+   "name": "Garruk's Uprising",
+   "quantity": 1
+  },
+  {
+   "name": "Impostor Syndrome",
+   "quantity": 1
+  },
+  {
+   "name": "Kumena's Awakening",
+   "quantity": 1
+  },
+  {
+   "name": "Mana Reflection",
+   "quantity": 1
+  },
+  {
+   "name": "Moonlit Meditation",
+   "quantity": 1
+  },
+  {
+   "name": "Pollenbright Wings",
+   "quantity": 1
+  },
+  {
+   "name": "Smile at Death",
+   "quantity": 1
+  },
+  {
+   "name": "Wheel of Sun and Moon",
+   "quantity": 1
+  },
+  {
+   "name": "Wild Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 12
+  },
+  {
+   "name": "Island",
+   "quantity": 12
+  },
+  {
+   "name": "Plains",
+   "quantity": 12
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

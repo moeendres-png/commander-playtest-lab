@@ -1,0 +1,370 @@
+{
+ "urlhash": "xQX5Pk7cW1aX7FT3mvg4zA",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-09-05",
+ "price": 486,
+ "salt": 40.9486239887774,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/iJ5chp9kbkSZ-7pib3Yqmw?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Aether Channeler",
+   "quantity": 1
+  },
+  {
+   "name": "Alaundo the Seer",
+   "quantity": 1
+  },
+  {
+   "name": "Archaeomancer",
+   "quantity": 1
+  },
+  {
+   "name": "Archivist",
+   "quantity": 1
+  },
+  {
+   "name": "Archivist of Oghma",
+   "quantity": 1
+  },
+  {
+   "name": "Barrin, Tolarian Archmage",
+   "quantity": 1
+  },
+  {
+   "name": "Campus Guide",
+   "quantity": 1
+  },
+  {
+   "name": "Dour Port-Mage",
+   "quantity": 1
+  },
+  {
+   "name": "Dragonologist",
+   "quantity": 1
+  },
+  {
+   "name": "Enduring Curiosity",
+   "quantity": 1
+  },
+  {
+   "name": "Fear of Failed Tests",
+   "quantity": 1
+  },
+  {
+   "name": "Hurkyl, Master Wizard",
+   "quantity": 1
+  },
+  {
+   "name": "Ledger Shredder",
+   "quantity": 1
+  },
+  {
+   "name": "Library Larcenist",
+   "quantity": 1
+  },
+  {
+   "name": "Loran of the Third Path",
+   "quantity": 1
+  },
+  {
+   "name": "Mangara, the Diplomat",
+   "quantity": 1
+  },
+  {
+   "name": "Minn, Wily Illusionist",
+   "quantity": 1
+  },
+  {
+   "name": "Ninja of the Deep Hours",
+   "quantity": 1
+  },
+  {
+   "name": "Ormos, Archive Keeper",
+   "quantity": 1
+  },
+  {
+   "name": "Overwhelmed Apprentice",
+   "quantity": 1
+  },
+  {
+   "name": "Priest of Ancient Lore",
+   "quantity": 1
+  },
+  {
+   "name": "Saradoc, Master of Buckland",
+   "quantity": 1
+  },
+  {
+   "name": "Spellseeker",
+   "quantity": 1
+  },
+  {
+   "name": "Tamiyo, Inquisitive Student",
+   "quantity": 1
+  },
+  {
+   "name": "Tenacious Tomeseeker",
+   "quantity": 1
+  },
+  {
+   "name": "Tome Raider",
+   "quantity": 1
+  },
+  {
+   "name": "War Priest of Thune",
+   "quantity": 1
+  },
+  {
+   "name": "An Offer You Can't Refuse",
+   "quantity": 1
+  },
+  {
+   "name": "Blur",
+   "quantity": 1
+  },
+  {
+   "name": "Bury in Books",
+   "quantity": 1
+  },
+  {
+   "name": "Defend the Campus",
+   "quantity": 1
+  },
+  {
+   "name": "Frantic Search",
+   "quantity": 1
+  },
+  {
+   "name": "Opt",
+   "quantity": 1
+  },
+  {
+   "name": "Brilliant Plan",
+   "quantity": 1
+  },
+  {
+   "name": "Compulsive Research",
+   "quantity": 1
+  },
+  {
+   "name": "Eye Spy",
+   "quantity": 1
+  },
+  {
+   "name": "Farseek",
+   "quantity": 1
+  },
+  {
+   "name": "Library of Lat-Nam",
+   "quantity": 1
+  },
+  {
+   "name": "Pore Over the Pages",
+   "quantity": 1
+  },
+  {
+   "name": "Solve the Equation",
+   "quantity": 1
+  },
+  {
+   "name": "Sorcerous Sight",
+   "quantity": 1
+  },
+  {
+   "name": "Emmessi Tome",
+   "quantity": 1
+  },
+  {
+   "name": "Investigator's Journal",
+   "quantity": 1
+  },
+  {
+   "name": "Library of Leng",
+   "quantity": 1
+  },
+  {
+   "name": "Mysterious Tome",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Spellbook",
+   "quantity": 1
+  },
+  {
+   "name": "Tamiyo's Journal",
+   "quantity": 1
+  },
+  {
+   "name": "Tamiyo's Logbook",
+   "quantity": 1
+  },
+  {
+   "name": "The Book of Exalted Deeds",
+   "quantity": 1
+  },
+  {
+   "name": "The Underworld Cookbook",
+   "quantity": 1
+  },
+  {
+   "name": "Thought Vessel",
+   "quantity": 1
+  },
+  {
+   "name": "Tome of the Guildpact",
+   "quantity": 1
+  },
+  {
+   "name": "Venser's Journal",
+   "quantity": 1
+  },
+  {
+   "name": "Wizard's Spellbook",
+   "quantity": 1
+  },
+  {
+   "name": "Mystic Remora",
+   "quantity": 1
+  },
+  {
+   "name": "Rhystic Study",
+   "quantity": 1
+  },
+  {
+   "name": "Tamiyo Meets the Story Circle",
+   "quantity": 1
+  },
+  {
+   "name": "Virtue of Knowledge",
+   "quantity": 1
+  },
+  {
+   "name": "Tamiyo, Collector of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Tamiyo, Field Researcher",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Chancery",
+   "quantity": 1
+  },
+  {
+   "name": "Bountiful Promenade",
+   "quantity": 1
+  },
+  {
+   "name": "Breeding Pool",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Exotic Orchard",
+   "quantity": 1
+  },
+  {
+   "name": "Flooded Strand",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 5
+  },
+  {
+   "name": "Glacial Fortress",
+   "quantity": 1
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1
+  },
+  {
+   "name": "Hedge Maze",
+   "quantity": 1
+  },
+  {
+   "name": "Hinterland Harbor",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 5
+  },
+  {
+   "name": "Lush Portico",
+   "quantity": 1
+  },
+  {
+   "name": "Meticulous Archive",
+   "quantity": 1
+  },
+  {
+   "name": "Misty Rainforest",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 5
+  },
+  {
+   "name": "Rejuvenating Springs",
+   "quantity": 1
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Sea of Clouds",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Growth Chamber",
+   "quantity": 1
+  },
+  {
+   "name": "Spara's Headquarters",
+   "quantity": 1
+  },
+  {
+   "name": "Sunpetal Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Temple Garden",
+   "quantity": 1
+  },
+  {
+   "name": "Windswept Heath",
+   "quantity": 1
+  },
+  {
+   "name": "Yavimaya Coast",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

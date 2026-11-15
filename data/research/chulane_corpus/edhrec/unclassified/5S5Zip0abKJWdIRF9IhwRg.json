@@ -1,0 +1,310 @@
+{
+ "urlhash": "5S5Zip0abKJWdIRF9IhwRg",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-10-19",
+ "price": 242,
+ "salt": 47.19518491625786,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/26890093?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Anointer of Champions",
+   "quantity": 1
+  },
+  {
+   "name": "Aunt May",
+   "quantity": 1
+  },
+  {
+   "name": "Avacyn's Pilgrim",
+   "quantity": 1
+  },
+  {
+   "name": "Caravan Escort",
+   "quantity": 1
+  },
+  {
+   "name": "Cathedral Sanctifier",
+   "quantity": 1
+  },
+  {
+   "name": "Champion of the Parish",
+   "quantity": 1
+  },
+  {
+   "name": "Chaplain of Alms",
+   "quantity": 1
+  },
+  {
+   "name": "Contortionist Troupe",
+   "quantity": 1
+  },
+  {
+   "name": "Crossroads Consecrator",
+   "quantity": 1
+  },
+  {
+   "name": "Elite Arrester",
+   "quantity": 1
+  },
+  {
+   "name": "General Thunderbolt Ross",
+   "quantity": 1
+  },
+  {
+   "name": "Gideon's Lawkeeper",
+   "quantity": 1
+  },
+  {
+   "name": "Guide of Souls",
+   "quantity": 1
+  },
+  {
+   "name": "Honored Hierarch",
+   "quantity": 1
+  },
+  {
+   "name": "Infantry Veteran",
+   "quantity": 1
+  },
+  {
+   "name": "Kjeldoran Javelineer",
+   "quantity": 1
+  },
+  {
+   "name": "Krosan Restorer",
+   "quantity": 1
+  },
+  {
+   "name": "Kyler, Sigardian Emissary",
+   "quantity": 1
+  },
+  {
+   "name": "Law-Rune Enforcer",
+   "quantity": 1
+  },
+  {
+   "name": "Liliana the Faultless",
+   "quantity": 1
+  },
+  {
+   "name": "Lunarch Veteran",
+   "quantity": 1
+  },
+  {
+   "name": "Magus of the Vineyard",
+   "quantity": 1
+  },
+  {
+   "name": "Mikaeus, the Lunarch",
+   "quantity": 1
+  },
+  {
+   "name": "Mother of Runes",
+   "quantity": 1
+  },
+  {
+   "name": "Noble Hierarch",
+   "quantity": 1
+  },
+  {
+   "name": "Nova Cleric",
+   "quantity": 1
+  },
+  {
+   "name": "Riders of Gavony",
+   "quantity": 1
+  },
+  {
+   "name": "Sage of Epityr",
+   "quantity": 1
+  },
+  {
+   "name": "Serra Ascendant",
+   "quantity": 1
+  },
+  {
+   "name": "Soul Warden",
+   "quantity": 1
+  },
+  {
+   "name": "Soul's Attendant",
+   "quantity": 1
+  },
+  {
+   "name": "Soulmender",
+   "quantity": 1
+  },
+  {
+   "name": "Spurnmage Advocate",
+   "quantity": 1
+  },
+  {
+   "name": "Stampede Driver",
+   "quantity": 1
+  },
+  {
+   "name": "Student of Warfare",
+   "quantity": 1
+  },
+  {
+   "name": "Traveling Minister",
+   "quantity": 1
+  },
+  {
+   "name": "Battlegrowth",
+   "quantity": 1
+  },
+  {
+   "name": "Beast Mode",
+   "quantity": 1
+  },
+  {
+   "name": "Big Play",
+   "quantity": 1
+  },
+  {
+   "name": "Biosynthic Burst",
+   "quantity": 1
+  },
+  {
+   "name": "Blitzball Shot",
+   "quantity": 1
+  },
+  {
+   "name": "Fated Infatuation",
+   "quantity": 1
+  },
+  {
+   "name": "Drain Power",
+   "quantity": 1
+  },
+  {
+   "name": "Ember Island Production",
+   "quantity": 1
+  },
+  {
+   "name": "Mirage Mockery",
+   "quantity": 1
+  },
+  {
+   "name": "Multiversal Incursion",
+   "quantity": 1
+  },
+  {
+   "name": "Multiversal Recruitment",
+   "quantity": 1
+  },
+  {
+   "name": "Quantum Misalignment",
+   "quantity": 1
+  },
+  {
+   "name": "Quasiduplicate",
+   "quantity": 1
+  },
+  {
+   "name": "Rite of Replication",
+   "quantity": 1
+  },
+  {
+   "name": "Ajani's Welcome",
+   "quantity": 1
+  },
+  {
+   "name": "Cathars' Crusade",
+   "quantity": 1
+  },
+  {
+   "name": "Cleric Class",
+   "quantity": 1
+  },
+  {
+   "name": "Collective Restraint",
+   "quantity": 1
+  },
+  {
+   "name": "Druid Class",
+   "quantity": 1
+  },
+  {
+   "name": "Felidar Retreat",
+   "quantity": 1
+  },
+  {
+   "name": "Jace's Erasure",
+   "quantity": 1
+  },
+  {
+   "name": "Laid to Rest",
+   "quantity": 1
+  },
+  {
+   "name": "Paladin Class",
+   "quantity": 1
+  },
+  {
+   "name": "Sanctuary Lockdown",
+   "quantity": 1
+  },
+  {
+   "name": "Tribute to the World Tree",
+   "quantity": 1
+  },
+  {
+   "name": "Wild Pair",
+   "quantity": 1
+  },
+  {
+   "name": "Wizard Class",
+   "quantity": 1
+  },
+  {
+   "name": "Abandoned Air Temple",
+   "quantity": 1
+  },
+  {
+   "name": "Abundant Countryside",
+   "quantity": 1
+  },
+  {
+   "name": "Ancient Ziggurat",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Lighthouse",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 10
+  },
+  {
+   "name": "Island",
+   "quantity": 10
+  },
+  {
+   "name": "Plains",
+   "quantity": 10
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Urban Retreat",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

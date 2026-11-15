@@ -1,0 +1,274 @@
+{
+ "urlhash": "iG7CWSr1S6dGV4Jxp9ThqA",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-04-21",
+ "price": 156,
+ "salt": 59.32748096063733,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/PI0xqxx-0U-I_SRcJIXXEg?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Annoyed Altisaur",
+   "quantity": 1
+  },
+  {
+   "name": "Aven Mindcensor",
+   "quantity": 1
+  },
+  {
+   "name": "Avenger of Zendikar",
+   "quantity": 1
+  },
+  {
+   "name": "Bounty Agent",
+   "quantity": 1
+  },
+  {
+   "name": "Clarion Conqueror",
+   "quantity": 1
+  },
+  {
+   "name": "Dawntreader Elk",
+   "quantity": 1
+  },
+  {
+   "name": "Dragonlord Dromoka",
+   "quantity": 1
+  },
+  {
+   "name": "Drowned Rusalka",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Visionary",
+   "quantity": 1
+  },
+  {
+   "name": "Eternal Witness",
+   "quantity": 1
+  },
+  {
+   "name": "Farhaven Elf",
+   "quantity": 1
+  },
+  {
+   "name": "Fauna Shaman",
+   "quantity": 1
+  },
+  {
+   "name": "Fierce Empath",
+   "quantity": 1
+  },
+  {
+   "name": "Gaddock Teeg",
+   "quantity": 1
+  },
+  {
+   "name": "Hope-Ender Coatl",
+   "quantity": 1
+  },
+  {
+   "name": "Knight of Autumn",
+   "quantity": 1
+  },
+  {
+   "name": "Koma, World-Eater",
+   "quantity": 1
+  },
+  {
+   "name": "Mirrorshell Crab",
+   "quantity": 1
+  },
+  {
+   "name": "Moon-Blessed Cleric",
+   "quantity": 1
+  },
+  {
+   "name": "Mystic Snake",
+   "quantity": 1
+  },
+  {
+   "name": "Prowling Serpopard",
+   "quantity": 1
+  },
+  {
+   "name": "Reclamation Sage",
+   "quantity": 1
+  },
+  {
+   "name": "Regal Force",
+   "quantity": 1
+  },
+  {
+   "name": "Rootweaver Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Runic Armasaur",
+   "quantity": 1
+  },
+  {
+   "name": "Sakura-Tribe Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Springbloom Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Sun Titan",
+   "quantity": 1
+  },
+  {
+   "name": "Sutina, Speaker of the Tajuru",
+   "quantity": 1
+  },
+  {
+   "name": "Thalia, Guardian of Thraben",
+   "quantity": 1
+  },
+  {
+   "name": "Topiary Stomper",
+   "quantity": 1
+  },
+  {
+   "name": "Transit Mage",
+   "quantity": 1
+  },
+  {
+   "name": "Unsettled Mariner",
+   "quantity": 1
+  },
+  {
+   "name": "Verdant Force",
+   "quantity": 1
+  },
+  {
+   "name": "Wood Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Woodland Bellower",
+   "quantity": 1
+  },
+  {
+   "name": "Worldspine Wurm",
+   "quantity": 1
+  },
+  {
+   "name": "An Offer You Can't Refuse",
+   "quantity": 1
+  },
+  {
+   "name": "Chord of Calling",
+   "quantity": 1
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1
+  },
+  {
+   "name": "Evolution Charm",
+   "quantity": 1
+  },
+  {
+   "name": "Analyze the Pollen",
+   "quantity": 1
+  },
+  {
+   "name": "Austere Command",
+   "quantity": 1
+  },
+  {
+   "name": "Cleansing Nova",
+   "quantity": 1
+  },
+  {
+   "name": "Day of Judgment",
+   "quantity": 1
+  },
+  {
+   "name": "Fabricate",
+   "quantity": 1
+  },
+  {
+   "name": "Flare of Cultivation",
+   "quantity": 1
+  },
+  {
+   "name": "The Battle of Bywater",
+   "quantity": 1
+  },
+  {
+   "name": "Threats Undetected",
+   "quantity": 1
+  },
+  {
+   "name": "Vanquish the Horde",
+   "quantity": 1
+  },
+  {
+   "name": "Verdant Confluence",
+   "quantity": 1
+  },
+  {
+   "name": "Viewpoint Synchronization",
+   "quantity": 1
+  },
+  {
+   "name": "Wargate",
+   "quantity": 1
+  },
+  {
+   "name": "Panharmonicon",
+   "quantity": 1
+  },
+  {
+   "name": "Deafening Silence",
+   "quantity": 1
+  },
+  {
+   "name": "Evolutionary Leap",
+   "quantity": 1
+  },
+  {
+   "name": "Perilous Forays",
+   "quantity": 1
+  },
+  {
+   "name": "Sterling Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Wheel of Sun and Moon",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 17
+  },
+  {
+   "name": "High Market",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 10
+  },
+  {
+   "name": "Plains",
+   "quantity": 12
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

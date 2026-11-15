@@ -1,0 +1,282 @@
+{
+ "urlhash": "LJux1MoTstYRZwfCb9NbYQ",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-04-11",
+ "price": 122,
+ "salt": 58.637357994914055,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/W2ela8YCDUOP1LCK_kMHnA?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Adaptive Sporesinger",
+   "quantity": 1
+  },
+  {
+   "name": "Aesi, Tyrant of Gyre Strait",
+   "quantity": 1
+  },
+  {
+   "name": "Altered Ego",
+   "quantity": 1
+  },
+  {
+   "name": "Ashaya, Soul of the Wild",
+   "quantity": 1
+  },
+  {
+   "name": "Avenger of Zendikar",
+   "quantity": 1
+  },
+  {
+   "name": "Barrin, Tolarian Archmage",
+   "quantity": 1
+  },
+  {
+   "name": "Blossom Dryad",
+   "quantity": 1
+  },
+  {
+   "name": "Cankerbloom",
+   "quantity": 1
+  },
+  {
+   "name": "Curiosity Crafter",
+   "quantity": 1
+  },
+  {
+   "name": "Defiler of Dreams",
+   "quantity": 1
+  },
+  {
+   "name": "Dream Stalker",
+   "quantity": 1
+  },
+  {
+   "name": "Drogskol Reaver",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Mystic",
+   "quantity": 1
+  },
+  {
+   "name": "Evolution Sage",
+   "quantity": 1
+  },
+  {
+   "name": "Fearless Fledgling",
+   "quantity": 1
+  },
+  {
+   "name": "Hedron Crab",
+   "quantity": 1
+  },
+  {
+   "name": "Initiate's Companion",
+   "quantity": 1
+  },
+  {
+   "name": "Ivy, Gleeful Spellthief",
+   "quantity": 1
+  },
+  {
+   "name": "Laboratory Maniac",
+   "quantity": 1
+  },
+  {
+   "name": "Ley Weaver",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Oracle of Mul Daya",
+   "quantity": 1
+  },
+  {
+   "name": "Pollenbright Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Rampaging Baloths",
+   "quantity": 1
+  },
+  {
+   "name": "Scute Mob",
+   "quantity": 1
+  },
+  {
+   "name": "Scute Swarm",
+   "quantity": 1
+  },
+  {
+   "name": "Shabraz, the Skyshark",
+   "quantity": 1
+  },
+  {
+   "name": "Shrieking Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Soul of the Harvest",
+   "quantity": 1
+  },
+  {
+   "name": "Starfield Vocalist",
+   "quantity": 1
+  },
+  {
+   "name": "Stone-Seeder Hierophant",
+   "quantity": 1
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1
+  },
+  {
+   "name": "The Second Doctor",
+   "quantity": 1
+  },
+  {
+   "name": "Tishana, Voice of Thunder",
+   "quantity": 1
+  },
+  {
+   "name": "Whitemane Lion",
+   "quantity": 1
+  },
+  {
+   "name": "Wood Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Auroral Procession",
+   "quantity": 1
+  },
+  {
+   "name": "Bounce Off",
+   "quantity": 1
+  },
+  {
+   "name": "Bring the Ending",
+   "quantity": 1
+  },
+  {
+   "name": "Consuming Vortex",
+   "quantity": 1
+  },
+  {
+   "name": "Drown in Shapelessness",
+   "quantity": 1
+  },
+  {
+   "name": "Eject",
+   "quantity": 1
+  },
+  {
+   "name": "Get Out",
+   "quantity": 1
+  },
+  {
+   "name": "Cleansing Nova",
+   "quantity": 1
+  },
+  {
+   "name": "Contentious Plan",
+   "quantity": 1
+  },
+  {
+   "name": "Exhaustion",
+   "quantity": 1
+  },
+  {
+   "name": "Eye of Nowhere",
+   "quantity": 1
+  },
+  {
+   "name": "Fade Away",
+   "quantity": 1
+  },
+  {
+   "name": "Planewide Celebration",
+   "quantity": 1
+  },
+  {
+   "name": "Thirsting Roots",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Well of Lost Dreams",
+   "quantity": 1
+  },
+  {
+   "name": "Abiding Grace",
+   "quantity": 1
+  },
+  {
+   "name": "Primeval Bounty",
+   "quantity": 1
+  },
+  {
+   "name": "Thought Reflection",
+   "quantity": 1
+  },
+  {
+   "name": "Wizard Class",
+   "quantity": 1
+  },
+  {
+   "name": "Balamb Garden, SeeD Academy",
+   "quantity": 1
+  },
+  {
+   "name": "Calciform Pools",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Creosote Heath",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 15
+  },
+  {
+   "name": "Island",
+   "quantity": 15
+  },
+  {
+   "name": "Plains",
+   "quantity": 7
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

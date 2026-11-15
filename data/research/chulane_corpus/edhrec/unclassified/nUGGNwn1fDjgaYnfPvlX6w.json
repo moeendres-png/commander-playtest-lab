@@ -1,0 +1,298 @@
+{
+ "urlhash": "nUGGNwn1fDjgaYnfPvlX6w",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-07-17",
+ "price": 115,
+ "salt": 50.42436435446143,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/24411162?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Abuelo, Ancestral Echo",
+   "quantity": 1
+  },
+  {
+   "name": "Arcanis the Omnipotent",
+   "quantity": 1
+  },
+  {
+   "name": "Brawn",
+   "quantity": 1
+  },
+  {
+   "name": "Dorothea, Vengeful Victim",
+   "quantity": 1
+  },
+  {
+   "name": "Emeria Angel",
+   "quantity": 1
+  },
+  {
+   "name": "Esix, Fractal Bloom",
+   "quantity": 1
+  },
+  {
+   "name": "Faeburrow Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Faramir, Prince of Ithilien",
+   "quantity": 1
+  },
+  {
+   "name": "Geist of Saint Traft",
+   "quantity": 1
+  },
+  {
+   "name": "Genesis",
+   "quantity": 1
+  },
+  {
+   "name": "Harbinger of the Tides",
+   "quantity": 1
+  },
+  {
+   "name": "Haytham Kenway",
+   "quantity": 1
+  },
+  {
+   "name": "Homunculus Horde",
+   "quantity": 1
+  },
+  {
+   "name": "Ignis Scientia",
+   "quantity": 1
+  },
+  {
+   "name": "Innocuous Researcher",
+   "quantity": 1
+  },
+  {
+   "name": "Jolrael, Mwonvuli Recluse",
+   "quantity": 1
+  },
+  {
+   "name": "Jolrael, Voice of Zhalfir",
+   "quantity": 1
+  },
+  {
+   "name": "Katara, Water Tribe's Hope",
+   "quantity": 1
+  },
+  {
+   "name": "Laboratory Maniac",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Martha Jones",
+   "quantity": 1
+  },
+  {
+   "name": "Merchant of Truth",
+   "quantity": 1
+  },
+  {
+   "name": "Morska, Undersea Sleuth",
+   "quantity": 1
+  },
+  {
+   "name": "Multani, Yavimaya's Avatar",
+   "quantity": 1
+  },
+  {
+   "name": "Nadir Kraken",
+   "quantity": 1
+  },
+  {
+   "name": "Oji, the Exquisite Blade",
+   "quantity": 1
+  },
+  {
+   "name": "Oltec Matterweaver",
+   "quantity": 1
+  },
+  {
+   "name": "Reki, the History of Kamigawa",
+   "quantity": 1
+  },
+  {
+   "name": "Rhoda, Geist Avenger",
+   "quantity": 1
+  },
+  {
+   "name": "Rory Williams",
+   "quantity": 1
+  },
+  {
+   "name": "Sally Sparrow",
+   "quantity": 1
+  },
+  {
+   "name": "Sazh's Chocobo",
+   "quantity": 1
+  },
+  {
+   "name": "Selvala, Explorer Returned",
+   "quantity": 1
+  },
+  {
+   "name": "Serah Farron",
+   "quantity": 1
+  },
+  {
+   "name": "Shriekwood Devourer",
+   "quantity": 1
+  },
+  {
+   "name": "Silk, Web Weaver",
+   "quantity": 1
+  },
+  {
+   "name": "Sphinx of Uthuun",
+   "quantity": 1
+  },
+  {
+   "name": "Spider-Woman, Stunning Savior",
+   "quantity": 1
+  },
+  {
+   "name": "Surrak, Elusive Hunter",
+   "quantity": 1
+  },
+  {
+   "name": "Thalia, Heretic Cathar",
+   "quantity": 1
+  },
+  {
+   "name": "The Eleventh Doctor",
+   "quantity": 1
+  },
+  {
+   "name": "Thrun, Breaker of Silence",
+   "quantity": 1
+  },
+  {
+   "name": "Tiger-Seal",
+   "quantity": 1
+  },
+  {
+   "name": "Timin, Youthful Geist",
+   "quantity": 1
+  },
+  {
+   "name": "Tireless Tracker",
+   "quantity": 1
+  },
+  {
+   "name": "Wilfred Mott",
+   "quantity": 1
+  },
+  {
+   "name": "Windreaver",
+   "quantity": 1
+  },
+  {
+   "name": "Zegana, Utopian Speaker",
+   "quantity": 1
+  },
+  {
+   "name": "Zimone, Mystery Unraveler",
+   "quantity": 1
+  },
+  {
+   "name": "Misdirection",
+   "quantity": 1
+  },
+  {
+   "name": "Semester's End",
+   "quantity": 1
+  },
+  {
+   "name": "Fade from History",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Heroes' Podium",
+   "quantity": 1
+  },
+  {
+   "name": "Lightning Greaves",
+   "quantity": 1
+  },
+  {
+   "name": "Sonic Screwdriver",
+   "quantity": 1
+  },
+  {
+   "name": "Summoner's Grimoire",
+   "quantity": 1
+  },
+  {
+   "name": "Thopter Fabricator",
+   "quantity": 1
+  },
+  {
+   "name": "Thought Vessel",
+   "quantity": 1
+  },
+  {
+   "name": "Kellan Joins Up",
+   "quantity": 1
+  },
+  {
+   "name": "On the Trail",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Ascendancy",
+   "quantity": 1
+  },
+  {
+   "name": "Vivien, Champion of the Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Guildgate",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 11
+  },
+  {
+   "name": "Island",
+   "quantity": 11
+  },
+  {
+   "name": "Plains",
+   "quantity": 11
+  },
+  {
+   "name": "Selesnya Guildgate",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Guildgate",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

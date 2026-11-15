@@ -1,0 +1,290 @@
+{
+ "urlhash": "SzDe45XBGOZni8N6xf5CLg",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-08-05",
+ "price": 106,
+ "salt": 41.700453048571944,
+ "tags": [
+  "+1/+1 Counters",
+  "Lands Matter",
+  "Ramp"
+ ],
+ "source_url": "https://moxfield.com/decks/4N2_6xsGf06bnOCzGX93ew?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Beanstalk Wurm",
+   "quantity": 1
+  },
+  {
+   "name": "Beluna's Gatekeeper",
+   "quantity": 1
+  },
+  {
+   "name": "Candlegrove Witch",
+   "quantity": 1
+  },
+  {
+   "name": "Colossadactyl",
+   "quantity": 1
+  },
+  {
+   "name": "Daring Thunder-Thief",
+   "quantity": 1
+  },
+  {
+   "name": "Dawnhart Wardens",
+   "quantity": 1
+  },
+  {
+   "name": "Dawnstrike Vanguard",
+   "quantity": 1
+  },
+  {
+   "name": "Drix Fatemaker",
+   "quantity": 1
+  },
+  {
+   "name": "Enduring Vitality",
+   "quantity": 1
+  },
+  {
+   "name": "Flesh Burrower",
+   "quantity": 1
+  },
+  {
+   "name": "Flight-Deck Coordinator",
+   "quantity": 1
+  },
+  {
+   "name": "Forensic Researcher",
+   "quantity": 1
+  },
+  {
+   "name": "Fungal Colossus",
+   "quantity": 1
+  },
+  {
+   "name": "Gene Pollinator",
+   "quantity": 1
+  },
+  {
+   "name": "Gigantoad",
+   "quantity": 1
+  },
+  {
+   "name": "Goobbue Gardener",
+   "quantity": 1
+  },
+  {
+   "name": "Harrier Strix",
+   "quantity": 1
+  },
+  {
+   "name": "Icecave Crasher",
+   "quantity": 1
+  },
+  {
+   "name": "Illvoi Operative",
+   "quantity": 1
+  },
+  {
+   "name": "Keen Buccaneer",
+   "quantity": 1
+  },
+  {
+   "name": "Kutzil, Malamet Exemplar",
+   "quantity": 1
+  },
+  {
+   "name": "Malevolent Hermit",
+   "quantity": 1
+  },
+  {
+   "name": "Mechan Navigator",
+   "quantity": 1
+  },
+  {
+   "name": "Outcaster Greenblade",
+   "quantity": 1
+  },
+  {
+   "name": "Outcaster Trailblazer",
+   "quantity": 1
+  },
+  {
+   "name": "Patient Naturalist",
+   "quantity": 1
+  },
+  {
+   "name": "Raff, Weatherlight Stalwart",
+   "quantity": 1
+  },
+  {
+   "name": "Scorpion Sentinel",
+   "quantity": 1
+  },
+  {
+   "name": "Silverback Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Tatyova, Steward of Tides",
+   "quantity": 1
+  },
+  {
+   "name": "Thrashing Brontodon",
+   "quantity": 1
+  },
+  {
+   "name": "Threadbind Clique",
+   "quantity": 1
+  },
+  {
+   "name": "Veteran Beastrider",
+   "quantity": 1
+  },
+  {
+   "name": "Blitzball Shot",
+   "quantity": 1
+  },
+  {
+   "name": "Broken Wings",
+   "quantity": 1
+  },
+  {
+   "name": "Cosmium Blast",
+   "quantity": 1
+  },
+  {
+   "name": "Divert Disaster",
+   "quantity": 1
+  },
+  {
+   "name": "Might of the Old Ways",
+   "quantity": 1
+  },
+  {
+   "name": "Not on My Watch",
+   "quantity": 1
+  },
+  {
+   "name": "Prishe's Wanderings",
+   "quantity": 1
+  },
+  {
+   "name": "Radiant Strike",
+   "quantity": 1
+  },
+  {
+   "name": "Staggering Size",
+   "quantity": 1
+  },
+  {
+   "name": "Strength of the Coalition",
+   "quantity": 1
+  },
+  {
+   "name": "Thornado",
+   "quantity": 1
+  },
+  {
+   "name": "Unauthorized Exit",
+   "quantity": 1
+  },
+  {
+   "name": "You're Not Alone",
+   "quantity": 1
+  },
+  {
+   "name": "Ancestral Reminiscence",
+   "quantity": 1
+  },
+  {
+   "name": "Dance of the Tumbleweeds",
+   "quantity": 1
+  },
+  {
+   "name": "Make Your Own Luck",
+   "quantity": 1
+  },
+  {
+   "name": "Malamet Battle Glyph",
+   "quantity": 1
+  },
+  {
+   "name": "Requisition Raid",
+   "quantity": 1
+  },
+  {
+   "name": "Space-Time Anomaly",
+   "quantity": 1
+  },
+  {
+   "name": "Ether",
+   "quantity": 1
+  },
+  {
+   "name": "The Seriema",
+   "quantity": 1
+  },
+  {
+   "name": "White Auracite",
+   "quantity": 1
+  },
+  {
+   "name": "Greenhouse // Rickety Gazebo",
+   "quantity": 1
+  },
+  {
+   "name": "Sheltered by Ghosts",
+   "quantity": 1
+  },
+  {
+   "name": "Terrasymbiosis",
+   "quantity": 1
+  },
+  {
+   "name": "Breeding Pool",
+   "quantity": 1
+  },
+  {
+   "name": "Etched Cornfield",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 13
+  },
+  {
+   "name": "Hidden Cataract",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 12
+  },
+  {
+   "name": "Mirage Mesa",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 11
+  },
+  {
+   "name": "Sandstorm Verge",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

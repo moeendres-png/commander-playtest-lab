@@ -1,0 +1,286 @@
+{
+ "urlhash": "16S54zSQeCRLBIwkavTJnA",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-05-25",
+ "price": 388,
+ "salt": 57.30516041442752,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/XCaUi9RMTEmdymn6fyBWvA?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Aerie Mystics",
+   "quantity": 1
+  },
+  {
+   "name": "Ambrosia Whiteheart",
+   "quantity": 1
+  },
+  {
+   "name": "Artificer's Assistant",
+   "quantity": 1
+  },
+  {
+   "name": "Augury Owl",
+   "quantity": 1
+  },
+  {
+   "name": "Aven Mimeomancer",
+   "quantity": 1
+  },
+  {
+   "name": "Aven Mindcensor",
+   "quantity": 1
+  },
+  {
+   "name": "Avenger of Zendikar",
+   "quantity": 1
+  },
+  {
+   "name": "Bartz and Boko",
+   "quantity": 1
+  },
+  {
+   "name": "Battlefield Raptor",
+   "quantity": 1
+  },
+  {
+   "name": "Beacon Hawk",
+   "quantity": 1
+  },
+  {
+   "name": "Beast Whisperer",
+   "quantity": 1
+  },
+  {
+   "name": "Choco, Seeker of Paradise",
+   "quantity": 1
+  },
+  {
+   "name": "Clinquant Skymage",
+   "quantity": 1
+  },
+  {
+   "name": "Eagle of Deliverance",
+   "quantity": 1
+  },
+  {
+   "name": "Emeria Angel",
+   "quantity": 1
+  },
+  {
+   "name": "Empyrean Eagle",
+   "quantity": 1
+  },
+  {
+   "name": "Esior, Wardwing Familiar",
+   "quantity": 1
+  },
+  {
+   "name": "Falco Spara, Pactweaver",
+   "quantity": 1
+  },
+  {
+   "name": "Gwaihir the Windlord",
+   "quantity": 1
+  },
+  {
+   "name": "Healer's Hawk",
+   "quantity": 1
+  },
+  {
+   "name": "Inga and Esika",
+   "quantity": 1
+  },
+  {
+   "name": "Jackdaw Savior",
+   "quantity": 1
+  },
+  {
+   "name": "Judge's Familiar",
+   "quantity": 1
+  },
+  {
+   "name": "Kangee, Sky Warden",
+   "quantity": 1
+  },
+  {
+   "name": "Kastral, the Windcrested",
+   "quantity": 1
+  },
+  {
+   "name": "Knightfisher",
+   "quantity": 1
+  },
+  {
+   "name": "Lifecreed Duo",
+   "quantity": 1
+  },
+  {
+   "name": "Nesting Dovehawk",
+   "quantity": 1
+  },
+  {
+   "name": "Plumecreed Mentor",
+   "quantity": 1
+  },
+  {
+   "name": "Rustwing Falcon",
+   "quantity": 1
+  },
+  {
+   "name": "Sazh's Chocobo",
+   "quantity": 1
+  },
+  {
+   "name": "Scute Swarm",
+   "quantity": 1
+  },
+  {
+   "name": "Seedborn Muse",
+   "quantity": 1
+  },
+  {
+   "name": "Shabraz, the Skyshark",
+   "quantity": 1
+  },
+  {
+   "name": "Shrike Force",
+   "quantity": 1
+  },
+  {
+   "name": "Silver Raven",
+   "quantity": 1
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Tazeem Raptor",
+   "quantity": 1
+  },
+  {
+   "name": "Traveling Chocobo",
+   "quantity": 1
+  },
+  {
+   "name": "Warden of Evos Isle",
+   "quantity": 1
+  },
+  {
+   "name": "Watcher of the Spheres",
+   "quantity": 1
+  },
+  {
+   "name": "Whitemane Lion",
+   "quantity": 1
+  },
+  {
+   "name": "Wonder",
+   "quantity": 1
+  },
+  {
+   "name": "Kindred Summons",
+   "quantity": 1
+  },
+  {
+   "name": "Austere Command",
+   "quantity": 1
+  },
+  {
+   "name": "Cultivate",
+   "quantity": 1
+  },
+  {
+   "name": "Kodama's Reach",
+   "quantity": 1
+  },
+  {
+   "name": "Time Wipe",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Sunbird Standard",
+   "quantity": 1
+  },
+  {
+   "name": "Swiftfoot Boots",
+   "quantity": 1
+  },
+  {
+   "name": "Talisman of Curiosity",
+   "quantity": 1
+  },
+  {
+   "name": "Talisman of Progress",
+   "quantity": 1
+  },
+  {
+   "name": "Talisman of Unity",
+   "quantity": 1
+  },
+  {
+   "name": "The One Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Thought Vessel",
+   "quantity": 1
+  },
+  {
+   "name": "Cathars' Crusade",
+   "quantity": 1
+  },
+  {
+   "name": "Felidar Retreat",
+   "quantity": 1
+  },
+  {
+   "name": "Guardian Project",
+   "quantity": 1
+  },
+  {
+   "name": "Kindred Discovery",
+   "quantity": 1
+  },
+  {
+   "name": "Primeval Bounty",
+   "quantity": 1
+  },
+  {
+   "name": "Smothering Tithe",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 12
+  },
+  {
+   "name": "Island",
+   "quantity": 11
+  },
+  {
+   "name": "Plains",
+   "quantity": 13
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

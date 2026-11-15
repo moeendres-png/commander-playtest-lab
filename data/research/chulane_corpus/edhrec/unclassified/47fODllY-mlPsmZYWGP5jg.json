@@ -1,0 +1,358 @@
+{
+ "urlhash": "47fODllY-mlPsmZYWGP5jg",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-08-30",
+ "price": 232,
+ "salt": 35.350639360025525,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/25675639?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Arcbound Javelineer",
+   "quantity": 1
+  },
+  {
+   "name": "Arcbound Mouser",
+   "quantity": 1
+  },
+  {
+   "name": "Arcbound Prototype",
+   "quantity": 1
+  },
+  {
+   "name": "Arcbound Ravager",
+   "quantity": 1
+  },
+  {
+   "name": "Arcbound Reclaimer",
+   "quantity": 1
+  },
+  {
+   "name": "Arcbound Slith",
+   "quantity": 1
+  },
+  {
+   "name": "Arcbound Stinger",
+   "quantity": 1
+  },
+  {
+   "name": "Arcbound Worker",
+   "quantity": 1
+  },
+  {
+   "name": "Brightglass Gearhulk",
+   "quantity": 1
+  },
+  {
+   "name": "Buzz Bots",
+   "quantity": 1
+  },
+  {
+   "name": "Cataclysmic Gearhulk",
+   "quantity": 1
+  },
+  {
+   "name": "Circuit Mender",
+   "quantity": 1
+  },
+  {
+   "name": "Copper Myr",
+   "quantity": 1
+  },
+  {
+   "name": "Crystalline Crawler",
+   "quantity": 1
+  },
+  {
+   "name": "Dauntless Scrapbot",
+   "quantity": 1
+  },
+  {
+   "name": "Diversion Unit",
+   "quantity": 1
+  },
+  {
+   "name": "Dockworker Drone",
+   "quantity": 1
+  },
+  {
+   "name": "Dross Scorpion",
+   "quantity": 1
+  },
+  {
+   "name": "Elf Replica",
+   "quantity": 1
+  },
+  {
+   "name": "Fugitive Droid",
+   "quantity": 1
+  },
+  {
+   "name": "Giggling Skitterspike",
+   "quantity": 1
+  },
+  {
+   "name": "Gold Myr",
+   "quantity": 1
+  },
+  {
+   "name": "H.E.R.B.I.E., Lovable Robot",
+   "quantity": 1
+  },
+  {
+   "name": "Hangarback Walker",
+   "quantity": 1
+  },
+  {
+   "name": "Haywire Mite",
+   "quantity": 1
+  },
+  {
+   "name": "Hedron Crawler",
+   "quantity": 1
+  },
+  {
+   "name": "Iron Apprentice",
+   "quantity": 1
+  },
+  {
+   "name": "Lion Sash",
+   "quantity": 1
+  },
+  {
+   "name": "Malcator's Watcher",
+   "quantity": 1
+  },
+  {
+   "name": "Manakin",
+   "quantity": 1
+  },
+  {
+   "name": "Market Gnome",
+   "quantity": 1
+  },
+  {
+   "name": "Myr Convert",
+   "quantity": 1
+  },
+  {
+   "name": "Ornithopter of Paradise",
+   "quantity": 1
+  },
+  {
+   "name": "Oswald Fiddlebender",
+   "quantity": 1
+  },
+  {
+   "name": "Plague Myr",
+   "quantity": 1
+  },
+  {
+   "name": "Riptide Gearhulk",
+   "quantity": 1
+  },
+  {
+   "name": "Scrap Trawler",
+   "quantity": 1
+  },
+  {
+   "name": "Scrapyard Recombiner",
+   "quantity": 1
+  },
+  {
+   "name": "Sicarian Infiltrator",
+   "quantity": 1
+  },
+  {
+   "name": "Silver Myr",
+   "quantity": 1
+  },
+  {
+   "name": "Skyscanner",
+   "quantity": 1
+  },
+  {
+   "name": "Spellskite",
+   "quantity": 1
+  },
+  {
+   "name": "Sylvok Replica",
+   "quantity": 1
+  },
+  {
+   "name": "The Reality Chip",
+   "quantity": 1
+  },
+  {
+   "name": "Thermal Navigator",
+   "quantity": 1
+  },
+  {
+   "name": "Trophy Mage",
+   "quantity": 1
+  },
+  {
+   "name": "Walking Ballista",
+   "quantity": 1
+  },
+  {
+   "name": "Wizard Replica",
+   "quantity": 1
+  },
+  {
+   "name": "Workhorse",
+   "quantity": 1
+  },
+  {
+   "name": "Workshop Assistant",
+   "quantity": 1
+  },
+  {
+   "name": "Fabricate",
+   "quantity": 1
+  },
+  {
+   "name": "Birthing Pod",
+   "quantity": 1
+  },
+  {
+   "name": "Manifold Key",
+   "quantity": 1
+  },
+  {
+   "name": "Mystic Forge",
+   "quantity": 1
+  },
+  {
+   "name": "Ozolith, the Shattered Spire",
+   "quantity": 1
+  },
+  {
+   "name": "Repurposing Bay",
+   "quantity": 1
+  },
+  {
+   "name": "Thousand-Year Elixir",
+   "quantity": 1
+  },
+  {
+   "name": "Voltaic Key",
+   "quantity": 1
+  },
+  {
+   "name": "Hardened Scales",
+   "quantity": 1
+  },
+  {
+   "name": "Arctic Treeline",
+   "quantity": 1
+  },
+  {
+   "name": "Bant Panorama",
+   "quantity": 1
+  },
+  {
+   "name": "Blighted Woodland",
+   "quantity": 1
+  },
+  {
+   "name": "Brokers Hideout",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Escape Tunnel",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Fabled Passage",
+   "quantity": 1
+  },
+  {
+   "name": "Field of Ruin",
+   "quantity": 1
+  },
+  {
+   "name": "Glacial Floodplain",
+   "quantity": 1
+  },
+  {
+   "name": "Hobbit Hole",
+   "quantity": 1
+  },
+  {
+   "name": "Karn's Bastion",
+   "quantity": 1
+  },
+  {
+   "name": "Krosan Verge",
+   "quantity": 1
+  },
+  {
+   "name": "Myriad Landscape",
+   "quantity": 1
+  },
+  {
+   "name": "Power Depot",
+   "quantity": 1
+  },
+  {
+   "name": "Razortide Bridge",
+   "quantity": 1
+  },
+  {
+   "name": "Rimewood Falls",
+   "quantity": 1
+  },
+  {
+   "name": "Snow-Covered Forest",
+   "quantity": 6
+  },
+  {
+   "name": "Snow-Covered Island",
+   "quantity": 6
+  },
+  {
+   "name": "Snow-Covered Plains",
+   "quantity": 6
+  },
+  {
+   "name": "Tanglepool Bridge",
+   "quantity": 1
+  },
+  {
+   "name": "Terramorphic Expanse",
+   "quantity": 1
+  },
+  {
+   "name": "Thornglint Bridge",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Landscape",
+   "quantity": 1
+  },
+  {
+   "name": "Vibrant Cityscape",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

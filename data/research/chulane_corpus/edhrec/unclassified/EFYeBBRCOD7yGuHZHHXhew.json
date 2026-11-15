@@ -1,0 +1,358 @@
+{
+ "urlhash": "EFYeBBRCOD7yGuHZHHXhew",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-01-30",
+ "price": 84,
+ "salt": 38.51876457594335,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/5f8U5AbLP0CkOBOO0QJBLQ?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Alabaster Kirin",
+   "quantity": 1
+  },
+  {
+   "name": "Celestial Kirin",
+   "quantity": 1
+  },
+  {
+   "name": "Cloudsteel Kirin",
+   "quantity": 1
+  },
+  {
+   "name": "Coral Merfolk",
+   "quantity": 1
+  },
+  {
+   "name": "Coral Trickster",
+   "quantity": 1
+  },
+  {
+   "name": "Darting Merfolk",
+   "quantity": 1
+  },
+  {
+   "name": "Doc Aurlock, Grizzled Genius",
+   "quantity": 1
+  },
+  {
+   "name": "Emiel the Blessed",
+   "quantity": 1
+  },
+  {
+   "name": "Ethereal Whiskergill",
+   "quantity": 1
+  },
+  {
+   "name": "Frilled Cave-Wurm",
+   "quantity": 1
+  },
+  {
+   "name": "Galina's Knight",
+   "quantity": 1
+  },
+  {
+   "name": "Good-Fortune Unicorn",
+   "quantity": 1
+  },
+  {
+   "name": "Linvala, Shield of Sea Gate",
+   "quantity": 1
+  },
+  {
+   "name": "Maraleaf Pixie",
+   "quantity": 1
+  },
+  {
+   "name": "Merfolk of the Pearl Trident",
+   "quantity": 1
+  },
+  {
+   "name": "Misthoof Kirin",
+   "quantity": 1
+  },
+  {
+   "name": "Mysterious Egg",
+   "quantity": 1
+  },
+  {
+   "name": "Nascent Metamorph",
+   "quantity": 1
+  },
+  {
+   "name": "Pteramander",
+   "quantity": 1
+  },
+  {
+   "name": "Scuttlegator",
+   "quantity": 1
+  },
+  {
+   "name": "Shalai, Voice of Plenty",
+   "quantity": 1
+  },
+  {
+   "name": "Sharktocrab",
+   "quantity": 1
+  },
+  {
+   "name": "Shinechaser",
+   "quantity": 1
+  },
+  {
+   "name": "Sigarda, Font of Blessings",
+   "quantity": 1
+  },
+  {
+   "name": "Sojourner's Companion",
+   "quantity": 1
+  },
+  {
+   "name": "Sunpearl Kirin",
+   "quantity": 1
+  },
+  {
+   "name": "Tidal Courier",
+   "quantity": 1
+  },
+  {
+   "name": "Vodalian Mystic",
+   "quantity": 1
+  },
+  {
+   "name": "Xolatoyac, the Smiling Flood",
+   "quantity": 1
+  },
+  {
+   "name": "Cancel",
+   "quantity": 1
+  },
+  {
+   "name": "Congregate",
+   "quantity": 1
+  },
+  {
+   "name": "Cryptic Command",
+   "quantity": 1
+  },
+  {
+   "name": "Defend the Hearth",
+   "quantity": 1
+  },
+  {
+   "name": "Disperse",
+   "quantity": 1
+  },
+  {
+   "name": "Fleeting Flight",
+   "quantity": 1
+  },
+  {
+   "name": "Frost Breath",
+   "quantity": 1
+  },
+  {
+   "name": "Healing Salve",
+   "quantity": 1
+  },
+  {
+   "name": "Krosan Grip",
+   "quantity": 1
+  },
+  {
+   "name": "Momentary Blink",
+   "quantity": 1
+  },
+  {
+   "name": "Naturalize",
+   "quantity": 1
+  },
+  {
+   "name": "Nature's Chant",
+   "quantity": 1
+  },
+  {
+   "name": "Negate",
+   "quantity": 1
+  },
+  {
+   "name": "Opportunity",
+   "quantity": 1
+  },
+  {
+   "name": "Syncopate",
+   "quantity": 1
+  },
+  {
+   "name": "Divination",
+   "quantity": 1
+  },
+  {
+   "name": "Sleep",
+   "quantity": 1
+  },
+  {
+   "name": "Spelltwine",
+   "quantity": 1
+  },
+  {
+   "name": "Cobbled Wings",
+   "quantity": 1
+  },
+  {
+   "name": "Commander's Sphere",
+   "quantity": 1
+  },
+  {
+   "name": "Fountain of Ichor",
+   "quantity": 1
+  },
+  {
+   "name": "Golden Egg",
+   "quantity": 1
+  },
+  {
+   "name": "Lucky Clover",
+   "quantity": 1
+  },
+  {
+   "name": "Mana Geode",
+   "quantity": 1
+  },
+  {
+   "name": "Manifold Key",
+   "quantity": 1
+  },
+  {
+   "name": "Mind Stone",
+   "quantity": 1
+  },
+  {
+   "name": "Navigator's Compass",
+   "quantity": 1
+  },
+  {
+   "name": "Prismatic Lens",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Cluestone",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Cluestone",
+   "quantity": 1
+  },
+  {
+   "name": "Spinning Wheel",
+   "quantity": 1
+  },
+  {
+   "name": "Springjaw Trap",
+   "quantity": 1
+  },
+  {
+   "name": "Ajani's Mantra",
+   "quantity": 1
+  },
+  {
+   "name": "Angelic Chorus",
+   "quantity": 1
+  },
+  {
+   "name": "Divine Favor",
+   "quantity": 1
+  },
+  {
+   "name": "Harmonious Emergence",
+   "quantity": 1
+  },
+  {
+   "name": "Lawmage's Binding",
+   "quantity": 1
+  },
+  {
+   "name": "On Serra's Wings",
+   "quantity": 1
+  },
+  {
+   "name": "Pacifism",
+   "quantity": 1
+  },
+  {
+   "name": "Paralyzing Grasp",
+   "quantity": 1
+  },
+  {
+   "name": "Unflinching Courage",
+   "quantity": 1
+  },
+  {
+   "name": "Zephyr Charge",
+   "quantity": 1
+  },
+  {
+   "name": "Kiora, Behemoth Beckoner",
+   "quantity": 1
+  },
+  {
+   "name": "Cryptic Caves",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 4
+  },
+  {
+   "name": "Forge of Heroes",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 10
+  },
+  {
+   "name": "Kabira Crossroads",
+   "quantity": 1
+  },
+  {
+   "name": "Mystic Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 4
+  },
+  {
+   "name": "Radiant Fountain",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Guildgate",
+   "quantity": 1
+  },
+  {
+   "name": "Skyline Cascade",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Cove",
+   "quantity": 1
+  },
+  {
+   "name": "Unknown Shores",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

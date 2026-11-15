@@ -479,6 +479,8 @@ def _card_evidence(
         "colors": card["colors"],
         "has_image": card["has_image"],
         "has_back": card["has_back"],
+        "image_url_front": card.get("image_url_front"),
+        "image_url_back": card.get("image_url_back"),
         "available": card["available"],
         "rating": {
             "status": UNRATED,

@@ -1,0 +1,330 @@
+{
+ "urlhash": "eskgJO3XsnrtN0DP5AfrEA",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-10-15",
+ "price": 54,
+ "salt": 38.25771357771009,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/27464117?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Arcus Acolyte",
+   "quantity": 1
+  },
+  {
+   "name": "Arixmethes, Slumbering Isle",
+   "quantity": 1
+  },
+  {
+   "name": "Basri, Tomorrow's Champion",
+   "quantity": 1
+  },
+  {
+   "name": "Bigfin Bouncer",
+   "quantity": 1
+  },
+  {
+   "name": "Caelorna, Coral Tyrant",
+   "quantity": 1
+  },
+  {
+   "name": "Cathar Commando",
+   "quantity": 1
+  },
+  {
+   "name": "Choco, Seeker of Paradise",
+   "quantity": 1
+  },
+  {
+   "name": "District Mascot",
+   "quantity": 1
+  },
+  {
+   "name": "Dáin, Lord of the Iron Hills",
+   "quantity": 1
+  },
+  {
+   "name": "Elfsworn Giant",
+   "quantity": 1
+  },
+  {
+   "name": "Elite Interceptor",
+   "quantity": 1
+  },
+  {
+   "name": "Embodiment of Insight",
+   "quantity": 1
+  },
+  {
+   "name": "Faerie Vandal",
+   "quantity": 1
+  },
+  {
+   "name": "Flesh Burrower",
+   "quantity": 1
+  },
+  {
+   "name": "Gruff Triplets",
+   "quantity": 1
+  },
+  {
+   "name": "Harvester Troll",
+   "quantity": 1
+  },
+  {
+   "name": "Hazard of the Dunes",
+   "quantity": 1
+  },
+  {
+   "name": "Icecave Crasher",
+   "quantity": 1
+  },
+  {
+   "name": "Kalonian Twingrove",
+   "quantity": 1
+  },
+  {
+   "name": "Koma, Cosmos Serpent",
+   "quantity": 1
+  },
+  {
+   "name": "Lifecraft Cavalry",
+   "quantity": 1
+  },
+  {
+   "name": "Murasa Ranger",
+   "quantity": 1
+  },
+  {
+   "name": "Ninth Bridge Patrol",
+   "quantity": 1
+  },
+  {
+   "name": "Prime Speaker Zegana",
+   "quantity": 1
+  },
+  {
+   "name": "Scythe Leopard",
+   "quantity": 1
+  },
+  {
+   "name": "Shattered Acolyte",
+   "quantity": 1
+  },
+  {
+   "name": "Slumbering Trudge",
+   "quantity": 1
+  },
+  {
+   "name": "Snapping Voidcraw",
+   "quantity": 1
+  },
+  {
+   "name": "Stampeding Scurryfoot",
+   "quantity": 1
+  },
+  {
+   "name": "Thornweald Archer",
+   "quantity": 1
+  },
+  {
+   "name": "Wary Farmer",
+   "quantity": 1
+  },
+  {
+   "name": "Wood Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Biomass Mutation",
+   "quantity": 1
+  },
+  {
+   "name": "Bite Down",
+   "quantity": 1
+  },
+  {
+   "name": "Bounce Off",
+   "quantity": 1
+  },
+  {
+   "name": "Clash of Wills",
+   "quantity": 1
+  },
+  {
+   "name": "Duty Beyond Death",
+   "quantity": 1
+  },
+  {
+   "name": "Heritage Reclamation",
+   "quantity": 1
+  },
+  {
+   "name": "Naturalize",
+   "quantity": 1
+  },
+  {
+   "name": "Negate",
+   "quantity": 1
+  },
+  {
+   "name": "Reclaim",
+   "quantity": 1
+  },
+  {
+   "name": "Stroke of Midnight",
+   "quantity": 1
+  },
+  {
+   "name": "Call Damage Control",
+   "quantity": 1
+  },
+  {
+   "name": "Gideon's Battle Cry",
+   "quantity": 1
+  },
+  {
+   "name": "Grow from the Ashes",
+   "quantity": 1
+  },
+  {
+   "name": "Harmonize",
+   "quantity": 1
+  },
+  {
+   "name": "Oversimplify",
+   "quantity": 1
+  },
+  {
+   "name": "Terramorph",
+   "quantity": 1
+  },
+  {
+   "name": "Time Wipe",
+   "quantity": 1
+  },
+  {
+   "name": "Adventuring Gear",
+   "quantity": 1
+  },
+  {
+   "name": "Chocobo Racetrack",
+   "quantity": 1
+  },
+  {
+   "name": "Mind Stone",
+   "quantity": 1
+  },
+  {
+   "name": "False Demise",
+   "quantity": 1
+  },
+  {
+   "name": "Frontier Siege",
+   "quantity": 1
+  },
+  {
+   "name": "Monastery Siege",
+   "quantity": 1
+  },
+  {
+   "name": "Retreat to Kazandu",
+   "quantity": 1
+  },
+  {
+   "name": "Unbridled Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Blossoming Sands",
+   "quantity": 1
+  },
+  {
+   "name": "Crumbling Vestige",
+   "quantity": 1
+  },
+  {
+   "name": "Elvenking's Halls",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Fatehold Annex",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 7
+  },
+  {
+   "name": "Guadosalam, Farplane Gateway",
+   "quantity": 1
+  },
+  {
+   "name": "Hidden Grotto",
+   "quantity": 1
+  },
+  {
+   "name": "Holdout Settlement",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 9
+  },
+  {
+   "name": "Lake-town",
+   "quantity": 1
+  },
+  {
+   "name": "Night Market",
+   "quantity": 1
+  },
+  {
+   "name": "Paradox Gardens",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 9
+  },
+  {
+   "name": "Selesnya Guildgate",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Plenty",
+   "quantity": 1
+  },
+  {
+   "name": "Thornwood Falls",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Cove",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Expanse",
+   "quantity": 1
+  },
+  {
+   "name": "Vigorbloom Annex",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

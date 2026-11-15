@@ -1,0 +1,310 @@
+{
+ "urlhash": "FFVAKhrzngM-pesiQo1x-Q",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-10-13",
+ "price": 2697,
+ "salt": 74.86721746623516,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/jPpFCWeR60efzsQTUjn_dA?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Archivist of Oghma",
+   "quantity": 1
+  },
+  {
+   "name": "Banquet Guests",
+   "quantity": 1
+  },
+  {
+   "name": "Belladonna Took",
+   "quantity": 1
+  },
+  {
+   "name": "Delighted Halfling",
+   "quantity": 1
+  },
+  {
+   "name": "Desolation Twin",
+   "quantity": 1
+  },
+  {
+   "name": "Displacer Kitten",
+   "quantity": 1
+  },
+  {
+   "name": "Elanor Gardner",
+   "quantity": 1
+  },
+  {
+   "name": "Emrakul, the Exigent Doom",
+   "quantity": 1
+  },
+  {
+   "name": "Emrakul, the Promised End",
+   "quantity": 1
+  },
+  {
+   "name": "Emrakul, the World Anew",
+   "quantity": 1
+  },
+  {
+   "name": "Endless One",
+   "quantity": 1
+  },
+  {
+   "name": "Erinis, Gloom Stalker",
+   "quantity": 1
+  },
+  {
+   "name": "Farmer Cotton",
+   "quantity": 1
+  },
+  {
+   "name": "Flayer of Loyalties",
+   "quantity": 1
+  },
+  {
+   "name": "Flickering Hound",
+   "quantity": 1
+  },
+  {
+   "name": "Frodo Baggins",
+   "quantity": 1
+  },
+  {
+   "name": "Glaring Fleshraker",
+   "quantity": 1
+  },
+  {
+   "name": "Hand of Emrakul",
+   "quantity": 1
+  },
+  {
+   "name": "It That Betrays",
+   "quantity": 1
+  },
+  {
+   "name": "Meriadoc Brandybuck",
+   "quantity": 1
+  },
+  {
+   "name": "Omnath, Locus of the Void",
+   "quantity": 1
+  },
+  {
+   "name": "Pathrazer of Ulamog",
+   "quantity": 1
+  },
+  {
+   "name": "Peregrin Took",
+   "quantity": 1
+  },
+  {
+   "name": "Rosie Cotton of South Lane",
+   "quantity": 1
+  },
+  {
+   "name": "Sam, Loyal Attendant",
+   "quantity": 1
+  },
+  {
+   "name": "Samwise Gamgee",
+   "quantity": 1
+  },
+  {
+   "name": "Samwise the Stouthearted",
+   "quantity": 1
+  },
+  {
+   "name": "Spawnbed Protector",
+   "quantity": 1
+  },
+  {
+   "name": "Spawnsire of Ulamog",
+   "quantity": 1
+  },
+  {
+   "name": "The Notary Hobbits",
+   "quantity": 1
+  },
+  {
+   "name": "Ulamog's Crusher",
+   "quantity": 1
+  },
+  {
+   "name": "Ulamog's Despoiler",
+   "quantity": 1
+  },
+  {
+   "name": "Ulamog's Dreadsire",
+   "quantity": 1
+  },
+  {
+   "name": "Ulamog, the Ceaseless Hunger",
+   "quantity": 1
+  },
+  {
+   "name": "Ulamog, the Defiler",
+   "quantity": 1
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1
+  },
+  {
+   "name": "Path to Exile",
+   "quantity": 1
+  },
+  {
+   "name": "Summoner's Pact",
+   "quantity": 1
+  },
+  {
+   "name": "Teferi's Protection",
+   "quantity": 1
+  },
+  {
+   "name": "Adventure Awaits",
+   "quantity": 1
+  },
+  {
+   "name": "Altar of Bone",
+   "quantity": 1
+  },
+  {
+   "name": "Another Round",
+   "quantity": 1
+  },
+  {
+   "name": "Biorhythm",
+   "quantity": 1
+  },
+  {
+   "name": "Finale of Devastation",
+   "quantity": 1
+  },
+  {
+   "name": "Natural Order",
+   "quantity": 1
+  },
+  {
+   "name": "Birthing Pod",
+   "quantity": 1
+  },
+  {
+   "name": "Chromatic Orrery",
+   "quantity": 1
+  },
+  {
+   "name": "Citanul Flute",
+   "quantity": 1
+  },
+  {
+   "name": "Conjurer's Closet",
+   "quantity": 1
+  },
+  {
+   "name": "Everflowing Chalice",
+   "quantity": 1
+  },
+  {
+   "name": "Forsaken Monument",
+   "quantity": 1
+  },
+  {
+   "name": "Mindslaver",
+   "quantity": 1
+  },
+  {
+   "name": "Portal to Phyrexia",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Thought Vessel",
+   "quantity": 1
+  },
+  {
+   "name": "Thran Dynamo",
+   "quantity": 1
+  },
+  {
+   "name": "Enigmatic Incarnation",
+   "quantity": 1
+  },
+  {
+   "name": "Eye of Ugin",
+   "quantity": 1
+  },
+  {
+   "name": "Flood Plain",
+   "quantity": 1
+  },
+  {
+   "name": "Flooded Strand",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 10
+  },
+  {
+   "name": "Grasslands",
+   "quantity": 1
+  },
+  {
+   "name": "Hobbit Hole",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 10
+  },
+  {
+   "name": "Plains",
+   "quantity": 10
+  },
+  {
+   "name": "Savannah",
+   "quantity": 1
+  },
+  {
+   "name": "Tropical Island",
+   "quantity": 1
+  },
+  {
+   "name": "Tundra",
+   "quantity": 1
+  },
+  {
+   "name": "Urza's Mine",
+   "quantity": 1
+  },
+  {
+   "name": "Urza's Power Plant",
+   "quantity": 1
+  },
+  {
+   "name": "Urza's Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Windswept Heath",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

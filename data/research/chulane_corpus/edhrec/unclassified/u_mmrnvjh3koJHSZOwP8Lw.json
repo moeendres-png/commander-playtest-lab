@@ -1,0 +1,350 @@
+{
+ "urlhash": "u_mmrnvjh3koJHSZOwP8Lw",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-09-28",
+ "price": 216,
+ "salt": 44.46885929629207,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/sDZXZ1_nHEGZYcd1eVNIkA?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Ancient Imperiosaur",
+   "quantity": 1
+  },
+  {
+   "name": "Baloth Woodcrasher",
+   "quantity": 1
+  },
+  {
+   "name": "Bard, King of Dale",
+   "quantity": 1
+  },
+  {
+   "name": "Bristly Bill, Spine Sower",
+   "quantity": 1
+  },
+  {
+   "name": "Coiling Oracle",
+   "quantity": 1
+  },
+  {
+   "name": "Dazzling Angel",
+   "quantity": 1
+  },
+  {
+   "name": "Elfsworn Giant",
+   "quantity": 1
+  },
+  {
+   "name": "Homunculus Horde",
+   "quantity": 1
+  },
+  {
+   "name": "Joraga Visionary",
+   "quantity": 1
+  },
+  {
+   "name": "Koma, World-Eater",
+   "quantity": 1
+  },
+  {
+   "name": "Lakeshore Apothecary",
+   "quantity": 1
+  },
+  {
+   "name": "Lifecreed Duo",
+   "quantity": 1
+  },
+  {
+   "name": "Maraleaf Pixie",
+   "quantity": 1
+  },
+  {
+   "name": "Mossborn Hydra",
+   "quantity": 1
+  },
+  {
+   "name": "Nightshade Dryad",
+   "quantity": 1
+  },
+  {
+   "name": "Noxious Newt",
+   "quantity": 1
+  },
+  {
+   "name": "Prowling Felidar",
+   "quantity": 1
+  },
+  {
+   "name": "Quandrix Apprentice",
+   "quantity": 1
+  },
+  {
+   "name": "Rampaging Baloths",
+   "quantity": 1
+  },
+  {
+   "name": "Rootrider Faun",
+   "quantity": 1
+  },
+  {
+   "name": "Sazh Katzroy",
+   "quantity": 1
+  },
+  {
+   "name": "Scute Swarm",
+   "quantity": 1
+  },
+  {
+   "name": "Silvan Reveler",
+   "quantity": 1
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Thranduil's Company",
+   "quantity": 1
+  },
+  {
+   "name": "Thranduil, Sindarin Liege",
+   "quantity": 1
+  },
+  {
+   "name": "Weaver of Currents",
+   "quantity": 1
+  },
+  {
+   "name": "Aetherize",
+   "quantity": 1
+  },
+  {
+   "name": "Anticognition",
+   "quantity": 1
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1
+  },
+  {
+   "name": "Disdainful Stroke",
+   "quantity": 1
+  },
+  {
+   "name": "Don't Make a Sound",
+   "quantity": 1
+  },
+  {
+   "name": "Eject",
+   "quantity": 1
+  },
+  {
+   "name": "Growth Spiral",
+   "quantity": 1
+  },
+  {
+   "name": "Out of Air",
+   "quantity": 1
+  },
+  {
+   "name": "Quench",
+   "quantity": 1
+  },
+  {
+   "name": "Quick Study",
+   "quantity": 1
+  },
+  {
+   "name": "Refute",
+   "quantity": 1
+  },
+  {
+   "name": "Reject Imperfection",
+   "quantity": 1
+  },
+  {
+   "name": "Roiling Regrowth",
+   "quantity": 1
+  },
+  {
+   "name": "Saruman's Trickery",
+   "quantity": 1
+  },
+  {
+   "name": "Think Twice",
+   "quantity": 1
+  },
+  {
+   "name": "Thranduil's Decree",
+   "quantity": 1
+  },
+  {
+   "name": "Chocobo Kick",
+   "quantity": 1
+  },
+  {
+   "name": "Cultivate",
+   "quantity": 1
+  },
+  {
+   "name": "Freeze in Place",
+   "quantity": 1
+  },
+  {
+   "name": "Hunter's Prowess",
+   "quantity": 1
+  },
+  {
+   "name": "Nissa's Renewal",
+   "quantity": 1
+  },
+  {
+   "name": "Regrowth",
+   "quantity": 1
+  },
+  {
+   "name": "Seismic Sense",
+   "quantity": 1
+  },
+  {
+   "name": "Viewpoint Synchronization",
+   "quantity": 1
+  },
+  {
+   "name": "Heaped Harvest",
+   "quantity": 1
+  },
+  {
+   "name": "Manalith",
+   "quantity": 1
+  },
+  {
+   "name": "Beorn's Hospitality",
+   "quantity": 1
+  },
+  {
+   "name": "Blossombind",
+   "quantity": 1
+  },
+  {
+   "name": "Bottomless Pool // Locker Room",
+   "quantity": 1
+  },
+  {
+   "name": "Curiosity",
+   "quantity": 1
+  },
+  {
+   "name": "Earthbender Ascension",
+   "quantity": 1
+  },
+  {
+   "name": "Growing Rites of Itlimoc",
+   "quantity": 1
+  },
+  {
+   "name": "Khalni Heart Expedition",
+   "quantity": 1
+  },
+  {
+   "name": "Nahiri's Binding",
+   "quantity": 1
+  },
+  {
+   "name": "Stuck in Summoner's Sanctum",
+   "quantity": 1
+  },
+  {
+   "name": "Elspeth, Storm Slayer",
+   "quantity": 1
+  },
+  {
+   "name": "Adventurer's Inn",
+   "quantity": 1
+  },
+  {
+   "name": "Blossoming Sands",
+   "quantity": 1
+  },
+  {
+   "name": "Creosote Heath",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 6
+  },
+  {
+   "name": "Graypelt Refuge",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 8
+  },
+  {
+   "name": "Meditation Pools",
+   "quantity": 1
+  },
+  {
+   "name": "Meticulous Archive",
+   "quantity": 1
+  },
+  {
+   "name": "Mirage Mesa",
+   "quantity": 1
+  },
+  {
+   "name": "Myriad Landscape",
+   "quantity": 1
+  },
+  {
+   "name": "Paradox Gardens",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 6
+  },
+  {
+   "name": "Promising Vein",
+   "quantity": 1
+  },
+  {
+   "name": "Radiant Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Terramorphic Expanse",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Cove",
+   "quantity": 1
+  },
+  {
+   "name": "Uncharted Haven",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

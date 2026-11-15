@@ -1,0 +1,272 @@
+{
+ "urlhash": "wBvTx94ltewNeCluspi8IA",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2024-12-10",
+ "price": 51,
+ "salt": 37.31306071393192,
+ "tags": [
+  "Toughness Matters"
+ ],
+ "source_url": "https://moxfield.com/decks/0DgXcXa2IUuBkSqUnp1RHg?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Aegis Turtle",
+   "quantity": 1
+  },
+  {
+   "name": "Ageless Guardian",
+   "quantity": 1
+  },
+  {
+   "name": "Ancient Brontodon",
+   "quantity": 1
+  },
+  {
+   "name": "Ancient Crab",
+   "quantity": 1
+  },
+  {
+   "name": "Armored Warhorse",
+   "quantity": 1
+  },
+  {
+   "name": "Armored Wolf-Rider",
+   "quantity": 1
+  },
+  {
+   "name": "Blade of the Sixth Pride",
+   "quantity": 1
+  },
+  {
+   "name": "Cheeky House-Mouse",
+   "quantity": 1
+  },
+  {
+   "name": "Cliffhaven Sell-Sword",
+   "quantity": 1
+  },
+  {
+   "name": "Colossodon Yearling",
+   "quantity": 1
+  },
+  {
+   "name": "Devilthorn Fox",
+   "quantity": 1
+  },
+  {
+   "name": "Devoted Hero",
+   "quantity": 1
+  },
+  {
+   "name": "Dromoka Warrior",
+   "quantity": 1
+  },
+  {
+   "name": "Eager Cadet",
+   "quantity": 1
+  },
+  {
+   "name": "Elite Vanguard",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Warrior",
+   "quantity": 1
+  },
+  {
+   "name": "Expedition Envoy",
+   "quantity": 1
+  },
+  {
+   "name": "Garruk's Gorehorn",
+   "quantity": 1
+  },
+  {
+   "name": "Gigantosaurus",
+   "quantity": 1
+  },
+  {
+   "name": "Gnarled Mass",
+   "quantity": 1
+  },
+  {
+   "name": "Grizzled Leotau",
+   "quantity": 1
+  },
+  {
+   "name": "Hollowhenge Beast",
+   "quantity": 1
+  },
+  {
+   "name": "Indomitable Ancients",
+   "quantity": 1
+  },
+  {
+   "name": "Isamaru, Hound of Konda",
+   "quantity": 1
+  },
+  {
+   "name": "Kalonian Tusker",
+   "quantity": 1
+  },
+  {
+   "name": "Kami of Old Stone",
+   "quantity": 1
+  },
+  {
+   "name": "Kraken Hatchling",
+   "quantity": 1
+  },
+  {
+   "name": "Leatherback Baloth",
+   "quantity": 1
+  },
+  {
+   "name": "Loxodon Wayfarer",
+   "quantity": 1
+  },
+  {
+   "name": "Lumengrid Warden",
+   "quantity": 1
+  },
+  {
+   "name": "Memnite",
+   "quantity": 1
+  },
+  {
+   "name": "Merfolk Secretkeeper",
+   "quantity": 1
+  },
+  {
+   "name": "Murasa Brute",
+   "quantity": 1
+  },
+  {
+   "name": "Nessian Courser",
+   "quantity": 1
+  },
+  {
+   "name": "Norwood Ranger",
+   "quantity": 1
+  },
+  {
+   "name": "Nyxborn Colossus",
+   "quantity": 1
+  },
+  {
+   "name": "Orazca Frillback",
+   "quantity": 1
+  },
+  {
+   "name": "Pheres-Band Centaurs",
+   "quantity": 1
+  },
+  {
+   "name": "Phyrexian Walker",
+   "quantity": 1
+  },
+  {
+   "name": "Plated Seastrider",
+   "quantity": 1
+  },
+  {
+   "name": "Primordial Wurm",
+   "quantity": 1
+  },
+  {
+   "name": "Prowling Caracal",
+   "quantity": 1
+  },
+  {
+   "name": "Quakestrider Ceratops",
+   "quantity": 1
+  },
+  {
+   "name": "Quilled Slagwurm",
+   "quantity": 1
+  },
+  {
+   "name": "Raptor Companion",
+   "quantity": 1
+  },
+  {
+   "name": "Sanctuary Cat",
+   "quantity": 1
+  },
+  {
+   "name": "Savannah Lions",
+   "quantity": 1
+  },
+  {
+   "name": "Shorecomber Crab",
+   "quantity": 1
+  },
+  {
+   "name": "Staunch Shieldmate",
+   "quantity": 1
+  },
+  {
+   "name": "Swordwise Centaur",
+   "quantity": 1
+  },
+  {
+   "name": "Tasseled Dromedary",
+   "quantity": 1
+  },
+  {
+   "name": "Terrain Elemental",
+   "quantity": 1
+  },
+  {
+   "name": "Triton Shorethief",
+   "quantity": 1
+  },
+  {
+   "name": "Valiant Guard",
+   "quantity": 1
+  },
+  {
+   "name": "Volunteer Militia",
+   "quantity": 1
+  },
+  {
+   "name": "Vorstclaw",
+   "quantity": 1
+  },
+  {
+   "name": "Watchwolf",
+   "quantity": 1
+  },
+  {
+   "name": "Woodland Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Yoked Ox",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 16
+  },
+  {
+   "name": "Island",
+   "quantity": 8
+  },
+  {
+   "name": "Plains",
+   "quantity": 16
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

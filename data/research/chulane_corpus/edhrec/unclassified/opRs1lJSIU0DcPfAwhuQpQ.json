@@ -1,0 +1,302 @@
+{
+ "urlhash": "opRs1lJSIU0DcPfAwhuQpQ",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-04-06",
+ "price": 200,
+ "salt": 50.80088849365711,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/bMAjW-qMp0ufKPie-VbIyw?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Acidic Slime",
+   "quantity": 1
+  },
+  {
+   "name": "Avenger of Zendikar",
+   "quantity": 1
+  },
+  {
+   "name": "Blighted Agent",
+   "quantity": 1
+  },
+  {
+   "name": "Brawn",
+   "quantity": 1
+  },
+  {
+   "name": "Cankerbloom",
+   "quantity": 1
+  },
+  {
+   "name": "Caradora, Heart of Alacria",
+   "quantity": 1
+  },
+  {
+   "name": "Champion of Lambholt",
+   "quantity": 1
+  },
+  {
+   "name": "Chasm Skulker",
+   "quantity": 1
+  },
+  {
+   "name": "Dusk Legion Duelist",
+   "quantity": 1
+  },
+  {
+   "name": "Duskshell Crawler",
+   "quantity": 1
+  },
+  {
+   "name": "Evolution Witness",
+   "quantity": 1
+  },
+  {
+   "name": "Frilled Mystic",
+   "quantity": 1
+  },
+  {
+   "name": "Gilder Bairn",
+   "quantity": 1
+  },
+  {
+   "name": "Gladehart Cavalry",
+   "quantity": 1
+  },
+  {
+   "name": "Glen Elendra Archmage",
+   "quantity": 1
+  },
+  {
+   "name": "Gruff Triplets",
+   "quantity": 1
+  },
+  {
+   "name": "Hamza, Guardian of Arashin",
+   "quantity": 1
+  },
+  {
+   "name": "Haywire Mite",
+   "quantity": 1
+  },
+  {
+   "name": "Helga, Skittish Seer",
+   "quantity": 1
+  },
+  {
+   "name": "Herald of Secret Streams",
+   "quantity": 1
+  },
+  {
+   "name": "Hydroid Krasis",
+   "quantity": 1
+  },
+  {
+   "name": "Ivy Lane Denizen",
+   "quantity": 1
+  },
+  {
+   "name": "Kami of Whispered Hopes",
+   "quantity": 1
+  },
+  {
+   "name": "Kianne, Corrupted Memory",
+   "quantity": 1
+  },
+  {
+   "name": "Leinore, Autumn Sovereign",
+   "quantity": 1
+  },
+  {
+   "name": "Lorescale Coatl",
+   "quantity": 1
+  },
+  {
+   "name": "Loyal Guardian",
+   "quantity": 1
+  },
+  {
+   "name": "Marcus, Mutant Mayor",
+   "quantity": 1
+  },
+  {
+   "name": "Mother of Runes",
+   "quantity": 1
+  },
+  {
+   "name": "Mystic Snake",
+   "quantity": 1
+  },
+  {
+   "name": "Noble Hierarch",
+   "quantity": 1
+  },
+  {
+   "name": "Plaxcaster Frogling",
+   "quantity": 1
+  },
+  {
+   "name": "Primeval Protector",
+   "quantity": 1
+  },
+  {
+   "name": "Prowling Felidar",
+   "quantity": 1
+  },
+  {
+   "name": "Railway Brawler",
+   "quantity": 1
+  },
+  {
+   "name": "Sab-Sunen, Luxa Embodied",
+   "quantity": 1
+  },
+  {
+   "name": "Sakura-Tribe Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Scute Mob",
+   "quantity": 1
+  },
+  {
+   "name": "Silverback Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Spearbreaker Behemoth",
+   "quantity": 1
+  },
+  {
+   "name": "Springbloom Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Surrak and Goreclaw",
+   "quantity": 1
+  },
+  {
+   "name": "Trygon Prime",
+   "quantity": 1
+  },
+  {
+   "name": "Venerated Loxodon",
+   "quantity": 1
+  },
+  {
+   "name": "Vnwxt, Verbose Host",
+   "quantity": 1
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1
+  },
+  {
+   "name": "Grand Crescendo",
+   "quantity": 1
+  },
+  {
+   "name": "Inspiring Call",
+   "quantity": 1
+  },
+  {
+   "name": "Valorous Stance",
+   "quantity": 1
+  },
+  {
+   "name": "Biogenic Upgrade",
+   "quantity": 1
+  },
+  {
+   "name": "Council's Judgment",
+   "quantity": 1
+  },
+  {
+   "name": "Requisition Raid",
+   "quantity": 1
+  },
+  {
+   "name": "Wave Goodbye",
+   "quantity": 1
+  },
+  {
+   "name": "Cloud Key",
+   "quantity": 1
+  },
+  {
+   "name": "Thunderous Velocipede",
+   "quantity": 1
+  },
+  {
+   "name": "Bred for the Hunt",
+   "quantity": 1
+  },
+  {
+   "name": "Cathars' Crusade",
+   "quantity": 1
+  },
+  {
+   "name": "Jugan Defends the Temple",
+   "quantity": 1
+  },
+  {
+   "name": "Privileged Position",
+   "quantity": 1
+  },
+  {
+   "name": "Wizard Class",
+   "quantity": 1
+  },
+  {
+   "name": "Zendikar Resurgent",
+   "quantity": 1
+  },
+  {
+   "name": "Bountiful Promenade",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 10
+  },
+  {
+   "name": "Island",
+   "quantity": 11
+  },
+  {
+   "name": "Karn's Bastion",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 11
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Mystery",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of the False God",
+   "quantity": 1
+  },
+  {
+   "name": "Yavimaya Coast",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

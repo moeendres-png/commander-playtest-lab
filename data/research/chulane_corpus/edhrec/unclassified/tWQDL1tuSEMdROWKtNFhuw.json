@@ -1,0 +1,288 @@
+{
+ "urlhash": "tWQDL1tuSEMdROWKtNFhuw",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-05-22",
+ "price": 564,
+ "salt": 100.32348887622356,
+ "tags": [
+  "Control"
+ ],
+ "source_url": "https://archidekt.com/decks/22793167?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Alms Collector",
+   "quantity": 1
+  },
+  {
+   "name": "Archon of Emeria",
+   "quantity": 1
+  },
+  {
+   "name": "Avacyn, Angel of Hope",
+   "quantity": 1
+  },
+  {
+   "name": "Elesh Norn, Mother of Machines",
+   "quantity": 1
+  },
+  {
+   "name": "Esper Sentinel",
+   "quantity": 1
+  },
+  {
+   "name": "Faerie Mastermind",
+   "quantity": 1
+  },
+  {
+   "name": "Jin-Gitaxias, Core Augur",
+   "quantity": 1
+  },
+  {
+   "name": "Jin-Gitaxias, Progress Tyrant",
+   "quantity": 1
+  },
+  {
+   "name": "Kinjalli's Sunwing",
+   "quantity": 1
+  },
+  {
+   "name": "Leonin Arbiter",
+   "quantity": 1
+  },
+  {
+   "name": "Loxodon Gatekeeper",
+   "quantity": 1
+  },
+  {
+   "name": "Mangara, the Diplomat",
+   "quantity": 1
+  },
+  {
+   "name": "Scrawling Crawler",
+   "quantity": 1
+  },
+  {
+   "name": "Sigarda, Font of Blessings",
+   "quantity": 1
+  },
+  {
+   "name": "Sigarda, Host of Herons",
+   "quantity": 1
+  },
+  {
+   "name": "Thalia, Guardian of Thraben",
+   "quantity": 1
+  },
+  {
+   "name": "Thalia, Heretic Cathar",
+   "quantity": 1
+  },
+  {
+   "name": "Tithe Taker",
+   "quantity": 1
+  },
+  {
+   "name": "Arachnogenesis",
+   "quantity": 1
+  },
+  {
+   "name": "Cancel",
+   "quantity": 1
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1
+  },
+  {
+   "name": "Dovin's Veto",
+   "quantity": 1
+  },
+  {
+   "name": "No More Lies",
+   "quantity": 1
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1
+  },
+  {
+   "name": "Cultivate",
+   "quantity": 1
+  },
+  {
+   "name": "Day of Judgment",
+   "quantity": 1
+  },
+  {
+   "name": "Nature's Lore",
+   "quantity": 1
+  },
+  {
+   "name": "Rampant Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Skyshroud Claim",
+   "quantity": 1
+  },
+  {
+   "name": "Supreme Verdict",
+   "quantity": 1
+  },
+  {
+   "name": "Three Visits",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Damping Sphere",
+   "quantity": 1
+  },
+  {
+   "name": "God-Pharaoh's Statue",
+   "quantity": 1
+  },
+  {
+   "name": "Mindlock Orb",
+   "quantity": 1
+  },
+  {
+   "name": "Norn's Annex",
+   "quantity": 1
+  },
+  {
+   "name": "Orb of Dreams",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Static Orb",
+   "quantity": 1
+  },
+  {
+   "name": "Torpor Orb",
+   "quantity": 1
+  },
+  {
+   "name": "Winter Moon",
+   "quantity": 1
+  },
+  {
+   "name": "Winter Orb",
+   "quantity": 1
+  },
+  {
+   "name": "Authority of the Consuls",
+   "quantity": 1
+  },
+  {
+   "name": "Awakening",
+   "quantity": 1
+  },
+  {
+   "name": "Back to Basics",
+   "quantity": 1
+  },
+  {
+   "name": "Blind Obedience",
+   "quantity": 1
+  },
+  {
+   "name": "Collective Restraint",
+   "quantity": 1
+  },
+  {
+   "name": "Dream Tides",
+   "quantity": 1
+  },
+  {
+   "name": "Ghostly Prison",
+   "quantity": 1
+  },
+  {
+   "name": "Monastery Siege",
+   "quantity": 1
+  },
+  {
+   "name": "Monologue Tax",
+   "quantity": 1
+  },
+  {
+   "name": "Norn's Decree",
+   "quantity": 1
+  },
+  {
+   "name": "Ominous Seas",
+   "quantity": 1
+  },
+  {
+   "name": "Propaganda",
+   "quantity": 1
+  },
+  {
+   "name": "Psychic Corrosion",
+   "quantity": 1
+  },
+  {
+   "name": "Rhystic Study",
+   "quantity": 1
+  },
+  {
+   "name": "Rising Waters",
+   "quantity": 1
+  },
+  {
+   "name": "Smothering Tithe",
+   "quantity": 1
+  },
+  {
+   "name": "Sphinx's Tutelage",
+   "quantity": 1
+  },
+  {
+   "name": "Teferi's Tutelage",
+   "quantity": 1
+  },
+  {
+   "name": "Unstoppable Plan",
+   "quantity": 1
+  },
+  {
+   "name": "War Tax",
+   "quantity": 1
+  },
+  {
+   "name": "Wilderness Reclamation",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 12
+  },
+  {
+   "name": "Island",
+   "quantity": 12
+  },
+  {
+   "name": "Plains",
+   "quantity": 12
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

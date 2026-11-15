@@ -1,0 +1,338 @@
+{
+ "urlhash": "FpF4HCmHP_neru_2OF1f-Q",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-08-15",
+ "price": 334,
+ "salt": 42.767728948034346,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/ti0uwGeboE6OaCQvxxmLfA?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Adeline, Resplendent Cathar",
+   "quantity": 1
+  },
+  {
+   "name": "Admonition Angel",
+   "quantity": 1
+  },
+  {
+   "name": "Angel of the Ruins",
+   "quantity": 1
+  },
+  {
+   "name": "Archivist of Oghma",
+   "quantity": 1
+  },
+  {
+   "name": "Banisher Priest",
+   "quantity": 1
+  },
+  {
+   "name": "Cathar Commando",
+   "quantity": 1
+  },
+  {
+   "name": "Cavalier of Dawn",
+   "quantity": 1
+  },
+  {
+   "name": "Cemetery Protector",
+   "quantity": 1
+  },
+  {
+   "name": "Children of Korlis",
+   "quantity": 1
+  },
+  {
+   "name": "Deep Gnome Terramancer",
+   "quantity": 1
+  },
+  {
+   "name": "Emeria Angel",
+   "quantity": 1
+  },
+  {
+   "name": "Emeria Shepherd",
+   "quantity": 1
+  },
+  {
+   "name": "Esper Sentinel",
+   "quantity": 1
+  },
+  {
+   "name": "Foundry Inspector",
+   "quantity": 1
+  },
+  {
+   "name": "Kami of False Hope",
+   "quantity": 1
+  },
+  {
+   "name": "Knight of the White Orchid",
+   "quantity": 1
+  },
+  {
+   "name": "Lion Sash",
+   "quantity": 1
+  },
+  {
+   "name": "Luminous Broodmoth",
+   "quantity": 1
+  },
+  {
+   "name": "Mentor of the Meek",
+   "quantity": 1
+  },
+  {
+   "name": "Mother of Runes",
+   "quantity": 1
+  },
+  {
+   "name": "Ornithopter",
+   "quantity": 1
+  },
+  {
+   "name": "Ornithopter of Paradise",
+   "quantity": 1
+  },
+  {
+   "name": "Palace Jailer",
+   "quantity": 1
+  },
+  {
+   "name": "Radiant Solar",
+   "quantity": 1
+  },
+  {
+   "name": "Restoration Specialist",
+   "quantity": 1
+  },
+  {
+   "name": "Selfless Spirit",
+   "quantity": 1
+  },
+  {
+   "name": "Soltari Visionary",
+   "quantity": 1
+  },
+  {
+   "name": "Stonecloaker",
+   "quantity": 1
+  },
+  {
+   "name": "Stonecoil Serpent",
+   "quantity": 1
+  },
+  {
+   "name": "Tataru Taru",
+   "quantity": 1
+  },
+  {
+   "name": "Teshar, Ancestor's Apostle",
+   "quantity": 1
+  },
+  {
+   "name": "Wall of Omens",
+   "quantity": 1
+  },
+  {
+   "name": "Welcoming Vampire",
+   "quantity": 1
+  },
+  {
+   "name": "White Plume Adventurer",
+   "quantity": 1
+  },
+  {
+   "name": "Whitemane Lion",
+   "quantity": 1
+  },
+  {
+   "name": "Zeriam, Golden Wind",
+   "quantity": 1
+  },
+  {
+   "name": "Path to Exile",
+   "quantity": 1
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1
+  },
+  {
+   "name": "Unexplained Absence",
+   "quantity": 1
+  },
+  {
+   "name": "Austere Command",
+   "quantity": 1
+  },
+  {
+   "name": "Excavation Technique",
+   "quantity": 1
+  },
+  {
+   "name": "Farewell",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Archaeomancer's Map",
+   "quantity": 1
+  },
+  {
+   "name": "Fellwar Stone",
+   "quantity": 1
+  },
+  {
+   "name": "Halo Fountain",
+   "quantity": 1
+  },
+  {
+   "name": "Idol of Oblivion",
+   "quantity": 1
+  },
+  {
+   "name": "Mace of the Valiant",
+   "quantity": 1
+  },
+  {
+   "name": "Oketra's Monument",
+   "quantity": 1
+  },
+  {
+   "name": "Robe of Stars",
+   "quantity": 1
+  },
+  {
+   "name": "Semblance Anvil",
+   "quantity": 1
+  },
+  {
+   "name": "Shadowspear",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Strixhaven Stadium",
+   "quantity": 1
+  },
+  {
+   "name": "Sword of the Animist",
+   "quantity": 1
+  },
+  {
+   "name": "Court of Grace",
+   "quantity": 1
+  },
+  {
+   "name": "Darksteel Mutation",
+   "quantity": 1
+  },
+  {
+   "name": "Fanatical Devotion",
+   "quantity": 1
+  },
+  {
+   "name": "Felidar Retreat",
+   "quantity": 1
+  },
+  {
+   "name": "Retreat to Emeria",
+   "quantity": 1
+  },
+  {
+   "name": "Smuggler's Share",
+   "quantity": 1
+  },
+  {
+   "name": "Spirit Bonds",
+   "quantity": 1
+  },
+  {
+   "name": "Swift Reconfiguration",
+   "quantity": 1
+  },
+  {
+   "name": "Ancient Ziggurat",
+   "quantity": 1
+  },
+  {
+   "name": "Blighted Steppe",
+   "quantity": 1
+  },
+  {
+   "name": "Cave of Temptation",
+   "quantity": 1
+  },
+  {
+   "name": "Command Beacon",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Exotic Orchard",
+   "quantity": 1
+  },
+  {
+   "name": "Myriad Landscape",
+   "quantity": 1
+  },
+  {
+   "name": "Opal Palace",
+   "quantity": 1
+  },
+  {
+   "name": "Path of Ancestry",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 21
+  },
+  {
+   "name": "Secluded Courtyard",
+   "quantity": 1
+  },
+  {
+   "name": "Study Hall",
+   "quantity": 1
+  },
+  {
+   "name": "Thriving Heath",
+   "quantity": 1
+  },
+  {
+   "name": "Uncharted Haven",
+   "quantity": 1
+  },
+  {
+   "name": "Unclaimed Territory",
+   "quantity": 1
+  },
+  {
+   "name": "Vivid Meadow",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

@@ -1,0 +1,326 @@
+{
+ "urlhash": "y5ogzzLrGnZRWq8KBFnA1g",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-04-21",
+ "price": 197,
+ "salt": 49.74421730823815,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/qMw23LyCOUKrSKhiPfYj6g?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Aerial Extortionist",
+   "quantity": 1
+  },
+  {
+   "name": "Aggressive Mammoth",
+   "quantity": 1
+  },
+  {
+   "name": "Alms Collector",
+   "quantity": 1
+  },
+  {
+   "name": "Archmage Emeritus",
+   "quantity": 1
+  },
+  {
+   "name": "Arixmethes, Slumbering Isle",
+   "quantity": 1
+  },
+  {
+   "name": "Armored Scrapgorger",
+   "quantity": 1
+  },
+  {
+   "name": "Augmenter Pugilist",
+   "quantity": 1
+  },
+  {
+   "name": "Azusa, Lost but Seeking",
+   "quantity": 1
+  },
+  {
+   "name": "Battle Mammoth",
+   "quantity": 1
+  },
+  {
+   "name": "Beast Whisperer",
+   "quantity": 1
+  },
+  {
+   "name": "Crash of Rhino Beetles",
+   "quantity": 1
+  },
+  {
+   "name": "Earthshaker Giant",
+   "quantity": 1
+  },
+  {
+   "name": "End-Raze Forerunners",
+   "quantity": 1
+  },
+  {
+   "name": "Faerie Formation",
+   "quantity": 1
+  },
+  {
+   "name": "Ilysian Caryatid",
+   "quantity": 1
+  },
+  {
+   "name": "Incubation Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Inkwell Leviathan",
+   "quantity": 1
+  },
+  {
+   "name": "Jaheira, Friend of the Forest",
+   "quantity": 1
+  },
+  {
+   "name": "Kogla, the Titan Ape",
+   "quantity": 1
+  },
+  {
+   "name": "Kruphix, God of Horizons",
+   "quantity": 1
+  },
+  {
+   "name": "Maraleaf Pixie",
+   "quantity": 1
+  },
+  {
+   "name": "Multani, Yavimaya's Avatar",
+   "quantity": 1
+  },
+  {
+   "name": "Nylea, God of the Hunt",
+   "quantity": 1
+  },
+  {
+   "name": "Paradise Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Rampaging Baloths",
+   "quantity": 1
+  },
+  {
+   "name": "Rashmi, Eternities Crafter",
+   "quantity": 1
+  },
+  {
+   "name": "Ripjaw Raptor",
+   "quantity": 1
+  },
+  {
+   "name": "Sphinx of Enlightenment",
+   "quantity": 1
+  },
+  {
+   "name": "Steelbane Hydra",
+   "quantity": 1
+  },
+  {
+   "name": "Stonehoof Chieftain",
+   "quantity": 1
+  },
+  {
+   "name": "Storvald, Frost Giant Jarl",
+   "quantity": 1
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Thorn Mammoth",
+   "quantity": 1
+  },
+  {
+   "name": "Thryx, the Sudden Storm",
+   "quantity": 1
+  },
+  {
+   "name": "Treeshaker Chimera",
+   "quantity": 1
+  },
+  {
+   "name": "Voracious Hydra",
+   "quantity": 1
+  },
+  {
+   "name": "Zetalpa, Primal Dawn",
+   "quantity": 1
+  },
+  {
+   "name": "Crush Contraband",
+   "quantity": 1
+  },
+  {
+   "name": "March of the Multitudes",
+   "quantity": 1
+  },
+  {
+   "name": "Ride the Avalanche",
+   "quantity": 1
+  },
+  {
+   "name": "Second Harvest",
+   "quantity": 1
+  },
+  {
+   "name": "Sublime Epiphany",
+   "quantity": 1
+  },
+  {
+   "name": "River's Rebuke",
+   "quantity": 1
+  },
+  {
+   "name": "Traverse the Outlands",
+   "quantity": 1
+  },
+  {
+   "name": "Wrath of God",
+   "quantity": 1
+  },
+  {
+   "name": "Lifecrafter's Bestiary",
+   "quantity": 1
+  },
+  {
+   "name": "Parhelion II",
+   "quantity": 1
+  },
+  {
+   "name": "Tome of Legends",
+   "quantity": 1
+  },
+  {
+   "name": "Court of Ardenvale",
+   "quantity": 1
+  },
+  {
+   "name": "Darksteel Mutation",
+   "quantity": 1
+  },
+  {
+   "name": "Garruk's Uprising",
+   "quantity": 1
+  },
+  {
+   "name": "Grasp of Fate",
+   "quantity": 1
+  },
+  {
+   "name": "Kiora Bests the Sea God",
+   "quantity": 1
+  },
+  {
+   "name": "Mirari's Wake",
+   "quantity": 1
+  },
+  {
+   "name": "Prison Realm",
+   "quantity": 1
+  },
+  {
+   "name": "Teferi's Ageless Insight",
+   "quantity": 1
+  },
+  {
+   "name": "Unnatural Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Grand Master of Flowers",
+   "quantity": 1
+  },
+  {
+   "name": "Nissa, Worldwaker",
+   "quantity": 1
+  },
+  {
+   "name": "Tamiyo, Compleated Sage",
+   "quantity": 1
+  },
+  {
+   "name": "Teferi, Timeless Voyager",
+   "quantity": 1
+  },
+  {
+   "name": "Vivien Reid",
+   "quantity": 1
+  },
+  {
+   "name": "Command Beacon",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 9
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 9
+  },
+  {
+   "name": "Mosswort Bridge",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 8
+  },
+  {
+   "name": "Radiant Fountain",
+   "quantity": 1
+  },
+  {
+   "name": "Soaring Seacliff",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Mystery",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of the False God",
+   "quantity": 1
+  },
+  {
+   "name": "Thornwood Falls",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Cove",
+   "quantity": 1
+  },
+  {
+   "name": "Yavimaya Coast",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

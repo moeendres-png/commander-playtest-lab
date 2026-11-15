@@ -1,0 +1,282 @@
+{
+ "urlhash": "TAGnfrMmCWLhh5ZWMR8G-A",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-06-04",
+ "price": 50,
+ "salt": 44.05409024655819,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/13573489?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Adaptive Snapjaw",
+   "quantity": 1
+  },
+  {
+   "name": "Aegis Turtle",
+   "quantity": 1
+  },
+  {
+   "name": "Anointer of Champions",
+   "quantity": 1
+  },
+  {
+   "name": "Arboreal Grazer",
+   "quantity": 1
+  },
+  {
+   "name": "Arcbound Mouser",
+   "quantity": 1
+  },
+  {
+   "name": "Artificer's Assistant",
+   "quantity": 1
+  },
+  {
+   "name": "Ascendant Packleader",
+   "quantity": 1
+  },
+  {
+   "name": "Battering Krasis",
+   "quantity": 1
+  },
+  {
+   "name": "Botanical Brawler",
+   "quantity": 1
+  },
+  {
+   "name": "Burrowguard Mentor",
+   "quantity": 1
+  },
+  {
+   "name": "Cheeky House-Mouse",
+   "quantity": 1
+  },
+  {
+   "name": "Cloudfin Raptor",
+   "quantity": 1
+  },
+  {
+   "name": "Conclave Guildmage",
+   "quantity": 1
+  },
+  {
+   "name": "Crocanura",
+   "quantity": 1
+  },
+  {
+   "name": "Dinosaur Egg",
+   "quantity": 1
+  },
+  {
+   "name": "Duskshell Crawler",
+   "quantity": 1
+  },
+  {
+   "name": "Elusive Krasis",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Herder",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Pioneer",
+   "quantity": 1
+  },
+  {
+   "name": "Experiment One",
+   "quantity": 1
+  },
+  {
+   "name": "Fathom Mage",
+   "quantity": 1
+  },
+  {
+   "name": "Gnarlid Colony",
+   "quantity": 1
+  },
+  {
+   "name": "Greenbelt Guardian",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Mentor",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Scout",
+   "quantity": 1
+  },
+  {
+   "name": "Nephalia Smuggler",
+   "quantity": 1
+  },
+  {
+   "name": "Ornithopter",
+   "quantity": 1
+  },
+  {
+   "name": "Pridemalkin",
+   "quantity": 1
+  },
+  {
+   "name": "Propagator Drone",
+   "quantity": 1
+  },
+  {
+   "name": "Renegade Krasis",
+   "quantity": 1
+  },
+  {
+   "name": "Shambleshark",
+   "quantity": 1
+  },
+  {
+   "name": "Sidisi's Faithful",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Fluxmage",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Manipulator",
+   "quantity": 1
+  },
+  {
+   "name": "Tyranid Prime",
+   "quantity": 1
+  },
+  {
+   "name": "Watchful Radstag",
+   "quantity": 1
+  },
+  {
+   "name": "Bounce Off",
+   "quantity": 1
+  },
+  {
+   "name": "Drown in Shapelessness",
+   "quantity": 1
+  },
+  {
+   "name": "Evolution Charm",
+   "quantity": 1
+  },
+  {
+   "name": "Justiciar's Portal",
+   "quantity": 1
+  },
+  {
+   "name": "Saving Grasp",
+   "quantity": 1
+  },
+  {
+   "name": "String of Disappearances",
+   "quantity": 1
+  },
+  {
+   "name": "Turn to Mist",
+   "quantity": 1
+  },
+  {
+   "name": "Unsummon",
+   "quantity": 1
+  },
+  {
+   "name": "You're Ambushed on the Road",
+   "quantity": 1
+  },
+  {
+   "name": "Bushwhack",
+   "quantity": 1
+  },
+  {
+   "name": "Caravan Vigil",
+   "quantity": 1
+  },
+  {
+   "name": "Enter the Unknown",
+   "quantity": 1
+  },
+  {
+   "name": "Silent Departure",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Frantic Strength",
+   "quantity": 1
+  },
+  {
+   "name": "Garruk's Uprising",
+   "quantity": 1
+  },
+  {
+   "name": "Primal Frenzy",
+   "quantity": 1
+  },
+  {
+   "name": "Seal of Removal",
+   "quantity": 1
+  },
+  {
+   "name": "Song of Freyalise",
+   "quantity": 1
+  },
+  {
+   "name": "Talons of Wildwood",
+   "quantity": 1
+  },
+  {
+   "name": "Temur Runemark",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Exotic Orchard",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 13
+  },
+  {
+   "name": "Island",
+   "quantity": 12
+  },
+  {
+   "name": "Plains",
+   "quantity": 12
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

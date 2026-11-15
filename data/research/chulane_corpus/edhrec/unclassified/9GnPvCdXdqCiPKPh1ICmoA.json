@@ -1,0 +1,338 @@
+{
+ "urlhash": "9GnPvCdXdqCiPKPh1ICmoA",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-01-18",
+ "price": 111,
+ "salt": 39.63050692016259,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/18887864?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Aegis Automaton",
+   "quantity": 1
+  },
+  {
+   "name": "Ankle Biter",
+   "quantity": 1
+  },
+  {
+   "name": "Arbor Elf",
+   "quantity": 1
+  },
+  {
+   "name": "Augmenter Pugilist",
+   "quantity": 1
+  },
+  {
+   "name": "Aunt May",
+   "quantity": 1
+  },
+  {
+   "name": "Avacyn's Pilgrim",
+   "quantity": 1
+  },
+  {
+   "name": "Blisterpod",
+   "quantity": 1
+  },
+  {
+   "name": "Boreal Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Boros Elite",
+   "quantity": 1
+  },
+  {
+   "name": "Brinebarrow Intruder",
+   "quantity": 1
+  },
+  {
+   "name": "Bygone Bishop",
+   "quantity": 1
+  },
+  {
+   "name": "Capricopian",
+   "quantity": 1
+  },
+  {
+   "name": "Cathedral Sanctifier",
+   "quantity": 1
+  },
+  {
+   "name": "Champion of the Parish",
+   "quantity": 1
+  },
+  {
+   "name": "Citanul Stalwart",
+   "quantity": 1
+  },
+  {
+   "name": "Cogwork Wrestler",
+   "quantity": 1
+  },
+  {
+   "name": "Curious Farm Animals",
+   "quantity": 1
+  },
+  {
+   "name": "Dauntless Bodyguard",
+   "quantity": 1
+  },
+  {
+   "name": "Deepwood Wolverine",
+   "quantity": 1
+  },
+  {
+   "name": "Dragon Sniper",
+   "quantity": 1
+  },
+  {
+   "name": "Dryad Militant",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Hexhunter",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Mystic",
+   "quantity": 1
+  },
+  {
+   "name": "Endless One",
+   "quantity": 1
+  },
+  {
+   "name": "Essence Warden",
+   "quantity": 1
+  },
+  {
+   "name": "Faerie Seer",
+   "quantity": 1
+  },
+  {
+   "name": "Fang of Shigeki",
+   "quantity": 1
+  },
+  {
+   "name": "Feral Hydra",
+   "quantity": 1
+  },
+  {
+   "name": "Fyndhorn Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Gene Pollinator",
+   "quantity": 1
+  },
+  {
+   "name": "Gideon's Lawkeeper",
+   "quantity": 1
+  },
+  {
+   "name": "Gilded Goose",
+   "quantity": 1
+  },
+  {
+   "name": "Glistener Seer",
+   "quantity": 1
+  },
+  {
+   "name": "God-Pharaoh's Faithful",
+   "quantity": 1
+  },
+  {
+   "name": "Goldenglow Moth",
+   "quantity": 1
+  },
+  {
+   "name": "Healer of the Glade",
+   "quantity": 1
+  },
+  {
+   "name": "Hexdrinker",
+   "quantity": 1
+  },
+  {
+   "name": "Hinterland Sanctifier",
+   "quantity": 1
+  },
+  {
+   "name": "Humbling Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Illvoi Galeblade",
+   "quantity": 1
+  },
+  {
+   "name": "Ingenious Prodigy",
+   "quantity": 1
+  },
+  {
+   "name": "Ivy Elemental",
+   "quantity": 1
+  },
+  {
+   "name": "Jackal, Genius Geneticist",
+   "quantity": 1
+  },
+  {
+   "name": "Jaspera Sentinel",
+   "quantity": 1
+  },
+  {
+   "name": "Laboratory Maniac",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Stalker",
+   "quantity": 1
+  },
+  {
+   "name": "Loam Lion",
+   "quantity": 1
+  },
+  {
+   "name": "Lunarch Veteran",
+   "quantity": 1
+  },
+  {
+   "name": "Martyr of Sands",
+   "quantity": 1
+  },
+  {
+   "name": "Memnite",
+   "quantity": 1
+  },
+  {
+   "name": "Mirkwood Spider",
+   "quantity": 1
+  },
+  {
+   "name": "Mockingbird",
+   "quantity": 1
+  },
+  {
+   "name": "Omen Hawker",
+   "quantity": 1
+  },
+  {
+   "name": "Ormos, Archive Keeper",
+   "quantity": 1
+  },
+  {
+   "name": "Shrieking Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Silver Raven",
+   "quantity": 1
+  },
+  {
+   "name": "Stonecoil Serpent",
+   "quantity": 1
+  },
+  {
+   "name": "Trusted Advisor",
+   "quantity": 1
+  },
+  {
+   "name": "Volo, Guide to Monsters",
+   "quantity": 1
+  },
+  {
+   "name": "Weather the Storm",
+   "quantity": 1
+  },
+  {
+   "name": "Prosperity",
+   "quantity": 1
+  },
+  {
+   "name": "Kefnet's Monument",
+   "quantity": 1
+  },
+  {
+   "name": "Lifecrafter's Bestiary",
+   "quantity": 1
+  },
+  {
+   "name": "Mirror Box",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Sinking Feeling",
+   "quantity": 1
+  },
+  {
+   "name": "Solemnity",
+   "quantity": 1
+  },
+  {
+   "name": "Garruk, Caller of Beasts",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 6
+  },
+  {
+   "name": "Fortified Village",
+   "quantity": 1
+  },
+  {
+   "name": "Glacial Fortress",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 10
+  },
+  {
+   "name": "Plains",
+   "quantity": 7
+  },
+  {
+   "name": "Selesnya Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Growth Chamber",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Enlightenment",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Mystery",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Plenty",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

@@ -1,0 +1,354 @@
+{
+ "urlhash": "Ecz9OzdWPEuOGip7NMgGhw",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-11-15",
+ "price": 224,
+ "salt": 42.17701101116836,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/28179524?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Aang, at the Crossroads",
+   "quantity": 1
+  },
+  {
+   "name": "Arni, Humble Scribe",
+   "quantity": 1
+  },
+  {
+   "name": "Ashe, Princess of Dalmasca",
+   "quantity": 1
+  },
+  {
+   "name": "Avatar of Burgeoning Echoes",
+   "quantity": 1
+  },
+  {
+   "name": "Azusa, Lost but Seeking",
+   "quantity": 1
+  },
+  {
+   "name": "Captain Marvel, Earth's Protector",
+   "quantity": 1
+  },
+  {
+   "name": "Captain Sisay",
+   "quantity": 1
+  },
+  {
+   "name": "Cloud, Midgar Mercenary",
+   "quantity": 1
+  },
+  {
+   "name": "Dyadrine, Synthesis Amalgam",
+   "quantity": 1
+  },
+  {
+   "name": "Frodo Baggins",
+   "quantity": 1
+  },
+  {
+   "name": "Ghalta the Unstoppable",
+   "quantity": 1
+  },
+  {
+   "name": "Guiding Hydra",
+   "quantity": 1
+  },
+  {
+   "name": "Katilda and Lier",
+   "quantity": 1
+  },
+  {
+   "name": "Kwia Vigorbloom",
+   "quantity": 1
+  },
+  {
+   "name": "Marwyn, the Preserver",
+   "quantity": 1
+  },
+  {
+   "name": "Photon, Lady of Light",
+   "quantity": 1
+  },
+  {
+   "name": "Pia, Aether Ascetic",
+   "quantity": 1
+  },
+  {
+   "name": "Radagast of Rhosgobel",
+   "quantity": 1
+  },
+  {
+   "name": "Rhys, the Evermore",
+   "quantity": 1
+  },
+  {
+   "name": "Samwise Gamgee",
+   "quantity": 1
+  },
+  {
+   "name": "Shang-Chi, Master of Kung Fu",
+   "quantity": 1
+  },
+  {
+   "name": "Sovereign Okinec Ahau",
+   "quantity": 1
+  },
+  {
+   "name": "Spider-Man, To the Rescue",
+   "quantity": 1
+  },
+  {
+   "name": "The Earth King",
+   "quantity": 1
+  },
+  {
+   "name": "The Unagi of Kyoshi Island",
+   "quantity": 1
+  },
+  {
+   "name": "Tifa Lockhart",
+   "quantity": 1
+  },
+  {
+   "name": "Venat, Heart of Hydaelyn",
+   "quantity": 1
+  },
+  {
+   "name": "Venser, Shaper Savant",
+   "quantity": 1
+  },
+  {
+   "name": "Werebear",
+   "quantity": 1
+  },
+  {
+   "name": "Yoshimaru, Beloved Companion",
+   "quantity": 1
+  },
+  {
+   "name": "Aetherize",
+   "quantity": 1
+  },
+  {
+   "name": "Biomass Mutation",
+   "quantity": 1
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1
+  },
+  {
+   "name": "Disenchant",
+   "quantity": 1
+  },
+  {
+   "name": "Flawless Maneuver",
+   "quantity": 1
+  },
+  {
+   "name": "Path to Exile",
+   "quantity": 1
+  },
+  {
+   "name": "Reclaim",
+   "quantity": 1
+  },
+  {
+   "name": "Restoration Magic",
+   "quantity": 1
+  },
+  {
+   "name": "Veil of Summer",
+   "quantity": 1
+  },
+  {
+   "name": "Cultivate",
+   "quantity": 1
+  },
+  {
+   "name": "Harmonize",
+   "quantity": 1
+  },
+  {
+   "name": "Starfall Invocation",
+   "quantity": 1
+  },
+  {
+   "name": "Blackblade Reforged",
+   "quantity": 1
+  },
+  {
+   "name": "Genji Glove",
+   "quantity": 1
+  },
+  {
+   "name": "Mirror of Galadriel",
+   "quantity": 1
+  },
+  {
+   "name": "The Seriema",
+   "quantity": 1
+  },
+  {
+   "name": "Aqueous Form",
+   "quantity": 1
+  },
+  {
+   "name": "Buried in the Garden",
+   "quantity": 1
+  },
+  {
+   "name": "Journey to Nowhere",
+   "quantity": 1
+  },
+  {
+   "name": "Kellan Joins Up",
+   "quantity": 1
+  },
+  {
+   "name": "Master's Guidance",
+   "quantity": 1
+  },
+  {
+   "name": "Pacifism",
+   "quantity": 1
+  },
+  {
+   "name": "Part in Friendship",
+   "quantity": 1
+  },
+  {
+   "name": "Soul Echo",
+   "quantity": 1
+  },
+  {
+   "name": "Soul Snare",
+   "quantity": 1
+  },
+  {
+   "name": "Way of the Mind Sculptor",
+   "quantity": 1
+  },
+  {
+   "name": "Way of the Paradox",
+   "quantity": 1
+  },
+  {
+   "name": "Garruk, Curse Breaker",
+   "quantity": 1
+  },
+  {
+   "name": "Oko, the Ringleader",
+   "quantity": 1
+  },
+  {
+   "name": "The Eternal Wanderer",
+   "quantity": 1
+  },
+  {
+   "name": "The Wandering Emperor",
+   "quantity": 1
+  },
+  {
+   "name": "Abandoned Air Temple",
+   "quantity": 1
+  },
+  {
+   "name": "Adventurer's Inn",
+   "quantity": 1
+  },
+  {
+   "name": "Birnin Zana Plaza",
+   "quantity": 1
+  },
+  {
+   "name": "Conduit Pylons",
+   "quantity": 1
+  },
+  {
+   "name": "Dryad Arbor",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 5
+  },
+  {
+   "name": "Ghost Town",
+   "quantity": 1
+  },
+  {
+   "name": "Great Hall of the Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Hidden Courtyard",
+   "quantity": 1
+  },
+  {
+   "name": "Hobbit Hole",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 2
+  },
+  {
+   "name": "Mirage Mesa",
+   "quantity": 1
+  },
+  {
+   "name": "Overgrown Farmland",
+   "quantity": 1
+  },
+  {
+   "name": "Petrified Hamlet",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 12
+  },
+  {
+   "name": "Radiant Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Guildgate",
+   "quantity": 1
+  },
+  {
+   "name": "Sunscorched Desert",
+   "quantity": 1
+  },
+  {
+   "name": "Terramorphic Expanse",
+   "quantity": 1
+  },
+  {
+   "name": "The Grey Havens",
+   "quantity": 1
+  },
+  {
+   "name": "Treetop Village",
+   "quantity": 1
+  },
+  {
+   "name": "Vigorbloom Annex",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

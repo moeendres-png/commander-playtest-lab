@@ -1,0 +1,382 @@
+{
+ "urlhash": "wcmzD4FNslmMnMAC9OjA0A",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-01-14",
+ "price": 186,
+ "salt": 43.82554967934266,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/AiEQuho2nkuYMuKpJU4TbA?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Aesi, Tyrant of Gyre Strait",
+   "quantity": 1
+  },
+  {
+   "name": "Archetype of Imagination",
+   "quantity": 1
+  },
+  {
+   "name": "Avacyn's Pilgrim",
+   "quantity": 1
+  },
+  {
+   "name": "Avenger of Zendikar",
+   "quantity": 1
+  },
+  {
+   "name": "Dryad of the Ilysian Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Emergent Woodwurm",
+   "quantity": 1
+  },
+  {
+   "name": "Faeburrow Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Ghostly Pilferer",
+   "quantity": 1
+  },
+  {
+   "name": "Giant Adephage",
+   "quantity": 1
+  },
+  {
+   "name": "Gingerbrute",
+   "quantity": 1
+  },
+  {
+   "name": "Gold-Forged Thopteryx",
+   "quantity": 1
+  },
+  {
+   "name": "Grothama, All-Devouring",
+   "quantity": 1
+  },
+  {
+   "name": "Impervious Greatwurm",
+   "quantity": 1
+  },
+  {
+   "name": "Invisible Stalker",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Looter il-Kor",
+   "quantity": 1
+  },
+  {
+   "name": "Mist-Cloaked Herald",
+   "quantity": 1
+  },
+  {
+   "name": "Quilled Greatwurm",
+   "quantity": 1
+  },
+  {
+   "name": "Rampaging Baloths",
+   "quantity": 1
+  },
+  {
+   "name": "Scute Swarm",
+   "quantity": 1
+  },
+  {
+   "name": "Shoreline Looter",
+   "quantity": 1
+  },
+  {
+   "name": "Silent Hallcreeper",
+   "quantity": 1
+  },
+  {
+   "name": "Slither Blade",
+   "quantity": 1
+  },
+  {
+   "name": "Soltari Foot Soldier",
+   "quantity": 1
+  },
+  {
+   "name": "Soltari Visionary",
+   "quantity": 1
+  },
+  {
+   "name": "Starwinder",
+   "quantity": 1
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Tetsuko Umezawa, Fugitive",
+   "quantity": 1
+  },
+  {
+   "name": "Tireless Provisioner",
+   "quantity": 1
+  },
+  {
+   "name": "Toski, Bearer of Secrets",
+   "quantity": 1
+  },
+  {
+   "name": "Triton Shorestalker",
+   "quantity": 1
+  },
+  {
+   "name": "Aetherize",
+   "quantity": 1
+  },
+  {
+   "name": "An Offer You Can't Refuse",
+   "quantity": 1
+  },
+  {
+   "name": "Beast Within",
+   "quantity": 1
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1
+  },
+  {
+   "name": "Generous Gift",
+   "quantity": 1
+  },
+  {
+   "name": "Harrow",
+   "quantity": 1
+  },
+  {
+   "name": "Path to Exile",
+   "quantity": 1
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1
+  },
+  {
+   "name": "Austere Command",
+   "quantity": 1
+  },
+  {
+   "name": "Cultivate",
+   "quantity": 1
+  },
+  {
+   "name": "Disorienting Choice",
+   "quantity": 1
+  },
+  {
+   "name": "Farseek",
+   "quantity": 1
+  },
+  {
+   "name": "Memories Returning",
+   "quantity": 1
+  },
+  {
+   "name": "Rishkar's Expertise",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Bident of Thassa",
+   "quantity": 1
+  },
+  {
+   "name": "Exploration Broodship",
+   "quantity": 1
+  },
+  {
+   "name": "Extinguisher Battleship",
+   "quantity": 1
+  },
+  {
+   "name": "Larval Scoutlander",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Swiftfoot Boots",
+   "quantity": 1
+  },
+  {
+   "name": "The Indomitable",
+   "quantity": 1
+  },
+  {
+   "name": "Coastal Piracy",
+   "quantity": 1
+  },
+  {
+   "name": "Earthbender Ascension",
+   "quantity": 1
+  },
+  {
+   "name": "Reconnaissance Mission",
+   "quantity": 1
+  },
+  {
+   "name": "Sandwurm Convergence",
+   "quantity": 1
+  },
+  {
+   "name": "Spelunking",
+   "quantity": 1
+  },
+  {
+   "name": "Waterbender Ascension",
+   "quantity": 1
+  },
+  {
+   "name": "Adagia, Windswept Bastion",
+   "quantity": 1
+  },
+  {
+   "name": "Adarkar Wastes",
+   "quantity": 1
+  },
+  {
+   "name": "Brushland",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Conduit Pylons",
+   "quantity": 1
+  },
+  {
+   "name": "Desert",
+   "quantity": 1
+  },
+  {
+   "name": "Desert of the Indomitable",
+   "quantity": 1
+  },
+  {
+   "name": "Desert of the Mindful",
+   "quantity": 1
+  },
+  {
+   "name": "Dreamroot Cascade",
+   "quantity": 1
+  },
+  {
+   "name": "Dunes of the Dead",
+   "quantity": 1
+  },
+  {
+   "name": "Exotic Orchard",
+   "quantity": 1
+  },
+  {
+   "name": "Flooded Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 4
+  },
+  {
+   "name": "Glacial Fortress",
+   "quantity": 1
+  },
+  {
+   "name": "Hashep Oasis",
+   "quantity": 1
+  },
+  {
+   "name": "Hinterland Harbor",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 4
+  },
+  {
+   "name": "Mirage Mesa",
+   "quantity": 1
+  },
+  {
+   "name": "Overflowing Basin",
+   "quantity": 1
+  },
+  {
+   "name": "Overgrown Farmland",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 4
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1
+  },
+  {
+   "name": "Scavenger Grounds",
+   "quantity": 1
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Shefet Dunes",
+   "quantity": 1
+  },
+  {
+   "name": "Skycloud Expanse",
+   "quantity": 1
+  },
+  {
+   "name": "Sungrass Prairie",
+   "quantity": 1
+  },
+  {
+   "name": "Sunpetal Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Survivors' Encampment",
+   "quantity": 1
+  },
+  {
+   "name": "Yavimaya Coast",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

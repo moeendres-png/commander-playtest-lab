@@ -1,0 +1,346 @@
+{
+ "urlhash": "LhjG6l8KUir0G7fXsEFdkA",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-10-25",
+ "price": 100,
+ "salt": 47.06732890754938,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/N5vW16V-eEyRuzACBGwGfg?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Aethersnipe",
+   "quantity": 1
+  },
+  {
+   "name": "Archon of the Triumvirate",
+   "quantity": 1
+  },
+  {
+   "name": "Aven Surveyor",
+   "quantity": 1
+  },
+  {
+   "name": "Basri's Lieutenant",
+   "quantity": 1
+  },
+  {
+   "name": "Bloodspore Thrinax",
+   "quantity": 1
+  },
+  {
+   "name": "Celebrity Fencer",
+   "quantity": 1
+  },
+  {
+   "name": "Champion of Lambholt",
+   "quantity": 1
+  },
+  {
+   "name": "Clone",
+   "quantity": 1
+  },
+  {
+   "name": "Daxos of Meletis",
+   "quantity": 1
+  },
+  {
+   "name": "Deekah, Fractal Theorist",
+   "quantity": 1
+  },
+  {
+   "name": "Dispersal Technician",
+   "quantity": 1
+  },
+  {
+   "name": "Echo Mage",
+   "quantity": 1
+  },
+  {
+   "name": "Fathom Mage",
+   "quantity": 1
+  },
+  {
+   "name": "Fiend Binder",
+   "quantity": 1
+  },
+  {
+   "name": "Flickerwisp",
+   "quantity": 1
+  },
+  {
+   "name": "Lavinia of the Tenth",
+   "quantity": 1
+  },
+  {
+   "name": "Ludevic's Test Subject",
+   "quantity": 1
+  },
+  {
+   "name": "Moonsnare Specialist",
+   "quantity": 1
+  },
+  {
+   "name": "Murkfiend Liege",
+   "quantity": 1
+  },
+  {
+   "name": "Rampaging Baloths",
+   "quantity": 1
+  },
+  {
+   "name": "Roaming Ghostlight",
+   "quantity": 1
+  },
+  {
+   "name": "Roaring Primadox",
+   "quantity": 1
+  },
+  {
+   "name": "Steelbane Hydra",
+   "quantity": 1
+  },
+  {
+   "name": "Taigam, Ojutai Master",
+   "quantity": 1
+  },
+  {
+   "name": "The Council of Four",
+   "quantity": 1
+  },
+  {
+   "name": "Thistledown Liege",
+   "quantity": 1
+  },
+  {
+   "name": "Tura Kennerüd, Skyknight",
+   "quantity": 1
+  },
+  {
+   "name": "Verdant Force",
+   "quantity": 1
+  },
+  {
+   "name": "Vorapede",
+   "quantity": 1
+  },
+  {
+   "name": "Wall of Frost",
+   "quantity": 1
+  },
+  {
+   "name": "Wildwood Scourge",
+   "quantity": 1
+  },
+  {
+   "name": "Windreader Sphinx",
+   "quantity": 1
+  },
+  {
+   "name": "Boomerang",
+   "quantity": 1
+  },
+  {
+   "name": "Downpour",
+   "quantity": 1
+  },
+  {
+   "name": "Perilous Voyage",
+   "quantity": 1
+  },
+  {
+   "name": "Repeal",
+   "quantity": 1
+  },
+  {
+   "name": "Snap",
+   "quantity": 1
+  },
+  {
+   "name": "Turn into a Pumpkin",
+   "quantity": 1
+  },
+  {
+   "name": "Vapor Snag",
+   "quantity": 1
+  },
+  {
+   "name": "Waterwhirl",
+   "quantity": 1
+  },
+  {
+   "name": "Whiplash Trap",
+   "quantity": 1
+  },
+  {
+   "name": "Captivating Gyre",
+   "quantity": 1
+  },
+  {
+   "name": "Essence Fracture",
+   "quantity": 1
+  },
+  {
+   "name": "Gust of Wind",
+   "quantity": 1
+  },
+  {
+   "name": "Into the Void",
+   "quantity": 1
+  },
+  {
+   "name": "Vacuumelt",
+   "quantity": 1
+  },
+  {
+   "name": "Void Snare",
+   "quantity": 1
+  },
+  {
+   "name": "Void Squall",
+   "quantity": 1
+  },
+  {
+   "name": "Wash Out",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Commander's Sphere",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Ajani's Welcome",
+   "quantity": 1
+  },
+  {
+   "name": "Combat Research",
+   "quantity": 1
+  },
+  {
+   "name": "Domineer",
+   "quantity": 1
+  },
+  {
+   "name": "Encrust",
+   "quantity": 1
+  },
+  {
+   "name": "Freed from the Real",
+   "quantity": 1
+  },
+  {
+   "name": "Intercessor's Arrest",
+   "quantity": 1
+  },
+  {
+   "name": "Journey to Nowhere",
+   "quantity": 1
+  },
+  {
+   "name": "Lay Claim",
+   "quantity": 1
+  },
+  {
+   "name": "Oblivion Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Ominous Seas",
+   "quantity": 1
+  },
+  {
+   "name": "Pacifism",
+   "quantity": 1
+  },
+  {
+   "name": "Paralyzing Grasp",
+   "quantity": 1
+  },
+  {
+   "name": "Prison Term",
+   "quantity": 1
+  },
+  {
+   "name": "Security Bypass",
+   "quantity": 1
+  },
+  {
+   "name": "Sigil of the Empty Throne",
+   "quantity": 1
+  },
+  {
+   "name": "Spirit Loop",
+   "quantity": 1
+  },
+  {
+   "name": "Tamiyo's Compleation",
+   "quantity": 1
+  },
+  {
+   "name": "Vesuvan Duplimancy",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Chancery",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Guildgate",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 7
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 7
+  },
+  {
+   "name": "Plains",
+   "quantity": 7
+  },
+  {
+   "name": "Selesnya Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Plenty",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Cove",
+   "quantity": 1
+  },
+  {
+   "name": "Woodland Stream",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

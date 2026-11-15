@@ -1,0 +1,306 @@
+{
+ "urlhash": "NJH6755bWQXEo8pNQjBnpw",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-09-08",
+ "price": 2249,
+ "salt": 45.779380179941654,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/g0z3_VKvjEiYzWL8wQhkcg?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Accomplished Alchemist",
+   "quantity": 1
+  },
+  {
+   "name": "Ajani's Pridemate",
+   "quantity": 1
+  },
+  {
+   "name": "Alms Collector",
+   "quantity": 1
+  },
+  {
+   "name": "Archon of Falling Stars",
+   "quantity": 1
+  },
+  {
+   "name": "Auramancer",
+   "quantity": 1
+  },
+  {
+   "name": "Auriok Champion",
+   "quantity": 1
+  },
+  {
+   "name": "Beastcaller Savant",
+   "quantity": 1
+  },
+  {
+   "name": "Birds of Paradise",
+   "quantity": 1
+  },
+  {
+   "name": "Dawnbringer Cleric",
+   "quantity": 1
+  },
+  {
+   "name": "Daxos, Blessed by the Sun",
+   "quantity": 1
+  },
+  {
+   "name": "Dazzling Angel",
+   "quantity": 1
+  },
+  {
+   "name": "Distinguished Conjurer",
+   "quantity": 1
+  },
+  {
+   "name": "Essence Warden",
+   "quantity": 1
+  },
+  {
+   "name": "Faith Healer",
+   "quantity": 1
+  },
+  {
+   "name": "Fiend Hunter",
+   "quantity": 1
+  },
+  {
+   "name": "Gilded Goose",
+   "quantity": 1
+  },
+  {
+   "name": "Hinterland Sanctifier",
+   "quantity": 1
+  },
+  {
+   "name": "Icefeather Aven",
+   "quantity": 1
+  },
+  {
+   "name": "Impassioned Orator",
+   "quantity": 1
+  },
+  {
+   "name": "Nexus Wardens",
+   "quantity": 1
+  },
+  {
+   "name": "Noble Hierarch",
+   "quantity": 1
+  },
+  {
+   "name": "Righteous Valkyrie",
+   "quantity": 1
+  },
+  {
+   "name": "Social Climber",
+   "quantity": 1
+  },
+  {
+   "name": "Soul Warden",
+   "quantity": 1
+  },
+  {
+   "name": "Soul's Attendant",
+   "quantity": 1
+  },
+  {
+   "name": "Soulherder",
+   "quantity": 1
+  },
+  {
+   "name": "Stonecloaker",
+   "quantity": 1
+  },
+  {
+   "name": "Suture Priest",
+   "quantity": 1
+  },
+  {
+   "name": "Whitemane Lion",
+   "quantity": 1
+  },
+  {
+   "name": "Wolverine Riders",
+   "quantity": 1
+  },
+  {
+   "name": "Break Ties",
+   "quantity": 1
+  },
+  {
+   "name": "Cloudshift",
+   "quantity": 1
+  },
+  {
+   "name": "Ephemerate",
+   "quantity": 1
+  },
+  {
+   "name": "Erase",
+   "quantity": 1
+  },
+  {
+   "name": "Flicker of Fate",
+   "quantity": 1
+  },
+  {
+   "name": "Scrollshift",
+   "quantity": 1
+  },
+  {
+   "name": "Snap",
+   "quantity": 1
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1
+  },
+  {
+   "name": "Alhammarret's Archive",
+   "quantity": 1
+  },
+  {
+   "name": "Angel's Feather",
+   "quantity": 1
+  },
+  {
+   "name": "Campfire",
+   "quantity": 1
+  },
+  {
+   "name": "Halo Fountain",
+   "quantity": 1
+  },
+  {
+   "name": "Umbral Mantle",
+   "quantity": 1
+  },
+  {
+   "name": "Vedalken Orrery",
+   "quantity": 1
+  },
+  {
+   "name": "Abundant Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Ajani's Welcome",
+   "quantity": 1
+  },
+  {
+   "name": "Astral Drift",
+   "quantity": 1
+  },
+  {
+   "name": "Authority of the Consuls",
+   "quantity": 1
+  },
+  {
+   "name": "Case of the Uneaten Feast",
+   "quantity": 1
+  },
+  {
+   "name": "Guardian Zendikon",
+   "quantity": 1
+  },
+  {
+   "name": "Leyline of Vitality",
+   "quantity": 1
+  },
+  {
+   "name": "New Horizons",
+   "quantity": 1
+  },
+  {
+   "name": "Sheltered Aerie",
+   "quantity": 1
+  },
+  {
+   "name": "Squirrel Nest",
+   "quantity": 1
+  },
+  {
+   "name": "Urban Burgeoning",
+   "quantity": 1
+  },
+  {
+   "name": "Vastwood Zendikon",
+   "quantity": 1
+  },
+  {
+   "name": "Vernal Equinox",
+   "quantity": 1
+  },
+  {
+   "name": "Wilderness Reclamation",
+   "quantity": 1
+  },
+  {
+   "name": "Vivien, Champion of the Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Blossoming Sands",
+   "quantity": 1
+  },
+  {
+   "name": "Breeding Pool",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Castle Ardenvale",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 9
+  },
+  {
+   "name": "Island",
+   "quantity": 6
+  },
+  {
+   "name": "Plains",
+   "quantity": 16
+  },
+  {
+   "name": "Savannah",
+   "quantity": 1
+  },
+  {
+   "name": "Thornwood Falls",
+   "quantity": 1
+  },
+  {
+   "name": "Tropical Island",
+   "quantity": 1
+  },
+  {
+   "name": "Tundra",
+   "quantity": 1
+  },
+  {
+   "name": "Willowrush Verge",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

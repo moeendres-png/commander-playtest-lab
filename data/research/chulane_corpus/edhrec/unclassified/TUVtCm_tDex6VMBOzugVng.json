@@ -1,0 +1,86 @@
+{
+ "urlhash": "TUVtCm_tDex6VMBOzugVng",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-02-10",
+ "price": 459,
+ "salt": 77.60172919929028,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/19375740?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Craterhoof Behemoth",
+   "quantity": 1
+  },
+  {
+   "name": "Hare Apparent",
+   "quantity": 50
+  },
+  {
+   "name": "For the Common Good",
+   "quantity": 1
+  },
+  {
+   "name": "Banner of Kinship",
+   "quantity": 1
+  },
+  {
+   "name": "Helm of the Host",
+   "quantity": 1
+  },
+  {
+   "name": "Herald's Horn",
+   "quantity": 1
+  },
+  {
+   "name": "Mirrormind Crown",
+   "quantity": 1
+  },
+  {
+   "name": "Sword of the Squeak",
+   "quantity": 1
+  },
+  {
+   "name": "Anointed Procession",
+   "quantity": 1
+  },
+  {
+   "name": "Doubling Season",
+   "quantity": 1
+  },
+  {
+   "name": "Moonlit Meditation",
+   "quantity": 1
+  },
+  {
+   "name": "Parallel Lives",
+   "quantity": 1
+  },
+  {
+   "name": "Reflections of Littjara",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 5
+  },
+  {
+   "name": "Island",
+   "quantity": 3
+  },
+  {
+   "name": "Plains",
+   "quantity": 29
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

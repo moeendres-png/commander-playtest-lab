@@ -1,0 +1,182 @@
+{
+ "urlhash": "g6HaV6YIEfadVaNL90ApGw",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-04-15",
+ "price": 171,
+ "salt": 66.1710285693407,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/21721405?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Alaundo the Seer",
+   "quantity": 1
+  },
+  {
+   "name": "Biblioplex Assistant",
+   "quantity": 1
+  },
+  {
+   "name": "Campus Guide",
+   "quantity": 1
+  },
+  {
+   "name": "Gadwick, the Wizened",
+   "quantity": 1
+  },
+  {
+   "name": "Guy in the Chair",
+   "quantity": 1
+  },
+  {
+   "name": "Jace's Archivist",
+   "quantity": 1
+  },
+  {
+   "name": "Laboratory Maniac",
+   "quantity": 1
+  },
+  {
+   "name": "Ledger Shredder",
+   "quantity": 1
+  },
+  {
+   "name": "Loran of the Third Path",
+   "quantity": 1
+  },
+  {
+   "name": "Persistent Petitioners",
+   "quantity": 30
+  },
+  {
+   "name": "Phyrexian Archivist",
+   "quantity": 1
+  },
+  {
+   "name": "Silverquill Lecturer",
+   "quantity": 1
+  },
+  {
+   "name": "Sphinx of Forgotten Lore",
+   "quantity": 1
+  },
+  {
+   "name": "An Offer You Can't Refuse",
+   "quantity": 1
+  },
+  {
+   "name": "Apostle's Blessing",
+   "quantity": 1
+  },
+  {
+   "name": "Flash Counter",
+   "quantity": 1
+  },
+  {
+   "name": "Frantic Search",
+   "quantity": 1
+  },
+  {
+   "name": "Memory Lapse",
+   "quantity": 1
+  },
+  {
+   "name": "Muddle the Mixture",
+   "quantity": 1
+  },
+  {
+   "name": "Mystical Tutor",
+   "quantity": 1
+  },
+  {
+   "name": "Otherworldly Gaze",
+   "quantity": 1
+  },
+  {
+   "name": "Compulsive Research",
+   "quantity": 1
+  },
+  {
+   "name": "Farseek",
+   "quantity": 1
+  },
+  {
+   "name": "Pore Over the Pages",
+   "quantity": 1
+  },
+  {
+   "name": "Recall",
+   "quantity": 1
+  },
+  {
+   "name": "Time Stretch",
+   "quantity": 1
+  },
+  {
+   "name": "Codex Shredder",
+   "quantity": 1
+  },
+  {
+   "name": "Folio of Fancies",
+   "quantity": 1
+  },
+  {
+   "name": "Letter of Acceptance",
+   "quantity": 1
+  },
+  {
+   "name": "Mind Stone",
+   "quantity": 1
+  },
+  {
+   "name": "Patriar's Seal",
+   "quantity": 1
+  },
+  {
+   "name": "Sky Diamond",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Talisman of Curiosity",
+   "quantity": 1
+  },
+  {
+   "name": "Thought Vessel",
+   "quantity": 1
+  },
+  {
+   "name": "Restricted Office // Lecture Hall",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 7
+  },
+  {
+   "name": "Island",
+   "quantity": 19
+  },
+  {
+   "name": "Path of Ancestry",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 7
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

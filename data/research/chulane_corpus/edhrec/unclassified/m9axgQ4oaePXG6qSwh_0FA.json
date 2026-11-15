@@ -1,0 +1,242 @@
+{
+ "urlhash": "m9axgQ4oaePXG6qSwh_0FA",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-03-17",
+ "price": 53,
+ "salt": 44.66368405893445,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/SPqFNFMLi0WtVTBvphkDAw?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Angelic Curator",
+   "quantity": 1
+  },
+  {
+   "name": "Bounteous Kirin",
+   "quantity": 1
+  },
+  {
+   "name": "Briarknit Kami",
+   "quantity": 1
+  },
+  {
+   "name": "Budoka Pupil",
+   "quantity": 1
+  },
+  {
+   "name": "Callow Jushi",
+   "quantity": 1
+  },
+  {
+   "name": "Child of Thorns",
+   "quantity": 1
+  },
+  {
+   "name": "Clarion Spirit",
+   "quantity": 1
+  },
+  {
+   "name": "Dreamcatcher",
+   "quantity": 1
+  },
+  {
+   "name": "Drogskol Captain",
+   "quantity": 1
+  },
+  {
+   "name": "Elder Pine of Jukai",
+   "quantity": 1
+  },
+  {
+   "name": "Faithful Squire",
+   "quantity": 1
+  },
+  {
+   "name": "Fiddlehead Kami",
+   "quantity": 1
+  },
+  {
+   "name": "Generous Visitor",
+   "quantity": 1
+  },
+  {
+   "name": "Guardian Kirin",
+   "quantity": 1
+  },
+  {
+   "name": "Guardian of Solitude",
+   "quantity": 1
+  },
+  {
+   "name": "Guiding Spirit",
+   "quantity": 1
+  },
+  {
+   "name": "Horizon Seed",
+   "quantity": 1
+  },
+  {
+   "name": "Iname, Life Aspect",
+   "quantity": 1
+  },
+  {
+   "name": "Katilda, Dawnhart Martyr",
+   "quantity": 1
+  },
+  {
+   "name": "Kodama of the Center Tree",
+   "quantity": 1
+  },
+  {
+   "name": "Kodama of the South Tree",
+   "quantity": 1
+  },
+  {
+   "name": "Myojin of Cryptic Dreams",
+   "quantity": 1
+  },
+  {
+   "name": "Nikko-Onna",
+   "quantity": 1
+  },
+  {
+   "name": "Oyobi, Who Split the Heavens",
+   "quantity": 1
+  },
+  {
+   "name": "Petalmane Baku",
+   "quantity": 1
+  },
+  {
+   "name": "Shinen of Life's Roar",
+   "quantity": 1
+  },
+  {
+   "name": "Sire of the Storm",
+   "quantity": 1
+  },
+  {
+   "name": "Supreme Phantom",
+   "quantity": 1
+  },
+  {
+   "name": "Waxmane Baku",
+   "quantity": 1
+  },
+  {
+   "name": "Blessed Breath",
+   "quantity": 1
+  },
+  {
+   "name": "Charge Across the Araba",
+   "quantity": 1
+  },
+  {
+   "name": "Consuming Vortex",
+   "quantity": 1
+  },
+  {
+   "name": "Cut the Earthly Bond",
+   "quantity": 1
+  },
+  {
+   "name": "Ethereal Haze",
+   "quantity": 1
+  },
+  {
+   "name": "Hundred-Talon Strike",
+   "quantity": 1
+  },
+  {
+   "name": "Kodama's Might",
+   "quantity": 1
+  },
+  {
+   "name": "Psychic Puppetry",
+   "quantity": 1
+  },
+  {
+   "name": "Quiet Purity",
+   "quantity": 1
+  },
+  {
+   "name": "Reach Through Mists",
+   "quantity": 1
+  },
+  {
+   "name": "Release to Memory",
+   "quantity": 1
+  },
+  {
+   "name": "Veil of Secrecy",
+   "quantity": 1
+  },
+  {
+   "name": "Wear Away",
+   "quantity": 1
+  },
+  {
+   "name": "Cleanfall",
+   "quantity": 1
+  },
+  {
+   "name": "Commune with Spirits",
+   "quantity": 1
+  },
+  {
+   "name": "Eye of Nowhere",
+   "quantity": 1
+  },
+  {
+   "name": "Kodama's Reach",
+   "quantity": 1
+  },
+  {
+   "name": "Ribbons of the Reikai",
+   "quantity": 1
+  },
+  {
+   "name": "Thirsting Roots",
+   "quantity": 1
+  },
+  {
+   "name": "Baku Altar",
+   "quantity": 1
+  },
+  {
+   "name": "Decanter of Endless Water",
+   "quantity": 1
+  },
+  {
+   "name": "Shrine of Piercing Vision",
+   "quantity": 1
+  },
+  {
+   "name": "Field of Souls",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 16
+  },
+  {
+   "name": "Island",
+   "quantity": 15
+  },
+  {
+   "name": "Plains",
+   "quantity": 16
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

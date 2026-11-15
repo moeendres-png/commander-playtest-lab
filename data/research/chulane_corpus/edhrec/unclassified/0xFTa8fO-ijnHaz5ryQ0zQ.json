@@ -1,0 +1,307 @@
+{
+ "urlhash": "0xFTa8fO-ijnHaz5ryQ0zQ",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-07-30",
+ "price": 128,
+ "salt": 36.174534088000655,
+ "tags": [
+  "Snow",
+  "Crabs",
+  "Landfall",
+  "Lands Matter"
+ ],
+ "source_url": "https://archidekt.com/decks/24828255?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Ancient Crab",
+   "quantity": 1
+  },
+  {
+   "name": "Arbor Elf",
+   "quantity": 1
+  },
+  {
+   "name": "Arboreal Grazer",
+   "quantity": 1
+  },
+  {
+   "name": "Benthic Biomancer",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Gargantuan",
+   "quantity": 1
+  },
+  {
+   "name": "Canyon Crab",
+   "quantity": 1
+  },
+  {
+   "name": "Charix, the Raging Isle",
+   "quantity": 1
+  },
+  {
+   "name": "Crustacean Commando",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Mystic",
+   "quantity": 1
+  },
+  {
+   "name": "Harmonized Trio",
+   "quantity": 1
+  },
+  {
+   "name": "Hedron Crab",
+   "quantity": 1
+  },
+  {
+   "name": "Ice-Fang Coatl",
+   "quantity": 1
+  },
+  {
+   "name": "Iceberg Cancrix",
+   "quantity": 1
+  },
+  {
+   "name": "Icebreaker Kraken",
+   "quantity": 1
+  },
+  {
+   "name": "Icehide Golem",
+   "quantity": 1
+  },
+  {
+   "name": "Jaddi Offshoot",
+   "quantity": 1
+  },
+  {
+   "name": "Judge's Familiar",
+   "quantity": 1
+  },
+  {
+   "name": "Jwari Scuttler",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Lotus Cobra",
+   "quantity": 1
+  },
+  {
+   "name": "Mirelurk Queen",
+   "quantity": 1
+  },
+  {
+   "name": "Moritte of the Frost",
+   "quantity": 1
+  },
+  {
+   "name": "Ohran Viper",
+   "quantity": 1
+  },
+  {
+   "name": "Purple-Crystal Crab",
+   "quantity": 1
+  },
+  {
+   "name": "Rime Tender",
+   "quantity": 1
+  },
+  {
+   "name": "Ruin Crab",
+   "quantity": 1
+  },
+  {
+   "name": "Scrabbling Skullcrab",
+   "quantity": 1
+  },
+  {
+   "name": "Sculptor of Winter",
+   "quantity": 1
+  },
+  {
+   "name": "Scuttling Sentinel",
+   "quantity": 1
+  },
+  {
+   "name": "Shambleshark",
+   "quantity": 1
+  },
+  {
+   "name": "Shorecomber Crab",
+   "quantity": 1
+  },
+  {
+   "name": "Thassa's Emissary",
+   "quantity": 1
+  },
+  {
+   "name": "The Pride of Hull Clade",
+   "quantity": 1
+  },
+  {
+   "name": "Drown in Dreams",
+   "quantity": 1
+  },
+  {
+   "name": "Graven Lore",
+   "quantity": 1
+  },
+  {
+   "name": "Harrow",
+   "quantity": 1
+  },
+  {
+   "name": "Ride the Avalanche",
+   "quantity": 1
+  },
+  {
+   "name": "Shell Shield",
+   "quantity": 1
+  },
+  {
+   "name": "Tower Defense",
+   "quantity": 1
+  },
+  {
+   "name": "Tribal Unity",
+   "quantity": 1
+  },
+  {
+   "name": "Tyvar's Stand",
+   "quantity": 1
+  },
+  {
+   "name": "Blessing of Frost",
+   "quantity": 1
+  },
+  {
+   "name": "Dusk // Dawn",
+   "quantity": 1
+  },
+  {
+   "name": "Shamanic Revelation",
+   "quantity": 1
+  },
+  {
+   "name": "Slaughter the Strong",
+   "quantity": 1
+  },
+  {
+   "name": "Replicating Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Assault Formation",
+   "quantity": 1
+  },
+  {
+   "name": "Drowned Secrets",
+   "quantity": 1
+  },
+  {
+   "name": "Fraying Sanity",
+   "quantity": 1
+  },
+  {
+   "name": "High Alert",
+   "quantity": 1
+  },
+  {
+   "name": "Marit Lage's Slumber",
+   "quantity": 1
+  },
+  {
+   "name": "On Thin Ice",
+   "quantity": 1
+  },
+  {
+   "name": "Rally the Ranks",
+   "quantity": 1
+  },
+  {
+   "name": "Retreat to Kazandu",
+   "quantity": 1
+  },
+  {
+   "name": "Scuttletide",
+   "quantity": 1
+  },
+  {
+   "name": "Sphinx's Tutelage",
+   "quantity": 1
+  },
+  {
+   "name": "Teferi's Tutelage",
+   "quantity": 1
+  },
+  {
+   "name": "Huatli, the Sun's Heart",
+   "quantity": 1
+  },
+  {
+   "name": "Arctic Flats",
+   "quantity": 1
+  },
+  {
+   "name": "Arctic Treeline",
+   "quantity": 1
+  },
+  {
+   "name": "Boreal Shelf",
+   "quantity": 1
+  },
+  {
+   "name": "Dark Depths",
+   "quantity": 1
+  },
+  {
+   "name": "Faceless Haven",
+   "quantity": 1
+  },
+  {
+   "name": "Frostwalk Bastion",
+   "quantity": 1
+  },
+  {
+   "name": "Glacial Floodplain",
+   "quantity": 1
+  },
+  {
+   "name": "Rimewood Falls",
+   "quantity": 1
+  },
+  {
+   "name": "Scrying Sheets",
+   "quantity": 1
+  },
+  {
+   "name": "Snow-Covered Forest",
+   "quantity": 11
+  },
+  {
+   "name": "Snow-Covered Island",
+   "quantity": 11
+  },
+  {
+   "name": "Snow-Covered Plains",
+   "quantity": 10
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

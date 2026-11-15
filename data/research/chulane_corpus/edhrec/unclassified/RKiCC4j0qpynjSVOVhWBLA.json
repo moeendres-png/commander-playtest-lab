@@ -1,0 +1,398 @@
+{
+ "urlhash": "RKiCC4j0qpynjSVOVhWBLA",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-11-15",
+ "price": 100,
+ "salt": 27.76326590590179,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/17461801?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Academy Manufactor",
+   "quantity": 1
+  },
+  {
+   "name": "Banquet Guests",
+   "quantity": 1
+  },
+  {
+   "name": "Biblioplex Assistant",
+   "quantity": 1
+  },
+  {
+   "name": "Butterbur, Bree Innkeeper",
+   "quantity": 1
+  },
+  {
+   "name": "Celestial Regulator",
+   "quantity": 1
+  },
+  {
+   "name": "Chrome Courier",
+   "quantity": 1
+  },
+  {
+   "name": "Coiling Oracle",
+   "quantity": 1
+  },
+  {
+   "name": "Darling of the Masses",
+   "quantity": 1
+  },
+  {
+   "name": "Disciplined Duelist",
+   "quantity": 1
+  },
+  {
+   "name": "Dorothea, Vengeful Victim",
+   "quantity": 1
+  },
+  {
+   "name": "Dukhara Peafowl",
+   "quantity": 1
+  },
+  {
+   "name": "Elder Deep-Fiend",
+   "quantity": 1
+  },
+  {
+   "name": "Farmer Cotton",
+   "quantity": 1
+  },
+  {
+   "name": "Fathom Mage",
+   "quantity": 1
+  },
+  {
+   "name": "Hydroid Krasis",
+   "quantity": 1
+  },
+  {
+   "name": "Linvala, Shield of Sea Gate",
+   "quantity": 1
+  },
+  {
+   "name": "Meteor Golem",
+   "quantity": 1
+  },
+  {
+   "name": "Metropolis Angel",
+   "quantity": 1
+  },
+  {
+   "name": "Safehold Duo",
+   "quantity": 1
+  },
+  {
+   "name": "Shambling Suit",
+   "quantity": 1
+  },
+  {
+   "name": "Spara's Adjudicators",
+   "quantity": 1
+  },
+  {
+   "name": "Tempest Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Treebeard, Gracious Host",
+   "quantity": 1
+  },
+  {
+   "name": "Trostani Discordant",
+   "quantity": 1
+  },
+  {
+   "name": "Trumpeting Gnarr",
+   "quantity": 1
+  },
+  {
+   "name": "Veteran Beastrider",
+   "quantity": 1
+  },
+  {
+   "name": "Vilespawn Spider",
+   "quantity": 1
+  },
+  {
+   "name": "Walking Dream",
+   "quantity": 1
+  },
+  {
+   "name": "Walking Skyscraper",
+   "quantity": 1
+  },
+  {
+   "name": "Aethertow",
+   "quantity": 1
+  },
+  {
+   "name": "Aura Mutation",
+   "quantity": 1
+  },
+  {
+   "name": "Disorder in the Court",
+   "quantity": 1
+  },
+  {
+   "name": "Endless Detour",
+   "quantity": 1
+  },
+  {
+   "name": "Exotic Pets",
+   "quantity": 1
+  },
+  {
+   "name": "Heroes' Reunion",
+   "quantity": 1
+  },
+  {
+   "name": "March of the Multitudes",
+   "quantity": 1
+  },
+  {
+   "name": "Mystic Genesis",
+   "quantity": 1
+  },
+  {
+   "name": "Nature's Chant",
+   "quantity": 1
+  },
+  {
+   "name": "Sylvan Reclamation",
+   "quantity": 1
+  },
+  {
+   "name": "Wax // Wane",
+   "quantity": 1
+  },
+  {
+   "name": "Allied Strategies",
+   "quantity": 1
+  },
+  {
+   "name": "Call of the Conclave",
+   "quantity": 1
+  },
+  {
+   "name": "Camaraderie",
+   "quantity": 1
+  },
+  {
+   "name": "Fractal Summoning",
+   "quantity": 1
+  },
+  {
+   "name": "Split Up",
+   "quantity": 1
+  },
+  {
+   "name": "Baseball Bat",
+   "quantity": 1
+  },
+  {
+   "name": "Ceremonial Groundbreaker",
+   "quantity": 1
+  },
+  {
+   "name": "Cryptex",
+   "quantity": 1
+  },
+  {
+   "name": "Hithlain Rope",
+   "quantity": 1
+  },
+  {
+   "name": "Implement of Improvement",
+   "quantity": 1
+  },
+  {
+   "name": "Millstone",
+   "quantity": 1
+  },
+  {
+   "name": "Navigator's Compass",
+   "quantity": 1
+  },
+  {
+   "name": "Ratchet Bomb",
+   "quantity": 1
+  },
+  {
+   "name": "Shield of the Realm",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Cluestone",
+   "quantity": 1
+  },
+  {
+   "name": "Traveler's Amulet",
+   "quantity": 1
+  },
+  {
+   "name": "Wurm's Tooth",
+   "quantity": 1
+  },
+  {
+   "name": "Captured by Lagacs",
+   "quantity": 1
+  },
+  {
+   "name": "Collective Blessing",
+   "quantity": 1
+  },
+  {
+   "name": "Knowledge Is Power",
+   "quantity": 1
+  },
+  {
+   "name": "Kiora, Master of the Depths",
+   "quantity": 1
+  },
+  {
+   "name": "Kiora, the Crashing Wave",
+   "quantity": 1
+  },
+  {
+   "name": "Ash Barrens",
+   "quantity": 1
+  },
+  {
+   "name": "Blossoming Sands",
+   "quantity": 1
+  },
+  {
+   "name": "Botanical Plaza",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Dreamroot Cascade",
+   "quantity": 1
+  },
+  {
+   "name": "Elfhame Palace",
+   "quantity": 1
+  },
+  {
+   "name": "Flooded Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 3
+  },
+  {
+   "name": "Fortified Village",
+   "quantity": 1
+  },
+  {
+   "name": "Ghost Quarter",
+   "quantity": 1
+  },
+  {
+   "name": "Graypelt Refuge",
+   "quantity": 1
+  },
+  {
+   "name": "Holdout Settlement",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 3
+  },
+  {
+   "name": "Lakeside Shack",
+   "quantity": 1
+  },
+  {
+   "name": "Lumbering Falls",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 2
+  },
+  {
+   "name": "Quandrix Campus",
+   "quantity": 1
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Rogue's Passage",
+   "quantity": 1
+  },
+  {
+   "name": "Scattered Groves",
+   "quantity": 1
+  },
+  {
+   "name": "School of the Unseen",
+   "quantity": 1
+  },
+  {
+   "name": "Spara's Headquarters",
+   "quantity": 1
+  },
+  {
+   "name": "Sunpetal Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Tangled Islet",
+   "quantity": 1
+  },
+  {
+   "name": "Tanglepool Bridge",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Mystery",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Plenty",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of the False God",
+   "quantity": 1
+  },
+  {
+   "name": "Thornglint Bridge",
+   "quantity": 1
+  },
+  {
+   "name": "Thornwood Falls",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Expanse",
+   "quantity": 1
+  },
+  {
+   "name": "Vitu-Ghazi, the City-Tree",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

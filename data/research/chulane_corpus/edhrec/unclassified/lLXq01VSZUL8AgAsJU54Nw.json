@@ -1,0 +1,272 @@
+{
+ "urlhash": "lLXq01VSZUL8AgAsJU54Nw",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-01-30",
+ "price": 1122,
+ "salt": 91.0793920904398,
+ "tags": [
+  "Persistent Petitioners"
+ ],
+ "source_url": "https://archidekt.com/decks/1348450?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Azusa, Lost but Seeking",
+   "quantity": 1
+  },
+  {
+   "name": "Bruvac the Grandiloquent",
+   "quantity": 1
+  },
+  {
+   "name": "Drannith Magistrate",
+   "quantity": 1
+  },
+  {
+   "name": "Elesh Norn, Grand Cenobite",
+   "quantity": 1
+  },
+  {
+   "name": "Experiment Kraj",
+   "quantity": 1
+  },
+  {
+   "name": "Felidar Sovereign",
+   "quantity": 1
+  },
+  {
+   "name": "Gaddock Teeg",
+   "quantity": 1
+  },
+  {
+   "name": "Gilder Bairn",
+   "quantity": 1
+  },
+  {
+   "name": "Grand Arbiter Augustin IV",
+   "quantity": 1
+  },
+  {
+   "name": "Grand Architect",
+   "quantity": 1
+  },
+  {
+   "name": "Jin-Gitaxias, Core Augur",
+   "quantity": 1
+  },
+  {
+   "name": "Koma, Cosmos Serpent",
+   "quantity": 1
+  },
+  {
+   "name": "Lighthouse Chronologist",
+   "quantity": 1
+  },
+  {
+   "name": "Memnarch",
+   "quantity": 1
+  },
+  {
+   "name": "Mycosynth Golem",
+   "quantity": 1
+  },
+  {
+   "name": "Painter's Servant",
+   "quantity": 1
+  },
+  {
+   "name": "Persistent Petitioners",
+   "quantity": 15
+  },
+  {
+   "name": "Pili-Pala",
+   "quantity": 1
+  },
+  {
+   "name": "Vorinclex, Monstrous Raider",
+   "quantity": 1
+  },
+  {
+   "name": "Vorinclex, Voice of Hunger",
+   "quantity": 1
+  },
+  {
+   "name": "Wandering Archaic",
+   "quantity": 1
+  },
+  {
+   "name": "Annul",
+   "quantity": 1
+  },
+  {
+   "name": "Beacon of Immortality",
+   "quantity": 1
+  },
+  {
+   "name": "Complicate",
+   "quantity": 1
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1
+  },
+  {
+   "name": "Disrupt",
+   "quantity": 1
+  },
+  {
+   "name": "Dovin's Veto",
+   "quantity": 1
+  },
+  {
+   "name": "Dramatic Reversal",
+   "quantity": 1
+  },
+  {
+   "name": "Exclude",
+   "quantity": 1
+  },
+  {
+   "name": "Fog",
+   "quantity": 1
+  },
+  {
+   "name": "Mana Leak",
+   "quantity": 1
+  },
+  {
+   "name": "Mana Tithe",
+   "quantity": 1
+  },
+  {
+   "name": "Miscalculation",
+   "quantity": 1
+  },
+  {
+   "name": "Natural Affinity",
+   "quantity": 1
+  },
+  {
+   "name": "Negate",
+   "quantity": 1
+  },
+  {
+   "name": "Time Stop",
+   "quantity": 1
+  },
+  {
+   "name": "Approach of the Second Sun",
+   "quantity": 1
+  },
+  {
+   "name": "Solve the Equation",
+   "quantity": 1
+  },
+  {
+   "name": "Time Warp",
+   "quantity": 1
+  },
+  {
+   "name": "Triumph of the Hordes",
+   "quantity": 1
+  },
+  {
+   "name": "Basalt Monolith",
+   "quantity": 1
+  },
+  {
+   "name": "Darksteel Forge",
+   "quantity": 1
+  },
+  {
+   "name": "Grindstone",
+   "quantity": 1
+  },
+  {
+   "name": "Helm of the Host",
+   "quantity": 1
+  },
+  {
+   "name": "Isochron Scepter",
+   "quantity": 1
+  },
+  {
+   "name": "Keening Stone",
+   "quantity": 1
+  },
+  {
+   "name": "Knowledge Pool",
+   "quantity": 1
+  },
+  {
+   "name": "Kormus Bell",
+   "quantity": 1
+  },
+  {
+   "name": "Mox Amber",
+   "quantity": 1
+  },
+  {
+   "name": "Mycosynth Lattice",
+   "quantity": 1
+  },
+  {
+   "name": "Rings of Brighthearth",
+   "quantity": 1
+  },
+  {
+   "name": "Venser's Journal",
+   "quantity": 1
+  },
+  {
+   "name": "Fraying Sanity",
+   "quantity": 1
+  },
+  {
+   "name": "Living Plane",
+   "quantity": 1
+  },
+  {
+   "name": "March of the Machines",
+   "quantity": 1
+  },
+  {
+   "name": "Training Grounds",
+   "quantity": 1
+  },
+  {
+   "name": "Karn, the Great Creator",
+   "quantity": 1
+  },
+  {
+   "name": "Venser, the Sojourner",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 8
+  },
+  {
+   "name": "Island",
+   "quantity": 10
+  },
+  {
+   "name": "Plains",
+   "quantity": 8
+  },
+  {
+   "name": "Urborg, Tomb of Yawgmoth",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

@@ -1,0 +1,338 @@
+{
+ "urlhash": "nUrbuu8LM1b8zTFqLNXBtA",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-09-30",
+ "price": 111,
+ "salt": 44.797595753800124,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/26942848?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Azusa, Lost but Seeking",
+   "quantity": 1
+  },
+  {
+   "name": "Bard, King of Dale",
+   "quantity": 1
+  },
+  {
+   "name": "Doc Samson, Super Psychiatrist",
+   "quantity": 1
+  },
+  {
+   "name": "Duskshell Crawler",
+   "quantity": 1
+  },
+  {
+   "name": "Elven Raft-Steerer",
+   "quantity": 1
+  },
+  {
+   "name": "Faeburrow Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Forgotten Ancient",
+   "quantity": 1
+  },
+  {
+   "name": "Harmonized Trio",
+   "quantity": 1
+  },
+  {
+   "name": "Hedron Crab",
+   "quantity": 1
+  },
+  {
+   "name": "Lotus Cobra",
+   "quantity": 1
+  },
+  {
+   "name": "Mossborn Hydra",
+   "quantity": 1
+  },
+  {
+   "name": "Murasa Rootgrazer",
+   "quantity": 1
+  },
+  {
+   "name": "Oran-Rief Ooze",
+   "quantity": 1
+  },
+  {
+   "name": "Orysa, Tide Choreographer",
+   "quantity": 1
+  },
+  {
+   "name": "Pensive Professor",
+   "quantity": 1
+  },
+  {
+   "name": "Prowling Felidar",
+   "quantity": 1
+  },
+  {
+   "name": "PuPu UFO",
+   "quantity": 1
+  },
+  {
+   "name": "Radagast of Rhosgobel",
+   "quantity": 1
+  },
+  {
+   "name": "Selvala, Explorer Returned",
+   "quantity": 1
+  },
+  {
+   "name": "Sunscorch Regent",
+   "quantity": 1
+  },
+  {
+   "name": "Tam, Observant Sequencer",
+   "quantity": 1
+  },
+  {
+   "name": "Tender Wildguide",
+   "quantity": 1
+  },
+  {
+   "name": "Territorial Scythecat",
+   "quantity": 1
+  },
+  {
+   "name": "Thranduil's Company",
+   "quantity": 1
+  },
+  {
+   "name": "Thranduil, Sindarin Liege",
+   "quantity": 1
+  },
+  {
+   "name": "Wilderland Scrounger",
+   "quantity": 1
+  },
+  {
+   "name": "Wildwood Scourge",
+   "quantity": 1
+  },
+  {
+   "name": "Wren's Run Hydra",
+   "quantity": 1
+  },
+  {
+   "name": "Zegana, Utopian Speaker",
+   "quantity": 1
+  },
+  {
+   "name": "Bounce Off",
+   "quantity": 1
+  },
+  {
+   "name": "Consider",
+   "quantity": 1
+  },
+  {
+   "name": "Disdainful Stroke",
+   "quantity": 1
+  },
+  {
+   "name": "Essence Scatter",
+   "quantity": 1
+  },
+  {
+   "name": "Illusionist's Gambit",
+   "quantity": 1
+  },
+  {
+   "name": "Invigorating Surge",
+   "quantity": 1
+  },
+  {
+   "name": "Negate",
+   "quantity": 1
+  },
+  {
+   "name": "Quick Study",
+   "quantity": 1
+  },
+  {
+   "name": "Refocus",
+   "quantity": 1
+  },
+  {
+   "name": "Run Away Together",
+   "quantity": 1
+  },
+  {
+   "name": "Spell Pierce",
+   "quantity": 1
+  },
+  {
+   "name": "Explore",
+   "quantity": 1
+  },
+  {
+   "name": "Field Research",
+   "quantity": 1
+  },
+  {
+   "name": "Growth Curve",
+   "quantity": 1
+  },
+  {
+   "name": "Mind into Matter",
+   "quantity": 1
+  },
+  {
+   "name": "Promise of Loyalty",
+   "quantity": 1
+  },
+  {
+   "name": "Tempt with Discovery",
+   "quantity": 1
+  },
+  {
+   "name": "Zimone's Experiment",
+   "quantity": 1
+  },
+  {
+   "name": "Ghirapur Orrery",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Weather Maker",
+   "quantity": 1
+  },
+  {
+   "name": "Communal Brewing",
+   "quantity": 1
+  },
+  {
+   "name": "Enchanted River's Grasp",
+   "quantity": 1
+  },
+  {
+   "name": "Glacierwood Siege",
+   "quantity": 1
+  },
+  {
+   "name": "Mystic Redaction",
+   "quantity": 1
+  },
+  {
+   "name": "Rites of Flourishing",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Ascendancy",
+   "quantity": 1
+  },
+  {
+   "name": "Uncover the Moon-Letters",
+   "quantity": 1
+  },
+  {
+   "name": "Zephyr Charge",
+   "quantity": 1
+  },
+  {
+   "name": "Tamiyo, Field Researcher",
+   "quantity": 1
+  },
+  {
+   "name": "Adarkar Wastes",
+   "quantity": 1
+  },
+  {
+   "name": "Brushland",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Dreamroot Cascade",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 9
+  },
+  {
+   "name": "Glacial Fortress",
+   "quantity": 1
+  },
+  {
+   "name": "Guadosalam, Farplane Gateway",
+   "quantity": 1
+  },
+  {
+   "name": "Hinterland Harbor",
+   "quantity": 1
+  },
+  {
+   "name": "Hobbit Hole",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 8
+  },
+  {
+   "name": "Paradox Gardens",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 6
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1
+  },
+  {
+   "name": "Razorverge Thicket",
+   "quantity": 1
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Suburban Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Sunpetal Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Thriving Grove",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

@@ -1,0 +1,394 @@
+{
+ "urlhash": "NP0LqfhM2yzv2DDNTmX-Ig",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-07-06",
+ "price": 191,
+ "salt": 36.445708468556404,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/24127567?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Academy Manufactor",
+   "quantity": 1
+  },
+  {
+   "name": "Conspiracy Unraveler",
+   "quantity": 1
+  },
+  {
+   "name": "Crimestopper Sprite",
+   "quantity": 1
+  },
+  {
+   "name": "Dream Eater",
+   "quantity": 1
+  },
+  {
+   "name": "Erdwal Illuminator",
+   "quantity": 1
+  },
+  {
+   "name": "Esix, Fractal Bloom",
+   "quantity": 1
+  },
+  {
+   "name": "Final-Word Phantom",
+   "quantity": 1
+  },
+  {
+   "name": "Furtive Courier",
+   "quantity": 1
+  },
+  {
+   "name": "Hydroid Krasis",
+   "quantity": 1
+  },
+  {
+   "name": "Living Conundrum",
+   "quantity": 1
+  },
+  {
+   "name": "Morska, Undersea Sleuth",
+   "quantity": 1
+  },
+  {
+   "name": "Sphinx of the Second Sun",
+   "quantity": 1
+  },
+  {
+   "name": "Stalking Leonin",
+   "quantity": 1
+  },
+  {
+   "name": "Steamcore Scholar",
+   "quantity": 1
+  },
+  {
+   "name": "Tangletrove Kelp",
+   "quantity": 1
+  },
+  {
+   "name": "Thought Monitor",
+   "quantity": 1
+  },
+  {
+   "name": "Trostani, Three Whispers",
+   "quantity": 1
+  },
+  {
+   "name": "Tunnel Tipster",
+   "quantity": 1
+  },
+  {
+   "name": "Undercover Crocodelf",
+   "quantity": 1
+  },
+  {
+   "name": "Vannifar, Evolved Enigma",
+   "quantity": 1
+  },
+  {
+   "name": "Vizier of Many Faces",
+   "quantity": 1
+  },
+  {
+   "name": "Whisperwood Elemental",
+   "quantity": 1
+  },
+  {
+   "name": "Confirm Suspicions",
+   "quantity": 1
+  },
+  {
+   "name": "Consider",
+   "quantity": 1
+  },
+  {
+   "name": "Curate",
+   "quantity": 1
+  },
+  {
+   "name": "Deduce",
+   "quantity": 1
+  },
+  {
+   "name": "Ephara's Dispersal",
+   "quantity": 1
+  },
+  {
+   "name": "Intrude on the Mind",
+   "quantity": 1
+  },
+  {
+   "name": "Mission Briefing",
+   "quantity": 1
+  },
+  {
+   "name": "Officious Interrogation",
+   "quantity": 1
+  },
+  {
+   "name": "Reasonable Doubt",
+   "quantity": 1
+  },
+  {
+   "name": "Return of the Wildspeaker",
+   "quantity": 1
+  },
+  {
+   "name": "Unexplained Absence",
+   "quantity": 1
+  },
+  {
+   "name": "Deep Analysis",
+   "quantity": 1
+  },
+  {
+   "name": "Farewell",
+   "quantity": 1
+  },
+  {
+   "name": "Follow the Bodies",
+   "quantity": 1
+  },
+  {
+   "name": "Hide in Plain Sight",
+   "quantity": 1
+  },
+  {
+   "name": "They Went This Way",
+   "quantity": 1
+  },
+  {
+   "name": "Three Visits",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Cryptex",
+   "quantity": 1
+  },
+  {
+   "name": "Cryptic Coat",
+   "quantity": 1
+  },
+  {
+   "name": "Lifecrafter's Bestiary",
+   "quantity": 1
+  },
+  {
+   "name": "Mind Stone",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Talisman of Curiosity",
+   "quantity": 1
+  },
+  {
+   "name": "Talisman of Progress",
+   "quantity": 1
+  },
+  {
+   "name": "Talisman of Unity",
+   "quantity": 1
+  },
+  {
+   "name": "Thought Vessel",
+   "quantity": 1
+  },
+  {
+   "name": "Tome of Legends",
+   "quantity": 1
+  },
+  {
+   "name": "Case of the Locked Hothouse",
+   "quantity": 1
+  },
+  {
+   "name": "Case of the Ransacked Lab",
+   "quantity": 1
+  },
+  {
+   "name": "Curious Inquiry",
+   "quantity": 1
+  },
+  {
+   "name": "Enhanced Surveillance",
+   "quantity": 1
+  },
+  {
+   "name": "Ghostly Prison",
+   "quantity": 1
+  },
+  {
+   "name": "Knowledge Is Power",
+   "quantity": 1
+  },
+  {
+   "name": "Lost in the Maze",
+   "quantity": 1
+  },
+  {
+   "name": "Mechanized Production",
+   "quantity": 1
+  },
+  {
+   "name": "On the Trail",
+   "quantity": 1
+  },
+  {
+   "name": "Proft's Eidetic Memory",
+   "quantity": 1
+  },
+  {
+   "name": "Teferi's Ageless Insight",
+   "quantity": 1
+  },
+  {
+   "name": "Trail of Mystery",
+   "quantity": 1
+  },
+  {
+   "name": "Undergrowth Recon",
+   "quantity": 1
+  },
+  {
+   "name": "Wild Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Wilderness Reclamation",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Chancery",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Castle Ardenvale",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 3
+  },
+  {
+   "name": "Fortified Village",
+   "quantity": 1
+  },
+  {
+   "name": "Hedge Maze",
+   "quantity": 1
+  },
+  {
+   "name": "Irrigated Farmland",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 3
+  },
+  {
+   "name": "Lush Portico",
+   "quantity": 1
+  },
+  {
+   "name": "Meticulous Archive",
+   "quantity": 1
+  },
+  {
+   "name": "Mosswort Bridge",
+   "quantity": 1
+  },
+  {
+   "name": "Mystic Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Path of Ancestry",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 3
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Scattered Groves",
+   "quantity": 1
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Growth Chamber",
+   "quantity": 1
+  },
+  {
+   "name": "Skycloud Expanse",
+   "quantity": 1
+  },
+  {
+   "name": "Sungrass Prairie",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Enlightenment",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Mystery",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Plenty",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Thicket",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

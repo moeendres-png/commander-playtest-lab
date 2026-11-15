@@ -1,0 +1,282 @@
+{
+ "urlhash": "FlrYjRB5Xq7dRJCo6guogA",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-04-24",
+ "price": 2128,
+ "salt": 52.913990672677755,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/12418319?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Advance Scout",
+   "quantity": 1
+  },
+  {
+   "name": "Aether Channeler",
+   "quantity": 1
+  },
+  {
+   "name": "Aisling Leprechaun",
+   "quantity": 1
+  },
+  {
+   "name": "Alaborn Cavalier",
+   "quantity": 1
+  },
+  {
+   "name": "Ambush Commander",
+   "quantity": 1
+  },
+  {
+   "name": "Aradesh, the Founder",
+   "quantity": 1
+  },
+  {
+   "name": "Arbor Colossus",
+   "quantity": 1
+  },
+  {
+   "name": "Archpriest of Iona",
+   "quantity": 1
+  },
+  {
+   "name": "Ardenn, Intrepid Archaeologist",
+   "quantity": 1
+  },
+  {
+   "name": "Boromir, Gondor's Hope",
+   "quantity": 1
+  },
+  {
+   "name": "Charging Paladin",
+   "quantity": 1
+  },
+  {
+   "name": "Charismatic Vanguard",
+   "quantity": 1
+  },
+  {
+   "name": "Cho-Manno, Revolutionary",
+   "quantity": 1
+  },
+  {
+   "name": "Clever Conjurer",
+   "quantity": 1
+  },
+  {
+   "name": "Dauntless Survivor",
+   "quantity": 1
+  },
+  {
+   "name": "Daxos of Meletis",
+   "quantity": 1
+  },
+  {
+   "name": "Elite Archers",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Mystic",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Pioneer",
+   "quantity": 1
+  },
+  {
+   "name": "Fyndhorn Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Goldnight Commander",
+   "quantity": 1
+  },
+  {
+   "name": "Guan Yu, Sainted Warrior",
+   "quantity": 1
+  },
+  {
+   "name": "King Suleiman",
+   "quantity": 1
+  },
+  {
+   "name": "Kitesail Cleric",
+   "quantity": 1
+  },
+  {
+   "name": "Sun Titan",
+   "quantity": 1
+  },
+  {
+   "name": "Beaming Defiance",
+   "quantity": 1
+  },
+  {
+   "name": "Blinding Beam",
+   "quantity": 1
+  },
+  {
+   "name": "Calamity's Wake",
+   "quantity": 1
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1
+  },
+  {
+   "name": "Dispel",
+   "quantity": 1
+  },
+  {
+   "name": "Eladamri's Call",
+   "quantity": 1
+  },
+  {
+   "name": "Fog",
+   "quantity": 1
+  },
+  {
+   "name": "Frantic Search",
+   "quantity": 1
+  },
+  {
+   "name": "Last Word",
+   "quantity": 1
+  },
+  {
+   "name": "Muddle the Mixture",
+   "quantity": 1
+  },
+  {
+   "name": "Negate",
+   "quantity": 1
+  },
+  {
+   "name": "Render Silent",
+   "quantity": 1
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1
+  },
+  {
+   "name": "Take Up Arms",
+   "quantity": 1
+  },
+  {
+   "name": "Cultivate",
+   "quantity": 1
+  },
+  {
+   "name": "Epic Confrontation",
+   "quantity": 1
+  },
+  {
+   "name": "Inaction Injunction",
+   "quantity": 1
+  },
+  {
+   "name": "Martial Coup",
+   "quantity": 1
+  },
+  {
+   "name": "See Beyond",
+   "quantity": 1
+  },
+  {
+   "name": "Tezzeret's Gambit",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Hot Soup",
+   "quantity": 1
+  },
+  {
+   "name": "Mox Diamond",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Blanchwood Armor",
+   "quantity": 1
+  },
+  {
+   "name": "Capashen Standard",
+   "quantity": 1
+  },
+  {
+   "name": "Control Magic",
+   "quantity": 1
+  },
+  {
+   "name": "Favor of the Mighty",
+   "quantity": 1
+  },
+  {
+   "name": "Mind Control",
+   "quantity": 1
+  },
+  {
+   "name": "Propaganda",
+   "quantity": 1
+  },
+  {
+   "name": "Adarkar Wastes",
+   "quantity": 1
+  },
+  {
+   "name": "Botanical Plaza",
+   "quantity": 1
+  },
+  {
+   "name": "Breeding Pool",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 12
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 12
+  },
+  {
+   "name": "Meticulous Archive",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 13
+  },
+  {
+   "name": "Spara's Headquarters",
+   "quantity": 1
+  },
+  {
+   "name": "Waterlogged Grove",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

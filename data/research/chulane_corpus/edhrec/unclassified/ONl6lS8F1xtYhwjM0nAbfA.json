@@ -1,0 +1,338 @@
+{
+ "urlhash": "ONl6lS8F1xtYhwjM0nAbfA",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-01-09",
+ "price": 105,
+ "salt": 30.174461322836578,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/6010277?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Augury Adept",
+   "quantity": 1
+  },
+  {
+   "name": "Ballyrush Banneret",
+   "quantity": 1
+  },
+  {
+   "name": "Brigid, Clachan's Heart",
+   "quantity": 1
+  },
+  {
+   "name": "Bristlebane Battler",
+   "quantity": 1
+  },
+  {
+   "name": "Burrenton Bombardier",
+   "quantity": 1
+  },
+  {
+   "name": "Cenn's Heir",
+   "quantity": 1
+  },
+  {
+   "name": "Champion of the Clachan",
+   "quantity": 1
+  },
+  {
+   "name": "Cloudgoat Ranger",
+   "quantity": 1
+  },
+  {
+   "name": "Eclipsed Kithkin",
+   "quantity": 1
+  },
+  {
+   "name": "Figure of Fable",
+   "quantity": 1
+  },
+  {
+   "name": "Goldmeadow Lookout",
+   "quantity": 1
+  },
+  {
+   "name": "Goldmeadow Nomad",
+   "quantity": 1
+  },
+  {
+   "name": "Goldmeadow Stalwart",
+   "quantity": 1
+  },
+  {
+   "name": "Kinsbaile Aspirant",
+   "quantity": 1
+  },
+  {
+   "name": "Kinsbaile Balloonist",
+   "quantity": 1
+  },
+  {
+   "name": "Kinsbaile Borderguard",
+   "quantity": 1
+  },
+  {
+   "name": "Kinsbaile Courier",
+   "quantity": 1
+  },
+  {
+   "name": "Kinscaer Sentry",
+   "quantity": 1
+  },
+  {
+   "name": "Kithkeeper",
+   "quantity": 1
+  },
+  {
+   "name": "Kithkin Harbinger",
+   "quantity": 1
+  },
+  {
+   "name": "Kithkin Spellduster",
+   "quantity": 1
+  },
+  {
+   "name": "Kithkin Zephyrnaut",
+   "quantity": 1
+  },
+  {
+   "name": "Mistmeadow Council",
+   "quantity": 1
+  },
+  {
+   "name": "Mistmeadow Vanisher",
+   "quantity": 1
+  },
+  {
+   "name": "Mistmeadow Witch",
+   "quantity": 1
+  },
+  {
+   "name": "Patrol Signaler",
+   "quantity": 1
+  },
+  {
+   "name": "Thoughtweft Imbuer",
+   "quantity": 1
+  },
+  {
+   "name": "Thoughtweft Lieutenant",
+   "quantity": 1
+  },
+  {
+   "name": "Thoughtweft Trio",
+   "quantity": 1
+  },
+  {
+   "name": "Wizened Cenn",
+   "quantity": 1
+  },
+  {
+   "name": "Aethertow",
+   "quantity": 1
+  },
+  {
+   "name": "Deglamer",
+   "quantity": 1
+  },
+  {
+   "name": "Growth Spiral",
+   "quantity": 1
+  },
+  {
+   "name": "Harrow",
+   "quantity": 1
+  },
+  {
+   "name": "Put Away",
+   "quantity": 1
+  },
+  {
+   "name": "Repel Intruders",
+   "quantity": 1
+  },
+  {
+   "name": "Rootborn Defenses",
+   "quantity": 1
+  },
+  {
+   "name": "Surge of Thoughtweft",
+   "quantity": 1
+  },
+  {
+   "name": "Thoughtweft Gambit",
+   "quantity": 1
+  },
+  {
+   "name": "Austere Command",
+   "quantity": 1
+  },
+  {
+   "name": "Brigid's Command",
+   "quantity": 1
+  },
+  {
+   "name": "Cenn's Enlistment",
+   "quantity": 1
+  },
+  {
+   "name": "Cleansing Nova",
+   "quantity": 1
+  },
+  {
+   "name": "Cultivate",
+   "quantity": 1
+  },
+  {
+   "name": "Farseek",
+   "quantity": 1
+  },
+  {
+   "name": "Rampant Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Commander's Sphere",
+   "quantity": 1
+  },
+  {
+   "name": "Door of Destinies",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Talisman of Curiosity",
+   "quantity": 1
+  },
+  {
+   "name": "Talisman of Progress",
+   "quantity": 1
+  },
+  {
+   "name": "Talisman of Unity",
+   "quantity": 1
+  },
+  {
+   "name": "Clachan Festival",
+   "quantity": 1
+  },
+  {
+   "name": "Kinbinding",
+   "quantity": 1
+  },
+  {
+   "name": "Kindred Discovery",
+   "quantity": 1
+  },
+  {
+   "name": "Militia's Pride",
+   "quantity": 1
+  },
+  {
+   "name": "Rally the Ranks",
+   "quantity": 1
+  },
+  {
+   "name": "Springleaf Parade",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Eclipsed Realms",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 2
+  },
+  {
+   "name": "Glacial Fortress",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 2
+  },
+  {
+   "name": "Mystic Gate",
+   "quantity": 1
+  },
+  {
+   "name": "Path of Ancestry",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 19
+  },
+  {
+   "name": "Rustic Clachan",
+   "quantity": 1
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Skycloud Expanse",
+   "quantity": 1
+  },
+  {
+   "name": "Sungrass Prairie",
+   "quantity": 1
+  },
+  {
+   "name": "Sunpetal Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Landscape",
+   "quantity": 1
+  },
+  {
+   "name": "Wooded Bastion",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

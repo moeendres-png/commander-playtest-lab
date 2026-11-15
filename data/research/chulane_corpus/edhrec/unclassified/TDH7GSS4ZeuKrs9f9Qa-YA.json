@@ -1,0 +1,358 @@
+{
+ "urlhash": "TDH7GSS4ZeuKrs9f9Qa-YA",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-10-02",
+ "price": 406,
+ "salt": 50.83018774911761,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/26996759?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Ajani's Chosen",
+   "quantity": 1
+  },
+  {
+   "name": "Ajani's Comrade",
+   "quantity": 1
+  },
+  {
+   "name": "Ajani's Pridemate",
+   "quantity": 1
+  },
+  {
+   "name": "Ajani's Sunstriker",
+   "quantity": 1
+  },
+  {
+   "name": "Displacer Kitten",
+   "quantity": 1
+  },
+  {
+   "name": "Flickering Hound",
+   "quantity": 1
+  },
+  {
+   "name": "Qala, Ajani's Pridemate",
+   "quantity": 1
+  },
+  {
+   "name": "Tamiyo, Inquisitive Student",
+   "quantity": 1
+  },
+  {
+   "name": "Thrummingbird",
+   "quantity": 1
+  },
+  {
+   "name": "Ajani's Presence",
+   "quantity": 1
+  },
+  {
+   "name": "Ajani's Response",
+   "quantity": 1
+  },
+  {
+   "name": "Catalog",
+   "quantity": 1
+  },
+  {
+   "name": "Collected Company",
+   "quantity": 1
+  },
+  {
+   "name": "Cut Short",
+   "quantity": 1
+  },
+  {
+   "name": "Fierce Guardianship",
+   "quantity": 1
+  },
+  {
+   "name": "Heroic Intervention",
+   "quantity": 1
+  },
+  {
+   "name": "Ignite the Beacon",
+   "quantity": 1
+  },
+  {
+   "name": "Impeccable Timing",
+   "quantity": 1
+  },
+  {
+   "name": "Learn from the Past",
+   "quantity": 1
+  },
+  {
+   "name": "Loyal Tutor",
+   "quantity": 1
+  },
+  {
+   "name": "Narset's Reversal",
+   "quantity": 1
+  },
+  {
+   "name": "Negate",
+   "quantity": 1
+  },
+  {
+   "name": "Pledge of Unity",
+   "quantity": 1
+  },
+  {
+   "name": "Rally the Monastery",
+   "quantity": 1
+  },
+  {
+   "name": "Solidarity of Heroes",
+   "quantity": 1
+  },
+  {
+   "name": "Soul's Grace",
+   "quantity": 1
+  },
+  {
+   "name": "Spell Pierce",
+   "quantity": 1
+  },
+  {
+   "name": "Take Up the Shield",
+   "quantity": 1
+  },
+  {
+   "name": "Tamiyo's Safekeeping",
+   "quantity": 1
+  },
+  {
+   "name": "Veil of Summer",
+   "quantity": 1
+  },
+  {
+   "name": "Ajani's Influence",
+   "quantity": 1
+  },
+  {
+   "name": "Cathartic Parting",
+   "quantity": 1
+  },
+  {
+   "name": "Inspiring Roar",
+   "quantity": 1
+  },
+  {
+   "name": "Soul's Majesty",
+   "quantity": 1
+  },
+  {
+   "name": "Soul's Might",
+   "quantity": 1
+  },
+  {
+   "name": "Storm the Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Tamiyo's Epiphany",
+   "quantity": 1
+  },
+  {
+   "name": "Triumphant Reckoning",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Ichormoon Gauntlet",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Tamiyo's Journal",
+   "quantity": 1
+  },
+  {
+   "name": "Tamiyo's Logbook",
+   "quantity": 1
+  },
+  {
+   "name": "Ajani Fells the Godsire",
+   "quantity": 1
+  },
+  {
+   "name": "Ajani's Aid",
+   "quantity": 1
+  },
+  {
+   "name": "Ajani's Last Stand",
+   "quantity": 1
+  },
+  {
+   "name": "Ajani's Mantra",
+   "quantity": 1
+  },
+  {
+   "name": "Ajani's Welcome",
+   "quantity": 1
+  },
+  {
+   "name": "Imprisoned in the Moon",
+   "quantity": 1
+  },
+  {
+   "name": "Lunar Force",
+   "quantity": 1
+  },
+  {
+   "name": "Oath of Ajani",
+   "quantity": 1
+  },
+  {
+   "name": "Quiet Contemplation",
+   "quantity": 1
+  },
+  {
+   "name": "Stormplain Detainment",
+   "quantity": 1
+  },
+  {
+   "name": "Tamiyo Meets the Story Circle",
+   "quantity": 1
+  },
+  {
+   "name": "Tamiyo's Compleation",
+   "quantity": 1
+  },
+  {
+   "name": "The Tale of Tamiyo",
+   "quantity": 1
+  },
+  {
+   "name": "Way of the Mentor",
+   "quantity": 1
+  },
+  {
+   "name": "Ajani Goldmane",
+   "quantity": 1
+  },
+  {
+   "name": "Ajani Resolute",
+   "quantity": 1
+  },
+  {
+   "name": "Ajani Steadfast",
+   "quantity": 1
+  },
+  {
+   "name": "Ajani Unyielding",
+   "quantity": 1
+  },
+  {
+   "name": "Ajani, Adversary of Tyrants",
+   "quantity": 1
+  },
+  {
+   "name": "Ajani, Caller of the Pride",
+   "quantity": 1
+  },
+  {
+   "name": "Ajani, Inspiring Leader",
+   "quantity": 1
+  },
+  {
+   "name": "Ajani, Mentor of Heroes",
+   "quantity": 1
+  },
+  {
+   "name": "Ajani, Outland Chaperone",
+   "quantity": 1
+  },
+  {
+   "name": "Ajani, Sleeper Agent",
+   "quantity": 1
+  },
+  {
+   "name": "Ajani, Strength of the Pride",
+   "quantity": 1
+  },
+  {
+   "name": "Ajani, Valiant Protector",
+   "quantity": 1
+  },
+  {
+   "name": "Ajani, Wise Counselor",
+   "quantity": 1
+  },
+  {
+   "name": "Ajani, the Greathearted",
+   "quantity": 1
+  },
+  {
+   "name": "Narset Transcendent",
+   "quantity": 1
+  },
+  {
+   "name": "Narset, Parter of Veils",
+   "quantity": 1
+  },
+  {
+   "name": "Tamiyo, Collector of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Tamiyo, Compleated Sage",
+   "quantity": 1
+  },
+  {
+   "name": "Tamiyo, Field Researcher",
+   "quantity": 1
+  },
+  {
+   "name": "Tamiyo, the Moon Sage",
+   "quantity": 1
+  },
+  {
+   "name": "Breeding Pool",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Exotic Orchard",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 6
+  },
+  {
+   "name": "Island",
+   "quantity": 6
+  },
+  {
+   "name": "Plains",
+   "quantity": 6
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

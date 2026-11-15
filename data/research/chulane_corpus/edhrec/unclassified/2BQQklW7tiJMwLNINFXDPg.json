@@ -1,0 +1,302 @@
+{
+ "urlhash": "2BQQklW7tiJMwLNINFXDPg",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-12-21",
+ "price": 118,
+ "salt": 38.1401163386181,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/18333077?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Agent of Kotis",
+   "quantity": 1
+  },
+  {
+   "name": "Attuned Hunter",
+   "quantity": 1
+  },
+  {
+   "name": "Azusa, Lost but Seeking",
+   "quantity": 1
+  },
+  {
+   "name": "Baloth Woodcrasher",
+   "quantity": 1
+  },
+  {
+   "name": "Basri's Lieutenant",
+   "quantity": 1
+  },
+  {
+   "name": "Bellowing Crier",
+   "quantity": 1
+  },
+  {
+   "name": "Brightmare",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Baloth",
+   "quantity": 1
+  },
+  {
+   "name": "Duskshell Crawler",
+   "quantity": 1
+  },
+  {
+   "name": "Enlisted Wurm",
+   "quantity": 1
+  },
+  {
+   "name": "Forgotten Ancient",
+   "quantity": 1
+  },
+  {
+   "name": "Generous Pup",
+   "quantity": 1
+  },
+  {
+   "name": "Gilded Scuttler",
+   "quantity": 1
+  },
+  {
+   "name": "Grazing Gladehart",
+   "quantity": 1
+  },
+  {
+   "name": "Griffin Protector",
+   "quantity": 1
+  },
+  {
+   "name": "Herald of War",
+   "quantity": 1
+  },
+  {
+   "name": "Hinterland Sanctifier",
+   "quantity": 1
+  },
+  {
+   "name": "Kishla Trawlers",
+   "quantity": 1
+  },
+  {
+   "name": "Lat-Nam Adept",
+   "quantity": 1
+  },
+  {
+   "name": "Lightwalker",
+   "quantity": 1
+  },
+  {
+   "name": "Loran of the Third Path",
+   "quantity": 1
+  },
+  {
+   "name": "Mowu, Loyal Companion",
+   "quantity": 1
+  },
+  {
+   "name": "Patron of the Valiant",
+   "quantity": 1
+  },
+  {
+   "name": "Perennial Behemoth",
+   "quantity": 1
+  },
+  {
+   "name": "Pond Prophet",
+   "quantity": 1
+  },
+  {
+   "name": "Recruitment Officer",
+   "quantity": 1
+  },
+  {
+   "name": "Rescue Retriever",
+   "quantity": 1
+  },
+  {
+   "name": "Resolute Reinforcements",
+   "quantity": 1
+  },
+  {
+   "name": "Sandsteppe Outcast",
+   "quantity": 1
+  },
+  {
+   "name": "Scythecat Cub",
+   "quantity": 1
+  },
+  {
+   "name": "Serra Redeemer",
+   "quantity": 1
+  },
+  {
+   "name": "Servant of the Scale",
+   "quantity": 1
+  },
+  {
+   "name": "Sibsig Appraiser",
+   "quantity": 1
+  },
+  {
+   "name": "Sporemound",
+   "quantity": 1
+  },
+  {
+   "name": "Steadfast Sentry",
+   "quantity": 1
+  },
+  {
+   "name": "Stormrider Spirit",
+   "quantity": 1
+  },
+  {
+   "name": "Sunpearl Kirin",
+   "quantity": 1
+  },
+  {
+   "name": "Three Tree Rootweaver",
+   "quantity": 1
+  },
+  {
+   "name": "Unruly Mob",
+   "quantity": 1
+  },
+  {
+   "name": "Urdnan, Dromoka Warrior",
+   "quantity": 1
+  },
+  {
+   "name": "Bite Down",
+   "quantity": 1
+  },
+  {
+   "name": "Crumb and Get It",
+   "quantity": 1
+  },
+  {
+   "name": "Divine Arrow",
+   "quantity": 1
+  },
+  {
+   "name": "Duty Beyond Death",
+   "quantity": 1
+  },
+  {
+   "name": "Fading Hope",
+   "quantity": 1
+  },
+  {
+   "name": "Groundswell",
+   "quantity": 1
+  },
+  {
+   "name": "Season of Renewal",
+   "quantity": 1
+  },
+  {
+   "name": "Snakeskin Veil",
+   "quantity": 1
+  },
+  {
+   "name": "Swift Response",
+   "quantity": 1
+  },
+  {
+   "name": "Take Up the Shield",
+   "quantity": 1
+  },
+  {
+   "name": "Basri's Solidarity",
+   "quantity": 1
+  },
+  {
+   "name": "Bushwhack",
+   "quantity": 1
+  },
+  {
+   "name": "Fade into Antiquity",
+   "quantity": 1
+  },
+  {
+   "name": "Lay Down Arms",
+   "quantity": 1
+  },
+  {
+   "name": "Unending Whisper",
+   "quantity": 1
+  },
+  {
+   "name": "Dragonfire Blade",
+   "quantity": 1
+  },
+  {
+   "name": "Skyclave Pick-Axe",
+   "quantity": 1
+  },
+  {
+   "name": "Banishing Light",
+   "quantity": 1
+  },
+  {
+   "name": "Careful Cultivation",
+   "quantity": 1
+  },
+  {
+   "name": "Love Song of Night and Day",
+   "quantity": 1
+  },
+  {
+   "name": "Wingspan Stride",
+   "quantity": 1
+  },
+  {
+   "name": "Cave of Temptation",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 9
+  },
+  {
+   "name": "Island",
+   "quantity": 9
+  },
+  {
+   "name": "Plains",
+   "quantity": 14
+  },
+  {
+   "name": "Terramorphic Expanse",
+   "quantity": 1
+  },
+  {
+   "name": "Thriving Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Thriving Heath",
+   "quantity": 1
+  },
+  {
+   "name": "Thriving Isle",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

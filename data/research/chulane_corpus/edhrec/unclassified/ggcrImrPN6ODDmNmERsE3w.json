@@ -1,0 +1,258 @@
+{
+ "urlhash": "ggcrImrPN6ODDmNmERsE3w",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-07-08",
+ "price": 371,
+ "salt": 58.420547880232334,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/ObFVoJ6Ag0OPRR3ppe3UsA?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Brightglass Gearhulk",
+   "quantity": 1
+  },
+  {
+   "name": "Clone",
+   "quantity": 1
+  },
+  {
+   "name": "Copycrook",
+   "quantity": 1
+  },
+  {
+   "name": "District Guide",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Hydromancer",
+   "quantity": 1
+  },
+  {
+   "name": "Farhaven Elf",
+   "quantity": 1
+  },
+  {
+   "name": "Fauna Shaman",
+   "quantity": 1
+  },
+  {
+   "name": "Jwari Shapeshifter",
+   "quantity": 1
+  },
+  {
+   "name": "Momir Vig, Simic Visionary",
+   "quantity": 1
+  },
+  {
+   "name": "Recruiter of the Guard",
+   "quantity": 1
+  },
+  {
+   "name": "Sazh's Chocobo",
+   "quantity": 1
+  },
+  {
+   "name": "Solemn Simulacrum",
+   "quantity": 1
+  },
+  {
+   "name": "Chord of Calling",
+   "quantity": 1
+  },
+  {
+   "name": "Eladamri's Call",
+   "quantity": 1
+  },
+  {
+   "name": "Entish Restoration",
+   "quantity": 1
+  },
+  {
+   "name": "Fated Infatuation",
+   "quantity": 1
+  },
+  {
+   "name": "Fleeting Reflection",
+   "quantity": 1
+  },
+  {
+   "name": "Go Forth",
+   "quantity": 1
+  },
+  {
+   "name": "Prishe's Wanderings",
+   "quantity": 1
+  },
+  {
+   "name": "Roiling Regrowth",
+   "quantity": 1
+  },
+  {
+   "name": "Bushwhack",
+   "quantity": 1
+  },
+  {
+   "name": "Circuitous Route",
+   "quantity": 1
+  },
+  {
+   "name": "Cultivate",
+   "quantity": 1
+  },
+  {
+   "name": "Ecological Appreciation",
+   "quantity": 1
+  },
+  {
+   "name": "Explore the Underdark",
+   "quantity": 1
+  },
+  {
+   "name": "Finale of Devastation",
+   "quantity": 1
+  },
+  {
+   "name": "Green Sun's Zenith",
+   "quantity": 1
+  },
+  {
+   "name": "Irenicus's Vile Duplication",
+   "quantity": 1
+  },
+  {
+   "name": "Migration Path",
+   "quantity": 1
+  },
+  {
+   "name": "Nissa's Expedition",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Archaeomancer's Map",
+   "quantity": 1
+  },
+  {
+   "name": "Armillary Sphere",
+   "quantity": 1
+  },
+  {
+   "name": "Blitzball",
+   "quantity": 1
+  },
+  {
+   "name": "Ecologist's Terrarium",
+   "quantity": 1
+  },
+  {
+   "name": "Expedition Map",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Soul Foundry",
+   "quantity": 1
+  },
+  {
+   "name": "Defense of the Heart",
+   "quantity": 1
+  },
+  {
+   "name": "Dual Nature",
+   "quantity": 1
+  },
+  {
+   "name": "Followed Footsteps",
+   "quantity": 1
+  },
+  {
+   "name": "Infinite Reflection",
+   "quantity": 1
+  },
+  {
+   "name": "Khalni Heart Expedition",
+   "quantity": 1
+  },
+  {
+   "name": "Land Tax",
+   "quantity": 1
+  },
+  {
+   "name": "Mask of Law and Grace",
+   "quantity": 1
+  },
+  {
+   "name": "Rhystic Study",
+   "quantity": 1
+  },
+  {
+   "name": "Sidequest: Raise a Chocobo",
+   "quantity": 1
+  },
+  {
+   "name": "Smothering Tithe",
+   "quantity": 1
+  },
+  {
+   "name": "Spectra Ward",
+   "quantity": 1
+  },
+  {
+   "name": "Spirit Mantle",
+   "quantity": 1
+  },
+  {
+   "name": "Garruk, Caller of Beasts",
+   "quantity": 1
+  },
+  {
+   "name": "Bant Panorama",
+   "quantity": 1
+  },
+  {
+   "name": "Brokers Hideout",
+   "quantity": 1
+  },
+  {
+   "name": "Escape Tunnel",
+   "quantity": 1
+  },
+  {
+   "name": "Fabled Passage",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 19
+  },
+  {
+   "name": "Island",
+   "quantity": 12
+  },
+  {
+   "name": "Plains",
+   "quantity": 12
+  },
+  {
+   "name": "Terramorphic Expanse",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

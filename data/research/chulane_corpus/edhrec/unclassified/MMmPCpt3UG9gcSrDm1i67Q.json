@@ -1,0 +1,378 @@
+{
+ "urlhash": "MMmPCpt3UG9gcSrDm1i67Q",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-11-07",
+ "price": 202,
+ "salt": 27.553169760853052,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/28135386?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Brine Elemental",
+   "quantity": 1
+  },
+  {
+   "name": "Chromeshell Crab",
+   "quantity": 1
+  },
+  {
+   "name": "Deathmist Raptor",
+   "quantity": 1
+  },
+  {
+   "name": "Den Protector",
+   "quantity": 1
+  },
+  {
+   "name": "Fear of Abduction",
+   "quantity": 1
+  },
+  {
+   "name": "Hidden Dragonslayer",
+   "quantity": 1
+  },
+  {
+   "name": "Hooded Hydra",
+   "quantity": 1
+  },
+  {
+   "name": "Misthoof Kirin",
+   "quantity": 1
+  },
+  {
+   "name": "Patron of the Wild",
+   "quantity": 1
+  },
+  {
+   "name": "Raven Guild Initiate",
+   "quantity": 1
+  },
+  {
+   "name": "Raven Guild Master",
+   "quantity": 1
+  },
+  {
+   "name": "Salt Road Ambushers",
+   "quantity": 1
+  },
+  {
+   "name": "Vesuvan Shapeshifter",
+   "quantity": 1
+  },
+  {
+   "name": "Aerial Boost",
+   "quantity": 1
+  },
+  {
+   "name": "Airship Crash",
+   "quantity": 1
+  },
+  {
+   "name": "Become Anonymous",
+   "quantity": 1
+  },
+  {
+   "name": "Crash Landing",
+   "quantity": 1
+  },
+  {
+   "name": "Daring Leap",
+   "quantity": 1
+  },
+  {
+   "name": "Defy Gravity",
+   "quantity": 1
+  },
+  {
+   "name": "Fleeting Distraction",
+   "quantity": 1
+  },
+  {
+   "name": "Fleeting Flight",
+   "quantity": 1
+  },
+  {
+   "name": "Invert the Skies",
+   "quantity": 1
+  },
+  {
+   "name": "Panther Pounce",
+   "quantity": 1
+  },
+  {
+   "name": "Spontaneous Flight",
+   "quantity": 1
+  },
+  {
+   "name": "Twist Reality",
+   "quantity": 1
+  },
+  {
+   "name": "Unexplained Absence",
+   "quantity": 1
+  },
+  {
+   "name": "Unexplained Disappearance",
+   "quantity": 1
+  },
+  {
+   "name": "Unlawful Entry",
+   "quantity": 1
+  },
+  {
+   "name": "View from Above",
+   "quantity": 1
+  },
+  {
+   "name": "Hide in Plain Sight",
+   "quantity": 1
+  },
+  {
+   "name": "Manifest Dread",
+   "quantity": 1
+  },
+  {
+   "name": "Valgavoth's Onslaught",
+   "quantity": 1
+  },
+  {
+   "name": "Vivisection",
+   "quantity": 1
+  },
+  {
+   "name": "Write into Being",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Cursed Windbreaker",
+   "quantity": 1
+  },
+  {
+   "name": "Doom Cannon",
+   "quantity": 1
+  },
+  {
+   "name": "Dream Chisel",
+   "quantity": 1
+  },
+  {
+   "name": "Fodder Cannon",
+   "quantity": 1
+  },
+  {
+   "name": "Scroll of Fate",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Skull Catapult",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Thran Dynamo",
+   "quantity": 1
+  },
+  {
+   "name": "Trading Post",
+   "quantity": 1
+  },
+  {
+   "name": "Unidentified Hovership",
+   "quantity": 1
+  },
+  {
+   "name": "Burden of Proof",
+   "quantity": 1
+  },
+  {
+   "name": "Cloudform",
+   "quantity": 1
+  },
+  {
+   "name": "Fanatical Devotion",
+   "quantity": 1
+  },
+  {
+   "name": "Growing Dread",
+   "quantity": 1
+  },
+  {
+   "name": "Hadana's Climb",
+   "quantity": 1
+  },
+  {
+   "name": "Lightform",
+   "quantity": 1
+  },
+  {
+   "name": "Mastery of the Unseen",
+   "quantity": 1
+  },
+  {
+   "name": "Obscuring Aether",
+   "quantity": 1
+  },
+  {
+   "name": "Primordial Mist",
+   "quantity": 1
+  },
+  {
+   "name": "They Came from the Pipes",
+   "quantity": 1
+  },
+  {
+   "name": "Threats Around Every Corner",
+   "quantity": 1
+  },
+  {
+   "name": "Veiled Ascension",
+   "quantity": 1
+  },
+  {
+   "name": "Vesuvan Duplimancy",
+   "quantity": 1
+  },
+  {
+   "name": "Abandoned Campground",
+   "quantity": 1
+  },
+  {
+   "name": "Bountiful Promenade",
+   "quantity": 1
+  },
+  {
+   "name": "Brokers Hideout",
+   "quantity": 1
+  },
+  {
+   "name": "Deserted Beach",
+   "quantity": 1
+  },
+  {
+   "name": "Dreamroot Cascade",
+   "quantity": 1
+  },
+  {
+   "name": "Etched Cornfield",
+   "quantity": 1
+  },
+  {
+   "name": "Floodfarm Verge",
+   "quantity": 1
+  },
+  {
+   "name": "Guadosalam, Farplane Gateway",
+   "quantity": 1
+  },
+  {
+   "name": "Hedge Maze",
+   "quantity": 1
+  },
+  {
+   "name": "Hushwood Verge",
+   "quantity": 1
+  },
+  {
+   "name": "Idyllic Beachfront",
+   "quantity": 1
+  },
+  {
+   "name": "Lakeside Shack",
+   "quantity": 1
+  },
+  {
+   "name": "Meticulous Archive",
+   "quantity": 1
+  },
+  {
+   "name": "Nimbus Maze",
+   "quantity": 1
+  },
+  {
+   "name": "Overgrown Farmland",
+   "quantity": 1
+  },
+  {
+   "name": "Rejuvenating Springs",
+   "quantity": 1
+  },
+  {
+   "name": "Sea of Clouds",
+   "quantity": 1
+  },
+  {
+   "name": "Seachrome Coast",
+   "quantity": 1
+  },
+  {
+   "name": "Snow-Covered Forest",
+   "quantity": 5
+  },
+  {
+   "name": "Snow-Covered Island",
+   "quantity": 4
+  },
+  {
+   "name": "Snow-Covered Plains",
+   "quantity": 4
+  },
+  {
+   "name": "Study",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Mystery",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Plenty",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Cove",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Expanse",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Landscape",
+   "quantity": 1
+  },
+  {
+   "name": "Willowrush Verge",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

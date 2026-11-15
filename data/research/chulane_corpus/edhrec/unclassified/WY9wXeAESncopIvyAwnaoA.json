@@ -1,0 +1,342 @@
+{
+ "urlhash": "WY9wXeAESncopIvyAwnaoA",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-08-28",
+ "price": 298,
+ "salt": 46.000427059829235,
+ "tags": [
+  "+1/+1 Counters",
+  "Tokens",
+  "Snow"
+ ],
+ "source_url": "https://moxfield.com/decks/qL8s5GD9v0uOGtwlrl_yFg?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Bronzehide Lion",
+   "quantity": 1
+  },
+  {
+   "name": "Conclave Mentor",
+   "quantity": 1
+  },
+  {
+   "name": "Duskshell Crawler",
+   "quantity": 1
+  },
+  {
+   "name": "Faramir, Prince of Ithilien",
+   "quantity": 1
+  },
+  {
+   "name": "Faramir, Steward of Gondor",
+   "quantity": 1
+  },
+  {
+   "name": "Frost Lynx",
+   "quantity": 1
+  },
+  {
+   "name": "Gallant Cavalry",
+   "quantity": 1
+  },
+  {
+   "name": "Giltspire Avenger",
+   "quantity": 1
+  },
+  {
+   "name": "God-Favored General",
+   "quantity": 1
+  },
+  {
+   "name": "Griffin Sentinel",
+   "quantity": 1
+  },
+  {
+   "name": "Hydro-Man, Fluid Felon",
+   "quantity": 1
+  },
+  {
+   "name": "Hylda of the Icy Crown",
+   "quantity": 1
+  },
+  {
+   "name": "Jace, Vryn's Prodigy",
+   "quantity": 1
+  },
+  {
+   "name": "Lionheart Glimmer",
+   "quantity": 1
+  },
+  {
+   "name": "Master of the Wild Hunt",
+   "quantity": 1
+  },
+  {
+   "name": "Odric, Lunarch Marshal",
+   "quantity": 1
+  },
+  {
+   "name": "Saddled Rimestag",
+   "quantity": 1
+  },
+  {
+   "name": "Saffi Eriksdotter",
+   "quantity": 1
+  },
+  {
+   "name": "Satyr Piper",
+   "quantity": 1
+  },
+  {
+   "name": "Steelburr Champion",
+   "quantity": 1
+  },
+  {
+   "name": "The Duke, Rebel Sentry",
+   "quantity": 1
+  },
+  {
+   "name": "Wall of Frost",
+   "quantity": 1
+  },
+  {
+   "name": "An Offer You Can't Refuse",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Denial",
+   "quantity": 1
+  },
+  {
+   "name": "Ephemerate",
+   "quantity": 1
+  },
+  {
+   "name": "Fog",
+   "quantity": 1
+  },
+  {
+   "name": "Frost Breath",
+   "quantity": 1
+  },
+  {
+   "name": "Mana Drain",
+   "quantity": 1
+  },
+  {
+   "name": "Negate",
+   "quantity": 1
+  },
+  {
+   "name": "Path to Exile",
+   "quantity": 1
+  },
+  {
+   "name": "Repel Calamity",
+   "quantity": 1
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1
+  },
+  {
+   "name": "Abundant Harvest",
+   "quantity": 1
+  },
+  {
+   "name": "Commune with Beavers",
+   "quantity": 1
+  },
+  {
+   "name": "Inevitable Betrayal",
+   "quantity": 1
+  },
+  {
+   "name": "Kodama's Reach",
+   "quantity": 1
+  },
+  {
+   "name": "Restorative Technique",
+   "quantity": 1
+  },
+  {
+   "name": "Three Visits",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Conjurer's Closet",
+   "quantity": 1
+  },
+  {
+   "name": "Crown of Convergence",
+   "quantity": 1
+  },
+  {
+   "name": "Galadhrim Bow",
+   "quantity": 1
+  },
+  {
+   "name": "Horn of Gondor",
+   "quantity": 1
+  },
+  {
+   "name": "Lightning Greaves",
+   "quantity": 1
+  },
+  {
+   "name": "Phyrexian Altar",
+   "quantity": 1
+  },
+  {
+   "name": "Potion of Healing",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Sting, the Glinting Dagger",
+   "quantity": 1
+  },
+  {
+   "name": "Swiftfoot Boots",
+   "quantity": 1
+  },
+  {
+   "name": "Sword of War and Peace",
+   "quantity": 1
+  },
+  {
+   "name": "Cleric Class",
+   "quantity": 1
+  },
+  {
+   "name": "Druid Class",
+   "quantity": 1
+  },
+  {
+   "name": "Hardened Scales",
+   "quantity": 1
+  },
+  {
+   "name": "Innkeeper's Talent",
+   "quantity": 1
+  },
+  {
+   "name": "Leader's Talent",
+   "quantity": 1
+  },
+  {
+   "name": "Opposition",
+   "quantity": 1
+  },
+  {
+   "name": "Petrify",
+   "quantity": 1
+  },
+  {
+   "name": "Ranger Class",
+   "quantity": 1
+  },
+  {
+   "name": "Virtue of Strength",
+   "quantity": 1
+  },
+  {
+   "name": "Elspeth, Sun's Champion",
+   "quantity": 1
+  },
+  {
+   "name": "Arctic Treeline",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Exotic Orchard",
+   "quantity": 1
+  },
+  {
+   "name": "Fabled Passage",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 4
+  },
+  {
+   "name": "Glacial Floodplain",
+   "quantity": 1
+  },
+  {
+   "name": "Glacial Fortress",
+   "quantity": 1
+  },
+  {
+   "name": "Hinterland Harbor",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 4
+  },
+  {
+   "name": "Oran-Rief, the Vastwood",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 4
+  },
+  {
+   "name": "Rimewood Falls",
+   "quantity": 1
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Shimmerdrift Vale",
+   "quantity": 1
+  },
+  {
+   "name": "Snow-Covered Forest",
+   "quantity": 5
+  },
+  {
+   "name": "Snow-Covered Island",
+   "quantity": 5
+  },
+  {
+   "name": "Snow-Covered Plains",
+   "quantity": 4
+  },
+  {
+   "name": "Sunpetal Grove",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

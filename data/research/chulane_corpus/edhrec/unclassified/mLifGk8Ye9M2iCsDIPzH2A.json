@@ -1,0 +1,274 @@
+{
+ "urlhash": "mLifGk8Ye9M2iCsDIPzH2A",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-11-09",
+ "price": 153,
+ "salt": 54.16714782174677,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/LkmPi8DjNkekIsAMZeYkNA?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Arbiter of the Ideal",
+   "quantity": 1
+  },
+  {
+   "name": "Armored Scrapgorger",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Guildmage",
+   "quantity": 1
+  },
+  {
+   "name": "Belisarius Cawl",
+   "quantity": 1
+  },
+  {
+   "name": "Bellowing Crier",
+   "quantity": 1
+  },
+  {
+   "name": "Chrome Companion",
+   "quantity": 1
+  },
+  {
+   "name": "Citanul Stalwart",
+   "quantity": 1
+  },
+  {
+   "name": "Deepwater Hypnotist",
+   "quantity": 1
+  },
+  {
+   "name": "Drumbellower",
+   "quantity": 1
+  },
+  {
+   "name": "Eladamri, Korvecdal",
+   "quantity": 1
+  },
+  {
+   "name": "Emmara Tandris",
+   "quantity": 1
+  },
+  {
+   "name": "Emmara, Soul of the Accord",
+   "quantity": 1
+  },
+  {
+   "name": "Fallowsage",
+   "quantity": 1
+  },
+  {
+   "name": "Fauna Shaman",
+   "quantity": 1
+  },
+  {
+   "name": "Final-Word Phantom",
+   "quantity": 1
+  },
+  {
+   "name": "Gene Pollinator",
+   "quantity": 1
+  },
+  {
+   "name": "High Fae Trickster",
+   "quantity": 1
+  },
+  {
+   "name": "Kianne, Corrupted Memory",
+   "quantity": 1
+  },
+  {
+   "name": "Kona, Rescue Beastie",
+   "quantity": 1
+  },
+  {
+   "name": "Laboratory Maniac",
+   "quantity": 1
+  },
+  {
+   "name": "Loam Dryad",
+   "quantity": 1
+  },
+  {
+   "name": "Mechan Navigator",
+   "quantity": 1
+  },
+  {
+   "name": "Nanoform Sentinel",
+   "quantity": 1
+  },
+  {
+   "name": "Neerdiv, Devious Diver",
+   "quantity": 1
+  },
+  {
+   "name": "Pheres-Band Tromper",
+   "quantity": 1
+  },
+  {
+   "name": "Samite Herbalist",
+   "quantity": 1
+  },
+  {
+   "name": "Saryth, the Viper's Fang",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Evangel",
+   "quantity": 1
+  },
+  {
+   "name": "Sphinx's Disciple",
+   "quantity": 1
+  },
+  {
+   "name": "Starfighter Pilot",
+   "quantity": 1
+  },
+  {
+   "name": "Stonybrook Schoolmaster",
+   "quantity": 1
+  },
+  {
+   "name": "Thassa's Oracle",
+   "quantity": 1
+  },
+  {
+   "name": "Traveling Botanist",
+   "quantity": 1
+  },
+  {
+   "name": "Tui and La, Moon and Ocean",
+   "quantity": 1
+  },
+  {
+   "name": "Unctus, Grand Metatect",
+   "quantity": 1
+  },
+  {
+   "name": "Veteran of the Depths",
+   "quantity": 1
+  },
+  {
+   "name": "Wake Thrasher",
+   "quantity": 1
+  },
+  {
+   "name": "Warchanter Skald",
+   "quantity": 1
+  },
+  {
+   "name": "Wylie Duke, Atiin Hero",
+   "quantity": 1
+  },
+  {
+   "name": "An Offer You Can't Refuse",
+   "quantity": 1
+  },
+  {
+   "name": "Aura Mutation",
+   "quantity": 1
+  },
+  {
+   "name": "Beast Within",
+   "quantity": 1
+  },
+  {
+   "name": "Bovine Intervention",
+   "quantity": 1
+  },
+  {
+   "name": "Grand Crescendo",
+   "quantity": 1
+  },
+  {
+   "name": "Savage Summoning",
+   "quantity": 1
+  },
+  {
+   "name": "Cultivate",
+   "quantity": 1
+  },
+  {
+   "name": "Kodama's Reach",
+   "quantity": 1
+  },
+  {
+   "name": "Rampant Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Time of Need",
+   "quantity": 1
+  },
+  {
+   "name": "Progenitor's Icon",
+   "quantity": 1
+  },
+  {
+   "name": "Relic of Legends",
+   "quantity": 1
+  },
+  {
+   "name": "Springleaf Drum",
+   "quantity": 1
+  },
+  {
+   "name": "Aura Fracture",
+   "quantity": 1
+  },
+  {
+   "name": "Aura Shards",
+   "quantity": 1
+  },
+  {
+   "name": "Freed from the Real",
+   "quantity": 1
+  },
+  {
+   "name": "Leyline of Anticipation",
+   "quantity": 1
+  },
+  {
+   "name": "Invasion of Ixalan",
+   "quantity": 1
+  },
+  {
+   "name": "Command Bridge",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 14
+  },
+  {
+   "name": "Island",
+   "quantity": 13
+  },
+  {
+   "name": "Plains",
+   "quantity": 12
+  },
+  {
+   "name": "Survivors' Encampment",
+   "quantity": 1
+  },
+  {
+   "name": "The Shire",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

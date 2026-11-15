@@ -52,16 +52,9 @@ COMMENTS = {
 ISSUE_TITLES = {
     441: "Lane 441",
     479: "Lane 479",
-    561: "Lane 561",
-    572: "Lane 572",
     592: "Closed lane 592",
 }
 ISSUE_STATES = {441: "open", 479: "open", 592: "closed"}
-# 574 is an open PR; 600 was merged, so it is not live.
-PR_STATES = {
-    574: {"state": "open", "merged_at": None},
-    600: {"state": "closed", "merged_at": "2026-10-01T00:00:00Z"},
-}
 
 
 @pytest.fixture
@@ -107,8 +100,6 @@ def fake_api(url: str):
     if "/issues/" in url:
         number = int(url.split("/issues/")[1].split("?")[0])
         return {"title": ISSUE_TITLES[number], "state": ISSUE_STATES.get(number, "open")}
-    if "/pulls/" in url and url.split("/pulls/")[1].isdigit():
-        return PR_STATES[int(url.split("/pulls/")[1])]
     if url.endswith("/pulls?state=open&per_page=20"):
         return (
             []

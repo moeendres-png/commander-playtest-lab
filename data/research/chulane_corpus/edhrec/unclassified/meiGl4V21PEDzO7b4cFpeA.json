@@ -1,0 +1,86 @@
+{
+ "urlhash": "meiGl4V21PEDzO7b4cFpeA",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-09-08",
+ "price": 363,
+ "salt": 71.63616427779198,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/ztdaAgt5DE-xMboVcsFTUQ?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Hare Apparent",
+   "quantity": 50
+  },
+  {
+   "name": "Noble Hierarch",
+   "quantity": 1
+  },
+  {
+   "name": "Beast Within",
+   "quantity": 1
+  },
+  {
+   "name": "Generous Gift",
+   "quantity": 1
+  },
+  {
+   "name": "Path to Exile",
+   "quantity": 1
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1
+  },
+  {
+   "name": "Dusk // Dawn",
+   "quantity": 1
+  },
+  {
+   "name": "Raise the Past",
+   "quantity": 1
+  },
+  {
+   "name": "Pearl Medallion",
+   "quantity": 1
+  },
+  {
+   "name": "Thrumming Stone",
+   "quantity": 1
+  },
+  {
+   "name": "Beastmaster Ascension",
+   "quantity": 1
+  },
+  {
+   "name": "Concordant Crossroads",
+   "quantity": 1
+  },
+  {
+   "name": "Legion Loyalty",
+   "quantity": 1
+  },
+  {
+   "name": "Remembrance",
+   "quantity": 1
+  },
+  {
+   "name": "Smile at Death",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 35
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

@@ -1,0 +1,358 @@
+{
+ "urlhash": "PzBiSpqDhupVYWDtPwx_Vg",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-08-05",
+ "price": 163,
+ "salt": 35.23937476007268,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/NTN1bmINRUCLNu9RCngTLg?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Amaranthine Wall",
+   "quantity": 1
+  },
+  {
+   "name": "Arcades, the Strategist",
+   "quantity": 1
+  },
+  {
+   "name": "Assassin Den",
+   "quantity": 1
+  },
+  {
+   "name": "Axebane Guardian",
+   "quantity": 1
+  },
+  {
+   "name": "Bedrock Tortoise",
+   "quantity": 1
+  },
+  {
+   "name": "Brawn",
+   "quantity": 1
+  },
+  {
+   "name": "Colossus of Akros",
+   "quantity": 1
+  },
+  {
+   "name": "Coral Colony",
+   "quantity": 1
+  },
+  {
+   "name": "Crystal Barricade",
+   "quantity": 1
+  },
+  {
+   "name": "Doorkeeper",
+   "quantity": 1
+  },
+  {
+   "name": "Drift of Phantasms",
+   "quantity": 1
+  },
+  {
+   "name": "Fecund Greenshell",
+   "quantity": 1
+  },
+  {
+   "name": "Gatecreeper Vine",
+   "quantity": 1
+  },
+  {
+   "name": "Glacial Wall",
+   "quantity": 1
+  },
+  {
+   "name": "Jungle Barrier",
+   "quantity": 1
+  },
+  {
+   "name": "Junktroller",
+   "quantity": 1
+  },
+  {
+   "name": "Ludevic's Test Subject",
+   "quantity": 1
+  },
+  {
+   "name": "Necropolis",
+   "quantity": 1
+  },
+  {
+   "name": "Perimeter Captain",
+   "quantity": 1
+  },
+  {
+   "name": "Pit Automaton",
+   "quantity": 1
+  },
+  {
+   "name": "Rune-Sealed Wall",
+   "quantity": 1
+  },
+  {
+   "name": "Shield-Wall Sentinel",
+   "quantity": 1
+  },
+  {
+   "name": "Stalwart Shield-Bearers",
+   "quantity": 1
+  },
+  {
+   "name": "Steel Wall",
+   "quantity": 1
+  },
+  {
+   "name": "Sunscape Familiar",
+   "quantity": 1
+  },
+  {
+   "name": "The Pride of Hull Clade",
+   "quantity": 1
+  },
+  {
+   "name": "Towering Titan",
+   "quantity": 1
+  },
+  {
+   "name": "Towering Viewpoint",
+   "quantity": 1
+  },
+  {
+   "name": "Valor",
+   "quantity": 1
+  },
+  {
+   "name": "Vine Trellis",
+   "quantity": 1
+  },
+  {
+   "name": "Wall of Denial",
+   "quantity": 1
+  },
+  {
+   "name": "Wall of Hope",
+   "quantity": 1
+  },
+  {
+   "name": "Wall of Ice",
+   "quantity": 1
+  },
+  {
+   "name": "Wall of Swords",
+   "quantity": 1
+  },
+  {
+   "name": "Wall of Water",
+   "quantity": 1
+  },
+  {
+   "name": "Wild-Field Scarecrow",
+   "quantity": 1
+  },
+  {
+   "name": "Wingmantle Chaplain",
+   "quantity": 1
+  },
+  {
+   "name": "Wonder",
+   "quantity": 1
+  },
+  {
+   "name": "An Offer You Can't Refuse",
+   "quantity": 1
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1
+  },
+  {
+   "name": "Mizzium Skin",
+   "quantity": 1
+  },
+  {
+   "name": "Ojutai's Command",
+   "quantity": 1
+  },
+  {
+   "name": "Planar Genesis",
+   "quantity": 1
+  },
+  {
+   "name": "Repudiate // Replicate",
+   "quantity": 1
+  },
+  {
+   "name": "Ruinous Intrusion",
+   "quantity": 1
+  },
+  {
+   "name": "Spell Blast",
+   "quantity": 1
+  },
+  {
+   "name": "Think Twice",
+   "quantity": 1
+  },
+  {
+   "name": "Tyvar's Stand",
+   "quantity": 1
+  },
+  {
+   "name": "Voidslime",
+   "quantity": 1
+  },
+  {
+   "name": "Distortion Strike",
+   "quantity": 1
+  },
+  {
+   "name": "Pick Your Poison",
+   "quantity": 1
+  },
+  {
+   "name": "Rampant Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Undercity Upheaval",
+   "quantity": 1
+  },
+  {
+   "name": "Assault Formation",
+   "quantity": 1
+  },
+  {
+   "name": "Aurification",
+   "quantity": 1
+  },
+  {
+   "name": "Banishing Light",
+   "quantity": 1
+  },
+  {
+   "name": "Exoskeletal Armor",
+   "quantity": 1
+  },
+  {
+   "name": "Faith Unbroken",
+   "quantity": 1
+  },
+  {
+   "name": "Fortified Area",
+   "quantity": 1
+  },
+  {
+   "name": "Realmbreaker's Grasp",
+   "quantity": 1
+  },
+  {
+   "name": "Righteous Authority",
+   "quantity": 1
+  },
+  {
+   "name": "Shielding Plax",
+   "quantity": 1
+  },
+  {
+   "name": "Sight of the Scalelords",
+   "quantity": 1
+  },
+  {
+   "name": "Abandoned Air Temple",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Exotic Orchard",
+   "quantity": 1
+  },
+  {
+   "name": "Flooded Strand",
+   "quantity": 1
+  },
+  {
+   "name": "Floodfarm Verge",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 6
+  },
+  {
+   "name": "Hushwood Verge",
+   "quantity": 1
+  },
+  {
+   "name": "Irrigated Farmland",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 6
+  },
+  {
+   "name": "Kishla Village",
+   "quantity": 1
+  },
+  {
+   "name": "Meditation Pools",
+   "quantity": 1
+  },
+  {
+   "name": "Mistrise Village",
+   "quantity": 1
+  },
+  {
+   "name": "North Pole Gates",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 6
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1
+  },
+  {
+   "name": "Rain-Slicked Copse",
+   "quantity": 1
+  },
+  {
+   "name": "Rogue's Passage",
+   "quantity": 1
+  },
+  {
+   "name": "Scattered Groves",
+   "quantity": 1
+  },
+  {
+   "name": "Tangled Islet",
+   "quantity": 1
+  },
+  {
+   "name": "Temple Garden",
+   "quantity": 1
+  },
+  {
+   "name": "Vineglimmer Snarl",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

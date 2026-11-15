@@ -1,0 +1,314 @@
+{
+ "urlhash": "tf6gT_Kp_dd0QfHNdCPg-Q",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-10-01",
+ "price": 277,
+ "salt": 50.17590681090951,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/wofbVk3JykW7eEtOyw37Eg?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Accorder Paladin",
+   "quantity": 1
+  },
+  {
+   "name": "Adeline, Resplendent Cathar",
+   "quantity": 1
+  },
+  {
+   "name": "Akroma, Vision of Ixidor",
+   "quantity": 1
+  },
+  {
+   "name": "Anara, Wolvid Familiar",
+   "quantity": 1
+  },
+  {
+   "name": "Astrid Peth",
+   "quantity": 1
+  },
+  {
+   "name": "Augur of Autumn",
+   "quantity": 1
+  },
+  {
+   "name": "Ayesha Tanaka, Armorer",
+   "quantity": 1
+  },
+  {
+   "name": "Bosco, Just a Bear",
+   "quantity": 1
+  },
+  {
+   "name": "Brokers Initiate",
+   "quantity": 1
+  },
+  {
+   "name": "Dauntless Bodyguard",
+   "quantity": 1
+  },
+  {
+   "name": "Dragonlord Dromoka",
+   "quantity": 1
+  },
+  {
+   "name": "Dryad of the Ilysian Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Emiel the Blessed",
+   "quantity": 1
+  },
+  {
+   "name": "Esper Sentinel",
+   "quantity": 1
+  },
+  {
+   "name": "Faerie Mastermind",
+   "quantity": 1
+  },
+  {
+   "name": "Gilded Goose",
+   "quantity": 1
+  },
+  {
+   "name": "Glissa Sunseeker",
+   "quantity": 1
+  },
+  {
+   "name": "Grazilaxx, Illithid Scholar",
+   "quantity": 1
+  },
+  {
+   "name": "House Cartographer",
+   "quantity": 1
+  },
+  {
+   "name": "Kaho, Minamo Historian",
+   "quantity": 1
+  },
+  {
+   "name": "Knight of Autumn",
+   "quantity": 1
+  },
+  {
+   "name": "Leafkin Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Leatherhead, Iron Gator",
+   "quantity": 1
+  },
+  {
+   "name": "Maraleaf Pixie",
+   "quantity": 1
+  },
+  {
+   "name": "Noble Hierarch",
+   "quantity": 1
+  },
+  {
+   "name": "Rhonas the Indomitable",
+   "quantity": 1
+  },
+  {
+   "name": "Selfless Squire",
+   "quantity": 1
+  },
+  {
+   "name": "Shrieking Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Sunscape Familiar",
+   "quantity": 1
+  },
+  {
+   "name": "The Goose Mother",
+   "quantity": 1
+  },
+  {
+   "name": "Three Tree Rootweaver",
+   "quantity": 1
+  },
+  {
+   "name": "Triskaidekaphile",
+   "quantity": 1
+  },
+  {
+   "name": "Twenty-Toed Toad",
+   "quantity": 1
+  },
+  {
+   "name": "Twinblade Paladin",
+   "quantity": 1
+  },
+  {
+   "name": "Vizier of the Menagerie",
+   "quantity": 1
+  },
+  {
+   "name": "Aura Blast",
+   "quantity": 1
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1
+  },
+  {
+   "name": "Quarrel",
+   "quantity": 1
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1
+  },
+  {
+   "name": "You Find the Villains' Lair",
+   "quantity": 1
+  },
+  {
+   "name": "You Happen On a Glade",
+   "quantity": 1
+  },
+  {
+   "name": "You See a Guard Approach",
+   "quantity": 1
+  },
+  {
+   "name": "Cultivate",
+   "quantity": 1
+  },
+  {
+   "name": "Dream Cache",
+   "quantity": 1
+  },
+  {
+   "name": "Harmonize",
+   "quantity": 1
+  },
+  {
+   "name": "Praetor's Counsel",
+   "quantity": 1
+  },
+  {
+   "name": "Recollect",
+   "quantity": 1
+  },
+  {
+   "name": "Split the Party",
+   "quantity": 1
+  },
+  {
+   "name": "Whirlwind",
+   "quantity": 1
+  },
+  {
+   "name": "Assault Suit",
+   "quantity": 1
+  },
+  {
+   "name": "Potion of Healing",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Sword of Sinew and Steel",
+   "quantity": 1
+  },
+  {
+   "name": "The Deck of Many Things",
+   "quantity": 1
+  },
+  {
+   "name": "Treasure Chest",
+   "quantity": 1
+  },
+  {
+   "name": "Aura Shards",
+   "quantity": 1
+  },
+  {
+   "name": "Charmed Sleep",
+   "quantity": 1
+  },
+  {
+   "name": "Garruk's Uprising",
+   "quantity": 1
+  },
+  {
+   "name": "Intruder Alarm",
+   "quantity": 1
+  },
+  {
+   "name": "Alchemist's Refuge",
+   "quantity": 1
+  },
+  {
+   "name": "Blossoming Sands",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 13
+  },
+  {
+   "name": "Hidden Cataract",
+   "quantity": 1
+  },
+  {
+   "name": "Hidden Courtyard",
+   "quantity": 1
+  },
+  {
+   "name": "Hidden Nursery",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 7
+  },
+  {
+   "name": "Mosswort Bridge",
+   "quantity": 1
+  },
+  {
+   "name": "Mystic Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 9
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Rogue's Passage",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of the False God",
+   "quantity": 1
+  },
+  {
+   "name": "Windbrisk Heights",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

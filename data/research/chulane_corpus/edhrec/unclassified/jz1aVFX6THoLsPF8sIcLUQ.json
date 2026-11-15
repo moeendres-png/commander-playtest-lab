@@ -1,0 +1,310 @@
+{
+ "urlhash": "jz1aVFX6THoLsPF8sIcLUQ",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-05-01",
+ "price": 313,
+ "salt": 51.18511119717732,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/2NXD-GUeNUuGahrqPvWEog?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Aang, Swift Savior",
+   "quantity": 1
+  },
+  {
+   "name": "Aang, at the Crossroads",
+   "quantity": 1
+  },
+  {
+   "name": "Ancient Adamantoise",
+   "quantity": 1
+  },
+  {
+   "name": "Ashaya, Soul of the Wild",
+   "quantity": 1
+  },
+  {
+   "name": "Bighorner Rancher",
+   "quantity": 1
+  },
+  {
+   "name": "Casal, Lurkwood Pathfinder",
+   "quantity": 1
+  },
+  {
+   "name": "Crystal Barricade",
+   "quantity": 1
+  },
+  {
+   "name": "Displaced Dinosaurs",
+   "quantity": 1
+  },
+  {
+   "name": "Inga and Esika",
+   "quantity": 1
+  },
+  {
+   "name": "Karametra, God of Harvests",
+   "quantity": 1
+  },
+  {
+   "name": "Kruphix, God of Horizons",
+   "quantity": 1
+  },
+  {
+   "name": "Monk Gyatso",
+   "quantity": 1
+  },
+  {
+   "name": "Omnath, Locus of Mana",
+   "quantity": 1
+  },
+  {
+   "name": "Ouroboroid",
+   "quantity": 1
+  },
+  {
+   "name": "Quandrix, the Proof",
+   "quantity": 1
+  },
+  {
+   "name": "Scute Mob",
+   "quantity": 1
+  },
+  {
+   "name": "Scute Swarm",
+   "quantity": 1
+  },
+  {
+   "name": "Summon: Knights of Round",
+   "quantity": 1
+  },
+  {
+   "name": "Venat, Heart of Hydaelyn",
+   "quantity": 1
+  },
+  {
+   "name": "Yasharn, Implacable Earth",
+   "quantity": 1
+  },
+  {
+   "name": "Airbending Lesson",
+   "quantity": 1
+  },
+  {
+   "name": "Artillery Blast",
+   "quantity": 1
+  },
+  {
+   "name": "Clever Concealment",
+   "quantity": 1
+  },
+  {
+   "name": "Divert Disaster",
+   "quantity": 1
+  },
+  {
+   "name": "Dramatic Reversal",
+   "quantity": 1
+  },
+  {
+   "name": "Hunting Pack",
+   "quantity": 1
+  },
+  {
+   "name": "Natural Reclamation",
+   "quantity": 1
+  },
+  {
+   "name": "Sprouting Vines",
+   "quantity": 1
+  },
+  {
+   "name": "Wing Shards",
+   "quantity": 1
+  },
+  {
+   "name": "Cultivate",
+   "quantity": 1
+  },
+  {
+   "name": "Deem Inferior",
+   "quantity": 1
+  },
+  {
+   "name": "Earthbending Lesson",
+   "quantity": 1
+  },
+  {
+   "name": "Environmental Sciences",
+   "quantity": 1
+  },
+  {
+   "name": "Explore",
+   "quantity": 1
+  },
+  {
+   "name": "Follow the Bodies",
+   "quantity": 1
+  },
+  {
+   "name": "Mind's Desire",
+   "quantity": 1
+  },
+  {
+   "name": "Three Visits",
+   "quantity": 1
+  },
+  {
+   "name": "Waterbending Lesson",
+   "quantity": 1
+  },
+  {
+   "name": "Bender's Waterskin",
+   "quantity": 1
+  },
+  {
+   "name": "Conduit of Worlds",
+   "quantity": 1
+  },
+  {
+   "name": "Decanter of Endless Water",
+   "quantity": 1
+  },
+  {
+   "name": "Ghirapur Orrery",
+   "quantity": 1
+  },
+  {
+   "name": "Golden Argosy",
+   "quantity": 1
+  },
+  {
+   "name": "Thaumatic Compass",
+   "quantity": 1
+  },
+  {
+   "name": "The Earth Crystal",
+   "quantity": 1
+  },
+  {
+   "name": "The Water Crystal",
+   "quantity": 1
+  },
+  {
+   "name": "The Wind Crystal",
+   "quantity": 1
+  },
+  {
+   "name": "Ajani's Welcome",
+   "quantity": 1
+  },
+  {
+   "name": "Artificer Class",
+   "quantity": 1
+  },
+  {
+   "name": "Azusa's Many Journeys",
+   "quantity": 1
+  },
+  {
+   "name": "Behold the Unspeakable",
+   "quantity": 1
+  },
+  {
+   "name": "Boseiju Reaches Skyward",
+   "quantity": 1
+  },
+  {
+   "name": "Case of the Locked Hothouse",
+   "quantity": 1
+  },
+  {
+   "name": "Cleric Class",
+   "quantity": 1
+  },
+  {
+   "name": "Druid Class",
+   "quantity": 1
+  },
+  {
+   "name": "Impostor Syndrome",
+   "quantity": 1
+  },
+  {
+   "name": "Rites of Flourishing",
+   "quantity": 1
+  },
+  {
+   "name": "Wizard Class",
+   "quantity": 1
+  },
+  {
+   "name": "Jace, Wielder of Mysteries",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Chancery",
+   "quantity": 1
+  },
+  {
+   "name": "Big Apple, 3 a.m.",
+   "quantity": 1
+  },
+  {
+   "name": "Blighted Woodland",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 10
+  },
+  {
+   "name": "Island",
+   "quantity": 10
+  },
+  {
+   "name": "Plains",
+   "quantity": 10
+  },
+  {
+   "name": "Selesnya Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Growth Chamber",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Enlightenment",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Mystery",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Plenty",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}
