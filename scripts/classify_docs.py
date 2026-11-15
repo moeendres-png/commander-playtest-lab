@@ -161,7 +161,8 @@ SEALED_TREES = ("qualification/", "candidate-qualification/")
 MACHINE_SUFFIXES = (".json", ".jsonl", ".yml", ".yaml", ".toml", ".sha256", ".txt")
 # Never referencers: this tool and its test, and trees whose content is never read.
 NOT_REFERENCERS = ("scripts/classify_docs.py", "tests/unit/test_docs_archive.py")
-SKIP_TREES = ("data/collections/",)
+# data/collections is never read; the others are historical records, not readers.
+SKIP_TREES = ("data/collections/", "research/", "handoffs/", "artifacts/")
 # "docs/<name>" or pathlib style ("docs" / "<name>"): the second path component.
 DOC_CHILD = re.compile(r"""docs["']?\s*[/,]\s*["']?([A-Za-z0-9_.\-]+)""")
 WORD = re.compile(r"[A-Za-z0-9_.\-]+")
