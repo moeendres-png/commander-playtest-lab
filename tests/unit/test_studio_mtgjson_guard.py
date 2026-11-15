@@ -17,11 +17,16 @@ _PRODUCTION_ROOT = Path(__file__).resolve().parents[2] / "src" / "commander_lab"
 
 
 def _flagged(root: Path) -> list[Path]:
-    """Every Python file below ``root`` whose text names MTGJSON, case-insensitively."""
+    """Every file below ``root`` whose text names MTGJSON, case-insensitively.
+
+    All file types are scanned, not only Python: the Studio ships JS/HTML/CSS
+    under the same tree, and the guard's claim covers every production source.
+    """
     return sorted(
         path
-        for path in root.rglob("*.py")
-        if _NEEDLE in path.read_text(encoding="utf-8", errors="ignore").casefold()
+        for path in root.rglob("*")
+        if path.is_file()
+        and _NEEDLE in path.read_text(encoding="utf-8", errors="ignore").casefold()
     )
 
 
@@ -38,4 +43,6 @@ def test_scan_flags_a_planted_reference(tmp_path: Path) -> None:
     nested = tmp_path / "sub" / "deep.py"
     nested.parent.mkdir()
     nested.write_text("import mtgjson_loader\n", encoding="utf-8")
-    assert _flagged(tmp_path) == sorted([planted, nested])
+    script = tmp_path / "uses_it.js"
+    script.write_text("const SOURCE = 'mtgjson bulk';\n", encoding="utf-8")
+    assert _flagged(tmp_path) == sorted([planted, nested, script])
