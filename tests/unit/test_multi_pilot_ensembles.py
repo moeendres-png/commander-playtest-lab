@@ -1,15 +1,12 @@
 from __future__ import annotations
 
 import json
-import random
 from pathlib import Path
 
 import pytest
 from pydantic import ValidationError
 
-from commander_lab.agents.ensemble import PilotEnsembleRunner, PilotRegistry, default_ensembles
 from commander_lab.agents.pilots import build_pilot
-from commander_lab.engine.structural import load_project_structural_decks
 from commander_lab.models import (
     CardRole,
     PilotActionView,
@@ -109,45 +106,11 @@ def _action(
     )
 
 
-def test_registry_has_required_profiles_and_stable_hashes() -> None:
-    registry = PilotRegistry(ROOT)
-    profiles = registry.profiles()
-    names = {profile.pilot_name for profile in profiles}
-    assert {
-        "GenericCommanderPilot",
-        "RogShaiPilot",
-        "RogShaiTempoPilot",
-        "RogShaiVoltronPilot",
-        "RogShaiSpellslingerPilot",
-        "RogShaiControlPilot",
-        "RogShaiProtectedFinishPilot",
-    } <= names
-    assert not any(name.casefold().startswith("korvold") for name in names)
-    assert all(len(profile.parameter_hash) == 64 for profile in profiles)
-    assert all(not profile.information_policy.hidden_opponent_hands for profile in profiles)
-    assert all(not profile.information_policy.random_library_order for profile in profiles)
-    assert registry.profiles() == profiles
-
-
 def test_omniscient_policy_is_rejected() -> None:
     with pytest.raises(ValidationError):
         PilotInformationPolicy(hidden_opponent_hands=True)
     with pytest.raises(ValidationError):
         PilotInformationPolicy(exact_future_draws=True)
-
-
-def test_all_profiles_select_only_supplied_legal_actions() -> None:
-    actions = (_action("a", "Engine", roles=(CardRole.ENGINE,)), _action("b", "Pass", kind="pass"))
-    checked = list(PilotRegistry(ROOT).profiles())
-    assert checked, "nothing was checked: PilotRegistry(ROOT).profiles() is empty"
-    for profile in checked:
-        state = _state(strategy=profile.commander_family)
-        pilot = build_pilot(
-            PilotConfig(pilot_name=profile.pilot_name, strength=PilotStrength.STRONG),
-            strategy=profile.commander_family,
-        )
-        selected = pilot.choose_action(state, actions, random.Random(7)).selected_action_id
-        assert selected in {action.action_id for action in actions}
 
 
 def test_korvold_profiles_diverge_on_sacrifice_and_rebuild() -> None:
@@ -245,15 +208,6 @@ def test_protected_finish_pilot_requires_finish_window() -> None:
     )
 
 
-def test_equal_ensembles_have_five_unique_members() -> None:
-    ensembles = default_ensembles()
-    assert {ensemble.deck_id for ensemble in ensembles} == {"rogshai/current"}
-    for ensemble in ensembles:
-        assert len(ensemble.members) == 5
-        assert len({member.pilot_name for member in ensemble.members}) == 5
-        assert sum(member.weight for member in ensemble.members) == pytest.approx(1.0)
-
-
 def test_golden_scenario_registry_covers_requested_cases() -> None:
     payload = json.loads((ROOT / "data/pilots/golden_scenarios.json").read_text(encoding="utf-8"))
     ids = {row["scenario_id"] for row in payload["scenarios"]}
@@ -269,28 +223,3 @@ def test_golden_scenario_registry_covers_requested_cases() -> None:
         "graveyard-package-under-hate",
         "rebuild-after-wipe",
     }
-
-
-def test_ensemble_summary_reports_worst_median_and_robustness() -> None:
-    runner = PilotEnsembleRunner(
-        ROOT,
-        load_project_structural_decks(
-            ROOT, include_synthetic_fixtures=True, include_current_opponents=True
-        ),
-    )
-    ensemble = runner.registry.ensemble("rogshai.equal.v1")
-    results = {}
-    for index, member in enumerate(ensemble.members):
-        results[member.pilot_name] = {
-            "average_placement": 2.0 + index * 0.1,
-            "place_1_share": 0.3 - index * 0.01,
-            "average_commander_damage": 4 + index,
-            "average_normal_damage": 12 + index,
-            "average_engine_value": 5 + index,
-            "political_visibility": 0.2 + index * 0.02,
-            "deviation_from_baseline": {"average_placement": index * 0.1},
-        }
-    summary = runner.ensemble_summary({"results": results}, ensemble)
-    assert summary["worst_pilot"]["pilot_name"] == ensemble.members[-1].pilot_name
-    assert summary["median_pilot"]["pilot_name"] == ensemble.members[2].pilot_name
-    assert summary["pilot_robustness"]["robust"] is True

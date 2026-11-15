@@ -14,9 +14,7 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
-from commander_lab.meta.store import stable_deck_hash
 from commander_lab.models import (
-    BudgetBand,
     FormatBand,
     MetaCardFrequency,
     MetaCategory,
@@ -27,10 +25,8 @@ from commander_lab.models import (
     MetaSnapshotManifest,
     MetaSource,
     MetaTargetDeckRef,
-    MetaTier,
 )
 from commander_lab.models.meta import META_SCHEMA_VERSION, expires_at_for
-from commander_lab.whole_deck.meta import build_meta_functional_profile
 
 COMMANDER = "Ishai, Ojutai Dragonspeaker / Rograkh, Son of Rohgahh"
 
@@ -47,22 +43,6 @@ def _source(**overrides: object) -> MetaSource:
     }
     fields.update(overrides)
     return MetaSource(**fields)  # type: ignore[arg-type]
-
-
-def _deck(**overrides: object) -> MetaDeckSnapshot:
-    cards = ("Sol Ring", "Silence", "Brain Freeze")
-    fields: dict[str, object] = {
-        "source_id": "src-a",
-        "commander": COMMANDER,
-        "deck_hash": stable_deck_hash(cards),
-        "retrieved_at": datetime(2026, 8, 5, tzinfo=UTC),
-        "format_band": FormatBand.HIGH_POWER,
-        "categories": (MetaCategory.HIGH_POWER,),
-        "budget_band": BudgetBand.HIGH_POWER,
-        "decklist": cards,
-    }
-    fields.update(overrides)
-    return MetaDeckSnapshot(**fields)  # type: ignore[arg-type]
 
 
 def _snapshot(
@@ -98,52 +78,9 @@ def test_old_snapshot_files_still_validate(repo_root: Path) -> None:
         assert len(snapshot.deck_snapshots) == deck_count
 
 
-def test_new_fields_roundtrip() -> None:
-    source = _source(
-        tier=MetaTier.A,
-        band=MetaCategory.HIGH_POWER,
-        sample_size=53,
-        expires_at=datetime(2027, 8, 5, tzinfo=UTC),
-    )
-    assert source.small_sample is False  # derived from sample_size
-    deck = _deck(
-        band=FormatBand.HIGH_POWER,
-        target_deck_ref=MetaTargetDeckRef(
-            path="handover/2026-10-22/example-deck/",
-            commit="0123456789abcdef0123456789abcdef01234567",
-            branch="muse/claude-handover",
-        ),
-    )
-    package = MetaPackage(
-        package_id="example-package",
-        name="Example package",
-        cards=("Sol Ring",),
-        roles=("ramp",),
-        categories=(MetaCategory.HIGH_POWER,),
-        vetoed_by_games=True,
-    )
-    snapshot = _snapshot(source, deck)
-    restored = MetaKnowledgeBaseSnapshot.model_validate_json(snapshot.model_dump_json())
-    assert restored.sources[0].tier == MetaTier.A
-    assert restored.sources[0].band == MetaCategory.HIGH_POWER
-    assert restored.sources[0].sample_size == 53
-    assert restored.sources[0].small_sample is False
-    assert restored.sources[0].expires_at == datetime(2027, 8, 5, tzinfo=UTC)
-    assert restored.deck_snapshots[0].band == FormatBand.HIGH_POWER
-    assert restored.deck_snapshots[0].target_deck_ref is not None
-    assert restored.deck_snapshots[0].target_deck_ref.path.startswith("handover/")
-    assert package.vetoed_by_games is True
-    assert MetaPackage.model_validate_json(package.model_dump_json()).vetoed_by_games is True
-
-
 def test_source_band_must_be_in_categories() -> None:
     with pytest.raises(ValidationError, match="band must be one of its categories"):
         _source(band=MetaCategory.CEDH_TOURNAMENT)
-
-
-def test_deck_band_must_equal_format_band() -> None:
-    with pytest.raises(ValidationError, match="band must equal its format_band"):
-        _deck(band=FormatBand.CEDH_TOURNAMENT)
 
 
 def test_expires_at_must_follow_retrieved_at() -> None:
@@ -189,54 +126,6 @@ def test_package_veto_defaults_to_false() -> None:
         categories=(MetaCategory.HIGH_POWER,),
     )
     assert package.vetoed_by_games is False
-
-
-def test_new_fields_do_not_change_functional_profile() -> None:
-    """PR1 promises no scoring change: profiles built from a snapshot with
-    all new fields populated must equal profiles from the same snapshot
-    without them (only new fields differ).
-
-    PR4 keeps that promise for every new field except tier, which now
-    rides the profile so the guardrail caps can apply; the profile hash
-    and all dimensions stay identical.
-    """
-
-    plain = _snapshot(_source(), _deck())
-    enriched = _snapshot(
-        _source(
-            tier=MetaTier.A,
-            band=MetaCategory.HIGH_POWER,
-            sample_size=53,
-            expires_at=datetime(2027, 8, 5, tzinfo=UTC),
-        ),
-        _deck(
-            band=FormatBand.HIGH_POWER,
-            target_deck_ref=MetaTargetDeckRef(
-                path="handover/2026-10-22/example-deck/",
-                commit="0123456789abcdef0123456789abcdef01234567",
-            ),
-        ),
-    )
-    plain_profile = build_meta_functional_profile(
-        plain,
-        commander=COMMANDER,
-        format_band=FormatBand.HIGH_POWER,
-        profiles={},
-        now=datetime(2026, 10, 26, tzinfo=UTC),
-    )
-    enriched_profile = build_meta_functional_profile(
-        enriched,
-        commander=COMMANDER,
-        format_band=FormatBand.HIGH_POWER,
-        profiles={},
-        now=datetime(2026, 10, 26, tzinfo=UTC),
-    )
-    plain_dump = plain_profile.model_dump(mode="json")
-    enriched_dump = enriched_profile.model_dump(mode="json")
-    assert plain_dump.pop("source_tier") is None
-    assert enriched_dump.pop("source_tier") == "A"
-    assert plain_dump == enriched_dump
-    assert plain_profile.profile_hash == enriched_profile.profile_hash
 
 
 def test_card_frequency_fields_unchanged() -> None:

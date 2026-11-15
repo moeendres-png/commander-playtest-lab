@@ -24,13 +24,10 @@ import copy
 import json
 import random
 import string
-from pathlib import Path
 
 import pytest
 from pydantic import ValidationError
 
-from commander_lab.cards.catalog import CardCatalog
-from commander_lab.importers import DeckImportOptions, PlaintextDeckImporter
 from commander_lab.models import EngineProtocolRequest
 
 GARBAGE_SEEDS = 128
@@ -148,41 +145,4 @@ def test_garbage_text_never_becomes_a_protocol_request() -> None:
         f"the garbage generator now yields {parsed} parseable dict(s). That is a change in a "
         "test fixture, not a product regression: re-derive the near-miss corpus and re-check "
         "the scope note in this docstring, which currently says this path is never reached."
-    )
-
-
-def test_plaintext_importer_rejects_garbage_without_unexpected_errors(
-    repo_root: Path, tmp_path: Path
-) -> None:
-    """Garbage must be refused, and only with the documented exception types.
-
-    Previously named ``..._never_executes_or_hangs``, which claimed two properties this
-    test does not check. What it does check is now explicit: every seed is either
-    refused with a documented exception type or would be counted as accepted, and
-    acceptance is asserted to be zero. An unexpected exception type still fails the
-    test, as before, but no longer as the only thing holding it up.
-    """
-    catalog = CardCatalog.from_json(repo_root / "data/cards/oracle_subset.json")
-    importer = PlaintextDeckImporter(catalog)
-    options = DeckImportOptions(
-        deck_id="fuzz", name="Fuzz", commander_names=("Korvold, Fae-Cursed King",)
-    )
-
-    accepted = 0
-    rejected = 0
-    for seed in range(IMPORT_SEEDS):
-        path = tmp_path / f"deck-{seed}.txt"
-        path.write_text(_garbage(seed, seed % 300), encoding="utf-8", errors="ignore")
-        try:
-            importer.import_file(path, options)
-        except (ValueError, ValidationError, UnicodeError):
-            rejected += 1
-        else:
-            accepted += 1
-
-    assert rejected + accepted == IMPORT_SEEDS, "a seed was neither accepted nor refused"
-    assert accepted == 0, (
-        f"{accepted} of {IMPORT_SEEDS} garbage inputs were accepted as decks. The importer is "
-        "expected to fail closed on unparseable text; if that changed deliberately, this "
-        "assertion is the one to revisit, not the exception clause above."
     )

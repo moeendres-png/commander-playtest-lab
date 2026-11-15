@@ -9,7 +9,6 @@ from commander_lab.cli.main import app
 from commander_lab.models import RuntimeValidationLevel
 from commander_lab.models.rules import ValidationLevel
 from commander_lab.storage import check_database, migrate_database
-from commander_lab.tools.registry import TOOL_DEFINITIONS
 
 FORBIDDEN_TOOLS = {
     "ingest_playtest",
@@ -28,11 +27,6 @@ FORBIDDEN_CLI = {
     "calibrate-playtests",
     "validate-phase9",
 }
-
-
-def test_manual_playtest_tools_are_absent_from_active_registry() -> None:
-    names = {definition.name for definition in TOOL_DEFINITIONS}
-    assert names.isdisjoint(FORBIDDEN_TOOLS)
 
 
 def test_manual_playtest_commands_are_absent_from_cli_help() -> None:

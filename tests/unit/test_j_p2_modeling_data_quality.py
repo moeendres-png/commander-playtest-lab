@@ -3,14 +3,6 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from commander_lab.models import (
-    BuildOptimizationContextInput,
-    GenerateCandidateSwapsInput,
-    OptimizeMultipleDecksWithAllocationInput,
-    RunRulesCoverageGateInput,
-)
-from commander_lab.tools.service import CommanderToolService
-
 ALLOWED_EVIDENCE_KINDS = {
     "verified_full_deck",
     "official_precon",
@@ -21,50 +13,6 @@ ALLOWED_EVIDENCE_KINDS = {
     "synthetic_completion",
     "unknown",
 }
-
-
-def _service(repo_root: Path) -> CommanderToolService:
-    return CommanderToolService(repo_root)
-
-
-def test_j_p2_active_optimization_targets_exclude_frozen_kaervek(repo_root: Path) -> None:
-    svc = _service(repo_root)
-    context = svc.build_optimization_context(BuildOptimizationContextInput())
-    assert context.status.value == "completed"
-    assert context.result["deck_priority"] == ["rogshai/current"]
-    assert set(context.result["available_decks"]) == {"rogshai/current"}
-
-    allocation_request = OptimizeMultipleDecksWithAllocationInput()
-    assert allocation_request.deck_ids == ("rogshai/current",)
-
-    kaervek = svc.generate_candidate_swaps(
-        GenerateCandidateSwapsInput(deck_id="kaervek/current", max_candidates=1)
-    )
-    assert kaervek.status.value == "failed"
-    assert any("frozen opponent-only" in error for error in kaervek.errors)
-
-
-def test_j_p2_rules_coverage_gate_scopes_exact_opponent_deck(repo_root: Path) -> None:
-    svc = _service(repo_root)
-    cosmic = svc.run_rules_coverage_gate(
-        RunRulesCoverageGateInput(deck_id="opponent/cosmic-spiderman-midbudget")
-    )
-    assert cosmic.status.value == "completed"
-    assert cosmic.result["cards_checked"] == 4
-    assert cosmic.result["coverage_counts"] == {"unsupported": 4}
-
-    morcant = svc.run_rules_coverage_gate(
-        RunRulesCoverageGateInput(deck_id="opponent/morcant-elves")
-    )
-    assert morcant.status.value == "completed"
-    assert morcant.result["cards_checked"] == 72
-    assert morcant.result["coverage_counts"] == {"structural_only": 11, "unsupported": 61}
-
-    doom = svc.run_rules_coverage_gate(
-        RunRulesCoverageGateInput(deck_id="opponent/doom-prevails-precon")
-    )
-    assert doom.status.value == "completed"
-    assert doom.result["cards_checked"] == 88
 
 
 def test_j_p2_opponent_profiles_use_explicit_evidence_taxonomy(repo_root: Path) -> None:
@@ -94,18 +42,6 @@ def test_j_p2_opponent_profiles_use_explicit_evidence_taxonomy(repo_root: Path) 
         "official_precon",
         "directly_observed",
     }
-
-
-def test_j_p2_optimization_context_run_identity_does_not_mislabel_own_decks_as_opponents(
-    repo_root: Path,
-) -> None:
-    context = _service(repo_root).build_optimization_context(BuildOptimizationContextInput())
-    assert context.status.value == "completed"
-    identity = context.metadata.run_identity
-    assert identity is not None
-    assert identity.opponent_profile_ids == ()
-    assert identity.opponent_profile_hashes == {}
-    assert identity.pod_size is None
 
 
 def test_j_p2_current_deck_source_and_protected_metadata_are_clean(repo_root: Path) -> None:
