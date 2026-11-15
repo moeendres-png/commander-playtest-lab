@@ -542,8 +542,8 @@ The Spellbook count of a card was a count of variants: a combo whose flexible sl
 printed equivalents inflates it (Shrieking Drake: 397 variants in the link file, 2 qualifying
 shells; the three bounce-land recipes of the Chulane combo are one shell). `data/research/deckbuilder_1655/spellbook_shells.csv` counts distinct combos ("shells")
 instead, built by `scripts/build_spellbook_shells.py` from the public Commander Spellbook bulk
-export (`variants.json.gz`; only the variant ids of the committed link file are looked up in it,
-nothing about the collection leaves the machine; source, date, version and SHA-256 are in the
+export (`variants.json.gz`; only the variant ids of the committed link file are looked up locally
+and deterministically from the downloaded bulk file; source, date, version and SHA-256 are in the
 README of the folder). Rules (module `spellbook_shells`):
 
 - A shell is the combo behind a variant (`of`); combos that share a variant are one shell
@@ -1150,8 +1150,8 @@ Card facts shown in the builder (color identity, legality, type, text, mana valu
 the public card data once a card is linked; the workbook stays the source of what is owned.
 `import-scryfall` reports every card whose workbook facts differ.
 
-Only image requests leave the machine, and they name single public cards (Owner exception in
-`AGENTS.md` §12). The image host is fixed in `images.py`.
+Public card images and public MTG metadata requests follow `AGENTS.md` §12 (image loads omit
+referrers via `referrerpolicy="no-referrer"`, fixed host in `images.py`).
 
 ### Which printing is shown (schema 16, #1342)
 
@@ -1163,9 +1163,9 @@ promo variant chosen by chance. The precedence is:
    workbook's lot sheet into `card_printing` (one primary printing per card: the
    printing of the most copies; a reference that names no single printing stays
    `UNRESOLVED` and is counted, never guessed). `import-printings <workbook>
-   --bulk <default-cards file>` resolves that printing's image addresses by matching
-   locally against the public default-cards bulk file — nothing about the collection
-   leaves the machine. The same
+   --bulk <default-cards file>` resolves that printing's image addresses deterministically
+   against the downloaded public default-cards bulk file (`AGENTS.md` §12 permits both offline
+   bulk matching and public MTG metadata lookups since 2026-11-15). The same
    precedence applies inside the Scryfall fold below: a candidate whose set and
    collector number (and language, when the reference names one) match an owned
    printing wins before every other criterion.

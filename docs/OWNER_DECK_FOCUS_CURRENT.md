@@ -6,7 +6,7 @@
 - Recorded 100-card baseline: `data/decks/chulane_current.txt`; identical simulator snapshot: `data/decks/deckbau/chulane_current.json` (deck ID `custom/chulane`). Changes to the baseline require a new owner decision. Build and test alternatives as separate versioned candidates.
 - Confirmed edit (2026-10-31): **Whitemane Lion + Elvish Mystic IN; Aether Adept + Kor Skyfisher OUT**. The Chulane deck guide represents modeled playing advice, not measured win-rate evidence.
 - Existing RogShai decks, scripts required by older tests, sealed evidence and archival guides stay **read-only for regression and reproducibility**. They must not be considered an active owner-deck objective. Historical `data/decks/manifest.json` activation fields are not a newer owner decision. Do not rewrite inventory/ownership/allocation truths merely to change deckbuilding focus.
-- This assignment does not authorize reading or exposing `data/collections/**`. Do not send the deck list or partial list to external APIs. Other Commander/planeswalker conversations and their price limits are separate from this Chulane build.
+- Under `AGENTS.md` §12 (Owner relaxation 2026-11-15), collection, deck, and store card lists (`data/research/collection_1655/`, `data/collections/**`) and public MTG metadata lookups are permitted; purchase mode ("Zukauf") and card price/value signals remain unneeded and excluded for Chulane unless separately ordered. Other Commander/planeswalker conversations and their price limits stay separate from this Chulane build.
 
 ## Agent instructions and remaining work
 
