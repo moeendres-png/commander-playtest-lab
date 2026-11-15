@@ -1324,6 +1324,47 @@ land counts for every colour it produces; a land with unknown colours is "unbeka
 the commander's own cost and its colour identity are named apart. Source decks with cards the
 card data does not know are left out and counted.
 
+The comparison figures read the main deck of a source deck under both section spellings, `main`
+(decklist importer, repository corpus) and `mainboard` (corpus importer); a card listed under
+both counts once with the larger quantity, the way the universe counts it, and sideboard,
+maybeboard and cuts never count (#1404 D1: the filter read only `mainboard`, the repository
+corpus stores `main`, so every median was 0). The data report's "mainboard not 99 cards" count
+uses the same two spellings.
+
+**Land candidates** ("Länder, die diese Decks oft spielen und die dir fehlen", #1404).
+`POST /api/land-advisor` also answers `land_candidates` for the chosen comparison group
+(request fields `cohort`, default `all`, and `min_share`, default 0.20, 0 to 1): free lands the
+group plays that the deck lacks, as `{card_id, name, colours, decks | null, of, share | null,
+available, small_group}`. `decks` of `of` is the count of source decks that list the land over
+the decks of the group (the denominator of `/api/pool`); `share` is the shown share, the line
+`min_share` is read on the exact count (a land at 19.998 % is below 20 %). Only lands of the
+collection with at least one free copy count; basic lands, the commander, every card of the
+deck, cards outside the colour identity and cards that are not Commander-legal are left out.
+Order: share descending, then name. A land no source deck names has an unknown frequency
+(`decks` and `share` are `null`, never 0): it cannot be judged against the line and comes
+last, labelled "unbekannt". A group without decks gives no candidates; a group under 30 decks is
+flagged per row (`small_group`, shown as the word "kleine Gruppe"). Marks, labels and favourites
+are never read: they change neither the list nor its order. The table counts how often a land is
+played; it says nothing about how good a land is, and nothing is priced or bought.
+
+**Same decks, one group** (#1404 D10). `GET /api/cohorts` lists a comparison group once when
+other groups name exactly the same set of source decks (read on the distinct decks bound to the
+commander, the basis of every denominator): the first group in order (`all`, play groups, named
+cohorts alphabetically) carries the others as `same_as`, and the page shows one entry with the
+label "alle Quelldecks (zugleich Community und Commander Chulane)" in the group selector, the
+frequency table and the comparison table. A group with no decks is never merged. The numbers of
+`/api/pool` (`cohorts`, `decks` per card) and of every group that differs are not touched; the
+merge hides a name, not a count. The page logic is `static/cohorts.js`.
+
+**Small samples in the card window** (#1404 D4). The tables "Zusammen gespielt in Quelldecks"
+and "Zusammen gespielt im Universum" say in a pill, in words, how few decks the shares rest on
+("Kleine Stichprobe: nur 1 Decks mit dieser Karte (unter 30)") and colour their rows yellow; a
+share of "1/1 · 100 %" is no longer shown without that flag.
+
+**Data check in German** (#1404 D7). The messages of the data check (`decks.validate_rows`) are
+plain German ("101 Karten (ein Commander-Deck hat 100)"); the code of each finding (`deck_size`,
+`singleton`, ...) is unchanged.
+
 ### Archetype labels (schema 15)
 
 Free-form labels the Owner puts on a card (card window, "Archetyp-Marken") and on a saved deck
