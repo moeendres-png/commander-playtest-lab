@@ -1,7 +1,6 @@
 # Deckbuilder-Datensätze — Sammlungsstand 1.655 (CPL, Chulane-Fokus)
 
-Erstellt durch Muse (Daten-Lane, Issues #1205/#1208/#1209), Abruf und
-Aufbereitung 2026-11-11/12. Nur objektive Zählwerte und publizierte
+Abruf und Aufbereitung 2026-11-11/12 (Issues #1205/#1208/#1209). Nur objektive Zählwerte und publizierte
 Quellwerte mit Provenienz. Keine Decklisten, keine Sammlungs- oder
 Besitzdaten. Decklisten-Korpus (3.004 Decks, lokal) bleibt lokal;
 hier liegen ausschliesslich Aggregate.
@@ -10,9 +9,10 @@ hier liegen ausschliesslich Aggregate.
 |---|---|---|
 | `commander_card_signals_{1..4}.csv` | 29.330 Signal-Zeilen: Karte je Commander (107) mit EDHREC-Inclusion, Synergy, Deck-Zählern | EDHREC-Commander-Seiten (JSON), Abruf 2026-11-11/12 |
 | `commander_bracket_signals_{core,upgraded,optimized,cedh}_*.csv` | 91.283 Signal-Zeilen je Commander × Bracket (428/428 Seiten) | EDHREC-Bracket-Seiten (core/upgraded/optimized/cedh), Abruf 2026-11-12 |
-| `card_global_signals.csv` | 1.655 Zeilen: globale EDHREC-Werte je Sammlungs-Karte (3 PARTIAL: geteilte Karten) | EDHREC-Kartenseiten, Abruf 2026-11-11/12 |
+| `card_global_signals.csv` | 1.655 Zeilen: globale EDHREC-Werte je Sammlungs-Karte (3 PARTIAL: geteilte Karten) | EDHREC-Kartenseiten, Abruf 2026-11-15 (Erneuerung #1386; Erstabruf 2026-11-11/12) |
 | `coverage_matrix_1655.csv` | 1.655 Zeilen × 8 Schichten: Abdeckung je Karte (Scryfall/EDHREC/Spellbook/Playgroup/Rulings/Tagger/Kategorien/Korpus) | Zählung über alle Schichten, 2026-11-12 |
 | `spellbook_card_links.csv` | 1.655 Zeilen: Combo-Beteiligungen je Karte (distinkte Varianten; Zählregel uses-Filter) | Commander Spellbook Bulk, Abruf 2026-11-11 |
+| `spellbook_shells.csv` | 1.655 Zeilen (jeweils mit `commander_name = Chulane, Teller of Tales`): distinkte Combo-Shells je Karte (Shell = die der Variante zugrunde liegende Combo, Feld `of`; Combos, die über eine Variante zusammenhängen, sind eine Shell, benannt nach der kleinsten Combo-ID), nur Varianten mit Farbidentität ⊆ WUG (farblos `C` passt) und allen Partnern im Chulane-Pool (927, `chulane_legal_pool_gap_matrix.json`); Aufschlüsselung 2-Karten / 3+-Karten (Template-Slots zählen mit) / Commander-Beteiligung (`mustBeCommander` oder die Commander-Karte selbst in der Variante); 8 Karten mit Shells, 2 distinkte Shells (von 123.149 Varianten des Exports erfüllen nur 4 die Pool-Bedingung, 1.655 Zeilen mit gezählten Nullen) | Commander Spellbook Bulk (`variants.json.gz`, Version 7.4.2, Stand 2026-11-15T16:13:53Z, SHA-256 `de62a846efb611f6942699bd2f6a2163485901569b226855923cd6931b64c815`; öffentlicher Download ohne Anmeldung, nur die Varianten-IDs der Link-Datei werden darin nachgeschlagen), erzeugt mit `scripts/build_spellbook_shells.py --bulk <Datei>` (#1366). Frühere Abrufe (Stand `2026-11-15T08:13:24Z`, SHA-256 `439e970b...` und `02:13:19Z`, SHA-256 `0dfbafd8...`, 123.118 Varianten) lieferten mit derselben Zuordnung exakt dieselben Zählungen; der Export selbst (32 MB) liegt nicht im Repo |
 | `playgroup_commander_stats.csv` | 107 Zeilen × 12 Felder: Playgroup-Statistiken je Commander | Playgroup AI (öffentliche JSON-Endpunkte), Abruf 2026-11-11/12 |
 | `card_rulings_1655.jsonl` | 3.259 Rulings zu 952 Sammlungs-Karten | Scryfall Rulings Bulk, gefiltert auf die Sammlung, 2026-11-12 |
 | `card_tagger_bulk_1655.csv` | Tagger-Claims (Subtree-Vereinigung) — 1.033 Karten mit Claims | Scryfall Bulk `oracle_tags` (taggings + Kind-Tags), 2026-11-12 |
@@ -46,3 +46,7 @@ Die Spalte `player` der Turnierlisten enthält keine Namen. Jede Liste trägt ei
 ## Preisspalten in `card_global_signals.csv`
 
 Die aus dem ursprünglichen EDHREC-Abruf stammenden Spalten `price_cardmarket`, `price_tcgplayer` und `price_cardkingdom` sind aus `card_global_signals.csv` vollständig entfernt (Owner-Entscheid: keine Preise im Tool, Issues #1263 / #1309 P10).
+
+## Erneuerung der `card_global_signals.csv` (2026-11-15, #1386)
+
+Die Datei wurde am 2026-11-15 vollständig neu abgerufen: 1.655 GETs der EDHREC-Kartenseiten, Abruf-Fenster 2026-11-15T12:18:16Z bis 2026-11-15T12:52:33Z (UTC), 0 Fehlschläge. Ableitung mit `scripts/derive_global_signals.py` aus den Rohantworten (SHA-256 vor der Ableitung verifiziert, fail closed; Rohantworten liegen nicht im Repo). Pool, Spalten und Zeilenreihenfolge sind unverändert; die Kartenseiten enthalten auch Preise — sie werden nicht gelesen und nicht geschrieben. Bericht: `docs/research/GLOBAL_SIGNALS_RENEWAL_20261115.md`.

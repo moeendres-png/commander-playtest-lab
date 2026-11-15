@@ -23,6 +23,7 @@ card, the row with the better claim wins, then the smaller stored name.
 from __future__ import annotations
 
 import json
+import math
 from collections import Counter
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, replace
@@ -305,17 +306,79 @@ def _theme_reach_observations(
     return result, exists
 
 
+def _valid_shell_count(value: float | None, *, maximum: float | None = None) -> bool:
+    if value is None or not math.isfinite(value) or value < 0:
+        return False
+    return maximum is None or value <= maximum
+
+
+def shell_note(shells: float, two_card: float | None, commander: float | None) -> str:
+    """The row text of a shell count (#1366): the total and its breakdown by card
+    count and commander involvement, the figures the detail modal shows."""
+    if not _valid_shell_count(shells):
+        return "Combo-Shells (ungültige Gesamtzahl)"
+    cards_ok = _valid_shell_count(two_card, maximum=shells)
+    cmd_ok = _valid_shell_count(commander, maximum=shells)
+    if not cards_ok and not cmd_ok:
+        return f"{_number_text(shells)} Combo-Shells (Aufschlüsselung unbekannt)"
+    if cards_ok and two_card is not None:
+        three_plus = shells - two_card
+        card_part = (
+            f"davon {_number_text(two_card)} mit 2 Karten, {_number_text(three_plus)} mit 3+ Karten"
+        )
+    else:
+        card_part = "2/3+-Karten-Aufschlüsselung unbekannt"
+    if cmd_ok and commander is not None:
+        cmd_part = f"{_number_text(commander)} mit Commander-Beteiligung"
+    else:
+        cmd_part = "Commander-Beteiligung unbekannt"
+    return f"{_number_text(shells)} Combo-Shells ({card_part}, {cmd_part})"
+
+
 def _combo_observations(
     store: StudioStore,
     commander: str,
     claims: _Claims,
     display: Mapping[str, str],
     ambiguous: dict[tuple[str, str], list[str]],
-) -> tuple[dict[str, Observation], bool]:
-    """The combos observations: one per pool card the spellbook file lists, valued by
-    the combo quality mixture (``strength.combo_quality``) of the three spellbook
-    signals. Whether the source exists is decided by the primary signal alone, as
-    before; the two quality signals only refine the value of the listed cards."""
+) -> tuple[dict[str, Observation], bool, bool]:
+    """The combos observations: one per pool card the spellbook source lists, valued
+    by the combo quality mixture (``strength.combo_quality``). Returns ``(observations,
+    exists, used_shells)``. Whether the source exists is decided by the primary signal
+    alone; the other parts only refine the value of the listed cards.
+
+    When the store holds the shell signals (#1366) for this commander, the mixture reads
+    the shell parts and the shell count is the primary part — distinct combos instead of
+    raw variants — and the note carries the shell breakdown. The variant count is then a
+    stored display value only. Without the commander's shell signals, the variant mixture
+    ranks exactly as before."""
+    shell_raw: dict[str, dict[str, Observation]] = {}
+    shell_parts: dict[str, dict[str, float]] = {}
+    shell_exists = False
+    for signal in strength.COMBO_SHELL_PARTS:
+        observed, found = _signal_observations(store, commander, signal, claims, display, ambiguous)
+        if signal == strength.COMBO_PART_SHELLS:
+            shell_exists = found
+        shell_raw[signal] = observed
+        shell_parts[signal] = {
+            card_id: item.value for card_id, item in observed.items() if item.value is not None
+        }
+    if shell_exists:
+        quality = strength.combo_quality(shell_parts, primary=strength.COMBO_PART_SHELLS)
+        result: dict[str, Observation] = {}
+        for card_id, value in quality.items():
+            shell_count = shell_parts[strength.COMBO_PART_SHELLS][card_id]
+            two_item = shell_raw[strength.COMBO_PART_TWO_CARD_SHELLS].get(card_id)
+            cmd_item = shell_raw[strength.COMBO_PART_COMMANDER_SHELLS].get(card_id)
+            result[card_id] = Observation(
+                value,
+                note=shell_note(
+                    shell_count,
+                    two_item.value if two_item is not None else None,
+                    cmd_item.value if cmd_item is not None else None,
+                ),
+            )
+        return result, True, True
     parts: dict[str, dict[str, float]] = {}
     exists = False
     for signal in strength.COMBO_PARTS:
@@ -328,6 +391,7 @@ def _combo_observations(
     return (
         {card_id: Observation(value) for card_id, value in strength.combo_quality(parts).items()},
         exists,
+        False,
     )
 
 
@@ -449,6 +513,13 @@ def signal_coverage(
     db = store.connection
     result: dict[str, SignalCoverage] = {}
     stored = [str(row[0]) for row in db.execute("SELECT DISTINCT signal FROM card_signal")]
+    own_stored = {
+        str(row[0])
+        for row in db.execute(
+            "SELECT DISTINCT signal FROM card_signal WHERE commander_name = ?",
+            (commander,),
+        )
+    }
     counted_signals = {
         item["signal"]: item for item in universe_choice.counted_universes(store, commander)
     }
@@ -462,6 +533,8 @@ def signal_coverage(
     for signal in sorted(set(stored) - set(names) - rubric_signals):
         if signal.startswith(f"{signals.SIGNAL_DECKLIST}:") and signal not in counted_signals:
             continue  # a counted universe of another commander
+        if signal in strength.COMBO_SHELL_PARTS and signal not in own_stored:
+            continue  # commander-scoped combo shells of another commander
         names.append(signal)
     for signal in names:
         independent = signal in _INDEPENDENT
@@ -845,6 +918,7 @@ def prepare(
 
     per_card: dict[str, dict[str, Observation]] = {card_id: {} for card_id in ids}
     collected: set[str] = set()
+    spellbook_shells_used = False
     for component in (
         COMMANDER_INCLUSION,
         BRACKET_INCLUSION,
@@ -862,7 +936,9 @@ def prepare(
         if not signal:
             continue
         if component == COMBOS and settings.combo_source == strength.COMBO_SPELLBOOK:
-            observed, exists = _combo_observations(store, commander, claims, display, ambiguous)
+            observed, exists, spellbook_shells_used = _combo_observations(
+                store, commander, claims, display, ambiguous
+            )
         elif component == RUBRIC:
             observed, exists = _rubric_observations(store, commander, claims, display, ambiguous)
         else:
@@ -977,6 +1053,7 @@ def prepare(
         filter_cards,
         universe_minimum,
         function_group=_function_groups(store, raw_cards),
+        spellbook_shells=spellbook_shells_used,
     )
     # E2.a: while a counted local corpus exists the EDHREC inclusion weights are 0 (the rule is
     # explicit and reported); without one they are the fallback.
@@ -1301,7 +1378,7 @@ _BRACKET_CHOICES = {
 }
 _COMBO_SOURCE_CHOICES = {
     strength.COMBO_COMMANDER: "EDHREC-Kombos des Commanders",
-    strength.COMBO_SPELLBOOK: "Commander Spellbook (alle Commander)",
+    strength.COMBO_SPELLBOOK: "Commander Spellbook (Shells beim Commander, sonst Varianten)",
 }
 
 
@@ -1415,7 +1492,8 @@ def _panel_texts() -> dict[str, object]:
     helps[f"weights.{strength.COMBOS}"] = (
         "Je nach „Combo-Quelle“ zählt EDHREC-Kombos des Commanders (Standard: wie viele Decks "
         "dieses Commanders die Karte in Kombinationen spielen) oder Commander Spellbook "
-        "(Qualitäts-Mix über alle Commander). 0 schaltet das Signal ab."
+        "(Qualitäts-Mix aus distinkten Combo-Shells beim Commander, falls importiert, sonst aus "
+        "globalen Varianten über alle Commander). 0 schaltet das Signal ab."
     )
     for key in strength.LAYER_KEYS:
         labels[f"layer_weights.{key}"] = (
@@ -1442,8 +1520,11 @@ def _panel_texts() -> dict[str, object]:
     labels["combo_source"] = f"Combo-Quelle (empfohlen: {_COMBO_SOURCE_CHOICES[rec.combo_source]})"
     helps["combo_source"] = (
         "„EDHREC-Kombos des Commanders“ nutzt die beim Commander gezählten Combo-Decks "
-        "(commander-spezifisch). „Commander Spellbook“ mischt alle Commander über Varianten, "
-        "2-Karten-Varianten und vorhandene Partner."
+        "(commander-spezifisch). „Commander Spellbook“ nutzt für diesen Commander importierte "
+        "Combo-Shells (distinkte Combos in Farbidentität und Pool); fehlen Shells für diesen "
+        "Commander, greift es auf den globalen Mix aus Varianten, 2-Karten-Varianten und "
+        "vorhandenen Partnern zurück. Allein ohne eigenes Commander-Signal genügt Spellbook "
+        "weiterhin nicht."
     )
     labels["rank_group"] = (
         f"Vergleichsgruppe für den Rang (empfohlen: {_GROUP_CHOICES[rec.rank_group]})"

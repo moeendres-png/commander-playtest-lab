@@ -11,7 +11,8 @@ import csv
 import gzip
 import hashlib
 import json
-from collections.abc import Iterator, Mapping
+import sqlite3
+from collections.abc import Iterable, Iterator, Mapping
 from pathlib import Path
 
 from .store import COUNTED_SECTIONS, DataClass, StudioStore, rebuild_corpus_deck_role, sha256_file
@@ -425,9 +426,100 @@ def name_resolver(store: StudioStore) -> dict[str, str]:
     return names
 
 
+def corpus_content_fingerprint(rows: Iterable[tuple[str, str, int]]) -> str:
+    """Content fingerprint of a deck: a hash over its (key, section, quantity) rows.
+
+    The one framing every corpus fingerprint uses; the deck list importer hashes it
+    over source card names, :func:`refresh_corpus_fingerprints` over oracle keys."""
+    digest = hashlib.sha256()
+    for key, section, quantity in sorted(rows):
+        digest.update(f"{key}\x00{section}\x00{quantity}\n".encode())
+    return digest.hexdigest()
+
+
+def refresh_corpus_fingerprints(db: sqlite3.Connection) -> dict[str, int]:
+    """Re-derive the content fingerprint of every deck list deck from its oracle ids.
+
+    The deck list importer fingerprints the source spellings of card names, so one
+    physical deck listed by two sources under two spellings of one card (EDHREC's
+    front face against Archidekt's full ``Front // Back`` name) carries two
+    fingerprints and counts twice wherever a universe collapses decks by fingerprint.
+    Once the deck's names are linked to oracle ids, this step re-derives the
+    fingerprint over oracle keys: a linked row keys on its oracle id, an unlinked row
+    keeps its source name as its key. An unlinked name can therefore only keep two
+    spellings of one deck apart, never merge two decks — a name the resolver would
+    not decide decides nothing here either.
+
+    Only decks whose card rows all carry the deck list importer's ``source_name``
+    status are re-derived; decks another import step wrote (a register or hub file)
+    keep the fingerprint their file supplied. ``duplicate_of`` of the re-derived
+    decks is re-derived with them, by the lowest deck id of each fingerprint group
+    (the rule the importer's stale-mark release applies); the mark stays
+    informational — universe counts read the fingerprint, not the mark. The step is
+    a pure function of the stored rows, so it runs after every linking step and a
+    later link simply re-derives again. Returns what changed."""
+    rows_by_deck: dict[str, list[tuple[str, str, str | None, int]]] = {}
+    statuses: dict[str, set[str]] = {}
+    for deck_id, name, section, oracle_id, quantity, status in db.execute(
+        "SELECT deck_id, card_name, section, oracle_id, quantity, normalization_status "
+        "FROM corpus_deck_card"
+    ):
+        rows_by_deck.setdefault(str(deck_id), []).append(
+            (str(name), str(section), oracle_id, int(quantity))
+        )
+        statuses.setdefault(str(deck_id), set()).add(str(status))
+    stored = {
+        str(row[0]): (str(row[1]), row[2])
+        for row in db.execute("SELECT deck_id, fingerprint, duplicate_of FROM corpus_deck")
+    }
+    groups: dict[str, list[str]] = {}
+    new_fingerprint: dict[str, str] = {}
+    for deck_id, rows in rows_by_deck.items():
+        if deck_id not in stored or statuses[deck_id] != {"source_name"}:
+            continue
+        merged: dict[tuple[str, str], int] = {}
+        for name, section, oracle_id, quantity in rows:
+            if quantity <= 0:
+                continue
+            key = f"oid:{oracle_id}" if oracle_id is not None else f"name:{name}"
+            merged[(key, section)] = merged.get((key, section), 0) + quantity
+        fingerprint = corpus_content_fingerprint(
+            [(key, section, quantity) for (key, section), quantity in merged.items()]
+        )
+        new_fingerprint[deck_id] = fingerprint
+        groups.setdefault(fingerprint, []).append(deck_id)
+    rederived = 0
+    for deck_id, fingerprint in new_fingerprint.items():
+        if stored[deck_id][0] != fingerprint:
+            db.execute(
+                "UPDATE corpus_deck SET fingerprint = ? WHERE deck_id = ?",
+                (fingerprint, deck_id),
+            )
+            rederived += 1
+    collapsed = 0
+    marks = 0
+    for _fingerprint, deck_ids in groups.items():
+        if len(deck_ids) > 1 and len({stored[deck_id][0] for deck_id in deck_ids}) > 1:
+            collapsed += 1
+        canonical = min(deck_ids)
+        for deck_id in deck_ids:
+            mark = None if deck_id == canonical else canonical
+            if stored[deck_id][1] != mark:
+                db.execute(
+                    "UPDATE corpus_deck SET duplicate_of = ? WHERE deck_id = ?",
+                    (mark, deck_id),
+                )
+                marks += 1
+    return {
+        "corpus_fingerprints_rederived": rederived,
+        "corpus_fingerprint_groups_collapsed": collapsed,
+        "corpus_duplicate_marks_rederived": marks,
+    }
+
+
 def relink_corpus(store: StudioStore) -> dict[str, object]:
     """Give every source-deck card without an oracle id its oracle id by name, then rebuild
-    what is derived from it (deck statistics, roles per deck).
+    what is derived from it (deck fingerprints, deck statistics, roles per deck).
 
     The step does not depend on the order of the imports: it runs at the end of the card data
     import and of the deck list import, and nothing changes when it has nothing to link.
@@ -469,10 +561,12 @@ def relink_corpus(store: StudioStore) -> dict[str, object]:
                 "GROUP BY card_name ORDER BY card_name"
             )
         ]
+        fingerprints = refresh_corpus_fingerprints(db)
         refresh_corpus_stats(store)
         if store.count("card_role"):
             rebuild_corpus_deck_role(db)
     return {
+        **fingerprints,
         "corpus_cards_linked": linked,
         "corpus_cards_unresolved": sum(count for _, count in unresolved),
         "corpus_unresolved_names": [name for name, _ in unresolved],
