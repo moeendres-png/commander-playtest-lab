@@ -1328,12 +1328,13 @@ def _panel_texts() -> dict[str, object]:
         "(EDHREC „Aufnahme überhaupt“): log10 des Verhältnisses, mit n / (n + "
         f"{strength.LOG_RATIO_DAMPING}) gedämpft (n = Decks mit der Karte), auf ±"
         f"{_number_text(strength.LOG_RATIO_CAP)} begrenzt (Faktor 100) und als (Wert + 2) / 4 auf "
-        "0 bis 1 gelegt. Nur für Karten mit mindestens einem Treffer."
+        "0 bis 1 gelegt (0,5 = neutral); der Index zählt nur den Teil über neutral, max(0, 2·Wert − 1). "
+        "Nur für Karten mit mindestens einem Treffer."
     )
     helps[f"weights.{strength.CORPUS_BRACKET_SLOPE}"] = (
         "Gefälle des Anteils zwischen den Brackets 4+5 und Bracket 2 im Korpus: log10 des "
-        "Verhältnisses, wie beim Lift gedämpft und begrenzt. Nur ab "
-        f"{strength.SLOPE_MIN_HITS} Treffern insgesamt."
+        "Verhältnisses, wie beim Lift gedämpft und begrenzt; der Index zählt nur den Teil über "
+        f"neutral. Nur ab {strength.SLOPE_MIN_HITS} Treffern insgesamt."
     )
     helps[f"weights.{strength.TOURNAMENT}"] = (
         "EDHTop16-Spielrate (Turnierzeitraum, Nenner = Einträge des Commanders) und Anteil im "

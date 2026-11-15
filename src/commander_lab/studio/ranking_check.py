@@ -342,7 +342,7 @@ def check_ranking(
     """Pure diagnostic check of a strength-index ranking: the six #1349 metrics plus the
     counter-checks, the redundancy matrix and the log-scale sensitivity of #1364.
 
-    ``counter_shares`` maps a key to ``(label, observations)`` of an independent reference share
+    ``counter_shares`` maps a key to ``(label, observations)`` of an overlapping reference share
     (the corpus bracket 5, EDHTop16). ``weight_rule`` is the E2.a rule that applied."""
     ctx = context or PoolContext()
     display = {card: (names[card] if names and card in names else card) for card in observations}
@@ -962,9 +962,7 @@ def _extra_lines(report: RankingCheckReport) -> list[str]:
                 ]
                 + [
                     (
-                        f"{item['label']}, ohne Überlappung (Gewicht 0: "
-                        + ", ".join(held["zeroed"])
-                        + ")",
+                        f"{item['key']}, ohne Überlappung",
                         "",
                         _entry_text(held["all_ranked"]),
                         _entry_text(held["non_lands"]),
@@ -975,6 +973,11 @@ def _extra_lines(report: RankingCheckReport) -> list[str]:
                 ],
             )
         )
+        lines += [
+            f"   ohne Überlappung ({item['key']}): Gewicht 0 für " + ", ".join(held["zeroed"])
+            for item in report["counter_checks"]
+            if (held := item["held_out"]) is not None
+        ]
     else:
         lines.append("   keine Referenz vorhanden (kein Korpus, keine EDHTop16-Zeilen)")
     redundancy = report["redundancy"]

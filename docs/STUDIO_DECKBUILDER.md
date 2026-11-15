@@ -386,16 +386,21 @@ exclusions and notes never count. TopDeck tournament lists and conversion keep w
 
 - `corpus_tuned`: decks with the card over the decks of the brackets 4 and 5.
 - `corpus_log_lift`: $\log_{10}$ of the card's corpus share over its global EDHREC inclusion,
-  damped by $n/(n+5)$ on the hit count, capped at $\pm 2$, mapped to `0..1` by $(x+2)/4$; no value
-  for 0 hits (a tiny count cannot score high).
+  damped by $n/(n+5)$ on the hit count, capped at $\pm 2$, mapped to `0..1` by $(x+2)/4$ (0.5 =
+  neutral); no value for 0 hits (a tiny count cannot score high). The index score is
+  $\max(0, 2v - 1)$: only an above-neutral lift adds, neutral or below counts 0 (a value of 0.3
+  would otherwise still raise a card whose other scores are near 0). The row keeps the raw
+  value `v` and the signed log value in its note.
 - `corpus_bracket_slope`: the same damped log ratio of the share in brackets 4+5 against
-  bracket 2 (half-deck smoothing), only with at least 5 hits in total.
+  bracket 2 (half-deck smoothing), only with at least 5 hits in total, with the same
+  $\max(0, 2v - 1)$ index score.
 - `tournament`: the EDHTop16 play rate (numerator derived as `round(value * denominator)` when
   the published row has only the rate; the stored row stays NULL) pooled with the corpus
   bracket 5 as one share (sum of numerators over sum of denominators). A card without an
   EDHTop16 row counts with bracket 5 alone (not listed is unknown, never 0).
-- `edhrec_theme_reach`: the maximum inclusion share of the card over the EDHREC theme pages of
-  the commander (base page and the bracket or price variants `core`, `upgraded`, `optimized`,
+- `edhrec_theme_reach`: the highest inclusion share of the card over the EDHREC theme pages of
+  the commander, each theme share shrunk first (prior from all theme rows) and then the maximum
+  of the posterior means taken, so a small noisy theme does not win on its raw share (base page and the bracket or price variants `core`, `upgraded`, `optimized`,
   `cedh`, `budget`, `exhibition` left out; a theme row needs the EDHREC minimum denominator).
 
 **Rule E2.a (`strength.apply_corpus_rule`, shown in the result as `weight_rule`).** With a
@@ -426,36 +431,47 @@ with $k = 150$ (`strength.LOG_SHARE_K`), lands and spells apart, comparison grou
 (an old rubric weight 3.5, `share_scale`, cuts, `missing_value`). Every key it lacks takes the
 new default, so the E2.a rule applies to old profiles too (their EDHREC weights become 0
 effective as soon as the corpus exists) and the new components enter with their default weights.
-Re-save the profile or press "Empfohlene Werte" to adopt the new defaults completely.
+Re-save the profile or press "Empfohlene Werte" to adopt the new defaults completely. The
+result says so: a loaded profile with a positive rubric weight gets the notice "subjektives
+Signal aktiv", and stored EDHREC weights that the corpus rule sets to 0 are named with stored
+and effective value (`strength_view.compute(saved_weights=...)`, route `POST /api/strength`).
 
 **Ranking-check additions** (sections 7 to 9 of the text, keys `counter_checks`, `redundancy`,
 `sensitivity`, `weight_rule`, `shrinkage` in the JSON): Spearman of the index against the
 corpus bracket 5 share and against the EDHTop16 play rate (spells and lands apart, unknown
-where no value exists, never 0); a redundancy matrix (Spearman between the rank values of the
+where no value exists, never 0). These counter-checks OVERLAP with the index (bracket 5 is a
+subset of the corpus and feeds `tournament`, EDHTop16 feeds `tournament`), so each carries a
+held-out variant (`held_out`, text row "ohne Überlappung"): the index recomputed with the
+overlapping components at weight 0 (bracket 5: `deck_universe`, `corpus_tuned`, `tournament`,
+`corpus_bracket_slope`; EDHTop16: `tournament`) against the same reference; it covers only the
+cards that keep a value (564 of 922 for bracket 5). `corpus_log_lift` stays in both (bracket 5
+is a small part of its whole-corpus share). A redundancy matrix (Spearman between the rank values of the
 active weighted components over the cards where both have a value, pairs above 0.90 flagged as
 double counting); and the tier counts for $k$ = 100 / 150 / 200.
 
 Measured on the repository store (Chulane pool 927, 922 ranked, 2,823 counted lists; bracket 5
-has 267 decks, brackets 4+5 have 1,155; only 16 pool cards have an EDHTop16 row):
+has 267 decks, brackets 4+5 have 1,155; only 16 pool cards have an EDHTop16 row), after the
+review fixes (lift and slope above neutral only, theme reach shrunk per theme):
 
 | Metric | `Ausgewogen` | `Commander-nah` | `Turniernah` |
 |---|---|---|---|
-| Spearman all / spells / lands vs counted lists, before | `0.7388 / 0.7135 / 0.9465` | `0.7481 / 0.7230 / 0.9543` | `0.7627 / 0.7373 / 0.9572` |
-| Spearman all / spells / lands vs counted lists, after | `0.9662 / 0.9602 / 0.9965` | `0.9591 / 0.9526 / 0.9946` | `0.9652 / 0.9594 / 0.9925` |
-| Randkarten oben, before / after | `59 / 134` / `0 / 59` | `62 / 139` / `0 / 63` | `66 / 145` / `0 / 47` |
+| Spearman all / spells / lands vs counted lists, before #1364 | `0.7388 / 0.7135 / 0.9465` | `0.7481 / 0.7230 / 0.9543` | `0.7627 / 0.7373 / 0.9572` |
+| Spearman all / spells / lands vs counted lists, after | `0.9226 / 0.9117 / 0.9891` | `0.9368 / 0.9276 / 0.9902` | `0.9282 / 0.9182 / 0.9894` |
+| Randkarten oben, before / after | `59 / 134` / `0 / 45` | `62 / 139` / `0 / 44` | `66 / 145` / `0 / 34` |
 | Stammkarten unten, after | `0 / 27` | `0 / 27` | `0 / 27` |
-| Spearman all / spells / lands vs bracket 5 (n 267) | `0.6301 / 0.5819 / 0.9133` | `0.6263 / 0.5773 / 0.9072` | `0.6414 / 0.5931 / 0.9245` |
-| Spearman vs EDHTop16 (16 spells) | `0.5033` | `0.6421` | `0.7016` |
-| Tiers `S / A / B / C / D / U / N`, after | `19 / 40 / 61 / 137 / 665 / 0 / 5` | `21 / 42 / 74 / 200 / 585 / 0 / 5` | `20 / 27 / 63 / 120 / 692 / 0 / 5` |
-| Largest leave-one-out impact | `deck_universe` `207 / 927` | `deck_universe` `416 / 927` | `corpus_bracket_slope` `89 / 927` |
-| Tier changes for $k$ 100 / 200 against 150 | `39 / 33` | `31 / 30` | `29 / 20` |
+| Counter-check bracket 5 (n 267), overlapping, all / spells / lands | `0.6281 / 0.5798 / 0.9120` | `0.6256 / 0.5773 / 0.9098` | `0.6452 / 0.5963 / 0.9255` |
+| Counter-check bracket 5, held out (564 cards) | `0.6699 / 0.6174 / 0.9025` | `0.6577 / 0.6066 / 0.8915` | `0.6639 / 0.6102 / 0.8911` |
+| Counter-check EDHTop16 (16 spells), overlapping / held out | `0.6406 / 0.6381` | `0.5845` / no held-out (tournament weight 0) | `0.8059 / 0.7861` |
+| Tiers `S / A / B / C / D / U / N`, after | `8 / 37 / 49 / 53 / 775 / 0 / 5` | `7 / 37 / 52 / 48 / 778 / 0 / 5` | `8 / 26 / 36 / 53 / 799 / 0 / 5` |
+| Leave-one-out, tier changes of 927 per weighted signal | `deck_universe` 74, `corpus_tuned` 12, `corpus_log_lift` 29, `corpus_bracket_slope` 33, `tournament` 15, `edhrec_theme_reach` 12, `global_inclusion` 18, `combos` 1 | `deck_universe` 86, `corpus_tuned` 12, `corpus_log_lift` 75, `corpus_bracket_slope` 20, `edhrec_theme_reach` 20, `global_inclusion` 6, `combos` 0 | `deck_universe` 49, `corpus_tuned` 27, `corpus_log_lift` 7, `corpus_bracket_slope` 58, `tournament` 28, `global_inclusion` 11, `combos` 1 |
+| Tier changes for $k$ 100 / 200 against 150 | `24 / 25` | `13 / 22` | `18 / 19` |
 
 No pair of active components exceeds $r$ = 0.90 (`deck_universe` against `corpus_tuned`:
 0.8481), so `corpus_tuned` stays the share in brackets 4+5. Open against the acceptance
-criteria: the `combos` signal changes 0 (Ausgewogen) or 1 tiers when left out, because it has
-a value for only 13 pool cards; `Commander-nah` exceeds 250 tier changes for `deck_universe`
-(weight 4.5); the distribution is bottom-heavy with the cuts 72 / 50 / 28 / 14 (most cards
-are `D`).
+criteria: the `combos` signal changes 0 to 1 tiers when left out (a value for only 13 pool
+cards; 0 in `Commander-nah`), and the distribution is bottom-heavy with the cuts
+72 / 50 / 28 / 14 (775 to 799 cards are `D`, after the lift and slope fix more than before it).
+The agreement with the counted lists stays above 0.90 for spells and lands in all presets.
 
 ### Rating layers ("Bewertungsebenen")
 
