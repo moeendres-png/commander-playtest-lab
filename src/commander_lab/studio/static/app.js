@@ -30,6 +30,8 @@ const ROLE_NAMES = {
   cost_reduction: "Kostenreduktion",
 };
 const roleName = (key) => ROLE_NAMES[key] || key;
+// A land is a candidate when at least this share of the comparison group plays it.
+const LAND_CANDIDATE_LINE = 0.20;
 const ISSUE_NAMES = { deck_size: "Deckgröße", commander_count: "Commander", commander_type: "Commander-Typ", color_identity: "Farbidentität", singleton: "Mehrfach", legality_unknown: "Legalität unbekannt", not_legal: "Nicht legal", not_owned: "Nicht in der Sammlung", not_available: "Nicht frei" };
 
 const state = {
@@ -804,7 +806,7 @@ function loadLandAdvisor() {
   if (state.landAdvisor && state.landAdvisor.key === key) return;
   if (state.landAdvisorBusy === key) return;
   state.landAdvisorBusy = key;
-  api("/api/land-advisor", "POST", { cards: entries(), owned_only: true, cohort: state.cohort, min_share: 0.20 }).then((data) => {
+  api("/api/land-advisor", "POST", { cards: entries(), owned_only: true, cohort: state.cohort, min_share: LAND_CANDIDATE_LINE }).then((data) => {
     state.landAdvisor = { key, seq: state.changeSeq, cohort: state.cohort, data };
     if (state.tab === "numbers") renderDeck();
   }, (error) => { state.landAdvisorBusy = null; fail(error); });
@@ -843,10 +845,12 @@ function renderLandAdvisor(body) {
   if (deck.lands_no_mana) body.append(h("p", { class: "note", id: "land-advisor-nomana" }, `Länder, die selbst kein Mana erzeugen: ${deck.lands_no_mana} (laut Kartendaten, zum Beispiel Fetchländer). Sie stehen bei keiner Farbe.`));
   if (deck.lands_unknown_colours) body.append(h("p", { class: "note", id: "land-advisor-unknown" }, `Länder ohne Angabe: ${deck.lands_unknown_colours} (keine Kartendaten zum erzeugten Mana). Unbekannt, nicht als null gezählt.`));
   const landCands = found.data.land_candidates || [];
-  body.append(h("h4", {}, `Freie Nicht-Standardländer in deiner Sammlung (≥ 20 % in „${groupName}“, nicht im Deck)`));
+  const lineText = `${Math.round(100 * LAND_CANDIDATE_LINE)} %`;
+  body.append(h("h4", { id: "land-advisor-candidates-title" }, "Länder, die diese Decks oft spielen und die dir fehlen"),
+    h("p", { class: "note", id: "land-advisor-candidates-note" }, `Freie Länder aus deiner Sammlung (ohne Standardländer), die nicht im Deck sind und die mindestens ${lineText} der Quelldecks der Gruppe „${groupName}“ spielen. Gezählt wird nur, wie oft ein Land vorkommt.`));
   if (landCands.length) {
     const candTable = h("table", { id: "land-advisor-candidates" },
-      h("thead", {}, h("tr", {}, h("th", {}, "Land"), h("th", {}, "Erzeugte Farben"), h("th", { class: "num" }, "Quelldecks (n/N)"), h("th", { class: "num" }, "Anteil"), h("th", { class: "num" }, "frei"), h("th", {}, ""))),
+      h("thead", {}, h("tr", {}, h("th", {}, "Land"), h("th", {}, "Erzeugte Farben"), h("th", { class: "num", title: "Quelldecks der Gruppe, die das Land spielen, von allen Quelldecks der Gruppe" }, "Decks mit dem Land / Decks der Gruppe"), h("th", { class: "num" }, "Anteil"), h("th", { class: "num" }, "frei"), h("th", {}, ""))),
       h("tbody", {}, landCands.map((cand) => {
         const poolCard = state.byId.get(cand.card_id);
         const nameEl = h("span", { class: "nm", onclick: () => { if (poolCard) openCard(poolCard); } }, cand.name);
@@ -858,13 +862,16 @@ function renderLandAdvisor(body) {
           h("td", {}, nameEl),
           h("td", {}, colCell),
           h("td", { class: "num" }, cand.decks === null ? "unbekannt" : `${cand.decks}/${cand.of}`),
-          h("td", { class: "num" }, cand.share === null ? "unbekannt" : `${(100 * cand.share).toFixed(0)} %`),
+          h("td", { class: "num" }, cand.share === null ? "unbekannt" : `${(100 * cand.share).toFixed(0)} %`, cand.small_group ? h("span", { class: "badge warn", title: `Gruppe mit weniger als ${found.data.small_group} Decks: sehr unsicher` }, "kleine Gruppe") : null),
           h("td", { class: "num" }, cand.available),
           h("td", {}, poolCard ? h("button", { class: "small", type: "button", onclick: () => add(poolCard) }, "+") : null));
       })));
     body.append(candTable);
+    const unknownCands = landCands.filter((cand) => cand.decks === null).length;
+    if (unknownCands) body.append(h("p", { class: "note", id: "land-advisor-candidates-unknown" }, `${unknownCands} Länder stehen zuletzt: kein Quelldeck der Gruppe nennt sie, ihre Häufigkeit ist unbekannt (nicht null).`));
+    if (landCands.some((cand) => cand.small_group)) body.append(h("p", { class: "note", id: "land-advisor-candidates-small" }, `Gelb: Gruppe mit weniger als ${found.data.small_group} Decks, sehr unsicher.`));
   } else {
-    body.append(h("p", { class: "muted", id: "land-advisor-candidates-empty" }, "Keine weiteren freien Nicht-Standardländer ab 20 % in dieser Vergleichsgruppe."));
+    body.append(h("p", { class: "muted", id: "land-advisor-candidates-empty" }, `Keine freien Länder, die mindestens ${lineText} der Quelldecks in dieser Gruppe spielen und nicht schon im Deck sind.`));
   }
   body.append(h("p", { class: "note" }, "Beobachtung, keine Vorschrift. Farbsymbole stehen in den Manakosten der Nicht-Land-Karten; ein Hybrid-Symbol zählt für beide Farben, Generisches und X zählen nicht, eine geteilte Karte zählt beide Hälften. Die Kosten des Commanders zählen nicht mit. Ein Land zählt für jede Farbe, die es erzeugt. Quellen, die keine Länder sind (Manasteine, Kreaturen), stehen getrennt. Vergleich: Median und mittlere Hälfte der Quelldecks der gewählten Vergleichsgruppe."));
 }
@@ -1510,7 +1517,7 @@ async function openCard(card) {
           parts.push(h("h3", {}, `Zusammen gespielt im Universum ${co.profile || "alle Decks"}`), h("p", { class: "muted" }, "unbekannt: die Karte kommt im Universum nicht vor"));
         } else {
           const smallCo = co.decks_with_card < state.small;
-          parts.push(h("h3", {}, `Zusammen gespielt im Universum ${co.profile || "alle Decks"} (Nenner: ${co.decks_with_card} Decks mit dieser Karte, ${co.subset_note ? "Teilmenge" : "Universum"}: ${co.denominator} Decks) `, smallCo ? h("span", { class: "pill low" }, `Kleine Stichprobe (< ${state.small} Decks)`) : null),
+          parts.push(h("h3", {}, `Zusammen gespielt im Universum ${co.profile || "alle Decks"} (Nenner: ${co.decks_with_card} Decks mit dieser Karte, ${co.subset_note ? "Teilmenge" : "Universum"}: ${co.denominator} Decks) `, smallCo ? h("span", { class: "pill warn", id: "cooccurrence-small" }, `Kleine Stichprobe: nur ${co.decks_with_card} Decks mit dieser Karte (unter ${state.small}), die Anteile sind unsicher`) : null),
             h("table", {},
               h("thead", {}, h("tr", {}, h("th", {}, "Karte"), h("th", { class: "num" }, "gemeinsam / mit Karte"), h("th", { class: "num" }, "Anteil"), h("th", { class: "num" }, "Lift"), h("th", {}, "Kombo-Partner"))),
               h("tbody", {}, co.pairs.map((pair) => h("tr", { class: smallCo ? "low" : "" },
@@ -1531,7 +1538,7 @@ async function openCard(card) {
         const other = state.byId.get(item.card_id);
         return !state.commanderIds.includes(item.card_id) && (!other || !other.basic);
       });
-      parts.push(h("h3", {}, `Zusammen gespielt in Quelldecks (${cohortName(co.cohort)}, Nenner: ${co.card_decks} Decks mit dieser Karte) `, smallCo ? h("span", { class: "pill low" }, `Kleine Stichprobe (< ${state.small} Decks)`) : null),
+      parts.push(h("h3", {}, `Zusammen gespielt in Quelldecks (${cohortName(co.cohort)}, Nenner: ${co.card_decks} Decks mit dieser Karte) `, smallCo ? h("span", { class: "pill warn", id: "cooccurrence-small" }, `Kleine Stichprobe: nur ${co.card_decks} Decks mit dieser Karte (unter ${state.small}), die Anteile sind unsicher`) : null),
         h("table", {},
           h("thead", {}, h("tr", {}, h("th", {}, "Karte in deiner Sammlung (ohne Standardländer)"), h("th", { class: "num" }, "gemeinsam / Nenner"), h("th", { class: "num" }, "Anteil"), h("th", {}, ""))),
           h("tbody", {}, coRows.map((item) => {

@@ -194,3 +194,28 @@ def test_the_route_takes_the_line_and_the_group(tmp_path: Path) -> None:
     for bad in (-0.1, 1.5):
         refused = client.post("/api/land-advisor", json={"cards": cards, "min_share": bad})
         assert refused.status_code == 422
+
+
+def _script() -> str:
+    from commander_lab.studio.web import STATIC
+
+    return (STATIC / "app.js").read_text(encoding="utf-8")
+
+
+def test_the_page_names_the_table_and_flags_small_groups_in_words() -> None:
+    script = _script()
+    section = script[script.index("function renderLandAdvisor") : script.index("// Listed combos")]
+    assert "Länder, die diese Decks oft spielen und die dir fehlen" in section
+    assert "Decks mit dem Land / Decks der Gruppe" in section  # n of N in plain words
+    assert "kleine Gruppe" in section  # the flag is a word, not only a colour
+    assert "min_share: LAND_CANDIDATE_LINE" in script
+    for word in ("besser", "innerHTML", "empfehl", "kaufen"):
+        assert word not in section.casefold()
+    assert "n/N" not in section  # no internal abbreviation in the page text
+
+
+def test_the_small_sample_flag_of_the_card_window_is_a_word_in_both_tables() -> None:
+    script = _script()
+    assert script.count('id: "cooccurrence-small"') == 2  # source decks and universe
+    assert "Kleine Stichprobe: nur" in script
+    assert 'class: "pill low"' not in script.split("function renderLandAdvisor")[0]
