@@ -91,22 +91,6 @@ def clean_tracked_worktree() -> Iterator[None]:
         yield
 
 
-@pytest.fixture(autouse=True)
-def cleanup_generated_test_outputs(repo_root: Path):
-    """Keep test-only generated reports out of the repository checkout."""
-    targets = (
-        repo_root / "data/opponent_ensembles/test-cosmic-ensemble-report.md",
-        repo_root / "data/primer_rules/evals/test_policy_eval.json",
-    )
-    for target in targets:
-        target.unlink(missing_ok=True)
-    try:
-        yield
-    finally:
-        for target in targets:
-            target.unlink(missing_ok=True)
-
-
 @pytest.fixture(scope="session")
 def catalog(repo_root: Path) -> CardCatalog:
     result = CardCatalog.from_json(repo_root / "data/cards/oracle_subset.json")

@@ -27,7 +27,10 @@ optimization). Governing mission policy: `docs/PROJECT_MISSION.md`.
   read it before any Studio work. Binding in short: only objective data with provenance,
   every count with its denominator, cohorts never added, source data bound to one commander,
   the Owner's marks (favorites, exclusions, notes) never a rating, no guessed tier, and one
-  working owner per issue when several agents work in parallel.
+  working owner per issue when several agents work in parallel (unless handed over to or
+  integrated by the Development Lead). By Owner update 2026-11-15, the former restriction
+  that collection or store card data may not leave the local machine is lifted (§12); purchase
+  mode and card-value/price signals remain excluded for Chulane unless newly ordered.
 
 `ARCHITECTURE_FREEZE = CLAIMED` (2026-10-10, Owner-signed:
 `docs/architecture_freeze_20261010/ARCHITECTURE_FREEZE_ADR.md`).
@@ -111,22 +114,26 @@ adjudication and required requalification.
 
 ## 6. Executors
 
-The Owner selects the tool and model for each session manually. This file names no
-model allowlist (the two floors in §7 are Owner-set minimums, not an allowlist); every executor works under exactly these rules, at the effort the Owner
-selected, never silently lowered; there is no automatic fallback between executors.
+The Owner selects the tool and model for each session manually. Every executor works under
+exactly these rules, at the effort the Owner selected, never silently lowered; there is no
+automatic fallback between executors.
 
-- **Coordinator**: an explicitly launched Claude Opus 5.5 session under the delegation in §8
-  (architecture, Source Truth, Rules adjudication, qualification design, gate decisions,
-  review and, when authorized, campaign execution).
-- **Worker**: any other executor. Claude Sonnet workers inside an
-  owned workstream may merge as §10 delegates. Muse (the Owner's Meta agent) may merge its
-  own PRs under the Owner-delegated self-merge in §10. GitHub Copilot, Google agents, Cline
-  and any other external agent work on their own branch and PR and never merge. No worker decides
-  Owner-only reservations (§8); results count as evidence only after the same review and
-  CI gates as any other executor.
+- **Development Lead / Coordinator**: Either the Owner-appointed Orchestrator and
+  Development Lead session (regardless of host tool or model environment) or an explicitly
+  launched Coordinator session holding the delegation in §8 (architecture, Source Truth,
+  Rules adjudication, qualification design, Studio calibration and data/product decisions,
+  gate decisions, cleanups, independent review coordination, workstream integration and
+  campaign execution).
+- **Worker**: any other executor. Claude Sonnet workers inside an owned workstream and Muse
+  (the Owner's Meta agent) may execute and merge as §10 delegates; Lead-orchestrated helpers
+  execute bounded briefs and report back to the Lead without self-merging (§7). Unappointed
+  external agents (GitHub Copilot, Cline and others) work on their own branch and PR and
+  never self-merge (requiring Lead or Owner review and merge). No worker decides Owner-only
+  reservations (§8); results count as evidence only after the same review and CI gates as any
+  other executor.
 
 Tool and runtime capabilities are never inferred from model identity. A call to another
-model names the Owner-selected model explicitly and never relies on a tool's default model.
+model names the Owner-selected model explicitly and never relies on a lower fallback model.
 
 Historical model names in dated records are provenance only; they authorize nothing and
 create no migration or governance work by themselves.
@@ -137,32 +144,33 @@ Run every executor at the effort the Owner selected. A project-level `--effort` 
 describes task and authority routing only; it never lowers an executor's native level.
 Record the actual native identity and level used; never relabel it.
 
-### Model tiers inside a session (Owner instruction 2026-11-12)
+### Model tiers inside a session (Owner instructions 2026-11-12 & 2026-11-15)
 
-Every tool splits its own work the same way, so tokens go where judgement is needed:
+Every tool splits work so judgement stays with the strongest configured model:
 
 - **Lead model** (the tool's strongest model, the one the Owner launched): understanding the
   task, planning, architecture, Rules and evidence adjudication, gate and merge decisions,
   and the final check of delegated work.
-- **Token-efficient helpers** (subagents the tool defines for this purpose, on its smaller
-  model at their own declared level): implementation
-  from a complete brief, test/fix loops, code review passes, log and CI digestion, and
-  watching checks. A helper gets a bounded brief (objective, source lock, exact commands,
-  stop condition, report limit) and reports back; it decides nothing reserved in §8.
+- **Token-efficient helpers** (subagents the tool defines for this purpose): bounded research,
+  implementation from a complete brief, test/fix loops, code review passes, log and CI
+  digestion, and watching checks. A helper gets a bounded brief (objective, source lock,
+  exact commands, stop condition, report limit) and reports back; it decides nothing reserved
+  in §8.
 - A helper's result counts only after the lead has checked it against the evidence rules
-  (§4). Neither that check nor a helper pass inside the session that wrote the change is the
+  (§4). Neither that check nor an implementation pass inside the same editing flow is the
   independent review of §10: every MATERIAL change still needs that review from a fresh
   context that did not write it.
 
 Whatever the tool: a helper gets one bounded objective with a complete brief, saves its
-state as it goes (commits, a findings file) so that a usage limit loses nothing, and a
-stopped helper is resumed rather than replaced. One independent review per head; the same
-reviewer re-checks only the delta after fixes.
+state as it goes so a usage limit loses nothing, and a stopped helper is resumed rather than
+replaced. One independent review per head; the same reviewer re-checks only the delta after
+fixes.
 
-Two fixed exceptions:
+Fixed minimums:
 
-- **Gemini**: Flash 3.8 at `high` is the minimum for the session and for every subagent it
-  starts; nothing smaller or lower is used.
+- **Lead / Coordinator subagents**: unless the Owner specifies otherwise, review and
+  delegated subagents inherit the Lead session's model and effort level; nothing silently
+  downgrades below the Owner floor.
 - **Muse**: always `high` to `max`, including its subagents.
 
 This tiering never lowers the level the Owner selected for a session or worker, is not a
@@ -243,51 +251,62 @@ authority/ownership/source/permission gate blocks all useful work; an external d
 makes progress impossible; or tool/resource limits require a resumable handoff. A gate on
 one subproblem does not end the campaign.
 
-#### Claude Opus 5.5 campaign executor
+#### Development Lead and campaign executor
 
-An explicitly launched Claude Opus 5.5 engineering session may hold this campaign authority
-when its prompt declares the objective, repository context and writable surfaces. Within
-them it may investigate, implement, test, debug, commit, push, maintain PRs and integrate
-its own work under the same Rules, evidence, privacy, Git and merge gates. A bounded
-integration campaign may own several disjoint surfaces when one objective needs them;
-each must be freshly verified, declared, free of another active writer (or transferred
-by a persisted handoff). Undeclared, foreign-active or unknown-owner surfaces stay
-read-only. It re-reads authority and ownership before material mutation; unavailable,
-ask-gated or denied operations stay real boundaries, and it never bypasses
-sandboxing, another worker's ownership, protected branches, Owner-only decisions or a
-hard prohibition in this file.
+The explicitly appointed Orchestrator and Development Lead (or an explicitly launched
+Coordinator engineering session) holds campaign authority across declared project surfaces.
+Within them it may investigate, implement, test, debug, commit, push, maintain PRs,
+update agent/repo policies, and integrate work under the same Rules, evidence, privacy,
+Git and merge gates. A bounded integration campaign may own several disjoint surfaces when
+one objective needs them; each must be freshly verified and free of another active writer
+without handover. It re-reads authority and ownership before material mutation. Foreign-active
+or undeclared surfaces outside the Lead's integration mandate stay read-only. Unavailable,
+ask-gated or denied operations stay real boundaries, and no executor bypasses sandboxing,
+protected branches, remaining Owner-only decisions or hard prohibitions in this file.
 
-#### Claude Opus 5.5 Coordinator authority (owner delegation)
+#### Development Lead and Coordinator authority (owner delegation)
 
-`CLAUDE_OPUS_COORDINATOR_AUTHORITY = DELEGATED_BY_OWNER`
+`LEAD_AND_COORDINATOR_AUTHORITY = DELEGATED_BY_OWNER`
 
-By direct Owner instruction, an explicitly launched Claude Opus 5.5 engineering session holds
-the project's maximum delegated decision authority:
+By direct Owner instructions (extended 2026-11-15), the appointed Orchestrator and
+Development Lead — alongside an explicitly launched Coordinator session — holds maximum
+delegated decision authority:
 - MTG Rules adjudication;
-- evidence promotion and evidence-policy decisions;
-- qualification design;
+- evidence promotion, research/data integration, and evidence-policy decisions;
+- qualification design and Studio bridge-gate adjudication;
 - gate decisions and `AUTHORITY_GATE` resolution;
-- shared architecture;
-- cross-workstream integration and ownership arbitration;
+- shared architecture, S3 dead-code/doc cleanup (including `pyproject.toml` console scripts
+  under D5), and Studio database/storage/UI optimization;
+- Studio product and calibration decisions within approved scope (tier cuts, signal choices,
+  weights, derived local cohorts, coverage/gap-matrix refreshes — keeping purchase-mode
+  ("Zukauf") and card-value/price signals excluded for Chulane unless separately ordered);
+- cross-workstream integration, ownership takeover/continuation of handed-over or completed
+  PRs/issues, and backlog closing or deferral per Owner direction;
 - repository governance and security configuration: rulesets and branch protection,
-  workflow and agent-policy changes, containment-rule changes (recorded with a
-  justification and negative controls). Configuring protection is governance; bypassing
-  it to merge stays forbidden (§10).
+  workflow and agent-policy updates (`AGENTS.md`, `CLAUDE.md`, `docs/`), containment-rule
+  updates (preserving the required CI checks `quality`, `security`, `infrastructure`).
+  Configuring protection is governance; bypassing it to merge stays forbidden (§10).
 
-It decides, records the decision with evidence and rationale in the lane issue or PR, and
-continues without routine Owner round-trips.
+The Lead/Coordinator decides, records the decision with evidence and rationale in the lane
+issue or PR, and continues without routine Owner round-trips.
 
-Owner-only decisions, which need a new direct Owner statement:
-- Production Provider selection;
-- Architecture Freeze;
+Remaining Owner-only decisions, which need a new direct Owner statement:
+- changing this delegation (any change to Lead/Coordinator authority or the Owner-only list);
+- Production Provider selection and Architecture Freeze claim/revocation;
 - Production Repository creation;
-- setting or rotating secrets;
-- paid services;
-- changing this delegation.
+- `moeendres-png/mage` fork pushes, engine repins, rewriting or unsealing historical
+  `qualification/` records, and touching sealed `WS17_SHA256SUMS` outside S3 D5 root
+  manifest regeneration for `pyproject.toml`;
+- setting or rotating secrets, paid services, and account/repository visibility changes
+  (privatizing repositories, external Drive sharing);
+- releasing 5- and 6-seat qualification;
+- lifting explicitly paused/external-gate items (`#1210` all-commander harvest,
+  Drive-dependent TAM import `#1187`/`#1176`, Moxfield scraping without a public API,
+  removing required CI gate contexts, or activating purchase-mode/price features).
 
 The delegation never relaxes Rules Core authority (§2), evidence semantics (§4), hidden
-information and privacy (§5, §12), the Git hard boundaries and merge gate (§10) or
-fail-closed semantics. A decision touching Rules, evidence, containment or security gets a
+information inside gameplay (§5), secret/credential and personal-data privacy invariants (§12),
+the Git hard boundaries and merge gate (§10), or fail-closed semantics. A decision touching Rules, evidence, containment or security gets a
 fresh-context adversarial review before it is acted on. Tool, proxy, permission and
 classifier limits are reported, never evaded.
 
@@ -314,6 +333,11 @@ or decision protocol where an existing qualified one can be reused. Qualificatio
 and obligation names are evidence labels, not architecture requirements: before adding a
 decision class or protocol surface, check whether a generic existing decision family plus
 an engine-supplied domain already covers it.
+
+**Cleanups.** Code or a document is kept because something machine-read, imported or executed
+needs it, or a JSON/manifest record under `qualification/` names it by path; a mention in
+prose does not keep it. A test is deleted only when its subject is gone; a test of living
+code that merely used removed helpers for setup is re-hosted, not deleted.
 
 ## 10. Workstream contract
 
@@ -344,13 +368,13 @@ no destructive branch/worktree deletion; no `update-ref`, ref, filter or forced-
 mutation; no branch-protection or admin bypass; no remote-repository creation/deletion; no
 secret/token extraction or exposure.
 
-A campaign-owned PR may merge only when: ownership is exclusive; exact PR head and target
-SHAs are freshly verified; target drift is adjudicated; all required exact-head CI and
-qualification gates PASS; no unresolved non-outdated P1/P2 remains; no FAIL/UNKNOWN/BLOCKED
-is hidden; Rules and evidence integrity hold; no source-lock or ownership conflict remains;
-no force/admin bypass/history rewrite is needed; the branch is the executor's own; and
-canonical HEAD/TREE is re-read with a persisted receipt afterwards. Otherwise repair if
-technical and in scope, or stop on a genuine blocker.
+A campaign-owned PR may merge only when: ownership is exclusive (or transferred to the
+Development Lead); exact PR head and target SHAs are freshly verified; target drift is
+adjudicated; all required exact-head CI and qualification gates PASS; no unresolved
+non-outdated P1/P2 remains; no FAIL/UNKNOWN/BLOCKED is hidden; Rules and evidence integrity
+hold; no source-lock or ownership conflict remains; no force/admin bypass/history rewrite is
+needed; and canonical HEAD/TREE is re-read with a persisted receipt afterwards. Otherwise
+repair if technical and in scope, or stop on a genuine blocker.
 
 ### CI checks (state 2026-11-14)
 
@@ -375,17 +399,27 @@ Every other change is review-required: any other addition (class, fixture, helpe
 required-check definition. The full table is `docs/CI_WHICH_CHECK_RUNS_WHEN.md`; changing a
 required check or gate definition stays an Owner decision.
 
+**Local tests.** `python -m pytest -q --shards=4 <paths>` runs the shard runner locally. Unit
+tests run on a dirty tree; only `tests/unit/test_packaging_smoke.py` needs `src` edits
+committed (it compares the built wheel with the committed source). A new test file needs no
+entry in a shard weight table.
+
 ### Owner-delegated self-merge
 
-`AGENT_SELF_MERGE = ENABLED` (Owner instruction, 2026-10-16).
+`AGENT_SELF_MERGE = ENABLED` (Owner instructions 2026-10-16 & 2026-11-15).
 
-Claude sessions (Coordinator and thread sessions) and Muse may merge their own PRs in
-`moeendres-png/commander-playtest-lab` through the normal GitHub merge path once the PR is
-merge-ready: the required checks (`quality`, `security`, `infrastructure`) are green on the
-exact head, there is no merge conflict, no review thread is unresolved, and a MATERIAL
-change has an independent review PASS (an independent Claude review with
-no blocking findings). After merging, the agent reports
-the merge in one line with the PR link. The session that owns the PR merges it.
+The Owner-appointed Development Lead, Claude sessions (Coordinator and thread sessions),
+and Muse may merge their own PRs — and the Development Lead may review, integrate/update,
+mark ready, and merge handed-over or completed PRs — in `moeendres-png/commander-playtest-lab`
+through the normal GitHub merge path once the PR is merge-ready: the required checks
+(`quality`, `security`, `infrastructure`) are green on the exact head, there is no merge
+conflict, no review thread is unresolved, and a MATERIAL change has an independent
+fresh-context review PASS (from a fresh review context/subagent at Lead/inherited level
+unless the Owner specifies otherwise, that did not author the change, with no blocking
+findings). A MATERIAL change is not merged
+before that review is recorded on the pull request with its verdict and the exact head SHA
+it reviewed; green required checks alone are not enough. After merging, the session reports
+the merge in one line with the PR link.
 
 These still need the Owner's explicit go before merge: pushes to the engine fork
 (`moeendres-png/mage`), repins, and any change that touches signed or sealed qualification
@@ -451,6 +485,14 @@ reserved in §8. Before material work verify branch, HEAD, tree, `git status` an
 contract/state or checkpoint, and resume from the newest verified state without redoing
 valid evidence.
 
+### Parallel agents and handover
+
+Outside the Development Lead's integration mandate, an agent merges only pull requests it
+opened itself and does not push to, rebase, merge `main` into, copy or overwrite another
+active agent's branch or open PR unless that agent's handover, the Development Lead, or the
+Owner says so. A draft PR or one marked "do not merge" requires Lead adjudication plus the
+required CI checks and recorded fresh-context review PASS before merge.
+
 ### Cross-workstream access
 
 Project-wide understanding does not imply project-wide write authority. A normal
@@ -471,10 +513,10 @@ undeclared worktrees stay non-writable. Agents never use sudo or bypass a sandbo
 Executors may use project-relevant technical data: source, tests, contracts,
 qualification artifacts, build output, logs, Git metadata, engine sources, package caches,
 project configuration and explicitly allowed MTG deck/card/collection/gameplay data. Do not
-expose unrelated personal data. Raw credentials, keys and tokens are `LOCAL_ONLY`: tools
-may use them locally, but values never appear in prompts, logs, evidence, commits or
-handoffs. Deny explicit secret-extraction operations. Automatic session sharing is
-disabled.
+expose unrelated personal data or third-party real names (#1108, #1263). Raw credentials,
+keys and tokens are `LOCAL_ONLY`: tools may use them locally, but values never appear in
+prompts, logs, evidence, commits or handoffs. Deny explicit secret-extraction operations.
+Automatic session sharing is disabled.
 
 Binary recordings and dumps (Java Flight Recorder files, heap dumps, core dumps, process
 listings) are never committed, in any encoding: they embed the recording machine's
@@ -482,15 +524,15 @@ environment variables, system properties and command lines, and with them tokens
 credentials, user names and home paths. Commit the analysis script and its output; keep the
 recording outside the repository and name its SHA-256 in the report.
 
-Deck, collection and ownership data, including partial lists and the single cards of one deck
-asked for one after another, go to no external service. Allowed are requests that carry no
-Owner reference, namely bulk downloads of public card data by plain GET; the evaluation runs
-locally.
-Two Owner exceptions, card names only: (2026-11-10) to a free public card-image source to
-show card images, cached locally; (2026-11-13) to playgroup.gg to fetch the statistics it
-publishes per card (`scripts/collect_playgroup_card_atlas.py`), one request per card name,
-with no quantities, ownership, deck structure or other reference to the Owner. Nothing else
-about decks or the collection leaves the machine.
+**Collection, deck, store, and ownership card data (Owner relaxation 2026-11-15):** The
+former restriction keeping collection, deck, store, and ownership card data strictly on the
+Owner's machine is lifted (`data/research/collection_1655/` is committed in the repository).
+Executors and Studio tools may process collection, deck, and store card lists in agent
+environments, fetch card images or public MTG metadata directly from public external sources
+(such as Scryfall, EDHREC, Commander Spellbook, Playgroup.gg, Archidekt) without local-only
+workarounds. External Studio web image requests still avoid leaking referrers or credentials
+(`referrerpolicy="no-referrer"`). Purchase-mode ("Zukauf-Feature") and card price/value
+data remain unneeded and excluded for Chulane unless explicitly ordered by the Owner.
 
 ## 13. Semantic Completion Rule
 

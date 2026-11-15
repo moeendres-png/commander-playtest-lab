@@ -10,7 +10,8 @@ reverse). Only unambiguous matches are written; the rest stays NULL and is
 counted and printed. The script is idempotent.
 
 This is the exact step that produced the live store's mapping on 2026-11-12
-(266,366 of 266,539 corpus card rows mapped, 99.94%). Run it after
+(266,366 of 266,539 corpus card rows mapped, 99.94%); the 2026-11-15 corpus
+refresh (#1388) re-ran it to 268,031 of 268,204 rows mapped (99.94%). Run it after
 ``import-decklists`` and after the Scryfall catalog (and ideally the
 inventory) have been imported into the same store.
 

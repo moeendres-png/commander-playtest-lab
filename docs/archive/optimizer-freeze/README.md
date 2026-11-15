@@ -16,4 +16,5 @@ packages) were removed on 2026-11-15. They remain in Git history at commit
 at `585c9e2f2b1917ee1c59c201de74d1620037207d`. The sealed record itself is unchanged.
 
 `docs/J_P5_HOLDOUT_SEAL.json` stays in `docs/` (a test still reads it) and names
-`docs/J_P5_HOLDOUT_FIRST_EVALUATION.json`, which now lives in this directory.
+`docs/J_P5_HOLDOUT_FIRST_EVALUATION.json`, which now lives in this directory. The seal is left untouched, so its line 7 still shows the old path;
+nothing machine-reads that line.

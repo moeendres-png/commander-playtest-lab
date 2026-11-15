@@ -506,7 +506,8 @@ named card:
 
 - **C** = the smallest whole number above the highest index of any card whose only commander
   evidence is a counted 0 (every weighted commander-specific component is `ZERO_COUNT`: 358 pool
-  cards, highest index 4.2), so these cards all stay `D`: 5.
+  cards, highest index 4.2 at Stand #1371; 357 pool cards, highest index 4.1 after #1390/#1395),
+  so these cards all stay `D`: 5.
 - **A** = the smallest whole number that keeps every card with less than 5 % in the counted lists
   out of `S` and `A` (the highest index of such a card is 34.4): 35.
 - **S** = the whole number nearest to 3 % of the 857 ranked non-lands in `S` (25.7 cards), never
@@ -517,19 +518,20 @@ Result **54 / 35 / 20 / 5**, the same for lands and for all presets (Stand #1371
 The rule gave no degenerate result (A 35 is below the S target 54). A first quantile rule
 (cumulative shares 3 / 13 / 35 / 65 %, cuts 54 / 14 / 3 / 1) was discarded: it put 67 of 147
 `S`/`A` cards below 5 % in the counted lists and lifted 54 zero-count cards out of `D`.
-Measured on a store rebuilt from the repository (`import-all --from-repo --expect-pool 927`):
+Measured on a store rebuilt from the repository (`import-all --from-repo --expect-pool 927`,
+2,839 counted lists after #1390 and #1395):
 
 | Metric | `Ausgewogen` | `Commander-nah` | `Turniernah` |
 |---|---|---|---|
-| Tiers `S / A / B / C / D / U / N`, Stand #1371 (72 / 50 / 28 / 14) | `8 / 37 / 49 / 53 / 775 / 0 / 5` | `7 / 37 / 52 / 48 / 778 / 0 / 5` | `8 / 26 / 36 / 53 / 799 / 0 / 5` |
-| Tiers `S / A / B / C / D / U / N`, Stand #1366 (54 / 35 / 20 / 5) | `38 / 33 / 47 / 151 / 653 / 0 / 5` | `38 / 37 / 46 / 129 / 672 / 0 / 5` | `27 / 29 / 45 / 106 / 715 / 0 / 5` |
+| Tiers `S / A / B / C / D / U / N`, Stand #1371 (72 / 50 / 28 / 14, 2,823 lists) | `8 / 37 / 49 / 53 / 775 / 0 / 5` | `7 / 37 / 52 / 48 / 778 / 0 / 5` | `8 / 26 / 36 / 53 / 799 / 0 / 5` |
+| Tiers `S / A / B / C / D / U / N`, Stand #1366 (54 / 35 / 20 / 5, 2,839 lists) | `38 / 33 / 47 / 151 / 653 / 0 / 5` | `38 / 37 / 46 / 129 / 672 / 0 / 5` | `27 / 29 / 45 / 106 / 715 / 0 / 5` |
 | Lands `S / A / B / C / D` (65), Stand #1366 | `12 / 13 / 9 / 13 / 18` | `11 / 14 / 9 / 12 / 19` | `6 / 11 / 13 / 12 / 23` |
-| Spearman all / spells / lands vs counted lists (unchanged by the cuts) | `0.9226 / 0.9117 / 0.9891` | `0.9368 / 0.9276 / 0.9902` | `0.9282 / 0.9182 / 0.9894` |
+| Spearman all / spells / lands vs counted lists (unchanged by the cuts) | `0.9235 / 0.9115 / 0.9912` | `0.9377 / 0.9277 / 0.9919` | `0.9291 / 0.9182 / 0.9911` |
 | Randkarten oben, Stand #1371 / #1366 | `0 / 45` / `0 / 71` | `0 / 44` / `2 / 75` | `0 / 34` / `0 / 56` |
 | Stammkarten unten (> 30 %, tier C or D) | `0 / 27` | `0 / 27` | `0 / 27` |
-| Cards with only a counted 0 outside `D` (358 cards) | 0 | 0 | 0 |
-| Leave-one-out, tier changes of 927 per weighted signal, Stand #1366 | `deck_universe` 115, `corpus_tuned` 41, `corpus_log_lift` 50, `corpus_bracket_slope` 44, `tournament` 19, `edhrec_theme_reach` 9, `global_inclusion` 65, `combos` 2 | `deck_universe` 138, `corpus_tuned` 20, `corpus_log_lift` 93, `corpus_bracket_slope` 20, `edhrec_theme_reach` 23, `global_inclusion` 25, `combos` 1 | `deck_universe` 80, `corpus_tuned` 47, `corpus_log_lift` 16, `corpus_bracket_slope` 62, `tournament` 36, `global_inclusion` 26, `combos` 2 |
-| Tier changes for $k$ 100 / 200 against 150, Stand #1366 | `45 / 40` | `36 / 40` | `45 / 37` |
+| Cards with only a counted 0 outside `D` (357 cards) | 0 | 0 | 0 |
+| Leave-one-out, tier changes of 927 per weighted signal, Stand #1366 | `deck_universe` 116, `corpus_tuned` 41, `corpus_log_lift` 49, `corpus_bracket_slope` 42, `tournament` 17, `edhrec_theme_reach` 9, `global_inclusion` 64, `combos` 2 | `deck_universe` 138, `corpus_tuned` 20, `corpus_log_lift` 94, `corpus_bracket_slope` 20, `edhrec_theme_reach` 25, `global_inclusion` 25, `combos` 1 | `deck_universe` 80, `corpus_tuned` 48, `corpus_bracket_slope` 62, `corpus_log_lift` 18, `tournament` 36, `global_inclusion` 27, `combos` 2 |
+| Tier changes for $k$ 100 / 200 against 150, Stand #1366 | `46 / 38` | `36 / 40` | `45 / 36` |
 
 `Commander-nah` has 2 marginal cards in `S`/`A` (the preset weights differ from the default the
 cuts were derived on); the other presets have none.
@@ -562,14 +564,14 @@ Measured result, bulk version 7.4.2: of 123,118 variants only 4 have all cards i
 fitting identity, 2 shells (the Chulane bounce-land recipe with Tireless Provisioner and Shrieking
 Drake, the Lonis recipe with Academy Manufactor), 8 cards with a shell. The default combo source
 stays `commander` (13 cards with an EDHREC combo row), so the default tier list does not move; with
-`combo_source = "spellbook"` (counted zeros give all 927 cards a value):
+`combo_source = "spellbook"` (counted zeros give all 927 cards a value, measured on 2,839 counted lists):
 
 | `combo_source = "spellbook"` | `Ausgewogen` | `Commander-nah` | `Turniernah` |
 |---|---|---|---|
 | Distinct combo values, variants / shells | `133 / 4` | `133 / 4` | `133 / 4` |
-| Spearman all vs counted lists, variants / shells (counted zeros score 0) | `0.8651 / 0.9225` | `0.8689 / 0.9381` | `0.8278 / 0.9295` |
-| Leave-one-out `combos`, tier changes, variants / shells | `143 / 23` | `144 / 15` | `177 / 37` |
-| Tiers `S / A / B / C / D`, shells | `32 / 36 / 46 / 145 / 663` | `33 / 38 / 48 / 128 / 675` | `24 / 25 / 42 / 103 / 728` |
+| Spearman all vs counted lists, variants / shells (counted zeros score 0) | `0.8657 / 0.9235` | `0.8692 / 0.9388` | `0.8283 / 0.9303` |
+| Leave-one-out `combos`, tier changes, variants / shells | `143 / 23` | `144 / 15` | `178 / 37` |
+| Tiers `S / A / B / C / D`, shells | `32 / 36 / 46 / 145 / 663` | `33 / 38 / 48 / 128 / 675` | `24 / 25 / 43 / 101 / 729` |
 
 Top of the combos value before (variants): Shrieking Drake, Adrix and Nev, Whitemane Lion,
 Lightning Greaves, Clever Impersonator, Kor Skyfisher, Rite of Replication (cards whose partners

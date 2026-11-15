@@ -6,7 +6,6 @@ from pathlib import Path
 
 from commander_lab.engine.structural.project import load_project_structural_decks
 from commander_lab.models import OpponentProfile
-from commander_lab.repositories.opponents import CurrentOpponentRepository
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -68,10 +67,3 @@ def test_structural_runtime_preserves_every_official_card_identity_and_quantity(
         actual = Counter(card.oracle_name for card in structural[deck_id].cards)
         assert actual == expected
         assert len(structural[deck_id].cards) == 100
-
-
-def test_benchmarks_are_official_precon_evidence_only() -> None:
-    records = {record.deck_id: record for record in CurrentOpponentRepository(ROOT).records()}
-
-    for deck_id in EXPECTED_IDS:
-        assert tuple(kind.value for kind in records[deck_id].evidence_kinds) == ("official_precon",)

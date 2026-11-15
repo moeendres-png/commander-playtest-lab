@@ -36,13 +36,11 @@ from .registry import (
 )
 from .replay import ReplayValidationError, ReplayValidationResult, replay_into_internal_model
 from .tactical import TacticalRuleError, TacticalRuleOracle, TacticalRulesAdapter
-from .validation import PHASE8_ENGINE_VERSION, run_phase8_validation
 
 __all__ = [
     "FULL_GAME_DECISION_PROTOCOL_VERSION",
     "FULL_GAME_EVIDENCE_CLASS",
     "FULL_GAME_LANE",
-    "PHASE8_ENGINE_VERSION",
     "PHASE85_VERSION",
     "ExternalPilotDecisionPolicy",
     "ExternalRulesAdapter",
@@ -75,7 +73,6 @@ __all__ = [
     "load_project_rules_decks",
     "load_rules_deck_snapshot",
     "replay_into_internal_model",
-    "run_phase8_validation",
     "run_phase85_validation",
     "validate_with_external_adapter",
     "write_protocol_schema",

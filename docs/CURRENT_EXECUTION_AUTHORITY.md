@@ -1,7 +1,7 @@
 # Commander Simulator Next — Current Execution Authority
 
-Status: **CANONICAL / CURRENT**. Effective 2026-10-16 (Owner instruction: models are
-selected manually; previous revision 2026-10-12).
+Status: **CANONICAL / CURRENT**. Effective 2026-11-15 (Owner instructions: models are
+selected manually; previous revisions 2026-10-16 and 2026-10-12).
 
 ## Executors
 
@@ -22,8 +22,8 @@ Executor choice never changes Rules authority, evidence semantics, hidden-inform
 rules, fail-closed requirements, Source Truth, provider-selection or Freeze authority.
 Production Provider selection and Architecture Freeze remain separate Owner gates, with the other Owner-only items in `AGENTS.md` §8.
 
-The Claude Opus Coordinator delegation (effective 2026-10-05) is defined in `AGENTS.md`
-§8, "Claude Opus 5.5 Coordinator authority".
+The Coordinator and Development Lead delegation (effective 2026-10-05, expanded 2026-11-15)
+is defined in `AGENTS.md` §8, "Development Lead and Coordinator authority".
 
 `PRODUCTION_PROVIDER = XMAGE` (D5 runtime switch done, `provider_decision = XMAGE_SELECTED`).
 `ARCHITECTURE_FREEZE = CLAIMED` (2026-10-10, Owner-signed:

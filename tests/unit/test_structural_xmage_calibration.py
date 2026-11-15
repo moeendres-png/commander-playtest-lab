@@ -15,8 +15,6 @@ from commander_lab.engine.structural.card_facts import (
     load_card_facts,
     profile_from_facts,
 )
-from commander_lab.engine.structural.simulator import DEFAULT_TUNING, StructuralTuning
-from commander_lab.engine.structural.simulator_fidelity import StructuralSimulator
 from commander_lab.engine.structural.xmage_calibration import (
     XmagePod,
     calibration_metrics,
@@ -24,7 +22,6 @@ from commander_lab.engine.structural.xmage_calibration import (
     pod_from_record,
     spearman,
     split_pods,
-    structural_win_probabilities,
 )
 from commander_lab.models import CardRole, Color, RulesDeckInput, StructuralCardProfile
 
@@ -224,14 +221,8 @@ def test_metrics_reward_the_model_that_ranks_like_xmage() -> None:
     assert {pod.game_key for pod in first}.isdisjoint(pod.game_key for pod in second)
 
 
-def test_default_tuning_is_the_long_standing_model() -> None:
-    assert StructuralTuning() == DEFAULT_TUNING
-    assert DEFAULT_TUNING.creature_attack == 0.62
-    assert set(DEFAULT_TUNING.as_dict()) >= {"creature_attack", "finisher_damage"}
-
-
 @pytest.mark.skipif(load_card_facts(ROOT) is None, reason="card facts not exported")
-def test_a_collection_deck_replays_in_the_structural_model() -> None:
+def test_a_collection_deck_gets_a_full_fact_profile() -> None:
     facts = load_card_facts(ROOT)
     assert facts is not None
     deck: RulesDeckInput = load_rules_deck_snapshot(
@@ -241,12 +232,3 @@ def test_a_collection_deck_replays_in_the_structural_model() -> None:
     assert report.without_facts == []
     assert report.inferred_from_facts == 100
     assert sum(card.base_power for card in profile.cards if card.is_creature) > 20
-    pod = XmagePod("g", 1, (deck.deck_id,) * 4, 0, 40)
-    probabilities, abort_rate, turns = structural_win_probabilities(
-        pod,
-        {deck.deck_id: profile},
-        seeds=range(1, 3),
-        simulator_factory=StructuralSimulator,
-    )
-    assert sum(probabilities) == pytest.approx(1.0) or abort_rate > 0
-    assert turns > 0

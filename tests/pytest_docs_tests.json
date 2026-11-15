@@ -24,7 +24,6 @@
   "tests/unit/test_full107_direct_correspondence.py",
   "tests/unit/test_generic_multideck_decommission.py",
   "tests/unit/test_j_p6_hardening.py",
-  "tests/unit/test_meta_snapshot_schema_pr1.py",
   "tests/unit/test_phase12_4_packages.py",
   "tests/unit/test_pilot_decision_records.py",
   "tests/unit/test_pytest_shards.py",

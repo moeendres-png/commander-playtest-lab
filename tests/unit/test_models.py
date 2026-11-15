@@ -9,7 +9,6 @@ from commander_lab.models import (
     CommanderConfiguration,
     GameState,
     PlayerState,
-    SimulationConfig,
     ZoneState,
 )
 
@@ -62,75 +61,6 @@ def test_action_proposal_is_structured_and_immutable() -> None:
     assert proposal.target_ids == ("permanent-2",)
     with pytest.raises(ValidationError):
         proposal.decision_tier = 3  # type: ignore[misc]
-
-
-def test_simulation_config_requires_one_deck_per_seat() -> None:
-    with pytest.raises(ValidationError):
-        SimulationConfig(
-            seed=1,
-            pod_size=4,
-            deck_ids=("a", "b", "c"),
-            card_data_hash="0" * 64,
-        )
-
-
-def test_requested_phase2_models_are_publicly_importable() -> None:
-    from commander_lab.models import (
-        ActionProposal,
-        CardContribution,
-        CardIdentity,
-        Collection,
-        CommanderConfiguration,
-        Deck,
-        GameEvent,
-        GameState,
-        LegalAction,
-        MatchResult,
-        OpponentProfile,
-        PhysicalCard,
-        PlayerState,
-        SimulationConfig,
-        SimulationRun,
-        UncertaintyModel,
-        UpgradeProposal,
-        ZoneState,
-    )
-
-    assert all(
-        model is not None
-        for model in (
-            CardIdentity,
-            PhysicalCard,
-            Collection,
-            Deck,
-            CommanderConfiguration,
-            OpponentProfile,
-            UncertaintyModel,
-            GameState,
-            PlayerState,
-            ZoneState,
-            LegalAction,
-            ActionProposal,
-            GameEvent,
-            SimulationConfig,
-            SimulationRun,
-            MatchResult,
-            CardContribution,
-            UpgradeProposal,
-        )
-    )
-
-
-def test_pilot_config_count_must_match_pod_size() -> None:
-    from commander_lab.models import PilotConfig, StructuralMatchConfig
-
-    with pytest.raises(ValidationError):
-        StructuralMatchConfig(
-            match_id="pilot-count",
-            seed=1,
-            deck_ids=("a", "b"),
-            pilot_configs=(PilotConfig(),),
-        )
 
 
 def test_phase4_pilot_models_are_publicly_importable() -> None:

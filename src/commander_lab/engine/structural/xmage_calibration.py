@@ -17,19 +17,16 @@ import json
 import math
 import random
 from collections import Counter, defaultdict
-from collections.abc import Callable, Iterable, Mapping, Sequence
+from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
 from statistics import fmean
 from typing import Any
 
 from commander_lab.models import (
-    PilotConfig,
     RulesDeckInput,
-    StructuralAbortLimits,
     StructuralCardProfile,
     StructuralDeckProfile,
-    StructuralMatchConfig,
 )
 from commander_lab.storage import sha256_value
 
@@ -170,46 +167,6 @@ def fact_deck_profile(
     return deck_profile, report
 
 
-SimulatorFactory = Callable[[dict[str, StructuralDeckProfile]], Any]
-
-
-def structural_win_probabilities(
-    pod: XmagePod,
-    profiles: Mapping[str, StructuralDeckProfile],
-    *,
-    seeds: Sequence[int],
-    simulator_factory: SimulatorFactory,
-    max_turns: int = 30,
-) -> tuple[list[float], float, float]:
-    """Per-seat Structural win share over ``seeds``, the abort rate and mean turns."""
-    seat_ids = [f"s{seat}" for seat in range(len(pod.deck_ids))]
-    decks = {
-        seat_id: profiles[deck_id].model_copy(update={"deck_id": seat_id})
-        for seat_id, deck_id in zip(seat_ids, pod.deck_ids, strict=True)
-    }
-    wins = [0.0] * len(seat_ids)
-    aborted = 0
-    turns: list[float] = []
-    for seed in seeds:
-        result = simulator_factory(decks).simulate(
-            StructuralMatchConfig(
-                match_id=f"calibration-{pod.game_key[:12]}-{seed}",
-                deck_ids=tuple(seat_ids),
-                seed=seed,
-                starting_player_seat=0,
-                limits=StructuralAbortLimits(max_turns=max_turns),
-                pilot_configs=(PilotConfig(),) * len(seat_ids),
-            ),
-            run_id="structural-xmage-calibration",
-        )
-        aborted += bool(result.aborted)
-        turns.append(float(result.turns))
-        winners = [int(player_id[1:]) - 1 for player_id in result.winner_ids]
-        for seat in winners:
-            wins[seat] += 1.0 / len(winners)
-    return [value / len(seeds) for value in wins], aborted / len(seeds), fmean(turns)
-
-
 def spearman(left: Sequence[float], right: Sequence[float]) -> float | None:
     if len(left) != len(right) or len(left) < 3:
         return None
@@ -304,5 +261,4 @@ __all__ = [
     "pod_from_record",
     "spearman",
     "split_pods",
-    "structural_win_probabilities",
 ]
