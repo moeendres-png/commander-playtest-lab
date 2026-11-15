@@ -770,8 +770,7 @@ def _run(args: argparse.Namespace, store: StudioStore) -> object:
     elif args.command == "import-cohort":
         result = catalog.import_cohort(store, args.path, cohort=args.name)
     elif args.command == "fetch-images":
-        pool = legal_pool(store, args.commander)
-        result = fetch_images(store, [str(row["card_id"]) for row in pool])
+        result = fetch_images(store)
     elif args.command == "fetch-roles":
         result = roles.import_roles(
             store,

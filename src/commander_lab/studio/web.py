@@ -1,8 +1,10 @@
 """Local web application of the Studio deck builder.
 
 It listens on this machine only. The browser gets card data, deck lists and counts from
-the Studio store; card images come from the local image cache. Nothing here decides rules:
-the data check reads stored facts, the Rules Core stays the binding check for play.
+the Studio store; card images are loaded directly from ``https://cards.scryfall.io`` with
+``referrerpolicy="no-referrer"`` (legacy ``/img/...`` routes redirect there with 302).
+Nothing here decides rules: the data check reads stored facts, the Rules Core stays the
+binding check for play.
 """
 
 from __future__ import annotations
@@ -17,7 +19,7 @@ from typing import Literal, cast
 
 from fastapi import FastAPI, HTTPException, Query, Request, Response
 from fastapi import Path as PathParam
-from fastapi.responses import FileResponse, JSONResponse, PlainTextResponse
+from fastapi.responses import JSONResponse, PlainTextResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, ConfigDict, Field, StrictInt
 
@@ -53,7 +55,7 @@ from .decks import (
     revision_rows,
     validate_rows,
 )
-from .images import cached_image, cached_image_by_name, public_card
+from .images import image_cache_status, public_card, web_image_url, web_image_url_by_name
 from .launch import MAX_GAMES_PER_JVM, MAX_WORKERS, MIN_GAMES_PER_JVM, MIN_WORKERS
 from .sources import source_inventory_payload
 from .store import StudioStore, studio_data_dir
@@ -63,8 +65,8 @@ STATIC = Path(__file__).resolve().parent / "static"
 _LOCAL_HOSTS = frozenset({"127.0.0.1", "localhost", "[::1]", "testserver"})
 _SLUG = re.compile(r"[^a-z0-9]+")
 _CSP = (
-    "default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; "
-    "base-uri 'none'; form-action 'none'; frame-ancestors 'none'"
+    "default-src 'self'; img-src 'self' data: https://cards.scryfall.io; style-src 'self'; "
+    "script-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'"
 )
 
 
@@ -309,6 +311,7 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
                 # (register in `sources.py`), so the data state is visible here;
                 # the counted detail of every layer is under /api/data-report.
                 "source_inventory": _inventory_summary(),
+                "image_cache": image_cache_status(store),
                 "sources": sources,
             }
         finally:
@@ -1345,19 +1348,37 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         finally:
             store.close()
 
+    @app.get("/img/by-name")
+    @app.get("/img-name")
+    def image_by_name(name: str = Query(min_length=1, max_length=200)) -> Response:
+        store = open_store()
+        try:
+            url = web_image_url_by_name(store, name)
+        finally:
+            store.close()
+        if url is None:
+            raise HTTPException(404, "no image")
+        return RedirectResponse(
+            url=url,
+            status_code=302,
+            headers={"Referrer-Policy": "no-referrer", "Cache-Control": "max-age=604800"},
+        )
+
     @app.get("/img/{card_id}")
     def image(card_id: str, face: str = "front") -> Response:
         if face not in {"front", "back"}:
             raise HTTPException(422, "face is front or back")
         store = open_store()
         try:
-            path = cached_image(store, card_id, face)
+            url = web_image_url(store, card_id, face)
         finally:
             store.close()
-        if path is None:
+        if url is None:
             raise HTTPException(404, "no image")
-        return FileResponse(
-            path, media_type="image/jpeg", headers={"Cache-Control": "max-age=604800"}
+        return RedirectResponse(
+            url=url,
+            status_code=302,
+            headers={"Referrer-Policy": "no-referrer", "Cache-Control": "max-age=604800"},
         )
 
     def games_home() -> Path:
@@ -1498,19 +1519,6 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
             return found
         finally:
             store.close()
-
-    @app.get("/img-name")
-    def image_by_name(name: str = Query(min_length=1, max_length=200)) -> Response:
-        store = open_store()
-        try:
-            path = cached_image_by_name(store, name)
-        finally:
-            store.close()
-        if path is None:
-            raise HTTPException(404, "no image")
-        return FileResponse(
-            path, media_type="image/jpeg", headers={"Cache-Control": "max-age=604800"}
-        )
 
     app.mount("/", StaticFiles(directory=STATIC, html=True), name="static")
     return app

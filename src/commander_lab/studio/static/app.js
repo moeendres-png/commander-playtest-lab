@@ -196,14 +196,20 @@ function filtered() {
   });
   return keyed.map((item) => item[1]);
 }
+function cardImageUrl(card, face = "front") {
+  if (face === "back") return card.image_url_back || `/img/${encodeURIComponent(card.card_id)}?face=back`;
+  return card.image_url_front || `/img/${encodeURIComponent(card.card_id)}?face=front`;
+}
 function image(card, cls, face = "front") {
-  return h("img", { class: cls, loading: "lazy", alt: card.name, src: `/img/${encodeURIComponent(card.card_id)}?face=${face}` });
+  const img = h("img", { class: cls, loading: "lazy", referrerpolicy: "no-referrer", alt: card.name, src: cardImageUrl(card, face) });
+  img.addEventListener("error", () => img.replaceWith(h("span", { class: "muted", title: "Kein Bild geladen (offline)" }, card.name)), { once: true });
+  return img;
 }
 // The card picture, or its name and text when there is no image or it cannot be loaded.
 function cardFace(card, onclick) {
   const fallback = () => h("div", { class: "fallback", title: "Kein Bild vorhanden", onclick }, h("b", {}, card.name), mana(card.mana_cost), h("span", { class: "muted" }, card.type_line), h("span", {}, card.text));
   if (!card.has_image) return fallback();
-  const picture = image(card, "");
+  const picture = h("img", { class: "", loading: "lazy", referrerpolicy: "no-referrer", alt: card.name, src: cardImageUrl(card, "front") });
   picture.addEventListener("click", onclick);
   picture.addEventListener("error", () => picture.replaceWith(fallback()), { once: true });
   return picture;
@@ -211,7 +217,13 @@ function cardFace(card, onclick) {
 function hoverPreview(el, card) {
   if (!card.has_image) return;
   el.addEventListener("mouseenter", (event) => {
-    const box = $("preview"); box.firstChild.src = `/img/${encodeURIComponent(card.card_id)}`; box.hidden = false; movePreview(event);
+    const box = $("preview");
+    const img = box.firstChild;
+    img.referrerPolicy = "no-referrer";
+    img.onerror = () => { box.hidden = true; };
+    img.src = cardImageUrl(card, "front");
+    box.hidden = false;
+    movePreview(event);
   });
   el.addEventListener("mousemove", movePreview);
   el.addEventListener("mouseleave", () => { $("preview").hidden = true; });
@@ -1442,7 +1454,7 @@ async function openCard(card) {
   const box = $("modal-box"); box.className = ""; box.replaceChildren();
   let face = "front";
   const picture = card.has_image ? image(card, "big") : h("div", { class: "muted" }, "Kein Bild in den Kartendaten.");
-  const left = h("div", {}, picture, card.has_back ? h("div", { class: "actions" }, h("button", { type: "button", onclick: () => { face = face === "front" ? "back" : "front"; picture.src = `/img/${encodeURIComponent(card.card_id)}?face=${face}`; } }, "Rückseite / Vorderseite")) : null);
+  const left = h("div", {}, picture, card.has_back ? h("div", { class: "actions" }, h("button", { type: "button", onclick: () => { face = face === "front" ? "back" : "front"; picture.src = cardImageUrl(card, face); } }, "Rückseite / Vorderseite")) : null);
   const note = h("textarea", { placeholder: "Deine Notiz zur Karte" }); note.value = card.note;
   const saveMark = async (change) => {
     Object.assign(card, change);
