@@ -44,6 +44,7 @@ LINKS_FILE = RESEARCH / "deckbuilder_1655" / "spellbook_card_links.csv"
 POOL_FILE = RESEARCH / "chulane_legal_pool_gap_matrix.json"
 OUTPUT_FILE = RESEARCH / "deckbuilder_1655" / "spellbook_shells.csv"
 FIELDS = [
+    "commander_name",
     "card_name",
     "fetch_status",
     "shell_count",
@@ -52,6 +53,15 @@ FIELDS = [
     "shell_count_commander",
     "shell_ids",
 ]
+VALID_IDENTITY = frozenset({"W", "U", "B", "R", "G", spellbook_shells.COLOURLESS})
+
+
+def _parse_identity(text: str) -> frozenset[str]:
+    letters = {char for char in text.strip().upper() if char not in {",", " ", "/"}}
+    unknown = letters - VALID_IDENTITY
+    if not letters or unknown:
+        raise ValueError(f"invalid colour identity: {text!r}")
+    return frozenset(letters - {spellbook_shells.COLOURLESS})
 
 
 def _load_bulk(path: Path | None) -> tuple[dict[str, object], str]:
@@ -77,7 +87,14 @@ def main() -> int:
     parser.add_argument("--links", type=Path, default=LINKS_FILE)
     parser.add_argument("--pool", type=Path, default=POOL_FILE)
     parser.add_argument("--output", type=Path, default=OUTPUT_FILE)
+    parser.add_argument("--commander", default=spellbook_shells.CHULANE_NAME)
+    parser.add_argument("--identity", default="WUG")
     args = parser.parse_args()
+
+    identity = _parse_identity(args.identity)
+    commander = args.commander.strip()
+    if not commander:
+        raise ValueError("--commander must not be blank")
 
     document, digest = _load_bulk(args.bulk)
     variants = document.get("variants")
@@ -93,9 +110,12 @@ def main() -> int:
     with args.links.open(newline="", encoding="utf-8") as handle:
         for row in csv.DictReader(handle):
             ids = [part for part in (row.get("variant_ids") or "").split(";") if part.strip()]
-            counts = spellbook_shells.count_shells(ids, index, pool)
+            counts = spellbook_shells.count_shells(
+                ids, index, pool, identity=identity, commander=commander
+            )
             rows.append(
                 {
+                    "commander_name": commander,
                     "card_name": row["card_name"],
                     "fetch_status": row.get("fetch_status") or "AVAILABLE",
                     "shell_count": counts.shells,
@@ -114,7 +134,7 @@ def main() -> int:
     distinct = len({shell for row in rows for shell in str(row["shell_ids"]).split(";") if shell})
     print(f"bulk version {document.get('version')}, timestamp {document.get('timestamp')}")
     print(f"bulk sha256 {digest}")
-    print(f"variants indexed {len(index)}, pool {len(pool)}")
+    print(f"variants indexed {len(index)}, pool {len(pool)}, commander {commander}")
     print(f"rows {len(rows)}, cards with shells {listed}, distinct shells {distinct}")
     print(f"written {args.output}")
     return 0

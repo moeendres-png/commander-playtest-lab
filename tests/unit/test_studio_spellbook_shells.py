@@ -6,6 +6,15 @@ its cards in ``uses``, generic slots in ``requires`` and its colour identity in
 
 from __future__ import annotations
 
+import csv
+import gzip
+import importlib.util
+import json
+import sys
+from pathlib import Path
+
+import pytest
+
 from commander_lab.studio import spellbook_shells
 
 POOL = {"Alpha", "Beta", "Gamma", "Delta", "Epsilon", "Zeta", "Commander Card"}
@@ -179,3 +188,144 @@ def test_a_variant_with_the_commander_card_involves_the_commander() -> None:
     )
     assert counts.shells == 2
     assert counts.with_commander == 1
+
+
+def test_with_commander_survives_when_a_non_commander_variant_comes_first() -> None:
+    # P2-1: a shell may have one variant without the commander processed first (even
+    # with the same or smaller card_count) and a later variant that uses the commander
+    # (or flags mustBeCommander). Order and card_count differences must never drop it.
+    index = _index(
+        _variant("1-2", 7, ["Alpha", "Beta"], commander=False),
+        _variant("1-3-cmd", 7, ["Alpha", "Gamma", "Delta"], commander=True),
+        _variant("1-4", 8, ["Alpha", "Beta"], commander=False),
+        _variant("1-5", 8, ["Alpha", "Gamma"], commander=True),
+    )
+    counts = spellbook_shells.count_shells(["1-2", "1-3-cmd", "1-4", "1-5"], index, POOL)
+    assert counts.shells == 2
+    assert counts.with_commander == 2
+
+
+def test_bool_combo_id_and_missing_or_blank_identity_fail_closed() -> None:
+    # P3-3: True is an instance of int in Python and must not pass _combo_ids; missing,
+    # None, empty/whitespace, or non-string identity must fail closed instead of looking
+    # colourless ("C" is the only empty-colour-set marker).
+    records: list[dict[str, object]] = [
+        {
+            "id": "bool-id",
+            "of": [{"id": True}],
+            "identity": "C",
+            "uses": [{"card": {"name": "Alpha"}}, {"card": {"name": "Beta"}}],
+            "requires": [],
+        },
+        {
+            "id": "missing-id-text",
+            "of": [{"id": 10}],
+            "uses": [{"card": {"name": "Alpha"}}, {"card": {"name": "Beta"}}],
+            "requires": [],
+        },
+        {
+            "id": "none-id-text",
+            "of": [{"id": 11}],
+            "identity": None,
+            "uses": [{"card": {"name": "Alpha"}}, {"card": {"name": "Beta"}}],
+            "requires": [],
+        },
+        {
+            "id": "blank-id-text",
+            "of": [{"id": 12}],
+            "identity": "   ",
+            "uses": [{"card": {"name": "Alpha"}}, {"card": {"name": "Beta"}}],
+            "requires": [],
+        },
+        {
+            "id": "list-id-text",
+            "of": [{"id": 13}],
+            "identity": ["W", "U"],
+            "uses": [{"card": {"name": "Alpha"}}, {"card": {"name": "Beta"}}],
+            "requires": [],
+        },
+    ]
+    index = spellbook_shells.build_variant_index(records, [])
+    assert "bool-id" not in index
+    counts = spellbook_shells.count_shells(
+        ["bool-id", "missing-id-text", "none-id-text", "blank-id-text", "list-id-text"],
+        index,
+        POOL,
+    )
+    assert counts.shells == 0
+    assert counts.shell_ids == ()
+
+
+def test_build_script_writes_commander_scoped_csv_and_validates_identity(
+    tmp_path: Path, monkeypatch: object
+) -> None:
+    script_path = Path(__file__).resolve().parents[2] / "scripts" / "build_spellbook_shells.py"
+    spec = importlib.util.spec_from_file_location("build_spellbook_shells", script_path)
+    assert spec is not None and spec.loader is not None
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+
+    assert mod._parse_identity("C") == frozenset()
+    assert mod._parse_identity("w, u, g") == frozenset({"W", "U", "G"})
+    with pytest.raises(ValueError, match="identity"):
+        mod._parse_identity("WXYZ")
+
+    bulk = tmp_path / "variants.json.gz"
+    bulk.write_bytes(
+        gzip.compress(
+            json.dumps(
+                {
+                    "version": "test",
+                    "timestamp": "2026-11-15T00:00:00Z",
+                    "variants": [_variant("1-2", 7, ["Alpha", "Beta"], identity="WU")],
+                    "aliases": [],
+                }
+            ).encode("utf-8")
+        )
+    )
+    links = tmp_path / "links.csv"
+    with links.open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(handle, fieldnames=["card_name", "fetch_status", "variant_ids"])
+        writer.writeheader()
+        writer.writerow({"card_name": "Alpha", "fetch_status": "AVAILABLE", "variant_ids": "1-2"})
+    pool = tmp_path / "pool.json"
+    pool.write_text(
+        json.dumps({"cards": [{"card_name": "Alpha"}, {"card_name": "Beta"}]}), encoding="utf-8"
+    )
+    out = tmp_path / "shells.csv"
+
+    mp = monkeypatch  # type: ignore[assignment]
+    mp.setattr(  # type: ignore[attr-defined]
+        sys,
+        "argv",
+        [
+            "build_spellbook_shells.py",
+            "--bulk",
+            str(bulk),
+            "--links",
+            str(links),
+            "--pool",
+            str(pool),
+            "--output",
+            str(out),
+            "--commander",
+            "Custom Commander",
+            "--identity",
+            "WU",
+        ],
+    )
+    assert mod.main() == 0
+    with out.open(newline="", encoding="utf-8") as handle:
+        rows = list(csv.DictReader(handle))
+    assert rows == [
+        {
+            "commander_name": "Custom Commander",
+            "card_name": "Alpha",
+            "fetch_status": "AVAILABLE",
+            "shell_count": "1",
+            "shell_count_2card": "1",
+            "shell_count_3plus": "0",
+            "shell_count_commander": "0",
+            "shell_ids": "7",
+        }
+    ]

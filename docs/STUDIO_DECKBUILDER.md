@@ -554,13 +554,15 @@ README of the folder). Rules (module `spellbook_shells`):
 - 2 cards against 3 or more (template slots count as cards), and commander involvement
   (`mustBeCommander`, or the commander card itself is in the combo).
 - The importer reads the file like every other signal (`spellbook_shells`, `spellbook_two_card_shells`,
-  `spellbook_commander_shells`, commander independent, SHA-256 of the file in the source row;
-  a re-import writes the same rows and the same source). With these signals in the store the
-  `spellbook` combo source ranks the shell parts and the variant count is only shown; without them
-  it ranks the variant mixture as before. The detail row of a card shows "n Combo-Shells (davon a
-  mit 2 Karten, b mit 3+ Karten, c mit Commander-Beteiligung)".
+  `spellbook_commander_shells`, scoped by `commander_name` to the imported commander, SHA-256 of
+  the file in the source row; a re-import writes the same rows and the same source). With these
+  signals stored for the active commander, the `spellbook` combo source ranks the shell parts
+  (`signal: spellbook_shells`) and the variant count is only shown; for another commander without
+  its own shell rows it falls back to the variant mixture (`spellbook_variants`). The detail row
+  of a card shows "n Combo-Shells (davon a mit 2 Karten, b mit 3+ Karten, c mit
+  Commander-Beteiligung)" or explicitly marks missing/out-of-bounds breakdowns as `unbekannt`.
 
-Measured result, bulk version 7.4.2: of 123,118 variants only 4 have all cards in the pool and a
+Measured result, bulk version 7.4.2: of 123,149 variants only 4 have all cards in the pool and a
 fitting identity, 2 shells (the Chulane bounce-land recipe with Tireless Provisioner and Shrieking
 Drake, the Lonis recipe with Academy Manufactor), 8 cards with a shell. The default combo source
 stays `commander` (13 cards with an EDHREC combo row), so the default tier list does not move; with

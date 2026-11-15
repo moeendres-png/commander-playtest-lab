@@ -2081,6 +2081,7 @@ def test_spellbook_downgrade_import_drops_the_stale_quality_rows(
 # ---------- spellbook shells (#1366) ----------
 
 SHELL_FIELDS = [
+    "commander_name",
     "card_name",
     "fetch_status",
     "shell_count",
@@ -2098,15 +2099,17 @@ def _shells_folder(tmp_path: Path, rows: list[dict[str, object]]) -> Path:
     return folder
 
 
-def _shell_row(name: str, shells: object, two_card: object, commander: object) -> dict[str, object]:
+def _shell_row(
+    name: str, shells: object, two_card: object, commander: object, *, owner: str = COMMANDER
+) -> dict[str, object]:
     shells_int = int(str(shells)) if str(shells).isdigit() else 0
-    two_int = int(str(two_card)) if str(two_card).isdigit() else 0
     return {
+        "commander_name": owner,
         "card_name": name,
         "fetch_status": "AVAILABLE",
         "shell_count": shells,
         "shell_count_2card": two_card,
-        "shell_count_3plus": shells_int - two_int,
+        "shell_count_3plus": shells_int - (int(str(two_card)) if str(two_card).isdigit() else 0),
         "shell_count_commander": commander,
         "shell_ids": ";".join(str(100 + index) for index in range(shells_int)),
     }
@@ -2124,22 +2127,25 @@ def test_shells_import_stores_the_shell_signals(store: StudioStore, tmp_path: Pa
         ],
     )
     report = signals.import_signals(store, folder, commander=COMMANDER)
-    shells = _signal(store, signals.SIGNAL_SHELLS, "Filler 00", commander="")
+    shells = _signal(store, signals.SIGNAL_SHELLS, "Filler 00", commander=COMMANDER)
     assert shells is not None and shells["value"] == 3.0
-    two = _signal(store, signals.SIGNAL_TWO_CARD_SHELLS, "Filler 00", commander="")
+    two = _signal(store, signals.SIGNAL_TWO_CARD_SHELLS, "Filler 00", commander=COMMANDER)
     assert two is not None and two["value"] == 1.0
-    commander_shells = _signal(store, signals.SIGNAL_COMMANDER_SHELLS, "Filler 00", commander="")
+    commander_shells = _signal(
+        store, signals.SIGNAL_COMMANDER_SHELLS, "Filler 00", commander=COMMANDER
+    )
     assert commander_shells is not None and commander_shells["value"] == 1.0
-    empty = _signal(store, signals.SIGNAL_SHELLS, "Filler 01", commander="")
+    empty = _signal(store, signals.SIGNAL_SHELLS, "Filler 01", commander=COMMANDER)
     assert empty is not None and empty["value"] == 0.0
-    unknown = _signal(store, signals.SIGNAL_SHELLS, "Filler 02", commander="")
+    unknown = _signal(store, signals.SIGNAL_SHELLS, "Filler 02", commander=COMMANDER)
     assert unknown is not None and unknown["value"] is None
     files = report["files"]
     assert isinstance(files, dict)
     reasons = files[signals.SHELLS_FILE]["null_value_reasons"]
     assert reasons == {"SHELL_COUNT_NOT_NUMERIC": 1}
-    # the shell signals are commander independent, like the variant count
-    assert _signal(store, signals.SIGNAL_SHELLS, "Filler 00", commander=COMMANDER) is None
+    # the shell signals are commander-scoped, never stored under the empty commander
+    assert _signal(store, signals.SIGNAL_SHELLS, "Filler 00", commander="") is None
+    assert _signal(store, signals.SIGNAL_SHELLS, "Filler 00", commander=OTHER) is None
     # a re-import of the same file is idempotent: same rows, same source, the
     # source registered under the SHA-256 of the file bytes
     digest = hashlib.sha256((folder / "spellbook_shells.csv").read_bytes()).hexdigest()
@@ -2148,7 +2154,7 @@ def test_shells_import_stores_the_shell_signals(store: StudioStore, tmp_path: Pa
         tuple(row) for row in store.connection.execute("SELECT * FROM card_signal ORDER BY 1, 2, 3")
     ]
     signals.import_signals(store, folder, commander=COMMANDER)
-    again = _signal(store, signals.SIGNAL_SHELLS, "Filler 00", commander="")
+    again = _signal(store, signals.SIGNAL_SHELLS, "Filler 00", commander=COMMANDER)
     assert again is not None and again["value"] == 3.0
     assert store.count("source") == sources
     assert rows_before == [
@@ -2259,18 +2265,27 @@ def test_shells_downgrade_import_drops_the_stale_breakdown_rows(
         _shells_folder(tmp_path, [_shell_row("Filler 00", 3, 1, 1)]),
         commander=COMMANDER,
     )
-    assert _signal(store, signals.SIGNAL_TWO_CARD_SHELLS, "Filler 00", commander="") is not None
+    assert (
+        _signal(store, signals.SIGNAL_TWO_CARD_SHELLS, "Filler 00", commander=COMMANDER) is not None
+    )
     folder = tmp_path / "lean_shells"
     folder.mkdir()
     _write(
         folder / "spellbook_shells.csv",
-        [{"card_name": "Filler 00", "fetch_status": "AVAILABLE", "shell_count": 3}],
-        ["card_name", "fetch_status", "shell_count"],
+        [
+            {
+                "commander_name": COMMANDER,
+                "card_name": "Filler 00",
+                "fetch_status": "AVAILABLE",
+                "shell_count": 3,
+            }
+        ],
+        ["commander_name", "card_name", "fetch_status", "shell_count"],
     )
     signals.import_signals(store, folder, commander=COMMANDER)
-    assert _signal(store, signals.SIGNAL_SHELLS, "Filler 00", commander="") is not None
-    assert _signal(store, signals.SIGNAL_TWO_CARD_SHELLS, "Filler 00", commander="") is None
-    assert _signal(store, signals.SIGNAL_COMMANDER_SHELLS, "Filler 00", commander="") is None
+    assert _signal(store, signals.SIGNAL_SHELLS, "Filler 00", commander=COMMANDER) is not None
+    assert _signal(store, signals.SIGNAL_TWO_CARD_SHELLS, "Filler 00", commander=COMMANDER) is None
+    assert _signal(store, signals.SIGNAL_COMMANDER_SHELLS, "Filler 00", commander=COMMANDER) is None
 
 
 # ---------- tournament conversion (#1261 P1.1) ----------
@@ -2846,3 +2861,232 @@ def test_separate_lands_is_validated_serialised_and_recommended() -> None:
     assert "separate_lands" in {key for g in panel["groups"] for key in g["keys"]}  # type: ignore[index]
     choices = panel["choices"]["separate_lands"]  # type: ignore[index]
     assert [c["value"] for c in choices if c["recommended"]] == [True]
+
+
+def test_shell_note_never_fabricates_zero_or_negative_counts() -> None:
+    # P2-2 & P3-4: missing/NULL/invalid breakdown parts stay unknown instead of 0 or negative 3+.
+    both_unknown = strength_view.shell_note(3.0, None, None)
+    assert "3 Combo-Shells" in both_unknown
+    assert "Aufschlüsselung unbekannt" in both_unknown
+    assert "0 mit 2 Karten" not in both_unknown
+    assert "0 mit Commander" not in both_unknown
+
+    cards_bad_cmd_ok = strength_view.shell_note(3.0, 5.0, 1.0)
+    assert "3 Combo-Shells" in cards_bad_cmd_ok
+    assert "2/3+-Karten-Aufschlüsselung unbekannt" in cards_bad_cmd_ok
+    assert "1 mit Commander-Beteiligung" in cards_bad_cmd_ok
+    assert "-2" not in cards_bad_cmd_ok
+
+    cards_ok_cmd_bad = strength_view.shell_note(3.0, 1.0, 5.0)
+    assert "davon 1 mit 2 Karten, 2 mit 3+ Karten" in cards_ok_cmd_bad
+    assert "Commander-Beteiligung unbekannt" in cards_ok_cmd_bad
+
+
+def test_lean_or_null_shell_breakdowns_keep_unknown_in_computed_note(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    # P2-2 & P3-4 end-to-end through signal import and strength_view.compute:
+    folder = tmp_path / "partial_shells"
+    folder.mkdir()
+    _write(
+        folder / "spellbook_shells.csv",
+        [
+            {
+                "commander_name": COMMANDER,
+                "card_name": "Filler 00",
+                "fetch_status": "AVAILABLE",
+                "shell_count": 3,
+            },
+            *[
+                {
+                    "commander_name": COMMANDER,
+                    "card_name": name,
+                    "fetch_status": "AVAILABLE",
+                    "shell_count": 0,
+                }
+                for name in CARDS[1:]
+            ],
+        ],
+        ["commander_name", "card_name", "fetch_status", "shell_count"],
+    )
+    signals.import_signals(store, folder, commander=COMMANDER)
+    only_combos = {name: 0.0 for name in strength.COMPONENTS} | {strength.COMBOS: 2.0}
+    settings = StrengthSettings(
+        weights=only_combos,
+        min_coverage=0.0,
+        min_components=1,
+        combo_source=strength.COMBO_SPELLBOOK,
+    )
+    cards = _by_name(strength_view.compute(store, COMMANDER, settings))
+    row = _component(cards["Filler 00"], strength.COMBOS)
+    assert "3 Combo-Shells" in row["note"]
+    assert "Aufschlüsselung unbekannt" in row["note"]
+    assert "0 mit 2 Karten" not in row["note"]
+    assert row["signal"] == strength.COMBO_PART_SHELLS
+
+    # Also check explicit NULL and out-of-bounds breakdown values in a full CSV:
+    full_dir = tmp_path / "null_and_bad_shells"
+    full_dir.mkdir()
+    _write(
+        full_dir / "spellbook_shells.csv",
+        [
+            {
+                "commander_name": COMMANDER,
+                "card_name": "Filler 00",
+                "fetch_status": "AVAILABLE",
+                "shell_count": 3,
+                "shell_count_2card": "NULL",
+                "shell_count_3plus": "NULL",
+                "shell_count_commander": 1,
+                "shell_ids": "1;2;3",
+            },
+            {
+                "commander_name": COMMANDER,
+                "card_name": "Filler 01",
+                "fetch_status": "AVAILABLE",
+                "shell_count": 2,
+                "shell_count_2card": 5,
+                "shell_count_3plus": 0,
+                "shell_count_commander": "NULL",
+                "shell_ids": "4;5",
+            },
+            *[
+                {
+                    "commander_name": COMMANDER,
+                    "card_name": name,
+                    "fetch_status": "AVAILABLE",
+                    "shell_count": 0,
+                    "shell_count_2card": 0,
+                    "shell_count_3plus": 0,
+                    "shell_count_commander": 0,
+                    "shell_ids": "",
+                }
+                for name in CARDS[2:]
+            ],
+        ],
+        [
+            "commander_name",
+            "card_name",
+            "fetch_status",
+            "shell_count",
+            "shell_count_2card",
+            "shell_count_3plus",
+            "shell_count_commander",
+            "shell_ids",
+        ],
+    )
+    signals.import_signals(store, full_dir, commander=COMMANDER)
+    cards2 = _by_name(strength_view.compute(store, COMMANDER, settings))
+    row0 = _component(cards2["Filler 00"], strength.COMBOS)
+    assert "3 Combo-Shells" in row0["note"]
+    assert "2/3+-Karten-Aufschlüsselung unbekannt" in row0["note"]
+    assert "1 mit Commander-Beteiligung" in row0["note"]
+    row1 = _component(cards2["Filler 01"], strength.COMBOS)
+    assert "2 Combo-Shells" in row1["note"]
+    assert "Aufschlüsselung unbekannt" in row1["note"]
+    assert "-3" not in row1["note"]
+
+
+def test_shells_are_commander_scoped_and_require_commander_column(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    # P2-3 & P3-1: old CSV without commander_name fails closed; imported shells for COMMANDER
+    # drive COMMANDER's combos (signal == spellbook_shells) without leaking into OTHER's combos
+    # (OTHER falls back to spellbook_variants) or polluting OTHER's signal_coverage.
+    bad_folder = tmp_path / "unscoped"
+    bad_folder.mkdir()
+    _write(
+        bad_folder / "spellbook_shells.csv",
+        [{"card_name": "Filler 00", "fetch_status": "AVAILABLE", "shell_count": 2}],
+        ["card_name", "fetch_status", "shell_count"],
+    )
+    with pytest.raises(ValueError, match="commander_name"):
+        signals.import_signals(store, bad_folder, commander=COMMANDER)
+
+    # Set up collection + signals for BOTH COMMANDER and OTHER (no shells for OTHER).
+    _add_pool_card(store, "cid-other-cmd", OTHER, "Legendary Creature", mv=3.0)
+    store.connection.execute(
+        "UPDATE card SET color_identity = 'G,U,W' WHERE card_id = 'cid-other-cmd'"
+    )
+    store.connection.commit()
+
+    folder = tmp_path / "sig_all"
+    _write_signals(folder)
+    # _write_signals has Filler 00 at variant_count=0 and Filler 09 at variant_count=9.
+    # Add spellbook_shells scoped ONLY to COMMANDER with the opposite rank (Filler 00 = 3, rest = 0).
+    fields = [
+        "commander_name",
+        "card_name",
+        "fetch_status",
+        "shell_count",
+        "shell_count_2card",
+        "shell_count_3plus",
+        "shell_count_commander",
+        "shell_ids",
+    ]
+    _write(
+        folder / "spellbook_shells.csv",
+        [
+            {
+                "commander_name": COMMANDER,
+                "card_name": "Filler 00",
+                "fetch_status": "AVAILABLE",
+                "shell_count": 3,
+                "shell_count_2card": 1,
+                "shell_count_3plus": 2,
+                "shell_count_commander": 1,
+                "shell_ids": "100;101;102",
+            },
+            *[
+                {
+                    "commander_name": COMMANDER,
+                    "card_name": name,
+                    "fetch_status": "AVAILABLE",
+                    "shell_count": 0,
+                    "shell_count_2card": 0,
+                    "shell_count_3plus": 0,
+                    "shell_count_commander": 0,
+                    "shell_ids": "",
+                }
+                for name in CARDS[1:]
+            ],
+        ],
+        fields,
+    )
+    signals.import_signals(store, folder, commander=COMMANDER)
+    assert _signal(store, signals.SIGNAL_SHELLS, "Filler 00", commander=COMMANDER) is not None
+    assert _signal(store, signals.SIGNAL_SHELLS, "Filler 00", commander="") is None
+    assert _signal(store, signals.SIGNAL_SHELLS, "Filler 00", commander=OTHER) is None
+
+    only_combos = {name: 0.0 for name in strength.COMPONENTS} | {strength.COMBOS: 2.0}
+    settings = StrengthSettings(
+        weights=only_combos,
+        min_coverage=0.0,
+        min_components=1,
+        combo_source=strength.COMBO_SPELLBOOK,
+    )
+    res_cmd = _by_name(strength_view.compute(store, COMMANDER, settings))
+    res_other = _by_name(strength_view.compute(store, OTHER, settings))
+    assert _component(res_cmd["Filler 00"], strength.COMBOS)["signal"] == strength.COMBO_PART_SHELLS
+    assert _component(res_cmd["Filler 00"], strength.COMBOS)["percentile"] == 1.0
+    assert _component(res_cmd["Filler 09"], strength.COMBOS)["percentile"] == 0.0
+    assert (
+        _component(res_other["Filler 00"], strength.COMBOS)["signal"]
+        == strength.COMBO_PART_VARIANTS
+    )
+    assert _component(res_other["Filler 00"], strength.COMBOS)["percentile"] == 0.0
+    assert _component(res_other["Filler 09"], strength.COMBOS)["percentile"] == 1.0
+
+    other_cov = strength_view.signal_coverage(store, OTHER, include_commanders=False)
+    for shell_sig in strength.COMBO_SHELL_PARTS:
+        assert shell_sig not in other_cov
+
+
+def test_combo_source_panel_texts_describe_commander_scoped_shells(client: TestClient) -> None:
+    # P3-2: panel text no longer claims Spellbook is always "alle Commander".
+    panel = client.get("/api/strength/presets").json()["panel"]
+    choices = {item["value"]: item["label"] for item in panel["choices"]["combo_source"]}
+    assert "alle Commander" not in choices[strength.COMBO_SPELLBOOK]
+    assert "Shells" in choices[strength.COMBO_SPELLBOOK]
+    assert "Shells" in panel["help"]["combo_source"]
+    assert "Shells" in panel["help"][f"weights.{strength.COMBOS}"]

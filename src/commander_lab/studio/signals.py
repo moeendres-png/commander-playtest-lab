@@ -24,6 +24,10 @@ has its own header and the parts are read one after another in number order):
   variants nobody can build. What the file does not publish stays unknown: the result a
   combo produces and the partners of one single variant are not in the file, so neither
   is stored.
+- ``spellbook_shells``: per commander and card, distinct qualifying combo shells
+  within the commander's colour identity and legal pool (plus optional 2-card and
+  commander-involvement breakdowns), derived from the bulk export without mixing
+  commanders.
 - ``topdeck_<name>_decks`` (any file of that shape, one commander per file): complete
   tournament lists. The commander of a file is the one written ALONE in the commander
   section of its lists (the most common one; ``--commander`` breaks a tie); a list counts
@@ -481,31 +485,77 @@ def _spellbook_rows(row: dict[str, str], card: str, report: FileReport) -> list[
     return rows
 
 
-def _shells_rows(row: dict[str, str], card: str, report: FileReport) -> list[_Row]:
+def _shells_rows(row: dict[str, str], commander: str, card: str, report: FileReport) -> list[_Row]:
     """The shell counts of one card (#1366): distinct spellbook combos instead of
     raw variants, split by card count and commander involvement. The file lists
     every card of the collection, so a card without a qualifying shell holds a
-    counted 0; a non-numeric count is unknown. The breakdown columns are
-    optional in the file the same way the variant quality columns are: a file
+    counted 0; a non-numeric or negative count stays unknown (NULL). Contradictory
+    breakdown counts above ``shell_count`` stay unknown too. The breakdown columns
+    are optional in the file the same way the variant quality columns are: a file
     without them declares the signals and writes no rows for them."""
     rows: list[_Row] = []
-    value = _number(row.get("shell_count"))
+    count = _count(row.get("shell_count"))
+    value = float(count) if count is not None else None
     if value is None:
         reasons = report["null_value_reasons"]
         reasons["SHELL_COUNT_NOT_NUMERIC"] = reasons.get("SHELL_COUNT_NOT_NUMERIC", 0) + 1
-    rows.append(("", SIGNAL_SHELLS, card, value, None, None))
-    for column, signal, reason_name in (
-        ("shell_count_2card", SIGNAL_TWO_CARD_SHELLS, "SHELL_TWO_CARD_NOT_NUMERIC"),
-        ("shell_count_commander", SIGNAL_COMMANDER_SHELLS, "SHELL_COMMANDER_NOT_NUMERIC"),
+    rows.append((commander, SIGNAL_SHELLS, card, value, None, None))
+    for column, signal, reason_name, exceeds_reason in (
+        (
+            "shell_count_2card",
+            SIGNAL_TWO_CARD_SHELLS,
+            "SHELL_TWO_CARD_NOT_NUMERIC",
+            "SHELL_TWO_CARD_EXCEEDS_TOTAL",
+        ),
+        (
+            "shell_count_commander",
+            SIGNAL_COMMANDER_SHELLS,
+            "SHELL_COMMANDER_NOT_NUMERIC",
+            "SHELL_COMMANDER_EXCEEDS_TOTAL",
+        ),
     ):
         if column not in row:
             continue
-        part = _number(row.get(column))
+        raw_part = _count(row.get(column))
+        part = float(raw_part) if raw_part is not None else None
         if part is None:
             reasons = report["null_value_reasons"]
             reasons[reason_name] = reasons.get(reason_name, 0) + 1
-        rows.append(("", signal, card, part, None, None))
+        elif value is not None and part > value:
+            part = None
+            reasons = report["null_value_reasons"]
+            reasons[exceeds_reason] = reasons.get(exceeds_reason, 0) + 1
+        rows.append((commander, signal, card, part, None, None))
     return rows
+
+
+def _read_shells(paths: list[Path], report: FileReport, commanders: _Commanders) -> list[_Row]:
+    """Commander-scoped combo shell counts (#1366).
+
+    Requires ``commander_name`` so shell rows of one commander's identity and
+    legal pool are never shared silently with another commander."""
+    required = {"commander_name", "card_name", "fetch_status", "shell_count"}
+    pairs: list[tuple[tuple[str, str, str], _Row]] = []
+    for row in _rows(paths, required):
+        report["rows_read"] += 1
+        raw_commander = row["commander_name"].strip()
+        card = row["card_name"].strip()
+        if not raw_commander or not card:
+            report["rows_skipped"] += 1
+            report["skipped_reasons"]["NAME_MISSING"] = (
+                report["skipped_reasons"].get("NAME_MISSING", 0) + 1
+            )
+            continue
+        if row["fetch_status"].strip() != AVAILABLE:
+            report["rows_skipped"] += 1
+            report["skipped_reasons"]["FETCH_STATUS_NOT_AVAILABLE"] = (
+                report["skipped_reasons"].get("FETCH_STATUS_NOT_AVAILABLE", 0) + 1
+            )
+            continue
+        commander = commanders.resolve(raw_commander)
+        for item in _shells_rows(row, commander, card, report):
+            pairs.append(((item[0], item[1], item[2]), item))
+    return list(_first_wins(iter(pairs), report).values())
 
 
 def _read_salt(paths: list[Path], report: FileReport) -> list[_Row]:
@@ -1146,8 +1196,7 @@ def _read_file(
         required = {"card_name", "fetch_status", "variant_count"}
         return _read_independent(paths, required, _spellbook_rows, report)
     if file_name == SHELLS_FILE:
-        required = {"card_name", "fetch_status", "shell_count"}
-        return _read_independent(paths, required, _shells_rows, report)
+        return _read_shells(paths, report, commanders)
     if file_name == EDHTOP16_FILE:
         return _read_edhtop16(paths, report, commanders)
     if file_name == CONVERSION_FILE:

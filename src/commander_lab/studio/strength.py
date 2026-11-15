@@ -526,12 +526,20 @@ COMBO_SHELL_PARTS = (COMBO_PART_SHELLS, COMBO_PART_TWO_CARD_SHELLS, COMBO_PART_C
 SIGNAL_COMBO_COMMANDER = "edhrec_combo_decks"
 
 
-def signal_for(component: str, bracket: str, *, combo_source: str = COMBO_SPELLBOOK) -> str:
+def signal_for(
+    component: str,
+    bracket: str,
+    *,
+    combo_source: str = COMBO_SPELLBOOK,
+    spellbook_shells: bool = False,
+) -> str:
     """The stored signal name behind a component (empty when none is stored)."""
     if component == BRACKET_INCLUSION:
         return f"edhrec_bracket_inclusion:{bracket}" if bracket != BRACKET_NONE else ""
     if component == COMBOS:
-        return SIGNAL_COMBO_COMMANDER if combo_source == COMBO_COMMANDER else COMBO_PART_VARIANTS
+        if combo_source == COMBO_COMMANDER:
+            return SIGNAL_COMBO_COMMANDER
+        return COMBO_PART_SHELLS if spellbook_shells else COMBO_PART_VARIANTS
     if component.startswith(LAYER_PREFIX):
         return LAYER_SIGNALS[component[len(LAYER_PREFIX) :]]
     return {
@@ -1003,6 +1011,7 @@ class PoolContext:
     filter_cards: Collection[str] = field(default_factory=frozenset)
     universe_minimum: int = 0
     function_group: Mapping[str, tuple[str, ...]] = field(default_factory=dict)
+    spellbook_shells: bool = False
 
 
 class ComponentResult(TypedDict):
@@ -1876,7 +1885,10 @@ def score_pool(
                     "component": component,
                     "label": component_label(component, combo_source=settings.combo_source),
                     "signal": signal_for(
-                        component, settings.bracket, combo_source=settings.combo_source
+                        component,
+                        settings.bracket,
+                        combo_source=settings.combo_source,
+                        spellbook_shells=ctx.spellbook_shells,
                     ),
                     "status": status,
                     "reason": GROUP_TOO_SMALL if group_fallback else reason,

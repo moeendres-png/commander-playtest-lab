@@ -39,7 +39,7 @@ class VariantFacts:
     shell_id: int
     card_names: tuple[str, ...]
     card_count: int
-    identity: frozenset[str]
+    identity: frozenset[str] | None
     with_commander: bool
 
 
@@ -60,9 +60,11 @@ def _combo_ids(record: Mapping[str, object]) -> tuple[int, ...]:
     if not isinstance(of, list):
         return ()
     return tuple(
-        entry["id"]
+        cid
         for entry in of
-        if isinstance(entry, Mapping) and isinstance(entry.get("id"), int)
+        if isinstance(entry, Mapping)
+        and isinstance(cid := entry.get("id"), int)
+        and not isinstance(cid, bool)
     )
 
 
@@ -109,12 +111,14 @@ def _facts(record: Mapping[str, object], shell: int) -> VariantFacts:
     for entry in requires:
         if isinstance(entry, Mapping) and entry.get("mustBeCommander") is True:
             commander = True
-    identity = record.get("identity")
+    raw_identity = record.get("identity")
+    cleaned_identity = raw_identity.strip() if isinstance(raw_identity, str) else ""
+    identity = frozenset(cleaned_identity) - {COLOURLESS} if cleaned_identity else None
     return VariantFacts(
         shell_id=shell,
         card_names=tuple(names),
         card_count=len(uses) + len(requires),
-        identity=(frozenset(identity) - {COLOURLESS} if isinstance(identity, str) else frozenset()),
+        identity=identity,
         with_commander=commander,
     )
 
@@ -168,22 +172,20 @@ def count_shells(
         facts = index.get(variant_id.strip())
         if facts is None:
             continue
-        if not facts.identity <= identity:
+        if facts.identity is None or not facts.identity <= identity:
             continue
         if any(name not in pool for name in facts.card_names):
             continue
         facts = replace(facts, with_commander=facts.with_commander or commander in facts.card_names)
         current = by_shell.get(facts.shell_id)
-        if current is None or facts.card_count < current.card_count:
-            by_shell[facts.shell_id] = VariantFacts(
-                shell_id=facts.shell_id,
-                card_names=facts.card_names,
-                card_count=facts.card_count,
-                identity=facts.identity,
-                with_commander=(
-                    facts.with_commander or (current.with_commander if current else False)
-                ),
+        if current is None:
+            by_shell[facts.shell_id] = facts
+        elif facts.card_count < current.card_count:
+            by_shell[facts.shell_id] = replace(
+                facts, with_commander=facts.with_commander or current.with_commander
             )
+        elif facts.with_commander and not current.with_commander:
+            by_shell[facts.shell_id] = replace(current, with_commander=True)
     shells = tuple(sorted(by_shell))
     return ShellCounts(
         shells=len(shells),
