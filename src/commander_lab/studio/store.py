@@ -14,7 +14,7 @@ from pathlib import Path
 from commander_lab.owner_data import owner_data_root
 
 STUDIO_DATA_ENV = "COMMANDER_LAB_STUDIO_DATA"
-SCHEMA_VERSION = 16
+SCHEMA_VERSION = 17
 DATABASE_NAME = "studio.sqlite3"
 # The sections a source deck's cards are counted in, everywhere (universe spread, deck-builder
 # frequencies, co-occurrence, role counts). The corpus importer stores the main deck as
@@ -119,14 +119,11 @@ CREATE TABLE IF NOT EXISTS corpus_deck_card (
     quantity INTEGER NOT NULL,
     section TEXT NOT NULL,
     normalization_status TEXT NOT NULL,
-    PRIMARY KEY (deck_id, card_name, section)
-);
-CREATE INDEX IF NOT EXISTS corpus_card_name ON corpus_deck_card(card_name);
--- Covering indexes for the per-card and per-deck counts (derived data only, safe to rebuild).
+    PRIMARY KEY (deck_id, section, card_name)
+) WITHOUT ROWID;
+-- Covering index for per-card counts; per-deck counts use the WITHOUT ROWID primary key.
 CREATE INDEX IF NOT EXISTS corpus_card_cover
     ON corpus_deck_card(card_name, section, quantity, deck_id);
-CREATE INDEX IF NOT EXISTS corpus_deck_cover
-    ON corpus_deck_card(deck_id, section, quantity, card_name);
 CREATE TABLE IF NOT EXISTS observation (
     observation_id INTEGER PRIMARY KEY AUTOINCREMENT,
     card_id TEXT REFERENCES card(card_id),
@@ -203,7 +200,7 @@ CREATE TABLE IF NOT EXISTS corpus_cohort (
     cohort TEXT NOT NULL,
     deck_id TEXT NOT NULL REFERENCES corpus_deck(deck_id),
     PRIMARY KEY (cohort, deck_id)
-);
+) WITHOUT ROWID;
 CREATE TABLE IF NOT EXISTS universe_profile (
     profile_id TEXT PRIMARY KEY,
     name TEXT NOT NULL UNIQUE,
@@ -224,7 +221,7 @@ CREATE TABLE IF NOT EXISTS commander_binding (
     commander_name TEXT NOT NULL,
     basis TEXT NOT NULL,
     PRIMARY KEY (kind, key, commander_name)
-);
+) WITHOUT ROWID;
 CREATE INDEX IF NOT EXISTS commander_binding_name ON commander_binding(commander_name, kind);
 CREATE TABLE IF NOT EXISTS corpus_deck_stat (
     deck_id TEXT PRIMARY KEY REFERENCES corpus_deck(deck_id),
@@ -240,7 +237,7 @@ CREATE TABLE IF NOT EXISTS card_role (
     role TEXT NOT NULL,
     source_id TEXT NOT NULL REFERENCES source(source_id),
     PRIMARY KEY (oracle_id, role)
-);
+) WITHOUT ROWID;
 CREATE TABLE IF NOT EXISTS card_role_claim (
     oracle_id TEXT NOT NULL,
     role TEXT NOT NULL,
@@ -250,14 +247,14 @@ CREATE TABLE IF NOT EXISTS card_role_claim (
     original_tag TEXT,
     mapping_rule TEXT,
     PRIMARY KEY (oracle_id, role, role_origin, scope_key, source_id)
-);
+) WITHOUT ROWID;
 CREATE INDEX IF NOT EXISTS card_role_claim_scope ON card_role_claim(role_origin, scope_key, role);
 CREATE TABLE IF NOT EXISTS corpus_deck_role (
     deck_id TEXT NOT NULL REFERENCES corpus_deck(deck_id),
     role TEXT NOT NULL,
     cards INTEGER NOT NULL,
     PRIMARY KEY (deck_id, role)
-);
+) WITHOUT ROWID;
 CREATE TABLE IF NOT EXISTS neutral_board_row (
     source_key TEXT NOT NULL,
     batch TEXT NOT NULL,
@@ -405,7 +402,7 @@ CREATE TABLE IF NOT EXISTS card_signal (
     denominator INTEGER,
     source_id TEXT NOT NULL REFERENCES source(source_id),
     PRIMARY KEY (commander_name, signal, card_name)
-);
+) WITHOUT ROWID;
 CREATE TABLE IF NOT EXISTS strength_profile (
     name TEXT PRIMARY KEY,
     spec TEXT NOT NULL,
@@ -599,6 +596,110 @@ def _bind_legacy(connection: sqlite3.Connection) -> None:
     connection.execute("DROP TABLE legacy_other")
 
 
+def _migrate_schema_17(connection: sqlite3.Connection) -> None:
+    """Convert composite-PK tables to ``WITHOUT ROWID`` and drop redundant indexes (#1382)."""
+    connection.commit()
+    connection.execute("PRAGMA foreign_keys=OFF")
+    try:
+        connection.execute("DROP INDEX IF EXISTS corpus_card_name")
+        connection.execute("DROP INDEX IF EXISTS corpus_deck_cover")
+        rebuilds: tuple[tuple[str, str, str, tuple[str, ...]], ...] = (
+            (
+                "corpus_deck_card",
+                "CREATE TABLE corpus_deck_card_new ("
+                "deck_id TEXT NOT NULL REFERENCES corpus_deck(deck_id), "
+                "card_name TEXT NOT NULL, oracle_id TEXT, quantity INTEGER NOT NULL, "
+                "section TEXT NOT NULL, normalization_status TEXT NOT NULL, "
+                "PRIMARY KEY (deck_id, section, card_name)) WITHOUT ROWID",
+                "deck_id, card_name, oracle_id, quantity, section, normalization_status",
+                (
+                    "CREATE INDEX IF NOT EXISTS corpus_card_cover "
+                    "ON corpus_deck_card(card_name, section, quantity, deck_id)",
+                ),
+            ),
+            (
+                "corpus_deck_role",
+                "CREATE TABLE corpus_deck_role_new ("
+                "deck_id TEXT NOT NULL REFERENCES corpus_deck(deck_id), "
+                "role TEXT NOT NULL, cards INTEGER NOT NULL, "
+                "PRIMARY KEY (deck_id, role)) WITHOUT ROWID",
+                "deck_id, role, cards",
+                (),
+            ),
+            (
+                "card_signal",
+                "CREATE TABLE card_signal_new ("
+                "commander_name TEXT NOT NULL, signal TEXT NOT NULL, card_name TEXT NOT NULL, "
+                "value REAL, numerator INTEGER, denominator INTEGER, "
+                "source_id TEXT NOT NULL REFERENCES source(source_id), "
+                "PRIMARY KEY (commander_name, signal, card_name)) WITHOUT ROWID",
+                "commander_name, signal, card_name, value, numerator, denominator, source_id",
+                (),
+            ),
+            (
+                "card_role_claim",
+                "CREATE TABLE card_role_claim_new ("
+                "oracle_id TEXT NOT NULL, role TEXT NOT NULL, role_origin TEXT NOT NULL, "
+                "scope_key TEXT NOT NULL, source_id TEXT NOT NULL REFERENCES source(source_id), "
+                "original_tag TEXT, mapping_rule TEXT, "
+                "PRIMARY KEY (oracle_id, role, role_origin, scope_key, source_id)) WITHOUT ROWID",
+                "oracle_id, role, role_origin, scope_key, source_id, original_tag, mapping_rule",
+                (
+                    "CREATE INDEX IF NOT EXISTS card_role_claim_scope "
+                    "ON card_role_claim(role_origin, scope_key, role)",
+                ),
+            ),
+            (
+                "corpus_cohort",
+                "CREATE TABLE corpus_cohort_new ("
+                "cohort TEXT NOT NULL, deck_id TEXT NOT NULL REFERENCES corpus_deck(deck_id), "
+                "PRIMARY KEY (cohort, deck_id)) WITHOUT ROWID",
+                "cohort, deck_id",
+                (),
+            ),
+            (
+                "card_role",
+                "CREATE TABLE card_role_new ("
+                "oracle_id TEXT NOT NULL, role TEXT NOT NULL, "
+                "source_id TEXT NOT NULL REFERENCES source(source_id), "
+                "PRIMARY KEY (oracle_id, role)) WITHOUT ROWID",
+                "oracle_id, role, source_id",
+                (),
+            ),
+            (
+                "commander_binding",
+                "CREATE TABLE commander_binding_new ("
+                "kind TEXT NOT NULL CHECK (kind IN "
+                "('corpus_deck', 'observation_cohort', 'simulation_run', 'neutral_source')), "
+                "key TEXT NOT NULL, commander_name TEXT NOT NULL, basis TEXT NOT NULL, "
+                "PRIMARY KEY (kind, key, commander_name)) WITHOUT ROWID",
+                "kind, key, commander_name, basis",
+                (
+                    "CREATE INDEX IF NOT EXISTS commander_binding_name "
+                    "ON commander_binding(commander_name, kind)",
+                ),
+            ),
+        )
+        for table, create_sql, cols, index_sqls in rebuilds:
+            ddl_row = connection.execute(
+                "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = ?", (table,)
+            ).fetchone()
+            if ddl_row is None or "WITHOUT ROWID" in str(ddl_row[0]).upper():
+                continue
+            connection.execute(f"DROP TABLE IF EXISTS {table}_new")
+            connection.execute(create_sql)
+            connection.execute(
+                f"INSERT OR REPLACE INTO {table}_new ({cols}) SELECT {cols} FROM {table}"
+            )
+            connection.execute(f"DROP TABLE {table}")
+            connection.execute(f"ALTER TABLE {table}_new RENAME TO {table}")
+            for idx_sql in index_sqls:
+                connection.execute(idx_sql)
+        connection.commit()
+    finally:
+        connection.execute("PRAGMA foreign_keys=ON")
+
+
 # True inside the corpus_deck binding trigger when the new deck already has a commander
 # section that does not name the commander of the running import.
 _NAMES_OTHER_COMMANDER = (
@@ -645,26 +746,15 @@ class StudioStore:
                 f"Studio store has schema {row['value']}, this code needs {SCHEMA_VERSION}"
             )
         elif int(row["value"]) < SCHEMA_VERSION:
-            # Every schema step so far only adds tables and views (created above); schema 11
-            # adds card_signal and strength_profile, schema 13 adds card_ruling and its
-            # per-file provenance table card_ruling_source. Schema 14 adds commander_combo
-            # (the full card set of each listed combo of a commander). Schema 15 adds card_label and
-            # deck_label (the Owner's archetype labels). Schema 16 adds card_printing (the
-            # collection's own printing per card, from the workbook's lot sheet) and the printing
-            # provenance columns of scryfall_card below.
-            if int(row["value"]) < 16:
-                # Schema 16: existing scryfall_card tables gain the printing columns;
-                # purely additive, existing rows keep NULL (printing unknown).
+            current = int(row["value"])
+            if current < 16:
                 columns = {
                     str(r["name"]) for r in connection.execute("PRAGMA table_info(scryfall_card)")
                 }
                 for column in ("printing_set", "printing_number", "printing_basis"):
                     if column not in columns:
                         connection.execute(f"ALTER TABLE scryfall_card ADD COLUMN {column} TEXT")
-            if int(row["value"]) < 12:
-                # Schema 12 adds the universe profile lifecycle columns (version,
-                # updated_at) to the existing table; purely additive, existing rows
-                # keep version 1 and a NULL updated_at (never updated since creation).
+            if current < 12:
                 columns = {
                     str(r["name"])
                     for r in connection.execute("PRAGMA table_info(universe_profile)")
@@ -675,14 +765,21 @@ class StudioStore:
                     )
                 if "updated_at" not in columns:
                     connection.execute("ALTER TABLE universe_profile ADD COLUMN updated_at TEXT")
-            if int(row["value"]) < 10:
-                # Before schema 10 the Studio held the source data of one commander only.
+            if current < 10:
                 _bind_legacy(connection)
+            if current < 17:
+                _migrate_schema_17(connection)
             connection.execute(
                 "UPDATE meta SET value = ? WHERE key = 'schema_version'", (str(SCHEMA_VERSION),)
             )
         connection.commit()
         return connection
+
+    def compact(self) -> None:
+        """Reclaim unused pages via ``VACUUM`` after bulk imports or schema migrations."""
+        self.connection.commit()
+        self.connection.execute("VACUUM")
+        self._epoch_cache = None
 
     def close(self) -> None:
         self.connection.close()
@@ -834,16 +931,16 @@ class StudioStore:
     # notes, drafts and saved decks are deliberately not part of the epoch.
     _EPOCH_QUERIES = (
         "SELECT COUNT(*), COALESCE(MAX(rowid), 0), COALESCE(MAX(imported_at), '') FROM source",
-        "SELECT COUNT(*), COALESCE(MAX(rowid), 0), COUNT(oracle_id), COALESCE(SUM(quantity), 0) "
-        "FROM corpus_deck_card",
+        "SELECT COUNT(*), COUNT(oracle_id), COALESCE(SUM(quantity), 0) FROM corpus_deck_card",
         "SELECT COUNT(*), COUNT(duplicate_of), COUNT(DISTINCT fingerprint) FROM corpus_deck",
-        "SELECT COUNT(*), COALESCE(MAX(rowid), 0) FROM corpus_cohort",
-        "SELECT COUNT(*), COALESCE(MAX(rowid), 0) FROM commander_binding",
+        "SELECT COUNT(*), COUNT(DISTINCT cohort), COALESCE(MAX(deck_id), '') FROM corpus_cohort",
+        "SELECT COUNT(*), COUNT(DISTINCT commander_name), COALESCE(MAX(key), '') "
+        "FROM commander_binding",
         "SELECT COUNT(*), COALESCE(SUM(version), 0), COALESCE(MAX(updated_at), '') "
         "FROM universe_profile",
-        "SELECT COUNT(*), COALESCE(MAX(rowid), 0) FROM card_signal",
+        "SELECT COUNT(*), COUNT(value), COALESCE(ROUND(SUM(value), 6), 0) FROM card_signal",
         "SELECT COUNT(*), COALESCE(MAX(rowid), 0) FROM card",
-        "SELECT COUNT(*), COALESCE(MAX(rowid), 0) FROM card_role",
+        "SELECT COUNT(*), COUNT(DISTINCT role), COALESCE(MAX(oracle_id), '') FROM card_role",
         "SELECT COUNT(*), COALESCE(MAX(rowid), 0) FROM observation",
         "SELECT COUNT(*), COALESCE(MAX(rowid), 0) FROM scryfall_card",
         "SELECT COUNT(*), COALESCE(MAX(rowid), 0) FROM inventory",

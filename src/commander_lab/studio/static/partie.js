@@ -96,14 +96,19 @@ function answer(frame) {
 // ---- cards ---------------------------------------------------------------------------------
 function cardFace(name) {
   if (state.noImage.has(name) || name === "(verdeckt)") return h("div", { class: "nocard" }, name);
-  const img = h("img", { alt: name, loading: "lazy", src: `/img-name?name=${encodeURIComponent(name)}` });
+  const img = h("img", { alt: name, loading: "lazy", referrerpolicy: "no-referrer", src: `/img-name?name=${encodeURIComponent(name)}` });
   img.addEventListener("error", () => { state.noImage.add(name); img.replaceWith(h("div", { class: "nocard" }, name)); });
   return img;
 }
 function hover(el, name) {
   el.addEventListener("mouseenter", (event) => {
     if (state.noImage.has(name)) return;
-    const box = $("preview"); box.firstChild.src = `/img-name?name=${encodeURIComponent(name)}`; box.hidden = false; move(event);
+    const box = $("preview");
+    const img = box.firstChild;
+    img.referrerPolicy = "no-referrer";
+    img.onerror = () => { box.hidden = true; };
+    img.src = `/img-name?name=${encodeURIComponent(name)}`;
+    box.hidden = false; move(event);
   });
   el.addEventListener("mousemove", move);
   el.addEventListener("mouseleave", () => { $("preview").hidden = true; });

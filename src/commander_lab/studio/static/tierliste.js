@@ -252,9 +252,15 @@ function visibleCards() {
 }
 
 // ---------- cells ----------
+function cardImageUrl(card, face = "front") {
+  if (face === "back") return card.image_url_back || `/img/${encodeURIComponent(card.card_id)}?face=back`;
+  return card.image_url_front || `/img/${encodeURIComponent(card.card_id)}`;
+}
 function thumb(card) {
   if (!card.has_image) return h("span", { class: "thumb" });
-  return h("img", { class: "thumb", loading: "lazy", alt: "", src: `/img/${encodeURIComponent(card.card_id)}` });
+  const img = h("img", { class: "thumb", loading: "lazy", referrerpolicy: "no-referrer", alt: "", src: cardImageUrl(card, "front") });
+  img.addEventListener("error", () => img.replaceWith(h("span", { class: "thumb", title: "Kein Bild geladen (offline)" })), { once: true });
+  return img;
 }
 function featureBadges(card) {
   return layer(card, "fact").features.filter((f) => f.holds).map((f) => h("span", { class: "badge dim", title: f.rule }, FEATURE_NAMES[f.feature] || f.feature));
@@ -639,8 +645,9 @@ async function openCard(card) {
     const full = detail.card;
     const strengthSection = strengthBox(card);
     let face = "front";
-    const picture = full.has_image ? h("img", { class: "big", alt: full.name, src: `/img/${encodeURIComponent(full.card_id)}` }) : h("div", { class: "muted" }, "Kein Bild in den Kartendaten.");
-    const picBox = h("div", {}, picture, full.has_back ? h("div", { class: "actions" }, h("button", { type: "button", onclick: () => { face = face === "front" ? "back" : "front"; picture.src = `/img/${encodeURIComponent(full.card_id)}?face=${face}`; } }, "Rückseite / Vorderseite")) : null);
+    const picture = full.has_image ? h("img", { class: "big", loading: "lazy", referrerpolicy: "no-referrer", alt: full.name, src: cardImageUrl(full, "front") }) : h("div", { class: "muted" }, "Kein Bild in den Kartendaten.");
+    if (full.has_image) picture.addEventListener("error", () => picture.replaceWith(h("div", { class: "muted" }, "Kein Bild geladen (offline).")), { once: true });
+    const picBox = h("div", {}, picture, full.has_back ? h("div", { class: "actions" }, h("button", { type: "button", onclick: () => { face = face === "front" ? "back" : "front"; picture.src = cardImageUrl(full, face); } }, "Rückseite / Vorderseite")) : null);
     content.replaceChildren(
       h("div", { class: "actions" }, ...markButtons(card, () => openCard(card)), h("button", { type: "button", onclick: () => { modal.hidden = true; } }, "Schließen")),
       h("h2", {}, full.name),
