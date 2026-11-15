@@ -304,8 +304,9 @@ QUALIFIED_SOURCES: tuple[EvidenceSource, ...] = (
         ),
         status="VERIFIED",
         status_rationale=(
-            "Fully open and licensed REST API. The adapter module was removed (#1268); "
-            "no code in this repository calls the API today."
+            "Fully open and licensed REST API. Fetched deterministically via "
+            "scripts/spellbook_combos_fetch.py (curated data/meta/spellbook_combos.json) "
+            "and bulk-processed by scripts/build_spellbook_shells.py."
         ),
     ),
     EvidenceSource(
@@ -332,7 +333,7 @@ QUALIFIED_SOURCES: tuple[EvidenceSource, ...] = (
             "format": "Commander",
         },
         double_counting_risk="19 content duplicates in the 994 registered sources resolved to 975 unique decks.",
-        license_terms="Local private project research data; strictly local under AGENTS.md §12.",
+        license_terms="Project research dataset under AGENTS.md §12 (2026-11-15 relaxation; purchase/price signals excluded for Chulane).",
         allowed_retrieval_method="Local file import (SQLite / JSONL / CSV).",
         reproducibility="DETERMINISTIC_OFFLINE_SNAPSHOT",
         bias_risks=(

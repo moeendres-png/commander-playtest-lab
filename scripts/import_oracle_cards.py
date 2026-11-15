@@ -11,14 +11,13 @@ Oracle data from Scryfall. Nothing is imported in bulk and a card the catalog al
     python scripts/import_oracle_cards.py --names-file names.txt --bulk BULK   # one name per line
     python scripts/import_oracle_cards.py deck.json --bulk BULK --dry-run      # print, write nothing
 
-``--bulk`` reads the Oracle data from a stored Scryfall Oracle bulk file on disk: nothing leaves
-the machine (AGENTS.md section 12: deck and card lists go to no external service). ``--online``
-asks Scryfall ``cards/collection`` instead and sends the wanted names there; use it only for names
-that are not Owner data, never for a deck or collection of the Owner.
+``--bulk`` reads the Oracle data deterministically offline from a stored Scryfall Oracle bulk
+file on disk. ``--online`` asks Scryfall ``cards/collection`` over HTTPS instead (also
+permitted for Owner decks and collections under the 2026-11-15 relaxation in AGENTS.md
+section 12; purchase and price workflows remain excluded for Chulane).
 
 Importing a card does not make it playable: the engine facts (``xmage_card_facts.json``) and
-the fork decide that, see ``scripts/deck_readiness.py``. Names in ``--names-file`` end up in a
-committed file; do not pass a list of the Owner's collection unless the Owner asked for it.
+the fork decide that, see ``scripts/deck_readiness.py``.
 Exit 0 when every wanted card is in the catalog afterwards, 1 when the source did not know one.
 """
 

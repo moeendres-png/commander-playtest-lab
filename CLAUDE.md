@@ -14,7 +14,7 @@ protected branches.
 
 ## Efficient operation
 
-**Deck focus.** For new owner-deck evaluation/deckbuilding assignments, read `docs/OWNER_DECK_FOCUS_CURRENT.md`: Chulane only. RogShai remains historical/regression data, not active optimization. Do not read `data/collections/**` in this lane.
+**Deck focus.** For new owner-deck evaluation/deckbuilding assignments, read `docs/OWNER_DECK_FOCUS_CURRENT.md`: Chulane only. RogShai remains historical/regression data, not active optimization. Follow `AGENTS.md` §12 on collection/deck card lists (2026-11-15 relaxation; keep purchase-mode and card price/value signals excluded for Chulane).
 
 **Studio.** For Studio work (deck building, simulating, playing) read
 `docs/OWNER_DECISIONS_STUDIO_20261112.md` (the Owner decisions) and

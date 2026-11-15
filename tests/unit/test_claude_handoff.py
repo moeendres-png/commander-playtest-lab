@@ -89,8 +89,6 @@ def fake_git(repo_dir: Path, *args: str):
         return "3"
     if joined == "rev-list --count origin/main..HEAD":
         return "0"
-    if joined.startswith("log -1 --format=%ct"):
-        return "200" if "waiting" in joined else "100"
     raise AssertionError(f"unexpected git call: {path} {joined}")
 
 
@@ -125,68 +123,32 @@ def fake_api(url: str):
 
 
 def test_render_is_deterministic_and_capped(tmp_path, fake_env):
-    (tmp_path / ".foundry").mkdir()
-    (tmp_path / ".foundry" / "waiting.yaml").write_text(
-        "schema_version: '2.0'\n"
-        "ownership: WS-WAITING\n"
-        "status: WAITING\n"
-        "issue: 479\n"
-        "authority_gates:\n- Choose option A or B\n"
-        "exact_next_action: do the waiting thing\n",
-        encoding="utf-8",
-    )
-    (tmp_path / ".foundry" / "complete.yaml").write_text(
-        "schema_version: '2.0'\n"
-        "ownership: WS-COMPLETE\n"
-        "status: COMPLETE\n"
-        "exact_next_action: nothing left\n",
-        encoding="utf-8",
-    )
     first = handoff.render(tmp_path, "2026-10-06T18:00Z")
     second = handoff.render(tmp_path, "2026-10-06T18:00Z")
     assert first == second
     assert len(first.splitlines()) <= handoff.MAX_LINES
 
 
-def test_render_covers_lanes_heads_worktrees_and_decisions(tmp_path, fake_env):
-    (tmp_path / ".foundry").mkdir()
-    (tmp_path / ".foundry" / "waiting.yaml").write_text(
-        "schema_version: '2.0'\n"
-        "ownership: WS-WAITING\n"
-        "status: WAITING\n"
-        "issue: 479\n"
-        "authority_gates:\n- Choose option A or B\n"
-        "exact_next_action: do the waiting thing\n",
-        encoding="utf-8",
-    )
-    (tmp_path / ".foundry" / "complete.yaml").write_text(
-        "schema_version: '2.0'\n"
-        "ownership: WS-COMPLETE\n"
-        "status: COMPLETE\n"
-        "exact_next_action: nothing left\n",
-        encoding="utf-8",
-    )
+def test_render_covers_lanes_heads_and_worktrees(tmp_path, fake_env):
     text = handoff.render(tmp_path, "2026-10-06T18:00Z")
     assert "# Claude handoff — 2026-10-06T18:00Z" in text
     assert "owner=session A" in text
     assert "next=land the fix" in text
-    assert "next=do the waiting thing" in text
     assert "lab HEAD main@aaaaaaaa (clean) origin/main=dddddddd" in text
     assert "PR #574 opencode/x -> ffffffff" in text
     assert "/wt/feature [feat] dirty=2 unpushed=3" in text
     assert "/wt/detached" not in text
-    assert "WS-WAITING: Choose option A or B" in text
-    assert "WS-COMPLETE" not in text
+    assert "Open Coordinator decisions" not in text
 
 
 def test_lanes_are_the_open_issues_without_pull_requests(fake_env):
     assert handoff.lane_issues() == (479, 441)
 
 
-def test_no_open_issue_means_no_lane_not_a_stale_fallback(tmp_path, monkeypatch):
+def test_no_open_issue_means_no_lane_not_a_stale_fallback(monkeypatch):
     monkeypatch.setattr(handoff, "api", lambda url: None)
     assert handoff.lane_issues() == ()
-    assert handoff.lane_lines(tmp_path, [], ()) == ["(no open issues)"]
+    assert handoff.lane_lines(()) == ["(no open issues)"]
 
 
 def test_an_unreachable_engine_fork_is_reported_not_fatal(tmp_path, monkeypatch, fake_env):
@@ -212,94 +174,19 @@ def test_an_unreachable_lab_still_aborts(tmp_path, monkeypatch, fake_env):
         handoff.repo_head_lines(tmp_path)
 
 
-def _write_state(tmp_path: Path, name: str, body: str) -> None:
-    (tmp_path / ".foundry").mkdir(exist_ok=True)
-    (tmp_path / ".foundry" / name).write_text(body, encoding="utf-8")
-
-
-def test_open_issue_is_a_lane_but_a_closed_issue_with_a_baton_is_not(tmp_path, fake_env):
-    lines = handoff.lane_lines(tmp_path, [], (441, 592))
+def test_open_issue_is_a_lane_but_a_closed_issue_with_a_baton_is_not(fake_env):
+    lines = handoff.lane_lines((441, 592))
     assert lines == ["#441 Lane 441 [open] owner=session A next=land the fix"]
     assert not any("#592" in line for line in lines)
 
 
-def test_a_no_comment_open_issue_is_still_included(tmp_path, fake_env):
-    assert handoff.lane_lines(tmp_path, [], (479,)) == ["#479 Lane 479 [open] owner=? next=-"]
+def test_a_no_comment_open_issue_is_still_included(fake_env):
+    assert handoff.lane_lines((479,)) == ["#479 Lane 479 [open] owner=? next=-"]
 
 
 def test_open_prs_are_listed_with_head_sha(tmp_path, fake_env):
     lines = handoff.repo_head_lines(tmp_path)
     assert "commander-playtest-lab PR #574 opencode/x -> ffffffff" in lines
-
-
-def test_decision_referencing_a_merged_pr_or_closed_issue_is_excluded(tmp_path, fake_env):
-    _write_state(
-        tmp_path,
-        "merged-pr.yaml",
-        "ownership: WS-MERGED-PR\nstatus: WAITING\n"
-        "pr_url: https://github.com/moeendres-png/commander-playtest-lab/pull/600\n"
-        "authority_gates:\n- Merged PR gate\n",
-    )
-    _write_state(
-        tmp_path,
-        "closed-issue.yaml",
-        "ownership: WS-CLOSED-ISSUE\nstatus: WAITING\nissue: 592\n"
-        "authority_gates:\n- Closed issue gate\n",
-    )
-    lines = handoff.decision_lines(tmp_path, handoff.load_states(tmp_path))
-    assert lines == ["(none recorded in .foundry state)"]
-
-
-def test_resolved_or_closed_out_decision_is_excluded(tmp_path, fake_env):
-    _write_state(
-        tmp_path,
-        "superseded.yaml",
-        "ownership: WS-SUPERSEDED\nstatus: SUPERSEDED\nauthority_gates:\n- Superseded gate\n",
-    )
-    _write_state(
-        tmp_path,
-        "closed-out.yaml",
-        "ownership: WS-CLOSED-OUT\nstatus: WAITING\n"
-        "closed_out: 'handoff ledger cleanup'\n"
-        "authority_gates:\n- Closed out gate\n",
-    )
-    lines = handoff.decision_lines(tmp_path, handoff.load_states(tmp_path))
-    assert lines == ["(none recorded in .foundry state)"]
-
-
-def test_a_still_open_decision_stays(tmp_path, fake_env):
-    _write_state(
-        tmp_path,
-        "live-issue.yaml",
-        "ownership: WS-LIVE-ISSUE\nstatus: WAITING\nissue: 479\n"
-        "authority_gates:\n- Live issue gate\n",
-    )
-    _write_state(
-        tmp_path,
-        "live-pr.yaml",
-        "ownership: WS-LIVE-PR\nstatus: WAITING\n"
-        "pr_url: https://github.com/moeendres-png/commander-playtest-lab/pull/574\n"
-        "authority_gates:\n- Live PR gate\n",
-    )
-    joined = "\n".join(handoff.decision_lines(tmp_path, handoff.load_states(tmp_path)))
-    assert "WS-LIVE-ISSUE: Live issue gate" in joined
-    assert "WS-LIVE-PR: Live PR gate" in joined
-
-
-def test_render_shows_only_the_live_decision(tmp_path, fake_env):
-    _write_state(
-        tmp_path,
-        "stale.yaml",
-        "ownership: WS-STALE\nstatus: SUPERSEDED\nauthority_gates:\n- Stale gate\n",
-    )
-    _write_state(
-        tmp_path,
-        "live.yaml",
-        "ownership: WS-LIVE\nstatus: WAITING\nissue: 479\nauthority_gates:\n- Live gate\n",
-    )
-    text = handoff.render(tmp_path, "2026-10-16T00:00Z")
-    assert "WS-LIVE: Live gate" in text
-    assert "WS-STALE" not in text
 
 
 def _write_engines(tmp_path: Path, *, pin: str, qualified: str, epoch: str = "e1-f1") -> None:
