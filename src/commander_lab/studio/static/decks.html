@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Commander Studio — Deck-Browser</title>
+<link rel="stylesheet" href="app.css">
+<script src="ui.js"></script>
+</head>
+<body>
+<header id="brand">
+  <a class="logo" href="index.html">Commander Studio</a>
+  <nav id="areas" aria-label="Bereiche"><a href="index.html">Deckbau</a><a href="tierliste.html">Tierliste</a><a href="decks.html">Deck-Browser</a><a href="partie.html">Partien</a></nav>
+  <span class="spacer"></span>
+  <label>Commander <select id="commander-select"></select></label>
+  <button id="theme-toggle" type="button" class="ghost"></button>
+</header>
+<header id="top">
+  <input id="db-q" type="search" placeholder="Suche in Deckname, Kennung, Plattform, Marken …" autocomplete="off">
+  <label>Herkunft <select id="db-origin">
+    <option value="all">Gespeicherte &amp; Quelldecks</option>
+    <option value="saved">Nur gespeicherte Studio-Decks</option>
+    <option value="source">Nur Quelldecks (Korpus)</option>
+  </select></label>
+  <label>Gruppe / Bracket <select id="db-cohort">
+    <option value="all">alle</option>
+    <option value="bracket:1">Bracket 1</option>
+    <option value="bracket:2">Bracket 2</option>
+    <option value="bracket:3">Bracket 3</option>
+    <option value="bracket:4">Bracket 4</option>
+    <option value="bracket:5">Bracket 5 (cEDH)</option>
+    <option value="turnier_cedh">Turnier / cEDH</option>
+  </select></label>
+  <input id="db-label" type="search" placeholder="Archetyp-Marke / Tag" autocomplete="off">
+  <input id="db-must-in" type="search" placeholder="Enthält Karten (Komma-getrennt, z. B. Koma)" autocomplete="off">
+  <input id="db-must-out" type="search" placeholder="Ohne Karten (Komma-getrennt)" autocomplete="off">
+  <label title="Blendet in der Kookkurrenz-Auswertung auch Karten ein, die nicht in deiner Sammlung sind (ohne Preise)."><input id="db-unowned" type="checkbox"> Karten außerhalb der Sammlung zeigen</label>
+  <button id="db-apply" type="button" class="primary">Filtern</button>
+  <button id="db-reset" type="button">Zurücksetzen</button>
+</header>
+<div id="data-state"></div>
+<main>
+  <section id="pool">
+    <div id="db-summary" class="note"></div>
+    <div id="db-decks"></div>
+  </section>
+  <aside id="deck">
+    <div id="db-cooccurrence"></div>
+  </aside>
+</main>
+<div id="modal" hidden><div id="modal-box"></div></div>
+<div id="toast" hidden></div>
+<script src="commander.js"></script>
+<script src="decks.js"></script>
+</body>
+</html>

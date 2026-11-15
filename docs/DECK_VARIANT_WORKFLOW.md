@@ -26,11 +26,12 @@ representation is a "duplicate conflicting card identity", so the importer
 counts overlay cards as known and skips them. Add the Oracle data of the
 missing cards on demand — with a deck file, one `--name` (repeatable) or
 `--names-file` (one name per line); only the missing cards are added. The data
-comes from a stored Scryfall Oracle bulk file (`--bulk`, read locally, nothing is
-sent anywhere), so the names of a deck never leave the machine (`AGENTS.md` §12).
-`--online` asks Scryfall `cards/collection` instead and sends the names there: never
-use it for Owner decks or collections. `--dry-run` prints what would be added and
-writes nothing:
+comes from a stored Scryfall Oracle bulk file (`--bulk`, read locally and
+offline), which stays fastest and deterministic for batch runs. `--online` asks
+Scryfall `cards/collection` over HTTPS instead (also permitted for Owner decks
+and collections since the `AGENTS.md` §12 relaxation of 2026-11-15; card prices
+and purchase signals remain excluded for Chulane). `--dry-run` prints what
+would be added and writes nothing:
 
 ```bash
 python scripts/import_oracle_cards.py --bulk /path/to/oracle-cards.jsonl.gz /tmp/my_variant.json --dry-run

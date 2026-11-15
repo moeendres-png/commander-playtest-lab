@@ -1,0 +1,314 @@
+{
+ "urlhash": "jqsPjfZflI2IpTeT2tNENQ",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-06-04",
+ "price": 197,
+ "salt": 42.595569560304284,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/EVlv51Fh5U28fRsx0WU9RA?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Abominable Treefolk",
+   "quantity": 1
+  },
+  {
+   "name": "Acidic Slime",
+   "quantity": 1
+  },
+  {
+   "name": "Adarkar Valkyrie",
+   "quantity": 1
+  },
+  {
+   "name": "Blizzard Strix",
+   "quantity": 1
+  },
+  {
+   "name": "Boreal Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Boreal Griffin",
+   "quantity": 1
+  },
+  {
+   "name": "Centaur Omenreader",
+   "quantity": 1
+  },
+  {
+   "name": "Chillerpillar",
+   "quantity": 1
+  },
+  {
+   "name": "Conifer Wurm",
+   "quantity": 1
+  },
+  {
+   "name": "Diamond Faerie",
+   "quantity": 1
+  },
+  {
+   "name": "Frost Titan",
+   "quantity": 1
+  },
+  {
+   "name": "Frostwalla",
+   "quantity": 1
+  },
+  {
+   "name": "Frostweb Spider",
+   "quantity": 1
+  },
+  {
+   "name": "Ice-Fang Coatl",
+   "quantity": 1
+  },
+  {
+   "name": "Iceberg Cancrix",
+   "quantity": 1
+  },
+  {
+   "name": "Icefall Regent",
+   "quantity": 1
+  },
+  {
+   "name": "Icehide Golem",
+   "quantity": 1
+  },
+  {
+   "name": "Ohran Frostfang",
+   "quantity": 1
+  },
+  {
+   "name": "Ohran Viper",
+   "quantity": 1
+  },
+  {
+   "name": "Rime Tender",
+   "quantity": 1
+  },
+  {
+   "name": "Rimefeather Owl",
+   "quantity": 1
+  },
+  {
+   "name": "Rimewind Cryomancer",
+   "quantity": 1
+  },
+  {
+   "name": "Rimewind Taskmage",
+   "quantity": 1
+  },
+  {
+   "name": "Saddled Rimestag",
+   "quantity": 1
+  },
+  {
+   "name": "Sakura-Tribe Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Seedborn Muse",
+   "quantity": 1
+  },
+  {
+   "name": "Springbloom Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Squall Drifter",
+   "quantity": 1
+  },
+  {
+   "name": "Blue Sun's Zenith",
+   "quantity": 1
+  },
+  {
+   "name": "Fact or Fiction",
+   "quantity": 1
+  },
+  {
+   "name": "Growth Spiral",
+   "quantity": 1
+  },
+  {
+   "name": "Harrow",
+   "quantity": 1
+  },
+  {
+   "name": "Icy Blast",
+   "quantity": 1
+  },
+  {
+   "name": "Reality Shift",
+   "quantity": 1
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1
+  },
+  {
+   "name": "Turnabout",
+   "quantity": 1
+  },
+  {
+   "name": "Winter's Chill",
+   "quantity": 1
+  },
+  {
+   "name": "Glacial Revelation",
+   "quantity": 1
+  },
+  {
+   "name": "Into the North",
+   "quantity": 1
+  },
+  {
+   "name": "Rampant Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Supreme Verdict",
+   "quantity": 1
+  },
+  {
+   "name": "Tempt with Discovery",
+   "quantity": 1
+  },
+  {
+   "name": "Time Wipe",
+   "quantity": 1
+  },
+  {
+   "name": "Urban Evolution",
+   "quantity": 1
+  },
+  {
+   "name": "Coldsteel Heart",
+   "quantity": 1
+  },
+  {
+   "name": "Conjurer's Closet",
+   "quantity": 1
+  },
+  {
+   "name": "Hedron Archive",
+   "quantity": 1
+  },
+  {
+   "name": "Mind Stone",
+   "quantity": 1
+  },
+  {
+   "name": "Sunstone",
+   "quantity": 1
+  },
+  {
+   "name": "Talisman of Curiosity",
+   "quantity": 1
+  },
+  {
+   "name": "Thought Vessel",
+   "quantity": 1
+  },
+  {
+   "name": "Cover of Winter",
+   "quantity": 1
+  },
+  {
+   "name": "Frozen Aether",
+   "quantity": 1
+  },
+  {
+   "name": "Glacial Plating",
+   "quantity": 1
+  },
+  {
+   "name": "Hibernation's End",
+   "quantity": 1
+  },
+  {
+   "name": "Iceberg",
+   "quantity": 1
+  },
+  {
+   "name": "Marit Lage's Slumber",
+   "quantity": 1
+  },
+  {
+   "name": "Mystic Remora",
+   "quantity": 1
+  },
+  {
+   "name": "On Thin Ice",
+   "quantity": 1
+  },
+  {
+   "name": "Wilderness Reclamation",
+   "quantity": 1
+  },
+  {
+   "name": "Winter's Rest",
+   "quantity": 1
+  },
+  {
+   "name": "Arctic Flats",
+   "quantity": 1
+  },
+  {
+   "name": "Blighted Woodland",
+   "quantity": 1
+  },
+  {
+   "name": "Boreal Shelf",
+   "quantity": 1
+  },
+  {
+   "name": "Frostwalk Bastion",
+   "quantity": 1
+  },
+  {
+   "name": "Glacial Chasm",
+   "quantity": 1
+  },
+  {
+   "name": "Ice Floe",
+   "quantity": 1
+  },
+  {
+   "name": "Mouth of Ronom",
+   "quantity": 1
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Snow-Covered Forest",
+   "quantity": 10
+  },
+  {
+   "name": "Snow-Covered Island",
+   "quantity": 9
+  },
+  {
+   "name": "Snow-Covered Plains",
+   "quantity": 10
+  },
+  {
+   "name": "Thornwood Falls",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

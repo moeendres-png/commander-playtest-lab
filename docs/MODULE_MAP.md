@@ -29,72 +29,58 @@ Status legend: **active** = product path, **qual** = qualification / evidence ma
 
 ## Packages in `src/commander_lab/`
 
-Churn = number of file touches since 2026-09-01 (a rough activity signal only).
+12 subpackages currently exist under `src/commander_lab/`:
 
 | Package | Purpose | Status |
 |---|---|---|
-| `cli/` | Typer CLI (`app.py`, `main.py`) | active |
-| `models/` | Pydantic data models (cards, game, mulligan, meta, engine runtime, counterfactual, diagnostics) | active (churn 53) |
-| `storage/` | Atomic JSON/DB stores, hashing, run identity and integrity, result cache | active |
-| `repositories/` | Read-only repositories over canonical project data | active |
-| `cards/` | Card catalog and normalization | active |
-| `agents/` | Card knowledge, pilots, ensembles, guardrails, tracing, orchestration | active (guess: part is legacy demo/OpenAI workflow) |
-| `engine/` | Engine boundary: action validation, process manager, runtime evidence, `structural/` model, `rules/` bridge to the external rules engine (XMage) incl. full-game drivers | active (churn 127, most active) |
+| `cli/` | Typer CLI (`app.py`, `main.py`) — `candidates ...` and `engine-verify` | active |
+| `models/` | Pydantic data models (cards, core/rules enums, structural deck profiles, engine runtime) | active |
+| `storage/` | Atomic JSON/SQLite stores, hashing, run identity and integrity, result cache | active |
+| `repositories/` | Candidate repositories (`candidates.py`) | active |
+| `cards/` | Card catalog and normalization, `commander_flags` | active |
+| `agents/` | Card knowledge, deck guides, deck plan, live routing, pilots, style | active |
+| `engine/` | Engine boundary: action validation, process manager, runtime evidence, `structural/` model, `rules/` bridge to XMage incl. full-game drivers | active |
 | `candidates/` | External complete-deck candidate contracts and lossless gameplay handoff | active |
-| `semantic_replay/` | Engine-neutral semantic replay tape contract | qual / active |
-| `evals/` | Evals: golden, differential, invariants, agent eval | qual |
-| `audit/` | Invariant audit runner/runtime | qual |
-| `qualification/current_boundary/` | Current-boundary qualification: bridge launcher, game driver, midgame rows, replay twins, freeze record, knowledge projection | qual (churn 85) |
-| `features/`, `reporting/`, `observability/` | Support: replay debugger/scenario editor, reporting helpers, local tracing | active (guess, small) |
-| `acceptance/` | Phase 10 acceptance | hist (guess) |
-| `studio/` | Commander Studio (`docs/STUDIO_DECKBUILDER.md`): SQLite store in the Owner data folder (never in the Git tree), importers, public card data, immutable deck revisions, data check, deck builder read models, the local web application (`web.py`, `static/`), and game logs with the spectator page for simulated games (`games.py`, `play.py`, `launch.py`, `docs/STUDIO_GAME_VIEWER.md`) | active |
-| `rogshai/` | Rogshai MVP experiment: `first_run_preparation`, `experiments`, `mvp_acceptance` | qual / hist (guess) |
+| `semantic_replay/` | Engine-neutral semantic replay tape contract and canonicalizer | qual / active |
+| `evals/` | Differential evaluation and scoring models (`differential`, `models`) | qual |
+| `qualification/current_boundary/` | Current-boundary qualification: bridge launcher, game driver, midgame rows, replay twins, freeze record, knowledge projection | qual |
+| `studio/` | Commander Studio (`docs/STUDIO_DECKBUILDER.md`): SQLite store (`studio.sqlite3`), importers, public card data, immutable deck revisions, counted universes, strength index, local web UI (`web.py`, `static/`), and game logs / spectator & play views (`games.py`, `play.py`, `play_batch.py`, `launch.py`, `docs/STUDIO_GAME_VIEWER.md`) | active |
 
-Moved modules keep a shim at their old path (`commander_lab.decision_bundle`, `candidate_screening`,
-`variant_identity`, `rogshai_mvp_acceptance`, ... ) that aliases the new module object, so old imports,
-monkeypatching and pickles keep working (`tests/unit/test_moved_module_aliases.py`). New code imports
-the new paths. Modules deliberately left at top level because their file path is hashed or read by
-path (`technical_truth` presence checks of `project_context`) must not move.
+There are 13 non-`__init__` top-level `*.py` modules in `src/commander_lab/`, grouped by name:
 
-Remaining top-level modules (about 40 `*.py` in `src/commander_lab/`, incl. shims), grouped by name:
+- Features, deck analysis and statistics: `canonical_features`, `decision_statistics`, `deck_profile`, `deck_readiness`, `deck_registry`, `deck_variant`, `mana_analysis`, `owner_data`, `semantic_features`.
+- Qualification / freeze: `freeze_readiness`, `meta_qualification`, `project_context`, `technical_truth`.
 
-- Decision quality and statistics: `decision_statistics`, `canonical_features`, `semantic_*`,
-  `tactical_evidence`, `model_*`, `opponent_uncertainty`.
-- Qualification / freeze: `meta_qualification`, `freeze_readiness`, `technical_truth`
-  (the Rogshai experiment modules live in `rogshai/`).
-- Data: `deck_registry`, `commander_spellbook`, `mana_analysis`, `project_context`.
+Modules whose paths are checked or hashed by qualification or truth code (`project_context`, `technical_truth`) stay at top level.
 
 ## Active scripts in `scripts/`
 
-About 100 files. Referenced by CI workflows (`.github/workflows/`, 24 files) or touched since
-2026-09-01 - these are the ones to know:
+114 scripts (`.py`/`.sh`), referenced by the 17 workflows in `.github/workflows/` or used for Studio data and game measurements:
 
 | Script | Why it matters |
 |---|---|
-| `run_current_boundary_qualification.py`, `assemble_current_boundary_evidence.py` | Current-boundary qualification and its evidence assembly (frequently changed) |
-| `run_external_full_game_conformance.py`, `run_real_4p_full_game_smoke.py`, `run_midgame_capability_probe.py` | Real-engine conformance/smoke workflows |
-| `run_full_game_deck_comparison.py`, `run_optimizer_v2_full_game_route.py`, `run_replay_twin_campaign.py` | Full-game deck comparison, optimizer route, replay twins |
-| `run_candidate_handoff_conformance.py`, `run_candidate_paired_triage.py`, `run_candidate_evaluation_frontier.py` | Candidate workflows (CI) |
+| `run_current_boundary_qualification.py`, `assemble_current_boundary_evidence.py`, `assemble_freeze_record.py` | Current-boundary qualification, freeze record, and evidence assembly |
+| `run_external_full_game_conformance.py`, `run_real_4p_full_game_smoke.py`, `run_midgame_capability_probe.py` | Real-engine conformance and smoke workflows |
+| `run_full_game_deck_comparison.py`, `run_replay_twin_campaign.py` | Paired full-game deck comparison and replay twins |
 | `derive_rules_engines_capabilities.py`, `generate_full_game_contract_artifacts.py`, `seal_xmage_full_game_artifacts.py` | Contract/capability derivation and sealing |
-| `verify_packaging_smoke.py`, `verify_container_provenance.py`, `verify_engine.sh`, `run_broad_secret_scan.py`, `security_evidence.py` | Packaging, provenance, engine and security checks |
-| `bootstrap_engine_*.sh`, `verify_engine.sh`, `docker_*` | Engine setup and lifecycle |
-| `audit_workflow_impact.py` | Test isolation and workflow-impact auditing |
-| `determinism_probe.py`, `precon_pod_sweep.py`, `benchmark_xmage_full_games.py`, `measure_precon_imports.py`, `pilot_decision_report.py` | Real-game measurement: determinism, precon pod sweeps, speed and identity benchmarks, import coverage, pilot decision reports (`docs/performance/`) |
-| `regenerate_hash_manifests.py` | Rebuilds `qualification/SHA256SUMS` and `WS17_SHA256SUMS` (run after every change under `qualification/`) |
+| `verify_packaging_smoke.py`, `verify_container_provenance.py`, `verify_engine.sh`, `run_broad_secret_scan.py`, `security_evidence.py`, `ci_gate.py` | Packaging, provenance, engine, security, and CI gate checks |
+| `bootstrap_engine_*.sh`, `docker_resolve_engine_pin.py` | Engine setup and pin resolution |
+| `audit_workflow_impact.py`, `classify_docs.py` | Test-isolation audit and active/archive document classification |
+| `determinism_probe.py`, `precon_pod_sweep.py`, `benchmark_xmage_full_games.py`, `measure_precon_imports.py`, `pilot_decision_report.py`, `measure_throughput_steady_state.py` | Real-game measurement: determinism, precon pod sweeps, speed and identity benchmarks, import coverage, pilot reports (`docs/performance/`) |
+| `import_chulane_corpus.py`, `map_corpus_oracle_ids.py`, `build_corpus_fill.py`, `derive_edhrec_signals.py`, `derive_global_signals.py`, `build_spellbook_shells.py`, `spellbook_combos_fetch.py`, `collect_playgroup_card_atlas.py`, `deck_bracket_label.py` | Commander Studio data pipeline: corpus import/mapping, counted fills, signal derivation, Spellbook combos/shells, Playgroup card atlas, deck bracket utility |
+| `regenerate_hash_manifests.py` | Rebuilds `qualification/SHA256SUMS` and `WS17_SHA256SUMS` |
 | `claude_handoff.py` | Regenerates `docs/claude/state/HANDOFF.md` (engine pin and newest sealed epoch from `config/rules_engines.json`, open lanes, heads) |
 
-Likely historical (not referenced by workflows; guess from names): `run_external_b3/b4*_regression.py`,
-`run_j_p4_*`, `run_j_p5_*`, `run_j_p6_*`, `run_phase8_validation.py` (removed). Note some `run_external_b4*`
-are referenced by `external-engine-integration.yml`; verify before removing anything.
+External engine regression scripts (`run_external_b3_regression.py`, `run_external_b4*_regression.py`) are exercised by `.github/workflows/external-engine-integration.yml`.
 
 ## Other top-level directories
 
 - `engine-bridge/` - Java bridge to the rules engine; `vendor/`, `docker/` - engine pin and build.
-- `config/` - pins and policy JSON (`rules_engines.json`); `schemas/` - JSON schemas.
-- `tests/` - `unit/`, `qualification/`, `integration/`, `property/`, `golden/`, etc.
-- `qualification/`, `candidate-qualification/`, `evidence/`-style trees - sealed evidence; do not edit.
-- `handoffs/`, `research/`, `artifacts/` - provenance material (guess: mostly hist).
-- Root reports (`MIGRATION_CLOSEOUT.md`, `XMAGE_FULL_GAME_*`, `ARCHITECTURE_MIGRATION_REPORT.md`) - hist.
+- `config/` - pins and policy JSON (`rules_engines.json`); `schemas/` - `engine_adapter_protocol.schema.json` and `engine_protocol/`.
+- `tests/` - `unit/`, `contract/`, `qualification/`, `integration/`, `property/`, `golden/`, etc.
+- `qualification/`, `candidate-qualification/` - sealed evidence; do not edit without an Owner decision.
+- `artifacts/` - architecture/audit/contract JSON outputs checked by unit tests.
+- Root reports (`MIGRATION_CLOSEOUT.md`, `XMAGE_FULL_GAME_*`, `ARCHITECTURE_MIGRATION_REPORT.md`) - historical migration records.
 
 ## Docs: current vs historical
 

@@ -1,0 +1,346 @@
+{
+ "urlhash": "QhWeOq3J2GdGC1ivjArxtA",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-05-13",
+ "price": 2290,
+ "salt": 48.19086737558246,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/22561003?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Aang and Katara",
+   "quantity": 1
+  },
+  {
+   "name": "Aang, at the Crossroads",
+   "quantity": 1
+  },
+  {
+   "name": "Abzan Falconer",
+   "quantity": 1
+  },
+  {
+   "name": "Duskshell Crawler",
+   "quantity": 1
+  },
+  {
+   "name": "Earth King's Lieutenant",
+   "quantity": 1
+  },
+  {
+   "name": "Earth Kingdom General",
+   "quantity": 1
+  },
+  {
+   "name": "Earth Kingdom Protectors",
+   "quantity": 1
+  },
+  {
+   "name": "Evolution Sage",
+   "quantity": 1
+  },
+  {
+   "name": "Galadriel, Light of Valinor",
+   "quantity": 1
+  },
+  {
+   "name": "Hakoda, Selfless Commander",
+   "quantity": 1
+  },
+  {
+   "name": "Halimar Excavator",
+   "quantity": 1
+  },
+  {
+   "name": "Haru, Hidden Talent",
+   "quantity": 1
+  },
+  {
+   "name": "Herald of Secret Streams",
+   "quantity": 1
+  },
+  {
+   "name": "Hero of Goma Fada",
+   "quantity": 1
+  },
+  {
+   "name": "Jwari Shapeshifter",
+   "quantity": 1
+  },
+  {
+   "name": "Katara, the Fearless",
+   "quantity": 1
+  },
+  {
+   "name": "Kor Bladewhirl",
+   "quantity": 1
+  },
+  {
+   "name": "Munda's Vanguard",
+   "quantity": 1
+  },
+  {
+   "name": "Ondu Cleric",
+   "quantity": 1
+  },
+  {
+   "name": "Rowdy Snowballers",
+   "quantity": 1
+  },
+  {
+   "name": "South Pole Voyager",
+   "quantity": 1
+  },
+  {
+   "name": "Suki, Courageous Rescuer",
+   "quantity": 1
+  },
+  {
+   "name": "Suki, Kyoshi Warrior",
+   "quantity": 1
+  },
+  {
+   "name": "The Earth King",
+   "quantity": 1
+  },
+  {
+   "name": "Tidus, Yuna's Guardian",
+   "quantity": 1
+  },
+  {
+   "name": "Toph, the Blind Bandit",
+   "quantity": 1
+  },
+  {
+   "name": "Yuna, Grand Summoner",
+   "quantity": 1
+  },
+  {
+   "name": "Airbender's Reversal",
+   "quantity": 1
+  },
+  {
+   "name": "Cycle of Renewal",
+   "quantity": 1
+  },
+  {
+   "name": "Earthshape",
+   "quantity": 1
+  },
+  {
+   "name": "Fancy Footwork",
+   "quantity": 1
+  },
+  {
+   "name": "Inspiring Call",
+   "quantity": 1
+  },
+  {
+   "name": "Octopus Form",
+   "quantity": 1
+  },
+  {
+   "name": "Origin of Metalbending",
+   "quantity": 1
+  },
+  {
+   "name": "Ripples of Potential",
+   "quantity": 1
+  },
+  {
+   "name": "Sandbenders' Storm",
+   "quantity": 1
+  },
+  {
+   "name": "Yip Yip!",
+   "quantity": 1
+  },
+  {
+   "name": "Aang's Journey",
+   "quantity": 1
+  },
+  {
+   "name": "Cracked Earth Technique",
+   "quantity": 1
+  },
+  {
+   "name": "Damning Verdict",
+   "quantity": 1
+  },
+  {
+   "name": "Earth Rumble",
+   "quantity": 1
+  },
+  {
+   "name": "Earthbending Lesson",
+   "quantity": 1
+  },
+  {
+   "name": "Ember Island Production",
+   "quantity": 1
+  },
+  {
+   "name": "Rockalanche",
+   "quantity": 1
+  },
+  {
+   "name": "United Front",
+   "quantity": 1
+  },
+  {
+   "name": "Coat of Arms",
+   "quantity": 1
+  },
+  {
+   "name": "Commander's Sphere",
+   "quantity": 1
+  },
+  {
+   "name": "Door of Destinies",
+   "quantity": 1
+  },
+  {
+   "name": "Ozolith, the Shattered Spire",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "White Lotus Tile",
+   "quantity": 1
+  },
+  {
+   "name": "Aang's Iceberg",
+   "quantity": 1
+  },
+  {
+   "name": "Branching Evolution",
+   "quantity": 1
+  },
+  {
+   "name": "Earthbender Ascension",
+   "quantity": 1
+  },
+  {
+   "name": "Felidar Retreat",
+   "quantity": 1
+  },
+  {
+   "name": "Hadana's Climb",
+   "quantity": 1
+  },
+  {
+   "name": "Hardened Scales",
+   "quantity": 1
+  },
+  {
+   "name": "Innkeeper's Talent",
+   "quantity": 1
+  },
+  {
+   "name": "Kindred Discovery",
+   "quantity": 1
+  },
+  {
+   "name": "Leyline of Transformation",
+   "quantity": 1
+  },
+  {
+   "name": "Reflections of Littjara",
+   "quantity": 1
+  },
+  {
+   "name": "Solid Ground",
+   "quantity": 1
+  },
+  {
+   "name": "The Legend of Kuruk",
+   "quantity": 1
+  },
+  {
+   "name": "The Legend of Kyoshi",
+   "quantity": 1
+  },
+  {
+   "name": "Gideon, Ally of Zendikar",
+   "quantity": 1
+  },
+  {
+   "name": "Wrenn and Realmbreaker",
+   "quantity": 1
+  },
+  {
+   "name": "Abandoned Air Temple",
+   "quantity": 1
+  },
+  {
+   "name": "Ally Encampment",
+   "quantity": 1
+  },
+  {
+   "name": "Bretagard Stronghold",
+   "quantity": 1
+  },
+  {
+   "name": "Captivating Cave",
+   "quantity": 1
+  },
+  {
+   "name": "Cavern of Souls",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 7
+  },
+  {
+   "name": "Hall of Oracles",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 7
+  },
+  {
+   "name": "Jasmine Dragon Tea Shop",
+   "quantity": 1
+  },
+  {
+   "name": "Littjara Mirrorlake",
+   "quantity": 1
+  },
+  {
+   "name": "Path of Ancestry",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 7
+  },
+  {
+   "name": "Savannah",
+   "quantity": 1
+  },
+  {
+   "name": "Tropical Island",
+   "quantity": 1
+  },
+  {
+   "name": "Tundra",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

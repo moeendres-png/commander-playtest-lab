@@ -1,0 +1,298 @@
+{
+ "urlhash": "yvgguwoyKa-NCPg8dWs4Cw",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-10-07",
+ "price": 193,
+ "salt": 43.89371544122696,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/Y2JWIz3LeUeahTQcRvy8wg?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Barbara Wright",
+   "quantity": 1
+  },
+  {
+   "name": "Copy Catchers",
+   "quantity": 1
+  },
+  {
+   "name": "Disruptive Student",
+   "quantity": 1
+  },
+  {
+   "name": "Enduring Curiosity",
+   "quantity": 1
+  },
+  {
+   "name": "Fear of Failed Tests",
+   "quantity": 1
+  },
+  {
+   "name": "Ian Chesterton",
+   "quantity": 1
+  },
+  {
+   "name": "Impassioned Orator",
+   "quantity": 1
+  },
+  {
+   "name": "Mild-Mannered Librarian",
+   "quantity": 1
+  },
+  {
+   "name": "Papercraft Decoy",
+   "quantity": 1
+  },
+  {
+   "name": "Savior of the Small",
+   "quantity": 1
+  },
+  {
+   "name": "Star Pupil",
+   "quantity": 1
+  },
+  {
+   "name": "Suspicious Bookcase",
+   "quantity": 1
+  },
+  {
+   "name": "Venerated Teacher",
+   "quantity": 1
+  },
+  {
+   "name": "Brainstorm",
+   "quantity": 1
+  },
+  {
+   "name": "Bury in Books",
+   "quantity": 1
+  },
+  {
+   "name": "Enlightened Tutor",
+   "quantity": 1
+  },
+  {
+   "name": "Eureka Moment",
+   "quantity": 1
+  },
+  {
+   "name": "Fact or Fiction",
+   "quantity": 1
+  },
+  {
+   "name": "Inspiration",
+   "quantity": 1
+  },
+  {
+   "name": "Into the Story",
+   "quantity": 1
+  },
+  {
+   "name": "Learn from the Past",
+   "quantity": 1
+  },
+  {
+   "name": "Permission Denied",
+   "quantity": 1
+  },
+  {
+   "name": "Plagiarize",
+   "quantity": 1
+  },
+  {
+   "name": "Pop Quiz",
+   "quantity": 1
+  },
+  {
+   "name": "Quick Study",
+   "quantity": 1
+  },
+  {
+   "name": "School Daze",
+   "quantity": 1
+  },
+  {
+   "name": "Snow Day",
+   "quantity": 1
+  },
+  {
+   "name": "Stern Lesson",
+   "quantity": 1
+  },
+  {
+   "name": "Stroke of Genius",
+   "quantity": 1
+  },
+  {
+   "name": "Think Twice",
+   "quantity": 1
+  },
+  {
+   "name": "Thirst for Knowledge",
+   "quantity": 1
+  },
+  {
+   "name": "Warning",
+   "quantity": 1
+  },
+  {
+   "name": "When We Were Young",
+   "quantity": 1
+  },
+  {
+   "name": "Brilliant Plan",
+   "quantity": 1
+  },
+  {
+   "name": "Careful Study",
+   "quantity": 1
+  },
+  {
+   "name": "Environmental Sciences",
+   "quantity": 1
+  },
+  {
+   "name": "Field Trip",
+   "quantity": 1
+  },
+  {
+   "name": "Ideas Unbound",
+   "quantity": 1
+  },
+  {
+   "name": "Idyllic Tutor",
+   "quantity": 1
+  },
+  {
+   "name": "Increasing Confusion",
+   "quantity": 1
+  },
+  {
+   "name": "Mentor's Guidance",
+   "quantity": 1
+  },
+  {
+   "name": "Multiple Choice",
+   "quantity": 1
+  },
+  {
+   "name": "Personal Tutor",
+   "quantity": 1
+  },
+  {
+   "name": "Ponder",
+   "quantity": 1
+  },
+  {
+   "name": "Pore Over the Pages",
+   "quantity": 1
+  },
+  {
+   "name": "Relearn",
+   "quantity": 1
+  },
+  {
+   "name": "Show and Tell",
+   "quantity": 1
+  },
+  {
+   "name": "Solve the Equation",
+   "quantity": 1
+  },
+  {
+   "name": "Fellwar Stone",
+   "quantity": 1
+  },
+  {
+   "name": "Intelligence Bobblehead",
+   "quantity": 1
+  },
+  {
+   "name": "Knowledge Vault",
+   "quantity": 1
+  },
+  {
+   "name": "Mind Stone",
+   "quantity": 1
+  },
+  {
+   "name": "Spare Supplies",
+   "quantity": 1
+  },
+  {
+   "name": "Survivor's Med Kit",
+   "quantity": 1
+  },
+  {
+   "name": "Browse",
+   "quantity": 1
+  },
+  {
+   "name": "Confiscate",
+   "quantity": 1
+  },
+  {
+   "name": "Cradle of Safety",
+   "quantity": 1
+  },
+  {
+   "name": "Knowledge Is Power",
+   "quantity": 1
+  },
+  {
+   "name": "Mental Discipline",
+   "quantity": 1
+  },
+  {
+   "name": "Pursuit of Knowledge",
+   "quantity": 1
+  },
+  {
+   "name": "Restricted Office // Lecture Hall",
+   "quantity": 1
+  },
+  {
+   "name": "Rousing Read",
+   "quantity": 1
+  },
+  {
+   "name": "Trail of Crumbs",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 11
+  },
+  {
+   "name": "Island",
+   "quantity": 11
+  },
+  {
+   "name": "Plains",
+   "quantity": 11
+  },
+  {
+   "name": "School of the Unseen",
+   "quantity": 1
+  },
+  {
+   "name": "Study",
+   "quantity": 1
+  },
+  {
+   "name": "University Campus",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

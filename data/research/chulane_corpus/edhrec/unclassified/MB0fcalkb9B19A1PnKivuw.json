@@ -1,0 +1,334 @@
+{
+ "urlhash": "MB0fcalkb9B19A1PnKivuw",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-07-13",
+ "price": 1069,
+ "salt": 44.419557612389326,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/5qNMbH0YzUeqOeum8RQt9g?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Aegis of the Gods",
+   "quantity": 1
+  },
+  {
+   "name": "Akroan Horse",
+   "quantity": 1
+  },
+  {
+   "name": "Archetype of Courage",
+   "quantity": 1
+  },
+  {
+   "name": "Beguiler of Wills",
+   "quantity": 1
+  },
+  {
+   "name": "Callaphe, Beloved of the Sea",
+   "quantity": 1
+  },
+  {
+   "name": "Charming Prince",
+   "quantity": 1
+  },
+  {
+   "name": "Ephara, God of the Polis",
+   "quantity": 1
+  },
+  {
+   "name": "Grasping Giant",
+   "quantity": 1
+  },
+  {
+   "name": "Holy Cow",
+   "quantity": 1
+  },
+  {
+   "name": "Kraken of the Straits",
+   "quantity": 1
+  },
+  {
+   "name": "Lieutenants of the Guard",
+   "quantity": 1
+  },
+  {
+   "name": "Linden, the Steadfast Queen",
+   "quantity": 1
+  },
+  {
+   "name": "Lotus-Eye Mystics",
+   "quantity": 1
+  },
+  {
+   "name": "Loyal Warhound",
+   "quantity": 1
+  },
+  {
+   "name": "Nyx-Fleece Ram",
+   "quantity": 1
+  },
+  {
+   "name": "Odric, Master Tactician",
+   "quantity": 1
+  },
+  {
+   "name": "Reverent Hoplite",
+   "quantity": 1
+  },
+  {
+   "name": "Skyward Eye Prophets",
+   "quantity": 1
+  },
+  {
+   "name": "Squad Captain",
+   "quantity": 1
+  },
+  {
+   "name": "Storvald, Frost Giant Jarl",
+   "quantity": 1
+  },
+  {
+   "name": "Sun Titan",
+   "quantity": 1
+  },
+  {
+   "name": "Thassa, Deep-Dwelling",
+   "quantity": 1
+  },
+  {
+   "name": "Yotian Tactician",
+   "quantity": 1
+  },
+  {
+   "name": "Brought Back",
+   "quantity": 1
+  },
+  {
+   "name": "Cosmic Intervention",
+   "quantity": 1
+  },
+  {
+   "name": "Countervailing Winds",
+   "quantity": 1
+  },
+  {
+   "name": "Endless Detour",
+   "quantity": 1
+  },
+  {
+   "name": "Ephara's Dispersal",
+   "quantity": 1
+  },
+  {
+   "name": "Gideon's Sacrifice",
+   "quantity": 1
+  },
+  {
+   "name": "Glimpse the Sun God",
+   "quantity": 1
+  },
+  {
+   "name": "Judge Unworthy",
+   "quantity": 1
+  },
+  {
+   "name": "Karametra's Blessing",
+   "quantity": 1
+  },
+  {
+   "name": "Sudden Storm",
+   "quantity": 1
+  },
+  {
+   "name": "Curse of the Swine",
+   "quantity": 1
+  },
+  {
+   "name": "Echo Storm",
+   "quantity": 1
+  },
+  {
+   "name": "Sea God's Scorn",
+   "quantity": 1
+  },
+  {
+   "name": "Sevinne's Reclamation",
+   "quantity": 1
+  },
+  {
+   "name": "Take Vengeance",
+   "quantity": 1
+  },
+  {
+   "name": "Wrath of God",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Archaeomancer's Map",
+   "quantity": 1
+  },
+  {
+   "name": "Bident of Thassa",
+   "quantity": 1
+  },
+  {
+   "name": "Caduceus, Staff of Hermes",
+   "quantity": 1
+  },
+  {
+   "name": "Expedition Map",
+   "quantity": 1
+  },
+  {
+   "name": "Fellwar Stone",
+   "quantity": 1
+  },
+  {
+   "name": "Heart-Piercer Bow",
+   "quantity": 1
+  },
+  {
+   "name": "Helm of the Gods",
+   "quantity": 1
+  },
+  {
+   "name": "Hourglass of the Lost",
+   "quantity": 1
+  },
+  {
+   "name": "Kite Shield",
+   "quantity": 1
+  },
+  {
+   "name": "Lantern of the Lost",
+   "quantity": 1
+  },
+  {
+   "name": "Lightning Greaves",
+   "quantity": 1
+  },
+  {
+   "name": "Nyx Lotus",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Subterranean Schooner",
+   "quantity": 1
+  },
+  {
+   "name": "Thirsting Axe",
+   "quantity": 1
+  },
+  {
+   "name": "Winged Boots",
+   "quantity": 1
+  },
+  {
+   "name": "A Tale for the Ages",
+   "quantity": 1
+  },
+  {
+   "name": "As Foretold",
+   "quantity": 1
+  },
+  {
+   "name": "Benevolent Blessing",
+   "quantity": 1
+  },
+  {
+   "name": "Bind the Monster",
+   "quantity": 1
+  },
+  {
+   "name": "Ephara's Enlightenment",
+   "quantity": 1
+  },
+  {
+   "name": "Flowering of the White Tree",
+   "quantity": 1
+  },
+  {
+   "name": "Glaring Aegis",
+   "quantity": 1
+  },
+  {
+   "name": "Inspiring Leader",
+   "quantity": 1
+  },
+  {
+   "name": "Military Discipline",
+   "quantity": 1
+  },
+  {
+   "name": "Starfield of Nyx",
+   "quantity": 1
+  },
+  {
+   "name": "Vow of Duty",
+   "quantity": 1
+  },
+  {
+   "name": "Cavern of Souls",
+   "quantity": 1
+  },
+  {
+   "name": "Exotic Orchard",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 6
+  },
+  {
+   "name": "Irrigated Farmland",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 9
+  },
+  {
+   "name": "Lotus Field",
+   "quantity": 1
+  },
+  {
+   "name": "Nykthos, Shrine to Nyx",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 9
+  },
+  {
+   "name": "Thriving Isle",
+   "quantity": 1
+  },
+  {
+   "name": "Tundra",
+   "quantity": 1
+  },
+  {
+   "name": "Unknown Shores",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

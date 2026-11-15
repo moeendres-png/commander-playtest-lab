@@ -1,0 +1,290 @@
+{
+ "urlhash": "Yitg-1rOjArEvi20Uk24FA",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-02-08",
+ "price": 71,
+ "salt": 42.98056408017874,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/hh49xLoK20CtE7OnISS5SQ?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Aang, Air Nomad",
+   "quantity": 1
+  },
+  {
+   "name": "Aang, the Last Airbender",
+   "quantity": 1
+  },
+  {
+   "name": "Appa, Aang's Companion",
+   "quantity": 1
+  },
+  {
+   "name": "Appa, the Vigilant",
+   "quantity": 1
+  },
+  {
+   "name": "Arwen, Mortal Queen",
+   "quantity": 1
+  },
+  {
+   "name": "Compassionate Healer",
+   "quantity": 1
+  },
+  {
+   "name": "Earth King's Lieutenant",
+   "quantity": 1
+  },
+  {
+   "name": "Earth Kingdom Protectors",
+   "quantity": 1
+  },
+  {
+   "name": "First-Time Flyer",
+   "quantity": 1
+  },
+  {
+   "name": "Flexible Waterbender",
+   "quantity": 1
+  },
+  {
+   "name": "Flying Dolphin-Fish",
+   "quantity": 1
+  },
+  {
+   "name": "Foggy Swamp Vinebender",
+   "quantity": 1
+  },
+  {
+   "name": "Forecasting Fortune Teller",
+   "quantity": 1
+  },
+  {
+   "name": "Glider Kids",
+   "quantity": 1
+  },
+  {
+   "name": "Good-Fortune Unicorn",
+   "quantity": 1
+  },
+  {
+   "name": "Gran-Gran",
+   "quantity": 1
+  },
+  {
+   "name": "Hakoda, Selfless Commander",
+   "quantity": 1
+  },
+  {
+   "name": "Haru, Hidden Talent",
+   "quantity": 1
+  },
+  {
+   "name": "Invasion Reinforcements",
+   "quantity": 1
+  },
+  {
+   "name": "Jeong Jeong's Deserters",
+   "quantity": 1
+  },
+  {
+   "name": "Katara, Bending Prodigy",
+   "quantity": 1
+  },
+  {
+   "name": "Katara, Heroic Healer",
+   "quantity": 1
+  },
+  {
+   "name": "Katara, Water Tribe's Hope",
+   "quantity": 1
+  },
+  {
+   "name": "Katara, the Fearless",
+   "quantity": 1
+  },
+  {
+   "name": "Master Pakku",
+   "quantity": 1
+  },
+  {
+   "name": "Momo, Friendly Flier",
+   "quantity": 1
+  },
+  {
+   "name": "Momo, Rambunctious Rascal",
+   "quantity": 1
+  },
+  {
+   "name": "Raucous Audience",
+   "quantity": 1
+  },
+  {
+   "name": "Rowdy Snowballers",
+   "quantity": 1
+  },
+  {
+   "name": "Sokka, Lateral Strategist",
+   "quantity": 1
+  },
+  {
+   "name": "Sokka, Wolf Cove's Protector",
+   "quantity": 1
+  },
+  {
+   "name": "Suki, Kyoshi Warrior",
+   "quantity": 1
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Ty Lee, Chi Blocker",
+   "quantity": 1
+  },
+  {
+   "name": "Water Tribe Captain",
+   "quantity": 1
+  },
+  {
+   "name": "Water Tribe Rallier",
+   "quantity": 1
+  },
+  {
+   "name": "White Lotus Reinforcements",
+   "quantity": 1
+  },
+  {
+   "name": "Wolf Cove Villager",
+   "quantity": 1
+  },
+  {
+   "name": "Accumulate Wisdom",
+   "quantity": 1
+  },
+  {
+   "name": "Airbending Lesson",
+   "quantity": 1
+  },
+  {
+   "name": "Allies at Last",
+   "quantity": 1
+  },
+  {
+   "name": "Cycle of Renewal",
+   "quantity": 1
+  },
+  {
+   "name": "Decommission",
+   "quantity": 1
+  },
+  {
+   "name": "Fancy Footwork",
+   "quantity": 1
+  },
+  {
+   "name": "It'll Quench Ya!",
+   "quantity": 1
+  },
+  {
+   "name": "Origin of Metalbending",
+   "quantity": 1
+  },
+  {
+   "name": "Razor Rings",
+   "quantity": 1
+  },
+  {
+   "name": "Yip Yip!",
+   "quantity": 1
+  },
+  {
+   "name": "Explore",
+   "quantity": 1
+  },
+  {
+   "name": "Match the Odds",
+   "quantity": 1
+  },
+  {
+   "name": "Water Whip",
+   "quantity": 1
+  },
+  {
+   "name": "Waterbending Lesson",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Bender's Waterskin",
+   "quantity": 1
+  },
+  {
+   "name": "Commander's Sphere",
+   "quantity": 1
+  },
+  {
+   "name": "Mind Stone",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Air Nomad Legacy",
+   "quantity": 1
+  },
+  {
+   "name": "Allied Teamwork",
+   "quantity": 1
+  },
+  {
+   "name": "Path to Redemption",
+   "quantity": 1
+  },
+  {
+   "name": "Sokka's Charge",
+   "quantity": 1
+  },
+  {
+   "name": "Agna Qel'a",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 10
+  },
+  {
+   "name": "Island",
+   "quantity": 11
+  },
+  {
+   "name": "Plains",
+   "quantity": 14
+  },
+  {
+   "name": "Thriving Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Thriving Isle",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

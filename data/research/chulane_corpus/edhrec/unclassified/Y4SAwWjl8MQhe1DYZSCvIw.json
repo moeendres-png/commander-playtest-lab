@@ -1,0 +1,274 @@
+{
+ "urlhash": "Y4SAwWjl8MQhe1DYZSCvIw",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2024-12-27",
+ "price": 75,
+ "salt": 55.69087073765695,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/10625854?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Champion of the Parish",
+   "quantity": 1
+  },
+  {
+   "name": "Clinquant Skymage",
+   "quantity": 1
+  },
+  {
+   "name": "Eagle of the Watch",
+   "quantity": 1
+  },
+  {
+   "name": "Eagles of the North",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Visionary",
+   "quantity": 1
+  },
+  {
+   "name": "Erudite Wizard",
+   "quantity": 1
+  },
+  {
+   "name": "Faramir, Prince of Ithilien",
+   "quantity": 1
+  },
+  {
+   "name": "Ghalta and Mavren",
+   "quantity": 1
+  },
+  {
+   "name": "Gwaihir the Windlord",
+   "quantity": 1
+  },
+  {
+   "name": "Ithilien Kingfisher",
+   "quantity": 1
+  },
+  {
+   "name": "Katilda and Lier",
+   "quantity": 1
+  },
+  {
+   "name": "King Darien XLVIII",
+   "quantity": 1
+  },
+  {
+   "name": "Knights of Dol Amroth",
+   "quantity": 1
+  },
+  {
+   "name": "Landroval, Horizon Witness",
+   "quantity": 1
+  },
+  {
+   "name": "Lat-Nam Adept",
+   "quantity": 1
+  },
+  {
+   "name": "Legolas Greenleaf",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Visionary",
+   "quantity": 1
+  },
+  {
+   "name": "Maja, Bretagard Protector",
+   "quantity": 1
+  },
+  {
+   "name": "Murasa Rootgrazer",
+   "quantity": 1
+  },
+  {
+   "name": "Plumecreed Mentor",
+   "quantity": 1
+  },
+  {
+   "name": "Prince Imrahil the Fair",
+   "quantity": 1
+  },
+  {
+   "name": "Rhys the Redeemed",
+   "quantity": 1
+  },
+  {
+   "name": "Rosie Cotton of South Lane",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Guildmage",
+   "quantity": 1
+  },
+  {
+   "name": "Shanna, Sisay's Legacy",
+   "quantity": 1
+  },
+  {
+   "name": "Syr Alin, the Lion's Claw",
+   "quantity": 1
+  },
+  {
+   "name": "Tazeem Raptor",
+   "quantity": 1
+  },
+  {
+   "name": "Thraben Doomsayer",
+   "quantity": 1
+  },
+  {
+   "name": "Torens, Fist of the Angels",
+   "quantity": 1
+  },
+  {
+   "name": "Treeguard Duo",
+   "quantity": 1
+  },
+  {
+   "name": "War Screecher",
+   "quantity": 1
+  },
+  {
+   "name": "Defiant Strike",
+   "quantity": 1
+  },
+  {
+   "name": "Destroy Evil",
+   "quantity": 1
+  },
+  {
+   "name": "Opt",
+   "quantity": 1
+  },
+  {
+   "name": "Rabbit Response",
+   "quantity": 1
+  },
+  {
+   "name": "Return to Dust",
+   "quantity": 1
+  },
+  {
+   "name": "Return to the Earth",
+   "quantity": 1
+  },
+  {
+   "name": "Slice in Twain",
+   "quantity": 1
+  },
+  {
+   "name": "Smite the Monstrous",
+   "quantity": 1
+  },
+  {
+   "name": "Swift Response",
+   "quantity": 1
+  },
+  {
+   "name": "Thwart the Enemy",
+   "quantity": 1
+  },
+  {
+   "name": "Unbreakable Formation",
+   "quantity": 1
+  },
+  {
+   "name": "Akroma's Vengeance",
+   "quantity": 1
+  },
+  {
+   "name": "Cultivate",
+   "quantity": 1
+  },
+  {
+   "name": "Migration Path",
+   "quantity": 1
+  },
+  {
+   "name": "Reclaim the Wastes",
+   "quantity": 1
+  },
+  {
+   "name": "Relentless Pursuit",
+   "quantity": 1
+  },
+  {
+   "name": "Track Down",
+   "quantity": 1
+  },
+  {
+   "name": "Vanquish the Horde",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Cluestone",
+   "quantity": 1
+  },
+  {
+   "name": "Heaped Harvest",
+   "quantity": 1
+  },
+  {
+   "name": "Aura Shards",
+   "quantity": 1
+  },
+  {
+   "name": "Blanchwood Armor",
+   "quantity": 1
+  },
+  {
+   "name": "Elven Chorus",
+   "quantity": 1
+  },
+  {
+   "name": "Faith's Fetters",
+   "quantity": 1
+  },
+  {
+   "name": "Nahiri's Binding",
+   "quantity": 1
+  },
+  {
+   "name": "New Horizons",
+   "quantity": 1
+  },
+  {
+   "name": "Omen of the Hunt",
+   "quantity": 1
+  },
+  {
+   "name": "Pacifism",
+   "quantity": 1
+  },
+  {
+   "name": "Invasion of Xerex",
+   "quantity": 1
+  },
+  {
+   "name": "Basri Ket",
+   "quantity": 1
+  },
+  {
+   "name": "The Wanderer",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 37
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

@@ -1,0 +1,338 @@
+{
+ "urlhash": "jBSdCAI132kR1DHIrhbIdg",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-12-30",
+ "price": 150,
+ "salt": 39.27205591602251,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/18556328?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Alpine Grizzly",
+   "quantity": 1
+  },
+  {
+   "name": "Ashcoat Bear",
+   "quantity": 1
+  },
+  {
+   "name": "Ayula, Queen Among Bears",
+   "quantity": 1
+  },
+  {
+   "name": "Balduvian Bears",
+   "quantity": 1
+  },
+  {
+   "name": "Bear Cub",
+   "quantity": 1
+  },
+  {
+   "name": "Copper Host Crusher",
+   "quantity": 1
+  },
+  {
+   "name": "Doc Aurlock, Grizzled Genius",
+   "quantity": 1
+  },
+  {
+   "name": "Dragon-Scarred Bear",
+   "quantity": 1
+  },
+  {
+   "name": "Druid's Familiar",
+   "quantity": 1
+  },
+  {
+   "name": "Enduring Vitality",
+   "quantity": 1
+  },
+  {
+   "name": "Evercoat Ursine",
+   "quantity": 1
+  },
+  {
+   "name": "Flaxen Intruder",
+   "quantity": 1
+  },
+  {
+   "name": "Golden Bear",
+   "quantity": 1
+  },
+  {
+   "name": "Grizzly Bears",
+   "quantity": 1
+  },
+  {
+   "name": "Kudo, King Among Bears",
+   "quantity": 1
+  },
+  {
+   "name": "Mother Bear",
+   "quantity": 1
+  },
+  {
+   "name": "Owlbear",
+   "quantity": 1
+  },
+  {
+   "name": "Owlbear Cub",
+   "quantity": 1
+  },
+  {
+   "name": "Professor of Zoomancy",
+   "quantity": 1
+  },
+  {
+   "name": "River Bear",
+   "quantity": 1
+  },
+  {
+   "name": "Runeclaw Bear",
+   "quantity": 1
+  },
+  {
+   "name": "Ruxa, Patient Professor",
+   "quantity": 1
+  },
+  {
+   "name": "Shrewd Storyteller",
+   "quantity": 1
+  },
+  {
+   "name": "Spectral Bears",
+   "quantity": 1
+  },
+  {
+   "name": "Spirit of the Aldergard",
+   "quantity": 1
+  },
+  {
+   "name": "Striped Bears",
+   "quantity": 1
+  },
+  {
+   "name": "The Earth King",
+   "quantity": 1
+  },
+  {
+   "name": "Ulvenwald Bear",
+   "quantity": 1
+  },
+  {
+   "name": "Vivien's Grizzly",
+   "quantity": 1
+  },
+  {
+   "name": "Werebear",
+   "quantity": 1
+  },
+  {
+   "name": "Whitemane Lion",
+   "quantity": 1
+  },
+  {
+   "name": "Wilson, Refined Grizzly",
+   "quantity": 1
+  },
+  {
+   "name": "Awaken the Bear",
+   "quantity": 1
+  },
+  {
+   "name": "Beast Within",
+   "quantity": 1
+  },
+  {
+   "name": "Cultivate",
+   "quantity": 1
+  },
+  {
+   "name": "Fade from History",
+   "quantity": 1
+  },
+  {
+   "name": "Grizzly Fate",
+   "quantity": 1
+  },
+  {
+   "name": "Increasing Savagery",
+   "quantity": 1
+  },
+  {
+   "name": "Overwhelming Stampede",
+   "quantity": 1
+  },
+  {
+   "name": "Rampant Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Savage Swipe",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Emerald Medallion",
+   "quantity": 1
+  },
+  {
+   "name": "Lifecrafter's Bestiary",
+   "quantity": 1
+  },
+  {
+   "name": "Ayula's Influence",
+   "quantity": 1
+  },
+  {
+   "name": "Bearscape",
+   "quantity": 1
+  },
+  {
+   "name": "Beastmaster Ascension",
+   "quantity": 1
+  },
+  {
+   "name": "Cloak of Mists",
+   "quantity": 1
+  },
+  {
+   "name": "Confiscate",
+   "quantity": 1
+  },
+  {
+   "name": "Flight",
+   "quantity": 1
+  },
+  {
+   "name": "Kjeldoran Pride",
+   "quantity": 1
+  },
+  {
+   "name": "Levitation",
+   "quantity": 1
+  },
+  {
+   "name": "Muraganda Petroglyphs",
+   "quantity": 1
+  },
+  {
+   "name": "One with the Multiverse",
+   "quantity": 1
+  },
+  {
+   "name": "Sylvan Anthem",
+   "quantity": 1
+  },
+  {
+   "name": "Utopia Sprawl",
+   "quantity": 1
+  },
+  {
+   "name": "Words of Wilding",
+   "quantity": 1
+  },
+  {
+   "name": "Argoth, Sanctum of Nature",
+   "quantity": 1
+  },
+  {
+   "name": "Bant Panorama",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 10
+  },
+  {
+   "name": "Glacial Fortress",
+   "quantity": 1
+  },
+  {
+   "name": "Hinterland Harbor",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 10
+  },
+  {
+   "name": "Lakeside Shack",
+   "quantity": 1
+  },
+  {
+   "name": "Path of Ancestry",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 3
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Growth Chamber",
+   "quantity": 1
+  },
+  {
+   "name": "Sunpetal Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Tangled Islet",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Mystery",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Plenty",
+   "quantity": 1
+  },
+  {
+   "name": "Thornwood Falls",
+   "quantity": 1
+  },
+  {
+   "name": "Woodland Stream",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

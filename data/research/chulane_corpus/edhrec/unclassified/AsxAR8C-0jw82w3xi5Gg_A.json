@@ -1,0 +1,310 @@
+{
+ "urlhash": "AsxAR8C-0jw82w3xi5Gg_A",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-04-05",
+ "price": 92,
+ "salt": 43.0454149954021,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/21282582?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Ambush Viper",
+   "quantity": 1
+  },
+  {
+   "name": "Anaconda",
+   "quantity": 1
+  },
+  {
+   "name": "Ankle Biter",
+   "quantity": 1
+  },
+  {
+   "name": "Blight Mamba",
+   "quantity": 1
+  },
+  {
+   "name": "Coiled Tinviper",
+   "quantity": 1
+  },
+  {
+   "name": "Death-Hood Cobra",
+   "quantity": 1
+  },
+  {
+   "name": "Feiyi Snake",
+   "quantity": 1
+  },
+  {
+   "name": "Frilled Sea Serpent",
+   "quantity": 1
+  },
+  {
+   "name": "Gearseeker Serpent",
+   "quantity": 1
+  },
+  {
+   "name": "Glass Asp",
+   "quantity": 1
+  },
+  {
+   "name": "Harbor Serpent",
+   "quantity": 1
+  },
+  {
+   "name": "Hexdrinker",
+   "quantity": 1
+  },
+  {
+   "name": "Ice-Fang Coatl",
+   "quantity": 1
+  },
+  {
+   "name": "Iceridge Serpent",
+   "quantity": 1
+  },
+  {
+   "name": "Moss Viper",
+   "quantity": 1
+  },
+  {
+   "name": "Mystic Snake",
+   "quantity": 1
+  },
+  {
+   "name": "Ohran Viper",
+   "quantity": 1
+  },
+  {
+   "name": "Patagia Viper",
+   "quantity": 1
+  },
+  {
+   "name": "Ribbon Snake",
+   "quantity": 1
+  },
+  {
+   "name": "Sandbar Serpent",
+   "quantity": 1
+  },
+  {
+   "name": "Shoal Serpent",
+   "quantity": 1
+  },
+  {
+   "name": "Shrouded Serpent",
+   "quantity": 1
+  },
+  {
+   "name": "Skyserpent Seeker",
+   "quantity": 1
+  },
+  {
+   "name": "Snake of the Golden Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Spire Serpent",
+   "quantity": 1
+  },
+  {
+   "name": "Stonecoil Serpent",
+   "quantity": 1
+  },
+  {
+   "name": "Vodalian Serpent",
+   "quantity": 1
+  },
+  {
+   "name": "Wasteland Viper",
+   "quantity": 1
+  },
+  {
+   "name": "Acrobatic Leap",
+   "quantity": 1
+  },
+  {
+   "name": "Aerial Maneuver",
+   "quantity": 1
+  },
+  {
+   "name": "Cobra Trap",
+   "quantity": 1
+  },
+  {
+   "name": "Daring Leap",
+   "quantity": 1
+  },
+  {
+   "name": "Serpent's Gift",
+   "quantity": 1
+  },
+  {
+   "name": "Snakeform",
+   "quantity": 1
+  },
+  {
+   "name": "Maximize Altitude",
+   "quantity": 1
+  },
+  {
+   "name": "Take Down",
+   "quantity": 1
+  },
+  {
+   "name": "Talrand's Invocation",
+   "quantity": 1
+  },
+  {
+   "name": "Wind Sail",
+   "quantity": 1
+  },
+  {
+   "name": "Adventurer's Airship",
+   "quantity": 1
+  },
+  {
+   "name": "Aethersphere Harvester",
+   "quantity": 1
+  },
+  {
+   "name": "Air Response Unit",
+   "quantity": 1
+  },
+  {
+   "name": "Brotherhood Vertibird",
+   "quantity": 1
+  },
+  {
+   "name": "Cargo Ship",
+   "quantity": 1
+  },
+  {
+   "name": "Heart of Kiran",
+   "quantity": 1
+  },
+  {
+   "name": "High-Speed Hoverbike",
+   "quantity": 1
+  },
+  {
+   "name": "Hulldrifter",
+   "quantity": 1
+  },
+  {
+   "name": "Nautiloid Ship",
+   "quantity": 1
+  },
+  {
+   "name": "Serpent Generator",
+   "quantity": 1
+  },
+  {
+   "name": "Sky Skiff",
+   "quantity": 1
+  },
+  {
+   "name": "Skybox Ferry",
+   "quantity": 1
+  },
+  {
+   "name": "Skyseer's Chariot",
+   "quantity": 1
+  },
+  {
+   "name": "Smuggler's Copter",
+   "quantity": 1
+  },
+  {
+   "name": "Snake Basket",
+   "quantity": 1
+  },
+  {
+   "name": "Weatherlight",
+   "quantity": 1
+  },
+  {
+   "name": "Weatherlight Compleated",
+   "quantity": 1
+  },
+  {
+   "name": "Serpent Skin",
+   "quantity": 1
+  },
+  {
+   "name": "Snake Pit",
+   "quantity": 1
+  },
+  {
+   "name": "Snake Umbra",
+   "quantity": 1
+  },
+  {
+   "name": "Teferi's Tutelage",
+   "quantity": 1
+  },
+  {
+   "name": "Teferi's Veil",
+   "quantity": 1
+  },
+  {
+   "name": "Venomous Fangs",
+   "quantity": 1
+  },
+  {
+   "name": "Teferi, Timeless Voyager",
+   "quantity": 1
+  },
+  {
+   "name": "Teferi, Who Slows the Sunset",
+   "quantity": 1
+  },
+  {
+   "name": "Animal Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Flooded Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 8
+  },
+  {
+   "name": "Fountainport",
+   "quantity": 1
+  },
+  {
+   "name": "Hinterland Harbor",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 17
+  },
+  {
+   "name": "Plains",
+   "quantity": 5
+  },
+  {
+   "name": "Skycloud Expanse",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Cove",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

@@ -1,0 +1,274 @@
+{
+ "urlhash": "B8t30mQ1SUm3QDvbXdMUkQ",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-06-10",
+ "price": 104,
+ "salt": 43.05514376144856,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/wXZl2ALHlkGJe7XoLv-9ow?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Aesi, Tyrant of Gyre Strait",
+   "quantity": 1
+  },
+  {
+   "name": "Arbor Elf",
+   "quantity": 1
+  },
+  {
+   "name": "Beast Whisperer",
+   "quantity": 1
+  },
+  {
+   "name": "Bonded Construct",
+   "quantity": 1
+  },
+  {
+   "name": "Boreal Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Champions of the Perfect",
+   "quantity": 1
+  },
+  {
+   "name": "Cloud Pirates",
+   "quantity": 1
+  },
+  {
+   "name": "Codespell Cleric",
+   "quantity": 1
+  },
+  {
+   "name": "Dragon's Eye Sentry",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Mystic",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Pioneer",
+   "quantity": 1
+  },
+  {
+   "name": "Faerie Guidemother",
+   "quantity": 1
+  },
+  {
+   "name": "Fyndhorn Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Gearsmith Prodigy",
+   "quantity": 1
+  },
+  {
+   "name": "Goldenglow Moth",
+   "quantity": 1
+  },
+  {
+   "name": "Hedge Whisperer",
+   "quantity": 1
+  },
+  {
+   "name": "Hedron Crab",
+   "quantity": 1
+  },
+  {
+   "name": "Humbling Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Infantry Veteran",
+   "quantity": 1
+  },
+  {
+   "name": "Inquisitive Puppet",
+   "quantity": 1
+  },
+  {
+   "name": "Jaddi Offshoot",
+   "quantity": 1
+  },
+  {
+   "name": "Jungle Delver",
+   "quantity": 1
+  },
+  {
+   "name": "Kin-Tree Warden",
+   "quantity": 1
+  },
+  {
+   "name": "Kitesail Scout",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Stalker",
+   "quantity": 1
+  },
+  {
+   "name": "Loam Dryad",
+   "quantity": 1
+  },
+  {
+   "name": "Magitek Infantry",
+   "quantity": 1
+  },
+  {
+   "name": "Midnight Duelist",
+   "quantity": 1
+  },
+  {
+   "name": "Nimble Mongoose",
+   "quantity": 1
+  },
+  {
+   "name": "Possessed Goat",
+   "quantity": 1
+  },
+  {
+   "name": "Primordial Sage",
+   "quantity": 1
+  },
+  {
+   "name": "Proven Combatant",
+   "quantity": 1
+  },
+  {
+   "name": "Ruin Crab",
+   "quantity": 1
+  },
+  {
+   "name": "Salvage Drone",
+   "quantity": 1
+  },
+  {
+   "name": "Samite Censer-Bearer",
+   "quantity": 1
+  },
+  {
+   "name": "Selfless Cathar",
+   "quantity": 1
+  },
+  {
+   "name": "Shore Keeper",
+   "quantity": 1
+  },
+  {
+   "name": "Starport Security",
+   "quantity": 1
+  },
+  {
+   "name": "Suntail Hawk",
+   "quantity": 1
+  },
+  {
+   "name": "Tasseled Dromedary",
+   "quantity": 1
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Thraben Gargoyle",
+   "quantity": 1
+  },
+  {
+   "name": "Toadstool Admirer",
+   "quantity": 1
+  },
+  {
+   "name": "Trained Caracal",
+   "quantity": 1
+  },
+  {
+   "name": "Triton Shorethief",
+   "quantity": 1
+  },
+  {
+   "name": "Valiant Guard",
+   "quantity": 1
+  },
+  {
+   "name": "Votary of the Conclave",
+   "quantity": 1
+  },
+  {
+   "name": "Wildwood Tracker",
+   "quantity": 1
+  },
+  {
+   "name": "Beck // Call",
+   "quantity": 1
+  },
+  {
+   "name": "Glimpse of Nature",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Nissa, Vital Force",
+   "quantity": 1
+  },
+  {
+   "name": "Abundant Countryside",
+   "quantity": 1
+  },
+  {
+   "name": "Ancient Ziggurat",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 15
+  },
+  {
+   "name": "Gemstone Mine",
+   "quantity": 1
+  },
+  {
+   "name": "Holdout Settlement",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 11
+  },
+  {
+   "name": "Plains",
+   "quantity": 13
+  },
+  {
+   "name": "Spire of Industry",
+   "quantity": 1
+  },
+  {
+   "name": "Survivors' Encampment",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

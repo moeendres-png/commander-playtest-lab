@@ -1,0 +1,358 @@
+{
+ "urlhash": "YnQ9rs8HqSWEPm_JartHVA",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-02-17",
+ "price": 131,
+ "salt": 39.18117437232286,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/11445462?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Arixmethes, Slumbering Isle",
+   "quantity": 1
+  },
+  {
+   "name": "Brave-Kin Duo",
+   "quantity": 1
+  },
+  {
+   "name": "Clammy Prowler",
+   "quantity": 1
+  },
+  {
+   "name": "Colossal Dreadmaw",
+   "quantity": 1
+  },
+  {
+   "name": "Daybreak Chaplain",
+   "quantity": 1
+  },
+  {
+   "name": "Druid of the Emerald Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Enduring Vitality",
+   "quantity": 1
+  },
+  {
+   "name": "Essence Channeler",
+   "quantity": 1
+  },
+  {
+   "name": "Fierce Empath",
+   "quantity": 1
+  },
+  {
+   "name": "Fortress Crab",
+   "quantity": 1
+  },
+  {
+   "name": "Gnarlid Colony",
+   "quantity": 1
+  },
+  {
+   "name": "Heliod, the Radiant Dawn",
+   "quantity": 1
+  },
+  {
+   "name": "Identity Thief",
+   "quantity": 1
+  },
+  {
+   "name": "Imoti, Celebrant of Bounty",
+   "quantity": 1
+  },
+  {
+   "name": "Inga Rune-Eyes",
+   "quantity": 1
+  },
+  {
+   "name": "Inga and Esika",
+   "quantity": 1
+  },
+  {
+   "name": "Insidious Fungus",
+   "quantity": 1
+  },
+  {
+   "name": "Kolvori, God of Kinship",
+   "quantity": 1
+  },
+  {
+   "name": "Kutzil, Malamet Exemplar",
+   "quantity": 1
+  },
+  {
+   "name": "Lilysplash Mentor",
+   "quantity": 1
+  },
+  {
+   "name": "Loxodon Lifechanter",
+   "quantity": 1
+  },
+  {
+   "name": "Overgrown Arch",
+   "quantity": 1
+  },
+  {
+   "name": "Possessed Goat",
+   "quantity": 1
+  },
+  {
+   "name": "Rishadan Dockhand",
+   "quantity": 1
+  },
+  {
+   "name": "Shepherd of the Flock",
+   "quantity": 1
+  },
+  {
+   "name": "Shrewd Storyteller",
+   "quantity": 1
+  },
+  {
+   "name": "Shrike Force",
+   "quantity": 1
+  },
+  {
+   "name": "Sigardian Paladin",
+   "quantity": 1
+  },
+  {
+   "name": "Skyrider Elf",
+   "quantity": 1
+  },
+  {
+   "name": "Sokrates, Athenian Teacher",
+   "quantity": 1
+  },
+  {
+   "name": "Sophia, Dogged Detective",
+   "quantity": 1
+  },
+  {
+   "name": "Syr Armont, the Redeemer",
+   "quantity": 1
+  },
+  {
+   "name": "Taigam, Ojutai Master",
+   "quantity": 1
+  },
+  {
+   "name": "Talrand, Sky Summoner",
+   "quantity": 1
+  },
+  {
+   "name": "Tempest Hart",
+   "quantity": 1
+  },
+  {
+   "name": "The Thirteenth Doctor",
+   "quantity": 1
+  },
+  {
+   "name": "The Watcher in the Water",
+   "quantity": 1
+  },
+  {
+   "name": "Tide Shaper",
+   "quantity": 1
+  },
+  {
+   "name": "Trostani's Summoner",
+   "quantity": 1
+  },
+  {
+   "name": "Vodalian Arcanist",
+   "quantity": 1
+  },
+  {
+   "name": "Wilson, Refined Grizzly",
+   "quantity": 1
+  },
+  {
+   "name": "Worldsoul Colossus",
+   "quantity": 1
+  },
+  {
+   "name": "Cyclonic Rift",
+   "quantity": 1
+  },
+  {
+   "name": "Disdainful Stroke",
+   "quantity": 1
+  },
+  {
+   "name": "Think Twice",
+   "quantity": 1
+  },
+  {
+   "name": "Divination",
+   "quantity": 1
+  },
+  {
+   "name": "Emerge from the Cocoon",
+   "quantity": 1
+  },
+  {
+   "name": "Interpret the Signs",
+   "quantity": 1
+  },
+  {
+   "name": "Legion's Judgment",
+   "quantity": 1
+  },
+  {
+   "name": "Lórien Revealed",
+   "quantity": 1
+  },
+  {
+   "name": "Path to the Festival",
+   "quantity": 1
+  },
+  {
+   "name": "Root Out",
+   "quantity": 1
+  },
+  {
+   "name": "Silverflame Ritual",
+   "quantity": 1
+  },
+  {
+   "name": "Sleight of Hand",
+   "quantity": 1
+  },
+  {
+   "name": "Starfall Invocation",
+   "quantity": 1
+  },
+  {
+   "name": "Banishing Light",
+   "quantity": 1
+  },
+  {
+   "name": "Propaganda",
+   "quantity": 1
+  },
+  {
+   "name": "Weakstone's Subjugation",
+   "quantity": 1
+  },
+  {
+   "name": "Niko Aris",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Guildgate",
+   "quantity": 1
+  },
+  {
+   "name": "Blossoming Sands",
+   "quantity": 1
+  },
+  {
+   "name": "Bretagard Stronghold",
+   "quantity": 1
+  },
+  {
+   "name": "Citadel Gate",
+   "quantity": 1
+  },
+  {
+   "name": "Creosote Heath",
+   "quantity": 1
+  },
+  {
+   "name": "Crumbling Vestige",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Exotic Orchard",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 5
+  },
+  {
+   "name": "Hidden Cataract",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 7
+  },
+  {
+   "name": "Krosan Verge",
+   "quantity": 1
+  },
+  {
+   "name": "Meandering River",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 6
+  },
+  {
+   "name": "Quandrix Campus",
+   "quantity": 1
+  },
+  {
+   "name": "Ruins of Trokair",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Guildgate",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Growth Chamber",
+   "quantity": 1
+  },
+  {
+   "name": "Soaring Seacliff",
+   "quantity": 1
+  },
+  {
+   "name": "Terramorphic Expanse",
+   "quantity": 1
+  },
+  {
+   "name": "Thornglint Bridge",
+   "quantity": 1
+  },
+  {
+   "name": "Thornwood Falls",
+   "quantity": 1
+  },
+  {
+   "name": "Thriving Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Thriving Isle",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Expanse",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

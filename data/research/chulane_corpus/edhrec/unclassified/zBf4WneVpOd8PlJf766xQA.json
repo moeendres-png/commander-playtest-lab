@@ -1,0 +1,390 @@
+{
+ "urlhash": "zBf4WneVpOd8PlJf766xQA",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-03-17",
+ "price": 305,
+ "salt": 42.465869192034006,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/20826216?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Aven Mindcensor",
+   "quantity": 1
+  },
+  {
+   "name": "Bronze Walrus",
+   "quantity": 1
+  },
+  {
+   "name": "Darksteel Juggernaut",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Spirit Guide",
+   "quantity": 1
+  },
+  {
+   "name": "Esior, Wardwing Familiar",
+   "quantity": 1
+  },
+  {
+   "name": "Faerie Mastermind",
+   "quantity": 1
+  },
+  {
+   "name": "Galadriel of Lothlórien",
+   "quantity": 1
+  },
+  {
+   "name": "Galea, Kindler of Hope",
+   "quantity": 1
+  },
+  {
+   "name": "Great Whale",
+   "quantity": 1
+  },
+  {
+   "name": "Hornet Nest",
+   "quantity": 1
+  },
+  {
+   "name": "Hushbringer",
+   "quantity": 1
+  },
+  {
+   "name": "Leinore, Autumn Sovereign",
+   "quantity": 1
+  },
+  {
+   "name": "Living Wall",
+   "quantity": 1
+  },
+  {
+   "name": "Meteor Golem",
+   "quantity": 1
+  },
+  {
+   "name": "Mitotic Slime",
+   "quantity": 1
+  },
+  {
+   "name": "Nightshade Peddler",
+   "quantity": 1
+  },
+  {
+   "name": "Orvar, the All-Form",
+   "quantity": 1
+  },
+  {
+   "name": "Puresight Merrow",
+   "quantity": 1
+  },
+  {
+   "name": "Sludge Monster",
+   "quantity": 1
+  },
+  {
+   "name": "Star Whale",
+   "quantity": 1
+  },
+  {
+   "name": "Steelbane Hydra",
+   "quantity": 1
+  },
+  {
+   "name": "Stuffy Doll",
+   "quantity": 1
+  },
+  {
+   "name": "Sunscape Familiar",
+   "quantity": 1
+  },
+  {
+   "name": "Tanuki Transplanter",
+   "quantity": 1
+  },
+  {
+   "name": "Thornweald Archer",
+   "quantity": 1
+  },
+  {
+   "name": "Trench Behemoth",
+   "quantity": 1
+  },
+  {
+   "name": "Turntimber Basilisk",
+   "quantity": 1
+  },
+  {
+   "name": "Twining Twins",
+   "quantity": 1
+  },
+  {
+   "name": "Welcoming Vampire",
+   "quantity": 1
+  },
+  {
+   "name": "Windborn Muse",
+   "quantity": 1
+  },
+  {
+   "name": "Capsize",
+   "quantity": 1
+  },
+  {
+   "name": "Dream Fracture",
+   "quantity": 1
+  },
+  {
+   "name": "Dream's Grip",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Fury",
+   "quantity": 1
+  },
+  {
+   "name": "Storm Seeker",
+   "quantity": 1
+  },
+  {
+   "name": "Gaea's Blessing",
+   "quantity": 1
+  },
+  {
+   "name": "Harmonize",
+   "quantity": 1
+  },
+  {
+   "name": "Ondu Inversion",
+   "quantity": 1
+  },
+  {
+   "name": "Scouting Trek",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Barrow-Blade",
+   "quantity": 1
+  },
+  {
+   "name": "Cloud Key",
+   "quantity": 1
+  },
+  {
+   "name": "Dancing Sword",
+   "quantity": 1
+  },
+  {
+   "name": "Dusk Rose Reliquary",
+   "quantity": 1
+  },
+  {
+   "name": "Expedition Map",
+   "quantity": 1
+  },
+  {
+   "name": "Glaring Spotlight",
+   "quantity": 1
+  },
+  {
+   "name": "Grappling Hook",
+   "quantity": 1
+  },
+  {
+   "name": "Illusionist's Bracers",
+   "quantity": 1
+  },
+  {
+   "name": "Instrument of the Bards",
+   "quantity": 1
+  },
+  {
+   "name": "Jester's Cap",
+   "quantity": 1
+  },
+  {
+   "name": "Lotus Petal",
+   "quantity": 1
+  },
+  {
+   "name": "Misleading Signpost",
+   "quantity": 1
+  },
+  {
+   "name": "Pariah's Shield",
+   "quantity": 1
+  },
+  {
+   "name": "Phial of Galadriel",
+   "quantity": 1
+  },
+  {
+   "name": "Tamiyo's Journal",
+   "quantity": 1
+  },
+  {
+   "name": "Thaumatic Compass",
+   "quantity": 1
+  },
+  {
+   "name": "The Everflowing Well",
+   "quantity": 1
+  },
+  {
+   "name": "Triangle of War",
+   "quantity": 1
+  },
+  {
+   "name": "Winged Boots",
+   "quantity": 1
+  },
+  {
+   "name": "Awakening",
+   "quantity": 1
+  },
+  {
+   "name": "Ghostly Prison",
+   "quantity": 1
+  },
+  {
+   "name": "Katabatic Winds",
+   "quantity": 1
+  },
+  {
+   "name": "Propaganda",
+   "quantity": 1
+  },
+  {
+   "name": "Retreat to Coralhelm",
+   "quantity": 1
+  },
+  {
+   "name": "Jace Beleren",
+   "quantity": 1
+  },
+  {
+   "name": "Alchemist's Refuge",
+   "quantity": 1
+  },
+  {
+   "name": "Bad River",
+   "quantity": 1
+  },
+  {
+   "name": "Blasted Landscape",
+   "quantity": 1
+  },
+  {
+   "name": "Blighted Woodland",
+   "quantity": 1
+  },
+  {
+   "name": "Branchloft Pathway",
+   "quantity": 1
+  },
+  {
+   "name": "Citadel Gate",
+   "quantity": 1
+  },
+  {
+   "name": "Desert",
+   "quantity": 1
+  },
+  {
+   "name": "Deserted Temple",
+   "quantity": 1
+  },
+  {
+   "name": "Dungeon Descent",
+   "quantity": 1
+  },
+  {
+   "name": "Forbidden Orchard",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 1
+  },
+  {
+   "name": "Hickory Woodlot",
+   "quantity": 1
+  },
+  {
+   "name": "Hidden Grotto",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 2
+  },
+  {
+   "name": "Mage-Ring Network",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 1
+  },
+  {
+   "name": "Radiant Fountain",
+   "quantity": 1
+  },
+  {
+   "name": "Remote Farm",
+   "quantity": 1
+  },
+  {
+   "name": "Riftstone Portal",
+   "quantity": 1
+  },
+  {
+   "name": "Shelldock Isle",
+   "quantity": 1
+  },
+  {
+   "name": "Shifting Woodland",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Guildgate",
+   "quantity": 1
+  },
+  {
+   "name": "Svyelunite Temple",
+   "quantity": 1
+  },
+  {
+   "name": "Thespian's Stage",
+   "quantity": 1
+  },
+  {
+   "name": "Unknown Shores",
+   "quantity": 1
+  },
+  {
+   "name": "Wasteland",
+   "quantity": 1
+  },
+  {
+   "name": "Wastes",
+   "quantity": 7
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

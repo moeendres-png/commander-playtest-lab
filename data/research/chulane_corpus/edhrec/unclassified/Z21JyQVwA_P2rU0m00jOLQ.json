@@ -1,0 +1,394 @@
+{
+ "urlhash": "Z21JyQVwA_P2rU0m00jOLQ",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-07-14",
+ "price": 126,
+ "salt": 31.574043615721166,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/24355868?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Arixmethes, Slumbering Isle",
+   "quantity": 1
+  },
+  {
+   "name": "Body of Knowledge",
+   "quantity": 1
+  },
+  {
+   "name": "Bonny Pall, Clearcutter",
+   "quantity": 1
+  },
+  {
+   "name": "Bookwurm",
+   "quantity": 1
+  },
+  {
+   "name": "Curious Homunculus",
+   "quantity": 1
+  },
+  {
+   "name": "Denry Klin, Editor in Chief",
+   "quantity": 1
+  },
+  {
+   "name": "Holy Cow",
+   "quantity": 1
+  },
+  {
+   "name": "Keeper of Fables",
+   "quantity": 1
+  },
+  {
+   "name": "Kogla, the Titan Ape",
+   "quantity": 1
+  },
+  {
+   "name": "Lagonna-Band Storyteller",
+   "quantity": 1
+  },
+  {
+   "name": "Magus of the Library",
+   "quantity": 1
+  },
+  {
+   "name": "Mowu, Loyal Companion",
+   "quantity": 1
+  },
+  {
+   "name": "Scrivener",
+   "quantity": 1
+  },
+  {
+   "name": "Shrewd Storyteller",
+   "quantity": 1
+  },
+  {
+   "name": "Tenacious Tomeseeker",
+   "quantity": 1
+  },
+  {
+   "name": "Banish into Fable",
+   "quantity": 1
+  },
+  {
+   "name": "Bury in Books",
+   "quantity": 1
+  },
+  {
+   "name": "Duty Beyond Death",
+   "quantity": 1
+  },
+  {
+   "name": "Fact or Fiction",
+   "quantity": 1
+  },
+  {
+   "name": "Into the Story",
+   "quantity": 1
+  },
+  {
+   "name": "Occult Epiphany",
+   "quantity": 1
+  },
+  {
+   "name": "Run Away Together",
+   "quantity": 1
+  },
+  {
+   "name": "Smuggler's Surprise",
+   "quantity": 1
+  },
+  {
+   "name": "Tale's End",
+   "quantity": 1
+  },
+  {
+   "name": "Turn into a Pumpkin",
+   "quantity": 1
+  },
+  {
+   "name": "Words of Wisdom",
+   "quantity": 1
+  },
+  {
+   "name": "You Find the Villains' Lair",
+   "quantity": 1
+  },
+  {
+   "name": "Borrowing 100,000 Arrows",
+   "quantity": 1
+  },
+  {
+   "name": "Finale of Glory",
+   "quantity": 1
+  },
+  {
+   "name": "Play of the Game",
+   "quantity": 1
+  },
+  {
+   "name": "Pore Over the Pages",
+   "quantity": 1
+  },
+  {
+   "name": "Storm Herd",
+   "quantity": 1
+  },
+  {
+   "name": "Tempt with Bunnies",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Path",
+   "quantity": 1
+  },
+  {
+   "name": "Treasure Hunt",
+   "quantity": 1
+  },
+  {
+   "name": "Winternight Stories",
+   "quantity": 1
+  },
+  {
+   "name": "Write into Being",
+   "quantity": 1
+  },
+  {
+   "name": "All-Fates Scroll",
+   "quantity": 1
+  },
+  {
+   "name": "Brain in a Jar",
+   "quantity": 1
+  },
+  {
+   "name": "Chromatic Lantern",
+   "quantity": 1
+  },
+  {
+   "name": "Clown Car",
+   "quantity": 1
+  },
+  {
+   "name": "Diary of Dreams",
+   "quantity": 1
+  },
+  {
+   "name": "Dream-Thief's Bandana",
+   "quantity": 1
+  },
+  {
+   "name": "Grimoire of the Dead",
+   "quantity": 1
+  },
+  {
+   "name": "Heirloom Epic",
+   "quantity": 1
+  },
+  {
+   "name": "Hourglass of the Lost",
+   "quantity": 1
+  },
+  {
+   "name": "Jar of Eyeballs",
+   "quantity": 1
+  },
+  {
+   "name": "Staff of the Storyteller",
+   "quantity": 1
+  },
+  {
+   "name": "Unstable Glyphbridge",
+   "quantity": 1
+  },
+  {
+   "name": "Wishing Well",
+   "quantity": 1
+  },
+  {
+   "name": "Divine Visitation",
+   "quantity": 1
+  },
+  {
+   "name": "Eaten by Piranhas",
+   "quantity": 1
+  },
+  {
+   "name": "Fable of Wolf and Owl",
+   "quantity": 1
+  },
+  {
+   "name": "Gossip's Talent",
+   "quantity": 1
+  },
+  {
+   "name": "Haunted Library",
+   "quantity": 1
+  },
+  {
+   "name": "Immobilizing Ink",
+   "quantity": 1
+  },
+  {
+   "name": "Karmic Justice",
+   "quantity": 1
+  },
+  {
+   "name": "Monologue Tax",
+   "quantity": 1
+  },
+  {
+   "name": "Shark Typhoon",
+   "quantity": 1
+  },
+  {
+   "name": "Sidequest: Card Collection",
+   "quantity": 1
+  },
+  {
+   "name": "Sidequest: Catch a Fish",
+   "quantity": 1
+  },
+  {
+   "name": "Story Circle",
+   "quantity": 1
+  },
+  {
+   "name": "Words of Wilding",
+   "quantity": 1
+  },
+  {
+   "name": "Adventurer's Inn",
+   "quantity": 1
+  },
+  {
+   "name": "Cave of Temptation",
+   "quantity": 1
+  },
+  {
+   "name": "Celestial Colonnade",
+   "quantity": 1
+  },
+  {
+   "name": "Eden, Seat of the Sanctum",
+   "quantity": 1
+  },
+  {
+   "name": "Faerie Conclave",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 3
+  },
+  {
+   "name": "Island",
+   "quantity": 3
+  },
+  {
+   "name": "Lakeside Shack",
+   "quantity": 1
+  },
+  {
+   "name": "Memorial to Genius",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 3
+  },
+  {
+   "name": "Port Town",
+   "quantity": 1
+  },
+  {
+   "name": "Quicksand",
+   "quantity": 1
+  },
+  {
+   "name": "Radiant Fountain",
+   "quantity": 1
+  },
+  {
+   "name": "Sharlayan, Nation of Scholars",
+   "quantity": 1
+  },
+  {
+   "name": "Skycloud Expanse",
+   "quantity": 1
+  },
+  {
+   "name": "Tanglepool Bridge",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Mystery",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of the False God",
+   "quantity": 1
+  },
+  {
+   "name": "The Biblioplex",
+   "quantity": 1
+  },
+  {
+   "name": "Thornglint Bridge",
+   "quantity": 1
+  },
+  {
+   "name": "Thornwood Falls",
+   "quantity": 1
+  },
+  {
+   "name": "Thriving Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Thriving Heath",
+   "quantity": 1
+  },
+  {
+   "name": "Timberland Ruins",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Expanse",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Landscape",
+   "quantity": 1
+  },
+  {
+   "name": "Transguild Promenade",
+   "quantity": 1
+  },
+  {
+   "name": "Tree of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Treva's Ruins",
+   "quantity": 1
+  },
+  {
+   "name": "Zanarkand, Ancient Metropolis",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

@@ -1,0 +1,286 @@
+{
+ "urlhash": "QDnm7c1BFYBTDSfwpKT9KQ",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-05-21",
+ "price": 212,
+ "salt": 50.964719299227,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/1RUlScQ9G0mFmld1TEoFeA?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Acidic Slime",
+   "quantity": 1
+  },
+  {
+   "name": "Ancestor Dragon",
+   "quantity": 1
+  },
+  {
+   "name": "Aragorn and Arwen, Wed",
+   "quantity": 1
+  },
+  {
+   "name": "Arashin Cleric",
+   "quantity": 1
+  },
+  {
+   "name": "Augmenter Pugilist",
+   "quantity": 1
+  },
+  {
+   "name": "Augury Owl",
+   "quantity": 1
+  },
+  {
+   "name": "Baird, Steward of Argive",
+   "quantity": 1
+  },
+  {
+   "name": "Bishop's Soldier",
+   "quantity": 1
+  },
+  {
+   "name": "Borderland Ranger",
+   "quantity": 1
+  },
+  {
+   "name": "Dwarven Priest",
+   "quantity": 1
+  },
+  {
+   "name": "Essence of the Wild",
+   "quantity": 1
+  },
+  {
+   "name": "Fyndhorn Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Fyndhorn Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Garruk's Packleader",
+   "quantity": 1
+  },
+  {
+   "name": "Gavony Silversmith",
+   "quantity": 1
+  },
+  {
+   "name": "Ghalta and Mavren",
+   "quantity": 1
+  },
+  {
+   "name": "Heliod, God of the Sun",
+   "quantity": 1
+  },
+  {
+   "name": "Humble Naturalist",
+   "quantity": 1
+  },
+  {
+   "name": "King Darien XLVIII",
+   "quantity": 1
+  },
+  {
+   "name": "Mangara, the Diplomat",
+   "quantity": 1
+  },
+  {
+   "name": "Master of Predicaments",
+   "quantity": 1
+  },
+  {
+   "name": "Odric, Lunarch Marshal",
+   "quantity": 1
+  },
+  {
+   "name": "Odric, Master Tactician",
+   "quantity": 1
+  },
+  {
+   "name": "Ornithopter",
+   "quantity": 1
+  },
+  {
+   "name": "Prosperous Innkeeper",
+   "quantity": 1
+  },
+  {
+   "name": "Radagast the Brown",
+   "quantity": 1
+  },
+  {
+   "name": "Rafiq of the Many",
+   "quantity": 1
+  },
+  {
+   "name": "Sheltering Ancient",
+   "quantity": 1
+  },
+  {
+   "name": "Volo, Guide to Monsters",
+   "quantity": 1
+  },
+  {
+   "name": "A Little Chat",
+   "quantity": 1
+  },
+  {
+   "name": "Absorb",
+   "quantity": 1
+  },
+  {
+   "name": "Admiral's Order",
+   "quantity": 1
+  },
+  {
+   "name": "Alchemist's Retrieval",
+   "quantity": 1
+  },
+  {
+   "name": "Brought Back",
+   "quantity": 1
+  },
+  {
+   "name": "Cancel",
+   "quantity": 1
+  },
+  {
+   "name": "Generous Gift",
+   "quantity": 1
+  },
+  {
+   "name": "Holy Day",
+   "quantity": 1
+  },
+  {
+   "name": "Mana Tithe",
+   "quantity": 1
+  },
+  {
+   "name": "Obsessive Search",
+   "quantity": 1
+  },
+  {
+   "name": "Pressure Point",
+   "quantity": 1
+  },
+  {
+   "name": "Revitalize",
+   "quantity": 1
+  },
+  {
+   "name": "Worldly Tutor",
+   "quantity": 1
+  },
+  {
+   "name": "Aether Gale",
+   "quantity": 1
+  },
+  {
+   "name": "Eternal Isolation",
+   "quantity": 1
+  },
+  {
+   "name": "Farseek",
+   "quantity": 1
+  },
+  {
+   "name": "Index",
+   "quantity": 1
+  },
+  {
+   "name": "Seasons Past",
+   "quantity": 1
+  },
+  {
+   "name": "See the Unwritten",
+   "quantity": 1
+  },
+  {
+   "name": "Shamanic Revelation",
+   "quantity": 1
+  },
+  {
+   "name": "Assimilation Aegis",
+   "quantity": 1
+  },
+  {
+   "name": "Bloodthirsty Blade",
+   "quantity": 1
+  },
+  {
+   "name": "Colossus Hammer",
+   "quantity": 1
+  },
+  {
+   "name": "Sigiled Sword of Valeron",
+   "quantity": 1
+  },
+  {
+   "name": "Asceticism",
+   "quantity": 1
+  },
+  {
+   "name": "Battle Mastery",
+   "quantity": 1
+  },
+  {
+   "name": "Court of Garenbrig",
+   "quantity": 1
+  },
+  {
+   "name": "Epic Struggle",
+   "quantity": 1
+  },
+  {
+   "name": "Indomitable Might",
+   "quantity": 1
+  },
+  {
+   "name": "Propaganda",
+   "quantity": 1
+  },
+  {
+   "name": "Smothering Tithe",
+   "quantity": 1
+  },
+  {
+   "name": "Basri Ket",
+   "quantity": 1
+  },
+  {
+   "name": "Basri, Devoted Paladin",
+   "quantity": 1
+  },
+  {
+   "name": "Garruk, Primal Hunter",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 14
+  },
+  {
+   "name": "Island",
+   "quantity": 8
+  },
+  {
+   "name": "Plains",
+   "quantity": 14
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

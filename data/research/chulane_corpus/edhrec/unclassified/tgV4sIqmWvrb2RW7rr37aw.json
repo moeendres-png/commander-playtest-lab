@@ -1,0 +1,282 @@
+{
+ "urlhash": "tgV4sIqmWvrb2RW7rr37aw",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-01-24",
+ "price": 44,
+ "salt": 41.36902611143887,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/19293555?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Alloy Myr",
+   "quantity": 1
+  },
+  {
+   "name": "Annoyed Altisaur",
+   "quantity": 1
+  },
+  {
+   "name": "Argivian Phalanx",
+   "quantity": 1
+  },
+  {
+   "name": "Artisan of Kozilek",
+   "quantity": 1
+  },
+  {
+   "name": "Baloth Woodcrasher",
+   "quantity": 1
+  },
+  {
+   "name": "Burnished Hart",
+   "quantity": 1
+  },
+  {
+   "name": "Campus Guide",
+   "quantity": 1
+  },
+  {
+   "name": "Canyon Jerboa",
+   "quantity": 1
+  },
+  {
+   "name": "Cleanup Crew",
+   "quantity": 1
+  },
+  {
+   "name": "Clockwork Fox",
+   "quantity": 1
+  },
+  {
+   "name": "Eldrazi Repurposer",
+   "quantity": 1
+  },
+  {
+   "name": "Floriferous Vinewall",
+   "quantity": 1
+  },
+  {
+   "name": "Gleaming Barrier",
+   "quantity": 1
+  },
+  {
+   "name": "Griffin Protector",
+   "quantity": 1
+  },
+  {
+   "name": "Hedron Crawler",
+   "quantity": 1
+  },
+  {
+   "name": "Herd Gnarr",
+   "quantity": 1
+  },
+  {
+   "name": "Karametra's Acolyte",
+   "quantity": 1
+  },
+  {
+   "name": "Kazandu Nectarpot",
+   "quantity": 1
+  },
+  {
+   "name": "Meteor Golem",
+   "quantity": 1
+  },
+  {
+   "name": "Micromancer",
+   "quantity": 1
+  },
+  {
+   "name": "Mossbeard Ancient",
+   "quantity": 1
+  },
+  {
+   "name": "Nyxborn Hydra",
+   "quantity": 1
+  },
+  {
+   "name": "Ornithopter of Paradise",
+   "quantity": 1
+  },
+  {
+   "name": "Pilgrim's Eye",
+   "quantity": 1
+  },
+  {
+   "name": "Sandstone Oracle",
+   "quantity": 1
+  },
+  {
+   "name": "Scaled Behemoth",
+   "quantity": 1
+  },
+  {
+   "name": "Sifter Wurm",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Sky Swallower",
+   "quantity": 1
+  },
+  {
+   "name": "Soratami Savant",
+   "quantity": 1
+  },
+  {
+   "name": "Thicket Elemental",
+   "quantity": 1
+  },
+  {
+   "name": "Turntimber Basilisk",
+   "quantity": 1
+  },
+  {
+   "name": "Warped Tusker",
+   "quantity": 1
+  },
+  {
+   "name": "Biomass Mutation",
+   "quantity": 1
+  },
+  {
+   "name": "Disdainful Stroke",
+   "quantity": 1
+  },
+  {
+   "name": "Fowl Strike",
+   "quantity": 1
+  },
+  {
+   "name": "Gift of the Viper",
+   "quantity": 1
+  },
+  {
+   "name": "Groundswell",
+   "quantity": 1
+  },
+  {
+   "name": "Kabira Takedown",
+   "quantity": 1
+  },
+  {
+   "name": "Might of the Masses",
+   "quantity": 1
+  },
+  {
+   "name": "Mystic Genesis",
+   "quantity": 1
+  },
+  {
+   "name": "Negate",
+   "quantity": 1
+  },
+  {
+   "name": "Shore Up",
+   "quantity": 1
+  },
+  {
+   "name": "Spell Pierce",
+   "quantity": 1
+  },
+  {
+   "name": "Unsummon",
+   "quantity": 1
+  },
+  {
+   "name": "Ethereal Guidance",
+   "quantity": 1
+  },
+  {
+   "name": "Horrific Assault",
+   "quantity": 1
+  },
+  {
+   "name": "Interpret the Signs",
+   "quantity": 1
+  },
+  {
+   "name": "Makindi Stampede",
+   "quantity": 1
+  },
+  {
+   "name": "Monstrous Onslaught",
+   "quantity": 1
+  },
+  {
+   "name": "Righteous Charge",
+   "quantity": 1
+  },
+  {
+   "name": "Seek the Horizon",
+   "quantity": 1
+  },
+  {
+   "name": "Strength of the Pack",
+   "quantity": 1
+  },
+  {
+   "name": "Colossal Dreadmask",
+   "quantity": 1
+  },
+  {
+   "name": "Dreamstone Hedron",
+   "quantity": 1
+  },
+  {
+   "name": "Pennon Blade",
+   "quantity": 1
+  },
+  {
+   "name": "Skyclave Pick-Axe",
+   "quantity": 1
+  },
+  {
+   "name": "Cunning Evasion",
+   "quantity": 1
+  },
+  {
+   "name": "Mystic Subdual",
+   "quantity": 1
+  },
+  {
+   "name": "Retreat to Kazandu",
+   "quantity": 1
+  },
+  {
+   "name": "Roaring Earth",
+   "quantity": 1
+  },
+  {
+   "name": "The Weatherseed Treaty",
+   "quantity": 1
+  },
+  {
+   "name": "Utter Insignificance",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 13
+  },
+  {
+   "name": "Island",
+   "quantity": 12
+  },
+  {
+   "name": "Plains",
+   "quantity": 12
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

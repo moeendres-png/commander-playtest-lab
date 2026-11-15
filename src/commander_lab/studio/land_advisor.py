@@ -256,7 +256,7 @@ def source_deck_groups(
         query = (
             "SELECT k.deck_id, k.quantity, s.type_line, s.mana_cost, s.produced_mana, s.layout "
             "FROM corpus_deck_card k JOIN scryfall_card s ON s.oracle_id = k.oracle_id "
-            f"WHERE k.deck_id IN ({marks}) AND LOWER(k.section) = 'mainboard'"
+            f"WHERE k.deck_id IN ({marks}) AND LOWER(k.section) IN ('main', 'mainboard')"
         )
         for row in store.connection.execute(query, chunk):
             cards[str(row["deck_id"])].append(row)
@@ -270,3 +270,111 @@ def source_deck_groups(
         ]
         groups.append(group_figures(cohort, complete, decks_total=len(group)))
     return groups
+
+
+def land_candidates(
+    store: StudioStore,
+    commander_names: Sequence[str],
+    deck_cards: Sequence[object] = (),
+    *,
+    cohort: str = "all",
+    min_share: float = 0.20,
+) -> list[dict[str, object]]:
+    """Free non-basic lands of the commander's legal collection pool that are not in the
+    deck and appear in at least ``min_share`` of ``cohort`` (unknown frequencies sorted last).
+
+    Marks are never read or used for ordering. Unknown produced colours stay ``None``.
+    """
+    from . import builder
+
+    if not commander_names:
+        return []
+    try:
+        identity, commander_ids = builder.commander_identity(store, commander_names)
+    except KeyError:
+        return []
+    in_deck_ids = set(commander_ids)
+    in_deck_names: set[str] = set()
+    for item in deck_cards:
+        if isinstance(item, str):
+            in_deck_ids.add(item)
+            in_deck_names.add(item)
+            continue
+        cid = getattr(item, "card_id", None) or (
+            item.get("card_id") if isinstance(item, Mapping) else None
+        )
+        zone = (
+            getattr(item, "zone", "main")
+            if not isinstance(item, Mapping)
+            else item.get("zone", "main")
+        )
+        qty = (
+            getattr(item, "quantity", 1)
+            if not isinstance(item, Mapping)
+            else item.get("quantity", 1)
+        )
+        if cid and str(zone) in ("main", "commander") and int(qty or 0) > 0:
+            in_deck_ids.add(str(cid))
+
+    cohorts = builder.cohort_sizes(store, commander_names)
+    hits = builder._corpus_hits(store, commander_names)
+    of = int(cohorts.get(cohort, 0))
+    small_group = of < SMALL_GROUP
+
+    from .decks import color_set
+
+    keyed: list[tuple[int, float, str, dict[str, object]]] = []
+    for row in store.connection.execute(
+        "SELECT c.card_id, c.oracle_name, c.color_identity, c.type_line, "
+        "c.is_basic_land, c.layout, c.produced_mana, i.available_lower_bound "
+        "FROM card_fact c JOIN inventory i USING (card_id) "
+        "WHERE c.commander_legal = 1 ORDER BY c.oracle_name"
+    ):
+        if not color_set(row["color_identity"]) <= identity:
+            continue
+        card_id = str(row["card_id"])
+        if card_id in in_deck_ids or str(row["oracle_name"]) in in_deck_names:
+            continue
+        available = int(row["available_lower_bound"] or 0)
+        if available <= 0:
+            continue
+        type_line = _text(row, "type_line")
+        front_type = _front(type_line)
+        if "Land" not in front_type or bool(row["is_basic_land"]):
+            continue
+        if any(word in _BASIC_COLOUR for word in front_type.split()) and "Basic" in front_type:
+            continue
+        colours_set, known_colours = _produced(row, front_type)
+        colours_out: list[str] | None = (
+            [c for c in COLOURS if c in colours_set] if known_colours else None
+        )
+        name = str(row["oracle_name"])
+        if of > 0 and name in hits and cohort in hits[name]:
+            hits_int = int(hits[name][cohort])
+            share_float = round(hits_int / of, 4)
+            if share_float < min_share:
+                continue
+            decks_val: int | None = hits_int
+            share_val: float | None = share_float
+            sort_key = (0, -share_float, name)
+        else:
+            decks_val = None
+            share_val = None
+            sort_key = (1, 0.0, name)
+        keyed.append(
+            (
+                *sort_key,
+                {
+                    "card_id": card_id,
+                    "name": name,
+                    "colours": colours_out,
+                    "decks": decks_val,
+                    "of": of,
+                    "share": share_val,
+                    "available": available,
+                    "small_group": small_group,
+                },
+            )
+        )
+    keyed.sort(key=lambda entry: entry[:3])
+    return [entry[3] for entry in keyed]

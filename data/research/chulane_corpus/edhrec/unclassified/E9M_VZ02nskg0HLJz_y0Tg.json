@@ -1,0 +1,322 @@
+{
+ "urlhash": "E9M_VZ02nskg0HLJz_y0Tg",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-11-23",
+ "price": 54,
+ "salt": 37.52231109701097,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/7EEwY-Ed5kCE2svHiO5Cfg?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Aang, Swift Savior",
+   "quantity": 1
+  },
+  {
+   "name": "Avatar Enthusiasts",
+   "quantity": 1
+  },
+  {
+   "name": "Bumi, King of Three Trials",
+   "quantity": 1
+  },
+  {
+   "name": "Compassionate Healer",
+   "quantity": 1
+  },
+  {
+   "name": "Earth Kingdom General",
+   "quantity": 1
+  },
+  {
+   "name": "Earth Kingdom Protectors",
+   "quantity": 1
+  },
+  {
+   "name": "Earth Kingdom Soldier",
+   "quantity": 1
+  },
+  {
+   "name": "Flopsie, Bumi's Buddy",
+   "quantity": 1
+  },
+  {
+   "name": "Foggy Swamp Vinebender",
+   "quantity": 1
+  },
+  {
+   "name": "Forecasting Fortune Teller",
+   "quantity": 1
+  },
+  {
+   "name": "Geyser Leaper",
+   "quantity": 1
+  },
+  {
+   "name": "Giant Koi",
+   "quantity": 1
+  },
+  {
+   "name": "Glider Kids",
+   "quantity": 1
+  },
+  {
+   "name": "Guardian Kirin",
+   "quantity": 1
+  },
+  {
+   "name": "Hermitic Herbalist",
+   "quantity": 1
+  },
+  {
+   "name": "Iguana Parrot",
+   "quantity": 1
+  },
+  {
+   "name": "Invasion Reinforcements",
+   "quantity": 1
+  },
+  {
+   "name": "Katara, Bending Prodigy",
+   "quantity": 1
+  },
+  {
+   "name": "Katara, Water Tribe's Hope",
+   "quantity": 1
+  },
+  {
+   "name": "Knowledge Seeker",
+   "quantity": 1
+  },
+  {
+   "name": "Kyoshi Warriors",
+   "quantity": 1
+  },
+  {
+   "name": "Millikin",
+   "quantity": 1
+  },
+  {
+   "name": "Momo, Friendly Flier",
+   "quantity": 1
+  },
+  {
+   "name": "Otter-Penguin",
+   "quantity": 1
+  },
+  {
+   "name": "Rebellious Captives",
+   "quantity": 1
+  },
+  {
+   "name": "Rowdy Snowballers",
+   "quantity": 1
+  },
+  {
+   "name": "Saber-Tooth Moose-Lion",
+   "quantity": 1
+  },
+  {
+   "name": "Sokka, Lateral Strategist",
+   "quantity": 1
+  },
+  {
+   "name": "Suki, Kyoshi Warrior",
+   "quantity": 1
+  },
+  {
+   "name": "The Lion-Turtle",
+   "quantity": 1
+  },
+  {
+   "name": "The Mechanist, Aerial Artisan",
+   "quantity": 1
+  },
+  {
+   "name": "Walltop Sentries",
+   "quantity": 1
+  },
+  {
+   "name": "Water Tribe Rallier",
+   "quantity": 1
+  },
+  {
+   "name": "Airbending Lesson",
+   "quantity": 1
+  },
+  {
+   "name": "Allies at Last",
+   "quantity": 1
+  },
+  {
+   "name": "It'll Quench Ya!",
+   "quantity": 1
+  },
+  {
+   "name": "Origin of Metalbending",
+   "quantity": 1
+  },
+  {
+   "name": "Pillar Launch",
+   "quantity": 1
+  },
+  {
+   "name": "Razor Rings",
+   "quantity": 1
+  },
+  {
+   "name": "Sandbenders' Storm",
+   "quantity": 1
+  },
+  {
+   "name": "Sokka's Haiku",
+   "quantity": 1
+  },
+  {
+   "name": "Yip Yip!",
+   "quantity": 1
+  },
+  {
+   "name": "Crashing Wave",
+   "quantity": 1
+  },
+  {
+   "name": "Divine Gambit",
+   "quantity": 1
+  },
+  {
+   "name": "Earthbending Lesson",
+   "quantity": 1
+  },
+  {
+   "name": "Retrieve the Esper",
+   "quantity": 1
+  },
+  {
+   "name": "Rockalanche",
+   "quantity": 1
+  },
+  {
+   "name": "Seismic Sense",
+   "quantity": 1
+  },
+  {
+   "name": "True Ancestry",
+   "quantity": 1
+  },
+  {
+   "name": "Waterbending Lesson",
+   "quantity": 1
+  },
+  {
+   "name": "Bender's Waterskin",
+   "quantity": 1
+  },
+  {
+   "name": "Cryptex",
+   "quantity": 1
+  },
+  {
+   "name": "Fodder Tosser",
+   "quantity": 1
+  },
+  {
+   "name": "Invasion Submersible",
+   "quantity": 1
+  },
+  {
+   "name": "Phoenix Down",
+   "quantity": 1
+  },
+  {
+   "name": "Prophetic Prism",
+   "quantity": 1
+  },
+  {
+   "name": "Thief's Knife",
+   "quantity": 1
+  },
+  {
+   "name": "Trusty Boomerang",
+   "quantity": 1
+  },
+  {
+   "name": "Valkyrie's Sword",
+   "quantity": 1
+  },
+  {
+   "name": "White Lotus Tile",
+   "quantity": 1
+  },
+  {
+   "name": "Avatar Destiny",
+   "quantity": 1
+  },
+  {
+   "name": "Elemental Bond",
+   "quantity": 1
+  },
+  {
+   "name": "Watery Grasp",
+   "quantity": 1
+  },
+  {
+   "name": "Capital City",
+   "quantity": 1
+  },
+  {
+   "name": "Crossroads Village",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 9
+  },
+  {
+   "name": "Island",
+   "quantity": 8
+  },
+  {
+   "name": "Jasmine Dragon Tea Shop",
+   "quantity": 1
+  },
+  {
+   "name": "Meditation Pools",
+   "quantity": 1
+  },
+  {
+   "name": "Mosswort Bridge",
+   "quantity": 1
+  },
+  {
+   "name": "North Pole Gates",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 10
+  },
+  {
+   "name": "Radiant Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Rumble Arena",
+   "quantity": 1
+  },
+  {
+   "name": "Tangled Islet",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}
