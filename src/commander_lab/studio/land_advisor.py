@@ -321,6 +321,8 @@ def land_candidates(
     of = int(cohorts.get(cohort, 0))
     small_group = of < SMALL_GROUP
 
+    from .decks import color_set
+
     keyed: list[tuple[int, float, str, dict[str, object]]] = []
     for row in store.connection.execute(
         "SELECT c.card_id, c.oracle_name, c.color_identity, c.type_line, "
@@ -328,7 +330,7 @@ def land_candidates(
         "FROM card_fact c JOIN inventory i USING (card_id) "
         "WHERE c.commander_legal = 1 ORDER BY c.oracle_name"
     ):
-        if not builder.color_set(row["color_identity"]) <= identity:
+        if not color_set(row["color_identity"]) <= identity:
             continue
         card_id = str(row["card_id"])
         if card_id in in_deck_ids or str(row["oracle_name"]) in in_deck_names:
@@ -348,11 +350,13 @@ def land_candidates(
         )
         name = str(row["oracle_name"])
         if of > 0 and name in hits and cohort in hits[name]:
-            decks_val: int | None = int(hits[name][cohort])
-            share_val: float | None = round(decks_val / of, 4)
-            if share_val < min_share:
+            hits_int = int(hits[name][cohort])
+            share_float = round(hits_int / of, 4)
+            if share_float < min_share:
                 continue
-            sort_key = (0, -share_val, name)
+            decks_val: int | None = hits_int
+            share_val: float | None = share_float
+            sort_key = (0, -share_float, name)
         else:
             decks_val = None
             share_val = None

@@ -329,6 +329,7 @@ def parse_decklist_text(
     matched_qty: dict[str, int] = {}
     matched_info: dict[str, dict[str, object]] = {}
     not_in_collection: list[dict[str, object]] = []
+    not_in_collection_qty = 0
     skipped_section = False
 
     for raw_line in text.splitlines():
@@ -357,6 +358,7 @@ def parse_decklist_text(
             raw_name.split(" // ")[0].strip().casefold()
         )
         if found is None:
+            not_in_collection_qty += qty
             not_in_collection.append(
                 {
                     "name": raw_name,
@@ -390,6 +392,6 @@ def parse_decklist_text(
         "not_in_collection": not_in_collection,
         "summary": {
             "in_collection_cards": sum(matched_qty.values()),
-            "not_in_collection_cards": sum(int(x["quantity"]) for x in not_in_collection),
+            "not_in_collection_cards": not_in_collection_qty,
         },
     }

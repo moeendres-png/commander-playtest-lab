@@ -12,6 +12,7 @@ from __future__ import annotations
 from collections.abc import Sequence
 
 from . import builder, universe_view
+from .decks import color_set
 from .store import StudioStore
 
 SWAP_MODES = frozenset({"replace", "cut"})
@@ -89,7 +90,7 @@ def swap_candidates(
             "WHERE c.commander_legal = 1 "
             "ORDER BY c.oracle_name"
         ):
-            if not builder.color_set(row["color_identity"]) <= identity:
+            if not color_set(row["color_identity"]) <= identity:
                 continue
             cid = str(row["card_id"])
             if cid == card_id or cid in cmd_set:
@@ -114,26 +115,24 @@ def swap_candidates(
                     continue
 
             name = str(row["oracle_name"])
+            decks_val: int | None = None
+            share_val: float | None = None
             if universe_by_card is not None:
                 u_item = universe_by_card.get(cid)
+                u_hits = u_item.get("hits") if u_item is not None else None
                 if (
                     u_item is not None
                     and bool(u_item.get("matched"))
                     and not bool(u_item.get("filter_card"))
-                    and u_item.get("hits") is not None
+                    and isinstance(u_hits, int)
                     and of > 0
                 ):
-                    decks_val: int | None = int(u_item["hits"])  # type: ignore[arg-type]
-                    share_val: float | None = round(decks_val / of, 4)
-                else:
-                    decks_val = None
-                    share_val = None
+                    decks_val = u_hits
+                    share_val = round(u_hits / of, 4)
             elif of > 0 and name in hits and cohort in hits[name]:
-                decks_val = int(hits[name][cohort])
-                share_val = round(decks_val / of, 4)
-            else:
-                decks_val = None
-                share_val = None
+                hits_int = int(hits[name][cohort])
+                decks_val = hits_int
+                share_val = round(hits_int / of, 4)
 
             mv = float(row["mana_value"] or 0.0)
             mv_delta = round(mv - target_mv, 4)
