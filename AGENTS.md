@@ -294,7 +294,7 @@ boundaries above.
 Required checks: `quality`, `security`, `infrastructure`, nothing else. `quality` is a gate job
 (`scripts/ci_gate.py`) over parallel jobs (`changes`, `lint`, four `tests` slots, `packaging`); a
 documents-only change takes a fast path with the docs tests only. `infrastructure`
-(`production-qualification.yml`) runs on every pull request and push to `main`;
+(`.github/workflows/production-qualification.yml`) runs on every pull request and push to `main`;
 `ci-definition-integrity-shadow` and repository-tree-integrity run on every pull request, exact-main
 recovery on every push to `main`. PB-03, H4, conformance, the real four-player smoke, external
 integration, meta qualification, Windows runtime hygiene and release artifacts start on a pull
