@@ -14,8 +14,9 @@ def _studio_dir() -> Path:
 
 
 def test_index_modules_exist() -> None:
-    for name in INDEX_MODULES:
-        assert (_studio_dir() / name).is_file(), name
+    present = sorted(name for name in INDEX_MODULES if (_studio_dir() / name).is_file())
+    assert len(INDEX_MODULES) == 4
+    assert present == sorted(INDEX_MODULES)
 
 
 def test_index_code_does_not_reference_mtgjson() -> None:
