@@ -1,0 +1,290 @@
+{
+ "urlhash": "MSp4Ho-1moAFEuoqMIvowg",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-01-17",
+ "price": 531,
+ "salt": 46.09861937351525,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/RkhqihIhMU2cdiwfMoQY0w?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Adrix and Nev, Twincasters",
+   "quantity": 1
+  },
+  {
+   "name": "Ant Queen",
+   "quantity": 1
+  },
+  {
+   "name": "Avacyn's Pilgrim",
+   "quantity": 1
+  },
+  {
+   "name": "Avenger of Zendikar",
+   "quantity": 1
+  },
+  {
+   "name": "Birds of Paradise",
+   "quantity": 1
+  },
+  {
+   "name": "Brightcap Badger",
+   "quantity": 1
+  },
+  {
+   "name": "Conclave Evangelist",
+   "quantity": 1
+  },
+  {
+   "name": "Craterhoof Behemoth",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Mystic",
+   "quantity": 1
+  },
+  {
+   "name": "Esix, Fractal Bloom",
+   "quantity": 1
+  },
+  {
+   "name": "Exalted Sunborn",
+   "quantity": 1
+  },
+  {
+   "name": "Geist-Honored Monk",
+   "quantity": 1
+  },
+  {
+   "name": "Gruff Triplets",
+   "quantity": 1
+  },
+  {
+   "name": "Mondrak, Glory Dominus",
+   "quantity": 1
+  },
+  {
+   "name": "Moonshaker Cavalry",
+   "quantity": 1
+  },
+  {
+   "name": "Mycoloth",
+   "quantity": 1
+  },
+  {
+   "name": "Ojer Taq, Deepest Foundation",
+   "quantity": 1
+  },
+  {
+   "name": "Scion of Vitu-Ghazi",
+   "quantity": 1
+  },
+  {
+   "name": "Scute Swarm",
+   "quantity": 1
+  },
+  {
+   "name": "Securitron Squadron",
+   "quantity": 1
+  },
+  {
+   "name": "Shadow Puppeteers",
+   "quantity": 1
+  },
+  {
+   "name": "Sicarian Infiltrator",
+   "quantity": 1
+  },
+  {
+   "name": "Somberwald Beastmaster",
+   "quantity": 1
+  },
+  {
+   "name": "Space Marine Devastator",
+   "quantity": 1
+  },
+  {
+   "name": "Tendershoot Dryad",
+   "quantity": 1
+  },
+  {
+   "name": "Trostani, Selesnya's Voice",
+   "quantity": 1
+  },
+  {
+   "name": "Ultramarines Honour Guard",
+   "quantity": 1
+  },
+  {
+   "name": "Vanguard Suppressor",
+   "quantity": 1
+  },
+  {
+   "name": "Aetherize",
+   "quantity": 1
+  },
+  {
+   "name": "Arachnogenesis",
+   "quantity": 1
+  },
+  {
+   "name": "Clever Concealment",
+   "quantity": 1
+  },
+  {
+   "name": "Heroic Intervention",
+   "quantity": 1
+  },
+  {
+   "name": "Keep Watch",
+   "quantity": 1
+  },
+  {
+   "name": "March of the Multitudes",
+   "quantity": 1
+  },
+  {
+   "name": "Moogles' Valor",
+   "quantity": 1
+  },
+  {
+   "name": "Path to Exile",
+   "quantity": 1
+  },
+  {
+   "name": "Perch Protection",
+   "quantity": 1
+  },
+  {
+   "name": "Perplexing Test",
+   "quantity": 1
+  },
+  {
+   "name": "Return of the Wildspeaker",
+   "quantity": 1
+  },
+  {
+   "name": "Second Harvest",
+   "quantity": 1
+  },
+  {
+   "name": "Secure the Wastes",
+   "quantity": 1
+  },
+  {
+   "name": "Settle the Wreckage",
+   "quantity": 1
+  },
+  {
+   "name": "Sprout Swarm",
+   "quantity": 1
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1
+  },
+  {
+   "name": "Austere Command",
+   "quantity": 1
+  },
+  {
+   "name": "Camaraderie",
+   "quantity": 1
+  },
+  {
+   "name": "Crisis of Conscience",
+   "quantity": 1
+  },
+  {
+   "name": "Farewell",
+   "quantity": 1
+  },
+  {
+   "name": "Hour of Reckoning",
+   "quantity": 1
+  },
+  {
+   "name": "Nature's Lore",
+   "quantity": 1
+  },
+  {
+   "name": "Saproling Symbiosis",
+   "quantity": 1
+  },
+  {
+   "name": "Secrets of the Golden City",
+   "quantity": 1
+  },
+  {
+   "name": "Shamanic Revelation",
+   "quantity": 1
+  },
+  {
+   "name": "Three Visits",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Idol of Oblivion",
+   "quantity": 1
+  },
+  {
+   "name": "Skullclamp",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Anointed Procession",
+   "quantity": 1
+  },
+  {
+   "name": "Cathars' Crusade",
+   "quantity": 1
+  },
+  {
+   "name": "Doubling Season",
+   "quantity": 1
+  },
+  {
+   "name": "Extravagant Replication",
+   "quantity": 1
+  },
+  {
+   "name": "Intangible Virtue",
+   "quantity": 1
+  },
+  {
+   "name": "Kinbinding",
+   "quantity": 1
+  },
+  {
+   "name": "Parallel Lives",
+   "quantity": 1
+  },
+  {
+   "name": "Fountainport",
+   "quantity": 1
+  },
+  {
+   "name": "Snow-Covered Wastes",
+   "quantity": 33
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}
