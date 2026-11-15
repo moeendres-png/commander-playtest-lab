@@ -1,0 +1,310 @@
+{
+ "urlhash": "J8wciLeYopmm8H4UTqOWiw",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-04-07",
+ "price": 232,
+ "salt": 51.17848277557641,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/12354771?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Aesi, Tyrant of Gyre Strait",
+   "quantity": 1
+  },
+  {
+   "name": "Dream Eater",
+   "quantity": 1
+  },
+  {
+   "name": "Enduring Innocence",
+   "quantity": 1
+  },
+  {
+   "name": "Fear of Abduction",
+   "quantity": 1
+  },
+  {
+   "name": "Fear of Exposure",
+   "quantity": 1
+  },
+  {
+   "name": "Fear of Immobility",
+   "quantity": 1
+  },
+  {
+   "name": "Fear of Surveillance",
+   "quantity": 1
+  },
+  {
+   "name": "Ghostly Dancers",
+   "quantity": 1
+  },
+  {
+   "name": "Giggling Skitterspike",
+   "quantity": 1
+  },
+  {
+   "name": "Glitch Interpreter",
+   "quantity": 1
+  },
+  {
+   "name": "Grasping Longneck",
+   "quantity": 1
+  },
+  {
+   "name": "Inga and Esika",
+   "quantity": 1
+  },
+  {
+   "name": "Kianne, Corrupted Memory",
+   "quantity": 1
+  },
+  {
+   "name": "Marvin, Murderous Mimic",
+   "quantity": 1
+  },
+  {
+   "name": "Mystic Snake",
+   "quantity": 1
+  },
+  {
+   "name": "Oblivious Bookworm",
+   "quantity": 1
+  },
+  {
+   "name": "Omnivorous Flytrap",
+   "quantity": 1
+  },
+  {
+   "name": "Overlord of the Hauntwoods",
+   "quantity": 1
+  },
+  {
+   "name": "Sea Gate Oracle",
+   "quantity": 1
+  },
+  {
+   "name": "Shrewd Storyteller",
+   "quantity": 1
+  },
+  {
+   "name": "Shriekwood Devourer",
+   "quantity": 1
+  },
+  {
+   "name": "Silent Hallcreeper",
+   "quantity": 1
+  },
+  {
+   "name": "Soul Warden",
+   "quantity": 1
+  },
+  {
+   "name": "Timeless Witness",
+   "quantity": 1
+  },
+  {
+   "name": "Toby, Beastie Befriender",
+   "quantity": 1
+  },
+  {
+   "name": "Tunnel Surveyor",
+   "quantity": 1
+  },
+  {
+   "name": "Unsettling Twins",
+   "quantity": 1
+  },
+  {
+   "name": "Wickerfolk Thresher",
+   "quantity": 1
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1
+  },
+  {
+   "name": "Growth Spiral",
+   "quantity": 1
+  },
+  {
+   "name": "Horrid Vigor",
+   "quantity": 1
+  },
+  {
+   "name": "Jump Scare",
+   "quantity": 1
+  },
+  {
+   "name": "Pongify",
+   "quantity": 1
+  },
+  {
+   "name": "Seized from Slumber",
+   "quantity": 1
+  },
+  {
+   "name": "Unwanted Remake",
+   "quantity": 1
+  },
+  {
+   "name": "Cathartic Parting",
+   "quantity": 1
+  },
+  {
+   "name": "Coordinated Clobbering",
+   "quantity": 1
+  },
+  {
+   "name": "Emerge from the Cocoon",
+   "quantity": 1
+  },
+  {
+   "name": "Expropriate",
+   "quantity": 1
+  },
+  {
+   "name": "Redress Fate",
+   "quantity": 1
+  },
+  {
+   "name": "Split Up",
+   "quantity": 1
+  },
+  {
+   "name": "Time Wipe",
+   "quantity": 1
+  },
+  {
+   "name": "Under the Skin",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Dissection Tools",
+   "quantity": 1
+  },
+  {
+   "name": "Glimmerlight",
+   "quantity": 1
+  },
+  {
+   "name": "Lightning Greaves",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Unidentified Hovership",
+   "quantity": 1
+  },
+  {
+   "name": "Aura Shards",
+   "quantity": 1
+  },
+  {
+   "name": "Cryptolith Rite",
+   "quantity": 1
+  },
+  {
+   "name": "Dazzling Theater // Prop Room",
+   "quantity": 1
+  },
+  {
+   "name": "Duskmourn's Domination",
+   "quantity": 1
+  },
+  {
+   "name": "Ethereal Armor",
+   "quantity": 1
+  },
+  {
+   "name": "Frantic Strength",
+   "quantity": 1
+  },
+  {
+   "name": "Greenhouse // Rickety Gazebo",
+   "quantity": 1
+  },
+  {
+   "name": "Hallowed Haunting",
+   "quantity": 1
+  },
+  {
+   "name": "Mirror Room // Fractured Realm",
+   "quantity": 1
+  },
+  {
+   "name": "Restricted Office // Lecture Hall",
+   "quantity": 1
+  },
+  {
+   "name": "Surgical Suite // Hospital Room",
+   "quantity": 1
+  },
+  {
+   "name": "Threats Around Every Corner",
+   "quantity": 1
+  },
+  {
+   "name": "Trapped in the Screen",
+   "quantity": 1
+  },
+  {
+   "name": "Unable to Scream",
+   "quantity": 1
+  },
+  {
+   "name": "Walk-In Closet // Forgotten Cellar",
+   "quantity": 1
+  },
+  {
+   "name": "Flooded Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Floodfarm Verge",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 10
+  },
+  {
+   "name": "Hushwood Verge",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 10
+  },
+  {
+   "name": "Plains",
+   "quantity": 10
+  },
+  {
+   "name": "Simic Growth Chamber",
+   "quantity": 1
+  },
+  {
+   "name": "Thriving Heath",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}
