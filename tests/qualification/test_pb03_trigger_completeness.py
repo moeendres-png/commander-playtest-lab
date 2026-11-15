@@ -39,6 +39,18 @@ import importlib.util, json, os, runpy, sys
 from pathlib import Path
 root = Path(sys.argv[1]).resolve()
 touched = set()
+def _deleting(depth):
+    # shutil.rmtree opens each entry relative to a directory fd and the audit event
+    # carries only the bare entry name, which would resolve against the cwd (an
+    # entry called AGENTS.md in some temp tree is not the repository's AGENTS.md).
+    # Deleting is not reading.
+    try:
+        frame = sys._getframe(depth + 1)
+    except ValueError:  # an open made by the interpreter has no Python caller
+        return False
+    return frame.f_code.co_filename.endswith("shutil.py") and frame.f_code.co_name.startswith(
+        "_rmtree"
+    )
 def hook(event, args):
     if event == "subprocess.Popen" and len(args) > 1 and isinstance(args[1], (list, tuple)):
         # A child process's own reads are invisible to this hook; a repository
@@ -53,6 +65,8 @@ def hook(event, args):
                 pass
         return
     if event == "open" and args and isinstance(args[0], (str, bytes, os.PathLike)):
+        if _deleting(1):
+            return
         try:
             raw = os.fsdecode(args[0])
             if raw.endswith(".pyc"):
@@ -97,8 +111,28 @@ if _log:
     _fd = os.open(_log, os.O_WRONLY | os.O_CREAT | os.O_APPEND, 0o600)
     def _hook(event, args):
         if event == "open" and args and isinstance(args[0], (str, bytes, os.PathLike)):
+            # shutil.rmtree opens entries relative to a directory fd: the event names a
+            # bare entry, not a repository file (the PB-03 probe documents the same).
             try:
-                os.write(_fd, (os.path.abspath(os.fsdecode(args[0])) + "\n").encode())
+                _frame = sys._getframe(1)
+            except ValueError:  # opened by the interpreter itself
+                _frame = None
+            if (
+                _frame is not None
+                and _frame.f_code.co_filename.endswith("shutil.py")
+                and _frame.f_code.co_name.startswith("_rmtree")
+            ):
+                return
+            try:
+                _who = "\t".join(
+                    [
+                        os.path.abspath(os.fsdecode(args[0])),
+                        f"pid={os.getpid()} ppid={os.getppid()}",
+                        "argv=" + " ".join(sys.argv)[:160].replace("\t", " "),
+                        "test=" + os.environ.get("PYTEST_CURRENT_TEST", "-"),
+                    ]
+                )
+                os.write(_fd, (_who + "\n").encode())
             except Exception:
                 pass
     sys.addaudithook(_hook)
@@ -396,16 +430,19 @@ def test_runner_phases_report_their_duration_on_stdout_only(monkeypatch, capsys,
     assert source.count('phase("') + source.count('phase(f"') >= 8
 
 
-@cache
-def _measured_workflow_test_inputs() -> tuple[str, ...]:
-    """Execute the workflow's offline tests under the same file-read audit hook."""
-    invoked = _expand(_workflow_arguments("tests"), _tracked_files())
-    assert invoked, "measurement must execute the workflow's actual tests"
+def _measure_test_reads(invoked: list[str]) -> dict[str, str]:
+    """Run the given test files in a child pytest under the file-read audit hook.
+
+    Returns every repository-relative path the run touched, mapped to who recorded
+    it (the child's pid, argv and current test, or ``measured process``).
+    """
     probe = (
         _PROBE[: _PROBE.index("for script in sys.argv[2:]:")]
         + r"""
 import pytest
-result = pytest.main(["-q", "-p", "no:cacheprovider", "-o", "addopts=", *sys.argv[2:]])
+result = pytest.main(
+    ["-q", "-p", "no:cacheprovider", "-o", "addopts=", f"--basetemp={sys.argv[2]}", *sys.argv[3:]]
+)
 if result != 0:
     raise SystemExit(result)
 print(json.dumps(sorted(touched)))
@@ -417,8 +454,12 @@ print(json.dumps(sorted(touched)))
         # so an input a child reads directly cannot leave the measurement.
         child_log = Path(hooks) / "child-reads.log"
         (Path(hooks) / "sitecustomize.py").write_text(_CHILD_HOOK, encoding="utf-8")
+        # A private pytest base temp: the default one lives in the shared
+        # /tmp/pytest-of-<user>, where the session-end cleanup deletes the numbered
+        # trees of EARLIER runs (other shards, other sessions), and what those hold
+        # is no input of this run.
         completed = subprocess.run(
-            [sys.executable, "-c", probe, str(REPO), *invoked],
+            [sys.executable, "-c", probe, str(REPO), str(Path(hooks) / "basetemp"), *invoked],
             cwd=REPO,
             env={
                 **os.environ,
@@ -434,16 +475,30 @@ print(json.dumps(sorted(touched)))
             text=True,
             check=True,
         )
-        child_reads = set()
+        measured = dict.fromkeys(
+            json.loads(completed.stdout.strip().splitlines()[-1]), "measured process"
+        )
         if child_log.exists():
             for raw in child_log.read_text(encoding="utf-8").splitlines():
+                path, _, who = raw.partition("\t")
                 with contextlib.suppress(ValueError):
-                    child_reads.add(str(Path(raw).resolve().relative_to(REPO)))
+                    measured.setdefault(str(Path(path).resolve().relative_to(REPO)), who)
+    return measured
+
+
+@cache
+def _measured_workflow_test_reads() -> dict[str, str]:
+    """Execute the workflow's offline tests under the same file-read audit hook."""
+    invoked = _expand(_workflow_arguments("tests"), _tracked_files())
+    assert invoked, "measurement must execute the workflow's actual tests"
     tracked = set(_tracked_files())
     # Qualification consumes canonical files. Cache and temporary outputs are
     # neither repository inputs nor evidence, and must not widen the trigger.
-    measured = set(json.loads(completed.stdout.strip().splitlines()[-1])) | child_reads
-    return tuple(sorted(path for path in measured if path in tracked))
+    return {path: who for path, who in _measure_test_reads(invoked).items() if path in tracked}
+
+
+def _measured_workflow_test_inputs() -> tuple[str, ...]:
+    return tuple(sorted(_measured_workflow_test_reads()))
 
 
 def test_workflow_test_data_inputs_trigger_pb03() -> None:
@@ -457,7 +512,47 @@ def test_workflow_test_data_inputs_trigger_pb03() -> None:
         for path in inputs
         if not path.startswith((".git/", *NOT_A_PR_TRIGGER)) and not _covered(path)
     ]
-    assert not uncovered, f"PB-03 offline test inputs without a trigger: {uncovered}"
+    reads = _measured_workflow_test_reads()
+    assert not uncovered, (
+        f"PB-03 offline test inputs without a trigger: {uncovered}; recorded by "
+        f"{ {path: reads[path] for path in uncovered} }"
+    )
+
+
+_UNTRIGGERED = "AGENTS.md"
+
+
+def test_the_control_fixture_path_is_a_tracked_untriggered_file() -> None:
+    assert _UNTRIGGERED in _tracked_files()
+    assert not _covered(_UNTRIGGERED)
+
+
+def test_red_control_a_measured_test_that_reads_an_untriggered_file_is_reported(tmp_path) -> None:
+    scratch = tmp_path / "test_reads_untriggered.py"
+    scratch.write_text(
+        f"def test_reads():\n    open({str(REPO / _UNTRIGGERED)!r}, encoding='utf-8').read()\n",
+        encoding="utf-8",
+    )
+    reads = _measure_test_reads([str(scratch)])
+    assert _UNTRIGGERED in reads
+    assert "test=" in reads[_UNTRIGGERED] or reads[_UNTRIGGERED] == "measured process"
+
+
+def test_a_directory_cleanup_of_a_same_named_temp_file_is_not_an_input(tmp_path) -> None:
+    """Regression: pytest's end-of-session cleanup of old temp trees deletes entries
+    through a directory fd; the audit event then names only the bare entry, which
+    used to resolve against the repository root as if the test had read AGENTS.md."""
+    scratch = tmp_path / "test_deletes_lookalike.py"
+    scratch.write_text(
+        "import shutil, tempfile\n"
+        "from pathlib import Path\n"
+        "def test_deletes():\n"
+        "    tree = Path(tempfile.mkdtemp())\n"
+        f"    (tree / {_UNTRIGGERED!r}).write_text('x')\n"
+        "    shutil.rmtree(tree)\n",
+        encoding="utf-8",
+    )
+    assert _UNTRIGGERED not in _measure_test_reads([str(scratch)])
 
 
 FAMILY = "tests/qualification/test_midgame_arrival_history_*.py"
