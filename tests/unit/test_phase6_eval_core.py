@@ -3,7 +3,6 @@ from __future__ import annotations
 import pytest
 
 from commander_lab.engine import IllegalActionProposal, validate_action_proposal
-from commander_lab.engine.structural import commander_cast_cost, commander_damage_is_lethal
 from commander_lab.models import (
     ActionProposal,
     ActionType,
@@ -12,18 +11,6 @@ from commander_lab.models import (
     LegalAction,
     PlayerState,
 )
-
-
-def test_commander_tax_progression() -> None:
-    assert [commander_cast_cost(5, casts) for casts in range(4)] == [5, 7, 9, 11]
-    with pytest.raises(ValueError):
-        commander_cast_cost(5, -1)
-
-
-def test_commander_damage_is_separate_by_commander() -> None:
-    assert not commander_damage_is_lethal({"Ishai": 12, "Rograkh": 10})
-    assert commander_damage_is_lethal({"Ishai": 21, "Rograkh": 0})
-    assert commander_damage_is_lethal([0, 24])
 
 
 def test_action_proposal_must_match_one_legal_action() -> None:

@@ -27,7 +27,6 @@ from .rules import (
 )
 
 __all__ += [
-    "PHASE8_ENGINE_VERSION",
     "RulesEngineAdapter",
     "RulesEngineError",
     "RulesEngineManager",
@@ -40,6 +39,5 @@ __all__ += [
     "load_interaction_catalog",
     "load_project_rules_decks",
     "load_rules_deck_snapshot",
-    "run_phase8_validation",
     "write_validation_registry",
 ]

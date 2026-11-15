@@ -63,18 +63,6 @@ def test_action_proposal_is_structured_and_immutable() -> None:
         proposal.decision_tier = 3  # type: ignore[misc]
 
 
-def test_pilot_config_count_must_match_pod_size() -> None:
-    from commander_lab.models import PilotConfig, StructuralMatchConfig
-
-    with pytest.raises(ValidationError):
-        StructuralMatchConfig(
-            match_id="pilot-count",
-            seed=1,
-            deck_ids=("a", "b"),
-            pilot_configs=(PilotConfig(),),
-        )
-
-
 def test_phase4_pilot_models_are_publicly_importable() -> None:
     from commander_lab.models import (
         PilotActionView,

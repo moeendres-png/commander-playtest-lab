@@ -7,7 +7,7 @@ from .profiles import (
     role_counts,
 )
 from .project import load_project_structural_decks
-from .simulator import ENGINE_VERSION, commander_cast_cost, commander_damage_is_lethal
+from .simulator import ENGINE_VERSION
 
 __all__ = [
     "ENGINE_VERSION",
@@ -15,8 +15,6 @@ __all__ = [
     "build_default_profile",
     "build_structural_deck_profile",
     "build_synthetic_deck_profile",
-    "commander_cast_cost",
-    "commander_damage_is_lethal",
     "generate_project_profiles",
     "load_project_structural_decks",
     "role_counts",
