@@ -3,6 +3,14 @@
 ``score_pool`` is a pure function: settings and per-card observations in, index and tier
 per card out. No I/O, no clock, no store. The store side lives in ``strength_view.py``.
 
+Tierliste v3 (#1364): the index is purely empirical. The rubric has weight 0 (subjective),
+the EDHREC commander and bracket inclusion weights are 0 while a counted local corpus exists
+(``apply_corpus_rule``, rule E2.a), shares with a denominator below ``EB_MAX_DENOMINATOR`` are
+shrunk by empirical Bayes (``beta_binomial_prior``), a counted 0 of N is ``ZERO_COUNT``
+(tier D, setting ``zero_count_tier``) and the share scale is logarithmic with
+``LOG_SHARE_K``. The text below keeps the older description of the formula; the weights,
+scale, cuts and the rules above are what applies, see docs/STUDIO_DECKBUILDER.md.
+
 What the index is. It is ``DERIVED_DESCRIPTIVE``: a weighted mean of percentile ranks of
 usage signals (how often a card is played in decks of one commander, in a bracket, in the
 deck lists the Owner chose, in tournament lists, the quality of the combos it is part
