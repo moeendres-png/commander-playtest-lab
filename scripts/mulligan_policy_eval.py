@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Judge a mulligan policy by what the hands it keeps do in the first six turns.
 
-``mulligan_keep_table.py`` shows how often the pilot keeps a hand. A keep rate cannot say whether
+A keep rate cannot say whether
 the keeps are good ones. This script plays the opening for seeded random hands of every deck it is
 given: the pilot's own keep/mulligan chain and London bottoming, then six turns on the draw with
 a greedy land drop and a greedy cast order. It reports what the policy was for:

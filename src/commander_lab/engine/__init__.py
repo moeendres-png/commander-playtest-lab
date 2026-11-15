@@ -11,7 +11,6 @@ __all__ = [
 ]
 
 from .rules import (
-    PHASE8_ENGINE_VERSION,
     RulesEngineAdapter,
     RulesEngineError,
     RulesEngineManager,
@@ -24,7 +23,6 @@ from .rules import (
     load_interaction_catalog,
     load_project_rules_decks,
     load_rules_deck_snapshot,
-    run_phase8_validation,
     write_validation_registry,
 )
 
