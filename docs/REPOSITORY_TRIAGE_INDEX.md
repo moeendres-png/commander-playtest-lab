@@ -20,7 +20,7 @@ destroy it. This index makes the backlog navigable instead of deleting it.
 ## Pull request lanes (2026-09-28 refresh)
 
 Current source lock and every retained branch/path are in
-[the integrity ledger](project_integrity_20260928/PR_BRANCH_RETENTION_LEDGER.json).
+[the integrity ledger](archive/audits-and-hygiene/project_integrity_20260928/PR_BRANCH_RETENTION_LEDGER.json).
 This is a timestamped snapshot, not a permanent ownership grant.
 
 | Lane | Pull requests / branches | Rule |
@@ -44,7 +44,7 @@ This is a timestamped snapshot, not a permanent ownership grant.
 
 ## Issue dispositions (2026-09-28 refresh)
 
-[Full source-bound adjudication](project_integrity_20260928/OPEN_ISSUE_DISPOSITION.json)
+[Full source-bound adjudication](archive/audits-and-hygiene/project_integrity_20260928/OPEN_ISSUE_DISPOSITION.json)
 records all nine initially open issues and their final observed states.
 
 | Issue | Disposition |

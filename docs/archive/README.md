@@ -12,7 +12,18 @@ policy is `AGENTS.md`, `../PROJECT_MISSION.md`, `../CURRENT_EXECUTION_AUTHORITY.
   `ci479_*`, `b8_takeover_*`, ...), the `J_P*` phase records, `NEXT_STEP_HANDOFF_*`,
   `PROJECT_UPDATE_*`, and `phase*.md` reports.
 
-Entries keep the relative sub-paths they had under `docs/`, so `docs/<name>` is now
+Topic folders (each has a `README.md` saying what it holds, why it was archived and the last
+commit at which the described code existed), moved by issue #1268 part d; contents byte-identical:
+
+- `opencode-foundry/`, `tool-service-mcp/`, `deck-optimizer-j-phases/`, `mulligan-lab/`,
+  `meta-store-primer/`, `structural-simulator/`, `rogshai-campaigns/` — documents of removed tools
+  and the removed deck optimizer, simulator layer and campaigns.
+- `audits-and-hygiene/`, `handoffs-and-reviews/`, `prefreeze-campaigns/`, `superseded/` — dated
+  audits, closed handoffs and reviews, a finished evidence campaign, replaced guidance.
+- `artifacts-history/` — historical generated outputs moved from `artifacts/` (`audit/`,
+  `engine_setup/`, `phase12_13/`, `phase12_15/`).
+
+The older entries below keep the relative sub-paths they had under `docs/`, so `docs/<name>` is now
 `docs/archive/<name>`.
 
 ## What is not here

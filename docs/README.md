@@ -1,94 +1,56 @@
-# docs/ — navigation index
+# docs/ — index
 
-Maintained as a navigation aid, **not as authority**. Where this index and a governing
-document disagree, the governing document wins (see `AGENTS.md` §3 Source Truth).
+Navigation aid, not authority. Where this page and a governing document disagree, the
+governing document wins (`../AGENTS.md` §3). Filenames with `CURRENT`, `FINAL` or `LATEST`
+confer no authority.
 
-Throughout this file, `AGENTS.md` means the single **repository-root** `AGENTS.md` — `../AGENTS.md`
-from here. There is no `AGENTS.md` inside `docs/`.
+## What the product is
 
-## Before anything else
+Commander Studio is a local application (`../src/commander_lab/studio`) to build Commander
+decks, play them and simulate them. Games are full rules games on the pinned XMage engine
+through the Java bridge (`../engine-bridge/`), played by the pilots in
+`../src/commander_lab/engine/rules` and `../src/commander_lab/agents`. The sealed
+qualification epoch (`../qualification/`, `../candidate-qualification/`,
+`../src/commander_lab/qualification`, `../tests/qualification`) is the evidence that the engine
+and bridge are fit for this; it is never edited.
 
-| Question | Go to |
+## Current guidance
+
+| Document | What it is |
 |---|---|
-| What are the durable rules for every session? | `AGENTS.md` (repository root) |
-| What is the project trying to build? | `PROJECT_MISSION.md` |
-| What are the current engine pins? | `../config/rules_engines.json` — sole machine-readable pin authority |
-| Who may execute what, and at which effort? | `AGENTS.md` §6–§8 and `CURRENT_EXECUTION_AUTHORITY.md` |
-| Which PRs / issues / branches are live? | `REPOSITORY_TRIAGE_INDEX.md` |
-| Where do I resume, and how is the engine pin moved? | `claude/state/HANDOFF.md` (generated continuation index, not authority), `claude/SESSION_PLAYBOOK.md`, `claude/REPIN_RUNBOOK.md` |
-| Where are the speed and determinism measurements? | `performance/` (start with `performance/DETERMINISM_PROBE.md`) |
-| What counts as PASS? | `AGENTS.md` §4 |
+| `PROJECT_MISSION.md` | Governing mission and gates |
+| `OWNER_DECISIONS_STUDIO_20261112.md`, `OWNER_DECISION_STUDIO_BUILD_PLAY_SIMULATE_20261110.md`, `OWNER_DECISION_SIX_PLAYER_MAX_20261108.md` | Owner decisions for the Studio (maximum 6 players, default 4) |
+| `OWNER_DECK_FOCUS_CURRENT.md` | Owner-deck work focus: Chulane only |
+| `STUDIO_ROADMAP_20261112.md`, `STUDIO_PLAN_SIMULATOR.md` | Studio plan, and what stays and goes around the simulator |
+| `STUDIO_DECKBUILDER.md`, `STUDIO_GAME_VIEWER.md`, `DECKBUILDER_DATA_1205.md`, `DECKBUILDER_TIERLIST_DESIGN.md` | Deck builder, spectator page, data and tier-list design |
+| `STUDIO_BRIDGE_GATE_TOOLING.md` | Bridge and gate tooling used by the Studio |
+| `CURRENT_EXECUTION_AUTHORITY.md` | Who runs what, at which effort (with `AGENTS.md` §6–§8) |
+| `CI_WHICH_CHECK_RUNS_WHEN.md`, `CI_GATES_IMPROVEMENT_PLAN_20261112.md` | Which check starts when; open CI points |
+| `claude/REPIN_RUNBOOK.md` | How the engine pin is moved |
+| `claude/SESSION_PLAYBOOK.md`, `claude/state/HANDOFF.md` | Session know-how; generated continuation index (git wins) |
+| `engine_setup.md`, `installation.md`, `engine_troubleshooting.md` | Install and run the engine and the lab |
+| `engine_adapter_protocol.md` | Bridge protocol (schema: `../schemas/engine_adapter_protocol.schema.json`) |
+| `DECK_VARIANT_WORKFLOW.md`, `CUSTOM_DECKS.md`, `PRECON_VALIDATION.md`, `CARD_COVERAGE.md`, `coverage/` | Deck variants, own decks, precon and card coverage measurements |
+| `performance/` | Dated measurements of speed and determinism; each header names pin and commit |
+| `research/`, `studio/` | Data-derived reports and source catalogs behind the Studio's data pipeline |
+| `EVIDENCE_INDEX_REQUIREMENTS.md`, `RETENTION_AND_LIFECYCLE_POLICY.md` | Evidence index schema and retention policy |
+| `architecture/`, `architecture_freeze_20261010/`, `owner_decision_*/`, `engine_strategy_*/` | Architecture direction and the decisions that fixed it (XMage only) |
 
-## Governing documents in this directory
+Several dated directories (`af09_*`, `architecture_freeze_readiness_*`, `final_prefreeze_*`,
+`workstream_*`, `*_erratum_*`, `J_P*.json`, ...) stay in place because a test, script, workflow
+or machine-read sealed record reads them by path. They are records of the sealed epoch, not
+guidance. `orientation` pages kept for a test (`architecture.md`, `REPOSITORY_TRIAGE_INDEX.md`,
+`commander-simulator-next.prd.md`) predate the Studio; read them as history.
 
-- `PROJECT_MISSION.md` — governing mission policy. Outranks any summary elsewhere.
-- `CURRENT_EXECUTION_AUTHORITY.md` — current execution authority.
-- `EVIDENCE_INDEX_REQUIREMENTS.md` — evidence index schema; companion to
-  `RETENTION_AND_LIFECYCLE_POLICY.md`.
-- ARCHITECTURE_FREEZE = CLAIMED (2026-10-10, Owner-signed), PRODUCTION_PROVIDER = XMAGE;
-  the machine-readable status is config/rules_engines.json (architecture_freeze,
-  provider_decision) and AGENTS.md section 1. A document repeating that status in prose
-  is not the source of truth for it.
+## Archive
 
-## Subdirectories
+`archive/` holds documents that describe removed or finished things, as provenance only
+(`archive/README.md`). Topics: `opencode-foundry`, `tool-service-mcp`,
+`deck-optimizer-j-phases`, `mulligan-lab`, `meta-store-primer`, `structural-simulator`,
+`rogshai-campaigns`, `audits-and-hygiene`, `handoffs-and-reviews`, `prefreeze-campaigns`,
+`superseded`, `artifacts-history` (generated outputs moved from `artifacts/`), plus the older
+dated packets directly under `archive/`. Each topic folder has a
+README with why it was archived and the last commit at which the described code existed.
 
-| Directory | What it is |
-|---|---|
-| `architecture/` | Architecture decision records and design direction. |
-| `claude/` | Session playbook, repin runbook and the generated `state/HANDOFF.md` for a fresh Claude session. Tooling guidance, not policy. |
-| `performance/` | Dated measurements of speed and determinism (CI shards, efficiency offensive, determinism probe, repin v12 report). Read each file's own header for the pin and commit it was measured on. |
-| `archive/` | **Historical provenance only** (not current instruction): dated workstream packets, `J_P*` phase records, `NEXT_STEP_HANDOFF_*`, `PROJECT_UPDATE_*`. See `archive/README.md`. Includes `archive/legacy_phase_artifacts/` (Phase 2–9 reports). |
-| `project_integrity_20260928/` | Repository/PR/branch/ownership integrity records and dispositions. |
-| `project_integration_hygiene_20260927/` | Prior integration/hygiene workstream packets. Dated. |
-| `architecture_freeze_readiness_20260927/` | Freeze-readiness packets. Readiness evidence, not a freeze claim. |
-| `pre_freeze_completion_20260927/` | Pre-freeze campaign state and provider readiness packets. Dated. |
-| `claude_independent_review_20260929/`, `muse_final_integration_20260928/` | Independent review and donor-integration dispositions. Dated. |
-| `workstream_*`, `1.20/`, `counterfactual/`, `diagnostics/`, `reconciliation/`, `roadmap/`, `optimizer-v2/`, `meta/`, `mulligan_lab/`, `multiplayer_findings/`, `J_P3_*_RAW_EVIDENCE/` | Dated per-workstream evidence and diagnostics. Historical unless a governing document says otherwise. |
-
-Most `workstream_*` directories are single-workstream packets with no current action
-attached. Read the packet's own status/contract before relying on it.
-
-## Two directories that differ only by separator
-
-`decision_quality/` (underscore) and `decision-quality/` (hyphen) both exist and are
-non-empty. **They are not equivalent, and an earlier version of this file wrongly implied
-they were.** Adjudicated 2026-09-29 and re-checked 2026-11-14:
-
-| | `decision_quality/` | `decision-quality/` |
-|---|---|---|
-| Referenced by workflows / `src/` (historical 2026-09-29) | 2 / 1 (both retired on `main`) | 0 / 0 |
-| Last content change | 2026-08-20 / 08-21 | 2026-08-15 |
-| Status | **policy record (consumers retired)** | **orphaned provenance** |
-
-`decision_quality/MODEL_PRECISION_POLICY_CURRENT.md` documents the retirement of the legacy
-model-precision scalar gate; both historical enforcement consumers cited in the 2026-09-29 audit
-(`.github/workflows/model-resolution-measurement.yml` and
-`src/commander_lab/whole_deck/optimizer_v2_decision_runtime.py`) have since been retired on `main`.
-
-That makes it a **documented exception** to the `AGENTS.md` §3 rule below (originally
-corroborated by CI enforcement when created). It is not a precedent for naming other
-documents `..._CURRENT`.
-
-Read the `README.md` inside each directory before assuming anything about either.
-
-## Filename traps
-
-Filenames containing `CURRENT`, `FINAL`, `LATEST`, or `MASTER` **confer no authority**
-(`AGENTS.md` §3). This is not a convention observed everywhere: for example
-`PROJECT_UPDATE_CURRENT_STATE.md`, `CARD_COVERAGE_CURRENT.md`,
-`NEXT_STEP_HANDOFF_J_P6_TO_FINAL.md`, and the directory
-`../qualification/final-current-boundary-20260927/` all carry those tokens without
-carrying current status. Establish authority from the governing document and the
-index entry that names it, never from the filename.
-
-The chained `NEXT_STEP_HANDOFF_*.md` files in this directory are historical handoff
-snapshots. They state the authority that applied when they were written, sometimes as a
-present-tense claim, and sometimes conditioned on a merge that has long since happened.
-They are provenance, not a work queue. A current workstream comes from explicit user
-assignment plus a dedicated state file, never from a handoff file.
-
-## Adding to this directory
-
-Prefer one canonical index over copying policy into new files. If a new document repeats
-an existing rule, link to the governing document instead of restating it. New
-`CURRENT`/`FINAL`-style names are discouraged for exactly the reason above.
+Selection is reproducible: `python scripts/classify_docs.py` (plan),
+`--inventory FILE` (every document with class and anchor) and `--check`.

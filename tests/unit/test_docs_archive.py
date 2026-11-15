@@ -5,6 +5,9 @@ from __future__ import annotations
 import subprocess
 import sys
 from pathlib import Path
+from typing import Any
+
+import pytest
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -24,3 +27,132 @@ def test_archive_readme_declares_provenance_only() -> None:
     text = (ROOT / "docs/archive/README.md").read_text(encoding="utf-8")
     assert "provenance only" in text
     assert "not current instruction" in text
+
+
+def _load_classifier() -> Any:
+    import importlib.util
+
+    spec = importlib.util.spec_from_file_location(
+        "classify_docs", ROOT / "scripts/classify_docs.py"
+    )
+    assert spec and spec.loader
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def _plan(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, docs: dict[str, str], others: dict[str, str]
+) -> Any:
+    module = _load_classifier()
+    files = []
+    for rel, text in {**docs, **others}.items():
+        path = tmp_path / rel
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text, encoding="utf-8")
+        files.append(rel)
+    monkeypatch.setattr(module, "ROOT", tmp_path)
+    return module.classify(files)
+
+
+def test_topic_entry_without_anchor_is_archived(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    plan = _plan(tmp_path, monkeypatch, {"docs/mulligan_lab/README.md": "x"}, {"src/a.py": "pass"})
+    assert plan["archive"] == {"mulligan_lab": "mulligan-lab"}
+
+
+def test_entry_without_topic_is_current(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    plan = _plan(tmp_path, monkeypatch, {"docs/installation.md": "x"}, {})
+    assert plan["archive"] == {} and "installation.md" in plan["current"]
+
+
+def test_code_reference_anchors_entry(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    plan = _plan(
+        tmp_path,
+        monkeypatch,
+        {"docs/known_limitations.md": "x"},
+        {"tests/test_a.py": 'p = "docs/known_limitations.md"'},
+    )
+    assert "known_limitations.md" in plan["kept_anchored"] and not plan["archive"]
+
+
+def test_pathlib_style_reference_anchors_directory(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    plan = _plan(
+        tmp_path,
+        monkeypatch,
+        {"docs/meta/R.md": "x"},
+        {"tests/test_a.py": 'p = ROOT / "docs" / "meta"'},
+    )
+    assert "meta" in plan["kept_anchored"]
+
+
+def test_prose_in_sealed_tree_is_no_anchor_but_machine_record_is(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    docs = {"docs/known_limitations.md": "x", "docs/validation_levels.md": "x"}
+    others = {
+        "qualification/e/VALIDATION.md": "see docs/known_limitations.md",
+        "qualification/e/LOCK.json": '{"p": "docs/validation_levels.md"}',
+    }
+    plan = _plan(tmp_path, monkeypatch, docs, others)
+    assert "known_limitations.md" in plan["archive"]
+    assert "validation_levels.md" in plan["kept_anchored"]
+
+
+def test_entry_document_link_anchors_but_archive_pointer_does_not(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    docs = {"docs/known_limitations.md": "x", "docs/validation_levels.md": "x"}
+    others = {
+        "README.md": "[a](docs/known_limitations.md) docs/archive/superseded/validation_levels.md"
+    }
+    plan = _plan(tmp_path, monkeypatch, docs, others)
+    assert "known_limitations.md" in plan["kept_anchored"]
+    assert "validation_levels.md" in plan["archive"]
+
+
+def test_owner_decision_documents_are_never_archived() -> None:
+    module = _load_classifier()
+    assert module.PROTECTED_ENTRY.search("owner_decision_20261013_forge_removal")
+    assert not any(
+        module.PROTECTED_ENTRY.search(n) for _t, (_d, names) in module.TOPICS.items() for n in names
+    )
+
+
+def test_archive_topics_have_readme() -> None:
+    module = _load_classifier()
+    topics = (*module.TOPICS, "artifacts-history")
+    assert len(topics) == 12
+    for topic in topics:
+        readme = ROOT / "docs/archive" / topic / "README.md"
+        assert readme.is_file(), topic
+        text = readme.read_text(encoding="utf-8")
+        assert "Last commit at which the described code existed" in text, topic
+        assert "not current instruction" in text.lower(), topic
+
+
+def test_broken_links_checks_root_readme_and_skips_archived_bodies(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    module = _load_classifier()
+    assert module.broken_links(module._git_files()) == []
+
+    files_map = {
+        "README.md": "[ok](docs/guide.md) [bad](docs/missing.md)",
+        "docs/guide.md": "# guide\n",
+        "docs/archive/README.md": "[ok](../guide.md) [bad](missing-topic/README.md)",
+        "docs/archive/old_topic/old_doc.md": "[frozen](historical/missing.md)",
+    }
+    for rel, text in files_map.items():
+        path = tmp_path / rel
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text, encoding="utf-8")
+    monkeypatch.setattr(module, "ROOT", tmp_path)
+    broken = module.broken_links(sorted(files_map))
+    assert broken == [
+        "README.md -> docs/missing.md",
+        "docs/archive/README.md -> missing-topic/README.md",
+    ]

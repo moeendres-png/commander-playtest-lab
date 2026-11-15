@@ -92,28 +92,28 @@ Current / governing (start here):
 - `docs/claude/` - session playbook and repin runbook; `docs/claude/state/HANDOFF.md` is a
   continuation index only (git, tests and sealed evidence remain source truth).
 - `docs/performance/` - dated speed and determinism measurements; each file's header names the pin and commit.
-- `docs/architecture/` and `docs/architecture.md` - design direction; `docs/engine_*.md`,
-  `docs/rules-engine-bridge-protocol.md`, `docs/validation_levels.md`, `docs/installation.md`,
-  `docs/known_limitations.md` - reference/how-to (guess: current, check dates).
+- `docs/architecture/` and `docs/architecture.md` - design direction; `docs/engine_setup.md`,
+  `docs/engine_adapter_protocol.md`, `docs/engine_troubleshooting.md`, `docs/installation.md` -
+  reference/how-to (guess: current, check dates).
 - `docs/architecture_freeze_20261010/`, `docs/owner_decision_20261013_forge_removal/`,
   `docs/engine_strategy_20261009/` - latest owner/architecture decisions (newest dated dirs).
 
 Historical provenance (kept for audit; do not treat as instructions). Entries that no code,
 manifest or governing document references are physically moved to `docs/archive/` (same relative
-subpaths; see `docs/archive/README.md`; selection is reproducible with `scripts/classify_docs.py`).
-The table below names the groups; a group member still directly under `docs/` is referenced by
-code or a sealed manifest and stays in place:
+subpaths or topic folders; see `docs/archive/README.md`; selection is reproducible with
+`scripts/classify_docs.py`). The table below names the groups; anchored members referenced by
+code, tests, workflows or sealed manifests stay in place under `docs/`:
 
 | Group | Where |
 |---|---|
-| Phase / stage reports | `docs/archive/`, `docs/phase*.md`, `docs/J_P*`, `docs/NEXT_STEP_HANDOFF_*`, `docs/roadmap/` |
-| Dated workstream records | `docs/workstream_*_2026*/` (about 40 dirs), `docs/*_2026MMDD/` closures |
-| AF-lane and erratum records | `docs/af0*`, `docs/af456_*`, `docs/*_erratum_*`, `docs/forge_*`, `docs/xmage_*` |
-| CI/PR-specific records | `docs/ci479_*`, `docs/pr*`, `docs/b8_takeover_*`, `docs/oc572_*` |
-| Integrity/hygiene sweeps | `docs/project_integrity_*`, `docs/project_hygiene_*`, `docs/project_integration_hygiene_*`, `docs/test_signal_integrity_*` |
-| Superseded authority | `docs/COORDINATOR_EXECUTION_AUTHORITY_2026-09-27.md`, the 2026-09-10 coordinator authority file (superseded by `CURRENT_EXECUTION_AUTHORITY.md`; `docs/README.md` now points at `CURRENT_EXECUTION_AUTHORITY.md`) |
-| PROJECT_UPDATE_* | `docs/PROJECT_UPDATE_*.md` (Aug 2026 scope snapshots) |
+| Phase / stage reports | `docs/archive/` (`legacy_phase_artifacts/`, `J_P*`, `phase*.md`, `handoffs-and-reviews/`, `deck-optimizer-j-phases/roadmap/`); anchored `docs/J_P*.json` stay under `docs/` |
+| Dated workstream records | `docs/archive/` (`workstream_*_2026*/`, `*_2026MMDD/` closures), plus anchored `docs/workstream_*`, `docs/pre_freeze_completion_20260927`, `docs/final_prefreeze_evidence_closure_20261001` |
+| AF-lane and erratum records | `docs/archive/` (`af456_*`, `prefreeze-campaigns/`, `forge_af*`), plus anchored `docs/af07_final_closure_20261002`, `docs/af09_*`, `docs/*_erratum_*`, `docs/forge_*`, `docs/xmage/` |
+| CI/PR-specific records | `docs/archive/` (`ci_*`, `b8_takeover_*`, `oc572_*`), plus anchored `docs/workstream_pr207_remediation_20260921`, `docs/provider_readiness_packet_20261007` |
+| Integrity/hygiene sweeps | `docs/archive/audits-and-hygiene/` and `docs/archive/test_signal_integrity_20260929/` |
+| Superseded authority | `docs/archive/opencode-foundry/` (`COORDINATOR_EXECUTION_AUTHORITY_2026-09-27.md`, `OPENAI_COORDINATOR_EXECUTION_AUTHORITY_2026-09-10.md`; superseded by `docs/CURRENT_EXECUTION_AUTHORITY.md`) |
+| Superseded / `PROJECT_UPDATE_*` | `docs/archive/superseded/` and dated `docs/archive/PROJECT_UPDATE_*.md` (`docs/external_runtime_setup.md` remains anchored under `docs/`) |
 
 Dated directories are the freshest *work*, not necessarily the current *policy*; the 2026-09 to
-2026-10 ones (for example `af07_actual_card_campaign_20261001`, `provider_readiness_packet_20261007`)
-are recent evidence packets that policy documents cite.
+2026-10 ones (for example `docs/archive/prefreeze-campaigns/af07_actual_card_campaign_20261001`,
+`docs/provider_readiness_packet_20261007`) are historical or sealed-epoch evidence packets.
