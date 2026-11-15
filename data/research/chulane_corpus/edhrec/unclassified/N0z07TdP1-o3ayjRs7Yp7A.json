@@ -1,0 +1,338 @@
+{
+ "urlhash": "N0z07TdP1-o3ayjRs7Yp7A",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-05-09",
+ "price": 137,
+ "salt": 45.90580402035266,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/22439661?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Aberrant Manawurm",
+   "quantity": 1
+  },
+  {
+   "name": "Adrix and Nev, Twincasters",
+   "quantity": 1
+  },
+  {
+   "name": "Aerial Extortionist",
+   "quantity": 1
+  },
+  {
+   "name": "Emil, Vastlands Roamer",
+   "quantity": 1
+  },
+  {
+   "name": "Environmental Scientist",
+   "quantity": 1
+  },
+  {
+   "name": "Esix, Fractal Bloom",
+   "quantity": 1
+  },
+  {
+   "name": "Fractal Mascot",
+   "quantity": 1
+  },
+  {
+   "name": "Fractal Tender",
+   "quantity": 1
+  },
+  {
+   "name": "Hornet Queen",
+   "quantity": 1
+  },
+  {
+   "name": "Hungry Graffalon",
+   "quantity": 1
+  },
+  {
+   "name": "Hydroid Krasis",
+   "quantity": 1
+  },
+  {
+   "name": "Innocuous Researcher",
+   "quantity": 1
+  },
+  {
+   "name": "Jadzi, Steward of Fate",
+   "quantity": 1
+  },
+  {
+   "name": "Koma, Cosmos Serpent",
+   "quantity": 1
+  },
+  {
+   "name": "Landscape Painter",
+   "quantity": 1
+  },
+  {
+   "name": "Paradox Surveyor",
+   "quantity": 1
+  },
+  {
+   "name": "Progenitor Mimic",
+   "quantity": 1
+  },
+  {
+   "name": "Selvala, Explorer Returned",
+   "quantity": 1
+  },
+  {
+   "name": "Spellbook Seeker",
+   "quantity": 1
+  },
+  {
+   "name": "Studious First-Year",
+   "quantity": 1
+  },
+  {
+   "name": "Tam, Observant Sequencer",
+   "quantity": 1
+  },
+  {
+   "name": "Tester of the Tangential",
+   "quantity": 1
+  },
+  {
+   "name": "The Goose Mother",
+   "quantity": 1
+  },
+  {
+   "name": "Tireless Tracker",
+   "quantity": 1
+  },
+  {
+   "name": "Topiary Lecturer",
+   "quantity": 1
+  },
+  {
+   "name": "Wildgrowth Archaic",
+   "quantity": 1
+  },
+  {
+   "name": "Akroma's Will",
+   "quantity": 1
+  },
+  {
+   "name": "Blinding Fog",
+   "quantity": 1
+  },
+  {
+   "name": "Deduce",
+   "quantity": 1
+  },
+  {
+   "name": "Embrace the Paradox",
+   "quantity": 1
+  },
+  {
+   "name": "Fractalize",
+   "quantity": 1
+  },
+  {
+   "name": "Quandrix Charm",
+   "quantity": 1
+  },
+  {
+   "name": "Swell of Courage",
+   "quantity": 1
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1
+  },
+  {
+   "name": "Applied Geometry",
+   "quantity": 1
+  },
+  {
+   "name": "Farewell",
+   "quantity": 1
+  },
+  {
+   "name": "Finale of Revelation",
+   "quantity": 1
+  },
+  {
+   "name": "Fumigate",
+   "quantity": 1
+  },
+  {
+   "name": "Germination Practicum",
+   "quantity": 1
+  },
+  {
+   "name": "Growth Curve",
+   "quantity": 1
+  },
+  {
+   "name": "Knockout Maneuver",
+   "quantity": 1
+  },
+  {
+   "name": "Mind into Matter",
+   "quantity": 1
+  },
+  {
+   "name": "Planar Engineering",
+   "quantity": 1
+  },
+  {
+   "name": "Shared Roots",
+   "quantity": 1
+  },
+  {
+   "name": "Sleight of Hand",
+   "quantity": 1
+  },
+  {
+   "name": "Stock Up",
+   "quantity": 1
+  },
+  {
+   "name": "United Front",
+   "quantity": 1
+  },
+  {
+   "name": "Wild Hypothesis",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Talisman of Curiosity",
+   "quantity": 1
+  },
+  {
+   "name": "Talisman of Progress",
+   "quantity": 1
+  },
+  {
+   "name": "Talisman of Unity",
+   "quantity": 1
+  },
+  {
+   "name": "Additive Evolution",
+   "quantity": 1
+  },
+  {
+   "name": "Khalni Heart Expedition",
+   "quantity": 1
+  },
+  {
+   "name": "Killer Service",
+   "quantity": 1
+  },
+  {
+   "name": "Master Chef",
+   "quantity": 1
+  },
+  {
+   "name": "On the Trail",
+   "quantity": 1
+  },
+  {
+   "name": "Teferi's Ageless Insight",
+   "quantity": 1
+  },
+  {
+   "name": "Ulvenwald Mysteries",
+   "quantity": 1
+  },
+  {
+   "name": "Valor in Akros",
+   "quantity": 1
+  },
+  {
+   "name": "Wilderness Reclamation",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Citadel Gate",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Dreamroot Cascade",
+   "quantity": 1
+  },
+  {
+   "name": "Exotic Orchard",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 8
+  },
+  {
+   "name": "Island",
+   "quantity": 11
+  },
+  {
+   "name": "Paradox Gardens",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 4
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Enlightenment",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Mystery",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Plenty",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of the False God",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Cove",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

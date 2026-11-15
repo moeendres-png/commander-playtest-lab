@@ -1,0 +1,326 @@
+{
+ "urlhash": "OOJDYWokytzGwvknQz-E4Q",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-12-07",
+ "price": 330,
+ "salt": 46.652646685019135,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/Y8gtI55GA0KDiKzpbxEhHA?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Archetype of Endurance",
+   "quantity": 1
+  },
+  {
+   "name": "Archetype of Imagination",
+   "quantity": 1
+  },
+  {
+   "name": "Archon of Absolution",
+   "quantity": 1
+  },
+  {
+   "name": "Badgermole",
+   "quantity": 1
+  },
+  {
+   "name": "Battle Mammoth",
+   "quantity": 1
+  },
+  {
+   "name": "Bloom Tender",
+   "quantity": 1
+  },
+  {
+   "name": "Brazen Borrower",
+   "quantity": 1
+  },
+  {
+   "name": "Craterhoof Behemoth",
+   "quantity": 1
+  },
+  {
+   "name": "Cyclone Summoner",
+   "quantity": 1
+  },
+  {
+   "name": "Ellivere of the Wild Court",
+   "quantity": 1
+  },
+  {
+   "name": "Enduring Vitality",
+   "quantity": 1
+  },
+  {
+   "name": "Flutterfox",
+   "quantity": 1
+  },
+  {
+   "name": "Giant Killer",
+   "quantity": 1
+  },
+  {
+   "name": "Karametra, God of Harvests",
+   "quantity": 1
+  },
+  {
+   "name": "Kestia, the Cultivator",
+   "quantity": 1
+  },
+  {
+   "name": "Nylea's Colossus",
+   "quantity": 1
+  },
+  {
+   "name": "Nylea, God of the Hunt",
+   "quantity": 1
+  },
+  {
+   "name": "Nyxborn Behemoth",
+   "quantity": 1
+  },
+  {
+   "name": "Realm-Cloaked Giant",
+   "quantity": 1
+  },
+  {
+   "name": "Rimefur Reindeer",
+   "quantity": 1
+  },
+  {
+   "name": "Rowdy Snowballers",
+   "quantity": 1
+  },
+  {
+   "name": "Soaring Lightbringer",
+   "quantity": 1
+  },
+  {
+   "name": "Somberwald Beastmaster",
+   "quantity": 1
+  },
+  {
+   "name": "Summon: Fenrir",
+   "quantity": 1
+  },
+  {
+   "name": "Threadbind Clique",
+   "quantity": 1
+  },
+  {
+   "name": "Trickster's Elk",
+   "quantity": 1
+  },
+  {
+   "name": "Troyan, Gutsy Explorer",
+   "quantity": 1
+  },
+  {
+   "name": "Vagrant Plowbeasts",
+   "quantity": 1
+  },
+  {
+   "name": "Wandermare",
+   "quantity": 1
+  },
+  {
+   "name": "Woodland Acolyte",
+   "quantity": 1
+  },
+  {
+   "name": "Yasharn, Implacable Earth",
+   "quantity": 1
+  },
+  {
+   "name": "Beast Within",
+   "quantity": 1
+  },
+  {
+   "name": "Dawn's Truce",
+   "quantity": 1
+  },
+  {
+   "name": "Ice Out",
+   "quantity": 1
+  },
+  {
+   "name": "Into the Story",
+   "quantity": 1
+  },
+  {
+   "name": "Nature's Claim",
+   "quantity": 1
+  },
+  {
+   "name": "Once Upon a Time",
+   "quantity": 1
+  },
+  {
+   "name": "Plunge into Winter",
+   "quantity": 1
+  },
+  {
+   "name": "Return of the Wildspeaker",
+   "quantity": 1
+  },
+  {
+   "name": "Run Away Together",
+   "quantity": 1
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1
+  },
+  {
+   "name": "Tale's End",
+   "quantity": 1
+  },
+  {
+   "name": "True Love's Kiss",
+   "quantity": 1
+  },
+  {
+   "name": "Cultivate",
+   "quantity": 1
+  },
+  {
+   "name": "Ember Island Production",
+   "quantity": 1
+  },
+  {
+   "name": "Decanter of Endless Water",
+   "quantity": 1
+  },
+  {
+   "name": "Hylda's Crown of Winter",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Talisman of Unity",
+   "quantity": 1
+  },
+  {
+   "name": "A Tale for the Ages",
+   "quantity": 1
+  },
+  {
+   "name": "Bear Umbra",
+   "quantity": 1
+  },
+  {
+   "name": "Bitter Chill",
+   "quantity": 1
+  },
+  {
+   "name": "Fertile Ground",
+   "quantity": 1
+  },
+  {
+   "name": "Primeval Bounty",
+   "quantity": 1
+  },
+  {
+   "name": "The Huntsman's Redemption",
+   "quantity": 1
+  },
+  {
+   "name": "Trapped in the Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Virtue of Loyalty",
+   "quantity": 1
+  },
+  {
+   "name": "Virtue of Strength",
+   "quantity": 1
+  },
+  {
+   "name": "Garruk, Caller of Beasts",
+   "quantity": 1
+  },
+  {
+   "name": "Oko, Thief of Crowns",
+   "quantity": 1
+  },
+  {
+   "name": "Vivien, Champion of the Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Arctic Treeline",
+   "quantity": 1
+  },
+  {
+   "name": "Bountiful Promenade",
+   "quantity": 1
+  },
+  {
+   "name": "Dreamroot Cascade",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 8
+  },
+  {
+   "name": "Island",
+   "quantity": 9
+  },
+  {
+   "name": "Minamo, School at Water's Edge",
+   "quantity": 1
+  },
+  {
+   "name": "Overgrown Farmland",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 9
+  },
+  {
+   "name": "Rejuvenating Springs",
+   "quantity": 1
+  },
+  {
+   "name": "Sunpetal Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Temple Garden",
+   "quantity": 1
+  },
+  {
+   "name": "Thespian's Stage",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Landscape",
+   "quantity": 1
+  },
+  {
+   "name": "Windswept Heath",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

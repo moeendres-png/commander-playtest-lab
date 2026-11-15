@@ -1,0 +1,334 @@
+{
+ "urlhash": "NfXu224cKTuR-xXWM2H20g",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-02-02",
+ "price": 105,
+ "salt": 43.34062967263162,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/19599950?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Apex Devastator",
+   "quantity": 1
+  },
+  {
+   "name": "Artisan of Kozilek",
+   "quantity": 1
+  },
+  {
+   "name": "Barrin, Tolarian Archmage",
+   "quantity": 1
+  },
+  {
+   "name": "Beanstalk Giant",
+   "quantity": 1
+  },
+  {
+   "name": "Borderland Ranger",
+   "quantity": 1
+  },
+  {
+   "name": "Civic Wayfinder",
+   "quantity": 1
+  },
+  {
+   "name": "District Guide",
+   "quantity": 1
+  },
+  {
+   "name": "End-Raze Forerunners",
+   "quantity": 1
+  },
+  {
+   "name": "Eternal Witness",
+   "quantity": 1
+  },
+  {
+   "name": "Faeburrow Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Faerie Formation",
+   "quantity": 1
+  },
+  {
+   "name": "Faerie Vandal",
+   "quantity": 1
+  },
+  {
+   "name": "Fierce Empath",
+   "quantity": 1
+  },
+  {
+   "name": "Frilled Mystic",
+   "quantity": 1
+  },
+  {
+   "name": "Gilanra, Caller of Wirewood",
+   "quantity": 1
+  },
+  {
+   "name": "Goreclaw, Terror of Qal Sisma",
+   "quantity": 1
+  },
+  {
+   "name": "Imoti, Celebrant of Bounty",
+   "quantity": 1
+  },
+  {
+   "name": "Karametra, God of Harvests",
+   "quantity": 1
+  },
+  {
+   "name": "Krosan Tusker",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Visionary",
+   "quantity": 1
+  },
+  {
+   "name": "Luminate Primordial",
+   "quantity": 1
+  },
+  {
+   "name": "Mulldrifter",
+   "quantity": 1
+  },
+  {
+   "name": "Pilgrim's Eye",
+   "quantity": 1
+  },
+  {
+   "name": "Restoration Angel",
+   "quantity": 1
+  },
+  {
+   "name": "Sakura-Tribe Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Silhana Wayfinder",
+   "quantity": 1
+  },
+  {
+   "name": "Solemn Simulacrum",
+   "quantity": 1
+  },
+  {
+   "name": "Sun Titan",
+   "quantity": 1
+  },
+  {
+   "name": "Thorn Elemental",
+   "quantity": 1
+  },
+  {
+   "name": "Thorn Mammoth",
+   "quantity": 1
+  },
+  {
+   "name": "Thryx, the Sudden Storm",
+   "quantity": 1
+  },
+  {
+   "name": "Tireless Provisioner",
+   "quantity": 1
+  },
+  {
+   "name": "Tireless Tracker",
+   "quantity": 1
+  },
+  {
+   "name": "Titanoth Rex",
+   "quantity": 1
+  },
+  {
+   "name": "Topiary Stomper",
+   "quantity": 1
+  },
+  {
+   "name": "Vorapede",
+   "quantity": 1
+  },
+  {
+   "name": "Wood Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Woodfall Primus",
+   "quantity": 1
+  },
+  {
+   "name": "Woolly Loxodon",
+   "quantity": 1
+  },
+  {
+   "name": "Yorion, Sky Nomad",
+   "quantity": 1
+  },
+  {
+   "name": "Harrow",
+   "quantity": 1
+  },
+  {
+   "name": "Make a Stand",
+   "quantity": 1
+  },
+  {
+   "name": "Obscuring Haze",
+   "quantity": 1
+  },
+  {
+   "name": "Once and Future",
+   "quantity": 1
+  },
+  {
+   "name": "Cultivate",
+   "quantity": 1
+  },
+  {
+   "name": "Genesis Wave",
+   "quantity": 1
+  },
+  {
+   "name": "Incubation // Incongruity",
+   "quantity": 1
+  },
+  {
+   "name": "Kodama's Reach",
+   "quantity": 1
+  },
+  {
+   "name": "Mass Manipulation",
+   "quantity": 1
+  },
+  {
+   "name": "Search for Tomorrow",
+   "quantity": 1
+  },
+  {
+   "name": "Tempt with Discovery",
+   "quantity": 1
+  },
+  {
+   "name": "Time Wipe",
+   "quantity": 1
+  },
+  {
+   "name": "Tragic Arrogance",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Chromatic Lantern",
+   "quantity": 1
+  },
+  {
+   "name": "Commander's Sphere",
+   "quantity": 1
+  },
+  {
+   "name": "Decanter of Endless Water",
+   "quantity": 1
+  },
+  {
+   "name": "Panharmonicon",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Prison Realm",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Guildgate",
+   "quantity": 1
+  },
+  {
+   "name": "Blossoming Sands",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Exotic Orchard",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 13
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 4
+  },
+  {
+   "name": "Krosan Verge",
+   "quantity": 1
+  },
+  {
+   "name": "Myriad Landscape",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 7
+  },
+  {
+   "name": "Selesnya Guildgate",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Guildgate",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Mystery",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Plenty",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of the False God",
+   "quantity": 1
+  },
+  {
+   "name": "Thornwood Falls",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Cove",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

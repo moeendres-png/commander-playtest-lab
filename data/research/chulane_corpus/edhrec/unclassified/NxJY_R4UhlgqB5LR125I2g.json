@@ -1,0 +1,351 @@
+{
+ "urlhash": "NxJY_R4UhlgqB5LR125I2g",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-09-02",
+ "price": 701,
+ "salt": 64.75432380242273,
+ "tags": [
+  "Ramp",
+  "Midrange",
+  "Combo",
+  "+1/+1 Counters"
+ ],
+ "source_url": "https://moxfield.com/decks/7b-5rrhjCUCWLQCJRu-tHg?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Arbor Elf",
+   "quantity": 1
+  },
+  {
+   "name": "Avacyn's Pilgrim",
+   "quantity": 1
+  },
+  {
+   "name": "Badgermole Cub",
+   "quantity": 1
+  },
+  {
+   "name": "Beast Whisperer",
+   "quantity": 1
+  },
+  {
+   "name": "Birds of Paradise",
+   "quantity": 1
+  },
+  {
+   "name": "Bloom Tender",
+   "quantity": 1
+  },
+  {
+   "name": "Circle of Dreams Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Crashing Drawbridge",
+   "quantity": 1
+  },
+  {
+   "name": "Craterhoof Behemoth",
+   "quantity": 1
+  },
+  {
+   "name": "Delney, Streetwise Lookout",
+   "quantity": 1
+  },
+  {
+   "name": "Destiny Spinner",
+   "quantity": 1
+  },
+  {
+   "name": "Dream Stalker",
+   "quantity": 1
+  },
+  {
+   "name": "Elven Raft-Steerer",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Archdruid",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Mystic",
+   "quantity": 1
+  },
+  {
+   "name": "Faeburrow Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Heliod, Sun-Crowned",
+   "quantity": 1
+  },
+  {
+   "name": "Hullbreaker Horror",
+   "quantity": 1
+  },
+  {
+   "name": "Incubation Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Ivy Lane Denizen",
+   "quantity": 1
+  },
+  {
+   "name": "Kinnan, Bonder Prodigy",
+   "quantity": 1
+  },
+  {
+   "name": "Kor Skyfisher",
+   "quantity": 1
+  },
+  {
+   "name": "Laboratory Maniac",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Lotus Cobra",
+   "quantity": 1
+  },
+  {
+   "name": "Managorger Hydra",
+   "quantity": 1
+  },
+  {
+   "name": "Mossborn Hydra",
+   "quantity": 1
+  },
+  {
+   "name": "Noble Hierarch",
+   "quantity": 1
+  },
+  {
+   "name": "Painter's Servant",
+   "quantity": 1
+  },
+  {
+   "name": "Paradise Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Priest of Titania",
+   "quantity": 1
+  },
+  {
+   "name": "Rosie Cotton of South Lane",
+   "quantity": 1
+  },
+  {
+   "name": "Sakura-Tribe Scout",
+   "quantity": 1
+  },
+  {
+   "name": "Scurry Oak",
+   "quantity": 1
+  },
+  {
+   "name": "Seeker of Skybreak",
+   "quantity": 1
+  },
+  {
+   "name": "Shrieking Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Stonecoil Serpent",
+   "quantity": 1
+  },
+  {
+   "name": "Tireless Provisioner",
+   "quantity": 1
+  },
+  {
+   "name": "Walking Ballista",
+   "quantity": 1
+  },
+  {
+   "name": "Whitemane Lion",
+   "quantity": 1
+  },
+  {
+   "name": "Dramatic Reversal",
+   "quantity": 1
+  },
+  {
+   "name": "Eladamri's Call",
+   "quantity": 1
+  },
+  {
+   "name": "Finale of Devastation",
+   "quantity": 1
+  },
+  {
+   "name": "Green Sun's Zenith",
+   "quantity": 1
+  },
+  {
+   "name": "Prosperity",
+   "quantity": 1
+  },
+  {
+   "name": "Akroma's Memorial",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Basalt Monolith",
+   "quantity": 1
+  },
+  {
+   "name": "Grindstone",
+   "quantity": 1
+  },
+  {
+   "name": "Panharmonicon",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Staff of Domination",
+   "quantity": 1
+  },
+  {
+   "name": "Umbral Mantle",
+   "quantity": 1
+  },
+  {
+   "name": "Cathars' Crusade",
+   "quantity": 1
+  },
+  {
+   "name": "Concordant Crossroads",
+   "quantity": 1
+  },
+  {
+   "name": "Cryptolith Rite",
+   "quantity": 1
+  },
+  {
+   "name": "Exploration",
+   "quantity": 1
+  },
+  {
+   "name": "Garruk's Uprising",
+   "quantity": 1
+  },
+  {
+   "name": "Guardian Project",
+   "quantity": 1
+  },
+  {
+   "name": "Intruder Alarm",
+   "quantity": 1
+  },
+  {
+   "name": "Retreat to Coralhelm",
+   "quantity": 1
+  },
+  {
+   "name": "Season of Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Alchemist's Refuge",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Dreamroot Cascade",
+   "quantity": 1
+  },
+  {
+   "name": "Fabled Passage",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 9
+  },
+  {
+   "name": "Glacial Fortress",
+   "quantity": 1
+  },
+  {
+   "name": "Hinterland Harbor",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 6
+  },
+  {
+   "name": "Myriad Landscape",
+   "quantity": 1
+  },
+  {
+   "name": "Overflowing Basin",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 6
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1
+  },
+  {
+   "name": "Radiant Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Razorverge Thicket",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Growth Chamber",
+   "quantity": 1
+  },
+  {
+   "name": "Tangled Islet",
+   "quantity": 1
+  },
+  {
+   "name": "Wirewood Lodge",
+   "quantity": 1
+  },
+  {
+   "name": "Yavimaya, Cradle of Growth",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

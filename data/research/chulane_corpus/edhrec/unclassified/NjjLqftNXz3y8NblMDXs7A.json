@@ -1,0 +1,286 @@
+{
+ "urlhash": "NjjLqftNXz3y8NblMDXs7A",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-08-29",
+ "price": 144,
+ "salt": 61.04423192888498,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/15637361?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Bonescythe Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Brood Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Crystalline Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Diffusion Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Essence Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Fungus Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Galerider Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Gemhide Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Groundshaker Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Harmonic Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Hatchery Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Lymph Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Manaweft Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Megantic Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Metallic Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Might Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Muscle Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Opaline Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Plated Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Poultice Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Predatory Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Pulmonic Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Quick Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Quilled Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Root Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Scuttling Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Sentinel Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Shadow Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Shifting Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Sidewinder Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Sinew Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Spinneret Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Steelform Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Synapse Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Talon Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Tempered Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Venom Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Victual Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Virulent Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Ward Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Watcher Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Winged Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Beneath the Sands",
+   "quantity": 1
+  },
+  {
+   "name": "Circuitous Route",
+   "quantity": 1
+  },
+  {
+   "name": "Cultivate",
+   "quantity": 1
+  },
+  {
+   "name": "Explosive Vegetation",
+   "quantity": 1
+  },
+  {
+   "name": "Kodama's Reach",
+   "quantity": 1
+  },
+  {
+   "name": "Rampant Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Search for Tomorrow",
+   "quantity": 1
+  },
+  {
+   "name": "Tempt with Discovery",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Chromatic Lantern",
+   "quantity": 1
+  },
+  {
+   "name": "Darksteel Ingot",
+   "quantity": 1
+  },
+  {
+   "name": "Fellwar Stone",
+   "quantity": 1
+  },
+  {
+   "name": "Patchwork Banner",
+   "quantity": 1
+  },
+  {
+   "name": "Pillar of Origins",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Vanquisher's Banner",
+   "quantity": 1
+  },
+  {
+   "name": "Kindred Discovery",
+   "quantity": 1
+  },
+  {
+   "name": "Rites of Flourishing",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 16
+  },
+  {
+   "name": "Island",
+   "quantity": 10
+  },
+  {
+   "name": "Plains",
+   "quantity": 10
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

@@ -1,0 +1,338 @@
+{
+ "urlhash": "O6KzOScI63pl_m6neRkY5Q",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-11-26",
+ "price": 158,
+ "salt": 40.81123923370615,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/17731046?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Ardenvale Tactician",
+   "quantity": 1
+  },
+  {
+   "name": "Beanstalk Giant",
+   "quantity": 1
+  },
+  {
+   "name": "Brazen Borrower",
+   "quantity": 1
+  },
+  {
+   "name": "Curious Pair",
+   "quantity": 1
+  },
+  {
+   "name": "Edgewall Innkeeper",
+   "quantity": 1
+  },
+  {
+   "name": "Fae of Wishes",
+   "quantity": 1
+  },
+  {
+   "name": "Faerie Guidemother",
+   "quantity": 1
+  },
+  {
+   "name": "Flaxen Intruder",
+   "quantity": 1
+  },
+  {
+   "name": "Garenbrig Carver",
+   "quantity": 1
+  },
+  {
+   "name": "Garenbrig Squire",
+   "quantity": 1
+  },
+  {
+   "name": "Giant Killer",
+   "quantity": 1
+  },
+  {
+   "name": "Hypnotic Sprite",
+   "quantity": 1
+  },
+  {
+   "name": "Lovestruck Beast",
+   "quantity": 1
+  },
+  {
+   "name": "Merfolk Secretkeeper",
+   "quantity": 1
+  },
+  {
+   "name": "Mysterious Pathlighter",
+   "quantity": 1
+  },
+  {
+   "name": "Oakhame Ranger",
+   "quantity": 1
+  },
+  {
+   "name": "Queen of Ice",
+   "quantity": 1
+  },
+  {
+   "name": "Realm-Cloaked Giant",
+   "quantity": 1
+  },
+  {
+   "name": "Rosethorn Acolyte",
+   "quantity": 1
+  },
+  {
+   "name": "Satsuki, the Living Lore",
+   "quantity": 1
+  },
+  {
+   "name": "Shepherd of the Flock",
+   "quantity": 1
+  },
+  {
+   "name": "Silverflame Squire",
+   "quantity": 1
+  },
+  {
+   "name": "Tameshi, Reality Architect",
+   "quantity": 1
+  },
+  {
+   "name": "Tuinvale Treefolk",
+   "quantity": 1
+  },
+  {
+   "name": "Wandermare",
+   "quantity": 1
+  },
+  {
+   "name": "Beast Within",
+   "quantity": 1
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1
+  },
+  {
+   "name": "Cyclonic Rift",
+   "quantity": 1
+  },
+  {
+   "name": "Krosan Grip",
+   "quantity": 1
+  },
+  {
+   "name": "Negate",
+   "quantity": 1
+  },
+  {
+   "name": "Storyweave",
+   "quantity": 1
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1
+  },
+  {
+   "name": "Search for Glory",
+   "quantity": 1
+  },
+  {
+   "name": "Lucky Clover",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Swiftfoot Boots",
+   "quantity": 1
+  },
+  {
+   "name": "Azusa's Many Journeys",
+   "quantity": 1
+  },
+  {
+   "name": "Battle for Bretagard",
+   "quantity": 1
+  },
+  {
+   "name": "Befriending the Moths",
+   "quantity": 1
+  },
+  {
+   "name": "Elspeth Conquers Death",
+   "quantity": 1
+  },
+  {
+   "name": "Era of Enlightenment",
+   "quantity": 1
+  },
+  {
+   "name": "Fall of the Impostor",
+   "quantity": 1
+  },
+  {
+   "name": "Inventive Iteration",
+   "quantity": 1
+  },
+  {
+   "name": "Jugan Defends the Temple",
+   "quantity": 1
+  },
+  {
+   "name": "Kiora Bests the Sea God",
+   "quantity": 1
+  },
+  {
+   "name": "Medomai's Prophecy",
+   "quantity": 1
+  },
+  {
+   "name": "Michiko's Reign of Truth",
+   "quantity": 1
+  },
+  {
+   "name": "Song of Freyalise",
+   "quantity": 1
+  },
+  {
+   "name": "Tales of Master Seshiro",
+   "quantity": 1
+  },
+  {
+   "name": "Teachings of the Kirin",
+   "quantity": 1
+  },
+  {
+   "name": "The Bears of Littjara",
+   "quantity": 1
+  },
+  {
+   "name": "The Binding of the Titans",
+   "quantity": 1
+  },
+  {
+   "name": "The Birth of Meletis",
+   "quantity": 1
+  },
+  {
+   "name": "The Dragon-Kami Reborn",
+   "quantity": 1
+  },
+  {
+   "name": "The Fall of Lord Konda",
+   "quantity": 1
+  },
+  {
+   "name": "The First Iroan Games",
+   "quantity": 1
+  },
+  {
+   "name": "The Mending of Dominaria",
+   "quantity": 1
+  },
+  {
+   "name": "The Mirari Conjecture",
+   "quantity": 1
+  },
+  {
+   "name": "The Modern Age",
+   "quantity": 1
+  },
+  {
+   "name": "The Raven's Warning",
+   "quantity": 1
+  },
+  {
+   "name": "The Restoration of Eiganjo",
+   "quantity": 1
+  },
+  {
+   "name": "The Three Seasons",
+   "quantity": 1
+  },
+  {
+   "name": "Time of Ice",
+   "quantity": 1
+  },
+  {
+   "name": "Triumph of Gerrard",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Chancery",
+   "quantity": 1
+  },
+  {
+   "name": "Breeding Pool",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 7
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 8
+  },
+  {
+   "name": "Plains",
+   "quantity": 8
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Growth Chamber",
+   "quantity": 1
+  },
+  {
+   "name": "Strip Mine",
+   "quantity": 1
+  },
+  {
+   "name": "Temple Garden",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Enlightenment",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Mystery",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Plenty",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of the False God",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

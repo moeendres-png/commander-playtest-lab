@@ -1,0 +1,278 @@
+{
+ "urlhash": "OOuEuPRT5b5_BnP3TVVohA",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-10-04",
+ "price": 435,
+ "salt": 50.4813587218523,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/24756211?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Angel of Grace",
+   "quantity": 1
+  },
+  {
+   "name": "Angelic Guardian",
+   "quantity": 1
+  },
+  {
+   "name": "Angelic Overseer",
+   "quantity": 1
+  },
+  {
+   "name": "Archangel",
+   "quantity": 1
+  },
+  {
+   "name": "Archangel of Tithes",
+   "quantity": 1
+  },
+  {
+   "name": "Breaching Leviathan",
+   "quantity": 1
+  },
+  {
+   "name": "Disciple of Grace",
+   "quantity": 1
+  },
+  {
+   "name": "Durkwood Boars",
+   "quantity": 1
+  },
+  {
+   "name": "Faithbound Judge",
+   "quantity": 1
+  },
+  {
+   "name": "Great Whale",
+   "quantity": 1
+  },
+  {
+   "name": "Kederekt Leviathan",
+   "quantity": 1
+  },
+  {
+   "name": "Keepers of the Faith",
+   "quantity": 1
+  },
+  {
+   "name": "Knight Errant",
+   "quantity": 1
+  },
+  {
+   "name": "Kura, the Boundless Sky",
+   "quantity": 1
+  },
+  {
+   "name": "Locust Swarm",
+   "quantity": 1
+  },
+  {
+   "name": "Nyx-Fleece Ram",
+   "quantity": 1
+  },
+  {
+   "name": "Pride of Lions",
+   "quantity": 1
+  },
+  {
+   "name": "Priest of the Blessed Graf",
+   "quantity": 1
+  },
+  {
+   "name": "Segovian Leviathan",
+   "quantity": 1
+  },
+  {
+   "name": "Skaab Goliath",
+   "quantity": 1
+  },
+  {
+   "name": "Skarrg Goliath",
+   "quantity": 1
+  },
+  {
+   "name": "Skyward Eye Prophets",
+   "quantity": 1
+  },
+  {
+   "name": "Tax Collector",
+   "quantity": 1
+  },
+  {
+   "name": "Tree of Redemption",
+   "quantity": 1
+  },
+  {
+   "name": "Wall of Denial",
+   "quantity": 1
+  },
+  {
+   "name": "Xantid Swarm",
+   "quantity": 1
+  },
+  {
+   "name": "Blessed Wine",
+   "quantity": 1
+  },
+  {
+   "name": "Divine Verdict",
+   "quantity": 1
+  },
+  {
+   "name": "Holy Day",
+   "quantity": 1
+  },
+  {
+   "name": "Holy Light",
+   "quantity": 1
+  },
+  {
+   "name": "Might of the Nephilim",
+   "quantity": 1
+  },
+  {
+   "name": "Renewed Faith",
+   "quantity": 1
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1
+  },
+  {
+   "name": "Abundant Harvest",
+   "quantity": 1
+  },
+  {
+   "name": "Angelic Edict",
+   "quantity": 1
+  },
+  {
+   "name": "Cultivate",
+   "quantity": 1
+  },
+  {
+   "name": "Day of Judgment",
+   "quantity": 1
+  },
+  {
+   "name": "Divine Light",
+   "quantity": 1
+  },
+  {
+   "name": "Floodwaters",
+   "quantity": 1
+  },
+  {
+   "name": "Hour of Revelation",
+   "quantity": 1
+  },
+  {
+   "name": "Part Water",
+   "quantity": 1
+  },
+  {
+   "name": "Resurrection",
+   "quantity": 1
+  },
+  {
+   "name": "Subjugate the Hobbits",
+   "quantity": 1
+  },
+  {
+   "name": "Wrath of God",
+   "quantity": 1
+  },
+  {
+   "name": "Angel's Trumpet",
+   "quantity": 1
+  },
+  {
+   "name": "Apple of Eden, Isu Relic",
+   "quantity": 1
+  },
+  {
+   "name": "Excalibur, Sword of Eden",
+   "quantity": 1
+  },
+  {
+   "name": "Herald's Horn",
+   "quantity": 1
+  },
+  {
+   "name": "The Book of Exalted Deeds",
+   "quantity": 1
+  },
+  {
+   "name": "Abiding Grace",
+   "quantity": 1
+  },
+  {
+   "name": "Answered Prayers",
+   "quantity": 1
+  },
+  {
+   "name": "Blessing of the Nephilim",
+   "quantity": 1
+  },
+  {
+   "name": "Chronic Flooding",
+   "quantity": 1
+  },
+  {
+   "name": "Court of Grace",
+   "quantity": 1
+  },
+  {
+   "name": "Divine Intervention",
+   "quantity": 1
+  },
+  {
+   "name": "Frogify",
+   "quantity": 1
+  },
+  {
+   "name": "Shielded by Faith",
+   "quantity": 1
+  },
+  {
+   "name": "Smothering Tithe",
+   "quantity": 1
+  },
+  {
+   "name": "Swarm Intelligence",
+   "quantity": 1
+  },
+  {
+   "name": "Worship",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 7
+  },
+  {
+   "name": "Island",
+   "quantity": 8
+  },
+  {
+   "name": "Plains",
+   "quantity": 23
+  },
+  {
+   "name": "Sanctum of Eternity",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}
