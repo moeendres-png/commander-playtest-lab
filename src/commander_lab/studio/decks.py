@@ -167,10 +167,10 @@ def validate_rows(rows: Sequence[sqlite3.Row], *, owned_only: bool = True) -> li
     total = sum(int(row["quantity"]) for row in rows)
     if total != DECK_SIZE:
         issues.append(
-            DeckIssue("deck_size", "error", f"{total} cards, a Commander deck has {DECK_SIZE}")
+            DeckIssue("deck_size", "error", f"{total} Karten (ein Commander-Deck hat {DECK_SIZE})")
         )
     if not 1 <= sum(int(row["quantity"]) for row in commanders) <= 2:
-        issues.append(DeckIssue("commander_count", "error", "one or two commanders are needed"))
+        issues.append(DeckIssue("commander_count", "error", "1 oder 2 Commander sind erforderlich"))
     identity: frozenset[str] = frozenset()
     for row in commanders:
         identity |= color_set(row["color_identity"])
@@ -180,8 +180,8 @@ def validate_rows(rows: Sequence[sqlite3.Row], *, owned_only: bool = True) -> li
                 DeckIssue(
                     "commander_type",
                     "warning",
-                    f"{row['oracle_name']}: type line is not legendary; commander eligibility "
-                    "is decided by the Rules Core",
+                    f"{row['oracle_name']}: Typzeile ist nicht legendär; die Commander-Eignung "
+                    "entscheidet der Regelkern",
                     row["card_id"],
                 )
             )
@@ -199,33 +199,40 @@ def validate_rows(rows: Sequence[sqlite3.Row], *, owned_only: bool = True) -> li
         if commanders and not color_set(row["color_identity"]) <= identity:
             issues.append(
                 DeckIssue(
-                    "color_identity", "error", f"{name}: outside the commander's colors", card_id
+                    "color_identity",
+                    "error",
+                    f"{name}: außerhalb der Farbidentität des Commanders",
+                    card_id,
                 )
             )
         if quantity > 1 and not _any_number_allowed(row):
-            issues.append(DeckIssue("singleton", "error", f"{name}: {quantity} copies", card_id))
+            issues.append(
+                DeckIssue("singleton", "error", f"{name}: {quantity} Kopien im Deck", card_id)
+            )
         legal = row["commander_legal"]
         if legal is None:
             issues.append(
-                DeckIssue("legality_unknown", "warning", f"{name}: legality unknown", card_id)
+                DeckIssue(
+                    "legality_unknown", "warning", f"{name}: Commander-Legalität unbekannt", card_id
+                )
             )
         elif not legal:
             issues.append(
-                DeckIssue("not_legal", "error", f"{name}: not legal in Commander", card_id)
+                DeckIssue("not_legal", "error", f"{name}: in Commander nicht legal", card_id)
             )
         if owned_only:
             available = row["available_lower_bound"]
             if available is None:
                 issues.append(
-                    DeckIssue("not_owned", "error", f"{name}: not in the collection", card_id)
+                    DeckIssue("not_owned", "error", f"{name}: nicht in deiner Sammlung", card_id)
                 )
             elif quantity > int(available):
                 issues.append(
                     DeckIssue(
                         "not_available",
                         "error",
-                        f"{name}: {quantity} needed, {available} free"
-                        + (f" ({row['reserved']} reserved)" if row["reserved"] else ""),
+                        f"{name}: {quantity} benötigt, {available} frei"
+                        + (f" ({row['reserved']} reserviert)" if row["reserved"] else ""),
                         card_id,
                     )
                 )
@@ -261,4 +268,128 @@ def lab_snapshot(
             }
             for row in rows
         ],
+    }
+
+
+_SECTION_HEADERS = frozenset(
+    {
+        "commander",
+        "commander:",
+        "commanders",
+        "commanders:",
+        "deck",
+        "deck:",
+        "main",
+        "main:",
+        "mainboard",
+        "mainboard:",
+        "sideboard",
+        "sideboard:",
+        "maybeboard",
+        "maybeboard:",
+    }
+)
+
+
+def parse_decklist_text(
+    store: StudioStore,
+    commander_names: Sequence[str],
+    text: str,
+) -> dict[str, object]:
+    """Parse plain decklist text (`1 Card Name` lines) against the commander's legal
+    collection pool. Cards not in the collection are listed neutrally by name without any
+    price or purchase wording.
+    """
+    import re
+
+    from . import builder
+
+    identity, commander_ids = builder.commander_identity(store, commander_names)
+    cmd_set = set(commander_ids)
+    by_name: dict[str, dict[str, object]] = {}
+    for row in store.connection.execute(
+        "SELECT c.card_id, c.oracle_name, c.engine_name, c.color_identity, "
+        "c.commander_legal, i.available_lower_bound "
+        "FROM card_fact c JOIN inventory i USING (card_id)"
+    ):
+        if row["commander_legal"] != 1 or not (color_set(row["color_identity"]) <= identity):
+            continue
+        info = {
+            "card_id": str(row["card_id"]),
+            "name": str(row["oracle_name"]),
+            "available": int(row["available_lower_bound"] or 0),
+        }
+        by_name[str(row["oracle_name"]).casefold()] = info
+        if row["engine_name"]:
+            by_name.setdefault(str(row["engine_name"]).casefold(), info)
+        front = str(row["oracle_name"]).split(" // ")[0].strip().casefold()
+        by_name.setdefault(front, info)
+
+    line_re = re.compile(r"^(?:(\d+)\s*[xX]?\s+)?(.+?)(?:\s+\([A-Za-z0-9]+\)(?:\s+\S+)?)?$")
+    matched_qty: dict[str, int] = {}
+    matched_info: dict[str, dict[str, object]] = {}
+    not_in_collection: list[dict[str, object]] = []
+    skipped_section = False
+
+    for raw_line in text.splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#") or line.startswith("//"):
+            continue
+        lower = line.casefold().rstrip(":")
+        if lower in {"sideboard", "maybeboard", "cuts"}:
+            skipped_section = True
+            continue
+        if lower in {"commander", "commanders", "deck", "main", "mainboard"}:
+            skipped_section = False
+            continue
+        if skipped_section:
+            continue
+        m = line_re.match(line)
+        if not m:
+            continue
+        qty = int(m.group(1) or "1")
+        if qty <= 0:
+            continue
+        raw_name = m.group(2).strip()
+        if raw_name.casefold() in _SECTION_HEADERS:
+            continue
+        found = by_name.get(raw_name.casefold()) or by_name.get(
+            raw_name.split(" // ")[0].strip().casefold()
+        )
+        if found is None:
+            not_in_collection.append(
+                {
+                    "name": raw_name,
+                    "quantity": qty,
+                    "status": "nicht in deiner Sammlung",
+                }
+            )
+            continue
+        cid = str(found["card_id"])
+        if cid in cmd_set:
+            continue
+        matched_qty[cid] = matched_qty.get(cid, 0) + qty
+        matched_info[cid] = found
+
+    cards = [RevisionCard(cid, 1, "commander") for cid in commander_ids] + [
+        RevisionCard(cid, qty, "main") for cid, qty in matched_qty.items()
+    ]
+    matched_list = [
+        {
+            "card_id": cid,
+            "name": matched_info[cid]["name"],
+            "quantity": qty,
+            "available": matched_info[cid]["available"],
+        }
+        for cid, qty in matched_qty.items()
+    ]
+    return {
+        "cards": [{"card_id": c.card_id, "quantity": c.quantity, "zone": c.zone} for c in cards],
+        "matched": matched_list,
+        "in_collection": matched_list,
+        "not_in_collection": not_in_collection,
+        "summary": {
+            "in_collection_cards": sum(matched_qty.values()),
+            "not_in_collection_cards": sum(int(x["quantity"]) for x in not_in_collection),
+        },
     }
