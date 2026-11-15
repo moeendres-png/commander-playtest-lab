@@ -1,0 +1,410 @@
+{
+ "urlhash": "_42ro8Fsio3FKgdtmhAY2Q",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-05-28",
+ "price": 11766,
+ "salt": 52.51481017656624,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/13428731?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Arcbound Worker",
+   "quantity": 1
+  },
+  {
+   "name": "Chronomaton",
+   "quantity": 1
+  },
+  {
+   "name": "Clockwork Beetle",
+   "quantity": 1
+  },
+  {
+   "name": "Cryptic Trilobite",
+   "quantity": 1
+  },
+  {
+   "name": "Drillworks Mole",
+   "quantity": 1
+  },
+  {
+   "name": "Endless One",
+   "quantity": 1
+  },
+  {
+   "name": "Etherium Sculptor",
+   "quantity": 1
+  },
+  {
+   "name": "Excavated Wall",
+   "quantity": 1
+  },
+  {
+   "name": "Foundry Inspector",
+   "quantity": 1
+  },
+  {
+   "name": "Frogmite",
+   "quantity": 1
+  },
+  {
+   "name": "Gingerbrute",
+   "quantity": 1
+  },
+  {
+   "name": "Hangarback Walker",
+   "quantity": 1
+  },
+  {
+   "name": "Heap Doll",
+   "quantity": 1
+  },
+  {
+   "name": "Hope of Ghirapur",
+   "quantity": 1
+  },
+  {
+   "name": "Inquisitive Puppet",
+   "quantity": 1
+  },
+  {
+   "name": "Iron Apprentice",
+   "quantity": 1
+  },
+  {
+   "name": "Jhoira's Familiar",
+   "quantity": 1
+  },
+  {
+   "name": "Keeper of the Lens",
+   "quantity": 1
+  },
+  {
+   "name": "Laboratory Maniac",
+   "quantity": 1
+  },
+  {
+   "name": "Lightning-Core Excavator",
+   "quantity": 1
+  },
+  {
+   "name": "Marketback Walker",
+   "quantity": 1
+  },
+  {
+   "name": "Memnite",
+   "quantity": 1
+  },
+  {
+   "name": "Moon-Blessed Cleric",
+   "quantity": 1
+  },
+  {
+   "name": "Myr Enforcer",
+   "quantity": 1
+  },
+  {
+   "name": "Myr Mindservant",
+   "quantity": 1
+  },
+  {
+   "name": "Myr Moonvessel",
+   "quantity": 1
+  },
+  {
+   "name": "Myr Scrapling",
+   "quantity": 1
+  },
+  {
+   "name": "Omarthis, Ghostfire Initiate",
+   "quantity": 1
+  },
+  {
+   "name": "Ornithopter",
+   "quantity": 1
+  },
+  {
+   "name": "Phyrexian Marauder",
+   "quantity": 1
+  },
+  {
+   "name": "Phyrexian Walker",
+   "quantity": 1
+  },
+  {
+   "name": "Shield Sphere",
+   "quantity": 1
+  },
+  {
+   "name": "Shifting Wall",
+   "quantity": 1
+  },
+  {
+   "name": "Signal Pest",
+   "quantity": 1
+  },
+  {
+   "name": "Soldevi Sentry",
+   "quantity": 1
+  },
+  {
+   "name": "Sparring Construct",
+   "quantity": 1
+  },
+  {
+   "name": "Spectrum Sentinel",
+   "quantity": 1
+  },
+  {
+   "name": "Starnheim Courser",
+   "quantity": 1
+  },
+  {
+   "name": "Steel Wall",
+   "quantity": 1
+  },
+  {
+   "name": "Stonecoil Serpent",
+   "quantity": 1
+  },
+  {
+   "name": "Straw Golem",
+   "quantity": 1
+  },
+  {
+   "name": "Thassa's Oracle",
+   "quantity": 1
+  },
+  {
+   "name": "Thraben Gargoyle",
+   "quantity": 1
+  },
+  {
+   "name": "Ugin's Conjurant",
+   "quantity": 1
+  },
+  {
+   "name": "Universal Automaton",
+   "quantity": 1
+  },
+  {
+   "name": "Urza, Lord Protector",
+   "quantity": 1
+  },
+  {
+   "name": "Walking Ballista",
+   "quantity": 1
+  },
+  {
+   "name": "Walking Bulwark",
+   "quantity": 1
+  },
+  {
+   "name": "Enlightened Tutor",
+   "quantity": 1
+  },
+  {
+   "name": "Fierce Guardianship",
+   "quantity": 1
+  },
+  {
+   "name": "Force of Negation",
+   "quantity": 1
+  },
+  {
+   "name": "Force of Will",
+   "quantity": 1
+  },
+  {
+   "name": "Mental Misstep",
+   "quantity": 1
+  },
+  {
+   "name": "Nix",
+   "quantity": 1
+  },
+  {
+   "name": "Pact of Negation",
+   "quantity": 1
+  },
+  {
+   "name": "Swan Song",
+   "quantity": 1
+  },
+  {
+   "name": "Idyllic Tutor",
+   "quantity": 1
+  },
+  {
+   "name": "Cloud Key",
+   "quantity": 1
+  },
+  {
+   "name": "Helm of Awakening",
+   "quantity": 1
+  },
+  {
+   "name": "Semblance Anvil",
+   "quantity": 1
+  },
+  {
+   "name": "Aluren",
+   "quantity": 1
+  },
+  {
+   "name": "Teferi's Ageless Insight",
+   "quantity": 1
+  },
+  {
+   "name": "Thought Reflection",
+   "quantity": 1
+  },
+  {
+   "name": "Jace, Wielder of Mysteries",
+   "quantity": 1
+  },
+  {
+   "name": "Ancient Den",
+   "quantity": 1
+  },
+  {
+   "name": "Ancient Tomb",
+   "quantity": 1
+  },
+  {
+   "name": "Barkchannel Pathway",
+   "quantity": 1
+  },
+  {
+   "name": "Bountiful Promenade",
+   "quantity": 1
+  },
+  {
+   "name": "Branchloft Pathway",
+   "quantity": 1
+  },
+  {
+   "name": "Breeding Pool",
+   "quantity": 1
+  },
+  {
+   "name": "Cavern of Souls",
+   "quantity": 1
+  },
+  {
+   "name": "City of Brass",
+   "quantity": 1
+  },
+  {
+   "name": "Flooded Strand",
+   "quantity": 1
+  },
+  {
+   "name": "Forbidden Orchard",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 1
+  },
+  {
+   "name": "Gaea's Cradle",
+   "quantity": 1
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1
+  },
+  {
+   "name": "Hedge Maze",
+   "quantity": 1
+  },
+  {
+   "name": "Hengegate Pathway",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 3
+  },
+  {
+   "name": "Lush Portico",
+   "quantity": 1
+  },
+  {
+   "name": "Mana Confluence",
+   "quantity": 1
+  },
+  {
+   "name": "Meticulous Archive",
+   "quantity": 1
+  },
+  {
+   "name": "Mishra's Workshop",
+   "quantity": 1
+  },
+  {
+   "name": "Misty Rainforest",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 1
+  },
+  {
+   "name": "Rejuvenating Springs",
+   "quantity": 1
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Savannah",
+   "quantity": 1
+  },
+  {
+   "name": "Sea of Clouds",
+   "quantity": 1
+  },
+  {
+   "name": "Seat of the Synod",
+   "quantity": 1
+  },
+  {
+   "name": "Spara's Headquarters",
+   "quantity": 1
+  },
+  {
+   "name": "Temple Garden",
+   "quantity": 1
+  },
+  {
+   "name": "Tree of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Tropical Island",
+   "quantity": 1
+  },
+  {
+   "name": "Tundra",
+   "quantity": 1
+  },
+  {
+   "name": "Windswept Heath",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

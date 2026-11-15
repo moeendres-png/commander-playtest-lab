@@ -1,0 +1,362 @@
+{
+ "urlhash": "_dHfdnTiWFDnxRsFrCS9VA",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-11-10",
+ "price": 146,
+ "salt": 47.528623616322875,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/17327560?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Admonition Angel",
+   "quantity": 1
+  },
+  {
+   "name": "Amphin Mutineer",
+   "quantity": 1
+  },
+  {
+   "name": "Ancient Greenwarden",
+   "quantity": 1
+  },
+  {
+   "name": "Armored Scrapgorger",
+   "quantity": 1
+  },
+  {
+   "name": "Avenger of Zendikar",
+   "quantity": 1
+  },
+  {
+   "name": "Bane of Progress",
+   "quantity": 1
+  },
+  {
+   "name": "Beast Whisperer",
+   "quantity": 1
+  },
+  {
+   "name": "Bonny Pall, Clearcutter",
+   "quantity": 1
+  },
+  {
+   "name": "Daring Apprentice",
+   "quantity": 1
+  },
+  {
+   "name": "Diversion Unit",
+   "quantity": 1
+  },
+  {
+   "name": "Dream Stalker",
+   "quantity": 1
+  },
+  {
+   "name": "Drift of Phantasms",
+   "quantity": 1
+  },
+  {
+   "name": "Elfsworn Giant",
+   "quantity": 1
+  },
+  {
+   "name": "Emeria Angel",
+   "quantity": 1
+  },
+  {
+   "name": "Emeria Shepherd",
+   "quantity": 1
+  },
+  {
+   "name": "Faeburrow Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Farhaven Elf",
+   "quantity": 1
+  },
+  {
+   "name": "Fauna Shaman",
+   "quantity": 1
+  },
+  {
+   "name": "Hullbreaker Horror",
+   "quantity": 1
+  },
+  {
+   "name": "Hydroid Krasis",
+   "quantity": 1
+  },
+  {
+   "name": "Inga and Esika",
+   "quantity": 1
+  },
+  {
+   "name": "Intrepid Paleontologist",
+   "quantity": 1
+  },
+  {
+   "name": "Karametra, God of Harvests",
+   "quantity": 1
+  },
+  {
+   "name": "Knight of the Reliquary",
+   "quantity": 1
+  },
+  {
+   "name": "Kor Skyfisher",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Scout",
+   "quantity": 1
+  },
+  {
+   "name": "Lotus Cobra",
+   "quantity": 1
+  },
+  {
+   "name": "Maja, Bretagard Protector",
+   "quantity": 1
+  },
+  {
+   "name": "Malevolent Hermit",
+   "quantity": 1
+  },
+  {
+   "name": "Mangara, the Diplomat",
+   "quantity": 1
+  },
+  {
+   "name": "Moon-Blessed Cleric",
+   "quantity": 1
+  },
+  {
+   "name": "Mulldrifter",
+   "quantity": 1
+  },
+  {
+   "name": "Murasa Rootgrazer",
+   "quantity": 1
+  },
+  {
+   "name": "Primordial Sage",
+   "quantity": 1
+  },
+  {
+   "name": "Rampaging Baloths",
+   "quantity": 1
+  },
+  {
+   "name": "Reclamation Sage",
+   "quantity": 1
+  },
+  {
+   "name": "Roil Elemental",
+   "quantity": 1
+  },
+  {
+   "name": "Rumor Gatherer",
+   "quantity": 1
+  },
+  {
+   "name": "Sakura-Tribe Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Scaled Herbalist",
+   "quantity": 1
+  },
+  {
+   "name": "Scute Swarm",
+   "quantity": 1
+  },
+  {
+   "name": "Shrieking Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Siren Stormtamer",
+   "quantity": 1
+  },
+  {
+   "name": "Soul of the Harvest",
+   "quantity": 1
+  },
+  {
+   "name": "Sporemound",
+   "quantity": 1
+  },
+  {
+   "name": "Springbloom Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Stratus Dancer",
+   "quantity": 1
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1
+  },
+  {
+   "name": "The Reality Chip",
+   "quantity": 1
+  },
+  {
+   "name": "Tidespout Tyrant",
+   "quantity": 1
+  },
+  {
+   "name": "Tireless Provisioner",
+   "quantity": 1
+  },
+  {
+   "name": "Trailtracker Scout",
+   "quantity": 1
+  },
+  {
+   "name": "Whitemane Lion",
+   "quantity": 1
+  },
+  {
+   "name": "Wood Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Crop Rotation",
+   "quantity": 1
+  },
+  {
+   "name": "Dizzy Spell",
+   "quantity": 1
+  },
+  {
+   "name": "Muddle the Mixture",
+   "quantity": 1
+  },
+  {
+   "name": "Sylvan Scrying",
+   "quantity": 1
+  },
+  {
+   "name": "Expedition Map",
+   "quantity": 1
+  },
+  {
+   "name": "Abundance",
+   "quantity": 1
+  },
+  {
+   "name": "Felidar Retreat",
+   "quantity": 1
+  },
+  {
+   "name": "Retreat to Coralhelm",
+   "quantity": 1
+  },
+  {
+   "name": "Retreat to Emeria",
+   "quantity": 1
+  },
+  {
+   "name": "Zendikar's Roil",
+   "quantity": 1
+  },
+  {
+   "name": "Adarkar Wastes",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Chancery",
+   "quantity": 1
+  },
+  {
+   "name": "Brushland",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 11
+  },
+  {
+   "name": "Glacial Fortress",
+   "quantity": 1
+  },
+  {
+   "name": "Guildless Commons",
+   "quantity": 1
+  },
+  {
+   "name": "Hinterland Harbor",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 4
+  },
+  {
+   "name": "Overflowing Basin",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 2
+  },
+  {
+   "name": "Selesnya Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Growth Chamber",
+   "quantity": 1
+  },
+  {
+   "name": "Skycloud Expanse",
+   "quantity": 1
+  },
+  {
+   "name": "Sungrass Prairie",
+   "quantity": 1
+  },
+  {
+   "name": "Sunpetal Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Terramorphic Expanse",
+   "quantity": 1
+  },
+  {
+   "name": "Tolaria West",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Landscape",
+   "quantity": 1
+  },
+  {
+   "name": "Urban Retreat",
+   "quantity": 1
+  },
+  {
+   "name": "Yavimaya Coast",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

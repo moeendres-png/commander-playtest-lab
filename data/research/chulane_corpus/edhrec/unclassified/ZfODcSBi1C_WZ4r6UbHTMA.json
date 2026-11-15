@@ -1,0 +1,278 @@
+{
+ "urlhash": "ZfODcSBi1C_WZ4r6UbHTMA",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-04-09",
+ "price": 235,
+ "salt": 49.622765101492405,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/vqUpHrwlhkaIK17-QxZk2w?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Academy Loremaster",
+   "quantity": 1
+  },
+  {
+   "name": "Archive Dragon",
+   "quantity": 1
+  },
+  {
+   "name": "Automatic Librarian",
+   "quantity": 1
+  },
+  {
+   "name": "Biblioplex Kraken",
+   "quantity": 1
+  },
+  {
+   "name": "Bookwurm",
+   "quantity": 1
+  },
+  {
+   "name": "Cogwork Librarian",
+   "quantity": 1
+  },
+  {
+   "name": "Geist of the Archives",
+   "quantity": 1
+  },
+  {
+   "name": "Ledger Shredder",
+   "quantity": 1
+  },
+  {
+   "name": "Library Larcenist",
+   "quantity": 1
+  },
+  {
+   "name": "Living Lectern",
+   "quantity": 1
+  },
+  {
+   "name": "Mild-Mannered Librarian",
+   "quantity": 1
+  },
+  {
+   "name": "Ormos, Archive Keeper",
+   "quantity": 1
+  },
+  {
+   "name": "Shrewd Storyteller",
+   "quantity": 1
+  },
+  {
+   "name": "Spellbook Vendor",
+   "quantity": 1
+  },
+  {
+   "name": "Suspicious Bookcase",
+   "quantity": 1
+  },
+  {
+   "name": "Tenacious Tomeseeker",
+   "quantity": 1
+  },
+  {
+   "name": "Tome Anima",
+   "quantity": 1
+  },
+  {
+   "name": "Vhal, Candlekeep Researcher",
+   "quantity": 1
+  },
+  {
+   "name": "Voracious Bibliophile",
+   "quantity": 1
+  },
+  {
+   "name": "Wan Shi Tong, Librarian",
+   "quantity": 1
+  },
+  {
+   "name": "Bury in Books",
+   "quantity": 1
+  },
+  {
+   "name": "Curate",
+   "quantity": 1
+  },
+  {
+   "name": "Frantic Search",
+   "quantity": 1
+  },
+  {
+   "name": "Careful Study",
+   "quantity": 1
+  },
+  {
+   "name": "Compulsive Research",
+   "quantity": 1
+  },
+  {
+   "name": "Index",
+   "quantity": 1
+  },
+  {
+   "name": "Pore Over the Pages",
+   "quantity": 1
+  },
+  {
+   "name": "Tome Scour",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Encyclopedia",
+   "quantity": 1
+  },
+  {
+   "name": "Book of Rass",
+   "quantity": 1
+  },
+  {
+   "name": "Emmessi Tome",
+   "quantity": 1
+  },
+  {
+   "name": "Fool's Tome",
+   "quantity": 1
+  },
+  {
+   "name": "Geth's Grimoire",
+   "quantity": 1
+  },
+  {
+   "name": "Grimoire of the Dead",
+   "quantity": 1
+  },
+  {
+   "name": "Investigator's Journal",
+   "quantity": 1
+  },
+  {
+   "name": "Jalum Tome",
+   "quantity": 1
+  },
+  {
+   "name": "Jayemdae Tome",
+   "quantity": 1
+  },
+  {
+   "name": "Mangara's Tome",
+   "quantity": 1
+  },
+  {
+   "name": "Marina Vendrell's Grimoire",
+   "quantity": 1
+  },
+  {
+   "name": "Mazemind Tome",
+   "quantity": 1
+  },
+  {
+   "name": "Monster Manual",
+   "quantity": 1
+  },
+  {
+   "name": "Mysterious Tome",
+   "quantity": 1
+  },
+  {
+   "name": "Otherworld Atlas",
+   "quantity": 1
+  },
+  {
+   "name": "Sarevok's Tome",
+   "quantity": 1
+  },
+  {
+   "name": "Spellbook",
+   "quantity": 1
+  },
+  {
+   "name": "Summoner's Grimoire",
+   "quantity": 1
+  },
+  {
+   "name": "Tamiyo's Logbook",
+   "quantity": 1
+  },
+  {
+   "name": "The Book of Exalted Deeds",
+   "quantity": 1
+  },
+  {
+   "name": "The Underworld Cookbook",
+   "quantity": 1
+  },
+  {
+   "name": "Tome of Legends",
+   "quantity": 1
+  },
+  {
+   "name": "Tome of the Guildpact",
+   "quantity": 1
+  },
+  {
+   "name": "Urza's Tome",
+   "quantity": 1
+  },
+  {
+   "name": "Venser's Journal",
+   "quantity": 1
+  },
+  {
+   "name": "Wizard's Spellbook",
+   "quantity": 1
+  },
+  {
+   "name": "Combat Research",
+   "quantity": 1
+  },
+  {
+   "name": "Curse of the Bloody Tome",
+   "quantity": 1
+  },
+  {
+   "name": "Hard Cover",
+   "quantity": 1
+  },
+  {
+   "name": "Rhystic Study",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 10
+  },
+  {
+   "name": "Island",
+   "quantity": 20
+  },
+  {
+   "name": "Plains",
+   "quantity": 8
+  },
+  {
+   "name": "Sharlayan, Nation of Scholars",
+   "quantity": 1
+  },
+  {
+   "name": "Study Hall",
+   "quantity": 1
+  },
+  {
+   "name": "The Biblioplex",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

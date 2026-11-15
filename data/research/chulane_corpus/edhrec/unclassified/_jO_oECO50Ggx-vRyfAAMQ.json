@@ -1,0 +1,326 @@
+{
+ "urlhash": "_jO_oECO50Ggx-vRyfAAMQ",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-11-09",
+ "price": 118,
+ "salt": 42.73308204812929,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/18127340?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Ajani's Pridemate",
+   "quantity": 1
+  },
+  {
+   "name": "Alabaster Host Sanctifier",
+   "quantity": 1
+  },
+  {
+   "name": "Aurelia's Vindicator",
+   "quantity": 1
+  },
+  {
+   "name": "Bloombrute",
+   "quantity": 1
+  },
+  {
+   "name": "Boon-Bringer Valkyrie",
+   "quantity": 1
+  },
+  {
+   "name": "Brightblade Stoat",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Gargantuan",
+   "quantity": 1
+  },
+  {
+   "name": "Charming Prince",
+   "quantity": 1
+  },
+  {
+   "name": "Curious Farm Animals",
+   "quantity": 1
+  },
+  {
+   "name": "Daxos, Blessed by the Sun",
+   "quantity": 1
+  },
+  {
+   "name": "Dragonlord Dromoka",
+   "quantity": 1
+  },
+  {
+   "name": "Drogskol Reaver",
+   "quantity": 1
+  },
+  {
+   "name": "Dust Animus",
+   "quantity": 1
+  },
+  {
+   "name": "Evra, Halcyon Witness",
+   "quantity": 1
+  },
+  {
+   "name": "Exemplar of Light",
+   "quantity": 1
+  },
+  {
+   "name": "Frost Titan",
+   "quantity": 1
+  },
+  {
+   "name": "Healer's Flock",
+   "quantity": 1
+  },
+  {
+   "name": "Hinterland Sanctifier",
+   "quantity": 1
+  },
+  {
+   "name": "Hydroid Krasis",
+   "quantity": 1
+  },
+  {
+   "name": "Inspiring Overseer",
+   "quantity": 1
+  },
+  {
+   "name": "Jenara, Asura of War",
+   "quantity": 1
+  },
+  {
+   "name": "Lyra Dawnbringer",
+   "quantity": 1
+  },
+  {
+   "name": "Lyra, Archangel of Dawn",
+   "quantity": 1
+  },
+  {
+   "name": "Raucous Audience",
+   "quantity": 1
+  },
+  {
+   "name": "Rhox Faithmender",
+   "quantity": 1
+  },
+  {
+   "name": "Selvala, Explorer Returned",
+   "quantity": 1
+  },
+  {
+   "name": "Shattered Acolyte",
+   "quantity": 1
+  },
+  {
+   "name": "Spider-Man, Peter Parker",
+   "quantity": 1
+  },
+  {
+   "name": "Tam, Observant Sequencer",
+   "quantity": 1
+  },
+  {
+   "name": "Thalia, the Survivor",
+   "quantity": 1
+  },
+  {
+   "name": "Wall of Reverence",
+   "quantity": 1
+  },
+  {
+   "name": "Wurmcoil Engine",
+   "quantity": 1
+  },
+  {
+   "name": "Artificer's Epiphany",
+   "quantity": 1
+  },
+  {
+   "name": "Bite Down",
+   "quantity": 1
+  },
+  {
+   "name": "Dazzling Reflection",
+   "quantity": 1
+  },
+  {
+   "name": "Duel for Dominance",
+   "quantity": 1
+  },
+  {
+   "name": "Faithful Mending",
+   "quantity": 1
+  },
+  {
+   "name": "Fog of War",
+   "quantity": 1
+  },
+  {
+   "name": "Pulse of Murasa",
+   "quantity": 1
+  },
+  {
+   "name": "Radiant Strike",
+   "quantity": 1
+  },
+  {
+   "name": "Rain of Revelation",
+   "quantity": 1
+  },
+  {
+   "name": "Ray of Dissolution",
+   "quantity": 1
+  },
+  {
+   "name": "Weather the Storm",
+   "quantity": 1
+  },
+  {
+   "name": "Emerge from the Cocoon",
+   "quantity": 1
+  },
+  {
+   "name": "Fumigate",
+   "quantity": 1
+  },
+  {
+   "name": "Live Long and Prosper",
+   "quantity": 1
+  },
+  {
+   "name": "Morningtide's Light",
+   "quantity": 1
+  },
+  {
+   "name": "Preordain",
+   "quantity": 1
+  },
+  {
+   "name": "Space-Time Anomaly",
+   "quantity": 1
+  },
+  {
+   "name": "Spry and Mighty",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Marble Diamond",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Talisman of Curiosity",
+   "quantity": 1
+  },
+  {
+   "name": "Almost Perfect",
+   "quantity": 1
+  },
+  {
+   "name": "Earthbender Ascension",
+   "quantity": 1
+  },
+  {
+   "name": "Leyline of Hope",
+   "quantity": 1
+  },
+  {
+   "name": "Primeval Bounty",
+   "quantity": 1
+  },
+  {
+   "name": "Sigarda's Splendor",
+   "quantity": 1
+  },
+  {
+   "name": "Staggering Insight",
+   "quantity": 1
+  },
+  {
+   "name": "Strength of the Harvest",
+   "quantity": 1
+  },
+  {
+   "name": "Unnatural Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Unstoppable Plan",
+   "quantity": 1
+  },
+  {
+   "name": "Ajani Resolute",
+   "quantity": 1
+  },
+  {
+   "name": "Blossoming Sands",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 8
+  },
+  {
+   "name": "Glacial Fortress",
+   "quantity": 1
+  },
+  {
+   "name": "Irrigated Farmland",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 6
+  },
+  {
+   "name": "Plains",
+   "quantity": 12
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Guildgate",
+   "quantity": 1
+  },
+  {
+   "name": "Sungrass Prairie",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Mystery",
+   "quantity": 1
+  },
+  {
+   "name": "Thornwood Falls",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

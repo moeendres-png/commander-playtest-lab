@@ -1,0 +1,334 @@
+{
+ "urlhash": "ZaIpg0_kmMqBghTANNea_g",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-02-10",
+ "price": 215,
+ "salt": 47.831849723588675,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/AMZ5Xbta7U2nsSddcZ7Tzg?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Avenger of Zendikar",
+   "quantity": 1
+  },
+  {
+   "name": "Beanstalk Giant",
+   "quantity": 1
+  },
+  {
+   "name": "Biomancer's Familiar",
+   "quantity": 1
+  },
+  {
+   "name": "Blazing Archon",
+   "quantity": 1
+  },
+  {
+   "name": "Coiling Oracle",
+   "quantity": 1
+  },
+  {
+   "name": "Dauntless Escort",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Visionary",
+   "quantity": 1
+  },
+  {
+   "name": "End-Raze Forerunners",
+   "quantity": 1
+  },
+  {
+   "name": "Eternal Witness",
+   "quantity": 1
+  },
+  {
+   "name": "Faerie Formation",
+   "quantity": 1
+  },
+  {
+   "name": "Forbidding Spirit",
+   "quantity": 1
+  },
+  {
+   "name": "Frilled Mystic",
+   "quantity": 1
+  },
+  {
+   "name": "Fyndhorn Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Gyre Engineer",
+   "quantity": 1
+  },
+  {
+   "name": "Incubation Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Keeper of Fables",
+   "quantity": 1
+  },
+  {
+   "name": "Leafkin Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Maraleaf Pixie",
+   "quantity": 1
+  },
+  {
+   "name": "Mulldrifter",
+   "quantity": 1
+  },
+  {
+   "name": "Mystic Snake",
+   "quantity": 1
+  },
+  {
+   "name": "Paradise Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Risen Reef",
+   "quantity": 1
+  },
+  {
+   "name": "Sakura-Tribe Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Selfless Squire",
+   "quantity": 1
+  },
+  {
+   "name": "Shrieking Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Soul Warden",
+   "quantity": 1
+  },
+  {
+   "name": "Soul's Attendant",
+   "quantity": 1
+  },
+  {
+   "name": "Spectral Sailor",
+   "quantity": 1
+  },
+  {
+   "name": "Steelbane Hydra",
+   "quantity": 1
+  },
+  {
+   "name": "Suture Priest",
+   "quantity": 1
+  },
+  {
+   "name": "Temur Sabertooth",
+   "quantity": 1
+  },
+  {
+   "name": "Thorn Mammoth",
+   "quantity": 1
+  },
+  {
+   "name": "Aura Mutation",
+   "quantity": 1
+  },
+  {
+   "name": "Benefactor's Draught",
+   "quantity": 1
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1
+  },
+  {
+   "name": "Eladamri's Call",
+   "quantity": 1
+  },
+  {
+   "name": "Krosan Grip",
+   "quantity": 1
+  },
+  {
+   "name": "Fumigate",
+   "quantity": 1
+  },
+  {
+   "name": "Karn's Temporal Sundering",
+   "quantity": 1
+  },
+  {
+   "name": "Merchant Scroll",
+   "quantity": 1
+  },
+  {
+   "name": "Overrun",
+   "quantity": 1
+  },
+  {
+   "name": "Rampant Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Time Wipe",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Commander's Sphere",
+   "quantity": 1
+  },
+  {
+   "name": "Eldrazi Monument",
+   "quantity": 1
+  },
+  {
+   "name": "Fellwar Stone",
+   "quantity": 1
+  },
+  {
+   "name": "Mind Stone",
+   "quantity": 1
+  },
+  {
+   "name": "Nevinyrral's Disk",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Keyrune",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Swiftfoot Boots",
+   "quantity": 1
+  },
+  {
+   "name": "Whispersilk Cloak",
+   "quantity": 1
+  },
+  {
+   "name": "Beastmaster Ascension",
+   "quantity": 1
+  },
+  {
+   "name": "Concordant Crossroads",
+   "quantity": 1
+  },
+  {
+   "name": "Path of Discovery",
+   "quantity": 1
+  },
+  {
+   "name": "Retreat to Coralhelm",
+   "quantity": 1
+  },
+  {
+   "name": "Retreat to Kazandu",
+   "quantity": 1
+  },
+  {
+   "name": "Abandoned Air Temple",
+   "quantity": 1
+  },
+  {
+   "name": "Ancient Ziggurat",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Guildgate",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 8
+  },
+  {
+   "name": "Fortified Village",
+   "quantity": 1
+  },
+  {
+   "name": "Grasslands",
+   "quantity": 1
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 8
+  },
+  {
+   "name": "Mosswort Bridge",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 8
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Guildgate",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Guildgate",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Mystery",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Plenty",
+   "quantity": 1
+  },
+  {
+   "name": "Terramorphic Expanse",
+   "quantity": 1
+  },
+  {
+   "name": "Thornwood Falls",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

@@ -1,0 +1,394 @@
+{
+ "urlhash": "_ASJDSP4lcE-DYmmWWHs6Q",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-07-11",
+ "price": 3125,
+ "salt": 64.100383953657,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/Oy-jbugOdUilSqpot4oocw?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Aang and Katara",
+   "quantity": 1
+  },
+  {
+   "name": "Adeline, Resplendent Cathar",
+   "quantity": 1
+  },
+  {
+   "name": "Ancient Greenwarden",
+   "quantity": 1
+  },
+  {
+   "name": "Avenger of Zendikar",
+   "quantity": 1
+  },
+  {
+   "name": "Azusa, Lost but Seeking",
+   "quantity": 1
+  },
+  {
+   "name": "Beast Whisperer",
+   "quantity": 1
+  },
+  {
+   "name": "Elesh Norn, Mother of Machines",
+   "quantity": 1
+  },
+  {
+   "name": "God-Eternal Oketra",
+   "quantity": 1
+  },
+  {
+   "name": "Heliod, God of the Sun",
+   "quantity": 1
+  },
+  {
+   "name": "Heliod, Sun-Crowned",
+   "quantity": 1
+  },
+  {
+   "name": "Karametra, God of Harvests",
+   "quantity": 1
+  },
+  {
+   "name": "Leonin Warleader",
+   "quantity": 1
+  },
+  {
+   "name": "Maja, Bretagard Protector",
+   "quantity": 1
+  },
+  {
+   "name": "Mossborn Hydra",
+   "quantity": 1
+  },
+  {
+   "name": "Myrel, Shield of Argive",
+   "quantity": 1
+  },
+  {
+   "name": "Ocelot Pride",
+   "quantity": 1
+  },
+  {
+   "name": "Odric, Lunarch Marshal",
+   "quantity": 1
+  },
+  {
+   "name": "Oran-Rief Hydra",
+   "quantity": 1
+  },
+  {
+   "name": "Rampaging Baloths",
+   "quantity": 1
+  },
+  {
+   "name": "Scute Swarm",
+   "quantity": 1
+  },
+  {
+   "name": "Scythecat Cub",
+   "quantity": 1
+  },
+  {
+   "name": "Seedborn Muse",
+   "quantity": 1
+  },
+  {
+   "name": "Soul Warden",
+   "quantity": 1
+  },
+  {
+   "name": "Sporemound",
+   "quantity": 1
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1
+  },
+  {
+   "name": "Cyclonic Rift",
+   "quantity": 1
+  },
+  {
+   "name": "Flawless Maneuver",
+   "quantity": 1
+  },
+  {
+   "name": "Heroic Intervention",
+   "quantity": 1
+  },
+  {
+   "name": "Mana Drain",
+   "quantity": 1
+  },
+  {
+   "name": "Swan Song",
+   "quantity": 1
+  },
+  {
+   "name": "Teferi's Protection",
+   "quantity": 1
+  },
+  {
+   "name": "Cultivate",
+   "quantity": 1
+  },
+  {
+   "name": "Kodama's Reach",
+   "quantity": 1
+  },
+  {
+   "name": "Nature's Lore",
+   "quantity": 1
+  },
+  {
+   "name": "Rampant Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Tempt with Discovery",
+   "quantity": 1
+  },
+  {
+   "name": "Three Visits",
+   "quantity": 1
+  },
+  {
+   "name": "Bow of Nylea",
+   "quantity": 1
+  },
+  {
+   "name": "Mind Stone",
+   "quantity": 1
+  },
+  {
+   "name": "Oketra's Monument",
+   "quantity": 1
+  },
+  {
+   "name": "Panharmonicon",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Spear of Heliod",
+   "quantity": 1
+  },
+  {
+   "name": "Thought Vessel",
+   "quantity": 1
+  },
+  {
+   "name": "Throne of the God-Pharaoh",
+   "quantity": 1
+  },
+  {
+   "name": "Anointed Procession",
+   "quantity": 1
+  },
+  {
+   "name": "Burgeoning",
+   "quantity": 1
+  },
+  {
+   "name": "Cathars' Crusade",
+   "quantity": 1
+  },
+  {
+   "name": "Court of Grace",
+   "quantity": 1
+  },
+  {
+   "name": "Doubling Season",
+   "quantity": 1
+  },
+  {
+   "name": "Elemental Bond",
+   "quantity": 1
+  },
+  {
+   "name": "Felidar Retreat",
+   "quantity": 1
+  },
+  {
+   "name": "Garruk's Uprising",
+   "quantity": 1
+  },
+  {
+   "name": "Guardian Project",
+   "quantity": 1
+  },
+  {
+   "name": "Intangible Virtue",
+   "quantity": 1
+  },
+  {
+   "name": "Parallel Lives",
+   "quantity": 1
+  },
+  {
+   "name": "Primeval Bounty",
+   "quantity": 1
+  },
+  {
+   "name": "Rites of Flourishing",
+   "quantity": 1
+  },
+  {
+   "name": "Zendikar's Roil",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Chancery",
+   "quantity": 1
+  },
+  {
+   "name": "Barkchannel Pathway",
+   "quantity": 1
+  },
+  {
+   "name": "Bountiful Promenade",
+   "quantity": 1
+  },
+  {
+   "name": "Branchloft Pathway",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Deserted Beach",
+   "quantity": 1
+  },
+  {
+   "name": "Dreamroot Cascade",
+   "quantity": 1
+  },
+  {
+   "name": "Field of the Dead",
+   "quantity": 1
+  },
+  {
+   "name": "Flooded Strand",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 3
+  },
+  {
+   "name": "Glacial Fortress",
+   "quantity": 1
+  },
+  {
+   "name": "Hengegate Pathway",
+   "quantity": 1
+  },
+  {
+   "name": "Hinterland Harbor",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 3
+  },
+  {
+   "name": "Marsh Flats",
+   "quantity": 1
+  },
+  {
+   "name": "Misty Rainforest",
+   "quantity": 1
+  },
+  {
+   "name": "Nimbus Maze",
+   "quantity": 1
+  },
+  {
+   "name": "Overgrown Farmland",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 3
+  },
+  {
+   "name": "Polluted Delta",
+   "quantity": 1
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1
+  },
+  {
+   "name": "Rejuvenating Springs",
+   "quantity": 1
+  },
+  {
+   "name": "Savannah",
+   "quantity": 1
+  },
+  {
+   "name": "Scalding Tarn",
+   "quantity": 1
+  },
+  {
+   "name": "Sea of Clouds",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Growth Chamber",
+   "quantity": 1
+  },
+  {
+   "name": "Sunpetal Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Tropical Island",
+   "quantity": 1
+  },
+  {
+   "name": "Tundra",
+   "quantity": 1
+  },
+  {
+   "name": "Verdant Catacombs",
+   "quantity": 1
+  },
+  {
+   "name": "Windswept Heath",
+   "quantity": 1
+  },
+  {
+   "name": "Wooded Foothills",
+   "quantity": 1
+  },
+  {
+   "name": "Yavimaya, Cradle of Growth",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

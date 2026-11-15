@@ -1,0 +1,418 @@
+{
+ "urlhash": "ZmDBsXZOxxUHHrl-aNv1-g",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-03-29",
+ "price": 3102,
+ "salt": 59.23667554371059,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/TCzi5rffTkyNUdhKJkDeNg?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Aesi, Tyrant of Gyre Strait",
+   "quantity": 1
+  },
+  {
+   "name": "Auriok Champion",
+   "quantity": 1
+  },
+  {
+   "name": "Avacyn, Angel of Hope",
+   "quantity": 1
+  },
+  {
+   "name": "Biophagus",
+   "quantity": 1
+  },
+  {
+   "name": "Birds of Paradise",
+   "quantity": 1
+  },
+  {
+   "name": "Bristly Bill, Spine Sower",
+   "quantity": 1
+  },
+  {
+   "name": "Elesh Norn, Grand Cenobite",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Mystic",
+   "quantity": 1
+  },
+  {
+   "name": "Essence Warden",
+   "quantity": 1
+  },
+  {
+   "name": "Exclusion Mage",
+   "quantity": 1
+  },
+  {
+   "name": "Faerie Seer",
+   "quantity": 1
+  },
+  {
+   "name": "Faramir, Steward of Gondor",
+   "quantity": 1
+  },
+  {
+   "name": "Felidar Sovereign",
+   "quantity": 1
+  },
+  {
+   "name": "Fyndhorn Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Ghalta, Primal Hunger",
+   "quantity": 1
+  },
+  {
+   "name": "Jenara, Asura of War",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Lotus Cobra",
+   "quantity": 1
+  },
+  {
+   "name": "Maja, Bretagard Protector",
+   "quantity": 1
+  },
+  {
+   "name": "Rikku, Resourceful Guardian",
+   "quantity": 1
+  },
+  {
+   "name": "Serra Ascendant",
+   "quantity": 1
+  },
+  {
+   "name": "Soul Warden",
+   "quantity": 1
+  },
+  {
+   "name": "Soul's Attendant",
+   "quantity": 1
+  },
+  {
+   "name": "Tam, Mindful First-Year",
+   "quantity": 1
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1
+  },
+  {
+   "name": "The Council of Four",
+   "quantity": 1
+  },
+  {
+   "name": "Tifa Lockhart",
+   "quantity": 1
+  },
+  {
+   "name": "Toxicrene",
+   "quantity": 1
+  },
+  {
+   "name": "Yuna, Grand Summoner",
+   "quantity": 1
+  },
+  {
+   "name": "Aetherize",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Denial",
+   "quantity": 1
+  },
+  {
+   "name": "Cancel",
+   "quantity": 1
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1
+  },
+  {
+   "name": "Cyclonic Rift",
+   "quantity": 1
+  },
+  {
+   "name": "Fateful Absence",
+   "quantity": 1
+  },
+  {
+   "name": "March of the Multitudes",
+   "quantity": 1
+  },
+  {
+   "name": "Path to Exile",
+   "quantity": 1
+  },
+  {
+   "name": "Pongify",
+   "quantity": 1
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1
+  },
+  {
+   "name": "Awaken the Woods",
+   "quantity": 1
+  },
+  {
+   "name": "Cleanfall",
+   "quantity": 1
+  },
+  {
+   "name": "Curse of the Swine",
+   "quantity": 1
+  },
+  {
+   "name": "Divination",
+   "quantity": 1
+  },
+  {
+   "name": "Farseek",
+   "quantity": 1
+  },
+  {
+   "name": "Reshape the Earth",
+   "quantity": 1
+  },
+  {
+   "name": "Tempt with Discovery",
+   "quantity": 1
+  },
+  {
+   "name": "Three Visits",
+   "quantity": 1
+  },
+  {
+   "name": "Winds of Abandon",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Chocobo Racetrack",
+   "quantity": 1
+  },
+  {
+   "name": "Chromatic Lantern",
+   "quantity": 1
+  },
+  {
+   "name": "Mind Stone",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "The Great Henge",
+   "quantity": 1
+  },
+  {
+   "name": "The One Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Thought Vessel",
+   "quantity": 1
+  },
+  {
+   "name": "Aura Shards",
+   "quantity": 1
+  },
+  {
+   "name": "Primeval Bounty",
+   "quantity": 1
+  },
+  {
+   "name": "Rhystic Study",
+   "quantity": 1
+  },
+  {
+   "name": "Adarkar Wastes",
+   "quantity": 1
+  },
+  {
+   "name": "Ancient Tomb",
+   "quantity": 1
+  },
+  {
+   "name": "Blossoming Sands",
+   "quantity": 1
+  },
+  {
+   "name": "Boseiju, Who Shelters All",
+   "quantity": 1
+  },
+  {
+   "name": "Bountiful Promenade",
+   "quantity": 1
+  },
+  {
+   "name": "Breeding Pool",
+   "quantity": 1
+  },
+  {
+   "name": "Brushland",
+   "quantity": 1
+  },
+  {
+   "name": "Deserted Beach",
+   "quantity": 1
+  },
+  {
+   "name": "Dreamroot Cascade",
+   "quantity": 1
+  },
+  {
+   "name": "Field of the Dead",
+   "quantity": 1
+  },
+  {
+   "name": "Floodfarm Verge",
+   "quantity": 1
+  },
+  {
+   "name": "Fountainport",
+   "quantity": 1
+  },
+  {
+   "name": "Gavony Township",
+   "quantity": 1
+  },
+  {
+   "name": "Geier Reach Sanitarium",
+   "quantity": 1
+  },
+  {
+   "name": "Graypelt Refuge",
+   "quantity": 1
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1
+  },
+  {
+   "name": "Horizon Canopy",
+   "quantity": 1
+  },
+  {
+   "name": "Hushwood Verge",
+   "quantity": 1
+  },
+  {
+   "name": "Idyllic Beachfront",
+   "quantity": 1
+  },
+  {
+   "name": "Nykthos, Shrine to Nyx",
+   "quantity": 1
+  },
+  {
+   "name": "Overgrown Farmland",
+   "quantity": 1
+  },
+  {
+   "name": "Radiant Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Rejuvenating Springs",
+   "quantity": 1
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Rogue's Passage",
+   "quantity": 1
+  },
+  {
+   "name": "Savannah",
+   "quantity": 1
+  },
+  {
+   "name": "Sea of Clouds",
+   "quantity": 1
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Sejiri Refuge",
+   "quantity": 1
+  },
+  {
+   "name": "Spara's Headquarters",
+   "quantity": 1
+  },
+  {
+   "name": "Tangled Islet",
+   "quantity": 1
+  },
+  {
+   "name": "Temple Garden",
+   "quantity": 1
+  },
+  {
+   "name": "Thornwood Falls",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Cove",
+   "quantity": 1
+  },
+  {
+   "name": "Tropical Island",
+   "quantity": 1
+  },
+  {
+   "name": "Tundra",
+   "quantity": 1
+  },
+  {
+   "name": "Waterlogged Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Willowrush Verge",
+   "quantity": 1
+  },
+  {
+   "name": "Yavimaya Coast",
+   "quantity": 1
+  },
+  {
+   "name": "Yavimaya, Cradle of Growth",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

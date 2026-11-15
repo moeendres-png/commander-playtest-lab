@@ -1,0 +1,362 @@
+{
+ "urlhash": "Zjx1cSgManXy8X7cJ7ThHg",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-06-21",
+ "price": 212,
+ "salt": 49.76038108719513,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/1081705?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Angel of Serenity",
+   "quantity": 1
+  },
+  {
+   "name": "Archon of Valor's Reach",
+   "quantity": 1
+  },
+  {
+   "name": "Avacyn's Pilgrim",
+   "quantity": 1
+  },
+  {
+   "name": "Beast Whisperer",
+   "quantity": 1
+  },
+  {
+   "name": "Beastcaller Savant",
+   "quantity": 1
+  },
+  {
+   "name": "Chasm Skulker",
+   "quantity": 1
+  },
+  {
+   "name": "Dauntless Escort",
+   "quantity": 1
+  },
+  {
+   "name": "Deadeye Navigator",
+   "quantity": 1
+  },
+  {
+   "name": "Devoted Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Mystic",
+   "quantity": 1
+  },
+  {
+   "name": "End-Raze Forerunners",
+   "quantity": 1
+  },
+  {
+   "name": "Faeburrow Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Farhaven Elf",
+   "quantity": 1
+  },
+  {
+   "name": "Fiend Hunter",
+   "quantity": 1
+  },
+  {
+   "name": "Glowrider",
+   "quantity": 1
+  },
+  {
+   "name": "God-Eternal Oketra",
+   "quantity": 1
+  },
+  {
+   "name": "Incubation Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Karametra, God of Harvests",
+   "quantity": 1
+  },
+  {
+   "name": "Kiora's Follower",
+   "quantity": 1
+  },
+  {
+   "name": "Kor Skyfisher",
+   "quantity": 1
+  },
+  {
+   "name": "Laboratory Maniac",
+   "quantity": 1
+  },
+  {
+   "name": "Linvala, Shield of Sea Gate",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Lonis, Cryptozoologist",
+   "quantity": 1
+  },
+  {
+   "name": "Maraleaf Pixie",
+   "quantity": 1
+  },
+  {
+   "name": "Masked Vandal",
+   "quantity": 1
+  },
+  {
+   "name": "Meteor Golem",
+   "quantity": 1
+  },
+  {
+   "name": "Odric, Master Tactician",
+   "quantity": 1
+  },
+  {
+   "name": "Paradise Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Peregrine Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Phyrexian Devourer",
+   "quantity": 1
+  },
+  {
+   "name": "Prime Speaker Vannifar",
+   "quantity": 1
+  },
+  {
+   "name": "Primordial Sage",
+   "quantity": 1
+  },
+  {
+   "name": "Quandrix Cultivator",
+   "quantity": 1
+  },
+  {
+   "name": "Reclamation Sage",
+   "quantity": 1
+  },
+  {
+   "name": "Reidane, God of the Worthy",
+   "quantity": 1
+  },
+  {
+   "name": "Sakura-Tribe Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Saryth, the Viper's Fang",
+   "quantity": 1
+  },
+  {
+   "name": "Shalai, Voice of Plenty",
+   "quantity": 1
+  },
+  {
+   "name": "Shrieking Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Sun Titan",
+   "quantity": 1
+  },
+  {
+   "name": "Terastodon",
+   "quantity": 1
+  },
+  {
+   "name": "Thalia, Guardian of Thraben",
+   "quantity": 1
+  },
+  {
+   "name": "Tidespout Tyrant",
+   "quantity": 1
+  },
+  {
+   "name": "Tireless Tracker",
+   "quantity": 1
+  },
+  {
+   "name": "Trygon Prime",
+   "quantity": 1
+  },
+  {
+   "name": "Vryn Wingmare",
+   "quantity": 1
+  },
+  {
+   "name": "Whitemane Lion",
+   "quantity": 1
+  },
+  {
+   "name": "Woodfall Primus",
+   "quantity": 1
+  },
+  {
+   "name": "Woodland Bellower",
+   "quantity": 1
+  },
+  {
+   "name": "Yasharn, Implacable Earth",
+   "quantity": 1
+  },
+  {
+   "name": "Eladamri's Call",
+   "quantity": 1
+  },
+  {
+   "name": "Return of the Wildspeaker",
+   "quantity": 1
+  },
+  {
+   "name": "Eldritch Evolution",
+   "quantity": 1
+  },
+  {
+   "name": "Farseek",
+   "quantity": 1
+  },
+  {
+   "name": "Neoform",
+   "quantity": 1
+  },
+  {
+   "name": "Birthing Pod",
+   "quantity": 1
+  },
+  {
+   "name": "Panharmonicon",
+   "quantity": 1
+  },
+  {
+   "name": "Swiftfoot Boots",
+   "quantity": 1
+  },
+  {
+   "name": "Winged Boots",
+   "quantity": 1
+  },
+  {
+   "name": "Abundance",
+   "quantity": 1
+  },
+  {
+   "name": "Charitable Levy",
+   "quantity": 1
+  },
+  {
+   "name": "Blossoming Sands",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Exotic Orchard",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 10
+  },
+  {
+   "name": "Grasslands",
+   "quantity": 1
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1
+  },
+  {
+   "name": "Irrigated Farmland",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 4
+  },
+  {
+   "name": "Krosan Verge",
+   "quantity": 1
+  },
+  {
+   "name": "Littjara Mirrorlake",
+   "quantity": 1
+  },
+  {
+   "name": "Path of Ancestry",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 3
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Guildgate",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Guildgate",
+   "quantity": 1
+  },
+  {
+   "name": "Sunpetal Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Mystery",
+   "quantity": 1
+  },
+  {
+   "name": "Terramorphic Expanse",
+   "quantity": 1
+  },
+  {
+   "name": "Thornwood Falls",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

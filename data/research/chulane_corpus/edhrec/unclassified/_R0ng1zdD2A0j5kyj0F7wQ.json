@@ -1,0 +1,363 @@
+{
+ "urlhash": "_R0ng1zdD2A0j5kyj0F7wQ",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-03-16",
+ "price": 219,
+ "salt": 47.13366878265515,
+ "tags": [
+  "+1/+1 Counters",
+  "Group Hug",
+  "Flying",
+  "Lifegain"
+ ],
+ "source_url": "https://moxfield.com/decks/nSodkFkYTU-zw03EV6t1pw?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Azusa, Lost but Seeking",
+   "quantity": 1
+  },
+  {
+   "name": "Brigid, Clachan's Heart",
+   "quantity": 1
+  },
+  {
+   "name": "Clement, the Worrywort",
+   "quantity": 1
+  },
+  {
+   "name": "Clinquant Skymage",
+   "quantity": 1
+  },
+  {
+   "name": "Disciple of Freyalise",
+   "quantity": 1
+  },
+  {
+   "name": "Dour Port-Mage",
+   "quantity": 1
+  },
+  {
+   "name": "Dryad of the Ilysian Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Enduring Vitality",
+   "quantity": 1
+  },
+  {
+   "name": "Eumidian Terrabotanist",
+   "quantity": 1
+  },
+  {
+   "name": "Gran-Gran",
+   "quantity": 1
+  },
+  {
+   "name": "Icetill Explorer",
+   "quantity": 1
+  },
+  {
+   "name": "Jaddi Offshoot",
+   "quantity": 1
+  },
+  {
+   "name": "Karametra, God of Harvests",
+   "quantity": 1
+  },
+  {
+   "name": "Kelpie Guide",
+   "quantity": 1
+  },
+  {
+   "name": "Knight of the Reliquary",
+   "quantity": 1
+  },
+  {
+   "name": "Kutzil, Malamet Exemplar",
+   "quantity": 1
+  },
+  {
+   "name": "Kwain, Itinerant Meddler",
+   "quantity": 1
+  },
+  {
+   "name": "Loot, Exuberant Explorer",
+   "quantity": 1
+  },
+  {
+   "name": "Lotus Cobra",
+   "quantity": 1
+  },
+  {
+   "name": "Michelangelo, Game Master",
+   "quantity": 1
+  },
+  {
+   "name": "Mightform Harmonizer",
+   "quantity": 1
+  },
+  {
+   "name": "Mikey & Don, Party Planners",
+   "quantity": 1
+  },
+  {
+   "name": "North Pole Patrol",
+   "quantity": 1
+  },
+  {
+   "name": "Patron of the Moon",
+   "quantity": 1
+  },
+  {
+   "name": "Rampaging Baloths",
+   "quantity": 1
+  },
+  {
+   "name": "Rhox Faithmender",
+   "quantity": 1
+  },
+  {
+   "name": "Sally Pride, Lioness Leader",
+   "quantity": 1
+  },
+  {
+   "name": "Scute Swarm",
+   "quantity": 1
+  },
+  {
+   "name": "Shrieking Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Social Climber",
+   "quantity": 1
+  },
+  {
+   "name": "Supportive Parents",
+   "quantity": 1
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Tireless Tracker",
+   "quantity": 1
+  },
+  {
+   "name": "Trelasarra, Moon Dancer",
+   "quantity": 1
+  },
+  {
+   "name": "Vnwxt, Verbose Host",
+   "quantity": 1
+  },
+  {
+   "name": "Zimone, Quandrix Prodigy",
+   "quantity": 1
+  },
+  {
+   "name": "Escape Detection",
+   "quantity": 1
+  },
+  {
+   "name": "Getaway Glamer",
+   "quantity": 1
+  },
+  {
+   "name": "Harrow",
+   "quantity": 1
+  },
+  {
+   "name": "Ice Magic",
+   "quantity": 1
+  },
+  {
+   "name": "Impulse",
+   "quantity": 1
+  },
+  {
+   "name": "Long River's Pull",
+   "quantity": 1
+  },
+  {
+   "name": "Path to Exile",
+   "quantity": 1
+  },
+  {
+   "name": "Reprieve",
+   "quantity": 1
+  },
+  {
+   "name": "Scour for Scrap",
+   "quantity": 1
+  },
+  {
+   "name": "Slip On the Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1
+  },
+  {
+   "name": "Another Round",
+   "quantity": 1
+  },
+  {
+   "name": "Cultivate",
+   "quantity": 1
+  },
+  {
+   "name": "Explore",
+   "quantity": 1
+  },
+  {
+   "name": "Explosive Vegetation",
+   "quantity": 1
+  },
+  {
+   "name": "Lessons from Life",
+   "quantity": 1
+  },
+  {
+   "name": "Rampant Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Urban Evolution",
+   "quantity": 1
+  },
+  {
+   "name": "Ghirapur Orrery",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Spectral Searchlight",
+   "quantity": 1
+  },
+  {
+   "name": "Springleaf Drum",
+   "quantity": 1
+  },
+  {
+   "name": "Thought Vessel",
+   "quantity": 1
+  },
+  {
+   "name": "Thousand-Year Elixir",
+   "quantity": 1
+  },
+  {
+   "name": "Eusocial Engineering",
+   "quantity": 1
+  },
+  {
+   "name": "Intruder Alarm",
+   "quantity": 1
+  },
+  {
+   "name": "Terrasymbiosis",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Exotic Orchard",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 6
+  },
+  {
+   "name": "Glacial Fortress",
+   "quantity": 1
+  },
+  {
+   "name": "Hinterland Harbor",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 6
+  },
+  {
+   "name": "Lilypad Village",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 6
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Seachrome Coast",
+   "quantity": 1
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Enlightenment",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Mystery",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Plenty",
+   "quantity": 1
+  },
+  {
+   "name": "Terramorphic Expanse",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Cove",
+   "quantity": 1
+  },
+  {
+   "name": "Treva's Ruins",
+   "quantity": 1
+  },
+  {
+   "name": "Vibrant Cityscape",
+   "quantity": 1
+  },
+  {
+   "name": "Vivid Creek",
+   "quantity": 1
+  },
+  {
+   "name": "Vivid Grove",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

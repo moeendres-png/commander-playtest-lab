@@ -1,0 +1,390 @@
+{
+ "urlhash": "_IcKmIOPUvYGwhJHNy2pyA",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-12-19",
+ "price": 5564,
+ "salt": 58.3168510068208,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/m0DgHp9keEKlVDvx9kyR7Q?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Accomplished Alchemist",
+   "quantity": 1
+  },
+  {
+   "name": "Aerith, Last Ancient",
+   "quantity": 1
+  },
+  {
+   "name": "Augur of Autumn",
+   "quantity": 1
+  },
+  {
+   "name": "Aven Mindcensor",
+   "quantity": 1
+  },
+  {
+   "name": "Beast Whisperer",
+   "quantity": 1
+  },
+  {
+   "name": "Circle of Dreams Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Colossal Skyturtle",
+   "quantity": 1
+  },
+  {
+   "name": "Deadwood Treefolk",
+   "quantity": 1
+  },
+  {
+   "name": "Delney, Streetwise Lookout",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Regrower",
+   "quantity": 1
+  },
+  {
+   "name": "Ezzaroot Channeler",
+   "quantity": 1
+  },
+  {
+   "name": "Genesis",
+   "quantity": 1
+  },
+  {
+   "name": "Gilt-Leaf Archdruid",
+   "quantity": 1
+  },
+  {
+   "name": "Hua Tuo, Honored Physician",
+   "quantity": 1
+  },
+  {
+   "name": "Karametra's Acolyte",
+   "quantity": 1
+  },
+  {
+   "name": "Kruphix, God of Horizons",
+   "quantity": 1
+  },
+  {
+   "name": "Laboratory Maniac",
+   "quantity": 1
+  },
+  {
+   "name": "Masked Vandal",
+   "quantity": 1
+  },
+  {
+   "name": "Pol Jamaar, Illusionist",
+   "quantity": 1
+  },
+  {
+   "name": "Rashmi, Eternities Crafter",
+   "quantity": 1
+  },
+  {
+   "name": "Realmwalker",
+   "quantity": 1
+  },
+  {
+   "name": "Riftsweeper",
+   "quantity": 1
+  },
+  {
+   "name": "Roaming Throne",
+   "quantity": 1
+  },
+  {
+   "name": "Setessan Petitioner",
+   "quantity": 1
+  },
+  {
+   "name": "Titan of Littjara",
+   "quantity": 1
+  },
+  {
+   "name": "Wildwood Escort",
+   "quantity": 1
+  },
+  {
+   "name": "And They Shall Know No Fear",
+   "quantity": 1
+  },
+  {
+   "name": "Benefactor's Draught",
+   "quantity": 1
+  },
+  {
+   "name": "Dramatic Reversal",
+   "quantity": 1
+  },
+  {
+   "name": "Enlightened Tutor",
+   "quantity": 1
+  },
+  {
+   "name": "Evolution Charm",
+   "quantity": 1
+  },
+  {
+   "name": "Kindred Summons",
+   "quantity": 1
+  },
+  {
+   "name": "Mystical Tutor",
+   "quantity": 1
+  },
+  {
+   "name": "Pull from Eternity",
+   "quantity": 1
+  },
+  {
+   "name": "Vitalize",
+   "quantity": 1
+  },
+  {
+   "name": "Approach of the Second Sun",
+   "quantity": 1
+  },
+  {
+   "name": "Bala Ged Recovery",
+   "quantity": 1
+  },
+  {
+   "name": "Distant Melody",
+   "quantity": 1
+  },
+  {
+   "name": "Emerge from the Cocoon",
+   "quantity": 1
+  },
+  {
+   "name": "Enter the Infinite",
+   "quantity": 1
+  },
+  {
+   "name": "Mobilize",
+   "quantity": 1
+  },
+  {
+   "name": "Raise the Palisade",
+   "quantity": 1
+  },
+  {
+   "name": "Bow of Nylea",
+   "quantity": 1
+  },
+  {
+   "name": "Chromatic Orrery",
+   "quantity": 1
+  },
+  {
+   "name": "Decanter of Endless Water",
+   "quantity": 1
+  },
+  {
+   "name": "Halo Fountain",
+   "quantity": 1
+  },
+  {
+   "name": "Herald's Horn",
+   "quantity": 1
+  },
+  {
+   "name": "The Eternity Elevator",
+   "quantity": 1
+  },
+  {
+   "name": "The Magic Mirror",
+   "quantity": 1
+  },
+  {
+   "name": "Thought Vessel",
+   "quantity": 1
+  },
+  {
+   "name": "Urza's Incubator",
+   "quantity": 1
+  },
+  {
+   "name": "Vanquisher's Banner",
+   "quantity": 1
+  },
+  {
+   "name": "White Lotus Tile",
+   "quantity": 1
+  },
+  {
+   "name": "Call to the Kindred",
+   "quantity": 1
+  },
+  {
+   "name": "Crop Sigil",
+   "quantity": 1
+  },
+  {
+   "name": "Defense of the Heart",
+   "quantity": 1
+  },
+  {
+   "name": "Descendants' Path",
+   "quantity": 1
+  },
+  {
+   "name": "Growing Rites of Itlimoc",
+   "quantity": 1
+  },
+  {
+   "name": "Helix Pinnacle",
+   "quantity": 1
+  },
+  {
+   "name": "Kindred Boon",
+   "quantity": 1
+  },
+  {
+   "name": "Kindred Discovery",
+   "quantity": 1
+  },
+  {
+   "name": "Reflections of Littjara",
+   "quantity": 1
+  },
+  {
+   "name": "Smothering Tithe",
+   "quantity": 1
+  },
+  {
+   "name": "Steely Resolve",
+   "quantity": 1
+  },
+  {
+   "name": "Virtue of Strength",
+   "quantity": 1
+  },
+  {
+   "name": "Jace, Wielder of Mysteries",
+   "quantity": 1
+  },
+  {
+   "name": "Brokers Hideout",
+   "quantity": 1
+  },
+  {
+   "name": "Cabaretti Courtyard",
+   "quantity": 1
+  },
+  {
+   "name": "Cavern of Souls",
+   "quantity": 1
+  },
+  {
+   "name": "Escape Tunnel",
+   "quantity": 1
+  },
+  {
+   "name": "Evendo, Waking Haven",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Fabled Passage",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 6
+  },
+  {
+   "name": "Gaea's Cradle",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 2
+  },
+  {
+   "name": "Maestros Theater",
+   "quantity": 1
+  },
+  {
+   "name": "Obscura Storefront",
+   "quantity": 1
+  },
+  {
+   "name": "Path of Ancestry",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 2
+  },
+  {
+   "name": "Prismatic Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Riveteers Overlook",
+   "quantity": 1
+  },
+  {
+   "name": "Savannah",
+   "quantity": 1
+  },
+  {
+   "name": "Secluded Courtyard",
+   "quantity": 1
+  },
+  {
+   "name": "Serra's Sanctum",
+   "quantity": 1
+  },
+  {
+   "name": "Terramorphic Expanse",
+   "quantity": 1
+  },
+  {
+   "name": "Three Tree City",
+   "quantity": 1
+  },
+  {
+   "name": "Tropical Island",
+   "quantity": 1
+  },
+  {
+   "name": "Tundra",
+   "quantity": 1
+  },
+  {
+   "name": "Unclaimed Territory",
+   "quantity": 1
+  },
+  {
+   "name": "Vibrant Cityscape",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

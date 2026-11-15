@@ -1,0 +1,334 @@
+{
+ "urlhash": "ZrsW7U7maatIJB8RwD6O0w",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-03-02",
+ "price": 480,
+ "salt": 45.47635876014829,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/4415816?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Angel of Grace",
+   "quantity": 1
+  },
+  {
+   "name": "Angus Mackenzie",
+   "quantity": 1
+  },
+  {
+   "name": "Archetype of Endurance",
+   "quantity": 1
+  },
+  {
+   "name": "Dryad Greenseeker",
+   "quantity": 1
+  },
+  {
+   "name": "Emeria Angel",
+   "quantity": 1
+  },
+  {
+   "name": "Evolution Sage",
+   "quantity": 1
+  },
+  {
+   "name": "Fearless Fledgling",
+   "quantity": 1
+  },
+  {
+   "name": "Flux Channeler",
+   "quantity": 1
+  },
+  {
+   "name": "Giant Killer",
+   "quantity": 1
+  },
+  {
+   "name": "Gwafa Hazid, Profiteer",
+   "quantity": 1
+  },
+  {
+   "name": "Heroes' Bane",
+   "quantity": 1
+  },
+  {
+   "name": "Hornet Queen",
+   "quantity": 1
+  },
+  {
+   "name": "Hydra Broodmaster",
+   "quantity": 1
+  },
+  {
+   "name": "Iridescent Hornbeetle",
+   "quantity": 1
+  },
+  {
+   "name": "Lorescale Coatl",
+   "quantity": 1
+  },
+  {
+   "name": "Merfolk Skydiver",
+   "quantity": 1
+  },
+  {
+   "name": "Mistcutter Hydra",
+   "quantity": 1
+  },
+  {
+   "name": "Murasa Rootgrazer",
+   "quantity": 1
+  },
+  {
+   "name": "Nadir Kraken",
+   "quantity": 1
+  },
+  {
+   "name": "Paladin of Atonement",
+   "quantity": 1
+  },
+  {
+   "name": "Peacekeeper",
+   "quantity": 1
+  },
+  {
+   "name": "Prowling Felidar",
+   "quantity": 1
+  },
+  {
+   "name": "Roil Elemental",
+   "quantity": 1
+  },
+  {
+   "name": "Scute Swarm",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Evangel",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Guildmage",
+   "quantity": 1
+  },
+  {
+   "name": "Siren Stormtamer",
+   "quantity": 1
+  },
+  {
+   "name": "Skycat Sovereign",
+   "quantity": 1
+  },
+  {
+   "name": "Skyward Eye Prophets",
+   "quantity": 1
+  },
+  {
+   "name": "Spectral Sailor",
+   "quantity": 1
+  },
+  {
+   "name": "Stoic Angel",
+   "quantity": 1
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Victory's Envoy",
+   "quantity": 1
+  },
+  {
+   "name": "Wildborn Preserver",
+   "quantity": 1
+  },
+  {
+   "name": "Wonder",
+   "quantity": 1
+  },
+  {
+   "name": "Zimone, Quandrix Prodigy",
+   "quantity": 1
+  },
+  {
+   "name": "Congregate",
+   "quantity": 1
+  },
+  {
+   "name": "Dovin's Veto",
+   "quantity": 1
+  },
+  {
+   "name": "Exclude",
+   "quantity": 1
+  },
+  {
+   "name": "Flurry of Wings",
+   "quantity": 1
+  },
+  {
+   "name": "Heliod's Intervention",
+   "quantity": 1
+  },
+  {
+   "name": "March of the Multitudes",
+   "quantity": 1
+  },
+  {
+   "name": "Pledge of Unity",
+   "quantity": 1
+  },
+  {
+   "name": "Stroke of Genius",
+   "quantity": 1
+  },
+  {
+   "name": "Turn Aside",
+   "quantity": 1
+  },
+  {
+   "name": "Unbreakable Formation",
+   "quantity": 1
+  },
+  {
+   "name": "Basri's Solidarity",
+   "quantity": 1
+  },
+  {
+   "name": "Bond of Discipline",
+   "quantity": 1
+  },
+  {
+   "name": "Drawn from Dreams",
+   "quantity": 1
+  },
+  {
+   "name": "Finale of Glory",
+   "quantity": 1
+  },
+  {
+   "name": "Martial Coup",
+   "quantity": 1
+  },
+  {
+   "name": "Spitting Image",
+   "quantity": 1
+  },
+  {
+   "name": "Stolen by the Fae",
+   "quantity": 1
+  },
+  {
+   "name": "Time Wipe",
+   "quantity": 1
+  },
+  {
+   "name": "Wargate",
+   "quantity": 1
+  },
+  {
+   "name": "Cathars' Crusade",
+   "quantity": 1
+  },
+  {
+   "name": "Diplomatic Immunity",
+   "quantity": 1
+  },
+  {
+   "name": "Felidar Retreat",
+   "quantity": 1
+  },
+  {
+   "name": "Heightened Awareness",
+   "quantity": 1
+  },
+  {
+   "name": "Mirari's Wake",
+   "quantity": 1
+  },
+  {
+   "name": "Primal Empathy",
+   "quantity": 1
+  },
+  {
+   "name": "Basri Ket",
+   "quantity": 1
+  },
+  {
+   "name": "Castle Ardenvale",
+   "quantity": 1
+  },
+  {
+   "name": "Castle Vantress",
+   "quantity": 1
+  },
+  {
+   "name": "Elfhame Palace",
+   "quantity": 1
+  },
+  {
+   "name": "Faerie Conclave",
+   "quantity": 1
+  },
+  {
+   "name": "Flooded Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 7
+  },
+  {
+   "name": "Island",
+   "quantity": 7
+  },
+  {
+   "name": "Kjeldoran Outpost",
+   "quantity": 1
+  },
+  {
+   "name": "Oran-Rief, the Vastwood",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 10
+  },
+  {
+   "name": "Sejiri Refuge",
+   "quantity": 1
+  },
+  {
+   "name": "Soldevi Excavations",
+   "quantity": 1
+  },
+  {
+   "name": "Thawing Glaciers",
+   "quantity": 1
+  },
+  {
+   "name": "Treetop Village",
+   "quantity": 1
+  },
+  {
+   "name": "Treva's Ruins",
+   "quantity": 1
+  },
+  {
+   "name": "Yavimaya Coast",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

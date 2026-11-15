@@ -1,0 +1,390 @@
+{
+ "urlhash": "Z3JtPzmhtsI_hqvf-N_AQg",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-11-11",
+ "price": 303,
+ "salt": 39.78317615389824,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/17353475?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Aesi, Tyrant of Gyre Strait",
+   "quantity": 1
+  },
+  {
+   "name": "Beast Whisperer",
+   "quantity": 1
+  },
+  {
+   "name": "Birds of Paradise",
+   "quantity": 1
+  },
+  {
+   "name": "Bronze Walrus",
+   "quantity": 1
+  },
+  {
+   "name": "Chasm Skulker",
+   "quantity": 1
+  },
+  {
+   "name": "Fblthp, the Lost",
+   "quantity": 1
+  },
+  {
+   "name": "Gretchen Titchwillow",
+   "quantity": 1
+  },
+  {
+   "name": "Hulking Raptor",
+   "quantity": 1
+  },
+  {
+   "name": "Ilysian Caryatid",
+   "quantity": 1
+  },
+  {
+   "name": "Inga and Esika",
+   "quantity": 1
+  },
+  {
+   "name": "Insidious Fungus",
+   "quantity": 1
+  },
+  {
+   "name": "Karametra, God of Harvests",
+   "quantity": 1
+  },
+  {
+   "name": "Laboratory Maniac",
+   "quantity": 1
+  },
+  {
+   "name": "Man-o'-War",
+   "quantity": 1
+  },
+  {
+   "name": "Maraleaf Pixie",
+   "quantity": 1
+  },
+  {
+   "name": "Mulldrifter",
+   "quantity": 1
+  },
+  {
+   "name": "Nightshade Dryad",
+   "quantity": 1
+  },
+  {
+   "name": "Ornithopter of Paradise",
+   "quantity": 1
+  },
+  {
+   "name": "Pond Prophet",
+   "quantity": 1
+  },
+  {
+   "name": "Radagast the Brown",
+   "quantity": 1
+  },
+  {
+   "name": "Sakura-Tribe Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Shrieking Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Silver Myr",
+   "quantity": 1
+  },
+  {
+   "name": "Snapping Voidcraw",
+   "quantity": 1
+  },
+  {
+   "name": "Solemn Simulacrum",
+   "quantity": 1
+  },
+  {
+   "name": "Spirited Companion",
+   "quantity": 1
+  },
+  {
+   "name": "Starwinder",
+   "quantity": 1
+  },
+  {
+   "name": "Sunscape Familiar",
+   "quantity": 1
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1
+  },
+  {
+   "name": "The Second Doctor",
+   "quantity": 1
+  },
+  {
+   "name": "Trailtracker Scout",
+   "quantity": 1
+  },
+  {
+   "name": "Twitching Doll",
+   "quantity": 1
+  },
+  {
+   "name": "Volo, Guide to Monsters",
+   "quantity": 1
+  },
+  {
+   "name": "Volo, Itinerant Scholar",
+   "quantity": 1
+  },
+  {
+   "name": "Whitemane Lion",
+   "quantity": 1
+  },
+  {
+   "name": "Windborn Muse",
+   "quantity": 1
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1
+  },
+  {
+   "name": "Divert Disaster",
+   "quantity": 1
+  },
+  {
+   "name": "Double Major",
+   "quantity": 1
+  },
+  {
+   "name": "Evasive Action",
+   "quantity": 1
+  },
+  {
+   "name": "Familiar's Ruse",
+   "quantity": 1
+  },
+  {
+   "name": "Growth Spiral",
+   "quantity": 1
+  },
+  {
+   "name": "Mana Leak",
+   "quantity": 1
+  },
+  {
+   "name": "No More Lies",
+   "quantity": 1
+  },
+  {
+   "name": "Path to Exile",
+   "quantity": 1
+  },
+  {
+   "name": "Planar Genesis",
+   "quantity": 1
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Emerald Medallion",
+   "quantity": 1
+  },
+  {
+   "name": "Kefnet's Monument",
+   "quantity": 1
+  },
+  {
+   "name": "Lifecrafter's Bestiary",
+   "quantity": 1
+  },
+  {
+   "name": "Mind Stone",
+   "quantity": 1
+  },
+  {
+   "name": "Oketra's Monument",
+   "quantity": 1
+  },
+  {
+   "name": "Rhonas's Monument",
+   "quantity": 1
+  },
+  {
+   "name": "Sapphire Medallion",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Thought Vessel",
+   "quantity": 1
+  },
+  {
+   "name": "Ominous Seas",
+   "quantity": 1
+  },
+  {
+   "name": "Paladin Class",
+   "quantity": 1
+  },
+  {
+   "name": "Wizard Class",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Chancery",
+   "quantity": 1
+  },
+  {
+   "name": "Bountiful Promenade",
+   "quantity": 1
+  },
+  {
+   "name": "Breeding Pool",
+   "quantity": 1
+  },
+  {
+   "name": "Brokers Hideout",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Deserted Beach",
+   "quantity": 1
+  },
+  {
+   "name": "Dreamroot Cascade",
+   "quantity": 1
+  },
+  {
+   "name": "Fabled Passage",
+   "quantity": 1
+  },
+  {
+   "name": "Flooded Strand",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 3
+  },
+  {
+   "name": "Glacial Fortress",
+   "quantity": 1
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1
+  },
+  {
+   "name": "Hinterland Harbor",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 6
+  },
+  {
+   "name": "Misty Rainforest",
+   "quantity": 1
+  },
+  {
+   "name": "Overgrown Farmland",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 1
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1
+  },
+  {
+   "name": "Rejuvenating Springs",
+   "quantity": 1
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Sea of Clouds",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Growth Chamber",
+   "quantity": 1
+  },
+  {
+   "name": "Spara's Headquarters",
+   "quantity": 1
+  },
+  {
+   "name": "Sunpetal Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Temple Garden",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Enlightenment",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Mystery",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Plenty",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of the False God",
+   "quantity": 1
+  },
+  {
+   "name": "Windswept Heath",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

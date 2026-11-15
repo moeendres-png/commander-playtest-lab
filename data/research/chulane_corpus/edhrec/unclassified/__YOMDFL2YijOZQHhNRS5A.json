@@ -1,0 +1,346 @@
+{
+ "urlhash": "__YOMDFL2YijOZQHhNRS5A",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-02-02",
+ "price": 213,
+ "salt": 49.45208077924326,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/eebSwJh19kKe3SrOu_2sow?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Aesi, Tyrant of Gyre Strait",
+   "quantity": 1
+  },
+  {
+   "name": "Aggressive Mammoth",
+   "quantity": 1
+  },
+  {
+   "name": "Arboreal Grazer",
+   "quantity": 1
+  },
+  {
+   "name": "Beanstalk Giant",
+   "quantity": 1
+  },
+  {
+   "name": "Beast Whisperer",
+   "quantity": 1
+  },
+  {
+   "name": "Civic Wayfinder",
+   "quantity": 1
+  },
+  {
+   "name": "Cloudkin Seer",
+   "quantity": 1
+  },
+  {
+   "name": "Deadeye Navigator",
+   "quantity": 1
+  },
+  {
+   "name": "Deputy of Acquittals",
+   "quantity": 1
+  },
+  {
+   "name": "Dream Trawler",
+   "quantity": 1
+  },
+  {
+   "name": "End-Raze Forerunners",
+   "quantity": 1
+  },
+  {
+   "name": "Faerie Vandal",
+   "quantity": 1
+  },
+  {
+   "name": "Forbidding Spirit",
+   "quantity": 1
+  },
+  {
+   "name": "Frilled Mystic",
+   "quantity": 1
+  },
+  {
+   "name": "Generous Stray",
+   "quantity": 1
+  },
+  {
+   "name": "Gyre Engineer",
+   "quantity": 1
+  },
+  {
+   "name": "Horizon Chimera",
+   "quantity": 1
+  },
+  {
+   "name": "Leafkin Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Visionary",
+   "quantity": 1
+  },
+  {
+   "name": "Majestic Myriarch",
+   "quantity": 1
+  },
+  {
+   "name": "Maraleaf Pixie",
+   "quantity": 1
+  },
+  {
+   "name": "Meteor Golem",
+   "quantity": 1
+  },
+  {
+   "name": "Paradise Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Peregrine Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Realmwright",
+   "quantity": 1
+  },
+  {
+   "name": "Risen Reef",
+   "quantity": 1
+  },
+  {
+   "name": "Selvala, Explorer Returned",
+   "quantity": 1
+  },
+  {
+   "name": "Serra's Guardian",
+   "quantity": 1
+  },
+  {
+   "name": "Setessan Petitioner",
+   "quantity": 1
+  },
+  {
+   "name": "Shrieking Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Silhana Wayfinder",
+   "quantity": 1
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Tatyova, Steward of Tides",
+   "quantity": 1
+  },
+  {
+   "name": "Thassa's Oracle",
+   "quantity": 1
+  },
+  {
+   "name": "The Reality Chip",
+   "quantity": 1
+  },
+  {
+   "name": "Voracious Hydra",
+   "quantity": 1
+  },
+  {
+   "name": "Aethermage's Touch",
+   "quantity": 1
+  },
+  {
+   "name": "Anticipate",
+   "quantity": 1
+  },
+  {
+   "name": "Dramatic Reversal",
+   "quantity": 1
+  },
+  {
+   "name": "Flicker of Fate",
+   "quantity": 1
+  },
+  {
+   "name": "Growth Spiral",
+   "quantity": 1
+  },
+  {
+   "name": "Memory Drain",
+   "quantity": 1
+  },
+  {
+   "name": "Negate",
+   "quantity": 1
+  },
+  {
+   "name": "Peek",
+   "quantity": 1
+  },
+  {
+   "name": "Return to Nature",
+   "quantity": 1
+  },
+  {
+   "name": "Rewind",
+   "quantity": 1
+  },
+  {
+   "name": "Run Away Together",
+   "quantity": 1
+  },
+  {
+   "name": "Thassa's Intervention",
+   "quantity": 1
+  },
+  {
+   "name": "Whirlwind Denial",
+   "quantity": 1
+  },
+  {
+   "name": "Broken Bond",
+   "quantity": 1
+  },
+  {
+   "name": "Dance of the Manse",
+   "quantity": 1
+  },
+  {
+   "name": "Revoke Existence",
+   "quantity": 1
+  },
+  {
+   "name": "Sea Gate Restoration",
+   "quantity": 1
+  },
+  {
+   "name": "Time Wipe",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Lifecrafter's Bestiary",
+   "quantity": 1
+  },
+  {
+   "name": "Panharmonicon",
+   "quantity": 1
+  },
+  {
+   "name": "The Magic Mirror",
+   "quantity": 1
+  },
+  {
+   "name": "Aid from the Cowl",
+   "quantity": 1
+  },
+  {
+   "name": "Bear Umbra",
+   "quantity": 1
+  },
+  {
+   "name": "Ever-Watching Threshold",
+   "quantity": 1
+  },
+  {
+   "name": "Omniscience",
+   "quantity": 1
+  },
+  {
+   "name": "Season of Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Stupefying Touch",
+   "quantity": 1
+  },
+  {
+   "name": "Kiora, the Crashing Wave",
+   "quantity": 1
+  },
+  {
+   "name": "Mu Yanling, Celestial Wind",
+   "quantity": 1
+  },
+  {
+   "name": "Narset, Parter of Veils",
+   "quantity": 1
+  },
+  {
+   "name": "Nissa, Who Shakes the World",
+   "quantity": 1
+  },
+  {
+   "name": "Blossoming Sands",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 10
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 8
+  },
+  {
+   "name": "Plains",
+   "quantity": 3
+  },
+  {
+   "name": "Port Town",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Growth Chamber",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Enlightenment",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Mystery",
+   "quantity": 1
+  },
+  {
+   "name": "Thornwood Falls",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Cove",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

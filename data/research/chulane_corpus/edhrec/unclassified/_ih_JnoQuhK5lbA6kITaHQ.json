@@ -1,0 +1,330 @@
+{
+ "urlhash": "_ih_JnoQuhK5lbA6kITaHQ",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2024-11-17",
+ "price": 291,
+ "salt": 61.374055217951536,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/10118346?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Ancient Greenwarden",
+   "quantity": 1
+  },
+  {
+   "name": "Ashaya, Soul of the Wild",
+   "quantity": 1
+  },
+  {
+   "name": "Augur of Autumn",
+   "quantity": 1
+  },
+  {
+   "name": "Avacyn's Pilgrim",
+   "quantity": 1
+  },
+  {
+   "name": "Aven Mindcensor",
+   "quantity": 1
+  },
+  {
+   "name": "Chameleon Colossus",
+   "quantity": 1
+  },
+  {
+   "name": "Collector Ouphe",
+   "quantity": 1
+  },
+  {
+   "name": "Destiny Spinner",
+   "quantity": 1
+  },
+  {
+   "name": "Dour Port-Mage",
+   "quantity": 1
+  },
+  {
+   "name": "Dryad of the Ilysian Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Eldrazi Displacer",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Mystic",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Visionary",
+   "quantity": 1
+  },
+  {
+   "name": "Emeria Angel",
+   "quantity": 1
+  },
+  {
+   "name": "Erudite Wizard",
+   "quantity": 1
+  },
+  {
+   "name": "Eternal Witness",
+   "quantity": 1
+  },
+  {
+   "name": "Faeburrow Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Fyndhorn Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Galadriel, Light of Valinor",
+   "quantity": 1
+  },
+  {
+   "name": "Grand Abolisher",
+   "quantity": 1
+  },
+  {
+   "name": "High Fae Trickster",
+   "quantity": 1
+  },
+  {
+   "name": "Joraga Treespeaker",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Lumra, Bellow of the Woods",
+   "quantity": 1
+  },
+  {
+   "name": "Maja, Bretagard Protector",
+   "quantity": 1
+  },
+  {
+   "name": "Morska, Undersea Sleuth",
+   "quantity": 1
+  },
+  {
+   "name": "Murasa Rootgrazer",
+   "quantity": 1
+  },
+  {
+   "name": "Mystic Snake",
+   "quantity": 1
+  },
+  {
+   "name": "Peregrine Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Phyrexian Metamorph",
+   "quantity": 1
+  },
+  {
+   "name": "Poison Dart Frog",
+   "quantity": 1
+  },
+  {
+   "name": "Reclamation Sage",
+   "quantity": 1
+  },
+  {
+   "name": "Scute Swarm",
+   "quantity": 1
+  },
+  {
+   "name": "Shrieking Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Spore Frog",
+   "quantity": 1
+  },
+  {
+   "name": "Sylvan Safekeeper",
+   "quantity": 1
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Tireless Provisioner",
+   "quantity": 1
+  },
+  {
+   "name": "Twenty-Toed Toad",
+   "quantity": 1
+  },
+  {
+   "name": "Whitemane Lion",
+   "quantity": 1
+  },
+  {
+   "name": "Wonderscape Sage",
+   "quantity": 1
+  },
+  {
+   "name": "Zimone, All-Questioning",
+   "quantity": 1
+  },
+  {
+   "name": "An Offer You Can't Refuse",
+   "quantity": 1
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1
+  },
+  {
+   "name": "Crop Rotation",
+   "quantity": 1
+  },
+  {
+   "name": "Divine Resilience",
+   "quantity": 1
+  },
+  {
+   "name": "Ephemerate",
+   "quantity": 1
+  },
+  {
+   "name": "Joint Exploration",
+   "quantity": 1
+  },
+  {
+   "name": "Negate",
+   "quantity": 1
+  },
+  {
+   "name": "Reaping the Rewards",
+   "quantity": 1
+  },
+  {
+   "name": "Reclaim",
+   "quantity": 1
+  },
+  {
+   "name": "Beacon of Tomorrows",
+   "quantity": 1
+  },
+  {
+   "name": "Neoform",
+   "quantity": 1
+  },
+  {
+   "name": "Chromatic Lantern",
+   "quantity": 1
+  },
+  {
+   "name": "Zuran Orb",
+   "quantity": 1
+  },
+  {
+   "name": "Aura Shards",
+   "quantity": 1
+  },
+  {
+   "name": "Bonds of Mortality",
+   "quantity": 1
+  },
+  {
+   "name": "Intruder Alarm",
+   "quantity": 1
+  },
+  {
+   "name": "Overburden",
+   "quantity": 1
+  },
+  {
+   "name": "Retreat to Coralhelm",
+   "quantity": 1
+  },
+  {
+   "name": "Rites of Flourishing",
+   "quantity": 1
+  },
+  {
+   "name": "Wizard Class",
+   "quantity": 1
+  },
+  {
+   "name": "Teferi, Time Raveler",
+   "quantity": 1
+  },
+  {
+   "name": "Arctic Treeline",
+   "quantity": 1
+  },
+  {
+   "name": "Blossoming Sands",
+   "quantity": 1
+  },
+  {
+   "name": "Brokers Hideout",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 9
+  },
+  {
+   "name": "Glacial Floodplain",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 9
+  },
+  {
+   "name": "Plains",
+   "quantity": 7
+  },
+  {
+   "name": "Rimewood Falls",
+   "quantity": 1
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Shimmerdrift Vale",
+   "quantity": 1
+  },
+  {
+   "name": "Terramorphic Expanse",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Cove",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Landscape",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}
