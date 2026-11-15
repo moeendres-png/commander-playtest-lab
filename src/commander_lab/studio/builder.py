@@ -268,6 +268,18 @@ def _corpus_hits_uncached(
             is None
         ):
             return {}
+    groups = _group_deck_ids(store, commander_names)
+    sets = deck_sets(store, groups[ALL_DECKS], spelling_owners(store))
+    return {
+        card: {group: len(decks & members) for group, members in groups.items()}
+        for card, decks in sets.items()
+    }
+
+
+def _group_deck_ids(store: StudioStore, commander_names: Sequence[str]) -> dict[str, set[str]]:
+    """The distinct non-duplicate source decks bound to the commander, per comparison group:
+    ``all``, each play group, each named cohort (the groups of ``cohort_sizes``)."""
+    db = store.connection
     bound, bound_args = bound_to("corpus_deck", "d.deck_id", commander_names)
     groups: dict[str, set[str]] = {ALL_DECKS: set()}
     for row in db.execute(
@@ -282,11 +294,7 @@ def _corpus_hits_uncached(
         bound_args,
     ):
         groups.setdefault(str(row["cohort"]), set()).add(str(row["deck_id"]))
-    sets = deck_sets(store, groups[ALL_DECKS], spelling_owners(store))
-    return {
-        card: {group: len(decks & members) for group, members in groups.items()}
-        for card, decks in sets.items()
-    }
+    return groups
 
 
 def read_marks(store: StudioStore) -> dict[str, dict[str, object]]:
@@ -963,10 +971,28 @@ def cohort_members(
     return members
 
 
+def _identical_groups(order: Sequence[str], deck_ids: dict[str, set[str]]) -> dict[str, list[str]]:
+    """Groups that name exactly the same set of decks, as ``{first group: [the later ones]}``
+    in the order given. Read on the distinct decks bound to the commander, the basis of every
+    denominator, so only groups with the same deck count and the same decks are merged.
+    A group without decks is never merged: nothing is known about it."""
+    first: dict[frozenset[str], str] = {}
+    same: dict[str, list[str]] = {}
+    for key in order:
+        ids = deck_ids.get(key)
+        if not ids:
+            continue
+        head = first.setdefault(frozenset(ids), key)
+        if head != key:
+            same.setdefault(head, []).append(key)
+    return same
+
+
 def cohort_shapes(store: StudioStore, commander_names: Sequence[str]) -> list[dict[str, object]]:
     """How the source decks of the commander are built, per cohort: lands, creatures, average mana value of
     nonland cards (median and middle half). Decks with unresolved cards are left out and
-    counted."""
+    counted. Groups of the same decks are one row: the first group carries the others as
+    ``same_as``; the figures and denominators of groups that differ are not touched."""
     db = store.connection
     if not commander_names:
         return []
@@ -1002,14 +1028,20 @@ def cohort_shapes(store: StudioStore, commander_names: Sequence[str]) -> list[di
                 chunk,
             ):
                 nonland_role_by_deck[str(row["deck_id"])] = int(row["cnt"] or 0)
+    same_as = _identical_groups(list(members), _group_deck_ids(store, commander_names))
+    merged = {key for keys in same_as.values() for key in keys}
     shapes: list[dict[str, object]] = []
     for cohort, group in members.items():
+        if cohort in merged:
+            continue  # the same decks as an earlier group: shown once, under that group
         complete = [row for row in group if row["resolved"] == row["cards"]]
         shape: dict[str, object] = {
             "cohort": cohort,
             "decks": len(group),
             "decks_counted": len(complete),
         }
+        if cohort in same_as:
+            shape["same_as"] = same_as[cohort]
         if complete:
             for field, values in (
                 ("lands", [float(row["lands"]) for row in complete]),

@@ -96,16 +96,11 @@ function freqText(card, cohort = state.cohort) {
   if (f.hits === null) return "unbekannt";
   return f.total ? `${f.hits}/${f.total} · ${(100 * f.share).toFixed(0)} %` : "unbekannt";
 }
-function isRedundantCohort(key) {
-  if (key === "all") return false;
-  const allSize = state.cohorts.all || 0;
-  if (!allSize) return false;
-  if (String(key).startsWith("commander:") && state.cohorts[key] === allSize) return true;
-  if (key === "community" && state.cohorts.community === allSize) return true;
-  return false;
-}
+// Groups that name the same decks (the server says which, `same_as` of /api/cohorts) are shown
+// once, the later names in the label of the first.
+const cohortLabel = (key) => StudioCohorts.label(key, state.shapes, cohortName);
 function visibleCohortEntries() {
-  return Object.entries(state.cohorts).filter(([key]) => !isRedundantCohort(key));
+  return StudioCohorts.visible(Object.entries(state.cohorts), state.shapes);
 }
 // With a universe profile chosen, the pool shows that universe's counted spread
 // (same snapshot as the tier list) instead of the legacy cohort figures. A card the
@@ -993,10 +988,10 @@ function span(entry) { return entry ? `${entry.median} (${entry.p25} bis ${entry
 function renderCompare(body) {
   body.append(deckFilterControl());
   const shape = state.shape || {};
-  const visibleShapes = state.shapes.filter((row) => !isRedundantCohort(row.cohort));
+  const visibleShapes = state.shapes;
   const table = h("table", {}, h("thead", {}, h("tr", {}, h("th", {}, "Gruppe"), h("th", { class: "num" }, "Decks"), h("th", { class: "num" }, "Länder"), h("th", { class: "num" }, "Kreaturen"), h("th", { class: "num" }, "Ø Manawert"))),
     h("tbody", {}, h("tr", {}, h("td", {}, h("b", {}, "Dein Deck")), h("td", {}), h("td", { class: "num" }, shape.lands ?? ""), h("td", { class: "num" }, shape.creatures ?? ""), h("td", { class: "num" }, shape.mana_value ?? "")),
-      visibleShapes.map((row) => h("tr", { class: row.decks < state.small ? "low" : "" }, h("td", {}, cohortName(row.cohort)), h("td", { class: "num" }, row.decks_counted === row.decks ? row.decks : `${row.decks_counted} von ${row.decks}`),
+      visibleShapes.map((row) => h("tr", { class: row.decks < state.small ? "low" : "" }, h("td", {}, cohortLabel(row.cohort)), h("td", { class: "num" }, row.decks_counted === row.decks ? row.decks : `${row.decks_counted} von ${row.decks}`),
         h("td", { class: "num" }, span(row.lands)), h("td", { class: "num" }, span(row.creatures)), h("td", { class: "num" }, span(row.mana_value))))));
   body.append(h("h3", {}, "Aufbau im Vergleich"), table, h("p", { class: "note" }, "Median und mittlere Hälfte der Quelldecks. Gelb: Gruppe mit weniger als 30 Decks, sehr unsicher. Länder nach Vorderseite gezählt."));
   const counted = !state.universe && !state.subset && state.countedUniverse && !(state.cohorts[state.cohort] || 0);
@@ -1477,7 +1472,7 @@ async function openCard(card) {
   };
   const count = qty(card.card_id);
   const frequencies = h("table", {}, h("thead", {}, h("tr", {}, h("th", {}, "Quelldecks"), h("th", { class: "num" }, "mit Karte"), h("th", { class: "num" }, "Decks"), h("th", { class: "num" }, "Anteil"))),
-    h("tbody", {}, visibleCohortEntries(state.cohorts).map(([key]) => { const f = freq(card, key); return h("tr", { class: f.total < state.small ? "low" : "" }, h("td", {}, cohortName(key)), h("td", { class: "num" }, f.hits === null ? "unbekannt" : f.hits), h("td", { class: "num" }, f.total), h("td", { class: "num" }, f.hits !== null && f.total ? (100 * f.share).toFixed(1) + " %" : "unbekannt")); })));
+    h("tbody", {}, visibleCohortEntries().map(([key]) => { const f = freq(card, key); return h("tr", { class: f.total < state.small ? "low" : "" }, h("td", {}, cohortLabel(key)), h("td", { class: "num" }, f.hits === null ? "unbekannt" : f.hits), h("td", { class: "num" }, f.total), h("td", { class: "num" }, f.hits !== null && f.total ? (100 * f.share).toFixed(1) + " %" : "unbekannt")); })));
   const swapBox = h("div", { id: "swap-helper-box" });
   const extra = h("div", {}, h("p", { class: "muted" }, "Lädt EDHREC-Zeilen."));
   const layerBox = h("div", {});
@@ -1974,7 +1969,7 @@ function setupControls() {
   } }, letter)));
   $("type-filter").replaceChildren(h("option", { value: "" }, "alle Typen"), ...GROUPS.map((group) => h("option", { value: group }, GROUP_NAMES[group])));
   $("role-filter").replaceChildren(h("option", { value: "" }, "alle Rollen"), ...state.roles.map((role) => h("option", { value: role }, roleName(role))), h("option", { value: "-" }, "ohne Rollenmarke"));
-  $("cohort").replaceChildren(...visibleCohortEntries(state.cohorts).map(([key, size]) => h("option", { value: key }, `${cohortName(key)} (${size})`)));
+  $("cohort").replaceChildren(...visibleCohortEntries().map(([key, size]) => h("option", { value: key }, `${cohortLabel(key)} (${size})`)));
   $("universe").replaceChildren(h("option", { value: "" }, "kein Universum"), ...(state.universeProfiles || []).map((p) => h("option", { value: p.name, selected: p.name === state.universe }, p.name)));
   $("universe").addEventListener("change", async () => {
     state.universe = $("universe").value;
