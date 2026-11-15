@@ -1,0 +1,394 @@
+{
+ "urlhash": "oovl4ae-NDJoR8xFmNIK2Q",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-08-27",
+ "price": 286,
+ "salt": 41.28342439746484,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/1Uelzcp0P0Wo34kp8yVALg?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Chocobo Knights",
+   "quantity": 1
+  },
+  {
+   "name": "Destiny Spinner",
+   "quantity": 1
+  },
+  {
+   "name": "Dion, Bahamut's Dominant",
+   "quantity": 1
+  },
+  {
+   "name": "Eidolon of Blossoms",
+   "quantity": 1
+  },
+  {
+   "name": "Envoy of the Ancestors",
+   "quantity": 1
+  },
+  {
+   "name": "Garnet, Princess of Alexandria",
+   "quantity": 1
+  },
+  {
+   "name": "Jill, Shiva's Dominant",
+   "quantity": 1
+  },
+  {
+   "name": "Kodama of the West Tree",
+   "quantity": 1
+  },
+  {
+   "name": "Luminous Broodmoth",
+   "quantity": 1
+  },
+  {
+   "name": "Noble Hierarch",
+   "quantity": 1
+  },
+  {
+   "name": "O'aka, Traveling Merchant",
+   "quantity": 1
+  },
+  {
+   "name": "Rikku, Resourceful Guardian",
+   "quantity": 1
+  },
+  {
+   "name": "Scholar of New Horizons",
+   "quantity": 1
+  },
+  {
+   "name": "Setessan Champion",
+   "quantity": 1
+  },
+  {
+   "name": "Shoal Kraken",
+   "quantity": 1
+  },
+  {
+   "name": "Sin, Unending Cataclysm",
+   "quantity": 1
+  },
+  {
+   "name": "Summon: Bahamut",
+   "quantity": 1
+  },
+  {
+   "name": "Summon: Choco/Mog",
+   "quantity": 1
+  },
+  {
+   "name": "Summon: Fat Chocobo",
+   "quantity": 1
+  },
+  {
+   "name": "Summon: Fenrir",
+   "quantity": 1
+  },
+  {
+   "name": "Summon: Good King Mog XII",
+   "quantity": 1
+  },
+  {
+   "name": "Summon: Ixion",
+   "quantity": 1
+  },
+  {
+   "name": "Summon: Knights of Round",
+   "quantity": 1
+  },
+  {
+   "name": "Summon: Leviathan",
+   "quantity": 1
+  },
+  {
+   "name": "Summon: Magus Sisters",
+   "quantity": 1
+  },
+  {
+   "name": "Summon: Primal Garuda",
+   "quantity": 1
+  },
+  {
+   "name": "Summon: Shiva",
+   "quantity": 1
+  },
+  {
+   "name": "Summon: Titan",
+   "quantity": 1
+  },
+  {
+   "name": "Summon: Valefor",
+   "quantity": 1
+  },
+  {
+   "name": "Summon: Yojimbo",
+   "quantity": 1
+  },
+  {
+   "name": "Temperamental Oozewagg",
+   "quantity": 1
+  },
+  {
+   "name": "Tidus, Yuna's Guardian",
+   "quantity": 1
+  },
+  {
+   "name": "Yuna, Grand Summoner",
+   "quantity": 1
+  },
+  {
+   "name": "Yuna, Hope of Spira",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Denial",
+   "quantity": 1
+  },
+  {
+   "name": "Beast Within",
+   "quantity": 1
+  },
+  {
+   "name": "Dawn's Truce",
+   "quantity": 1
+  },
+  {
+   "name": "Dramatic Reversal",
+   "quantity": 1
+  },
+  {
+   "name": "Generous Gift",
+   "quantity": 1
+  },
+  {
+   "name": "Narset's Reversal",
+   "quantity": 1
+  },
+  {
+   "name": "Path to Exile",
+   "quantity": 1
+  },
+  {
+   "name": "Protection Magic",
+   "quantity": 1
+  },
+  {
+   "name": "Silkguard",
+   "quantity": 1
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1
+  },
+  {
+   "name": "Yuna's Whistle",
+   "quantity": 1
+  },
+  {
+   "name": "Clash of the Eikons",
+   "quantity": 1
+  },
+  {
+   "name": "Cultivate",
+   "quantity": 1
+  },
+  {
+   "name": "Damning Verdict",
+   "quantity": 1
+  },
+  {
+   "name": "Esper Origins",
+   "quantity": 1
+  },
+  {
+   "name": "Promise of Loyalty",
+   "quantity": 1
+  },
+  {
+   "name": "Reach the Horizon",
+   "quantity": 1
+  },
+  {
+   "name": "Yuna's Decision",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Crystal Fragments",
+   "quantity": 1
+  },
+  {
+   "name": "Power Conduit",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Summoner's Grimoire",
+   "quantity": 1
+  },
+  {
+   "name": "Talisman of Curiosity",
+   "quantity": 1
+  },
+  {
+   "name": "Talisman of Progress",
+   "quantity": 1
+  },
+  {
+   "name": "Talisman of Unity",
+   "quantity": 1
+  },
+  {
+   "name": "Prismatic Omen",
+   "quantity": 1
+  },
+  {
+   "name": "Together Forever",
+   "quantity": 1
+  },
+  {
+   "name": "Unstoppable Plan",
+   "quantity": 1
+  },
+  {
+   "name": "Balamb Garden, SeeD Academy",
+   "quantity": 1
+  },
+  {
+   "name": "Bountiful Promenade",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Capital City",
+   "quantity": 1
+  },
+  {
+   "name": "Command Bridge",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Deserted Beach",
+   "quantity": 1
+  },
+  {
+   "name": "Dreamroot Cascade",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Exotic Orchard",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 3
+  },
+  {
+   "name": "Guadosalam, Farplane Gateway",
+   "quantity": 1
+  },
+  {
+   "name": "Ishgard, the Holy See",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 3
+  },
+  {
+   "name": "Jidoor, Aristocratic Capital",
+   "quantity": 1
+  },
+  {
+   "name": "Mistrise Village",
+   "quantity": 1
+  },
+  {
+   "name": "Nesting Grounds",
+   "quantity": 1
+  },
+  {
+   "name": "Overgrown Farmland",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 3
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1
+  },
+  {
+   "name": "Public Thoroughfare",
+   "quantity": 1
+  },
+  {
+   "name": "Rejuvenating Springs",
+   "quantity": 1
+  },
+  {
+   "name": "Sea of Clouds",
+   "quantity": 1
+  },
+  {
+   "name": "Sharlayan, Nation of Scholars",
+   "quantity": 1
+  },
+  {
+   "name": "Starting Town",
+   "quantity": 1
+  },
+  {
+   "name": "Terramorphic Expanse",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Landscape",
+   "quantity": 1
+  },
+  {
+   "name": "Treva's Ruins",
+   "quantity": 1
+  },
+  {
+   "name": "Windurst, Federation Center",
+   "quantity": 1
+  },
+  {
+   "name": "Zanarkand, Ancient Metropolis",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

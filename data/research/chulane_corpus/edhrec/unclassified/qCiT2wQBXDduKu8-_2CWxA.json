@@ -1,0 +1,258 @@
+{
+ "urlhash": "qCiT2wQBXDduKu8-_2CWxA",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-02-09",
+ "price": 756,
+ "salt": 77.13309160247445,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/19800098?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Aesi, Tyrant of Gyre Strait",
+   "quantity": 1
+  },
+  {
+   "name": "Aftermath Analyst",
+   "quantity": 1
+  },
+  {
+   "name": "Ashaya, Soul of the Wild",
+   "quantity": 1
+  },
+  {
+   "name": "Badgermole Cub",
+   "quantity": 1
+  },
+  {
+   "name": "Beast Whisperer",
+   "quantity": 1
+  },
+  {
+   "name": "Birds of Paradise",
+   "quantity": 1
+  },
+  {
+   "name": "Blossoming Tortoise",
+   "quantity": 1
+  },
+  {
+   "name": "Derevi, Empyrial Tactician",
+   "quantity": 1
+  },
+  {
+   "name": "Displacer Kitten",
+   "quantity": 1
+  },
+  {
+   "name": "Formidable Speaker",
+   "quantity": 1
+  },
+  {
+   "name": "Hedron Crab",
+   "quantity": 1
+  },
+  {
+   "name": "Hullbreaker Horror",
+   "quantity": 1
+  },
+  {
+   "name": "Icetill Explorer",
+   "quantity": 1
+  },
+  {
+   "name": "Ioreth of the Healing House",
+   "quantity": 1
+  },
+  {
+   "name": "Karmic Guide",
+   "quantity": 1
+  },
+  {
+   "name": "Kinnan, Bonder Prodigy",
+   "quantity": 1
+  },
+  {
+   "name": "Laboratory Maniac",
+   "quantity": 1
+  },
+  {
+   "name": "Lotus Cobra",
+   "quantity": 1
+  },
+  {
+   "name": "Lumra, Bellow of the Woods",
+   "quantity": 1
+  },
+  {
+   "name": "Marvin, Murderous Mimic",
+   "quantity": 1
+  },
+  {
+   "name": "Noble Hierarch",
+   "quantity": 1
+  },
+  {
+   "name": "Priest of Titania",
+   "quantity": 1
+  },
+  {
+   "name": "Quirion Ranger",
+   "quantity": 1
+  },
+  {
+   "name": "Recruiter of the Guard",
+   "quantity": 1
+  },
+  {
+   "name": "Selvala, Explorer Returned",
+   "quantity": 1
+  },
+  {
+   "name": "Shrieking Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Six",
+   "quantity": 1
+  },
+  {
+   "name": "Springheart Nantuko",
+   "quantity": 1
+  },
+  {
+   "name": "Stinging Lionfish",
+   "quantity": 1
+  },
+  {
+   "name": "Summon: Titan",
+   "quantity": 1
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Thassa's Oracle",
+   "quantity": 1
+  },
+  {
+   "name": "Tireless Provisioner",
+   "quantity": 1
+  },
+  {
+   "name": "Village Bell-Ringer",
+   "quantity": 1
+  },
+  {
+   "name": "Whitemane Lion",
+   "quantity": 1
+  },
+  {
+   "name": "Vitalize",
+   "quantity": 1
+  },
+  {
+   "name": "Another Round",
+   "quantity": 1
+  },
+  {
+   "name": "Splendid Reclamation",
+   "quantity": 1
+  },
+  {
+   "name": "Will of the Sultai",
+   "quantity": 1
+  },
+  {
+   "name": "Amulet of Vigor",
+   "quantity": 1
+  },
+  {
+   "name": "Hedge Shredder",
+   "quantity": 1
+  },
+  {
+   "name": "Mobile Garrison",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Dazzling Theater // Prop Room",
+   "quantity": 1
+  },
+  {
+   "name": "Earthcraft",
+   "quantity": 1
+  },
+  {
+   "name": "Intruder Alarm",
+   "quantity": 1
+  },
+  {
+   "name": "Mana Breach",
+   "quantity": 1
+  },
+  {
+   "name": "Overburden",
+   "quantity": 1
+  },
+  {
+   "name": "Retreat to Coralhelm",
+   "quantity": 1
+  },
+  {
+   "name": "The Mending of Dominaria",
+   "quantity": 1
+  },
+  {
+   "name": "Kiora, Behemoth Beckoner",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Chancery",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 23
+  },
+  {
+   "name": "Island",
+   "quantity": 12
+  },
+  {
+   "name": "Mirrorpool",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 8
+  },
+  {
+   "name": "Selesnya Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Shifting Woodland",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Growth Chamber",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

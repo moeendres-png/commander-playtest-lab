@@ -1,0 +1,286 @@
+{
+ "urlhash": "pWRGq6P2fsgHbvV6ruY-bQ",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-08-20",
+ "price": 191,
+ "salt": 48.58762999018654,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/88AVKUEPoUSRNgm2DD1-ug?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Aesi, Tyrant of Gyre Strait",
+   "quantity": 1
+  },
+  {
+   "name": "Beast Whisperer",
+   "quantity": 1
+  },
+  {
+   "name": "Courser of Kruphix",
+   "quantity": 1
+  },
+  {
+   "name": "Evolution Sage",
+   "quantity": 1
+  },
+  {
+   "name": "Fearless Fledgling",
+   "quantity": 1
+  },
+  {
+   "name": "Grazing Gladehart",
+   "quantity": 1
+  },
+  {
+   "name": "Helga, Skittish Seer",
+   "quantity": 1
+  },
+  {
+   "name": "Humble Naturalist",
+   "quantity": 1
+  },
+  {
+   "name": "Inga and Esika",
+   "quantity": 1
+  },
+  {
+   "name": "Jaddi Offshoot",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Scout",
+   "quantity": 1
+  },
+  {
+   "name": "Lotus Cobra",
+   "quantity": 1
+  },
+  {
+   "name": "Murasa Rootgrazer",
+   "quantity": 1
+  },
+  {
+   "name": "Primordial Sage",
+   "quantity": 1
+  },
+  {
+   "name": "Quirion Beastcaller",
+   "quantity": 1
+  },
+  {
+   "name": "Sakura-Tribe Scout",
+   "quantity": 1
+  },
+  {
+   "name": "Scaled Herbalist",
+   "quantity": 1
+  },
+  {
+   "name": "Silverback Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Turntimber Basilisk",
+   "quantity": 1
+  },
+  {
+   "name": "Undergrowth Champion",
+   "quantity": 1
+  },
+  {
+   "name": "Uro, Titan of Nature's Wrath",
+   "quantity": 1
+  },
+  {
+   "name": "Volo, Guide to Monsters",
+   "quantity": 1
+  },
+  {
+   "name": "Volo, Itinerant Scholar",
+   "quantity": 1
+  },
+  {
+   "name": "Walking Atlas",
+   "quantity": 1
+  },
+  {
+   "name": "Groundswell",
+   "quantity": 1
+  },
+  {
+   "name": "Rest for the Weary",
+   "quantity": 1
+  },
+  {
+   "name": "Swell of Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Boundless Realms",
+   "quantity": 1
+  },
+  {
+   "name": "Brave the Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Cultivate",
+   "quantity": 1
+  },
+  {
+   "name": "Explosive Vegetation",
+   "quantity": 1
+  },
+  {
+   "name": "Harvest Season",
+   "quantity": 1
+  },
+  {
+   "name": "Lay of the Land",
+   "quantity": 1
+  },
+  {
+   "name": "Nissa's Renewal",
+   "quantity": 1
+  },
+  {
+   "name": "Adventuring Gear",
+   "quantity": 1
+  },
+  {
+   "name": "Herd Heirloom",
+   "quantity": 1
+  },
+  {
+   "name": "Kefnet's Monument",
+   "quantity": 1
+  },
+  {
+   "name": "Lifecrafter's Bestiary",
+   "quantity": 1
+  },
+  {
+   "name": "Oketra's Monument",
+   "quantity": 1
+  },
+  {
+   "name": "Rhonas's Monument",
+   "quantity": 1
+  },
+  {
+   "name": "Seer's Sundial",
+   "quantity": 1
+  },
+  {
+   "name": "Skyclave Pick-Axe",
+   "quantity": 1
+  },
+  {
+   "name": "Burgeoning",
+   "quantity": 1
+  },
+  {
+   "name": "Communal Brewing",
+   "quantity": 1
+  },
+  {
+   "name": "Druid Class",
+   "quantity": 1
+  },
+  {
+   "name": "Equilibrium",
+   "quantity": 1
+  },
+  {
+   "name": "Retreat to Kazandu",
+   "quantity": 1
+  },
+  {
+   "name": "Zendikar Resurgent",
+   "quantity": 1
+  },
+  {
+   "name": "Blossoming Sands",
+   "quantity": 1
+  },
+  {
+   "name": "Botanical Sanctum",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Deserted Beach",
+   "quantity": 1
+  },
+  {
+   "name": "Dreamroot Cascade",
+   "quantity": 1
+  },
+  {
+   "name": "Flooded Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 16
+  },
+  {
+   "name": "Glacial Fortress",
+   "quantity": 1
+  },
+  {
+   "name": "Hinterland Harbor",
+   "quantity": 1
+  },
+  {
+   "name": "Idyllic Beachfront",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 12
+  },
+  {
+   "name": "Nimbus Maze",
+   "quantity": 1
+  },
+  {
+   "name": "Overgrown Farmland",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 8
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1
+  },
+  {
+   "name": "Quandrix Campus",
+   "quantity": 1
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

@@ -1,0 +1,286 @@
+{
+ "urlhash": "pe51PH_Qr2zP3Sw6rkZDRA",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-06-18",
+ "price": 179,
+ "salt": 49.67658722400665,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/Ie9mw0wXwkuMhtxDu1QyiQ?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Aegis Angel",
+   "quantity": 1
+  },
+  {
+   "name": "Battle Mammoth",
+   "quantity": 1
+  },
+  {
+   "name": "Besotted Knight",
+   "quantity": 1
+  },
+  {
+   "name": "Drizzt Do'Urden",
+   "quantity": 1
+  },
+  {
+   "name": "Duskshell Crawler",
+   "quantity": 1
+  },
+  {
+   "name": "Elesh Norn",
+   "quantity": 1
+  },
+  {
+   "name": "Experiment Kraj",
+   "quantity": 1
+  },
+  {
+   "name": "Good-Fortune Unicorn",
+   "quantity": 1
+  },
+  {
+   "name": "Gran Pulse Ochu",
+   "quantity": 1
+  },
+  {
+   "name": "Gylwain, Casting Director",
+   "quantity": 1
+  },
+  {
+   "name": "Hamza, Guardian of Arashin",
+   "quantity": 1
+  },
+  {
+   "name": "Herd Baloth",
+   "quantity": 1
+  },
+  {
+   "name": "Iron Giant",
+   "quantity": 1
+  },
+  {
+   "name": "Kutzil, Malamet Exemplar",
+   "quantity": 1
+  },
+  {
+   "name": "Loyal Warhound",
+   "quantity": 1
+  },
+  {
+   "name": "Maja, Bretagard Protector",
+   "quantity": 1
+  },
+  {
+   "name": "Migrating Ketradon",
+   "quantity": 1
+  },
+  {
+   "name": "Morska, Undersea Sleuth",
+   "quantity": 1
+  },
+  {
+   "name": "Novice Inspector",
+   "quantity": 1
+  },
+  {
+   "name": "Rampant Rejuvenator",
+   "quantity": 1
+  },
+  {
+   "name": "Redtooth Genealogist",
+   "quantity": 1
+  },
+  {
+   "name": "Sagu Wildling",
+   "quantity": 1
+  },
+  {
+   "name": "Skyclave Sentinel",
+   "quantity": 1
+  },
+  {
+   "name": "Solemn Simulacrum",
+   "quantity": 1
+  },
+  {
+   "name": "Summon: Fenrir",
+   "quantity": 1
+  },
+  {
+   "name": "Surrak, Elusive Hunter",
+   "quantity": 1
+  },
+  {
+   "name": "Tyvar, the Pummeler",
+   "quantity": 1
+  },
+  {
+   "name": "Victory's Envoy",
+   "quantity": 1
+  },
+  {
+   "name": "Vorel of the Hull Clade",
+   "quantity": 1
+  },
+  {
+   "name": "Whirlwing Stormbrood",
+   "quantity": 1
+  },
+  {
+   "name": "Zegana, Utopian Speaker",
+   "quantity": 1
+  },
+  {
+   "name": "Airship Crash",
+   "quantity": 1
+  },
+  {
+   "name": "Angel's Grace",
+   "quantity": 1
+  },
+  {
+   "name": "Beast Within",
+   "quantity": 1
+  },
+  {
+   "name": "Path to Exile",
+   "quantity": 1
+  },
+  {
+   "name": "Prishe's Wanderings",
+   "quantity": 1
+  },
+  {
+   "name": "Restoration Magic",
+   "quantity": 1
+  },
+  {
+   "name": "Summoner's Pact",
+   "quantity": 1
+  },
+  {
+   "name": "Combat Tutorial",
+   "quantity": 1
+  },
+  {
+   "name": "Commune with Beavers",
+   "quantity": 1
+  },
+  {
+   "name": "Cultivate",
+   "quantity": 1
+  },
+  {
+   "name": "Doomskar",
+   "quantity": 1
+  },
+  {
+   "name": "Esper Origins",
+   "quantity": 1
+  },
+  {
+   "name": "Memories Returning",
+   "quantity": 1
+  },
+  {
+   "name": "Pick Your Poison",
+   "quantity": 1
+  },
+  {
+   "name": "Preordain",
+   "quantity": 1
+  },
+  {
+   "name": "Rite of Renewal",
+   "quantity": 1
+  },
+  {
+   "name": "Unending Whisper",
+   "quantity": 1
+  },
+  {
+   "name": "Akroma's Memorial",
+   "quantity": 1
+  },
+  {
+   "name": "Alhammarret's Archive",
+   "quantity": 1
+  },
+  {
+   "name": "Chromatic Lantern",
+   "quantity": 1
+  },
+  {
+   "name": "Cloud Key",
+   "quantity": 1
+  },
+  {
+   "name": "Contagion Clasp",
+   "quantity": 1
+  },
+  {
+   "name": "Heirloom Blade",
+   "quantity": 1
+  },
+  {
+   "name": "Lunatic Pandora",
+   "quantity": 1
+  },
+  {
+   "name": "Nevinyrral's Disk",
+   "quantity": 1
+  },
+  {
+   "name": "Pattern of Rebirth",
+   "quantity": 1
+  },
+  {
+   "name": "Static Snare",
+   "quantity": 1
+  },
+  {
+   "name": "Oko, Thief of Crowns",
+   "quantity": 1
+  },
+  {
+   "name": "Archway of Innovation",
+   "quantity": 1
+  },
+  {
+   "name": "Cephalid Coliseum",
+   "quantity": 1
+  },
+  {
+   "name": "Crossroads Village",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 12
+  },
+  {
+   "name": "Island",
+   "quantity": 12
+  },
+  {
+   "name": "Plains",
+   "quantity": 12
+  },
+  {
+   "name": "Sharlayan, Nation of Scholars",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

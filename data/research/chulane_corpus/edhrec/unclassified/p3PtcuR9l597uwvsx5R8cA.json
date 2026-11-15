@@ -1,0 +1,382 @@
+{
+ "urlhash": "p3PtcuR9l597uwvsx5R8cA",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-02-27",
+ "price": 261,
+ "salt": 46.922501938417554,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/bQ-JbsjbP0eyOUCVgZwKTQ?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Alharu, Solemn Ritualist",
+   "quantity": 1
+  },
+  {
+   "name": "Ambush Viper",
+   "quantity": 1
+  },
+  {
+   "name": "Ancient Imperiosaur",
+   "quantity": 1
+  },
+  {
+   "name": "Annoyed Altisaur",
+   "quantity": 1
+  },
+  {
+   "name": "Aragorn and Arwen, Wed",
+   "quantity": 1
+  },
+  {
+   "name": "Avacyn, Angel of Hope",
+   "quantity": 1
+  },
+  {
+   "name": "Blightsteel Colossus",
+   "quantity": 1
+  },
+  {
+   "name": "Bonny Pall, Clearcutter",
+   "quantity": 1
+  },
+  {
+   "name": "Cartographer's Hawk",
+   "quantity": 1
+  },
+  {
+   "name": "Citanul Hierophants",
+   "quantity": 1
+  },
+  {
+   "name": "Drizzt Do'Urden",
+   "quantity": 1
+  },
+  {
+   "name": "Edric, Spymaster of Trest",
+   "quantity": 1
+  },
+  {
+   "name": "Ellie and Alan, Paleontologists",
+   "quantity": 1
+  },
+  {
+   "name": "Elusive Krasis",
+   "quantity": 1
+  },
+  {
+   "name": "Enduring Curiosity",
+   "quantity": 1
+  },
+  {
+   "name": "Faramir, Prince of Ithilien",
+   "quantity": 1
+  },
+  {
+   "name": "Garruk's Packleader",
+   "quantity": 1
+  },
+  {
+   "name": "Grazilaxx, Illithid Scholar",
+   "quantity": 1
+  },
+  {
+   "name": "Herald of Secret Streams",
+   "quantity": 1
+  },
+  {
+   "name": "Hullbreaker Horror",
+   "quantity": 1
+  },
+  {
+   "name": "Kutzil, Malamet Exemplar",
+   "quantity": 1
+  },
+  {
+   "name": "Lilysplash Mentor",
+   "quantity": 1
+  },
+  {
+   "name": "Lunarch Veteran",
+   "quantity": 1
+  },
+  {
+   "name": "Managorger Hydra",
+   "quantity": 1
+  },
+  {
+   "name": "Mist Raven",
+   "quantity": 1
+  },
+  {
+   "name": "Niblis of the Urn",
+   "quantity": 1
+  },
+  {
+   "name": "Odric, Lunarch Marshal",
+   "quantity": 1
+  },
+  {
+   "name": "Ohran Frostfang",
+   "quantity": 1
+  },
+  {
+   "name": "Psychosis Crawler",
+   "quantity": 1
+  },
+  {
+   "name": "Scion of Calamity",
+   "quantity": 1
+  },
+  {
+   "name": "Selvala, Explorer Returned",
+   "quantity": 1
+  },
+  {
+   "name": "Sunblade Angel",
+   "quantity": 1
+  },
+  {
+   "name": "Terastodon",
+   "quantity": 1
+  },
+  {
+   "name": "Thalia, Heretic Cathar",
+   "quantity": 1
+  },
+  {
+   "name": "The Peregrine Dynamo",
+   "quantity": 1
+  },
+  {
+   "name": "Three Tree Scribe",
+   "quantity": 1
+  },
+  {
+   "name": "Thrummingbird",
+   "quantity": 1
+  },
+  {
+   "name": "Tomik, Distinguished Advokist",
+   "quantity": 1
+  },
+  {
+   "name": "Troyan, Gutsy Explorer",
+   "quantity": 1
+  },
+  {
+   "name": "Watcher in the Web",
+   "quantity": 1
+  },
+  {
+   "name": "Whiptongue Hydra",
+   "quantity": 1
+  },
+  {
+   "name": "White Orchid Phantom",
+   "quantity": 1
+  },
+  {
+   "name": "Officious Interrogation",
+   "quantity": 1
+  },
+  {
+   "name": "Rally of Wings",
+   "quantity": 1
+  },
+  {
+   "name": "Summary Dismissal",
+   "quantity": 1
+  },
+  {
+   "name": "Voidslime",
+   "quantity": 1
+  },
+  {
+   "name": "Promise of Loyalty",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Chalice of Life",
+   "quantity": 1
+  },
+  {
+   "name": "Conjurer's Closet",
+   "quantity": 1
+  },
+  {
+   "name": "Cryptolith Fragment",
+   "quantity": 1
+  },
+  {
+   "name": "Firemind Vessel",
+   "quantity": 1
+  },
+  {
+   "name": "Glowcap Lantern",
+   "quantity": 1
+  },
+  {
+   "name": "Hedron Archive",
+   "quantity": 1
+  },
+  {
+   "name": "Lumbering Worldwagon",
+   "quantity": 1
+  },
+  {
+   "name": "Nevinyrral's Disk",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Colossal Majesty",
+   "quantity": 1
+  },
+  {
+   "name": "Cryptolith Rite",
+   "quantity": 1
+  },
+  {
+   "name": "Dissipation Field",
+   "quantity": 1
+  },
+  {
+   "name": "Felidar Retreat",
+   "quantity": 1
+  },
+  {
+   "name": "Imprisoned in the Moon",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Chancery",
+   "quantity": 1
+  },
+  {
+   "name": "Blossoming Sands",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Exotic Orchard",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 4
+  },
+  {
+   "name": "Fortified Village",
+   "quantity": 1
+  },
+  {
+   "name": "Great Hall of the Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Hinterland Harbor",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 4
+  },
+  {
+   "name": "Karn's Bastion",
+   "quantity": 1
+  },
+  {
+   "name": "Krosan Verge",
+   "quantity": 1
+  },
+  {
+   "name": "Lonely Arroyo",
+   "quantity": 1
+  },
+  {
+   "name": "Lush Oasis",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 4
+  },
+  {
+   "name": "Port Town",
+   "quantity": 1
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1
+  },
+  {
+   "name": "Radiant Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Growth Chamber",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Guildgate",
+   "quantity": 1
+  },
+  {
+   "name": "Skybridge Towers",
+   "quantity": 1
+  },
+  {
+   "name": "Tanglepool Bridge",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Enlightenment",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Plenty",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of the False God",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Cove",
+   "quantity": 1
+  },
+  {
+   "name": "Woodland Stream",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

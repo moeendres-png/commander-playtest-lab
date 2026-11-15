@@ -1,0 +1,302 @@
+{
+ "urlhash": "pdpTKNvu4u2a0cUa6vHqOw",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-06-28",
+ "price": 348,
+ "salt": 47.44424134865403,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/23894152?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Aang, Swift Savior",
+   "quantity": 1
+  },
+  {
+   "name": "Adaptive Automaton",
+   "quantity": 1
+  },
+  {
+   "name": "Adeline, Resplendent Cathar",
+   "quantity": 1
+  },
+  {
+   "name": "Angel of Glory's Rise",
+   "quantity": 1
+  },
+  {
+   "name": "Arcade Gannon",
+   "quantity": 1
+  },
+  {
+   "name": "Avacyn's Pilgrim",
+   "quantity": 1
+  },
+  {
+   "name": "Bastion Protector",
+   "quantity": 1
+  },
+  {
+   "name": "Boromir, Gondor's Hope",
+   "quantity": 1
+  },
+  {
+   "name": "Boromir, Warden of the Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Bruna, the Fading Light",
+   "quantity": 1
+  },
+  {
+   "name": "Cathar Commando",
+   "quantity": 1
+  },
+  {
+   "name": "Dauntless Dismantler",
+   "quantity": 1
+  },
+  {
+   "name": "Dennick, Pious Apprentice",
+   "quantity": 1
+  },
+  {
+   "name": "Faramir, Prince of Ithilien",
+   "quantity": 1
+  },
+  {
+   "name": "Faramir, Steward of Gondor",
+   "quantity": 1
+  },
+  {
+   "name": "Gisela, the Broken Blade",
+   "quantity": 1
+  },
+  {
+   "name": "Glasspool Mimic",
+   "quantity": 1
+  },
+  {
+   "name": "Goldbug, Humanity's Ally",
+   "quantity": 1
+  },
+  {
+   "name": "Herald of War",
+   "quantity": 1
+  },
+  {
+   "name": "Inga and Esika",
+   "quantity": 1
+  },
+  {
+   "name": "Katilda, Dawnhart Prime",
+   "quantity": 1
+  },
+  {
+   "name": "Kellan, Inquisitive Prodigy",
+   "quantity": 1
+  },
+  {
+   "name": "Lavinia, Azorius Renegade",
+   "quantity": 1
+  },
+  {
+   "name": "Loran of the Third Path",
+   "quantity": 1
+  },
+  {
+   "name": "Mangara, the Diplomat",
+   "quantity": 1
+  },
+  {
+   "name": "Mentor of the Meek",
+   "quantity": 1
+  },
+  {
+   "name": "Metallic Mimic",
+   "quantity": 1
+  },
+  {
+   "name": "Mutable Explorer",
+   "quantity": 1
+  },
+  {
+   "name": "Noble Hierarch",
+   "quantity": 1
+  },
+  {
+   "name": "Reflector Mage",
+   "quantity": 1
+  },
+  {
+   "name": "Sanctifier en-Vec",
+   "quantity": 1
+  },
+  {
+   "name": "Shaman of Forgotten Ways",
+   "quantity": 1
+  },
+  {
+   "name": "Sigarda, Champion of Light",
+   "quantity": 1
+  },
+  {
+   "name": "Sigarda, Font of Blessings",
+   "quantity": 1
+  },
+  {
+   "name": "Somberwald Sage",
+   "quantity": 1
+  },
+  {
+   "name": "Venser, Shaper Savant",
+   "quantity": 1
+  },
+  {
+   "name": "Voice of Victory",
+   "quantity": 1
+  },
+  {
+   "name": "Witch Enchanter",
+   "quantity": 1
+  },
+  {
+   "name": "Akroma's Will",
+   "quantity": 1
+  },
+  {
+   "name": "An Offer You Can't Refuse",
+   "quantity": 1
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1
+  },
+  {
+   "name": "Flare of Denial",
+   "quantity": 1
+  },
+  {
+   "name": "Flare of Fortitude",
+   "quantity": 1
+  },
+  {
+   "name": "Generous Gift",
+   "quantity": 1
+  },
+  {
+   "name": "Get Lost",
+   "quantity": 1
+  },
+  {
+   "name": "Negate",
+   "quantity": 1
+  },
+  {
+   "name": "Path to Exile",
+   "quantity": 1
+  },
+  {
+   "name": "Sink into Stupor",
+   "quantity": 1
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1
+  },
+  {
+   "name": "Veil of Summer",
+   "quantity": 1
+  },
+  {
+   "name": "Farseek",
+   "quantity": 1
+  },
+  {
+   "name": "Mass Appeal",
+   "quantity": 1
+  },
+  {
+   "name": "Nature's Lore",
+   "quantity": 1
+  },
+  {
+   "name": "Raise the Palisade",
+   "quantity": 1
+  },
+  {
+   "name": "Three Visits",
+   "quantity": 1
+  },
+  {
+   "name": "Turntimber Symbiosis",
+   "quantity": 1
+  },
+  {
+   "name": "Winnowing",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Bident of Thassa",
+   "quantity": 1
+  },
+  {
+   "name": "Chronicle of Victory",
+   "quantity": 1
+  },
+  {
+   "name": "Horn of Gondor",
+   "quantity": 1
+  },
+  {
+   "name": "Patchwork Banner",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Vanquisher's Banner",
+   "quantity": 1
+  },
+  {
+   "name": "Descendants' Path",
+   "quantity": 1
+  },
+  {
+   "name": "Guardian Project",
+   "quantity": 1
+  },
+  {
+   "name": "Kindred Discovery",
+   "quantity": 1
+  },
+  {
+   "name": "Renewed Solidarity",
+   "quantity": 1
+  },
+  {
+   "name": "Zendikar Resurgent",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 30
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

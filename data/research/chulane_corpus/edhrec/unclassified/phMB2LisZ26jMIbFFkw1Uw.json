@@ -1,0 +1,370 @@
+{
+ "urlhash": "phMB2LisZ26jMIbFFkw1Uw",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-10-12",
+ "price": 236,
+ "salt": 51.673498537391424,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/OxEyMhgNakS2SzOOS5XzVg?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Abzan Falconer",
+   "quantity": 1
+  },
+  {
+   "name": "Adeline, Resplendent Cathar",
+   "quantity": 1
+  },
+  {
+   "name": "Aragorn and Arwen, Wed",
+   "quantity": 1
+  },
+  {
+   "name": "Arcade Gannon",
+   "quantity": 1
+  },
+  {
+   "name": "Archetype of Imagination",
+   "quantity": 1
+  },
+  {
+   "name": "Auriok Champion",
+   "quantity": 1
+  },
+  {
+   "name": "Avacyn's Pilgrim",
+   "quantity": 1
+  },
+  {
+   "name": "Bastion Protector",
+   "quantity": 1
+  },
+  {
+   "name": "Bugenhagen, Wise Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Cemetery Protector",
+   "quantity": 1
+  },
+  {
+   "name": "Champion of Lambholt",
+   "quantity": 1
+  },
+  {
+   "name": "Champion of the Parish",
+   "quantity": 1
+  },
+  {
+   "name": "Coppercoat Vanguard",
+   "quantity": 1
+  },
+  {
+   "name": "Daring Apprentice",
+   "quantity": 1
+  },
+  {
+   "name": "Diplomatic Escort",
+   "quantity": 1
+  },
+  {
+   "name": "Disruptive Pitmage",
+   "quantity": 1
+  },
+  {
+   "name": "Disruptive Student",
+   "quantity": 1
+  },
+  {
+   "name": "Drannith Magistrate",
+   "quantity": 1
+  },
+  {
+   "name": "False Prophet",
+   "quantity": 1
+  },
+  {
+   "name": "Frontline Medic",
+   "quantity": 1
+  },
+  {
+   "name": "Gadwick, the Wizened",
+   "quantity": 1
+  },
+  {
+   "name": "Graceful Adept",
+   "quantity": 1
+  },
+  {
+   "name": "Grand Arbiter Augustin IV",
+   "quantity": 1
+  },
+  {
+   "name": "Haliya, Guided by Light",
+   "quantity": 1
+  },
+  {
+   "name": "Heronblade Elite",
+   "quantity": 1
+  },
+  {
+   "name": "Humble Naturalist",
+   "quantity": 1
+  },
+  {
+   "name": "Imposing Sovereign",
+   "quantity": 1
+  },
+  {
+   "name": "Inga and Esika",
+   "quantity": 1
+  },
+  {
+   "name": "Intrepid Hero",
+   "quantity": 1
+  },
+  {
+   "name": "Jackal, Genius Geneticist",
+   "quantity": 1
+  },
+  {
+   "name": "Katilda, Dawnhart Prime",
+   "quantity": 1
+  },
+  {
+   "name": "Kinnan, Bonder Prodigy",
+   "quantity": 1
+  },
+  {
+   "name": "Kyler, Sigardian Emissary",
+   "quantity": 1
+  },
+  {
+   "name": "Kytheon, Hero of Akros",
+   "quantity": 1
+  },
+  {
+   "name": "Lagrella, the Magpie",
+   "quantity": 1
+  },
+  {
+   "name": "Lossarnach Captain",
+   "quantity": 1
+  },
+  {
+   "name": "Magus of the Disk",
+   "quantity": 1
+  },
+  {
+   "name": "Magus of the Tabernacle",
+   "quantity": 1
+  },
+  {
+   "name": "Mangara of Corondor",
+   "quantity": 1
+  },
+  {
+   "name": "Mangara, the Diplomat",
+   "quantity": 1
+  },
+  {
+   "name": "Masako the Humorless",
+   "quantity": 1
+  },
+  {
+   "name": "Michiko Konda, Truth Seeker",
+   "quantity": 1
+  },
+  {
+   "name": "Myrel, Shield of Argive",
+   "quantity": 1
+  },
+  {
+   "name": "Northern Paladin",
+   "quantity": 1
+  },
+  {
+   "name": "Odric, Master Tactician",
+   "quantity": 1
+  },
+  {
+   "name": "Reclusive Taxidermist",
+   "quantity": 1
+  },
+  {
+   "name": "Riders of Gavony",
+   "quantity": 1
+  },
+  {
+   "name": "Samite Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Somberwald Sage",
+   "quantity": 1
+  },
+  {
+   "name": "Soul Warden",
+   "quantity": 1
+  },
+  {
+   "name": "Starfield Vocalist",
+   "quantity": 1
+  },
+  {
+   "name": "Stronghold Biologist",
+   "quantity": 1
+  },
+  {
+   "name": "Sylvok Explorer",
+   "quantity": 1
+  },
+  {
+   "name": "Thalia's Lieutenant",
+   "quantity": 1
+  },
+  {
+   "name": "Thalia, Heretic Cathar",
+   "quantity": 1
+  },
+  {
+   "name": "Tifa Lockhart",
+   "quantity": 1
+  },
+  {
+   "name": "Torens, Fist of the Angels",
+   "quantity": 1
+  },
+  {
+   "name": "Village Bell-Ringer",
+   "quantity": 1
+  },
+  {
+   "name": "Willbreaker",
+   "quantity": 1
+  },
+  {
+   "name": "Wose Pathfinder",
+   "quantity": 1
+  },
+  {
+   "name": "Zimone, Paradox Sculptor",
+   "quantity": 1
+  },
+  {
+   "name": "Adarkar Wastes",
+   "quantity": 1
+  },
+  {
+   "name": "Botanical Sanctum",
+   "quantity": 1
+  },
+  {
+   "name": "Brushland",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 5
+  },
+  {
+   "name": "Fortified Village",
+   "quantity": 1
+  },
+  {
+   "name": "Glacial Fortress",
+   "quantity": 1
+  },
+  {
+   "name": "Hinterland Harbor",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 5
+  },
+  {
+   "name": "Overgrown Farmland",
+   "quantity": 1
+  },
+  {
+   "name": "Path of Ancestry",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 5
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1
+  },
+  {
+   "name": "Razorverge Thicket",
+   "quantity": 1
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Secluded Courtyard",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Growth Chamber",
+   "quantity": 1
+  },
+  {
+   "name": "Skycloud Expanse",
+   "quantity": 1
+  },
+  {
+   "name": "Sungrass Prairie",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Enlightenment",
+   "quantity": 1
+  },
+  {
+   "name": "Unclaimed Territory",
+   "quantity": 1
+  },
+  {
+   "name": "Urban Retreat",
+   "quantity": 1
+  },
+  {
+   "name": "Waterlogged Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Yavimaya Coast",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}
