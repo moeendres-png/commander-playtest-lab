@@ -14,7 +14,7 @@ import json
 from collections.abc import Iterator, Mapping
 from pathlib import Path
 
-from .store import DataClass, StudioStore, rebuild_corpus_deck_role, sha256_file
+from .store import COUNTED_SECTIONS, DataClass, StudioStore, rebuild_corpus_deck_role, sha256_file
 
 _SKIPPED_LAYOUTS = frozenset(
     {"token", "double_faced_token", "emblem", "art_series", "planar", "scheme", "vanguard"}
@@ -487,6 +487,7 @@ def refresh_corpus_stats(store: StudioStore) -> dict[str, object]:
     A land is a card whose front type line says Land. Cards that are not found in the
     card data are not counted; ``resolved`` says how many cards of the deck were found.
     """
+    placeholders = ", ".join("?" for _ in COUNTED_SECTIONS)
     with store.connection as db:
         db.execute("DELETE FROM corpus_deck_stat")
         db.execute(
@@ -503,7 +504,8 @@ def refresh_corpus_stats(store: StudioStore) -> dict[str, object]:
             "  SELECT oracle_id, mana_value, CASE WHEN INSTR(type_line, ' // ') > 0 "
             "  THEN SUBSTR(type_line, 1, INSTR(type_line, ' // ') - 1) ELSE type_line END "
             "  AS front_type FROM scryfall_card) s ON s.oracle_id = k.oracle_id "
-            "WHERE k.section != 'sideboard' GROUP BY k.deck_id"
+            f"WHERE k.section IN ({placeholders}) GROUP BY k.deck_id",
+            tuple(COUNTED_SECTIONS),
         )
     return {"corpus_decks_with_stats": store.count("corpus_deck_stat")}
 

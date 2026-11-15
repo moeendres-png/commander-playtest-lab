@@ -7,7 +7,7 @@ from collections.abc import Sequence
 
 from .builder import bound_to
 from .decks import color_set
-from .store import StudioStore
+from .store import COUNTED_SECTIONS, StudioStore
 
 
 def legal_pool(store: StudioStore, commander_names: list[str]) -> list[sqlite3.Row]:
@@ -55,11 +55,13 @@ def corpus_inclusion(
             f"SELECT COUNT(*) FROM corpus_deck d WHERE {where}", parameters
         ).fetchone()[0]
     )
+    placeholders = ", ".join("?" for _ in COUNTED_SECTIONS)
     hits = int(
         store.connection.execute(
             "SELECT COUNT(DISTINCT c.deck_id) FROM corpus_deck_card c JOIN corpus_deck d "
-            f"USING (deck_id) WHERE {where} AND c.card_name = ? AND c.section != 'sideboard'",
-            [*parameters, card_name],
+            f"USING (deck_id) WHERE {where} AND c.card_name = ? "
+            f"AND c.section IN ({placeholders})",
+            [*parameters, card_name, *COUNTED_SECTIONS],
         ).fetchone()[0]
     )
     return {

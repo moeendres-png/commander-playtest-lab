@@ -18,6 +18,7 @@ import sqlite3
 import sys
 import tempfile
 from collections.abc import Callable, Mapping, Sequence
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import TypedDict
 
@@ -178,7 +179,8 @@ def _deck_hits(card: dict[str, object]) -> int:
 
 def completeness(store: StudioStore, commander: str) -> tuple[int | None, list[LayerResult]]:
     """The pool size of ``commander`` (None when it is not in the collection) and one entry
-    per data layer."""
+    per data layer. Commander-specific layers exclude the commander card itself from N and
+    covered, since a commander cannot appear as a card in its own 99 or EDHREC table."""
     layers: list[LayerResult] = []
     try:
         pool = builder.pool_cards(store, [commander], with_signals=False)
@@ -186,18 +188,33 @@ def completeness(store: StudioStore, commander: str) -> tuple[int | None, list[L
         pool = None
     raw = pool["cards"] if pool is not None else []
     cards = [dict(card) for card in raw] if isinstance(raw, list) else []
+    commander_ids = (
+        {str(cid) for cid in raw_cmd}
+        if pool is not None and isinstance((raw_cmd := pool.get("commander_ids")), list)
+        else set()
+    )
+    non_cmd_cards = [card for card in cards if str(card["card_id"]) not in commander_ids]
     size = len(cards) if pool is not None else None
+    non_cmd_size = len(non_cmd_cards) if pool is not None else None
     total = size or 0
 
-    def add(key: str, layer: str, rows: int, covered: int) -> None:
+    def add(
+        key: str,
+        layer: str,
+        rows: int,
+        covered: int,
+        *,
+        layer_pool: int | None = size,
+    ) -> None:
+        pool_count = 0 if layer_pool is None else layer_pool
         layers.append(
             {
                 "key": key,
                 "layer": layer,
                 "rows": rows,
                 "covered": covered,
-                "pool": size,
-                "status": _status(rows, covered, total),
+                "pool": layer_pool,
+                "status": _status(rows, covered, pool_count),
             }
         )
 
@@ -227,24 +244,32 @@ def completeness(store: StudioStore, commander: str) -> tuple[int | None, list[L
         _count(store, "SELECT COUNT(*) FROM card_ruling"),
         sum(1 for card in cards if str(card["card_id"]) in with_rulings),
     )
-    _repo_layers(store, cards, add)
+    _repo_layers(store, cards, non_cmd_cards, size, non_cmd_size, add)
     binding = builder.corpus_binding(store, [commander])
     bound = binding["bound_decks"]
     add(
         "decklists",
         "Quelldecks (Decklisten)",
         bound if isinstance(bound, int) else 0,
-        sum(1 for card in cards if _deck_hits(card) > 0),
+        sum(1 for card in non_cmd_cards if _deck_hits(card) > 0),
+        layer_pool=non_cmd_size,
     )
     try:
-        coverage = strength_view.signal_coverage(store, commander)
+        coverage = strength_view.signal_coverage(store, commander, include_commanders=False)
     except KeyError:
         coverage = {}
     own_signals = {signals.SIGNAL_SALT: "", signals.SIGNAL_COMBO_DECKS: commander}
     for signal, item in coverage.items():
         if signal in own_signals:
             continue  # counted below with the right owner (strength_view reads it as the commander's)
-        add(f"signal:{signal}", f"Signal {signal}", item["rows"], item["pool_cards_with_value"])
+        layer_pool = non_cmd_size if item["scope"] == "commander" else size
+        add(
+            f"signal:{signal}",
+            f"Signal {signal}",
+            item["rows"],
+            item["pool_cards_with_value"],
+            layer_pool=layer_pool,
+        )
     for signal, owner in own_signals.items():
         found = {
             str(row[0]).casefold()
@@ -254,6 +279,8 @@ def completeness(store: StudioStore, commander: str) -> tuple[int | None, list[L
                 (signal, owner),
             )
         }
+        target_cards = non_cmd_cards if owner else cards
+        layer_pool = non_cmd_size if owner else size
         add(
             signal,  # no "signal:" prefix: the signal layers of the pages stay the fixed list
             f"Signal {signal}",
@@ -262,7 +289,8 @@ def completeness(store: StudioStore, commander: str) -> tuple[int | None, list[L
                 "SELECT COUNT(*) FROM card_signal WHERE signal = ? AND commander_name = ?",
                 (signal, owner),
             ),
-            sum(1 for card in cards if str(card["name"]).casefold() in found),
+            sum(1 for card in target_cards if str(card["name"]).casefold() in found),
+            layer_pool=layer_pool,
         )
     # Marks are optional per card: present (with the count) or not provided, never partial.
     marked = sum(1 for card in cards if card["favorite"] or card["excluded"] or card["note"])
@@ -282,11 +310,15 @@ def completeness(store: StudioStore, commander: str) -> tuple[int | None, list[L
 def _repo_layers(
     store: StudioStore,
     cards: list[dict[str, object]],
-    add: Callable[[str, str, int, int], None],
+    non_cmd_cards: list[dict[str, object]],
+    size: int | None,
+    non_cmd_size: int | None,
+    add: Callable[..., None],
 ) -> None:
     """The layers ``--from-repo`` fills: corpus decks, EDHREC observations, Playgroup atlas."""
     db = store.connection
     ids = {str(card["card_id"]) for card in cards}
+    non_cmd_ids = {str(card["card_id"]) for card in non_cmd_cards}
     corpus_oracle_ids = memo.cached(
         store,
         "corpus_oracle_ids",
@@ -308,6 +340,7 @@ def _repo_layers(
         "Korpus (Decks, alle)",
         _count(store, "SELECT COUNT(*) FROM corpus_deck"),
         len(ids & in_corpus),
+        layer_pool=size,
     )
     observed = {
         str(row[0])
@@ -317,7 +350,8 @@ def _repo_layers(
         "observations",
         "EDHREC-Beobachtungen (Themen)",
         _count(store, "SELECT COUNT(*) FROM observation"),
-        len(ids & observed),
+        len(non_cmd_ids & observed),
+        layer_pool=non_cmd_size,
     )
     atlas = {
         str(row[0])
@@ -331,6 +365,7 @@ def _repo_layers(
         "Playgroup-Atlas",
         _count(store, "SELECT COUNT(*) FROM playgroup_card_atlas"),
         len(ids & atlas),
+        layer_pool=size,
     )
 
 
@@ -676,6 +711,33 @@ def _available(store: StudioStore) -> str:
     return shown or "keine gefunden"
 
 
+def _write_failure_report(
+    store: StudioStore,
+    reason: str,
+    result: ImportAllResult | None = None,
+    *,
+    commander: str | None = None,
+) -> Path | None:
+    """Write a diagnostic text report into the Studio data directory whenever import-all fails."""
+    if store.path is None:
+        return None
+    stamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%S-%fZ")
+    report_path = store.path.parent / f"import-all-fehlerbericht-{stamp}.txt"
+    who = result["commander"] if result is not None else (commander or "unbekannt")
+    lines = [
+        "Commander Studio — import-all Fehlerbericht",
+        f"Zeitpunkt (UTC): {stamp}",
+        f"Commander: {who}",
+        f"Datenbank: {store.path}",
+        f"Ursache: {reason}",
+    ]
+    if result is not None:
+        lines.extend(["", render(result)])
+    report_path.parent.mkdir(parents=True, exist_ok=True)
+    report_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    return report_path
+
+
 def run_command(args: argparse.Namespace) -> int:
     """The ``import-all`` command; returns the process exit code."""
     store = StudioStore.open(args.data)
@@ -683,10 +745,20 @@ def run_command(args: argparse.Namespace) -> int:
         try:
             result = run(args, store)
         except ValueError as error:
+            report_path = _write_failure_report(
+                store, str(error), commander=str(getattr(args, "commander", "") or "")
+            )
+            if report_path is not None:
+                print(f"Fehlerbericht gespeichert: {report_path}", file=sys.stderr)
             raise SystemExit(f"import-all: {error}") from None
         print(render(result))
         if result["failed"]:
             print("import-all: ein Schritt ist fehlgeschlagen.", file=sys.stderr)
+            report_path = _write_failure_report(
+                store, "ein Schritt ist fehlgeschlagen.", result=result
+            )
+            if report_path is not None:
+                print(f"Fehlerbericht gespeichert: {report_path}", file=sys.stderr)
             return EXIT_STEP_FAILED
         if result["pool_size"] is None:
             print(
@@ -695,12 +767,20 @@ def run_command(args: argparse.Namespace) -> int:
                 f"Verfügbare Commander: {_available(store)}",
                 file=sys.stderr,
             )
+            report_path = _write_failure_report(
+                store,
+                f"Commander {result['commander']!r} steht nicht in der Sammlung.",
+                result=result,
+            )
+            if report_path is not None:
+                print(f"Fehlerbericht gespeichert: {report_path}", file=sys.stderr)
             return EXIT_COMMANDER_UNKNOWN
         if not result["pool_ok"]:
-            print(
-                f"import-all: Poolgröße {result['pool_size']}, erwartet {result['expected_pool']}.",
-                file=sys.stderr,
-            )
+            reason = f"Poolgröße {result['pool_size']}, erwartet {result['expected_pool']}."
+            print(f"import-all: {reason}", file=sys.stderr)
+            report_path = _write_failure_report(store, reason, result=result)
+            if report_path is not None:
+                print(f"Fehlerbericht gespeichert: {report_path}", file=sys.stderr)
             return EXIT_POOL_MISMATCH
         return 0
     finally:

@@ -62,13 +62,12 @@ const LEVEL_RANK = { S: 5, A: 4, B: 3, C: 2, D: 1, U: 0 };
 const NO_UNIVERSE = "kein Universum gewählt";
 const FILTER_LABEL = "Filterkarte";
 const SPREAD_NOTE = "Gezählt: in wie vielen Decks des gewählten Universums die Karte steht. Das ist keine Kartenstärke und kein Tier. Favoriten, Ausschlüsse und Notizen ändern keine Zählung.";
-const REASON_NAMES = { FILTER_CARD: "Filterkarte des Universums", SHARE_CUT: "Anteil erreicht die Schwelle", BELOW_LOWEST_CUT: "Anteil unter der niedrigsten Schwelle", UNIVERSE_TOO_SMALL: "Universum kleiner als das Minimum", DENOMINATOR_MISSING: "Nenner fehlt", NAME_NOT_FOUND_IN_UNIVERSE: "Name kommt im Universum nicht vor (unbekannt, nicht null)" };
+const REASON_NAMES = { FILTER_CARD: "Filterkarte des Universums", SHARE_CUT: "Anteil erreicht die Schwelle", BELOW_LOWEST_CUT: "Anteil unter der niedrigsten Schwelle", UNIVERSE_TOO_SMALL: "Universum kleiner als das Minimum", DENOMINATOR_MISSING: "Nenner fehlt", NAME_NOT_FOUND_IN_UNIVERSE: "Name kommt im Universum nicht vor (unbekannt, nicht null)", UNIVERSE_EMPTY: "Universum ist leer (0 Decks)", NO_SOURCE_DECKS_FOR_COMMANDER: "Für diesen Commander sind keine Quelldecks importiert", FILTERS_EXCLUDE_ALL_DECKS: "Die Filter des Universums lassen kein Deck übrig" };
 const UNIVERSE_KEY = "studio.universe.profile";
 const STRENGTH_KEY = "studio.strength.settings";
 const SORT_KEY = "studio.tier.sort";
 const STRENGTH_NOTE = "Der Stärke-Index ist eine Schätzung aus Nutzungssignalen (wie oft die Karte bei diesem Commander, im Bracket, in den gewählten Decklisten und in Turnierlisten gespielt wird). Er ist keine gemessene Siegrate. Eine Karte, die eine Quelle nicht nennt, senkt die Datenlage, nie die Karte. Favoriten, Ausschlüsse und Notizen fließen nicht ein.";
 const UNKNOWN_TIER = "zu wenig Daten";
-const BRACKET_NAMES = { core: "Core (Bracket 1–2)", upgraded: "Upgraded (Bracket 3)", optimized: "Optimized (Bracket 4)", cedh: "cEDH (Bracket 5)", none: "kein Bracket" };
 const COMPONENT_STATUS = {
   PRESENT: ["vorhanden", "good"],
   NO_VALUE: ["kein Wert (fehlende Beobachtung)", "warn"],
@@ -111,7 +110,7 @@ function h(tag, props, ...children) {
   }
   return el;
 }
-const api = (path, body, method) => StudioUI.request(path, body === undefined ? "GET" : (method || "POST"), body);
+const api = (path, body, method) => StudioUI.request(path, method || (body === undefined ? "GET" : "POST"), body);
 const toast = (text, kind = "") => StudioUI.toast(text, kind);
 const fail = (error) => StudioUI.fail(StudioUI.germanError(error));
 const roleName = (key) => ROLE_NAMES[key] || key;
@@ -277,7 +276,6 @@ function simCell(card) {
 }
 function strengthItem(card) { const map = state.strength.map; return map ? map.get(card.card_id) || null : null; }
 const neutral = (text, title) => h("span", { class: "badge-neutral", title }, text);
-const TIER_LETTER = new Set(["S", "A", "B", "C", "D"]);
 function tierBadge(tier, text, title) {
   return h("span", { class: `tier-badge t-${tier}`, title }, h("span", { class: "level letter" }, tier), text);
 }
@@ -302,10 +300,11 @@ function spreadBadge(item, universe) {
   if (item.filter_card) {
     return neutral(FILTER_LABEL, `${FILTER_LABEL}: das Universum verlangt diese Karte, sie steht per Definition in jedem Deck der Teilmenge (ohne Zählung, ohne Stufe). Universum ${universe.profile}.${subset}`);
   }
+  const label = item.level_name || item.level;
   const counted = item.matched ? `${item.hits}/${item.denominator}` : "unbekannt";
-  const title = `${SPREAD_LABEL}: ${REASON_NAMES[item.reason] || item.reason}. Universum ${universe.profile}, ${universe.denominator} Decks, Stand ${universe.snapshot_id}.${subset}`;
-  if (!TIER_LETTER.has(item.level)) return neutral(counted === "unbekannt" ? "unbekannt" : `Stufe ${item.level} ${counted}`, title);
-  return tierBadge(item.level, counted, title);
+  const title = `${SPREAD_LABEL}: ${label} (${REASON_NAMES[item.reason] || item.reason}). Universum ${universe.profile}, ${universe.denominator} Decks, Stand ${universe.snapshot_id}.${subset}`;
+  if (counted === "unbekannt") return neutral(item.level && item.level !== "U" ? `${label} (unbekannt)` : "unbekannt", title);
+  return neutral(`${label} · ${counted}`, title);
 }
 function statusBadge(status) {
   const [text, kind] = STATUS_NAMES[status] || [status, "dim"];
@@ -390,12 +389,16 @@ function renderNotice() {
   const summary = state.data.summary, policy = state.data.tier_policy;
   const status = summary.layer_status;
   const line = (name) => `${LAYER_NAMES[name]}: ${Object.entries(status[name]).map(([key, n]) => `${n} ${(STATUS_NAMES[key] || [key])[0]}`).join(", ")}`;
+  const inDeckCount = state.data.cards.filter((card) => state.deckCards.has(card.card_id)).length;
+  const viewSummary = state.view === "deck"
+    ? `${inDeckCount} im Deck von ${summary.cards} legalen Karten. `
+    : `${summary.cards} Karten in dieser Ansicht. `;
   $("notice").replaceChildren(
     h("details", { id: "tier-explain", class: "explain", title: `${policy.version}: ${policy.rule}` },
       h("summary", {}, "Was bedeuten die Stufen?"),
       h("p", {}, h("b", {}, `${INDEX_HEADING}: `), INDEX_TEXT),
       h("p", {}, h("b", {}, `${OUTCOME_HEADING}: `), OUTCOME_TEXT)),
-    h("div", { class: "summary" }, `${summary.cards} Karten in dieser Ansicht. `, ["observed_deck", "observed_game"].map(line).join(" · ")),
+    h("div", { class: "summary" }, viewSummary, ["observed_deck", "observed_game"].map(line).join(" · ")),
     ...[bindingLine()].filter(Boolean));
   $("tier-pill").textContent = "Stufen: Schätzung aus Nutzungsdaten · Ergebnis aus Partien: Unbewertet";
 }
@@ -680,7 +683,7 @@ function renderUniversePanel() {
     uni.name ? h("button", { type: "button", class: "danger", onclick: async () => {
       const name = uni.name;
       try {
-        await api(`/api/universe/profiles/${encodeURIComponent(name)}`, {}, "DELETE");
+        await api(`/api/universe/profiles/${encodeURIComponent(name)}`, undefined, "DELETE");
         state.universe.profiles = await api("/api/universe/profiles");
         fillUniverseSelect("");
         await selectUniverse("");
@@ -695,6 +698,7 @@ function renderUniversePanel() {
       h("span", {}, `${summary.denominator} Decks (Nenner)`),
       breakdown("Plattform", summary.denominator_by_platform),
       breakdown("Bracket", summary.denominator_by_bracket),
+      summary.empty ? h("span", { id: "universe-empty", class: "badge warn" }, REASON_NAMES[summary.empty_reason] || summary.empty_reason || "Universum ist leer (0 Decks)") : null,
       summary.subset_note ? h("span", { class: "badge warn" }, summary.subset_note) : null,
       summary.excluded_no_date ? h("span", { class: "muted" }, `${summary.excluded_no_date} Decks ohne Zeitstempel durch den Datumsfilter ausgeschlossen`) : null,
       summary.below_min_universe ? h("span", { class: "badge warn" }, `unter dem Mindest-Universum (${summary.min_universe} Decks): alle Karten U`) : null,
@@ -976,13 +980,15 @@ function renderStrengthPanel() {
     const p = s.meta.presets.find((x) => x.name === presetSelect.value);
     if (!p) return;
     // A preset replaces every setting and recalculates at once: say so.
+    s.selectedProfile = "";
+    s.draft.name = "";
     s.note = `Voreinstellung „${p.name}“ geladen und berechnet`;
     toast("Voreinstellung geladen und berechnet", "ok");
     run(() => applyStrength(p.settings));
   });
   const profileLabel = (p) => `${p.name}${p.valid ? (p.universe_missing ? " (Universum fehlt)" : "") : " (ungültig)"}`;
   // The chosen saved setting stays chosen (and its name stays in the name field) when the panel is redrawn.
-  const saved = h("select", { id: "s-saved" }, h("option", { value: "" }, "gespeicherte Einstellung …"), s.profiles.map((p) => h("option", { value: p.name }, profileLabel(p))));
+  const saved = h("select", { id: "s-saved" }, h("option", { value: "" }, "gespeicherte Einstellung …"), s.profiles.map((p) => h("option", { value: p.name, selected: p.name === s.selectedProfile }, profileLabel(p))));
   saved.value = s.profiles.some((p) => p.name === s.selectedProfile) ? s.selectedProfile : "";
   if (!saved.value) s.selectedProfile = "";
   saved.addEventListener("change", () => {
@@ -992,13 +998,13 @@ function renderStrengthPanel() {
     if (!p.valid) { fail(new Error(`Die Einstellung „${p.name}“ ist nicht mehr gültig: ${p.reason}`)); return; }
     if (p.universe_missing) toast(`Das Universum „${p.universe_missing}“ dieser Einstellung gibt es nicht mehr: sie läuft mit „kein Universum“.`);
     s.draft.name = p.name;
-    s.note = `Voreinstellung „${p.name}“ geladen und berechnet`;
+    s.note = `Gespeicherte Einstellung „${p.name}“ geladen und berechnet`;
     loadSavedProfile(p).catch((error) => toast(error.message));
   });
   const nameInput = h("input", { id: "s-name", type: "text", maxLength: 80, placeholder: "z. B. Mein Index", value: s.draft.name });
   nameInput.addEventListener("input", (event) => { s.draft.name = event.target.value; });
   const apply = h("button", { type: "button", class: "primary", id: "s-apply", onclick: () => run(() => { s.note = ""; return applyStrength(readStrengthSettings()); }) }, "Berechnen");
-  const reset = h("button", { type: "button", id: "s-reset", title: "Alle Einstellungen auf die empfohlenen Werte setzen", onclick: () => run(() => { s.note = ""; return applyStrength(s.meta.recommended); }) }, "Empfohlene Werte");
+  const reset = h("button", { type: "button", id: "s-reset", title: "Alle Einstellungen auf die empfohlenen Werte setzen", onclick: () => run(() => { s.selectedProfile = ""; s.draft.name = ""; s.note = ""; return applyStrength(s.meta.recommended); }) }, "Empfohlene Werte");
   const save = h("button", { type: "button", id: "s-save", onclick: () => run(async () => {
     const name = nameInput.value.trim();
     if (!name) { fail(new Error("Der Name der Einstellung fehlt. Schreibe ihn in das Feld „Name“.")); return; }
@@ -1012,9 +1018,9 @@ function renderStrengthPanel() {
   const remove = h("button", { type: "button", class: "danger", id: "s-delete", onclick: () => run(async () => {
     const name = s.selectedProfile || $("s-saved").value;
     if (!name) { fail(new Error("Wähle zuerst eine gespeicherte Einstellung aus der Liste „Laden“.")); return; }
-    await api(`/api/strength/profiles/${encodeURIComponent(name)}`, {}, "DELETE");
+    await api(`/api/strength/profiles/${encodeURIComponent(name)}`, undefined, "DELETE");
     s.profiles = await api("/api/strength/profiles");
-    s.selectedProfile = ""; s.draft.name = "";
+    s.selectedProfile = ""; s.draft.name = ""; s.note = "";
     renderStrengthPanel();
     toast(`Einstellung „${name}“ gelöscht`, "ok");
   }) }, "Löschen");
@@ -1043,7 +1049,7 @@ function renderStrengthPanel() {
         h("label", {}, "Universum (oben gewählt)", h("input", { type: "text", readOnly: true, value: state.universe.name || "keines" })),
         apply, reset),
       h("div", { id: "preset-note", class: "note", role: "status" }, s.note),
-      h("div", { class: "deviation-line" }, h("span", { id: "deviations" }), h("button", { type: "button", class: "small", id: "s-reset2", onclick: () => run(() => applyStrength(s.meta.recommended)) }, "Auf Empfehlung zurücksetzen")),
+      h("div", { class: "deviation-line" }, h("span", { id: "deviations" }), h("button", { type: "button", class: "small", id: "s-reset2", onclick: () => run(() => { s.selectedProfile = ""; s.draft.name = ""; s.note = ""; return applyStrength(s.meta.recommended); }) }, "Auf Empfehlung zurücksetzen")),
       groups,
       h("div", { class: "strength-form" },
         h("label", {}, "Name", nameInput), save,
@@ -1081,6 +1087,10 @@ async function loadEvidence() {
   const data = await api(`/api/evidence?${query}`);
   if (ticket !== state.ticket) return; // a newer view was chosen meanwhile
   state.data = data;
+  if (apiView === "commander") {
+    state.pool.clear();
+    for (const card of data.cards) state.pool.set(card.card_id, card);
+  }
   const groups = [...new Set(state.data.cards.map((card) => card.group))].sort();
   const roles = [...new Set(state.data.cards.flatMap(cardRoles))].sort((a, b) => roleName(a).localeCompare(roleName(b)));
   $("type-filter").replaceChildren(h("option", { value: "" }, "alle Typen"), ...groups.map((group) => h("option", { value: group }, group)));
@@ -1103,6 +1113,7 @@ async function loadDeck() {
     StudioUI.remember(`studio.builder.${COMMANDER}.deck`, deck.deck_id);
     StudioUI.remember(`studio.builder.${COMMANDER}.branch`, branch.branch);
   }
+  if (state.data) renderNotice();
   render();
 }
 // The target deck of "ins Deck": the deck and variant the builder had open, else the first.
@@ -1144,6 +1155,7 @@ async function changeDeckNow(card, delta) {
     const result = await api(`/api/decks/${encodeURIComponent(deckId)}/branches/${encodeURIComponent(branch)}/draft/card`, { card_id: card.card_id, delta });
     if (result.quantity) state.deckCards.set(card.card_id, result.quantity); else state.deckCards.delete(card.card_id);
     toast(delta > 0 ? `${card.name} liegt im Deck (${result.deck_cards} von 100 Karten). Gesichert als Entwurf, im Deckbau speicherst du den Stand.` : `${card.name} ist aus dem Deck genommen (${result.deck_cards} von 100 Karten).`);
+    if (state.data) renderNotice();
     render();
   } catch (error) { fail(error); }
 }
@@ -1189,8 +1201,8 @@ async function init() {
   await StudioCommander.fill($("commander-select"));
   StudioUI.dataState($("data-state"), COMMANDER);
   try {
-    const pool = await api(`/api/pool?commander=${encodeURIComponent(COMMANDER)}`);
-    for (const card of pool.cards) { state.marks.set(card.card_id, { favorite: card.favorite, excluded: card.excluded, note: card.note || "" }); state.pool.set(card.card_id, card); }
+    const marks = await api("/api/marks");
+    for (const [cardId, mark] of Object.entries(marks)) state.marks.set(cardId, { favorite: mark.favorite, excluded: mark.excluded, note: mark.note || "" });
   } catch (error) { fail(error); }
   await Promise.all([setView("commander"), initUniverse()]);
   await initDecks();
