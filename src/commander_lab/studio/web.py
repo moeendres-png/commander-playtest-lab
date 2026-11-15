@@ -1,8 +1,10 @@
 """Local web application of the Studio deck builder.
 
 It listens on this machine only. The browser gets card data, deck lists and counts from
-the Studio store; card images come from the local image cache. Nothing here decides rules:
-the data check reads stored facts, the Rules Core stays the binding check for play.
+the Studio store; card images are loaded directly from ``https://cards.scryfall.io`` with
+``referrerpolicy="no-referrer"`` (legacy ``/img/...`` routes redirect there with 302).
+Nothing here decides rules: the data check reads stored facts, the Rules Core stays the
+binding check for play.
 """
 
 from __future__ import annotations
@@ -17,7 +19,7 @@ from typing import Literal, cast
 
 from fastapi import FastAPI, HTTPException, Query, Request, Response
 from fastapi import Path as PathParam
-from fastapi.responses import FileResponse, JSONResponse, PlainTextResponse
+from fastapi.responses import JSONResponse, PlainTextResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, ConfigDict, Field, StrictInt
 
@@ -35,8 +37,10 @@ from . import (
     launch,
     queries,
     signals,
+    similar_decks,
     strength,
     strength_view,
+    swap,
     universe,
     universe_choice,
     universe_view,
@@ -47,10 +51,11 @@ from .decks import (
     create_revision,
     lab_snapshot,
     list_rows,
+    parse_decklist_text,
     revision_rows,
     validate_rows,
 )
-from .images import cached_image, cached_image_by_name, public_card
+from .images import image_cache_status, public_card, web_image_url, web_image_url_by_name
 from .launch import MAX_GAMES_PER_JVM, MAX_WORKERS, MIN_GAMES_PER_JVM, MIN_WORKERS
 from .sources import source_inventory_payload
 from .store import StudioStore, studio_data_dir
@@ -60,8 +65,8 @@ STATIC = Path(__file__).resolve().parent / "static"
 _LOCAL_HOSTS = frozenset({"127.0.0.1", "localhost", "[::1]", "testserver"})
 _SLUG = re.compile(r"[^a-z0-9]+")
 _CSP = (
-    "default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; "
-    "base-uri 'none'; form-action 'none'; frame-ancestors 'none'"
+    "default-src 'self'; img-src 'self' data: https://cards.scryfall.io; style-src 'self'; "
+    "script-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'"
 )
 
 
@@ -74,6 +79,37 @@ class CardEntry(BaseModel):
 class ListBody(BaseModel):
     cards: list[CardEntry]
     owned_only: bool = True
+
+
+class LandAdvisorBody(ListBody):
+    cohort: str = Field(default="all", min_length=1, max_length=120)
+    min_share: float = Field(default=0.20, ge=0.0, le=1.0)
+
+
+class SwapBody(BaseModel):
+    commander: str | list[str]
+    deck_card_ids: list[str] = Field(default_factory=list, max_length=300)
+    card_id: str = Field(min_length=1, max_length=200)
+    mode: Literal["replace", "cut"] = "replace"
+    cohort: str = Field(default="all", min_length=1, max_length=120)
+    universe: str | None = Field(default=None, max_length=120)
+    exclude_marked: bool = True
+
+
+class DecklistParseBody(BaseModel):
+    commander: str | list[str]
+    text: str = Field(max_length=100_000)
+
+
+class SimilarDecksBody(BaseModel):
+    commander: str | list[str]
+    deck_card_ids: list[str] = Field(default_factory=list, max_length=300)
+    revision: str | None = Field(default=None, max_length=120)
+    deck_id: str | None = Field(default=None, max_length=120)
+    branch: str = Field(default="main", min_length=1, max_length=80)
+    cohort: str = Field(default="all", min_length=1, max_length=120)
+    n: int = Field(default=20, ge=1, le=100)
+    include_unowned: bool = False
 
 
 class LabelsBody(BaseModel):
@@ -275,6 +311,7 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
                 # (register in `sources.py`), so the data state is visible here;
                 # the counted detail of every layer is under /api/data-report.
                 "source_inventory": _inventory_summary(),
+                "image_cache": image_cache_status(store),
                 "sources": sources,
             }
         finally:
@@ -1130,18 +1167,174 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
             store.close()
 
     @app.post("/api/land-advisor")
-    def land_advisor_route(body: ListBody) -> dict[str, object]:
+    def land_advisor_route(body: LandAdvisorBody) -> dict[str, object]:
         """Land count and coloured sources against the coloured symbols, with the figures of
-        the commander's source-deck groups. An observation, no recommendation."""
+        the commander's source-deck groups and free pool land candidates. An observation, no
+        recommendation."""
         store = open_store()
         try:
-            rows = list_rows(store, _cards(body.cards))
+            cards = _cards(body.cards)
+            rows = list_rows(store, cards)
             commanders = [str(row["oracle_name"]) for row in rows if row["zone"] == "commander"]
             return {
                 "deck": land_advisor.deck_profile(rows),
                 "groups": land_advisor.source_deck_groups(store, commanders),
                 "small_group": land_advisor.SMALL_GROUP,
+                "land_candidates": land_advisor.land_candidates(
+                    store,
+                    commanders,
+                    cards,
+                    cohort=body.cohort,
+                    min_share=body.min_share,
+                ),
             }
+        finally:
+            store.close()
+
+    @app.post("/api/swap")
+    def swap_route(body: SwapBody) -> dict[str, object]:
+        """Role-matched swap candidates (`mode="replace"` or `mode="cut"`) in the builder."""
+        store = open_store()
+        try:
+            return swap.swap_candidates(
+                store,
+                commander=body.commander,
+                deck_card_ids=body.deck_card_ids,
+                card_id=body.card_id,
+                mode=body.mode,
+                cohort=body.cohort,
+                universe=body.universe,
+                exclude_marked=body.exclude_marked,
+            )
+        except KeyError as error:
+            raise HTTPException(404, f"unknown card or commander: {error}") from error
+        except ValueError as error:
+            raise HTTPException(422, str(error)) from error
+        finally:
+            store.close()
+
+    @app.post("/api/decklist-parse")
+    def decklist_parse_route(body: DecklistParseBody) -> dict[str, object]:
+        """Parse plain decklist text against the commander's legal collection pool."""
+        store = open_store()
+        try:
+            commanders = (
+                [body.commander] if isinstance(body.commander, str) else list(body.commander)
+            )
+            return parse_decklist_text(store, commanders, body.text)
+        except KeyError as error:
+            raise HTTPException(404, f"unknown commander: {error}") from error
+        except ValueError as error:
+            raise HTTPException(422, str(error)) from error
+        finally:
+            store.close()
+
+    @app.get("/api/similar-decks")
+    def similar_decks_get(
+        commander: list[str] = Query(min_length=1, max_length=2),
+        revision: str | None = Query(default=None, max_length=120),
+        deck_id: str | None = Query(default=None, max_length=120),
+        branch: str = Query(default="main", min_length=1, max_length=80),
+        card_id: list[str] = Query(default=[]),
+        cohort: str = Query(default="all", min_length=1, max_length=120),
+        n: int = Query(default=20, ge=1, le=100),
+        include_unowned: bool = Query(default=False),
+    ) -> dict[str, object]:
+        """Nearest non-duplicate source decks by Jaccard similarity without basic lands."""
+        store = open_store()
+        try:
+            resolved_ids = similar_decks.resolve_user_deck_cards(
+                store,
+                revision_id=revision,
+                deck_id=deck_id,
+                branch=branch,
+                card_ids=card_id if card_id else None,
+            )
+            return similar_decks.find_similar_decks(
+                store,
+                commander,
+                deck_card_ids=resolved_ids,
+                cohort=cohort,
+                n=n,
+                include_unowned=include_unowned,
+            )
+        except KeyError as error:
+            raise HTTPException(404, f"unknown commander: {error}") from error
+        except ValueError as error:
+            raise HTTPException(422, str(error)) from error
+        finally:
+            store.close()
+
+    @app.post("/api/similar-decks")
+    def similar_decks_post(body: SimilarDecksBody) -> dict[str, object]:
+        """Nearest non-duplicate source decks by Jaccard similarity for a live draft list."""
+        store = open_store()
+        try:
+            commanders = (
+                [body.commander] if isinstance(body.commander, str) else list(body.commander)
+            )
+            resolved_ids = similar_decks.resolve_user_deck_cards(
+                store,
+                revision_id=body.revision,
+                deck_id=body.deck_id,
+                branch=body.branch,
+                card_ids=body.deck_card_ids if body.deck_card_ids else None,
+            )
+            return similar_decks.find_similar_decks(
+                store,
+                commanders,
+                deck_card_ids=resolved_ids,
+                cohort=body.cohort,
+                n=body.n,
+                include_unowned=body.include_unowned,
+            )
+        except KeyError as error:
+            raise HTTPException(404, f"unknown commander: {error}") from error
+        except ValueError as error:
+            raise HTTPException(422, str(error)) from error
+        finally:
+            store.close()
+
+    @app.get("/api/deck-browser")
+    def deck_browser_route(
+        commander: str = Query(default="", max_length=200),
+        q: str = Query(default="", max_length=200),
+        origin: str = Query(default="all", max_length=40),
+        cohort: str = Query(default="all", max_length=120),
+        label: str = Query(default="", max_length=120),
+        must_contain: list[str] = Query(default=[]),
+        must_not_contain: list[str] = Query(default=[]),
+        include_unowned: bool = Query(default=False),
+        limit_decks: int = Query(default=100, ge=1, le=500),
+        limit_cards: int = Query(default=60, ge=1, le=300),
+    ) -> dict[str, object]:
+        """Read-only Deck-Browser (#1323): filter saved and source decks + card co-occurrence."""
+        store = open_store()
+        try:
+            return similar_decks.browse_decks(
+                store,
+                commander=commander,
+                q=q,
+                origin=origin,
+                cohort=cohort,
+                label=label,
+                must_contain=must_contain,
+                must_not_contain=must_not_contain,
+                include_unowned=include_unowned,
+                limit_decks=limit_decks,
+                limit_cards=limit_cards,
+            )
+        finally:
+            store.close()
+
+    @app.get("/api/deck-browser/{item_id:path}")
+    def deck_browser_detail_route(item_id: str) -> dict[str, object]:
+        """Read-only card list for a single saved or source deck in the Deck-Browser."""
+        store = open_store()
+        try:
+            return similar_decks.get_browser_deck_detail(store, item_id)
+        except KeyError as error:
+            raise HTTPException(404, f"unknown deck: {error}") from error
         finally:
             store.close()
 
@@ -1155,19 +1348,37 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         finally:
             store.close()
 
+    @app.get("/img/by-name")
+    @app.get("/img-name")
+    def image_by_name(name: str = Query(min_length=1, max_length=200)) -> Response:
+        store = open_store()
+        try:
+            url = web_image_url_by_name(store, name)
+        finally:
+            store.close()
+        if url is None:
+            raise HTTPException(404, "no image")
+        return RedirectResponse(
+            url=url,
+            status_code=302,
+            headers={"Referrer-Policy": "no-referrer", "Cache-Control": "max-age=604800"},
+        )
+
     @app.get("/img/{card_id}")
     def image(card_id: str, face: str = "front") -> Response:
         if face not in {"front", "back"}:
             raise HTTPException(422, "face is front or back")
         store = open_store()
         try:
-            path = cached_image(store, card_id, face)
+            url = web_image_url(store, card_id, face)
         finally:
             store.close()
-        if path is None:
+        if url is None:
             raise HTTPException(404, "no image")
-        return FileResponse(
-            path, media_type="image/jpeg", headers={"Cache-Control": "max-age=604800"}
+        return RedirectResponse(
+            url=url,
+            status_code=302,
+            headers={"Referrer-Policy": "no-referrer", "Cache-Control": "max-age=604800"},
         )
 
     def games_home() -> Path:
@@ -1308,19 +1519,6 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
             return found
         finally:
             store.close()
-
-    @app.get("/img-name")
-    def image_by_name(name: str = Query(min_length=1, max_length=200)) -> Response:
-        store = open_store()
-        try:
-            path = cached_image_by_name(store, name)
-        finally:
-            store.close()
-        if path is None:
-            raise HTTPException(404, "no image")
-        return FileResponse(
-            path, media_type="image/jpeg", headers={"Cache-Control": "max-age=604800"}
-        )
 
     app.mount("/", StaticFiles(directory=STATIC, html=True), name="static")
     return app

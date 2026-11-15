@@ -1,0 +1,342 @@
+{
+ "urlhash": "zYmAOkOmBi7_tkzKPYPdTg",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-03-14",
+ "price": 41,
+ "salt": 31.458102755248547,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/4niWVRSnUkyI9XN9cRfj9w?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Araba Mothrider",
+   "quantity": 1
+  },
+  {
+   "name": "Augur il-Vec",
+   "quantity": 1
+  },
+  {
+   "name": "Aven Riftwatcher",
+   "quantity": 1
+  },
+  {
+   "name": "Avian Changeling",
+   "quantity": 1
+  },
+  {
+   "name": "Blade of the Sixth Pride",
+   "quantity": 1
+  },
+  {
+   "name": "Boreal Centaur",
+   "quantity": 1
+  },
+  {
+   "name": "Bramble Elemental",
+   "quantity": 1
+  },
+  {
+   "name": "Calcite Snapper",
+   "quantity": 1
+  },
+  {
+   "name": "Cenn's Heir",
+   "quantity": 1
+  },
+  {
+   "name": "Citanul Woodreaders",
+   "quantity": 1
+  },
+  {
+   "name": "Daggerback Basilisk",
+   "quantity": 1
+  },
+  {
+   "name": "Doomed Traveler",
+   "quantity": 1
+  },
+  {
+   "name": "Dreamscape Artist",
+   "quantity": 1
+  },
+  {
+   "name": "Elder Pine of Jukai",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Skysweeper",
+   "quantity": 1
+  },
+  {
+   "name": "Ezuri's Archers",
+   "quantity": 1
+  },
+  {
+   "name": "Fa'adiyah Seer",
+   "quantity": 1
+  },
+  {
+   "name": "Frost Raptor",
+   "quantity": 1
+  },
+  {
+   "name": "Frostweb Spider",
+   "quantity": 1
+  },
+  {
+   "name": "Giant Dustwasp",
+   "quantity": 1
+  },
+  {
+   "name": "Gossamer Phantasm",
+   "quantity": 1
+  },
+  {
+   "name": "Grappler Spider",
+   "quantity": 1
+  },
+  {
+   "name": "Grazing Gladehart",
+   "quantity": 1
+  },
+  {
+   "name": "Halimar Excavator",
+   "quantity": 1
+  },
+  {
+   "name": "Halimar Wavewatch",
+   "quantity": 1
+  },
+  {
+   "name": "Judge of Currents",
+   "quantity": 1
+  },
+  {
+   "name": "Kitesail Apprentice",
+   "quantity": 1
+  },
+  {
+   "name": "Kjeldoran Javelineer",
+   "quantity": 1
+  },
+  {
+   "name": "Kor Outfitter",
+   "quantity": 1
+  },
+  {
+   "name": "Kor Sanctifiers",
+   "quantity": 1
+  },
+  {
+   "name": "Krovikan Mist",
+   "quantity": 1
+  },
+  {
+   "name": "Merfolk Thaumaturgist",
+   "quantity": 1
+  },
+  {
+   "name": "Neurok Invisimancer",
+   "quantity": 1
+  },
+  {
+   "name": "Ondu Giant",
+   "quantity": 1
+  },
+  {
+   "name": "Oran-Rief Recluse",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Evangel",
+   "quantity": 1
+  },
+  {
+   "name": "Steppe Lynx",
+   "quantity": 1
+  },
+  {
+   "name": "Sunspear Shikari",
+   "quantity": 1
+  },
+  {
+   "name": "Totem-Guide Hartebeest",
+   "quantity": 1
+  },
+  {
+   "name": "Uktabi Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Veteran Cavalier",
+   "quantity": 1
+  },
+  {
+   "name": "Whitemane Lion",
+   "quantity": 1
+  },
+  {
+   "name": "Winnower Patrol",
+   "quantity": 1
+  },
+  {
+   "name": "Evolution Charm",
+   "quantity": 1
+  },
+  {
+   "name": "Feeling of Dread",
+   "quantity": 1
+  },
+  {
+   "name": "Giant Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Into the Roil",
+   "quantity": 1
+  },
+  {
+   "name": "Logic Knot",
+   "quantity": 1
+  },
+  {
+   "name": "Naturalize",
+   "quantity": 1
+  },
+  {
+   "name": "Negate",
+   "quantity": 1
+  },
+  {
+   "name": "Raise the Alarm",
+   "quantity": 1
+  },
+  {
+   "name": "Repeal",
+   "quantity": 1
+  },
+  {
+   "name": "Toils of Night and Day",
+   "quantity": 1
+  },
+  {
+   "name": "Attune with Aether",
+   "quantity": 1
+  },
+  {
+   "name": "Accorder's Shield",
+   "quantity": 1
+  },
+  {
+   "name": "Adventuring Gear",
+   "quantity": 1
+  },
+  {
+   "name": "Explorer's Scope",
+   "quantity": 1
+  },
+  {
+   "name": "Glint Hawk Idol",
+   "quantity": 1
+  },
+  {
+   "name": "Horizon Spellbomb",
+   "quantity": 1
+  },
+  {
+   "name": "Origin Spellbomb",
+   "quantity": 1
+  },
+  {
+   "name": "Spidersilk Net",
+   "quantity": 1
+  },
+  {
+   "name": "Sunbeam Spellbomb",
+   "quantity": 1
+  },
+  {
+   "name": "Wanderer's Twig",
+   "quantity": 1
+  },
+  {
+   "name": "Cowed by Wisdom",
+   "quantity": 1
+  },
+  {
+   "name": "Eel Umbra",
+   "quantity": 1
+  },
+  {
+   "name": "Faith's Fetters",
+   "quantity": 1
+  },
+  {
+   "name": "Reality Acid",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Guildgate",
+   "quantity": 1
+  },
+  {
+   "name": "Blossoming Sands",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 11
+  },
+  {
+   "name": "Island",
+   "quantity": 6
+  },
+  {
+   "name": "Plains",
+   "quantity": 5
+  },
+  {
+   "name": "Sejiri Steppe",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Guildgate",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Guildgate",
+   "quantity": 1
+  },
+  {
+   "name": "The Grey Havens",
+   "quantity": 1
+  },
+  {
+   "name": "Thornwood Falls",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Cove",
+   "quantity": 1
+  },
+  {
+   "name": "Turntimber Grove",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

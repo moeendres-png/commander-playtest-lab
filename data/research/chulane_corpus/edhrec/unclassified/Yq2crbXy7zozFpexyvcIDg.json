@@ -1,0 +1,310 @@
+{
+ "urlhash": "Yq2crbXy7zozFpexyvcIDg",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-06-16",
+ "price": 72,
+ "salt": 42.22029995918274,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/6G_Nph59z06AeX8jtMfXlw?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Ancient Silverback",
+   "quantity": 1
+  },
+  {
+   "name": "Budoka Pupil",
+   "quantity": 1
+  },
+  {
+   "name": "Faithful Squire",
+   "quantity": 1
+  },
+  {
+   "name": "Fyndhorn Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Glacial Wall",
+   "quantity": 1
+  },
+  {
+   "name": "Gorilla Chieftain",
+   "quantity": 1
+  },
+  {
+   "name": "Higure, the Still Wind",
+   "quantity": 1
+  },
+  {
+   "name": "Horizon Seed",
+   "quantity": 1
+  },
+  {
+   "name": "Kaijin of the Vanishing Touch",
+   "quantity": 1
+  },
+  {
+   "name": "Kami of Tattered Shoji",
+   "quantity": 1
+  },
+  {
+   "name": "Kami of the Hunt",
+   "quantity": 1
+  },
+  {
+   "name": "Kodama of the Center Tree",
+   "quantity": 1
+  },
+  {
+   "name": "Lantern Kami",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Loam Dweller",
+   "quantity": 1
+  },
+  {
+   "name": "Mahamoti Djinn",
+   "quantity": 1
+  },
+  {
+   "name": "Minamo Sightbender",
+   "quantity": 1
+  },
+  {
+   "name": "Mistblade Shinobi",
+   "quantity": 1
+  },
+  {
+   "name": "Ninja of the Deep Hours",
+   "quantity": 1
+  },
+  {
+   "name": "Orbweaver Kumo",
+   "quantity": 1
+  },
+  {
+   "name": "Oyobi, Who Split the Heavens",
+   "quantity": 1
+  },
+  {
+   "name": "Petalmane Baku",
+   "quantity": 1
+  },
+  {
+   "name": "Pride of Lions",
+   "quantity": 1
+  },
+  {
+   "name": "Scaled Hulk",
+   "quantity": 1
+  },
+  {
+   "name": "Soratami Mirror-Guard",
+   "quantity": 1
+  },
+  {
+   "name": "Student of Elements",
+   "quantity": 1
+  },
+  {
+   "name": "Teardrop Kami",
+   "quantity": 1
+  },
+  {
+   "name": "Thieving Magpie",
+   "quantity": 1
+  },
+  {
+   "name": "Thorn Elemental",
+   "quantity": 1
+  },
+  {
+   "name": "Tomorrow, Azami's Familiar",
+   "quantity": 1
+  },
+  {
+   "name": "Traproot Kami",
+   "quantity": 1
+  },
+  {
+   "name": "Walker of Secret Ways",
+   "quantity": 1
+  },
+  {
+   "name": "Waxmane Baku",
+   "quantity": 1
+  },
+  {
+   "name": "Wood Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Blessed Breath",
+   "quantity": 1
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1
+  },
+  {
+   "name": "Disenchant",
+   "quantity": 1
+  },
+  {
+   "name": "Force Spike",
+   "quantity": 1
+  },
+  {
+   "name": "Hinder",
+   "quantity": 1
+  },
+  {
+   "name": "Inspiration",
+   "quantity": 1
+  },
+  {
+   "name": "Kodama's Might",
+   "quantity": 1
+  },
+  {
+   "name": "Mnemonic Nexus",
+   "quantity": 1
+  },
+  {
+   "name": "Otherworldly Journey",
+   "quantity": 1
+  },
+  {
+   "name": "Remove Soul",
+   "quantity": 1
+  },
+  {
+   "name": "Roar of Jukai",
+   "quantity": 1
+  },
+  {
+   "name": "Terashi's Verdict",
+   "quantity": 1
+  },
+  {
+   "name": "Unchecked Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Wear Away",
+   "quantity": 1
+  },
+  {
+   "name": "Farseek",
+   "quantity": 1
+  },
+  {
+   "name": "Sleight of Hand",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Commander's Sphere",
+   "quantity": 1
+  },
+  {
+   "name": "Kraken's Eye",
+   "quantity": 1
+  },
+  {
+   "name": "Mana Prism",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Shuriken",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Glorious Anthem",
+   "quantity": 1
+  },
+  {
+   "name": "Pacifism",
+   "quantity": 1
+  },
+  {
+   "name": "Phantom Wings",
+   "quantity": 1
+  },
+  {
+   "name": "Telepathy",
+   "quantity": 1
+  },
+  {
+   "name": "Wild Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Exotic Orchard",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 11
+  },
+  {
+   "name": "Island",
+   "quantity": 10
+  },
+  {
+   "name": "Plains",
+   "quantity": 9
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Terramorphic Expanse",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

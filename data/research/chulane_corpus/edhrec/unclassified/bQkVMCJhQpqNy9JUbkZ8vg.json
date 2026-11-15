@@ -1,0 +1,338 @@
+{
+ "urlhash": "bQkVMCJhQpqNy9JUbkZ8vg",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-01-21",
+ "price": 129,
+ "salt": 36.71045436710119,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/zMsFVaBVd0a7JJpfqCRLtg?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Academy Loremaster",
+   "quantity": 1
+  },
+  {
+   "name": "Angel of Destiny",
+   "quantity": 1
+  },
+  {
+   "name": "Anointed Chorister",
+   "quantity": 1
+  },
+  {
+   "name": "Azor, the Lawbringer",
+   "quantity": 1
+  },
+  {
+   "name": "Barkweave Crusher",
+   "quantity": 1
+  },
+  {
+   "name": "Cascade Seer",
+   "quantity": 1
+  },
+  {
+   "name": "Cleric of Chill Depths",
+   "quantity": 1
+  },
+  {
+   "name": "Clockwork Drawbridge",
+   "quantity": 1
+  },
+  {
+   "name": "Defiler of Vigor",
+   "quantity": 1
+  },
+  {
+   "name": "Elfhame Wurm",
+   "quantity": 1
+  },
+  {
+   "name": "Expedition Healer",
+   "quantity": 1
+  },
+  {
+   "name": "Farsight Adept",
+   "quantity": 1
+  },
+  {
+   "name": "Floriferous Vinewall",
+   "quantity": 1
+  },
+  {
+   "name": "Hexbane Tortoise",
+   "quantity": 1
+  },
+  {
+   "name": "Ishai, Ojutai Dragonspeaker",
+   "quantity": 1
+  },
+  {
+   "name": "Kor Blademaster",
+   "quantity": 1
+  },
+  {
+   "name": "Kor Celebrant",
+   "quantity": 1
+  },
+  {
+   "name": "Micromancer",
+   "quantity": 1
+  },
+  {
+   "name": "Nimble Trapfinder",
+   "quantity": 1
+  },
+  {
+   "name": "Nishoba Brawler",
+   "quantity": 1
+  },
+  {
+   "name": "Pixie Illusionist",
+   "quantity": 1
+  },
+  {
+   "name": "Queen Allenal of Ruadach",
+   "quantity": 1
+  },
+  {
+   "name": "Raff, Weatherlight Stalwart",
+   "quantity": 1
+  },
+  {
+   "name": "Ruin Crab",
+   "quantity": 1
+  },
+  {
+   "name": "Salvaged Manaworker",
+   "quantity": 1
+  },
+  {
+   "name": "Samite Herbalist",
+   "quantity": 1
+  },
+  {
+   "name": "Shipwreck Dowser",
+   "quantity": 1
+  },
+  {
+   "name": "Skyclave Cleric",
+   "quantity": 1
+  },
+  {
+   "name": "Speaker of the Heavens",
+   "quantity": 1
+  },
+  {
+   "name": "Squad Commander",
+   "quantity": 1
+  },
+  {
+   "name": "Vineshaper Prodigy",
+   "quantity": 1
+  },
+  {
+   "name": "Volshe Tideturner",
+   "quantity": 1
+  },
+  {
+   "name": "Walking Bulwark",
+   "quantity": 1
+  },
+  {
+   "name": "Watcher of the Spheres",
+   "quantity": 1
+  },
+  {
+   "name": "Windrider Wizard",
+   "quantity": 1
+  },
+  {
+   "name": "Zulaport Duelist",
+   "quantity": 1
+  },
+  {
+   "name": "Anticognition",
+   "quantity": 1
+  },
+  {
+   "name": "Bite Down",
+   "quantity": 1
+  },
+  {
+   "name": "Cancel",
+   "quantity": 1
+  },
+  {
+   "name": "Chilling Trap",
+   "quantity": 1
+  },
+  {
+   "name": "Concerted Defense",
+   "quantity": 1
+  },
+  {
+   "name": "Destroy Evil",
+   "quantity": 1
+  },
+  {
+   "name": "Jwari Disruption",
+   "quantity": 1
+  },
+  {
+   "name": "Negate",
+   "quantity": 1
+  },
+  {
+   "name": "Practiced Tactics",
+   "quantity": 1
+  },
+  {
+   "name": "Pressure Point",
+   "quantity": 1
+  },
+  {
+   "name": "Sejiri Shelter",
+   "quantity": 1
+  },
+  {
+   "name": "Smite the Monstrous",
+   "quantity": 1
+  },
+  {
+   "name": "Stall for Time",
+   "quantity": 1
+  },
+  {
+   "name": "Sublime Epiphany",
+   "quantity": 1
+  },
+  {
+   "name": "Swift Response",
+   "quantity": 1
+  },
+  {
+   "name": "Captain's Call",
+   "quantity": 1
+  },
+  {
+   "name": "Emeria's Call",
+   "quantity": 1
+  },
+  {
+   "name": "Impede Momentum",
+   "quantity": 1
+  },
+  {
+   "name": "Scout the Wilderness",
+   "quantity": 1
+  },
+  {
+   "name": "Tolarian Geyser",
+   "quantity": 1
+  },
+  {
+   "name": "Jodah's Codex",
+   "quantity": 1
+  },
+  {
+   "name": "Banishing Light",
+   "quantity": 1
+  },
+  {
+   "name": "Capture Sphere",
+   "quantity": 1
+  },
+  {
+   "name": "Charmed Sleep",
+   "quantity": 1
+  },
+  {
+   "name": "Journey to Oblivion",
+   "quantity": 1
+  },
+  {
+   "name": "Nahiri's Binding",
+   "quantity": 1
+  },
+  {
+   "name": "Prayer of Binding",
+   "quantity": 1
+  },
+  {
+   "name": "Ajani, Strength of the Pride",
+   "quantity": 1
+  },
+  {
+   "name": "Elspeth, Knight-Errant",
+   "quantity": 1
+  },
+  {
+   "name": "Gideon, Martial Paragon",
+   "quantity": 1
+  },
+  {
+   "name": "Teferi, Timeless Voyager",
+   "quantity": 1
+  },
+  {
+   "name": "Vivien of the Arkbow",
+   "quantity": 1
+  },
+  {
+   "name": "Base Camp",
+   "quantity": 1
+  },
+  {
+   "name": "Blossoming Sands",
+   "quantity": 1
+  },
+  {
+   "name": "Crystal Grotto",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 7
+  },
+  {
+   "name": "Glacial Floodplain",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 8
+  },
+  {
+   "name": "Plains",
+   "quantity": 8
+  },
+  {
+   "name": "Plaza of Heroes",
+   "quantity": 1
+  },
+  {
+   "name": "Shimmerdrift Vale",
+   "quantity": 1
+  },
+  {
+   "name": "Thornwood Falls",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Cove",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

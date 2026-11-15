@@ -1,0 +1,338 @@
+{
+ "urlhash": "EWkBbMhGytm5CjgCuBw2Cw",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-01-11",
+ "price": 387,
+ "salt": 53.597218722105026,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/18090907?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Aboleth Spawn",
+   "quantity": 1
+  },
+  {
+   "name": "Ancient Carp",
+   "quantity": 1
+  },
+  {
+   "name": "Breaching Hippocamp",
+   "quantity": 1
+  },
+  {
+   "name": "Bubble Smuggler",
+   "quantity": 1
+  },
+  {
+   "name": "Cloud Manta",
+   "quantity": 1
+  },
+  {
+   "name": "Coral Eel",
+   "quantity": 1
+  },
+  {
+   "name": "Deepglow Skate",
+   "quantity": 1
+  },
+  {
+   "name": "Devouring Deep",
+   "quantity": 1
+  },
+  {
+   "name": "Eluge, the Shoreless Sea",
+   "quantity": 1
+  },
+  {
+   "name": "Elusive Krasis",
+   "quantity": 1
+  },
+  {
+   "name": "Fleet Swallower",
+   "quantity": 1
+  },
+  {
+   "name": "Flying Dolphin-Fish",
+   "quantity": 1
+  },
+  {
+   "name": "Giant Koi",
+   "quantity": 1
+  },
+  {
+   "name": "Harbinger of the Seas",
+   "quantity": 1
+  },
+  {
+   "name": "Hullbreaker Horror",
+   "quantity": 1
+  },
+  {
+   "name": "Island Fish Jasconius",
+   "quantity": 1
+  },
+  {
+   "name": "Jace's Mindseeker",
+   "quantity": 1
+  },
+  {
+   "name": "Kapsho Kitefins",
+   "quantity": 1
+  },
+  {
+   "name": "Manta Ray",
+   "quantity": 1
+  },
+  {
+   "name": "Moat Piranhas",
+   "quantity": 1
+  },
+  {
+   "name": "Morska, Undersea Sleuth",
+   "quantity": 1
+  },
+  {
+   "name": "Mystic Skyfish",
+   "quantity": 1
+  },
+  {
+   "name": "Piranha Fly",
+   "quantity": 1
+  },
+  {
+   "name": "School of Piranha",
+   "quantity": 1
+  },
+  {
+   "name": "Scrounging Skyray",
+   "quantity": 1
+  },
+  {
+   "name": "Shipwreck Moray",
+   "quantity": 1
+  },
+  {
+   "name": "Skitter Eel",
+   "quantity": 1
+  },
+  {
+   "name": "Sky-Eel School",
+   "quantity": 1
+  },
+  {
+   "name": "Skyreach Manta",
+   "quantity": 1
+  },
+  {
+   "name": "Slipstream Eel",
+   "quantity": 1
+  },
+  {
+   "name": "Stinging Lionfish",
+   "quantity": 1
+  },
+  {
+   "name": "Stormtide Leviathan",
+   "quantity": 1
+  },
+  {
+   "name": "Tidal Barracuda",
+   "quantity": 1
+  },
+  {
+   "name": "Tui and La, Moon and Ocean",
+   "quantity": 1
+  },
+  {
+   "name": "Vivid Flying Fish",
+   "quantity": 1
+  },
+  {
+   "name": "Wavebreak Hippocamp",
+   "quantity": 1
+  },
+  {
+   "name": "Windrider Eel",
+   "quantity": 1
+  },
+  {
+   "name": "Beast Within",
+   "quantity": 1
+  },
+  {
+   "name": "Constant Mists",
+   "quantity": 1
+  },
+  {
+   "name": "Dawn's Truce",
+   "quantity": 1
+  },
+  {
+   "name": "Fog",
+   "quantity": 1
+  },
+  {
+   "name": "Generous Gift",
+   "quantity": 1
+  },
+  {
+   "name": "Heroic Intervention",
+   "quantity": 1
+  },
+  {
+   "name": "Holy Day",
+   "quantity": 1
+  },
+  {
+   "name": "Kindred Summons",
+   "quantity": 1
+  },
+  {
+   "name": "Pongify",
+   "quantity": 1
+  },
+  {
+   "name": "Rapid Hybridization",
+   "quantity": 1
+  },
+  {
+   "name": "Clone Legion",
+   "quantity": 1
+  },
+  {
+   "name": "Cultivate",
+   "quantity": 1
+  },
+  {
+   "name": "Farseek",
+   "quantity": 1
+  },
+  {
+   "name": "Kodama's Reach",
+   "quantity": 1
+  },
+  {
+   "name": "Rampant Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Rite of Replication",
+   "quantity": 1
+  },
+  {
+   "name": "Banner of Kinship",
+   "quantity": 1
+  },
+  {
+   "name": "Fishing Gear",
+   "quantity": 1
+  },
+  {
+   "name": "Fishing Pole",
+   "quantity": 1
+  },
+  {
+   "name": "Herald's Horn",
+   "quantity": 1
+  },
+  {
+   "name": "Patchwork Banner",
+   "quantity": 1
+  },
+  {
+   "name": "Quicksilver Fountain",
+   "quantity": 1
+  },
+  {
+   "name": "Vanquisher's Banner",
+   "quantity": 1
+  },
+  {
+   "name": "Aura Shards",
+   "quantity": 1
+  },
+  {
+   "name": "Fisher's Talent",
+   "quantity": 1
+  },
+  {
+   "name": "Guardian Project",
+   "quantity": 1
+  },
+  {
+   "name": "Kindred Discovery",
+   "quantity": 1
+  },
+  {
+   "name": "Breeding Pool",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Flooded Strand",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 6
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 13
+  },
+  {
+   "name": "Misty Rainforest",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 4
+  },
+  {
+   "name": "Spara's Headquarters",
+   "quantity": 1
+  },
+  {
+   "name": "Temple Garden",
+   "quantity": 1
+  },
+  {
+   "name": "Terramorphic Expanse",
+   "quantity": 1
+  },
+  {
+   "name": "Three Tree City",
+   "quantity": 1
+  },
+  {
+   "name": "Windswept Heath",
+   "quantity": 1
+  },
+  {
+   "name": "Yavimaya, Cradle of Growth",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

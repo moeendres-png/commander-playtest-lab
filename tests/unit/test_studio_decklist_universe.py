@@ -14,6 +14,7 @@ import pytest
 from commander_lab.studio import (
     StudioStore,
     decklist_import,
+    repo_import,
     sources,
     tiers,
     universe,
@@ -95,6 +96,50 @@ def test_import_edhrec_decklists_registers_decks_cards_and_cohorts(
     again = decklist_import.import_decklists(store, tmp_path, format="edhrec")
     assert again["decks"] == 2 and again["duplicates_marked"] == 0
     assert db.execute("SELECT COUNT(*) FROM corpus_deck").fetchone()[0] == 2
+
+
+def test_import_edhrec_decklist_without_bracket_joins_no_bracket_cohort(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    # EDHREC leaves most decks unclassified (bracket null): the list imports under
+    # its variant cohort only — no bracket cohort, no bracket tag, no substitute number.
+    _edhrec_file(
+        tmp_path,
+        "nob",
+        [(CHULANE, 1), ("Sol Ring", 1), ("Forest", 10)],
+        variante="unclassified",
+        bracket=None,
+    )
+    result = decklist_import.import_decklists(store, tmp_path, format="edhrec")
+    assert result["decks"] == 1
+    db = store.connection
+    cohorts = {
+        row[0]
+        for row in db.execute("SELECT cohort FROM corpus_cohort WHERE deck_id = 'edhrec:nob'")
+    }
+    assert cohorts == {"source:edhrec", "variant:unclassified", "commander:chulane"}
+    tags = json.loads(
+        db.execute("SELECT tags FROM corpus_deck WHERE deck_id = 'edhrec:nob'").fetchone()[0]
+    )
+    assert not any(str(tag).startswith("bracket:") for tag in tags)
+    assert "variant:unclassified" in tags
+
+
+def test_import_corpus_reads_the_unclassified_edhrec_folder(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    folder = tmp_path / "edhrec" / "unclassified"
+    folder.mkdir(parents=True)
+    _edhrec_file(
+        folder,
+        "nob",
+        [(CHULANE, 1), ("Sol Ring", 1), ("Forest", 10)],
+        variante="unclassified",
+        bracket=None,
+    )
+    totals = repo_import.import_corpus(store, tmp_path)
+    assert totals["decks"] == 1
+    assert store.connection.execute("SELECT COUNT(*) FROM corpus_deck").fetchone()[0] == 1
 
 
 def test_import_marks_exact_duplicates_across_sources(store: StudioStore, tmp_path: Path) -> None:

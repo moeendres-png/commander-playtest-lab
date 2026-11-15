@@ -282,6 +282,103 @@ def test_a_fetch_land_is_not_a_land_without_data() -> None:
     assert "Länder ohne Angabe" in script
 
 
+def test_source_deck_groups_accept_both_main_and_mainboard_sections(tmp_path: Path) -> None:
+    from tests.unit.test_studio_builder import _fill
+
+    store = StudioStore.open(tmp_path / "studio")
+    _fill(store, tmp_path)
+    with store.connection as db:
+        db.execute("UPDATE corpus_deck_card SET section = 'main' WHERE deck_id = 'd1'")
+        db.execute("UPDATE corpus_deck_card SET section = 'mainboard' WHERE deck_id = 'd2'")
+    groups = {g["cohort"]: g for g in land_advisor.source_deck_groups(store, ["Test Commander"])}
+    everyone = groups["all"]
+    assert everyone["decks_counted"] == 2
+    assert everyone["lands"]["median"] == 33.0
+    assert everyone["colours"]["G"]["land_sources"]["median"] == 33.0
+
+
+def test_land_candidates_filters_and_sorts_by_frequency_with_unknown_last(tmp_path: Path) -> None:
+    from tests.unit.test_studio_builder import _fill
+
+    store = StudioStore.open(tmp_path / "studio")
+    _fill(store, tmp_path)
+    source_id = str(store.connection.execute("SELECT source_id FROM source LIMIT 1").fetchone()[0])
+    with store.connection as db:
+        for cid, name, oid, produced, avail in [
+            ("land-tower", "Command Tower", "oid-tower", "G,U,W", 1),
+            ("land-pool", "Breeding Pool", "oid-pool", "G,U", 1),
+            ("land-mystery", "Mystery Cavern", "oid-mystery", None, 1),
+            ("land-indeck", "Already Played Land", "oid-indeck", "G", 1),
+            ("land-unowned", "Unowned Dual", "oid-unowned", "G,U", 0),
+        ]:
+            db.execute(
+                "INSERT INTO card (card_id, oracle_id, oracle_name, color_identity, mana_cost, "
+                "mana_value, type_line, oracle_text, is_basic_land, commander_legal, "
+                "legality_verified_at, identity_evidence, source_id) "
+                "VALUES (?, ?, ?, 'G', '', 0, 'Land', '', 0, 1, '2026-11-15', 'scryfall', ?)",
+                (cid, oid, name, source_id),
+            )
+            db.execute(
+                "INSERT INTO inventory VALUES (?, ?, ?, 0, ?, 1, 1, '2026-11-15', ?)",
+                (cid, avail, avail, avail, source_id),
+            )
+            if produced is not None:
+                db.execute(
+                    "INSERT INTO scryfall_card VALUES (?, ?, ?, ?, 'normal', '', 0, 'Land', '', "
+                    "'G', 'legal', 10, '', ?, NULL, NULL, 0, '2020-01-01', '', '', ?, 'SET', '1', 'exact')",
+                    (oid, f"sf-{cid}", name, name, produced, source_id),
+                )
+        for did in ("d1", "d2"):
+            db.execute(
+                "INSERT INTO corpus_deck_card VALUES (?, 'Command Tower', 'oid-tower', 1, 'main', 'exact')",
+                (did,),
+            )
+        db.execute(
+            "INSERT INTO corpus_deck_card VALUES ('d1', 'Breeding Pool', 'oid-pool', 1, 'main', 'exact')"
+        )
+        for did in ("d1", "d2", "d3"):
+            db.execute(
+                "INSERT INTO corpus_deck_card VALUES (?, 'Already Played Land', 'oid-indeck', 1, 'main', 'exact')",
+                (did,),
+            )
+
+    cands = land_advisor.land_candidates(
+        store,
+        ["Test Commander"],
+        deck_cards=["Already Played Land", "Forest"],
+        cohort="all",
+        min_share=0.20,
+    )
+    names = [c["name"] for c in cands]
+    # Basic land (Forest), in-deck land (Already Played Land), and 0-available land (Unowned Dual) are excluded
+    assert "Forest" not in names
+    assert "Already Played Land" not in names
+    assert "Unowned Dual" not in names
+    # Mystery Cavern has no corpus_deck_card rows -> unknown frequency -> sorted last!
+    assert names == ["Command Tower", "Breeding Pool", "Mystery Cavern"]
+
+    by_name = {c["name"]: c for c in cands}
+    assert by_name["Command Tower"]["colours"] == ["W", "U", "G"]
+    assert by_name["Command Tower"]["decks"] == 2 and by_name["Command Tower"]["of"] == 3
+    # Unknown produced_mana (no scryfall_card row) stays None, never []
+    assert by_name["Mystery Cavern"]["colours"] is None
+    assert by_name["Mystery Cavern"]["decks"] is None and by_name["Mystery Cavern"]["share"] is None
+
+    # User marks (favorite, excluded, note) never alter the order
+    from commander_lab.studio import builder
+
+    builder.set_mark(store, "land-mystery", favorite=True, excluded=False, note="top")
+    builder.set_mark(store, "land-tower", favorite=False, excluded=True, note="hide")
+    cands_after_marks = land_advisor.land_candidates(
+        store,
+        ["Test Commander"],
+        deck_cards=["Already Played Land", "Forest"],
+        cohort="all",
+        min_share=0.20,
+    )
+    assert [c["name"] for c in cands_after_marks] == names
+
+
 def _rename_sections(store: StudioStore, section: str) -> None:
     """The repository corpus stores the main deck as ``main``, the corpus importer as
     ``mainboard``; the synthetic store is written with the second spelling."""

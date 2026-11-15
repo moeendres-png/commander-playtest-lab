@@ -19,7 +19,11 @@ from commander_lab.studio.images import (
     cached_image_by_name,
     fetch_images,
     image_address,
+    image_cache_status,
     image_folder,
+    valid_image_url,
+    web_image_url,
+    web_image_url_by_name,
 )
 from commander_lab.studio.store import DataClass, StudioStore
 
@@ -206,28 +210,6 @@ def test_a_single_candidate_is_the_scryfall_default(tmp_path: Path) -> None:
         store.close()
 
 
-class _Response:
-    def __init__(self, data: bytes) -> None:
-        self._data = data
-
-    def __enter__(self) -> _Response:
-        return self
-
-    def __exit__(self, *args: object) -> bool:
-        return False
-
-    def read(self, limit: int = -1) -> bytes:
-        return self._data
-
-
-def _recorder(monkeypatch: pytest.MonkeyPatch, calls: list[str], data: bytes = b"fresh") -> None:
-    def fake(request: object, timeout: int = 20) -> _Response:
-        calls.append(request.full_url)  # type: ignore[attr-defined]
-        return _Response(data)
-
-    monkeypatch.setattr("urllib.request.urlopen", fake)
-
-
 def _no_network(monkeypatch: pytest.MonkeyPatch) -> None:
     def blocked(*args: object, **kwargs: object) -> None:
         raise AssertionError("no network in tests")
@@ -257,66 +239,44 @@ def _face_store(tmp_path: Path) -> StudioStore:
     return store
 
 
-def _stamp(target: Path) -> Path:
-    return target.with_suffix(".stamp")
-
-
-def test_stamp_mismatch_refetches_the_current_printing(
+def test_local_image_cache_is_disabled_and_never_writes_files(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
+    _no_network(monkeypatch)
     store = _face_store(tmp_path)
     try:
-        target = image_folder(store) / "oracle-forest-front.jpg"
-        target.write_bytes(b"old-printing")
-        _stamp(target).write_text(IMAGE.format("someone-else"), encoding="utf-8")
-        calls: list[str] = []
-        _recorder(monkeypatch, calls)
-        assert cached_image(store, "card:project:0002", fetch=False) is None
-        assert cached_image(store, "card:project:0002") == target
-        assert calls == [FRONT]
-        assert target.read_bytes() == b"fresh"
-        assert _stamp(target).read_text(encoding="utf-8") == FRONT
+        folder = image_folder(store)
+        assert not folder.exists()
+        assert cached_image(store, "card:project:0002") is None
+        assert cached_image_by_name(store, "Forest") is None
+        assert not folder.exists()
+
+        status_empty = image_cache_status(store)
+        assert status_empty["cache_enabled"] is False
+        assert status_empty["exists"] is False
+        assert status_empty["files"] == 0
+
+        # Pre-existing legacy images/ folder is reported with size, never deleted automatically
+        folder.mkdir(parents=True)
+        (folder / "oracle-forest-front.jpg").write_bytes(b"x" * 2048)
+        report = fetch_images(store, ["card:project:0002"])
+        assert report["deprecated"] is True
+        assert report["cache_enabled"] is False
+        assert report["exists"] is True
+        assert report["files"] == 1
+        assert report["bytes"] == 2048
+        assert "gelöscht werden" in str(report["hint"])
+        assert (folder / "oracle-forest-front.jpg").exists()
     finally:
         store.close()
 
 
-def test_missing_stamp_counts_as_valid_and_is_backfilled(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    store = _face_store(tmp_path)
-    try:
-        target = image_folder(store) / "oracle-forest-front.jpg"
-        target.write_bytes(b"hand-written")
-        _no_network(monkeypatch)
-        assert cached_image(store, "card:project:0002") == target
-        assert target.read_bytes() == b"hand-written"  # not downloaded again
-        assert _stamp(target).read_text(encoding="utf-8") == FRONT
-    finally:
-        store.close()
-
-
-def test_fetch_images_stamps_the_unstamped_cache_once(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    store = _face_store(tmp_path)
-    try:
-        target = image_folder(store) / "oracle-forest-front.jpg"
-        target.write_bytes(b"hand-written")  # front unstamped, back missing entirely
-        calls: list[str] = []
-        _recorder(monkeypatch, calls)
-        assert fetch_images(store, ["card:project:0002"], pause=0) == {
-            "cached": 0,
-            "fetched": 2,
-            "missing": 0,
-        }
-        assert fetch_images(store, ["card:project:0002"], pause=0) == {
-            "cached": 2,
-            "fetched": 0,
-            "missing": 0,
-        }
-        assert calls == [FRONT, BACK]
-    finally:
-        store.close()
+def test_valid_image_url_accepts_only_https_scryfall_host() -> None:
+    assert valid_image_url(FRONT) == FRONT
+    assert valid_image_url("http://cards.scryfall.io/normal/front/a/b/forest.jpg") is None
+    assert valid_image_url("https://example.invalid/forest.jpg") is None
+    assert valid_image_url("") is None
+    assert valid_image_url(None) is None
 
 
 def test_image_address_prefers_the_collection_printing(tmp_path: Path) -> None:
@@ -331,8 +291,10 @@ def test_image_address_prefers_the_collection_printing(tmp_path: Path) -> None:
             image_back=None,
         )
         assert image_address(store, "card:project:0002") == ("oracle-forest", PRINT_FRONT)
+        assert web_image_url(store, "card:project:0002") == PRINT_FRONT
         # the printing has no back image: the public card data answers for that face
         assert image_address(store, "card:project:0002", "back") == ("oracle-forest", BACK)
+        assert web_image_url(store, "card:project:0002", "back") == BACK
     finally:
         store.close()
 
@@ -346,22 +308,16 @@ def test_image_address_ignores_an_unresolved_printing(tmp_path: Path) -> None:
         store.close()
 
 
-def test_by_name_serves_the_collection_printing(
+def test_by_name_serves_the_collection_printing_url(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
+    _no_network(monkeypatch)
     store = _face_store(tmp_path)
     try:
-        calls: list[str] = []
-        _recorder(monkeypatch, calls)
-        path = cached_image_by_name(store, "Forest")
-        assert path is not None and path.name == "oracle-forest-front.jpg"
+        assert web_image_url_by_name(store, "Forest") == FRONT
         _owned(store, "card:project:0002", "1", scryfall_id="print-owned", image_front=PRINT_FRONT)
-        path = cached_image_by_name(store, "Forest")
-        assert path is not None and path.name == "oracle-forest-front.jpg"
-        # the second call replaced the representative printing with the owned one,
-        # and a subsequent by-card_id lookup reuses the same stamped file without re-downloading
-        assert cached_image(store, "card:project:0002") == path
-        assert calls == [FRONT, PRINT_FRONT]
+        assert web_image_url_by_name(store, "Forest") == PRINT_FRONT
+        assert not image_folder(store).exists()
     finally:
         store.close()
 
@@ -388,5 +344,72 @@ def test_each_standard_criterion_alone_decides(tmp_path: Path, traits: dict) -> 
         winner = _winner(store, "oracle-rule")
         assert winner["printing_number"] == "1"
         assert winner["printing_basis"] == "STANDARD_RULE"
+    finally:
+        store.close()
+
+
+def test_static_pages_set_no_referrer_on_images() -> None:
+    static_dir = Path(__file__).resolve().parents[2] / "src" / "commander_lab" / "studio" / "static"
+    for name in ("app.js", "tierliste.js", "partie.js", "index.html", "partie.html"):
+        text = (static_dir / name).read_text(encoding="utf-8")
+        assert "no-referrer" in text, f"{name} must set referrerpolicy=no-referrer"
+
+
+def test_schema_16_to_17_migration_converts_tables_to_without_rowid(tmp_path: Path) -> None:
+    import sqlite3
+
+    db_dir = tmp_path / "legacy16"
+    db_dir.mkdir(parents=True)
+    db_path = db_dir / "studio.sqlite3"
+    conn = sqlite3.connect(db_path)
+    conn.executescript(
+        """
+        CREATE TABLE meta (key TEXT PRIMARY KEY, value TEXT NOT NULL);
+        INSERT INTO meta(key, value) VALUES ('schema_version', '16');
+        CREATE TABLE source (
+            source_id TEXT PRIMARY KEY, data_class TEXT NOT NULL, title TEXT NOT NULL,
+            sha256 TEXT NOT NULL, snapshot_date TEXT, url TEXT, imported_at TEXT NOT NULL
+        );
+        INSERT INTO source VALUES ('src:1', 'ORIGINAL_SOURCE', 't', '00', NULL, NULL, '2026-11-15T00:00:00Z');
+        CREATE TABLE corpus_deck (
+            deck_id TEXT PRIMARY KEY, cohort TEXT NOT NULL, url TEXT NOT NULL,
+            platform TEXT NOT NULL, play_group TEXT NOT NULL, deck_date TEXT,
+            tags TEXT NOT NULL, fingerprint TEXT NOT NULL, duplicate_of TEXT,
+            legality_audit TEXT NOT NULL, source_id TEXT NOT NULL REFERENCES source(source_id)
+        );
+        INSERT INTO corpus_deck VALUES ('d1', 'c1', 'u', 'p', 'tuned', NULL, '[]', 'fp1', NULL, 'ok', 'src:1');
+        CREATE TABLE corpus_deck_card (
+            deck_id TEXT NOT NULL REFERENCES corpus_deck(deck_id),
+            card_name TEXT NOT NULL, oracle_id TEXT, quantity INTEGER NOT NULL,
+            section TEXT NOT NULL, normalization_status TEXT NOT NULL,
+            PRIMARY KEY (deck_id, card_name, section)
+        );
+        CREATE INDEX corpus_card_name ON corpus_deck_card(card_name);
+        CREATE INDEX corpus_deck_cover ON corpus_deck_card(deck_id, section, quantity, card_name);
+        INSERT INTO corpus_deck_card VALUES ('d1', 'Sol Ring', 'o-sol', 1, 'mainboard', 'EXACT');
+        """
+    )
+    conn.close()
+
+    store = StudioStore.open(db_dir)
+    try:
+        ver = store.connection.execute(
+            "SELECT value FROM meta WHERE key = 'schema_version'"
+        ).fetchone()[0]
+        assert ver == "17"
+        ddl = store.connection.execute(
+            "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'corpus_deck_card'"
+        ).fetchone()[0]
+        assert "WITHOUT ROWID" in ddl.upper()
+        indexes = {
+            r[0]
+            for r in store.connection.execute("SELECT name FROM sqlite_master WHERE type = 'index'")
+        }
+        assert "corpus_card_name" not in indexes
+        assert "corpus_deck_cover" not in indexes
+        assert "corpus_card_cover" in indexes
+        assert store.count("corpus_deck_card") == 1
+        assert store.data_epoch() is not None
+        store.compact()
     finally:
         store.close()

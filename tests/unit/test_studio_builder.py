@@ -255,13 +255,13 @@ def test_images_come_from_the_cache_and_only_from_the_image_host(
     assert image_address(studio, "card:project:0002", "back") is None
     assert cached_image(studio, "card:project:0002", fetch=False) is None
     assert studio.path is not None
-    (studio.path.parent / "images" / "oracle-forest-front.jpg").write_bytes(b"jpeg")
-    assert cached_image(studio, "card:project:0002") is not None
+    assert not (studio.path.parent / "images").exists()
     studio.connection.execute(
         "UPDATE scryfall_card SET image_front = 'https://example.invalid/x.jpg' "
         "WHERE oracle_id = 'oracle-swarm-rat'"
     )
-    assert cached_image(studio, "card:project:0007") is None  # foreign host is never fetched
+    assert image_address(studio, "card:project:0007") is None  # foreign host is rejected
+    assert cached_image(studio, "card:project:0007") is None
 
 
 def test_web_application_round_trip(studio: StudioStore) -> None:
@@ -271,10 +271,16 @@ def test_web_application_round_trip(studio: StudioStore) -> None:
     marker = {"X-Studio": "1"}
     with TestClient(create_app(folder)) as client:
         assert client.get("/").status_code == 200
-        assert "script-src 'self'" in client.get("/").headers["content-security-policy"]
-        assert client.get("/api/status").json()["cards"] == 77
+        csp = client.get("/").headers["content-security-policy"]
+        assert "script-src 'self'" in csp
+        assert "img-src 'self' data: https://cards.scryfall.io" in csp
+        status_json = client.get("/api/status").json()
+        assert status_json["cards"] == 77
+        assert status_json["image_cache"]["cache_enabled"] is False
         pool = client.get("/api/pool", params={"commander": "Test Commander"}).json()
         assert len(pool["commander_ids"]) == 1
+        forest_card = next(c for c in pool["cards"] if c["card_id"] == "card:project:0002")
+        assert forest_card["image_url_front"] == IMAGE.format("forest")
         assert client.get("/api/pool", params={"commander": "Nobody"}).status_code == 404
         # writes need the request marker, and the host must be local
         body = {"name": "Mein Deck", "commander_card_ids": pool["commander_ids"]}
@@ -345,6 +351,11 @@ def test_web_application_round_trip(studio: StudioStore) -> None:
         assert pf_resp["comparable"] is True
         assert pf_resp["data_class"] == "HEURISTIC_MODEL"
         assert client.get("/img/card:project:0002", params={"face": "side"}).status_code == 422
+        redir = client.get("/img/card:project:0002", follow_redirects=False)
+        assert redir.status_code == 302
+        assert redir.headers["location"] == IMAGE.format("forest")
+        assert redir.headers["referrer-policy"] == "no-referrer"
+        assert not (folder / "images").exists()
         assert client.get("/api/revisions/nope").status_code == 404
 
 

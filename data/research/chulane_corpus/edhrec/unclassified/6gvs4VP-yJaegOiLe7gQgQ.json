@@ -1,0 +1,310 @@
+{
+ "urlhash": "6gvs4VP-yJaegOiLe7gQgQ",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-08-15",
+ "price": 689,
+ "salt": 82.2959178686142,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/3irMxYhqUUKTuVVRQFBtiw?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Ayesha Tanaka",
+   "quantity": 1
+  },
+  {
+   "name": "Azusa, Lost but Seeking",
+   "quantity": 1
+  },
+  {
+   "name": "Battering Ram",
+   "quantity": 1
+  },
+  {
+   "name": "Beast Walkers",
+   "quantity": 1
+  },
+  {
+   "name": "Benalish Hero",
+   "quantity": 1
+  },
+  {
+   "name": "Benalish Infantry",
+   "quantity": 1
+  },
+  {
+   "name": "Coppercoat Vanguard",
+   "quantity": 1
+  },
+  {
+   "name": "Dragon Sniper",
+   "quantity": 1
+  },
+  {
+   "name": "Fatespinner",
+   "quantity": 1
+  },
+  {
+   "name": "Gaddock Teeg",
+   "quantity": 1
+  },
+  {
+   "name": "Icatian Infantry",
+   "quantity": 1
+  },
+  {
+   "name": "Kona, Rescue Beastie",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Loamspeaker",
+   "quantity": 1
+  },
+  {
+   "name": "Myrel, Shield of Argive",
+   "quantity": 1
+  },
+  {
+   "name": "Northern Paladin",
+   "quantity": 1
+  },
+  {
+   "name": "Ojer Taq, Deepest Foundation",
+   "quantity": 1
+  },
+  {
+   "name": "Ouroboroid",
+   "quantity": 1
+  },
+  {
+   "name": "Pikemen",
+   "quantity": 1
+  },
+  {
+   "name": "Seedborn Muse",
+   "quantity": 1
+  },
+  {
+   "name": "Shield Bearer",
+   "quantity": 1
+  },
+  {
+   "name": "Southern Paladin",
+   "quantity": 1
+  },
+  {
+   "name": "The Mindskinner",
+   "quantity": 1
+  },
+  {
+   "name": "Wall of Shields",
+   "quantity": 1
+  },
+  {
+   "name": "Reset",
+   "quantity": 1
+  },
+  {
+   "name": "Seedtime",
+   "quantity": 1
+  },
+  {
+   "name": "Energy Tap",
+   "quantity": 1
+  },
+  {
+   "name": "Altar of the Brood",
+   "quantity": 1
+  },
+  {
+   "name": "Baton of Morale",
+   "quantity": 1
+  },
+  {
+   "name": "Coat of Arms",
+   "quantity": 1
+  },
+  {
+   "name": "Glasses of Urza",
+   "quantity": 1
+  },
+  {
+   "name": "Kormus Bell",
+   "quantity": 1
+  },
+  {
+   "name": "Mana Web",
+   "quantity": 1
+  },
+  {
+   "name": "Norn's Annex",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Aluren",
+   "quantity": 1
+  },
+  {
+   "name": "Authority of the Consuls",
+   "quantity": 1
+  },
+  {
+   "name": "Carpet of Flowers",
+   "quantity": 1
+  },
+  {
+   "name": "Castle",
+   "quantity": 1
+  },
+  {
+   "name": "Chill",
+   "quantity": 1
+  },
+  {
+   "name": "City of Solitude",
+   "quantity": 1
+  },
+  {
+   "name": "Compost",
+   "quantity": 1
+  },
+  {
+   "name": "Decree of Silence",
+   "quantity": 1
+  },
+  {
+   "name": "Defensive Formation",
+   "quantity": 1
+  },
+  {
+   "name": "Divine Sacrament",
+   "quantity": 1
+  },
+  {
+   "name": "Elephant Grass",
+   "quantity": 1
+  },
+  {
+   "name": "Energy Flux",
+   "quantity": 1
+  },
+  {
+   "name": "Energy Storm",
+   "quantity": 1
+  },
+  {
+   "name": "Frozen Aether",
+   "quantity": 1
+  },
+  {
+   "name": "Ghostly Prison",
+   "quantity": 1
+  },
+  {
+   "name": "Insight",
+   "quantity": 1
+  },
+  {
+   "name": "Karma",
+   "quantity": 1
+  },
+  {
+   "name": "Land Tax",
+   "quantity": 1
+  },
+  {
+   "name": "Lifegift",
+   "quantity": 1
+  },
+  {
+   "name": "Light of Day",
+   "quantity": 1
+  },
+  {
+   "name": "Mana Maze",
+   "quantity": 1
+  },
+  {
+   "name": "Mirari's Wake",
+   "quantity": 1
+  },
+  {
+   "name": "Power Leak",
+   "quantity": 1
+  },
+  {
+   "name": "Propaganda",
+   "quantity": 1
+  },
+  {
+   "name": "Reclamation",
+   "quantity": 1
+  },
+  {
+   "name": "Rhystic Study",
+   "quantity": 1
+  },
+  {
+   "name": "Roots of Life",
+   "quantity": 1
+  },
+  {
+   "name": "Royal Decree",
+   "quantity": 1
+  },
+  {
+   "name": "Smothering Tithe",
+   "quantity": 1
+  },
+  {
+   "name": "Solemnity",
+   "quantity": 1
+  },
+  {
+   "name": "Virtue of Loyalty",
+   "quantity": 1
+  },
+  {
+   "name": "Words of Worship",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 10
+  },
+  {
+   "name": "Island",
+   "quantity": 10
+  },
+  {
+   "name": "Plains",
+   "quantity": 10
+  },
+  {
+   "name": "Urza's Mine",
+   "quantity": 1
+  },
+  {
+   "name": "Urza's Power Plant",
+   "quantity": 1
+  },
+  {
+   "name": "Urza's Tower",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

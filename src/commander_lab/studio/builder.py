@@ -436,9 +436,17 @@ def pool_cards(
                 store, commander_names[0], list(names), names
             ).items()
         }
+    from .images import valid_image_url
     from .labels import card_labels as _card_labels
 
     card_labels = _card_labels(store)
+    printing_images: dict[str, tuple[str | None, str | None]] = {}
+    for prow in db.execute(
+        "SELECT card_id, image_front, image_back FROM card_printing WHERE image_front IS NOT NULL"
+    ):
+        pf = valid_image_url(prow["image_front"])
+        if pf is not None:
+            printing_images[str(prow["card_id"])] = (pf, valid_image_url(prow["image_back"]))
     cards: list[dict[str, object]] = []
     for row in db.execute(
         "SELECT c.*, i.owned_lower_bound, i.available_lower_bound, i.reserved, "
@@ -452,6 +460,13 @@ def pool_cards(
         widest = edhrec.get(card_id)
         pg = playgroup.get(card_id) or (
             playgroup.get(str(row["oracle_id"])) if row["oracle_id"] else None
+        )
+        p_front, p_back = printing_images.get(card_id, (None, None))
+        image_url_front = p_front if p_front is not None else valid_image_url(row["image_front"])
+        image_url_back = (
+            p_back
+            if (p_front is not None and p_back is not None)
+            else valid_image_url(row["image_back"])
         )
         cards.append(
             {
@@ -470,8 +485,10 @@ def pool_cards(
                 "produced_mana": row["produced_mana"] or "",
                 "edhrec_rank": row["edhrec_rank"],
                 "game_changer": bool(row["game_changer"]),
-                "has_back": row["image_back"] is not None,
-                "has_image": row["image_front"] is not None,
+                "has_back": image_url_back is not None,
+                "has_image": image_url_front is not None,
+                "image_url_front": image_url_front,
+                "image_url_back": image_url_back,
                 "fact_source": row["fact_source"],
                 "sim_status": sim_readiness_status(str(row["oracle_name"])),
                 "owned": row["owned_lower_bound"],
@@ -959,6 +976,32 @@ def cohort_shapes(store: StudioStore, commander_names: Sequence[str]) -> list[di
         (str(r["deck_id"]), str(r["role"])): int(r["cards"])
         for r in db.execute("SELECT deck_id, role, cards FROM corpus_deck_role")
     }
+    nonland_role_by_deck: dict[str, int] = {}
+    if role_names:
+        all_complete_ids = sorted(
+            {
+                str(row["deck_id"])
+                for group in members.values()
+                for row in group
+                if row["resolved"] == row["cards"]
+            }
+        )
+        for start in range(0, len(all_complete_ids), 500):
+            chunk = all_complete_ids[start : start + 500]
+            marks = ", ".join("?" for _ in chunk)
+            for row in db.execute(
+                "SELECT k.deck_id, SUM(k.quantity) AS cnt "
+                "FROM corpus_deck_card k "
+                "JOIN (SELECT DISTINCT oracle_id FROM card_role) r ON r.oracle_id = k.oracle_id "
+                "LEFT JOIN scryfall_card s ON s.oracle_id = k.oracle_id "
+                f"WHERE k.deck_id IN ({marks}) AND LOWER(k.section) IN ('main', 'mainboard') "
+                "AND k.quantity > 0 "
+                "AND SUBSTR(COALESCE(s.type_line, ''), 1, "
+                "INSTR(COALESCE(s.type_line, '') || ' // ', ' // ') - 1) NOT LIKE '%Land%' "
+                "GROUP BY k.deck_id",
+                chunk,
+            ):
+                nonland_role_by_deck[str(row["deck_id"])] = int(row["cnt"] or 0)
     shapes: list[dict[str, object]] = []
     for cohort, group in members.items():
         complete = [row for row in group if row["resolved"] == row["cards"]]
@@ -996,6 +1039,10 @@ def cohort_shapes(store: StudioStore, commander_names: Sequence[str]) -> list[di
                     "p75": round(_percentile(counts, 0.75), 2),
                 }
             shape["roles"] = spans
+            cov_counts = [
+                float(nonland_role_by_deck.get(str(row["deck_id"]), 0)) for row in complete
+            ]
+            shape["role_coverage_median"] = round(median(cov_counts), 2)
         shapes.append(shape)
     return shapes
 

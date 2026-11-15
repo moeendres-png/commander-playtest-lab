@@ -1,0 +1,38 @@
+{
+ "urlhash": "FfZYU3fyfdYsY_3Dy8vDAg",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-08-12",
+ "price": 268,
+ "salt": 85.44307667016983,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/9r1V3I7mBUyQM89ko_heCQ?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Hare Apparent",
+   "quantity": 55
+  },
+  {
+   "name": "Forest",
+   "quantity": 13
+  },
+  {
+   "name": "Island",
+   "quantity": 13
+  },
+  {
+   "name": "Plains",
+   "quantity": 18
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

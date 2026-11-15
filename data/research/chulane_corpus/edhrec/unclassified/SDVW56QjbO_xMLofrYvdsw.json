@@ -1,0 +1,318 @@
+{
+ "urlhash": "SDVW56QjbO_xMLofrYvdsw",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-07-07",
+ "price": 96,
+ "salt": 46.1092280857265,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/24141864?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Assault Griffin",
+   "quantity": 1
+  },
+  {
+   "name": "Cragplate Baloth",
+   "quantity": 1
+  },
+  {
+   "name": "Death-Hood Cobra",
+   "quantity": 1
+  },
+  {
+   "name": "Dreamshackle Geist",
+   "quantity": 1
+  },
+  {
+   "name": "Duskdale Wurm",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Hunter",
+   "quantity": 1
+  },
+  {
+   "name": "Harbor Serpent",
+   "quantity": 1
+  },
+  {
+   "name": "Loxodon Partisan",
+   "quantity": 1
+  },
+  {
+   "name": "Mind Flayer",
+   "quantity": 1
+  },
+  {
+   "name": "Protean Hydra",
+   "quantity": 1
+  },
+  {
+   "name": "Sensor Splicer",
+   "quantity": 1
+  },
+  {
+   "name": "Seven-Tail Mentor",
+   "quantity": 1
+  },
+  {
+   "name": "Shattered Angel",
+   "quantity": 1
+  },
+  {
+   "name": "Signal Pest",
+   "quantity": 1
+  },
+  {
+   "name": "Suture Priest",
+   "quantity": 1
+  },
+  {
+   "name": "Topiary Stomper",
+   "quantity": 1
+  },
+  {
+   "name": "Volo, Guide to Monsters",
+   "quantity": 1
+  },
+  {
+   "name": "Wall of Frost",
+   "quantity": 1
+  },
+  {
+   "name": "Alabaster Potion",
+   "quantity": 1
+  },
+  {
+   "name": "Back to Nature",
+   "quantity": 1
+  },
+  {
+   "name": "Blunt the Assault",
+   "quantity": 1
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1
+  },
+  {
+   "name": "Diminish",
+   "quantity": 1
+  },
+  {
+   "name": "Disenchant",
+   "quantity": 1
+  },
+  {
+   "name": "Divine Offering",
+   "quantity": 1
+  },
+  {
+   "name": "Fog",
+   "quantity": 1
+  },
+  {
+   "name": "High Tide",
+   "quantity": 1
+  },
+  {
+   "name": "Kill Shot",
+   "quantity": 1
+  },
+  {
+   "name": "Kor Chant",
+   "quantity": 1
+  },
+  {
+   "name": "Psychic Barrier",
+   "quantity": 1
+  },
+  {
+   "name": "Spell Pierce",
+   "quantity": 1
+  },
+  {
+   "name": "Turn Aside",
+   "quantity": 1
+  },
+  {
+   "name": "War Report",
+   "quantity": 1
+  },
+  {
+   "name": "An-Havva Inn",
+   "quantity": 1
+  },
+  {
+   "name": "Creeping Corrosion",
+   "quantity": 1
+  },
+  {
+   "name": "Cultivate",
+   "quantity": 1
+  },
+  {
+   "name": "Devastating Mastery",
+   "quantity": 1
+  },
+  {
+   "name": "Field Research",
+   "quantity": 1
+  },
+  {
+   "name": "Foresee",
+   "quantity": 1
+  },
+  {
+   "name": "Lead the Stampede",
+   "quantity": 1
+  },
+  {
+   "name": "Mass Polymorph",
+   "quantity": 1
+  },
+  {
+   "name": "Merchant Scroll",
+   "quantity": 1
+  },
+  {
+   "name": "Nature's Spiral",
+   "quantity": 1
+  },
+  {
+   "name": "Praetor's Counsel",
+   "quantity": 1
+  },
+  {
+   "name": "Rampant Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Reclaim the Wastes",
+   "quantity": 1
+  },
+  {
+   "name": "Remember the Fallen",
+   "quantity": 1
+  },
+  {
+   "name": "Revoke Existence",
+   "quantity": 1
+  },
+  {
+   "name": "Sacred Nectar",
+   "quantity": 1
+  },
+  {
+   "name": "Sleep",
+   "quantity": 1
+  },
+  {
+   "name": "Solemn Offering",
+   "quantity": 1
+  },
+  {
+   "name": "Stream of Life",
+   "quantity": 1
+  },
+  {
+   "name": "Touch of Brilliance",
+   "quantity": 1
+  },
+  {
+   "name": "Verdant Mastery",
+   "quantity": 1
+  },
+  {
+   "name": "Arrest",
+   "quantity": 1
+  },
+  {
+   "name": "Asceticism",
+   "quantity": 1
+  },
+  {
+   "name": "Careful Cultivation",
+   "quantity": 1
+  },
+  {
+   "name": "Flight",
+   "quantity": 1
+  },
+  {
+   "name": "Glorious Sunrise",
+   "quantity": 1
+  },
+  {
+   "name": "Jace's Erasure",
+   "quantity": 1
+  },
+  {
+   "name": "Overgrowth",
+   "quantity": 1
+  },
+  {
+   "name": "Pacifism",
+   "quantity": 1
+  },
+  {
+   "name": "Predatory Hunger",
+   "quantity": 1
+  },
+  {
+   "name": "Primal Rage",
+   "quantity": 1
+  },
+  {
+   "name": "Steal Artifact",
+   "quantity": 1
+  },
+  {
+   "name": "Wild Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 10
+  },
+  {
+   "name": "Glacial Fortress",
+   "quantity": 1
+  },
+  {
+   "name": "Hall of Oracles",
+   "quantity": 1
+  },
+  {
+   "name": "Inkmoth Nexus",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 9
+  },
+  {
+   "name": "Plains",
+   "quantity": 9
+  },
+  {
+   "name": "Tranquil Cove",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

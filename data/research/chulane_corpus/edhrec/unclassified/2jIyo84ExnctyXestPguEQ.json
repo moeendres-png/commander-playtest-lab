@@ -1,0 +1,310 @@
+{
+ "urlhash": "2jIyo84ExnctyXestPguEQ",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-11-08",
+ "price": 90,
+ "salt": 39.67994076479226,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/17281174?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Acquisition Octopus",
+   "quantity": 1
+  },
+  {
+   "name": "Alloy Myr",
+   "quantity": 1
+  },
+  {
+   "name": "Alpha Myr",
+   "quantity": 1
+  },
+  {
+   "name": "Amaranthine Wall",
+   "quantity": 1
+  },
+  {
+   "name": "Ancestral Statue",
+   "quantity": 1
+  },
+  {
+   "name": "Ancient Stone Idol",
+   "quantity": 1
+  },
+  {
+   "name": "Arcbound Mouser",
+   "quantity": 1
+  },
+  {
+   "name": "Arcbound Prototype",
+   "quantity": 1
+  },
+  {
+   "name": "Cathodion",
+   "quantity": 1
+  },
+  {
+   "name": "Cybermat",
+   "quantity": 1
+  },
+  {
+   "name": "Dodecapod",
+   "quantity": 1
+  },
+  {
+   "name": "Dross Scorpion",
+   "quantity": 1
+  },
+  {
+   "name": "ED-E, Lonesome Eyebot",
+   "quantity": 1
+  },
+  {
+   "name": "Edge Rover",
+   "quantity": 1
+  },
+  {
+   "name": "Esperzoa",
+   "quantity": 1
+  },
+  {
+   "name": "Etherium Sculptor",
+   "quantity": 1
+  },
+  {
+   "name": "Foundry Inspector",
+   "quantity": 1
+  },
+  {
+   "name": "Friendly Teddy",
+   "quantity": 1
+  },
+  {
+   "name": "Gate Colossus",
+   "quantity": 1
+  },
+  {
+   "name": "Gatebreaker Ram",
+   "quantity": 1
+  },
+  {
+   "name": "Gatekeeper Gargoyle",
+   "quantity": 1
+  },
+  {
+   "name": "Gearsmith Guardian",
+   "quantity": 1
+  },
+  {
+   "name": "Glassdust Hulk",
+   "quantity": 1
+  },
+  {
+   "name": "Gold Myr",
+   "quantity": 1
+  },
+  {
+   "name": "Guidelight Synergist",
+   "quantity": 1
+  },
+  {
+   "name": "Thraben Gargoyle",
+   "quantity": 1
+  },
+  {
+   "name": "Vantress Gargoyle",
+   "quantity": 1
+  },
+  {
+   "name": "Voltaic Servant",
+   "quantity": 1
+  },
+  {
+   "name": "Walking Atlas",
+   "quantity": 1
+  },
+  {
+   "name": "Wall of Tanglecord",
+   "quantity": 1
+  },
+  {
+   "name": "Yotian Frontliner",
+   "quantity": 1
+  },
+  {
+   "name": "Negate",
+   "quantity": 1
+  },
+  {
+   "name": "Fumigate",
+   "quantity": 1
+  },
+  {
+   "name": "Open the Gates",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Carnage Altar",
+   "quantity": 1
+  },
+  {
+   "name": "Cryogen Relic",
+   "quantity": 1
+  },
+  {
+   "name": "Culling Dais",
+   "quantity": 1
+  },
+  {
+   "name": "Elixir of Immortality",
+   "quantity": 1
+  },
+  {
+   "name": "Elsewhere Flask",
+   "quantity": 1
+  },
+  {
+   "name": "Esoteric Duplicator",
+   "quantity": 1
+  },
+  {
+   "name": "Essence Reliquary",
+   "quantity": 1
+  },
+  {
+   "name": "Explorer's Scope",
+   "quantity": 1
+  },
+  {
+   "name": "Fabrication Foundry",
+   "quantity": 1
+  },
+  {
+   "name": "Fountain of Renewal",
+   "quantity": 1
+  },
+  {
+   "name": "Glaive of the Guildpact",
+   "quantity": 1
+  },
+  {
+   "name": "Golem's Heart",
+   "quantity": 1
+  },
+  {
+   "name": "Grafted Wargear",
+   "quantity": 1
+  },
+  {
+   "name": "Guild Globe",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "All That Glitters",
+   "quantity": 1
+  },
+  {
+   "name": "Angelic Renewal",
+   "quantity": 1
+  },
+  {
+   "name": "Hold the Gates",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Guildgate",
+   "quantity": 1
+  },
+  {
+   "name": "Baldur's Gate",
+   "quantity": 1
+  },
+  {
+   "name": "Basilisk Gate",
+   "quantity": 1
+  },
+  {
+   "name": "Citadel Gate",
+   "quantity": 1
+  },
+  {
+   "name": "Darksteel Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 10
+  },
+  {
+   "name": "Gateway Plaza",
+   "quantity": 1
+  },
+  {
+   "name": "Gond Gate",
+   "quantity": 1
+  },
+  {
+   "name": "Guadosalam, Farplane Gateway",
+   "quantity": 1
+  },
+  {
+   "name": "Heap Gate",
+   "quantity": 1
+  },
+  {
+   "name": "Inventors' Fair",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 10
+  },
+  {
+   "name": "Manor Gate",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 10
+  },
+  {
+   "name": "Plaza of Harmony",
+   "quantity": 1
+  },
+  {
+   "name": "Sea Gate",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Guildgate",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Guildgate",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

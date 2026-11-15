@@ -1,0 +1,330 @@
+{
+ "urlhash": "Blw0nhn5SN34ASgfa3xzEw",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-07-04",
+ "price": 228,
+ "salt": 43.504181046038866,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/13999944?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Ambrosia Whiteheart",
+   "quantity": 1
+  },
+  {
+   "name": "Anafenza, Kin-Tree Spirit",
+   "quantity": 1
+  },
+  {
+   "name": "Azusa, Lost but Seeking",
+   "quantity": 1
+  },
+  {
+   "name": "Boon-Bringer Valkyrie",
+   "quantity": 1
+  },
+  {
+   "name": "Botanical Brawler",
+   "quantity": 1
+  },
+  {
+   "name": "Bushy Bodyguard",
+   "quantity": 1
+  },
+  {
+   "name": "Cloud, Midgar Mercenary",
+   "quantity": 1
+  },
+  {
+   "name": "Coeurl",
+   "quantity": 1
+  },
+  {
+   "name": "Conclave Sledge-Captain",
+   "quantity": 1
+  },
+  {
+   "name": "Copper Host Crusher",
+   "quantity": 1
+  },
+  {
+   "name": "Gaelicat",
+   "quantity": 1
+  },
+  {
+   "name": "Goreclaw, Terror of Qal Sisma",
+   "quantity": 1
+  },
+  {
+   "name": "Jumbo Cactuar",
+   "quantity": 1
+  },
+  {
+   "name": "Kami of Whispered Hopes",
+   "quantity": 1
+  },
+  {
+   "name": "PuPu UFO",
+   "quantity": 1
+  },
+  {
+   "name": "Raff, Weatherlight Stalwart",
+   "quantity": 1
+  },
+  {
+   "name": "Serah Farron",
+   "quantity": 1
+  },
+  {
+   "name": "Summon: Shiva",
+   "quantity": 1
+  },
+  {
+   "name": "Tarkir Duneshaper",
+   "quantity": 1
+  },
+  {
+   "name": "Airship Crash",
+   "quantity": 1
+  },
+  {
+   "name": "Angelic Intervention",
+   "quantity": 1
+  },
+  {
+   "name": "Battle Menu",
+   "quantity": 1
+  },
+  {
+   "name": "Blitzball Shot",
+   "quantity": 1
+  },
+  {
+   "name": "Brainstorm",
+   "quantity": 1
+  },
+  {
+   "name": "Cosmic Hunger",
+   "quantity": 1
+  },
+  {
+   "name": "Eject",
+   "quantity": 1
+  },
+  {
+   "name": "Ice Magic",
+   "quantity": 1
+  },
+  {
+   "name": "Magic Damper",
+   "quantity": 1
+  },
+  {
+   "name": "Make Disappear",
+   "quantity": 1
+  },
+  {
+   "name": "Nature's Claim",
+   "quantity": 1
+  },
+  {
+   "name": "Plunge into Winter",
+   "quantity": 1
+  },
+  {
+   "name": "Prishe's Wanderings",
+   "quantity": 1
+  },
+  {
+   "name": "Restoration Magic",
+   "quantity": 1
+  },
+  {
+   "name": "Scrollshift",
+   "quantity": 1
+  },
+  {
+   "name": "Slash of Light",
+   "quantity": 1
+  },
+  {
+   "name": "Slip Out the Back",
+   "quantity": 1
+  },
+  {
+   "name": "Surge of Salvation",
+   "quantity": 1
+  },
+  {
+   "name": "Vengeant Earth",
+   "quantity": 1
+  },
+  {
+   "name": "Aerith Rescue Mission",
+   "quantity": 1
+  },
+  {
+   "name": "Clash of the Eikons",
+   "quantity": 1
+  },
+  {
+   "name": "Combat Tutorial",
+   "quantity": 1
+  },
+  {
+   "name": "Esper Origins",
+   "quantity": 1
+  },
+  {
+   "name": "Farseek",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Blitzball",
+   "quantity": 1
+  },
+  {
+   "name": "Chromatic Lantern",
+   "quantity": 1
+  },
+  {
+   "name": "Crystal Fragments",
+   "quantity": 1
+  },
+  {
+   "name": "Decanter of Endless Water",
+   "quantity": 1
+  },
+  {
+   "name": "Elixir",
+   "quantity": 1
+  },
+  {
+   "name": "Excalibur II",
+   "quantity": 1
+  },
+  {
+   "name": "Genji Glove",
+   "quantity": 1
+  },
+  {
+   "name": "Instant Ramen",
+   "quantity": 1
+  },
+  {
+   "name": "Kor Halberd",
+   "quantity": 1
+  },
+  {
+   "name": "Lunatic Pandora",
+   "quantity": 1
+  },
+  {
+   "name": "Sky Diamond",
+   "quantity": 1
+  },
+  {
+   "name": "The Earth Crystal",
+   "quantity": 1
+  },
+  {
+   "name": "The Masamune",
+   "quantity": 1
+  },
+  {
+   "name": "The Water Crystal",
+   "quantity": 1
+  },
+  {
+   "name": "White Auracite",
+   "quantity": 1
+  },
+  {
+   "name": "World Map",
+   "quantity": 1
+  },
+  {
+   "name": "Public Enemy",
+   "quantity": 1
+  },
+  {
+   "name": "Rhystic Study",
+   "quantity": 1
+  },
+  {
+   "name": "Ride the Shoopuf",
+   "quantity": 1
+  },
+  {
+   "name": "Sidequest: Catch a Fish",
+   "quantity": 1
+  },
+  {
+   "name": "Stuck in Summoner's Sanctum",
+   "quantity": 1
+  },
+  {
+   "name": "Witness Protection",
+   "quantity": 1
+  },
+  {
+   "name": "Adventurer's Inn",
+   "quantity": 1
+  },
+  {
+   "name": "Blossoming Sands",
+   "quantity": 1
+  },
+  {
+   "name": "Crossroads Village",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 9
+  },
+  {
+   "name": "Fortified Village",
+   "quantity": 1
+  },
+  {
+   "name": "Guadosalam, Farplane Gateway",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 5
+  },
+  {
+   "name": "Plains",
+   "quantity": 11
+  },
+  {
+   "name": "Sharlayan, Nation of Scholars",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Cove",
+   "quantity": 1
+  },
+  {
+   "name": "Windurst, Federation Center",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

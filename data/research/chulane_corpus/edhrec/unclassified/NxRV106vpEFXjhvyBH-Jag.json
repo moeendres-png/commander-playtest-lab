@@ -1,0 +1,286 @@
+{
+ "urlhash": "NxRV106vpEFXjhvyBH-Jag",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-04-18",
+ "price": 210,
+ "salt": 48.248860616236925,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/Mw_2_F8tf0yQccoMkOjFSg?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Alpine Grizzly",
+   "quantity": 1
+  },
+  {
+   "name": "Beast Whisperer",
+   "quantity": 1
+  },
+  {
+   "name": "Blade of the Sixth Pride",
+   "quantity": 1
+  },
+  {
+   "name": "Caelorna, Coral Tyrant",
+   "quantity": 1
+  },
+  {
+   "name": "Cheeky House-Mouse",
+   "quantity": 1
+  },
+  {
+   "name": "Devilthorn Fox",
+   "quantity": 1
+  },
+  {
+   "name": "Fang-Druid Summoner",
+   "quantity": 1
+  },
+  {
+   "name": "Garruk's Gorehorn",
+   "quantity": 1
+  },
+  {
+   "name": "Gigantosaurus",
+   "quantity": 1
+  },
+  {
+   "name": "Goreclaw, Terror of Qal Sisma",
+   "quantity": 1
+  },
+  {
+   "name": "Isamaru, Hound of Konda",
+   "quantity": 1
+  },
+  {
+   "name": "Jasmine Boreal of the Seven",
+   "quantity": 1
+  },
+  {
+   "name": "Jibbirik Omnivore",
+   "quantity": 1
+  },
+  {
+   "name": "Kalonian Tusker",
+   "quantity": 1
+  },
+  {
+   "name": "Kutzil, Malamet Exemplar",
+   "quantity": 1
+  },
+  {
+   "name": "Leatherback Baloth",
+   "quantity": 1
+  },
+  {
+   "name": "Maja, Bretagard Protector",
+   "quantity": 1
+  },
+  {
+   "name": "Orazca Frillback",
+   "quantity": 1
+  },
+  {
+   "name": "Oreskos Swiftclaw",
+   "quantity": 1
+  },
+  {
+   "name": "Primordial Wurm",
+   "quantity": 1
+  },
+  {
+   "name": "Quakestrider Ceratops",
+   "quantity": 1
+  },
+  {
+   "name": "Quilled Slagwurm",
+   "quantity": 1
+  },
+  {
+   "name": "Ruxa, Patient Professor",
+   "quantity": 1
+  },
+  {
+   "name": "Savannah Lions",
+   "quantity": 1
+  },
+  {
+   "name": "Shepherd of the Flock",
+   "quantity": 1
+  },
+  {
+   "name": "Sundial, Dawn Tyrant",
+   "quantity": 1
+  },
+  {
+   "name": "Swordwise Centaur",
+   "quantity": 1
+  },
+  {
+   "name": "Terrain Elemental",
+   "quantity": 1
+  },
+  {
+   "name": "Terrian, World Tyrant",
+   "quantity": 1
+  },
+  {
+   "name": "Vorstclaw",
+   "quantity": 1
+  },
+  {
+   "name": "Watchwolf",
+   "quantity": 1
+  },
+  {
+   "name": "Aura Mutation",
+   "quantity": 1
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1
+  },
+  {
+   "name": "Dance of the Skywise",
+   "quantity": 1
+  },
+  {
+   "name": "Generous Gift",
+   "quantity": 1
+  },
+  {
+   "name": "Gift of Tusks",
+   "quantity": 1
+  },
+  {
+   "name": "Path to Exile",
+   "quantity": 1
+  },
+  {
+   "name": "Rapid Hybridization",
+   "quantity": 1
+  },
+  {
+   "name": "Return to Nature",
+   "quantity": 1
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1
+  },
+  {
+   "name": "Cultivate",
+   "quantity": 1
+  },
+  {
+   "name": "Farseek",
+   "quantity": 1
+  },
+  {
+   "name": "Finale of Devastation",
+   "quantity": 1
+  },
+  {
+   "name": "Hunted by The Family",
+   "quantity": 1
+  },
+  {
+   "name": "Kodama's Reach",
+   "quantity": 1
+  },
+  {
+   "name": "Last March of the Ents",
+   "quantity": 1
+  },
+  {
+   "name": "Nature's Lore",
+   "quantity": 1
+  },
+  {
+   "name": "Rampant Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Lifecrafter's Bestiary",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Swiftfoot Boots",
+   "quantity": 1
+  },
+  {
+   "name": "Beastmaster Ascension",
+   "quantity": 1
+  },
+  {
+   "name": "Flowering of the White Tree",
+   "quantity": 1
+  },
+  {
+   "name": "Fresh Start",
+   "quantity": 1
+  },
+  {
+   "name": "March of the World Ooze",
+   "quantity": 1
+  },
+  {
+   "name": "Mirari's Wake",
+   "quantity": 1
+  },
+  {
+   "name": "Muraganda Petroglyphs",
+   "quantity": 1
+  },
+  {
+   "name": "The Curse of Fenric",
+   "quantity": 1
+  },
+  {
+   "name": "Tribute to the World Tree",
+   "quantity": 1
+  },
+  {
+   "name": "Garruk, Caller of Beasts",
+   "quantity": 1
+  },
+  {
+   "name": "Garruk, Primal Hunter",
+   "quantity": 1
+  },
+  {
+   "name": "Garruk, Unleashed",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 13
+  },
+  {
+   "name": "Island",
+   "quantity": 11
+  },
+  {
+   "name": "Plains",
+   "quantity": 12
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

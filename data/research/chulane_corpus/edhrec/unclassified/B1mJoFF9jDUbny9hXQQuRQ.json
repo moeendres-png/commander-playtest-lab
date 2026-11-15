@@ -1,0 +1,362 @@
+{
+ "urlhash": "B1mJoFF9jDUbny9hXQQuRQ",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-02-10",
+ "price": 231,
+ "salt": 39.34485660167411,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/17617371?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Aang, A Lot to Learn",
+   "quantity": 1
+  },
+  {
+   "name": "Aang, Air Nomad",
+   "quantity": 1
+  },
+  {
+   "name": "Air Nomad Student",
+   "quantity": 1
+  },
+  {
+   "name": "Appa, Aang's Companion",
+   "quantity": 1
+  },
+  {
+   "name": "Appa, the Vigilant",
+   "quantity": 1
+  },
+  {
+   "name": "Badgermole",
+   "quantity": 1
+  },
+  {
+   "name": "Bosco, Just a Bear",
+   "quantity": 1
+  },
+  {
+   "name": "Earth King's Lieutenant",
+   "quantity": 1
+  },
+  {
+   "name": "Earth Kingdom General",
+   "quantity": 1
+  },
+  {
+   "name": "First-Time Flyer",
+   "quantity": 1
+  },
+  {
+   "name": "Flopsie, Bumi's Buddy",
+   "quantity": 1
+  },
+  {
+   "name": "Katara, Heroic Healer",
+   "quantity": 1
+  },
+  {
+   "name": "Momo, Playful Pet",
+   "quantity": 1
+  },
+  {
+   "name": "Momo, Rambunctious Rascal",
+   "quantity": 1
+  },
+  {
+   "name": "Sokka, Wolf Cove's Protector",
+   "quantity": 1
+  },
+  {
+   "name": "South Pole Voyager",
+   "quantity": 1
+  },
+  {
+   "name": "Suki, Courageous Rescuer",
+   "quantity": 1
+  },
+  {
+   "name": "Suki, Kyoshi Warrior",
+   "quantity": 1
+  },
+  {
+   "name": "The Cabbage Merchant",
+   "quantity": 1
+  },
+  {
+   "name": "The Walls of Ba Sing Se",
+   "quantity": 1
+  },
+  {
+   "name": "Toph, the Blind Bandit",
+   "quantity": 1
+  },
+  {
+   "name": "Tui and La, Moon and Ocean",
+   "quantity": 1
+  },
+  {
+   "name": "Unlucky Cabbage Merchant",
+   "quantity": 1
+  },
+  {
+   "name": "Airbender's Reversal",
+   "quantity": 1
+  },
+  {
+   "name": "Cloudshift",
+   "quantity": 1
+  },
+  {
+   "name": "Consider",
+   "quantity": 1
+  },
+  {
+   "name": "Cycle of Renewal",
+   "quantity": 1
+  },
+  {
+   "name": "Eladamri's Call",
+   "quantity": 1
+  },
+  {
+   "name": "Enter the Avatar State",
+   "quantity": 1
+  },
+  {
+   "name": "Flawless Maneuver",
+   "quantity": 1
+  },
+  {
+   "name": "Octopus Form",
+   "quantity": 1
+  },
+  {
+   "name": "Pillar Launch",
+   "quantity": 1
+  },
+  {
+   "name": "Razor Rings",
+   "quantity": 1
+  },
+  {
+   "name": "Rocky Rebuke",
+   "quantity": 1
+  },
+  {
+   "name": "Stand United",
+   "quantity": 1
+  },
+  {
+   "name": "That's Rough Buddy",
+   "quantity": 1
+  },
+  {
+   "name": "The Art of Tea",
+   "quantity": 1
+  },
+  {
+   "name": "Waterbender's Restoration",
+   "quantity": 1
+  },
+  {
+   "name": "Yip Yip!",
+   "quantity": 1
+  },
+  {
+   "name": "Boomerang Basics",
+   "quantity": 1
+  },
+  {
+   "name": "Cracked Earth Technique",
+   "quantity": 1
+  },
+  {
+   "name": "Earthbending Lesson",
+   "quantity": 1
+  },
+  {
+   "name": "Empty City Ruse",
+   "quantity": 1
+  },
+  {
+   "name": "Explore",
+   "quantity": 1
+  },
+  {
+   "name": "Many Partings",
+   "quantity": 1
+  },
+  {
+   "name": "Match the Odds",
+   "quantity": 1
+  },
+  {
+   "name": "Shared Roots",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Bender's Waterskin",
+   "quantity": 1
+  },
+  {
+   "name": "Glider Staff",
+   "quantity": 1
+  },
+  {
+   "name": "Meteor Sword",
+   "quantity": 1
+  },
+  {
+   "name": "Meteorite",
+   "quantity": 1
+  },
+  {
+   "name": "Allied Teamwork",
+   "quantity": 1
+  },
+  {
+   "name": "Beastmaster Ascension",
+   "quantity": 1
+  },
+  {
+   "name": "Creeping Crystal Coating",
+   "quantity": 1
+  },
+  {
+   "name": "Crystalline Armor",
+   "quantity": 1
+  },
+  {
+   "name": "Descendants' Path",
+   "quantity": 1
+  },
+  {
+   "name": "Duelist's Heritage",
+   "quantity": 1
+  },
+  {
+   "name": "Master's Guidance",
+   "quantity": 1
+  },
+  {
+   "name": "Mystic Remora",
+   "quantity": 1
+  },
+  {
+   "name": "Rites of Flourishing",
+   "quantity": 1
+  },
+  {
+   "name": "Seismic Tutelage",
+   "quantity": 1
+  },
+  {
+   "name": "Sokka's Charge",
+   "quantity": 1
+  },
+  {
+   "name": "Solid Ground",
+   "quantity": 1
+  },
+  {
+   "name": "Tale of Katara and Toph",
+   "quantity": 1
+  },
+  {
+   "name": "Training Grounds",
+   "quantity": 1
+  },
+  {
+   "name": "Watery Grasp",
+   "quantity": 1
+  },
+  {
+   "name": "Abandoned Air Temple",
+   "quantity": 1
+  },
+  {
+   "name": "Agna Qel'a",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Fabled Passage",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 6
+  },
+  {
+   "name": "Glacial Fortress",
+   "quantity": 1
+  },
+  {
+   "name": "Hinterland Harbor",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 5
+  },
+  {
+   "name": "Jasmine Dragon Tea Shop",
+   "quantity": 1
+  },
+  {
+   "name": "Kyoshi Village",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 6
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1
+  },
+  {
+   "name": "Rumble Arena",
+   "quantity": 1
+  },
+  {
+   "name": "Secret Tunnel",
+   "quantity": 1
+  },
+  {
+   "name": "Sunpetal Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Thriving Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Thriving Heath",
+   "quantity": 1
+  },
+  {
+   "name": "Thriving Isle",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

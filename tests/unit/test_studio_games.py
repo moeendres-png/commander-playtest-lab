@@ -14,7 +14,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from commander_lab.studio import StudioStore, create_revision, games, launch
-from commander_lab.studio.images import cached_image_by_name, public_card
+from commander_lab.studio.images import cached_image_by_name, public_card, web_image_url_by_name
 from commander_lab.studio.web import create_app
 from tests.unit.test_studio_builder import _deck, _fill
 
@@ -197,8 +197,11 @@ def test_public_card_by_name_and_image_cache(studio_folder: Path) -> None:
         assert public_card(store, "Filler 00")["name"] == "Filler 00 // Hidden Back"
         assert public_card(store, "No Such Card") is None
         assert cached_image_by_name(store, "Forest", fetch=False) is None
-        (studio_folder / "images" / "oracle-forest-front.jpg").write_bytes(b"jpg")
-        assert cached_image_by_name(store, "Forest", fetch=False) is not None
+        assert (
+            web_image_url_by_name(store, "Forest")
+            == "https://cards.scryfall.io/normal/front/a/b/forest.jpg"
+        )
+        assert not (studio_folder / "images").exists()
     finally:
         store.close()
 
@@ -224,6 +227,14 @@ def test_web_application_serves_games(studio_folder: Path, monkeypatch: pytest.M
         assert list(facts) == ["Forest"]
         assert "image_front" not in facts["Forest"]
         assert client.get("/img-name?name=No%20Such%20Card").status_code == 404
+        assert client.get("/img/by-name?name=No%20Such%20Card").status_code == 404
+        redir1 = client.get("/img-name?name=Forest", follow_redirects=False)
+        assert redir1.status_code == 302
+        assert redir1.headers["location"] == "https://cards.scryfall.io/normal/front/a/b/forest.jpg"
+        redir2 = client.get("/img/by-name?name=Forest", follow_redirects=False)
+        assert redir2.status_code == 302
+        assert redir2.headers["location"] == "https://cards.scryfall.io/normal/front/a/b/forest.jpg"
+        assert not (studio_folder / "images").exists()
         assert client.get("/partie.html").status_code == 200
 
         table = client.get("/api/table").json()

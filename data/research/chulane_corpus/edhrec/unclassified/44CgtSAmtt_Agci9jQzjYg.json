@@ -1,0 +1,358 @@
+{
+ "urlhash": "44CgtSAmtt_Agci9jQzjYg",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-09-17",
+ "price": 2860,
+ "salt": 49.27917179837823,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/12912895?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Academy Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Alandra, Sky Dreamer",
+   "quantity": 1
+  },
+  {
+   "name": "Beast Whisperer",
+   "quantity": 1
+  },
+  {
+   "name": "Cerulean Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Darkslick Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Drake Familiar",
+   "quantity": 1
+  },
+  {
+   "name": "Drake Hatcher",
+   "quantity": 1
+  },
+  {
+   "name": "Gilded Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Jubilant Skybonder",
+   "quantity": 1
+  },
+  {
+   "name": "Loyal Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Muse Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Needlethorn Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Pendrell Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Pteramander",
+   "quantity": 1
+  },
+  {
+   "name": "Ranger of Eos",
+   "quantity": 1
+  },
+  {
+   "name": "Recruiter of the Guard",
+   "quantity": 1
+  },
+  {
+   "name": "Saheeli's Silverwing",
+   "quantity": 1
+  },
+  {
+   "name": "Screeching Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Shrieking Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Silver Wyvern",
+   "quantity": 1
+  },
+  {
+   "name": "Spiketail Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Spiketail Drakeling",
+   "quantity": 1
+  },
+  {
+   "name": "Spiketail Hatchling",
+   "quantity": 1
+  },
+  {
+   "name": "Spindrift Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Stormchaser Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Stormtide Leviathan",
+   "quantity": 1
+  },
+  {
+   "name": "Talrand, Sky Summoner",
+   "quantity": 1
+  },
+  {
+   "name": "Tempest Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Thunder Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Thunderclap Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Thunderclap Wyvern",
+   "quantity": 1
+  },
+  {
+   "name": "Tide Skimmer",
+   "quantity": 1
+  },
+  {
+   "name": "Timid Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Tolarian Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Uktabi Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Whirlpool Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Wormfang Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1
+  },
+  {
+   "name": "Force of Negation",
+   "quantity": 1
+  },
+  {
+   "name": "Heroic Intervention",
+   "quantity": 1
+  },
+  {
+   "name": "Kindred Summons",
+   "quantity": 1
+  },
+  {
+   "name": "Krosan Grip",
+   "quantity": 1
+  },
+  {
+   "name": "Rewind",
+   "quantity": 1
+  },
+  {
+   "name": "Unsummon",
+   "quantity": 1
+  },
+  {
+   "name": "Veil of Summer",
+   "quantity": 1
+  },
+  {
+   "name": "Cultivate",
+   "quantity": 1
+  },
+  {
+   "name": "Gaea's Blessing",
+   "quantity": 1
+  },
+  {
+   "name": "Kodama's Reach",
+   "quantity": 1
+  },
+  {
+   "name": "Nature's Lore",
+   "quantity": 1
+  },
+  {
+   "name": "Talrand's Invocation",
+   "quantity": 1
+  },
+  {
+   "name": "Cloudstone Curio",
+   "quantity": 1
+  },
+  {
+   "name": "Door of Destinies",
+   "quantity": 1
+  },
+  {
+   "name": "Herald's Horn",
+   "quantity": 1
+  },
+  {
+   "name": "Sapphire Medallion",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "The Great Henge",
+   "quantity": 1
+  },
+  {
+   "name": "Thought Vessel",
+   "quantity": 1
+  },
+  {
+   "name": "Armor of Faith",
+   "quantity": 1
+  },
+  {
+   "name": "Armored Ascension",
+   "quantity": 1
+  },
+  {
+   "name": "Leafdrake Roost",
+   "quantity": 1
+  },
+  {
+   "name": "Mirari's Wake",
+   "quantity": 1
+  },
+  {
+   "name": "Teferi's Ageless Insight",
+   "quantity": 1
+  },
+  {
+   "name": "Boseiju, Who Endures",
+   "quantity": 1
+  },
+  {
+   "name": "Breeding Pool",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 3
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 9
+  },
+  {
+   "name": "Misty Rainforest",
+   "quantity": 1
+  },
+  {
+   "name": "Otawara, Soaring City",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 6
+  },
+  {
+   "name": "Rejuvenating Springs",
+   "quantity": 1
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Savannah",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Growth Chamber",
+   "quantity": 1
+  },
+  {
+   "name": "Spara's Headquarters",
+   "quantity": 1
+  },
+  {
+   "name": "Sunpetal Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Temple Garden",
+   "quantity": 1
+  },
+  {
+   "name": "Tropical Island",
+   "quantity": 1
+  },
+  {
+   "name": "Tundra",
+   "quantity": 1
+  },
+  {
+   "name": "Windswept Heath",
+   "quantity": 1
+  },
+  {
+   "name": "Yavimaya, Cradle of Growth",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

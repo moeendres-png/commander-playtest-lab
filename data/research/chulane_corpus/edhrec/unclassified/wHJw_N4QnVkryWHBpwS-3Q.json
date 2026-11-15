@@ -1,0 +1,306 @@
+{
+ "urlhash": "wHJw_N4QnVkryWHBpwS-3Q",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-09-07",
+ "price": 86,
+ "salt": 44.79346668533981,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/iewEGqIGGEumhi79dxno6Q?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Aesi, Tyrant of Gyre Strait",
+   "quantity": 1
+  },
+  {
+   "name": "Arwen, Mortal Queen",
+   "quantity": 1
+  },
+  {
+   "name": "Attercop",
+   "quantity": 1
+  },
+  {
+   "name": "Beast-Kin Ranger",
+   "quantity": 1
+  },
+  {
+   "name": "Beorn, Reluctant Host",
+   "quantity": 1
+  },
+  {
+   "name": "Boughside Wanderers",
+   "quantity": 1
+  },
+  {
+   "name": "Cantankerous Keepers",
+   "quantity": 1
+  },
+  {
+   "name": "Dwynen's Elite",
+   "quantity": 1
+  },
+  {
+   "name": "Dwynen, Gilt-Leaf Daen",
+   "quantity": 1
+  },
+  {
+   "name": "Elven Raft-Steerer",
+   "quantity": 1
+  },
+  {
+   "name": "Elvenking's Harper",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Regrower",
+   "quantity": 1
+  },
+  {
+   "name": "Emil, Vastlands Roamer",
+   "quantity": 1
+  },
+  {
+   "name": "Empyrean Eagle",
+   "quantity": 1
+  },
+  {
+   "name": "Galion, Elvenking's Butler",
+   "quantity": 1
+  },
+  {
+   "name": "Good-Fortune Unicorn",
+   "quantity": 1
+  },
+  {
+   "name": "Guardian of the Halls",
+   "quantity": 1
+  },
+  {
+   "name": "Koma, World-Eater",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Loot, Exuberant Explorer",
+   "quantity": 1
+  },
+  {
+   "name": "Mirkwood Meditator",
+   "quantity": 1
+  },
+  {
+   "name": "Mirkwood Nurturer",
+   "quantity": 1
+  },
+  {
+   "name": "Mirkwood Pathmaker",
+   "quantity": 1
+  },
+  {
+   "name": "Mossborn Hydra",
+   "quantity": 1
+  },
+  {
+   "name": "Nasty Little Rabbit",
+   "quantity": 1
+  },
+  {
+   "name": "Old Thrush",
+   "quantity": 1
+  },
+  {
+   "name": "Reclamation Sage",
+   "quantity": 1
+  },
+  {
+   "name": "Silvan Reveler",
+   "quantity": 1
+  },
+  {
+   "name": "Tam, Observant Sequencer",
+   "quantity": 1
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Thranduil's Company",
+   "quantity": 1
+  },
+  {
+   "name": "Thranduil, Sindarin Liege",
+   "quantity": 1
+  },
+  {
+   "name": "Troop of Ponies",
+   "quantity": 1
+  },
+  {
+   "name": "Wargling",
+   "quantity": 1
+  },
+  {
+   "name": "Wilderland Scrounger",
+   "quantity": 1
+  },
+  {
+   "name": "Wood Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Woodland Weavemaster",
+   "quantity": 1
+  },
+  {
+   "name": "Confusticate and Bebother",
+   "quantity": 1
+  },
+  {
+   "name": "Disdainful Stroke",
+   "quantity": 1
+  },
+  {
+   "name": "Plunder the Trollshaws",
+   "quantity": 1
+  },
+  {
+   "name": "Proctor's Gaze",
+   "quantity": 1
+  },
+  {
+   "name": "Run Away Together",
+   "quantity": 1
+  },
+  {
+   "name": "Sound the Trumpets",
+   "quantity": 1
+  },
+  {
+   "name": "Stone by Sunlight",
+   "quantity": 1
+  },
+  {
+   "name": "Thorin's Last Stand",
+   "quantity": 1
+  },
+  {
+   "name": "Thranduil's Decree",
+   "quantity": 1
+  },
+  {
+   "name": "Uncharted Voyage",
+   "quantity": 1
+  },
+  {
+   "name": "Warg Tactics",
+   "quantity": 1
+  },
+  {
+   "name": "Genesis Wave",
+   "quantity": 1
+  },
+  {
+   "name": "Moment of Glory",
+   "quantity": 1
+  },
+  {
+   "name": "Pick Your Poison",
+   "quantity": 1
+  },
+  {
+   "name": "Through the Forest Gate",
+   "quantity": 1
+  },
+  {
+   "name": "Giant's Boulder",
+   "quantity": 1
+  },
+  {
+   "name": "Anthem of Champions",
+   "quantity": 1
+  },
+  {
+   "name": "Beorn's Hospitality",
+   "quantity": 1
+  },
+  {
+   "name": "Down in the Valley",
+   "quantity": 1
+  },
+  {
+   "name": "Eagle's Rescue",
+   "quantity": 1
+  },
+  {
+   "name": "Enchanted River's Grasp",
+   "quantity": 1
+  },
+  {
+   "name": "Roll-Roll-Roll-Roll",
+   "quantity": 1
+  },
+  {
+   "name": "Blossoming Sands",
+   "quantity": 1
+  },
+  {
+   "name": "Elven Passage",
+   "quantity": 1
+  },
+  {
+   "name": "Elvenking's Halls",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 15
+  },
+  {
+   "name": "Hobbit Hole",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 10
+  },
+  {
+   "name": "Lake-town",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 6
+  },
+  {
+   "name": "Secluded Courtyard",
+   "quantity": 1
+  },
+  {
+   "name": "Thornwood Falls",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Cove",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

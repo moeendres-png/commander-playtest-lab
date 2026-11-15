@@ -1,0 +1,286 @@
+{
+ "urlhash": "H71sbbz1HMfUdjhjUqAIXg",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-09-05",
+ "price": 186,
+ "salt": 32.75235116109252,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/_zNIfWfj_U6wARCLFjUiGw?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Aerial Doombot",
+   "quantity": 1
+  },
+  {
+   "name": "Akrasan Squire",
+   "quantity": 1
+  },
+  {
+   "name": "Allosaurus Shepherd",
+   "quantity": 1
+  },
+  {
+   "name": "Alloy Animist",
+   "quantity": 1
+  },
+  {
+   "name": "Almighty Brushwagg",
+   "quantity": 1
+  },
+  {
+   "name": "Alseid of Life's Bounty",
+   "quantity": 1
+  },
+  {
+   "name": "Anointed Chorister",
+   "quantity": 1
+  },
+  {
+   "name": "Anointer of Champions",
+   "quantity": 1
+  },
+  {
+   "name": "Arbor Elf",
+   "quantity": 1
+  },
+  {
+   "name": "Ascendant Spirit",
+   "quantity": 1
+  },
+  {
+   "name": "Aunt May",
+   "quantity": 1
+  },
+  {
+   "name": "Basking Rootwalla",
+   "quantity": 1
+  },
+  {
+   "name": "Basri, Tomorrow's Champion",
+   "quantity": 1
+  },
+  {
+   "name": "Benalish Missionary",
+   "quantity": 1
+  },
+  {
+   "name": "Benevolent Bodyguard",
+   "quantity": 1
+  },
+  {
+   "name": "Benthic Biomancer",
+   "quantity": 1
+  },
+  {
+   "name": "Birchlore Rangers",
+   "quantity": 1
+  },
+  {
+   "name": "Blisterpod",
+   "quantity": 1
+  },
+  {
+   "name": "Bofur, Reliable Guardian",
+   "quantity": 1
+  },
+  {
+   "name": "Bond Beetle",
+   "quantity": 1
+  },
+  {
+   "name": "Boros Elite",
+   "quantity": 1
+  },
+  {
+   "name": "Brave-Kin Duo",
+   "quantity": 1
+  },
+  {
+   "name": "Brightfield Glider",
+   "quantity": 1
+  },
+  {
+   "name": "Brokers Initiate",
+   "quantity": 1
+  },
+  {
+   "name": "Brown Ouphe",
+   "quantity": 1
+  },
+  {
+   "name": "Bushi Tenderfoot",
+   "quantity": 1
+  },
+  {
+   "name": "Caravan Escort",
+   "quantity": 1
+  },
+  {
+   "name": "Caustic Caterpillar",
+   "quantity": 1
+  },
+  {
+   "name": "Cenn's Tactician",
+   "quantity": 1
+  },
+  {
+   "name": "Cenote Scout",
+   "quantity": 1
+  },
+  {
+   "name": "Champion of the Parish",
+   "quantity": 1
+  },
+  {
+   "name": "Chaplain of Alms",
+   "quantity": 1
+  },
+  {
+   "name": "Children of Korlis",
+   "quantity": 1
+  },
+  {
+   "name": "Chronomaton",
+   "quantity": 1
+  },
+  {
+   "name": "Cliffside Lookout",
+   "quantity": 1
+  },
+  {
+   "name": "Codespell Cleric",
+   "quantity": 1
+  },
+  {
+   "name": "Combat Courier",
+   "quantity": 1
+  },
+  {
+   "name": "Copperhorn Scout",
+   "quantity": 1
+  },
+  {
+   "name": "Cosi's Trickster",
+   "quantity": 1
+  },
+  {
+   "name": "Crossroads Consecrator",
+   "quantity": 1
+  },
+  {
+   "name": "Crowd of True Believers",
+   "quantity": 1
+  },
+  {
+   "name": "Curious Farm Animals",
+   "quantity": 1
+  },
+  {
+   "name": "Cursecatcher",
+   "quantity": 1
+  },
+  {
+   "name": "Dauntless Bodyguard",
+   "quantity": 1
+  },
+  {
+   "name": "Deathbonnet Sprout",
+   "quantity": 1
+  },
+  {
+   "name": "Delver of Secrets",
+   "quantity": 1
+  },
+  {
+   "name": "Descendant of Storms",
+   "quantity": 1
+  },
+  {
+   "name": "Devoted Caretaker",
+   "quantity": 1
+  },
+  {
+   "name": "District Mascot",
+   "quantity": 1
+  },
+  {
+   "name": "Drillworks Mole",
+   "quantity": 1
+  },
+  {
+   "name": "Druid Lyrist",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Berserker",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Herder",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Hexhunter",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Lyrist",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Reclaimer",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Scrapper",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Skysweeper",
+   "quantity": 1
+  },
+  {
+   "name": "Embodiment of Spring",
+   "quantity": 1
+  },
+  {
+   "name": "Essence Warden",
+   "quantity": 1
+  },
+  {
+   "name": "Abandoned Air Temple",
+   "quantity": 1
+  },
+  {
+   "name": "Agna Qel'a",
+   "quantity": 1
+  },
+  {
+   "name": "Ba Sing Se",
+   "quantity": 1
+  },
+  {
+   "name": "Snow-Covered Forest",
+   "quantity": 15
+  },
+  {
+   "name": "Snow-Covered Island",
+   "quantity": 9
+  },
+  {
+   "name": "Snow-Covered Plains",
+   "quantity": 12
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

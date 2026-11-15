@@ -1,0 +1,338 @@
+{
+ "urlhash": "sqjbZQ8BggVTwpWLSLWE0g",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-01-27",
+ "price": 102,
+ "salt": 37.81309789838269,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/tUeX4jTGZkGMRG2WoDgmKA?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Aberrant Researcher",
+   "quantity": 1
+  },
+  {
+   "name": "Ambitious Farmhand",
+   "quantity": 1
+  },
+  {
+   "name": "Ambush Viper",
+   "quantity": 1
+  },
+  {
+   "name": "Apothecary Geist",
+   "quantity": 1
+  },
+  {
+   "name": "Bramble Wurm",
+   "quantity": 1
+  },
+  {
+   "name": "Cathar Commando",
+   "quantity": 1
+  },
+  {
+   "name": "Crusader of Odric",
+   "quantity": 1
+  },
+  {
+   "name": "Dawnhart Disciple",
+   "quantity": 1
+  },
+  {
+   "name": "Decimator of the Provinces",
+   "quantity": 1
+  },
+  {
+   "name": "Delver of Secrets",
+   "quantity": 1
+  },
+  {
+   "name": "Drogskol Shieldmate",
+   "quantity": 1
+  },
+  {
+   "name": "Eccentric Farmer",
+   "quantity": 1
+  },
+  {
+   "name": "Elder Deep-Fiend",
+   "quantity": 1
+  },
+  {
+   "name": "Fiend Hunter",
+   "quantity": 1
+  },
+  {
+   "name": "Ghoultree",
+   "quantity": 1
+  },
+  {
+   "name": "Groundskeeper",
+   "quantity": 1
+  },
+  {
+   "name": "Harvest Hand",
+   "quantity": 1
+  },
+  {
+   "name": "Hermit Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Hinterland Logger",
+   "quantity": 1
+  },
+  {
+   "name": "Intrepid Provisioner",
+   "quantity": 1
+  },
+  {
+   "name": "Lunarch Veteran",
+   "quantity": 1
+  },
+  {
+   "name": "Moldgraf Millipede",
+   "quantity": 1
+  },
+  {
+   "name": "Reckless Scholar",
+   "quantity": 1
+  },
+  {
+   "name": "Scorned Villager",
+   "quantity": 1
+  },
+  {
+   "name": "Spectral Shepherd",
+   "quantity": 1
+  },
+  {
+   "name": "Spell Queller",
+   "quantity": 1
+  },
+  {
+   "name": "Spore Crawler",
+   "quantity": 1
+  },
+  {
+   "name": "Stitched Mangler",
+   "quantity": 1
+  },
+  {
+   "name": "Subjugator Angel",
+   "quantity": 1
+  },
+  {
+   "name": "Thing in the Ice",
+   "quantity": 1
+  },
+  {
+   "name": "Twinblade Geist",
+   "quantity": 1
+  },
+  {
+   "name": "Villagers of Estwald",
+   "quantity": 1
+  },
+  {
+   "name": "Voice of the Blessed",
+   "quantity": 1
+  },
+  {
+   "name": "Wild-Field Scarecrow",
+   "quantity": 1
+  },
+  {
+   "name": "Wretched Gryff",
+   "quantity": 1
+  },
+  {
+   "name": "Young Wolf",
+   "quantity": 1
+  },
+  {
+   "name": "Duel for Dominance",
+   "quantity": 1
+  },
+  {
+   "name": "Essence Flux",
+   "quantity": 1
+  },
+  {
+   "name": "Geistlight Snare",
+   "quantity": 1
+  },
+  {
+   "name": "Grapple with the Past",
+   "quantity": 1
+  },
+  {
+   "name": "Moonlight Hunt",
+   "quantity": 1
+  },
+  {
+   "name": "Strength of Arms",
+   "quantity": 1
+  },
+  {
+   "name": "Syncopate",
+   "quantity": 1
+  },
+  {
+   "name": "Think Twice",
+   "quantity": 1
+  },
+  {
+   "name": "Valorous Stance",
+   "quantity": 1
+  },
+  {
+   "name": "Angelic Purge",
+   "quantity": 1
+  },
+  {
+   "name": "Gather the Townsfolk",
+   "quantity": 1
+  },
+  {
+   "name": "Join the Dance",
+   "quantity": 1
+  },
+  {
+   "name": "Silent Departure",
+   "quantity": 1
+  },
+  {
+   "name": "Temporal Mastery",
+   "quantity": 1
+  },
+  {
+   "name": "Travel Preparations",
+   "quantity": 1
+  },
+  {
+   "name": "Butcher's Cleaver",
+   "quantity": 1
+  },
+  {
+   "name": "Chalice of Life",
+   "quantity": 1
+  },
+  {
+   "name": "Cobbled Wings",
+   "quantity": 1
+  },
+  {
+   "name": "Neglected Heirloom",
+   "quantity": 1
+  },
+  {
+   "name": "Bound by Moonsilver",
+   "quantity": 1
+  },
+  {
+   "name": "Cathar's Call",
+   "quantity": 1
+  },
+  {
+   "name": "Faith Unbroken",
+   "quantity": 1
+  },
+  {
+   "name": "Gryff's Boon",
+   "quantity": 1
+  },
+  {
+   "name": "Imprisoned in the Moon",
+   "quantity": 1
+  },
+  {
+   "name": "Spontaneous Mutation",
+   "quantity": 1
+  },
+  {
+   "name": "Ulvenwald Mysteries",
+   "quantity": 1
+  },
+  {
+   "name": "Tamiyo, Field Researcher",
+   "quantity": 1
+  },
+  {
+   "name": "Abandoned Campground",
+   "quantity": 1
+  },
+  {
+   "name": "Blossoming Sands",
+   "quantity": 1
+  },
+  {
+   "name": "Creosote Heath",
+   "quantity": 1
+  },
+  {
+   "name": "Deserted Beach",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 8
+  },
+  {
+   "name": "Island",
+   "quantity": 8
+  },
+  {
+   "name": "Lakeside Shack",
+   "quantity": 1
+  },
+  {
+   "name": "Meticulous Archive",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 7
+  },
+  {
+   "name": "Reflecting Pool",
+   "quantity": 1
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Sejiri Refuge",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Enlightenment",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Plenty",
+   "quantity": 1
+  },
+  {
+   "name": "Thornwood Falls",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Landscape",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}
