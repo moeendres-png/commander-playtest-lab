@@ -32,9 +32,10 @@ def _cards(result: strength_view.StrengthResult) -> dict[str, strength_view.Stre
 
 
 def test_a_filter_card_leaves_the_deck_universe_out_of_its_denominator() -> None:
-    """Main's denominator (every weighted component, here 11) minus the deck universe (2) for a
-    filter card: 3 of 9 for a card with only the commander inclusion; the control card, which is
-    no filter card, has the same signal and the universe too: 5 of 11."""
+    """Main's denominator (every weighted component the source can exist for, here 10.5: 3 + 2 +
+    4 + 1 + 0.5) minus the deck universe (4) for a filter card: 3 of 6.5 for a card with only the
+    commander inclusion; the control card, which is no filter card, has the same signal and the
+    universe too: 7 of 10.5."""
     settings = StrengthSettings(min_coverage=0.0, min_components=1)
     obs = {
         "x": {"commander_inclusion": Observation(0.9, 90, 100)},
@@ -52,9 +53,9 @@ def test_a_filter_card_leaves_the_deck_universe_out_of_its_denominator() -> None
     scored = strength.score_pool(
         settings, obs, collected, context=PoolContext(filter_cards=frozenset({"x"}))
     )
-    assert scored["x"]["coverage"] == pytest.approx(3 / 9, abs=1e-4)
-    assert scored["w"]["coverage"] == pytest.approx(3 / 11, abs=1e-4)
-    assert scored["y"]["coverage"] == pytest.approx(5 / 11, abs=1e-4)
+    assert scored["x"]["coverage"] == pytest.approx(3 / 6.5, abs=1e-4)
+    assert scored["w"]["coverage"] == pytest.approx(3 / 10.5, abs=1e-4)
+    assert scored["y"]["coverage"] == pytest.approx(7 / 10.5, abs=1e-4)
 
 
 def test_no_positive_weight_and_no_source_have_their_own_reasons() -> None:
@@ -102,14 +103,18 @@ def test_the_deck_universe_filter_card_has_the_universe_out_of_its_denominator()
     for index in range(40):
         add_deck(store, f"d{index}", ["Card 00", "Card 01"])
     universe.save_profile(store, "mit", {"min_universe": 5, "must_contain": ["Card 00"]})
-    result = strength_view.compute(store, CMD, StrengthSettings(universe_profile="mit"))
+    # 40 local decks are a counted corpus: keep the EDHREC weights (E2.a off) so that the control
+    # card still has its commander inclusion in the denominator, as this test measures
+    result = strength_view.compute(
+        store, CMD, StrengthSettings(universe_profile="mit", edhrec_with_corpus=True)
+    )
     cards = _cards(result)
     status = {c["component"]: c["status"] for c in cards["Card 00"]["components"]}
     assert status["deck_universe"] == strength.FILTER_CARD
-    # the filter card has the universe weight (2) out of its denominator: 3 of 9; the control
-    # card of the same pool has the commander inclusion and the universe present: 5 of 11
-    assert cards["Card 00"]["coverage"] == pytest.approx(3 / 9, abs=1e-4)
-    assert cards["Card 01"]["coverage"] == pytest.approx(5 / 11, abs=1e-4)
+    # the filter card has the universe weight (4) out of its denominator: 3 of 6.5; the control
+    # card of the same pool has the commander inclusion and the universe present: 7 of 10.5
+    assert cards["Card 00"]["coverage"] == pytest.approx(3 / 6.5, abs=1e-4)
+    assert cards["Card 01"]["coverage"] == pytest.approx(7 / 10.5, abs=1e-4)
     with pytest.raises(KeyError):
         strength_view.compute(store, CMD, StrengthSettings(universe_profile="nope"))
 

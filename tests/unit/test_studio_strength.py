@@ -410,29 +410,39 @@ def test_settings_are_validated_and_round_trip() -> None:
     assert near.weights == {
         strength.COMMANDER_INCLUSION: 3.0,
         strength.BRACKET_INCLUSION: 2.0,
-        strength.DECK_UNIVERSE: 3.0,
+        strength.DECK_UNIVERSE: 4.5,
+        strength.CORPUS_TUNED: 1.0,
+        strength.CORPUS_LOG_LIFT: 2.0,
+        strength.CORPUS_BRACKET_SLOPE: 0.5,
         strength.SYNERGY: 0.0,
-        strength.TOURNAMENT_LISTS: 1.0,
-        strength.TOURNAMENT_CONVERSION: 1.0,
-        strength.GLOBAL_INCLUSION: 1.0,
-        strength.COMBOS: 0.0,
+        strength.TOURNAMENT: 0.0,
+        strength.TOURNAMENT_LISTS: 0.0,
+        strength.TOURNAMENT_CONVERSION: 0.0,
+        strength.EDHREC_THEME_REACH: 1.0,
+        strength.GLOBAL_INCLUSION: 0.5,
+        strength.COMBOS: 0.5,
         strength.PLAYGROUP_OBSERVED: 0.0,
-        strength.RUBRIC: 4.0,
+        strength.RUBRIC: 0.0,
         strength.SIMULATION: 0.0,
     }
     tournament = strength.PRESETS["Turniernah"]
     assert tournament.bracket == "cedh"
     assert tournament.weights == {
-        strength.TOURNAMENT_LISTS: 3.0,
-        strength.BRACKET_INCLUSION: 2.0,
-        strength.DECK_UNIVERSE: 2.0,
         strength.COMMANDER_INCLUSION: 1.0,
+        strength.BRACKET_INCLUSION: 2.0,
+        strength.DECK_UNIVERSE: 2.5,
+        strength.CORPUS_TUNED: 2.5,
+        strength.CORPUS_LOG_LIFT: 0.5,
+        strength.CORPUS_BRACKET_SLOPE: 2.0,
         strength.SYNERGY: 0.0,
-        strength.TOURNAMENT_CONVERSION: 1.0,
-        strength.GLOBAL_INCLUSION: 1.0,
+        strength.TOURNAMENT: 2.0,
+        strength.TOURNAMENT_LISTS: 0.0,
+        strength.TOURNAMENT_CONVERSION: 0.0,
+        strength.EDHREC_THEME_REACH: 0.0,
+        strength.GLOBAL_INCLUSION: 0.5,
         strength.COMBOS: 1.0,
         strength.PLAYGROUP_OBSERVED: 0.0,
-        strength.RUBRIC: 2.5,
+        strength.RUBRIC: 0.0,
         strength.SIMULATION: 0.0,
     }
     assert strength.DEFAULT_WEIGHTS[strength.SYNERGY] == 0.0
@@ -453,18 +463,26 @@ def test_missing_card_lowers_coverage_not_the_percentile(
 ) -> None:
     _import(store, tmp_path)
     cards = _by_name(
-        strength_view.compute(store, COMMANDER, StrengthSettings(missing_value=SKIP_MISSING))
+        strength_view.compute(
+            store,
+            COMMANDER,
+            StrengthSettings(missing_value=SKIP_MISSING, share_scale="share"),
+        )
     )
     absent = _component(cards["Filler 09"], "commander_inclusion")
     assert absent["status"] == strength.NO_VALUE and absent["percentile"] is None
     listed = _component(cards["Filler 08"], "commander_inclusion")
-    w10 = strength.wilson_lower(10, 100)
-    w90 = strength.wilson_lower(90, 100)
-    assert w10 is not None and w90 is not None
+    # nine listed cards with the denominator 100 (below 500): the shares are shrunk to the
+    # empirical Bayes prior of the component, not the Wilson bound (#1364)
+    prior = strength.beta_binomial_prior([(90 - 10 * index, 100) for index in range(9)])
+    assert prior is not None
+    s10, s90 = strength.shrunk_share(10, 100, prior), strength.shrunk_share(90, 100, prior)
     assert listed["status"] == strength.PRESENT and listed["percentile"] == pytest.approx(
-        (w10 / w90) ** 0.5
+        (s10 / s90) ** 0.5
     )
-    assert listed["wilson"] is not None and listed["numerator"] == 10
+    assert listed["shrunk"] == pytest.approx(s10) and listed["wilson"] is None
+    assert listed["prior_mean"] == pytest.approx(prior.mean)
+    assert listed["numerator"] == 10
     assert cards["Filler 09"]["coverage"] < cards["Filler 00"]["coverage"]
     assert _component(cards["Filler 00"], "synergy")["status"] == strength.NO_VALUE
     assert _component(cards["Filler 00"], "deck_universe")["status"] == strength.NOT_COLLECTED
@@ -474,8 +492,18 @@ def test_missing_card_lowers_coverage_not_the_percentile(
         )
     )
     assert _component(rank_cards["Filler 08"], "commander_inclusion")["percentile"] == 0.0
-    # the recommended default counts the unlisted card as the lowest rank instead (#1350)
-    lowest = _by_name(strength_view.compute(store, COMMANDER, StrengthSettings()))
+    # the Owner can still count the unlisted card as the lowest rank (#1350); it is no default
+    # since E4.b of #1364: an unlisted card is a missing observation, never a filled zero
+    assert StrengthSettings().missing_value["commander_inclusion"] == strength.MISSING_SKIP
+    lowest = _by_name(
+        strength_view.compute(
+            store,
+            COMMANDER,
+            StrengthSettings(
+                missing_value={"commander_inclusion": "lowest", "bracket_inclusion": "lowest"}
+            ),
+        )
+    )
     unlisted = _component(lowest["Filler 09"], "commander_inclusion")
     assert unlisted["status"] == strength.MISSING_AS_LOWEST and unlisted["percentile"] == 0.0
 
@@ -685,6 +713,8 @@ def _only(*components: str, **extra: object) -> StrengthSettings:
     test asks for ``missing_value`` (the recommended default counts it as the lowest rank)."""
     weights = {name: 0.0 for name in strength.COMPONENTS} | {name: 1.0 for name in components}
     extra.setdefault("missing_value", dict(SKIP_MISSING))
+    # these tests pin the sqrt formula of the older scale; the default log scale has its own tests
+    extra.setdefault("share_scale", "share")
     return StrengthSettings(weights=weights, min_coverage=0.0, min_components=1, **extra)  # type: ignore[arg-type]
 
 
@@ -981,8 +1011,8 @@ def test_new_settings_are_validated_serialised_and_round_trip() -> None:
     )
     assert StrengthSettings.from_dict(settings.to_dict()) == settings
     assert settings.to_dict()["missing_value"] == {
-        "commander_inclusion": "lowest",
-        "bracket_inclusion": "lowest",
+        "commander_inclusion": "skip",
+        "bracket_inclusion": "skip",
         "deck_universe": "lowest",
     }
     for bad in (
@@ -1005,7 +1035,7 @@ def test_new_settings_are_validated_serialised_and_round_trip() -> None:
     assert (default.rank_group, default.share_measure, default.share_scale) == (
         "pool",
         "wilson",
-        "share",
+        "log",
     )
     assert default.combo_source == strength.COMBO_COMMANDER
     assert default.min_denominators == {
@@ -1015,11 +1045,11 @@ def test_new_settings_are_validated_serialised_and_round_trip() -> None:
         "playgroup": 200,
     }
     assert default.rank_commander_and_basics is False
-    # EDHREC lists every card above its threshold: "not listed" counts as the lowest rank; the
-    # deck universe has counted zeros and stays "skip" (#1350)
+    # nothing a source does not list is filled with 0 (E4.b of #1364): every default is "skip";
+    # the deck universe has counted zeros instead (0 of N is a finding)
     assert default.missing_value == {
-        "commander_inclusion": "lowest",
-        "bracket_inclusion": "lowest",
+        "commander_inclusion": "skip",
+        "bracket_inclusion": "skip",
         "deck_universe": "skip",
     }
     assert default.missing_value == strength.DEFAULT_MISSING_VALUE
@@ -1228,13 +1258,13 @@ def test_recommended_values_come_from_one_place_and_the_panel_texts_name_them(
     assert "für alle Karten" in edhrec_help and "einzelnen Karte" in edhrec_help
     assert "(empfohlen: ganzer Pool)" in labels["rank_group"]
     assert "(empfohlen: Wilson-Untergrenze)" in labels["share_measure"]
-    assert "(empfohlen: Anteil (Wurzel relativ zum Maximum))" in labels["share_scale"]
+    assert "(empfohlen: Anteil (Logarithmus relativ zum Maximum))" in labels["share_scale"]
     assert "30 Decks" in labels["min_denominators.edhrec"]
     assert "20 Listen" in labels["min_denominators.tournament"]
     assert "200 Partien" in labels["min_denominators.playgroup"]
     assert "EDHREC-Kombos des Commanders" in labels["combo_source"]
     assert "Mindest-Universum" in labels["min_denominators.deck_universe"]
-    assert "(empfohlen: als niedrigster Rang zählen)" in labels["missing_value.commander_inclusion"]
+    assert "(empfohlen: auslassen)" in labels["missing_value.commander_inclusion"]
     assert "(empfohlen: auslassen)" in labels["missing_value.deck_universe"]
     for key in ("commander_inclusion", "bracket_inclusion", "deck_universe"):
         recommended = [
@@ -1245,7 +1275,7 @@ def test_recommended_values_come_from_one_place_and_the_panel_texts_name_them(
     assert "(empfohlen: 25)" in labels["min_coverage"]  # the page field is in percent
     assert "(empfohlen: 2)" in labels["min_components"]
     assert [group["title"] for group in meta["panel"]["groups"]][-1].endswith(
-        "(empfohlen: 47 / 17 / 9 / 4)"
+        "(empfohlen: 72 / 50 / 28 / 14)"
     )
     for group in meta["panel"]["groups"]:
         assert all(key in labels and key in meta["panel"]["help"] for key in group["keys"])
@@ -2156,24 +2186,24 @@ def test_conversion_alone_does_not_satisfy_the_commander_signal_rule() -> None:
 
 
 def test_conversion_weight_counts_in_coverage_only_once_its_rows_exist() -> None:
-    """The A/B of the conversion weight (1.0, total weight 10 -> 11): without conversion rows
+    """The A/B of a conversion weight of 1.0 (total weight 10.5 -> 11.5): without conversion rows
     a card's coverage drops by that share; with rows the share is earned back and the
-    component ranks."""
+    component ranks. (Conversion has the default weight 0 since #1364: the weight is set here.)"""
     observations = {
         "a": {"commander_inclusion": _share(90, 100)},
         "b": {"commander_inclusion": _share(50, 100)},
     }
-    before = StrengthSettings(
-        weights={**strength.DEFAULT_WEIGHTS, strength.TOURNAMENT_CONVERSION: 0.0},
+    before = StrengthSettings(min_coverage=0.0, min_components=1, require_commander_signal=False)
+    after = StrengthSettings(
+        weights={**strength.DEFAULT_WEIGHTS, strength.TOURNAMENT_CONVERSION: 1.0},
         min_coverage=0.0,
         min_components=1,
         require_commander_signal=False,
     )
-    after = StrengthSettings(min_coverage=0.0, min_components=1, require_commander_signal=False)
     scored_before = strength.score_pool(before, observations, {"commander_inclusion"})
     scored_after = strength.score_pool(after, observations, {"commander_inclusion"})
-    assert scored_before["a"]["coverage"] == round(3 / 10, 4)
-    assert scored_after["a"]["coverage"] == round(3 / 11, 4)
+    assert scored_before["a"]["coverage"] == round(3 / 10.5, 4)
+    assert scored_after["a"]["coverage"] == round(3 / 11.5, 4)
     assert scored_after["a"]["index"] == scored_before["a"]["index"] == 100.0
     with_rows = {
         "a": {
@@ -2185,7 +2215,7 @@ def test_conversion_weight_counts_in_coverage_only_once_its_rows_exist() -> None
     scored_rows = strength.score_pool(
         after, with_rows, {"commander_inclusion", "tournament_conversion"}
     )
-    assert scored_rows["a"]["coverage"] == round(4 / 11, 4)
+    assert scored_rows["a"]["coverage"] == round(4 / 11.5, 4)
     row = _row(scored_rows, "a", "tournament_conversion")
     assert row["status"] == strength.PRESENT and row["percentile"] == 0.5
 

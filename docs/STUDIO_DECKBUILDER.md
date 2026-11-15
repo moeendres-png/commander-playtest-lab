@@ -33,7 +33,7 @@ a location inside this repository. Card images are cached next to it in `images/
 | `check-role-labels FILE` | compares the role query slugs with a list of official tagger labels (JSON list or one label per line) and names every slug that is not a label | none (report) |
 | `fetch-images --commander NAME` | card images of the legal pool into the local cache | public images |
 | `data-report` | counts-only report: what the store has, lacks and does not know (collection coverage, public card data age, roles per origin, corpus, observations with unknown times and small denominators, marks, simulation runs) plus hashes of the role tables | none (report) |
-| `ranking-check --commander NAME [--profile NAME \| --preset NAME] [--json]` | objective quality check of the strength-index ranking (`ranking_check.py`): Spearman correlation against counted deck lists, marginal cards at top, staples at bottom, thin coverage at top, tier and land distribution, leave-one-out stability | none (report) |
+| `ranking-check --commander NAME [--profile NAME \| --preset NAME] [--json]` | objective quality check of the strength-index ranking (`ranking_check.py`): Spearman correlation against counted deck lists, marginal cards at top, staples at bottom, thin coverage at top, tier and land distribution, leave-one-out stability, counter-checks against bracket 5 and EDHTop16, redundancy matrix, log-scale sensitivity | none (report) |
 | `import-owner-marks FILE.json` | the Owner's own favorites, exclusions and notes (format below) merged into `card_mark`; the report holds counts only | the Owner's own marks, never a rating |
 
 ### Role files and the lossless role import (schema 5)
@@ -363,6 +363,137 @@ The page names two different things and never mixes them: "Stärke-Index (Schät
 Nutzungsdaten)" (this index) and "Ergebnis aus Partien (noch nicht bewertet)" (the outcome
 evidence, `UNRATED`).
 
+### Strength index v3: purely empirical ("Tierliste v3", #1364)
+
+This section supersedes the weights, scale, cuts and missing-value defaults named above (the
+older text keeps the formula steps and the history). Owner decisions E1 to E5 of 2026-11-15.
+
+**What counts.** Only objective data with provenance. The rubric (`rubric`) is subjective: its
+weight is 0 in the defaults and in every preset, the component, importer and column stay
+(label "subjektiv, Gewicht 0, kein objektives Signal"). Simulation, layers, favorites,
+exclusions and notes never count. TopDeck tournament lists and conversion keep weight 0.
+
+**Weights** (Ausgewogen / Commander-nah / Turniernah): `deck_universe` 4.0 / 4.5 / 2.5,
+`corpus_tuned` 1.5 / 1.0 / 2.5, `corpus_log_lift` 1.0 / 2.0 / 0.5, `corpus_bracket_slope`
+1.0 / 0.5 / 2.0, `global_inclusion` 1.0 / 0.5 / 0.5, `tournament` 0.5 / 0.0 / 2.0,
+`edhrec_theme_reach` 0.5 / 1.0 / 0.0, `combos` 0.5 / 0.5 / 1.0; `commander_inclusion` 3 and
+`bracket_inclusion` 2 are requested but see rule E2.a; `playgroup_observed`, `rubric`,
+`simulation` 0.
+
+**New components** (`corpus_signals.py`, all from the counted local corpus of the commander,
+`DERIVED_DESCRIPTIVE`, numerator and denominator shown; Chulane-only sources are
+`NOT_COLLECTED` without a coverage penalty for other commanders):
+
+- `corpus_tuned`: decks with the card over the decks of the brackets 4 and 5.
+- `corpus_log_lift`: $\log_{10}$ of the card's corpus share over its global EDHREC inclusion,
+  damped by $n/(n+5)$ on the hit count, capped at $\pm 2$, mapped to `0..1` by $(x+2)/4$ (0.5 =
+  neutral); no value for 0 hits (a tiny count cannot score high). The index score is
+  $\max(0, 2v - 1)$: only an above-neutral lift adds, neutral or below counts 0 (a value of 0.3
+  would otherwise still raise a card whose other scores are near 0). The row keeps the raw
+  value `v` and the signed log value in its note.
+- `corpus_bracket_slope`: the same damped log ratio of the share in brackets 4+5 against
+  bracket 2 (half-deck smoothing), only with at least 5 hits in total, with the same
+  $\max(0, 2v - 1)$ index score.
+- `tournament`: the EDHTop16 play rate (numerator derived as `round(value * denominator)` when
+  the published row has only the rate; the stored row stays NULL) pooled with the corpus
+  bracket 5 as one share (sum of numerators over sum of denominators). A card without an
+  EDHTop16 row counts with bracket 5 alone (not listed is unknown, never 0).
+- `edhrec_theme_reach`: the highest inclusion share of the card over the EDHREC theme pages of
+  the commander, each theme share shrunk first (prior from all theme rows) and then the maximum
+  of the posterior means taken, so a small noisy theme does not win on its raw share (base page and the bracket or price variants `core`, `upgraded`, `optimized`,
+  `cedh`, `budget`, `exhibition` left out; a theme row needs the EDHREC minimum denominator).
+
+**Rule E2.a (`strength.apply_corpus_rule`, shown in the result as `weight_rule`).** With a
+counted local corpus of at least `min_universe` decks (30) the weights of `commander_inclusion`
+and `bracket_inclusion` are 0 (rule `CORPUS_ZERO`, requested and effective weights are both
+returned). Without such a corpus the EDHREC weights apply (`EDHREC_FALLBACK`). The setting
+`edhrec_with_corpus` keeps them (`EDHREC_KEPT`).
+
+**Empirical Bayes.** A share with a denominator below 500 (`EB_MAX_DENOMINATOR`) is shrunk to
+the Beta-Binomial posterior mean $(k + m M)/(n + M)$; prior mean $m$ and strength $M$ come from the
+pool per component by the method of moments ($M$ clamped to 2..200, at least 5 cards) and are
+reported (`shrinkage`, `prior_mean`, `prior_strength` per component row). Larger denominators
+(the 2,823 counted decks) keep the Wilson path; the minimum-denominator gates
+(`BELOW_MIN_DENOMINATOR`) are unchanged.
+
+**Zero counts (E4.b, switchable E4.a).** 0 of N in the complete counted corpus is a counted
+value: status `ZERO_COUNT`, it counts fully, and a card whose only commander evidence is that
+zero plus global inclusion gets tier `D` (setting `zero_count_tier`: `D` default, `U` for E4.a,
+reason `ZERO_COUNT_ONLY`). A card an EDHREC source does not list is `NO_VALUE` with
+`NOT_LISTED`; the `missing_value` default is `skip` for every signal again. Tier `U` is only for
+real gaps and always carries a reason code.
+
+**Scale and cuts (E5.a).** `share_scale = "log"` (default): $\ln(1 + k v)/\ln(1 + k v_{\max})$
+with $k = 150$ (`strength.LOG_SHARE_K`), lands and spells apart, comparison group `pool`, cuts
+72 / 50 / 28 / 14. `rank_other_commanders` stays on (geprüft und bestätigt 2026-11-15).
+
+**Saved profiles on reload.** A profile stores only the keys it was saved with; they stay
+(an old rubric weight 3.5, `share_scale`, cuts, `missing_value`). Every key it lacks takes the
+new default, so the E2.a rule applies to old profiles too (their EDHREC weights become 0
+effective as soon as the corpus exists) and the new components enter with their default weights.
+Re-save the profile or press "Empfohlene Werte" to adopt the new defaults completely. The
+result says so: a loaded profile with a positive rubric weight gets the notice "subjektives
+Signal aktiv", and stored EDHREC weights that the corpus rule sets to 0 are named with stored
+and effective value (`strength_view.compute(saved_weights=...)`, route `POST /api/strength`).
+
+**Ranking-check additions** (sections 7 to 9 of the text, keys `counter_checks`, `redundancy`,
+`sensitivity`, `weight_rule`, `shrinkage` in the JSON): Spearman of the index against the
+corpus bracket 5 share and against the EDHTop16 play rate (spells and lands apart, unknown
+where no value exists, never 0). These counter-checks OVERLAP with the index (bracket 5 is a
+subset of the corpus and feeds `tournament`, EDHTop16 feeds `tournament`), so each carries a
+held-out variant (`held_out`, text row "ohne Überlappung"): the index recomputed with the
+overlapping components at weight 0 (bracket 5: `deck_universe`, `corpus_tuned`, `tournament`,
+`corpus_bracket_slope`; EDHTop16: `tournament`) against the same reference; it covers only the
+cards that keep a value (564 of 922 for bracket 5). `corpus_log_lift` stays in both (bracket 5
+is a small part of its whole-corpus share). A redundancy matrix (Spearman between the rank values of the
+active weighted components over the cards where both have a value, pairs above 0.90 flagged as
+double counting); and the tier counts for $k$ = 100 / 150 / 200.
+
+Measured on the repository store (Chulane pool 927, 922 ranked, 2,823 counted lists; bracket 5
+has 267 decks, brackets 4+5 have 1,155; only 16 pool cards have an EDHTop16 row), after the
+review fixes (lift and slope above neutral only, theme reach shrunk per theme):
+
+| Metric | `Ausgewogen` | `Commander-nah` | `Turniernah` |
+|---|---|---|---|
+| Spearman all / spells / lands vs counted lists, before #1364 | `0.7388 / 0.7135 / 0.9465` | `0.7481 / 0.7230 / 0.9543` | `0.7627 / 0.7373 / 0.9572` |
+| Spearman all / spells / lands vs counted lists, after | `0.9226 / 0.9117 / 0.9891` | `0.9368 / 0.9276 / 0.9902` | `0.9282 / 0.9182 / 0.9894` |
+| Randkarten oben, before / after | `59 / 134` / `0 / 45` | `62 / 139` / `0 / 44` | `66 / 145` / `0 / 34` |
+| Stammkarten unten, after | `0 / 27` | `0 / 27` | `0 / 27` |
+| Counter-check bracket 5 (n 267), overlapping, all / spells / lands | `0.6281 / 0.5798 / 0.9120` | `0.6256 / 0.5773 / 0.9098` | `0.6452 / 0.5963 / 0.9255` |
+| Counter-check bracket 5, held out (564 cards) | `0.6699 / 0.6174 / 0.9025` | `0.6577 / 0.6066 / 0.8915` | `0.6639 / 0.6102 / 0.8911` |
+| Counter-check EDHTop16 (16 spells), overlapping / held out | `0.6406 / 0.6381` | `0.5845` / no held-out (tournament weight 0) | `0.8059 / 0.7861` |
+| Tiers `S / A / B / C / D / U / N`, after | `8 / 37 / 49 / 53 / 775 / 0 / 5` | `7 / 37 / 52 / 48 / 778 / 0 / 5` | `8 / 26 / 36 / 53 / 799 / 0 / 5` |
+| Leave-one-out, tier changes of 927 per weighted signal | `deck_universe` 74, `corpus_tuned` 12, `corpus_log_lift` 29, `corpus_bracket_slope` 33, `tournament` 15, `edhrec_theme_reach` 12, `global_inclusion` 18, `combos` 1 | `deck_universe` 86, `corpus_tuned` 12, `corpus_log_lift` 75, `corpus_bracket_slope` 20, `edhrec_theme_reach` 20, `global_inclusion` 6, `combos` 0 | `deck_universe` 49, `corpus_tuned` 27, `corpus_log_lift` 7, `corpus_bracket_slope` 58, `tournament` 28, `global_inclusion` 11, `combos` 1 |
+| Tier changes for $k$ 100 / 200 against 150 | `24 / 25` | `13 / 22` | `18 / 19` |
+
+No pair of active components exceeds $r$ = 0.90 (`deck_universe` against `corpus_tuned`:
+0.8481), so `corpus_tuned` stays the share in brackets 4+5. Open against the acceptance
+criteria: the `combos` signal changes 0 to 1 tiers when left out (a value for only 13 pool
+cards; 0 in `Commander-nah`), and the distribution is bottom-heavy with the cuts
+72 / 50 / 28 / 14 (775 to 799 cards are `D`, after the lift and slope fix more than before it).
+The agreement with the counted lists stays above 0.90 for spells and lands in all presets.
+
+**Confidence and borderline mark (#1365).** Every ranked card carries `confidence` (0..1),
+`confidence_level` and a mark `borderline`:
+
+- `confidence` = `coverage` $\times$ $\sum_i w_i \, n_i/(n_i+30) \,/\, \sum_i w_i$ over the weighted
+  components with a value and a denominator $n_i$ (a counted zero included; `strength.CONFIDENCE_K`
+  = 30). Coverage is the weight share of the signals that have a value; a large denominator
+  (the 2,823 counted decks) counts almost fully, a small one (a theme page with 40 decks) about
+  0.57. A card without an index has no confidence (`null`). It is a hint about the evidence, not
+  about the card, and it never changes the index or the tier.
+- `confidence_level`: `high` from 0.60, `medium` from 0.35, else `low`.
+- `borderline` is true when the index lies strictly closer than `borderline_distance` index
+  points to a tier cut (S, A, B, C); `borderline_cut` names the nearest cut, `cut_distance` the
+  distance. The setting `borderline_distance` (0..50, recommended 2, 0 = off) is in the settings
+  panel under "Tier-Grenzen". A card with tier `U` or `N` is never borderline.
+
+The result also carries `tier_counts_by_kind` (`spells` and `lands`, the same keys as
+`tier_counts`), `unknown_breakdown` (`total`, `zero_count` = U cards with reason
+`ZERO_COUNT_ONLY`, i.e. "gezählt 0 von N" (only with `zero_count_tier` = U), `missing_data` = the
+others with their `by_reason` codes, and `denominator` = the counted corpus) and
+`borderline_count`. Each card has `is_land`.
+
 ### Rating layers ("Bewertungsebenen")
 
 Additional, objectively derivable layers that rank cards next to the strength tier. Each is
@@ -468,7 +599,7 @@ no price data is involved.
 
 `ranking_check.check_ranking` (pure function) and the command
 `python -m commander_lab.studio --data <ordner> ranking-check --commander "Chulane, Teller of Tales" [--profile <name> | --preset <name>] [--json]`
-report six objective diagnostic figures for any strength-index setting (both as human-readable
+report six objective diagnostic figures (plus the counter-checks, redundancy matrix and log-scale sensitivity of Tierliste v3, above) for any strength-index setting (both as human-readable
 German text and as JSON `studio-ranking-check-1`):
 
 1. **Agreement with the counted deck lists (Spearman $r$):** rank correlation between the
@@ -509,8 +640,8 @@ cards, 2,823 counted lists, before any index change of #1350–#1353):
 
 #### Share scaling (`share_scale`: `share` vs `rank`, #1351)
 
-In the Chulane pool (922 ranked cards), 756 cards have 0 of 2,823 counted lists. Under pure
-percentile ranks (`share_scale = "rank"`), those 756 zeros share mean rank `0.409` (`377.5 / 921`),
+In the Chulane pool (922 ranked cards), 564 cards have at least 1 of 2,823 counted lists and 358 have exactly 0 of 2,823; 756 cards are below 1 % (corrected 2026-11-15, #1364: an earlier version of this sentence said "756 cards have 0 of 2,823"). Under pure
+percentile ranks (`share_scale = "rank"`), the zeros and near-zeros share a low mean rank (`0.409`, `377.5 / 921`, as measured then),
 and a card played in only 3 % of decks jumps to percentile `0.89`, right next to a 60 % staple.
 Consequently, among the 166 cards actually played in $\ge 1\,\%$ of counted lists, the rank-mode
 index had a slightly negative Spearman correlation (`r = -0.0357`) with counted-list share, and
@@ -570,8 +701,8 @@ Land shares across `S / A / B / C / D` in final `#1352`: `Ausgewogen` `33.3 % / 
 #### Rubric, missing EDHREC values, lands apart, new cuts (`#1358`, `#1350`, `#1353` part A)
 
 After `#1352` the index followed the counted deck lists closely (Spearman `0.9255`) but it had
-three weaknesses on the Chulane pool of 922 ranked cards: 756 cards are in none of the 2,823
-counted lists, so for them the index rested on a handful of near-zero signals; about 850 cards
+three weaknesses on the Chulane pool of 922 ranked cards: 756 cards are below 1 % of the 2,823
+counted lists (358 of them in none), so for them the index rested on a handful of near-zero signals; about 850 cards
 had no EDHREC row, so the weight of that signal simply vanished for them (`skip`); and lands
 (65 ranked) shared the scale of the spells, so the land with the most decks (`Command Tower`)
 set $v_{\max}$ for everybody. Four changes, one PR; the cuts were re-derived once at the end.
@@ -696,7 +827,7 @@ cuts 47/17/9/4 kept for every row, so the tier counts of the other rows are not 
 | 60 % (12) | `0.6847 / 0.6644 / 0.8879` | `0.7332` | `0.9877 / 0.9915 / 0.9513` | `217 / 295` | `0 / 295` | `41 / 254 / 242 / 195 / 190` | `rubric` `671` |
 
 Reading it plainly: a weight share is not an equal share of influence. Of the 922 ranked cards
-756 are in no counted list, so the usage block is close to 0 for most cards and the rubric's
+756 are below 1 % of the counted lists (358 in none), so the usage block is close to 0 for most cards and the rubric's
 spread decides their order; even at 30 % the index correlates `0.97` with the rubric, and the
 agreement with the counted lists falls from `0.93` to `0.74` (the rubric alone reaches `0.62`;
 among the 162 cards in at least 1 % of the lists from `0.97` to `0.87`). The usage block still

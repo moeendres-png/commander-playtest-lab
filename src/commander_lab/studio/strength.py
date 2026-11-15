@@ -3,6 +3,14 @@
 ``score_pool`` is a pure function: settings and per-card observations in, index and tier
 per card out. No I/O, no clock, no store. The store side lives in ``strength_view.py``.
 
+Tierliste v3 (#1364): the index is purely empirical. The rubric has weight 0 (subjective),
+the EDHREC commander and bracket inclusion weights are 0 while a counted local corpus exists
+(``apply_corpus_rule``, rule E2.a), shares with a denominator below ``EB_MAX_DENOMINATOR`` are
+shrunk by empirical Bayes (``beta_binomial_prior``), a counted 0 of N is ``ZERO_COUNT``
+(tier D, setting ``zero_count_tier``) and the share scale is logarithmic with
+``LOG_SHARE_K``. The text below keeps the older description of the formula; the weights,
+scale, cuts and the rules above are what applies, see docs/STUDIO_DECKBUILDER.md.
+
 What the index is. It is ``DERIVED_DESCRIPTIVE``: a weighted mean of percentile ranks of
 usage signals (how often a card is played in decks of one commander, in a bracket, in the
 deck lists the Owner chose, in tournament lists, the quality of the combos it is part
@@ -78,7 +86,7 @@ from __future__ import annotations
 
 import math
 from collections.abc import Collection, Mapping
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from itertools import pairwise
 from typing import TypedDict
 
@@ -117,6 +125,9 @@ NOT_RANKED_BASIC_LAND = "NOT_RANKED_BASIC_LAND"
 NO_COMMANDER_SIGNAL = "NO_COMMANDER_SIGNAL"
 NOT_RANKED_OTHER_COMMANDER = "NOT_RANKED_OTHER_COMMANDER"
 NEGATIVE_NEUTRAL = "NEGATIVE_NEUTRAL"
+# Tier ``U`` reason of the setting ``zero_count_tier = "U"`` (E4.a): the only evidence about this
+# commander is counted zeros (0 of N), nothing positive.
+ZERO_COUNT_ONLY = "ZERO_COUNT_ONLY"
 
 TIER_UNKNOWN = "U"
 TIER_NOT_RANKED = "N"
@@ -139,8 +150,19 @@ MEASURE_RAW = "raw"
 SHARE_MEASURES = (MEASURE_WILSON, MEASURE_RAW)
 SCALE_RANK = "rank"
 SCALE_SHARE = "share"
-SHARE_SCALES = (SCALE_RANK, SCALE_SHARE)
-DEFAULT_SHARE_SCALE = SCALE_SHARE
+SCALE_LOG = "log"
+SHARE_SCALES = (SCALE_LOG, SCALE_SHARE, SCALE_RANK)
+DEFAULT_SHARE_SCALE = SCALE_LOG
+# Curvature of the default share scale ``ln(1 + k v) / ln(1 + k v_max)`` (Owner decision E5.a,
+# #1364). With k = 150 and a most-played card of 60 %, a 0.1 % card scores 0.05, 1 % scores 0.20,
+# 10 % scores 0.61 and 30 % scores 0.85: rare counts stay visibly apart from zero, the very top is
+# flattened. The value is a documented constant, not a tuned parameter; k = 100 and 200 are
+# reported by the ranking check as a sensitivity test only.
+LOG_SHARE_K = 150.0
+ZERO_TIER_D = "D"
+ZERO_TIER_U = "U"
+ZERO_COUNT_TIERS = (ZERO_TIER_D, ZERO_TIER_U)
+DEFAULT_ZERO_COUNT_TIER = ZERO_TIER_D
 MISSING_SKIP = "skip"
 MISSING_LOWEST = "lowest"
 MISSING_CHOICES = (MISSING_SKIP, MISSING_LOWEST)
@@ -174,9 +196,16 @@ BAND_UNKNOWN = "unbekannt"
 COMMANDER_INCLUSION = "commander_inclusion"
 BRACKET_INCLUSION = "bracket_inclusion"
 DECK_UNIVERSE = "deck_universe"
+# Corpus components of the counted local deck corpus of ONE commander (#1364, E3.a). They are
+# ``DERIVED_DESCRIPTIVE``: counts and ratios of counts, shown with numerator and denominator.
+CORPUS_TUNED = "corpus_tuned"
+CORPUS_LOG_LIFT = "corpus_log_lift"
+CORPUS_BRACKET_SLOPE = "corpus_bracket_slope"
 SYNERGY = "synergy"
+TOURNAMENT = "tournament"
 TOURNAMENT_LISTS = "tournament_lists"
 TOURNAMENT_CONVERSION = "tournament_conversion"
+EDHREC_THEME_REACH = "edhrec_theme_reach"
 GLOBAL_INCLUSION = "global_inclusion"
 COMBOS = "combos"
 PLAYGROUP_OBSERVED = "playgroup_observed"
@@ -187,9 +216,14 @@ COMPONENTS = (
     COMMANDER_INCLUSION,
     BRACKET_INCLUSION,
     DECK_UNIVERSE,
+    CORPUS_TUNED,
+    CORPUS_LOG_LIFT,
+    CORPUS_BRACKET_SLOPE,
     SYNERGY,
+    TOURNAMENT,
     TOURNAMENT_LISTS,
     TOURNAMENT_CONVERSION,
+    EDHREC_THEME_REACH,
     GLOBAL_INCLUSION,
     COMBOS,
     PLAYGROUP_OBSERVED,
@@ -200,14 +234,40 @@ LABELS: dict[str, str] = {
     COMMANDER_INCLUSION: "Aufnahme beim Commander (EDHREC)",
     BRACKET_INCLUSION: "Aufnahme im Bracket (EDHREC)",
     DECK_UNIVERSE: "Decklisten-Universum (gezählt)",
+    CORPUS_TUNED: "Korpus getunt (Bracket 4+5, gezählt)",
+    CORPUS_LOG_LIFT: "Korpus-Lift gegenüber allen Decks (gedämpft)",
+    CORPUS_BRACKET_SLOPE: "Korpus-Bracket-Gefälle (4+5 gegen 2, gedämpft)",
     SYNERGY: "Synergie (EDHREC)",
-    TOURNAMENT_LISTS: "Turnierlisten des Commanders",
+    TOURNAMENT: "Turnier (EDHTop16 und Korpus Bracket 5)",
+    TOURNAMENT_LISTS: "Turnierlisten des Commanders (TopDeck)",
     TOURNAMENT_CONVERSION: "Turnier-Conversion (TopDeck)",
+    EDHREC_THEME_REACH: "Reichweite in EDHREC-Themen (Maximum)",
     GLOBAL_INCLUSION: "Aufnahme überhaupt (EDHREC)",
     COMBOS: "Kombos",
     PLAYGROUP_OBSERVED: "Beobachtete Sieg-Korrelation (Playgroup)",
-    RUBRIC: "Raster-Bewertung (Chulane)",
+    RUBRIC: "Raster-Bewertung (subjektiv, Gewicht 0, kein objektives Signal)",
     SIMULATION: "Simulation",
+}
+# Where a component's value comes from (the ``data_class`` of its row). The rubric is a
+# subjective rating, never an objective signal (Owner decision E1.a): the label says so.
+SUBJECTIVE_RATING = "SUBJECTIVE_RATING"
+COMPONENT_DATA_CLASS: dict[str, str] = {
+    COMMANDER_INCLUSION: "NORMALIZED_SOURCE",
+    BRACKET_INCLUSION: "NORMALIZED_SOURCE",
+    DECK_UNIVERSE: DATA_CLASS,
+    CORPUS_TUNED: DATA_CLASS,
+    CORPUS_LOG_LIFT: DATA_CLASS,
+    CORPUS_BRACKET_SLOPE: DATA_CLASS,
+    SYNERGY: "NORMALIZED_SOURCE",
+    TOURNAMENT: DATA_CLASS,
+    TOURNAMENT_LISTS: DATA_CLASS,
+    TOURNAMENT_CONVERSION: "NORMALIZED_SOURCE",
+    EDHREC_THEME_REACH: DATA_CLASS,
+    GLOBAL_INCLUSION: "NORMALIZED_SOURCE",
+    COMBOS: "NORMALIZED_SOURCE",
+    PLAYGROUP_OBSERVED: "OBSERVED_GAME",
+    RUBRIC: SUBJECTIVE_RATING,
+    SIMULATION: "SIMULATED_RESULT",
 }
 # Additional rating layers (``layers.py``) that may join the index as one more rank-based
 # component each. Their weight lives in ``StrengthSettings.layer_weights``, is 0 by default and
@@ -250,11 +310,17 @@ SHARE_COMPONENTS = frozenset(
         COMMANDER_INCLUSION,
         BRACKET_INCLUSION,
         DECK_UNIVERSE,
+        CORPUS_TUNED,
+        TOURNAMENT,
         TOURNAMENT_LISTS,
         TOURNAMENT_CONVERSION,
+        EDHREC_THEME_REACH,
         GLOBAL_INCLUSION,
     }
 )
+# Share components whose numerator 0 is a COUNT of a completely counted corpus (0 of N decks),
+# status ``ZERO_COUNT``: a finding that counts fully, unlike a card a source does not list.
+ZERO_COUNT_COMPONENTS = frozenset({DECK_UNIVERSE, CORPUS_TUNED, TOURNAMENT})
 # The Playgroup component is an observed difference (percentage points), not a share.
 # It counts only from OBSERVED_MIN_SAMPLE games in which the card was cast, and its
 # published gap is shrunk towards zero by OBSERVED_SHRINKAGE (gap * n / (n + k)): a
@@ -264,12 +330,34 @@ SHARE_COMPONENTS = frozenset(
 OBSERVED_MIN_SAMPLE = 25
 OBSERVED_SHRINKAGE = 200
 # Components whose value is already a 0..1 score and is used as it is (no percentile rank, no
-# share scale): the magnitude of the rating is kept. The rubric value is ``(H_mean - 1) / 9``.
-DIRECT_COMPONENTS = frozenset({RUBRIC})
+# share scale): the magnitude is kept. The rubric value is ``(H_mean - 1) / 9``; the corpus lift
+# and slope are ``(clip(damped log10 ratio, +-2) + 2) / 4``.
+DIRECT_COMPONENTS = frozenset({RUBRIC, CORPUS_LOG_LIFT, CORPUS_BRACKET_SLOPE})
+# Signed log ratios mapped to 0..1 with 0.5 = neutral (ratio 1). In the weighted mean a value
+# below neutral would still raise a card whose other scores are near 0, so the index score is
+# ``max(0, 2 v - 1)``: only an above-neutral lift or slope adds, neutral or negative is 0. The
+# raw signed value stays in the row (``value``, and the note).
+ABOVE_NEUTRAL_COMPONENTS = frozenset({CORPUS_LOG_LIFT, CORPUS_BRACKET_SLOPE})
+
+
+def above_neutral_score(value: float) -> float:
+    """The index score of a signed log ratio held in 0..1 (0.5 = neutral): ``max(0, 2v - 1)``."""
+    return max(0.0, 2.0 * value - 1.0)
+
+
 # Components that exist for some commanders only. For a commander without a source they are
 # ``NOT_COLLECTED`` (a missing source, never 0) and, unlike a source that was merely not
 # imported yet, they do not lower the coverage: the source cannot exist for that commander.
-COMMANDER_ONLY_SOURCES = frozenset({RUBRIC})
+COMMANDER_ONLY_SOURCES = frozenset(
+    {
+        RUBRIC,
+        CORPUS_TUNED,
+        CORPUS_LOG_LIFT,
+        CORPUS_BRACKET_SLOPE,
+        TOURNAMENT,
+        EDHREC_THEME_REACH,
+    }
+)
 # Sources that list the commander's cards fairly completely: only for these may an unlisted
 # card be counted as the lowest rank (Owner decision B5 keeps "absent" a missing observation).
 MISSING_CAPABLE = (COMMANDER_INCLUSION, BRACKET_INCLUSION, DECK_UNIVERSE)
@@ -281,8 +369,13 @@ COMMANDER_SPECIFIC = (
     COMMANDER_INCLUSION,
     BRACKET_INCLUSION,
     DECK_UNIVERSE,
+    CORPUS_TUNED,
+    CORPUS_LOG_LIFT,
+    CORPUS_BRACKET_SLOPE,
     SYNERGY,
+    TOURNAMENT,
     TOURNAMENT_LISTS,
+    EDHREC_THEME_REACH,
     RUBRIC,
 )
 
@@ -310,44 +403,53 @@ def rubric_value(h_mean: float) -> float | None:
 
 _EDHREC_SHARES = frozenset({COMMANDER_INCLUSION, BRACKET_INCLUSION, GLOBAL_INCLUSION})
 
-# What an unlisted card counts as, per source (recommended values). EDHREC lists every card of a
-# commander (and of a bracket page) above its listing threshold, so "not listed" there means
-# "below the threshold": it counts as ``MISSING_LOWEST``, a score of 0.0, which is at or below
-# the score of the smallest listed card under both share scales (``share_scale_values`` never
-# returns less than 0) and never above it. The deck universe stays ``MISSING_SKIP``: a counted
-# universe already gives every card without a row a counted zero (0 of N), a real value.
+# What an unlisted card counts as, per source (recommended values). Since the Owner decision E4.b
+# (#1364) nothing is filled with 0: a card a source does not list is a missing observation
+# (``NOT_LISTED``), never a weak card and never a counted zero. A COUNTED zero (0 of N decks of a
+# completely counted corpus, status ``ZERO_COUNT``) is a finding and counts fully. The Owner can
+# still switch EDHREC "lowest" on for the commander and the bracket inclusion (EDHREC lists every
+# card above its threshold, so "not listed" there means "below it").
 DEFAULT_MISSING_VALUE: dict[str, str] = {
-    COMMANDER_INCLUSION: MISSING_LOWEST,
-    BRACKET_INCLUSION: MISSING_LOWEST,
+    COMMANDER_INCLUSION: MISSING_SKIP,
+    BRACKET_INCLUSION: MISSING_SKIP,
     DECK_UNIVERSE: MISSING_SKIP,
 }
 
 # The recommended values are the defaults of ``StrengthSettings`` and of these constants: one
 # place in Python. ``strength_view.presets`` serves them, the page never hard-codes them.
+#
+# Owner decisions of #1364 (Tierliste v3, E1.a to E5.a): the index is purely empirical.
+# - E1.a: the rubric is subjective, its weight is 0 here and in every preset (the component, its
+#   importer and its column stay).
+# - E2.a: while a counted local corpus of at least ``min_universe`` decks exists for the commander,
+#   the weights of ``commander_inclusion`` and ``bracket_inclusion`` below are NOT used (rule
+#   ``CORPUS_ZERO``, ``apply_corpus_rule``); without such a corpus they are the fallback weights
+#   (3 and 2, as before) and the EDHREC inclusion carries the index.
+# - E3.a: corpus_tuned, corpus_log_lift, corpus_bracket_slope, tournament and edhrec_theme_reach
+#   come from the counted corpus and the sources around it. The TopDeck components stay as
+#   columns with weight 0: their data is empty (7 lists, no conversion).
 DEFAULT_WEIGHTS: dict[str, float] = {
     COMMANDER_INCLUSION: 3.0,
     BRACKET_INCLUSION: 2.0,
-    DECK_UNIVERSE: 2.0,
+    DECK_UNIVERSE: 4.0,
+    CORPUS_TUNED: 1.5,
+    CORPUS_LOG_LIFT: 1.0,
+    CORPUS_BRACKET_SLOPE: 1.0,
     SYNERGY: 0.0,
-    TOURNAMENT_LISTS: 1.0,
-    TOURNAMENT_CONVERSION: 1.0,
+    TOURNAMENT: 0.5,
+    TOURNAMENT_LISTS: 0.0,
+    TOURNAMENT_CONVERSION: 0.0,
+    EDHREC_THEME_REACH: 0.5,
     GLOBAL_INCLUSION: 1.0,
-    COMBOS: 1.0,
+    COMBOS: 0.5,
     PLAYGROUP_OBSERVED: 0.0,
-    # Rubric is about 30 % of the present weight for a typical Chulane card: of the 922 ranked
-    # cards, 909 have commander, bracket, deck universe and global inclusion (weight 3 + 2 + 2 +
-    # 1 = 8; the 13 cards with a combo row have 9), so 3.5 / (8 + 3.5) = 30.4 %. Only "a little"
-    # subjectivity is wanted, and at 50 % the index follows the rubric almost entirely (Spearman
-    # 0.98). Not tuned to any card. Other commanders have no rubric: it is left out.
-    RUBRIC: 3.5,
+    RUBRIC: 0.0,
     SIMULATION: 0.0,
 }
-# Derived once (#1358) from the default index of the 857 ranked non-land Chulane cards, with the
-# targets fixed in advance: S about 3 %, A about 10 %, B about 22 %, C about 30 %, D the rest. The
-# cuts are the whole numbers whose cumulative shares (3.0 / 12.8 / 34.1 / 62.4 %) come closest to
-# the cumulative targets 3 / 13 / 35 / 65 %: S 3.0 %, A 9.8 %, B 21.2 %, C 28.4 %, D 37.6 %.
-# They are the same for lands. Not tuned to any card; before them the cuts were 70 / 55 / 35 / 20.
-DEFAULT_CUTS: dict[str, float] = {"S": 47.0, "A": 17.0, "B": 9.0, "C": 4.0}
+# Tier cuts of the purely empirical index (Owner decision E5.a, #1364): 72 / 50 / 28 / 14, the same
+# for lands. They replace the cuts 47 / 17 / 9 / 4 of the sqrt scale; with the log scale the index
+# spreads over a wider range. Not tuned to any card.
+DEFAULT_CUTS: dict[str, float] = {"S": 72.0, "A": 50.0, "B": 28.0, "C": 14.0}
 DEFAULT_MIN_DENOMINATORS: dict[str, int] = {
     MIN_EDHREC: 30,
     MIN_TOURNAMENT: 20,
@@ -355,6 +457,15 @@ DEFAULT_MIN_DENOMINATORS: dict[str, int] = {
     MIN_PLAYGROUP: 200,
 }
 DEFAULT_BRACKET = "upgraded"
+# #1365: "grenzwertig" mark. A card whose index lies closer than this many index points to a tier
+# cut is marked (0 switches the mark off). Recommended 2.
+DEFAULT_BORDERLINE_DISTANCE = 2.0
+MAX_BORDERLINE_DISTANCE = 50.0
+# #1365: confidence of a card = coverage x reliability of its denominators; the reliability of one
+# share with denominator n is n / (n + CONFIDENCE_K). The level names split the 0..1 range.
+CONFIDENCE_K = 30
+CONFIDENCE_HIGH = 0.6
+CONFIDENCE_MEDIUM = 0.35
 # Lands are ranked against lands and spells against spells (#1353 part A): share scaling
 # (v / v_max) and percentile ranks are computed inside the two groups, so a land with the most
 # decks does not set the scale of the spells and the other way round.
@@ -385,6 +496,9 @@ _SETTINGS_KEYS = frozenset(
         "pod_size",
         "combo_source",
         "separate_lands",
+        "zero_count_tier",
+        "edhrec_with_corpus",
+        "borderline_distance",
     }
 )
 
@@ -411,6 +525,12 @@ def signal_for(component: str, bracket: str, *, combo_source: str = COMBO_SPELLB
     return {
         COMMANDER_INCLUSION: "edhrec_commander_inclusion",
         DECK_UNIVERSE: "deck_list_share",
+        # derived from the counted corpus and the sources around it, not stored as such
+        CORPUS_TUNED: "corpus_share:bracket:4+5",
+        CORPUS_LOG_LIFT: "corpus_log_lift",
+        CORPUS_BRACKET_SLOPE: "corpus_bracket_slope:4+5_vs_2",
+        TOURNAMENT: "tournament_pool:edhtop16+corpus_bracket:5",
+        EDHREC_THEME_REACH: "edhrec_theme_inclusion_max",
         SYNERGY: "edhrec_commander_synergy",
         TOURNAMENT_LISTS: "tournament_lists",
         TOURNAMENT_CONVERSION: "topdeck_card_conversion",
@@ -491,6 +611,15 @@ class StrengthSettings:
     pod_size: int = DEFAULT_POD_SIZE
     combo_source: str = DEFAULT_COMBO_SOURCE
     separate_lands: bool = DEFAULT_SEPARATE_LANDS
+    # E4: what a card whose only evidence about this commander is counted zeros (0 of N) gets:
+    # "D" (E4.b, recommended: the zero is a finding and counts fully) or "U" (E4.a: too little data,
+    # reason ZERO_COUNT_ONLY).
+    zero_count_tier: str = DEFAULT_ZERO_COUNT_TIER
+    # E2.a: keep the EDHREC commander and bracket inclusion weights although a counted local
+    # corpus exists (off by default: the corpus replaces them, see ``apply_corpus_rule``).
+    edhrec_with_corpus: bool = False
+    # #1365: index distance to a tier cut below which a card is marked "grenzwertig" (0 = off).
+    borderline_distance: float = DEFAULT_BORDERLINE_DISTANCE
 
     def __post_init__(self) -> None:
         weights = {name: DEFAULT_WEIGHTS[name] for name in COMPONENTS}
@@ -556,6 +685,16 @@ class StrengthSettings:
             raise ValueError("rank_other_commanders must be true or false")
         if not isinstance(self.separate_lands, bool):
             raise ValueError("separate_lands must be true or false")
+        if self.zero_count_tier not in ZERO_COUNT_TIERS:
+            raise ValueError(f"zero_count_tier must be one of {', '.join(ZERO_COUNT_TIERS)}")
+        if not isinstance(self.edhrec_with_corpus, bool):
+            raise ValueError("edhrec_with_corpus must be true or false")
+        distance = _number(self.borderline_distance, "borderline_distance")
+        if not 0.0 <= distance <= MAX_BORDERLINE_DISTANCE:
+            raise ValueError(
+                f"borderline_distance must be between 0 and {MAX_BORDERLINE_DISTANCE:g}"
+            )
+        object.__setattr__(self, "borderline_distance", distance)
         if not isinstance(self.require_commander_signal, bool):
             raise ValueError("require_commander_signal must be true or false")
         if parse_universe_source(self.universe_source) is None:
@@ -599,8 +738,12 @@ class StrengthSettings:
         """The smallest denominator a signal needs to be used (0 = no minimum)."""
         if component in _EDHREC_SHARES:
             return self.min_denominators[MIN_EDHREC]
-        if component == TOURNAMENT_LISTS:
+        if component in (TOURNAMENT, TOURNAMENT_LISTS):
             return self.min_denominators[MIN_TOURNAMENT]
+        if component == EDHREC_THEME_REACH:
+            return self.min_denominators[MIN_EDHREC]
+        if component == CORPUS_TUNED:
+            return universe_minimum
         if component == TOURNAMENT_CONVERSION:
             return self.min_denominators[MIN_CONVERSION]
         if component == PLAYGROUP_OBSERVED:
@@ -630,6 +773,9 @@ class StrengthSettings:
             "pod_size": self.pod_size,
             "combo_source": self.combo_source,
             "separate_lands": self.separate_lands,
+            "zero_count_tier": self.zero_count_tier,
+            "edhrec_with_corpus": self.edhrec_with_corpus,
+            "borderline_distance": self.borderline_distance,
         }
 
     @classmethod
@@ -699,6 +845,12 @@ class StrengthSettings:
         separate = raw.get("separate_lands", defaults.separate_lands)
         if not isinstance(separate, bool):
             raise ValueError("separate_lands must be true or false")
+        zero_tier = raw.get("zero_count_tier", defaults.zero_count_tier)
+        if not isinstance(zero_tier, str):
+            raise ValueError("zero_count_tier must be a text")
+        with_corpus = raw.get("edhrec_with_corpus", defaults.edhrec_with_corpus)
+        if not isinstance(with_corpus, bool):
+            raise ValueError("edhrec_with_corpus must be true or false")
         return cls(
             weights={
                 **DEFAULT_WEIGHTS,
@@ -734,6 +886,12 @@ class StrengthSettings:
             pod_size=pod_size,
             combo_source=combo_source,
             separate_lands=separate,
+            zero_count_tier=zero_tier,
+            edhrec_with_corpus=with_corpus,
+            borderline_distance=_number(
+                raw.get("borderline_distance", defaults.borderline_distance),
+                "borderline_distance",
+            ),
         )
 
 
@@ -753,16 +911,22 @@ PRESETS: dict[str, StrengthSettings] = dict(
         _preset(
             "Commander-nah",
             {
+                # EDHREC fallback weights (used without a counted local corpus, rule E2.a)
                 COMMANDER_INCLUSION: 3.0,
                 BRACKET_INCLUSION: 2.0,
-                DECK_UNIVERSE: 3.0,
+                DECK_UNIVERSE: 4.5,
+                CORPUS_TUNED: 1.0,
+                CORPUS_LOG_LIFT: 2.0,
+                CORPUS_BRACKET_SLOPE: 0.5,
                 SYNERGY: 0.0,
-                TOURNAMENT_LISTS: 1.0,
-                GLOBAL_INCLUSION: 1.0,
-                COMBOS: 0.0,
+                TOURNAMENT: 0.0,
+                TOURNAMENT_LISTS: 0.0,
+                TOURNAMENT_CONVERSION: 0.0,
+                EDHREC_THEME_REACH: 1.0,
+                GLOBAL_INCLUSION: 0.5,
+                COMBOS: 0.5,
                 PLAYGROUP_OBSERVED: 0.0,
-                # the typical Chulane card has 3 + 2 + 3 + 1 = 9 usage weight present: ~30 %
-                RUBRIC: 4.0,
+                RUBRIC: 0.0,
                 SIMULATION: 0.0,
             },
             DEFAULT_BRACKET,
@@ -770,17 +934,21 @@ PRESETS: dict[str, StrengthSettings] = dict(
         _preset(
             "Turniernah",
             {
-                TOURNAMENT_LISTS: 3.0,
-                BRACKET_INCLUSION: 2.0,
-                DECK_UNIVERSE: 2.0,
                 COMMANDER_INCLUSION: 1.0,
+                BRACKET_INCLUSION: 2.0,
+                DECK_UNIVERSE: 2.5,
+                CORPUS_TUNED: 2.5,
+                CORPUS_LOG_LIFT: 0.5,
+                CORPUS_BRACKET_SLOPE: 2.0,
                 SYNERGY: 0.0,
-                GLOBAL_INCLUSION: 1.0,
+                TOURNAMENT: 2.0,
+                TOURNAMENT_LISTS: 0.0,
+                TOURNAMENT_CONVERSION: 0.0,
+                EDHREC_THEME_REACH: 0.0,
+                GLOBAL_INCLUSION: 0.5,
                 COMBOS: 1.0,
                 PLAYGROUP_OBSERVED: 0.0,
-                # the typical Chulane card has 1 + 2 + 2 + 1 = 6 usage weight present (it has no
-                # tournament lists); the same rule as the other presets (~30 %)
-                RUBRIC: 2.5,
+                RUBRIC: 0.0,
                 SIMULATION: 0.0,
             },
             "cedh",
@@ -798,6 +966,11 @@ class Observation:
     denominator: int | None = None
     # Free text a source adds to the row of a present value (the rubric: H, spread, raters).
     note: str = ""
+    # A producer that picks one value among several shares (the highest EDHREC theme) shrinks
+    # each share first and takes the maximum of the posterior means: ``shrunk`` is that value,
+    # ``prior`` the prior it used. ``score_pool`` ranks it as it is, without shrinking again.
+    shrunk: float | None = None
+    prior: SharePrior | None = None
 
 
 @dataclass(frozen=True)
@@ -831,6 +1004,12 @@ class ComponentResult(TypedDict):
     numerator: int | None
     denominator: int | None
     wilson: float | None
+    # Empirical Bayes (denominator below ``EB_MAX_DENOMINATOR``): the posterior mean that was
+    # ranked instead of the Wilson bound, and the prior of the component (None otherwise).
+    shrunk: float | None
+    prior_mean: float | None
+    prior_strength: float | None
+    data_class: str
     percentile: float | None
     weight: float
     min_denominator: int
@@ -847,6 +1026,53 @@ class CardStrength(TypedDict):
     note: str
     present: int
     components: list[ComponentResult]
+    # #1365: confidence from coverage and denominators (None without an index), its level
+    # ("high" / "medium" / "low"), and the "grenzwertig" mark: the index lies closer than
+    # ``borderline_distance`` to a tier cut (``borderline_cut`` names the nearest cut tier,
+    # ``cut_distance`` the distance in index points).
+    confidence: float | None
+    confidence_level: str | None
+    borderline: bool
+    borderline_cut: str | None
+    cut_distance: float | None
+
+
+def confidence_value(coverage: float, components: Collection[ComponentResult]) -> float:
+    """Confidence 0..1 of a card: ``coverage`` times the weight-weighted mean of
+    ``n / (n + CONFIDENCE_K)`` over the weighted components that have a value and a denominator
+    (a counted zero included). Without such a component the reliability is 0."""
+    rows = [
+        row
+        for row in components
+        if row["weight"] > 0 and row["percentile"] is not None and row["denominator"]
+    ]
+    total = sum(row["weight"] for row in rows)
+    if total <= 0:
+        return 0.0
+    reliability = sum(
+        row["weight"] * (row["denominator"] or 0) / ((row["denominator"] or 0) + CONFIDENCE_K)
+        for row in rows
+    )
+    return round(coverage * reliability / total, 4)
+
+
+def confidence_level(confidence: float) -> str:
+    """ "high" from 0.6, "medium" from 0.35, else "low"."""
+    if confidence >= CONFIDENCE_HIGH:
+        return "high"
+    return "medium" if confidence >= CONFIDENCE_MEDIUM else "low"
+
+
+def borderline_info(
+    index: float | None, cuts: Mapping[str, float], distance: float
+) -> tuple[bool, str | None, float | None]:
+    """(borderline, nearest cut tier, distance to it) of an index. Borderline means strictly
+    closer than ``distance`` to a cut; a distance of 0 switches the mark off."""
+    if index is None:
+        return False, None, None
+    tier, cut = min(cuts.items(), key=lambda item: abs(index - item[1]))
+    gap = round(abs(index - cut), 4)
+    return distance > 0 and gap < distance, tier, gap
 
 
 def wilson_lower(numerator: int, denominator: int, z: float = Z_95) -> float | None:
@@ -881,20 +1107,24 @@ def percentile_ranks(values: Mapping[str, float]) -> dict[str, float]:
 
 
 def share_scale_values(
-    values: Mapping[str, float], scale: str = DEFAULT_SHARE_SCALE
+    values: Mapping[str, float], scale: str = DEFAULT_SHARE_SCALE, log_k: float = LOG_SHARE_K
 ) -> dict[str, float]:
     """Convert share-signal values into 0..1 component scores under ``scale`` (issue #1351).
 
     - ``rank``: percentile rank 0..1 via ``percentile_ranks`` (identical to the rank-only
       index).
+    - ``log`` (default, E5.a of #1364): ``ln(1 + k v) / ln(1 + k v_max)`` with ``k = LOG_SHARE_K``
+      (150) and ``v_max`` the largest value in ``values``. A share of 0 scores exactly 0, the
+      largest scores 1, and small counts stay visibly above zero (a 0.1 % card scores 0.05 when
+      the largest share is 60 %).
     - ``share``: square root of the share relative to the largest value in ``values``
       (``sqrt(v / max_v)``), dampening the very top while keeping 3 % and 30 % far apart.
-      A single valued card takes ``0.5`` (or ``0.0`` when its value is 0), and an all-zero
-      population gets ``0.0``.
+    - For both: a single valued card takes ``0.5`` (or ``0.0`` when its value is 0), and an
+      all-zero population gets ``0.0``.
     """
     if scale == SCALE_RANK:
         return percentile_ranks(values)
-    if scale != SCALE_SHARE:
+    if scale not in (SCALE_SHARE, SCALE_LOG):
         raise ValueError(f"share_scale must be one of {', '.join(SHARE_SCALES)}")
     count = len(values)
     if count == 0:
@@ -904,7 +1134,207 @@ def share_scale_values(
     highest = max(values.values())
     if highest <= 0.0:
         return {key: 0.0 for key in values}
+    if scale == SCALE_LOG:
+        return log_share_scores(values, highest, log_k)
     return {key: math.sqrt(max(0.0, value) / highest) for key, value in values.items()}
+
+
+def log_share_scores(
+    values: Mapping[str, float], highest: float, k: float = LOG_SHARE_K
+) -> dict[str, float]:
+    """``ln(1 + k v) / ln(1 + k v_max)`` per key (``highest`` is ``v_max`` > 0). ``k`` is a
+    parameter only so that the ranking check can report the sensitivity of k = 100 / 150 / 200;
+    every setting uses ``LOG_SHARE_K``."""
+    top = math.log1p(k * highest)
+    return {key: math.log1p(k * max(0.0, value)) / top for key, value in values.items()}
+
+
+# ---------- empirical Bayes shrinkage of shares with a small denominator (#1364) ----------
+# A share ``k / n`` with ``n`` below ``EB_MAX_DENOMINATOR`` is replaced by the posterior mean of a
+# Beta-Binomial model, ``(k + m M) / (n + M)``: the share is pulled towards the prior mean ``m`` of
+# the component, the more so the smaller ``n`` is and the larger the prior strength ``M`` (a
+# pseudo-count). Both are estimated per component from the pool by the method of moments, so a
+# card with 0 of 48 keeps a small positive value (the sample cannot rule out a small rate) and
+# the order of cards with the same denominator is exactly the raw order. Shares with a
+# denominator of ``EB_MAX_DENOMINATOR`` or more (the 2,823 counted decks, EDHREC's thousands) keep
+# the Wilson bound: their sample is large enough that the bound hardly differs from the share.
+EB_MAX_DENOMINATOR = 500
+# The prior strength is clamped to [EB_STRENGTH_MIN, EB_STRENGTH_MAX]: below 2 the prior is
+# weaker than a single observation and the estimate is just the raw share; above 200 a 48-deck
+# sample would hardly move the prior (n / (n + M) < 20 %) and the signal would be flattened.
+EB_STRENGTH_MIN = 2.0
+EB_STRENGTH_MAX = 200.0
+# The prior is only estimated from at least this many valued cards; below that the Wilson bound
+# stays in use for them (a prior from three cards is noise).
+EB_MIN_CARDS = MIN_GROUP
+
+
+@dataclass(frozen=True)
+class SharePrior:
+    """The Beta prior of one component: mean ``m``, strength ``M = alpha + beta`` and how many
+    cards it was estimated from (``clamped`` when the strength hit a bound)."""
+
+    mean: float
+    strength: float
+    cards: int
+    clamped: bool
+
+    def to_dict(self) -> dict[str, object]:
+        return {
+            "prior_mean": round(self.mean, 6),
+            "prior_strength": round(self.strength, 3),
+            "cards": self.cards,
+            "strength_clamped": self.clamped,
+            "max_denominator": EB_MAX_DENOMINATOR,
+            "strength_range": [EB_STRENGTH_MIN, EB_STRENGTH_MAX],
+        }
+
+
+def beta_binomial_prior(counts: Collection[tuple[int, int]]) -> SharePrior | None:
+    """Method-of-moments Beta prior of ``(numerator, denominator)`` pairs, ``None`` below
+    ``EB_MIN_CARDS`` pairs or without any decks.
+
+    ``m`` is the pooled share ``sum(k) / sum(n)``. With weights ``n_i`` the weighted variance
+    of the shares estimates ``tau2 (1 - 1/nbar) + m (1 - m) / nbar`` (``tau2`` the prior variance
+    ``m (1 - m) / (M + 1)``, ``nbar`` the mean denominator), which is solved for ``tau2``. No
+    excess variance (``tau2 <= 0``) or a degenerate mean (all 0 or all n) gives the maximum
+    strength; the strength is clamped to ``[EB_STRENGTH_MIN, EB_STRENGTH_MAX]``."""
+    pairs = [(k, n) for k, n in counts if n > 0 and 0 <= k <= n]
+    if len(pairs) < EB_MIN_CARDS:
+        return None
+    total = sum(n for _k, n in pairs)
+    mean = sum(k for k, _n in pairs) / total
+    if mean <= 0.0 or mean >= 1.0:
+        return SharePrior(min(max(mean, 0.0), 1.0), EB_STRENGTH_MAX, len(pairs), True)
+    mean_n = total / len(pairs)
+    variance = sum(n * (k / n - mean) ** 2 for k, n in pairs) / total
+    if mean_n <= 1.0:
+        return SharePrior(mean, EB_STRENGTH_MAX, len(pairs), True)
+    tau2 = (variance - mean * (1.0 - mean) / mean_n) / (1.0 - 1.0 / mean_n)
+    if tau2 <= 0.0:
+        return SharePrior(mean, EB_STRENGTH_MAX, len(pairs), True)
+    raw = mean * (1.0 - mean) / tau2 - 1.0
+    strength = min(max(raw, EB_STRENGTH_MIN), EB_STRENGTH_MAX)
+    return SharePrior(mean, strength, len(pairs), strength != raw)
+
+
+def shrunk_share(numerator: int, denominator: int, prior: SharePrior) -> float:
+    """Posterior mean ``(k + m M) / (n + M)`` of a share under ``prior``."""
+    return (numerator + prior.mean * prior.strength) / (denominator + prior.strength)
+
+
+# ---------- derived corpus signals (#1364, E3.a) ----------
+# Both values are ``DERIVED_DESCRIPTIVE`` ratios of counts: a base-10 log ratio, damped towards 0
+# (no difference) by ``n / (n + LOG_RATIO_DAMPING)`` of the hit count ``n``, capped at +-2 (a
+# factor of 100) and scaled to 0..1 as ``(x + 2) / 4`` (0.5 = no difference). The damping keeps a
+# card with one or two decks from reaching an extreme, whatever its ratio is.
+LOG_RATIO_DAMPING = 5
+LOG_RATIO_CAP = 2.0
+SLOPE_MIN_HITS = 5
+
+
+def _damped_log_value(log_ratio: float, hits: int) -> float:
+    damped = log_ratio * hits / (hits + LOG_RATIO_DAMPING)
+    return (max(-LOG_RATIO_CAP, min(LOG_RATIO_CAP, damped)) + LOG_RATIO_CAP) / (2 * LOG_RATIO_CAP)
+
+
+def log_lift_value(hits: int, total: int, global_share: float | None) -> float | None:
+    """The corpus lift of a card: ``log10((hits / total) / global_share)``, damped by
+    ``hits / (hits + 5)``, capped at +-2 and scaled to 0..1. ``None`` for a card with no hit
+    (the lift of a count of 0 is undefined, not low), without a corpus or without a positive
+    global share."""
+    if hits <= 0 or total <= 0 or hits > total:
+        return None
+    if global_share is None or not math.isfinite(global_share) or global_share <= 0.0:
+        return None
+    return _damped_log_value(math.log10((hits / total) / global_share), hits)
+
+
+def bracket_slope_value(
+    high_hits: int, high_total: int, low_hits: int, low_total: int
+) -> float | None:
+    """The bracket slope of a card: ``log10`` of the share in the higher brackets (4 and 5)
+    over the share in the lower one (bracket 2), damped by ``n / (n + 5)`` of ALL hits in both
+    groups, capped at +-2 and scaled to 0..1. Only from ``SLOPE_MIN_HITS`` hits; a group
+    without a hit uses half a deck ((h + 0.5) / (n + 1), the Jeffreys estimate) so that the
+    ratio stays finite."""
+    hits = high_hits + low_hits
+    if hits < SLOPE_MIN_HITS or high_total <= 0 or low_total <= 0:
+        return None
+    if not (0 <= high_hits <= high_total and 0 <= low_hits <= low_total):
+        return None
+    high = (high_hits + 0.5) / (high_total + 1)
+    low = (low_hits + 0.5) / (low_total + 1)
+    return _damped_log_value(math.log10(high / low), hits)
+
+
+# ---------- the EDHREC weight rule of the counted corpus (#1364, E2.a) ----------
+RULE_CORPUS_ZERO = "CORPUS_ZERO"
+RULE_EDHREC_FALLBACK = "EDHREC_FALLBACK"
+RULE_EDHREC_KEPT = "EDHREC_KEPT"
+EDHREC_RULE_COMPONENTS = (COMMANDER_INCLUSION, BRACKET_INCLUSION)
+
+
+class WeightRule(TypedDict):
+    """Which weight rule the result was computed with (counts and codes only)."""
+
+    rule: str
+    corpus_available: bool
+    corpus_decks: int
+    min_universe: int
+    requested: dict[str, float]
+    effective: dict[str, float]
+    note: str
+
+
+def apply_corpus_rule(
+    settings: StrengthSettings, *, corpus_decks: int, min_universe: int
+) -> tuple[StrengthSettings, WeightRule]:
+    """Settings with the E2.a rule applied, and the rule that applied.
+
+    - ``CORPUS_ZERO``: a counted local corpus of at least ``min_universe`` decks exists, and the
+      setting ``edhrec_with_corpus`` is off (default): the weights of the EDHREC commander and
+      bracket inclusion are 0, the corpus signals carry the index.
+    - ``EDHREC_FALLBACK``: there is no such corpus: the EDHREC weights apply as set.
+    - ``EDHREC_KEPT``: a corpus exists, but the setting keeps the EDHREC weights.
+    The rule is explicit and always reported; it never changes any other weight."""
+    available = corpus_decks > 0 and corpus_decks >= min_universe
+    requested = {name: settings.weights[name] for name in EDHREC_RULE_COMPONENTS}
+    if not available:
+        rule = RULE_EDHREC_FALLBACK
+        note = (
+            f"Kein gezählter lokaler Korpus (mindestens {min_universe} Decks nötig, "
+            f"{corpus_decks} vorhanden): die EDHREC-Gewichte gelten."
+        )
+        effective = dict(requested)
+    elif settings.edhrec_with_corpus:
+        rule = RULE_EDHREC_KEPT
+        note = (
+            f"Gezählter lokaler Korpus mit {corpus_decks} Decks vorhanden, die EDHREC-Gewichte "
+            "bleiben auf Wunsch (Einstellung) bestehen."
+        )
+        effective = dict(requested)
+    else:
+        rule = RULE_CORPUS_ZERO
+        note = (
+            f"Gezählter lokaler Korpus mit {corpus_decks} Decks vorhanden: die EDHREC-Gewichte "
+            "für Aufnahme beim Commander und im Bracket sind 0, der Korpus trägt den Index."
+        )
+        effective = {name: 0.0 for name in EDHREC_RULE_COMPONENTS}
+    resolved = (
+        settings
+        if effective == requested
+        else replace(settings, weights={**settings.weights, **effective})
+    )
+    return resolved, {
+        "rule": rule,
+        "corpus_available": available,
+        "corpus_decks": corpus_decks,
+        "min_universe": min_universe,
+        "requested": requested,
+        "effective": effective,
+        "note": note,
+    }
 
 
 def combo_quality(parts: Mapping[str, Mapping[str, float]]) -> dict[str, float]:
@@ -979,6 +1409,10 @@ def _tier(index: float | None, settings: StrengthSettings, enough: bool) -> str:
 
 
 NO_COMMANDER_SIGNAL_NOTE = "kein Signal speziell für diesen Commander"
+ZERO_COUNT_ONLY_NOTE = (
+    "einziger Beleg zu diesem Commander sind gezählte Nullen (0 von N Decks); Einstellung "
+    "„Stufe bei gezählter Null“: zu wenig Daten"
+)
 NOT_RANKED_NOTES = {
     NOT_RANKED_COMMANDER: "nicht bewertet (Commander)",
     NOT_RANKED_BASIC_LAND: "nicht bewertet (Standardland)",
@@ -997,6 +1431,9 @@ class _ComponentRanking:
     group_ranks: dict[str, tuple[tuple[str, ...], dict[str, int], float]]
     reference_denominator: int | None
     minimum: int
+    # empirical Bayes: card -> posterior mean, and the prior it came from (None without any)
+    shrunk: dict[str, float] = field(default_factory=dict)
+    prior: SharePrior | None = None
     # separate lands under the pool comparison: card -> (group name, valued cards in it,
     # fell back to the whole pool because the group was smaller than ``MIN_GROUP``)
     land_split: dict[str, tuple[str, int, bool]] = field(default_factory=dict)
@@ -1027,13 +1464,18 @@ def _groups_of(settings: StrengthSettings, context: PoolContext, card: str) -> t
 
 
 def _scale_component_values(
-    component: str, values: Mapping[str, float], settings: StrengthSettings
+    component: str,
+    values: Mapping[str, float],
+    settings: StrengthSettings,
+    log_k: float = LOG_SHARE_K,
 ) -> dict[str, float]:
     """Convert component values to 0..1 scores: share components use ``settings.share_scale``,
     direct components (the rubric) keep their 0..1 value, the other non-share components
     (synergy, combos, playgroup, layers) always use ``percentile_ranks``."""
     if component in SHARE_COMPONENTS:
-        return share_scale_values(values, settings.share_scale)
+        return share_scale_values(values, settings.share_scale, log_k)
+    if component in ABOVE_NEUTRAL_COMPONENTS:
+        return {card: above_neutral_score(value) for card, value in values.items()}
     if component in DIRECT_COMPONENTS:
         return dict(values)
     return percentile_ranks(values)
@@ -1048,6 +1490,7 @@ def _split_scale(
     values: Mapping[str, float],
     settings: StrengthSettings,
     context: PoolContext,
+    log_k: float = LOG_SHARE_K,
 ) -> tuple[dict[str, float], dict[str, tuple[str, int, bool]]]:
     """Pool-level 0..1 scores of ``values`` and, when ``settings.separate_lands`` is on, the
     land split behind them: lands are scaled against lands and spells against spells. A group
@@ -1056,7 +1499,7 @@ def _split_scale(
     plain scaling of the whole pool."""
     if not settings.separate_lands or component in DIRECT_COMPONENTS:
         # a direct score does not depend on the other cards: nothing to split
-        return _scale_component_values(component, values, settings), {}
+        return _scale_component_values(component, values, settings, log_k), {}
     parts = (
         (GROUP_LANDS, {card: v for card, v in values.items() if _is_land(context, card)}),
         (GROUP_SPELLS, {card: v for card, v in values.items() if not _is_land(context, card)}),
@@ -1070,10 +1513,10 @@ def _split_scale(
         small = len(part) < MIN_GROUP
         if small:
             if whole is None:
-                whole = _scale_component_values(component, values, settings)
+                whole = _scale_component_values(component, values, settings, log_k)
             scaled = {card: whole[card] for card in part}
         else:
-            scaled = _scale_component_values(component, part, settings)
+            scaled = _scale_component_values(component, part, settings, log_k)
         scores.update(scaled)
         info.update({card: (name, len(part), small) for card in part})
     return scores, info
@@ -1085,6 +1528,7 @@ def _rank_component(
     component: str,
     observations: Mapping[str, Mapping[str, Observation]],
     skipped: Collection[str],
+    log_k: float = LOG_SHARE_K,
 ) -> _ComponentRanking:
     minimum = settings.minimum_denominator(component, context.universe_minimum)
     denominators = [
@@ -1097,6 +1541,9 @@ def _rank_component(
     values: dict[str, float] = {}
     wilson: dict[str, float | None] = {}
     reasons: dict[str, str] = {}
+    small: dict[str, tuple[int, int]] = {}
+    pre_shrunk: dict[str, float] = {}
+    pre_prior: SharePrior | None = None
     for card, per_card in observations.items():
         if card in skipped:
             continue
@@ -1121,7 +1568,32 @@ def _rank_component(
             continue
         values[card] = value
         wilson[card] = bound
-    pool_ranks, land_split = _split_scale(component, values, settings, context)
+        if (
+            component in SHARE_COMPONENTS
+            and settings.share_measure == MEASURE_WILSON
+            and observation.shrunk is not None
+            and observation.prior is not None
+        ):
+            values[card] = pre_shrunk[card] = observation.shrunk
+            wilson[card] = None
+            pre_prior = observation.prior
+        elif (
+            component in SHARE_COMPONENTS
+            and settings.share_measure == MEASURE_WILSON
+            and observation.numerator is not None
+            and observation.denominator is not None
+            and 0 < observation.denominator < EB_MAX_DENOMINATOR
+        ):
+            small[card] = (observation.numerator, observation.denominator)
+    prior = beta_binomial_prior(list(small.values())) if small else None
+    shrunk: dict[str, float] = dict(pre_shrunk)
+    if prior is None:
+        prior = pre_prior
+    if prior is not None:
+        for card, (numerator, denominator) in small.items():
+            shrunk[card] = values[card] = shrunk_share(numerator, denominator, prior)
+            wilson[card] = None
+    pool_ranks, land_split = _split_scale(component, values, settings, context, log_k)
     group_ranks: dict[str, tuple[tuple[str, ...], dict[str, int], float]] = {}
     if settings.rank_group != GROUP_POOL:
         # a comparison group never mixes lands and spells while ``separate_lands`` is on
@@ -1133,7 +1605,7 @@ def _rank_component(
         found: dict[str, dict[str, tuple[int, float]]] = {}
         for (name, _land), group_values in members.items():
             if len(group_values) >= MIN_GROUP:
-                ranks = _scale_component_values(component, group_values, settings)
+                ranks = _scale_component_values(component, group_values, settings, log_k)
                 for card, rank in ranks.items():
                     found.setdefault(card, {})[name] = (len(group_values), rank)
         for card, per_group in found.items():
@@ -1142,7 +1614,16 @@ def _rank_component(
             percentile = sum(per_group[name][1] for name in names) / len(names)
             group_ranks[card] = (names, sizes, percentile)
     return _ComponentRanking(
-        values, wilson, reasons, pool_ranks, group_ranks, reference, minimum, land_split
+        values,
+        wilson,
+        reasons,
+        pool_ranks,
+        group_ranks,
+        reference,
+        minimum,
+        shrunk,
+        prior,
+        land_split,
     )
 
 
@@ -1170,7 +1651,7 @@ def _component_note(
     if reason == ZERO_COUNT:
         denominator = observation.denominator if observation is not None else None
         return (
-            f"gezählt: in 0 von {denominator} Decks (das Universum ist vollständig gezählt, "
+            f"gezählt: in 0 von {denominator} Decks (der Korpus ist vollständig gezählt, "
             "die Karte steht in keinem Deck; ein Befund, keine fehlende Beobachtung)"
         )
     if reason == FILTER_CARD:
@@ -1211,8 +1692,15 @@ def score_pool(
     collected: Collection[str],
     *,
     context: PoolContext | None = None,
+    diagnostics: dict[str, object] | None = None,
+    log_k: float = LOG_SHARE_K,
 ) -> dict[str, CardStrength]:
     """Index and tier for every card of ``observations`` (card key -> component -> value).
+
+    ``diagnostics`` (optional) is filled with ``shrinkage``: per component the empirical Bayes
+    prior (mean, strength, cards) of the shares with a denominator below ``EB_MAX_DENOMINATOR``.
+    ``log_k`` is the curvature of the log share scale: always ``LOG_SHARE_K`` except for the
+    sensitivity test of the ranking check (k = 100 / 150 / 200).
 
     ``collected`` names the components that have a source for this commander at all; a
     component outside it is ``NOT_COLLECTED``, one inside it without a value for a card is
@@ -1235,7 +1723,9 @@ def score_pool(
     rankings: dict[str, _ComponentRanking] = {}
     for component in rated:
         skipped = set(unranked) | (filter_cards if component == DECK_UNIVERSE else set())
-        rankings[component] = _rank_component(settings, ctx, component, observations, skipped)
+        rankings[component] = _rank_component(
+            settings, ctx, component, observations, skipped, log_k
+        )
     # Components with a weight and usable data FOR THIS COMMANDER (collected, and at least one
     # usable value in the pool): decides the reason ``NO_SOURCE_FOR_COMMANDER`` only.
     commander_weight = {
@@ -1260,6 +1750,12 @@ def score_pool(
         )
     }
     any_positive_weight = any(settings.effective_weight(name) > 0 for name in rated)
+    if diagnostics is not None:
+        diagnostics["shrinkage"] = {
+            name: ranking.prior.to_dict()
+            for name, ranking in rankings.items()
+            if ranking.prior is not None and settings.effective_weight(name) > 0
+        }
     result: dict[str, CardStrength] = {}
     for card, per_card in observations.items():
         components: list[ComponentResult] = []
@@ -1267,6 +1763,7 @@ def score_pool(
         weighted = 0.0
         present = 0
         specific = False
+        specific_positive = False
         not_ranked = unranked.get(card)
         for component in rated:
             if component == BRACKET_INCLUSION and settings.bracket == BRACKET_NONE:
@@ -1286,7 +1783,7 @@ def score_pool(
             elif card in ranking.values:
                 status, reason = PRESENT, ""
                 if (
-                    component == DECK_UNIVERSE
+                    component in ZERO_COUNT_COMPONENTS
                     and observation is not None
                     and observation.numerator == 0
                 ):
@@ -1318,6 +1815,12 @@ def score_pool(
                 weighted += weight * percentile
                 present += 1
             note = _component_note(reason, ranking, observation) if reason else ""
+            if status == PRESENT and card in ranking.shrunk and ranking.prior is not None:
+                note = (
+                    f"Anteil bei kleinem Nenner ({observation.denominator if observation else '?'}"
+                    f" Decks) zum Prior gezogen (empirisches Bayes, Prior-Mittel "
+                    f"{ranking.prior.mean:.4f}, Stärke {ranking.prior.strength:.1f})"
+                )
             if status == PRESENT and observation is not None and observation.note:
                 note = observation.note
             if (
@@ -1329,6 +1832,8 @@ def score_pool(
                 # MISSING_AS_LOWEST counts as a value for the index and the coverage, but a
                 # card the commander's lists do not name is no evidence about this commander
                 specific = True
+                if status == PRESENT:
+                    specific_positive = True
             if group_fallback and settings.rank_group == GROUP_POOL:
                 note = (
                     f"Vergleichsgruppe „{group}“ hat nur {group_size} Karten mit Wert "
@@ -1350,6 +1855,18 @@ def score_pool(
                     "numerator": observation.numerator if observation else None,
                     "denominator": observation.denominator if observation else None,
                     "wilson": ranking.wilson.get(card) if status in (PRESENT, ZERO_COUNT) else None,
+                    "shrunk": ranking.shrunk.get(card) if status in (PRESENT, ZERO_COUNT) else None,
+                    "prior_mean": (
+                        ranking.prior.mean
+                        if ranking.prior is not None and card in ranking.shrunk
+                        else None
+                    ),
+                    "prior_strength": (
+                        ranking.prior.strength
+                        if ranking.prior is not None and card in ranking.shrunk
+                        else None
+                    ),
+                    "data_class": COMPONENT_DATA_CLASS.get(component, DATA_CLASS),
                     "percentile": percentile,
                     "weight": weight,
                     "min_denominator": ranking.minimum,
@@ -1367,6 +1884,11 @@ def score_pool(
                 "note": NOT_RANKED_NOTES[not_ranked],
                 "present": 0,
                 "components": components,
+                "confidence": None,
+                "confidence_level": None,
+                "borderline": False,
+                "borderline_cut": None,
+                "cut_distance": None,
             }
             continue
         # A filter card has no deck-universe value by definition: that component is not
@@ -1384,25 +1906,46 @@ def score_pool(
         needed = min(settings.min_components, len(possible))
         enough = present > 0 and coverage >= settings.min_coverage and present >= needed
         blocked = settings.require_commander_signal and not specific
+        # E4.a: the only evidence about this commander is counted zeros (0 of N): too little data
+        zero_only = settings.zero_count_tier == ZERO_TIER_U and specific and not specific_positive
         if not any_positive_weight:
             reason_code = "NO_POSITIVE_WEIGHT"
         elif not commander_weight:
             reason_code = "NO_SOURCE_FOR_COMMANDER"
         elif blocked:
             reason_code = NO_COMMANDER_SIGNAL
+        elif zero_only:
+            reason_code = ZERO_COUNT_ONLY
         else:
             reason_code = "ENOUGH_DATA" if enough else "TOO_LITTLE_DATA"
         if reason_code in ("NO_POSITIVE_WEIGHT", "NO_SOURCE_FOR_COMMANDER"):
             enough = False
+        tier = _tier(index, settings, enough and not blocked and not zero_only)
+        # confidence describes a tier; a card without one (U, N) has no confidence to show
+        confidence = (
+            confidence_value(coverage, components) if index is not None and tier in TIERS else None
+        )
+        # a card without a tier (U) is not near a cut: it has no tier to change
+        borderline, cut_tier, cut_gap = borderline_info(
+            index if tier in TIERS else None, settings.tier_cuts, settings.borderline_distance
+        )
         result[card] = {
             "index": index,
             "coverage": round(coverage, 4),
             # the tier follows the index as shown (rounded to one decimal)
-            "tier": _tier(index, settings, enough and not blocked),
+            "tier": tier,
             "reason": reason_code,
-            "note": NO_COMMANDER_SIGNAL_NOTE if reason_code == NO_COMMANDER_SIGNAL else "",
+            "note": {
+                NO_COMMANDER_SIGNAL: NO_COMMANDER_SIGNAL_NOTE,
+                ZERO_COUNT_ONLY: ZERO_COUNT_ONLY_NOTE,
+            }.get(reason_code, ""),
             "present": present,
             "components": components,
+            "confidence": confidence,
+            "confidence_level": confidence_level(confidence) if confidence is not None else None,
+            "borderline": borderline,
+            "borderline_cut": cut_tier,
+            "cut_distance": cut_gap,
         }
     return result
 

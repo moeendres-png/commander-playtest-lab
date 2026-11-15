@@ -25,10 +25,11 @@ from __future__ import annotations
 import json
 from collections import Counter
 from collections.abc import Mapping, Sequence
-from dataclasses import replace
+from dataclasses import dataclass, replace
 from typing import TypedDict
 
 from . import (
+    corpus_signals,
     layers,
     layers_view,
     research_import,
@@ -46,10 +47,12 @@ from .strength import (
     COMBOS,
     COMMANDER_INCLUSION,
     DECK_UNIVERSE,
+    EDHREC_THEME_REACH,
     GLOBAL_INCLUSION,
     PLAYGROUP_OBSERVED,
     RUBRIC,
     SYNERGY,
+    TOURNAMENT,
     TOURNAMENT_CONVERSION,
     TOURNAMENT_LISTS,
     CardStrength,
@@ -74,7 +77,25 @@ class StrengthCard(TypedDict):
     note: str
     present: int
     components: list[strength.ComponentResult]
+    confidence: float | None
+    confidence_level: str | None
+    borderline: bool
+    borderline_cut: str | None
+    cut_distance: float | None
+    is_land: bool
     layers: dict[str, layers.LayerValue]
+
+
+class UnknownBreakdown(TypedDict):
+    """Tier U split (#1365): cards whose only evidence is counted zeros (0 of N decks, setting
+    ``zero_count_tier`` = U) against cards with missing or too little data. ``denominator`` is the
+    deck count of the cards' own ZERO_COUNT deck-universe rows, or None when there is no single one."""
+
+    total: int
+    zero_count: int
+    missing_data: int
+    by_reason: dict[str, int]
+    denominator: int | None
 
 
 class LayerSummaryBlock(TypedDict):
@@ -104,8 +125,17 @@ class StrengthResult(TypedDict):
     notices: list[str]
     collected: list[str]
     tier_counts: dict[str, int]
+    tier_counts_by_kind: dict[str, dict[str, int]]
+    unknown_breakdown: UnknownBreakdown
+    borderline_count: int
     ambiguous_names: list[AmbiguousName]
     layer_summary: LayerSummaryBlock
+    # #1364: the rule of the EDHREC weights (E2.a), the weights actually used, the counted corpus
+    # and the empirical Bayes priors of the components with small denominators
+    weight_rule: strength.WeightRule
+    effective_weights: dict[str, float]
+    corpus: corpus_signals.CorpusInfo
+    shrinkage: dict[str, object]
     cards: list[StrengthCard]
 
 
@@ -120,6 +150,12 @@ _INDEPENDENT = frozenset(
         signals.SIGNAL_SALT,
     }
 )
+# Signals stored with a published rate and a denominator but no card count (the EDHTop16 play
+# rate: the entries of the commander are published, how many of them hold the card is not). The
+# reader derives the numerator ``round(rate * denominator)``; the stored row stays as published.
+# Other signals with a value and a denominator but no numerator are NOT shares (the Playgroup gap
+# is a difference with its sample as denominator): they keep their NULL numerator.
+_RATE_ONLY_SIGNALS = frozenset({signals.SIGNAL_EDHTOP16})
 # claim key -> [(claim kind, card id)]
 _Claims = dict[str, list[tuple[int, str]]]
 
@@ -130,6 +166,26 @@ def _claim_index(store: StudioStore, ids: list[str]) -> _Claims:
         for key, kind in claims:
             index.setdefault(key, []).append((kind, card_id))
     return index
+
+
+def _claim(
+    name: str,
+    signal: str,
+    claims: _Claims,
+    display: Mapping[str, str],
+    ambiguous: dict[tuple[str, str], list[str]],
+) -> tuple[int, str] | None:
+    """``(claim kind, card id)`` of the pool card a stored name belongs to, ``None`` when no
+    card claims it or several claim it equally (then it is listed in ``ambiguous``)."""
+    found = claims.get(name.casefold())
+    if not found:
+        return None
+    kind = min(item[0] for item in found)
+    owners = sorted({card for item_kind, card in found if item_kind == kind})
+    if len(owners) > 1:
+        ambiguous[(signal, name)] = sorted(display[card] for card in owners)
+        return None
+    return kind, owners[0]
 
 
 def _signal_observations(
@@ -151,24 +207,102 @@ def _signal_observations(
     ).fetchall()
     for row in rows:
         name = str(row["card_name"])
-        found = claims.get(name.casefold())
-        if not found:
+        claim = _claim(name, signal, claims, display, ambiguous)
+        if claim is None:
             continue
-        kind = min(item[0] for item in found)
-        owners = sorted({card for item_kind, card in found if item_kind == kind})
-        if len(owners) > 1:
-            ambiguous[(signal, name)] = sorted(display[card] for card in owners)
-            continue
-        card_id = owners[0]
+        kind, card_id = claim
         rank = (kind, name)
         current = best.get(card_id)
         if current is None or rank < (current[0], current[1]):
+            numerator = row["numerator"]
+            if (
+                numerator is None
+                and signal in _RATE_ONLY_SIGNALS
+                and row["value"] is not None
+                and row["denominator"]
+            ):
+                numerator = round(float(row["value"]) * int(row["denominator"]))
             best[card_id] = (
                 kind,
                 name,
-                Observation(row["value"], row["numerator"], row["denominator"]),
+                Observation(row["value"], numerator, row["denominator"]),
             )
     return {card_id: item[2] for card_id, item in best.items()}, bool(rows)
+
+
+def _theme_reach_observations(
+    store: StudioStore,
+    commander: str,
+    claims: _Claims,
+    display: Mapping[str, str],
+    ambiguous: dict[tuple[str, str], list[str]],
+    minimum_denominator: int,
+) -> tuple[dict[str, Observation], bool]:
+    """``edhrec_theme_reach``: per pool card the highest share over the EDHREC themes of the
+    commander (observation cohorts ``edhrec:<commander>/<theme>``). The commander page itself and
+    the bracket and price pages are no themes; a theme row counts only when its own denominator
+    reaches ``minimum_denominator`` (a card in 1 of 1 decks of a tiny theme is no reach). The
+    observation carries the numerator and denominator of the winning theme and names it; the
+    maximum over many themes leans upward, which is why it only has a small weight. Whether the
+    source exists is decided by any theme row of the commander."""
+    rows = store.connection.execute(
+        "SELECT o.card_name, o.cohort, o.numerator, o.denominator FROM observation o "
+        "JOIN commander_binding b ON b.kind = 'observation_cohort' AND b.key = o.cohort "
+        "AND b.commander_name = ? "
+        "WHERE o.metric = 'inclusion_pct' AND o.numerator IS NOT NULL AND o.denominator > 0 "
+        "AND o.numerator <= o.denominator ORDER BY o.cohort, o.card_name",
+        (commander,),
+    ).fetchall()
+    candidates: dict[str, list[tuple[float, int, str, int]]] = {}
+    exists = False
+    for row in rows:
+        cohort = str(row["cohort"])
+        _page, _slash, theme = cohort.partition("/")
+        if not theme or theme in corpus_signals.VARIANT_PAGES:
+            continue
+        exists = True
+        denominator, numerator = int(row["denominator"]), int(row["numerator"])
+        if denominator < minimum_denominator:
+            continue
+        claim = _claim(str(row["card_name"]), "edhrec_theme_inclusion", claims, display, ambiguous)
+        if claim is None:
+            continue
+        candidates.setdefault(claim[1], []).append(
+            (numerator / denominator, denominator, theme, numerator)
+        )
+    # Each theme share is shrunk on its own, then the highest posterior mean wins: shrinking
+    # the raw maximum would let a 1 of 3 theme beat a 50 of 400 one (the maximum of noisy
+    # shares leans upward, the more the smaller the theme).
+    pairs = [(item[3], item[1]) for found in candidates.values() for item in found]
+    prior = strength.beta_binomial_prior(
+        [pair for pair in pairs if pair[1] < strength.EB_MAX_DENOMINATOR]
+    )
+    result: dict[str, Observation] = {}
+    for card_id, found in candidates.items():
+        scored = [
+            (
+                strength.shrunk_share(item[3], item[1], prior)
+                if prior is not None and item[1] < strength.EB_MAX_DENOMINATOR
+                else item[0],
+                item,
+            )
+            for item in found
+        ]
+        best, (share, denominator, theme, numerator) = sorted(
+            scored, key=lambda entry: (-entry[0], -entry[1][1], entry[1][2])
+        )[0]
+        result[card_id] = Observation(
+            share,
+            numerator,
+            denominator,
+            note=(
+                f"Maximum über {len(found)} EDHREC-Themen nach Schrumpfung je Thema: {theme} "
+                f"({numerator} von {denominator} Decks)"
+            ),
+            shrunk=best if prior is not None else None,
+            prior=prior,
+        )
+    return result, exists
 
 
 def _combo_observations(
@@ -635,20 +769,48 @@ def _other_commander_names(store: StudioStore, commander: str) -> set[str]:
     return found
 
 
-def compute(
+@dataclass
+class Prepared:
+    """Everything the scoring needs, read from the store once: the one place that builds the
+    observations for the tier list (``compute``) and for the ranking check."""
+
+    commander: str
+    settings: StrengthSettings  # as requested (a dangling universe profile already dropped)
+    effective: StrengthSettings  # with the E2.a rule applied: what the scoring uses
+    weight_rule: strength.WeightRule
+    ids: list[str]
+    display: dict[str, str]
+    raw_cards: list[Mapping[str, object]]
+    per_card: dict[str, dict[str, Observation]]
+    collected: set[str]
+    context: PoolContext
+    choice: UniverseChoice
+    summary: ProfileSummary | None
+    universe_missing: str | None
+    notices: list[str]
+    ambiguous: dict[tuple[str, str], list[str]]
+    layer_result: layers.LayerResult | None
+    weighted_layers: list[str]
+    corpus: corpus_signals.CorpusInfo
+    corpus_counts: corpus_signals.CorpusCounts | None
+    edhtop16: dict[str, Observation]
+
+
+def prepare(
     store: StudioStore,
     commander: str,
     settings: StrengthSettings,
     *,
     dangling_universe_ok: bool = False,
     notices: Sequence[str] = (),
-) -> StrengthResult:
-    """Index and tier for every legal pool card of ``commander``.
+    with_layers: bool = True,
+) -> Prepared:
+    """Read the observations of ``commander``'s legal pool and the rule-adjusted settings.
 
-    Raises KeyError when the commander is not in the collection or the universe profile of
-    the settings is unknown. With ``dangling_universe_ok`` (settings read from a saved
-    profile) a universe profile that was deleted meanwhile is not an error: the index runs
-    with "kein Universum" and the result carries a notice and ``universe_missing``."""
+    Raises KeyError when the commander is not in the collection or the universe profile of the
+    settings is unknown; with ``dangling_universe_ok`` a deleted profile gives a notice and the
+    automatic choice instead. ``with_layers`` False computes the rating layers only when a layer
+    has a weight (the ranking check does not need the page columns)."""
     pool = pool_cards(store, [commander], with_signals=False)
     raw_cards = pool["cards"]
     if not isinstance(raw_cards, list):
@@ -736,6 +898,47 @@ def compute(
                 ).items():
                     per_card[card_id][DECK_UNIVERSE] = observation
 
+    # Corpus components (#1364): the counted local corpus of the commander, its cohorts, EDHTop16
+    # and the EDHREC themes. A source that does not exist for the commander is not collected
+    # (``NOT_COLLECTED``, no coverage penalty).
+    corpus_minimum = TierParams().min_universe
+    local_decks = universe_choice.local_deck_count(store, commander)
+    counts = corpus_signals.count_corpus(store, commander, ids, corpus_minimum)
+    corpus = (
+        counts.info(corpus_minimum)
+        if counts is not None
+        else corpus_signals.no_corpus(local_decks, corpus_minimum)
+    )
+    global_inclusion = {
+        card_id: per[GLOBAL_INCLUSION]
+        for card_id, per in per_card.items()
+        if GLOBAL_INCLUSION in per
+    }
+    if counts is not None:
+        for component, found in corpus_signals.corpus_observations(
+            counts, global_inclusion
+        ).items():
+            if not found:
+                continue  # no card has a value (e.g. no global share for the lift): not collected
+            collected.add(component)
+            for card_id, observation in found.items():
+                per_card[card_id][component] = observation
+    top16, top16_exists = _signal_observations(
+        store, commander, signals.SIGNAL_EDHTOP16, claims, display, ambiguous
+    )
+    tournament = corpus_signals.tournament_observations(counts, top16)
+    if tournament or top16_exists:
+        collected.add(TOURNAMENT)
+    for card_id, observation in tournament.items():
+        per_card[card_id][TOURNAMENT] = observation
+    themes, themes_exist = _theme_reach_observations(
+        store, commander, claims, display, ambiguous, settings.min_denominators[strength.MIN_EDHREC]
+    )
+    if themes_exist:
+        collected.add(EDHREC_THEME_REACH)
+    for card_id, observation in themes.items():
+        per_card[card_id][EDHREC_THEME_REACH] = observation
+
     type_group: dict[str, str] = {}
     bands: dict[str, str] = {}
     unranked = _unranked_cards(raw_cards, commander_ids)
@@ -746,17 +949,19 @@ def compute(
         bands[card_id] = strength.mana_band(_float(card["mana_value"]), is_land=group == "Land")
     # Rating layers (Bewertungsebenen): always computed for the page; they join the index only
     # with a positive weight (default 0), as one more rank-based component each.
-    layer_result = _layer_result(
-        store, raw_cards, display, claims, unranked, per_card, settings.pod_size
-    )
     weighted = [key for key in strength.LAYER_KEYS if settings.layer_weights[key] > 0]
-    for card_id, found in layers.index_observations(layer_result, weighted).items():
-        per_card[card_id].update(found)
-    for key in weighted:
-        if any(item[key]["status"] == layers.OK for item in layer_result["cards"].values()):
-            collected.add(strength.layer_component(key))
-        else:
-            notices.append(f"{strength.LAYER_LABELS[key]}: keine Daten, Gewicht ohne Wirkung")
+    layer_result: layers.LayerResult | None = None
+    if with_layers or weighted:
+        layer_result = _layer_result(
+            store, raw_cards, display, claims, unranked, per_card, settings.pod_size
+        )
+        for card_id, found in layers.index_observations(layer_result, weighted).items():
+            per_card[card_id].update(found)
+        for key in weighted:
+            if any(item[key]["status"] == layers.OK for item in layer_result["cards"].values()):
+                collected.add(strength.layer_component(key))
+            else:
+                notices.append(f"{strength.LAYER_LABELS[key]}: keine Daten, Gewicht ohne Wirkung")
 
     # Other commanders known to the store are not ranked in this commander's pool (tier N).
     others = _other_commander_names(store, commander)
@@ -773,48 +978,150 @@ def compute(
         universe_minimum,
         function_group=_function_groups(store, raw_cards),
     )
+    # E2.a: while a counted local corpus exists the EDHREC inclusion weights are 0 (the rule is
+    # explicit and reported); without one they are the fallback.
+    effective, weight_rule = strength.apply_corpus_rule(
+        settings, corpus_decks=local_decks, min_universe=corpus_minimum
+    )
+    return Prepared(
+        commander,
+        settings,
+        effective,
+        weight_rule,
+        ids,
+        display,
+        raw_cards,
+        per_card,
+        collected,
+        context,
+        choice,
+        summary,
+        universe_missing,
+        notices,
+        ambiguous,
+        layer_result,
+        weighted,
+        corpus,
+        counts,
+        top16,
+    )
 
-    scored = strength.score_pool(settings, per_card, collected, context=context)
-    notices.extend(strength.weights_without_effect(settings, collected))
+
+def compute(
+    store: StudioStore,
+    commander: str,
+    settings: StrengthSettings,
+    *,
+    dangling_universe_ok: bool = False,
+    notices: Sequence[str] = (),
+    saved_weights: Mapping[str, float] | None = None,
+) -> StrengthResult:
+    """Index and tier for every legal pool card of ``commander``.
+
+    ``saved_weights`` are the weights a loaded profile stored (``profile_saved_weights``): the
+    result then says when the E2.a rule zeroes a stored EDHREC weight.
+
+    Raises KeyError when the commander is not in the collection or the universe profile of
+    the settings is unknown. With ``dangling_universe_ok`` (settings read from a saved
+    profile) a universe profile that was deleted meanwhile is not an error: the index runs
+    with "kein Universum" and the result carries a notice and ``universe_missing``."""
+    prepared = prepare(
+        store, commander, settings, dangling_universe_ok=dangling_universe_ok, notices=notices
+    )
+    settings = prepared.settings
+    diagnostics: dict[str, object] = {}
+    scored = strength.score_pool(
+        prepared.effective,
+        prepared.per_card,
+        prepared.collected,
+        context=prepared.context,
+        diagnostics=diagnostics,
+    )
+    notices_out = prepared.notices
+    notices_out.extend(strength.weights_without_effect(prepared.effective, prepared.collected))
+    notices_out.extend(_weight_notices(settings, prepared.weight_rule, saved_weights or {}))
+    layer_result = prepared.layer_result
+    if layer_result is None:  # prepare computes the layers when asked to (the default)
+        raise TypeError("the layer result is missing")
     cards: list[StrengthCard] = []
-    for card_id in ids:
+    for card_id in prepared.ids:
         result: CardStrength = scored[card_id]
         cards.append(
             {
                 "card_id": card_id,
-                "name": display[card_id],
+                "name": prepared.display[card_id],
                 **result,
+                "is_land": prepared.context.type_group.get(card_id) == "Land",
                 "layers": layer_result["cards"][card_id],
             }
         )
     tiers = Counter(card["tier"] for card in cards)
+    tier_order = (*strength.TIERS, "U", "N")
+    by_kind = {
+        kind: {tier: sum(1 for c in group if c["tier"] == tier) for tier in tier_order}
+        for kind, group in (
+            ("spells", [c for c in cards if not c["is_land"]]),
+            ("lands", [c for c in cards if c["is_land"]]),
+        )
+    }
+    unknown = [card for card in cards if card["tier"] == "U"]
+    unknown_reasons = Counter(card["reason"] for card in unknown)
+    zero_only = unknown_reasons.get(strength.ZERO_COUNT_ONLY, 0)
+    # the deck count the zeros refer to, taken from the cards' own ZERO_COUNT rows; None when
+    # the rows name more than one denominator (then the header names no single N)
+    zero_denominators = {
+        row["denominator"]
+        for card in unknown
+        if card["reason"] == strength.ZERO_COUNT_ONLY
+        for row in card["components"]
+        if row["status"] == strength.ZERO_COUNT
+        and row["component"] == strength.DECK_UNIVERSE
+        and row["denominator"]
+    }
+    breakdown: UnknownBreakdown = {
+        "total": len(unknown),
+        "zero_count": zero_only,
+        "missing_data": len(unknown) - zero_only,
+        "by_reason": dict(sorted(unknown_reasons.items())),
+        "denominator": next(iter(zero_denominators)) if len(zero_denominators) == 1 else None,
+    }
+    shrinkage = diagnostics["shrinkage"]
     return {
         "schema": strength.SCHEMA,
         "data_class": strength.DATA_CLASS,
         "meaning": strength.MEANING,
         "commander": commander,
         "settings": settings.to_dict(),
-        "universe": summary if choice["kind"] == universe_choice.KIND_PROFILE else None,
-        "universe_choice": choice,
-        "universe_missing": universe_missing,
-        "notices": notices,
+        "universe": prepared.summary
+        if prepared.choice["kind"] == universe_choice.KIND_PROFILE
+        else None,
+        "universe_choice": prepared.choice,
+        "universe_missing": prepared.universe_missing,
+        "notices": notices_out,
         # the index sources; a weighted layer is listed in ``layer_summary.weighted`` instead
         "collected": sorted(
-            name for name in collected if not name.startswith(strength.LAYER_PREFIX)
+            name for name in prepared.collected if not name.startswith(strength.LAYER_PREFIX)
         ),
-        "tier_counts": {tier: tiers.get(tier, 0) for tier in (*strength.TIERS, "U", "N")},
+        "tier_counts": {tier: tiers.get(tier, 0) for tier in tier_order},
+        "tier_counts_by_kind": by_kind,
+        "unknown_breakdown": breakdown,
+        "borderline_count": sum(1 for card in cards if card["borderline"]),
         "ambiguous_names": [
             {"signal": signal, "name": name, "candidates": candidates}
-            for (signal, name), candidates in sorted(ambiguous.items())
+            for (signal, name), candidates in sorted(prepared.ambiguous.items())
         ],
         "layer_summary": {
             "schema": layer_result["schema"],
             "pod_size": layer_result["pod_size"],
             "pod_note": layer_result["pod_note"],
             "measured_note": layer_result["measured_note"],
-            "weighted": weighted,
+            "weighted": prepared.weighted_layers,
             "layers": layer_result["layers"],
         },
+        "weight_rule": prepared.weight_rule,
+        "effective_weights": dict(prepared.effective.weights),
+        "corpus": prepared.corpus,
+        "shrinkage": dict(shrinkage) if isinstance(shrinkage, dict) else {},
         "cards": cards,
     }
 
@@ -884,6 +1191,46 @@ def _entry(store: StudioStore, row: Mapping[str, object]) -> ProfileEntry:
     }
 
 
+def _weight_notices(
+    settings: StrengthSettings, rule: strength.WeightRule, saved: Mapping[str, float]
+) -> list[str]:
+    """Notices on weights that do not act as the person may expect: a positive rubric weight
+    (the rubric is a subjective signal) and stored EDHREC weights the E2.a rule sets to 0."""
+    found: list[str] = []
+    rubric = settings.weights.get(strength.RUBRIC, 0.0)
+    if rubric > 0:
+        found.append(
+            f"Raster-Bewertung: subjektives Signal aktiv (Gewicht {rubric:g}); es ist kein "
+            "objektives Signal und zählt nur auf ausdrücklichen Wunsch."
+        )
+    if rule["rule"] == strength.RULE_CORPUS_ZERO:
+        zeroed = [
+            f"{strength.LABELS[name]} (gespeichert {saved[name]:g}, wirksam 0)"
+            for name in strength.EDHREC_RULE_COMPONENTS
+            if saved.get(name, 0.0) > 0
+        ]
+        if zeroed:
+            found.append(
+                "Gespeicherte EDHREC-Gewichte werden vom gezählten Korpus auf 0 gesetzt "
+                f"(Regel {strength.RULE_CORPUS_ZERO}): "
+                + "; ".join(zeroed)
+                + ". Einstellung „EDHREC-Gewichte mit Korpus behalten“ (an) hebt das auf."
+            )
+    return found
+
+
+def profile_saved_weights(store: StudioStore, name: str) -> dict[str, float]:
+    """The weights the stored profile ``name`` holds for its own (known) keys."""
+    entry = get_profile(store, name)
+    stored = entry["settings"]
+    weights = stored.get("weights") if stored is not None else None
+    if not isinstance(weights, Mapping):
+        return {}
+    return {
+        str(key): float(value) for key, value in weights.items() if isinstance(value, (int, float))
+    }
+
+
 def profile_notices(store: StudioStore, name: str) -> list[str]:
     """Notices for computing with a stored profile: keys of the profile this version does not
     know are ignored, not an error."""
@@ -929,8 +1276,17 @@ _MEASURE_CHOICES = {
     strength.MEASURE_RAW: "roher Anteil",
 }
 _SCALE_CHOICES = {
+    strength.SCALE_LOG: "Anteil (Logarithmus relativ zum Maximum)",
     strength.SCALE_SHARE: "Anteil (Wurzel relativ zum Maximum)",
     strength.SCALE_RANK: "Rang (Perzentil)",
+}
+_ZERO_TIER_CHOICES = {
+    strength.ZERO_TIER_D: "Stufe D (gezählte Null zählt voll)",
+    strength.ZERO_TIER_U: "zu wenig Daten (U)",
+}
+_EDHREC_WITH_CORPUS_CHOICES = {
+    False: "aus: der Korpus ersetzt die EDHREC-Gewichte",
+    True: "an: EDHREC-Gewichte auch mit Korpus",
 }
 _MISSING_CHOICES = {
     strength.MISSING_SKIP: "auslassen",
@@ -997,12 +1353,64 @@ def _panel_texts() -> dict[str, object]:
         "für eine Stufe allein nicht. 0 schaltet das Signal ab."
     )
     helps[f"weights.{strength.RUBRIC}"] = (
-        f"Strukturierte Bewertung von drei Bewertern (Übereinstimmung ICC 0,94), nur für Chulane; "
-        f"empfohlen {_number_text(rec.weights[strength.RUBRIC])} (etwa 30 % des Gewichts für eine "
-        "typische Karte), 0 schaltet das Signal ab."
+        "Bewertung nach festem Leitfaden von drei Bewertern (nur für Chulane), subjektiv und "
+        "kein objektives Signal. Das Gewicht steht auf 0 (Owner-Entscheidung E1.a); die "
+        "Bewertung bleibt als Spalte und Komponente erhalten, wer ihr ein Gewicht gibt, "
+        "mischt Meinung in einen empirischen Index."
+    )
+    labels[f"weights.{strength.RUBRIC}"] = (
+        f"{strength.LABELS[strength.RUBRIC]} (empfohlen: "
+        f"{_number_text(rec.weights[strength.RUBRIC])})"
     )
     helps[f"weights.{strength.DECK_UNIVERSE}"] = (
         "Wie stark die Verbreitung in gezählten Decklisten zählt. 0 schaltet sie ab."
+    )
+    for key in strength.EDHREC_RULE_COMPONENTS:
+        helps[f"weights.{key}"] = (
+            "Rückfall-Gewicht der EDHREC-Aufnahme (Regel E2.a): Es gilt nur, solange für den "
+            f"Commander kein gezählter lokaler Korpus mit mindestens {universe_minimum} Decks "
+            "vorliegt. Mit Korpus ist das wirksame Gewicht 0, außer die Einstellung "
+            "„EDHREC-Gewichte mit Korpus behalten“ ist an. Das Ergebnis nennt die angewandte Regel."
+        )
+    helps[f"weights.{strength.CORPUS_TUNED}"] = (
+        "Anteil der Karte in den gezählten Decks der Brackets 4 und 5 (Zähler / Nenner steht in "
+        "der Signalzeile). Bei kleinem Nenner zum Prior gezogen (empirisches Bayes). Nur für "
+        "Commander mit lokalem Korpus."
+    )
+    helps[f"weights.{strength.CORPUS_LOG_LIFT}"] = (
+        "Wie viel häufiger die Karte im Korpus dieses Commanders steht als in allen Decks "
+        "(EDHREC „Aufnahme überhaupt“): log10 des Verhältnisses, mit n / (n + "
+        f"{strength.LOG_RATIO_DAMPING}) gedämpft (n = Decks mit der Karte), auf ±"
+        f"{_number_text(strength.LOG_RATIO_CAP)} begrenzt (Faktor 100) und als (Wert + 2) / 4 auf "
+        "0 bis 1 gelegt (0,5 = neutral); der Index zählt nur den Teil über neutral, max(0, 2·Wert - 1). "
+        "Nur für Karten mit mindestens einem Treffer."
+    )
+    helps[f"weights.{strength.CORPUS_BRACKET_SLOPE}"] = (
+        "Gefälle des Anteils zwischen den Brackets 4+5 und Bracket 2 im Korpus: log10 des "
+        "Verhältnisses, wie beim Lift gedämpft und begrenzt; der Index zählt nur den Teil über "
+        f"neutral. Nur ab {strength.SLOPE_MIN_HITS} Treffern insgesamt."
+    )
+    helps[f"weights.{strength.TOURNAMENT}"] = (
+        "EDHTop16-Spielrate (Turnierzeitraum, Nenner = Einträge des Commanders) und Anteil im "
+        "Korpus-Bracket 5 als ein Signal: die Zähler und Nenner beider Quellen werden "
+        "zusammengelegt (Anteil = Summe Zähler / Summe Nenner), danach wie jeder kleine Nenner "
+        "zum Prior gezogen. Eine Karte ohne EDHTop16-Zeile zählt nur mit dem Korpus-Bracket 5."
+    )
+    helps[f"weights.{strength.TOURNAMENT_LISTS}"] = (
+        "TopDeck-Turnierlisten des Commanders: derzeit nur wenige Listen (Mindest-Nenner nicht "
+        "erreicht). Standardmäßig 0, die Spalte bleibt."
+    )
+    helps[f"weights.{strength.TOURNAMENT_CONVERSION}"] = (
+        "TopDeck-Conversion: derzeit ohne Werte. Standardmäßig 0, die Spalte bleibt."
+    )
+    helps[f"weights.{strength.EDHREC_THEME_REACH}"] = (
+        "Höchster Anteil der Karte über die EDHREC-Themen des Commanders (nur Themen mit "
+        "mindestens dem Mindest-Nenner EDHREC an Decks), mit dem Thema und seinem Zähler und "
+        "Nenner in der Signalzeile. Ein Maximum über viele Themen ist nach oben verzerrt; "
+        "deshalb nur ein kleines Gewicht."
+    )
+    helps[f"weights.{strength.GLOBAL_INCLUSION}"] = (
+        "Anteil der Karte in allen EDHREC-Decks, unabhängig vom Commander. 0 schaltet ab."
     )
     helps[f"weights.{strength.COMBOS}"] = (
         "Je nach „Combo-Quelle“ zählt EDHREC-Kombos des Commanders (Standard: wie viele Decks "
@@ -1066,16 +1474,22 @@ def _panel_texts() -> dict[str, object]:
     )
     helps["share_measure"] = (
         "Die Wilson-Untergrenze ordnet Karten mit verschieden großen Nennern vorsichtiger; "
-        "bei gleichem Nenner ändert sie die Reihenfolge nicht. Gegen kleine Stichproben "
-        "schützt der Mindest-Nenner."
+        "bei gleichem Nenner ändert sie die Reihenfolge nicht. Anteile mit einem Nenner unter "
+        f"{strength.EB_MAX_DENOMINATOR} werden stattdessen zum Prior der Komponente gezogen "
+        "(empirisches Bayes: Beta-Binomial-Mittel, Prior-Mittel und -Stärke aus dem Pool nach "
+        f"der Momentenmethode, Stärke begrenzt auf {strength.EB_STRENGTH_MIN:g} bis "
+        f"{strength.EB_STRENGTH_MAX:g}); das Ergebnis nennt beide. Gegen kleine Stichproben "
+        "schützt zusätzlich der Mindest-Nenner. Bei „roher Anteil“ gibt es keine Schrumpfung."
     )
     labels["share_scale"] = f"Anteil skalieren als (empfohlen: {_SCALE_CHOICES[rec.share_scale]})"
     helps["share_scale"] = (
-        "Wie Anteils-Signale in einen Wert von 0 bis 1 umgerechnet werden. „Anteil (Wurzel "
-        "relativ zum Maximum)“ bewahrt den Abstand zwischen selten und häufig gespielten "
-        "Karten (√(Anteil / Maximalanteil) in der Vergleichsgruppe). „Rang (Perzentil)“ "
-        "nutzt nur die Reihenfolge und drückt lange Null-Schwänze nach oben. Synergie, "
-        "Kombos und Playgroup bleiben immer auf Perzentil-Rängen."
+        "Wie Anteils-Signale in einen Wert von 0 bis 1 umgerechnet werden. „Anteil (Logarithmus "
+        f"relativ zum Maximum)“ (Standard) rechnet ln(1 + k·Anteil) / ln(1 + k·Maximalanteil) "
+        f"mit k = {strength.LOG_SHARE_K:g} in der Vergleichsgruppe: seltene Karten bleiben "
+        "sichtbar über null, die Spitze wird abgeflacht. „Anteil (Wurzel relativ zum Maximum)“ "
+        "nimmt √(Anteil / Maximalanteil). „Rang (Perzentil)“ nutzt nur die Reihenfolge und drückt "
+        "lange Null-Schwänze nach oben. Synergie, Kombos und Playgroup bleiben immer auf "
+        "Perzentil-Rängen."
     )
     labels["min_denominators.edhrec"] = (
         f"Mindest-Nenner EDHREC-Signale (empfohlen: {rec.min_denominators['edhrec']} Decks)"
@@ -1122,12 +1536,13 @@ def _panel_texts() -> dict[str, object]:
             f"(empfohlen: {_MISSING_CHOICES[rec.missing_value[key]]})"
         )
         helps[f"missing_value.{key}"] = (
+            "auslassen (empfohlen, Owner-Entscheidung E4.b): eine nicht gelistete Karte ist eine "
+            "fehlende Beobachtung („nicht gelistet“), nie eine Null; ihr Gewicht entfällt und der "
+            "Index mittelt über die übrigen Signale. Eine GEZÄHLTE Null (0 von N Decks im "
+            "vollständig gezählten Korpus) ist dagegen ein Befund und zählt immer voll. "
             "als niedrigster Rang: eine nicht gelistete Karte zählt mit dem Wert 0, also bei "
-            "oder unter der kleinsten gelisteten Karte, nie darüber. Sinnvoll, wenn die Quelle "
-            "alle Karten über ihrer Listenschwelle nennt (EDHREC): nicht gelistet heißt "
-            "darunter. auslassen: eine nicht gelistete Karte ist eine fehlende Beobachtung "
-            "(Owner-Entscheidung B5); ihr Gewicht entfällt dann und der Index mittelt über "
-            "die übrigen Signale."
+            "oder unter der kleinsten gelisteten Karte, nie darüber. Nur sinnvoll, wenn die Quelle "
+            "alle Karten über ihrer Listenschwelle nennt (EDHREC): nicht gelistet heißt darunter."
         )
     labels["rank_commander_and_basics"] = (
         "Commander und Standardländer bewerten "
@@ -1167,12 +1582,39 @@ def _panel_texts() -> dict[str, object]:
         "Spellbook-Kombos und die Playgroup-Beobachtung gelten für jeden Commander und "
         "reichen allein nicht: die Karte bleibt „zu wenig Daten“."
     )
+    labels["zero_count_tier"] = (
+        f"Stufe bei nur gezählten Nullen (empfohlen: {_ZERO_TIER_CHOICES[rec.zero_count_tier]})"
+    )
+    helps["zero_count_tier"] = (
+        "Eine Karte, deren einziger Beleg zu diesem Commander gezählte Nullen sind (0 von N Decks "
+        "im vollständig gezählten Korpus) und die sonst nur ein commanderunabhängiges Signal hat. "
+        "Stufe D (E4.b, empfohlen): die Null ist ein Befund und zählt voll. U (E4.a): zu wenig "
+        "Daten, Grund ZERO_COUNT_ONLY."
+    )
+    labels["edhrec_with_corpus"] = (
+        "EDHREC-Gewichte mit Korpus behalten "
+        f"(empfohlen: {_EDHREC_WITH_CORPUS_CHOICES[rec.edhrec_with_corpus]})"
+    )
+    helps["edhrec_with_corpus"] = (
+        "Regel E2.a: Gibt es für den Commander einen gezählten lokalen Korpus mit mindestens "
+        f"{universe_minimum} Decks, sind die Gewichte „Aufnahme beim Commander“ und „Aufnahme im "
+        "Bracket“ wirksam 0 (aus). Ohne Korpus gelten sie wie eingestellt (Rückfall). An: sie "
+        "gelten auch mit Korpus."
+    )
     labels["min_coverage"] = (
         f"Mindest-Datenlage in % (empfohlen: {_number_text(round(rec.min_coverage * 100, 1))})"
     )
     helps["min_coverage"] = (
         "Anteil des Gewichts der Signale, die zu dieser Karte einen Wert haben. Darunter steht "
         "„zu wenig Daten“. Das ist keine Schwelle für den Anteil in Decks."
+    )
+    labels["borderline_distance"] = (
+        f"Grenzwertig-Abstand in Punkten (empfohlen: {_number_text(rec.borderline_distance)})"
+    )
+    helps["borderline_distance"] = (
+        "Liegt der Index einer Karte näher als dieser Abstand an einer Tier-Grenze, trägt sie die "
+        "Markierung „grenzwertig“: eine kleine Änderung der Gewichte kann ihre Stufe ändern. 0 "
+        "schaltet die Markierung aus."
     )
     labels["min_components"] = f"Mindestzahl Signale (empfohlen: {rec.min_components})"
     helps["min_components"] = "Wie viele gewichtete Signale mindestens vorhanden sein müssen."
@@ -1204,12 +1646,17 @@ def _panel_texts() -> dict[str, object]:
             "title": "Fehlender Wert",
             "keys": [f"missing_value.{key}" for key in strength.MISSING_CAPABLE],
         },
-        {"title": "Decklisten-Universum", "keys": ["universe_source"]},
+        {"title": "Decklisten-Universum", "keys": ["universe_source", "edhrec_with_corpus"]},
         {"title": "Commander und Standardländer", "keys": ["rank_commander_and_basics"]},
         {"title": "Andere Commander im Pool", "keys": ["rank_other_commanders"]},
         {
             "title": "Mindestdaten für eine Stufe",
-            "keys": ["min_coverage", "min_components", "require_commander_signal"],
+            "keys": [
+                "min_coverage",
+                "min_components",
+                "require_commander_signal",
+                "zero_count_tier",
+            ],
         },
         {
             "title": (
@@ -1217,7 +1664,10 @@ def _panel_texts() -> dict[str, object]:
                 + " / ".join(_number_text(cuts[tier]) for tier in ("S", "A", "B", "C"))
                 + ")"
             ),
-            "keys": [f"tier_cuts.{tier}" for tier in ("S", "A", "B", "C")],
+            "keys": [
+                *(f"tier_cuts.{tier}" for tier in ("S", "A", "B", "C")),
+                "borderline_distance",
+            ],
         },
     ]
     return {
@@ -1246,6 +1696,15 @@ def _panel_texts() -> dict[str, object]:
                     "recommended": False,
                 },
                 {"value": strength.UNIVERSE_NONE, "label": "keines", "recommended": False},
+            ],
+            "zero_count_tier": _choices(_ZERO_TIER_CHOICES, rec.zero_count_tier),
+            "edhrec_with_corpus": [
+                {
+                    "value": value,
+                    "label": f"{label} (empfohlen)" if value == rec.edhrec_with_corpus else label,
+                    "recommended": value == rec.edhrec_with_corpus,
+                }
+                for value, label in _EDHREC_WITH_CORPUS_CHOICES.items()
             ],
             "separate_lands": [
                 {"value": True, "label": "an (empfohlen)", "recommended": True},
@@ -1277,7 +1736,14 @@ def presets() -> dict[str, object]:
             {"name": name, "settings": item.to_dict()} for name, item in strength.PRESETS.items()
         ],
         "components": [
-            {"key": key, "label": strength.LABELS[key], "default_weight": weight}
+            {
+                "key": key,
+                "label": strength.LABELS[key],
+                "default_weight": weight,
+                "data_class": strength.COMPONENT_DATA_CLASS[key],
+                "subjective": key == strength.RUBRIC,
+                "commander_only": key in strength.COMMANDER_ONLY_SOURCES,
+            }
             for key, weight in strength.DEFAULT_WEIGHTS.items()
         ],
         "layers": [
@@ -1307,6 +1773,13 @@ def presets() -> dict[str, object]:
         "defaults": recommended,
         "recommended": recommended,
         "missing_capable": list(strength.MISSING_CAPABLE),
+        "edhrec_rule_components": list(strength.EDHREC_RULE_COMPONENTS),
+        "log_share_k": strength.LOG_SHARE_K,
+        "empirical_bayes": {
+            "max_denominator": strength.EB_MAX_DENOMINATOR,
+            "strength_range": [strength.EB_STRENGTH_MIN, strength.EB_STRENGTH_MAX],
+            "min_cards": strength.EB_MIN_CARDS,
+        },
         "min_group": strength.MIN_GROUP,
         "panel": _panel_texts(),
         "meaning": strength.MEANING,

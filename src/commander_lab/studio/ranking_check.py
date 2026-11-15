@@ -28,6 +28,22 @@ objective diagnostic figures defined in #1349:
    cards change tier when that signal alone is given weight 0, plus the single signal with
    the largest impact.
 
+Since #1364 (Tierliste v3) the report adds, measured and never tuned to a card:
+
+7. **Counter-checks (Gegenproben):** Spearman correlation of the index with the card's share in
+   the corpus bracket-5 decks and with the EDHTop16 play rate, each over all ranked cards, over
+   spells and over lands. Both OVERLAP with the index (bracket 5 is a subset of the corpus and
+   feeds the tournament signal, EDHTop16 feeds the tournament signal), so each also carries a
+   held-out variant: the index recomputed with the overlapping components at weight 0
+   (``COUNTER_OVERLAP``) against the same reference.
+8. **Redundancy matrix:** Spearman correlation between the active weighted components over the
+   cards where both have a value; a pair above ``REDUNDANCY_THRESHOLD`` (0.90) is flagged: two
+   signals that say the same thing count twice.
+9. **Sensitivity of the log share scale:** tier counts, tier changes against the default and the
+   agreement with the counted lists for k = 100 / 150 / 200 (the default is 150).
+
+The report also carries the E2.a weight rule that applied and the empirical Bayes priors.
+
 No target ranks are set by an agent. Owner marks (favorites, exclusions, notes) and
 simulation results never enter this check.
 """
@@ -42,8 +58,7 @@ from collections.abc import Collection, Mapping, Sequence
 from dataclasses import replace
 from typing import TypedDict
 
-from . import layers, strength, strength_view, tiers, universe_choice, universe_view
-from .builder import pool_cards
+from . import corpus_signals, strength, strength_view, universe_choice, universe_view
 from .store import LEGACY_COMMANDER, StudioStore
 from .strength import (
     DECK_UNIVERSE,
@@ -62,6 +77,33 @@ BOTTOM_TIERS = ("C", "D")
 MARGINAL_MAX_SHARE = 0.05
 STAPLE_MIN_SHARE = 0.30
 MIN_STRONG_SIGNALS = 5
+REDUNDANCY_THRESHOLD = 0.90
+SENSITIVITY_KS = (100.0, 150.0, 200.0)
+COUNTER_NOTE = (
+    "Gegenprobe (überlappend): die Referenz ist Teil der Daten des Index (Bracket 5 steckt im "
+    "Korpus und im Turnier-Signal, EDHTop16 im Turnier-Signal), die Zahl ist also nicht "
+    "unabhängig. Die Zeile „ohne Überlappung“ rechnet den Index mit den überlappenden "
+    "Komponenten auf Gewicht 0 neu und ist die ausgehaltene Gegenprobe; kein Beweis für Stärke."
+)
+# Components that share data with a counter reference: they are set to weight 0 for the
+# held-out variant of the counter-check.
+COUNTER_OVERLAP: dict[str, tuple[str, ...]] = {
+    "bracket_5": (
+        strength.DECK_UNIVERSE,
+        strength.CORPUS_TUNED,
+        strength.TOURNAMENT,
+        strength.CORPUS_BRACKET_SLOPE,
+    ),
+    "edhtop16": (strength.TOURNAMENT,),
+}
+REDUNDANCY_NOTE = (
+    "Spearman zwischen den Rang-Werten zweier aktiver Komponenten über die Karten, bei denen "
+    f"beide einen Wert haben. r > {REDUNDANCY_THRESHOLD:.2f} heißt: das Signal zählt doppelt."
+)
+SENSITIVITY_NOTE = (
+    "Stufen bei anderer Krümmung k der Log-Skala ln(1 + k·Anteil) / ln(1 + k·Maximum); der "
+    "Standard ist k = 150, Stufen-Grenzen bleiben unverändert."
+)
 
 RUBRIC_AGREEMENT_NOTE = (
     "Übereinstimmung mit der Raster-Bewertung (H): die Bewertung ist selbst ein Signal des "
@@ -156,6 +198,61 @@ class StabilityBlock(TypedDict):
     largest_impact: SignalStabilityRow | None
 
 
+class HeldOutCheck(TypedDict):
+    """The counter-check with the components that share data with the reference at weight 0."""
+
+    zeroed: list[str]
+    all_ranked: CorrelationEntry
+    non_lands: CorrelationEntry
+    lands: CorrelationEntry
+
+
+class CounterCheck(TypedDict):
+    """Agreement of the index with one overlapping reference share (``bracket_5``,
+    ``edhtop16``) and, held out, without the overlapping components; the denominator is the
+    reference's largest denominator."""
+
+    key: str
+    label: str
+    denominator: int | None
+    note: str
+    all_ranked: CorrelationEntry
+    non_lands: CorrelationEntry
+    lands: CorrelationEntry
+    held_out: HeldOutCheck | None
+
+
+class RedundancyPair(TypedDict):
+    a: str
+    b: str
+    spearman_rho: float | None
+    compared: int
+    flagged: bool
+
+
+class RedundancyBlock(TypedDict):
+    threshold: float
+    note: str
+    components: list[str]
+    pairs: list[RedundancyPair]
+    flagged: list[RedundancyPair]
+
+
+class SensitivityRun(TypedDict):
+    k: float
+    tier_counts: dict[str, int]
+    tier_changes_vs_base: int
+    spearman_all_ranked: float | None
+    spearman_non_lands: float | None
+    spearman_lands: float | None
+
+
+class SensitivityBlock(TypedDict):
+    base_k: float
+    note: str
+    runs: list[SensitivityRun]
+
+
 class RankingCheckReport(TypedDict):
     schema: str
     commander: str
@@ -168,6 +265,11 @@ class RankingCheckReport(TypedDict):
     thin_coverage_top: ThinCoverageTopBlock
     tier_distribution: list[TierRow]
     stability: StabilityBlock
+    counter_checks: list[CounterCheck]
+    redundancy: RedundancyBlock
+    sensitivity: SensitivityBlock | None
+    weight_rule: strength.WeightRule | None
+    shrinkage: dict[str, object]
 
 
 def _counted_share(observation: Observation | None) -> float | None:
@@ -234,14 +336,23 @@ def check_ranking(
     commander: str = "",
     profile_or_preset: str = "Standard",
     scored: Mapping[str, CardStrength] | None = None,
+    counter_shares: Mapping[str, tuple[str, Mapping[str, Observation]]] | None = None,
+    weight_rule: strength.WeightRule | None = None,
 ) -> RankingCheckReport:
-    """Pure diagnostic check of a strength-index ranking across all six #1349 metrics."""
+    """Pure diagnostic check of a strength-index ranking: the six #1349 metrics plus the
+    counter-checks, the redundancy matrix and the log-scale sensitivity of #1364.
+
+    ``counter_shares`` maps a key to ``(label, observations)`` of an overlapping reference share
+    (the corpus bracket 5, EDHTop16). ``weight_rule`` is the E2.a rule that applied."""
     ctx = context or PoolContext()
     display = {card: (names[card] if names and card in names else card) for card in observations}
+    diagnostics: dict[str, object] = {}
     base_scored = (
         dict(scored)
         if scored is not None
-        else strength.score_pool(settings, observations, collected, context=ctx)
+        else strength.score_pool(
+            settings, observations, collected, context=ctx, diagnostics=diagnostics
+        )
     )
     if counted_lists is None:
         counted: Mapping[str, Observation] = {
@@ -426,6 +537,61 @@ def check_ranking(
         max(stability_rows, key=lambda row: row["tier_changes"]) if stability_rows else None
     )
 
+    counter_checks: list[CounterCheck] = []
+    for key, (label, reference) in (counter_shares or {}).items():
+        reference_shares = {
+            card: share
+            for card in observations
+            if (share := _counted_share(reference.get(card))) is not None
+        }
+        reference_denominators = [
+            obs.denominator
+            for obs in reference.values()
+            if obs.denominator is not None and obs.denominator > 0
+        ]
+        held_out: HeldOutCheck | None = None
+        zeroed = [
+            name for name in COUNTER_OVERLAP.get(key, ()) if settings.effective_weight(name) > 0
+        ]
+        if zeroed:
+            held_settings = settings
+            for name in zeroed:
+                held_settings = _without_component(held_settings, name)
+            held_scored = strength.score_pool(held_settings, observations, collected, context=ctx)
+            held_all = {
+                card: float(item["index"])
+                for card, item in held_scored.items()
+                if item["tier"] in TIERS and item["index"] is not None
+            }
+            held_non_lands = {
+                card: idx for card, idx in held_all.items() if ctx.type_group.get(card) != "Land"
+            }
+            held_lands = {
+                card: idx for card, idx in held_all.items() if ctx.type_group.get(card) == "Land"
+            }
+            held_out = {
+                "zeroed": zeroed,
+                "all_ranked": _entry(held_all, reference_shares),
+                "non_lands": _entry(held_non_lands, reference_shares),
+                "lands": _entry(held_lands, reference_shares),
+            }
+        counter_checks.append(
+            {
+                "key": key,
+                "label": label,
+                "denominator": max(reference_denominators) if reference_denominators else None,
+                "note": COUNTER_NOTE,
+                "all_ranked": _entry(ranked_indices, reference_shares),
+                "non_lands": _entry(non_land_indices, reference_shares),
+                "lands": _entry(land_indices, reference_shares),
+                "held_out": held_out,
+            }
+        )
+
+    redundancy = _redundancy(settings, collected, base_scored)
+    sensitivity = _sensitivity(settings, observations, collected, ctx, base_scored, shares)
+    shrinkage = diagnostics.get("shrinkage")
+
     return {
         "schema": SCHEMA,
         "commander": commander,
@@ -453,7 +619,103 @@ def check_ranking(
             "signals": stability_rows,
             "largest_impact": largest_impact,
         },
+        "counter_checks": counter_checks,
+        "redundancy": redundancy,
+        "sensitivity": sensitivity,
+        "weight_rule": weight_rule,
+        "shrinkage": dict(shrinkage) if isinstance(shrinkage, dict) else {},
     }
+
+
+def _redundancy(
+    settings: StrengthSettings,
+    collected: Collection[str],
+    scored: Mapping[str, CardStrength],
+) -> RedundancyBlock:
+    """Spearman between the rank values of every two active weighted components over the cards
+    where both have a value. Only counted values enter (a value filled in for a missing card,
+    ``MISSING_AS_LOWEST``, is not an observation)."""
+    active = [
+        name
+        for name in (*strength.COMPONENTS, *settings.active_layers())
+        if settings.effective_weight(name) > 0 and name in collected
+    ]
+    values: dict[str, dict[str, float]] = {name: {} for name in active}
+    for card, item in scored.items():
+        for row in item["components"]:
+            percentile = row["percentile"]
+            if (
+                row["component"] in values
+                and percentile is not None
+                and row["status"] in (strength.PRESENT, strength.ZERO_COUNT)
+            ):
+                values[row["component"]][card] = percentile
+    pairs: list[RedundancyPair] = []
+    for index, first in enumerate(active):
+        for second in active[index + 1 :]:
+            rho = spearman_correlation(values[first], values[second])
+            pairs.append(
+                {
+                    "a": first,
+                    "b": second,
+                    "spearman_rho": rho,
+                    "compared": sum(1 for card in values[first] if card in values[second]),
+                    "flagged": rho is not None and rho > REDUNDANCY_THRESHOLD,
+                }
+            )
+    return {
+        "threshold": REDUNDANCY_THRESHOLD,
+        "note": REDUNDANCY_NOTE,
+        "components": active,
+        "pairs": pairs,
+        "flagged": [pair for pair in pairs if pair["flagged"]],
+    }
+
+
+def _sensitivity(
+    settings: StrengthSettings,
+    observations: Mapping[str, Mapping[str, Observation]],
+    collected: Collection[str],
+    context: PoolContext,
+    base_scored: Mapping[str, CardStrength],
+    shares: Mapping[str, float],
+) -> SensitivityBlock | None:
+    """Tier counts and agreement for the curvature k of the log share scale, ``None`` for any
+    other scale. The default k reuses the base scoring."""
+    if settings.share_scale != strength.SCALE_LOG:
+        return None
+    runs: list[SensitivityRun] = []
+    for k in SENSITIVITY_KS:
+        scored = (
+            base_scored
+            if k == strength.LOG_SHARE_K
+            else strength.score_pool(settings, observations, collected, context=context, log_k=k)
+        )
+        counts = Counter(item["tier"] for item in scored.values())
+        indices = {
+            card: float(item["index"])
+            for card, item in scored.items()
+            if item["tier"] in TIERS and item["index"] is not None
+        }
+        runs.append(
+            {
+                "k": k,
+                "tier_counts": {tier: counts.get(tier, 0) for tier in ALL_TIERS},
+                "tier_changes_vs_base": sum(
+                    1 for card in scored if scored[card]["tier"] != base_scored[card]["tier"]
+                ),
+                "spearman_all_ranked": spearman_correlation(indices, shares),
+                "spearman_non_lands": spearman_correlation(
+                    {c: v for c, v in indices.items() if context.type_group.get(c) != "Land"},
+                    shares,
+                ),
+                "spearman_lands": spearman_correlation(
+                    {c: v for c, v in indices.items() if context.type_group.get(c) == "Land"},
+                    shares,
+                ),
+            }
+        )
+    return {"base_k": strength.LOG_SHARE_K, "note": SENSITIVITY_NOTE, "runs": runs}
 
 
 def _reference_counted_lists(
@@ -498,132 +760,20 @@ def run_ranking_check(
     preset: str | None = None,
     settings: Mapping[str, object] | None = None,
 ) -> RankingCheckReport:
-    """Compute the #1349 ranking check against ``store`` for ``commander``."""
+    """Compute the #1349 ranking check against ``store`` for ``commander``. The observations,
+    the corpus rule (E2.a) and the settings are exactly those of the tier list
+    (``strength_view.prepare``)."""
     resolved = strength_view.resolve_settings(
         store, preset=preset, profile=profile, settings=settings
     )
     label = profile or preset or "Ausgewogen"
-    pool = pool_cards(store, [commander], with_signals=False)
-    raw_cards = pool["cards"]
-    if not isinstance(raw_cards, list):
-        raise TypeError("pool_cards returned an unexpected shape")
-    ids = [str(card["card_id"]) for card in raw_cards]
-    display = {str(card["card_id"]): str(card["name"]) for card in raw_cards}
-    commander_ids = strength_view._strings(pool["commander_ids"])
-    claims = strength_view._claim_index(store, ids)
-    ambiguous: dict[tuple[str, str], list[str]] = {}
-
-    summary: universe_view.ProfileSummary | None = None
-    kind, _source, _bracket = strength.parse_universe_source(resolved.universe_source) or ("",) * 3
-    if resolved.universe_profile and kind in (strength.UNIVERSE_AUTO, strength.UNIVERSE_PROFILE):
-        try:
-            summary = universe_view.profile_summary(
-                store, resolved.universe_profile, commander_names=[commander]
-            )
-        except KeyError:
-            resolved = replace(resolved, universe_profile=None)
-    choice = universe_choice.choose(store, commander, resolved, summary)
-
-    per_card: dict[str, dict[str, Observation]] = {card_id: {} for card_id in ids}
-    collected: set[str] = set()
-    for component in (
-        strength.COMMANDER_INCLUSION,
-        strength.BRACKET_INCLUSION,
-        strength.SYNERGY,
-        strength.TOURNAMENT_LISTS,
-        strength.TOURNAMENT_CONVERSION,
-        strength.GLOBAL_INCLUSION,
-        strength.COMBOS,
-        strength.PLAYGROUP_OBSERVED,
-        strength.RUBRIC,
-    ):
-        signal = strength.signal_for(
-            component, resolved.bracket, combo_source=resolved.combo_source
-        )
-        if not signal:
-            continue
-        if component == strength.COMBOS and resolved.combo_source == strength.COMBO_SPELLBOOK:
-            observed, exists = strength_view._combo_observations(
-                store, commander, claims, display, ambiguous
-            )
-        elif component == strength.RUBRIC:
-            observed, exists = strength_view._rubric_observations(
-                store, commander, claims, display, ambiguous
-            )
-        else:
-            observed, exists = strength_view._signal_observations(
-                store, commander, signal, claims, display, ambiguous
-            )
-        if exists:
-            collected.add(component)
-        for card_id, observation in observed.items():
-            per_card[card_id][component] = observation
-
-    filter_cards: set[str] = set()
-    universe_minimum = tiers.TierParams().min_universe
-    if choice["kind"] == universe_choice.KIND_PROFILE and summary is not None:
-        universe_minimum = summary["min_universe"]
-        if summary["denominator"] > 0:
-            collected.add(DECK_UNIVERSE)
-            spread = universe_view.pool_spread(
-                store, summary["profile"], ids, commander_names=[commander]
-            )
-            strength_view._fill_spread(per_card, filter_cards, spread["cards"])
-    elif choice["kind"] == universe_choice.KIND_LOCAL:
-        local_total, _snapshot, local_cards = universe_view.spread_for_spec(
-            store, universe_choice.local_spec(store, commander), ids, commander_names=[commander]
-        )
-        if local_total > 0:
-            collected.add(DECK_UNIVERSE)
-            strength_view._fill_spread(per_card, filter_cards, local_cards)
-    elif choice["kind"] == universe_choice.KIND_COUNTED:
-        for item in universe_choice.counted_universes(store, commander):
-            if item["value"] == choice["counted"]:
-                collected.add(DECK_UNIVERSE)
-                for card_id, observation in strength_view.counted_observations(
-                    store, commander, item, claims, display, ambiguous
-                ).items():
-                    per_card[card_id][DECK_UNIVERSE] = observation
-
-    type_group: dict[str, str] = {}
-    bands: dict[str, str] = {}
-    unranked = strength_view._unranked_cards(raw_cards, commander_ids)
-    for card in raw_cards:
-        card_id = str(card["card_id"])
-        group = str(card["group"])
-        type_group[card_id] = group
-        bands[card_id] = strength.mana_band(
-            strength_view._float(card["mana_value"]), is_land=group == "Land"
-        )
-
-    weighted = [key for key in strength.LAYER_KEYS if resolved.layer_weights[key] > 0]
-    if weighted:
-        layer_result = strength_view._layer_result(
-            store, raw_cards, display, claims, unranked, per_card, resolved.pod_size
-        )
-        for card_id, found in layers.index_observations(layer_result, weighted).items():
-            per_card[card_id].update(found)
-        for key in weighted:
-            if any(item[key]["status"] == layers.OK for item in layer_result["cards"].values()):
-                collected.add(strength.layer_component(key))
-
-    others = strength_view._other_commander_names(store, commander)
-    tier_unranked = dict(unranked)
-    for card in raw_cards:
-        card_id = str(card["card_id"])
-        if card_id not in tier_unranked and str(card["name"]).casefold() in others:
-            tier_unranked[card_id] = strength.NOT_RANKED_OTHER_COMMANDER
-
-    context = PoolContext(
-        type_group,
-        bands,
-        tier_unranked,
-        filter_cards,
-        universe_minimum,
-        function_group=strength_view._function_groups(store, raw_cards),
+    prepared = strength_view.prepare(
+        store, commander, resolved, dangling_universe_ok=True, with_layers=False
     )
-
-    if DECK_UNIVERSE in collected and choice["kind"] in (
+    ids = prepared.ids
+    display = prepared.display
+    per_card = prepared.per_card
+    if DECK_UNIVERSE in prepared.collected and prepared.choice["kind"] in (
         universe_choice.KIND_LOCAL,
         universe_choice.KIND_COUNTED,
     ):
@@ -632,20 +782,36 @@ def run_ranking_check(
             for card_id, per in per_card.items()
             if (obs := per.get(DECK_UNIVERSE)) is not None
         }
-        counted_label = choice["label"]
+        counted_label = prepared.choice["label"]
     else:
         counted_lists, counted_label = _reference_counted_lists(store, commander, ids, display)
 
+    counter_shares: dict[str, tuple[str, Mapping[str, Observation]]] = {}
+    if prepared.corpus_counts is not None:
+        group = prepared.corpus_counts.groups[corpus_signals.KEY_TOURNAMENT]
+        if group.denominator > 0:
+            counter_shares["bracket_5"] = (
+                f"Korpus {group.label} (Anteil, Nenner {group.denominator})",
+                {
+                    card_id: Observation(hits / group.denominator, hits, group.denominator)
+                    for card_id, hits in group.hits.items()
+                },
+            )
+    if prepared.edhtop16:
+        counter_shares["edhtop16"] = ("EDHTop16-Spielrate", prepared.edhtop16)
+
     return check_ranking(
-        resolved,
+        prepared.effective,
         per_card,
-        collected,
+        prepared.collected,
         names=display,
-        context=context,
+        context=prepared.context,
         counted_lists=counted_lists,
         counted_lists_label=counted_label,
         commander=commander,
         profile_or_preset=label,
+        counter_shares=counter_shares,
+        weight_rule=prepared.weight_rule,
     )
 
 
@@ -768,7 +934,119 @@ def render_ranking_check(report: RankingCheckReport) -> str:
             f"   Größter Einzel-Einfluss: {largest['label']} ({largest['component']}) — "
             f"{largest['tier_changes']} / {largest['of_pool']} Karten wechseln die Stufe"
         )
+    lines.extend(_extra_lines(report))
     return "\n".join(lines)
+
+
+def _entry_text(entry: CorrelationEntry) -> str:
+    return f"{_fmt_rho(entry['spearman_rho'])} ({entry['compared']} / {entry['of_ranked']})"
+
+
+def _extra_lines(report: RankingCheckReport) -> list[str]:
+    """Sections 7 to 9 of #1364 and the rule and prior block."""
+    lines: list[str] = ["", "7. Gegenproben (Spearman des Index gegen überlappende Referenzen):"]
+    if report["counter_checks"]:
+        lines.append(f"   Hinweis: {COUNTER_NOTE}")
+        lines.append(
+            _table(
+                ["Referenz", "Nenner", "Alle", "Zauber", "Länder"],
+                [
+                    (
+                        item["label"],
+                        "unbekannt" if item["denominator"] is None else item["denominator"],
+                        _entry_text(item["all_ranked"]),
+                        _entry_text(item["non_lands"]),
+                        _entry_text(item["lands"]),
+                    )
+                    for item in report["counter_checks"]
+                ]
+                + [
+                    (
+                        f"{item['key']}, ohne Überlappung",
+                        "",
+                        _entry_text(held["all_ranked"]),
+                        _entry_text(held["non_lands"]),
+                        _entry_text(held["lands"]),
+                    )
+                    for item in report["counter_checks"]
+                    if (held := item["held_out"]) is not None
+                ],
+            )
+        )
+        lines += [
+            f"   ohne Überlappung ({item['key']}): Gewicht 0 für " + ", ".join(held["zeroed"])
+            for item in report["counter_checks"]
+            if (held := item["held_out"]) is not None
+        ]
+    else:
+        lines.append("   keine Referenz vorhanden (kein Korpus, keine EDHTop16-Zeilen)")
+    redundancy = report["redundancy"]
+    lines += ["", f"8. Redundanz (r > {redundancy['threshold']:.2f} zwischen aktiven Komponenten):"]
+    lines.append(f"   Hinweis: {redundancy['note']}")
+    if redundancy["pairs"]:
+        lines.append(
+            _table(
+                ["Komponente A", "Komponente B", "Spearman", "Karten", "Befund"],
+                [
+                    (
+                        pair["a"],
+                        pair["b"],
+                        _fmt_rho(pair["spearman_rho"]),
+                        pair["compared"],
+                        "REDUNDANT" if pair["flagged"] else "",
+                    )
+                    for pair in redundancy["pairs"]
+                ],
+            )
+        )
+    lines.append(
+        "   Redundant: "
+        + (
+            ", ".join(f"{pair['a']} / {pair['b']}" for pair in redundancy["flagged"])
+            if redundancy["flagged"]
+            else "kein Paar"
+        )
+    )
+    lines += ["", "9. Sensitivität der Log-Skala (Krümmung k):"]
+    sensitivity = report["sensitivity"]
+    if sensitivity is None:
+        lines.append("   nicht berechnet (die Anteils-Skala ist nicht „Logarithmus“)")
+    else:
+        lines.append(f"   Hinweis: {sensitivity['note']}")
+        lines.append(
+            _table(
+                ["k", *ALL_TIERS, "Wechsel gegen k=150", "Spearman alle"],
+                [
+                    (
+                        f"{run['k']:g}",
+                        *(run["tier_counts"][tier] for tier in ALL_TIERS),
+                        run["tier_changes_vs_base"],
+                        _fmt_rho(run["spearman_all_ranked"]),
+                    )
+                    for run in sensitivity["runs"]
+                ],
+            )
+        )
+    rule = report["weight_rule"]
+    if rule is not None:
+        lines += ["", f"Gewichtsregel E2.a: {rule['rule']} — {rule['note']}"]
+        lines.append(
+            "   Gewichte (verlangt -> wirksam): "
+            + ", ".join(
+                f"{name} {rule['requested'][name]:g} -> {rule['effective'][name]:g}"
+                for name in rule["requested"]
+            )
+        )
+    if report["shrinkage"]:
+        lines.append("")
+        lines.append("Empirisches Bayes (Anteile mit Nenner unter 500, Prior aus dem Pool):")
+        for component, prior in report["shrinkage"].items():
+            if isinstance(prior, dict):
+                lines.append(
+                    f"   {component}: Prior-Mittel {prior['prior_mean']}, "
+                    f"Prior-Stärke {prior['prior_strength']} ({prior['cards']} Karten)"
+                )
+    return lines
 
 
 def run_command(args: argparse.Namespace) -> int:
