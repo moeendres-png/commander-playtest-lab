@@ -1,0 +1,194 @@
+{
+ "urlhash": "6X6VoTi2mkZReWlJ8oUj5Q",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-01-25",
+ "price": 2088,
+ "salt": 81.46290576597676,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/o8stKif4PUqnA91T8YMEdQ?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Birds of Paradise",
+   "quantity": 1
+  },
+  {
+   "name": "Lotus Cobra",
+   "quantity": 1
+  },
+  {
+   "name": "Shrieking Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Enlightened Tutor",
+   "quantity": 1
+  },
+  {
+   "name": "Noxious Revival",
+   "quantity": 1
+  },
+  {
+   "name": "Finale of Devastation",
+   "quantity": 1
+  },
+  {
+   "name": "Gitaxian Probe",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Intruder Alarm",
+   "quantity": 1
+  },
+  {
+   "name": "Mystic Remora",
+   "quantity": 1
+  },
+  {
+   "name": "Rhystic Study",
+   "quantity": 1
+  },
+  {
+   "name": "Adarkar Wastes",
+   "quantity": 1
+  },
+  {
+   "name": "Branchloft Pathway",
+   "quantity": 1
+  },
+  {
+   "name": "Breeding Pool",
+   "quantity": 1
+  },
+  {
+   "name": "City of Brass",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Deserted Beach",
+   "quantity": 1
+  },
+  {
+   "name": "Dreamroot Cascade",
+   "quantity": 1
+  },
+  {
+   "name": "Exotic Orchard",
+   "quantity": 1
+  },
+  {
+   "name": "Fabled Passage",
+   "quantity": 1
+  },
+  {
+   "name": "Flooded Strand",
+   "quantity": 1
+  },
+  {
+   "name": "Glacial Fortress",
+   "quantity": 1
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1
+  },
+  {
+   "name": "Hengegate Pathway",
+   "quantity": 1
+  },
+  {
+   "name": "Hinterland Harbor",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 57
+  },
+  {
+   "name": "Mana Confluence",
+   "quantity": 1
+  },
+  {
+   "name": "Misty Rainforest",
+   "quantity": 1
+  },
+  {
+   "name": "Mystic Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Otawara, Soaring City",
+   "quantity": 1
+  },
+  {
+   "name": "Polluted Delta",
+   "quantity": 1
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1
+  },
+  {
+   "name": "Prismatic Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Reflecting Pool",
+   "quantity": 1
+  },
+  {
+   "name": "Rejuvenating Springs",
+   "quantity": 1
+  },
+  {
+   "name": "Scalding Tarn",
+   "quantity": 1
+  },
+  {
+   "name": "Sea of Clouds",
+   "quantity": 1
+  },
+  {
+   "name": "Seat of the Synod",
+   "quantity": 1
+  },
+  {
+   "name": "Tropical Island",
+   "quantity": 1
+  },
+  {
+   "name": "Tundra",
+   "quantity": 1
+  },
+  {
+   "name": "Waterlogged Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Windswept Heath",
+   "quantity": 1
+  },
+  {
+   "name": "Yavimaya Coast",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

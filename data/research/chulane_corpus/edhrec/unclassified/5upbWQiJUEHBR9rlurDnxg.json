@@ -1,0 +1,334 @@
+{
+ "urlhash": "5upbWQiJUEHBR9rlurDnxg",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-12-23",
+ "price": 174,
+ "salt": 49.28337896242738,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/18369276?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Alandra, Sky Dreamer",
+   "quantity": 1
+  },
+  {
+   "name": "Arboreal Grazer",
+   "quantity": 1
+  },
+  {
+   "name": "Arcus Acolyte",
+   "quantity": 1
+  },
+  {
+   "name": "Arwen, Mortal Queen",
+   "quantity": 1
+  },
+  {
+   "name": "Banisher Priest",
+   "quantity": 1
+  },
+  {
+   "name": "Beast Whisperer",
+   "quantity": 1
+  },
+  {
+   "name": "Burnished Hart",
+   "quantity": 1
+  },
+  {
+   "name": "Cloud of Faeries",
+   "quantity": 1
+  },
+  {
+   "name": "Disciple of Freyalise",
+   "quantity": 1
+  },
+  {
+   "name": "Genku, Future Shaper",
+   "quantity": 1
+  },
+  {
+   "name": "Ghalta, Primal Hunger",
+   "quantity": 1
+  },
+  {
+   "name": "Gold-Forged Thopteryx",
+   "quantity": 1
+  },
+  {
+   "name": "Goreclaw, Terror of Qal Sisma",
+   "quantity": 1
+  },
+  {
+   "name": "Gregor, Shrewd Magistrate",
+   "quantity": 1
+  },
+  {
+   "name": "Hornet Queen",
+   "quantity": 1
+  },
+  {
+   "name": "Hullbreaker Horror",
+   "quantity": 1
+  },
+  {
+   "name": "Kodama of the East Tree",
+   "quantity": 1
+  },
+  {
+   "name": "Kwain, Itinerant Meddler",
+   "quantity": 1
+  },
+  {
+   "name": "Lonis, Cryptozoologist",
+   "quantity": 1
+  },
+  {
+   "name": "Loyal Guardian",
+   "quantity": 1
+  },
+  {
+   "name": "Mischievous Pup",
+   "quantity": 1
+  },
+  {
+   "name": "Mr. Foxglove",
+   "quantity": 1
+  },
+  {
+   "name": "Neverwinter Dryad",
+   "quantity": 1
+  },
+  {
+   "name": "Nightshade Dryad",
+   "quantity": 1
+  },
+  {
+   "name": "Ohran Frostfang",
+   "quantity": 1
+  },
+  {
+   "name": "Peregrine Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Phytohydra",
+   "quantity": 1
+  },
+  {
+   "name": "Poison Dart Frog",
+   "quantity": 1
+  },
+  {
+   "name": "Prince Imrahil the Fair",
+   "quantity": 1
+  },
+  {
+   "name": "Rampaging Baloths",
+   "quantity": 1
+  },
+  {
+   "name": "Sage of the Skies",
+   "quantity": 1
+  },
+  {
+   "name": "Scute Swarm",
+   "quantity": 1
+  },
+  {
+   "name": "Shire Shirriff",
+   "quantity": 1
+  },
+  {
+   "name": "Shrieking Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Sun Quan, Lord of Wu",
+   "quantity": 1
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1
+  },
+  {
+   "name": "The Council of Four",
+   "quantity": 1
+  },
+  {
+   "name": "The Tarrasque",
+   "quantity": 1
+  },
+  {
+   "name": "Tithe Taker",
+   "quantity": 1
+  },
+  {
+   "name": "Vigor",
+   "quantity": 1
+  },
+  {
+   "name": "Wavesifter",
+   "quantity": 1
+  },
+  {
+   "name": "Whitemane Lion",
+   "quantity": 1
+  },
+  {
+   "name": "Arachnogenesis",
+   "quantity": 1
+  },
+  {
+   "name": "Biomass Mutation",
+   "quantity": 1
+  },
+  {
+   "name": "Filter Out",
+   "quantity": 1
+  },
+  {
+   "name": "Generous Gift",
+   "quantity": 1
+  },
+  {
+   "name": "Ghostly Flicker",
+   "quantity": 1
+  },
+  {
+   "name": "Lightfoot Technique",
+   "quantity": 1
+  },
+  {
+   "name": "Mutational Advantage",
+   "quantity": 1
+  },
+  {
+   "name": "Ojutai's Command",
+   "quantity": 1
+  },
+  {
+   "name": "Path to Exile",
+   "quantity": 1
+  },
+  {
+   "name": "Repudiate // Replicate",
+   "quantity": 1
+  },
+  {
+   "name": "Repulsive Mutation",
+   "quantity": 1
+  },
+  {
+   "name": "Snakeskin Veil",
+   "quantity": 1
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1
+  },
+  {
+   "name": "Voidslime",
+   "quantity": 1
+  },
+  {
+   "name": "Adventurous Impulse",
+   "quantity": 1
+  },
+  {
+   "name": "Cultivate",
+   "quantity": 1
+  },
+  {
+   "name": "Kodama's Reach",
+   "quantity": 1
+  },
+  {
+   "name": "Rampant Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Jugan Defends the Temple",
+   "quantity": 1
+  },
+  {
+   "name": "Roaring Earth",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 9
+  },
+  {
+   "name": "Island",
+   "quantity": 7
+  },
+  {
+   "name": "Path of Ancestry",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 8
+  },
+  {
+   "name": "Razorverge Thicket",
+   "quantity": 1
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Skycloud Expanse",
+   "quantity": 1
+  },
+  {
+   "name": "Sunpetal Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Tanglepool Bridge",
+   "quantity": 1
+  },
+  {
+   "name": "Terramorphic Expanse",
+   "quantity": 1
+  },
+  {
+   "name": "Thornwood Falls",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Cove",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Landscape",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

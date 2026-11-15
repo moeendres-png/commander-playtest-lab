@@ -1,0 +1,286 @@
+{
+ "urlhash": "6bvKyYKGYfy7jUblQim2Lg",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-05-16",
+ "price": 259,
+ "salt": 49.185631554573774,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/4TaY0m29wkaXgoJUett-nQ?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Adipose Offspring",
+   "quantity": 1
+  },
+  {
+   "name": "Affectionate Indrik",
+   "quantity": 1
+  },
+  {
+   "name": "Alms Collector",
+   "quantity": 1
+  },
+  {
+   "name": "Aquatic Alchemist",
+   "quantity": 1
+  },
+  {
+   "name": "Brave-Kin Duo",
+   "quantity": 1
+  },
+  {
+   "name": "Burnished Hart",
+   "quantity": 1
+  },
+  {
+   "name": "Canyon Jerboa",
+   "quantity": 1
+  },
+  {
+   "name": "Cheeky House-Mouse",
+   "quantity": 1
+  },
+  {
+   "name": "Chomping Changeling",
+   "quantity": 1
+  },
+  {
+   "name": "Crested Sunmare",
+   "quantity": 1
+  },
+  {
+   "name": "Displacer Kitten",
+   "quantity": 1
+  },
+  {
+   "name": "Elusive Otter",
+   "quantity": 1
+  },
+  {
+   "name": "Enduring Curiosity",
+   "quantity": 1
+  },
+  {
+   "name": "Enduring Innocence",
+   "quantity": 1
+  },
+  {
+   "name": "Enduring Vitality",
+   "quantity": 1
+  },
+  {
+   "name": "Farfinder",
+   "quantity": 1
+  },
+  {
+   "name": "Felidar Sovereign",
+   "quantity": 1
+  },
+  {
+   "name": "Flourishing Fox",
+   "quantity": 1
+  },
+  {
+   "name": "Flutterfox",
+   "quantity": 1
+  },
+  {
+   "name": "Generous Pup",
+   "quantity": 1
+  },
+  {
+   "name": "Generous Stray",
+   "quantity": 1
+  },
+  {
+   "name": "Helpful Hunter",
+   "quantity": 1
+  },
+  {
+   "name": "Koala-Sheep",
+   "quantity": 1
+  },
+  {
+   "name": "Leonin Warleader",
+   "quantity": 1
+  },
+  {
+   "name": "Mirri, Weatherlight Duelist",
+   "quantity": 1
+  },
+  {
+   "name": "Mutable Explorer",
+   "quantity": 1
+  },
+  {
+   "name": "Noxious Newt",
+   "quantity": 1
+  },
+  {
+   "name": "Phelia, Exuberant Shepherd",
+   "quantity": 1
+  },
+  {
+   "name": "Poison Dart Frog",
+   "quantity": 1
+  },
+  {
+   "name": "Rambunctious Mutt",
+   "quantity": 1
+  },
+  {
+   "name": "Regal Bunnicorn",
+   "quantity": 1
+  },
+  {
+   "name": "Regal Caracal",
+   "quantity": 1
+  },
+  {
+   "name": "Spirited Companion",
+   "quantity": 1
+  },
+  {
+   "name": "Studious First-Year",
+   "quantity": 1
+  },
+  {
+   "name": "Tangled Florahedron",
+   "quantity": 1
+  },
+  {
+   "name": "Tender Wildguide",
+   "quantity": 1
+  },
+  {
+   "name": "Thieving Otter",
+   "quantity": 1
+  },
+  {
+   "name": "Trufflesnout",
+   "quantity": 1
+  },
+  {
+   "name": "An Offer You Can't Refuse",
+   "quantity": 1
+  },
+  {
+   "name": "Crib Swap",
+   "quantity": 1
+  },
+  {
+   "name": "Diminish",
+   "quantity": 1
+  },
+  {
+   "name": "Fleeting Reflection",
+   "quantity": 1
+  },
+  {
+   "name": "Generous Gift",
+   "quantity": 1
+  },
+  {
+   "name": "Pawpatch Formation",
+   "quantity": 1
+  },
+  {
+   "name": "Repopulate",
+   "quantity": 1
+  },
+  {
+   "name": "Run Away Together",
+   "quantity": 1
+  },
+  {
+   "name": "Unexpected Assistance",
+   "quantity": 1
+  },
+  {
+   "name": "Cultural Exchange",
+   "quantity": 1
+  },
+  {
+   "name": "Fade from History",
+   "quantity": 1
+  },
+  {
+   "name": "Farseek",
+   "quantity": 1
+  },
+  {
+   "name": "Tempt with Bunnies",
+   "quantity": 1
+  },
+  {
+   "name": "Esika's Chariot",
+   "quantity": 1
+  },
+  {
+   "name": "Heirloom Epic",
+   "quantity": 1
+  },
+  {
+   "name": "Abundant Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Aether Barrier",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Flight",
+   "quantity": 1
+  },
+  {
+   "name": "Communal Brewing",
+   "quantity": 1
+  },
+  {
+   "name": "Curiosity",
+   "quantity": 1
+  },
+  {
+   "name": "Descendants' Path",
+   "quantity": 1
+  },
+  {
+   "name": "Doubling Season",
+   "quantity": 1
+  },
+  {
+   "name": "Food Coma",
+   "quantity": 1
+  },
+  {
+   "name": "Kitnap",
+   "quantity": 1
+  },
+  {
+   "name": "Animal Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 12
+  },
+  {
+   "name": "Island",
+   "quantity": 12
+  },
+  {
+   "name": "Plains",
+   "quantity": 12
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

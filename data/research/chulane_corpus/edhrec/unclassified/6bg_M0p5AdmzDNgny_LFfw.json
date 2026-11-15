@@ -1,0 +1,286 @@
+{
+ "urlhash": "6bg_M0p5AdmzDNgny_LFfw",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-05-08",
+ "price": 694,
+ "salt": 66.22643961478025,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/S84hjA4WFky-Mkl3guW3nQ?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Birds of Paradise",
+   "quantity": 1
+  },
+  {
+   "name": "Bruvac the Grandiloquent",
+   "quantity": 1
+  },
+  {
+   "name": "Drumbellower",
+   "quantity": 1
+  },
+  {
+   "name": "Dune Chanter",
+   "quantity": 1
+  },
+  {
+   "name": "Enduring Vitality",
+   "quantity": 1
+  },
+  {
+   "name": "Hedron Crab",
+   "quantity": 1
+  },
+  {
+   "name": "Katilda, Dawnhart Prime",
+   "quantity": 1
+  },
+  {
+   "name": "Lotus Cobra",
+   "quantity": 1
+  },
+  {
+   "name": "Persistent Petitioners",
+   "quantity": 24
+  },
+  {
+   "name": "Realmwalker",
+   "quantity": 1
+  },
+  {
+   "name": "Ruin Crab",
+   "quantity": 1
+  },
+  {
+   "name": "Seedborn Muse",
+   "quantity": 1
+  },
+  {
+   "name": "Unsettled Mariner",
+   "quantity": 1
+  },
+  {
+   "name": "Enlightened Tutor",
+   "quantity": 1
+  },
+  {
+   "name": "Muddle the Mixture",
+   "quantity": 1
+  },
+  {
+   "name": "Mystical Tutor",
+   "quantity": 1
+  },
+  {
+   "name": "To Arms!",
+   "quantity": 1
+  },
+  {
+   "name": "Vitalize",
+   "quantity": 1
+  },
+  {
+   "name": "Worldly Tutor",
+   "quantity": 1
+  },
+  {
+   "name": "Fabricate",
+   "quantity": 1
+  },
+  {
+   "name": "Maddening Cacophony",
+   "quantity": 1
+  },
+  {
+   "name": "March from Velis Vel",
+   "quantity": 1
+  },
+  {
+   "name": "Mobilize",
+   "quantity": 1
+  },
+  {
+   "name": "Solve the Equation",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Lotus Petal",
+   "quantity": 1
+  },
+  {
+   "name": "Sapphire Medallion",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Thrumming Stone",
+   "quantity": 1
+  },
+  {
+   "name": "Awakening",
+   "quantity": 1
+  },
+  {
+   "name": "Cryptolith Rite",
+   "quantity": 1
+  },
+  {
+   "name": "Intruder Alarm",
+   "quantity": 1
+  },
+  {
+   "name": "Propaganda",
+   "quantity": 1
+  },
+  {
+   "name": "Psychic Corrosion",
+   "quantity": 1
+  },
+  {
+   "name": "Telepathy",
+   "quantity": 1
+  },
+  {
+   "name": "Adarkar Wastes",
+   "quantity": 1
+  },
+  {
+   "name": "Ancient Tomb",
+   "quantity": 1
+  },
+  {
+   "name": "Arid Archway",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Chancery",
+   "quantity": 1
+  },
+  {
+   "name": "Breeding Pool",
+   "quantity": 1
+  },
+  {
+   "name": "Brushland",
+   "quantity": 1
+  },
+  {
+   "name": "Conduit Pylons",
+   "quantity": 1
+  },
+  {
+   "name": "Creosote Heath",
+   "quantity": 1
+  },
+  {
+   "name": "Desert of the Indomitable",
+   "quantity": 1
+  },
+  {
+   "name": "Desert of the Mindful",
+   "quantity": 1
+  },
+  {
+   "name": "Desert of the True",
+   "quantity": 1
+  },
+  {
+   "name": "Flooded Strand",
+   "quantity": 1
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1
+  },
+  {
+   "name": "Hashep Oasis",
+   "quantity": 1
+  },
+  {
+   "name": "Ipnu Rivulet",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 11
+  },
+  {
+   "name": "Lonely Arroyo",
+   "quantity": 1
+  },
+  {
+   "name": "Lush Oasis",
+   "quantity": 1
+  },
+  {
+   "name": "Mirage Mesa",
+   "quantity": 1
+  },
+  {
+   "name": "Misty Rainforest",
+   "quantity": 1
+  },
+  {
+   "name": "Scavenger Grounds",
+   "quantity": 1
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Shefet Dunes",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Growth Chamber",
+   "quantity": 1
+  },
+  {
+   "name": "Spara's Headquarters",
+   "quantity": 1
+  },
+  {
+   "name": "Survivors' Encampment",
+   "quantity": 1
+  },
+  {
+   "name": "Temple Garden",
+   "quantity": 1
+  },
+  {
+   "name": "Treva's Ruins",
+   "quantity": 1
+  },
+  {
+   "name": "Windswept Heath",
+   "quantity": 1
+  },
+  {
+   "name": "Yavimaya Coast",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

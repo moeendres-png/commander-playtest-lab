@@ -1,0 +1,366 @@
+{
+ "urlhash": "5uuroHhbB-3DRb2P05oNDw",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-11-11",
+ "price": 648,
+ "salt": 55.02534466423094,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/18775601?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Adept Watershaper",
+   "quantity": 1
+  },
+  {
+   "name": "Attuma, Atlantean Warlord",
+   "quantity": 1
+  },
+  {
+   "name": "Beast Whisperer",
+   "quantity": 1
+  },
+  {
+   "name": "Cold-Eyed Selkie",
+   "quantity": 1
+  },
+  {
+   "name": "Craterhoof Behemoth",
+   "quantity": 1
+  },
+  {
+   "name": "Deepchannel Duelist",
+   "quantity": 1
+  },
+  {
+   "name": "Deeproot Elite",
+   "quantity": 1
+  },
+  {
+   "name": "Deeproot Historian",
+   "quantity": 1
+  },
+  {
+   "name": "Disruptor of Currents",
+   "quantity": 1
+  },
+  {
+   "name": "Emperor Mihail II",
+   "quantity": 1
+  },
+  {
+   "name": "Forerunner of the Heralds",
+   "quantity": 1
+  },
+  {
+   "name": "Hakbal of the Surging Soul",
+   "quantity": 1
+  },
+  {
+   "name": "Herald of Secret Streams",
+   "quantity": 1
+  },
+  {
+   "name": "Judge of Currents",
+   "quantity": 1
+  },
+  {
+   "name": "Kopala, Warden of Waves",
+   "quantity": 1
+  },
+  {
+   "name": "Kumena, Tyrant of Orazca",
+   "quantity": 1
+  },
+  {
+   "name": "Lord of Atlantis",
+   "quantity": 1
+  },
+  {
+   "name": "Master of the Pearl Trident",
+   "quantity": 1
+  },
+  {
+   "name": "Merfolk Mistbinder",
+   "quantity": 1
+  },
+  {
+   "name": "Merfolk Sovereign",
+   "quantity": 1
+  },
+  {
+   "name": "Merrow Reejerey",
+   "quantity": 1
+  },
+  {
+   "name": "Roaming Throne",
+   "quantity": 1
+  },
+  {
+   "name": "Seafloor Oracle",
+   "quantity": 1
+  },
+  {
+   "name": "Seahunter",
+   "quantity": 1
+  },
+  {
+   "name": "Singer of Swift Rivers",
+   "quantity": 1
+  },
+  {
+   "name": "Stonybrook Banneret",
+   "quantity": 1
+  },
+  {
+   "name": "Svyelun of Sea and Sky",
+   "quantity": 1
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Tishana's Tidebinder",
+   "quantity": 1
+  },
+  {
+   "name": "Tishana, Voice of Thunder",
+   "quantity": 1
+  },
+  {
+   "name": "Unsettled Mariner",
+   "quantity": 1
+  },
+  {
+   "name": "Vodalian Hexcatcher",
+   "quantity": 1
+  },
+  {
+   "name": "Vodalian Wave-Knight",
+   "quantity": 1
+  },
+  {
+   "name": "Akroma's Will",
+   "quantity": 1
+  },
+  {
+   "name": "An Offer You Can't Refuse",
+   "quantity": 1
+  },
+  {
+   "name": "Beast Within",
+   "quantity": 1
+  },
+  {
+   "name": "Chord of Calling",
+   "quantity": 1
+  },
+  {
+   "name": "Clever Concealment",
+   "quantity": 1
+  },
+  {
+   "name": "Generous Gift",
+   "quantity": 1
+  },
+  {
+   "name": "Harmonized Crescendo",
+   "quantity": 1
+  },
+  {
+   "name": "Heroic Intervention",
+   "quantity": 1
+  },
+  {
+   "name": "Path to Exile",
+   "quantity": 1
+  },
+  {
+   "name": "Swan Song",
+   "quantity": 1
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1
+  },
+  {
+   "name": "Farseek",
+   "quantity": 1
+  },
+  {
+   "name": "Kodama's Reach",
+   "quantity": 1
+  },
+  {
+   "name": "Nature's Lore",
+   "quantity": 1
+  },
+  {
+   "name": "Rampant Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Supreme Verdict",
+   "quantity": 1
+  },
+  {
+   "name": "Sygg's Command",
+   "quantity": 1
+  },
+  {
+   "name": "Three Visits",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Bident of Thassa",
+   "quantity": 1
+  },
+  {
+   "name": "Chronicle of Victory",
+   "quantity": 1
+  },
+  {
+   "name": "Fellwar Stone",
+   "quantity": 1
+  },
+  {
+   "name": "Lightning Greaves",
+   "quantity": 1
+  },
+  {
+   "name": "Patchwork Banner",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Deeproot Pilgrimage",
+   "quantity": 1
+  },
+  {
+   "name": "Deeproot Waters",
+   "quantity": 1
+  },
+  {
+   "name": "Growing Rites of Itlimoc",
+   "quantity": 1
+  },
+  {
+   "name": "Kindred Discovery",
+   "quantity": 1
+  },
+  {
+   "name": "Mirari's Wake",
+   "quantity": 1
+  },
+  {
+   "name": "Reflections of Littjara",
+   "quantity": 1
+  },
+  {
+   "name": "Breeding Pool",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Cavern of Souls",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Exotic Orchard",
+   "quantity": 1
+  },
+  {
+   "name": "Flooded Strand",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 5
+  },
+  {
+   "name": "Glacial Fortress",
+   "quantity": 1
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 10
+  },
+  {
+   "name": "Misty Rainforest",
+   "quantity": 1
+  },
+  {
+   "name": "Nykthos, Shrine to Nyx",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 1
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Sea of Clouds",
+   "quantity": 1
+  },
+  {
+   "name": "Sunpetal Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Temple Garden",
+   "quantity": 1
+  },
+  {
+   "name": "Three Tree City",
+   "quantity": 1
+  },
+  {
+   "name": "Unclaimed Territory",
+   "quantity": 1
+  },
+  {
+   "name": "Wanderwine Hub",
+   "quantity": 1
+  },
+  {
+   "name": "Windswept Heath",
+   "quantity": 1
+  },
+  {
+   "name": "Yavimaya Coast",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

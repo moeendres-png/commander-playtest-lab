@@ -1,0 +1,358 @@
+{
+ "urlhash": "5ymNXSXrOMsExktFN9BBWA",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-04-13",
+ "price": 134,
+ "salt": 38.163502633571625,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/19613030?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Arcanist's Owl",
+   "quantity": 1
+  },
+  {
+   "name": "Brine Giant",
+   "quantity": 1
+  },
+  {
+   "name": "Callaphe, Beloved of the Sea",
+   "quantity": 1
+  },
+  {
+   "name": "Daxos, Blessed by the Sun",
+   "quantity": 1
+  },
+  {
+   "name": "Destiny Spinner",
+   "quantity": 1
+  },
+  {
+   "name": "Dovin's Automaton",
+   "quantity": 1
+  },
+  {
+   "name": "Eidolon of Obstruction",
+   "quantity": 1
+  },
+  {
+   "name": "Eutropia the Twice-Favored",
+   "quantity": 1
+  },
+  {
+   "name": "Herald of the Pantheon",
+   "quantity": 1
+  },
+  {
+   "name": "Humbler of Mortals",
+   "quantity": 1
+  },
+  {
+   "name": "Lagonna-Band Storyteller",
+   "quantity": 1
+  },
+  {
+   "name": "Master of the Wild Hunt",
+   "quantity": 1
+  },
+  {
+   "name": "Nessian Wanderer",
+   "quantity": 1
+  },
+  {
+   "name": "Nexus Wardens",
+   "quantity": 1
+  },
+  {
+   "name": "Nylea, Keen-Eyed",
+   "quantity": 1
+  },
+  {
+   "name": "Nyx-Fleece Ram",
+   "quantity": 1
+  },
+  {
+   "name": "Parcelbeast",
+   "quantity": 1
+  },
+  {
+   "name": "Sage of Mysteries",
+   "quantity": 1
+  },
+  {
+   "name": "Sakura-Tribe Scout",
+   "quantity": 1
+  },
+  {
+   "name": "Salvager of Ruin",
+   "quantity": 1
+  },
+  {
+   "name": "Setessan Champion",
+   "quantity": 1
+  },
+  {
+   "name": "Transcendent Envoy",
+   "quantity": 1
+  },
+  {
+   "name": "Aethertow",
+   "quantity": 1
+  },
+  {
+   "name": "Dovin's Dismissal",
+   "quantity": 1
+  },
+  {
+   "name": "Dovin's Veto",
+   "quantity": 1
+  },
+  {
+   "name": "Growth Spiral",
+   "quantity": 1
+  },
+  {
+   "name": "Immolating Glare",
+   "quantity": 1
+  },
+  {
+   "name": "Inspire Awe",
+   "quantity": 1
+  },
+  {
+   "name": "Mending Touch",
+   "quantity": 1
+  },
+  {
+   "name": "Naturalize",
+   "quantity": 1
+  },
+  {
+   "name": "Predator's Rapport",
+   "quantity": 1
+  },
+  {
+   "name": "Return to Nature",
+   "quantity": 1
+  },
+  {
+   "name": "Unbreakable Formation",
+   "quantity": 1
+  },
+  {
+   "name": "War Report",
+   "quantity": 1
+  },
+  {
+   "name": "Bond of Discipline",
+   "quantity": 1
+  },
+  {
+   "name": "Circuitous Route",
+   "quantity": 1
+  },
+  {
+   "name": "Flower // Flourish",
+   "quantity": 1
+  },
+  {
+   "name": "Migration Path",
+   "quantity": 1
+  },
+  {
+   "name": "Nylea's Intervention",
+   "quantity": 1
+  },
+  {
+   "name": "Search Warrant",
+   "quantity": 1
+  },
+  {
+   "name": "Serene Remembrance",
+   "quantity": 1
+  },
+  {
+   "name": "Take Vengeance",
+   "quantity": 1
+  },
+  {
+   "name": "Time Wipe",
+   "quantity": 1
+  },
+  {
+   "name": "Animation Module",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Mana Geode",
+   "quantity": 1
+  },
+  {
+   "name": "Mirror Shield",
+   "quantity": 1
+  },
+  {
+   "name": "All That Glitters",
+   "quantity": 1
+  },
+  {
+   "name": "Armament of Nyx",
+   "quantity": 1
+  },
+  {
+   "name": "Bonds of Mortality",
+   "quantity": 1
+  },
+  {
+   "name": "Cathars' Crusade",
+   "quantity": 1
+  },
+  {
+   "name": "Colossification",
+   "quantity": 1
+  },
+  {
+   "name": "Cryptolith Rite",
+   "quantity": 1
+  },
+  {
+   "name": "Dreadful Apathy",
+   "quantity": 1
+  },
+  {
+   "name": "Favor of the Woods",
+   "quantity": 1
+  },
+  {
+   "name": "Forced Adaptation",
+   "quantity": 1
+  },
+  {
+   "name": "Frogify",
+   "quantity": 1
+  },
+  {
+   "name": "Glaring Aegis",
+   "quantity": 1
+  },
+  {
+   "name": "Hydra's Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Mantle of the Wolf",
+   "quantity": 1
+  },
+  {
+   "name": "Nylea's Presence",
+   "quantity": 1
+  },
+  {
+   "name": "Oath of Nissa",
+   "quantity": 1
+  },
+  {
+   "name": "Sage's Reverie",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Ascendancy",
+   "quantity": 1
+  },
+  {
+   "name": "Skybind",
+   "quantity": 1
+  },
+  {
+   "name": "So Tiny",
+   "quantity": 1
+  },
+  {
+   "name": "Sphinx's Tutelage",
+   "quantity": 1
+  },
+  {
+   "name": "Staggering Insight",
+   "quantity": 1
+  },
+  {
+   "name": "Starfield of Nyx",
+   "quantity": 1
+  },
+  {
+   "name": "Verity Circle",
+   "quantity": 1
+  },
+  {
+   "name": "Calix, Destiny's Hand",
+   "quantity": 1
+  },
+  {
+   "name": "Dovin, Architect of Law",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Guildgate",
+   "quantity": 1
+  },
+  {
+   "name": "Blossoming Sands",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 6
+  },
+  {
+   "name": "Fortified Village",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 6
+  },
+  {
+   "name": "Plains",
+   "quantity": 6
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Guildgate",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Guildgate",
+   "quantity": 1
+  },
+  {
+   "name": "Thornwood Falls",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

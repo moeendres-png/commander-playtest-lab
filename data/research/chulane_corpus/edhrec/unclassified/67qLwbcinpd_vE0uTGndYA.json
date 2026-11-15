@@ -1,0 +1,381 @@
+{
+ "urlhash": "67qLwbcinpd_vE0uTGndYA",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-09-09",
+ "price": 304,
+ "salt": 45.275561364833266,
+ "tags": [
+  "Enchantress",
+  "Auras"
+ ],
+ "source_url": "https://archidekt.com/decks/21413702?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Acidic Slime",
+   "quantity": 1
+  },
+  {
+   "name": "Aegis of the Gods",
+   "quantity": 1
+  },
+  {
+   "name": "Amareth, the Lustrous",
+   "quantity": 1
+  },
+  {
+   "name": "Boon Satyr",
+   "quantity": 1
+  },
+  {
+   "name": "Callaphe, Beloved of the Sea",
+   "quantity": 1
+  },
+  {
+   "name": "Celestial Ancient",
+   "quantity": 1
+  },
+  {
+   "name": "Celestial Archon",
+   "quantity": 1
+  },
+  {
+   "name": "Colossal Skyturtle",
+   "quantity": 1
+  },
+  {
+   "name": "Courser of Kruphix",
+   "quantity": 1
+  },
+  {
+   "name": "Daxos, Blessed by the Sun",
+   "quantity": 1
+  },
+  {
+   "name": "Destiny Spinner",
+   "quantity": 1
+  },
+  {
+   "name": "District Guide",
+   "quantity": 1
+  },
+  {
+   "name": "Dream Trawler",
+   "quantity": 1
+  },
+  {
+   "name": "Dryad of the Ilysian Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Eidolon of Blossoms",
+   "quantity": 1
+  },
+  {
+   "name": "Eidolon of Countless Battles",
+   "quantity": 1
+  },
+  {
+   "name": "Eidolon of Obstruction",
+   "quantity": 1
+  },
+  {
+   "name": "End-Raze Forerunners",
+   "quantity": 1
+  },
+  {
+   "name": "Eternal Witness",
+   "quantity": 1
+  },
+  {
+   "name": "Heliod, Sun-Crowned",
+   "quantity": 1
+  },
+  {
+   "name": "Hypnotic Siren",
+   "quantity": 1
+  },
+  {
+   "name": "Karametra, God of Harvests",
+   "quantity": 1
+  },
+  {
+   "name": "Lagonna-Band Storyteller",
+   "quantity": 1
+  },
+  {
+   "name": "Leonin Relic-Warder",
+   "quantity": 1
+  },
+  {
+   "name": "Loaming Shaman",
+   "quantity": 1
+  },
+  {
+   "name": "Nylea's Forerunner",
+   "quantity": 1
+  },
+  {
+   "name": "Nylea, Keen-Eyed",
+   "quantity": 1
+  },
+  {
+   "name": "Nyxbloom Ancient",
+   "quantity": 1
+  },
+  {
+   "name": "Protean Thaumaturge",
+   "quantity": 1
+  },
+  {
+   "name": "Renata, Called to the Hunt",
+   "quantity": 1
+  },
+  {
+   "name": "Sanctum Weaver",
+   "quantity": 1
+  },
+  {
+   "name": "Setessan Champion",
+   "quantity": 1
+  },
+  {
+   "name": "Shimmerwing Chimera",
+   "quantity": 1
+  },
+  {
+   "name": "Silent Sentinel",
+   "quantity": 1
+  },
+  {
+   "name": "Starfield Mystic",
+   "quantity": 1
+  },
+  {
+   "name": "Steelbane Hydra",
+   "quantity": 1
+  },
+  {
+   "name": "Sumala Woodshaper",
+   "quantity": 1
+  },
+  {
+   "name": "Suture Priest",
+   "quantity": 1
+  },
+  {
+   "name": "Sythis, Harvest's Hand",
+   "quantity": 1
+  },
+  {
+   "name": "Thassa, Deep-Dwelling",
+   "quantity": 1
+  },
+  {
+   "name": "Thorn Mammoth",
+   "quantity": 1
+  },
+  {
+   "name": "Thragtusk",
+   "quantity": 1
+  },
+  {
+   "name": "Uro, Titan of Nature's Wrath",
+   "quantity": 1
+  },
+  {
+   "name": "Verduran Enchantress",
+   "quantity": 1
+  },
+  {
+   "name": "War Priest of Thune",
+   "quantity": 1
+  },
+  {
+   "name": "Baral's Expertise",
+   "quantity": 1
+  },
+  {
+   "name": "Idyllic Tutor",
+   "quantity": 1
+  },
+  {
+   "name": "Time Wipe",
+   "quantity": 1
+  },
+  {
+   "name": "Swiftfoot Boots",
+   "quantity": 1
+  },
+  {
+   "name": "Call for Unity",
+   "quantity": 1
+  },
+  {
+   "name": "Collective Restraint",
+   "quantity": 1
+  },
+  {
+   "name": "Freed from the Real",
+   "quantity": 1
+  },
+  {
+   "name": "Frogify",
+   "quantity": 1
+  },
+  {
+   "name": "Ghostly Prison",
+   "quantity": 1
+  },
+  {
+   "name": "Imprisoned in the Moon",
+   "quantity": 1
+  },
+  {
+   "name": "Mirrormade",
+   "quantity": 1
+  },
+  {
+   "name": "Propaganda",
+   "quantity": 1
+  },
+  {
+   "name": "Sigil of the Empty Throne",
+   "quantity": 1
+  },
+  {
+   "name": "Sphere of Safety",
+   "quantity": 1
+  },
+  {
+   "name": "Staggering Insight",
+   "quantity": 1
+  },
+  {
+   "name": "Sunken Hope",
+   "quantity": 1
+  },
+  {
+   "name": "Ajani, the Greathearted",
+   "quantity": 1
+  },
+  {
+   "name": "Calix, Destiny's Hand",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Chancery",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Guildgate",
+   "quantity": 1
+  },
+  {
+   "name": "Blossoming Sands",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Emergence Zone",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 4
+  },
+  {
+   "name": "Gateway Plaza",
+   "quantity": 1
+  },
+  {
+   "name": "Hall of Heliod's Generosity",
+   "quantity": 1
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 4
+  },
+  {
+   "name": "Plains",
+   "quantity": 5
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Guildgate",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Growth Chamber",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Guildgate",
+   "quantity": 1
+  },
+  {
+   "name": "Temple Garden",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Enlightenment",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Mystery",
+   "quantity": 1
+  },
+  {
+   "name": "Terramorphic Expanse",
+   "quantity": 1
+  },
+  {
+   "name": "Thespian's Stage",
+   "quantity": 1
+  },
+  {
+   "name": "Thornwood Falls",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Cove",
+   "quantity": 1
+  },
+  {
+   "name": "Urban Retreat",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

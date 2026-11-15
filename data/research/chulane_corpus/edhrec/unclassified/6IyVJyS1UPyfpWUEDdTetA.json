@@ -1,0 +1,354 @@
+{
+ "urlhash": "6IyVJyS1UPyfpWUEDdTetA",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-07-22",
+ "price": 649,
+ "salt": 52.2186142206192,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/14665338?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Abhorrent Oculus",
+   "quantity": 1
+  },
+  {
+   "name": "Ainok Survivalist",
+   "quantity": 1
+  },
+  {
+   "name": "Avacyn, Angel of Hope",
+   "quantity": 1
+  },
+  {
+   "name": "Beast Whisperer",
+   "quantity": 1
+  },
+  {
+   "name": "Blightsteel Colossus",
+   "quantity": 1
+  },
+  {
+   "name": "Brine Elemental",
+   "quantity": 1
+  },
+  {
+   "name": "Chromeshell Crab",
+   "quantity": 1
+  },
+  {
+   "name": "Daru Mender",
+   "quantity": 1
+  },
+  {
+   "name": "Deathmist Raptor",
+   "quantity": 1
+  },
+  {
+   "name": "Den Protector",
+   "quantity": 1
+  },
+  {
+   "name": "Eladamri, Korvecdal",
+   "quantity": 1
+  },
+  {
+   "name": "Essence of Antiquity",
+   "quantity": 1
+  },
+  {
+   "name": "Frontline Strategist",
+   "quantity": 1
+  },
+  {
+   "name": "Hauntwoods Shrieker",
+   "quantity": 1
+  },
+  {
+   "name": "Hidden Dragonslayer",
+   "quantity": 1
+  },
+  {
+   "name": "Ixidor, Reality Sculptor",
+   "quantity": 1
+  },
+  {
+   "name": "Ixidron",
+   "quantity": 1
+  },
+  {
+   "name": "Kadena's Silencer",
+   "quantity": 1
+  },
+  {
+   "name": "Kozilek, the Broken Reality",
+   "quantity": 1
+  },
+  {
+   "name": "Mischievous Quanar",
+   "quantity": 1
+  },
+  {
+   "name": "Nantuko Vigilante",
+   "quantity": 1
+  },
+  {
+   "name": "Nervous Gardener",
+   "quantity": 1
+  },
+  {
+   "name": "Oblivious Bookworm",
+   "quantity": 1
+  },
+  {
+   "name": "Primal Whisperer",
+   "quantity": 1
+  },
+  {
+   "name": "Printlifter Ooze",
+   "quantity": 1
+  },
+  {
+   "name": "Riptide Entrancer",
+   "quantity": 1
+  },
+  {
+   "name": "Seedborn Muse",
+   "quantity": 1
+  },
+  {
+   "name": "Stratus Dancer",
+   "quantity": 1
+  },
+  {
+   "name": "Unyielding Gatekeeper",
+   "quantity": 1
+  },
+  {
+   "name": "Vannifar, Evolved Enigma",
+   "quantity": 1
+  },
+  {
+   "name": "Voidmage Apprentice",
+   "quantity": 1
+  },
+  {
+   "name": "Voidmage Prodigy",
+   "quantity": 1
+  },
+  {
+   "name": "Welcoming Vampire",
+   "quantity": 1
+  },
+  {
+   "name": "Willbender",
+   "quantity": 1
+  },
+  {
+   "name": "Yedora, Grave Gardener",
+   "quantity": 1
+  },
+  {
+   "name": "Zimone, Mystery Unraveler",
+   "quantity": 1
+  },
+  {
+   "name": "Break Down the Door",
+   "quantity": 1
+  },
+  {
+   "name": "Reality Shift",
+   "quantity": 1
+  },
+  {
+   "name": "Twist Reality",
+   "quantity": 1
+  },
+  {
+   "name": "Cleansing Nova",
+   "quantity": 1
+  },
+  {
+   "name": "Hour of Revelation",
+   "quantity": 1
+  },
+  {
+   "name": "Dream Chisel",
+   "quantity": 1
+  },
+  {
+   "name": "Panoptic Projektor",
+   "quantity": 1
+  },
+  {
+   "name": "Scroll Rack",
+   "quantity": 1
+  },
+  {
+   "name": "Scroll of Fate",
+   "quantity": 1
+  },
+  {
+   "name": "Semblance Anvil",
+   "quantity": 1
+  },
+  {
+   "name": "Sensei's Divining Top",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Aura Shards",
+   "quantity": 1
+  },
+  {
+   "name": "Case of the Locked Hothouse",
+   "quantity": 1
+  },
+  {
+   "name": "Elven Chorus",
+   "quantity": 1
+  },
+  {
+   "name": "Experimental Lab // Staff Room",
+   "quantity": 1
+  },
+  {
+   "name": "Guardian Project",
+   "quantity": 1
+  },
+  {
+   "name": "March of the World Ooze",
+   "quantity": 1
+  },
+  {
+   "name": "Obscuring Aether",
+   "quantity": 1
+  },
+  {
+   "name": "Sylvan Library",
+   "quantity": 1
+  },
+  {
+   "name": "They Came from the Pipes",
+   "quantity": 1
+  },
+  {
+   "name": "Threats Around Every Corner",
+   "quantity": 1
+  },
+  {
+   "name": "Tocasia's Welcome",
+   "quantity": 1
+  },
+  {
+   "name": "Trail of Mystery",
+   "quantity": 1
+  },
+  {
+   "name": "True Identity",
+   "quantity": 1
+  },
+  {
+   "name": "Ugin's Mastery",
+   "quantity": 1
+  },
+  {
+   "name": "Boseiju, Who Endures",
+   "quantity": 1
+  },
+  {
+   "name": "Branch of Vitu-Ghazi",
+   "quantity": 1
+  },
+  {
+   "name": "Breeding Pool",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Dryad Arbor",
+   "quantity": 1
+  },
+  {
+   "name": "Fabled Passage",
+   "quantity": 1
+  },
+  {
+   "name": "Flooded Strand",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 9
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 6
+  },
+  {
+   "name": "Misty Rainforest",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 4
+  },
+  {
+   "name": "Prismatic Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Shrine of the Forsaken Gods",
+   "quantity": 1
+  },
+  {
+   "name": "Spara's Headquarters",
+   "quantity": 1
+  },
+  {
+   "name": "Temple Garden",
+   "quantity": 1
+  },
+  {
+   "name": "Windswept Heath",
+   "quantity": 1
+  },
+  {
+   "name": "Yavimaya, Cradle of Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Zoetic Cavern",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

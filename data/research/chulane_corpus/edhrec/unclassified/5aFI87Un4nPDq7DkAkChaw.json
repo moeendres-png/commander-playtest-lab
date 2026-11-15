@@ -1,0 +1,354 @@
+{
+ "urlhash": "5aFI87Un4nPDq7DkAkChaw",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-02-06",
+ "price": 1101,
+ "salt": 86.9429463292472,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/TbCzbDqT0kCLQZgif1RMAw?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Augur of Autumn",
+   "quantity": 1
+  },
+  {
+   "name": "Avacyn's Pilgrim",
+   "quantity": 1
+  },
+  {
+   "name": "Aven Mindcensor",
+   "quantity": 1
+  },
+  {
+   "name": "Birds of Paradise",
+   "quantity": 1
+  },
+  {
+   "name": "Bloom Tender",
+   "quantity": 1
+  },
+  {
+   "name": "Collector Ouphe",
+   "quantity": 1
+  },
+  {
+   "name": "Craterhoof Behemoth",
+   "quantity": 1
+  },
+  {
+   "name": "Destiny Spinner",
+   "quantity": 1
+  },
+  {
+   "name": "Drannith Magistrate",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Mystic",
+   "quantity": 1
+  },
+  {
+   "name": "Endurance",
+   "quantity": 1
+  },
+  {
+   "name": "Esper Sentinel",
+   "quantity": 1
+  },
+  {
+   "name": "Eternal Witness",
+   "quantity": 1
+  },
+  {
+   "name": "Fyndhorn Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Grand Abolisher",
+   "quantity": 1
+  },
+  {
+   "name": "Incubation Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Kinnan, Bonder Prodigy",
+   "quantity": 1
+  },
+  {
+   "name": "Leafkin Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Linvala, Keeper of Silence",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Lotus Cobra",
+   "quantity": 1
+  },
+  {
+   "name": "Manglehorn",
+   "quantity": 1
+  },
+  {
+   "name": "Paradise Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Ranger-Captain of Eos",
+   "quantity": 1
+  },
+  {
+   "name": "Reclamation Sage",
+   "quantity": 1
+  },
+  {
+   "name": "Recruiter of the Guard",
+   "quantity": 1
+  },
+  {
+   "name": "Shrieking Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Thalia, Heretic Cathar",
+   "quantity": 1
+  },
+  {
+   "name": "Thassa's Oracle",
+   "quantity": 1
+  },
+  {
+   "name": "Tireless Provisioner",
+   "quantity": 1
+  },
+  {
+   "name": "Whitemane Lion",
+   "quantity": 1
+  },
+  {
+   "name": "Brainstorm",
+   "quantity": 1
+  },
+  {
+   "name": "Chord of Calling",
+   "quantity": 1
+  },
+  {
+   "name": "Cyclonic Rift",
+   "quantity": 1
+  },
+  {
+   "name": "Dispel",
+   "quantity": 1
+  },
+  {
+   "name": "Dovin's Veto",
+   "quantity": 1
+  },
+  {
+   "name": "Eladamri's Call",
+   "quantity": 1
+  },
+  {
+   "name": "Growth Spiral",
+   "quantity": 1
+  },
+  {
+   "name": "Krosan Grip",
+   "quantity": 1
+  },
+  {
+   "name": "Mystical Tutor",
+   "quantity": 1
+  },
+  {
+   "name": "Nature's Claim",
+   "quantity": 1
+  },
+  {
+   "name": "Pact of Negation",
+   "quantity": 1
+  },
+  {
+   "name": "Path to Exile",
+   "quantity": 1
+  },
+  {
+   "name": "Pongify",
+   "quantity": 1
+  },
+  {
+   "name": "Silence",
+   "quantity": 1
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1
+  },
+  {
+   "name": "Veil of Summer",
+   "quantity": 1
+  },
+  {
+   "name": "Worldly Tutor",
+   "quantity": 1
+  },
+  {
+   "name": "Curse of the Swine",
+   "quantity": 1
+  },
+  {
+   "name": "Farseek",
+   "quantity": 1
+  },
+  {
+   "name": "Finale of Devastation",
+   "quantity": 1
+  },
+  {
+   "name": "Green Sun's Zenith",
+   "quantity": 1
+  },
+  {
+   "name": "Idyllic Tutor",
+   "quantity": 1
+  },
+  {
+   "name": "Three Visits",
+   "quantity": 1
+  },
+  {
+   "name": "Wargate",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Cloudstone Curio",
+   "quantity": 1
+  },
+  {
+   "name": "Mana Vault",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Talisman of Curiosity",
+   "quantity": 1
+  },
+  {
+   "name": "Aluren",
+   "quantity": 1
+  },
+  {
+   "name": "Deafening Silence",
+   "quantity": 1
+  },
+  {
+   "name": "Intruder Alarm",
+   "quantity": 1
+  },
+  {
+   "name": "Mana Breach",
+   "quantity": 1
+  },
+  {
+   "name": "Mystic Remora",
+   "quantity": 1
+  },
+  {
+   "name": "Rhystic Study",
+   "quantity": 1
+  },
+  {
+   "name": "Smothering Tithe",
+   "quantity": 1
+  },
+  {
+   "name": "Narset, Parter of Veils",
+   "quantity": 1
+  },
+  {
+   "name": "Barkchannel Pathway",
+   "quantity": 1
+  },
+  {
+   "name": "Breeding Pool",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Dryad Arbor",
+   "quantity": 1
+  },
+  {
+   "name": "Emergence Zone",
+   "quantity": 1
+  },
+  {
+   "name": "Exotic Orchard",
+   "quantity": 1
+  },
+  {
+   "name": "Fabled Passage",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 6
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 8
+  },
+  {
+   "name": "Misty Rainforest",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 5
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1
+  },
+  {
+   "name": "Spara's Headquarters",
+   "quantity": 1
+  },
+  {
+   "name": "Yavimaya Coast",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}
