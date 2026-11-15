@@ -1,0 +1,318 @@
+{
+ "urlhash": "BUgMdupR7pQDO93nxeKBvg",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2025-07-09",
+ "price": 206,
+ "salt": 44.38449143571779,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/VmS4VIVMKkyp1AfXfQlWIA?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Arbor Elf",
+   "quantity": 1
+  },
+  {
+   "name": "Arboreal Grazer",
+   "quantity": 1
+  },
+  {
+   "name": "Ashaya, Soul of the Wild",
+   "quantity": 1
+  },
+  {
+   "name": "Canyon Jerboa",
+   "quantity": 1
+  },
+  {
+   "name": "Dryad of the Ilysian Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Insidious Fungus",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Scout",
+   "quantity": 1
+  },
+  {
+   "name": "Mycoloth",
+   "quantity": 1
+  },
+  {
+   "name": "Noyan Dar, Roil Shaper",
+   "quantity": 1
+  },
+  {
+   "name": "Progenitor Mimic",
+   "quantity": 1
+  },
+  {
+   "name": "Shroofus Sproutsire",
+   "quantity": 1
+  },
+  {
+   "name": "Spark Double",
+   "quantity": 1
+  },
+  {
+   "name": "Sporecrown Thallid",
+   "quantity": 1
+  },
+  {
+   "name": "Sporemound",
+   "quantity": 1
+  },
+  {
+   "name": "Sutina, Speaker of the Tajuru",
+   "quantity": 1
+  },
+  {
+   "name": "Swarm Shambler",
+   "quantity": 1
+  },
+  {
+   "name": "Sylvan Advocate",
+   "quantity": 1
+  },
+  {
+   "name": "Tatyova, Steward of Tides",
+   "quantity": 1
+  },
+  {
+   "name": "Tendershoot Dryad",
+   "quantity": 1
+  },
+  {
+   "name": "Tendril of the Mycotyrant",
+   "quantity": 1
+  },
+  {
+   "name": "Tomik, Distinguished Advokist",
+   "quantity": 1
+  },
+  {
+   "name": "Tukatongue Thallid",
+   "quantity": 1
+  },
+  {
+   "name": "Universal Automaton",
+   "quantity": 1
+  },
+  {
+   "name": "Waker of the Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "World Shaper",
+   "quantity": 1
+  },
+  {
+   "name": "Yedora, Grave Gardener",
+   "quantity": 1
+  },
+  {
+   "name": "Escape from Orthanc",
+   "quantity": 1
+  },
+  {
+   "name": "Fungal Rebirth",
+   "quantity": 1
+  },
+  {
+   "name": "Noxious Revival",
+   "quantity": 1
+  },
+  {
+   "name": "Sudden Spinnerets",
+   "quantity": 1
+  },
+  {
+   "name": "To Arms!",
+   "quantity": 1
+  },
+  {
+   "name": "Abundant Harvest",
+   "quantity": 1
+  },
+  {
+   "name": "Animist's Awakening",
+   "quantity": 1
+  },
+  {
+   "name": "Broken Bond",
+   "quantity": 1
+  },
+  {
+   "name": "Commune with Spirits",
+   "quantity": 1
+  },
+  {
+   "name": "Farseek",
+   "quantity": 1
+  },
+  {
+   "name": "Idyllic Tutor",
+   "quantity": 1
+  },
+  {
+   "name": "Nature's Lore",
+   "quantity": 1
+  },
+  {
+   "name": "Nature's Spiral",
+   "quantity": 1
+  },
+  {
+   "name": "Planar Outburst",
+   "quantity": 1
+  },
+  {
+   "name": "Regrowth",
+   "quantity": 1
+  },
+  {
+   "name": "Saproling Symbiosis",
+   "quantity": 1
+  },
+  {
+   "name": "Skyshroud Claim",
+   "quantity": 1
+  },
+  {
+   "name": "Three Visits",
+   "quantity": 1
+  },
+  {
+   "name": "Maskwood Nexus",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Adaptation",
+   "quantity": 1
+  },
+  {
+   "name": "Bear Umbra",
+   "quantity": 1
+  },
+  {
+   "name": "Blanchwood Armor",
+   "quantity": 1
+  },
+  {
+   "name": "Earth Surge",
+   "quantity": 1
+  },
+  {
+   "name": "Greener Pastures",
+   "quantity": 1
+  },
+  {
+   "name": "Leyline of Abundance",
+   "quantity": 1
+  },
+  {
+   "name": "Leyline of Transformation",
+   "quantity": 1
+  },
+  {
+   "name": "Life and Limb",
+   "quantity": 1
+  },
+  {
+   "name": "Living Lands",
+   "quantity": 1
+  },
+  {
+   "name": "Nature's Revolt",
+   "quantity": 1
+  },
+  {
+   "name": "Pollenbright Wings",
+   "quantity": 1
+  },
+  {
+   "name": "Spelunking",
+   "quantity": 1
+  },
+  {
+   "name": "Terra Eternal",
+   "quantity": 1
+  },
+  {
+   "name": "Verdant Embrace",
+   "quantity": 1
+  },
+  {
+   "name": "Wilderness Reclamation",
+   "quantity": 1
+  },
+  {
+   "name": "Arctic Treeline",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 12
+  },
+  {
+   "name": "Glacial Floodplain",
+   "quantity": 1
+  },
+  {
+   "name": "Idyllic Beachfront",
+   "quantity": 1
+  },
+  {
+   "name": "Irrigated Farmland",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 9
+  },
+  {
+   "name": "Plains",
+   "quantity": 7
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1
+  },
+  {
+   "name": "Radiant Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Rimewood Falls",
+   "quantity": 1
+  },
+  {
+   "name": "Scattered Groves",
+   "quantity": 1
+  },
+  {
+   "name": "Tangled Islet",
+   "quantity": 1
+  },
+  {
+   "name": "Yavimaya, Cradle of Growth",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

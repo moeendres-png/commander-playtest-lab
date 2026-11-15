@@ -1,0 +1,398 @@
+{
+ "urlhash": "BwIUhNm9XVONqXEauV8wtA",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-09-27",
+ "price": 135,
+ "salt": 36.052631341386586,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/wMXRThe-CU-pM-2aKFGRwg?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Aegis of the Gods",
+   "quantity": 1
+  },
+  {
+   "name": "Aeon Chronicler",
+   "quantity": 1
+  },
+  {
+   "name": "Angelic Overseer",
+   "quantity": 1
+  },
+  {
+   "name": "Arcanis the Omnipotent",
+   "quantity": 1
+  },
+  {
+   "name": "Baird, Steward of Argive",
+   "quantity": 1
+  },
+  {
+   "name": "Colossus of Akros",
+   "quantity": 1
+  },
+  {
+   "name": "Empyrial Archangel",
+   "quantity": 1
+  },
+  {
+   "name": "Eternal Witness",
+   "quantity": 1
+  },
+  {
+   "name": "Fatespinner",
+   "quantity": 1
+  },
+  {
+   "name": "Fleecemane Lion",
+   "quantity": 1
+  },
+  {
+   "name": "Geist of Saint Traft",
+   "quantity": 1
+  },
+  {
+   "name": "Guardian of the Ages",
+   "quantity": 1
+  },
+  {
+   "name": "Heliod, God of the Sun",
+   "quantity": 1
+  },
+  {
+   "name": "Iridescent Angel",
+   "quantity": 1
+  },
+  {
+   "name": "Jenara, Asura of War",
+   "quantity": 1
+  },
+  {
+   "name": "Karametra, God of Harvests",
+   "quantity": 1
+  },
+  {
+   "name": "Knight of Autumn",
+   "quantity": 1
+  },
+  {
+   "name": "Knight of New Alara",
+   "quantity": 1
+  },
+  {
+   "name": "Knotvine Paladin",
+   "quantity": 1
+  },
+  {
+   "name": "Lena, Selfless Champion",
+   "quantity": 1
+  },
+  {
+   "name": "Mangara of Corondor",
+   "quantity": 1
+  },
+  {
+   "name": "Mystic Archaeologist",
+   "quantity": 1
+  },
+  {
+   "name": "Primordial Sage",
+   "quantity": 1
+  },
+  {
+   "name": "Rafiq of the Many",
+   "quantity": 1
+  },
+  {
+   "name": "Rashmi, Eternities Crafter",
+   "quantity": 1
+  },
+  {
+   "name": "Rubinia Soulsinger",
+   "quantity": 1
+  },
+  {
+   "name": "Selvala, Explorer Returned",
+   "quantity": 1
+  },
+  {
+   "name": "Shanna, Sisay's Legacy",
+   "quantity": 1
+  },
+  {
+   "name": "Sigarda, Host of Herons",
+   "quantity": 1
+  },
+  {
+   "name": "Stoic Angel",
+   "quantity": 1
+  },
+  {
+   "name": "Sublime Archangel",
+   "quantity": 1
+  },
+  {
+   "name": "Thalia, Heretic Cathar",
+   "quantity": 1
+  },
+  {
+   "name": "Tolsimir Wolfblood",
+   "quantity": 1
+  },
+  {
+   "name": "Traxos, Scourge of Kroog",
+   "quantity": 1
+  },
+  {
+   "name": "Wilt-Leaf Liege",
+   "quantity": 1
+  },
+  {
+   "name": "Banish into Fable",
+   "quantity": 1
+  },
+  {
+   "name": "Berserk",
+   "quantity": 1
+  },
+  {
+   "name": "Faith's Reward",
+   "quantity": 1
+  },
+  {
+   "name": "Sigil Blessing",
+   "quantity": 1
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1
+  },
+  {
+   "name": "Valor Made Real",
+   "quantity": 1
+  },
+  {
+   "name": "Karn's Temporal Sundering",
+   "quantity": 1
+  },
+  {
+   "name": "Kirtar's Wrath",
+   "quantity": 1
+  },
+  {
+   "name": "Recollect",
+   "quantity": 1
+  },
+  {
+   "name": "Amulet of Safekeeping",
+   "quantity": 1
+  },
+  {
+   "name": "Blackblade Reforged",
+   "quantity": 1
+  },
+  {
+   "name": "Crown of Convergence",
+   "quantity": 1
+  },
+  {
+   "name": "Deathrender",
+   "quantity": 1
+  },
+  {
+   "name": "Forebear's Blade",
+   "quantity": 1
+  },
+  {
+   "name": "Lightning Greaves",
+   "quantity": 1
+  },
+  {
+   "name": "Mace of the Valiant",
+   "quantity": 1
+  },
+  {
+   "name": "Mirror of Galadriel",
+   "quantity": 1
+  },
+  {
+   "name": "Moonsilver Spear",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Shield of the Avatar",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Tome of Legends",
+   "quantity": 1
+  },
+  {
+   "name": "Brave the Sands",
+   "quantity": 1
+  },
+  {
+   "name": "Gaea's Anthem",
+   "quantity": 1
+  },
+  {
+   "name": "Invocation of Saint Traft",
+   "quantity": 1
+  },
+  {
+   "name": "Marshal's Anthem",
+   "quantity": 1
+  },
+  {
+   "name": "Serra's Blessing",
+   "quantity": 1
+  },
+  {
+   "name": "Shielded by Faith",
+   "quantity": 1
+  },
+  {
+   "name": "Sigil of the Nayan Gods",
+   "quantity": 1
+  },
+  {
+   "name": "Unflinching Courage",
+   "quantity": 1
+  },
+  {
+   "name": "Elspeth Tirel",
+   "quantity": 1
+  },
+  {
+   "name": "Arctic Flats",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Chancery",
+   "quantity": 1
+  },
+  {
+   "name": "Blossoming Sands",
+   "quantity": 1
+  },
+  {
+   "name": "Botanical Sanctum",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Cathedral of War",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Drifting Meadow",
+   "quantity": 1
+  },
+  {
+   "name": "Elfhame Palace",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 3
+  },
+  {
+   "name": "Graypelt Refuge",
+   "quantity": 1
+  },
+  {
+   "name": "Grove of the Guardian",
+   "quantity": 1
+  },
+  {
+   "name": "Guildmages' Forum",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 2
+  },
+  {
+   "name": "Meandering River",
+   "quantity": 1
+  },
+  {
+   "name": "Opal Palace",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 3
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Sunpetal Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Temple Garden",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Enlightenment",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of the False God",
+   "quantity": 1
+  },
+  {
+   "name": "Thornwood Falls",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Cove",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Expanse",
+   "quantity": 1
+  },
+  {
+   "name": "Woodland Stream",
+   "quantity": 1
+  },
+  {
+   "name": "Zhalfirin Void",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}
