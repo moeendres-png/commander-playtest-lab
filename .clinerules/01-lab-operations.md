@@ -21,7 +21,7 @@ Practical points an outside agent does not know:
   `pip install --no-deps -e .`. Java 17 + Maven only for `engine-bridge/` work.
 - Before every push: `ruff check`, `ruff format --check` and the affected tests
   (`python -m pytest -q <path>`).
-- Dirty worktrees in `pytest`: `tests/conftest.py` stubs `tracked_worktree_dirty` to `False` so iterating in `pytest` does not fail with `"stale canonical inputs"`, whereas live `CommanderToolService` / CLI calls and `test_tracked_worktree_gate.py` still reject a dirty tracked tree.
+- Dirty worktrees in `pytest`: `tests/conftest.py` makes `technical_truth` see a clean tracked tree, and no remaining code rejects a dirty tree (the old tool-service guard `stale canonical inputs` was removed).
 - A change to `.github/workflows/production-qualification.yml` needs its digest updated in
   `WS17_SHA256SUMS` (`tests/qualification/test_ws17_qualification.py`).
 - CI `ci-definition-integrity-shadow` is red by design when gate tests or workflows change;

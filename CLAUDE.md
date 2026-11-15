@@ -85,7 +85,6 @@ changes to signed or sealed qualification records wait for the Owner's explicit 
 - `gh_ops.py brief` is the one-screen status (open PRs, PB-03, newest sealed epoch).
 - Helper reports ≤40 lines; routine user status ≤8 lines.
 - Test narrow while iterating; run the full suite once at the integration boundary.
-  Commit before running tests: a dirty tree fails with "stale canonical inputs".
 - Long Java suites, PB-03 and CI waits run in the background, never as repeated polls.
 - GitHub GraphQL is unavailable: use `gh api` REST and the CCR routes.
 - Required checks: `quality` (a gate over `lint`, four `tests` slots and `packaging`), `security`,
