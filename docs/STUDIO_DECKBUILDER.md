@@ -473,6 +473,27 @@ cards; 0 in `Commander-nah`), and the distribution is bottom-heavy with the cuts
 72 / 50 / 28 / 14 (775 to 799 cards are `D`, after the lift and slope fix more than before it).
 The agreement with the counted lists stays above 0.90 for spells and lands in all presets.
 
+**Confidence and borderline mark (#1365).** Every ranked card carries `confidence` (0..1),
+`confidence_level` and a mark `borderline`:
+
+- `confidence` = `coverage` $\times$ $\sum_i w_i \, n_i/(n_i+30) \,/\, \sum_i w_i$ over the weighted
+  components with a value and a denominator $n_i$ (a counted zero included; `strength.CONFIDENCE_K`
+  = 30). Coverage is the weight share of the signals that have a value; a large denominator
+  (the 2,823 counted decks) counts almost fully, a small one (a theme page with 40 decks) about
+  0.57. A card without an index has no confidence (`null`). It is a hint about the evidence, not
+  about the card, and it never changes the index or the tier.
+- `confidence_level`: `high` from 0.60, `medium` from 0.35, else `low`.
+- `borderline` is true when the index lies strictly closer than `borderline_distance` index
+  points to a tier cut (S, A, B, C); `borderline_cut` names the nearest cut, `cut_distance` the
+  distance. The setting `borderline_distance` (0..50, recommended 2, 0 = off) is in the settings
+  panel under "Tier-Grenzen". A card with tier `U` or `N` is never borderline.
+
+The result also carries `tier_counts_by_kind` (`spells` and `lands`, the same keys as
+`tier_counts`), `unknown_breakdown` (`total`, `zero_count` = U cards with reason
+`ZERO_COUNT_ONLY`, i.e. "gezählt 0 von N" (only with `zero_count_tier` = U), `missing_data` = the
+others with their `by_reason` codes, and `denominator` = the counted corpus) and
+`borderline_count`. Each card has `is_land`.
+
 ### Rating layers ("Bewertungsebenen")
 
 Additional, objectively derivable layers that rank cards next to the strength tier. Each is

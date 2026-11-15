@@ -457,6 +457,15 @@ DEFAULT_MIN_DENOMINATORS: dict[str, int] = {
     MIN_PLAYGROUP: 200,
 }
 DEFAULT_BRACKET = "upgraded"
+# #1365: "grenzwertig" mark. A card whose index lies closer than this many index points to a tier
+# cut is marked (0 switches the mark off). Recommended 2.
+DEFAULT_BORDERLINE_DISTANCE = 2.0
+MAX_BORDERLINE_DISTANCE = 50.0
+# #1365: confidence of a card = coverage x reliability of its denominators; the reliability of one
+# share with denominator n is n / (n + CONFIDENCE_K). The level names split the 0..1 range.
+CONFIDENCE_K = 30
+CONFIDENCE_HIGH = 0.6
+CONFIDENCE_MEDIUM = 0.35
 # Lands are ranked against lands and spells against spells (#1353 part A): share scaling
 # (v / v_max) and percentile ranks are computed inside the two groups, so a land with the most
 # decks does not set the scale of the spells and the other way round.
@@ -489,6 +498,7 @@ _SETTINGS_KEYS = frozenset(
         "separate_lands",
         "zero_count_tier",
         "edhrec_with_corpus",
+        "borderline_distance",
     }
 )
 
@@ -608,6 +618,8 @@ class StrengthSettings:
     # E2.a: keep the EDHREC commander and bracket inclusion weights although a counted local
     # corpus exists (off by default: the corpus replaces them, see ``apply_corpus_rule``).
     edhrec_with_corpus: bool = False
+    # #1365: index distance to a tier cut below which a card is marked "grenzwertig" (0 = off).
+    borderline_distance: float = DEFAULT_BORDERLINE_DISTANCE
 
     def __post_init__(self) -> None:
         weights = {name: DEFAULT_WEIGHTS[name] for name in COMPONENTS}
@@ -677,6 +689,12 @@ class StrengthSettings:
             raise ValueError(f"zero_count_tier must be one of {', '.join(ZERO_COUNT_TIERS)}")
         if not isinstance(self.edhrec_with_corpus, bool):
             raise ValueError("edhrec_with_corpus must be true or false")
+        distance = _number(self.borderline_distance, "borderline_distance")
+        if not 0.0 <= distance <= MAX_BORDERLINE_DISTANCE:
+            raise ValueError(
+                f"borderline_distance must be between 0 and {MAX_BORDERLINE_DISTANCE:g}"
+            )
+        object.__setattr__(self, "borderline_distance", distance)
         if not isinstance(self.require_commander_signal, bool):
             raise ValueError("require_commander_signal must be true or false")
         if parse_universe_source(self.universe_source) is None:
@@ -757,6 +775,7 @@ class StrengthSettings:
             "separate_lands": self.separate_lands,
             "zero_count_tier": self.zero_count_tier,
             "edhrec_with_corpus": self.edhrec_with_corpus,
+            "borderline_distance": self.borderline_distance,
         }
 
     @classmethod
@@ -869,6 +888,10 @@ class StrengthSettings:
             separate_lands=separate,
             zero_count_tier=zero_tier,
             edhrec_with_corpus=with_corpus,
+            borderline_distance=_number(
+                raw.get("borderline_distance", defaults.borderline_distance),
+                "borderline_distance",
+            ),
         )
 
 
@@ -1003,6 +1026,53 @@ class CardStrength(TypedDict):
     note: str
     present: int
     components: list[ComponentResult]
+    # #1365: confidence from coverage and denominators (None without an index), its level
+    # ("high" / "medium" / "low"), and the "grenzwertig" mark: the index lies closer than
+    # ``borderline_distance`` to a tier cut (``borderline_cut`` names the nearest cut tier,
+    # ``cut_distance`` the distance in index points).
+    confidence: float | None
+    confidence_level: str | None
+    borderline: bool
+    borderline_cut: str | None
+    cut_distance: float | None
+
+
+def confidence_value(coverage: float, components: Collection[ComponentResult]) -> float:
+    """Confidence 0..1 of a card: ``coverage`` times the weight-weighted mean of
+    ``n / (n + CONFIDENCE_K)`` over the weighted components that have a value and a denominator
+    (a counted zero included). Without such a component the reliability is 0."""
+    rows = [
+        row
+        for row in components
+        if row["weight"] > 0 and row["percentile"] is not None and row["denominator"]
+    ]
+    total = sum(row["weight"] for row in rows)
+    if total <= 0:
+        return 0.0
+    reliability = sum(
+        row["weight"] * (row["denominator"] or 0) / ((row["denominator"] or 0) + CONFIDENCE_K)
+        for row in rows
+    )
+    return round(coverage * reliability / total, 4)
+
+
+def confidence_level(confidence: float) -> str:
+    """ "high" from 0.6, "medium" from 0.35, else "low"."""
+    if confidence >= CONFIDENCE_HIGH:
+        return "high"
+    return "medium" if confidence >= CONFIDENCE_MEDIUM else "low"
+
+
+def borderline_info(
+    index: float | None, cuts: Mapping[str, float], distance: float
+) -> tuple[bool, str | None, float | None]:
+    """(borderline, nearest cut tier, distance to it) of an index. Borderline means strictly
+    closer than ``distance`` to a cut; a distance of 0 switches the mark off."""
+    if index is None:
+        return False, None, None
+    tier, cut = min(cuts.items(), key=lambda item: abs(index - item[1]))
+    gap = round(abs(index - cut), 4)
+    return distance > 0 and gap < distance, tier, gap
 
 
 def wilson_lower(numerator: int, denominator: int, z: float = Z_95) -> float | None:
@@ -1814,6 +1884,11 @@ def score_pool(
                 "note": NOT_RANKED_NOTES[not_ranked],
                 "present": 0,
                 "components": components,
+                "confidence": None,
+                "confidence_level": None,
+                "borderline": False,
+                "borderline_cut": None,
+                "cut_distance": None,
             }
             continue
         # A filter card has no deck-universe value by definition: that component is not
@@ -1845,11 +1920,20 @@ def score_pool(
             reason_code = "ENOUGH_DATA" if enough else "TOO_LITTLE_DATA"
         if reason_code in ("NO_POSITIVE_WEIGHT", "NO_SOURCE_FOR_COMMANDER"):
             enough = False
+        tier = _tier(index, settings, enough and not blocked and not zero_only)
+        # confidence describes a tier; a card without one (U, N) has no confidence to show
+        confidence = (
+            confidence_value(coverage, components) if index is not None and tier in TIERS else None
+        )
+        # a card without a tier (U) is not near a cut: it has no tier to change
+        borderline, cut_tier, cut_gap = borderline_info(
+            index if tier in TIERS else None, settings.tier_cuts, settings.borderline_distance
+        )
         result[card] = {
             "index": index,
             "coverage": round(coverage, 4),
             # the tier follows the index as shown (rounded to one decimal)
-            "tier": _tier(index, settings, enough and not blocked and not zero_only),
+            "tier": tier,
             "reason": reason_code,
             "note": {
                 NO_COMMANDER_SIGNAL: NO_COMMANDER_SIGNAL_NOTE,
@@ -1857,6 +1941,11 @@ def score_pool(
             }.get(reason_code, ""),
             "present": present,
             "components": components,
+            "confidence": confidence,
+            "confidence_level": confidence_level(confidence) if confidence is not None else None,
+            "borderline": borderline,
+            "borderline_cut": cut_tier,
+            "cut_distance": cut_gap,
         }
     return result
 
