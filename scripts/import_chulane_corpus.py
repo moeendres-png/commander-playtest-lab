@@ -15,7 +15,7 @@ reproduces the live store's corpus exactly.
     python scripts/import_chulane_corpus.py [--data DIR] [--root FOLDER]
 
 Acceptance after a run on an empty store: ``corpus_deck`` = 3,023
-(2,861 canonical), ``corpus_deck_card`` = 268,204, ``corpus_cohort``
+(2,639 canonical), ``corpus_deck_card`` = 268,204, ``corpus_cohort``
 = 11,369. Afterwards fill ``corpus_deck_card.oracle_id`` with
 ``scripts/map_corpus_oracle_ids.py``.
 """
