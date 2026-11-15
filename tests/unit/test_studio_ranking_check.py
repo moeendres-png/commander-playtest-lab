@@ -412,6 +412,8 @@ def test_metric_6_leave_one_out_stability_and_largest_impact() -> None:
         },
         min_components=1,
         min_coverage=0.1,
+        # fixed cuts: the test is about the stability of a six card toy pool, not the defaults
+        tier_cuts={"S": 72.0, "A": 50.0, "B": 28.0, "C": 14.0},
     )
     report = check_ranking(
         settings,

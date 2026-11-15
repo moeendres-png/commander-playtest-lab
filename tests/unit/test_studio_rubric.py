@@ -380,8 +380,9 @@ def test_every_preset_keeps_the_rubric_at_zero_and_simulation_and_layers_too() -
 
 
 def test_the_default_cuts_fall_strictly_and_are_the_recorded_derivation() -> None:
-    # Owner decision E5.a (#1364): 72 / 50 / 28 / 14 for the log share scale, the same for lands
-    assert strength.DEFAULT_CUTS == {"S": 72.0, "A": 50.0, "B": 28.0, "C": 14.0}
+    # Re-derived once (#1366) by the zero-count / marginal-card / 3 % rule on the default index
+    # (before: 72 / 50 / 28 / 14 of #1371), the same for lands
+    assert strength.DEFAULT_CUTS == {"S": 54.0, "A": 35.0, "B": 20.0, "C": 5.0}
     assert StrengthSettings().tier_cuts == strength.DEFAULT_CUTS
 
 

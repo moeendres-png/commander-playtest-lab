@@ -78,7 +78,7 @@ def test_the_new_defaults_of_the_empirical_index() -> None:
     assert settings.share_scale == "log"
     assert settings.separate_lands is True
     assert settings.rank_group == "pool"
-    assert settings.tier_cuts == {"S": 72.0, "A": 50.0, "B": 28.0, "C": 14.0}
+    assert settings.tier_cuts == {"S": 54.0, "A": 35.0, "B": 20.0, "C": 5.0}
     assert settings.zero_count_tier == "D"
     assert settings.edhrec_with_corpus is False
     assert settings.rank_other_commanders is True
@@ -498,10 +498,17 @@ def _zero_pool() -> tuple[dict[str, dict[str, Observation]], set[str]]:
     return observations, {strength.DECK_UNIVERSE, strength.GLOBAL_INCLUSION}
 
 
+# These tests are about the zero-count rule, not the default cuts: the cuts of Stand #1371 keep a
+# card with a counted zero plus global inclusion in tier D in the toy pool (a six card pool has
+# no realistic index distribution, so the real-data cuts do not apply to it).
+_ZERO_TEST_CUTS = {"S": 72.0, "A": 50.0, "B": 28.0, "C": 14.0}
+
+
 def _zero_settings(**extra: object) -> StrengthSettings:
     return StrengthSettings(
         weights={name: 0.0 for name in strength.COMPONENTS}
         | {"deck_universe": 4.0, "global_inclusion": 1.0},
+        tier_cuts=dict(_ZERO_TEST_CUTS),
         **extra,  # type: ignore[arg-type]
     )
 
