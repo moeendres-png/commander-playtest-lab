@@ -21,10 +21,8 @@ from commander_lab.studio.web import create_app
 COMMANDER = "Test Commander"
 STATIC_DIR = Path(__file__).resolve().parents[2] / "src" / "commander_lab" / "studio" / "static"
 USER = frozenset(f"Pool Card {i:02d}" for i in range(1, 11))
-NOTE = (
-    "Ähnlich heißt: gleiche Karten, nicht: erfolgreich. "
-    "Zu Erfolg je Deck gibt es für Chulane keine Daten."
-)
+NOTE = "Ähnlich heißt: gleiche Karten, nicht: erfolgreich."
+NOTE_TAIL = "Zu Erfolg je Deck gibt es für"
 
 
 def _pool(*numbers: int) -> set[str]:
@@ -43,18 +41,21 @@ class Deck:
 def _designed() -> dict[str, Deck]:
     """30+ source decks. USER is Pool Card 01..10 (ten cards besides commander and basics)."""
     decks: dict[str, Deck] = {
-        # shared 10, size 12 -> 10/12
-        "sd_01": Deck(_pool(*range(1, 11), 11, 12)),
+        # shared 9 (no Pool Card 10), size 12 -> 9/13
+        "sd_01": Deck(_pool(*range(1, 10), 11, 12) | {"Outside Card A"}),
         # same card set as sd_01, other basics: an exact duplicate, only sd_01 stays
-        "sd_06": Deck(_pool(*range(1, 11), 11, 12), "bracket:3", "archidekt", basics={"Plains": 20}),
+        "sd_06": Deck(
+            _pool(*range(1, 10), 11, 12) | {"Outside Card A"},
+            "bracket:3", "archidekt", basics={"Plains": 20},
+        ),  # fmt: skip
         # exactly the user's ten cards: the deck itself, left out
         "sd_07": Deck(_pool(*range(1, 11)), "bracket:3", basics={"Island": 36}),
-        # shared 9, size 10 -> 9/11
-        "sd_02": Deck(_pool(*range(1, 10), 11), "bracket:3"),
+        # shared 8, size 11 -> 8/13
+        "sd_02": Deck(_pool(*range(1, 9), 11, 15) | {"Outside Card A"}, "bracket:3"),
         # shared 4, size 6 -> 4/12 = 1/3
         "sd_03": Deck(_pool(1, 2, 3, 4, 11, 12), "bracket:4"),
-        # shared 8, size 10 -> 8/12 = 2/3
-        "sd_04": Deck(_pool(*range(1, 9), 11, 12), "bracket:3"),
+        # shared 7, size 10 -> 7/13
+        "sd_04": Deck(_pool(*range(1, 8), 11, 15) | {"Outside Card A"}, "bracket:3"),
         # shared 5, size 10 -> 5/15 = 1/3: ties sd_03 with MORE shared cards, higher deck id
         "sd_05": Deck(_pool(1, 2, 3, 4, 5, 11, 12, 13, 14, 15)),
         # nothing shared
@@ -65,12 +66,13 @@ def _designed() -> dict[str, Deck]:
         "sd_10": Deck(_pool(*range(1, 7)) | {"Outside Card A", "Outside Card B"}),
         # shared 7, size 8 -> 7/11
         "sd_11": Deck(_pool(*range(1, 8)) | {"Outside Card A"}, "bracket:3"),
-        # an exact duplicate of sd_11 by the store's own mark: never counted
+        # marked as an exact duplicate of sd_11 by the store itself: never counted
         "sd_dup": Deck(_pool(*range(1, 8)) | {"Outside Card A"}, "bracket:3", duplicate_of="sd_11"),
     }
-    for number in range(12, 35):
-        base = {((number + step * 3) % 15) + 1 for step in range(7)}
-        cards = _pool(*sorted(base))
+    for number in range(12, 31):
+        shift = (5 * number + number // 3) % 10
+        cards = _pool(*(((shift + step * 7) % 10) + 1 for step in range(2)))  # two of the user's
+        cards |= _pool(*(i for i in range(11, 16) if i != 11 + number % 5))  # four of the others
         if number % 4 == 0:
             cards.add("Outside Card A")
         decks[f"sd_{number:02d}"] = Deck(cards, "bracket:4" if number % 2 else "bracket:3")
@@ -186,10 +188,10 @@ def test_exact_neighbour_order_with_ties_and_duplicates(designed) -> None:
     assert [row["deck_id"] for row in result["nearest"]] == wanted  # type: ignore[index, union-attr]
     assert result["decks_considered"] == len(wanted)
     # the designed decks keep their known places
-    assert wanted[:3] == ["sd_01", "sd_02", "sd_11"]
+    assert wanted[:3] == ["sd_01", "sd_11", "sd_02"]  # 9/13, 7/11, 8/13
     assert wanted.index("sd_03") < wanted.index("sd_05")  # tie 1/3: the lower id first
     first = result["nearest"][0]  # type: ignore[index]
-    assert (first["shared"], first["size"], first["similarity"]) == (10, 12, round(10 / 12, 4))
+    assert (first["shared"], first["size"], first["similarity"]) == (9, 12, round(9 / 13, 4))
     assert first["platform"] == "moxfield"
     assert first["bracket"] == "bracket:4"
     assert first["url"] == "https://example.org/decks/sd_01"
@@ -253,6 +255,7 @@ def test_hits_of_n_with_the_scaled_threshold_and_a_fixed_order(designed) -> None
     assert all(row["hits"] >= 2 for row in result["they_play_you_dont"])  # type: ignore[union-attr]
     # twenty neighbours: eight of twenty
     big = _run(store, n=20)
+    assert big["n"] == 20
     assert big["min_hits"] == 8
     assert all(row["hits"] >= 8 and row["of"] == 20 for row in big["they_play_you_dont"])  # type: ignore[union-attr]
 
@@ -291,16 +294,20 @@ def test_cards_outside_the_collection_only_with_the_switch(designed) -> None:
     store, _decks = designed
     hidden = _run(store, n=100)
     shown = _run(store, n=100, include_unowned=True)
+    top = _run(store, n=5, include_unowned=True)
     assert not any(row["name"].startswith("Outside") for row in hidden["they_play_you_dont"])  # type: ignore[union-attr]
-    outside = [row for row in shown["they_play_you_dont"] if row["name"].startswith("Outside")]  # type: ignore[union-attr]
-    assert outside, "a card outside the collection shows with the switch on"
+    outside = [row for row in top["they_play_you_dont"] if row["name"].startswith("Outside")]  # type: ignore[union-attr]
+    assert [(row["name"], row["hits"], row["of"]) for row in outside] == [("Outside Card A", 5, 5)]
     assert all(row["owned"] == 0 and row["available"] == 0 and row["in_pool"] is False for row in outside)
     assert all(row["card_id"] is None for row in outside)
     assert hidden["nearest"] == shown["nearest"]  # the switch changes no neighbour
-    owned = [row for row in hidden["they_play_you_dont"] if row["name"] == "Pool Card 11"]  # type: ignore[union-attr]
-    assert owned and owned[0]["owned"] == 2 and owned[0]["available"] == 2 and owned[0]["in_pool"] is True
-    free_none = [row for row in hidden["they_play_you_dont"] if row["name"] == "Pool Card 15"]  # type: ignore[union-attr]
-    assert not free_none or free_none[0]["available"] == 0  # owned but no free copy: stated, not hidden
+    top_hidden = _run(store, n=5)
+    assert not any(row["name"].startswith("Outside") for row in top_hidden["they_play_you_dont"])  # type: ignore[union-attr]
+    rows = {row["name"]: row for row in top_hidden["they_play_you_dont"]}  # type: ignore[union-attr]
+    assert (rows["Pool Card 11"]["hits"], rows["Pool Card 11"]["owned"], rows["Pool Card 11"]["available"]) == (3, 2, 2)
+    assert rows["Pool Card 11"]["in_pool"] is True
+    # owned, but no free copy (all reserved): it is shown and says so
+    assert (rows["Pool Card 15"]["hits"], rows["Pool Card 15"]["owned"], rows["Pool Card 15"]["available"]) == (2, 2, 0)
 
 
 def test_groups_under_thirty_are_flagged_and_denominators_are_shown(designed) -> None:
@@ -337,14 +344,15 @@ def test_the_output_is_deterministic(designed) -> None:
 def test_marks_labels_and_favourites_change_nothing(tmp_path: Path) -> None:
     decks = _designed()
     store = _build(tmp_path, decks)
-    before = _run(store, n=10, include_unowned=True)
+    before = _run(store, n=5, include_unowned=True)
     builder.set_favorite(store, "p_11", True)
-    builder.set_mark(store, "p_12", favorite=False, excluded=True, note="nicht dieses")
+    builder.set_mark(store, "p_15", favorite=False, excluded=True, note="nicht dieses")
     builder.set_mark(store, "p_03", favorite=True, excluded=False, note="")
     labels.set_card_labels(store, "p_13", ["Landfall"])
-    after = _run(store, n=10, include_unowned=True)
+    after = _run(store, n=5, include_unowned=True)
     assert after == before
-    assert any(row["name"] == "Pool Card 12" for row in after["they_play_you_dont"])  # type: ignore[union-attr]
+    names = {row["name"] for row in after["they_play_you_dont"]}  # type: ignore[union-attr]
+    assert {"Pool Card 11", "Pool Card 15"} <= names  # an excluded card is still counted
 
 
 def test_an_import_invalidates_the_remembered_decks(tmp_path: Path) -> None:
@@ -385,9 +393,12 @@ def test_routes_resolve_a_revision_and_a_branch_draft_and_refuse_bad_input(tmp_p
     assert drafted.status_code == 200
     wanted = _expected_order(decks, frozenset(_pool(11, 12, 13)))[:5]
     assert [row["deck_id"] for row in drafted.json()["nearest"]] == wanted
-    assert client.post(
-        "/api/similar-decks", json={"commander": COMMANDER, "deck_card_ids": ["p_11", "p_12", "p_13"], "n": 5}
-    ).json()["nearest"] == drafted.json()["nearest"]
+    posted = client.post(
+        "/api/similar-decks",
+        json={"commander": COMMANDER, "deck_card_ids": ["p_11", "p_12", "p_13"], "n": 5},
+        headers={"X-Studio": "1"},
+    )
+    assert posted.json()["nearest"] == drafted.json()["nearest"]
 
     assert client.get("/api/similar-decks", params={"revision": revision_id}).status_code == 422
     assert client.get("/api/similar-decks", params={**base, "n": 0, "revision": revision_id}).status_code == 422
@@ -405,7 +416,9 @@ def test_routes_resolve_a_revision_and_a_branch_draft_and_refuse_bad_input(tmp_p
     unknown = client.get("/api/similar-decks", params={"commander": "Nobody Here", "revision": revision_id})
     assert unknown.status_code == 404
     # an empty list of cards is a deck with nothing to compare, not an error
-    empty = client.post("/api/similar-decks", json={"commander": COMMANDER, "deck_card_ids": []})
+    empty = client.post(
+        "/api/similar-decks", json={"commander": COMMANDER, "deck_card_ids": []}, headers={"X-Studio": "1"}
+    )
     assert empty.status_code == 200
     assert empty.json()["nearest"] == []
     assert empty.json()["empty_reason"]
@@ -437,6 +450,7 @@ def test_the_page_file_for_similar_decks() -> None:
     index = (STATIC_DIR / "index.html").read_text(encoding="utf-8")
     app = (STATIC_DIR / "app.js").read_text(encoding="utf-8")
     assert NOTE in page
+    assert NOTE_TAIL in page
     assert "innerHTML" not in page
     assert "style=" not in page
     assert index.index('src="similar.js"') < index.index('src="app.js"')

@@ -4,8 +4,9 @@ All calculations are purely descriptive counts and set overlaps (Jaccard similar
 non-basic maindeck cards, and card frequencies across filtered deck sets).
 - Never claims that similarity or frequency implies deck strength or tournament success.
 - Basic lands and the commander itself are excluded from Jaccard similarity.
-- Duplicate source decks (`duplicate_of IS NOT NULL`) are excluded.
-- Tie-break for nearest source decks is deterministic by `deck_id` ascending.
+- Duplicate source decks (`duplicate_of IS NOT NULL`) and decks with the same card set are
+  counted once (the lowest deck id); a source deck with the compared card set is left out.
+- Order of the nearest source decks: similarity (exact fraction) descending, then `deck_id`.
 - Cards outside the Owner's collection are hidden by default (`include_unowned=False`) and
   never carry price or purchase wording.
 """
@@ -56,6 +57,8 @@ class _SourceIndex(TypedDict):
     brackets_by_deck: dict[str, str | None]
     cards_by_deck: list[set[str]]
     postings: dict[str, list[int]]
+    set_of_deck: list[int]  # decks with the same card set (without basic lands) share one id
+    set_ids: dict[frozenset[str], int]
 
 
 class _PoolInfo(TypedDict):
@@ -115,6 +118,8 @@ def _build_commander_source_index(
             "brackets_by_deck": {},
             "cards_by_deck": [],
             "postings": {},
+            "set_of_deck": [],
+            "set_ids": {},
         }
 
     deck_ids = [str(r["deck_id"]) for r in deck_rows]
@@ -165,9 +170,12 @@ def _build_commander_source_index(
         cards_by_deck[idx_by_id[did]].add(canonical)
 
     postings: dict[str, list[int]] = {}
+    set_ids: dict[frozenset[str], int] = {}
+    set_of_deck: list[int] = []
     for i, card_set in enumerate(cards_by_deck):
         for card_name in card_set:
             postings.setdefault(card_name, []).append(i)
+        set_of_deck.append(set_ids.setdefault(frozenset(card_set), len(set_ids)))
 
     decks_meta: list[_DeckMeta] = [
         {
@@ -189,6 +197,8 @@ def _build_commander_source_index(
         "brackets_by_deck": brackets_by_deck,
         "cards_by_deck": cards_by_deck,
         "postings": postings,
+        "set_of_deck": set_of_deck,
+        "set_ids": set_ids,
     }
 
 
@@ -220,47 +230,97 @@ def _pool_lookup(
     return by_name, name_by_id
 
 
+class UnknownDeckSource(KeyError):
+    """The revision, deck or variant that names the list to compare does not exist."""
+
+
 def resolve_user_deck_cards(
     store: StudioStore,
     *,
     revision_id: str | None = None,
     deck_id: str | None = None,
-    branch: str = "main",
+    branch: str | None = None,
     card_ids: Sequence[str] | None = None,
 ) -> list[str]:
-    """Resolve a list of `card_id`s from explicit `card_ids`, a `revision_id`, or `deck_id`+`branch`."""
+    """The card ids of the list to compare, from exactly one of: explicit ``card_ids``, a saved
+    ``revision_id``, or a ``deck_id`` with a variant (``branch``, default ``main``): the working
+    draft of the variant when there is one (the list the builder shows), else its newest saved
+    revision. Raises ``ValueError`` (German sentence) for no source, several sources or a variant
+    without a deck, and ``UnknownDeckSource`` for a revision, deck or variant that is not stored."""
+    given = (card_ids is not None) + bool(revision_id) + bool(deck_id)
+    if given != 1:
+        raise ValueError(
+            "Gib einen Stand, ein Deck mit Variante oder eine Kartenliste an (genau eines davon)."
+        )
+    if branch and not deck_id:
+        raise ValueError("Gib ein Deck an: eine Variante gehört immer zu einem Deck.")
     if card_ids is not None:
         return [str(cid) for cid in card_ids if cid]
     db = store.connection
-    if revision_id:
+
+    def revision_cards(revision: str) -> list[str]:
         return [
             str(r["card_id"])
             for r in db.execute(
                 "SELECT card_id FROM deck_revision_card WHERE revision_id = ? AND quantity > 0",
-                (revision_id,),
+                (revision,),
             )
         ]
-    if deck_id:
-        draft = db.execute(
-            "SELECT cards FROM deck_draft WHERE deck_id = ? AND branch = ?",
-            (deck_id, branch),
-        ).fetchone()
-        if draft is not None:
-            parsed = json.loads(str(draft["cards"]))
-            return [str(item["card_id"]) for item in parsed if int(item.get("quantity", 0)) > 0]
-        rev = db.execute(
-            "SELECT revision_id FROM deck_branch WHERE deck_id = ? AND branch = ?",
-            (deck_id, branch),
-        ).fetchone()
-        if rev is not None:
-            return [
-                str(r["card_id"])
-                for r in db.execute(
-                    "SELECT card_id FROM deck_revision_card WHERE revision_id = ? AND quantity > 0",
-                    (str(rev["revision_id"]),),
-                )
-            ]
-    return []
+
+    if revision_id:
+        if db.execute("SELECT 1 FROM deck_revision WHERE revision_id = ?", (revision_id,)).fetchone() is None:
+            raise UnknownDeckSource("revision")
+        return revision_cards(revision_id)
+    if db.execute("SELECT 1 FROM deck WHERE deck_id = ?", (deck_id,)).fetchone() is None:
+        raise UnknownDeckSource("deck")
+    variant = branch or "main"
+    draft = db.execute(
+        "SELECT cards FROM deck_draft WHERE deck_id = ? AND branch = ?", (deck_id, variant)
+    ).fetchone()
+    if draft is not None:
+        parsed = json.loads(str(draft["cards"]))
+        return [str(item["card_id"]) for item in parsed if int(item.get("quantity", 0)) > 0]
+    head = db.execute(
+        "SELECT revision_id FROM deck_branch WHERE deck_id = ? AND branch = ?", (deck_id, variant)
+    ).fetchone()
+    if head is None:
+        raise UnknownDeckSource("deck variant")
+    return revision_cards(str(head["revision_id"]))
+
+
+METHOD = "jaccard_without_basic_lands"
+NOTE = "Ähnlich heißt: gleiche Karten, nicht: erfolgreich."
+EMPTY_GROUP = "zu wenige Decks in dieser Gruppe"
+EMPTY_DECK = "Dein Deck hat noch keine Karten zum Vergleichen (Standardländer und Commander zählen nicht)."
+
+
+def _frame(
+    cohort: str,
+    requested: int,
+    considered: int,
+    user_cards: int,
+    **more: object,
+) -> dict[str, object]:
+    """The answer without neighbours (an empty group or an empty deck): never an error."""
+    return {
+        "decks_considered": considered,
+        "n": 0,
+        "n_requested": requested,
+        "cohort": cohort,
+        "method": METHOD,
+        "note": NOTE,
+        "min_hits": 0,
+        "small_group": considered < builder.SMALL_DENOMINATOR,
+        "small_group_limit": builder.SMALL_DENOMINATOR,
+        "identical_to_deck": 0,
+        "duplicates_removed": 0,
+        "user_nonbasic_cards": user_cards,
+        "median_similarity_all": None,
+        "nearest": [],
+        "they_play_you_dont": [],
+        "you_play_they_dont": [],
+        **more,
+    }
 
 
 def find_similar_decks(
@@ -273,12 +333,20 @@ def find_similar_decks(
     n: int = 20,
     include_unowned: bool = False,
 ) -> dict[str, object]:
-    """Compute Jaccard similarity against non-duplicate source decks of `commander_names`
-    (without basic lands and without the commander).
-    """
+    """Jaccard similarity of a deck list against the source decks of the commander, without
+    basic lands and without the commander. Counting only: nothing here says a deck is good.
+
+    - A source deck counts once per card set (the lowest deck id keeps it), and a source deck
+      with exactly the compared card set (the deck itself) is left out.
+    - Order: similarity descending, then deck id ascending (an exact fraction, no rounding ties).
+    - ``they_play_you_dont``: cards in at least ``ceil(0.4 * n)`` of the ``n`` neighbours that the
+      deck does not have; cards outside the collection only with ``include_unowned``.
+    - ``you_play_they_dont``: deck cards that at most one neighbour plays (``none_play`` marks 0).
+    - Every count carries its denominator (``hits`` of ``of``); an empty group or deck answers
+      with ``empty_reason`` and empty lists."""
     if not commander_names:
         raise ValueError("commander is required")
-    n = max(1, min(int(n), 100))
+    requested = max(1, min(int(n), 100))
     by_name, name_by_id = _pool_lookup(store, commander_names)
     basics = _basic_oracle_names(store)
     cmd_cf = {str(c).casefold() for c in commander_names}
@@ -301,41 +369,33 @@ def find_similar_decks(
     cohorts_by_deck = index["cohorts_by_deck"]
     cards_by_deck = index["cards_by_deck"]
     postings = index["postings"]
+    set_of_deck = index["set_of_deck"]
 
-    allowed_indices = [
+    allowed = [
         i
         for i, d in enumerate(decks_meta)
         if cohort in cohorts_by_deck.get(d["deck_id"], set()) and d["size"] > 0
     ]
-    if not allowed_indices:
-        return {
-            "decks_considered": 0,
-            "n": n,
-            "cohort": cohort,
-            "method": "jaccard_nonbasic",
-            "note": "Ähnlich heißt gleiche Karten (ohne Standardländer), nicht erfolgreich.",
-            "empty_reason": f"Keine Quelldecks in der Gruppe „{cohort}“ vorhanden.",
-            "user_nonbasic_cards": len(user_cards),
-            "median_similarity_all": None,
-            "nearest": [],
-            "they_play_you_dont": [],
-            "you_play_they_dont": [],
-        }
-
+    own_set = index["set_ids"].get(frozenset(user_cards)) if user_cards else None
+    identical = sum(1 for i in allowed if own_set is not None and set_of_deck[i] == own_set)
+    seen_sets: set[int] = set()
+    kept: list[int] = []  # decks_meta is ordered by deck id: the lowest id keeps a card set
+    for i in allowed:
+        if set_of_deck[i] == own_set or set_of_deck[i] in seen_sets:
+            continue
+        seen_sets.add(set_of_deck[i])
+        kept.append(i)
+    removed = len(allowed) - identical - len(kept)
+    if not kept:
+        return _frame(
+            cohort, requested, 0, len(user_cards), empty_reason=EMPTY_GROUP,
+            identical_to_deck=identical, duplicates_removed=removed,
+        )  # fmt: skip
     if not user_cards:
-        return {
-            "decks_considered": len(allowed_indices),
-            "n": n,
-            "cohort": cohort,
-            "method": "jaccard_nonbasic",
-            "note": "Ähnlich heißt gleiche Karten (ohne Standardländer), nicht erfolgreich.",
-            "empty_reason": "Dein Deck enthält noch keine Nicht-Standardländer-Karten zum Vergleichen.",
-            "user_nonbasic_cards": 0,
-            "median_similarity_all": 0.0,
-            "nearest": [],
-            "they_play_you_dont": [],
-            "you_play_they_dont": [],
-        }
+        return _frame(
+            cohort, requested, len(kept), 0, empty_reason=EMPTY_DECK,
+            duplicates_removed=removed,
+        )  # fmt: skip
 
     shared_by_idx = [0] * len(decks_meta)
     for cname in user_cards:
@@ -343,110 +403,80 @@ def find_similar_decks(
             shared_by_idx[idx] += 1
 
     u_size = len(user_cards)
-    scored: list[tuple[float, int, str, int, dict[str, object]]] = []
-    all_sims: list[float] = []
-    for idx in allowed_indices:
-        meta = decks_meta[idx]
-        d_size = meta["size"]
+    scored: list[tuple[float, str, int]] = []
+    for idx in kept:
         shared = shared_by_idx[idx]
-        union = u_size + d_size - shared
-        sim = round(shared / union, 4) if union > 0 else 0.0
-        all_sims.append(sim)
-        did = meta["deck_id"]
-        scored.append(
-            (
-                -sim,
-                -shared,
-                did,
-                idx,
-                {
-                    "deck_id": did,
-                    "similarity": sim,
-                    "shared": shared,
-                    "size": d_size,
-                    "bracket": meta["bracket"],
-                    "cohort": meta["cohort"],
-                    "play_group": meta["play_group"],
-                    "platform": meta["platform"],
-                    "url": meta["url"],
-                    "deck_date": meta["deck_date"],
-                },
-            )
+        # Equal fractions give equal floats (correctly rounded division), so a tie stays a tie.
+        scored.append((-(shared / (u_size + decks_meta[idx]["size"] - shared)), decks_meta[idx]["deck_id"], idx))
+    scored.sort()
+    top = scored[:requested]
+    k = len(top)
+    nearest: list[dict[str, object]] = []
+    for score, did, idx in top:
+        meta = decks_meta[idx]
+        nearest.append(
+            {
+                "deck_id": did,
+                "similarity": round(-score, 4),
+                "shared": shared_by_idx[idx],
+                "size": meta["size"],
+                "bracket": meta["bracket"],
+                "cohort": meta["cohort"],
+                "play_group": meta["play_group"],
+                "platform": meta["platform"],
+                "url": meta["url"],
+                "deck_date": meta["deck_date"],
+            }
         )
+    median_sim = round(float(statistics.median(-item[0] for item in scored)), 4)
 
-    # Sort by similarity DESC, shared DESC, deck_id ASC (deterministic tie-break)
-    scored.sort(key=lambda item: (item[0], item[1], item[2]))
-    top = scored[:n]
-    nearest = [item[4] for item in top]
-    nearest_indices = [item[3] for item in top]
-    k = len(nearest)
-    median_sim = round(float(statistics.median(all_sims)), 4) if all_sims else None
-
-    # Count cards across the nearest k source decks
-    nearest_card_hits: dict[str, int] = {}
-    for idx in nearest_indices:
+    hits_of: dict[str, int] = {}
+    for _score, _did, idx in top:
         for cname in cards_by_deck[idx]:
-            nearest_card_hits[cname] = nearest_card_hits.get(cname, 0) + 1
+            hits_of[cname] = hits_of.get(cname, 0) + 1
+    min_hits = (2 * k + 4) // 5  # ceil(0.4 * k) in whole numbers
 
-    they_play_keyed: list[tuple[int, str, dict[str, object]]] = []
-    for cname, hits in nearest_card_hits.items():
-        if cname in user_cards:
-            continue
-        pinfo = by_name.get(cname)
-        owned = pinfo["owned"] if pinfo is not None else 0
-        available = pinfo["available"] if pinfo is not None else 0
-        in_pool = pinfo["in_pool"] if pinfo is not None else False
-        if not include_unowned and (not in_pool or owned <= 0):
-            continue
-        they_play_keyed.append(
-            (
-                -hits,
-                cname,
-                {
-                    "card_id": pinfo["card_id"] if pinfo is not None else None,
-                    "name": cname,
-                    "hits": hits,
-                    "of": k,
-                    "share": round(hits / k, 4) if k > 0 else 0.0,
-                    "owned": owned,
-                    "available": available,
-                    "in_pool": in_pool,
-                },
-            )
-        )
-    they_play_keyed.sort(key=lambda item: (item[0], item[1]))
-    they_play = [item[2] for item in they_play_keyed]
+    def row(cname: str, hits: int) -> dict[str, object]:
+        info = by_name.get(cname)
+        return {
+            "card_id": info["card_id"] if info is not None else None,
+            "name": cname,
+            "hits": hits,
+            "of": k,
+            "share": round(hits / k, 4),
+            "owned": info["owned"] if info is not None else 0,
+            "available": info["available"] if info is not None else 0,
+            "in_pool": info["in_pool"] if info is not None else False,
+        }
 
-    you_play_keyed: list[tuple[int, str, dict[str, object]]] = []
-    for cname in sorted(user_cards):
-        hits = nearest_card_hits.get(cname, 0)
-        pinfo = by_name.get(cname)
-        you_play_keyed.append(
-            (
-                hits,
-                cname,
-                {
-                    "card_id": pinfo["card_id"] if pinfo is not None else None,
-                    "name": cname,
-                    "hits": hits,
-                    "of": k,
-                    "share": round(hits / k, 4) if k > 0 else 0.0,
-                    "owned": pinfo["owned"] if pinfo is not None else 0,
-                    "available": pinfo["available"] if pinfo is not None else 0,
-                    "in_pool": pinfo["in_pool"] if pinfo is not None else False,
-                },
-            )
-        )
-    you_play_keyed.sort(key=lambda item: (item[0], item[1]))
-    you_play = [item[2] for item in you_play_keyed]
+    they_play: list[dict[str, object]] = []
+    for cname, hits in sorted(hits_of.items(), key=lambda item: (-item[1], item[0])):
+        if cname in user_cards or hits < min_hits:
+            continue
+        found = row(cname, hits)
+        if not include_unowned and (not found["in_pool"] or int(found["owned"]) <= 0):  # type: ignore[call-overload]
+            continue
+        they_play.append(found)
+
+    you_play: list[dict[str, object]] = []
+    for cname in sorted(user_cards, key=lambda name: (hits_of.get(name, 0), name)):
+        hits = hits_of.get(cname, 0)
+        if hits <= 1:
+            you_play.append({**row(cname, hits), "none_play": hits == 0})
 
     return {
-        "decks_considered": len(allowed_indices),
+        "decks_considered": len(kept),
         "n": k,
+        "n_requested": requested,
         "cohort": cohort,
-        "method": "jaccard_nonbasic",
-        "note": "Ähnlich heißt gleiche Karten (ohne Standardländer), nicht erfolgreich.",
+        "method": METHOD,
+        "note": NOTE,
         "empty_reason": None,
+        "min_hits": min_hits,
+        "small_group": len(kept) < builder.SMALL_DENOMINATOR,
+        "small_group_limit": builder.SMALL_DENOMINATOR,
+        "identical_to_deck": identical,
+        "duplicates_removed": removed,
         "user_nonbasic_cards": u_size,
         "median_similarity_all": median_sim,
         "nearest": nearest,

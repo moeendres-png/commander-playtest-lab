@@ -103,10 +103,10 @@ class DecklistParseBody(BaseModel):
 
 class SimilarDecksBody(BaseModel):
     commander: str | list[str]
-    deck_card_ids: list[str] = Field(default_factory=list, max_length=300)
+    deck_card_ids: list[str] | None = Field(default=None, max_length=300)
     revision: str | None = Field(default=None, max_length=120)
     deck_id: str | None = Field(default=None, max_length=120)
-    branch: str = Field(default="main", min_length=1, max_length=80)
+    branch: str | None = Field(default=None, min_length=1, max_length=80)
     cohort: str = Field(default="all", min_length=1, max_length=120)
     n: int = Field(default=20, ge=1, le=100)
     include_unowned: bool = False
@@ -1234,13 +1234,15 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         commander: list[str] = Query(min_length=1, max_length=2),
         revision: str | None = Query(default=None, max_length=120),
         deck_id: str | None = Query(default=None, max_length=120),
-        branch: str = Query(default="main", min_length=1, max_length=80),
-        card_id: list[str] = Query(default=[]),
+        branch: str | None = Query(default=None, min_length=1, max_length=80),
+        card_id: list[str] = Query(default=[], max_length=300),
         cohort: str = Query(default="all", min_length=1, max_length=120),
         n: int = Query(default=20, ge=1, le=100),
         include_unowned: bool = Query(default=False),
     ) -> dict[str, object]:
-        """Nearest non-duplicate source decks by Jaccard similarity without basic lands."""
+        """Nearest source decks by Jaccard similarity without basic lands. The list to compare is
+        ONE of: ``revision`` (a saved state), ``deck_id`` with ``branch`` (default ``main``; the
+        working draft of the variant, else its newest saved state) or ``card_id`` (repeated)."""
         store = open_store()
         try:
             resolved_ids = similar_decks.resolve_user_deck_cards(
@@ -1258,8 +1260,10 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
                 n=n,
                 include_unowned=include_unowned,
             )
+        except similar_decks.UnknownDeckSource as error:
+            raise HTTPException(404, f"unknown {error.args[0]}") from error
         except KeyError as error:
-            raise HTTPException(404, f"unknown commander: {error}") from error
+            raise HTTPException(404, f"commander not in the collection: {error}") from error
         except ValueError as error:
             raise HTTPException(422, str(error)) from error
         finally:
@@ -1278,7 +1282,7 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
                 revision_id=body.revision,
                 deck_id=body.deck_id,
                 branch=body.branch,
-                card_ids=body.deck_card_ids if body.deck_card_ids else None,
+                card_ids=body.deck_card_ids,
             )
             return similar_decks.find_similar_decks(
                 store,
@@ -1288,8 +1292,10 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
                 n=body.n,
                 include_unowned=body.include_unowned,
             )
+        except similar_decks.UnknownDeckSource as error:
+            raise HTTPException(404, f"unknown {error.args[0]}") from error
         except KeyError as error:
-            raise HTTPException(404, f"unknown commander: {error}") from error
+            raise HTTPException(404, f"commander not in the collection: {error}") from error
         except ValueError as error:
             raise HTTPException(422, str(error)) from error
         finally:
