@@ -19,14 +19,18 @@ Card rows with a quantity of zero or less are dropped. An exact duplicate (same 
 multiset in the same sections) stored under another deck id is marked in
 ``duplicate_of`` (informational; the first imported copy wins, and marks left stale by a
 changed re-import are released). Universe counts do not read this mark: they collapse
-decks with the same content fingerprint inside the selected universe (``universe.py``). Re-importing the same folder replaces the decks it contains and
+decks with the same content fingerprint inside the selected universe (``universe.py``).
+The fingerprint is first hashed over the source spellings of the card names; once the
+names are linked to oracle ids, the link step re-derives it over oracle keys
+(``catalog.refresh_corpus_fingerprints``), so one physical deck that two sources spell
+differently (front face against the full ``Front // Back`` name) collapses to one
+fingerprint after all. Re-importing the same folder replaces the decks it contains and
 leaves every other deck alone. Legality of the imported lists is ``not_audited``: the
 importer records what the source published, it does not judge it.
 """
 
 from __future__ import annotations
 
-import hashlib
 import json
 import sqlite3
 from collections.abc import Mapping
@@ -34,7 +38,7 @@ from pathlib import Path
 from typing import TypedDict
 
 from ._coerce import iterate, to_int
-from .catalog import relink_corpus
+from .catalog import corpus_content_fingerprint, relink_corpus
 from .store import DataClass, StudioStore, sha256_file
 
 COMMANDER_COHORT = "chulane"
@@ -69,10 +73,12 @@ def _merge_rows(rows: list[tuple[str, str, int]]) -> list[tuple[str, str, int]]:
 
 
 def _fingerprint(rows: list[tuple[str, str, int]]) -> str:
-    digest = hashlib.sha256()
-    for card_name, section, quantity in sorted(rows):
-        digest.update(f"{card_name}\x00{section}\x00{quantity}\n".encode())
-    return digest.hexdigest()
+    """The fingerprint at import time: the content hash over the source spellings.
+
+    Once the deck's names are linked to oracle ids, ``relink_corpus`` re-derives the
+    fingerprint over oracle keys (``catalog.refresh_corpus_fingerprints``), so the two
+    spellings of one card stop splitting one physical deck into two fingerprints."""
+    return corpus_content_fingerprint(rows)
 
 
 def _release_stale_marks(db: sqlite3.Connection) -> None:

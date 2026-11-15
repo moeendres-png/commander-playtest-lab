@@ -446,10 +446,14 @@ DEFAULT_WEIGHTS: dict[str, float] = {
     RUBRIC: 0.0,
     SIMULATION: 0.0,
 }
-# Tier cuts of the purely empirical index (Owner decision E5.a, #1364): 72 / 50 / 28 / 14, the same
-# for lands. They replace the cuts 47 / 17 / 9 / 4 of the sqrt scale; with the log scale the index
-# spreads over a wider range. Not tuned to any card.
-DEFAULT_CUTS: dict[str, float] = {"S": 72.0, "A": 50.0, "B": 28.0, "C": 14.0}
+# Tier cuts of the purely empirical index, derived once (#1366) from the default ``Ausgewogen``
+# index with a rule fixed in advance: C is the smallest whole number above the highest index of
+# any card whose only commander evidence is a counted 0 (those cards stay D); A is the smallest
+# whole number that keeps every card with less than 5 % in the counted lists out of S and A; S is
+# the whole number nearest to 3 % of the ranked non-lands in S, never below A + 1; B is the
+# rounded midpoint of A and C. Result 54 / 35 / 20 / 5 (Stand #1371: 72 / 50 / 28 / 14), the same
+# for lands. Not tuned to any card.
+DEFAULT_CUTS: dict[str, float] = {"S": 54.0, "A": 35.0, "B": 20.0, "C": 5.0}
 DEFAULT_MIN_DENOMINATORS: dict[str, int] = {
     MIN_EDHREC: 30,
     MIN_TOURNAMENT: 20,
@@ -511,15 +515,31 @@ COMBO_PART_VARIANTS = "spellbook_variants"
 COMBO_PART_TWO_CARD = "spellbook_two_card_variants"
 COMBO_PART_PARTNERS = "spellbook_partners_in_collection"
 COMBO_PARTS = (COMBO_PART_VARIANTS, COMBO_PART_TWO_CARD, COMBO_PART_PARTNERS)
+# The shell parts (#1366): distinct spellbook combos instead of raw variants.
+# When the store holds them, they replace the variant parts in the mixture and
+# the shell count is the primary part; the variant count stays a stored signal
+# for display only.
+COMBO_PART_SHELLS = "spellbook_shells"
+COMBO_PART_TWO_CARD_SHELLS = "spellbook_two_card_shells"
+COMBO_PART_COMMANDER_SHELLS = "spellbook_commander_shells"
+COMBO_SHELL_PARTS = (COMBO_PART_SHELLS, COMBO_PART_TWO_CARD_SHELLS, COMBO_PART_COMMANDER_SHELLS)
 SIGNAL_COMBO_COMMANDER = "edhrec_combo_decks"
 
 
-def signal_for(component: str, bracket: str, *, combo_source: str = COMBO_SPELLBOOK) -> str:
+def signal_for(
+    component: str,
+    bracket: str,
+    *,
+    combo_source: str = COMBO_SPELLBOOK,
+    spellbook_shells: bool = False,
+) -> str:
     """The stored signal name behind a component (empty when none is stored)."""
     if component == BRACKET_INCLUSION:
         return f"edhrec_bracket_inclusion:{bracket}" if bracket != BRACKET_NONE else ""
     if component == COMBOS:
-        return SIGNAL_COMBO_COMMANDER if combo_source == COMBO_COMMANDER else COMBO_PART_VARIANTS
+        if combo_source == COMBO_COMMANDER:
+            return SIGNAL_COMBO_COMMANDER
+        return COMBO_PART_SHELLS if spellbook_shells else COMBO_PART_VARIANTS
     if component.startswith(LAYER_PREFIX):
         return LAYER_SIGNALS[component[len(LAYER_PREFIX) :]]
     return {
@@ -991,6 +1011,7 @@ class PoolContext:
     filter_cards: Collection[str] = field(default_factory=frozenset)
     universe_minimum: int = 0
     function_group: Mapping[str, tuple[str, ...]] = field(default_factory=dict)
+    spellbook_shells: bool = False
 
 
 class ComponentResult(TypedDict):
@@ -1104,6 +1125,14 @@ def percentile_ranks(values: Mapping[str, float]) -> dict[str, float]:
         first.setdefault(value, position)
         last[value] = position
     return {key: (first[value] + last[value]) / 2.0 / (count - 1) for key, value in values.items()}
+
+
+def zero_floor_ranks(values: Mapping[str, float]) -> dict[str, float]:
+    """Percentile ranks where a value of 0 (a counted 0: no combo) scores 0.0 instead of the
+    mean rank of its tie group; the other values are ranked among all values, so they sit above
+    the zeros. Identical to ``percentile_ranks`` when no value is 0."""
+    ranks = percentile_ranks(values)
+    return {key: (0.0 if value <= 0.0 else ranks[key]) for key, value in values.items()}
 
 
 def share_scale_values(
@@ -1337,18 +1366,26 @@ def apply_corpus_rule(
     }
 
 
-def combo_quality(parts: Mapping[str, Mapping[str, float]]) -> dict[str, float]:
+def combo_quality(
+    parts: Mapping[str, Mapping[str, float]], primary: str = COMBO_PART_VARIANTS
+) -> dict[str, float]:
     """The combos value of a card: the mean of its percentile ranks in the combo
-    quality parts (``COMBO_PARTS``), over the cards the primary part (variant count)
-    lists. A card the primary part does not list gets no value (not listed, not 0);
-    a part beyond the primary one counts only for the cards that have a value in it,
-    so the mean of a card with fewer parts is the mean of the parts it has. The value
-    is itself a rank mixture in 0..1: ``score_pool`` ranks it among the pool like
-    every other component value, which keeps the order of this mixture."""
-    primary = parts.get(COMBO_PART_VARIANTS, {})
+    quality parts, over the cards the primary part lists (the variant count, or
+    the shell count when the store holds the shell parts, #1366). A card the
+    primary part does not list gets no value (not listed, not 0); a part beyond
+    the primary one counts only for the cards that have a value in it, so the
+    mean of a card with fewer parts is the mean of the parts it has. The value
+    is itself a rank mixture in 0..1: ``score_pool`` ranks it among the pool
+    like every other component value, which keeps the order of this mixture."""
+    primary_values = parts.get(primary, {})
     ranks = {name: percentile_ranks(values) for name, values in parts.items() if values}
     result: dict[str, float] = {}
-    for card in primary:
+    for card, count in primary_values.items():
+        if count <= 0.0:
+            # a counted 0 (no qualifying combo) scores 0, below every card that has one; the
+            # tie-mean rank of the zero group would give it about the median
+            result[card] = 0.0
+            continue
         found = [ranks[name][card] for name in ranks if card in ranks[name]]
         if found:
             result[card] = sum(found) / len(found)
@@ -1478,6 +1515,8 @@ def _scale_component_values(
         return {card: above_neutral_score(value) for card, value in values.items()}
     if component in DIRECT_COMPONENTS:
         return dict(values)
+    if component == COMBOS:
+        return zero_floor_ranks(values)
     return percentile_ranks(values)
 
 
@@ -1846,7 +1885,10 @@ def score_pool(
                     "component": component,
                     "label": component_label(component, combo_source=settings.combo_source),
                     "signal": signal_for(
-                        component, settings.bracket, combo_source=settings.combo_source
+                        component,
+                        settings.bracket,
+                        combo_source=settings.combo_source,
+                        spellbook_shells=ctx.spellbook_shells,
                     ),
                     "status": status,
                     "reason": GROUP_TOO_SMALL if group_fallback else reason,

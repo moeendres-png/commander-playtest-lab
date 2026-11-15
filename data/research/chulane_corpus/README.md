@@ -1,9 +1,12 @@
 # Chulane decklist corpus — the full counted decklists
 
-The canonical Chulane corpus itself: 3,004 public decklists
-(2,285 EDHREC + 719 Archidekt) as normalized per-deck JSON files —
-266,539 card rows in the Studio store, 2,845 canonical decks
-(159 exact duplicates). This is the deck population the counted
+The canonical Chulane corpus itself: 3,023 public decklists
+(2,300 EDHREC + 723 Archidekt) as normalized per-deck JSON files —
+268,204 card rows in the Studio store, 2,639 canonical decks
+(384 duplicates: 162 spelling-identical, and 222 that are the same physical
+deck under the other source's spelling of a two-part card — since #1394 the
+content fingerprint is re-derived over oracle ids at link time, so the two
+spellings collapse). This is the deck population the counted
 spread ("Verbreitung, gezählt") and, per the Owner decision of
 2026-11-13, the decklist component of the strength index are computed
 from. Until now only the derived inclusion count file
@@ -14,8 +17,8 @@ existed only locally, so no fresh checkout could recount it.
 ## Layout
 
 ```text
-edhrec/     cedh 233 · core 557 · exhibition 45 · optimized 695 · upgraded 755
-archidekt/  bracket1 28 · bracket2 117 · bracket3 267 · bracket4 261 · bracket5 46
+edhrec/     cedh 233 · core 558 · exhibition 45 · optimized 700 · upgraded 764
+archidekt/  bracket1 28 · bracket2 117 · bracket3 269 · bracket4 263 · bracket5 46
 ```
 
 The files are the harvest's normalized form (no author fields; deck
@@ -36,14 +39,18 @@ python scripts/import_chulane_corpus.py
 python scripts/map_corpus_oracle_ids.py
 ```
 
-Acceptance: `corpus_deck` = 3,004 (2,845 with `duplicate_of IS NULL`),
-`corpus_deck_card` = 266,539, `corpus_cohort` = 11,297; after step 2,
-266,366 of 266,539 card rows carry an `oracle_id` (99.94%, measured on
-the live store; the residue is names with no unambiguous catalog
-match). Re-importing a folder replaces its decks by `deck_id`.
+Acceptance: `corpus_deck` = 3,023 (2,639 with `duplicate_of IS NULL`),
+`corpus_deck_card` = 268,204, `corpus_cohort` = 11,369; after step 2,
+268,031 of 268,204 card rows carry an `oracle_id` (99.94%, measured on
+a fresh store build 2026-11-15; the residue is names with no unambiguous
+catalog match). Re-importing a folder replaces its decks by `deck_id`.
 
 ## Notes
 
+- Refresh 2026-11-15 (issue #1388): +19 lists harvested since the first
+  capture (15 EDHREC-classified, 4 Archidekt with `edhBracket`); report:
+  `docs/research/CORPUS_REFRESH_1388_20261115.md`. Decks that fall out of
+  EDHREC's rolling two-year index window are never removed from the corpus.
 - The counted universe used by the tier list (2,823 decks) is this
   corpus minus the decks the universe profile filters out — a store
   view, not a different dataset.

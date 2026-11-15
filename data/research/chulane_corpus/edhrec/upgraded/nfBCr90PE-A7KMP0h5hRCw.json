@@ -1,0 +1,301 @@
+{
+ "urlhash": "nfBCr90PE-A7KMP0h5hRCw",
+ "variante": "upgraded",
+ "bracket": 3,
+ "savedate": "2026-11-14",
+ "price": 254,
+ "salt": 54.98985442472622,
+ "tags": [
+  "Lands Matter",
+  "Tokens"
+ ],
+ "source_url": "https://moxfield.com/decks/FmNMra6LfUqjL-JAJvkM4w?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Adrix and Nev, Twincasters",
+   "quantity": 1
+  },
+  {
+   "name": "Akroma, Angel of Wrath",
+   "quantity": 1
+  },
+  {
+   "name": "Avacyn's Pilgrim",
+   "quantity": 1
+  },
+  {
+   "name": "Birds of Paradise",
+   "quantity": 1
+  },
+  {
+   "name": "Cryptic Trilobite",
+   "quantity": 1
+  },
+  {
+   "name": "Dauntless Escort",
+   "quantity": 1
+  },
+  {
+   "name": "Drogskol Reaver",
+   "quantity": 1
+  },
+  {
+   "name": "Elder Pine of Jukai",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Mystic",
+   "quantity": 1
+  },
+  {
+   "name": "Faeburrow Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Gandalf, White Rider",
+   "quantity": 1
+  },
+  {
+   "name": "Geist-Honored Monk",
+   "quantity": 1
+  },
+  {
+   "name": "Giltspire Avenger",
+   "quantity": 1
+  },
+  {
+   "name": "Haru-Onna",
+   "quantity": 1
+  },
+  {
+   "name": "Hydroid Krasis",
+   "quantity": 1
+  },
+  {
+   "name": "Iname, Life Aspect",
+   "quantity": 1
+  },
+  {
+   "name": "Kiri-Onna",
+   "quantity": 1
+  },
+  {
+   "name": "Knights of Dol Amroth",
+   "quantity": 1
+  },
+  {
+   "name": "Kodama of the South Tree",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Momir Vig, Simic Visionary",
+   "quantity": 1
+  },
+  {
+   "name": "Monk Realist",
+   "quantity": 1
+  },
+  {
+   "name": "Myojin of Cleansing Fire",
+   "quantity": 1
+  },
+  {
+   "name": "Myojin of Life's Web",
+   "quantity": 1
+  },
+  {
+   "name": "Myojin of Seeing Winds",
+   "quantity": 1
+  },
+  {
+   "name": "Nikko-Onna",
+   "quantity": 1
+  },
+  {
+   "name": "Peregrine Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Primordial Sage",
+   "quantity": 1
+  },
+  {
+   "name": "Rosie Cotton of South Lane",
+   "quantity": 1
+  },
+  {
+   "name": "Sakura-Tribe Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Shrieking Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Stormscape Familiar",
+   "quantity": 1
+  },
+  {
+   "name": "Sunscape Familiar",
+   "quantity": 1
+  },
+  {
+   "name": "Tetsuko Umezawa, Fugitive",
+   "quantity": 1
+  },
+  {
+   "name": "Whitemane Lion",
+   "quantity": 1
+  },
+  {
+   "name": "Zimone, All-Questioning",
+   "quantity": 1
+  },
+  {
+   "name": "Akroma's Will",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Denial",
+   "quantity": 1
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1
+  },
+  {
+   "name": "Fact or Fiction",
+   "quantity": 1
+  },
+  {
+   "name": "Flawless Maneuver",
+   "quantity": 1
+  },
+  {
+   "name": "Generous Gift",
+   "quantity": 1
+  },
+  {
+   "name": "Grand Crescendo",
+   "quantity": 1
+  },
+  {
+   "name": "Mystical Tutor",
+   "quantity": 1
+  },
+  {
+   "name": "Path to Exile",
+   "quantity": 1
+  },
+  {
+   "name": "Squall Line",
+   "quantity": 1
+  },
+  {
+   "name": "Austere Command",
+   "quantity": 1
+  },
+  {
+   "name": "Genesis Wave",
+   "quantity": 1
+  },
+  {
+   "name": "Pest Infestation",
+   "quantity": 1
+  },
+  {
+   "name": "Summer Bloom",
+   "quantity": 1
+  },
+  {
+   "name": "Three Visits",
+   "quantity": 1
+  },
+  {
+   "name": "Animation Module",
+   "quantity": 1
+  },
+  {
+   "name": "Rammas Echor, Ancient Shield",
+   "quantity": 1
+  },
+  {
+   "name": "Sensei's Divining Top",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "The Immortal Sun",
+   "quantity": 1
+  },
+  {
+   "name": "Worn Powerstone",
+   "quantity": 1
+  },
+  {
+   "name": "Defense of the Heart",
+   "quantity": 1
+  },
+  {
+   "name": "Steel of the Godhead",
+   "quantity": 1
+  },
+  {
+   "name": "Teferi's Moat",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 11
+  },
+  {
+   "name": "Hinterland Harbor",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 12
+  },
+  {
+   "name": "Plains",
+   "quantity": 10
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Survivors' Encampment",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Enlightenment",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Plenty",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

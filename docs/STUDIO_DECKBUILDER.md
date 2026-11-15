@@ -272,8 +272,9 @@ Formula, per commander (`strength.py`, pure):
     component reads either the commander's EDHREC combo deck counts (`combo_source = "commander"`,
     default, commander-specific) or Commander Spellbook quality (`combo_source = "spellbook"`,
     the mean of the card's percentile ranks in variant count, two-card variant count and
-    partners in the collection via `strength.combo_quality`); that value is then ranked like
-    every other component.
+    partners in the collection via `strength.combo_quality`; with the shell file of #1366
+    imported, in shell count, two-card shell count and commander shell count instead, see
+    "Combo shells"); that value is then ranked like every other component.
 2. Share signals become a scaled value in `0..1` according to `share_scale` (recommended
    `share` = $\sqrt{v / v_{\max}}$ within the comparison group, preserving the magnitude gap
    between 3 % marginal cards and 60 % staples so long zero tails do not push marginal cards to
@@ -425,7 +426,8 @@ real gaps and always carries a reason code.
 
 **Scale and cuts (E5.a).** `share_scale = "log"` (default): $\ln(1 + k v)/\ln(1 + k v_{\max})$
 with $k = 150$ (`strength.LOG_SHARE_K`), lands and spells apart, comparison group `pool`, cuts
-72 / 50 / 28 / 14. `rank_other_commanders` stays on (geprüft und bestätigt 2026-11-15).
+54 / 35 / 20 / 5 (re-derived once in #1366, see "Tier cuts of #1366"; Stand #1371: 72 / 50 / 28 / 14).
+`rank_other_commanders` stays on (geprüft und bestätigt 2026-11-15).
 
 **Saved profiles on reload.** A profile stores only the keys it was saved with; they stay
 (an old rubric weight 3.5, `share_scale`, cuts, `missing_value`). Every key it lacks takes the
@@ -449,7 +451,8 @@ is a small part of its whole-corpus share). A redundancy matrix (Spearman betwee
 active weighted components over the cards where both have a value, pairs above 0.90 flagged as
 double counting); and the tier counts for $k$ = 100 / 150 / 200.
 
-Measured on the repository store (Chulane pool 927, 922 ranked, 2,823 counted lists; bracket 5
+Measured on the repository store, **Stand #1371** (cuts 72 / 50 / 28 / 14; the table of #1366 with
+the new cuts follows below) (Chulane pool 927, 922 ranked, 2,823 counted lists; bracket 5
 has 267 decks, brackets 4+5 have 1,155; only 16 pool cards have an EDHTop16 row), after the
 review fixes (lift and slope above neutral only, theme reach shrunk per theme):
 
@@ -470,7 +473,8 @@ No pair of active components exceeds $r$ = 0.90 (`deck_universe` against `corpus
 0.8481), so `corpus_tuned` stays the share in brackets 4+5. Open against the acceptance
 criteria: the `combos` signal changes 0 to 1 tiers when left out (a value for only 13 pool
 cards; 0 in `Commander-nah`), and the distribution is bottom-heavy with the cuts
-72 / 50 / 28 / 14 (775 to 799 cards are `D`, after the lift and slope fix more than before it).
+72 / 50 / 28 / 14 (775 to 799 cards are `D`, after the lift and slope fix more than before it);
+the cuts are re-derived below.
 The agreement with the counted lists stays above 0.90 for spells and lands in all presets.
 
 **Confidence and borderline mark (#1365).** Every ranked card carries `confidence` (0..1),
@@ -491,8 +495,99 @@ The agreement with the counted lists stays above 0.90 for spells and lands in al
 The result also carries `tier_counts_by_kind` (`spells` and `lands`, the same keys as
 `tier_counts`), `unknown_breakdown` (`total`, `zero_count` = U cards with reason
 `ZERO_COUNT_ONLY`, i.e. "gezählt 0 von N" (only with `zero_count_tier` = U), `missing_data` = the
-others with their `by_reason` codes, and `denominator` = the counted corpus) and
+others with their `by_reason` codes, and `denominator` = the deck count of those cards' own counted-zero rows, `null` when they name more than one) and
 `borderline_count`. Each card has `is_land`.
+
+#### Tier cuts of #1366
+
+The bottom-heavy distribution of Stand #1371 (775 to 799 of 927 cards in `D`) is corrected once,
+with a rule fixed in advance, applied to the default `Ausgewogen` index and not tuned to any
+named card:
+
+- **C** = the smallest whole number above the highest index of any card whose only commander
+  evidence is a counted 0 (every weighted commander-specific component is `ZERO_COUNT`: 358 pool
+  cards, highest index 4.2 at Stand #1371; 357 pool cards, highest index 4.1 after #1390/#1395),
+  so these cards all stay `D`: 5.
+- **A** = the smallest whole number that keeps every card with less than 5 % in the counted lists
+  out of `S` and `A` (the highest index of such a card is 34.4): 35.
+- **S** = the whole number nearest to 3 % of the 857 ranked non-lands in `S` (25.7 cards), never
+  below A + 1: 54 (26 cards).
+- **B** = the rounded midpoint of A and C: 20.
+
+Result **54 / 35 / 20 / 5**, the same for lands and for all presets (Stand #1371: 72 / 50 / 28 / 14).
+The rule gave no degenerate result (A 35 is below the S target 54). A first quantile rule
+(cumulative shares 3 / 13 / 35 / 65 %, cuts 54 / 14 / 3 / 1) was discarded: it put 67 of 147
+`S`/`A` cards below 5 % in the counted lists and lifted 54 zero-count cards out of `D`.
+Measured on a store rebuilt from the repository (`import-all --from-repo --expect-pool 927`,
+2,839 counted lists after #1390 and #1395):
+
+| Metric | `Ausgewogen` | `Commander-nah` | `Turniernah` |
+|---|---|---|---|
+| Tiers `S / A / B / C / D / U / N`, Stand #1371 (72 / 50 / 28 / 14, 2,823 lists) | `8 / 37 / 49 / 53 / 775 / 0 / 5` | `7 / 37 / 52 / 48 / 778 / 0 / 5` | `8 / 26 / 36 / 53 / 799 / 0 / 5` |
+| Tiers `S / A / B / C / D / U / N`, Stand #1366 (54 / 35 / 20 / 5, 2,839 lists) | `38 / 33 / 47 / 151 / 653 / 0 / 5` | `38 / 37 / 46 / 129 / 672 / 0 / 5` | `27 / 29 / 45 / 106 / 715 / 0 / 5` |
+| Lands `S / A / B / C / D` (65), Stand #1366 | `12 / 13 / 9 / 13 / 18` | `11 / 14 / 9 / 12 / 19` | `6 / 11 / 13 / 12 / 23` |
+| Spearman all / spells / lands vs counted lists (unchanged by the cuts) | `0.9235 / 0.9115 / 0.9912` | `0.9377 / 0.9277 / 0.9919` | `0.9291 / 0.9182 / 0.9911` |
+| Randkarten oben, Stand #1371 / #1366 | `0 / 45` / `0 / 71` | `0 / 44` / `2 / 75` | `0 / 34` / `0 / 56` |
+| Stammkarten unten (> 30 %, tier C or D) | `0 / 27` | `0 / 27` | `0 / 27` |
+| Cards with only a counted 0 outside `D` (357 cards) | 0 | 0 | 0 |
+| Leave-one-out, tier changes of 927 per weighted signal, Stand #1366 | `deck_universe` 116, `corpus_tuned` 41, `corpus_log_lift` 49, `corpus_bracket_slope` 42, `tournament` 17, `edhrec_theme_reach` 9, `global_inclusion` 64, `combos` 2 | `deck_universe` 138, `corpus_tuned` 20, `corpus_log_lift` 94, `corpus_bracket_slope` 20, `edhrec_theme_reach` 25, `global_inclusion` 25, `combos` 1 | `deck_universe` 80, `corpus_tuned` 48, `corpus_bracket_slope` 62, `corpus_log_lift` 18, `tournament` 36, `global_inclusion` 27, `combos` 2 |
+| Tier changes for $k$ 100 / 200 against 150, Stand #1366 | `46 / 38` | `36 / 40` | `45 / 36` |
+
+`Commander-nah` has 2 marginal cards in `S`/`A` (the preset weights differ from the default the
+cuts were derived on); the other presets have none.
+
+#### Combo shells (#1366)
+
+The Spellbook count of a card was a count of variants: a combo whose flexible slot has many
+printed equivalents inflates it (Shrieking Drake: 397 variants in the link file, 2 qualifying
+shells; the three bounce-land recipes of the Chulane combo are one shell). `data/research/deckbuilder_1655/spellbook_shells.csv` counts distinct combos ("shells")
+instead, built by `scripts/build_spellbook_shells.py` from the public Commander Spellbook bulk
+export (`variants.json.gz`; only the variant ids of the committed link file are looked up in it,
+nothing about the collection leaves the machine; source, date, version and SHA-256 are in the
+README of the folder). Rules (module `spellbook_shells`):
+
+- A shell is the combo behind a variant (`of`); combos that share a variant are one shell
+  (union-find, named by the smallest combo id), so the result does not depend on the order of `of`.
+- A variant qualifies when its colour identity fits WUG (colourless `C` fits) and every card it
+  uses is in the Chulane pool of 927. A shell with a qualifying variant counts 1, however many
+  variants it has; outside WUG or with a partner outside the pool it counts 0 (a counted 0).
+- 2 cards against 3 or more (template slots count as cards), and commander involvement
+  (`mustBeCommander`, or the commander card itself is in the combo).
+- The importer reads the file like every other signal (`spellbook_shells`, `spellbook_two_card_shells`,
+  `spellbook_commander_shells`, scoped by `commander_name` to the imported commander, SHA-256 of
+  the file in the source row; a re-import writes the same rows and the same source). With these
+  signals stored for the active commander, the `spellbook` combo source ranks the shell parts
+  (`signal: spellbook_shells`) and the variant count is only shown; for another commander without
+  its own shell rows it falls back to the variant mixture (`spellbook_variants`). The detail row
+  of a card shows "n Combo-Shells (davon a mit 2 Karten, b mit 3+ Karten, c mit
+  Commander-Beteiligung)" or explicitly marks missing/out-of-bounds breakdowns as `unbekannt`.
+
+Measured result, bulk version 7.4.2: of 123,149 variants only 4 have all cards in the pool and a
+fitting identity, 2 shells (the Chulane bounce-land recipe with Tireless Provisioner and Shrieking
+Drake, the Lonis recipe with Academy Manufactor), 8 cards with a shell. The default combo source
+stays `commander` (13 cards with an EDHREC combo row), so the default tier list does not move; with
+`combo_source = "spellbook"` (counted zeros give all 927 cards a value, measured on 2,839 counted lists):
+
+| `combo_source = "spellbook"` | `Ausgewogen` | `Commander-nah` | `Turniernah` |
+|---|---|---|---|
+| Distinct combo values, variants / shells | `133 / 4` | `133 / 4` | `133 / 4` |
+| Spearman all vs counted lists, variants / shells (counted zeros score 0) | `0.8657 / 0.9235` | `0.8692 / 0.9388` | `0.8283 / 0.9303` |
+| Leave-one-out `combos`, tier changes, variants / shells | `143 / 23` | `144 / 15` | `178 / 37` |
+| Tiers `S / A / B / C / D`, shells | `32 / 36 / 46 / 145 / 663` | `33 / 38 / 48 / 128 / 675` | `24 / 25 / 43 / 101 / 729` |
+
+Top of the combos value before (variants): Shrieking Drake, Adrix and Nev, Whitemane Lion,
+Lightning Greaves, Clever Impersonator, Kor Skyfisher, Rite of Replication (cards whose partners
+are mostly not in the pool); after (shells): Shrieking Drake (2 shells), then Azorius Chancery,
+Chulane, Selesnya Sanctuary, Simic Growth Chamber, Tireless Provisioner (1 shell each with the
+commander), then Academy Manufactor and Lonis (1 shell); every other card holds a counted 0.
+The signal is therefore almost empty for this pool and stays a weak one under `Ausgewogen`;
+that is a property of the owned pool, not of the source.
+
+A counted 0 (no qualifying shell or variant) scores 0 in the combos component, below every card
+that has a combo, like a card without an EDHREC combo row counts for nothing under the default source
+(`strength.zero_floor_ranks`, `combo_quality`); before, the tie-mean rank of the zero group (about
+0.5 for 919 of 927 cards) lifted every card above the low cuts. Under the default source
+(`commander`, 13 cards, no zero values) the ranks are unchanged.
 
 ### Rating layers ("Bewertungsebenen")
 
