@@ -32,7 +32,8 @@ mypy <every changed module under src/>
 python -m pytest -q tests/qualification
 python -m pytest -q tests/unit -p no:cacheprovider --continue-on-collection-errors
 ```
-A dirty tracked tree no longer fails the unit tests (the guard lived in the removed tool service).
+Unit tests run on a dirty tree (the old `stale canonical inputs` guard was removed). Only the packaging
+smoke test (`tests/unit/test_packaging_smoke.py`) compares the wheel with the committed source and needs `src` committed.
 Modules needing optional deps (e.g. fastapi) fail to collect locally;
 compare the failure set with main's instead of reading it as a regression.
 

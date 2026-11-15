@@ -12,6 +12,7 @@ from commander_lab.canonical_features import (
 from commander_lab.deck_registry import DeckPolicyRegistry
 from commander_lab.models import Color
 from commander_lab.repositories.candidates import (
+    load_candidate_profiles,
     load_current_candidate_eligibility,
 )
 
@@ -233,3 +234,28 @@ def test_feature_projection_is_deck_scoped_and_prefix_guarded(tmp_path: Path) ->
     )
     with pytest.raises(CanonicalFeatureError, match="escape configured deck policy"):
         load_canonical_feature_annotations(tmp_path, deck_id="fixture/alpha", registry=registry)
+
+
+def test_candidate_profiles_do_not_leak_between_decks(tmp_path: Path) -> None:
+    tracked = _fixture_project(tmp_path)
+    before = {path: path.read_bytes() for path in tracked}
+
+    profiles = load_candidate_profiles(tmp_path)
+    alpha_profiles = [
+        candidate
+        for candidate in profiles.values()
+        if candidate.allowed_deck_ids == ("fixture/alpha",)
+    ]
+    beta_profiles = [
+        candidate
+        for candidate in profiles.values()
+        if candidate.allowed_deck_ids == ("fixture/beta",)
+    ]
+
+    assert [row.card.oracle_name for row in alpha_profiles] == ["White Insight"]
+    assert [row.card.oracle_name for row in beta_profiles] == ["Blue Denial"]
+    assert alpha_profiles[0].card.package_ids == frozenset({"package:alpha:draw"})
+    assert beta_profiles[0].card.package_ids == frozenset({"package:beta:counter"})
+
+    after = {path: path.read_bytes() for path in tracked}
+    assert before == after

@@ -169,6 +169,7 @@ def check(files: list[str] | None = None) -> list[str]:
 
 # Files that legitimately point at the archive as a location (navigation, not content).
 _ARCHIVE_POINTERS = {
+    ".gitattributes",  # byte-identity (-text) rules for archived sealed records
     "docs/README.md",
     "docs/MODULE_MAP.md",
     "scripts/classify_docs.py",

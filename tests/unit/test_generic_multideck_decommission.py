@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import ast
+import json
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -20,7 +21,7 @@ from commander_lab.agents import (
     build_pilot,
 )
 from commander_lab.engine.structural.project import live_commander_strategy
-from commander_lab.models import PilotConfig
+from commander_lab.models import PilotConfig, PilotProfile
 
 ROOT = Path(__file__).resolve().parents[2]
 RETIRED_KORVOLD_CLASSES = (
@@ -40,6 +41,24 @@ ALLOWED_LEGACY_BUILD_PILOT_CALLERS = frozenset(
 
 def _deck_with_commanders(*commanders: str) -> SimpleNamespace:
     return SimpleNamespace(commander=SimpleNamespace(commanders=commanders))
+
+
+def test_canonical_pilot_registry_contains_generic_and_rogshai_but_no_korvold() -> None:
+    payload = json.loads((ROOT / "data/pilots/pilot_registry.json").read_text(encoding="utf-8"))
+    profiles = tuple(PilotProfile.model_validate(row) for row in payload["profiles"])
+    families = {profile.commander_family for profile in profiles}
+    names = {profile.pilot_name for profile in profiles}
+    assert families == {"generic", "rogshai"}
+    assert "GenericCommanderPilot" in names
+    assert not any(name.casefold().startswith("korvold") for name in names)
+    generic = next(profile for profile in profiles if profile.pilot_name == "GenericCommanderPilot")
+    assert generic.supported_deck_hashes == ()
+    assert all(
+        value == 1.0
+        for key, value in generic.weights.as_dict().items()
+        if key != "political_visibility"
+    )
+    assert generic.weights.political_visibility == -0.65
 
 
 def test_live_commander_strategy_is_explicit_rogshai_or_generic() -> None:

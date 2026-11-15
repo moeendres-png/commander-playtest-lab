@@ -3,6 +3,7 @@ from __future__ import annotations
 import math
 from pathlib import Path
 
+from commander_lab.engine.structural import load_project_structural_decks
 from commander_lab.mana_analysis import (
     CastabilityLibraryCard,
     CommanderCastCost,
@@ -15,8 +16,89 @@ from commander_lab.models import (
     StructuralCardProfile,
     StructuralDeckProfile,
 )
+from commander_lab.repositories.candidates import load_candidate_profiles
 
 ROOT = Path(__file__).resolve().parents[2]
+
+
+def _candidate_by_name(name: str):
+    for candidate in load_candidate_profiles(ROOT).values():
+        if candidate.card.oracle_name == name:
+            return candidate.card
+    raise AssertionError(f"missing candidate fixture: {name}")
+
+
+def _rogshai_deck() -> StructuralDeckProfile:
+    return load_project_structural_decks(
+        ROOT,
+        include_synthetic_fixtures=True,
+        include_current_opponents=True,
+    )["rogshai/current"]
+
+
+def test_tapped_land_classifier_distinguishes_definite_and_conditional() -> None:
+    analyzer = ManaAnalyzer(ROOT)
+    temple = analyzer.classify_source(_candidate_by_name("Temple of Epiphany"))
+    fortress = analyzer.classify_source(_candidate_by_name("Glacial Fortress"))
+    assert temple.definitely_enters_tapped is True
+    assert temple.conditionally_enters_tapped is False
+    assert fortress.definitely_enters_tapped is False
+    assert fortress.conditionally_enters_tapped is True
+
+
+def test_current_rogshai_mana_report_covers_colors_commanders_and_early_signals() -> None:
+    deck = _rogshai_deck()
+    report = ManaAnalyzer(ROOT).analyze_deck(deck)
+    assert report.deck_hash == deck.deck_hash
+    assert report.land_count == 36
+    assert report.colored_sources["W"] > 0
+    assert report.colored_sources["U"] > 0
+    assert report.colored_sources["R"] > 0
+    assert report.ishai_wu_source_counts["W"] > 0
+    assert report.ishai_wu_source_counts["U"] > 0
+    assert "Ishai, Ojutai Dragonspeaker" in report.commander_color_requirements
+    assert set(report.turn_castability_support) == {1, 2, 3}
+    assert all(
+        0.0 <= float(row["source_supported_share"]) <= 1.0
+        for row in report.turn_castability_support.values()
+    )
+    assert report.evidence_class == "derived_structural_mana_analysis"
+    assert "not a rules-exact" in report.approximation_note
+
+
+def test_opening_hand_reports_approximate_castability_ishai_and_hold_up() -> None:
+    deck = _rogshai_deck()
+    by_name = {card.oracle_name: card for card in deck.cards}
+    test_counter = StructuralCardProfile(
+        oracle_name="Deterministic Test Counter",
+        mana_value=2.0,
+        roles=frozenset({CardRole.COUNTER}),
+        color_requirements={Color.BLUE: 1},
+        is_permanent=False,
+    )
+    hand = (
+        by_name["Island"],
+        by_name["Mountain"],
+        by_name["Plains"],
+        test_counter,
+    )
+    report = ManaAnalyzer(ROOT).analyze_opening_hand(deck, hand)
+    assert report.ishai_wu_color_ready is True
+    assert report.t2_interaction_hold_up_ready is True
+    assert report.approximate_castable_card_count_by_turn[1] == 0
+    assert report.approximate_castable_card_count_by_turn[2] >= 1
+    assert "does not solve" in report.approximation_note
+
+
+def test_mana_delta_is_deterministic_and_zero_for_same_deck() -> None:
+    deck = _rogshai_deck()
+    delta = ManaAnalyzer(ROOT).compare_decks(deck, deck)
+    assert delta.colored_source_delta == {}
+    assert delta.flexible_source_delta == 0
+    assert delta.definitely_tapped_land_delta == 0
+    assert delta.conditionally_tapped_land_delta == 0
+    assert delta.t1_untapped_source_delta == {}
+    assert delta.ishai_wu_source_delta == {"W": 0, "U": 0}
 
 
 def _castability_card(

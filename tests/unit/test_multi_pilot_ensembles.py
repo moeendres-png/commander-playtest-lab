@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import random
 from pathlib import Path
 
 import pytest
@@ -14,11 +15,17 @@ from commander_lab.models import (
     PilotConfig,
     PilotInformationPolicy,
     PilotOpponentView,
+    PilotProfile,
     PilotStateView,
     PilotStrength,
 )
 
 ROOT = Path(__file__).resolve().parents[2]
+
+
+def _registry_profiles() -> tuple[PilotProfile, ...]:
+    payload = json.loads((ROOT / "data/pilots/pilot_registry.json").read_text(encoding="utf-8"))
+    return tuple(PilotProfile.model_validate(row) for row in payload["profiles"])
 
 
 def _state(
@@ -104,6 +111,20 @@ def _action(
         base_power=power,
         metadata=metadata or {},
     )
+
+
+def test_all_profiles_select_only_supplied_legal_actions() -> None:
+    actions = (_action("a", "Engine", roles=(CardRole.ENGINE,)), _action("b", "Pass", kind="pass"))
+    checked = list(_registry_profiles())
+    assert checked, "nothing was checked: the pilot registry is empty"
+    for profile in checked:
+        state = _state(strategy=profile.commander_family)
+        pilot = build_pilot(
+            PilotConfig(pilot_name=profile.pilot_name, strength=PilotStrength.STRONG),
+            strategy=profile.commander_family,
+        )
+        selected = pilot.choose_action(state, actions, random.Random(7)).selected_action_id
+        assert selected in {action.action_id for action in actions}
 
 
 def test_omniscient_policy_is_rejected() -> None:

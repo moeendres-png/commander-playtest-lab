@@ -69,4 +69,5 @@ The output of each command decides the next step, so read it all; just don't pul
 - **Keep the stack moving.**
   - After a base PR merges, retarget stacked PRs to `main` and merge `origin/main` into every open head in one loop.
   - Regenerate hash manifests with `scripts/regenerate_hash_manifests.py`; never resolve `WS17_SHA256SUMS` by hand.
+  - Unit tests run on a dirty tree; `tests/unit/test_packaging_smoke.py` compares the wheel with the committed source, so commit `src` edits before it.
 - **Never trade evidence for speed.** UNKNOWN ≠ PASS, LOCAL_OBSERVED is not credit, and no option or default is fabricated. A shortcut that skips a gate the policy requires is not an efficiency.

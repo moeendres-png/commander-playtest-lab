@@ -4,8 +4,39 @@ import json
 from pathlib import Path
 
 from commander_lab.engine.structural.project import load_project_structural_decks
+from commander_lab.models import OpponentProfile
 
 ROOT = Path(__file__).resolve().parents[2]
+
+
+def _import_profiles(path: Path) -> list[OpponentProfile]:
+    payload = json.loads(path.read_text(encoding="utf-8-sig"))
+    if isinstance(payload, dict) and "profiles" in payload:
+        payload = payload["profiles"]
+    if isinstance(payload, dict):
+        payload = [payload]
+    return [OpponentProfile.model_validate(item) for item in payload]
+
+
+def test_lorehold_official_precon_imports_as_exact_100() -> None:
+    path = ROOT / "data/opponents/lorehold_spirit_precon.json"
+    profiles = _import_profiles(path)
+
+    assert len(profiles) == 1
+    profile = profiles[0]
+    assert profile.profile_id == "opponent/lorehold-spirit-precon"
+    assert profile.list_status.value == "official_precon"
+    assert profile.commander.commanders == ("Quintorius, History Chaser",)
+    assert profile.deck is not None
+    assert profile.deck.total_cards == 100
+    assert profile.deck.library_cards == 99
+    assert profile.deck.quantities()["Plains"] == 11
+    assert profile.deck.quantities()["Mountain"] == 6
+    assert "Excava, the Risen Past" in profile.deck.quantities()
+    assert "Osgir, the Reconstructor" not in profile.deck.quantities()
+    assert profile.uncertainty.known_card_count == 100
+    assert profile.uncertainty.synthetic_card_count == 0
+    assert profile.sources[0].source_type == "official_precon"
 
 
 def test_lorehold_is_registered_without_touching_kaervek_hash() -> None:
