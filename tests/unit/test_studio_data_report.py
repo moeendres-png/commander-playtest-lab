@@ -247,3 +247,13 @@ def test_report_gives_pool_sizes_unknown_legality_and_signal_coverage_per_comman
     text = json.dumps(after)
     for card_name in ("Filler 00", "Forest", "Swarm Rat", "Unchecked Card"):
         assert card_name not in text  # counts only, no collection card name
+
+
+def test_a_main_deck_stored_as_main_counts_as_its_99_cards(studio: StudioStore) -> None:
+    # The repository corpus stores the main deck as ``main``, the corpus importer as
+    # ``mainboard``: a deck of 99 cards in either spelling is not "not 99".
+    with studio.connection as db:
+        db.execute("UPDATE corpus_deck_card SET section = 'main'")
+        db.execute("UPDATE corpus_deck_card SET quantity = 99 WHERE deck_id = 'd2'")
+    corpus = _section(data_report(studio, today=TODAY), "corpus")
+    assert corpus["mainboard_not_99_cards"] == {"count": 3, "of": 4}  # d1, d3 and d4 are short

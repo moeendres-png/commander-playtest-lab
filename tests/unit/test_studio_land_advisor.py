@@ -5,6 +5,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
 from fastapi.testclient import TestClient
 
 from commander_lab.studio import StudioStore, land_advisor
@@ -279,3 +280,69 @@ def test_a_fetch_land_is_not_a_land_without_data() -> None:
     script = (STATIC / "app.js").read_text(encoding="utf-8")
     assert "Länder, die selbst kein Mana erzeugen" in script
     assert "Länder ohne Angabe" in script
+
+
+def _rename_sections(store: StudioStore, section: str) -> None:
+    """The repository corpus stores the main deck as ``main``, the corpus importer as
+    ``mainboard``; the synthetic store is written with the second spelling."""
+    with store.connection as db:
+        db.execute("UPDATE corpus_deck_card SET section = ?", (section,))
+
+
+@pytest.mark.parametrize("section", ["main", "mainboard", "Main"])
+def test_the_group_figures_read_both_spellings_of_the_main_deck(
+    tmp_path: Path, section: str
+) -> None:
+    from tests.unit.test_studio_builder import _fill
+
+    store = StudioStore.open(tmp_path / "studio")
+    _fill(store, tmp_path)
+    _rename_sections(store, section)
+    everyone = {g["cohort"]: g for g in land_advisor.source_deck_groups(store, ["Test Commander"])}[
+        "all"
+    ]
+    # the same hand count as with "mainboard": not a median of zero lands
+    assert everyone["lands"] == {"median": 33.0, "p25": 31.5, "p75": 34.5}
+    assert everyone["colours"]["G"]["land_sources"]["median"] == 33.0
+    assert everyone["colours"]["G"]["pips"] == {"median": 0.5, "p25": 0.25, "p75": 0.75}
+
+
+def test_a_card_in_both_main_spellings_counts_once_and_other_sections_not_at_all(
+    tmp_path: Path,
+) -> None:
+    from tests.unit.test_studio_builder import _fill
+
+    store = StudioStore.open(tmp_path / "studio")
+    _fill(store, tmp_path)
+    _rename_sections(store, "main")
+    with store.connection as db:
+        # d2 lists its 36 Forests under both spellings, d1 lists 30 more in a sideboard
+        db.execute(
+            "INSERT INTO corpus_deck_card SELECT deck_id, card_name, oracle_id, quantity, "
+            "'mainboard', normalization_status FROM corpus_deck_card "
+            "WHERE deck_id = 'd2' AND section = 'main'"
+        )
+        db.execute(
+            "INSERT INTO corpus_deck_card SELECT deck_id, card_name, oracle_id, quantity, "
+            "'sideboard', normalization_status FROM corpus_deck_card "
+            "WHERE deck_id = 'd1' AND card_name = 'Forest'"
+        )
+    everyone = {g["cohort"]: g for g in land_advisor.source_deck_groups(store, ["Test Commander"])}[
+        "all"
+    ]
+    assert everyone["lands"] == {"median": 33.0, "p25": 31.5, "p75": 34.5}
+
+
+def test_the_route_shows_medians_above_zero_for_main_rows(tmp_path: Path) -> None:
+    from tests.unit.test_studio_builder import _deck, _fill
+
+    store = StudioStore.open(tmp_path / "studio")
+    _fill(store, tmp_path)
+    _rename_sections(store, "main")
+    store.close()
+    client = TestClient(create_app(tmp_path / "studio"), headers={"X-Studio": "1"})
+    body = client.post("/api/land-advisor", json={"cards": [c.__dict__ for c in _deck()]})
+    assert body.status_code == 200
+    groups = {g["cohort"]: g for g in body.json()["groups"]}
+    assert groups["all"]["lands"]["median"] == 33.0
+    assert groups["all"]["colours"]["G"]["land_sources"]["median"] == 33.0

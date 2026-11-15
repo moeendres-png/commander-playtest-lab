@@ -31,6 +31,7 @@ from collections.abc import Iterable, Mapping, Sequence
 from statistics import median
 
 from .store import StudioStore
+from .universe import MAIN_SECTIONS
 
 SCHEMA = "studio-land-advisor-1"
 SMALL_GROUP = 30
@@ -253,12 +254,21 @@ def source_deck_groups(
     for start in range(0, len(ordered), _CHUNK):
         chunk = ordered[start : start + _CHUNK]
         marks = ", ".join("?" for _ in chunk)
+        sections = ", ".join("?" for _ in MAIN_SECTIONS)
+        # The main deck is stored as "main" (decklist importer, repository corpus) or as
+        # "mainboard" (corpus importer); a card listed under both counts once, with the
+        # larger quantity, the way the universe counts it.
         query = (
-            "SELECT k.deck_id, k.quantity, s.type_line, s.mana_cost, s.produced_mana, s.layout "
+            "SELECT deck_id, MAX(quantity) AS quantity, type_line, mana_cost, produced_mana, "
+            "layout FROM (SELECT k.deck_id AS deck_id, s.oracle_id AS oracle_id, "
+            "SUM(k.quantity) AS quantity, s.type_line AS type_line, s.mana_cost AS mana_cost, "
+            "s.produced_mana AS produced_mana, s.layout AS layout "
             "FROM corpus_deck_card k JOIN scryfall_card s ON s.oracle_id = k.oracle_id "
-            f"WHERE k.deck_id IN ({marks}) AND LOWER(k.section) = 'mainboard'"
+            f"WHERE k.deck_id IN ({marks}) AND LOWER(k.section) IN ({sections}) "
+            "GROUP BY k.deck_id, s.oracle_id, LOWER(k.section)) "
+            "GROUP BY deck_id, oracle_id"
         )
-        for row in store.connection.execute(query, chunk):
+        for row in store.connection.execute(query, [*chunk, *MAIN_SECTIONS]):
             cards[str(row["deck_id"])].append(row)
     compact: dict[str, dict[str, object]] = {}
     for deck_id, rows in cards.items():

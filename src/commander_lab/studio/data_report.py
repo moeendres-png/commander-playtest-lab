@@ -244,8 +244,10 @@ def _corpus(db: sqlite3.Connection) -> dict[str, object]:
             _scalar(
                 db,
                 "SELECT COUNT(*) FROM (SELECT deck_id FROM corpus_deck_card "
-                "GROUP BY deck_id HAVING SUM(CASE WHEN LOWER(section) = 'mainboard' "
+                "GROUP BY deck_id HAVING SUM(CASE WHEN LOWER(section) IN "
+                f"({', '.join('?' for _ in universe.MAIN_SECTIONS)}) "
                 "THEN quantity ELSE 0 END) != 99)",
+                tuple(universe.MAIN_SECTIONS),
             ),
             with_rows,
         ),
