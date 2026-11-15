@@ -1,6 +1,6 @@
 # Commander Playtest Lab
 
-Local, reproducible decision system for Commander deck validation, Structural simulation, pilot/ensemble analysis, paired comparisons, ablation, holdout, sensitivity and constrained optimization.
+Commander Studio: a local application to build Commander decks, play them and simulate them. Games are full rules games on the pinned XMage engine through the Java bridge (`engine-bridge/`), played by the pilots in `src/commander_lab/engine/rules` and `src/commander_lab/agents`. The sealed qualification epoch (`qualification/`, `candidate-qualification/`) is the evidence that engine and bridge are fit for this. `docs/README.md` indexes the documents; what describes removed or finished things is under `docs/archive/`.
 
 ## Project authority — read these before anything else
 
@@ -52,80 +52,13 @@ summary follows it.
 
 ## Runtime truth
 
-Do not treat a commit SHA copied into this README as canonical current software truth. At execution time, resolve the repository default branch and pin the exact commit/tree in the run manifest. Package version alone is not a sufficient software identity.
+Do not treat a commit SHA copied into this README as canonical software truth. At execution time, resolve the repository default branch and pin the exact commit/tree in the run manifest; the engine pin is `config/rules_engines.json`.
 
-The current decision architecture includes:
-
-- Optimizer-v2 1E hierarchical gates + Pareto;
-- 2F sequential paired precision;
-- question-specific mechanics-fidelity routing;
-- Structural simulator fidelity corrections;
-- abort/censoring fail-closed decision evidence;
-- content-addressed current decision/semantic inputs.
-
-The existing Structural simulation's operational decision scope remains **4-player
-Commander only**. This implementation boundary does not constrain Commander Simulator
-Next's architecture or research scope. Other player counts require their own qualified
-runtime and decision evidence; this documentation change does not enable them.
-
-Active own-deck scope must be read from the current project/collection scope and newer direct project truth, not inferred from this README or historical snapshots. Frozen opponent-only decks likewise come from the current opponent/project registries.
-
-No search, confirmatory result, diagnostic, or holdout automatically mutates a canonical/current deck, inventory quantity, physical allocation, purchase state, or opponent observation.
-
-## Optimizer-v2 decision path
-
-The official path is:
-
-```text
-manifest -> preflight -> run/search -> mechanics-fidelity routing -> confirm -> diagnose -> holdout
-```
-
-The current architecture uses:
-
-- SESOI separated from model precision;
-- paired sequential confirmatory looks defined by the current decision contract;
-- multiplicity control;
-- MCSE and seed-stability gates;
-- seat, pilot and opponent robustness within 4P;
-- fresh critical diagnostics;
-- a single frozen challenger before a fresh single-look sealed holdout.
-
-Historical `effective_resolution` promotion logic is retired and cannot authorize advancement.
-
-### Fidelity-aware search and confirmatory routing
-
-Structural search is deliberately asymmetric by evidence cost:
-
-1. legal candidates may receive the smallest Exploratory Structural screening budget;
-2. a candidate whose delta is outside the question-specific Structural decision-safe mechanics contract cannot receive later Structural racing budgets;
-3. screening-only / tactical / external-rules candidates do not train adaptive Structural operator or policy rewards;
-4. the frontier remains auditable and keeps routed candidates visible;
-5. Structural confirmatory uses only a diverse shortlist of decision-safe frontier candidates;
-6. a non-decision-safe frontier candidate does not block unrelated decision-safe candidates;
-7. if no decision-safe candidate remains, confirmatory fails closed.
-
-The mechanics contract distinguishes:
-
-- `MECHANISTICALLY_SUPPORTED`;
-- `APPROXIMATED_DECISION_SAFE`;
-- `APPROXIMATED_SCREENING_ONLY`;
-- `TACTICAL_REQUIRED`;
-- `EXTERNAL_RULES_REQUIRED`;
-- `UNSUPPORTED`.
-
-Only the first two categories can support Structural confirmatory decisions. Higher-layer candidates require an actually valid tactical/external evidence path or remain unresolved/fail-closed.
+The decision scope is the Owner decisions in `docs/OWNER_DECISIONS_STUDIO_20261112.md`: games of up to 6 players, default 4 (one own deck, three opponents). No simulation result automatically mutates a deck, inventory quantity, physical allocation or purchase state.
 
 ## Evidence boundary
 
-Simulator outputs are `structural_model_estimates`. They are not empirical win rates and are not external-rules-engine evidence.
-
-The Tactical Oracle is a separate bounded abstraction and is not an external rules engine.
-
-XMage evidence may only be called `external_rules_engine` when a real provider run was actually executed and validated for the relevant scenario class.
-
-A known semantic profile is not equivalent to mechanistic support. Mechanics that need exact targets, modes, payment resources, stack sequencing, combat assignment, attachments, trigger copying or other rules-complete state are routed to a higher evidence layer or fail closed.
-
-Structural semantic-model changes invalidate prior confirmatory mechanics evidence with `STALE_MODEL_VERSION`; a different Git commit alone is not treated as a sufficient semantic compatibility claim.
+Results from real games on the pinned XMage engine are evidence about that engine's play, not empirical win rates of real tables. Evidence classes are defined in `AGENTS.md` §4. The removed structural simulator, optimizer and tool service (see `docs/archive/`) are not part of the product and give no evidence.
 
 ## Current-source policy
 
@@ -146,14 +79,6 @@ Dated `data/canonical_import/...` snapshots are historical/regression provenance
 For volatile software identity, use the actual GitHub default-branch commit/tree at execution time. A Drive status summary may be useful provenance but must not override a newer verified GitHub software state.
 
 For deck, physical inventory, allocation and opponent truth, use the current canonical project sources and newer direct project statements according to the project source hierarchy.
-
-## Main implementation files
-
-```text
-data/decision/DECISION_CONTRACT_CURRENT.json
-src/commander_lab/engine/structural/fact_fidelity.py
-src/commander_lab/engine/structural/simulator_fidelity.py
-```
 
 ## Setup and validation
 
@@ -242,7 +167,3 @@ games are reused.
 The `commander-lab` console script exposes `candidates normalize|validate|prepare-simulation`
 and `engine-verify` (the same check as `python -m commander_lab.engine.verify_cli`). The former
 validation, profile, probe, MCP and tool-server commands were removed.
-
-## Optimization rule
-
-Candidate changes remain read-only until explicitly accepted. A baseline or challenger may be evaluated through paired comparison, commander-denial, ablation, holdout, sensitivity, pilot and opponent-ensemble workflows only within the evidence layers that are valid for the mechanics involved and within the current operational 4P scope.
