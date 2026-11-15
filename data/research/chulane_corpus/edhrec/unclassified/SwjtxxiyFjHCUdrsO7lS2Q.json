@@ -1,0 +1,290 @@
+{
+ "urlhash": "SwjtxxiyFjHCUdrsO7lS2Q",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-11-01",
+ "price": 636,
+ "salt": 57.58723700046539,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/a10PwmWtwUKaeJBUagmijg?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Aang, Swift Savior",
+   "quantity": 1
+  },
+  {
+   "name": "Adrix and Nev, Twincasters",
+   "quantity": 1
+  },
+  {
+   "name": "Aesi, Tyrant of Gyre Strait",
+   "quantity": 1
+  },
+  {
+   "name": "Avacyn's Pilgrim",
+   "quantity": 1
+  },
+  {
+   "name": "Blade of the Sixth Pride",
+   "quantity": 1
+  },
+  {
+   "name": "Blighted Agent",
+   "quantity": 1
+  },
+  {
+   "name": "Blind Phantasm",
+   "quantity": 1
+  },
+  {
+   "name": "Captain Jean-Luc Picard",
+   "quantity": 1
+  },
+  {
+   "name": "Captain Kathryn Janeway",
+   "quantity": 1
+  },
+  {
+   "name": "Elesh Norn, Mother of Machines",
+   "quantity": 1
+  },
+  {
+   "name": "Emeritus of Ideation",
+   "quantity": 1
+  },
+  {
+   "name": "Forest Bear",
+   "quantity": 1
+  },
+  {
+   "name": "Fyndhorn Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Glistener Elf",
+   "quantity": 1
+  },
+  {
+   "name": "Katara, the Fearless",
+   "quantity": 1
+  },
+  {
+   "name": "Lieutenant Commander Data",
+   "quantity": 1
+  },
+  {
+   "name": "Lt. Cmdr. Geordi La Forge",
+   "quantity": 1
+  },
+  {
+   "name": "Memnite",
+   "quantity": 1
+  },
+  {
+   "name": "Moonshaker Cavalry",
+   "quantity": 1
+  },
+  {
+   "name": "Mr. Spock, Science Officer",
+   "quantity": 1
+  },
+  {
+   "name": "Nessian Courser",
+   "quantity": 1
+  },
+  {
+   "name": "Ocelot Pride",
+   "quantity": 1
+  },
+  {
+   "name": "Psychosis Crawler",
+   "quantity": 1
+  },
+  {
+   "name": "Sakashima of a Thousand Faces",
+   "quantity": 1
+  },
+  {
+   "name": "Sakura-Tribe Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Seven of Nine, Unassimilated",
+   "quantity": 1
+  },
+  {
+   "name": "Squire",
+   "quantity": 1
+  },
+  {
+   "name": "Tuvasa the Sunlit",
+   "quantity": 1
+  },
+  {
+   "name": "Vendilion Clique",
+   "quantity": 1
+  },
+  {
+   "name": "Vengevine",
+   "quantity": 1
+  },
+  {
+   "name": "Vorinclex, Voice of Hunger",
+   "quantity": 1
+  },
+  {
+   "name": "Beast Within",
+   "quantity": 1
+  },
+  {
+   "name": "Brave the Elements",
+   "quantity": 1
+  },
+  {
+   "name": "Condemn",
+   "quantity": 1
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1
+  },
+  {
+   "name": "Cryptic Command",
+   "quantity": 1
+  },
+  {
+   "name": "Kozilek's Command",
+   "quantity": 1
+  },
+  {
+   "name": "Negate",
+   "quantity": 1
+  },
+  {
+   "name": "Path to Exile",
+   "quantity": 1
+  },
+  {
+   "name": "Reciprocate",
+   "quantity": 1
+  },
+  {
+   "name": "Day of Judgment",
+   "quantity": 1
+  },
+  {
+   "name": "Harmonize",
+   "quantity": 1
+  },
+  {
+   "name": "Ponder",
+   "quantity": 1
+  },
+  {
+   "name": "Preordain",
+   "quantity": 1
+  },
+  {
+   "name": "Recollect",
+   "quantity": 1
+  },
+  {
+   "name": "Tidings",
+   "quantity": 1
+  },
+  {
+   "name": "Treasure Hunt",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "The Mind Stone",
+   "quantity": 1
+  },
+  {
+   "name": "The One Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Steely Resolve",
+   "quantity": 1
+  },
+  {
+   "name": "Ajani, Sleeper Agent",
+   "quantity": 1
+  },
+  {
+   "name": "Garruk Wildspeaker",
+   "quantity": 1
+  },
+  {
+   "name": "The Theorist, Jace Beleren",
+   "quantity": 1
+  },
+  {
+   "name": "Breeding Pool",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 6
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 6
+  },
+  {
+   "name": "Plains",
+   "quantity": 6
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Snow-Covered Forest",
+   "quantity": 7
+  },
+  {
+   "name": "Snow-Covered Island",
+   "quantity": 6
+  },
+  {
+   "name": "Snow-Covered Plains",
+   "quantity": 7
+  },
+  {
+   "name": "Temple Garden",
+   "quantity": 1
+  },
+  {
+   "name": "Terramorphic Expanse",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

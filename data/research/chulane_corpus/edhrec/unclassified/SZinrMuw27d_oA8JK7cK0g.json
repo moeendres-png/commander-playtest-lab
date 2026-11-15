@@ -1,0 +1,306 @@
+{
+ "urlhash": "SZinrMuw27d_oA8JK7cK0g",
+ "variante": "unclassified",
+ "bracket": null,
+ "savedate": "2026-05-30",
+ "price": 1006,
+ "salt": 68.99334817379713,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/22998260?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Aesi, Tyrant of Gyre Strait",
+   "quantity": 1
+  },
+  {
+   "name": "Arcanis the Omnipotent",
+   "quantity": 1
+  },
+  {
+   "name": "Fathom Mage",
+   "quantity": 1
+  },
+  {
+   "name": "Grand Arbiter Augustin IV",
+   "quantity": 1
+  },
+  {
+   "name": "Gregor, Shrewd Magistrate",
+   "quantity": 1
+  },
+  {
+   "name": "Haliya, Ascendant Cadet",
+   "quantity": 1
+  },
+  {
+   "name": "Isperia, Supreme Judge",
+   "quantity": 1
+  },
+  {
+   "name": "Kestia, the Cultivator",
+   "quantity": 1
+  },
+  {
+   "name": "Lyla, Holographic Assistant",
+   "quantity": 1
+  },
+  {
+   "name": "Maeve, Insidious Singer",
+   "quantity": 1
+  },
+  {
+   "name": "Morska, Undersea Sleuth",
+   "quantity": 1
+  },
+  {
+   "name": "Sab-Sunen, Luxa Embodied",
+   "quantity": 1
+  },
+  {
+   "name": "Stuffy Doll",
+   "quantity": 1
+  },
+  {
+   "name": "Sythis, Harvest's Hand",
+   "quantity": 1
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1
+  },
+  {
+   "name": "The Walls of Ba Sing Se",
+   "quantity": 1
+  },
+  {
+   "name": "Ultimecia, Temporal Threat",
+   "quantity": 1
+  },
+  {
+   "name": "Venat, Heart of Hydaelyn",
+   "quantity": 1
+  },
+  {
+   "name": "Vnwxt, Verbose Host",
+   "quantity": 1
+  },
+  {
+   "name": "Countermand",
+   "quantity": 1
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1
+  },
+  {
+   "name": "Didn't Say Please",
+   "quantity": 1
+  },
+  {
+   "name": "Kitsune's Technique",
+   "quantity": 1
+  },
+  {
+   "name": "Mana Drain",
+   "quantity": 1
+  },
+  {
+   "name": "Psychic Spiral",
+   "quantity": 1
+  },
+  {
+   "name": "Thought Collapse",
+   "quantity": 1
+  },
+  {
+   "name": "Cut Your Losses",
+   "quantity": 1
+  },
+  {
+   "name": "Fractured Sanity",
+   "quantity": 1
+  },
+  {
+   "name": "Maddening Cacophony",
+   "quantity": 1
+  },
+  {
+   "name": "Mathemagics",
+   "quantity": 1
+  },
+  {
+   "name": "Mind Sculpt",
+   "quantity": 1
+  },
+  {
+   "name": "Traumatize",
+   "quantity": 1
+  },
+  {
+   "name": "Darksteel Plate",
+   "quantity": 1
+  },
+  {
+   "name": "Decanter of Endless Water",
+   "quantity": 1
+  },
+  {
+   "name": "Dolmen Gate",
+   "quantity": 1
+  },
+  {
+   "name": "Mindcrank",
+   "quantity": 1
+  },
+  {
+   "name": "Mithril Coat",
+   "quantity": 1
+  },
+  {
+   "name": "Pariah's Shield",
+   "quantity": 1
+  },
+  {
+   "name": "Robe of the Archmagi",
+   "quantity": 1
+  },
+  {
+   "name": "Sapphire Medallion",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Sword of Body and Mind",
+   "quantity": 1
+  },
+  {
+   "name": "The Earth Crystal",
+   "quantity": 1
+  },
+  {
+   "name": "The Water Crystal",
+   "quantity": 1
+  },
+  {
+   "name": "The Wind Crystal",
+   "quantity": 1
+  },
+  {
+   "name": "Whispersilk Cloak",
+   "quantity": 1
+  },
+  {
+   "name": "Almost Perfect",
+   "quantity": 1
+  },
+  {
+   "name": "Aura Shards",
+   "quantity": 1
+  },
+  {
+   "name": "Curse of the Bloody Tome",
+   "quantity": 1
+  },
+  {
+   "name": "Enchantress's Presence",
+   "quantity": 1
+  },
+  {
+   "name": "Greater Auramancy",
+   "quantity": 1
+  },
+  {
+   "name": "Hunting Grounds",
+   "quantity": 1
+  },
+  {
+   "name": "Jace's Erasure",
+   "quantity": 1
+  },
+  {
+   "name": "Mana Reflection",
+   "quantity": 1
+  },
+  {
+   "name": "Memory Erosion",
+   "quantity": 1
+  },
+  {
+   "name": "Mirari's Wake",
+   "quantity": 1
+  },
+  {
+   "name": "Pariah",
+   "quantity": 1
+  },
+  {
+   "name": "Psychic Corrosion",
+   "quantity": 1
+  },
+  {
+   "name": "Redemption Arc",
+   "quantity": 1
+  },
+  {
+   "name": "Shielded by Faith",
+   "quantity": 1
+  },
+  {
+   "name": "Teferi's Tutelage",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Exotic Orchard",
+   "quantity": 1
+  },
+  {
+   "name": "Floodfarm Verge",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 10
+  },
+  {
+   "name": "Hinterland Harbor",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 11
+  },
+  {
+   "name": "Plains",
+   "quantity": 10
+  },
+  {
+   "name": "Reflecting Pool",
+   "quantity": 1
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Serra's Sanctum",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}
