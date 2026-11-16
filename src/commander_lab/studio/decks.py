@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 import sqlite3
 from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
@@ -364,8 +365,8 @@ def _collection_lookup(
         coll[str(row["oracle_name"]).casefold()] = info
         if row["engine_name"]:
             coll.setdefault(str(row["engine_name"]).casefold(), info)
-        front = str(row["oracle_name"]).split(" // ")[0].strip().casefold()
-        coll.setdefault(front, info)
+        for face in str(row["oracle_name"]).split(" // "):
+            coll.setdefault(face.strip().casefold(), info)
     public: dict[str, dict[str, object]] = {}
     for row in store.connection.execute(
         "SELECT oracle_id, name, front_name, color_identity, commander_legality FROM scryfall_card"
@@ -378,6 +379,8 @@ def _collection_lookup(
         public[str(row["name"]).casefold()] = pinfo
         if row["front_name"]:
             public.setdefault(str(row["front_name"]).casefold(), pinfo)
+        for face in str(row["name"]).split(" // ")[1:]:
+            public.setdefault(face.strip().casefold(), pinfo)
     return coll, public
 
 
@@ -406,19 +409,74 @@ def _detect_format(lines: list[str]) -> str:
     return "plain"
 
 
-def _strip_decklist_decorators(raw_name: str) -> str:
-    import re
+_MAX_LINE_CHARS = 300
+_MAX_LINES = 2000
+_MAX_QUANTITY = 99
+_MAX_STRIP_PASSES = 8
+_TYPO_TRANSLATION = str.maketrans(
+    {
+        "\u2018": "'",
+        "\u2019": "'",
+        "\u02bc": "'",
+        "\u201c": '"',
+        "\u201d": '"',
+        "\u00a0": " ",
+        "\u202f": " ",
+        "\u200b": None,
+        "\u200c": None,
+        "\u200d": None,
+        "\u2060": None,
+        "\ufeff": None,
+    }
+)
+_DASH_TRANSLATION = str.maketrans(
+    {"\u2010": "-", "\u2011": "-", "\u2012": "-", "\u2013": "-", "\u2014": "-"}
+)
+_PRICE_AMOUNT = r"\d[\d.,]{0,11}"
+_PRICE_TAIL_RE = re.compile(
+    rf"\s+(?:[$\u20ac\u00a3]\s?{_PRICE_AMOUNT}|{_PRICE_AMOUNT}\s?(?:[$\u20ac\u00a3]|USD|EUR|EURO))\s*$",
+    re.IGNORECASE,
+)
+_PRICE_ANY_RE = re.compile(
+    rf"[$\u20ac\u00a3]\s?{_PRICE_AMOUNT}|{_PRICE_AMOUNT}\s?(?:[$\u20ac\u00a3]|USD\b|EUR\b)",
+    re.IGNORECASE,
+)
+_PRICE_ANNOTATION = "Preisangabe (ignoriert)"
 
+
+def _strip_trailing_prices(name: str) -> tuple[str, bool]:
+    """Drop trailing amount tokens (never kept or echoed); report whether any was dropped."""
+    found = False
+    for _ in range(3):
+        stripped = _PRICE_TAIL_RE.sub("", name)
+        if stripped == name:
+            break
+        name, found = stripped.strip(), True
+    return name, found
+
+
+def _scrub_amounts(text: str) -> str:
+    return _PRICE_ANY_RE.sub("", text)
+
+
+_DECORATOR_RES = (
+    re.compile(r"\s*\*+[A-Za-z0-9]+\*+\s*$"),
+    re.compile(r"\s*\[[^\]]*\]\s*$"),
+    re.compile(r"\s*\{[^}]*\}\s*$"),
+    re.compile(r"\s*\^[^^]*\^\s*$"),
+    re.compile(r"\s+#\S+\s*$"),
+    re.compile(r"\s+\([A-Za-z0-9]{2,6}\)(?:\s+[A-Za-z0-9-]+)?\s*$"),
+)
+
+
+def _strip_decklist_decorators(raw_name: str) -> str:
     name = raw_name.strip()
-    # Strip trailing Archidekt/Moxfield/Arena markers in any order: *CMDR*, *F*, [Cat], {tag}, ^...^, #tag, (SET) 123
-    while True:
+    # Strip trailing Archidekt/Moxfield/Arena markers in any order: *CMDR*, *F*, [Cat], {tag}, ^...^, #tag, (SET) 123.
+    # Bounded number of passes on a length-capped name keeps the work linear in the input.
+    for _ in range(_MAX_STRIP_PASSES):
         prev = name
-        name = re.sub(r"\s*\*+[A-Za-z0-9]+\*+\s*$", "", name)
-        name = re.sub(r"\s*\[[^\]]*\]\s*$", "", name)
-        name = re.sub(r"\s*\{[^}]*\}\s*$", "", name)
-        name = re.sub(r"\s*\^[^^]*\^\s*$", "", name)
-        name = re.sub(r"\s+#\S+\s*$", "", name)
-        name = re.sub(r"\s+\([A-Za-z0-9]{2,6}\)(?:\s+[A-Za-z0-9-]+)?\s*$", "", name)
+        for pattern in _DECORATOR_RES:
+            name = pattern.sub("", name)
         name = name.strip()
         if name == prev:
             break
@@ -440,8 +498,11 @@ def resolve_repo_baseline_cards(
         raise KeyError(baseline_id)
     folder = decks_dir if decks_dir is not None else _DECKS_DIR
     candidate = folder / f"{stem}.txt"
-    if candidate.resolve().parent != folder.resolve() or not candidate.is_file():
-        raise KeyError(baseline_id)
+    try:
+        if candidate.resolve().parent != folder.resolve() or not candidate.is_file():
+            raise KeyError(baseline_id)
+    except OSError as error:  # e.g. over-long names: refuse like any other unknown id
+        raise KeyError(baseline_id) from error
     text = candidate.read_text(encoding="utf-8")
     if not commander_names:
         # Read commander from file or infer Chulane if present
@@ -470,6 +531,24 @@ def resolve_repo_baseline_cards(
     ]
 
 
+def _too_long(lineno: int, line: str) -> dict[str, object]:
+    return {
+        "line": lineno,
+        "raw": _scrub_amounts(line[:_MAX_LINE_CHARS]),
+        "status": "zu lang",
+        "reason": f"zu lang (über {_MAX_LINE_CHARS} Zeichen)",
+    }
+
+
+def _bad_quantity(lineno: int, line: str) -> dict[str, object]:
+    return {
+        "line": lineno,
+        "raw": _scrub_amounts(line),
+        "status": "unreadable",
+        "reason": f"ungültige Anzahl (erlaubt: 1 bis {_MAX_QUANTITY})",
+    }
+
+
 def parse_decklist_text(
     store: StudioStore,
     commander_names: Sequence[str],
@@ -481,7 +560,6 @@ def parse_decklist_text(
     """
     import csv
     import io
-    import re
 
     from . import builder
 
@@ -490,7 +568,15 @@ def parse_decklist_text(
     cmd_names_cf = {n.casefold() for n in commander_names}
     coll, public = _collection_lookup(store)
 
+    if text.startswith("\ufeff"):
+        text = text[1:]
+    text = text.translate(_TYPO_TRANSLATION)
     lines = text.splitlines()
+    if len(lines) > _MAX_LINES:
+        raise ValueError(
+            f"Liste zu lang: {len(lines)} Zeilen (höchstens {_MAX_LINES} erlaubt, nichts wurde gelesen)"
+        )
+    ignored_annotations: list[dict[str, object]] = []
     detected_format = _detect_format(lines)
     matched_qty: dict[str, int] = {}
     matched_info: dict[str, dict[str, object]] = {}
@@ -504,9 +590,20 @@ def parse_decklist_text(
     def _classify_entry(qty: int, raw_name: str, lineno: int, raw_line: str) -> None:
         nonlocal not_in_collection_qty, outside_qty
         name = _strip_decklist_decorators(raw_name)
+        name, had_price = _strip_trailing_prices(name)
+        if had_price:
+            name = _strip_decklist_decorators(name)
+            ignored_annotations.append({"line": lineno, "annotation": _PRICE_ANNOTATION})
+        name = name.translate(_DASH_TRANSLATION)
+        if len(name) >= 2 and name[0] == name[-1] == '"':
+            name = name[1:-1].strip()
         if not name:
             unrecognized_lines.append(
-                {"line": lineno, "raw": raw_line, "reason": "leerer Kartenname"}
+                {
+                    "line": lineno,
+                    "raw": _scrub_amounts(raw_line),
+                    "reason": "leerer Kartenname",
+                }
             )
             return
         if name.casefold() in cmd_names_cf:
@@ -595,21 +692,30 @@ def parse_decklist_text(
                 if sec in _SKIPPED_SECTIONS:
                     continue
             raw_qty = row[qty_idx].strip() if qty_idx is not None and qty_idx < len(row) else "1"
+            joined = ",".join(row)
+            if len(joined) > _MAX_LINE_CHARS:
+                unrecognized_lines.append(_too_long(lineno, joined))
+                continue
             try:
-                qty = int(raw_qty.rstrip("xX") or "1")
+                qty = int(raw_qty.rstrip("xX") or "1") if len(raw_qty) <= 8 else -1
             except ValueError:
                 unrecognized_lines.append(
-                    {"line": lineno, "raw": ",".join(row), "reason": "ungültige Anzahl"}
+                    {"line": lineno, "raw": _scrub_amounts(joined), "reason": "ungültige Anzahl"}
                 )
                 continue
+            if not 1 <= qty <= _MAX_QUANTITY:
+                unrecognized_lines.append(_bad_quantity(lineno, joined))
+                continue
             raw_name = row[name_idx].strip() if name_idx is not None and name_idx < len(row) else ""
-            if qty > 0:
-                _classify_entry(qty, raw_name, lineno, ",".join(row))
+            _classify_entry(qty, raw_name, lineno, joined)
     else:
-        line_re = re.compile(r"^(?:(\d+)\s*[xX]?\s+)?(.+?)$")
+        line_re = re.compile(r"^(?:([-+]?\d+)\s*[xX]?\s+)?(.+?)$")
         for lineno, raw_line in enumerate(lines, 1):
             line = raw_line.strip()
             if not line or line.startswith("#") or line.startswith("//"):
+                continue
+            if len(line) > _MAX_LINE_CHARS:
+                unrecognized_lines.append(_too_long(lineno, line))
                 continue
             if line.lower().startswith("sb:"):
                 continue
@@ -628,8 +734,12 @@ def parse_decklist_text(
                     {"line": lineno, "raw": raw_line, "reason": "Format nicht erkannt"}
                 )
                 continue
+            if m.group(1) is not None and len(m.group(1)) > 8:
+                unrecognized_lines.append(_bad_quantity(lineno, line))
+                continue
             qty = int(m.group(1) or "1")
-            if qty <= 0:
+            if not 1 <= qty <= _MAX_QUANTITY:
+                unrecognized_lines.append(_bad_quantity(lineno, line))
                 continue
             raw_name = m.group(2).strip()
             if raw_name.casefold() in _SECTION_HEADERS:
@@ -656,6 +766,7 @@ def parse_decklist_text(
         "not_in_collection": not_in_collection,
         "outside_color_identity": outside_color_identity,
         "unrecognized_lines": unrecognized_lines,
+        "ignored_annotations": ignored_annotations,
         "summary": {
             "in_collection_cards": sum(matched_qty.values()),
             "not_in_collection_cards": not_in_collection_qty,

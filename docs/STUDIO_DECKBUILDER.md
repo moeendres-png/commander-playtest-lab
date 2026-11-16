@@ -1193,6 +1193,17 @@ is stricter: there an unstamped or differently stamped file is fetched and stamp
 once, so after `import-printings` changes any picture, one `fetch-images` run brings
 the whole cache onto the new printings.
 
+### Pasting a deck list
+
+`parse_decklist_text` reads plain, Arena, MTGO, Moxfield, Archidekt and CSV lists. It strips a
+leading byte-order mark once, normalises typographic quotes, non-breaking and zero-width spaces
+and dashes, and also matches the back-face name of a two-faced card. A quantity must be 1 to 99:
+other values are listed as unreadable with the line text kept. A line longer than 300 characters
+is listed as `zu lang`, and a list of more than 2000 lines is refused with a German error (HTTP
+422), never truncated silently. Trailing amount tokens on a line are dropped before matching and
+listed only as `Preisangabe (ignoriert)` in `ignored_annotations`, without the figure; the figure
+is never stored or returned.
+
 ### Alles importieren
 
 `import-all` runs the importers above in the right order for one commander and checks the
