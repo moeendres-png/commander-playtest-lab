@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 import sqlite3
 from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
@@ -291,17 +292,42 @@ _SECTION_HEADERS = frozenset(
 )
 
 
+# Trailing annotations of common export formats, removed before the name is matched and
+# reported per line (never silently): Moxfield foil/etched marks, Archidekt categories,
+# Deckstats commander marks, inline comments.
+_ANNOTATIONS = (
+    ("Archidekt-Kategorie", re.compile(r"\s*\[[^\]]*\]")),
+    ("Archidekt-Markierung", re.compile(r"\s*\^[^^]*\^")),
+    ("Foil/Etched-Markierung", re.compile(r"\s*\*(?:F|E|CMDR)\*", re.I)),
+    ("Kommentar", re.compile(r"\s+#.*$")),
+)
+_PRINTING = re.compile(r"\s+\(([A-Za-z0-9]{2,6})\)(?:\s+[A-Za-z0-9-]+[a-z★]?)?\s*$")
+_LINE = re.compile(r"^(?:(\d+)\s*[xX]?\s+)?(.+?)\s*$")
+_SKIP_SECTIONS = {"sideboard", "maybeboard", "cuts", "considering", "tokens"}
+_MAIN_SECTIONS = {"deck", "main", "mainboard", "companion"}
+_COMMANDER_SECTIONS = {"commander", "commanders"}
+
+
 def parse_decklist_text(
     store: StudioStore,
     commander_names: Sequence[str],
     text: str,
 ) -> dict[str, object]:
-    """Parse plain decklist text (`1 Card Name` lines) against the commander's legal
-    collection pool. Cards not in the collection are listed neutrally by name without any
-    price or purchase wording.
-    """
-    import re
+    """Parse a pasted deck list against the collection, line by line (#1404 D5, option 4).
 
+    Accepts plain ``1 Card`` / ``1x Card`` lines and the usual export forms: a printing in
+    brackets (``(C21) 263``), Moxfield ``*F*``/``*E*``, Archidekt ``[Category]`` and ``^Tag^``,
+    Deckstats ``*CMDR*``, section headers (Commander, Deck, Sideboard, Maybeboard ...) and
+    comment lines. Every non-empty line gets a status; nothing is dropped silently:
+
+    ``matched`` (in the collection, legal, inside the colour identity, enough free copies),
+    ``insufficient`` (fewer free copies than asked: the free ones are taken),
+    ``outside_identity``, ``not_legal``, ``not_in_collection`` (no purchase wording),
+    ``commander`` (the chosen commander itself), ``other_commander`` (a commander line naming
+    another card), ``skipped_section`` (sideboard and the like), ``unreadable``.
+    Printings and annotations are reported as ignored. Only ``matched`` and ``insufficient``
+    cards enter the list; the page shows the preview before anything is taken over.
+    """
     from . import builder
 
     identity, commander_ids = builder.commander_identity(store, commander_names)
@@ -312,66 +338,92 @@ def parse_decklist_text(
         "c.commander_legal, i.available_lower_bound "
         "FROM card_fact c JOIN inventory i USING (card_id)"
     ):
-        if row["commander_legal"] != 1 or not (color_set(row["color_identity"]) <= identity):
-            continue
         info = {
             "card_id": str(row["card_id"]),
             "name": str(row["oracle_name"]),
             "available": int(row["available_lower_bound"] or 0),
+            "legal": row["commander_legal"],
+            "in_identity": color_set(row["color_identity"]) <= identity,
         }
-        by_name[str(row["oracle_name"]).casefold()] = info
+        by_name.setdefault(str(row["oracle_name"]).casefold(), info)
         if row["engine_name"]:
             by_name.setdefault(str(row["engine_name"]).casefold(), info)
-        front = str(row["oracle_name"]).split(" // ")[0].strip().casefold()
-        by_name.setdefault(front, info)
+        by_name.setdefault(str(row["oracle_name"]).split(" // ")[0].strip().casefold(), info)
 
-    line_re = re.compile(r"^(?:(\d+)\s*[xX]?\s+)?(.+?)(?:\s+\([A-Za-z0-9]+\)(?:\s+\S+)?)?$")
+    lines: list[dict[str, object]] = []
     matched_qty: dict[str, int] = {}
     matched_info: dict[str, dict[str, object]] = {}
-    not_in_collection: list[dict[str, object]] = []
-    not_in_collection_qty = 0
-    skipped_section = False
-
-    for raw_line in text.splitlines():
+    section = "main"
+    for number, raw_line in enumerate(text.splitlines(), start=1):
         line = raw_line.strip()
         if not line or line.startswith("#") or line.startswith("//"):
             continue
-        lower = line.casefold().rstrip(":")
-        if lower in {"sideboard", "maybeboard", "cuts"}:
-            skipped_section = True
-            continue
-        if lower in {"commander", "commanders", "deck", "main", "mainboard"}:
-            skipped_section = False
-            continue
-        if skipped_section:
-            continue
-        m = line_re.match(line)
-        if not m:
-            continue
-        qty = int(m.group(1) or "1")
-        if qty <= 0:
-            continue
-        raw_name = m.group(2).strip()
-        if raw_name.casefold() in _SECTION_HEADERS:
-            continue
-        found = by_name.get(raw_name.casefold()) or by_name.get(
-            raw_name.split(" // ")[0].strip().casefold()
-        )
-        if found is None:
-            not_in_collection_qty += qty
-            not_in_collection.append(
-                {
-                    "name": raw_name,
-                    "quantity": qty,
-                    "status": "nicht in deiner Sammlung",
-                }
+        header = line.casefold().rstrip(":").strip()
+        if header in _SKIP_SECTIONS | _MAIN_SECTIONS | _COMMANDER_SECTIONS:
+            section = (
+                "skip"
+                if header in _SKIP_SECTIONS
+                else "commander"
+                if header in _COMMANDER_SECTIONS
+                else "main"
             )
             continue
-        cid = str(found["card_id"])
-        if cid in cmd_set:
+        ignored: list[str] = []
+        body = line
+        commander_mark = bool(re.search(r"\*CMDR\*", body, re.I))
+        for label, pattern in _ANNOTATIONS:
+            if pattern.search(body):
+                ignored.append(label)
+                body = pattern.sub("", body)
+        printing = _PRINTING.search(body)
+        if printing:
+            ignored.append(f"Druckangabe ({printing.group(1).upper()})")
+            body = body[: printing.start()]
+        match = _LINE.match(body.strip())
+        entry: dict[str, object] = {"line": number, "text": line, "ignored": ignored}
+        if not match or not match.group(2).strip() or (match.group(1) and int(match.group(1)) <= 0):
+            lines.append({**entry, "status": "unreadable"})
             continue
-        matched_qty[cid] = matched_qty.get(cid, 0) + qty
-        matched_info[cid] = found
+        quantity = int(match.group(1) or "1")
+        name = match.group(2).strip()
+        if name.casefold() in _SECTION_HEADERS:
+            continue
+        entry.update({"name": name, "quantity": quantity})
+        if section == "skip":
+            lines.append({**entry, "status": "skipped_section"})
+            continue
+        found = by_name.get(name.casefold()) or by_name.get(
+            name.split(" // ")[0].strip().casefold()
+        )
+        if found is None:
+            lines.append({**entry, "status": "not_in_collection"})
+            continue
+        card_id = str(found["card_id"])
+        entry.update({"card_id": card_id, "name": found["name"]})
+        if card_id in cmd_set:
+            lines.append({**entry, "status": "commander"})
+            continue
+        if section == "commander" or commander_mark:
+            lines.append({**entry, "status": "other_commander"})
+            continue
+        if found["legal"] != 1:
+            lines.append({**entry, "status": "not_legal"})
+            continue
+        if not found["in_identity"]:
+            lines.append({**entry, "status": "outside_identity"})
+            continue
+        already = matched_qty.get(card_id, 0)
+        free = int(str(found["available"])) - already
+        take = max(0, min(quantity, free))
+        if take < quantity:
+            lines.append(
+                {**entry, "status": "insufficient", "taken": take, "available": found["available"]}
+            )
+        else:
+            lines.append({**entry, "status": "matched", "taken": take})
+        if take:
+            matched_qty[card_id] = already + take
+            matched_info[card_id] = found
 
     cards = [RevisionCard(cid, 1, "commander") for cid in commander_ids] + [
         RevisionCard(cid, qty, "main") for cid, qty in matched_qty.items()
@@ -385,13 +437,39 @@ def parse_decklist_text(
         }
         for cid, qty in matched_qty.items()
     ]
+
+    def of_status(status: str) -> list[dict[str, object]]:
+        return [
+            {
+                "name": item.get("name", item["text"]),
+                "quantity": item.get("quantity", 0),
+                "line": item["line"],
+            }
+            for item in lines
+            if item["status"] == status
+        ]
+
+    counts: dict[str, int] = {}
+    for item in lines:
+        counts[str(item["status"])] = counts.get(str(item["status"]), 0) + 1
+    not_in_collection = [
+        {**item, "status": "nicht in deiner Sammlung"} for item in of_status("not_in_collection")
+    ]
     return {
         "cards": [{"card_id": c.card_id, "quantity": c.quantity, "zone": c.zone} for c in cards],
         "matched": matched_list,
         "in_collection": matched_list,
         "not_in_collection": not_in_collection,
+        "outside_color_identity": of_status("outside_identity"),
+        "not_legal": of_status("not_legal"),
+        "insufficient": of_status("insufficient"),
+        "unreadable": of_status("unreadable"),
+        "lines": lines,
+        "line_counts": counts,
         "summary": {
             "in_collection_cards": sum(matched_qty.values()),
-            "not_in_collection_cards": not_in_collection_qty,
+            "not_in_collection_cards": sum(int(str(i["quantity"])) for i in not_in_collection),
+            "lines": len(lines),
+            "list_cards": sum(matched_qty.values()) + len(commander_ids),
         },
     }
