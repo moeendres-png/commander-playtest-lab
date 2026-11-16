@@ -300,6 +300,7 @@ def import_decklists(
                 data_class=DataClass.NORMALIZED_SOURCE,
                 title=deck["title"],
                 sha256=sha256_file(Path(folder) / deck["title"]),
+                snapshot_date=deck.get("deck_date") or None,
             )
             db.execute(
                 "INSERT OR REPLACE INTO corpus_deck(deck_id, cohort, url, platform, "

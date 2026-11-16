@@ -1134,6 +1134,13 @@ def draw_probabilities(main_cards: int, lands: int) -> dict[str, object] | None:
 def deck_shape(rows: Iterable[sqlite3.Row]) -> dict[str, object]:
     """Counts of one deck list: size, types, curve, color symbols, mana sources, and
     exact hypergeometric land-draw probabilities."""
+    row_list = list(rows)
+    identity: set[str] = set()
+    for row in row_list:
+        if row["zone"] == "commander":
+            identity.update(
+                letter for letter in str(row["color_identity"] or "") if letter in "WUBRG"
+            )
     total = 0
     types: Counter[str] = Counter()
     curve: Counter[int] = Counter()
@@ -1141,7 +1148,7 @@ def deck_shape(rows: Iterable[sqlite3.Row]) -> dict[str, object]:
     sources: Counter[str] = Counter()
     mana_value_sum = 0.0
     nonland = 0
-    for row in rows:
+    for row in row_list:
         quantity = int(row["quantity"])
         total += quantity
         if row["zone"] == "commander":
@@ -1150,7 +1157,8 @@ def deck_shape(rows: Iterable[sqlite3.Row]) -> dict[str, object]:
         types[group] += quantity
         produced = str(row["produced_mana"] or "")
         for letter in produced:
-            sources[letter] += quantity
+            if not identity or letter in identity or letter == "C":
+                sources[letter] += quantity
         if group == "Land":
             continue
         nonland += quantity

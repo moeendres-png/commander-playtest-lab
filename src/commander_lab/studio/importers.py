@@ -252,16 +252,32 @@ def _location_rows(
     ]
 
 
+def _snapshot_from_name(path: Path) -> str | None:
+    import re
+
+    for candidate in (path.name, path.parent.name):
+        m = re.search(r"(20\d{2})[-_]?(\d{2})[-_]?(\d{2})", candidate)
+        if m:
+            return f"{m.group(1)}-{m.group(2)}-{m.group(3)}"
+    return None
+
+
 def import_inventory_workbook(store: StudioStore, path: str | Path) -> dict[str, int]:
     """Read card identities and the current inventory from the Owner's inventory workbook."""
     workbook_path = Path(path)
+    identities = _sheet_rows(workbook_path, IDENTITY_SHEET)
+    inventory = _sheet_rows(workbook_path, INVENTORY_SHEET)
+    verified = [
+        val[:10]
+        for row in inventory
+        if (val := _text(row.get("last_verified_at"))) is not None and len(val) >= 10
+    ]
     source_id = store.register_source(
         data_class=DataClass.ORIGINAL_SOURCE,
         title=workbook_path.name,
         sha256=sha256_file(workbook_path),
+        snapshot_date=max(verified) if verified else _snapshot_from_name(workbook_path),
     )
-    identities = _sheet_rows(workbook_path, IDENTITY_SHEET)
-    inventory = _sheet_rows(workbook_path, INVENTORY_SHEET)
     lot_rows = _optional_sheet_rows(workbook_path, LOTS_SHEET)
     printing_rows = _printing_rows(lot_rows, _optional_sheet_rows(workbook_path, DETAILS_SHEET))
     # Lots of a card the identity sheet does not carry cannot be stored (the printing
@@ -476,6 +492,7 @@ def import_lab_deck_snapshot(
         data_class=DataClass.ORIGINAL_SOURCE,
         title=snapshot_path.name,
         sha256=sha256_file(snapshot_path),
+        snapshot_date=_text(payload.get("date")) or _snapshot_from_name(snapshot_path),
     )
     resolved_deck_id = (
         deck_id or str(payload.get("deck_id") or "deck").split("/")[-1].strip() or "deck"
@@ -519,14 +536,17 @@ def _csv_rows(path: Path) -> Iterator[dict[str, str]]:
 def import_corpus_register(store: StudioStore, path: str | Path) -> dict[str, int]:
     """Read the register of source decks (one row per source state, duplicates marked)."""
     register_path = Path(path)
+    reg_rows = list(_csv_rows(register_path))
+    dates = [d[:10] for row in reg_rows if (d := (row.get("date") or "").strip()) and len(d) >= 10]
     source_id = store.register_source(
         data_class=DataClass.NORMALIZED_SOURCE,
         title=register_path.name,
         sha256=sha256_file(register_path),
+        snapshot_date=max(dates) if dates else _snapshot_from_name(register_path),
     )
     count = 0
     with store.connection as db:
-        for row in _csv_rows(register_path):
+        for row in reg_rows:
             db.execute(
                 "INSERT OR REPLACE INTO corpus_deck(deck_id, cohort, url, platform, play_group, "
                 "deck_date, tags, fingerprint, duplicate_of, legality_audit, source_id) "
@@ -632,6 +652,7 @@ def import_corpus_card_parts(
                 data_class=DataClass.NORMALIZED_SOURCE,
                 title=file.name,
                 sha256=sha256_file(file),
+                snapshot_date=_snapshot_from_name(file),
             )
             deck_ids = sorted({key[0] for key in merged})
             # Replace only the decks present in this part; other parts stay untouched.
@@ -679,16 +700,23 @@ def import_edhrec_table(store: StudioStore, path: str | Path) -> dict[str, int]:
     """Read EDHREC card rows: one observation per card and theme page, with numerator,
     denominator, page address and snapshot note. An empty lift stays unknown."""
     table_path = Path(path)
+    csv_rows = list(_csv_rows(table_path))
+    snaps = [
+        val[:10]
+        for row in csv_rows
+        if (val := (row.get("snapshot_utc") or "").strip()) and len(val) >= 10
+    ]
     source_id = store.register_source(
         data_class=DataClass.ORIGINAL_SOURCE,
         title=table_path.name,
         sha256=sha256_file(table_path),
+        snapshot_date=max(snaps) if snaps else _snapshot_from_name(table_path),
     )
     known = {str(row[0]) for row in store.connection.execute("SELECT card_id FROM card")}
     count = 0
     with store.connection as db:
         db.execute("DELETE FROM observation WHERE source_id = ?", (source_id,))
-        for row in _csv_rows(table_path):
+        for row in csv_rows:
             card_id = row.get("card_id") or None
             base = (
                 card_id if card_id in known else None,
@@ -918,16 +946,23 @@ def import_edhrec_cardrecs_csv(store: StudioStore, path: str | Path) -> dict[str
     ``lift``.
     """
     table_path = Path(path)
+    csv_rows = list(_csv_rows(table_path))
+    snaps = [
+        val[:10]
+        for row in csv_rows
+        if (val := (row.get("retrieved_at") or "").strip()) and len(val) >= 10
+    ]
     source_id = store.register_source(
         data_class=DataClass.NORMALIZED_SOURCE,
         title=table_path.name,
         sha256=sha256_file(table_path),
+        snapshot_date=max(snaps) if snaps else _snapshot_from_name(table_path),
     )
     count = 0
     seen: set[tuple[str, str]] = set()
     with store.connection as db:
         db.execute("DELETE FROM observation WHERE source_id = ?", (source_id,))
-        for row in _csv_rows(table_path):
+        for row in csv_rows:
             card_name = row["karte"].strip()
             rubrik = row["rubrik"].strip()
             cohort = f"edhrec:{rubrik}"

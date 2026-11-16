@@ -237,6 +237,13 @@ def _load_disambiguation(path: str | Path | None) -> dict[str, str]:
         }
 
 
+def _date_from_name(name: str) -> str | None:
+    import re
+
+    m = re.search(r"(20\d{2})[-_]?(\d{2})[-_]?(\d{2})", name)
+    return f"{m.group(1)}-{m.group(2)}-{m.group(3)}" if m else None
+
+
 def import_scryfall_oracle(
     store: StudioStore,
     path: str | Path,
@@ -247,10 +254,12 @@ def import_scryfall_oracle(
     ``.jsonl`` parts, one card per line) and link the collection to it."""
     target = Path(path)
     files = _source_files(target)
+    snapshot = _date_from_name(target.name) or _date_from_name(files[0].name)
     source_id = store.register_source(
         data_class=DataClass.ORIGINAL_SOURCE,
         title=target.name,
         sha256=_source_digest(files),
+        snapshot_date=snapshot,
         url="https://scryfall.com/docs/api/bulk-data",
     )
     owned = _owned_printings(store)

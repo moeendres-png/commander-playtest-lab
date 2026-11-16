@@ -827,6 +827,11 @@ class StudioStore:
             "url, imported_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
             (source_id, data_class.value, title, sha256, snapshot_date, url, now_utc()),
         )
+        if snapshot_date:
+            self.connection.execute(
+                "UPDATE source SET snapshot_date = COALESCE(snapshot_date, ?) WHERE source_id = ?",
+                (snapshot_date, source_id),
+            )
         return source_id
 
     @contextmanager

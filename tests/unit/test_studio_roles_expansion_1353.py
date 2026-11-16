@@ -64,7 +64,7 @@ _EDHREC_DIR = _RESEARCH / "edhrec_observations_chulane"
         (
             "Instant",
             "Target player mills four cards. Draw a card.",
-            ("card_draw", "mill"),
+            ("cantrip", "card_draw", "mill"),
         ),
         (
             "Artifact",
@@ -135,12 +135,10 @@ def test_expanded_role_vocabulary_and_repo_files_import_idempotently(tmp_path: P
         claims_total = int(
             store.connection.execute("SELECT COUNT(*) FROM card_role_claim").fetchone()[0]
         )
-        # 21,272 from #1353; #1379 regenerated s5 with the extended Oracle rules
-        # and added s6, the same rules over the canonical corpus. The review
-        # follow-up guards (draw context, reminder-stripped mana/search text,
-        # tax self-cost) removed only false positives: s5 1,570 -> 1,734 and
-        # s6 10,548 claims: 21,272 - 1,570 + 1,734 + 10,548 = 31,984.
-        assert claims_total == 31984
+        # 21,272 from #1353; #1379 regenerated s5 and added s6; #1413 / B-3 extended
+        # classify_oracle_roles with deterministic card_advantage, cantrip, and hate rules:
+        # s5 1,884 and s6 16,338 claims -> 21,272 - 1,570 + 1,884 + 16,338 = 37,924.
+        assert claims_total == 37924
     finally:
         store.close()
 
