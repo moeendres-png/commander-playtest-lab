@@ -438,7 +438,9 @@ _CURRENCY = (
 )
 # One start per digit run (lookbehind) and a possessive tail keep the scan linear.
 _NUMBER = r"(?<![\d.,'])\d+(?:[.,']\d+|\u0020\d{3}(?!\d))*+"
-_AMOUNT = rf"(?:{_CURRENCY}\s*{_NUMBER}|{_NUMBER}\s*{_CURRENCY})"
+# A number before a currency belongs to that currency only when no further digit follows it:
+# in "Sol Ring 1 $1.20" the "$" opens the next amount and the lone 1 stays part of the name.
+_AMOUNT = rf"(?:{_CURRENCY}\s*{_NUMBER}|{_NUMBER}\s*{_CURRENCY}(?!\s*\d))"
 _AMOUNT_RE = re.compile(rf"\(\s*{_AMOUNT}\s*\)|{_AMOUNT}", re.IGNORECASE)
 _PRICE_ANNOTATION = "Betragsangabe (ignoriert)"
 

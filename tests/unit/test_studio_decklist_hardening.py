@@ -179,6 +179,13 @@ def _assert_no_figures(parsed: dict[str, object], *figures: str) -> None:
         ("1 Sol Ring\n  $1.20", ("1.20", "$")),
         ("1 $5", ("$5",)),
         ("1 5 USD", ("5 USD", "USD")),
+        # a number before a currency symbol must not swallow the symbol of the NEXT amount
+        ("1 Sol Ring 1 $1.20", ("1.20", "$")),
+        ("1 Foo 2 $1.20", ("1.20", "$")),
+        ("1 Foo 3 $ 4,50", ("4,50", "$")),
+        ("1 Foo (5 $) 2 $3", ("$3", "$")),
+        ("3 $7.50", ("7.50", "$")),
+        ("1 Sol Ring x2 $1.20", ("1.20", "$")),
     ],
 )
 def test_amounts_never_returned_in_any_form(
