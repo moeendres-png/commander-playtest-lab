@@ -57,7 +57,7 @@ def _init_bridge_repo(tmp_path: Path, *, freeze_eligible: bool = True) -> tuple[
     (repo / "engine-bridge" / "src").mkdir(parents=True)
     (repo / "engine-bridge" / "src" / "Main.java").write_text("// bridge v1\n", encoding="utf-8")
 
-    pin = "f4d12f6e8066203fba7aa38bd35ea3358117393d"
+    pin = "e" * 40
     config = {
         "primary_engine": {"commit": pin},
         "architecture_freeze": {
@@ -692,3 +692,70 @@ def test_studio_static_ui_bridge_provenance_and_csp_clean() -> None:
     assert "covered_by_sealed_epoch" in partie_js
     # No style: "display:..." inline style properties remain in partie.js
     assert 'style: "' not in partie_js
+
+
+def test_fail_closed_bridge_qualification_and_missing_sha_regressions(tmp_path: Path) -> None:
+    # P2-4: missing or non-40-hex engine commit -> BRIDGE_UNKNOWN
+    repo, _sealed = _init_bridge_repo(tmp_path / "r1")
+    cfg_path = repo / "config" / "rules_engines.json"
+    cfg = json.loads(cfg_path.read_text(encoding="utf-8"))
+    cfg["primary_engine"]["commit"] = ""
+    cfg_path.write_text(json.dumps(cfg), encoding="utf-8")
+    missing_live = bridge_qualification(repo)
+    assert missing_live["status"] == BRIDGE_UNKNOWN
+    assert missing_live["covered_by_sealed_epoch"] is False
+
+    # P2-2: explicit command with missing/absent -jar must never fall back to data_folder/ENGINE_JAR
+    data_dir = tmp_path / "studio_data"
+    (data_dir / "engine").mkdir(parents=True)
+    stale_jar = data_dir / launch.ENGINE_JAR
+    stale_jar.write_bytes(b"stale-jar-bytes")
+    assert launch.bridge_jar_sha256(data_dir, ("/usr/bin/python", "-m", "other")) is None
+    assert (
+        launch.bridge_jar_sha256(data_dir, ("/usr/bin/java", "-jar", str(tmp_path / "missing.jar")))
+        is None
+    )
+
+    # P2-1: covered_by_sealed_epoch must stay False whenever bridge_jar_sha256 is missing
+    decks = (
+        _make_deck("d1", "Chulane, Teller of Tales"),
+        _make_deck("d2", "Solphim, Mayhem Dominus"),
+    )
+    prepared = play.prepare_game(
+        decks,
+        seed=7,
+        game_id="game-no-jar-sha",
+        command=("/usr/bin/python", "-m", "other"),
+        data_folder=data_dir,
+        qualification={
+            "status": BRIDGE_ALIGNED,
+            "covered_by_sealed_epoch": True,
+            "sealed_epoch": "test-epoch",
+        },
+    )
+    assert prepared.header["bridge_jar_sha256"] is None
+    assert prepared.header["covered_by_sealed_epoch"] is False
+
+    recorder = GameRecorder(
+        data_dir, "game-no-jar-sha", {**prepared.header, "covered_by_sealed_epoch": True}
+    )
+    closed = play.close_recorded_game(recorder, RuntimeError("boom"))
+    assert closed["covered_by_sealed_epoch"] is False
+
+    # P2-3: outcomes_for_folder emits missing-SHA warning even when ALL logs lack bridge_jar_sha256
+    no_sha_dir = tmp_path / "no_sha_logs"
+    no_sha_dir.mkdir()
+    _write_outcome_log(
+        no_sha_dir,
+        "g_no_sha",
+        decks=["base", "o1", "o2"],
+        winners=[0],
+        seed=5,
+        hand_cards=["Sol Ring"],
+        bridge_sha=None,
+        qual_state=None,
+        covered=False,
+    )
+    res_no_sha = card_outcomes.outcomes_for_folder(no_sha_dir, deck_id="base")
+    assert res_no_sha["covered_by_sealed_epoch"] is False
+    assert any("no bridge jar SHA-256" in w for w in res_no_sha["warnings"])
