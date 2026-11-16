@@ -3,6 +3,8 @@
 const $ = (id) => document.getElementById(id);
 const h = StudioUI.h;
 const api = StudioUI.api;
+// replaceChildren passes null straight to the DOM (it would show the text "null"): drop empty children.
+const kids = (...items) => items.filter((item) => item !== null && item !== undefined && item !== false);
 
 const state = {
   commander: "",
@@ -48,7 +50,7 @@ async function openDeckDetail(item) {
         h("td", { class: "num" }, c.quantity),
         h("td", {}, c.name),
         h("td", {}, c.in_collection ? `${c.available} frei / ${c.owned} im Besitz` : h("span", { class: "muted" }, "nicht in deiner Sammlung"))))));
-    box.replaceChildren(
+    box.replaceChildren(...kids(
       h("h2", {}, detail.name),
       h("p", { class: "note" },
         `Nur-Lese-Ansicht (${detail.origin === "saved" ? "Gespeichertes Studio-Deck" : `Quelldeck · ${detail.platform || "Korpus"}`})` +
@@ -56,7 +58,7 @@ async function openDeckDetail(item) {
       detail.url ? h("p", {}, h("a", { href: detail.url, target: "_blank", rel: "noopener" }, "Quelladresse öffnen ↗")) : null,
       tbl,
       h("div", { class: "actions" }, h("button", { type: "button", onclick: closeModal }, "Schließen"))
-    );
+    ));
   } catch (error) {
     box.replaceChildren(
       h("h2", {}, item.name),
@@ -79,12 +81,12 @@ function renderBrowser() {
   if (state.mustIn.length) activeFilters.push(`Enthält: ${state.mustIn.join(", ")}`);
   if (state.mustOut.length) activeFilters.push(`Ohne: ${state.mustOut.join(", ")}`);
 
-  $("db-summary").replaceChildren(
+  $("db-summary").replaceChildren(...kids(
     h("b", {}, `${total} Decks in der aktuellen Filtermenge`),
     activeFilters.length ? ` · Filter: ${activeFilters.join(" · ")}` : " · alle passenden Decks",
     " ",
     small ? h("span", { class: "pill low" }, `Kleine Stichprobe (< ${data.small_denominator || 30} Decks)`) : null
-  );
+  ));
 
   const decksBox = $("db-decks");
   const decks = data.decks || [];
@@ -153,12 +155,12 @@ function renderBrowser() {
             }, "+ Filter"))))))
     : h("p", { class: "muted" }, "Keine weiteren Karten in dieser Filtermenge gefunden.");
 
-  coBox.replaceChildren(
+  coBox.replaceChildren(...kids(
     h("h3", {}, `Karten-Kookkurrenz (Nenner: ${total} Decks)`),
     small ? h("p", { class: "pill low" }, `Kleine Stichprobe: nur ${total} Decks in der Filtermenge (< ${data.small_denominator || 30}).`) : null,
     h("p", { class: "note" }, "Reine Zählung über die aktuell gefilterte Deckmenge: wie viele dieser Decks jede andere Karte spielen (n von N und Prozent). Ein Klick auf „+ Filter“ engt die Deckmenge auf Decks mit dieser Karte ein."),
     coTable
-  );
+  ));
 }
 
 async function loadBrowser() {

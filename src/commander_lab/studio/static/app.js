@@ -46,6 +46,8 @@ const state = {
 };
 
 const $ = (id) => document.getElementById(id);
+// replaceChildren shows a null argument as the text "null": drop empty children.
+const kids = (...items) => items.filter((item) => item !== null && item !== undefined && item !== false);
 function h(tag, props, ...children) {
   const el = document.createElement(tag);
   for (const [key, value] of Object.entries(props || {})) {
@@ -649,7 +651,7 @@ async function openSourceDeckModal(deckId) {
         h("td", {}, c.in_collection ? (c.available > 0 ? `im Pool (${c.available} frei)` : "im Pool (0 frei)") : "nicht in Sammlung"),
         h("td", {}, poolCard && poolCard.available > 0 && !qty(poolCard.card_id) ? h("button", { class: "small", type: "button", onclick: () => add(poolCard) }, "+") : null));
     };
-    box.replaceChildren(
+    box.replaceChildren(...kids(
       h("h2", {}, detail.name || `Quelldeck ${deckId}`),
       h("p", { class: "note" }, `Plattform: ${detail.platform || "–"} · Kohorte: ${cohortName(detail.cohort || "all")} · Karten: ${cards.length} (${ownedRows.length} in deiner Sammlung, ${unownedRows.length} außerhalb)`),
       detail.url ? h("p", {}, h("a", { href: detail.url, target: "_blank", rel: "noopener noreferrer" }, "Quelldeck extern öffnen ↗")) : null,
@@ -663,7 +665,7 @@ async function openSourceDeckModal(deckId) {
           h("thead", {}, h("tr", {}, h("th", { class: "num" }, "Anz."), h("th", {}, "Karte"), h("th", {}, "Sektion"), h("th", {}, "Sammlung"), h("th", {}, ""))),
           h("tbody", {}, unownedRows.map(makeRow)))) : null,
       h("div", { class: "actions" }, h("button", { type: "button", onclick: closeModal }, "Schließen"))
-    );
+    ));
     $("modal").hidden = false;
   } catch (error) { fail(error); }
 }
@@ -2086,7 +2088,7 @@ function openInputModal({ title, description, placeholder, initialValue = "", mu
   const runSubmit = async () => {
     try { await onSubmit(input.value, statusBox); } catch (error) { fail(error); }
   };
-  box.replaceChildren(
+  box.replaceChildren(...kids(
     h("h2", {}, title),
     description ? h("p", { class: "note" }, description) : null,
     input,
@@ -2094,7 +2096,7 @@ function openInputModal({ title, description, placeholder, initialValue = "", mu
     h("div", { class: "actions" },
       h("button", { type: "button", class: "primary", onclick: runSubmit }, submitText),
       h("button", { type: "button", onclick: closeModal }, "Abbrechen"))
-  );
+  ));
   $("modal").hidden = false;
   input.focus();
 }
@@ -2151,7 +2153,7 @@ function openImportDecklistModal() {
         closeModal();
         toast(`${parsed.summary.in_collection_cards} Karten in den Entwurf übernommen.`);
       };
-      statusBox.replaceChildren(
+      statusBox.replaceChildren(...kids(
         h("p", {}, h("b", {}, `Erkanntes Format: ${parsed.detected_format || "plain"}`), ` · ${parsed.summary.in_collection_cards} Karten in Sammlung gefunden`),
         h("div", { class: "actions" },
           h("button", { type: "button", class: "primary", onclick: applyImport }, `In Entwurf übernehmen (${parsed.summary.in_collection_cards} Karten)`),
@@ -2165,7 +2167,7 @@ function openImportDecklistModal() {
         badLines.length ? h("div", {},
           h("h3", {}, `Nicht erkannte Zeilen (${badLines.length})`),
           h("ul", {}, badLines.slice(0, 15).map((b) => h("li", {}, `Zeile ${b.line}: ${b.raw} (${b.reason})`)))) : null
-      );
+      ));
     },
   });
 }
