@@ -482,6 +482,8 @@ def _commanders(store: StudioStore) -> dict[str, object]:
 
 def data_report(store: StudioStore, *, today: date | None = None) -> dict[str, object]:
     """The counts-only report. ``today`` is only injectable for tests."""
+    from commander_lab.bridge_qualification import bridge_qualification
+
     db = store.connection
     moment = today or datetime.now(UTC).date()
     return {
@@ -491,6 +493,7 @@ def data_report(store: StudioStore, *, today: date | None = None) -> dict[str, o
             "counts only: no card names (except the commander names the figures are bound to), "
             "no deck addresses, no notes"
         ),
+        "bridge_qualification": bridge_qualification(),
         "collection": _collection(db),
         "scryfall_facts": _scryfall(db, moment),
         "roles": _roles(db),

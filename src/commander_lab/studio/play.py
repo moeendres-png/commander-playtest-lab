@@ -8,7 +8,7 @@ seat is a later step.
 
 from __future__ import annotations
 
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -18,6 +18,7 @@ from commander_lab.agents import (
     style_reserve_mana,
     style_weights,
 )
+from commander_lab.bridge_qualification import bridge_qualification
 from commander_lab.candidates.models import FutureXmageScenario
 from commander_lab.engine.rules.failure_privacy import (
     public_exception_type,
@@ -34,7 +35,7 @@ from commander_lab.qualification.current_boundary.bridge_launcher import canonic
 from commander_lab.storage import sha256_value
 
 from .games import DecisionPolicy, GameRecorder, RecordingPolicy, free_game_id
-from .launch import engine_command
+from .launch import bridge_jar_sha256, engine_command
 
 PILOT_IDENTITY = "GenericCommanderPilot"
 PILOT_VERSION = "1.0.0"
@@ -121,6 +122,10 @@ def prepare_game(
     strategy: str = "generic",
     style: float | None = None,
     seat_styles: Mapping[int, float] | None = None,
+    data_folder: str | Path | None = None,
+    command: Sequence[str] | None = None,
+    jar_sha256: str | None = None,
+    qualification: Mapping[str, object] | None = None,
 ) -> PreparedGame:
     """Scenario, pilots and log header of one game. A game played alone and a game played in a
     batch (``play_batch``) are built by this one function, so they cannot differ in setup."""
@@ -128,6 +133,16 @@ def prepare_game(
     if own.deck_hash is None:
         raise ValueError("the own deck has no deck hash")
     pin = canonical_xmage_engine_pin()
+    resolved_sha = (
+        jar_sha256
+        if jar_sha256 is not None
+        else (
+            bridge_jar_sha256(data_folder, command)
+            if data_folder is not None or command is not None
+            else None
+        )
+    )
+    qual = dict(qualification) if qualification is not None else bridge_qualification()
     scenario = FutureXmageScenario(
         candidate_id=own.deck_id,
         deck_hash=own.deck_hash,
@@ -171,6 +186,10 @@ def prepare_game(
     header: dict[str, object] = {
         "seed": seed,
         "engine_commit": pin,
+        "bridge_jar_sha256": resolved_sha,
+        "bridge_qualification_state": qual.get("status"),
+        "covered_by_sealed_epoch": bool(qual.get("covered_by_sealed_epoch", False)),
+        "bridge_sealed_epoch": qual.get("sealed_epoch"),
         "pilot": f"{PILOT_IDENTITY} {PILOT_VERSION}",
         "decision_policy": POLICY_VERSION,
         "strategy": strategy,
@@ -194,6 +213,10 @@ def close_recorded_game(
     recorder: GameRecorder, outcome: FullGameConformanceResult | Exception
 ) -> dict[str, object]:
     """Write the closing entry of a game log from its outcome and return the short summary."""
+    header = getattr(recorder, "header", {})
+    bridge_sha = header.get("bridge_jar_sha256")
+    qual_state = header.get("bridge_qualification_state")
+    covered = bool(header.get("covered_by_sealed_epoch", False))
     if isinstance(outcome, Exception):
         # run() is behind the public error boundary, so its message carries only a fixed
         # site and audited codes (failure_privacy); it says why the game did not start.
@@ -201,6 +224,9 @@ def close_recorded_game(
             "status": "failed",
             "failure_class": public_exception_type(outcome),
             "failure_message": public_full_game_exception_message(outcome),
+            "bridge_jar_sha256": bridge_sha,
+            "bridge_qualification_state": qual_state,
+            "covered_by_sealed_epoch": covered,
         }
         path = recorder.close(failure)
         return {
@@ -211,21 +237,26 @@ def close_recorded_game(
         }
     # the engine counts seats from 1 in its outcome, the board frames count from 0
     winners = [seat - 1 for seat in outcome.winner_seats]
-    path = recorder.close(
-        {
-            "status": "finished",
-            "winner_seats": winners,
-            "decision_count": outcome.decision_count,
-            "engine_version": outcome.engine_version,
-            "semantic_transcript_sha256": outcome.semantic_transcript_sha256,
-        }
-    )
+    closing: dict[str, object] = {
+        "status": "finished",
+        "winner_seats": winners,
+        "decision_count": outcome.decision_count,
+        "engine_version": outcome.engine_version,
+        "semantic_transcript_sha256": outcome.semantic_transcript_sha256,
+        "bridge_jar_sha256": bridge_sha,
+        "bridge_qualification_state": qual_state,
+        "covered_by_sealed_epoch": covered,
+    }
+    path = recorder.close(closing)
     return {
         "game_id": recorder.game_id,
         "status": "finished",
         "winner_seats": winners,
         "frames": recorder.frames,
         "log": str(path),
+        "bridge_jar_sha256": bridge_sha,
+        "bridge_qualification_state": qual_state,
+        "covered_by_sealed_epoch": covered,
     }
 
 
@@ -249,12 +280,22 @@ def play_recorded_game(
     """
     decks = load_decks(deck_paths)
     game = game_id or free_game_id(data_folder, f"{decks[0].deck_id}-{len(decks)}p-seed{seed}")
+    cmd = engine_command(data_folder)
+    sha = bridge_jar_sha256(data_folder, cmd)
     prepared = prepare_game(
-        decks, seed=seed, game_id=game, strategy=strategy, style=style, seat_styles=seat_styles
+        decks,
+        seed=seed,
+        game_id=game,
+        strategy=strategy,
+        style=style,
+        seat_styles=seat_styles,
+        data_folder=data_folder,
+        command=cmd,
+        jar_sha256=sha,
     )
     recorder = GameRecorder(data_folder, game, prepared.header)
     runner = _RecordingRunner(
-        command=engine_command(data_folder),
+        command=cmd,
         max_decisions=max_decisions,
         request_timeout_seconds=request_timeout_seconds,
     )

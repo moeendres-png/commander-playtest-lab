@@ -220,6 +220,7 @@ class GameRecorder:
         self.game_id = _checked_id(game_id)
         self.path = games_folder(data_folder) / f"{self.game_id}.jsonl"
         self.frames = 0
+        self.header: dict[str, object] = dict(header)
         self._current_turn: int | None = None
         self._combat_attacks: list[dict[str, str]] = []
         self._combat_blocks: list[dict[str, str]] = []

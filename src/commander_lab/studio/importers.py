@@ -1078,6 +1078,22 @@ def _import_one_simulation_file(
     pod = str(plan.get("pod") or "unknown")
     deck_id = str(plan.get("deck_id") or "custom/chulane")
     run_id = f"{deck_id}:{pod}:{file_path.stem}"
+    raw_sha = (
+        plan.get("bridge_jar_sha256")
+        or summary.get("bridge_jar_sha256")
+        or payload.get("bridge_jar_sha256")
+    )
+    bridge_jar_sha256 = str(raw_sha) if isinstance(raw_sha, str) and raw_sha else None
+    raw_qual = (
+        plan.get("bridge_qualification_state")
+        or summary.get("bridge_qualification_state")
+        or payload.get("bridge_qualification_state")
+    )
+    bridge_qualification_state = (
+        str(raw_qual) if isinstance(raw_qual, str) and raw_qual else "UNKNOWN"
+    )
+    if bridge_qualification_state == "ALIGNED_WITH_SEALED_EPOCH" and not bridge_jar_sha256:
+        bridge_qualification_state = "UNKNOWN"
     games_planned = int(plan.get("games_planned") or 0)
     games_completed = int(summary.get("games_completed") or 0)
     games_failed = int(summary.get("games_failed") or 0)
@@ -1117,14 +1133,17 @@ def _import_one_simulation_file(
         db.execute("DELETE FROM simulation_card WHERE run_id = ?", (run_id,))
         db.execute(
             "INSERT OR REPLACE INTO simulation_run(run_id, deck_id, pod, engine_pin, "
+            "bridge_jar_sha256, bridge_qualification_state, "
             "pilot_policy, seeds, games_planned, games_completed, games_failed, "
             "wins_fractional, win_rate, mean_rounds, hand_dwell_status, source_id) "
-            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             (
                 run_id,
                 deck_id,
                 pod,
                 engine_pin,
+                bridge_jar_sha256,
+                bridge_qualification_state,
                 pilot_policy,
                 json.dumps(plan.get("seeds") or []),
                 games_planned,

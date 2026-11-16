@@ -875,12 +875,17 @@ def _run(args: argparse.Namespace, store: StudioStore) -> object:
             ],
         }
     else:
+        from commander_lab.bridge_qualification import bridge_qualification
+
         result = {
-            table: store.count(table)
-            for table in ("source", "card", "inventory", "deck", "deck_revision",
-                          "corpus_deck", "corpus_deck_card", "observation",
-                          "scryfall_card", "corpus_cohort", "neutral_board_row",
-                          "simulation_run", "universe_profile")
+            "bridge_qualification": bridge_qualification(),
+            **{
+                table: store.count(table)
+                for table in ("source", "card", "inventory", "deck", "deck_revision",
+                              "corpus_deck", "corpus_deck_card", "observation",
+                              "scryfall_card", "corpus_cohort", "neutral_board_row",
+                              "simulation_run", "universe_profile")
+            },
         }  # fmt: skip
     return result
 

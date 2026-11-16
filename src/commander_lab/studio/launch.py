@@ -225,6 +225,43 @@ def _file_sha256(path: Path) -> str | None:
         return None
 
 
+def jar_path_for_command(command: Sequence[str] | None) -> Path | None:
+    """Return the bridge jar path named after ``-jar`` in ``command``, if any."""
+    if not command:
+        return None
+    for index, token in enumerate(command):
+        if token == "-jar" and index + 1 < len(command):
+            return Path(command[index + 1])
+    return None
+
+
+def bridge_jar_sha256(
+    data_folder: str | Path | None = None,
+    command: Sequence[str] | None = None,
+) -> str | None:
+    """SHA-256 of the bridge jar invoked for games in ``data_folder``."""
+    resolved = (
+        command
+        if command is not None
+        else (engine_command(data_folder) if data_folder is not None else None)
+    )
+    jar_from_cmd = jar_path_for_command(resolved)
+    if jar_from_cmd is not None:
+        digest = _file_sha256(jar_from_cmd)
+        if digest is not None:
+            return digest
+    if data_folder is not None:
+        return _file_sha256(Path(data_folder) / ENGINE_JAR)
+    return None
+
+
+def bridge_qualification_state() -> dict[str, object]:
+    """Live bridge qualification state against the sealed epoch."""
+    from commander_lab.bridge_qualification import bridge_qualification
+
+    return bridge_qualification()
+
+
 def engine_state(data_folder: str | Path) -> dict[str, object]:
     from commander_lab.qualification.current_boundary.bridge_launcher import (
         canonical_xmage_engine_pin,
@@ -249,17 +286,23 @@ def engine_state(data_folder: str | Path) -> dict[str, object]:
             f"erwartet wird jedoch {pin[:10]} aus config/rules_engines.json."
         )
 
-    if engine_command(data_folder) is not None:
+    command = engine_command(data_folder)
+    active_jar_sha256 = bridge_jar_sha256(data_folder, command)
+    qual = bridge_qualification_state()
+
+    if command is not None:
         return {
             "ready": True,
             "reason": "",
             "pin": pin,
             "jar_path": jar_path,
             "jar_sha256": jar_sha256,
+            "bridge_jar_sha256": active_jar_sha256,
+            "bridge_qualification": qual,
             "recorded_pin": recorded_pin,
             "pin_matches": pin_matches if pin_matches is not None else True,
             "warning": warning,
-            "command": list(engine_command(data_folder) or ()),
+            "command": list(command),
         }
 
     if not jar.is_file():
@@ -269,6 +312,8 @@ def engine_state(data_folder: str | Path) -> dict[str, object]:
             "pin": pin,
             "jar_path": None,
             "jar_sha256": None,
+            "bridge_jar_sha256": active_jar_sha256,
+            "bridge_qualification": qual,
             "recorded_pin": None,
             "pin_matches": False,
             "warning": f"Engine-Datei fehlt unter {jar}",
@@ -288,6 +333,8 @@ def engine_state(data_folder: str | Path) -> dict[str, object]:
             "pin": pin,
             "jar_path": jar_path,
             "jar_sha256": jar_sha256,
+            "bridge_jar_sha256": active_jar_sha256,
+            "bridge_qualification": qual,
             "recorded_pin": recorded_pin,
             "pin_matches": pin_matches,
             "java_version": old_major,
@@ -301,6 +348,8 @@ def engine_state(data_folder: str | Path) -> dict[str, object]:
         "pin": pin,
         "jar_path": jar_path,
         "jar_sha256": jar_sha256,
+        "bridge_jar_sha256": active_jar_sha256,
+        "bridge_qualification": qual,
         "recorded_pin": recorded_pin,
         "pin_matches": pin_matches,
         "warning": "Java 17 oder neuer fehlt im PATH.",

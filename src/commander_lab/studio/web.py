@@ -287,6 +287,8 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
 
     @app.get("/api/status")
     def status() -> dict[str, object]:
+        from commander_lab.bridge_qualification import bridge_qualification
+
         store = open_store()
         try:
             sources = [
@@ -297,6 +299,7 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
                 )
             ]
             return {
+                "bridge_qualification": bridge_qualification(),
                 "cards": store.count("card"),
                 "public_cards": store.count("scryfall_card"),
                 "source_decks": store.count("corpus_deck"),

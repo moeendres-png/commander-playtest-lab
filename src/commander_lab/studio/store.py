@@ -14,7 +14,7 @@ from pathlib import Path
 from commander_lab.owner_data import owner_data_root
 
 STUDIO_DATA_ENV = "COMMANDER_LAB_STUDIO_DATA"
-SCHEMA_VERSION = 17
+SCHEMA_VERSION = 18
 DATABASE_NAME = "studio.sqlite3"
 # The sections a source deck's cards are counted in, everywhere (universe spread, deck-builder
 # frequencies, co-occurrence, role counts). The corpus importer stores the main deck as
@@ -273,6 +273,8 @@ CREATE TABLE IF NOT EXISTS simulation_run (
     deck_id TEXT NOT NULL,
     pod TEXT NOT NULL,
     engine_pin TEXT NOT NULL,
+    bridge_jar_sha256 TEXT,
+    bridge_qualification_state TEXT,
     pilot_policy TEXT NOT NULL,
     seeds TEXT NOT NULL,
     games_planned INTEGER NOT NULL,
@@ -700,6 +702,14 @@ def _migrate_schema_17(connection: sqlite3.Connection) -> None:
         connection.execute("PRAGMA foreign_keys=ON")
 
 
+def _migrate_schema_18(connection: sqlite3.Connection) -> None:
+    columns = {str(row["name"]) for row in connection.execute("PRAGMA table_info(simulation_run)")}
+    for column in ("bridge_jar_sha256", "bridge_qualification_state"):
+        if column not in columns:
+            connection.execute(f"ALTER TABLE simulation_run ADD COLUMN {column} TEXT")
+    connection.commit()
+
+
 # True inside the corpus_deck binding trigger when the new deck already has a commander
 # section that does not name the commander of the running import.
 _NAMES_OTHER_COMMANDER = (
@@ -769,6 +779,8 @@ class StudioStore:
                 _bind_legacy(connection)
             if current < 17:
                 _migrate_schema_17(connection)
+            if current < 18:
+                _migrate_schema_18(connection)
             connection.execute(
                 "UPDATE meta SET value = ? WHERE key = 'schema_version'", (str(SCHEMA_VERSION),)
             )

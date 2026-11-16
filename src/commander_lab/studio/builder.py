@@ -792,7 +792,8 @@ def card_simulations(
         raise KeyError(card_id)
     bound, bound_args = bound_to("simulation_run", "r.run_id", commander_names)
     rows = db.execute(
-        "SELECT r.run_id, r.pod, r.engine_pin, r.pilot_policy, r.hand_dwell_status, "
+        "SELECT r.run_id, r.pod, r.engine_pin, r.bridge_jar_sha256, "
+        "r.bridge_qualification_state, r.pilot_policy, r.hand_dwell_status, "
         "sc.games_completed, sc.games_offered, sc.games_cast_after_offer, sc.games_rotted, "
         "sc.offered_castable, sc.cast_count, sc.mean_first_cast_round "
         "FROM simulation_card sc JOIN simulation_run r USING (run_id) "
@@ -802,6 +803,11 @@ def card_simulations(
     return [
         {
             **dict(item),
+            "bridge_qualification_state": (item["bridge_qualification_state"] or "UNKNOWN"),
+            "covered_by_sealed_epoch": (
+                item["bridge_qualification_state"] == "ALIGNED_WITH_SEALED_EPOCH"
+                and bool(item["bridge_jar_sha256"])
+            ),
             "data_class": "SIMULATED_RESULT",
         }
         for item in rows
@@ -815,7 +821,8 @@ def list_simulations(store: StudioStore, commander_names: Sequence[str]) -> list
     runs: list[dict[str, object]] = []
     bound, bound_args = bound_to("simulation_run", "r.run_id", commander_names)
     for run in db.execute(
-        "SELECT r.run_id, r.deck_id, r.pod, r.engine_pin, r.pilot_policy, r.seeds, "
+        "SELECT r.run_id, r.deck_id, r.pod, r.engine_pin, r.bridge_jar_sha256, "
+        "r.bridge_qualification_state, r.pilot_policy, r.seeds, "
         "r.games_planned, r.games_completed, r.games_failed, r.wins_fractional, r.win_rate, "
         f"r.mean_rounds, r.hand_dwell_status FROM simulation_run r WHERE 1{bound} "
         "ORDER BY r.pod, r.run_id",
@@ -831,9 +838,13 @@ def list_simulations(store: StudioStore, commander_names: Sequence[str]) -> list
                 (run["run_id"],),
             )
         ]
+        qual_state = run["bridge_qualification_state"] or "UNKNOWN"
+        covered = qual_state == "ALIGNED_WITH_SEALED_EPOCH" and bool(run["bridge_jar_sha256"])
         runs.append(
             {
                 **dict(run),
+                "bridge_qualification_state": qual_state,
+                "covered_by_sealed_epoch": covered,
                 "seeds": json.loads(str(run["seeds"])),
                 "data_class": "SIMULATED_RESULT",
                 "cards": cards,

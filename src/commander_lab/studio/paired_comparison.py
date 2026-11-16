@@ -28,6 +28,7 @@ from collections.abc import Callable, Mapping, Sequence
 from pathlib import Path
 from typing import Literal, TypedDict
 
+from commander_lab.bridge_qualification import BRIDGE_AHEAD, BRIDGE_ALIGNED
 from commander_lab.engine.rules.full_game_comparison import (
     cluster_difference_stats,
     pod_decks,
@@ -118,6 +119,9 @@ class PairedComparison(TypedDict):
     pods: list[PodPairs]
     tested_seats: list[int]
     engine_commits: list[str]
+    bridge_jar_sha256s: list[str]
+    bridge_qualification_states: list[str]
+    covered_by_sealed_epoch: bool
     pilots: list[str]
     decision_policies: list[str]
     engine_pin: str
@@ -284,6 +288,17 @@ def _check_provenance(
             sorted({v for v in (game["engine_commit"] for game in exposures) if v}),
         ),
         (
+            "bridge jar hashes",
+            "bridge_jar_sha256",
+            sorted(
+                {
+                    str(v)
+                    for game in exposures
+                    if isinstance((v := game.get("bridge_jar_sha256")), str) and v
+                }
+            ),
+        ),
+        (
             "pilot versions",
             "pilot",
             sorted({v for v in (game["pilot"] for game in exposures) if v}),
@@ -299,6 +314,13 @@ def _check_provenance(
             if not allow_mixed:
                 raise ValueError(f"mixed {label} in one comparison: {', '.join(values)}")
             warnings.append(f"mixed {label} pooled: {', '.join(values)}")
+    provenance["bridge_qualification_state"] = sorted(
+        {
+            str(v)
+            for game in exposures
+            if isinstance((v := game.get("bridge_qualification_state")), str) and v
+        }
+    )
     return provenance, warnings
 
 
@@ -369,6 +391,20 @@ def _summarize(
     provenance, warnings = _check_provenance(involved, allow_mixed=allow_mixed)
     if any(game["engine_commit"] is None for game in involved):
         warnings.append("some paired games carry no engine commit")
+    if any(not game.get("bridge_jar_sha256") for game in involved):
+        warnings.append("some paired games carry no bridge jar sha256")
+    qual_states = provenance["bridge_qualification_state"]
+    if BRIDGE_AHEAD in qual_states:
+        warnings.append(
+            "paired games were produced with BRIDGE_AHEAD_OF_QUALIFICATION; "
+            "not covered by the sealed qualification epoch"
+        )
+    covered_by_sealed_epoch = bool(involved) and all(
+        bool(game.get("covered_by_sealed_epoch"))
+        and game.get("bridge_qualification_state") == BRIDGE_ALIGNED
+        and bool(game.get("bridge_jar_sha256"))
+        for game in involved
+    )
     pods: Counter[tuple[str, ...]] = Counter(tuple(pair["opponents"]) for pair in pairs)
     result: PairedComparison = {
         "schema": SCHEMA,
@@ -413,6 +449,9 @@ def _summarize(
         ],
         "tested_seats": sorted({pair["seat"] for pair in pairs}),
         "engine_commits": provenance["engine_commit"],
+        "bridge_jar_sha256s": provenance["bridge_jar_sha256"],
+        "bridge_qualification_states": qual_states,
+        "covered_by_sealed_epoch": covered_by_sealed_epoch,
         "pilots": provenance["pilot"],
         "decision_policies": provenance["decision_policy"],
         "engine_pin": canonical_xmage_engine_pin(),
@@ -752,6 +791,14 @@ def format_comparison(result: PairedComparison) -> str:
         f"tested seats {result['tested_seats']}  engine "
         f"{', '.join(c[:10] for c in result['engine_commits']) or '-'}  pin "
         f"{result['engine_pin'][:10]}  pilots {', '.join(result['pilots']) or '-'}"
+    )
+    bridge_shas = result.get("bridge_jar_sha256s") or []
+    qual_states = result.get("bridge_qualification_states") or []
+    sealed = result.get("covered_by_sealed_epoch")
+    sealed_label = "yes" if sealed is True else ("no" if sealed is False else "unknown")
+    lines.append(
+        f"bridge_jar {', '.join(s[:12] for s in bridge_shas) or '-'}  "
+        f"qualification {', '.join(qual_states) or '-'}  sealed {sealed_label}"
     )
     lines += [f"WARNING {warning}" for warning in result["warnings"]]
     return "\n".join(lines)
