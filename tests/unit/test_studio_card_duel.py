@@ -92,3 +92,13 @@ def test_duel_route(tmp_path: Path) -> None:
     assert (data["a"]["decks"], data["a"]["of"]) == (1, 1)
     unknown = client.post("/api/card-duel", json={**body, "card_b": "card:project:nope"})
     assert unknown.status_code == 404
+
+
+def test_a_front_face_spelling_names_the_two_faced_card() -> None:
+    from commander_lab.studio.similar_decks import _canonical_name
+
+    # spelling_owners is keyed by the casefolded spelling (universe._build_spelling_owners).
+    owners = {"brazen borrower": ["Brazen Borrower // Petty Theft"]}
+    assert _canonical_name(owners, "Brazen Borrower") == "Brazen Borrower // Petty Theft"
+    assert _canonical_name(owners, "BRAZEN BORROWER") == "Brazen Borrower // Petty Theft"
+    assert _canonical_name(owners, "Unknown Card") == "Unknown Card"

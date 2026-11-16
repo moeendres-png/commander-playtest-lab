@@ -12,7 +12,10 @@ observed in those decks:
 group does on average. It is an observation of co-occurrence, never "better". A card no source
 deck of the group plays has ``fit`` unknown (``None``), not 0. Groups under 30 decks are
 flagged. Counting reuses the cached source-deck index of ``similar_decks`` (non-duplicate
-decks, counted sections, spellings merged, without basics and commander).
+decks, counted sections, every spelling merged into the card it names through the casefolded
+``universe.spelling_owners``, without basics and commander). "Unknown" follows the builder's
+convention (``builder.pool_cards`` ``decks_known``): no source deck of the commander names the
+card under any spelling.
 """
 
 from __future__ import annotations
@@ -119,7 +122,7 @@ def card_duel(
         "baseline": baseline,
         "a": a_side,
         "b": b_side,
-        "shared_roles": sorted(set(a_side["roles"]) & set(b_side["roles"])),  # type: ignore[arg-type]
+        "shared_roles": sorted(set(roles.get(card_a, [])) & set(roles.get(card_b, []))),
         "meaning": (
             "Beobachtet, nicht „besser“: Passung = durchschnittlicher Anteil deiner übrigen "
             "Karten (ohne die beiden, Commander und Standardländer) in den Quelldecks, die die "

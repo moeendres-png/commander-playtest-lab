@@ -68,7 +68,10 @@ class _PoolInfo(TypedDict):
 
 
 def _canonical_name(owners: Mapping[str, list[str]], raw_name: str) -> str:
-    found = owners.get(raw_name)
+    """The collection card a deck spelling names. ``owners`` (``universe.spelling_owners``) is
+    keyed by the casefolded spelling, so the lookup casefolds too: a deck listing only the
+    front face of a two-faced or adventure card counts for that card."""
+    found = owners.get(raw_name.casefold())
     if found:
         return found[0]
     return raw_name
