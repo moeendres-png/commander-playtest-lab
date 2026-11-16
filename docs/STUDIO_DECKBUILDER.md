@@ -1200,6 +1200,21 @@ is stricter: there an unstamped or differently stamped file is fetched and stamp
 once, so after `import-printings` changes any picture, one `fetch-images` run brings
 the whole cache onto the new printings.
 
+### Pasting a deck list
+
+`parse_decklist_text` reads plain, Arena, MTGO, Moxfield, Archidekt and CSV lists. It strips a
+leading byte-order mark once, normalises typographic quotes, non-breaking and zero-width spaces
+and dashes, and also matches the back-face name of a two-faced card. A quantity must be 1 to 99:
+other values are listed as `unreadable`. Every unrecognized line carries a `status`. A line
+longer than 300 characters (for CSV: quantity and name cells together) is listed as `zu lang`, and a
+list of more than 2000 lines is refused with a German error (HTTP 422), never truncated silently.
+For CSV only the quantity and name cells are ever returned, never the whole row. Amount tokens
+anywhere in a line (currency symbols or ISO codes before or after the figure, in brackets, with
+thousands separators) are removed before matching and noted only as `Betragsangabe (ignoriert)` in
+`ignored_annotations`; every returned text field is passed through the same removal, and a line
+that consists only of an amount is `unreadable`. Enclosing double quotes are tried against the
+original name first. Sideboard, `sb:` and `#` lines are skipped silently, as before.
+
 ### Alles importieren
 
 `import-all` runs the importers above in the right order for one commander and checks the
