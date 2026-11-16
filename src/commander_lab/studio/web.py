@@ -41,6 +41,7 @@ from . import (
     labels,
     land_advisor,
     launch,
+    packages,
     queries,
     signals,
     similar_decks,
@@ -95,6 +96,12 @@ class LandAdvisorBody(ListBody):
     min_share: float = Field(default=0.20, ge=0.0, le=1.0)
 
 
+class PlanPackagesBody(BaseModel):
+    commander: str | list[str] | None = None
+    cards: list[CardEntry]
+    cohort: str = Field(default="all", min_length=1, max_length=120)
+
+
 class SwapBody(BaseModel):
     commander: str | list[str]
     deck_card_ids: list[str] = Field(default_factory=list, max_length=300)
@@ -103,6 +110,7 @@ class SwapBody(BaseModel):
     cohort: str = Field(default="all", min_length=1, max_length=120)
     universe: str | None = Field(default=None, max_length=120)
     exclude_marked: bool = True
+    sort_by: Literal["hits", "lift"] = "hits"
 
 
 class DuelBody(BaseModel):
@@ -1360,11 +1368,48 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
                 cohort=body.cohort,
                 universe=body.universe,
                 exclude_marked=body.exclude_marked,
+                sort_by=body.sort_by,
             )
         except KeyError as error:
             raise HTTPException(404, f"unknown card or commander: {error}") from error
         except ValueError as error:
             raise HTTPException(422, str(error)) from error
+        finally:
+            store.close()
+
+    @app.post("/api/packages")
+    def packages_route(body: PlanPackagesBody) -> dict[str, object]:
+        """Synergistic corpus lift packages and Spellbook shell packages touched by the deck (#1404 op. 7)."""
+        store = open_store()
+        try:
+            commanders = packages._parse_commander_arg(body.commander)
+            return packages.deck_packages(store, commanders, _cards(body.cards), cohort=body.cohort)
+        except KeyError as error:
+            raise HTTPException(404, f"unknown card or commander: {error}") from error
+        finally:
+            store.close()
+
+    @app.post("/api/build-plan")
+    def build_plan_route(body: PlanPackagesBody) -> dict[str, object]:
+        """Guided 6-step deck-building plan against cohort reference spans + role coverage (#1404 op. 5, #1413)."""
+        store = open_store()
+        try:
+            commanders = packages._parse_commander_arg(body.commander)
+            return packages.build_plan(store, commanders, _cards(body.cards), cohort=body.cohort)
+        except KeyError as error:
+            raise HTTPException(404, f"unknown card or commander: {error}") from error
+        finally:
+            store.close()
+
+    @app.post("/api/upgrade-path")
+    def upgrade_path_route(body: PlanPackagesBody) -> dict[str, object]:
+        """Descriptive role-matched upgrade path against source-deck inclusion shares (B-2)."""
+        store = open_store()
+        try:
+            commanders = packages._parse_commander_arg(body.commander)
+            return packages.upgrade_path(store, commanders, _cards(body.cards), cohort=body.cohort)
+        except KeyError as error:
+            raise HTTPException(404, f"unknown card or commander: {error}") from error
         finally:
             store.close()
 

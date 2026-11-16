@@ -1,0 +1,4177 @@
+{
+  "schema": "studio-spellbook-templates-1",
+  "commander": "Chulane, Teller of Tales",
+  "identity": "GUW",
+  "bulk_version": "7.4.3",
+  "bulk_timestamp": "2026-11-16T16:13:02.777114+00:00",
+  "bulk_sha256": "3fd518a901bc22111023dd5e87c8dd5cce18fbf369b51e902970d78f6051103c",
+  "pool_shells": [
+    {
+      "shell_id": 7622,
+      "variant_id": "751-1671-3314-3875",
+      "uses": [
+        "Chulane, Teller of Tales",
+        "Shrieking Drake",
+        "Tireless Provisioner",
+        "Simic Growth Chamber"
+      ],
+      "with_commander": true,
+      "identity": "GUW",
+      "produces": [
+        "Infinite card draw",
+        "Infinite draw triggers",
+        "Near-infinite creature ETB",
+        "Near-infinite landfall triggers",
+        "Near-infinite creature LTB",
+        "Near-infinite storm count"
+      ]
+    },
+    {
+      "shell_id": 7622,
+      "variant_id": "751-3147-3314-3875",
+      "uses": [
+        "Chulane, Teller of Tales",
+        "Shrieking Drake",
+        "Tireless Provisioner",
+        "Azorius Chancery"
+      ],
+      "with_commander": true,
+      "identity": "GUW",
+      "produces": [
+        "Infinite card draw",
+        "Infinite draw triggers",
+        "Near-infinite creature ETB",
+        "Near-infinite landfall triggers",
+        "Near-infinite creature LTB",
+        "Near-infinite storm count"
+      ]
+    },
+    {
+      "shell_id": 7622,
+      "variant_id": "751-907-3314-3875",
+      "uses": [
+        "Chulane, Teller of Tales",
+        "Shrieking Drake",
+        "Tireless Provisioner",
+        "Selesnya Sanctuary"
+      ],
+      "with_commander": true,
+      "identity": "GUW",
+      "produces": [
+        "Infinite card draw",
+        "Infinite draw triggers",
+        "Near-infinite creature ETB",
+        "Near-infinite landfall triggers",
+        "Near-infinite creature LTB",
+        "Near-infinite storm count"
+      ]
+    },
+    {
+      "shell_id": 9789,
+      "variant_id": "751-2564-4231",
+      "uses": [
+        "Lonis, Cryptozoologist",
+        "Shrieking Drake",
+        "Academy Manufactor"
+      ],
+      "with_commander": false,
+      "identity": "GU",
+      "produces": [
+        "Infinite artifact tokens",
+        "Infinite Clue tokens",
+        "Infinite creature ETB",
+        "Infinite Food tokens",
+        "Infinite creature LTB",
+        "Infinite storm count"
+      ]
+    }
+  ],
+  "template_shells": [
+    {
+      "shell_id": 29435,
+      "variant_id": "4399-4518-7183--228",
+      "uses": [
+        "Defiler of Faith",
+        "Kor Skyfisher",
+        "Gathering Stone"
+      ],
+      "in_pool": [
+        "Kor Skyfisher",
+        "Gathering Stone"
+      ],
+      "missing_from_pool": [
+        "Defiler of Faith"
+      ],
+      "with_commander": false,
+      "identity": "W",
+      "requires": [
+        {
+          "template_id": 228,
+          "name": "Soul Sister (Gain life when a creature enters)",
+          "scryfall_query": "otag:soul-sister",
+          "scryfall_api": "https://api.scryfall.com/cards/search?q=%28otag%3Asoul-sister%29+legal%3Acommander",
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite creature ETB",
+        "Infinite creature LTB",
+        "Infinite creature tokens",
+        "Infinite energy counters",
+        "Infinite lifegain",
+        "Infinite lifegain triggers",
+        "Infinite lifeloss",
+        "Infinite storm count"
+      ]
+    },
+    {
+      "shell_id": 29435,
+      "variant_id": "4399-4770-7183--228",
+      "uses": [
+        "Defiler of Faith",
+        "Whitemane Lion",
+        "Gathering Stone"
+      ],
+      "in_pool": [
+        "Whitemane Lion",
+        "Gathering Stone"
+      ],
+      "missing_from_pool": [
+        "Defiler of Faith"
+      ],
+      "with_commander": false,
+      "identity": "W",
+      "requires": [
+        {
+          "template_id": 228,
+          "name": "Soul Sister (Gain life when a creature enters)",
+          "scryfall_query": "otag:soul-sister",
+          "scryfall_api": "https://api.scryfall.com/cards/search?q=%28otag%3Asoul-sister%29+legal%3Acommander",
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite creature ETB",
+        "Infinite creature LTB",
+        "Infinite creature tokens",
+        "Infinite energy counters",
+        "Infinite lifegain",
+        "Infinite lifegain triggers",
+        "Infinite lifeloss",
+        "Infinite storm count"
+      ]
+    },
+    {
+      "shell_id": 1124,
+      "variant_id": "1458-3338--44",
+      "uses": [
+        "Mirran Spy",
+        "Banishing Knack"
+      ],
+      "in_pool": [
+        "Mirran Spy"
+      ],
+      "missing_from_pool": [
+        "Banishing Knack"
+      ],
+      "with_commander": false,
+      "identity": "U",
+      "requires": [
+        {
+          "template_id": 44,
+          "name": "Artifact Castable for {0} that survives",
+          "scryfall_query": "t:artifact (mv=0 or otag:potentially-free) (-t:creature or toughness>0) -m<{0}",
+          "scryfall_api": "https://api.scryfall.com/cards/search?q=%28t%3Aartifact+%28mv%3D0+or+otag%3Apotentially-free%29+%28-t%3Acreature+or+toughness%3E0%29+-m%3C%7B0%7D%29+legal%3Acommander",
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "H"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite artifact ETB",
+        "Infinite artifact LTB",
+        "Infinite creature LTB",
+        "Infinite creature ETB",
+        "Infinite storm count"
+      ]
+    },
+    {
+      "shell_id": 1124,
+      "variant_id": "1792-3338--44",
+      "uses": [
+        "Mirran Spy",
+        "Retraction Helix"
+      ],
+      "in_pool": [
+        "Mirran Spy"
+      ],
+      "missing_from_pool": [
+        "Retraction Helix"
+      ],
+      "with_commander": false,
+      "identity": "U",
+      "requires": [
+        {
+          "template_id": 44,
+          "name": "Artifact Castable for {0} that survives",
+          "scryfall_query": "t:artifact (mv=0 or otag:potentially-free) (-t:creature or toughness>0) -m<{0}",
+          "scryfall_api": "https://api.scryfall.com/cards/search?q=%28t%3Aartifact+%28mv%3D0+or+otag%3Apotentially-free%29+%28-t%3Acreature+or+toughness%3E0%29+-m%3C%7B0%7D%29+legal%3Acommander",
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "H"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite artifact ETB",
+        "Infinite artifact LTB",
+        "Infinite creature LTB",
+        "Infinite creature ETB",
+        "Infinite storm count"
+      ]
+    },
+    {
+      "shell_id": 26516,
+      "variant_id": "513-5034--46",
+      "uses": [
+        "Hullbreaker Horror",
+        "Sol Ring"
+      ],
+      "in_pool": [
+        "Sol Ring"
+      ],
+      "missing_from_pool": [
+        "Hullbreaker Horror"
+      ],
+      "with_commander": false,
+      "identity": "U",
+      "requires": [
+        {
+          "template_id": 46,
+          "name": "Permanent Castable for {C}",
+          "scryfall_query": "mv<=1 (mana={0} or mana={1} or mana={C}) is:permanent",
+          "scryfall_api": "https://api.scryfall.com/cards/search?q=%28mv%3C%3D1+%28mana%3D%7B0%7D+or+mana%3D%7B1%7D+or+mana%3D%7BC%7D%29+is%3Apermanent%29+legal%3Acommander",
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "H"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite colorless mana",
+        "Infinite storm count"
+      ]
+    },
+    {
+      "shell_id": 26943,
+      "variant_id": "2034-6602--5",
+      "uses": [
+        "Ashnod's Altar",
+        "Tromell, Seymour's Butler"
+      ],
+      "in_pool": [
+        "Tromell, Seymour's Butler"
+      ],
+      "missing_from_pool": [
+        "Ashnod's Altar"
+      ],
+      "with_commander": false,
+      "identity": "G",
+      "requires": [
+        {
+          "template_id": 5,
+          "name": "Persist Creature",
+          "scryfall_query": "keyword:persist t:creature",
+          "scryfall_api": "https://api.scryfall.com/cards/search?q=%28keyword%3Apersist+t%3Acreature%29+legal%3Acommander",
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite creature ETB",
+        "Infinite creature LTB",
+        "Infinite colorless mana",
+        "Infinite death triggers",
+        "Infinite creature sacrifice triggers"
+      ]
+    },
+    {
+      "shell_id": 26943,
+      "variant_id": "3899-6602--5",
+      "uses": [
+        "Spawning Pit",
+        "Tromell, Seymour's Butler"
+      ],
+      "in_pool": [
+        "Tromell, Seymour's Butler"
+      ],
+      "missing_from_pool": [
+        "Spawning Pit"
+      ],
+      "with_commander": false,
+      "identity": "G",
+      "requires": [
+        {
+          "template_id": 5,
+          "name": "Persist Creature",
+          "scryfall_query": "keyword:persist t:creature",
+          "scryfall_api": "https://api.scryfall.com/cards/search?q=%28keyword%3Apersist+t%3Acreature%29+legal%3Acommander",
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite charge counters on a permanent",
+        "Infinite creature ETB",
+        "Infinite creature LTB",
+        "Infinite creature sacrifice triggers",
+        "Infinite death triggers"
+      ]
+    },
+    {
+      "shell_id": 26943,
+      "variant_id": "4050-6602--5",
+      "uses": [
+        "Phyrexian Altar",
+        "Tromell, Seymour's Butler"
+      ],
+      "in_pool": [
+        "Tromell, Seymour's Butler"
+      ],
+      "missing_from_pool": [
+        "Phyrexian Altar"
+      ],
+      "with_commander": false,
+      "identity": "G",
+      "requires": [
+        {
+          "template_id": 5,
+          "name": "Persist Creature",
+          "scryfall_query": "keyword:persist t:creature",
+          "scryfall_api": "https://api.scryfall.com/cards/search?q=%28keyword%3Apersist+t%3Acreature%29+legal%3Acommander",
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite creature ETB",
+        "Infinite creature LTB",
+        "Infinite colored mana",
+        "Infinite death triggers",
+        "Infinite creature sacrifice triggers"
+      ]
+    },
+    {
+      "shell_id": 26943,
+      "variant_id": "413-6602--5",
+      "uses": [
+        "Blasting Station",
+        "Tromell, Seymour's Butler"
+      ],
+      "in_pool": [
+        "Tromell, Seymour's Butler"
+      ],
+      "missing_from_pool": [
+        "Blasting Station"
+      ],
+      "with_commander": false,
+      "identity": "G",
+      "requires": [
+        {
+          "template_id": 5,
+          "name": "Persist Creature",
+          "scryfall_query": "keyword:persist t:creature",
+          "scryfall_api": "https://api.scryfall.com/cards/search?q=%28keyword%3Apersist+t%3Acreature%29+legal%3Acommander",
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite creature ETB",
+        "Infinite creature LTB",
+        "Infinite damage",
+        "Infinite death triggers",
+        "Infinite creature sacrifice triggers"
+      ]
+    },
+    {
+      "shell_id": 26943,
+      "variant_id": "5256-6602--5",
+      "uses": [
+        "Altar of Dementia",
+        "Tromell, Seymour's Butler"
+      ],
+      "in_pool": [
+        "Tromell, Seymour's Butler"
+      ],
+      "missing_from_pool": [
+        "Altar of Dementia"
+      ],
+      "with_commander": false,
+      "identity": "G",
+      "requires": [
+        {
+          "template_id": 5,
+          "name": "Persist Creature",
+          "scryfall_query": "keyword:persist t:creature",
+          "scryfall_api": "https://api.scryfall.com/cards/search?q=%28keyword%3Apersist+t%3Acreature%29+legal%3Acommander",
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite creature ETB",
+        "Infinite creature LTB",
+        "Infinite death triggers",
+        "Infinite mill",
+        "Infinite creature sacrifice triggers",
+        "Infinite self-mill"
+      ]
+    },
+    {
+      "shell_id": 28859,
+      "variant_id": "3875-5702--131",
+      "uses": [
+        "Springheart Nantuko",
+        "Tireless Provisioner"
+      ],
+      "in_pool": [
+        "Tireless Provisioner"
+      ],
+      "missing_from_pool": [
+        "Springheart Nantuko"
+      ],
+      "with_commander": false,
+      "identity": "G",
+      "requires": [
+        {
+          "template_id": 131,
+          "name": "Man-Land that Enters Untapped",
+          "scryfall_query": "otag:man-land o:/^{T}: Add/ -o:\"~ enters tapped\"",
+          "scryfall_api": "https://api.scryfall.com/cards/search?q=%28otag%3Aman-land+o%3A%2F%5E%7BT%7D%3A+Add%2F+-o%3A%22~+enters+tapped%22%29+legal%3Acommander",
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite landfall triggers",
+        "Infinite tapped land tokens"
+      ]
+    },
+    {
+      "shell_id": 31691,
+      "variant_id": "876-7070--141",
+      "uses": [
+        "Monk Gyatso",
+        "Lightning Greaves"
+      ],
+      "in_pool": [
+        "Lightning Greaves"
+      ],
+      "missing_from_pool": [
+        "Monk Gyatso"
+      ],
+      "with_commander": false,
+      "identity": "W",
+      "requires": [
+        {
+          "template_id": 141,
+          "name": "Creature with Affinity",
+          "scryfall_query": "(keyword:affinity or otag:affinity or !\"Emrakul, the Promised End\") t:creature",
+          "scryfall_api": "https://api.scryfall.com/cards/search?q=%28%28keyword%3Aaffinity+or+otag%3Aaffinity+or+%21%22Emrakul%2C+the+Promised+End%22%29+t%3Acreature%29+legal%3Acommander",
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite creature LTB",
+        "Infinite creature ETB",
+        "Infinite storm count"
+      ]
+    },
+    {
+      "shell_id": 31771,
+      "variant_id": "3875-5702--143",
+      "uses": [
+        "Springheart Nantuko",
+        "Tireless Provisioner"
+      ],
+      "in_pool": [
+        "Tireless Provisioner"
+      ],
+      "missing_from_pool": [
+        "Springheart Nantuko"
+      ],
+      "with_commander": false,
+      "identity": "G",
+      "requires": [
+        {
+          "template_id": 143,
+          "name": "Card that Earthbends",
+          "scryfall_query": "kw:earthbend",
+          "scryfall_api": "https://api.scryfall.com/cards/search?q=%28kw%3Aearthbend%29+legal%3Acommander",
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "H",
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite landfall triggers",
+        "Infinite tapped land tokens"
+      ]
+    },
+    {
+      "shell_id": 33228,
+      "variant_id": "851-5702--143",
+      "uses": [
+        "Springheart Nantuko",
+        "Adrix and Nev, Twincasters"
+      ],
+      "in_pool": [
+        "Adrix and Nev, Twincasters"
+      ],
+      "missing_from_pool": [
+        "Springheart Nantuko"
+      ],
+      "with_commander": false,
+      "identity": "GU",
+      "requires": [
+        {
+          "template_id": 143,
+          "name": "Card that Earthbends",
+          "scryfall_query": "kw:earthbend",
+          "scryfall_api": "https://api.scryfall.com/cards/search?q=%28kw%3Aearthbend%29+legal%3Acommander",
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "H",
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite creature ETB",
+        "Infinite creature tokens",
+        "Infinite landfall triggers",
+        "Infinite tapped land tokens"
+      ]
+    },
+    {
+      "shell_id": 10264,
+      "variant_id": "423-1257-1437-1671--85",
+      "uses": [
+        "Myojin of Cryptic Dreams",
+        "Evolution Sage",
+        "Walking Atlas",
+        "Simic Growth Chamber"
+      ],
+      "in_pool": [
+        "Walking Atlas",
+        "Simic Growth Chamber"
+      ],
+      "missing_from_pool": [
+        "Myojin of Cryptic Dreams",
+        "Evolution Sage"
+      ],
+      "with_commander": false,
+      "identity": "GU",
+      "requires": [
+        {
+          "template_id": 85,
+          "name": "Haste Enabler",
+          "scryfall_query": null,
+          "scryfall_api": null,
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite creature ETB",
+        "Infinite landfall triggers",
+        "Infinite proliferate",
+        "Infinite tapped creature tokens"
+      ]
+    },
+    {
+      "shell_id": 10264,
+      "variant_id": "423-1257-1437-3147--85",
+      "uses": [
+        "Myojin of Cryptic Dreams",
+        "Evolution Sage",
+        "Walking Atlas",
+        "Azorius Chancery"
+      ],
+      "in_pool": [
+        "Walking Atlas",
+        "Azorius Chancery"
+      ],
+      "missing_from_pool": [
+        "Myojin of Cryptic Dreams",
+        "Evolution Sage"
+      ],
+      "with_commander": false,
+      "identity": "GUW",
+      "requires": [
+        {
+          "template_id": 85,
+          "name": "Haste Enabler",
+          "scryfall_query": null,
+          "scryfall_api": null,
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite creature ETB",
+        "Infinite landfall triggers",
+        "Infinite proliferate",
+        "Infinite tapped creature tokens"
+      ]
+    },
+    {
+      "shell_id": 10264,
+      "variant_id": "423-907-1257-1437--85",
+      "uses": [
+        "Myojin of Cryptic Dreams",
+        "Evolution Sage",
+        "Selesnya Sanctuary",
+        "Walking Atlas"
+      ],
+      "in_pool": [
+        "Selesnya Sanctuary",
+        "Walking Atlas"
+      ],
+      "missing_from_pool": [
+        "Myojin of Cryptic Dreams",
+        "Evolution Sage"
+      ],
+      "with_commander": false,
+      "identity": "GUW",
+      "requires": [
+        {
+          "template_id": 85,
+          "name": "Haste Enabler",
+          "scryfall_query": null,
+          "scryfall_api": null,
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite creature ETB",
+        "Infinite landfall triggers",
+        "Infinite proliferate",
+        "Infinite tapped creature tokens"
+      ]
+    },
+    {
+      "shell_id": 2875,
+      "variant_id": "2034-4518-4986--44",
+      "uses": [
+        "Teshar, Ancestor's Apostle",
+        "Ashnod's Altar",
+        "Kor Skyfisher"
+      ],
+      "in_pool": [
+        "Kor Skyfisher"
+      ],
+      "missing_from_pool": [
+        "Teshar, Ancestor's Apostle",
+        "Ashnod's Altar"
+      ],
+      "with_commander": false,
+      "identity": "W",
+      "requires": [
+        {
+          "template_id": 44,
+          "name": "Artifact Castable for {0} that survives",
+          "scryfall_query": "t:artifact (mv=0 or otag:potentially-free) (-t:creature or toughness>0) -m<{0}",
+          "scryfall_api": "https://api.scryfall.com/cards/search?q=%28t%3Aartifact+%28mv%3D0+or+otag%3Apotentially-free%29+%28-t%3Acreature+or+toughness%3E0%29+-m%3C%7B0%7D%29+legal%3Acommander",
+          "quantity": 2,
+          "must_be_commander": false,
+          "zone_locations": [
+            "H",
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite artifact ETB",
+        "Infinite artifact LTB",
+        "Infinite creature ETB",
+        "Infinite creature LTB",
+        "Infinite colorless mana",
+        "Infinite death triggers",
+        "Infinite creature sacrifice triggers",
+        "Infinite storm count"
+      ]
+    },
+    {
+      "shell_id": 2875,
+      "variant_id": "4050-4518-4986--44",
+      "uses": [
+        "Teshar, Ancestor's Apostle",
+        "Phyrexian Altar",
+        "Kor Skyfisher"
+      ],
+      "in_pool": [
+        "Kor Skyfisher"
+      ],
+      "missing_from_pool": [
+        "Teshar, Ancestor's Apostle",
+        "Phyrexian Altar"
+      ],
+      "with_commander": false,
+      "identity": "W",
+      "requires": [
+        {
+          "template_id": 44,
+          "name": "Artifact Castable for {0} that survives",
+          "scryfall_query": "t:artifact (mv=0 or otag:potentially-free) (-t:creature or toughness>0) -m<{0}",
+          "scryfall_api": "https://api.scryfall.com/cards/search?q=%28t%3Aartifact+%28mv%3D0+or+otag%3Apotentially-free%29+%28-t%3Acreature+or+toughness%3E0%29+-m%3C%7B0%7D%29+legal%3Acommander",
+          "quantity": 2,
+          "must_be_commander": false,
+          "zone_locations": [
+            "H",
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite artifact ETB",
+        "Infinite artifact LTB",
+        "Infinite creature ETB",
+        "Infinite creature LTB",
+        "Infinite colored mana",
+        "Infinite death triggers",
+        "Infinite creature sacrifice triggers",
+        "Infinite storm count"
+      ]
+    },
+    {
+      "shell_id": 2875,
+      "variant_id": "413-4518-4986--44",
+      "uses": [
+        "Teshar, Ancestor's Apostle",
+        "Blasting Station",
+        "Kor Skyfisher"
+      ],
+      "in_pool": [
+        "Kor Skyfisher"
+      ],
+      "missing_from_pool": [
+        "Teshar, Ancestor's Apostle",
+        "Blasting Station"
+      ],
+      "with_commander": false,
+      "identity": "W",
+      "requires": [
+        {
+          "template_id": 44,
+          "name": "Artifact Castable for {0} that survives",
+          "scryfall_query": "t:artifact (mv=0 or otag:potentially-free) (-t:creature or toughness>0) -m<{0}",
+          "scryfall_api": "https://api.scryfall.com/cards/search?q=%28t%3Aartifact+%28mv%3D0+or+otag%3Apotentially-free%29+%28-t%3Acreature+or+toughness%3E0%29+-m%3C%7B0%7D%29+legal%3Acommander",
+          "quantity": 2,
+          "must_be_commander": false,
+          "zone_locations": [
+            "H",
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite artifact ETB",
+        "Infinite artifact LTB",
+        "Infinite creature ETB",
+        "Infinite creature LTB",
+        "Infinite damage",
+        "Infinite death triggers",
+        "Infinite creature sacrifice triggers",
+        "Infinite storm count"
+      ]
+    },
+    {
+      "shell_id": 2875,
+      "variant_id": "4518-4986-5256--44",
+      "uses": [
+        "Teshar, Ancestor's Apostle",
+        "Altar of Dementia",
+        "Kor Skyfisher"
+      ],
+      "in_pool": [
+        "Kor Skyfisher"
+      ],
+      "missing_from_pool": [
+        "Teshar, Ancestor's Apostle",
+        "Altar of Dementia"
+      ],
+      "with_commander": false,
+      "identity": "W",
+      "requires": [
+        {
+          "template_id": 44,
+          "name": "Artifact Castable for {0} that survives",
+          "scryfall_query": "t:artifact (mv=0 or otag:potentially-free) (-t:creature or toughness>0) -m<{0}",
+          "scryfall_api": "https://api.scryfall.com/cards/search?q=%28t%3Aartifact+%28mv%3D0+or+otag%3Apotentially-free%29+%28-t%3Acreature+or+toughness%3E0%29+-m%3C%7B0%7D%29+legal%3Acommander",
+          "quantity": 2,
+          "must_be_commander": false,
+          "zone_locations": [
+            "H",
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite artifact ETB",
+        "Infinite artifact LTB",
+        "Infinite creature ETB",
+        "Infinite creature LTB",
+        "Infinite death triggers",
+        "Infinite mill",
+        "Infinite creature sacrifice triggers",
+        "Infinite self-mill",
+        "Infinite storm count"
+      ]
+    },
+    {
+      "shell_id": 9715,
+      "variant_id": "1329-3338-4659--31",
+      "uses": [
+        "Emry, Lurker of the Loch",
+        "Mirran Spy",
+        "Krark-Clan Ironworks"
+      ],
+      "in_pool": [
+        "Mirran Spy"
+      ],
+      "missing_from_pool": [
+        "Emry, Lurker of the Loch",
+        "Krark-Clan Ironworks"
+      ],
+      "with_commander": false,
+      "identity": "U",
+      "requires": [
+        {
+          "template_id": 31,
+          "name": "Artifact with MV<=2 that has a generic mana cost",
+          "scryfall_query": "t:artifact mv<=2 (mana={0} or mana={X} or mana={X}{X} or mana={2} or mana={1})",
+          "scryfall_api": "https://api.scryfall.com/cards/search?q=%28t%3Aartifact+mv%3C%3D2+%28mana%3D%7B0%7D+or+mana%3D%7BX%7D+or+mana%3D%7BX%7D%7BX%7D+or+mana%3D%7B2%7D+or+mana%3D%7B1%7D%29%29+legal%3Acommander",
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite colorless mana",
+        "Infinite storm count"
+      ]
+    },
+    {
+      "shell_id": 25096,
+      "variant_id": "2066-2348-4019--85--172",
+      "uses": [
+        "Vigean Graftmage",
+        "Fertile Ground",
+        "Nature's Revolt"
+      ],
+      "in_pool": [
+        "Fertile Ground"
+      ],
+      "missing_from_pool": [
+        "Vigean Graftmage",
+        "Nature's Revolt"
+      ],
+      "with_commander": false,
+      "identity": "GU",
+      "requires": [
+        {
+          "template_id": 172,
+          "name": "Land that adds at least two mana",
+          "scryfall_query": "otag:adds-multiple-mana t:land",
+          "scryfall_api": "https://api.scryfall.com/cards/search?q=%28otag%3Aadds-multiple-mana+t%3Aland%29+legal%3Acommander",
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "H"
+          ]
+        },
+        {
+          "template_id": 85,
+          "name": "Haste Enabler",
+          "scryfall_query": null,
+          "scryfall_api": null,
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite mana lands you control can produce"
+      ]
+    },
+    {
+      "shell_id": 25096,
+      "variant_id": "2066-4019-4221--85--172",
+      "uses": [
+        "Vigean Graftmage",
+        "Fertile Ground",
+        "Living Plane"
+      ],
+      "in_pool": [
+        "Fertile Ground"
+      ],
+      "missing_from_pool": [
+        "Vigean Graftmage",
+        "Living Plane"
+      ],
+      "with_commander": false,
+      "identity": "GU",
+      "requires": [
+        {
+          "template_id": 172,
+          "name": "Land that adds at least two mana",
+          "scryfall_query": "otag:adds-multiple-mana t:land",
+          "scryfall_api": "https://api.scryfall.com/cards/search?q=%28otag%3Aadds-multiple-mana+t%3Aland%29+legal%3Acommander",
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "H"
+          ]
+        },
+        {
+          "template_id": 85,
+          "name": "Haste Enabler",
+          "scryfall_query": null,
+          "scryfall_api": null,
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite mana lands you control can produce"
+      ]
+    },
+    {
+      "shell_id": 25096,
+      "variant_id": "2348-4019-7677--85--172",
+      "uses": [
+        "Vigean Graftmage",
+        "Nature's Revolt",
+        "Shimmerwilds Growth"
+      ],
+      "in_pool": [
+        "Shimmerwilds Growth"
+      ],
+      "missing_from_pool": [
+        "Vigean Graftmage",
+        "Nature's Revolt"
+      ],
+      "with_commander": false,
+      "identity": "GU",
+      "requires": [
+        {
+          "template_id": 172,
+          "name": "Land that adds at least two mana",
+          "scryfall_query": "otag:adds-multiple-mana t:land",
+          "scryfall_api": "https://api.scryfall.com/cards/search?q=%28otag%3Aadds-multiple-mana+t%3Aland%29+legal%3Acommander",
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "H"
+          ]
+        },
+        {
+          "template_id": 85,
+          "name": "Haste Enabler",
+          "scryfall_query": null,
+          "scryfall_api": null,
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite mana lands you control can produce"
+      ]
+    },
+    {
+      "shell_id": 25096,
+      "variant_id": "4019-4221-7677--85--172",
+      "uses": [
+        "Vigean Graftmage",
+        "Living Plane",
+        "Shimmerwilds Growth"
+      ],
+      "in_pool": [
+        "Shimmerwilds Growth"
+      ],
+      "missing_from_pool": [
+        "Vigean Graftmage",
+        "Living Plane"
+      ],
+      "with_commander": false,
+      "identity": "GU",
+      "requires": [
+        {
+          "template_id": 172,
+          "name": "Land that adds at least two mana",
+          "scryfall_query": "otag:adds-multiple-mana t:land",
+          "scryfall_api": "https://api.scryfall.com/cards/search?q=%28otag%3Aadds-multiple-mana+t%3Aland%29+legal%3Acommander",
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "H"
+          ]
+        },
+        {
+          "template_id": 85,
+          "name": "Haste Enabler",
+          "scryfall_query": null,
+          "scryfall_api": null,
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite mana lands you control can produce"
+      ]
+    },
+    {
+      "shell_id": 28417,
+      "variant_id": "478-539-1376--111",
+      "uses": [
+        "Candelabra of Tawnos",
+        "Ashaya, Soul of the Wild",
+        "Priest of Titania"
+      ],
+      "in_pool": [
+        "Priest of Titania"
+      ],
+      "missing_from_pool": [
+        "Candelabra of Tawnos",
+        "Ashaya, Soul of the Wild"
+      ],
+      "with_commander": false,
+      "identity": "G",
+      "requires": [
+        {
+          "template_id": 111,
+          "name": "Card that Animates an Artifact",
+          "scryfall_query": "otag:animate-artifact",
+          "scryfall_api": "https://api.scryfall.com/cards/search?q=%28otag%3Aanimate-artifact%29+legal%3Acommander",
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "H",
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite mana lands you control can produce",
+        "Infinite green mana",
+        "Infinite untap of nontoken creatures you control",
+        "Infinite mana nontoken creatures you control can produce",
+        "Infinite untap of lands you control"
+      ]
+    },
+    {
+      "shell_id": 28868,
+      "variant_id": "565-1858-6231--118",
+      "uses": [
+        "Orvar, the All-Form",
+        "View from Above",
+        "Thunderclap Drake"
+      ],
+      "in_pool": [
+        "Thunderclap Drake"
+      ],
+      "missing_from_pool": [
+        "Orvar, the All-Form",
+        "View from Above"
+      ],
+      "with_commander": false,
+      "identity": "U",
+      "requires": [
+        {
+          "template_id": 118,
+          "name": "Card That Animates a Land",
+          "scryfall_query": null,
+          "scryfall_api": null,
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "H",
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite artifact ETB",
+        "Infinite storm count",
+        "Infinite magecraft triggers",
+        "Infinite landfall triggers",
+        "Infinite tapped Island tokens"
+      ]
+    },
+    {
+      "shell_id": 28868,
+      "variant_id": "565-1858-7445--118",
+      "uses": [
+        "Orvar, the All-Form",
+        "View from Above",
+        "Dirgur Focusmage // Braingeyser"
+      ],
+      "in_pool": [
+        "Dirgur Focusmage // Braingeyser"
+      ],
+      "missing_from_pool": [
+        "Orvar, the All-Form",
+        "View from Above"
+      ],
+      "with_commander": false,
+      "identity": "U",
+      "requires": [
+        {
+          "template_id": 118,
+          "name": "Card That Animates a Land",
+          "scryfall_query": null,
+          "scryfall_api": null,
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "H",
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite artifact ETB",
+        "Infinite landfall triggers",
+        "Infinite magecraft triggers",
+        "Infinite storm count",
+        "Infinite tapped Island tokens"
+      ]
+    },
+    {
+      "shell_id": 29435,
+      "variant_id": "1594-4399-4518--228",
+      "uses": [
+        "Defiler of Faith",
+        "Helm of Awakening",
+        "Kor Skyfisher"
+      ],
+      "in_pool": [
+        "Kor Skyfisher"
+      ],
+      "missing_from_pool": [
+        "Defiler of Faith",
+        "Helm of Awakening"
+      ],
+      "with_commander": false,
+      "identity": "W",
+      "requires": [
+        {
+          "template_id": 228,
+          "name": "Soul Sister (Gain life when a creature enters)",
+          "scryfall_query": "otag:soul-sister",
+          "scryfall_api": "https://api.scryfall.com/cards/search?q=%28otag%3Asoul-sister%29+legal%3Acommander",
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite creature ETB",
+        "Infinite creature LTB",
+        "Infinite creature tokens",
+        "Infinite energy counters",
+        "Infinite lifegain",
+        "Infinite lifegain triggers",
+        "Infinite lifeloss",
+        "Infinite storm count"
+      ]
+    },
+    {
+      "shell_id": 29435,
+      "variant_id": "1594-4399-4770--228",
+      "uses": [
+        "Defiler of Faith",
+        "Helm of Awakening",
+        "Whitemane Lion"
+      ],
+      "in_pool": [
+        "Whitemane Lion"
+      ],
+      "missing_from_pool": [
+        "Defiler of Faith",
+        "Helm of Awakening"
+      ],
+      "with_commander": false,
+      "identity": "W",
+      "requires": [
+        {
+          "template_id": 228,
+          "name": "Soul Sister (Gain life when a creature enters)",
+          "scryfall_query": "otag:soul-sister",
+          "scryfall_api": "https://api.scryfall.com/cards/search?q=%28otag%3Asoul-sister%29+legal%3Acommander",
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite creature ETB",
+        "Infinite creature LTB",
+        "Infinite creature tokens",
+        "Infinite energy counters",
+        "Infinite lifegain",
+        "Infinite lifegain triggers",
+        "Infinite lifeloss",
+        "Infinite storm count"
+      ]
+    },
+    {
+      "shell_id": 29435,
+      "variant_id": "1739-4399-4518--228",
+      "uses": [
+        "Defiler of Faith",
+        "Herald's Horn",
+        "Kor Skyfisher"
+      ],
+      "in_pool": [
+        "Kor Skyfisher"
+      ],
+      "missing_from_pool": [
+        "Defiler of Faith",
+        "Herald's Horn"
+      ],
+      "with_commander": false,
+      "identity": "W",
+      "requires": [
+        {
+          "template_id": 228,
+          "name": "Soul Sister (Gain life when a creature enters)",
+          "scryfall_query": "otag:soul-sister",
+          "scryfall_api": "https://api.scryfall.com/cards/search?q=%28otag%3Asoul-sister%29+legal%3Acommander",
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite creature ETB",
+        "Infinite creature LTB",
+        "Infinite creature tokens",
+        "Infinite energy counters",
+        "Infinite lifegain",
+        "Infinite lifegain triggers",
+        "Infinite lifeloss",
+        "Infinite storm count"
+      ]
+    },
+    {
+      "shell_id": 29435,
+      "variant_id": "1739-4399-4770--228",
+      "uses": [
+        "Defiler of Faith",
+        "Herald's Horn",
+        "Whitemane Lion"
+      ],
+      "in_pool": [
+        "Whitemane Lion"
+      ],
+      "missing_from_pool": [
+        "Defiler of Faith",
+        "Herald's Horn"
+      ],
+      "with_commander": false,
+      "identity": "W",
+      "requires": [
+        {
+          "template_id": 228,
+          "name": "Soul Sister (Gain life when a creature enters)",
+          "scryfall_query": "otag:soul-sister",
+          "scryfall_api": "https://api.scryfall.com/cards/search?q=%28otag%3Asoul-sister%29+legal%3Acommander",
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite creature ETB",
+        "Infinite creature LTB",
+        "Infinite creature tokens",
+        "Infinite energy counters",
+        "Infinite lifegain",
+        "Infinite lifegain triggers",
+        "Infinite lifeloss",
+        "Infinite storm count"
+      ]
+    },
+    {
+      "shell_id": 29435,
+      "variant_id": "1796-4399-4518--228",
+      "uses": [
+        "Defiler of Faith",
+        "Centaur Omenreader",
+        "Kor Skyfisher"
+      ],
+      "in_pool": [
+        "Kor Skyfisher"
+      ],
+      "missing_from_pool": [
+        "Defiler of Faith",
+        "Centaur Omenreader"
+      ],
+      "with_commander": false,
+      "identity": "GW",
+      "requires": [
+        {
+          "template_id": 228,
+          "name": "Soul Sister (Gain life when a creature enters)",
+          "scryfall_query": "otag:soul-sister",
+          "scryfall_api": "https://api.scryfall.com/cards/search?q=%28otag%3Asoul-sister%29+legal%3Acommander",
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite creature ETB",
+        "Infinite creature LTB",
+        "Infinite creature tokens",
+        "Infinite energy counters",
+        "Infinite lifegain",
+        "Infinite lifegain triggers",
+        "Infinite lifeloss",
+        "Infinite storm count"
+      ]
+    },
+    {
+      "shell_id": 29435,
+      "variant_id": "1796-4399-4770--228",
+      "uses": [
+        "Defiler of Faith",
+        "Centaur Omenreader",
+        "Whitemane Lion"
+      ],
+      "in_pool": [
+        "Whitemane Lion"
+      ],
+      "missing_from_pool": [
+        "Defiler of Faith",
+        "Centaur Omenreader"
+      ],
+      "with_commander": false,
+      "identity": "GW",
+      "requires": [
+        {
+          "template_id": 228,
+          "name": "Soul Sister (Gain life when a creature enters)",
+          "scryfall_query": "otag:soul-sister",
+          "scryfall_api": "https://api.scryfall.com/cards/search?q=%28otag%3Asoul-sister%29+legal%3Acommander",
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite creature ETB",
+        "Infinite creature LTB",
+        "Infinite creature tokens",
+        "Infinite energy counters",
+        "Infinite lifegain",
+        "Infinite lifegain triggers",
+        "Infinite lifeloss",
+        "Infinite storm count"
+      ]
+    },
+    {
+      "shell_id": 29435,
+      "variant_id": "1895-4399-4518--228",
+      "uses": [
+        "Defiler of Faith",
+        "Pearl Medallion",
+        "Kor Skyfisher"
+      ],
+      "in_pool": [
+        "Kor Skyfisher"
+      ],
+      "missing_from_pool": [
+        "Defiler of Faith",
+        "Pearl Medallion"
+      ],
+      "with_commander": false,
+      "identity": "W",
+      "requires": [
+        {
+          "template_id": 228,
+          "name": "Soul Sister (Gain life when a creature enters)",
+          "scryfall_query": "otag:soul-sister",
+          "scryfall_api": "https://api.scryfall.com/cards/search?q=%28otag%3Asoul-sister%29+legal%3Acommander",
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite creature ETB",
+        "Infinite creature LTB",
+        "Infinite creature tokens",
+        "Infinite energy counters",
+        "Infinite lifegain",
+        "Infinite lifegain triggers",
+        "Infinite lifeloss",
+        "Infinite storm count"
+      ]
+    },
+    {
+      "shell_id": 29435,
+      "variant_id": "1895-4399-4770--228",
+      "uses": [
+        "Defiler of Faith",
+        "Pearl Medallion",
+        "Whitemane Lion"
+      ],
+      "in_pool": [
+        "Whitemane Lion"
+      ],
+      "missing_from_pool": [
+        "Defiler of Faith",
+        "Pearl Medallion"
+      ],
+      "with_commander": false,
+      "identity": "W",
+      "requires": [
+        {
+          "template_id": 228,
+          "name": "Soul Sister (Gain life when a creature enters)",
+          "scryfall_query": "otag:soul-sister",
+          "scryfall_api": "https://api.scryfall.com/cards/search?q=%28otag%3Asoul-sister%29+legal%3Acommander",
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite creature ETB",
+        "Infinite creature LTB",
+        "Infinite creature tokens",
+        "Infinite energy counters",
+        "Infinite lifegain",
+        "Infinite lifegain triggers",
+        "Infinite lifeloss",
+        "Infinite storm count"
+      ]
+    },
+    {
+      "shell_id": 29435,
+      "variant_id": "2146-4399-4518--228",
+      "uses": [
+        "Defiler of Faith",
+        "Cloud Key",
+        "Kor Skyfisher"
+      ],
+      "in_pool": [
+        "Kor Skyfisher"
+      ],
+      "missing_from_pool": [
+        "Defiler of Faith",
+        "Cloud Key"
+      ],
+      "with_commander": false,
+      "identity": "W",
+      "requires": [
+        {
+          "template_id": 228,
+          "name": "Soul Sister (Gain life when a creature enters)",
+          "scryfall_query": "otag:soul-sister",
+          "scryfall_api": "https://api.scryfall.com/cards/search?q=%28otag%3Asoul-sister%29+legal%3Acommander",
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite creature ETB",
+        "Infinite creature LTB",
+        "Infinite creature tokens",
+        "Infinite energy counters",
+        "Infinite lifegain",
+        "Infinite lifegain triggers",
+        "Infinite lifeloss",
+        "Infinite storm count"
+      ]
+    },
+    {
+      "shell_id": 29435,
+      "variant_id": "2146-4399-4770--228",
+      "uses": [
+        "Defiler of Faith",
+        "Cloud Key",
+        "Whitemane Lion"
+      ],
+      "in_pool": [
+        "Whitemane Lion"
+      ],
+      "missing_from_pool": [
+        "Defiler of Faith",
+        "Cloud Key"
+      ],
+      "with_commander": false,
+      "identity": "W",
+      "requires": [
+        {
+          "template_id": 228,
+          "name": "Soul Sister (Gain life when a creature enters)",
+          "scryfall_query": "otag:soul-sister",
+          "scryfall_api": "https://api.scryfall.com/cards/search?q=%28otag%3Asoul-sister%29+legal%3Acommander",
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite creature ETB",
+        "Infinite creature LTB",
+        "Infinite creature tokens",
+        "Infinite energy counters",
+        "Infinite lifegain",
+        "Infinite lifegain triggers",
+        "Infinite lifeloss",
+        "Infinite storm count"
+      ]
+    },
+    {
+      "shell_id": 29435,
+      "variant_id": "2350-4399-4518--228",
+      "uses": [
+        "Defiler of Faith",
+        "Stone Calendar",
+        "Kor Skyfisher"
+      ],
+      "in_pool": [
+        "Kor Skyfisher"
+      ],
+      "missing_from_pool": [
+        "Defiler of Faith",
+        "Stone Calendar"
+      ],
+      "with_commander": false,
+      "identity": "W",
+      "requires": [
+        {
+          "template_id": 228,
+          "name": "Soul Sister (Gain life when a creature enters)",
+          "scryfall_query": "otag:soul-sister",
+          "scryfall_api": "https://api.scryfall.com/cards/search?q=%28otag%3Asoul-sister%29+legal%3Acommander",
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite creature ETB",
+        "Infinite creature LTB",
+        "Infinite creature tokens",
+        "Infinite energy counters",
+        "Infinite lifegain",
+        "Infinite lifegain triggers",
+        "Infinite lifeloss",
+        "Infinite storm count"
+      ]
+    },
+    {
+      "shell_id": 29435,
+      "variant_id": "2350-4399-4770--228",
+      "uses": [
+        "Defiler of Faith",
+        "Stone Calendar",
+        "Whitemane Lion"
+      ],
+      "in_pool": [
+        "Whitemane Lion"
+      ],
+      "missing_from_pool": [
+        "Defiler of Faith",
+        "Stone Calendar"
+      ],
+      "with_commander": false,
+      "identity": "W",
+      "requires": [
+        {
+          "template_id": 228,
+          "name": "Soul Sister (Gain life when a creature enters)",
+          "scryfall_query": "otag:soul-sister",
+          "scryfall_api": "https://api.scryfall.com/cards/search?q=%28otag%3Asoul-sister%29+legal%3Acommander",
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite creature ETB",
+        "Infinite creature LTB",
+        "Infinite creature tokens",
+        "Infinite energy counters",
+        "Infinite lifegain",
+        "Infinite lifegain triggers",
+        "Infinite lifeloss",
+        "Infinite storm count"
+      ]
+    },
+    {
+      "shell_id": 29435,
+      "variant_id": "2510-4399-4518--228",
+      "uses": [
+        "Defiler of Faith",
+        "Semblance Anvil",
+        "Kor Skyfisher"
+      ],
+      "in_pool": [
+        "Kor Skyfisher"
+      ],
+      "missing_from_pool": [
+        "Defiler of Faith",
+        "Semblance Anvil"
+      ],
+      "with_commander": false,
+      "identity": "W",
+      "requires": [
+        {
+          "template_id": 228,
+          "name": "Soul Sister (Gain life when a creature enters)",
+          "scryfall_query": "otag:soul-sister",
+          "scryfall_api": "https://api.scryfall.com/cards/search?q=%28otag%3Asoul-sister%29+legal%3Acommander",
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite creature ETB",
+        "Infinite creature LTB",
+        "Infinite creature tokens",
+        "Infinite energy counters",
+        "Infinite lifegain",
+        "Infinite lifegain triggers",
+        "Infinite lifeloss",
+        "Infinite storm count"
+      ]
+    },
+    {
+      "shell_id": 29435,
+      "variant_id": "2510-4399-4770--228",
+      "uses": [
+        "Defiler of Faith",
+        "Semblance Anvil",
+        "Whitemane Lion"
+      ],
+      "in_pool": [
+        "Whitemane Lion"
+      ],
+      "missing_from_pool": [
+        "Defiler of Faith",
+        "Semblance Anvil"
+      ],
+      "with_commander": false,
+      "identity": "W",
+      "requires": [
+        {
+          "template_id": 228,
+          "name": "Soul Sister (Gain life when a creature enters)",
+          "scryfall_query": "otag:soul-sister",
+          "scryfall_api": "https://api.scryfall.com/cards/search?q=%28otag%3Asoul-sister%29+legal%3Acommander",
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite creature ETB",
+        "Infinite creature LTB",
+        "Infinite creature tokens",
+        "Infinite energy counters",
+        "Infinite lifegain",
+        "Infinite lifegain triggers",
+        "Infinite lifeloss",
+        "Infinite storm count"
+      ]
+    },
+    {
+      "shell_id": 29435,
+      "variant_id": "3168-4399-4518--228",
+      "uses": [
+        "Defiler of Faith",
+        "Urza's Incubator",
+        "Kor Skyfisher"
+      ],
+      "in_pool": [
+        "Kor Skyfisher"
+      ],
+      "missing_from_pool": [
+        "Defiler of Faith",
+        "Urza's Incubator"
+      ],
+      "with_commander": false,
+      "identity": "W",
+      "requires": [
+        {
+          "template_id": 228,
+          "name": "Soul Sister (Gain life when a creature enters)",
+          "scryfall_query": "otag:soul-sister",
+          "scryfall_api": "https://api.scryfall.com/cards/search?q=%28otag%3Asoul-sister%29+legal%3Acommander",
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite creature ETB",
+        "Infinite creature LTB",
+        "Infinite creature tokens",
+        "Infinite energy counters",
+        "Infinite lifegain",
+        "Infinite lifegain triggers",
+        "Infinite lifeloss",
+        "Infinite storm count"
+      ]
+    },
+    {
+      "shell_id": 29435,
+      "variant_id": "3168-4399-4770--228",
+      "uses": [
+        "Defiler of Faith",
+        "Urza's Incubator",
+        "Whitemane Lion"
+      ],
+      "in_pool": [
+        "Whitemane Lion"
+      ],
+      "missing_from_pool": [
+        "Defiler of Faith",
+        "Urza's Incubator"
+      ],
+      "with_commander": false,
+      "identity": "W",
+      "requires": [
+        {
+          "template_id": 228,
+          "name": "Soul Sister (Gain life when a creature enters)",
+          "scryfall_query": "otag:soul-sister",
+          "scryfall_api": "https://api.scryfall.com/cards/search?q=%28otag%3Asoul-sister%29+legal%3Acommander",
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite creature ETB",
+        "Infinite creature LTB",
+        "Infinite creature tokens",
+        "Infinite energy counters",
+        "Infinite lifegain",
+        "Infinite lifegain triggers",
+        "Infinite lifeloss",
+        "Infinite storm count"
+      ]
+    },
+    {
+      "shell_id": 29435,
+      "variant_id": "3179-4399-4518--228",
+      "uses": [
+        "Defiler of Faith",
+        "Oketra's Monument",
+        "Kor Skyfisher"
+      ],
+      "in_pool": [
+        "Kor Skyfisher"
+      ],
+      "missing_from_pool": [
+        "Defiler of Faith",
+        "Oketra's Monument"
+      ],
+      "with_commander": false,
+      "identity": "W",
+      "requires": [
+        {
+          "template_id": 228,
+          "name": "Soul Sister (Gain life when a creature enters)",
+          "scryfall_query": "otag:soul-sister",
+          "scryfall_api": "https://api.scryfall.com/cards/search?q=%28otag%3Asoul-sister%29+legal%3Acommander",
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite creature ETB",
+        "Infinite creature LTB",
+        "Infinite creature tokens",
+        "Infinite energy counters",
+        "Infinite lifegain",
+        "Infinite lifegain triggers",
+        "Infinite lifeloss",
+        "Infinite storm count"
+      ]
+    },
+    {
+      "shell_id": 29435,
+      "variant_id": "3179-4399-4770--228",
+      "uses": [
+        "Defiler of Faith",
+        "Oketra's Monument",
+        "Whitemane Lion"
+      ],
+      "in_pool": [
+        "Whitemane Lion"
+      ],
+      "missing_from_pool": [
+        "Defiler of Faith",
+        "Oketra's Monument"
+      ],
+      "with_commander": false,
+      "identity": "W",
+      "requires": [
+        {
+          "template_id": 228,
+          "name": "Soul Sister (Gain life when a creature enters)",
+          "scryfall_query": "otag:soul-sister",
+          "scryfall_api": "https://api.scryfall.com/cards/search?q=%28otag%3Asoul-sister%29+legal%3Acommander",
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite creature ETB",
+        "Infinite creature LTB",
+        "Infinite creature tokens",
+        "Infinite energy counters",
+        "Infinite lifegain",
+        "Infinite lifegain triggers",
+        "Infinite lifeloss",
+        "Infinite storm count"
+      ]
+    },
+    {
+      "shell_id": 29435,
+      "variant_id": "3375-4399-4518--228",
+      "uses": [
+        "Defiler of Faith",
+        "The Immortal Sun",
+        "Kor Skyfisher"
+      ],
+      "in_pool": [
+        "Kor Skyfisher"
+      ],
+      "missing_from_pool": [
+        "Defiler of Faith",
+        "The Immortal Sun"
+      ],
+      "with_commander": false,
+      "identity": "W",
+      "requires": [
+        {
+          "template_id": 228,
+          "name": "Soul Sister (Gain life when a creature enters)",
+          "scryfall_query": "otag:soul-sister",
+          "scryfall_api": "https://api.scryfall.com/cards/search?q=%28otag%3Asoul-sister%29+legal%3Acommander",
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite creature ETB",
+        "Infinite creature LTB",
+        "Infinite creature tokens",
+        "Infinite energy counters",
+        "Infinite lifegain",
+        "Infinite lifegain triggers",
+        "Infinite lifeloss",
+        "Infinite storm count"
+      ]
+    },
+    {
+      "shell_id": 29435,
+      "variant_id": "3375-4399-4770--228",
+      "uses": [
+        "Defiler of Faith",
+        "The Immortal Sun",
+        "Whitemane Lion"
+      ],
+      "in_pool": [
+        "Whitemane Lion"
+      ],
+      "missing_from_pool": [
+        "Defiler of Faith",
+        "The Immortal Sun"
+      ],
+      "with_commander": false,
+      "identity": "W",
+      "requires": [
+        {
+          "template_id": 228,
+          "name": "Soul Sister (Gain life when a creature enters)",
+          "scryfall_query": "otag:soul-sister",
+          "scryfall_api": "https://api.scryfall.com/cards/search?q=%28otag%3Asoul-sister%29+legal%3Acommander",
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite creature ETB",
+        "Infinite creature LTB",
+        "Infinite creature tokens",
+        "Infinite energy counters",
+        "Infinite lifegain",
+        "Infinite lifegain triggers",
+        "Infinite lifeloss",
+        "Infinite storm count"
+      ]
+    },
+    {
+      "shell_id": 29435,
+      "variant_id": "3497-4399-4518--228",
+      "uses": [
+        "Defiler of Faith",
+        "Ezzaroot Channeler",
+        "Kor Skyfisher"
+      ],
+      "in_pool": [
+        "Kor Skyfisher"
+      ],
+      "missing_from_pool": [
+        "Defiler of Faith",
+        "Ezzaroot Channeler"
+      ],
+      "with_commander": false,
+      "identity": "GW",
+      "requires": [
+        {
+          "template_id": 228,
+          "name": "Soul Sister (Gain life when a creature enters)",
+          "scryfall_query": "otag:soul-sister",
+          "scryfall_api": "https://api.scryfall.com/cards/search?q=%28otag%3Asoul-sister%29+legal%3Acommander",
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite creature ETB",
+        "Infinite creature LTB",
+        "Infinite creature tokens",
+        "Infinite energy counters",
+        "Infinite lifegain",
+        "Infinite lifegain triggers",
+        "Infinite lifeloss",
+        "Infinite storm count"
+      ]
+    },
+    {
+      "shell_id": 29435,
+      "variant_id": "3497-4399-4770--228",
+      "uses": [
+        "Defiler of Faith",
+        "Ezzaroot Channeler",
+        "Whitemane Lion"
+      ],
+      "in_pool": [
+        "Whitemane Lion"
+      ],
+      "missing_from_pool": [
+        "Defiler of Faith",
+        "Ezzaroot Channeler"
+      ],
+      "with_commander": false,
+      "identity": "GW",
+      "requires": [
+        {
+          "template_id": 228,
+          "name": "Soul Sister (Gain life when a creature enters)",
+          "scryfall_query": "otag:soul-sister",
+          "scryfall_api": "https://api.scryfall.com/cards/search?q=%28otag%3Asoul-sister%29+legal%3Acommander",
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite creature ETB",
+        "Infinite creature LTB",
+        "Infinite creature tokens",
+        "Infinite energy counters",
+        "Infinite lifegain",
+        "Infinite lifegain triggers",
+        "Infinite lifeloss",
+        "Infinite storm count"
+      ]
+    },
+    {
+      "shell_id": 29435,
+      "variant_id": "4399-4518-4668--228",
+      "uses": [
+        "Defiler of Faith",
+        "Kor Skyfisher",
+        "Heliod, the Radiant Dawn // Heliod, the Warped Eclipse"
+      ],
+      "in_pool": [
+        "Kor Skyfisher"
+      ],
+      "missing_from_pool": [
+        "Defiler of Faith",
+        "Heliod, the Radiant Dawn // Heliod, the Warped Eclipse"
+      ],
+      "with_commander": false,
+      "identity": "UW",
+      "requires": [
+        {
+          "template_id": 228,
+          "name": "Soul Sister (Gain life when a creature enters)",
+          "scryfall_query": "otag:soul-sister",
+          "scryfall_api": "https://api.scryfall.com/cards/search?q=%28otag%3Asoul-sister%29+legal%3Acommander",
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite creature ETB",
+        "Infinite creature LTB",
+        "Infinite creature tokens",
+        "Infinite energy counters",
+        "Infinite lifegain",
+        "Infinite lifegain triggers",
+        "Infinite lifeloss",
+        "Infinite storm count"
+      ]
+    },
+    {
+      "shell_id": 29435,
+      "variant_id": "4399-4518-5060--228",
+      "uses": [
+        "Defiler of Faith",
+        "Kor Skyfisher",
+        "Cemetery Prowler"
+      ],
+      "in_pool": [
+        "Kor Skyfisher"
+      ],
+      "missing_from_pool": [
+        "Defiler of Faith",
+        "Cemetery Prowler"
+      ],
+      "with_commander": false,
+      "identity": "GW",
+      "requires": [
+        {
+          "template_id": 228,
+          "name": "Soul Sister (Gain life when a creature enters)",
+          "scryfall_query": "otag:soul-sister",
+          "scryfall_api": "https://api.scryfall.com/cards/search?q=%28otag%3Asoul-sister%29+legal%3Acommander",
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite creature ETB",
+        "Infinite creature LTB",
+        "Infinite creature tokens",
+        "Infinite energy counters",
+        "Infinite lifegain",
+        "Infinite lifegain triggers",
+        "Infinite lifeloss",
+        "Infinite storm count"
+      ]
+    },
+    {
+      "shell_id": 29435,
+      "variant_id": "4399-4518-5998--228",
+      "uses": [
+        "Defiler of Faith",
+        "Kor Skyfisher",
+        "Grand Arbiter Augustin IV"
+      ],
+      "in_pool": [
+        "Kor Skyfisher"
+      ],
+      "missing_from_pool": [
+        "Defiler of Faith",
+        "Grand Arbiter Augustin IV"
+      ],
+      "with_commander": false,
+      "identity": "UW",
+      "requires": [
+        {
+          "template_id": 228,
+          "name": "Soul Sister (Gain life when a creature enters)",
+          "scryfall_query": "otag:soul-sister",
+          "scryfall_api": "https://api.scryfall.com/cards/search?q=%28otag%3Asoul-sister%29+legal%3Acommander",
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite creature ETB",
+        "Infinite creature LTB",
+        "Infinite creature tokens",
+        "Infinite energy counters",
+        "Infinite lifegain",
+        "Infinite lifegain triggers",
+        "Infinite lifeloss",
+        "Infinite storm count"
+      ]
+    },
+    {
+      "shell_id": 29435,
+      "variant_id": "4399-4518-6626--228",
+      "uses": [
+        "Defiler of Faith",
+        "Kor Skyfisher",
+        "The Wind Crystal"
+      ],
+      "in_pool": [
+        "Kor Skyfisher"
+      ],
+      "missing_from_pool": [
+        "Defiler of Faith",
+        "The Wind Crystal"
+      ],
+      "with_commander": false,
+      "identity": "W",
+      "requires": [
+        {
+          "template_id": 228,
+          "name": "Soul Sister (Gain life when a creature enters)",
+          "scryfall_query": "otag:soul-sister",
+          "scryfall_api": "https://api.scryfall.com/cards/search?q=%28otag%3Asoul-sister%29+legal%3Acommander",
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite creature ETB",
+        "Infinite creature LTB",
+        "Infinite creature tokens",
+        "Infinite energy counters",
+        "Infinite lifegain",
+        "Infinite lifegain triggers",
+        "Infinite lifeloss",
+        "Infinite storm count"
+      ]
+    },
+    {
+      "shell_id": 29435,
+      "variant_id": "4399-4518-7055--228",
+      "uses": [
+        "Defiler of Faith",
+        "Kor Skyfisher",
+        "Thornscape Familiar"
+      ],
+      "in_pool": [
+        "Kor Skyfisher"
+      ],
+      "missing_from_pool": [
+        "Defiler of Faith",
+        "Thornscape Familiar"
+      ],
+      "with_commander": false,
+      "identity": "GW",
+      "requires": [
+        {
+          "template_id": 228,
+          "name": "Soul Sister (Gain life when a creature enters)",
+          "scryfall_query": "otag:soul-sister",
+          "scryfall_api": "https://api.scryfall.com/cards/search?q=%28otag%3Asoul-sister%29+legal%3Acommander",
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite creature ETB",
+        "Infinite creature LTB",
+        "Infinite creature tokens",
+        "Infinite energy counters",
+        "Infinite lifegain",
+        "Infinite lifegain triggers",
+        "Infinite lifeloss",
+        "Infinite storm count"
+      ]
+    },
+    {
+      "shell_id": 29435,
+      "variant_id": "4399-4518-7056--228",
+      "uses": [
+        "Defiler of Faith",
+        "Kor Skyfisher",
+        "Stormscape Familiar"
+      ],
+      "in_pool": [
+        "Kor Skyfisher"
+      ],
+      "missing_from_pool": [
+        "Defiler of Faith",
+        "Stormscape Familiar"
+      ],
+      "with_commander": false,
+      "identity": "UW",
+      "requires": [
+        {
+          "template_id": 228,
+          "name": "Soul Sister (Gain life when a creature enters)",
+          "scryfall_query": "otag:soul-sister",
+          "scryfall_api": "https://api.scryfall.com/cards/search?q=%28otag%3Asoul-sister%29+legal%3Acommander",
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite creature ETB",
+        "Infinite creature LTB",
+        "Infinite creature tokens",
+        "Infinite energy counters",
+        "Infinite lifegain",
+        "Infinite lifegain triggers",
+        "Infinite lifeloss",
+        "Infinite storm count"
+      ]
+    },
+    {
+      "shell_id": 29435,
+      "variant_id": "4399-4518-7646--228",
+      "uses": [
+        "Defiler of Faith",
+        "Kor Skyfisher",
+        "Duskwatch Recruiter // Krallenhorde Howler"
+      ],
+      "in_pool": [
+        "Kor Skyfisher"
+      ],
+      "missing_from_pool": [
+        "Defiler of Faith",
+        "Duskwatch Recruiter // Krallenhorde Howler"
+      ],
+      "with_commander": false,
+      "identity": "GW",
+      "requires": [
+        {
+          "template_id": 228,
+          "name": "Soul Sister (Gain life when a creature enters)",
+          "scryfall_query": "otag:soul-sister",
+          "scryfall_api": "https://api.scryfall.com/cards/search?q=%28otag%3Asoul-sister%29+legal%3Acommander",
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite creature ETB",
+        "Infinite creature LTB",
+        "Infinite creature tokens",
+        "Infinite energy counters",
+        "Infinite lifegain",
+        "Infinite lifegain triggers",
+        "Infinite lifeloss",
+        "Infinite storm count"
+      ]
+    },
+    {
+      "shell_id": 29435,
+      "variant_id": "4399-4668-4770--228",
+      "uses": [
+        "Defiler of Faith",
+        "Heliod, the Radiant Dawn // Heliod, the Warped Eclipse",
+        "Whitemane Lion"
+      ],
+      "in_pool": [
+        "Whitemane Lion"
+      ],
+      "missing_from_pool": [
+        "Defiler of Faith",
+        "Heliod, the Radiant Dawn // Heliod, the Warped Eclipse"
+      ],
+      "with_commander": false,
+      "identity": "UW",
+      "requires": [
+        {
+          "template_id": 228,
+          "name": "Soul Sister (Gain life when a creature enters)",
+          "scryfall_query": "otag:soul-sister",
+          "scryfall_api": "https://api.scryfall.com/cards/search?q=%28otag%3Asoul-sister%29+legal%3Acommander",
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite creature ETB",
+        "Infinite creature LTB",
+        "Infinite creature tokens",
+        "Infinite energy counters",
+        "Infinite lifegain",
+        "Infinite lifegain triggers",
+        "Infinite lifeloss",
+        "Infinite storm count"
+      ]
+    },
+    {
+      "shell_id": 29435,
+      "variant_id": "4399-4770-5060--228",
+      "uses": [
+        "Defiler of Faith",
+        "Whitemane Lion",
+        "Cemetery Prowler"
+      ],
+      "in_pool": [
+        "Whitemane Lion"
+      ],
+      "missing_from_pool": [
+        "Defiler of Faith",
+        "Cemetery Prowler"
+      ],
+      "with_commander": false,
+      "identity": "GW",
+      "requires": [
+        {
+          "template_id": 228,
+          "name": "Soul Sister (Gain life when a creature enters)",
+          "scryfall_query": "otag:soul-sister",
+          "scryfall_api": "https://api.scryfall.com/cards/search?q=%28otag%3Asoul-sister%29+legal%3Acommander",
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite creature ETB",
+        "Infinite creature LTB",
+        "Infinite creature tokens",
+        "Infinite energy counters",
+        "Infinite lifegain",
+        "Infinite lifegain triggers",
+        "Infinite lifeloss",
+        "Infinite storm count"
+      ]
+    },
+    {
+      "shell_id": 29435,
+      "variant_id": "4399-4770-5998--228",
+      "uses": [
+        "Defiler of Faith",
+        "Whitemane Lion",
+        "Grand Arbiter Augustin IV"
+      ],
+      "in_pool": [
+        "Whitemane Lion"
+      ],
+      "missing_from_pool": [
+        "Defiler of Faith",
+        "Grand Arbiter Augustin IV"
+      ],
+      "with_commander": false,
+      "identity": "UW",
+      "requires": [
+        {
+          "template_id": 228,
+          "name": "Soul Sister (Gain life when a creature enters)",
+          "scryfall_query": "otag:soul-sister",
+          "scryfall_api": "https://api.scryfall.com/cards/search?q=%28otag%3Asoul-sister%29+legal%3Acommander",
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite creature ETB",
+        "Infinite creature LTB",
+        "Infinite creature tokens",
+        "Infinite energy counters",
+        "Infinite lifegain",
+        "Infinite lifegain triggers",
+        "Infinite lifeloss",
+        "Infinite storm count"
+      ]
+    },
+    {
+      "shell_id": 29435,
+      "variant_id": "4399-4770-6626--228",
+      "uses": [
+        "Defiler of Faith",
+        "Whitemane Lion",
+        "The Wind Crystal"
+      ],
+      "in_pool": [
+        "Whitemane Lion"
+      ],
+      "missing_from_pool": [
+        "Defiler of Faith",
+        "The Wind Crystal"
+      ],
+      "with_commander": false,
+      "identity": "W",
+      "requires": [
+        {
+          "template_id": 228,
+          "name": "Soul Sister (Gain life when a creature enters)",
+          "scryfall_query": "otag:soul-sister",
+          "scryfall_api": "https://api.scryfall.com/cards/search?q=%28otag%3Asoul-sister%29+legal%3Acommander",
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite creature ETB",
+        "Infinite creature LTB",
+        "Infinite creature tokens",
+        "Infinite energy counters",
+        "Infinite lifegain",
+        "Infinite lifegain triggers",
+        "Infinite lifeloss",
+        "Infinite storm count"
+      ]
+    },
+    {
+      "shell_id": 29435,
+      "variant_id": "4399-4770-7055--228",
+      "uses": [
+        "Defiler of Faith",
+        "Whitemane Lion",
+        "Thornscape Familiar"
+      ],
+      "in_pool": [
+        "Whitemane Lion"
+      ],
+      "missing_from_pool": [
+        "Defiler of Faith",
+        "Thornscape Familiar"
+      ],
+      "with_commander": false,
+      "identity": "GW",
+      "requires": [
+        {
+          "template_id": 228,
+          "name": "Soul Sister (Gain life when a creature enters)",
+          "scryfall_query": "otag:soul-sister",
+          "scryfall_api": "https://api.scryfall.com/cards/search?q=%28otag%3Asoul-sister%29+legal%3Acommander",
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite creature ETB",
+        "Infinite creature LTB",
+        "Infinite creature tokens",
+        "Infinite energy counters",
+        "Infinite lifegain",
+        "Infinite lifegain triggers",
+        "Infinite lifeloss",
+        "Infinite storm count"
+      ]
+    },
+    {
+      "shell_id": 29435,
+      "variant_id": "4399-4770-7056--228",
+      "uses": [
+        "Defiler of Faith",
+        "Whitemane Lion",
+        "Stormscape Familiar"
+      ],
+      "in_pool": [
+        "Whitemane Lion"
+      ],
+      "missing_from_pool": [
+        "Defiler of Faith",
+        "Stormscape Familiar"
+      ],
+      "with_commander": false,
+      "identity": "UW",
+      "requires": [
+        {
+          "template_id": 228,
+          "name": "Soul Sister (Gain life when a creature enters)",
+          "scryfall_query": "otag:soul-sister",
+          "scryfall_api": "https://api.scryfall.com/cards/search?q=%28otag%3Asoul-sister%29+legal%3Acommander",
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite creature ETB",
+        "Infinite creature LTB",
+        "Infinite creature tokens",
+        "Infinite energy counters",
+        "Infinite lifegain",
+        "Infinite lifegain triggers",
+        "Infinite lifeloss",
+        "Infinite storm count"
+      ]
+    },
+    {
+      "shell_id": 29435,
+      "variant_id": "4399-4770-7646--228",
+      "uses": [
+        "Defiler of Faith",
+        "Whitemane Lion",
+        "Duskwatch Recruiter // Krallenhorde Howler"
+      ],
+      "in_pool": [
+        "Whitemane Lion"
+      ],
+      "missing_from_pool": [
+        "Defiler of Faith",
+        "Duskwatch Recruiter // Krallenhorde Howler"
+      ],
+      "with_commander": false,
+      "identity": "GW",
+      "requires": [
+        {
+          "template_id": 228,
+          "name": "Soul Sister (Gain life when a creature enters)",
+          "scryfall_query": "otag:soul-sister",
+          "scryfall_api": "https://api.scryfall.com/cards/search?q=%28otag%3Asoul-sister%29+legal%3Acommander",
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite creature ETB",
+        "Infinite creature LTB",
+        "Infinite creature tokens",
+        "Infinite energy counters",
+        "Infinite lifegain",
+        "Infinite lifegain triggers",
+        "Infinite lifeloss",
+        "Infinite storm count"
+      ]
+    },
+    {
+      "shell_id": 29435,
+      "variant_id": "489-4399-4518--228",
+      "uses": [
+        "Defiler of Faith",
+        "Nylea, Keen-Eyed",
+        "Kor Skyfisher"
+      ],
+      "in_pool": [
+        "Kor Skyfisher"
+      ],
+      "missing_from_pool": [
+        "Defiler of Faith",
+        "Nylea, Keen-Eyed"
+      ],
+      "with_commander": false,
+      "identity": "GW",
+      "requires": [
+        {
+          "template_id": 228,
+          "name": "Soul Sister (Gain life when a creature enters)",
+          "scryfall_query": "otag:soul-sister",
+          "scryfall_api": "https://api.scryfall.com/cards/search?q=%28otag%3Asoul-sister%29+legal%3Acommander",
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite creature ETB",
+        "Infinite creature LTB",
+        "Infinite creature tokens",
+        "Infinite energy counters",
+        "Infinite lifegain",
+        "Infinite lifegain triggers",
+        "Infinite lifeloss",
+        "Infinite storm count"
+      ]
+    },
+    {
+      "shell_id": 29435,
+      "variant_id": "489-4399-4770--228",
+      "uses": [
+        "Defiler of Faith",
+        "Nylea, Keen-Eyed",
+        "Whitemane Lion"
+      ],
+      "in_pool": [
+        "Whitemane Lion"
+      ],
+      "missing_from_pool": [
+        "Defiler of Faith",
+        "Nylea, Keen-Eyed"
+      ],
+      "with_commander": false,
+      "identity": "GW",
+      "requires": [
+        {
+          "template_id": 228,
+          "name": "Soul Sister (Gain life when a creature enters)",
+          "scryfall_query": "otag:soul-sister",
+          "scryfall_api": "https://api.scryfall.com/cards/search?q=%28otag%3Asoul-sister%29+legal%3Acommander",
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite creature ETB",
+        "Infinite creature LTB",
+        "Infinite creature tokens",
+        "Infinite energy counters",
+        "Infinite lifegain",
+        "Infinite lifegain triggers",
+        "Infinite lifeloss",
+        "Infinite storm count"
+      ]
+    },
+    {
+      "shell_id": 29435,
+      "variant_id": "698-4399-4518--228",
+      "uses": [
+        "Defiler of Faith",
+        "Will, Scion of Peace",
+        "Kor Skyfisher"
+      ],
+      "in_pool": [
+        "Kor Skyfisher"
+      ],
+      "missing_from_pool": [
+        "Defiler of Faith",
+        "Will, Scion of Peace"
+      ],
+      "with_commander": false,
+      "identity": "UW",
+      "requires": [
+        {
+          "template_id": 228,
+          "name": "Soul Sister (Gain life when a creature enters)",
+          "scryfall_query": "otag:soul-sister",
+          "scryfall_api": "https://api.scryfall.com/cards/search?q=%28otag%3Asoul-sister%29+legal%3Acommander",
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite creature ETB",
+        "Infinite creature LTB",
+        "Infinite creature tokens",
+        "Infinite energy counters",
+        "Infinite lifegain",
+        "Infinite lifegain triggers",
+        "Infinite lifeloss",
+        "Infinite storm count"
+      ]
+    },
+    {
+      "shell_id": 29435,
+      "variant_id": "698-4399-4770--228",
+      "uses": [
+        "Defiler of Faith",
+        "Will, Scion of Peace",
+        "Whitemane Lion"
+      ],
+      "in_pool": [
+        "Whitemane Lion"
+      ],
+      "missing_from_pool": [
+        "Defiler of Faith",
+        "Will, Scion of Peace"
+      ],
+      "with_commander": false,
+      "identity": "UW",
+      "requires": [
+        {
+          "template_id": 228,
+          "name": "Soul Sister (Gain life when a creature enters)",
+          "scryfall_query": "otag:soul-sister",
+          "scryfall_api": "https://api.scryfall.com/cards/search?q=%28otag%3Asoul-sister%29+legal%3Acommander",
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite creature ETB",
+        "Infinite creature LTB",
+        "Infinite creature tokens",
+        "Infinite energy counters",
+        "Infinite lifegain",
+        "Infinite lifegain triggers",
+        "Infinite lifeloss",
+        "Infinite storm count"
+      ]
+    },
+    {
+      "shell_id": 29435,
+      "variant_id": "7-4399-4518--228",
+      "uses": [
+        "Defiler of Faith",
+        "Hamza, Guardian of Arashin",
+        "Kor Skyfisher"
+      ],
+      "in_pool": [
+        "Kor Skyfisher"
+      ],
+      "missing_from_pool": [
+        "Defiler of Faith",
+        "Hamza, Guardian of Arashin"
+      ],
+      "with_commander": false,
+      "identity": "GW",
+      "requires": [
+        {
+          "template_id": 228,
+          "name": "Soul Sister (Gain life when a creature enters)",
+          "scryfall_query": "otag:soul-sister",
+          "scryfall_api": "https://api.scryfall.com/cards/search?q=%28otag%3Asoul-sister%29+legal%3Acommander",
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite creature ETB",
+        "Infinite creature LTB",
+        "Infinite creature tokens",
+        "Infinite energy counters",
+        "Infinite lifegain",
+        "Infinite lifegain triggers",
+        "Infinite lifeloss",
+        "Infinite storm count"
+      ]
+    },
+    {
+      "shell_id": 29435,
+      "variant_id": "7-4399-4770--228",
+      "uses": [
+        "Defiler of Faith",
+        "Hamza, Guardian of Arashin",
+        "Whitemane Lion"
+      ],
+      "in_pool": [
+        "Whitemane Lion"
+      ],
+      "missing_from_pool": [
+        "Defiler of Faith",
+        "Hamza, Guardian of Arashin"
+      ],
+      "with_commander": false,
+      "identity": "GW",
+      "requires": [
+        {
+          "template_id": 228,
+          "name": "Soul Sister (Gain life when a creature enters)",
+          "scryfall_query": "otag:soul-sister",
+          "scryfall_api": "https://api.scryfall.com/cards/search?q=%28otag%3Asoul-sister%29+legal%3Acommander",
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite creature ETB",
+        "Infinite creature LTB",
+        "Infinite creature tokens",
+        "Infinite energy counters",
+        "Infinite lifegain",
+        "Infinite lifegain triggers",
+        "Infinite lifeloss",
+        "Infinite storm count"
+      ]
+    },
+    {
+      "shell_id": 29435,
+      "variant_id": "944-4399-4518--228",
+      "uses": [
+        "Defiler of Faith",
+        "Planar Gate",
+        "Kor Skyfisher"
+      ],
+      "in_pool": [
+        "Kor Skyfisher"
+      ],
+      "missing_from_pool": [
+        "Defiler of Faith",
+        "Planar Gate"
+      ],
+      "with_commander": false,
+      "identity": "W",
+      "requires": [
+        {
+          "template_id": 228,
+          "name": "Soul Sister (Gain life when a creature enters)",
+          "scryfall_query": "otag:soul-sister",
+          "scryfall_api": "https://api.scryfall.com/cards/search?q=%28otag%3Asoul-sister%29+legal%3Acommander",
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite creature ETB",
+        "Infinite creature LTB",
+        "Infinite creature tokens",
+        "Infinite energy counters",
+        "Infinite lifegain",
+        "Infinite lifegain triggers",
+        "Infinite lifeloss",
+        "Infinite storm count"
+      ]
+    },
+    {
+      "shell_id": 29435,
+      "variant_id": "944-4399-4770--228",
+      "uses": [
+        "Defiler of Faith",
+        "Planar Gate",
+        "Whitemane Lion"
+      ],
+      "in_pool": [
+        "Whitemane Lion"
+      ],
+      "missing_from_pool": [
+        "Defiler of Faith",
+        "Planar Gate"
+      ],
+      "with_commander": false,
+      "identity": "W",
+      "requires": [
+        {
+          "template_id": 228,
+          "name": "Soul Sister (Gain life when a creature enters)",
+          "scryfall_query": "otag:soul-sister",
+          "scryfall_api": "https://api.scryfall.com/cards/search?q=%28otag%3Asoul-sister%29+legal%3Acommander",
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite creature ETB",
+        "Infinite creature LTB",
+        "Infinite creature tokens",
+        "Infinite energy counters",
+        "Infinite lifegain",
+        "Infinite lifegain triggers",
+        "Infinite lifeloss",
+        "Infinite storm count"
+      ]
+    },
+    {
+      "shell_id": 30514,
+      "variant_id": "4056-4679-4753--82",
+      "uses": [
+        "Yenna, Redtooth Regent",
+        "Second Wind",
+        "Clever Impersonator"
+      ],
+      "in_pool": [
+        "Clever Impersonator"
+      ],
+      "missing_from_pool": [
+        "Yenna, Redtooth Regent",
+        "Second Wind"
+      ],
+      "with_commander": false,
+      "identity": "GUW",
+      "requires": [
+        {
+          "template_id": 82,
+          "name": "Creature that taps for 2+ mana",
+          "scryfall_query": null,
+          "scryfall_api": null,
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite scry"
+      ]
+    },
+    {
+      "shell_id": 32694,
+      "variant_id": "1978-3301-7434--148",
+      "uses": [
+        "Brass Infiniscope",
+        "Voltaic Construct",
+        "Tezzeret, Betrayer of Flesh"
+      ],
+      "in_pool": [
+        "Tezzeret, Betrayer of Flesh"
+      ],
+      "missing_from_pool": [
+        "Brass Infiniscope",
+        "Voltaic Construct"
+      ],
+      "with_commander": false,
+      "identity": "U",
+      "requires": [
+        {
+          "template_id": 148,
+          "name": "Spell with {X} in Mana Cost",
+          "scryfall_query": "is:spell mana:{X}",
+          "scryfall_api": "https://api.scryfall.com/cards/search?q=%28is%3Aspell+mana%3A%7BX%7D%29+legal%3Acommander",
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "H"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite card draw",
+        "Infinite draw triggers",
+        "Near-infinite lifegain",
+        "Near-infinite lifegain triggers"
+      ]
+    },
+    {
+      "shell_id": 32870,
+      "variant_id": "224-1170-7529--82",
+      "uses": [
+        "Studious First-Year // Rampant Growth",
+        "Retreat to Coralhelm",
+        "Displacer Kitten"
+      ],
+      "in_pool": [
+        "Studious First-Year // Rampant Growth"
+      ],
+      "missing_from_pool": [
+        "Retreat to Coralhelm",
+        "Displacer Kitten"
+      ],
+      "with_commander": false,
+      "identity": "GU",
+      "requires": [
+        {
+          "template_id": 82,
+          "name": "Creature that taps for 2+ mana",
+          "scryfall_query": null,
+          "scryfall_api": null,
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Near-infinite creature ETB",
+        "Near-infinite creature LTB",
+        "Near-infinite magecraft triggers",
+        "Near-infinite mana creatures you control can produce",
+        "Near-infinite storm count",
+        "Put all basic lands from your library onto the battlefield tapped"
+      ]
+    },
+    {
+      "shell_id": 32964,
+      "variant_id": "876-1157-7070--32",
+      "uses": [
+        "Monk Gyatso",
+        "Eye of Ugin",
+        "Lightning Greaves"
+      ],
+      "in_pool": [
+        "Lightning Greaves"
+      ],
+      "missing_from_pool": [
+        "Monk Gyatso",
+        "Eye of Ugin"
+      ],
+      "with_commander": false,
+      "identity": "W",
+      "requires": [
+        {
+          "template_id": 32,
+          "name": "Eldrazi Creature Card",
+          "scryfall_query": "(t:eldrazi or keyword:changeling) t:creature",
+          "scryfall_api": "https://api.scryfall.com/cards/search?q=%28%28t%3Aeldrazi+or+keyword%3Achangeling%29+t%3Acreature%29+legal%3Acommander",
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite creature ETB",
+        "Infinite creature LTB",
+        "Infinite storm count"
+      ]
+    },
+    {
+      "shell_id": 34363,
+      "variant_id": "4549-8269-8271--220",
+      "uses": [
+        "Relic of Legends",
+        "Amazing Spider-Girl",
+        "Spider-Man, Brooklyn Visionary"
+      ],
+      "in_pool": [
+        "Relic of Legends"
+      ],
+      "missing_from_pool": [
+        "Amazing Spider-Girl",
+        "Spider-Man, Brooklyn Visionary"
+      ],
+      "with_commander": false,
+      "identity": "GW",
+      "requires": [
+        {
+          "template_id": 220,
+          "name": "Card that reduces creature spells by 2 or more generic mana",
+          "scryfall_query": "otag:cost-reducer o:/spells.*((\\{2\\}|\\{X\\}) less to cast|\\{1\\} less to cast for each)/ -(o:/((instant|sorcery)|(noncreature|enchantment)).*spells/ or o:\"equipment spells\" or o:/spells.*(that|each) target/ or o:\"same name\")",
+          "scryfall_api": "https://api.scryfall.com/cards/search?q=%28otag%3Acost-reducer+o%3A%2Fspells.%2A%28%28%5C%7B2%5C%7D%7C%5C%7BX%5C%7D%29+less+to+cast%7C%5C%7B1%5C%7D+less+to+cast+for+each%29%2F+-%28o%3A%2F%28%28instant%7Csorcery%29%7C%28noncreature%7Cenchantment%29%29.%2Aspells%2F+or+o%3A%22equipment+spells%22+or+o%3A%2Fspells.%2A%28that%7Ceach%29+target%2F+or+o%3A%22same+name%22%29%29+legal%3Acommander",
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite creature ETB",
+        "Infinite creature LTB",
+        "Infinite storm count"
+      ]
+    },
+    {
+      "shell_id": 34363,
+      "variant_id": "4549-8269-8273--220",
+      "uses": [
+        "Relic of Legends",
+        "Amazing Spider-Girl",
+        "Spider-UK"
+      ],
+      "in_pool": [
+        "Relic of Legends"
+      ],
+      "missing_from_pool": [
+        "Amazing Spider-Girl",
+        "Spider-UK"
+      ],
+      "with_commander": false,
+      "identity": "W",
+      "requires": [
+        {
+          "template_id": 220,
+          "name": "Card that reduces creature spells by 2 or more generic mana",
+          "scryfall_query": "otag:cost-reducer o:/spells.*((\\{2\\}|\\{X\\}) less to cast|\\{1\\} less to cast for each)/ -(o:/((instant|sorcery)|(noncreature|enchantment)).*spells/ or o:\"equipment spells\" or o:/spells.*(that|each) target/ or o:\"same name\")",
+          "scryfall_api": "https://api.scryfall.com/cards/search?q=%28otag%3Acost-reducer+o%3A%2Fspells.%2A%28%28%5C%7B2%5C%7D%7C%5C%7BX%5C%7D%29+less+to+cast%7C%5C%7B1%5C%7D+less+to+cast+for+each%29%2F+-%28o%3A%2F%28%28instant%7Csorcery%29%7C%28noncreature%7Cenchantment%29%29.%2Aspells%2F+or+o%3A%22equipment+spells%22+or+o%3A%2Fspells.%2A%28that%7Ceach%29+target%2F+or+o%3A%22same+name%22%29%29+legal%3Acommander",
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite creature ETB",
+        "Infinite creature LTB",
+        "Infinite storm count"
+      ]
+    },
+    {
+      "shell_id": 34363,
+      "variant_id": "4549-8271-8273--220",
+      "uses": [
+        "Relic of Legends",
+        "Spider-Man, Brooklyn Visionary",
+        "Spider-UK"
+      ],
+      "in_pool": [
+        "Relic of Legends"
+      ],
+      "missing_from_pool": [
+        "Spider-Man, Brooklyn Visionary",
+        "Spider-UK"
+      ],
+      "with_commander": false,
+      "identity": "GW",
+      "requires": [
+        {
+          "template_id": 220,
+          "name": "Card that reduces creature spells by 2 or more generic mana",
+          "scryfall_query": "otag:cost-reducer o:/spells.*((\\{2\\}|\\{X\\}) less to cast|\\{1\\} less to cast for each)/ -(o:/((instant|sorcery)|(noncreature|enchantment)).*spells/ or o:\"equipment spells\" or o:/spells.*(that|each) target/ or o:\"same name\")",
+          "scryfall_api": "https://api.scryfall.com/cards/search?q=%28otag%3Acost-reducer+o%3A%2Fspells.%2A%28%28%5C%7B2%5C%7D%7C%5C%7BX%5C%7D%29+less+to+cast%7C%5C%7B1%5C%7D+less+to+cast+for+each%29%2F+-%28o%3A%2F%28%28instant%7Csorcery%29%7C%28noncreature%7Cenchantment%29%29.%2Aspells%2F+or+o%3A%22equipment+spells%22+or+o%3A%2Fspells.%2A%28that%7Ceach%29+target%2F+or+o%3A%22same+name%22%29%29+legal%3Acommander",
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite creature ETB",
+        "Infinite creature LTB",
+        "Infinite storm count"
+      ]
+    },
+    {
+      "shell_id": 10264,
+      "variant_id": "423-1257-1362-1437--85",
+      "uses": [
+        "Myojin of Cryptic Dreams",
+        "Evolution Sage",
+        "Walking Atlas",
+        "Oboro, Palace in the Clouds"
+      ],
+      "in_pool": [
+        "Walking Atlas"
+      ],
+      "missing_from_pool": [
+        "Myojin of Cryptic Dreams",
+        "Evolution Sage",
+        "Oboro, Palace in the Clouds"
+      ],
+      "with_commander": false,
+      "identity": "GU",
+      "requires": [
+        {
+          "template_id": 85,
+          "name": "Haste Enabler",
+          "scryfall_query": null,
+          "scryfall_api": null,
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite creature ETB",
+        "Infinite landfall triggers",
+        "Infinite proliferate",
+        "Infinite tapped creature tokens"
+      ]
+    },
+    {
+      "shell_id": 10264,
+      "variant_id": "423-1257-1437-5621--85",
+      "uses": [
+        "Myojin of Cryptic Dreams",
+        "Evolution Sage",
+        "Walking Atlas",
+        "Arid Archway"
+      ],
+      "in_pool": [
+        "Walking Atlas"
+      ],
+      "missing_from_pool": [
+        "Myojin of Cryptic Dreams",
+        "Evolution Sage",
+        "Arid Archway"
+      ],
+      "with_commander": false,
+      "identity": "GU",
+      "requires": [
+        {
+          "template_id": 85,
+          "name": "Haste Enabler",
+          "scryfall_query": null,
+          "scryfall_api": null,
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite creature ETB",
+        "Infinite landfall triggers",
+        "Infinite proliferate",
+        "Infinite tapped creature tokens"
+      ]
+    },
+    {
+      "shell_id": 10264,
+      "variant_id": "423-1437-1671-1993--85",
+      "uses": [
+        "Myojin of Cryptic Dreams",
+        "Evolution Sage",
+        "Simic Growth Chamber",
+        "Budoka Gardener // Dokai, Weaver of Life"
+      ],
+      "in_pool": [
+        "Simic Growth Chamber"
+      ],
+      "missing_from_pool": [
+        "Myojin of Cryptic Dreams",
+        "Evolution Sage",
+        "Budoka Gardener // Dokai, Weaver of Life"
+      ],
+      "with_commander": false,
+      "identity": "GU",
+      "requires": [
+        {
+          "template_id": 85,
+          "name": "Haste Enabler",
+          "scryfall_query": null,
+          "scryfall_api": null,
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite creature ETB",
+        "Infinite landfall triggers",
+        "Infinite proliferate",
+        "Infinite tapped creature tokens"
+      ]
+    },
+    {
+      "shell_id": 10264,
+      "variant_id": "423-1437-1671-3177--85",
+      "uses": [
+        "Myojin of Cryptic Dreams",
+        "Evolution Sage",
+        "Simic Growth Chamber",
+        "Sakura-Tribe Scout"
+      ],
+      "in_pool": [
+        "Simic Growth Chamber"
+      ],
+      "missing_from_pool": [
+        "Myojin of Cryptic Dreams",
+        "Evolution Sage",
+        "Sakura-Tribe Scout"
+      ],
+      "with_commander": false,
+      "identity": "GU",
+      "requires": [
+        {
+          "template_id": 85,
+          "name": "Haste Enabler",
+          "scryfall_query": null,
+          "scryfall_api": null,
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite creature ETB",
+        "Infinite landfall triggers",
+        "Infinite proliferate",
+        "Infinite tapped creature tokens"
+      ]
+    },
+    {
+      "shell_id": 10264,
+      "variant_id": "423-1437-1671-6628--85",
+      "uses": [
+        "Myojin of Cryptic Dreams",
+        "Evolution Sage",
+        "Simic Growth Chamber",
+        "PuPu UFO"
+      ],
+      "in_pool": [
+        "Simic Growth Chamber"
+      ],
+      "missing_from_pool": [
+        "Myojin of Cryptic Dreams",
+        "Evolution Sage",
+        "PuPu UFO"
+      ],
+      "with_commander": false,
+      "identity": "GU",
+      "requires": [
+        {
+          "template_id": 85,
+          "name": "Haste Enabler",
+          "scryfall_query": null,
+          "scryfall_api": null,
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite creature ETB",
+        "Infinite landfall triggers",
+        "Infinite proliferate",
+        "Infinite tapped creature tokens"
+      ]
+    },
+    {
+      "shell_id": 10264,
+      "variant_id": "423-1437-1993-3147--85",
+      "uses": [
+        "Myojin of Cryptic Dreams",
+        "Evolution Sage",
+        "Budoka Gardener // Dokai, Weaver of Life",
+        "Azorius Chancery"
+      ],
+      "in_pool": [
+        "Azorius Chancery"
+      ],
+      "missing_from_pool": [
+        "Myojin of Cryptic Dreams",
+        "Evolution Sage",
+        "Budoka Gardener // Dokai, Weaver of Life"
+      ],
+      "with_commander": false,
+      "identity": "GUW",
+      "requires": [
+        {
+          "template_id": 85,
+          "name": "Haste Enabler",
+          "scryfall_query": null,
+          "scryfall_api": null,
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite creature ETB",
+        "Infinite landfall triggers",
+        "Infinite proliferate",
+        "Infinite tapped creature tokens"
+      ]
+    },
+    {
+      "shell_id": 10264,
+      "variant_id": "423-1437-3147-3177--85",
+      "uses": [
+        "Myojin of Cryptic Dreams",
+        "Evolution Sage",
+        "Azorius Chancery",
+        "Sakura-Tribe Scout"
+      ],
+      "in_pool": [
+        "Azorius Chancery"
+      ],
+      "missing_from_pool": [
+        "Myojin of Cryptic Dreams",
+        "Evolution Sage",
+        "Sakura-Tribe Scout"
+      ],
+      "with_commander": false,
+      "identity": "GUW",
+      "requires": [
+        {
+          "template_id": 85,
+          "name": "Haste Enabler",
+          "scryfall_query": null,
+          "scryfall_api": null,
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite creature ETB",
+        "Infinite landfall triggers",
+        "Infinite proliferate",
+        "Infinite tapped creature tokens"
+      ]
+    },
+    {
+      "shell_id": 10264,
+      "variant_id": "423-1437-3147-6628--85",
+      "uses": [
+        "Myojin of Cryptic Dreams",
+        "Evolution Sage",
+        "Azorius Chancery",
+        "PuPu UFO"
+      ],
+      "in_pool": [
+        "Azorius Chancery"
+      ],
+      "missing_from_pool": [
+        "Myojin of Cryptic Dreams",
+        "Evolution Sage",
+        "PuPu UFO"
+      ],
+      "with_commander": false,
+      "identity": "GUW",
+      "requires": [
+        {
+          "template_id": 85,
+          "name": "Haste Enabler",
+          "scryfall_query": null,
+          "scryfall_api": null,
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite creature ETB",
+        "Infinite landfall triggers",
+        "Infinite proliferate",
+        "Infinite tapped creature tokens"
+      ]
+    },
+    {
+      "shell_id": 10264,
+      "variant_id": "423-433-1437-1671--85",
+      "uses": [
+        "Myojin of Cryptic Dreams",
+        "Evolution Sage",
+        "Llanowar Scout",
+        "Simic Growth Chamber"
+      ],
+      "in_pool": [
+        "Simic Growth Chamber"
+      ],
+      "missing_from_pool": [
+        "Myojin of Cryptic Dreams",
+        "Evolution Sage",
+        "Llanowar Scout"
+      ],
+      "with_commander": false,
+      "identity": "GU",
+      "requires": [
+        {
+          "template_id": 85,
+          "name": "Haste Enabler",
+          "scryfall_query": null,
+          "scryfall_api": null,
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite creature ETB",
+        "Infinite landfall triggers",
+        "Infinite proliferate",
+        "Infinite tapped creature tokens"
+      ]
+    },
+    {
+      "shell_id": 10264,
+      "variant_id": "423-433-1437-3147--85",
+      "uses": [
+        "Myojin of Cryptic Dreams",
+        "Evolution Sage",
+        "Llanowar Scout",
+        "Azorius Chancery"
+      ],
+      "in_pool": [
+        "Azorius Chancery"
+      ],
+      "missing_from_pool": [
+        "Myojin of Cryptic Dreams",
+        "Evolution Sage",
+        "Llanowar Scout"
+      ],
+      "with_commander": false,
+      "identity": "GUW",
+      "requires": [
+        {
+          "template_id": 85,
+          "name": "Haste Enabler",
+          "scryfall_query": null,
+          "scryfall_api": null,
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite creature ETB",
+        "Infinite landfall triggers",
+        "Infinite proliferate",
+        "Infinite tapped creature tokens"
+      ]
+    },
+    {
+      "shell_id": 10264,
+      "variant_id": "423-433-907-1437--85",
+      "uses": [
+        "Myojin of Cryptic Dreams",
+        "Evolution Sage",
+        "Llanowar Scout",
+        "Selesnya Sanctuary"
+      ],
+      "in_pool": [
+        "Selesnya Sanctuary"
+      ],
+      "missing_from_pool": [
+        "Myojin of Cryptic Dreams",
+        "Evolution Sage",
+        "Llanowar Scout"
+      ],
+      "with_commander": false,
+      "identity": "GUW",
+      "requires": [
+        {
+          "template_id": 85,
+          "name": "Haste Enabler",
+          "scryfall_query": null,
+          "scryfall_api": null,
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite creature ETB",
+        "Infinite landfall triggers",
+        "Infinite proliferate",
+        "Infinite tapped creature tokens"
+      ]
+    },
+    {
+      "shell_id": 10264,
+      "variant_id": "423-765-1257-1437--85",
+      "uses": [
+        "Myojin of Cryptic Dreams",
+        "Evolution Sage",
+        "Guildless Commons",
+        "Walking Atlas"
+      ],
+      "in_pool": [
+        "Walking Atlas"
+      ],
+      "missing_from_pool": [
+        "Myojin of Cryptic Dreams",
+        "Evolution Sage",
+        "Guildless Commons"
+      ],
+      "with_commander": false,
+      "identity": "GU",
+      "requires": [
+        {
+          "template_id": 85,
+          "name": "Haste Enabler",
+          "scryfall_query": null,
+          "scryfall_api": null,
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite creature ETB",
+        "Infinite landfall triggers",
+        "Infinite proliferate",
+        "Infinite tapped creature tokens"
+      ]
+    },
+    {
+      "shell_id": 10264,
+      "variant_id": "423-872-1437-1671--85",
+      "uses": [
+        "Myojin of Cryptic Dreams",
+        "Evolution Sage",
+        "Scaled Herbalist",
+        "Simic Growth Chamber"
+      ],
+      "in_pool": [
+        "Simic Growth Chamber"
+      ],
+      "missing_from_pool": [
+        "Myojin of Cryptic Dreams",
+        "Evolution Sage",
+        "Scaled Herbalist"
+      ],
+      "with_commander": false,
+      "identity": "GU",
+      "requires": [
+        {
+          "template_id": 85,
+          "name": "Haste Enabler",
+          "scryfall_query": null,
+          "scryfall_api": null,
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite creature ETB",
+        "Infinite landfall triggers",
+        "Infinite proliferate",
+        "Infinite tapped creature tokens"
+      ]
+    },
+    {
+      "shell_id": 10264,
+      "variant_id": "423-872-1437-3147--85",
+      "uses": [
+        "Myojin of Cryptic Dreams",
+        "Evolution Sage",
+        "Scaled Herbalist",
+        "Azorius Chancery"
+      ],
+      "in_pool": [
+        "Azorius Chancery"
+      ],
+      "missing_from_pool": [
+        "Myojin of Cryptic Dreams",
+        "Evolution Sage",
+        "Scaled Herbalist"
+      ],
+      "with_commander": false,
+      "identity": "GUW",
+      "requires": [
+        {
+          "template_id": 85,
+          "name": "Haste Enabler",
+          "scryfall_query": null,
+          "scryfall_api": null,
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite creature ETB",
+        "Infinite landfall triggers",
+        "Infinite proliferate",
+        "Infinite tapped creature tokens"
+      ]
+    },
+    {
+      "shell_id": 10264,
+      "variant_id": "423-872-907-1437--85",
+      "uses": [
+        "Myojin of Cryptic Dreams",
+        "Evolution Sage",
+        "Scaled Herbalist",
+        "Selesnya Sanctuary"
+      ],
+      "in_pool": [
+        "Selesnya Sanctuary"
+      ],
+      "missing_from_pool": [
+        "Myojin of Cryptic Dreams",
+        "Evolution Sage",
+        "Scaled Herbalist"
+      ],
+      "with_commander": false,
+      "identity": "GUW",
+      "requires": [
+        {
+          "template_id": 85,
+          "name": "Haste Enabler",
+          "scryfall_query": null,
+          "scryfall_api": null,
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite creature ETB",
+        "Infinite landfall triggers",
+        "Infinite proliferate",
+        "Infinite tapped creature tokens"
+      ]
+    },
+    {
+      "shell_id": 10264,
+      "variant_id": "423-907-1437-1993--85",
+      "uses": [
+        "Myojin of Cryptic Dreams",
+        "Evolution Sage",
+        "Selesnya Sanctuary",
+        "Budoka Gardener // Dokai, Weaver of Life"
+      ],
+      "in_pool": [
+        "Selesnya Sanctuary"
+      ],
+      "missing_from_pool": [
+        "Myojin of Cryptic Dreams",
+        "Evolution Sage",
+        "Budoka Gardener // Dokai, Weaver of Life"
+      ],
+      "with_commander": false,
+      "identity": "GUW",
+      "requires": [
+        {
+          "template_id": 85,
+          "name": "Haste Enabler",
+          "scryfall_query": null,
+          "scryfall_api": null,
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite creature ETB",
+        "Infinite landfall triggers",
+        "Infinite proliferate",
+        "Infinite tapped creature tokens"
+      ]
+    },
+    {
+      "shell_id": 10264,
+      "variant_id": "423-907-1437-3177--85",
+      "uses": [
+        "Myojin of Cryptic Dreams",
+        "Evolution Sage",
+        "Selesnya Sanctuary",
+        "Sakura-Tribe Scout"
+      ],
+      "in_pool": [
+        "Selesnya Sanctuary"
+      ],
+      "missing_from_pool": [
+        "Myojin of Cryptic Dreams",
+        "Evolution Sage",
+        "Sakura-Tribe Scout"
+      ],
+      "with_commander": false,
+      "identity": "GUW",
+      "requires": [
+        {
+          "template_id": 85,
+          "name": "Haste Enabler",
+          "scryfall_query": null,
+          "scryfall_api": null,
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite creature ETB",
+        "Infinite landfall triggers",
+        "Infinite proliferate",
+        "Infinite tapped creature tokens"
+      ]
+    },
+    {
+      "shell_id": 10264,
+      "variant_id": "423-907-1437-6628--85",
+      "uses": [
+        "Myojin of Cryptic Dreams",
+        "Evolution Sage",
+        "Selesnya Sanctuary",
+        "PuPu UFO"
+      ],
+      "in_pool": [
+        "Selesnya Sanctuary"
+      ],
+      "missing_from_pool": [
+        "Myojin of Cryptic Dreams",
+        "Evolution Sage",
+        "PuPu UFO"
+      ],
+      "with_commander": false,
+      "identity": "GUW",
+      "requires": [
+        {
+          "template_id": 85,
+          "name": "Haste Enabler",
+          "scryfall_query": null,
+          "scryfall_api": null,
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "B"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite creature ETB",
+        "Infinite landfall triggers",
+        "Infinite proliferate",
+        "Infinite tapped creature tokens"
+      ]
+    },
+    {
+      "shell_id": 27077,
+      "variant_id": "1393-4986-5034-5256--18",
+      "uses": [
+        "Teshar, Ancestor's Apostle",
+        "Aether Channeler",
+        "Sol Ring",
+        "Altar of Dementia"
+      ],
+      "in_pool": [
+        "Sol Ring"
+      ],
+      "missing_from_pool": [
+        "Teshar, Ancestor's Apostle",
+        "Aether Channeler",
+        "Altar of Dementia"
+      ],
+      "with_commander": false,
+      "identity": "UW",
+      "requires": [
+        {
+          "template_id": 18,
+          "name": "Artifact Castable for {C}",
+          "scryfall_query": "t:artifact (m={1} or m={0} or m={X} or m={C} or otag:potentially-free) -!\"Leyline Axe\"",
+          "scryfall_api": "https://api.scryfall.com/cards/search?q=%28t%3Aartifact+%28m%3D%7B1%7D+or+m%3D%7B0%7D+or+m%3D%7BX%7D+or+m%3D%7BC%7D+or+otag%3Apotentially-free%29+-%21%22Leyline+Axe%22%29+legal%3Acommander",
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "H"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite death triggers",
+        "Infinite creature ETB",
+        "Infinite creature LTB",
+        "Infinite mill",
+        "Infinite creature sacrifice triggers",
+        "Infinite self-mill",
+        "Infinite storm count"
+      ]
+    },
+    {
+      "shell_id": 27077,
+      "variant_id": "413-1393-4986-5034--18",
+      "uses": [
+        "Teshar, Ancestor's Apostle",
+        "Aether Channeler",
+        "Sol Ring",
+        "Blasting Station"
+      ],
+      "in_pool": [
+        "Sol Ring"
+      ],
+      "missing_from_pool": [
+        "Teshar, Ancestor's Apostle",
+        "Aether Channeler",
+        "Blasting Station"
+      ],
+      "with_commander": false,
+      "identity": "UW",
+      "requires": [
+        {
+          "template_id": 18,
+          "name": "Artifact Castable for {C}",
+          "scryfall_query": "t:artifact (m={1} or m={0} or m={X} or m={C} or otag:potentially-free) -!\"Leyline Axe\"",
+          "scryfall_api": "https://api.scryfall.com/cards/search?q=%28t%3Aartifact+%28m%3D%7B1%7D+or+m%3D%7B0%7D+or+m%3D%7BX%7D+or+m%3D%7BC%7D+or+otag%3Apotentially-free%29+-%21%22Leyline+Axe%22%29+legal%3Acommander",
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "H"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite damage",
+        "Infinite death triggers",
+        "Infinite creature ETB",
+        "Infinite creature LTB",
+        "Infinite creature sacrifice triggers",
+        "Infinite storm count"
+      ]
+    },
+    {
+      "shell_id": 27562,
+      "variant_id": "851-3182-3676-5751--1",
+      "uses": [
+        "Six",
+        "Turntimber Sower",
+        "Tangleroot",
+        "Adrix and Nev, Twincasters"
+      ],
+      "in_pool": [
+        "Adrix and Nev, Twincasters"
+      ],
+      "missing_from_pool": [
+        "Six",
+        "Turntimber Sower",
+        "Tangleroot"
+      ],
+      "with_commander": false,
+      "identity": "GU",
+      "requires": [
+        {
+          "template_id": 1,
+          "name": "Creature with Mana Cost Equal to {0}",
+          "scryfall_query": "mana={0} t:creature",
+          "scryfall_api": "https://api.scryfall.com/cards/search?q=%28mana%3D%7B0%7D+t%3Acreature%29+legal%3Acommander",
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "G"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite creature LTB",
+        "Infinite creature ETB",
+        "Infinite creature sacrifice triggers",
+        "Infinite death triggers",
+        "Infinite storm count",
+        "Infinite self-discard triggers"
+      ]
+    },
+    {
+      "shell_id": 30794,
+      "variant_id": "2034-4613-4679-7220--128",
+      "uses": [
+        "Yenna, Redtooth Regent",
+        "Agatha's Soul Cauldron",
+        "Ashnod's Altar",
+        "Glamermite"
+      ],
+      "in_pool": [
+        "Glamermite"
+      ],
+      "missing_from_pool": [
+        "Yenna, Redtooth Regent",
+        "Agatha's Soul Cauldron",
+        "Ashnod's Altar"
+      ],
+      "with_commander": false,
+      "identity": "GUW",
+      "requires": [
+        {
+          "template_id": 128,
+          "name": "Licids",
+          "scryfall_query": "t:licid",
+          "scryfall_api": "https://api.scryfall.com/cards/search?q=%28t%3Alicid%29+legal%3Acommander",
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "E"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite creature ETB",
+        "Infinite creature LTB",
+        "Infinite death triggers",
+        "Infinite creature sacrifice triggers"
+      ]
+    },
+    {
+      "shell_id": 32838,
+      "variant_id": "1651-2073-3698-4753--90",
+      "uses": [
+        "Salvaging Station",
+        "Clock of Omens",
+        "Grinding Station",
+        "Clever Impersonator"
+      ],
+      "in_pool": [
+        "Clever Impersonator"
+      ],
+      "missing_from_pool": [
+        "Salvaging Station",
+        "Clock of Omens",
+        "Grinding Station"
+      ],
+      "with_commander": false,
+      "identity": "U",
+      "requires": [
+        {
+          "template_id": 90,
+          "name": "Noncreature Artifact with MV<=1",
+          "scryfall_query": "t:artifact mv<=1 -t:creature -t:attraction",
+          "scryfall_api": "https://api.scryfall.com/cards/search?q=%28t%3Aartifact+mv%3C%3D1+-t%3Acreature+-t%3Aattraction%29+legal%3Acommander",
+          "quantity": 1,
+          "must_be_commander": false,
+          "zone_locations": [
+            "G"
+          ]
+        }
+      ],
+      "produces": [
+        "Infinite artifact ETB",
+        "Infinite artifact LTB",
+        "Infinite artifact sacrifice triggers",
+        "Infinite mill",
+        "Infinite self-mill"
+      ]
+    }
+  ]
+}

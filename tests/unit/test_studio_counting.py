@@ -112,7 +112,13 @@ def test_pool_distinguishes_zero_hits_from_unknown() -> None:
     pool = builder.pool_cards(store, [CMD])
     cards = {card["name"]: card for card in pool["cards"]}  # type: ignore[union-attr]
     assert cards["Alpha"]["decks_known"] is True
-    assert cards["Alpha"]["decks"] == {"all": 1, "g": 1, "bracket:3": 1, "bracket:4": 0}
+    assert cards["Alpha"]["decks"] == {
+        "all": 1,
+        "g": 1,
+        "bracket:3": 1,
+        "bracket:4": 0,
+        "tuned": 0,
+    }
     # No deck names Delta: its count is unknown, not 0/2 (``decks`` stays {} for old readers).
     assert cards["Delta"]["decks_known"] is False and cards["Delta"]["decks"] == {}
 

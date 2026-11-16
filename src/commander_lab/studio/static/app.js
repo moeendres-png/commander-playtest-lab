@@ -6,6 +6,7 @@ const GROUPS = ["Creature", "Planeswalker", "Battle", "Artifact", "Enchantment",
 const GROUP_NAMES = { Creature: "Kreaturen", Planeswalker: "Planeswalker", Battle: "Schlachten", Artifact: "Artefakte", Enchantment: "Verzauberungen", Instant: "Spontanzauber", Sorcery: "Hexereien", Land: "Länder", Other: "Sonstige" };
 const COHORT_NAMES = {
   all: "alle Quelldecks",
+  tuned: "B4+5 (Tuned)",
   community: "Community",
   turnier_cedh: "Turnier cEDH",
   community_cedh: "Community cEDH",
@@ -62,7 +63,12 @@ function h(tag, props, ...children) {
 }
 const api = StudioUI.request;
 const toast = (text) => StudioUI.toast(text);
-const fail = (error) => StudioUI.fail(StudioUI.germanError(error));
+const fail = (error, asText = false) => {
+  const msg = StudioUI.germanError(error);
+  if (asText) return msg;
+  StudioUI.fail(msg);
+  return msg;
+};
 // Cohort keys of the corpus ("bracket:3", "source:edhrec", "variant:cedh") in plain words.
 const COHORT_PREFIX = { bracket: "Bracket", source: "Quelle", variant: "Variante", commander: "Commander", theme: "Thema", tag: "Marke" };
 const COHORT_VALUES = { cedh: "cEDH", core: "Core", upgraded: "Upgraded", optimized: "Optimized", exhibition: "Exhibition", edhrec: "EDHREC", archidekt: "Archidekt", moxfield: "Moxfield", topdeck: "TopDeck" };
@@ -775,10 +781,15 @@ function renderNumbers(body) {
     const refMed = reference.role_coverage_median !== undefined && reference.role_coverage_median !== null
       ? `Median ${reference.role_coverage_median} Nicht-Land-Karten mit bekannter Rolle pro Quelldeck (${reference.decks_counted || 0} gezählte Decks)`
       : "keine Vergleichsdaten";
+    const poolRoleCounts = {};
+    for (const c of state.pool) {
+      for (const r of (c.roles || [])) poolRoleCounts[r] = (poolRoleCounts[r] || 0) + 1;
+    }
+    const poolTotalN = state.pool.length;
     body.append(h("h3", {}, "Rollen"),
-      h("p", { class: "note", id: "roles-coverage-note" }, `Rollen-Abdeckung: In deinem Deck tragen ${ownWithRole} von ${ownNonlandTotal} Nicht-Land-Karten mindestens eine Rolle · Vergleichsgruppe „${cohortName(state.cohort)}“: ${refMed} · Kartenpool gesamt: ${poolWithRole} von ${state.pool.length} Karten (${poolPct} %).`),
-      h("table", {}, h("thead", {}, h("tr", {}, h("th", {}, "Rolle"), h("th", { class: "num" }, "Dein Deck"), h("th", { class: "num" }, cohortName(state.cohort)))),
-        h("tbody", {}, state.roles.map((role) => h("tr", {}, h("td", {}, roleName(role)), h("td", { class: "num" }, state.deckRoles[role] || 0), h("td", { class: "num" }, span(spans[role])))))),
+      h("p", { class: "note", id: "roles-coverage-note" }, `Rollen-Abdeckung: In deinem Deck tragen ${ownWithRole} von ${ownNonlandTotal} Nicht-Land-Karten mindestens eine Rolle · Vergleichsgruppe „${cohortName(state.cohort)}“: ${refMed} · Kartenpool gesamt: ${poolWithRole} von ${poolTotalN} Karten (${poolPct} %).`),
+      h("table", {}, h("thead", {}, h("tr", {}, h("th", {}, "Rolle"), h("th", { class: "num" }, "Dein Deck"), h("th", { class: "num" }, cohortName(state.cohort)), h("th", { class: "num" }, "Im Pool belegt (n/N)"))),
+        h("tbody", {}, state.roles.map((role) => h("tr", {}, h("td", {}, roleName(role)), h("td", { class: "num" }, state.deckRoles[role] || 0), h("td", { class: "num" }, span(spans[role])), h("td", { class: "num" }, `${poolRoleCounts[role] || 0}/${poolTotalN}`))))),
       h("p", { class: "note" }, "Rollen sind öffentliche Marken der Scryfall-Gemeinschaft (Tagger). Eine Karte kann mehrere Rollen haben, und nicht jede Karte ist markiert. Vergleich: Median und mittlere Hälfte der gewählten Vergleichsgruppe."));
   }
   body.append(h("h3", {}, "Farben"), colors, h("p", { class: "note" }, "Gezählt aus den Kartendaten: Symbole in den Manakosten und Karten, die Mana dieser Farbe erzeugen können. Das ist eine Zählung, keine Bewertung."));
@@ -881,7 +892,9 @@ function renderCombos(body) {
     body.append(h("p", { class: "muted", id: "combos-empty" }, "Kein Commander gewählt. Die Kombo-Liste gehört zu einem Commander."));
     return;
   }
-  if (!combos || !combos.listed) {
+  const poolShells = (combos && combos.pool_shells) || [];
+  const tplSlots = (combos && combos.template_slots) || [];
+  if (!combos || (!combos.listed && !poolShells.length && !tplSlots.length)) {
     body.append(h("p", { class: "muted", id: "combos-empty" }, "Für diesen Commander ist keine Kombo-Liste gespeichert. Das heißt nicht, dass das Deck keine Kombos hat."));
     return;
   }
@@ -897,36 +910,87 @@ function renderCombos(body) {
       h("td", { class: "num" }, combo.num_decks.toLocaleString("de-DE")),
       h("td", {}, card && card.available > 0 && !qty(card.card_id) ? h("button", { class: "small", type: "button", title: `${card.name} ins Deck nehmen`, onclick: () => add(card) }, "+") : null));
   };
-  body.append(h("p", {}, `${combos.complete.length} von ${combos.listed} gelisteten Kombos sind vollständig im Deck, bei ${combos.one_missing.length} fehlt genau eine Karte.`));
-  if (combos.complete.length) {
-    body.append(h("table", { id: "combos-complete" }, h("thead", {}, h("tr", {}, h("th", {}, "Vollständig im Deck"), h("th", { class: "num" }, "Commander Spellbook global (alle Commander)"), h("th", {}, ""))), h("tbody", {}, combos.complete.map(row))));
+  if (combos.listed) {
+    body.append(h("p", {}, `${combos.complete.length} von ${combos.listed} gelisteten Kombos sind vollständig im Deck, bei ${combos.one_missing.length} fehlt genau eine Karte.`));
+    if (combos.complete.length) {
+      body.append(h("table", { id: "combos-complete" }, h("thead", {}, h("tr", {}, h("th", {}, "Vollständig im Deck"), h("th", { class: "num" }, "Commander Spellbook global (alle Commander)"), h("th", {}, ""))), h("tbody", {}, combos.complete.map(row))));
+    }
+    if (combos.one_missing.length) {
+      const inPool = [];
+      const outsidePool = [];
+      for (const combo of combos.one_missing) {
+        const known = combo.missing ? names.has(combo.missing.toLowerCase()) : false;
+        if (known) inPool.push(combo); else outsidePool.push(combo);
+      }
+      inPool.sort((a, b) => {
+        const ca = state.pool.find((item) => item.name.toLowerCase() === a.missing.toLowerCase());
+        const cb = state.pool.find((item) => item.name.toLowerCase() === b.missing.toLowerCase());
+        const fa = ca && ca.available > 0 ? 0 : 1;
+        const fb = cb && cb.available > 0 ? 0 : 1;
+        return fa - fb || b.num_decks - a.num_decks;
+      });
+      if (inPool.length) {
+        body.append(h("table", { id: "combos-missing" }, h("thead", {}, h("tr", {}, h("th", {}, "Es fehlt genau eine Karte (in deiner Sammlung)"), h("th", { class: "num" }, "Commander Spellbook global (alle Commander)"), h("th", {}, ""))), h("tbody", {}, inPool.map(row))));
+      }
+      if (outsidePool.length) {
+        body.append(h("details", { id: "combos-missing-unowned" },
+          h("summary", {}, `Fehlende Karte nicht in deiner Sammlung (${outsidePool.length} Kombos)`),
+          h("table", {}, h("thead", {}, h("tr", {}, h("th", {}, "Es fehlt genau eine Karte (nicht in deiner Sammlung)"), h("th", { class: "num" }, "Commander Spellbook global (alle Commander)"), h("th", {}, ""))), h("tbody", {}, outsidePool.map(row)))));
+      }
+    }
+    const sources = combos.sources || [];
+    body.append(h("p", { class: "note", id: "combos-source" }, sources.length ? `Quelle der Kombo-Liste: ${sources.map((item) => item.title + (item.snapshot_date ? ` (Stand ${item.snapshot_date})` : ` (eingelesen ${item.imported_at.slice(0, 10)})`)).join("; ")}.` : "Quelle der Kombo-Liste: nicht bekannt."));
+    body.append(h("p", { class: "note" }, combos.meaning));
   }
-  if (combos.one_missing.length) {
-    const inPool = [];
-    const outsidePool = [];
-    for (const combo of combos.one_missing) {
-      const known = combo.missing ? names.has(combo.missing.toLowerCase()) : false;
-      if (known) inPool.push(combo); else outsidePool.push(combo);
-    }
-    inPool.sort((a, b) => {
-      const ca = state.pool.find((item) => item.name.toLowerCase() === a.missing.toLowerCase());
-      const cb = state.pool.find((item) => item.name.toLowerCase() === b.missing.toLowerCase());
-      const fa = ca && ca.available > 0 ? 0 : 1;
-      const fb = cb && cb.available > 0 ? 0 : 1;
-      return fa - fb || b.num_decks - a.num_decks;
-    });
-    if (inPool.length) {
-      body.append(h("table", { id: "combos-missing" }, h("thead", {}, h("tr", {}, h("th", {}, "Es fehlt genau eine Karte (in deiner Sammlung)"), h("th", { class: "num" }, "Commander Spellbook global (alle Commander)"), h("th", {}, ""))), h("tbody", {}, inPool.map(row))));
-    }
-    if (outsidePool.length) {
-      body.append(h("details", { id: "combos-missing-unowned" },
-        h("summary", {}, `Fehlende Karte nicht in deiner Sammlung (${outsidePool.length} Kombos)`),
-        h("table", {}, h("thead", {}, h("tr", {}, h("th", {}, "Es fehlt genau eine Karte (nicht in deiner Sammlung)"), h("th", { class: "num" }, "Commander Spellbook global (alle Commander)"), h("th", {}, ""))), h("tbody", {}, outsidePool.map(row)))));
-    }
+  if (poolShells.length) {
+    body.append(h("h4", {}, `Spellbook Pool-Shells (${poolShells.length} vollständig im legalen Pool)`),
+      h("table", { id: "combos-pool-shells" },
+        h("thead", {}, h("tr", {}, h("th", {}, "Shell / Karten"), h("th", {}, "Status im Deck"), h("th", {}, "Ergebnis"))),
+        h("tbody", {}, poolShells.map((sh) => h("tr", {},
+          h("td", {}, `#${sh.shell_id}: ${(sh.uses || []).join(" + ")}`),
+          h("td", {}, sh.complete_in_deck ? h("span", { class: "pill good" }, "vollständig")
+            : (sh.missing_from_deck || []).map((name) => {
+              const info = (sh.available_missing || {})[name];
+              const card = info && info.card_id ? state.byId.get(info.card_id) : null;
+              return h("span", { style: "margin-right:6px" }, `fehlt: ${name}`, card && info.available > 0 && !qty(card.card_id) ? h("button", { type: "button", class: "small", style: "margin-left:4px", onclick: () => add(card) }, "+") : null);
+            })),
+          h("td", {}, (sh.produces || []).slice(0, 3).join("; ") || "–"))))));
   }
-  const sources = combos.sources || [];
-  body.append(h("p", { class: "note", id: "combos-source" }, sources.length ? `Quelle der Kombo-Liste: ${sources.map((item) => item.title + (item.snapshot_date ? ` (Stand ${item.snapshot_date})` : ` (eingelesen ${item.imported_at.slice(0, 10)})`)).join("; ")}.` : "Quelle der Kombo-Liste: nicht bekannt."));
-  body.append(h("p", { class: "note" }, combos.meaning));
+  if (tplSlots.length) {
+    const shownTpl = tplSlots.slice(0, 30);
+    const formatN = (obj) => obj && obj.hits !== null && obj.hits !== undefined ? `${obj.hits}/${obj.total}` : `unbekannt (N=${obj ? obj.total : "?"})`;
+    const tplRows = [];
+    for (const sh of shownTpl) {
+      for (const slot of sh.slots || []) {
+        const concrete = (sh.uses || []).map((u) => (sh.in_deck || []).includes(u) ? u : `[fehlt: ${u}]`).join(" + ");
+        const statusEl = slot.status === "UNKNOWN"
+          ? h("span", { class: "pill warn", title: slot.reason || "Query offline nicht auswertbar" }, "Erfüllung unbekannt")
+          : slot.fulfilled_in_deck ? h("span", { class: "pill good" }, "im Deck erfüllt")
+          : h("span", { class: "pill" }, `im Deck < ${slot.quantity}`);
+        const matchesEl = slot.status === "OK" && slot.matches_in_pool && slot.matches_in_pool.length
+          ? h("details", {}, h("summary", {}, `${slot.matches_in_pool_total} Treffer im Pool`),
+            h("div", {}, slot.matches_in_pool.slice(0, 10).map((m) => {
+              const card = state.byId.get(m.card_id);
+              return h("span", { style: "margin-right:6px;display:inline-block" },
+                m.name,
+                card && !m.in_deck && m.available > 0 && !qty(card.card_id)
+                  ? h("button", { type: "button", class: "small", style: "margin-left:3px", onclick: () => add(card) }, "+") : null);
+            })))
+          : null;
+        tplRows.push(h("tr", {},
+          h("td", {}, `#${sh.shell_id}: ${concrete}`, h("div", { class: "muted" }, `${slot.name} (×${slot.quantity})`)),
+          h("td", {}, statusEl, slot.scryfall_query ? h("div", { class: "muted" }, slot.scryfall_query) : null, matchesEl),
+          h("td", { class: "num" }, formatN(slot.deck)),
+          h("td", { class: "num" }, formatN(slot.pool)),
+          h("td", { class: "num" }, formatN(slot.collection))));
+      }
+    }
+    body.append(h("h4", {}, `Kombo-Template-Slots (#1417 · ${tplSlots.length} Shells im Pool)`),
+      h("table", { id: "combos-template-slots" },
+        h("thead", {}, h("tr", {}, h("th", {}, "Shell & Template-Slot"), h("th", {}, "Status & Treffer"), h("th", { class: "num" }, "Deck (n/N)"), h("th", { class: "num" }, "Pool (n/N)"), h("th", { class: "num" }, "Sammlung (n/N)"))),
+        h("tbody", {}, tplRows)),
+      h("p", { class: "note" }, "Offline-Auswertung der Template-Queries gegen gespeicherte Kartendaten. Fehlende oder nicht unterstützte Query-Operatoren werden ausdrücklich als „Erfüllung unbekannt“ ausgewiesen (nie als 0)."));
+  }
 }
 const ENGINE_STATUS = { PASS: ["good", "bestanden"], FAIL: ["bad", "nicht bestanden"], UNKNOWN: ["warn", "nicht geprüft"] };
 async function runEngineCheck() {
@@ -1392,10 +1456,42 @@ function renderSimulations(body) {
 }
 function renderDeck() {
   state.renderToken = (state.renderToken || 0) + 1;
-  const tabs = [["list", "Liste"], ["numbers", "Zahlen"], ["check", "Prüfung"], ["facts", "Bracket & Lücken"], ["compare", "Vergleich"], ["similar", "Ähnliche Decks"], ["diff", "Varianten-Diff"], ["cut", "Kürzen"], ["sim", "Simulation"]];
+  const tabs = [
+    ["list", "Liste"],
+    ["numbers", "Zahlen"],
+    ["plan", "Bauplan"],
+    ["packages", "Pakete & Upgrade"],
+    ["check", "Prüfung"],
+    ["facts", "Bracket & Lücken"],
+    ["compare", "Vergleich"],
+    ["similar", "Ähnliche Decks"],
+    ["diff", "Varianten-Diff"],
+    ["cut", "Kürzen"],
+    ["sim", "Simulation"],
+  ];
   $("deck-tabs").replaceChildren(...tabs.map(([key, label]) => h("button", { type: "button", class: "chip" + (state.tab === key ? " on" : ""), "aria-pressed": state.tab === key, onclick: () => { state.tab = key; renderDeck(); } }, label)));
   const body = $("deck-body"); body.replaceChildren();
-  ({ list: renderList, numbers: renderNumbers, check: renderCheck, facts: renderFacts, compare: renderCompare, similar: renderSimilarDecks, diff: renderDiff, cut: renderCut, sim: renderSimulations })[state.tab](body);
+  const planPkgDeps = (tabKey) => ({
+    h, api, entries, fail, roleName, openCard, add, remove, cohortName,
+    poolCardById: (id) => state.byId.get(id),
+    cohort: () => state.cohort,
+    commander: COMMANDER,
+    token: () => state.renderToken,
+    isCurrent: (tok) => tok === state.renderToken && state.tab === tabKey,
+  });
+  ({
+    list: renderList,
+    numbers: renderNumbers,
+    plan: (b) => renderBuildPlanTab(b, planPkgDeps("plan")),
+    packages: (b) => renderPackagesUpgradeTab(b, planPkgDeps("packages")),
+    check: renderCheck,
+    facts: renderFacts,
+    compare: renderCompare,
+    similar: renderSimilarDecks,
+    diff: renderDiff,
+    cut: renderCut,
+    sim: renderSimulations,
+  })[state.tab](body);
 }
 function renderCut(body) {
   renderCutLab(body, {
@@ -1430,6 +1526,7 @@ function renderAll() { renderHeader(); renderPool(); renderDeck(); }
 async function renderSwapBox(into, card, initialMode = null) {
   const inDeck = qty(card.card_id) > 0;
   let mode = initialMode || (inDeck ? "replace" : "cut");
+  let sortBy = "hits";
   const load = async () => {
     into.replaceChildren(h("h3", {}, "Tausch-Helfer (gleiche Rolle)"), h("p", { class: "muted" }, "Lädt Kandidaten …"));
     try {
@@ -1441,19 +1538,22 @@ async function renderSwapBox(into, card, initialMode = null) {
         cohort: state.cohort,
         universe: state.universe || null,
         exclude_marked: true,
+        sort_by: sortBy,
       });
       const modeSwitch = h("div", { class: "actions" },
         h("button", { type: "button", class: "chip" + (mode === "replace" ? " on" : ""), onclick: () => { mode = "replace"; load(); } }, inDeck ? "Ersatz im Pool suchen" : "Andere Pool-Karten dieser Rolle"),
-        h("button", { type: "button", class: "chip" + (mode === "cut" ? " on" : ""), onclick: () => { mode = "cut"; load(); } }, inDeck ? "Streichkandidaten im Deck" : "Was im Deck streichen?"));
+        h("button", { type: "button", class: "chip" + (mode === "cut" ? " on" : ""), onclick: () => { mode = "cut"; load(); } }, inDeck ? "Streichkandidaten im Deck" : "Was im Deck streichen?"),
+        h("button", { type: "button", class: "chip" + (sortBy === "hits" ? " on" : ""), onclick: () => { sortBy = "hits"; load(); } }, "Sort: Häufigkeit"),
+        h("button", { type: "button", class: "chip" + (sortBy === "lift" ? " on" : ""), onclick: () => { sortBy = "lift"; load(); } }, "Sort: Lift"));
       if (!res.roles || !res.roles.length) {
         into.replaceChildren(h("h3", {}, "Tausch-Helfer (gleiche Rolle)"), modeSwitch, h("p", { class: "muted" }, res.note || "Keine Rolle für diese Karte hinterlegt."));
         return;
       }
       const roleBadges = res.roles.map((r) => roleName(r)).join(", ");
       const headerNote = h("p", { class: "note" },
-        `Rollen: ${roleBadges} · Sortiert nach Häufigkeit in „${res.source_label}“ (Nenner: ${res.of} Decks). `,
+        `Rollen: ${roleBadges} · Sortiert nach ${sortBy === "lift" ? "Lift (gegen globale EDHREC-Verbreitung)" : "Häufigkeit"} in „${cohortName(res.source_label)}“ (Nenner: ${res.of} Decks). `,
         res.small_sample ? h("span", { class: "pill low" }, `Kleine Stichprobe (< ${state.small} Decks)`) : null,
-        res.unknown_count ? ` · ${res.unknown_count} Karte(n) mit unbekannter Häufigkeit stehen am Ende (unbekannt ist nie „selten gespielt“).` : "");
+        res.unknown_count ? ` · ${res.unknown_count} Karte(n) mit unbekanntem Wert stehen am Ende (unbekannt ist nie „selten gespielt“).` : "");
       if (!res.candidates || !res.candidates.length) {
         into.replaceChildren(h("h3", {}, "Tausch-Helfer (gleiche Rolle)"), modeSwitch, headerNote, h("p", { class: "muted" }, "Keine passenden Karten mit gleicher Rolle gefunden."));
         return;
@@ -1465,11 +1565,13 @@ async function renderSwapBox(into, card, initialMode = null) {
           h("th", {}, "Gemeinsame Rolle"),
           h("th", { class: "num" }, "Decks (n/N)"),
           h("th", { class: "num" }, "Anteil"),
+          h("th", { class: "num" }, "Lift"),
           h("th", {}, ""))),
         h("tbody", {}, shown.map((cand) => {
           const other = state.byId.get(cand.card_id);
           const freqText = cand.decks_known && cand.decks !== null && cand.of ? `${cand.decks}/${cand.of}` : "unbekannt";
           const pctText = cand.decks_known && cand.share !== null ? `${(100 * cand.share).toFixed(1)} %` : "unbekannt";
+          const liftText = cand.lift === null || cand.lift === undefined ? "unbekannt" : Number(cand.lift).toFixed(2);
           let actionBtn = null;
           if (mode === "replace" && other) {
             if (inDeck && maxCopies(other) > 0) {
@@ -1489,6 +1591,7 @@ async function renderSwapBox(into, card, initialMode = null) {
             h("td", {}, (cand.shared_roles || []).map((r) => roleName(r)).join(", ")),
             h("td", { class: "num" }, freqText),
             h("td", { class: "num" }, pctText),
+            h("td", { class: "num" }, liftText),
             h("td", {}, actionBtn));
         })));
       into.replaceChildren(h("h3", {}, "Tausch-Helfer (gleiche Rolle)"), modeSwitch, headerNote, tbl);
@@ -1525,6 +1628,7 @@ async function openCard(card) {
     h("tbody", {}, visibleCohortEntries(state.cohorts).map(([key]) => { const f = freq(card, key); return h("tr", { class: f.total < state.small ? "low" : "" }, h("td", {}, cohortName(key)), h("td", { class: "num" }, f.hits === null ? "unbekannt" : f.hits), h("td", { class: "num" }, f.total), h("td", { class: "num" }, f.hits !== null && f.total ? (100 * f.share).toFixed(1) + " %" : "unbekannt")); })));
   const swapBox = h("div", { id: "swap-helper-box" });
   const duelBox = h("div", { id: "card-duel-box" });
+  const strengthBox = h("div", { id: "card-strength-box" });
   const extra = h("div", {}, h("p", { class: "muted" }, "Lädt EDHREC-Zeilen."));
   const layerBox = h("div", {});
   const right = h("div", {},
@@ -1546,8 +1650,9 @@ async function openCard(card) {
     card.labels.length ? h("p", { id: "card-label-chips" }, card.labels.map((name) => h("span", { class: "chip", style: "cursor:default;margin-right:4px" }, name))) : h("p", { class: "muted" }, "Keine Marken. Sie ordnen deine Karten und zählen nirgends als Wertung."),
     h("div", { class: "actions" }, labelInput, h("button", { type: "button", id: "card-labels-save", onclick: saveLabels }, "Marken speichern")),
     h("h3", {}, "Häufigkeit in den Quelldecks"), frequencies, h("p", { class: "note" }, "Gelb: Gruppe mit weniger als 30 Decks."),
+    h("p", {}, h("a", { href: `decks.html?commander=${encodeURIComponent(COMMANDER)}&must=${encodeURIComponent(card.name)}`, class: "chip" }, "Quelldecks mit dieser Karte im Deck-Browser öffnen →")),
     card.universe ? h("p", { class: "note" }, `Im Universum ${state.universe}: ${card.universe.filter_card ? "Filterkarte des Universums (steht per Definition in jedem Deck der Teilmenge, ohne Zählung und ohne Stufe)" : card.universe.matched ? `${card.universe.hits}/${card.universe.denominator} Decks, Stufe ${card.universe.level} (Verbreitung gezählt, keine Stärke)` : "unbekannt (kein Deck des Universums nennt diese Karte unter einem bekannten Namen)"}`) : null,
-    card.universe && state.universeInfo && state.universeInfo.subset_note ? h("p", { class: "note" }, state.universeInfo.subset_note) : null, layerBox, extra);
+    card.universe && state.universeInfo && state.universeInfo.subset_note ? h("p", { class: "note" }, state.universeInfo.subset_note) : null, strengthBox, layerBox, extra);
   box.append(left, right); $("modal").hidden = false;
   if (!state.commanderIds.includes(card.card_id) && !card.basic) renderSwapBox(swapBox, card, initialSwapMode);
   if (!state.commanderIds.includes(card.card_id) && !card.basic) renderDuelBox(duelBox, card, {
@@ -1558,6 +1663,7 @@ async function openCard(card) {
     cohort: () => state.cohort,
     cohortLabel: () => cohortName(state.cohort),
   });
+  showStrengthBreakdown(strengthBox, card);
   showLayers(layerBox, card);
   try {
     const detail = await api(`/api/cards/${encodeURIComponent(card.card_id)}?${StudioCommander.query}&cohort=${encodeURIComponent(state.cohort)}`);
@@ -1596,16 +1702,19 @@ async function openCard(card) {
       });
       parts.push(h("h3", {}, `Zusammen gespielt in Quelldecks (${cohortName(co.cohort)}, Nenner: ${co.card_decks} Decks mit dieser Karte) `, smallCo ? h("span", { class: "pill low" }, `Kleine Stichprobe (< ${state.small} Decks)`) : null),
         h("table", {},
-          h("thead", {}, h("tr", {}, h("th", {}, "Karte in deiner Sammlung (ohne Standardländer)"), h("th", { class: "num" }, "gemeinsam / Nenner"), h("th", { class: "num" }, "Anteil"), h("th", {}, ""))),
+          h("thead", {}, h("tr", {}, h("th", {}, "Karte in deiner Sammlung (ohne Standardländer)"), h("th", { class: "num" }, "gemeinsam / Nenner"), h("th", { class: "num" }, "Anteil"), h("th", { class: "num" }, "Lift"), h("th", {}, "Kombo-Partner"), h("th", {}, ""))),
           h("tbody", {}, coRows.map((item) => {
             const other = state.byId.get(item.card_id);
+            const liftVal = item.lift === null || item.lift === undefined ? "unbekannt" : Number(item.lift).toFixed(2);
             return h("tr", { class: smallCo ? "low" : "" },
               h("td", { class: "name", onclick: () => { if (other) openCard(other); } }, item.name),
               h("td", { class: "num" }, `${item.both_hits}/${item.card_decks}`),
               h("td", { class: "num" }, `${(100 * item.share).toFixed(1)} %`),
+              h("td", { class: "num" }, liftVal),
+              h("td", {}, item.combo_partner ? "ja (Spellbook)" : "–"),
               h("td", {}, other && !qty(other.card_id) && maxCopies(other) > 0 ? h("button", { class: "small", type: "button", onclick: () => { add(other); openCard(card); } }, "+") : null));
           }))),
-        h("p", { class: "note" }, "Reine Zählung: wie oft eine andere Karte deiner Sammlung in denselben Quelldecks vorkommt."));
+        h("p", { class: "note" }, "Reine Zählung in den Quelldecks dieser Gruppe. Lift: Anteil mit dieser Karte geteilt durch den Gruppen-Anteil; Kombo-Partner laut geprüfter Spellbook-Liste."));
     }
     if (detail.neutral_boards && detail.neutral_boards.sections && detail.neutral_boards.sections.length) {
       const nb = detail.neutral_boards;
@@ -1669,6 +1778,58 @@ async function openCard(card) {
     extra.replaceChildren(...parts);
   } catch (error) { extra.replaceChildren(h("p", { class: "muted" }, "Zusatzdaten nicht lesbar: " + error.message)); }
 }
+function _strengthStatusText(c) {
+  if (c.status === "PRESENT") return "vorhanden";
+  if (c.status === "ZERO_COUNT") return "gezählt 0 von N (ZERO_COUNT)";
+  if (c.status === "NOT_COLLECTED") return "nicht erhoben";
+  if (c.status === "NOT_RANKED") return "nicht bewertet";
+  if (c.status === "FILTER_CARD") return "Filterkarte";
+  if (c.status === "NO_VALUE") return c.reason ? `kein Wert (${c.reason})` : "kein Wert";
+  return c.status || "unbekannt";
+}
+async function showStrengthBreakdown(into, card) {
+  if (!state.strength) {
+    into.replaceChildren(h("h3", {}, "Stärke-Index-Aufschlüsselung (v3)"), h("p", { class: "muted" }, "Lädt Signale …"));
+    await loadStrength();
+    if (!into.isConnected) return;
+  }
+  const st = state.strength && state.strength.map ? state.strength.map.get(card.card_id) : null;
+  if (!st) {
+    into.replaceChildren(h("h3", {}, "Stärke-Index-Aufschlüsselung (v3)"), h("p", { class: "muted" }, "Kein Stärke-Index für diese Karte geladen."));
+    return;
+  }
+  const nodes = [h("h3", {}, "Stärke-Index-Aufschlüsselung (v3 · Schätzung aus Nutzungsdaten)")];
+  const idxText = st.index !== null && st.index !== undefined ? st.index.toFixed(1) : "unbekannt";
+  const covText = st.coverage !== null && st.coverage !== undefined ? `${(100 * st.coverage).toFixed(0)} %` : "–";
+  const confText = st.confidence !== null && st.confidence !== undefined ? `${st.confidence_level || ""} (${st.confidence.toFixed(2)})` : "–";
+  nodes.push(h("p", {},
+    `Stufe ${st.tier} · Index ${idxText} · Datenlage ${covText} · Konfidenz ${confText}`,
+    st.borderline ? h("span", { class: "pill warn", style: "margin-left:6px" }, `grenzwertig (${st.cut_distance.toFixed(1)} Pkt zu ${st.borderline_cut})`) : null));
+  const rankEntries = st.role_ranks ? Object.entries(st.role_ranks) : [];
+  if (rankEntries.length) {
+    nodes.push(h("p", {}, "Rang in der Funktion: ",
+      ...rankEntries.map(([r, info]) => h("span", { class: "chip", style: "cursor:default;margin-right:4px" }, `${roleName(r)}: #${info.rank}/${info.total}`))));
+  }
+  const comps = st.components || [];
+  if (comps.length) {
+    nodes.push(h("table", {},
+      h("thead", {}, h("tr", {}, h("th", {}, "Signal"), h("th", { class: "num" }, "Zähler/Nenner"), h("th", { class: "num" }, "Rohwert"), h("th", { class: "num" }, "Score 0–100"), h("th", { class: "num" }, "Gewicht (wirksam)"), h("th", {}, "Status"))),
+      h("tbody", {}, comps.map((c) => {
+        const countStr = c.denominator ? (c.numerator === null || c.numerator === undefined ? `n = ${c.denominator}` : `${c.numerator}/${c.denominator}`) : "–";
+        const rawStr = c.value === null || c.value === undefined ? "unbekannt" : Number(c.value.toPrecision(4));
+        const scoreStr = c.percentile === null || c.percentile === undefined ? "–" : `${(100 * c.percentile).toFixed(1)}`;
+        return h("tr", {},
+          h("td", { title: c.signal || "" }, c.label || c.component),
+          h("td", { class: "num" }, countStr),
+          h("td", { class: "num" }, rawStr),
+          h("td", { class: "num" }, scoreStr),
+          h("td", { class: "num" }, c.weight),
+          h("td", {}, _strengthStatusText(c)));
+      }))));
+  }
+  nodes.push(h("p", { class: "note" }, "Schätzung aus Nutzungssignalen (keine Siegrate). Eigene Markierungen (Favorit/Ausschluss/Notiz) und Simulationen zählen mit Gewicht 0 / gar nicht."));
+  into.replaceChildren(...nodes);
+}
 // The rating layers of one card as a small table; loaded on its own, so the slower detail request does not hold it back.
 async function showLayers(into, card) {
   try {
@@ -1693,18 +1854,24 @@ function ratingLayers() {
 
 // ---------- Stärke-Index for the sort (the tier page's function, never a copy of its scoring) ----------
 async function loadStrength() {
-  if (state.strength || state.strengthLoading) return;
+  if (state.strength) return state.strength;
+  if (state.strengthPromise) return state.strengthPromise;
   state.strengthLoading = true;
-  try {
-    let settings = null;
-    try { settings = JSON.parse(StudioUI.recall("studio.strength.settings", "null")); } catch (error) { settings = null; }
-    let result;
-    try { result = await api("/api/strength", "POST", settings ? { commander: COMMANDER, settings } : { commander: COMMANDER }); }
-    catch (error) { result = await api("/api/strength", "POST", { commander: COMMANDER }); } // remembered settings may be outdated
-    state.strength = { map: new Map(result.cards.map((item) => [item.card_id, item])) };
-    if (state.sortKey === "strength") toast("Stärke-Index geladen (Schätzung aus Nutzungsdaten, Einstellungen der Tierliste).");
-    renderPool(); if (state.deckId) renderDeck();
-  } catch (error) { fail(error); } finally { state.strengthLoading = false; }
+  state.strengthPromise = (async () => {
+    try {
+      let settings = null;
+      try { settings = JSON.parse(StudioUI.recall("studio.strength.settings", "null")); } catch (error) { settings = null; }
+      let result;
+      try { result = await api("/api/strength", "POST", settings ? { commander: COMMANDER, settings } : { commander: COMMANDER }); }
+      catch (error) { result = await api("/api/strength", "POST", { commander: COMMANDER }); } // remembered settings may be outdated
+      state.strength = { result, map: new Map(result.cards.map((item) => [item.card_id, item])) };
+      if (state.sortKey === "strength") toast("Stärke-Index geladen (Schätzung aus Nutzungsdaten, Einstellungen der Tierliste).");
+      renderPool(); if (state.deckId) renderDeck();
+      return state.strength;
+    } catch (error) { fail(error); return null; }
+    finally { state.strengthLoading = false; state.strengthPromise = null; }
+  })();
+  return state.strengthPromise;
 }
 function renderSimReadiness() {
   const info = state.simReadiness, box = $("f-sim"), text = $("f-sim-text");
@@ -1754,6 +1921,7 @@ function renderBracketBar() {
     ["bracket:3", "B3"],
     ["bracket:4", "B4"],
     [b5Key, "B5 (cEDH)"],
+    ["tuned", "B4+5 (Tuned)"],
   ];
   bar.replaceChildren(
     h("span", { class: "muted" }, "Bracket:"),

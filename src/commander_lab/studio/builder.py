@@ -14,6 +14,7 @@ import sqlite3
 from collections import Counter
 from collections.abc import Iterable, Sequence
 from datetime import UTC, datetime, timedelta
+from pathlib import Path
 from statistics import median
 from typing import TYPE_CHECKING
 
@@ -226,6 +227,18 @@ def cohort_sizes(store: StudioStore, commander_names: Sequence[str]) -> dict[str
         bound_args,
     ):
         sizes[str(row["cohort"])] = int(row["n"])
+    if "bracket:4" in sizes or "bracket:5" in sizes:
+        tuned_n = int(
+            db.execute(
+                "SELECT COUNT(DISTINCT d.deck_id) FROM corpus_deck d "
+                f"WHERE d.duplicate_of IS NULL{bound} AND EXISTS ("
+                "SELECT 1 FROM corpus_cohort cc WHERE cc.deck_id = d.deck_id "
+                "AND cc.cohort IN ('bracket:4', 'bracket:5'))",
+                bound_args,
+            ).fetchone()[0]
+        )
+        if tuned_n > 0:
+            sizes["tuned"] = tuned_n
     return sizes
 
 
@@ -282,6 +295,9 @@ def _corpus_hits_uncached(
         bound_args,
     ):
         groups.setdefault(str(row["cohort"]), set()).add(str(row["deck_id"]))
+    tuned_ids = groups.get("bracket:4", set()) | groups.get("bracket:5", set())
+    if tuned_ids:
+        groups["tuned"] = tuned_ids
     sets = deck_sets(store, groups[ALL_DECKS], spelling_owners(store))
     return {
         card: {group: len(decks & members) for group, members in groups.items()}
@@ -633,6 +649,21 @@ def legality_unknown_in_collection(store: StudioStore) -> int:
     return int(row[0])
 
 
+def _cached_combo_partners(commander_names: Sequence[str]) -> frozenset[str]:
+    """Pure file-based Spellbook combo partners for ``commander_names`` (no SQL queries)."""
+    from .sources import load_spellbook_combo_partners
+
+    combos_path = Path(__file__).resolve().parents[3] / "data" / "meta" / "spellbook_combos.json"
+    partners: set[str] = set()
+    for name in commander_names:
+        by_card = load_spellbook_combo_partners(combos_path, commander=name.split(",")[0].strip())
+        for card, others in by_card.items():
+            partners.add(card.casefold())
+            for other in others:
+                partners.add(f"{card.casefold()}||{other.casefold()}")
+    return frozenset(partners)
+
+
 def card_cooccurrence(
     store: StudioStore,
     card_id: str,
@@ -645,8 +676,9 @@ def card_cooccurrence(
 
     Pure count (``DERIVED_DESCRIPTIVE``): ``both_hits`` is the numerator and ``card_decks`` (the
     number of distinct non-duplicate source decks of the commander in ``cohort`` that contain
-    ``card_id``) is the denominator. Counted by the one primitive of ``universe.deck_sets``
-    (counted sections, every spelling merged), the same as the universe view."""
+    ``card_id``) is the denominator. ``lift`` compares P(partner | this card) against P(partner
+    in ``cohort``). Counted by the one primitive of ``universe.deck_sets`` (counted sections,
+    every spelling merged), the same as the universe view."""
     from .universe import cooccurrence_pairs, deck_sets, spelling_owners
 
     db = store.connection
@@ -665,7 +697,12 @@ def card_cooccurrence(
         raise KeyError(card_id)
     cohort_join, bound_args = bound_to("corpus_deck", "d.deck_id", commander_names)
     params: list[object] = [*bound_args]
-    if cohort != ALL_DECKS:
+    if cohort == "tuned":
+        cohort_join += (
+            " AND EXISTS (SELECT 1 FROM corpus_cohort cc "
+            "WHERE cc.deck_id = d.deck_id AND cc.cohort IN ('bracket:4', 'bracket:5'))"
+        )
+    elif cohort != ALL_DECKS:
         play_groups = {str(r[0]) for r in db.execute("SELECT DISTINCT play_group FROM corpus_deck")}
         if cohort in play_groups:
             cohort_join += " AND d.play_group = ?"
@@ -683,6 +720,7 @@ def card_cooccurrence(
             params,
         )
     }
+    cohort_decks = len(candidates)
     owners = spelling_owners(store)
     sets = deck_sets(store, candidates, owners)
     own = sets.get(oracle_name, set())
@@ -690,28 +728,44 @@ def card_cooccurrence(
     if card_decks == 0:
         return {
             "cohort": cohort,
+            "cohort_decks": cohort_decks,
             "card_decks": 0,
             "data_class": "DERIVED_DESCRIPTIVE",
             "cards": [],
         }
+    partner_keys = _cached_combo_partners(commander_names)
+    own_cf = oracle_name.casefold()
     # cooccurrence_pairs intersects every card's decks with the target's decks.
     pairs = [
         pair for pair in cooccurrence_pairs(sets, oracle_name, None) if pair["card_name"] in ids
     ][:limit]
+    cards_out: list[dict[str, object]] = []
+    for pair in pairs:
+        pname = str(pair["card_name"])
+        both = int(pair["decks_together"])
+        p_decks = len(sets.get(pname, set()))
+        lift: float | None = None
+        if cohort_decks > 0 and card_decks > 0 and p_decks > 0:
+            lift = round((both / card_decks) / (p_decks / cohort_decks), 4)
+        cards_out.append(
+            {
+                "card_id": ids[pname],
+                "name": pname,
+                "both_hits": both,
+                "card_decks": card_decks,
+                "partner_decks": p_decks,
+                "cohort_decks": cohort_decks,
+                "share": round(both / card_decks, 4),
+                "lift": lift,
+                "combo_partner": f"{own_cf}||{pname.casefold()}" in partner_keys,
+            }
+        )
     return {
         "cohort": cohort,
+        "cohort_decks": cohort_decks,
         "card_decks": card_decks,
         "data_class": "DERIVED_DESCRIPTIVE",
-        "cards": [
-            {
-                "card_id": ids[pair["card_name"]],
-                "name": pair["card_name"],
-                "both_hits": pair["decks_together"],
-                "card_decks": card_decks,
-                "share": round(pair["decks_together"] / card_decks, 4),
-            }
-            for pair in pairs
-        ],
+        "cards": cards_out,
     }
 
 
@@ -971,6 +1025,16 @@ def cohort_members(
         found = by_id.get(str(item["deck_id"]))
         if found is not None:
             members.setdefault(str(item["cohort"]), []).append(found)
+    tuned_seen: set[str] = set()
+    tuned_rows: list[sqlite3.Row] = []
+    for key in ("bracket:4", "bracket:5"):
+        for r in members.get(key, []):
+            did = str(r["deck_id"])
+            if did not in tuned_seen:
+                tuned_seen.add(did)
+                tuned_rows.append(r)
+    if tuned_rows:
+        members["tuned"] = tuned_rows
     return members
 
 
