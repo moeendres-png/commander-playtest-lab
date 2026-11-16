@@ -416,3 +416,34 @@ def test_the_slow_routes_compute_once_per_store_state(
     assert client.get("/api/layers", params={"commander": COMMANDER}).json() == first
     client.get("/api/data-report")
     assert counts == {"layers": 2, "report": 2}  # a committed write: computed again
+
+
+def test_the_strength_route_is_remembered_per_settings_and_equals_the_plain_answer(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from fastapi.testclient import TestClient
+
+    from commander_lab.studio import strength_view
+    from commander_lab.studio.web import create_app
+
+    _big_store(tmp_path).close()
+    calls: list[int] = []
+    real = strength_view.compute
+
+    def counting(*args: object, **kwargs: object) -> object:
+        calls.append(1)
+        return real(*args, **kwargs)  # type: ignore[arg-type]
+
+    monkeypatch.setattr(strength_view, "compute", counting)
+    cache.invalidate()
+    client = TestClient(create_app(tmp_path / "studio"), headers={"X-Studio": "1"})
+    body = {"commander": COMMANDER}
+    first = client.post("/api/strength", json=body)
+    assert first.status_code == 200
+    assert client.post("/api/strength", json=body).json() == first.json()
+    assert len(calls) == 1
+    other = client.post("/api/strength", json={**body, "settings": {"bracket": "3"}})
+    assert other.status_code in (200, 422)
+    unknown = client.post("/api/strength", json={"commander": "Nobody"})
+    assert unknown.status_code == 404
+    assert client.post("/api/strength", json={"commander": "Nobody"}).status_code == 404

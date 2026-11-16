@@ -569,25 +569,40 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
             settings = strength_view.resolve_settings(
                 store, preset=body.preset, profile=body.profile, settings=body.settings
             )
-            return dict(
-                strength_view.compute(
-                    store,
-                    body.commander,
-                    settings,
-                    # a saved profile may point to a universe deleted since: fall back
-                    # visibly instead of failing; explicit settings must name a real one
-                    dangling_universe_ok=body.profile is not None,
-                    notices=(
-                        strength_view.profile_notices(store, body.profile)
-                        if body.profile is not None
-                        else ()
-                    ),
-                    saved_weights=(
-                        strength_view.profile_saved_weights(store, body.profile)
-                        if body.profile is not None
-                        else None
-                    ),
+
+            def compute() -> dict[str, object]:
+                return dict(
+                    strength_view.compute(
+                        store,
+                        body.commander,
+                        settings,
+                        # a saved profile may point to a universe deleted since: fall back
+                        # visibly instead of failing; explicit settings must name a real one
+                        dangling_universe_ok=body.profile is not None,
+                        notices=(
+                            strength_view.profile_notices(store, body.profile)
+                            if body.profile is not None
+                            else ()
+                        ),
+                        saved_weights=(
+                            strength_view.profile_saved_weights(store, body.profile)
+                            if body.profile is not None
+                            else None
+                        ),
+                    )
                 )
+
+            # The page asks for the index beside the pool on every load: remembered per store
+            # state and request (the resolved settings are part of the key; errors are not kept).
+            return cache.cached(
+                store,
+                (
+                    "strength",
+                    body.commander,
+                    body.profile,
+                    json.dumps(asdict(settings), sort_keys=True, default=str),
+                ),
+                compute,
             )
         except ValueError as error:
             raise HTTPException(422, str(error)) from error
