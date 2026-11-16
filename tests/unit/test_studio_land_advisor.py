@@ -349,19 +349,40 @@ def test_land_candidates_filters_and_sorts_by_frequency_with_unknown_last(tmp_pa
         min_share=0.20,
     )
     names = [c["name"] for c in cands]
-    # Basic land (Forest), in-deck land (Already Played Land), and 0-available land (Unowned Dual) are excluded
+    # Basic land (Forest), in-deck land (Already Played Land), 0-available land (Unowned Dual),
+    # and 0-hit Mystery Cavern (0 / 3 < 0.20) are excluded at min_share=0.20.
     assert "Forest" not in names
     assert "Already Played Land" not in names
     assert "Unowned Dual" not in names
-    # Mystery Cavern has no corpus_deck_card rows -> unknown frequency -> sorted last!
-    assert names == ["Command Tower", "Breeding Pool", "Mystery Cavern"]
+    assert "Mystery Cavern" not in names
+    assert names == ["Command Tower", "Breeding Pool"]
 
-    by_name = {c["name"]: c for c in cands}
+    # With min_share=0.0, Mystery Cavern is included with decks=0, share=0.0 (populated cohort),
+    # and its unknown produced_mana (no scryfall_card row) stays None, never [].
+    cands_all = land_advisor.land_candidates(
+        store,
+        ["Test Commander"],
+        deck_cards=["Already Played Land", "Forest"],
+        cohort="all",
+        min_share=0.0,
+    )
+    assert [c["name"] for c in cands_all] == ["Command Tower", "Breeding Pool", "Mystery Cavern"]
+    by_name = {c["name"]: c for c in cands_all}
     assert by_name["Command Tower"]["colours"] == ["W", "U", "G"]
     assert by_name["Command Tower"]["decks"] == 2 and by_name["Command Tower"]["of"] == 3
-    # Unknown produced_mana (no scryfall_card row) stays None, never []
     assert by_name["Mystery Cavern"]["colours"] is None
-    assert by_name["Mystery Cavern"]["decks"] is None and by_name["Mystery Cavern"]["share"] is None
+    assert by_name["Mystery Cavern"]["decks"] == 0 and by_name["Mystery Cavern"]["share"] == 0.0
+
+    # Empty cohort (of == 0) yields unknown frequency (None) for every candidate.
+    cands_empty = land_advisor.land_candidates(
+        store,
+        ["Test Commander"],
+        deck_cards=["Already Played Land", "Forest"],
+        cohort="empty_cohort",
+        min_share=0.20,
+    )
+    assert [c["name"] for c in cands_empty] == ["Breeding Pool", "Command Tower", "Mystery Cavern"]
+    assert all(c["decks"] is None and c["share"] is None and c["of"] == 0 for c in cands_empty)
 
     # User marks (favorite, excluded, note) never alter the order
     from commander_lab.studio import builder
@@ -376,3 +397,43 @@ def test_land_candidates_filters_and_sorts_by_frequency_with_unknown_last(tmp_pa
         min_share=0.20,
     )
     assert [c["name"] for c in cands_after_marks] == names
+
+
+def test_five_color_producers_are_filtered_to_commander_identity() -> None:
+    from commander_lab.studio import builder
+
+    rows = [
+        _row("Cmdr", zone="commander", cost="{1}{G}{W}{U}", identity="GWU"),
+        _row("Command Tower", type_line="Land", produced="WUBRG"),
+        _row("Arcane Signet", type_line="Artifact", produced="WUBRG"),
+        _row("Plains Spell", cost="{W}"),
+    ]
+    profile = land_advisor.deck_profile(rows)
+    by_c = _by_colour(profile)
+    assert set(by_c) == {"W", "U", "G"}
+    assert by_c["W"]["land_sources"] == 1
+    assert by_c["U"]["other_sources"] == 1
+
+    shape = builder.deck_shape(
+        [
+            {
+                "zone": "commander",
+                "quantity": 1,
+                "color_identity": "WUG",
+                "type_line": "Legendary Creature",
+                "produced_mana": "",
+                "mana_value": 5,
+                "mana_cost": "{2}{G}{W}{U}",
+            },
+            {
+                "zone": "main",
+                "quantity": 1,
+                "color_identity": "",
+                "type_line": "Land",
+                "produced_mana": "WUBRG",
+                "mana_value": 0,
+                "mana_cost": "",
+            },
+        ]
+    )
+    assert set(shape["mana_sources"]) == {"W", "U", "G"}

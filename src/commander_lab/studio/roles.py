@@ -571,7 +571,7 @@ _TEMP_BOOST_RE = re.compile(
 # text with it removed, the same convention as layers.py: the token has the
 # ability, not the card that creates it.
 _REMINDER = re.compile(r"\([^)]*\)")
-_DRAW_RE = re.compile(r"\bdraws? (?:a |an |\w+ |that many )?cards?\b")
+_DRAW_RE = re.compile(r"\bdraws? (?:(?:a |an |\w+ |that many )?(?:additional )?)?cards?\b")
 _DRAW_TRIGGER_RE = re.compile(r"\b(?:whenever|when|if)\b")
 # A negation counts only directly at the draw phrase (last words of the
 # clause): an unrelated "can't" earlier in the clause ("enchanted creature
@@ -581,6 +581,30 @@ _DRAW_NEGATION_TAIL_RE = re.compile(r"\b(?:can't|cannot|don't|doesn't)(?:\s+\w+)
 _DRAW_OPPONENT_SUBJECT_RE = re.compile(r"\bopponents?\s+(?:would\s+|may\s+)?$")
 _TAX_RE = re.compile(r"\bcosts? \{\d+\} more to cast\b")
 _TAX_SELF_COST_RE = re.compile(r"\bthis spell costs? \{\d+\} more to cast\b")
+_SINGLE_DRAW_RE = re.compile(r"\bdraws? a card\b")
+_MULTI_OR_VAR_DRAW_RE = re.compile(
+    r"\bdraws? (?:two|three|four|five|six|seven|eight|nine|ten|\d+|x|that many)(?: additional)? cards\b"
+    r"|\bdraw cards\b"
+    r"|\beach player draws\b"
+)
+_MULTI_DRAW_RE = re.compile(
+    r"\bdraws? (?:two|three|four|five|six|seven|eight|nine|ten|\d+)(?: additional)? cards\b"
+    r"|\bdraw cards equal to\b"
+)
+_SYMMETRIC_OR_LOOT_RE = re.compile(
+    r"\beach player draws\b|\bthen discard (?:a|\w+) cards?\b|\bthen put [^\n.]*from your hand\b"
+)
+_ETB_DRAW_RE = re.compile(r"\bwhen [^\n.]*\benters\b[^\n.]*\bdraw a card\b")
+_HATE_RE = re.compile(
+    r"(?:your )?(?:opponents?|players?|each player) can't cast\b"
+    r"|(?:your )?(?:opponents?|players?|each player) can't (?:activate|search|play lands|untap|gain life)\b"
+    r"|(?:your )?(?:opponents?|players?|each player) can't draw more than \w+ cards?\b"
+    r"|\bactivated abilities of [^\n.]*can't be activated\b"
+    r"|\b(?:creatures|permanents) entering [^\n.]*don't cause abilities to trigger\b"
+    r"|\bcan't cast spells from (?:anywhere other than|graveyards?|exile)\b"
+    r"|\b(?:graveyards?|libraries)[^\n.]*can't enter the battlefield\b"
+    r"|\bcan't enter the battlefield from graveyards?\b"
+)
 
 
 def _clause_prefix(text: str, start: int) -> str:
@@ -639,6 +663,17 @@ def _has_utility_ability(oracle: str) -> bool:
     return False
 
 
+def _has_repeatable_draw_trigger(o: str) -> bool:
+    for sentence in re.split(r"[.\n]+", o):
+        if (
+            re.search(r"\bwhenever\b", sentence)
+            and _has_card_draw(sentence)
+            and not _SYMMETRIC_OR_LOOT_RE.search(sentence)
+        ):
+            return True
+    return False
+
+
 def classify_oracle_roles(type_line: str, oracle_text: str) -> tuple[str, ...]:
     """Derive deterministic functional roles from public card ``type_line`` and ``oracle_text``.
 
@@ -652,8 +687,27 @@ def classify_oracle_roles(type_line: str, oracle_text: str) -> tuple[str, ...]:
     found = {role for role, pattern in _ORACLE_RULES if pattern.search(o)}
     if _has_card_draw(o):
         found.add("card_draw")
+        if (
+            ("instant" in t or "sorcery" in t)
+            and _SINGLE_DRAW_RE.search(o)
+            and not _MULTI_OR_VAR_DRAW_RE.search(o)
+        ):
+            found.add("cantrip")
+        if (
+            (_MULTI_DRAW_RE.search(o) and not _SYMMETRIC_OR_LOOT_RE.search(o))
+            or _has_repeatable_draw_trigger(o)
+            or (
+                "instant" not in t
+                and "sorcery" not in t
+                and _ETB_DRAW_RE.search(o)
+                and not _SYMMETRIC_OR_LOOT_RE.search(o)
+            )
+        ):
+            found.add("card_advantage")
     if _has_tax(o):
         found.add("tax")
+    if _HATE_RE.search(o):
+        found.add("hate")
     if re.search(r"\bbattle cry\b", o) or any(
         _ANTHEM_RE.search(clause) and "until end of turn" not in clause
         for clause in re.split(r"[.\n]+", o)
@@ -664,6 +718,8 @@ def classify_oracle_roles(type_line: str, oracle_text: str) -> tuple[str, ...]:
     ):
         found.add("combat_trick")
     bare = _REMINDER.sub(" ", o)
+    if re.search(r"\binvestigate\b", bare):
+        found.add("card_advantage")
     if "land" not in t and (("add " in bare and "{t}:" in bare) or _TAP_ADD_RE.search(bare)):
         found.add("ramp")
         if "creature" in t:
@@ -676,3 +732,39 @@ def classify_oracle_roles(type_line: str, oracle_text: str) -> tuple[str, ...]:
     if "land" in t and _has_utility_ability(o):
         found.add("utility_land")
     return tuple(sorted(found))
+
+
+def role_origin_audit(store: StudioStore) -> dict[str, object]:
+    """Compare stored Scryfall tagger claims against deterministic Oracle text claims (#1413).
+
+    Pure counts with explicit denominators; never guesses or changes claims.
+    """
+    db = store.connection
+    by_origin = _claims_by_origin(db)
+    tagger_by_role: dict[str, set[str]] = {}
+    oracle_by_role: dict[str, set[str]] = {}
+    for oracle_id, role, origin in db.execute(
+        "SELECT oracle_id, role, role_origin FROM card_role_claim"
+    ):
+        oid, r = str(oracle_id), str(role)
+        if origin in (ORIGIN_TAGGER, ORIGIN_CROSSWALK):
+            tagger_by_role.setdefault(r, set()).add(oid)
+        elif origin == ORIGIN_ORACLE_TEXT:
+            oracle_by_role.setdefault(r, set()).add(oid)
+    rows: list[dict[str, object]] = []
+    for role in ROLES:
+        tag_ids = tagger_by_role.get(role, set())
+        ora_ids = oracle_by_role.get(role, set())
+        both = len(tag_ids & ora_ids)
+        rows.append(
+            {
+                "role": role,
+                "tagger_total": len(tag_ids),
+                "oracle_total": len(ora_ids),
+                "both": both,
+                "tagger_only": len(tag_ids - ora_ids),
+                "oracle_only": len(ora_ids - tag_ids),
+                "oracle_confirmed_share": round(both / len(ora_ids), 4) if ora_ids else None,
+            }
+        )
+    return {"claims_by_origin": by_origin, "roles": rows}

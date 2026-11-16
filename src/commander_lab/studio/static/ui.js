@@ -206,9 +206,25 @@ const StudioUI = (() => {
   async function dataState(host, commander, { onlyWhenMissing = true, only = null } = {}) {
     let overview;
     try { overview = await request(`/api/layers?commander=${encodeURIComponent(commander)}`); } catch (error) { host.replaceChildren(); return; }
+    let status = null;
+    try { status = await request("/api/status"); } catch (error) { /* optional */ }
     // ``only`` limits the check to the named layer keys (the tier list needs just the sources of the index)
     const missing = overview.layers.filter((layer) => layer.status === "MISSING" && (!only || only.includes(layer.key)));
-    if (onlyWhenMissing && !missing.length) { host.replaceChildren(); return; }
+    const freshness = status && status.freshness ? status.freshness : null;
+    const datedSources = status && Array.isArray(status.sources) ? status.sources.filter((s) => s.snapshot_date) : [];
+    if (onlyWhenMissing && !missing.length && !datedSources.length) { host.replaceChildren(); return; }
+    if (onlyWhenMissing && !missing.length) {
+      const span = freshness && freshness.newest_snapshot
+        ? `Quellenstand: ${freshness.oldest_snapshot && freshness.oldest_snapshot !== freshness.newest_snapshot ? `${freshness.oldest_snapshot} bis ${freshness.newest_snapshot}` : freshness.newest_snapshot} (${freshness.with_snapshot_date} von ${freshness.total_sources} Quellen datiert)`
+        : "Datenstand";
+      host.replaceChildren(el("details", { class: "datastate" },
+        el("summary", {}, span),
+        el("div", { class: "table-wrap" }, el("table", {},
+          el("thead", {}, el("tr", {}, ["Quelle", "Datenklasse", "Stand (Datum)", "Importiert"].map((label) => el("th", {}, label)))),
+          el("tbody", {}, datedSources.slice(-25).reverse().map((s) => el("tr", {},
+            el("td", {}, s.title), el("td", {}, s.data_class), el("td", {}, s.snapshot_date || "unbekannt"), el("td", {}, (s.imported_at || "").slice(0, 10)))))))));
+      return;
+    }
     const rows = overview.layers.map((layer) => el("tr", {},
       el("td", {}, layer.layer),
       el("td", { class: "num" }, layer.rows),
@@ -217,7 +233,7 @@ const StudioUI = (() => {
       el("td", {}, layer.status === "MISSING" ? el("code", { class: "cmd" }, layer.command) : "")));
     host.replaceChildren(el("details", { class: "datastate", open: missing.some((layer) => ["inventory", "scryfall", "decklists"].includes(layer.key)) },
       el("summary", {}, missing.length ? `Es fehlen Daten: ${missing.length} von ${overview.layers.length} Schichten sind leer` : "Datenstand"),
-      el("p", { class: "note" }, `Gezählt für ${StudioCommander.shortName(commander)}. Eine leere Schicht ist keine schwache Karte, sondern fehlende Beobachtung. ${overview.pool_size === null ? "Der Commander steht nicht in der Sammlung: zuerst die Sammlung importieren." : `Kartenpool: ${overview.pool_size} Karten.`}`),
+      el("p", { class: "note" }, `Gezählt für ${StudioCommander.shortName(commander)}. Eine leere Schicht ist keine schwache Karte, sondern fehlende Beobachtung. ${overview.pool_size === null ? "Der Commander steht nicht in der Sammlung: zuerst die Sammlung importieren." : `Kartenpool: ${overview.pool_size} Karten.`}${freshness && freshness.newest_snapshot ? ` Neuester Quellenstand: ${freshness.newest_snapshot}.` : ""}`),
       el("div", { class: "table-wrap" }, el("table", {},
         el("thead", {}, el("tr", {}, ["Schicht", "Zeilen", "Pool abgedeckt", "Stand", "Befehl zum Importieren"].map((label, index) => el("th", { class: index === 1 || index === 2 ? "num" : "" }, label)))),
         el("tbody", {}, rows))),

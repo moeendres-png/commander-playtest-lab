@@ -27,9 +27,11 @@ from . import (
     allocation,
     builder,
     cache,
+    card_duel,
     card_outcomes,
     castability,
     combos,
+    cut_lab,
     data_report,
     deck_diff,
     deck_facts,
@@ -39,6 +41,9 @@ from . import (
     labels,
     land_advisor,
     launch,
+    packages,
+    paired_comparison,
+    paired_series,
     queries,
     signals,
     similar_decks,
@@ -52,10 +57,13 @@ from . import (
 from . import evidence as evidence_model
 from .decks import (
     RevisionCard,
+    baseline_decks_for_commander,
+    color_set,
     create_revision,
     lab_snapshot,
     list_rows,
     parse_decklist_text,
+    resolve_repo_baseline_cards,
     revision_rows,
     validate_rows,
 )
@@ -90,6 +98,12 @@ class LandAdvisorBody(ListBody):
     min_share: float = Field(default=0.20, ge=0.0, le=1.0)
 
 
+class PlanPackagesBody(BaseModel):
+    commander: str | list[str] | None = None
+    cards: list[CardEntry]
+    cohort: str = Field(default="all", min_length=1, max_length=120)
+
+
 class SwapBody(BaseModel):
     commander: str | list[str]
     deck_card_ids: list[str] = Field(default_factory=list, max_length=300)
@@ -98,6 +112,15 @@ class SwapBody(BaseModel):
     cohort: str = Field(default="all", min_length=1, max_length=120)
     universe: str | None = Field(default=None, max_length=120)
     exclude_marked: bool = True
+    sort_by: Literal["hits", "lift"] = "hits"
+
+
+class DuelBody(BaseModel):
+    commander: str | list[str]
+    deck_card_ids: list[str] = Field(default_factory=list, max_length=300)
+    card_a: str = Field(min_length=1, max_length=200)
+    card_b: str = Field(min_length=1, max_length=200)
+    cohort: str = Field(default="all", min_length=1, max_length=120)
 
 
 class DecklistParseBody(BaseModel):
@@ -176,8 +199,54 @@ class BatchSimulationBody(BaseModel):
     games_per_jvm: int | None = Field(default=None, ge=MIN_GAMES_PER_JVM, le=MAX_GAMES_PER_JVM)
 
 
+class PairedSeriesBody(BaseModel):
+    base_revision_id: str = Field(min_length=1, max_length=200)
+    variant_revision_id: str = Field(min_length=1, max_length=200)
+    pod: str = Field(default="precon", max_length=50)
+    opponent_ids: list[str] | None = None
+    budget_pairs: int = Field(
+        default=20,
+        ge=paired_comparison.MIN_BUDGET_PAIRS,
+        le=paired_comparison.MAX_BUDGET_PAIRS,
+    )
+    look_every_pairs: int = Field(default=4, ge=1, le=100)
+    base_seed: int = Field(default=1000, ge=0, le=2_000_000_000)
+    rotate_seats: bool = True
+    threshold_pp: float = Field(default=paired_comparison.DEFAULT_THRESHOLD_PP, ge=-50.0, le=50.0)
+    significance_level: float = Field(
+        default=paired_comparison.DEFAULT_SIGNIFICANCE_LEVEL, gt=0.0, lt=0.5
+    )
+
+
+class ReadinessAuditBody(BaseModel):
+    commander: str | list[str]
+    cards: list[CardEntry] | None = None
+    tiers: list[str] = Field(default_factory=lambda: ["S", "A"], max_length=5)
+
+
 class NamesBody(BaseModel):
     names: list[str] = Field(max_length=2000)
+
+
+class CutBody(BaseModel):
+    cards: list[CardEntry]
+    locked: list[str] = Field(default_factory=list, max_length=200)
+    rejected: list[str] = Field(default_factory=list, max_length=400)
+    deferred: list[str] = Field(default_factory=list, max_length=400)
+    role_minimums: dict[str, int] = Field(default_factory=dict)
+    cohort: str = Field(default="all", min_length=1, max_length=120)
+
+
+class CutWhatIfBody(BaseModel):
+    cards: list[CardEntry]
+    cut: str
+    add: str
+    cohort: str = Field(default="all", min_length=1, max_length=120)
+
+
+class CutFinishBody(BaseModel):
+    start: list[CardEntry]
+    cards: list[CardEntry]
 
 
 class DiffBody(BaseModel):
@@ -299,10 +368,17 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
             sources = [
                 dict(row)
                 for row in store.connection.execute(
-                    "SELECT title, data_class, SUBSTR(sha256, 1, 12) AS sha256, imported_at "
-                    "FROM source ORDER BY imported_at"
+                    "SELECT title, data_class, SUBSTR(sha256, 1, 12) AS sha256, "
+                    "snapshot_date, imported_at FROM source ORDER BY imported_at"
                 )
             ]
+            dated = [str(row["snapshot_date"]) for row in sources if row.get("snapshot_date")]
+            freshness = {
+                "total_sources": len(sources),
+                "with_snapshot_date": len(dated),
+                "oldest_snapshot": min(dated) if dated else None,
+                "newest_snapshot": max(dated) if dated else None,
+            }
             return {
                 "bridge_qualification": bridge_qualification(),
                 "cards": store.count("card"),
@@ -319,6 +395,7 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
                 # (register in `sources.py`), so the data state is visible here;
                 # the counted detail of every layer is under /api/data-report.
                 "source_inventory": _inventory_summary(),
+                "freshness": freshness,
                 "image_cache": image_cache_status(store),
                 "sources": sources,
             }
@@ -900,18 +977,179 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
 
         return simulation_manager.list_batches()
 
+    @app.post("/api/simulations/paired")
+    def start_paired_series(body: PairedSeriesBody) -> dict[str, object]:
+        """Start a paired overnight A-vs-B comparison series (same seeds, seats, pod)."""
+        store = open_store()
+        try:
+            job = paired_series.paired_series_manager.start_series(
+                store,
+                games_home(),
+                base_revision_id=body.base_revision_id,
+                variant_revision_id=body.variant_revision_id,
+                pod=body.pod,
+                opponent_ids=body.opponent_ids,
+                budget_pairs=body.budget_pairs,
+                look_every_pairs=body.look_every_pairs,
+                base_seed=body.base_seed,
+                rotate_seats=body.rotate_seats,
+                threshold_pp=body.threshold_pp,
+                significance_level=body.significance_level,
+            )
+            return job.to_dict()
+        except KeyError as error:
+            raise HTTPException(404, f"unknown deck revision: {error}") from error
+        except ValueError as error:
+            raise HTTPException(422, str(error)) from error
+        except RuntimeError as error:
+            raise HTTPException(409, str(error)) from error
+        finally:
+            store.close()
+
+    @app.get("/api/simulations/paired")
+    def list_paired_series() -> list[dict[str, object]]:
+        """List recent paired A-vs-B comparison series."""
+        return paired_series.paired_series_manager.list_series(games_home())
+
+    @app.get("/api/simulations/paired/{series_id}")
+    def get_paired_series(series_id: str) -> dict[str, object]:
+        """Status and sequential statistics of one paired comparison series."""
+        try:
+            found = paired_series.paired_series_manager.get_series(games_home(), series_id)
+        except ValueError as error:
+            raise HTTPException(422, str(error)) from error
+        if found is None:
+            raise HTTPException(404, "unknown paired series")
+        return found
+
+    @app.post("/api/simulations/paired/{series_id}/cancel")
+    def cancel_paired_series(series_id: str) -> dict[str, object]:
+        """Request cancellation of a running paired comparison series."""
+        try:
+            cancelled = paired_series.paired_series_manager.cancel_series(series_id)
+            if not cancelled:
+                raise HTTPException(404, "unknown paired series")
+            found = paired_series.paired_series_manager.get_series(games_home(), series_id)
+            return found if found is not None else {"cancelled": True}
+        except ValueError as error:
+            raise HTTPException(422, str(error)) from error
+
+    @app.post("/api/simulations/readiness-audit")
+    def readiness_audit_route(body: ReadinessAuditBody) -> dict[str, object]:
+        """C-3 audit: check XMage card facts and pilot knowledge for deck + free Tier-S/A pool."""
+        commanders = (
+            [body.commander.strip()]
+            if isinstance(body.commander, str)
+            else [str(c).strip() for c in body.commander if str(c).strip()]
+        )
+        commanders = [c for c in commanders if c]
+        if not commanders:
+            raise HTTPException(422, "commander is required")
+        store = open_store()
+        try:
+            return paired_series.simulator_readiness_audit(
+                store,
+                commanders,
+                cards=_cards(body.cards) if body.cards is not None else None,
+                tiers=body.tiers or ["S", "A"],
+            )
+        except KeyError as error:
+            raise HTTPException(404, f"unknown commander or card: {error}") from error
+        except ValueError as error:
+            raise HTTPException(422, str(error)) from error
+        finally:
+            store.close()
+
+    def _resolve_base_cards(store: StudioStore, base_revision_id: str) -> list[RevisionCard]:
+        if base_revision_id.startswith("repo:"):
+            return resolve_repo_baseline_cards(store, base_revision_id)
+        base_rows = revision_rows(store, base_revision_id)
+        return [
+            RevisionCard(str(r["card_id"]), int(r["quantity"]), str(r["zone"])) for r in base_rows
+        ]
+
+    @app.get("/api/diff-baselines")
+    def diff_baselines(
+        commander: list[str] = Query(min_length=1, max_length=2),
+    ) -> dict[str, object]:
+        """Read-only repo baseline decks available as comparison targets (#1404 / B-4)."""
+        return {"baselines": baseline_decks_for_commander(commander)}
+
     @app.post("/api/diff")
     def diff(body: DiffBody) -> dict[str, object]:
         store = open_store()
         try:
-            base_rows = revision_rows(store, body.base_revision_id)
-            base_cards = [
-                RevisionCard(str(r["card_id"]), int(r["quantity"]), str(r["zone"]))
-                for r in base_rows
-            ]
+            base_cards = _resolve_base_cards(store, body.base_revision_id)
             return deck_diff.diff_impact(store, base_cards, _cards(body.cards), cohort=body.cohort)
         except KeyError as error:
             raise HTTPException(404, "unknown revision") from error
+        finally:
+            store.close()
+
+    @app.post("/api/cut-lab")
+    def cut_lab_route(body: CutBody) -> dict[str, object]:
+        """Ordered cut suggestions from measured figures only, with the deck figure deltas of
+        each cut (#1418). Locked, rejected cards, the commander and basics never appear."""
+        store = open_store()
+        try:
+            return cut_lab.cut_suggestions(
+                store,
+                _cards(body.cards),
+                locked=body.locked,
+                rejected=body.rejected,
+                deferred=body.deferred,
+                role_minimums=body.role_minimums,
+                cohort=body.cohort,
+            )
+        finally:
+            store.close()
+
+    @app.post("/api/cut-lab/what-if")
+    def cut_lab_what_if_route(body: CutWhatIfBody) -> dict[str, object]:
+        """What if card ``add`` went in instead of ``cut``: the counted deltas of that swap
+        (``deck_diff.diff_impact``), nothing is changed (#1418)."""
+        store = open_store()
+        try:
+            base = _cards(body.cards)
+            commander_rows = [r for r in list_rows(store, base) if r["zone"] == "commander"]
+            identity = frozenset().union(*(color_set(r["color_identity"]) for r in commander_rows))
+            found = list_rows(store, [RevisionCard(body.add, 1, "main")])
+            if not found:
+                raise HTTPException(422, "die neue Karte ist unbekannt")
+            add_row = found[0]
+            if body.add in {card.card_id for card in base}:
+                raise HTTPException(422, "die neue Karte steht schon im Deck")
+            if (
+                not add_row["commander_legal"]
+                or not color_set(add_row["color_identity"]) <= identity
+            ):
+                raise HTTPException(
+                    422, "die neue Karte ist nicht legal oder außerhalb der Farbidentität"
+                )
+            if not add_row["available_lower_bound"]:
+                raise HTTPException(422, "von der neuen Karte ist kein Exemplar frei")
+            target: list[RevisionCard] = []
+            removed = False
+            for card in base:
+                if not removed and card.card_id == body.cut and card.zone == "main":
+                    removed = True
+                    if card.quantity > 1:
+                        target.append(RevisionCard(card.card_id, card.quantity - 1, card.zone))
+                    continue
+                target.append(card)
+            if not removed:
+                raise HTTPException(422, "die zu kürzende Karte steht nicht im Deck")
+            target.append(RevisionCard(body.add, 1, "main"))
+            return deck_diff.diff_impact(store, base, target, cohort=body.cohort)
+        finally:
+            store.close()
+
+    @app.post("/api/cut-lab/finish")
+    def cut_lab_finish_route(body: CutFinishBody) -> dict[str, object]:
+        """The final list and the ADD/CUT patch from the starting list (#1418)."""
+        store = open_store()
+        try:
+            return cut_lab.finish(store, _cards(body.start), _cards(body.cards))
         finally:
             store.close()
 
@@ -919,11 +1157,7 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
     def prefilter(body: PrefilterBody) -> dict[str, object]:
         store = open_store()
         try:
-            base_rows = revision_rows(store, body.base_revision_id)
-            base_cards = [
-                RevisionCard(str(r["card_id"]), int(r["quantity"]), str(r["zone"]))
-                for r in base_rows
-            ]
+            base_cards = _resolve_base_cards(store, body.base_revision_id)
             return builder.prefilter_lists(
                 store, base_cards, _cards(body.cards), trials=body.trials
             )
@@ -1244,9 +1478,70 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
                 cohort=body.cohort,
                 universe=body.universe,
                 exclude_marked=body.exclude_marked,
+                sort_by=body.sort_by,
             )
         except KeyError as error:
             raise HTTPException(404, f"unknown card or commander: {error}") from error
+        except ValueError as error:
+            raise HTTPException(422, str(error)) from error
+        finally:
+            store.close()
+
+    @app.post("/api/packages")
+    def packages_route(body: PlanPackagesBody) -> dict[str, object]:
+        """Synergistic corpus lift packages and Spellbook shell packages touched by the deck (#1404 op. 7)."""
+        store = open_store()
+        try:
+            commanders = packages._parse_commander_arg(body.commander)
+            return packages.deck_packages(store, commanders, _cards(body.cards), cohort=body.cohort)
+        except KeyError as error:
+            raise HTTPException(404, f"unknown card or commander: {error}") from error
+        finally:
+            store.close()
+
+    @app.post("/api/build-plan")
+    def build_plan_route(body: PlanPackagesBody) -> dict[str, object]:
+        """Guided 6-step deck-building plan against cohort reference spans + role coverage (#1404 op. 5, #1413)."""
+        store = open_store()
+        try:
+            commanders = packages._parse_commander_arg(body.commander)
+            return packages.build_plan(store, commanders, _cards(body.cards), cohort=body.cohort)
+        except KeyError as error:
+            raise HTTPException(404, f"unknown card or commander: {error}") from error
+        finally:
+            store.close()
+
+    @app.post("/api/upgrade-path")
+    def upgrade_path_route(body: PlanPackagesBody) -> dict[str, object]:
+        """Descriptive role-matched upgrade path against source-deck inclusion shares (B-2)."""
+        store = open_store()
+        try:
+            commanders = packages._parse_commander_arg(body.commander)
+            return packages.upgrade_path(store, commanders, _cards(body.cards), cohort=body.cohort)
+        except KeyError as error:
+            raise HTTPException(404, f"unknown card or commander: {error}") from error
+        finally:
+            store.close()
+
+    @app.post("/api/card-duel")
+    def card_duel_route(body: DuelBody) -> dict[str, object]:
+        """Two cards side by side: roles, mana value, frequency n/N and observed fit with the
+        rest of the deck against the group's baseline (#1404 option 3). Never "better"."""
+        store = open_store()
+        try:
+            commanders = (
+                [body.commander] if isinstance(body.commander, str) else list(body.commander)
+            )
+            return card_duel.card_duel(
+                store,
+                commanders,
+                deck_card_ids=body.deck_card_ids,
+                card_a=body.card_a,
+                card_b=body.card_b,
+                cohort=body.cohort,
+            )
+        except KeyError as error:
+            raise HTTPException(404, f"unknown card: {error}") from error
         except ValueError as error:
             raise HTTPException(422, str(error)) from error
         finally:

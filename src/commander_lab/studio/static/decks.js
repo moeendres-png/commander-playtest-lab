@@ -193,6 +193,18 @@ async function start() {
   await StudioCommander.fill($("commander-select"));
   state.commander = StudioCommander.current || "";
   StudioUI.dataState($("data-state"), state.commander);
+  const urlParams = new URLSearchParams(location.search);
+  if (urlParams.get("q")) $("db-q").value = urlParams.get("q");
+  if (urlParams.get("origin")) $("db-origin").value = urlParams.get("origin");
+  if (urlParams.get("cohort")) $("db-cohort").value = urlParams.get("cohort");
+  if (urlParams.get("label")) $("db-label").value = urlParams.get("label");
+  const mustIn = urlParams.getAll("must").concat(urlParams.getAll("must_contain")).filter(Boolean);
+  if (mustIn.length) $("db-must-in").value = mustIn.join(", ");
+  const mustOut = urlParams.getAll("must_not").concat(urlParams.getAll("must_not_contain")).filter(Boolean);
+  if (mustOut.length) $("db-must-out").value = mustOut.join(", ");
+  if (urlParams.get("include_unowned") === "true" || urlParams.get("unowned") === "1") {
+    $("db-unowned").checked = true;
+  }
   $("db-apply").addEventListener("click", loadBrowser);
   $("db-reset").addEventListener("click", () => {
     $("db-q").value = "";

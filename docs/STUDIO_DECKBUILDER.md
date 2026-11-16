@@ -1392,6 +1392,36 @@ not part of the requirement and the cards are named. No mulligan, no extra draws
 hand figure is the exact share of 7-card hands with 2 to 4 lands and at least one nonland card
 of mana value at most 2. A description, never a land count recommendation.
 
+### Card duel ("Karten-Duell", #1404 option 3)
+
+In the card window, "Karten-Duell" sets a second pool card next to the open one
+(`POST /api/card-duel`, `studio/card_duel.py`): whether each is in the deck, type, mana value,
+roles, how many source decks of the commander in the chosen group play it (`decks` of `of`), and
+the observed fit with the rest of the deck: the average share of the deck's other cards
+(without the two duel cards, the commander and basic lands) in the source decks that play the
+card, next to the baseline, the same share over all source decks of the group. A card no source
+deck names has frequency and fit unknown (never 0); fits from fewer than 30 decks are flagged.
+It is an observation of co-occurrence, never a statement that one card is better. Counting
+reuses the cached source-deck index of the similar-decks view.
+
+### Guided cut ("Kürzen", #1418)
+
+The deck tab "Kürzen" brings a list of more than 100 cards to exactly 100 (`POST /api/cut-lab`,
+`POST /api/cut-lab/what-if`, `POST /api/cut-lab/finish`, `studio/cut_lab.py`). It serves one
+suggestion at a time (Kürzen, Ablehnen, Später, Sperren). The order comes only from measured
+figures: cards with a known source-deck frequency first, the least played share first (n/N of
+the chosen comparison group), then cards no source deck names (frequency unknown, a separate
+group, never 0); ties by role redundancy, then name. A cut that would drop a role below its
+minimum (guardrail, default the comparison group's lower quartile rounded down, editable on the
+page) comes after the others and says which role; deferred cards come last. Locked cards (kept
+per deck in the browser), rejected cards, the commander and basic lands (separate counter) are
+never suggested; favourites and other marks never change the order. Each suggestion shows only
+the change of the deck figures (curve bucket, roles before and after with the minimum, coloured
+pips, land count) and a "Kombo-Teil" badge for cards of a listed combo complete in the deck (no
+automatic lock). "Was, wenn stattdessen …" shows the counted deltas of swapping in a free pool
+card (`deck_diff.diff_impact`) and changes nothing until confirmed. At exactly 100 the page shows
+the ADD/CUT patch against the starting list and the list text and saves the list as a new state.
+
 ### Archetype labels (schema 15)
 
 Free-form labels the Owner puts on a card (card window, "Archetyp-Marken") and on a saved deck

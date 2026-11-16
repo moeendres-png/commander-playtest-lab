@@ -6,6 +6,7 @@ const GROUPS = ["Creature", "Planeswalker", "Battle", "Artifact", "Enchantment",
 const GROUP_NAMES = { Creature: "Kreaturen", Planeswalker: "Planeswalker", Battle: "Schlachten", Artifact: "Artefakte", Enchantment: "Verzauberungen", Instant: "Spontanzauber", Sorcery: "Hexereien", Land: "Länder", Other: "Sonstige" };
 const COHORT_NAMES = {
   all: "alle Quelldecks",
+  tuned: "B4+5 (Tuned)",
   community: "Community",
   turnier_cedh: "Turnier cEDH",
   community_cedh: "Community cEDH",
@@ -37,7 +38,8 @@ const state = {
   universe: "", universeInfo: null, countedUniverse: null,
   decks: [], deckId: null, branch: "main", baseRevision: null,
   list: new Map(), dirty: false, draftUpdatedAt: "", draftConflict: false, needsDraftPut: false, issues: [], shape: null, deckRoles: {}, combos: null, roles: [], shapes: [],
-  simulations: [], diffBaseRev: null, diffData: null, activeBatch: null, batchPollTimer: null,
+  simulations: [], diffBaseRev: null, diffData: null, deckFacts: null, castability: null, activeBatch: null, batchPollTimer: null,
+  activePaired: null, pairedPollTimer: null, pairedHistory: [], readinessAudit: null,
   view: "grid", tab: "list", shown: 120, sortKey: "freq", sortDir: -1, cohort: "all",
   subset: null, subsetNames: [], subsetWanted: null, strength: null, showTier: true, changeSeq: 0, savedSeq: 0, layers: null, diffDefault: null,
   colors: new Set(), columns: new Set(["img", "name", "mana_cost", "type_line", "available", "freq", "edhrec"]),
@@ -62,7 +64,12 @@ function h(tag, props, ...children) {
 }
 const api = StudioUI.request;
 const toast = (text) => StudioUI.toast(text);
-const fail = (error) => StudioUI.fail(StudioUI.germanError(error));
+const fail = (error, asText = false) => {
+  const msg = StudioUI.germanError(error);
+  if (asText) return msg;
+  StudioUI.fail(msg);
+  return msg;
+};
 // Cohort keys of the corpus ("bracket:3", "source:edhrec", "variant:cedh") in plain words.
 const COHORT_PREFIX = { bracket: "Bracket", source: "Quelle", variant: "Variante", commander: "Commander", theme: "Thema", tag: "Marke" };
 const COHORT_VALUES = { cedh: "cEDH", core: "Core", upgraded: "Upgraded", optimized: "Optimized", exhibition: "Exhibition", edhrec: "EDHREC", archidekt: "Archidekt", moxfield: "Moxfield", topdeck: "TopDeck" };
@@ -493,8 +500,11 @@ function renderList(body) {
 }
 function bars(values, labels) {
   const top = Math.max(1, ...values);
-  return [h("div", { class: "bars" }, values.map((value) => h("div", { style: `height:${(100 * value) / top}%` }, h("span", {}, value)))),
-    h("div", { class: "axis" }, labels.map((label) => h("span", {}, label)))];
+  return [h("div", { class: "bars" }, values.map((value) => {
+    const pct = Math.max(0, Math.min(100, Math.round((100 * value) / top)));
+    return h("div", { class: `bh-${pct}` }, h("span", {}, value));
+  })),
+  h("div", { class: "axis" }, labels.map((label) => h("span", {}, label)))];
 }
 // ---------- deck filter: only source decks that contain all chosen cards ----------
 const poolNames = () => new Map(state.pool.filter((card) => !state.commanderIds.includes(card.card_id)).map((card) => [card.name.toLowerCase(), card.name]));
@@ -613,7 +623,9 @@ function renderDeckStatusBox(body) {
     ? `Median ${reference.role_coverage_median} in „${cohortName(state.cohort)}“`
     : "keine Vergleichsdaten";
   body.append(h("div", { class: "sim-box", id: "deck-status-box" },
-    h("b", {}, "Deck-Zustand (Beobachtung, keine Gesamtnote)"),
+    h("div", { class: "sim-monitor-head" },
+      h("b", {}, "Deck-Zustand (Beobachtung, keine Gesamtnote)"),
+      h("button", { type: "button", class: "small", onclick: () => { state.tab = "state"; renderDeck(); } }, "Zustand auf 1 Seite →")),
     h("table", {}, h("tbody", {},
       h("tr", {}, h("td", {}, "Karten & Länder"), h("td", {}, `${deckTotal()} / 100 Karten · ${shape ? shape.lands : 0} Länder (${landMed})`)),
       h("tr", {}, h("td", {}, "Rollen-Abdeckung"), h("td", {}, `${ownWithRole} von ${ownNonlandTotal} Nicht-Land-Karten mit Rolle (${roleMed})`)),
@@ -775,10 +787,15 @@ function renderNumbers(body) {
     const refMed = reference.role_coverage_median !== undefined && reference.role_coverage_median !== null
       ? `Median ${reference.role_coverage_median} Nicht-Land-Karten mit bekannter Rolle pro Quelldeck (${reference.decks_counted || 0} gezählte Decks)`
       : "keine Vergleichsdaten";
+    const poolRoleCounts = {};
+    for (const c of state.pool) {
+      for (const r of (c.roles || [])) poolRoleCounts[r] = (poolRoleCounts[r] || 0) + 1;
+    }
+    const poolTotalN = state.pool.length;
     body.append(h("h3", {}, "Rollen"),
-      h("p", { class: "note", id: "roles-coverage-note" }, `Rollen-Abdeckung: In deinem Deck tragen ${ownWithRole} von ${ownNonlandTotal} Nicht-Land-Karten mindestens eine Rolle · Vergleichsgruppe „${cohortName(state.cohort)}“: ${refMed} · Kartenpool gesamt: ${poolWithRole} von ${state.pool.length} Karten (${poolPct} %).`),
-      h("table", {}, h("thead", {}, h("tr", {}, h("th", {}, "Rolle"), h("th", { class: "num" }, "Dein Deck"), h("th", { class: "num" }, cohortName(state.cohort)))),
-        h("tbody", {}, state.roles.map((role) => h("tr", {}, h("td", {}, roleName(role)), h("td", { class: "num" }, state.deckRoles[role] || 0), h("td", { class: "num" }, span(spans[role])))))),
+      h("p", { class: "note", id: "roles-coverage-note" }, `Rollen-Abdeckung: In deinem Deck tragen ${ownWithRole} von ${ownNonlandTotal} Nicht-Land-Karten mindestens eine Rolle · Vergleichsgruppe „${cohortName(state.cohort)}“: ${refMed} · Kartenpool gesamt: ${poolWithRole} von ${poolTotalN} Karten (${poolPct} %).`),
+      h("table", {}, h("thead", {}, h("tr", {}, h("th", {}, "Rolle"), h("th", { class: "num" }, "Dein Deck"), h("th", { class: "num" }, cohortName(state.cohort)), h("th", { class: "num" }, "Im Pool belegt (n/N)"))),
+        h("tbody", {}, state.roles.map((role) => h("tr", {}, h("td", {}, roleName(role)), h("td", { class: "num" }, state.deckRoles[role] || 0), h("td", { class: "num" }, span(spans[role])), h("td", { class: "num" }, `${poolRoleCounts[role] || 0}/${poolTotalN}`))))),
       h("p", { class: "note" }, "Rollen sind öffentliche Marken der Scryfall-Gemeinschaft (Tagger). Eine Karte kann mehrere Rollen haben, und nicht jede Karte ist markiert. Vergleich: Median und mittlere Hälfte der gewählten Vergleichsgruppe."));
   }
   body.append(h("h3", {}, "Farben"), colors, h("p", { class: "note" }, "Gezählt aus den Kartendaten: Symbole in den Manakosten und Karten, die Mana dieser Farbe erzeugen können. Das ist eine Zählung, keine Bewertung."));
@@ -881,7 +898,9 @@ function renderCombos(body) {
     body.append(h("p", { class: "muted", id: "combos-empty" }, "Kein Commander gewählt. Die Kombo-Liste gehört zu einem Commander."));
     return;
   }
-  if (!combos || !combos.listed) {
+  const poolShells = (combos && combos.pool_shells) || [];
+  const tplSlots = (combos && combos.template_slots) || [];
+  if (!combos || (!combos.listed && !poolShells.length && !tplSlots.length)) {
     body.append(h("p", { class: "muted", id: "combos-empty" }, "Für diesen Commander ist keine Kombo-Liste gespeichert. Das heißt nicht, dass das Deck keine Kombos hat."));
     return;
   }
@@ -897,36 +916,87 @@ function renderCombos(body) {
       h("td", { class: "num" }, combo.num_decks.toLocaleString("de-DE")),
       h("td", {}, card && card.available > 0 && !qty(card.card_id) ? h("button", { class: "small", type: "button", title: `${card.name} ins Deck nehmen`, onclick: () => add(card) }, "+") : null));
   };
-  body.append(h("p", {}, `${combos.complete.length} von ${combos.listed} gelisteten Kombos sind vollständig im Deck, bei ${combos.one_missing.length} fehlt genau eine Karte.`));
-  if (combos.complete.length) {
-    body.append(h("table", { id: "combos-complete" }, h("thead", {}, h("tr", {}, h("th", {}, "Vollständig im Deck"), h("th", { class: "num" }, "Commander Spellbook global (alle Commander)"), h("th", {}, ""))), h("tbody", {}, combos.complete.map(row))));
+  if (combos.listed) {
+    body.append(h("p", {}, `${combos.complete.length} von ${combos.listed} gelisteten Kombos sind vollständig im Deck, bei ${combos.one_missing.length} fehlt genau eine Karte.`));
+    if (combos.complete.length) {
+      body.append(h("table", { id: "combos-complete" }, h("thead", {}, h("tr", {}, h("th", {}, "Vollständig im Deck"), h("th", { class: "num" }, "Commander Spellbook global (alle Commander)"), h("th", {}, ""))), h("tbody", {}, combos.complete.map(row))));
+    }
+    if (combos.one_missing.length) {
+      const inPool = [];
+      const outsidePool = [];
+      for (const combo of combos.one_missing) {
+        const known = combo.missing ? names.has(combo.missing.toLowerCase()) : false;
+        if (known) inPool.push(combo); else outsidePool.push(combo);
+      }
+      inPool.sort((a, b) => {
+        const ca = state.pool.find((item) => item.name.toLowerCase() === a.missing.toLowerCase());
+        const cb = state.pool.find((item) => item.name.toLowerCase() === b.missing.toLowerCase());
+        const fa = ca && ca.available > 0 ? 0 : 1;
+        const fb = cb && cb.available > 0 ? 0 : 1;
+        return fa - fb || b.num_decks - a.num_decks;
+      });
+      if (inPool.length) {
+        body.append(h("table", { id: "combos-missing" }, h("thead", {}, h("tr", {}, h("th", {}, "Es fehlt genau eine Karte (in deiner Sammlung)"), h("th", { class: "num" }, "Commander Spellbook global (alle Commander)"), h("th", {}, ""))), h("tbody", {}, inPool.map(row))));
+      }
+      if (outsidePool.length) {
+        body.append(h("details", { id: "combos-missing-unowned" },
+          h("summary", {}, `Fehlende Karte nicht in deiner Sammlung (${outsidePool.length} Kombos)`),
+          h("table", {}, h("thead", {}, h("tr", {}, h("th", {}, "Es fehlt genau eine Karte (nicht in deiner Sammlung)"), h("th", { class: "num" }, "Commander Spellbook global (alle Commander)"), h("th", {}, ""))), h("tbody", {}, outsidePool.map(row)))));
+      }
+    }
+    const sources = combos.sources || [];
+    body.append(h("p", { class: "note", id: "combos-source" }, sources.length ? `Quelle der Kombo-Liste: ${sources.map((item) => item.title + (item.snapshot_date ? ` (Stand ${item.snapshot_date})` : ` (eingelesen ${item.imported_at.slice(0, 10)})`)).join("; ")}.` : "Quelle der Kombo-Liste: nicht bekannt."));
+    body.append(h("p", { class: "note" }, combos.meaning));
   }
-  if (combos.one_missing.length) {
-    const inPool = [];
-    const outsidePool = [];
-    for (const combo of combos.one_missing) {
-      const known = combo.missing ? names.has(combo.missing.toLowerCase()) : false;
-      if (known) inPool.push(combo); else outsidePool.push(combo);
-    }
-    inPool.sort((a, b) => {
-      const ca = state.pool.find((item) => item.name.toLowerCase() === a.missing.toLowerCase());
-      const cb = state.pool.find((item) => item.name.toLowerCase() === b.missing.toLowerCase());
-      const fa = ca && ca.available > 0 ? 0 : 1;
-      const fb = cb && cb.available > 0 ? 0 : 1;
-      return fa - fb || b.num_decks - a.num_decks;
-    });
-    if (inPool.length) {
-      body.append(h("table", { id: "combos-missing" }, h("thead", {}, h("tr", {}, h("th", {}, "Es fehlt genau eine Karte (in deiner Sammlung)"), h("th", { class: "num" }, "Commander Spellbook global (alle Commander)"), h("th", {}, ""))), h("tbody", {}, inPool.map(row))));
-    }
-    if (outsidePool.length) {
-      body.append(h("details", { id: "combos-missing-unowned" },
-        h("summary", {}, `Fehlende Karte nicht in deiner Sammlung (${outsidePool.length} Kombos)`),
-        h("table", {}, h("thead", {}, h("tr", {}, h("th", {}, "Es fehlt genau eine Karte (nicht in deiner Sammlung)"), h("th", { class: "num" }, "Commander Spellbook global (alle Commander)"), h("th", {}, ""))), h("tbody", {}, outsidePool.map(row)))));
-    }
+  if (poolShells.length) {
+    body.append(h("h4", {}, `Spellbook Pool-Shells (${poolShells.length} vollständig im legalen Pool)`),
+      h("table", { id: "combos-pool-shells" },
+        h("thead", {}, h("tr", {}, h("th", {}, "Shell / Karten"), h("th", {}, "Status im Deck"), h("th", {}, "Ergebnis"))),
+        h("tbody", {}, poolShells.map((sh) => h("tr", {},
+          h("td", {}, `#${sh.shell_id}: ${(sh.uses || []).join(" + ")}`),
+          h("td", {}, sh.complete_in_deck ? h("span", { class: "pill good" }, "vollständig")
+            : (sh.missing_from_deck || []).map((name) => {
+              const info = (sh.available_missing || {})[name];
+              const card = info && info.card_id ? state.byId.get(info.card_id) : null;
+              return h("span", { class: "inline-item mr-2" }, `fehlt: ${name}`, card && info.available > 0 && !qty(card.card_id) ? h("button", { type: "button", class: "small ml-1", onclick: () => add(card) }, "+") : null);
+            })),
+          h("td", {}, (sh.produces || []).slice(0, 3).join("; ") || "–"))))));
   }
-  const sources = combos.sources || [];
-  body.append(h("p", { class: "note", id: "combos-source" }, sources.length ? `Quelle der Kombo-Liste: ${sources.map((item) => item.title + (item.snapshot_date ? ` (Stand ${item.snapshot_date})` : ` (eingelesen ${item.imported_at.slice(0, 10)})`)).join("; ")}.` : "Quelle der Kombo-Liste: nicht bekannt."));
-  body.append(h("p", { class: "note" }, combos.meaning));
+  if (tplSlots.length) {
+    const shownTpl = tplSlots.slice(0, 30);
+    const formatN = (obj) => obj && obj.hits !== null && obj.hits !== undefined ? `${obj.hits}/${obj.total}` : `unbekannt (N=${obj ? obj.total : "?"})`;
+    const tplRows = [];
+    for (const sh of shownTpl) {
+      for (const slot of sh.slots || []) {
+        const concrete = (sh.uses || []).map((u) => (sh.in_deck || []).includes(u) ? u : `[fehlt: ${u}]`).join(" + ");
+        const statusEl = slot.status === "UNKNOWN"
+          ? h("span", { class: "pill warn", title: slot.reason || "Query offline nicht auswertbar" }, "Erfüllung unbekannt")
+          : slot.fulfilled_in_deck ? h("span", { class: "pill good" }, "im Deck erfüllt")
+          : h("span", { class: "pill" }, `im Deck < ${slot.quantity}`);
+        const matchesEl = slot.status === "OK" && slot.matches_in_pool && slot.matches_in_pool.length
+          ? h("details", {}, h("summary", {}, `${slot.matches_in_pool_total} Treffer im Pool`),
+            h("div", {}, slot.matches_in_pool.slice(0, 10).map((m) => {
+              const card = state.byId.get(m.card_id);
+              return h("span", { class: "inline-item mr-2" },
+                m.name,
+                card && !m.in_deck && m.available > 0 && !qty(card.card_id)
+                  ? h("button", { type: "button", class: "small ml-1", onclick: () => add(card) }, "+") : null);
+            })))
+          : null;
+        tplRows.push(h("tr", {},
+          h("td", {}, `#${sh.shell_id}: ${concrete}`, h("div", { class: "muted" }, `${slot.name} (×${slot.quantity})`)),
+          h("td", {}, statusEl, slot.scryfall_query ? h("div", { class: "muted" }, slot.scryfall_query) : null, matchesEl),
+          h("td", { class: "num" }, formatN(slot.deck)),
+          h("td", { class: "num" }, formatN(slot.pool)),
+          h("td", { class: "num" }, formatN(slot.collection))));
+      }
+    }
+    body.append(h("h4", {}, `Kombo-Template-Slots (#1417 · ${tplSlots.length} Shells im Pool)`),
+      h("table", { id: "combos-template-slots" },
+        h("thead", {}, h("tr", {}, h("th", {}, "Shell & Template-Slot"), h("th", {}, "Status & Treffer"), h("th", { class: "num" }, "Deck (n/N)"), h("th", { class: "num" }, "Pool (n/N)"), h("th", { class: "num" }, "Sammlung (n/N)"))),
+        h("tbody", {}, tplRows)),
+      h("p", { class: "note" }, "Offline-Auswertung der Template-Queries gegen gespeicherte Kartendaten. Fehlende oder nicht unterstützte Query-Operatoren werden ausdrücklich als „Erfüllung unbekannt“ ausgewiesen (nie als 0)."));
+  }
 }
 const ENGINE_STATUS = { PASS: ["good", "bestanden"], FAIL: ["bad", "nicht bestanden"], UNKNOWN: ["warn", "nicht geprüft"] };
 async function runEngineCheck() {
@@ -1032,6 +1102,12 @@ async function diffCandidates() {
     const current = rows.find((row) => row.revision_id === state.baseRevision);
     if (current && current.parent_revision_id) options.push({ rev: current.parent_revision_id, label: `Vorheriger Stand der Variante ${state.branch}` });
   } catch (error) { /* without history only the variants are offered */ }
+  try {
+    const baseResp = await api(`/api/diff-baselines?${StudioCommander.query}`);
+    for (const item of baseResp.baselines || []) {
+      options.push({ rev: item.revision_id, label: item.label });
+    }
+  } catch (error) { /* optional repo baselines */ }
   const main = branches.find((item) => item.branch === "main");
   if (state.branch !== "main" && main) options.push({ rev: main.revision_id, label: "Neuester Stand der Variante main" });
   for (const item of branches) if (item.revision_id !== state.baseRevision || state.dirty) options.push({ rev: item.revision_id, label: `Variante ${item.branch} (aktuell gespeichert)` });
@@ -1166,7 +1242,7 @@ async function renderDiff(body) {
         }
       },
     }, "Vorfilter & Commander-Castability berechnen (HEURISTIC_MODEL)");
-    box.append(h("div", { class: "actions", style: "margin-top:10px" }, pfBtn), pfBox);
+    box.append(h("div", { class: "actions mt-2" }, pfBtn), pfBox);
   } catch (error) {
     box.replaceChildren(h("p", { class: "muted" }, "Differenz nicht lesbar: " + error.message));
   }
@@ -1194,8 +1270,72 @@ function pollBatch(batchId) {
     }
   }, 1200);
 }
+function pairedDeps() {
+  return {
+    h,
+    api,
+    entries,
+    fail,
+    toast,
+    openCard,
+    poolCardById: (id) => state.byId.get(id),
+    commander: COMMANDER,
+    commanderQuery: StudioCommander.query,
+    decks: () => state.decks,
+    currentDeckId: () => state.deckId,
+    currentRevision: () => state.baseRevision,
+    activePaired: () => state.activePaired,
+    setActivePaired: (v) => { state.activePaired = v; },
+    pairedHistory: () => state.pairedHistory,
+    readinessAudit: () => state.readinessAudit,
+    setReadinessAudit: (v) => { state.readinessAudit = v; },
+    pollPaired,
+    rerender: () => { if (state.tab === "sim") renderDeck(); },
+    token: () => state.renderToken,
+    isCurrent: (tok) => tok === state.renderToken && state.tab === "sim",
+  };
+}
+function pollPaired(seriesId) {
+  if (state.pairedPollTimer) clearTimeout(state.pairedPollTimer);
+  state.pairedPollTimer = setTimeout(async () => {
+    try {
+      const job = await api("/api/simulations/paired/" + encodeURIComponent(seriesId));
+      state.activePaired = job;
+      if (job.status === "completed" || job.status === "cancelled" || job.status === "failed") {
+        const [pairedList, recordedGames] = await Promise.all([
+          api("/api/simulations/paired").catch(() => []),
+          api("/api/games").catch(() => []),
+        ]);
+        state.pairedHistory = pairedList || [];
+        state.recordedGames = recordedGames || [];
+        if (state.tab === "sim") {
+          if (typeof refreshPairedSlots === "function" && document.getElementById("paired-monitor-slot")) {
+            refreshPairedSlots(pairedDeps());
+          } else {
+            renderDeck();
+          }
+        }
+      } else {
+        pollPaired(seriesId);
+        if (state.tab === "sim") {
+          if (typeof refreshPairedSlots === "function" && document.getElementById("paired-monitor-slot")) {
+            refreshPairedSlots(pairedDeps());
+          } else {
+            renderDeck();
+          }
+        }
+      }
+    } catch (err) {
+      console.warn("Poll paired error:", err);
+    }
+  }, 1200);
+}
 function renderSimulations(body) {
   body.append(h("div", { class: "actions" }, h("a", { class: "nav", href: "partie.html" }, "Partien-Ansicht & Neue Einzelpartie →")));
+
+  if (typeof renderPairedComparisonSection === "function") {
+    renderPairedComparisonSection(body, pairedDeps());
+  }
 
   // Batch simulation launcher & live monitor
   const bBox = h("div", { class: "sim-box" },
@@ -1386,10 +1526,98 @@ function renderSimulations(body) {
 }
 function renderDeck() {
   state.renderToken = (state.renderToken || 0) + 1;
-  const tabs = [["list", "Liste"], ["numbers", "Zahlen"], ["check", "Prüfung"], ["facts", "Bracket & Lücken"], ["compare", "Vergleich"], ["similar", "Ähnliche Decks"], ["diff", "Varianten-Diff"], ["sim", "Simulation"]];
+  const tabs = [
+    ["list", "Liste"],
+    ["state", "Zustand"],
+    ["numbers", "Zahlen"],
+    ["plan", "Bauplan"],
+    ["packages", "Pakete & Upgrade"],
+    ["check", "Prüfung"],
+    ["facts", "Bracket & Lücken"],
+    ["compare", "Vergleich"],
+    ["similar", "Ähnliche Decks"],
+    ["diff", "Varianten-Diff"],
+    ["cut", "Kürzen"],
+    ["sim", "Simulation"],
+  ];
   $("deck-tabs").replaceChildren(...tabs.map(([key, label]) => h("button", { type: "button", class: "chip" + (state.tab === key ? " on" : ""), "aria-pressed": state.tab === key, onclick: () => { state.tab = key; renderDeck(); } }, label)));
   const body = $("deck-body"); body.replaceChildren();
-  ({ list: renderList, numbers: renderNumbers, check: renderCheck, facts: renderFacts, compare: renderCompare, similar: renderSimilarDecks, diff: renderDiff, sim: renderSimulations })[state.tab](body);
+  const planPkgDeps = (tabKey) => ({
+    h, api, entries, fail, roleName, openCard, add, remove, cohortName,
+    poolCardById: (id) => state.byId.get(id),
+    cohort: () => state.cohort,
+    commander: COMMANDER,
+    token: () => state.renderToken,
+    isCurrent: (tok) => tok === state.renderToken && state.tab === tabKey,
+  });
+  ({
+    list: renderList,
+    state: renderOverview,
+    numbers: renderNumbers,
+    plan: (b) => renderBuildPlanTab(b, planPkgDeps("plan")),
+    packages: (b) => renderPackagesUpgradeTab(b, planPkgDeps("packages")),
+    check: renderCheck,
+    facts: renderFacts,
+    compare: renderCompare,
+    similar: renderSimilarDecks,
+    diff: renderDiff,
+    cut: renderCut,
+    sim: renderSimulations,
+  })[state.tab](body);
+}
+function renderOverview(body) {
+  if (typeof renderDeckOverview !== "function") {
+    body.append(h("p", { class: "muted" }, "Übersicht nicht geladen."));
+    return;
+  }
+  const reference = (state.shapes || []).find((row) => row.cohort === state.cohort) || {};
+  renderDeckOverview(body, {
+    h, api, entries, fail, cohortName, roleName, bars, qty, deckTotal,
+    openCard: (cardId) => { const card = typeof cardId === "string" ? state.byId.get(cardId) : cardId; if (card) openCard(card); },
+    deckCards,
+    commanderCards: () => state.commanderIds.map((id) => state.byId.get(id)).filter(Boolean),
+    shape: state.shape,
+    reference,
+    deckRoles: state.deckRoles,
+    pool: state.pool,
+    small: state.small,
+    cohort: state.cohort,
+    combos: state.combos,
+    issues: state.issues,
+    dirty: state.dirty,
+    deckId: state.deckId,
+    branch: state.branch,
+    changeSeq: state.changeSeq,
+    commander: COMMANDER,
+    getLandAdvisor: () => state.landAdvisor,
+    setLandAdvisor: (v) => { state.landAdvisor = v; },
+    getCastability: () => state.castability,
+    setCastability: (v) => { state.castability = v; },
+    getDeckFacts: () => state.deckFacts,
+    setDeckFacts: (v) => { state.deckFacts = v; },
+    getLayers: () => state.layers,
+    setLayers: (v) => { state.layers = v; },
+    token: () => state.renderToken,
+    isCurrent: (tok) => tok === state.renderToken && state.tab === "state",
+  });
+}
+function renderCut(body) {
+  renderCutLab(body, {
+    h, api, entries, fail, roleName, openCard, add, remove, qty, deckCards,
+    token: () => state.renderToken,
+    isCurrent: (token) => token === state.renderToken && state.tab === "cut",
+    deckId: () => `${state.deckId}::${state.branch}`, // the cut state belongs to one variant
+    commanderIds: () => state.commanderIds,
+    total: deckTotal,
+    card: (cardId) => state.byId.get(cardId),
+    pool: () => state.pool,
+    inDeck: (cardId) => qty(cardId) > 0,
+    cohort: () => state.cohort,
+    reference: () => (state.shapes || []).find((row) => row.cohort === state.cohort),
+    saveRevision: () => saveRevision(),
+    rerender: () => renderDeck(),
+    swap: (cutId, addId) => { const out = state.byId.get(cutId); const into = state.byId.get(addId); if (out && into) { remove(out); add(into); } },
+  });
 }
 // Shared hooks for the deck tabs kept in their own files (deckfacts.js, castability.js).
 function deckDeps(tab) {
@@ -1406,6 +1634,7 @@ function renderAll() { renderHeader(); renderPool(); renderDeck(); }
 async function renderSwapBox(into, card, initialMode = null) {
   const inDeck = qty(card.card_id) > 0;
   let mode = initialMode || (inDeck ? "replace" : "cut");
+  let sortBy = "hits";
   const load = async () => {
     into.replaceChildren(h("h3", {}, "Tausch-Helfer (gleiche Rolle)"), h("p", { class: "muted" }, "Lädt Kandidaten …"));
     try {
@@ -1417,19 +1646,22 @@ async function renderSwapBox(into, card, initialMode = null) {
         cohort: state.cohort,
         universe: state.universe || null,
         exclude_marked: true,
+        sort_by: sortBy,
       });
       const modeSwitch = h("div", { class: "actions" },
         h("button", { type: "button", class: "chip" + (mode === "replace" ? " on" : ""), onclick: () => { mode = "replace"; load(); } }, inDeck ? "Ersatz im Pool suchen" : "Andere Pool-Karten dieser Rolle"),
-        h("button", { type: "button", class: "chip" + (mode === "cut" ? " on" : ""), onclick: () => { mode = "cut"; load(); } }, inDeck ? "Streichkandidaten im Deck" : "Was im Deck streichen?"));
+        h("button", { type: "button", class: "chip" + (mode === "cut" ? " on" : ""), onclick: () => { mode = "cut"; load(); } }, inDeck ? "Streichkandidaten im Deck" : "Was im Deck streichen?"),
+        h("button", { type: "button", class: "chip" + (sortBy === "hits" ? " on" : ""), onclick: () => { sortBy = "hits"; load(); } }, "Sort: Häufigkeit"),
+        h("button", { type: "button", class: "chip" + (sortBy === "lift" ? " on" : ""), onclick: () => { sortBy = "lift"; load(); } }, "Sort: Lift"));
       if (!res.roles || !res.roles.length) {
         into.replaceChildren(h("h3", {}, "Tausch-Helfer (gleiche Rolle)"), modeSwitch, h("p", { class: "muted" }, res.note || "Keine Rolle für diese Karte hinterlegt."));
         return;
       }
       const roleBadges = res.roles.map((r) => roleName(r)).join(", ");
       const headerNote = h("p", { class: "note" },
-        `Rollen: ${roleBadges} · Sortiert nach Häufigkeit in „${res.source_label}“ (Nenner: ${res.of} Decks). `,
+        `Rollen: ${roleBadges} · Sortiert nach ${sortBy === "lift" ? "Lift (gegen globale EDHREC-Verbreitung)" : "Häufigkeit"} in „${cohortName(res.source_label)}“ (Nenner: ${res.of} Decks). `,
         res.small_sample ? h("span", { class: "pill low" }, `Kleine Stichprobe (< ${state.small} Decks)`) : null,
-        res.unknown_count ? ` · ${res.unknown_count} Karte(n) mit unbekannter Häufigkeit stehen am Ende (unbekannt ist nie „selten gespielt“).` : "");
+        res.unknown_count ? ` · ${res.unknown_count} Karte(n) mit unbekanntem Wert stehen am Ende (unbekannt ist nie „selten gespielt“).` : "");
       if (!res.candidates || !res.candidates.length) {
         into.replaceChildren(h("h3", {}, "Tausch-Helfer (gleiche Rolle)"), modeSwitch, headerNote, h("p", { class: "muted" }, "Keine passenden Karten mit gleicher Rolle gefunden."));
         return;
@@ -1441,11 +1673,13 @@ async function renderSwapBox(into, card, initialMode = null) {
           h("th", {}, "Gemeinsame Rolle"),
           h("th", { class: "num" }, "Decks (n/N)"),
           h("th", { class: "num" }, "Anteil"),
+          h("th", { class: "num" }, "Lift"),
           h("th", {}, ""))),
         h("tbody", {}, shown.map((cand) => {
           const other = state.byId.get(cand.card_id);
           const freqText = cand.decks_known && cand.decks !== null && cand.of ? `${cand.decks}/${cand.of}` : "unbekannt";
           const pctText = cand.decks_known && cand.share !== null ? `${(100 * cand.share).toFixed(1)} %` : "unbekannt";
+          const liftText = cand.lift === null || cand.lift === undefined ? "unbekannt" : Number(cand.lift).toFixed(2);
           let actionBtn = null;
           if (mode === "replace" && other) {
             if (inDeck && maxCopies(other) > 0) {
@@ -1465,6 +1699,7 @@ async function renderSwapBox(into, card, initialMode = null) {
             h("td", {}, (cand.shared_roles || []).map((r) => roleName(r)).join(", ")),
             h("td", { class: "num" }, freqText),
             h("td", { class: "num" }, pctText),
+            h("td", { class: "num" }, liftText),
             h("td", {}, actionBtn));
         })));
       into.replaceChildren(h("h3", {}, "Tausch-Helfer (gleiche Rolle)"), modeSwitch, headerNote, tbl);
@@ -1500,12 +1735,14 @@ async function openCard(card) {
   const frequencies = h("table", {}, h("thead", {}, h("tr", {}, h("th", {}, "Quelldecks"), h("th", { class: "num" }, "mit Karte"), h("th", { class: "num" }, "Decks"), h("th", { class: "num" }, "Anteil"))),
     h("tbody", {}, visibleCohortEntries(state.cohorts).map(([key]) => { const f = freq(card, key); return h("tr", { class: f.total < state.small ? "low" : "" }, h("td", {}, cohortName(key)), h("td", { class: "num" }, f.hits === null ? "unbekannt" : f.hits), h("td", { class: "num" }, f.total), h("td", { class: "num" }, f.hits !== null && f.total ? (100 * f.share).toFixed(1) + " %" : "unbekannt")); })));
   const swapBox = h("div", { id: "swap-helper-box" });
+  const duelBox = h("div", { id: "card-duel-box" });
+  const strengthBox = h("div", { id: "card-strength-box" });
   const extra = h("div", {}, h("p", { class: "muted" }, "Lädt EDHREC-Zeilen."));
   const layerBox = h("div", {});
   const right = h("div", {},
     h("h2", {}, card.name, " ", tierMark(card)), h("div", {}, mana(card.mana_cost), " ", h("span", { class: "muted" }, card.type_line), card.power !== null ? ` · ${card.power}/${card.toughness}` : ""),
-    h("p", { style: "white-space:pre-line" }, card.text),
-    card.roles.length ? h("p", {}, card.roles.map((role) => h("span", { class: "chip", style: "cursor:default;margin-right:4px" }, roleName(role)))) : null,
+    h("p", { class: "pre-line" }, card.text),
+    card.roles.length ? h("p", {}, card.roles.map((role) => h("span", { class: "chip chip-static mr-1" }, roleName(role)))) : null,
     h("p", { class: "note" }, `Sammlung: ${card.owned} im Besitz, ${card.available} frei` + (card.reserved ? `, ${card.reserved} reserviert` : "") + ` · Kartendaten: ${card.fact_source === "scryfall" ? "Scryfall" : "deine Tabelle"}` + (card.edhrec_rank ? ` · EDHREC-Rang ${card.edhrec_rank}` : "") + (card.game_changer ? " · Game Changer" : "") + ` · Simulator: ${card.sim_status || "unbekannt"}`),
     allocationDetail(h, card),
     h("div", { class: "actions" },
@@ -1516,14 +1753,25 @@ async function openCard(card) {
       h("button", { type: "button", onclick: closeModal }, "Schließen")),
     note, h("div", { class: "actions" }, h("button", { type: "button", onclick: () => saveMark({ note: note.value }) }, "Notiz speichern")),
     swapBox,
+    duelBox,
     h("h3", {}, "Archetyp-Marken"),
-    card.labels.length ? h("p", { id: "card-label-chips" }, card.labels.map((name) => h("span", { class: "chip", style: "cursor:default;margin-right:4px" }, name))) : h("p", { class: "muted" }, "Keine Marken. Sie ordnen deine Karten und zählen nirgends als Wertung."),
+    card.labels.length ? h("p", { id: "card-label-chips" }, card.labels.map((name) => h("span", { class: "chip chip-static mr-1" }, name))) : h("p", { class: "muted" }, "Keine Marken. Sie ordnen deine Karten und zählen nirgends als Wertung."),
     h("div", { class: "actions" }, labelInput, h("button", { type: "button", id: "card-labels-save", onclick: saveLabels }, "Marken speichern")),
     h("h3", {}, "Häufigkeit in den Quelldecks"), frequencies, h("p", { class: "note" }, "Gelb: Gruppe mit weniger als 30 Decks."),
+    h("p", {}, h("a", { href: `decks.html?commander=${encodeURIComponent(COMMANDER)}&must=${encodeURIComponent(card.name)}`, class: "chip" }, "Quelldecks mit dieser Karte im Deck-Browser öffnen →")),
     card.universe ? h("p", { class: "note" }, `Im Universum ${state.universe}: ${card.universe.filter_card ? "Filterkarte des Universums (steht per Definition in jedem Deck der Teilmenge, ohne Zählung und ohne Stufe)" : card.universe.matched ? `${card.universe.hits}/${card.universe.denominator} Decks, Stufe ${card.universe.level} (Verbreitung gezählt, keine Stärke)` : "unbekannt (kein Deck des Universums nennt diese Karte unter einem bekannten Namen)"}`) : null,
-    card.universe && state.universeInfo && state.universeInfo.subset_note ? h("p", { class: "note" }, state.universeInfo.subset_note) : null, layerBox, extra);
+    card.universe && state.universeInfo && state.universeInfo.subset_note ? h("p", { class: "note" }, state.universeInfo.subset_note) : null, strengthBox, layerBox, extra);
   box.append(left, right); $("modal").hidden = false;
   if (!state.commanderIds.includes(card.card_id) && !card.basic) renderSwapBox(swapBox, card, initialSwapMode);
+  if (!state.commanderIds.includes(card.card_id) && !card.basic) renderDuelBox(duelBox, card, {
+    h, api, fail, roleName, commander: COMMANDER,
+    groupName: (group) => GROUP_NAMES[group] || group,
+    pool: () => state.pool,
+    deckCardIds: () => [...state.commanderIds, ...state.list.keys()],
+    cohort: () => state.cohort,
+    cohortLabel: () => cohortName(state.cohort),
+  });
+  showStrengthBreakdown(strengthBox, card);
   showLayers(layerBox, card);
   try {
     const detail = await api(`/api/cards/${encodeURIComponent(card.card_id)}?${StudioCommander.query}&cohort=${encodeURIComponent(state.cohort)}`);
@@ -1562,16 +1810,19 @@ async function openCard(card) {
       });
       parts.push(h("h3", {}, `Zusammen gespielt in Quelldecks (${cohortName(co.cohort)}, Nenner: ${co.card_decks} Decks mit dieser Karte) `, smallCo ? h("span", { class: "pill low" }, `Kleine Stichprobe (< ${state.small} Decks)`) : null),
         h("table", {},
-          h("thead", {}, h("tr", {}, h("th", {}, "Karte in deiner Sammlung (ohne Standardländer)"), h("th", { class: "num" }, "gemeinsam / Nenner"), h("th", { class: "num" }, "Anteil"), h("th", {}, ""))),
+          h("thead", {}, h("tr", {}, h("th", {}, "Karte in deiner Sammlung (ohne Standardländer)"), h("th", { class: "num" }, "gemeinsam / Nenner"), h("th", { class: "num" }, "Anteil"), h("th", { class: "num" }, "Lift"), h("th", {}, "Kombo-Partner"), h("th", {}, ""))),
           h("tbody", {}, coRows.map((item) => {
             const other = state.byId.get(item.card_id);
+            const liftVal = item.lift === null || item.lift === undefined ? "unbekannt" : Number(item.lift).toFixed(2);
             return h("tr", { class: smallCo ? "low" : "" },
               h("td", { class: "name", onclick: () => { if (other) openCard(other); } }, item.name),
               h("td", { class: "num" }, `${item.both_hits}/${item.card_decks}`),
               h("td", { class: "num" }, `${(100 * item.share).toFixed(1)} %`),
+              h("td", { class: "num" }, liftVal),
+              h("td", {}, item.combo_partner ? "ja (Spellbook)" : "–"),
               h("td", {}, other && !qty(other.card_id) && maxCopies(other) > 0 ? h("button", { class: "small", type: "button", onclick: () => { add(other); openCard(card); } }, "+") : null));
           }))),
-        h("p", { class: "note" }, "Reine Zählung: wie oft eine andere Karte deiner Sammlung in denselben Quelldecks vorkommt."));
+        h("p", { class: "note" }, "Reine Zählung in den Quelldecks dieser Gruppe. Lift: Anteil mit dieser Karte geteilt durch den Gruppen-Anteil; Kombo-Partner laut geprüfter Spellbook-Liste."));
     }
     if (detail.neutral_boards && detail.neutral_boards.sections && detail.neutral_boards.sections.length) {
       const nb = detail.neutral_boards;
@@ -1635,6 +1886,58 @@ async function openCard(card) {
     extra.replaceChildren(...parts);
   } catch (error) { extra.replaceChildren(h("p", { class: "muted" }, "Zusatzdaten nicht lesbar: " + error.message)); }
 }
+function _strengthStatusText(c) {
+  if (c.status === "PRESENT") return "vorhanden";
+  if (c.status === "ZERO_COUNT") return "gezählt 0 von N (ZERO_COUNT)";
+  if (c.status === "NOT_COLLECTED") return "nicht erhoben";
+  if (c.status === "NOT_RANKED") return "nicht bewertet";
+  if (c.status === "FILTER_CARD") return "Filterkarte";
+  if (c.status === "NO_VALUE") return c.reason ? `kein Wert (${c.reason})` : "kein Wert";
+  return c.status || "unbekannt";
+}
+async function showStrengthBreakdown(into, card) {
+  if (!state.strength) {
+    into.replaceChildren(h("h3", {}, "Stärke-Index-Aufschlüsselung (v3)"), h("p", { class: "muted" }, "Lädt Signale …"));
+    await loadStrength();
+    if (!into.isConnected) return;
+  }
+  const st = state.strength && state.strength.map ? state.strength.map.get(card.card_id) : null;
+  if (!st) {
+    into.replaceChildren(h("h3", {}, "Stärke-Index-Aufschlüsselung (v3)"), h("p", { class: "muted" }, "Kein Stärke-Index für diese Karte geladen."));
+    return;
+  }
+  const nodes = [h("h3", {}, "Stärke-Index-Aufschlüsselung (v3 · Schätzung aus Nutzungsdaten)")];
+  const idxText = st.index !== null && st.index !== undefined ? st.index.toFixed(1) : "unbekannt";
+  const covText = st.coverage !== null && st.coverage !== undefined ? `${(100 * st.coverage).toFixed(0)} %` : "–";
+  const confText = st.confidence !== null && st.confidence !== undefined ? `${st.confidence_level || ""} (${st.confidence.toFixed(2)})` : "–";
+  nodes.push(h("p", {},
+    `Stufe ${st.tier} · Index ${idxText} · Datenlage ${covText} · Konfidenz ${confText}`,
+    st.borderline ? h("span", { class: "pill warn ml-1" }, `grenzwertig (${st.cut_distance.toFixed(1)} Pkt zu ${st.borderline_cut})`) : null));
+  const rankEntries = st.role_ranks ? Object.entries(st.role_ranks) : [];
+  if (rankEntries.length) {
+    nodes.push(h("p", {}, "Rang in der Funktion: ",
+      ...rankEntries.map(([r, info]) => h("span", { class: "chip chip-static mr-1" }, `${roleName(r)}: #${info.rank}/${info.total}`))));
+  }
+  const comps = st.components || [];
+  if (comps.length) {
+    nodes.push(h("table", {},
+      h("thead", {}, h("tr", {}, h("th", {}, "Signal"), h("th", { class: "num" }, "Zähler/Nenner"), h("th", { class: "num" }, "Rohwert"), h("th", { class: "num" }, "Score 0–100"), h("th", { class: "num" }, "Gewicht (wirksam)"), h("th", {}, "Status"))),
+      h("tbody", {}, comps.map((c) => {
+        const countStr = c.denominator ? (c.numerator === null || c.numerator === undefined ? `n = ${c.denominator}` : `${c.numerator}/${c.denominator}`) : "–";
+        const rawStr = c.value === null || c.value === undefined ? "unbekannt" : Number(c.value.toPrecision(4));
+        const scoreStr = c.percentile === null || c.percentile === undefined ? "–" : `${(100 * c.percentile).toFixed(1)}`;
+        return h("tr", {},
+          h("td", { title: c.signal || "" }, c.label || c.component),
+          h("td", { class: "num" }, countStr),
+          h("td", { class: "num" }, rawStr),
+          h("td", { class: "num" }, scoreStr),
+          h("td", { class: "num" }, c.weight),
+          h("td", {}, _strengthStatusText(c)));
+      }))));
+  }
+  nodes.push(h("p", { class: "note" }, "Schätzung aus Nutzungssignalen (keine Siegrate). Eigene Markierungen (Favorit/Ausschluss/Notiz) und Simulationen zählen mit Gewicht 0 / gar nicht."));
+  into.replaceChildren(...nodes);
+}
 // The rating layers of one card as a small table; loaded on its own, so the slower detail request does not hold it back.
 async function showLayers(into, card) {
   try {
@@ -1659,18 +1962,24 @@ function ratingLayers() {
 
 // ---------- Stärke-Index for the sort (the tier page's function, never a copy of its scoring) ----------
 async function loadStrength() {
-  if (state.strength || state.strengthLoading) return;
+  if (state.strength) return state.strength;
+  if (state.strengthPromise) return state.strengthPromise;
   state.strengthLoading = true;
-  try {
-    let settings = null;
-    try { settings = JSON.parse(StudioUI.recall("studio.strength.settings", "null")); } catch (error) { settings = null; }
-    let result;
-    try { result = await api("/api/strength", "POST", settings ? { commander: COMMANDER, settings } : { commander: COMMANDER }); }
-    catch (error) { result = await api("/api/strength", "POST", { commander: COMMANDER }); } // remembered settings may be outdated
-    state.strength = { map: new Map(result.cards.map((item) => [item.card_id, item])) };
-    if (state.sortKey === "strength") toast("Stärke-Index geladen (Schätzung aus Nutzungsdaten, Einstellungen der Tierliste).");
-    renderPool(); if (state.deckId) renderDeck();
-  } catch (error) { fail(error); } finally { state.strengthLoading = false; }
+  state.strengthPromise = (async () => {
+    try {
+      let settings = null;
+      try { settings = JSON.parse(StudioUI.recall("studio.strength.settings", "null")); } catch (error) { settings = null; }
+      let result;
+      try { result = await api("/api/strength", "POST", settings ? { commander: COMMANDER, settings } : { commander: COMMANDER }); }
+      catch (error) { result = await api("/api/strength", "POST", { commander: COMMANDER }); } // remembered settings may be outdated
+      state.strength = { result, map: new Map(result.cards.map((item) => [item.card_id, item])) };
+      if (state.sortKey === "strength") toast("Stärke-Index geladen (Schätzung aus Nutzungsdaten, Einstellungen der Tierliste).");
+      renderPool(); if (state.deckId) renderDeck();
+      return state.strength;
+    } catch (error) { fail(error); return null; }
+    finally { state.strengthLoading = false; state.strengthPromise = null; }
+  })();
+  return state.strengthPromise;
 }
 function renderSimReadiness() {
   const info = state.simReadiness, box = $("f-sim"), text = $("f-sim-text");
@@ -1720,6 +2029,7 @@ function renderBracketBar() {
     ["bracket:3", "B3"],
     ["bracket:4", "B4"],
     [b5Key, "B5 (cEDH)"],
+    ["tuned", "B4+5 (Tuned)"],
   ];
   bar.replaceChildren(
     h("span", { class: "muted" }, "Bracket:"),
@@ -1824,31 +2134,37 @@ function openNewDeckModal() {
 function openImportDecklistModal() {
   openInputModal({
     title: "Deckliste einfügen",
-    description: "Füge eine Text-Deckliste ein (z. B. „1 Sol Ring“ oder „1x Eternal Witness (2X2) 145“). Karten außerhalb deiner Sammlung werden sachlich gemeldet und nicht übernommen.",
-    placeholder: "1 Sol Ring\n1 Arcane Signet\n1 Command Tower\n...",
+    description: "Füge eine Text- oder CSV-Deckliste ein (Plain, Arena, MTGO, Moxfield, Archidekt, Deckstats, CSV). Schritt 1 prüft die Liste gegen Sammlung und Farbidentität; erst nach Bestätigung wird dein Entwurf überschrieben.",
+    placeholder: "1 Sol Ring\n1x Eternal Witness (2X2) 145\n...",
     multiline: true,
-    submitText: "Liste prüfen & übernehmen",
+    submitText: "Liste prüfen",
     onSubmit: async (text, statusBox) => {
       if (!(text || "").trim()) { toast("Bitte eine Deckliste einfügen."); return; }
       const parsed = await api("/api/decklist-parse", "POST", { commander: COMMANDER, text });
       const cards = (parsed.in_collection || []).map((row) => ({ card_id: row.card_id, quantity: row.quantity, zone: "main" }));
-      useCards(cards);
-      changed();
       const missing = parsed.not_in_collection || [];
       const illegal = parsed.outside_color_identity || [];
-      if (!missing.length && !illegal.length) {
+      const badLines = parsed.unrecognized_lines || [];
+      const applyImport = () => {
+        useCards(cards);
+        changed();
         closeModal();
         toast(`${parsed.summary.in_collection_cards} Karten in den Entwurf übernommen.`);
-        return;
-      }
+      };
       statusBox.replaceChildren(
-        h("p", { class: "note" }, `${parsed.summary.in_collection_cards} Karten in deiner Sammlung wurden in den Entwurf übernommen.`),
+        h("p", {}, h("b", {}, `Erkanntes Format: ${parsed.detected_format || "plain"}`), ` · ${parsed.summary.in_collection_cards} Karten in Sammlung gefunden`),
+        h("div", { class: "actions" },
+          h("button", { type: "button", class: "primary", onclick: applyImport }, `In Entwurf übernehmen (${parsed.summary.in_collection_cards} Karten)`),
+          h("button", { type: "button", onclick: closeModal }, "Verwerfen")),
+        illegal.length ? h("div", {},
+          h("h3", {}, `Außerhalb Farbidentität / Legalität (${illegal.length})`),
+          h("ul", {}, illegal.map((m) => h("li", {}, `${m.quantity}x ${m.name}${m.reason ? ` — ${m.reason}` : ""}`)))) : null,
         missing.length ? h("div", {},
           h("h3", {}, `Nicht in deiner Sammlung (${missing.length})`),
           h("ul", {}, missing.map((m) => h("li", {}, `${m.quantity}x ${m.name} — nicht in deiner Sammlung`)))) : null,
-        illegal.length ? h("div", {},
-          h("h3", {}, `Außerhalb der Farbidentität (${illegal.length})`),
-          h("ul", {}, illegal.map((m) => h("li", {}, `${m.quantity}x ${m.name}`)))) : null
+        badLines.length ? h("div", {},
+          h("h3", {}, `Nicht erkannte Zeilen (${badLines.length})`),
+          h("ul", {}, badLines.slice(0, 15).map((b) => h("li", {}, `Zeile ${b.line}: ${b.raw} (${b.reason})`)))) : null
       );
     },
   });
@@ -1973,19 +2289,78 @@ function openNewBranchModal() {
 async function showHistory() {
   const rows = await api(`/api/decks/${encodeURIComponent(state.deckId)}/history`);
   const box = $("modal-box"); box.className = "plain"; box.replaceChildren(h("h2", {}, "Verlauf"),
-    h("table", {}, h("thead", {}, h("tr", {}, h("th", {}, "Gespeichert"), h("th", { class: "num" }, "Karten"), h("th", {}, "Notiz"), h("th", {}, ""))),
-      h("tbody", {}, rows.map((row) => h("tr", {}, h("td", {}, row.created_at.replace("T", " ").replace("Z", "")), h("td", { class: "num" }, row.cards), h("td", {}, row.note),
-        h("td", {}, h("button", { type: "button", class: "small", onclick: async () => { const revision = await api(`/api/revisions/${encodeURIComponent(row.revision_id)}`); useCards(revision.cards); closeModal(); changed(); toast("Alter Stand geladen. Er wird erst mit Speichern zum aktuellen Stand."); } }, "Laden")))))),
+    h("table", {}, h("thead", {}, h("tr", {}, h("th", {}, "Gespeichert"), h("th", {}, "Variante"), h("th", { class: "num" }, "Karten"), h("th", {}, "Notiz"), h("th", {}, ""))),
+      h("tbody", {}, rows.map((row) => h("tr", {},
+        h("td", {}, row.created_at.replace("T", " ").replace("Z", "")),
+        h("td", {}, row.branch || "–"),
+        h("td", { class: "num" }, row.cards),
+        h("td", {}, row.note),
+        h("td", {}, h("div", { class: "actions" },
+          h("button", { type: "button", class: "small", onclick: async () => { const revision = await api(`/api/revisions/${encodeURIComponent(row.revision_id)}`); useCards(revision.cards); closeModal(); changed(); toast("Alter Stand geladen. Er wird erst mit Speichern zum aktuellen Stand."); } }, "Laden"),
+          h("button", { type: "button", class: "small", onclick: () => { state.diffBaseRev = row.revision_id; state.tab = "diff"; closeModal(); renderDeck(); } }, "Vergleichen"))))))),
     h("div", { class: "actions" }, h("button", { type: "button", onclick: closeModal }, "Schließen")));
   $("modal").hidden = false;
 }
+function _draftExportText() {
+  const lines = ["Commander"];
+  for (const cid of state.commanderIds || []) {
+    const card = state.byId.get(cid);
+    if (card) lines.push(`1 ${card.name}`);
+  }
+  lines.push("", "Deck");
+  const sorted = deckCards().slice().sort((a, b) => a.name.localeCompare(b.name));
+  for (const card of sorted) {
+    lines.push(`${state.list.get(card.card_id) || 1} ${card.name}`);
+  }
+  return lines.join("\n") + "\n";
+}
+function _draftExportSnapshot() {
+  const commanders = (state.commanderIds || []).map((cid) => (state.byId.get(cid) || {}).name || cid);
+  const deck = state.decks.find((item) => item.deck_id === state.deckId);
+  const cards = (state.commanderIds || []).map((cid) => ({ oracle_name: (state.byId.get(cid) || {}).name || cid, quantity: 1, zone: "commander" }));
+  for (const card of deckCards().slice().sort((a, b) => a.name.localeCompare(b.name))) {
+    cards.push({ oracle_name: card.name, quantity: state.list.get(card.card_id) || 1, zone: "main" });
+  }
+  return JSON.stringify({
+    deck_id: state.deckId || "draft",
+    name: `${(deck && deck.name) || state.deckId || "Entwurf"} (Entwurf)`,
+    studio_revision_id: state.baseRevision || null,
+    commander: { commanders, uses_partner: commanders.length > 1, commander_identity_override: null },
+    cards,
+  }, null, 2) + "\n";
+}
+function _downloadBlob(filename, content, mime) {
+  const blob = new Blob([content], { type: mime });
+  const url = URL.createObjectURL(blob);
+  const link = h("a", { href: url, download: filename });
+  document.body.append(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
 function showExport() {
-  if (state.dirty) { toast("Bitte zuerst als Stand speichern. Exportiert wird immer ein gespeicherter Stand."); return; }
-  const base = `/api/revisions/${encodeURIComponent(state.baseRevision)}/export`;
-  const box = $("modal-box"); box.className = "plain"; box.replaceChildren(h("h2", {}, "Export"),
-    h("p", {}, "Exportiert wird der gespeicherte Stand ", h("code", {}, state.baseRevision), "."),
-    h("div", { class: "actions" }, h("a", { href: base + "?format=txt", target: "_blank", rel: "noopener" }, "Deckliste als Text"), h("a", { href: base + "?format=json", target: "_blank", rel: "noopener" }, "Deck für die Simulation (JSON)")),
-    h("div", { class: "actions" }, h("button", { type: "button", onclick: closeModal }, "Schließen")));
+  const box = $("modal-box"); box.className = "plain";
+  const slug = (state.deckId || "deck").replace(/[^a-zA-Z0-9_-]+/g, "_");
+  const nodes = [h("h2", {}, "Export")];
+  if (state.dirty || !state.baseRevision) {
+    nodes.push(
+      h("p", { class: "note" }, "Aktueller Entwurf (noch nicht als Stand gespeichert) — kann direkt als Textdatei oder JSON heruntergeladen werden."),
+      h("div", { class: "actions" },
+        h("button", { type: "button", class: "primary", onclick: () => _downloadBlob(`${slug}-entwurf.txt`, _draftExportText(), "text/plain;charset=utf-8") }, "Entwurf als Text (.txt)"),
+        h("button", { type: "button", onclick: () => _downloadBlob(`${slug}-entwurf.json`, _draftExportSnapshot(), "application/json;charset=utf-8") }, "Entwurf für Simulation (.json)"))
+    );
+  }
+  if (state.baseRevision) {
+    const base = `/api/revisions/${encodeURIComponent(state.baseRevision)}/export`;
+    nodes.push(
+      h("p", {}, state.dirty ? "Zuletzt gespeicherter Stand " : "Gespeicherter Stand ", h("code", {}, state.baseRevision), ":"),
+      h("div", { class: "actions" },
+        h("a", { href: base + "?format=txt", target: "_blank", rel: "noopener" }, "Gespeicherter Stand als Text"),
+        h("a", { href: base + "?format=json", target: "_blank", rel: "noopener" }, "Gespeicherter Stand für Simulation (JSON)"))
+    );
+  }
+  nodes.push(h("div", { class: "actions" }, h("button", { type: "button", onclick: closeModal }, "Schließen")));
+  box.replaceChildren(...nodes);
   $("modal").hidden = false;
 }
 
@@ -2069,9 +2444,12 @@ async function start() {
       state.universe = "";
       return api("/api/pool?" + StudioCommander.query);
     });
-    const [shapes, sims, recordedGames] = await Promise.all([api("/api/cohorts?" + StudioCommander.query), api("/api/simulations?" + StudioCommander.query), api("/api/games").catch(() => [])]);
+    const [shapes, sims, recordedGames, pairedList] = await Promise.all([api("/api/cohorts?" + StudioCommander.query), api("/api/simulations?" + StudioCommander.query), api("/api/games").catch(() => []), api("/api/simulations/paired").catch(() => [])]);
     applyPool(pool);
     state.shapes = shapes; state.simulations = sims || []; state.recordedGames = recordedGames || [];
+    state.pairedHistory = pairedList || [];
+    const runningPaired = state.pairedHistory.find((j) => j.status === "running" || j.status === "pending");
+    if (runningPaired) { state.activePaired = runningPaired; pollPaired(runningPaired.series_id); }
     setupControls(); await loadDecks(); await loadBranch();
   } catch (error) {
     $("pool-body").replaceChildren(h("p", {}, "Das Studio konnte die Daten nicht laden: " + error.message), h("p", { class: "muted" }, `Gewählter Commander: ${COMMANDER}. Er muss in der Sammlung stehen; sonst oben einen anderen Commander wählen. Sind Sammlung und Kartendaten importiert?`));

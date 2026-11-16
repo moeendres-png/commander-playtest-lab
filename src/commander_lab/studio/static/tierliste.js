@@ -268,7 +268,14 @@ function featureBadges(card) {
 function roleBadges(card) {
   const claims = layer(card, "fact").roles;
   if (!claims.length) return unknown("keine Rolle erfasst");
-  return claims.map((claim) => h("span", { class: "badge", title: `Herkunft: ${ORIGIN_NAMES[claim.origin] || claim.origin}` }, `${roleName(claim.role)} · ${ORIGIN_NAMES[claim.origin] || claim.origin}`));
+  const item = strengthItem(card);
+  const ranks = item && item.role_ranks ? item.role_ranks : {};
+  return claims.map((claim) => {
+    const rInfo = ranks[claim.role];
+    const rankSuffix = rInfo ? ` · #${rInfo.rank}/${rInfo.total}` : "";
+    const title = `Herkunft: ${ORIGIN_NAMES[claim.origin] || claim.origin}` + (rInfo ? ` · Rang ${rInfo.rank} von ${rInfo.total} in ${roleName(claim.role)} (aktueller Index)` : "");
+    return h("span", { class: "badge", title }, `${roleName(claim.role)}${rankSuffix}`);
+  });
 }
 function corpusCell(card) {
   const item = corpusAll(card);
@@ -556,6 +563,11 @@ function strengthDetail(item) {
     out.push(h("p", { id: "confidence-line" }, `Konfidenz ${level} (${item.confidence.toFixed(2)}). ${CONFIDENCE_TEXT}`));
   }
   if (item.borderline) out.push(h("p", { id: "borderline-detail" }, h("span", { class: "borderline" }, "grenzwertig"), ` Der Index ${item.index.toFixed(1)} liegt ${item.cut_distance.toFixed(1)} Punkte von der Grenze ${item.borderline_cut}.`));
+  const roleRanks = item.role_ranks ? Object.entries(item.role_ranks) : [];
+  if (roleRanks.length) {
+    out.push(h("p", { id: "role-ranks-line" }, "Rang in der Funktion (aktueller Index): ",
+      ...roleRanks.map(([role, rInfo]) => h("span", { class: "badge mr-1" }, `${roleName(role)}: #${rInfo.rank}/${rInfo.total}`))));
+  }
   out.push(h("h4", {}, "Objektive Signale (zählen mit Gewicht)"), table(SIGNAL_HEADS, objective.map(signalRow)));
   if (subjective.length) out.push(h("div", { class: "block-subjective", id: "block-subjective" }, h("h4", {}, subjective[0].weight > 0 ? `Subjektiv, Gewicht ${subjective[0].weight}: zählt mit (Einstellung)` : "Subjektiv, Gewicht 0: zählt nicht"), h("p", {}, subjective[0].weight > 0 ? "Die Raster-Bewertung ist eine persönliche Einschätzung, kein objektives Signal. Dieses Profil gibt ihr ein Gewicht; die Empfehlung ist 0." : "Die Raster-Bewertung ist eine persönliche Einschätzung, kein objektives Signal. Sie fließt nicht in Index und Stufe ein."), table(SIGNAL_HEADS, subjective.map(signalRow))));
   if (simulation.length) out.push(h("div", { class: "block-simulation", id: "block-simulation" }, h("h4", {}, "Simulation: Gewicht 0, nicht erhoben"), h("p", {}, "Ergebnisse aus Simulationen sind keine Beobachtung aus echten Partien und fließen nie in den Index."), table(SIGNAL_HEADS, simulation.map(signalRow))));
