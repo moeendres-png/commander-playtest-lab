@@ -403,7 +403,7 @@ def test_offline_scryfall_query_evaluator_and_fail_closed() -> None:
         },
     ]
     st, reason, hits = combos.evaluate_scryfall_query(
-        "t:creature kw:flying mv<=2 (mana={U} OR c:u) is:permanent legal:commander",
+        "t:creature kw:flying mv<=2 (mana={U} OR id=u) is:permanent legal:commander",
         cards,
     )
     assert st == "OK"

@@ -14,7 +14,6 @@ def _card(
     colors: str,
     identity: str | None = None,
     keywords: frozenset[str] = frozenset(),
-    colors_known: bool = True,
 ) -> dict[str, object]:
     return {
         "name": name,
@@ -25,8 +24,6 @@ def _card(
         "mana_value": 1.0,
         "mana_cost": cost,
         "identity": frozenset(colors if identity is None else identity),
-        "mana_colors": frozenset(colors),
-        "colors_known": colors_known,
         "commander_legal": True,
         "power": None,
         "toughness": None,
@@ -68,49 +65,32 @@ def test_type_is_case_insensitive_substring_of_the_type_line() -> None:
 
 
 @pytest.mark.parametrize(
-    ("query", "expected"),
-    [
-        ("c:blue", {"Mono Blue", "Azorius Duo", "Esper Trio"}),
-        ("c:u", {"Mono Blue", "Azorius Duo", "Esper Trio"}),
-        ("color:red", {"Mono Red"}),
-        ("c:wu", {"Azorius Duo", "Esper Trio"}),
-        ("c>=wu", {"Azorius Duo", "Esper Trio"}),
-        ("c:azorius", {"Azorius Duo", "Esper Trio"}),
-        ("c=azorius", {"Azorius Duo"}),
-        ("c=esper", {"Esper Trio"}),
-        ("c<=wu", {"Mono Blue", "Azorius Duo", "Sol Ring", "Eldrazi Devoid", "Red Land Pinger"}),
-        ("c<wu", {"Mono Blue", "Sol Ring", "Eldrazi Devoid", "Red Land Pinger"}),
-        ("c>u", {"Azorius Duo", "Esper Trio"}),
-        ("c:c", {"Sol Ring", "Eldrazi Devoid", "Red Land Pinger"}),
-        ("c:colorless", {"Sol Ring", "Eldrazi Devoid", "Red Land Pinger"}),
-        ("-c:colorless", {"Mono Blue", "Mono Red", "Azorius Duo", "Esper Trio"}),
-    ],
-)
-def test_color_semantics(query: str, expected: set[str]) -> None:
-    assert set(_names(query)) == expected
-
-
-@pytest.mark.parametrize(
     "query",
     [
-        "c:m",
-        "c:multicolor",
-        "c:blueish",
-        "c:bl",  # letters of the word blue, not color letters
-        "c:wc",  # colorless mixed with a color
-        "c:ux",
-        "c>=colorless",
-        "c<=c",
-        "c!=u",
-        "color:chaos",
-        "id:esper",  # ':' for identity is not evaluated offline
-        "id:wu",
-        "id:m",
-        "id:blue",
+        "c:blue", "c:u", "color:red", "c:wu", "c>=wu", "c:azorius", "c=esper", "c<=wu",
+        "c<wu", "c>u", "c:c", "c:colorless", "-c:colorless", "c:m", "c:multicolor",
+        "c:blueish", "c:bl", "c:wc", "c>=colorless", "c!=u", "color:chaos", "c=r",
+        "t:creature c:b",
+        "id:esper", "id:wu", "id:m", "id:blue", "id:wc", "id>=colorless", "id!=u",
     ],
-)
-def test_unsupported_color_values_are_unknown(query: str) -> None:
+)  # fmt: skip
+def test_card_color_and_unsupported_identity_values_are_unknown(query: str) -> None:
+    # Card color is not exact from the mana cost (indicator, Prepare, DFC faces).
     assert _unknown(query).startswith("UNSUPPORTED_QUERY")
+
+
+def test_prepare_and_dfc_color_cases_are_unknown_never_a_hit() -> None:
+    prepare = _card(
+        "Hallway Heckler // Vicious Verse", "Creature // Sorcery", "{2}{R} // {B/R}", "BR"
+    )
+    brigid = _card(
+        "Brigid, Clachan's Heart // Brigid, Doun's Grace", "Legendary Creature", "{2}{W}", "W"
+    )
+    reasons = [
+        _unknown(query, [prepare, brigid])
+        for query in ("c:b", "c=r", "c>r", "c:g", "c=g", "c<=quandrix")
+    ]
+    assert len(reasons) == 6
 
 
 def test_identity_semantics() -> None:
@@ -128,19 +108,13 @@ def test_identity_semantics() -> None:
     assert set(_names("id=azorius")) == {"Azorius Duo"}
 
 
-def test_color_of_a_card_without_certain_color_makes_the_count_unknown() -> None:
-    indicator = _card("Indicator Card", "Creature — Kobold", "{0}", "", colors_known=False)
-    _unknown("c:red", [*CARDS, indicator])
-    _unknown("-c:blue", [*CARDS, indicator])
-    # Identity and type queries do not depend on the card color.
-    assert _names("t:kobold", [*CARDS, indicator]) == ["Indicator Card"]
-    assert "Indicator Card" not in _names("id=esper", [*CARDS, indicator])
-
-
-def test_colors_known_rule() -> None:
-    assert combos._colors_known("{U}", "Creature") is True
-    assert combos._colors_known("", "Basic Land — Island") is True
-    assert combos._colors_known("", "Land Creature — Forest Dryad") is False
-    assert combos._colors_known("", "Enchantment") is False
-    assert combos._colors_known("{0}", "Artifact") is True
-    assert combos._colors_known("{0}", "Legendary Creature — Kobold") is False
+def test_type_phrase_whitespace_is_normalized() -> None:
+    cards = [
+        _card("Forest", "Basic  Land — Forest", "", ""),
+        _card("Sol Ring", "Artifact", "{1}", ""),
+    ]
+    assert _names('t:"basic  land"', cards) == ["Forest"]
+    assert _names('t:"basic land"', cards) == ["Forest"]
+    assert _names('t:" basic"', cards) == ["Forest"]
+    assert _names('t:"land "', cards) == _names("t:land", cards) == ["Forest"]
+    _unknown('t:" "', cards)
