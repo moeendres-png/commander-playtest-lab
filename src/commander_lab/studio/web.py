@@ -42,6 +42,8 @@ from . import (
     land_advisor,
     launch,
     packages,
+    paired_comparison,
+    paired_series,
     queries,
     signals,
     similar_decks,
@@ -195,6 +197,31 @@ class BatchSimulationBody(BaseModel):
     style: float | None = Field(default=None, ge=0.0, le=1.0)
     workers: int | None = Field(default=None, ge=MIN_WORKERS, le=MAX_WORKERS)
     games_per_jvm: int | None = Field(default=None, ge=MIN_GAMES_PER_JVM, le=MAX_GAMES_PER_JVM)
+
+
+class PairedSeriesBody(BaseModel):
+    base_revision_id: str = Field(min_length=1, max_length=200)
+    variant_revision_id: str = Field(min_length=1, max_length=200)
+    pod: str = Field(default="precon", max_length=50)
+    opponent_ids: list[str] | None = None
+    budget_pairs: int = Field(
+        default=20,
+        ge=paired_comparison.MIN_BUDGET_PAIRS,
+        le=paired_comparison.MAX_BUDGET_PAIRS,
+    )
+    look_every_pairs: int = Field(default=4, ge=1, le=100)
+    base_seed: int = Field(default=1000, ge=0, le=2_000_000_000)
+    rotate_seats: bool = True
+    threshold_pp: float = Field(default=paired_comparison.DEFAULT_THRESHOLD_PP, ge=-50.0, le=50.0)
+    significance_level: float = Field(
+        default=paired_comparison.DEFAULT_SIGNIFICANCE_LEVEL, gt=0.0, lt=0.5
+    )
+
+
+class ReadinessAuditBody(BaseModel):
+    commander: str | list[str]
+    cards: list[CardEntry] | None = None
+    tiers: list[str] = Field(default_factory=lambda: ["S", "A"], max_length=5)
 
 
 class NamesBody(BaseModel):
@@ -949,6 +976,89 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         from .simulations import simulation_manager
 
         return simulation_manager.list_batches()
+
+    @app.post("/api/simulations/paired")
+    def start_paired_series(body: PairedSeriesBody) -> dict[str, object]:
+        """Start a paired overnight A-vs-B comparison series (same seeds, seats, pod)."""
+        store = open_store()
+        try:
+            job = paired_series.paired_series_manager.start_series(
+                store,
+                games_home(),
+                base_revision_id=body.base_revision_id,
+                variant_revision_id=body.variant_revision_id,
+                pod=body.pod,
+                opponent_ids=body.opponent_ids,
+                budget_pairs=body.budget_pairs,
+                look_every_pairs=body.look_every_pairs,
+                base_seed=body.base_seed,
+                rotate_seats=body.rotate_seats,
+                threshold_pp=body.threshold_pp,
+                significance_level=body.significance_level,
+            )
+            return job.to_dict()
+        except KeyError as error:
+            raise HTTPException(404, f"unknown deck revision: {error}") from error
+        except ValueError as error:
+            raise HTTPException(422, str(error)) from error
+        except RuntimeError as error:
+            raise HTTPException(409, str(error)) from error
+        finally:
+            store.close()
+
+    @app.get("/api/simulations/paired")
+    def list_paired_series() -> list[dict[str, object]]:
+        """List recent paired A-vs-B comparison series."""
+        return paired_series.paired_series_manager.list_series(games_home())
+
+    @app.get("/api/simulations/paired/{series_id}")
+    def get_paired_series(series_id: str) -> dict[str, object]:
+        """Status and sequential statistics of one paired comparison series."""
+        try:
+            found = paired_series.paired_series_manager.get_series(games_home(), series_id)
+        except ValueError as error:
+            raise HTTPException(422, str(error)) from error
+        if found is None:
+            raise HTTPException(404, "unknown paired series")
+        return found
+
+    @app.post("/api/simulations/paired/{series_id}/cancel")
+    def cancel_paired_series(series_id: str) -> dict[str, object]:
+        """Request cancellation of a running paired comparison series."""
+        try:
+            cancelled = paired_series.paired_series_manager.cancel_series(series_id)
+            if not cancelled:
+                raise HTTPException(404, "unknown paired series")
+            found = paired_series.paired_series_manager.get_series(games_home(), series_id)
+            return found if found is not None else {"cancelled": True}
+        except ValueError as error:
+            raise HTTPException(422, str(error)) from error
+
+    @app.post("/api/simulations/readiness-audit")
+    def readiness_audit_route(body: ReadinessAuditBody) -> dict[str, object]:
+        """C-3 audit: check XMage card facts and pilot knowledge for deck + free Tier-S/A pool."""
+        commanders = (
+            [body.commander.strip()]
+            if isinstance(body.commander, str)
+            else [str(c).strip() for c in body.commander if str(c).strip()]
+        )
+        commanders = [c for c in commanders if c]
+        if not commanders:
+            raise HTTPException(422, "commander is required")
+        store = open_store()
+        try:
+            return paired_series.simulator_readiness_audit(
+                store,
+                commanders,
+                cards=_cards(body.cards) if body.cards is not None else None,
+                tiers=body.tiers or ["S", "A"],
+            )
+        except KeyError as error:
+            raise HTTPException(404, f"unknown commander or card: {error}") from error
+        except ValueError as error:
+            raise HTTPException(422, str(error)) from error
+        finally:
+            store.close()
 
     def _resolve_base_cards(store: StudioStore, base_revision_id: str) -> list[RevisionCard]:
         if base_revision_id.startswith("repo:"):
