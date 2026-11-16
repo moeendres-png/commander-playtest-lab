@@ -115,7 +115,9 @@ def bridge_qualification(repo_dir: str | Path | None = None) -> dict[str, object
     # Check uncommitted changes under engine-bridge/ first. Untracked files count
     # too: a jar built from this tree would contain them, so they must read as
     # dirty. Gitignored build output (target/, db/) stays invisible via .gitignore.
-    dirty_out = _git(root, "status", "--porcelain", "--untracked-files=normal", "--", f"{_BRIDGE_REL}/")
+    dirty_out = _git(
+        root, "status", "--porcelain", "--untracked-files=normal", "--", f"{_BRIDGE_REL}/"
+    )
     bridge_dirty: bool | None = None if dirty_out is None else bool(dirty_out.strip())
 
     # Resolve both trees via git rev-parse in one subprocess where possible.
