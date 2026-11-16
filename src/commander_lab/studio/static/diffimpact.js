@@ -56,9 +56,12 @@ function diffImpactNodes(h, diff, deps) {
   }
   const combo = diff.combo_delta;
   if (combo) {
-    const text = combo.listed
-      ? `Vollständige gelistete Kombos: ${combo.base_complete} → ${combo.target_complete} (von ${combo.listed} gelisteten)`
-      : "Keine Kombo-Liste für diesen Commander gespeichert: Veränderung unbekannt.";
+    const side = (complete, listed) => listed ? `${complete} von ${listed} gelisteten` : "unbekannt (keine Kombo-Liste)";
+    const text = !combo.comparable
+      ? `Anderer Commander – nicht vergleichbar. Je Seite gegen die eigene Liste: Basis ${side(combo.base_complete, combo.base_listed)}, aktuell ${side(combo.target_complete, combo.listed)}.`
+      : combo.listed
+        ? `Vollständige gelistete Kombos: ${combo.base_complete} → ${combo.target_complete} (von ${combo.listed} gelisteten)`
+        : "Keine Kombo-Liste für diesen Commander gespeichert: Veränderung unbekannt.";
     nodes.push(h("h3", {}, "Kombos (gespeicherte Liste)"), h("p", { id: "diff-combos" }, text));
     if (combo.now_complete.length) nodes.push(h("p", {}, "Neu vollständig: " + combo.now_complete.map((cards) => cards.join(" + ")).join(" · ")));
     if (combo.no_longer_complete.length) nodes.push(h("p", {}, "Nicht mehr vollständig: " + combo.no_longer_complete.map((cards) => cards.join(" + ")).join(" · ")));
@@ -66,7 +69,8 @@ function diffImpactNodes(h, diff, deps) {
   if (diff.added.length) nodes.push(...diffCardTable(h, `Hinzugefügt (+${diff.added.length})`, diff.added, (item) => "+" + item.quantity, deps));
   if (diff.removed.length) nodes.push(...diffCardTable(h, `Entfernt (−${diff.removed.length})`, diff.removed, (item) => "−" + item.quantity, deps));
   if (diff.changed.length) nodes.push(...diffCardTable(h, "Mengenänderung", diff.changed, (item) => `${item.base_quantity}→${item.target_quantity}`, deps));
-  if (diff.cohort && diff.cohort.small) nodes.push(h("p", { class: "note warn" }, `Kleine Vergleichsgruppe: ${diff.cohort.decks} Decks (unter 30).`));
+  if (diff.commanders && !diff.commanders.same) nodes.push(h("p", { class: "note" }, `Anderer Commander: Häufigkeiten hinzugefügter Karten aus den Quelldecks von ${diff.commanders.target.join(" + ") || "–"}, entfernter Karten aus denen von ${diff.commanders.base.join(" + ") || "–"}.`));
+  if (diff.cohort && diff.cohort.small) nodes.push(h("p", { class: "note warn" }, "Kleine Vergleichsgruppe (unter 30 Decks): " + [diff.cohort.decks, diff.cohort.base_decks].filter((n) => n !== null && n !== undefined).join(" bzw. ") + " Decks."));
   nodes.push(h("p", { class: "note" }, "Nur gezählte Größen: Spielhäufigkeit heißt, wie viele Quelldecks des Commanders die Karte spielen – keine Aussage, ob ein Tausch besser ist. „unbekannt“: kein Quelldeck nennt die Karte."));
   return nodes;
 }

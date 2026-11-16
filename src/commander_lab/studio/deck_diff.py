@@ -81,24 +81,36 @@ def diff_impact(
         for key in (str(value) for value in range(8))
     }
 
-    commanders = sorted(
-        {
-            str(row["oracle_name"])
-            for row in [*base_rows, *target_rows]
-            if row["zone"] == "commander"
-        }
+    base_commanders = sorted({str(r["oracle_name"]) for r in base_rows if r["zone"] == "commander"})
+    target_commanders = sorted(
+        {str(r["oracle_name"]) for r in target_rows if r["zone"] == "commander"}
     )
-    base_combos = combos.deck_combos(store, base_rows, commanders)
-    target_combos = combos.deck_combos(store, target_rows, commanders)
+    same_commander = base_commanders == target_commanders
+    # Each side is read against its own commander's combo list: lists of two commanders are
+    # never mixed. Only with the same commander(s) is a before/after transition shown.
+    base_combos = combos.deck_combos(store, base_rows, base_commanders)
+    target_combos = combos.deck_combos(store, target_rows, target_commanders)
     before = _combo_keys(base_combos)
     after = _combo_keys(target_combos)
+    base_listed = int(str(base_combos.get("listed") or 0))
     listed = int(str(target_combos.get("listed") or 0))
     result["combo_delta"] = {
+        "comparable": same_commander,
         "listed": listed,
-        "base_complete": len(before) if listed else None,
+        "base_listed": base_listed,
+        "base_complete": len(before) if base_listed else None,
         "target_complete": len(after) if listed else None,
-        "now_complete": [after[key] for key in sorted(set(after) - set(before))],
-        "no_longer_complete": [before[key] for key in sorted(set(before) - set(after))],
+        "now_complete": (
+            [after[key] for key in sorted(set(after) - set(before))] if same_commander else []
+        ),
+        "no_longer_complete": (
+            [before[key] for key in sorted(set(before) - set(after))] if same_commander else []
+        ),
+    }
+    result["commanders"] = {
+        "base": base_commanders,
+        "target": target_commanders,
+        "same": same_commander,
     }
 
     base_slots = _slots(base_cards)
@@ -111,9 +123,18 @@ def diff_impact(
         "meaning": "gemeinsame Kartenplätze (Commander eingeschlossen), gezählt, keine Wertung",
     }
 
-    sizes = builder.cohort_sizes(store, commanders) if commanders else {}
-    of = sizes.get(cohort)
-    hits = builder._corpus_hits(store, commanders) if commanders else {}
+    # Frequencies of a card come from the source decks of the side it belongs to: added and
+    # changed cards from the current list's commander, removed cards from the base's.
+    sides = {
+        "target": (
+            builder.cohort_sizes(store, target_commanders) if target_commanders else {},
+            builder._corpus_hits(store, target_commanders) if target_commanders else {},
+        ),
+        "base": (
+            builder.cohort_sizes(store, base_commanders) if base_commanders else {},
+            builder._corpus_hits(store, base_commanders) if base_commanders else {},
+        ),
+    }
     roles: dict[str, list[str]] = {}
     facts: dict[str, tuple[str, object]] = {}
     changed_ids = [
@@ -137,6 +158,8 @@ def diff_impact(
         ):
             roles.setdefault(str(row["card_id"]), []).append(str(row["role"]))
     for key in ("added", "removed", "changed"):
+        sizes, hits = sides["base" if key == "removed" else "target"]
+        of = sizes.get(cohort)
         for item in result[key]:  # type: ignore[attr-defined]
             card_id = str(item["card_id"])
             name, mana_value = facts.get(card_id, (str(item["name"]), None))
@@ -145,10 +168,13 @@ def diff_impact(
             item["mana_value"] = mana_value
             item["decks"] = None if counts is None or of is None else int(counts.get(cohort, 0))
             item["of"] = of
+    target_of = sides["target"][0].get(cohort)
+    base_of = sides["base"][0].get(cohort)
     result["cohort"] = {
         "key": cohort,
-        "decks": of,
-        "small": of is not None and of < builder.SMALL_DENOMINATOR,
+        "decks": target_of,
+        "base_decks": base_of,
+        "small": any(n is not None and n < builder.SMALL_DENOMINATOR for n in (target_of, base_of)),
     }
     result["schema"] = SCHEMA
     return result

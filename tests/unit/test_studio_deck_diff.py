@@ -68,7 +68,7 @@ def test_diff_impact_counts_swaps_with_frequency_and_unknown(tmp_path: Path) -> 
     curve = diff["curve_deltas"]
     assert sum(v["base"] for v in curve.values()) == 2
     assert sum(v["target"] for v in curve.values()) == 3
-    assert diff["cohort"] == {"key": "all", "decks": 3, "small": True}
+    assert diff["cohort"] == {"key": "all", "decks": 3, "base_decks": 3, "small": True}
     # A group with its own denominator: picked holds d1 only.
     picked = deck_diff.diff_impact(store, base, target, cohort="picked")
     assert {i["name"]: (i["decks"], i["of"]) for i in picked["added"]} == {"Swarm Rat": (1, 1)}
@@ -105,3 +105,34 @@ def test_diff_route_passes_the_cohort(tmp_path: Path) -> None:
     assert body["cohort"]["key"] == "picked"
     assert body["added"][0]["decks"] == 1
     assert body["added"][0]["of"] == 1
+
+
+def test_different_commanders_are_never_mixed(tmp_path: Path) -> None:
+    store, ids = _store(tmp_path)
+    commander = _commander(store)
+    source_id = str(store.connection.execute("SELECT source_id FROM source LIMIT 1").fetchone()[0])
+    with store.connection as db:
+        db.execute(
+            "INSERT INTO commander_combo(commander_name, ordinal, cards, num_decks, source_id) "
+            "VALUES (?, 1, ?, 7, ?)",
+            (commander, json.dumps(["Filler 01", "Swarm Rat"]), source_id),
+        )
+    base = [
+        RevisionCard("card:project:0001", 1, "commander"),
+        RevisionCard(ids["Filler 01"]),
+        RevisionCard(ids["Swarm Rat"]),
+    ]
+    target = [RevisionCard(ids["Filler 05"], 1, "commander"), RevisionCard(ids["Filler 01"])]
+    diff = deck_diff.diff_impact(store, base, target)
+    assert diff["commanders"]["same"] is False
+    combo = diff["combo_delta"]
+    assert combo["comparable"] is False
+    # Each side against its own list: the base commander's list holds the complete combo,
+    # the target commander has no list (unknown), and no transition is reported.
+    assert combo["base_listed"] == 1 and combo["base_complete"] == 1
+    assert combo["listed"] == 0 and combo["target_complete"] is None
+    assert combo["now_complete"] == [] and combo["no_longer_complete"] == []
+    removed = {item["name"]: item for item in diff["removed"]}
+    # The removed card is counted against the base commander's source decks (2 of 3),
+    # not against an empty pair group of both commanders.
+    assert (removed["Swarm Rat"]["decks"], removed["Swarm Rat"]["of"]) == (2, 3)

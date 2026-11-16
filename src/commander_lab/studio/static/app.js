@@ -1024,18 +1024,19 @@ async function diffCandidates() {
   const deck = state.decks.find((item) => item.deck_id === state.deckId);
   const branches = deck ? deck.branches : [];
   const options = [];
+  let historyRows = null;
   try {
     const rows = await api(`/api/decks/${encodeURIComponent(state.deckId)}/history`);
+    historyRows = rows;
     const current = rows.find((row) => row.revision_id === state.baseRevision);
     if (current && current.parent_revision_id) options.push({ rev: current.parent_revision_id, label: `Vorheriger Stand der Variante ${state.branch}` });
   } catch (error) { /* without history only the variants are offered */ }
   const main = branches.find((item) => item.branch === "main");
   if (state.branch !== "main" && main) options.push({ rev: main.revision_id, label: "Neuester Stand der Variante main" });
   for (const item of branches) if (item.revision_id !== state.baseRevision || state.dirty) options.push({ rev: item.revision_id, label: `Variante ${item.branch} (aktuell gespeichert)` });
-  try {
-    const rows = await api(`/api/decks/${encodeURIComponent(state.deckId)}/history`);
-    for (const row of rows) options.push({ rev: row.revision_id, label: `Gespeicherter Stand ${row.created_at ? row.created_at.slice(0, 16).replace("T", " ") : ""}${row.note ? " – " + row.note : ""}` });
-  } catch (error) { /* history is optional */ }
+  if (historyRows) {
+    for (const row of historyRows) options.push({ rev: row.revision_id, label: `Gespeicherter Stand ${row.created_at ? row.created_at.slice(0, 16).replace("T", " ") : ""}${row.note ? " – " + row.note : ""}` });
+  }
   for (const other of state.decks) {
     if (other.deck_id === state.deckId) continue;
     for (const item of other.branches || []) options.push({ rev: item.revision_id, label: `Anderes Deck: ${other.name || other.deck_id} (${item.branch})` });
