@@ -75,7 +75,8 @@ def allocation(store: StudioStore) -> dict[str, object]:
         )
     locations: dict[str, list[dict[str, object]]] = {}
     for row in db.execute(
-        "SELECT card_id, location_id, location_name, location_type, quantity "
+        "SELECT card_id, location_id, location_name, location_type, quantity, exact, "
+        "unknown_lots "
         "FROM card_location ORDER BY card_id, quantity DESC, location_name"
     ):
         locations.setdefault(str(row["card_id"]), []).append(
@@ -84,6 +85,8 @@ def allocation(store: StudioStore) -> dict[str, object]:
                 "name": str(row["location_name"]),
                 "type": row["location_type"],
                 "quantity": int(row["quantity"]),
+                "exact": bool(row["exact"]),
+                "unknown_lots": int(row["unknown_lots"]),
             }
         )
     inventory = {

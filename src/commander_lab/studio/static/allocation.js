@@ -43,7 +43,10 @@ function allocationDetail(h, card) {
   }
   if (card.reserved) parts.push(h("p", { class: "note" }, `${card.reserved} Exemplar(e) sind für Gegner-Decks reserviert und zählen nicht zu den freien.`));
   if (entry && entry.locations) {
-    parts.push(h("p", { id: "allocation-locations" }, "Standort laut Sammlungsdatei: " + entry.locations.map((item) => `${item.quantity}× ${item.name}`).join(", ")));
+    const located = entry.locations.reduce((sum, item) => sum + item.quantity, 0);
+    const allExact = entry.locations.every((item) => item.exact && !item.unknown_lots);
+    const text = (item) => (item.exact ? `${item.quantity}×` : `mindestens ${item.quantity}×`) + ` ${item.name}` + (item.unknown_lots ? ` (+ ${item.unknown_lots} Posten ohne Anzahl)` : "");
+    parts.push(h("p", { id: "allocation-locations" }, `Standort laut Sammlungsdatei (${allExact ? "" : "mindestens "}${located} von ${card.owned} Exemplaren zugeordnet): ` + entry.locations.map(text).join(", ")));
   }
   parts.push(h("p", { class: "note" }, data.binding_rule));
   return h("div", { class: "allocation" }, ...parts);

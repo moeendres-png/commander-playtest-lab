@@ -1334,7 +1334,10 @@ card is marked **überbucht** when the copies bound by all saved decks exceed th
 for own decks (`available_lower_bound`); without an inventory row no overbooking is claimed.
 Copies reserved for opponents' decks (`reserved`) stay a separate figure. Storage locations
 come only from the inventory workbook's lot sheet (`02_PHYSICAL_LOTS.location_id`, names from
-`03_LOCATIONS`) and are stored per card and location in `card_location` at the inventory import;
+`03_LOCATIONS`) and are stored per card and location in `card_location` at the inventory import
+(summed lower-bound quantities; "mindestens" when a lot is only a lower bound, and lots without
+any quantity counted apart, never as 0; the card window says how many of the owned copies have a
+location);
 a card without location rows shows no location field. The pool tiles show "in N Decks
 (n gebunden)" and the overbooking; the card window lists the decks, the other variants, the
 reserved copies and the locations in the data's own wording.

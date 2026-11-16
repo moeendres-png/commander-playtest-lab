@@ -215,10 +215,12 @@ def _location_rows(
     lots: list[dict[str, object]],
     locations: list[dict[str, object]],
     known_cards: set[str | None],
-) -> list[tuple[str, str, str, str | None, int]]:
-    """Summed lot quantities per card and location (#1419). The name and type come from the
-    location sheet in the data's own wording; a location id the sheet does not name keeps its
-    id as name. Lots without a location id are left out: a location is never guessed."""
+) -> list[tuple[str, str, str, str | None, int, int, int]]:
+    """Per card and location (#1419): the summed lower-bound quantity of its lots (the
+    observed quantity where no lower bound is given), whether every lot is exact, and how many
+    lots carry no quantity at all. The name and type come from the location sheet in the data's
+    own wording; a location id the sheet does not name keeps its id as name. Lots without a
+    location id are left out: a location is never guessed."""
     names = {
         str(_text(row.get("location_id"))): (
             _text(row.get("location_name")) or str(_text(row.get("location_id"))),
@@ -227,17 +229,26 @@ def _location_rows(
         for row in locations
         if _text(row.get("location_id"))
     }
-    totals: dict[tuple[str, str], int] = {}
+    totals: dict[tuple[str, str], list[int]] = {}
     for row in lots:
         card_id = _text(row.get("card_id"))
         location_id = _text(row.get("location_id"))
         if card_id is None or location_id is None or card_id not in known_cards:
             continue
-        key = (card_id, location_id)
-        totals[key] = totals.get(key, 0) + _lot_quantity(row.get("quantity_observed"))
+        entry = totals.setdefault((card_id, location_id), [0, 1, 0])
+        lower = row.get("quantity_lower_bound")
+        observed = row.get("quantity_observed")
+        if lower not in (None, ""):
+            entry[0] += _whole(lower)
+        elif observed not in (None, ""):
+            entry[0] += _whole(observed)
+        else:
+            entry[2] += 1
+        if not _flag(row.get("quantity_exact")):
+            entry[1] = 0
     return [
-        (card_id, location_id, *names.get(location_id, (location_id, None)), quantity)
-        for (card_id, location_id), quantity in sorted(totals.items())
+        (card_id, location_id, *names.get(location_id, (location_id, None)), *entry)  # type: ignore[misc]
+        for (card_id, location_id), entry in sorted(totals.items())
     ]
 
 
@@ -301,7 +312,7 @@ def import_inventory_workbook(store: StudioStore, path: str | Path) -> dict[str,
         db.execute("DELETE FROM card_location")
         db.executemany(
             "INSERT INTO card_location(card_id, location_id, location_name, location_type, "
-            "quantity, source_id) VALUES (?, ?, ?, ?, ?, ?)",
+            "quantity, exact, unknown_lots, source_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
             [(*row, source_id) for row in location_rows],
         )
         for row in inventory:

@@ -31,6 +31,19 @@ def _store_with_locations(tmp_path: Path, *, with_location_sheet: bool = True) -
         {**_lot(A, "ISD#2", 1), "location_id": "location:a_box"},
         {**_lot(A, "ISD#3", 1), "location_id": "location:a_box"},
         {**_lot(B, "ISD#4", 1), "location_id": None},
+        # Only a lower bound known (observed 0, at least 37): never stored as 0.
+        {
+            **_lot(C, "ISD#5", 0),
+            "quantity_lower_bound": 37,
+            "quantity_exact": False,
+            "location_id": "location:unknown",
+        },
+        {
+            **_lot(C, "ISD#6", 1),
+            "quantity_observed": None,
+            "quantity_lower_bound": None,
+            "location_id": "location:unknown",
+        },
     ]
     path = _workbook_with_printings(tmp_path / "cards.xlsx", _cards(), lots)
     if with_location_sheet:
@@ -54,14 +67,20 @@ def test_locations_come_from_the_lot_sheet_in_the_data_wording(tmp_path: Path) -
             "name": "A Box",
             "type": "physical_storage",
             "quantity": 2,
+            "exact": True,
+            "unknown_lots": 0,
         },
         {
             "location_id": "location:l_box",
             "name": "L Box",
             "type": "physical_storage",
             "quantity": 1,
+            "exact": True,
+            "unknown_lots": 0,
         },
     ]
+    unknown = cards[C]["locations"]
+    assert [(i["quantity"], i["exact"], i["unknown_lots"]) for i in unknown] == [(37, False, 1)]
     # A lot without a location id gives no location: the field is absent, never guessed.
     assert B not in cards
 
@@ -104,3 +123,23 @@ def test_allocation_route(tmp_path: Path) -> None:
     assert body["locations_known"] is True
     assert body["cards"][A]["bound"] == 1
     assert body["cards"][A]["overbooked"] is False
+
+
+def test_reserved_copy_and_missing_inventory(tmp_path: Path) -> None:
+    store = _store_with_locations(tmp_path)
+    with store.connection as db:
+        # One copy owned, kept for an opponent's deck: none free.
+        db.execute(
+            "UPDATE inventory SET reserved = 1, available_lower_bound = 0 WHERE card_id = ?", (A,)
+        )
+    create_revision(store, deck_id="d1", name="Deck Eins", cards=[RevisionCard(A)])
+    entry = allocation.allocation(store)["cards"][A]
+    assert (entry["bound"], entry["available"], entry["reserved"]) == (1, 0, 1)
+    assert entry["overbooked"] is True
+    with store.connection as db:
+        db.execute("DELETE FROM inventory WHERE card_id = ?", (B,))
+    create_revision(store, deck_id="d2", name="Deck Zwei", cards=[RevisionCard(B)])
+    entry = allocation.allocation(store)["cards"][B]
+    # Without an inventory row the free copies are unknown: no overbooking is claimed.
+    assert entry["available"] is None
+    assert entry["overbooked"] is False

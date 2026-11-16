@@ -1865,6 +1865,7 @@ function rememberVariant() {
   StudioUI.remember(variantKey("branch"), state.branch || "");
 }
 async function loadDecks() {
+  loadAllocation(api).then(() => renderPool()); // saved decks may have changed: bindings follow
   // Only the decks of the chosen commander; a deck never changes its commander here.
   const mine = (decks) => decks.filter((deck) => (deck.commanders || []).includes(COMMANDER));
   state.decks = mine(await api("/api/decks"));
@@ -1924,7 +1925,6 @@ async function commitRevision(branch = state.branch, note = "") {
     state.draftUpdatedAt = ""; state.draftConflict = false; state.needsDraftPut = state.dirty;
     rememberVariant();
     await loadDecks(); renderHeader(); renderSaveState(); toast("Stand gespeichert.");
-    loadAllocation(api).then(() => renderPool());
   } catch (error) { fail(error); }
 }
 function saveRevision(branch = state.branch) {
@@ -2058,7 +2058,6 @@ async function start() {
     applyPool(pool);
     state.shapes = shapes; state.simulations = sims || []; state.recordedGames = recordedGames || [];
     setupControls(); await loadDecks(); await loadBranch();
-    loadAllocation(api).then(() => renderPool());
   } catch (error) {
     $("pool-body").replaceChildren(h("p", {}, "Das Studio konnte die Daten nicht laden: " + error.message), h("p", { class: "muted" }, `Gewählter Commander: ${COMMANDER}. Er muss in der Sammlung stehen; sonst oben einen anderen Commander wählen. Sind Sammlung und Kartendaten importiert?`));
   }
