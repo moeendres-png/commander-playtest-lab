@@ -971,7 +971,7 @@ function renderCombos(body) {
         const concrete = (sh.uses || []).map((u) => (sh.in_deck || []).includes(u) ? u : `[fehlt: ${u}]`).join(" + ");
         const statusEl = slot.status === "UNKNOWN"
           ? h("span", { class: "pill warn", title: slot.reason || "Query offline nicht auswertbar" }, "Erfüllung unbekannt")
-          : slot.fulfilled_in_deck ? h("span", { class: "pill good" }, "im Deck erfüllt")
+          : slot.fulfilled_in_deck ? h("span", { class: "pill good", title: slot.partially_checked ? "Commander-/Zonen-Bedingung nicht geprüft" : "" }, slot.partially_checked ? "im Deck erfüllt (nur Kartentext-Abfrage geprüft)" : "im Deck erfüllt")
           : h("span", { class: "pill" }, `im Deck < ${slot.quantity}`);
         const matchesEl = slot.status === "OK" && slot.matches_in_pool && slot.matches_in_pool.length
           ? h("details", {}, h("summary", {}, `${slot.matches_in_pool_total} Treffer im Pool`),

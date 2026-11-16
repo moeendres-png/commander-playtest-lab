@@ -127,6 +127,45 @@ def _tokenize_query(query: str) -> list[str]:
     return tokens
 
 
+_COLOR_WORDS: dict[str, str] = {
+    "white": "W", "blue": "U", "black": "B", "red": "R", "green": "G", "colorless": "C",
+    # guilds
+    "azorius": "WU", "dimir": "UB", "rakdos": "BR", "gruul": "RG", "selesnya": "GW",
+    "orzhov": "WB", "izzet": "UR", "golgari": "BG", "boros": "RW", "simic": "GU",
+    # shards
+    "bant": "GWU", "esper": "WUB", "grixis": "UBR", "jund": "BRG", "naya": "RGW",
+    # wedges
+    "abzan": "WBG", "jeskai": "URW", "sultai": "BGU", "mardu": "RWB", "temur": "GUR",
+    # Strixhaven colleges
+    "lorehold": "RW", "prismari": "UR", "quandrix": "GU", "silverquill": "WB",
+    "witherbloom": "BG",
+}  # fmt: skip
+_COLOR_OPS = frozenset({":", "=", ">=", "<=", "<", ">"})
+
+
+def _parse_color_value(field: str, sep_op: str, val: str, *, identity: bool) -> _Term:
+    """Scryfall color value: a color or group word, or letters of ``wubrgc`` only.
+
+    Anything else (``m``, ``multicolor``, four-color names, stray letters) cannot be
+    evaluated exactly and fails closed."""
+    low = val.casefold()
+    letters = _COLOR_WORDS.get(low)
+    if letters is None:
+        if not low or not set(low) <= set("wubrgc"):
+            raise UnsupportedQueryError(f"unsupported color value {field}{sep_op}{val}")
+        letters = low.upper()
+    if "C" in letters and set(letters) != {"C"}:
+        raise UnsupportedQueryError(f"unsupported color mix with colorless {val!r}")
+    wanted = "".join(sorted(set(letters)))
+    if sep_op not in _COLOR_OPS:
+        raise UnsupportedQueryError(f"unsupported color operator {field}{sep_op}")
+    if wanted == "C" and sep_op not in {":", "="}:
+        raise UnsupportedQueryError(f"unsupported colorless operator {field}{sep_op}")
+    if identity and sep_op == ":" and wanted != "C":
+        raise UnsupportedQueryError("id: with ':' is not evaluated offline; use =, <= or >=")
+    return _Term("identity" if identity else "color", sep_op, wanted)
+
+
 def _parse_atom(token: str) -> _Expr:
     negated = False
     raw = token
@@ -194,16 +233,10 @@ def _parse_atom(token: str) -> _Expr:
             if sep_op not in {"=", ":"}:
                 raise UnsupportedQueryError(f"unsupported mana operator {key}{sep_op}")
             expr = _Term("mana", sep_op, val.upper())
-        elif key in {"id", "identity", "ci"} and sep_op in {":", "="}:
-            up = val.upper()
-            if not set(up) <= {"W", "U", "B", "R", "G", "C"} or ("C" in up and len(up) > 1):
-                raise UnsupportedQueryError(f"unsupported color identity {val!r}")
-            expr = _Term("identity", sep_op, up)
-        elif key in {"c", "color"} and sep_op in {":", "="}:
-            up = val.upper()
-            if not set(up) <= {"W", "U", "B", "R", "G", "C"} or ("C" in up and len(up) > 1):
-                raise UnsupportedQueryError(f"unsupported color filter {val!r}")
-            expr = _Term("color", sep_op, up)
+        elif key in {"id", "identity", "ci"}:
+            expr = _parse_color_value(key, sep_op, val, identity=True)
+        elif key in {"c", "color"}:
+            expr = _parse_color_value(key, sep_op, val, identity=False)
         elif key == "is" and sep_op == ":":
             low = val.casefold()
             if low not in {"permanent", "spell", "commander"}:
@@ -291,6 +324,28 @@ def _num_cmp(op: str, lhs: float, rhs: float) -> bool:
     return False
 
 
+def _card_keywords(card: Mapping[str, object]) -> set[str]:
+    kws = card.get("keywords")
+    return (
+        {str(k).casefold() for k in kws}
+        if isinstance(kws, (set, frozenset, list, tuple))
+        else set()
+    )
+
+
+def _color_cmp(op: str, have: set[str], wanted: set[str]) -> bool:
+    """Scryfall color set comparison; ``:`` means "at least these" (``>=``)."""
+    if op == "=":
+        return have == wanted
+    if op == "<=":
+        return have <= wanted
+    if op == "<":
+        return have < wanted
+    if op == ">":
+        return have > wanted
+    return wanted <= have
+
+
 def _eval_term(term: _Term, card: Mapping[str, object]) -> bool:
     kind = term.kind
     if kind == "exact_name":
@@ -299,11 +354,8 @@ def _eval_term(term: _Term, card: Mapping[str, object]) -> bool:
         front = str(card.get("front_name") or "").casefold()
         return name == target or (front != "" and front == target)
     if kind == "type":
-        tokens = [
-            part.strip().casefold()
-            for part in str(card.get("type_line") or "").replace("—", " ").replace("-", " ").split()
-        ]
-        return term.value in tokens
+        # Scryfall type search is a case-insensitive substring match on the type line.
+        return term.value in str(card.get("type_line") or "").casefold()
     if kind == "oracle":
         oracle = str(card.get("oracle_text") or "").casefold()
         needle = term.value.replace("~", str(card.get("name") or "").casefold())
@@ -338,26 +390,18 @@ def _eval_term(term: _Term, card: Mapping[str, object]) -> bool:
         if term.op == "=":
             return cost == term.value
         return term.value in cost
-    if kind == "identity":
-        raw_id = card.get("identity")
-        cid: set[str] = (
-            {str(x) for x in raw_id} if isinstance(raw_id, (set, frozenset, list, tuple)) else set()
-        )
-        if term.value == "C":
-            return not cid
-        wanted = {ch for ch in term.value if ch in {"W", "U", "B", "R", "G"}}
-        return cid == wanted if term.op == "=" else cid <= wanted
-    if kind == "color":
-        raw_colors = card.get("mana_colors")
-        colors: set[str] = (
-            {str(x) for x in raw_colors}
-            if isinstance(raw_colors, (set, frozenset, list, tuple))
+    if kind in {"identity", "color"}:
+        raw_set = card.get("identity" if kind == "identity" else "mana_colors")
+        have: set[str] = (
+            {str(x) for x in raw_set}
+            if isinstance(raw_set, (set, frozenset, list, tuple))
             else set()
         )
+        if kind == "color" and "devoid" in _card_keywords(card):
+            have = set()
         if term.value == "C":
-            return not colors
-        wanted = {ch for ch in term.value if ch in {"W", "U", "B", "R", "G"}}
-        return colors == wanted if term.op == "=" else wanted <= colors
+            return not have
+        return _color_cmp(term.op, have, set(term.value))
     if kind == "is":
         tl_words = {
             part.strip().casefold()
@@ -389,6 +433,16 @@ def _eval_expr(expr: _Expr, card: Mapping[str, object]) -> bool:
     return False
 
 
+def _uses_color(expr: _Expr) -> bool:
+    if isinstance(expr, _Term):
+        return expr.kind == "color"
+    if isinstance(expr, _Not):
+        return _uses_color(expr.item)
+    if isinstance(expr, (_And, _Or)):
+        return any(_uses_color(item) for item in expr.items)
+    return False
+
+
 def compile_scryfall_query(query: str | None) -> _Expr:
     """Parse ``query`` into an AST or raise :class:`UnsupportedQueryError` (fail closed)."""
     if query is None or not str(query).strip():
@@ -410,6 +464,10 @@ def evaluate_scryfall_query(
         ast = compile_scryfall_query(query)
     except UnsupportedQueryError as err:
         return ("UNKNOWN", f"UNSUPPORTED_QUERY: {err}", [])
+    if _uses_color(ast) and any(card.get("colors_known") is False for card in cards):
+        # Card colors come from the mana cost; a card without one (color indicator) has an
+        # unknown color here, so a color count would be silently wrong.
+        return ("UNKNOWN", "UNSUPPORTED_QUERY: card color not derivable (no mana cost)", [])
     matched = [card for card in cards if _eval_expr(ast, card)]
     return ("OK", None, matched)
 
@@ -435,6 +493,17 @@ def _parse_keywords(raw: object) -> frozenset[str]:
 def _mana_colors(mana_cost: object) -> frozenset[str]:
     text = str(mana_cost or "").upper()
     return frozenset(ch for ch in ("W", "U", "B", "R", "G") if ch in text)
+
+
+def _colors_known(mana_cost: object, type_line: object) -> bool:
+    """Colors are read from the mana cost, so a card whose color can come from elsewhere
+    (a color indicator) is not certain: no cost on anything but a plain land, or a cost of
+    ``{0}`` on a non-artifact."""
+    cost = str(mana_cost or "").strip()
+    tl = str(type_line or "").casefold()
+    if not cost:
+        return "land" in tl and "creature" not in tl
+    return not (cost == "{0}" and "artifact" not in tl)
 
 
 @functools.lru_cache(maxsize=4)
@@ -513,6 +582,7 @@ def _card_catalog_for_slots(
             "oracle_text": str(r["oracle_text"] or ""),
             "identity": card_id_colors,
             "mana_colors": _mana_colors(r["mana_cost"]),
+            "colors_known": _colors_known(r["mana_cost"], r["type_line"]),
             "commander_legal": bool(r["commander_legal"]),
             "keywords": _parse_keywords(r["keywords"]),
             "power": r["power"],
@@ -629,7 +699,7 @@ def _spellbook_shells_section(
                 ]
                 if status == "OK"
                 else [],
-                "matches_in_pool_total": len(p_hits) if status == "OK" else 0,
+                "matches_in_pool_total": len(p_hits) if status == "OK" else None,
             }
         cached = slot_cache[q_key]
         qty = int(str(req.get("quantity") or 1))
@@ -646,6 +716,9 @@ def _spellbook_shells_section(
             "quantity": qty,
             "must_be_commander": bool(req.get("must_be_commander")),
             "zone_locations": zones,
+            # The evaluator only checks card text: a commander or zone condition of the slot
+            # is not checked, so "fulfilled" is only partly verified.
+            "partially_checked": bool(req.get("must_be_commander")) or bool(zones),
             "fulfilled_in_deck": fulfilled,
             **cached,
         }
