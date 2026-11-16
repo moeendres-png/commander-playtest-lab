@@ -108,7 +108,8 @@ import hashlib
 import json
 import math
 import re
-from collections.abc import Callable, Iterator, Sequence
+from collections.abc import Callable, Iterator, Mapping, Sequence
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import TypedDict
 
@@ -167,7 +168,29 @@ SIGNAL_RUBRIC_SD = "rubric_h_sd"
 SIGNAL_RUBRIC_RATERS = "rubric_raters"
 RUBRIC_COMPANIONS = frozenset({SIGNAL_RUBRIC_SD, SIGNAL_RUBRIC_RATERS})
 
+CORE_RATE_ALARM_SIGNALS: frozenset[str] = frozenset(
+    {
+        SIGNAL_INCLUSION,
+        SIGNAL_SYNERGY,
+        SIGNAL_BRACKET,
+        SIGNAL_GLOBAL,
+    }
+)
+NULL_REASON_RATE_ALARM_THRESHOLD: float = 0.50
+ZERO_NUMERATOR_RATE_ALARM_THRESHOLD: float = 0.90
+
 _Row = tuple[str, str, str, float | None, int | None, int | None]  # commander, signal, card, ...
+
+
+class SignalRateAlarm(TypedDict):
+    signal_name: str
+    alarm_type: str
+    commander: str
+    count: int
+    denominator: int
+    rate: float
+    threshold: float
+    message: str
 
 
 class RefusedUniverse(TypedDict):
@@ -200,6 +223,7 @@ class FileReport(TypedDict):
     lists_read: int  # tournament files: distinct lists read from this file
     null_value_reasons: dict[str, int]  # why a stored value is unknown (NULL), per reason
     warnings: list[str]
+    rate_alarms: list[SignalRateAlarm]
     pooled_into: str | None  # tournament files: the file that carries the pooled rows stored
     universes_refused: list[RefusedUniverse]  # counted deck-list files: refused universes
     universes_unmatched: list[UnmatchedRows]  # counted deck-list files: rows without a card
@@ -368,6 +392,7 @@ def _empty(paths: list[Path]) -> FileReport:
         "lists_read": 0,
         "null_value_reasons": {},
         "warnings": [],
+        "rate_alarms": [],
         "pooled_into": None,
         "universes_refused": [],
         "universes_unmatched": [],
@@ -1405,6 +1430,307 @@ def _import_combos(
     reports[f"edhrec_{short}_combos"] = _empty([])
 
 
+@dataclass
+class SignalFileReport:
+    """Structured report for a single signal file import (#1416)."""
+
+    status: str = "IMPORTED"
+    parts: list[str] = field(default_factory=list)
+    rows_read: int = 0
+    rows_written: int = 0
+    rows_replaced: int = 0
+    rows_kept: int = 0
+    rows_skipped: int = 0
+    skipped_reasons: dict[str, int] = field(default_factory=dict)
+    commander: str | None = None
+    lists_read: int = 0
+    null_value_reasons: dict[str, int] = field(default_factory=dict)
+    warnings: list[str] = field(default_factory=list)
+    rate_alarms: list[SignalRateAlarm] = field(default_factory=list)
+    pooled_into: str | None = None
+    universes_refused: list[RefusedUniverse] = field(default_factory=list)
+    universes_unmatched: list[UnmatchedRows] = field(default_factory=list)
+
+    def to_dict(self) -> FileReport:
+        return {
+            "status": self.status,
+            "parts": list(self.parts),
+            "rows_read": self.rows_read,
+            "rows_written": self.rows_written,
+            "rows_replaced": self.rows_replaced,
+            "rows_kept": self.rows_kept,
+            "rows_skipped": self.rows_skipped,
+            "skipped_reasons": dict(self.skipped_reasons),
+            "commander": self.commander,
+            "lists_read": self.lists_read,
+            "null_value_reasons": dict(self.null_value_reasons),
+            "warnings": list(self.warnings),
+            "rate_alarms": list(self.rate_alarms),
+            "pooled_into": self.pooled_into,
+            "universes_refused": list(self.universes_refused),
+            "universes_unmatched": list(self.universes_unmatched),
+        }
+
+    @classmethod
+    def from_dict(cls, data: FileReport) -> SignalFileReport:
+        return cls(
+            status=data["status"],
+            parts=list(data["parts"]),
+            rows_read=data["rows_read"],
+            rows_written=data["rows_written"],
+            rows_replaced=data["rows_replaced"],
+            rows_kept=data["rows_kept"],
+            rows_skipped=data["rows_skipped"],
+            skipped_reasons=dict(data["skipped_reasons"]),
+            commander=data["commander"],
+            lists_read=data["lists_read"],
+            null_value_reasons=dict(data["null_value_reasons"]),
+            warnings=list(data["warnings"]),
+            rate_alarms=list(data.get("rate_alarms", [])),
+            pooled_into=data["pooled_into"],
+            universes_refused=list(data["universes_refused"]),
+            universes_unmatched=list(data["universes_unmatched"]),
+        )
+
+
+def is_core_rate_alarm_signal(signal_name: str) -> bool:
+    """Whether ``signal_name`` is one of ``CORE_RATE_ALARM_SIGNALS`` (including bracket variants)."""
+    if signal_name in CORE_RATE_ALARM_SIGNALS:
+        return True
+    base, sep, _variant = signal_name.partition(":")
+    return bool(sep) and base in CORE_RATE_ALARM_SIGNALS
+
+
+def _build_rate_alarm(
+    *,
+    signal_name: str,
+    alarm_type: str,
+    commander: str,
+    count: int,
+    denominator: int,
+    threshold: float,
+) -> SignalRateAlarm:
+    rate = count / denominator
+    pct = rate * 100.0
+    threshold_pct = threshold * 100.0
+    scope = f" [{commander}]" if commander else ""
+    label = (
+        "Null-Grund-Quote (unbekannte Werte)"
+        if alarm_type == "null_reason_rate"
+        else "Zähler-0-Quote (numerator == 0 bei Nenner > 0)"
+    )
+    message = (
+        f"Raten-Alarm ({alarm_type}) für {signal_name}{scope}: {label} "
+        f"{count}/{denominator} ({pct:.1f} %) überschreitet Schwelle "
+        f"> {threshold_pct:.0f} % ({threshold:.2f})"
+    )
+    return {
+        "signal_name": signal_name,
+        "alarm_type": alarm_type,
+        "commander": commander,
+        "count": count,
+        "denominator": denominator,
+        "rate": round(rate, 6),
+        "threshold": threshold,
+        "message": message,
+    }
+
+
+def evaluate_core_signal_rate_alarms(
+    rows: Sequence[_Row | Mapping[str, object]],
+    *,
+    commander: str | None = None,
+    null_threshold: float = NULL_REASON_RATE_ALARM_THRESHOLD,
+    zero_threshold: float = ZERO_NUMERATOR_RATE_ALARM_THRESHOLD,
+) -> list[SignalRateAlarm]:
+    """Evaluate core-signal null-reason and zero-numerator rate alarms (#1416).
+
+    Accepts either internal ``_Row`` tuples ``(commander, signal, card, value, numerator,
+    denominator)`` or mapping rows with keys ``signal``/``signal_name``, ``value``,
+    ``numerator``, ``denominator``, and optional ``null_value_reasons`` / ``commander_name``.
+    When ``commander`` is given, only rows belonging to that commander (or commander-independent
+    rows with ``commander_name == ""``) are evaluated; otherwise rows are grouped by
+    ``(commander_name, signal_name)`` if multiple commanders exist, or evaluated per signal.
+    """
+    grouped: dict[tuple[str, str], list[tuple[float | None, int | None, int | None, bool]]] = {}
+    target_cmd = commander.strip() if commander is not None else None
+    for item in rows:
+        if isinstance(item, tuple):
+            row_cmd, sig, _card, val, num, den = item
+            has_null_reason = val is None
+        else:
+            row_cmd = str(item.get("commander_name", item.get("commander", "")) or "")
+            sig = str(item.get("signal_name", item.get("signal", "")) or "")
+            raw_val = item.get("value")
+            val = float(raw_val) if isinstance(raw_val, int | float) else None
+            raw_num = item.get("numerator")
+            num = (
+                int(raw_num) if isinstance(raw_num, int) and not isinstance(raw_num, bool) else None
+            )
+            raw_den = item.get("denominator")
+            den = (
+                int(raw_den) if isinstance(raw_den, int) and not isinstance(raw_den, bool) else None
+            )
+            reasons = item.get("null_value_reasons")
+            has_reasons = bool(reasons) if isinstance(reasons, Mapping | Sequence | set) else False
+            has_null_reason = val is None or has_reasons
+        if not is_core_rate_alarm_signal(sig):
+            continue
+        if target_cmd is not None and row_cmd not in (target_cmd, ""):
+            continue
+        grouped.setdefault((row_cmd, sig), []).append((val, num, den, has_null_reason))
+
+    alarms: list[SignalRateAlarm] = []
+    for (row_cmd, sig), entries in sorted(grouped.items()):
+        total_rows = len(entries)
+        if total_rows <= 0:
+            continue
+        null_reason_rows = sum(1 for _val, _num, _den, is_null in entries if is_null)
+        if null_reason_rows / total_rows > null_threshold:
+            alarms.append(
+                _build_rate_alarm(
+                    signal_name=sig,
+                    alarm_type="null_reason_rate",
+                    commander=row_cmd,
+                    count=null_reason_rows,
+                    denominator=total_rows,
+                    threshold=null_threshold,
+                )
+            )
+        pos_entries = [
+            (val, num, den) for val, num, den, _is_null in entries if den is not None and den > 0
+        ]
+        positive_denominator_rows = len(pos_entries)
+        if positive_denominator_rows > 0:
+            zero_numerator_rows = sum(
+                1
+                for val, num, _den in pos_entries
+                if num == 0 or (num is None and val is not None and val == 0.0)
+            )
+            if zero_numerator_rows / positive_denominator_rows > zero_threshold:
+                alarms.append(
+                    _build_rate_alarm(
+                        signal_name=sig,
+                        alarm_type="zero_numerator_rate",
+                        commander=row_cmd,
+                        count=zero_numerator_rows,
+                        denominator=positive_denominator_rows,
+                        threshold=zero_threshold,
+                    )
+                )
+    return alarms
+
+
+def compute_store_signal_rate_alarms(
+    store: StudioStore,
+    *,
+    commander: str | None = None,
+    null_threshold: float = NULL_REASON_RATE_ALARM_THRESHOLD,
+    zero_threshold: float = ZERO_NUMERATOR_RATE_ALARM_THRESHOLD,
+) -> list[SignalRateAlarm]:
+    """Compute core-signal rate alarms across stored rows in ``store`` (#1416)."""
+    db = store.connection
+    if commander is not None:
+        cmd = commander.strip()
+        sql_rows = db.execute(
+            "SELECT commander_name, signal, card_name, value, numerator, denominator "
+            "FROM card_signal WHERE commander_name IN (?, '') "
+            "ORDER BY commander_name, signal, card_name",
+            (cmd,),
+        ).fetchall()
+    else:
+        sql_rows = db.execute(
+            "SELECT commander_name, signal, card_name, value, numerator, denominator "
+            "FROM card_signal ORDER BY commander_name, signal, card_name"
+        ).fetchall()
+    tuples: list[_Row] = [
+        (
+            str(r[0]),
+            str(r[1]),
+            str(r[2]),
+            float(r[3]) if r[3] is not None else None,
+            int(r[4]) if r[4] is not None else None,
+            int(r[5]) if r[5] is not None else None,
+        )
+        for r in sql_rows
+    ]
+    return evaluate_core_signal_rate_alarms(
+        tuples,
+        commander=commander,
+        null_threshold=null_threshold,
+        zero_threshold=zero_threshold,
+    )
+
+
+def _apply_file_rate_alarms(
+    rows: Sequence[_Row],
+    report: FileReport,
+    *,
+    preferred_commander: str | None = None,
+) -> None:
+    alarms = evaluate_core_signal_rate_alarms(rows, commander=preferred_commander)
+    report["rate_alarms"].extend(alarms)
+    for alarm in alarms:
+        report["warnings"].append(alarm["message"])
+
+
+def import_signal_file(
+    store: StudioStore,
+    path_or_paths: str | Path | Sequence[str | Path],
+    *,
+    commander: str = "",
+    file_name: str | None = None,
+    variant: str | None = None,
+    replace: bool = True,
+) -> SignalFileReport:
+    """Import a single signal file (or its split parts) and evaluate core-signal rate alarms."""
+    if isinstance(path_or_paths, str | Path):
+        paths = [Path(path_or_paths)]
+    else:
+        paths = [Path(p) for p in path_or_paths]
+    report = _empty(paths)
+    if not paths or not all(p.is_file() for p in paths):
+        report["status"] = "ABSENT"
+        return SignalFileReport.from_dict(report)
+    inferred_name = file_name or re.sub(r"_\d+$", "", paths[0].stem)
+    inferred_variant = variant
+    if inferred_variant is None and inferred_name.startswith(f"{BRACKET_FILE}_"):
+        suffix = inferred_name.removeprefix(f"{BRACKET_FILE}_")
+        if suffix in BRACKET_VARIANTS:
+            inferred_variant = suffix
+    independent = (
+        CARD_FILE,
+        GLOBAL_FILE,
+        SPELLBOOK_FILE,
+        SHELLS_FILE,
+        EDHTOP16_FILE,
+        ATLAS_FILE,
+        SALT_FILE,
+        CONVERSION_FILE,
+    )
+    base = inferred_name if inferred_name in independent else None
+    kind = base or BRACKET_FILE
+    commanders = _Commanders(store)
+    preferred = commanders.resolve(commander.strip()) if commander.strip() else None
+    with store.connection:
+        rows = _read_file(kind, paths, inferred_variant, report, commanders)
+        _apply_file_rate_alarms(rows, report, preferred_commander=preferred)
+        source_id = _register(store, paths)
+        if source_id is not None and rows:
+            written, replaced = _store_rows(
+                store,
+                rows,
+                source_id,
+                replace=replace,
+                declared=_file_signals(kind, inferred_variant),
+            )
+            report["rows_written"], report["rows_replaced"] = written, replaced
+        else:
+            report["status"] = "NOTHING_REPLACED"
+            report["rows_kept"] = _kept_rows(store, _file_signals(kind, inferred_variant), None)
+    return SignalFileReport.from_dict(report)
+
+
 def import_signals(
     store: StudioStore, folder: str | Path, *, commander: str, replace: bool = True
 ) -> dict[str, object]:
@@ -1459,6 +1785,7 @@ def import_signals(
             base = file_name if file_name in independent else None
             kind = base or BRACKET_FILE
             rows = _read_file(kind, paths, variant, report, commanders)
+            _apply_file_rate_alarms(rows, report, preferred_commander=preferred)
             source_id = _register(store, paths)
             if source_id is not None and rows:
                 written, replaced = _store_rows(
@@ -1473,6 +1800,7 @@ def import_signals(
                 report["status"] = "NOTHING_REPLACED"
                 report["rows_kept"] = _kept_rows(store, _file_signals(kind, variant), None)
         _import_combos(store, root, preferred, reports, replace=replace)
+    rate_alarms = [alarm for report in reports.values() for alarm in report["rate_alarms"]]
     return {
         "folder": root.name,
         "tournament_commander": preferred,
@@ -1491,9 +1819,17 @@ def import_signals(
             for file, report in reports.items()
             for warning in report["warnings"]
         ],
+        "rate_alarms": rate_alarms,
         "commanders_imported": sorted(commanders.imported),
         "commanders_not_recognised": sorted(commanders.not_recognised),
         "commanders_normalised": [
             {"from": raw, "to": found} for raw, found in sorted(commanders.normalised.items())
         ],
     }
+
+
+def import_signals_directory(
+    store: StudioStore, folder: str | Path, *, commander: str, replace: bool = True
+) -> dict[str, object]:
+    """Alias for ``import_signals`` (#1416)."""
+    return import_signals(store, folder, commander=commander, replace=replace)
