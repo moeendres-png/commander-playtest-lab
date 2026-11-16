@@ -432,31 +432,28 @@ _TYPO_TRANSLATION = str.maketrans(
 _DASH_TRANSLATION = str.maketrans(
     {"\u2010": "-", "\u2011": "-", "\u2012": "-", "\u2013": "-", "\u2014": "-"}
 )
-_PRICE_AMOUNT = r"\d[\d.,]{0,11}"
-_PRICE_TAIL_RE = re.compile(
-    rf"\s+(?:[$\u20ac\u00a3]\s?{_PRICE_AMOUNT}|{_PRICE_AMOUNT}\s?(?:[$\u20ac\u00a3]|USD|EUR|EURO))\s*$",
-    re.IGNORECASE,
+_CURRENCY = (
+    r"(?:US\$|CA\$|A\$|[$\u20ac\u00a3\u00a5]"
+    r"|(?<![A-Za-z])(?:USD|EUR|EURO|GBP|JPY|CHF|CAD|AUD|SEK|NOK|DKK|PLN|CNY|RMB)(?![A-Za-z]))"
 )
-_PRICE_ANY_RE = re.compile(
-    rf"[$\u20ac\u00a3]\s?{_PRICE_AMOUNT}|{_PRICE_AMOUNT}\s?(?:[$\u20ac\u00a3]|USD\b|EUR\b)",
-    re.IGNORECASE,
-)
+# One start per digit run (lookbehind) and a possessive tail keep the scan linear.
+_NUMBER = r"(?<![\d.,'])\d+(?:[.,']\d+|\u0020\d{3}(?!\d))*+"
+_AMOUNT = rf"(?:{_CURRENCY}\s*{_NUMBER}|{_NUMBER}\s*{_CURRENCY})"
+_AMOUNT_RE = re.compile(rf"\(\s*{_AMOUNT}\s*\)|{_AMOUNT}", re.IGNORECASE)
 _PRICE_ANNOTATION = "Betragsangabe (ignoriert)"
 
 
-def _strip_trailing_prices(name: str) -> tuple[str, bool]:
-    """Drop trailing amount tokens (never kept or echoed); report whether any was dropped."""
-    found = False
-    for _ in range(3):
-        stripped = _PRICE_TAIL_RE.sub("", name)
-        if stripped == name:
-            break
-        name, found = stripped.strip(), True
-    return name, found
-
-
 def _scrub_amounts(text: str) -> str:
-    return _PRICE_ANY_RE.sub("", text)
+    """Remove every amount token; applied to all text that is returned to the caller."""
+    return _AMOUNT_RE.sub("", text)
+
+
+def _tidy(text: str) -> str:
+    return " ".join(text.split()).strip(" \t-\u2010\u2011\u2012\u2013\u2014,;:/|")
+
+
+def _clean_raw(line: str) -> str:
+    return " ".join(_scrub_amounts(line[:_MAX_LINE_CHARS]).split())
 
 
 _DECORATOR_RES = (
@@ -531,10 +528,19 @@ def resolve_repo_baseline_cards(
     ]
 
 
+def _hit(table: dict[str, dict[str, object]], name: str) -> dict[str, object] | None:
+    return table.get(name.casefold()) or table.get(name.split(" // ")[0].strip().casefold())
+
+
 def _too_long(lineno: int, line: str) -> dict[str, object]:
+    tokens = _scrub_amounts(line[:_MAX_LINE_CHARS]).split(" ")
+    for index in range(max(0, len(tokens) - 4), len(tokens)):
+        if any(ch.isdigit() for ch in tokens[index]):
+            tokens = tokens[:index]  # a cut-off amount must not leak as a stray figure
+            break
     return {
         "line": lineno,
-        "raw": _scrub_amounts(line[:_MAX_LINE_CHARS]),
+        "raw": " ".join(tokens),
         "status": "zu lang",
         "reason": f"zu lang (über {_MAX_LINE_CHARS} Zeichen)",
     }
@@ -543,7 +549,7 @@ def _too_long(lineno: int, line: str) -> dict[str, object]:
 def _bad_quantity(lineno: int, line: str) -> dict[str, object]:
     return {
         "line": lineno,
-        "raw": _scrub_amounts(line),
+        "raw": _clean_raw(line),
         "status": "unreadable",
         "reason": f"ungültige Anzahl (erlaubt: 1 bis {_MAX_QUANTITY})",
     }
@@ -589,28 +595,27 @@ def parse_decklist_text(
 
     def _classify_entry(qty: int, raw_name: str, lineno: int, raw_line: str) -> None:
         nonlocal not_in_collection_qty, outside_qty
-        name = _strip_decklist_decorators(raw_name)
-        name, had_price = _strip_trailing_prices(name)
-        if had_price:
-            name = _strip_decklist_decorators(name)
+        scrubbed = _scrub_amounts(raw_name)
+        if scrubbed != raw_name:
             ignored_annotations.append({"line": lineno, "annotation": _PRICE_ANNOTATION})
-        name = name.translate(_DASH_TRANSLATION)
-        if len(name) >= 2 and name[0] == name[-1] == '"':
-            name = name[1:-1].strip()
+            scrubbed = _tidy(scrubbed)
+        name = _strip_decklist_decorators(scrubbed).translate(_DASH_TRANSLATION)
         if not name:
             unrecognized_lines.append(
                 {
                     "line": lineno,
-                    "raw": _scrub_amounts(raw_line),
+                    "raw": _clean_raw(raw_line),
+                    "status": "unreadable",
                     "reason": "leerer Kartenname",
                 }
             )
             return
-        if name.casefold() in cmd_names_cf:
+        variants = [name]
+        if len(name) >= 2 and name[0] == name[-1] == '"' and name[1:-1].strip():
+            variants.append(name[1:-1].strip())
+        if any(v.casefold() in cmd_names_cf for v in variants):
             return
-        cf = name.casefold()
-        front_cf = name.split(" // ")[0].strip().casefold()
-        found = coll.get(cf) or coll.get(front_cf)
+        found = next((h for v in variants if (h := _hit(coll, v)) is not None), None)
         if found is not None:
             cid = str(found["card_id"])
             if cid in cmd_set:
@@ -632,7 +637,8 @@ def parse_decklist_text(
             matched_qty[cid] = matched_qty.get(cid, 0) + qty
             matched_info[cid] = found
             return
-        pub = public.get(cf) or public.get(front_cf)
+        pub = next((h for v in variants if (h := _hit(public, v)) is not None), None)
+        name = variants[-1]
         if pub is not None:
             id_ok = color_set(str(pub["color_identity"] or "")) <= identity
             legal_ok = pub["commander_legal"] == 1
@@ -692,7 +698,9 @@ def parse_decklist_text(
                 if sec in _SKIPPED_SECTIONS:
                     continue
             raw_qty = row[qty_idx].strip() if qty_idx is not None and qty_idx < len(row) else "1"
-            joined = ",".join(row)
+            raw_name = row[name_idx].strip() if name_idx is not None and name_idx < len(row) else ""
+            # Only the quantity and name cells are ever judged or echoed, never the whole row.
+            joined = f"{raw_qty},{raw_name}"
             if len(joined) > _MAX_LINE_CHARS:
                 unrecognized_lines.append(_too_long(lineno, joined))
                 continue
@@ -700,13 +708,17 @@ def parse_decklist_text(
                 qty = int(raw_qty.rstrip("xX") or "1") if len(raw_qty) <= 8 else -1
             except ValueError:
                 unrecognized_lines.append(
-                    {"line": lineno, "raw": _scrub_amounts(joined), "reason": "ungültige Anzahl"}
+                    {
+                        "line": lineno,
+                        "raw": _clean_raw(joined),
+                        "status": "unreadable",
+                        "reason": "ungültige Anzahl",
+                    }
                 )
                 continue
             if not 1 <= qty <= _MAX_QUANTITY:
                 unrecognized_lines.append(_bad_quantity(lineno, joined))
                 continue
-            raw_name = row[name_idx].strip() if name_idx is not None and name_idx < len(row) else ""
             _classify_entry(qty, raw_name, lineno, joined)
     else:
         line_re = re.compile(r"^(?:([-+]?\d+)\s*[xX]?\s+)?(.+?)$")
@@ -731,7 +743,12 @@ def parse_decklist_text(
             m = line_re.match(line)
             if not m:
                 unrecognized_lines.append(
-                    {"line": lineno, "raw": raw_line, "reason": "Format nicht erkannt"}
+                    {
+                        "line": lineno,
+                        "raw": _clean_raw(raw_line),
+                        "status": "unreadable",
+                        "reason": "Format nicht erkannt",
+                    }
                 )
                 continue
             if m.group(1) is not None and len(m.group(1)) > 8:
@@ -745,6 +762,13 @@ def parse_decklist_text(
             if raw_name.casefold() in _SECTION_HEADERS:
                 continue
             _classify_entry(qty, raw_name, lineno, raw_line)
+
+    # Return point: no returned text field may carry an amount, whatever path produced it.
+    for entry in not_in_collection:
+        entry["name"] = _scrub_amounts(str(entry["name"]))
+    for entry in unrecognized_lines:
+        entry["raw"] = _scrub_amounts(str(entry["raw"]))
+        entry["reason"] = _scrub_amounts(str(entry["reason"]))
 
     cards = [RevisionCard(cid, 1, "commander") for cid in commander_ids] + [
         RevisionCard(cid, qty, "main") for cid, qty in matched_qty.items()
