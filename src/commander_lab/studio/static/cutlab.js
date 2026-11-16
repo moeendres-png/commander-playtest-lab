@@ -4,7 +4,7 @@
 // with its ADD/CUT patch. Suggestion order and deltas come from /api/cut-lab (measured figures
 // only); the Owner's marks never change the order. Rendered from app.js (renderCutLab).
 
-const CutLab = { deckKey: "", locked: new Set(), rejected: [], deferred: [], minimums: null, start: null, whatIf: null };
+const CutLab = { deckKey: "", locked: new Set(), rejected: [], deferred: [], minimums: null, start: null, whatIf: null, lastKey: "", lastResult: null };
 
 function cutLabStorageKey(deckId) { return `studio.cutlab.${deckId || "none"}`; }
 
@@ -131,10 +131,17 @@ async function renderCutLab(body, deps) {
     return;
   }
   const token = deps.token();
+  const request = { cards: deps.entries(), locked: [...CutLab.locked], rejected: CutLab.rejected, deferred: CutLab.deferred, role_minimums: CutLab.minimums || {}, cohort: deps.cohort() };
+  const requestKey = JSON.stringify(request);
   let result;
-  try {
-    result = await deps.api("/api/cut-lab", "POST", { cards: deps.entries(), locked: [...CutLab.locked], rejected: CutLab.rejected, deferred: CutLab.deferred, role_minimums: CutLab.minimums || {}, cohort: deps.cohort() });
-  } catch (error) { if (deps.isCurrent(token)) { box.append(h("p", { class: "warn" }, "Vorschläge konnten nicht berechnet werden.")); deps.fail(error); } return; }
+  if (requestKey === CutLab.lastKey && CutLab.lastResult) {
+    result = CutLab.lastResult; // a re-render with the same list (e.g. after the draft was saved): no reload, no flicker
+  } else {
+    try {
+      result = await deps.api("/api/cut-lab", "POST", request);
+    } catch (error) { if (deps.isCurrent(token)) { box.append(h("p", { class: "warn" }, "Vorschläge konnten nicht berechnet werden.")); deps.fail(error); } return; }
+    CutLab.lastKey = requestKey; CutLab.lastResult = result;
+  }
   if (!deps.isCurrent(token)) return;
   const item = result.suggestions[0];
   if (!item) {
