@@ -43,6 +43,7 @@ RESEARCH = _REPO_ROOT / "data" / "research"
 LINKS_FILE = RESEARCH / "deckbuilder_1655" / "spellbook_card_links.csv"
 POOL_FILE = RESEARCH / "chulane_legal_pool_gap_matrix.json"
 OUTPUT_FILE = RESEARCH / "deckbuilder_1655" / "spellbook_shells.csv"
+TEMPLATES_OUTPUT_FILE = RESEARCH / "deckbuilder_1655" / "spellbook_shell_templates.json"
 FIELDS = [
     "commander_name",
     "card_name",
@@ -87,6 +88,12 @@ def main() -> int:
     parser.add_argument("--links", type=Path, default=LINKS_FILE)
     parser.add_argument("--pool", type=Path, default=POOL_FILE)
     parser.add_argument("--output", type=Path, default=OUTPUT_FILE)
+    parser.add_argument(
+        "--templates-output",
+        type=Path,
+        default=None,
+        help="optional path for pool/template shell snapshot JSON",
+    )
     parser.add_argument("--commander", default=spellbook_shells.CHULANE_NAME)
     parser.add_argument("--identity", default="WUG")
     args = parser.parse_args()
@@ -129,6 +136,32 @@ def main() -> int:
         writer = csv.DictWriter(handle, fieldnames=FIELDS)
         writer.writeheader()
         writer.writerows(rows)
+
+    templates_out: Path | None = args.templates_output
+    if templates_out is None and args.output.resolve() == OUTPUT_FILE.resolve():
+        templates_out = TEMPLATES_OUTPUT_FILE
+    if templates_out is not None:
+        snapshot = spellbook_shells.build_template_snapshot(
+            variants,
+            pool,
+            identity=identity,
+            commander=commander,
+            version=str(document.get("version")) if document.get("version") is not None else None,
+            timestamp=str(document.get("timestamp"))
+            if document.get("timestamp") is not None
+            else None,
+            bulk_sha256=digest,
+        )
+        templates_out.parent.mkdir(parents=True, exist_ok=True)
+        templates_out.write_text(
+            json.dumps(snapshot, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+        )
+        pool_shells_n = len(snapshot.get("pool_shells", []))  # type: ignore[arg-type]
+        tpl_shells_n = len(snapshot.get("template_shells", []))  # type: ignore[arg-type]
+        print(
+            f"written templates {templates_out} "
+            f"(pool_shells={pool_shells_n}, template_shells={tpl_shells_n})"
+        )
 
     listed = sum(1 for row in rows if int(str(row["shell_count"])) > 0)
     distinct = len({shell for row in rows for shell in str(row["shell_ids"]).split(";") if shell})

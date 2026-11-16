@@ -384,19 +384,20 @@ def _collection_lookup(
 def _detect_format(lines: list[str]) -> str:
     if not lines:
         return "plain"
-    first_nonempty = next((ln.strip() for ln in lines if ln.strip()), "")
+    cleaned = [ln.lstrip("\ufeff") for ln in lines]
+    first_nonempty = next((ln.strip() for ln in cleaned if ln.strip()), "")
     if "," in first_nonempty:
         lowered = [col.strip().strip('"').casefold() for col in first_nonempty.split(",")]
         if any(col in _CSV_NAME_COLS for col in lowered) and (len(lowered) >= 2):
             return "csv"
-    has_set_paren = any(" (" in ln and ") " in ln for ln in lines)
-    has_archidekt_cat = any("[" in ln and ln.rstrip().endswith("]") for ln in lines)
+    has_set_paren = any(" (" in ln and ") " in ln for ln in cleaned)
+    has_archidekt_cat = any("[" in ln and ln.rstrip().endswith("]") for ln in cleaned)
     has_x = any(
-        ln.lstrip().split(" ", 1)[0].rstrip("xX").isdigit() and "x " in ln.lower() for ln in lines
+        ln.lstrip().split(" ", 1)[0].rstrip("xX").isdigit() and "x " in ln.lower() for ln in cleaned
     )
     if has_archidekt_cat:
         return "archidekt"
-    if any("*CMDR*" in ln or "*F*" in ln for ln in lines):
+    if any("*CMDR*" in ln or "*F*" in ln for ln in cleaned):
         return "moxfield"
     if has_set_paren:
         return "arena"
@@ -435,9 +436,11 @@ def resolve_repo_baseline_cards(
     if not baseline_id.startswith("repo:"):
         raise KeyError(baseline_id)
     stem = baseline_id[len("repo:") :].strip()
+    if not stem or "/" in stem or "\\" in stem or "\x00" in stem or ".." in stem:
+        raise KeyError(baseline_id)
     folder = decks_dir if decks_dir is not None else _DECKS_DIR
     candidate = folder / f"{stem}.txt"
-    if not stem or "/" in stem or "\\" in stem or not candidate.is_file():
+    if candidate.resolve().parent != folder.resolve() or not candidate.is_file():
         raise KeyError(baseline_id)
     text = candidate.read_text(encoding="utf-8")
     if not commander_names:

@@ -56,7 +56,6 @@ from .strength import (
     TOURNAMENT,
     TOURNAMENT_CONVERSION,
     TOURNAMENT_LISTS,
-    CardStrength,
     Observation,
     PoolContext,
     StrengthSettings,
@@ -85,6 +84,7 @@ class StrengthCard(TypedDict):
     cut_distance: float | None
     is_land: bool
     layers: dict[str, layers.LayerValue]
+    role_ranks: dict[str, dict[str, int]]
 
 
 class UnknownBreakdown(TypedDict):
@@ -1120,9 +1120,39 @@ def compute(
     layer_result = prepared.layer_result
     if layer_result is None:  # prepare computes the layers when asked to (the default)
         raise TypeError("the layer result is missing")
+    roles_by_id: dict[str, list[str]] = {
+        str(card["card_id"]): [str(r) for r in card["roles"]]  # type: ignore[attr-defined]
+        for card in prepared.raw_cards
+        if isinstance(card.get("roles"), list)
+    }
+    scored_by_role: dict[str, list[tuple[float, str, str]]] = {}
+    for card_id in prepared.ids:
+        result = scored[card_id]
+        idx_val = result["index"]
+        if result["tier"] in ("U", "N") or idx_val is None:
+            continue
+        for role in roles_by_id.get(card_id, ()):
+            scored_by_role.setdefault(role, []).append(
+                (float(idx_val), prepared.display[card_id], card_id)
+            )
+    ranks_for_card: dict[str, dict[str, dict[str, int]]] = {}
+    for role, bucket in scored_by_role.items():
+        bucket.sort(key=lambda item: (-item[0], item[1], item[2]))
+        total = len(bucket)
+        prev_idx: float | None = None
+        current_rank = 0
+        for pos, (idx_val, _name, card_id) in enumerate(bucket, start=1):
+            if prev_idx is None or abs(idx_val - prev_idx) > 1e-12:
+                current_rank = pos
+                prev_idx = idx_val
+            ranks_for_card.setdefault(card_id, {})[role] = {
+                "rank": current_rank,
+                "total": total,
+            }
+
     cards: list[StrengthCard] = []
     for card_id in prepared.ids:
-        result: CardStrength = scored[card_id]
+        result = scored[card_id]
         cards.append(
             {
                 "card_id": card_id,
@@ -1130,6 +1160,7 @@ def compute(
                 **result,
                 "is_land": prepared.context.type_group.get(card_id) == "Land",
                 "layers": layer_result["cards"][card_id],
+                "role_ranks": ranks_for_card.get(card_id, {}),
             }
         )
     tiers = Counter(card["tier"] for card in cards)
