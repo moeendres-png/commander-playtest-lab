@@ -9,14 +9,14 @@
 </head>
 <body>
 <header id="brand">
-  <a class="logo" href="index.html">Commander Studio</a>
+  <h1 class="brand-h1"><a class="logo" href="index.html">Commander Studio</a><span class="visually-hidden"> – Deck-Browser</span></h1>
   <nav id="areas" aria-label="Bereiche"><a href="index.html">Deckbau</a><a href="tierliste.html">Tierliste</a><a href="decks.html">Deck-Browser</a><a href="partie.html">Partien</a></nav>
   <span class="spacer"></span>
   <label>Commander <select id="commander-select"></select></label>
   <button id="theme-toggle" type="button" class="ghost"></button>
 </header>
 <header id="top">
-  <input id="db-q" type="search" placeholder="Suche in Deckname, Kennung, Plattform, Marken …" autocomplete="off">
+  <input id="db-q" aria-label="Decks suchen" type="search" placeholder="Suche in Deckname, Kennung, Plattform, Marken …" autocomplete="off">
   <label>Herkunft <select id="db-origin">
     <option value="all">Gespeicherte &amp; Quelldecks</option>
     <option value="saved">Nur gespeicherte Studio-Decks</option>
@@ -32,10 +32,10 @@
     <option value="tuned">Brackets 4 + 5 (Tuned)</option>
     <option value="turnier_cedh">Turnier / cEDH</option>
   </select></label>
-  <input id="db-label" type="search" placeholder="Archetyp-Marke / Tag" autocomplete="off">
-  <input id="db-must-in" type="search" placeholder="Enthält Karten (Komma-getrennt, z. B. Koma)" autocomplete="off">
-  <input id="db-must-out" type="search" placeholder="Ohne Karten (Komma-getrennt)" autocomplete="off">
-  <label title="Blendet in der Kookkurrenz-Auswertung auch Karten ein, die nicht in deiner Sammlung sind (ohne Preise)."><input id="db-unowned" type="checkbox"> Karten außerhalb der Sammlung zeigen</label>
+  <input id="db-label" aria-label="Archetyp-Marke oder Tag" type="search" placeholder="Archetyp-Marke / Tag" autocomplete="off">
+  <input id="db-must-in" aria-label="Karten, die das Deck enthalten muss" type="search" placeholder="Enthält Karten (Komma-getrennt, z. B. Koma)" autocomplete="off">
+  <input id="db-must-out" aria-label="Karten, die das Deck nicht enthalten darf" type="search" placeholder="Ohne Karten (Komma-getrennt)" autocomplete="off">
+  <label title="Blendet in der Kookkurrenz-Auswertung auch Karten ein, die nicht in deiner Sammlung sind."><input id="db-unowned" type="checkbox"> Karten außerhalb der Sammlung zeigen</label>
   <button id="db-apply" type="button" class="primary">Filtern</button>
   <button id="db-reset" type="button">Zurücksetzen</button>
 </header>
