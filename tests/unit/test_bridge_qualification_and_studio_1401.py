@@ -57,7 +57,7 @@ def _init_bridge_repo(tmp_path: Path, *, freeze_eligible: bool = True) -> tuple[
     (repo / "engine-bridge" / "src").mkdir(parents=True)
     (repo / "engine-bridge" / "src" / "Main.java").write_text("// bridge v1\n", encoding="utf-8")
 
-    pin = "f4d12f6e8066203fba7aa38bd35ea3358117393d"
+    pin = "e" * 40
     config = {
         "primary_engine": {"commit": pin},
         "architecture_freeze": {
