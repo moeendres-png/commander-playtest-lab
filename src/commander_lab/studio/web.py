@@ -45,11 +45,13 @@ from . import (
     paired_comparison,
     paired_series,
     queries,
+    roles,
     signals,
     similar_decks,
     strength,
     strength_view,
     swap,
+    tournament_conversion,
     universe,
     universe_choice,
     universe_view,
@@ -595,6 +597,27 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
             raise HTTPException(404, f"commander not in the collection: {error}") from error
         finally:
             store.close()
+
+    @app.get("/api/roles/audit")
+    def role_audit_route(
+        commander: str | None = Query(default=None, min_length=1, max_length=200),
+    ) -> dict[str, object]:
+        """Compare Scryfall tagger claims vs. deterministic Oracle text claims (#1413),
+        optionally scoped to one commander's legal collection pool with n/N coverage."""
+        store = open_store()
+        try:
+            return roles.role_origin_audit(store, commander=commander)
+        except KeyError as error:
+            raise HTTPException(404, f"commander not in the collection: {error}") from error
+        finally:
+            store.close()
+
+    @app.get("/api/tournament-conversion")
+    def tournament_conversion_route(
+        commander: str = Query(min_length=1, max_length=200),
+    ) -> dict[str, object]:
+        """TopDeck with-vs-without (mit/ohne) top-cut conversion rates per card (#1412)."""
+        return dict(tournament_conversion.analyze_commander_conversion(commander))
 
     @app.get("/api/strength/profiles")
     def strength_profiles() -> list[dict[str, object]]:

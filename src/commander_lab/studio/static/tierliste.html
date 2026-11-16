@@ -29,6 +29,8 @@
 <div id="notice"></div>
 <div id="universe-panel"></div>
 <div id="strength-panel"></div>
+<div id="role-audit-panel"></div>
+<div id="topdeck-conversion-panel"></div>
 <div id="filters">
   <input id="q" type="search" placeholder="Suche in Name und Typ" autocomplete="off">
   <select id="type-filter"></select>
@@ -48,6 +50,11 @@
     <option value="U">Verbreitung: unbekannt (U)</option>
     <option value="F">Verbreitung: Filterkarten</option>
   </select>
+  <span id="rank-group-toggle" class="quick-toggle" role="group" aria-label="Vergleichsgruppe für den Stärke-Index">
+    <span class="toggle-label">Vergleich:</span>
+    <button id="rg-pool" type="button" class="chip" data-rank-group="pool" title="Karten gegen den gesamten legalen Pool des Commanders vergleichen">Gesamtpool</button>
+    <button id="rg-function" type="button" class="chip" data-rank-group="function" title="Karten nur innerhalb der gleichen Funktion (Rolle) vergleichen">Gleiche Funktion</button>
+  </span>
   <label><input id="f-free" type="checkbox" checked> nur freie</label>
   <label><input id="f-fav" type="checkbox"> Favoriten</label>
   <label><input id="f-excl" type="checkbox"> Ausgeschlossene zeigen</label>
