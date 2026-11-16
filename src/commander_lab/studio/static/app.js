@@ -1821,35 +1821,53 @@ function openNewDeckModal() {
     },
   });
 }
+const IMPORT_STATUS = {
+  matched: "übernommen",
+  insufficient: "nur teilweise frei",
+  outside_identity: "außerhalb der Farbidentität",
+  not_legal: "in Commander nicht legal",
+  not_in_collection: "nicht in deiner Sammlung",
+  commander: "Commander dieses Decks",
+  other_commander: "anderer Commander – nicht übernommen",
+  skipped_section: "Abschnitt wird nicht übernommen (z. B. Sideboard)",
+  unreadable: "Zeile nicht lesbar",
+};
+// Pasting a list never changes anything by itself: the page shows every line with its status
+// first, and only "Übernehmen" (replace the working list) or "Als neue Variante" takes it over.
 function openImportDecklistModal() {
   openInputModal({
     title: "Deckliste einfügen",
-    description: "Füge eine Text-Deckliste ein (z. B. „1 Sol Ring“ oder „1x Eternal Witness (2X2) 145“). Karten außerhalb deiner Sammlung werden sachlich gemeldet und nicht übernommen.",
+    description: "Füge eine Text-Deckliste ein (z. B. „1 Sol Ring“, „1x Eternal Witness (2X2) 145“, Moxfield-, Arena-, Archidekt- oder MTGO-Export). Du siehst zuerst jede Zeile mit ihrem Ergebnis; übernommen wird erst nach Bestätigung. Karten außerhalb deiner Sammlung werden sachlich gemeldet.",
     placeholder: "1 Sol Ring\n1 Arcane Signet\n1 Command Tower\n...",
     multiline: true,
-    submitText: "Liste prüfen & übernehmen",
+    submitText: "Vorschau",
     onSubmit: async (text, statusBox) => {
       if (!(text || "").trim()) { toast("Bitte eine Deckliste einfügen."); return; }
       const parsed = await api("/api/decklist-parse", "POST", { commander: COMMANDER, text });
       const cards = (parsed.in_collection || []).map((row) => ({ card_id: row.card_id, quantity: row.quantity, zone: "main" }));
-      useCards(cards);
-      changed();
-      const missing = parsed.not_in_collection || [];
-      const illegal = parsed.outside_color_identity || [];
-      if (!missing.length && !illegal.length) {
+      const counts = parsed.line_counts || {};
+      const summary = Object.entries(counts).map(([status, count]) => `${IMPORT_STATUS[status] || status}: ${count}`).join(" · ");
+      const rows = (parsed.lines || []).map((line) => h("tr", { class: line.status === "matched" ? "" : "warn" },
+        h("td", { class: "num" }, String(line.line)),
+        h("td", {}, line.text),
+        h("td", {}, (IMPORT_STATUS[line.status] || line.status) + (line.status === "insufficient" ? ` (${line.taken} von ${line.quantity}, frei ${line.available})` : "")),
+        h("td", { class: "note" }, (line.ignored || []).join(", "))));
+      const take = (asVariant) => {
+        useCards(cards);
+        changed();
         closeModal();
-        toast(`${parsed.summary.in_collection_cards} Karten in den Entwurf übernommen.`);
-        return;
-      }
+        toast(`${parsed.summary.in_collection_cards} Karten übernommen.`);
+        if (asVariant) openNewBranchModal();
+      };
       statusBox.replaceChildren(
-        h("p", { class: "note" }, `${parsed.summary.in_collection_cards} Karten in deiner Sammlung wurden in den Entwurf übernommen.`),
-        missing.length ? h("div", {},
-          h("h3", {}, `Nicht in deiner Sammlung (${missing.length})`),
-          h("ul", {}, missing.map((m) => h("li", {}, `${m.quantity}x ${m.name} — nicht in deiner Sammlung`)))) : null,
-        illegal.length ? h("div", {},
-          h("h3", {}, `Außerhalb der Farbidentität (${illegal.length})`),
-          h("ul", {}, illegal.map((m) => h("li", {}, `${m.quantity}x ${m.name}`)))) : null
-      );
+        h("p", { id: "import-summary" }, `${parsed.summary.in_collection_cards} Karten aus deiner Sammlung würden übernommen (Liste dann ${parsed.summary.list_cards} / 100 mit Commander). ${summary}`),
+        h("div", { class: "import-preview", style: "max-height:40vh;overflow:auto" },
+          h("table", { id: "import-lines" },
+            h("thead", {}, h("tr", {}, h("th", { class: "num" }, "Zeile"), h("th", {}, "Text"), h("th", {}, "Ergebnis"), h("th", {}, "Ignoriert"))),
+            h("tbody", {}, rows))),
+        h("div", { class: "actions" },
+          h("button", { type: "button", class: "primary", id: "import-replace", disabled: !cards.length, onclick: () => take(false) }, "Übernehmen (ersetzt die aktuelle Liste)"),
+          h("button", { type: "button", id: "import-variant", disabled: !cards.length, onclick: () => take(true) }, "Übernehmen und als neue Variante speichern")));
     },
   });
 }

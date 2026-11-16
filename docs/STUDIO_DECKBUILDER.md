@@ -1392,6 +1392,19 @@ not part of the requirement and the cards are named. No mulligan, no extra draws
 hand figure is the exact share of 7-card hands with 2 to 4 lands and at least one nonland card
 of mana value at most 2. A description, never a land count recommendation.
 
+### Pasting a deck list ("Deckliste einfügen", #1404 option 4 / D5)
+
+"Deckliste einfügen" first shows a preview with one row per line (`POST /api/decklist-parse`,
+`decks.parse_decklist_text`) and changes nothing until "Übernehmen" (replaces the working list)
+or "Übernehmen und als neue Variante speichern". Accepted forms: `1 Card`, `1x Card`, a printing
+in brackets (`(C21) 263`), Moxfield `*F*`/`*E*`, Archidekt `[Kategorie]` and `^Tag^`, Deckstats
+`*CMDR*`, inline `#` comments and section headers (Commander, Deck, Sideboard, Maybeboard ...).
+Every line gets a status: übernommen; nur teilweise frei (the free copies are taken); außerhalb
+der Farbidentität; in Commander nicht legal; nicht in deiner Sammlung (no purchase wording);
+Commander dieses Decks; anderer Commander (not taken); Abschnitt wird nicht übernommen;
+Zeile nicht lesbar. Printings and annotations are listed as ignored, never dropped silently.
+Pasted lists never enter the source-deck corpus; "Neues Deck" and the text export are unchanged.
+
 ### Archetype labels (schema 15)
 
 Free-form labels the Owner puts on a card (card window, "Archetyp-Marken") and on a saved deck

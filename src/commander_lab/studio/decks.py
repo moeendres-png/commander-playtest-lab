@@ -305,7 +305,8 @@ _SECTION_HEADERS = frozenset(
 _ANNOTATIONS = (
     ("Archidekt-Kategorie", re.compile(r"\s*\[[^\]]*\]")),
     ("Archidekt-Markierung", re.compile(r"\s*\^[^^]*\^")),
-    ("Foil/Etched-Markierung", re.compile(r"\s*\*(?:F|E|CMDR)\*", re.I)),
+    ("Commander-Markierung (Deckstats)", re.compile(r"\s*\*CMDR\*", re.I)),
+    ("Foil/Etched-Markierung", re.compile(r"\s*\*(?:F|E)\*", re.I)),
     ("Kommentar", re.compile(r"\s+#.*$")),
 )
 _PRINTING = re.compile(r"\s+\(([A-Za-z0-9]{2,6})\)(?:\s+[A-Za-z0-9-]+[a-z★]?)?\s*$")
@@ -388,7 +389,11 @@ def parse_decklist_text(
             body = body[: printing.start()]
         match = _LINE.match(body.strip())
         entry: dict[str, object] = {"line": number, "text": line, "ignored": ignored}
-        if not match or not match.group(2).strip() or (match.group(1) and int(match.group(1)) <= 0):
+        if (
+            not match
+            or not re.search(r"[^\W\d_]", match.group(2))
+            or (match.group(1) and int(match.group(1)) <= 0)
+        ):
             lines.append({**entry, "status": "unreadable"})
             continue
         quantity = int(match.group(1) or "1")
