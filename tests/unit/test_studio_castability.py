@@ -6,8 +6,6 @@ from fractions import Fraction
 from itertools import combinations
 from math import comb
 
-import pytest
-
 from commander_lab.studio import castability
 
 
@@ -143,11 +141,35 @@ def test_deck_castability_groups_requirements_and_counts_land_data() -> None:
     assert result["opening_hand"]["early_actions"] == 2
 
 
-@pytest.mark.parametrize("turn", [1, 3, 5])
-def test_conditional_is_never_below_on_curve(turn: int) -> None:
-    groups = [(frozenset("G"), 12), (frozenset("U"), 10), (frozenset("GU"), 4)]
-    result = castability.colour_probability(groups, 60, {"G": 1, "U": 2}, turn)
-    assert result["p_on_curve"] <= result["p_colours_given_lands"]
+def test_joint_matches_enumeration_on_random_small_decks() -> None:
+    import random
+
+    rng = random.Random(20261116)
+    kinds = [frozenset("G"), frozenset("U"), frozenset("GU"), frozenset("GUW"), frozenset()]
+    for _ in range(60):
+        groups = [(kind, rng.randint(0, 2)) for kind in kinds]
+        groups = [(kind, size) for kind, size in groups if size]
+        nonland = rng.randint(0, 4)
+        turn = rng.randint(1, 3)
+        need = {c: rng.randint(1, 2) for c in rng.sample("GUW", rng.randint(1, 2))}
+        size = sum(n for _, n in groups) + nonland
+        draws = castability.draws_by_turn(turn)
+        result = castability.colour_probability(groups, nonland, need, turn)
+        if size < draws:
+            assert result["p_land_drops"] is None
+            continue
+        total, with_lands, with_both = castability._joint(groups, nonland, draws, turn, need)
+        cards: list[frozenset[str] | None] = [k for k, n in groups for _ in range(n)]
+        cards += [None] * nonland
+        ref_lands = ref_both = ref_total = 0
+        for hand in combinations(range(len(cards)), draws):
+            lands = [cards[i] for i in hand if cards[i] is not None]
+            ref_total += 1
+            if len(lands) >= turn:
+                ref_lands += 1
+                if all(sum(c in land for land in lands) >= n for c, n in need.items()):
+                    ref_both += 1
+        assert (total, with_lands, with_both) == (ref_total, ref_lands, ref_both)
 
 
 def test_castability_route_on_a_store(tmp_path) -> None:  # type: ignore[no-untyped-def]
@@ -171,5 +193,6 @@ def test_castability_route_on_a_store(tmp_path) -> None:  # type: ignore[no-unty
     body = response.json()
     assert body["schema"] == castability.SCHEMA
     assert body["main_cards"] == 99
+    assert body["requirements"], "the fixture deck has coloured costs"
     for item in body["requirements"]:
         assert "condition" in item and item["condition"].startswith("bedingt auf")

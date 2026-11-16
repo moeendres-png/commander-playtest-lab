@@ -68,18 +68,49 @@ def test_extra_turns_and_land_denial_are_named_candidates() -> None:
         _row("n", "Ugin's Nexus", oracle_text="If a player would begin an extra turn, that player "
              "skips that turn instead. ... Players can't take extra turns."),
         _row("a", "Armageddon", oracle_text="Destroy all lands."),
+        _row("j", "Jokulhaups", oracle_text="Destroy all artifacts, creatures, and lands. They "
+             "can't be regenerated."),
         _row("r", "Ruination", oracle_text="Destroy all nonbasic lands."),
         _row("w", "Winter Orb", oracle_text="As long as Winter Orb is untapped, players can't "
              "untap more than one land during their untap steps."),
+        _row("q", "Rising Waters", oracle_text="Lands don't untap during their controllers' "
+             "untap steps."),
         _row("b", "Blood Moon", oracle_text="Nonbasic lands are Mountains."),
         _row("s", "Swords to Plowshares", oracle_text="Exile target creature."),
         _row("k", "Harrow", oracle_text="As an additional cost, sacrifice a land. Search ..."),
+        _row("g", "Lantern-Lit Graveyard", type_line="Land", oracle_text="Lantern-Lit Graveyard "
+             "enters tapped. ... This land doesn't untap during your next untap step."),
+        _row("e", "Elspeth Tirel", oracle_text="-5: Destroy all other permanents except for "
+             "lands and tokens."),
+        _row("c", "Scourglass", oracle_text="Sacrifice Scourglass: Destroy all permanents except "
+             "for artifacts and lands."),
     ]  # fmt: skip
     facts = deck_facts.bracket_facts(rows, roles={}, combos=None)
     assert [card["name"] for card in facts["extra_turns"]["cards"]] == ["Time Warp"]
     denial = {card["name"]: card["rule"] for card in facts["mass_land_denial"]["cards"]}
-    assert set(denial) == {"Armageddon", "Ruination", "Winter Orb", "Blood Moon"}
-    assert facts["mass_land_denial"]["count"] == 4
+    assert set(denial) == {
+        "Armageddon", "Jokulhaups", "Ruination", "Winter Orb", "Rising Waters", "Blood Moon",
+    }  # fmt: skip
+    assert facts["mass_land_denial"]["count"] == 6
+    assert facts["mass_land_denial"]["of"] == len(rows)
+    assert facts["mass_land_denial"]["text_unknown"] == 0
+
+
+def test_unknown_text_and_flags_are_counted_apart_with_denominators() -> None:
+    rows = [
+        _row("cmd", "Chulane", zone="commander", game_changer=0),
+        _row("a", "Time Walk", oracle_text="Take an extra turn after this one.", quantity=1),
+        _row("u", "Workbook Card", oracle_text=None, game_changer=None, fact_source="workbook"),
+        _row("t", "Demonic Tutor", game_changer=1),
+    ]
+    facts = deck_facts.bracket_facts(rows, roles={"t": ["tutor"]}, combos=None)
+    assert facts["extra_turns"]["count"] == 1
+    assert facts["extra_turns"]["of"] == 2  # cards with known text, commander excluded
+    assert facts["extra_turns"]["text_unknown"] == 1
+    assert facts["game_changers"]["of"] == 4  # the commander counts
+    assert [c["name"] for c in facts["game_changers"]["cards"]] == ["Demonic Tutor"]
+    assert [c["name"] for c in facts["game_changers"]["unknown_cards"]] == ["Workbook Card"]
+    assert facts["tutors"] == {**facts["tutors"], "count": 1, "of": 3}
 
 
 def test_tutors_split_land_search_and_report_role_coverage() -> None:

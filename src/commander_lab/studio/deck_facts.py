@@ -75,9 +75,12 @@ _EXTRA_TURN_DENIED = re.compile(r"can't take extra turns", re.I)
 _LAND_DENIAL: tuple[tuple[str, re.Pattern[str]], ...] = (
     (
         "zerstört/verbannt alle Länder",
-        re.compile(r"\b(?:destroy|exile) all (?:[\w-]+ )*lands\b", re.I),
+        re.compile(r"\b(?:destroy|exile) all (?:(?!except\b)[\w-]+,? )*lands\b", re.I),
     ),
-    ("schickt alle Länder zurück", re.compile(r"\breturn all (?:[\w-]+ )*lands\b", re.I)),
+    (
+        "schickt alle Länder zurück",
+        re.compile(r"\breturn all (?:(?!except\b)[\w-]+,? )*lands\b", re.I),
+    ),
     (
         "jeder opfert mehrere Länder",
         re.compile(
@@ -86,7 +89,7 @@ _LAND_DENIAL: tuple[tuple[str, re.Pattern[str]], ...] = (
             re.I,
         ),
     ),
-    ("Länder enttappen nicht", re.compile(r"\blands? (?:don't|doesn't) untap\b", re.I)),
+    ("Länder enttappen nicht", re.compile(r"\blands don't untap\b", re.I)),
     (
         "begrenzt das Enttappen",
         re.compile(r"\bcan't untap more than (?:one|two) (?:land|permanent)", re.I),
@@ -103,7 +106,7 @@ GAP_REASONS = {
     "no_role": "keine Rolle (Tagger)",
     "land_colours_unknown": "Farben des Landes unbekannt",
     "no_source_deck": "kein Quelldeck des Commanders nennt die Karte (Häufigkeit unbekannt)",
-    "no_edhrec": "keine EDHREC-Beobachtung für den Commander (Commander- und Bracket-Seiten)",
+    "no_edhrec": "keine EDHREC-Beobachtung für den Commander",
 }
 _BASIC_TYPES = ("Plains", "Island", "Swamp", "Mountain", "Forest", "Wastes")
 
@@ -148,6 +151,10 @@ def _named(rows: Iterable[_Row]) -> list[dict[str, object]]:
     )
 
 
+def _qty(rows: Iterable[_Row]) -> int:
+    return sum(int(_text(row, "quantity") or "1") for row in rows)
+
+
 def extra_turn_cards(rows: Iterable[_Row]) -> list[_Row]:
     """Cards whose oracle text gives a player an extra turn."""
     found = []
@@ -184,8 +191,8 @@ def bracket_facts(
     everything = list(rows)
     changers = [row for row in everything if _get(row, "game_changer") in (1, True)]
     changer_unknown = [row for row in everything if _get(row, "game_changer") is None]
-    count = sum(int(_text(row, "quantity") or "1") for row in changers)
-    unknown = sum(int(_text(row, "quantity") or "1") for row in changer_unknown)
+    count = _qty(changers)
+    unknown = _qty(changer_unknown)
     limits = []
     for bracket, limit in GAME_CHANGER_LIMITS:
         if limit is None or count + unknown <= limit:
@@ -195,6 +202,12 @@ def bracket_facts(
         else:
             status = "unbekannt"
         limits.append({"bracket": bracket, "limit": limit, "status": status})
+
+    # Text patterns can only read cards whose oracle text is known; the rest is unknown.
+    with_text = [row for row in deck if _get(row, "oracle_text") is not None]
+    text_unknown = _qty(row for row in deck if _get(row, "oracle_text") is None)
+    turns = extra_turn_cards(with_text)
+    denial = land_denial_cards(with_text)
 
     nonland = [row for row in deck if not _is_land(row)]
     with_roles = [row for row in nonland if roles.get(_text(row, "card_id"))]
@@ -217,40 +230,47 @@ def bracket_facts(
         "sources": list(BRACKET_SOURCES),
         "game_changers": {
             "count": count,
+            "of": _qty(everything),
             "unknown": unknown,
             "cards": _named(changers),
             "unknown_cards": _named(changer_unknown),
             "limits": limits,
-            "method": "Kartendaten-Feld game_changer (Scryfall)",
+            "method": "Kartendaten-Feld game_changer (Scryfall), Commander eingeschlossen",
         },
         "extra_turns": {
-            "count": sum(int(_text(r, "quantity") or "1") for r in extra_turn_cards(deck)),
-            "cards": _named(extra_turn_cards(deck)),
+            "count": _qty(turns),
+            "of": _qty(with_text),
+            "text_unknown": text_unknown,
+            "cards": _named(turns),
             "method": "Kartentext-Muster „extra turn“ (Kandidaten, kein Regelurteil)",
             "note": GROUP_NOTES["extra_turns"],
         },
         "mass_land_denial": {
-            "count": len(land_denial_cards(deck)),
+            "count": _qty(row for row, _ in denial),
+            "of": _qty(with_text),
+            "text_unknown": text_unknown,
             "cards": sorted(
                 (
                     {
                         "card_id": _text(row, "card_id"),
                         "name": _text(row, "oracle_name"),
+                        "quantity": int(_text(row, "quantity") or "1"),
                         "rule": rule,
                     }
-                    for row, rule in land_denial_cards(deck)
+                    for row, rule in denial
                 ),
-                key=lambda item: item["name"],
+                key=lambda item: str(item["name"]),
             ),
             "method": "Kartentext-Muster (Kandidaten, kein Regelurteil)",
             "note": GROUP_NOTES["mass_land_denial"],
         },
         "tutors": {
-            "count": len(tutors),
+            "count": _qty(tutors),
+            "of": _qty(nonland),
             "cards": _named(tutors),
-            "land_search": len(land_search),
+            "land_search": _qty(land_search),
             "land_search_cards": _named(land_search),
-            "role_data": {"with_roles": len(with_roles), "of": len(nonland)},
+            "role_data": {"with_roles": _qty(with_roles), "of": _qty(nonland)},
             "method": (
                 "öffentliche Rolle „tutor“ (Scryfall-Tagger); der Tagger zählt Land-Suche mit, "
                 "darum steht „davon Land-Suche“ (zugleich Rolle land_ramp) getrennt"

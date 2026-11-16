@@ -19,8 +19,8 @@ function castabilityNodes(h, data, open) {
   const hand = data.opening_hand;
   const notes = [];
   if (data.lands_without_coloured_mana) notes.push(`${data.lands_without_coloured_mana} Länder erzeugen laut Kartendaten kein farbiges Mana (z. B. Fetch-Länder) und zählen nicht als Quelle.`);
-  if (data.lands_unknown_colours) notes.push(`${data.lands_unknown_colours} Länder ohne Kartendaten: Farben unbekannt, nicht als Quelle gezählt.`);
-  if (data.cards_unknown_mana_value) notes.push(`${data.cards_unknown_mana_value} Karten mit unbekanntem Manawert sind nicht eingerechnet.`);
+  if (data.lands_unknown_colours) notes.push(`${data.lands_unknown_colours} Länder ohne Kartendaten: Farben unbekannt, nicht als Quelle gezählt – die Farbwerte sind darum eher zu niedrig.`);
+  if (data.cards_unknown_mana_value) notes.push(`${data.cards_unknown_mana_value} Karten mit unbekanntem Manawert: ohne eigene Farbanforderung, in den Ziehungen als Karten ohne frühe Aktion gezählt.`);
   if (data.hybrid_or_phyrexian_cards.length) notes.push(`Hybrid- und Phyrexia-Symbole nicht eingerechnet bei: ${data.hybrid_or_phyrexian_cards.join(", ")}.`);
   return [
     h("h3", {}, "Farben auf Kurve (bedingt auf Land-Drops)"),

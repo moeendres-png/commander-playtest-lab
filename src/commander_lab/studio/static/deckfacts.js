@@ -18,8 +18,12 @@ function renderBracketFacts(h, bracket, open) {
   const gc = bracket.game_changers;
   const tut = bracket.tutors;
   const combos = bracket.two_card_combos;
-  const gcCount = gc.unknown ? `${gc.count} (dazu ${gc.unknown} unbekannt)` : String(gc.count);
-  const tutCount = `${tut.count}` + (tut.land_search ? ` (davon ${tut.land_search} Land-Suche)` : "");
+  const gcCount = `${gc.count} von ${gc.of} Karten` + (gc.unknown ? ` (dazu ${gc.unknown} unbekannt)` : "");
+  const tutCount = `${tut.count} von ${tut.of} Nicht-Land-Karten` + (tut.land_search ? ` (davon ${tut.land_search} Land-Suche)` : "");
+  const textCount = (group) => `${group.count} von ${group.of} Karten mit Kartentext` + (group.text_unknown ? ` (${group.text_unknown} ohne Kartentext: unbekannt)` : "");
+  const gcNames = gc.unknown_cards && gc.unknown_cards.length
+    ? h("span", {}, deckFactsNames(h, gc.cards, open), h("br"), h("span", { class: "muted" }, "unbekannt: "), deckFactsNames(h, gc.unknown_cards, open))
+    : deckFactsNames(h, gc.cards, open);
   const comboCount = combos.count === null ? "unbekannt (keine Kombo-Liste gespeichert)" : `${combos.count} von ${combos.listed} gelisteten Kombos`;
   const comboNames = combos.combos && combos.combos.length
     ? h("span", {}, combos.combos.map((item) => item.cards.join(" + ")).join(" · "))
@@ -31,10 +35,10 @@ function renderBracketFacts(h, bracket, open) {
   const table = h("table", { id: "bracket-facts" },
     h("thead", {}, h("tr", {}, h("th", {}, "Gruppe"), h("th", { class: "num" }, "Anzahl"), h("th", {}, "Karten"))),
     h("tbody", {},
-      ...row("Game Changer", gcCount, deckFactsNames(h, gc.cards.concat(gc.unknown_cards || []), open), gc.method, ""),
-      ...row("Extrazüge", String(bracket.extra_turns.count), deckFactsNames(h, bracket.extra_turns.cards, open), bracket.extra_turns.method, bracket.extra_turns.note),
-      ...row("Massen-Landzerstörung", String(bracket.mass_land_denial.count), deckFactsNames(h, bracket.mass_land_denial.cards, open), bracket.mass_land_denial.method, bracket.mass_land_denial.note),
-      ...row("Tutoren", tutCount, deckFactsNames(h, tut.cards, open), `${tut.method}; Rollen-Daten für ${tut.role_data.with_roles} von ${tut.role_data.of} Nicht-Land-Karten`, tut.note),
+      ...row("Game Changer", gcCount, gcNames, gc.method, ""),
+      ...row("Extrazüge", textCount(bracket.extra_turns), deckFactsNames(h, bracket.extra_turns.cards, open), bracket.extra_turns.method, bracket.extra_turns.note),
+      ...row("Massen-Landzerstörung", textCount(bracket.mass_land_denial), deckFactsNames(h, bracket.mass_land_denial.cards, open), bracket.mass_land_denial.method, bracket.mass_land_denial.note),
+      ...row("Tutoren", tutCount, deckFactsNames(h, tut.cards, open), `${tut.method}; Rollen-Daten für ${tut.role_data.with_roles} von ${tut.role_data.of} Nicht-Land-Karten (ohne Rolle: unbekannt)`, tut.note),
       ...row("2-Karten-Kombos", comboCount, comboNames, combos.method, combos.note)));
   const limits = h("table", { id: "bracket-limits" },
     h("thead", {}, h("tr", {}, h("th", {}, "Bracket"), h("th", { class: "num" }, "Game Changer erlaubt"), h("th", {}, "Dein Deck"))),
