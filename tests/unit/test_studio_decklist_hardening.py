@@ -94,7 +94,7 @@ def test_prices_are_stripped_and_never_echoed(store: StudioStore, line: str) -> 
     parsed = decks.parse_decklist_text(store, CMD, line)
     assert _names(parsed) == ["Sol Ring"]
     assert parsed["not_in_collection"] == []
-    assert parsed["ignored_annotations"] == [{"line": 1, "annotation": "Preisangabe (ignoriert)"}]
+    assert parsed["ignored_annotations"] == [{"line": 1, "annotation": "Betragsangabe (ignoriert)"}]
     dumped = json.dumps(parsed, ensure_ascii=False)
     for figure in ("1.20", "1,20", "0.75", "$", "€", "USD"):
         assert figure not in dumped

@@ -1201,7 +1201,7 @@ and dashes, and also matches the back-face name of a two-faced card. A quantity 
 other values are listed as unreadable with the line text kept. A line longer than 300 characters
 is listed as `zu lang`, and a list of more than 2000 lines is refused with a German error (HTTP
 422), never truncated silently. Trailing amount tokens on a line are dropped before matching and
-listed only as `Preisangabe (ignoriert)` in `ignored_annotations`, without the figure; the figure
+listed only as `Betragsangabe (ignoriert)` in `ignored_annotations`, without the figure; the figure
 is never stored or returned.
 
 ### Alles importieren

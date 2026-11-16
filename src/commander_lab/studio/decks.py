@@ -441,7 +441,7 @@ _PRICE_ANY_RE = re.compile(
     rf"[$\u20ac\u00a3]\s?{_PRICE_AMOUNT}|{_PRICE_AMOUNT}\s?(?:[$\u20ac\u00a3]|USD\b|EUR\b)",
     re.IGNORECASE,
 )
-_PRICE_ANNOTATION = "Preisangabe (ignoriert)"
+_PRICE_ANNOTATION = "Betragsangabe (ignoriert)"
 
 
 def _strip_trailing_prices(name: str) -> tuple[str, bool]:
