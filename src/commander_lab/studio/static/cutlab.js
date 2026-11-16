@@ -161,7 +161,7 @@ async function renderCutLab(body, deps) {
     h("h3", {}, h("a", { href: "#", class: "nm", onclick: (event) => { event.preventDefault(); if (card) deps.openCard(card); } }, item.name), item.quantity > 1 ? ` (${item.quantity}× im Deck)` : ""),
     h("p", {}, cutFreqText(item) + (result.cohort.small ? " · kleine Gruppe (unter 30)" : "")),
     item.below_minimum.length ? h("p", { class: "warn" }, "Unter der Mindestzahl: " + item.below_minimum.map(deps.roleName).join(", ")) : "",
-    item.combo_parts.length ? h("p", { class: "note" }, h("span", { class: "chip", style: "cursor:default" }, "Kombo-Teil"), " " + item.combo_parts.map((cards) => cards.join(" + ")).join(" · ")) : "",
+    item.combo_parts.length ? h("p", { class: "note" }, h("span", { class: "chip chip-static" }, "Kombo-Teil"), " " + item.combo_parts.map((cards) => cards.join(" + ")).join(" · ")) : "",
     cutDeltaList(h, item, deps),
     h("div", { class: "actions" },
       h("button", { type: "button", class: "primary", id: "cut-accept", onclick: () => { if (card) deps.remove(card); } }, "Kürzen"),

@@ -24,7 +24,7 @@ async function renderBuildPlanTab(body, deps) {
     h("h3", {}, `Bauplan · ${cohortName(data.cohort)}`),
     h("p", { class: "note" },
       `Vergleichsgruppe: ${data.cohort_decks} Quelldecks · Pool mit bekannter Tagger-Rolle: ${data.pool_tagged}/${data.pool_total}`,
-      data.small_sample ? h("span", { class: "pill low", style: "margin-left:6px" }, `Kleine Stichprobe (< ${data.small_denominator} Decks)`) : null),
+      data.small_sample ? h("span", { class: "pill low ml-1" }, `Kleine Stichprobe (< ${data.small_denominator} Decks)`) : null),
   ];
 
   const spanText = (span) => span ? `${span.median.toFixed(1)} (${span.p25.toFixed(1)}–${span.p75.toFixed(1)})` : "unbekannt";
@@ -33,7 +33,7 @@ async function renderBuildPlanTab(body, deps) {
       : step.status === "IN_SPAN" ? ["in mittlerer Hälfte", "good"]
       : step.status === "OPEN" ? ["offen", "warn"]
       : ["prüfen", "low"];
-    const stepBox = h("div", { class: "plan-step card-box", style: "margin-bottom:10px;padding:8px;border:1px solid var(--border,#ddd);border-radius:6px" },
+    const stepBox = h("div", { class: "plan-step card-box" },
       h("div", { class: "actions" }, h("strong", {}, step.title), h("span", { class: `pill ${statusLabel[1]}` }, statusLabel[0])),
       h("p", { class: "note" }, step.description));
 
@@ -115,9 +115,9 @@ async function renderPackagesUpgradeTab(body, deps) {
           const missNodes = (sh.missing_from_deck || []).map((name) => {
             const info = (sh.available_missing || {})[name];
             const pCard = info && info.card_id ? poolCardById(info.card_id) : null;
-            return h("span", { style: "margin-right:6px" },
+            return h("span", { class: "inline-item mr-2" },
               name,
-              pCard && info.available > 0 ? h("button", { type: "button", class: "small", style: "margin-left:4px", onclick: () => add(pCard) }, "+") : null);
+              pCard && info.available > 0 ? h("button", { type: "button", class: "small ml-1", onclick: () => add(pCard) }, "+") : null);
           });
           return h("tr", {},
             h("td", {}, `#${sh.shell_id}`),
@@ -133,11 +133,11 @@ async function renderPackagesUpgradeTab(body, deps) {
     for (const pkg of syn) {
       const anc = pkg.anchor;
       const ancCard = poolCardById(anc.card_id);
-      const pBox = h("div", { class: "card-box", style: "margin-bottom:8px;padding:8px;border:1px solid var(--border,#ddd);border-radius:6px" },
+      const pBox = h("div", { class: "card-box" },
         h("p", {},
           h("strong", { class: ancCard ? "name" : "", onclick: () => { if (ancCard) openCard(ancCard); } }, anc.name),
           ` · ${anc.decks}/${anc.of} Decks`,
-          anc.small_sample ? h("span", { class: "pill low", style: "margin-left:6px" }, `< ${pkgData.small_denominator} Decks`) : null));
+          anc.small_sample ? h("span", { class: "pill low ml-1" }, `< ${pkgData.small_denominator} Decks`) : null));
       if (pkg.in_deck_partners && pkg.in_deck_partners.length) {
         pBox.append(h("p", { class: "note" }, "Bereits im Deck gekoppelt: " + pkg.in_deck_partners.map((p) => `${p.name} (Lift ${p.lift})`).join(" · ")));
       }

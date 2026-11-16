@@ -10,7 +10,7 @@ function castabilityNodes(h, data, open) {
     h("a", { href: "#", class: "nm", onclick: (event) => { event.preventDefault(); open(card.card_id); } }, card.name)]));
   const rows = data.requirements.flatMap((item) => [
     h("tr", { class: "facts-row" },
-      h("td", { style: "white-space:nowrap" }, pipLabel(item.label), ` Zug ${item.turn}`),
+      h("td", { class: "nowrap" }, pipLabel(item.label), ` Zug ${item.turn}`),
       h("td", { class: "num" }, Object.entries(item.sources).map(([colour, count]) => `${colour} ${count}`).join(" · ")),
       h("td", { class: "num", title: `mindestens ${item.turn} Länder unter ${item.draws} Karten` }, castPct(item.p_land_drops)),
       h("td", { class: "num", title: item.condition }, castPct(item.p_colours_given_lands))),

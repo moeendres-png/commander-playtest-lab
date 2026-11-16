@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import functools
 import json
+import math
 import sqlite3
 from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass
@@ -164,23 +165,29 @@ def _parse_atom(token: str) -> _Expr:
             expr = _Term("keyword", ":", val.casefold())
         elif key in {"mv", "cmc"}:
             try:
-                float(val)
+                num_val = float(val)
             except ValueError as err:
                 raise UnsupportedQueryError(f"non-numeric mana value {val!r}") from err
+            if not math.isfinite(num_val):
+                raise UnsupportedQueryError(f"non-finite mana value {val!r}")
             norm_op = "=" if sep_op == ":" else sep_op
             expr = _Term("mv", norm_op, val)
         elif key in {"pow", "power"}:
             try:
-                float(val)
+                num_val = float(val)
             except ValueError as err:
                 raise UnsupportedQueryError(f"non-numeric power {val!r}") from err
+            if not math.isfinite(num_val):
+                raise UnsupportedQueryError(f"non-finite power {val!r}")
             norm_op = "=" if sep_op == ":" else sep_op
             expr = _Term("power", norm_op, val)
         elif key in {"tou", "toughness"}:
             try:
-                float(val)
+                num_val = float(val)
             except ValueError as err:
                 raise UnsupportedQueryError(f"non-numeric toughness {val!r}") from err
+            if not math.isfinite(num_val):
+                raise UnsupportedQueryError(f"non-finite toughness {val!r}")
             norm_op = "=" if sep_op == ":" else sep_op
             expr = _Term("toughness", norm_op, val)
         elif key in {"m", "mana"}:
@@ -188,9 +195,15 @@ def _parse_atom(token: str) -> _Expr:
                 raise UnsupportedQueryError(f"unsupported mana operator {key}{sep_op}")
             expr = _Term("mana", sep_op, val.upper())
         elif key in {"id", "identity", "ci"} and sep_op in {":", "="}:
-            expr = _Term("identity", sep_op, val.upper())
+            up = val.upper()
+            if not set(up) <= {"W", "U", "B", "R", "G", "C"} or ("C" in up and len(up) > 1):
+                raise UnsupportedQueryError(f"unsupported color identity {val!r}")
+            expr = _Term("identity", sep_op, up)
         elif key in {"c", "color"} and sep_op in {":", "="}:
-            expr = _Term("color", sep_op, val.upper())
+            up = val.upper()
+            if not set(up) <= {"W", "U", "B", "R", "G", "C"} or ("C" in up and len(up) > 1):
+                raise UnsupportedQueryError(f"unsupported color filter {val!r}")
+            expr = _Term("color", sep_op, up)
         elif key == "is" and sep_op == ":":
             low = val.casefold()
             if low not in {"permanent", "spell", "commander"}:
@@ -326,20 +339,24 @@ def _eval_term(term: _Term, card: Mapping[str, object]) -> bool:
             return cost == term.value
         return term.value in cost
     if kind == "identity":
-        wanted = {ch for ch in term.value if ch in {"W", "U", "B", "R", "G"}}
         raw_id = card.get("identity")
         cid: set[str] = (
             {str(x) for x in raw_id} if isinstance(raw_id, (set, frozenset, list, tuple)) else set()
         )
+        if term.value == "C":
+            return not cid
+        wanted = {ch for ch in term.value if ch in {"W", "U", "B", "R", "G"}}
         return cid == wanted if term.op == "=" else cid <= wanted
     if kind == "color":
-        wanted = {ch for ch in term.value if ch in {"W", "U", "B", "R", "G"}}
         raw_colors = card.get("mana_colors")
         colors: set[str] = (
             {str(x) for x in raw_colors}
             if isinstance(raw_colors, (set, frozenset, list, tuple))
             else set()
         )
+        if term.value == "C":
+            return not colors
+        wanted = {ch for ch in term.value if ch in {"W", "U", "B", "R", "G"}}
         return colors == wanted if term.op == "=" else wanted <= colors
     if kind == "is":
         tl_words = {

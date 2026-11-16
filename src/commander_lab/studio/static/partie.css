@@ -1,13 +1,13 @@
 a.nav{color:var(--accent);text-decoration:none;padding:4px 8px;border:1px solid var(--line);border-radius:6px}
 a.nav:hover{border-color:var(--accent)}
-#controls{display:flex;align-items:center;gap:8px 10px;padding:8px 12px;background:var(--panel);border-bottom:1px solid var(--line);flex-wrap:wrap}
+#controls{display:flex;align-items:center;gap:var(--s2) var(--s3);padding:var(--s2) var(--s4);background:var(--panel);border-bottom:1px solid var(--line);flex-wrap:wrap}
 #controls label{display:inline-flex;gap:4px;align-items:center;color:var(--muted)}
 #position{flex:1 1 260px;padding:0}
-#game{grid-template-columns:minmax(0,1fr) 400px}
-#table{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:10px;overflow:auto;align-content:start}
+#game{grid-template-columns:minmax(0,1fr) 410px}
+#table{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--s3);padding:var(--s3);overflow:auto;align-content:start;scrollbar-width:thin}
 #table.one{grid-template-columns:1fr}
-.seat{background:var(--panel);border:2px solid var(--line);border-radius:10px;padding:8px;min-height:220px}
-.seat.active{border-color:var(--good)}
+.seat{background:var(--panel);border:2px solid var(--line);border-radius:10px;padding:var(--s2) var(--s3);min-height:220px;transition:border-color .15s ease,box-shadow .15s ease}
+.seat.active{border-color:var(--good);box-shadow:0 0 0 1px color-mix(in srgb,var(--good) 40%,transparent)}
 .seat.acting{box-shadow:0 0 0 2px var(--accent)}
 .seat.out{opacity:.45}
 .seat.attacked{border-color:var(--bad);box-shadow:0 0 8px rgba(238,138,115,.4)}

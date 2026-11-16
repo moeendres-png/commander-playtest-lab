@@ -1,9 +1,9 @@
 /* Tier list: page-specific parts; tokens, buttons, tables, badges and toasts are in app.css. */
 body{height:auto;min-height:100%}
-#notice{padding:var(--s2) var(--s3);background:var(--panel2);border-bottom:1px solid var(--line);font-size:13px}
+#notice{padding:var(--s2) var(--s4);background:var(--panel2);border-bottom:1px solid var(--line);font-size:13px}
 #notice b{color:var(--warn)}
 #notice .summary{color:var(--muted);margin-top:2px}
-#pool-body{overflow:auto;max-height:calc(100vh - 150px);min-height:320px;padding:var(--s3)}
+#pool-body{overflow:auto;max-height:calc(100vh - 150px);min-height:320px;padding:var(--s3) var(--s4);scrollbar-width:thin}
 td.cardcell{white-space:nowrap}
 td.cardcell .thumb{display:inline-block;vertical-align:middle;margin-right:var(--s2)}
 .star{color:#ffd257}
@@ -12,14 +12,14 @@ td.acts button{margin-right:4px}
 button.small.fav.on{color:#b8860b;border-color:#d4a514}
 button.small.indeck{border-color:var(--good);color:var(--good)}
 .unknown{color:var(--muted);font-style:italic}
-.layer{border:1px solid var(--line);border-radius:var(--radius);padding:var(--s2) 10px;margin:10px 0;background:var(--panel2)}
+.layer{border:1px solid var(--line);border-radius:var(--radius);padding:var(--s3);margin:var(--s3) 0;background:var(--panel2)}
 .layer h3{margin:0 0 var(--s1);font-size:14px;display:flex;gap:var(--s2);align-items:center;flex-wrap:wrap}
 .layer table{margin-top:6px;font-size:12px}
 .layer p{margin:var(--s1) 0;font-size:12px;color:var(--muted)}
 .rule{color:var(--muted);font-size:11px}
-.policy{border-left:3px solid var(--warn);padding:6px 10px;background:var(--panel2);border-radius:0 6px 6px 0;margin:var(--s2) 0;font-size:12px}
+.policy{border-left:3px solid var(--warn);padding:var(--s2) var(--s3);background:var(--panel2);border-radius:0 var(--radius-s) var(--radius-s) 0;margin:var(--s2) 0;font-size:12px}
 .layer .name,.name{cursor:pointer;font-weight:600}
-#universe-panel,#strength-panel{padding:var(--s2) var(--s3);border-bottom:1px solid var(--line);font-size:13px}
+#universe-panel,#strength-panel{padding:var(--s2) var(--s4);border-bottom:1px solid var(--line);font-size:13px}
 #universe-panel .facts,#strength-panel .facts{display:flex;gap:var(--s2) var(--s4);flex-wrap:wrap;align-items:baseline;margin:6px 0}
 #universe-panel details{margin-top:6px}
 #universe-panel form{display:flex;gap:var(--s2);flex-wrap:wrap;align-items:flex-end;margin-top:6px}

@@ -10,6 +10,7 @@ outcomes or card prices.
 from __future__ import annotations
 
 import math
+import sqlite3
 from collections.abc import Iterable, Mapping, Sequence
 from pathlib import Path
 
@@ -211,10 +212,11 @@ def _cohort_candidates(store: StudioStore, commander_names: Sequence[str], cohor
 
 def _rows_from_cards(
     store: StudioStore, cards: Sequence[RevisionCard]
-) -> tuple[list[dict[str, object]], set[str]]:
-    rows = [dict(r) for r in list_rows(store, cards)]
+) -> tuple[Sequence[sqlite3.Row], list[dict[str, object]], set[str]]:
+    raw_rows = list_rows(store, cards)
+    rows = [dict(r) for r in raw_rows]
     deck_ids = {str(r["card_id"]) for r in rows}
-    return rows, deck_ids
+    return raw_rows, rows, deck_ids
 
 
 def deck_packages(
@@ -228,7 +230,7 @@ def deck_packages(
     """Identify synergistic card packages & Spellbook shell packages around the current deck."""
     from .universe import deck_sets, spelling_owners
 
-    deck_rows, deck_ids = _rows_from_cards(store, cards)
+    raw_rows, deck_rows, deck_ids = _rows_from_cards(store, cards)
     chosen = _resolve_commanders(store, commander_names, deck_rows)
     if not chosen:
         return {
@@ -247,7 +249,7 @@ def deck_packages(
     # 1. Spellbook shell packages touched by the deck (or with free missing pool pieces)
     combo_data = combos.deck_combos(
         store,
-        list_rows(store, cards),
+        raw_rows,
         chosen,
         template_snapshot_path=template_snapshot_path,
     )
@@ -611,7 +613,7 @@ def upgrade_path(
     Never reads user marks (favorites, exclusions, notes), never ranks unknown corpus cards as
     zero, and never claims a card makes the deck stronger.
     """
-    deck_rows, deck_ids = _rows_from_cards(store, cards)
+    _raw_rows, deck_rows, deck_ids = _rows_from_cards(store, cards)
     chosen = _resolve_commanders(store, commander_names, deck_rows)
     if not chosen:
         return {
