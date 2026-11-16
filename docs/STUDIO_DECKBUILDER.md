@@ -1324,6 +1324,42 @@ land counts for every colour it produces; a land with unknown colours is "unbeka
 the commander's own cost and its colour identity are named apart. Source decks with cards the
 card data does not know are left out and counted.
 
+### Bracket facts and data gaps ("Bracket & Lücken", #1404 options 1 and 10)
+
+The deck tab "Bracket & Lücken" (`POST /api/deck-facts`, `studio/deck_facts.py`) counts, with
+names and origin, what the published Commander Brackets talk about: Game Changers (card data
+flag `game_changer`; a card without the flag is counted apart as unknown), extra turns and mass
+land denial (oracle text patterns, shown as candidates with the matching rule), tutors (public
+role `tutor`; the tagger counts land search too, so "davon Land-Suche" is shown apart) and
+two-card combos complete in the deck (stored combo list; without a list: unknown). Only the
+Game Changer count has a published number per bracket (0 in brackets 1 and 2, at most 3 in
+bracket 3, no limit in 4 and 5); the page shows each bracket's limit next to the count
+("passt", "über der Grenze", "unbekannt" when unknown flags could cross it) and never says
+which bracket the deck is in. Sources: the Commander Brackets updates of 2025-10-21 and
+2026-02-09 (tutor limits removed on 2025-10-21).
+
+The same tab lists the data gaps per card of the deck (the commander excluded): no public card
+data, unknown mana value, no role (nonland cards), unknown land colours, no source deck of the
+commander names the card, no EDHREC observation for the commander (commander or bracket pages).
+Each reason carries its count and the number of cards it was checked for; a source the store
+lacks for the commander is reported once, not per card. A gap means unknown, never 0.
+
+### Colours on curve ("Farben auf Kurve", #1415, #1404 option 2)
+
+The tab "Zahlen" shows, for every distinct coloured requirement of the deck's nonland cards
+(pips per colour of the front cost, at the turn of the card's mana value), the exact
+probability to hit the land drops by that turn and, only among those draws, to hold the
+coloured sources the cost needs (`POST /api/castability`, `studio/castability.py`). Method:
+Frank Karsten, 2022 update. Missing the land drop is reported apart; two pips of one colour and
+several colours are one joint event computed over land groups by produced colours (a dual land
+counts for both colours of one draw), never a product of single probabilities; every value
+carries its condition ("bedingt auf mindestens T Länder unter 7 + T gezogenen Karten"). Sources
+are lands only; lands without coloured mana per card data (fetch lands) and lands without card
+data are counted as lands but not as sources and are listed; hybrid and Phyrexian symbols are
+not part of the requirement and the cards are named. No mulligan, no extra draws. The opening
+hand figure is the exact share of 7-card hands with 2 to 4 lands and at least one nonland card
+of mana value at most 2. A description, never a land count recommendation.
+
 ### Archetype labels (schema 15)
 
 Free-form labels the Owner puts on a card (card window, "Archetyp-Marken") and on a saved deck
