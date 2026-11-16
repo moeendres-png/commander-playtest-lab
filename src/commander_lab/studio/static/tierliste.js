@@ -566,7 +566,7 @@ function strengthDetail(item) {
   const roleRanks = item.role_ranks ? Object.entries(item.role_ranks) : [];
   if (roleRanks.length) {
     out.push(h("p", { id: "role-ranks-line" }, "Rang in der Funktion (aktueller Index): ",
-      ...roleRanks.map(([role, rInfo]) => h("span", { class: "badge", style: "margin-right:4px" }, `${roleName(role)}: #${rInfo.rank}/${rInfo.total}`))));
+      ...roleRanks.map(([role, rInfo]) => h("span", { class: "badge mr-1" }, `${roleName(role)}: #${rInfo.rank}/${rInfo.total}`))));
   }
   out.push(h("h4", {}, "Objektive Signale (zählen mit Gewicht)"), table(SIGNAL_HEADS, objective.map(signalRow)));
   if (subjective.length) out.push(h("div", { class: "block-subjective", id: "block-subjective" }, h("h4", {}, subjective[0].weight > 0 ? `Subjektiv, Gewicht ${subjective[0].weight}: zählt mit (Einstellung)` : "Subjektiv, Gewicht 0: zählt nicht"), h("p", {}, subjective[0].weight > 0 ? "Die Raster-Bewertung ist eine persönliche Einschätzung, kein objektives Signal. Dieses Profil gibt ihr ein Gewicht; die Empfehlung ist 0." : "Die Raster-Bewertung ist eine persönliche Einschätzung, kein objektives Signal. Sie fließt nicht in Index und Stufe ein."), table(SIGNAL_HEADS, subjective.map(signalRow))));
