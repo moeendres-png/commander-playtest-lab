@@ -111,8 +111,8 @@ def cut_suggestions(
         }
         below = sorted(
             role
-            for role, change in role_change.items()
-            if change["minimum"] is not None and int(change["after"]) < int(change["minimum"])
+            for role in card_roles
+            if (minimum := minimums.get(role)) is not None and role_counts[role] - 1 < minimum
         )
         front_type = str(row["type_line"] or "").split(" // ")[0]
         land = "Land" in front_type
