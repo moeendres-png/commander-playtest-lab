@@ -137,8 +137,9 @@ def test_expanded_role_vocabulary_and_repo_files_import_idempotently(tmp_path: P
         )
         # 21,272 from #1353; #1379 regenerated s5 and added s6; #1413 / B-3 extended
         # classify_oracle_roles with deterministic card_advantage, cantrip, and hate rules:
-        # s5 1,884 and s6 16,338 claims -> 21,272 - 1,570 + 1,884 + 16,338 = 37,924.
-        assert claims_total == 37924
+        # s5 1,884 and s6 16,338 claims -> 21,272 - 1,570 + 1,884 + 16,338 = 37,924;
+        # the reminder-text and own-draw fix (#1404) drops 9 (s5) + 101 (s6) -> 37,814.
+        assert claims_total == 37814
     finally:
         store.close()
 
