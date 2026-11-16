@@ -1025,14 +1025,23 @@ async function diffCandidates() {
   const deck = state.decks.find((item) => item.deck_id === state.deckId);
   const branches = deck ? deck.branches : [];
   const options = [];
+  let historyRows = null;
   try {
     const rows = await api(`/api/decks/${encodeURIComponent(state.deckId)}/history`);
+    historyRows = rows;
     const current = rows.find((row) => row.revision_id === state.baseRevision);
     if (current && current.parent_revision_id) options.push({ rev: current.parent_revision_id, label: `Vorheriger Stand der Variante ${state.branch}` });
   } catch (error) { /* without history only the variants are offered */ }
   const main = branches.find((item) => item.branch === "main");
   if (state.branch !== "main" && main) options.push({ rev: main.revision_id, label: "Neuester Stand der Variante main" });
   for (const item of branches) if (item.revision_id !== state.baseRevision || state.dirty) options.push({ rev: item.revision_id, label: `Variante ${item.branch} (aktuell gespeichert)` });
+  if (historyRows) {
+    for (const row of historyRows) options.push({ rev: row.revision_id, label: `Gespeicherter Stand ${row.created_at ? row.created_at.slice(0, 16).replace("T", " ") : ""}${row.note ? " – " + row.note : ""}` });
+  }
+  for (const other of state.decks) {
+    if (other.deck_id === state.deckId) continue;
+    for (const item of other.branches || []) options.push({ rev: item.revision_id, label: `Anderes Deck: ${other.name || other.deck_id} (${item.branch})` });
+  }
   const seen = new Set();
   return options.filter((item) => !seen.has(item.rev) && seen.add(item.rev) && (item.rev !== state.baseRevision || state.dirty));
 }
@@ -1058,7 +1067,7 @@ async function renderDiff(body) {
   const box = h("div", {}, h("p", { class: "muted" }, "Berechnet Differenz..."));
   body.append(box);
   try {
-    const diff = await api("/api/diff", "POST", { base_revision_id: state.diffBaseRev, cards: entries() });
+    const diff = await api("/api/diff", "POST", { base_revision_id: state.diffBaseRev, cards: entries(), cohort: state.cohort });
     box.replaceChildren();
     box.append(h("p", {}, `Neu: +${diff.added_slots} Slots (${diff.added.length} Karten) · Entfernt: −${diff.removed_slots} Slots (${diff.removed.length} Karten)`));
     const bs = diff.base_shape || {}, ts = diff.target_shape || {};
@@ -1095,15 +1104,10 @@ async function renderDiff(body) {
           h("td", { class: "num" }, (vals.delta > 0 ? "+" : "") + vals.delta)))));
       box.append(h("h3", {}, "Rollen-Delta"), roleDiffTable);
     }
-    if (diff.added.length) {
-      box.append(h("h3", {}, `Hinzugefügt (+${diff.added.length})`), h("div", {}, diff.added.map((item) => h("div", { class: "row" }, h("span", { class: "qty" }, "+" + item.quantity), h("span", { class: "nm", onclick: () => { const c = state.byId.get(item.card_id); if (c) openCard(c); } }, item.name), h("span", { class: "muted" }, GROUP_NAMES[item.group] || item.group)))));
-    }
-    if (diff.removed.length) {
-      box.append(h("h3", {}, `Entfernt (−${diff.removed.length})`), h("div", {}, diff.removed.map((item) => h("div", { class: "row" }, h("span", { class: "qty" }, "−" + item.quantity), h("span", { class: "nm", onclick: () => { const c = state.byId.get(item.card_id); if (c) openCard(c); } }, item.name), h("span", { class: "muted" }, GROUP_NAMES[item.group] || item.group)))));
-    }
-    if (diff.changed.length) {
-      box.append(h("h3", {}, "Mengenänderung"), h("div", {}, diff.changed.map((item) => h("div", { class: "row" }, h("span", { class: "qty" }, `${item.base_quantity}→${item.target_quantity}`), h("span", {}, item.name)))));
-    }
+    box.append(...diffImpactNodes(h, diff, {
+      cohortLabel: cohortName(state.cohort), roleName,
+      open: (cardId) => { const c = state.byId.get(cardId); if (c) openCard(c); },
+    }));
     const pfBox = h("div", {});
     const pfBtn = h("button", {
       type: "button",

@@ -1341,6 +1341,21 @@ location);
 a card without location rows shows no location field. The pool tiles show "in N Decks
 (n gebunden)" and the overbooking; the card window lists the decks, the other variants, the
 reserved copies and the locations in the data's own wording.
+
+### Variant comparison with counted deltas ("Varianten-Diff", #1414, #1404 option 8)
+
+`POST /api/diff` (`studio/deck_diff.py`, on top of `builder.diff_lists`) compares a stored
+revision with the current list: added, removed and changed cards; land, creature and nonland
+counts; average mana value; land-draw probabilities; role deltas; the mana curve per mana value;
+coloured pips and coloured land sources per colour; listed combos complete before and after
+(with the combos that became or stopped being complete; without a stored list: unknown); the
+overlap as shared card slots of both totals. Per swapped card it shows roles, mana value and
+how many source decks of the commander in the chosen comparison group play it (`decks` of
+`of`; unknown when no source deck names the card). The comparison base can be the previous
+state, any saved state of the deck, another variant or the current state of another deck. No
+score, bracket or power delta: the stored revisions are the version snapshots, so no second
+deck store is needed.
+
 ### Bracket facts and data gaps ("Bracket & Lücken", #1404 options 1 and 10)
 
 The deck tab "Bracket & Lücken" (`POST /api/deck-facts`, `studio/deck_facts.py`) counts, with
