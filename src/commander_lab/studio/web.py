@@ -29,6 +29,7 @@ from . import (
     card_outcomes,
     combos,
     data_report,
+    deck_diff,
     engine_check,
     games,
     import_all,
@@ -179,6 +180,7 @@ class NamesBody(BaseModel):
 class DiffBody(BaseModel):
     base_revision_id: str
     cards: list[CardEntry]
+    cohort: str = Field(default="all", min_length=1, max_length=120)
 
 
 class PrefilterBody(BaseModel):
@@ -904,7 +906,7 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
                 RevisionCard(str(r["card_id"]), int(r["quantity"]), str(r["zone"]))
                 for r in base_rows
             ]
-            return builder.diff_lists(store, base_cards, _cards(body.cards))
+            return deck_diff.diff_impact(store, base_cards, _cards(body.cards), cohort=body.cohort)
         except KeyError as error:
             raise HTTPException(404, "unknown revision") from error
         finally:
