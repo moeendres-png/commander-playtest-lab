@@ -1324,6 +1324,21 @@ land counts for every colour it produces; a land with unknown colours is "unbeka
 the commander's own cost and its colour identity are named apart. Source decks with cards the
 card data does not know are left out and counted.
 
+### Card allocation ("Belegung", #1419)
+
+`GET /api/allocation` (`studio/allocation.py`) shows per card where its copies are bound, for
+display only (nothing is locked, no deck is changed). A saved deck binds the copies of its
+`main` variant (without one, of its most recently saved variant); other variants are
+alternatives of the same physical deck and are listed without binding; drafts never bind. A
+card is marked **überbucht** when the copies bound by all saved decks exceed the copies free
+for own decks (`available_lower_bound`); without an inventory row no overbooking is claimed.
+Copies reserved for opponents' decks (`reserved`) stay a separate figure. Storage locations
+come only from the inventory workbook's lot sheet (`02_PHYSICAL_LOTS.location_id`, names from
+`03_LOCATIONS`) and are stored per card and location in `card_location` at the inventory import;
+a card without location rows shows no location field. The pool tiles show "in N Decks
+(n gebunden)" and the overbooking; the card window lists the decks, the other variants, the
+reserved copies and the locations in the data's own wording.
+
 ### Archetype labels (schema 15)
 
 Free-form labels the Owner puts on a card (card window, "Archetyp-Marken") and on a saved deck

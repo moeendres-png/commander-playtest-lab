@@ -72,6 +72,18 @@ CREATE TABLE IF NOT EXISTS inventory (
     last_verified_at TEXT,
     source_id TEXT NOT NULL REFERENCES source(source_id)
 );
+-- Where the copies of a card lie, as the inventory workbook's lot sheet states it (#1419):
+-- summed lot quantities per card and location, the location name from the location sheet.
+-- Empty when the workbook carries no lot sheet; never guessed.
+CREATE TABLE IF NOT EXISTS card_location (
+    card_id TEXT NOT NULL REFERENCES card(card_id),
+    location_id TEXT NOT NULL,
+    location_name TEXT NOT NULL,
+    location_type TEXT,
+    quantity INTEGER NOT NULL,
+    source_id TEXT NOT NULL REFERENCES source(source_id),
+    PRIMARY KEY (card_id, location_id)
+) WITHOUT ROWID;
 CREATE TABLE IF NOT EXISTS deck (
     deck_id TEXT PRIMARY KEY,
     name TEXT NOT NULL,

@@ -25,6 +25,7 @@ from .store import DataClass, StudioStore, now_utc, rebuild_corpus_deck_role, sh
 IDENTITY_SHEET = "01_CARD_IDENTITY"
 INVENTORY_SHEET = "05_INVENTORY_CURRENT"
 LOTS_SHEET = "02_PHYSICAL_LOTS"
+LOCATIONS_SHEET = "03_LOCATIONS"
 DETAILS_SHEET = "09_PRINTING_DETAILS"
 
 
@@ -210,6 +211,36 @@ def _printing_rows(
     return rows
 
 
+def _location_rows(
+    lots: list[dict[str, object]],
+    locations: list[dict[str, object]],
+    known_cards: set[str | None],
+) -> list[tuple[str, str, str, str | None, int]]:
+    """Summed lot quantities per card and location (#1419). The name and type come from the
+    location sheet in the data's own wording; a location id the sheet does not name keeps its
+    id as name. Lots without a location id are left out: a location is never guessed."""
+    names = {
+        str(_text(row.get("location_id"))): (
+            _text(row.get("location_name")) or str(_text(row.get("location_id"))),
+            _text(row.get("location_type")),
+        )
+        for row in locations
+        if _text(row.get("location_id"))
+    }
+    totals: dict[tuple[str, str], int] = {}
+    for row in lots:
+        card_id = _text(row.get("card_id"))
+        location_id = _text(row.get("location_id"))
+        if card_id is None or location_id is None or card_id not in known_cards:
+            continue
+        key = (card_id, location_id)
+        totals[key] = totals.get(key, 0) + _lot_quantity(row.get("quantity_observed"))
+    return [
+        (card_id, location_id, *names.get(location_id, (location_id, None)), quantity)
+        for (card_id, location_id), quantity in sorted(totals.items())
+    ]
+
+
 def import_inventory_workbook(store: StudioStore, path: str | Path) -> dict[str, int]:
     """Read card identities and the current inventory from the Owner's inventory workbook."""
     workbook_path = Path(path)
@@ -220,15 +251,16 @@ def import_inventory_workbook(store: StudioStore, path: str | Path) -> dict[str,
     )
     identities = _sheet_rows(workbook_path, IDENTITY_SHEET)
     inventory = _sheet_rows(workbook_path, INVENTORY_SHEET)
-    printing_rows = _printing_rows(
-        _optional_sheet_rows(workbook_path, LOTS_SHEET),
-        _optional_sheet_rows(workbook_path, DETAILS_SHEET),
-    )
+    lot_rows = _optional_sheet_rows(workbook_path, LOTS_SHEET)
+    printing_rows = _printing_rows(lot_rows, _optional_sheet_rows(workbook_path, DETAILS_SHEET))
     # Lots of a card the identity sheet does not carry cannot be stored (the printing
     # table keys on card); the identity and inventory sheets keep their own strict
     # reading, the auxiliary printing rows of unknown cards are left out.
     known_cards = {_text(row.get("card_id")) for row in identities}
     printing_rows = [row for row in printing_rows if row[0] in known_cards]
+    location_rows = _location_rows(
+        lot_rows, _optional_sheet_rows(workbook_path, LOCATIONS_SHEET), known_cards
+    )
     db = store.connection
     with db:
         for row in identities:
@@ -266,6 +298,12 @@ def import_inventory_workbook(store: StudioStore, path: str | Path) -> dict[str,
                 ),
             )
         db.execute("DELETE FROM inventory")
+        db.execute("DELETE FROM card_location")
+        db.executemany(
+            "INSERT INTO card_location(card_id, location_id, location_name, location_type, "
+            "quantity, source_id) VALUES (?, ?, ?, ?, ?, ?)",
+            [(*row, source_id) for row in location_rows],
+        )
         for row in inventory:
             card_id = _text(row.get("card_id"))
             if card_id is None:

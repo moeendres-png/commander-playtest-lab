@@ -246,7 +246,7 @@ function tile(card) {
       h("button", { class: "small", type: "button", title: "aus dem Deck", "aria-label": `${card.name} aus dem Deck`, disabled: !count, onclick: () => remove(card) }, "−"),
       h("span", { class: "spacer" }),
       h("span", { class: "freq" + (f.total && f.total < state.small ? " low" : ""), title: (state.universe ? "Decks des gewählten Universums mit dieser Karte" : state.countedUniverse ? `${countedName()}: Decks mit dieser Karte` : "Decks der Vergleichsgruppe mit dieser Karte") + subsetTitle }, f.filter ? "Filterkarte" : f.hits === null ? "unbekannt" : f.total ? `${f.hits}/${f.total}` : "–")),
-    h("div", { class: "own" }, "Besitz ", h("b", {}, card.owned), " · frei ", h("b", {}, card.available), card.reserved ? ` · reserviert ${card.reserved}` : ""));
+    h("div", { class: "own" }, "Besitz ", h("b", {}, card.owned), " · frei ", h("b", {}, card.available), card.reserved ? ` · reserviert ${card.reserved}` : "", allocationTileNote(h, card)));
 }
 const COLUMNS = [
   ["img", "Bild", null], ["name", "Karte", "name"], ["mana_cost", "Kosten", "mana_value"], ["mana_value", "Manawert", "mana_value"],
@@ -1492,6 +1492,7 @@ async function openCard(card) {
     h("p", { style: "white-space:pre-line" }, card.text),
     card.roles.length ? h("p", {}, card.roles.map((role) => h("span", { class: "chip", style: "cursor:default;margin-right:4px" }, roleName(role)))) : null,
     h("p", { class: "note" }, `Sammlung: ${card.owned} im Besitz, ${card.available} frei` + (card.reserved ? `, ${card.reserved} reserviert` : "") + ` · Kartendaten: ${card.fact_source === "scryfall" ? "Scryfall" : "deine Tabelle"}` + (card.edhrec_rank ? ` · EDHREC-Rang ${card.edhrec_rank}` : "") + (card.game_changer ? " · Game Changer" : "") + ` · Simulator: ${card.sim_status || "unbekannt"}`),
+    allocationDetail(h, card),
     h("div", { class: "actions" },
       h("button", { type: "button", class: "primary", disabled: count >= maxCopies(card), onclick: () => { add(card); openCard(card); } }, "Ins Deck"),
       count ? h("button", { type: "button", onclick: () => { remove(card); openCard(card); } }, `Aus dem Deck (${count})`) : null,
@@ -1923,6 +1924,7 @@ async function commitRevision(branch = state.branch, note = "") {
     state.draftUpdatedAt = ""; state.draftConflict = false; state.needsDraftPut = state.dirty;
     rememberVariant();
     await loadDecks(); renderHeader(); renderSaveState(); toast("Stand gespeichert.");
+    loadAllocation(api).then(() => renderPool());
   } catch (error) { fail(error); }
 }
 function saveRevision(branch = state.branch) {
@@ -2056,6 +2058,7 @@ async function start() {
     applyPool(pool);
     state.shapes = shapes; state.simulations = sims || []; state.recordedGames = recordedGames || [];
     setupControls(); await loadDecks(); await loadBranch();
+    loadAllocation(api).then(() => renderPool());
   } catch (error) {
     $("pool-body").replaceChildren(h("p", {}, "Das Studio konnte die Daten nicht laden: " + error.message), h("p", { class: "muted" }, `Gewählter Commander: ${COMMANDER}. Er muss in der Sammlung stehen; sonst oben einen anderen Commander wählen. Sind Sammlung und Kartendaten importiert?`));
   }

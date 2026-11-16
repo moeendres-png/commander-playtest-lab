@@ -24,6 +24,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, ConfigDict, Field, StrictInt
 
 from . import (
+    allocation,
     builder,
     cache,
     card_outcomes,
@@ -987,6 +988,16 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
             raise HTTPException(404, "unknown deck") from error
         except ValueError as error:
             raise HTTPException(422, str(error)) from error
+        finally:
+            store.close()
+
+    @app.get("/api/allocation")
+    def allocation_route() -> dict[str, object]:
+        """Per card: copies bound by saved decks, overbooking and storage locations (#1419).
+        Display only; nothing is locked."""
+        store = open_store()
+        try:
+            return allocation.allocation(store)
         finally:
             store.close()
 
