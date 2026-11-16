@@ -162,7 +162,9 @@ def test_joint_matches_enumeration_on_random_small_decks() -> None:
         cards: list[frozenset[str] | None] = [k for k, n in groups for _ in range(n)]
         cards += [None] * nonland
         ref_lands = ref_both = ref_total = 0
-        for hand in combinations(range(len(cards)), draws):
+        hands = list(combinations(range(len(cards)), draws))
+        assert hands
+        for hand in hands:
             lands = [cards[i] for i in hand if cards[i] is not None]
             ref_total += 1
             if len(lands) >= turn:
