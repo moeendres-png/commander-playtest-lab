@@ -39,6 +39,7 @@ const state = {
   decks: [], deckId: null, branch: "main", baseRevision: null,
   list: new Map(), dirty: false, draftUpdatedAt: "", draftConflict: false, needsDraftPut: false, issues: [], shape: null, deckRoles: {}, combos: null, roles: [], shapes: [],
   simulations: [], diffBaseRev: null, diffData: null, activeBatch: null, batchPollTimer: null,
+  activePaired: null, pairedPollTimer: null, pairedHistory: [], readinessAudit: null,
   view: "grid", tab: "list", shown: 120, sortKey: "freq", sortDir: -1, cohort: "all",
   subset: null, subsetNames: [], subsetWanted: null, strength: null, showTier: true, changeSeq: 0, savedSeq: 0, layers: null, diffDefault: null,
   colors: new Set(), columns: new Set(["img", "name", "mana_cost", "type_line", "available", "freq", "edhrec"]),
@@ -1264,8 +1265,57 @@ function pollBatch(batchId) {
     }
   }, 1200);
 }
+function pollPaired(seriesId) {
+  if (state.pairedPollTimer) clearTimeout(state.pairedPollTimer);
+  state.pairedPollTimer = setTimeout(async () => {
+    try {
+      const job = await api("/api/simulations/paired/" + encodeURIComponent(seriesId));
+      state.activePaired = job;
+      if (job.status === "completed" || job.status === "cancelled" || job.status === "failed") {
+        const [pairedList, recordedGames] = await Promise.all([
+          api("/api/simulations/paired").catch(() => []),
+          api("/api/games").catch(() => []),
+        ]);
+        state.pairedHistory = pairedList || [];
+        state.recordedGames = recordedGames || [];
+        if (state.tab === "sim") renderDeck();
+      } else {
+        pollPaired(seriesId);
+        if (state.tab === "sim") renderDeck();
+      }
+    } catch (err) {
+      console.warn("Poll paired error:", err);
+    }
+  }, 1200);
+}
 function renderSimulations(body) {
   body.append(h("div", { class: "actions" }, h("a", { class: "nav", href: "partie.html" }, "Partien-Ansicht & Neue Einzelpartie →")));
+
+  if (typeof renderPairedComparisonSection === "function") {
+    renderPairedComparisonSection(body, {
+      h,
+      api,
+      entries,
+      fail,
+      toast,
+      openCard,
+      poolCardById: (id) => state.byId.get(id),
+      commander: COMMANDER,
+      commanderQuery: StudioCommander.query,
+      decks: () => state.decks,
+      currentDeckId: () => state.deckId,
+      currentRevision: () => state.baseRevision,
+      activePaired: () => state.activePaired,
+      setActivePaired: (v) => { state.activePaired = v; },
+      pairedHistory: () => state.pairedHistory,
+      readinessAudit: () => state.readinessAudit,
+      setReadinessAudit: (v) => { state.readinessAudit = v; },
+      pollPaired,
+      rerender: () => { if (state.tab === "sim") renderDeck(); },
+      token: () => state.renderToken,
+      isCurrent: (tok) => tok === state.renderToken && state.tab === "sim",
+    });
+  }
 
   // Batch simulation launcher & live monitor
   const bBox = h("div", { class: "sim-box" },
@@ -2336,9 +2386,12 @@ async function start() {
       state.universe = "";
       return api("/api/pool?" + StudioCommander.query);
     });
-    const [shapes, sims, recordedGames] = await Promise.all([api("/api/cohorts?" + StudioCommander.query), api("/api/simulations?" + StudioCommander.query), api("/api/games").catch(() => [])]);
+    const [shapes, sims, recordedGames, pairedList] = await Promise.all([api("/api/cohorts?" + StudioCommander.query), api("/api/simulations?" + StudioCommander.query), api("/api/games").catch(() => []), api("/api/simulations/paired").catch(() => [])]);
     applyPool(pool);
     state.shapes = shapes; state.simulations = sims || []; state.recordedGames = recordedGames || [];
+    state.pairedHistory = pairedList || [];
+    const runningPaired = state.pairedHistory.find((j) => j.status === "running" || j.status === "pending");
+    if (runningPaired) { state.activePaired = runningPaired; pollPaired(runningPaired.series_id); }
     setupControls(); await loadDecks(); await loadBranch();
   } catch (error) {
     $("pool-body").replaceChildren(h("p", {}, "Das Studio konnte die Daten nicht laden: " + error.message), h("p", { class: "muted" }, `Gewählter Commander: ${COMMANDER}. Er muss in der Sammlung stehen; sonst oben einen anderen Commander wählen. Sind Sammlung und Kartendaten importiert?`));

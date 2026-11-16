@@ -177,4 +177,5 @@ code.cmd{white-space:pre-wrap;word-break:break-all;font-size:12px}
 .sim-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:var(--s2)}
 .note-compact{margin:6px 0 0}
 .pill-inline{display:inline-block;margin:var(--s1) 0}
+.sim-form label.paired-check{flex-direction:row;align-items:center;gap:6px;padding-bottom:6px;cursor:pointer}
 @media (max-width:600px){select,input[type="search"],input[type="text"]{max-width:100%;min-width:0}label:has(> select){display:flex;flex-wrap:wrap;align-items:center;gap:4px;max-width:100%}.tier-filter,.layer-controls{flex-wrap:wrap;max-width:100%}}
