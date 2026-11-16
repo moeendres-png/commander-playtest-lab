@@ -15,12 +15,48 @@ def _files(pattern: str) -> list[Path]:
     return found
 
 
+def _replace_children_calls(source: str) -> list[tuple[int, str, str]]:
+    """(line, arguments, top-level text) of every .replaceChildren( call; the top-level text
+    holds only what sits directly in the argument list, not inside nested calls or strings."""
+    found: list[tuple[int, str, str]] = []
+    for match in re.finditer(r"\.replaceChildren\(", source):
+        start = match.end()
+        depth, pos, quote, top = 1, start, "", []
+        while pos < len(source):
+            char = source[pos]
+            if quote:
+                if char == "\\":
+                    pos += 2
+                    continue
+                if char == quote:
+                    quote = ""
+            elif char in "\"'`":
+                quote = char
+            elif char in "([{":
+                depth += 1
+            elif char in ")]}":
+                depth -= 1
+                if depth == 0:
+                    break
+            elif depth == 1:
+                top.append(char)
+            pos += 1
+        found.append((source.count("\n", 0, match.start()) + 1, source[start:pos], "".join(top)))
+    return found
+
+
 def test_replace_children_never_receives_a_bare_null() -> None:
-    # replaceChildren turns a null argument into the text "null"; call sites must spread
-    # through the kids() filter whenever an argument can be null.
-    source = (STATIC / "decks.js").read_text(encoding="utf-8")
-    for call in re.finditer(r"replaceChildren\((?!\.\.\.)[^;]*?\bnull\b", source, re.DOTALL):
-        raise AssertionError(f"replaceChildren with a null child: {call.group(0)[:80]!r}")
+    # replaceChildren turns a null argument into the text "null"; a call whose own argument
+    # list can contain null must spread through the kids() filter.
+    offenders: list[str] = []
+    checked = 0
+    for path in _files("*.js"):
+        for line, arguments, top in _replace_children_calls(path.read_text(encoding="utf-8")):
+            checked += 1
+            if not arguments.lstrip().startswith("...") and re.search(r"\bnull\b", top):
+                offenders.append(f"{path.name}:{line}")
+    assert checked > 50
+    assert offenders == []
 
 
 def test_no_price_wording_in_pages_and_scripts() -> None:
