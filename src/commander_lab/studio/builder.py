@@ -11,6 +11,7 @@ import json
 import math
 import re
 import sqlite3
+import threading
 from collections import Counter
 from collections.abc import Iterable, Sequence
 from datetime import UTC, datetime, timedelta
@@ -649,19 +650,44 @@ def legality_unknown_in_collection(store: StudioStore) -> int:
     return int(row[0])
 
 
+_COMBO_PARTNERS_PATH = (
+    Path(__file__).resolve().parents[3] / "data" / "meta" / "spellbook_combos.json"
+)
+_combo_partners_lock = threading.Lock()
+_combo_partners: dict[tuple[tuple[str, ...], int, int], frozenset[str]] = {}
+
+
 def _cached_combo_partners(commander_names: Sequence[str]) -> frozenset[str]:
-    """Pure file-based Spellbook combo partners for ``commander_names`` (no SQL queries)."""
+    """Pure file-based Spellbook combo partners for ``commander_names`` (no SQL queries).
+
+    The combo file is large (parsing it takes about half a second), so the result is kept per
+    commander list for as long as the file keeps its modification time and size."""
     from .sources import load_spellbook_combo_partners
 
-    combos_path = Path(__file__).resolve().parents[3] / "data" / "meta" / "spellbook_combos.json"
+    try:
+        found = _COMBO_PARTNERS_PATH.stat()
+        file_state = (found.st_mtime_ns, found.st_size)
+    except OSError:
+        file_state = (-1, -1)
+    key = (tuple(commander_names), *file_state)
+    with _combo_partners_lock:
+        if key in _combo_partners:
+            return _combo_partners[key]
     partners: set[str] = set()
     for name in commander_names:
-        by_card = load_spellbook_combo_partners(combos_path, commander=name.split(",")[0].strip())
+        by_card = load_spellbook_combo_partners(
+            _COMBO_PARTNERS_PATH, commander=name.split(",")[0].strip()
+        )
         for card, others in by_card.items():
             partners.add(card.casefold())
             for other in others:
                 partners.add(f"{card.casefold()}||{other.casefold()}")
-    return frozenset(partners)
+    result = frozenset(partners)
+    with _combo_partners_lock:
+        if len(_combo_partners) >= 16:
+            _combo_partners.clear()
+        _combo_partners[key] = result
+    return result
 
 
 def card_cooccurrence(

@@ -5,13 +5,17 @@ made cheaper; they stay here only to pin the output."""
 
 from __future__ import annotations
 
+import json
 import random
 import sqlite3
 from collections.abc import Sequence
 from pathlib import Path
 from statistics import median
 
+import pytest
+
 from commander_lab.studio import StudioStore, builder, land_advisor
+from commander_lab.studio.decks import RevisionCard
 from commander_lab.studio.store import rebuild_corpus_deck_role
 
 COMMANDER = "Test Commander"
@@ -291,3 +295,61 @@ def test_source_deck_groups_with_a_null_produced_mana_stay_unknown_not_zero(
         assert traits.colours == frozenset()
     assert land_advisor.deck_profile([{**row_null, "quantity": 1}])["lands_unknown_colours"] == 1
     assert land_advisor.deck_profile([{**row_empty, "quantity": 1}])["lands_unknown_colours"] == 0
+
+
+def _plan_inputs(store: StudioStore) -> list[RevisionCard]:
+    rows = store.connection.execute(
+        "SELECT f.card_id FROM card_fact f JOIN scryfall_card s ON s.oracle_id = f.oracle_id "
+        "WHERE s.type_line NOT LIKE '%Land%' ORDER BY f.card_id LIMIT 40"
+    ).fetchall()
+    cmd = store.connection.execute(
+        "SELECT card_id FROM card_fact WHERE oracle_name = ?", (COMMANDER,)
+    ).fetchone()
+    cards = [RevisionCard(str(cmd[0]), 1, "commander")]
+    cards += [RevisionCard(str(row[0])) for row in rows]
+    return cards
+
+
+def test_packages_and_build_plan_are_the_same_cached_or_not(tmp_path: Path) -> None:
+    from commander_lab.studio import packages
+
+    store = _big_store(tmp_path)
+    cards = _plan_inputs(store)
+    assert len(cards) > 10
+    # An open transaction makes the cache stand aside: that is the uncached reference.
+    store.connection.execute("INSERT INTO meta(key, value) VALUES ('pending', 'x')")
+    assert store.connection.in_transaction
+    plain_packages = packages.deck_packages(store, [COMMANDER], cards, cohort="all")
+    plain_plan = packages.build_plan(store, [COMMANDER], cards, cohort="all")
+    store.connection.rollback()
+    assert plain_packages["cohort_decks"] == 163  # the 3 fixture decks and the 160 random ones
+    for _ in range(2):  # a cold and a cached read
+        assert packages.deck_packages(store, [COMMANDER], cards, cohort="all") == plain_packages
+        assert packages.build_plan(store, [COMMANDER], cards, cohort="all") == plain_plan
+    for group in ("community", "bracket:4", "tuned"):
+        store.connection.execute("INSERT INTO meta(key, value) VALUES ('pending', 'x')")
+        plain = packages.deck_packages(store, [COMMANDER], cards, cohort=group)
+        store.connection.rollback()
+        assert packages.deck_packages(store, [COMMANDER], cards, cohort=group) == plain
+
+
+def test_the_combo_partner_file_is_read_once_until_it_changes(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    path = tmp_path / "spellbook_combos.json"
+    path.write_text(
+        json.dumps({"combos": [{"commander": "Cmdr", "cards": ["Alpha", "Beta"]}]}),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(builder, "_COMBO_PARTNERS_PATH", path)
+    builder._combo_partners.clear()
+    first = builder._cached_combo_partners(["Cmdr, the Test"])
+    assert "alpha||beta" in first
+    assert builder._cached_combo_partners(["Cmdr, the Test"]) is first
+    path.write_text(
+        json.dumps({"combos": [{"commander": "Cmdr", "cards": ["Alpha", "Gamma"]}]}) + "\n",
+        encoding="utf-8",
+    )
+    changed = builder._cached_combo_partners(["Cmdr, the Test"])
+    assert "alpha||gamma" in changed
+    assert "alpha||beta" not in changed
