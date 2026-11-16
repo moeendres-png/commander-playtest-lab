@@ -1265,6 +1265,31 @@ function pollBatch(batchId) {
     }
   }, 1200);
 }
+function pairedDeps() {
+  return {
+    h,
+    api,
+    entries,
+    fail,
+    toast,
+    openCard,
+    poolCardById: (id) => state.byId.get(id),
+    commander: COMMANDER,
+    commanderQuery: StudioCommander.query,
+    decks: () => state.decks,
+    currentDeckId: () => state.deckId,
+    currentRevision: () => state.baseRevision,
+    activePaired: () => state.activePaired,
+    setActivePaired: (v) => { state.activePaired = v; },
+    pairedHistory: () => state.pairedHistory,
+    readinessAudit: () => state.readinessAudit,
+    setReadinessAudit: (v) => { state.readinessAudit = v; },
+    pollPaired,
+    rerender: () => { if (state.tab === "sim") renderDeck(); },
+    token: () => state.renderToken,
+    isCurrent: (tok) => tok === state.renderToken && state.tab === "sim",
+  };
+}
 function pollPaired(seriesId) {
   if (state.pairedPollTimer) clearTimeout(state.pairedPollTimer);
   state.pairedPollTimer = setTimeout(async () => {
@@ -1278,10 +1303,22 @@ function pollPaired(seriesId) {
         ]);
         state.pairedHistory = pairedList || [];
         state.recordedGames = recordedGames || [];
-        if (state.tab === "sim") renderDeck();
+        if (state.tab === "sim") {
+          if (typeof refreshPairedSlots === "function" && document.getElementById("paired-monitor-slot")) {
+            refreshPairedSlots(pairedDeps());
+          } else {
+            renderDeck();
+          }
+        }
       } else {
         pollPaired(seriesId);
-        if (state.tab === "sim") renderDeck();
+        if (state.tab === "sim") {
+          if (typeof refreshPairedSlots === "function" && document.getElementById("paired-monitor-slot")) {
+            refreshPairedSlots(pairedDeps());
+          } else {
+            renderDeck();
+          }
+        }
       }
     } catch (err) {
       console.warn("Poll paired error:", err);
@@ -1292,29 +1329,7 @@ function renderSimulations(body) {
   body.append(h("div", { class: "actions" }, h("a", { class: "nav", href: "partie.html" }, "Partien-Ansicht & Neue Einzelpartie →")));
 
   if (typeof renderPairedComparisonSection === "function") {
-    renderPairedComparisonSection(body, {
-      h,
-      api,
-      entries,
-      fail,
-      toast,
-      openCard,
-      poolCardById: (id) => state.byId.get(id),
-      commander: COMMANDER,
-      commanderQuery: StudioCommander.query,
-      decks: () => state.decks,
-      currentDeckId: () => state.deckId,
-      currentRevision: () => state.baseRevision,
-      activePaired: () => state.activePaired,
-      setActivePaired: (v) => { state.activePaired = v; },
-      pairedHistory: () => state.pairedHistory,
-      readinessAudit: () => state.readinessAudit,
-      setReadinessAudit: (v) => { state.readinessAudit = v; },
-      pollPaired,
-      rerender: () => { if (state.tab === "sim") renderDeck(); },
-      token: () => state.renderToken,
-      isCurrent: (tok) => tok === state.renderToken && state.tab === "sim",
-    });
+    renderPairedComparisonSection(body, pairedDeps());
   }
 
   // Batch simulation launcher & live monitor

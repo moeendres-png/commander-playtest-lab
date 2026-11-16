@@ -9,7 +9,18 @@ from pathlib import Path
 import pytest
 from fastapi.testclient import TestClient
 
-from commander_lab.studio import StudioStore, paired_comparison, paired_series, strength_view
+from commander_lab.agents.card_knowledge import CardCatalogError
+from commander_lab.qualification.current_boundary.bridge_launcher import (
+    canonical_xmage_engine_pin,
+)
+from commander_lab.studio import (
+    StudioStore,
+    builder,
+    launch,
+    paired_comparison,
+    paired_series,
+    strength_view,
+)
 from commander_lab.studio.decks import RevisionCard, create_revision
 from commander_lab.studio.paired_series import PairedSeriesManager
 from commander_lab.studio.store import now_utc
@@ -218,7 +229,7 @@ def _mock_exposure(
     return {
         "game_id": game_id,
         "seed": seed,
-        "engine_commit": "f4d12f6e8066203fba7aa38bd35ea3358117393d",
+        "engine_commit": canonical_xmage_engine_pin(),
         "bridge_jar_sha256": None,
         "bridge_qualification_state": "UNKNOWN",
         "covered_by_sealed_epoch": False,
@@ -350,6 +361,10 @@ def test_paired_series_not_decided_and_preflight_same_revision_rejected(tmp_path
                 RevisionCard("cid-forest", 98, "main"),
             ],
         )
+
+        def _noop_play(_arm: str, _seed: int, _seat: int) -> paired_comparison.PlayedGame:
+            return {"exposure": None, "failure_class": "noop"}
+
         mgr = PairedSeriesManager()
         with pytest.raises(ValueError, match="verschiedene"):
             mgr.start_series(
@@ -357,7 +372,7 @@ def test_paired_series_not_decided_and_preflight_same_revision_rejected(tmp_path
                 folder,
                 base_revision_id=rev_a,
                 variant_revision_id=rev_a,
-                play_override=lambda *_: {"exposure": None, "failure_class": "noop"},
+                play_override=_noop_play,
             )
 
         # Tied outcomes -> exhausts budget and reports NOT_DECIDED
@@ -392,7 +407,28 @@ def test_paired_series_not_decided_and_preflight_same_revision_rejected(tmp_path
         store.close()
 
 
-def test_simulator_readiness_audit_fail_closed_gaps_and_real_chulane(tmp_path: Path) -> None:
+def test_opponent_resolution_all_pods_and_fail_closed() -> None:
+    for pod_name, expected_ids in launch.POD_PRESETS.items():
+        paths = paired_series._resolve_opponent_paths(pod_name, None)
+        assert len(paths) == len(expected_ids) == 3
+        assert all(p.is_file() for p in paths)
+
+    with pytest.raises(ValueError, match="Unbekannter Gegnertisch"):
+        paired_series._resolve_opponent_paths("nonexistent-pod", None)
+
+    with pytest.raises(ValueError, match="Unbekanntes Gegner-Deck"):
+        paired_series._resolve_opponent_paths("precon", ["missing/deck-id"])
+
+    with pytest.raises(ValueError, match="doppelt"):
+        paired_series._resolve_opponent_paths("precon", ["kaervek/current", "kaervek/current"])
+
+    with pytest.raises(ValueError, match="zwischen 1 und 5"):
+        paired_series._resolve_opponent_paths("precon", [])
+
+
+def test_simulator_readiness_audit_fail_closed_gaps_and_real_chulane(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     store, _folder = _make_store(tmp_path)
     try:
         for name in ("Sol Ring", "Llanowar Elves", "Arcane Signet"):
@@ -400,10 +436,43 @@ def test_simulator_readiness_audit_fail_closed_gaps_and_real_chulane(tmp_path: P
         _add_card(store, "cid-mystery", "Mystery Card Not In Engine", roles=("removal",))
         _seed_signal(store, "Mystery Card Not In Engine", edhrec_pct=0.95, cohort_pct=0.95)
 
+        # DFC card in deck with separate front_name so engine_name != oracle_name
+        with store.connection:
+            _ensure_source(store, "src-card-fixture", "ORIGINAL_SOURCE", "Test Card Fixture")
+            oid_dfc = "oid-cid-dfc"
+            store.connection.execute(
+                "INSERT OR REPLACE INTO card "
+                "(card_id, oracle_id, oracle_name, color_identity, mana_cost, mana_value, "
+                "type_line, oracle_text, is_basic_land, commander_legal, source_id) "
+                "VALUES ('cid-dfc', ?, 'Bala Ged Recovery // Bala Ged Sanctuary', 'G', '{2}{G}', 3.0, "
+                "'Sorcery // Land', '', 0, 1, 'src-card-fixture')",
+                (oid_dfc,),
+            )
+            store.connection.execute(
+                "INSERT OR REPLACE INTO inventory "
+                "(card_id, observed, owned_lower_bound, reserved, available_lower_bound, quantity_exact, source_id) "
+                "VALUES ('cid-dfc', 1, 1, 0, 1, 1, 'src-card-fixture')"
+            )
+            store.connection.execute(
+                "INSERT OR REPLACE INTO scryfall_card "
+                "(oracle_id, scryfall_id, name, front_name, layout, mana_cost, mana_value, "
+                "type_line, oracle_text, color_identity, commander_legality, keywords, produced_mana, source_id) "
+                "VALUES (?, 'scry-cid-dfc', 'Bala Ged Recovery // Bala Ged Sanctuary', "
+                "'Bala Ged Recovery', 'modal_dfc', '{2}{G}', 3.0, 'Sorcery // Land', '', 'G', 'legal', '[]', '[]', 'src-card-fixture')",
+                (oid_dfc,),
+            )
+        _seed_signal(
+            store,
+            "Bala Ged Recovery // Bala Ged Sanctuary",
+            edhrec_pct=0.9,
+            cohort_pct=0.9,
+        )
+
         deck_cards = [
             RevisionCard("cid-chulane", 1, "commander"),
             RevisionCard("cid-sol-ring", 1, "main"),
-            RevisionCard("cid-forest", 98, "main"),
+            RevisionCard("cid-dfc", 1, "main"),
+            RevisionCard("cid-forest", 97, "main"),
         ]
 
         # 1. Fail closed when catalogs unavailable
@@ -416,22 +485,47 @@ def test_simulator_readiness_audit_fail_closed_gaps_and_real_chulane(tmp_path: P
         assert unk["available"] is False
         assert unk["status"] == "UNKNOWN"
 
-        # 2. Reports missing engine status & missing pilot knowledge with exact denominators
+        # 1b. Fail closed when CardCatalogError is raised during pilot catalog probe/lookup
+        monkeypatch.setattr(
+            paired_series,
+            "card_facts",
+            lambda _name: (_ for _ in ()).throw(CardCatalogError("corrupt pilot catalog")),
+        )
+        unk_corrupt = paired_series.simulator_readiness_audit(
+            store,
+            [COMMANDER],
+            cards=deck_cards,
+            available_check=lambda: True,
+        )
+        assert unk_corrupt["available"] is False
+        assert unk_corrupt["status"] == "UNKNOWN"
+        monkeypatch.undo()
+
+        # 2. Reports missing engine status & missing pilot knowledge; excludes DFC in deck
+        looked_up_names: list[str] = []
+
+        def _status_lookup(name: str) -> str:
+            looked_up_names.append(name)
+            return "MISSING" if "Mystery" in name else "OK"
+
         audit = paired_series.simulator_readiness_audit(
             store,
             [COMMANDER],
             cards=deck_cards,
             tiers=("S", "A"),
             available_check=lambda: True,
-            status_lookup=lambda name: "MISSING" if "Mystery" in name else "OK",
+            status_lookup=_status_lookup,
             pilot_known=lambda name: "Mystery" not in name,
         )
         assert audit["available"] is True
         assert audit["status"] == "GAPS_FOUND"
-        assert audit["deck"]["total"] == 3  # type: ignore[index]
-        assert audit["deck"]["ready"] == 3  # type: ignore[index]
+        assert audit["deck"]["total"] == 4  # type: ignore[index]
+        assert audit["deck"]["ready"] == 4  # type: ignore[index]
+        assert "Bala Ged Recovery" in looked_up_names
         free = audit["free_top_candidates"]
         assert isinstance(free, dict)
+        cand_names = {item["name"] for item in free["items"]}
+        assert "Bala Ged Recovery // Bala Ged Sanctuary" not in cand_names
         issue_names = [i["name"] for i in free["issues"]]
         assert "Mystery Card Not In Engine" in issue_names
 
@@ -446,8 +540,86 @@ def test_simulator_readiness_audit_fail_closed_gaps_and_real_chulane(tmp_path: P
             pilot_known=lambda _: True,
         )
         assert clean["status"] == "OK"
+
+        # 4. cards=None falls back cleanly to repo baseline when present
+        fallback = paired_series.simulator_readiness_audit(
+            store,
+            [COMMANDER],
+            cards=None,
+            tiers=("S", "A"),
+            available_check=lambda: True,
+            status_lookup=lambda _: "OK",
+            pilot_known=lambda _: True,
+        )
+        assert fallback["available"] is True
+        assert fallback["deck"]["total"] >= 1  # type: ignore[index]
+
+        # 5. Live catalog sanity check (skipped only if local catalogs absent)
+        if builder.sim_readiness_available():
+            live_chulane = paired_series.simulator_readiness_audit(
+                store, [COMMANDER], cards=deck_cards
+            )
+            assert live_chulane["available"] is True
+            assert live_chulane["deck"]["total"] == 4  # type: ignore[index]
     finally:
         store.close()
+
+
+def test_paired_manager_isolates_distinct_data_folders(tmp_path: Path) -> None:
+    folder_a = tmp_path / "a"
+    folder_b = tmp_path / "b"
+    store_a, _ = _make_store(folder_a)
+    store_b, _ = _make_store(folder_b)
+    try:
+        rev_a = create_revision(
+            store_a,
+            deck_id="iso-a",
+            name="Iso A",
+            branch="main",
+            cards=[
+                RevisionCard("cid-chulane", 1, "commander"),
+                RevisionCard("cid-forest", 99, "main"),
+            ],
+        )
+        rev_b = create_revision(
+            store_a,
+            deck_id="iso-a",
+            name="Iso A",
+            branch="var",
+            cards=[
+                RevisionCard("cid-chulane", 1, "commander"),
+                RevisionCard("cid-sol-ring", 1, "main"),
+                RevisionCard("cid-forest", 98, "main"),
+            ],
+        )
+
+        def _tied(arm: str, seed: int, seat: int) -> paired_comparison.PlayedGame:
+            did = "iso-a--base" if arm == "base" else "iso-a--variant"
+            return {
+                "exposure": _mock_exposure(  # type: ignore[typeddict-item]
+                    f"{arm}-{seed}-{seat}", seed=seed, seat=seat, tested_deck_id=did, won=False
+                ),
+                "failure_class": None,
+            }
+
+        mgr = PairedSeriesManager()
+        job = mgr.start_series(
+            store_a,
+            folder_a / "studio_data",
+            base_revision_id=rev_a,
+            variant_revision_id=rev_b,
+            budget_pairs=4,
+            look_every_pairs=4,
+            rotate_seats=False,
+            play_override=_tied,
+        )
+        _wait_job(mgr, folder_a / "studio_data", job.series_id)
+        assert len(mgr.list_series(folder_a / "studio_data")) == 1
+        assert mgr.list_series(folder_b / "studio_data") == []
+        assert mgr.get_series(folder_b / "studio_data", job.series_id) is None
+    finally:
+        store_a.close()
+        store_b.close()
 
 
 def test_web_paired_and_readiness_routes_roundtrip(
@@ -517,6 +689,12 @@ def test_web_paired_and_readiness_routes_roundtrip(
     assert one.status_code == 200
     assert one.json()["status"] == "completed"
 
+    missing_get = client.get("/api/simulations/paired/paired-unknown-1")
+    assert missing_get.status_code == 404
+
+    missing_cancel = client.post("/api/simulations/paired/paired-unknown-1/cancel", headers=hdr)
+    assert missing_cancel.status_code == 404
+
     bad_id = client.get("/api/simulations/paired/invalid!id")
     assert bad_id.status_code == 422
 
@@ -540,8 +718,9 @@ def test_web_paired_and_readiness_routes_roundtrip(
     assert payload["commander"] == [COMMANDER]
 
 
-def test_paired_js_csp_and_no_inline_styles() -> None:
+def test_paired_js_csp_and_in_place_slot_refresh() -> None:
     paired_js = (STATIC_DIR / "paired.js").read_text(encoding="utf-8")
+    app_js = (STATIC_DIR / "app.js").read_text(encoding="utf-8")
     index_html = (STATIC_DIR / "index.html").read_text(encoding="utf-8")
     assert '<script src="paired.js"></script>' in index_html
     assert ".innerHTML" not in paired_js
@@ -549,3 +728,6 @@ def test_paired_js_csp_and_no_inline_styles() -> None:
     assert "eval(" not in paired_js
     assert "style:" not in paired_js
     assert "style =" not in paired_js
+    assert "paired-monitor-slot" in paired_js
+    assert "paired-history-slot" in paired_js
+    assert "refreshPairedSlots(" in app_js

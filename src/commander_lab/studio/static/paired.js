@@ -238,6 +238,45 @@ function renderReadinessAuditBox(h, deps) {
   return box;
 }
 
+function refreshPairedSlots(deps) {
+  const { h } = deps;
+  const monSlot = document.getElementById("paired-monitor-slot");
+  if (monSlot) {
+    const active = deps.activePaired();
+    monSlot.replaceChildren(...(active ? [renderPairedMonitor(h, active, deps)] : []));
+  }
+  const histSlot = document.getElementById("paired-history-slot");
+  if (histSlot) {
+    const historyList = deps.pairedHistory() || [];
+    if (!historyList.length) {
+      histSlot.replaceChildren();
+    } else {
+      histSlot.replaceChildren(
+        h("h4", { class: "mt-2" }, "Gespeicherte Nachtlauf-Serien"),
+        h("table", {},
+          h("thead", {}, h("tr", {}, h("th", {}, "Serie"), h("th", {}, "Status"), h("th", {}, "Ergebnis"), h("th", { class: "num" }, "Differenz"), h("th", {}, ""))),
+          h("tbody", {}, historyList.slice(0, 10).map((item) => {
+            const r = item.result || null;
+            const v = pairedVerdictInfo(r);
+            return h("tr", {},
+              h("td", {}, h("code", {}, item.series_id)),
+              h("td", {}, item.status),
+              h("td", {}, v ? v[1] : `${item.pairs_attempted ?? 0}/${item.budget_pairs ?? "?"} Paare`),
+              h("td", { class: "num" }, r ? fmtPp(r.difference_pp) : "–"),
+              h("td", {}, h("button", {
+                type: "button",
+                class: "small",
+                onclick: () => {
+                  deps.setActivePaired(item);
+                  refreshPairedSlots(deps);
+                },
+              }, "Details")));
+          })))
+      );
+    }
+  }
+}
+
 function renderPairedComparisonSection(body, deps) {
   const { h } = deps;
   const pBox = h("div", { class: "sim-box", id: "paired-series-box" },
@@ -302,10 +341,11 @@ function renderPairedComparisonSection(body, deps) {
           threshold_pp: parseFloat(thresholdInput.value) || 0.0,
         });
         deps.setActivePaired(res);
+        refreshPairedSlots(deps);
         deps.pollPaired(res.series_id);
-        deps.rerender();
       } catch (err) {
         deps.fail(err);
+      } finally {
         startBtn.disabled = false;
       }
     },
@@ -321,40 +361,12 @@ function renderPairedComparisonSection(body, deps) {
     startBtn
   );
 
-  pBox.append(form, estLine);
-
-  const active = deps.activePaired();
-  if (active) {
-    pBox.append(renderPairedMonitor(h, active, deps));
-  }
-
-  const historyList = deps.pairedHistory() || [];
-  if (historyList.length) {
-    pBox.append(
-      h("h4", { class: "mt-2" }, "Gespeicherte Nachtlauf-Serien"),
-      h("table", {},
-        h("thead", {}, h("tr", {}, h("th", {}, "Serie"), h("th", {}, "Status"), h("th", {}, "Ergebnis"), h("th", { class: "num" }, "Differenz"), h("th", {}, ""))),
-        h("tbody", {}, historyList.slice(0, 10).map((item) => {
-          const r = item.result || null;
-          const v = pairedVerdictInfo(r);
-          return h("tr", {},
-            h("td", {}, h("code", {}, item.series_id)),
-            h("td", {}, item.status),
-            h("td", {}, v ? v[1] : `${item.pairs_attempted ?? 0}/${item.budget_pairs ?? "?"} Paare`),
-            h("td", { class: "num" }, r ? fmtPp(r.difference_pp) : "–"),
-            h("td", {}, h("button", {
-              type: "button",
-              class: "small",
-              onclick: () => {
-                deps.setActivePaired(item);
-                deps.rerender();
-              },
-            }, "Details")));
-        })))
-    );
-  }
+  const monSlot = h("div", { id: "paired-monitor-slot" });
+  const histSlot = h("div", { id: "paired-history-slot" });
+  pBox.append(form, estLine, monSlot, histSlot);
 
   body.append(pBox, renderReadinessAuditBox(h, deps));
+  refreshPairedSlots(deps);
 
   const tok = deps.token();
   loadPairedOptions(deps).then((opts) => {

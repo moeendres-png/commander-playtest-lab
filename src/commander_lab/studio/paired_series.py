@@ -6,7 +6,7 @@ and provides the C-3 simulator readiness audit across a deck and its free Tier-S
 pool candidates (#1404 Option 6, C-3).
 
 Hard invariants:
-- XMage (``f4d12f6e80``) remains the sole rules authority; no rule decisions live here.
+- XMage remains the sole rules authority; no rule decisions live here.
 - Simulation results stay strictly ``SIMULATED_RESULT`` and never touch ``strength_view``
   weights or the tier list (``simulation`` weight stays 0).
 - Fail-closed: missing XMage/pilot catalogs report ``UNKNOWN`` (never fabricated PASS).
@@ -23,6 +23,7 @@ import time
 from collections.abc import Callable, Mapping, Sequence
 from pathlib import Path
 
+from commander_lab.agents.card_knowledge import CardCatalogError, card_facts
 from commander_lab.bridge_qualification import bridge_qualification
 from commander_lab.engine.rules.project import load_rules_deck_snapshot
 from commander_lab.models import RulesDeckInput
@@ -33,6 +34,7 @@ from .games import games_folder
 from .launch import (
     POD_PRESETS,
     SeriesEngine,
+    _precons,
     cards_unknown_to_pilots,
     cards_unsupported_by_engine,
     engine_state,
@@ -84,40 +86,26 @@ def estimate_series_duration(
     }
 
 
-def _repo_root() -> Path:
-    return Path(__file__).resolve().parents[3]
-
-
 def _resolve_opponent_paths(pod: str, opponent_ids: Sequence[str] | None) -> list[Path]:
-    root = _repo_root()
-    precons_dir = root / "data" / "decks" / "precons"
-    if opponent_ids:
-        opp_list = list(opponent_ids)
+    by_id = {deck_id: path for deck_id, _name, _cmds, _year, path in _precons()}
+    if opponent_ids is not None:
+        if not 1 <= len(opponent_ids) <= 5:
+            raise ValueError("opponent_ids muss zwischen 1 und 5 Gegner-Decks enthalten")
+        opp_list = [str(oid).strip() for oid in opponent_ids]
     elif pod in POD_PRESETS:
         opp_list = list(POD_PRESETS[pod])
     else:
-        opp_list = list(POD_PRESETS["precon"])
+        raise ValueError(f"Unbekannter Gegnertisch (pod): {pod!r}")
+
+    if len(set(opp_list)) != len(opp_list):
+        raise ValueError("Gegner-Decks dürfen nicht doppelt vorkommen")
 
     opp_paths: list[Path] = []
     for oid in opp_list:
-        candidate = precons_dir / f"{oid}.json"
-        if candidate.is_file():
-            opp_paths.append(candidate)
-            continue
-        matched = next(
-            (
-                p
-                for p in sorted(precons_dir.glob("*.json"))
-                if p.stem.endswith(oid) or oid in p.stem
-            ),
-            None,
-        )
-        if matched is not None:
-            opp_paths.append(matched)
-    if not opp_paths and precons_dir.is_dir():
-        opp_paths = sorted(precons_dir.glob("*.json"))[:3]
-    if not opp_paths:
-        raise ValueError("keine Gegner-Decks für den gewählten Pod gefunden")
+        path = by_id.get(oid)
+        if path is None:
+            raise ValueError(f"Unbekanntes Gegner-Deck: {oid!r}")
+        opp_paths.append(path)
     return opp_paths
 
 
@@ -505,11 +493,12 @@ class PairedSeriesManager:
 
     def get_series(self, data_folder: str | Path, series_id: str) -> dict[str, object] | None:
         safe_id = validate_series_id(series_id)
+        target_folder = Path(data_folder).resolve()
         with self._lock:
             job = self._jobs.get(safe_id)
-        if job is not None:
+        if job is not None and job.data_folder == target_folder:
             return job.to_dict()
-        disk = games_folder(Path(data_folder).resolve()) / f"{safe_id}.paired.json"
+        disk = games_folder(target_folder) / f"{safe_id}.paired.json"
         if disk.is_file():
             try:
                 raw = json.loads(disk.read_text(encoding="utf-8"))
@@ -529,7 +518,8 @@ class PairedSeriesManager:
         return True
 
     def list_series(self, data_folder: str | Path) -> list[dict[str, object]]:
-        folder = games_folder(Path(data_folder).resolve())
+        target_folder = Path(data_folder).resolve()
+        folder = games_folder(target_folder)
         by_id: dict[str, dict[str, object]] = {}
         if folder.is_dir():
             for path in sorted(folder.glob("paired-*.paired.json"), reverse=True)[:30]:
@@ -539,7 +529,8 @@ class PairedSeriesManager:
                         by_id[str(raw["series_id"])] = raw
         with self._lock:
             for sid, job in self._jobs.items():
-                by_id[sid] = job.to_dict()
+                if job.data_folder == target_folder:
+                    by_id[sid] = job.to_dict()
         items = list(by_id.values())
         items.sort(key=lambda row: str(row.get("created_at") or ""), reverse=True)
         return items[:30]
@@ -563,8 +554,6 @@ def simulator_readiness_audit(
     Fails closed to ``status = "UNKNOWN"`` when card catalogs are unreadable (never reports
     fake readiness). Never mutates scores or tiers.
     """
-    from commander_lab.agents.card_knowledge import card_facts
-
     check_avail = available_check or builder.sim_readiness_available
     get_status = status_lookup or builder.sim_readiness_status
     has_pilot = pilot_known or (lambda n: card_facts(n) is not None)
@@ -572,13 +561,13 @@ def simulator_readiness_audit(
     if not commander_names:
         raise ValueError("commander is required")
 
-    if not check_avail():
+    def _unknown_result(reason: str) -> dict[str, object]:
         return {
             "schema": SCHEMA_READINESS_AUDIT,
             "commander": list(commander_names),
             "available": False,
             "status": "UNKNOWN",
-            "reason": "XMage-/Piloten-Kartendaten sind nicht lesbar.",
+            "reason": reason,
             "deck": {"total": 0, "ready": None, "issues": []},
             "free_top_candidates": {
                 "tiers": list(tiers),
@@ -588,6 +577,15 @@ def simulator_readiness_audit(
                 "items": [],
             },
         }
+
+    if not check_avail():
+        return _unknown_result("XMage-/Piloten-Kartendaten sind nicht lesbar.")
+
+    if pilot_known is None:
+        try:
+            card_facts("__readiness_probe__")
+        except (CardCatalogError, OSError, ValueError):
+            return _unknown_result("Piloten-Kartenwissen ist nicht lesbar.")
 
     # Resolve deck cards
     deck_rows: list[Mapping[str, object]] = []
@@ -601,27 +599,47 @@ def simulator_readiness_audit(
                 break
 
     deck_seen: dict[str, dict[str, object]] = {}
-    for row in deck_rows:
-        name = str(row.get("engine_name") or row.get("oracle_name") or "")
-        if not name or name in deck_seen:
-            continue
-        sim_st = get_status(name)
-        pilot_ok = bool(has_pilot(name))
-        ok = sim_st == "OK" and pilot_ok
-        deck_seen[name] = {
-            "card_id": row.get("card_id"),
-            "name": name,
-            "zone": row.get("zone", "main"),
-            "sim_status": sim_st,
-            "pilot_known": pilot_ok,
-            "ready": ok,
-        }
+    deck_card_ids: set[str] = set()
+    deck_card_names: set[str] = set()
+    try:
+        for row in deck_rows:
+            cid = str(row.get("card_id") or "")
+            if cid:
+                deck_card_ids.add(cid)
+            eng_name = str(row.get("engine_name") or "")
+            ora_name = str(row.get("oracle_name") or "")
+            if eng_name:
+                deck_card_names.add(eng_name)
+            if ora_name:
+                deck_card_names.add(ora_name)
+            name = eng_name or ora_name
+            if not name or name in deck_seen:
+                continue
+            sim_st = get_status(name)
+            pilot_ok = bool(has_pilot(name))
+            ok = sim_st == "OK" and pilot_ok
+            deck_seen[name] = {
+                "card_id": row.get("card_id"),
+                "name": name,
+                "zone": row.get("zone", "main"),
+                "sim_status": sim_st,
+                "pilot_known": pilot_ok,
+                "ready": ok,
+            }
+    except (CardCatalogError, OSError, ValueError):
+        return _unknown_result(
+            "XMage-/Piloten-Kartendaten konnten nicht vollständig gelesen werden."
+        )
 
     deck_issues = [item for item in deck_seen.values() if not item["ready"]]
     deck_ready = len(deck_seen) - len(deck_issues)
 
     # Free Tier S/A pool candidates not currently in deck
     _identity, _cmd_ids = builder.commander_identity(store, commander_names)
+    engine_name_by_id = {
+        str(r["card_id"]): str(r["engine_name"] or r["oracle_name"] or "")
+        for r in store.connection.execute("SELECT card_id, engine_name, oracle_name FROM card_fact")
+    }
     role_rows = store.connection.execute(
         "SELECT card_id, roles FROM ("
         "SELECT c.card_id, GROUP_CONCAT(r.role, ',') AS roles "
@@ -639,32 +657,42 @@ def simulator_readiness_audit(
 
     tier_set = {str(t).upper() for t in tiers}
     strength_res = strength_view.compute(store, commander_names[0], StrengthSettings())
-    deck_card_names = set(deck_seen.keys())
     candidate_items: list[dict[str, object]] = []
-    for entry in strength_res.get("cards", []):
-        tier = str(entry.get("tier") or "")
-        if tier not in tier_set:
-            continue
-        cid = str(entry.get("card_id") or "")
-        cname = str(entry.get("name") or "")
-        avail = inv_rows.get(cid, 0)
-        if avail <= 0 or cname in deck_card_names:
-            continue
-        sim_st = get_status(cname)
-        pilot_ok = bool(has_pilot(cname))
-        ok = sim_st == "OK" and pilot_ok
-        candidate_items.append(
-            {
-                "card_id": cid,
-                "name": cname,
-                "tier": tier,
-                "index": entry.get("index"),
-                "roles": roles_by_id.get(cid, []),
-                "available": avail,
-                "sim_status": sim_st,
-                "pilot_known": pilot_ok,
-                "ready": ok,
-            }
+    try:
+        for entry in strength_res.get("cards", []):
+            tier = str(entry.get("tier") or "")
+            if tier not in tier_set:
+                continue
+            cid = str(entry.get("card_id") or "")
+            cname = str(entry.get("name") or "")
+            lookup_name = engine_name_by_id.get(cid) or cname
+            avail = inv_rows.get(cid, 0)
+            if (
+                avail <= 0
+                or (cid and cid in deck_card_ids)
+                or cname in deck_card_names
+                or lookup_name in deck_card_names
+            ):
+                continue
+            sim_st = get_status(lookup_name)
+            pilot_ok = bool(has_pilot(lookup_name))
+            ok = sim_st == "OK" and pilot_ok
+            candidate_items.append(
+                {
+                    "card_id": cid,
+                    "name": cname,
+                    "tier": tier,
+                    "index": entry.get("index"),
+                    "roles": roles_by_id.get(cid, []),
+                    "available": avail,
+                    "sim_status": sim_st,
+                    "pilot_known": pilot_ok,
+                    "ready": ok,
+                }
+            )
+    except (CardCatalogError, OSError, ValueError):
+        return _unknown_result(
+            "XMage-/Piloten-Kartendaten konnten nicht vollständig gelesen werden."
         )
 
     tier_order = {"S": 0, "A": 1, "B": 2, "C": 3, "D": 4}
