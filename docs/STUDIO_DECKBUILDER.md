@@ -976,6 +976,13 @@ in advance, not on a validation; judging them is the Owner's decision.
   `rank_group = "pool"` stays recommended (Spearman `0.9297` vs `0.8819` for `"function"`,
   Randkarten oben `5 / 71` vs `19 / 94` because small-role leaders with `< 5 %` deck share
   scale to `S/A` inside isolated role groups).
+- **Reminder text and own draws (#1404, #1413):** the Oracle-text rules `cantrip`, `card_advantage`
+  and `hate` read the text without parenthesised reminder text (nested parentheses included), so a
+  Clue's "Draw a card" or a Split second "players can't cast spells" no longer counts; `card_advantage`
+  needs a draw for the card's own controller ("that player draws", "each player draws" do not
+  count, "target player draws" does). `card_draw` and `utility_land` still read the full text.
+  `roles_s5_oracle_expansion.json` and `roles_s6_oracle_corpus.json` were regenerated with the
+  unchanged `fetched_at` `2026-11-16`: 9 / 1,884 and 101 / 16,338 claims dropped, none added.
 
 
 ### Counted deck-list universes, `universe_source` and the commander-signal rule

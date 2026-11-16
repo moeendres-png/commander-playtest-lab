@@ -111,21 +111,8 @@ const state = {
 };
 
 const $ = (id) => document.getElementById(id);
-function h(tag, props, ...children) {
-  const el = document.createElement(tag);
-  for (const [key, value] of Object.entries(props || {})) {
-    if (value === null || value === undefined || value === false) continue;
-    if (key === "class") el.className = value;
-    else if (key.startsWith("on")) el.addEventListener(key.slice(2), value);
-    else if (key in el && key !== "list") el[key] = value;
-    else el.setAttribute(key, value);
-  }
-  for (const child of children.flat(Infinity)) {
-    if (child === null || child === undefined || child === false) continue;
-    el.append(child.nodeType ? child : document.createTextNode(String(child)));
-  }
-  return el;
-}
+// The one DOM builder of the Studio (also makes name/chip click targets keyboard-operable).
+function h(tag, props, ...children) { return StudioUI.h(tag, props, ...children); }
 const api = (path, body, method) => StudioUI.request(path, method || (body === undefined ? "GET" : "POST"), body);
 const toast = (text, kind = "") => StudioUI.toast(text, kind);
 const fail = (error) => StudioUI.fail(StudioUI.germanError(error));
@@ -706,7 +693,7 @@ function renderUniversePanel() {
     const chosen = [...(spec.must_contain || [])];
     const chips = h("span", { class: "chips" });
     const draw = () => chips.replaceChildren(...chosen.map((name) => h("button", { type: "button", class: "chip", title: `${name} entfernen`, onclick: () => { chosen.splice(chosen.indexOf(name), 1); draw(); } }, `${name} ✕`)));
-    const input = h("input", { id: "u-card", list: "u-card-list", placeholder: "Karte aus dem Bestand …", autocomplete: "off" });
+    const input = h("input", { id: "u-card", "aria-label": "Karte aus dem Bestand", list: "u-card-list", placeholder: "Karte aus dem Bestand …", autocomplete: "off" });
     const add = () => {
       const value = input.value.trim();
       if (!value) return;
@@ -1294,7 +1281,7 @@ async function setView(view) {
 }
 
 function renderTabs() {
-  $("tabs").replaceChildren(...[["cards", "Karten"], ["research", "Forschungsliste"]].map(([key, label]) => h("span", { class: "chip" + (state.tab === key ? " on" : ""), onclick: () => { state.tab = key; renderTabs(); render(); } }, label)));
+  $("tabs").replaceChildren(...[["cards", "Karten"], ["research", "Forschungsliste"]].map(([key, label]) => h("span", { class: "chip" + (state.tab === key ? " on" : ""), "aria-pressed": String(state.tab === key), onclick: () => { state.tab = key; renderTabs(); render(); } }, label)));
 }
 
 async function init() {
