@@ -141,14 +141,16 @@ def cut_suggestions(
         )
 
     def key(item: dict[str, object]) -> tuple[object, ...]:
-        share = item["share"]
+        decks, of_ = item["decks"], item["of"]
+        # The unrounded share orders: rounded shares tie for neighbouring counts.
+        share = decks / of_ if isinstance(decks, int) and isinstance(of_, int) and of_ else 0.0
         redundancy = item["redundancy"]
         return (
             item["deferred"],
             deferred_order.get(str(item["card_id"]), -1),
             bool(item["below_minimum"]),
             item["group"] == "unknown",
-            share if isinstance(share, float) else 0.0,
+            share,
             -(redundancy if isinstance(redundancy, int) else -1),
             str(item["name"]),
         )

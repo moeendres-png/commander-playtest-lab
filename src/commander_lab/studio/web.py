@@ -52,6 +52,7 @@ from . import (
 from . import evidence as evidence_model
 from .decks import (
     RevisionCard,
+    color_set,
     create_revision,
     lab_snapshot,
     list_rows,
@@ -961,6 +962,23 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         store = open_store()
         try:
             base = _cards(body.cards)
+            commander_rows = [r for r in list_rows(store, base) if r["zone"] == "commander"]
+            identity = frozenset().union(*(color_set(r["color_identity"]) for r in commander_rows))
+            found = list_rows(store, [RevisionCard(body.add, 1, "main")])
+            if not found:
+                raise HTTPException(422, "die neue Karte ist unbekannt")
+            add_row = found[0]
+            if body.add in {card.card_id for card in base}:
+                raise HTTPException(422, "die neue Karte steht schon im Deck")
+            if (
+                not add_row["commander_legal"]
+                or not color_set(add_row["color_identity"]) <= identity
+            ):
+                raise HTTPException(
+                    422, "die neue Karte ist nicht legal oder außerhalb der Farbidentität"
+                )
+            if not add_row["available_lower_bound"]:
+                raise HTTPException(422, "von der neuen Karte ist kein Exemplar frei")
             target: list[RevisionCard] = []
             removed = False
             for card in base:

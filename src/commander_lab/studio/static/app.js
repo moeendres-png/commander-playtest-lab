@@ -1396,7 +1396,8 @@ function renderCut(body) {
     h, api, entries, fail, roleName, openCard, add, remove, qty, deckCards,
     token: () => state.renderToken,
     isCurrent: (token) => token === state.renderToken && state.tab === "cut",
-    deckId: () => state.deckId,
+    deckId: () => `${state.deckId}::${state.branch}`, // the cut state belongs to one variant
+    commanderIds: () => state.commanderIds,
     total: deckTotal,
     card: (cardId) => state.byId.get(cardId),
     pool: () => state.pool,

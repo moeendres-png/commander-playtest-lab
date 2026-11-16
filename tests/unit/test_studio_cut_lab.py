@@ -84,8 +84,10 @@ def test_order_is_measured_frequency_unknown_apart_marks_never_count(tmp_path: P
         db.execute(
             "INSERT INTO card_mark(card_id, favorite, excluded, note, updated_at) "
             "VALUES (?, 1, 0, '', '2026-11-16')",
-            (ids["Filler 02"],),
+            (ids["Filler 03"],),
         )
+    # Filler 03 is a favourite: it must keep its measured place (after Filler 02 by name),
+    # neither moved earlier nor later.
     result = cut_lab.cut_suggestions(store, cards)
     order = [(item["name"], item["group"]) for item in result["suggestions"]]
     assert order == [("Swarm Rat", "known"), ("Filler 02", "unknown"), ("Filler 03", "unknown")]
@@ -160,3 +162,45 @@ def test_cut_lab_routes(tmp_path: Path) -> None:
     assert ids["Filler 01"] not in [item["card_id"] for item in body["suggestions"]]
     finish = client.post("/api/cut-lab/finish", json={"start": cards, "cards": cards[:-1]}).json()
     assert finish["patch_text"] == "CUT 1 Filler 04"
+
+
+def test_what_if_refuses_cards_that_cannot_go_in(tmp_path: Path) -> None:
+    store, ids = _store(tmp_path)
+    store.close()
+    client = TestClient(create_app(tmp_path / "studio"), headers={"X-Studio": "1"})
+    cards = [{"card_id": CMD, "quantity": 1, "zone": "commander"}]
+    cards += [{"card_id": ids[f"Filler {i:02d}"], "quantity": 1, "zone": "main"} for i in (1, 2)]
+    ok = client.post(
+        "/api/cut-lab/what-if",
+        json={"cards": cards, "cut": ids["Filler 01"], "add": ids["Filler 05"]},
+    )
+    assert ok.status_code == 200, ok.text
+    assert [item["name"] for item in ok.json()["added"]] == ["Filler 05"]
+    for add, reason in (
+        (CMD, "schon im Deck"),
+        (ids["Filler 02"], "schon im Deck"),
+        ("card:project:nope", "unbekannt"),
+    ):
+        refused = client.post(
+            "/api/cut-lab/what-if", json={"cards": cards, "cut": ids["Filler 01"], "add": add}
+        )
+        assert refused.status_code == 422
+        assert reason in refused.json()["detail"]
+
+
+def test_order_uses_the_unrounded_share(tmp_path: Path) -> None:
+    store, ids = _store(tmp_path)
+    from unittest import mock
+
+    cards = [RevisionCard(CMD, 1, "commander")]
+    cards += [RevisionCard(ids[f"Filler {i:02d}"]) for i in (1, 2)]
+    # 39 and 40 of 10128 round to the same 4-decimal share; the smaller count must come first
+    # even when the other card has the higher role redundancy.
+    hits = {"Filler 01": {"all": 40}, "Filler 02": {"all": 39}}
+    with (
+        mock.patch("commander_lab.studio.builder._corpus_hits", return_value=hits),
+        mock.patch("commander_lab.studio.builder.cohort_sizes", return_value={"all": 10128}),
+    ):
+        result = cut_lab.cut_suggestions(store, cards)
+    assert round(39 / 10128, 4) == round(40 / 10128, 4)
+    assert [item["name"] for item in result["suggestions"]] == ["Filler 02", "Filler 01"]

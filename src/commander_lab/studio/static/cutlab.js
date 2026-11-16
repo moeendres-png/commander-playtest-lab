@@ -6,7 +6,7 @@
 
 const CutLab = { deckKey: "", locked: new Set(), rejected: [], deferred: [], minimums: null, start: null, whatIf: null, lastKey: "", lastResult: null };
 
-function cutLabStorageKey(deckId) { return `studio.cutlab.${deckId || "none"}`; }
+function cutLabStorageKey(deckKey) { return `studio.cutlab.${deckKey || "none"}`; }
 
 function cutLabLoad(deckId) {
   if (CutLab.deckKey === deckId) return;
@@ -64,7 +64,8 @@ function renderCutMinimums(h, deps, rerender) {
 }
 
 async function renderWhatIf(h, box, item, deps) {
-  const candidates = deps.pool().filter((card) => !card.basic && card.available > 0 && !deps.inDeck(card.card_id));
+  const commanders = new Set(deps.commanderIds());
+  const candidates = deps.pool().filter((card) => !card.basic && card.available > 0 && !deps.inDeck(card.card_id) && !commanders.has(card.card_id));
   const listId = "cut-whatif-list";
   const input = h("input", { type: "search", list: listId, placeholder: "Karte aus dem Pool", "aria-label": "Karte für den Was-wäre-wenn-Tausch" });
   const out = h("div", { id: "cut-whatif-result" });
@@ -117,12 +118,17 @@ async function renderCutLab(body, deps) {
   }
   box.append(renderCutMinimums(h, deps, rerender));
   if (total === 100 && CutLab.start) {
-    const finish = await deps.api("/api/cut-lab/finish", "POST", { start: CutLab.start, cards: deps.entries() });
+    const token = deps.token();
+    let finish;
+    try {
+      finish = await deps.api("/api/cut-lab/finish", "POST", { start: CutLab.start, cards: deps.entries() });
+    } catch (error) { if (deps.isCurrent(token)) { box.append(h("p", { class: "warn" }, "Der Abschluss konnte nicht berechnet werden.")); deps.fail(error); } return; }
+    if (!deps.isCurrent(token)) return;
     box.append(h("h3", {}, "Abschluss: genau 100 Karten"),
       h("h4", {}, "Änderungen gegenüber dem Start (ADD/CUT)"), h("textarea", { id: "cut-patch", rows: "8", readonly: true }, finish.patch_text),
       h("h4", {}, "Liste"), h("textarea", { id: "cut-list", rows: "8", readonly: true }, finish.list_text),
       h("div", { class: "actions" },
-        h("button", { type: "button", class: "primary", onclick: () => { deps.saveRevision(); CutLab.start = null; } }, "Als Stand speichern"),
+        h("button", { type: "button", class: "primary", onclick: () => { deps.saveRevision(); } }, "Als Stand speichern"),
         h("button", { type: "button", onclick: () => { CutLab.start = null; CutLab.rejected = []; CutLab.deferred = []; rerender(); } }, "Neu beginnen")));
     return;
   }
