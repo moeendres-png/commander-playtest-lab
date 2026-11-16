@@ -259,7 +259,7 @@ function showDeckPlan(title, plan) {
   box.append(
     h("h2", null, `Spielplan (${title})`),
     h("p", { class: "muted" }, `Herkunft: ${plan.provenance || "abgeleitet, nicht gemessen"}`),
-    h("div", { class: "plan-details", style: "display:flex; flex-direction:column; gap:0.5rem; margin:1rem 0;" },
+    h("div", { class: "plan-details" },
       h("p", null, h("b", null, "Fokus: "), plan.focus || "–"),
       h("p", null, h("b", null, "Gewinn-Plan: "), plan.win_condition || "–"),
       h("p", null, h("b", null, "Motoren: "), (plan.engines || []).join(", ") || "–"),
@@ -427,7 +427,9 @@ async function openGame(gameId) {
   $("log").textContent = ""; $("table").textContent = ""; delete $("table").dataset.banner;
   await loadMore();
   const header = state.header || {};
-  $("game-info").textContent = `Seed ${header.seed} · Regeln: XMage ${String(header.engine_commit || "").slice(0, 10)} · KI: ${header.pilot || "?"} · begonnen ${header.started_at || "?"}`;
+  const jarShort = header.bridge_jar_sha256 ? String(header.bridge_jar_sha256).slice(0, 12) : "–";
+  const epochLabel = header.covered_by_sealed_epoch ? "versiegelt" : (header.bridge_qualification_state || "unbekannt");
+  $("game-info").textContent = `Seed ${header.seed} · Regeln: XMage ${String(header.engine_commit || "").slice(0, 10)} · Bridge-JAR: ${jarShort} · Epoche: ${epochLabel} · KI: ${header.pilot || "?"} · begonnen ${header.started_at || "?"}`;
   $("table").classList.toggle("one", (header.seats || []).length <= 1);
   render();
   follow();
@@ -532,9 +534,14 @@ async function newGame(wantedRevision) {
       setPlaying(true);
     } catch (error) { note.textContent = `Start nicht möglich: ${error.message}`; go.disabled = false; }
   });
+  const qual = table.engine && table.engine.bridge_qualification;
+  const qualNotice = qual && qual.status && !qual.covered_by_sealed_epoch
+    ? [h("p", { class: "pill warn inline-warn", title: qual.reason || "" }, `${qual.status} · nicht durch versiegelte Epoche abgedeckt`)]
+    : [];
   box.append(
     h("p", { class: "muted" }, `Alle Plätze spielt die KI. XMage entscheidet jede Regel (${table.engine && table.engine.pin ? table.engine.pin.slice(0, 10) : "gepinnt"}). Die Partie wird mitgeschrieben und läuft hier direkt mit.`),
-    ...(table.engine && table.engine.warning ? [h("p", { class: "pill warn", style: "display:inline-block;margin:4px 0" }, table.engine.warning)] : []),
+    ...(table.engine && table.engine.warning ? [h("p", { class: "pill warn inline-warn" }, table.engine.warning)] : []),
+    ...qualNotice,
     h("div", { class: "form" },
       h("label", null, "Dein Deck auf Sitz 1 (KI) ", own, " Stil ", ownStyle),
       h("label", null, "Tisch ", count),

@@ -166,4 +166,15 @@ code.cmd{white-space:pre-wrap;word-break:break-all;font-size:12px}
 #play-state.warn{border-color:var(--warn);color:var(--warn)}
 #land-advisor,#land-advisor-group{width:100%;margin-bottom:var(--s2)}
 #land-advisor td,#land-advisor-group td{vertical-align:top}
+.mt-0{margin-top:0}
+.mt-2{margin-top:var(--s2)}
+.rev-input{width:240px}
+.seed-input{width:90px}
+.sim-monitor{margin-top:var(--s3);padding-top:10px;border-top:1px solid var(--line)}
+.sim-monitor-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;gap:var(--s2);flex-wrap:wrap}
+.sim-summary{margin-top:10px;background:var(--panel);padding:10px;border-radius:var(--radius-s)}
+.sim-summary h4{margin:0 0 6px}
+.sim-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:var(--s2)}
+.note-compact{margin:6px 0 0}
+.pill-inline{display:inline-block;margin:var(--s1) 0}
 @media (max-width:600px){select,input[type="search"],input[type="text"]{max-width:100%;min-width:0}label:has(> select){display:flex;flex-wrap:wrap;align-items:center;gap:4px;max-width:100%}.tier-filter,.layer-controls{flex-wrap:wrap;max-width:100%}}

@@ -1194,12 +1194,12 @@ function renderSimulations(body) {
 
   // Batch simulation launcher & live monitor
   const bBox = h("div", { class: "sim-box" },
-    h("h3", { style: "margin-top:0" }, "Neue Simulationsserie starten"),
+    h("h3", { class: "mt-0" }, "Neue Simulationsserie starten"),
     h("p", { class: "note" }, "Spielt mehrere vollständige 4-Spieler-Partien nacheinander in prozessisolierten Durchläufen mit deterministischen Seeds. Berechnet Siegrate mit Nenner und 95%-Wilson-Konfidenzintervall.")
   );
 
   const curRev = state.baseRevision || (state.deckId ? `rev@${state.deckId}/main/current` : "rev@chulane/main/current");
-  const revInput = h("input", { type: "text", value: curRev, style: "width:240px", title: "Deck-Revision" });
+  const revInput = h("input", { type: "text", value: curRev, class: "rev-input", title: "Deck-Revision" });
   const podSelect = h("select", {},
     h("option", { value: "precon" }, "Precon (Lorehold, Animated Army, Token Triumph)"),
     h("option", { value: "mixed" }, "Mixed (Kaervek, Animated Army, Lorehold)"),
@@ -1212,7 +1212,7 @@ function renderSimulations(body) {
     h("option", { value: "30" }, "30 Partien"),
     h("option", { value: "50" }, "50 Partien")
   );
-  const seedInput = h("input", { type: "number", value: "1000", style: "width:90px" });
+  const seedInput = h("input", { type: "number", value: "1000", class: "seed-input" });
 
   const startBtn = h("button", { type: "submit", class: "primary" }, "Serie starten");
   const form = h("form", {
@@ -1258,19 +1258,22 @@ function renderSimulations(body) {
     const statusText = isRunning ? "Läuft..." : b.status === "completed" ? "Abgeschlossen" : b.status === "cancelled" ? "Abgebrochen" : "Fehler: " + (b.error || "Unbekannt");
     const pct = b.games_planned > 0 ? Math.round((b.games_completed / b.games_planned) * 100) : 0;
 
-    const monitor = h("div", { style: "margin-top:12px;padding-top:10px;border-top:1px solid var(--line)" },
-      h("div", { style: "display:flex;justify-content:space-between;align-items:center;margin-bottom:6px" },
+    const monitor = h("div", { class: "sim-monitor" },
+      h("div", { class: "sim-monitor-head" },
         h("b", {}, `Serie „${b.pod}“: ${b.games_completed} von ${b.games_planned} Partien abgeschlossen (${pct} %)`),
         h("span", { class: "pill " + (isRunning ? "warn" : b.status === "completed" ? "good" : "bad") }, statusText)
       ),
       h("progress", { value: b.games_completed, max: b.games_planned })
     );
 
+    if (b.bridge_qualification && b.bridge_qualification.status === "BRIDGE_AHEAD_OF_QUALIFICATION") {
+      monitor.append(h("div", { class: "mt-2" }, h("span", { class: "pill warn pill-inline", title: b.bridge_qualification.reason || "" }, "BRIDGE_AHEAD_OF_QUALIFICATION · nicht durch versiegelte Epoche abgedeckt")));
+    }
+
     if (isRunning) {
       const cancelBtn = h("button", {
         type: "button",
-        class: "danger",
-        style: "margin-top:8px",
+        class: "danger mt-2",
         onclick: async () => {
           cancelBtn.disabled = true;
           try {
@@ -1287,21 +1290,26 @@ function renderSimulations(body) {
     if (b.summary) {
       const s = b.summary;
       const ci = s.confidence_interval_95 || {};
-      const sumBox = h("div", { style: "margin-top:10px;background:var(--panel);padding:10px;border-radius:6px" },
-        h("h4", { style: "margin:0 0 6px" }, "Ergebnis der Serie"),
-        h("div", { style: "display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px" },
+      const qualStates = s.bridge_qualification_states || (b.bridge_qualification && b.bridge_qualification.status ? [b.bridge_qualification.status] : []);
+      const bridgeSha = s.bridge_jar_sha256 || b.bridge_jar_sha256 || null;
+      const epochLabel = s.covered_by_sealed_epoch ? "versiegelt" : (qualStates.join(", ") || "nicht versiegelt");
+      const sumBox = h("div", { class: "sim-summary" },
+        h("h4", {}, "Ergebnis der Serie"),
+        h("div", { class: "sim-grid" },
           h("div", {}, h("span", { class: "muted" }, "Siege: "), h("b", {}, `${s.wins_fractional} / ${s.games_completed}`)),
           h("div", {}, h("span", { class: "muted" }, "Siegrate: "), h("b", {}, s.win_rate !== null ? `${s.win_rate_percent} %` : "–")),
           h("div", {}, h("span", { class: "muted" }, "95 %-CI (Wilson): "), h("b", {}, ci.lower_percent !== undefined ? `[${ci.lower_percent} %, ${ci.upper_percent} %]` : "–")),
-          h("div", {}, h("span", { class: "muted" }, "Ø Runden: "), h("b", {}, s.mean_rounds ?? "–"))
+          h("div", {}, h("span", { class: "muted" }, "Ø Runden: "), h("b", {}, s.mean_rounds ?? "–")),
+          h("div", {}, h("span", { class: "muted" }, "Bridge-JAR: "), h("code", { title: bridgeSha || "" }, bridgeSha ? String(bridgeSha).slice(0, 12) : "–")),
+          h("div", {}, h("span", { class: "muted" }, "Epoche: "), h("b", {}, epochLabel))
         ),
-        b.run_id ? h("p", { class: "note", style: "margin:6px 0 0" }, `Dauerhaft im Store hinterlegt unter ID: `, h("code", {}, b.run_id)) : null
+        b.run_id ? h("p", { class: "note note-compact" }, `Dauerhaft im Store hinterlegt unter ID: `, h("code", {}, b.run_id)) : null
       );
       monitor.append(sumBox);
     }
 
     if (b.games && b.games.length) {
-      const bTable = h("table", { style: "margin-top:8px" },
+      const bTable = h("table", { class: "mt-2" },
         h("thead", {}, h("tr", {}, h("th", {}, "Partie"), h("th", { class: "num" }, "Seed"), h("th", { class: "num" }, "Runden"), h("th", {}, "Ergebnis"), h("th", {}, ""))),
         h("tbody", {}, b.games.map((g) => {
           const outcome = g.status === "finished" ? (g.candidate_won ? "Sieg Sitz 1" : `Niederlage (Sieger: Sitz ${(g.winner_seats || []).map((x) => x + 1).join(", ") || "–"})`) : "Fehlgeschlagen";
@@ -1323,14 +1331,17 @@ function renderSimulations(body) {
   body.append(bBox);
   if (state.recordedGames && state.recordedGames.length) {
     const gTable = h("table", {},
-      h("thead", {}, h("tr", {}, h("th", {}, "Partie"), h("th", { class: "num" }, "Seed"), h("th", { class: "num" }, "Entscheidungen"), h("th", {}, "Status / Sieger"), h("th", {}, ""))),
+      h("thead", {}, h("tr", {}, h("th", {}, "Partie"), h("th", { class: "num" }, "Seed"), h("th", { class: "num" }, "Entscheidungen"), h("th", {}, "Bridge-JAR"), h("th", {}, "Status / Sieger"), h("th", {}, ""))),
       h("tbody", {}, state.recordedGames.slice(0, 15).map((g) => {
         const hdr = g.header || {};
         const end = g.running ? "läuft" : g.result && g.result.status === "finished" ? `Sieger Sitz ${((g.result.winner_seats || []).map((s) => s + 1)).join(", ") || "keiner"}` : "abgebrochen";
+        const jarShort = hdr.bridge_jar_sha256 ? String(hdr.bridge_jar_sha256).slice(0, 12) : "–";
+        const jarTitle = [hdr.bridge_jar_sha256 ? `SHA-256: ${hdr.bridge_jar_sha256}` : null, hdr.bridge_qualification_state ? `Stand: ${hdr.bridge_qualification_state}` : null].filter(Boolean).join(" · ");
         return h("tr", {},
           h("td", {}, h("code", {}, g.game_id)),
           h("td", { class: "num" }, hdr.seed ?? "–"),
           h("td", { class: "num" }, g.frames ?? 0),
+          h("td", {}, h("code", { title: jarTitle }, jarShort)),
           h("td", {}, end),
           h("td", {}, h("a", { href: `partie.html?partie=${encodeURIComponent(g.game_id)}` }, "Ansehen →")));
       })));
@@ -1341,17 +1352,19 @@ function renderSimulations(body) {
     return;
   }
   const runTable = h("table", {},
-    h("thead", {}, h("tr", {}, h("th", {}, "Pod"), h("th", {}, "Engine-Pin"), h("th", {}, "Pilot"), h("th", { class: "num" }, "Spiele"), h("th", { class: "num" }, "Siege"), h("th", { class: "num" }, "Siegrate"), h("th", { class: "num" }, "Ø Runden"))),
+    h("thead", {}, h("tr", {}, h("th", {}, "Pod"), h("th", {}, "Engine-Pin"), h("th", {}, "Bridge-JAR"), h("th", {}, "Epoche"), h("th", {}, "Pilot"), h("th", { class: "num" }, "Spiele"), h("th", { class: "num" }, "Siege"), h("th", { class: "num" }, "Siegrate"), h("th", { class: "num" }, "Ø Runden"))),
     h("tbody", {}, state.simulations.map((run) => h("tr", {},
       h("td", {}, h("b", {}, run.pod)),
       h("td", {}, h("code", {}, run.engine_pin)),
+      h("td", {}, h("code", { title: run.bridge_jar_sha256 || "" }, run.bridge_jar_sha256 ? String(run.bridge_jar_sha256).slice(0, 12) : "–")),
+      h("td", {}, run.covered_by_sealed_epoch ? "versiegelt" : (run.bridge_qualification_state || "unbekannt")),
       h("td", {}, run.pilot_policy),
       h("td", { class: "num" }, `${run.games_completed}/${run.games_planned}`),
       h("td", { class: "num" }, run.wins_fractional),
       h("td", { class: "num" }, run.win_rate === null ? "unbekannt" : `${(100 * run.win_rate).toFixed(1)} %`),
       h("td", { class: "num" }, run.mean_rounds ?? "unbekannt")))));
   body.append(h("h3", {}, "4P-Simulationsläufe"), runTable,
-    h("p", { class: "note" }, "Ergebnisse aus echten XMage-Regelkern-Spielen, gebunden an Deck, Engine-Pin, Pilot-Policy und Seeds. Kein Beleg für reale Tisch-Siegraten. Exakte Handverweildauer: unbekannt (nicht gemessen)."));
+    h("p", { class: "note" }, "Ergebnisse aus echten XMage-Regelkern-Spielen, gebunden an Deck, Engine-Pin, Bridge-JAR, Pilot-Policy und Seeds. Läufe mit BRIDGE_AHEAD_OF_QUALIFICATION oder UNKNOWN sind nicht von der versiegelten Epoche abgedeckt. Kein Beleg für reale Tisch-Siegraten. Exakte Handverweildauer: unbekannt (nicht gemessen)."));
   for (const run of state.simulations) {
     const inDeckCards = (run.cards || []).filter((c) => !c.card_id || qty(c.card_id) > 0 || state.commanderIds.includes(c.card_id));
     if (!inDeckCards.length) continue;

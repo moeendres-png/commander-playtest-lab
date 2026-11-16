@@ -173,6 +173,31 @@ const StudioUI = (() => {
       });
       paint();
     }
+    const showBridgeStatus = async () => {
+      if (!bar || document.getElementById("bridge-qualification-pill")) return;
+      try {
+        const status = await request("/api/status");
+        const qual = status && status.bridge_qualification;
+        if (!qual || !qual.status) return;
+        const state = String(qual.status);
+        let cls = "pill warn";
+        let label = state;
+        if (state === "ALIGNED_WITH_SEALED_EPOCH") {
+          cls = "pill good";
+          label = qual.sealed_epoch ? `Bridge: versiegelt (${qual.sealed_epoch})` : "Bridge: versiegelt";
+        } else if (state === "BRIDGE_AHEAD_OF_QUALIFICATION") {
+          cls = "pill warn";
+          label = "BRIDGE_AHEAD_OF_QUALIFICATION";
+        } else {
+          cls = "pill bad";
+          label = `Bridge: ${state}`;
+        }
+        const tip = [qual.reason, qual.sealed_epoch ? `Versiegelte Epoche: ${qual.sealed_epoch}` : null].filter(Boolean).join(" · ");
+        const pill = el("span", { id: "bridge-qualification-pill", class: cls, title: tip }, label);
+        if (toggle && toggle.parentElement === bar) toggle.before(pill); else bar.append(pill);
+      } catch (error) { /* status endpoint is optional in isolated views */ }
+    };
+    void showBridgeStatus();
   }
   document.addEventListener("DOMContentLoaded", mountBar);
 
@@ -249,5 +274,5 @@ const StudioUI = (() => {
     return el("table", {}, el("thead", {}, el("tr", {}, ["Ebene", "Art", "Wert", "Wilson-Untergrenze", "Perzentil", "Hinweis"].map((label) => el("th", {}, label)))), el("tbody", {}, rows));
   }
 
-  return { recall, remember, el, toast, fail, germanError, request, busy, loading, skeleton, limitNumber, dataState, effectiveTheme, applyTheme, layerText, layerTitle, layerNode, layerTable };
+  return { recall, remember, el, h: el, toast, fail, germanError, request, api: request, busy, loading, skeleton, limitNumber, dataState, effectiveTheme, applyTheme, layerText, layerTitle, layerNode, layerTable };
 })();

@@ -21,10 +21,11 @@ from commander_lab.engine.rules.full_game import FullGameConformanceResult
 from commander_lab.engine.rules.full_game_batch import _games_per_jvm_permitted
 
 from .games import GameRecorder
-from .launch import engine_command
+from .launch import bridge_jar_sha256, engine_command
 from .play import (
     _RecordingRunner,
     close_recorded_game,
+    covered_by_sealed_epoch,
     load_decks,
     prepare_game,
 )
@@ -130,6 +131,7 @@ def play_recorded_games(
     failure with the public failure class; the other games of the chunk are unaffected.
     """
     decks = load_decks(deck_paths)
+    cmd = engine_command(data_folder)
     prepared = [
         prepare_game(
             decks,
@@ -138,6 +140,8 @@ def play_recorded_games(
             strategy=strategy,
             style=style,
             seat_styles=seat_styles,
+            data_folder=data_folder,
+            command=cmd,
         )
         for game in games
     ]
@@ -145,6 +149,15 @@ def play_recorded_games(
     runner = runner_factory(
         data_folder, headers, max_decisions, request_timeout_seconds, private_card_repository
     )
+    if runner.command != cmd:
+        sha = bridge_jar_sha256(data_folder, runner.command)
+        for item in prepared:
+            item.header["bridge_jar_sha256"] = sha
+            item.header["covered_by_sealed_epoch"] = covered_by_sealed_epoch(
+                item.header.get("bridge_qualification_state"),
+                sha,
+                item.header.get("covered_by_sealed_epoch", False),
+            )
     permitted = _games_per_jvm_permitted(runner.command) if runner.command else 1
     summaries: list[dict[str, object]] = []
     for start in range(0, len(prepared), permitted):

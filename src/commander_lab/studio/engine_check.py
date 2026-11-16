@@ -212,6 +212,7 @@ def check_rows(
         "headline": headline,
         "engine_ready": ready,
         "engine_reason": reason,
+        "bridge_qualification": launch.bridge_qualification_state(),
         "cards_consulted": consulted,
         "precondition_failures": failed_preconditions,
         "construction": construction,

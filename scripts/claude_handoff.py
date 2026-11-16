@@ -114,6 +114,11 @@ def pin_lines(repo_dir: Path) -> list[str]:
     A pin that is ahead of the sealed qualification is flagged: a merged repin is not done
     until PB-03, the AF11 decision and both seals have caught up.
     """
+    src_root = Path(__file__).resolve().parents[1] / "src"
+    if str(src_root) not in sys.path:
+        sys.path.insert(0, str(src_root))
+    from commander_lab.bridge_qualification import BRIDGE_AHEAD, bridge_qualification
+
     path = repo_dir / "config" / "rules_engines.json"
     try:
         config = json.loads(path.read_text(encoding="utf-8"))
@@ -132,6 +137,12 @@ def pin_lines(repo_dir: Path) -> list[str]:
         lines.append(
             "PIN AHEAD OF QUALIFICATION: requalify (PB-03 on main, AF11 decision, seals)"
             " per docs/claude/REPIN_RUNBOOK.md"
+        )
+    bridge_qual = bridge_qualification(repo_dir)
+    if bridge_qual.get("status") == BRIDGE_AHEAD:
+        lines.append(
+            f"BRIDGE_AHEAD_OF_QUALIFICATION: {bridge_qual.get('reason')}; "
+            "results on later bridge are not covered by the sealed epoch"
         )
     return lines
 

@@ -24,7 +24,9 @@ from collections import Counter, defaultdict
 from collections.abc import Iterable, Sequence
 from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
-from typing import Literal, TypedDict, cast
+from typing import Literal, NotRequired, TypedDict, cast
+
+from commander_lab.bridge_qualification import BRIDGE_AHEAD, BRIDGE_ALIGNED
 
 from .games import LOG_SCHEMA
 from .simulations import wilson_score_interval
@@ -42,7 +44,7 @@ OWN_TURNS_SECONDARY = 3
 # A typical card is in the first seven of a 99-card library about 7 % of the time.
 EXPECTED_EXPOSURE = 7 / 99
 CACHE_DIR = ".outcomes-cache"
-CACHE_VERSION = 1
+CACHE_VERSION = 2
 PARALLEL_MIN_LOGS = 8  # cold logs before a process pool pays for itself
 MAX_WORKERS = 4
 CHANCE_RATE = 0.05
@@ -72,6 +74,9 @@ class GameExposure(TypedDict):
     game_id: str
     seed: int | None
     engine_commit: str | None
+    bridge_jar_sha256: NotRequired[str | None]
+    bridge_qualification_state: NotRequired[str | None]
+    covered_by_sealed_epoch: NotRequired[bool]
     pilot: str | None
     decision_policy: str | None
     winner_seats: list[int]
@@ -125,6 +130,9 @@ class CardOutcomeTable(TypedDict):
     draw_games: int
     mulligans_taken: int
     engine_commits: list[str]
+    bridge_jar_sha256s: list[str]
+    bridge_qualification_states: list[str]
+    covered_by_sealed_epoch: bool
     pilots: list[str]
     decision_policies: list[str]
     seeds: int
@@ -340,10 +348,22 @@ def _read_log(path: Path, *, fast: bool = True) -> tuple[GameExposure | None, li
             _seat_exposure(seat, deck_id, _names(row.get("commanders")) or [], frames, winners)
         )
     game_id = _str(header.get("game_id")) or path.name.split(".jsonl", 1)[0]
+    bridge_sha = _str(header.get("bridge_jar_sha256")) or _str(result.get("bridge_jar_sha256"))
+    qual_state = _str(header.get("bridge_qualification_state")) or _str(
+        result.get("bridge_qualification_state")
+    )
+    covered = (
+        header.get("covered_by_sealed_epoch") is True
+        and qual_state == BRIDGE_ALIGNED
+        and bridge_sha is not None
+    )
     return {
         "game_id": game_id,
         "seed": _int(header.get("seed")),
         "engine_commit": _str(header.get("engine_commit")),
+        "bridge_jar_sha256": bridge_sha,
+        "bridge_qualification_state": qual_state,
+        "covered_by_sealed_epoch": covered,
         "pilot": _str(header.get("pilot")),
         "decision_policy": _str(header.get("decision_policy")),
         "winner_seats": winners,
@@ -392,13 +412,21 @@ def _valid_exposure(exposure: object) -> bool:
         return False
     winners = exposure.get("winner_seats")
     seats = exposure.get("seats")
+    covered = exposure.get("covered_by_sealed_epoch")
     return (
         isinstance(exposure.get("game_id"), str)
         and (exposure.get("seed") is None or type(exposure.get("seed")) is int)
         and all(
             exposure.get(key) is None or isinstance(exposure.get(key), str)
-            for key in ("engine_commit", "pilot", "decision_policy")
+            for key in (
+                "engine_commit",
+                "bridge_jar_sha256",
+                "bridge_qualification_state",
+                "pilot",
+                "decision_policy",
+            )
         )
+        and (covered is None or isinstance(covered, bool))
         and isinstance(winners, list)
         and all(type(w) is int for w in winners)
         and isinstance(seats, list)
@@ -645,6 +673,9 @@ def empty_table(deck_id: str, *, min_exposed: int = DEFAULT_MIN_EXPOSED) -> Card
         "draw_games": 0,
         "mulligans_taken": 0,
         "engine_commits": [],
+        "bridge_jar_sha256s": [],
+        "bridge_qualification_states": [],
+        "covered_by_sealed_epoch": False,
         "pilots": [],
         "decision_policies": [],
         "seeds": 0,
@@ -665,7 +696,7 @@ def aggregate(
     games_skipped_unreadable: int = 0,
     duplicate_logs_ignored: int = 0,
 ) -> CardOutcomeTable:
-    """The card table of one deck. Mixed engine commits or pilots raise unless allowed."""
+    """The card table of one deck. Mixed engine commits, bridge jars or pilots raise unless allowed."""
     table = empty_table(deck_id, min_exposed=min_exposed)
     table["games_skipped"] = games_skipped
     table["games_skipped_unreadable"] = games_skipped_unreadable
@@ -680,11 +711,14 @@ def aggregate(
     if not units:
         return table
     commits = _distinct(g["engine_commit"] for g, _ in units)
+    bridge_shas = _distinct(g.get("bridge_jar_sha256") for g, _ in units)
+    qual_states = _distinct(g.get("bridge_qualification_state") for g, _ in units)
     pilots = _distinct(g["pilot"] for g, _ in units)
     policies = _distinct(g["decision_policy"] for g, _ in units)
     warnings: list[str] = []
     for label, values in (
         ("engine commits", commits),
+        ("bridge jar SHA-256 digests", bridge_shas),
         ("pilot versions", pilots),
         ("decision policies", policies),
     ):
@@ -694,11 +728,24 @@ def aggregate(
             warnings.append(f"mixed {label} pooled: {', '.join(values)}")
     if any(g["engine_commit"] is None for g, _ in units):
         warnings.append("some games carry no engine commit")
+    if any(not g.get("bridge_jar_sha256") for g, _ in units):
+        warnings.append("some games carry no bridge jar SHA-256")
+    if BRIDGE_AHEAD in qual_states:
+        warnings.append(
+            "BRIDGE_AHEAD_OF_QUALIFICATION: bridge differs from sealed epoch; "
+            "results are not covered by the sealed epoch"
+        )
     commanders = sorted({name for _, s in units for name in s["commanders"]})
     commander_set = set(commanders)
     usable = [(g, s) for g, s in units if s["first_dealt_hand"] is not None]
     no_hand = len(units) - len(usable)
     total = len(usable)
+    covered_by_sealed_epoch = bool(usable) and all(
+        (g.get("covered_by_sealed_epoch") is True)
+        and (g.get("bridge_qualification_state") == BRIDGE_ALIGNED)
+        and bool(g.get("bridge_jar_sha256"))
+        for g, _ in usable
+    )
     total_wins = sum(s["win_credit"] for _, s in usable)
     n_in: Counter[str] = Counter()
     wins_in: defaultdict[str, float] = defaultdict(float)
@@ -721,6 +768,9 @@ def aggregate(
     table["draw_games"] = sum(1 for _, s in usable if s["result"] == "draw")
     table["mulligans_taken"] = sum(s["mulligans_taken"] for _, s in usable)
     table["engine_commits"] = commits
+    table["bridge_jar_sha256s"] = bridge_shas
+    table["bridge_qualification_states"] = qual_states
+    table["covered_by_sealed_epoch"] = covered_by_sealed_epoch
     table["pilots"] = pilots
     table["decision_policies"] = policies
     table["seeds"] = len({g["seed"] for g, _ in usable if g["seed"] is not None})
@@ -848,6 +898,8 @@ def _fmt(value: float | None, scale: float = 1.0) -> str:
 def format_table(table: CardOutcomeTable, *, limit: int = 15) -> str:
     """Compact text view: header counts, top and bottom measured cards, unmeasured counts."""
     ranking = ranked(table)
+    bridge_shas = ", ".join(s[:12] for s in table.get("bridge_jar_sha256s", [])) or "-"
+    sealed = "yes" if table.get("covered_by_sealed_epoch") else "NO"
     lines = [
         f"{table['deck_id']}  [{table['data_class']}]  status {table['status']}",
         f"games {table['games_total']}  skipped {table['games_skipped']} "
@@ -855,6 +907,7 @@ def format_table(table: CardOutcomeTable, *, limit: int = 15) -> str:
         f"mulligans {table['mulligans_taken']}  seeds {table['seeds']}  "
         f"pods {len(table['pods'])}  min_exposed {table['min_exposed']}",
         f"engine {', '.join(c[:10] for c in table['engine_commits']) or '-'}  "
+        f"bridge {bridge_shas}  sealed {sealed}  "
         f"pilots {', '.join(table['pilots']) or '-'}",
         f"measured {len(ranking['ranked'])}  unmeasured (INSUFFICIENT_SAMPLE) "
         f"{len(ranking['unranked'])}",

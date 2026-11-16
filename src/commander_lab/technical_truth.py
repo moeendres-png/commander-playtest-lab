@@ -188,18 +188,23 @@ def build_technical_truth(root: str | Path) -> dict[str, Any]:
         optimization_targets = [context.primary_deckbuilding_focus]
     unresolved = _string_list(active_scope, "unresolved_operational_baselines")
 
+    from commander_lab.bridge_qualification import BRIDGE_AHEAD, bridge_qualification
+
     provider_status = str(engine_config.get("provider_decision") or "unknown")
     primary_engine = engine_config.get("primary_engine")
     primary_engine_payload = primary_engine if isinstance(primary_engine, dict) else {}
     external_ready = bool(primary_engine_payload.get("production_ready", False)) and (
         provider_status != "NO_PROVIDER_READY"
     )
+    bridge_qual = bridge_qualification(root_path)
     blockers: list[str] = []
     documented_limitations: list[str] = []
     if not external_ready:
         documented_limitations.append("external_rules_engine_validation_pending")
     if _live_pin_requalification_pending(engine_config):
         documented_limitations.append("live_pin_requalification_pending")
+    if bridge_qual.get("status") == BRIDGE_AHEAD:
+        documented_limitations.append("bridge_ahead_of_qualification")
     if unresolved:
         documented_limitations.append("unresolved_operational_own_deck_baseline")
 
@@ -253,6 +258,8 @@ def build_technical_truth(root: str | Path) -> dict[str, Any]:
             "primary_real_execution": primary_engine_payload.get("real_execution"),
             "primary_commit": primary_engine_payload.get("commit"),
             "production_bridge": engine_config.get("production_bridge"),
+            "bridge_qualification": bridge_qual,
+            "covered_by_sealed_epoch": bool(bridge_qual.get("covered_by_sealed_epoch", False)),
             "decision_source": "config/rules_engines.json",
             "historical_provider_decision_source": "docs/J_P3_PROVIDER_DECISION.json",
             "evidence_boundary": (

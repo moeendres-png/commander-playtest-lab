@@ -17,11 +17,17 @@ import subprocess
 import sys
 import threading
 import time
-from collections.abc import Callable, Iterator, Sequence
+from collections.abc import Callable, Iterator, Mapping, Sequence
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from commander_lab.bridge_qualification import (
+    BRIDGE_AHEAD,
+    BRIDGE_ALIGNED,
+    BRIDGE_UNKNOWN,
+    bridge_qualification,
+)
 from commander_lab.qualification.current_boundary.bridge_launcher import canonical_xmage_engine_pin
 
 from .decks import lab_snapshot
@@ -34,6 +40,9 @@ from .launch import (
     command_text,
     engine_state,
     series_engine,
+)
+from .launch import (
+    bridge_jar_sha256 as command_bridge_jar_sha256,
 )
 from .store import DataClass, StudioStore, now_utc
 
@@ -93,6 +102,9 @@ class GameSummary:
     failure_class: str | None = None
     failure_message: str | None = None
     log_path: str | None = None
+    bridge_jar_sha256: str | None = None
+    bridge_qualification_state: str | None = None
+    covered_by_sealed_epoch: bool = False
     observed_cards: dict[str, dict[str, object]] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, object]:
@@ -107,6 +119,9 @@ class GameSummary:
             "failure_class": self.failure_class,
             "failure_message": self.failure_message,
             "log_path": self.log_path,
+            "bridge_jar_sha256": self.bridge_jar_sha256,
+            "bridge_qualification_state": self.bridge_qualification_state,
+            "covered_by_sealed_epoch": self.covered_by_sealed_epoch,
         }
 
 
@@ -133,6 +148,15 @@ def extract_game_log_telemetry(
     result_raw = data.get("result")
     result = result_raw if isinstance(result_raw, dict) else {}
     status = str(result.get("status") or ("running" if data.get("running") else "failed"))
+    raw_sha = hdr.get("bridge_jar_sha256") or result.get("bridge_jar_sha256")
+    bridge_jar_sha256 = str(raw_sha) if isinstance(raw_sha, str) and raw_sha else None
+    raw_qual = hdr.get("bridge_qualification_state") or result.get("bridge_qualification_state")
+    bridge_qualification_state = str(raw_qual) if isinstance(raw_qual, str) and raw_qual else None
+    covered_by_sealed_epoch = (
+        bool(hdr.get("covered_by_sealed_epoch"))
+        and bridge_qualification_state == BRIDGE_ALIGNED
+        and bridge_jar_sha256 is not None
+    )
     raw_winners = result.get("winner_seats")
     winner_seats: list[int] = (
         [_as_int(s) for s in raw_winners if isinstance(s, (int, float, str))]
@@ -207,6 +231,9 @@ def extract_game_log_telemetry(
         failure_class=str(result["failure_class"]) if "failure_class" in result else None,
         failure_message=str(result["failure_message"]) if "failure_message" in result else None,
         log_path=str(games_folder(data_folder) / f"{game_id}.jsonl.gz"),
+        bridge_jar_sha256=bridge_jar_sha256,
+        bridge_qualification_state=bridge_qualification_state,
+        covered_by_sealed_epoch=covered_by_sealed_epoch,
         observed_cards=card_telemetry,
     )
 
@@ -233,6 +260,17 @@ def aggregate_batch_results(
         round(sum(g.rounds for g in successful) / completed_count, 2)
         if completed_count > 0
         else None
+    )
+
+    bridge_shas = sorted({g.bridge_jar_sha256 for g in successful if g.bridge_jar_sha256})
+    qual_states = sorted(
+        {g.bridge_qualification_state for g in successful if g.bridge_qualification_state}
+    )
+    covered_by_sealed_epoch = bool(successful) and all(
+        g.covered_by_sealed_epoch
+        and g.bridge_qualification_state == BRIDGE_ALIGNED
+        and g.bridge_jar_sha256 is not None
+        for g in successful
     )
 
     # Per-card aggregation
@@ -284,6 +322,10 @@ def aggregate_batch_results(
             "upper_percent": round(ci_upper * 100.0, 1),
         },
         "mean_rounds": mean_rounds,
+        "bridge_jar_sha256": bridge_shas[0] if len(bridge_shas) == 1 else None,
+        "bridge_jar_sha256s": bridge_shas,
+        "bridge_qualification_states": qual_states,
+        "covered_by_sealed_epoch": covered_by_sealed_epoch,
         "cards": cards_summary,
     }
 
@@ -297,6 +339,42 @@ def save_batch_to_store(
     run_id = f"batch-{batch.batch_id}"
     engine_pin = canonical_xmage_engine_pin()
 
+    shas_raw = summary.get("bridge_jar_sha256s")
+    summary_shas = (
+        [str(s) for s in shas_raw if isinstance(s, str) and s] if isinstance(shas_raw, list) else []
+    )
+    if len(summary_shas) > 1:
+        bridge_jar_sha256: str | None = None
+    elif len(summary_shas) == 1:
+        bridge_jar_sha256 = summary_shas[0]
+    else:
+        raw_sha = summary.get("bridge_jar_sha256")
+        bridge_jar_sha256 = (
+            str(raw_sha)
+            if isinstance(raw_sha, str) and raw_sha
+            else getattr(batch, "bridge_jar_sha256", None)
+        )
+
+    states_raw = summary.get("bridge_qualification_states")
+    summary_states = (
+        {str(s) for s in states_raw if isinstance(s, str) and s}
+        if isinstance(states_raw, list)
+        else set()
+    )
+    batch_qual = getattr(batch, "bridge_qualification", {})
+    batch_qual_status = (
+        str(batch_qual.get("status"))
+        if isinstance(batch_qual, Mapping) and batch_qual.get("status")
+        else None
+    )
+    covered = bool(summary.get("covered_by_sealed_epoch")) and bool(bridge_jar_sha256)
+    if covered and (not summary_states or summary_states == {BRIDGE_ALIGNED}):
+        qual_state = BRIDGE_ALIGNED
+    elif BRIDGE_AHEAD in summary_states or batch_qual_status == BRIDGE_AHEAD:
+        qual_state = BRIDGE_AHEAD
+    else:
+        qual_state = BRIDGE_UNKNOWN
+
     # Create a reproducible content hash for source registration
     source_payload = json.dumps(
         {
@@ -306,6 +384,8 @@ def save_batch_to_store(
             "seeds": batch.seeds,
             "completed": summary.get("games_completed"),
             "execution": batch.execution(),
+            "bridge_jar_sha256": bridge_jar_sha256,
+            "bridge_qualification_state": qual_state,
         },
         sort_keys=True,
     )
@@ -356,14 +436,17 @@ def save_batch_to_store(
         db.execute("DELETE FROM simulation_card WHERE run_id = ?", (run_id,))
         db.execute(
             "INSERT OR REPLACE INTO simulation_run(run_id, deck_id, pod, engine_pin, "
+            "bridge_jar_sha256, bridge_qualification_state, "
             "pilot_policy, seeds, games_planned, games_completed, games_failed, "
             "wins_fractional, win_rate, mean_rounds, hand_dwell_status, source_id) "
-            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             (
                 run_id,
                 batch.deck_id,
                 batch.pod_name,
                 engine_pin,
+                bridge_jar_sha256,
+                qual_state,
                 PILOT_POLICY,
                 json.dumps(batch.seeds),
                 _as_int(summary.get("games_planned"), len(batch.seeds)),
@@ -450,6 +533,8 @@ class BatchSimulation:
         engine: SeriesEngine | None = None,
         chunk_runner: ChunkRunner | None = None,
         initial_games: Sequence[GameSummary] | None = None,
+        bridge_jar_sha256: str | None = None,
+        qualification: Mapping[str, object] | None = None,
     ) -> None:
         self.batch_id = batch_id
         self.data_folder = Path(data_folder)
@@ -465,6 +550,18 @@ class BatchSimulation:
         self.workers, requested = checked_series_settings(workers, games_per_jvm)
         # a launcher that cannot play several games per process (not java) says so here
         self.games_per_jvm = engine.games_per_jvm if engine is not None else requested
+        self.bridge_jar_sha256: str | None = (
+            bridge_jar_sha256
+            if bridge_jar_sha256 is not None
+            else (
+                command_bridge_jar_sha256(self.data_folder, engine.command)
+                if engine is not None
+                else None
+            )
+        )
+        self.bridge_qualification: dict[str, object] = (
+            dict(qualification) if qualification is not None else bridge_qualification()
+        )
 
         # Track completed vs remaining seeds for resumable execution
         self._games: list[GameSummary] = list(initial_games or [])
@@ -501,6 +598,8 @@ class BatchSimulation:
             "serial_gc": engine.serial_gc if engine is not None else False,
             "appcds": engine.appcds if engine is not None else False,
             "engine_command": list(engine.command) if engine is not None else [],
+            "bridge_jar_sha256": self.bridge_jar_sha256,
+            "bridge_qualification_state": self.bridge_qualification.get("status"),
         }
 
     def cancel(self) -> None:
@@ -523,6 +622,14 @@ class BatchSimulation:
     def to_dict(self) -> dict[str, object]:
         with self._lock:
             games = self._games_in_seed_order()
+            if isinstance(self._summary, dict) and "covered_by_sealed_epoch" in self._summary:
+                covered = bool(self._summary["covered_by_sealed_epoch"])
+            else:
+                covered = (
+                    bool(self.bridge_qualification.get("covered_by_sealed_epoch", False))
+                    and self.bridge_qualification.get("status") == BRIDGE_ALIGNED
+                    and bool(self.bridge_jar_sha256)
+                )
             return {
                 "batch_id": self.batch_id,
                 "seeds": list(self.seeds),
@@ -539,6 +646,9 @@ class BatchSimulation:
                 "ended_at": self.ended_at,
                 "error": self.error,
                 "run_id": self.run_id,
+                "bridge_jar_sha256": self.bridge_jar_sha256,
+                "bridge_qualification": dict(self.bridge_qualification),
+                "covered_by_sealed_epoch": covered,
                 "execution": self.execution(),
                 "summary": self._summary,
                 "games": [g.to_dict() for g in games],
@@ -556,6 +666,8 @@ class BatchSimulation:
         engine: SeriesEngine | None = None,
         chunk_runner: ChunkRunner | None = None,
         game_executor: Callable[..., dict[str, object]] | None = None,
+        bridge_jar_sha256: str | None = None,
+        qualification: Mapping[str, object] | None = None,
     ) -> BatchSimulation:
         """Construct a BatchSimulation from a saved series record for resumption.
 
@@ -624,6 +736,18 @@ class BatchSimulation:
         exec_info = raw.get("execution", {})
         saved_workers = exec_info.get("workers")
         saved_batch = exec_info.get("games_per_jvm")
+        saved_sha = exec_info.get("bridge_jar_sha256") or raw.get("bridge_jar_sha256")
+        resolved_sha = (
+            bridge_jar_sha256
+            if bridge_jar_sha256 is not None
+            else (str(saved_sha) if isinstance(saved_sha, str) and saved_sha else None)
+        )
+        saved_qual = raw.get("bridge_qualification")
+        resolved_qual: Mapping[str, object] | None = (
+            qualification
+            if qualification is not None
+            else (saved_qual if isinstance(saved_qual, dict) else None)
+        )
 
         return cls(
             batch_id=batch_id,
@@ -639,6 +763,8 @@ class BatchSimulation:
             engine=engine,
             chunk_runner=chunk_runner,
             initial_games=completed_games,
+            bridge_jar_sha256=resolved_sha,
+            qualification=resolved_qual,
         )
 
     def run_worker(
@@ -779,6 +905,30 @@ class BatchSimulation:
                 if isinstance(raw_winners, list)
                 else []
             )
+            raw_sha = exec_res.get("bridge_jar_sha256")
+            game_sha = (
+                str(raw_sha) if isinstance(raw_sha, str) and raw_sha else self.bridge_jar_sha256
+            )
+            raw_qual = exec_res.get("bridge_qualification_state")
+            game_qual = (
+                str(raw_qual)
+                if isinstance(raw_qual, str) and raw_qual
+                else str(self.bridge_qualification.get("status") or BRIDGE_UNKNOWN)
+            )
+            if game_sha is None and game_qual == BRIDGE_ALIGNED:
+                game_qual = BRIDGE_UNKNOWN
+            if "covered_by_sealed_epoch" in exec_res:
+                game_covered = (
+                    bool(exec_res.get("covered_by_sealed_epoch"))
+                    and game_qual == BRIDGE_ALIGNED
+                    and game_sha is not None
+                )
+            else:
+                game_covered = (
+                    bool(self.bridge_qualification.get("covered_by_sealed_epoch", False))
+                    and game_qual == BRIDGE_ALIGNED
+                    and game_sha is not None
+                )
             yield GameSummary(
                 game_id=game_id,
                 seed=seed,
@@ -787,6 +937,9 @@ class BatchSimulation:
                 decision_count=_as_int(exec_res.get("decision_count"), 0),
                 rounds=_as_int(exec_res.get("rounds"), 10),
                 candidate_won=0 in winners,
+                bridge_jar_sha256=game_sha,
+                bridge_qualification_state=game_qual,
+                covered_by_sealed_epoch=game_covered,
             )
 
     def _process_chunk(
@@ -994,6 +1147,10 @@ class SimulationBatchManager:
 
         batch_id = f"batch-{int(time.time())}-{re.sub(r'[^a-z0-9]+', '-', deck_id.lower())[:16]}"
         seeds = [base_seed + i * seed_step for i in range(games_count)]
+        qual = bridge_qualification()
+        jar_sha = (
+            command_bridge_jar_sha256(data_path, engine.command) if engine is not None else None
+        )
 
         batch = BatchSimulation(
             batch_id=batch_id,
@@ -1009,6 +1166,8 @@ class SimulationBatchManager:
             games_per_jvm=used_games_per_jvm,
             engine=engine,
             chunk_runner=chunk_runner,
+            bridge_jar_sha256=jar_sha,
+            qualification=qual,
         )
 
         with self._lock:
@@ -1054,6 +1213,10 @@ class SimulationBatchManager:
         engine: SeriesEngine | None = None
         if game_executor is None and chunk_runner is None:
             engine = series_engine(data_path, used_games_per_jvm)
+        qual = bridge_qualification()
+        jar_sha = (
+            command_bridge_jar_sha256(data_path, engine.command) if engine is not None else None
+        )
 
         if existing is not None:
             completed_seeds = {g.seed for g in existing._games if g.status == "finished"}
@@ -1061,6 +1224,10 @@ class SimulationBatchManager:
             existing.chunks = plan_chunks(remaining_seeds, used_workers, used_games_per_jvm)
             existing.workers = used_workers
             existing.games_per_jvm = used_games_per_jvm
+            existing.engine = engine
+            existing.bridge_qualification = dict(qual)
+            if jar_sha is not None:
+                existing.bridge_jar_sha256 = jar_sha
             existing._cancel_requested = False
             batch = existing
         else:
@@ -1072,6 +1239,8 @@ class SimulationBatchManager:
                 engine=engine,
                 chunk_runner=chunk_runner,
                 game_executor=game_executor,
+                bridge_jar_sha256=jar_sha,
+                qualification=qual,
             )
 
         with self._lock:
