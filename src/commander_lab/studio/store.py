@@ -425,6 +425,18 @@ CREATE TABLE IF NOT EXISTS strength_profile (
     spec TEXT NOT NULL,
     created_at TEXT NOT NULL
 );
+CREATE TABLE IF NOT EXISTS tier_snapshot (
+    commander_name TEXT NOT NULL,
+    spec_hash TEXT NOT NULL,
+    profile_name TEXT NOT NULL,
+    spec_version TEXT NOT NULL,
+    data_epoch TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    tier_counts_json TEXT NOT NULL,
+    component_denominators_json TEXT NOT NULL,
+    payload_json TEXT NOT NULL,
+    PRIMARY KEY (commander_name, spec_hash)
+);
 CREATE TABLE IF NOT EXISTS card_label (
     card_id TEXT NOT NULL REFERENCES card(card_id),
     label TEXT NOT NULL COLLATE NOCASE,
@@ -1001,8 +1013,8 @@ class StudioStore:
             "card_mark", "deck_draft", "corpus_cohort", "corpus_deck_stat", "corpus_deck_part", "card_role",
             "card_role_claim", "corpus_deck_role", "neutral_board_row", "simulation_run", "simulation_card",
             "source_capture_event", "playgroup_card_atlas", "playgroup_top_commander", "playgroup_final_zone",
-            "universe_profile", "commander_binding", "card_signal", "strength_profile", "card_ruling",
-            "card_ruling_source", "card_label", "deck_label", "card_printing",
+            "universe_profile", "commander_binding", "card_signal", "strength_profile", "tier_snapshot",
+            "card_ruling", "card_ruling_source", "card_label", "deck_label", "card_printing",
         }:  # fmt: skip
             raise ValueError(table)
         return int(self.connection.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0])

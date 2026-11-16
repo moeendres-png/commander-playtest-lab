@@ -35,10 +35,12 @@ from . import (
     rulings,
     signals,
     strength_view,
+    tier_snapshot,
 )
 from .data_report import data_report
 from .marks import import_owner_marks
 from .store import BOUND_ELSEWHERE, StudioStore
+from .strength import StrengthSettings
 
 NOT_PROVIDED = "NOT_PROVIDED"
 IMPORTED = "IMPORTED"
@@ -89,6 +91,7 @@ class ImportAllResult(TypedDict):
     signal_rows: SignalRows
     layers: list[LayerResult]
     data_report: dict[str, object]
+    tier_snapshot: dict[str, object] | None
 
 
 _Action = Callable[[StudioStore], object]
@@ -675,6 +678,14 @@ def run(args: argparse.Namespace, store: StudioStore) -> ImportAllResult:
     if not failed:
         store.compact()
     size, layers = completeness(store, commander)
+    snapshot_summary: dict[str, object] | None = None
+    if not failed and size is not None:
+        snapshot_summary = tier_snapshot.write_snapshot(
+            store,
+            commander,
+            StrengthSettings.recommended(),
+            profile_name="Ausgewogen",
+        )
     expected = args.expect_pool
     return {
         "commander": commander,
@@ -686,6 +697,7 @@ def run(args: argparse.Namespace, store: StudioStore) -> ImportAllResult:
         "signal_rows": signal_rows(store, commander),
         "layers": layers,
         "data_report": data_report(store),
+        "tier_snapshot": snapshot_summary,
     }
 
 
@@ -742,6 +754,23 @@ def render(result: ImportAllResult) -> str:
         f"({rows['other_commanders']} Commander). Zeilen anderer Commander werden "
         "gespeichert, aber nur bei diesen Commandern angezeigt."
     )
+    snap = result.get("tier_snapshot")
+    if isinstance(snap, dict):
+        counts = snap.get("tier_counts")
+        counts_text = (
+            ", ".join(
+                f"{tier}:{counts[tier]}"
+                for tier in ("S", "A", "B", "C", "D", "U", "N")
+                if tier in counts
+            )
+            if isinstance(counts, dict)
+            else ""
+        )
+        parts.append(
+            f"Tier-Snapshot ({snap.get('profile_name', 'Ausgewogen')}): "
+            f"Epoche {str(snap.get('data_epoch', ''))[:12]}"
+            + (f" · {counts_text}" if counts_text else "")
+        )
     if result["expected_pool"] is not None:
         verdict = "stimmt" if result["pool_ok"] else "STIMMT NICHT"
         parts.append(f"Erwartete Poolgröße {result['expected_pool']}: {verdict}")

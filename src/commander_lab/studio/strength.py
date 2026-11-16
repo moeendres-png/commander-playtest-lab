@@ -772,6 +772,11 @@ class StrengthSettings:
             return universe_minimum
         return 0
 
+    @classmethod
+    def recommended(cls) -> StrengthSettings:
+        """Recommended default strength settings (Ausgewogen)."""
+        return cls()
+
     def to_dict(self) -> dict[str, object]:
         return {
             "weights": dict(self.weights),
