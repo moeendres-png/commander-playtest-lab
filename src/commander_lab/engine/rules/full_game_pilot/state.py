@@ -289,7 +289,6 @@ class _PolicyState:
         self._exiled_play_attempt.pop(seat, None)
         self._selection_ended.discard(seat)
         self._selection_reopened.discard(seat)
-        self._copy_cast_declined.discard(seat)
 
     def _turn_action_cap(
         self, option: dict[str, Any], state: Mapping[str, object] | None = None

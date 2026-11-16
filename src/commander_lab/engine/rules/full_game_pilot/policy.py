@@ -70,7 +70,8 @@ class ExternalPilotDecisionPolicy(_PriorityDecisions):
         if step_key[0] is not None:
             previous_step = self._last_seat_step.get(seat)
             if previous_step is not None and previous_step != step_key:
-                self._clear_priority_action_state(seat)
+                if decision_class != "mana_payment":
+                    self._clear_priority_action_state(seat)
                 self._block_frame_asks.pop(seat, None)
                 self._block_round.pop(seat, None)
             self._last_seat_step[seat] = step_key
