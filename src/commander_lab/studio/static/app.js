@@ -1032,6 +1032,12 @@ async function diffCandidates() {
     const current = rows.find((row) => row.revision_id === state.baseRevision);
     if (current && current.parent_revision_id) options.push({ rev: current.parent_revision_id, label: `Vorheriger Stand der Variante ${state.branch}` });
   } catch (error) { /* without history only the variants are offered */ }
+  try {
+    const baseResp = await api(`/api/diff-baselines?${StudioCommander.query}`);
+    for (const item of baseResp.baselines || []) {
+      options.push({ rev: item.revision_id, label: item.label });
+    }
+  } catch (error) { /* optional repo baselines */ }
   const main = branches.find((item) => item.branch === "main");
   if (state.branch !== "main" && main) options.push({ rev: main.revision_id, label: "Neuester Stand der Variante main" });
   for (const item of branches) if (item.revision_id !== state.baseRevision || state.dirty) options.push({ rev: item.revision_id, label: `Variante ${item.branch} (aktuell gespeichert)` });
@@ -1852,31 +1858,37 @@ function openNewDeckModal() {
 function openImportDecklistModal() {
   openInputModal({
     title: "Deckliste einfügen",
-    description: "Füge eine Text-Deckliste ein (z. B. „1 Sol Ring“ oder „1x Eternal Witness (2X2) 145“). Karten außerhalb deiner Sammlung werden sachlich gemeldet und nicht übernommen.",
-    placeholder: "1 Sol Ring\n1 Arcane Signet\n1 Command Tower\n...",
+    description: "Füge eine Text- oder CSV-Deckliste ein (Plain, Arena, MTGO, Moxfield, Archidekt, Deckstats, CSV). Schritt 1 prüft die Liste gegen Sammlung und Farbidentität; erst nach Bestätigung wird dein Entwurf überschrieben.",
+    placeholder: "1 Sol Ring\n1x Eternal Witness (2X2) 145\n...",
     multiline: true,
-    submitText: "Liste prüfen & übernehmen",
+    submitText: "Liste prüfen",
     onSubmit: async (text, statusBox) => {
       if (!(text || "").trim()) { toast("Bitte eine Deckliste einfügen."); return; }
       const parsed = await api("/api/decklist-parse", "POST", { commander: COMMANDER, text });
       const cards = (parsed.in_collection || []).map((row) => ({ card_id: row.card_id, quantity: row.quantity, zone: "main" }));
-      useCards(cards);
-      changed();
       const missing = parsed.not_in_collection || [];
       const illegal = parsed.outside_color_identity || [];
-      if (!missing.length && !illegal.length) {
+      const badLines = parsed.unrecognized_lines || [];
+      const applyImport = () => {
+        useCards(cards);
+        changed();
         closeModal();
         toast(`${parsed.summary.in_collection_cards} Karten in den Entwurf übernommen.`);
-        return;
-      }
+      };
       statusBox.replaceChildren(
-        h("p", { class: "note" }, `${parsed.summary.in_collection_cards} Karten in deiner Sammlung wurden in den Entwurf übernommen.`),
+        h("p", {}, h("b", {}, `Erkanntes Format: ${parsed.detected_format || "plain"}`), ` · ${parsed.summary.in_collection_cards} Karten in Sammlung gefunden`),
+        h("div", { class: "actions" },
+          h("button", { type: "button", class: "primary", onclick: applyImport }, `In Entwurf übernehmen (${parsed.summary.in_collection_cards} Karten)`),
+          h("button", { type: "button", onclick: closeModal }, "Verwerfen")),
+        illegal.length ? h("div", {},
+          h("h3", {}, `Außerhalb Farbidentität / Legalität (${illegal.length})`),
+          h("ul", {}, illegal.map((m) => h("li", {}, `${m.quantity}x ${m.name}${m.reason ? ` — ${m.reason}` : ""}`)))) : null,
         missing.length ? h("div", {},
           h("h3", {}, `Nicht in deiner Sammlung (${missing.length})`),
           h("ul", {}, missing.map((m) => h("li", {}, `${m.quantity}x ${m.name} — nicht in deiner Sammlung`)))) : null,
-        illegal.length ? h("div", {},
-          h("h3", {}, `Außerhalb der Farbidentität (${illegal.length})`),
-          h("ul", {}, illegal.map((m) => h("li", {}, `${m.quantity}x ${m.name}`)))) : null
+        badLines.length ? h("div", {},
+          h("h3", {}, `Nicht erkannte Zeilen (${badLines.length})`),
+          h("ul", {}, badLines.slice(0, 15).map((b) => h("li", {}, `Zeile ${b.line}: ${b.raw} (${b.reason})`)))) : null
       );
     },
   });
@@ -2001,19 +2013,78 @@ function openNewBranchModal() {
 async function showHistory() {
   const rows = await api(`/api/decks/${encodeURIComponent(state.deckId)}/history`);
   const box = $("modal-box"); box.className = "plain"; box.replaceChildren(h("h2", {}, "Verlauf"),
-    h("table", {}, h("thead", {}, h("tr", {}, h("th", {}, "Gespeichert"), h("th", { class: "num" }, "Karten"), h("th", {}, "Notiz"), h("th", {}, ""))),
-      h("tbody", {}, rows.map((row) => h("tr", {}, h("td", {}, row.created_at.replace("T", " ").replace("Z", "")), h("td", { class: "num" }, row.cards), h("td", {}, row.note),
-        h("td", {}, h("button", { type: "button", class: "small", onclick: async () => { const revision = await api(`/api/revisions/${encodeURIComponent(row.revision_id)}`); useCards(revision.cards); closeModal(); changed(); toast("Alter Stand geladen. Er wird erst mit Speichern zum aktuellen Stand."); } }, "Laden")))))),
+    h("table", {}, h("thead", {}, h("tr", {}, h("th", {}, "Gespeichert"), h("th", {}, "Variante"), h("th", { class: "num" }, "Karten"), h("th", {}, "Notiz"), h("th", {}, ""))),
+      h("tbody", {}, rows.map((row) => h("tr", {},
+        h("td", {}, row.created_at.replace("T", " ").replace("Z", "")),
+        h("td", {}, row.branch || "–"),
+        h("td", { class: "num" }, row.cards),
+        h("td", {}, row.note),
+        h("td", {}, h("div", { class: "actions" },
+          h("button", { type: "button", class: "small", onclick: async () => { const revision = await api(`/api/revisions/${encodeURIComponent(row.revision_id)}`); useCards(revision.cards); closeModal(); changed(); toast("Alter Stand geladen. Er wird erst mit Speichern zum aktuellen Stand."); } }, "Laden"),
+          h("button", { type: "button", class: "small", onclick: () => { state.diffBaseRev = row.revision_id; state.tab = "diff"; closeModal(); renderDeck(); } }, "Vergleichen"))))))),
     h("div", { class: "actions" }, h("button", { type: "button", onclick: closeModal }, "Schließen")));
   $("modal").hidden = false;
 }
+function _draftExportText() {
+  const lines = ["Commander"];
+  for (const cid of state.commanderIds || []) {
+    const card = state.byId.get(cid);
+    if (card) lines.push(`1 ${card.name}`);
+  }
+  lines.push("", "Deck");
+  const sorted = deckCards().slice().sort((a, b) => a.name.localeCompare(b.name));
+  for (const card of sorted) {
+    lines.push(`${state.list.get(card.card_id) || 1} ${card.name}`);
+  }
+  return lines.join("\n") + "\n";
+}
+function _draftExportSnapshot() {
+  const commanders = (state.commanderIds || []).map((cid) => (state.byId.get(cid) || {}).name || cid);
+  const deck = state.decks.find((item) => item.deck_id === state.deckId);
+  const cards = (state.commanderIds || []).map((cid) => ({ oracle_name: (state.byId.get(cid) || {}).name || cid, quantity: 1, zone: "commander" }));
+  for (const card of deckCards().slice().sort((a, b) => a.name.localeCompare(b.name))) {
+    cards.push({ oracle_name: card.name, quantity: state.list.get(card.card_id) || 1, zone: "main" });
+  }
+  return JSON.stringify({
+    deck_id: state.deckId || "draft",
+    name: `${(deck && deck.name) || state.deckId || "Entwurf"} (Entwurf)`,
+    studio_revision_id: state.baseRevision || null,
+    commander: { commanders, uses_partner: commanders.length > 1, commander_identity_override: null },
+    cards,
+  }, null, 2) + "\n";
+}
+function _downloadBlob(filename, content, mime) {
+  const blob = new Blob([content], { type: mime });
+  const url = URL.createObjectURL(blob);
+  const link = h("a", { href: url, download: filename });
+  document.body.append(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
 function showExport() {
-  if (state.dirty) { toast("Bitte zuerst als Stand speichern. Exportiert wird immer ein gespeicherter Stand."); return; }
-  const base = `/api/revisions/${encodeURIComponent(state.baseRevision)}/export`;
-  const box = $("modal-box"); box.className = "plain"; box.replaceChildren(h("h2", {}, "Export"),
-    h("p", {}, "Exportiert wird der gespeicherte Stand ", h("code", {}, state.baseRevision), "."),
-    h("div", { class: "actions" }, h("a", { href: base + "?format=txt", target: "_blank", rel: "noopener" }, "Deckliste als Text"), h("a", { href: base + "?format=json", target: "_blank", rel: "noopener" }, "Deck für die Simulation (JSON)")),
-    h("div", { class: "actions" }, h("button", { type: "button", onclick: closeModal }, "Schließen")));
+  const box = $("modal-box"); box.className = "plain";
+  const slug = (state.deckId || "deck").replace(/[^a-zA-Z0-9_-]+/g, "_");
+  const nodes = [h("h2", {}, "Export")];
+  if (state.dirty || !state.baseRevision) {
+    nodes.push(
+      h("p", { class: "note" }, "Aktueller Entwurf (noch nicht als Stand gespeichert) — kann direkt als Textdatei oder JSON heruntergeladen werden."),
+      h("div", { class: "actions" },
+        h("button", { type: "button", class: "primary", onclick: () => _downloadBlob(`${slug}-entwurf.txt`, _draftExportText(), "text/plain;charset=utf-8") }, "Entwurf als Text (.txt)"),
+        h("button", { type: "button", onclick: () => _downloadBlob(`${slug}-entwurf.json`, _draftExportSnapshot(), "application/json;charset=utf-8") }, "Entwurf für Simulation (.json)"))
+    );
+  }
+  if (state.baseRevision) {
+    const base = `/api/revisions/${encodeURIComponent(state.baseRevision)}/export`;
+    nodes.push(
+      h("p", {}, state.dirty ? "Zuletzt gespeicherter Stand " : "Gespeicherter Stand ", h("code", {}, state.baseRevision), ":"),
+      h("div", { class: "actions" },
+        h("a", { href: base + "?format=txt", target: "_blank", rel: "noopener" }, "Gespeicherter Stand als Text"),
+        h("a", { href: base + "?format=json", target: "_blank", rel: "noopener" }, "Gespeicherter Stand für Simulation (JSON)"))
+    );
+  }
+  nodes.push(h("div", { class: "actions" }, h("button", { type: "button", onclick: closeModal }, "Schließen")));
+  box.replaceChildren(...nodes);
   $("modal").hidden = false;
 }
 

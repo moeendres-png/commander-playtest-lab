@@ -54,11 +54,13 @@ from . import (
 from . import evidence as evidence_model
 from .decks import (
     RevisionCard,
+    baseline_decks_for_commander,
     color_set,
     create_revision,
     lab_snapshot,
     list_rows,
     parse_decklist_text,
+    resolve_repo_baseline_cards,
     revision_rows,
     validate_rows,
 )
@@ -331,10 +333,17 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
             sources = [
                 dict(row)
                 for row in store.connection.execute(
-                    "SELECT title, data_class, SUBSTR(sha256, 1, 12) AS sha256, imported_at "
-                    "FROM source ORDER BY imported_at"
+                    "SELECT title, data_class, SUBSTR(sha256, 1, 12) AS sha256, "
+                    "snapshot_date, imported_at FROM source ORDER BY imported_at"
                 )
             ]
+            dated = [str(row["snapshot_date"]) for row in sources if row.get("snapshot_date")]
+            freshness = {
+                "total_sources": len(sources),
+                "with_snapshot_date": len(dated),
+                "oldest_snapshot": min(dated) if dated else None,
+                "newest_snapshot": max(dated) if dated else None,
+            }
             return {
                 "bridge_qualification": bridge_qualification(),
                 "cards": store.count("card"),
@@ -351,6 +360,7 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
                 # (register in `sources.py`), so the data state is visible here;
                 # the counted detail of every layer is under /api/data-report.
                 "source_inventory": _inventory_summary(),
+                "freshness": freshness,
                 "image_cache": image_cache_status(store),
                 "sources": sources,
             }
@@ -932,15 +942,26 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
 
         return simulation_manager.list_batches()
 
+    def _resolve_base_cards(store: StudioStore, base_revision_id: str) -> list[RevisionCard]:
+        if base_revision_id.startswith("repo:"):
+            return resolve_repo_baseline_cards(store, base_revision_id)
+        base_rows = revision_rows(store, base_revision_id)
+        return [
+            RevisionCard(str(r["card_id"]), int(r["quantity"]), str(r["zone"])) for r in base_rows
+        ]
+
+    @app.get("/api/diff-baselines")
+    def diff_baselines(
+        commander: list[str] = Query(min_length=1, max_length=2),
+    ) -> dict[str, object]:
+        """Read-only repo baseline decks available as comparison targets (#1404 / B-4)."""
+        return {"baselines": baseline_decks_for_commander(commander)}
+
     @app.post("/api/diff")
     def diff(body: DiffBody) -> dict[str, object]:
         store = open_store()
         try:
-            base_rows = revision_rows(store, body.base_revision_id)
-            base_cards = [
-                RevisionCard(str(r["card_id"]), int(r["quantity"]), str(r["zone"]))
-                for r in base_rows
-            ]
+            base_cards = _resolve_base_cards(store, body.base_revision_id)
             return deck_diff.diff_impact(store, base_cards, _cards(body.cards), cohort=body.cohort)
         except KeyError as error:
             raise HTTPException(404, "unknown revision") from error
@@ -1018,11 +1039,7 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
     def prefilter(body: PrefilterBody) -> dict[str, object]:
         store = open_store()
         try:
-            base_rows = revision_rows(store, body.base_revision_id)
-            base_cards = [
-                RevisionCard(str(r["card_id"]), int(r["quantity"]), str(r["zone"]))
-                for r in base_rows
-            ]
+            base_cards = _resolve_base_cards(store, body.base_revision_id)
             return builder.prefilter_lists(
                 store, base_cards, _cards(body.cards), trials=body.trials
             )

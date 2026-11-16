@@ -182,7 +182,7 @@ from commander_lab.studio import roles
         (
             "Sorcery",
             "Draw cards equal to the greatest mana value among permanents you control.",
-            ("card_draw",),
+            ("card_advantage", "card_draw"),
         ),
         # card draw negative: the draw step is not drawing
         (
@@ -260,7 +260,7 @@ from commander_lab.studio import roles
         (
             "Instant",
             "Target player draws two cards and loses 2 life.",
-            ("card_draw",),
+            ("card_advantage", "card_draw"),
         ),
         (
             "Creature — Faerie",
@@ -270,11 +270,42 @@ from commander_lab.studio import roles
         (
             "Creature — Merfolk",
             "When this creature enters, draw a card.",
-            ("card_draw",),
+            ("card_advantage", "card_draw"),
         ),
         (
             "Sorcery",
             "Each player draws a card.",
+            ("card_draw",),
+        ),
+        # cantrip, card_advantage (repeatable / investigate) and hate (#1413 / B-3)
+        (
+            "Instant",
+            "Draw a card if an opponent has cast a blue or black spell this turn.",
+            ("cantrip", "card_draw"),
+        ),
+        (
+            "Creature — Human Wizard",
+            "Whenever you cast a creature spell, draw a card.",
+            ("card_advantage", "card_draw"),
+        ),
+        (
+            "Creature — Elf Scout",
+            "Whenever a land enters the battlefield under your control, investigate.",
+            ("card_advantage",),
+        ),
+        (
+            "Instant",
+            "Your opponents can't cast spells this turn.",
+            ("hate",),
+        ),
+        (
+            "Enchantment",
+            "Each player can't cast more than one noncreature spell each turn.",
+            ("hate",),
+        ),
+        (
+            "Artifact — Clue",
+            "{2}, Sacrifice this artifact: Draw a card.",
             ("card_draw",),
         ),
         # card draw positive the negation guard must not eat: the "can't" in
