@@ -72,7 +72,8 @@ def diff_impact(
 
     base_shape = result["base_shape"]
     target_shape = result["target_shape"]
-    assert isinstance(base_shape, dict) and isinstance(target_shape, dict)
+    if not isinstance(base_shape, dict) or not isinstance(target_shape, dict):
+        raise TypeError("diff_lists must return deck shapes as dicts")
     result["curve_deltas"] = {
         key: {
             "base": int(base_shape["curve"].get(key, 0)),
