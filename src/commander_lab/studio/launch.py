@@ -245,11 +245,11 @@ def bridge_jar_sha256(
         if command is not None
         else (engine_command(data_folder) if data_folder is not None else None)
     )
-    jar_from_cmd = jar_path_for_command(resolved)
-    if jar_from_cmd is not None:
-        digest = _file_sha256(jar_from_cmd)
-        if digest is not None:
-            return digest
+    if resolved is not None:
+        jar_from_cmd = jar_path_for_command(resolved)
+        if jar_from_cmd is None:
+            return None
+        return _file_sha256(jar_from_cmd)
     if data_folder is not None:
         return _file_sha256(Path(data_folder) / ENGINE_JAR)
     return None

@@ -25,6 +25,7 @@ from .launch import bridge_jar_sha256, engine_command
 from .play import (
     _RecordingRunner,
     close_recorded_game,
+    covered_by_sealed_epoch,
     load_decks,
     prepare_game,
 )
@@ -152,6 +153,11 @@ def play_recorded_games(
         sha = bridge_jar_sha256(data_folder, runner.command)
         for item in prepared:
             item.header["bridge_jar_sha256"] = sha
+            item.header["covered_by_sealed_epoch"] = covered_by_sealed_epoch(
+                item.header.get("bridge_qualification_state"),
+                sha,
+                item.header.get("covered_by_sealed_epoch", False),
+            )
     permitted = _games_per_jvm_permitted(runner.command) if runner.command else 1
     summaries: list[dict[str, object]] = []
     for start in range(0, len(prepared), permitted):

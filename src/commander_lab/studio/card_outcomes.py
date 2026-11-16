@@ -728,7 +728,7 @@ def aggregate(
             warnings.append(f"mixed {label} pooled: {', '.join(values)}")
     if any(g["engine_commit"] is None for g, _ in units):
         warnings.append("some games carry no engine commit")
-    if bridge_shas and any(not g.get("bridge_jar_sha256") for g, _ in units):
+    if any(not g.get("bridge_jar_sha256") for g, _ in units):
         warnings.append("some games carry no bridge jar SHA-256")
     if BRIDGE_AHEAD in qual_states:
         warnings.append(

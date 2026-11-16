@@ -18,7 +18,7 @@ from commander_lab.agents import (
     style_reserve_mana,
     style_weights,
 )
-from commander_lab.bridge_qualification import bridge_qualification
+from commander_lab.bridge_qualification import BRIDGE_ALIGNED, bridge_qualification
 from commander_lab.candidates.models import FutureXmageScenario
 from commander_lab.engine.rules.failure_privacy import (
     public_exception_type,
@@ -183,12 +183,15 @@ def prepare_game(
                 decision_policy_version=POLICY_VERSION,
             )
         )
+    qual_state = qual.get("status")
     header: dict[str, object] = {
         "seed": seed,
         "engine_commit": pin,
         "bridge_jar_sha256": resolved_sha,
-        "bridge_qualification_state": qual.get("status"),
-        "covered_by_sealed_epoch": bool(qual.get("covered_by_sealed_epoch", False)),
+        "bridge_qualification_state": qual_state,
+        "covered_by_sealed_epoch": covered_by_sealed_epoch(
+            qual_state, resolved_sha, qual.get("covered_by_sealed_epoch", False)
+        ),
         "bridge_sealed_epoch": qual.get("sealed_epoch"),
         "pilot": f"{PILOT_IDENTITY} {PILOT_VERSION}",
         "decision_policy": POLICY_VERSION,
@@ -209,6 +212,16 @@ def prepare_game(
     return PreparedGame(game_id, scenario, decks, tuple(pilots_list), header)
 
 
+def covered_by_sealed_epoch(qual_state: object, bridge_sha: object, covered_flag: object) -> bool:
+    """True only when qualification aligns with the sealed epoch and a jar SHA-256 is recorded."""
+    return (
+        bool(covered_flag)
+        and qual_state == BRIDGE_ALIGNED
+        and isinstance(bridge_sha, str)
+        and bool(bridge_sha.strip())
+    )
+
+
 def close_recorded_game(
     recorder: GameRecorder, outcome: FullGameConformanceResult | Exception
 ) -> dict[str, object]:
@@ -216,7 +229,9 @@ def close_recorded_game(
     header = getattr(recorder, "header", {})
     bridge_sha = header.get("bridge_jar_sha256")
     qual_state = header.get("bridge_qualification_state")
-    covered = bool(header.get("covered_by_sealed_epoch", False))
+    covered = covered_by_sealed_epoch(
+        qual_state, bridge_sha, header.get("covered_by_sealed_epoch", False)
+    )
     if isinstance(outcome, Exception):
         # run() is behind the public error boundary, so its message carries only a fixed
         # site and audited codes (failure_privacy); it says why the game did not start.

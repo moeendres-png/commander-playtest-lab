@@ -92,28 +92,40 @@ def bridge_qualification(repo_dir: str | Path | None = None) -> dict[str, object
         else None
     )
     sealed_eng_raw = current_map.get("engine_commit") or freeze_map.get("engine_commit")
-    sealed_engine = str(sealed_eng_raw) if isinstance(sealed_eng_raw, str) else None
+    sealed_engine = (
+        sealed_eng_raw
+        if isinstance(sealed_eng_raw, str) and _HEX40.fullmatch(sealed_eng_raw)
+        else None
+    )
     live_engine_raw = primary_map.get("commit")
-    live_engine = str(live_engine_raw) if isinstance(live_engine_raw, str) else None
+    live_engine = (
+        live_engine_raw
+        if isinstance(live_engine_raw, str) and _HEX40.fullmatch(live_engine_raw)
+        else None
+    )
     freeze_eligible = current_map.get("freeze_eligible") is True
 
-    if sealed_lab is None:
+    if sealed_lab is None or sealed_engine is None or live_engine is None:
         return {
             "status": BRIDGE_UNKNOWN,
             "ahead_of_sealed_epoch": False,
             "covered_by_sealed_epoch": False,
             "sealed_epoch": sealed_epoch,
-            "sealed_lab_commit": None,
+            "sealed_lab_commit": sealed_lab,
             "sealed_engine_commit": sealed_engine,
             "live_engine_commit": live_engine,
             "sealed_bridge_tree": None,
             "head_bridge_tree": None,
             "bridge_dirty": None,
-            "reason": "current_qualification.lab_commit missing or invalid",
+            "reason": (
+                "current_qualification.lab_commit missing or invalid"
+                if sealed_lab is None
+                else "sealed or live engine commit missing or invalid"
+            ),
         }
 
-    # Check uncommitted tracked changes under engine-bridge/ first (ignores untracked build output).
-    dirty_out = _git(root, "status", "--porcelain", "--untracked-files=no", "--", f"{_BRIDGE_REL}/")
+    # Check uncommitted changes under engine-bridge/ (gitignored build artifacts remain excluded).
+    dirty_out = _git(root, "status", "--porcelain", "--", f"{_BRIDGE_REL}/")
     bridge_dirty: bool | None = None if dirty_out is None else bool(dirty_out.strip())
 
     # Resolve both trees via git rev-parse in one subprocess where possible.
@@ -125,7 +137,7 @@ def bridge_qualification(repo_dir: str | Path | None = None) -> dict[str, object
         if len(lines) == 2 and _HEX40.fullmatch(lines[0]) and _HEX40.fullmatch(lines[1]):
             sealed_tree, head_tree = lines[0], lines[1]
 
-    pin_drifted = bool(sealed_engine and live_engine and sealed_engine != live_engine)
+    pin_drifted = sealed_engine != live_engine
 
     if bridge_dirty is True:
         return {
