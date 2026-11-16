@@ -140,19 +140,25 @@ def test_deck_packages_queries_list_rows_only_once(
 
 
 def test_studio_static_has_zero_inline_styles_and_xss_sinks() -> None:
-    for html_path in sorted(STATIC_DIR.glob("*.html")):
+    html_files = sorted(STATIC_DIR.glob("*.html"))
+    assert html_files
+    for html_path in html_files:
         text = html_path.read_text(encoding="utf-8")
         assert " style=" not in text, f"inline style= in {html_path.name}"
         assert "<script>" not in text, f"inline <script> in {html_path.name}"
 
     style_key_re = re.compile(r"\bstyle\s*:")
     style_attr_re = re.compile(r"setAttribute\(\s*['\"]style['\"]|style\s*=")
-    for js_path in sorted(STATIC_DIR.glob("*.js")):
+    js_files = sorted(STATIC_DIR.glob("*.js"))
+    assert js_files
+    for js_path in js_files:
         text = js_path.read_text(encoding="utf-8")
         assert ".innerHTML" not in text and ".outerHTML" not in text, js_path.name
         assert "insertAdjacentHTML" not in text and "eval(" not in text, js_path.name
         assert not style_attr_re.search(text), f"style attribute/assignment in {js_path.name}"
-        for lineno, line in enumerate(text.splitlines(), start=1):
+        lines = text.splitlines()
+        assert lines
+        for lineno, line in enumerate(lines, start=1):
             if style_key_re.search(line):
                 # partie.js sends pilot JSON setting `style: Number(ownStyle.value)`
                 assert js_path.name == "partie.js" and "ownStyle.value" in line, (
