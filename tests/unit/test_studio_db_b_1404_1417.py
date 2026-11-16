@@ -403,7 +403,7 @@ def test_offline_scryfall_query_evaluator_and_fail_closed() -> None:
         },
     ]
     st, reason, hits = combos.evaluate_scryfall_query(
-        "t:creature kw:flying mv<=2 (mana={U} OR c:u) is:permanent legal:commander",
+        "t:creature kw:flying mv<=2 (mana={U} OR id=u) is:permanent legal:commander",
         cards,
     )
     assert st == "OK"
@@ -463,6 +463,14 @@ def test_deck_combos_template_slots_and_pool_shells_fail_closed(tmp_path: Path) 
                                     "quantity": 1,
                                 },
                                 {
+                                    "template_id": "t-zone",
+                                    "name": "Zone and commander condition not evaluated",
+                                    "scryfall_query": "t:creature",
+                                    "quantity": 1,
+                                    "must_be_commander": True,
+                                    "zone_locations": ["B"],
+                                },
+                                {
                                     "template_id": "t-tutor",
                                     "name": "Sorcery outside commander identity",
                                     "scryfall_query": "t:sorcery",
@@ -489,6 +497,11 @@ def test_deck_combos_template_slots_and_pool_shells_fail_closed(tmp_path: Path) 
         assert by_id["t-ok"]["deck"]["hits"] >= 1
         assert by_id["t-ok"]["pool"]["hits"] >= 2
 
+        # The evaluator ignores zone/commander conditions: only partly checked
+        assert by_id["t-zone"]["partially_checked"] is True
+        assert by_id["t-ok"]["partially_checked"] is False
+        assert isinstance(by_id["t-ok"]["matches_in_pool_total"], int)
+
         # Unsupported or missing query MUST stay UNKNOWN with None hits (never 0!)
         for unk_id in ("t-unk-otag", "t-none"):
             assert by_id[unk_id]["status"] == "UNKNOWN"
@@ -496,6 +509,7 @@ def test_deck_combos_template_slots_and_pool_shells_fail_closed(tmp_path: Path) 
             assert by_id[unk_id]["deck"]["hits"] is None
             assert by_id[unk_id]["pool"]["hits"] is None
             assert by_id[unk_id]["collection"]["hits"] is None
+            assert by_id[unk_id]["matches_in_pool_total"] is None  # never 0 when unknown
 
         # Demonic Tutor is black -> counted in collection (1), NOT in Chulane pool (0)
         assert by_id["t-tutor"]["status"] == "OK"

@@ -1069,6 +1069,16 @@ never by the back half. Limits: only listed combos are known; without a stored l
 says so and never claims "no combos"; the deck count is the source's count over all its decks,
 not a count for this commander; it is a comparison of card sets, not a rating.
 
+Template-slot queries are evaluated offline and exactly, or the count is `unbekannt` (never 0).
+`t:` is a case-insensitive substring match on the type line (a quoted phrase is one substring;
+whitespace is trimmed and collapsed on both sides). `id:`/`identity:` take a colour word, a guild,
+shard, wedge or college name, or letters of `wubrgc` only, with `=`, `<=`, `>=`, `<`, `>` as set
+comparisons; `:` only for colourless, anything else is unknown. `c:`/`color:` is always unknown:
+the colour of a card is not exact from the mana cost alone (colour indicator, Prepare layout,
+faces of a two-sided card) and needs the Scryfall `colors` field. A slot with a commander or
+zone condition is flagged `partially_checked` (only the card-text query was checked); an unknown
+slot has `matches_in_pool_total` `null`.
+
 ### Tier list and builder work together
 
 The tier list has a column "Favorit / Deck" and the same two buttons in its card window. The
