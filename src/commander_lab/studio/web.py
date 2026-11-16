@@ -27,10 +27,12 @@ from . import (
     builder,
     cache,
     card_outcomes,
+    castability,
     combos,
     cut_lab,
     data_report,
     deck_diff,
+    deck_facts,
     engine_check,
     games,
     import_all,
@@ -1240,6 +1242,27 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
                 "roles": builder.deck_roles(store, _cards(body.cards)),
                 "combos": combos.deck_combos(store, rows),
             }
+        finally:
+            store.close()
+
+    @app.post("/api/deck-facts")
+    def deck_facts_route(body: ListBody) -> dict[str, object]:
+        """Bracket check and data gaps of a deck list: counts with names and origin, no
+        verdict (#1404 options 1 and 10)."""
+        store = open_store()
+        try:
+            return deck_facts.deck_facts(store, list_rows(store, _cards(body.cards)))
+        finally:
+            store.close()
+
+    @app.post("/api/castability")
+    def castability_route(body: ListBody) -> dict[str, object]:
+        """Colour castability conditioned on land drops (Karsten) and the opening hand
+        figure of a deck list (#1415, #1404 option 2). A description, no land count advice."""
+        store = open_store()
+        try:
+            rows = [dict(row) for row in list_rows(store, _cards(body.cards))]
+            return castability.deck_castability(rows)
         finally:
             store.close()
 

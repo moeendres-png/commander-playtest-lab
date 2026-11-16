@@ -794,6 +794,7 @@ function renderNumbers(body) {
     body.append(h("h3", {}, `Land-Ziehwahrscheinlichkeiten (${dp.lands} Länder in ${dp.main_cards} Maindeck-Karten)`), probTable,
       h("p", { class: "note" }, "Exakte hypergeometrische Kombinatorik ohne Mulligan-Heuristik."));
   }
+  renderCastability(body, deckDeps("numbers"));
   renderLandAdvisor(body);
   renderCombos(body);
 }
@@ -1385,10 +1386,10 @@ function renderSimulations(body) {
 }
 function renderDeck() {
   state.renderToken = (state.renderToken || 0) + 1;
-  const tabs = [["list", "Liste"], ["numbers", "Zahlen"], ["check", "Prüfung"], ["compare", "Vergleich"], ["similar", "Ähnliche Decks"], ["diff", "Varianten-Diff"], ["cut", "Kürzen"], ["sim", "Simulation"]];
+  const tabs = [["list", "Liste"], ["numbers", "Zahlen"], ["check", "Prüfung"], ["facts", "Bracket & Lücken"], ["compare", "Vergleich"], ["similar", "Ähnliche Decks"], ["diff", "Varianten-Diff"], ["cut", "Kürzen"], ["sim", "Simulation"]];
   $("deck-tabs").replaceChildren(...tabs.map(([key, label]) => h("button", { type: "button", class: "chip" + (state.tab === key ? " on" : ""), "aria-pressed": state.tab === key, onclick: () => { state.tab = key; renderDeck(); } }, label)));
   const body = $("deck-body"); body.replaceChildren();
-  ({ list: renderList, numbers: renderNumbers, check: renderCheck, compare: renderCompare, similar: renderSimilarDecks, diff: renderDiff, cut: renderCut, sim: renderSimulations })[state.tab](body);
+  ({ list: renderList, numbers: renderNumbers, check: renderCheck, facts: renderFacts, compare: renderCompare, similar: renderSimilarDecks, diff: renderDiff, cut: renderCut, sim: renderSimulations })[state.tab](body);
 }
 function renderCut(body) {
   renderCutLab(body, {
@@ -1407,6 +1408,16 @@ function renderCut(body) {
     swap: (cutId, addId) => { const out = state.byId.get(cutId); const into = state.byId.get(addId); if (out && into) { remove(out); add(into); } },
   });
 }
+// Shared hooks for the deck tabs kept in their own files (deckfacts.js, castability.js).
+function deckDeps(tab) {
+  return {
+    h, api, entries, fail,
+    open: (cardId) => { const card = state.byId.get(cardId); if (card) openCard(card); },
+    token: () => state.renderToken,
+    isCurrent: (token) => token === state.renderToken && state.tab === tab,
+  };
+}
+function renderFacts(body) { renderDeckFacts(body, deckDeps("facts")); }
 function renderAll() { renderHeader(); renderPool(); renderDeck(); }
 
 async function renderSwapBox(into, card, initialMode = null) {
