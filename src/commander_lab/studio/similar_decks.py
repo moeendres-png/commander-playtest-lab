@@ -68,9 +68,13 @@ class _PoolInfo(TypedDict):
 
 
 def _canonical_name(owners: Mapping[str, list[str]], raw_name: str) -> str:
-    found = owners.get(raw_name)
+    """The collection card a deck spelling names. ``owners`` (``universe.spelling_owners``) is
+    keyed by the casefolded spelling, so the lookup casefolds too: a deck listing only the
+    front face of a two-faced or adventure card counts for that card."""
+    found = owners.get(raw_name.casefold())
     if found:
-        return found[0]
+        exact = [cand for cand in found if cand.casefold() == raw_name.casefold()]
+        return sorted(exact)[0] if exact else sorted(found)[0]
     return raw_name
 
 
@@ -143,6 +147,10 @@ def _build_commander_source_index(
         cohorts_by_deck[did].add(coh)
         if coh.startswith("bracket:") and brackets_by_deck.get(did) is None:
             brackets_by_deck[did] = coh
+
+    for cohs in cohorts_by_deck.values():
+        if cohs & {"bracket:4", "bracket:5"}:
+            cohs.add("tuned")
 
     owners = universe.spelling_owners(store)
     basics = _basic_oracle_names(store)

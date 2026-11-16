@@ -1034,6 +1034,7 @@ def _import_decklists(
                 data_class=DataClass.NORMALIZED_SOURCE,
                 title=f"{paths[0].name}#{universe.snapshot}",
                 sha256=hashlib.sha256(f"{file_hash}:{signal}".encode()).hexdigest(),
+                snapshot_date=str(universe.snapshot)[:10] if universe.snapshot else None,
             )
             rows: list[_Row] = [
                 (commander, signal, card, decks / total, decks, total)
@@ -1121,14 +1122,43 @@ def _kept_decklist_rows(store: StudioStore, commander: str) -> int:
     )
 
 
+def _snapshot_from_signal_path(path: Path) -> str | None:
+    import re
+
+    for candidate in (path.name, path.parent.name):
+        m = re.search(r"(20\d{2})[-_]?(\d{2})[-_]?(\d{2})", candidate)
+        if m:
+            return f"{m.group(1)}-{m.group(2)}-{m.group(3)}"
+    if path.suffix.lower() == ".csv" and path.is_file():
+        try:
+            with path.open(encoding="utf-8-sig", newline="") as handle:
+                reader = csv.DictReader(handle)
+                first = next(reader, None)
+                if first:
+                    for key in ("snapshot_utc", "retrieved_at", "snapshot_date", "date"):
+                        val = (first.get(key) or "").strip()
+                        if len(val) >= 10 and val[:4].isdigit():
+                            return val[:10]
+        except OSError:
+            pass
+    return None
+
+
 def _register(store: StudioStore, paths: list[Path]) -> str | None:
     """Register every part of a file; the rows carry the source of the whole file: its only
     part, or (several parts) one source whose hash covers all parts, not just the first."""
     ids: list[tuple[str, str]] = []
+    dates: list[str] = []
     for path in paths:
         digest = sha256_file(path)
+        snap = _snapshot_from_signal_path(path)
+        if snap:
+            dates.append(snap)
         store.register_source(
-            data_class=DataClass.NORMALIZED_SOURCE, title=path.name, sha256=digest
+            data_class=DataClass.NORMALIZED_SOURCE,
+            title=path.name,
+            sha256=digest,
+            snapshot_date=snap,
         )
         ids.append((path.name, digest))
     if len(ids) <= 1:
@@ -1140,6 +1170,7 @@ def _register(store: StudioStore, paths: list[Path]) -> str | None:
         data_class=DataClass.NORMALIZED_SOURCE,
         title=f"{ids[0][0]} (+{len(ids) - 1} parts)",
         sha256=combined,
+        snapshot_date=max(dates) if dates else None,
     )
 
 

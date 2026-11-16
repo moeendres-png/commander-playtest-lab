@@ -98,20 +98,23 @@ def _produced(row: _Row, type_line: str) -> tuple[set[str], bool]:
 def deck_profile(rows: Iterable[_Row]) -> dict[str, object]:
     """The figures of one deck. ``rows`` carry ``zone``, ``quantity``, ``type_line``,
     ``mana_cost``, ``produced_mana``, ``layout`` and, for commanders, ``color_identity``."""
+    row_list = list(rows)
+    identity: set[str] = set()
+    for row in row_list:
+        if _text(row, "zone") == "commander":
+            identity.update(letter for letter in _text(row, "color_identity") if letter in COLOURS)
     pips: Counter[str] = Counter()
     commander_pips: Counter[str] = Counter()
     land_sources: Counter[str] = Counter()
     other_sources: Counter[str] = Counter()
     modal_sources: Counter[str] = Counter()
-    identity: set[str] = set()
     lands = nonland = modal_backs = unknown_lands = colourless_pips = colourless_lands = 0
     no_mana_lands = 0
-    for row in rows:
+    for row in row_list:
         quantity = int(_text(row, "quantity") or "1")
         type_line = _text(row, "type_line")
         front_type = _front(type_line)
         if _text(row, "zone") == "commander":
-            identity.update(letter for letter in _text(row, "color_identity") if letter in COLOURS)
             commander_pips.update(_pips(row)[0])
             continue
         if "Land" in front_type:
@@ -120,7 +123,8 @@ def deck_profile(rows: Iterable[_Row]) -> dict[str, object]:
             if not known:
                 unknown_lands += quantity
             for colour in colours:
-                land_sources[colour] += quantity
+                if not identity or colour in identity:
+                    land_sources[colour] += quantity
             if known and not colours:
                 if "C" in _text(row, "produced_mana"):
                     colourless_lands += quantity
@@ -135,10 +139,12 @@ def deck_profile(rows: Iterable[_Row]) -> dict[str, object]:
         if " // " in type_line and "Land" in type_line.split(" // ", 1)[1]:
             modal_backs += quantity
             for colour in _produced(row, "")[0]:
-                modal_sources[colour] += quantity
+                if not identity or colour in identity:
+                    modal_sources[colour] += quantity
         else:
             for colour in {c for c in _text(row, "produced_mana") if c in COLOURS}:
-                other_sources[colour] += quantity
+                if not identity or colour in identity:
+                    other_sources[colour] += quantity
     total = sum(pips.values())
     shown = [c for c in COLOURS if c in identity or pips[c] or land_sources[c]]
     colours_out = [
@@ -349,8 +355,8 @@ def land_candidates(
             [c for c in COLOURS if c in colours_set] if known_colours else None
         )
         name = str(row["oracle_name"])
-        if of > 0 and name in hits and cohort in hits[name]:
-            hits_int = int(hits[name][cohort])
+        if of > 0:
+            hits_int = int(hits.get(name, {}).get(cohort, 0))
             share_float = round(hits_int / of, 4)
             if share_float < min_share:
                 continue

@@ -451,7 +451,11 @@ def test_cooccurrence_neutral_boards_diff_and_draw_probabilities(
             "name": "Forest",
             "both_hits": 1,
             "card_decks": 2,
+            "partner_decks": 2,
+            "cohort_decks": 3,
             "share": 0.5,
+            "lift": 0.75,
+            "combo_partner": False,
         }
     ]
     role_file = tmp_path / "diff_roles.json"

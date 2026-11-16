@@ -16,6 +16,7 @@ from .decks import color_set
 from .store import StudioStore
 
 SWAP_MODES = frozenset({"replace", "cut"})
+SWAP_SORT_MODES = frozenset({"hits", "lift"})
 
 
 def _is_basic(type_line: str, flag: object) -> bool:
@@ -23,6 +24,28 @@ def _is_basic(type_line: str, flag: object) -> bool:
         return True
     front = type_line.split(" // ")[0]
     return "Basic" in front and "Land" in front
+
+
+def _global_shares_by_name(store: StudioStore) -> dict[str, float]:
+    """Read commander-independent EDHREC global inclusion share per card name (0..1)."""
+    shares: dict[str, float] = {}
+    for row in store.connection.execute(
+        "SELECT card_name, value, numerator, denominator FROM card_signal "
+        "WHERE signal = 'edhrec_global_inclusion' AND (commander_name IS NULL OR commander_name = '')"
+    ):
+        num = row["numerator"]
+        den = row["denominator"]
+        val = row["value"]
+        share: float | None = None
+        if num is not None and den:
+            share = float(num) / float(den)
+        elif val is not None:
+            share = float(val)
+        if share is not None and share > 0:
+            key = str(row["card_name"]).strip().casefold()
+            if key:
+                shares[key] = share
+    return shares
 
 
 def swap_candidates(
@@ -35,12 +58,15 @@ def swap_candidates(
     cohort: str = "all",
     universe: str | None = None,
     exclude_marked: bool = True,
+    sort_by: str = "hits",
 ) -> dict[str, object]:
     """Role-sharing replacement candidates (``mode='replace'``) or cut candidates
     (``mode='cut'``) for ``card_id`` under ``commander``.
     """
     if mode not in SWAP_MODES:
         raise ValueError(f"mode must be one of {sorted(SWAP_MODES)}, got {mode!r}")
+    if sort_by not in SWAP_SORT_MODES:
+        raise ValueError(f"sort_by must be one of {sorted(SWAP_SORT_MODES)}, got {sort_by!r}")
     commander_names = [commander] if isinstance(commander, str) else [str(c) for c in commander]
     if not commander_names or not all(commander_names):
         raise ValueError("commander is required")
@@ -76,6 +102,7 @@ def swap_candidates(
         group_name = cohort
         of = int(cohorts.get(cohort, 0))
 
+    global_shares = _global_shares_by_name(store)
     deck_set = {str(cid) for cid in deck_card_ids if cid}
     cmd_set = set(commander_ids)
 
@@ -134,9 +161,23 @@ def swap_candidates(
                 decks_val = hits_int
                 share_val = round(hits_int / of, 4)
 
+            g_share = global_shares.get(name.casefold()) or global_shares.get(
+                name.split(" // ")[0].casefold()
+            )
+            lift_val: float | None = None
+            if share_val is not None and g_share is not None and g_share > 0:
+                lift_val = round(share_val / g_share, 4)
+
             mv = float(row["mana_value"] or 0.0)
             mv_delta = round(mv - target_mv, 4)
-            if share_val is None or decks_val is None:
+            if sort_by == "lift":
+                if lift_val is None:
+                    unknown_flag = 1
+                    freq_order = 0.0
+                else:
+                    unknown_flag = 0
+                    freq_order = -lift_val if mode == "replace" else lift_val
+            elif share_val is None or decks_val is None:
                 unknown_flag = 1
                 freq_order = 0.0
             else:
@@ -159,6 +200,7 @@ def swap_candidates(
                         "decks": decks_val,
                         "of": of,
                         "share": share_val,
+                        "lift": lift_val,
                         "decks_known": decks_val is not None,
                         "in_deck": in_deck,
                         "available": available,
@@ -168,14 +210,19 @@ def swap_candidates(
 
     keyed.sort(key=lambda entry: entry[:5])
     items = [entry[5] for entry in keyed]
-    unknown_count = sum(1 for item in items if item["decks"] is None)
+    unknown_count = sum(
+        1
+        for item in items
+        if (item["lift"] is None if sort_by == "lift" else item["decks"] is None)
+    )
     small = of < builder.SMALL_DENOMINATOR
     return {
         "basis": (
-            "Gleiche Rolle (Tagger) und Häufigkeit in den Quelldecks der Vergleichsgruppe; "
-            "keine Aussage über Spielstärke."
+            "Gleiche Rolle (Tagger) und Häufigkeit (bzw. Lift gegen globale EDHREC-Verbreitung) "
+            "in den Quelldecks der Vergleichsgruppe; keine Aussage über Spielstärke."
         ),
         "mode": mode,
+        "sort_by": sort_by,
         "card_id": card_id,
         "group": {
             "name": group_name,

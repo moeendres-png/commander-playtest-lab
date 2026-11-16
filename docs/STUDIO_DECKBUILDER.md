@@ -1324,6 +1324,104 @@ land counts for every colour it produces; a land with unknown colours is "unbeka
 the commander's own cost and its colour identity are named apart. Source decks with cards the
 card data does not know are left out and counted.
 
+### Card allocation ("Belegung", #1419)
+
+`GET /api/allocation` (`studio/allocation.py`) shows per card where its copies are bound, for
+display only (nothing is locked, no deck is changed). A saved deck binds the copies of its
+`main` variant (without one, of its most recently saved variant); other variants are
+alternatives of the same physical deck and are listed without binding; drafts never bind. A
+card is marked **überbucht** when the copies bound by all saved decks exceed the copies free
+for own decks (`available_lower_bound`); without an inventory row no overbooking is claimed.
+Copies reserved for opponents' decks (`reserved`) stay a separate figure. Storage locations
+come only from the inventory workbook's lot sheet (`02_PHYSICAL_LOTS.location_id`, names from
+`03_LOCATIONS`) and are stored per card and location in `card_location` at the inventory import
+(summed lower-bound quantities; "mindestens" when a lot is only a lower bound, and lots without
+any quantity counted apart, never as 0; the card window says how many of the owned copies have a
+location);
+a card without location rows shows no location field. The pool tiles show "in N Decks
+(n gebunden)" and the overbooking; the card window lists the decks, the other variants, the
+reserved copies and the locations in the data's own wording.
+
+### Variant comparison with counted deltas ("Varianten-Diff", #1414, #1404 option 8)
+
+`POST /api/diff` (`studio/deck_diff.py`, on top of `builder.diff_lists`) compares a stored
+revision with the current list: added, removed and changed cards; land, creature and nonland
+counts; average mana value; land-draw probabilities; role deltas; the mana curve per mana value;
+coloured pips and coloured land sources per colour; listed combos complete before and after
+(with the combos that became or stopped being complete; without a stored list: unknown); the
+overlap as shared card slots of both totals. Per swapped card it shows roles, mana value and
+how many source decks of the commander in the chosen comparison group play it (`decks` of
+`of`; unknown when no source deck names the card). The comparison base can be the previous
+state, any saved state of the deck, another variant or the current state of another deck. No
+score, bracket or power delta: the stored revisions are the version snapshots, so no second
+deck store is needed.
+
+### Bracket facts and data gaps ("Bracket & Lücken", #1404 options 1 and 10)
+
+The deck tab "Bracket & Lücken" (`POST /api/deck-facts`, `studio/deck_facts.py`) counts, with
+names and origin, what the published Commander Brackets talk about: Game Changers (card data
+flag `game_changer`; a card without the flag is counted apart as unknown), extra turns and mass
+land denial (oracle text patterns, shown as candidates with the matching rule), tutors (public
+role `tutor`; the tagger counts land search too, so "davon Land-Suche" is shown apart) and
+two-card combos complete in the deck (stored combo list; without a list: unknown). Only the
+Game Changer count has a published number per bracket (0 in brackets 1 and 2, at most 3 in
+bracket 3, no limit in 4 and 5); the page shows each bracket's limit next to the count
+("passt", "über der Grenze", "unbekannt" when unknown flags could cross it) and never says
+which bracket the deck is in. Sources: the Commander Brackets updates of 2025-10-21 and
+2026-02-09 (tutor limits removed on 2025-10-21).
+
+The same tab lists the data gaps per card of the deck (the commander excluded): no public card
+data, unknown mana value, no role (nonland cards), unknown land colours, no source deck of the
+commander names the card, no EDHREC observation for the commander (commander or bracket pages).
+Each reason carries its count and the number of cards it was checked for; a source the store
+lacks for the commander is reported once, not per card. A gap means unknown, never 0.
+
+### Colours on curve ("Farben auf Kurve", #1415, #1404 option 2)
+
+The tab "Zahlen" shows, for every distinct coloured requirement of the deck's nonland cards
+(pips per colour of the front cost, at the turn of the card's mana value), the exact
+probability to hit the land drops by that turn and, only among those draws, to hold the
+coloured sources the cost needs (`POST /api/castability`, `studio/castability.py`). Method:
+Frank Karsten, 2022 update. Missing the land drop is reported apart; two pips of one colour and
+several colours are one joint event computed over land groups by produced colours (a dual land
+counts for both colours of one draw), never a product of single probabilities; every value
+carries its condition ("bedingt auf mindestens T Länder unter 7 + T gezogenen Karten"). Sources
+are lands only; lands without coloured mana per card data (fetch lands) and lands without card
+data are counted as lands but not as sources and are listed; hybrid and Phyrexian symbols are
+not part of the requirement and the cards are named. No mulligan, no extra draws. The opening
+hand figure is the exact share of 7-card hands with 2 to 4 lands and at least one nonland card
+of mana value at most 2. A description, never a land count recommendation.
+
+### Card duel ("Karten-Duell", #1404 option 3)
+
+In the card window, "Karten-Duell" sets a second pool card next to the open one
+(`POST /api/card-duel`, `studio/card_duel.py`): whether each is in the deck, type, mana value,
+roles, how many source decks of the commander in the chosen group play it (`decks` of `of`), and
+the observed fit with the rest of the deck: the average share of the deck's other cards
+(without the two duel cards, the commander and basic lands) in the source decks that play the
+card, next to the baseline, the same share over all source decks of the group. A card no source
+deck names has frequency and fit unknown (never 0); fits from fewer than 30 decks are flagged.
+It is an observation of co-occurrence, never a statement that one card is better. Counting
+reuses the cached source-deck index of the similar-decks view.
+
+### Guided cut ("Kürzen", #1418)
+
+The deck tab "Kürzen" brings a list of more than 100 cards to exactly 100 (`POST /api/cut-lab`,
+`POST /api/cut-lab/what-if`, `POST /api/cut-lab/finish`, `studio/cut_lab.py`). It serves one
+suggestion at a time (Kürzen, Ablehnen, Später, Sperren). The order comes only from measured
+figures: cards with a known source-deck frequency first, the least played share first (n/N of
+the chosen comparison group), then cards no source deck names (frequency unknown, a separate
+group, never 0); ties by role redundancy, then name. A cut that would drop a role below its
+minimum (guardrail, default the comparison group's lower quartile rounded down, editable on the
+page) comes after the others and says which role; deferred cards come last. Locked cards (kept
+per deck in the browser), rejected cards, the commander and basic lands (separate counter) are
+never suggested; favourites and other marks never change the order. Each suggestion shows only
+the change of the deck figures (curve bucket, roles before and after with the minimum, coloured
+pips, land count) and a "Kombo-Teil" badge for cards of a listed combo complete in the deck (no
+automatic lock). "Was, wenn stattdessen …" shows the counted deltas of swapping in a free pool
+card (`deck_diff.diff_impact`) and changes nothing until confirmed. At exactly 100 the page shows
+the ADD/CUT patch against the starting list and the list text and saves the list as a new state.
+
 ### Archetype labels (schema 15)
 
 Free-form labels the Owner puts on a card (card window, "Archetyp-Marken") and on a saved deck

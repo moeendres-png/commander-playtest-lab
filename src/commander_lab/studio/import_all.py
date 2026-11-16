@@ -26,6 +26,7 @@ from . import (
     builder,
     catalog,
     decklist_import,
+    decks,
     importers,
     memo,
     repo_import,
@@ -552,6 +553,13 @@ def _steps(
                 ),
             )
         )
+        plan.append(
+            (
+                "Start-Deck (Repo)",
+                decks.repo_deck_file_for_commander([commander]) is not None,
+                lambda store: _seed_repo_deck(store, commander),
+            )
+        )
     for folder in signal_folders:
 
         def read(store: StudioStore, folder: Path = folder) -> object:
@@ -564,6 +572,43 @@ def _steps(
         ("Markierungen", bool(args.marks), lambda store: import_owner_marks(store, args.marks))
     )
     return plan
+
+
+def _seed_repo_deck(
+    store: StudioStore,
+    commander: str,
+    *,
+    decks_dir: Path | None = None,
+) -> dict[str, object]:
+    """Seed an initial Studio deck revision from ``data/decks/<slug>_current.txt`` once.
+
+    Idempotent: if ``deck_id`` already exists (including owner edits), it is left untouched.
+    """
+    deck_path = decks.repo_deck_file_for_commander([commander], decks_dir=decks_dir)
+    if deck_path is None:
+        return {"seeded": 0}
+    deck_id = deck_path.stem.replace("_", "-")
+    exists = store.connection.execute("SELECT 1 FROM deck WHERE deck_id = ?", (deck_id,)).fetchone()
+    if exists is not None:
+        return {"seeded": 0, "already_present": 1}
+    try:
+        builder.commander_identity(store, [commander])
+    except KeyError:
+        return {"seeded": 0}
+    cards = decks.resolve_repo_baseline_cards(
+        store, f"repo:{deck_path.stem}", [commander], decks_dir=decks_dir
+    )
+    if sum(c.quantity for c in cards if c.zone == "main") <= 0:
+        return {"seeded": 0}
+    decks.create_revision(
+        store,
+        deck_id=deck_id,
+        name=commander,
+        cards=cards,
+        note=f"Repo-Startdeck aus {deck_path.name}",
+        branch="main",
+    )
+    return {"seeded": 1, "cards": sum(c.quantity for c in cards)}
 
 
 def run(args: argparse.Namespace, store: StudioStore) -> ImportAllResult:

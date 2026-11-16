@@ -266,11 +266,13 @@ def import_rubric(store: StudioStore, folder: str | Path) -> dict[str, object]:
         str(row["card"]) for row in rows if known and str(row["card"]).casefold() not in known
     )
     names = (signals.SIGNAL_RUBRIC, signals.SIGNAL_RUBRIC_SD, signals.SIGNAL_RUBRIC_RATERS)
+    snap = f"{date[:4]}-{date[4:6]}-{date[6:8]}" if len(date) == 8 and date.isdigit() else date
     with store.connection as db:
         source_id = store.register_source(
             data_class=DataClass.HEURISTIC_MODEL,
             title=f"{root.name}/{RUBRIC_SUMMARY}",
             sha256=digest,
+            snapshot_date=snap,
         )
         marks = ", ".join("?" for _ in names)
         replaced = int(

@@ -12,6 +12,7 @@ import json
 import sqlite3
 from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
+from pathlib import Path
 
 from .store import StudioStore, now_utc
 
@@ -133,6 +134,11 @@ def revision_rows(store: StudioStore, revision_id: str) -> list[sqlite3.Row]:
 def list_rows(store: StudioStore, cards: Iterable[RevisionCard]) -> list[sqlite3.Row]:
     """The same rows as ``revision_rows`` for a list that is not stored as a revision."""
     db = store.connection
+    # The work list is a connection-private TEMP table. Filling it opens a transaction; when
+    # none was open before, it is closed right away (it holds only this temp table), so the
+    # per-store-state cache (``cache.cached``, which stands aside during an open transaction)
+    # keeps serving later reads of the same request.
+    was_open = db.in_transaction
     db.execute(
         "CREATE TEMP TABLE IF NOT EXISTS work_list "
         "(card_id TEXT NOT NULL, zone TEXT NOT NULL, quantity INTEGER NOT NULL)"
@@ -142,6 +148,8 @@ def list_rows(store: StudioStore, cards: Iterable[RevisionCard]) -> list[sqlite3
         "INSERT INTO work_list(card_id, zone, quantity) VALUES (?, ?, ?)",
         [(card.card_id, card.zone, card.quantity) for card in _merge(cards)],
     )
+    if not was_open:
+        db.commit()
     return db.execute(
         f"SELECT {_ROW_COLUMNS} FROM work_list rc JOIN card_fact c USING (card_id) "
         "LEFT JOIN inventory i USING (card_id) ORDER BY rc.zone, c.oracle_name"
@@ -271,6 +279,8 @@ def lab_snapshot(
     }
 
 
+_DECKS_DIR = Path(__file__).resolve().parents[3] / "data" / "decks"
+
 _SECTION_HEADERS = frozenset(
     {
         "commander",
@@ -283,12 +293,181 @@ _SECTION_HEADERS = frozenset(
         "main:",
         "mainboard",
         "mainboard:",
+        "maindeck",
+        "maindeck:",
         "sideboard",
         "sideboard:",
         "maybeboard",
         "maybeboard:",
+        "companion",
+        "companion:",
+        "cuts",
+        "cuts:",
     }
 )
+_SKIPPED_SECTIONS = frozenset({"sideboard", "maybeboard", "cuts", "tokens", "considering"})
+_ACTIVE_SECTIONS = frozenset({"commander", "commanders", "deck", "main", "mainboard", "maindeck"})
+_CSV_QTY_COLS = ("count", "quantity", "qty", "tradelist count")
+_CSV_NAME_COLS = ("name", "card name", "card")
+_CSV_SECTION_COLS = ("section", "board", "zone", "category", "categories")
+
+
+def repo_deck_file_for_commander(
+    commander_names: Sequence[str], *, decks_dir: Path | None = None
+) -> Path | None:
+    """Return the checked-in ``<slug>_current.txt`` file for ``commander_names``, if present."""
+    folder = decks_dir if decks_dir is not None else _DECKS_DIR
+    if not commander_names or not folder.is_dir():
+        return None
+    first = commander_names[0].split(",")[0].strip().casefold()
+    slug = "".join(ch if ch.isalnum() else "_" for ch in first).strip("_")
+    if not slug:
+        return None
+    candidate = folder / f"{slug}_current.txt"
+    return candidate if candidate.is_file() else None
+
+
+def baseline_decks_for_commander(
+    commander_names: Sequence[str], *, decks_dir: Path | None = None
+) -> list[dict[str, object]]:
+    """Available read-only repository baseline deck files for ``commander_names``."""
+    path = repo_deck_file_for_commander(commander_names, decks_dir=decks_dir)
+    if path is None:
+        return []
+    stem = path.stem
+    return [
+        {
+            "revision_id": f"repo:{stem}",
+            "label": f"{path.name} (Repo-Stand)",
+            "file": path.name,
+        }
+    ]
+
+
+def _collection_lookup(
+    store: StudioStore,
+) -> tuple[dict[str, dict[str, object]], dict[str, dict[str, object]]]:
+    """Name lookup across collection cards (`card_fact` + `inventory`) and public cards (`scryfall_card`)."""
+    coll: dict[str, dict[str, object]] = {}
+    for row in store.connection.execute(
+        "SELECT c.card_id, c.oracle_name, c.engine_name, c.color_identity, "
+        "c.commander_legal, i.available_lower_bound "
+        "FROM card_fact c JOIN inventory i USING (card_id)"
+    ):
+        info: dict[str, object] = {
+            "card_id": str(row["card_id"]),
+            "name": str(row["oracle_name"]),
+            "color_identity": str(row["color_identity"] or ""),
+            "commander_legal": row["commander_legal"],
+            "available": int(row["available_lower_bound"] or 0),
+        }
+        coll[str(row["oracle_name"]).casefold()] = info
+        if row["engine_name"]:
+            coll.setdefault(str(row["engine_name"]).casefold(), info)
+        front = str(row["oracle_name"]).split(" // ")[0].strip().casefold()
+        coll.setdefault(front, info)
+    public: dict[str, dict[str, object]] = {}
+    for row in store.connection.execute(
+        "SELECT oracle_id, name, front_name, color_identity, commander_legality FROM scryfall_card"
+    ):
+        pinfo: dict[str, object] = {
+            "name": str(row["name"]),
+            "color_identity": str(row["color_identity"] or ""),
+            "commander_legal": 1 if row["commander_legality"] == "legal" else 0,
+        }
+        public[str(row["name"]).casefold()] = pinfo
+        if row["front_name"]:
+            public.setdefault(str(row["front_name"]).casefold(), pinfo)
+    return coll, public
+
+
+def _detect_format(lines: list[str]) -> str:
+    if not lines:
+        return "plain"
+    cleaned = [ln.lstrip("\ufeff") for ln in lines]
+    first_nonempty = next((ln.strip() for ln in cleaned if ln.strip()), "")
+    if "," in first_nonempty:
+        lowered = [col.strip().strip('"').casefold() for col in first_nonempty.split(",")]
+        if any(col in _CSV_NAME_COLS for col in lowered) and (len(lowered) >= 2):
+            return "csv"
+    has_set_paren = any(" (" in ln and ") " in ln for ln in cleaned)
+    has_archidekt_cat = any("[" in ln and ln.rstrip().endswith("]") for ln in cleaned)
+    has_x = any(
+        ln.lstrip().split(" ", 1)[0].rstrip("xX").isdigit() and "x " in ln.lower() for ln in cleaned
+    )
+    if has_archidekt_cat:
+        return "archidekt"
+    if any("*CMDR*" in ln or "*F*" in ln for ln in cleaned):
+        return "moxfield"
+    if has_set_paren:
+        return "arena"
+    if has_x:
+        return "mtgo"
+    return "plain"
+
+
+def _strip_decklist_decorators(raw_name: str) -> str:
+    import re
+
+    name = raw_name.strip()
+    # Strip trailing Archidekt/Moxfield/Arena markers in any order: *CMDR*, *F*, [Cat], {tag}, ^...^, #tag, (SET) 123
+    while True:
+        prev = name
+        name = re.sub(r"\s*\*+[A-Za-z0-9]+\*+\s*$", "", name)
+        name = re.sub(r"\s*\[[^\]]*\]\s*$", "", name)
+        name = re.sub(r"\s*\{[^}]*\}\s*$", "", name)
+        name = re.sub(r"\s*\^[^^]*\^\s*$", "", name)
+        name = re.sub(r"\s+#\S+\s*$", "", name)
+        name = re.sub(r"\s+\([A-Za-z0-9]{2,6}\)(?:\s+[A-Za-z0-9-]+)?\s*$", "", name)
+        name = name.strip()
+        if name == prev:
+            break
+    return name
+
+
+def resolve_repo_baseline_cards(
+    store: StudioStore,
+    baseline_id: str,
+    commander_names: Sequence[str] | None = None,
+    *,
+    decks_dir: Path | None = None,
+) -> list[RevisionCard]:
+    """Load a checked-in ``repo:<stem>`` text decklist into ``RevisionCard`` rows (in-collection pool)."""
+    if not baseline_id.startswith("repo:"):
+        raise KeyError(baseline_id)
+    stem = baseline_id[len("repo:") :].strip()
+    if not stem or "/" in stem or "\\" in stem or "\x00" in stem or ".." in stem:
+        raise KeyError(baseline_id)
+    folder = decks_dir if decks_dir is not None else _DECKS_DIR
+    candidate = folder / f"{stem}.txt"
+    if candidate.resolve().parent != folder.resolve() or not candidate.is_file():
+        raise KeyError(baseline_id)
+    text = candidate.read_text(encoding="utf-8")
+    if not commander_names:
+        # Read commander from file or infer Chulane if present
+        cmd_lines: list[str] = []
+        in_cmd = False
+        for raw in text.splitlines():
+            s = raw.strip()
+            if not s:
+                in_cmd = False
+                continue
+            low = s.casefold().rstrip(":")
+            if low in {"commander", "commanders"}:
+                in_cmd = True
+                continue
+            if low in _ACTIVE_SECTIONS | _SKIPPED_SECTIONS:
+                in_cmd = False
+                continue
+            if in_cmd:
+                parts = s.split(" ", 1)
+                cmd_lines.append(_strip_decklist_decorators(parts[1] if parts[0].isdigit() else s))
+        commander_names = cmd_lines
+    parsed = parse_decklist_text(store, commander_names, text)
+    return [
+        RevisionCard(str(item["card_id"]), int(item["quantity"]), str(item["zone"]))
+        for item in parsed["cards"]  # type: ignore[attr-defined]
+    ]
 
 
 def parse_decklist_text(
@@ -296,82 +475,166 @@ def parse_decklist_text(
     commander_names: Sequence[str],
     text: str,
 ) -> dict[str, object]:
-    """Parse plain decklist text (`1 Card Name` lines) against the commander's legal
-    collection pool. Cards not in the collection are listed neutrally by name without any
-    price or purchase wording.
+    """Parse decklist text (plain, Arena, MTGO, Moxfield, Archidekt, Deckstats, or CSV)
+    against the commander's legal collection pool. Cards not in the collection or outside
+    color identity are listed neutrally by name without any price or purchase wording.
     """
+    import csv
+    import io
     import re
 
     from . import builder
 
     identity, commander_ids = builder.commander_identity(store, commander_names)
     cmd_set = set(commander_ids)
-    by_name: dict[str, dict[str, object]] = {}
-    for row in store.connection.execute(
-        "SELECT c.card_id, c.oracle_name, c.engine_name, c.color_identity, "
-        "c.commander_legal, i.available_lower_bound "
-        "FROM card_fact c JOIN inventory i USING (card_id)"
-    ):
-        if row["commander_legal"] != 1 or not (color_set(row["color_identity"]) <= identity):
-            continue
-        info = {
-            "card_id": str(row["card_id"]),
-            "name": str(row["oracle_name"]),
-            "available": int(row["available_lower_bound"] or 0),
-        }
-        by_name[str(row["oracle_name"]).casefold()] = info
-        if row["engine_name"]:
-            by_name.setdefault(str(row["engine_name"]).casefold(), info)
-        front = str(row["oracle_name"]).split(" // ")[0].strip().casefold()
-        by_name.setdefault(front, info)
+    cmd_names_cf = {n.casefold() for n in commander_names}
+    coll, public = _collection_lookup(store)
 
-    line_re = re.compile(r"^(?:(\d+)\s*[xX]?\s+)?(.+?)(?:\s+\([A-Za-z0-9]+\)(?:\s+\S+)?)?$")
+    lines = text.splitlines()
+    detected_format = _detect_format(lines)
     matched_qty: dict[str, int] = {}
     matched_info: dict[str, dict[str, object]] = {}
     not_in_collection: list[dict[str, object]] = []
+    outside_color_identity: list[dict[str, object]] = []
+    unrecognized_lines: list[dict[str, object]] = []
     not_in_collection_qty = 0
+    outside_qty = 0
     skipped_section = False
 
-    for raw_line in text.splitlines():
-        line = raw_line.strip()
-        if not line or line.startswith("#") or line.startswith("//"):
-            continue
-        lower = line.casefold().rstrip(":")
-        if lower in {"sideboard", "maybeboard", "cuts"}:
-            skipped_section = True
-            continue
-        if lower in {"commander", "commanders", "deck", "main", "mainboard"}:
-            skipped_section = False
-            continue
-        if skipped_section:
-            continue
-        m = line_re.match(line)
-        if not m:
-            continue
-        qty = int(m.group(1) or "1")
-        if qty <= 0:
-            continue
-        raw_name = m.group(2).strip()
-        if raw_name.casefold() in _SECTION_HEADERS:
-            continue
-        found = by_name.get(raw_name.casefold()) or by_name.get(
-            raw_name.split(" // ")[0].strip().casefold()
-        )
-        if found is None:
+    def _classify_entry(qty: int, raw_name: str, lineno: int, raw_line: str) -> None:
+        nonlocal not_in_collection_qty, outside_qty
+        name = _strip_decklist_decorators(raw_name)
+        if not name:
+            unrecognized_lines.append(
+                {"line": lineno, "raw": raw_line, "reason": "leerer Kartenname"}
+            )
+            return
+        if name.casefold() in cmd_names_cf:
+            return
+        cf = name.casefold()
+        front_cf = name.split(" // ")[0].strip().casefold()
+        found = coll.get(cf) or coll.get(front_cf)
+        if found is not None:
+            cid = str(found["card_id"])
+            if cid in cmd_set:
+                return
+            legal_ok = found["commander_legal"] == 1
+            id_ok = color_set(str(found["color_identity"] or "")) <= identity
+            if not legal_ok or not id_ok:
+                outside_qty += qty
+                outside_color_identity.append(
+                    {
+                        "name": str(found["name"]),
+                        "quantity": qty,
+                        "reason": "nicht in Farbidentität"
+                        if not id_ok
+                        else "nicht Commander-legal",
+                    }
+                )
+                return
+            matched_qty[cid] = matched_qty.get(cid, 0) + qty
+            matched_info[cid] = found
+            return
+        pub = public.get(cf) or public.get(front_cf)
+        if pub is not None:
+            id_ok = color_set(str(pub["color_identity"] or "")) <= identity
+            legal_ok = pub["commander_legal"] == 1
+            if not id_ok or not legal_ok:
+                outside_qty += qty
+                outside_color_identity.append(
+                    {
+                        "name": str(pub["name"]),
+                        "quantity": qty,
+                        "reason": "nicht in Farbidentität"
+                        if not id_ok
+                        else "nicht Commander-legal",
+                    }
+                )
+                return
             not_in_collection_qty += qty
             not_in_collection.append(
                 {
-                    "name": raw_name,
+                    "name": str(pub["name"]),
                     "quantity": qty,
                     "status": "nicht in deiner Sammlung",
                 }
             )
-            continue
-        cid = str(found["card_id"])
-        if cid in cmd_set:
-            continue
-        matched_qty[cid] = matched_qty.get(cid, 0) + qty
-        matched_info[cid] = found
+            return
+        not_in_collection_qty += qty
+        not_in_collection.append(
+            {
+                "name": name,
+                "quantity": qty,
+                "status": "nicht in deiner Sammlung",
+            }
+        )
+
+    if detected_format == "csv":
+        reader = csv.reader(io.StringIO(text))
+        headers: list[str] = []
+        qty_idx: int | None = None
+        name_idx: int | None = None
+        section_idx: int | None = None
+        for lineno, row in enumerate(reader, 1):
+            if not row or all(not cell.strip() for cell in row):
+                continue
+            if not headers:
+                headers = [cell.strip().casefold() for cell in row]
+                for i, h in enumerate(headers):
+                    if name_idx is None and h in _CSV_NAME_COLS:
+                        name_idx = i
+                    elif qty_idx is None and h in _CSV_QTY_COLS:
+                        qty_idx = i
+                    elif section_idx is None and h in _CSV_SECTION_COLS:
+                        section_idx = i
+                if name_idx is None:
+                    name_idx = 1 if len(headers) > 1 else 0
+                continue
+            if section_idx is not None and section_idx < len(row):
+                sec = row[section_idx].strip().casefold()
+                if sec in _SKIPPED_SECTIONS:
+                    continue
+            raw_qty = row[qty_idx].strip() if qty_idx is not None and qty_idx < len(row) else "1"
+            try:
+                qty = int(raw_qty.rstrip("xX") or "1")
+            except ValueError:
+                unrecognized_lines.append(
+                    {"line": lineno, "raw": ",".join(row), "reason": "ungültige Anzahl"}
+                )
+                continue
+            raw_name = row[name_idx].strip() if name_idx is not None and name_idx < len(row) else ""
+            if qty > 0:
+                _classify_entry(qty, raw_name, lineno, ",".join(row))
+    else:
+        line_re = re.compile(r"^(?:(\d+)\s*[xX]?\s+)?(.+?)$")
+        for lineno, raw_line in enumerate(lines, 1):
+            line = raw_line.strip()
+            if not line or line.startswith("#") or line.startswith("//"):
+                continue
+            if line.lower().startswith("sb:"):
+                continue
+            lower = line.casefold().rstrip(":")
+            if lower in _SKIPPED_SECTIONS:
+                skipped_section = True
+                continue
+            if lower in _ACTIVE_SECTIONS:
+                skipped_section = False
+                continue
+            if skipped_section:
+                continue
+            m = line_re.match(line)
+            if not m:
+                unrecognized_lines.append(
+                    {"line": lineno, "raw": raw_line, "reason": "Format nicht erkannt"}
+                )
+                continue
+            qty = int(m.group(1) or "1")
+            if qty <= 0:
+                continue
+            raw_name = m.group(2).strip()
+            if raw_name.casefold() in _SECTION_HEADERS:
+                continue
+            _classify_entry(qty, raw_name, lineno, raw_line)
 
     cards = [RevisionCard(cid, 1, "commander") for cid in commander_ids] + [
         RevisionCard(cid, qty, "main") for cid, qty in matched_qty.items()
@@ -386,12 +649,17 @@ def parse_decklist_text(
         for cid, qty in matched_qty.items()
     ]
     return {
+        "detected_format": detected_format,
         "cards": [{"card_id": c.card_id, "quantity": c.quantity, "zone": c.zone} for c in cards],
         "matched": matched_list,
         "in_collection": matched_list,
         "not_in_collection": not_in_collection,
+        "outside_color_identity": outside_color_identity,
+        "unrecognized_lines": unrecognized_lines,
         "summary": {
             "in_collection_cards": sum(matched_qty.values()),
             "not_in_collection_cards": not_in_collection_qty,
+            "outside_color_identity_cards": outside_qty,
+            "unrecognized_lines": len(unrecognized_lines),
         },
     }
