@@ -26,7 +26,7 @@ def _run_threads(count: int, work: object) -> list[object]:
     def target(index: int) -> None:
         try:
             results[index] = work()  # type: ignore[operator]
-        except BaseException as error:  # noqa: BLE001 - reported to the test
+        except BaseException as error:
             errors.append(error)
 
     threads = [threading.Thread(target=target, args=(i,)) for i in range(count)]

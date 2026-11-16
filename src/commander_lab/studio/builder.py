@@ -995,11 +995,24 @@ def card_detail(
 
 
 def _percentile(values: list[float], share: float) -> float:
-    ordered = sorted(values)
+    return _percentile_sorted(sorted(values), share)
+
+
+def _percentile_sorted(ordered: Sequence[float], share: float) -> float:
     position = share * (len(ordered) - 1)
     low = int(position)
     high = min(low + 1, len(ordered) - 1)
     return ordered[low] + (ordered[high] - ordered[low]) * (position - low)
+
+
+def _span(values: Sequence[float]) -> dict[str, float]:
+    """Median and middle half of ``values`` (non-empty), sorted once."""
+    ordered = sorted(values)
+    return {
+        "median": round(median(ordered), 2),
+        "p25": round(_percentile_sorted(ordered, 0.25), 2),
+        "p75": round(_percentile_sorted(ordered, 0.75), 2),
+    }
 
 
 def cohort_members(
@@ -1041,45 +1054,71 @@ def cohort_members(
 def cohort_shapes(store: StudioStore, commander_names: Sequence[str]) -> list[dict[str, object]]:
     """How the source decks of the commander are built, per cohort: lands, creatures, average mana value of
     nonland cards (median and middle half). Decks with unresolved cards are left out and
-    counted."""
-    db = store.connection
+    counted.
+
+    Remembered per store state and commander (``cache.py``, read-only result): the figures
+    cost seconds over a full corpus and change only when a write commits."""
     if not commander_names:
         return []
+    return cache.cached(
+        store,
+        ("cohort_shapes", tuple(commander_names)),
+        lambda: _cohort_shapes_uncached(store, commander_names),
+    )
+
+
+_ROLE_CHUNK = 900  # deck ids per statement, below SQLite's older variable limit of 999
+
+
+def _cohort_shapes_uncached(
+    store: StudioStore, commander_names: Sequence[str]
+) -> list[dict[str, object]]:
+    db = store.connection
     members = cohort_members(store, commander_names)
     role_names = [str(r[0]) for r in db.execute("SELECT DISTINCT role FROM card_role ORDER BY 1")]
-    role_cards: dict[tuple[str, str], int] = {
-        (str(r["deck_id"]), str(r["role"])): int(r["cards"])
-        for r in db.execute("SELECT deck_id, role, cards FROM corpus_deck_role")
+    # One pass over the rows of every group: a deck sits in several groups, so its figures
+    # are read once, not once per group.
+    complete_by_group: dict[str, list[sqlite3.Row]] = {
+        cohort: [row for row in group if row["resolved"] == row["cards"]]
+        for cohort, group in members.items()
     }
+    all_complete_ids = sorted(
+        {str(row["deck_id"]) for group in complete_by_group.values() for row in group}
+    )
     nonland_role_by_deck: dict[str, int] = {}
+    role_vectors: dict[str, list[float]] = {}
     if role_names:
-        all_complete_ids = sorted(
-            {
-                str(row["deck_id"])
-                for group in members.values()
-                for row in group
-                if row["resolved"] == row["cards"]
-            }
-        )
-        for start in range(0, len(all_complete_ids), 500):
-            chunk = all_complete_ids[start : start + 500]
+        wanted = set(all_complete_ids)
+        column = {role: index for index, role in enumerate(role_names)}
+        for deck_id, role, cards in db.execute("SELECT deck_id, role, cards FROM corpus_deck_role"):
+            if deck_id in wanted and role in column:
+                vector = role_vectors.get(deck_id)
+                if vector is None:
+                    vector = role_vectors[deck_id] = [0.0] * len(role_names)
+                vector[column[role]] = float(cards)
+        zeros = [0.0] * len(role_names)
+        for deck_id in all_complete_ids:
+            role_vectors.setdefault(deck_id, zeros)
+        # The cards that count as role cards of a nonland kind are fixed per oracle id, so they
+        # are worked out once per statement (a materialised CTE), not once per deck row.
+        for start in range(0, len(all_complete_ids), _ROLE_CHUNK):
+            chunk = all_complete_ids[start : start + _ROLE_CHUNK]
             marks = ", ".join("?" for _ in chunk)
             for row in db.execute(
+                "WITH q AS MATERIALIZED (SELECT DISTINCT r.oracle_id FROM card_role r "
+                "LEFT JOIN scryfall_card s ON s.oracle_id = r.oracle_id "
+                "WHERE SUBSTR(COALESCE(s.type_line, ''), 1, "
+                "INSTR(COALESCE(s.type_line, '') || ' // ', ' // ') - 1) NOT LIKE '%Land%') "
                 "SELECT k.deck_id, SUM(k.quantity) AS cnt "
-                "FROM corpus_deck_card k "
-                "JOIN (SELECT DISTINCT oracle_id FROM card_role) r ON r.oracle_id = k.oracle_id "
-                "LEFT JOIN scryfall_card s ON s.oracle_id = k.oracle_id "
+                "FROM corpus_deck_card k JOIN q ON q.oracle_id = k.oracle_id "
                 f"WHERE k.deck_id IN ({marks}) AND LOWER(k.section) IN ('main', 'mainboard') "
-                "AND k.quantity > 0 "
-                "AND SUBSTR(COALESCE(s.type_line, ''), 1, "
-                "INSTR(COALESCE(s.type_line, '') || ' // ', ' // ') - 1) NOT LIKE '%Land%' "
-                "GROUP BY k.deck_id",
+                "AND k.quantity > 0 GROUP BY k.deck_id",
                 chunk,
             ):
                 nonland_role_by_deck[str(row["deck_id"])] = int(row["cnt"] or 0)
     shapes: list[dict[str, object]] = []
     for cohort, group in members.items():
-        complete = [row for row in group if row["resolved"] == row["cards"]]
+        complete = complete_by_group[cohort]
         shape: dict[str, object] = {
             "cohort": cohort,
             "decks": len(group),
@@ -1099,25 +1138,17 @@ def cohort_shapes(store: StudioStore, commander_names: Sequence[str]) -> list[di
                 ),
             ):
                 if values:
-                    shape[field] = {
-                        "median": round(median(values), 2),
-                        "p25": round(_percentile(values, 0.25), 2),
-                        "p75": round(_percentile(values, 0.75), 2),
-                    }
+                    shape[field] = _span(values)
         if complete and role_names:
-            spans: dict[str, dict[str, float]] = {}
-            for role in role_names:
-                counts = [float(role_cards.get((str(row["deck_id"]), role), 0)) for row in complete]
-                spans[role] = {
-                    "median": round(median(counts), 2),
-                    "p25": round(_percentile(counts, 0.25), 2),
-                    "p75": round(_percentile(counts, 0.75), 2),
-                }
-            shape["roles"] = spans
-            cov_counts = [
-                float(nonland_role_by_deck.get(str(row["deck_id"]), 0)) for row in complete
-            ]
-            shape["role_coverage_median"] = round(median(cov_counts), 2)
+            vectors = [role_vectors[str(row["deck_id"])] for row in complete]
+            shape["roles"] = {
+                role: _span(counts)
+                for role, counts in zip(role_names, zip(*vectors, strict=True), strict=True)
+            }
+            shape["role_coverage_median"] = round(
+                median(float(nonland_role_by_deck.get(str(row["deck_id"]), 0)) for row in complete),
+                2,
+            )
         shapes.append(shape)
     return shapes
 
