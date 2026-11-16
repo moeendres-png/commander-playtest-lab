@@ -7,6 +7,10 @@ any import, profile write or mark change that commits makes the next request rec
 open transaction (uncommitted changes of this very connection) and an in-memory store bypass
 the cache: nothing stale can be served. ``invalidate`` drops everything explicitly (used after
 profile writes, where the stamp would catch it anyway).
+
+Concurrent identical requests share one computation: per key one caller computes while the
+others wait for it (``_KeyLock``), so a page that fires two routes needing the same figure
+pays for it once. A failed computation caches nothing; the next waiter computes itself.
 """
 
 from __future__ import annotations
@@ -24,6 +28,19 @@ from .store import StudioStore
 MAX_ENTRIES = 48
 _lock = threading.Lock()
 _entries: OrderedDict[tuple[Hashable, ...], object] = OrderedDict()
+
+
+class _KeyLock:
+    """The lock of one key in flight and how many callers hold or wait for it."""
+
+    __slots__ = ("lock", "users")
+
+    def __init__(self) -> None:
+        self.lock = threading.RLock()  # re-entrant: a computation may ask for its own key
+        self.users = 0
+
+
+_flights: dict[tuple[Hashable, ...], _KeyLock] = {}
 
 
 def store_stamp(store: StudioStore) -> tuple[str, int, int, int, int, int] | None:
@@ -50,7 +67,8 @@ def store_stamp(store: StudioStore) -> tuple[str, int, int, int, int, int] | Non
 
 def cached[T](store: StudioStore, key: tuple[Hashable, ...], compute: Callable[[], T]) -> T:
     """``compute()``, remembered per store state and ``key``. The caller must treat the
-    returned value as read-only."""
+    returned value as read-only. Concurrent calls for the same state and key wait for the
+    first computation instead of repeating it."""
     stamp = store_stamp(store)
     if stamp is None:
         return compute()
@@ -59,14 +77,29 @@ def cached[T](store: StudioStore, key: tuple[Hashable, ...], compute: Callable[[
         if full in _entries:
             _entries.move_to_end(full)
             return cast("T", _entries[full])
-    value = compute()
-    # The state may have changed while computing; remember only if it is still the same.
-    if store_stamp(store) == stamp:
+        flight = _flights.get(full)
+        if flight is None:
+            flight = _flights[full] = _KeyLock()
+        flight.users += 1
+    try:
+        with flight.lock:
+            with _lock:
+                if full in _entries:  # the caller we waited for has filled it
+                    _entries.move_to_end(full)
+                    return cast("T", _entries[full])
+            value = compute()
+            # The state may have changed while computing; remember only if it is still the same.
+            if store_stamp(store) == stamp:
+                with _lock:
+                    _entries[full] = value
+                    while len(_entries) > MAX_ENTRIES:
+                        _entries.popitem(last=False)
+            return value
+    finally:
         with _lock:
-            _entries[full] = value
-            while len(_entries) > MAX_ENTRIES:
-                _entries.popitem(last=False)
-    return value
+            flight.users -= 1
+            if flight.users == 0 and _flights.get(full) is flight:
+                del _flights[full]
 
 
 def invalidate() -> None:
