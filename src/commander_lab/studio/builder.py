@@ -243,6 +243,28 @@ def cohort_sizes(store: StudioStore, commander_names: Sequence[str]) -> dict[str
     return sizes
 
 
+def corpus_deck_sets(store: StudioStore, commander_names: Sequence[str]) -> dict[str, set[str]]:
+    """The decks listing each card over all non-duplicate source decks bound to the commander
+    (``universe.deck_sets`` with every spelling merged into the card it names).
+
+    The one expensive pass over the corpus behind the pool counts and the package figures,
+    remembered per store state and commander so that the two share it (read-only result)."""
+    from .universe import deck_sets, spelling_owners
+
+    def compute() -> dict[str, set[str]]:
+        bound, bound_args = bound_to("corpus_deck", "d.deck_id", commander_names)
+        deck_ids = {
+            str(row[0])
+            for row in store.connection.execute(
+                f"SELECT d.deck_id FROM corpus_deck d WHERE d.duplicate_of IS NULL{bound}",
+                bound_args,
+            )
+        }
+        return deck_sets(store, deck_ids, spelling_owners(store))
+
+    return cache.cached(store, ("corpus_deck_sets", tuple(commander_names)), compute)
+
+
 def _corpus_hits(store: StudioStore, commander_names: Sequence[str]) -> dict[str, dict[str, int]]:
     """``{card (oracle name): {group: decks}}`` over the non-duplicate source decks bound to the
     commander (see ``_corpus_hits_uncached``). Remembered per store state (read-only result).
@@ -265,8 +287,6 @@ def _corpus_hits_uncached(
     every spelling merged into the card it names). Groups: ``all``, each play group, each
     cohort. A card absent from the result is unknown; a card present has a real count (0
     included) in every group."""
-    from .universe import deck_sets, spelling_owners
-
     db = store.connection
     if not commander_names:
         return {}
@@ -299,7 +319,7 @@ def _corpus_hits_uncached(
     tuned_ids = groups.get("bracket:4", set()) | groups.get("bracket:5", set())
     if tuned_ids:
         groups["tuned"] = tuned_ids
-    sets = deck_sets(store, groups[ALL_DECKS], spelling_owners(store))
+    sets = corpus_deck_sets(store, commander_names)
     return {
         card: {group: len(decks & members) for group, members in groups.items()}
         for card, decks in sets.items()

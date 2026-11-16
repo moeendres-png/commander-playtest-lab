@@ -14,7 +14,7 @@ from statistics import median
 
 import pytest
 
-from commander_lab.studio import StudioStore, builder, land_advisor
+from commander_lab.studio import StudioStore, builder, cache, land_advisor
 from commander_lab.studio.decks import RevisionCard
 from commander_lab.studio.store import rebuild_corpus_deck_role
 
@@ -236,13 +236,19 @@ def test_cohort_shapes_equal_the_plain_computation(tmp_path: Path) -> None:
 
 def test_cohort_shapes_float_types_are_unchanged(tmp_path: Path) -> None:
     store = _big_store(tmp_path)
-    for shape in builder.cohort_shapes(store, [COMMANDER]):
-        roles = shape.get("roles")
-        if not roles:
-            continue
-        for span in roles.values():  # type: ignore[attr-defined]
-            assert all(isinstance(value, float) for value in span.values())
-        assert isinstance(shape["role_coverage_median"], float)
+    with_roles = [
+        shape for shape in builder.cohort_shapes(store, [COMMANDER]) if shape.get("roles")
+    ]
+    assert with_roles
+    values = [
+        value
+        for shape in with_roles
+        for span in shape["roles"].values()  # type: ignore[attr-defined]
+        for value in span.values()
+    ]
+    assert values
+    assert {type(value) for value in values} == {float}
+    assert {type(shape["role_coverage_median"]) for shape in with_roles} == {float}
 
 
 def test_cohort_shapes_recompute_after_a_committed_write(tmp_path: Path) -> None:
@@ -353,3 +359,60 @@ def test_the_combo_partner_file_is_read_once_until_it_changes(
     changed = builder._cached_combo_partners(["Cmdr, the Test"])
     assert "alpha||gamma" in changed
     assert "alpha||beta" not in changed
+
+
+def test_the_serve_warm_up_fills_the_figures_a_request_then_reads(tmp_path: Path) -> None:
+    from commander_lab.studio.__main__ import _warm_caches
+
+    store = _big_store(tmp_path)
+    store.close()
+    cache.invalidate()
+    _warm_caches(str(tmp_path / "studio"))
+    warmed = {key[1] for key in cache._entries}
+    assert {"cohort_shapes", "land_source_groups", "layer_overview", "corpus_hits"} <= warmed
+    reopened = StudioStore.open(tmp_path / "studio")
+    calls: list[int] = []
+    builder_shapes = builder.cohort_shapes(reopened, [COMMANDER])
+    assert builder_shapes == _reference_cohort_shapes(reopened, [COMMANDER])
+    assert cache.cached(reopened, ("cohort_shapes", (COMMANDER,)), lambda: calls.append(1)) is (
+        builder_shapes
+    )
+    assert calls == []
+
+
+def test_the_slow_routes_compute_once_per_store_state(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from fastapi.testclient import TestClient
+
+    from commander_lab.studio import data_report, import_all
+    from commander_lab.studio.web import create_app
+
+    _big_store(tmp_path).close()
+    counts = {"layers": 0, "report": 0}
+    real_layers, real_report = import_all.layer_overview, data_report.data_report
+
+    def counting_layers(store: StudioStore, commander: str) -> dict[str, object]:
+        counts["layers"] += 1
+        return real_layers(store, commander)
+
+    def counting_report(store: StudioStore, **kwargs: object) -> dict[str, object]:
+        counts["report"] += 1
+        return real_report(store, **kwargs)  # type: ignore[arg-type]
+
+    monkeypatch.setattr(import_all, "layer_overview", counting_layers)
+    monkeypatch.setattr(data_report, "data_report", counting_report)
+    cache.invalidate()
+    client = TestClient(create_app(tmp_path / "studio"), headers={"X-Studio": "1"})
+    first = client.get("/api/layers", params={"commander": COMMANDER}).json()
+    assert client.get("/api/layers", params={"commander": COMMANDER}).json() == first
+    report = client.get("/api/data-report").json()
+    assert client.get("/api/data-report").json() == report
+    assert counts == {"layers": 1, "report": 1}
+    other = StudioStore.open(tmp_path / "studio")
+    other.connection.execute("INSERT INTO meta(key, value) VALUES ('route-test', 'x')")
+    other.connection.commit()
+    other.close()
+    assert client.get("/api/layers", params={"commander": COMMANDER}).json() == first
+    client.get("/api/data-report")
+    assert counts == {"layers": 2, "report": 2}  # a committed write: computed again

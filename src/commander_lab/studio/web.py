@@ -14,6 +14,7 @@ import re
 import threading
 from collections.abc import Awaitable, Callable
 from dataclasses import asdict
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Literal, cast
 
@@ -333,6 +334,17 @@ def _warm_up_once() -> None:
     threading.Thread(target=builder.warm_up, name="studio-warm-up", daemon=True).start()
 
 
+def layer_overview_cached(store: StudioStore, commander: str) -> dict[str, object]:
+    """``import_all.layer_overview``, remembered per store state and commander. Several pages ask
+    at once and every answer counts the whole pool: one shared computation (the pool figures it
+    needs are cached as well). Also what the start-up warm-up of ``serve`` fills."""
+    return cache.cached(
+        store,
+        ("layer_overview", commander),
+        lambda: import_all.layer_overview(store, commander),
+    )
+
+
 def create_app(data_folder: str | Path | None = None) -> FastAPI:
     """The Studio application. ``data_folder`` is the Studio data folder (default: from the
     environment)."""
@@ -409,7 +421,14 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         in the tool itself. No card name, deck address or note text leaves here."""
         store = open_store()
         try:
-            return data_report.data_report(store)
+            # The report takes tens of seconds over a full corpus and reads only the store and
+            # the date: remembered per store state and day, so only the first call is slow.
+            day = datetime.now(UTC).date()
+            return cache.cached(
+                store,
+                ("data_report", day.isoformat()),
+                lambda: data_report.data_report(store, today=day),
+            )
         finally:
             store.close()
 
@@ -419,7 +438,7 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         import call, for the empty-state box of the pages."""
         store = open_store()
         try:
-            return import_all.layer_overview(store, commander)
+            return layer_overview_cached(store, commander)
         finally:
             store.close()
 

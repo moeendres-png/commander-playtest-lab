@@ -1961,16 +1961,21 @@ function ratingLayers() {
 }
 
 // ---------- Stärke-Index for the sort (the tier page's function, never a copy of its scoring) ----------
+function strengthRequest() {
+  let settings = null;
+  try { settings = JSON.parse(StudioUI.recall("studio.strength.settings", "null")); } catch (error) { settings = null; }
+  return api("/api/strength", "POST", settings ? { commander: COMMANDER, settings } : { commander: COMMANDER });
+}
 async function loadStrength() {
   if (state.strength) return state.strength;
   if (state.strengthPromise) return state.strengthPromise;
   state.strengthLoading = true;
   state.strengthPromise = (async () => {
     try {
-      let settings = null;
-      try { settings = JSON.parse(StudioUI.recall("studio.strength.settings", "null")); } catch (error) { settings = null; }
+      const early = state.strengthPrefetch; // started by start() beside the pool request
+      state.strengthPrefetch = null;
       let result;
-      try { result = await api("/api/strength", "POST", settings ? { commander: COMMANDER, settings } : { commander: COMMANDER }); }
+      try { result = await (early || strengthRequest()); }
       catch (error) { result = await api("/api/strength", "POST", { commander: COMMANDER }); } // remembered settings may be outdated
       state.strength = { result, map: new Map(result.cards.map((item) => [item.card_id, item])) };
       if (state.sortKey === "strength") toast("Stärke-Index geladen (Schätzung aus Nutzungsdaten, Einstellungen der Tierliste).");
@@ -2428,7 +2433,10 @@ function setupControls() {
 async function start() {
   $("pool-body").replaceChildren(StudioUI.loading("Kartenpool lädt …"));
   await StudioCommander.fill($("commander-select"));
-  StudioUI.dataState($("data-state"), COMMANDER).then(() => api(`/api/layers?commander=${encodeURIComponent(COMMANDER)}`)).then((layers) => { state.layers = layers; if (state.tab === "compare") renderDeck(); }).catch(() => {});
+  // The layer figures and the data-state box ask side by side (the server computes them once and
+  // shares the answer), not one after the other.
+  api(`/api/layers?commander=${encodeURIComponent(COMMANDER)}`).then((layers) => { state.layers = layers; if (state.tab === "compare") renderDeck(); }).catch(() => {});
+  StudioUI.dataState($("data-state"), COMMANDER).catch(() => {});
   try {
     const stored = JSON.parse(localStorage.getItem("studio-columns") || "null");
     if (Array.isArray(stored)) state.columns = new Set(stored);
@@ -2439,12 +2447,22 @@ async function start() {
     state.universeProfiles = await api("/api/universe/profiles").catch(() => []);
     state.universe = state.universeProfiles.some((p) => p.name === remembered) ? remembered : "";
     const poolQuery = StudioCommander.query + strengthQuery() + (state.universe ? `&profile=${encodeURIComponent(state.universe)}` : "");
-    const pool = await api("/api/pool?" + poolQuery).catch(async (error) => {
+    // The requests do not depend on each other, so they run side by side: the pool (the first
+    // thing the page shows), the cohort figures, the simulations, the recorded games and the tier
+    // list. What is applied, and in which order, is unchanged below.
+    if (StudioUI.recall("studio.builder.show-tier", "1") !== "0" || StudioUI.recall("studio.builder.sort", "").startsWith("strength:")) {
+      state.strengthPrefetch = strengthRequest();
+      state.strengthPrefetch.catch(() => {}); // loadStrength reads the outcome (and retries without remembered settings)
+    }
+    const poolRequest = api("/api/pool?" + poolQuery).catch(async (error) => {
       if (!state.universe) throw error; // a remembered profile of another commander must not block the builder
       state.universe = "";
       return api("/api/pool?" + StudioCommander.query);
     });
-    const [shapes, sims, recordedGames, pairedList] = await Promise.all([api("/api/cohorts?" + StudioCommander.query), api("/api/simulations?" + StudioCommander.query), api("/api/games").catch(() => []), api("/api/simulations/paired").catch(() => [])]);
+    const otherRequests = Promise.all([api("/api/cohorts?" + StudioCommander.query), api("/api/simulations?" + StudioCommander.query), api("/api/games").catch(() => []), api("/api/simulations/paired").catch(() => [])]);
+    otherRequests.catch(() => {}); // awaited after the pool: the pool's own error is shown first
+    const pool = await poolRequest;
+    const [shapes, sims, recordedGames, pairedList] = await otherRequests;
     applyPool(pool);
     state.shapes = shapes; state.simulations = sims || []; state.recordedGames = recordedGames || [];
     state.pairedHistory = pairedList || [];

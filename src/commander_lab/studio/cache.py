@@ -91,6 +91,15 @@ def cached[T](store: StudioStore, key: tuple[Hashable, ...], compute: Callable[[
             # The state may have changed while computing; remember only if it is still the same.
             if store_stamp(store) == stamp:
                 with _lock:
+                    # Entries of another state of this very file are not served for the
+                    # current one: drop them now instead of letting large values wait for
+                    # the size limit.
+                    for old in [
+                        k
+                        for k in _entries
+                        if isinstance(k[0], tuple) and k[0][:1] == stamp[:1] and k[0] != stamp
+                    ]:
+                        del _entries[old]
                     _entries[full] = value
                     while len(_entries) > MAX_ENTRIES:
                         _entries.popitem(last=False)

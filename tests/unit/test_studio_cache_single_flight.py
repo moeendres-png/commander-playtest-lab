@@ -148,3 +148,15 @@ def test_max_entries_still_evicts_the_oldest(tmp_path: Path) -> None:
         cache.cached(store, ("evict", index), lambda index=index: index)
     assert len(cache._entries) <= cache.MAX_ENTRIES
     assert cache._flights == {}
+
+
+def test_entries_of_an_older_state_are_dropped_when_a_new_one_is_stored(tmp_path: Path) -> None:
+    store = _store(tmp_path)
+    cache.cached(store, ("old-state", 1), lambda: "a")
+    cache.cached(store, ("old-state", 2), lambda: "b")
+    old_stamp = cache.store_stamp(store)
+    assert any(key[0] == old_stamp for key in cache._entries)
+    store.connection.execute("INSERT INTO meta(key, value) VALUES ('prune-test', 'x')")
+    store.connection.commit()
+    assert cache.cached(store, ("old-state", 1), lambda: "c") == "c"
+    assert not any(key[0] == old_stamp for key in cache._entries)

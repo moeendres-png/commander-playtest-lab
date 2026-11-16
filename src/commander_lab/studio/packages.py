@@ -229,6 +229,8 @@ def _cohort_deck_sets(
     edited, so it is kept per store state, commander and group (read-only result)."""
     from .universe import deck_sets, spelling_owners
 
+    if cohort == builder.ALL_DECKS:  # the same pass the pool counts use
+        return builder.corpus_deck_sets(store, commander_names)
     return cache.cached(
         store,
         ("package_deck_sets", tuple(commander_names), cohort),
