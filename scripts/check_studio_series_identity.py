@@ -47,7 +47,7 @@ from commander_lab.studio.simulations import BatchSimulation  # noqa: E402
 
 DEFAULT_DECK = ROOT / "data/decks/deckbau/chulane_current.json"
 DEFAULT_JAR = ROOT / "engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar"
-BASE_COMMAND = ("java", "-Xmx3g", "-jar", "{jar}", "full-game")
+BASE_COMMAND = ("java", "-Xmx3g", "-Dh2.bindAddress=127.0.0.1", "-jar", "{jar}", "full-game")
 
 
 def _cpu_seconds() -> float:

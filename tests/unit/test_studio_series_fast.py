@@ -91,11 +91,21 @@ def test_series_engine_adds_fast_flags_and_archive_only_when_present(
     assert plain is not None
     assert plain.serial_gc and not plain.appcds and plain.games_per_jvm == 3
     assert "-Dcommanderlab.fullGame.gamesPerJvm=3" in plain.jvm_flags
+    assert "-Dcommanderlab.fullGame.skipForcedDecisions=true" in plain.jvm_flags
     assert plain.command[-3:] == ("-jar", str(jar.resolve()), "full-game")
     jar.with_suffix(".jsa").write_bytes(b"x")
     with_archive = launch.series_engine(tmp_path, 1)
     assert with_archive is not None and with_archive.appcds
     assert not any("gamesPerJvm" in flag for flag in with_archive.jvm_flags)
+    assert "-Dcommanderlab.fullGame.skipForcedDecisions=true" in with_archive.jvm_flags
+    monkeypatch.setenv(
+        launch.ENGINE_COMMAND_ENV,
+        f"java -Xmx3g -Dcommanderlab.fullGame.skipForcedDecisions=false -jar {jar} full-game",
+    )
+    explicit_off = launch.series_engine(tmp_path, 2)
+    assert explicit_off is not None
+    assert "-Dcommanderlab.fullGame.skipForcedDecisions=false" in explicit_off.jvm_flags
+    assert "-Dcommanderlab.fullGame.skipForcedDecisions=true" not in explicit_off.jvm_flags
     monkeypatch.setenv(launch.ENGINE_COMMAND_ENV, "/opt/wrapper full-game")
     wrapper = launch.series_engine(tmp_path, 6)
     assert wrapper is not None and wrapper.games_per_jvm == 1 and not wrapper.jvm_flags
