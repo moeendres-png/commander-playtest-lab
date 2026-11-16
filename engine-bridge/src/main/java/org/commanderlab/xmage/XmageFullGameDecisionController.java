@@ -33,11 +33,13 @@ final class XmageFullGameDecisionController {
 
     static final String PROTOCOL_VERSION = "xmage-external-decision-protocol-1.0.0";
     /**
-     * #1299 (SIMULATE E4): when true, decisions with a single legal option and
-     * {@code minimum_selections == maximum_selections == 1} (and no discretionary
-     * numeric domain) are answered directly in the bridge while preserving the
-     * exact semantic transcript and replay records. Default off; human seats are
-     * always excluded (Condition 5).
+     * #1299 (SIMULATE E4): when true, forced {@code priority} decisions with
+     * a single {@code pass_priority} option and
+     * {@code minimum_selections == maximum_selections == 1} (and no numeric
+     * domain) are answered directly in the bridge while preserving the exact
+     * semantic transcript and replay records. Non-priority classes stay on
+     * Python (Condition 3). Default off; human seats (both deciding seat and
+     * CR 723 {@code acting_for_seat}) are always excluded (Condition 5).
      */
     static final String SKIP_FORCED_DECISIONS_PROPERTY = "commanderlab.fullGame.skipForcedDecisions";
 
@@ -296,29 +298,47 @@ final class XmageFullGameDecisionController {
 
     /**
      * #1299 (SIMULATE E4): whether this decision has zero discretionary alternatives
-     * and may be answered in the bridge without a Python round-trip.
+     * and may be answered in the bridge without a Python round-trip. Fails safe to
+     * {@code false} on any malformed or non-primitive field.
      */
-    private boolean shouldSkipForced(JsonObject request) {
-        if (!skipForcedDecisions) {
+    boolean shouldSkipForced(JsonObject request) {
+        if (!skipForcedDecisions || request == null) {
             return false;
         }
-        String decisionClass = request.has("decision_class") && !request.get("decision_class").isJsonNull()
-                ? request.get("decision_class").getAsString()
-                : "";
-        if (!"priority".equals(decisionClass)) {
+        if (!"priority".equals(strictString(request, "decision_class"))) {
             return false;
         }
-        int seat = request.get("seat").getAsInt();
-        if (humanSeats.contains(seat)) {
+        String decisionId = strictString(request, "decision_id");
+        String actorId = strictString(request, "actor_id");
+        if (decisionId == null || decisionId.isBlank() || actorId == null || actorId.isBlank()) {
             return false;
         }
-        int min = request.get("minimum_selections").getAsInt();
-        int max = request.get("maximum_selections").getAsInt();
-        if (min != 1 || max != 1) {
+        if (!request.has("decision_offset")
+                || request.get("decision_offset").isJsonNull()
+                || !request.get("decision_offset").isJsonPrimitive()
+                || !request.get("decision_offset").getAsJsonPrimitive().isNumber()) {
+            return false;
+        }
+        Integer seat = strictInteger(request, "seat");
+        if (seat == null || humanSeats.contains(seat)) {
+            return false;
+        }
+        if (request.has("acting_for_seat") && !request.get("acting_for_seat").isJsonNull()) {
+            Integer actingForSeat = strictInteger(request, "acting_for_seat");
+            if (actingForSeat == null || humanSeats.contains(actingForSeat)) {
+                return false;
+            }
+        }
+        Integer min = strictInteger(request, "minimum_selections");
+        Integer max = strictInteger(request, "maximum_selections");
+        if (min == null || max == null || min != 1 || max != 1) {
+            return false;
+        }
+        if (!request.has("legal_options") || !request.get("legal_options").isJsonArray()) {
             return false;
         }
         JsonArray offered = request.getAsJsonArray("legal_options");
-        if (offered == null || offered.size() != 1) {
+        if (offered.size() != 1) {
             return false;
         }
         JsonElement soleElement = offered.iterator().next();
@@ -326,31 +346,63 @@ final class XmageFullGameDecisionController {
             return false;
         }
         JsonObject soleOption = soleElement.getAsJsonObject();
-        if (!soleOption.has("option_id")
-                || soleOption.get("option_id").isJsonNull()
-                || soleOption.get("option_id").getAsString().trim().isEmpty()) {
+        String optionId = strictString(soleOption, "option_id");
+        if (optionId == null || optionId.trim().isEmpty()) {
             return false;
         }
-        if (!soleOption.has("option_type")
-                || soleOption.get("option_type").isJsonNull()
-                || !"pass_priority".equals(soleOption.get("option_type").getAsString())) {
+        if (!"pass_priority".equals(strictString(soleOption, "option_type"))) {
             return false;
         }
-        JsonObject ctx = request.getAsJsonObject("context");
-        if (ctx != null) {
-            if (ctx.has("numeric_legs") || ctx.has("numeric_total_min") || ctx.has("numeric_total_max")) {
+        if (request.has("context") && !request.get("context").isJsonNull()) {
+            JsonElement ctxElement = request.get("context");
+            if (!ctxElement.isJsonObject()) {
                 return false;
             }
-            if (ctx.has("numeric_min") || ctx.has("numeric_max")) {
-                if (!ctx.has("numeric_min") || !ctx.has("numeric_max")) {
-                    return false;
-                }
-                if (ctx.get("numeric_min").getAsInt() != ctx.get("numeric_max").getAsInt()) {
+            JsonObject ctx = ctxElement.getAsJsonObject();
+            for (String numericKey : List.of(
+                    "numeric_legs",
+                    "numeric_total_min",
+                    "numeric_total_max",
+                    "numeric_min",
+                    "numeric_max"
+            )) {
+                if (ctx.has(numericKey) && !ctx.get(numericKey).isJsonNull()) {
                     return false;
                 }
             }
         }
         return true;
+    }
+
+    private static String strictString(JsonObject obj, String key) {
+        if (obj == null || !obj.has(key) || obj.get(key).isJsonNull()) {
+            return null;
+        }
+        JsonElement element = obj.get(key);
+        if (!element.isJsonPrimitive() || !element.getAsJsonPrimitive().isString()) {
+            return null;
+        }
+        return element.getAsString();
+    }
+
+    private static Integer strictInteger(JsonObject obj, String key) {
+        if (obj == null || !obj.has(key) || obj.get(key).isJsonNull()) {
+            return null;
+        }
+        JsonElement element = obj.get(key);
+        if (!element.isJsonPrimitive() || !element.getAsJsonPrimitive().isNumber()) {
+            return null;
+        }
+        try {
+            double asDouble = element.getAsJsonPrimitive().getAsDouble();
+            int asInt = element.getAsJsonPrimitive().getAsInt();
+            if (asDouble != (double) asInt) {
+                return null;
+            }
+            return asInt;
+        } catch (RuntimeException exc) {
+            return null;
+        }
     }
 
     private DecisionResponse answerForced(JsonObject request) {
@@ -359,21 +411,17 @@ final class XmageFullGameDecisionController {
         JsonObject soleOption = request.getAsJsonArray("legal_options").iterator().next().getAsJsonObject();
         String soleOptionId = soleOption.get("option_id").getAsString().trim();
         List<String> selected = List.of(soleOptionId);
-        JsonObject ctx = request.getAsJsonObject("context");
-        Integer forcedNumeric = (ctx != null && ctx.has("numeric_min"))
-                ? ctx.get("numeric_min").getAsInt()
-                : null;
         request.addProperty("public_state_reference", "public-view:forced-skipped");
         recordDecisionRequested(request);
-        recordDecisionAccepted(request, selected, forcedNumeric, null);
-        recordReplayDecision(request, selected, List.of(), forcedNumeric, null);
+        recordDecisionAccepted(request, selected, null, null);
+        recordReplayDecision(request, selected, List.of(), null, null);
         forcedDecisionsSkipped++;
         return new DecisionResponse(
                 decisionId,
                 actorId,
                 selected,
                 List.of(),
-                forcedNumeric,
+                null,
                 null
         );
     }

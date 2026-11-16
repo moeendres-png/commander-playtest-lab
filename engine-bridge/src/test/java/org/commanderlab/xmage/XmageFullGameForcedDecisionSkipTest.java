@@ -208,6 +208,180 @@ class XmageFullGameForcedDecisionSkipTest {
         assertEquals(1L, fixture.controller.decisionCount());
     }
 
+    @Test
+    void cr723TurnControlSkipsNeitherHumanControllerNorControlledHumanSeat() throws Exception {
+        System.setProperty(XmageFullGameDecisionController.SKIP_FORCED_DECISIONS_PROPERTY, "true");
+        JsonArray offered = singlePassOption();
+
+        // Subcase 1: human seat 0 controls AI seat 1 -> seat == 0 -> must park pending
+        TwoPlayerFixture humanController = twoPlayerFixture();
+        humanController.controller.setHumanSeat(0, true);
+        humanController.seat1.setTurnControlledBy(humanController.seat0.getId());
+        Thread t1 = new Thread(() -> humanController.controller.request(
+                humanController.game, humanController.seat1,
+                "priority", "Choose priority action", 1, 1, offered, new JsonObject(), null
+        ));
+        t1.start();
+        JsonObject pending1 = awaitPending(humanController.controller);
+        assertEquals(0, pending1.get("seat").getAsInt());
+        assertEquals(1, pending1.get("acting_for_seat").getAsInt());
+        assertEquals(0L, humanController.controller.forcedDecisionsSkipped());
+        submitOption(humanController.controller, pending1, "opt-pass");
+        t1.join(5_000L);
+
+        // Subcase 2: AI seat 0 controls human seat 1 -> acting_for_seat == 1 -> must park pending
+        TwoPlayerFixture controlledHuman = twoPlayerFixture();
+        controlledHuman.controller.setHumanSeat(1, true);
+        controlledHuman.seat1.setTurnControlledBy(controlledHuman.seat0.getId());
+        Thread t2 = new Thread(() -> controlledHuman.controller.request(
+                controlledHuman.game, controlledHuman.seat1,
+                "priority", "Choose priority action", 1, 1, offered, new JsonObject(), null
+        ));
+        t2.start();
+        JsonObject pending2 = awaitPending(controlledHuman.controller);
+        assertEquals(0, pending2.get("seat").getAsInt());
+        assertEquals(1, pending2.get("acting_for_seat").getAsInt());
+        assertEquals(0L, controlledHuman.controller.forcedDecisionsSkipped());
+        submitOption(controlledHuman.controller, pending2, "opt-pass");
+        t2.join(5_000L);
+
+        // Control: neither seat is human -> skipped immediately, acting_for_seat preserved in transcript
+        TwoPlayerFixture allAi = twoPlayerFixture();
+        allAi.seat1.setTurnControlledBy(allAi.seat0.getId());
+        XmageFullGameDecisionController.DecisionResponse res3 = allAi.controller.request(
+                allAi.game, allAi.seat1,
+                "priority", "Choose priority action", 1, 1, offered, new JsonObject(), null
+        );
+        assertNull(allAi.controller.pendingDecision());
+        assertEquals(1L, allAi.controller.forcedDecisionsSkipped());
+        assertEquals(List.of("opt-pass"), res3.selectedOptionIds());
+        JsonObject recordedReq = allAi.controller.transcript().get(0).getAsJsonObject();
+        assertEquals(1, recordedReq.get("acting_for_seat").getAsInt());
+    }
+
+    @Test
+    void malformedForcedRequestFieldsFailSafeWithoutThrowing() {
+        System.setProperty(XmageFullGameDecisionController.SKIP_FORCED_DECISIONS_PROPERTY, "true");
+        Fixture fixture = liveFixture();
+        fixture.controller.setHumanSeat(1, true);
+
+        JsonObject validBase = new JsonObject();
+        validBase.addProperty("decision_class", "priority");
+        validBase.addProperty("decision_id", "dec-1");
+        validBase.addProperty("actor_id", fixture.player.getId().toString());
+        validBase.addProperty("decision_offset", 1L);
+        validBase.addProperty("seat", 0);
+        validBase.addProperty("minimum_selections", 1);
+        validBase.addProperty("maximum_selections", 1);
+        validBase.add("legal_options", singlePassOption());
+        validBase.add("context", new JsonObject());
+        assertTrue(fixture.controller.shouldSkipForced(validBase), "control request must qualify");
+
+        assertEquals(false, fixture.controller.shouldSkipForced(null));
+
+        List<JsonObject> malformed = new java.util.ArrayList<>();
+        JsonObject badClassType = validBase.deepCopy();
+        badClassType.addProperty("decision_class", 7);
+        malformed.add(badClassType);
+
+        JsonObject blankDecisionId = validBase.deepCopy();
+        blankDecisionId.addProperty("decision_id", "  ");
+        malformed.add(blankDecisionId);
+
+        JsonObject badOffsetType = validBase.deepCopy();
+        badOffsetType.addProperty("decision_offset", "1");
+        malformed.add(badOffsetType);
+
+        JsonObject stringSeat = validBase.deepCopy();
+        stringSeat.addProperty("seat", "0");
+        malformed.add(stringSeat);
+
+        JsonObject floatSeat = validBase.deepCopy();
+        floatSeat.addProperty("seat", 0.5);
+        malformed.add(floatSeat);
+
+        JsonObject boolActing = validBase.deepCopy();
+        boolActing.addProperty("acting_for_seat", true);
+        malformed.add(boolActing);
+
+        JsonObject humanActing = validBase.deepCopy();
+        humanActing.addProperty("acting_for_seat", 1);
+        malformed.add(humanActing);
+
+        JsonObject floatMin = validBase.deepCopy();
+        floatMin.addProperty("minimum_selections", 1.5);
+        malformed.add(floatMin);
+
+        JsonObject nonArrayLegal = validBase.deepCopy();
+        nonArrayLegal.addProperty("legal_options", "opt-pass");
+        malformed.add(nonArrayLegal);
+
+        JsonObject nonObjectElement = validBase.deepCopy();
+        JsonArray badArr = new JsonArray();
+        badArr.add("opt-pass");
+        nonObjectElement.add("legal_options", badArr);
+        malformed.add(nonObjectElement);
+
+        JsonObject nonStringOptionType = validBase.deepCopy();
+        nonStringOptionType.getAsJsonArray("legal_options").iterator().next().getAsJsonObject()
+                .addProperty("option_type", true);
+        malformed.add(nonStringOptionType);
+
+        JsonObject nonObjectContext = validBase.deepCopy();
+        nonObjectContext.addProperty("context", "not-an-object");
+        malformed.add(nonObjectContext);
+
+        JsonObject equalNumericBounds = validBase.deepCopy();
+        JsonObject numCtx = new JsonObject();
+        numCtx.addProperty("numeric_min", 2);
+        numCtx.addProperty("numeric_max", 2);
+        equalNumericBounds.add("context", numCtx);
+        malformed.add(equalNumericBounds);
+
+        JsonObject malformedNumericValue = validBase.deepCopy();
+        JsonObject badNumCtx = new JsonObject();
+        badNumCtx.addProperty("numeric_min", "bad");
+        malformedNumericValue.add("context", badNumCtx);
+        malformed.add(malformedNumericValue);
+
+        for (int i = 0; i < malformed.size(); i++) {
+            assertEquals(false, fixture.controller.shouldSkipForced(malformed.get(i)),
+                    "malformed candidate #" + i + " must fail safe to false");
+        }
+    }
+
+    @Test
+    void liveSessionReplayVerifierMatchesWithSkipForcedDecisionsOn() throws Exception {
+        System.setProperty(XmageFullGameDecisionController.SKIP_FORCED_DECISIONS_PROPERTY, "true");
+        XmageFullGameSession session = FullGameTestPilot.realDeckSession("e4-replay", 2, 6660L);
+        try {
+            int answered = FullGameTestPilot.play(session, 160);
+            assertTrue(answered >= 40, "live session progressed substantially: answered=" + answered);
+            long pendingSkipped = session.pendingDecisionPayload()
+                    .get("forced_decisions_skipped").getAsLong();
+            long resultSkipped = session.resultPayload()
+                    .get("forced_decisions_skipped").getAsLong();
+            assertTrue(pendingSkipped > 0L, "expected forced passes skipped in live game");
+            assertEquals(pendingSkipped, resultSkipped);
+
+            JsonObject export = session.replayExportPayload();
+            System.clearProperty(XmageFullGameDecisionController.SKIP_FORCED_DECISIONS_PROPERTY);
+            JsonObject verdict = XmageFullGameReplayExportTest.replayInFreshJvm(export);
+            assertEquals("REPLAY_MATCH", verdict.get("verdict").getAsString(), verdict.toString());
+            assertEquals(
+                    export.get("final_state_digest").getAsString(),
+                    verdict.get("final_state_digest").getAsString()
+            );
+            assertTrue(verdict.get("shutdown_clean").getAsBoolean());
+        } finally {
+            System.clearProperty(XmageFullGameDecisionController.SKIP_FORCED_DECISIONS_PROPERTY);
+            try {
+                session.shutdownGame();
+            } catch (RuntimeException ignored) {
+            }
+        }
+    }
+
     private static JsonArray singlePassOption() {
         JsonArray offered = new JsonArray();
         offered.add(XmageFullGameDecisionController.option(
@@ -273,10 +447,40 @@ class XmageFullGameForcedDecisionSkipTest {
         return new Fixture(game, controller, player);
     }
 
+    private static TwoPlayerFixture twoPlayerFixture() {
+        XmageFullGameDecisionController controller =
+                new XmageFullGameDecisionController(Duration.ofSeconds(10));
+        XmageFullGamePlayer seat0 = new XmageFullGamePlayer(
+                "e4-seat0", RangeOfInfluence.ALL, controller
+        );
+        XmageFullGamePlayer seat1 = new XmageFullGamePlayer(
+                "e4-seat1", RangeOfInfluence.ALL, controller
+        );
+        CommanderFreeForAll game = new CommanderFreeForAll(
+                MultiplayerAttackOption.MULTIPLE,
+                RangeOfInfluence.ALL,
+                MulliganType.LONDON.getMulligan(1),
+                40,
+                7
+        );
+        game.setRulesSeed(1299L);
+        game.addPlayer(seat0, new Deck());
+        game.addPlayer(seat1, new Deck());
+        return new TwoPlayerFixture(game, controller, seat0, seat1);
+    }
+
     private record Fixture(
             Game game,
             XmageFullGameDecisionController controller,
             XmageFullGamePlayer player
+    ) {
+    }
+
+    private record TwoPlayerFixture(
+            Game game,
+            XmageFullGameDecisionController controller,
+            XmageFullGamePlayer seat0,
+            XmageFullGamePlayer seat1
     ) {
     }
 }

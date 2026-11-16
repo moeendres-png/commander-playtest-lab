@@ -62,6 +62,43 @@ class ExternalPilotDecisionPolicy(_PriorityDecisions):
         runtime = self._pilots.get(seat)
         if runtime is None:
             raise FullGameProtocolError(f"decision actor has unmapped seat: {seat}")
+        step_key = (
+            pilot_state.get("turn_number"),
+            pilot_state.get("phase"),
+            pilot_state.get("step"),
+        )
+        if step_key[0] is not None:
+            previous_step = self._last_seat_step.get(seat)
+            if previous_step is not None and previous_step != step_key:
+                self._clear_priority_action_state(seat)
+                self._block_frame_asks.pop(seat, None)
+                self._block_round.pop(seat, None)
+            self._last_seat_step[seat] = step_key
+        if decision_class == "declare_attacker":
+            # Extra combat after a skipped intervening priority window must never inherit an
+            # earlier combat's block declaration for any defender (#1299 Condition 3).
+            self._block_frame_asks.clear()
+            self._block_round.clear()
+        if decision_class in {"mana_payment", "announce_x", "mode", "target", "choose_object"}:
+            req_source = request.get("source_object")
+            req_source_id = (
+                str(req_source.get("source_object_id") or "")
+                if isinstance(req_source, dict)
+                else ""
+            )
+            req_ability_type = (
+                str(req_source.get("ability_type") or "") if isinstance(req_source, dict) else ""
+            )
+            last_source = self._last_priority_source.get(seat, "")
+            keep_inner = req_ability_type == "activated_mana" or (
+                decision_class == "choose_object"
+                and (
+                    bool(self._special_mana_pending.get(seat))
+                    or bool(self._payment_source.get(seat))
+                )
+            )
+            if not keep_inner and req_source_id and last_source and req_source_id != last_source:
+                self._clear_priority_action_state(seat)
         if decision_class not in {"mana_payment", "choose_object"}:
             self._special_mana_pending.pop(seat, None)
             self._payment_source.pop(seat, None)
@@ -150,7 +187,7 @@ class ExternalPilotDecisionPolicy(_PriorityDecisions):
             )
             self._special_mana_pending[seat] = chosen_type == "special_mana_action"
             if chosen_type == "cancel_mana_payment":
-                self._remember_failed_payment(seat, pilot_state)
+                self._remember_failed_payment(seat, pilot_state, source_object=payer)
         elif decision_class == "choose_use":
             selected = [
                 self._decide_boolean(
@@ -180,18 +217,7 @@ class ExternalPilotDecisionPolicy(_PriorityDecisions):
             # different action, so it is dropped before a new one is picked.
             # #815: same for failed X announcements — a new priority action
             # starts with a clean retry slate.
-            self._priority_cost_facts.pop(seat, None)
-            self._optional_mana_commitments.pop(seat, None)
-            self._boolean_repeat.pop(seat, None)
-            self._priority_spends_source.pop(seat, None)
-            self._priority_x_counter_caps.pop(seat, None)
-            self._failed_x_announcements.pop(seat, None)
-            self._reserved_counters.pop(seat, None)
-            self._last_priority_label.pop(seat, None)
-            self._last_priority_source.pop(seat, None)
-            # A priority window means the effect that was asking has resolved.
-            self._life_dig_yes.pop(seat, None)
-            self._counter_cost_progress.pop(seat, None)
+            self._clear_priority_action_state(seat)
             selected = [self._decide_priority(runtime, pilot_state, options, rng)]
             self._remember_priority_cost_facts(seat, options, selected, pilot_state)
             self._remember_own_cast(seat, options, selected, turn=pilot_state.get("turn_number"))
@@ -267,11 +293,13 @@ class ExternalPilotDecisionPolicy(_PriorityDecisions):
                 if isinstance(asking_source, dict)
                 else ""
             )
+            last_priority_source = self._last_priority_source.get(seat)
             if (
                 decision_class == "target"
                 and equipment_id
                 and selected
                 and "equip" in self._last_priority_label.get(seat, "").casefold()
+                and last_priority_source in (None, equipment_id)
             ):
                 # Remembered so the equipment is not moved again this turn while that creature
                 # still stands (Swiftfoot Boots hopped between tokens eight times a turn).
