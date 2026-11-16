@@ -331,7 +331,7 @@ def parse_playgroup_card_html(
         funnel_players_n = int(fn_head.group(2))
         if times_brought is not None and times_brought != funnel_brought_n:
             warnings.append(
-                f"Brought count discrepancy: Times Brought = {times_brought} vs Funnel Brought = {funnel_brought_n}"
+                f"Abweichende Zählung der Quelle: „Times Brought“ = {times_brought}, „Funnel Brought“ = {funnel_brought_n}"
             )
 
     for item, attr in [

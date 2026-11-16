@@ -140,7 +140,7 @@ def test_parse_koma_cosmos_serpent_fixture() -> None:
     assert rec.fetch_status == "OK"
     assert rec.insufficient_sample is False
     assert len(rec.quality_warnings) >= 2
-    assert any("Brought count discrepancy" in w for w in rec.quality_warnings)
+    assert any("Abweichende Zählung der Quelle" in w for w in rec.quality_warnings)
     assert any("On-curve calculation discrepancy" in w for w in rec.quality_warnings)
 
 
@@ -164,8 +164,8 @@ def test_parse_koma_world_eater_discrepancies() -> None:
 
     # Discrepancy warnings must be present and explicit
     warnings_str = " | ".join(rec.quality_warnings)
-    assert "Brought count discrepancy" in warnings_str
-    assert "817 vs Funnel Brought = 821" in warnings_str
+    assert "Abweichende Zählung der Quelle" in warnings_str
+    assert "„Times Brought“ = 817, „Funnel Brought“ = 821" in warnings_str
     assert "On-curve calculation discrepancy" in warnings_str
     assert "reported 53.0% but 25/157 = 15.9%" in warnings_str
 

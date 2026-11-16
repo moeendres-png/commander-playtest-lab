@@ -1,7 +1,7 @@
 "use strict";
 // Guided 6-step Build Plan (#1404 op. 5), Synergy/Shell Packages (#1404 op. 7),
 // Role Coverage (#1413), and Descriptive Upgrade Path (B-2).
-// DOM creation uses only h() and textContent; no innerHTML, no prices, no mark bias.
+// DOM creation uses only h() and textContent; no innerHTML, no mark bias.
 
 async function renderBuildPlanTab(body, deps) {
   const { h, api, entries, fail, roleName, openCard, add, poolCardById, cohort, cohortName, token, isCurrent } = deps;
