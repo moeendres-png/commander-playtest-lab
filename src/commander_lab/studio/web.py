@@ -31,6 +31,7 @@ from . import (
     card_outcomes,
     castability,
     combos,
+    cut_lab,
     data_report,
     deck_diff,
     deck_facts,
@@ -53,6 +54,7 @@ from . import (
 from . import evidence as evidence_model
 from .decks import (
     RevisionCard,
+    color_set,
     create_revision,
     lab_snapshot,
     list_rows,
@@ -187,6 +189,27 @@ class BatchSimulationBody(BaseModel):
 
 class NamesBody(BaseModel):
     names: list[str] = Field(max_length=2000)
+
+
+class CutBody(BaseModel):
+    cards: list[CardEntry]
+    locked: list[str] = Field(default_factory=list, max_length=200)
+    rejected: list[str] = Field(default_factory=list, max_length=400)
+    deferred: list[str] = Field(default_factory=list, max_length=400)
+    role_minimums: dict[str, int] = Field(default_factory=dict)
+    cohort: str = Field(default="all", min_length=1, max_length=120)
+
+
+class CutWhatIfBody(BaseModel):
+    cards: list[CardEntry]
+    cut: str
+    add: str
+    cohort: str = Field(default="all", min_length=1, max_length=120)
+
+
+class CutFinishBody(BaseModel):
+    start: list[CardEntry]
+    cards: list[CardEntry]
 
 
 class DiffBody(BaseModel):
@@ -921,6 +944,73 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
             return deck_diff.diff_impact(store, base_cards, _cards(body.cards), cohort=body.cohort)
         except KeyError as error:
             raise HTTPException(404, "unknown revision") from error
+        finally:
+            store.close()
+
+    @app.post("/api/cut-lab")
+    def cut_lab_route(body: CutBody) -> dict[str, object]:
+        """Ordered cut suggestions from measured figures only, with the deck figure deltas of
+        each cut (#1418). Locked, rejected cards, the commander and basics never appear."""
+        store = open_store()
+        try:
+            return cut_lab.cut_suggestions(
+                store,
+                _cards(body.cards),
+                locked=body.locked,
+                rejected=body.rejected,
+                deferred=body.deferred,
+                role_minimums=body.role_minimums,
+                cohort=body.cohort,
+            )
+        finally:
+            store.close()
+
+    @app.post("/api/cut-lab/what-if")
+    def cut_lab_what_if_route(body: CutWhatIfBody) -> dict[str, object]:
+        """What if card ``add`` went in instead of ``cut``: the counted deltas of that swap
+        (``deck_diff.diff_impact``), nothing is changed (#1418)."""
+        store = open_store()
+        try:
+            base = _cards(body.cards)
+            commander_rows = [r for r in list_rows(store, base) if r["zone"] == "commander"]
+            identity = frozenset().union(*(color_set(r["color_identity"]) for r in commander_rows))
+            found = list_rows(store, [RevisionCard(body.add, 1, "main")])
+            if not found:
+                raise HTTPException(422, "die neue Karte ist unbekannt")
+            add_row = found[0]
+            if body.add in {card.card_id for card in base}:
+                raise HTTPException(422, "die neue Karte steht schon im Deck")
+            if (
+                not add_row["commander_legal"]
+                or not color_set(add_row["color_identity"]) <= identity
+            ):
+                raise HTTPException(
+                    422, "die neue Karte ist nicht legal oder außerhalb der Farbidentität"
+                )
+            if not add_row["available_lower_bound"]:
+                raise HTTPException(422, "von der neuen Karte ist kein Exemplar frei")
+            target: list[RevisionCard] = []
+            removed = False
+            for card in base:
+                if not removed and card.card_id == body.cut and card.zone == "main":
+                    removed = True
+                    if card.quantity > 1:
+                        target.append(RevisionCard(card.card_id, card.quantity - 1, card.zone))
+                    continue
+                target.append(card)
+            if not removed:
+                raise HTTPException(422, "die zu kürzende Karte steht nicht im Deck")
+            target.append(RevisionCard(body.add, 1, "main"))
+            return deck_diff.diff_impact(store, base, target, cohort=body.cohort)
+        finally:
+            store.close()
+
+    @app.post("/api/cut-lab/finish")
+    def cut_lab_finish_route(body: CutFinishBody) -> dict[str, object]:
+        """The final list and the ADD/CUT patch from the starting list (#1418)."""
+        store = open_store()
+        try:
+            return cut_lab.finish(store, _cards(body.start), _cards(body.cards))
         finally:
             store.close()
 

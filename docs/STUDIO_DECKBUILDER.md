@@ -1404,6 +1404,24 @@ deck names has frequency and fit unknown (never 0); fits from fewer than 30 deck
 It is an observation of co-occurrence, never a statement that one card is better. Counting
 reuses the cached source-deck index of the similar-decks view.
 
+### Guided cut ("Kürzen", #1418)
+
+The deck tab "Kürzen" brings a list of more than 100 cards to exactly 100 (`POST /api/cut-lab`,
+`POST /api/cut-lab/what-if`, `POST /api/cut-lab/finish`, `studio/cut_lab.py`). It serves one
+suggestion at a time (Kürzen, Ablehnen, Später, Sperren). The order comes only from measured
+figures: cards with a known source-deck frequency first, the least played share first (n/N of
+the chosen comparison group), then cards no source deck names (frequency unknown, a separate
+group, never 0); ties by role redundancy, then name. A cut that would drop a role below its
+minimum (guardrail, default the comparison group's lower quartile rounded down, editable on the
+page) comes after the others and says which role; deferred cards come last. Locked cards (kept
+per deck in the browser), rejected cards, the commander and basic lands (separate counter) are
+never suggested; favourites and other marks never change the order. Each suggestion shows only
+the change of the deck figures (curve bucket, roles before and after with the minimum, coloured
+pips, land count) and a "Kombo-Teil" badge for cards of a listed combo complete in the deck (no
+automatic lock). "Was, wenn stattdessen …" shows the counted deltas of swapping in a free pool
+card (`deck_diff.diff_impact`) and changes nothing until confirmed. At exactly 100 the page shows
+the ADD/CUT patch against the starting list and the list text and saves the list as a new state.
+
 ### Archetype labels (schema 15)
 
 Free-form labels the Owner puts on a card (card window, "Archetyp-Marken") and on a saved deck

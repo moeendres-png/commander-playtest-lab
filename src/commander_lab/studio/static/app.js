@@ -1386,10 +1386,28 @@ function renderSimulations(body) {
 }
 function renderDeck() {
   state.renderToken = (state.renderToken || 0) + 1;
-  const tabs = [["list", "Liste"], ["numbers", "Zahlen"], ["check", "Prüfung"], ["facts", "Bracket & Lücken"], ["compare", "Vergleich"], ["similar", "Ähnliche Decks"], ["diff", "Varianten-Diff"], ["sim", "Simulation"]];
+  const tabs = [["list", "Liste"], ["numbers", "Zahlen"], ["check", "Prüfung"], ["facts", "Bracket & Lücken"], ["compare", "Vergleich"], ["similar", "Ähnliche Decks"], ["diff", "Varianten-Diff"], ["cut", "Kürzen"], ["sim", "Simulation"]];
   $("deck-tabs").replaceChildren(...tabs.map(([key, label]) => h("button", { type: "button", class: "chip" + (state.tab === key ? " on" : ""), "aria-pressed": state.tab === key, onclick: () => { state.tab = key; renderDeck(); } }, label)));
   const body = $("deck-body"); body.replaceChildren();
-  ({ list: renderList, numbers: renderNumbers, check: renderCheck, facts: renderFacts, compare: renderCompare, similar: renderSimilarDecks, diff: renderDiff, sim: renderSimulations })[state.tab](body);
+  ({ list: renderList, numbers: renderNumbers, check: renderCheck, facts: renderFacts, compare: renderCompare, similar: renderSimilarDecks, diff: renderDiff, cut: renderCut, sim: renderSimulations })[state.tab](body);
+}
+function renderCut(body) {
+  renderCutLab(body, {
+    h, api, entries, fail, roleName, openCard, add, remove, qty, deckCards,
+    token: () => state.renderToken,
+    isCurrent: (token) => token === state.renderToken && state.tab === "cut",
+    deckId: () => `${state.deckId}::${state.branch}`, // the cut state belongs to one variant
+    commanderIds: () => state.commanderIds,
+    total: deckTotal,
+    card: (cardId) => state.byId.get(cardId),
+    pool: () => state.pool,
+    inDeck: (cardId) => qty(cardId) > 0,
+    cohort: () => state.cohort,
+    reference: () => (state.shapes || []).find((row) => row.cohort === state.cohort),
+    saveRevision: () => saveRevision(),
+    rerender: () => renderDeck(),
+    swap: (cutId, addId) => { const out = state.byId.get(cutId); const into = state.byId.get(addId); if (out && into) { remove(out); add(into); } },
+  });
 }
 // Shared hooks for the deck tabs kept in their own files (deckfacts.js, castability.js).
 function deckDeps(tab) {
