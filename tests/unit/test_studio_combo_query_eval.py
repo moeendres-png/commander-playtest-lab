@@ -50,11 +50,12 @@ def _names(query: str, cards: list[dict[str, object]] | None = None) -> list[str
     return [str(c["name"]) for c in hits]
 
 
-def _unknown(query: str, cards: list[dict[str, object]] | None = None) -> None:
+def _unknown(query: str, cards: list[dict[str, object]] | None = None) -> str:
     status, reason, hits = combos.evaluate_scryfall_query(query, cards or CARDS)
     assert status == "UNKNOWN", query
     assert reason
     assert hits == []
+    return reason
 
 
 def test_type_is_case_insensitive_substring_of_the_type_line() -> None:
@@ -109,7 +110,7 @@ def test_color_semantics(query: str, expected: set[str]) -> None:
     ],
 )
 def test_unsupported_color_values_are_unknown(query: str) -> None:
-    _unknown(query)
+    assert _unknown(query).startswith("UNSUPPORTED_QUERY")
 
 
 def test_identity_semantics() -> None:
