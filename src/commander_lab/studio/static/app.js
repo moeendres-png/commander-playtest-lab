@@ -1518,6 +1518,7 @@ async function openCard(card) {
   const frequencies = h("table", {}, h("thead", {}, h("tr", {}, h("th", {}, "Quelldecks"), h("th", { class: "num" }, "mit Karte"), h("th", { class: "num" }, "Decks"), h("th", { class: "num" }, "Anteil"))),
     h("tbody", {}, visibleCohortEntries(state.cohorts).map(([key]) => { const f = freq(card, key); return h("tr", { class: f.total < state.small ? "low" : "" }, h("td", {}, cohortName(key)), h("td", { class: "num" }, f.hits === null ? "unbekannt" : f.hits), h("td", { class: "num" }, f.total), h("td", { class: "num" }, f.hits !== null && f.total ? (100 * f.share).toFixed(1) + " %" : "unbekannt")); })));
   const swapBox = h("div", { id: "swap-helper-box" });
+  const duelBox = h("div", { id: "card-duel-box" });
   const extra = h("div", {}, h("p", { class: "muted" }, "Lädt EDHREC-Zeilen."));
   const layerBox = h("div", {});
   const right = h("div", {},
@@ -1534,6 +1535,7 @@ async function openCard(card) {
       h("button", { type: "button", onclick: closeModal }, "Schließen")),
     note, h("div", { class: "actions" }, h("button", { type: "button", onclick: () => saveMark({ note: note.value }) }, "Notiz speichern")),
     swapBox,
+    duelBox,
     h("h3", {}, "Archetyp-Marken"),
     card.labels.length ? h("p", { id: "card-label-chips" }, card.labels.map((name) => h("span", { class: "chip", style: "cursor:default;margin-right:4px" }, name))) : h("p", { class: "muted" }, "Keine Marken. Sie ordnen deine Karten und zählen nirgends als Wertung."),
     h("div", { class: "actions" }, labelInput, h("button", { type: "button", id: "card-labels-save", onclick: saveLabels }, "Marken speichern")),
@@ -1542,6 +1544,14 @@ async function openCard(card) {
     card.universe && state.universeInfo && state.universeInfo.subset_note ? h("p", { class: "note" }, state.universeInfo.subset_note) : null, layerBox, extra);
   box.append(left, right); $("modal").hidden = false;
   if (!state.commanderIds.includes(card.card_id) && !card.basic) renderSwapBox(swapBox, card, initialSwapMode);
+  if (!state.commanderIds.includes(card.card_id) && !card.basic) renderDuelBox(duelBox, card, {
+    h, api, fail, roleName, commander: COMMANDER,
+    groupName: (group) => GROUP_NAMES[group] || group,
+    pool: () => state.pool,
+    deckCardIds: () => [...state.commanderIds, ...state.list.keys()],
+    cohort: () => state.cohort,
+    cohortLabel: () => cohortName(state.cohort),
+  });
   showLayers(layerBox, card);
   try {
     const detail = await api(`/api/cards/${encodeURIComponent(card.card_id)}?${StudioCommander.query}&cohort=${encodeURIComponent(state.cohort)}`);

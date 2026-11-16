@@ -27,6 +27,7 @@ from . import (
     allocation,
     builder,
     cache,
+    card_duel,
     card_outcomes,
     castability,
     combos,
@@ -100,6 +101,14 @@ class SwapBody(BaseModel):
     cohort: str = Field(default="all", min_length=1, max_length=120)
     universe: str | None = Field(default=None, max_length=120)
     exclude_marked: bool = True
+
+
+class DuelBody(BaseModel):
+    commander: str | list[str]
+    deck_card_ids: list[str] = Field(default_factory=list, max_length=300)
+    card_a: str = Field(min_length=1, max_length=200)
+    card_b: str = Field(min_length=1, max_length=200)
+    cohort: str = Field(default="all", min_length=1, max_length=120)
 
 
 class DecklistParseBody(BaseModel):
@@ -1337,6 +1346,30 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
             )
         except KeyError as error:
             raise HTTPException(404, f"unknown card or commander: {error}") from error
+        except ValueError as error:
+            raise HTTPException(422, str(error)) from error
+        finally:
+            store.close()
+
+    @app.post("/api/card-duel")
+    def card_duel_route(body: DuelBody) -> dict[str, object]:
+        """Two cards side by side: roles, mana value, frequency n/N and observed fit with the
+        rest of the deck against the group's baseline (#1404 option 3). Never "better"."""
+        store = open_store()
+        try:
+            commanders = (
+                [body.commander] if isinstance(body.commander, str) else list(body.commander)
+            )
+            return card_duel.card_duel(
+                store,
+                commanders,
+                deck_card_ids=body.deck_card_ids,
+                card_a=body.card_a,
+                card_b=body.card_b,
+                cohort=body.cohort,
+            )
+        except KeyError as error:
+            raise HTTPException(404, f"unknown card: {error}") from error
         except ValueError as error:
             raise HTTPException(422, str(error)) from error
         finally:

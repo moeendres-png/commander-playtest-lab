@@ -1392,6 +1392,18 @@ not part of the requirement and the cards are named. No mulligan, no extra draws
 hand figure is the exact share of 7-card hands with 2 to 4 lands and at least one nonland card
 of mana value at most 2. A description, never a land count recommendation.
 
+### Card duel ("Karten-Duell", #1404 option 3)
+
+In the card window, "Karten-Duell" sets a second pool card next to the open one
+(`POST /api/card-duel`, `studio/card_duel.py`): whether each is in the deck, type, mana value,
+roles, how many source decks of the commander in the chosen group play it (`decks` of `of`), and
+the observed fit with the rest of the deck: the average share of the deck's other cards
+(without the two duel cards, the commander and basic lands) in the source decks that play the
+card, next to the baseline, the same share over all source decks of the group. A card no source
+deck names has frequency and fit unknown (never 0); fits from fewer than 30 decks are flagged.
+It is an observation of co-occurrence, never a statement that one card is better. Counting
+reuses the cached source-deck index of the similar-decks view.
+
 ### Guided cut ("Kürzen", #1418)
 
 The deck tab "Kürzen" brings a list of more than 100 cards to exactly 100 (`POST /api/cut-lab`,
