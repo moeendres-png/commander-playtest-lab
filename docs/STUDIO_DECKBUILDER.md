@@ -1324,6 +1324,24 @@ land counts for every colour it produces; a land with unknown colours is "unbeka
 the commander's own cost and its colour identity are named apart. Source decks with cards the
 card data does not know are left out and counted.
 
+### Card allocation ("Belegung", #1419)
+
+`GET /api/allocation` (`studio/allocation.py`) shows per card where its copies are bound, for
+display only (nothing is locked, no deck is changed). A saved deck binds the copies of its
+`main` variant (without one, of its most recently saved variant); other variants are
+alternatives of the same physical deck and are listed without binding; drafts never bind. A
+card is marked **überbucht** when the copies bound by all saved decks exceed the copies free
+for own decks (`available_lower_bound`); without an inventory row no overbooking is claimed.
+Copies reserved for opponents' decks (`reserved`) stay a separate figure. Storage locations
+come only from the inventory workbook's lot sheet (`02_PHYSICAL_LOTS.location_id`, names from
+`03_LOCATIONS`) and are stored per card and location in `card_location` at the inventory import
+(summed lower-bound quantities; "mindestens" when a lot is only a lower bound, and lots without
+any quantity counted apart, never as 0; the card window says how many of the owned copies have a
+location);
+a card without location rows shows no location field. The pool tiles show "in N Decks
+(n gebunden)" and the overbooking; the card window lists the decks, the other variants, the
+reserved copies and the locations in the data's own wording.
+
 ### Variant comparison with counted deltas ("Varianten-Diff", #1414, #1404 option 8)
 
 `POST /api/diff` (`studio/deck_diff.py`, on top of `builder.diff_lists`) compares a stored
@@ -1337,6 +1355,7 @@ how many source decks of the commander in the chosen comparison group play it (`
 state, any saved state of the deck, another variant or the current state of another deck. No
 score, bracket or power delta: the stored revisions are the version snapshots, so no second
 deck store is needed.
+
 ### Bracket facts and data gaps ("Bracket & Lücken", #1404 options 1 and 10)
 
 The deck tab "Bracket & Lücken" (`POST /api/deck-facts`, `studio/deck_facts.py`) counts, with
