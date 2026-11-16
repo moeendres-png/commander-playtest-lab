@@ -134,6 +134,11 @@ def revision_rows(store: StudioStore, revision_id: str) -> list[sqlite3.Row]:
 def list_rows(store: StudioStore, cards: Iterable[RevisionCard]) -> list[sqlite3.Row]:
     """The same rows as ``revision_rows`` for a list that is not stored as a revision."""
     db = store.connection
+    # The work list is a connection-private TEMP table. Filling it opens a transaction; when
+    # none was open before, it is closed right away (it holds only this temp table), so the
+    # per-store-state cache (``cache.cached``, which stands aside during an open transaction)
+    # keeps serving later reads of the same request.
+    was_open = db.in_transaction
     db.execute(
         "CREATE TEMP TABLE IF NOT EXISTS work_list "
         "(card_id TEXT NOT NULL, zone TEXT NOT NULL, quantity INTEGER NOT NULL)"
@@ -143,6 +148,8 @@ def list_rows(store: StudioStore, cards: Iterable[RevisionCard]) -> list[sqlite3
         "INSERT INTO work_list(card_id, zone, quantity) VALUES (?, ?, ?)",
         [(card.card_id, card.zone, card.quantity) for card in _merge(cards)],
     )
+    if not was_open:
+        db.commit()
     return db.execute(
         f"SELECT {_ROW_COLUMNS} FROM work_list rc JOIN card_fact c USING (card_id) "
         "LEFT JOIN inventory i USING (card_id) ORDER BY rc.zone, c.oracle_name"
