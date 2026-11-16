@@ -8,23 +8,153 @@ from types import SimpleNamespace
 from typing import Any
 
 import pytest
-from fastapi.testclient import TestClient
 
-from commander_lab.studio import StudioStore, create_revision, games, launch
-from commander_lab.studio.play import close_recorded_game
-from commander_lab.studio.web import create_app
-from tests.unit.test_full_game_pilot_judgment import (
-    _PASS,
-    _attack_options,
-    _card,
-    _policy,
-    _request,
-    _state,
+from commander_lab.agents import GenericCommanderPilot
+from commander_lab.engine.rules.full_game import (
+    ExternalPilotDecisionPolicy,
+    FullGamePilotBinding,
+    _RuntimePilot,
 )
-from tests.unit.test_studio_builder import _deck, _fill
+from commander_lab.models import PilotConfig, PilotStrength
+from commander_lab.studio import games, launch
+from commander_lab.studio.play import close_recorded_game
 
 ROOT = Path(__file__).resolve().parents[2]
 HEADER = {"seed": 7, "engine_commit": "a" * 40, "seats": [{"seat": 0}, {"seat": 1}]}
+_PASS: dict[str, Any] = {
+    "option_id": "pass",
+    "label": "Pass priority",
+    "option_type": "pass_priority",
+}
+
+
+def _policy() -> ExternalPilotDecisionPolicy:
+    runtimes: list[_RuntimePilot] = []
+    for seat in range(1, 5):
+        config = PilotConfig(pilot_name="auto", strength=PilotStrength.NEAR_OPTIMAL_HEURISTIC)
+        binding = FullGamePilotBinding(
+            seat=seat,
+            deck_id=f"fixture-{seat}",
+            strategy="generic",
+            commander_names=("Esior, Wardwing Familiar",),
+            config=config,
+            pilot_identity="GenericCommanderPilot",
+            pilot_version="1.0.0",
+            decision_policy_version="xmage-full-game-policy-1.0.0",
+        )
+        runtimes.append(_RuntimePilot(binding=binding, pilot=GenericCommanderPilot(config)))
+    return ExternalPilotDecisionPolicy(tuple(runtimes), 20261011)  # type: ignore[arg-type]
+
+
+def _card(
+    object_id: str, name: str, power: int = 0, toughness: int = 0, **extra: Any
+) -> dict[str, Any]:
+    return {
+        "object_id": object_id,
+        "name": name,
+        "tapped": False,
+        "power": power,
+        "toughness": toughness,
+        "damage": 0,
+        **extra,
+    }
+
+
+def _state(
+    *,
+    actor_board: list[dict[str, Any]] | None = None,
+    opponent_board: list[dict[str, Any]] | None = None,
+    actor_life: int = 40,
+    opponent_life: int = 40,
+) -> dict[str, Any]:
+    lands = [_card(f"island-{index}", "Island") for index in range(3)]
+    actor = {
+        "player_id": "actor",
+        "seat": 0,
+        "life": actor_life,
+        "hand_count": 0,
+        "library_count": 90,
+        "graveyard_count": 0,
+        "battlefield": [*lands, *(actor_board or [])],
+        "graveyard": [],
+        "command": [],
+        "hand": [],
+        "mana_pool": {},
+    }
+    opponents = [
+        {
+            "player_id": f"opponent-{seat}",
+            "seat": seat,
+            "life": opponent_life if seat == 1 else 40,
+            "hand_count": 7,
+            "library_count": 92,
+            "graveyard_count": 0,
+            "battlefield": list(opponent_board or []) if seat == 1 else [],
+            "graveyard": [],
+            "command": [],
+        }
+        for seat in range(1, 4)
+    ]
+    return {
+        "game_id": "engine-opaque",
+        "actor_id": "actor",
+        "seat": 0,
+        "turn_number": 6,
+        "active_player_id": "actor",
+        "priority_player_id": "actor",
+        "phase": "precombat_main",
+        "step": "precombat_main",
+        "players": [actor, *opponents],
+        "stack": [],
+        "commander_status": [
+            {
+                "owner_id": "actor",
+                "name": "Esior, Wardwing Familiar",
+                "commander_damage_to_player": [],
+                "casts_from_command": 1,
+            }
+        ],
+    }
+
+
+def _request(
+    decision_class: str,
+    options: list[dict[str, Any]],
+    state: dict[str, Any],
+    *,
+    minimum: int = 1,
+    maximum: int = 1,
+    offset: int = 1,
+) -> dict[str, Any]:
+    return {
+        "decision_id": f"opaque-{decision_class}-{offset}",
+        "decision_offset": offset,
+        "actor_id": "actor",
+        "decision_class": decision_class,
+        "pilot_state": state,
+        "context": {},
+        "minimum_selections": minimum,
+        "maximum_selections": maximum,
+        "legal_options": options,
+        "prompt": decision_class,
+    }
+
+
+def _attack_options(attacker_id: str, name: str) -> list[dict[str, Any]]:
+    return [
+        {
+            "option_id": "hold",
+            "label": f"Do not attack with {name}",
+            "option_type": "hold_attacker",
+            "metadata": {"object_id": attacker_id, "name": name},
+        },
+        {
+            "option_id": "attack-1",
+            "label": f"{name} attacks Seat 2",
+            "option_type": "declare_attacker",
+            "metadata": {"object_id": attacker_id, "name": name, "defender_id": "opponent-1"},
+        },
+    ]
 
 
 def test_series_engine_enables_skip_forced_decisions_and_honors_override(
@@ -220,14 +350,7 @@ def test_condition3_same_step_different_source_isolation_and_nested_mana_ability
     assert 1 not in policy._last_priority_label
 
 
-def test_condition4_telemetry_persisted_and_exposed_by_studio_api(tmp_path: Path) -> None:
-    store = StudioStore.open(tmp_path)
-    try:
-        _fill(store, tmp_path)
-        create_revision(store, deck_id="test", name="Test", cards=_deck())
-    finally:
-        store.close()
-
+def test_condition4_telemetry_persisted_and_exposed_by_studio_games(tmp_path: Path) -> None:
     recorder = games.GameRecorder(tmp_path, "g-e4", HEADER)
     recorder.record(
         {
@@ -277,14 +400,13 @@ def test_condition4_telemetry_persisted_and_exposed_by_studio_api(tmp_path: Path
     assert summary["forced_decisions_skipped"] == 14
     assert summary["frames"] == 1
 
-    with TestClient(create_app(tmp_path)) as client:
-        listed = client.get("/api/games").json()
-        row = next(entry for entry in listed if entry["game_id"] == "g-e4")
-        assert row["result"]["decision_count"] == 19
-        assert row["result"]["forced_decisions_skipped"] == 14
-        detail = client.get("/api/games/g-e4?start=0&count=10").json()
-        assert detail["result"]["decision_count"] == 19
-        assert detail["result"]["forced_decisions_skipped"] == 14
+    listed = games.list_games(tmp_path)
+    row = next(entry for entry in listed if entry["game_id"] == "g-e4")
+    assert row["result"]["decision_count"] == 19
+    assert row["result"]["forced_decisions_skipped"] == 14
+    detail = games.read_game(tmp_path, "g-e4", start=0, count=10)
+    assert detail["result"]["decision_count"] == 19
+    assert detail["result"]["forced_decisions_skipped"] == 14
 
     partie_js = (ROOT / "src/commander_lab/studio/static/partie.js").read_text(encoding="utf-8")
     assert "forced_decisions_skipped" in partie_js
