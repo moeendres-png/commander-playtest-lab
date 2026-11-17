@@ -4,7 +4,27 @@
 
 function castPct(value) { return value === null || value === undefined ? "unbekannt" : StudioUI.pct(value, 1); }
 
-function castabilityNodes(h, data, open) {
+// Starting-hand chance per role (#1404): P(>= 1 card of the role) in 7 cards and after 1-3 more.
+function handRoleNodes(h, hr, roleName) {
+  const head = ["Start (7)", "Zug 1 (8)", "Zug 2 (9)", "Zug 3 (10)"];
+  const out = [h("h3", {}, "Rollen in der Starthand"),
+    h("p", { class: "note" }, `Rollendaten bei ${StudioUI.num(hr.cards_with_role_data)} von ${StudioUI.num(hr.library)} Karten im Deck (Nichtland: ${StudioUI.num(hr.nonland_with_role_data)} von ${StudioUI.num(hr.nonland_cards)}). ${hr.assumption}`)];
+  if (!hr.roles_known) return [...out, h("p", { id: "hand-roles", class: "warn" }, "Für diese Karten sind keine Rollen bekannt: keine Wahrscheinlichkeit berechnet (unbekannt, nicht 0).")];
+  const cell = (hand) => h("td", { class: "num", title: `Gegenzahl: keine Karte der Rolle ${StudioUI.pct(hand.p_none, 1)}` },
+    h("div", {}, StudioUI.pct(hand.p_at_least_1, 1)), h("div", { class: "muted" }, `0: ${StudioUI.pct(hand.p_none, 1)}`));
+  const rows = [...hr.roles].sort((a, b) => roleName(a.role).localeCompare(roleName(b.role), "de")).map((item) => h("tr", {},
+    h("td", {}, roleName(item.role)),
+    h("td", { class: "num" }, `${StudioUI.num(item.cards)} von ${StudioUI.num(item.of)}`),
+    ...item.hands.map(cell)));
+  return [...out,
+    h("table", { id: "hand-roles" },
+      h("thead", {}, h("tr", {}, h("th", {}, "Rolle"), h("th", { class: "num" }, "Karten im Deck"),
+        ...head.map((text) => h("th", { class: "num", title: "oben: mindestens eine Karte der Rolle · unten (0): keine Karte der Rolle; Hand nach Zug 1 bis 3 mit Ziehen in Zug 1" }, text)))),
+      h("tbody", {}, rows)),
+    h("p", { class: "note" }, "Jede Zelle: oben mindestens eine Karte der Rolle, darunter 0: keine Karte der Rolle (zusammen 100 %, durch Rundung bis 0,1 Prozentpunkt Abweichung). Rollen sind öffentliche Marken (Tagger); eine Karte zählt für jede ihrer Rollen.")];
+}
+
+function castabilityNodes(h, data, open, roleName) {
   const pipLabel = (label) => h("span", {}, ...label.split("").map((letter) => h("span", { class: "ms ms-" + letter }, letter)));
   const names = (cards) => h("span", {}, ...cards.flatMap((card, index) => [index ? ", " : "",
     h("a", { href: "#", class: "nm", onclick: (event) => { event.preventDefault(); open(card.card_id); } }, card.name)]));
@@ -32,6 +52,7 @@ function castabilityNodes(h, data, open) {
     h("p", { class: "note" }, "* Farben: Anteil mit den nötigen farbigen Quellen unter den Ziehungen, die bis zum Zug genug Länder haben. Quellen: nur Länder."),
     h("p", { id: "opening-hand" }, `Spielbare Starthand (${hand.rule}): ${castPct(hand.p_keepable)} – aus ${hand.lands} Ländern, ${hand.early_actions} frühen Aktionen und ${hand.other_cards} weiteren Karten, 7 Karten, ohne Mulligan.`),
     notes.length ? h("ul", { class: "note" }, notes.map((text) => h("li", {}, text))) : "",
+    ...(data.hand_roles ? handRoleNodes(h, data.hand_roles, roleName || ((key) => key)) : []),
     h("p", { class: "note" }, data.method + " ", h("a", { href: data.source, target: "_blank", rel: "noreferrer noopener", referrerpolicy: "no-referrer" }, "Methodik (Karsten 2022)")),
   ];
 }
@@ -45,7 +66,7 @@ async function renderCastability(body, deps) {
   try {
     const data = await deps.api("/api/castability", "POST", { cards: deps.entries() });
     if (!deps.isCurrent(token)) return;
-    box.replaceChildren(...castabilityNodes(h, data, deps.open));
+    box.replaceChildren(...castabilityNodes(h, data, deps.open, deps.roleName));
   } catch (error) {
     if (!deps.isCurrent(token)) return;
     box.replaceChildren(h("p", { class: "warn" }, "Die Farb-Wahrscheinlichkeiten konnten nicht berechnet werden."));

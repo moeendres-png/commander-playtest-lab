@@ -174,6 +174,65 @@ def test_joint_matches_enumeration_on_random_small_decks() -> None:
         assert (total, with_lands, with_both) == (ref_total, ref_lands, ref_both)
 
 
+def test_role_in_hand_matches_hand_calculation_and_edges() -> None:
+    # 99 cards, 10 role cards: P(>= 1 in 7) = 1 - C(89,7) / C(99,7).
+    seven = castability.role_in_hand(99, 10, 7)
+    assert seven["p_at_least_1"] == round(1 - comb(89, 7) / comb(99, 7), 4)
+    assert seven["p_none"] == round(comb(89, 7) / comb(99, 7), 4)
+    # After 3 further cards the hand is 10 cards.
+    ten = castability.role_in_hand(99, 10, 10)
+    assert ten["p_at_least_1"] == round(1 - comb(89, 10) / comb(99, 10), 4)
+    # One role card among 10 cards, 7 drawn: 7/10 exactly.
+    assert castability.role_in_hand(10, 1, 7)["p_at_least_1"] == 0.7
+    assert castability.role_in_hand(99, 0, 7) == {"draws": 7, "p_at_least_1": 0.0, "p_none": 1.0}
+    assert castability.role_in_hand(99, 99, 7) == {"draws": 7, "p_at_least_1": 1.0, "p_none": 0.0}
+    assert castability.role_in_hand(5, 1, 7)["p_at_least_1"] is None
+
+
+def test_hand_roles_counts_double_roles_apart_and_names_unknown_cards() -> None:
+    rows = [_row("Commander", zone="commander")]
+    rows += [_row(f"Card {i}", card_id=f"c{i}") for i in range(97)]
+    rows.append(_row("Forest", card_id="forest", type_line="Basic Land - Forest"))
+    rows.append(_row("Forest 2", card_id="forest2", type_line="Basic Land - Forest"))
+    roles = {f"c{i}": ["ramp"] for i in range(6)}
+    roles.update({f"c{i}": ["ramp", "card_draw"] for i in range(6, 8)})
+    roles.update({f"c{i}": ["removal"] for i in range(8, 12)})
+    result = castability.hand_roles(rows, roles)
+    assert result["library"] == 99
+    assert result["cards_with_role_data"] == 12
+    assert result["nonland_cards"] == 97
+    assert result["nonland_with_role_data"] == 12
+    assert result["roles_known"] is True
+    items = {str(item["role"]): item for item in result["roles"]}  # type: ignore[attr-defined]
+    assert sorted(items) == ["card_draw", "ramp", "removal"], "roles in the deck only"
+    # The two double-role cards count for ramp AND card_draw; ramp is never 8 + 2 + 4.
+    assert (items["ramp"]["cards"], items["card_draw"]["cards"], items["removal"]["cards"]) == (
+        8,
+        2,
+        4,
+    )
+    hands = items["ramp"]["hands"]
+    assert [hand["draws"] for hand in hands] == [7, 8, 9, 10]
+    assert hands[0]["p_at_least_1"] == round(1 - comb(91, 7) / comb(99, 7), 4)
+    assert hands[3]["p_none"] == round(comb(91, 10) / comb(99, 10), 4)
+    assert "Untergrenzen" in str(result["assumption"])
+    # Edge: every library card carries the role.
+    full = castability.hand_roles([_row("A", card_id="a", quantity=99)], {"a": ["ramp"]})
+    full_hands = full["roles"][0]["hands"]  # type: ignore[index]
+    assert full_hands, "the role has hands"
+    for hand in full_hands:
+        assert hand["p_at_least_1"] == 1.0 and hand["p_none"] == 0.0
+
+
+def test_hand_roles_without_role_data_is_unknown_not_zero() -> None:
+    rows = [_row(f"Card {i}", card_id=f"c{i}") for i in range(99)]
+    result = castability.hand_roles(rows, {})
+    assert result["roles_known"] is False
+    assert result["roles"] == []
+    assert result["cards_with_role_data"] == 0
+    assert result["library"] == 99
+
+
 def test_castability_route_on_a_store(tmp_path) -> None:  # type: ignore[no-untyped-def]
     from fastapi.testclient import TestClient
 
@@ -196,5 +255,16 @@ def test_castability_route_on_a_store(tmp_path) -> None:  # type: ignore[no-unty
     assert body["schema"] == castability.SCHEMA
     assert body["main_cards"] == 99
     assert body["requirements"], "the fixture deck has coloured costs"
+    hand = body["hand_roles"]
+    assert hand["library"] == 99 and hand["hand"] == 7
+    assert 0 <= hand["cards_with_role_data"] <= 99
+    for role in hand["roles"]:
+        assert role["of"] == 99 and 1 <= role["cards"] <= 99
+        for entry in role["hands"]:
+            assert entry["p_at_least_1"] + entry["p_none"] == 1.0
+    assert (
+        client.post("/api/castability", json={"cards": cards}, headers={"X-Studio": ""}).status_code
+        == 403
+    )
     for item in body["requirements"]:
         assert "condition" in item and item["condition"].startswith("bedingt auf")
