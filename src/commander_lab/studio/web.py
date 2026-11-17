@@ -365,6 +365,18 @@ def strength_answer(store: StudioStore, body: StrengthBody) -> dict[str, object]
         store, preset=body.preset, profile=body.profile, settings=body.settings
     )
 
+    # The snapshot answer names the profile it belongs to: a preset and the same figures typed in
+    # as plain settings are different requests and must not share one remembered answer.
+    profile_name = (
+        None
+        if body.profile is not None
+        else (
+            body.preset
+            if body.preset is not None
+            else ("Ausgewogen" if settings == strength.StrengthSettings.recommended() else None)
+        )
+    )
+
     def compute() -> dict[str, object]:
         if body.profile is not None:
             return dict(
@@ -379,13 +391,6 @@ def strength_answer(store: StudioStore, body: StrengthBody) -> dict[str, object]
                     saved_weights=strength_view.profile_saved_weights(store, body.profile),
                 )
             )
-        profile_name = (
-            body.preset
-            if body.preset is not None
-            else ("Ausgewogen" if settings == strength.StrengthSettings.recommended() else None)
-        )
-        # The snapshot variant may persist its answer (a committed write): the cache then keeps
-        # nothing for this call (the store state moved) and the next call reads the snapshot.
         return dict(
             strength_view.compute_with_snapshot(
                 store, body.commander, settings, profile_name=profile_name
@@ -398,6 +403,7 @@ def strength_answer(store: StudioStore, body: StrengthBody) -> dict[str, object]
             "strength",
             body.commander,
             body.profile,
+            profile_name,
             json.dumps(asdict(settings), sort_keys=True, default=str),
         ),
         compute,

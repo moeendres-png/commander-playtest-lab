@@ -538,3 +538,35 @@ def test_the_warm_up_reports_a_failing_step_in_one_line(
     assert [line for line in err if "warm-up" in line and "RuntimeError" in line]
     assert all(len(line) < 200 for line in err)
     assert "strength" in {key[1] for key in cache._entries}  # the route's own key is warmed
+
+
+def test_a_preset_and_the_same_settings_typed_in_do_not_share_a_remembered_answer(
+    tmp_path: Path,
+) -> None:
+    """The snapshot metadata names the profile (preset or none): the route's cache key must too."""
+    from fastapi.testclient import TestClient
+
+    from commander_lab.studio import strength_view
+    from commander_lab.studio.web import create_app
+
+    _big_store(tmp_path).close()
+    cache.invalidate()
+    client = TestClient(create_app(tmp_path / "studio"), headers={"X-Studio": "1"})
+    presets = strength_view.presets()
+    assert presets
+    candidates = [item for item in sorted(_preset_items(presets)) if item[0] != "Ausgewogen"]
+    assert candidates
+    name, preset = candidates[0]
+    by_preset = client.post("/api/strength", json={"commander": COMMANDER, "preset": name})
+    by_settings = client.post("/api/strength", json={"commander": COMMANDER, "settings": preset})
+    assert by_preset.status_code == 200 and by_settings.status_code == 200
+    assert by_preset.json()["snapshot"]["profile_name"] == name
+    assert by_settings.json()["snapshot"]["profile_name"] != name
+
+
+def _preset_items(presets: dict[str, object]) -> list[tuple[str, dict[str, object]]]:
+    found: list[tuple[str, dict[str, object]]] = []
+    for item in presets.get("presets", []):  # type: ignore[attr-defined]
+        if isinstance(item, dict) and isinstance(item.get("settings"), dict):
+            found.append((str(item["name"]), dict(item["settings"])))
+    return found
