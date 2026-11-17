@@ -20,10 +20,10 @@ function allocationOf(cardId) {
 function allocationTileNote(h, card) {
   const entry = allocationOf(card.card_id);
   if (!entry || !entry.decks.length) return "";
-  const text = ` · in ${entry.decks.length} ${entry.decks.length === 1 ? "Deck" : "Decks"} (${entry.bound} gebunden)`;
+  const text = ` · in ${StudioUI.num(entry.decks.length, 0)} ${entry.decks.length === 1 ? "Deck" : "Decks"} (${StudioUI.num(entry.bound, 0)} gebunden)`;
   return entry.overbooked
-    ? h("span", { class: "warn overbooked", title: `Gebunden ${entry.bound}, frei ${entry.available}: überbucht (Daten-Hinweis, keine Sperre)` }, text + " · überbucht")
-    : h("span", { title: entry.decks.map((item) => `${item.deck_name} (${item.branch}): ${item.quantity}`).join("\n") }, text);
+    ? h("span", { class: "warn overbooked", title: `Gebunden ${StudioUI.num(entry.bound, 0)}, frei ${StudioUI.num(entry.available, 0)}: überbucht (Daten-Hinweis, keine Sperre)` }, text + " · überbucht")
+    : h("span", { title: entry.decks.map((item) => `${item.deck_name} (${item.branch}): ${StudioUI.num(item.quantity, 0)}`).join("\n") }, text);
 }
 
 function allocationDetail(h, card) {
@@ -32,21 +32,21 @@ function allocationDetail(h, card) {
   const entry = allocationOf(card.card_id);
   const parts = [h("h3", {}, "Belegung")];
   if (!entry || !entry.decks.length) {
-    parts.push(h("p", { id: "allocation-free" }, `In keinem gespeicherten Deck gebunden (${card.available} frei).`));
+    parts.push(h("p", { id: "allocation-free" }, `In keinem gespeicherten Deck gebunden (${StudioUI.num(card.available, 0)} frei).`));
   } else {
     parts.push(h("p", { id: "allocation-summary", class: entry.overbooked ? "warn" : "" },
-      `${entry.bound} gebunden von ${entry.available === null ? "unbekannt" : entry.available} freien Exemplaren` + (entry.overbooked ? " – überbucht (Daten-Hinweis, kein Deck wird geändert)." : ".")));
-    parts.push(h("ul", { id: "allocation-decks" }, entry.decks.map((item) => h("li", {}, `${item.quantity}× in „${item.deck_name}“ (Variante ${item.branch}, Stand ${item.revision_id})`))));
+      `${StudioUI.num(entry.bound, 0)} gebunden von ${entry.available === null ? "unbekannt" : StudioUI.num(entry.available, 0)} freien Exemplaren` + (entry.overbooked ? " – überbucht (Daten-Hinweis, kein Deck wird geändert)." : ".")));
+    parts.push(h("ul", { id: "allocation-decks" }, entry.decks.map((item) => h("li", {}, `${StudioUI.num(item.quantity, 0)}× in „${item.deck_name}“ (Variante ${item.branch}, Stand ${item.revision_id})`))));
   }
   if (entry && entry.other_variants.length) {
-    parts.push(h("p", { class: "note" }, "Auch in weiteren Varianten (Alternativen, binden nichts): " + entry.other_variants.map((item) => `„${item.deck_name}“ ${item.branch} (${item.quantity}×)`).join(", ")));
+    parts.push(h("p", { class: "note" }, "Auch in weiteren Varianten (Alternativen, binden nichts): " + entry.other_variants.map((item) => `„${item.deck_name}“ ${item.branch} (${StudioUI.num(item.quantity, 0)}×)`).join(", ")));
   }
-  if (card.reserved) parts.push(h("p", { class: "note" }, `${card.reserved} Exemplar(e) sind für Gegner-Decks reserviert und zählen nicht zu den freien.`));
+  if (card.reserved) parts.push(h("p", { class: "note" }, `${StudioUI.num(card.reserved, 0)} Exemplar(e) sind für Gegner-Decks reserviert und zählen nicht zu den freien.`));
   if (entry && entry.locations) {
     const located = entry.locations.reduce((sum, item) => sum + item.quantity, 0);
     const allExact = entry.locations.every((item) => item.exact && !item.unknown_lots);
-    const text = (item) => (item.exact ? `${item.quantity}×` : `mindestens ${item.quantity}×`) + ` ${item.name}` + (item.unknown_lots ? ` (+ ${item.unknown_lots} Posten ohne Anzahl)` : "");
-    parts.push(h("p", { id: "allocation-locations" }, `Standort laut Sammlungsdatei (${allExact ? "" : "mindestens "}${located} von ${card.owned} Exemplaren zugeordnet): ` + entry.locations.map(text).join(", ")));
+    const text = (item) => (item.exact ? `${StudioUI.num(item.quantity, 0)}×` : `mindestens ${StudioUI.num(item.quantity, 0)}×`) + ` ${item.name}` + (item.unknown_lots ? ` (+ ${StudioUI.num(item.unknown_lots, 0)} Posten ohne Anzahl)` : "");
+    parts.push(h("p", { id: "allocation-locations" }, `Standort laut Sammlungsdatei (${allExact ? "" : "mindestens "}${StudioUI.num(located, 0)} von ${StudioUI.num(card.owned, 0)} Exemplaren zugeordnet): ` + entry.locations.map(text).join(", ")));
   }
   parts.push(h("p", { class: "note" }, data.binding_rule));
   return h("div", { class: "allocation" }, ...parts);

@@ -147,13 +147,19 @@ const StudioUI = (() => {
   const skeleton = (lines = 6) => el("div", { class: "skeleton-box", "aria-hidden": "true" }, Array.from({ length: lines }, () => el("div", { class: "skeleton" })));
 
   // ---------- number display ----------
-  // One place for number display: de-DE decimal comma and thousands dot (digits = fixed decimals).
+  // One place for number display: de-DE decimal comma, thousands dot, and typographic minus (\u2212).
   // null, undefined and "" are unknown, never 0.
+  function _formatDe(n, opts) {
+    const abs = Math.abs(n);
+    const formatted = abs.toLocaleString("de-DE", opts);
+    if (n < 0 && /[1-9]/.test(formatted)) return `\u2212${formatted}`;
+    return formatted;
+  }
   function num(value, digits = 0) {
     if (value === null || value === undefined || value === "") return "unbekannt";
     const n = Number(value);
     if (!Number.isFinite(n)) return "unbekannt";
-    return n.toLocaleString("de-DE", { minimumFractionDigits: digits, maximumFractionDigits: digits });
+    return _formatDe(n, { minimumFractionDigits: digits, maximumFractionDigits: digits });
   }
   // value is a fraction (0.253 -> "25,3 %").
   function pct(value, digits = 1) {
@@ -167,7 +173,13 @@ const StudioUI = (() => {
     if (value === null || value === undefined || value === "") return "unbekannt";
     const n = Number(value);
     if (!Number.isFinite(n)) return "unbekannt";
-    return n.toLocaleString("de-DE", { maximumFractionDigits: digits });
+    return _formatDe(n, { maximumFractionDigits: digits });
+  }
+  function numSig(value, sigDigits = 4) {
+    if (value === null || value === undefined || value === "") return "unbekannt";
+    const n = Number(value);
+    if (!Number.isFinite(n)) return "unbekannt";
+    return _formatDe(n, { maximumSignificantDigits: sigDigits });
   }
   // Simulator readiness codes (deck_readiness.CardReadinessStatus) in plain German.
   // The raw code is data, not UI text; unknown codes stay "unbekannt", never a guess.
@@ -191,7 +203,7 @@ const StudioUI = (() => {
       const number = Number(input.value);
       if (!Number.isFinite(number)) { input.value = ""; return; }
       const clamped = Math.min(max, Math.max(min, number));
-      if (clamped !== number) { input.value = String(clamped); toast(`Der Wert wurde auf ${clamped} gesetzt (erlaubt: ${min} bis ${max}).`); }
+      if (clamped !== number) { input.value = String(clamped); toast(`Der Wert wurde auf ${numFlex(clamped, 4)} gesetzt (erlaubt: ${numFlex(min, 4)} bis ${numFlex(max, 4)}).`); }
     });
     return input;
   }
@@ -270,15 +282,15 @@ const StudioUI = (() => {
       const range = layer.dated
         ? (layer.oldest === layer.newest ? layer.oldest : `${layer.oldest} bis ${layer.newest}`)
         : (layer.undated_note || "Datum nicht im Store");
-      const ident = layer.with_identifier ? `, ${layer.with_identifier} nur mit Kennung` : "";
-      return el("tr", {}, el("td", {}, layer.layer), el("td", { class: "num" }, `${layer.dated} von ${layer.sources}`), el("td", {}, `${range}${ident}`));
+      const ident = layer.with_identifier ? `, ${num(layer.with_identifier, 0)} nur mit Kennung` : "";
+      return el("tr", {}, el("td", {}, layer.layer), el("td", { class: "num" }, `${num(layer.dated, 0)} von ${num(layer.sources, 0)}`), el("td", {}, `${range}${ident}`));
     };
     const layerTable = () => el("div", { class: "table-wrap" }, el("table", {},
       el("thead", {}, el("tr", {}, ["Quellschicht", "datiert", "Stand (Datum)"].map((label, index) => el("th", { class: index === 1 ? "num" : "" }, label)))),
       el("tbody", {}, layers.map(layerLine))));
     if (onlyWhenMissing && !missing.length) {
       const span = freshness && freshness.newest_snapshot
-        ? `Quellenstand: ${freshness.oldest_snapshot && freshness.oldest_snapshot !== freshness.newest_snapshot ? `${freshness.oldest_snapshot} bis ${freshness.newest_snapshot}` : freshness.newest_snapshot} (${freshness.with_snapshot_date} von ${freshness.total_sources} Quellen datiert${freshness.with_identifier ? `, ${freshness.with_identifier} nur mit Kennung` : ""})`
+        ? `Quellenstand: ${freshness.oldest_snapshot && freshness.oldest_snapshot !== freshness.newest_snapshot ? `${freshness.oldest_snapshot} bis ${freshness.newest_snapshot}` : freshness.newest_snapshot} (${num(freshness.with_snapshot_date, 0)} von ${num(freshness.total_sources, 0)} Quellen datiert${freshness.with_identifier ? `, ${num(freshness.with_identifier, 0)} nur mit Kennung` : ""})`
         : "Datenstand";
       host.replaceChildren(el("details", { class: "datastate" },
         el("summary", {}, span),
@@ -288,13 +300,13 @@ const StudioUI = (() => {
     }
     const rows = overview.layers.map((layer) => el("tr", {},
       el("td", {}, layer.layer),
-      el("td", { class: "num" }, layer.rows),
-      el("td", { class: "num" }, layer.pool === null ? "unbekannt" : `${layer.covered} von ${layer.pool}`),
+      el("td", { class: "num" }, num(layer.rows, 0)),
+      el("td", { class: "num" }, layer.pool === null ? "unbekannt" : `${num(layer.covered, 0)} von ${num(layer.pool, 0)}`),
       el("td", {}, el("span", { class: `badge status-${layer.status}` }, STATUS_TEXT[layer.status] || layer.status)),
       el("td", {}, layer.status === "MISSING" ? el("code", { class: "cmd" }, layer.command) : "")));
     host.replaceChildren(el("details", { class: "datastate", open: missing.some((layer) => ["inventory", "scryfall", "decklists"].includes(layer.key)) },
-      el("summary", {}, missing.length ? `Es fehlen Daten: ${missing.length} von ${overview.layers.length} Schichten sind leer` : "Datenstand"),
-      el("p", { class: "note" }, `Gezählt für ${StudioCommander.shortName(commander)}. Eine leere Schicht ist keine schwache Karte, sondern fehlende Beobachtung. ${overview.pool_size === null ? "Der Commander steht nicht in der Sammlung: zuerst die Sammlung importieren." : `Kartenpool: ${overview.pool_size} Karten.`}${freshness && freshness.newest_snapshot ? ` Neuester Quellenstand: ${freshness.newest_snapshot}.` : ""}`),
+      el("summary", {}, missing.length ? `Es fehlen Daten: ${num(missing.length, 0)} von ${num(overview.layers.length, 0)} Schichten sind leer` : "Datenstand"),
+      el("p", { class: "note" }, `Gezählt für ${StudioCommander.shortName(commander)}. Eine leere Schicht ist keine schwache Karte, sondern fehlende Beobachtung. ${overview.pool_size === null ? "Der Commander steht nicht in der Sammlung: zuerst die Sammlung importieren." : `Kartenpool: ${num(overview.pool_size, 0)} Karten.`}${freshness && freshness.newest_snapshot ? ` Neuester Quellenstand: ${freshness.newest_snapshot}.` : ""}`),
       layers.length ? layerTable() : null,
       el("div", { class: "table-wrap" }, el("table", {},
         el("thead", {}, el("tr", {}, ["Schicht", "Zeilen", "Pool abgedeckt", "Stand", "Befehl zum Importieren"].map((label, index) => el("th", { class: index === 1 || index === 2 ? "num" : "" }, label)))),
@@ -309,20 +321,20 @@ const StudioUI = (() => {
   const LAYER_STATUS = { OK: "vorhanden", UNKNOWN: "unbekannt", NOT_APPLICABLE: "nicht anwendbar" };
   const LAYER_KINDS = { measured: "gemessen (beobachteter Zusammenhang)", derived: "aus dem Regeltext abgeleitet, keine Messung" };
   const layerShort = { measured: "gemessen", derived: "abgeleitet" };
-  const plusSign = (value) => (value > 0 ? "+" : "");
+  const plusSign = (value) => (Number(value) > 0 ? "+" : "");
   function layerText(key, item) {
     if (item.status !== "OK") return null;
     if (key === "pod_scaling") return item.detail.factor || item.detail.label; // a scaling card shows its plain factor
     if (key === "commander_fit") return `${plusSign(item.raw)}${StudioUI.num(100 * item.raw, 0)} %`;
     // The column sorts by the damped value the index reads, so that value leads; the measured gap follows.
-    if (key === "win_gap") return `${plusSign(item.value)}${StudioUI.num(item.value, 1)} Pp (gemessen ${plusSign(item.raw)}${StudioUI.num(item.raw, 1)}) · n=${item.n}`;
-    return `${StudioUI.num(100 * item.raw, 0)} % · n=${item.n}`;
+    if (key === "win_gap") return `${plusSign(item.value)}${StudioUI.num(item.value, 1)} Pp (gemessen ${plusSign(item.raw)}${StudioUI.num(item.raw, 1)}) · n=${StudioUI.num(item.n, 0)}`;
+    return `${StudioUI.num(100 * item.raw, 0)} % · n=${StudioUI.num(item.n, 0)}`;
   }
   function layerTitle(meta, item) {
     const head = `${meta.label} (${LAYER_KINDS[meta.kind] || meta.kind}).`;
     if (item.status !== "OK") return `${head} ${LAYER_STATUS[item.status] || item.status}: ${item.note || item.reason}`;
     const parts = [head, item.note ? `${item.note}.` : ""];
-    if (item.wilson !== null && item.wilson !== undefined) parts.push(`Wilson-Untergrenze ${StudioUI.num(100 * item.wilson, 1)} %, Mindeststichprobe ${meta.min_sample || 25}.`);
+    if (item.wilson !== null && item.wilson !== undefined) parts.push(`Wilson-Untergrenze ${StudioUI.num(100 * item.wilson, 1)} %, Mindeststichprobe ${StudioUI.num(meta.min_sample || 25, 0)}.`);
     if (item.percentile !== null && item.percentile !== undefined) parts.push(`Perzentil ${StudioUI.num(item.percentile, 1)} von 100 im Pool.`);
     parts.push(`Quelle: ${meta.source}. Nenner: ${meta.denominator}.`);
     return parts.filter(Boolean).join(" ");
@@ -349,8 +361,9 @@ const StudioUI = (() => {
         el("td", { class: "num" }, ok && item.percentile !== null ? StudioUI.num(item.percentile, 1) : "–"),
         el("td", {}, item && item.status !== "OK" ? el("span", { class: "unknown" }, item.note || item.reason) : (ok && item.note ? el("span", { class: "rule" }, item.note) : "")));
     });
-    return el("table", {}, el("thead", {}, el("tr", {}, ["Ebene", "Art", "Wert", "Wilson-Untergrenze", "Perzentil", "Hinweis"].map((label) => el("th", {}, label)))), el("tbody", {}, rows));
+    return el("div", { class: "table-wrap" }, el("table", {}, el("thead", {}, el("tr", {}, ["Ebene", "Art", "Wert", "Wilson-Untergrenze", "Perzentil", "Hinweis"].map((label) => el("th", {}, label)))), el("tbody", {}, rows)));
   }
 
-  return { recall, remember, el, h: el, toast, fail, germanError, request, api: request, busy, loading, skeleton, num, pct, numFlex, simStatusLabel, limitNumber, dataState, effectiveTheme, applyTheme, layerText, layerTitle, layerNode, layerTable };
+  return { recall, remember, el, h: el, toast, fail, germanError, request, api: request, busy, loading, skeleton, num, pct, numFlex, numSig, simStatusLabel, limitNumber, dataState, effectiveTheme, applyTheme, layerText, layerTitle, layerNode, layerTable };
 })();
+

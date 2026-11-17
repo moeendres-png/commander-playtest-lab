@@ -9,7 +9,7 @@ function estimatePairedText(budgetPairs) {
   const maxGames = pairs * 2;
   const seconds = Math.round(maxGames * (3600.0 / PAIRED_ESTIMATED_GAMES_PER_HOUR));
   const minutes = StudioUI.num(seconds / 60.0, 1);
-  return `Grober Richtwert: max. ~${minutes} min (${maxGames} Partien bei ~${PAIRED_ESTIMATED_GAMES_PER_HOUR} Partien/h; früher Stopp je nach Look möglich).`;
+  return `Grober Richtwert: max. ~${minutes} min (${StudioUI.num(maxGames, 0)} Partien bei ~${StudioUI.num(PAIRED_ESTIMATED_GAMES_PER_HOUR, 0)} Partien/h; früher Stopp je nach Look möglich).`;
 }
 
 function pairedVerdictInfo(res) {
@@ -54,7 +54,7 @@ async function loadPairedOptions(deps) {
     for (const br of deck.branches || []) {
       options.push({
         ref: br.revision_id,
-        label: `${deck.name || deck.deck_id} · ${br.branch} (${br.cards} K.)`,
+        label: `${deck.name || deck.deck_id} · ${br.branch} (${StudioUI.num(br.cards, 0)} K.)`,
       });
     }
   }
@@ -90,7 +90,7 @@ function renderPairedMonitor(h, job, deps) {
 
   const monitor = h("div", { class: "sim-monitor" },
     h("div", { class: "sim-monitor-head" },
-      h("b", {}, `Paar-Serie „${job.pod}“ (${job.series_id}): ${donePairs} / ${maxPairs} Paare (${pct} %)`),
+      h("b", {}, `Paar-Serie „${job.pod}“ (${job.series_id}): ${StudioUI.num(donePairs, 0)} / ${StudioUI.num(maxPairs, 0)} Paare (${StudioUI.num(pct, 0)} %)`),
       h("span", { class: "pill " + (isRunning ? "warn" : job.status === "completed" ? "good" : "bad") }, statusText)),
     h("progress", { value: donePairs, max: maxPairs }),
     h("p", { class: "note note-compact" }, `Basis (A): ${job.base_ref} · Variante (B): ${job.variant_ref}`));
@@ -141,9 +141,9 @@ function renderPairedMonitor(h, job, deps) {
         h("div", {}, h("span", { class: "muted" }, "Varianten-Siegrate (B): "), h("b", {}, fmtRatePct(res.variant_rate))),
         h("div", {}, h("span", { class: "muted" }, "Differenz (B − A): "), h("b", {}, fmtPp(res.difference_pp))),
         h("div", {}, h("span", { class: "muted" }, "95 %-CI (Cluster): "), h("b", {}, fmtCiPp(res.difference_ci95_pp))),
-        h("div", {}, h("span", { class: "muted" }, `Look-CI (${res.decision_level_pct ?? "–"} %): `), h("b", {}, fmtCiPp(res.decision_ci_pp))),
-        h("div", {}, h("span", { class: "muted" }, "Sign-Test p / Diskordant: "), h("b", {}, `${pVal} (${res.variant_only_wins}B : ${res.baseline_only_wins}A · ${res.tied_pairs} gleich)`)),
-        h("div", {}, h("span", { class: "muted" }, "Paare fertig / zensiert: "), h("b", {}, `${res.pairs_completed} / ${res.pairs_censored}`)),
+        h("div", {}, h("span", { class: "muted" }, `Look-CI (${res.decision_level_pct !== null && res.decision_level_pct !== undefined ? StudioUI.numFlex(res.decision_level_pct, 2) : "–"} %): `), h("b", {}, fmtCiPp(res.decision_ci_pp))),
+        h("div", {}, h("span", { class: "muted" }, "Sign-Test p / Diskordant: "), h("b", {}, `${pVal} (${StudioUI.num(res.variant_only_wins, 0)}B : ${StudioUI.num(res.baseline_only_wins, 0)}A · ${StudioUI.num(res.tied_pairs, 0)} gleich)`)),
+        h("div", {}, h("span", { class: "muted" }, "Paare fertig / zensiert: "), h("b", {}, `${StudioUI.num(res.pairs_completed, 0)} / ${StudioUI.num(res.pairs_censored, 0)}`)),
         h("div", {}, h("span", { class: "muted" }, "Bridge-JAR: "), h("code", { title: bridgeSha || "" }, bridgeSha ? String(bridgeSha).slice(0, 12) : "–")),
         h("div", {}, h("span", { class: "muted" }, "Epoche: "), h("b", {}, epochLabel))),
       ...(res.warnings && res.warnings.length
@@ -183,8 +183,8 @@ function renderReadinessAuditBox(h, deps) {
     const f = audit.free_top_candidates || {};
     nodes.push(
       h("div", { class: "sim-grid" },
-        h("div", {}, h("span", { class: "muted" }, "Deck-Karten: "), h("b", {}, `${d.ready ?? 0} / ${d.total ?? 0} OK`)),
-        h("div", {}, h("span", { class: "muted" }, `Freie Tier-${(f.tiers || ["S", "A"]).join("/")}-Kandidaten: `), h("b", {}, `${f.ready ?? 0} / ${f.total ?? 0} OK`)))
+        h("div", {}, h("span", { class: "muted" }, "Deck-Karten: "), h("b", {}, `${StudioUI.num(d.ready ?? 0, 0)} / ${StudioUI.num(d.total ?? 0, 0)} OK`)),
+        h("div", {}, h("span", { class: "muted" }, `Freie Tier-${(f.tiers || ["S", "A"]).join("/")}-Kandidaten: `), h("b", {}, `${StudioUI.num(f.ready ?? 0, 0)} / ${StudioUI.num(f.total ?? 0, 0)} OK`)))
     );
 
     const allIssues = [
@@ -193,8 +193,8 @@ function renderReadinessAuditBox(h, deps) {
     ];
     if (allIssues.length) {
       nodes.push(
-        h("h4", { class: "mt-2" }, `Offene Simulator-Lücken (${allIssues.length})`),
-        h("table", {},
+        h("h4", { class: "mt-2" }, `Offene Simulator-Lücken (${StudioUI.num(allIssues.length, 0)})`),
+        h("div", { class: "table-wrap" }, h("table", {},
           h("thead", {}, h("tr", {}, h("th", {}, "Bereich"), h("th", {}, "Karte"), h("th", {}, "XMage"), h("th", {}, "Pilot-Wissen"))),
           h("tbody", {}, allIssues.slice(0, 40).map((item) => {
             const poolCard = item.card_id ? deps.poolCardById(item.card_id) : null;
@@ -203,7 +203,7 @@ function renderReadinessAuditBox(h, deps) {
               h("td", { class: poolCard ? "name" : "", onclick: () => { if (poolCard) deps.openCard(poolCard); } }, item.name),
               h("td", { title: item.sim_status || "" }, StudioUI.simStatusLabel(item.sim_status)),
               h("td", {}, item.pilot_known ? "OK" : "FEHLT"));
-          })))
+          }))))
       );
     } else {
       nodes.push(h("p", { class: "note mt-2" }, "Alle geprüften Deckkarten und freien Tier-S/A-Kandidaten sind im XMage-Regelkern und Piloten-Wissen hinterlegt."));
@@ -253,7 +253,7 @@ function refreshPairedSlots(deps) {
     } else {
       histSlot.replaceChildren(
         h("h4", { class: "mt-2" }, "Gespeicherte Nachtlauf-Serien"),
-        h("table", {},
+        h("div", { class: "table-wrap" }, h("table", {},
           h("thead", {}, h("tr", {}, h("th", {}, "Serie"), h("th", {}, "Status"), h("th", {}, "Ergebnis"), h("th", { class: "num" }, "Differenz"), h("th", {}, ""))),
           h("tbody", {}, historyList.slice(0, 10).map((item) => {
             const r = item.result || null;
@@ -261,7 +261,7 @@ function refreshPairedSlots(deps) {
             return h("tr", {},
               h("td", {}, h("code", {}, item.series_id)),
               h("td", {}, item.status),
-              h("td", {}, v ? v[1] : `${item.pairs_attempted ?? 0}/${item.budget_pairs ?? "?"} Paare`),
+              h("td", {}, v ? v[1] : `${StudioUI.num(item.pairs_attempted ?? 0, 0)}/${item.budget_pairs !== null && item.budget_pairs !== undefined ? StudioUI.num(item.budget_pairs, 0) : "?"} Paare`),
               h("td", { class: "num" }, r ? fmtPp(r.difference_pp) : "–"),
               h("td", {}, h("button", {
                 type: "button",
@@ -271,7 +271,7 @@ function refreshPairedSlots(deps) {
                   refreshPairedSlots(deps);
                 },
               }, "Details")));
-          })))
+          }))))
       );
     }
   }

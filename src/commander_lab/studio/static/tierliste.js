@@ -86,7 +86,7 @@ function componentStatus(c) {
   return COMPONENT_STATUS[c.status] || [c.status, "dim"];
 }
 const STRENGTH_TIERS = ["S", "A", "B", "C", "D", "U", "N"];
-const nf = (value) => Number(value).toLocaleString("de-DE");
+const nf = (value) => StudioUI.num(value, 0);
 const DATA_CLASS_NAMES = {
   ORIGINAL_SOURCE: "Originalquelle", NORMALIZED_SOURCE: "Quelle, normalisiert", DERIVED_DESCRIPTIVE: "abgeleitet, beschreibend",
   SUBJECTIVE_RATING: "subjektiv", SIMULATED_RESULT: "Simulation",
@@ -118,7 +118,7 @@ const toast = (text, kind = "") => StudioUI.toast(text, kind);
 const fail = (error) => StudioUI.fail(StudioUI.germanError(error));
 const roleName = (key) => ROLE_NAMES[key] || key;
 const unknown = (text = "unbekannt") => h("span", { class: "unknown" }, text);
-const pct = (part, of) => (of ? `${(100 * part / of).toFixed(0)} %` : "");
+const pct = (part, of) => (of ? `${StudioUI.num(100 * part / of, 0)} %` : "");
 
 // ---------- evidence accessors ----------
 const layer = (card, name) => card.layers[name];
@@ -259,8 +259,8 @@ function roleBadges(card) {
   const ranks = item && item.role_ranks ? item.role_ranks : {};
   return claims.map((claim) => {
     const rInfo = ranks[claim.role];
-    const rankSuffix = rInfo ? ` · #${rInfo.rank}/${rInfo.total}` : "";
-    const title = `Herkunft: ${ORIGIN_NAMES[claim.origin] || claim.origin}` + (rInfo ? ` · Rang ${rInfo.rank} von ${rInfo.total} in ${roleName(claim.role)} (aktueller Index)` : "");
+    const rankSuffix = rInfo ? ` · #${nf(rInfo.rank)}/${nf(rInfo.total)}` : "";
+    const title = `Herkunft: ${ORIGIN_NAMES[claim.origin] || claim.origin}` + (rInfo ? ` · Rang ${nf(rInfo.rank)} von ${nf(rInfo.total)} in ${roleName(claim.role)} (aktueller Index)` : "");
     return h("span", { class: "badge", title }, `${roleName(claim.role)}${rankSuffix}`);
   });
 }
@@ -268,28 +268,28 @@ function corpusCell(card) {
   const item = corpusAll(card);
   if (!item) return unknown(layer(card, "observed_deck").status === "NOT_COLLECTED" ? "keine Quelle" : "unbekannt");
   if (item.decks_known === false || item.decks === null) return unknown("unbekannt (kein Quelldeck nennt diese Karte)");
-  const text = `${item.decks}/${item.of} · ${pct(item.decks, item.of)}`;
+  const text = `${nf(item.decks)}/${nf(item.of)} · ${pct(item.decks, item.of)}`;
   return h("span", { class: item.decks ? "" : "unknown", title: item.decks ? "Quelldecks mit der Karte, ohne Duplikate" : "0 in einem bekannten Korpus: fehlende Beobachtung, keine Schwäche" }, text);
 }
 function edhrecCell(card) {
   const w = widest(card);
   if (!w) return unknown(layer(card, "observed_deck").edhrec ? "keine Beobachtung" : "keine Quelle");
-  const den = w.denominator === null ? "Nenner unbekannt" : `${w.numerator}/${w.denominator}`;
+  const den = w.denominator === null ? "Nenner unbekannt" : `${nf(w.numerator)}/${nf(w.denominator)}`;
   return h("span", { title: `Ansicht ${w.cohort}; Datenklasse ${w.data_class}` }, `${den}`, w.small_denominator ? h("span", { class: "badge warn" }, "n < 30") : null, w.snapshot_known ? null : h("span", { class: "badge dim" }, "Zeit unbekannt"));
 }
 function gameCell(card) {
   const game = layer(card, "observed_game"), atlas = game.atlas;
   if (game.status !== "PRESENT" || !atlas) return unknown(game.status === "NOT_COLLECTED" ? "keine Quelle" : "keine Beobachtung");
-  const brought = atlas.times_brought === null ? "n unbekannt" : `n = ${atlas.times_brought}`;
-  const gap = atlas.observed_winrate_gap_pp === null ? null : `Differenz ${atlas.observed_winrate_gap_pp > 0 ? "+" : ""}${atlas.observed_winrate_gap_pp} Pp`;
-  const ci = atlas.ci_95_lower_pp === null || atlas.ci_95_upper_pp === null ? null : ` (95 %: ${atlas.ci_95_lower_pp} bis ${atlas.ci_95_upper_pp})`;
+  const brought = atlas.times_brought === null ? "n unbekannt" : `n = ${nf(atlas.times_brought)}`;
+  const gap = atlas.observed_winrate_gap_pp === null ? null : `Differenz ${atlas.observed_winrate_gap_pp > 0 ? "+" : ""}${StudioUI.numFlex(atlas.observed_winrate_gap_pp, 2)} Pp`;
+  const ci = atlas.ci_95_lower_pp === null || atlas.ci_95_upper_pp === null ? null : ` (95 %: ${StudioUI.numFlex(atlas.ci_95_lower_pp, 2)} bis ${StudioUI.numFlex(atlas.ci_95_upper_pp, 2)})`;
   return h("span", { title: "Playgroup.gg (CC BY 4.0), alle Commander, nur Live-Partien. Beobachteter Zusammenhang, keine kausale Kartenstärke." }, brought, gap ? ` · ${gap}` : "", ci || "", atlas.insufficient_sample ? h("span", { class: "badge warn" }, "kleine Stichprobe") : null);
 }
 function simCell(card) {
   const sim = layer(card, "simulated_result");
   if (sim.status === "NOT_APPLICABLE") return unknown("–");
   if (!sim.totals) return unknown("nicht simuliert");
-  return `${sim.totals.games_cast_after_offer}/${sim.totals.games_offered} Partien`;
+  return `${nf(sim.totals.games_cast_after_offer)}/${nf(sim.totals.games_offered)} Partien`;
 }
 function strengthItem(card) { const map = state.strength.map; return map ? map.get(card.card_id) || null : null; }
 const neutral = (text, title) => h("span", { class: "badge-neutral", title }, text);
@@ -309,20 +309,20 @@ function confidenceMark(item) {
   if (item.confidence === null || item.confidence === undefined) return null;
   const level = CONFIDENCE_NAMES[item.confidence_level] || item.confidence_level;
   const dots = item.confidence_level === "high" ? "●●●" : item.confidence_level === "medium" ? "●●○" : "●○○";
-  return h("span", { class: `conf conf-${item.confidence_level}`, title: `Konfidenz ${level} (${item.confidence.toFixed(2)}). ${CONFIDENCE_TEXT}`, "aria-label": `Konfidenz ${level}` }, dots);
+  return h("span", { class: `conf conf-${item.confidence_level}`, title: `Konfidenz ${level} (${StudioUI.num(item.confidence, 2)}). ${CONFIDENCE_TEXT}`, "aria-label": `Konfidenz ${level}` }, dots);
 }
 function borderlineMark(item) {
   if (!item.borderline) return null;
-  return h("span", { class: "borderline", title: `grenzwertig: ${item.cut_distance.toFixed(1)} Punkte von der Grenze ${item.borderline_cut}. Eine kleine Änderung der Gewichte kann die Stufe ändern.` }, "grenzwertig");
+  return h("span", { class: "borderline", title: `grenzwertig: ${StudioUI.num(item.cut_distance, 1)} Punkte von der Grenze ${StudioUI.numFlex(item.borderline_cut, 1)}. Eine kleine Änderung der Gewichte kann die Stufe ändern.` }, "grenzwertig");
 }
 function strengthCell(card) {
   if (state.view === "global") return neutral("nur je Commander", "Der Stärke-Index wird je Commander berechnet.");
   const item = strengthItem(card);
   if (!item) return neutral(state.strength.map ? "nicht berechnet" : "–", "Für diese Karte liegt keine Berechnung vor.");
-  const title = `Schätzung aus Nutzungssignalen, keine Siegrate. Abdeckung ${(100 * item.coverage).toFixed(0)} %, ${item.present} Signale vorhanden.`;
+  const title = `Schätzung aus Nutzungssignalen, keine Siegrate. Abdeckung ${StudioUI.num(100 * item.coverage, 0)} %, ${nf(item.present)} Signale vorhanden.`;
   if (item.tier === "N") return neutral(item.note, `${item.note}: Commander und Standardländer bekommen keine Stufe.`);
   if (item.tier === "U") return unknownCell(card, item);
-  return h("span", { class: "tcell" }, tierBadge(item.tier, item.index.toFixed(1), title), confidenceMark(item), borderlineMark(item));
+  return h("span", { class: "tcell" }, tierBadge(item.tier, StudioUI.num(item.index, 1), title), confidenceMark(item), borderlineMark(item));
 }
 function spreadCell(card) {
   const uni = state.universe;
@@ -337,8 +337,8 @@ function spreadBadge(item, universe) {
     return neutral(FILTER_LABEL, `${FILTER_LABEL}: das Universum verlangt diese Karte, sie steht per Definition in jedem Deck der Teilmenge (ohne Zählung, ohne Stufe). Universum ${universe.profile}.${subset}`);
   }
   const label = item.level_name || item.level;
-  const counted = item.matched ? `${item.hits}/${item.denominator}` : "unbekannt";
-  const title = `${SPREAD_LABEL}: ${label} (${REASON_NAMES[item.reason] || item.reason}). Universum ${universe.profile}, ${universe.denominator} Decks, Stand ${universe.snapshot_id}.${subset}`;
+  const counted = item.matched ? `${nf(item.hits)}/${nf(item.denominator)}` : "unbekannt";
+  const title = `${SPREAD_LABEL}: ${label} (${REASON_NAMES[item.reason] || item.reason}). Universum ${universe.profile}, ${nf(universe.denominator)} Decks, Stand ${universe.snapshot_id}.${subset}`;
   if (counted === "unbekannt") return neutral(item.level && item.level !== "U" ? `${label} (unbekannt)` : "unbekannt", title);
   return neutral(`${label} · ${counted}`, title);
 }
@@ -367,14 +367,14 @@ function cardsTable(cards) {
       h("td", { class: "acts" }, markButtons(card)),
       ...metas.map((meta) => h("td", {}, layerCell(card, meta))),
       ...(spread ? [h("td", {}, spreadCell(card))] : []),
-      h("td", { class: "num" }, card.mana_value),
+      h("td", { class: "num" }, StudioUI.numFlex(card.mana_value, 2)),
       h("td", {}, featureBadges(card)),
       h("td", {}, roleBadges(card)),
-      ...(commander ? [h("td", {}, corpusCell(card)), h("td", {}, edhrecCell(card)), h("td", {}, gameCell(card))] : [h("td", { class: "num" }, rank ? `Rang ${rank.rank}` : unknown("unbekannt")), h("td", {}, gameCell(card))]),
-      h("td", { title: card.coverage.present.map((name) => LAYER_NAMES[name]).join(", ") }, `${presentCount(card)}/4`),
-      ...(state.view === "deck" ? [h("td", { class: "num" }, state.deckCards.get(card.card_id))] : []));
+      ...(commander ? [h("td", {}, corpusCell(card)), h("td", {}, edhrecCell(card)), h("td", {}, gameCell(card))] : [h("td", { class: "num" }, rank ? `Rang ${nf(rank.rank)}` : unknown("unbekannt")), h("td", {}, gameCell(card))]),
+      h("td", { title: card.coverage.present.map((name) => LAYER_NAMES[name]).join(", ") }, `${nf(presentCount(card))}/4`),
+      ...(state.view === "deck" ? [h("td", { class: "num" }, nf(state.deckCards.get(card.card_id)))] : []));
   });
-  return h("table", {}, h("thead", {}, h("tr", {}, head.map((label) => (typeof label === "string" ? h("th", {}, label) : label)))), h("tbody", {}, rows));
+  return h("div", { class: "table-wrap" }, h("table", {}, h("thead", {}, h("tr", {}, head.map((label) => (typeof label === "string" ? h("th", {}, label) : label)))), h("tbody", {}, rows)));
 }
 function researchTable(cards) {
   const wanted = state.need || "";
@@ -382,12 +382,12 @@ function researchTable(cards) {
     const priority = card.coverage.research_priority;
     return h("tr", {},
       h("td", { class: "cardcell name", onclick: () => openCard(card) }, thumb(card), card.name),
-      h("td", { class: "num", title: "Heuristik für die Reihenfolge der Recherche, keine Kartenstärke" }, priority ? priority.score.toFixed(2) : unknown("–")),
+      h("td", { class: "num", title: "Heuristik für die Reihenfolge der Recherche, keine Kartenstärke" }, priority ? StudioUI.num(priority.score, 2) : unknown("–")),
       h("td", {}, card.coverage.gap_grade || unknown("–")),
       h("td", {}, needBadges(card)),
       h("td", {}, roleBadges(card)));
   });
-  return h("table", {}, h("thead", {}, h("tr", {}, ["Karte", "Priorität (Heuristik)", "Abdeckung", "Was fehlt", "Rollen"].map((label) => h("th", {}, label)))), h("tbody", {}, rows));
+  return h("div", { class: "table-wrap" }, h("table", {}, h("thead", {}, h("tr", {}, ["Karte", "Priorität (Heuristik)", "Abdeckung", "Was fehlt", "Rollen"].map((label) => h("th", {}, label)))), h("tbody", {}, rows)));
 }
 
 function render() {
@@ -395,7 +395,7 @@ function render() {
   body.replaceChildren();
   if (!state.data) return;
   const cards = visibleCards();
-  $("count").textContent = `${cards.length} Karten`;
+  $("count").textContent = `${nf(cards.length)} Karten`;
   if (state.tab === "research") {
     if (state.view === "global") { body.append(h("p", { class: "note" }, `Der Forschungsbedarf wird je Commander berechnet. Wähle die Ansicht ${VIEW_NAMES.commander}.`)); return; }
     const needs = [...new Set(state.data.cards.flatMap((card) => card.coverage.needs))].sort();
@@ -408,7 +408,7 @@ function render() {
     return;
   }
   body.append(cardsTable(cards));
-  if (cards.length > state.shown) body.append(h("p", {}, h("button", { type: "button", onclick: () => { state.shown += 200; render(); } }, `weitere ${Math.min(200, cards.length - state.shown)} zeigen`)));
+  if (cards.length > state.shown) body.append(h("p", {}, h("button", { type: "button", onclick: () => { state.shown += 200; render(); } }, `weitere ${nf(Math.min(200, cards.length - state.shown))} zeigen`)));
 }
 
 // ---------- notice ----------
@@ -416,19 +416,19 @@ function render() {
 function bindingLine() {
   const binding = state.data.corpus_binding;
   if (state.view === "global" || !binding) return null;
-  const parts = [`Quelldecks für ${VIEW_NAMES.commander}: ${binding.bound_decks}`];
-  if (binding.other_commander_decks) parts.push(`${binding.other_commander_decks} gehören zu anderen Commandern und zählen hier nicht`);
-  if (binding.unbound_decks) parts.push(`${binding.unbound_decks} ohne Commander-Zuordnung zählen nirgends`);
+  const parts = [`Quelldecks für ${VIEW_NAMES.commander}: ${nf(binding.bound_decks)}`];
+  if (binding.other_commander_decks) parts.push(`${nf(binding.other_commander_decks)} gehören zu anderen Commandern und zählen hier nicht`);
+  if (binding.unbound_decks) parts.push(`${nf(binding.unbound_decks)} ohne Commander-Zuordnung zählen nirgends`);
   return h("div", { class: "summary" }, parts.join(" · "), binding.bound_decks ? "" : " · Für diesen Commander sind noch keine Quelldecks importiert: fehlende Beobachtung, keine Schwäche.");
 }
 function renderNotice() {
   const summary = state.data.summary, policy = state.data.tier_policy;
   const status = summary.layer_status;
-  const line = (name) => `${LAYER_NAMES[name]}: ${Object.entries(status[name]).map(([key, n]) => `${n} ${(STATUS_NAMES[key] || [key])[0]}`).join(", ")}`;
+  const line = (name) => `${LAYER_NAMES[name]}: ${Object.entries(status[name]).map(([key, n]) => `${nf(n)} ${(STATUS_NAMES[key] || [key])[0]}`).join(", ")}`;
   const inDeckCount = state.data.cards.filter((card) => state.deckCards.has(card.card_id)).length;
   const viewSummary = state.view === "deck"
-    ? `${inDeckCount} im Deck von ${summary.cards} legalen Karten. `
-    : `${summary.cards} Karten in dieser Ansicht. `;
+    ? `${nf(inDeckCount)} im Deck von ${nf(summary.cards)} legalen Karten. `
+    : `${nf(summary.cards)} Karten in dieser Ansicht. `;
   $("notice").replaceChildren(
     h("details", { id: "tier-explain", class: "explain", title: `${policy.version}: ${policy.rule}` },
       h("summary", {}, "Was bedeuten die Stufen?"),
@@ -441,14 +441,14 @@ function renderNotice() {
 
 // ---------- evidence drawer ----------
 function table(heads, rows) {
-  return h("table", {}, h("thead", {}, h("tr", {}, heads.map((x) => h("th", {}, x)))), h("tbody", {}, rows.map((row) => h("tr", {}, row.map((cell) => h("td", {}, cell))))));
+  return h("div", { class: "table-wrap" }, h("table", {}, h("thead", {}, h("tr", {}, heads.map((x) => h("th", {}, x)))), h("tbody", {}, rows.map((row) => h("tr", {}, row.map((cell) => h("td", {}, cell)))))));
 }
 function drawer(card) {
   const box = [];
   const heading = (name, status) => h("h3", {}, LAYER_NAMES[name], statusBadge(status));
   const fact = layer(card, "fact");
   box.push(h("div", { class: "layer" }, heading("fact", fact.status),
-    h("p", {}, `Manawert ${fact.mana_value} · ${fact.type_line} · Quelle der Fakten: ${fact.fact_source} · Regelstand ${fact.rules_version}`),
+    h("p", {}, `Manawert ${StudioUI.numFlex(fact.mana_value, 2)} · ${fact.type_line} · Quelle der Fakten: ${fact.fact_source} · Regelstand ${fact.rules_version}`),
     table(["Merkmal", "trifft zu", "Regel"], fact.features.map((f) => [FEATURE_NAMES[f.feature] || f.feature, f.holds ? "ja" : "nein", h("span", { class: "rule" }, f.rule)])),
     h("p", {}, "Rollen mit Herkunft (Tagger-Rollen sind Community-Einordnungen):"),
     fact.roles.length ? fact.roles.map((c) => h("span", { class: "badge", title: [c.original_tag, c.mapping_rule].filter(Boolean).join(" · ") }, `${roleName(c.role)} · ${ORIGIN_NAMES[c.origin] || c.origin}`)) : unknown("keine Rolle erfasst")));
@@ -457,10 +457,10 @@ function drawer(card) {
   const corpus = (deck.items || []).filter((item) => item.kind === "corpus");
   const rank = (deck.items || []).find((item) => item.kind === "edhrec_rank_global");
   const deckBox = h("div", { class: "layer" }, heading("observed_deck", deck.status));
-  if (rank) deckBox.append(h("p", {}, `Globale Beliebtheit (Scryfall, EDHREC-Rang): ${rank.rank}. Niedriger ist beliebter. Das ist kein Stärkemaß.`));
-  if (corpus.length) deckBox.append(h("p", {}, "Quelldecks nach Gruppe, jeweils mit eigenem Nenner. Die Gruppen überlappen: nie addieren."), table(["Gruppe", "Decks mit Karte", "von", "Anteil", ""], corpus.map((item) => { const known = item.decks_known !== false && item.decks !== null; return [item.cohort, known ? item.decks : unknown(), item.of, known ? pct(item.decks, item.of) : unknown("–"), item.small_denominator ? h("span", { class: "badge warn" }, "n < 30") : ""]; })));
+  if (rank) deckBox.append(h("p", {}, `Globale Beliebtheit (Scryfall, EDHREC-Rang): ${nf(rank.rank)}. Niedriger ist beliebter. Das ist kein Stärkemaß.`));
+  if (corpus.length) deckBox.append(h("p", {}, "Quelldecks nach Gruppe, jeweils mit eigenem Nenner. Die Gruppen überlappen: nie addieren."), table(["Gruppe", "Decks mit Karte", "von", "Anteil", ""], corpus.map((item) => { const known = item.decks_known !== false && item.decks !== null; return [item.cohort, known ? nf(item.decks) : unknown(), nf(item.of), known ? pct(item.decks, item.of) : unknown("–"), item.small_denominator ? h("span", { class: "badge warn" }, "n < 30") : ""]; })));
   if (deck.edhrec_rows && deck.edhrec_rows.length) {
-    deckBox.append(h("p", {}, "EDHREC-Beobachtungen. Inclusion, Lift und Synergy sind verschiedene Maße und nie ein gemeinsamer Wert."), table(["Ansicht", "Maß", "Wert", "Decks/Nenner", "Stand", "Datenklasse"], deck.edhrec_rows.map((row) => [row.cohort, row.metric, row.value === null ? unknown() : row.value, row.denominator_known ? `${row.numerator ?? "?"}/${row.denominator}${row.small_denominator ? " (n < 30)" : ""}` : unknown("Nenner unbekannt"), row.snapshot_known ? row.snapshot : unknown("Zeit unbekannt"), row.data_class])));
+    deckBox.append(h("p", {}, "EDHREC-Beobachtungen. Inclusion, Lift und Synergy sind verschiedene Maße und nie ein gemeinsamer Wert."), table(["Ansicht", "Maß", "Wert", "Decks/Nenner", "Stand", "Datenklasse"], deck.edhrec_rows.map((row) => [row.cohort, row.metric, row.value === null ? unknown() : StudioUI.numFlex(row.value, 4), row.denominator_known ? `${row.numerator !== null && row.numerator !== undefined ? nf(row.numerator) : "?"}/${nf(row.denominator)}${row.small_denominator ? " (n < 30)" : ""}` : unknown("Nenner unbekannt"), row.snapshot_known ? row.snapshot : unknown("Zeit unbekannt"), row.data_class])));
   } else if (state.view !== "global") {
     deckBox.append(h("p", {}, "Keine EDHREC-Beobachtung für diese Karte."));
   }
@@ -469,17 +469,17 @@ function drawer(card) {
 
   const game = layer(card, "observed_game");
   const atlas = game.atlas;
-  const val = (x, suffix = "") => (x === null || x === undefined ? unknown() : `${x}${suffix}`);
+  const val = (x, suffix = "", digits = 2) => (x === null || x === undefined ? unknown() : `${typeof x === "number" ? StudioUI.numFlex(x, digits) : x}${suffix}`);
   box.push(h("div", { class: "layer" }, heading("observed_game", game.status), h("p", {}, GAME_NOTES[game.status] || game.note),
     atlas && game.status === "PRESENT" ? [
       h("p", {}, `Quelle: Playgroup.gg Card Atlas (CC BY 4.0). Grundgesamtheit: alle Commander, nur Playgroup-Live-Partien.`),
       table(["Messwert", "Wert"], [
-        ["Mitgebracht (Partien)", val(atlas.times_brought)],
+        ["Mitgebracht (Partien)", val(atlas.times_brought, "", 0)],
         ["Live-Inclusion", val(atlas.live_inclusion_pct, " %")],
         ["Median Zug des ersten Wirkens", val(atlas.median_cast_turn)],
         ["Siegrate, wenn gewirkt", val(atlas.winrate_when_cast_pct, " %")],
         ["Differenz gewirkt gegen Bibliothek", val(atlas.observed_winrate_gap_pp, " Pp")],
-        ["95-%-Intervall der Differenz", atlas.ci_95_lower_pp === null || atlas.ci_95_upper_pp === null ? unknown() : `${atlas.ci_95_lower_pp} bis ${atlas.ci_95_upper_pp} Pp`],
+        ["95-%-Intervall der Differenz", atlas.ci_95_lower_pp === null || atlas.ci_95_upper_pp === null ? unknown() : `${StudioUI.numFlex(atlas.ci_95_lower_pp, 2)} bis ${StudioUI.numFlex(atlas.ci_95_upper_pp, 2)} Pp`],
         ["Stichprobe", atlas.insufficient_sample ? h("span", { class: "badge warn" }, "zu klein") : "ausreichend laut Import"],
       ]),
       h("p", {}, "Die Differenz vergleicht Partien, in denen die Karte gewirkt wurde, mit Partien, in denen sie in der Bibliothek blieb. Wer eine Karte wirken kann, steht oft schon besser da. Das ist kein Beweis für Kartenstärke."),
@@ -487,20 +487,20 @@ function drawer(card) {
   const combo = layer(card, "combo_verified");
   box.push(h("div", { class: "layer" }, heading("combo_verified", combo.status), combo.note ? h("p", {}, "Eine gelistete Kombo ist kein Beleg für Stärke und kein bestandener Engine-Test.") : null));
   const sim = layer(card, "simulated_result");
-  box.push(h("div", { class: "layer" }, heading("simulated_result", sim.status), sim.totals ? h("p", {}, `${sim.totals.runs} Läufe: in ${sim.totals.games_cast_after_offer} von ${sim.totals.games_offered} Partien nach dem Angebot gespielt (${sim.totals.cast_count} Zauber). Simulierte Ergebnisse stehen für sich und werden nie mit echten Spielen verrechnet.`) : null));
+  box.push(h("div", { class: "layer" }, heading("simulated_result", sim.status), sim.totals ? h("p", {}, `${nf(sim.totals.runs)} Läufe: in ${nf(sim.totals.games_cast_after_offer)} von ${nf(sim.totals.games_offered)} Partien nach dem Angebot gespielt (${nf(sim.totals.cast_count)} Zauber). Simulierte Ergebnisse stehen für sich und werden nie mit echten Spielen verrechnet.`) : null));
 
   const cov = card.coverage;
   box.push(h("div", { class: "layer" }, h("h3", {}, "Abdeckung und Forschungsbedarf"),
     h("p", {}, `Vorhanden: ${cov.present.map((name) => LAYER_NAMES[name]).join(", ") || "nichts"}.`),
     cov.needs.length ? h("div", {}, needBadges(card)) : h("p", {}, "Keine offene Lücke."),
-    cov.gap_grade ? h("p", {}, `Lückenklasse: ${cov.gap_grade}. Forschungspriorität (Heuristik, keine Kartenstärke): ${cov.research_priority.score.toFixed(2)}${cov.research_priority.long_tail ? ", Long-Tail-Kandidat" : ""}.`) : null));
+    cov.gap_grade ? h("p", {}, `Lückenklasse: ${cov.gap_grade}. Forschungspriorität (Heuristik, keine Kartenstärke): ${StudioUI.num(cov.research_priority.score, 2)}${cov.research_priority.long_tail ? ", Long-Tail-Kandidat" : ""}.`) : null));
   return box;
 }
 function strengthBox(card) {
   const item = strengthItem(card);
   const label = item && item.tier === "N" ? item.note : item && item.tier === "U" ? UNKNOWN_TIER : null;
   const box = h("div", { class: "layer" }, h("h3", {}, INDEX_HEADING,
-    item ? (label !== null ? neutral(label, STRENGTH_NOTE) : tierBadge(item.tier, item.index.toFixed(1), "Schätzung aus Nutzungsdaten")) : null),
+    item ? (label !== null ? neutral(label, STRENGTH_NOTE) : tierBadge(item.tier, StudioUI.num(item.index, 1), "Schätzung aus Nutzungsdaten")) : null),
     h("p", {}, STRENGTH_NOTE));
   if (!item) { box.append(h("p", {}, state.view === "global" ? "Der Index wird je Commander berechnet." : "Für diese Karte liegt keine Berechnung vor.")); return box; }
   if (item.tier === "N") {
@@ -520,12 +520,12 @@ function strengthBox(card) {
       : item.reason === "NO_SOURCE_FOR_COMMANDER"
       ? "Für diesen Commander liegt bei keinem gewichteten Signal ein Wert im Pool vor."
       : "Zu wenig Daten für eine Stufe: das sagt nichts über die Stärke der Karte.";
-    box.append(h("p", {}, `Datenlage ${(100 * item.coverage).toFixed(0)} % (Gewicht der Signale mit Wert an allen gewichteten). ${item.tier === "U" ? reasonText : ""}`));
+    box.append(h("p", {}, `Datenlage ${StudioUI.num(100 * item.coverage, 0)} % (Gewicht der Signale mit Wert an allen gewichteten). ${item.tier === "U" ? reasonText : ""}`));
   }
   const used = state.strength.result && state.strength.result.universe_choice;
   if (used && used.kind !== "none") box.append(h("p", { class: "rule" }, `Decklisten-Universum: ${universeLine(used)}`));
   const universe = state.strength.result && state.strength.result.universe;
-  if (universe && universe.subset_note) box.append(h("p", { class: "rule" }, `Decklisten-Universum ${universe.profile}: ${universe.denominator} Decks. ${universe.subset_note}.`));
+  if (universe && universe.subset_note) box.append(h("p", { class: "rule" }, `Decklisten-Universum ${universe.profile}: ${nf(universe.denominator)} Decks. ${universe.subset_note}.`));
   box.append(...strengthDetail(item));
   return box;
 }
@@ -533,11 +533,11 @@ function strengthBox(card) {
 // weight, status and data class.
 function signalRow(c) {
   const [text, kind] = componentStatus(c);
-  const score = c.percentile === null ? unknown("–") : `${(100 * c.percentile).toFixed(1)}${c.group_fallback ? " (Rang im ganzen Pool (Gruppe zu klein))" : c.group ? ` (Gruppe ${groupLabel(c.group)}${c.group_size ? `, ${c.group_size}` : ""})` : ""}`;
+  const score = c.percentile === null ? unknown("–") : `${StudioUI.num(100 * c.percentile, 1)}${c.group_fallback ? " (Rang im ganzen Pool (Gruppe zu klein))" : c.group ? ` (Gruppe ${groupLabel(c.group)}${c.group_size ? `, ${nf(c.group_size)}` : ""})` : ""}`;
   const requested = state.strength.result && state.strength.result.settings.weights[c.component];
-  const weightText = requested !== undefined && Math.abs(requested - c.weight) > 1e-9 ? `${c.weight} (angefragt ${requested})` : `${c.weight}`;
+  const weightText = requested !== undefined && Math.abs(requested - c.weight) > 1e-9 ? `${StudioUI.numFlex(c.weight, 2)} (angefragt ${StudioUI.numFlex(requested, 2)})` : `${StudioUI.numFlex(c.weight, 2)}`;
   const counted = c.denominator ? (c.numerator === null || c.numerator === undefined ? `n = ${nf(c.denominator)}` : `${nf(c.numerator)}/${nf(c.denominator)}`) : unknown("–");
-  return [h("span", { title: c.signal }, c.label), c.value === null ? unknown() : Number(c.value.toPrecision(4)), counted, score, weightText, h("span", { class: `badge ${kind}` }, text), h("span", { title: c.data_class }, `${DATA_CLASS_NAMES[c.data_class] || c.data_class} (${c.data_class})`), c.note ? h("span", { class: "rule" }, c.note) : ""];
+  return [h("span", { title: c.signal }, c.label), c.value === null ? unknown() : StudioUI.numSig(c.value, 4), counted, score, weightText, h("span", { class: `badge ${kind}` }, text), h("span", { title: c.data_class }, `${DATA_CLASS_NAMES[c.data_class] || c.data_class} (${c.data_class})`), c.note ? h("span", { class: "rule" }, c.note) : ""];
 }
 const SIGNAL_HEADS = ["Signal", "Rohwert", "Zähler/Nenner", "Score 0 bis 100", "Gewicht (wirksam)", "Status", "Datenklasse", "Hinweis"];
 function strengthDetail(item) {
@@ -547,16 +547,16 @@ function strengthDetail(item) {
   const out = [];
   if (item.confidence !== null && item.confidence !== undefined) {
     const level = CONFIDENCE_NAMES[item.confidence_level] || item.confidence_level;
-    out.push(h("p", { id: "confidence-line" }, `Konfidenz ${level} (${item.confidence.toFixed(2)}). ${CONFIDENCE_TEXT}`));
+    out.push(h("p", { id: "confidence-line" }, `Konfidenz ${level} (${StudioUI.num(item.confidence, 2)}). ${CONFIDENCE_TEXT}`));
   }
-  if (item.borderline) out.push(h("p", { id: "borderline-detail" }, h("span", { class: "borderline" }, "grenzwertig"), ` Der Index ${item.index.toFixed(1)} liegt ${item.cut_distance.toFixed(1)} Punkte von der Grenze ${item.borderline_cut}.`));
+  if (item.borderline) out.push(h("p", { id: "borderline-detail" }, h("span", { class: "borderline" }, "grenzwertig"), ` Der Index ${StudioUI.num(item.index, 1)} liegt ${StudioUI.num(item.cut_distance, 1)} Punkte von der Grenze ${StudioUI.numFlex(item.borderline_cut, 1)}.`));
   const roleRanks = item.role_ranks ? Object.entries(item.role_ranks) : [];
   if (roleRanks.length) {
     out.push(h("p", { id: "role-ranks-line" }, "Rang in der Funktion (aktueller Index): ",
-      ...roleRanks.map(([role, rInfo]) => h("span", { class: "badge mr-1" }, `${roleName(role)}: #${rInfo.rank}/${rInfo.total}`))));
+      ...roleRanks.map(([role, rInfo]) => h("span", { class: "badge mr-1" }, `${roleName(role)}: #${nf(rInfo.rank)}/${nf(rInfo.total)}`))));
   }
   out.push(h("h4", {}, "Objektive Signale (zählen mit Gewicht)"), table(SIGNAL_HEADS, objective.map(signalRow)));
-  if (subjective.length) out.push(h("div", { class: "block-subjective", id: "block-subjective" }, h("h4", {}, subjective[0].weight > 0 ? `Subjektiv, Gewicht ${subjective[0].weight}: zählt mit (Einstellung)` : "Subjektiv, Gewicht 0: zählt nicht"), h("p", {}, subjective[0].weight > 0 ? "Die Raster-Bewertung ist eine persönliche Einschätzung, kein objektives Signal. Dieses Profil gibt ihr ein Gewicht; die Empfehlung ist 0." : "Die Raster-Bewertung ist eine persönliche Einschätzung, kein objektives Signal. Sie fließt nicht in Index und Stufe ein."), table(SIGNAL_HEADS, subjective.map(signalRow))));
+  if (subjective.length) out.push(h("div", { class: "block-subjective", id: "block-subjective" }, h("h4", {}, subjective[0].weight > 0 ? `Subjektiv, Gewicht ${StudioUI.numFlex(subjective[0].weight, 2)}: zählt mit (Einstellung)` : "Subjektiv, Gewicht 0: zählt nicht"), h("p", {}, subjective[0].weight > 0 ? "Die Raster-Bewertung ist eine persönliche Einschätzung, kein objektives Signal. Dieses Profil gibt ihr ein Gewicht; die Empfehlung ist 0." : "Die Raster-Bewertung ist eine persönliche Einschätzung, kein objektives Signal. Sie fließt nicht in Index und Stufe ein."), table(SIGNAL_HEADS, subjective.map(signalRow))));
   if (simulation.length) out.push(h("div", { class: "block-simulation", id: "block-simulation" }, h("h4", {}, "Simulation: Gewicht 0, nicht erhoben"), h("p", {}, "Ergebnisse aus Simulationen sind keine Beobachtung aus echten Partien und fließen nie in den Index."), table(SIGNAL_HEADS, simulation.map(signalRow))));
   return out;
 }
@@ -586,23 +586,23 @@ async function alternativesBox(card) {
   if (!shown.length) { box.append(h("p", {}, "Keine freie Karte mit gleicher Rolle gefunden.")); return box; }
   box.append(table(["Karte", "Manawert", "Unterschied", "Gemeinsame Rollen", "Fehlt gegenüber dieser Karte", "Zusätzlich", "Quelldecks", "Echte Spiele"], shown.map((item) => [
     h("span", { class: "name", onclick: () => openCard(item.card) }, (state.marks.get(item.card.card_id) || {}).favorite ? h("span", { class: "star" }, "★ ") : null, item.card.name),
-    item.card.mana_value,
-    item.mana_value_delta === 0 ? "gleich" : `${item.mana_value_delta > 0 ? "+" : ""}${item.mana_value_delta}`,
+    StudioUI.numFlex(item.card.mana_value, 2),
+    item.mana_value_delta === 0 ? "gleich" : `${item.mana_value_delta > 0 ? "+" : ""}${StudioUI.numFlex(item.mana_value_delta, 2)}`,
     item.shared_roles.map(roleName).join(", "),
     item.missing_roles.map(roleName).join(", ") || "nichts",
     item.only_candidate_roles.map(roleName).join(", ") || "nichts",
     corpusCell(item.card),
     gameCell(item.card),
   ])));
-  if (data.total > data.alternatives.length) box.append(h("p", {}, `${data.total - data.alternatives.length} weitere nicht gezeigt.`));
+  if (data.total > data.alternatives.length) box.append(h("p", {}, `${nf(data.total - data.alternatives.length)} weitere nicht gezeigt.`));
   return box;
 }
 function pairsTable(data) {
   return table(["Karte", "Decks zusammen", "Anteil der Decks mit dieser Karte", "Lift", "Kombo-Partner"], data.pairs.map((pair) => [
     pair.card_name,
-    `${pair.decks_together}/${data.decks_with_card}`,
+    `${nf(pair.decks_together)}/${nf(data.decks_with_card)}`,
     pct(pair.decks_together, data.decks_with_card),
-    pair.lift === null || pair.lift === undefined ? unknown("–") : pair.lift.toFixed(2),
+    pair.lift === null || pair.lift === undefined ? unknown("–") : StudioUI.num(pair.lift, 2),
     pair.combo_partner ? "ja (Spellbook-Kombo)" : "–",
   ]));
 }
@@ -612,15 +612,15 @@ async function universeBox(card) {
   if (!uni.name) { box.append(h("p", {}, NO_UNIVERSE + ". Wähle oben ein Universum, um die gezählte Verbreitung zu sehen.")); return box; }
   const data = await api(`/api/cards/${encodeURIComponent(card.card_id)}/universe?profile=${encodeURIComponent(uni.name)}&commander=${encodeURIComponent(COMMANDER)}`);
   const item = data.cards[0], universe = data.universe;
-  if (universe.subset_note) box.append(h("p", { class: "policy" }, `${universe.subset_note}. Der Nenner ${universe.denominator} ist diese Teilmenge, nicht alle Decks des Commanders.`));
+  if (universe.subset_note) box.append(h("p", { class: "policy" }, `${universe.subset_note}. Der Nenner ${nf(universe.denominator)} ist diese Teilmenge, nicht alle Decks des Commanders.`));
   if (item.filter_card) box.append(h("p", {}, h("b", {}, `${FILTER_LABEL}: `), "das Universum verlangt diese Karte; sie steht in jedem Deck der Teilmenge und bekommt deshalb keinen Anteil und keine Stufe."));
-  box.append(h("p", {}, spreadBadge(item, universe), " ", item.filter_card ? "" : item.matched ? `${item.hits} von ${item.denominator} Decks (${pct(item.hits, item.denominator)})` : "unbekannt: kein Deck des Universums nennt diese Karte unter einem bekannten Namen"));
+  box.append(h("p", {}, spreadBadge(item, universe), " ", item.filter_card ? "" : item.matched ? `${nf(item.hits)} von ${nf(item.denominator)} Decks (${pct(item.hits, item.denominator)})` : "unbekannt: kein Deck des Universums nennt diese Karte unter einem bekannten Namen"));
   box.append(h("p", {}, `Grund: ${REASON_NAMES[item.reason] || item.reason}. Universum ${universe.profile} (${universe.data_class}), Stand ${universe.snapshot_id}.`));
-  box.append(h("p", {}, `Schwellen (Modell ${data.model_version || "unbekannt"}): Universum mindestens ${data.params.min_universe} Decks; ${data.params.cuts.map(([tier, cut]) => `${tier} ab ${(100 * cut).toFixed(0)} %`).join(", ")}; darunter ${data.params.fallback_tier}; ohne Datenbasis U. Nur Lesehilfe für die Häufigkeit, keine Stärke.`));
-  if (universe.excluded_by_card_filter) box.append(h("p", { class: "rule" }, `${universe.excluded_by_card_filter} Decks fallen durch den Kartenfilter heraus und zählen nicht im Nenner.`));
-  if (universe.excluded_no_date) box.append(h("p", { class: "rule" }, `${universe.excluded_no_date} Decks ohne Zeitstempel fallen durch den Datumsfilter des Universums heraus und zählen nicht im Nenner.`));
-  if (item.spellings.length > 1) box.append(h("p", { class: "spellings" }, "Mehrere Schreibweisen kommen vor und werden nie addiert; gezeigt wird die größte: ", item.spellings.map((s) => `${s.name}: ${s.hits}`).join(" · ")));
-  const parts = (label, map) => `${label}: ${Object.entries(map).map(([key, n]) => `${key} ${n}`).join(", ") || "–"}`;
+  box.append(h("p", {}, `Schwellen (Modell ${data.model_version || "unbekannt"}): Universum mindestens ${nf(data.params.min_universe)} Decks; ${data.params.cuts.map(([tier, cut]) => `${tier} ab ${StudioUI.num(100 * cut, 0)} %`).join(", ")}; darunter ${data.params.fallback_tier}; ohne Datenbasis U. Nur Lesehilfe für die Häufigkeit, keine Stärke.`));
+  if (universe.excluded_by_card_filter) box.append(h("p", { class: "rule" }, `${nf(universe.excluded_by_card_filter)} Decks fallen durch den Kartenfilter heraus und zählen nicht im Nenner.`));
+  if (universe.excluded_no_date) box.append(h("p", { class: "rule" }, `${nf(universe.excluded_no_date)} Decks ohne Zeitstempel fallen durch den Datumsfilter des Universums heraus und zählen nicht im Nenner.`));
+  if (item.spellings.length > 1) box.append(h("p", { class: "spellings" }, "Mehrere Schreibweisen kommen vor und werden nie addiert; gezeigt wird die größte: ", item.spellings.map((s) => `${s.name}: ${nf(s.hits)}`).join(" · ")));
+  const parts = (label, map) => `${label}: ${Object.entries(map).map(([key, n]) => `${key} ${nf(n)}`).join(", ") || "–"}`;
   box.append(h("p", { class: "rule" }, parts("Nenner nach Plattform", universe.denominator_by_platform), " · ", parts("nach Bracket", universe.denominator_by_bracket)));
   box.append(h("p", { class: "rule" }, data.meaning));
   const result = h("div", {});
@@ -628,7 +628,7 @@ async function universeBox(card) {
     button.disabled = true;
     try {
       const co = await api(`/api/cards/${encodeURIComponent(card.card_id)}/cooccurrence?profile=${encodeURIComponent(uni.name)}&limit=25&commander=${encodeURIComponent(COMMANDER)}`);
-      result.replaceChildren(...(co.decks_with_card === null ? [h("p", {}, "unbekannt: die Karte kommt im Universum nicht vor")] : [h("p", {}, `${co.decks_with_card_label}: ${co.decks_with_card}; ${co.denominator_label}: ${co.denominator}.`), co.subset_note ? h("p", { class: "rule" }, `${co.subset_note}. Der Nenner ${co.denominator} ist diese Teilmenge, nicht alle Decks des Commanders.${co.filter_card ? " Diese Karte ist eine Filterkarte: sie steht in allen Decks der Teilmenge." : ""}`) : null, pairsTable(co)].filter(Boolean)));
+      result.replaceChildren(...(co.decks_with_card === null ? [h("p", {}, "unbekannt: die Karte kommt im Universum nicht vor")] : [h("p", {}, `${co.decks_with_card_label}: ${nf(co.decks_with_card)}; ${co.denominator_label}: ${nf(co.denominator)}.`), co.subset_note ? h("p", { class: "rule" }, `${co.subset_note}. Der Nenner ${nf(co.denominator)} ist diese Teilmenge, nicht alle Decks des Commanders.${co.filter_card ? " Diese Karte ist eine Filterkarte: sie steht in allen Decks der Teilmenge." : ""}`) : null, pairsTable(co)].filter(Boolean)));
     } catch (error) { result.replaceChildren(h("p", {}, `Fehler: ${StudioUI.germanError(error)}`)); button.disabled = false; }
   } }, "Zusammen gespielt mit");
   box.append(button, result);
@@ -667,14 +667,14 @@ function rememberedUniverse() { try { return localStorage.getItem(UNIVERSE_KEY) 
 const listText = (text) => text.split(",").map((part) => part.trim()).filter(Boolean);
 function breakdown(label, map) {
   const entries = Object.entries(map || {});
-  return h("span", {}, `${label}: `, entries.length ? entries.map(([key, n]) => `${key} ${n}`).join(", ") : unknown("–"));
+  return h("span", {}, `${label}: `, entries.length ? entries.map(([key, n]) => `${key} ${nf(n)}`).join(", ") : unknown("–"));
 }
 function optionChecks(id, options, selected) {
   const box = h("div", { class: "checks", id });
   if (!options) { box.append(h("span", { class: "muted" }, "Werte nicht verfügbar")); return box; }
   if (!options.length) { box.append(h("span", { class: "muted" }, "keine Werte im Bestand")); return box; }
   for (const option of options) {
-    box.append(h("label", {}, h("input", { type: "checkbox", value: option.value, checked: selected.includes(option.value) }), ` ${option.value} (${option.decks} Decks)`));
+    box.append(h("label", {}, h("input", { type: "checkbox", value: option.value, checked: selected.includes(option.value) }), ` ${option.value} (${nf(option.decks)} Decks)`));
   }
   return box;
 }
@@ -710,7 +710,7 @@ function renderUniversePanel() {
     return {
       chosen: () => [...chosen],
       node: h("span", {}, input,
-        h("datalist", { id: "u-card-list" }, ...options.map((option) => h("option", { value: option.value }, `${option.decks} Decks`))),
+        h("datalist", { id: "u-card-list" }, ...options.map((option) => h("option", { value: option.value }, `${nf(option.decks)} Decks`))),
         h("button", { type: "button", onclick: add }, "hinzufügen"), chips),
     };
   };
@@ -761,13 +761,13 @@ function renderUniversePanel() {
     : h("div", { class: "facts" },
       h("b", {}, uni.name),
       h("span", { class: "muted" }, `Version ${summary.version}`),
-      h("span", {}, `${summary.denominator} Decks (Nenner)`),
+      h("span", {}, `${nf(summary.denominator)} Decks (Nenner)`),
       breakdown("Plattform", summary.denominator_by_platform),
       breakdown("Bracket", summary.denominator_by_bracket),
       summary.empty ? h("span", { id: "universe-empty", class: "badge warn badge-text" }, REASON_NAMES[summary.empty_reason] || summary.empty_reason || "Universum ist leer (0 Decks)") : null,
       summary.subset_note ? h("span", { class: "badge warn badge-text" }, summary.subset_note) : null,
-      summary.excluded_no_date ? h("span", { class: "muted" }, `${summary.excluded_no_date} Decks ohne Zeitstempel durch den Datumsfilter ausgeschlossen`) : null,
-      summary.below_min_universe ? h("span", { class: "badge warn badge-text" }, `unter dem Mindest-Universum (${summary.min_universe} Decks): alle Karten U`) : null,
+      summary.excluded_no_date ? h("span", { class: "muted" }, `${nf(summary.excluded_no_date)} Decks ohne Zeitstempel durch den Datumsfilter ausgeschlossen`) : null,
+      summary.below_min_universe ? h("span", { class: "badge warn badge-text" }, `unter dem Mindest-Universum (${nf(summary.min_universe)} Decks): alle Karten U`) : null,
       h("span", { class: "muted", title: summary.snapshot_id }, `Stand ${summary.snapshot_id.slice(0, 28)}`),
       h("span", { class: "muted", title: summary.data_class }, "gezählt, Teilmengen addieren sich zum Nenner"));
   panel.replaceChildren(facts, h("div", { class: "muted" }, SPREAD_NOTE), h("details", {}, h("summary", {}, uni.name ? "Universum ändern oder neu anlegen" : "Universum anlegen"), form));
@@ -906,7 +906,7 @@ function universeLine(choice) {
   const verb = choice.automatic ? "automatisch gewählt" : "gewählt";
   if (choice.kind === "none") return `kein Decklisten-Universum (${choice.reason})`;
   const what = choice.kind === "counted" ? `Verbreitung (gezählt): ${choice.short_label}` : choice.label;
-  return `${what} · Nenner ${choice.denominator} Decks · ${verb}${choice.reason ? ` (${choice.reason.replace(/^automatisch gewählt: /, "")})` : ""}`;
+  return `${what} · Nenner ${nf(choice.denominator)} Decks · ${verb}${choice.reason ? ` (${choice.reason.replace(/^automatisch gewählt: /, "")})` : ""}`;
 }
 // Tier header (#1365): S to D, U split into counted zeros and missing data, N; spells and lands counted
 // apart; the counted corpus (universe and denominator) always in view.
@@ -933,7 +933,7 @@ function tierHeader(result) {
   const unknownText = `unbekannt (U) ${nf(counts.U)}`;
   const zeroText = u.denominator === null ? "nur gezählte Nullen" : `gezählt 0 von ${nf(u.denominator)} Decks`;
   const breakdown = `${zeroText}: ${nf(u.zero_count)} Karten · fehlende Daten: ${nf(u.missing_data)} Karten`;
-  const codes = Object.entries(u.by_reason).map(([code, n]) => `${code} ${n}`).join(", ");
+  const codes = Object.entries(u.by_reason).map(([code, n]) => `${code} ${nf(n)}`).join(", ");
   return [h("div", { class: "tier-block" },
     h("div", { class: "tier-head", id: "tier-head" },
       ...["S", "A", "B", "C", "D"].map((tier) => tierBadge(tier, nf(counts[tier]), `Stufe ${tier}: ${nf(counts[tier])} Karten`)),
@@ -941,22 +941,22 @@ function tierHeader(result) {
       neutral(`N ${nf(counts.N || 0)}`, "nicht bewertet: Commander und Standardländer, wenn sie nicht bewertet werden")),
     distributionTable(result),
     h("div", { class: "rule", id: "corpus-line" }, corpusLine(result)),
-    h("div", { class: "rule", id: "borderline-line" }, `grenzwertig (näher als ${result.settings.borderline_distance} Punkte an einer Stufengrenze): ${nf(result.borderline_count)} Karten. ${CONFIDENCE_TEXT}`))];
+    h("div", { class: "rule", id: "borderline-line" }, `grenzwertig (näher als ${StudioUI.numFlex(result.settings.borderline_distance, 3)} Punkte an einer Stufengrenze): ${nf(result.borderline_count)} Karten. ${CONFIDENCE_TEXT}`))];
 }
 function snapshotBadge(result) {
   const snap = result.snapshot;
   if (!snap) return null;
   if (snap.status === "STALE") {
-    return h("span", { id: "snapshot-status", class: "badge warn", title: `Snapshot-Epoche ${(snap.snapshot_epoch || "").slice(0, 12)} ungleich aktueller Epoche ${(snap.current_epoch || "").slice(0, 12)}` }, "Snapshot veraltet, Neuberechnung läuft");
+    return h("span", { id: "snapshot-status", class: "badge warn badge-text", title: `Snapshot-Epoche ${(snap.snapshot_epoch || "").slice(0, 12)} ungleich aktueller Epoche ${(snap.current_epoch || "").slice(0, 12)}` }, "Snapshot veraltet, Neuberechnung läuft");
   }
   if (snap.status === "HIT") {
     const stamp = snap.created_at ? `${snap.created_at.slice(0, 19).replace("T", " ")} UTC` : "–";
     const epochShort = snap.data_epoch ? snap.data_epoch.slice(0, 12) : "–";
-    return h("span", { id: "snapshot-status", class: "badge good", title: `Snapshot ${snap.profile_name || ""} (${snap.spec_version || ""})` }, `Snapshot: Stand ${stamp} · Epoche ${epochShort}`);
+    return h("span", { id: "snapshot-status", class: "badge good badge-text", title: `Snapshot ${snap.profile_name || ""} (${snap.spec_version || ""})` }, `Snapshot: Stand ${stamp} · Epoche ${epochShort}`);
   }
   if (snap.status === "MISSING") {
     const epochShort = snap.current_epoch ? snap.current_epoch.slice(0, 12) : "–";
-    return h("span", { id: "snapshot-status", class: "badge dim" }, `Live berechnet (kein Snapshot · Epoche ${epochShort})`);
+    return h("span", { id: "snapshot-status", class: "badge dim badge-text" }, `Live berechnet (kein Snapshot · Epoche ${epochShort})`);
   }
   return null;
 }
@@ -967,7 +967,7 @@ function renderStrengthSummary() {
   const result = s.result, counts = result.tier_counts, universe = result.universe;
   const choice = result.universe_choice;
   const universeWeight = result.settings.weights.deck_universe;
-  const universeText = `Index berechnet mit: ${choice ? universeLine(choice) : "kein Decklisten-Universum"}${universe && universe.subset_note ? `; ${universe.subset_note}` : ""}${choice && choice.kind !== "none" ? (universeWeight > 0 ? `; zählt in die Stufe mit Gewicht ${universeWeight}` : "; Gewicht 0: zählt nicht in die Stufe") : ""}`;
+  const universeText = `Index berechnet mit: ${choice ? universeLine(choice) : "kein Decklisten-Universum"}${universe && universe.subset_note ? `; ${universe.subset_note}` : ""}${choice && choice.kind !== "none" ? (universeWeight > 0 ? `; zählt in die Stufe mit Gewicht ${StudioUI.numFlex(universeWeight, 3)}` : "; Gewicht 0: zählt nicht in die Stufe") : ""}`;
   // Sources that can exist for these settings: no simulation (not collected), no bracket source without a
   // bracket, no deck universe without one.
   const possible = s.meta.components.filter((c) => c.key !== "simulation" && !(c.key === "bracket_inclusion" && result.settings.bracket === "none") && !(c.key === "deck_universe" && !(result.universe_choice && result.universe_choice.kind !== "none")) && !(c.key === "rubric" && !result.collected.includes("rubric"))).length;
@@ -981,11 +981,11 @@ function renderStrengthSummary() {
   box.replaceChildren(
     ...tierHeader(result),
     snapNode,
-    h("span", { class: "muted" }, `von ${result.cards.length} Karten · ${universeText} · Quellen vorhanden: ${result.collected.length}/${possible}`),
+    h("span", { class: "muted" }, `von ${nf(result.cards.length)} Karten · ${universeText} · Quellen vorhanden: ${nf(result.collected.length)}/${nf(possible)}`),
     ...notices,
-    ...(result.layer_summary ? result.layer_summary.layers.filter((item) => item.source_discrepancies > 0).map((item) => h("div", { class: "rule" }, `${item.label}: bei ${item.source_discrepancies} Karten nennt die Quelle einen anderen Prozentwert als Zähler/Nenner; die Zelle zeigt Zähler/Nenner, der genannte Wert steht im Tooltip.`)) : []),
-    ...(result.layer_summary ? [h("div", { class: "rule", title: `${result.layer_summary.measured_note} ${result.layer_summary.pod_note}` }, `Ebenen (eigene Spalten): ${result.layer_summary.layers.map((item) => `${item.label} ${item.with_value}/${item.pool_cards} (${LAYER_KIND_SHORT[item.kind] || item.kind})`).join(" · ")}${result.layer_summary.weighted.length ? `. Im Index mit Gewicht: ${result.layer_summary.weighted.map((key) => (layerMetas().find((meta) => meta.key === key) || { label: key }).label).join(", ")}` : ". Keine Ebene hat ein Gewicht: die Stufen entsprechen dem Index ohne Ebenen"}`)] : []),
-    ...(ambiguous.length ? [h("div", { class: "rule" }, `Mehrdeutige Namen in den Quelldaten, keiner Karte zugeordnet: ${shown}${ambiguous.length > 10 ? ` und ${ambiguous.length - 10} weitere` : ""}`)] : []));
+    ...(result.layer_summary ? result.layer_summary.layers.filter((item) => item.source_discrepancies > 0).map((item) => h("div", { class: "rule" }, `${item.label}: bei ${nf(item.source_discrepancies)} Karten nennt die Quelle einen anderen Prozentwert als Zähler/Nenner; die Zelle zeigt Zähler/Nenner, der genannte Wert steht im Tooltip.`)) : []),
+    ...(result.layer_summary ? [h("div", { class: "rule", title: `${result.layer_summary.measured_note} ${result.layer_summary.pod_note}` }, `Ebenen (eigene Spalten): ${result.layer_summary.layers.map((item) => `${item.label} ${nf(item.with_value)}/${nf(item.pool_cards)} (${LAYER_KIND_SHORT[item.kind] || item.kind})`).join(" · ")}${result.layer_summary.weighted.length ? `. Im Index mit Gewicht: ${result.layer_summary.weighted.map((key) => (layerMetas().find((meta) => meta.key === key) || { label: key }).label).join(", ")}` : ". Keine Ebene hat ein Gewicht: die Stufen entsprechen dem Index ohne Ebenen"}`)] : []),
+    ...(ambiguous.length ? [h("div", { class: "rule" }, `Mehrdeutige Namen in den Quelldaten, keiner Karte zugeordnet: ${shown}${ambiguous.length > 10 ? ` und ${nf(ambiguous.length - 10)} weitere` : ""}`)] : []));
 }
 async function applyStrength(settings, remember = true) {
   state.strength.settings = { ...withDefaults(settings), universe_profile: state.universe.name || null };
@@ -1010,7 +1010,7 @@ async function loadSavedProfile(profile) {
   if (wanted !== (state.universe.name || "")) {
     state.universe.profiles = await api("/api/universe/profiles");
     fillUniverseSelect(wanted);
-    await selectUniverse(wanted).catch((error) => toast(`Universum „${wanted}“ konnte nicht gewählt werden: ${error.message}`));
+    await selectUniverse(wanted).catch((error) => toast(`Universum „${wanted}“ konnte nicht gewählt werden: ${StudioUI.germanError(error)}`));
   }
   renderStrengthPanel();
   render();
@@ -1019,7 +1019,7 @@ function strengthField(key) {
   const s = state.strength, panel = s.meta.panel, kind = fieldKind(key), id = fieldId(key);
   const current = pathGet(s.settings, key), drafted = s.draft.fields[key];
   let input;
-  if (kind.type === "readonly") input = h("input", { id, type: "text", readOnly: true, value: `${universeMinimum()} Decks` });
+  if (kind.type === "readonly") input = h("input", { id, type: "text", readOnly: true, value: `${nf(universeMinimum())} Decks` });
   else if (kind.type === "choice") {
     input = h("select", { id }, kind.choices.map((item) => h("option", { value: String(item.value) }, item.label)));
     input.value = drafted !== undefined ? drafted : String(current);
@@ -1050,7 +1050,7 @@ function updateDeviations() {
   const box = $("deviations");
   if (!box) return;
   const n = deviationCount();
-  box.textContent = n === 0 ? "Alle Einstellungen entsprechen der Empfehlung." : n === 1 ? "1 Einstellung weicht von der Empfehlung ab." : `${n} Einstellungen weichen von der Empfehlung ab.`;
+  box.textContent = n === 0 ? "Alle Einstellungen entsprechen der Empfehlung." : n === 1 ? "1 Einstellung weicht von der Empfehlung ab." : `${nf(n)} Einstellungen weichen von der Empfehlung ab.`;
   box.classList.toggle("changed", n > 0);
 }
 const SETTING_GROUPS = [
@@ -1107,7 +1107,7 @@ function renderStrengthPanel() {
     if (p.universe_missing) toast(`Das Universum „${p.universe_missing}“ dieser Einstellung gibt es nicht mehr: sie läuft mit „kein Universum“.`);
     s.draft.name = p.name;
     s.note = `Gespeicherte Einstellung „${p.name}“ geladen und berechnet`;
-    loadSavedProfile(p).catch((error) => toast(error.message));
+    loadSavedProfile(p).catch((error) => toast(StudioUI.germanError(error)));
   });
   const nameInput = h("input", { id: "s-name", type: "text", maxLength: 80, placeholder: "z. B. Mein Index", value: s.draft.name });
   nameInput.addEventListener("input", (event) => { s.draft.name = event.target.value; });
@@ -1277,7 +1277,7 @@ async function changeDeckNow(card, delta) {
   try {
     const result = await api(`/api/decks/${encodeURIComponent(deckId)}/branches/${encodeURIComponent(branch)}/draft/card`, { card_id: card.card_id, delta });
     if (result.quantity) state.deckCards.set(card.card_id, result.quantity); else state.deckCards.delete(card.card_id);
-    toast(delta > 0 ? `${card.name} liegt im Deck (${result.deck_cards} von 100 Karten). Gesichert als Entwurf, im Deckbau speicherst du den Stand.` : `${card.name} ist aus dem Deck genommen (${result.deck_cards} von 100 Karten).`);
+    toast(delta > 0 ? `${card.name} liegt im Deck (${nf(result.deck_cards)} von 100 Karten). Gesichert als Entwurf, im Deckbau speicherst du den Stand.` : `${card.name} ist aus dem Deck genommen (${nf(result.deck_cards)} von 100 Karten).`);
     if (state.data) renderNotice();
     render();
   } catch (error) { fail(error); }
@@ -1289,7 +1289,7 @@ function markButtons(card, after) {
   return [
     h("button", { type: "button", class: "small fav" + (mark.favorite ? " on" : ""), title: mark.favorite ? "Favorit entfernen" : "Als Favorit markieren (ändert keine Bewertung)", "aria-label": `${card.name} Favorit`, "aria-pressed": mark.favorite ? "true" : "false", onclick: then(() => toggleFavorite(card)) }, mark.favorite ? "★" : "☆"),
     count
-      ? h("button", { type: "button", class: "small indeck", title: "Im Ziel-Deck. Klick nimmt die Karte wieder heraus.", "aria-label": `${card.name} aus dem Deck`, onclick: then(() => changeDeck(card, -1)) }, count > 1 ? `✓ ${count}× im Deck` : "✓ im Deck")
+      ? h("button", { type: "button", class: "small indeck", title: "Im Ziel-Deck. Klick nimmt die Karte wieder heraus.", "aria-label": `${card.name} aus dem Deck`, onclick: then(() => changeDeck(card, -1)) }, count > 1 ? `✓ ${nf(count)}× im Deck` : "✓ im Deck")
       : h("button", { type: "button", class: "small", title: !state.decks.length ? "Noch kein Deck für diesen Commander" : !inPool(card) ? "Diese Karte gehört nicht zum Pool dieses Commanders (Farbidentität, Legalität oder nicht in der Sammlung)" : "In das Ziel-Deck legen (oben wählbar)", "aria-label": `${card.name} ins Deck`, disabled: !(card.available > 0) || !state.decks.length || !inPool(card), onclick: then(() => changeDeck(card, 1)) }, "+ Deck"),
   ];
 }
@@ -1358,7 +1358,7 @@ function renderRoleAuditPanel() {
     : h("p", { class: "muted" }, "Keine Rollen-Belege im aktuellen Ausschnitt.");
   panel.replaceChildren(
     h("div", { class: "facts" }, ...summaryParts),
-    h("details", {}, h("summary", {}, `Rollen-Audit nach Herkunft (${shownRows.length} aktive Rollen)`), detailTable),
+    h("details", {}, h("summary", {}, `Rollen-Audit nach Herkunft (${nf(shownRows.length)} aktive Rollen)`), detailTable),
   );
 }
 async function loadRoleAudit() {
@@ -1378,9 +1378,9 @@ function formatGroupCell(converted, known, rate, low, high) {
     return h("span", { title: `${counts}: unter dem Mindest-N, kein Prozentwert (nie 0)` }, `${counts} · `, h("span", { class: "badge warn" }, "zu wenig Daten"));
   }
   const ci = low !== null && low !== undefined && high !== null && high !== undefined
-    ? ` (95 %: ${(100 * low).toFixed(1)}–${(100 * high).toFixed(1)} %)`
+    ? ` (95 %: ${StudioUI.num(100 * low, 1)}–${StudioUI.num(100 * high, 1)} %)`
     : "";
-  return `${counts} · ${(100 * rate).toFixed(1)} %${ci}`;
+  return `${counts} · ${StudioUI.num(100 * rate, 1)} %${ci}`;
 }
 function renderTournamentConversionPanel() {
   const panel = $("topdeck-conversion-panel");
@@ -1397,7 +1397,7 @@ function renderTournamentConversionPanel() {
     header.push(h("span", {}, `${nf(data.total_known_decks)} von ${nf(data.total_decks)} Listen mit bekanntem Top-Cut`));
     header.push(h("span", { class: "badge warn" }, `${data.reason || "zu wenig Daten"} (Mindest-N: ${nf(data.min_sample)})`));
   } else {
-    header.push(h("span", {}, `${nf(data.total_converted_decks)}/${nf(data.total_known_decks)} Top-Cut-Conversions (${(100 * data.baseline_conversion_rate).toFixed(1)} %, 95-%-Wilson ${(100 * data.baseline_ci_low).toFixed(1)}–${(100 * data.baseline_ci_high).toFixed(1)} %)`));
+    header.push(h("span", {}, `${nf(data.total_converted_decks)}/${nf(data.total_known_decks)} Top-Cut-Conversions (${StudioUI.num(100 * data.baseline_conversion_rate, 1)} %, 95-%-Wilson ${StudioUI.num(100 * data.baseline_ci_low, 1)}–${StudioUI.num(100 * data.baseline_ci_high, 1)} %)`));
     header.push(h("span", { class: "muted" }, `${nf(comparableCount)} Karten mit Mit/Ohne je ≥ ${nf(data.min_sample)} Listen · ${data.data_class}`));
   }
   const countEl = h("span", { class: "muted" });
@@ -1412,7 +1412,7 @@ function renderTournamentConversionPanel() {
         row.card_name,
         formatGroupCell(row.with_converted, row.with_known, row.with_rate, row.with_ci_low, row.with_ci_high),
         formatGroupCell(row.without_converted, row.without_known, row.without_rate, row.without_ci_low, row.without_ci_high),
-        row.diff_pp === null || row.diff_pp === undefined ? h("span", { class: "unknown" }, "zu wenig Daten") : `${row.diff_pp > 0 ? "+" : ""}${row.diff_pp.toFixed(1)} Pp`,
+        row.diff_pp === null || row.diff_pp === undefined ? h("span", { class: "unknown" }, "zu wenig Daten") : `${row.diff_pp > 0 ? "+" : ""}${StudioUI.num(row.diff_pp, 1)} Pp`,
         row.status === "OK" ? h("span", { class: "badge good" }, "OK") : h("span", { class: "badge warn" }, row.reason || "zu wenig Daten"),
       ]),
     ));

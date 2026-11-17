@@ -379,7 +379,7 @@ def test_tierliste_and_builder_ui_contracts_for_issue_1307() -> None:
     assert 'id: "universe-empty"' in tier_js
     assert "UNIVERSE_EMPTY" in tier_js and "NO_SOURCE_DECKS_FOR_COMMANDER" in tier_js
     assert "item.level_name || item.level" in tier_js
-    assert "im Deck von ${summary.cards} legalen Karten." in tier_js
+    assert "im Deck von ${nf(summary.cards)} legalen Karten." in tier_js
     assert "Gespeicherte Einstellung „${p.name}“ geladen und berechnet" in tier_js
     assert (
         'api(`/api/strength/profiles/${encodeURIComponent(name)}`, undefined, "DELETE")' in tier_js

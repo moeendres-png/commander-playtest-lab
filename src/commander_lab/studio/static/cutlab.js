@@ -22,16 +22,16 @@ function cutLabSave() {
   try { localStorage.setItem(cutLabStorageKey(CutLab.deckKey), JSON.stringify({ locked: [...CutLab.locked], minimums: CutLab.minimums })); } catch (error) { /* view setting only */ }
 }
 
-function cutSigned(value) { return (value > 0 ? "+" : "") + value; }
+function cutSigned(value) { return (Number(value) > 0 ? "+" : "") + StudioUI.num(value, 0); }
 
 function cutDeltaList(h, item, deps) {
   const rows = [];
-  if (item.curve_bucket !== null && item.curve_bucket !== undefined) rows.push(`Kurve: Manawert ${item.curve_bucket === 7 ? "7+" : item.curve_bucket} −1`);
+  if (item.curve_bucket !== null && item.curve_bucket !== undefined) rows.push(`Kurve: Manawert ${item.curve_bucket === 7 ? "7+" : StudioUI.num(item.curve_bucket, 0)} −1`);
   if (item.lands_delta) rows.push(`Länder ${cutSigned(item.lands_delta)}`);
   const pips = Object.entries(item.pips_delta || {});
   if (pips.length) rows.push("Farbsymbole " + pips.map(([colour, delta]) => `${colour} ${cutSigned(delta)}`).join(", "));
   for (const [role, change] of Object.entries(item.role_change || {})) {
-    rows.push(`${deps.roleName(role)}: ${change.before} → ${change.after}` + (change.minimum !== null && change.minimum !== undefined ? ` (Mindestzahl ${change.minimum})` : ""));
+    rows.push(`${deps.roleName(role)}: ${StudioUI.num(change.before, 0)} → ${StudioUI.num(change.after, 0)}` + (change.minimum !== null && change.minimum !== undefined ? ` (Mindestzahl ${StudioUI.num(change.minimum, 0)})` : ""));
   }
   if (!Object.keys(item.role_change || {}).length) rows.push("keine Rolle bekannt");
   return h("ul", { class: "cut-deltas" }, rows.map((text) => h("li", {}, text)));
@@ -39,8 +39,8 @@ function cutDeltaList(h, item, deps) {
 
 function cutFreqText(item) {
   if (item.of === null || item.of === undefined) return "keine Quelldecks";
-  if (item.decks === null || item.decks === undefined) return `Häufigkeit unbekannt (kein Quelldeck nennt die Karte; Gruppe ${item.of} Decks)`;
-  return `${item.decks} / ${item.of} Quelldecks` + (item.of ? ` (${StudioUI.num(100 * item.decks / item.of, 1)} %)` : "");
+  if (item.decks === null || item.decks === undefined) return `Häufigkeit unbekannt (kein Quelldeck nennt die Karte; Gruppe ${StudioUI.num(item.of, 0)} Decks)`;
+  return `${StudioUI.num(item.decks, 0)} / ${StudioUI.num(item.of, 0)} Quelldecks` + (item.of ? ` (${StudioUI.num(100 * item.decks / item.of, 1)} %)` : "");
 }
 
 function cutLabMinimumsDefault(deps) {
@@ -55,12 +55,12 @@ function renderCutMinimums(h, deps, rerender) {
   const minimums = CutLab.minimums || {};
   const roles = Object.keys(minimums).sort((a, b) => deps.roleName(a).localeCompare(deps.roleName(b)));
   return h("details", { id: "cut-minimums" },
-    h("summary", {}, `Rollen-Mindestzahlen (Leitplanke, ${roles.length} Rollen)`),
+    h("summary", {}, `Rollen-Mindestzahlen (Leitplanke, ${StudioUI.num(roles.length, 0)} Rollen)`),
     h("p", { class: "note" }, "Standard: unteres Quartil der Vergleichsgruppe, abgerundet. Ein Vorschlag, der eine Rolle darunter drückt, kommt später und sagt es. Rollen sind nicht für jede Karte bekannt."),
-    h("table", {}, h("tbody", {}, roles.map((role) => h("tr", {},
+    h("div", { class: "table-wrap" }, h("table", {}, h("tbody", {}, roles.map((role) => h("tr", {},
       h("td", {}, deps.roleName(role)),
       h("td", {}, h("input", { type: "number", min: "0", max: "40", value: String(minimums[role]), "aria-label": `Mindestzahl ${deps.roleName(role)}`,
-        onchange: (event) => { const value = Math.max(0, Math.min(40, parseInt(event.target.value, 10) || 0)); CutLab.minimums[role] = value; cutLabSave(); rerender(); } })))))));
+        onchange: (event) => { const value = Math.max(0, Math.min(40, parseInt(event.target.value, 10) || 0)); CutLab.minimums[role] = value; cutLabSave(); rerender(); } }))))))));
 }
 
 async function renderWhatIf(h, box, item, deps) {
@@ -75,9 +75,9 @@ async function renderWhatIf(h, box, item, deps) {
     out.replaceChildren(h("p", { class: "muted" }, "Wird berechnet …"));
     try {
       const diff = await deps.api("/api/cut-lab/what-if", "POST", { cards: deps.entries(), cut: item.card_id, add: card.card_id, cohort: deps.cohort() });
-      const curve = Object.entries(diff.curve_deltas).filter(([, v]) => v.base !== v.target).map(([k, v]) => `MW ${k === "7" ? "7+" : k}: ${v.base} → ${v.target}`);
-      const roles = Object.entries(diff.role_deltas || {}).map(([role, v]) => `${deps.roleName(role)} ${v.base} → ${v.target}`);
-      const colours = Object.entries(diff.colour_deltas || {}).filter(([, v]) => v.base_pips !== v.target_pips || v.base_sources !== v.target_sources).map(([c, v]) => `${c}: Symbole ${v.base_pips} → ${v.target_pips}, Land-Quellen ${v.base_sources} → ${v.target_sources}`);
+      const curve = Object.entries(diff.curve_deltas).filter(([, v]) => v.base !== v.target).map(([k, v]) => `MW ${k === "7" ? "7+" : k}: ${StudioUI.num(v.base, 0)} → ${StudioUI.num(v.target, 0)}`);
+      const roles = Object.entries(diff.role_deltas || {}).map(([role, v]) => `${deps.roleName(role)} ${StudioUI.num(v.base, 0)} → ${StudioUI.num(v.target, 0)}`);
+      const colours = Object.entries(diff.colour_deltas || {}).filter(([, v]) => v.base_pips !== v.target_pips || v.base_sources !== v.target_sources).map(([c, v]) => `${c}: Symbole ${StudioUI.num(v.base_pips, 0)} → ${StudioUI.num(v.target_pips, 0)}, Land-Quellen ${StudioUI.num(v.base_sources, 0)} → ${StudioUI.num(v.target_sources, 0)}`);
       const added = diff.added[0];
       out.replaceChildren(
         h("ul", {},
@@ -102,16 +102,16 @@ async function renderCutLab(body, deps) {
   const rerender = () => deps.rerender();
   const box = h("div", { id: "cut-lab" });
   body.append(box);
-  box.append(h("p", { id: "cut-counter", class: total === 100 ? "" : "warn" }, `${total} / 100 Karten` + (total > 100 ? ` · noch ${total - 100} zu kürzen` : total < 100 ? ` · ${100 - total} fehlen` : " · genau 100")));
+  box.append(h("p", { id: "cut-counter", class: total === 100 ? "" : "warn" }, `${StudioUI.num(total, 0)} / 100 Karten` + (total > 100 ? ` · noch ${StudioUI.num(total - 100, 0)} zu kürzen` : total < 100 ? ` · ${StudioUI.num(100 - total, 0)} fehlen` : " · genau 100")));
   const basics = deps.deckCards().filter((card) => card.basic);
   if (basics.length) {
     box.append(h("p", { id: "cut-basics" }, "Standardländer: ", ...basics.flatMap((card) => [
-      `${card.name} ${deps.qty(card.card_id)}× `,
+      `${card.name} ${StudioUI.num(deps.qty(card.card_id), 0)}× `,
       h("button", { type: "button", class: "small", "aria-label": `${card.name} −1`, onclick: () => { deps.remove(card); } }, "−"), " ",
       h("button", { type: "button", class: "small", "aria-label": `${card.name} +1`, onclick: () => { deps.add(card); } }, "+"), "  "])));
   }
   if (CutLab.locked.size) {
-    box.append(h("p", { id: "cut-locked" }, `Gesperrt (${CutLab.locked.size}): `, ...[...CutLab.locked].flatMap((cardId, index) => {
+    box.append(h("p", { id: "cut-locked" }, `Gesperrt (${StudioUI.num(CutLab.locked.size, 0)}): `, ...[...CutLab.locked].flatMap((cardId, index) => {
       const card = deps.card(cardId);
       return [index ? ", " : "", card ? card.name : cardId, " ", h("button", { type: "button", class: "small", "aria-label": "Sperre lösen", onclick: () => { CutLab.locked.delete(cardId); cutLabSave(); rerender(); } }, "×")];
     })));
@@ -157,8 +157,8 @@ async function renderCutLab(body, deps) {
   }
   const card = deps.card(item.card_id);
   const suggestion = h("div", { class: "sim-box", id: "cut-suggestion" },
-    h("p", { class: "muted" }, `Vorschlag 1 von ${result.suggestions.length}` + (item.group === "unknown" ? " · Häufigkeit unbekannt" : "") + (item.deferred ? " · zurückgestellt" : "")),
-    h("h3", {}, h("a", { href: "#", class: "nm", onclick: (event) => { event.preventDefault(); if (card) deps.openCard(card); } }, item.name), item.quantity > 1 ? ` (${item.quantity}× im Deck)` : ""),
+    h("p", { class: "muted" }, `Vorschlag 1 von ${StudioUI.num(result.suggestions.length, 0)}` + (item.group === "unknown" ? " · Häufigkeit unbekannt" : "") + (item.deferred ? " · zurückgestellt" : "")),
+    h("h3", {}, h("a", { href: "#", class: "nm", onclick: (event) => { event.preventDefault(); if (card) deps.openCard(card); } }, item.name), item.quantity > 1 ? ` (${StudioUI.num(item.quantity, 0)}× im Deck)` : ""),
     h("p", {}, cutFreqText(item) + (result.cohort.small ? " · kleine Gruppe (unter 30)" : "")),
     item.below_minimum.length ? h("p", { class: "warn" }, "Unter der Mindestzahl: " + item.below_minimum.map(deps.roleName).join(", ")) : "",
     item.combo_parts.length ? h("p", { class: "note" }, h("span", { class: "chip chip-static" }, "Kombo-Teil"), " " + item.combo_parts.map((cards) => cards.join(" + ")).join(" · ")) : "",

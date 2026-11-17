@@ -23,8 +23,8 @@ async function renderBuildPlanTab(body, deps) {
   const nodes = [
     h("h3", {}, `Bauplan · ${cohortName(data.cohort)}`),
     h("p", { class: "note" },
-      `Vergleichsgruppe: ${data.cohort_decks} Quelldecks · Pool mit bekannter Tagger-Rolle: ${data.pool_tagged}/${data.pool_total}`,
-      data.small_sample ? h("span", { class: "pill low ml-1" }, `Kleine Stichprobe (< ${data.small_denominator} Decks)`) : null),
+      `Vergleichsgruppe: ${StudioUI.num(data.cohort_decks, 0)} Quelldecks · Pool mit bekannter Tagger-Rolle: ${StudioUI.num(data.pool_tagged, 0)}/${StudioUI.num(data.pool_total, 0)}`,
+      data.small_sample ? h("span", { class: "pill low ml-1" }, `Kleine Stichprobe (< ${StudioUI.num(data.small_denominator, 0)} Decks)`) : null),
   ];
 
   const spanText = (span) => span ? `${StudioUI.num(span.median, 1)} (${StudioUI.num(span.p25, 1)}–${StudioUI.num(span.p75, 1)})` : "unbekannt";
@@ -38,7 +38,7 @@ async function renderBuildPlanTab(body, deps) {
       h("p", { class: "note" }, step.description));
 
     if (step.metrics && step.metrics.length) {
-      stepBox.append(h("table", {},
+      stepBox.append(h("div", { class: "table-wrap" }, h("table", {},
         h("thead", {}, h("tr", {},
           h("th", {}, "Kennzahl / Rolle"),
           h("th", { class: "num" }, "Im Deck"),
@@ -46,39 +46,39 @@ async function renderBuildPlanTab(body, deps) {
           h("th", { class: "num" }, "Im Pool belegt"))),
         h("tbody", {}, step.metrics.map((m) => h("tr", {},
           h("td", {}, m.role ? roleName(m.role) : m.label),
-          h("td", { class: "num" }, m.deck === null || m.deck === undefined ? "unbekannt" : m.deck),
-          h("td", { class: "num" }, m.span ? spanText(m.span) : (m.target !== null && m.target !== undefined ? String(m.target) : "unbekannt")),
-          h("td", { class: "num" }, m.pool_total ? `${m.pool_tagged}/${m.pool_total}` : "–"))))));
+          h("td", { class: "num" }, m.deck === null || m.deck === undefined ? "unbekannt" : StudioUI.numFlex(m.deck, 2)),
+          h("td", { class: "num" }, m.span ? spanText(m.span) : (m.target !== null && m.target !== undefined ? StudioUI.numFlex(m.target, 2) : "unbekannt")),
+          h("td", { class: "num" }, m.pool_total ? `${StudioUI.num(m.pool_tagged, 0)}/${StudioUI.num(m.pool_total, 0)}` : "–")))))));
     }
     const cands = step.free_pool_candidates || [];
     if (cands.length) {
       stepBox.append(h("details", {},
-        h("summary", {}, `Freie Pool-Kandidaten (${cands.length} gezeigt)`),
-        h("table", {},
+        h("summary", {}, `Freie Pool-Kandidaten (${StudioUI.num(cands.length, 0)} gezeigt)`),
+        h("div", { class: "table-wrap" }, h("table", {},
           h("thead", {}, h("tr", {}, h("th", {}, "Karte"), h("th", { class: "num" }, "MW"), h("th", { class: "num" }, "Decks (n/N)"), h("th", { class: "num" }, "frei"), h("th", {}, ""))),
           h("tbody", {}, cands.map((cand) => {
             const pCard = poolCardById(cand.card_id);
             return h("tr", {},
               h("td", { class: pCard ? "name" : "", onclick: () => { if (pCard) openCard(pCard); } }, cand.name),
-              h("td", { class: "num" }, cand.mana_value === null ? "–" : cand.mana_value),
+              h("td", { class: "num" }, cand.mana_value === null ? "–" : StudioUI.numFlex(cand.mana_value, 2)),
               h("td", { class: "num" }, cand.decks !== null && cand.of ? `${StudioUI.num(cand.decks, 0)}/${StudioUI.num(cand.of, 0)} (${StudioUI.num(100 * cand.share, 0)} %)` : "unbekannt"),
-              h("td", { class: "num" }, cand.available),
+              h("td", { class: "num" }, StudioUI.num(cand.available, 0)),
               h("td", {}, pCard ? h("button", { type: "button", class: "small", onclick: () => add(pCard) }, "+") : null));
-          })))));
+          }))))));
     }
     nodes.push(stepBox);
   }
 
   if (data.role_coverage && data.role_coverage.length) {
     nodes.push(h("details", {},
-      h("summary", {}, `Rollen-Belegung im Pool (${data.pool_tagged}/${data.pool_total} Karten belegt)`),
-      h("table", {},
+      h("summary", {}, `Rollen-Belegung im Pool (${StudioUI.num(data.pool_tagged, 0)}/${StudioUI.num(data.pool_total, 0)} Karten belegt)`),
+      h("div", { class: "table-wrap" }, h("table", {},
         h("thead", {}, h("tr", {}, h("th", {}, "Rolle"), h("th", { class: "num" }, "Im Deck"), h("th", { class: "num" }, "Im Pool (n/N)"), h("th", { class: "num" }, "Vergleich (p25–p75)"))),
         h("tbody", {}, data.role_coverage.map((row) => h("tr", {},
           h("td", {}, roleName(row.role)),
-          h("td", { class: "num" }, row.deck_count),
-          h("td", { class: "num" }, `${row.pool_tagged}/${row.pool_total}`),
-          h("td", { class: "num" }, spanText(row.cohort_span))))))));
+          h("td", { class: "num" }, StudioUI.num(row.deck_count, 0)),
+          h("td", { class: "num" }, `${StudioUI.num(row.pool_tagged, 0)}/${StudioUI.num(row.pool_total, 0)}`),
+          h("td", { class: "num" }, spanText(row.cohort_span)))))))));
   }
   nodes.push(h("p", { class: "note" }, data.meaning));
   body.replaceChildren(...nodes);
@@ -108,8 +108,8 @@ async function renderPackagesUpgradeTab(body, deps) {
 
   const shells = pkgData.shell_packages || [];
   if (shells.length) {
-    nodes.push(h("h4", {}, `Berührte Spellbook-Shells (${shells.length})`),
-      h("table", {},
+    nodes.push(h("h4", {}, `Berührte Spellbook-Shells (${StudioUI.num(shells.length, 0)})`),
+      h("div", { class: "table-wrap" }, h("table", {},
         h("thead", {}, h("tr", {}, h("th", {}, "Shell"), h("th", {}, "Im Deck"), h("th", {}, "Fehlend / frei im Pool"), h("th", {}, "Ergebnis"))),
         h("tbody", {}, shells.map((sh) => {
           const missNodes = (sh.missing_from_deck || []).map((name) => {
@@ -124,12 +124,12 @@ async function renderPackagesUpgradeTab(body, deps) {
             h("td", {}, (sh.in_deck || []).join(", ")),
             h("td", {}, sh.complete_in_deck ? h("span", { class: "pill good" }, "vollständig") : missNodes),
             h("td", {}, (sh.produces || []).slice(0, 3).join("; ") || "–"));
-        }))));
+        })))));
   }
 
   const syn = pkgData.synergy_packages || [];
   if (syn.length) {
-    nodes.push(h("h4", {}, `Korpus-Synergie-Pakete (${syn.length} Anker im Deck, Lift ≥ 1,5)`));
+    nodes.push(h("h4", {}, `Korpus-Synergie-Pakete (${StudioUI.num(syn.length, 0)} Anker im Deck, Lift ≥ 1,5)`));
     for (const pkg of syn) {
       const anc = pkg.anchor;
       const ancCard = poolCardById(anc.card_id);
@@ -137,22 +137,22 @@ async function renderPackagesUpgradeTab(body, deps) {
         h("p", {},
           h("strong", { class: ancCard ? "name" : "", onclick: () => { if (ancCard) openCard(ancCard); } }, anc.name),
           ` · ${StudioUI.num(anc.decks, 0)}/${StudioUI.num(anc.of, 0)} Decks`,
-          anc.small_sample ? h("span", { class: "pill low ml-1" }, `< ${pkgData.small_denominator} Decks`) : null));
+          anc.small_sample ? h("span", { class: "pill low ml-1" }, `< ${StudioUI.num(pkgData.small_denominator, 0)} Decks`) : null));
       if (pkg.in_deck_partners && pkg.in_deck_partners.length) {
         pBox.append(h("p", { class: "note" }, "Bereits im Deck gekoppelt: " + pkg.in_deck_partners.map((p) => `${p.name} (Lift ${StudioUI.num(p.lift, 3)})`).join(" · ")));
       }
       if (pkg.free_pool_partners && pkg.free_pool_partners.length) {
-        pBox.append(h("table", {},
+        pBox.append(h("div", { class: "table-wrap" }, h("table", {},
           h("thead", {}, h("tr", {}, h("th", {}, "Freie Pool-Partner"), h("th", { class: "num" }, "gemeinsam (n/N)"), h("th", { class: "num" }, "Lift"), h("th", {}, "Kombo"), h("th", {}, ""))),
           h("tbody", {}, pkg.free_pool_partners.map((partner) => {
             const pCard = poolCardById(partner.card_id);
             return h("tr", {},
               h("td", { class: pCard ? "name" : "", onclick: () => { if (pCard) openCard(pCard); } }, partner.name),
-              h("td", { class: "num" }, `${partner.both_hits}/${partner.anchor_decks}`),
+              h("td", { class: "num" }, `${StudioUI.num(partner.both_hits, 0)}/${StudioUI.num(partner.anchor_decks, 0)}`),
               h("td", { class: "num" }, StudioUI.num(partner.lift, 3)),
               h("td", {}, partner.combo_partner ? "ja" : "–"),
               h("td", {}, pCard ? h("button", { type: "button", class: "small", onclick: () => add(pCard) }, "+") : null));
-          }))));
+          })))));
       }
       nodes.push(pBox);
     }
@@ -163,11 +163,11 @@ async function renderPackagesUpgradeTab(body, deps) {
   nodes.push(h("h3", {}, `Upgrade-Pfad (beschreibender Rollen-Vergleich · ${cohortName(upgData.cohort)})`),
     h("p", { class: "note" }, upgData.meaning));
   if (upgData.small_sample) {
-    nodes.push(h("p", { class: "pill low" }, `Kleine Stichprobe (${upgData.cohort_decks} < ${upgData.small_denominator} Decks)`));
+    nodes.push(h("p", { class: "pill low" }, `Kleine Stichprobe (${StudioUI.num(upgData.cohort_decks, 0)} < ${StudioUI.num(upgData.small_denominator, 0)} Decks)`));
   }
   const swaps = upgData.swap_suggestions || [];
   if (swaps.length) {
-    nodes.push(h("table", {},
+    nodes.push(h("div", { class: "table-wrap" }, h("table", {},
       h("thead", {}, h("tr", {},
         h("th", {}, "Im Deck (niedrigere Quelldeck-Quote)"),
         h("th", { class: "num" }, "Decks (n/N)"),
@@ -180,6 +180,8 @@ async function renderPackagesUpgradeTab(body, deps) {
         const alt = entry.alternatives[0];
         const cutCard = poolCardById(cut.card_id);
         const altCard = poolCardById(alt.card_id);
+        const mvDelta = Number(alt.mv_delta);
+        const mvDeltaStr = mvDelta > 0 ? `+${StudioUI.numFlex(mvDelta, 2)}` : StudioUI.numFlex(mvDelta, 2);
         return h("tr", {},
           h("td", { class: cutCard ? "name" : "", onclick: () => { if (cutCard) openCard(cutCard); } }, cut.name),
           h("td", { class: "num" }, `${StudioUI.num(cut.decks, 0)}/${StudioUI.num(cut.of, 0)} (${StudioUI.num(100 * cut.share, 0)} %)`),
@@ -187,20 +189,20 @@ async function renderPackagesUpgradeTab(body, deps) {
             alt.name,
             h("div", { class: "muted" }, `Rollen: ${(alt.shared_roles || []).map(roleName).join(", ")}`)),
           h("td", { class: "num" }, `${StudioUI.num(alt.decks, 0)}/${StudioUI.num(alt.of, 0)} (${StudioUI.num(100 * alt.share, 0)} %)`),
-          h("td", { class: "num" }, alt.mv_delta > 0 ? `+${alt.mv_delta}` : String(alt.mv_delta)),
+          h("td", { class: "num" }, mvDeltaStr),
           h("td", {}, cutCard && altCard ? h("button", {
             type: "button", class: "small",
             onclick: () => { remove(cutCard); add(altCard); },
           }, "Tauschen") : null));
-      }))));
+      })))));
   } else {
     nodes.push(h("p", { class: "muted" }, "Keine Tauschpaare mit höherer Quelldeck-Quote im freien Pool."));
   }
 
   const staples = upgData.missing_staples || [];
   if (staples.length) {
-    nodes.push(h("h4", {}, `Häufige freie Pool-Karten nicht im Deck (${staples.length})`),
-      h("table", {},
+    nodes.push(h("h4", {}, `Häufige freie Pool-Karten nicht im Deck (${StudioUI.num(staples.length, 0)})`),
+      h("div", { class: "table-wrap" }, h("table", {},
         h("thead", {}, h("tr", {}, h("th", {}, "Karte"), h("th", {}, "Rollen"), h("th", { class: "num" }, "Decks (n/N)"), h("th", { class: "num" }, "frei"), h("th", {}, ""))),
         h("tbody", {}, staples.map((st) => {
           const pCard = poolCardById(st.card_id);
@@ -208,14 +210,14 @@ async function renderPackagesUpgradeTab(body, deps) {
             h("td", { class: pCard ? "name" : "", onclick: () => { if (pCard) openCard(pCard); } }, st.name),
             h("td", {}, (st.roles || []).map(roleName).join(", ") || "–"),
             h("td", { class: "num" }, `${StudioUI.num(st.decks, 0)}/${StudioUI.num(st.of, 0)} (${StudioUI.num(100 * st.share, 0)} %)`),
-            h("td", { class: "num" }, st.available),
+            h("td", { class: "num" }, StudioUI.num(st.available, 0)),
             h("td", {}, pCard ? h("button", { type: "button", class: "small", onclick: () => add(pCard) }, "+") : null));
-        }))));
+        })))));
   }
   const unknown = upgData.unknown_corpus_cards || [];
   if (unknown.length) {
     nodes.push(h("details", {},
-      h("summary", {}, `Karten ohne Korpus-Treffer (${unknown.length} — unbekannt, nie als 0 gewertet)`),
+      h("summary", {}, `Karten ohne Korpus-Treffer (${StudioUI.num(unknown.length, 0)} — unbekannt, nie als 0 gewertet)`),
       h("p", { class: "note" }, unknown.map((item) => item.name).join(", "))));
   }
   body.replaceChildren(...nodes);

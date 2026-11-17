@@ -2165,5 +2165,9 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         finally:
             store.close()
 
+    @app.get("/favicon.ico")
+    def favicon() -> Response:
+        return Response(status_code=204)
+
     app.mount("/", StaticFiles(directory=STATIC, html=True), name="static")
     return app

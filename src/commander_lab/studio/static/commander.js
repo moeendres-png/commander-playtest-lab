@@ -29,7 +29,7 @@ const StudioCommander = (() => {
       const option = document.createElement("option");
       option.value = item.name;
       option.selected = item.name === current;
-      const decks = item.has_data && item.source_decks !== null ? ` · ${item.source_decks} Quelldecks` : "";
+      const decks = item.has_data && item.source_decks !== null ? ` · ${StudioUI.num(item.source_decks, 0)} Quelldecks` : "";
       option.textContent = (item.has_data ? shortName(item.name) : item.name) + decks + (item.unknown ? " · dem Studio unbekannt" : item.in_collection ? "" : " · nicht in der Sammlung");
       option.title = item.name;
       return option;

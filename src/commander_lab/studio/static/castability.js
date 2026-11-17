@@ -20,10 +20,10 @@ function handRoleNodes(h, hr, roleName) {
       ...item.hands.map((hand) => h("td", { class: "num muted", title: `${StudioUI.num(hand.draws)} Karten: keine Karte der Rolle` }, StudioUI.pct(hand.p_none, 1)))),
   ]);
   return [...out,
-    h("table", { id: "hand-roles" },
+    h("div", { class: "table-wrap" }, h("table", { id: "hand-roles" },
       h("thead", {}, h("tr", {}, h("th", {}, "Rolle"),
         ...head.map((text) => h("th", { class: "num", title: "Start 7 Karten, Zug 1 8, Zug 2 9, Zug 3 10 (Ziehen in Zug 1)" }, text)))),
-      h("tbody", {}, rows)),
+      h("tbody", {}, rows))),
     h("p", { class: "note" }, "Karten in der Hand: Start 7, nach Zug 1 8, Zug 2 9, Zug 3 10. Je Rolle: obere Zeile mindestens eine Karte der Rolle, untere Zeile keine Karte der Rolle (zusammen 100 %, durch Rundung bis 0,1 Prozentpunkt Abweichung). Rollen sind öffentliche Marken (Tagger); eine Karte zählt für jede ihrer Rollen.")];
 }
 
@@ -33,27 +33,27 @@ function castabilityNodes(h, data, open, roleName) {
     h("a", { href: "#", class: "nm", onclick: (event) => { event.preventDefault(); open(card.card_id); } }, card.name)]));
   const rows = data.requirements.flatMap((item) => [
     h("tr", { class: "facts-row" },
-      h("td", { class: "nowrap" }, pipLabel(item.label), ` Zug ${item.turn}`),
-      h("td", { class: "num" }, Object.entries(item.sources).map(([colour, count]) => `${colour} ${count}`).join(" · ")),
-      h("td", { class: "num", title: `mindestens ${item.turn} Länder unter ${item.draws} Karten` }, castPct(item.p_land_drops)),
+      h("td", { class: "nowrap" }, pipLabel(item.label), ` Zug ${StudioUI.num(item.turn, 0)}`),
+      h("td", { class: "num" }, Object.entries(item.sources).map(([colour, count]) => `${colour} ${StudioUI.num(count, 0)}`).join(" · ")),
+      h("td", { class: "num", title: `mindestens ${StudioUI.num(item.turn, 0)} Länder unter ${StudioUI.num(item.draws, 0)} Karten` }, castPct(item.p_land_drops)),
       h("td", { class: "num", title: item.condition }, castPct(item.p_colours_given_lands))),
     h("tr", { class: "facts-basis" }, h("td", { colspan: 4, class: "note" }, names(item.cards))),
   ]);
   const hand = data.opening_hand;
   const notes = [];
-  if (data.lands_without_coloured_mana) notes.push(`${data.lands_without_coloured_mana} Länder erzeugen laut Kartendaten kein farbiges Mana (z. B. Fetch-Länder) und zählen nicht als Quelle.`);
-  if (data.lands_unknown_colours) notes.push(`${data.lands_unknown_colours} Länder ohne Kartendaten: Farben unbekannt, nicht als Quelle gezählt – die Farbwerte sind darum eher zu niedrig.`);
-  if (data.cards_unknown_mana_value) notes.push(`${data.cards_unknown_mana_value} Karten mit unbekanntem Manawert: ohne eigene Farbanforderung, in den Ziehungen als Karten ohne frühe Aktion gezählt.`);
+  if (data.lands_without_coloured_mana) notes.push(`${StudioUI.num(data.lands_without_coloured_mana, 0)} Länder erzeugen laut Kartendaten kein farbiges Mana (z. B. Fetch-Länder) und zählen nicht als Quelle.`);
+  if (data.lands_unknown_colours) notes.push(`${StudioUI.num(data.lands_unknown_colours, 0)} Länder ohne Kartendaten: Farben unbekannt, nicht als Quelle gezählt – die Farbwerte sind darum eher zu niedrig.`);
+  if (data.cards_unknown_mana_value) notes.push(`${StudioUI.num(data.cards_unknown_mana_value, 0)} Karten mit unbekanntem Manawert: ohne eigene Farbanforderung, in den Ziehungen als Karten ohne frühe Aktion gezählt.`);
   if (data.hybrid_or_phyrexian_cards.length) notes.push(`Hybrid- und Phyrexia-Symbole nicht eingerechnet bei: ${data.hybrid_or_phyrexian_cards.join(", ")}.`);
   return [
     h("h3", {}, "Farben auf Kurve (bedingt auf Land-Drops)"),
-    h("p", { class: "note" }, `Je Farbanforderung: Wahrscheinlichkeit, bis zum Zug des Manawerts genug Länder zu haben (Land-Drops), und – nur unter diesen Ziehungen – die nötigen Quellen der Farbe(n). ${data.lands} Länder in ${data.main_cards} Karten.`),
-    h("table", { id: "castability" },
+    h("p", { class: "note" }, `Je Farbanforderung: Wahrscheinlichkeit, bis zum Zug des Manawerts genug Länder zu haben (Land-Drops), und – nur unter diesen Ziehungen – die nötigen Quellen der Farbe(n). ${StudioUI.num(data.lands, 0)} Länder in ${StudioUI.num(data.main_cards, 0)} Karten.`),
+    h("div", { class: "table-wrap" }, h("table", { id: "castability" },
       h("thead", {}, h("tr", {}, h("th", {}, "Kosten"), h("th", { class: "num" }, "Quellen"),
         h("th", { class: "num" }, "Land-Drops"), h("th", { class: "num", title: "nur unter den Ziehungen mit genug Land-Drops" }, "Farben*"))),
-      h("tbody", {}, rows)),
+      h("tbody", {}, rows))),
     h("p", { class: "note" }, "* Farben: Anteil mit den nötigen farbigen Quellen unter den Ziehungen, die bis zum Zug genug Länder haben. Quellen: nur Länder."),
-    h("p", { id: "opening-hand" }, `Spielbare Starthand (${hand.rule}): ${castPct(hand.p_keepable)} – aus ${hand.lands} Ländern, ${hand.early_actions} frühen Aktionen und ${hand.other_cards} weiteren Karten, 7 Karten, ohne Mulligan.`),
+    h("p", { id: "opening-hand" }, `Spielbare Starthand (${hand.rule}): ${castPct(hand.p_keepable)} – aus ${StudioUI.num(hand.lands, 0)} Ländern, ${StudioUI.num(hand.early_actions, 0)} frühen Aktionen und ${StudioUI.num(hand.other_cards, 0)} weiteren Karten, 7 Karten, ohne Mulligan.`),
     notes.length ? h("ul", { class: "note" }, notes.map((text) => h("li", {}, text))) : "",
     ...(data.hand_roles ? handRoleNodes(h, data.hand_roles, roleName || ((key) => key)) : []),
     h("p", { class: "note" }, data.method + " ", h("a", { href: data.source, target: "_blank", rel: "noreferrer noopener", referrerpolicy: "no-referrer" }, "Methodik (Karsten 2022)")),

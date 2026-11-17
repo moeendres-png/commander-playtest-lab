@@ -12,10 +12,9 @@ const EVIDENCE_COLUMNS_KEY = "studio-evidence-hidden-columns";
 // Sort and filter of the open page (kept when app.js redraws the tab, gone on reload).
 const evidenceView = { sortKey: "decks_all", descending: false, filter: "" };
 
-const evidenceNumber = (value, digits = 0) =>
-  Number(value).toLocaleString("de-DE", { minimumFractionDigits: digits, maximumFractionDigits: digits });
+const evidenceNumber = (value, digits = 0) => StudioUI.num(value, digits);
 const evidencePercent = (share, digits = 1) => `${evidenceNumber(share * 100, digits)} %`;
-const evidenceSigned = (value, digits = 1) => `${value > 0 ? "+" : ""}${evidenceNumber(value, digits)}`;
+const evidenceSigned = (value, digits = 1) => `${Number(value) > 0 ? "+" : ""}${evidenceNumber(value, digits)}`;
 
 // The one contract of the order: by the chosen column's own value, unknown ALWAYS last (both
 // directions), ties by name, cards that are not applicable (commander, basic lands) at the end.
@@ -115,7 +114,7 @@ function evidenceTextTable(data, columns, cards) {
       const shown = evidenceCellText(column.key, card.cells[column.key]);
       return shown === null ? column.missing : shown[0] + (shown[1] ? " (kleine Zahl)" : "");
     });
-    lines.push([card.name + (card.quantity > 1 ? ` (${card.quantity}×)` : ""), ...cells].join("\t"));
+    lines.push([card.name + (card.quantity > 1 ? ` (${evidenceNumber(card.quantity)}×)` : ""), ...cells].join("\t"));
   }
   lines.push(["Gruppe / Grundwert", ...columns.map((column) => evidenceFooterText(column.key, data.footer, data.groups))].join("\t"));
   return `${lines.join("\n")}\n\n${data.note}\n`;
@@ -188,7 +187,7 @@ function buildEvidenceView(data, deps, wide) {
     const cards = shownCards();
     const rows = cards.map((card) => h("tr", { class: card.applicable ? "" : "na" },
       h("td", { class: "nm", onclick: () => deps.open(card.card_id) },
-        card.name + (card.quantity > 1 ? ` (${card.quantity}×)` : "")),
+        card.name + (card.quantity > 1 ? ` (${evidenceNumber(card.quantity)}×)` : "")),
       card.applicable
         ? columns.map((column) => cellNode(column, card))
         : h("td", { class: "muted", colspan: Math.max(columns.length, 1) }, `nicht anwendbar (${card.reason})`)));
@@ -203,7 +202,7 @@ function buildEvidenceView(data, deps, wide) {
       h("tfoot", {}, h("tr", {},
         h("td", {}, h("b", {}, "Gruppe / Grundwert")),
         columns.map((column) => h("td", { class: "num" }, evidenceFooterText(column.key, data.footer, data.groups)))))));
-    status.textContent = `${cards.length} von ${data.cards.length} Zeilen`;
+    status.textContent = `${evidenceNumber(cards.length)} von ${evidenceNumber(data.cards.length)} Zeilen`;
   }
 
   const columnBoxes = data.columns.map((column) => h("label", { class: "evidence-col" },
