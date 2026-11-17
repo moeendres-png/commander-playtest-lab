@@ -37,6 +37,7 @@ from . import (
     cut_lab,
     data_report,
     deck_diff,
+    deck_evidence,
     deck_facts,
     engine_check,
     games,
@@ -100,6 +101,11 @@ class CardEntry(BaseModel):
 class ListBody(BaseModel):
     cards: list[CardEntry]
     owned_only: bool = True
+
+
+class DeckEvidenceBody(ListBody):
+    cards: list[CardEntry] = Field(max_length=300)
+    cohort: str = Field(default="all", min_length=1, max_length=120)
 
 
 class LandAdvisorBody(ListBody):
@@ -1555,6 +1561,24 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         store = open_store()
         try:
             return deck_facts.deck_facts(store, list_rows(store, _cards(body.cards)))
+        finally:
+            store.close()
+
+    @app.post("/api/deck-evidence")
+    def deck_evidence_route(body: DeckEvidenceBody) -> dict[str, object]:
+        """Evidence per deck card (#1404): counted values per source with n/N and the group
+        named, unknown never 0, no sum, no score. Marks are not read."""
+        store = open_store()
+        try:
+            cards = _cards(body.cards)
+            rows = list_rows(store, cards)
+            known = {str(row["card_id"]) for row in rows}
+            missing = sorted({card.card_id for card in cards} - known)
+            if missing:
+                raise HTTPException(404, f"unknown card: {missing[0]}")
+            return deck_evidence.deck_evidence(store, rows, cohort=body.cohort)
+        except deck_evidence.DeckEvidenceError as error:
+            raise HTTPException(422, str(error)) from error
         finally:
             store.close()
 
