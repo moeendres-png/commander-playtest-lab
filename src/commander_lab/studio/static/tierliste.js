@@ -303,7 +303,7 @@ function unknownCell(card, item) {
   const code = item.reason || "TOO_LITTLE_DATA";
   const text = item.reason === "ZERO_COUNT_ONLY" && zero ? `unbekannt (0/${nf(zero.denominator)})` : "unbekannt (zu wenig Daten)";
   const why = `${REASON_SHORT[code] || code} (${code})`;
-  return h("span", { class: "ucell" }, neutral(text, `Zu wenig Daten für eine Stufe: ${why}. Das sagt nichts über die Stärke der Karte.`), h("span", { class: "rule reason-code" }, code));
+  return h("span", { class: "ucell" }, neutral(text, `Zu wenig Daten für eine Stufe: ${why}. Das sagt nichts über die Stärke der Karte.`), h("span", { class: "rule reason-code" }, REASON_SHORT[code] || code));
 }
 function confidenceMark(item) {
   if (item.confidence === null || item.confidence === undefined) return null;
