@@ -932,3 +932,70 @@ def test_deck_series_js_csp_and_history_hook() -> None:
     for forbidden in (".innerHTML", ".outerHTML", "eval(", "style:", "style =", "toLocaleString"):
         assert forbidden not in js
     assert "keine gespeicherte Serie" in js
+
+
+def test_deck_series_survives_hostile_files_and_malformed_results(tmp_path: Path) -> None:
+    from commander_lab.studio import deck_series
+
+    games = tmp_path / "games"
+    _write_series(games, _stored_series("paired-1-1-aaaaaaaa", "rev@m", "rev@o"))
+    (games / "paired-2-1-bbbbbbbb.paired.json").write_text("[" * 100000, encoding="utf-8")
+    (games / "paired-3-1-cccccccc.paired.json").write_text(
+        " " * (deck_series.MAX_FILE_BYTES + 1), encoding="utf-8"
+    )
+    for sid, result in (
+        ("paired-4-1-dddddddd", "not-a-dict"),
+        ("paired-5-1-eeeeeeee", {"pairs_completed": "40", "pairs_played": "x", "seeds": "s"}),
+        ("paired-6-1-ffffffff", {"pairs_completed": 0, "stop_reason": "NO_PAIRS"}),
+    ):
+        payload = _stored_series(sid, "rev@m", "rev@o")
+        payload["result"] = result
+        _write_series(games, payload)
+
+    out = deck_series.deck_series(tmp_path, ["rev@m"])
+    series = out["series"]
+    assert isinstance(series, list)
+    assert len(series) == 4
+    assert out["skipped"] == 2
+    status = {item["series_id"]: item["status"] for item in series}
+    assert status["paired-1-1-aaaaaaaa"] == "completed"
+    for sid in ("paired-4-1-dddddddd", "paired-5-1-eeeeeeee", "paired-6-1-ffffffff"):
+        assert status[sid] == "incomplete"
+
+
+def test_deck_series_limits_are_reported(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    from commander_lab.studio import deck_series
+
+    games = tmp_path / "games"
+    for number in range(1, 6):
+        _write_series(
+            games,
+            _stored_series(
+                f"paired-{number}-1-aaaaaaa{number}",
+                "rev@m",
+                "rev@o",
+                created_at=f"2026-11-0{number}T10:00:00Z",
+            ),
+        )
+    monkeypatch.setattr(deck_series, "SCAN_LIMIT", 4)
+    out = deck_series.deck_series(tmp_path, ["rev@m"])
+    assert out["scan_truncated"] == 1
+    assert out["scan_limit"] == 4
+    assert len(out["series"]) == 4  # type: ignore[arg-type]
+    monkeypatch.setattr(deck_series, "SCAN_LIMIT", 10)
+    monkeypatch.setattr(deck_series, "SERIES_LIMIT", 2)
+    capped = deck_series.deck_series(tmp_path, ["rev@m"])
+    assert capped["truncated"] is True
+    assert capped["scan_truncated"] == 0
+    assert len(capped["series"]) == 2  # type: ignore[arg-type]
+
+
+def test_deck_series_uncounted_seats_are_planned_only() -> None:
+    from commander_lab.studio import deck_series
+
+    raw = _stored_series("paired-1-1-aaaaaaaa", "rev@m", "rev@o", status="cancelled")
+    raw["result"] = {"tested_seats": [9], "seeds": [1]}
+    entry = deck_series._entry(raw, deck_series.series_status(raw))
+    assert entry["counts_as_result"] is False
+    assert entry["seats_planned"] is True
+    assert entry["tested_seats"] == [0, 1, 2, 3]

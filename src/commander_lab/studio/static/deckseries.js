@@ -20,7 +20,7 @@ const deckSeriesDate = (iso) => (iso ? iso.slice(0, 16).replace("T", " ") : "unb
 function deckSeriesRefLabel(ref, labels) {
   if (labels.has(ref)) return labels.get(ref);
   if (ref.startsWith("repo:")) return `Referenz ${ref.slice(5)}`;
-  return ref;
+  return "andere Revision";
 }
 
 function deckSeriesCells(h, item, role, deps, labels) {
@@ -34,7 +34,7 @@ function deckSeriesCells(h, item, role, deps, labels) {
     ? [
       h("div", {}, `Differenz (B − A): ${deckSeriesPp(item.difference_pp)}`),
       h("div", {}, `95 %-Intervall: ${deckSeriesInterval(item.difference_ci95_pp)}`),
-      h("div", {}, `Look-Intervall (${StudioUI.num(item.decision_level_pct, 1)} %): ${deckSeriesInterval(item.decision_ci_pp)}`),
+      h("div", {}, `Look-Intervall${item.decision_level_pct === null ? "" : ` (${StudioUI.num(item.decision_level_pct, 1)} %)`}: ${deckSeriesInterval(item.decision_ci_pp)}`),
       ...(item.pairs_censored ? [h("div", { class: "muted" }, `${StudioUI.num(item.pairs_censored)} Paare zensiert`)] : []),
     ]
     : [h("div", { class: "muted" }, "nicht als Ergebnis gezählt")];
@@ -48,7 +48,7 @@ function deckSeriesCells(h, item, role, deps, labels) {
     h("td", {}, figures),
     h("td", {}, h("span", { class: `pill ${DECK_SERIES_STATUS_CLASS[item.status] || "warn"}` }, item.status_text),
       item.stop_reason && !/^(DECIDED_|BUDGET_EXHAUSTED)/.test(item.stop_reason) ? h("div", { class: "muted" }, item.stop_reason) : null),
-    h("td", {}, h("div", {}, `Seeds: ${seeds}`), h("div", {}, `Sitze: ${seats}`),
+    h("td", {}, h("div", {}, `Seeds: ${seeds}`), h("div", {}, `Sitze${item.seats_planned ? " (geplant)" : ""}: ${seats}`),
       h("div", { class: "muted" }, `Bridge-JAR: ${sha} · Qualifizierung: ${qual}${item.covered_by_sealed_epoch === null ? "" : item.covered_by_sealed_epoch ? " · versiegelt" : " · nicht versiegelt"}`),
       h("div", { class: "muted" }, `Piloten: ${item.pilots.length ? item.pilots.join(", ") : "unbekannt"}`)),
     h("td", {}, h("button", { type: "button", class: "small", onclick: () => deps.open(item.series_id) }, "Serie öffnen")),
@@ -89,9 +89,10 @@ async function renderDeckSeries(slot, historyRows, deps) {
   const note = h("p", { class: "note note-compact" },
     "SIMULATED_RESULT: Zählwerte gespeicherter Serien (gleiche Seeds, Sitze und Gegner-Tisch), kein Urteil und kein Teil der Tierliste (Gewicht 0). Nicht abgeschlossene oder abgebrochene Serien zählen nicht als Ergebnis.",
     data.skipped ? ` ${StudioUI.num(data.skipped)} nicht lesbare oder fremde Ergebnisdateien übersprungen.` : "",
-    data.truncated ? " Nur die neuesten 200 Serien." : "");
+    data.truncated ? " Nur die neuesten 200 Serien." : "",
+    data.scan_truncated ? ` Nur die neuesten ${StudioUI.num(data.scan_limit)} Dateien geprüft, ${StudioUI.num(data.scan_truncated)} ältere nicht: eine fehlende Serie ist dann unbekannt.` : "");
   const body = data.series.length
     ? deckSeriesTable(h, data, historyRows, deps)
-    : h("p", { class: "muted" }, "keine gespeicherte Serie");
+    : h("p", { class: "muted" }, data.scan_truncated ? "keine Serie in den geprüften Dateien (ältere nicht geprüft)" : "keine gespeicherte Serie");
   slot.replaceChildren(h("h3", {}, "Gespeicherte Paar-Serien je Stand"), note, body);
 }

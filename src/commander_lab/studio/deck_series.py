@@ -22,6 +22,8 @@ from .store import StudioStore
 SERIES_LIMIT = 200
 #: Files looked at at most, so a huge games folder cannot stall the route.
 SCAN_LIMIT = 2000
+#: A series file is a few KB; anything above this is not one and is skipped (counted).
+MAX_FILE_BYTES = 2_000_000
 
 STATUS_COMPLETED = "completed"
 STATUS_STOPPED_EARLY = "stopped_early"
@@ -94,6 +96,9 @@ def series_status(raw: Mapping[str, object]) -> str:
     result = raw.get("result")
     if state != "completed" or not isinstance(result, dict):
         return STATUS_INCOMPLETE
+    completed = _as_int(result.get("pairs_completed"))
+    if completed is None or completed < 1:
+        return STATUS_INCOMPLETE  # no evaluable pair (or malformed): not a result
     planned = _as_int(raw.get("budget_pairs"))
     played = _as_int(result.get("pairs_played"))
     stop_reason = result.get("stop_reason")
@@ -113,7 +118,11 @@ def _entry(raw: Mapping[str, object], status: str) -> dict[str, object]:
     res: Mapping[str, object] = result if isinstance(result, dict) else {}
     counts = status in (STATUS_COMPLETED, STATUS_STOPPED_EARLY)
     done = _as_int(res.get("pairs_completed")) if counts else None
-    seats = _int_list(res.get("tested_seats")) or _int_list(raw.get("tested_seats"))
+    seats = (
+        (_int_list(res.get("tested_seats")) or _int_list(raw.get("tested_seats")))
+        if counts
+        else _int_list(raw.get("tested_seats"))
+    )
     seeds = _int_list(res.get("seeds")) or _int_list(res.get("seeds_completed"))
     bridge_shas = _str_list(res.get("bridge_jar_sha256s")) or _str_list(
         raw.get("bridge_jar_sha256s")
@@ -142,6 +151,7 @@ def _entry(raw: Mapping[str, object], status: str) -> dict[str, object]:
         "stop_reason": stop_reason if counts and isinstance(stop_reason, str) else None,
         "seeds": seeds,
         "tested_seats": seats,
+        "seats_planned": not counts,
         "pilots": _str_list(res.get("pilots")),
         "bridge_jar_sha256s": bridge_shas,
         "bridge_qualification_states": qualification,
@@ -153,8 +163,10 @@ def _entry(raw: Mapping[str, object], status: str) -> dict[str, object]:
 def _read_series_file(path: Path) -> dict[str, object] | None:
     """The parsed series, or None for a file that is corrupt, foreign or not this format."""
     try:
+        if path.stat().st_size > MAX_FILE_BYTES:
+            return None
         raw = json.loads(path.read_text(encoding="utf-8"))
-    except (OSError, ValueError):
+    except (OSError, ValueError, RecursionError, MemoryError):
         return None
     if not isinstance(raw, dict) or raw.get("schema") != SCHEMA_PAIRED_JOB:
         return None
@@ -174,11 +186,8 @@ def deck_series(data_folder: str | Path, revision_ids: list[str]) -> dict[str, o
     """Stored paired series whose A or B is one of ``revision_ids``, newest first."""
     wanted = set(revision_ids)
     folder = games_folder(Path(data_folder).resolve())
-    files = (
-        sorted(folder.glob("paired-*.paired.json"), reverse=True)[:SCAN_LIMIT]
-        if folder.is_dir()
-        else []
-    )
+    every = sorted(folder.glob("paired-*.paired.json"), reverse=True) if folder.is_dir() else []
+    files = every[:SCAN_LIMIT]
     found: list[dict[str, object]] = []
     skipped = 0
     for path in files:
@@ -211,4 +220,6 @@ def deck_series(data_folder: str | Path, revision_ids: list[str]) -> dict[str, o
         "by_revision": by_revision,
         "skipped": skipped,
         "truncated": len(found) > SERIES_LIMIT,
+        "scan_limit": SCAN_LIMIT,
+        "scan_truncated": max(0, len(every) - SCAN_LIMIT),
     }
