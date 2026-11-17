@@ -142,6 +142,18 @@ def test_small_window_filter_fold_and_compact_evidence_panel() -> None:
     assert "pill-short" in ui and "Engine-Stand noch nicht qualifiziert" in ui
 
 
+def test_mobile_deck_browser_columns_and_tier_banner_stay_in_the_viewport() -> None:
+    """Abnahme 2026-11-17 (B2, #1464): at 390 px the Deck-Browser grid columns must not be
+    widened by the co-occurrence table's min-content (measured page overflow 125 px), and the
+    tier list's oracle banner — a .badge with a full sentence — must wrap instead of running
+    off-screen on one line (measured 467 px)."""
+    css = (STATIC / "app.css").read_text(encoding="utf-8")
+    mobile = css.split("@media (max-width:900px)", 1)[1]
+    assert "main.browser>*{min-width:0}" in mobile
+    tier_css = (STATIC / "tierliste.css").read_text(encoding="utf-8")
+    assert "#oracle-banner" in tier_css and "white-space:normal" in tier_css
+
+
 def test_print_rules_are_scoped_to_the_build_list() -> None:
     css = (STATIC / "app.css").read_text(encoding="utf-8")
     blocks = re.findall(r"@media print\{(.*)\}\s*$", css, re.MULTILINE)
