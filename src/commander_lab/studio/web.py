@@ -13,7 +13,8 @@ import copy
 import json
 import re
 import threading
-from collections.abc import Awaitable, Callable
+from collections.abc import AsyncIterator, Awaitable, Callable
+from contextlib import asynccontextmanager
 from dataclasses import asdict
 from datetime import UTC, datetime
 from pathlib import Path
@@ -444,8 +445,20 @@ def layer_overview_cached(store: StudioStore, commander: str) -> dict[str, objec
 def create_app(data_folder: str | Path | None = None) -> FastAPI:
     """The Studio application. ``data_folder`` is the Studio data folder (default: from the
     environment)."""
-    app = FastAPI(title="Commander Studio", docs_url=None, redoc_url=None, openapi_url=None)
     play_manager = play.InteractivePlayManager()
+
+    @asynccontextmanager
+    async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
+        yield
+        play_manager.shutdown_all()
+
+    app = FastAPI(
+        title="Commander Studio",
+        docs_url=None,
+        redoc_url=None,
+        openapi_url=None,
+        lifespan=lifespan,
+    )
     app.state.play_manager = play_manager
     _warm_up_once()
 
@@ -1843,7 +1856,7 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
 
     @app.get("/api/games")
     def game_list() -> list[dict[str, object]]:
-        return games.list_games(games_home())
+        return games.list_games(games_home(), live_game_ids=play_manager.live_ids())
 
     @app.get("/api/outcomes")
     def outcomes(
@@ -1979,7 +1992,13 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         count: int = Query(default=200, ge=0, le=1000),
     ) -> dict[str, object]:
         try:
-            return games.read_game(games_home(), game_id, start=start, count=count)
+            return games.read_game(
+                games_home(),
+                game_id,
+                start=start,
+                count=count,
+                live_game_ids=play_manager.live_ids(),
+            )
         except (KeyError, ValueError) as error:
             raise HTTPException(404, "unknown game") from error
 
@@ -2041,7 +2060,7 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
 
     @app.delete("/api/games/{game_id}")
     def delete_game(game_id: str) -> dict[str, object]:
-        play_manager.shutdown_game(game_id)
+        play_manager.shutdown_game(game_id, discard=True)
         try:
             deleted = games.delete_game(games_home(), game_id)
             return {"deleted": deleted, "game_id": game_id}

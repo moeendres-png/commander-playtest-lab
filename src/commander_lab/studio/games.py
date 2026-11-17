@@ -19,6 +19,7 @@ import json
 import re
 import time
 from collections.abc import Iterator, Mapping
+from collections.abc import Set as AbstractSet
 from functools import lru_cache
 from pathlib import Path
 from typing import IO, Protocol
@@ -244,7 +245,9 @@ class GameRecorder:
         self._handle.write(json.dumps(entry, separators=(",", ":"), ensure_ascii=False) + "\n")
         self._handle.flush()
 
-    def record(self, decision: Mapping[str, object], response: Mapping[str, object]) -> None:
+    def record(
+        self, decision: Mapping[str, object], response: Mapping[str, object]
+    ) -> dict[str, object]:
         raw_state = decision.get("pilot_state")
         state: Mapping[str, object] = raw_state if isinstance(raw_state, dict) else {}
         turn = _whole(state.get("turn_number"))
@@ -281,7 +284,9 @@ class GameRecorder:
                 combat_data["blocks"] = list(self._combat_blocks)
 
         self.frames += 1
-        self._write(frame_of(self.frames, decision, response, combat=combat_data))
+        frame = frame_of(self.frames, decision, response, combat=combat_data)
+        self._write(frame)
+        return frame
 
     def discard(self) -> None:
         """Stop writing without closing the log: the game is played again from its start."""
@@ -446,7 +451,12 @@ def redact_pilot_state_for_human_seats(
 
 
 def read_game(
-    data_folder: str | Path, game_id: str, *, start: int = 0, count: int = 200
+    data_folder: str | Path,
+    game_id: str,
+    *,
+    start: int = 0,
+    count: int = 200,
+    live_game_ids: AbstractSet[str] = frozenset(),
 ) -> dict[str, object]:
     """Header, the frames ``start .. start+count`` and, when the game is over, its result."""
     try:
@@ -478,7 +488,12 @@ def read_game(
         with contextlib.suppress(OSError):
             out_content = out_path.read_text(encoding="utf-8", errors="replace").strip()
 
-    if result is None and time.time() - path.stat().st_mtime > STALE_SECONDS:
+    stale_after = STALE_SECONDS
+    raw_timeout = header.get("decision_timeout_seconds")
+    if type(raw_timeout) is int and raw_timeout > 0:
+        stale_after = max(STALE_SECONDS, float(raw_timeout) + 120.0)
+    is_live = game_id in live_game_ids
+    if result is None and not is_live and time.time() - path.stat().st_mtime > stale_after:
         # no closing entry and no new entry for a long time: the game process is gone
         failure_msg = "abgebrochen"
         if out_content:
@@ -517,7 +532,11 @@ def delete_game(data_folder: str | Path, game_id: str) -> bool:
     return True
 
 
-def list_games(data_folder: str | Path) -> list[dict[str, object]]:
+def list_games(
+    data_folder: str | Path,
+    *,
+    live_game_ids: AbstractSet[str] = frozenset(),
+) -> list[dict[str, object]]:
     """Every recorded game, newest first, with its header and (when over) its result."""
     games: list[dict[str, object]] = []
     folder = games_folder(data_folder)
@@ -530,7 +549,7 @@ def list_games(data_folder: str | Path) -> list[dict[str, object]]:
             continue
         seen.add(game_id)
         try:
-            game = read_game(data_folder, game_id, count=0)
+            game = read_game(data_folder, game_id, count=0, live_game_ids=live_game_ids)
         except (ValueError, KeyError, OSError, json.JSONDecodeError, EOFError):
             continue
         games.append(

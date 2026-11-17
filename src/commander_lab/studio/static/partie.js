@@ -312,13 +312,28 @@ function pilotStateToFrame(pending) {
       library_count: p.library_count ?? null,
       lost: Boolean(p.has_lost),
       won: Boolean(p.has_won),
-      battlefield: (p.battlefield || []).map((c) => ({
-        name: cardName(c),
-        tapped: Boolean(c.tapped),
-        power: c.power,
-        toughness: c.toughness,
-        damage: c.damage
-      })),
+      battlefield: (p.battlefield || []).map((c) => {
+        const rawCounters = c && c.counters;
+        let counters = null;
+        if (Array.isArray(rawCounters)) {
+          const map = {};
+          for (const entry of rawCounters) {
+            if (entry && entry.type && Number(entry.count) > 0) map[entry.type] = Number(entry.count);
+          }
+          if (Object.keys(map).length) counters = map;
+        } else if (rawCounters && typeof rawCounters === "object" && Object.keys(rawCounters).length) {
+          counters = rawCounters;
+        }
+        const rowCard = {
+          name: cardName(c),
+          tapped: Boolean(c.tapped),
+          power: c.power,
+          toughness: c.toughness,
+          damage: c.damage
+        };
+        if (counters) rowCard.counters = counters;
+        return rowCard;
+      }),
       graveyard: (p.graveyard || []).map(cardName),
       command: (p.command || []).map(cardName),
       exile_count: p.exile_count || (p.exile || []).length,
@@ -411,8 +426,11 @@ function renderHumanDecision() {
   const minSel = Number(pending.minimum_selections ?? 0);
   const maxSel = Number(pending.maximum_selections ?? 0);
   const ctx = pending.context || {};
-  const hasNumeric = dc === "announce_x" || dc === "multi_amount" || ctx.numeric_min !== undefined || ctx.numeric_max !== undefined;
-  const isOrder = dc === "trigger_order" || dc === "order";
+  const numericLegs = Array.isArray(ctx.numeric_legs) ? ctx.numeric_legs : null;
+  const hasJointNumeric = Boolean(numericLegs && numericLegs.length);
+  const hasScalarNumeric = !hasJointNumeric && (dc === "announce_x" || dc === "amount" || ctx.numeric_min !== undefined || ctx.numeric_max !== undefined);
+  const hasNumeric = hasScalarNumeric || hasJointNumeric;
+  const isOrder = (dc === "trigger_order" || dc === "order") && !(minSel === 1 && maxSel === 1);
   const isSingleImmediate = !hasNumeric && !isOrder && minSel === 1 && maxSel === 1;
   const title = CLASSES[dc] || dc;
   const headerText = `${seatName(pending.seat)} · ${title}`;
@@ -452,7 +470,54 @@ function renderHumanDecision() {
   }
 
   let numericInput = null;
-  if (hasNumeric) {
+  const legEntries = [];
+  let confirmButton = null;
+  let totalStatusEl = null;
+  const totalMin = hasJointNumeric ? Number(ctx.numeric_total_min ?? 0) : 0;
+  const totalMax = hasJointNumeric ? Number(ctx.numeric_total_max ?? 999) : 0;
+
+  const isJointValid = () => {
+    if (!hasJointNumeric) return true;
+    let sum = 0;
+    for (const entry of legEntries) {
+      const val = Number(entry.input.value);
+      if (!Number.isInteger(val) || val < entry.min || val > entry.max) return false;
+      sum += val;
+    }
+    return sum >= totalMin && sum <= totalMax;
+  };
+
+  if (hasJointNumeric) {
+    const legsBox = h("div", { class: "human-options" });
+    totalStatusEl = h("div", { class: "human-counter" }, "");
+    const updateJointState = () => {
+      const sum = legEntries.reduce((acc, item) => acc + (Number(item.input.value) || 0), 0);
+      totalStatusEl.textContent = `Summe: ${sum} (erlaubt: ${totalMin}..${totalMax})`;
+      if (confirmButton) {
+        const chosenCount = state.selectedOptions.length;
+        const validSel = chosenCount >= minSel && chosenCount <= maxSel;
+        confirmButton.disabled = state.submitting || !validSel || !isJointValid();
+      }
+    };
+    numericLegs.forEach((leg, idx) => {
+      const lMin = Number(leg.min ?? 0);
+      const lMax = Number(leg.max ?? 99);
+      const legLabel = leg.prompt ? localizeActionText(String(leg.prompt)) : `Teil ${idx + 1}`;
+      const input = h("input", {
+        type: "number",
+        min: String(lMin),
+        max: String(lMax),
+        value: String(lMin),
+        "aria-label": `${legLabel} (${lMin}..${lMax})`
+      });
+      input.addEventListener("input", updateJointState);
+      legEntries.push({ input, min: lMin, max: lMax });
+      legsBox.append(h("div", { class: "human-numeric" },
+        h("label", null, `${legLabel} (${lMin}..${lMax}) `, input)));
+    });
+    panel.append(totalStatusEl, legsBox);
+    updateJointState();
+  } else if (hasScalarNumeric) {
     const nMin = ctx.numeric_min !== undefined ? Number(ctx.numeric_min) : 0;
     const nMax = ctx.numeric_max !== undefined ? Number(ctx.numeric_max) : 99;
     numericInput = h("input", { type: "number", min: String(nMin), max: String(nMax), value: String(nMin), "aria-label": "Zahlenwert wählen" });
@@ -488,6 +553,9 @@ function renderHumanDecision() {
   }
 
   if (isSingleImmediate) {
+    if (dc === "trigger_order") {
+      panel.append(h("div", { class: "human-counter" }, "Nächsten Auslöser wählen (wird als Nächstes auf den Stapel gelegt)"));
+    }
     const listEl = h("div", { class: "human-options" });
     for (const opt of options) {
       listEl.append(h("button", {
@@ -502,7 +570,9 @@ function renderHumanDecision() {
   }
 
   const chosenCount = state.selectedOptions.length;
-  panel.append(h("div", { class: "human-counter" }, `${chosenCount} von ${maxSel} gewählt (mindestens ${minSel})`));
+  if (options.length || maxSel > 0) {
+    panel.append(h("div", { class: "human-counter" }, `${chosenCount} von ${maxSel} gewählt (mindestens ${minSel})`));
+  }
   const listEl = h("div", { class: "human-options" });
   for (const opt of options) {
     const optId = String(opt.option_id);
@@ -522,25 +592,27 @@ function renderHumanDecision() {
   }
   if (options.length) panel.append(listEl);
 
-  const validCount = chosenCount >= minSel && chosenCount <= maxSel;
-  const confirmLabel = minSel === 0 && chosenCount === 0
+  const validCount = chosenCount >= minSel && chosenCount <= maxSel && isJointValid();
+  const confirmLabel = !hasNumeric && minSel === 0 && chosenCount === 0
     ? (dc === "declare_attacker" ? "Nicht angreifen" : dc === "declare_blocker" ? "Nicht blocken" : "Bestätigen (0 gewählt)")
     : "Auswahl bestätigen";
-  panel.append(h("div", { class: "human-actions" },
-    h("button", {
-      type: "button",
-      class: "primary",
-      disabled: state.submitting || !validCount,
-      onclick: () => {
-        const body = { decision_id: pending.decision_id, selected_option_ids: [...state.selectedOptions], ordering: [] };
-        if (numericInput) {
-          const val = Number(numericInput.value);
-          if (dc === "multi_amount") body.numeric_choices = [val];
-          else body.numeric_choice = val;
-        }
-        submitHumanChoice(body);
+  confirmButton = h("button", {
+    type: "button",
+    class: "primary",
+    disabled: state.submitting || !validCount,
+    onclick: () => {
+      const body = { decision_id: pending.decision_id, selected_option_ids: [...state.selectedOptions], ordering: [] };
+      if (hasJointNumeric) {
+        body.numeric_choices = legEntries.map((entry) => Number(entry.input.value));
+      } else if (numericInput) {
+        const val = Number(numericInput.value);
+        if (dc === "multi_amount") body.numeric_choices = [val];
+        else body.numeric_choice = val;
       }
-    }, confirmLabel)));
+      submitHumanChoice(body);
+    }
+  }, confirmLabel);
+  panel.append(h("div", { class: "human-actions" }, confirmButton));
 }
 
 function renderBridgeBanner() {
@@ -604,16 +676,25 @@ function render() {
   if (frame.stack.length) frame.stack.forEach((name) => stack.append(name.startsWith("stack ability") ? h("div", { class: "muted" }, name.replace(/^stack ability \(/, "Fähigkeit: ").replace(/\)$/, "")) : cardTile(name, { small: true })));
   else stack.append(h("span", { class: "muted" }, "leer"));
   const actor = frame.players.find((player) => player.seat === frame.seat);
-  $("hand-title").textContent = `Hand von ${seatName(frame.seat)}`;
+  const handOwner = actor && Array.isArray(actor.hand)
+    ? actor
+    : (state.interactive && state.humanSeats.length
+        ? frame.players.find((player) => state.humanSeats.includes(player.seat) && Array.isArray(player.hand)) || actor
+        : actor);
+  const handSeat = handOwner ? handOwner.seat : frame.seat;
+  $("hand-title").textContent = `Hand von ${seatName(handSeat)}`;
   const hand = $("hand"); hand.textContent = "";
-  if (actor && actor.hand && actor.hand.length) actor.hand.forEach((name) => hand.append(cardTile(name, { small: true })));
-  else hand.append(h("span", { class: "muted" }, actor && actor.hand ? "leer" : "nicht sichtbar"));
+  if (handOwner && handOwner.hand && handOwner.hand.length) handOwner.hand.forEach((name) => hand.append(cardTile(name, { small: true })));
+  else hand.append(h("span", { class: "muted" }, handOwner && handOwner.hand ? "leer" : "nicht sichtbar"));
 
   $("position").value = String(state.index);
   const phase = frame.phase ? (STEPS[frame.step] || PHASES[frame.phase] || frame.phase) : "Spielbeginn";
   const skippedCount = Number((state.result && state.result.forced_decisions_skipped) || 0);
   const skippedSuffix = skippedCount > 0 ? ` (+ ${skippedCount} erzwungene Pässe)` : "";
-  $("where").textContent = `Zug ${frame.turn ?? "?"} · ${phase} · Entscheidung ${frame.n} von ${state.frames.length}${skippedSuffix}${state.running ? " (Partie läuft noch)" : ""}`;
+  const decisionPosText = atLiveTail
+    ? `Entscheidung ${frame.n} (Live)`
+    : `Entscheidung ${frame.n} von ${state.frames.length}`;
+  $("where").textContent = `Zug ${frame.turn ?? "?"} · ${phase} · ${decisionPosText}${skippedSuffix}${state.running ? " (Partie läuft noch)" : ""}`;
   for (const line of document.querySelectorAll("#log .here")) line.classList.remove("here");
   const line = lineFor(state.index);
   if (line) { line.classList.add("here"); line.scrollIntoView({ block: "nearest" }); }

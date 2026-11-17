@@ -267,7 +267,7 @@ final class XmageFullGameJsonlBridge {
                     "decision_timeout_seconds",
                     requestedTimeoutSeconds != null
                             ? requestedTimeoutSeconds
-                            : (int) Math.min(Integer.MAX_VALUE, decisionTimeout.toSeconds())
+                            : XmageFullGameDecisionController.decisionTimeoutSeconds(decisionTimeout)
             );
             JsonArray humanSeatsJson = new JsonArray();
             for (int seat : humanSeats) {

@@ -129,9 +129,36 @@ class XmageFullGameHumanSeatConfigTest {
         }
         assertNotNull(decision);
         assertTrue(decision.get("timeout_millis").getAsLong() > 120_000L);
+        String humanActorId = decision.get("actor_id").getAsString();
+        JsonObject offerReq = new JsonObject();
+        offerReq.addProperty("player_id", humanActorId);
+        JsonObject offerResp = send(bridge, "offer-1", "get_concede_offer", offerReq);
+        assertTrue(offerResp.get("success").getAsBoolean(), offerResp.toString());
+        assertTrue(offerResp.getAsJsonObject("payload").get("concede_available").getAsBoolean());
         // Cleanly end the test session.
         JsonObject shutdown = send(bridge, "shut-1", "shutdown_game", new JsonObject());
         assertTrue(shutdown.get("success").getAsBoolean(), shutdown.toString());
+    }
+
+    @Test
+    void createFullGameEchoesZeroWhenPropertySetsUnlimitedTimeout() {
+        System.setProperty(XmageFullGameDecisionController.DECISION_TIMEOUT_SECONDS_PROPERTY, "0");
+        XmageFullGameJsonlBridge bridge = new XmageFullGameJsonlBridge();
+        assertTrue(startFullGameLane(bridge));
+        List<String> handles = List.of(
+                importSampleDeck(bridge, "prop0-d1"),
+                importSampleDeck(bridge, "prop0-d2")
+        );
+        JsonArray handleArray = new JsonArray();
+        handles.forEach(handleArray::add);
+        JsonObject payload = new JsonObject();
+        payload.addProperty("game_id", "prop-zero-timeout");
+        payload.add("deck_handles", handleArray);
+        payload.addProperty("seed", 19);
+        payload.addProperty("starting_player_seat", 0);
+        JsonObject resp = send(bridge, "create-prop-0", "create_full_game", payload);
+        assertTrue(resp.get("success").getAsBoolean(), resp.toString());
+        assertEquals(0, resp.getAsJsonObject("payload").get("decision_timeout_seconds").getAsInt());
     }
 
     private static boolean startFullGameLane(XmageFullGameJsonlBridge bridge) {

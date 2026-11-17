@@ -248,7 +248,7 @@ class _FakeInteractiveClient:
         if method == "start_full_game":
             return self._status()
         if method == "get_concede_offer":
-            return {"can_concede": not self.conceded}
+            return {"concede_available": not self.conceded}
         if method == "submit_concede":
             self.conceded = True
             return self._status()
@@ -506,5 +506,195 @@ def test_partie_ui_covers_human_seat_controls_without_client_rules() -> None:
     assert "/decision" in js_text
     assert "/concede" in js_text
     assert "/speed" in js_text
+    # P1 #2 / P2 #3 / P3 #9: trigger_order single selection, multi_amount legs vector, live counter & counters
+    assert "numeric_legs" in js_text
+    assert "numeric_total_min" in js_text
+    assert (
+        '(dc === "trigger_order" || dc === "order") && !(minSel === 1 && maxSel === 1)' in js_text
+    )
+    assert "(Live)" in js_text
+    assert "rawCounters" in js_text
     # REQ-02/04/06/08/10: no client-side undo / legality reconstruction
     assert "undo" not in js_text.lower()
+
+
+def test_concede_available_and_failed_concede_stays_on_decision(tmp_path: Path) -> None:
+    class _DenyConcedeClient(_FakeInteractiveClient):
+        def _status(self) -> dict[str, object]:
+            payload = super()._status()
+            if self.phase == 0:
+                payload["outcomes"] = [{"seat": 0, "player_id": "p0", "life": 40}]
+            return payload
+
+        def request(
+            self, method: str, payload: dict[str, object] | None = None
+        ) -> dict[str, object]:
+            if method == "get_concede_offer":
+                return {"concede_available": False}
+            return super().request(method, payload)
+
+    app = create_app(tmp_path)
+    decks = (
+        _make_deck("own", "Chulane, Teller of Tales"),
+        _make_deck("opp", "Kinnan, Bonder Prodigy"),
+    )
+    prepared = play.prepare_game(
+        decks,
+        seed=9,
+        game_id="concede-stay",
+        human_seats=[0],
+        decision_timeout_seconds=0,
+        jar_sha256="deadbeef" * 8,
+    )
+    fake_client = _DenyConcedeClient()
+    session = play.InteractiveGameSession(
+        tmp_path,
+        prepared,
+        human_seats=[0],
+        decision_timeout_seconds=0,
+        ai_delay_ms=10,
+        command=("fake-bridge",),
+        client_factory=lambda *_a, **_kw: fake_client,
+    )
+    with app.state.play_manager._lock:
+        app.state.play_manager._sessions["concede-stay"] = session
+    session.start()
+    client = TestClient(app, headers={"X-Studio": "1"})
+    try:
+        snap = _wait_for_pending(client, "concede-stay", "dec-h-1")
+        assert snap["can_concede"] is False
+        denied = client.post("/api/play/concede-stay/concede", json={})
+        assert denied.status_code == 422
+        # Session stays parked on the exact same decision without incrementing decision_count.
+        snap_after = _wait_for_pending(client, "concede-stay", "dec-h-1")
+        assert snap_after["pending_decision"]["decision_id"] == "dec-h-1"
+        assert fake_client.decision_count == 0
+    finally:
+        app.state.play_manager.shutdown_all()
+
+
+def test_live_game_not_marked_stale_after_600s(tmp_path: Path) -> None:
+    import os
+
+    decks = (
+        _make_deck("own", "Chulane, Teller of Tales"),
+        _make_deck("opp", "Kinnan, Bonder Prodigy"),
+    )
+    prep = play.prepare_game(
+        decks, seed=3, game_id="long-think", human_seats=[0], decision_timeout_seconds=0
+    )
+    recorder = games.GameRecorder(tmp_path, "long-think", prep.header)
+    stale_time = time.time() - (games.STALE_SECONDS + 300.0)
+    os.utime(recorder.path, (stale_time, stale_time))
+
+    try:
+        assert games.read_game(tmp_path, "long-think")["running"] is False
+        live = games.read_game(tmp_path, "long-think", live_game_ids=frozenset({"long-think"}))
+        assert live["running"] is True
+        assert live["result"] is None
+        listed = games.list_games(tmp_path, live_game_ids=frozenset({"long-think"}))
+        assert listed[0]["running"] is True
+    finally:
+        recorder.discard()
+
+
+def test_interactive_record_decision_keeps_cumulative_combat(tmp_path: Path) -> None:
+    decks = (
+        _make_deck("own", "Chulane, Teller of Tales"),
+        _make_deck("opp", "Kinnan, Bonder Prodigy"),
+    )
+    prep = play.prepare_game(
+        decks, seed=4, game_id="combat-frame", human_seats=[0], decision_timeout_seconds=0
+    )
+    session = play.InteractiveGameSession(
+        tmp_path,
+        prep,
+        human_seats=[0],
+        decision_timeout_seconds=0,
+        command=("fake-bridge",),
+    )
+    try:
+        atk_decision = {
+            "seat": 0,
+            "decision_class": "declare_attacker",
+            "prompt": "Declare attackers",
+            "legal_options": [
+                {"option_id": "atk-1", "label": "Isamaru, Hound of Konda attacks Full Game Seat 1"}
+            ],
+            "pilot_state": _pilot_state(
+                seat=0, turn=3, active_player_id="p0", secret_opp_card="Hidden"
+            )
+            | {"phase": "combat", "step": "declare_attackers"},
+        }
+        session._record_decision(atk_decision, {"selected_option_ids": ["atk-1"]})
+        followup = {
+            "seat": 1,
+            "decision_class": "priority",
+            "prompt": "Act",
+            "legal_options": [{"option_id": "pass", "label": "Pass priority"}],
+            "pilot_state": _pilot_state(
+                seat=1, turn=3, active_player_id="p0", secret_opp_card="Hidden"
+            )
+            | {"phase": "combat", "step": "declare_attackers"},
+        }
+        session._record_decision(followup, {"selected_option_ids": ["pass"]})
+        snap = session.snapshot()
+        assert snap["frames"][1]["combat"] == {
+            "attacks": [{"attacker": "Isamaru, Hound of Konda", "target": "Full Game Seat 1"}]
+        }
+        assert "Hidden" not in json.dumps(snap["frames"])
+    finally:
+        session._recorder.discard()
+
+
+def test_delete_during_slow_startup_discards_without_orphan_gz(tmp_path: Path) -> None:
+    import threading
+
+    started_gate = threading.Event()
+    release_gate = threading.Event()
+
+    class _SlowStartupClient(_FakeInteractiveClient):
+        def request(
+            self, method: str, payload: dict[str, object] | None = None
+        ) -> dict[str, object]:
+            if method == "start_engine":
+                started_gate.set()
+                release_gate.wait(timeout=2.0)
+            return super().request(method, payload)
+
+    app = create_app(tmp_path)
+    decks = (
+        _make_deck("own", "Chulane, Teller of Tales"),
+        _make_deck("opp", "Kinnan, Bonder Prodigy"),
+    )
+    prepared = play.prepare_game(
+        decks,
+        seed=5,
+        game_id="slow-delete",
+        human_seats=[0],
+        decision_timeout_seconds=0,
+    )
+    session = play.InteractiveGameSession(
+        tmp_path,
+        prepared,
+        human_seats=[0],
+        decision_timeout_seconds=0,
+        command=("fake-bridge",),
+        client_factory=lambda *_a, **_kw: _SlowStartupClient(),
+    )
+    with app.state.play_manager._lock:
+        app.state.play_manager._sessions["slow-delete"] = session
+    session._thread.start()
+    assert started_gate.wait(timeout=2.0)
+
+    client = TestClient(app, headers={"X-Studio": "1"})
+    try:
+        deleted = client.delete("/api/games/slow-delete")
+        release_gate.set()
+        session._thread.join(timeout=2.0)
+        assert deleted.status_code == 200
+        assert not (games.games_folder(tmp_path) / "slow-delete.jsonl").exists()
+        assert not (games.games_folder(tmp_path) / "slow-delete.jsonl.gz").exists()
+    finally:
+        release_gate.set()
+        app.state.play_manager.shutdown_all()

@@ -47,7 +47,6 @@ from .games import (
     DecisionPolicy,
     GameRecorder,
     RecordingPolicy,
-    frame_of,
     free_game_id,
     redact_frame_for_human_seats,
     redact_pilot_state_for_human_seats,
@@ -423,12 +422,20 @@ class InteractiveGameSession:
         self._player_ids_by_seat: dict[int, str] = {}
         self._can_concede_by_seat: dict[int, bool] = {}
         self._running = True
+        self._discard_on_exit = False
+        self._shutdown_event = threading.Event()
+        self._active_client: object | None = None
         self._result: dict[str, object] | None = None
         self._thread = threading.Thread(
             target=self._run,
             name=f"interactive-play-{self.game_id}",
             daemon=True,
         )
+
+    @property
+    def is_running(self) -> bool:
+        with self._lock:
+            return self._running
 
     def start(self, *, wait_seconds: float = 15.0) -> None:
         self._thread.start()
@@ -509,7 +516,9 @@ class InteractiveGameSession:
                         with contextlib.suppress(Exception):
                             offer = client.request("get_concede_offer", {"player_id": actor_id})
                             if isinstance(offer, Mapping):
-                                self._can_concede_by_seat[seat] = bool(offer.get("can_concede"))
+                                self._can_concede_by_seat[seat] = bool(
+                                    offer.get("concede_available")
+                                )
                     sanitized["can_concede"] = any(
                         self._can_concede_by_seat.get(s, False) for s in self.human_seats
                     )
@@ -526,11 +535,8 @@ class InteractiveGameSession:
     def _record_decision(
         self, decision: Mapping[str, object], response: Mapping[str, object]
     ) -> None:
-        self._recorder.record(decision, response)
-        redacted = redact_frame_for_human_seats(
-            frame_of(self._recorder.frames, decision, response),
-            self.human_seats,
-        )
+        frame = self._recorder.record(decision, response)
+        redacted = redact_frame_for_human_seats(frame, self.human_seats)
         with self._lock:
             self._frames.append(redacted)
             self._pending_decision = None
@@ -551,7 +557,7 @@ class InteractiveGameSession:
             return current_status
         try:
             offer = client.request("get_concede_offer", {"player_id": actor_id})  # type: ignore[attr-defined]
-            if not isinstance(offer, Mapping) or not offer.get("can_concede"):
+            if not isinstance(offer, Mapping) or not offer.get("concede_available"):
                 raise ValueError("Aufgeben ist für diesen Platz derzeit nicht möglich")
             next_status = client.request(  # type: ignore[attr-defined]
                 "submit_concede",
@@ -579,6 +585,8 @@ class InteractiveGameSession:
                 self.prepared.pilots,
             )
             client = self._build_client(runner)
+            with self._lock:
+                self._active_client = client
             with client:  # type: ignore[attr-defined]
                 started = client.request("start_engine")  # type: ignore[attr-defined]
                 if started.get("lane") != FULL_GAME_LANE:
@@ -589,6 +597,8 @@ class InteractiveGameSession:
 
                 handles: list[str] = []
                 for deck in self.prepared.decks:
+                    if self._shutdown_event.is_set():
+                        break
                     imported = client.request(  # type: ignore[attr-defined]
                         "import_deck", {"deck": runner._deck_payload(deck)}
                     )
@@ -600,37 +610,43 @@ class InteractiveGameSession:
                         raise FullGameConformanceError("IMPORT_DECK returned blank handle_id")
                     handles.append(handle_id)
 
-                game_wire_id = (
-                    f"{self.prepared.scenario.scenario_id}:"
-                    f"{self.prepared.scenario.candidate_id}:"
-                    f"{self.prepared.scenario.seed}"
-                )
-                player_count = self.prepared.scenario.player_count
-                created = client.request(  # type: ignore[attr-defined]
-                    "create_full_game",
-                    {
-                        "game_id": game_wire_id,
-                        "deck_handles": handles,
-                        "seed": self.prepared.scenario.seed,
-                        "starting_player_seat": self.prepared.scenario.seed % player_count,
-                        "starting_life": 40,
-                        "human_seats": sorted(self.human_seats),
-                        "decision_timeout_seconds": self.decision_timeout_seconds,
-                    },
-                )
-                if created.get("evidence_class") != FULL_GAME_EVIDENCE_CLASS:
-                    raise FullGameConformanceError(
-                        "full-game creation returned unsafe evidence class"
+                shutdown_requested = self._shutdown_event.is_set()
+                status: dict[str, object] = {}
+                if not shutdown_requested:
+                    game_wire_id = (
+                        f"{self.prepared.scenario.scenario_id}:"
+                        f"{self.prepared.scenario.candidate_id}:"
+                        f"{self.prepared.scenario.seed}"
                     )
-                if created.get("holdout_consumed") is not False:
-                    raise FullGameConformanceError("technical conformance must not consume holdout")
+                    player_count = self.prepared.scenario.player_count
+                    created = client.request(  # type: ignore[attr-defined]
+                        "create_full_game",
+                        {
+                            "game_id": game_wire_id,
+                            "deck_handles": handles,
+                            "seed": self.prepared.scenario.seed,
+                            "starting_player_seat": self.prepared.scenario.seed % player_count,
+                            "starting_life": 40,
+                            "human_seats": sorted(self.human_seats),
+                            "decision_timeout_seconds": self.decision_timeout_seconds,
+                        },
+                    )
+                    if created.get("evidence_class") != FULL_GAME_EVIDENCE_CLASS:
+                        raise FullGameConformanceError(
+                            "full-game creation returned unsafe evidence class"
+                        )
+                    if created.get("holdout_consumed") is not False:
+                        raise FullGameConformanceError(
+                            "technical conformance must not consume holdout"
+                        )
 
-                status = client.request("start_full_game")  # type: ignore[attr-defined]
-                self._publish_status(status, client)
+                    if not self._shutdown_event.is_set():
+                        status = client.request("start_full_game")  # type: ignore[attr-defined]
+                        self._publish_status(status, client)
+                    shutdown_requested = self._shutdown_event.is_set()
+
                 decision_count = 0
-                shutdown_requested = False
-
-                while not shutdown_requested:
+                while not shutdown_requested and not self._shutdown_event.is_set():
                     failure = status.get("failure")
                     if isinstance(failure, dict):
                         raise FullGameConformanceError("XMage full-game engine failed")
@@ -653,7 +669,9 @@ class InteractiveGameSession:
                                     break
                                 if cmd.kind == "concede":
                                     status = self._run_concede_command(client, cmd, status)
-                                    break
+                                    if cmd.error is None:
+                                        break
+                                    continue
                                 if cmd.kind == "decision":
                                     response_payload = cmd.payload
                                     if not isinstance(response_payload, Mapping):
@@ -711,7 +729,7 @@ class InteractiveGameSession:
                     status = client.request("get_full_game_decision")  # type: ignore[attr-defined]
                     self._publish_status(status, client)
 
-                if shutdown_requested:
+                if shutdown_requested or self._shutdown_event.is_set():
                     outcome = FullGameConformanceError("Spiel durch Benutzer beendet")
                 else:
                     raw_result = client.request("get_full_game_result")  # type: ignore[attr-defined]
@@ -728,14 +746,25 @@ class InteractiveGameSession:
         except Exception as exc:
             outcome = exc
         finally:
-            if outcome is None:
-                outcome = FullGameConformanceError("full game ended without outcome")
-            closed = close_recorded_game(self._recorder, outcome)
             with self._lock:
-                self._pending_decision = None
-                self._pending_raw_decision = None
-                self._running = False
-                self._result = closed
+                self._active_client = None
+                discard_on_exit = self._discard_on_exit
+            if discard_on_exit:
+                with contextlib.suppress(Exception):
+                    self._recorder.discard()
+                with self._lock:
+                    self._pending_decision = None
+                    self._pending_raw_decision = None
+                    self._running = False
+            else:
+                if outcome is None:
+                    outcome = FullGameConformanceError("full game ended without outcome")
+                closed = close_recorded_game(self._recorder, outcome)
+                with self._lock:
+                    self._pending_decision = None
+                    self._pending_raw_decision = None
+                    self._running = False
+                    self._result = closed
             self._ready.set()
 
     def snapshot(self, *, start: int = 0, count: int = 200) -> dict[str, object]:
@@ -831,13 +860,27 @@ class InteractiveGameSession:
         self.ai_delay_ms = clamped
         return clamped
 
-    def shutdown(self) -> None:
-        if not self._running:
-            return
-        cmd = _InteractiveCommand("shutdown")
-        self._commands.put(cmd)
-        cmd.done.wait(timeout=10.0)
-        self._thread.join(timeout=5.0)
+    def shutdown(self, *, discard: bool = False) -> None:
+        if discard:
+            with self._lock:
+                self._discard_on_exit = True
+        self._shutdown_event.set()
+        if self.is_running:
+            cmd = _InteractiveCommand("shutdown")
+            self._commands.put(cmd)
+            if not cmd.done.wait(timeout=3.0 if discard else 10.0):
+                with self._lock:
+                    active_client = self._active_client
+                proc = (
+                    getattr(active_client, "_process", None) if active_client is not None else None
+                )
+                if proc is not None:
+                    with contextlib.suppress(Exception):
+                        proc.kill()
+            self._thread.join(timeout=5.0)
+        if discard:
+            with contextlib.suppress(Exception):
+                self._recorder.discard()
 
 
 class InteractivePlayManager:
@@ -846,6 +889,10 @@ class InteractivePlayManager:
     def __init__(self) -> None:
         self._lock = threading.Lock()
         self._sessions: dict[str, InteractiveGameSession] = {}
+
+    def live_ids(self) -> frozenset[str]:
+        with self._lock:
+            return frozenset(gid for gid, session in self._sessions.items() if session.is_running)
 
     def start_game(
         self,
@@ -955,11 +1002,11 @@ class InteractivePlayManager:
             "result": recorded.get("result"),
         }
 
-    def shutdown_game(self, game_id: str) -> None:
+    def shutdown_game(self, game_id: str, *, discard: bool = False) -> None:
         with self._lock:
             session = self._sessions.pop(game_id, None)
         if session is not None:
-            session.shutdown()
+            session.shutdown(discard=discard)
 
     def shutdown_all(self) -> None:
         with self._lock:

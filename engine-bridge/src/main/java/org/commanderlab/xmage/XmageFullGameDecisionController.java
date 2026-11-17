@@ -127,6 +127,13 @@ final class XmageFullGameDecisionController {
         return Duration.ofSeconds(seconds);
     }
 
+    static int decisionTimeoutSeconds(Duration timeout) {
+        if (timeout == null || UNLIMITED_DECISION_DURATION.equals(timeout)) {
+            return 0;
+        }
+        return (int) Math.min(Integer.MAX_VALUE, timeout.toSeconds());
+    }
+
     XmageFullGameDecisionController(Duration timeout) {
         this(timeout, Boolean.getBoolean(SKIP_FORCED_DECISIONS_PROPERTY));
     }
