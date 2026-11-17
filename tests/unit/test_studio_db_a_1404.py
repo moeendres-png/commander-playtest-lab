@@ -3,6 +3,7 @@ audit, and source freshness reporting (Refs #1404, #1413)."""
 
 from __future__ import annotations
 
+import hashlib
 import json
 from pathlib import Path
 
@@ -336,6 +337,7 @@ def test_source_freshness_coalesce_and_status_endpoint(tmp_path: Path) -> None:
     assert body["freshness"] == {
         "total_sources": 4,
         "with_snapshot_date": 4,
+        "with_identifier": 0,
         "oldest_snapshot": "2026-11-10",
         "newest_snapshot": "2026-11-16",
     }
@@ -343,3 +345,100 @@ def test_source_freshness_coalesce_and_status_endpoint(tmp_path: Path) -> None:
     assert dates["edhrec_cards.csv"] == "2026-11-15"
     assert dates["cardrecs.csv"] == "2026-11-14"
     assert dates["snap.json"] == "2026-11-16"
+
+
+def test_status_freshness_ignores_identifier_labels_and_lists_layers(tmp_path: Path) -> None:
+    """``universe:*`` snapshot labels are identifiers, not dates: they never enter the
+    oldest/newest span (a text max would have answered ``universe:e``) and are counted apart.
+    Other non-dates ("2026-11", "2026-13-45") are undated, not identifiers. Quelldecks are the
+    sources a corpus deck names, never a plain ``name.json``."""
+    store = StudioStore.open(tmp_path / "studio")
+    rows = [
+        ("11354052.json", "2025-02-13"),
+        ("AbCdEfGhIjKlMnOpQrSt12.json", "2026-05-06T10:00:40.373+00:00"),
+        ("chulane_decklist_inclusion_20261112.csv#universe:4236ac0a9befcd74:213", "universe:4"),
+        ("chulane_corpus_decklist_inclusion_20261115.csv#universe:e5f1:66", "universe:e"),
+        ("topdeck_chulane_decks.csv", "2026-09-17"),
+        ("playgroup_atlas:playgroup_card_atlas_1.jsonl", None),
+        ("spellbook_shells.csv", None),
+        ("card_rulings_1655.jsonl", None),
+        ("snap.json", "2026-10-01"),
+        ("scryfall_oracle.json", "2026-11"),
+        ("default-cards.json", "2026-13-45"),
+        ("other.json", "12.11.2026"),
+    ]
+    with store.connection:
+        for index, (title, snapshot) in enumerate(rows):
+            store.register_source(
+                data_class=DataClass.NORMALIZED_SOURCE,
+                title=title,
+                sha256=hashlib.sha256(str(index).encode()).hexdigest(),
+                snapshot_date=snapshot,
+            )
+        for deck_index, title in enumerate(("11354052.json", "AbCdEfGhIjKlMnOpQrSt12.json")):
+            source_id = store.connection.execute(
+                "SELECT source_id FROM source WHERE title = ?", (title,)
+            ).fetchone()[0]
+            store.connection.execute(
+                "INSERT INTO corpus_deck (deck_id, cohort, url, platform, play_group, tags, "
+                "fingerprint, legality_audit, source_id) "
+                "VALUES (?, 'all', ?, 'edhrec', 'community', '[]', ?, 'LEGAL', ?)",
+                (
+                    f"d{deck_index}",
+                    f"https://example.invalid/{deck_index}",
+                    f"fp{deck_index}",
+                    source_id,
+                ),
+            )
+    store.close()
+
+    body = TestClient(create_app(tmp_path / "studio")).get("/api/status").json()
+    assert body["freshness"] == {
+        "total_sources": 12,
+        "with_snapshot_date": 4,
+        "with_identifier": 2,
+        "oldest_snapshot": "2025-02-13",
+        "newest_snapshot": "2026-10-01",
+    }
+    layers = {row["layer"]: row for row in body["source_layers"]}
+    assert layers["Quelldecks"] == {
+        "layer": "Quelldecks",
+        "sources": 2,
+        "dated": 2,
+        "with_identifier": 0,
+        "oldest": "2025-02-13",
+        "newest": "2026-05-06",
+        "undated_note": None,
+    }
+    # plain ``name.json`` files without a corpus deck are not source decks
+    others = layers["Weitere Quellen"]
+    assert (others["sources"], others["dated"], others["with_identifier"]) == (4, 1, 0)
+    assert (others["oldest"], others["newest"]) == ("2026-10-01", "2026-10-01")
+    cohorts = layers["Universum-Kohorten"]
+    assert (cohorts["sources"], cohorts["dated"], cohorts["with_identifier"]) == (2, 0, 2)
+    assert (cohorts["oldest"], cohorts["newest"]) == (None, None)
+    for undated in ("Playgroup", "Spellbook", "Rulings", "Universum-Kohorten"):
+        assert layers[undated]["undated_note"] == "Datum nicht im Store"
+        assert layers[undated]["oldest"] is None
+    assert layers["TopDeck / EDHTop16"]["newest"] == "2026-09-17"
+    assert not any("universe:" in str(value) for value in (body["freshness"], body["sources"]))
+    # every source is in exactly one layer; the sample holds only counted dated rows
+    assert sum(row["sources"] for row in body["source_layers"]) == 12
+    assert len(body["sources"]) == body["freshness"]["with_snapshot_date"]
+
+
+def test_status_payload_carries_only_the_newest_dated_sources(tmp_path: Path) -> None:
+    store = StudioStore.open(tmp_path / "studio")
+    with store.connection:
+        for index in range(40):
+            store.register_source(
+                data_class=DataClass.NORMALIZED_SOURCE,
+                title=f"Deck{index:018d}ab.json",
+                sha256=hashlib.sha256(str(index).encode()).hexdigest(),
+                snapshot_date="2026-01-01",
+            )
+    store.close()
+    body = TestClient(create_app(tmp_path / "studio")).get("/api/status").json()
+    assert len(body["sources"]) == 25
+    assert body["freshness"]["total_sources"] == 40
+    assert body["source_layers"][0]["sources"] == 40

@@ -1138,6 +1138,12 @@ little data or not rated (commander, basic lands), never a low tier.
 - Derived figures are computed once per store state: `cache.py` keeps the resolved universe,
   the per-card spread and the builder counts keyed by the store file's change counter, so any
   committed write recomputes them. `GET /api/marks` reads the marks without building the pool.
+  The same cache holds the cohort shapes, the land advisor's source-deck groups, the corpus
+  deck sets behind the pool counts and the packages, the layer overview and the data report
+  (per commander, group and day); concurrent identical requests share one computation, a failed
+  computation is never cached, and entries of an older store state are dropped. `serve` fills
+  these in the background for the commanders with source data, so the builder page starts its
+  requests side by side and only the very first load after an import pays for the counting.
 
 ### Data report
 
@@ -1407,6 +1413,15 @@ data, unknown mana value, no role (nonland cards), unknown land colours, no sour
 commander names the card, no EDHREC observation for the commander (commander or bracket pages).
 Each reason carries its count and the number of cards it was checked for; a source the store
 lacks for the commander is reported once, not per card. A gap means unknown, never 0.
+EDHREC observations are found by card id and by card name (casefolded; a front face of
+"A // B" credits a card only when no other card owns it, as in `universe._card_name_index`),
+because many stored rows carry no card id. For Chulane the `no_edhrec` text cites `edhrec_chulane_threshold_audit.json`
+(snapshot 2026-11-12): EDHREC lists cards on the card lists of the commander page only above a
+minimum share, so a missing
+row stays a gap, not a statement about the card. The note "dünn belegt" shows n of N source
+decks for the derived group `tuned` (brackets 4 and 5) and for `all` where the card's n is below 30; the
+groups are never added, 0 of N is a real count, and a card no source deck names stays unknown.
+It is a note on the sample, not counted in `cards_with_gaps`.
 
 ### Colours on curve ("Farben auf Kurve", #1415, #1404 option 2)
 
@@ -1493,6 +1508,21 @@ at most 40 characters, unique ignoring case), `GET /api/labels`. The pool table 
 ("alle Marken", "ohne Marke") and has an optional column. Like favorites they never enter a tier,
 the strength index, the rating layers or any evidence figure (`archetype_label` in
 `evidence.TIER_POLICY["never_inputs"]`; `test_labels_never_change_tier_index_layers_or_evidence`).
+
+### Source state per layer ("Quellenstand", #1404)
+
+The data-state box shows one line per source layer (Quelldecks, EDHREC Commander and Bracket,
+Playgroup, TopDeck / EDHTop16, Universum-Kohorten, Spellbook, Scryfall-Fakten, Rulings, Rollen,
+Sammlung, Weitere Quellen) from the `source` table (`source_layers.py`; Quelldecks are the sources a corpus deck row names, the other layers follow the registered file
+title): `n datiert von N` and the oldest/newest real date. Only a real ISO date counts as a
+date; labels such as `universe:<id>` are identifiers, counted apart ("nur mit Kennung") and
+never part of the span. A layer without any date in the store says "Datum nicht im Store";
+no date is invented and nothing is called fresh. The date is what the importer registered (file name or default), not checked against the
+content. Other snapshot text ("2026-11") is not evaluable and counts as undated. `GET /api/status` returns these counts plus `sources`: the 25 newest dated rows (a sample, not the full list)
+(it carried all 10,665 rows, 1.7 MB, on every page load; now about 7 KB). The card window's
+commander-level co-occurrence pass is remembered per store state, commander list and cohort
+(`builder._cohort_deck_sets`, sharing `corpus_deck_sets`), so the second open of a card is a
+lookup; the figures are the same as counting the cohort's decks directly (tested).
 
 ### Not built: purchase mode
 
