@@ -767,7 +767,7 @@ function renderUniversePanel() {
       summary.empty ? h("span", { id: "universe-empty", class: "badge warn badge-text" }, REASON_NAMES[summary.empty_reason] || summary.empty_reason || "Universum ist leer (0 Decks)") : null,
       summary.subset_note ? h("span", { class: "badge warn badge-text" }, summary.subset_note) : null,
       summary.excluded_no_date ? h("span", { class: "muted" }, `${summary.excluded_no_date} Decks ohne Zeitstempel durch den Datumsfilter ausgeschlossen`) : null,
-      summary.below_min_universe ? h("span", { class: "badge warn" }, `unter dem Mindest-Universum (${summary.min_universe} Decks): alle Karten U`) : null,
+      summary.below_min_universe ? h("span", { class: "badge warn badge-text" }, `unter dem Mindest-Universum (${summary.min_universe} Decks): alle Karten U`) : null,
       h("span", { class: "muted", title: summary.snapshot_id }, `Stand ${summary.snapshot_id.slice(0, 28)}`),
       h("span", { class: "muted", title: summary.data_class }, "gezählt, Teilmengen addieren sich zum Nenner"));
   panel.replaceChildren(facts, h("div", { class: "muted" }, SPREAD_NOTE), h("details", {}, h("summary", {}, uni.name ? "Universum ändern oder neu anlegen" : "Universum anlegen"), form));

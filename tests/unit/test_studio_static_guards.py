@@ -152,9 +152,17 @@ def test_mobile_deck_browser_columns_and_tier_banner_stay_in_the_viewport() -> N
     tier_css = (STATIC / "tierliste.css").read_text(encoding="utf-8")
     assert ".badge-text{white-space:normal" in tier_css
     tier_js = (STATIC / "tierliste.js").read_text(encoding="utf-8")
-    # Every sentence-length badge carries the wrapping class: oracle banner,
-    # universe-empty note, subset note and the calculation notices.
-    assert tier_js.count("badge-text") >= 4
+    # Every sentence-length badge carries the wrapping class, pinned per site:
+    # oracle banner, universe-empty note, subset note, below-minimum note and
+    # the calculation notices.
+    for site in (
+        'class: "badge warn badge-text", id: "oracle-banner"',
+        'id: "universe-empty", class: "badge warn badge-text"',
+        'class: "badge warn badge-text" }, summary.subset_note)',
+        'class: "badge warn badge-text" }, `unter dem Mindest-Universum',
+        'class: "badge warn badge-text" }, text)',
+    ):
+        assert site in tier_js, site
 
 
 def test_print_rules_are_scoped_to_the_build_list() -> None:
