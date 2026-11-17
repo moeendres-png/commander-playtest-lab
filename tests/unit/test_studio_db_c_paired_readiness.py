@@ -731,3 +731,271 @@ def test_paired_js_csp_and_in_place_slot_refresh() -> None:
     assert "paired-monitor-slot" in paired_js
     assert "paired-history-slot" in paired_js
     assert "refreshPairedSlots(" in app_js
+
+
+# ---- Serien im Deck-Verlauf (#1404): studio/deck_series.py, GET /api/decks/{id}/series ----
+
+
+def _stored_series(
+    series_id: str,
+    base: str,
+    variant: str,
+    *,
+    status: str = "completed",
+    budget: int = 40,
+    played: int = 40,
+    stop_reason: str = "BUDGET_EXHAUSTED",
+    with_result: bool = True,
+    created_at: str = "2026-11-10T10:00:00Z",
+) -> dict[str, object]:
+    """A job file in the shape ``PairedSeriesJob.to_dict`` writes."""
+    result: dict[str, object] | None = None
+    if with_result:
+        result = {
+            "status": "NOT_DECIDED",
+            "stop_reason": stop_reason,
+            "pairs_completed": played,
+            "pairs_censored": 0,
+            "pairs_played": played,
+            "difference_pp": 2.5,
+            "difference_ci95_pp": [-4.0, 9.0],
+            "decision_level_pct": 95.0,
+            "decision_ci_pp": [-5.5, 10.5],
+            "seeds": [1000, 1001, 1002],
+            "tested_seats": [0, 1, 2, 3],
+            "pilots": ["pilot-1"],
+            "bridge_jar_sha256s": ["a" * 64],
+            "bridge_qualification_states": ["BRIDGE_ALIGNED"],
+            "covered_by_sealed_epoch": True,
+        }
+    return {
+        "schema": paired_series.SCHEMA_PAIRED_JOB,
+        "series_id": series_id,
+        "status": status,
+        "base_ref": base,
+        "variant_ref": variant,
+        "pod": "precon",
+        "budget_pairs": budget,
+        "pairs_attempted": played,
+        "tested_seats": [0, 1, 2, 3],
+        "created_at": created_at,
+        "error": None,
+        "result": result,
+    }
+
+
+def _write_series(games: Path, payload: dict[str, object]) -> None:
+    games.mkdir(parents=True, exist_ok=True)
+    (games / f"{payload['series_id']}.paired.json").write_text(
+        json.dumps(payload), encoding="utf-8"
+    )
+
+
+def test_deck_series_filter_status_and_skips(tmp_path: Path) -> None:
+    from commander_lab.studio import deck_series
+
+    games = tmp_path / "games"
+    wanted = ["rev@mine-1", "rev@mine-2"]
+    _write_series(games, _stored_series("paired-1-1-aaaaaaaa", "rev@mine-1", "rev@other"))
+    _write_series(
+        games,
+        _stored_series(
+            "paired-2-1-bbbbbbbb",
+            "repo:x",
+            "rev@mine-2",
+            played=12,
+            stop_reason="DECIDED_ABOVE",
+            created_at="2026-11-11T10:00:00Z",
+        ),
+    )
+    _write_series(
+        games,
+        _stored_series(
+            "paired-3-1-cccccccc",
+            "rev@mine-1",
+            "rev@other",
+            status="cancelled",
+            played=7,
+            with_result=False,
+            created_at="2026-11-12T10:00:00Z",
+        ),
+    )
+    _write_series(
+        games,
+        _stored_series(
+            "paired-4-1-dddddddd",
+            "rev@mine-1",
+            "rev@other",
+            status="running",
+            played=3,
+            with_result=False,
+            created_at="2026-11-13T10:00:00Z",
+        ),
+    )
+    _write_series(games, _stored_series("paired-5-1-eeeeeeee", "rev@x", "rev@y"))
+    (games / "paired-6-1-ffffffff.paired.json").write_text("{not json", encoding="utf-8")
+    foreign = _stored_series("paired-7-1-99999999", "rev@mine-1", "rev@other")
+    foreign["schema"] = "something-else"
+    _write_series(games, foreign)
+    mismatch = _stored_series("paired-8-1-88888888", "rev@mine-1", "rev@other")
+    (games / "paired-9-1-77777777.paired.json").write_text(json.dumps(mismatch), encoding="utf-8")
+
+    out = deck_series.deck_series(tmp_path, wanted)
+    series = out["series"]
+    assert isinstance(series, list)
+    assert [item["series_id"] for item in series] == [
+        "paired-4-1-dddddddd",
+        "paired-3-1-cccccccc",
+        "paired-2-1-bbbbbbbb",
+        "paired-1-1-aaaaaaaa",
+    ]
+    assert out["skipped"] == 3
+    status = {item["series_id"]: item for item in series}
+    assert status["paired-1-1-aaaaaaaa"]["status"] == "completed"
+    assert status["paired-2-1-bbbbbbbb"]["status"] == "stopped_early"
+    assert status["paired-3-1-cccccccc"]["status"] == "cancelled"
+    assert status["paired-4-1-dddddddd"]["status"] == "incomplete"
+    done = status["paired-1-1-aaaaaaaa"]
+    assert done["counts_as_result"] is True
+    assert (done["pairs_completed"], done["pairs_planned"]) == (40, 40)
+    assert done["difference_pp"] == 2.5
+    assert done["difference_ci95_pp"] == [-4.0, 9.0]
+    assert (done["seeds"], done["tested_seats"]) == ([1000, 1001, 1002], [0, 1, 2, 3])
+    for sid in ("paired-3-1-cccccccc", "paired-4-1-dddddddd"):
+        item = status[sid]
+        assert item["counts_as_result"] is False
+        assert item["difference_pp"] is None
+        assert item["difference_ci95_pp"] is None
+        assert item["pairs_completed"] is None
+    by_rev = out["by_revision"]
+    assert isinstance(by_rev, dict)
+    assert {entry["role"] for entry in by_rev["rev@mine-2"]} == {"variant"}
+    assert {entry["role"] for entry in by_rev["rev@mine-1"]} == {"base"}
+    assert by_rev["rev@mine-2"][0]["counterpart_ref"] == "repo:x"
+
+
+def test_deck_series_empty_and_missing_folder(tmp_path: Path) -> None:
+    from commander_lab.studio import deck_series
+
+    out = deck_series.deck_series(tmp_path / "nowhere", ["rev@a"])
+    assert out["series"] == []
+    assert out["by_revision"] == {}
+    assert out["skipped"] == 0
+    assert out["data_class"] == "SIMULATED_RESULT"
+
+
+def test_deck_series_route_filters_revisions_404_and_403(tmp_path: Path) -> None:
+    store, folder = _make_store(tmp_path)
+    try:
+        cards = [
+            RevisionCard("cid-chulane", 1, "commander"),
+            RevisionCard("cid-forest", 99, "main"),
+        ]
+        rev_a = create_revision(store, deck_id="chulane-s", name="Chulane S", cards=cards)
+        rev_b = create_revision(
+            store,
+            deck_id="chulane-s",
+            name="Chulane S",
+            cards=[
+                RevisionCard("cid-chulane", 1, "commander"),
+                RevisionCard("cid-forest", 98, "main"),
+            ],
+            parent_revision_id=rev_a,
+        )
+        assert rev_a != rev_b
+        other = create_revision(store, deck_id="other-deck", name="Other", cards=cards)
+    finally:
+        store.close()
+    _write_series(folder / "games", _stored_series("paired-1-1-aaaaaaaa", rev_a, rev_b))
+    _write_series(folder / "games", _stored_series("paired-2-1-bbbbbbbb", other, "repo:z"))
+    client = TestClient(create_app(folder))
+
+    got = client.get("/api/decks/chulane-s/series")
+    assert got.status_code == 200
+    body = got.json()
+    assert [item["series_id"] for item in body["series"]] == ["paired-1-1-aaaaaaaa"]
+    assert {entry["role"] for entry in body["by_revision"][rev_a]} == {"base"}
+    assert {entry["role"] for entry in body["by_revision"][rev_b]} == {"variant"}
+    none_yet = client.get("/api/decks/other-deck/series").json()
+    assert [item["series_id"] for item in none_yet["series"]] == ["paired-2-1-bbbbbbbb"]
+    assert client.get("/api/decks/unknown-deck/series").status_code == 404
+    foreign = client.get("/api/decks/chulane-s/series", headers={"host": "evil.example"})
+    assert foreign.status_code == 403
+
+
+def test_deck_series_js_csp_and_history_hook() -> None:
+    js = (STATIC_DIR / "deckseries.js").read_text(encoding="utf-8")
+    app_js = (STATIC_DIR / "app.js").read_text(encoding="utf-8")
+    index_html = (STATIC_DIR / "index.html").read_text(encoding="utf-8")
+    assert '<script src="deckseries.js"></script>' in index_html
+    assert "renderDeckSeries(" in app_js
+    for forbidden in (".innerHTML", ".outerHTML", "eval(", "style:", "style =", "toLocaleString"):
+        assert forbidden not in js
+    assert "keine gespeicherte Serie" in js
+
+
+def test_deck_series_survives_hostile_files_and_malformed_results(tmp_path: Path) -> None:
+    from commander_lab.studio import deck_series
+
+    games = tmp_path / "games"
+    _write_series(games, _stored_series("paired-1-1-aaaaaaaa", "rev@m", "rev@o"))
+    (games / "paired-2-1-bbbbbbbb.paired.json").write_text("[" * 100000, encoding="utf-8")
+    (games / "paired-3-1-cccccccc.paired.json").write_text(
+        " " * (deck_series.MAX_FILE_BYTES + 1), encoding="utf-8"
+    )
+    for sid, result in (
+        ("paired-4-1-dddddddd", "not-a-dict"),
+        ("paired-5-1-eeeeeeee", {"pairs_completed": "40", "pairs_played": "x", "seeds": "s"}),
+        ("paired-6-1-ffffffff", {"pairs_completed": 0, "stop_reason": "NO_PAIRS"}),
+    ):
+        payload = _stored_series(sid, "rev@m", "rev@o")
+        payload["result"] = result
+        _write_series(games, payload)
+
+    out = deck_series.deck_series(tmp_path, ["rev@m"])
+    series = out["series"]
+    assert isinstance(series, list)
+    assert len(series) == 4
+    assert out["skipped"] == 2
+    status = {item["series_id"]: item["status"] for item in series}
+    assert status["paired-1-1-aaaaaaaa"] == "completed"
+    for sid in ("paired-4-1-dddddddd", "paired-5-1-eeeeeeee", "paired-6-1-ffffffff"):
+        assert status[sid] == "incomplete"
+
+
+def test_deck_series_limits_are_reported(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    from commander_lab.studio import deck_series
+
+    games = tmp_path / "games"
+    for number in range(1, 6):
+        _write_series(
+            games,
+            _stored_series(
+                f"paired-{number}-1-aaaaaaa{number}",
+                "rev@m",
+                "rev@o",
+                created_at=f"2026-11-0{number}T10:00:00Z",
+            ),
+        )
+    monkeypatch.setattr(deck_series, "SCAN_LIMIT", 4)
+    out = deck_series.deck_series(tmp_path, ["rev@m"])
+    assert out["scan_truncated"] == 1
+    assert out["scan_limit"] == 4
+    assert len(out["series"]) == 4  # type: ignore[arg-type]
+    monkeypatch.setattr(deck_series, "SCAN_LIMIT", 10)
+    monkeypatch.setattr(deck_series, "SERIES_LIMIT", 2)
+    capped = deck_series.deck_series(tmp_path, ["rev@m"])
+    assert capped["truncated"] is True
+    assert capped["scan_truncated"] == 0
+    assert len(capped["series"]) == 2  # type: ignore[arg-type]
+
+
+def test_deck_series_uncounted_seats_are_planned_only() -> None:
+    from commander_lab.studio import deck_series
+
+    raw = _stored_series("paired-1-1-aaaaaaaa", "rev@m", "rev@o", status="cancelled")
+    raw["result"] = {"tested_seats": [9], "seeds": [1]}
+    entry = deck_series._entry(raw, deck_series.series_status(raw))
+    assert entry["counts_as_result"] is False
+    assert entry["seats_planned"] is True
+    assert entry["tested_seats"] == [0, 1, 2, 3]

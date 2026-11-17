@@ -40,6 +40,7 @@ from . import (
     deck_diff,
     deck_evidence,
     deck_facts,
+    deck_series,
     engine_check,
     games,
     import_all,
@@ -1410,6 +1411,19 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
             raise HTTPException(422, str(error)) from error
         finally:
             store.close()
+
+    @app.get("/api/decks/{deck_id}/series")
+    def deck_paired_series(deck_id: str) -> dict[str, object]:
+        """Stored paired series in which a revision of this deck was base (A) or variant (B).
+        Read-only; counts and the stored intervals, no verdict, never part of the tier list."""
+        store = open_store()
+        try:
+            revision_ids = deck_series.deck_revision_ids(store, deck_id)
+        finally:
+            store.close()
+        if revision_ids is None:
+            raise HTTPException(404, "unknown deck")
+        return deck_series.deck_series(games_home(), revision_ids)
 
     @app.get("/api/decks/{deck_id}/history")
     def deck_history(deck_id: str) -> list[dict[str, object]]:

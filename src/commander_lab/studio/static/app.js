@@ -2372,8 +2372,17 @@ async function showHistory() {
         h("td", {}, h("div", { class: "actions" },
           h("button", { type: "button", class: "small", onclick: async () => { const revision = await api(`/api/revisions/${encodeURIComponent(row.revision_id)}`); useCards(revision.cards); closeModal(); changed(); toast("Alter Stand geladen. Er wird erst mit Speichern zum aktuellen Stand."); } }, "Laden"),
           h("button", { type: "button", class: "small", onclick: () => { state.diffBaseRev = row.revision_id; state.tab = "diff"; closeModal(); renderDeck(); } }, "Vergleichen"))))))),
+    h("div", { id: "deck-series-slot" }),
     h("div", { class: "actions" }, h("button", { type: "button", onclick: closeModal }, "Schließen")));
   $("modal").hidden = false;
+  if (typeof renderDeckSeries === "function") {
+    box.className = "plain wide";
+    renderDeckSeries($("deck-series-slot"), rows, { h, api, deckId: state.deckId, open: openSeriesFromHistory });
+  }
+}
+async function openSeriesFromHistory(seriesId) {
+  state.activePaired = await api(`/api/simulations/paired/${encodeURIComponent(seriesId)}`);
+  state.tab = "sim"; closeModal(); renderDeck();
 }
 function _draftExportText() {
   const lines = ["Commander"];
