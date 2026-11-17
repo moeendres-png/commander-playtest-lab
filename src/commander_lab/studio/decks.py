@@ -132,6 +132,31 @@ def revision_rows(store: StudioStore, revision_id: str) -> list[sqlite3.Row]:
     return rows
 
 
+EXPORT_TEXT_FORMATS = ("plain", "moxfield")
+
+
+def export_text(rows: Iterable[sqlite3.Row], text_format: str) -> str:
+    """The list as text with the commander zone marked, names exactly as the store holds them.
+
+    ``plain``: ``n Name`` per line, the commander first. ``moxfield``: the block
+    ``Commander`` / ``Deck`` that the list import reads (also Moxfield and Archidekt text
+    imports). Order is fixed: commander zone first, then name; equal names are summed.
+    Raises ``ValueError`` for an unknown format.
+    """
+    if text_format not in EXPORT_TEXT_FORMATS:
+        raise ValueError(text_format)
+    zones: dict[str, dict[str, int]] = {"commander": {}, "main": {}}
+    for row in rows:
+        zone = zones["commander" if row["zone"] == "commander" else "main"]
+        name = str(row["oracle_name"])
+        zone[name] = zone.get(name, 0) + int(row["quantity"])
+    commander = [f"{qty} {name}" for name, qty in sorted(zones["commander"].items())]
+    deck = [f"{qty} {name}" for name, qty in sorted(zones["main"].items())]
+    if text_format == "plain":
+        return "\n".join([*commander, *deck]) + "\n"
+    return "\n".join(["Commander", *commander, "", "Deck", *deck]) + "\n"
+
+
 def list_rows(store: StudioStore, cards: Iterable[RevisionCard]) -> list[sqlite3.Row]:
     """The same rows as ``revision_rows`` for a list that is not stored as a revision."""
     db = store.connection
