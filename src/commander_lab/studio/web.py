@@ -47,11 +47,14 @@ from . import (
     paired_comparison,
     paired_series,
     queries,
+    roles,
     signals,
     similar_decks,
     strength,
     strength_view,
     swap,
+    tier_snapshot,
+    tournament_conversion,
     universe,
     universe_choice,
     universe_view,
@@ -363,24 +366,29 @@ def strength_answer(store: StudioStore, body: StrengthBody) -> dict[str, object]
     )
 
     def compute() -> dict[str, object]:
+        if body.profile is not None:
+            return dict(
+                strength_view.compute(
+                    store,
+                    body.commander,
+                    settings,
+                    # a saved profile may point to a universe deleted since: fall back
+                    # visibly instead of failing; explicit settings must name a real one
+                    dangling_universe_ok=True,
+                    notices=strength_view.profile_notices(store, body.profile),
+                    saved_weights=strength_view.profile_saved_weights(store, body.profile),
+                )
+            )
+        profile_name = (
+            body.preset
+            if body.preset is not None
+            else ("Ausgewogen" if settings == strength.StrengthSettings.recommended() else None)
+        )
+        # The snapshot variant may persist its answer (a committed write): the cache then keeps
+        # nothing for this call (the store state moved) and the next call reads the snapshot.
         return dict(
-            strength_view.compute(
-                store,
-                body.commander,
-                settings,
-                # a saved profile may point to a universe deleted since: fall back
-                # visibly instead of failing; explicit settings must name a real one
-                dangling_universe_ok=body.profile is not None,
-                notices=(
-                    strength_view.profile_notices(store, body.profile)
-                    if body.profile is not None
-                    else ()
-                ),
-                saved_weights=(
-                    strength_view.profile_saved_weights(store, body.profile)
-                    if body.profile is not None
-                    else None
-                ),
+            strength_view.compute_with_snapshot(
+                store, body.commander, settings, profile_name=profile_name
             )
         )
 
@@ -614,6 +622,20 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
     def strength_presets() -> dict[str, object]:
         return strength_view.presets()
 
+    @app.get("/api/strength/snapshot")
+    def strength_snapshot_summary(
+        commander: str = Query(min_length=1, max_length=200),
+    ) -> dict[str, object]:
+        """Lightweight persisted tier snapshot summary (#1420, #1369) without card rows."""
+        store = open_store()
+        try:
+            found = tier_snapshot.latest_snapshot_summary(store, commander)
+            if found is None:
+                raise HTTPException(404, "no tier snapshot for commander")
+            return found
+        finally:
+            store.close()
+
     @app.post("/api/strength")
     def strength_index(body: StrengthBody) -> dict[str, object]:
         """Strength index per pool card of one commander: an estimate from usage signals,
@@ -647,6 +669,27 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
             raise HTTPException(404, f"commander not in the collection: {error}") from error
         finally:
             store.close()
+
+    @app.get("/api/roles/audit")
+    def role_audit_route(
+        commander: str | None = Query(default=None, min_length=1, max_length=200),
+    ) -> dict[str, object]:
+        """Compare Scryfall tagger claims vs. deterministic Oracle text claims (#1413),
+        optionally scoped to one commander's legal collection pool with n/N coverage."""
+        store = open_store()
+        try:
+            return roles.role_origin_audit(store, commander=commander)
+        except KeyError as error:
+            raise HTTPException(404, f"commander not in the collection: {error}") from error
+        finally:
+            store.close()
+
+    @app.get("/api/tournament-conversion")
+    def tournament_conversion_route(
+        commander: str = Query(min_length=1, max_length=200),
+    ) -> dict[str, object]:
+        """TopDeck with-vs-without (mit/ohne) top-cut conversion rates per card (#1412)."""
+        return dict(tournament_conversion.analyze_commander_conversion(commander))
 
     @app.get("/api/strength/profiles")
     def strength_profiles() -> list[dict[str, object]]:

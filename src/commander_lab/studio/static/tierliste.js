@@ -107,7 +107,7 @@ const state = {
   universe: { profiles: [], name: "", summary: null, spread: null, options: null },
   strength: { meta: null, settings: null, profiles: [], counted: [], result: null, map: null, ticket: 0, tiers: new Set(), selectedProfile: "", good: null, note: "", draft: { fields: {}, name: "" } },
   deckCards: new Map(), deckRoles: {}, pool: new Map(), ticket: 0, need: "", sortKey: "strength", sortDir: -1, shown: 150,
-  layerCols: new Set(), podFilter: "",
+  layerCols: new Set(), podFilter: "", roleAudit: null, conversion: null, conversionFilter: "",
 };
 
 const $ = (id) => document.getElementById(id);
@@ -943,6 +943,23 @@ function tierHeader(result) {
     h("div", { class: "rule", id: "corpus-line" }, corpusLine(result)),
     h("div", { class: "rule", id: "borderline-line" }, `grenzwertig (näher als ${result.settings.borderline_distance} Punkte an einer Stufengrenze): ${nf(result.borderline_count)} Karten. ${CONFIDENCE_TEXT}`))];
 }
+function snapshotBadge(result) {
+  const snap = result.snapshot;
+  if (!snap) return null;
+  if (snap.status === "STALE") {
+    return h("span", { id: "snapshot-status", class: "badge warn", title: `Snapshot-Epoche ${(snap.snapshot_epoch || "").slice(0, 12)} ungleich aktueller Epoche ${(snap.current_epoch || "").slice(0, 12)}` }, "Snapshot veraltet, Neuberechnung läuft");
+  }
+  if (snap.status === "HIT") {
+    const stamp = snap.created_at ? `${snap.created_at.slice(0, 19).replace("T", " ")} UTC` : "–";
+    const epochShort = snap.data_epoch ? snap.data_epoch.slice(0, 12) : "–";
+    return h("span", { id: "snapshot-status", class: "badge good", title: `Snapshot ${snap.profile_name || ""} (${snap.spec_version || ""})` }, `Snapshot: Stand ${stamp} · Epoche ${epochShort}`);
+  }
+  if (snap.status === "MISSING") {
+    const epochShort = snap.current_epoch ? snap.current_epoch.slice(0, 12) : "–";
+    return h("span", { id: "snapshot-status", class: "badge dim" }, `Live berechnet (kein Snapshot · Epoche ${epochShort})`);
+  }
+  return null;
+}
 function renderStrengthSummary() {
   const s = state.strength, box = $("strength-summary");
   if (!box) return;
@@ -954,11 +971,16 @@ function renderStrengthSummary() {
   // Sources that can exist for these settings: no simulation (not collected), no bracket source without a
   // bracket, no deck universe without one.
   const possible = s.meta.components.filter((c) => c.key !== "simulation" && !(c.key === "bracket_inclusion" && result.settings.bracket === "none") && !(c.key === "deck_universe" && !(result.universe_choice && result.universe_choice.kind !== "none")) && !(c.key === "rubric" && !result.collected.includes("rubric"))).length;
-  const notices = (result.notices || []).map((text) => h("div", { class: "badge warn" }, text));
+  const snapNode = snapshotBadge(result);
+  const snapStale = result.snapshot && result.snapshot.status === "STALE";
+  const notices = (result.notices || [])
+    .filter((text) => !(snapStale && text === "Snapshot veraltet, Neuberechnung läuft"))
+    .map((text) => h("div", { class: "badge warn" }, text));
   const ambiguous = result.ambiguous_names || [];
   const shown = ambiguous.slice(0, 10).map((item) => `${item.name} (${item.candidates.join(" / ")})`).join("; ");
   box.replaceChildren(
     ...tierHeader(result),
+    snapNode,
     h("span", { class: "muted" }, `von ${result.cards.length} Karten · ${universeText} · Quellen vorhanden: ${result.collected.length}/${possible}`),
     ...notices,
     ...(result.layer_summary ? result.layer_summary.layers.filter((item) => item.source_discrepancies > 0).map((item) => h("div", { class: "rule" }, `${item.label}: bei ${item.source_discrepancies} Karten nennt die Quelle einen anderen Prozentwert als Zähler/Nenner; die Zelle zeigt Zähler/Nenner, der genannte Wert steht im Tooltip.`)) : []),
@@ -1142,6 +1164,7 @@ function renderStrengthPanel() {
         h("label", {}, "Laden", saved), remove)));
   updateDeviations();
   renderStrengthSummary();
+  syncRankGroupToggle();
 }
 async function initStrength() {
   const s = state.strength;
@@ -1274,10 +1297,164 @@ function fillBranches() {
   const deck = state.decks.find((entry) => entry.deck_id === $("deck-select").value);
   $("branch-select").replaceChildren(...(deck ? deck.branches : []).map((entry) => h("option", { value: entry.branch }, entry.branch)));
 }
+// ---------- quick comparison toggle, role audit (#1413) & TopDeck Mit/Ohne (#1412) ----------
+function syncRankGroupToggle() {
+  const box = $("rank-group-toggle");
+  if (!box) return;
+  const current = state.strength.settings ? state.strength.settings.rank_group : "";
+  for (const btn of box.querySelectorAll("button[data-rank-group]")) {
+    const target = btn.getAttribute("data-rank-group");
+    const active = current === target;
+    btn.classList.toggle("on", active);
+    btn.setAttribute("aria-pressed", active ? "true" : "false");
+    btn.disabled = !state.strength.settings || state.view === "global";
+  }
+}
+async function setQuickRankGroup(group) {
+  const s = state.strength;
+  if (!s.settings || state.view === "global" || s.settings.rank_group === group) return;
+  s.settings = { ...s.settings, rank_group: group };
+  s.draft.fields.rank_group = group;
+  rememberStrength();
+  syncRankGroupToggle();
+  renderStrengthPanel();
+  await refreshStrength();
+}
+function renderRoleAuditPanel() {
+  const panel = $("role-audit-panel");
+  if (!panel) return;
+  const data = state.roleAudit;
+  if (!data) { panel.replaceChildren(); return; }
+  const rows = Array.isArray(data.roles) ? data.roles : [];
+  const scoped = data.pool_total !== undefined && data.pool_total !== null;
+  let taggerTotal = 0, oracleTotal = 0, bothTotal = 0, taggerOnlyTotal = 0, oracleOnlyTotal = 0;
+  for (const r of rows) {
+    taggerTotal += scoped ? (r.pool_tagger_total || 0) : (r.tagger_total || 0);
+    oracleTotal += scoped ? (r.pool_oracle_total || 0) : (r.oracle_total || 0);
+    bothTotal += scoped ? (r.pool_both || 0) : (r.both || 0);
+    taggerOnlyTotal += scoped ? (r.pool_tagger_only || 0) : (r.tagger_only || 0);
+    oracleOnlyTotal += scoped ? (r.pool_oracle_only || 0) : (r.oracle_only || 0);
+  }
+  const summaryParts = [];
+  if (scoped) {
+    const share = data.pool_total ? ` (${pct(data.pool_tagged, data.pool_total)})` : "";
+    summaryParts.push(h("b", {}, "Rollen-Abdeckung im Pool:"));
+    summaryParts.push(h("span", {}, `${nf(data.pool_tagged)}/${nf(data.pool_total)} Karten${share} mit Rolle`));
+    summaryParts.push(h("span", { class: "muted" }, `${nf(data.pool_untagged)} ohne Rolle`));
+  } else {
+    summaryParts.push(h("b", {}, "Rollen-Herkunft (global):"));
+  }
+  summaryParts.push(h("span", { class: "muted" }, `Tagger ${nf(taggerTotal)} · Oracle-Text ${nf(oracleTotal)} · Übereinstimmung ${nf(bothTotal)} · nur Tagger ${nf(taggerOnlyTotal)} · nur Oracle ${nf(oracleOnlyTotal)}`));
+  const shownRows = rows.filter((r) => (scoped ? (r.pool_count || r.pool_tagger_total || r.pool_oracle_total) : (r.tagger_total || r.oracle_total)));
+  const detailTable = shownRows.length
+    ? h("div", { class: "audit-table-wrap" }, table(
+      scoped
+        ? ["Rolle", "Pool (n/N)", "Tagger", "Oracle-Text", "Beide", "Nur Tagger", "Nur Oracle"]
+        : ["Rolle", "Tagger", "Oracle-Text", "Beide", "Nur Tagger", "Nur Oracle"],
+      shownRows.map((r) => scoped
+        ? [roleName(r.role), `${nf(r.pool_count || 0)}/${nf(data.pool_total)}`, nf(r.pool_tagger_total || 0), nf(r.pool_oracle_total || 0), nf(r.pool_both || 0), nf(r.pool_tagger_only || 0), nf(r.pool_oracle_only || 0)]
+        : [roleName(r.role), nf(r.tagger_total || 0), nf(r.oracle_total || 0), nf(r.both || 0), nf(r.tagger_only || 0), nf(r.oracle_only || 0)]),
+    ))
+    : h("p", { class: "muted" }, "Keine Rollen-Belege im aktuellen Ausschnitt.");
+  panel.replaceChildren(
+    h("div", { class: "facts" }, ...summaryParts),
+    h("details", {}, h("summary", {}, `Rollen-Audit nach Herkunft (${shownRows.length} aktive Rollen)`), detailTable),
+  );
+}
+async function loadRoleAudit() {
+  const url = state.view === "global"
+    ? "/api/roles/audit"
+    : `/api/roles/audit?commander=${encodeURIComponent(COMMANDER)}`;
+  try {
+    state.roleAudit = await api(url);
+  } catch (error) {
+    state.roleAudit = null;
+  }
+  renderRoleAuditPanel();
+}
+function formatGroupCell(converted, known, rate, low, high) {
+  const counts = `${nf(converted)}/${nf(known)}`;
+  if (rate === null || rate === undefined) {
+    return h("span", { title: `${counts}: unter dem Mindest-N, kein Prozentwert (nie 0)` }, `${counts} · `, h("span", { class: "badge warn" }, "zu wenig Daten"));
+  }
+  const ci = low !== null && low !== undefined && high !== null && high !== undefined
+    ? ` (95 %: ${(100 * low).toFixed(1)}–${(100 * high).toFixed(1)} %)`
+    : "";
+  return `${counts} · ${(100 * rate).toFixed(1)} %${ci}`;
+}
+function renderTournamentConversionPanel() {
+  const panel = $("topdeck-conversion-panel");
+  if (!panel) return;
+  const data = state.conversion;
+  if (!data) { panel.replaceChildren(); return; }
+  const cohortLabel = data.cohort || "Bracket 5 (Turnier)";
+  const header = [
+    h("b", {}, `TopDeck Turnier-Conversion (Mit/Ohne · ${cohortLabel}):`),
+  ];
+  const cards = Array.isArray(data.cards) ? data.cards : [];
+  const comparableCount = cards.filter((c) => c.status === "OK").length;
+  if (data.status === "INSUFFICIENT_DATA") {
+    header.push(h("span", {}, `${nf(data.total_known_decks)} von ${nf(data.total_decks)} Listen mit bekanntem Top-Cut`));
+    header.push(h("span", { class: "badge warn" }, `${data.reason || "zu wenig Daten"} (Mindest-N: ${nf(data.min_sample)})`));
+  } else {
+    header.push(h("span", {}, `${nf(data.total_converted_decks)}/${nf(data.total_known_decks)} Top-Cut-Conversions (${(100 * data.baseline_conversion_rate).toFixed(1)} %, 95-%-Wilson ${(100 * data.baseline_ci_low).toFixed(1)}–${(100 * data.baseline_ci_high).toFixed(1)} %)`));
+    header.push(h("span", { class: "muted" }, `${nf(comparableCount)} Karten mit Mit/Ohne je ≥ ${nf(data.min_sample)} Listen · ${data.data_class}`));
+  }
+  const countEl = h("span", { class: "muted" });
+  const tableWrap = h("div", { class: "audit-table-wrap" });
+  const updateFilteredRows = () => {
+    const q = (state.conversionFilter || "").trim().toLowerCase();
+    const filtered = q ? cards.filter((c) => c.card_name.toLowerCase().includes(q)) : cards;
+    countEl.textContent = `${nf(filtered.length)} von ${nf(cards.length)} Karten`;
+    tableWrap.replaceChildren(table(
+      ["Karte", "Mit Karte (n/N)", "Ohne Karte (n/N)", "Differenz (Pp)", "Status"],
+      filtered.slice(0, 120).map((row) => [
+        row.card_name,
+        formatGroupCell(row.with_converted, row.with_known, row.with_rate, row.with_ci_low, row.with_ci_high),
+        formatGroupCell(row.without_converted, row.without_known, row.without_rate, row.without_ci_low, row.without_ci_high),
+        row.diff_pp === null || row.diff_pp === undefined ? h("span", { class: "unknown" }, "zu wenig Daten") : `${row.diff_pp > 0 ? "+" : ""}${row.diff_pp.toFixed(1)} Pp`,
+        row.status === "OK" ? h("span", { class: "badge good" }, "OK") : h("span", { class: "badge warn" }, row.reason || "zu wenig Daten"),
+      ]),
+    ));
+  };
+  const searchInput = h("input", {
+    type: "search",
+    placeholder: "Karte im Turnier-Vergleich filtern …",
+    "aria-label": "Karte im Turnier-Vergleich filtern",
+    value: state.conversionFilter,
+    oninput: (event) => {
+      state.conversionFilter = event.target.value;
+      updateFilteredRows();
+    },
+  });
+  updateFilteredRows();
+  const detailContent = cards.length
+    ? [
+      h("p", { class: "rule" }, `Kohorte: ${cohortLabel} (${data.data_class}). Nur beschreibend, keine Kausalität. Unter ${nf(data.min_sample)} bekannten Listen bleibt das Feld „zu wenig Daten“ (nie 0).`),
+      h("div", { class: "conv-filter-row" }, searchInput, countEl),
+      tableWrap,
+    ]
+    : [h("p", { class: "muted" }, `Keine TopDeck-Turnierlisten für ${COMMANDER} in dieser Auswertung (${data.reason || "zu wenig Daten"}).`)];
+  panel.replaceChildren(
+    h("div", { class: "facts" }, ...header),
+    h("details", {}, h("summary", {}, `TopDeck Mit/Ohne-Übersicht (${nf(cards.length)} Karten)`), ...detailContent),
+  );
+}
+async function loadTournamentConversion() {
+  try {
+    state.conversion = await api(`/api/tournament-conversion?commander=${encodeURIComponent(COMMANDER)}`);
+  } catch (error) {
+    state.conversion = null;
+  }
+  renderTournamentConversionPanel();
+}
+
 async function setView(view) {
   state.view = view;
+  syncRankGroupToggle();
   await loadEvidence();
   if (view === "deck") await loadDeck();
+  loadRoleAudit().catch(() => {});
 }
 
 function renderTabs() {
@@ -1295,11 +1472,15 @@ async function init() {
   if (savedSort && (SORTS.some((item) => item[0] === savedSort) || savedSort.startsWith(PERCENTILE_SORT) || savedSort.startsWith(LAYER_SORT))) { state.sortKey = savedSort; state.sortDir = SMALL_FIRST.has(savedSort) ? 1 : -1; $("sort").value = savedSort; }
   $("sort").addEventListener("change", () => { state.sortKey = $("sort").value; state.sortDir = SMALL_FIRST.has(state.sortKey) ? 1 : -1; StudioUI.remember(SORT_KEY, state.sortKey); render(); });
   for (const id of ["q", "type-filter", "land-filter", "role-filter", "spread-filter", "f-free", "f-fav", "f-excl"]) $(id).addEventListener("input", () => { state.shown = 150; render(); });
+  for (const btn of document.querySelectorAll("#rank-group-toggle button[data-rank-group]")) {
+    btn.addEventListener("click", () => setQuickRankGroup(btn.getAttribute("data-rank-group")).catch((error) => fail(error)));
+  }
   document.addEventListener("keydown", (event) => { if (event.key === "Escape") $("modal").hidden = true; });
   renderTabs();
   $("pool-body").replaceChildren(StudioUI.loading("Tierliste lädt …"));
   await StudioCommander.fill($("commander-select"));
   dataBanner().catch(() => {});
+  loadTournamentConversion().catch(() => {});
   try {
     const marks = await api("/api/marks");
     for (const [cardId, mark] of Object.entries(marks)) state.marks.set(cardId, { favorite: mark.favorite, excluded: mark.excluded, note: mark.note || "" });

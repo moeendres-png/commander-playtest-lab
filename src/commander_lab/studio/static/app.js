@@ -1866,18 +1866,18 @@ async function openCard(card) {
       const pg = detail.playgroup;
       const pgRows = [];
       pgRows.push(
-        h("tr", {}, h("td", {}, "Live Inclusion"), h("td", { class: "num" }, pg.live_inclusion_pct !== null ? `${Number(pg.live_inclusion_pct).toFixed(1)} %` : "unbekannt")),
-        h("tr", {}, h("td", {}, "Times Brought / Decks Running"), h("td", { class: "num" }, `${pg.times_brought ?? "?"} / ${pg.decks_running ?? "?"}`)),
+        h("tr", {}, h("td", {}, "Live-Aufnahmequote (Live Inclusion)"), h("td", { class: "num" }, pg.live_inclusion_pct !== null ? `${Number(pg.live_inclusion_pct).toFixed(1)} %` : "unbekannt")),
+        h("tr", {}, h("td", {}, "Eingesetzt / Decks im Einsatz (Times Brought / Decks Running)"), h("td", { class: "num" }, `${pg.times_brought ?? "?"} / ${pg.decks_running ?? "?"}`)),
         h("tr", {}, h("td", {}, "Medianer Cast-Turn"), h("td", { class: "num" }, pg.median_cast_turn !== null ? `T${Number(pg.median_cast_turn).toFixed(1)}` : "unbekannt")),
-        h("tr", {}, h("td", {}, "Drawn-to-Played Rate"), h("td", { class: "num" }, pg.drawn_to_played_pct !== null ? `${Number(pg.drawn_to_played_pct).toFixed(1)} %` : "unbekannt")),
-        h("tr", {}, h("td", {}, "Winrate when cast"), h("td", { class: "num" }, pg.winrate_when_cast_pct !== null ? `${Number(pg.winrate_when_cast_pct).toFixed(1)} % (n=${pg.winrate_when_cast_n ?? "?"})` : "unbekannt")),
-        h("tr", {}, h("td", {}, "Winrate in library"), h("td", { class: "num" }, pg.winrate_when_in_library_pct !== null ? `${Number(pg.winrate_when_in_library_pct).toFixed(1)} % (n=${pg.winrate_when_in_library_n ?? "?"})` : "unbekannt")),
-        h("tr", {}, h("td", {}, "Observed Winrate-Gap"), h("td", { class: "num" }, pg.observed_winrate_gap_pp !== null ? `${pg.observed_winrate_gap_pp > 0 ? "+" : ""}${Number(pg.observed_winrate_gap_pp).toFixed(1)} pp` : "unbekannt")),
+        h("tr", {}, h("td", {}, "Gezogen und gespielt (Drawn-to-Played)"), h("td", { class: "num" }, pg.drawn_to_played_pct !== null ? `${Number(pg.drawn_to_played_pct).toFixed(1)} %` : "unbekannt")),
+        h("tr", {}, h("td", {}, "Siegrate, wenn gewirkt"), h("td", { class: "num" }, pg.winrate_when_cast_pct !== null ? `${Number(pg.winrate_when_cast_pct).toFixed(1)} % (n=${pg.winrate_when_cast_n ?? "?"})` : "unbekannt")),
+        h("tr", {}, h("td", {}, "Siegrate, wenn in der Bibliothek"), h("td", { class: "num" }, pg.winrate_when_in_library_pct !== null ? `${Number(pg.winrate_when_in_library_pct).toFixed(1)} % (n=${pg.winrate_when_in_library_n ?? "?"})` : "unbekannt")),
+        h("tr", {}, h("td", {}, "Beobachtete Siegraten-Differenz"), h("td", { class: "num" }, pg.observed_winrate_gap_pp !== null ? `${pg.observed_winrate_gap_pp > 0 ? "+" : ""}${Number(pg.observed_winrate_gap_pp).toFixed(1)} pp` : "unbekannt")),
         h("tr", {}, h("td", {}, "95% Konfidenzintervall"), h("td", { class: "num" }, pg.ci_95_lower_pp !== null && pg.ci_95_upper_pp !== null ? `[${pg.ci_95_lower_pp > 0 ? "+" : ""}${Number(pg.ci_95_lower_pp).toFixed(1)} pp; ${pg.ci_95_upper_pp > 0 ? "+" : ""}${Number(pg.ci_95_upper_pp).toFixed(1)} pp]` : "unbekannt")),
         h("tr", {}, h("td", {}, "Konservativer Schätzer"), h("td", { class: "num" }, pg.conservative_ranking_indicator || "unbekannt")),
       );
       if (pg.quality_warnings && pg.quality_warnings.length) {
-        pgRows.push(h("tr", { class: "low" }, h("td", {}, "Qualitätshinweise"), h("td", { class: "num" }, pg.quality_warnings.join(" · "))));
+        pgRows.push(h("tr", { class: "low" }, h("td", {}, "Qualitätshinweise"), h("td", { class: "num" }, pg.quality_warnings.map(playgroupWarningText).join(" · "))));
       }
       parts.push(
         h("h3", {}, `Playgroup Card Atlas (${pg.attribution || "Playgroup.gg, CC BY 4.0"})`),
@@ -2083,11 +2083,20 @@ function renderDeckLabels() {
   const names = deck && deck.labels ? deck.labels : [];
   $("deck-labels").textContent = names.length ? `Marken: ${names.join(", ")}` : "Marken: keine";
 }
+// Quality notes of the Playgroup source are stored in English in the data files; show them in German
+// with the numbers kept. Unknown notes are shown as they are.
+function playgroupWarningText(text) {
+  const brought = /^Brought count discrepancy: Times Brought = (\d+) vs Funnel Brought = (\d+)$/.exec(text);
+  if (brought) return `Abweichende Zählung der Quelle: „Times Brought“ = ${brought[1]}, „Funnel Brought“ = ${brought[2]}`;
+  const curve = /^On-curve calculation discrepancy: reported ([\d.]+)% but (\d+)\/(\d+) = ([\d.]+)%$/.exec(text);
+  if (curve) return `Abweichung bei „On-curve“: Quelle meldet ${curve[1]} %, nachgerechnet ${curve[2]}/${curve[3]} = ${curve[4]} %`;
+  return text;
+}
 function openInputModal({ title, description, placeholder, initialValue = "", multiline = false, submitText = "Speichern", onSubmit }) {
   const box = $("modal-box"); box.className = "plain";
   const input = multiline
-    ? h("textarea", { placeholder, rows: "10" })
-    : h("input", { type: "text", placeholder, maxlength: "240" });
+    ? h("textarea", { placeholder, rows: "10", "aria-label": title })
+    : h("input", { type: "text", placeholder, maxlength: "240", "aria-label": title });
   input.value = initialValue;
   const statusBox = h("div", {});
   const runSubmit = async () => {

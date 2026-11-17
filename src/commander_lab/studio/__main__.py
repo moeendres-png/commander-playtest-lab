@@ -677,7 +677,9 @@ def _warm_caches(data: str | None) -> None:
                 settings = strength_view.resolve_settings(
                     store, preset=None, profile=None, settings=None
                 )
-                strength_view.compute(store, name, settings)
+                strength_view.compute_with_snapshot(
+                    store, name, settings, profile_name="Ausgewogen"
+                )
                 universe.options(store, commander_names=[name])
 
             def strength(name: str = name) -> None:
