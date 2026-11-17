@@ -18,7 +18,8 @@ from __future__ import annotations
 import os
 import threading
 from collections import OrderedDict
-from collections.abc import Callable, Hashable
+from collections.abc import Callable, Hashable, Iterator
+from contextlib import contextmanager
 from pathlib import Path
 from typing import cast
 
@@ -41,6 +42,21 @@ class _KeyLock:
 
 
 _flights: dict[tuple[Hashable, ...], _KeyLock] = {}
+_local = threading.local()
+
+
+@contextmanager
+def read_only() -> Iterator[None]:
+    """Within this block of the calling thread ``cached`` still serves what is remembered, but
+    remembers nothing new. For one-off sweeps (the data report counts every commander of the
+    store) whose many entries would push the warm figures of the working commander out of the
+    size limit."""
+    before = getattr(_local, "read_only", False)
+    _local.read_only = True
+    try:
+        yield
+    finally:
+        _local.read_only = before
 
 
 def store_stamp(store: StudioStore) -> tuple[str, int, int, int, int, int] | None:
@@ -68,7 +84,12 @@ def store_stamp(store: StudioStore) -> tuple[str, int, int, int, int, int] | Non
 def cached[T](store: StudioStore, key: tuple[Hashable, ...], compute: Callable[[], T]) -> T:
     """``compute()``, remembered per store state and ``key``. The caller must treat the
     returned value as read-only. Concurrent calls for the same state and key wait for the
-    first computation instead of repeating it."""
+    first computation instead of repeating it.
+
+    Lock order: a computation may ask for other keys (lower levels) but must never be asked for
+    back by those (no callback to a higher level), so the key locks form a strict hierarchy and
+    two calls cannot wait for each other. Today: ``strength``/``layer_overview``/package sets
+    call ``corpus_hits``/``corpus_deck_sets``/``cohort_shapes``, never the other way round."""
     stamp = store_stamp(store)
     if stamp is None:
         return compute()
@@ -88,6 +109,8 @@ def cached[T](store: StudioStore, key: tuple[Hashable, ...], compute: Callable[[
                     _entries.move_to_end(full)
                     return cast("T", _entries[full])
             value = compute()
+            if getattr(_local, "read_only", False):
+                return value
             # The state may have changed while computing; remember only if it is still the same.
             if store_stamp(store) == stamp:
                 with _lock:

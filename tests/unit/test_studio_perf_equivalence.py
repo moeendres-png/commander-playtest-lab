@@ -104,6 +104,15 @@ def _big_store(tmp_path: Path, decks: int = 160) -> StudioStore:
 # -- reference implementations (the plain versions) -------------------------------------
 
 
+def _ref_percentile(values: Sequence[float], share: float) -> float:
+    """Linear-interpolation percentile, written independently of ``builder``."""
+    ordered = sorted(values)
+    position = share * (len(ordered) - 1)
+    lower = int(position // 1)
+    upper = min(lower + 1, len(ordered) - 1)
+    return ordered[lower] + (ordered[upper] - ordered[lower]) * (position - lower)
+
+
 def _reference_cohort_shapes(
     store: StudioStore, commander_names: Sequence[str]
 ) -> list[dict[str, object]]:
@@ -166,8 +175,8 @@ def _reference_cohort_shapes(
                 if values:
                     shape[field] = {
                         "median": round(median(values), 2),
-                        "p25": round(builder._percentile(values, 0.25), 2),
-                        "p75": round(builder._percentile(values, 0.75), 2),
+                        "p25": round(_ref_percentile(values, 0.25), 2),
+                        "p75": round(_ref_percentile(values, 0.75), 2),
                     }
         if complete and role_names:
             spans: dict[str, dict[str, float]] = {}
@@ -175,8 +184,8 @@ def _reference_cohort_shapes(
                 counts = [float(role_cards.get((str(row["deck_id"]), role), 0)) for row in complete]
                 spans[role] = {
                     "median": round(median(counts), 2),
-                    "p25": round(builder._percentile(counts, 0.25), 2),
-                    "p75": round(builder._percentile(counts, 0.75), 2),
+                    "p25": round(_ref_percentile(counts, 0.25), 2),
+                    "p75": round(_ref_percentile(counts, 0.75), 2),
                 }
             shape["roles"] = spans
             cov_counts = [
@@ -447,3 +456,85 @@ def test_the_strength_route_is_remembered_per_settings_and_equals_the_plain_answ
     unknown = client.post("/api/strength", json={"commander": "Nobody"})
     assert unknown.status_code == 404
     assert client.post("/api/strength", json={"commander": "Nobody"}).status_code == 404
+
+
+def test_cohort_shapes_equal_the_plain_computation_across_chunk_boundaries(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    store = _big_store(tmp_path)
+    expected = _reference_cohort_shapes(store, [COMMANDER])
+    monkeypatch.setattr(builder, "_ROLE_CHUNK", 7)  # 163 decks: many statements, uneven last one
+    cache.invalidate()
+    assert builder.cohort_shapes(store, [COMMANDER]) == expected
+
+
+def test_the_data_report_route_shows_the_bridge_state_of_every_request(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from fastapi.testclient import TestClient
+
+    import commander_lab.bridge_qualification as bridge
+    from commander_lab.studio.web import create_app
+
+    _big_store(tmp_path).close()
+    state = ["STATE_1"]
+    monkeypatch.setattr(bridge, "bridge_qualification", lambda: {"state": state[0]})
+    cache.invalidate()
+    client = TestClient(create_app(tmp_path / "studio"), headers={"X-Studio": "1"})
+    first = client.get("/api/data-report").json()
+    state[0] = "STATE_2"  # the repository changed, the store did not
+    second = client.get("/api/data-report").json()
+    assert first["bridge_qualification"] == {"state": "STATE_1"}
+    assert second["bridge_qualification"] == {"state": "STATE_2"}
+    assert {k: v for k, v in first.items() if k != "bridge_qualification"} == {
+        k: v for k, v in second.items() if k != "bridge_qualification"
+    }
+    assert list(first) == list(second)  # the same key order
+
+
+def test_changing_the_returned_report_does_not_change_the_cached_one(tmp_path: Path) -> None:
+    from commander_lab.studio.web import data_report_cached
+
+    store = _big_store(tmp_path)
+    first = data_report_cached(store)
+    reference = json.loads(json.dumps(first))
+    first["collection"]["cards"] = -1  # type: ignore[index]
+    first["extra"] = True
+    del first["roles"]
+    again = data_report_cached(store)
+    assert "extra" not in again
+    assert json.loads(json.dumps(again)) == reference
+
+
+def test_a_read_only_computation_reads_the_cache_but_adds_nothing(tmp_path: Path) -> None:
+    store = _big_store(tmp_path)
+    cache.invalidate()
+    cache.cached(store, ("warm", 0), lambda: "kept")
+    before = dict(cache._entries)
+    assert len(before) == 1
+    with cache.read_only():
+        assert cache.cached(store, ("warm", 0), lambda: "recomputed") == "kept"
+        values = [cache.cached(store, ("foreign", n), lambda n=n: n) for n in range(100)]
+    assert values == list(range(100))
+    assert dict(cache._entries) == before
+    assert cache.cached(store, ("foreign", 1), lambda: "now stored") == "now stored"
+
+
+def test_the_warm_up_reports_a_failing_step_in_one_line(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    from commander_lab.studio import __main__ as entry
+
+    store = _big_store(tmp_path)
+    store.close()
+
+    def broken(*_args: object, **_kwargs: object) -> object:
+        raise RuntimeError("boom with a long message")
+
+    monkeypatch.setattr(land_advisor, "source_deck_groups", broken)
+    cache.invalidate()
+    entry._warm_caches(str(tmp_path / "studio"))
+    err = capsys.readouterr().err.strip().splitlines()
+    assert [line for line in err if "warm-up" in line and "RuntimeError" in line]
+    assert all(len(line) < 200 for line in err)
+    assert "strength" in {key[1] for key in cache._entries}  # the route's own key is warmed

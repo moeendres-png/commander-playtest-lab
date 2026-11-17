@@ -658,7 +658,7 @@ def _warm_caches(data: str | None) -> None:
     needs a figure still being computed here waits for it (``cache.cached``), it does not
     compute it a second time."""
     from . import builder, land_advisor, strength_view, universe
-    from .web import layer_overview_cached
+    from .web import StrengthBody, layer_overview_cached, strength_answer
 
     try:
         store = StudioStore.open(data)
@@ -680,18 +680,23 @@ def _warm_caches(data: str | None) -> None:
                 strength_view.compute(store, name, settings)
                 universe.options(store, commander_names=[name])
 
+            def strength(name: str = name) -> None:
+                # the route's own entry (default settings), so the page's request finds it
+                strength_answer(store, StrengthBody(commander=name))
+
             steps = (
-                pool,
-                lambda name=name: layer_overview_cached(store, name),
-                lambda name=name: builder.cohort_shapes(store, [name]),
-                lambda name=name: land_advisor.source_deck_groups(store, [name]),
-                lambda name=name: builder._cached_combo_partners([name]),
+                ("pool", pool),
+                ("strength", strength),
+                ("layers", lambda name=name: layer_overview_cached(store, name)),
+                ("cohort_shapes", lambda name=name: builder.cohort_shapes(store, [name])),
+                ("land_groups", lambda name=name: land_advisor.source_deck_groups(store, [name])),
+                ("combo_partners", lambda name=name: builder._cached_combo_partners([name])),
             )
-            for step in steps:
+            for label, step in steps:
                 try:
                     step()
-                except Exception:  # best effort only
-                    continue
+                except Exception as error:  # best effort: one line, no traceback
+                    print(f"warm-up {label}: {type(error).__name__}", file=sys.stderr)
     except Exception:  # best effort only
         pass
     finally:
