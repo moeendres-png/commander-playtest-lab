@@ -189,11 +189,12 @@ def _applicable(row: sqlite3.Row, name: str, basics: frozenset[str]) -> tuple[bo
     return True, ""
 
 
-def _columns(present: set[str], commander: str, cohort: str) -> list[dict[str, object]]:
+def _columns(denominators: dict[str, list[int]], commander: str) -> list[dict[str, object]]:
     short = commander.split(",")[0]
     columns: list[dict[str, object]] = [
         {
             "key": "decks_all",
+            "short": f"Decks von {short}",
             "label": "Quelldecks, Gruppe „alle“",
             "basis": f"Decks des Commanders ({short}): in wie vielen der Quelldecks der Gruppe "
             "„alle“ steht die Karte (n/N)",
@@ -201,6 +202,7 @@ def _columns(present: set[str], commander: str, cohort: str) -> list[dict[str, o
         },
         {
             "key": "decks_tuned",
+            "short": "Bracket 4 und 5, abgeleitet",
             "label": "Quelldecks, Gruppe „tuned“",
             "basis": "Gruppe „tuned“ = abgeleitet aus Bracket 4 und 5; überschneidet sich mit "
             "„alle“ (n/N)",
@@ -208,12 +210,14 @@ def _columns(present: set[str], commander: str, cohort: str) -> list[dict[str, o
         },
         {
             "key": "edhrec",
+            "short": f"Seite von {short}",
             "label": "EDHREC-Commander-Seite",
             "basis": "Anteil der Decks auf der EDHREC-Seite des Commanders (n/N)",
             "missing": "keine Zeile",
         },
         {
             "key": "shells",
+            "short": f"für {short} gezählt, ohne Nenner",
             "label": "Spellbook-Shells",
             "basis": f"Anzahl Combo-Shells mit der Karte, gezählt für {short} (Farbidentität "
             "und Kartenpool); Zählwert ohne Nenner",
@@ -221,6 +225,7 @@ def _columns(present: set[str], commander: str, cohort: str) -> list[dict[str, o
         },
         {
             "key": "combos",
+            "short": f"gespeicherte Kombos von {short}",
             "label": "Kombo-beteiligt",
             "basis": f"in wie vielen der gespeicherten Kombos von {short} die Karte steht "
             "(n von den gelisteten Kombos)",
@@ -228,26 +233,31 @@ def _columns(present: set[str], commander: str, cohort: str) -> list[dict[str, o
         },
         {
             "key": "playgroup",
+            "short": f"alle Commander, Mehrspieler (nicht nur {short})",
             "label": "Playgroup: Siegraten-Differenz",
             "basis": f"beobachtete Differenz mit 95-%-Intervall und n (Partien mit gewirkter "
             f"Karte); alle Commander, Mehrspieler (nicht nur {short})",
             "missing": "keine Zeile",
         },
     ]
-    if "topdeck" in present:
+    if "topdeck" in denominators:
         columns.append(
             {
                 "key": "topdeck",
+                "short": f"Listen von {short}",
+                "of": denominators["topdeck"],
                 "label": "TopDeck-Turnierlisten",
                 "basis": f"Listen von {short} mit der Karte (n/N, N = Zahl der Listen; sehr "
                 "kleine Gruppe)",
                 "missing": "keine Zeile",
             }
         )
-    if "edhtop16" in present:
+    if "edhtop16" in denominators:
         columns.append(
             {
                 "key": "edhtop16",
+                "short": f"Einträge von {short}",
+                "of": denominators["edhtop16"],
                 "label": "EDHTop16",
                 "basis": f"Spielrate bei {short} in den Turnier-Einträgen (n/N; n = Rate mal N "
                 "abgeleitet, N = Zahl der Einträge)",
@@ -257,23 +267,26 @@ def _columns(present: set[str], commander: str, cohort: str) -> list[dict[str, o
     columns += [
         {
             "key": "roles",
+            "short": "öffentliche Rollen-Tags",
             "label": "Rollen",
             "basis": "Rollen der Karte (öffentliche Rollen-Tags)",
             "missing": "unbekannt (keine Rolle)",
         },
         {
             "key": "role_count",
+            "short": "Zahl der Rollen",
             "label": "Anzahl Rollen",
             "basis": "Zahl der Rollen der Karte",
             "missing": "unbekannt (keine Rolle)",
         },
         {
             "key": "fit",
+            "short": "mit Grundwert der Gruppe",
             "label": "Passung zu den übrigen Karten",
-            "basis": f"Gruppe „{cohort}“: durchschnittlicher Anteil der übrigen Karten dieses "
+            "basis": "In der gewählten Gruppe: durchschnittlicher Anteil der übrigen Karten dieses "
             "Decks (ohne die Karte selbst, Commander, Standardländer), den die Quelldecks "
             "spielen, die die Karte spielen; daneben der Grundwert über alle Quelldecks der "
-            "Gruppe",
+            "Gruppe und die Zahl dieser Decks",
             "missing": "unbekannt (kein Quelldeck der Gruppe spielt die Karte)",
         },
     ]
@@ -366,7 +379,7 @@ def deck_evidence(
     others = len(deckset) - 1
 
     cards: list[dict[str, object]] = []
-    present: set[str] = set()
+    tournament_n: dict[str, set[int]] = {}
     for row in rows:
         card_id = str(row["card_id"])
         ok, why = applicable_rows[card_id]
@@ -418,8 +431,11 @@ def deck_evidence(
         cells["topdeck"] = _tournament_cell(found.get("tournament"))
         cells["edhtop16"] = _tournament_cell(found.get("edhtop16"), derived_numerator=True)
         for key in ("topdeck", "edhtop16"):
-            if cells[key] is not None:
-                present.add(key)
+            cell = cells[key]
+            if cell is not None:
+                tournament_n.setdefault(key, set())
+                if cell["of"] is not None:
+                    tournament_n[key].add(int(str(cell["of"])))
         card_roles = role_map.get(oracle_id, []) if oracle_id else []
         cells["roles"] = (
             {"roles": card_roles, "sort": ", ".join(card_roles).casefold()} if card_roles else None
@@ -448,7 +464,9 @@ def deck_evidence(
         cells["fit"] = fit
         cards.append({**base, "cells": cells})
 
-    columns = _columns(present, commander_names[0], cohort)
+    columns = _columns(
+        {key: sorted(found) for key, found in tournament_n.items()}, commander_names[0]
+    )
     ordered = order_cards(cards)
     known_decks = [
         card

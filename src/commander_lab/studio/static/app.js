@@ -1536,6 +1536,7 @@ function renderDeck() {
     ["packages", "Pakete & Upgrade"],
     ["check", "Prüfung"],
     ["facts", "Bracket & Lücken"],
+    ["evidence", "Belege"],
     ["compare", "Vergleich"],
     ["similar", "Ähnliche Decks"],
     ["diff", "Varianten-Diff"],
@@ -1560,6 +1561,7 @@ function renderDeck() {
     packages: (b) => renderPackagesUpgradeTab(b, planPkgDeps("packages")),
     check: renderCheck,
     facts: renderFacts,
+    evidence: renderEvidence,
     compare: renderCompare,
     similar: renderSimilarDecks,
     diff: renderDiff,
@@ -1631,6 +1633,7 @@ function deckDeps(tab) {
   };
 }
 function renderFacts(body) { renderDeckFacts(body, deckDeps("facts")); }
+function renderEvidence(body) { renderDeckEvidence(body, { ...deckDeps("evidence"), cohort: state.cohort, cohortName }); }
 function renderAll() { renderHeader(); renderPool(); renderDeck(); }
 
 async function renderSwapBox(into, card, initialMode = null) {

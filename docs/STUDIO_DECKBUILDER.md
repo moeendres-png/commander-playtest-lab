@@ -1436,6 +1436,35 @@ deck names has frequency and fit unknown (never 0); fits from fewer than 30 deck
 It is an observation of co-occurrence, never a statement that one card is better. Counting
 reuses the cached source-deck index of the similar-decks view.
 
+### Evidence per deck card ("Belege", #1404)
+
+The deck tab "Belege" (`POST /api/deck-evidence`, `studio/deck_evidence.py`, `static/deckevidence.js`)
+is one table with one row per deck card and one column per kind of evidence that exists today.
+Every cell is a counted value of one source with its numerator and denominator, and the group
+(cohort) is named in the column header: source decks of the commander in the groups "alle" and
+"tuned" (derived from bracket 4 and 5; the two overlap and are never one number), the EDHREC
+commander page (share with its denominator, else "keine Zeile"), the Spellbook shells (a count
+per commander without a denominator; shells are stored per commander, within its colour
+identity and pool), "Kombo-beteiligt" (n of the commander's stored combos), the Playgroup
+observed win-rate gap with its 95 % interval and n (all commanders, multiplayer), the tournament
+lists (TopDeck and EDHTop16; the columns appear only when values exist, the header shows the
+tiny N, and the EDHTop16 numerator is derived from the published rate), the roles and their
+count, and the fit with the other cards of the deck next to the baseline of the group
+(the `card_duel` figure for this card against the rest of the deck, computed for the whole deck
+in one pass over the cached source-deck index of the similar-decks view; the counts are the
+same as the builder's `decks`). The commander and basic lands have the row "nicht anwendbar".
+Unknown is never 0: a card no source deck names, a card without a stored row and a card without
+role data show their own neutral text. Groups under 30 are flagged.
+
+The table has no sum, no score and no combined rating, and the page says so. The default order is
+the thinnest evidence first (fewest source decks in "alle"); every column can be sorted
+ascending or descending by its own value only, unknown values always come last, ties are broken
+by name. The Owner's marks (favourites, exclusions, notes) are not read and change neither the
+order nor any figure, and simulation results do not enter. Controls: choose columns (remembered
+per browser), filter by card name, "Große Ansicht" (the same table in the wide dialog), and
+"Als Text kopieren" (tab separated plain text of the visible table). A note lists the ten
+cards with the fewest source decks with n/N.
+
 ### Guided cut ("Kürzen", #1418)
 
 The deck tab "Kürzen" brings a list of more than 100 cards to exactly 100 (`POST /api/cut-lab`,
