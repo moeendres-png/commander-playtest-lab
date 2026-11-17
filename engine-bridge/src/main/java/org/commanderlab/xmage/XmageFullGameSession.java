@@ -1288,6 +1288,7 @@ final class XmageFullGameSession {
                 engineThread == null ? "" : engineThread.getName()
         );
         payload.addProperty("decision_count", controller.decisionCount());
+        payload.addProperty("forced_decisions_skipped", controller.forcedDecisionsSkipped());
         payload.addProperty("engine_error_count", game.getTotalErrorsCount());
         payload.add("engine_error_diagnostics", diagnosticPayload());
         payload.addProperty("evidence_class", EVIDENCE_CLASS);

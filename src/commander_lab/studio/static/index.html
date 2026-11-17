@@ -9,7 +9,7 @@
 </head>
 <body>
 <header id="brand">
-  <a class="logo" href="index.html">Commander Studio</a>
+  <h1 class="brand-h1"><a class="logo" href="index.html">Commander Studio</a><span class="visually-hidden"> – Deckbau</span></h1>
   <nav id="areas" aria-label="Bereiche"><a href="index.html">Deckbau</a><a href="tierliste.html">Tierliste</a><a href="decks.html">Deck-Browser</a><a href="partie.html">Partien</a></nav>
   <span class="spacer"></span>
   <label>Commander <select id="commander-select"></select></label>
@@ -34,13 +34,13 @@
 <main>
   <section id="pool">
     <div id="filters">
-      <input id="q" type="search" placeholder="Suche in Name, Typ und Text" autocomplete="off">
+      <input id="q" aria-label="Karten suchen" type="search" placeholder="Suche in Name, Typ und Text" autocomplete="off">
       <span id="color-filter" class="chips"></span>
-      <select id="type-filter"></select>
-      <select id="role-filter"></select>
+      <select id="type-filter" aria-label="Kartentyp"></select>
+      <select id="role-filter" aria-label="Rolle"></select>
       <select id="label-filter" title="Nach deinen Archetyp-Marken filtern"></select>
-      <label>Manawert <input id="mv-min" type="number" min="0" max="20" placeholder="von">
-        <input id="mv-max" type="number" min="0" max="20" placeholder="bis"></label>
+      <label>Manawert <input id="mv-min" aria-label="Manawert von" type="number" min="0" max="20" placeholder="von">
+        <input id="mv-max" aria-label="Manawert bis" type="number" min="0" max="20" placeholder="bis"></label>
       <label><input id="f-free" type="checkbox" checked> nur freie</label>
       <label><input id="f-notin" type="checkbox"> nicht im Deck</label>
       <label><input id="f-fav" type="checkbox"> Favoriten</label>

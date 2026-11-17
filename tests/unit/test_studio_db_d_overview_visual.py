@@ -95,10 +95,15 @@ def test_combos_supports_colorless_c_identity_and_color() -> None:
             "mana_value": 2.0,
         },
     ]
-    for query in ("id:c", "id=c", "c:c", "c=c"):
+    for query in ("id:c", "id=c"):
         status, reason, matched = combos.evaluate_scryfall_query(query, cards)
         assert status == "OK" and reason is None
         assert [c["name"] for c in matched] == ["Sol Ring", "Arcane Signet"]
+    # Card color is not exact from the mana cost alone: c: stays unknown, never a count.
+    for query in ("c:c", "c=c"):
+        status, reason, matched = combos.evaluate_scryfall_query(query, cards)
+        assert status == "UNKNOWN" and reason
+        assert matched == []
 
 
 def test_deck_packages_queries_list_rows_only_once(

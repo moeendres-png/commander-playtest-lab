@@ -78,6 +78,7 @@ class FullGameResultWire(TypedDict, total=False):
     transcript: object
     turn_number: object
     decision_count: object
+    forced_decisions_skipped: object
 
 
 class SemanticEventWire(TypedDict):

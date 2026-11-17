@@ -27,6 +27,17 @@ const StudioUI = (() => {
   applyTheme(recall(THEME_KEY, ""));
 
   // ---------- small helpers ----------
+  // A name/chip that opens something on click must be reachable and operable by keyboard too.
+  const NATIVE_CONTROLS = new Set(["BUTTON", "A", "INPUT", "SELECT", "TEXTAREA", "SUMMARY"]);
+  function makeKeyboardOperable(node, props) {
+    if (!props || !props.onclick || NATIVE_CONTROLS.has(node.tagName) || node.hasAttribute("tabindex")) return;
+    if (!/(^|\s)(name|nm|chip)(\s|$)/.test(node.className)) return;
+    node.setAttribute("tabindex", "0");
+    if (node.tagName !== "TD") node.setAttribute("role", "button");
+    node.addEventListener("keydown", (event) => {
+      if (event.target === node && (event.key === "Enter" || event.key === " ")) { event.preventDefault(); node.click(); }
+    });
+  }
   function el(tag, props, ...children) {
     const node = document.createElement(tag);
     for (const [key, value] of Object.entries(props || {})) {
@@ -40,6 +51,7 @@ const StudioUI = (() => {
       if (child === null || child === undefined || child === false) continue;
       node.append(child.nodeType ? child : document.createTextNode(String(child)));
     }
+    makeKeyboardOperable(node, props);
     return node;
   }
 

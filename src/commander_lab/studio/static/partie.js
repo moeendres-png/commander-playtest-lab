@@ -321,7 +321,9 @@ function render() {
 
   $("position").value = String(state.index);
   const phase = frame.phase ? (STEPS[frame.step] || PHASES[frame.phase] || frame.phase) : "Spielbeginn";
-  $("where").textContent = `Zug ${frame.turn ?? "?"} · ${phase} · Entscheidung ${frame.n} von ${state.frames.length}${state.running ? " (Partie läuft noch)" : ""}`;
+  const skippedCount = Number((state.result && state.result.forced_decisions_skipped) || 0);
+  const skippedSuffix = skippedCount > 0 ? ` (+ ${skippedCount} erzwungene Pässe)` : "";
+  $("where").textContent = `Zug ${frame.turn ?? "?"} · ${phase} · Entscheidung ${frame.n} von ${state.frames.length}${skippedSuffix}${state.running ? " (Partie läuft noch)" : ""}`;
   for (const line of document.querySelectorAll("#log .here")) line.classList.remove("here");
   const line = lineFor(state.index);
   if (line) { line.classList.add("here"); line.scrollIntoView({ block: "nearest" }); }
@@ -452,7 +454,9 @@ async function refreshTitles() {
 function gameTitle(game) {
   const seats = (game.header.seats || []).map((seat) => (seat.commanders || []).join(" + ") || seat.deck_id).join(" · ");
   const end = game.running ? "läuft" : game.result && game.result.status === "finished" ? `Sieger ${(game.result.winner_seats || []).map(seatName).join(", ") || "keiner"}` : "abgebrochen";
-  return `${seats} · Seed ${game.header.seed} · ${game.frames} Entscheidungen · ${end}`;
+  const skipped = Number((game.result && game.result.forced_decisions_skipped) || 0);
+  const skippedPart = skipped > 0 ? ` (+ ${skipped} erzwungene Pässe)` : "";
+  return `${seats} · Seed ${game.header.seed} · ${game.frames} Entscheidungen${skippedPart} · ${end}`;
 }
 // ---- new game ------------------------------------------------------------------------------
 async function newGame(wantedRevision) {

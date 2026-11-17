@@ -254,6 +254,41 @@ class _PolicyState:
         # #989 phase 3: per seat, what the blockers asked so far in this declaration took off
         # the table; dropped with the frame counts above.
         self._block_round: dict[int, BlockRound] = {}
+        # #1299 (SIMULATE E4 Condition 3): last seen (turn_number, phase, step) per seat so
+        # transient priority-action state does not leak across skipped priority windows.
+        self._last_seat_step: dict[int, tuple[object, object, object]] = {}
+
+    def _clear_priority_action_state(self, seat: int) -> None:
+        """Clear transient single-action priority state for ``seat`` (Condition 3).
+
+        Never clears cross-step/cross-turn state (``_turn_actions``, ``_failed_payments``,
+        ``_own_cast_names``, ``_equipped_to``, ``_mulligan_count``, ``_free_cast_failed``,
+        ``_free_cast_refused``, ``_counter_growth_declines``, ``_counter_draw_refusals``,
+        ``_priority_latched``, ``_retarget_yes``, ``_mana_hold``,
+        ``_mana_last_fingerprint``, ``_mana_repeat_count``).
+        """
+        self._priority_cost_facts.pop(seat, None)
+        self._optional_mana_commitments.pop(seat, None)
+        self._boolean_repeat.pop(seat, None)
+        self._priority_spends_source.pop(seat, None)
+        self._priority_x_counter_caps.pop(seat, None)
+        self._failed_x_announcements.pop(seat, None)
+        self._reserved_counters.pop(seat, None)
+        self._last_priority_label.pop(seat, None)
+        self._last_priority_source.pop(seat, None)
+        self._last_priority_visible_mana.pop(seat, None)
+        self._life_dig_yes.pop(seat, None)
+        self._counter_cost_progress.pop(seat, None)
+        self._special_mana_pending.pop(seat, None)
+        self._payment_source.pop(seat, None)
+        self._last_payment_offer.pop(seat, None)
+        self._outer_unpaid_mana.pop(seat, None)
+        self._phyrexian_life_promised.pop(seat, None)
+        self._running_selection.pop(seat, None)
+        self._free_cast_last_yes.pop(seat, None)
+        self._exiled_play_attempt.pop(seat, None)
+        self._selection_ended.discard(seat)
+        self._selection_reopened.discard(seat)
 
     def _turn_action_cap(
         self, option: dict[str, Any], state: Mapping[str, object] | None = None

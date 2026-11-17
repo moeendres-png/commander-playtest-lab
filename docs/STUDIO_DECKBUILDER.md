@@ -976,6 +976,13 @@ in advance, not on a validation; judging them is the Owner's decision.
   `rank_group = "pool"` stays recommended (Spearman `0.9297` vs `0.8819` for `"function"`,
   Randkarten oben `5 / 71` vs `19 / 94` because small-role leaders with `< 5 %` deck share
   scale to `S/A` inside isolated role groups).
+- **Reminder text and own draws (#1404, #1413):** the Oracle-text rules `cantrip`, `card_advantage`
+  and `hate` read the text without parenthesised reminder text (nested parentheses included), so a
+  Clue's "Draw a card" or a Split second "players can't cast spells" no longer counts; `card_advantage`
+  needs a draw for the card's own controller ("that player draws", "each player draws" do not
+  count, "target player draws" does). `card_draw` and `utility_land` still read the full text.
+  `roles_s5_oracle_expansion.json` and `roles_s6_oracle_corpus.json` were regenerated with the
+  unchanged `fetched_at` `2026-11-16`: 9 / 1,884 and 101 / 16,338 claims dropped, none added.
 
 
 ### Counted deck-list universes, `universe_source` and the commander-signal rule
@@ -1061,6 +1068,16 @@ it is in the pool, and names the source of the combo list (the title and snapsho
 never by the back half. Limits: only listed combos are known; without a stored list the section
 says so and never claims "no combos"; the deck count is the source's count over all its decks,
 not a count for this commander; it is a comparison of card sets, not a rating.
+
+Template-slot queries are evaluated offline and exactly, or the count is `unbekannt` (never 0).
+`t:` is a case-insensitive substring match on the type line (a quoted phrase is one substring;
+whitespace is trimmed and collapsed on both sides). `id:`/`identity:` take a colour word, a guild,
+shard, wedge or college name, or letters of `wubrgc` only, with `=`, `<=`, `>=`, `<`, `>` as set
+comparisons; `:` only for colourless, anything else is unknown. `c:`/`color:` is always unknown:
+the colour of a card is not exact from the mana cost alone (colour indicator, Prepare layout,
+faces of a two-sided card) and needs the Scryfall `colors` field. A slot with a commander or
+zone condition is flagged `partially_checked` (only the card-text query was checked); an unknown
+slot has `matches_in_pool_total` `null`.
 
 ### Tier list and builder work together
 
@@ -1192,6 +1209,21 @@ before the stamp existed) counts as valid and is stamped in place. `fetch-images
 is stricter: there an unstamped or differently stamped file is fetched and stamped
 once, so after `import-printings` changes any picture, one `fetch-images` run brings
 the whole cache onto the new printings.
+
+### Pasting a deck list
+
+`parse_decklist_text` reads plain, Arena, MTGO, Moxfield, Archidekt and CSV lists. It strips a
+leading byte-order mark once, normalises typographic quotes, non-breaking and zero-width spaces
+and dashes, and also matches the back-face name of a two-faced card. A quantity must be 1 to 99:
+other values are listed as `unreadable`. Every unrecognized line carries a `status`. A line
+longer than 300 characters (for CSV: quantity and name cells together) is listed as `zu lang`, and a
+list of more than 2000 lines is refused with a German error (HTTP 422), never truncated silently.
+For CSV only the quantity and name cells are ever returned, never the whole row. Amount tokens
+anywhere in a line (currency symbols or ISO codes before or after the figure, in brackets, with
+thousands separators) are removed before matching and noted only as `Betragsangabe (ignoriert)` in
+`ignored_annotations`; every returned text field is passed through the same removal, and a line
+that consists only of an amount is `unreadable`. Enclosing double quotes are tried against the
+original name first. Sideboard, `sb:` and `#` lines are skipped silently, as before.
 
 ### Alles importieren
 
