@@ -174,6 +174,81 @@ def opening_hands(lands: int, early: int, other: int) -> dict[str, object]:
     }
 
 
+HAND_EXTRA_DRAWS = (0, 1, 2, 3)
+
+
+def role_in_hand(library: int, role_cards: int, draws: int) -> dict[str, object]:
+    """Exact chance that a hand of ``draws`` cards from ``library`` cards holds at least one
+    of ``role_cards`` role cards, and the complement (none): hypergeometric, no simulation."""
+    if draws < 0 or library < draws or role_cards < 0 or role_cards > library:
+        return {"draws": draws, "p_at_least_1": None, "p_none": None}
+    total = comb(library, draws)
+    none = comb(library - role_cards, draws)
+    return {
+        "draws": draws,
+        "p_at_least_1": _share(total - none, total),
+        "p_none": _share(none, total),
+    }
+
+
+def hand_roles(
+    rows: Iterable[Mapping[str, object]], roles: Mapping[str, Sequence[str]]
+) -> dict[str, object]:
+    """Starting-hand chance per role of the deck (#1404): for each role with at least one
+    card, P(at least one card of the role) in the 7-card opening hand and after 1, 2 and 3
+    further cards, and P(none). ``rows`` carry ``zone``, ``quantity``, ``card_id`` and
+    ``type_line``; ``roles`` maps ``card_id`` to its role tags. The library is the main deck
+    without the commander. A card counts for every role it carries, roles are never added.
+    A card without role data is unknown, not role-less: the figures are computed from the
+    known role cards among all library cards, so they are lower bounds for the roles."""
+    library = 0
+    counts: Counter[str] = Counter()
+    with_roles = nonland = nonland_with_roles = 0
+    for row in rows:
+        if _text(row, "zone") == "commander":
+            continue
+        quantity = int(_text(row, "quantity") or "1")
+        library += quantity
+        tags = set(roles.get(_text(row, "card_id"), ()))
+        is_land = "Land" in _text(row, "type_line").split(" // ")[0]
+        if not is_land:
+            nonland += quantity
+        if tags:
+            with_roles += quantity
+            if not is_land:
+                nonland_with_roles += quantity
+            for tag in tags:
+                counts[tag] += quantity
+    items = [
+        {
+            "role": role,
+            "cards": cards,
+            "of": library,
+            "hands": [
+                {"extra": extra, **role_in_hand(library, cards, OPENING_HAND + extra)}
+                for extra in HAND_EXTRA_DRAWS
+            ],
+        }
+        for role, cards in sorted(counts.items())
+    ]
+    return {
+        "hand": OPENING_HAND,
+        "library": library,
+        "cards_with_role_data": with_roles,
+        "nonland_cards": nonland,
+        "nonland_with_role_data": nonland_with_roles,
+        "roles_known": bool(counts),
+        "roles": items,
+        "assumption": (
+            f"Starthand {OPENING_HAND} Karten ohne Mulligan; danach 1, 2 und 3 weitere Karten "
+            "(Zug 1 bis 3 gezogen, Zug 1 zieht; der Startspieler zieht in Zug 1 nicht: für "
+            "ihn gilt die Spalte einen Zug früher). Nenner: Karten im Deck ohne Commander. "
+            "Eine Karte zählt für jede ihrer Rollen, Rollen werden nie addiert. Karten ohne "
+            "Rollendaten sind unbekannt, nicht rollenlos: die Werte sind Untergrenzen."
+        ),
+    }
+
+
 def deck_castability(rows: Iterable[Mapping[str, object]]) -> dict[str, object]:
     """Castability of every distinct coloured requirement of the deck's nonland cards, plus
     the opening hand figure. ``rows`` carry ``zone``, ``quantity``, ``oracle_name``,

@@ -1634,11 +1634,26 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
     @app.post("/api/castability")
     def castability_route(body: ListBody) -> dict[str, object]:
         """Colour castability conditioned on land drops (Karsten) and the opening hand
-        figure of a deck list (#1415, #1404 option 2). A description, no land count advice."""
+        figure of a deck list (#1415, #1404 option 2), plus the starting-hand chance per role
+        (``hand_roles``). A description, no land count advice."""
         store = open_store()
         try:
             rows = [dict(row) for row in list_rows(store, _cards(body.cards))]
-            return castability.deck_castability(rows)
+            ids = [str(row["card_id"]) for row in rows]
+            role_map: dict[str, list[str]] = {}
+            for start in range(0, len(ids), 500):
+                chunk = ids[start : start + 500]
+                marks = ",".join("?" * len(chunk))
+                for found in store.connection.execute(
+                    "SELECT c.card_id, r.role FROM card_fact c JOIN card_role r "
+                    f"USING (oracle_id) WHERE c.card_id IN ({marks}) ORDER BY r.role",
+                    chunk,
+                ):
+                    role_map.setdefault(str(found["card_id"]), []).append(str(found["role"]))
+            return {
+                **castability.deck_castability(rows),
+                "hand_roles": castability.hand_roles(rows, role_map),
+            }
         finally:
             store.close()
 

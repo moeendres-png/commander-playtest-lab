@@ -1661,7 +1661,7 @@ function renderCut(body) {
 // Shared hooks for the deck tabs kept in their own files (deckfacts.js, castability.js).
 function deckDeps(tab) {
   return {
-    h, api, entries, fail,
+    h, api, entries, fail, roleName,
     open: (cardId) => { const card = state.byId.get(cardId); if (card) openCard(card); },
     token: () => state.renderToken,
     isCurrent: (token) => token === state.renderToken && state.tab === tab,

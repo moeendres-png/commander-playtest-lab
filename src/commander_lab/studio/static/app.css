@@ -102,6 +102,7 @@ th{position:sticky;top:0;background:var(--panel);cursor:pointer;white-space:nowr
 tbody tr:nth-child(even){background:var(--zebra)}
 tbody tr:hover{background:color-mix(in srgb,var(--accent) 6%,transparent)}
 td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+#hand-roles th,#hand-roles td{padding-left:var(--s1,4px);padding-right:var(--s1,4px)}
 .num{font-variant-numeric:tabular-nums}
 tr.in td:first-child{box-shadow:inset 3px 0 0 var(--good)}
 td.name{cursor:pointer;font-weight:600}
