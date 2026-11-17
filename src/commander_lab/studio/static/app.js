@@ -1045,9 +1045,9 @@ function renderEngineCheck(body) {
   const check = state.engineCheck;
   const box = h("section", { id: "engine-check" }, h("h3", {}, "Prüfung durch die Engine"));
   body.append(box);
-  box.append(h("button", { type: "button", id: "engine-check-run", disabled: !!(check && check.busy), onclick: runEngineCheck }, check && check.busy ? "Wird geprüft ..." : "Mit der Engine prüfen"));
+  box.append(h("button", { type: "button", id: "engine-check-run", disabled: !!(check && check.busy), onclick: runEngineCheck }, check && check.busy ? "Wird geprüft ..." : "Gegen die Engine-Kartenliste prüfen"));
   if (!check || check.busy) {
-    box.append(h("p", { class: "note" }, "Prüft vor einer Partie, was der Spielstarter prüft, und welche Karten die Engine nicht laden kann. Es wird keine Partie gestartet."));
+    box.append(h("p", { class: "note" }, "Prüft vor einer Partie, was der Spielstarter prüft, und gleicht das Deck mit der gespeicherten Kartenliste der Engine ab (keine Live-Abfrage der Engine; Java und Bridge-Datei werden auf Vorhandensein geprüft). Den Deck-Import selbst macht die Engine erst beim Spielstart. Es wird keine Partie gestartet."));
     return;
   }
   const result = check.result;
@@ -2431,7 +2431,7 @@ function showExport() {
       h("p", { class: "note" }, "Aktueller Entwurf (noch nicht als Stand gespeichert) — kann direkt als Textdatei oder JSON heruntergeladen werden."),
       h("div", { class: "actions" },
         h("button", { type: "button", class: "primary", onclick: () => _downloadBlob(`${slug}-entwurf.txt`, _draftExportText(), "text/plain;charset=utf-8") }, "Entwurf als Text (.txt)"),
-        h("button", { type: "button", onclick: () => _downloadBlob(`${slug}-entwurf.json`, _draftExportSnapshot(), "application/json;charset=utf-8") }, "Entwurf für Simulation (.json)"))
+        h("button", { type: "button", onclick: () => _downloadBlob(`${slug}-entwurf.json`, _draftExportSnapshot(), "application/json;charset=utf-8") }, "Entwurf als Lab-Datei (.json)"))
     );
   }
   if (state.baseRevision) {
@@ -2440,7 +2440,7 @@ function showExport() {
       h("p", {}, state.dirty ? "Zuletzt gespeicherter Stand " : "Gespeicherter Stand ", h("code", {}, state.baseRevision), ":"),
       h("div", { class: "actions" },
         h("a", { href: base + "?format=txt", target: "_blank", rel: "noopener" }, "Gespeicherter Stand als Text"),
-        h("a", { href: base + "?format=json", target: "_blank", rel: "noopener" }, "Gespeicherter Stand für Simulation (JSON)"))
+        h("a", { href: base + "?format=json", target: "_blank", rel: "noopener" }, "Gespeicherter Stand als Lab-Datei (JSON)"))
     );
   }
   nodes.push(...exportFormatsSection({ h, state, toast, slug, download: _downloadBlob }));
