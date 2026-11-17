@@ -458,9 +458,11 @@ class BasePilot:
         if folded not in visible_folded:
             combos = self._plan_combos_by_card.get(folded, ())
             if any((combo - {folded}) <= visible_folded for combo in combos):
-                return (3, -rank)
+                return (4, -rank)
             partners = self._plan_combo_partners.get(folded, frozenset())
-            if (partners & visible_folded) or (folded in self._plan_combo_cards):
+            if partners & visible_folded:
+                return (3, -rank)
+            if folded in self._plan_combo_cards:
                 return (2, -rank)
         if folded in self._plan_tutor_rank:
             return (1, -rank)

@@ -521,7 +521,8 @@ def test_simulation_plan_telemetry_and_batch_aggregation(tmp_path: Path) -> None
         ],
     }
     rec = games.GameRecorder(tmp_path, "g-plan-1", {**header, "seed": 7})
-    # Frame 1: Chulane on battlefield, Shrieking Drake in hand -> combo assembled (hand + board), not deployed
+    # Frame 1: Chulane still in Command Zone while Shrieking Drake is on battlefield ->
+    # assembled (hand + command + battlefield), NOT yet deployed on battlefield.
     rec.record(
         {
             "seat": 0,
@@ -535,19 +536,24 @@ def test_simulation_plan_telemetry_and_batch_aggregation(tmp_path: Path) -> None
                         "seat": 0,
                         "player_id": "p0",
                         "life": 40,
-                        "hand": [{"name": "Shrieking Drake"}, {"name": "Counterspell"}],
-                        "battlefield": [{"name": "Chulane, Teller of Tales", "tapped": False}],
-                        "command": [],
+                        "hand": [{"name": "Counterspell"}],
+                        "battlefield": [{"name": "Shrieking Drake", "tapped": False}],
+                        "command": [{"name": "Chulane, Teller of Tales"}],
                     },
                     {"seat": 1, "player_id": "p1", "life": 40, "hand_count": 7},
                 ],
                 "stack": [],
             },
-            "legal_options": [{"option_id": "o1", "label": "Shrieking Drake"}],
+            "legal_options": [{"option_id": "o1", "label": "Chulane, Teller of Tales"}],
         },
         {"selected_option_ids": ["o1"]},
     )
-    # Frame 2: Shrieking Drake resolved onto battlefield -> combo deployed on board on turn 5
+    mid = extract_game_log_telemetry(tmp_path, "g-plan-1", candidate_seat=0)
+    assert mid.plan_telemetry["combo_assembled"] is True
+    assert mid.plan_telemetry["combo_deployed"] is False
+    assert mid.plan_telemetry["combos_deployed"] == []
+
+    # Frame 2: Chulane resolved onto battlefield -> combo deployed on board on turn 5
     rec.record(
         {
             "seat": 0,
@@ -586,6 +592,9 @@ def test_simulation_plan_telemetry_and_batch_aggregation(tmp_path: Path) -> None
     assert g1.plan_telemetry["combos_deployed"] == ["c1"]
     assert g1.plan_telemetry["first_combo_assembled_round"] == 4
     assert g1.plan_telemetry["first_combo_deployed_round"] == 5
+    roles_g1 = g1.plan_telemetry["roles"]
+    assert isinstance(roles_g1, dict)
+    assert roles_g1["combo_card"]["offered"] >= roles_g1["combo_card"]["cast"]
 
     g2 = GameSummary(
         game_id="g-plan-2",

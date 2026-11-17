@@ -123,6 +123,19 @@ def _plan_name_bucket(plan: Mapping[str, object], key: str) -> set[str]:
     return {_norm_card_name(item) for item in raw if isinstance(item, str) and item.strip()}
 
 
+def _player_for_seat(players: object, candidate_seat: int) -> Mapping[str, object] | None:
+    if not isinstance(players, list) or candidate_seat < 0:
+        return None
+    for entry in players:
+        if isinstance(entry, Mapping) and entry.get("seat") == candidate_seat:
+            return entry
+    if candidate_seat < len(players):
+        entry = players[candidate_seat]
+        if isinstance(entry, Mapping):
+            return entry
+    return None
+
+
 def _compute_plan_telemetry(
     plan: Mapping[str, object],
     frames: Sequence[Mapping[str, object]],
@@ -162,59 +175,63 @@ def _compute_plan_telemetry(
     combos_deployed: set[str] = set()
     min_assembled_round: int | None = None
     min_deployed_round: int | None = None
+    command_seen: set[str] = set()
 
-    if combos_parsed:
-        for frame in frames:
-            players = frame.get("players")
-            if not isinstance(players, list) or len(players) <= candidate_seat:
-                continue
-            c_player = players[candidate_seat]
-            if not isinstance(c_player, Mapping):
-                continue
-            turn = frame.get("turn")
-            turn_int = turn if isinstance(turn, int) else None
-            deployed_zone: set[str] = set()
-            bf = c_player.get("battlefield")
-            if isinstance(bf, list):
-                for perm in bf:
-                    if isinstance(perm, Mapping):
-                        pname = perm.get("name")
-                        if isinstance(pname, str) and pname and pname != "(verdeckt)":
-                            deployed_zone.add(_norm_card_name(pname))
-            cmd = c_player.get("command")
-            if isinstance(cmd, list):
-                for cname in cmd:
-                    if isinstance(cname, str) and cname and cname != "(verdeckt)":
-                        deployed_zone.add(_norm_card_name(cname))
-            hand_zone: set[str] = set()
-            hand = c_player.get("hand")
-            if isinstance(hand, list):
-                for hname in hand:
-                    if isinstance(hname, str) and hname and hname != "(verdeckt)":
-                        hand_zone.add(_norm_card_name(hname))
-            assembled_zone = deployed_zone | hand_zone
-            for cid, cset in combos_parsed:
-                if cset <= assembled_zone:
-                    combos_assembled.add(cid)
-                    if turn_int is not None and (
-                        min_assembled_round is None or turn_int < min_assembled_round
-                    ):
-                        min_assembled_round = turn_int
-                if cset <= deployed_zone:
-                    combos_deployed.add(cid)
-                    if turn_int is not None and (
-                        min_deployed_round is None or turn_int < min_deployed_round
-                    ):
-                        min_deployed_round = turn_int
+    for frame in frames:
+        c_player = _player_for_seat(frame.get("players"), candidate_seat)
+        if c_player is None:
+            continue
+        turn = frame.get("turn")
+        turn_int = turn if isinstance(turn, int) else None
+        command_zone: set[str] = set()
+        cmd = c_player.get("command")
+        if isinstance(cmd, list):
+            for cname in cmd:
+                if isinstance(cname, str) and cname and cname != "(verdeckt)":
+                    norm_cmd = _norm_card_name(cname)
+                    command_zone.add(norm_cmd)
+                    command_seen.add(norm_cmd)
+        if not combos_parsed:
+            continue
+        deployed_zone: set[str] = set()
+        bf = c_player.get("battlefield")
+        if isinstance(bf, list):
+            for perm in bf:
+                if isinstance(perm, Mapping):
+                    pname = perm.get("name")
+                    if isinstance(pname, str) and pname and pname != "(verdeckt)":
+                        deployed_zone.add(_norm_card_name(pname))
+        hand_zone: set[str] = set()
+        hand = c_player.get("hand")
+        if isinstance(hand, list):
+            for hname in hand:
+                if isinstance(hname, str) and hname and hname != "(verdeckt)":
+                    hand_zone.add(_norm_card_name(hname))
+        assembled_zone = deployed_zone | hand_zone | command_zone
+        for cid, cset in combos_parsed:
+            if cset <= assembled_zone:
+                combos_assembled.add(cid)
+                if turn_int is not None and (
+                    min_assembled_round is None or turn_int < min_assembled_round
+                ):
+                    min_assembled_round = turn_int
+            if cset <= deployed_zone:
+                combos_deployed.add(cid)
+                if turn_int is not None and (
+                    min_deployed_round is None or turn_int < min_deployed_round
+                ):
+                    min_deployed_round = turn_int
 
-    offered_norm = {_norm_card_name(c) for c in offered_cards}
+    offered_norm = {_norm_card_name(c) for c in offered_cards} | command_seen
     cast_norm = {_norm_card_name(c) for c in cast_cards}
     roles_stats: dict[str, dict[str, int]] = {}
     for role_key, card_set in role_sets.items():
+        cast_hits = card_set & cast_norm
+        offered_hits = card_set & (offered_norm | cast_hits)
         roles_stats[role_key] = {
             "in_plan": len(card_set),
-            "offered": len(card_set & offered_norm),
-            "cast": len(card_set & cast_norm),
+            "offered": len(offered_hits),
+            "cast": len(cast_hits),
         }
 
     return {
@@ -347,15 +364,13 @@ def extract_game_log_telemetry(
 
         # If actor is candidate seat, extract hand cards
         seat = frame.get("seat")
-        players = frame.get("players")
-        if isinstance(players, list) and len(players) > candidate_seat:
-            c_player = players[candidate_seat]
-            if isinstance(c_player, dict):
-                hand = c_player.get("hand")
-                if isinstance(hand, list):
-                    for c in hand:
-                        if isinstance(c, str) and c and c != "(verdeckt)":
-                            offered_cards.add(c)
+        c_player = _player_for_seat(frame.get("players"), candidate_seat)
+        if c_player is not None:
+            hand = c_player.get("hand")
+            if isinstance(hand, list):
+                for c in hand:
+                    if isinstance(c, str) and c and c != "(verdeckt)":
+                        offered_cards.add(c)
 
         # Check if candidate seat made a cast decision
         if seat == candidate_seat:

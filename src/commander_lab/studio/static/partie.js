@@ -278,7 +278,7 @@ function showDeckPlan(title, plan) {
   if (combos.length) {
     children.push(
       h("h3", null, `Combo-Linien (${combos.length})`),
-      h("ul", null, combos.slice(0, 12).map((combo) => {
+      h("ul", null, combos.slice(0, 12).filter((combo) => combo && typeof combo === "object").map((combo) => {
         const cardsText = Array.isArray(combo.cards) ? combo.cards.join(" + ") : "";
         const resultText = combo.result ? ` → ${combo.result}` : "";
         return h("li", null, `${cardsText}${resultText}`);
