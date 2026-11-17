@@ -90,6 +90,164 @@ def wilson_score_interval(wins: float, total: int, confidence: float = 0.95) -> 
     return (round(lower, 4), round(upper, 4))
 
 
+def _norm_card_name(name: str) -> str:
+    return name.split(" // ", 1)[0].split(" (", 1)[0].strip().casefold()
+
+
+def _resolve_seat_plan(
+    header: Mapping[str, object],
+    candidate_seat: int,
+    override: Mapping[str, object] | None,
+) -> Mapping[str, object] | None:
+    if isinstance(override, Mapping):
+        return override
+    raw_seats = header.get("seats")
+    if not isinstance(raw_seats, list):
+        return None
+    for entry in raw_seats:
+        if isinstance(entry, Mapping) and entry.get("seat") == candidate_seat:
+            plan = entry.get("deck_plan")
+            return plan if isinstance(plan, Mapping) else None
+    if 0 <= candidate_seat < len(raw_seats):
+        entry = raw_seats[candidate_seat]
+        if isinstance(entry, Mapping):
+            plan = entry.get("deck_plan")
+            return plan if isinstance(plan, Mapping) else None
+    return None
+
+
+def _plan_name_bucket(plan: Mapping[str, object], key: str) -> set[str]:
+    raw = plan.get(key)
+    if not isinstance(raw, (list, tuple, set, frozenset)):
+        return set()
+    return {_norm_card_name(item) for item in raw if isinstance(item, str) and item.strip()}
+
+
+def _player_for_seat(players: object, candidate_seat: int) -> Mapping[str, object] | None:
+    if not isinstance(players, list) or candidate_seat < 0:
+        return None
+    for entry in players:
+        if isinstance(entry, Mapping) and entry.get("seat") == candidate_seat:
+            return entry
+    if candidate_seat < len(players):
+        entry = players[candidate_seat]
+        if isinstance(entry, Mapping):
+            return entry
+    return None
+
+
+def _compute_plan_telemetry(
+    plan: Mapping[str, object],
+    frames: Sequence[Mapping[str, object]],
+    candidate_seat: int,
+    offered_cards: set[str],
+    cast_cards: Mapping[str, int],
+) -> dict[str, object]:
+    combos_raw = plan.get("combos")
+    combos_parsed: list[tuple[str, frozenset[str]]] = []
+    combo_cards_from_lines: set[str] = set()
+    if isinstance(combos_raw, (list, tuple)):
+        for idx, item in enumerate(combos_raw):
+            if not isinstance(item, Mapping):
+                continue
+            raw_cards = item.get("cards")
+            if not isinstance(raw_cards, (list, tuple)):
+                continue
+            folded = frozenset(
+                _norm_card_name(c) for c in raw_cards if isinstance(c, str) and c.strip()
+            )
+            if len(folded) < 2:
+                continue
+            cid = str(item.get("combo_id") or f"combo-{idx}")
+            combos_parsed.append((cid, folded))
+            combo_cards_from_lines.update(folded)
+
+    role_sets: dict[str, set[str]] = {
+        "combo_card": _plan_name_bucket(plan, "combo_cards") | combo_cards_from_lines,
+        "key_card": _plan_name_bucket(plan, "key_cards"),
+        "engine": _plan_name_bucket(plan, "engines"),
+        "answer": _plan_name_bucket(plan, "answers"),
+    }
+    if not combos_parsed and not any(role_sets.values()):
+        return {}
+
+    combos_assembled: set[str] = set()
+    combos_deployed: set[str] = set()
+    min_assembled_round: int | None = None
+    min_deployed_round: int | None = None
+    command_seen: set[str] = set()
+
+    for frame in frames:
+        c_player = _player_for_seat(frame.get("players"), candidate_seat)
+        if c_player is None:
+            continue
+        turn = frame.get("turn")
+        turn_int = turn if isinstance(turn, int) else None
+        command_zone: set[str] = set()
+        cmd = c_player.get("command")
+        if isinstance(cmd, list):
+            for cname in cmd:
+                if isinstance(cname, str) and cname and cname != "(verdeckt)":
+                    norm_cmd = _norm_card_name(cname)
+                    command_zone.add(norm_cmd)
+                    command_seen.add(norm_cmd)
+        if not combos_parsed:
+            continue
+        deployed_zone: set[str] = set()
+        bf = c_player.get("battlefield")
+        if isinstance(bf, list):
+            for perm in bf:
+                if isinstance(perm, Mapping):
+                    pname = perm.get("name")
+                    if isinstance(pname, str) and pname and pname != "(verdeckt)":
+                        deployed_zone.add(_norm_card_name(pname))
+        hand_zone: set[str] = set()
+        hand = c_player.get("hand")
+        if isinstance(hand, list):
+            for hname in hand:
+                if isinstance(hname, str) and hname and hname != "(verdeckt)":
+                    hand_zone.add(_norm_card_name(hname))
+        assembled_zone = deployed_zone | hand_zone | command_zone
+        for cid, cset in combos_parsed:
+            if cset <= assembled_zone:
+                combos_assembled.add(cid)
+                if turn_int is not None and (
+                    min_assembled_round is None or turn_int < min_assembled_round
+                ):
+                    min_assembled_round = turn_int
+            if cset <= deployed_zone:
+                combos_deployed.add(cid)
+                if turn_int is not None and (
+                    min_deployed_round is None or turn_int < min_deployed_round
+                ):
+                    min_deployed_round = turn_int
+
+    offered_norm = {_norm_card_name(c) for c in offered_cards} | command_seen
+    cast_norm = {_norm_card_name(c) for c in cast_cards}
+    roles_stats: dict[str, dict[str, int]] = {}
+    for role_key, card_set in role_sets.items():
+        cast_hits = card_set & cast_norm
+        offered_hits = card_set & (offered_norm | cast_hits)
+        roles_stats[role_key] = {
+            "in_plan": len(card_set),
+            "offered": len(offered_hits),
+            "cast": len(cast_hits),
+        }
+
+    return {
+        "has_plan": True,
+        "provenance": str(plan.get("provenance") or "abgeleitet, nicht gemessen"),
+        "combo_lines_in_plan": len(combos_parsed),
+        "combos_assembled": sorted(combos_assembled),
+        "combos_deployed": sorted(combos_deployed),
+        "combo_assembled": bool(combos_assembled),
+        "combo_deployed": bool(combos_deployed),
+        "first_combo_assembled_round": min_assembled_round,
+        "first_combo_deployed_round": min_deployed_round,
+        "roles": roles_stats,
+    }
+
+
 @dataclass
 class GameSummary:
     game_id: str
@@ -106,9 +264,10 @@ class GameSummary:
     bridge_qualification_state: str | None = None
     covered_by_sealed_epoch: bool = False
     observed_cards: dict[str, dict[str, object]] = field(default_factory=dict)
+    plan_telemetry: dict[str, object] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, object]:
-        return {
+        payload: dict[str, object] = {
             "game_id": self.game_id,
             "seed": self.seed,
             "status": self.status,
@@ -123,12 +282,17 @@ class GameSummary:
             "bridge_qualification_state": self.bridge_qualification_state,
             "covered_by_sealed_epoch": self.covered_by_sealed_epoch,
         }
+        if self.plan_telemetry:
+            payload["plan_telemetry"] = self.plan_telemetry
+        return payload
 
 
 def extract_game_log_telemetry(
     data_folder: str | Path,
     game_id: str,
     candidate_seat: int = 0,
+    *,
+    deck_plan: Mapping[str, object] | None = None,
 ) -> GameSummary:
     """Read a recorded game log and extract candidate-seat telemetry and outcome."""
     try:
@@ -166,49 +330,64 @@ def extract_game_log_telemetry(
     candidate_won = candidate_seat in winner_seats
     decision_count = _as_int(result.get("decision_count") or data.get("total"), 0)
 
+    # Collect all frames (paginating if the log exceeds 1000 frames)
+    raw_frames = data.get("frames")
+    frames: list[dict[str, object]] = (
+        [f for f in raw_frames if isinstance(f, dict)] if isinstance(raw_frames, list) else []
+    )
+    total_frames = _as_int(data.get("total"), len(frames))
+    offset = len(frames)
+    while offset < total_frames:
+        try:
+            more = read_game(data_folder, game_id, start=offset, count=1000)
+        except (KeyError, ValueError, OSError):
+            break
+        more_frames = more.get("frames")
+        if not isinstance(more_frames, list) or not more_frames:
+            break
+        batch_frames = [f for f in more_frames if isinstance(f, dict)]
+        if not batch_frames:
+            break
+        frames.extend(batch_frames)
+        offset += len(more_frames)
+
     # Scan frames for turn count and candidate cards in hand / cast
     max_turn = 0
     offered_cards: set[str] = set()
     cast_cards: dict[str, int] = {}
     first_cast_round: dict[str, int] = {}
 
-    frames = data.get("frames")
-    if isinstance(frames, list):
-        for frame in frames:
-            if not isinstance(frame, dict):
-                continue
-            turn = frame.get("turn")
-            if isinstance(turn, int) and turn > max_turn:
-                max_turn = turn
+    for frame in frames:
+        turn = frame.get("turn")
+        if isinstance(turn, int) and turn > max_turn:
+            max_turn = turn
 
-            # If actor is candidate seat, extract hand cards
-            seat = frame.get("seat")
-            players = frame.get("players")
-            if isinstance(players, list) and len(players) > candidate_seat:
-                c_player = players[candidate_seat]
-                if isinstance(c_player, dict):
-                    hand = c_player.get("hand")
-                    if isinstance(hand, list):
-                        for c in hand:
-                            if isinstance(c, str) and c and c != "(verdeckt)":
-                                offered_cards.add(c)
+        # If actor is candidate seat, extract hand cards
+        seat = frame.get("seat")
+        c_player = _player_for_seat(frame.get("players"), candidate_seat)
+        if c_player is not None:
+            hand = c_player.get("hand")
+            if isinstance(hand, list):
+                for c in hand:
+                    if isinstance(c, str) and c and c != "(verdeckt)":
+                        offered_cards.add(c)
 
-            # Check if candidate seat made a cast decision
-            if seat == candidate_seat:
-                dc = frame.get("decision_class")
-                chosen = frame.get("chosen")
-                source = frame.get("source")
-                if dc in {"play_land", "cast_spell"} and isinstance(chosen, list):
-                    for item in chosen:
-                        if isinstance(item, str) and item:
-                            card_name = item.split(" (")[0].strip()
-                            cast_cards[card_name] = cast_cards.get(card_name, 0) + 1
-                            if card_name not in first_cast_round and isinstance(turn, int):
-                                first_cast_round[card_name] = turn
-                elif isinstance(source, str) and source and dc in {"cast_spell", "play_land"}:
-                    cast_cards[source] = cast_cards.get(source, 0) + 1
-                    if source not in first_cast_round and isinstance(turn, int):
-                        first_cast_round[source] = turn
+        # Check if candidate seat made a cast decision
+        if seat == candidate_seat:
+            dc = frame.get("decision_class")
+            chosen = frame.get("chosen")
+            source = frame.get("source")
+            if dc in {"play_land", "cast_spell"} and isinstance(chosen, list):
+                for item in chosen:
+                    if isinstance(item, str) and item:
+                        card_name = item.split(" (")[0].strip()
+                        cast_cards[card_name] = cast_cards.get(card_name, 0) + 1
+                        if card_name not in first_cast_round and isinstance(turn, int):
+                            first_cast_round[card_name] = turn
+            elif isinstance(source, str) and source and dc in {"cast_spell", "play_land"}:
+                cast_cards[source] = cast_cards.get(source, 0) + 1
+                if source not in first_cast_round and isinstance(turn, int):
+                    first_cast_round[source] = turn
 
     card_telemetry: dict[str, dict[str, object]] = {}
     for card in offered_cards | set(cast_cards.keys()):
@@ -219,6 +398,13 @@ def extract_game_log_telemetry(
             "cast_count": cast_cards.get(card, 0),
             "first_cast_round": first_cast_round.get(card),
         }
+
+    resolved_plan = _resolve_seat_plan(hdr, candidate_seat, deck_plan)
+    plan_telemetry = (
+        _compute_plan_telemetry(resolved_plan, frames, candidate_seat, offered_cards, cast_cards)
+        if resolved_plan is not None
+        else {}
+    )
 
     return GameSummary(
         game_id=game_id,
@@ -235,7 +421,45 @@ def extract_game_log_telemetry(
         bridge_qualification_state=bridge_qualification_state,
         covered_by_sealed_epoch=covered_by_sealed_epoch,
         observed_cards=card_telemetry,
+        plan_telemetry=plan_telemetry,
     )
+
+
+def _aggregate_plan_summary(
+    successful: Sequence[GameSummary],
+) -> dict[str, object] | None:
+    planned = [g for g in successful if g.plan_telemetry.get("has_plan")]
+    if not planned:
+        return None
+    planned_n = len(planned)
+    assembled_n = sum(1 for g in planned if g.plan_telemetry.get("combo_assembled"))
+    deployed_n = sum(1 for g in planned if g.plan_telemetry.get("combo_deployed"))
+    role_summary: dict[str, dict[str, object]] = {}
+    for role in ("combo_card", "key_card", "engine", "answer"):
+        offered_sum = 0
+        cast_sum = 0
+        for g in planned:
+            roles_map = g.plan_telemetry.get("roles")
+            if isinstance(roles_map, Mapping):
+                entry = roles_map.get(role)
+                if isinstance(entry, Mapping):
+                    offered_sum += _as_int(entry.get("offered"), 0)
+                    cast_sum += _as_int(entry.get("cast"), 0)
+        role_summary[role] = {
+            "offered_total": offered_sum,
+            "cast_total": cast_sum,
+            "cast_after_offer_rate": round(cast_sum / offered_sum, 4) if offered_sum > 0 else None,
+        }
+    return {
+        "data_class": DataClass.SIMULATED_RESULT.value,
+        "games_with_plan": planned_n,
+        "games_completed": len(successful),
+        "combo_assembled_games": assembled_n,
+        "combo_deployed_games": deployed_n,
+        "combo_assembly_rate": round(assembled_n / planned_n, 4),
+        "combo_deployment_rate": round(deployed_n / planned_n, 4),
+        "roles": role_summary,
+    }
 
 
 def aggregate_batch_results(
@@ -308,7 +532,7 @@ def aggregate_batch_results(
             }
         )
 
-    return {
+    result_payload: dict[str, object] = {
         "games_planned": len(games),
         "games_completed": completed_count,
         "games_failed": len(failed),
@@ -328,6 +552,10 @@ def aggregate_batch_results(
         "covered_by_sealed_epoch": covered_by_sealed_epoch,
         "cards": cards_summary,
     }
+    plan_summary = _aggregate_plan_summary(successful)
+    if plan_summary is not None:
+        result_payload["plan_summary"] = plan_summary
+    return result_payload
 
 
 def save_batch_to_store(

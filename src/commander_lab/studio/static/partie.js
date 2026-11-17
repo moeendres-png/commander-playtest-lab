@@ -256,18 +256,37 @@ function showList(title, names) {
 }
 function showDeckPlan(title, plan) {
   const box = $("modal-box"); box.textContent = "";
-  box.append(
+  const combos = Array.isArray(plan.combos) ? plan.combos : [];
+  const winAxes = Array.isArray(plan.win_axes) ? plan.win_axes : [];
+  const tutors = Array.isArray(plan.tutor_priorities) ? plan.tutor_priorities : [];
+  const protect = Array.isArray(plan.protection_targets) ? plan.protection_targets : [];
+  const details = h("div", { class: "plan-details" },
+    h("p", null, h("b", null, "Fokus: "), plan.focus || "–"),
+    h("p", null, h("b", null, "Gewinn-Plan: "), plan.win_condition || "–"),
+    winAxes.length ? h("p", null, h("b", null, "Gewinn-Achsen: "), winAxes.join(" · ")) : null,
+    h("p", null, h("b", null, "Motoren: "), (plan.engines || []).join(", ") || "–"),
+    h("p", null, h("b", null, "Antworten: "), (plan.answers || []).join(", ") || "–"),
+    plan.key_cards && plan.key_cards.length ? h("p", null, h("b", null, "Schlüsselkarten: "), plan.key_cards.join(", ")) : null,
+    tutors.length ? h("p", null, h("b", null, "Tutor-Priorität: "), tutors.slice(0, 8).join(", ")) : null,
+    protect.length ? h("p", null, h("b", null, "Schutz-Ziele: "), protect.slice(0, 8).join(", ")) : null
+  );
+  const children = [
     h("h2", null, `Spielplan (${title})`),
     h("p", { class: "muted" }, `Herkunft: ${plan.provenance || "abgeleitet, nicht gemessen"}`),
-    h("div", { class: "plan-details" },
-      h("p", null, h("b", null, "Fokus: "), plan.focus || "–"),
-      h("p", null, h("b", null, "Gewinn-Plan: "), plan.win_condition || "–"),
-      h("p", null, h("b", null, "Motoren: "), (plan.engines || []).join(", ") || "–"),
-      h("p", null, h("b", null, "Antworten: "), (plan.answers || []).join(", ") || "–"),
-      plan.key_cards && plan.key_cards.length ? h("p", null, h("b", null, "Schlüsselkarten: "), plan.key_cards.join(", ")) : null
-    ),
-    h("p", null, h("button", { type: "button", onclick: () => { $("modal").hidden = true; } }, "Schließen"))
-  );
+    details
+  ];
+  if (combos.length) {
+    children.push(
+      h("h3", null, `Combo-Linien (${combos.length})`),
+      h("ul", null, combos.slice(0, 12).filter((combo) => combo && typeof combo === "object").map((combo) => {
+        const cardsText = Array.isArray(combo.cards) ? combo.cards.join(" + ") : "";
+        const resultText = combo.result ? ` → ${combo.result}` : "";
+        return h("li", null, `${cardsText}${resultText}`);
+      }))
+    );
+  }
+  children.push(h("p", null, h("button", { type: "button", onclick: () => { $("modal").hidden = true; } }, "Schließen")));
+  box.append(...children);
   $("modal").hidden = false;
 }
 

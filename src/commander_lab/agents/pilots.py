@@ -300,6 +300,21 @@ def _game_round(state: PilotStateView) -> int:
     return (max(1, state.turn) - 1) // max(1, state.pod_size) + 1
 
 
+_SHORT_ID_SUFFIX_RE = re.compile(r"\s+\[[0-9a-fA-F]{3,8}\]\Z")
+
+
+def _norm_plan_name(name: str) -> str:
+    stripped = _SHORT_ID_SUFFIX_RE.sub("", name.strip())
+    return stripped.split(" // ", 1)[0].strip().casefold()
+
+
+def _plan_name_set(plan: Mapping[str, object], key: str) -> frozenset[str]:
+    raw = plan.get(key)
+    if not isinstance(raw, (list, tuple, set, frozenset)):
+        return frozenset()
+    return frozenset(_norm_plan_name(str(item)) for item in raw if isinstance(item, str) and item)
+
+
 class BasePilot:
     """Pure structural action evaluator.
 
@@ -313,6 +328,7 @@ class BasePilot:
         self.policy = _STRENGTH_POLICIES[self.config.strength]
         self.style = self.config.style
         self.deck_plan = self.config.deck_plan
+        self._init_deck_plan_index(self.deck_plan)
         if self.config.weights is not None:
             self.weights = self.config.weights
         elif self.config.style is not None:
@@ -335,6 +351,122 @@ class BasePilot:
             self.reserve_mana_target = style_reserve_mana(self.config.style)
         else:
             self.reserve_mana_target = self.policy.reserve_mana_target
+
+    def _init_deck_plan_index(self, plan: Mapping[str, object] | None) -> None:
+        self._plan_engines: frozenset[str] = frozenset()
+        self._plan_answers: frozenset[str] = frozenset()
+        self._plan_key_cards: frozenset[str] = frozenset()
+        self._plan_combo_cards: frozenset[str] = frozenset()
+        self._plan_protection_targets: frozenset[str] = frozenset()
+        self._plan_tutor_rank: dict[str, int] = {}
+        self._plan_combo_partners: dict[str, frozenset[str]] = {}
+        self._plan_combos: tuple[frozenset[str], ...] = ()
+        self._plan_combos_by_card: dict[str, tuple[frozenset[str], ...]] = {}
+        self._plan_active = False
+        if not isinstance(plan, Mapping):
+            return
+
+        self._plan_engines = _plan_name_set(plan, "engines")
+        self._plan_answers = _plan_name_set(plan, "answers")
+        self._plan_key_cards = _plan_name_set(plan, "key_cards")
+        self._plan_protection_targets = _plan_name_set(plan, "protection_targets")
+
+        combo_sets: list[frozenset[str]] = []
+        raw_combos = plan.get("combos")
+        if isinstance(raw_combos, (list, tuple)):
+            for entry in raw_combos:
+                if not isinstance(entry, Mapping):
+                    continue
+                cards = entry.get("cards")
+                if not isinstance(cards, (list, tuple)):
+                    continue
+                folded = frozenset(
+                    _norm_plan_name(str(c)) for c in cards if isinstance(c, str) and c.strip()
+                )
+                if len(folded) >= 2:
+                    combo_sets.append(folded)
+        self._plan_combos = tuple(combo_sets)
+
+        combo_cards_folded = set(_plan_name_set(plan, "combo_cards"))
+        partners_acc: dict[str, set[str]] = {}
+        raw_partners = plan.get("combo_partners")
+        if isinstance(raw_partners, Mapping):
+            for card, partners in raw_partners.items():
+                if not isinstance(card, str) or not isinstance(partners, (list, tuple)):
+                    continue
+                ckey = _norm_plan_name(card)
+                pset = {
+                    _norm_plan_name(str(p)) for p in partners if isinstance(p, str) and p.strip()
+                }
+                if ckey and pset:
+                    partners_acc.setdefault(ckey, set()).update(pset)
+                    combo_cards_folded.add(ckey)
+
+        by_card_acc: dict[str, list[frozenset[str]]] = {}
+        for cset in self._plan_combos:
+            for ckey in cset:
+                combo_cards_folded.add(ckey)
+                by_card_acc.setdefault(ckey, []).append(cset)
+                partners_acc.setdefault(ckey, set()).update(cset - {ckey})
+
+        self._plan_combo_cards = frozenset(combo_cards_folded)
+        self._plan_combo_partners = {k: frozenset(v) for k, v in partners_acc.items()}
+        self._plan_combos_by_card = {k: tuple(v) for k, v in by_card_acc.items()}
+
+        tutor_rank: dict[str, int] = {}
+        raw_tutors = plan.get("tutor_priorities")
+        if isinstance(raw_tutors, (list, tuple)) and raw_tutors:
+            for item in raw_tutors:
+                if isinstance(item, str) and item.strip():
+                    norm = _norm_plan_name(item)
+                    if norm and norm not in tutor_rank:
+                        tutor_rank[norm] = len(tutor_rank)
+        else:
+            for card_name in (
+                *sorted(self._plan_combo_cards),
+                *sorted(self._plan_key_cards),
+                *sorted(self._plan_engines),
+                *sorted(self._plan_answers),
+            ):
+                if card_name not in tutor_rank:
+                    tutor_rank[card_name] = len(tutor_rank)
+        self._plan_tutor_rank = tutor_rank
+
+        if not self._plan_protection_targets:
+            self._plan_protection_targets = self._plan_combo_cards | self._plan_key_cards
+
+        self._plan_active = bool(
+            self._plan_engines
+            or self._plan_answers
+            or self._plan_key_cards
+            or self._plan_combo_cards
+            or self._plan_protection_targets
+            or self._plan_tutor_rank
+            or self._plan_combos
+        )
+
+    def plan_library_search_rank(
+        self, card_name: str, visible_folded: frozenset[str]
+    ) -> tuple[int, int]:
+        """O(1) ranking key for an engine-offered library card during a tutor/search."""
+        if not self._plan_active:
+            return (0, 0)
+        folded = _norm_plan_name(card_name)
+        if not folded:
+            return (0, 0)
+        rank = self._plan_tutor_rank.get(folded, 999)
+        if folded not in visible_folded:
+            combos = self._plan_combos_by_card.get(folded, ())
+            if any((combo - {folded}) <= visible_folded for combo in combos):
+                return (4, -rank)
+            partners = self._plan_combo_partners.get(folded, frozenset())
+            if partners & visible_folded:
+                return (3, -rank)
+            if folded in self._plan_combo_cards:
+                return (2, -rank)
+        if folded in self._plan_tutor_rank:
+            return (1, -rank)
+        return (0, 0)
 
     def default_weights(self, strength: PilotStrength) -> PilotUtilityWeights:
         return _GENERIC_WEIGHTS[strength]
@@ -445,8 +577,30 @@ class BasePilot:
         cards: list[PilotActionView],
         commander_names: tuple[str, ...],
     ) -> float:
-        del cards, commander_names
-        return 0.0
+        if not self._plan_active:
+            return 0.0
+        lands = 0
+        non_land_folded: set[str] = set()
+        key_hits = 0
+        combo_hits = 0
+        for card in cards:
+            if bool(card.metadata.get("is_land", False)):
+                lands += 1
+                continue
+            folded = _norm_plan_name(card.card_name)
+            if not folded:
+                continue
+            non_land_folded.add(folded)
+            if folded in self._plan_combo_cards:
+                combo_hits += 1
+            elif folded in self._plan_key_cards or folded in self._plan_engines:
+                key_hits += 1
+        bonus = min(0.90, combo_hits * 0.30 + key_hits * 0.25)
+        if lands >= 2 and self._plan_combos:
+            accessible = non_land_folded | {_norm_plan_name(c) for c in commander_names}
+            if any(combo <= accessible for combo in self._plan_combos):
+                bonus += 0.75
+        return bonus
 
     def should_keep_opening_hand(
         self,
@@ -555,6 +709,14 @@ class BasePilot:
             value += card.strength(CardRole.PROTECTION) * 0.35
         value -= max(0.0, card.mana_cost - 4.0) * 0.45
         value -= card.turn_cycle_risk * 0.25
+        if self._plan_active:
+            folded = _norm_plan_name(card.card_name)
+            if folded in self._plan_combo_cards:
+                value += 0.85
+            elif folded in self._plan_key_cards:
+                value += 0.55
+            elif folded in self._plan_engines:
+                value += 0.35
         return value
 
     def evaluate_action(
@@ -955,7 +1117,7 @@ class BasePilot:
         if StructuralMechanic.COMMANDER_INDEPENDENT in mechanics:
             rebuild_capacity += state.commander_denial_risk * 0.35
 
-        return {
+        components = {
             "survival": survival,
             "mana_efficiency": mana_efficiency,
             "card_advantage": card_advantage,
@@ -968,6 +1130,72 @@ class BasePilot:
             "political_visibility": political_visibility,
             "rebuild_capacity": rebuild_capacity,
         }
+        if self._plan_active:
+            self._apply_deck_plan_components(
+                state, action, components, interaction_in_hand=interaction_in_hand
+            )
+        return components
+
+    def _apply_deck_plan_components(
+        self,
+        state: PilotStateView,
+        action: PilotActionView,
+        components: dict[str, float],
+        *,
+        interaction_in_hand: int,
+    ) -> None:
+        if action.action_kind == "pass":
+            if interaction_in_hand and self._plan_protection_targets:
+                on_board = {_norm_plan_name(n) for n in state.battlefield_names} | {
+                    _norm_plan_name(c.name) for c in state.commanders if c.on_battlefield
+                }
+                if on_board & self._plan_protection_targets:
+                    components["interaction_reserve"] += 0.25
+            return
+
+        name = _norm_plan_name(action.card_name)
+        if not name:
+            return
+
+        if action.action_kind == "protection":
+            if (
+                bool(action.metadata.get("target_is_actor_controlled", False))
+                and name in self._plan_protection_targets
+            ):
+                components["survival"] += 0.90
+            return
+
+        if action.action_kind not in {"card", "commander"}:
+            return
+
+        combos = self._plan_combos_by_card.get(name, ())
+        if combos:
+            board_cmd = {_norm_plan_name(n) for n in state.battlefield_names} | {
+                _norm_plan_name(c.name) for c in state.commanders if c.on_battlefield
+            }
+            all_known = (
+                board_cmd
+                | {_norm_plan_name(n) for n in state.hand_names}
+                | {_norm_plan_name(c.name) for c in state.commanders}
+            )
+            if any((combo - {name}) <= board_cmd for combo in combos):
+                components["win_progress"] += 3.2
+            elif any((combo - {name}) <= all_known for combo in combos):
+                components["win_progress"] += 1.6
+                components["engine_development"] += 0.60
+            elif self._plan_combo_partners.get(name, frozenset()) & all_known:
+                components["engine_development"] += 0.75
+            else:
+                components["engine_development"] += 0.30
+
+        if name in self._plan_key_cards:
+            components["engine_development"] += 0.45
+        if name in self._plan_engines:
+            components["engine_development"] += 0.35
+        if name in self._plan_answers and (
+            state.max_opponent_threat >= 6.0 or state.stack_pressure > 0.0
+        ):
+            components["threat_reduction"] += 0.30
 
     @staticmethod
     def _logistic(value: float) -> float:

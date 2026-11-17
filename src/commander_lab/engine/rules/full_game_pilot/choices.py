@@ -11,6 +11,7 @@ from collections.abc import Mapping
 from typing import Any
 
 from commander_lab.agents.card_knowledge import card_facts
+from commander_lab.agents.pilots import _norm_plan_name
 from commander_lab.models import (
     PilotActionView,
     PilotDecision,
@@ -303,6 +304,9 @@ class _ChoiceDecisions(_PaymentDecisions):
         by_score = ranked
         ranked = self._rank_land_search(ranked, built, state, rng, max_selections)
         searched = ranked is not by_score
+        if not searched:
+            ranked = self._rank_plan_library_search(runtime, state, built, ranked)
+            searched = ranked is not by_score
         ranked = self._rank_own_hand_discard(runtime, state, outcome, built, ranked)
         if not searched and ranked is by_score:
             ranked = self._equal_scores_by_rng(ranked, rng)
@@ -434,6 +438,68 @@ class _ChoiceDecisions(_PaymentDecisions):
         )
         position = {name: index for index, name in enumerate(dict.fromkeys(order))}
         return sorted(ranked, key=lambda item: position.get(names.get(item[2], ""), len(position)))
+
+    @staticmethod
+    def _rank_plan_library_search(
+        runtime: _RuntimePilot,
+        state: Mapping[str, object],
+        built: list[tuple[dict[str, object], PilotActionView]],
+        ranked: list[tuple[float, str, str]],
+    ) -> list[tuple[float, str, str]]:
+        """Rank engine-offered library targets by the pilot's pre-indexed DeckPlan.
+
+        Strictly reorders already-legal XMage options using only the acting seat's
+        visible zones (hand, battlefield, command, graveyard) plus precomputed plan
+        priorities (completing combos > combo pieces > tutor priorities > other).
+        """
+        if not getattr(runtime.pilot, "_plan_active", False) or len(built) < 2:
+            return ranked
+        names: dict[str, str] = {}
+        for option, action in built:
+            meta = option.get("metadata")
+            if not isinstance(meta, dict) or meta.get("zone") != "library":
+                return ranked
+            name = str(meta.get("name") or option.get("label") or "")
+            names[action.action_id] = name
+
+        actor_id = str(state.get("actor_id") or "")
+        actor_seat = state.get("seat")
+        visible: set[str] = set()
+        players = state.get("players")
+        if isinstance(players, list):
+            for player in players:
+                if not isinstance(player, Mapping):
+                    continue
+                is_actor = (
+                    str(player.get("player_id") or "") == actor_id
+                    if actor_id
+                    else (actor_seat is not None and player.get("seat") == actor_seat)
+                )
+                if not is_actor:
+                    continue
+                for zone in ("hand", "battlefield", "command", "graveyard"):
+                    items = player.get(zone)
+                    if not isinstance(items, list):
+                        continue
+                    for item in items:
+                        if isinstance(item, Mapping):
+                            raw_name = item.get("name")
+                            if isinstance(raw_name, str) and raw_name:
+                                norm = _norm_plan_name(raw_name)
+                                if norm:
+                                    visible.add(norm)
+        visible_folded = frozenset(visible)
+        ranks = {
+            aid: runtime.pilot.plan_library_search_rank(card_name, visible_folded)
+            for aid, card_name in names.items()
+        }
+        if not any(rank != (0, 0) for rank in ranks.values()):
+            return ranked
+        return sorted(
+            ranked,
+            key=lambda item: (*ranks.get(item[2], (0, 0)), item[0], item[1], item[2]),
+            reverse=True,
+        )
 
     def _decide_semantic_option(
         self,
