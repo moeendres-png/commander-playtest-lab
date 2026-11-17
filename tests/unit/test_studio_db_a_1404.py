@@ -350,7 +350,8 @@ def test_source_freshness_coalesce_and_status_endpoint(tmp_path: Path) -> None:
 def test_status_freshness_ignores_identifier_labels_and_lists_layers(tmp_path: Path) -> None:
     """``universe:*`` snapshot labels are identifiers, not dates: they never enter the
     oldest/newest span (a text max would have answered ``universe:e``) and are counted apart.
-    The per-layer table says "n datiert von N" and never invents a date for an undated layer."""
+    Other non-dates ("2026-11", "2026-13-45") are undated, not identifiers. Quelldecks are the
+    sources a corpus deck names, never a plain ``name.json``."""
     store = StudioStore.open(tmp_path / "studio")
     rows = [
         ("11354052.json", "2025-02-13"),
@@ -361,6 +362,10 @@ def test_status_freshness_ignores_identifier_labels_and_lists_layers(tmp_path: P
         ("playgroup_atlas:playgroup_card_atlas_1.jsonl", None),
         ("spellbook_shells.csv", None),
         ("card_rulings_1655.jsonl", None),
+        ("snap.json", "2026-10-01"),
+        ("scryfall_oracle.json", "2026-11"),
+        ("default-cards.json", "2026-13-45"),
+        ("other.json", "12.11.2026"),
     ]
     with store.connection:
         for index, (title, snapshot) in enumerate(rows):
@@ -370,15 +375,30 @@ def test_status_freshness_ignores_identifier_labels_and_lists_layers(tmp_path: P
                 sha256=hashlib.sha256(str(index).encode()).hexdigest(),
                 snapshot_date=snapshot,
             )
+        for deck_index, title in enumerate(("11354052.json", "AbCdEfGhIjKlMnOpQrSt12.json")):
+            source_id = store.connection.execute(
+                "SELECT source_id FROM source WHERE title = ?", (title,)
+            ).fetchone()[0]
+            store.connection.execute(
+                "INSERT INTO corpus_deck (deck_id, cohort, url, platform, play_group, tags, "
+                "fingerprint, legality_audit, source_id) "
+                "VALUES (?, 'all', ?, 'edhrec', 'community', '[]', ?, 'LEGAL', ?)",
+                (
+                    f"d{deck_index}",
+                    f"https://example.invalid/{deck_index}",
+                    f"fp{deck_index}",
+                    source_id,
+                ),
+            )
     store.close()
 
     body = TestClient(create_app(tmp_path / "studio")).get("/api/status").json()
     assert body["freshness"] == {
-        "total_sources": 8,
-        "with_snapshot_date": 3,
+        "total_sources": 12,
+        "with_snapshot_date": 4,
         "with_identifier": 2,
         "oldest_snapshot": "2025-02-13",
-        "newest_snapshot": "2026-09-17",
+        "newest_snapshot": "2026-10-01",
     }
     layers = {row["layer"]: row for row in body["source_layers"]}
     assert layers["Quelldecks"] == {
@@ -390,6 +410,10 @@ def test_status_freshness_ignores_identifier_labels_and_lists_layers(tmp_path: P
         "newest": "2026-05-06",
         "undated_note": None,
     }
+    # plain ``name.json`` files without a corpus deck are not source decks
+    others = layers["Weitere Quellen"]
+    assert (others["sources"], others["dated"], others["with_identifier"]) == (4, 1, 0)
+    assert (others["oldest"], others["newest"]) == ("2026-10-01", "2026-10-01")
     cohorts = layers["Universum-Kohorten"]
     assert (cohorts["sources"], cohorts["dated"], cohorts["with_identifier"]) == (2, 0, 2)
     assert (cohorts["oldest"], cohorts["newest"]) == (None, None)
@@ -398,8 +422,9 @@ def test_status_freshness_ignores_identifier_labels_and_lists_layers(tmp_path: P
         assert layers[undated]["oldest"] is None
     assert layers["TopDeck / EDHTop16"]["newest"] == "2026-09-17"
     assert not any("universe:" in str(value) for value in (body["freshness"], body["sources"]))
-    # every source is in exactly one layer
-    assert sum(row["sources"] for row in body["source_layers"]) == 8
+    # every source is in exactly one layer; the sample holds only counted dated rows
+    assert sum(row["sources"] for row in body["source_layers"]) == 12
+    assert len(body["sources"]) == body["freshness"]["with_snapshot_date"]
 
 
 def test_status_payload_carries_only_the_newest_dated_sources(tmp_path: Path) -> None:

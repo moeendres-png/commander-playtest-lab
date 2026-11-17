@@ -75,7 +75,7 @@ from .decks import (
 from .images import image_cache_status, public_card, web_image_url, web_image_url_by_name
 from .launch import MAX_GAMES_PER_JVM, MAX_WORKERS, MIN_GAMES_PER_JVM, MIN_WORKERS
 from .source_layers import freshness as source_freshness
-from .source_layers import source_layers
+from .source_layers import recent_dated_sources, source_layers
 from .sources import source_inventory_payload
 from .store import StudioStore, studio_data_dir
 from .universe import UnknownUniverseCards
@@ -457,16 +457,7 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         try:
             # Only the newest dated rows travel with the page load (the full list was 1.7 MB);
             # the per-layer table in ``source_layers`` carries the counts of all of them.
-            recent = [
-                dict(row)
-                for row in store.connection.execute(
-                    "SELECT title, data_class, SUBSTR(sha256, 1, 12) AS sha256, "
-                    "snapshot_date, imported_at FROM source "
-                    "WHERE snapshot_date GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]*' "
-                    "ORDER BY imported_at DESC LIMIT 25"
-                )
-            ]
-            recent.reverse()
+            recent = recent_dated_sources(store.connection, 25)
             return {
                 "bridge_qualification": bridge_qualification(),
                 "cards": store.count("card"),

@@ -1,17 +1,19 @@
 """Source freshness per source layer: counts and real dates read from the ``source`` table.
 
-Only a real ISO date (``YYYY-MM-DD`` with an optional time) counts as a date. Other snapshot
-labels (``universe:<id>``) are identifiers, not dates: they are counted apart and never enter
-the oldest/newest span. A layer without any real date says so; no date is ever invented."""
+Only a real calendar date (``YYYY-MM-DD`` with an optional time) counts as a date. A
+``universe:<id>`` label is an identifier: counted apart, never part of the oldest/newest span.
+Any other snapshot text ("2026-11", "12.11.2026") cannot be evaluated and counts as undated. A
+layer without any real date says so; no date is ever invented. The date is what the importer
+registered (file name or default), not checked against the content."""
 
 from __future__ import annotations
 
+import datetime
 import re
 import sqlite3
 from typing import TypedDict
 
 _ISO_DATE = re.compile(r"^\d{4}-\d{2}-\d{2}(?:[T ].*)?$")
-_DECK_FILE = re.compile(r"^[A-Za-z0-9_-]+\.json$")
 
 # (layer label, title test) in the order shown; the first matching rule wins.
 LAYER_ORDER = (
@@ -42,16 +44,55 @@ class SourceLayer(TypedDict):
 
 
 def is_iso_date(value: object) -> bool:
-    """True only for a real calendar-shaped date string (``2026-11-12``, ``2026-11-12T10:00``)."""
-    return isinstance(value, str) and _ISO_DATE.match(value) is not None
+    """True only for a real calendar date (``2026-11-12``, ``2026-11-12T10:00``); ``2026-13-45``,
+    ``2026-11`` and ``12.11.2026`` are not."""
+    if not isinstance(value, str) or _ISO_DATE.match(value) is None:
+        return False
+    try:
+        datetime.date.fromisoformat(value[:10])
+    except ValueError:
+        return False
+    return True
+
+
+def is_identifier(value: object) -> bool:
+    """A ``universe:<id>`` label: an identifier, not a date."""
+    return isinstance(value, str) and value.startswith("universe:")
 
 
 def date_part(value: str) -> str:
     return value[:10]
 
 
-def layer_of(title: str) -> str:
-    """The source layer of a source row, derived from its title (what the importers register)."""
+def recent_dated_sources(connection: sqlite3.Connection, limit: int = 25) -> list[dict[str, str]]:
+    """The ``limit`` newest-imported sources with a real date (oldest first), a sample for the
+    page, never the full list. Same date check as the layer counts; ties by ``source_id``."""
+    found: list[dict[str, str]] = []
+    for title, data_class, sha, snapshot, imported in connection.execute(
+        "SELECT title, data_class, SUBSTR(sha256, 1, 12), snapshot_date, imported_at "
+        "FROM source WHERE snapshot_date IS NOT NULL ORDER BY imported_at DESC, source_id"
+    ):
+        if is_iso_date(snapshot):
+            found.append(
+                {
+                    "title": str(title),
+                    "data_class": str(data_class),
+                    "sha256": str(sha),
+                    "snapshot_date": str(snapshot),
+                    "imported_at": str(imported),
+                }
+            )
+            if len(found) >= limit:
+                break
+    found.reverse()
+    return found
+
+
+def layer_of(title: str, *, is_corpus_deck: bool = False) -> str:
+    """The source layer of a source row: ``Quelldecks`` by observation (a deck row of the corpus
+    names the source), everything else by the title the importer registered."""
+    if is_corpus_deck:
+        return "Quelldecks"
     name = title.casefold()
     if "#universe:" in name:
         return "Universum-Kohorten"
@@ -75,8 +116,6 @@ def layer_of(title: str) -> str:
         return "Sammlung"
     if name.startswith(("card_tagger", "oracle.")):
         return "Scryfall-Fakten"
-    if _DECK_FILE.match(title):
-        return "Quelldecks"
     return "Weitere Quellen"
 
 
@@ -85,9 +124,12 @@ def source_layers(connection: sqlite3.Connection) -> list[SourceLayer]:
     sources carrying only an identifier, oldest/newest real date (``None`` when the layer has
     none, with ``undated_note`` saying the date is not in the store)."""
     acc: dict[str, dict[str, object]] = {}
-    for title, snapshot in connection.execute("SELECT title, snapshot_date FROM source"):
+    for title, snapshot, deck_backed in connection.execute(
+        "SELECT title, snapshot_date, source_id IN (SELECT DISTINCT source_id FROM corpus_deck) "
+        "FROM source"
+    ):
         row = acc.setdefault(
-            layer_of(str(title)),
+            layer_of(str(title), is_corpus_deck=bool(deck_backed)),
             {"sources": 0, "dated": 0, "ident": 0, "oldest": None, "newest": None},
         )
         row["sources"] = int(str(row["sources"])) + 1
@@ -98,7 +140,7 @@ def source_layers(connection: sqlite3.Connection) -> list[SourceLayer]:
                 row["oldest"] = day
             if row["newest"] is None or day > str(row["newest"]):
                 row["newest"] = day
-        elif snapshot:
+        elif is_identifier(snapshot):
             row["ident"] = int(str(row["ident"])) + 1
     layers: list[SourceLayer] = []
     for label in LAYER_ORDER:
@@ -130,7 +172,7 @@ def freshness(connection: sqlite3.Connection) -> dict[str, object]:
         total += 1
         if is_iso_date(snapshot):
             dated.append(date_part(str(snapshot)))
-        elif snapshot:
+        elif is_identifier(snapshot):
             ident += 1
     return {
         "total_sources": total,

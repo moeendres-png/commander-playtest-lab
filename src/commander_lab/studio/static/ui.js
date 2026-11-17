@@ -243,7 +243,7 @@ const StudioUI = (() => {
       host.replaceChildren(el("details", { class: "datastate" },
         el("summary", {}, span),
         layerTable(),
-        el("p", { class: "note" }, "Das Datum steht in der Quelle selbst (Stand der Liste), nicht beim Import. Wo kein Datum im Store steht, wird keines angenommen.")));
+        el("p", { class: "note" }, "Datum wie beim Import eingetragen (Dateiname oder Vorgabe), nicht aus dem Inhalt geprüft. Wo kein Datum im Store steht, wird keines angenommen.")));
       return;
     }
     const rows = overview.layers.map((layer) => el("tr", {},

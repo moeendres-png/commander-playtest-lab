@@ -830,6 +830,28 @@ def test_cooccurrence_commander_level_work_is_remembered_and_equals_uncached(
             direct = deck_sets(store, _cohort_ids(store, cohort), spelling_owners(store))
             assert size == len(_cohort_ids(store, cohort))
             assert sets == direct
+
+        # A write moves the store state: the warm answer is not served any more.
+        bounce_name = store.connection.execute(
+            "SELECT oracle_name FROM card_fact WHERE card_id = 'c-bounce'"
+        ).fetchone()[0]
+        _add_corpus_deck(
+            store, "d-b4-new", COMMANDER, ("bracket:4",), [bounce_name, "Rhystic Study"]
+        )
+        for cohort, expected_decks in (("all", 9), ("tuned", 7), ("bracket:3", 2)):
+            after = builder.card_cooccurrence(store, "c-bounce", [COMMANDER], cohort=cohort)
+            assert after["cohort_decks"] == expected_decks
+            size, sets = builder._cohort_deck_sets(store, [COMMANDER], cohort)
+            assert size == expected_decks
+            assert sets == deck_sets(store, _cohort_ids(store, cohort), spelling_owners(store))
+        assert (
+            builder.card_cooccurrence(store, "c-bounce", [COMMANDER], cohort="tuned")["card_decks"]
+            == 7
+        )
+
+        # A commander without any source deck has no counts (unknown, never a made-up zero share).
+        none = builder.card_cooccurrence(store, "c-bounce", ["Nobody Here"])
+        assert (none["cohort_decks"], none["card_decks"], none["cards"]) == (0, 0, [])
     finally:
         store.close()
 

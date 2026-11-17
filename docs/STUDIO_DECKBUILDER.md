@@ -1475,12 +1475,12 @@ the strength index, the rating layers or any evidence figure (`archetype_label` 
 
 The data-state box shows one line per source layer (Quelldecks, EDHREC Commander and Bracket,
 Playgroup, TopDeck / EDHTop16, Universum-Kohorten, Spellbook, Scryfall-Fakten, Rulings, Rollen,
-Sammlung) from the `source` table (`source_layers.py`; the layer follows the registered file
+Sammlung, Weitere Quellen) from the `source` table (`source_layers.py`; Quelldecks are the sources a corpus deck row names, the other layers follow the registered file
 title): `n datiert von N` and the oldest/newest real date. Only a real ISO date counts as a
 date; labels such as `universe:<id>` are identifiers, counted apart ("nur mit Kennung") and
 never part of the span. A layer without any date in the store says "Datum nicht im Store";
-no date is invented and nothing is called fresh. The date is the one written into the source,
-not the import time. `GET /api/status` returns these counts plus only the 25 newest dated rows
+no date is invented and nothing is called fresh. The date is what the importer registered (file name or default), not checked against the
+content. Other snapshot text ("2026-11") is not evaluable and counts as undated. `GET /api/status` returns these counts plus `sources`: the 25 newest dated rows (a sample, not the full list)
 (it carried all 10,665 rows, 1.7 MB, on every page load; now about 7 KB). The card window's
 commander-level co-occurrence pass is remembered per store state, commander list and cohort
 (`builder._cohort_deck_sets`, sharing `corpus_deck_sets`), so the second open of a card is a
