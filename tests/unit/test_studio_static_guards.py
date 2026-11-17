@@ -125,3 +125,18 @@ def test_deck_browser_reset_returns_to_the_source_only_default() -> None:
     html = (STATIC / "decks.html").read_text(encoding="utf-8")
     select = html.split('<select id="db-origin">', 1)[1].split("</select>", 1)[0]
     assert select.strip().startswith('<option value="source">')  # first option = the default
+
+
+def test_small_window_filter_fold_and_compact_evidence_panel() -> None:
+    """The second filter row folds behind a toggle with an active-filter chip, the evidence panel
+    starts with the compact columns, and a stored column choice still wins."""
+    index = (STATIC / "index.html").read_text(encoding="utf-8")
+    app = (STATIC / "app.js").read_text(encoding="utf-8")
+    evidence = (STATIC / "deckevidence.js").read_text(encoding="utf-8")
+    ui = (STATIC / "ui.js").read_text(encoding="utf-8")
+    assert 'id="filter-toggle"' in index and 'id="filters-more"' in index
+    assert 'id="filter-count"' in index
+    assert "studio.builder.filters-open" in app and "updateFilterChip" in app
+    assert "EVIDENCE_COMPACT" in evidence and "evidenceStoredColumns(allKeys, wide)" in evidence
+    assert "studio-evidence-hidden-columns" in evidence
+    assert "pill-short" in ui and "Engine-Stand noch nicht qualifiziert" in ui

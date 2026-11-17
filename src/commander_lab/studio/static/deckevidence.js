@@ -121,15 +121,19 @@ function evidenceTextTable(data, columns, cards) {
   return `${lines.join("\n")}\n\n${data.note}\n`;
 }
 
+// The narrow side panel shows only these counted columns until the Owner chooses otherwise; the
+// large view shows every column. A choice the Owner ever made (the stored memory) beats both.
+const EVIDENCE_COMPACT = ["decks_all", "decks_tuned", "fit"];
+
 // What the Owner switched off (remembered per browser). A column the memory does not know,
 // for example a tournament column that appears later, is shown.
-function evidenceStoredColumns(all) {
+function evidenceStoredColumns(all, wide = true) {
   try {
     const raw = StudioUI.recall(EVIDENCE_COLUMNS_KEY, null);
     const parsed = raw === null ? null : JSON.parse(raw);
     if (Array.isArray(parsed)) return new Set(all.filter((key) => !parsed.includes(key)));
-  } catch (error) { /* damaged memory: show everything */ }
-  return new Set(all);
+  } catch (error) { /* damaged memory: fall back to the default */ }
+  return new Set(wide ? all : all.filter((key) => EVIDENCE_COMPACT.includes(key)));
 }
 
 // The whole view (controls, table, notes) as nodes. ``wide`` is the modal version: the same data
@@ -137,7 +141,7 @@ function evidenceStoredColumns(all) {
 function buildEvidenceView(data, deps, wide) {
   const { h } = deps;
   const allKeys = data.columns.map((column) => column.key);
-  let visible = evidenceStoredColumns(allKeys);
+  let visible = evidenceStoredColumns(allKeys, wide);
   const view = evidenceView;
   const cohortLabel = deps.cohortName ? deps.cohortName(data.cohort.key) : data.cohort.key;
 
@@ -192,7 +196,7 @@ function buildEvidenceView(data, deps, wide) {
       h("thead", {}, h("tr", {},
         h("th", { scope: "col", "aria-sort": view.sortKey === "name" ? (view.descending ? "descending" : "ascending") : "none" }, sortButton("name", "Karte")),
         columns.map((column) => h("th", {
-          scope: "col", class: column.key === "roles" ? "" : "num",
+          scope: "col", class: column.key === "roles" ? "" : "num", title: headerNote(column),
           "aria-sort": view.sortKey === column.key ? (view.descending ? "descending" : "ascending") : "none",
         }, sortButton(column.key, column.label), h("div", { class: "basis" }, headerNote(column)))))),
       h("tbody", {}, rows),
