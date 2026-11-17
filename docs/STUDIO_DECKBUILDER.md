@@ -1490,6 +1490,22 @@ not part of the requirement and the cards are named. No mulligan, no extra draws
 hand figure is the exact share of 7-card hands with 2 to 4 lands and at least one nonland card
 of mana value at most 2. A description, never a land count recommendation.
 
+#### Roles in the opening hand ("Rollen in der Starthand", #1404)
+
+Next to the table, `POST /api/castability` returns `hand_roles` (`castability.hand_roles`): for
+every role that at least one deck card carries (roles from `card_role`, as in the role table),
+the exact probability (hypergeometric, no simulation) that a hand holds at least one card of the
+role, P(>= 1) = 1 - C(N-k, d) / C(N, d), and the complement P(0) = C(N-k, d) / C(N, d), with
+"Karten im Deck: k von N". N is the main deck without the commander (99 for a full list), k the
+cards carrying the role, d the hand size: 7 (opening hand, no mulligan) and 8, 9, 10 after turns
+1 to 3. The assumption is stated on the page: turn 1 draws (the starting player does not draw in
+turn 1 and reads the column one turn earlier). A card counts for every role it carries; roles are
+never added. Cards without role data are unknown, not role-less: the figures count only known role
+cards among all N cards and are therefore lower bounds, and the page names how many of the N
+cards (and of the nonland cards) carry role data; without any role data no probability is shown.
+Edges: k = 0 gives 0 % and k = N gives 100 %. No rating, no prices; marks are not read. Measured
+on the QA store copy: see the pull request description of the branch.
+
 ### Card duel ("Karten-Duell", #1404 option 3)
 
 In the card window, "Karten-Duell" sets a second pool card next to the open one
