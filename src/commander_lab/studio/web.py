@@ -1550,10 +1550,10 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
 
     @app.get("/api/revisions/{revision_id}/export")
     def export(revision_id: str, format: str = "txt") -> Response:
+        if format not in {"txt", "json", *EXPORT_TEXT_FORMATS}:
+            raise HTTPException(422, "unknown export format")
         store = open_store()
         try:
-            if format not in {"txt", "json", *EXPORT_TEXT_FORMATS}:
-                raise HTTPException(422, "unknown export format")
             if format == "json":
                 return JSONResponse(lab_snapshot(store, revision_id))
             rows = revision_rows(store, revision_id)

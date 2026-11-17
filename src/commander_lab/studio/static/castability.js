@@ -8,7 +8,7 @@ function castPct(value) { return value === null || value === undefined ? "unbeka
 function handRoleNodes(h, hr, roleName) {
   const head = ["Start", "Zug 1", "Zug 2", "Zug 3"];
   const out = [h("h3", {}, "Rollen in der Starthand"),
-    h("p", { class: "note" }, `Rollendaten bei ${StudioUI.num(hr.cards_with_role_data)} von ${StudioUI.num(hr.library)} Karten im Deck (Nichtland: ${StudioUI.num(hr.nonland_with_role_data)} von ${StudioUI.num(hr.nonland_cards)}). ${hr.assumption}`)];
+    h("p", { class: "note" }, `Rollendaten bei ${StudioUI.num(hr.cards_with_role_data)} von ${StudioUI.num(hr.library)} Karten im Deck (Nichtland: ${StudioUI.num(hr.nonland_with_role_data)} von ${StudioUI.num(hr.nonland_cards)}${hr.modal_land_cards ? `, davon ${StudioUI.num(hr.modal_land_cards)} Modal-Land-Karten mit Land-Rückseite` : ""}). ${hr.assumption}`)];
   if (!hr.roles_known) return [...out, h("p", { id: "hand-roles", class: "warn" }, "Für diese Karten sind keine Rollen bekannt: keine Wahrscheinlichkeit berechnet (unbekannt, nicht 0).")];
   const sorted = [...hr.roles].sort((a, b) => roleName(a.role).localeCompare(roleName(b.role), "de"));
   const rows = sorted.flatMap((item) => [

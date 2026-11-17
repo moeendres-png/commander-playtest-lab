@@ -9,10 +9,21 @@ const EXPORT_TEXT_FORMATS = [
   { id: "plain", label: "Einfach (Commander zuerst, eine Karte je Zeile)" },
 ];
 
+// Code-point order like Python's sorted(): the JS operators compare UTF-16 units, which puts
+// characters above U+FFFF (surrogates) before U+E000 to U+FFFF.
+function exportFormatCompare(a, b) {
+  const left = Array.from(a);
+  const right = Array.from(b);
+  for (let i = 0; i < left.length && i < right.length; i += 1) {
+    const diff = left[i].codePointAt(0) - right[i].codePointAt(0);
+    if (diff !== 0) return diff;
+  }
+  return left.length - right.length;
+}
 function exportFormatLines(zone) {
   const sums = new Map();
   for (const item of zone) sums.set(item.name, (sums.get(item.name) || 0) + item.quantity);
-  return [...sums.entries()].sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0)).map(([name, quantity]) => `${quantity} ${name}`);
+  return [...sums.entries()].sort((a, b) => exportFormatCompare(a[0], b[0])).map(([name, quantity]) => `${quantity} ${name}`);
 }
 // commanders, main: arrays of { name, quantity }
 function exportFormatText(format, commanders, main) {
@@ -59,3 +70,4 @@ function exportFormatsSection(deps) {
   nodes.push(area);
   return nodes;
 }
+if (typeof module !== "undefined") module.exports = { exportFormatText, exportFormatCompare };

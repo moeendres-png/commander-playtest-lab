@@ -203,16 +203,20 @@ def hand_roles(
     known role cards among all library cards, so they are lower bounds for the roles."""
     library = 0
     counts: Counter[str] = Counter()
-    with_roles = nonland = nonland_with_roles = 0
+    with_roles = nonland = nonland_with_roles = modal_lands = 0
     for row in rows:
         if _text(row, "zone") == "commander":
             continue
         quantity = int(_text(row, "quantity") or "1")
         library += quantity
         tags = set(roles.get(_text(row, "card_id"), ()))
-        is_land = "Land" in _text(row, "type_line").split(" // ")[0]
+        faces = _text(row, "type_line").split(" // ")
+        is_land = "Land" in faces[0]
         if not is_land:
             nonland += quantity
+            # The front face decides; a land back face is only named, it never changes a figure.
+            if any("Land" in back for back in faces[1:]):
+                modal_lands += quantity
         if tags:
             with_roles += quantity
             if not is_land:
@@ -237,6 +241,7 @@ def hand_roles(
         "cards_with_role_data": with_roles,
         "nonland_cards": nonland,
         "nonland_with_role_data": nonland_with_roles,
+        "modal_land_cards": modal_lands,
         "roles_known": bool(counts),
         "roles": items,
         "assumption": (
@@ -244,7 +249,10 @@ def hand_roles(
             "(Zug 1 bis 3 gezogen, Zug 1 zieht; der Startspieler zieht in Zug 1 nicht: für "
             "ihn gilt die Spalte einen Zug früher). Nenner: Karten im Deck ohne Commander. "
             "Eine Karte zählt für jede ihrer Rollen, Rollen werden nie addiert. Karten ohne "
-            "Rollendaten sind unbekannt, nicht rollenlos: die Werte sind Untergrenzen."
+            "Rollendaten sind unbekannt, nicht rollenlos: die Werte sind Untergrenzen. "
+            "Die Vorderseite entscheidet, ob eine Karte als Land zählt: eine Karte mit "
+            "Land-Rückseite („Modal-Land“) zählt als Nichtland; die Wahrscheinlichkeiten "
+            "ändern sich dadurch nicht."
         ),
     }
 

@@ -590,14 +590,20 @@ def test_a_partner_deck_does_not_pretend_the_one_commander_signals_are_absent(
 def test_the_route_limits_the_list_and_lets_internal_errors_through(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    store, ids, _commander = _evidence_store(tmp_path)
+    store, _ids, _commander = _evidence_store(tmp_path)
     store.close()
     client = TestClient(
         create_app(tmp_path / "studio"), headers={"X-Studio": "1"}, raise_server_exceptions=False
     )
     cards = [{"card_id": CMD, "quantity": 1, "zone": "commander"}]
-    too_many = [*cards, *({"card_id": ids["Swarm Rat"], "quantity": 1} for _ in range(300))]
-    assert client.post("/api/deck-evidence", json={"cards": too_many}).status_code == 422
+    # 301 distinct synthetic entries: refused by the length limit of the request model, before
+    # any card is looked up in the store (the ids do not exist).
+    too_many = [{"card_id": f"card:synthetic:{n:04d}", "quantity": 1} for n in range(301)]
+    refused = client.post("/api/deck-evidence", json={"cards": too_many})
+    assert refused.status_code == 422
+    assert {item["type"] for item in refused.json()["detail"]} == {"too_long"}
+    at_limit = client.post("/api/deck-evidence", json={"cards": too_many[:300]})
+    assert "too_long" not in at_limit.text  # 300 entries pass the limit (the store decides next)
 
     def broken(*_args: object, **_kwargs: object) -> dict[str, object]:
         raise ValueError("internal data problem /secret/path")

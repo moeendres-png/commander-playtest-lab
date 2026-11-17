@@ -233,6 +233,21 @@ def test_hand_roles_without_role_data_is_unknown_not_zero() -> None:
     assert result["library"] == 99
 
 
+def test_hand_roles_names_modal_lands_without_changing_any_figure() -> None:
+    plain = [_row(f"Card {i}", card_id=f"c{i}") for i in range(98)]
+    face = _row("Valakut Awakening", card_id="m", type_line="Instant // Land")
+    land = _row("Forest", card_id="f", type_line="Basic Land — Forest")
+    roles = {"m": ["ramp"], "c0": ["ramp"]}
+    with_modal = castability.hand_roles([*plain, face], roles)
+    baseline = castability.hand_roles([*plain, _row("Valakut Awakening", card_id="m")], roles)
+    assert with_modal["modal_land_cards"] == 1  # 1 of 99 nonland cards, counted as nonland
+    assert with_modal["nonland_cards"] == 99
+    assert baseline["modal_land_cards"] == 0
+    assert with_modal["roles"] == baseline["roles"]  # the probabilities are the same
+    assert castability.hand_roles([*plain, land], roles)["modal_land_cards"] == 0
+    assert "Modal-Land" in str(with_modal["assumption"])
+
+
 def test_castability_route_on_a_store(tmp_path) -> None:  # type: ignore[no-untyped-def]
     from fastapi.testclient import TestClient
 
