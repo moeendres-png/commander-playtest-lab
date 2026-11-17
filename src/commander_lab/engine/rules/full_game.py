@@ -46,7 +46,7 @@ from commander_lab.semantic_replay.tape_helpers import (
 )
 from commander_lab.storage.hashing import sha256_value
 
-from .full_game_pilot import ExternalPilotDecisionPolicy
+from .full_game_pilot import ExternalPilotDecisionPolicy, LookaheadConfig, LookaheadEvaluator
 from .full_game_pilot.common import (
     _XMAGE_SHORT_ID_AFTER_CLOSE_RE,
     _XMAGE_SHORT_ID_APPENDED_RE,
@@ -1189,6 +1189,7 @@ class XmageFullGameRunner:
         max_decisions: int = 50_000,
         private_card_repository: bool = False,
         shutdown_grace_seconds: float = 5.0,
+        lookahead_config: LookaheadConfig | None = None,
     ) -> None:
         # #1037 startup gate: a corrupt or under-covering pilot card catalog stops the run
         # here (CardCatalogError) instead of silently degrading pilot decisions.
@@ -1203,6 +1204,8 @@ class XmageFullGameRunner:
         self.max_decisions = max_decisions
         if self.max_decisions < 1:
             raise ValueError("max_decisions must be positive")
+        self.lookahead_config = lookahead_config
+        self.last_lookahead_stats: dict[str, int] | None = None
         # Armed by run() for the duration of one game (C2 per-frame audit).
         self._hidden_audit: FullGameHiddenInformationAudit | None = None
 
@@ -1551,107 +1554,134 @@ class XmageFullGameRunner:
         observed: list[str] = []
         # #818: trailing decision window for max_decisions post-mortem.
         recent: deque[_RecentDecision] = deque(maxlen=_RECENT_DECISIONS_MAXLEN)
-        while True:
-            failure = status.get("failure")
-            if isinstance(failure, dict):
-                raw_failure = json.dumps(failure, sort_keys=True)
-                raise FullGameConformanceError(
-                    "XMage full-game engine failed: "
-                    + redacted_summary("ENGINE_FAILURE", (raw_failure,))
-                )
-            decision = status.get("decision")
-            if isinstance(decision, dict):
-                decision_class = decision.get("decision_class")
-                pilot_state = decision.get("pilot_state")
-                turn = pilot_state.get("turn_number") if isinstance(pilot_state, dict) else None
-                if stop_at_turn is not None and type(turn) is int and turn >= stop_at_turn:
+        lookahead: LookaheadEvaluator | None = None
+        if self.lookahead_config is not None and self.lookahead_config.enabled:
+            lookahead = LookaheadEvaluator(
+                client=client,
+                clone_policy=policy.clone_for_rollout,
+                game_seed=policy.scenario_seed,
+                config=self.lookahead_config,
+                frame_auditor=audit_actor_scoped_frame,
+            )
+            policy.set_lookahead_chooser(lookahead.choose_priority_option)
+        try:
+            while True:
+                failure = status.get("failure")
+                if isinstance(failure, dict):
+                    raw_failure = json.dumps(failure, sort_keys=True)
+                    raise FullGameConformanceError(
+                        "XMage full-game engine failed: "
+                        + redacted_summary("ENGINE_FAILURE", (raw_failure,))
+                    )
+                decision = status.get("decision")
+                if isinstance(decision, dict):
+                    decision_class = decision.get("decision_class")
+                    pilot_state = decision.get("pilot_state")
+                    turn = pilot_state.get("turn_number") if isinstance(pilot_state, dict) else None
+                    if stop_at_turn is not None and type(turn) is int and turn >= stop_at_turn:
+                        if stop is not None:
+                            stop.update(reason="turn_boundary", turn=turn)
+                        return decision_count, observed, False
+                    # Inspect the frame returned by the final permitted submission
+                    # before applying the cap; it may already be the turn boundary.
+                    if stop_after is not None and decision_count >= stop_after:
+                        if stop is not None:
+                            stop.update(reason="decision_limit")
+                        return decision_count, observed, False
+                    decision_count += 1
+                    if decision_count > self.max_decisions:
+                        # #818: the trailing decision window rides the architected
+                        # in-memory diagnostics channel (FullGameProtocolError
+                        # .diagnostics survives the public boundary; the persisted
+                        # message stays redacted by design).
+                        raise FullGameProtocolError(
+                            f"full-game exceeded max_decisions={self.max_decisions}",
+                            code="ENGINE_FAILURE",
+                            diagnostics=(_summarize_recent_decisions(recent),),
+                        )
+                    legal_options = decision.get("legal_options")
+                    recent.append(
+                        {
+                            "n": decision_count,
+                            "decision_class": decision_class
+                            if isinstance(decision_class, str)
+                            else "?",
+                            "turn": turn if type(turn) is int else None,
+                            "seat": (
+                                decision.get("seat") if type(decision.get("seat")) is int else None
+                            ),
+                            "options": (
+                                len(legal_options) if isinstance(legal_options, list) else None
+                            ),
+                        }
+                    )
+                    if isinstance(decision_class, str) and decision_class not in observed:
+                        observed.append(decision_class)
+                    audit = self._hidden_audit
+                    if audit is not None:
+                        rows, visible, violations = audit_actor_scoped_frame(decision)
+                        if violations:
+                            raise FullGameConformanceError(
+                                "hidden information not actor-scoped at decision "
+                                f"{decision_count}: " + "; ".join(violations)
+                            )
+                        audit.frames_audited += 1
+                        audit.non_actor_rows_audited += rows
+                        audit.non_actor_rows_engine_visible += visible
+                    response = policy.decide(decision)
+                    status = client.request(
+                        "submit_full_game_decision",
+                        {"response": response},
+                    )
+                    if progress is not None and not isinstance(status.get("failure"), dict):
+                        selected, _labels = selected_fingerprints_for_response(
+                            decision, list(response.get("selected_option_ids", []))
+                        )
+                        ordered, _ordered_labels = selected_fingerprints_for_response(
+                            decision, list(response.get("ordering", []))
+                        )
+                        response_digest = canonical_hash(
+                            {
+                                "selected": selected,
+                                "ordering": ordered,
+                                "numeric_choice": response.get("numeric_choice"),
+                                "numeric_choices": response.get("numeric_choices"),
+                            }
+                        )
+                        seat = decision.get("seat")
+                        phase = pilot_state.get("phase") if isinstance(pilot_state, dict) else None
+                        progress.append(
+                            (
+                                str(decision_class),
+                                seat if type(seat) is int else None,
+                                turn if type(turn) is int else None,
+                                phase if isinstance(phase, str) else None,
+                                response_digest,
+                                _active_seat(pilot_state),
+                            )
+                        )
+                    continue
+                if bool(status.get("terminal")):
                     if stop is not None:
-                        stop.update(reason="turn_boundary", turn=turn)
-                    return decision_count, observed, False
-                # Inspect the frame returned by the final permitted submission
-                # before applying the cap; it may already be the turn boundary.
+                        stop.update(reason="terminal")
+                    return decision_count, observed, True
                 if stop_after is not None and decision_count >= stop_after:
                     if stop is not None:
                         stop.update(reason="decision_limit")
                     return decision_count, observed, False
-                decision_count += 1
-                if decision_count > self.max_decisions:
-                    # #818: the trailing decision window rides the architected
-                    # in-memory diagnostics channel (FullGameProtocolError
-                    # .diagnostics survives the public boundary; the persisted
-                    # message stays redacted by design).
-                    raise FullGameProtocolError(
-                        f"full-game exceeded max_decisions={self.max_decisions}",
-                        code="ENGINE_FAILURE",
-                        diagnostics=(_summarize_recent_decisions(recent),),
-                    )
-                legal_options = decision.get("legal_options")
-                recent.append(
-                    {
-                        "n": decision_count,
-                        "decision_class": decision_class
-                        if isinstance(decision_class, str)
-                        else "?",
-                        "turn": turn if type(turn) is int else None,
-                        "seat": decision.get("seat") if type(decision.get("seat")) is int else None,
-                        "options": len(legal_options) if isinstance(legal_options, list) else None,
-                    }
-                )
-                if isinstance(decision_class, str) and decision_class not in observed:
-                    observed.append(decision_class)
-                audit = self._hidden_audit
-                if audit is not None:
-                    rows, visible, violations = audit_actor_scoped_frame(decision)
-                    if violations:
-                        raise FullGameConformanceError(
-                            "hidden information not actor-scoped at decision "
-                            f"{decision_count}: " + "; ".join(violations)
-                        )
-                    audit.frames_audited += 1
-                    audit.non_actor_rows_audited += rows
-                    audit.non_actor_rows_engine_visible += visible
-                response = policy.decide(decision)
-                status = client.request(
-                    "submit_full_game_decision",
-                    {"response": response},
-                )
-                if progress is not None and not isinstance(status.get("failure"), dict):
-                    selected, _labels = selected_fingerprints_for_response(
-                        decision, list(response.get("selected_option_ids", []))
-                    )
-                    ordered, _ordered_labels = selected_fingerprints_for_response(
-                        decision, list(response.get("ordering", []))
-                    )
-                    response_digest = canonical_hash(
-                        {
-                            "selected": selected,
-                            "ordering": ordered,
-                            "numeric_choice": response.get("numeric_choice"),
-                            "numeric_choices": response.get("numeric_choices"),
-                        }
-                    )
-                    seat = decision.get("seat")
-                    phase = pilot_state.get("phase") if isinstance(pilot_state, dict) else None
-                    progress.append(
-                        (
-                            str(decision_class),
-                            seat if type(seat) is int else None,
-                            turn if type(turn) is int else None,
-                            phase if isinstance(phase, str) else None,
-                            response_digest,
-                            _active_seat(pilot_state),
-                        )
-                    )
-                continue
-            if bool(status.get("terminal")):
-                if stop is not None:
-                    stop.update(reason="terminal")
-                return decision_count, observed, True
-            if stop_after is not None and decision_count >= stop_after:
-                if stop is not None:
-                    stop.update(reason="decision_limit")
-                return decision_count, observed, False
-            status = client.request("get_full_game_decision")
+                status = client.request("get_full_game_decision")
+        finally:
+            if lookahead is not None:
+                policy.set_lookahead_chooser(None)
+            self.last_lookahead_stats = (
+                None
+                if lookahead is None
+                else {
+                    "searches_used": lookahead.searches_used,
+                    "decisions_evaluated": lookahead.decisions_evaluated,
+                    "decisions_altered": lookahead.decisions_altered,
+                }
+            )
 
     @staticmethod
     def replay_gate(
@@ -1967,6 +1997,8 @@ __all__ = [
     "FullGameProtocolError",
     "FullGameReplayGate",
     "FullGameSemanticTapeEvidence",
+    "LookaheadConfig",
+    "LookaheadEvaluator",
     "XmageFullGameRunner",
     "_RuntimePilot",
     "mana_payment_fit",

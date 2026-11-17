@@ -421,18 +421,46 @@ class _PriorityDecisions(_CombatDecisions):
             if held_lands and self._land_beats_pass(
                 runtime, state, pilot_state, held_lands[0], pass_view
             ):
-                return self._refine_priority_choice(
+                chosen_raw_id = self._refine_priority_choice(
                     self._required_text(held_lands[0], "option_id"), held_lands, state, rng
                 )
-            return pass_id
-        deferred = deferred_by_stable_id.get(decision.selected_action_id)
-        if deferred is not None:
-            return self._priority_mana_for(deferred, affordable_mana, pass_id)
-        try:
-            chosen_id = raw_by_stable_id[decision.selected_action_id]
-        except KeyError:
-            raise FullGameProtocolError("pilot returned unknown stable priority action") from None
-        return self._refine_priority_choice(chosen_id, affordable, state, rng)
+            else:
+                chosen_raw_id = pass_id
+        else:
+            deferred = deferred_by_stable_id.get(decision.selected_action_id)
+            if deferred is not None:
+                chosen_raw_id = self._priority_mana_for(deferred, affordable_mana, pass_id)
+            else:
+                try:
+                    raw_id = raw_by_stable_id[decision.selected_action_id]
+                except KeyError:
+                    raise FullGameProtocolError(
+                        "pilot returned unknown stable priority action"
+                    ) from None
+                chosen_raw_id = self._refine_priority_choice(raw_id, affordable, state, rng)
+        if self._lookahead_chooser is None:
+            return chosen_raw_id
+        candidate_ids: list[str] = [chosen_raw_id]
+        if pass_id not in candidate_ids:
+            candidate_ids.append(pass_id)
+        scored_views = sorted(
+            (
+                (runtime.pilot.evaluate_action(pilot_state, view).total_utility, view.action_id)
+                for view in action_views
+                if view.action_id in raw_by_stable_id
+                and not view.action_id.startswith("priority:mana:")
+            ),
+            reverse=True,
+        )
+        for _utility, stable_id in scored_views:
+            raw_candidate = raw_by_stable_id[stable_id]
+            if raw_candidate not in candidate_ids:
+                candidate_ids.append(raw_candidate)
+        if len(candidate_ids) < 2:
+            return chosen_raw_id
+        return self._lookahead_chooser(
+            state, self._current_decision_offset, chosen_raw_id, tuple(candidate_ids)
+        )
 
     @staticmethod
     def _bounce_lands_that_wait_for_a_spell(

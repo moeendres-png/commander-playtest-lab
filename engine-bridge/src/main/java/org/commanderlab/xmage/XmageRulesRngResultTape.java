@@ -108,7 +108,8 @@ final class XmageRulesRngResultTape {
 
     /** Called before the engine shuffles {@code playerId}'s library. */
     static void beforeShuffle(Game game, UUID playerId, List<UUID> order) {
-        if (!enabled() || game == null || playerId == null || game.isSimulation()) {
+        if (!enabled() || game == null || playerId == null || game.isSimulation()
+                || XmageFullGameStateRedactor.isProbeGame(game)) {
             return;
         }
         PRE_SHUFFLE.computeIfAbsent(game.getId().toString(), ignored -> new ConcurrentHashMap<>())
@@ -117,7 +118,8 @@ final class XmageRulesRngResultTape {
 
     /** Called after the engine shuffled {@code playerId}'s library. */
     static void afterShuffle(Game game, UUID playerId, long callsBefore, long callsAfter, List<UUID> order) {
-        if (!enabled() || game == null || playerId == null || game.isSimulation()) {
+        if (!enabled() || game == null || playerId == null || game.isSimulation()
+                || XmageFullGameStateRedactor.isProbeGame(game)) {
             return;
         }
         Map<UUID, List<UUID>> byPlayer = PRE_SHUFFLE.get(game.getId().toString());

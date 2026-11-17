@@ -42,6 +42,7 @@ from .common import (
     FullGameProtocolError,
     _RuntimePilot,
 )
+from .lookahead import LookaheadChooser
 
 # Crew and Saddle ask for one creature at a time and show the power chosen so far.
 _CREW_POWER_PROMPT = re.compile(r"\(selected power (?P<have>-?\d+) of (?P<need>\d+)\)")
@@ -257,6 +258,8 @@ class _PolicyState:
         # #1299 (SIMULATE E4 Condition 3): last seen (turn_number, phase, step) per seat so
         # transient priority-action state does not leak across skipped priority windows.
         self._last_seat_step: dict[int, tuple[object, object, object]] = {}
+        self._lookahead_chooser: LookaheadChooser | None = None
+        self._current_decision_offset: int = 0
 
     def _clear_priority_action_state(self, seat: int) -> None:
         """Clear transient single-action priority state for ``seat`` (Condition 3).

@@ -9,6 +9,7 @@ from .common import (
     FullGameProtocolError,
     public_full_game_errors,
 )
+from .lookahead import LookaheadChooser
 from .priority import _PriorityDecisions
 
 # Mizzix's Mastery (overload) asks for one copied card at a time and removes it
@@ -47,6 +48,13 @@ class ExternalPilotDecisionPolicy(_PriorityDecisions):
             "declare_blocker",
         }
     )
+
+    def set_lookahead_chooser(self, chooser: LookaheadChooser | None) -> None:
+        self._lookahead_chooser = chooser
+
+    def clone_for_rollout(self, probe_seed: int) -> ExternalPilotDecisionPolicy:
+        ordered = tuple(self._pilots[seat] for seat in sorted(self._pilots))
+        return ExternalPilotDecisionPolicy(ordered, probe_seed)
 
     @public_full_game_errors
     def decide(self, request: dict[str, Any]) -> dict[str, Any]:
@@ -137,6 +145,7 @@ class ExternalPilotDecisionPolicy(_PriorityDecisions):
         decision_offset = int(request.get("decision_offset", -1))
         if decision_offset < 1:
             raise FullGameProtocolError("decision_offset must be a positive integer")
+        self._current_decision_offset = decision_offset
         rng = self._rng(decision_offset, decision_class, seat)
 
         selected: list[str] = []

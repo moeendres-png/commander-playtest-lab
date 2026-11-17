@@ -110,6 +110,53 @@ final class XmageFullGameStateRedactor {
         }
     }
 
+    private static final Map<Game, String> PROBE_GAME_KEYS =
+            java.util.Collections.synchronizedMap(new java.util.IdentityHashMap<>());
+    private static final java.util.concurrent.atomic.AtomicLong PROBE_KEY_SEQUENCE =
+            new java.util.concurrent.atomic.AtomicLong();
+    private static final String PROBE_KEY_PREFIX = "probe:";
+
+    static String registerProbeGame(Game game) {
+        if (game == null) {
+            throw new IllegalArgumentException("probe game must not be null");
+        }
+        String key = PROBE_KEY_PREFIX + PROBE_KEY_SEQUENCE.incrementAndGet();
+        PROBE_GAME_KEYS.put(game, key);
+        return key;
+    }
+
+    static void unregisterProbeGame(Game game) {
+        if (game == null) {
+            return;
+        }
+        String key = PROBE_GAME_KEYS.remove(game);
+        if (key != null) {
+            forgetGame(key);
+        }
+    }
+
+    static boolean isProbeGame(Game game) {
+        return game != null && PROBE_GAME_KEYS.containsKey(game);
+    }
+
+    static String gameKey(Game game) {
+        if (game == null) {
+            return "";
+        }
+        String probeKey = PROBE_GAME_KEYS.get(game);
+        return probeKey != null ? probeKey : game.getId().toString();
+    }
+
+    static void copyRestoredFaceDownIdentities(Game source, Game target) {
+        if (source == null || target == null) {
+            return;
+        }
+        Map<UUID, String> sourceMap = RESTORED_FACE_DOWN_IDENTITIES.get(gameKey(source));
+        if (sourceMap != null && !sourceMap.isEmpty()) {
+            RESTORED_FACE_DOWN_IDENTITIES.put(gameKey(target), new ConcurrentHashMap<>(sourceMap));
+        }
+    }
+
     /**
      * Drops every per-game observation record of one engine game. The maps
      * above are static and keyed by game id; a JVM that plays more than one
@@ -141,7 +188,7 @@ final class XmageFullGameStateRedactor {
             return;
         }
         LIBRARY_SHUFFLE_EPOCHS
-                .computeIfAbsent(game.getId().toString(), ignored -> new ConcurrentHashMap<>())
+                .computeIfAbsent(gameKey(game), ignored -> new ConcurrentHashMap<>())
                 .merge(libraryOwnerId, 1L, Long::sum);
     }
 
@@ -149,7 +196,7 @@ final class XmageFullGameStateRedactor {
         if (game == null || ownerId == null) {
             return 0L;
         }
-        Map<UUID, Long> byOwner = LIBRARY_SHUFFLE_EPOCHS.get(game.getId().toString());
+        Map<UUID, Long> byOwner = LIBRARY_SHUFFLE_EPOCHS.get(gameKey(game));
         return byOwner == null ? 0L : byOwner.getOrDefault(ownerId, 0L);
     }
 
@@ -181,7 +228,7 @@ final class XmageFullGameStateRedactor {
             owners.add(card.getOwnerId());
         }
         List<ObservedCards> log = OBSERVED_CARDS
-                .computeIfAbsent(game.getId().toString(), ignored -> new CopyOnWriteArrayList<>());
+                .computeIfAbsent(gameKey(game), ignored -> new CopyOnWriteArrayList<>());
         Map<UUID, Long> shuffleEpochs = new HashMap<>();
         for (UUID ownerId : owners) {
             if (ownerId != null) {
@@ -249,7 +296,7 @@ final class XmageFullGameStateRedactor {
 
     private static JsonArray observedView(Game game, Player viewer, boolean revealed) {
         JsonArray result = new JsonArray();
-        List<ObservedCards> log = OBSERVED_CARDS.get(game.getId().toString());
+        List<ObservedCards> log = OBSERVED_CARDS.get(gameKey(game));
         if (log == null) {
             return result;
         }
@@ -307,11 +354,12 @@ final class XmageFullGameStateRedactor {
         if (viewer == null || owner == null || game == null || cardIds == null) {
             return;
         }
+        String key = gameKey(game);
         ZONE_LOOK_CARDS
-                .computeIfAbsent(game.getId().toString(), ignored -> new ConcurrentHashMap<>())
+                .computeIfAbsent(key, ignored -> new ConcurrentHashMap<>())
                 .put(owner.getId().toString(), Set.copyOf(cardIds));
         ZONE_FULL_LOOK
-                .computeIfAbsent(game.getId().toString(), ignored -> new ConcurrentHashMap<>())
+                .computeIfAbsent(key, ignored -> new ConcurrentHashMap<>())
                 .computeIfAbsent(viewer.getId().toString(), ignored -> ConcurrentHashMap.newKeySet())
                 .add(owner.getId().toString());
     }
@@ -320,13 +368,42 @@ final class XmageFullGameStateRedactor {
         if (viewer == null || owner == null) {
             return;
         }
-        for (Map<String, Set<UUID>> byOwner : ZONE_LOOK_CARDS.values()) {
-            byOwner.remove(owner.getId().toString());
+        String viewerId = viewer.getId().toString();
+        String ownerId = owner.getId().toString();
+        for (Map.Entry<String, Map<String, Set<UUID>>> entry : ZONE_LOOK_CARDS.entrySet()) {
+            if (!entry.getKey().startsWith(PROBE_KEY_PREFIX)) {
+                entry.getValue().remove(ownerId);
+            }
         }
-        for (Map<String, Set<String>> byViewer : ZONE_FULL_LOOK.values()) {
+        for (Map.Entry<String, Map<String, Set<String>>> entry : ZONE_FULL_LOOK.entrySet()) {
+            if (!entry.getKey().startsWith(PROBE_KEY_PREFIX)) {
+                Set<String> owners = entry.getValue().get(viewerId);
+                if (owners != null) {
+                    owners.remove(ownerId);
+                }
+            }
+        }
+    }
+
+    static void endZoneFullLook(Game game, Player viewer, Player owner) {
+        if (viewer == null || owner == null) {
+            return;
+        }
+        if (game == null) {
+            endZoneFullLook(viewer, owner);
+            return;
+        }
+        String key = gameKey(game);
+        String ownerId = owner.getId().toString();
+        Map<String, Set<UUID>> lookCards = ZONE_LOOK_CARDS.get(key);
+        if (lookCards != null) {
+            lookCards.remove(ownerId);
+        }
+        Map<String, Set<String>> byViewer = ZONE_FULL_LOOK.get(key);
+        if (byViewer != null) {
             Set<String> owners = byViewer.get(viewer.getId().toString());
             if (owners != null) {
-                owners.remove(owner.getId().toString());
+                owners.remove(ownerId);
             }
         }
     }
@@ -336,7 +413,7 @@ final class XmageFullGameStateRedactor {
             throw new IllegalArgumentException("face-down identity registration requires game/id/name");
         }
         RESTORED_FACE_DOWN_IDENTITIES
-                .computeIfAbsent(game.getId().toString(), ignored -> new ConcurrentHashMap<>())
+                .computeIfAbsent(gameKey(game), ignored -> new ConcurrentHashMap<>())
                 .put(permanentId, cardIdentity);
     }
 
@@ -354,7 +431,7 @@ final class XmageFullGameStateRedactor {
             return null;
         }
         Map<UUID, String> byPermanent =
-                RESTORED_FACE_DOWN_IDENTITIES.get(game.getId().toString());
+                RESTORED_FACE_DOWN_IDENTITIES.get(gameKey(game));
         String restored = byPermanent == null ? null : byPermanent.get(permanent.getId());
         if (restored != null) {
             return restored;
@@ -366,7 +443,7 @@ final class XmageFullGameStateRedactor {
         if (game == null || viewer == null || owner == null) {
             return false;
         }
-        Map<String, Set<String>> byViewer = ZONE_FULL_LOOK.get(game.getId().toString());
+        Map<String, Set<String>> byViewer = ZONE_FULL_LOOK.get(gameKey(game));
         if (byViewer == null) {
             return false;
         }
@@ -393,7 +470,7 @@ final class XmageFullGameStateRedactor {
 
     static JsonObject actorView(Game game, Player actor) {
         JsonObject view = new JsonObject();
-        view.addProperty("game_id", game.getId().toString());
+        view.addProperty("game_id", gameKey(game));
         view.addProperty("actor_id", actor.getId().toString());
         view.addProperty("seat", seat(game, actor.getId()));
         view.addProperty("turn_number", game.getState().getTurnNum());
@@ -769,7 +846,7 @@ final class XmageFullGameStateRedactor {
         if (!hasZoneFullLook(game, viewer, owner)) {
             return result;
         }
-        Map<String, Set<UUID>> byOwner = ZONE_LOOK_CARDS.get(game.getId().toString());
+        Map<String, Set<UUID>> byOwner = ZONE_LOOK_CARDS.get(gameKey(game));
         Set<UUID> shown = byOwner == null ? null : byOwner.get(owner.getId().toString());
         if (shown == null) {
             return result;

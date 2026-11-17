@@ -86,6 +86,9 @@ final class XmageFullGameJsonlBridge {
             case "get_full_game_result" -> getResult(requestId);
             case "get_legal_actions" -> getLegalActions(requestId, request);
             case "submit_action" -> submitAction(requestId, request);
+            case "start_lookahead_probe" -> startLookaheadProbe(requestId, request);
+            case "step_lookahead_probe" -> stepLookaheadProbe(requestId, request);
+            case "end_lookahead_probe" -> endLookaheadProbe(requestId, request);
             case "get_concede_offer" -> getConcedeOffer(requestId, request);
             case "submit_concede" -> submitConcede(requestId, request);
             case "export_event_log", "get_event_log" -> exportEventLog(requestId, request);
@@ -445,6 +448,77 @@ final class XmageFullGameJsonlBridge {
             return error(
                     requestId,
                     "invalid_full_game_decision",
+                    exceptionMessage(exc),
+                    false
+            );
+        }
+    }
+
+    private Result startLookaheadProbe(String requestId, JsonObject request) {
+        try {
+            JsonObject payload = requireObjectPayload(
+                    request,
+                    "START_LOOKAHEAD_PROBE requires an object payload"
+            );
+            return success(requestId, requireSession().startLookaheadProbe(payload), false);
+        } catch (XmageFullGameDecisionController.DecisionException exc) {
+            return error(
+                    requestId,
+                    "lookahead_probe_rejected",
+                    exc.getMessage(),
+                    false
+            );
+        } catch (Exception exc) {
+            return error(
+                    requestId,
+                    "lookahead_probe_failed",
+                    exceptionMessage(exc),
+                    false
+            );
+        }
+    }
+
+    private Result stepLookaheadProbe(String requestId, JsonObject request) {
+        try {
+            JsonObject payload = requireObjectPayload(
+                    request,
+                    "STEP_LOOKAHEAD_PROBE requires an object payload"
+            );
+            return success(requestId, requireSession().stepLookaheadProbe(payload), false);
+        } catch (XmageFullGameDecisionController.DecisionException exc) {
+            return error(
+                    requestId,
+                    "lookahead_probe_rejected",
+                    exc.getMessage(),
+                    false
+            );
+        } catch (Exception exc) {
+            return error(
+                    requestId,
+                    "lookahead_probe_failed",
+                    exceptionMessage(exc),
+                    false
+            );
+        }
+    }
+
+    private Result endLookaheadProbe(String requestId, JsonObject request) {
+        try {
+            JsonObject payload = request.has("payload") && request.get("payload").isJsonObject()
+                    ? request.getAsJsonObject("payload")
+                    : new JsonObject();
+            return success(requestId, requireSession().endLookaheadProbe(payload), false);
+        } catch (XmageFullGameDecisionController.DecisionException exc) {
+            return error(
+                    requestId,
+                    "lookahead_probe_rejected",
+                    exc.getMessage(),
+                    false
+            );
+        } catch (Exception exc) {
+            return error(
+                    requestId,
+                    "lookahead_probe_failed",
                     exceptionMessage(exc),
                     false
             );

@@ -74,6 +74,13 @@ final class XmageFullGameDecisionController {
         }
     }
 
+    /** Internal clean-unwind signal for bounded look-ahead probes. */
+    static final class ProbeStopError extends Error {
+        ProbeStopError() {
+            super("LOOKAHEAD_PROBE_STOPPED");
+        }
+    }
+
     static final String DECISION_TIMEOUT_SECONDS_PROPERTY = "commanderlab.fullGame.decisionTimeoutSeconds";
     static final int DEFAULT_DECISION_TIMEOUT_SECONDS = 120;
     static final int MAX_DECISION_TIMEOUT_SECONDS = 86_400;
@@ -90,6 +97,7 @@ final class XmageFullGameDecisionController {
     private String cancelledDecisionId;
     private DecisionException terminalFailure;
     private boolean terminal;
+    private boolean probeStopped;
     private final JsonArray transcript = new JsonArray();
     /** Turn number at which each player was first seen as lost; see {@link #noteLosses}. */
     private final Map<UUID, Integer> lostOnTurn = new HashMap<>();
@@ -195,6 +203,9 @@ final class XmageFullGameDecisionController {
             JsonObject sourceObject,
             boolean departedUnwindQualified
     ) {
+        if (probeStopped) {
+            throw new ProbeStopError();
+        }
         if (terminalFailure != null) {
             throw terminalFailure;
         }
@@ -315,6 +326,12 @@ final class XmageFullGameDecisionController {
             }
         }
 
+        if (probeStopped) {
+            pendingRequest = null;
+            pendingPlayerId = null;
+            notifyAll();
+            throw new ProbeStopError();
+        }
         if (terminalFailure != null) {
             throw terminalFailure;
         }
@@ -875,6 +892,13 @@ final class XmageFullGameDecisionController {
      * natively before calling this.
      */
     synchronized void shutDown() {
+        shutDown = true;
+        terminal = true;
+        notifyAll();
+    }
+
+    synchronized void shutDownForProbe() {
+        probeStopped = true;
         shutDown = true;
         terminal = true;
         notifyAll();

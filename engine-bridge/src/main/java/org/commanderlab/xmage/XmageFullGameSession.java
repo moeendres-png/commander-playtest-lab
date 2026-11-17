@@ -63,6 +63,7 @@ final class XmageFullGameSession {
     private final int startingLife;
     /** #662 replay export: per seat, the exact deck import request. */
     private final JsonArray replayDecks = new JsonArray();
+    private XmageLookaheadProbe activeProbe;
 
     XmageFullGameSession(
             String protocolGameId,
@@ -290,12 +291,18 @@ final class XmageFullGameSession {
      */
     JsonObject shutdownGame() {
         ensureStarted();
+        XmageLookaheadProbe probeToClose;
         synchronized (this) {
             if (shutDown) {
                 throw new XmageFullGameDecisionController.DecisionException(
                         "FULL_GAME_SHUT_DOWN: the game was already shut down");
             }
             shutDown = true;
+            probeToClose = activeProbe;
+            activeProbe = null;
+        }
+        if (probeToClose != null) {
+            probeToClose.close();
         }
         game.end();
         controller.shutDown();
@@ -536,10 +543,142 @@ final class XmageFullGameSession {
     JsonObject submit(JsonObject response) {
         ensureNotShutDown();
         ensureStarted();
+        ensureNoActiveProbe();
         controller.submit(response);
         String submittedDecisionId = response.get("decision_id").getAsString();
         awaitDecisionAdvance(submittedDecisionId, Duration.ofSeconds(20));
         return pendingDecisionPayload();
+    }
+
+    private synchronized void ensureNoActiveProbe() {
+        if (activeProbe != null && !activeProbe.isClosed()) {
+            throw new XmageFullGameDecisionController.DecisionException(
+                    "LOOKAHEAD_PROBE_ACTIVE: end active look-ahead probe before submitting to real game"
+            );
+        }
+    }
+
+    synchronized String activeProbeKey() {
+        return activeProbe == null ? null : activeProbe.probeKey();
+    }
+
+    synchronized JsonObject startLookaheadProbe(JsonObject request) {
+        ensureNotShutDown();
+        ensureStarted();
+        if (request == null) {
+            throw new XmageFullGameDecisionController.DecisionException(
+                    "PILOT_RESPONSE_INVALID: start_lookahead_probe requires an object payload"
+            );
+        }
+        if (activeProbe != null && !activeProbe.isClosed()) {
+            throw new XmageFullGameDecisionController.DecisionException(
+                    "LOOKAHEAD_PROBE_CONFLICT: a look-ahead probe is already active"
+            );
+        }
+        controller.awaitPendingOrTerminal(Duration.ofSeconds(10));
+        JsonObject realPending = controller.pendingDecision();
+        if (realPending == null) {
+            throw new XmageFullGameDecisionController.DecisionException(
+                    "LOOKAHEAD_REQUIRES_PRIORITY: no pending decision in real game"
+            );
+        }
+        if (request.has("redetermine") && !request.get("redetermine").isJsonNull()) {
+            if (!request.get("redetermine").isJsonPrimitive()
+                    || !request.get("redetermine").getAsJsonPrimitive().isBoolean()) {
+                throw new XmageFullGameDecisionController.DecisionException(
+                        "PILOT_RESPONSE_INVALID: redetermine must be a boolean"
+                );
+            }
+            if (!request.get("redetermine").getAsBoolean()) {
+                throw new XmageFullGameDecisionController.DecisionException(
+                        "LOOKAHEAD_REDETERMINATION_REQUIRED: look-ahead probes require hidden-zone redetermination"
+                );
+            }
+        }
+        String actorText = textOrEmpty(request, "actor_id");
+        if (actorText.isBlank()) {
+            throw new XmageFullGameDecisionController.DecisionException(
+                    "PILOT_RESPONSE_INVALID: actor_id is required"
+            );
+        }
+        UUID viewerId;
+        try {
+            viewerId = UUID.fromString(actorText);
+        } catch (IllegalArgumentException exc) {
+            throw new XmageFullGameDecisionController.DecisionException(
+                    "PILOT_RESPONSE_INVALID: actor_id must be a UUID", exc
+            );
+        }
+        String candidateOptionId = textOrEmpty(request, "candidate_option_id");
+        if (candidateOptionId.isBlank()) {
+            throw new XmageFullGameDecisionController.DecisionException(
+                    "PILOT_RESPONSE_INVALID: candidate_option_id is required"
+            );
+        }
+        if (!request.has("probe_seed") || request.get("probe_seed").isJsonNull()
+                || !request.get("probe_seed").isJsonPrimitive()
+                || !request.get("probe_seed").getAsJsonPrimitive().isNumber()) {
+            throw new XmageFullGameDecisionController.DecisionException(
+                    "PILOT_RESPONSE_INVALID: probe_seed must be an integer"
+            );
+        }
+        String rawSeed = request.get("probe_seed").getAsString();
+        if (!rawSeed.matches("-?\\d+")) {
+            throw new XmageFullGameDecisionController.DecisionException(
+                    "PILOT_RESPONSE_INVALID: probe_seed must be an integer"
+            );
+        }
+        long probeSeed = Long.parseLong(rawSeed);
+
+        XmageLookaheadProbe.StartResult startedProbe = XmageLookaheadProbe.start(
+                game, realPending, viewerId, candidateOptionId, probeSeed, true
+        );
+        activeProbe = startedProbe.probe();
+        return startedProbe.payload();
+    }
+
+    synchronized JsonObject stepLookaheadProbe(JsonObject request) {
+        ensureNotShutDown();
+        ensureStarted();
+        if (activeProbe == null || activeProbe.isClosed()) {
+            throw new XmageFullGameDecisionController.DecisionException(
+                    "LOOKAHEAD_PROBE_NOT_ACTIVE: no active look-ahead probe"
+            );
+        }
+        if (request == null || !request.has("response") || !request.get("response").isJsonObject()) {
+            throw new XmageFullGameDecisionController.DecisionException(
+                    "PILOT_RESPONSE_INVALID: step_lookahead_probe requires payload.response"
+            );
+        }
+        String requestedProbeId = textOrEmpty(request, "probe_id");
+        if (!requestedProbeId.isBlank() && !activeProbe.probeId().equals(requestedProbeId)) {
+            throw new XmageFullGameDecisionController.DecisionException(
+                    "LOOKAHEAD_PROBE_MISMATCH: expected " + activeProbe.probeId()
+                            + ", got " + requestedProbeId
+            );
+        }
+        return activeProbe.step(request.getAsJsonObject("response"));
+    }
+
+    synchronized JsonObject endLookaheadProbe(JsonObject request) {
+        ensureStarted();
+        String requestedProbeId = request == null ? "" : textOrEmpty(request, "probe_id");
+        if (activeProbe == null) {
+            JsonObject payload = new JsonObject();
+            payload.addProperty("probe_id", requestedProbeId);
+            payload.addProperty("ended", false);
+            payload.addProperty("probe_thread_alive", false);
+            return payload;
+        }
+        if (!requestedProbeId.isBlank() && !activeProbe.probeId().equals(requestedProbeId)) {
+            throw new XmageFullGameDecisionController.DecisionException(
+                    "LOOKAHEAD_PROBE_MISMATCH: expected " + activeProbe.probeId()
+                            + ", got " + requestedProbeId
+            );
+        }
+        XmageLookaheadProbe probe = activeProbe;
+        activeProbe = null;
+        return probe.end();
     }
 
     /**
@@ -712,6 +851,7 @@ final class XmageFullGameSession {
     JsonObject submitAction(JsonObject proposal) {
         ensureNotShutDown();
         ensureStarted();
+        ensureNoActiveProbe();
         controller.awaitPendingOrTerminal(Duration.ofSeconds(20));
         JsonObject pending = controller.pendingDecision();
         if (pending == null) {
@@ -1003,6 +1143,7 @@ final class XmageFullGameSession {
     synchronized JsonObject submitConcede(JsonObject proposal) {
         ensureNotShutDown();
         ensureStarted();
+        ensureNoActiveProbe();
         if (proposal == null) {
             throw new XmageFullGameDecisionController.DecisionException(
                     "PILOT_RESPONSE_INVALID: concede proposal is null"

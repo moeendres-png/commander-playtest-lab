@@ -4,6 +4,7 @@ Layers build on each other: state (bookkeeping and views) <- payment <-
 choices <- combat <- priority <- policy (the ``decide`` entry point).
 """
 
+from .lookahead import LookaheadConfig, LookaheadEvaluator
 from .policy import ExternalPilotDecisionPolicy
 
-__all__ = ["ExternalPilotDecisionPolicy"]
+__all__ = ["ExternalPilotDecisionPolicy", "LookaheadConfig", "LookaheadEvaluator"]

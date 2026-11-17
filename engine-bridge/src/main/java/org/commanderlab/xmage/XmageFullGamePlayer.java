@@ -86,7 +86,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
     private static final String BOARD_COLOR_EFFECT =
             "mage.abilities.mana.AnyColorPermanentTypesManaEffect";
 
-    private final XmageFullGameDecisionController decisionController;
+    private XmageFullGameDecisionController decisionController;
 
     /**
      * Set when the external pilot selects Cancel inside a mana-payment
@@ -363,6 +363,25 @@ final class XmageFullGamePlayer extends PlayerImpl {
     @Override
     public XmageFullGamePlayer copy() {
         return new XmageFullGamePlayer(this);
+    }
+
+    void rebindForLookaheadProbe(XmageFullGameDecisionController probeController) {
+        if (probeController == null) {
+            throw new IllegalArgumentException("probeController must not be null");
+        }
+        this.decisionController = probeController;
+        this.manaPaymentsInFlight.clear();
+        this.offeredTargetObjects.clear();
+        this.askedTargetObjects.clear();
+        this.concessionArmed.clear();
+        this.xAnnouncedAbility = null;
+        this.targetCallbackSource = null;
+        this.actingAbility = null;
+        this.engineActionAbility = null;
+        this.paidSpellAbility = null;
+        this.lifeAfterSpellManaPayment = null;
+        this.emptyNonTargetChoiceSource = null;
+        this.acceptedOptionalCostSource = null;
     }
 
     /*
@@ -3656,7 +3675,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
             return !response.selectedOptionIds().isEmpty();
         } finally {
             if (lookGranted) {
-                XmageFullGameStateRedactor.endZoneFullLook(this, lookOwner);
+                XmageFullGameStateRedactor.endZoneFullLook(game, this, lookOwner);
             }
         }
     }
