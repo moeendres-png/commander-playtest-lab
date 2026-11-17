@@ -210,18 +210,22 @@ const StudioUI = (() => {
         const state = String(qual.status);
         let cls = "pill warn";
         let label = state;
+        let short = state;
         if (state === "ALIGNED_WITH_SEALED_EPOCH") {
           cls = "pill good";
           label = qual.sealed_epoch ? `Bridge: versiegelt (${qual.sealed_epoch})` : "Bridge: versiegelt";
+          short = "Bridge: versiegelt";
         } else if (state === "BRIDGE_AHEAD_OF_QUALIFICATION") {
           cls = "pill warn";
           label = "Bridge: Engine-Stand noch nicht qualifiziert";
+          short = "Bridge: nicht qualifiziert";
         } else {
           cls = "pill bad";
           label = `Bridge: ${state}`;
+          short = label;
         }
         const tip = [state === "BRIDGE_AHEAD_OF_QUALIFICATION" ? `Rohcode: ${state}` : null, qual.reason, qual.sealed_epoch ? `Versiegelte Epoche: ${qual.sealed_epoch}` : null].filter(Boolean).join(" · ");
-        const pill = el("span", { id: "bridge-qualification-pill", class: cls, title: tip }, label);
+        const pill = el("span", { id: "bridge-qualification-pill", class: cls, title: tip || label }, el("span", { class: "pill-long" }, label), el("span", { class: "pill-short" }, short));
         if (toggle && toggle.parentElement === bar) toggle.before(pill); else bar.append(pill);
       } catch (error) { /* status endpoint is optional in isolated views */ }
     };

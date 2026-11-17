@@ -313,7 +313,36 @@ function cell(card, key) {
   const value = card[key];
   return h("td", { class: typeof value === "number" ? "num" : "" }, value === null || value === undefined ? "" : value);
 }
+// The second filter row folds away on small windows; the chip keeps the active ones in sight.
+const FILTER_OPEN_KEY = "studio.builder.filters-open";
+function activeSecondaryFilters() {
+  const on = [$("type-filter").value, $("role-filter").value, $("label-filter").value].filter((value) => value !== "").length
+    + ($("mv-min").value !== "" || $("mv-max").value !== "" ? 1 : 0)
+    + ($("f-free").checked ? 0 : 1)
+    + ["f-notin", "f-fav", "f-excl", "f-sim"].filter((id) => $(id) && $(id).checked).length;
+  return on;
+}
+function updateFilterChip() {
+  const chip = $("filter-count"), n = activeSecondaryFilters();
+  chip.hidden = n === 0;
+  chip.textContent = `${StudioUI.num(n)} aktiv`;
+  chip.title = `${StudioUI.num(n)} Filter in der eingeklappten Leiste aktiv`;
+}
+function setFiltersOpen(open) {
+  $("filters-more").hidden = !open;
+  $("filter-toggle").setAttribute("aria-expanded", open ? "true" : "false");
+}
+function setupFilterToggle() {
+  const small = window.matchMedia && window.matchMedia("(max-height: 800px), (max-width: 1400px)").matches;
+  const stored = StudioUI.recall(FILTER_OPEN_KEY, "");
+  setFiltersOpen(stored === "1" || stored === "0" ? stored === "1" : !small);
+  $("filter-toggle").addEventListener("click", () => {
+    const open = $("filters-more").hidden;
+    setFiltersOpen(open); StudioUI.remember(FILTER_OPEN_KEY, open ? "1" : "0");
+  });
+}
 function renderPool() {
+  updateFilterChip();
   const rows = filtered();
   $("pool-count").textContent = `${rows.length} von ${state.pool.length - state.commanderIds.length} Karten` + ($("q").value.trim() ? " · nach Treffer sortiert" : "") + (state.subset ? ` · ${state.subset.info.label}` : "");
   const body = $("pool-body"); body.replaceChildren();
@@ -2444,6 +2473,7 @@ function setupControls() {
   const views = [["grid", "Bilder"], ["table", "Tabelle"]];
   const drawViews = () => $("view-toggle").replaceChildren(...views.map(([key, label]) => h("button", { type: "button", class: "chip" + (state.view === key ? " on" : ""), "aria-pressed": state.view === key, onclick: () => { state.view = key; drawViews(); renderPool(); } }, label)));
   drawViews();
+  setupFilterToggle();
   $("columns").addEventListener("click", () => { $("column-menu").hidden = !$("column-menu").hidden; });
   $("column-menu").replaceChildren(...COLUMNS.map(([key, label]) => h("label", {}, h("input", { type: "checkbox", checked: state.columns.has(key), onchange: (event) => {
     if (event.target.checked) state.columns.add(key); else state.columns.delete(key);

@@ -36,6 +36,8 @@
     <div id="filters">
       <input id="q" aria-label="Karten suchen" type="search" placeholder="Suche in Name, Typ und Text" autocomplete="off">
       <span id="color-filter" class="chips"></span>
+      <button id="filter-toggle" type="button" aria-controls="filters-more" aria-expanded="true" title="Weitere Filter ein- oder ausklappen">Filter <span id="filter-count" class="pill warn" hidden></span></button>
+      <div id="filters-more">
       <select id="type-filter" aria-label="Kartentyp"></select>
       <select id="role-filter" aria-label="Rolle"></select>
       <select id="label-filter" title="Nach deinen Archetyp-Marken filtern"></select>
@@ -52,6 +54,7 @@
       <label>Universum <select id="universe"></select></label>
       <span id="universe-info" class="muted"></span>
       <label>Sortierung <select id="sort"></select></label>
+      </div>
       <span class="chips" id="view-toggle"></span>
       <button id="columns" type="button">Spalten</button>
       <span id="pool-count" class="muted"></span>
