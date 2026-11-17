@@ -238,7 +238,7 @@ code.cmd{white-space:pre-wrap;word-break:break-all;font-size:12px}
 .bl-table td.num{white-space:nowrap;width:70px}
 .bl-table td.note{width:38%}
 #buildlist-copy-text{width:100%;min-height:120px;font-family:ui-monospace,monospace;font-size:12px}
-@media print{body>*:not(#modal){display:none!important}#modal{position:static;background:none;backdrop-filter:none;display:block}#modal-box.buildlist{max-width:none;width:100%;max-height:none;overflow:visible;border:0;box-shadow:none;background:#fff;color:#000}.no-print{display:none!important}}
+@media print{body.printing-buildlist>*:not(#modal){display:none!important}body.printing-buildlist #modal{position:static;background:none;backdrop-filter:none;display:block}body.printing-buildlist #modal-box.buildlist{max-width:none;width:100%;max-height:none;overflow:visible;border:0;box-shadow:none;background:#fff;color:#000}.printing-buildlist .no-print{display:none!important}}
 #deck-body td.num,#deck-body th.num{white-space:nowrap}
 #deck-body .table-wrap,#deck-body details{max-width:100%;overflow-x:auto}
 /* deck browser: padding, wider side column, numbers never wrap */

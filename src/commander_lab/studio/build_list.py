@@ -34,6 +34,7 @@ def _is_unknown(location: dict[str, Any]) -> bool:
     return (
         str(location["name"]) == UNKNOWN_LOCATION_NAME
         or str(location["location_id"]) == "location:unknown"
+        or location.get("type") == "unknown"
     )
 
 

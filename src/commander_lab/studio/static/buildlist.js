@@ -6,8 +6,19 @@
 
 const BUILD_LIST_NF = new Intl.NumberFormat("de-DE");
 
+function buildListDigest(entries) {
+  // An unsaved draft has no revision: its ticks are keyed by the list itself, so two drafts never share them.
+  const text = entries.map((e) => `${e.card_id}:${e.zone}:${e.quantity}`).sort().join("|");
+  let hash = 5381;
+  for (let i = 0; i < text.length; i += 1) hash = ((hash * 33) ^ text.charCodeAt(i)) >>> 0;
+  return hash.toString(16);
+}
 function buildListKey(deps) {
-  return `buildlist:${deps.state.deckId || "entwurf"}:${deps.state.baseRevision || "entwurf"}`;
+  const revision = deps.state.baseRevision && !deps.state.dirty ? deps.state.baseRevision : `entwurf-${buildListDigest(deps.entries())}`;
+  return `buildlist:${deps.state.deckId || "entwurf"}:${revision}`;
+}
+function buildListTickId(group, item) {
+  return `${group.location_id === null ? "unknown" : group.location_id}:${item.card_id}`;
 }
 function buildListLoadTicks(key) {
   try { return new Set(JSON.parse(localStorage.getItem(key) || "[]")); } catch (error) { return new Set(); }
@@ -17,8 +28,9 @@ function buildListSaveTicks(key, ticks) {
 }
 
 function buildListAmount(item) {
-  if (item.exact === false) return `${BUILD_LIST_NF.format(item.quantity)}× (Bestand mindestens${item.unknown_lots ? `, + ${item.unknown_lots} Posten ohne Anzahl` : ""})`;
-  return `${BUILD_LIST_NF.format(item.quantity)}×`;
+  const part = item.needed !== item.quantity ? `${BUILD_LIST_NF.format(item.quantity)} von ${BUILD_LIST_NF.format(item.needed)}×` : `${BUILD_LIST_NF.format(item.quantity)}×`;
+  if (item.exact === false) return `${part} (Bestand mindestens${item.unknown_lots ? `, + ${item.unknown_lots} Posten ohne Anzahl` : ""})`;
+  return part;
 }
 
 function buildListGroupTitle(data, group) {
@@ -50,11 +62,19 @@ function buildListText(data, deckName) {
 function buildListTable(h, data, group, ticks, onTick) {
   const rows = group.cards.map((item) => {
     const id = `bl-${group.location_id || "unknown"}-${item.card_id}`;
-    const box = h("input", { type: "checkbox", id, checked: ticks.has(item.card_id), "aria-label": `${item.name} eingesteckt`, onchange: (event) => onTick(item.card_id, event.target.checked) });
+    const box = h("input", { type: "checkbox", id, checked: ticks.has(buildListTickId(group, item)), "aria-label": `${item.name} eingesteckt`, onchange: (event) => onTick(buildListTickId(group, item), event.target.checked) });
     return h("tr", {}, h("td", { class: "tick" }, box), h("td", { class: "num" }, buildListAmount(item)), h("td", {}, h("label", { for: id }, item.name)),
       h("td", { class: "note" }, item.note || ""));
   });
   return h("table", { class: "bl-table" }, h("tbody", {}, rows));
+}
+
+function buildListPrint() {
+  // The print rules apply only while this class is set, so printing any other view stays untouched.
+  const done = () => document.body.classList.remove("printing-buildlist");
+  document.body.classList.add("printing-buildlist");
+  window.addEventListener("afterprint", done, { once: true });
+  try { window.print(); } finally { done(); }
 }
 
 // deps: { h, api, state, entries, closeModal, toast, fail }
@@ -91,7 +111,7 @@ async function showBuildList(deps) {
     h("p", { id: "buildlist-summary", class: "note" },
       `${BUILD_LIST_NF.format(status.of)} Nichtland-Karten (ohne Commander und Standardländer): ${BUILD_LIST_NF.format(status.exact)} mit vollständig exaktem Standort, ${BUILD_LIST_NF.format(status.lower_bound)} nur mit „mindestens“-Bestand, ${BUILD_LIST_NF.format(status.partly_unknown)} teils und ${BUILD_LIST_NF.format(status.unknown)} ganz ohne bekannten Standort. `, data.origin),
     data.error ? h("p", { id: "buildlist-error", class: "warn" }, data.error) : "",
-    h("div", { class: "actions no-print" }, copy, h("button", { type: "button", id: "buildlist-print", onclick: () => window.print() }, "Drucken"), h("button", { type: "button", onclick: deps.closeModal }, "Schließen")),
+    h("div", { class: "actions no-print" }, copy, h("button", { type: "button", id: "buildlist-print", onclick: buildListPrint }, "Drucken"), h("button", { type: "button", onclick: deps.closeModal }, "Schließen")),
     copyText,
   ];
   if (data.commander.length) {

@@ -281,3 +281,39 @@ def test_build_list_route_paths(tmp_path: Path) -> None:
     assert client.post("/api/build-list", json={"cards": too_many}).status_code == 422
     bare = TestClient(app)
     assert bare.post("/api/build-list", json={"cards": [{"card_id": A}]}).status_code == 403
+
+
+def test_build_list_greedy_order_tie_break_and_unknown_type(tmp_path: Path) -> None:
+    from commander_lab.studio import build_list
+
+    store = _store_with_locations(tmp_path)
+    # Need 2 of A (A Box 2, L Box 1): the larger stock alone covers it.
+    one = build_list.build_list(store, _rows(store, RevisionCard(A, 2)), expected_total=2)
+    assert _group_map(one) == {"A Box": [("Alpha Bear", 2)]}
+    with store.connection as db:
+        db.execute("UPDATE card_location SET quantity = 2 WHERE location_id = 'location:l_box'")
+    # Equal stock 2/2: the name decides ("A Box" before "L Box") ...
+    tie = build_list.build_list(store, _rows(store, RevisionCard(A, 2)), expected_total=2)
+    assert _group_map(tie) == {"A Box": [("Alpha Bear", 2)]}
+    with store.connection as db:
+        db.execute(
+            "UPDATE card_location SET location_name = 'Z Box' WHERE location_id = 'location:a_box'"
+        )
+    # ... and renaming flips it.
+    flip = build_list.build_list(store, _rows(store, RevisionCard(A, 2)), expected_total=2)
+    assert _group_map(flip) == {"L Box": [("Alpha Bear", 2)]}
+    with store.connection as db:
+        db.execute(
+            "UPDATE card_location SET location_type = 'unknown' WHERE location_id = 'location:l_box'"
+        )
+    typed = build_list.build_list(store, _rows(store, RevisionCard(A, 2)), expected_total=2)
+    assert _group_map(typed) == {"Z Box": [("Alpha Bear", 2)]}
+    assert typed["totals"]["counted"] == 2
+
+
+def test_build_list_route_uses_the_larger_stock(tmp_path: Path) -> None:
+    store = _store_with_locations(tmp_path)
+    store.close()
+    client = TestClient(create_app(tmp_path / "studio"), headers={"X-Studio": "1"})
+    body = client.post("/api/build-list", json={"cards": [{"card_id": A, "quantity": 2}]}).json()
+    assert [g["name"] for g in body["groups"]] == ["A Box"]
