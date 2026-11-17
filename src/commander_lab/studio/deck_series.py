@@ -163,9 +163,12 @@ def _entry(raw: Mapping[str, object], status: str) -> dict[str, object]:
 def _read_series_file(path: Path) -> dict[str, object] | None:
     """The parsed series, or None for a file that is corrupt, foreign or not this format."""
     try:
-        if path.stat().st_size > MAX_FILE_BYTES:
+        # A bounded read: a file that grows after a size check cannot exceed the limit.
+        with path.open("rb") as handle:
+            data = handle.read(MAX_FILE_BYTES + 1)
+        if len(data) > MAX_FILE_BYTES:
             return None
-        raw = json.loads(path.read_text(encoding="utf-8"))
+        raw = json.loads(data.decode("utf-8"))
     except (OSError, ValueError, RecursionError, MemoryError):
         return None
     if not isinstance(raw, dict) or raw.get("schema") != SCHEMA_PAIRED_JOB:
