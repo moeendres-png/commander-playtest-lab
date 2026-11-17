@@ -116,6 +116,21 @@ def test_unknown_text_and_flags_are_counted_apart_with_denominators() -> None:
     assert facts["tutors"] == {**facts["tutors"], "count": 1, "of": 3}
 
 
+def test_vanilla_creature_without_text_is_known_but_missing_card_facts_stay_unknown() -> None:
+    rows = [
+        _row("v", "Axebane Stag", type_line="Creature — Elk", oracle_text=None),
+        _row("n", "Textless Spell", type_line="Sorcery", oracle_text=None),
+        _row("w", "Workbook Bear", type_line="Creature", oracle_text=None, fact_source="workbook"),
+        _row("e", "No Facts Bear", type_line="Creature", oracle_text=None, fact_source=None),
+        _row("a", "Time Walk", oracle_text="Take an extra turn after this one."),
+    ]
+    facts = deck_facts.bracket_facts(rows, roles={}, combos=None)
+    # Known: the vanilla creature (facts exist, no rules text) and Time Walk; unknown: the rest.
+    assert facts["extra_turns"]["of"] == 2
+    assert facts["extra_turns"]["text_unknown"] == 3
+    assert facts["extra_turns"]["count"] == 1
+
+
 def test_tutors_split_land_search_and_report_role_coverage() -> None:
     rows = [
         _row("e", "Enlightened Tutor"),
@@ -357,3 +372,26 @@ def test_edhrec_reason_text_names_audit_source_and_date_only_when_given() -> Non
     text = audited["reason_labels"]["no_edhrec"]
     assert "Mindestquote" in text and "2026-11-12" in text
     assert "%" not in text  # no number the audit text does not carry for the card
+
+
+def test_deckbuilder_panels_format_decimals_in_german() -> None:
+    import re
+    from pathlib import Path
+
+    static = Path(deck_facts.__file__).parent / "static"
+    names = (
+        "deckfacts.js",
+        "castability.js",
+        "allocation.js",
+        "cutlab.js",
+        "diffimpact.js",
+        "cardduel.js",
+    )
+    fixed = 0
+    for name in names:
+        for call in re.findall(
+            r"\.toFixed\([^)]*\)[^;\n]{0,20}", (static / name).read_text("utf-8")
+        ):
+            fixed += 1
+            assert '.replace(".", ",")' in call, f"{name}: decimal without comma"
+    assert fixed >= 4

@@ -98,6 +98,7 @@ def test_parse_decklist_formats_buckets_and_no_purchase_terms(tmp_path: Path) ->
         "not_in_collection_cards": 2,
         "outside_color_identity_cards": 1,
         "unrecognized_lines": 0,
+        "sideboard_lines_skipped": 1,
     }
 
     arch = decks.parse_decklist_text(

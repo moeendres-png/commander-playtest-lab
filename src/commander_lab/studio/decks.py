@@ -306,7 +306,8 @@ _SECTION_HEADERS = frozenset(
         "cuts:",
     }
 )
-_SKIPPED_SECTIONS = frozenset({"sideboard", "maybeboard", "cuts", "tokens", "considering"})
+_SKIPPED_SECTIONS = frozenset({"sideboard", "maybe", "maybeboard", "cuts", "tokens", "considering"})
+_SIDEBOARD_ANNOTATION = "Sideboard-Zeile übersprungen (nicht im Deck)"
 _ACTIVE_SECTIONS = frozenset({"commander", "commanders", "deck", "main", "mainboard", "maindeck"})
 _CSV_QTY_COLS = ("count", "quantity", "qty", "tradelist count")
 _CSV_NAME_COLS = ("name", "card name", "card")
@@ -594,6 +595,12 @@ def parse_decklist_text(
     not_in_collection_qty = 0
     outside_qty = 0
     skipped_section = False
+    sideboard_skipped = 0
+
+    def _note_sideboard(lineno: int) -> None:
+        nonlocal sideboard_skipped
+        sideboard_skipped += 1
+        ignored_annotations.append({"line": lineno, "annotation": _SIDEBOARD_ANNOTATION})
 
     def _classify_entry(qty: int, raw_name: str, lineno: int, raw_line: str) -> None:
         nonlocal not_in_collection_qty, outside_qty
@@ -698,6 +705,7 @@ def parse_decklist_text(
             if section_idx is not None and section_idx < len(row):
                 sec = row[section_idx].strip().casefold()
                 if sec in _SKIPPED_SECTIONS:
+                    _note_sideboard(lineno)
                     continue
             raw_qty = row[qty_idx].strip() if qty_idx is not None and qty_idx < len(row) else "1"
             raw_name = row[name_idx].strip() if name_idx is not None and name_idx < len(row) else ""
@@ -732,6 +740,7 @@ def parse_decklist_text(
                 unrecognized_lines.append(_too_long(lineno, line))
                 continue
             if line.lower().startswith("sb:"):
+                _note_sideboard(lineno)
                 continue
             lower = line.casefold().rstrip(":")
             if lower in _SKIPPED_SECTIONS:
@@ -741,6 +750,7 @@ def parse_decklist_text(
                 skipped_section = False
                 continue
             if skipped_section:
+                _note_sideboard(lineno)
                 continue
             m = line_re.match(line)
             if not m:
@@ -798,5 +808,6 @@ def parse_decklist_text(
             "not_in_collection_cards": not_in_collection_qty,
             "outside_color_identity_cards": outside_qty,
             "unrecognized_lines": len(unrecognized_lines),
+            "sideboard_lines_skipped": sideboard_skipped,
         },
     }

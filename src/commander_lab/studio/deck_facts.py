@@ -164,6 +164,16 @@ def _named(rows: Iterable[_Row]) -> list[dict[str, object]]:
     )
 
 
+def _text_unknown(row: _Row) -> bool:
+    """True when the oracle text of ``row`` cannot be read. An empty text is a fact when the
+    card facts exist (``fact_source`` set, not the bare workbook): a vanilla creature has no
+    rules text. Without card facts, or a non-creature without text, it stays unknown."""
+    if _get(row, "oracle_text") is not None:
+        return False
+    source = _text(row, "fact_source")
+    return not (source and source != "workbook" and "Creature" in _text(row, "type_line"))
+
+
 def _qty(rows: Iterable[_Row]) -> int:
     return sum(int(_text(row, "quantity") or "1") for row in rows)
 
@@ -217,8 +227,8 @@ def bracket_facts(
         limits.append({"bracket": bracket, "limit": limit, "status": status})
 
     # Text patterns can only read cards whose oracle text is known; the rest is unknown.
-    with_text = [row for row in deck if _get(row, "oracle_text") is not None]
-    text_unknown = _qty(row for row in deck if _get(row, "oracle_text") is None)
+    with_text = [row for row in deck if not _text_unknown(row)]
+    text_unknown = _qty(row for row in deck if _text_unknown(row))
     turns = extra_turn_cards(with_text)
     denial = land_denial_cards(with_text)
 
