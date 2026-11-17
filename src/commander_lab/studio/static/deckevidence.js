@@ -42,6 +42,14 @@ function evidenceOrder(cards, key, descending) {
   return [...known, ...unknown, ...other];
 }
 
+// Where an EDHREC figure comes from: the commander's main page, a sub page (theme) or the signal import.
+function evidencePageText(cell) {
+  const page = String(cell.page);
+  if (cell.main_page) return "Hauptseite";
+  if (page.includes("/")) return `Unterseite „${page.split("/").pop()}“`;
+  return page;
+}
+
 // The text of one cell: [text, flag] where flag says "small number" (shown as a hint).
 function evidenceCellText(key, cell) {
   if (cell === null || cell === undefined) return null;
@@ -51,11 +59,12 @@ function evidenceCellText(key, cell) {
     case "combos":
       return [`${evidenceNumber(cell.n)} / ${evidenceNumber(cell.of)}`, false];
     case "edhrec": {
-      if (cell.note) return [`${cell.note}${cell.of ? ` (N = ${evidenceNumber(cell.of)})` : ""}`, false];
+      const page = evidencePageText(cell);
+      if (cell.note) return [`${cell.note}${cell.of ? ` (N = ${evidenceNumber(cell.of)})` : ""}; ${page}`, false];
       const count = cell.n === null || cell.of === null
         ? (cell.of === null ? "Nenner unbekannt" : `Zähler unbekannt, N = ${evidenceNumber(cell.of)}`)
         : `${evidenceNumber(cell.n)} / ${evidenceNumber(cell.of)}`;
-      return [`${evidenceNumber(cell.pct, 1)} % (${count})`, cell.small_group];
+      return [`${evidenceNumber(cell.pct, 1)} % (${count}); ${page}`, cell.small_group];
     }
     case "shells":
       return [`${evidenceNumber(cell.count)} Shells`, false];

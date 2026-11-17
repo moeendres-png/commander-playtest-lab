@@ -359,3 +359,38 @@ def test_route(tmp_path: Path) -> None:
             "/api/deck-evidence", json={"cards": cards}
         )
     ).status_code == 403
+
+
+def test_an_edhrec_figure_from_the_observation_table_names_its_page(tmp_path: Path) -> None:
+    store, ids, _commander = _store(tmp_path)
+    with store.connection as db:
+        db.execute(
+            "INSERT INTO source(source_id, data_class, title, sha256, imported_at) "
+            "VALUES ('src-ob', 'ORIGINAL_SOURCE', 'Observations', ?, 'now')",
+            ("1" * 64,),
+        )
+        for name, page, value, num, den in (
+            ("Swarm Rat", "edhrec:test-commander", 40.0, 4, 10),
+            ("Filler 01", "edhrec:test-commander/artifacts", 50.0, 1, 2),
+        ):
+            db.execute(
+                "INSERT INTO observation(card_id, card_name, metric, cohort, value, numerator, "
+                "denominator, data_class, source_id) "
+                "VALUES (?, ?, 'inclusion_pct', ?, ?, ?, ?, 'ORIGINAL_SOURCE', 'src-ob')",
+                (ids[name], name, page, value, num, den),
+            )
+    store.bind_unbound("Test Commander")
+    result = deck_evidence.deck_evidence(store, _rows(store, ids, "Swarm Rat", "Filler 01"))
+    cards = _by_name(result)
+    main = cards["Swarm Rat"]["cells"]["edhrec"]
+    theme = cards["Filler 01"]["cells"]["edhrec"]
+    assert (main["page"], main["main_page"], main["n"], main["of"]) == (
+        "test-commander",
+        True,
+        4,
+        10,
+    )
+    assert theme["page"] == "test-commander/artifacts" and theme["main_page"] is False
+    assert (theme["n"], theme["of"]) == (1, 2) and theme["small_group"] is True
+    edhrec_column = next(c for c in result["columns"] if c["key"] == "edhrec")  # type: ignore[attr-defined]
+    assert "Unterseite" in edhrec_column["basis"] and "in der Zelle" in edhrec_column["basis"]

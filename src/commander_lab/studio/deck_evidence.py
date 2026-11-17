@@ -132,6 +132,7 @@ def _edhrec_cell(entry: dict[str, object] | None) -> dict[str, object] | None:
     pct = entry.get("pct")
     return {
         "page": str(entry["page"]),
+        "main_page": "/" not in str(entry["page"]) and entry.get("origin") == "table",
         "pct": _round(None if pct is None else float(str(pct)), 1),
         "n": numerator,
         "of": denominator,
@@ -210,9 +211,11 @@ def _columns(denominators: dict[str, list[int]], commander: str) -> list[dict[st
         },
         {
             "key": "edhrec",
-            "short": f"Seite von {short}",
-            "label": "EDHREC-Commander-Seite",
-            "basis": "Anteil der Decks auf der EDHREC-Seite des Commanders (n/N)",
+            "short": f"Seite je Zelle genannt (Seiten von {short})",
+            "label": "EDHREC-Anteil",
+            "basis": f"Anteil der Decks auf einer EDHREC-Seite von {short} (n/N); die Seite steht "
+            "in der Zelle: Hauptseite des Commanders oder eine Unterseite (Thema), wenn die "
+            "Hauptseite keine Zeile für die Karte hat",
             "missing": "keine Zeile",
         },
         {
