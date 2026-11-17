@@ -151,3 +151,15 @@ def test_print_rules_are_scoped_to_the_build_list() -> None:
         selectors = re.findall(r"(?:^|\})([^{}]+)\{", block)
         assert selectors
         assert all("printing-buildlist" in selector for selector in selectors), selectors
+
+
+def test_export_dialog_offers_exactly_the_server_text_formats() -> None:
+    from commander_lab.studio.decks import EXPORT_TEXT_FORMATS
+
+    script = (STATIC / "exportformats.js").read_text(encoding="utf-8")
+    offered = re.findall(r'\{ id: "([a-z]+)", label:', script)
+    assert offered
+    assert set(offered) == set(EXPORT_TEXT_FORMATS)
+    page = (STATIC / "index.html").read_text(encoding="utf-8")
+    assert page.index("exportformats.js") < page.index("app.js")
+    assert "exportFormatsSection(" in (STATIC / "app.js").read_text(encoding="utf-8")

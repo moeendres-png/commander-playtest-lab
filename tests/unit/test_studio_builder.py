@@ -21,7 +21,14 @@ from commander_lab.studio import (
     importers,
     roles,
 )
-from commander_lab.studio.decks import lab_snapshot, list_rows, validate_rows
+from commander_lab.studio.decks import (
+    export_text,
+    lab_snapshot,
+    list_rows,
+    parse_decklist_text,
+    revision_rows,
+    validate_rows,
+)
 from commander_lab.studio.images import cached_image, image_address
 from commander_lab.studio.store import SCHEMA_VERSION
 from commander_lab.studio.web import create_app
@@ -312,6 +319,18 @@ def test_web_application_round_trip(studio: StudioStore) -> None:
             f"/api/revisions/{saved['revision_id']}/export", params={"format": "json"}
         ).json()
         assert snapshot["commander"]["commanders"] == ["Test Commander"]
+        export_url = f"/api/revisions/{saved['revision_id']}/export"
+        block = client.get(export_url, params={"format": "moxfield"}).text
+        assert block.startswith("Commander\n1 Test Commander\n\nDeck\n")
+        assert "29 Forest\n" in block
+        plain = client.get(export_url, params={"format": "plain"}).text
+        assert plain.splitlines()[0] == "1 Test Commander"
+        assert "Commander" not in plain.splitlines()[1:2]
+        assert client.get(export_url, params={"format": "pdf"}).status_code == 422
+        assert (
+            client.get("/api/revisions/nope/export", params={"format": "moxfield"}).status_code
+            == 404
+        )
         assert len(client.get("/api/decks/mein-deck/history").json()) == 2
         unknown = [{"card_id": "card:project:9999"}]
         assert (
@@ -369,6 +388,44 @@ def _role_payload(role_ids: dict[str, list[str]]) -> dict[str, object]:
         "tags": {role: roles.ROLES[role] for role in role_ids},
         "roles": role_ids,
     }
+
+
+def test_export_text_formats_read_back_through_the_list_import(studio: StudioStore) -> None:
+    db = studio.connection
+    # a double-faced card is held under its full name, the engine under the front face
+    db.execute(
+        "UPDATE card SET oracle_name = 'Filler 00 // Hidden Back' WHERE oracle_name = 'Filler 00'"
+    )
+    ids = {str(r["oracle_name"]): str(r["card_id"]) for r in db.execute("SELECT * FROM card_fact")}
+    two_face = ids["Filler 00 // Hidden Back"]
+    cards = [
+        RevisionCard(ids["Test Commander"], 1, "commander"),
+        RevisionCard(two_face, 1),
+        RevisionCard(ids["Forest"], 8),
+        *[RevisionCard(ids[f"Filler {i:02d}"]) for i in range(1, 6)],
+    ]
+    revision = create_revision(studio, deck_id="d", name="D", cards=cards)
+    rows = revision_rows(studio, revision)
+    block = export_text(rows, "moxfield")
+    lines = block.splitlines()
+    assert lines[:4] == ["Commander", "1 Test Commander", "", "Deck"]
+    assert "1 Filler 00 // Hidden Back" in lines  # the full name as the store holds it
+    assert "8 Forest" in lines
+    deck = lines[4:]
+    assert len(deck) == 7
+    assert deck == sorted(deck, key=lambda line: line.split(" ", 1)[1])  # name order
+    assert export_text(rows, "plain").splitlines()[:2] == [
+        "1 Test Commander",
+        "1 Filler 00 // Hidden Back",
+    ]
+    wanted = {(c.card_id, c.quantity, c.zone) for c in cards}
+    assert wanted
+    for text_format in ("moxfield", "plain"):
+        parsed = parse_decklist_text(studio, ["Test Commander"], export_text(rows, text_format))
+        assert parsed["unrecognized_lines"] == []
+        assert {(c["card_id"], c["quantity"], c["zone"]) for c in parsed["cards"]} == wanted
+    with pytest.raises(ValueError):
+        export_text(rows, "mtgo")
 
 
 def test_roles_are_read_from_a_role_file_and_counted(studio: StudioStore, tmp_path: Path) -> None:

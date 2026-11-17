@@ -1234,6 +1234,23 @@ vanish silently: each is noted as `Sideboard-Zeile übersprungen (nicht im Deck)
 (line number only, no card name, no amount) and counted in `summary.sideboard_lines_skipped`. `#` and `//` comment lines stay
 skipped silently.
 
+### Text export with the commander zone ("Textformat", #1404)
+
+`GET /api/revisions/{id}/export?format=...` answers `txt` (`n engine name` per line, unchanged,
+no commander mark), `json` (Lab snapshot, unchanged), `moxfield` and `plain`; any other value is
+HTTP 422, an unknown revision 404. `moxfield` is the block `Commander` / `1 Name` / empty line /
+`Deck` / `n Name ...`, exactly the section layout the list import above reads (the same text
+imports into Moxfield and Archidekt, which accept section headers). `plain` is `n Name` per line
+with the commander first. Names are the store's full names (`A // B` for a two-faced card, which
+the import matches), amounts above 1 are written `8 Forest`, the order is fixed: commander zone
+first, then name in code-point order, equal names summed. No prices, no values, no network call.
+`format=mtgo` (commander as `SB:` line) does not exist: the importer skips `SB:` lines as sideboard,
+so the commander would not be read back. The export dialog (`exportformats.js`) offers the format
+choice with "In die Zwischenablage kopieren" (clipboard, with a select-and-copy text field as
+fallback) and "Als Textdatei laden", for an unsaved draft (built in the browser from the work
+list, same text as the server) and for the saved revision. Export, then import with the same
+commander, returns the same list including the commander zone (test in `test_studio_builder.py`).
+
 ### Alles importieren
 
 `import-all` runs the importers above in the right order for one commander and checks the
