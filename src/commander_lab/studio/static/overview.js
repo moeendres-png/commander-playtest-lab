@@ -226,7 +226,7 @@ function _buildOverviewNodes(data, deps, options = {}) {
   const simPillClass = simUnknown.length === 0 && simUnknownExplicit.length === 0 ? "pill good" : "pill warn";
   gapsChildren.push(h("p", { class: "mt-2" },
     h("span", { class: simPillClass }, `Simulator-Bereitschaft: ${simReadyCount} / ${allUnique.length} eindeutige Karten OK`),
-    simUnknown.length ? ` · nicht bereit: ${simUnknown.slice(0, 5).map((c) => `${c.name} (${c.sim_status})`).join(", ")}${simUnknown.length > 5 ? " …" : ""}` : null));
+    simUnknown.length ? ` · nicht bereit: ${simUnknown.slice(0, 5).map((c) => `${c.name} (${StudioUI.simStatusLabel(c.sim_status)})`).join(", ")}${simUnknown.length > 5 ? " …" : ""}` : null));
 
   if (issues && issues.length) {
     gapsChildren.push(h("p", { class: "note" }, `Datenprüfung: ${issues.length} Befund(e) — siehe Tab „Prüfung“.`));

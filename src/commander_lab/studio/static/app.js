@@ -284,6 +284,7 @@ function cell(card, key) {
   if (key === "text") return h("td", { class: "text" }, card.text);
   if (key === "roles") return h("td", {}, card.roles.map(roleName).join(", "));
   if (key === "labels") return h("td", { class: "labels" }, card.labels.join(", "));
+  if (key === "sim_status") return h("td", { title: card.sim_status || "" }, StudioUI.simStatusLabel(card.sim_status));
   if (key === "pt") return h("td", {}, card.power !== null ? `${card.power}/${card.toughness}` : "");
   if (key === "freq") { const f = displayFreq(card); return h("td", { class: "num" + (f.total && f.total < state.small ? " low" : "") }, displayFreqText(card)); }
   if (key === "edhrec") {
@@ -1080,11 +1081,11 @@ function renderCheck(body) {
   } else {
     body.append(h("p", {}, `${notReady.length} Karte(n) im aktuellen Deck sind im Simulator-Vorfilter noch nicht vollständig hinterlegt:`),
       h("div", {}, notReady.map((card) => h("div", { class: "issue warning" },
-        h("b", {}, card.sim_status),
-        h("div", {}, `${card.name}: Status ${card.sim_status} (deck_readiness).`)))));
+        h("b", { title: card.sim_status }, StudioUI.simStatusLabel(card.sim_status)),
+        h("div", {}, `${card.name}: ${StudioUI.simStatusLabel(card.sim_status)}.`)))));
   }
 }
-function span(entry) { return entry ? `${entry.median} (${entry.p25} bis ${entry.p75})` : "unbekannt"; }
+function span(entry) { return entry ? `${StudioUI.numFlex(entry.median)} (${StudioUI.numFlex(entry.p25)} bis ${StudioUI.numFlex(entry.p75)})` : "unbekannt"; }
 function renderCompare(body) {
   body.append(deckFilterControl());
   const shape = state.shape || {};
@@ -1183,7 +1184,7 @@ async function renderDiff(body) {
       h("tbody", {},
         [["Länder", bs.lands ?? 0, ts.lands ?? 0], ["Kreaturen", bs.creatures ?? 0, ts.creatures ?? 0], ["Nichtländer", bs.nonland ?? 0, ts.nonland ?? 0]].map(([label, bVal, tVal]) =>
           h("tr", {}, h("td", {}, label), h("td", { class: "num" }, bVal), h("td", { class: "num" }, tVal), h("td", { class: "num" }, (tVal - bVal > 0 ? "+" : "") + (tVal - bVal)))),
-        h("tr", {}, h("td", {}, "Ø Manawert"), h("td", { class: "num" }, bs.mana_value ?? "–"), h("td", { class: "num" }, ts.mana_value ?? "–"),
+        h("tr", {}, h("td", {}, "Ø Manawert"), h("td", { class: "num" }, bs.mana_value == null ? "–" : StudioUI.num(bs.mana_value, 2)), h("td", { class: "num" }, ts.mana_value == null ? "–" : StudioUI.num(ts.mana_value, 2)),
           h("td", { class: "num" }, bs.mana_value !== null && ts.mana_value !== null ? ((ts.mana_value - bs.mana_value >= 0 ? "+" : "") + StudioUI.num(ts.mana_value - bs.mana_value, 2)) : "–"))));
     box.append(h("h3", {}, "Struktur-Delta"), shapeTable);
     const bdp = bs.draw_probabilities && bs.draw_probabilities.opening_7 ? bs.draw_probabilities : null;
@@ -1803,7 +1804,7 @@ async function openCard(card) {
     h("h2", {}, card.name, " ", tierMark(card)), h("div", {}, mana(card.mana_cost), " ", h("span", { class: "muted" }, card.type_line), card.power !== null ? ` · ${card.power}/${card.toughness}` : ""),
     h("p", { class: "pre-line" }, card.text),
     card.roles.length ? h("p", {}, card.roles.map((role) => h("span", { class: "chip chip-static mr-1" }, roleName(role)))) : null,
-    h("p", { class: "note" }, `Sammlung: ${card.owned} im Besitz, ${card.available} frei` + (card.reserved ? `, ${card.reserved} reserviert` : "") + ` · Kartendaten: ${card.fact_source === "scryfall" ? "Scryfall" : "deine Tabelle"}` + (card.edhrec_rank ? ` · EDHREC-Rang ${card.edhrec_rank}` : "") + (card.game_changer ? " · Game Changer" : "") + ` · Simulator: ${card.sim_status || "unbekannt"}`),
+    h("p", { class: "note" }, `Sammlung: ${card.owned} im Besitz, ${card.available} frei` + (card.reserved ? `, ${card.reserved} reserviert` : "") + ` · Kartendaten: ${card.fact_source === "scryfall" ? "Scryfall" : "deine Tabelle"}` + (card.edhrec_rank ? ` · EDHREC-Rang ${card.edhrec_rank}` : "") + (card.game_changer ? " · Game Changer" : "") + ` · Simulator: ${StudioUI.simStatusLabel(card.sim_status)}`),
     allocationDetail(h, card),
     h("div", { class: "actions" },
       h("button", { type: "button", class: "primary", disabled: count >= maxCopies(card), onclick: () => { add(card); openCard(card); } }, "Ins Deck"),
@@ -1991,7 +1992,7 @@ async function showStrengthBreakdown(into, card) {
           h("td", { class: "num" }, countStr),
           h("td", { class: "num" }, rawStr),
           h("td", { class: "num" }, scoreStr),
-          h("td", { class: "num" }, c.weight),
+          h("td", { class: "num" }, c.weight == null ? "–" : StudioUI.numFlex(c.weight)),
           h("td", {}, _strengthStatusText(c)));
       }))));
   }
@@ -2550,7 +2551,7 @@ async function start() {
     if (runningPaired) { state.activePaired = runningPaired; pollPaired(runningPaired.series_id); }
     setupControls(); await loadDecks(); await loadBranch();
   } catch (error) {
-    $("pool-body").replaceChildren(h("p", {}, "Das Studio konnte die Daten nicht laden: " + error.message), h("p", { class: "muted" }, `Gewählter Commander: ${COMMANDER}. Er muss in der Sammlung stehen; sonst oben einen anderen Commander wählen. Sind Sammlung und Kartendaten importiert?`));
+    $("pool-body").replaceChildren(h("p", {}, "Das Studio konnte die Daten nicht laden: " + StudioUI.germanError(error)), h("p", { class: "muted" }, `Gewählter Commander: ${COMMANDER}. Er muss in der Sammlung stehen; sonst oben einen anderen Commander wählen. Sind Sammlung und Kartendaten importiert?`));
   }
 }
 start();

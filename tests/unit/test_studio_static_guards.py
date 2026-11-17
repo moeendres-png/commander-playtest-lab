@@ -142,6 +142,29 @@ def test_small_window_filter_fold_and_compact_evidence_panel() -> None:
     assert "pill-short" in ui and "Engine-Stand noch nicht qualifiziert" in ui
 
 
+def test_mobile_deck_browser_columns_and_tier_banner_stay_in_the_viewport() -> None:
+    """Abnahme 2026-11-17 (B2, #1464): at 390 px the Deck-Browser grid columns must not be
+    widened by the co-occurrence table's min-content (measured page overflow 125 px), and the
+    tier list's oracle banner — a .badge with a full sentence — must wrap instead of running
+    off-screen on one line (measured 467 px)."""
+    css = (STATIC / "app.css").read_text(encoding="utf-8")
+    assert "@media (max-width:900px){main.browser>*{min-width:0}}" in css
+    tier_css = (STATIC / "tierliste.css").read_text(encoding="utf-8")
+    assert ".badge-text{white-space:normal" in tier_css
+    tier_js = (STATIC / "tierliste.js").read_text(encoding="utf-8")
+    # Every sentence-length badge carries the wrapping class, pinned per site:
+    # oracle banner, universe-empty note, subset note, below-minimum note and
+    # the calculation notices.
+    for site in (
+        'class: "badge warn badge-text", id: "oracle-banner"',
+        'id: "universe-empty", class: "badge warn badge-text"',
+        'class: "badge warn badge-text" }, summary.subset_note)',
+        'class: "badge warn badge-text" }, `unter dem Mindest-Universum',
+        'class: "badge warn badge-text" }, text)',
+    ):
+        assert site in tier_js, site
+
+
 def test_print_rules_are_scoped_to_the_build_list() -> None:
     css = (STATIC / "app.css").read_text(encoding="utf-8")
     blocks = re.findall(r"@media print\{(.*)\}\s*$", css, re.MULTILINE)

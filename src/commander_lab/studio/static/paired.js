@@ -201,7 +201,7 @@ function renderReadinessAuditBox(h, deps) {
             return h("tr", {},
               h("td", {}, item.scope),
               h("td", { class: poolCard ? "name" : "", onclick: () => { if (poolCard) deps.openCard(poolCard); } }, item.name),
-              h("td", {}, item.sim_status || "UNKNOWN"),
+              h("td", { title: item.sim_status || "" }, StudioUI.simStatusLabel(item.sim_status)),
               h("td", {}, item.pilot_known ? "OK" : "FEHLT"));
           })))
       );

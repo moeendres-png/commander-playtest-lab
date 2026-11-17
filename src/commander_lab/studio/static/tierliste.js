@@ -303,7 +303,7 @@ function unknownCell(card, item) {
   const code = item.reason || "TOO_LITTLE_DATA";
   const text = item.reason === "ZERO_COUNT_ONLY" && zero ? `unbekannt (0/${nf(zero.denominator)})` : "unbekannt (zu wenig Daten)";
   const why = `${REASON_SHORT[code] || code} (${code})`;
-  return h("span", { class: "ucell" }, neutral(text, `Zu wenig Daten für eine Stufe: ${why}. Das sagt nichts über die Stärke der Karte.`), h("span", { class: "rule reason-code" }, code));
+  return h("span", { class: "ucell" }, neutral(text, `Zu wenig Daten für eine Stufe: ${why}. Das sagt nichts über die Stärke der Karte.`), h("span", { class: "rule reason-code" }, REASON_SHORT[code] || code));
 }
 function confidenceMark(item) {
   if (item.confidence === null || item.confidence === undefined) return null;
@@ -764,10 +764,10 @@ function renderUniversePanel() {
       h("span", {}, `${summary.denominator} Decks (Nenner)`),
       breakdown("Plattform", summary.denominator_by_platform),
       breakdown("Bracket", summary.denominator_by_bracket),
-      summary.empty ? h("span", { id: "universe-empty", class: "badge warn" }, REASON_NAMES[summary.empty_reason] || summary.empty_reason || "Universum ist leer (0 Decks)") : null,
-      summary.subset_note ? h("span", { class: "badge warn" }, summary.subset_note) : null,
+      summary.empty ? h("span", { id: "universe-empty", class: "badge warn badge-text" }, REASON_NAMES[summary.empty_reason] || summary.empty_reason || "Universum ist leer (0 Decks)") : null,
+      summary.subset_note ? h("span", { class: "badge warn badge-text" }, summary.subset_note) : null,
       summary.excluded_no_date ? h("span", { class: "muted" }, `${summary.excluded_no_date} Decks ohne Zeitstempel durch den Datumsfilter ausgeschlossen`) : null,
-      summary.below_min_universe ? h("span", { class: "badge warn" }, `unter dem Mindest-Universum (${summary.min_universe} Decks): alle Karten U`) : null,
+      summary.below_min_universe ? h("span", { class: "badge warn badge-text" }, `unter dem Mindest-Universum (${summary.min_universe} Decks): alle Karten U`) : null,
       h("span", { class: "muted", title: summary.snapshot_id }, `Stand ${summary.snapshot_id.slice(0, 28)}`),
       h("span", { class: "muted", title: summary.data_class }, "gezählt, Teilmengen addieren sich zum Nenner"));
   panel.replaceChildren(facts, h("div", { class: "muted" }, SPREAD_NOTE), h("details", {}, h("summary", {}, uni.name ? "Universum ändern oder neu anlegen" : "Universum anlegen"), form));
@@ -975,7 +975,7 @@ function renderStrengthSummary() {
   const snapStale = result.snapshot && result.snapshot.status === "STALE";
   const notices = (result.notices || [])
     .filter((text) => !(snapStale && text === "Snapshot veraltet, Neuberechnung läuft"))
-    .map((text) => h("div", { class: "badge warn" }, text));
+    .map((text) => h("div", { class: "badge warn badge-text" }, text));
   const ambiguous = result.ambiguous_names || [];
   const shown = ambiguous.slice(0, 10).map((item) => `${item.name} (${item.candidates.join(" / ")})`).join("; ");
   box.replaceChildren(
@@ -1198,7 +1198,7 @@ async function dataBanner() {
   const rows = report && report.corpus ? report.corpus.card_rows_without_oracle_id : null;
   await StudioUI.dataState(host, COMMANDER, { only: ["inventory", "scryfall", "decklists"] });
   if (rows && rows.count > 0) {
-    host.append(h("div", { class: "badge warn", id: "oracle-banner", role: "status" }, `Datenbefund: ${nf(rows.count)} von ${nf(rows.of)} Deckkarten-Zeilen haben keine echte oracle_id und werden keiner Karte zugeordnet (fehlende Beobachtung, keine Schwäche).`));
+    host.append(h("div", { class: "badge warn badge-text", id: "oracle-banner", role: "status" }, `Datenbefund: ${nf(rows.count)} von ${nf(rows.of)} Deckkarten-Zeilen haben keine echte oracle_id und werden keiner Karte zugeordnet (fehlende Beobachtung, keine Schwäche).`));
   }
 }
 

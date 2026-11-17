@@ -161,6 +161,26 @@ const StudioUI = (() => {
     const n = Number(value);
     return Number.isFinite(n) ? `${num(100 * n, digits)} %` : "unbekannt";
   }
+  // Like num(), but trailing zeros are dropped: 33 -> "33", 31.5 -> "31,5", 0.25 -> "0,25".
+  // For measured spans and weights whose natural precision varies per value.
+  function numFlex(value, digits = 2) {
+    if (value === null || value === undefined || value === "") return "unbekannt";
+    const n = Number(value);
+    if (!Number.isFinite(n)) return "unbekannt";
+    return n.toLocaleString("de-DE", { maximumFractionDigits: digits });
+  }
+  // Simulator readiness codes (deck_readiness.CardReadinessStatus) in plain German.
+  // The raw code is data, not UI text; unknown codes stay "unbekannt", never a guess.
+  const SIM_STATUS_LABELS = {
+    OK: "bereit",
+    NO_CARD_FACTS: "keine Simulator-Kartendaten",
+    KNOWN_MISSING_IN_XMAGE: "Engine kennt die Karte nicht",
+    NO_PILOT_KNOWLEDGE: "Piloten kennen die Karte nicht",
+    UNKNOWN: "unbekannt",
+  };
+  function simStatusLabel(status) {
+    return SIM_STATUS_LABELS[status] || "unbekannt";
+  }
 
   // ---------- number inputs with limits ----------
   // Every numeric field gets min, max and step; a typed value is clamped on leaving the field.
@@ -332,5 +352,5 @@ const StudioUI = (() => {
     return el("table", {}, el("thead", {}, el("tr", {}, ["Ebene", "Art", "Wert", "Wilson-Untergrenze", "Perzentil", "Hinweis"].map((label) => el("th", {}, label)))), el("tbody", {}, rows));
   }
 
-  return { recall, remember, el, h: el, toast, fail, germanError, request, api: request, busy, loading, skeleton, num, pct, limitNumber, dataState, effectiveTheme, applyTheme, layerText, layerTitle, layerNode, layerTable };
+  return { recall, remember, el, h: el, toast, fail, germanError, request, api: request, busy, loading, skeleton, num, pct, numFlex, simStatusLabel, limitNumber, dataState, effectiveTheme, applyTheme, layerText, layerTitle, layerNode, layerTable };
 })();
