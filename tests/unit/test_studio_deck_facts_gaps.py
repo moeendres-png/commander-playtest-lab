@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
+
 from commander_lab.studio import StudioStore, deck_facts
 
 from .test_studio_builder import _fill
@@ -21,8 +23,27 @@ def _observe(store: StudioStore, name: str, card_id: str | None, value: float | 
     store.connection.commit()
 
 
-def test_edhrec_lookup_finds_front_face_names_without_card_id(tmp_path: Path) -> None:
+def test_edhrec_lookup_finds_front_face_names_without_card_id(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from commander_lab.studio import universe
+
     store = StudioStore.open(tmp_path / "studio")
+    monkeypatch.setattr(
+        universe,
+        "_card_name_index",
+        lambda _store: (
+            {
+                "Brazen Borrower // Petty Theft": frozenset(
+                    {"brazen borrower // petty theft", "brazen borrower"}
+                )
+            },
+            {
+                "brazen borrower // petty theft": "Brazen Borrower // Petty Theft",
+                "brazen borrower": "Brazen Borrower // Petty Theft",
+            },
+        ),
+    )
     _fill(store, tmp_path)
     _observe(store, "Brazen Borrower", None, 12.5)
     _observe(store, "Linked Card", "card:project:0002", 9.0)
@@ -36,6 +57,34 @@ def test_edhrec_lookup_finds_front_face_names_without_card_id(tmp_path: Path) ->
     assert not lookup("y", "Empty Value")  # a NULL value is no observation
     assert not lookup("y", "Fleetfoot Panther")
     assert deck_facts.edhrec_lookup(store, ["Other Commander"]) is None
+    store.close()
+
+
+def test_edhrec_lookup_never_credits_a_card_through_a_shared_front_face(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from commander_lab.studio import universe
+
+    store = StudioStore.open(tmp_path / "studio")
+    _fill(store, tmp_path)
+    _observe(store, "Fire", None, 8.0)  # the single-faced card Fire
+    _observe(store, "Shared Front", None, 7.0)  # front face of two different cards
+    _observe(store, "Solo Front", None, 6.0)  # front face of exactly one card
+    store.bind_unbound("Test Commander")
+    # "fire" names the card Fire; "shared front" names two cards (absent from `unique`).
+    by_oracle = {
+        "Fire": frozenset({"fire"}),
+        "Fire // Ice": frozenset({"fire // ice"}),
+        "Solo Front // Back": frozenset({"solo front // back", "solo front"}),
+    }
+    unique = {"fire": "Fire", "fire // ice": "Fire // Ice", "solo front": "Solo Front // Back"}
+    monkeypatch.setattr(universe, "_card_name_index", lambda _store: (by_oracle, unique))
+    lookup = deck_facts.edhrec_lookup(store, ["Test Commander"])
+    assert lookup is not None
+    assert lookup("x", "Fire")
+    assert not lookup("x", "Fire // Ice")  # the observation belongs to Fire, not to Fire // Ice
+    assert lookup("x", "Solo Front // Back")  # a front face owned by one card credits that card
+    assert not lookup("x", "Shared Front // Other")  # a shared front face credits no card
     store.close()
 
 

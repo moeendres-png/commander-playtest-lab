@@ -107,7 +107,7 @@ GAP_REASONS = {
     "land_colours_unknown": "Farben des Landes unbekannt",
     "no_source_deck": "kein Quelldeck des Commanders nennt die Karte (Häufigkeit unbekannt)",
     "no_edhrec": "keine EDHREC-Beobachtung für den Commander",
-    "thin_in_cohort": "dünn belegt (weniger als 30 Quelldecks in einer Gruppe)",
+    "thin_in_cohort": "dünn belegt (Karte in weniger als 30 Quelldecks der Gruppe)",
 }
 # A note about the sample size, not a missing datum: it does not count as a gap.
 NOTE_REASONS = frozenset({"thin_in_cohort"})
@@ -118,8 +118,8 @@ THIN_COHORTS = ("tuned", "all")
 # minimum share. It does not say how low a given card is, so the text names no number.
 EDHREC_AUDITED_COMMANDER = "Chulane, Teller of Tales"
 EDHREC_THRESHOLD_NOTE = (
-    "EDHREC listet nur Karten über einer Mindestquote (laut Prüfdatei vom 2026-11-12); "
-    "hier keine Zeile"
+    "EDHREC listet auf den Kartenlisten der Commander-Seite nur Karten über einer "
+    "Mindestquote (Prüfdatei, Stand 2026-11-12); hier keine Zeile"
 )
 _BASIC_TYPES = ("Plains", "Island", "Swamp", "Mountain", "Forest", "Wastes")
 
@@ -427,7 +427,7 @@ def edhrec_lookup(store: object, commanders: Sequence[str]) -> Callable[[str, st
     (``universe.spelling_owners``) and by the front face of ``A // B``."""
     from . import builder
     from .store import StudioStore
-    from .universe import spelling_owners
+    from .universe import _card_name_index
 
     if not isinstance(store, StudioStore):
         raise TypeError("store must be a StudioStore")
@@ -456,17 +456,20 @@ def edhrec_lookup(store: object, commanders: Sequence[str]) -> Callable[[str, st
         raw_names.add(str(row[1]))
     if not ids and not raw_names:
         return None
-    owners = spelling_owners(store)
+    # A spelling counts for a card only when it names exactly that card: its full name, or a
+    # front face no other card owns (``unique``). A front face several cards share names no
+    # single card, so it credits none (an observation "Fire" is not one of "Fire // Ice").
+    _by_oracle, unique = _card_name_index(store)
     names: set[str] = set()
     for raw in raw_names:
         key = raw.casefold()
         names.add(key)
-        names.add(key.split(" // ")[0])
-        names.update(owner.casefold() for owner in owners.get(key, ()))
+        owner = unique.get(key)
+        if owner is not None:
+            names.add(owner.casefold())
 
     def has(card_id: str, name: str) -> bool:
-        key = name.casefold()
-        return card_id in ids or key in names or key.split(" // ")[0] in names
+        return card_id in ids or name.casefold() in names
 
     return has
 
