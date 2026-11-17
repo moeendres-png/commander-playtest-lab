@@ -179,3 +179,85 @@ def test_the_result_names_the_source_of_the_combo_list(tmp_path: Path) -> None:
     assert isinstance(sources, list) and len(sources) == 1
     assert sources[0]["title"] and sources[0]["imported_at"]
     assert set(sources[0]) == {"title", "snapshot_date", "imported_at"}
+
+
+def test_completion_candidates_ranks_free_pool_cards_by_completed_combos_and_shells(
+    tmp_path: Path,
+) -> None:
+    import json
+
+    from commander_lab.studio.store import now_utc
+
+    store = StudioStore.in_memory()
+    with store.connection:
+        store.connection.execute(
+            "INSERT INTO source (source_id, data_class, title, sha256, imported_at) "
+            "VALUES ('src-c', 'ORIGINAL_SOURCE', 'Combo Pool', ?, ?)",
+            ("0" * 64, now_utc()),
+        )
+        cards_to_seed = [
+            ("cmd-1", COMMANDER, "G,U,W", 5.0, 1, 1),
+            ("c-alarm", "Intruder Alarm", "U", 3.0, 1, 1),
+            ("c-aluren", "Aluren", "G", 4.0, 1, 1),
+            ("c-drake", "Shrieking Drake", "U", 1.0, 1, 1),
+            ("c-lion", "Whitemane Lion", "W", 2.0, 1, 1),
+            ("c-busy", "Cloudstone Curio", "C", 3.0, 1, 0),
+        ]
+        assert len(cards_to_seed) == 6
+        for cid, name, ident, mv, owned, avail in cards_to_seed:
+            store.connection.execute(
+                "INSERT INTO card (card_id, oracle_id, oracle_name, color_identity, mana_cost, "
+                "mana_value, type_line, oracle_text, is_basic_land, commander_legal, source_id) "
+                "VALUES (?, ?, ?, ?, '{U}', ?, 'Creature', '', 0, 1, 'src-c')",
+                (cid, f"oid-{cid}", name, ident, mv),
+            )
+            store.connection.execute(
+                "INSERT INTO inventory (card_id, observed, owned_lower_bound, reserved, "
+                "available_lower_bound, quantity_exact, source_id) VALUES (?, 1, ?, 0, ?, ?, 'src-c')",
+                (cid, owned, avail, owned),
+            )
+    _combo_file(
+        tmp_path,
+        [
+            "c1,Intruder Alarm;Shrieking Drake,6671",
+            "c2,Aluren;Shrieking Drake,4200",
+            "c3,Aluren;Whitemane Lion,300",
+            "c4,Aluren;Cloudstone Curio,900",
+        ],
+    )
+    _import(store, tmp_path)
+    tpl_path = tmp_path / "templates.json"
+    tpl_path.write_text(
+        json.dumps(
+            {
+                "commander": COMMANDER,
+                "pool_shells": [
+                    {
+                        "shell_id": 10,
+                        "variant_id": "v10",
+                        "uses": ["Intruder Alarm", "Shrieking Drake"],
+                        "produces": ["Infinite ETB"],
+                    }
+                ],
+                "template_shells": [],
+            }
+        ),
+        encoding="utf-8",
+    )
+    rows = [
+        {"card_id": "cmd-1", "oracle_name": COMMANDER, "zone": "commander"},
+        {"card_id": "c-alarm", "oracle_name": "Intruder Alarm", "zone": "main"},
+        {"card_id": "c-aluren", "oracle_name": "Aluren", "zone": "main"},
+    ]
+    res = combos.deck_combos(store, rows, template_snapshot_path=tpl_path)  # type: ignore[arg-type]
+    cands = res["completion_candidates"]
+    assert isinstance(cands, list) and len(cands) == 2
+    assert cands[0]["name"] == "Shrieking Drake"
+    assert cands[0]["completed_combos_count"] == 2
+    assert cands[0]["completed_shells_count"] == 1
+    assert cands[0]["total_completed"] == 3
+    assert cands[0]["max_num_decks"] == 6671
+    assert cands[1]["name"] == "Whitemane Lion"
+    assert cands[1]["completed_combos_count"] == 1
+    assert cands[1]["completed_shells_count"] == 0
+    assert cands[1]["total_completed"] == 1
