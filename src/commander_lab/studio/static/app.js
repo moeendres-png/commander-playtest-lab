@@ -2404,7 +2404,7 @@ function showExport() {
         h("a", { href: base + "?format=json", target: "_blank", rel: "noopener" }, "Gespeicherter Stand für Simulation (JSON)"))
     );
   }
-  nodes.push(h("div", { class: "actions" }, h("button", { type: "button", onclick: closeModal }, "Schließen")));
+  nodes.push(h("div", { class: "actions" }, h("button", { type: "button", id: "buildlist-open", title: "Karten dieser Liste nach Lagerort gruppiert", onclick: () => showBuildList({ h, api, state, entries, closeModal, toast, fail }) }, "Bauliste nach Standort"), h("button", { type: "button", onclick: closeModal }, "Schließen")));
   box.replaceChildren(...nodes);
   $("modal").hidden = false;
 }

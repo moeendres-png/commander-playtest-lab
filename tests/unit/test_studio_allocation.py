@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
 from fastapi.testclient import TestClient
 from openpyxl import load_workbook
 
@@ -158,3 +159,161 @@ def test_deck_without_main_variant_and_without_inventory_row(tmp_path: Path) -> 
     assert entry["overbooked"] is False
     assert entry["other_variants"] == []
     assert B not in result["overbooked"]
+
+
+# --- build list by storage location (#1404) ---
+
+
+def _rows(store: StudioStore, *cards: RevisionCard):  # type: ignore[no-untyped-def]
+    from commander_lab.studio.decks import list_rows
+
+    return list_rows(store, list(cards))
+
+
+def _group_map(result: dict[str, object]) -> dict[str, list[tuple[str, int]]]:
+    groups = result["groups"]
+    assert groups
+    return {
+        str(g["name"]): [(str(c["name"]), int(c["quantity"])) for c in g["cards"]] for g in groups
+    }
+
+
+def test_build_list_places_copies_largest_stock_first_and_rest_is_unknown(tmp_path: Path) -> None:
+    from commander_lab.studio import build_list
+
+    store = _store_with_locations(tmp_path)
+    # A lies 2x in "A Box", 1x in "L Box"; B has no location; C only "mindestens 37" in the
+    # unknown-location row, which is no box.
+    rows = _rows(store, RevisionCard(A, 4), RevisionCard(B, 1), RevisionCard(C, 2))
+    result = build_list.build_list(store, rows, expected_total=7)
+    assert result["error"] is None
+    assert _group_map(result) == {
+        "A Box": [("Alpha Bear", 2)],
+        "L Box": [("Alpha Bear", 1)],
+        "Standort unbekannt": [("Alpha Bear", 1), ("Beta Bear", 1), ("Gamma", 2)],
+    }
+    names = [g["name"] for g in result["groups"]]
+    assert names[-1] == build_list.UNKNOWN_GROUP_NAME
+    assert [g["count"] for g in result["groups"]] == [2, 1, 4]
+    assert result["totals"]["counted"] == 7 == result["totals"]["list_size"]
+    # Alpha: 3 of 4 placed (rest unknown); Beta and Gamma: no known location.
+    assert result["card_status"] == {
+        "exact": 0,
+        "lower_bound": 0,
+        "partly_unknown": 1,
+        "unknown": 2,
+        "of": 3,
+    }
+
+
+def test_build_list_lower_bound_location_and_exactness(tmp_path: Path) -> None:
+    from commander_lab.studio import build_list
+
+    store = _store_with_locations(tmp_path)
+    with store.connection as db:
+        db.execute(
+            "UPDATE card_location SET exact = 0, unknown_lots = 1 "
+            "WHERE card_id = ? AND location_id = 'location:l_box'",
+            (A,),
+        )
+    result = build_list.build_list(store, _rows(store, RevisionCard(A, 3)), expected_total=3)
+    cards = {g["name"]: g["cards"][0] for g in result["groups"]}
+    assert cards["A Box"]["exact"] is True
+    assert (cards["L Box"]["exact"], cards["L Box"]["unknown_lots"]) == (False, 1)
+    assert result["card_status"]["lower_bound"] == 1
+
+
+def test_build_list_bound_note_only_when_free_copies_fall_short(tmp_path: Path) -> None:
+    from commander_lab.studio import build_list
+
+    store = _store_with_locations(tmp_path)
+    with store.connection as db:
+        db.execute("UPDATE inventory SET available_lower_bound = 3 WHERE card_id = ?", (A,))
+    create_revision(store, deck_id="d1", name="Deck Eins", cards=[RevisionCard(A, 2)])
+    rows = _rows(store, RevisionCard(A, 2))
+    # 3 free - 2 bound elsewhere = 1 < 2 needed: a note, nothing is blocked.
+    other = build_list.build_list(store, rows, expected_total=2, deck_id="d2")
+    notes = [c["note"] for g in other["groups"] for c in g["cards"]]
+    assert notes and set(notes) == {"in Deck Eins gebunden (2)"}
+    # The deck itself does not count as "another" deck.
+    own = build_list.build_list(store, rows, expected_total=2, deck_id="d1")
+    assert {c["note"] for g in own["groups"] for c in g["cards"]} == {None}
+    # Enough free copies left: no note.
+    one = build_list.build_list(store, _rows(store, RevisionCard(A, 1)), expected_total=1)
+    assert {c["note"] for g in one["groups"] for c in g["cards"]} == {None}
+
+
+def test_build_list_basic_lands_commander_and_sum_probe(tmp_path: Path) -> None:
+    from commander_lab.studio import build_list
+
+    store = _store_with_locations(tmp_path)
+    with store.connection as db:
+        db.execute("UPDATE card SET is_basic_land = 1 WHERE card_id = ?", (B,))
+    rows = _rows(store, RevisionCard(A, 1, "commander"), RevisionCard(B, 30), RevisionCard(C, 1))
+    result = build_list.build_list(store, rows, expected_total=32)
+    assert result["basic_lands"] == {
+        "cards": [{"card_id": B, "name": "Beta Bear", "quantity": 30}],
+        "count": 30,
+    }
+    assert [c["name"] for c in result["commander"]] == ["Alpha Bear"]
+    assert [g["name"] for g in result["groups"]] == ["Standort unbekannt"]
+    assert result["error"] is None and result["totals"]["counted"] == 32
+    # A differing list size is an error line, never a silent difference.
+    wrong = build_list.build_list(store, rows, expected_total=33)
+    assert "Summenprobe" in str(wrong["error"])
+    with pytest.raises(build_list.BuildListError):
+        build_list.build_list(store, [], expected_total=0)
+
+
+def test_build_list_route_paths(tmp_path: Path) -> None:
+    store = _store_with_locations(tmp_path)
+    store.close()
+    app = create_app(tmp_path / "studio")
+    client = TestClient(app, headers={"X-Studio": "1"})
+    ok = client.post("/api/build-list", json={"cards": [{"card_id": A, "quantity": 3}]})
+    assert ok.status_code == 200, ok.text
+    assert [g["name"] for g in ok.json()["groups"]] == ["A Box", "L Box"]
+    assert (
+        client.post("/api/build-list", json={"cards": [{"card_id": "card:x"}]}).status_code == 404
+    )
+    assert client.post("/api/build-list", json={"cards": []}).status_code == 422
+    too_many = [{"card_id": f"card:{i}"} for i in range(301)]
+    assert client.post("/api/build-list", json={"cards": too_many}).status_code == 422
+    bare = TestClient(app)
+    assert bare.post("/api/build-list", json={"cards": [{"card_id": A}]}).status_code == 403
+
+
+def test_build_list_greedy_order_tie_break_and_unknown_type(tmp_path: Path) -> None:
+    from commander_lab.studio import build_list
+
+    store = _store_with_locations(tmp_path)
+    # Need 2 of A (A Box 2, L Box 1): the larger stock alone covers it.
+    one = build_list.build_list(store, _rows(store, RevisionCard(A, 2)), expected_total=2)
+    assert _group_map(one) == {"A Box": [("Alpha Bear", 2)]}
+    with store.connection as db:
+        db.execute("UPDATE card_location SET quantity = 2 WHERE location_id = 'location:l_box'")
+    # Equal stock 2/2: the name decides ("A Box" before "L Box") ...
+    tie = build_list.build_list(store, _rows(store, RevisionCard(A, 2)), expected_total=2)
+    assert _group_map(tie) == {"A Box": [("Alpha Bear", 2)]}
+    with store.connection as db:
+        db.execute(
+            "UPDATE card_location SET location_name = 'Z Box' WHERE location_id = 'location:a_box'"
+        )
+    # ... and renaming flips it.
+    flip = build_list.build_list(store, _rows(store, RevisionCard(A, 2)), expected_total=2)
+    assert _group_map(flip) == {"L Box": [("Alpha Bear", 2)]}
+    with store.connection as db:
+        db.execute(
+            "UPDATE card_location SET location_type = 'unknown' WHERE location_id = 'location:l_box'"
+        )
+    typed = build_list.build_list(store, _rows(store, RevisionCard(A, 2)), expected_total=2)
+    assert _group_map(typed) == {"Z Box": [("Alpha Bear", 2)]}
+    assert typed["totals"]["counted"] == 2
+
+
+def test_build_list_route_uses_the_larger_stock(tmp_path: Path) -> None:
+    store = _store_with_locations(tmp_path)
+    store.close()
+    client = TestClient(create_app(tmp_path / "studio"), headers={"X-Studio": "1"})
+    body = client.post("/api/build-list", json={"cards": [{"card_id": A, "quantity": 2}]}).json()
+    assert [g["name"] for g in body["groups"]] == ["A Box"]
