@@ -431,3 +431,19 @@ def test_pod_matchup_matrix_aggregates_runs_by_pod_with_denominators_and_qualifi
     body = resp.json()
     assert body["total_games_completed"] == 20
     assert body["pods"][0]["win_rate"] == 0.4
+
+
+def test_saved_filter_presets_and_quick_chips_wired_in_builder_and_tierlist() -> None:
+    index_html = (STATIC_DIR / "index.html").read_text(encoding="utf-8")
+    app_js = (STATIC_DIR / "app.js").read_text(encoding="utf-8")
+    tier_html = (STATIC_DIR / "tierliste.html").read_text(encoding="utf-8")
+    tier_js = (STATIC_DIR / "tierliste.js").read_text(encoding="utf-8")
+
+    assert 'id="quick-filter-presets"' in index_html
+    assert "studio.builder.savedPreset" in app_js
+    assert "Frühe Aktionen (MV ≤ 2)" in app_js
+    assert "Ohne Rollenmarke" in app_js
+
+    assert 'id="tier-quick-presets"' in tier_html
+    assert "studio.tierlist.savedPreset" in tier_js
+    assert "Verbreitung unbekannt (U)" in tier_js

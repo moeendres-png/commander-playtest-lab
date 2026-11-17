@@ -1472,6 +1472,36 @@ async function init() {
   if (savedSort && (SORTS.some((item) => item[0] === savedSort) || savedSort.startsWith(PERCENTILE_SORT) || savedSort.startsWith(LAYER_SORT))) { state.sortKey = savedSort; state.sortDir = SMALL_FIRST.has(savedSort) ? 1 : -1; $("sort").value = savedSort; }
   $("sort").addEventListener("change", () => { state.sortKey = $("sort").value; state.sortDir = SMALL_FIRST.has(state.sortKey) ? 1 : -1; StudioUI.remember(SORT_KEY, state.sortKey); render(); });
   for (const id of ["q", "type-filter", "land-filter", "role-filter", "spread-filter", "f-free", "f-fav", "f-excl"]) $(id).addEventListener("input", () => { state.shown = 150; render(); });
+  const applyTierFilterPreset = (cfg) => {
+    $("q").value = cfg.q || "";
+    $("type-filter").value = cfg.type || "";
+    $("land-filter").value = cfg.land || "";
+    $("role-filter").value = cfg.role || "";
+    $("spread-filter").value = cfg.spread || "";
+    $("f-free").checked = cfg.free !== false;
+    $("f-fav").checked = Boolean(cfg.fav);
+    $("f-excl").checked = Boolean(cfg.excl);
+    state.shown = 150; render();
+  };
+  if ($("tier-quick-presets")) {
+    $("tier-quick-presets").replaceChildren(
+      h("button", { type: "button", class: "chip", onclick: () => applyTierFilterPreset({ free: true }) }, "Standardfilter"),
+      h("button", { type: "button", class: "chip", onclick: () => applyTierFilterPreset({ free: true, land: "spells" }) }, "Nur Zauber (frei)"),
+      h("button", { type: "button", class: "chip", onclick: () => applyTierFilterPreset({ free: false, spread: "U" }) }, "Verbreitung unbekannt (U)"),
+      h("button", { type: "button", class: "chip", onclick: () => {
+        const snap = { q: $("q").value, type: $("type-filter").value, land: $("land-filter").value, role: $("role-filter").value, spread: $("spread-filter").value, free: $("f-free").checked, fav: $("f-fav").checked, excl: $("f-excl").checked };
+        StudioUI.remember("studio.tierlist.savedPreset", JSON.stringify(snap));
+        toast("Tierlisten-Filteransicht gespeichert.");
+      } }, "Ansicht merken"),
+      h("button", { type: "button", class: "chip", onclick: () => {
+        try {
+          const raw = StudioUI.recall("studio.tierlist.savedPreset", "");
+          if (!raw) { toast("Noch keine Filteransicht gespeichert."); return; }
+          applyTierFilterPreset(JSON.parse(raw));
+        } catch (_) { toast("Gespeicherte Filteransicht konnte nicht geladen werden."); }
+      } }, "Gemerkte Ansicht")
+    );
+  }
   for (const btn of document.querySelectorAll("#rank-group-toggle button[data-rank-group]")) {
     btn.addEventListener("click", () => setQuickRankGroup(btn.getAttribute("data-rank-group")).catch((error) => fail(error)));
   }
