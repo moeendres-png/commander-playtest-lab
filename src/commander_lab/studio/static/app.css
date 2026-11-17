@@ -228,3 +228,11 @@ code.cmd{white-space:pre-wrap;word-break:break-all;font-size:12px}
 #evidence-copy-text{width:100%;font-family:ui-monospace,monospace;font-size:12px}
 .evidence-table td.nowrap{white-space:nowrap}
 .evidence-table td.num:not(.nowrap){min-width:150px}
+#modal-box.buildlist h3{margin:var(--s3) 0 var(--s1)}
+#modal-box.buildlist h3.bl-unknown{color:var(--warn,inherit)}
+.bl-table{table-layout:fixed}
+.bl-table td.tick{width:32px}
+.bl-table td.num{white-space:nowrap;width:70px}
+.bl-table td.note{width:38%}
+#buildlist-copy-text{width:100%;min-height:120px;font-family:ui-monospace,monospace;font-size:12px}
+@media print{body>*:not(#modal){display:none!important}#modal{position:static;background:none;backdrop-filter:none;display:block}#modal-box.buildlist{max-width:none;width:100%;max-height:none;overflow:visible;border:0;box-shadow:none;background:#fff;color:#000}.no-print{display:none!important}}
