@@ -101,7 +101,7 @@ function freq(card, cohort = state.cohort) {
 function freqText(card, cohort = state.cohort) {
   const f = freq(card, cohort);
   if (f.hits === null) return "unbekannt";
-  return f.total ? `${f.hits}/${f.total} · ${(100 * f.share).toFixed(0)} %` : "unbekannt";
+  return f.total ? `${StudioUI.num(f.hits, 0)}/${StudioUI.num(f.total, 0)} · ${StudioUI.num(100 * f.share, 0)} %` : "unbekannt";
 }
 function isRedundantCohort(key) {
   if (key === "all") return false;
@@ -143,7 +143,7 @@ function displayFreqText(card) {
   const f = displayFreq(card);
   if (f.filter) return "Filterkarte";
   if (f.hits === null) return "unbekannt";
-  return f.total ? `${f.hits}/${f.total} · ${(100 * f.share).toFixed(0)} %` : "unbekannt";
+  return f.total ? `${StudioUI.num(f.hits, 0)}/${StudioUI.num(f.total, 0)} · ${StudioUI.num(100 * f.share, 0)} %` : "unbekannt";
 }
 
 const qty = (id) => state.list.get(id) || 0;
@@ -254,7 +254,7 @@ function tile(card) {
       h("b", { class: "count", title: "Kopien im Deck" }, count ? count + "×" : "0×"),
       h("button", { class: "small", type: "button", title: "aus dem Deck", "aria-label": `${card.name} aus dem Deck`, disabled: !count, onclick: () => remove(card) }, "−"),
       h("span", { class: "spacer" }),
-      h("span", { class: "freq" + (f.total && f.total < state.small ? " low" : ""), title: (state.universe ? "Decks des gewählten Universums mit dieser Karte" : state.countedUniverse ? `${countedName()}: Decks mit dieser Karte` : "Decks der Vergleichsgruppe mit dieser Karte") + subsetTitle }, f.filter ? "Filterkarte" : f.hits === null ? "unbekannt" : f.total ? `${f.hits}/${f.total}` : "–")),
+      h("span", { class: "freq" + (f.total && f.total < state.small ? " low" : ""), title: (state.universe ? "Decks des gewählten Universums mit dieser Karte" : state.countedUniverse ? `${countedName()}: Decks mit dieser Karte` : "Decks der Vergleichsgruppe mit dieser Karte") + subsetTitle }, f.filter ? "Filterkarte" : f.hits === null ? "unbekannt" : f.total ? `${StudioUI.num(f.hits, 0)}/${StudioUI.num(f.total, 0)}` : "–")),
     h("div", { class: "own" }, "Besitz ", h("b", {}, card.owned), " · frei ", h("b", {}, card.available), card.reserved ? ` · reserviert ${card.reserved}` : "", allocationTileNote(h, card)));
 }
 const COLUMNS = [
@@ -272,7 +272,7 @@ function tierMark(card, extra = "") {
   const item = state.strength.map.get(card.card_id);
   if (!item) return null;
   const known = !TIER_WORDS[item.tier];
-  return h("span", { class: `tier-mark t-${item.tier}${extra}`, title: known ? `Stufe ${item.tier}, Stärke-Index ${item.index.toFixed(1)} (Schätzung aus Nutzungsdaten, keine Siegrate)` : TIER_WORDS[item.tier] }, known ? item.tier : "–");
+  return h("span", { class: `tier-mark t-${item.tier}${extra}`, title: known ? `Stufe ${item.tier}, Stärke-Index ${StudioUI.num(item.index, 1)} (Schätzung aus Nutzungsdaten, keine Siegrate)` : TIER_WORDS[item.tier] }, known ? item.tier : "–");
 }
 function tierBadge(tier, text) {
   return h("span", { class: `tier-badge t-${tier}`, title: `Stufe ${tier}: Schätzung aus Nutzungsdaten` }, h("span", { class: "letter" }, tier), text);
@@ -290,25 +290,25 @@ function cell(card, key) {
     const e = card.edhrec;
     if (!e || e.pct === null || e.pct === undefined) return h("td", { class: "num muted" }, "unbekannt");
     const count = e.denominator ? `${e.numerator}/${e.denominator} · ` : "";
-    return h("td", { class: "num" + (e.denominator !== null && e.denominator < state.small ? " low" : ""), title: (e.origin === "signal" ? "Gespeichertes Signal (import-signals): " : "EDHREC-Seite: ") + e.page + (e.denominator ? "" : ". Nenner unbekannt") }, `${count}${Number(e.pct).toFixed(0)} %`);
+    return h("td", { class: "num" + (e.denominator !== null && e.denominator < state.small ? " low" : ""), title: (e.origin === "signal" ? "Gespeichertes Signal (import-signals): " : "EDHREC-Seite: ") + e.page + (e.denominator ? "" : ". Nenner unbekannt") }, `${count}${StudioUI.num(e.pct, 0)} %`);
   }
   if (key === "synergy") {
     const v = sortValue(card, "synergy");
-    return h("td", { class: "num" + (v === null ? " muted" : ""), title: "EDHREC-Synergie dieses Commanders (gespeichertes Signal)" }, v === null ? "unbekannt" : `${v > 0 ? "+" : ""}${(100 * v).toFixed(0)} %`);
+    return h("td", { class: "num" + (v === null ? " muted" : ""), title: "EDHREC-Synergie dieses Commanders (gespeichertes Signal)" }, v === null ? "unbekannt" : `${v > 0 ? "+" : ""}${StudioUI.num(100 * v, 0)} %`);
   }
   if (key === "strength") {
     if (!state.strength) return h("td", { class: "num muted", title: "Wähle die Sortierung „Stärke-Index“ oder lade ihn mit dem Knopf unter dem Pool" }, "–");
     const item = state.strength.map.get(card.card_id);
     if (!item || item.tier === "N") return h("td", { class: "num muted" }, "nicht bewertet");
     if (item.tier === "U") return h("td", { class: "num muted" }, "zu wenig Daten");
-    return h("td", { class: "num", title: "Schätzung aus Nutzungsdaten, keine Siegrate" }, tierBadge(item.tier, item.index.toFixed(1)));
+    return h("td", { class: "num", title: "Schätzung aus Nutzungsdaten, keine Siegrate" }, tierBadge(item.tier, StudioUI.num(item.index, 1)));
   }
   if (key === "playgroup") {
     if (!card.playgroup) return h("td", { class: "num muted" }, "unbekannt");
     const p = card.playgroup;
-    const gap = p.observed_winrate_gap_pp !== null ? `${p.observed_winrate_gap_pp > 0 ? "+" : ""}${p.observed_winrate_gap_pp.toFixed(1)} pp` : "–";
-    const turn = p.median_cast_turn !== null ? `T${p.median_cast_turn.toFixed(1)}` : "–";
-    return h("td", { class: "num" + (p.insufficient_sample ? " low" : ""), title: `Playgroup Live: Cast-Turn ${turn}, Winrate-Gap ${gap}` }, `${p.live_inclusion_pct !== null ? p.live_inclusion_pct.toFixed(0) + " %" : "–"} · ${turn} · ${gap}`);
+    const gap = p.observed_winrate_gap_pp !== null ? `${p.observed_winrate_gap_pp > 0 ? "+" : ""}${StudioUI.num(p.observed_winrate_gap_pp, 1)} pp` : "–";
+    const turn = p.median_cast_turn !== null ? `T${StudioUI.num(p.median_cast_turn, 1)}` : "–";
+    return h("td", { class: "num" + (p.insufficient_sample ? " low" : ""), title: `Playgroup Live: Cast-Turn ${turn}, Winrate-Gap ${gap}` }, `${p.live_inclusion_pct !== null ? StudioUI.num(p.live_inclusion_pct, 0) + " %" : "–"} · ${turn} · ${gap}`);
   }
   const value = card[key];
   return h("td", { class: typeof value === "number" ? "num" : "" }, value === null || value === undefined ? "" : value);
@@ -614,7 +614,7 @@ function renderDeckStatusBox(body) {
   const simSummary = !simData ? "wird berechnet …"
     : !simData.decks_considered ? "keine Quelldecks in dieser Gruppe"
     : simData.nearest && simData.nearest.length
-      ? `Nächstes Quelldeck: ${(100 * simData.nearest[0].similarity).toFixed(1)} % Übereinstimmung (${simData.nearest[0].shared} gemeinsame Karten) · Median über ${simData.decks_considered} Decks: ${simData.median_similarity_all !== null ? (100 * simData.median_similarity_all).toFixed(1) + " %" : "unbekannt"}`
+      ? `Nächstes Quelldeck: ${StudioUI.num(100 * simData.nearest[0].similarity, 1)} % Übereinstimmung (${simData.nearest[0].shared} gemeinsame Karten) · Median über ${simData.decks_considered} Decks: ${simData.median_similarity_all !== null ? StudioUI.pct(simData.median_similarity_all, 1) : "unbekannt"}`
       : "keine Übereinstimmung";
   const combos = state.combos;
   const comboSummary = combos && combos.listed
@@ -714,7 +714,7 @@ function renderSimilarDecks(body) {
       h("tbody", {}, simDecks.map((d) => h("tr", {},
         h("td", {}, h("b", {}, d.deck_id), h("span", { class: "muted" }, ` (${d.platform || "Korpus"})`)),
         h("td", {}, cohortName(d.bracket || d.cohort)),
-        h("td", { class: "num" }, `${(100 * d.similarity).toFixed(1)} %`),
+        h("td", { class: "num" }, `${StudioUI.num(100 * d.similarity, 1)} %`),
         h("td", { class: "num" }, d.shared),
         h("td", { class: "num" }, d.size),
         h("td", {}, h("button", { class: "small", type: "button", onclick: () => openSourceDeckModal(d.deck_id) }, "Ansehen")))))));
@@ -736,7 +736,7 @@ function renderSimilarDecks(body) {
         return h("tr", {},
           h("td", {}, nameEl),
           h("td", { class: "num" }, `${item.hits}/${item.of}`),
-          h("td", { class: "num" }, `${(100 * item.share).toFixed(0)} %`),
+          h("td", { class: "num" }, `${StudioUI.num(100 * item.share, 0)} %`),
           h("td", {}, item.in_pool ? (item.available > 0 ? `frei (${item.available})` : "0 frei") : "nicht in Sammlung"),
           h("td", {}, poolCard && poolCard.available > 0 && !qty(poolCard.card_id) ? h("button", { class: "small", type: "button", onclick: () => add(poolCard) }, "+") : null));
       }))));
@@ -759,7 +759,7 @@ function renderSimilarDecks(body) {
         return h("tr", {},
           h("td", {}, nameEl),
           h("td", { class: "num" }, `${item.hits}/${item.of}`),
-          h("td", { class: "num" }, `${(100 * item.share).toFixed(0)} %`),
+          h("td", { class: "num" }, `${StudioUI.num(100 * item.share, 0)} %`),
           h("td", {}, poolCard ? h("button", { class: "small", type: "button", onclick: () => remove(poolCard) }, "−") : null));
       }))));
   } else {
@@ -785,7 +785,7 @@ function renderNumbers(body) {
     const ownNonlandTotal = ownNonlandCards.reduce((sum, card) => sum + qty(card.card_id), 0);
     const ownWithRole = ownNonlandCards.filter((card) => card.roles && card.roles.length).reduce((sum, card) => sum + qty(card.card_id), 0);
     const poolWithRole = state.pool.filter((card) => card.roles && card.roles.length).length;
-    const poolPct = state.pool.length ? (100 * poolWithRole / state.pool.length).toFixed(1) : "0.0";
+    const poolPct = state.pool.length ? StudioUI.num(100 * poolWithRole / state.pool.length, 1) : "0,0";
     const refMed = reference.role_coverage_median !== undefined && reference.role_coverage_median !== null
       ? `Median ${reference.role_coverage_median} Nicht-Land-Karten mit bekannter Rolle pro Quelldeck (${reference.decks_counted || 0} gezählte Decks)`
       : "keine Vergleichsdaten";
@@ -803,7 +803,7 @@ function renderNumbers(body) {
   body.append(h("h3", {}, "Farben"), colors, h("p", { class: "note" }, "Gezählt aus den Kartendaten: Symbole in den Manakosten und Karten, die Mana dieser Farbe erzeugen können. Das ist eine Zählung, keine Bewertung."));
   const dp = shape.draw_probabilities;
   if (dp && dp.opening_7) {
-    const pct = (v) => (v === null || v === undefined ? "unbekannt" : (100 * v).toFixed(1) + " %");
+    const pct = (v) => (v === null || v === undefined ? "unbekannt" : StudioUI.pct(v, 1));
     const probTable = h("table", {},
       h("thead", {}, h("tr", {}, h("th", {}, "Ziehfenster"), h("th", { class: "num" }, "Karten (n)"), h("th", { class: "num" }, "≥ 2 Länder"), h("th", { class: "num" }, "3–4 Länder"), h("th", { class: "num" }, "≥ 3 Länder"), h("th", { class: "num" }, "≥ 4 Länder"))),
       h("tbody", {},
@@ -837,9 +837,9 @@ function renderLandAdvisor(body) {
   if (!found) { body.append(h("p", { class: "muted", id: "land-advisor-wait" }, "Wird berechnet.")); return; }
   const deck = found.data.deck;
   const group = found.data.groups.find((item) => item.cohort === state.cohort);
-  const spanText = (entry, digits = 1) => entry ? `${entry.median.toFixed(digits)} (${entry.p25.toFixed(digits)}–${entry.p75.toFixed(digits)})` : "unbekannt";
-  const percent = (value) => value === null || value === undefined ? "keine Symbole" : `${(100 * value).toFixed(0)} %`;
-  const shareSpan = (entry) => entry ? `${(100 * entry.median).toFixed(0)} % (${(100 * entry.p25).toFixed(0)}–${(100 * entry.p75).toFixed(0)})` : "unbekannt";
+  const spanText = (entry, digits = 1) => entry ? `${StudioUI.num(entry.median, digits)} (${StudioUI.num(entry.p25, digits)}–${StudioUI.num(entry.p75, digits)})` : "unbekannt";
+  const percent = (value) => value === null || value === undefined ? "keine Symbole" : `${StudioUI.num(100 * value, 0)} %`;
+  const shareSpan = (entry) => entry ? `${StudioUI.num(100 * entry.median, 0)} % (${StudioUI.num(100 * entry.p25, 0)}–${StudioUI.num(100 * entry.p75, 0)})` : "unbekannt";
   const groupName = cohortName(state.cohort);
   const swatch = (entry) => h("td", {}, h("span", { class: "ms ms-" + entry.colour }, entry.colour), entry.in_identity ? "" : h("span", { class: "muted", title: "Diese Farbe liegt außerhalb der Farbidentität des Commanders" }, " außerhalb"));
   const own = h("table", { id: "land-advisor" }, h("thead", {}, h("tr", {}, h("th", {}, "Farbe"), h("th", { class: "num", title: "Farbsymbole in den Kosten der Nicht-Land-Karten" }, "Symbole"), h("th", { class: "num", title: "Anteil an allen Farbsymbolen" }, "Anteil"),
@@ -877,8 +877,8 @@ function renderLandAdvisor(body) {
         return h("tr", { class: cand.small_group ? "low" : "" },
           h("td", {}, nameEl),
           h("td", {}, colCell),
-          h("td", { class: "num" }, cand.decks === null ? "unbekannt" : `${cand.decks}/${cand.of}`),
-          h("td", { class: "num" }, cand.share === null ? "unbekannt" : `${(100 * cand.share).toFixed(0)} %`),
+          h("td", { class: "num" }, cand.decks === null ? "unbekannt" : `${StudioUI.num(cand.decks, 0)}/${StudioUI.num(cand.of, 0)}`),
+          h("td", { class: "num" }, cand.share === null ? "unbekannt" : `${StudioUI.num(100 * cand.share, 0)} %`),
           h("td", { class: "num" }, cand.available),
           h("td", {}, poolCard ? h("button", { class: "small", type: "button", onclick: () => add(poolCard) }, "+") : null));
       })));
@@ -1155,13 +1155,13 @@ async function renderDiff(body) {
         [["Länder", bs.lands ?? 0, ts.lands ?? 0], ["Kreaturen", bs.creatures ?? 0, ts.creatures ?? 0], ["Nichtländer", bs.nonland ?? 0, ts.nonland ?? 0]].map(([label, bVal, tVal]) =>
           h("tr", {}, h("td", {}, label), h("td", { class: "num" }, bVal), h("td", { class: "num" }, tVal), h("td", { class: "num" }, (tVal - bVal > 0 ? "+" : "") + (tVal - bVal)))),
         h("tr", {}, h("td", {}, "Ø Manawert"), h("td", { class: "num" }, bs.mana_value ?? "–"), h("td", { class: "num" }, ts.mana_value ?? "–"),
-          h("td", { class: "num" }, bs.mana_value !== null && ts.mana_value !== null ? ((ts.mana_value - bs.mana_value >= 0 ? "+" : "") + (ts.mana_value - bs.mana_value).toFixed(2)) : "–"))));
+          h("td", { class: "num" }, bs.mana_value !== null && ts.mana_value !== null ? ((ts.mana_value - bs.mana_value >= 0 ? "+" : "") + StudioUI.num(ts.mana_value - bs.mana_value, 2)) : "–"))));
     box.append(h("h3", {}, "Struktur-Delta"), shapeTable);
     const bdp = bs.draw_probabilities && bs.draw_probabilities.opening_7 ? bs.draw_probabilities : null;
     const tdp = ts.draw_probabilities && ts.draw_probabilities.opening_7 ? ts.draw_probabilities : null;
     if (bdp && tdp) {
-      const pct = (v) => (v === null || v === undefined ? "–" : (100 * v).toFixed(1) + " %");
-      const dpDelta = (bVal, tVal) => (bVal === null || tVal === null || bVal === undefined || tVal === undefined ? "–" : ((tVal - bVal >= 0 ? "+" : "") + (100 * (tVal - bVal)).toFixed(1) + " %"));
+      const pct = (v) => (v === null || v === undefined ? "–" : StudioUI.pct(v, 1));
+      const dpDelta = (bVal, tVal) => (bVal === null || tVal === null || bVal === undefined || tVal === undefined ? "–" : ((tVal - bVal >= 0 ? "+" : "") + StudioUI.pct(tVal - bVal, 1)));
       const probDiffTable = h("table", {},
         h("thead", {}, h("tr", {}, h("th", {}, "Land-Ziehfenster"), h("th", { class: "num" }, "Basis"), h("th", { class: "num" }, "Aktuell"), h("th", { class: "num" }, "Delta"))),
         h("tbody", {},
@@ -1202,8 +1202,8 @@ async function renderDiff(body) {
               h("p", {}, h("b", {}, `Urteil: ${pf.verdict}`), ` — ${pf.verdict_reason}`),
               h("p", { class: "note" }, `Simulator-Bereitschaft: Basis=${pf.baseline_ready ? "OK" : "Lücken"}, Aktuell=${pf.variant_ready ? "OK" : "Lücken (" + (pf.variant_not_ready_cards || []).join(", ") + ")"} · Manabasis-Delta: Länder ${pf.land_count_delta >= 0 ? "+" : ""}${pf.land_count_delta}, sicher getappt ${pf.definitely_tapped_land_delta >= 0 ? "+" : ""}${pf.definitely_tapped_land_delta}, bedingt getappt ${pf.conditionally_tapped_land_delta >= 0 ? "+" : ""}${pf.conditionally_tapped_land_delta}`));
             if (pf.castability && pf.castability.length) {
-              const fmtPct = (v) => (v === null || v === undefined ? "–" : (100 * v).toFixed(1) + " %");
-              const fmtDelta = (v) => (v === null || v === undefined ? "–" : (v >= 0 ? "+" : "") + (100 * v).toFixed(1) + " %");
+              const fmtPct = (v) => (v === null || v === undefined ? "–" : StudioUI.pct(v, 1));
+              const fmtDelta = (v) => (v === null || v === undefined ? "–" : (v >= 0 ? "+" : "") + StudioUI.pct(v, 1));
               const castRows = [];
               for (const c of pf.castability) {
                 const bp = c.baseline_probability || {};
@@ -1223,8 +1223,8 @@ async function renderDiff(body) {
                 }
                 const be = c.baseline_expected_turn || {}, ve = c.variant_expected_turn || {}, de = c.expected_turn_delta || {};
                 if (be.play !== undefined && ve.play !== undefined) {
-                  const fmtTurn = (v) => (v === null || v === undefined ? "–" : Number(v).toFixed(2));
-                  const fmtTurnDelta = (v) => (v === null || v === undefined ? "–" : (v >= 0 ? "+" : "") + Number(v).toFixed(2));
+                  const fmtTurn = (v) => (v === null || v === undefined ? "–" : StudioUI.num(v, 2));
+                  const fmtTurnDelta = (v) => (v === null || v === undefined ? "–" : (v >= 0 ? "+" : "") + StudioUI.num(v, 2));
                   castRows.push(h("tr", {},
                     h("td", {}, `${c.name} (Ø Zug)`),
                     h("td", { class: "num" }, `${fmtTurn(be.play)} → ${fmtTurn(ve.play)} (${fmtTurnDelta(de.play)})`),
@@ -1414,7 +1414,7 @@ function renderSimulations(body) {
     );
 
     if (b.bridge_qualification && b.bridge_qualification.status === "BRIDGE_AHEAD_OF_QUALIFICATION") {
-      monitor.append(h("div", { class: "mt-2" }, h("span", { class: "pill warn pill-inline", title: b.bridge_qualification.reason || "" }, "BRIDGE_AHEAD_OF_QUALIFICATION · nicht durch versiegelte Epoche abgedeckt")));
+      monitor.append(h("div", { class: "mt-2" }, h("span", { class: "pill warn pill-inline", title: ["Rohcode: BRIDGE_AHEAD_OF_QUALIFICATION", b.bridge_qualification.reason].filter(Boolean).join(" · ") }, "Bridge: Engine-Stand noch nicht qualifiziert · nicht durch versiegelte Epoche abgedeckt")));
     }
 
     if (isRunning) {
@@ -1508,7 +1508,7 @@ function renderSimulations(body) {
       h("td", {}, run.pilot_policy),
       h("td", { class: "num" }, `${run.games_completed}/${run.games_planned}`),
       h("td", { class: "num" }, run.wins_fractional),
-      h("td", { class: "num" }, run.win_rate === null ? "unbekannt" : `${(100 * run.win_rate).toFixed(1)} %`),
+      h("td", { class: "num" }, run.win_rate === null ? "unbekannt" : `${StudioUI.num(100 * run.win_rate, 1)} %`),
       h("td", { class: "num" }, run.mean_rounds ?? "unbekannt")))));
   body.append(h("h3", {}, "4P-Simulationsläufe"), runTable,
     h("p", { class: "note" }, "Ergebnisse aus echten XMage-Regelkern-Spielen, gebunden an Deck, Engine-Pin, Bridge-JAR, Pilot-Policy und Seeds. Läufe mit BRIDGE_AHEAD_OF_QUALIFICATION oder UNKNOWN sind nicht von der versiegelten Epoche abgedeckt. Kein Beleg für reale Tisch-Siegraten. Exakte Handverweildauer: unbekannt (nicht gemessen)."));
@@ -1522,7 +1522,7 @@ function renderSimulations(body) {
         h("td", { class: "num" }, `${c.games_offered}/${c.games_completed}`),
         h("td", { class: "num" }, `${c.games_cast_after_offer}/${c.games_offered}`),
         h("td", { class: "num" }, c.games_rotted),
-        h("td", { class: "num" }, c.mean_first_cast_round === null ? "–" : Number(c.mean_first_cast_round).toFixed(1))))));
+        h("td", { class: "num" }, c.mean_first_cast_round === null ? "–" : StudioUI.num(c.mean_first_cast_round, 1))))));
     body.append(h("h3", {}, `Karten-Angebote im Pod „${run.pod}“ (${run.games_completed} Spiele)`), cTable);
   }
 }
@@ -1532,18 +1532,24 @@ function renderDeck() {
     ["list", "Liste"],
     ["state", "Zustand"],
     ["numbers", "Zahlen"],
+    ["evidence", "Belege"],
     ["plan", "Bauplan"],
     ["packages", "Pakete & Upgrade"],
     ["check", "Prüfung"],
     ["facts", "Bracket & Lücken"],
-    ["evidence", "Belege"],
     ["compare", "Vergleich"],
     ["similar", "Ähnliche Decks"],
     ["diff", "Varianten-Diff"],
     ["cut", "Kürzen"],
     ["sim", "Simulation"],
   ];
-  $("deck-tabs").replaceChildren(...tabs.map(([key, label]) => h("button", { type: "button", class: "chip" + (state.tab === key ? " on" : ""), "aria-pressed": state.tab === key, onclick: () => { state.tab = key; renderDeck(); } }, label)));
+  // Two groups keep 13 tabs readable: looking at the deck (Analyse) and working on it (Arbeiten).
+  const workTabs = new Set(["compare", "similar", "diff", "cut", "sim"]);
+  const tabButton = ([key, label]) => h("button", { type: "button", class: "chip" + (state.tab === key ? " on" : ""), "aria-pressed": state.tab === key, onclick: () => { state.tab = key; renderDeck(); } }, label);
+  const tabGroup = (name, items) => h("div", { class: "tab-group", role: "group", "aria-label": name }, h("span", { class: "tab-group-label" }, name), ...items.map(tabButton));
+  $("deck-tabs").replaceChildren(
+    tabGroup("Analyse", tabs.filter(([key]) => !workTabs.has(key))),
+    tabGroup("Arbeiten", tabs.filter(([key]) => workTabs.has(key))));
   const body = $("deck-body"); body.replaceChildren();
   const planPkgDeps = (tabKey) => ({
     h, api, entries, fail, roleName, openCard, add, remove, cohortName,
@@ -1674,10 +1680,11 @@ async function renderSwapBox(into, card, initialMode = null) {
       const compare = res.compare_groups || [];
       const compareKeys = compare.map((g) => g.key);
       const showOwnGroup = compare.length > 0 && !compareKeys.includes(res.source_label);
-      const fmtDe = (v, digits) => Number(v).toLocaleString("de-DE", { minimumFractionDigits: digits, maximumFractionDigits: digits });
+      const fmtDe = StudioUI.num;
+      const fmtInt = (v) => Number(v).toLocaleString("de-DE");
       const fmtGroup = (fig) => (fig && fig.decks !== null && fig.decks !== undefined && fig.of ? `${fig.decks.toLocaleString("de-DE")}/${fig.of.toLocaleString("de-DE")}` : "unbekannt");
       if (!res.candidates || !res.candidates.length) {
-        into.replaceChildren(h("h3", {}, "Tausch-Helfer (gleiche Rolle)"), modeSwitch, headerNote, orderNote, h("p", { class: "muted" }, "Keine passenden Karten mit gleicher Rolle gefunden."));
+        into.replaceChildren(h("h3", {}, "Tausch-Helfer (gleiche Rolle)"), modeSwitch, ...[headerNote, orderNote].filter(Boolean), h("p", { class: "muted" }, "Keine passenden Karten mit gleicher Rolle gefunden."));
         return;
       }
       const shown = res.candidates.slice(0, 10);
@@ -1692,14 +1699,14 @@ async function renderSwapBox(into, card, initialMode = null) {
           h("th", {}, ""))),
         h("tbody", {}, shown.map((cand) => {
           const other = state.byId.get(cand.card_id);
-          const freqText = cand.decks_known && cand.decks !== null && cand.of ? `${cand.decks}/${cand.of}` : "unbekannt";
+          const freqText = cand.decks_known && cand.decks !== null && cand.of ? `${fmtInt(cand.decks)}/${fmtInt(cand.of)}` : "unbekannt";
           const pctText = cand.decks_known && cand.share !== null ? `${fmtDe(100 * cand.share, 1)} %` : "unbekannt";
           const liftThin = cand.decks_known && cand.decks !== null && cand.decks < res.lift_min_n;
           const liftText = cand.lift === null || cand.lift === undefined
-            ? (liftThin ? `unbekannt (${cand.decks} von ${cand.of} < ${res.lift_min_n})` : "unbekannt")
+            ? (liftThin ? `unbekannt (${fmtInt(cand.decks)} von ${fmtInt(cand.of)} < ${res.lift_min_n})` : "unbekannt")
             : fmtDe(cand.lift, 2);
           const removed = cand.removed_before
-            ? h("div", { class: "muted" }, `früher im Deck (Revision ${cand.removed_before.revision_id}${cand.removed_before.created_at ? ", " + cand.removed_before.created_at.slice(0, 16).replace("T", " ") : ""}, entfernt)`)
+            ? h("div", { class: "muted" }, `zuletzt in Revision ${cand.removed_before.revision_id} enthalten${cand.removed_before.created_at ? " (" + cand.removed_before.created_at.slice(0, 16).replace("T", " ") + ")" : ""}`)
             : null;
           let actionBtn = null;
           if (mode === "replace" && other) {
@@ -1721,10 +1728,12 @@ async function renderSwapBox(into, card, initialMode = null) {
             ...(compare.length ? compare.map((g) => h("td", { class: "num" }, fmtGroup(cand.groups && cand.groups[g.key]))) : []),
             ...(!compare.length || showOwnGroup ? [h("td", { class: "num" }, freqText)] : []),
             h("td", { class: "num" }, pctText),
-            h("td", { class: "num" }, liftText),
+            h("td", { class: "num", title: cand.lift_unknown_reason || "" }, liftText,
+              !liftThin && cand.lift_unknown_reason && (cand.lift === null || cand.lift === undefined)
+                ? h("div", { class: "note note-compact" }, cand.lift_unknown_reason) : null),
             h("td", {}, actionBtn));
         })));
-      into.replaceChildren(h("h3", {}, "Tausch-Helfer (gleiche Rolle)"), modeSwitch, headerNote, orderNote, tbl);
+      into.replaceChildren(h("h3", {}, "Tausch-Helfer (gleiche Rolle)"), modeSwitch, ...[headerNote, orderNote, tbl].filter(Boolean));
     } catch (error) {
       into.replaceChildren(h("h3", {}, "Tausch-Helfer (gleiche Rolle)"), h("p", { class: "muted" }, "Tausch-Kandidaten nicht lesbar: " + error.message));
     }
@@ -1755,7 +1764,7 @@ async function openCard(card) {
   };
   const count = qty(card.card_id);
   const frequencies = h("table", {}, h("thead", {}, h("tr", {}, h("th", {}, "Quelldecks"), h("th", { class: "num" }, "mit Karte"), h("th", { class: "num" }, "Decks"), h("th", { class: "num" }, "Anteil"))),
-    h("tbody", {}, visibleCohortEntries(state.cohorts).map(([key]) => { const f = freq(card, key); return h("tr", { class: f.total < state.small ? "low" : "" }, h("td", {}, cohortName(key)), h("td", { class: "num" }, f.hits === null ? "unbekannt" : f.hits), h("td", { class: "num" }, f.total), h("td", { class: "num" }, f.hits !== null && f.total ? (100 * f.share).toFixed(1) + " %" : "unbekannt")); })));
+    h("tbody", {}, visibleCohortEntries(state.cohorts).map(([key]) => { const f = freq(card, key); return h("tr", { class: f.total < state.small ? "low" : "" }, h("td", {}, cohortName(key)), h("td", { class: "num" }, f.hits === null ? "unbekannt" : f.hits), h("td", { class: "num" }, f.total), h("td", { class: "num" }, f.hits !== null && f.total ? StudioUI.pct(f.share, 1) : "unbekannt")); })));
   const swapBox = h("div", { id: "swap-helper-box" });
   const duelBox = h("div", { id: "card-duel-box" });
   const strengthBox = h("div", { id: "card-strength-box" });
@@ -1815,8 +1824,8 @@ async function openCard(card) {
               h("tbody", {}, co.pairs.map((pair) => h("tr", { class: smallCo ? "low" : "" },
                 h("td", {}, pair.card_name),
                 h("td", { class: "num" }, `${pair.decks_together}/${co.decks_with_card}`),
-                h("td", { class: "num" }, `${(100 * pair.decks_together / co.decks_with_card).toFixed(1)} %`),
-                h("td", { class: "num" }, pair.lift === null ? "unbekannt" : pair.lift.toFixed(2)),
+                h("td", { class: "num" }, `${StudioUI.num(100 * pair.decks_together / co.decks_with_card, 1)} %`),
+                h("td", { class: "num" }, pair.lift === null ? "unbekannt" : StudioUI.num(pair.lift, 2)),
                 h("td", {}, pair.combo_partner ? "ja (Spellbook-Kombo)" : "–"))))),
             h("p", { class: "note" }, "Reine Zählung im gewählten Universum. Lift: Anteil unter den Decks mit dieser Karte geteilt durch den Anteil im ganzen Universum; über 1 heißt überproportional oft zusammen gespielt. Kombo-Partner: beide Karten stehen in einer geprüften Spellbook-Kombo dieses Commanders." + (co.excluded_no_date ? ` ${co.excluded_no_date} Decks ohne Zeitstempel fallen durch den Datumsfilter heraus.` : "")),
             ...(co.subset_note ? [h("p", { class: "note" }, `${co.subset_note}. Der Nenner ${co.denominator} ist diese Teilmenge, nicht alle Decks des Commanders.${co.filter_card ? " Diese Karte ist eine Filterkarte: sie steht in allen Decks der Teilmenge." : ""}`)] : []));
@@ -1835,11 +1844,11 @@ async function openCard(card) {
           h("thead", {}, h("tr", {}, h("th", {}, "Karte in deiner Sammlung (ohne Standardländer)"), h("th", { class: "num" }, "gemeinsam / Nenner"), h("th", { class: "num" }, "Anteil"), h("th", { class: "num" }, "Lift"), h("th", {}, "Kombo-Partner"), h("th", {}, ""))),
           h("tbody", {}, coRows.map((item) => {
             const other = state.byId.get(item.card_id);
-            const liftVal = item.lift === null || item.lift === undefined ? "unbekannt" : Number(item.lift).toFixed(2);
+            const liftVal = item.lift === null || item.lift === undefined ? "unbekannt" : StudioUI.num(item.lift, 2);
             return h("tr", { class: smallCo ? "low" : "" },
               h("td", { class: "name", onclick: () => { if (other) openCard(other); } }, item.name),
               h("td", { class: "num" }, `${item.both_hits}/${item.card_decks}`),
-              h("td", { class: "num" }, `${(100 * item.share).toFixed(1)} %`),
+              h("td", { class: "num" }, `${StudioUI.num(100 * item.share, 1)} %`),
               h("td", { class: "num" }, liftVal),
               h("td", {}, item.combo_partner ? "ja (Spellbook)" : "–"),
               h("td", {}, other && !qty(other.card_id) && maxCopies(other) > 0 ? h("button", { class: "small", type: "button", onclick: () => { add(other); openCard(card); } }, "+") : null));
@@ -1855,7 +1864,7 @@ async function openCard(card) {
             h("td", {}, sec.section),
             h("td", { class: "num" }, `${sec.hits}/${sec.section_sources}`),
             h("td", { class: "num" }, sec.batch_sources),
-            h("td", { class: "num" }, `${(100 * sec.share_of_section).toFixed(1)} %`))))),
+            h("td", { class: "num" }, `${StudioUI.num(100 * sec.share_of_section, 1)} %`))))),
         h("p", { class: "note" }, "Neutrale Quellkategorie der Deckautoren (Maybeboard = Überlegung, Cuts = vom Autor separiert). Keine negative Bewertung und niemals mit Mainboard-Frequenzen vermischt."));
     }
     if (detail.simulations && detail.simulations.length) {
@@ -1867,7 +1876,7 @@ async function openCard(card) {
             h("td", { class: "num" }, `${s.games_offered}/${s.games_completed}`),
             h("td", { class: "num" }, `${s.games_cast_after_offer}/${s.games_offered}`),
             h("td", { class: "num" }, s.games_rotted),
-            h("td", { class: "num" }, s.mean_first_cast_round === null ? "unbekannt" : Number(s.mean_first_cast_round).toFixed(1)),
+            h("td", { class: "num" }, s.mean_first_cast_round === null ? "unbekannt" : StudioUI.num(s.mean_first_cast_round, 1)),
             h("td", { class: "muted" }, s.hand_dwell_status === "UNKNOWN" ? "unbekannt (nicht gemessen)" : s.hand_dwell_status))))));
     }
     const rows = detail.observations.filter((row) => row.metric === "inclusion_pct");
@@ -1878,22 +1887,22 @@ async function openCard(card) {
         h("tbody", {}, rows.map((row) => h("tr", { class: row.denominator !== null && row.denominator < state.small ? "low" : "" },
           h("td", { title: row.snapshot || "" }, row.cohort.replace(/^edhrec:/, "")),
           h("td", { class: "num" }, row.denominator !== null ? `${row.numerator}/${row.denominator}` : `${row.numerator ?? "?"}/unbekannt`),
-          h("td", { class: "num" }, row.value === null ? "unbekannt" : Number(row.value).toFixed(1) + " %"),
-          h("td", { class: "num" }, lift.get(row.cohort) === null || lift.get(row.cohort) === undefined ? "unbekannt" : Number(lift.get(row.cohort)).toFixed(2)),
-          h("td", { class: "num" }, synergy.get(row.cohort) === null || synergy.get(row.cohort) === undefined ? "unbekannt" : Number(synergy.get(row.cohort)).toFixed(1) + " %")))))
+          h("td", { class: "num" }, row.value === null ? "unbekannt" : StudioUI.num(row.value, 1) + " %"),
+          h("td", { class: "num" }, lift.get(row.cohort) === null || lift.get(row.cohort) === undefined ? "unbekannt" : StudioUI.num(lift.get(row.cohort), 2)),
+          h("td", { class: "num" }, synergy.get(row.cohort) === null || synergy.get(row.cohort) === undefined ? "unbekannt" : StudioUI.num(synergy.get(row.cohort), 1) + " %")))))
         : h("p", { class: "muted" }, "Keine EDHREC-Zeile gespeichert: unbekannt, nicht null."));
     if (detail.playgroup) {
       const pg = detail.playgroup;
       const pgRows = [];
       pgRows.push(
-        h("tr", {}, h("td", {}, "Live-Aufnahmequote (Live Inclusion)"), h("td", { class: "num" }, pg.live_inclusion_pct !== null ? `${Number(pg.live_inclusion_pct).toFixed(1)} %` : "unbekannt")),
+        h("tr", {}, h("td", {}, "Live-Aufnahmequote (Live Inclusion)"), h("td", { class: "num" }, pg.live_inclusion_pct !== null ? `${StudioUI.num(pg.live_inclusion_pct, 1)} %` : "unbekannt")),
         h("tr", {}, h("td", {}, "Eingesetzt / Decks im Einsatz (Times Brought / Decks Running)"), h("td", { class: "num" }, `${pg.times_brought ?? "?"} / ${pg.decks_running ?? "?"}`)),
-        h("tr", {}, h("td", {}, "Medianer Cast-Turn"), h("td", { class: "num" }, pg.median_cast_turn !== null ? `T${Number(pg.median_cast_turn).toFixed(1)}` : "unbekannt")),
-        h("tr", {}, h("td", {}, "Gezogen und gespielt (Drawn-to-Played)"), h("td", { class: "num" }, pg.drawn_to_played_pct !== null ? `${Number(pg.drawn_to_played_pct).toFixed(1)} %` : "unbekannt")),
-        h("tr", {}, h("td", {}, "Siegrate, wenn gewirkt"), h("td", { class: "num" }, pg.winrate_when_cast_pct !== null ? `${Number(pg.winrate_when_cast_pct).toFixed(1)} % (n=${pg.winrate_when_cast_n ?? "?"})` : "unbekannt")),
-        h("tr", {}, h("td", {}, "Siegrate, wenn in der Bibliothek"), h("td", { class: "num" }, pg.winrate_when_in_library_pct !== null ? `${Number(pg.winrate_when_in_library_pct).toFixed(1)} % (n=${pg.winrate_when_in_library_n ?? "?"})` : "unbekannt")),
-        h("tr", {}, h("td", {}, "Beobachtete Siegraten-Differenz"), h("td", { class: "num" }, pg.observed_winrate_gap_pp !== null ? `${pg.observed_winrate_gap_pp > 0 ? "+" : ""}${Number(pg.observed_winrate_gap_pp).toFixed(1)} pp` : "unbekannt")),
-        h("tr", {}, h("td", {}, "95% Konfidenzintervall"), h("td", { class: "num" }, pg.ci_95_lower_pp !== null && pg.ci_95_upper_pp !== null ? `[${pg.ci_95_lower_pp > 0 ? "+" : ""}${Number(pg.ci_95_lower_pp).toFixed(1)} pp; ${pg.ci_95_upper_pp > 0 ? "+" : ""}${Number(pg.ci_95_upper_pp).toFixed(1)} pp]` : "unbekannt")),
+        h("tr", {}, h("td", {}, "Medianer Cast-Turn"), h("td", { class: "num" }, pg.median_cast_turn !== null ? `T${StudioUI.num(pg.median_cast_turn, 1)}` : "unbekannt")),
+        h("tr", {}, h("td", {}, "Gezogen und gespielt (Drawn-to-Played)"), h("td", { class: "num" }, pg.drawn_to_played_pct !== null ? `${StudioUI.num(pg.drawn_to_played_pct, 1)} %` : "unbekannt")),
+        h("tr", {}, h("td", {}, "Siegrate, wenn gewirkt"), h("td", { class: "num" }, pg.winrate_when_cast_pct !== null ? `${StudioUI.num(pg.winrate_when_cast_pct, 1)} % (n=${pg.winrate_when_cast_n ?? "?"})` : "unbekannt")),
+        h("tr", {}, h("td", {}, "Siegrate, wenn in der Bibliothek"), h("td", { class: "num" }, pg.winrate_when_in_library_pct !== null ? `${StudioUI.num(pg.winrate_when_in_library_pct, 1)} % (n=${pg.winrate_when_in_library_n ?? "?"})` : "unbekannt")),
+        h("tr", {}, h("td", {}, "Beobachtete Siegraten-Differenz"), h("td", { class: "num" }, pg.observed_winrate_gap_pp !== null ? `${pg.observed_winrate_gap_pp > 0 ? "+" : ""}${StudioUI.num(pg.observed_winrate_gap_pp, 1)} pp` : "unbekannt")),
+        h("tr", {}, h("td", {}, "95% Konfidenzintervall"), h("td", { class: "num" }, pg.ci_95_lower_pp !== null && pg.ci_95_upper_pp !== null ? `[${pg.ci_95_lower_pp > 0 ? "+" : ""}${StudioUI.num(pg.ci_95_lower_pp, 1)} pp; ${pg.ci_95_upper_pp > 0 ? "+" : ""}${StudioUI.num(pg.ci_95_upper_pp, 1)} pp]` : "unbekannt")),
         h("tr", {}, h("td", {}, "Konservativer Schätzer"), h("td", { class: "num" }, pg.conservative_ranking_indicator || "unbekannt")),
       );
       if (pg.quality_warnings && pg.quality_warnings.length) {
@@ -1929,12 +1938,12 @@ async function showStrengthBreakdown(into, card) {
     return;
   }
   const nodes = [h("h3", {}, "Stärke-Index-Aufschlüsselung (v3 · Schätzung aus Nutzungsdaten)")];
-  const idxText = st.index !== null && st.index !== undefined ? st.index.toFixed(1) : "unbekannt";
-  const covText = st.coverage !== null && st.coverage !== undefined ? `${(100 * st.coverage).toFixed(0)} %` : "–";
-  const confText = st.confidence !== null && st.confidence !== undefined ? `${st.confidence_level || ""} (${st.confidence.toFixed(2)})` : "–";
+  const idxText = st.index !== null && st.index !== undefined ? StudioUI.num(st.index, 1) : "unbekannt";
+  const covText = st.coverage !== null && st.coverage !== undefined ? `${StudioUI.num(100 * st.coverage, 0)} %` : "–";
+  const confText = st.confidence !== null && st.confidence !== undefined ? `${st.confidence_level || ""} (${StudioUI.num(st.confidence, 2)})` : "–";
   nodes.push(h("p", {},
     `Stufe ${st.tier} · Index ${idxText} · Datenlage ${covText} · Konfidenz ${confText}`,
-    st.borderline ? h("span", { class: "pill warn ml-1" }, `grenzwertig (${st.cut_distance.toFixed(1)} Pkt zu ${st.borderline_cut})`) : null));
+    st.borderline ? h("span", { class: "pill warn ml-1" }, `grenzwertig (${StudioUI.num(st.cut_distance, 1)} Pkt zu ${st.borderline_cut})`) : null));
   const rankEntries = st.role_ranks ? Object.entries(st.role_ranks) : [];
   if (rankEntries.length) {
     nodes.push(h("p", {}, "Rang in der Funktion: ",
@@ -1946,8 +1955,8 @@ async function showStrengthBreakdown(into, card) {
       h("thead", {}, h("tr", {}, h("th", {}, "Signal"), h("th", { class: "num" }, "Zähler/Nenner"), h("th", { class: "num" }, "Rohwert"), h("th", { class: "num" }, "Score 0–100"), h("th", { class: "num" }, "Gewicht (wirksam)"), h("th", {}, "Status"))),
       h("tbody", {}, comps.map((c) => {
         const countStr = c.denominator ? (c.numerator === null || c.numerator === undefined ? `n = ${c.denominator}` : `${c.numerator}/${c.denominator}`) : "–";
-        const rawStr = c.value === null || c.value === undefined ? "unbekannt" : Number(c.value.toPrecision(4));
-        const scoreStr = c.percentile === null || c.percentile === undefined ? "–" : `${(100 * c.percentile).toFixed(1)}`;
+        const rawStr = c.value === null || c.value === undefined ? "unbekannt" : c.value.toLocaleString("de-DE", { maximumSignificantDigits: 4 });
+        const scoreStr = c.percentile === null || c.percentile === undefined ? "–" : `${StudioUI.num(100 * c.percentile, 1)}`;
         return h("tr", {},
           h("td", { title: c.signal || "" }, c.label || c.component),
           h("td", { class: "num" }, countStr),

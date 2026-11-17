@@ -5,12 +5,12 @@
 // and provenance, zero total score, zero verdict, CSP-safe DOM creation via h().
 
 function _ovPct(value) {
-  return value === null || value === undefined ? "unbekannt" : `${(100 * value).toFixed(1)} %`;
+  return value === null || value === undefined ? "unbekannt" : `${StudioUI.num(100 * value, 1)} %`;
 }
 
 function _ovSpan(entry, digits = 1) {
   if (!entry || entry.median === undefined || entry.median === null) return "unbekannt";
-  return `${Number(entry.median).toFixed(digits)} (${Number(entry.p25).toFixed(digits)}–${Number(entry.p75).toFixed(digits)})`;
+  return `${StudioUI.num(entry.median, digits)} (${StudioUI.num(entry.p25, digits)}–${StudioUI.num(entry.p75, digits)})`;
 }
 
 function _buildOverviewNodes(data, deps, options = {}) {
@@ -46,7 +46,7 @@ function _buildOverviewNodes(data, deps, options = {}) {
       h("div", { class: "kpi-sub" }, `Vergleich: ${_ovSpan(reference && reference.creatures, 1)}`)),
     h("div", { class: "kpi-card" },
       h("div", { class: "kpi-label" }, "Ø Manawert (ohne Länder)"),
-      h("div", { class: "kpi-value" }, shape && shape.mana_value !== null && shape.mana_value !== undefined ? Number(shape.mana_value).toFixed(2) : "unbekannt"),
+      h("div", { class: "kpi-value" }, shape && shape.mana_value !== null && shape.mana_value !== undefined ? StudioUI.num(shape.mana_value, 2) : "unbekannt"),
       h("div", { class: "kpi-sub" }, `Vergleich: ${_ovSpan(reference && reference.mana_value, 2)}`)),
     h("div", { class: "kpi-card" },
       h("div", { class: "kpi-label" }, "Quelldecks (Nenner)"),
@@ -71,8 +71,8 @@ function _buildOverviewNodes(data, deps, options = {}) {
     const group = (landData.groups || []).find((g) => g.cohort === cohort);
     const colourRows = (landData.deck.colours || []).map((entry) => {
       const grpCol = group && group.colours ? group.colours[entry.colour] : null;
-      const pipCmp = grpCol ? `${entry.pips} (Vgl. ${Number(grpCol.pips.median).toFixed(1)})` : String(entry.pips);
-      const landCmp = grpCol ? `${entry.land_sources} (Vgl. ${Number(grpCol.land_sources.median).toFixed(1)})` : String(entry.land_sources);
+      const pipCmp = grpCol ? `${entry.pips} (Vgl. ${StudioUI.num(grpCol.pips.median, 1)})` : String(entry.pips);
+      const landCmp = grpCol ? `${entry.land_sources} (Vgl. ${StudioUI.num(grpCol.land_sources.median, 1)})` : String(entry.land_sources);
       return h("tr", {},
         h("td", {}, h("span", { class: `ms ms-${entry.colour}` }, entry.colour)),
         h("td", { class: "num" }, pipCmp),

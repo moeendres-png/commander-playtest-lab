@@ -27,7 +27,7 @@ async function renderBuildPlanTab(body, deps) {
       data.small_sample ? h("span", { class: "pill low ml-1" }, `Kleine Stichprobe (< ${data.small_denominator} Decks)`) : null),
   ];
 
-  const spanText = (span) => span ? `${span.median.toFixed(1)} (${span.p25.toFixed(1)}–${span.p75.toFixed(1)})` : "unbekannt";
+  const spanText = (span) => span ? `${StudioUI.num(span.median, 1)} (${StudioUI.num(span.p25, 1)}–${StudioUI.num(span.p75, 1)})` : "unbekannt";
   for (const step of data.steps || []) {
     const statusLabel = step.status === "COMPLETE" ? ["vollständig", "good"]
       : step.status === "IN_SPAN" ? ["in mittlerer Hälfte", "good"]
@@ -61,7 +61,7 @@ async function renderBuildPlanTab(body, deps) {
             return h("tr", {},
               h("td", { class: pCard ? "name" : "", onclick: () => { if (pCard) openCard(pCard); } }, cand.name),
               h("td", { class: "num" }, cand.mana_value === null ? "–" : cand.mana_value),
-              h("td", { class: "num" }, cand.decks !== null && cand.of ? `${cand.decks}/${cand.of} (${(100 * cand.share).toFixed(0)} %)` : "unbekannt"),
+              h("td", { class: "num" }, cand.decks !== null && cand.of ? `${StudioUI.num(cand.decks, 0)}/${StudioUI.num(cand.of, 0)} (${StudioUI.num(100 * cand.share, 0)} %)` : "unbekannt"),
               h("td", { class: "num" }, cand.available),
               h("td", {}, pCard ? h("button", { type: "button", class: "small", onclick: () => add(pCard) }, "+") : null));
           })))));
@@ -136,10 +136,10 @@ async function renderPackagesUpgradeTab(body, deps) {
       const pBox = h("div", { class: "card-box" },
         h("p", {},
           h("strong", { class: ancCard ? "name" : "", onclick: () => { if (ancCard) openCard(ancCard); } }, anc.name),
-          ` · ${anc.decks}/${anc.of} Decks`,
+          ` · ${StudioUI.num(anc.decks, 0)}/${StudioUI.num(anc.of, 0)} Decks`,
           anc.small_sample ? h("span", { class: "pill low ml-1" }, `< ${pkgData.small_denominator} Decks`) : null));
       if (pkg.in_deck_partners && pkg.in_deck_partners.length) {
-        pBox.append(h("p", { class: "note" }, "Bereits im Deck gekoppelt: " + pkg.in_deck_partners.map((p) => `${p.name} (Lift ${p.lift})`).join(" · ")));
+        pBox.append(h("p", { class: "note" }, "Bereits im Deck gekoppelt: " + pkg.in_deck_partners.map((p) => `${p.name} (Lift ${StudioUI.num(p.lift, 3)})`).join(" · ")));
       }
       if (pkg.free_pool_partners && pkg.free_pool_partners.length) {
         pBox.append(h("table", {},
@@ -149,7 +149,7 @@ async function renderPackagesUpgradeTab(body, deps) {
             return h("tr", {},
               h("td", { class: pCard ? "name" : "", onclick: () => { if (pCard) openCard(pCard); } }, partner.name),
               h("td", { class: "num" }, `${partner.both_hits}/${partner.anchor_decks}`),
-              h("td", { class: "num" }, partner.lift),
+              h("td", { class: "num" }, StudioUI.num(partner.lift, 3)),
               h("td", {}, partner.combo_partner ? "ja" : "–"),
               h("td", {}, pCard ? h("button", { type: "button", class: "small", onclick: () => add(pCard) }, "+") : null));
           }))));
@@ -182,11 +182,11 @@ async function renderPackagesUpgradeTab(body, deps) {
         const altCard = poolCardById(alt.card_id);
         return h("tr", {},
           h("td", { class: cutCard ? "name" : "", onclick: () => { if (cutCard) openCard(cutCard); } }, cut.name),
-          h("td", { class: "num" }, `${cut.decks}/${cut.of} (${(100 * cut.share).toFixed(0)} %)`),
+          h("td", { class: "num" }, `${StudioUI.num(cut.decks, 0)}/${StudioUI.num(cut.of, 0)} (${StudioUI.num(100 * cut.share, 0)} %)`),
           h("td", { class: altCard ? "name" : "", onclick: () => { if (altCard) openCard(altCard); } },
             alt.name,
             h("div", { class: "muted" }, `Rollen: ${(alt.shared_roles || []).map(roleName).join(", ")}`)),
-          h("td", { class: "num" }, `${alt.decks}/${alt.of} (${(100 * alt.share).toFixed(0)} %)`),
+          h("td", { class: "num" }, `${StudioUI.num(alt.decks, 0)}/${StudioUI.num(alt.of, 0)} (${StudioUI.num(100 * alt.share, 0)} %)`),
           h("td", { class: "num" }, alt.mv_delta > 0 ? `+${alt.mv_delta}` : String(alt.mv_delta)),
           h("td", {}, cutCard && altCard ? h("button", {
             type: "button", class: "small",
@@ -207,7 +207,7 @@ async function renderPackagesUpgradeTab(body, deps) {
           return h("tr", {},
             h("td", { class: pCard ? "name" : "", onclick: () => { if (pCard) openCard(pCard); } }, st.name),
             h("td", {}, (st.roles || []).map(roleName).join(", ") || "–"),
-            h("td", { class: "num" }, `${st.decks}/${st.of} (${(100 * st.share).toFixed(0)} %)`),
+            h("td", { class: "num" }, `${StudioUI.num(st.decks, 0)}/${StudioUI.num(st.of, 0)} (${StudioUI.num(100 * st.share, 0)} %)`),
             h("td", { class: "num" }, st.available),
             h("td", {}, pCard ? h("button", { type: "button", class: "small", onclick: () => add(pCard) }, "+") : null));
         }))));

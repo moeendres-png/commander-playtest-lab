@@ -66,14 +66,14 @@ def _removal_history(
 ) -> tuple[dict[str, object] | None, set[str], dict[str, dict[str, str]]]:
     """Oracle ids of the head revision of ``deck_id``/``branch`` and, per oracle id that an
     earlier revision of its ancestry held but the head does not, the latest such revision.
-    ``None`` as first element when the deck or variant is unknown."""
+    ``{"found": False}`` as first element when the deck or variant is unknown."""
     db = store.connection
     head = db.execute(
         "SELECT revision_id FROM deck_branch WHERE deck_id = ? AND branch = ?",
         (deck_id, branch),
     ).fetchone()
     if head is None:
-        return None, set(), {}
+        return {"found": False}, set(), {}
     chain: list[sqlite3.Row] = []
     seen: set[str] = set()
     next_id: str | None = str(head["revision_id"])
@@ -88,7 +88,8 @@ def _removal_history(
         seen.add(next_id)
         chain.append(row)
         next_id = str(row["parent_revision_id"]) if row["parent_revision_id"] else None
-    truncated = bool(next_id) and next_id not in seen
+    # Truncated only when the revision limit was really hit; a dangling parent link is not.
+    truncated = len(chain) >= SWAP_HISTORY_LIMIT and bool(next_id) and next_id not in seen
 
     def oracles_of(revision_id: str) -> set[str]:
         return {
@@ -109,6 +110,7 @@ def _removal_history(
                 {"revision_id": str(row["revision_id"]), "created_at": str(row["created_at"])},
             )
     meta: dict[str, object] = {
+        "found": True,
         "deck_id": deck_id,
         "branch": branch,
         "head_revision_id": str(head["revision_id"]),

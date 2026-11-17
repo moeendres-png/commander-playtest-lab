@@ -372,26 +372,3 @@ def test_edhrec_reason_text_names_audit_source_and_date_only_when_given() -> Non
     text = audited["reason_labels"]["no_edhrec"]
     assert "Mindestquote" in text and "2026-11-12" in text
     assert "%" not in text  # no number the audit text does not carry for the card
-
-
-def test_deckbuilder_panels_format_decimals_in_german() -> None:
-    import re
-    from pathlib import Path
-
-    static = Path(deck_facts.__file__).parent / "static"
-    names = (
-        "deckfacts.js",
-        "castability.js",
-        "allocation.js",
-        "cutlab.js",
-        "diffimpact.js",
-        "cardduel.js",
-    )
-    fixed = 0
-    for name in names:
-        for call in re.findall(
-            r"\.toFixed\([^)]*\)[^;\n]{0,20}", (static / name).read_text("utf-8")
-        ):
-            fixed += 1
-            assert '.replace(".", ",")' in call, f"{name}: decimal without comma"
-    assert fixed >= 4

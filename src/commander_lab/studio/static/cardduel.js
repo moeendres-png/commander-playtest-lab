@@ -3,7 +3,7 @@
 // mana value, source-deck frequency n/N and the observed fit with the rest of the deck against
 // the group's baseline. An observation, never "better". Rendered from app.js (openCard).
 
-function duelPct(value) { return value === null || value === undefined ? "unbekannt" : (100 * value).toFixed(1).replace(".", ",") + " %"; }
+function duelPct(value) { return value === null || value === undefined ? "unbekannt" : StudioUI.pct(value, 1); }
 
 function duelTable(h, data, deps) {
   const a = data.a, b = data.b;
