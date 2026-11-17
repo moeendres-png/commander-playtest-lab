@@ -1383,6 +1383,30 @@ a card without location rows shows no location field. The pool tiles show "in N 
 (n gebunden)" and the overbooking; the card window lists the decks, the other variants, the
 reserved copies and the locations in the data's own wording.
 
+### Build list by storage location ("Bauliste nach Standort", #1404)
+
+`POST /api/build-list` (`studio/build_list.py`, body like the sibling list routes: at most 300
+cards, optional `deck_id`; unknown card 404, empty list or oversize 422, header `X-Studio`
+required) groups the current list by storage location, to put a deck together physically. The
+button "Bauliste nach Standort" sits in the export dialog and opens a large dialog with one table
+per location (alphabetical, "Standort unbekannt" last, "n Karten" per group), a tick box per card
+(local to this browser, `localStorage` per deck state, never sent anywhere), "Als Text kopieren"
+(without any price words) and "Drucken" (print rules show only the list).
+
+Locations come from the same `card_location` rows as the allocation above. The needed copies of
+a card are placed on its known locations, largest known stock first (name as tie-break); what
+they do not cover stays "Standort unbekannt" with the copies still missing (k of n). A location
+row marked "mindestens" (lower bound, or lots without a quantity) is shown as "Bestand
+mindestens"; the name "Unbekannt / nicht direkt belegt" is no box and counts as unknown. A card
+bound by another saved deck, with fewer free copies than needed, carries the note "in <Deck>
+gebunden (n)": a fact, no lock. Basic lands form their own block without a location, the
+commander is listed on top. The sum of the groups, the commander and the basic lands must equal
+the list size; if not, the page shows an error line, never a silent difference. The header counts
+the non-land, non-commander cards with fully exact, only lower-bound, partly unknown and wholly
+unknown location. No prices, no rating, no simulation; favourites and other marks are not read.
+Measured on the QA store copy (Chulane baseline, 100 cards): commander 1, basic lands 20, 79 of
+79 other cards with an exact location (A Box 14, L Box 5, M Box 60), 0 lower-bound, 0 unknown.
+
 ### Variant comparison with counted deltas ("Varianten-Diff", #1414, #1404 option 8)
 
 `POST /api/diff` (`studio/deck_diff.py`, on top of `builder.diff_lists`) compares a stored

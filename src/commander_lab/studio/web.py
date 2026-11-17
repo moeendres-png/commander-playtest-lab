@@ -28,6 +28,7 @@ from pydantic import BaseModel, ConfigDict, Field, StrictInt
 
 from . import (
     allocation,
+    build_list,
     builder,
     cache,
     card_duel,
@@ -106,6 +107,11 @@ class ListBody(BaseModel):
 class DeckEvidenceBody(ListBody):
     cards: list[CardEntry] = Field(max_length=300)
     cohort: str = Field(default="all", min_length=1, max_length=120)
+
+
+class BuildListBody(ListBody):
+    cards: list[CardEntry] = Field(max_length=300)
+    deck_id: str | None = Field(default=None, max_length=200)
 
 
 class LandAdvisorBody(ListBody):
@@ -1561,6 +1567,29 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         store = open_store()
         try:
             return deck_facts.deck_facts(store, list_rows(store, _cards(body.cards)))
+        finally:
+            store.close()
+
+    @app.post("/api/build-list")
+    def build_list_route(body: BuildListBody) -> dict[str, object]:
+        """The deck's cards grouped by storage location, with the copies no known location
+        covers as "Standort unbekannt" (#1404). Facts only; marks are not read."""
+        store = open_store()
+        try:
+            cards = _cards(body.cards)
+            rows = list_rows(store, cards)
+            known = {str(row["card_id"]) for row in rows}
+            missing = sorted({card.card_id for card in cards} - known)
+            if missing:
+                raise HTTPException(404, f"unknown card: {missing[0]}")
+            return build_list.build_list(
+                store,
+                rows,
+                expected_total=sum(card.quantity for card in cards),
+                deck_id=body.deck_id,
+            )
+        except build_list.BuildListError as error:
+            raise HTTPException(422, str(error)) from error
         finally:
             store.close()
 

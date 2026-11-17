@@ -140,3 +140,14 @@ def test_small_window_filter_fold_and_compact_evidence_panel() -> None:
     assert "EVIDENCE_COMPACT" in evidence and "evidenceStoredColumns(allKeys, wide)" in evidence
     assert "studio-evidence-hidden-columns" in evidence
     assert "pill-short" in ui and "Engine-Stand noch nicht qualifiziert" in ui
+
+
+def test_print_rules_are_scoped_to_the_build_list() -> None:
+    css = (STATIC / "app.css").read_text(encoding="utf-8")
+    blocks = re.findall(r"@media print\{(.*)\}\s*$", css, re.MULTILINE)
+    assert blocks
+    for block in blocks:
+        # Every selector in a print block must hang on the build-list class: no global hiding.
+        selectors = re.findall(r"(?:^|\})([^{}]+)\{", block)
+        assert selectors
+        assert all("printing-buildlist" in selector for selector in selectors), selectors
