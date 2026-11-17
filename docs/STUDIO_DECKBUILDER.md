@@ -1407,6 +1407,14 @@ data, unknown mana value, no role (nonland cards), unknown land colours, no sour
 commander names the card, no EDHREC observation for the commander (commander or bracket pages).
 Each reason carries its count and the number of cards it was checked for; a source the store
 lacks for the commander is reported once, not per card. A gap means unknown, never 0.
+EDHREC observations are found by card id and by card name (casefolded, front face of
+"A // B", spelling discipline of `universe.spelling_owners`), because many stored rows carry no
+card id. For Chulane the `no_edhrec` text cites `edhrec_chulane_threshold_audit.json`
+(2026-11-12): EDHREC lists a card on the commander page only above a minimum share, so a missing
+row stays a gap, not a statement about the card. The note "dünn belegt" shows n of N source
+decks for the derived group `tuned` (brackets 4 and 5) and for `all` where n is below 30; the
+groups are never added, 0 of N is a real count, and a card no source deck names stays unknown.
+It is a note on the sample, not counted in `cards_with_gaps`.
 
 ### Colours on curve ("Farben auf Kurve", #1415, #1404 option 2)
 

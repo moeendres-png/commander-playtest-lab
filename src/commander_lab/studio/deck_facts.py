@@ -107,7 +107,20 @@ GAP_REASONS = {
     "land_colours_unknown": "Farben des Landes unbekannt",
     "no_source_deck": "kein Quelldeck des Commanders nennt die Karte (Häufigkeit unbekannt)",
     "no_edhrec": "keine EDHREC-Beobachtung für den Commander",
+    "thin_in_cohort": "dünn belegt (weniger als 30 Quelldecks in einer Gruppe)",
 }
+# A note about the sample size, not a missing datum: it does not count as a gap.
+NOTE_REASONS = frozenset({"thin_in_cohort"})
+THIN_BELOW = 30
+THIN_COHORTS = ("tuned", "all")
+# What data/research/edhrec_observations_chulane/edhrec_chulane_threshold_audit.json (snapshot
+# 2026-11-12) proves for the Chulane page: EDHREC lists a card on a commander page only above a
+# minimum share. It does not say how low a given card is, so the text names no number.
+EDHREC_AUDITED_COMMANDER = "Chulane, Teller of Tales"
+EDHREC_THRESHOLD_NOTE = (
+    "EDHREC listet nur Karten über einer Mindestquote (laut Prüfdatei vom 2026-11-12); "
+    "hier keine Zeile"
+)
 _BASIC_TYPES = ("Plains", "Island", "Swamp", "Mountain", "Forest", "Wastes")
 
 _Row = Mapping[str, object] | sqlite3.Row
@@ -302,17 +315,28 @@ def data_gaps(
     roles: Mapping[str, Sequence[str]],
     in_source_decks: Callable[[str], bool] | None,
     has_edhrec: Callable[[str, str], bool] | None,
+    cohort_hits: Mapping[str, Mapping[str, int]] | None = None,
+    cohort_sizes: Mapping[str, int] | None = None,
+    edhrec_note: str | None = None,
 ) -> dict[str, object]:
     """Per card of the deck (the commander excluded), the data that is missing and why.
 
     ``in_source_decks(oracle_name)`` says whether any source deck of the commander names the
     card; ``has_edhrec(card_id, oracle_name)`` whether an EDHREC inclusion value is stored for it. A
     callable that is ``None`` means the store has no such source for the commander at all:
-    that reason is then reported once as ``sources_missing`` and not per card."""
+    that reason is then reported once as ``sources_missing`` and not per card.
+
+    ``cohort_hits`` (``builder._corpus_hits``) and ``cohort_sizes`` (``builder.cohort_sizes``)
+    switch on the note ``thin_in_cohort``: a non-basic card that some source deck names but
+    fewer than 30 decks of the derived ``tuned`` group (brackets 4 and 5) or of ``all`` do.
+    The groups are never added. A card no source deck names stays unknown (``no_source_deck``)
+    and gets no count; 0 of N is a real count. ``edhrec_note`` replaces the text of
+    ``no_edhrec`` where an audit supports it."""
     deck = _deck_rows(rows)
     gaps: list[dict[str, object]] = []
     by_reason = {key: 0 for key in GAP_REASONS}
     applicable = {key: 0 for key in GAP_REASONS}
+    thin_on = cohort_hits is not None and cohort_sizes is not None
     for row in deck:
         card_id = _text(row, "card_id")
         land = _is_land(row)
@@ -336,8 +360,30 @@ def data_gaps(
             if missing:
                 by_reason[reason] += 1
                 reasons.append(reason)
-        if reasons:
-            gaps.append({"card_id": card_id, "name": _text(row, "oracle_name"), "reasons": reasons})
+        thin: list[dict[str, object]] = []
+        counts = (
+            cohort_hits.get(_text(row, "oracle_name"))
+            if cohort_hits is not None and not basic
+            else None
+        )
+        if counts is not None and cohort_sizes is not None:
+            applicable["thin_in_cohort"] += 1
+            thin = [
+                {"cohort": group, "n": counts.get(group, 0), "of": cohort_sizes[group]}
+                for group in THIN_COHORTS
+                if group in cohort_sizes and counts.get(group, 0) < THIN_BELOW
+            ]
+            if thin:
+                by_reason["thin_in_cohort"] += 1
+        if reasons or thin:
+            item: dict[str, object] = {
+                "card_id": card_id,
+                "name": _text(row, "oracle_name"),
+                "reasons": reasons,
+            }
+            if thin:
+                item["thin"] = thin
+            gaps.append(item)
     gaps.sort(key=lambda item: (-len(item["reasons"]), str(item["name"])))  # type: ignore[arg-type]
     sources_missing = [
         reason
@@ -350,21 +396,79 @@ def data_gaps(
     return {
         "schema": SCHEMA,
         "cards_checked": len(deck),
-        "cards_with_gaps": len(gaps),
+        "cards_with_gaps": sum(1 for item in gaps if item["reasons"]),
+        "cards_with_thin": sum(1 for item in gaps if item.get("thin")),
+        "thin_below": THIN_BELOW,
         "by_reason": {
             reason: {"count": by_reason[reason], "of": applicable[reason]}
             for reason in GAP_REASONS
-            if reason not in sources_missing
+            if reason not in sources_missing and (reason != "thin_in_cohort" or thin_on)
         },
-        "reason_labels": dict(GAP_REASONS),
+        "reason_labels": {
+            **GAP_REASONS,
+            **({"no_edhrec": edhrec_note} if edhrec_note else {}),
+        },
         "sources_missing": sources_missing,
         "gaps": gaps,
         "meaning": (
             "Fehlende Daten heißen unbekannt, nicht 0. Gezählt werden Karten (ohne Commander); "
             "der Nenner je Grund nennt, für wie viele Karten der Grund geprüft wurde "
-            "(Rollen und Manawert nur Nicht-Länder, Quelldecks und EDHREC ohne Standardländer)."
+            "(Rollen und Manawert nur Nicht-Länder, Quelldecks und EDHREC ohne Standardländer). "
+            "„Dünn belegt“ ist ein Hinweis auf die Stichprobe (n von N Quelldecks je Gruppe, "
+            "Gruppen nie addiert), keine fehlende Angabe."
         ),
     }
+
+
+def edhrec_lookup(store: object, commanders: Sequence[str]) -> Callable[[str, str], bool] | None:
+    """``has_edhrec(card_id, oracle_name)`` for the commanders, or ``None`` when the store holds
+    no EDHREC value for them at all. Observations often carry no ``card_id``: they are then
+    found by name, casefolded, through the spelling discipline of the card counts
+    (``universe.spelling_owners``) and by the front face of ``A // B``."""
+    from . import builder
+    from .store import StudioStore
+    from .universe import spelling_owners
+
+    if not isinstance(store, StudioStore):
+        raise TypeError("store must be a StudioStore")
+    if not commanders:
+        return None
+    db = store.connection
+    marks = ",".join("?" * len(commanders))
+    raw_names = {
+        str(row[0])
+        for row in db.execute(
+            "SELECT card_name FROM card_signal WHERE (signal = 'edhrec_commander_inclusion' "
+            "OR signal LIKE 'edhrec_bracket_inclusion:%') "
+            f"AND value IS NOT NULL AND commander_name IN ({marks})",
+            list(commanders),
+        )
+    }
+    bound, args = builder.bound_to("observation_cohort", "o.cohort", commanders)
+    ids: set[str] = set()
+    for row in db.execute(
+        "SELECT DISTINCT o.card_id, o.card_name FROM observation o "
+        f"WHERE o.metric = 'inclusion_pct' AND o.value IS NOT NULL{bound}",
+        args,
+    ):
+        if row[0] is not None:
+            ids.add(str(row[0]))
+        raw_names.add(str(row[1]))
+    if not ids and not raw_names:
+        return None
+    owners = spelling_owners(store)
+    names: set[str] = set()
+    for raw in raw_names:
+        key = raw.casefold()
+        names.add(key)
+        names.add(key.split(" // ")[0])
+        names.update(owner.casefold() for owner in owners.get(key, ()))
+
+    def has(card_id: str, name: str) -> bool:
+        key = name.casefold()
+        return card_id in ids or key in names or key.split(" // ")[0] in names
+
+    return has
 
 
 def deck_facts(store: object, rows: Sequence[sqlite3.Row]) -> dict[str, object]:
@@ -402,44 +506,19 @@ def deck_facts(store: object, rows: Sequence[sqlite3.Row]) -> dict[str, object]:
     commanders = [str(row["oracle_name"]) for row in rows if row["zone"] == "commander"]
     combo_view = combos.deck_combos(store, rows) if commanders else None
     hits = builder._corpus_hits(store, commanders) if commanders else {}
-    edhrec_ids: set[str] = set()
-    edhrec_names: set[str] = set()
-    if commanders:
-        marks = ",".join("?" * len(commanders))
-        edhrec_names = {
-            str(row[0])
-            for row in db.execute(
-                "SELECT card_name FROM card_signal WHERE (signal = 'edhrec_commander_inclusion' "
-                "OR signal LIKE 'edhrec_bracket_inclusion:%') "
-                f"AND value IS NOT NULL AND commander_name IN ({marks})",
-                commanders,
-            )
-        }
-        bound, args = builder.bound_to("observation_cohort", "o.cohort", commanders)
-        edhrec_ids = {
-            str(row[0])
-            for row in db.execute(
-                "SELECT DISTINCT o.card_id FROM observation o WHERE o.metric = 'inclusion_pct' "
-                f"AND o.card_id IS NOT NULL AND o.value IS NOT NULL{bound}",
-                args,
-            )
-        }
+    has_edhrec = edhrec_lookup(store, commanders) if commanders else None
+    sizes = builder.cohort_sizes(store, commanders) if hits else None
     return {
         "bracket": bracket_facts(full, roles=roles, combos=combo_view),
         "data_gaps": data_gaps(
             full,
             roles=roles,
             in_source_decks=(lambda name: name in hits) if hits else None,
-            has_edhrec=(
-                (
-                    lambda card_id, name: (
-                        card_id in edhrec_ids
-                        or name in edhrec_names
-                        or name.split(" // ")[0] in edhrec_names
-                    )
-                )
-                if edhrec_ids or edhrec_names
-                else None
+            has_edhrec=has_edhrec,
+            cohort_hits=hits if hits else None,
+            cohort_sizes=sizes,
+            edhrec_note=(
+                EDHREC_THRESHOLD_NOTE if commanders == [EDHREC_AUDITED_COMMANDER] else None
             ),
         ),
     }
