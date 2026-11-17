@@ -221,3 +221,28 @@ def test_the_word_urteil_only_appears_in_negations() -> None:
                     offenders.append(f"{path.name}:{number}")
     assert offenders == []
     assert "Vorfilter-Beobachtung" in (STATIC / "app.js").read_text(encoding="utf-8")
+
+
+def test_partie_loads_one_page_at_a_time_and_reloads_when_hands_are_revealed() -> None:
+    js = (STATIC / "partie.js").read_text(encoding="utf-8")
+    # loads run one after the other, never two with the same start
+    assert "loadTail = run.catch(" in js and "loadTail.then(loadMoreOnce)" in js
+    once = js.split("async function loadMoreOnce() {", 1)[1].split("async function openGame", 1)[0]
+    assert "page.start !== requestedStart" in once  # a page for another position is dropped
+    assert "state.gameId !== gameId" in once  # an answer for a game that is no longer open
+    # the game ended while watched: reload from the start so the revealed hands arrive
+    assert "page.hands_revealed && !state.handsRevealed && state.frames.length" in once
+    assert once.index("resetFrames();") < once.index("state.frames.push(")
+
+
+def test_partie_leave_restore_deleted_game_and_attempt_reset() -> None:
+    js = (STATIC / "partie.js").read_text(encoding="utf-8")
+    assert "error.status === 404" in js and "failure.status = response.status" in js
+    follow = js.split("function follow() {", 1)[1].split("async function refreshTitles", 1)[0]
+    assert follow.index("error.status === 404") < follow.index(
+        "showConnectionLost(state.pollFailures"
+    )
+    assert 'addEventListener("pagehide"' in js and "keepalive: true" in js
+    assert "restoreAiDelayOnLeave(state.gameId);" in js  # when another game is opened
+    ended = js.split("function endFastForward(", 1)[1].split("\nfunction ", 1)[0]
+    assert "state.autoPassAttempt = null" in ended

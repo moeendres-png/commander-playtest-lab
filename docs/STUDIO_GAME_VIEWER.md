@@ -58,11 +58,14 @@ seats. Owner decisions for this mode (2026-11-17, binding):
   ends as failed and the page shows the message.
 - **Hands are revealed after the game.** Owner-Entscheid 2026-11-17: nach Spielende werden die Hände
   aufgedeckt. While a game runs, the hands of the AI seats are not delivered: `GET /api/play/{id}` and
-  `GET /api/games/{id}` serve the frames without them, and a hidden pick of an AI seat (cards it put on
-  the bottom of its library) loses its card names. The log file in the data folder keeps the full
+  `GET /api/games/{id}` serve the frames without them, and a pick of an AI seat out of a hidden zone loses
+  its card names (the engine names the zone of each option: hand or library, such as a tutor or a London
+  mulligan bottom; a zone it does not name counts as hidden; picks from the battlefield, graveyard,
+  exile and stack stay visible). The log file in the data folder keeps the full
   frames, because the reveal needs them; it is a local file and is never served while the game runs.
   Once the game has its closing entry, both routes serve the full frames and the page marks the hand
-  as "nach Spielende aufgedeckt". Replay then shows what each seat held.
+  as "nach Spielende aufgedeckt". Replay then shows what each seat held; a page that watched the game end reloads the frames once
+  to receive them.
 - **Fast-forward ("Vorspulen bis zu meiner nächsten Entscheidung").** Owner-Entscheid 2026-11-17:
   Vorspulen darf ausschließlich die Pass-Option der Engine auf Prioritätsabfragen senden; sonst nie
   eine Mensch-Entscheidung automatisch beantworten. This is the one narrow exception to the rule

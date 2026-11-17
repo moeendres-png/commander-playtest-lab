@@ -34,7 +34,9 @@ async function api(path, method = "GET", body) {
   if (!response.ok) {
     let detail = response.statusText;
     try { detail = (await response.json()).detail || detail; } catch (error) { /* keep status text */ }
-    throw new Error(typeof detail === "string" ? detail : JSON.stringify(detail));
+    const failure = new Error(typeof detail === "string" ? detail : JSON.stringify(detail));
+    failure.status = response.status;
+    throw failure;
   }
   return response.json();
 }
@@ -405,6 +407,19 @@ async function setAiDelay(milliseconds) {
   if (!state.interactive || !state.running || !state.gameId) return;
   try { await api(`/api/play/${encodeURIComponent(state.gameId)}/speed`, "POST", { ai_delay_ms: milliseconds }); } catch (error) { toast(`Tempo konnte nicht gesetzt werden: ${error.message}`); }
 }
+// The session keeps the fast AI delay if the page goes away while fast-forwarding: give the slider
+// value back for the game that was open (page close, switching the game).
+function restoreAiDelayOnLeave(gameId) {
+  if (!state.ff.boosted || !gameId) return;
+  try {
+    fetch(`/api/play/${encodeURIComponent(gameId)}/speed`, {
+      method: "POST",
+      keepalive: true,
+      headers: { "X-Studio": "1", "Content-Type": "application/json" },
+      body: JSON.stringify({ ai_delay_ms: Number($("speed").value) })
+    }).catch(() => { /* the page is leaving; the next load sets the slider value again */ });
+  } catch (error) { /* same */ }
+}
 function currentTurn() {
   const pending = state.pendingDecision;
   if (pending && pending.pilot_state && Number.isInteger(pending.pilot_state.turn_number)) return pending.pilot_state.turn_number;
@@ -424,6 +439,7 @@ function endFastForward(reason) {
   if (!state.ff.on) return;
   const boosted = state.ff.boosted;
   state.ff = { on: false, boosted: false, startTurn: null, stopOnOpponentStack: $("ff-stack").checked };
+  state.autoPassAttempt = null; // a pass that was never sent must not block the next try
   if (boosted) setAiDelay(Number($("speed").value));
   ffStatus(`Vorspulen beendet: ${reason}.`, "stop");
   renderFastForwardButton();
@@ -865,18 +881,42 @@ async function loadFacts(from) {
   try { Object.assign(state.facts, await api("/api/public-cards", "POST", { names: missing.slice(0, 2000) })); } catch (error) { /* without card data the board is shown unsorted */ }
   for (const name of missing) if (!(name in state.facts)) state.facts[name] = null;
 }
-async function loadMore() {
+// One load at a time: loads run one after the other, so two calls never ask for the same frames
+// and an older answer can never overwrite a newer pending decision.
+let loadTail = Promise.resolve();
+function loadMore() {
+  const run = loadTail.then(loadMoreOnce);
+  loadTail = run.catch(() => { /* the caller of this load sees the error */ });
+  return run;
+}
+function resetFrames() {
+  Object.assign(state, { frames: [], lines: [], seatKeys: [] });
+  $("log").textContent = ""; $("table").textContent = ""; delete $("table").dataset.banner;
+}
+async function loadMoreOnce() {
   let added = false;
+  const gameId = state.gameId;
   for (;;) {
     const endpoint = state.interactive
-      ? `/api/play/${encodeURIComponent(state.gameId)}?start=${state.frames.length}&count=1000`
-      : `/api/games/${encodeURIComponent(state.gameId)}?start=${state.frames.length}&count=1000`;
+      ? `/api/play/${encodeURIComponent(gameId)}?start=${state.frames.length}&count=1000`
+      : `/api/games/${encodeURIComponent(gameId)}?start=${state.frames.length}&count=1000`;
+    const requestedStart = state.frames.length;
     const page = await api(endpoint);
+    if (state.gameId !== gameId) return false; // another game was opened meanwhile
     const hasHumans = Boolean(page.interactive || (page.header && Array.isArray(page.header.human_seats) && page.header.human_seats.length));
     if (hasHumans && !state.interactive) {
       state.interactive = true;
-      return loadMore();
+      continue;
     }
+    if (state.interactive && page.hands_revealed && !state.handsRevealed && state.frames.length) {
+      // The game ended while this page watched it: the frames held so far were served without the
+      // AI hands. Load them again from the start, once, now that the server reveals them.
+      state.handsRevealed = true;
+      resetFrames();
+      added = true;
+      continue;
+    }
+    if (page.frames.length && page.start !== requestedStart) continue; // stale page: ask again
     state.header = page.header;
     state.result = page.result;
     state.running = page.running;
@@ -895,16 +935,19 @@ async function loadMore() {
       const from = state.frames.length;
       state.frames.push(...page.frames);
       await loadFacts(from);
+      if (state.gameId !== gameId) return false;
       appendLog(from);
       added = true;
     }
     if (state.frames.length >= page.total) break;
   }
+  state.index = Math.max(0, Math.min(state.index, state.frames.length - 1));
   $("position").max = String(Math.max(0, state.frames.length - 1));
   return added;
 }
 async function openGame(gameId) {
   setPlaying(false); clearTimeout(state.poll);
+  restoreAiDelayOnLeave(state.gameId);
   const listed = state.games.find((entry) => entry.game_id === gameId);
   const listedInteractive = Boolean(listed && listed.header && Array.isArray(listed.header.human_seats) && listed.header.human_seats.length);
   Object.assign(state, { gameId, frames: [], lines: [], index: 0, seatKeys: [], header: null, result: null, interactive: listedInteractive, humanSeats: [], pendingDecision: null, pendingDecisionId: null, selectedOptions: [], orderList: [], submitting: false, canConcede: false, handsRevealed: false, autoPassAttempt: null, pollFailures: 0, ff: { on: false, boosted: false, startTurn: null, stopOnOpponentStack: $("ff-stack").checked } });
@@ -920,6 +963,8 @@ async function openGame(gameId) {
   if (state.interactive && state.frames.length) state.index = state.frames.length - 1;
   render();
   follow();
+  // A fast AI delay left behind by an earlier page is replaced by the slider value.
+  if (state.interactive && state.running) setAiDelay(Number($("speed").value));
 }
 const POLL_FAILURES_BEFORE_BANNER = 3;
 function showConnectionLost(failures, detail) {
@@ -938,6 +983,13 @@ function follow() {
     try {
       added = await loadMore();
     } catch (error) {
+      if (error.status === 404) {
+        // The game is gone (deleted): that is not a lost connection; stop following it.
+        state.running = false;
+        toast("Die Partie existiert nicht mehr (gelöscht).");
+        refreshTitles();
+        return;
+      }
       // No silent retry: after a few failures in a row the page says the connection is lost.
       state.pollFailures += 1;
       showConnectionLost(state.pollFailures, error.message);
@@ -1119,6 +1171,7 @@ async function start() {
       try { await api(`/api/play/${encodeURIComponent(state.gameId)}/speed`, "POST", { ai_delay_ms: Number($("speed").value) }); } catch (error) { /* ignore speed update errors */ }
     }
   });
+  window.addEventListener("pagehide", () => restoreAiDelayOnLeave(state.gameId));
   $("ff-btn").addEventListener("click", () => { if (state.ff.on) endFastForward("von dir beendet"); else startFastForward(); });
   $("ff-stack").addEventListener("change", () => { state.ff.stopOnOpponentStack = $("ff-stack").checked; });
   $("first").addEventListener("click", () => go(0));

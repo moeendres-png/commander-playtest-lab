@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 import time
 from pathlib import Path
 
@@ -386,7 +387,7 @@ def test_read_game_redacts_opponent_hands_while_running_for_human_seat(tmp_path:
     assert "Secret Opponent Card" in json.dumps(revealed["frames"])
 
 
-def test_ai_pick_of_its_own_hand_card_stays_hidden_while_running(tmp_path: Path) -> None:
+def test_ai_pick_from_a_hidden_zone_stays_hidden_while_running(tmp_path: Path) -> None:
     decks = (
         _make_deck("own", "Chulane, Teller of Tales"),
         _make_deck("opp", "Kinnan, Bonder Prodigy"),
@@ -395,30 +396,48 @@ def test_ai_pick_of_its_own_hand_card_stays_hidden_while_running(tmp_path: Path)
         decks, seed=6, game_id="g-hand-pick", human_seats=[0], decision_timeout_seconds=0
     )
     recorder = games.GameRecorder(tmp_path, "g-hand-pick", prep.header)
-    state = _pilot_state(seat=1, turn=3, active_player_id="p1", secret_opp_card="Brainstorm Card")
-    state["players"][1]["hand"] = [  # type: ignore[index]
-        {"name": "Brainstorm Card", "object_id": "obj-9"},
-        {"name": "Island", "object_id": "obj-8"},
-    ]
-    decision = {
-        "seat": 1,
-        "decision_class": "choose_object",
-        "prompt": "Put a card from your hand on top",
-        "legal_options": [{"option_id": "obj-9", "label": "Brainstorm Card"}],
-        "pilot_state": state,
-    }
-    recorder.record(decision, {"selected_option_ids": ["obj-9"]})
-    # a pick from the board is public and stays visible
-    board = dict(decision, legal_options=[{"option_id": "perm-1", "label": "Public Permanent"}])
-    recorder.record(board, {"selected_option_ids": ["perm-1"]})
+    state = _pilot_state(seat=1, turn=3, active_player_id="p1", secret_opp_card="Hand Secret")
+
+    def pick(option_id: str, label: str, metadata: dict[str, object] | None) -> None:
+        option: dict[str, object] = {"option_id": option_id, "label": label}
+        if metadata is not None:
+            option["metadata"] = metadata
+        recorder.record(
+            {
+                "seat": 1,
+                "decision_class": "choose_object",
+                "prompt": "Choose a card",
+                "legal_options": [option],
+                "pilot_state": state,
+            },
+            {"selected_option_ids": [option_id]},
+        )
+
+    pick("o-hand", "Hand Secret", {"zone": "hand"})
+    pick("o-lib", "Tutored Secret", {"zone": "library"})  # a tutor
+    pick("o-none", "Unknown Zone Secret", None)  # zone not named: hidden to be safe
+    pick("o-gy", "Public Graveyard Card", {"zone": "graveyard"})
+    pick("o-bf", "Public Permanent", {"zone": "battlefield"})
     running = games.read_game(tmp_path, "g-hand-pick")
-    assert len(running["frames"]) == 2 and running["running"] is True
-    assert "Brainstorm Card" not in json.dumps(running)
-    assert running["frames"][0]["chosen"] == [] and running["frames"][0]["private_selection"]
-    assert running["frames"][1]["chosen"] == ["Public Permanent"]
-    recorder.close({"status": "finished", "winner_seats": [0], "decision_count": 2})
+    assert len(running["frames"]) == 5 and running["running"] is True
+    blob = json.dumps(running)
+    for secret in ("Hand Secret", "Tutored Secret", "Unknown Zone Secret"):
+        assert secret not in blob
+    hidden = [f["chosen"] for f in running["frames"][:3]]
+    assert hidden == [[], [], []]
+    assert all(f["private_selection"] for f in running["frames"][:3])
+    assert [f["chosen"] for f in running["frames"][3:]] == [
+        ["Public Graveyard Card"],
+        ["Public Permanent"],
+    ]
+    assert not any("private_selection" in f for f in running["frames"][3:])
+    recorder.close({"status": "finished", "winner_seats": [0], "decision_count": 5})
     after = games.read_game(tmp_path, "g-hand-pick")
-    assert after["frames"][0]["chosen"] == ["Brainstorm Card"]
+    assert [f["chosen"][0] for f in after["frames"][:3]] == [
+        "Hand Secret",
+        "Tutored Secret",
+        "Unknown Zone Secret",
+    ]
 
 
 def test_ai_bottom_pick_stays_hidden_while_running_and_shows_after_the_game(
@@ -1089,10 +1108,20 @@ console.log(JSON.stringify(out));
 
 
 def test_fast_forward_stops_at_every_non_priority_decision() -> None:
-    classes = [
-        "mulligan", "declare_attacker", "declare_blocker", "target", "mode", "announce_x",
-        "mana_payment", "trigger_order", "multi_amount", "choose_use", "choose_object", "order",
-    ]  # fmt: skip
+    java = (
+        Path(__file__).resolve().parents[2]
+        / "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameDecisionController.java"
+    ).read_text(encoding="utf-8")
+    declared = java.split("DECISION_CLASSES = Set.of(", 1)[1].split(");", 1)[0]
+    java_classes = re.findall(r'"([a-z_]+)"', declared)
+    assert "priority" in java_classes and len(java_classes) >= 17
+    # every class the bridge declares, except priority, plus the page's own "order" class
+    classes = [name for name in java_classes if name != "priority"] + ["order"]
+    for real in (
+        "replacement_effect", "pile", "target_amount", "amount", "choice", "mulligan",
+        "declare_attacker", "declare_blocker",
+    ):  # fmt: skip
+        assert real in classes
     script = (
         _FF_PRELUDE
         + f"""

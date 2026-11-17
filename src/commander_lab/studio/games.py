@@ -162,15 +162,16 @@ def _parse_combat_declaration(
     return result
 
 
-def _is_private_selection(
-    decision: Mapping[str, object], response: Mapping[str, object], state: Mapping[str, object]
-) -> bool:
-    """True when the answer picked cards out of the deciding seat's own hand.
+_PUBLIC_ZONES = frozenset({"battlefield", "graveyard", "exile", "stack", "command"})
 
-    Two engine facts decide it, no rule: the bridge's own marker of a London-mulligan bottom pick
-    (``context.bottom_of_library_selection``), or a ``choose_object``/``target`` answer whose option
-    ids are object ids of cards in that seat's hand (the engine offers hand cards by object id).
-    A search of the library cannot be told apart this way and stays visible (UNKNOWN).
+
+def _is_private_selection(decision: Mapping[str, object], response: Mapping[str, object]) -> bool:
+    """True when the answer picked cards out of a hidden zone (hand or library).
+
+    The engine facts decide it, no rule: the bridge's own marker of a London-mulligan bottom pick
+    (``context.bottom_of_library_selection``), or a ``choose_object``/``target`` answer whose
+    chosen options the engine places in the hand or the library (``metadata.zone``). A zone the
+    engine did not name counts as hidden (conservative); only a named public zone stays visible.
     """
     context = decision.get("context")
     if isinstance(context, Mapping) and context.get("bottom_of_library_selection") is True:
@@ -182,14 +183,14 @@ def _is_private_selection(
         raw = response.get(key)
         if isinstance(raw, list):
             picked.update(str(item) for item in raw)
-    if not picked:
-        return False
-    seat = _whole(decision.get("seat"))
-    for player in _items(state.get("players")):
-        hand = player.get("hand")
-        if _whole(player.get("seat")) == seat and isinstance(hand, list):
-            hand_ids = {str(card.get("object_id")) for card in hand if isinstance(card, Mapping)}
-            return bool(picked & hand_ids)
+    by_id = {
+        str(option.get("option_id")): option for option in _items(decision.get("legal_options"))
+    }
+    for option_id in picked:
+        metadata = by_id.get(option_id, {}).get("metadata")
+        zone = metadata.get("zone") if isinstance(metadata, Mapping) else None
+        if not (isinstance(zone, str) and zone in _PUBLIC_ZONES):
+            return True
     return False
 
 
@@ -231,7 +232,7 @@ def frame_of(
     for key in ("numeric_choice", "numeric_choices"):
         if response.get(key) is not None:
             frame[key] = response.get(key)
-    if _is_private_selection(decision, response, state):
+    if _is_private_selection(decision, response):
         # A pick of the deciding seat's own hand cards stays hidden from the other seats while
         # the game runs (see redact_frame_for_human_seats).
         frame["private_selection"] = True
