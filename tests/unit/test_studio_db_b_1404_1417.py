@@ -581,8 +581,13 @@ def test_tuned_cohort_in_builder_and_similar_decks_and_cooccurrence(tmp_path: Pa
         store.close()
 
 
-def test_swap_lift_sorting_and_unknown_last(tmp_path: Path) -> None:
+def test_swap_lift_sorting_and_unknown_last(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     store = _build_fixture_store(tmp_path)
+    # The fixture's tuned group has only 6 decks: lower the minimum so that the ordering of
+    # known lifts is still exercised (the real minimum is tested below).
+    monkeypatch.setattr(swap, "SWAP_LIFT_MIN_N", 5)
     try:
         res = swap.swap_candidates(
             store,
@@ -612,6 +617,216 @@ def test_swap_lift_sorting_and_unknown_last(tmp_path: Path) -> None:
                 mode="replace",
                 sort_by="invalid",
             )
+    finally:
+        store.close()
+
+
+def _add_thin_and_thick_decks(store: StudioStore) -> None:
+    """30 more bracket-3 decks holding Birds of Paradise: 'all' becomes 38 decks, 'tuned' stays 6."""
+    for i in range(30):
+        _add_corpus_deck(store, f"d-extra-{i}", COMMANDER, ("bracket:3",), ["Birds of Paradise"])
+    with store.connection:
+        # Elvish Mystic: a tiny global share would give a huge lift from 5 thin decks.
+        store.connection.execute(
+            "UPDATE card_signal SET value = 0.01, numerator = 100 "
+            "WHERE card_name = 'Elvish Mystic' AND signal = 'edhrec_global_inclusion'"
+        )
+
+
+def test_swap_lift_needs_min_n_and_unknown_lift_sorts_last(tmp_path: Path) -> None:
+    store = _build_fixture_store(tmp_path)
+    try:
+        assert swap.SWAP_LIFT_MIN_N == 30
+        # tuned has 6 source decks: every lift is below the minimum -> unknown, never 0.
+        thin = swap.swap_candidates(
+            store,
+            commander=COMMANDER,
+            deck_card_ids=["c-dork1"],
+            card_id="c-dork1",
+            mode="replace",
+            cohort="tuned",
+            sort_by="lift",
+        )
+        assert thin["lift_min_n"] == 30
+        assert thin["candidates"]
+        for cand in thin["candidates"]:  # type: ignore[attr-defined]
+            assert cand["lift"] is None
+        birds = next(c for c in thin["candidates"] if c["name"] == "Birds of Paradise")  # type: ignore[attr-defined]
+        assert birds["decks"] == 6 and birds["of"] == 6
+        assert "zu dünn: 6 von 6" in str(birds["lift_unknown_reason"])
+        assert thin["unknown_count"] == len(thin["candidates"])  # type: ignore[arg-type]
+
+        _add_thin_and_thick_decks(store)
+        res = swap.swap_candidates(
+            store,
+            commander=COMMANDER,
+            deck_card_ids=["c-dork1"],
+            card_id="c-dork1",
+            mode="replace",
+            cohort="all",
+            sort_by="lift",
+        )
+        by_name = {c["name"]: c for c in res["candidates"]}  # type: ignore[attr-defined]
+        # Birds: 36 of 38 decks (>= 30), global 0.50 -> known lift.
+        assert (
+            by_name["Birds of Paradise"]["decks"] == 36 and by_name["Birds of Paradise"]["of"] == 38
+        )
+        assert by_name["Birds of Paradise"]["lift"] == pytest.approx((36 / 38) / 0.5, abs=1e-3)
+        # Elvish Mystic: 5 of 38 decks (< 30) -> unknown although 5/38 / 0.01 would be ~13.
+        assert by_name["Elvish Mystic"]["decks"] == 5
+        assert by_name["Elvish Mystic"]["lift"] is None
+        assert by_name["Obscure Elk"]["lift"] is None
+        assert [c["name"] for c in res["candidates"]][0] == "Birds of Paradise"  # type: ignore[attr-defined]
+        assert all(c["lift"] is None for c in res["candidates"][1:])  # type: ignore[index]
+    finally:
+        store.close()
+
+
+def test_swap_all_and_tuned_side_by_side_never_summed(tmp_path: Path) -> None:
+    store = _build_fixture_store(tmp_path)
+    try:
+        _add_thin_and_thick_decks(store)
+        res = swap.swap_candidates(
+            store,
+            commander=COMMANDER,
+            deck_card_ids=["c-dork1"],
+            card_id="c-dork1",
+            mode="replace",
+            cohort="bracket:3",
+        )
+        assert [(g["key"], g["decks"]) for g in res["compare_groups"]] == [  # type: ignore[attr-defined]
+            ("all", 38),
+            ("tuned", 6),
+        ]
+        by_name = {c["name"]: c for c in res["candidates"]}  # type: ignore[attr-defined]
+        birds = by_name["Birds of Paradise"]["groups"]
+        assert birds["all"] == {"decks": 36, "of": 38, "share": round(36 / 38, 4)}
+        assert birds["tuned"] == {"decks": 6, "of": 6, "share": 1.0}
+        elvish = by_name["Elvish Mystic"]["groups"]
+        assert elvish["all"]["decks"] == 5 and elvish["tuned"]["decks"] == 5
+        # Never added up across groups (5 + 5 would be 10; 38 + 6 would be 44 decks).
+        assert all(
+            cand["groups"]["all"]["of"] == 38 and cand["groups"]["tuned"]["of"] == 6
+            for cand in res["candidates"]  # type: ignore[attr-defined]
+        )
+        # The chosen group (here bracket:3: 2 + 30 decks) drives the figures and stays separate.
+        assert res["of"] == 32
+        assert by_name["Birds of Paradise"]["decks"] == 30
+        # Obscure Elk is in no source deck: unknown in both groups, not 0.
+        elk = by_name["Obscure Elk"]["groups"]
+        assert elk["all"]["decks"] is None and elk["tuned"]["decks"] is None
+
+    finally:
+        store.close()
+
+
+def test_swap_shared_roles_k_of_n_and_deterministic_order(tmp_path: Path) -> None:
+    store = _build_fixture_store(tmp_path)
+    try:
+        first = swap.swap_candidates(
+            store,
+            commander=COMMANDER,
+            deck_card_ids=["c-dork1"],
+            card_id="c-dork1",
+            mode="replace",
+            cohort="all",
+        )
+        again = swap.swap_candidates(
+            store,
+            commander=COMMANDER,
+            deck_card_ids=["c-dork1"],
+            card_id="c-dork1",
+            mode="replace",
+            cohort="all",
+        )
+        assert first == again
+        assert first["target_role_count"] == 2  # Llanowar Elves: ramp + mana_dork
+        by_name = {c["name"]: c for c in first["candidates"]}  # type: ignore[attr-defined]
+        assert by_name["Birds of Paradise"]["shared_role_count"] == 2
+        assert by_name["Birds of Paradise"]["target_role_count"] == 2
+        assert by_name["Obscure Elk"]["shared_role_count"] == 1  # ramp only
+        assert by_name["Obscure Elk"]["shared_roles"] == ["ramp"]
+        rule = str(first["order_rule"])
+        assert "Deterministisch" in rule and "gemeinsame Rollen" in rule and "Karten-ID" in rule
+    finally:
+        store.close()
+
+
+def test_swap_removed_before_is_a_fact_and_never_changes_order(tmp_path: Path) -> None:
+    store = _build_fixture_store(tmp_path)
+    try:
+        rev1 = decks.create_revision(
+            store,
+            deck_id="deck-x",
+            name="X",
+            cards=[
+                RevisionCard("cmd-1", 1, "commander"),
+                RevisionCard("c-dork1"),
+                RevisionCard("c-dork2"),
+            ],
+        )
+        rev2 = decks.create_revision(
+            store,
+            deck_id="deck-x",
+            name="X",
+            cards=[RevisionCard("cmd-1", 1, "commander"), RevisionCard("c-dork1")],
+            parent_revision_id=rev1,
+        )
+        assert rev1 != rev2
+        kwargs: dict[str, object] = {
+            "commander": COMMANDER,
+            "deck_card_ids": ["c-dork1"],
+            "card_id": "c-dork1",
+            "mode": "replace",
+            "cohort": "all",
+        }
+        plain = swap.swap_candidates(store, **kwargs)  # type: ignore[arg-type]
+        with_history = swap.swap_candidates(store, deck_id="deck-x", **kwargs)  # type: ignore[arg-type]
+        assert plain["candidates"]
+        by_name = {c["name"]: c for c in with_history["candidates"]}  # type: ignore[attr-defined]
+        removed = by_name["Birds of Paradise"]["removed_before"]
+        assert removed["revision_id"] == rev1 and removed["created_at"]
+        assert by_name["Elvish Mystic"]["removed_before"] is None  # never in a revision
+        assert with_history["history"]["head_revision_id"] == rev2  # type: ignore[index]
+
+        # Same order and figures; only the history field differs.
+        def strip(res: dict[str, object]) -> list[dict[str, object]]:
+            return [
+                {k: v for k, v in c.items() if k != "removed_before"} for c in res["candidates"]
+            ]  # type: ignore[attr-defined]
+
+        assert strip(plain) == strip(with_history)
+        assert all(c["removed_before"] is None for c in plain["candidates"])  # type: ignore[attr-defined]
+        unknown_deck = swap.swap_candidates(store, deck_id="no-such-deck", **kwargs)  # type: ignore[arg-type]
+        assert unknown_deck["history"] is None
+    finally:
+        store.close()
+
+
+def test_swap_marks_change_neither_order_nor_figures(tmp_path: Path) -> None:
+    store = _build_fixture_store(tmp_path)
+    try:
+        kwargs: dict[str, object] = {
+            "commander": COMMANDER,
+            "deck_card_ids": ["c-dork1"],
+            "card_id": "c-dork1",
+            "mode": "replace",
+            "cohort": "tuned",
+        }
+        before = swap.swap_candidates(store, **kwargs)  # type: ignore[arg-type]
+        assert before["candidates"]
+        builder.set_mark(store, "c-dork2", favorite=True, excluded=False, note="x")
+        builder.set_mark(store, "c-unseen", favorite=True, excluded=False, note="y")
+        after_fav = swap.swap_candidates(store, **kwargs)  # type: ignore[arg-type]
+        assert after_fav == before
+        builder.set_mark(store, "c-dork3", favorite=False, excluded=True, note="")
+        after_excl = swap.swap_candidates(store, **kwargs)  # type: ignore[arg-type]
+        # Excluded only filters; the remaining items are unchanged and in the same order.
+        assert after_excl["candidates"] == [
+            c
+            for c in before["candidates"]
+            if c["card_id"] != "c-dork3"  # type: ignore[attr-defined]
+        ]
     finally:
         store.close()
 
@@ -768,6 +983,21 @@ def test_web_routes_packages_build_plan_upgrade_path_and_swap_lift(tmp_path: Pat
         )
         assert r_swap.status_code == 200, r_swap.text
         assert r_swap.json()["sort_by"] == "lift"
+        assert r_swap.json()["lift_min_n"] == 30
+        assert r_swap.json()["history"] is None  # no deck_id sent
+        r_hist = client.post(
+            "/api/swap",
+            headers=hdr,
+            json={
+                "commander": COMMANDER,
+                "deck_card_ids": ["c-dork1"],
+                "card_id": "c-dork1",
+                "deck_id": "deck-unknown",
+                "branch": "main",
+            },
+        )
+        assert r_hist.status_code == 200, r_hist.text
+        assert r_hist.json()["history"] is None
 
 
 def test_studio_static_csp_and_db_b_ui_markers() -> None:
