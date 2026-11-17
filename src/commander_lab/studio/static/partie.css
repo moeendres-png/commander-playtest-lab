@@ -2,6 +2,7 @@ a.nav{color:var(--accent);text-decoration:none;padding:4px 8px;border:1px solid 
 a.nav:hover{border-color:var(--accent)}
 #controls{display:flex;align-items:center;gap:var(--s2) var(--s3);padding:var(--s2) var(--s4);background:var(--panel);border-bottom:1px solid var(--line);flex-wrap:wrap}
 #controls label{display:inline-flex;gap:4px;align-items:center;color:var(--muted)}
+#controls [hidden]{display:none}
 #position{flex:1 1 260px;padding:0}
 #game{grid-template-columns:minmax(0,1fr) 410px}
 #table{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--s3);padding:var(--s3);overflow:auto;align-content:start;scrollbar-width:thin}
@@ -83,10 +84,20 @@ pre.error-out{background:var(--panel2);border:1px solid var(--line);border-radiu
 .human-opt:hover{border-color:var(--accent)}
 .human-opt.legal-target{border-left:3px solid var(--good)}
 .human-opt.selected{background:color-mix(in srgb,var(--accent) 25%,var(--panel));border-color:var(--accent);font-weight:600}
-.human-opt-group{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-top:4px}
+.human-opt-group{display:flex;flex-direction:column;gap:5px;margin-top:4px}
+.human-opt-group-title{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
 .human-actions{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
 .order-row{display:flex;align-items:center;gap:6px;padding:4px 6px;border:1px solid var(--line);border-radius:6px;background:var(--panel)}
 .order-row .order-label{flex:1;font-size:12.5px}
 .human-numeric{display:flex;gap:8px;align-items:center;font-size:12.5px}
 .human-numeric input{width:96px}
 
+.conn-status{padding:6px var(--s4);background:#4a1c1c;color:#ffd0c8;border-bottom:1px solid var(--bad);font-size:12px;font-weight:600}
+.ff-wrap{display:inline-flex;flex-wrap:wrap;align-items:center;gap:var(--s2) var(--s3);max-width:100%}
+.ff-wrap #ff-rule{font-size:11px;max-width:520px}
+.ff-status{padding:8px var(--s4);font-weight:700;border-bottom:1px solid var(--line)}
+.ff-status.run{background:var(--panel2);color:var(--accent);border-bottom-color:var(--accent)}
+.ff-status.stop{background:#3a2d10;color:#ffe082;border-bottom-color:#ffd257}
+#side{overflow-y:auto}
+#side>*{flex-shrink:0}
+#side #log{flex:1 0 120px}

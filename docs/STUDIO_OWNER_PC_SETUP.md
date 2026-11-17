@@ -141,7 +141,7 @@ menschlichen Platz gilt `docs/research/PLAY_HUMAN_SEAT_REQUIREMENTS.md`.
   öffnet sich innerhalb von 20 Sekunden, das Log wächst. *Melden:* Screenshot der Fehlermeldung;
   `<Datenordner>\games\<game_id>.out`.
 - [ ] **Partie läuft bis zum Ende.** *Sichtbar:* ein Ergebnis (Sieger oder Abbruchgrund) im Log und
-  auf der Seite, vier Sitze. Gewünscht laut Roadmap: ohne Zeitlimit-Abbruch; Dauer notieren
+  auf der Seite, vier Sitze. Gewünscht laut Roadmap und Owner-Entscheid 2026-11-17: ohne Zeitlimit-Abbruch; Dauer notieren
   (Soll-Dauer: ZPAP). *Melden:* Screenshot der Endansicht, Pfad `games\<game_id>.jsonl.gz`, Seed,
   Wanduhr-Dauer.
 - [ ] **Kein Platz bleibt hängen.** *Sichtbar:* jeder KI-Platz entscheidet weiter, kein Stillstand.

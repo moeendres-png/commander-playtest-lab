@@ -46,8 +46,8 @@ async function renderBuildPlanTab(body, deps) {
           h("th", { class: "num" }, "Im Pool belegt"))),
         h("tbody", {}, step.metrics.map((m) => h("tr", {},
           h("td", {}, m.role ? roleName(m.role) : m.label),
-          h("td", { class: "num" }, m.deck === null || m.deck === undefined ? "unbekannt" : StudioUI.numFlex(m.deck, 2)),
-          h("td", { class: "num" }, m.span ? spanText(m.span) : (m.target !== null && m.target !== undefined ? StudioUI.numFlex(m.target, 2) : "unbekannt")),
+          h("td", { class: "num" }, m.deck === null || m.deck === undefined ? "unbekannt" : StudioUI.num(m.deck, Number.isInteger(m.deck) ? 0 : 2)),
+          h("td", { class: "num" }, m.span ? spanText(m.span) : (m.target !== null && m.target !== undefined ? StudioUI.num(m.target, Number.isInteger(m.target) ? 0 : 2) : "unbekannt")),
           h("td", { class: "num" }, m.pool_total ? `${StudioUI.num(m.pool_tagged, 0)}/${StudioUI.num(m.pool_total, 0)}` : "–")))))));
     }
     const cands = step.free_pool_candidates || [];

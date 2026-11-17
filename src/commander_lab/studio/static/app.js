@@ -802,7 +802,7 @@ function renderNumbers(body) {
   const shape = state.shape;
   if (!shape) { body.append(h("p", { class: "muted" }, "Wird berechnet.")); return; }
   body.append(h("h3", {}, "Manakurve (ohne Länder)"), ...bars([0, 1, 2, 3, 4, 5, 6, 7].map((key) => shape.curve[String(key)] || 0), ["0", "1", "2", "3", "4", "5", "6", "7+"]),
-    h("p", {}, `Durchschnittlicher Manawert der Nichtland-Karten: ${shape.mana_value === null ? "unbekannt" : StudioUI.num(shape.mana_value, 2)}`));
+    h("p", {}, `Durchschnittlicher Manawert der Nichtland-Karten: ${StudioUI.num(shape.mana_value, 2)}`));
   const types = h("div", { class: "table-wrap" }, h("table", {}, h("tbody", {}, GROUPS.filter((group) => shape.types[group]).map((group) => h("tr", {}, h("td", {}, GROUP_NAMES[group]), h("td", { class: "num" }, StudioUI.num(shape.types[group], 0)))))));
   body.append(h("h3", {}, "Kartentypen"), types);
   const colors = h("div", { class: "table-wrap" }, h("table", {}, h("thead", {}, h("tr", {}, h("th", {}, "Farbe"), h("th", { class: "num" }, "Farbsymbole in Kosten"), h("th", { class: "num" }, "Karten, die die Farbe erzeugen"))),
@@ -1228,8 +1228,8 @@ async function renderDiff(body) {
           if (!pf.comparable) {
             pfBox.append(h("p", { class: "muted" }, pf.reason || "Vorfilter benötigt zwei vollständige 100-Karten-Listen."));
           } else {
-            pfBox.append(h("h3", {}, "Vorfilter & Commander-Castability (HEURISTIC_MODEL)"),
-              h("p", {}, h("b", {}, `Urteil: ${pf.verdict}`), ` — ${pf.verdict_reason}`),
+            pfBox.append(h("h3", {}, "Vorfilter & Commander-Castability (Modellrechnung)"),
+              h("p", {}, h("b", {}, `Vorfilter-Beobachtung: ${pf.verdict}`), ` — ${pf.verdict_reason}`),
               h("p", { class: "note" }, `Simulator-Bereitschaft: Basis=${pf.baseline_ready ? "OK" : "Lücken"}, Aktuell=${pf.variant_ready ? "OK" : "Lücken (" + (pf.variant_not_ready_cards || []).join(", ") + ")"} · Manabasis-Delta: Länder ${pf.land_count_delta >= 0 ? "+" : ""}${StudioUI.num(pf.land_count_delta, 0)}, sicher getappt ${pf.definitely_tapped_land_delta >= 0 ? "+" : ""}${StudioUI.num(pf.definitely_tapped_land_delta, 0)}, bedingt getappt ${pf.conditionally_tapped_land_delta >= 0 ? "+" : ""}${StudioUI.num(pf.conditionally_tapped_land_delta, 0)}`));
             if (pf.castability && pf.castability.length) {
               const fmtPct = (v) => (v === null || v === undefined ? "–" : StudioUI.pct(v, 1));
@@ -1264,7 +1264,7 @@ async function renderDiff(body) {
               pfBox.append(h("div", { class: "table-wrap" }, h("table", {},
                 h("thead", {}, h("tr", {}, h("th", {}, "Commander / Zug"), h("th", { class: "num" }, "On the Play (Basis → Aktuell)"), h("th", { class: "num" }, "On the Draw (Basis → Aktuell)"))),
                 h("tbody", {}, castRows))),
-                h("p", { class: "note" }, "Modellrechnung (HEURISTIC_MODEL, 2000 Läufe, Seed 20261016): prüft Manabasis und Farbquellen ohne volle Spielsimulation."));
+                h("p", { class: "note" }, "Modellrechnung (2000 Läufe, Seed 20261016): prüft Manabasis und Farbquellen ohne volle Spielsimulation."));
             }
           }
         } catch (err) {
@@ -1273,7 +1273,7 @@ async function renderDiff(body) {
           pfBtn.disabled = false;
         }
       },
-    }, "Vorfilter & Commander-Castability berechnen (HEURISTIC_MODEL)");
+    }, "Vorfilter & Commander-Castability berechnen (Modellrechnung)");
     box.append(h("div", { class: "actions mt-2" }, pfBtn), pfBox);
   } catch (error) {
     box.replaceChildren(h("p", { class: "muted" }, "Differenz nicht lesbar: " + StudioUI.germanError(error)));

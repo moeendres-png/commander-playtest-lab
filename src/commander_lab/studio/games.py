@@ -162,6 +162,38 @@ def _parse_combat_declaration(
     return result
 
 
+_PUBLIC_ZONES = frozenset({"battlefield", "graveyard", "exiled", "stack", "command"})
+
+
+def _is_private_selection(decision: Mapping[str, object], response: Mapping[str, object]) -> bool:
+    """True when the answer picked cards out of a hidden zone (hand or library).
+
+    The engine facts decide it, no rule: the bridge's own marker of a London-mulligan bottom pick
+    (``context.bottom_of_library_selection``), or a ``choose_object``/``target`` answer whose
+    chosen options the engine places in the hand or the library (``metadata.zone``). A zone the
+    engine did not name counts as hidden (conservative); only a named public zone stays visible.
+    """
+    context = decision.get("context")
+    if isinstance(context, Mapping) and context.get("bottom_of_library_selection") is True:
+        return True
+    if decision.get("decision_class") not in {"choose_object", "target"}:
+        return False
+    picked: set[str] = set()
+    for key in ("selected_option_ids", "ordering"):
+        raw = response.get(key)
+        if isinstance(raw, list):
+            picked.update(str(item) for item in raw)
+    by_id = {
+        str(option.get("option_id")): option for option in _items(decision.get("legal_options"))
+    }
+    for option_id in picked:
+        metadata = by_id.get(option_id, {}).get("metadata")
+        zone = metadata.get("zone") if isinstance(metadata, Mapping) else None
+        if not (isinstance(zone, str) and zone in _PUBLIC_ZONES):
+            return True
+    return False
+
+
 def frame_of(
     number: int,
     decision: Mapping[str, object],
@@ -200,6 +232,10 @@ def frame_of(
     for key in ("numeric_choice", "numeric_choices"):
         if response.get(key) is not None:
             frame[key] = response.get(key)
+    if _is_private_selection(decision, response):
+        # A pick of the deciding seat's own hand cards stays hidden from the other seats while
+        # the game runs (see redact_frame_for_human_seats).
+        frame["private_selection"] = True
     source = decision.get("source_object")
     if isinstance(source, dict) and _plain(source.get("name")):
         frame["source"] = _card_name(source)
@@ -410,8 +446,17 @@ def redact_frame_for_human_seats(
     frame: Mapping[str, object],
     human_seats: frozenset[int] | set[int],
 ) -> dict[str, object]:
-    """Return a copy of ``frame`` omitting ``hand`` for every seat not in ``human_seats``."""
+    """Return a copy of ``frame`` omitting ``hand`` for every seat not in ``human_seats``.
+
+    Used only while a game runs. Owner decision 2026-11-17: once the game has ended its closing
+    result exists and the hands of the AI seats are shown (``read_game``, ``play``); a running
+    game never shows them. A hidden pick of an AI seat (``private_selection``: cards it put on
+    the bottom of its library) loses its card names as well.
+    """
     copy_frame = dict(frame)
+    if frame.get("private_selection") is True and _whole(frame.get("seat")) not in human_seats:
+        copy_frame["chosen"] = []
+        copy_frame.pop("targets", None)
     raw_players = frame.get("players")
     if isinstance(raw_players, list):
         redacted_players: list[dict[str, object]] = []
@@ -480,7 +525,10 @@ def read_game(
     if header.get("schema") != LOG_SCHEMA:
         raise ValueError(f"{game_id}: not a game log of this version")
     human_seats = _human_seat_set(header.get("human_seats"))
-    if result is None and human_seats:
+    # Owner decision 2026-11-17: the hands of the AI seats are hidden while the game runs and
+    # shown after it ended (the closing entry exists). Never revealed before that.
+    hands_hidden = result is None and bool(human_seats)
+    if hands_hidden:
         frames = [redact_frame_for_human_seats(frame, human_seats) for frame in frames]
     out_path = path.parent / f"{_checked_id(game_id)}.out"
     out_content: str | None = None
@@ -513,6 +561,7 @@ def read_game(
         "start": start,
         "total": total,
         "running": result is None,
+        "hands_revealed": bool(human_seats) and not hands_hidden,
         "result": result,
     }
 

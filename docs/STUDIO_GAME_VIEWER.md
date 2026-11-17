@@ -42,6 +42,52 @@ stack, the hand of the deciding seat, and a chronological list of actions with l
 Playback has start, step, next turn, a speed setting and a position slider; passing and mana
 payment can be skipped. A running game is followed live.
 
+## Playing seat 1 yourself (human seat)
+
+"Neue Partie" with "Sitz 1 selbst spielen" starts a game in which the page answers for seat 1
+(`studio/play.py`, `POST /api/play/{id}/decision`). XMage still decides every rule: the page shows
+only the options the engine offers to that seat and sends back one of them. The AI plays the other
+seats. Owner decisions for this mode (2026-11-17, binding):
+
+- **No time limit.** Owner-Entscheid 2026-11-17: im PLAY wartet ein Mensch unbegrenzt; kein Zeitlimit
+  beendet die Partie. The page offers no limit to choose. Every start path with a human seat hands
+  the bridge the explicit value `decision_timeout_seconds = 0` (unlimited), so the bridge default of
+  120 s never applies; the Studio refuses another value for a human seat (HTTP 422). The bridge
+  property itself is unchanged. If the bridge nevertheless reports a terminal error
+  (`DECISION_TIMEOUT`, engine failure, closed or exited bridge), the loop does not wait on: the game
+  ends as failed and the page shows the message.
+- **Hands are revealed after the game.** Owner-Entscheid 2026-11-17: nach Spielende werden die Hände
+  aufgedeckt. While a game runs, the hands of the AI seats are not delivered: `GET /api/play/{id}` and
+  `GET /api/games/{id}` serve the frames without them, and a pick of an AI seat out of a hidden zone loses
+  its card names (the engine names the zone of each option: hand or library, such as a tutor or a London
+  mulligan bottom; a zone it does not name counts as hidden; picks from the battlefield, graveyard,
+  exiled and stack stay visible). The log file in the data folder keeps the full
+  frames, because the reveal needs them; it is a local file and is never served while the game runs.
+  Once the game has its closing entry, both routes serve the full frames and the page marks the hand
+  as "nach Spielende aufgedeckt". Replay then shows what each seat held; a page that watched the game end reloads the frames once
+  to receive them.
+- **Fast-forward ("Vorspulen bis zu meiner nächsten Entscheidung").** Owner-Entscheid 2026-11-17:
+  Vorspulen darf ausschließlich die Pass-Option der Engine auf Prioritätsabfragen senden; sonst nie
+  eine Mensch-Entscheidung automatisch beantworten. This is the one narrow exception to the rule
+  against silent skips (`AGENTS.md` §2), and the Owner switches it on knowingly. While it is on, the
+  page answers a priority question of the human with the pass option the engine offered, the same
+  option the opt-in auto-pass sends, and nothing else (`static/vorspulen.js`). It stops, switches
+  itself off and shows "Vorspulen beendet: <Grund>" when your turn begins, at every decision that is
+  not a priority question (mulligan, attack, block, target, mode, X, mana, trigger order, multiple
+  choice, yes/no), when the engine offers no pass option, when the active player is unknown and, with
+  "auch bei Gegner-Zaubern anhalten" (default on), when an object that is not yours is on the stack.
+  A rejected answer ends it too. While it is on the AI delay of the session is 0 (the existing
+  `POST /api/play/{id}/speed`) and the page polls every 150 ms; the slider value comes back when it
+  ends. Limit: no bridge change, so it cannot play faster than the engine and the pilots compute, and
+  each pass is one request. The old auto-pass checkbox is unchanged and stays opt-in.
+- **Save and resume** is not built (Owner: only if it makes sense). A game lives in the memory of the
+  Studio process; closing the Studio ends it.
+
+Keyboard: Space toggles the replay only when no button, link or field has the focus; arrows step
+through the replay. The decision panel is announced to screen readers when a new decision arrives,
+its option groups are labelled groups, and a poll that keeps failing shows a banner "Verbindung zum
+Studio unterbrochen" instead of retrying silently.
+
 ## Simulation series: several games per engine process
 
 A series (`python -m commander_lab.studio simulate`, `POST /api/simulations/batch`) plays its

@@ -12,6 +12,7 @@ import contextlib
 import copy
 import queue
 import threading
+import time
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
@@ -25,8 +26,10 @@ from commander_lab.agents import (
 from commander_lab.bridge_qualification import BRIDGE_ALIGNED, bridge_qualification
 from commander_lab.candidates.models import FutureXmageScenario
 from commander_lab.engine.rules.failure_privacy import (
+    machine_codes,
     public_exception_type,
     public_full_game_exception_message,
+    redacted_summary,
 )
 from commander_lab.engine.rules.full_game import (
     FULL_GAME_EVIDENCE_CLASS,
@@ -57,6 +60,45 @@ PILOT_IDENTITY = "GenericCommanderPilot"
 PILOT_VERSION = "1.0.0"
 POLICY_VERSION = "xmage-full-game-policy-1.0.0"
 BRIDGE_VERSION = "xmage-engine-bridge-0.1.0-SNAPSHOT"
+
+# Owner decision 2026-11-17: in PLAY a human waits without limit; no timeout ends the game. Every
+# start path with a human seat therefore hands the bridge the explicit value 0 (unlimited); the
+# bridge default of 120 s must never apply to a human seat.
+HUMAN_SEAT_TIMEOUT_SECONDS = 0
+_HUMAN_TIMEOUT_MESSAGE = (
+    "Im PLAY gibt es kein Zeitlimit: decision_timeout_seconds muss 0 (unbegrenzt) sein, "
+    "ein Mensch wartet unbegrenzt und kein Zeitlimit beendet die Partie"
+)
+# While the loop waits for the human it looks at the bridge process this often, so a dead
+# bridge ends the game as failed instead of leaving the page waiting for ever.
+_PARK_POLL_SECONDS = 2.0
+_AI_DELAY_SLICE_SECONDS = 0.05
+# Bridge errors after which the engine cannot continue: waiting for another answer is pointless.
+_TERMINAL_BRIDGE_CODES = frozenset(
+    {
+        "BRIDGE_CLOSED",
+        "BRIDGE_EXITED",
+        "BRIDGE_TIMEOUT",
+        "BRIDGE_UNUSABLE",
+        "DECISION_TIMEOUT",
+        "PLAYER_LEFT_GAME_UNSUPPORTED_DECISION",
+        "XMAGE_FULL_GAME_FAILED",
+    }
+)
+
+
+def _is_terminal_bridge_error(error: FullGameProtocolError) -> bool:
+    """True when the raw bridge diagnostics already name a code after which the game is over.
+
+    A rejected answer (illegal option, wrong timing, stale id) is not terminal: the human may
+    answer again. The bridge words a decision timeout as a later ``STALE_DECISION`` on the next
+    answer, so a rejection that names no such code is checked against the bridge status as well
+    (``InteractiveGameSession._probe_after_rejection``).
+    """
+    texts = [str(item) for item in error.diagnostics]
+    if "FULL_GAME_ALREADY_TERMINAL" in " ".join(texts):
+        return True
+    return bool(_TERMINAL_BRIDGE_CODES.intersection(machine_codes(texts)))
 
 
 def _with_hash(deck: RulesDeckInput) -> RulesDeckInput:
@@ -159,6 +201,8 @@ def prepare_game(
             human_set.append(seat_idx)
     if decision_timeout_seconds < 0 or decision_timeout_seconds > 86_400:
         raise ValueError("decision_timeout_seconds must be between 0 and 86400")
+    if human_set and decision_timeout_seconds != HUMAN_SEAT_TIMEOUT_SECONDS:
+        raise ValueError(_HUMAN_TIMEOUT_MESSAGE)
     pin = canonical_xmage_engine_pin()
     resolved_sha = (
         jar_sha256
@@ -407,7 +451,9 @@ class InteractiveGameSession:
         self.human_seats: frozenset[int] = frozenset(int(s) for s in human_seats)
         if not self.human_seats:
             raise ValueError("interactive session requires at least one human seat")
-        self.decision_timeout_seconds = int(decision_timeout_seconds)
+        if int(decision_timeout_seconds) != HUMAN_SEAT_TIMEOUT_SECONDS:
+            raise ValueError(_HUMAN_TIMEOUT_MESSAGE)
+        self.decision_timeout_seconds = HUMAN_SEAT_TIMEOUT_SECONDS
         self.ai_delay_ms = max(0, min(5_000, int(ai_delay_ms)))
         self.max_decisions = max_decisions
         self._command = tuple(command) if command is not None else None
@@ -417,6 +463,8 @@ class InteractiveGameSession:
         self._ready = threading.Event()
         self._commands: queue.Queue[_InteractiveCommand] = queue.Queue()
         self._frames: list[dict[str, object]] = []
+        # Unredacted frames, served only once the game is over (Owner decision 2026-11-17).
+        self._raw_frames: list[dict[str, object]] = []
         self._pending_decision: dict[str, object] | None = None
         self._pending_raw_decision: dict[str, object] | None = None
         self._player_ids_by_seat: dict[int, str] = {}
@@ -539,6 +587,7 @@ class InteractiveGameSession:
         redacted = redact_frame_for_human_seats(frame, self.human_seats)
         with self._lock:
             self._frames.append(redacted)
+            self._raw_frames.append(frame)
             self._pending_decision = None
             self._pending_raw_decision = None
 
@@ -571,6 +620,76 @@ class InteractiveGameSession:
         except Exception as exc:
             cmd.reject(exc)
             return current_status
+
+    def _probe_after_rejection(
+        self, client: object
+    ) -> tuple[str, dict[str, object] | FullGameProtocolError | None]:
+        """What the bridge says after it rejected a human answer, read from its status.
+
+        ("failed", error): the engine failed or timed out; the game cannot go on.
+        ("over", status) / ("moved", status): the game ended, or another decision is open.
+        ("same", None): the same decision is still open; the human may answer again.
+        Anything unreadable counts as "same" (an error is shown, the answer can be retried).
+        """
+        try:
+            status = client.request("get_full_game_decision")  # type: ignore[attr-defined]
+        except FullGameProtocolError as probe_error:
+            if getattr(client, "_transport_failure", None) is not None:
+                return "failed", probe_error
+            return "same", None
+        except Exception:
+            return "same", None
+        if not isinstance(status, dict):
+            return "same", None
+        failure = status.get("failure")
+        if isinstance(failure, dict):
+            raw = ("BRIDGE_ERROR", str(failure.get("message") or "engine failure"))
+            return "failed", FullGameProtocolError(
+                "submit_full_game_decision failed: " + redacted_summary("BRIDGE_ERROR", raw),
+                code="BRIDGE_ERROR",
+                diagnostics=raw,
+            )
+        if bool(status.get("terminal")):
+            return "over", status
+        decision = status.get("decision")
+        pending = self._pending_raw_decision
+        if (
+            isinstance(decision, dict)
+            and pending is not None
+            and decision.get("decision_id") != pending.get("decision_id")
+        ):
+            return "moved", status
+        return "same", None
+
+    def _wait_ai_delay(self) -> _InteractiveCommand | None:
+        """Pause before an AI seat acts; a concede or shutdown command ends the pause early.
+
+        The delay is read again every slice, so a lowered speed (fast-forward) takes effect at
+        once, not only for the next AI decision.
+        """
+        started = time.monotonic()
+        while True:
+            remaining = float(self.ai_delay_ms) / 1000.0 - (time.monotonic() - started)
+            if remaining <= 0.0:
+                try:
+                    return self._commands.get_nowait()  # a queued concede or shutdown still counts
+                except queue.Empty:
+                    return None
+            try:
+                return self._commands.get(timeout=min(remaining, _AI_DELAY_SLICE_SECONDS))
+            except queue.Empty:
+                continue
+
+    @staticmethod
+    def _raise_if_bridge_gone(client: object) -> None:
+        """Fail the game when the bridge process has exited while the human is thinking."""
+        failure = getattr(client, "_transport_failure", None)
+        process = getattr(client, "_process", None)
+        poll = getattr(process, "poll", None)
+        if failure is not None or (callable(poll) and poll() is not None):
+            raise FullGameProtocolError(
+                "full-game bridge is gone while waiting for the human seat", code="BRIDGE_EXITED"
+            )
 
     def _run(self) -> None:
         outcome: FullGameConformanceResult | Exception | None = None
@@ -662,7 +781,11 @@ class InteractiveGameSession:
                         if type(seat) is int and seat in self.human_seats:
                             # Park on command queue until human answers, concedes, or shuts down.
                             while True:
-                                cmd = self._commands.get()
+                                try:
+                                    cmd = self._commands.get(timeout=_PARK_POLL_SECONDS)
+                                except queue.Empty:
+                                    self._raise_if_bridge_gone(client)
+                                    continue
                                 if cmd.kind == "shutdown":
                                     shutdown_requested = True
                                     cmd.resolve({"shut_down": True})
@@ -683,14 +806,27 @@ class InteractiveGameSession:
                                             {"response": dict(response_payload)},
                                         )
                                     except FullGameProtocolError as exc:
-                                        if (
+                                        retryable = (
                                             exc.code == "BRIDGE_ERROR"
                                             and getattr(client, "_transport_failure", None) is None
-                                        ):
+                                            and not _is_terminal_bridge_error(exc)
+                                        )
+                                        if not retryable:
+                                            cmd.reject(exc)
+                                            raise
+                                        kind, found = self._probe_after_rejection(client)
+                                        if kind == "same":
                                             cmd.reject(ValueError(str(exc)))
                                             continue
-                                        cmd.reject(exc)
-                                        raise
+                                        if isinstance(found, FullGameProtocolError):
+                                            cmd.reject(found)
+                                            raise found from None
+                                        if isinstance(found, dict):
+                                            # the game ended or moved on: carry on from that status
+                                            status = found
+                                            self._publish_status(status, client)
+                                        cmd.reject(ValueError("Entscheidung ist veraltet"))
+                                        break
                                     self._record_decision(decision, response_payload)
                                     status = next_status
                                     self._publish_status(status, client)
@@ -699,12 +835,7 @@ class InteractiveGameSession:
                             continue
 
                         # AI seat: allow responsive concede/shutdown during delay.
-                        delay = max(0.0, float(self.ai_delay_ms) / 1000.0)
-                        ai_cmd: _InteractiveCommand | None
-                        try:
-                            ai_cmd = self._commands.get(timeout=delay)
-                        except queue.Empty:
-                            ai_cmd = None
+                        ai_cmd = self._wait_ai_delay()
                         if ai_cmd is not None:
                             if ai_cmd.kind == "shutdown":
                                 shutdown_requested = True
@@ -769,7 +900,12 @@ class InteractiveGameSession:
 
     def snapshot(self, *, start: int = 0, count: int = 200) -> dict[str, object]:
         with self._lock:
-            sliced = [copy.deepcopy(frame) for frame in self._frames[start : start + count]]
+            # Owner decision 2026-11-17: hands of the AI seats are revealed after the game ends,
+            # never while it runs. The unredacted frames are used only from the moment the game
+            # has its closing result.
+            revealed = not self._running and self._result is not None
+            source = self._raw_frames if revealed else self._frames
+            sliced = [copy.deepcopy(frame) for frame in source[start : start + count]]
             pending = copy.deepcopy(self._pending_decision)
             if isinstance(pending, dict):
                 raw_state = pending.get("pilot_state")
@@ -793,6 +929,7 @@ class InteractiveGameSession:
                 "frames": sliced,
                 "start": start,
                 "total": len(self._frames),
+                "hands_revealed": revealed,
                 "result": copy.deepcopy(self._result),
             }
 
@@ -901,7 +1038,7 @@ class InteractivePlayManager:
         *,
         seed: int,
         human_seats: Sequence[int],
-        decision_timeout_seconds: int = 0,
+        decision_timeout_seconds: int = HUMAN_SEAT_TIMEOUT_SECONDS,
         ai_delay_ms: int = 250,
         game_id: str | None = None,
         strategy: str = "generic",
@@ -910,6 +1047,8 @@ class InteractivePlayManager:
         max_decisions: int = 50_000,
         client_factory: Callable[..., object] | None = None,
     ) -> dict[str, object]:
+        if int(decision_timeout_seconds) != HUMAN_SEAT_TIMEOUT_SECONDS:
+            raise ValueError(_HUMAN_TIMEOUT_MESSAGE)
         decks = load_decks(deck_paths)
         resolved_id = game_id or free_game_id(
             data_folder, f"{decks[0].deck_id}-{len(decks)}p-seed{seed}"
@@ -976,7 +1115,9 @@ class InteractivePlayManager:
         human_set = frozenset(human_list)
         raw_frames = recorded.get("frames")
         frame_items = raw_frames if isinstance(raw_frames, list) else []
-        if human_set:
+        # Owner decision 2026-11-17: hands are revealed once the game has a closing result.
+        revealed = bool(recorded.get("hands_revealed"))
+        if human_set and not revealed:
             frames: list[dict[str, object]] = [
                 redact_frame_for_human_seats(f, human_set)
                 for f in frame_items
@@ -991,10 +1132,15 @@ class InteractivePlayManager:
             "header": header,
             "human_seats": human_list,
             "decision_timeout_seconds": (
-                header.get("decision_timeout_seconds", 120) if isinstance(header, Mapping) else 120
+                header.get(
+                    "decision_timeout_seconds", HUMAN_SEAT_TIMEOUT_SECONDS if human_set else 120
+                )
+                if isinstance(header, Mapping)
+                else 120
             ),
             "ai_delay_ms": 0,
             "can_concede": False,
+            "hands_revealed": revealed,
             "pending_decision": None,
             "frames": frames,
             "start": recorded.get("start", start),

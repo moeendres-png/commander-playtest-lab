@@ -26,6 +26,8 @@
   <button id="new-game" type="button" class="primary">Neue Partie</button>
 </header>
 <div id="bridge-status" class="bridge-status" hidden></div>
+<div id="conn-status" class="conn-status" role="alert" hidden></div>
+<div id="sr-announce" class="visually-hidden" role="status" aria-live="polite" aria-atomic="true"></div>
 <div id="controls">
   <button id="first" type="button" title="Anfang">⏮</button>
   <button id="back" type="button" title="Eine Aktion zurück (Pfeil links)">◀</button>
@@ -35,13 +37,19 @@
   <label>Tempo <select id="speed"></select></label>
   <label><input id="skip" type="checkbox" checked> Passen und Manazahlung überspringen</label>
   <label id="auto-pass-wrap" hidden><input id="auto-pass-human" type="checkbox"> Auto-Pass bis eigene Aktion</label>
+  <span id="ff-wrap" class="ff-wrap" hidden>
+    <button id="ff-btn" type="button" aria-pressed="false" title="Spielt schnell bis zu deiner nächsten Entscheidung: gibt nur die Pass-Option der Engine ab, wenn du nach Priorität gefragt wirst">⏩ Vorspulen bis zu meiner nächsten Entscheidung</button>
+    <label><input id="ff-stack" type="checkbox" checked> auch bei Gegner-Zaubern anhalten</label>
+    <span id="ff-rule" class="muted">Gibt auf Prioritätsabfragen nur „Passen“ ab. Hält an: wenn dein Zug beginnt, bei jeder anderen Entscheidung (Mulligan, Angriff, Block, Ziel, Modus, X, Mana, Reihenfolge, Ja/Nein) und, wenn angehakt, bei Gegner-Objekten auf dem Stack.</span>
+  </span>
   <input id="position" aria-label="Position in der Partie" type="range" min="0" max="0" value="0">
   <span id="where" class="muted"></span>
 </div>
+<div id="ff-status" class="ff-status" role="status" aria-live="polite" hidden></div>
 <main id="game">
   <section id="table"></section>
   <aside id="side">
-    <section id="human-decision" class="human-decision" hidden></section>
+    <section id="human-decision" class="human-decision" role="region" aria-label="Deine Entscheidung" hidden></section>
     <div id="now"></div>
     <h3>Stapel</h3>
     <div id="stack" class="cards"></div>
@@ -53,8 +61,9 @@
 </main>
 <div id="preview" hidden><img alt="" referrerpolicy="no-referrer"></div>
 <div id="modal" hidden><div id="modal-box" class="plain"></div></div>
-<div id="toast" hidden></div>
+<div id="toast" role="status" aria-live="polite" hidden></div>
 <script src="commander.js"></script>
+<script src="vorspulen.js"></script>
 <script src="partie.js"></script>
 </body>
 </html>
