@@ -102,3 +102,17 @@ def test_a_front_face_spelling_names_the_two_faced_card() -> None:
     assert _canonical_name(owners, "Brazen Borrower") == "Brazen Borrower // Petty Theft"
     assert _canonical_name(owners, "BRAZEN BORROWER") == "Brazen Borrower // Petty Theft"
     assert _canonical_name(owners, "Unknown Card") == "Unknown Card"
+
+
+def test_deck_tags_come_from_the_json_list_not_from_comma_splitting() -> None:
+    from commander_lab.studio.similar_decks import split_tags
+
+    assert split_tags('["bracket:5", "variant:cedh", "sum:100"]') == [
+        "bracket:5",
+        "variant:cedh",
+        "sum:100",
+    ]
+    assert split_tags("alpha, beta") == ["alpha", "beta"]
+    assert split_tags("") == []
+    # Damaged JSON never leaks brackets or quotes into the labels.
+    assert split_tags('["bracket:5", "variant') == ["bracket:5", "variant"]

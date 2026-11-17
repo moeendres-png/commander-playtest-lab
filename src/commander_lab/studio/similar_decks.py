@@ -67,6 +67,21 @@ class _PoolInfo(TypedDict):
     basic: bool
 
 
+def split_tags(raw: str) -> list[str]:
+    """The tags of a source deck. The corpus stores them as a JSON list
+    (``["bracket:5", "variant:cedh"]``); older rows hold a comma separated text. Never the raw
+    JSON text split at commas (that showed brackets and quotes in the deck browser)."""
+    text = raw.strip()
+    if text.startswith("["):
+        try:
+            parsed = json.loads(text)
+        except ValueError:
+            parsed = None
+        if isinstance(parsed, list):
+            return [str(item).strip() for item in parsed if str(item).strip()]
+    return [part.strip().strip("[]\"'") for part in text.split(",") if part.strip().strip("[]\"'")]
+
+
 def _canonical_name(owners: Mapping[str, list[str]], raw_name: str) -> str:
     """The collection card a deck spelling names. ``owners`` (``universe.spelling_owners``) is
     keyed by the casefolded spelling, so the lookup casefolds too: a deck listing only the
@@ -607,7 +622,7 @@ def browse_decks(
                 if cohort != "all" and cohort not in cohorts_by_deck.get(did, set()):
                     continue
                 tags_raw = meta["tags"]
-                deck_tags = [t.strip() for t in tags_raw.split(",") if t.strip()]
+                deck_tags = split_tags(tags_raw)
                 if label_cf and not any(label_cf in t.casefold() for t in deck_tags):
                     continue
                 if q_cf:
