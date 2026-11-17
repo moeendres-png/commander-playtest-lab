@@ -1234,6 +1234,32 @@ def compute(
     }
 
 
+def compute_with_snapshot(
+    store: StudioStore,
+    commander: str,
+    settings: StrengthSettings,
+    *,
+    profile_name: str | None = None,
+    with_layers: bool = True,
+    dangling_universe_ok: bool = False,
+    notices: Sequence[str] = (),
+    saved_weights: Mapping[str, float] | None = None,
+) -> dict[str, object]:
+    """Read a persisted tier snapshot on HIT, or compute live with snapshot status metadata."""
+    from . import tier_snapshot
+
+    return tier_snapshot.read_snapshot(
+        store,
+        commander,
+        settings,
+        profile_name=profile_name,
+        with_layers=with_layers,
+        dangling_universe_ok=dangling_universe_ok,
+        notices=notices,
+        saved_weights=saved_weights,
+    )
+
+
 # ---------- saved settings of the Owner ----------
 
 
@@ -1938,6 +1964,7 @@ __all__ = [
     "StrengthResult",
     "card_signal_values",
     "compute",
+    "compute_with_snapshot",
     "delete_profile",
     "get_profile",
     "list_profiles",

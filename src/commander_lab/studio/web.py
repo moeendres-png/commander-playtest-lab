@@ -51,6 +51,7 @@ from . import (
     strength,
     strength_view,
     swap,
+    tier_snapshot,
     tournament_conversion,
     universe,
     universe_choice,
@@ -542,6 +543,20 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
     def strength_presets() -> dict[str, object]:
         return strength_view.presets()
 
+    @app.get("/api/strength/snapshot")
+    def strength_snapshot_summary(
+        commander: str = Query(min_length=1, max_length=200),
+    ) -> dict[str, object]:
+        """Lightweight persisted tier snapshot summary (#1420, #1369) without card rows."""
+        store = open_store()
+        try:
+            found = tier_snapshot.latest_snapshot_summary(store, commander)
+            if found is None:
+                raise HTTPException(404, "no tier snapshot for commander")
+            return found
+        finally:
+            store.close()
+
     @app.post("/api/strength")
     def strength_index(body: StrengthBody) -> dict[str, object]:
         """Strength index per pool card of one commander: an estimate from usage signals,
@@ -552,25 +567,29 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
             settings = strength_view.resolve_settings(
                 store, preset=body.preset, profile=body.profile, settings=body.settings
             )
-            return dict(
-                strength_view.compute(
-                    store,
-                    body.commander,
-                    settings,
-                    # a saved profile may point to a universe deleted since: fall back
-                    # visibly instead of failing; explicit settings must name a real one
-                    dangling_universe_ok=body.profile is not None,
-                    notices=(
-                        strength_view.profile_notices(store, body.profile)
-                        if body.profile is not None
-                        else ()
-                    ),
-                    saved_weights=(
-                        strength_view.profile_saved_weights(store, body.profile)
-                        if body.profile is not None
-                        else None
-                    ),
+            if body.profile is not None:
+                return dict(
+                    strength_view.compute(
+                        store,
+                        body.commander,
+                        settings,
+                        # a saved profile may point to a universe deleted since: fall back
+                        # visibly instead of failing; explicit settings must name a real one
+                        dangling_universe_ok=True,
+                        notices=strength_view.profile_notices(store, body.profile),
+                        saved_weights=strength_view.profile_saved_weights(store, body.profile),
+                    )
                 )
+            profile_name = (
+                body.preset
+                if body.preset is not None
+                else ("Ausgewogen" if settings == strength.StrengthSettings.recommended() else None)
+            )
+            return strength_view.compute_with_snapshot(
+                store,
+                body.commander,
+                settings,
+                profile_name=profile_name,
             )
         except ValueError as error:
             raise HTTPException(422, str(error)) from error

@@ -1309,7 +1309,9 @@ class _PaymentDecisions(_PolicyState):
         )
         return self._required_text(funded[0], "option_id")
 
-    def _remember_failed_payment(self, seat: int, state: dict[str, Any]) -> None:
+    def _remember_failed_payment(
+        self, seat: int, state: dict[str, Any], *, source_object: object = None
+    ) -> None:
         """Note that this seat gave up paying for its last chosen action.
 
         A player who could not pay for a spell does not try the same spell
@@ -1317,6 +1319,11 @@ class _PaymentDecisions(_PolicyState):
         payment only replays the same cancel (up to the turn cap, three times
         per spell in real games).
         """
+        if isinstance(source_object, dict):
+            payer_id = str(source_object.get("source_object_id") or "")
+            last_source = self._last_priority_source.get(seat, "")
+            if payer_id and last_source and payer_id != last_source:
+                return
         label = self._last_priority_label.get(seat)
         if not label:
             return

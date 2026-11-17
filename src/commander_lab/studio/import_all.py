@@ -35,10 +35,12 @@ from . import (
     rulings,
     signals,
     strength_view,
+    tier_snapshot,
 )
 from .data_report import data_report
 from .marks import import_owner_marks
 from .store import BOUND_ELSEWHERE, StudioStore
+from .strength import StrengthSettings
 
 NOT_PROVIDED = "NOT_PROVIDED"
 IMPORTED = "IMPORTED"
@@ -88,7 +90,10 @@ class ImportAllResult(TypedDict):
     pool_ok: bool
     signal_rows: SignalRows
     layers: list[LayerResult]
+    rate_alarms: list[signals.SignalRateAlarm]
+    warnings: list[str]
     data_report: dict[str, object]
+    tier_snapshot: dict[str, object] | None
 
 
 _Action = Callable[[StudioStore], object]
@@ -169,6 +174,9 @@ def _summary(result: object) -> str:
                         f"{name}: Universum {missing['source']}/{missing['bracket']}: "
                         + signals.unmatched_notice(missing["rows"], missing["examples"])
                     )
+                for alarm in report.get("rate_alarms") or []:
+                    if isinstance(alarm, dict) and alarm.get("message"):
+                        parts.append(f"{name}: {alarm['message']}")
         return ", ".join(parts)
     return ""
 
@@ -638,6 +646,8 @@ def run(args: argparse.Namespace, store: StudioStore) -> ImportAllResult:
     else:
         rulings_files = [Path(file) for file in args.rulings]
     steps: list[StepResult] = []
+    rate_alarms: list[signals.SignalRateAlarm] = []
+    warnings: list[str] = []
     failed = False
     for name, provided, action in _steps(args, signal_folders, rulings_files, repo):
         if not provided:
@@ -651,11 +661,27 @@ def run(args: argparse.Namespace, store: StudioStore) -> ImportAllResult:
                 result = action(store)
             outcome = result.get("status") if isinstance(result, dict) else None
             message = str(result.get("message", "")) if isinstance(result, dict) else ""
+            step_alarms = (
+                [
+                    alarm
+                    for alarm in raw_alarms
+                    if isinstance(alarm, dict) and "signal_name" in alarm
+                ]
+                if isinstance(result, dict)
+                and isinstance((raw_alarms := result.get("rate_alarms")), list)
+                else []
+            )
+            for alarm in step_alarms:
+                rate_alarms.append(alarm)  # type: ignore[arg-type]
+                warnings.append(f"{name}: {alarm.get('message', '')}")
             if outcome == "NO_ROWS":
                 steps.append({"step": name, "status": FAILED, "detail": message})
                 failed = True
             elif outcome == "WARNUNG":
                 steps.append({"step": name, "status": WARNING, "detail": message})
+                warnings.append(f"{name}: {message}")
+            elif step_alarms:
+                steps.append({"step": name, "status": WARNING, "detail": _summary(result)})
             else:
                 steps.append({"step": name, "status": IMPORTED, "detail": _summary(result)})
         except sqlite3.IntegrityError as error:
@@ -674,7 +700,20 @@ def run(args: argparse.Namespace, store: StudioStore) -> ImportAllResult:
             failed = True
     if not failed:
         store.compact()
+    if not rate_alarms:
+        store_alarms = signals.compute_store_signal_rate_alarms(store, commander=commander)
+        for store_alarm in store_alarms:
+            rate_alarms.append(store_alarm)
+            warnings.append(store_alarm["message"])
     size, layers = completeness(store, commander)
+    snapshot_summary: dict[str, object] | None = None
+    if not failed and size is not None:
+        snapshot_summary = tier_snapshot.write_snapshot(
+            store,
+            commander,
+            StrengthSettings.recommended(),
+            profile_name="Ausgewogen",
+        )
     expected = args.expect_pool
     return {
         "commander": commander,
@@ -685,7 +724,10 @@ def run(args: argparse.Namespace, store: StudioStore) -> ImportAllResult:
         "pool_ok": expected is None or size == expected,
         "signal_rows": signal_rows(store, commander),
         "layers": layers,
-        "data_report": data_report(store),
+        "rate_alarms": rate_alarms,
+        "warnings": warnings,
+        "data_report": data_report(store, commander=commander),
+        "tier_snapshot": snapshot_summary,
     }
 
 
@@ -735,6 +777,8 @@ def render(result: ImportAllResult) -> str:
     parts.extend(
         f"Warnung: {step['step']}: {step['detail']}" for step in steps if step["status"] == WARNING
     )
+    for alarm in result.get("rate_alarms") or []:
+        parts.append(f"Raten-Alarm: {alarm['message']}")
     rows = result["signal_rows"]
     parts.append(
         f"Signalzeilen gespeichert: für {result['commander']} {rows['for_commander']} "
@@ -742,6 +786,23 @@ def render(result: ImportAllResult) -> str:
         f"({rows['other_commanders']} Commander). Zeilen anderer Commander werden "
         "gespeichert, aber nur bei diesen Commandern angezeigt."
     )
+    snap = result.get("tier_snapshot")
+    if isinstance(snap, dict):
+        counts = snap.get("tier_counts")
+        counts_text = (
+            ", ".join(
+                f"{tier}:{counts[tier]}"
+                for tier in ("S", "A", "B", "C", "D", "U", "N")
+                if tier in counts
+            )
+            if isinstance(counts, dict)
+            else ""
+        )
+        parts.append(
+            f"Tier-Snapshot ({snap.get('profile_name', 'Ausgewogen')}): "
+            f"Epoche {str(snap.get('data_epoch', ''))[:12]}"
+            + (f" · {counts_text}" if counts_text else "")
+        )
     if result["expected_pool"] is not None:
         verdict = "stimmt" if result["pool_ok"] else "STIMMT NICHT"
         parts.append(f"Erwartete Poolgröße {result['expected_pool']}: {verdict}")

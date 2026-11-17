@@ -571,7 +571,26 @@ _TEMP_BOOST_RE = re.compile(
 # the card creates) or of a keyword; the mana and search rules below read the
 # text with it removed, the same convention as layers.py: the token has the
 # ability, not the card that creates it.
-_REMINDER = re.compile(r"\([^)]*\)")
+_REMINDER = re.compile(r"\([^()]*\)")
+# A draw whose drawer is not the card's controller ("that player draws", "each
+# player draws", "its controller draws"). "Target player draws" stays: the
+# controller may target themselves ("Night's Whisper"-style).
+_DRAW_OTHER_SUBJECT_RE = re.compile(
+    r"\b(?:(?:that|each|defending) player|players|(?:its|'s) (?:controller|owner))\s+(?:may\s+)?$"
+)
+
+
+def strip_reminder(text: str) -> str:
+    """The text without parenthesised reminder text, nested parentheses included.
+
+    The innermost pair is removed until none is left; an unbalanced ")" stays."""
+    while True:
+        stripped = _REMINDER.sub(" ", text)
+        if stripped == text:
+            return stripped
+        text = stripped
+
+
 _DRAW_RE = re.compile(r"\bdraws? (?:(?:a |an |\w+ |that many )?(?:additional )?)?cards?\b")
 _DRAW_TRIGGER_RE = re.compile(r"\b(?:whenever|when|if)\b")
 # A negation counts only directly at the draw phrase (last words of the
@@ -615,7 +634,7 @@ def _clause_prefix(text: str, start: int) -> str:
     return text[boundary + 1 : start]
 
 
-def _has_card_draw(o: str) -> bool:
+def _has_card_draw(o: str, *, own_only: bool = False) -> bool:
     """A draw phrase counts only as the controller's own draw effect.
 
     A phrase inside a trigger condition draws nothing ("whenever you draw a
@@ -625,7 +644,10 @@ def _has_card_draw(o: str) -> bool:
     decides: what follows the comma of "when this creature enters, draw a
     card" is the effect and counts, and so does the real draw after a
     replaced opponent draw ("if an opponent would draw a card, instead you
-    draw a card")."""
+    draw a card").
+
+    ``own_only`` also drops a draw whose drawer is another player ("that
+    player draws", "each player draws", "its controller draws")."""
     for match in _DRAW_RE.finditer(o):
         prefix = _clause_prefix(o, match.start())
         if _DRAW_TRIGGER_RE.search(prefix):
@@ -633,6 +655,8 @@ def _has_card_draw(o: str) -> bool:
         if _DRAW_NEGATION_TAIL_RE.search(prefix):
             continue
         if _DRAW_OPPONENT_SUBJECT_RE.search(prefix):
+            continue
+        if own_only and _DRAW_OTHER_SUBJECT_RE.search(prefix):
             continue
         return True
     return False
@@ -665,10 +689,11 @@ def _has_utility_ability(oracle: str) -> bool:
 
 
 def _has_repeatable_draw_trigger(o: str) -> bool:
+    # controller draws only: "whenever a player casts ..., that player draws" is no advantage
     for sentence in re.split(r"[.\n]+", o):
         if (
             re.search(r"\bwhenever\b", sentence)
-            and _has_card_draw(sentence)
+            and _has_card_draw(sentence, own_only=True)
             and not _SYMMETRIC_OR_LOOT_RE.search(sentence)
         ):
             return True
@@ -686,28 +711,35 @@ def classify_oracle_roles(type_line: str, oracle_text: str) -> tuple[str, ...]:
     if not o.strip():
         return ()
     found = {role for role, pattern in _ORACLE_RULES if pattern.search(o)}
+    # cantrip, card_advantage and hate read the text without reminder text: a
+    # Clue's "draw a card" or a Split second "players can't cast spells" belongs
+    # to the explained object or keyword, not to the card. card_draw keeps
+    # reading the full text.
+    bare = strip_reminder(o)
     if _has_card_draw(o):
         found.add("card_draw")
+    if _has_card_draw(bare):
         if (
             ("instant" in t or "sorcery" in t)
-            and _SINGLE_DRAW_RE.search(o)
-            and not _MULTI_OR_VAR_DRAW_RE.search(o)
+            and _SINGLE_DRAW_RE.search(bare)
+            and not _MULTI_OR_VAR_DRAW_RE.search(bare)
         ):
             found.add("cantrip")
-        if (
-            (_MULTI_DRAW_RE.search(o) and not _SYMMETRIC_OR_LOOT_RE.search(o))
-            or _has_repeatable_draw_trigger(o)
+        # card_advantage needs a draw for the card's own controller
+        if _has_card_draw(bare, own_only=True) and (
+            (_MULTI_DRAW_RE.search(bare) and not _SYMMETRIC_OR_LOOT_RE.search(bare))
+            or _has_repeatable_draw_trigger(bare)
             or (
                 "instant" not in t
                 and "sorcery" not in t
-                and _ETB_DRAW_RE.search(o)
-                and not _SYMMETRIC_OR_LOOT_RE.search(o)
+                and _ETB_DRAW_RE.search(bare)
+                and not _SYMMETRIC_OR_LOOT_RE.search(bare)
             )
         ):
             found.add("card_advantage")
     if _has_tax(o):
         found.add("tax")
-    if _HATE_RE.search(o):
+    if _HATE_RE.search(bare):
         found.add("hate")
     if re.search(r"\bbattle cry\b", o) or any(
         _ANTHEM_RE.search(clause) and "until end of turn" not in clause
@@ -718,7 +750,6 @@ def classify_oracle_roles(type_line: str, oracle_text: str) -> tuple[str, ...]:
         "instant" in t or "sorcery" in t or "{" in o or "when" in o or "whenever" in o
     ):
         found.add("combat_trick")
-    bare = _REMINDER.sub(" ", o)
     if re.search(r"\binvestigate\b", bare):
         found.add("card_advantage")
     if "land" not in t and (("add " in bare and "{t}:" in bare) or _TAP_ADD_RE.search(bare)):

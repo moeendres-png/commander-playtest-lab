@@ -10,7 +10,7 @@
 </head>
 <body>
 <header id="brand">
-  <a class="logo" href="index.html">Commander Studio</a>
+  <h1 class="brand-h1"><a class="logo" href="index.html">Commander Studio</a><span class="visually-hidden"> – Tierliste</span></h1>
   <nav id="areas" aria-label="Bereiche"><a href="index.html">Deckbau</a><a href="tierliste.html">Tierliste</a><a href="decks.html">Deck-Browser</a><a href="partie.html">Partien</a></nav>
   <span class="spacer"></span>
   <label>Commander <select id="commander-select"></select></label>
@@ -32,15 +32,15 @@
 <div id="role-audit-panel"></div>
 <div id="topdeck-conversion-panel"></div>
 <div id="filters">
-  <input id="q" type="search" placeholder="Suche in Name und Typ" autocomplete="off">
-  <select id="type-filter"></select>
-  <select id="land-filter" title="Länder und Zauber werden im Stärke-Index getrennt gerankt (Einstellung „Länder getrennt von Zaubern ranken“)">
+  <input id="q" aria-label="Karten suchen" type="search" placeholder="Suche in Name und Typ" autocomplete="off">
+  <select id="type-filter" aria-label="Kartentyp"></select>
+  <select id="land-filter" aria-label="Länder und Zauber" title="Länder und Zauber werden im Stärke-Index getrennt gerankt (Einstellung „Länder getrennt von Zaubern ranken“)">
     <option value="">Länder und Zauber</option>
     <option value="spells">nur Zauber</option>
     <option value="lands">nur Länder</option>
   </select>
-  <select id="role-filter"></select>
-  <select id="spread-filter" title="Nach gezählter Verbreitungs-Stufe im gewählten Universum filtern">
+  <select id="role-filter" aria-label="Rolle"></select>
+  <select id="spread-filter" aria-label="Verbreitungs-Stufe" title="Nach gezählter Verbreitungs-Stufe im gewählten Universum filtern">
     <option value="">Verbreitung: alle Stufen</option>
     <option value="S">Verbreitung: sehr häufig (S)</option>
     <option value="A">Verbreitung: häufig (A)</option>

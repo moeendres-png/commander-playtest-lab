@@ -20,11 +20,12 @@ shows at a glance whether anything outside the imported scope changed.
 from __future__ import annotations
 
 import hashlib
+import json
 import sqlite3
 from datetime import UTC, date, datetime
 from typing import cast
 
-from . import builder, strength_view, universe
+from . import builder, signals, strength_view, universe
 from .roles import ORIGIN_CROSSWALK, ORIGIN_TAGGER, ROLES
 from .store import StudioStore
 from .tiers import MODEL_VERSION, TierParams
@@ -462,6 +463,9 @@ def _commanders(store: StudioStore) -> dict[str, object]:
                     db, "SELECT signal, COUNT(*) FROM card_signal GROUP BY signal"
                 )
             }
+            entry["signal_rate_alarms"] = signals.compute_store_signal_rate_alarms(
+                store, commander=name
+            )
             details.append(entry)
             continue
         entry["in_collection"] = True
@@ -472,6 +476,9 @@ def _commanders(store: StudioStore) -> dict[str, object]:
             "excluded_not_legal": counts["not_legal"],
         }
         entry["signals"] = {signal: dict(item) for signal, item in coverage.items()}
+        entry["signal_rate_alarms"] = signals.compute_store_signal_rate_alarms(
+            store, commander=name
+        )
         details.append(entry)
     return {
         "commanders": len(details),
@@ -480,7 +487,12 @@ def _commanders(store: StudioStore) -> dict[str, object]:
     }
 
 
-def data_report(store: StudioStore, *, today: date | None = None) -> dict[str, object]:
+def data_report(
+    store: StudioStore,
+    *,
+    today: date | None = None,
+    commander: str | None = None,
+) -> dict[str, object]:
     """The counts-only report. ``today`` is only injectable for tests."""
     from commander_lab.bridge_qualification import bridge_qualification
 
@@ -502,6 +514,57 @@ def data_report(store: StudioStore, *, today: date | None = None) -> dict[str, o
         "observations": _observations(db),
         "universes": _universes(store),
         "commanders": _commanders(store),
+        "signal_rate_alarms": signals.compute_store_signal_rate_alarms(store, commander=commander),
         **_marks_and_games(db),
         "not_measured_here": list(NOT_MEASURED),
     }
+
+
+def build_data_report(
+    store: StudioStore,
+    *,
+    today: date | None = None,
+    commander: str | None = None,
+) -> dict[str, object]:
+    """Alias for ``data_report`` (#1416)."""
+    return data_report(store, today=today, commander=commander)
+
+
+def format_data_report(report: dict[str, object]) -> str:
+    """Render the data report as human-readable text with visible signal rate alarms (#1416)."""
+    lines = [
+        "Datenbericht (nur Zählungen):",
+        json.dumps(report, indent=2, ensure_ascii=False),
+    ]
+    raw_alarms = report.get("signal_rate_alarms")
+    alarms = (
+        [item for item in raw_alarms if isinstance(item, dict)]
+        if isinstance(raw_alarms, list)
+        else []
+    )
+    if alarms:
+        lines.append("")
+        lines.append("Raten-Alarme für Kernsignale:")
+        for alarm in alarms:
+            msg = alarm.get("message")
+            if isinstance(msg, str) and msg:
+                lines.append(f"- WARNUNG: {msg}")
+            else:
+                sig = alarm.get("signal_name", "")
+                atype = alarm.get("alarm_type", "")
+                count = alarm.get("count", 0)
+                den = alarm.get("denominator", 0)
+                rate = (
+                    float(alarm.get("rate", 0.0)) * 100.0
+                    if isinstance(alarm.get("rate"), int | float)
+                    else 0.0
+                )
+                thresh = (
+                    float(alarm.get("threshold", 0.0)) * 100.0
+                    if isinstance(alarm.get("threshold"), int | float)
+                    else 0.0
+                )
+                lines.append(
+                    f"- WARNUNG: {sig} ({atype}): {count}/{den} ({rate:.1f} %) > {thresh:.0f} %"
+                )
+    return "\n".join(lines)
