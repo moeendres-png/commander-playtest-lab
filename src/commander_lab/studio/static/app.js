@@ -1532,18 +1532,24 @@ function renderDeck() {
     ["list", "Liste"],
     ["state", "Zustand"],
     ["numbers", "Zahlen"],
+    ["evidence", "Belege"],
     ["plan", "Bauplan"],
     ["packages", "Pakete & Upgrade"],
     ["check", "Prüfung"],
     ["facts", "Bracket & Lücken"],
-    ["evidence", "Belege"],
     ["compare", "Vergleich"],
     ["similar", "Ähnliche Decks"],
     ["diff", "Varianten-Diff"],
     ["cut", "Kürzen"],
     ["sim", "Simulation"],
   ];
-  $("deck-tabs").replaceChildren(...tabs.map(([key, label]) => h("button", { type: "button", class: "chip" + (state.tab === key ? " on" : ""), "aria-pressed": state.tab === key, onclick: () => { state.tab = key; renderDeck(); } }, label)));
+  // Two groups keep 13 tabs readable: looking at the deck (Analyse) and working on it (Arbeiten).
+  const workTabs = new Set(["compare", "similar", "diff", "cut", "sim"]);
+  const tabButton = ([key, label]) => h("button", { type: "button", class: "chip" + (state.tab === key ? " on" : ""), "aria-pressed": state.tab === key, onclick: () => { state.tab = key; renderDeck(); } }, label);
+  const tabGroup = (name, items) => h("div", { class: "tab-group", role: "group", "aria-label": name }, h("span", { class: "tab-group-label" }, name), ...items.map(tabButton));
+  $("deck-tabs").replaceChildren(
+    tabGroup("Analyse", tabs.filter(([key]) => !workTabs.has(key))),
+    tabGroup("Arbeiten", tabs.filter(([key]) => workTabs.has(key))));
   const body = $("deck-body"); body.replaceChildren();
   const planPkgDeps = (tabKey) => ({
     h, api, entries, fail, roleName, openCard, add, remove, cohortName,
@@ -1949,7 +1955,7 @@ async function showStrengthBreakdown(into, card) {
       h("thead", {}, h("tr", {}, h("th", {}, "Signal"), h("th", { class: "num" }, "Zähler/Nenner"), h("th", { class: "num" }, "Rohwert"), h("th", { class: "num" }, "Score 0–100"), h("th", { class: "num" }, "Gewicht (wirksam)"), h("th", {}, "Status"))),
       h("tbody", {}, comps.map((c) => {
         const countStr = c.denominator ? (c.numerator === null || c.numerator === undefined ? `n = ${c.denominator}` : `${c.numerator}/${c.denominator}`) : "–";
-        const rawStr = c.value === null || c.value === undefined ? "unbekannt" : Number(c.value.toPrecision(4));
+        const rawStr = c.value === null || c.value === undefined ? "unbekannt" : c.value.toLocaleString("de-DE", { maximumSignificantDigits: 4 });
         const scoreStr = c.percentile === null || c.percentile === undefined ? "–" : `${StudioUI.num(100 * c.percentile, 1)}`;
         return h("tr", {},
           h("td", { title: c.signal || "" }, c.label || c.component),

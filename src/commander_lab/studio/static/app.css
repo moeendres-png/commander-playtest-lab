@@ -58,6 +58,7 @@ a.nav:hover{border-color:var(--accent)}
 .pill.warn,.pill.low{border-color:var(--warn);color:var(--warn);background:color-mix(in srgb,var(--warn) 12%,var(--panel2))}
 .pill.bad{border-color:var(--bad);color:var(--bad);background:color-mix(in srgb,var(--bad) 12%,var(--panel2))}
 main{flex:1;display:grid;grid-template-columns:minmax(0,1fr) 410px;min-height:0}
+@media (min-width:1500px){main{grid-template-columns:minmax(0,1fr) clamp(410px,30vw,640px)}}
 #pool{display:flex;flex-direction:column;min-height:0;min-width:0}
 #filters{display:flex;flex-wrap:wrap;gap:var(--s2) var(--s3);align-items:center;padding:var(--s2) var(--s4);border-bottom:1px solid var(--line);background:var(--panel)}
 #filters label{display:inline-flex;gap:var(--s1);align-items:center;color:var(--muted)}
@@ -69,8 +70,10 @@ main{flex:1;display:grid;grid-template-columns:minmax(0,1fr) 410px;min-height:0}
 .chip.on{background:var(--accent);border-color:var(--accent);color:var(--accent-fg);font-weight:600}
 .chip.chip-static{cursor:default}
 .chip.chip-static:hover{border-color:var(--line)}
-#deck-tabs{display:flex;gap:2px;padding:var(--s2) var(--s2) 0;border-bottom:1px solid var(--line);flex-wrap:wrap;background:color-mix(in srgb,var(--panel2) 55%,var(--panel))}
-#deck-tabs .chip{border-radius:var(--radius-s) var(--radius-s) 0 0;border-bottom:0;margin-bottom:-1px;padding:4px var(--s2);font-size:13px}
+#deck-tabs{display:flex;flex-direction:column;gap:2px;padding:var(--s1) var(--s2) 0;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--panel2) 55%,var(--panel))}
+#deck-tabs .tab-group{display:flex;flex-wrap:wrap;align-items:flex-end;gap:2px}
+#deck-tabs .tab-group-label{font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);padding:0 var(--s2) 5px 2px;min-width:58px}
+#deck-tabs .chip{border-radius:var(--radius-s) var(--radius-s) 0 0;border-bottom:0;margin-bottom:-1px;padding:2px 7px;min-height:26px;font-size:12.5px;white-space:nowrap}
 #deck-tabs .chip.on{background:var(--panel);color:var(--text);border-color:var(--line);border-bottom:2px solid var(--accent)}
 #pool-body{flex:1;overflow:auto;padding:var(--s3) var(--s4);scrollbar-width:thin}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(164px,1fr));gap:var(--s3)}
@@ -104,7 +107,7 @@ td.text{max-width:360px;font-size:12px;color:var(--muted);white-space:pre-line}
 .ms{display:inline-block;min-width:16px;height:16px;line-height:16px;border-radius:50%;text-align:center;font-size:10px;font-weight:700;color:#111;background:var(--c);margin-right:2px;padding:0 2px}
 .ms-W{background:var(--w)}.ms-U{background:var(--u)}.ms-B{background:var(--b)}.ms-R{background:var(--r)}.ms-G{background:var(--g)}
 #deck{border-left:1px solid var(--line);background:var(--panel);display:flex;flex-direction:column;min-height:0}
-#deck-body{flex:1;overflow:auto;padding:var(--s3);scrollbar-width:thin}
+#deck-body{flex:1;overflow:auto;min-width:0;padding:var(--s3);scrollbar-width:thin}
 .commander{display:flex;gap:10px;align-items:flex-start;margin-bottom:10px;padding:var(--s2);background:var(--panel2);border:1px solid var(--line);border-radius:var(--radius)}
 .commander img{width:110px;border-radius:var(--radius-s)}
 .group h3{margin:var(--s3) 0 var(--s1);font-size:13px;color:var(--muted);border-bottom:1px solid var(--line);padding-bottom:3px;text-transform:uppercase;letter-spacing:.03em}
@@ -228,3 +231,16 @@ code.cmd{white-space:pre-wrap;word-break:break-all;font-size:12px}
 #evidence-copy-text{width:100%;font-family:ui-monospace,monospace;font-size:12px}
 .evidence-table td.nowrap{white-space:nowrap}
 .evidence-table td.num:not(.nowrap){min-width:150px}
+#deck-body td.num,#deck-body th.num{white-space:nowrap}
+#deck-body .table-wrap,#deck-body details{max-width:100%;overflow-x:auto}
+/* deck browser: padding, wider side column, numbers never wrap */
+#db-summary,#db-decks>h3,#db-decks>p{padding:0 var(--s4)}
+#db-summary{padding-top:var(--s2)}
+#db-decks{overflow-x:auto;padding-bottom:var(--s4)}
+#db-decks table{margin:0 var(--s4);width:calc(100% - 2*var(--s4))}
+#db-cooccurrence{padding:var(--s3);overflow:auto;min-width:0;flex:1}
+#db-cooccurrence td.num,#db-cooccurrence th.num,#db-cooccurrence td.nowrap,#db-decks td.num{white-space:nowrap}
+#db-cooccurrence td:nth-child(4){white-space:nowrap}
+@media (min-width:1500px){main.browser{grid-template-columns:minmax(0,1fr) clamp(480px,34vw,700px)}}
+#db-decks td:nth-child(7){white-space:nowrap}
+@media (min-width:901px) and (max-width:1499px){main.browser{grid-template-columns:minmax(0,1fr) minmax(500px,42vw)}}

@@ -18,9 +18,9 @@
 <header id="top">
   <input id="db-q" aria-label="Decks suchen" type="search" placeholder="Suche in Deckname, Kennung, Plattform, Marken …" autocomplete="off">
   <label>Herkunft <select id="db-origin">
-    <option value="all">Gespeicherte &amp; Quelldecks</option>
-    <option value="saved">Nur gespeicherte Studio-Decks</option>
     <option value="source">Nur Quelldecks (Korpus)</option>
+    <option value="saved">Nur gespeicherte Studio-Decks</option>
+    <option value="all">Gespeicherte &amp; Quelldecks (gemischt)</option>
   </select></label>
   <label>Gruppe / Bracket <select id="db-cohort">
     <option value="all">alle</option>
@@ -40,7 +40,7 @@
   <button id="db-reset" type="button">Zurücksetzen</button>
 </header>
 <div id="data-state"></div>
-<main>
+<main class="browser">
   <section id="pool">
     <div id="db-summary" class="note"></div>
     <div id="db-decks"></div>

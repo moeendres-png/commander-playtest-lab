@@ -9,7 +9,7 @@ const kids = (...items) => items.filter((item) => item !== null && item !== unde
 const state = {
   commander: "",
   q: "",
-  origin: "all",
+  origin: "source",
   cohort: "all",
   label: "",
   mustIn: [],
@@ -73,6 +73,10 @@ function renderBrowser() {
   if (!data) return;
   const total = data.total_decks || 0;
   const small = Boolean(data.small_sample);
+  const counts = data.origin_counts || {};
+  const originBreakdown = counts.source && counts.saved
+    ? `${StudioUI.num(counts.source, 0)} Quelldecks + ${StudioUI.num(counts.saved, 0)} gespeicherte Studio-Decks`
+    : "";
   const activeFilters = [];
   if (state.commander) activeFilters.push(`Commander: ${state.commander}`);
   if (state.origin !== "all") activeFilters.push(`Herkunft: ${state.origin === "saved" ? "Studio" : "Quelldecks"}`);
@@ -83,6 +87,7 @@ function renderBrowser() {
 
   $("db-summary").replaceChildren(...kids(
     h("b", {}, `${StudioUI.num(total, 0)} Decks in der aktuellen Filtermenge`),
+    originBreakdown ? ` (= ${originBreakdown})` : null,
     activeFilters.length ? ` · Filter: ${activeFilters.join(" · ")}` : " · alle passenden Decks",
     " ",
     small ? h("span", { class: "pill low" }, `Kleine Stichprobe (< ${data.small_denominator || 30} Decks)`) : null
@@ -157,6 +162,7 @@ function renderBrowser() {
 
   coBox.replaceChildren(...kids(
     h("h3", {}, `Karten-Kookkurrenz (Nenner: ${StudioUI.num(total, 0)} Decks)`),
+    originBreakdown ? h("p", { class: "note" }, `${StudioUI.num(total, 0)} Decks = ${originBreakdown}. Beide Gruppen sind hier gemischt; „Nur Quelldecks“ trennt sie.`) : null,
     small ? h("p", { class: "pill low" }, `Kleine Stichprobe: nur ${total} Decks in der Filtermenge (< ${data.small_denominator || 30}).`) : null,
     h("p", { class: "note" }, "Reine Zählung über die aktuell gefilterte Deckmenge: wie viele dieser Decks jede andere Karte spielen (n von N und Prozent). Ein Klick auf „+ Filter“ engt die Deckmenge auf Decks mit dieser Karte ein."),
     coTable

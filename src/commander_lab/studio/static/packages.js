@@ -139,7 +139,7 @@ async function renderPackagesUpgradeTab(body, deps) {
           ` · ${StudioUI.num(anc.decks, 0)}/${StudioUI.num(anc.of, 0)} Decks`,
           anc.small_sample ? h("span", { class: "pill low ml-1" }, `< ${pkgData.small_denominator} Decks`) : null));
       if (pkg.in_deck_partners && pkg.in_deck_partners.length) {
-        pBox.append(h("p", { class: "note" }, "Bereits im Deck gekoppelt: " + pkg.in_deck_partners.map((p) => `${p.name} (Lift ${p.lift})`).join(" · ")));
+        pBox.append(h("p", { class: "note" }, "Bereits im Deck gekoppelt: " + pkg.in_deck_partners.map((p) => `${p.name} (Lift ${StudioUI.num(p.lift, 3)})`).join(" · ")));
       }
       if (pkg.free_pool_partners && pkg.free_pool_partners.length) {
         pBox.append(h("table", {},
@@ -149,7 +149,7 @@ async function renderPackagesUpgradeTab(body, deps) {
             return h("tr", {},
               h("td", { class: pCard ? "name" : "", onclick: () => { if (pCard) openCard(pCard); } }, partner.name),
               h("td", { class: "num" }, `${partner.both_hits}/${partner.anchor_decks}`),
-              h("td", { class: "num" }, partner.lift),
+              h("td", { class: "num" }, StudioUI.num(partner.lift, 3)),
               h("td", {}, partner.combo_partner ? "ja" : "–"),
               h("td", {}, pCard ? h("button", { type: "button", class: "small", onclick: () => add(pCard) }, "+") : null));
           }))));

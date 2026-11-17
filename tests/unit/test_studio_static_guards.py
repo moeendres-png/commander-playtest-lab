@@ -85,3 +85,30 @@ def test_every_text_input_and_select_has_a_name() -> None:
             if not labelled:
                 unlabeled.append(f"{path.name}:{ident.group(1) if ident else match.group(1)}")
     assert unlabeled == []
+
+
+def test_decimals_go_through_the_german_number_helpers() -> None:
+    """No raw .toFixed( in any Studio script except the two excluded pages: the de-DE helpers
+    StudioUI.num / StudioUI.pct are the only place that formats decimals (comma, not point)."""
+    excluded = {"tierliste.js"}
+    scripts = [
+        path
+        for path in _files("*.js")
+        if path.name not in excluded and not path.name.startswith("partie")
+    ]
+    assert len(scripts) >= 10
+    for path in scripts:
+        assert ".toFixed(" not in path.read_text(encoding="utf-8"), path.name
+    ui = (STATIC / "ui.js").read_text(encoding="utf-8")
+    assert 'toLocaleString("de-DE"' in ui and "num, pct" in ui
+    assert 'class: "num"' in (STATIC / "app.js").read_text(encoding="utf-8")
+
+
+def test_bridge_chip_shows_plain_german_with_raw_code_in_tooltip() -> None:
+    sources = {
+        n: (STATIC / n).read_text(encoding="utf-8") for n in ("ui.js", "app.js", "paired.js")
+    }
+    assert len(sources) == 3
+    for name, text in sources.items():
+        assert "Engine-Stand noch nicht qualifiziert" in text, name
+        assert 'label = "BRIDGE_AHEAD_OF_QUALIFICATION"' not in text

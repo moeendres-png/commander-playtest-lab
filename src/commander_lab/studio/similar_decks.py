@@ -676,6 +676,8 @@ def browse_decks(
                 matched_card_sets.append(cset)
 
     total_decks = len(matched_decks)
+    # Saved Studio decks and source decks are never one cohort: report both counts.
+    saved_decks = sum(1 for item in matched_decks if item.get("origin") == "saved")
     card_counts: dict[str, int] = {}
     for cset in matched_card_sets:
         for cname in cset:
@@ -712,6 +714,7 @@ def browse_decks(
 
     return {
         "total_decks": total_decks,
+        "origin_counts": {"source": total_decks - saved_decks, "saved": saved_decks},
         "small_sample": 0 < total_decks < builder.SMALL_DENOMINATOR,
         "small_denominator": builder.SMALL_DENOMINATOR,
         "filters": {
