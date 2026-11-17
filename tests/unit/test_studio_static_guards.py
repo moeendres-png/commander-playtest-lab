@@ -269,3 +269,16 @@ def test_partie_leave_restore_deleted_game_and_attempt_reset() -> None:
     assert "restoreAiDelayOnLeave(state.gameId);" in js  # when another game is opened
     ended = js.split("function endFastForward(", 1)[1].split("\nfunction ", 1)[0]
     assert "state.autoPassAttempt = null" in ended
+
+
+def test_no_raw_model_code_and_average_mana_value_uses_the_german_formatter() -> None:
+    """Visible texts say "Modellrechnung", not the internal code, and a mana-value average goes
+    through StudioUI.num (comma), not a raw number (QA finding B3/B4, #1464)."""
+    scripts = [p for p in _files("*.js") if not p.name.startswith("partie")]
+    assert len(scripts) >= 10
+    for path in scripts:
+        assert "HEURISTIC_MODEL" not in path.read_text(encoding="utf-8"), path.name
+    app = (STATIC / "app.js").read_text(encoding="utf-8")
+    assert "${shape.mana_value === null" not in app
+    packages = (STATIC / "packages.js").read_text(encoding="utf-8")
+    assert "StudioUI.num(m.deck" in packages and "StudioUI.num(m.target" in packages
