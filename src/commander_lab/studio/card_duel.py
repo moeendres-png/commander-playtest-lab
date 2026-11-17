@@ -23,7 +23,7 @@ from __future__ import annotations
 from collections.abc import Sequence
 
 from . import builder, universe
-from .similar_decks import _basic_oracle_names, _canonical_name, _commander_source_index
+from .similar_decks import _basic_oracle_names, _canonical_or_raw, _commander_source_index
 from .store import StudioStore
 
 SCHEMA = "studio-card-duel-1"
@@ -58,7 +58,7 @@ def card_duel(
     commanders_cf = {name.casefold() for name in commander_names}
 
     def canonical(card_id: str) -> str:
-        return _canonical_name(owners, str(facts[card_id]["oracle_name"]))
+        return _canonical_or_raw(owners, str(facts[card_id]["oracle_name"]))
 
     duel_names = {canonical(card_a), canonical(card_b)}
     others = {
