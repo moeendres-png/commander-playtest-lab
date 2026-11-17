@@ -243,6 +243,22 @@ def cohort_sizes(store: StudioStore, commander_names: Sequence[str]) -> dict[str
     return sizes
 
 
+def _corpus_deck_ids(store: StudioStore, commander_names: Sequence[str]) -> frozenset[str]:
+    """The non-duplicate source decks bound to the commander (remembered per store state)."""
+
+    def compute() -> frozenset[str]:
+        bound, bound_args = bound_to("corpus_deck", "d.deck_id", commander_names)
+        return frozenset(
+            str(row[0])
+            for row in store.connection.execute(
+                f"SELECT d.deck_id FROM corpus_deck d WHERE d.duplicate_of IS NULL{bound}",
+                bound_args,
+            )
+        )
+
+    return cache.cached(store, ("corpus_deck_ids", tuple(commander_names)), compute)
+
+
 def corpus_deck_sets(store: StudioStore, commander_names: Sequence[str]) -> dict[str, set[str]]:
     """The decks listing each card over all non-duplicate source decks bound to the commander
     (``universe.deck_sets`` with every spelling merged into the card it names).
@@ -252,15 +268,7 @@ def corpus_deck_sets(store: StudioStore, commander_names: Sequence[str]) -> dict
     from .universe import deck_sets, spelling_owners
 
     def compute() -> dict[str, set[str]]:
-        bound, bound_args = bound_to("corpus_deck", "d.deck_id", commander_names)
-        deck_ids = {
-            str(row[0])
-            for row in store.connection.execute(
-                f"SELECT d.deck_id FROM corpus_deck d WHERE d.duplicate_of IS NULL{bound}",
-                bound_args,
-            )
-        }
-        return deck_sets(store, deck_ids, spelling_owners(store))
+        return deck_sets(store, _corpus_deck_ids(store, commander_names), spelling_owners(store))
 
     return cache.cached(store, ("corpus_deck_sets", tuple(commander_names)), compute)
 
@@ -710,6 +718,56 @@ def _cached_combo_partners(commander_names: Sequence[str]) -> frozenset[str]:
     return result
 
 
+def _cohort_deck_sets(
+    store: StudioStore, commander_names: Sequence[str], cohort: str
+) -> tuple[int, dict[str, set[str]]]:
+    """``(number of non-duplicate source decks of the commander in cohort, {card: decks})``.
+
+    Commander-level work of the card window: the same for every card of the commander, so it is
+    remembered per store state, commander list and cohort (read-only result). It reads the
+    corpus once through ``corpus_deck_sets`` (shared with the pool counts) and narrows it to the
+    cohort, which equals counting ``universe.deck_sets`` over the cohort's decks directly."""
+
+    def compute() -> tuple[int, dict[str, set[str]]]:
+        if cohort == ALL_DECKS:
+            return len(_corpus_deck_ids(store, commander_names)), corpus_deck_sets(
+                store, commander_names
+            )
+        db = store.connection
+        cohort_join, bound_args = bound_to("corpus_deck", "d.deck_id", commander_names)
+        params: list[object] = [*bound_args]
+        if cohort == "tuned":
+            cohort_join += (
+                " AND EXISTS (SELECT 1 FROM corpus_cohort cc "
+                "WHERE cc.deck_id = d.deck_id AND cc.cohort IN ('bracket:4', 'bracket:5'))"
+            )
+        else:
+            play_groups = {
+                str(r[0]) for r in db.execute("SELECT DISTINCT play_group FROM corpus_deck")
+            }
+            if cohort in play_groups:
+                cohort_join += " AND d.play_group = ?"
+                params.append(cohort)
+            else:
+                cohort_join += (
+                    " AND EXISTS (SELECT 1 FROM corpus_cohort cc "
+                    "WHERE cc.deck_id = d.deck_id AND cc.cohort = ?)"
+                )
+                params.append(cohort)
+        candidates = {
+            str(r[0])
+            for r in db.execute(
+                f"SELECT d.deck_id FROM corpus_deck d WHERE d.duplicate_of IS NULL{cohort_join}",
+                params,
+            )
+        }
+        everything = corpus_deck_sets(store, commander_names)
+        narrowed = {card: decks & candidates for card, decks in everything.items()}
+        return len(candidates), {card: decks for card, decks in narrowed.items() if decks}
+
+    return cache.cached(store, ("cohort_deck_sets", tuple(commander_names), cohort), compute)
+
+
 def card_cooccurrence(
     store: StudioStore,
     card_id: str,
@@ -725,7 +783,7 @@ def card_cooccurrence(
     ``card_id``) is the denominator. ``lift`` compares P(partner | this card) against P(partner
     in ``cohort``). Counted by the one primitive of ``universe.deck_sets`` (counted sections,
     every spelling merged), the same as the universe view."""
-    from .universe import cooccurrence_pairs, deck_sets, spelling_owners
+    from .universe import cooccurrence_pairs
 
     db = store.connection
     # One read serves the target and the pool ids: the statement count of this view is pinned
@@ -741,34 +799,7 @@ def card_cooccurrence(
             oracle_name = str(fact["oracle_name"])
     if not oracle_name:
         raise KeyError(card_id)
-    cohort_join, bound_args = bound_to("corpus_deck", "d.deck_id", commander_names)
-    params: list[object] = [*bound_args]
-    if cohort == "tuned":
-        cohort_join += (
-            " AND EXISTS (SELECT 1 FROM corpus_cohort cc "
-            "WHERE cc.deck_id = d.deck_id AND cc.cohort IN ('bracket:4', 'bracket:5'))"
-        )
-    elif cohort != ALL_DECKS:
-        play_groups = {str(r[0]) for r in db.execute("SELECT DISTINCT play_group FROM corpus_deck")}
-        if cohort in play_groups:
-            cohort_join += " AND d.play_group = ?"
-            params.append(cohort)
-        else:
-            cohort_join += (
-                " AND EXISTS (SELECT 1 FROM corpus_cohort cc "
-                "WHERE cc.deck_id = d.deck_id AND cc.cohort = ?)"
-            )
-            params.append(cohort)
-    candidates = {
-        str(r[0])
-        for r in db.execute(
-            f"SELECT d.deck_id FROM corpus_deck d WHERE d.duplicate_of IS NULL{cohort_join}",
-            params,
-        )
-    }
-    cohort_decks = len(candidates)
-    owners = spelling_owners(store)
-    sets = deck_sets(store, candidates, owners)
+    cohort_decks, sets = _cohort_deck_sets(store, commander_names, cohort)
     own = sets.get(oracle_name, set())
     card_decks = len(own)
     if card_decks == 0:

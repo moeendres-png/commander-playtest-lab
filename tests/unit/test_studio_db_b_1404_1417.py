@@ -796,3 +796,86 @@ def test_studio_static_csp_and_db_b_ui_markers() -> None:
     assert "combos-template-slots" in app_js
     assert "Erfüllung unbekannt" in app_js
     assert "role_ranks" in tier_js
+
+
+def test_cooccurrence_commander_level_work_is_remembered_and_equals_uncached(
+    tmp_path: Path,
+) -> None:
+    """The card window's commander-level pass is cached per commander and cohort; the cached
+    answer equals counting ``deck_sets`` directly over the cohort's decks, the second open does
+    no corpus pass, and a changed store is not served from the old state."""
+    from commander_lab.studio.universe import deck_sets, spelling_owners
+
+    store = _build_fixture_store(tmp_path)
+    try:
+        for cohort, expected_decks in (
+            ("all", 8),
+            ("tuned", 6),
+            ("bracket:3", 2),
+            ("bracket:9", 0),
+        ):
+            first = builder.card_cooccurrence(store, "c-bounce", [COMMANDER], cohort=cohort)
+            statements: list[str] = []
+            store.connection.set_trace_callback(statements.append)
+            try:
+                second = builder.card_cooccurrence(store, "c-bounce", [COMMANDER], cohort=cohort)
+            finally:
+                store.connection.set_trace_callback(None)
+            assert second == first
+            assert first["cohort_decks"] == expected_decks
+            # warm: only the fact read, no pass over the deck rows
+            assert not [s for s in statements if "corpus_deck_card" in s]
+
+            size, sets = builder._cohort_deck_sets(store, [COMMANDER], cohort)
+            direct = deck_sets(store, _cohort_ids(store, cohort), spelling_owners(store))
+            assert size == len(_cohort_ids(store, cohort))
+            assert sets == direct
+
+        # A write moves the store state: the warm answer is not served any more.
+        bounce_name = store.connection.execute(
+            "SELECT oracle_name FROM card_fact WHERE card_id = 'c-bounce'"
+        ).fetchone()[0]
+        _add_corpus_deck(
+            store, "d-b4-new", COMMANDER, ("bracket:4",), [bounce_name, "Rhystic Study"]
+        )
+        for cohort, expected_decks in (("all", 9), ("tuned", 7), ("bracket:3", 2)):
+            after = builder.card_cooccurrence(store, "c-bounce", [COMMANDER], cohort=cohort)
+            assert after["cohort_decks"] == expected_decks
+            size, sets = builder._cohort_deck_sets(store, [COMMANDER], cohort)
+            assert size == expected_decks
+            assert sets == deck_sets(store, _cohort_ids(store, cohort), spelling_owners(store))
+        assert (
+            builder.card_cooccurrence(store, "c-bounce", [COMMANDER], cohort="tuned")["card_decks"]
+            == 7
+        )
+
+        # A commander without any source deck has no counts (unknown, never a made-up zero share).
+        none = builder.card_cooccurrence(store, "c-bounce", ["Nobody Here"])
+        assert (none["cohort_decks"], none["card_decks"], none["cards"]) == (0, 0, [])
+    finally:
+        store.close()
+
+
+def _cohort_ids(store: StudioStore, cohort: str) -> set[str]:
+    bound, args = builder.bound_to("corpus_deck", "d.deck_id", [COMMANDER])
+    rows = store.connection.execute(
+        f"SELECT d.deck_id FROM corpus_deck d WHERE d.duplicate_of IS NULL{bound}", args
+    )
+    everything = {str(r[0]) for r in rows}
+    if cohort == "all":
+        return everything
+    if cohort == "tuned":
+        members = {
+            str(r[0])
+            for r in store.connection.execute(
+                "SELECT deck_id FROM corpus_cohort WHERE cohort IN ('bracket:4','bracket:5')"
+            )
+        }
+    else:
+        members = {
+            str(r[0])
+            for r in store.connection.execute(
+                "SELECT deck_id FROM corpus_cohort WHERE cohort = ?", (cohort,)
+            )
+        }
+    return everything & members
