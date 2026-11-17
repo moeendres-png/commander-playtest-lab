@@ -367,7 +367,7 @@ evidence, `UNRATED`).
 ### Tierliste page: operation (UX batch 1, #1369)
 
 Display and operation only; no figure, index or tier changed (the `POST /api/strength` payload is
-byte-identical apart from the snapshot stamp). The sentence "Stufe = Nutzung in Chulane-Decks,
+identical apart from the snapshot stamp). The sentence "Stufe = Nutzung in Chulane-Decks,
 keine Spielstärke" is the one line above the table; everything else about method and data sits
 behind "Methodik und Datenlage" (closed by default, remembered in the browser): source freshness,
 data findings, the card counts per source (one row per source, every card in exactly one column),
