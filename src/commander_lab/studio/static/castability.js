@@ -92,7 +92,7 @@ async function renderCastability(body, deps) {
       const isBot = Boolean(c.bottomed);
       const statusTxt = c.is_land ? `Land (${(c.produced_colours || []).join("") || "farblos/unbekannt"})` : (c.castable_from_kept_lands === true ? "Länder & Farben in Hand" : (c.castable_from_kept_lands === false ? "Quelle/Land fehlt noch" : "unbekannt"));
       return h("tr", { class: isBot ? "muted" : "" },
-        h("td", {}, h("a", { href: "#", class: "nm", onclick: (e) => { e.preventDefault(); deps.open(c.card_id); } }, c.name), isBot ? h("span", { class: "badge", style: "margin-left:6px" }, "unter Bibliothek") : ""),
+        h("td", {}, h("a", { href: "#", class: "nm", onclick: (e) => { e.preventDefault(); deps.open(c.card_id); } }, c.name), isBot ? " " : "", isBot ? h("span", { class: "badge" }, "unter Bibliothek") : ""),
         h("td", { class: "note" }, c.mana_cost || "—"), h("td", { class: "note" }, c.type_line || "—"), h("td", { class: "note" }, statusTxt),
         h("td", {}, h("button", { type: "button", class: "secondary", onclick: () => { const idx = Number(c.index); st.bottom = st.bottom.includes(idx) ? st.bottom.filter((x) => x !== idx) : [...st.bottom, idx]; loadSampleHand(); } }, isBot ? "Behalten" : "Unter Bibliothek")));
     });
@@ -104,8 +104,8 @@ async function renderCastability(body, deps) {
     handSection.replaceChildren(
       h("h3", {}, "Starthand- & London-Mulligan-Simulator (Modellrechnung)"),
       h("p", { class: "note" }, `${res.assumption || ""} Bibliothek: ${StudioUI.num(res.library_size || 0, 0)} Karten.`),
-      h("div", { class: "row", style: "gap:6px;flex-wrap:wrap;margin-bottom:8px" },
-        h("label", { class: "note" }, "Seed: ", h("input", { id: "sample-hand-seed", type: "number", min: "0", style: "width:80px", value: String(st.seed), onchange: (e) => { st.seed = Math.max(0, parseInt(e.target.value, 10) || 0); st.mulligans = 0; st.drawSteps = 0; st.bottom = []; loadSampleHand(); } })),
+      h("div", { class: "row" },
+        h("label", { class: "note" }, "Seed: ", h("input", { id: "sample-hand-seed", type: "number", min: "0", value: String(st.seed), onchange: (e) => { st.seed = Math.max(0, parseInt(e.target.value, 10) || 0); st.mulligans = 0; st.drawSteps = 0; st.bottom = []; loadSampleHand(); } })),
         h("button", { id: "sample-hand-new", type: "button", onclick: () => { st.seed += 1; st.mulligans = 0; st.drawSteps = 0; st.bottom = []; loadSampleHand(); } }, "Neue Starthand (Seed +1)"),
         h("button", { id: "sample-hand-mulligan", type: "button", class: "secondary", onclick: () => { st.mulligans = Math.min(7, st.mulligans + 1); st.drawSteps = 0; st.bottom = []; loadSampleHand(); } }, `London-Mulligan (${StudioUI.num(st.mulligans, 0)})`),
         h("button", { id: "sample-hand-draw", type: "button", class: "secondary", onclick: () => { st.drawSteps = Math.min(10, st.drawSteps + 1); loadSampleHand(); } }, `+1 Karte ziehen (${StudioUI.num(st.drawSteps, 0)})`)),
