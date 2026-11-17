@@ -421,3 +421,115 @@ def test_the_corpus_rule_names_the_saved_edhrec_weights_it_zeroes() -> None:
     assert not any("Gespeicherte EDHREC" in n for n in kept["notices"])
     none_saved = strength_view.compute(store, CMD, loaded, dangling_universe_ok=True)
     assert not any("Gespeicherte EDHREC" in n for n in none_saved["notices"])
+
+
+# ---------- D2 to D6 additions (#1369): the figures stay, new fields are added ----------
+
+# The index and the tier of every card of this fixture, frozen from ``origin/main`` before the
+# additions (default settings, and with ``zero_count_tier = U``). They must stay bit-identical.
+FROZEN_REFERENCE = {
+    "Card 00": (80.5, "S"),
+    "Card 01": (71.9, "S"),
+    "Card 02": (38.6, "A"),
+    "Card 03": (23.1, "B"),
+    "Card 04": (19.8, "C"),
+    "Card 05": (42.8, "A"),
+    "Card 06": (44.4, "A"),
+    "Card 07": (18.3, "C"),
+    "Cmd A": (None, "N"),
+    "Land A": (69.8, "S"),
+}
+FROZEN_REFERENCE_ZERO_U = {**FROZEN_REFERENCE, "Card 04": (19.8, "U"), "Card 07": (18.3, "U")}
+
+
+def test_index_and_tiers_stay_identical_to_the_frozen_reference() -> None:
+    assert FROZEN_REFERENCE
+    for kwargs, expected, counts in (
+        ({}, FROZEN_REFERENCE, {"S": 3, "A": 3, "B": 1, "C": 2, "D": 0, "U": 0, "N": 1}),
+        (
+            {"zero_count_tier": "U"},
+            FROZEN_REFERENCE_ZERO_U,
+            {"S": 3, "A": 3, "B": 1, "C": 0, "D": 0, "U": 2, "N": 1},
+        ),
+    ):
+        result = _compute(_store(), **kwargs)
+        assert {card["name"]: (card["index"], card["tier"]) for card in result["cards"]} == expected
+        assert result["tier_counts"] == counts
+        for card in result["cards"]:
+            if card["tier"] in ("U", "N"):  # only ranked cards get stability and a relative tier
+                assert card["tier_stability"] is None and card["relative_tier"] is None
+                assert card["relative_rank"] is None and card["unscharf"] is False
+        spells = result["relative_tier_info"]["totals"]["spells"]
+        assert spells == sum(
+            1 for card in result["cards"] if card["tier"] in strength.TIERS and not card["is_land"]
+        )
+
+
+def test_the_tournament_row_shows_its_two_cohorts_with_their_own_n_of_n() -> None:
+    cards = _cards(_compute(_store()))
+    both = _row(cards["Card 00"], "tournament")
+    parts = {part["key"]: part for part in both["parts"]}
+    assert set(parts) == {"edhtop16", "corpus_bracket5"}
+    assert (parts["edhtop16"]["numerator"], parts["edhtop16"]["denominator"]) == (45, 48)
+    assert (parts["corpus_bracket5"]["numerator"], parts["corpus_bracket5"]["denominator"]) == (
+        35,
+        35,
+    )
+    assert both["mixed_cohorts_note"] == "zwei Kohorten addiert (E3.a)"
+    assert _parts_add_up(cards) >= 5
+    only_corpus = _row(cards["Card 05"], "tournament")
+    assert [part["key"] for part in only_corpus["parts"]] == ["corpus_bracket5"]
+    assert only_corpus["mixed_cohorts_note"] is None  # one cohort: nothing was added
+    assert _row(cards["Card 00"], "deck_universe")["parts"] == []
+    assert _row(cards["Card 00"], "deck_universe")["mixed_cohorts_note"] is None
+
+
+def _parts_add_up(cards: dict[str, strength_view.StrengthCard]) -> int:
+    """Where parts are listed, their n / N add up to the pooled n / N of the row."""
+    checked = 0
+    for card in cards.values():
+        for row in card["components"]:
+            if row["parts"]:
+                assert sum(part["numerator"] for part in row["parts"]) == row["numerator"]
+                assert sum(part["denominator"] for part in row["parts"]) == row["denominator"]
+                checked += 1
+    return checked
+
+
+def test_the_payload_carries_stability_relative_tiers_and_weight_families() -> None:
+    result = _compute(_store())
+    cards = _cards(result)
+    info = result["stability"]
+    assert info["variants"] == info["single_weight_variants"] + info["random_variants"] >= 30
+    ranked = [card for card in result["cards"] if card["tier"] in strength.TIERS]
+    assert len(ranked) == 9
+    for card in ranked:
+        assert card["tier_stability"] == pytest.approx(
+            (card["tier_stability_kept"] or 0) / (card["tier_stability_variants"] or 1), abs=1e-4
+        )
+        assert card["tier_stability_variants"] == info["variants"]
+        assert card["unscharf"] == (card["tier_stability"] < strength.STABILITY_UNSHARP_BELOW)
+        assert card["relative_tier"] in strength.RELATIVE_TIERS
+        assert card["relative_rank"] is not None
+        assert card["tier_stability"] is not None
+        if card["tier_stability"] == 1.0:
+            assert card["tier_alternatives"] == []
+        else:
+            assert sum(item["variants"] for item in card["tier_alternatives"]) == (
+                info["variants"] - (card["tier_stability_kept"] or 0)
+            )
+    unranked = cards[CMD]
+    assert unranked["tier"] == "N"
+    assert unranked["tier_stability"] is None and unranked["unscharf"] is False
+    assert unranked["relative_tier"] is None and unranked["relative_rank"] is None
+    assert unranked["tier_alternatives"] == []
+    assert result["relative_tier_info"]["note"] == "relativ im Pool, keine Aussage über Spielstärke"
+    assert result["relative_tier_info"]["totals"] == {"spells": 8, "lands": 1}
+    # a land is ranked with the lands only: the only land is rank 1 of 1, the best spell 1 of 8
+    assert cards[LAND]["relative_rank"] == {"rank": 1, "total": 1, "group": "lands"}
+    assert cards["Card 00"]["relative_rank"] == {"rank": 1, "total": 8, "group": "spells"}
+    shares = {item["family"]: item["share_of_total"] for item in result["weight_families"]}
+    assert shares["source_decks"] == pytest.approx(0.75)  # 7.5 of 10 once E2.a zeroes EDHREC
+    assert sum(shares.values()) == pytest.approx(1.0)
+    assert cards["Card 00"]["confidence_by_denominator_level"] is not None
+    assert cards["Card 00"]["zero_count_thin"] == []

@@ -16,9 +16,11 @@ from tests.unit.test_studio_strength_v3_view import CMD, LAND, _cards, _compute,
 HEADER = {"X-Studio": "1"}
 
 
-def _expected_confidence(card: strength_view.StrengthCard) -> float:
-    """The documented formula: coverage x the weighted mean of n / (n + 30) over the weighted
-    components that have a value and a denominator."""
+def _expected_confidence(card: strength_view.StrengthCard, *, by_count: bool = True) -> float:
+    """The documented formula (D4): coverage x the weighted mean of k / (k + 30) over the weighted
+    components that have a value and a denominator, k the numerator (a counted zero and a row
+    without a numerator use the denominator). ``by_count=False`` is the earlier formula with the
+    denominator for every row, kept as ``confidence_by_denominator``."""
     rows = [
         row
         for row in card["components"]
@@ -26,9 +28,12 @@ def _expected_confidence(card: strength_view.StrengthCard) -> float:
     ]
     assert card["coverage"] is not None
     total = sum(row["weight"] for row in rows)
-    reliability = sum(
-        row["weight"] * (row["denominator"] or 0) / ((row["denominator"] or 0) + 30) for row in rows
-    )
+    reliability = 0.0
+    for row in rows:
+        count = row["denominator"] or 0
+        if by_count and row["numerator"]:
+            count = row["numerator"]
+        reliability += row["weight"] * count / (count + 30)
     return round(card["coverage"] * reliability / total, 4)
 
 
@@ -42,6 +47,9 @@ def test_confidence_follows_the_documented_formula() -> None:
             assert card["confidence"] is None
             continue
         assert card["confidence"] == pytest.approx(_expected_confidence(card))
+        assert card["confidence_by_denominator"] == pytest.approx(
+            _expected_confidence(card, by_count=False)
+        )
         assert 0.0 <= card["confidence"] <= 1.0
         checked += 1
     assert checked >= 5

@@ -85,7 +85,8 @@ without layers.
 from __future__ import annotations
 
 import math
-from collections.abc import Collection, Mapping
+import random
+from collections.abc import Collection, Mapping, Sequence
 from dataclasses import dataclass, field, replace
 from itertools import pairwise
 from typing import TypedDict
@@ -465,9 +466,13 @@ DEFAULT_BRACKET = "upgraded"
 # cut is marked (0 switches the mark off). Recommended 2.
 DEFAULT_BORDERLINE_DISTANCE = 2.0
 MAX_BORDERLINE_DISTANCE = 50.0
-# #1365: confidence of a card = coverage x reliability of its denominators; the reliability of one
-# share with denominator n is n / (n + CONFIDENCE_K). The level names split the 0..1 range.
+# #1365, redefined by D4: confidence of a card = coverage x reliability of its counts; the
+# reliability of one share with count k (numerator) is k / (k + CONFIDENCE_K), a counted zero uses
+# its denominator. The level names split the 0..1 range.
 CONFIDENCE_K = 30
+# D4: a counted zero (0 of N decks) is real evidence from N = 30 decks on; below it the zero is
+# listed as thin (``zero_count_thin``). A setting of the Owner decision, not tuned to a card.
+CONFIDENCE_ZERO_MIN_DENOMINATOR = 30
 CONFIDENCE_HIGH = 0.6
 CONFIDENCE_MEDIUM = 0.35
 # Lands are ranked against lands and spells against spells (#1353 part A): share scaling
@@ -983,6 +988,18 @@ PRESETS: dict[str, StrengthSettings] = dict(
 
 
 @dataclass(frozen=True)
+class ObservationPart:
+    """One cohort that an observation is made of (n of N of that cohort alone). Only the
+    tournament component adds cohorts (EDHTop16 + corpus bracket 5, E3.a); the parts are shown,
+    they never change the pooled value."""
+
+    key: str
+    label: str
+    numerator: int
+    denominator: int
+
+
+@dataclass(frozen=True)
 class Observation:
     """One published or counted value of a card for one component. ``None`` is unknown."""
 
@@ -996,6 +1013,8 @@ class Observation:
     # ``prior`` the prior it used. ``score_pool`` ranks it as it is, without shrinking again.
     shrunk: float | None = None
     prior: SharePrior | None = None
+    # The cohorts a pooled count was added from (empty for every other observation).
+    parts: tuple[ObservationPart, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -1017,6 +1036,15 @@ class PoolContext:
     universe_minimum: int = 0
     function_group: Mapping[str, tuple[str, ...]] = field(default_factory=dict)
     spellbook_shells: bool = False
+
+
+class ComponentPart(TypedDict):
+    """One cohort of a pooled count, with its own n / N (D5)."""
+
+    key: str
+    label: str
+    numerator: int
+    denominator: int
 
 
 class ComponentResult(TypedDict):
@@ -1042,6 +1070,11 @@ class ComponentResult(TypedDict):
     group: str | None
     group_size: int | None
     group_fallback: bool
+    # D5: the cohorts a pooled count was added from, each with its own n / N (``parts`` is empty
+    # for every row that is no pool), and the hint when two cohorts were added. Display only: the
+    # value, the score and the index are those of the pooled count.
+    parts: list[ComponentPart]
+    mixed_cohorts_note: str | None
 
 
 class CardStrength(TypedDict):
@@ -1061,17 +1094,31 @@ class CardStrength(TypedDict):
     borderline: bool
     borderline_cut: str | None
     cut_distance: float | None
+    # D4: ``confidence`` / ``confidence_level`` hang on the COUNT (numerator) of the shares; the
+    # earlier definition on the denominator stays as ``confidence_by_denominator`` (+ level), and
+    # ``zero_count_thin`` names the components whose counted zero rests on fewer than
+    # ``CONFIDENCE_ZERO_MIN_DENOMINATOR`` decks (a zero that is real, but thin).
+    confidence_by_denominator: float | None
+    confidence_by_denominator_level: str | None
+    zero_count_thin: list[str]
 
 
-def confidence_value(coverage: float, components: Collection[ComponentResult]) -> float:
-    """Confidence 0..1 of a card: ``coverage`` times the weight-weighted mean of
-    ``n / (n + CONFIDENCE_K)`` over the weighted components that have a value and a denominator
-    (a counted zero included). Without such a component the reliability is 0."""
-    rows = [
+def _confidence_rows(components: Collection[ComponentResult]) -> list[ComponentResult]:
+    return [
         row
         for row in components
         if row["weight"] > 0 and row["percentile"] is not None and row["denominator"]
     ]
+
+
+def confidence_by_denominator_value(
+    coverage: float, components: Collection[ComponentResult]
+) -> float:
+    """The confidence of #1365, kept for reference: ``coverage`` times the weight-weighted mean of
+    ``N / (N + CONFIDENCE_K)`` over the weighted components that have a value and a denominator
+    N. It hangs on the DENOMINATOR, so a card in 3 of 10 128 decks scores as sure as one in
+    3 000 (all 922 cards of the Chulane pool were "high"); ``confidence_value`` replaces it."""
+    rows = _confidence_rows(components)
     total = sum(row["weight"] for row in rows)
     if total <= 0:
         return 0.0
@@ -1079,6 +1126,41 @@ def confidence_value(coverage: float, components: Collection[ComponentResult]) -
         row["weight"] * (row["denominator"] or 0) / ((row["denominator"] or 0) + CONFIDENCE_K)
         for row in rows
     )
+    return round(coverage * reliability / total, 4)
+
+
+def count_reliability(row: ComponentResult) -> float:
+    """Reliability 0..1 of one row from its COUNT k: ``k / (k + CONFIDENCE_K)`` (D4). A counted
+    zero (0 of N, rule B12/E4.b) is real evidence: its count is the denominator N, thin only below
+    ``CONFIDENCE_ZERO_MIN_DENOMINATOR``. A row with a sample but no numerator (the Playgroup gap)
+    counts its sample."""
+    denominator = row["denominator"] or 0
+    numerator = row["numerator"]
+    count = denominator if numerator is None or numerator == 0 else numerator
+    return count / (count + CONFIDENCE_K)
+
+
+def zero_count_thin_components(components: Collection[ComponentResult]) -> list[str]:
+    """The weighted components whose counted zero rests on fewer than
+    ``CONFIDENCE_ZERO_MIN_DENOMINATOR`` decks."""
+    return [
+        row["component"]
+        for row in _confidence_rows(components)
+        if row["numerator"] == 0 and (row["denominator"] or 0) < CONFIDENCE_ZERO_MIN_DENOMINATOR
+    ]
+
+
+def confidence_value(coverage: float, components: Collection[ComponentResult]) -> float:
+    """Confidence 0..1 of a card (D4): ``coverage`` times the weight-weighted mean of
+    ``count_reliability`` over the weighted components that have a value and a denominator (a
+    counted zero included). It hangs on the COUNT of each share, not on its denominator: 3 of
+    10 000 decks is thin, 3 000 of 10 000 is not. Without such a component the reliability is 0.
+    It says how well the figures are counted, not how good the card is."""
+    rows = _confidence_rows(components)
+    total = sum(row["weight"] for row in rows)
+    if total <= 0:
+        return 0.0
+    reliability = sum(row["weight"] * count_reliability(row) for row in rows)
     return round(coverage * reliability / total, 4)
 
 
@@ -1730,6 +1812,316 @@ def weights_without_effect(settings: StrengthSettings, collected: Collection[str
     ]
 
 
+def _component_parts(observation: Observation | None, status: str) -> list[ComponentPart]:
+    if observation is None or status not in (PRESENT, ZERO_COUNT):
+        return []
+    return [
+        {
+            "key": part.key,
+            "label": part.label,
+            "numerator": part.numerator,
+            "denominator": part.denominator,
+        }
+        for part in observation.parts
+    ]
+
+
+MIXED_COHORTS_NOTE = "zwei Kohorten addiert (E3.a)"
+
+
+def _mixed_cohorts_note(observation: Observation | None, status: str) -> str | None:
+    """The hint on a pooled count that was added from two cohorts (D5)."""
+    if observation is None or status not in (PRESENT, ZERO_COUNT) or len(observation.parts) < 2:
+        return None
+    return MIXED_COHORTS_NOTE
+
+
+# ---------- stability of the tier against the weights (D6) ----------
+
+# The tier of a card is re-derived under weight variants and the share of variants that keep it
+# is reported. Variants (all on the weights of the request, only weights above 0 move): every such
+# weight alone x0.8 and x1.2, plus ``STABILITY_RANDOM_VARIANTS`` variants in which all of them
+# move at once by a factor drawn uniformly from 0.8..1.2 with the fixed seed ``STABILITY_SEED``.
+# The ranking of the components does not depend on the weights, so a variant re-aggregates the
+# stored component ranks of each card exactly as ``score_pool`` does (same sums, same rounding,
+# same cuts, same coverage rule); the test suite compares the unchanged variant with the tiers
+# of ``score_pool``. A card whose share of kept tiers is below ``STABILITY_UNSHARP_BELOW`` is
+# "unscharf" (its tier is not robust against plausible weights).
+STABILITY_FACTOR = 0.2
+STABILITY_RANDOM_VARIANTS = 64
+STABILITY_SEED = 20261117
+STABILITY_UNSHARP_BELOW = 0.8
+
+
+@dataclass(frozen=True)
+class TierInputs:
+    """What the aggregation of one card needs again for a weight variant: the ranked weighted
+    components it has (component, rank 0..1 in the order of ``score_pool``), the weighted
+    components it could have (the coverage denominator) and the minimum number of signals."""
+
+    present: tuple[tuple[str, float], ...]
+    possible: tuple[str, ...]
+    needed: int
+
+
+class TierAlternative(TypedDict):
+    tier: str
+    variants: int
+
+
+class TierStability(TypedDict):
+    stability: float
+    kept: int
+    variants: int
+    alternatives: list[TierAlternative]
+
+
+def stability_factor_sets(names: Collection[str]) -> list[dict[str, float]]:
+    """The weight factor sets of the variants, in a fixed order: for every name (sorted) x0.8
+    and x1.2 alone, then the seeded random sets. Names are the weights above 0 that move."""
+    ordered = sorted(names)
+    sets: list[dict[str, float]] = []
+    for name in ordered:
+        for factor in (1.0 - STABILITY_FACTOR, 1.0 + STABILITY_FACTOR):
+            sets.append({other: (factor if other == name else 1.0) for other in ordered})
+    rng = random.Random(STABILITY_SEED)
+    for _ in range(STABILITY_RANDOM_VARIANTS):
+        sets.append(
+            {name: rng.uniform(1.0 - STABILITY_FACTOR, 1.0 + STABILITY_FACTOR) for name in ordered}
+        )
+    return sets
+
+
+def _variant_tier(
+    settings: StrengthSettings,
+    inputs: TierInputs,
+    weights: Mapping[str, float],
+    possible_weight: float,
+) -> str:
+    present_weight = 0.0
+    weighted = 0.0
+    for component, percentile in inputs.present:
+        weight = weights[component]
+        present_weight += weight
+        weighted += weight * percentile
+    coverage = present_weight / possible_weight if possible_weight > 0 else 0.0
+    index = round(100.0 * weighted / present_weight, 1) if present_weight > 0 else None
+    present = len(inputs.present)
+    enough = present > 0 and coverage >= settings.min_coverage and present >= inputs.needed
+    return _tier(index, settings, enough)
+
+
+def tier_stability(
+    settings: StrengthSettings,
+    inputs: Mapping[str, TierInputs],
+    tiers: Mapping[str, str],
+    factor_sets: Sequence[Mapping[str, float]] | None = None,
+) -> dict[str, TierStability]:
+    """Per card of ``inputs`` (the ranked cards with a tier): the share of weight variants that
+    keep the card's tier in ``tiers``, the number of variants and the other tiers the variants
+    gave (most frequent first). ``factor_sets`` overrides the variants (tests); the default are
+    ``stability_factor_sets`` over the components that carry a weight above 0."""
+    names: set[str] = set()
+    for item in inputs.values():
+        names.update(name for name, _rank in item.present)
+        names.update(item.possible)
+    sets = list(factor_sets) if factor_sets is not None else stability_factor_sets(names)
+    base = {name: settings.effective_weight(name) for name in names}
+    variant_weights = [
+        {name: base[name] * factors.get(name, 1.0) for name in names} for factors in sets
+    ]
+    totals: dict[tuple[str, ...], list[float]] = {}
+    answers: dict[tuple[object, ...], tuple[int, dict[str, int]]] = {}
+    result: dict[str, TierStability] = {}
+    for card, item in inputs.items():
+        tier = tiers[card]
+        key = (item.present, item.possible, item.needed, tier)
+        found = answers.get(key)
+        if found is None:
+            possible_totals = totals.get(item.possible)
+            if possible_totals is None:
+                possible_totals = [
+                    sum(weights[name] for name in item.possible) for weights in variant_weights
+                ]
+                totals[item.possible] = possible_totals
+            other: dict[str, int] = {}
+            kept = 0
+            for weights, possible_weight in zip(variant_weights, possible_totals, strict=True):
+                variant = _variant_tier(settings, item, weights, possible_weight)
+                if variant == tier:
+                    kept += 1
+                else:
+                    other[variant] = other.get(variant, 0) + 1
+            found = (kept, other)
+            answers[key] = found
+        kept, other = found
+        order = (*TIERS, TIER_UNKNOWN)
+        result[card] = {
+            "stability": round(kept / len(sets), 4) if sets else 1.0,
+            "kept": kept,
+            "variants": len(sets),
+            "alternatives": [
+                {"tier": name, "variants": count}
+                for name, count in sorted(
+                    other.items(), key=lambda entry: (-entry[1], order.index(entry[0]))
+                )
+            ],
+        }
+    return result
+
+
+# ---------- relative tiers inside the pool (an additional view, never the default) ----------
+
+# A SETTING, not a measurement: the percentile rank inside the ranked cards of the group decides
+# the relative tier. S is the top 3 %, A up to 10 %, B up to 25 %, C up to 50 %, D up to 75 %,
+# E up to 90 %, F the rest (10 %). Lands and spells are ranked apart; only ranked cards (tier S to
+# D) count; cards with the same index share the best rank of their group of ties.
+RELATIVE_TIER_PERCENTILES: tuple[tuple[str, int], ...] = (
+    ("S", 3),
+    ("A", 10),
+    ("B", 25),
+    ("C", 50),
+    ("D", 75),
+    ("E", 90),
+)
+RELATIVE_TIER_LAST = "F"
+RELATIVE_TIERS = (*(name for name, _percent in RELATIVE_TIER_PERCENTILES), RELATIVE_TIER_LAST)
+RELATIVE_TIER_NOTE = "relativ im Pool, keine Aussage über Spielstärke"
+RELATIVE_GROUP_SPELLS = "spells"
+RELATIVE_GROUP_LANDS = "lands"
+
+
+class RelativeRank(TypedDict):
+    """Rank ``rank`` of ``total`` ranked cards of the group (``spells`` or ``lands``)."""
+
+    rank: int
+    total: int
+    group: str
+
+
+def relative_tier_for(rank: int, total: int) -> str:
+    """The relative tier of a card at ``rank`` (1 = best) of ``total``: the first tier whose
+    percentage covers ``rank / total`` (integer arithmetic, so a limit is exact)."""
+    for name, percent in RELATIVE_TIER_PERCENTILES:
+        if rank * 100 <= percent * total:
+            return name
+    return RELATIVE_TIER_LAST
+
+
+def relative_tiers(
+    entries: Mapping[str, tuple[float, bool]],
+) -> dict[str, tuple[str, RelativeRank]]:
+    """Per card of ``entries`` (card -> (index, is land); only ranked cards) its relative tier and
+    ``RelativeRank``. Lands and spells are ranked apart; equal indexes share the best rank of
+    their group of ties (competition ranking: 1, 2, 2, 4) and therefore the same tier."""
+    result: dict[str, tuple[str, RelativeRank]] = {}
+    for is_land, group in ((False, RELATIVE_GROUP_SPELLS), (True, RELATIVE_GROUP_LANDS)):
+        members = sorted(
+            ((index, card) for card, (index, land) in entries.items() if land == is_land),
+            key=lambda item: (-item[0], item[1]),
+        )
+        total = len(members)
+        rank = 0
+        previous: float | None = None
+        for position, (index, card) in enumerate(members, start=1):
+            if previous is None or index != previous:
+                rank, previous = position, index
+            result[card] = (
+                relative_tier_for(rank, total),
+                {"rank": rank, "total": total, "group": group},
+            )
+    return result
+
+
+# ---------- the weight per source family (D2) ----------
+
+# Which source family each component reads from, taken from the code (never from a label); line
+# numbers as of #1369:
+# - the source-deck corpus: ``deck_universe`` counts the commander's local decks with
+#   ``universe_view.spread_for_spec(universe_choice.local_spec(...))`` (strength_view.py:1022, the
+#   ``KIND_LOCAL`` branch of ``prepare``); ``corpus_signals.count_corpus`` (corpus_signals.py:126,
+#   called at strength_view.py:1043) counts the SAME decks again, once as a whole and once per
+#   cohort. ``corpus_log_lift`` takes its numerator from that whole count
+#   (corpus_signals.py:168, ``corpus_observations``), ``corpus_tuned`` and the numerator of
+#   ``corpus_bracket_slope`` from the bracket 4+5 cohort, the slope's comparison from bracket 2.
+#   Nested subsets of the same decks, not independent confirmations.
+# - EDHREC pages and themes: ``edhrec_theme_reach`` (strength_view.py:288
+#   ``_theme_reach_observations``), ``global_inclusion`` (the stored ``edhrec_global_inclusion``),
+#   ``commander_inclusion``, ``bracket_inclusion`` and ``synergy`` (stored EDHREC commander pages,
+#   read by ``_signal_observations``, strength_view.py:192).
+# - tournament: ``corpus_signals.tournament_observations`` (corpus_signals.py:229, called at
+#   strength_view.py:1066) adds EDHTop16 and the corpus bracket 5 (a subset of the source decks)
+#   to one n / N (D5).
+# - combos: ``_combo_observations`` (strength_view.py:392) / the stored EDHREC combo signal.
+# - everything else (Playgroup, rubric, simulation, the TopDeck lists and conversion, the rating
+#   layers): other, weight 0 in the defaults.
+FAMILY_SOURCE_DECKS = "source_decks"
+FAMILY_EDHREC = "edhrec"
+FAMILY_TOURNAMENT = "tournament"
+FAMILY_COMBOS = "combos"
+FAMILY_OTHER = "other"
+SOURCE_DECKS_NOTE = "verschachtelte Teilmengen derselben Decks, keine unabhängigen Bestätigungen"
+TOURNAMENT_FAMILY_NOTE = (
+    "EDHTop16 und Korpus-Bracket 5 (Teilmenge der Quelldecks) zu einem n/N addiert (E3.a)"
+)
+EDHREC_FAMILY_NOTE = "veröffentlichte EDHREC-Zahlen (Seiten, Themen, Gesamtaufnahme)"
+OTHER_FAMILY_NOTE = "Playgroup, Rubrik, Simulation, TopDeck-Listen und Bewertungsebenen"
+WEIGHT_FAMILIES: tuple[tuple[str, str, tuple[str, ...], str], ...] = (
+    (
+        FAMILY_SOURCE_DECKS,
+        "Quelldeck-Korpus (alle lokalen Decks)",
+        (DECK_UNIVERSE, CORPUS_TUNED, CORPUS_LOG_LIFT, CORPUS_BRACKET_SLOPE),
+        SOURCE_DECKS_NOTE,
+    ),
+    (
+        FAMILY_EDHREC,
+        "EDHREC-Seiten/Themen",
+        (EDHREC_THEME_REACH, GLOBAL_INCLUSION, COMMANDER_INCLUSION, BRACKET_INCLUSION, SYNERGY),
+        EDHREC_FAMILY_NOTE,
+    ),
+    (FAMILY_TOURNAMENT, "Turnier", (TOURNAMENT,), TOURNAMENT_FAMILY_NOTE),
+    (FAMILY_COMBOS, "Kombos", (COMBOS,), ""),
+)
+
+
+class WeightFamily(TypedDict):
+    family: str
+    label: str
+    components: list[str]
+    nominal_weight: float
+    share_of_total: float
+    note: str
+
+
+def weight_families(settings: StrengthSettings) -> list[WeightFamily]:
+    """The effective weight of ``settings`` per source family (D2), as the index uses it: the
+    weights after rule E2.a, the bracket switch and the layer weights. Every component belongs to
+    exactly one family; ``share_of_total`` is the family weight over the total weight (0 without
+    any positive weight). Display only: no weight changes."""
+    all_components = (*COMPONENTS, *(layer_component(key) for key in LAYER_KEYS))
+    named = {name for _key, _label, names, _note in WEIGHT_FAMILIES for name in names}
+    rest = tuple(name for name in all_components if name not in named)
+    groups = (
+        *WEIGHT_FAMILIES,
+        (FAMILY_OTHER, "Sonstige (Gewicht 0 im Standard)", rest, OTHER_FAMILY_NOTE),
+    )
+    weights = {name: settings.effective_weight(name) for name in all_components}
+    total = sum(weights.values())
+    return [
+        {
+            "family": key,
+            "label": label,
+            "components": list(names),
+            "nominal_weight": round(sum(weights[name] for name in names), 4),
+            "share_of_total": round(sum(weights[name] for name in names) / total, 4)
+            if total > 0
+            else 0.0,
+            "note": note,
+        }
+        for key, label, names, note in groups
+    ]
+
+
 def score_pool(
     settings: StrengthSettings,
     observations: Mapping[str, Mapping[str, Observation]],
@@ -1800,12 +2192,17 @@ def score_pool(
             for name, ranking in rankings.items()
             if ranking.prior is not None and settings.effective_weight(name) > 0
         }
+    tier_inputs: dict[str, TierInputs] | None = None
+    if diagnostics is not None:
+        tier_inputs = {}
+        diagnostics["tier_inputs"] = tier_inputs
     result: dict[str, CardStrength] = {}
     for card, per_card in observations.items():
         components: list[ComponentResult] = []
         present_weight = 0.0
         weighted = 0.0
         present = 0
+        present_rows: list[tuple[str, float]] = []
         specific = False
         specific_positive = False
         not_ranked = unranked.get(card)
@@ -1858,6 +2255,7 @@ def score_pool(
                 present_weight += weight
                 weighted += weight * percentile
                 present += 1
+                present_rows.append((component, percentile))
             note = _component_note(reason, ranking, observation) if reason else ""
             if status == PRESENT and card in ranking.shrunk and ranking.prior is not None:
                 note = (
@@ -1920,6 +2318,8 @@ def score_pool(
                     "group": group,
                     "group_size": group_size,
                     "group_fallback": group_fallback,
+                    "parts": _component_parts(observation, status),
+                    "mixed_cohorts_note": _mixed_cohorts_note(observation, status),
                 }
             )
         if not_ranked is not None:
@@ -1936,6 +2336,9 @@ def score_pool(
                 "borderline": False,
                 "borderline_cut": None,
                 "cut_distance": None,
+                "confidence_by_denominator": None,
+                "confidence_by_denominator_level": None,
+                "zero_count_thin": [],
             }
             continue
         # A filter card has no deck-universe value by definition: that component is not
@@ -1976,6 +2379,8 @@ def score_pool(
         borderline, cut_tier, cut_gap = borderline_info(
             index if tier in TIERS else None, settings.tier_cuts, settings.borderline_distance
         )
+        if tier_inputs is not None and tier in TIERS:
+            tier_inputs[card] = TierInputs(tuple(present_rows), tuple(possible), needed)
         result[card] = {
             "index": index,
             "coverage": round(coverage, 4),
@@ -1993,6 +2398,21 @@ def score_pool(
             "borderline": borderline,
             "borderline_cut": cut_tier,
             "cut_distance": cut_gap,
+            "confidence_by_denominator": (
+                confidence_by_denominator_value(coverage, components)
+                if index is not None and tier in TIERS
+                else None
+            ),
+            "confidence_by_denominator_level": (
+                confidence_level(confidence_by_denominator_value(coverage, components))
+                if index is not None and tier in TIERS
+                else None
+            ),
+            "zero_count_thin": (
+                zero_count_thin_components(components)
+                if index is not None and tier in TIERS
+                else []
+            ),
         }
     return result
 
