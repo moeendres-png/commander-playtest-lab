@@ -242,7 +242,7 @@ def hand_roles(
         "assumption": (
             f"Starthand {OPENING_HAND} Karten ohne Mulligan; danach 1, 2 und 3 weitere Karten "
             "(Zug 1 bis 3 gezogen, Zug 1 zieht; der Startspieler zieht in Zug 1 nicht: für "
-            "ihn gilt die Spalte eine Zug früher). Nenner: Karten im Deck ohne Commander. "
+            "ihn gilt die Spalte einen Zug früher). Nenner: Karten im Deck ohne Commander. "
             "Eine Karte zählt für jede ihrer Rollen, Rollen werden nie addiert. Karten ohne "
             "Rollendaten sind unbekannt, nicht rollenlos: die Werte sind Untergrenzen."
         ),

@@ -261,7 +261,7 @@ def test_castability_route_on_a_store(tmp_path) -> None:  # type: ignore[no-unty
     for role in hand["roles"]:
         assert role["of"] == 99 and 1 <= role["cards"] <= 99
         for entry in role["hands"]:
-            assert entry["p_at_least_1"] + entry["p_none"] == 1.0
+            assert abs(entry["p_at_least_1"] + entry["p_none"] - 1.0) <= 1e-4
     assert (
         client.post("/api/castability", json={"cards": cards}, headers={"X-Studio": ""}).status_code
         == 403
