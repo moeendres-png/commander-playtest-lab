@@ -347,3 +347,14 @@ console.log(JSON.stringify({
         "tick": ["box-1:c1", "box-2:c1", "unknown:c1"],
         "draft": True,
     }
+
+
+def test_engine_check_and_json_export_labels_say_what_they_do() -> None:
+    """The engine check compares with the stored engine card list (no live engine query) and the
+    JSON export is a lab file for command-line tools, not for the Studio series form (container
+    check 2026-11-17)."""
+    app = (STATIC / "app.js").read_text(encoding="utf-8")
+    assert "Gegen die Engine-Kartenliste prüfen" in app
+    assert '"Mit der Engine prüfen"' not in app
+    assert "keine Live-Abfrage der Engine" in app
+    assert "für Simulation (" not in app and "als Lab-Datei" in app

@@ -1345,7 +1345,7 @@ The loaders are the functions of `studio/repo_import.py`; the scripts
 ### Engine check ("Prüfung durch die Engine")
 
 The tab "Prüfung" has two separately named checks. "Datenprüfung (gespeicherte Fakten)" reads
-stored card facts. "Prüfung durch die Engine" (button "Mit der Engine prüfen",
+stored card facts. "Prüfung durch die Engine" (button "Gegen die Engine-Kartenliste prüfen",
 `POST /api/engine-check`, `engine_check.py`) runs the full-game runner's own deck construction
 validation (`_validate_deck_construction`: content hash, duplicates, colour identity) on the
 current list, plus the cards the pinned engine cannot load (`launch.cards_unsupported_by_engine`,
