@@ -1849,9 +1849,10 @@ def list_decks(store: StudioStore) -> list[dict[str, object]]:
 
 
 def history(store: StudioStore, deck_id: str) -> list[dict[str, object]]:
-    return [
+    db = store.connection
+    rows = [
         dict(row)
-        for row in store.connection.execute(
+        for row in db.execute(
             "SELECT r.revision_id, r.parent_revision_id, r.note, r.created_at, "
             "(SELECT SUM(quantity) FROM deck_revision_card c "
             " WHERE c.revision_id = r.revision_id) AS cards "
@@ -1859,3 +1860,29 @@ def history(store: StudioStore, deck_id: str) -> list[dict[str, object]]:
             (deck_id,),
         )
     ]
+    parents: dict[str, str | None] = {
+        str(row["revision_id"]): (
+            str(row["parent_revision_id"]) if row["parent_revision_id"] is not None else None
+        )
+        for row in rows
+    }
+    heads = sorted(
+        (
+            (str(b["branch"]), str(b["revision_id"]))
+            for b in db.execute(
+                "SELECT branch, revision_id FROM deck_branch WHERE deck_id = ?", (deck_id,)
+            )
+        ),
+        key=lambda item: (0 if item[0] == "main" else 1, item[0]),
+    )
+    branch_by_rev: dict[str, str] = {}
+    for branch_name, head_rev in heads:
+        cur: str | None = head_rev
+        seen: set[str] = set()
+        while cur is not None and cur not in seen and cur in parents:
+            seen.add(cur)
+            branch_by_rev.setdefault(cur, branch_name)
+            cur = parents[cur]
+    for row in rows:
+        row["branch"] = branch_by_rev.get(str(row["revision_id"]))
+    return rows

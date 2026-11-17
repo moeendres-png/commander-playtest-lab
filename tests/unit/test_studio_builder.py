@@ -695,3 +695,102 @@ def test_cooccurrence_counts_a_deck_once_when_lists_name_a_card_by_id_and_by_nam
     assert co["card_decks"] == 2
     forest = next(card for card in co["cards"] if card["name"] == "Forest")
     assert (forest["both_hits"], forest["share"]) == (2, 1.0)
+
+
+def test_history_resolves_branch_from_heads_and_parent_chain(studio: StudioStore) -> None:
+    cards1 = _deck()
+    cards2 = [*cards1[:-1], RevisionCard("card:project:0002", 28)]
+    cards3 = [*cards1[:-1], RevisionCard("card:project:0002", 27)]
+    cards_orphan = [*cards1[:-1], RevisionCard("card:project:0002", 26)]
+    rev1 = create_revision(
+        studio, deck_id="hist-deck", branch="main", name="History Deck", cards=cards1, note="r1"
+    )
+    rev2 = create_revision(
+        studio,
+        deck_id="hist-deck",
+        branch="main",
+        name="History Deck",
+        cards=cards2,
+        parent_revision_id=rev1,
+        note="r2",
+    )
+    rev3 = create_revision(
+        studio,
+        deck_id="hist-deck",
+        branch="variant-a",
+        name="History Deck",
+        cards=cards3,
+        parent_revision_id=rev1,
+        note="r3",
+    )
+    rev_orphan = create_revision(
+        studio,
+        deck_id="hist-deck",
+        branch="temp-branch",
+        name="History Deck",
+        cards=cards_orphan,
+        note="orphan",
+    )
+    with studio.connection:
+        studio.connection.execute(
+            "DELETE FROM deck_branch WHERE deck_id = 'hist-deck' AND branch = 'temp-branch'"
+        )
+    rows = {str(r["revision_id"]): r for r in builder.history(studio, "hist-deck")}
+    assert rows[rev2]["branch"] == "main"
+    assert rows[rev1]["branch"] == "main"  # shared ancestor prefers main over variant-a
+    assert rows[rev3]["branch"] == "variant-a"
+    assert rows[rev_orphan]["branch"] is None
+
+
+def test_favicon_returns_204_no_content(studio: StudioStore) -> None:
+    client = TestClient(create_app(studio.path))
+    res = client.get("/favicon.ico")
+    assert res.status_code == 204
+
+
+def test_ui_js_number_helpers_use_typographic_minus_and_no_negative_zero() -> None:
+    import shutil
+    import subprocess
+
+    node = shutil.which("node") or "/usr/local/bin/node"
+    ui_js = (
+        Path(__file__).resolve().parents[2]
+        / "src"
+        / "commander_lab"
+        / "studio"
+        / "static"
+        / "ui.js"
+    )
+    script = f"""
+const fs = require("fs");
+global.window = {{ matchMedia: () => ({{ matches: false }}) }};
+global.document = {{
+  documentElement: {{ dataset: {{}} }},
+  addEventListener: () => {{}},
+  getElementById: () => null,
+  querySelectorAll: () => [],
+  createElement: () => ({{ setAttribute: () => {{}}, addEventListener: () => {{}}, append: () => {{}}, classList: {{ add: () => {{}}, remove: () => {{}} }} }}),
+  createTextNode: (t) => t,
+  body: {{ append: () => {{}} }},
+}};
+global.localStorage = {{ getItem: () => null, setItem: () => {{}} }};
+global.location = {{ pathname: "/index.html" }};
+eval(fs.readFileSync({json.dumps(str(ui_js))}, "utf8") + "\\nglobal.S = StudioUI;");
+const out = {{
+  negInt: global.S.num(-1, 0),
+  negZero: global.S.num(-0.0001, 2),
+  negFlex: global.S.numFlex(-1.5, 2),
+  negSig: global.S.numSig(-0.045, 2),
+  negPct: global.S.pct(-0.123, 1),
+  thousands: global.S.num(10348, 0),
+}};
+console.log(JSON.stringify(out));
+"""
+    proc = subprocess.run([node, "-e", script], check=True, capture_output=True, text=True)
+    data = json.loads(proc.stdout.strip())
+    assert data["negInt"] == "\u22121"
+    assert data["negZero"] == "0,00"
+    assert data["negFlex"] == "\u22121,5"
+    assert data["negSig"] == "\u22120,045"
+    assert data["negPct"] == "\u221212,3 %"
+    assert data["thousands"] == "10.348"

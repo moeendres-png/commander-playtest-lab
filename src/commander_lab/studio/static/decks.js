@@ -39,7 +39,7 @@ async function openDeckDetail(item) {
     const cards = detail.cards || [];
     const inColl = cards.filter((c) => c.in_collection).reduce((acc, c) => acc + (c.quantity || 1), 0);
     const total = cards.reduce((acc, c) => acc + (c.quantity || 1), 0);
-    const tbl = h("table", {},
+    const tbl = h("div", { class: "table-wrap" }, h("table", {},
       h("thead", {}, h("tr", {},
         h("th", {}, "Sektion"),
         h("th", { class: "num" }, "Anzahl"),
@@ -47,14 +47,14 @@ async function openDeckDetail(item) {
         h("th", {}, "Sammlung"))),
       h("tbody", {}, cards.map((c) => h("tr", {},
         h("td", {}, c.section),
-        h("td", { class: "num" }, c.quantity),
+        h("td", { class: "num" }, StudioUI.num(c.quantity, 0)),
         h("td", {}, c.name),
-        h("td", {}, c.in_collection ? `${c.available} frei / ${c.owned} im Besitz` : h("span", { class: "muted" }, "nicht in deiner Sammlung"))))));
+        h("td", {}, c.in_collection ? `${StudioUI.num(c.available, 0)} frei / ${StudioUI.num(c.owned, 0)} im Besitz` : h("span", { class: "muted" }, "nicht in deiner Sammlung")))))));
     box.replaceChildren(...kids(
       h("h2", {}, detail.name),
       h("p", { class: "note" },
         `Nur-Lese-Ansicht (${detail.origin === "saved" ? "Gespeichertes Studio-Deck" : `Quelldeck · ${detail.platform || "Korpus"}`})` +
-        ` · ${inColl} von ${total} Karten in deiner Sammlung.`),
+        ` · ${StudioUI.num(inColl, 0)} von ${StudioUI.num(total, 0)} Karten in deiner Sammlung.`),
       detail.url ? h("p", {}, h("a", { href: detail.url, target: "_blank", rel: "noopener" }, "Quelladresse öffnen ↗")) : null,
       tbl,
       h("div", { class: "actions" }, h("button", { type: "button", onclick: closeModal }, "Schließen"))
@@ -90,7 +90,7 @@ function renderBrowser() {
     originBreakdown ? ` (= ${originBreakdown})` : null,
     activeFilters.length ? ` · Filter: ${activeFilters.join(" · ")}` : " · alle passenden Decks",
     " ",
-    small ? h("span", { class: "pill low" }, `Kleine Stichprobe (< ${data.small_denominator || 30} Decks)`) : null
+    small ? h("span", { class: "pill low" }, `Kleine Stichprobe (< ${StudioUI.num(data.small_denominator || 30, 0)} Decks)`) : null
   ));
 
   const decksBox = $("db-decks");
@@ -98,7 +98,7 @@ function renderBrowser() {
   if (!decks.length) {
     decksBox.replaceChildren(h("p", { class: "muted" }, "Keine Decks passen auf die gewählten Filter."));
   } else {
-    const tbl = h("table", { id: "deck-browser-table" },
+    const tbl = h("div", { class: "table-wrap" }, h("table", { id: "deck-browser-table" },
       h("thead", {}, h("tr", {},
         h("th", {}, "Deck / Kennung"),
         h("th", {}, "Commander"),
@@ -114,9 +114,9 @@ function renderBrowser() {
         h("td", {}, d.origin === "saved" ? "Gespeichert (Studio)" : (d.platform || "Quelldeck")),
         h("td", {}, d.bracket || d.cohort || "–"),
         h("td", {}, (d.labels || []).length ? d.labels.slice(0, 4).join(", ") : "–"),
-        h("td", { class: "num" }, d.cards ?? "–"),
+        h("td", { class: "num" }, d.cards === null || d.cards === undefined ? "–" : StudioUI.num(d.cards, 0)),
         h("td", {}, d.deck_date || "–"),
-        h("td", {}, h("button", { type: "button", class: "small", onclick: () => openDeckDetail(d) }, "Ansehen"))))));
+        h("td", {}, h("button", { type: "button", class: "small", onclick: () => openDeckDetail(d) }, "Ansehen")))))));
     decksBox.replaceChildren(
       h("h3", {}, `Gefilterte Decks (${StudioUI.num(decks.length, 0)} von ${StudioUI.num(total, 0)} angezeigt)`),
       tbl
@@ -133,7 +133,7 @@ function renderBrowser() {
     return;
   }
   const coTable = coRows.length
-    ? h("table", { id: "deck-browser-cooccurrence" },
+    ? h("div", { class: "table-wrap" }, h("table", { id: "deck-browser-cooccurrence" },
         h("thead", {}, h("tr", {},
           h("th", {}, "Karte (ohne Standardländer)"),
           h("th", { class: "num" }, "Decks (n/N)"),
@@ -144,7 +144,7 @@ function renderBrowser() {
           h("td", {}, row.name),
           h("td", { class: "num" }, `${StudioUI.num(row.decks, 0)}/${StudioUI.num(row.of, 0)}`),
           h("td", { class: "num" }, `${StudioUI.num(100 * row.share, 1)} %`),
-          h("td", {}, row.in_collection ? `${row.available} frei / ${row.owned}` : h("span", { class: "muted" }, "nicht in deiner Sammlung")),
+          h("td", {}, row.in_collection ? `${StudioUI.num(row.available, 0)} frei / ${StudioUI.num(row.owned, 0)}` : h("span", { class: "muted" }, "nicht in deiner Sammlung")),
           h("td", {},
             h("button", {
               type: "button",
@@ -157,13 +157,13 @@ function renderBrowser() {
                   loadBrowser();
                 }
               },
-            }, "+ Filter"))))))
+            }, "+ Filter")))))))
     : h("p", { class: "muted" }, "Keine weiteren Karten in dieser Filtermenge gefunden.");
 
   coBox.replaceChildren(...kids(
     h("h3", {}, `Karten-Kookkurrenz (Nenner: ${StudioUI.num(total, 0)} Decks)`),
     originBreakdown ? h("p", { class: "note" }, `${StudioUI.num(total, 0)} Decks = ${originBreakdown}. Beide Gruppen sind hier gemischt; „Nur Quelldecks“ trennt sie.`) : null,
-    small ? h("p", { class: "pill low" }, `Kleine Stichprobe: nur ${total} Decks in der Filtermenge (< ${data.small_denominator || 30}).`) : null,
+    small ? h("p", { class: "pill low" }, `Kleine Stichprobe: nur ${StudioUI.num(total, 0)} Decks in der Filtermenge (< ${StudioUI.num(data.small_denominator || 30, 0)}).`) : null,
     h("p", { class: "note" }, "Reine Zählung über die aktuell gefilterte Deckmenge: wie viele dieser Decks jede andere Karte spielen (n von N und Prozent). Ein Klick auf „+ Filter“ engt die Deckmenge auf Decks mit dieser Karte ein."),
     coTable
   ));

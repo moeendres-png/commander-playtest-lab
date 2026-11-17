@@ -93,9 +93,10 @@ def test_every_text_input_and_select_has_a_name() -> None:
 
 
 def test_decimals_go_through_the_german_number_helpers() -> None:
-    """No raw .toFixed( in any Studio script except the two excluded pages: the de-DE helpers
-    StudioUI.num / StudioUI.pct are the only place that formats decimals (comma, not point)."""
-    excluded = {"tierliste.js"}
+    """No raw .toFixed( or .toPrecision( in any Studio deckbuilder/tierliste script: the de-DE
+    helpers StudioUI.num / StudioUI.pct / StudioUI.numFlex / StudioUI.numSig are the only place
+    that formats decimals (comma, not point, and typographic minus)."""
+    excluded: set[str] = set()
     scripts = [
         path
         for path in _files("*.js")
@@ -106,7 +107,7 @@ def test_decimals_go_through_the_german_number_helpers() -> None:
         text = path.read_text(encoding="utf-8")
         assert ".toFixed(" not in text and ".toPrecision(" not in text, path.name
     ui = (STATIC / "ui.js").read_text(encoding="utf-8")
-    assert 'toLocaleString("de-DE"' in ui and "num, pct" in ui
+    assert 'toLocaleString("de-DE"' in ui and "num, pct" in ui and "numSig" in ui
     assert 'class: "num"' in (STATIC / "app.js").read_text(encoding="utf-8")
 
 
@@ -148,26 +149,57 @@ def test_small_window_filter_fold_and_compact_evidence_panel() -> None:
 
 
 def test_mobile_deck_browser_columns_and_tier_banner_stay_in_the_viewport() -> None:
-    """Abnahme 2026-11-17 (B2, #1464): at 390 px the Deck-Browser grid columns must not be
-    widened by the co-occurrence table's min-content (measured page overflow 125 px), and the
-    tier list's oracle banner — a .badge with a full sentence — must wrap instead of running
-    off-screen on one line (measured 467 px)."""
+    """Abnahme 2026-11-17 (B2, #1464): at 390 px the Deck-Browser and Deckbuilder grid columns
+    must not be widened by child min-content, and all sentence-length badges in the tier list
+    must wrap instead of running off-screen on one line."""
     css = (STATIC / "app.css").read_text(encoding="utf-8")
     assert "@media (max-width:900px){main.browser>*{min-width:0}}" in css
+    assert "main{grid-template-columns:minmax(0,1fr)}main>*{min-width:0}" in css
+    assert (
+        "#deck{border-left:1px solid var(--line);background:var(--panel);display:flex;flex-direction:column;min-height:0;min-width:0}"
+        in css
+    )
     tier_css = (STATIC / "tierliste.css").read_text(encoding="utf-8")
     assert ".badge-text{white-space:normal" in tier_css
     tier_js = (STATIC / "tierliste.js").read_text(encoding="utf-8")
     # Every sentence-length badge carries the wrapping class, pinned per site:
-    # oracle banner, universe-empty note, subset note, below-minimum note and
-    # the calculation notices.
+    # oracle banner, universe-empty note, subset note, below-minimum note,
+    # calculation notices and snapshot-status badges.
     for site in (
         'class: "badge warn badge-text", id: "oracle-banner"',
         'id: "universe-empty", class: "badge warn badge-text"',
         'class: "badge warn badge-text" }, summary.subset_note)',
         'class: "badge warn badge-text" }, `unter dem Mindest-Universum',
         'class: "badge warn badge-text" }, text)',
+        'id: "snapshot-status", class: "badge good badge-text"',
+        'id: "snapshot-status", class: "badge warn badge-text"',
+        'id: "snapshot-status", class: "badge dim badge-text"',
     ):
         assert site in tier_js, site
+
+
+def test_no_raw_error_message_or_alert_or_missing_favicon_in_studio_pages() -> None:
+    import shutil
+    import subprocess
+
+    node = shutil.which("node")
+    for page_name in ("index.html", "tierliste.html", "decks.html"):
+        html = (STATIC / page_name).read_text(encoding="utf-8")
+        assert '<link rel="icon" href="data:,">' in html, page_name
+    scripts = _files("*.js")
+    assert len(scripts) >= 10
+    for path in scripts:
+        if node:
+            res = subprocess.run(
+                [node, "--check", str(path)], check=False, capture_output=True, text=True
+            )
+            assert res.returncode == 0, f"{path.name}: {res.stderr}"
+        if path.name.startswith("partie"):
+            continue
+        text = path.read_text(encoding="utf-8")
+        assert "alert(" not in text, path.name
+        if path.name != "ui.js":
+            assert "error.message" not in text and "err.message" not in text, path.name
 
 
 def test_print_rules_are_scoped_to_the_build_list() -> None:
