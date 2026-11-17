@@ -943,6 +943,23 @@ function tierHeader(result) {
     h("div", { class: "rule", id: "corpus-line" }, corpusLine(result)),
     h("div", { class: "rule", id: "borderline-line" }, `grenzwertig (näher als ${result.settings.borderline_distance} Punkte an einer Stufengrenze): ${nf(result.borderline_count)} Karten. ${CONFIDENCE_TEXT}`))];
 }
+function snapshotBadge(result) {
+  const snap = result.snapshot;
+  if (!snap) return null;
+  if (snap.status === "STALE") {
+    return h("span", { id: "snapshot-status", class: "badge warn", title: `Snapshot-Epoche ${(snap.snapshot_epoch || "").slice(0, 12)} ungleich aktueller Epoche ${(snap.current_epoch || "").slice(0, 12)}` }, "Snapshot veraltet, Neuberechnung läuft");
+  }
+  if (snap.status === "HIT") {
+    const stamp = snap.created_at ? `${snap.created_at.slice(0, 19).replace("T", " ")} UTC` : "–";
+    const epochShort = snap.data_epoch ? snap.data_epoch.slice(0, 12) : "–";
+    return h("span", { id: "snapshot-status", class: "badge good", title: `Snapshot ${snap.profile_name || ""} (${snap.spec_version || ""})` }, `Snapshot: Stand ${stamp} · Epoche ${epochShort}`);
+  }
+  if (snap.status === "MISSING") {
+    const epochShort = snap.current_epoch ? snap.current_epoch.slice(0, 12) : "–";
+    return h("span", { id: "snapshot-status", class: "badge dim" }, `Live berechnet (kein Snapshot · Epoche ${epochShort})`);
+  }
+  return null;
+}
 function renderStrengthSummary() {
   const s = state.strength, box = $("strength-summary");
   if (!box) return;
@@ -954,11 +971,16 @@ function renderStrengthSummary() {
   // Sources that can exist for these settings: no simulation (not collected), no bracket source without a
   // bracket, no deck universe without one.
   const possible = s.meta.components.filter((c) => c.key !== "simulation" && !(c.key === "bracket_inclusion" && result.settings.bracket === "none") && !(c.key === "deck_universe" && !(result.universe_choice && result.universe_choice.kind !== "none")) && !(c.key === "rubric" && !result.collected.includes("rubric"))).length;
-  const notices = (result.notices || []).map((text) => h("div", { class: "badge warn" }, text));
+  const snapNode = snapshotBadge(result);
+  const snapStale = result.snapshot && result.snapshot.status === "STALE";
+  const notices = (result.notices || [])
+    .filter((text) => !(snapStale && text === "Snapshot veraltet, Neuberechnung läuft"))
+    .map((text) => h("div", { class: "badge warn" }, text));
   const ambiguous = result.ambiguous_names || [];
   const shown = ambiguous.slice(0, 10).map((item) => `${item.name} (${item.candidates.join(" / ")})`).join("; ");
   box.replaceChildren(
     ...tierHeader(result),
+    snapNode,
     h("span", { class: "muted" }, `von ${result.cards.length} Karten · ${universeText} · Quellen vorhanden: ${result.collected.length}/${possible}`),
     ...notices,
     ...(result.layer_summary ? result.layer_summary.layers.filter((item) => item.source_discrepancies > 0).map((item) => h("div", { class: "rule" }, `${item.label}: bei ${item.source_discrepancies} Karten nennt die Quelle einen anderen Prozentwert als Zähler/Nenner; die Zelle zeigt Zähler/Nenner, der genannte Wert steht im Tooltip.`)) : []),

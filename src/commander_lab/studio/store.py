@@ -425,6 +425,18 @@ CREATE TABLE IF NOT EXISTS strength_profile (
     spec TEXT NOT NULL,
     created_at TEXT NOT NULL
 );
+CREATE TABLE IF NOT EXISTS tier_snapshot (
+    commander_name TEXT NOT NULL,
+    spec_hash TEXT NOT NULL,
+    profile_name TEXT NOT NULL,
+    spec_version TEXT NOT NULL,
+    data_epoch TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    tier_counts_json TEXT NOT NULL,
+    component_denominators_json TEXT NOT NULL,
+    payload_json TEXT NOT NULL,
+    PRIMARY KEY (commander_name, spec_hash)
+);
 CREATE TABLE IF NOT EXISTS card_label (
     card_id TEXT NOT NULL REFERENCES card(card_id),
     label TEXT NOT NULL COLLATE NOCASE,
@@ -970,12 +982,24 @@ class StudioStore:
         "FROM commander_binding",
         "SELECT COUNT(*), COALESCE(SUM(version), 0), COALESCE(MAX(updated_at), '') "
         "FROM universe_profile",
-        "SELECT COUNT(*), COUNT(value), COALESCE(ROUND(SUM(value), 6), 0) FROM card_signal",
-        "SELECT COUNT(*), COALESCE(MAX(rowid), 0) FROM card",
-        "SELECT COUNT(*), COUNT(DISTINCT role), COALESCE(MAX(oracle_id), '') FROM card_role",
-        "SELECT COUNT(*), COALESCE(MAX(rowid), 0) FROM observation",
-        "SELECT COUNT(*), COALESCE(MAX(rowid), 0) FROM scryfall_card",
-        "SELECT COUNT(*), COALESCE(MAX(rowid), 0) FROM inventory",
+        "SELECT COUNT(*), COUNT(value), COALESCE(ROUND(SUM(value), 6), 0), "
+        "COALESCE(SUM(numerator), 0), COALESCE(SUM(denominator), 0), "
+        "COALESCE(MAX(source_id), '') FROM card_signal",
+        "SELECT COUNT(*), COALESCE(MAX(rowid), 0), COUNT(DISTINCT oracle_id) FROM card",
+        "SELECT COUNT(*), COUNT(DISTINCT role), COALESCE(MAX(oracle_id), ''), "
+        "COALESCE(MAX(source_id), '') FROM card_role",
+        "SELECT COUNT(*), COALESCE(MAX(rowid), 0), "
+        "COALESCE(ROUND(SUM(COALESCE(value, 0)), 6), 0), "
+        "COALESCE(SUM(numerator), 0), COALESCE(SUM(denominator), 0) FROM observation",
+        "SELECT COUNT(*), COALESCE(MAX(rowid), 0), COUNT(DISTINCT scryfall_id), "
+        "COALESCE(MAX(source_id), '') FROM scryfall_card",
+        "SELECT COUNT(*), COALESCE(MAX(rowid), 0), "
+        "COALESCE(SUM(owned_lower_bound), 0), COALESCE(SUM(reserved), 0), "
+        "COALESCE(SUM(quantity_exact), 0), COALESCE(MAX(source_id), '') FROM inventory",
+        "SELECT COUNT(*), COALESCE(MAX(updated_at), ''), COUNT(card_id), "
+        "COALESCE(ROUND(SUM(COALESCE(on_curve_pct, 0) + COALESCE(drawn_to_played_pct, 0) "
+        "+ COALESCE(battlefield_survival_pct, 0)), 6), 0), "
+        "COALESCE(MAX(source_id), '') FROM playgroup_card_atlas",
     )
 
     def data_epoch(self) -> tuple[object, ...]:
@@ -1001,8 +1025,8 @@ class StudioStore:
             "card_mark", "deck_draft", "corpus_cohort", "corpus_deck_stat", "corpus_deck_part", "card_role",
             "card_role_claim", "corpus_deck_role", "neutral_board_row", "simulation_run", "simulation_card",
             "source_capture_event", "playgroup_card_atlas", "playgroup_top_commander", "playgroup_final_zone",
-            "universe_profile", "commander_binding", "card_signal", "strength_profile", "card_ruling",
-            "card_ruling_source", "card_label", "deck_label", "card_printing",
+            "universe_profile", "commander_binding", "card_signal", "strength_profile", "tier_snapshot",
+            "card_ruling", "card_ruling_source", "card_label", "deck_label", "card_printing",
         }:  # fmt: skip
             raise ValueError(table)
         return int(self.connection.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0])
