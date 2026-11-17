@@ -255,7 +255,43 @@ function _buildOverviewNodes(data, deps, options = {}) {
   }
   const secGaps = h("div", { class: "card-box" }, ...gapsChildren);
 
-  const grid = h("div", { class: isWide ? "overview-grid wide" : "overview-grid" }, secCurve, secMana, secRoles, secBracket, secGaps);
+  // F: Lücken-Ausgleich (unter p25 / über p75) aus freiem Pool
+  const doctorData = data.doctorData;
+  const docChildren = [h("h4", {}, h("span", {}, "6. Lücken-Ausgleich (p25–p75)"), h("span", { class: "muted" }, "Freier Pool · n/N"))];
+  if (!doctorData) {
+    docChildren.push(h("p", { class: "muted" }, "Abweichungen werden geprüft …"));
+  } else if (!doctorData.remedies || !doctorData.remedies.length) {
+    docChildren.push(h("p", { class: "note" }, "Keine geprüfte Kennzahl liegt unter p25 oder über p75 der Vergleichsgruppe."));
+  } else {
+    docChildren.push(h("p", { class: "note" }, doctorData.meaning));
+    for (const rem of doctorData.remedies) {
+      const remTitle = rem.role ? `Rolle ${roleName(rem.role)} unterhalb p25` : rem.label;
+      const valDigits = rem.kind === "mana_value_above_p75" ? 2 : 0;
+      const spanDigits = rem.kind === "mana_value_above_p75" ? 2 : 1;
+      const cands = rem.candidates || [];
+      docChildren.push(
+        h("div", { class: "mt-2" },
+          h("strong", {}, remTitle),
+          h("span", { class: "muted ml-1" }, `Deck: ${StudioUI.num(rem.deck_value, valDigits)} · Vergleich: ${_ovSpan(rem.span, spanDigits)}`),
+          cands.length
+            ? h("div", { class: "table-wrap" },
+              h("table", {},
+                h("thead", {}, h("tr", {}, h("th", {}, "Freie Pool-Karte"), h("th", { class: "num" }, "MW"), h("th", { class: "num" }, "Quelldecks (n/N)"), h("th", {}, ""))),
+                h("tbody", {}, cands.map((cand) => {
+                  const pCard = deps.poolCardById ? deps.poolCardById(cand.card_id) : null;
+                  return h("tr", {},
+                    h("td", { class: pCard ? "name" : "", onclick: () => openCard(cand.card_id) }, cand.name),
+                    h("td", { class: "num" }, cand.mana_value === null || cand.mana_value === undefined ? "–" : StudioUI.numFlex(cand.mana_value, 2)),
+                    h("td", { class: "num" }, cand.decks !== null && cand.of ? `${StudioUI.num(cand.decks, 0)}/${StudioUI.num(cand.of, 0)}` : "unbekannt"),
+                    h("td", {}, pCard && deps.add ? h("button", { type: "button", class: "small", onclick: () => deps.add(pCard) }, "+") : null));
+                }))))
+            : h("p", { class: "muted" }, "Keine passende freie Karte im Pool."))
+      );
+    }
+  }
+  const secDoctor = h("div", { class: "card-box" }, ...docChildren);
+
+  const grid = h("div", { class: isWide ? "overview-grid wide" : "overview-grid" }, secCurve, secMana, secRoles, secBracket, secGaps, secDoctor);
   return [headerCard, grid];
 }
 
@@ -283,6 +319,7 @@ async function renderDeckOverview(body, deps) {
   let landData = getCached(deps.getLandAdvisor());
   let castData = getCached(deps.getCastability());
   let factsData = getCached(deps.getDeckFacts());
+  let doctorData = deps.getDeckDoctor ? getCached(deps.getDeckDoctor()) : null;
   let layersData = deps.getLayers();
 
   const buildSnapshot = () => ({
@@ -303,6 +340,7 @@ async function renderDeckOverview(body, deps) {
     landData,
     castData,
     factsData,
+    doctorData,
     layersData,
   });
 
@@ -334,6 +372,13 @@ async function renderDeckOverview(body, deps) {
       api("/api/deck-facts", "POST", payload)
         .then((res) => { factsData = res; deps.setDeckFacts({ key: cacheKey, data: res }); })
         .catch((err) => { fail(err); return null; })
+    );
+  }
+  if (!doctorData) {
+    tasks.push(
+      api("/api/deck-doctor", "POST", { commander: deps.commander, cards: payload.cards, cohort: deps.cohort, limit: 5 })
+        .then((res) => { doctorData = res; if (deps.setDeckDoctor) deps.setDeckDoctor({ key: cacheKey, data: res }); })
+        .catch(() => null)
     );
   }
   if (!layersData && deps.commander) {

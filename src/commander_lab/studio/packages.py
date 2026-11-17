@@ -14,13 +14,29 @@ import sqlite3
 from collections.abc import Iterable, Mapping, Sequence
 from pathlib import Path
 
-from . import builder, cache, combos
+from . import builder, cache, combos, land_advisor
 from .decks import RevisionCard, color_set, list_rows
 from .store import StudioStore
 
 PACKAGES_SCHEMA = "studio-deck-packages-1"
 BUILD_PLAN_SCHEMA = "studio-build-plan-1"
 UPGRADE_PATH_SCHEMA = "studio-upgrade-path-1"
+DECK_DOCTOR_SCHEMA = "studio-deck-doctor-1"
+
+_CORE_DOCTOR_ROLES: tuple[str, ...] = (
+    "ramp",
+    "mana_dork",
+    "mana_rock",
+    "land_ramp",
+    "card_draw",
+    "card_advantage",
+    "removal",
+    "board_wipe",
+    "counterspell",
+    "protection",
+    "tutor",
+    "recursion",
+)
 
 _PLAN_STEPS: tuple[tuple[str, str, str, tuple[str, ...]], ...] = (
     (
@@ -93,6 +109,7 @@ class _PoolCard:
         "mana_value",
         "name",
         "oracle_id",
+        "produced_colours",
         "roles",
         "type_line",
     )
@@ -112,6 +129,7 @@ class _PoolCard:
         in_deck: bool,
         available: int,
         roles: list[str],
+        produced_colours: tuple[str, ...] = (),
     ) -> None:
         self.card_id = card_id
         self.oracle_id = oracle_id
@@ -125,6 +143,7 @@ class _PoolCard:
         self.in_deck = in_deck
         self.available = available
         self.roles = roles
+        self.produced_colours = produced_colours
 
 
 def _pool_index(
@@ -144,7 +163,7 @@ def _pool_index(
     id_by_cf: dict[str, str] = {}
     for row in db.execute(
         "SELECT c.card_id, c.oracle_id, c.oracle_name, c.color_identity, c.mana_value, "
-        "c.type_line, c.is_basic_land, c.commander_legal, "
+        "c.type_line, c.is_basic_land, c.commander_legal, c.produced_mana, "
         "i.owned_lower_bound, i.available_lower_bound "
         "FROM card_fact c JOIN inventory i USING (card_id) ORDER BY c.oracle_name"
     ):
@@ -157,21 +176,27 @@ def _pool_index(
         if not in_pool and not in_deck:
             continue
         type_line = str(row["type_line"] or "")
+        front_type = type_line.split(" // ")[0]
         basic = _is_basic(type_line, row["is_basic_land"])
         name = str(row["oracle_name"])
+        produced_set, _known = land_advisor._produced(
+            {"produced_mana": row["produced_mana"]}, front_type
+        )
+        produced_cols = tuple(c for c in land_advisor.COLOURS if c in produced_set)
         item = _PoolCard(
             card_id=cid,
             oracle_id=str(row["oracle_id"]),
             name=name,
             mana_value=float(row["mana_value"]) if row["mana_value"] is not None else None,
             type_line=type_line,
-            is_land="Land" in type_line.split(" // ")[0],
+            is_land="Land" in front_type,
             basic=basic,
             is_commander=cid in cmd_set,
             in_pool=in_pool,
             in_deck=in_deck,
             available=int(row["available_lower_bound"] or 0),
             roles=list(roles_by_oracle.get(str(row["oracle_id"]), ())),
+            produced_colours=produced_cols,
         )
         by_id[cid] = item
         if in_pool:
@@ -801,6 +826,194 @@ def upgrade_path(
     }
 
 
+def deck_doctor_remedies(
+    store: StudioStore,
+    commander_names: Sequence[str] | None,
+    cards: Sequence[RevisionCard],
+    *,
+    cohort: str = builder.ALL_DECKS,
+    limit: int = 5,
+) -> dict[str, object]:
+    """Identify deck figures below p25 or above p75 of the reference cohort and list free pool candidates (#1404)."""
+    raw_rows, deck_rows, deck_ids = _rows_from_cards(store, cards)
+    chosen = _resolve_commanders(store, commander_names, deck_rows)
+    if not chosen:
+        return {
+            "schema": DECK_DOCTOR_SCHEMA,
+            "data_class": "DERIVED_DESCRIPTIVE",
+            "cohort": cohort,
+            "cohort_decks": 0,
+            "small_sample": False,
+            "small_denominator": builder.SMALL_DENOMINATOR,
+            "remedies": [],
+            "meaning": "Kein Commander gewählt.",
+        }
+
+    identity, commander_ids = builder.commander_identity(store, chosen)
+    by_id, _id_by_cf, _ = _pool_index(store, identity, commander_ids, deck_ids)
+    cohorts = builder.cohort_sizes(store, chosen)
+    cohort_decks = int(cohorts.get(cohort, 0))
+    small = 0 < cohort_decks < builder.SMALL_DENOMINATOR
+    hits = builder._corpus_hits(store, chosen)
+    shape = builder.deck_shape(raw_rows)
+    d_roles = builder.deck_roles(store, cards)
+    shapes = builder.cohort_shapes(store, chosen)
+    ref_shape = next((s for s in shapes if s.get("cohort") == cohort), None)
+    l_profile = land_advisor.deck_profile(raw_rows)
+    l_groups = land_advisor.source_deck_groups(store, chosen)
+    l_group = next((g for g in l_groups if g.get("cohort") == cohort), None)
+
+    free_pool = [
+        c
+        for c in by_id.values()
+        if c.in_pool and not c.in_deck and not c.basic and not c.is_commander and c.available > 0
+    ]
+
+    def _rank_candidates(items: Sequence[_PoolCard]) -> list[dict[str, object]]:
+        ranked: list[tuple[int, int, str, dict[str, object]]] = []
+        for c in items:
+            c_hits = (
+                int(hits[c.name][cohort])
+                if cohort_decks > 0 and c.name in hits and cohort in hits[c.name]
+                else None
+            )
+            share = (
+                round(c_hits / cohort_decks, 4)
+                if (c_hits is not None and cohort_decks > 0)
+                else None
+            )
+            ranked.append(
+                (
+                    0 if c_hits is not None else 1,
+                    -(c_hits or 0),
+                    c.name,
+                    {
+                        "card_id": c.card_id,
+                        "name": c.name,
+                        "mana_value": c.mana_value,
+                        "roles": c.roles,
+                        "produced_mana": list(c.produced_colours),
+                        "decks": c_hits,
+                        "of": cohort_decks,
+                        "share": share,
+                        "available": c.available,
+                    },
+                )
+            )
+        ranked.sort(key=lambda entry: entry[:3])
+        return [entry[3] for entry in ranked[: max(1, limit)]]
+
+    remedies: list[dict[str, object]] = []
+    raw_lands = shape.get("lands")
+    lands_count = int(raw_lands) if isinstance(raw_lands, (int, float)) else 0
+    land_span = _format_span(ref_shape.get("lands")) if isinstance(ref_shape, Mapping) else None
+    if land_span is not None and lands_count < land_span["p25"]:
+        remedies.append(
+            {
+                "kind": "lands_below_p25",
+                "key": "lands",
+                "label": "Länder unterhalb p25",
+                "deck_value": lands_count,
+                "span": land_span,
+                "candidates": _rank_candidates([c for c in free_pool if c.is_land]),
+            }
+        )
+
+    grp_cols = l_group.get("colours") if isinstance(l_group, Mapping) else None
+    prof_cols = l_profile.get("colours")
+    if isinstance(grp_cols, Mapping) and isinstance(prof_cols, Sequence):
+        for col_entry in prof_cols:
+            if not isinstance(col_entry, Mapping) or not col_entry.get("in_identity"):
+                continue
+            col = str(col_entry.get("colour", ""))
+            col_fig = grp_cols.get(col)
+            src_span = (
+                _format_span(col_fig.get("land_sources")) if isinstance(col_fig, Mapping) else None
+            )
+            raw_src = col_entry.get("land_sources")
+            deck_src = int(raw_src) if isinstance(raw_src, (int, float)) else 0
+            if src_span is not None and src_span["p25"] > 0 and deck_src < src_span["p25"]:
+                remedies.append(
+                    {
+                        "kind": "colour_sources_below_p25",
+                        "key": f"colour:{col}",
+                        "colour": col,
+                        "label": f"Farbquellen {col} (Länder) unterhalb p25",
+                        "deck_value": deck_src,
+                        "span": src_span,
+                        "candidates": _rank_candidates(
+                            [c for c in free_pool if c.is_land and col in c.produced_colours]
+                        ),
+                    }
+                )
+
+    ref_roles = (
+        ref_shape.get("roles")
+        if isinstance(ref_shape, Mapping) and isinstance(ref_shape.get("roles"), Mapping)
+        else {}
+    )
+    if isinstance(ref_roles, Mapping):
+        for role in _CORE_DOCTOR_ROLES:
+            r_span = _format_span(ref_roles.get(role))
+            d_cnt = int(d_roles.get(role, 0))
+            if r_span is not None and r_span["p25"] > 0 and d_cnt < r_span["p25"]:
+                remedies.append(
+                    {
+                        "kind": "role_below_p25",
+                        "key": f"role:{role}",
+                        "role": role,
+                        "label": f"Rolle {role} unterhalb p25",
+                        "deck_value": d_cnt,
+                        "span": r_span,
+                        "candidates": _rank_candidates(
+                            [c for c in free_pool if not c.is_land and role in c.roles]
+                        ),
+                    }
+                )
+
+    mv_span = _format_span(ref_shape.get("mana_value")) if isinstance(ref_shape, Mapping) else None
+    deck_mv = shape.get("mana_value")
+    if (
+        mv_span is not None
+        and isinstance(deck_mv, (int, float))
+        and float(deck_mv) > mv_span["p75"]
+    ):
+        remedies.append(
+            {
+                "kind": "mana_value_above_p75",
+                "key": "mana_value",
+                "label": "Ø Manawert (ohne Länder) oberhalb p75",
+                "deck_value": round(float(deck_mv), 2),
+                "span": mv_span,
+                "candidates": _rank_candidates(
+                    [
+                        c
+                        for c in free_pool
+                        if not c.is_land
+                        and c.mana_value is not None
+                        and c.mana_value <= 2.0
+                        and bool(c.roles)
+                    ]
+                ),
+            }
+        )
+
+    return {
+        "schema": DECK_DOCTOR_SCHEMA,
+        "data_class": "DERIVED_DESCRIPTIVE",
+        "cohort": cohort,
+        "cohort_decks": cohort_decks,
+        "small_sample": small,
+        "small_denominator": builder.SMALL_DENOMINATOR,
+        "remedies": remedies,
+        "meaning": (
+            "Abweichungen unter p25 bzw. über p75 der Vergleichsgruppe mit freien "
+            "Karten aus dem legalen Sammlungs-Pool (geordnet nach Quelldeck-Häufigkeit n/N; "
+            "unbekannte Karten am Ende, persönliche Marken ignoriert, keine Wertung)."
+        ),
+    }
+
+
 def _parse_commander_arg(commander: str | Iterable[str] | None) -> list[str] | None:
     if commander is None:
         return None
@@ -813,9 +1026,11 @@ def _parse_commander_arg(commander: str | Iterable[str] | None) -> list[str] | N
 
 __all__ = [
     "BUILD_PLAN_SCHEMA",
+    "DECK_DOCTOR_SCHEMA",
     "PACKAGES_SCHEMA",
     "UPGRADE_PATH_SCHEMA",
     "build_plan",
+    "deck_doctor_remedies",
     "deck_packages",
     "upgrade_path",
 ]

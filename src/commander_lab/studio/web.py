@@ -128,6 +128,10 @@ class PlanPackagesBody(BaseModel):
     cohort: str = Field(default="all", min_length=1, max_length=120)
 
 
+class DeckDoctorBody(PlanPackagesBody):
+    limit: int = Field(default=5, ge=1, le=20)
+
+
 class SwapBody(BaseModel):
     commander: str | list[str]
     deck_card_ids: list[str] = Field(default_factory=list, max_length=300)
@@ -1738,6 +1742,24 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         try:
             commanders = packages._parse_commander_arg(body.commander)
             return packages.upgrade_path(store, commanders, _cards(body.cards), cohort=body.cohort)
+        except KeyError as error:
+            raise HTTPException(404, f"unknown card or commander: {error}") from error
+        finally:
+            store.close()
+
+    @app.post("/api/deck-doctor")
+    def deck_doctor_route(body: DeckDoctorBody) -> dict[str, object]:
+        """Descriptive p25/p75 cohort deviation check with free pool remedies (#1404)."""
+        store = open_store()
+        try:
+            commanders = packages._parse_commander_arg(body.commander)
+            return packages.deck_doctor_remedies(
+                store,
+                commanders,
+                _cards(body.cards),
+                cohort=body.cohort,
+                limit=body.limit,
+            )
         except KeyError as error:
             raise HTTPException(404, f"unknown card or commander: {error}") from error
         finally:

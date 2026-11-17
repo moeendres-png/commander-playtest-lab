@@ -182,6 +182,7 @@ def test_overview_wiring_css_classes_and_http_serving(tmp_path: Path) -> None:
     assert "/api/land-advisor" in overview_js
     assert "/api/castability" in overview_js
     assert "/api/deck-facts" in overview_js
+    assert "/api/deck-doctor" in overview_js
     assert "/api/layers" in overview_js
     assert 'l.status === "MISSING"' in overview_js
     assert "l.present" not in overview_js
@@ -227,3 +228,144 @@ def test_overview_wiring_css_classes_and_http_serving(tmp_path: Path) -> None:
         assert resp.status_code == 200, asset
         csp = resp.headers.get("content-security-policy", "")
         assert "style-src 'self'" in csp and "'unsafe-inline'" not in csp
+
+
+def test_deck_doctor_remedies_and_route(tmp_path: Path) -> None:
+    from commander_lab.studio import builder
+
+    commander = "Chulane, Teller of Tales"
+    store = StudioStore.open(tmp_path)
+    try:
+        _insert_card(
+            store,
+            "cmd-chulane",
+            commander,
+            identity="G,U,W",
+            mana_cost="{2}{G}{W}{U}",
+            mana_value=5.0,
+            type_line="Legendary Creature — Human Druid",
+        )
+        _insert_card(
+            store,
+            "c-big",
+            "Primeval Titanlike",
+            identity="G",
+            mana_cost="{4}{G}{G}",
+            mana_value=6.0,
+            type_line="Creature — Giant",
+        )
+        _insert_card(
+            store,
+            "c-dork",
+            "Birds of Paradise",
+            identity="G",
+            mana_cost="{G}",
+            mana_value=1.0,
+            type_line="Creature — Bird",
+        )
+        _insert_card(
+            store,
+            "c-land-u",
+            "Breeding Pool",
+            identity="G,U",
+            mana_cost="",
+            mana_value=0.0,
+            type_line="Land — Forest Island",
+            oracle_text="({T}: Add {G} or {U}.)",
+        )
+        with store.connection:
+            store.connection.execute(
+                "INSERT OR IGNORE INTO card_role (oracle_id, role, source_id) "
+                "VALUES ('oid-c-dork', 'ramp', 'src-dbd')"
+            )
+            store.connection.execute(
+                "INSERT OR REPLACE INTO scryfall_card "
+                "(oracle_id, scryfall_id, name, front_name, layout, mana_cost, mana_value, "
+                "type_line, oracle_text, color_identity, commander_legality, keywords, "
+                "produced_mana, source_id) "
+                "VALUES ('oid-c-land-u', 'scry-bp', 'Breeding Pool', 'Breeding Pool', 'normal', "
+                "'', 0.0, 'Land — Forest Island', '({T}: Add {G} or {U}.)', 'G,U', 'legal', '[]', 'G,U', 'src-dbd')"
+            )
+            for idx in range(4):
+                did = f"src-deck-{idx}"
+                store.connection.execute(
+                    "INSERT INTO corpus_deck "
+                    "(deck_id, cohort, url, platform, play_group, tags, fingerprint, legality_audit, source_id) "
+                    "VALUES (?, 'all', ?, 'moxfield', 'casual', '[]', ?, 'LEGAL', 'src-dbd')",
+                    (did, f"https://example.invalid/{did}", f"fp-{did}"),
+                )
+                store.connection.execute(
+                    "INSERT INTO commander_binding (kind, key, commander_name, basis) "
+                    "VALUES ('corpus_deck', ?, ?, 'test')",
+                    (did, commander),
+                )
+                store.connection.execute(
+                    "INSERT INTO corpus_deck_stat "
+                    "(deck_id, cards, resolved, lands, creatures, nonland_cards, nonland_mana_value) "
+                    "VALUES (?, 99, 99, 36, 30, 63, 126.0)",
+                    (did,),
+                )
+                store.connection.execute(
+                    "INSERT INTO corpus_deck_role (deck_id, role, cards) VALUES (?, 'ramp', 10)",
+                    (did,),
+                )
+                for cname, oid in (
+                    ("Birds of Paradise", "oid-c-dork"),
+                    ("Breeding Pool", "oid-c-land-u"),
+                ):
+                    store.connection.execute(
+                        "INSERT INTO corpus_deck_card "
+                        "(deck_id, card_name, oracle_id, quantity, section, normalization_status) "
+                        "VALUES (?, ?, ?, 1, 'main', 'OK')",
+                        (did, cname, oid),
+                    )
+
+        cards = [
+            RevisionCard(card_id="cmd-chulane", quantity=1, zone="commander"),
+            RevisionCard(card_id="c-big", quantity=1, zone="main"),
+        ]
+        doc = packages.deck_doctor_remedies(store, [commander], cards, cohort="all", limit=5)
+        assert doc["schema"] == packages.DECK_DOCTOR_SCHEMA
+        assert doc["data_class"] == "DERIVED_DESCRIPTIVE"
+        assert doc["cohort_decks"] == 4
+        remedies = doc["remedies"]
+        assert isinstance(remedies, list) and len(remedies) >= 4
+        by_key = {str(r["key"]): r for r in remedies}
+        assert "lands" in by_key
+        assert by_key["lands"]["deck_value"] == 0
+        assert by_key["lands"]["candidates"][0]["name"] == "Breeding Pool"
+        assert by_key["lands"]["candidates"][0]["decks"] == 4
+        assert by_key["lands"]["candidates"][0]["of"] == 4
+        assert "colour:U" in by_key
+        assert by_key["colour:U"]["candidates"][0]["name"] == "Breeding Pool"
+        assert "role:ramp" in by_key
+        assert by_key["role:ramp"]["candidates"][0]["name"] == "Birds of Paradise"
+        assert "mana_value" in by_key
+        assert by_key["mana_value"]["deck_value"] == 6.0
+        assert by_key["mana_value"]["candidates"][0]["name"] == "Birds of Paradise"
+
+        # Marks never affect deck_doctor_remedies
+        builder.set_mark(store, "c-dork", favorite=False, excluded=True, note="skip")
+        doc_marked = packages.deck_doctor_remedies(store, [commander], cards, cohort="all", limit=5)
+        assert doc_marked == doc
+    finally:
+        store.close()
+
+    client = TestClient(create_app(tmp_path))
+    resp = client.post(
+        "/api/deck-doctor",
+        headers={"X-Studio": "1"},
+        json={
+            "commander": commander,
+            "cards": [
+                {"card_id": "cmd-chulane", "quantity": 1, "zone": "commander"},
+                {"card_id": "c-big", "quantity": 1, "zone": "main"},
+            ],
+            "cohort": "all",
+            "limit": 3,
+        },
+    )
+    assert resp.status_code == 200
+    payload = resp.json()
+    assert payload["schema"] == packages.DECK_DOCTOR_SCHEMA
+    assert len(payload["remedies"]) >= 4
