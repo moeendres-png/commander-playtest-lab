@@ -1514,6 +1514,26 @@ per browser), filter by card name, "Große Ansicht" (the same table in the wide 
 "Als Text kopieren" (tab separated plain text of the visible table). A note lists the ten
 cards with the fewest source decks with n/N.
 
+### Series in the history ("Serien im Verlauf", #1404)
+
+The "Verlauf" dialog shows, per saved revision of the deck, the stored paired series
+(`games/paired-*.paired.json`) in which that revision was base (A) or variant (B).
+`GET /api/decks/{deck_id}/series` (module `deck_series.py`) only reads those files and keeps the
+ones that name a revision of the deck (at most the newest 200 revisions and 200 series; 404 for
+an unknown deck). Each series shows the date, the other side, `n` completed pairs of `N`
+planned, the difference (B - A) with the 95 % interval and the look interval exactly as the
+series stored them, the status, seeds, seats (shown from 1), pilots, bridge jar and
+qualification state, and "Serie öffnen" (the existing paired view). A revision without a series
+reads "keine gespeicherte Serie", never 0.
+
+- Status: "abgeschlossen", "vorzeitig gestoppt nach Regel" (decided by the stop rule before the
+  planned pairs were played), "abgebrochen", "fehlgeschlagen", "nicht abgeschlossen" (running,
+  interrupted or without a result). Only the first two count as a result; for the others the
+  figures stay unknown and are not shown as numbers.
+- A corrupt, foreign (other schema) or misnamed file is skipped and counted in `skipped`.
+- Counts only: no verdict, no ranking, no price, and `SIMULATED_RESULT` never enters the tier
+  list or the strength index (weight 0). The route writes nothing.
+
 ### Guided cut ("Kürzen", #1418)
 
 The deck tab "Kürzen" brings a list of more than 100 cards to exactly 100 (`POST /api/cut-lab`,

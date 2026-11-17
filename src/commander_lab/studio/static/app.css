@@ -277,3 +277,6 @@ code.cmd{white-space:pre-wrap;word-break:break-all;font-size:12px}
 @media (min-width:1500px){main.browser{grid-template-columns:minmax(0,1fr) clamp(480px,34vw,700px)}}
 #db-decks td:nth-child(7){white-space:nowrap}
 @media (min-width:901px) and (max-width:1499px){main.browser{grid-template-columns:minmax(0,1fr) minmax(500px,42vw)}}
+
+.deck-series-scroll{max-height:46vh;overflow:auto}
+.deck-series-scroll td{vertical-align:top}
