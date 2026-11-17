@@ -1612,7 +1612,8 @@ function renderOverview(body) {
   }
   const reference = (state.shapes || []).find((row) => row.cohort === state.cohort) || {};
   renderDeckOverview(body, {
-    h, api, entries, fail, cohortName, roleName, bars, qty, deckTotal,
+    h, api, entries, fail, cohortName, roleName, bars, qty, deckTotal, add,
+    poolCardById: (id) => state.byId.get(id),
     openCard: (cardId) => { const card = typeof cardId === "string" ? state.byId.get(cardId) : cardId; if (card) openCard(card); },
     deckCards,
     commanderCards: () => state.commanderIds.map((id) => state.byId.get(id)).filter(Boolean),
@@ -1635,6 +1636,8 @@ function renderOverview(body) {
     setCastability: (v) => { state.castability = v; },
     getDeckFacts: () => state.deckFacts,
     setDeckFacts: (v) => { state.deckFacts = v; },
+    getDeckDoctor: () => state.deckDoctor,
+    setDeckDoctor: (v) => { state.deckDoctor = v; },
     getLayers: () => state.layers,
     setLayers: (v) => { state.layers = v; },
     token: () => state.renderToken,
