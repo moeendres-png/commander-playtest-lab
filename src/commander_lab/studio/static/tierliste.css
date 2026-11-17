@@ -84,5 +84,7 @@ table.dist th[scope=row],table.dist thead th:first-child{text-align:left}
 .quick-toggle button.chip.on{font-weight:600}
 @media (max-width:600px){#modal{width:100vw}table.dist{font-size:11px}}
 /* Abnahme 2026-11-17 (B2): Status-Badges mit Satz-Text muessen umbrechen statt
-   auf Mobilgeraeten einzeilig aus dem Bild zu laufen. */
-#oracle-banner,#universe-empty{white-space:normal;max-width:100%}
+   auf Mobilgeraeten einzeilig aus dem Bild zu laufen. Die Klasse badge-text
+   tragen alle Satz-Badges der Tierliste (Oracle-Banner, Universum-Hinweise,
+   Berechnungs-Hinweise). */
+.badge-text{white-space:normal;max-width:100%}

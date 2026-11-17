@@ -148,10 +148,13 @@ def test_mobile_deck_browser_columns_and_tier_banner_stay_in_the_viewport() -> N
     tier list's oracle banner — a .badge with a full sentence — must wrap instead of running
     off-screen on one line (measured 467 px)."""
     css = (STATIC / "app.css").read_text(encoding="utf-8")
-    mobile = css.split("@media (max-width:900px)", 1)[1]
-    assert "main.browser>*{min-width:0}" in mobile
+    assert "@media (max-width:900px){main.browser>*{min-width:0}}" in css
     tier_css = (STATIC / "tierliste.css").read_text(encoding="utf-8")
-    assert "#oracle-banner" in tier_css and "white-space:normal" in tier_css
+    assert ".badge-text{white-space:normal" in tier_css
+    tier_js = (STATIC / "tierliste.js").read_text(encoding="utf-8")
+    # Every sentence-length badge carries the wrapping class: oracle banner,
+    # universe-empty note, subset note and the calculation notices.
+    assert tier_js.count("badge-text") >= 4
 
 
 def test_print_rules_are_scoped_to_the_build_list() -> None:
