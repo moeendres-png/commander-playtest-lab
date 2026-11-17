@@ -9,7 +9,7 @@ const SPEEDS = [[2000, "langsam"], [1000, "1 pro Sekunde"], [500, "2 pro Sekunde
 
 const OPTION_TYPES = { pass_priority: "Passen", play_land: "Land spielen", cast_spell: "Zauber wirken", activated_ability: "Fähigkeit aktivieren", mana_ability: "Mana-Fähigkeit", special_action: "Sonderaktion", target: "Ziel", choose_object: "Objekt wählen", attacker: "Angreifer", blocker: "Blocker", mode: "Modus", choice: "Auswahl", mana_payment: "Mana", trigger_order: "Auslöser", yes: "Ja", no: "Nein" };
 
-const state = { games: [], gameId: null, header: null, result: null, running: false, interactive: false, humanSeats: [], pendingDecision: null, pendingDecisionId: null, selectedOptions: [], orderList: [], submitting: false, canConcede: false, frames: [], index: 0, playing: false, timer: 0, facts: {}, noImage: new Set(), lines: [], seatKeys: [], poll: 0 };
+const state = { games: [], gameId: null, header: null, result: null, running: false, interactive: false, humanSeats: [], pendingDecision: null, pendingDecisionId: null, selectedOptions: [], orderList: [], submitting: false, canConcede: false, handsRevealed: false, autoPassAttempt: null, pollFailures: 0, ff: { on: false, boosted: false, startTurn: null, stopOnOpponentStack: true }, frames: [], index: 0, playing: false, timer: 0, facts: {}, noImage: new Set(), lines: [], seatKeys: [], poll: 0 };
 
 const $ = (id) => document.getElementById(id);
 function h(tag, props, ...children) {
@@ -34,7 +34,9 @@ async function api(path, method = "GET", body) {
   if (!response.ok) {
     let detail = response.statusText;
     try { detail = (await response.json()).detail || detail; } catch (error) { /* keep status text */ }
-    throw new Error(typeof detail === "string" ? detail : JSON.stringify(detail));
+    const failure = new Error(typeof detail === "string" ? detail : JSON.stringify(detail));
+    failure.status = response.status;
+    throw failure;
   }
   return response.json();
 }
@@ -84,6 +86,7 @@ function answer(frame) {
   if (frame.numeric_choice !== undefined) parts.push(String(frame.numeric_choice));
   if (Array.isArray(frame.numeric_choices)) parts.push(frame.numeric_choices.join(", "));
   if (frame.decision_class === "mulligan") return parts[0] === "Take mulligan" ? "nimmt einen Mulligan" : "behält die Hand";
+  if (frame.private_selection && !parts.length) return "wählt verdeckt (bis zum Spielende nicht sichtbar)";
   if (frame.decision_class === "declare_blocker" && !parts.length) return "blockt nicht";
   if (frame.decision_class === "declare_attacker" && !parts.length) return "greift nicht an";
   if (frame.decision_class === "choose_use" && parts.length === 1) return `${frame.prompt} ${parts[0] === "Yes" ? "Ja" : parts[0] === "No" ? "Nein" : parts[0]}`;
@@ -362,6 +365,7 @@ function pilotStateToFrame(pending) {
 
 async function submitHumanChoice(payload) {
   if (!state.gameId || !state.pendingDecision || state.submitting) return;
+  if (!state.ff.on) ffStatus("");
   state.submitting = true;
   renderHumanDecision();
   try {
@@ -373,14 +377,90 @@ async function submitHumanChoice(payload) {
     follow();
   } catch (error) {
     toast(`Entscheidung abgelehnt: ${error.message}`);
+    endFastForward(`die Engine hat die Antwort nicht angenommen (${error.message})`);
   } finally {
     state.submitting = false;
     render();
   }
 }
 
+// ---- fast-forward (Owner decision 2026-11-17) ----------------------------------------------------
+// While on, a priority question of the human is answered with the pass option the engine offered and
+// nothing else (vorspulen.js decides; every other decision stops it). The AI delay of the session is
+// set to 0 and the page polls faster. The slider keeps its value and is restored when it ends.
+function ffStatus(text, kind) {
+  const box = $("ff-status");
+  if (!box) return;
+  box.textContent = text || "";
+  box.hidden = !text;
+  box.className = `ff-status${kind ? ` ${kind}` : ""}`;
+}
+function renderFastForwardButton() {
+  const button = $("ff-btn");
+  if (!button) return;
+  const available = state.interactive && state.running;
+  $("ff-wrap").hidden = !available;
+  button.setAttribute("aria-pressed", state.ff.on ? "true" : "false");
+  button.textContent = state.ff.on ? "⏹ Vorspulen beenden" : "⏩ Vorspulen bis zu meiner nächsten Entscheidung";
+}
+async function setAiDelay(milliseconds) {
+  if (!state.interactive || !state.running || !state.gameId) return;
+  try { await api(`/api/play/${encodeURIComponent(state.gameId)}/speed`, "POST", { ai_delay_ms: milliseconds }); } catch (error) { toast(`Tempo konnte nicht gesetzt werden: ${error.message}`); }
+}
+// The session keeps the fast AI delay if the page goes away while fast-forwarding: give the slider
+// value back for the game that was open (page close, switching the game).
+function restoreAiDelayOnLeave(gameId) {
+  if (!state.ff.boosted || !gameId) return;
+  try {
+    fetch(`/api/play/${encodeURIComponent(gameId)}/speed`, {
+      method: "POST",
+      keepalive: true,
+      headers: { "X-Studio": "1", "Content-Type": "application/json" },
+      body: JSON.stringify({ ai_delay_ms: Number($("speed").value) })
+    }).catch(() => { /* the page is leaving; the next load sets the slider value again */ });
+  } catch (error) { /* same */ }
+}
+function currentTurn() {
+  const pending = state.pendingDecision;
+  if (pending && pending.pilot_state && Number.isInteger(pending.pilot_state.turn_number)) return pending.pilot_state.turn_number;
+  const last = state.frames[state.frames.length - 1];
+  return last && Number.isInteger(last.turn) ? last.turn : null;
+}
+function startFastForward() {
+  if (state.ff.on || !state.interactive || !state.running) return;
+  state.ff = { on: true, boosted: true, startTurn: currentTurn(), stopOnOpponentStack: $("ff-stack").checked };
+  ffStatus("Vorspulen läuft: auf Prioritätsabfragen wird nur „Passen“ gesendet. Es hält an, sobald dein Zug beginnt oder du etwas anderes entscheiden musst.", "run");
+  renderFastForwardButton();
+  setAiDelay(0);
+  if (state.pendingDecision) maybeAutoPassHuman(state.pendingDecision);
+  follow();
+}
+function endFastForward(reason) {
+  if (!state.ff.on) return;
+  const boosted = state.ff.boosted;
+  state.ff = { on: false, boosted: false, startTurn: null, stopOnOpponentStack: $("ff-stack").checked };
+  state.autoPassAttempt = null; // a pass that was never sent must not block the next try
+  if (boosted) setAiDelay(Number($("speed").value));
+  ffStatus(`Vorspulen beendet: ${reason}.`, "stop");
+  renderFastForwardButton();
+  clearTimeout(state.poll);
+  follow();
+}
+
 function maybeAutoPassHuman(pending) {
-  if (!pending || state.submitting) return false;
+  if (!pending || state.submitting || pending.decision_id === state.autoPassAttempt) return false;
+  if (state.ff.on) {
+    // Fast-forward: the pass option of the engine on a priority question, otherwise it stops.
+    const verdict = StudioFastForward.verdict(pending, {
+      startTurn: state.ff.startTurn,
+      stopOnOpponentStack: state.ff.stopOnOpponentStack,
+      labelOf: (value) => CLASSES[value] || value
+    });
+    if (verdict.action !== "pass") { endFastForward(verdict.reason); return false; }
+    state.autoPassAttempt = pending.decision_id;
+    submitHumanChoice({ decision_id: pending.decision_id, selected_option_ids: [verdict.optionId], ordering: [] });
+    return true;
+  }
   const autoBox = $("auto-pass-human");
   if (!autoBox || !autoBox.checked) return false;
   if (pending.decision_class !== "priority") return false;
@@ -393,6 +473,7 @@ function maybeAutoPassHuman(pending) {
   const onlyPass = options.length === 1;
   const safeOpponentEmptyStack = frame.active_seat !== pending.seat && stack.length === 0;
   if (!onlyPass && !safeOpponentEmptyStack) return false;
+  state.autoPassAttempt = pending.decision_id;
   submitHumanChoice({
     decision_id: pending.decision_id,
     selected_option_ids: [passOpt.option_id],
@@ -401,24 +482,34 @@ function maybeAutoPassHuman(pending) {
   return true;
 }
 
+function announceDecision(pending) {
+  const box = $("sr-announce");
+  if (!box) return;
+  const count = Array.isArray(pending.legal_options) ? pending.legal_options.length : 0;
+  box.textContent = `Neue Entscheidung für ${seatName(pending.seat)}: ${CLASSES[pending.decision_class] || pending.decision_class}. ${pending.prompt || ""} ${count} Möglichkeiten.`;
+}
 function renderHumanDecision() {
   const panel = $("human-decision");
   const concedebtn = $("concede-btn");
   const autoWrap = $("auto-pass-wrap");
   if (concedebtn) concedebtn.hidden = !(state.interactive && state.running && state.canConcede);
   if (autoWrap) autoWrap.hidden = !(state.interactive && state.running);
+  renderFastForwardButton();
   const pending = state.interactive && state.running ? state.pendingDecision : null;
   if (!pending) {
     panel.hidden = true;
     panel.textContent = "";
     return;
   }
-  if (state.pendingDecisionId !== pending.decision_id) {
+  const isNew = state.pendingDecisionId !== pending.decision_id;
+  if (isNew) {
     state.pendingDecisionId = pending.decision_id;
     state.selectedOptions = [];
     state.orderList = (pending.legal_options || []).map((opt) => String(opt.option_id));
-    if (maybeAutoPassHuman(pending)) return;
   }
+  if (maybeAutoPassHuman(pending)) return;
+  if (state.ff.on) { panel.hidden = true; panel.textContent = ""; return; }
+  if (isNew) announceDecision(pending);
   panel.hidden = false;
   panel.textContent = "";
   const dc = pending.decision_class || "choice";
@@ -434,22 +525,23 @@ function renderHumanDecision() {
   const isSingleImmediate = !hasNumeric && !isOrder && minSel === 1 && maxSel === 1;
   const title = CLASSES[dc] || dc;
   const headerText = `${seatName(pending.seat)} · ${title}`;
+  const groupLabel = `${title}: ${pending.prompt || "Optionen"}`;
   panel.append(h("h3", null, headerText));
   if (pending.prompt) panel.append(h("div", { class: "human-prompt" }, pending.prompt));
 
   if (isOrder) {
     const byId = new Map(options.map((o) => [String(o.option_id), o]));
     panel.append(h("div", { class: "human-counter" }, "Reihenfolge festlegen (oberster Eintrag zuerst)"));
-    const listEl = h("div", { class: "human-options" });
+    const listEl = h("div", { class: "human-options", role: "group", "aria-label": `${title}: Reihenfolge` });
     state.orderList.forEach((optId, idx) => {
       const opt = byId.get(optId) || { label: optId };
-      const upBtn = h("button", { type: "button", disabled: idx === 0 || state.submitting, onclick: () => {
+      const upBtn = h("button", { type: "button", "aria-label": `Nach oben: ${localizeActionText(opt.label || optId)}`, disabled: idx === 0 || state.submitting, onclick: () => {
         const next = [...state.orderList];
         [next[idx - 1], next[idx]] = [next[idx], next[idx - 1]];
         state.orderList = next;
         renderHumanDecision();
       } }, "↑");
-      const downBtn = h("button", { type: "button", disabled: idx === state.orderList.length - 1 || state.submitting, onclick: () => {
+      const downBtn = h("button", { type: "button", "aria-label": `Nach unten: ${localizeActionText(opt.label || optId)}`, disabled: idx === state.orderList.length - 1 || state.submitting, onclick: () => {
         const next = [...state.orderList];
         [next[idx], next[idx + 1]] = [next[idx + 1], next[idx]];
         state.orderList = next;
@@ -528,7 +620,7 @@ function renderHumanDecision() {
   if (isSingleImmediate && dc === "priority") {
     const passOpt = options.find((opt) => opt.option_type === "pass_priority");
     if (passOpt) {
-      panel.append(h("div", { class: "human-actions" },
+      panel.append(h("div", { class: "human-actions", role: "group", "aria-label": "Priorität abgeben" },
         h("button", { type: "button", class: "primary", disabled: state.submitting, onclick: () => submitHumanChoice({
           decision_id: pending.decision_id,
           selected_option_ids: [passOpt.option_id],
@@ -537,16 +629,21 @@ function renderHumanDecision() {
     }
     const listEl = h("div", { class: "human-options" });
     const otherOpts = options.filter((opt) => opt.option_type !== "pass_priority");
-    let lastGroup = null;
+    const groups = new Map();
     for (const opt of otherOpts) {
       const grp = OPTION_TYPES[opt.option_type] || opt.option_type || "Aktion";
-      if (grp !== lastGroup) { listEl.append(h("div", { class: "human-opt-group" }, grp)); lastGroup = grp; }
-      listEl.append(h("button", {
-        type: "button",
-        class: "human-opt",
-        disabled: state.submitting,
-        onclick: () => submitHumanChoice({ decision_id: pending.decision_id, selected_option_ids: [opt.option_id], ordering: [] })
-      }, localizeActionText(opt.label || opt.option_id)));
+      if (!groups.has(grp)) groups.set(grp, []);
+      groups.get(grp).push(opt);
+    }
+    for (const [grp, members] of groups) {
+      listEl.append(h("div", { class: "human-opt-group", role: "group", "aria-label": grp },
+        h("div", { class: "human-opt-group-title" }, grp),
+        members.map((opt) => h("button", {
+          type: "button",
+          class: "human-opt",
+          disabled: state.submitting,
+          onclick: () => submitHumanChoice({ decision_id: pending.decision_id, selected_option_ids: [opt.option_id], ordering: [] })
+        }, localizeActionText(opt.label || opt.option_id)))));
     }
     if (otherOpts.length) panel.append(listEl);
     return;
@@ -556,7 +653,7 @@ function renderHumanDecision() {
     if (dc === "trigger_order") {
       panel.append(h("div", { class: "human-counter" }, "Nächsten Auslöser wählen (wird als Nächstes auf den Stapel gelegt)"));
     }
-    const listEl = h("div", { class: "human-options" });
+    const listEl = h("div", { class: "human-options", role: "group", "aria-label": groupLabel });
     for (const opt of options) {
       listEl.append(h("button", {
         type: "button",
@@ -573,13 +670,14 @@ function renderHumanDecision() {
   if (options.length || maxSel > 0) {
     panel.append(h("div", { class: "human-counter" }, `${chosenCount} von ${maxSel} gewählt (mindestens ${minSel})`));
   }
-  const listEl = h("div", { class: "human-options" });
+  const listEl = h("div", { class: "human-options", role: "group", "aria-label": groupLabel });
   for (const opt of options) {
     const optId = String(opt.option_id);
     const active = state.selectedOptions.includes(optId);
     listEl.append(h("button", {
       type: "button",
       class: `human-opt legal-target${active ? " selected" : ""}`,
+      "aria-pressed": active ? "true" : "false",
       disabled: state.submitting,
       onclick: () => {
         if (active) state.selectedOptions = state.selectedOptions.filter((id) => id !== optId);
@@ -631,6 +729,7 @@ function renderBridgeBanner() {
 
 function render() {
   renderBridgeBanner();
+  if (state.ff.on && !state.running) endFastForward("die Partie ist zu Ende");
   renderHumanDecision();
   const atLiveTail = state.interactive && state.running && state.pendingDecision && state.index >= Math.max(0, state.frames.length - 1);
   const frame = atLiveTail ? pilotStateToFrame(state.pendingDecision) : state.frames[state.index];
@@ -682,7 +781,8 @@ function render() {
         ? frame.players.find((player) => state.humanSeats.includes(player.seat) && Array.isArray(player.hand)) || actor
         : actor);
   const handSeat = handOwner ? handOwner.seat : frame.seat;
-  $("hand-title").textContent = `Hand von ${seatName(handSeat)}`;
+  const revealedNote = state.handsRevealed && !state.humanSeats.includes(handSeat) ? " (nach Spielende aufgedeckt)" : "";
+  $("hand-title").textContent = `Hand von ${seatName(handSeat)}${revealedNote}`;
   const hand = $("hand"); hand.textContent = "";
   if (handOwner && handOwner.hand && handOwner.hand.length) handOwner.hand.forEach((name) => hand.append(cardTile(name, { small: true })));
   else hand.append(h("span", { class: "muted" }, handOwner && handOwner.hand ? "leer" : "nicht sichtbar"));
@@ -703,6 +803,7 @@ function endText() {
   const result = state.result || {};
   if (result.status !== "finished") {
     const reason = result.failure_message || result.failure_class || "abgebrochen";
+    if (String(reason).includes("DECISION_TIMEOUT")) return "Die Partie wurde beendet: die Engine hat ein Entscheidungslimit gemeldet (DECISION_TIMEOUT). Im Studio gibt es kein Zeitlimit; bitte die Partie neu starten.";
     return `Die Partie wurde nicht zu Ende gespielt (${reason}).`;
   }
   const winners = result.winner_seats || [];
@@ -739,6 +840,9 @@ function appendLog(from) {
 }
 
 // ---- playback ------------------------------------------------------------------------------
+function isInteractive(target) {
+  return Boolean(target && target.closest && target.closest("button, a[href], input, select, textarea, summary, [contenteditable], [role=button]"));
+}
 function go(index) { state.index = Math.max(0, Math.min(state.frames.length - 1, index)); render(); }
 function step(direction) {
   let index = state.index + direction;
@@ -777,18 +881,42 @@ async function loadFacts(from) {
   try { Object.assign(state.facts, await api("/api/public-cards", "POST", { names: missing.slice(0, 2000) })); } catch (error) { /* without card data the board is shown unsorted */ }
   for (const name of missing) if (!(name in state.facts)) state.facts[name] = null;
 }
-async function loadMore() {
+// One load at a time: loads run one after the other, so two calls never ask for the same frames
+// and an older answer can never overwrite a newer pending decision.
+let loadTail = Promise.resolve();
+function loadMore() {
+  const run = loadTail.then(loadMoreOnce);
+  loadTail = run.catch(() => { /* the caller of this load sees the error */ });
+  return run;
+}
+function resetFrames() {
+  Object.assign(state, { frames: [], lines: [], seatKeys: [] });
+  $("log").textContent = ""; $("table").textContent = ""; delete $("table").dataset.banner;
+}
+async function loadMoreOnce() {
   let added = false;
+  const gameId = state.gameId;
   for (;;) {
     const endpoint = state.interactive
-      ? `/api/play/${encodeURIComponent(state.gameId)}?start=${state.frames.length}&count=1000`
-      : `/api/games/${encodeURIComponent(state.gameId)}?start=${state.frames.length}&count=1000`;
+      ? `/api/play/${encodeURIComponent(gameId)}?start=${state.frames.length}&count=1000`
+      : `/api/games/${encodeURIComponent(gameId)}?start=${state.frames.length}&count=1000`;
+    const requestedStart = state.frames.length;
     const page = await api(endpoint);
+    if (state.gameId !== gameId) return false; // another game was opened meanwhile
     const hasHumans = Boolean(page.interactive || (page.header && Array.isArray(page.header.human_seats) && page.header.human_seats.length));
     if (hasHumans && !state.interactive) {
       state.interactive = true;
-      return loadMore();
+      continue;
     }
+    if (state.interactive && page.hands_revealed && !state.handsRevealed && state.frames.length) {
+      // The game ended while this page watched it: the frames held so far were served without the
+      // AI hands. Load them again from the start, once, now that the server reveals them.
+      state.handsRevealed = true;
+      resetFrames();
+      added = true;
+      continue;
+    }
+    if (page.frames.length && page.start !== requestedStart) continue; // stale page: ask again
     state.header = page.header;
     state.result = page.result;
     state.running = page.running;
@@ -796,28 +924,34 @@ async function loadMore() {
       state.humanSeats = Array.isArray(page.human_seats) ? page.human_seats : [];
       state.pendingDecision = page.pending_decision || null;
       state.canConcede = Boolean(page.can_concede);
+      state.handsRevealed = Boolean(page.hands_revealed);
     } else {
       state.humanSeats = [];
       state.pendingDecision = null;
       state.canConcede = false;
+      state.handsRevealed = false;
     }
     if (page.frames.length) {
       const from = state.frames.length;
       state.frames.push(...page.frames);
       await loadFacts(from);
+      if (state.gameId !== gameId) return false;
       appendLog(from);
       added = true;
     }
     if (state.frames.length >= page.total) break;
   }
+  state.index = Math.max(0, Math.min(state.index, state.frames.length - 1));
   $("position").max = String(Math.max(0, state.frames.length - 1));
   return added;
 }
 async function openGame(gameId) {
   setPlaying(false); clearTimeout(state.poll);
+  restoreAiDelayOnLeave(state.gameId);
   const listed = state.games.find((entry) => entry.game_id === gameId);
   const listedInteractive = Boolean(listed && listed.header && Array.isArray(listed.header.human_seats) && listed.header.human_seats.length);
-  Object.assign(state, { gameId, frames: [], lines: [], index: 0, seatKeys: [], header: null, result: null, interactive: listedInteractive, humanSeats: [], pendingDecision: null, pendingDecisionId: null, selectedOptions: [], orderList: [], submitting: false, canConcede: false });
+  Object.assign(state, { gameId, frames: [], lines: [], index: 0, seatKeys: [], header: null, result: null, interactive: listedInteractive, humanSeats: [], pendingDecision: null, pendingDecisionId: null, selectedOptions: [], orderList: [], submitting: false, canConcede: false, handsRevealed: false, autoPassAttempt: null, pollFailures: 0, ff: { on: false, boosted: false, startTurn: null, stopOnOpponentStack: $("ff-stack").checked } });
+  ffStatus(""); showConnectionLost(0, "");
   $("log").textContent = ""; $("table").textContent = ""; delete $("table").dataset.banner;
   await loadMore();
   const header = state.header || {};
@@ -829,18 +963,43 @@ async function openGame(gameId) {
   if (state.interactive && state.frames.length) state.index = state.frames.length - 1;
   render();
   follow();
+  // A fast AI delay left behind by an earlier page is replaced by the slider value.
+  if (state.interactive && state.running) setAiDelay(Number($("speed").value));
+}
+const POLL_FAILURES_BEFORE_BANNER = 3;
+function showConnectionLost(failures, detail) {
+  const banner = $("conn-status");
+  if (!banner) return;
+  banner.hidden = failures < POLL_FAILURES_BEFORE_BANNER;
+  banner.textContent = banner.hidden ? "" : `Verbindung zum Studio unterbrochen (${failures} Abfragen in Folge fehlgeschlagen: ${detail}). Die Seite versucht es weiter; ob die Partie weiterläuft, ist unbekannt.`;
 }
 function follow() {
   clearTimeout(state.poll);
   if (!state.running) return;
-  const intervalMs = state.interactive ? (state.pendingDecision ? 1500 : 400) : 2000;
+  const intervalMs = state.interactive ? (state.ff.on ? 150 : (state.pendingDecision ? 1500 : 400)) : 2000;
   state.poll = setTimeout(async () => {
+    const atEnd = state.index >= state.frames.length - 1;
+    let added = null;
     try {
-      const atEnd = state.index >= state.frames.length - 1;
-      const added = await loadMore();
+      added = await loadMore();
+    } catch (error) {
+      if (error.status === 404) {
+        // The game is gone (deleted): that is not a lost connection; stop following it.
+        state.running = false;
+        toast("Die Partie existiert nicht mehr (gelöscht).");
+        refreshTitles();
+        return;
+      }
+      // No silent retry: after a few failures in a row the page says the connection is lost.
+      state.pollFailures += 1;
+      showConnectionLost(state.pollFailures, error.message);
+    }
+    if (added !== null) {
+      state.pollFailures = 0;
+      showConnectionLost(0, "");
       if (added && atEnd && !state.playing) go(Math.max(0, state.frames.length - 1));
       else render();
-    } catch (error) { /* try again */ }
+    }
     if (!state.running) refreshTitles();
     follow();
   }, intervalMs);
@@ -886,15 +1045,11 @@ async function newGame(wantedRevision) {
   ];
   const ownStyle = h("select", { class: "style-pick" }, ...styleOptions());
   const humanPlay = h("input", { type: "checkbox" });
-  const timeoutPick = h("select", null,
-    h("option", { value: "0", selected: true }, "Kein Zeitlimit"),
-    h("option", { value: "120" }, "120 Sekunden"),
-    h("option", { value: "300" }, "5 Minuten"),
-    h("option", { value: "600" }, "10 Minuten"));
-  const timeoutWrap = h("label", { hidden: true }, "Entscheidungslimit ", timeoutPick);
+  // Owner decision 2026-11-17: in PLAY nobody has a time limit and no timeout ends the game.
+  const timeoutNote = h("p", { class: "muted", hidden: true }, "Kein Zeitlimit: Die Partie wartet unbegrenzt auf deine Entscheidung.");
   humanPlay.addEventListener("change", () => {
     ownStyle.disabled = humanPlay.checked;
-    timeoutWrap.hidden = !humanPlay.checked;
+    timeoutNote.hidden = !humanPlay.checked;
   });
   const count = h("select", null, [1, 2, 3, 4, 5].map((n) => h("option", { value: String(n) }, `${n + 1} Spieler`)));
   count.value = "3";
@@ -948,7 +1103,7 @@ async function newGame(wantedRevision) {
       };
       if (humanPlay.checked) {
         body.human_seats = [0];
-        body.decision_timeout_seconds = Number(timeoutPick.value);
+        body.decision_timeout_seconds = 0; // explicit: unlimited, the bridge default of 120 s must not apply
         body.ai_delay_ms = Number($("speed").value);
       }
       const made = await api("/api/games", "POST", body);
@@ -968,7 +1123,7 @@ async function newGame(wantedRevision) {
     h("div", { class: "form" },
       h("label", null, humanPlay, " Sitz 1 selbst spielen (Mensch)"),
       h("label", null, "Dein Deck auf Sitz 1 ", own, " Stil ", ownStyle),
-      timeoutWrap,
+      timeoutNote,
       h("label", null, "Tisch ", count),
       seats,
       h("div", { class: "actions" },
@@ -1010,10 +1165,15 @@ async function start() {
   for (const [delay, label] of SPEEDS) $("speed").append(h("option", { value: String(delay) }, label));
   $("speed").value = "500";
   $("speed").addEventListener("change", async () => {
+    // While fast-forwarding the AI delay stays 0; the chosen value is restored when it ends.
+    if (state.ff.boosted) return;
     if (state.interactive && state.running && state.gameId) {
       try { await api(`/api/play/${encodeURIComponent(state.gameId)}/speed`, "POST", { ai_delay_ms: Number($("speed").value) }); } catch (error) { /* ignore speed update errors */ }
     }
   });
+  window.addEventListener("pagehide", () => restoreAiDelayOnLeave(state.gameId));
+  $("ff-btn").addEventListener("click", () => { if (state.ff.on) endFastForward("von dir beendet"); else startFastForward(); });
+  $("ff-stack").addEventListener("change", () => { state.ff.stopOnOpponentStack = $("ff-stack").checked; });
   $("first").addEventListener("click", () => go(0));
   $("back").addEventListener("click", () => step(-1));
   $("next").addEventListener("click", () => step(1));
@@ -1056,11 +1216,16 @@ async function start() {
     }
   });
   document.addEventListener("keydown", (event) => {
-    if (["INPUT", "SELECT", "TEXTAREA"].includes(event.target.tagName) && event.target.type !== "range") return;
-    if (event.key === " ") { event.preventDefault(); setPlaying(!state.playing); }
+    if (event.ctrlKey || event.metaKey || event.altKey) return;
+    if (event.key === "Escape") { $("modal").hidden = true; return; }
+    const target = event.target;
+    const field = target && target.closest ? target.closest("input, select, textarea") : null;
+    if (field && field.type !== "range") return;
+    // Space belongs to a focused button, link or field (it activates it); only without such a
+    // focus does it toggle the playback.
+    if (event.key === " ") { if (isInteractive(target)) return; event.preventDefault(); setPlaying(!state.playing); }
     else if (event.key === "ArrowRight") { event.preventDefault(); step(1); }
     else if (event.key === "ArrowLeft") { event.preventDefault(); step(-1); }
-    else if (event.key === "Escape") $("modal").hidden = true;
   });
   $("new-game").addEventListener("click", () => newGame());
   let any = false;
