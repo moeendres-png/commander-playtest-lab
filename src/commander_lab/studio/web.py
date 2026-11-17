@@ -65,10 +65,12 @@ from . import (
 )
 from . import evidence as evidence_model
 from .decks import (
+    EXPORT_TEXT_FORMATS,
     RevisionCard,
     baseline_decks_for_commander,
     color_set,
     create_revision,
+    export_text,
     lab_snapshot,
     list_rows,
     parse_decklist_text,
@@ -1536,9 +1538,13 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
     def export(revision_id: str, format: str = "txt") -> Response:
         store = open_store()
         try:
+            if format not in {"txt", "json", *EXPORT_TEXT_FORMATS}:
+                raise HTTPException(422, "unknown export format")
             if format == "json":
                 return JSONResponse(lab_snapshot(store, revision_id))
             rows = revision_rows(store, revision_id)
+            if format in EXPORT_TEXT_FORMATS:
+                return PlainTextResponse(export_text(rows, format))
             lines = [f"{row['quantity']} {row['engine_name']}" for row in rows]
             return PlainTextResponse("\n".join(lines) + "\n")
         except KeyError as error:
