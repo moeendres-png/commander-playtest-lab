@@ -948,6 +948,28 @@ function renderCombos(body) {
       h("td", { class: "num" }, StudioUI.num(combo.num_decks, 0)),
       h("td", {}, card && card.available > 0 && !qty(card.card_id) ? h("button", { class: "small", type: "button", title: `${card.name} ins Deck nehmen`, onclick: () => add(card) }, "+") : null));
   };
+  const compCands = (combos && combos.completion_candidates) || [];
+  if (compCands.length) {
+    body.append(
+      h("h4", {}, `Kombo-Vervollständiger (${StudioUI.num(compCands.length, 0)} freie Pool-Karten ergänzen 1-Karten-Lücken)`),
+      h("div", { class: "table-wrap" }, h("table", { id: "combos-completion-assistant" },
+        h("thead", {}, h("tr", {},
+          h("th", {}, "Freie Pool-Karte"),
+          h("th", { class: "num" }, "Ergänzte Kombos"),
+          h("th", { class: "num" }, "Ergänzte Shells"),
+          h("th", { class: "num" }, "Max. Spellbook-Decks"),
+          h("th", {}, ""))),
+        h("tbody", {}, compCands.slice(0, 15).map((cand) => {
+          const pCard = state.byId.get(cand.card_id);
+          return h("tr", {},
+            h("td", { class: pCard ? "name" : "", onclick: () => { if (pCard) openCard(pCard); } }, cand.name),
+            h("td", { class: "num" }, StudioUI.num(cand.completed_combos_count, 0)),
+            h("td", { class: "num" }, StudioUI.num(cand.completed_shells_count, 0)),
+            h("td", { class: "num" }, StudioUI.num(cand.max_num_decks, 0)),
+            h("td", {}, pCard && pCard.available > 0 && !qty(pCard.card_id) ? h("button", { type: "button", class: "small", onclick: () => add(pCard) }, "+") : null));
+        }))))
+    );
+  }
   if (combos.listed) {
     body.append(h("p", {}, `${StudioUI.num(combos.complete.length, 0)} von ${StudioUI.num(combos.listed, 0)} gelisteten Kombos sind vollständig im Deck, bei ${StudioUI.num(combos.one_missing.length, 0)} fehlt genau eine Karte.`));
     if (combos.complete.length) {

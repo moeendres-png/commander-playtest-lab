@@ -780,6 +780,124 @@ def combo_sources(store: StudioStore, commanders: Iterable[str]) -> list[dict[st
     return list(found.values())
 
 
+def _completion_candidates(
+    store: StudioStore,
+    commanders: Sequence[str],
+    deck_ids: set[str],
+    one_missing: Sequence[Mapping[str, object]],
+    pool_shells: Sequence[Mapping[str, object]],
+) -> list[dict[str, object]]:
+    """Aggregate free legal pool cards by how many 1-missing combos and pool shells they complete."""
+    if not one_missing and not pool_shells:
+        return []
+    _deck_cards, pool_cards, _collection_cards = _card_catalog_for_slots(
+        store, commanders, deck_ids
+    )
+    free_by_key: dict[str, dict[str, object]] = {}
+    for p in pool_cards:
+        if p.get("in_deck") or int(str(p.get("available") or 0)) <= 0:
+            continue
+        for k in _keys(str(p["name"])):
+            free_by_key.setdefault(k, p)
+
+    by_cid: dict[str, dict[str, object]] = {}
+
+    def _bucket(p: Mapping[str, object]) -> dict[str, object]:
+        cid = str(p["card_id"])
+        if cid not in by_cid:
+            by_cid[cid] = {
+                "card_id": cid,
+                "name": str(p["name"]),
+                "mana_value": p.get("mana_value"),
+                "available": int(str(p.get("available") or 0)),
+                "completed_combos": [],
+                "completed_shells": [],
+            }
+        return by_cid[cid]
+
+    combos_by_cid: dict[str, list[dict[str, object]]] = {}
+    shells_by_cid: dict[str, list[dict[str, object]]] = {}
+
+    for combo in one_missing:
+        missing_name = str(combo.get("missing") or "").strip().casefold()
+        found = free_by_key.get(missing_name)
+        if found is None:
+            continue
+        entry = _bucket(found)
+        cid = str(entry["card_id"])
+        raw_cards = combo.get("cards")
+        cards_list = (
+            [str(x) for x in raw_cards]
+            if isinstance(raw_cards, Sequence) and not isinstance(raw_cards, str)
+            else []
+        )
+        combos_by_cid.setdefault(cid, []).append(
+            {
+                "cards": cards_list,
+                "num_decks": int(str(combo.get("num_decks") or 0)),
+            }
+        )
+
+    for sh in pool_shells:
+        missing_list = sh.get("missing_from_deck")
+        if not isinstance(missing_list, Sequence) or len(missing_list) != 1:
+            continue
+        missing_name = str(missing_list[0]).strip().casefold()
+        found = free_by_key.get(missing_name)
+        if found is None:
+            continue
+        entry = _bucket(found)
+        cid = str(entry["card_id"])
+        raw_uses = sh.get("uses")
+        uses_list = (
+            [str(x) for x in raw_uses]
+            if isinstance(raw_uses, Sequence) and not isinstance(raw_uses, str)
+            else []
+        )
+        raw_produces = sh.get("produces")
+        produces_list = (
+            [str(x) for x in raw_produces]
+            if isinstance(raw_produces, Sequence) and not isinstance(raw_produces, str)
+            else []
+        )
+        shells_by_cid.setdefault(cid, []).append(
+            {
+                "shell_id": sh.get("shell_id"),
+                "uses": uses_list,
+                "produces": produces_list,
+            }
+        )
+
+    ranked: list[tuple[int, int, int, str, dict[str, object]]] = []
+    for cid, item in by_cid.items():
+        c_combos = combos_by_cid.get(cid, [])
+        c_shells = shells_by_cid.get(cid, [])
+        item["completed_combos"] = c_combos
+        item["completed_shells"] = c_shells
+        n_combos = len(c_combos)
+        n_shells = len(c_shells)
+        total = n_combos + n_shells
+        max_decks = max((int(str(x["num_decks"])) for x in c_combos), default=0)
+        name = str(item["name"])
+        ranked.append(
+            (
+                -total,
+                -n_combos,
+                -max_decks,
+                name,
+                {
+                    **item,
+                    "completed_combos_count": n_combos,
+                    "completed_shells_count": n_shells,
+                    "total_completed": total,
+                    "max_num_decks": max_decks,
+                },
+            )
+        )
+    ranked.sort(key=lambda r: r[:4])
+    return [r[4] for r in ranked]
+
+
 def deck_combos(
     store: StudioStore,
     rows: Sequence[sqlite3.Row],
@@ -832,6 +950,9 @@ def deck_combos(
     template_status, pool_shells, template_slots = _spellbook_shells_section(
         store, chosen, deck_ids, names, template_snapshot_path
     )
+    completion_candidates = _completion_candidates(
+        store, chosen, deck_ids, one_missing, pool_shells
+    )
     return {
         "schema": SCHEMA,
         "commanders": chosen,
@@ -839,6 +960,7 @@ def deck_combos(
         "sources": combo_sources(store, chosen),
         "complete": complete,
         "one_missing": one_missing,
+        "completion_candidates": completion_candidates,
         "template_status": template_status,
         "pool_shells": pool_shells,
         "template_slots": template_slots,
