@@ -384,6 +384,68 @@ def _edhrec_entry(widest: sqlite3.Row | None, signal: object) -> dict[str, objec
     return None
 
 
+def widest_edhrec_rows(
+    db: sqlite3.Connection, commander_names: Sequence[str]
+) -> dict[str, sqlite3.Row]:
+    """The stored EDHREC inclusion row per card id with the widest denominator, over the
+    observation cohorts bound to the commander (the builder column and the evidence table
+    read their figure from here)."""
+    found: dict[str, sqlite3.Row] = {}
+    cohort_bound, cohort_args = bound_to("observation_cohort", "o.cohort", commander_names)
+    for row in db.execute(
+        "SELECT o.card_id, o.cohort, o.value, o.numerator, o.denominator FROM observation o "
+        f"WHERE o.metric = 'inclusion_pct' AND o.card_id IS NOT NULL{cohort_bound} "
+        "ORDER BY o.denominator DESC",
+        cohort_args,
+    ):
+        found.setdefault(str(row["card_id"]), row)
+    return found
+
+
+def role_names(db: sqlite3.Connection) -> dict[str, list[str]]:
+    """The role names per oracle id (a card without a row has no role data)."""
+    roles: dict[str, list[str]] = {}
+    for row in db.execute("SELECT oracle_id, role FROM card_role ORDER BY role"):
+        roles.setdefault(str(row["oracle_id"]), []).append(str(row["role"]))
+    return roles
+
+
+def playgroup_rows(db: sqlite3.Connection) -> dict[str, sqlite3.Row]:
+    """The Playgroup card atlas rows (multiplayer) under both the card id and the oracle id."""
+    found: dict[str, sqlite3.Row] = {}
+    for row in db.execute(
+        "SELECT oracle_id, card_id, live_inclusion_pct, median_cast_turn, "
+        "winrate_when_cast_pct, observed_winrate_gap_pp, ci_95_lower_pp, ci_95_upper_pp, "
+        "conservative_ranking_indicator, fetch_status, times_brought, winrate_when_cast_n, "
+        "insufficient_sample FROM playgroup_card_atlas WHERE format_mode = 'multiplayer'"
+    ):
+        if row["card_id"]:
+            found.setdefault(str(row["card_id"]), row)
+        if row["oracle_id"]:
+            found.setdefault(str(row["oracle_id"]), row)
+    return found
+
+
+def playgroup_entry(pg: sqlite3.Row | None) -> dict[str, object] | None:
+    """One atlas row as the figures the builder and the evidence table show."""
+    if pg is None:
+        return None
+    return {
+        "live_inclusion_pct": pg["live_inclusion_pct"],
+        "median_cast_turn": pg["median_cast_turn"],
+        "winrate_when_cast_pct": pg["winrate_when_cast_pct"],
+        "observed_winrate_gap_pp": pg["observed_winrate_gap_pp"],
+        "ci_95_lower_pp": pg["ci_95_lower_pp"],
+        "ci_95_upper_pp": pg["ci_95_upper_pp"],
+        "conservative_ranking_indicator": pg["conservative_ranking_indicator"],
+        "status": pg["fetch_status"],
+        "times_brought": pg["times_brought"],
+        # the sample behind the gap: games in which the card was cast
+        "winrate_when_cast_n": pg["winrate_when_cast_n"],
+        "insufficient_sample": bool(pg["insufficient_sample"]),
+    }
+
+
 def pool_cards(
     store: StudioStore,
     commander_names: Sequence[str],
@@ -414,29 +476,9 @@ def pool_cards(
     db = store.connection
     identity, commander_ids = commander_identity(store, commander_names)
     hits = _corpus_hits(store, commander_names)
-    edhrec: dict[str, sqlite3.Row] = {}
-    cohort_bound, cohort_args = bound_to("observation_cohort", "o.cohort", commander_names)
-    for row in db.execute(
-        "SELECT o.card_id, o.cohort, o.value, o.numerator, o.denominator FROM observation o "
-        f"WHERE o.metric = 'inclusion_pct' AND o.card_id IS NOT NULL{cohort_bound} "
-        "ORDER BY o.denominator DESC",
-        cohort_args,
-    ):
-        edhrec.setdefault(str(row["card_id"]), row)
-    roles: dict[str, list[str]] = {}
-    for row in db.execute("SELECT oracle_id, role FROM card_role ORDER BY role"):
-        roles.setdefault(str(row["oracle_id"]), []).append(str(row["role"]))
-    playgroup: dict[str, sqlite3.Row] = {}
-    for row in db.execute(
-        "SELECT oracle_id, card_id, live_inclusion_pct, median_cast_turn, "
-        "winrate_when_cast_pct, observed_winrate_gap_pp, ci_95_lower_pp, ci_95_upper_pp, "
-        "conservative_ranking_indicator, fetch_status, times_brought, insufficient_sample "
-        "FROM playgroup_card_atlas WHERE format_mode = 'multiplayer'"
-    ):
-        if row["card_id"]:
-            playgroup.setdefault(str(row["card_id"]), row)
-        if row["oracle_id"]:
-            playgroup.setdefault(str(row["oracle_id"]), row)
+    edhrec = widest_edhrec_rows(db, commander_names)
+    roles = role_names(db)
+    playgroup = playgroup_rows(db)
     signal_values: dict[str, dict[str, object]] = {}
     if with_signals and len(commander_names) == 1:
         # Imported here: strength_view imports this module.
@@ -522,20 +564,7 @@ def pool_cards(
                 "decks_known": str(row["oracle_name"]) in hits,
                 "edhrec": _edhrec_entry(widest, signal_values.get(card_id, {}).get("inclusion")),
                 "signals": signal_values.get(card_id, {}),
-                "playgroup": None
-                if pg is None
-                else {
-                    "live_inclusion_pct": pg["live_inclusion_pct"],
-                    "median_cast_turn": pg["median_cast_turn"],
-                    "winrate_when_cast_pct": pg["winrate_when_cast_pct"],
-                    "observed_winrate_gap_pp": pg["observed_winrate_gap_pp"],
-                    "ci_95_lower_pp": pg["ci_95_lower_pp"],
-                    "ci_95_upper_pp": pg["ci_95_upper_pp"],
-                    "conservative_ranking_indicator": pg["conservative_ranking_indicator"],
-                    "status": pg["fetch_status"],
-                    "times_brought": pg["times_brought"],
-                    "insufficient_sample": bool(pg["insufficient_sample"]),
-                },
+                "playgroup": playgroup_entry(pg),
             }
         )
     result: dict[str, object] = {

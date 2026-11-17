@@ -658,18 +658,25 @@ class SignalValue(TypedDict):
 
 
 def card_signal_values(
-    store: StudioStore, commander: str, card_ids: list[str], display: Mapping[str, str]
+    store: StudioStore,
+    commander: str,
+    card_ids: list[str],
+    display: Mapping[str, str],
+    *,
+    extra: Mapping[str, str] | None = None,
 ) -> dict[str, dict[str, SignalValue]]:
     """Stored usage signals of ONE commander per pool card, for the builder columns.
 
     Keys per card: ``inclusion`` (decks with the card over the commander's decks),
     ``synergy`` and ``global_inclusion`` (independent of the commander). A card without a
-    row for a signal has no entry for it: unknown, never 0. Same name matching as the index."""
+    row for a signal has no entry for it: unknown, never 0. Same name matching as the index.
+    ``extra`` names more stored signals to read the same way (``{key: stored signal name}``)."""
     claims = _claim_index(store, card_ids)
     wanted = {
         "inclusion": strength.signal_for(COMMANDER_INCLUSION, strength.BRACKET_NONE),
         "synergy": strength.signal_for(SYNERGY, strength.BRACKET_NONE),
         "global_inclusion": strength.signal_for(GLOBAL_INCLUSION, strength.BRACKET_NONE),
+        **(extra or {}),
     }
     result: dict[str, dict[str, SignalValue]] = {}
     for key, signal in wanted.items():
