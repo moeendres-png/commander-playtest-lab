@@ -33,9 +33,10 @@ from itertools import chain
 
 from . import builder, cache, signals
 from .combos import _keys, stored_combos
+from .playgroup_parser import to_playgroup_slug
 from .similar_decks import (
     _basic_oracle_names,
-    _canonical_name,
+    _canonical_or_raw,
     _commander_source_index,
 )
 from .store import StudioStore
@@ -124,7 +125,9 @@ def _group_cell(count: int | None, size: int) -> dict[str, object] | None:
     return {"n": count, "of": size, "small_group": size < builder.SMALL_DENOMINATOR, "sort": count}
 
 
-def _edhrec_cell(entry: dict[str, object] | None) -> dict[str, object] | None:
+def _edhrec_cell(
+    entry: dict[str, object] | None, main_slugs: frozenset[str]
+) -> dict[str, object] | None:
     if entry is None:
         return None
     denominator = _count(entry.get("denominator"))
@@ -132,7 +135,10 @@ def _edhrec_cell(entry: dict[str, object] | None) -> dict[str, object] | None:
     pct = entry.get("pct")
     return {
         "page": str(entry["page"]),
-        "main_page": "/" not in str(entry["page"]) and entry.get("origin") == "table",
+        "origin": str(entry.get("origin")),
+        # "Hauptseite" only when the stored page is exactly the commander's own page slug; every
+        # other stored page (a theme, a bracket history, a rubric) is named as it is stored.
+        "main_page": entry.get("origin") == "table" and str(entry["page"]) in main_slugs,
         "pct": _round(None if pct is None else float(str(pct)), 1),
         "n": numerator,
         "of": denominator,
@@ -190,7 +196,16 @@ def _applicable(row: sqlite3.Row, name: str, basics: frozenset[str]) -> tuple[bo
     return True, ""
 
 
-def _columns(denominators: dict[str, list[int]], commander: str) -> list[dict[str, object]]:
+class DeckEvidenceError(ValueError):
+    """A refused request (no commander, unknown group): the only error the route maps to 422."""
+
+
+NOT_READ_PARTNERS = "für Partner-Decks nicht gelesen"
+
+
+def _columns(
+    denominators: dict[str, list[int]], commander: str, *, partners: bool = False
+) -> list[dict[str, object]]:
     short = commander.split(",")[0]
     columns: list[dict[str, object]] = [
         {
@@ -213,9 +228,9 @@ def _columns(denominators: dict[str, list[int]], commander: str) -> list[dict[st
             "key": "edhrec",
             "short": f"Seite je Zelle genannt (Seiten von {short})",
             "label": "EDHREC-Anteil",
-            "basis": f"Anteil der Decks auf einer EDHREC-Seite von {short} (n/N); die Seite steht "
-            "in der Zelle: Hauptseite des Commanders oder eine Unterseite (Thema), wenn die "
-            "Hauptseite keine Zeile für die Karte hat",
+            "basis": f"Anteil der Decks auf einer gespeicherten EDHREC-Seite von {short} (n/N); "
+            "die Seite steht in der Zelle: „Hauptseite“ nur, wenn es die Seite des Commanders "
+            "selbst ist, sonst der gespeicherte Seitenname",
             "missing": "keine Zeile",
         },
         {
@@ -243,30 +258,39 @@ def _columns(denominators: dict[str, list[int]], commander: str) -> list[dict[st
             "missing": "keine Zeile",
         },
     ]
-    if "topdeck" in denominators:
+    if partners or "topdeck" in denominators:
         columns.append(
             {
                 "key": "topdeck",
                 "short": f"Listen von {short}",
-                "of": denominators["topdeck"],
+                "of": denominators.get("topdeck", []),
                 "label": "TopDeck-Turnierlisten",
                 "basis": f"Listen von {short} mit der Karte (n/N, N = Zahl der Listen; sehr "
                 "kleine Gruppe)",
                 "missing": "keine Zeile",
             }
         )
-    if "edhtop16" in denominators:
+    if partners or "edhtop16" in denominators:
         columns.append(
             {
                 "key": "edhtop16",
                 "short": f"Einträge von {short}",
-                "of": denominators["edhtop16"],
+                "of": denominators.get("edhtop16", []),
                 "label": "EDHTop16",
                 "basis": f"Spielrate bei {short} in den Turnier-Einträgen (n/N; n = Rate mal N "
                 "abgeleitet, N = Zahl der Einträge)",
                 "missing": "keine Zeile",
             }
         )
+    if partners:
+        # The stored signals are one commander's: never read for a pair, never shown as "no row".
+        for column in columns:
+            if column["key"] in {"edhrec", "shells", "topdeck", "edhtop16"}:
+                column["missing"] = (
+                    f"keine Zeile; Signal-Import {NOT_READ_PARTNERS}"
+                    if column["key"] == "edhrec"
+                    else NOT_READ_PARTNERS
+                )
     columns += [
         {
             "key": "roles",
@@ -334,10 +358,10 @@ def deck_evidence(
     Raises ValueError without a commander or for a group the commander has no decks in."""
     commander_names = tuple(str(row["oracle_name"]) for row in rows if row["zone"] == "commander")
     if not commander_names:
-        raise ValueError("commander is required")
+        raise DeckEvidenceError("commander is required")
     sizes = builder.cohort_sizes(store, commander_names)
     if cohort != builder.ALL_DECKS and cohort not in sizes:
-        raise ValueError(f"unknown group: {cohort}")
+        raise DeckEvidenceError(f"unknown group: {cohort}")
 
     index = _commander_source_index(store, commander_names)
     decks = index["decks"]
@@ -351,6 +375,7 @@ def deck_evidence(
     }
     owners = spelling_owners(store)
     basics = _basic_oracle_names(store)
+    main_slugs = frozenset(to_playgroup_slug(name) for name in commander_names)
     bundle = _bundle(store, commander_names)
     edhrec: dict[str, dict[str, object] | None] = bundle["edhrec"]  # type: ignore[assignment]
     role_map: dict[str, list[str]] = bundle["roles"]  # type: ignore[assignment]
@@ -370,7 +395,7 @@ def deck_evidence(
     deck_names: dict[str, str] = {}
     applicable_rows: dict[str, tuple[bool, str]] = {}
     for row in rows:
-        canonical = _canonical_name(owners, str(row["oracle_name"]))
+        canonical = _canonical_or_raw(owners, str(row["oracle_name"]))
         applicable_rows[str(row["card_id"])] = _applicable(row, canonical, basics)
         deck_names[str(row["card_id"])] = canonical
     deckset = {deck_names[card_id] for card_id, (ok, _why) in applicable_rows.items() if ok}
@@ -411,7 +436,7 @@ def deck_evidence(
                     else sum(1 for i in listed if i in members[group])
                 )
             cells[key] = _group_cell(count, len(members[group]))
-        cells["edhrec"] = _edhrec_cell(edhrec.get(card_id))
+        cells["edhrec"] = _edhrec_cell(edhrec.get(card_id), main_slugs)
         found = stored.get(card_id, {})
         cells["shells"] = _shell_cell(found.get("shells"))
         names = _keys(str(row["oracle_name"]))
@@ -468,7 +493,9 @@ def deck_evidence(
         cards.append({**base, "cells": cells})
 
     columns = _columns(
-        {key: sorted(found) for key, found in tournament_n.items()}, commander_names[0]
+        {key: sorted(found) for key, found in tournament_n.items()},
+        commander_names[0],
+        partners=len(commander_names) > 1,
     )
     ordered = order_cards(cards)
     known_decks = [

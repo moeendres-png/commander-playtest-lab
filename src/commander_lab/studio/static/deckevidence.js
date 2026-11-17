@@ -8,7 +8,7 @@
 
 // The columns whose text is long and may wrap; the count columns stay on one line.
 const EVIDENCE_WRAP = new Set(["edhrec", "playgroup", "fit"]);
-const EVIDENCE_COLUMNS_KEY = "studio-evidence-columns";
+const EVIDENCE_COLUMNS_KEY = "studio-evidence-hidden-columns";
 // Sort and filter of the open page (kept when app.js redraws the tab, gone on reload).
 const evidenceView = { sortKey: "decks_all", descending: false, filter: "" };
 
@@ -42,12 +42,12 @@ function evidenceOrder(cards, key, descending) {
   return [...known, ...unknown, ...other];
 }
 
-// Where an EDHREC figure comes from: the commander's main page, a sub page (theme) or the signal import.
+// Where an EDHREC figure comes from: the commander's own page, the signal import, or the stored
+// page name as it is (a theme, a bracket history, a rubric: never described further).
 function evidencePageText(cell) {
-  const page = String(cell.page);
   if (cell.main_page) return "Hauptseite";
-  if (page.includes("/")) return `Unterseite „${page.split("/").pop()}“`;
-  return page;
+  if (cell.origin === "signal") return "Signal-Import (EDHREC)";
+  return `Seite: ${String(cell.page)}`;
 }
 
 // The text of one cell: [text, flag] where flag says "small number" (shown as a hint).
@@ -119,11 +119,13 @@ function evidenceTextTable(data, columns, cards) {
   return `${lines.join("\n")}\n\n${data.note}\n`;
 }
 
+// What the Owner switched off (remembered per browser). A column the memory does not know,
+// for example a tournament column that appears later, is shown.
 function evidenceStoredColumns(all) {
   try {
     const raw = StudioUI.recall(EVIDENCE_COLUMNS_KEY, null);
     const parsed = raw === null ? null : JSON.parse(raw);
-    if (Array.isArray(parsed)) return new Set(parsed.filter((key) => all.includes(key)));
+    if (Array.isArray(parsed)) return new Set(all.filter((key) => !parsed.includes(key)));
   } catch (error) { /* damaged memory: show everything */ }
   return new Set(all);
 }
@@ -164,7 +166,7 @@ function buildEvidenceView(data, deps, wide) {
     const parts = [column.short];
     if (column.key === "decks_all") parts.push(groupNote(data.groups.all.decks, data.groups.all.small_group));
     if (column.key === "decks_tuned") parts.push(groupNote(data.groups.tuned.decks, data.groups.tuned.small_group));
-    if (column.of) parts.push(`N = ${column.of.map((size) => evidenceNumber(size)).join(" / ")}${column.of.some((size) => size < data.small_group_below) ? ", sehr kleine Gruppe" : ""}`);
+    if (column.of && column.of.length) parts.push(`N = ${column.of.map((size) => evidenceNumber(size)).join(" / ")}${column.of.some((size) => size < data.small_group_below) ? ", sehr kleine Gruppe" : ""}`);
     if (column.key === "fit") parts.push(`Gruppe „${cohortLabel}“ (${groupNote(data.cohort.decks, data.cohort.small_group)})`);
     return parts.join(" · ");
   };
@@ -203,7 +205,7 @@ function buildEvidenceView(data, deps, wide) {
       type: "checkbox", "data-column": column.key, checked: visible.has(column.key),
       onchange: (event) => {
         if (event.target.checked) visible.add(column.key); else visible.delete(column.key);
-        StudioUI.remember(EVIDENCE_COLUMNS_KEY, JSON.stringify([...visible]));
+        StudioUI.remember(EVIDENCE_COLUMNS_KEY, JSON.stringify(allKeys.filter((key) => !visible.has(key))));
         draw();
       },
     }), " ", column.label));

@@ -104,6 +104,7 @@ class ListBody(BaseModel):
 
 
 class DeckEvidenceBody(ListBody):
+    cards: list[CardEntry] = Field(max_length=300)
     cohort: str = Field(default="all", min_length=1, max_length=120)
 
 
@@ -1574,7 +1575,7 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
             if missing:
                 raise HTTPException(404, f"unknown card: {missing[0]}")
             return deck_evidence.deck_evidence(store, rows, cohort=body.cohort)
-        except ValueError as error:
+        except deck_evidence.DeckEvidenceError as error:
             raise HTTPException(422, str(error)) from error
         finally:
             store.close()

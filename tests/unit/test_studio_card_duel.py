@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pytest
 from fastapi.testclient import TestClient
 
 from commander_lab.studio import StudioStore, builder, card_duel, deck_evidence
@@ -469,18 +470,18 @@ def test_deck_evidence_route(tmp_path: Path) -> None:
     ).status_code == 403
 
 
-def test_an_edhrec_figure_from_the_observation_table_names_its_page(tmp_path: Path) -> None:
-    store, ids, _commander = _evidence_store(tmp_path)
+def _add_observations(
+    store: StudioStore,
+    ids: dict[str, str],
+    rows: tuple[tuple[str, str, float | None, int | None, int | None], ...],
+) -> None:
     with store.connection as db:
         db.execute(
             "INSERT INTO source(source_id, data_class, title, sha256, imported_at) "
             "VALUES ('src-ob', 'ORIGINAL_SOURCE', 'Observations', ?, 'now')",
             ("1" * 64,),
         )
-        for name, page, value, num, den in (
-            ("Swarm Rat", "edhrec:test-commander", 40.0, 4, 10),
-            ("Filler 01", "edhrec:test-commander/artifacts", 50.0, 1, 2),
-        ):
+        for name, page, value, num, den in rows:
             db.execute(
                 "INSERT INTO observation(card_id, card_name, metric, cohort, value, numerator, "
                 "denominator, data_class, source_id) "
@@ -488,17 +489,120 @@ def test_an_edhrec_figure_from_the_observation_table_names_its_page(tmp_path: Pa
                 (ids[name], name, page, value, num, den),
             )
     store.bind_unbound("Test Commander")
-    result = deck_evidence.deck_evidence(store, _rows(store, ids, "Swarm Rat", "Filler 01"))
-    cards = _by_name(result)
-    main = cards["Swarm Rat"]["cells"]["edhrec"]
-    theme = cards["Filler 01"]["cells"]["edhrec"]
+
+
+def test_an_edhrec_figure_names_its_stored_page_and_calls_only_the_commanders_own_main(
+    tmp_path: Path,
+) -> None:
+    store, ids, _commander = _evidence_store(tmp_path)
+    _add_observations(
+        store,
+        ids,
+        (
+            ("Swarm Rat", "edhrec:test-commander", 40.0, 4, 10),
+            ("Filler 01", "edhrec:test-commander/artifacts", 50.0, 1, 2),
+            # Importers also write page names without a slash that are not the commander page.
+            ("Filler 02", "edhrec:core_b2_563_index", 12.0, None, None),
+            ("Filler 09", "edhrec:upgraded_b3_593_hist", None, 3, 593),
+        ),
+    )
+    result = deck_evidence.deck_evidence(
+        store, _rows(store, ids, "Swarm Rat", "Filler 01", "Filler 02", "Filler 09")
+    )
+    cells = {
+        name: card["cells"]["edhrec"]
+        for name, card in _by_name(result).items()
+        if card["applicable"]
+    }
+    main = cells["Swarm Rat"]
     assert (main["page"], main["main_page"], main["n"], main["of"]) == (
         "test-commander",
         True,
         4,
         10,
     )
-    assert theme["page"] == "test-commander/artifacts" and theme["main_page"] is False
-    assert (theme["n"], theme["of"]) == (1, 2) and theme["small_group"] is True
-    edhrec_column = next(c for c in result["columns"] if c["key"] == "edhrec")  # type: ignore[attr-defined]
-    assert "Unterseite" in edhrec_column["basis"] and "in der Zelle" in edhrec_column["basis"]
+    assert cells["Filler 01"]["page"] == "test-commander/artifacts"
+    assert cells["Filler 01"]["main_page"] is False
+    assert (cells["Filler 01"]["n"], cells["Filler 01"]["of"]) == (1, 2)
+    assert cells["Filler 01"]["small_group"] is True
+    # A bracket-history page without a slash is NOT the main page and keeps its own name.
+    assert (
+        cells["Filler 02"]["page"] == "core_b2_563_index"
+        and cells["Filler 02"]["main_page"] is False
+    )
+    assert cells["Filler 02"]["n"] is None and cells["Filler 02"]["of"] is None
+    # A row without a value: "Zeile ohne Wert", never 0 or a share.
+    empty = cells["Filler 09"]
+    assert empty["note"] == "Zeile ohne Wert" and empty["pct"] is None and empty["sort"] is None
+    assert (empty["n"], empty["of"], empty["main_page"]) == (3, 593, False)
+    column = next(c for c in result["columns"] if c["key"] == "edhrec")  # type: ignore[attr-defined]
+    assert "Hauptseite" in column["basis"] and "Unterseite" not in column["basis"]
+
+
+def test_the_signal_origin_says_so_and_a_stored_zero_shell_count_is_a_real_zero(
+    tmp_path: Path,
+) -> None:
+    store, ids, commander = _evidence_store(tmp_path)
+    _add_stored_figures(store, commander)
+    with store.connection as db:
+        db.execute(
+            "UPDATE card_signal SET value = 0.0 WHERE signal = 'spellbook_shells' "
+            "AND card_name = 'Swarm Rat'"
+        )
+    result = deck_evidence.deck_evidence(store, _rows(store, ids, "Swarm Rat", "Filler 01"))
+    cells = _by_name(result)
+    rat = cells["Swarm Rat"]["cells"]
+    assert rat["edhrec"]["origin"] == "signal" and rat["edhrec"]["main_page"] is False
+    assert rat["edhrec"]["page"] == "Signal-Import (EDHREC)"
+    # A stored 0 is a counted 0 (the card has a row); a card without a row stays unknown.
+    assert rat["shells"] == {"count": 0, "sort": 0}
+    assert cells["Filler 01"]["cells"]["shells"] is None
+
+
+def test_a_partner_deck_does_not_pretend_the_one_commander_signals_are_absent(
+    tmp_path: Path,
+) -> None:
+    store, ids, commander = _evidence_store(tmp_path)
+    _add_stored_figures(store, commander)
+    other = ids["Filler 02"]
+    rows = list_rows(
+        store,
+        [
+            RevisionCard(CMD, 1, "commander"),
+            RevisionCard(other, 1, "commander"),
+            RevisionCard(ids["Swarm Rat"], 1, "main"),
+        ],
+    )
+    result = deck_evidence.deck_evidence(store, rows)
+    columns = {column["key"]: column for column in result["columns"]}  # type: ignore[attr-defined]
+    # The tournament columns stay (their values are not read for a pair) and say why.
+    for key in ("shells", "topdeck", "edhtop16"):
+        assert key in columns
+        assert columns[key]["missing"] == deck_evidence.NOT_READ_PARTNERS
+    assert deck_evidence.NOT_READ_PARTNERS in columns["edhrec"]["missing"]
+    rat = _by_name(result)["Swarm Rat"]["cells"]
+    assert rat["shells"] is None and rat["topdeck"] is None and rat["edhtop16"] is None
+    # The single-commander deck keeps reading them.
+    single = deck_evidence.deck_evidence(store, _rows(store, ids, "Swarm Rat"))
+    assert _by_name(single)["Swarm Rat"]["cells"]["shells"] is not None
+
+
+def test_the_route_limits_the_list_and_lets_internal_errors_through(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    store, ids, _commander = _evidence_store(tmp_path)
+    store.close()
+    client = TestClient(
+        create_app(tmp_path / "studio"), headers={"X-Studio": "1"}, raise_server_exceptions=False
+    )
+    cards = [{"card_id": CMD, "quantity": 1, "zone": "commander"}]
+    too_many = [*cards, *({"card_id": ids["Swarm Rat"], "quantity": 1} for _ in range(300))]
+    assert client.post("/api/deck-evidence", json={"cards": too_many}).status_code == 422
+
+    def broken(*_args: object, **_kwargs: object) -> dict[str, object]:
+        raise ValueError("internal data problem /secret/path")
+
+    monkeypatch.setattr(deck_evidence, "deck_evidence", broken)
+    response = client.post("/api/deck-evidence", json={"cards": cards})
+    assert response.status_code == 500
+    assert "secret" not in response.text
