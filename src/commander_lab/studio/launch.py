@@ -483,22 +483,15 @@ def collection_cards_unsupported_by_engine(store: StudioStore) -> list[str]:
     return unsupported
 
 
-def start_game(
+def prepare_table_deck_paths(
     store: StudioStore,
     data_folder: str | Path,
     *,
     revision_id: str,
     opponent_ids: list[str],
     seed: int,
-    style: float | None = None,
-    seat_styles: Sequence[float] | None = None,
-) -> str:
-    """Start the game process and return the id of the game it records.
-
-    Seat 1 is the owner's deck revision, written as a deck snapshot next to the game logs
-    (it stays in the Studio data folder). Raises ``KeyError`` for an unknown revision or
-    opponent and ``RuntimeError`` when the engine is not set up.
-    """
+) -> tuple[str, list[Path]]:
+    """Validate decks and resolve ordered seat deck paths plus a fresh ``game_id``."""
     if not MIN_SEATS - 1 <= len(opponent_ids) <= MAX_SEATS - 1:
         raise ValueError("a game has one to five other seats")
     if len(set(opponent_ids)) != len(opponent_ids):
@@ -525,6 +518,33 @@ def start_game(
     own.write_text(json.dumps(snapshot, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
     seats = len(opponents) + 1
     game_id = free_game_id(data_folder, f"{snapshot['deck_id']}-{seats}p-seed{seed}")
+    return game_id, [own, *opponents]
+
+
+def start_game(
+    store: StudioStore,
+    data_folder: str | Path,
+    *,
+    revision_id: str,
+    opponent_ids: list[str],
+    seed: int,
+    style: float | None = None,
+    seat_styles: Sequence[float] | None = None,
+) -> str:
+    """Start the game process and return the id of the game it records.
+
+    Seat 1 is the owner's deck revision, written as a deck snapshot next to the game logs
+    (it stays in the Studio data folder). Raises ``KeyError`` for an unknown revision or
+    opponent and ``RuntimeError`` when the engine is not set up.
+    """
+    game_id, deck_paths = prepare_table_deck_paths(
+        store,
+        data_folder,
+        revision_id=revision_id,
+        opponent_ids=opponent_ids,
+        seed=seed,
+    )
+    own, *opponents = deck_paths
     command = [
         sys.executable, "-m", "commander_lab.studio", "--data", str(Path(data_folder)),
         "play", "--seed", str(seed), "--game-id", game_id, "--deck", str(own),
