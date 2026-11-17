@@ -9,6 +9,7 @@ from pathlib import Path
 import pytest
 from fastapi.testclient import TestClient
 
+from commander_lab.engine.rules.failure_privacy import redacted_summary
 from commander_lab.engine.rules.full_game import (
     FULL_GAME_DECISION_PROTOCOL_VERSION,
     FULL_GAME_EVIDENCE_CLASS,
@@ -247,6 +248,8 @@ class _FakeInteractiveClient:
             }
         if method == "start_full_game":
             return self._status()
+        if method == "get_full_game_decision":
+            return self._status()
         if method == "get_concede_offer":
             return {"concede_available": not self.conceded}
         if method == "submit_concede":
@@ -373,9 +376,82 @@ def test_read_game_redacts_opponent_hands_while_running_for_human_seat(tmp_path:
             "engine_version": "test",
         }
     )
+    # Owner decision 2026-11-17: running = hidden, finished = revealed.
     finished_view = games.read_game(tmp_path, "g-redact")
     assert finished_view["running"] is False
     assert "Secret Opponent Card" in json.dumps(finished_view)
+    assert finished_view["frames"][0]["players"][1]["hand"][0] == "Secret Opponent Card"
+    revealed = play.InteractivePlayManager().snapshot(tmp_path, "g-redact")
+    assert revealed["hands_revealed"] is True
+    assert "Secret Opponent Card" in json.dumps(revealed["frames"])
+
+
+def test_ai_pick_of_its_own_hand_card_stays_hidden_while_running(tmp_path: Path) -> None:
+    decks = (
+        _make_deck("own", "Chulane, Teller of Tales"),
+        _make_deck("opp", "Kinnan, Bonder Prodigy"),
+    )
+    prep = play.prepare_game(
+        decks, seed=6, game_id="g-hand-pick", human_seats=[0], decision_timeout_seconds=0
+    )
+    recorder = games.GameRecorder(tmp_path, "g-hand-pick", prep.header)
+    state = _pilot_state(seat=1, turn=3, active_player_id="p1", secret_opp_card="Brainstorm Card")
+    state["players"][1]["hand"] = [  # type: ignore[index]
+        {"name": "Brainstorm Card", "object_id": "obj-9"},
+        {"name": "Island", "object_id": "obj-8"},
+    ]
+    decision = {
+        "seat": 1,
+        "decision_class": "choose_object",
+        "prompt": "Put a card from your hand on top",
+        "legal_options": [{"option_id": "obj-9", "label": "Brainstorm Card"}],
+        "pilot_state": state,
+    }
+    recorder.record(decision, {"selected_option_ids": ["obj-9"]})
+    # a pick from the board is public and stays visible
+    board = dict(decision, legal_options=[{"option_id": "perm-1", "label": "Public Permanent"}])
+    recorder.record(board, {"selected_option_ids": ["perm-1"]})
+    running = games.read_game(tmp_path, "g-hand-pick")
+    assert len(running["frames"]) == 2 and running["running"] is True
+    assert "Brainstorm Card" not in json.dumps(running)
+    assert running["frames"][0]["chosen"] == [] and running["frames"][0]["private_selection"]
+    assert running["frames"][1]["chosen"] == ["Public Permanent"]
+    recorder.close({"status": "finished", "winner_seats": [0], "decision_count": 2})
+    after = games.read_game(tmp_path, "g-hand-pick")
+    assert after["frames"][0]["chosen"] == ["Brainstorm Card"]
+
+
+def test_ai_bottom_pick_stays_hidden_while_running_and_shows_after_the_game(
+    tmp_path: Path,
+) -> None:
+    decks = (
+        _make_deck("own", "Chulane, Teller of Tales"),
+        _make_deck("opp", "Kinnan, Bonder Prodigy"),
+    )
+    prep = play.prepare_game(
+        decks, seed=2, game_id="g-bottom", human_seats=[0], decision_timeout_seconds=0
+    )
+    recorder = games.GameRecorder(tmp_path, "g-bottom", prep.header)
+    recorder.record(
+        {
+            "seat": 1,
+            "decision_class": "choose_object",
+            "prompt": "Put a card on the bottom",
+            "context": {"bottom_of_library_selection": True},
+            "legal_options": [{"option_id": "c1", "label": "Hidden Bottom Card"}],
+            "pilot_state": _pilot_state(
+                seat=1, turn=0, active_player_id="p1", secret_opp_card="Hidden Bottom Card"
+            ),
+        },
+        {"selected_option_ids": ["c1"]},
+    )
+    running = games.read_game(tmp_path, "g-bottom")
+    assert running["frames"] and running["running"] is True
+    assert "Hidden Bottom Card" not in json.dumps(running)
+    assert running["frames"][0]["private_selection"] is True
+    recorder.close({"status": "finished", "winner_seats": [0], "decision_count": 1})
+    after = games.read_game(tmp_path, "g-bottom")
+    assert after["frames"][0]["chosen"] == ["Hidden Bottom Card"]
 
 
 def test_interactive_session_routes_redaction_validation_speed_and_concede(
@@ -416,6 +492,7 @@ def test_interactive_session_routes_redaction_validation_speed_and_concede(
         assert fake_client.created_payload["human_seats"] == [0]
         assert fake_client.created_payload["decision_timeout_seconds"] == 0
         assert snap["interactive"] is True
+        assert snap["hands_revealed"] is False
         assert snap["can_concede"] is True
         # Hidden information (§5): opponent secret hand cards must not leak in live play or log view.
         assert _FakeInteractiveClient.SECRET_CARD not in json.dumps(snap)
@@ -474,6 +551,14 @@ def test_interactive_session_routes_redaction_validation_speed_and_concede(
         assert final_snap["running"] is False
         assert final_snap["result"]["status"] == "finished"
         assert final_snap["result"]["winner_seats"] == [1]
+        # Owner decision 2026-11-17: after the game the AI hands are revealed (play route and
+        # game route alike); while it ran they never appeared in any response above.
+        assert final_snap["hands_revealed"] is True
+        assert final_snap["total"] == 2
+        assert _FakeInteractiveClient.SECRET_CARD in json.dumps(final_snap["frames"])
+        assert _FakeInteractiveClient.SECRET_CARD in json.dumps(
+            client.get("/api/games/interactive-1").json()["frames"]
+        )
 
         # Delete cleans up both manager and recorded files.
         deleted = client.delete("/api/games/interactive-1")
@@ -698,3 +783,391 @@ def test_delete_during_slow_startup_discards_without_orphan_gz(tmp_path: Path) -
     finally:
         release_gate.set()
         app.state.play_manager.shutdown_all()
+
+
+def _start_fake_session(
+    tmp_path: Path,
+    game_id: str,
+    fake_client: _FakeInteractiveClient,
+    *,
+    ai_delay_ms: int = 10,
+) -> tuple[object, TestClient]:
+    app = create_app(tmp_path)
+    decks = (
+        _make_deck("own", "Chulane, Teller of Tales"),
+        _make_deck("opp", "Kinnan, Bonder Prodigy"),
+    )
+    prepared = play.prepare_game(
+        decks, seed=11, game_id=game_id, human_seats=[0], decision_timeout_seconds=0
+    )
+    session = play.InteractiveGameSession(
+        tmp_path,
+        prepared,
+        human_seats=[0],
+        decision_timeout_seconds=0,
+        ai_delay_ms=ai_delay_ms,
+        command=("fake-bridge",),
+        client_factory=lambda *_a, **_kw: fake_client,
+    )
+    with app.state.play_manager._lock:
+        app.state.play_manager._sessions[game_id] = session
+    session.start()
+    return app, TestClient(app, headers={"X-Studio": "1"})
+
+
+def _wait_finished(client: TestClient, game_id: str) -> dict[str, object]:
+    deadline = time.monotonic() + 5.0
+    snap = client.get(f"/api/play/{game_id}").json()
+    while snap["running"] and time.monotonic() < deadline:
+        time.sleep(0.02)
+        snap = client.get(f"/api/play/{game_id}").json()
+    assert snap["running"] is False
+    return snap
+
+
+def test_no_time_limit_for_a_human_seat_on_every_start_path(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    decks = (
+        _make_deck("own", "Chulane, Teller of Tales"),
+        _make_deck("opp", "Kinnan, Bonder Prodigy"),
+    )
+    # Owner decision 2026-11-17: a human waits without limit. The bridge falls back to 120 s
+    # when it gets no value, so every path hands it the explicit 0.
+    for bad in (1, 120, 600):
+        with pytest.raises(ValueError, match="Zeitlimit"):
+            play.prepare_game(
+                decks, seed=1, game_id="g", human_seats=[0], decision_timeout_seconds=bad
+            )
+        with pytest.raises(ValueError, match="Zeitlimit"):
+            play.InteractiveGameSession(
+                tmp_path,
+                play.prepare_game(decks, seed=1, game_id="g"),
+                human_seats=[0],
+                decision_timeout_seconds=bad,
+            )
+        with pytest.raises(ValueError, match="Zeitlimit"):
+            play.InteractivePlayManager().start_game(
+                tmp_path, [], seed=1, human_seats=[0], decision_timeout_seconds=bad
+            )
+    # An AI-only game keeps its own default; nothing changes for it.
+    ai_only = play.prepare_game(decks, seed=1, game_id="g-ai")
+    assert "decision_timeout_seconds" not in ai_only.header
+
+    monkeypatch.setattr(play, "load_decks", lambda _paths: decks)
+    monkeypatch.setattr(play, "engine_command", lambda _folder: ("fake-bridge",))
+    monkeypatch.setattr(play, "bridge_jar_sha256", lambda *_a, **_k: "ab" * 32)
+    fake = _FakeInteractiveClient()
+    manager = play.InteractivePlayManager()
+    started = manager.start_game(
+        tmp_path,
+        [Path("a.json"), Path("b.json")],
+        seed=5,
+        human_seats=[0],
+        game_id="default-timeout",
+        client_factory=lambda *_a, **_kw: fake,
+    )
+    try:
+        assert started["decision_timeout_seconds"] == 0
+        deadline = time.monotonic() + 5.0
+        while fake.created_payload is None and time.monotonic() < deadline:
+            time.sleep(0.02)
+        assert fake.created_payload is not None
+        assert fake.created_payload["decision_timeout_seconds"] == 0
+        session = manager.get("default-timeout")
+        assert session is not None
+        assert session.prepared.header["decision_timeout_seconds"] == 0
+    finally:
+        manager.shutdown_all()
+
+
+def test_web_refuses_a_time_limit_for_a_human_seat(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from commander_lab.studio import launch
+
+    monkeypatch.setattr(
+        launch,
+        "prepare_table_deck_paths",
+        lambda *_a, **_k: ("g", [Path("a.json"), Path("b.json")]),
+    )
+    client = TestClient(create_app(tmp_path), headers={"X-Studio": "1"})
+    refused = client.post(
+        "/api/games",
+        json={
+            "revision_id": "r",
+            "opponent_ids": ["o"],
+            "seed": 1,
+            "human_seats": [0],
+            "decision_timeout_seconds": 120,
+        },
+    )
+    assert refused.status_code == 422
+    assert "Zeitlimit" in refused.text
+
+
+def test_terminal_bridge_error_ends_the_game_instead_of_waiting_on(tmp_path: Path) -> None:
+    class _TimedOutClient(_FakeInteractiveClient):
+        """After the bridge's own timeout the next answer is rejected as a STALE_DECISION (no
+        pending decision any more); only the status read names DECISION_TIMEOUT."""
+
+        timed_out = False
+
+        def request(
+            self, method: str, payload: dict[str, object] | None = None
+        ) -> dict[str, object]:
+            if method == "submit_full_game_decision":
+                self.timed_out = True
+                raw = ("external_pilot_decision_rejected", "STALE_DECISION: no pending decision")
+                raise FullGameProtocolError(
+                    "submit_full_game_decision failed: " + redacted_summary("BRIDGE_ERROR", raw),
+                    code="BRIDGE_ERROR",
+                    diagnostics=raw,
+                )
+            if method == "get_full_game_decision" and self.timed_out:
+                return {
+                    "terminal": False,
+                    "decision": None,
+                    "failure": {
+                        "type": "DecisionException",
+                        "message": "DECISION_TIMEOUT: dec-h-1",
+                    },
+                }
+            return super().request(method, payload)
+
+    app, client = _start_fake_session(tmp_path, "timed-out", _TimedOutClient())
+    try:
+        _wait_for_pending(client, "timed-out", "dec-h-1")
+        answered = client.post(
+            "/api/play/timed-out/decision",
+            json={"decision_id": "dec-h-1", "selected_option_ids": ["pass-1"], "ordering": []},
+        )
+        assert answered.status_code == 409  # not a retryable 422
+        final = _wait_finished(client, "timed-out")
+        assert final["result"]["status"] == "failed"  # type: ignore[index]
+        assert "DECISION_TIMEOUT" in str(final["result"]["failure_message"])  # type: ignore[index]
+        assert final["pending_decision"] is None
+    finally:
+        app.state.play_manager.shutdown_all()  # type: ignore[attr-defined]
+
+
+def test_rejected_answer_with_the_same_decision_open_stays_retryable(tmp_path: Path) -> None:
+    class _RejectingClient(_FakeInteractiveClient):
+        rejections = 0
+
+        def request(
+            self, method: str, payload: dict[str, object] | None = None
+        ) -> dict[str, object]:
+            if method == "submit_full_game_decision" and self.rejections == 0:
+                self.rejections += 1
+                raw = ("external_pilot_decision_rejected", "ILLEGAL_ACTION: option not offered")
+                raise FullGameProtocolError(
+                    "submit_full_game_decision failed: " + redacted_summary("BRIDGE_ERROR", raw),
+                    code="BRIDGE_ERROR",
+                    diagnostics=raw,
+                )
+            return super().request(method, payload)
+
+    fake = _RejectingClient()
+    app, client = _start_fake_session(tmp_path, "retry", fake)
+    try:
+        _wait_for_pending(client, "retry", "dec-h-1")
+        body = {"decision_id": "dec-h-1", "selected_option_ids": ["pass-1"], "ordering": []}
+        assert client.post("/api/play/retry/decision", json=body).status_code == 422
+        assert client.get("/api/play/retry").json()["running"] is True
+        assert client.post("/api/play/retry/decision", json=body).status_code == 200
+        _wait_for_pending(client, "retry", "dec-h-2")
+    finally:
+        app.state.play_manager.shutdown_all()  # type: ignore[attr-defined]
+
+
+def test_dead_bridge_while_the_human_thinks_fails_the_game(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    class _Process:
+        exited = False
+
+        def poll(self) -> int | None:
+            return 1 if self.exited else None
+
+    process = _Process()
+    fake = _FakeInteractiveClient()
+    fake._process = process  # type: ignore[attr-defined]
+    monkeypatch.setattr(play, "_PARK_POLL_SECONDS", 0.02)
+    app, client = _start_fake_session(tmp_path, "dead-bridge", fake)
+    try:
+        _wait_for_pending(client, "dead-bridge", "dec-h-1")
+        process.exited = True
+        final = _wait_finished(client, "dead-bridge")
+        assert final["result"]["status"] == "failed"  # type: ignore[index]
+        assert "BRIDGE_EXITED" in str(final["result"]["failure_message"])  # type: ignore[index]
+    finally:
+        app.state.play_manager.shutdown_all()  # type: ignore[attr-defined]
+
+
+def test_speed_zero_hurries_the_ai_but_never_answers_the_human(tmp_path: Path) -> None:
+    fake = _FakeInteractiveClient()
+    app, client = _start_fake_session(tmp_path, "hurry", fake, ai_delay_ms=5_000)
+    try:
+        _wait_for_pending(client, "hurry", "dec-h-1")
+        accepted = client.post(
+            "/api/play/hurry/decision",
+            json={"decision_id": "dec-h-1", "selected_option_ids": ["pass-1"], "ordering": []},
+        )
+        assert accepted.status_code == 200
+        time.sleep(0.2)
+        # the AI is still inside its 5 s pause: only the human's own answer has gone out
+        assert [r["decision_id"] for r in fake.submitted_responses] == ["dec-h-1"]
+        started = time.monotonic()
+        assert client.post("/api/play/hurry/speed", json={"ai_delay_ms": 0}).status_code == 200
+        _wait_for_pending(client, "hurry", "dec-h-2")
+        assert time.monotonic() - started < 2.0  # the running pause was cut short too
+        time.sleep(0.3)
+        # the second human decision stays open: nothing answered it, the game still runs
+        snap = client.get("/api/play/hurry").json()
+        assert snap["running"] is True
+        assert snap["pending_decision"]["decision_id"] == "dec-h-2"
+        assert [r["decision_id"] for r in fake.submitted_responses] == ["dec-h-1", "dec-ai-1"]
+    finally:
+        app.state.play_manager.shutdown_all()  # type: ignore[attr-defined]
+
+
+def _node_json(script: str) -> object:
+    import shutil
+    import subprocess
+
+    node = shutil.which("node")
+    if node is None:
+        pytest.skip("node is not installed")
+    done = subprocess.run(
+        [node, "-e", script], capture_output=True, text=True, check=True, cwd=STATIC
+    )
+    return json.loads(done.stdout)
+
+
+_FF_PRELUDE = """
+const FF = require('./vorspulen.js');
+const pass = {option_id: 'pass-1', option_type: 'pass_priority', label: 'Pass priority'};
+const others = [
+  {option_id: 'land-1', option_type: 'play_land', label: 'Play Forest'},
+  {option_id: 'cast-1', option_type: 'cast_spell', label: 'Cast Counterspell'},
+];
+const players = [{seat: 0, player_id: 'p0'}, {seat: 1, player_id: 'op-1'}];
+function pending(over, state) {
+  return Object.assign({decision_id: 'd', actor_id: 'p0', seat: 0, decision_class: 'priority',
+    legal_options: [others[0], pass, others[1]],
+    pilot_state: Object.assign({players, active_player_id: 'op-1', turn_number: 4, stack: []}, state || {})}, over || {});
+}
+const ctx = (over) => Object.assign({startTurn: 3, stopOnOpponentStack: true}, over || {});
+"""
+
+
+def test_fast_forward_sends_only_the_engine_pass_option_on_priority() -> None:
+    # (a) with many offered options only the pass option is ever chosen
+    script = (
+        _FF_PRELUDE
+        + """
+const out = [];
+for (const stack of [[], [{name: 'Mine', controller_id: 'p0'}]]) {
+  for (const opts of [[pass], [others[0], pass], [others[0], others[1], pass], [pass, others[1]]]) {
+    out.push(FF.verdict(pending({legal_options: opts}, {stack}), ctx()));
+  }
+}
+console.log(JSON.stringify(out));
+"""
+    )
+    verdicts = _node_json(script)
+    assert isinstance(verdicts, list) and len(verdicts) == 8
+    for verdict in verdicts:
+        assert verdict == {"action": "pass", "optionId": "pass-1"}
+    # without a pass option offered by the engine nothing is sent at all
+    none_offered = _node_json(
+        _FF_PRELUDE
+        + "console.log(JSON.stringify(FF.verdict(pending({legal_options: others}), ctx())));"
+    )
+    assert isinstance(none_offered, dict) and none_offered["action"] == "stop"
+
+
+def test_fast_forward_stops_at_every_non_priority_decision() -> None:
+    classes = [
+        "mulligan", "declare_attacker", "declare_blocker", "target", "mode", "announce_x",
+        "mana_payment", "trigger_order", "multi_amount", "choose_use", "choose_object", "order",
+    ]  # fmt: skip
+    script = (
+        _FF_PRELUDE
+        + f"""
+const out = {json.dumps(classes)}.map((cls) =>
+  FF.verdict(pending({{decision_class: cls, legal_options: [others[0], pass]}}), ctx()));
+console.log(JSON.stringify(out));
+"""
+    )
+    verdicts = _node_json(script)
+    assert isinstance(verdicts, list) and len(verdicts) == len(classes)
+    for verdict in verdicts:
+        assert verdict["action"] == "stop" and "selbst" in verdict["reason"]
+        assert "optionId" not in verdict
+
+
+def test_fast_forward_stops_when_the_own_turn_begins() -> None:
+    script = (
+        _FF_PRELUDE
+        + """
+const own = (turn) => pending({}, {active_player_id: 'p0', turn_number: turn});
+console.log(JSON.stringify([
+  FF.verdict(own(4), ctx()),                       // my next turn: stop
+  FF.verdict(own(3), ctx()),                       // the turn it was switched on in: keep passing
+  FF.verdict(own(3), ctx({startTurn: null})),      // start turn unknown: stop to be safe
+  FF.verdict(pending({}, {active_player_id: null}), ctx()),  // unknown turn owner: stop
+  FF.verdict(pending({}, {}), ctx()),              // opponent's turn: pass
+]));
+"""
+    )
+    result = _node_json(script)
+    assert isinstance(result, list)
+    own_next, own_same, unknown_start, unknown_owner, opponent = result
+    assert own_next == {"action": "stop", "reason": "dein Zug beginnt"}
+    assert own_same["action"] == "pass"
+    assert unknown_start["action"] == "stop"
+    assert unknown_owner["action"] == "stop"
+    assert opponent["action"] == "pass"
+
+
+def test_fast_forward_stops_on_an_opponent_stack_object_when_enabled() -> None:
+    script = (
+        _FF_PRELUDE
+        + """
+const theirs = {name: 'Counterspell', controller_id: 'op-1'};
+const mine = {name: 'Sol Ring', controller_id: 'p0'};
+console.log(JSON.stringify([
+  FF.verdict(pending({}, {stack: [theirs]}), ctx()),
+  FF.verdict(pending({}, {stack: [mine, theirs]}), ctx()),
+  FF.verdict(pending({}, {stack: [{name: 'No owner'}]}), ctx()),
+  FF.verdict(pending({}, {stack: [mine]}), ctx()),
+  FF.verdict(pending({}, {stack: [theirs]}), ctx({stopOnOpponentStack: false})),
+]));
+"""
+    )
+    result = _node_json(script)
+    assert isinstance(result, list)
+    with_theirs, mixed, no_owner, only_mine, switched_off = result
+    assert with_theirs["action"] == "stop" and "Counterspell" in with_theirs["reason"]
+    assert mixed["action"] == "stop"
+    assert no_owner["action"] == "stop"  # an object of unknown owner counts as not mine
+    assert only_mine == {"action": "pass", "optionId": "pass-1"}
+    assert switched_off == {"action": "pass", "optionId": "pass-1"}
+
+
+def test_fast_forward_page_code_answers_nothing_but_the_verdict_pass() -> None:
+    js_text = (STATIC / "partie.js").read_text(encoding="utf-8")
+    html_text = (STATIC / "partie.html").read_text(encoding="utf-8")
+    for elem_id in ("ff-btn", "ff-stack", "ff-rule", "ff-status"):
+        assert f'id="{elem_id}"' in html_text
+    assert 'src="vorspulen.js"' in html_text
+    assert "selected_option_ids: [verdict.optionId]" in js_text
+    # the fast-forward switch itself never submits; only the verdict path above does
+    for name in ("startFastForward", "endFastForward", "setAiDelay"):
+        body = js_text.split(f"function {name}(", 1)[1].split("\nfunction ", 1)[0]
+        assert "submitHumanChoice(" not in body, name
+    vorspulen = (STATIC / "vorspulen.js").read_text(encoding="utf-8")
+    assert 'pending.decision_class !== "priority"' in vorspulen
+    assert "innerHTML" not in vorspulen and "style=" not in vorspulen

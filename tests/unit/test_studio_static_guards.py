@@ -163,3 +163,61 @@ def test_export_dialog_offers_exactly_the_server_text_formats() -> None:
     page = (STATIC / "index.html").read_text(encoding="utf-8")
     assert page.index("exportformats.js") < page.index("app.js")
     assert "exportFormatsSection(" in (STATIC / "app.js").read_text(encoding="utf-8")
+
+
+def test_partie_space_key_is_not_taken_from_a_focused_control() -> None:
+    js = (STATIC / "partie.js").read_text(encoding="utf-8")
+    keydown = js.split('addEventListener("keydown"', 1)[1].split('$("new-game")', 1)[0]
+    # Space toggles the replay only when no interactive element has the focus
+    assert 'if (event.key === " ") { if (isInteractive(target)) return;' in keydown
+    guard = js.split("function isInteractive(", 1)[1].split("\n}", 1)[0]
+    for selector in ("button", "a[href]", "input", "select", "textarea", "summary"):
+        assert selector in guard
+    assert keydown.index("isInteractive(target)") < keydown.index("setPlaying(")
+
+
+def test_partie_announces_decisions_and_labels_option_groups() -> None:
+    html = (STATIC / "partie.html").read_text(encoding="utf-8")
+    js = (STATIC / "partie.js").read_text(encoding="utf-8")
+    assert 'id="sr-announce"' in html and 'aria-live="polite"' in html
+    assert 'id="human-decision"' in html and 'role="region"' in html
+    assert 'id="toast" role="status"' in html
+    assert "announceDecision(pending)" in js and "Neue Entscheidung für" in js
+    # every option list is a labelled group
+    assert js.count('role: "group", "aria-label"') >= 4
+    assert '"aria-pressed": active' in js
+
+
+def test_partie_poll_failures_show_a_connection_banner_not_a_silent_retry() -> None:
+    html = (STATIC / "partie.html").read_text(encoding="utf-8")
+    js = (STATIC / "partie.js").read_text(encoding="utf-8")
+    assert 'id="conn-status"' in html and 'role="alert"' in html
+    follow = js.split("function follow() {", 1)[1].split("async function refreshTitles", 1)[0]
+    assert "/* try again */" not in follow
+    assert "showConnectionLost(state.pollFailures, error.message)" in follow
+    assert "Verbindung zum Studio unterbrochen" in js
+
+
+def test_partie_offers_no_time_limit_choice() -> None:
+    # Owner decision 2026-11-17: no timeout ends a human game; the page offers none.
+    js = (STATIC / "partie.js").read_text(encoding="utf-8")
+    assert "timeoutPick" not in js and "timeoutWrap" not in js
+    for seconds in ("120", "300", "600"):
+        assert f'value: "{seconds}"' not in js
+    assert "body.decision_timeout_seconds = 0;" in js
+    assert "Kein Zeitlimit" in js
+
+
+def test_the_word_urteil_only_appears_in_negations() -> None:
+    allowed = re.compile(r"\bkein(?:e|en|es)?\s+(?:\w+\s+)?Urteil", re.IGNORECASE)
+    studio = STATIC.parent
+    sources = [*_files("*.js"), *_files("*.html"), *sorted(studio.glob("*.py"))]
+    assert len(sources) > 20
+    offenders: list[str] = []
+    for path in sources:
+        for number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
+            for match in re.finditer(r"Urteil", line):
+                if not allowed.search(line[max(0, match.start() - 24) : match.end()]):
+                    offenders.append(f"{path.name}:{number}")
+    assert offenders == []
+    assert "Vorfilter-Beobachtung" in (STATIC / "app.js").read_text(encoding="utf-8")
