@@ -82,15 +82,25 @@ def split_tags(raw: str) -> list[str]:
     return [part.strip().strip("[]\"'") for part in text.split(",") if part.strip().strip("[]\"'")]
 
 
-def _canonical_name(owners: Mapping[str, list[str]], raw_name: str) -> str:
+def _canonical_name(owners: Mapping[str, list[str]], raw_name: str) -> str | None:
     """The collection card a deck spelling names. ``owners`` (``universe.spelling_owners``) is
     keyed by the casefolded spelling, so the lookup casefolds too: a deck listing only the
-    front face of a two-faced or adventure card counts for that card."""
-    found = owners.get(raw_name.casefold())
+    front face of a two-faced or adventure card counts for that card. A front face shared by
+    several cards names none of them (``None``): the card is skipped, never guessed."""
+    found = sorted(set(owners.get(raw_name.casefold()) or ()))
     if found:
         exact = [cand for cand in found if cand.casefold() == raw_name.casefold()]
-        return sorted(exact)[0] if exact else sorted(found)[0]
+        if exact:  # spellings of one name that differ only in case: the tie-break stays
+            return exact[0]
+        return found[0] if len(found) == 1 else None
     return raw_name
+
+
+def _canonical_or_raw(owners: Mapping[str, list[str]], raw_name: str) -> str:
+    """Like ``_canonical_name`` but an ambiguous front face keeps its own spelling (the
+    spelling still matches only itself, no card is guessed)."""
+    found = _canonical_name(owners, raw_name)
+    return raw_name if found is None else found
 
 
 def _basic_oracle_names(store: StudioStore) -> frozenset[str]:
@@ -182,6 +192,8 @@ def _build_commander_source_index(
         did = str(row["deck_id"])
         raw_name = str(row["card_name"])
         canonical = _canonical_name(owners, raw_name)
+        if canonical is None:
+            continue
         cf = canonical.casefold()
         if cf in basics or cf in cmd_cf:
             continue
@@ -312,11 +324,19 @@ def find_similar_decks(
         cname = name_by_id.get(str(cid))
         if cname:
             canonical = _canonical_name(owners, cname)
-            if canonical.casefold() not in basics and canonical.casefold() not in cmd_cf:
+            if (
+                canonical is not None
+                and canonical.casefold() not in basics
+                and canonical.casefold() not in cmd_cf
+            ):
                 user_cards.add(canonical)
     for raw in deck_card_names:
         canonical = _canonical_name(owners, str(raw))
-        if canonical.casefold() not in basics and canonical.casefold() not in cmd_cf:
+        if (
+            canonical is not None
+            and canonical.casefold() not in basics
+            and canonical.casefold() not in cmd_cf
+        ):
             user_cards.add(canonical)
 
     index = _commander_source_index(store, commander_names)
@@ -504,12 +524,12 @@ def browse_decks(
     basics = _basic_oracle_names(store)
 
     must_in = {
-        _canonical_name(owners, name.strip()).casefold()
+        _canonical_or_raw(owners, name.strip()).casefold()
         for name in must_contain
         if name and name.strip()
     }
     must_out = {
-        _canonical_name(owners, name.strip()).casefold()
+        _canonical_or_raw(owners, name.strip()).casefold()
         for name in must_not_contain
         if name and name.strip()
     }
@@ -566,7 +586,7 @@ def browse_decks(
                     continue
 
             all_names_cf = {
-                _canonical_name(owners, str(r["oracle_name"])).casefold() for r in crows
+                _canonical_or_raw(owners, str(r["oracle_name"])).casefold() for r in crows
             }
             if must_in and not (must_in <= all_names_cf):
                 continue
@@ -575,7 +595,7 @@ def browse_decks(
 
             cmd_cf_set = {c.casefold() for c in cmds}
             nonbasic_cards: set[str] = {
-                _canonical_name(owners, str(r["oracle_name"]))
+                _canonical_or_raw(owners, str(r["oracle_name"]))
                 for r in crows
                 if str(r["oracle_name"]).casefold() not in basics
                 and str(r["oracle_name"]).casefold() not in cmd_cf_set
@@ -782,7 +802,7 @@ def get_browser_deck_detail(store: StudioStore, item_id: str) -> dict[str, objec
         (did, *COUNTED_SECTIONS),
     ):
         raw_name = str(r["card_name"])
-        canonical = _canonical_name(owners, raw_name)
+        canonical = _canonical_or_raw(owners, raw_name)
         pinfo = owned_by_name.get(canonical)
         cid_val = pinfo[0] if pinfo is not None else None
         owned = pinfo[1] if pinfo is not None else 0

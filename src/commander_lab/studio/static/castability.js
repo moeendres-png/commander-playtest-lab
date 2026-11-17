@@ -2,7 +2,7 @@
 // Colour castability (#1415, #1404 option 2): exact, conditioned on land drops (Karsten).
 // Every probability names its condition; no land count advice. Rendered from renderNumbers.
 
-function castPct(value) { return value === null || value === undefined ? "unbekannt" : (100 * value).toFixed(1) + " %"; }
+function castPct(value) { return value === null || value === undefined ? "unbekannt" : (100 * value).toFixed(1).replace(".", ",") + " %"; }
 
 function castabilityNodes(h, data, open) {
   const pipLabel = (label) => h("span", {}, ...label.split("").map((letter) => h("span", { class: "ms ms-" + letter }, letter)));

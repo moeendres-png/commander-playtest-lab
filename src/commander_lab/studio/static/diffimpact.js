@@ -9,7 +9,7 @@ function diffCardTable(h, title, items, quantityText, deps) {
   const freq = (item) => {
     if (item.of === null || item.of === undefined) return "keine Quelldecks";
     if (item.decks === null || item.decks === undefined) return `unbekannt / ${item.of}`;
-    return `${item.decks} / ${item.of}` + (item.of ? ` (${(100 * item.decks / item.of).toFixed(1)} %)` : "");
+    return `${item.decks} / ${item.of}` + (item.of ? ` (${(100 * item.decks / item.of).toFixed(1).replace(".", ",")} %)` : "");
   };
   return [
     h("h3", {}, title),

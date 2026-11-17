@@ -19,6 +19,7 @@ import json
 import re
 import time
 from collections.abc import Iterator, Mapping
+from collections.abc import Set as AbstractSet
 from functools import lru_cache
 from pathlib import Path
 from typing import IO, Protocol
@@ -244,7 +245,9 @@ class GameRecorder:
         self._handle.write(json.dumps(entry, separators=(",", ":"), ensure_ascii=False) + "\n")
         self._handle.flush()
 
-    def record(self, decision: Mapping[str, object], response: Mapping[str, object]) -> None:
+    def record(
+        self, decision: Mapping[str, object], response: Mapping[str, object]
+    ) -> dict[str, object]:
         raw_state = decision.get("pilot_state")
         state: Mapping[str, object] = raw_state if isinstance(raw_state, dict) else {}
         turn = _whole(state.get("turn_number"))
@@ -281,7 +284,9 @@ class GameRecorder:
                 combat_data["blocks"] = list(self._combat_blocks)
 
         self.frames += 1
-        self._write(frame_of(self.frames, decision, response, combat=combat_data))
+        frame = frame_of(self.frames, decision, response, combat=combat_data)
+        self._write(frame)
+        return frame
 
     def discard(self) -> None:
         """Stop writing without closing the log: the game is played again from its start."""
@@ -395,8 +400,63 @@ def _read_orphaned_out(data_folder: str | Path, game_id: str) -> dict[str, objec
     }
 
 
+def _human_seat_set(raw: object) -> frozenset[int]:
+    if not isinstance(raw, list):
+        return frozenset()
+    return frozenset(item for item in raw if type(item) is int)
+
+
+def redact_frame_for_human_seats(
+    frame: Mapping[str, object],
+    human_seats: frozenset[int] | set[int],
+) -> dict[str, object]:
+    """Return a copy of ``frame`` omitting ``hand`` for every seat not in ``human_seats``."""
+    copy_frame = dict(frame)
+    raw_players = frame.get("players")
+    if isinstance(raw_players, list):
+        redacted_players: list[dict[str, object]] = []
+        for player in raw_players:
+            if not isinstance(player, Mapping):
+                continue
+            p_copy = dict(player)
+            seat = _whole(p_copy.get("seat"))
+            if seat not in human_seats:
+                p_copy.pop("hand", None)
+                p_copy.pop("hand_cards", None)
+            redacted_players.append(p_copy)
+        copy_frame["players"] = redacted_players
+    return copy_frame
+
+
+def redact_pilot_state_for_human_seats(
+    pilot_state: Mapping[str, object],
+    human_seats: frozenset[int] | set[int],
+) -> dict[str, object]:
+    """Return a copy of ``pilot_state`` omitting ``hand`` for every seat not in ``human_seats``."""
+    copy_state = dict(pilot_state)
+    raw_players = pilot_state.get("players")
+    if isinstance(raw_players, list):
+        redacted_players: list[dict[str, object]] = []
+        for player in raw_players:
+            if not isinstance(player, Mapping):
+                continue
+            p_copy = dict(player)
+            seat = _whole(p_copy.get("seat"))
+            if seat not in human_seats:
+                p_copy.pop("hand", None)
+                p_copy.pop("hand_cards", None)
+            redacted_players.append(p_copy)
+        copy_state["players"] = redacted_players
+    return copy_state
+
+
 def read_game(
-    data_folder: str | Path, game_id: str, *, start: int = 0, count: int = 200
+    data_folder: str | Path,
+    game_id: str,
+    *,
+    start: int = 0,
+    count: int = 200,
+    live_game_ids: AbstractSet[str] = frozenset(),
 ) -> dict[str, object]:
     """Header, the frames ``start .. start+count`` and, when the game is over, its result."""
     try:
@@ -419,13 +479,21 @@ def read_game(
             total += 1
     if header.get("schema") != LOG_SCHEMA:
         raise ValueError(f"{game_id}: not a game log of this version")
+    human_seats = _human_seat_set(header.get("human_seats"))
+    if result is None and human_seats:
+        frames = [redact_frame_for_human_seats(frame, human_seats) for frame in frames]
     out_path = path.parent / f"{_checked_id(game_id)}.out"
     out_content: str | None = None
     if out_path.is_file():
         with contextlib.suppress(OSError):
             out_content = out_path.read_text(encoding="utf-8", errors="replace").strip()
 
-    if result is None and time.time() - path.stat().st_mtime > STALE_SECONDS:
+    stale_after = STALE_SECONDS
+    raw_timeout = header.get("decision_timeout_seconds")
+    if type(raw_timeout) is int and raw_timeout > 0:
+        stale_after = max(STALE_SECONDS, float(raw_timeout) + 120.0)
+    is_live = game_id in live_game_ids
+    if result is None and not is_live and time.time() - path.stat().st_mtime > stale_after:
         # no closing entry and no new entry for a long time: the game process is gone
         failure_msg = "abgebrochen"
         if out_content:
@@ -464,7 +532,11 @@ def delete_game(data_folder: str | Path, game_id: str) -> bool:
     return True
 
 
-def list_games(data_folder: str | Path) -> list[dict[str, object]]:
+def list_games(
+    data_folder: str | Path,
+    *,
+    live_game_ids: AbstractSet[str] = frozenset(),
+) -> list[dict[str, object]]:
     """Every recorded game, newest first, with its header and (when over) its result."""
     games: list[dict[str, object]] = []
     folder = games_folder(data_folder)
@@ -477,7 +549,7 @@ def list_games(data_folder: str | Path) -> list[dict[str, object]]:
             continue
         seen.add(game_id)
         try:
-            game = read_game(data_folder, game_id, count=0)
+            game = read_game(data_folder, game_id, count=0, live_game_ids=live_game_ids)
         except (ValueError, KeyError, OSError, json.JSONDecodeError, EOFError):
             continue
         games.append(

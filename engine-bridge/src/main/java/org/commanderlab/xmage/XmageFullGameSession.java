@@ -94,6 +94,30 @@ final class XmageFullGameSession {
             XmageDeckImporter deckImporter,
             XmageNativeStateRestoration restoration
     ) {
+        this(
+                protocolGameId,
+                deckHandles,
+                startingPlayerSeat,
+                startingLife,
+                seed,
+                deckImporter,
+                restoration,
+                XmageFullGameDecisionController.defaultTimeoutFromProperty(),
+                List.of()
+        );
+    }
+
+    XmageFullGameSession(
+            String protocolGameId,
+            List<String> deckHandles,
+            int startingPlayerSeat,
+            int startingLife,
+            long seed,
+            XmageDeckImporter deckImporter,
+            XmageNativeStateRestoration restoration,
+            Duration decisionTimeout,
+            List<Integer> humanSeats
+    ) {
         if (protocolGameId == null || protocolGameId.isBlank()) {
             throw new IllegalArgumentException("game_id must be nonblank");
         }
@@ -115,12 +139,34 @@ final class XmageFullGameSession {
         if (deckImporter == null) {
             throw new IllegalArgumentException("deckImporter must not be null");
         }
+        Duration effectiveTimeout = decisionTimeout == null
+                ? XmageFullGameDecisionController.defaultTimeoutFromProperty()
+                : decisionTimeout;
+        if (effectiveTimeout.isZero() || effectiveTimeout.isNegative()) {
+            throw new IllegalArgumentException("decisionTimeout must be positive");
+        }
+        List<Integer> validatedHumanSeats = new ArrayList<>();
+        if (humanSeats != null) {
+            for (Integer seat : humanSeats) {
+                if (seat == null || seat < 0 || seat >= sessionsPlayers) {
+                    throw new IllegalArgumentException(
+                            "invalid human_seat: " + seat + " (expected 0.." + (sessionsPlayers - 1) + ")"
+                    );
+                }
+                if (!validatedHumanSeats.contains(seat)) {
+                    validatedHumanSeats.add(seat);
+                }
+            }
+        }
 
         this.protocolGameId = protocolGameId;
         this.seed = seed;
         this.playerCount = sessionsPlayers;
         this.startingPlayerSeat = startingPlayerSeat;
-        this.controller = new XmageFullGameDecisionController(Duration.ofMinutes(2));
+        this.controller = new XmageFullGameDecisionController(effectiveTimeout);
+        for (int seat : validatedHumanSeats) {
+            this.controller.setHumanSeat(seat, true);
+        }
 
         this.startingLife = startingLife;
         List<Deck> decks = new ArrayList<>(playerCount);

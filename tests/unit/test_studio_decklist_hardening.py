@@ -289,3 +289,23 @@ def test_amount_scrub_stays_linear(store: StudioStore) -> None:
     decks.parse_decklist_text(store, CMD, ("1,1" * 100 + "\n") * 2000)
     decks.parse_decklist_text(store, CMD, "Count,Name\n" + ("1," + "1 000 " * 50 + "\n") * 1500)
     assert time.perf_counter() - started < 2
+
+
+def test_sideboard_lines_are_reported_not_silently_dropped(store: StudioStore) -> None:
+    text = "1 Sol Ring\nsb: 1 Arcane Signet\nSideboard\n1 Sol Ring\n2 Island\nMaybe\n1 Sol Ring"
+    parsed = decks.parse_decklist_text(store, CMD, text)
+    assert _names(parsed) == ["Sol Ring"]
+    notes = parsed["ignored_annotations"]
+    assert notes == [
+        {"line": line, "annotation": "Sideboard-Zeile übersprungen (nicht im Deck)"}
+        for line in (2, 4, 5, 7)
+    ]
+    assert parsed["summary"]["sideboard_lines_skipped"] == len(notes) == 4
+    csv_parsed = decks.parse_decklist_text(
+        store, CMD, "Count,Name,Section\n1,Sol Ring,main\n1,Sol Ring,sideboard"
+    )
+    assert csv_parsed["summary"]["sideboard_lines_skipped"] == 1
+    assert (
+        decks.parse_decklist_text(store, CMD, "1 Sol Ring")["summary"]["sideboard_lines_skipped"]
+        == 0
+    )

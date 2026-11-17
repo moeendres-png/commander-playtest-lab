@@ -340,3 +340,17 @@ def test_static_deck_browser_and_app_js_hygiene() -> None:
     assert "similar-they-play" in app_js
     assert "similar-you-play" in app_js
     assert "similar-include-unowned" in app_js
+
+
+def test_canonical_name_is_none_for_a_front_face_shared_by_several_cards() -> None:
+    from commander_lab.studio.similar_decks import _canonical_name
+
+    owners = {
+        "fire": ["Fire // Ice", "Fire // Ruin"],
+        "wear": ["Wear // Tear"],
+        "fire // ice": ["Fire // Ice"],
+    }
+    assert _canonical_name(owners, "Fire") is None
+    assert _canonical_name(owners, "Fire // Ice") == "Fire // Ice"
+    assert _canonical_name(owners, "Wear") == "Wear // Tear"
+    assert _canonical_name(owners, "Unlisted Card") == "Unlisted Card"

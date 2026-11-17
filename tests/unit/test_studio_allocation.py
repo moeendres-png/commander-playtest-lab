@@ -143,3 +143,18 @@ def test_reserved_copy_and_missing_inventory(tmp_path: Path) -> None:
     # Without an inventory row the free copies are unknown: no overbooking is claimed.
     assert entry["available"] is None
     assert entry["overbooked"] is False
+
+
+def test_deck_without_main_variant_and_without_inventory_row(tmp_path: Path) -> None:
+    store = _store_with_locations(tmp_path)
+    with store.connection as db:
+        db.execute("DELETE FROM inventory WHERE card_id = ?", (B,))
+    # Only a "probe" variant exists: it is the most recently saved one and binds the copies.
+    create_revision(store, deck_id="d1", name="Deck Eins", cards=[RevisionCard(B)], branch="probe")
+    result = allocation.allocation(store)
+    assert [(d["deck_id"], d["branch"]) for d in result["decks_binding"]] == [("d1", "probe")]
+    entry = result["cards"][B]
+    assert (entry["bound"], entry["available"], entry["owned"]) == (1, None, None)
+    assert entry["overbooked"] is False
+    assert entry["other_variants"] == []
+    assert B not in result["overbooked"]
