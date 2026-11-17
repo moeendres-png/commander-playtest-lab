@@ -1662,7 +1662,7 @@ async function renderSwapBox(into, card, initialMode = null) {
       }
       const roleBadges = res.roles.map((r) => roleName(r)).join(", ");
       const headerNote = h("p", { class: "note" },
-        `Rollen: ${roleBadges} · Sortiert nach ${sortBy === "lift" ? "Lift (gegen globale EDHREC-Verbreitung)" : "Häufigkeit"} in „${cohortName(res.source_label)}“ (Nenner: ${res.of} Decks). `,
+        `Rollen: ${roleBadges} · Sortiert nach ${sortBy === "lift" ? "Lift (gegen globale EDHREC-Verbreitung)" : "Häufigkeit"} in „${cohortName(res.source_label)}“ (Nenner: ${Number(res.of).toLocaleString("de-DE")} Decks). `,
         res.small_sample ? h("span", { class: "pill low" }, `Kleine Stichprobe (< ${state.small} Decks)`) : null,
         res.unknown_count ? ` · ${res.unknown_count} Karte(n) mit unbekanntem Wert stehen am Ende (unbekannt ist nie „selten gespielt“).` : "",
         ` Lift wird erst ab ${res.lift_min_n} Quelldecks mit der Karte in der Gruppe und bekanntem globalem Anteil ausgewiesen.`,
