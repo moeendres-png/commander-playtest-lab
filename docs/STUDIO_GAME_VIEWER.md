@@ -61,7 +61,7 @@ seats. Owner decisions for this mode (2026-11-17, binding):
   `GET /api/games/{id}` serve the frames without them, and a pick of an AI seat out of a hidden zone loses
   its card names (the engine names the zone of each option: hand or library, such as a tutor or a London
   mulligan bottom; a zone it does not name counts as hidden; picks from the battlefield, graveyard,
-  exile and stack stay visible). The log file in the data folder keeps the full
+  exiled and stack stay visible). The log file in the data folder keeps the full
   frames, because the reveal needs them; it is a local file and is never served while the game runs.
   Once the game has its closing entry, both routes serve the full frames and the page marks the hand
   as "nach Spielende aufgedeckt". Replay then shows what each seat held; a page that watched the game end reloads the frames once

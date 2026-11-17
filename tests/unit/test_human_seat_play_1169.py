@@ -418,8 +418,9 @@ def test_ai_pick_from_a_hidden_zone_stays_hidden_while_running(tmp_path: Path) -
     pick("o-none", "Unknown Zone Secret", None)  # zone not named: hidden to be safe
     pick("o-gy", "Public Graveyard Card", {"zone": "graveyard"})
     pick("o-bf", "Public Permanent", {"zone": "battlefield"})
+    pick("o-ex", "Public Exiled Card", {"zone": "exiled"})  # the engine names the zone "exiled"
     running = games.read_game(tmp_path, "g-hand-pick")
-    assert len(running["frames"]) == 5 and running["running"] is True
+    assert len(running["frames"]) == 6 and running["running"] is True
     blob = json.dumps(running)
     for secret in ("Hand Secret", "Tutored Secret", "Unknown Zone Secret"):
         assert secret not in blob
@@ -429,6 +430,7 @@ def test_ai_pick_from_a_hidden_zone_stays_hidden_while_running(tmp_path: Path) -
     assert [f["chosen"] for f in running["frames"][3:]] == [
         ["Public Graveyard Card"],
         ["Public Permanent"],
+        ["Public Exiled Card"],
     ]
     assert not any("private_selection" in f for f in running["frames"][3:])
     recorder.close({"status": "finished", "winner_seats": [0], "decision_count": 5})

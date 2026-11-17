@@ -162,7 +162,7 @@ def _parse_combat_declaration(
     return result
 
 
-_PUBLIC_ZONES = frozenset({"battlefield", "graveyard", "exile", "stack", "command"})
+_PUBLIC_ZONES = frozenset({"battlefield", "graveyard", "exiled", "stack", "command"})
 
 
 def _is_private_selection(decision: Mapping[str, object], response: Mapping[str, object]) -> bool:
