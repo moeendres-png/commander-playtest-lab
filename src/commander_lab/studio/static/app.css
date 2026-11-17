@@ -273,6 +273,7 @@ code.cmd{white-space:pre-wrap;word-break:break-all;font-size:12px}
 #db-decks{overflow-x:auto;padding-bottom:var(--s4)}
 #db-decks table{margin:0 var(--s4);width:calc(100% - 2*var(--s4))}
 #db-cooccurrence{padding:var(--s3);overflow:auto;min-width:0;flex:1}
+@media (max-width:900px){main.browser>*{min-width:0}}
 #db-cooccurrence td.num,#db-cooccurrence th.num,#db-cooccurrence td.nowrap,#db-decks td.num{white-space:nowrap}
 #db-cooccurrence td:nth-child(4){white-space:nowrap}
 @media (min-width:1500px){main.browser{grid-template-columns:minmax(0,1fr) clamp(480px,34vw,700px)}}
