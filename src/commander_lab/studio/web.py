@@ -1042,6 +1042,17 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         finally:
             store.close()
 
+    @app.get("/api/simulations/pod-matrix")
+    def simulations_pod_matrix(
+        commander: list[str] = Query(min_length=1, max_length=2),
+    ) -> dict[str, object]:
+        """Aggregated simulation matchup matrix by pod with exact n/N games and bridge qualification state (#1404)."""
+        store = open_store()
+        try:
+            return builder.pod_matchup_matrix(store, commander)
+        finally:
+            store.close()
+
     @app.post("/api/simulations/batch")
     def run_simulation_batch(body: BatchSimulationBody) -> dict[str, object]:
         store = open_store()
