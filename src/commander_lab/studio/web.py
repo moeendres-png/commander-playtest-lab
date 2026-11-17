@@ -286,6 +286,14 @@ class CutBody(BaseModel):
     cohort: str = Field(default="all", min_length=1, max_length=120)
 
 
+class SampleHandBody(BaseModel):
+    cards: list[CardEntry]
+    seed: int = Field(default=1, ge=0, le=2_000_000_000)
+    mulligans: int = Field(default=0, ge=0, le=7)
+    draw_steps: int = Field(default=0, ge=0, le=10)
+    bottom_indices: list[int] = Field(default_factory=list, max_length=7)
+
+
 class CutWhatIfBody(BaseModel):
     cards: list[CardEntry]
     cut: str
@@ -1658,6 +1666,22 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
                 **castability.deck_castability(rows),
                 "hand_roles": castability.hand_roles(rows, role_map),
             }
+        finally:
+            store.close()
+
+    @app.post("/api/sample-hand")
+    def sample_hand_route(body: SampleHandBody) -> dict[str, object]:
+        """Deterministic seeded 7-card sample opening hand and London Mulligan simulator (#1404)."""
+        store = open_store()
+        try:
+            rows = [dict(row) for row in list_rows(store, _cards(body.cards))]
+            return castability.draw_sample_hand(
+                rows,
+                seed=body.seed,
+                mulligans=body.mulligans,
+                draw_steps=body.draw_steps,
+                bottom_indices=body.bottom_indices,
+            )
         finally:
             store.close()
 
