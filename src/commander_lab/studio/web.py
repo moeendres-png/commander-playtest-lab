@@ -74,6 +74,8 @@ from .decks import (
 )
 from .images import image_cache_status, public_card, web_image_url, web_image_url_by_name
 from .launch import MAX_GAMES_PER_JVM, MAX_WORKERS, MIN_GAMES_PER_JVM, MIN_WORKERS
+from .source_layers import freshness as source_freshness
+from .source_layers import source_layers
 from .sources import source_inventory_payload
 from .store import StudioStore, studio_data_dir
 from .universe import UnknownUniverseCards
@@ -453,20 +455,18 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
 
         store = open_store()
         try:
-            sources = [
+            # Only the newest dated rows travel with the page load (the full list was 1.7 MB);
+            # the per-layer table in ``source_layers`` carries the counts of all of them.
+            recent = [
                 dict(row)
                 for row in store.connection.execute(
                     "SELECT title, data_class, SUBSTR(sha256, 1, 12) AS sha256, "
-                    "snapshot_date, imported_at FROM source ORDER BY imported_at"
+                    "snapshot_date, imported_at FROM source "
+                    "WHERE snapshot_date GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]*' "
+                    "ORDER BY imported_at DESC LIMIT 25"
                 )
             ]
-            dated = [str(row["snapshot_date"]) for row in sources if row.get("snapshot_date")]
-            freshness = {
-                "total_sources": len(sources),
-                "with_snapshot_date": len(dated),
-                "oldest_snapshot": min(dated) if dated else None,
-                "newest_snapshot": max(dated) if dated else None,
-            }
+            recent.reverse()
             return {
                 "bridge_qualification": bridge_qualification(),
                 "cards": store.count("card"),
@@ -483,9 +483,10 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
                 # (register in `sources.py`), so the data state is visible here;
                 # the counted detail of every layer is under /api/data-report.
                 "source_inventory": _inventory_summary(),
-                "freshness": freshness,
+                "freshness": source_freshness(store.connection),
+                "source_layers": source_layers(store.connection),
                 "image_cache": image_cache_status(store),
-                "sources": sources,
+                "sources": recent,
             }
         finally:
             store.close()

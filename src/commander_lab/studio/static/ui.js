@@ -223,18 +223,27 @@ const StudioUI = (() => {
     // ``only`` limits the check to the named layer keys (the tier list needs just the sources of the index)
     const missing = overview.layers.filter((layer) => layer.status === "MISSING" && (!only || only.includes(layer.key)));
     const freshness = status && status.freshness ? status.freshness : null;
-    const datedSources = status && Array.isArray(status.sources) ? status.sources.filter((s) => s.snapshot_date) : [];
-    if (onlyWhenMissing && !missing.length && !datedSources.length) { host.replaceChildren(); return; }
+    const layers = status && Array.isArray(status.source_layers) ? status.source_layers : [];
+    if (onlyWhenMissing && !missing.length && !layers.length) { host.replaceChildren(); return; }
+    // One line per source layer: "n datiert von N", the real oldest/newest date, or the neutral text.
+    const layerLine = (layer) => {
+      const range = layer.dated
+        ? (layer.oldest === layer.newest ? layer.oldest : `${layer.oldest} bis ${layer.newest}`)
+        : (layer.undated_note || "Datum nicht im Store");
+      const ident = layer.with_identifier ? `, ${layer.with_identifier} nur mit Kennung` : "";
+      return el("tr", {}, el("td", {}, layer.layer), el("td", { class: "num" }, `${layer.dated} von ${layer.sources}`), el("td", {}, `${range}${ident}`));
+    };
+    const layerTable = () => el("div", { class: "table-wrap" }, el("table", {},
+      el("thead", {}, el("tr", {}, ["Quellschicht", "datiert", "Stand (Datum)"].map((label, index) => el("th", { class: index === 1 ? "num" : "" }, label)))),
+      el("tbody", {}, layers.map(layerLine))));
     if (onlyWhenMissing && !missing.length) {
       const span = freshness && freshness.newest_snapshot
-        ? `Quellenstand: ${freshness.oldest_snapshot && freshness.oldest_snapshot !== freshness.newest_snapshot ? `${freshness.oldest_snapshot} bis ${freshness.newest_snapshot}` : freshness.newest_snapshot} (${freshness.with_snapshot_date} von ${freshness.total_sources} Quellen datiert)`
+        ? `Quellenstand: ${freshness.oldest_snapshot && freshness.oldest_snapshot !== freshness.newest_snapshot ? `${freshness.oldest_snapshot} bis ${freshness.newest_snapshot}` : freshness.newest_snapshot} (${freshness.with_snapshot_date} von ${freshness.total_sources} Quellen datiert${freshness.with_identifier ? `, ${freshness.with_identifier} nur mit Kennung` : ""})`
         : "Datenstand";
       host.replaceChildren(el("details", { class: "datastate" },
         el("summary", {}, span),
-        el("div", { class: "table-wrap" }, el("table", {},
-          el("thead", {}, el("tr", {}, ["Quelle", "Datenklasse", "Stand (Datum)", "Importiert"].map((label) => el("th", {}, label)))),
-          el("tbody", {}, datedSources.slice(-25).reverse().map((s) => el("tr", {},
-            el("td", {}, s.title), el("td", {}, s.data_class), el("td", {}, s.snapshot_date || "unbekannt"), el("td", {}, (s.imported_at || "").slice(0, 10)))))))));
+        layerTable(),
+        el("p", { class: "note" }, "Das Datum steht in der Quelle selbst (Stand der Liste), nicht beim Import. Wo kein Datum im Store steht, wird keines angenommen.")));
       return;
     }
     const rows = overview.layers.map((layer) => el("tr", {},
@@ -246,6 +255,7 @@ const StudioUI = (() => {
     host.replaceChildren(el("details", { class: "datastate", open: missing.some((layer) => ["inventory", "scryfall", "decklists"].includes(layer.key)) },
       el("summary", {}, missing.length ? `Es fehlen Daten: ${missing.length} von ${overview.layers.length} Schichten sind leer` : "Datenstand"),
       el("p", { class: "note" }, `Gezählt für ${StudioCommander.shortName(commander)}. Eine leere Schicht ist keine schwache Karte, sondern fehlende Beobachtung. ${overview.pool_size === null ? "Der Commander steht nicht in der Sammlung: zuerst die Sammlung importieren." : `Kartenpool: ${overview.pool_size} Karten.`}${freshness && freshness.newest_snapshot ? ` Neuester Quellenstand: ${freshness.newest_snapshot}.` : ""}`),
+      layers.length ? layerTable() : null,
       el("div", { class: "table-wrap" }, el("table", {},
         el("thead", {}, el("tr", {}, ["Schicht", "Zeilen", "Pool abgedeckt", "Stand", "Befehl zum Importieren"].map((label, index) => el("th", { class: index === 1 || index === 2 ? "num" : "" }, label)))),
         el("tbody", {}, rows))),

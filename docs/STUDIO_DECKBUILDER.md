@@ -1471,6 +1471,21 @@ at most 40 characters, unique ignoring case), `GET /api/labels`. The pool table 
 the strength index, the rating layers or any evidence figure (`archetype_label` in
 `evidence.TIER_POLICY["never_inputs"]`; `test_labels_never_change_tier_index_layers_or_evidence`).
 
+### Source state per layer ("Quellenstand", #1404)
+
+The data-state box shows one line per source layer (Quelldecks, EDHREC Commander and Bracket,
+Playgroup, TopDeck / EDHTop16, Universum-Kohorten, Spellbook, Scryfall-Fakten, Rulings, Rollen,
+Sammlung) from the `source` table (`source_layers.py`; the layer follows the registered file
+title): `n datiert von N` and the oldest/newest real date. Only a real ISO date counts as a
+date; labels such as `universe:<id>` are identifiers, counted apart ("nur mit Kennung") and
+never part of the span. A layer without any date in the store says "Datum nicht im Store";
+no date is invented and nothing is called fresh. The date is the one written into the source,
+not the import time. `GET /api/status` returns these counts plus only the 25 newest dated rows
+(it carried all 10,665 rows, 1.7 MB, on every page load; now about 7 KB). The card window's
+commander-level co-occurrence pass is remembered per store state, commander list and cohort
+(`builder._cohort_deck_sets`, sharing `corpus_deck_sets`), so the second open of a card is a
+lookup; the figures are the same as counting the cohort's decks directly (tested).
+
 ### Not built: purchase mode
 
 "Kauf-Modus" (try cards outside the collection) is explicitly later (issue #1174 item 7).
