@@ -567,3 +567,84 @@ def test_ranking_check_cli_reports_tier_snapshot(
     payload = json.loads(capsys.readouterr().out)
     assert payload["tier_snapshot"]["commander_name"] == COMMANDER
     assert payload["tier_snapshot"]["stale"] is False
+
+
+def test_playgroup_atlas_update_invalidates_snapshot_and_epoch(
+    store_dir: tuple[Path, StudioStore],
+) -> None:
+    _folder, store = store_dir
+    settings = StrengthSettings.recommended()
+    written = tier_snapshot.write_snapshot(store, COMMANDER, settings, profile_name="Ausgewogen")
+    hit = tier_snapshot.read_snapshot(store, COMMANDER, settings, profile_name="Ausgewogen")
+    assert hit["snapshot"]["status"] == "HIT"  # type: ignore[index]
+
+    src_id = str(store.connection.execute("SELECT source_id FROM source LIMIT 1").fetchone()[0])
+    spell_id = store.card_id_by_name(CARDS[0])
+    with store.connection as db:
+        db.execute(
+            "INSERT INTO playgroup_card_atlas(oracle_id, format_mode, card_id, card_name, slug, "
+            "on_curve_pct, source_id, created_at, updated_at) "
+            "VALUES (?, 'multiplayer', ?, ?, ?, ?, ?, ?, ?)",
+            (
+                "oid-spell-00",
+                spell_id,
+                CARDS[0],
+                "snap-spell-00",
+                55.0,
+                src_id,
+                "2026-11-16T00:00:00Z",
+                "2026-11-16T00:00:00Z",
+            ),
+        )
+    res_insert = tier_snapshot.read_snapshot(store, COMMANDER, settings, profile_name="Ausgewogen")
+    assert res_insert["snapshot"]["status"] == "STALE"  # type: ignore[index]
+    assert res_insert["snapshot"]["current_epoch"] != written["data_epoch"]  # type: ignore[index]
+
+    rewritten = tier_snapshot.write_snapshot(store, COMMANDER, settings, profile_name="Ausgewogen")
+    assert (
+        tier_snapshot.read_snapshot(store, COMMANDER, settings, profile_name="Ausgewogen")[
+            "snapshot"
+        ]["status"]
+        == "HIT"
+    )  # type: ignore[index]
+
+    with store.connection as db:
+        db.execute(
+            "UPDATE playgroup_card_atlas SET on_curve_pct = ?, updated_at = ? WHERE oracle_id = ?",
+            (62.5, "2026-11-16T01:00:00Z", "oid-spell-00"),
+        )
+    res_update = tier_snapshot.read_snapshot(store, COMMANDER, settings, profile_name="Ausgewogen")
+    assert res_update["snapshot"]["status"] == "STALE"  # type: ignore[index]
+    assert res_update["snapshot"]["current_epoch"] != rewritten["data_epoch"]  # type: ignore[index]
+
+
+def test_same_second_tiebreak_trimmed_commander_and_bypass_flags(
+    store_dir: tuple[Path, StudioStore],
+) -> None:
+    _folder, store = store_dir
+    settings = StrengthSettings.recommended()
+    tier_snapshot.write_snapshot(store, COMMANDER, settings, profile_name="Ausgewogen")
+    alt = StrengthSettings(bracket="cedh")
+    tier_snapshot.write_snapshot(store, COMMANDER, alt, profile_name="CustomLatest")
+
+    # Force identical created_at so SQLite must break tie by rowid DESC.
+    with store.connection as db:
+        db.execute(
+            "UPDATE tier_snapshot SET created_at = '2026-11-16T12:00:00Z' WHERE commander_name = ?",
+            (COMMANDER,),
+        )
+    summary = tier_snapshot.latest_snapshot_summary(store, f"  {COMMANDER}  ")
+    assert summary is not None
+    assert summary["profile_name"] == "CustomLatest"
+
+    # Bypass flags on an up-to-date snapshot must not falsely claim STALE.
+    bypassed = tier_snapshot.read_snapshot(
+        store,
+        f" {COMMANDER} ",
+        settings,
+        profile_name="Ausgewogen",
+        notices=("custom notice",),
+    )
+    assert bypassed["snapshot"]["status"] == "BYPASSED"  # type: ignore[index]
+    assert "Snapshot veraltet, Neuberechnung läuft" not in bypassed["notices"]  # type: ignore[operator]
+    assert "custom notice" in bypassed["notices"]  # type: ignore[operator]

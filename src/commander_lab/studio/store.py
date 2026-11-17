@@ -982,12 +982,24 @@ class StudioStore:
         "FROM commander_binding",
         "SELECT COUNT(*), COALESCE(SUM(version), 0), COALESCE(MAX(updated_at), '') "
         "FROM universe_profile",
-        "SELECT COUNT(*), COUNT(value), COALESCE(ROUND(SUM(value), 6), 0) FROM card_signal",
-        "SELECT COUNT(*), COALESCE(MAX(rowid), 0) FROM card",
-        "SELECT COUNT(*), COUNT(DISTINCT role), COALESCE(MAX(oracle_id), '') FROM card_role",
-        "SELECT COUNT(*), COALESCE(MAX(rowid), 0) FROM observation",
-        "SELECT COUNT(*), COALESCE(MAX(rowid), 0) FROM scryfall_card",
-        "SELECT COUNT(*), COALESCE(MAX(rowid), 0) FROM inventory",
+        "SELECT COUNT(*), COUNT(value), COALESCE(ROUND(SUM(value), 6), 0), "
+        "COALESCE(SUM(numerator), 0), COALESCE(SUM(denominator), 0), "
+        "COALESCE(MAX(source_id), '') FROM card_signal",
+        "SELECT COUNT(*), COALESCE(MAX(rowid), 0), COUNT(DISTINCT oracle_id) FROM card",
+        "SELECT COUNT(*), COUNT(DISTINCT role), COALESCE(MAX(oracle_id), ''), "
+        "COALESCE(MAX(source_id), '') FROM card_role",
+        "SELECT COUNT(*), COALESCE(MAX(rowid), 0), "
+        "COALESCE(ROUND(SUM(COALESCE(value, 0)), 6), 0), "
+        "COALESCE(SUM(numerator), 0), COALESCE(SUM(denominator), 0) FROM observation",
+        "SELECT COUNT(*), COALESCE(MAX(rowid), 0), COUNT(DISTINCT scryfall_id), "
+        "COALESCE(MAX(source_id), '') FROM scryfall_card",
+        "SELECT COUNT(*), COALESCE(MAX(rowid), 0), "
+        "COALESCE(SUM(owned_lower_bound), 0), COALESCE(SUM(reserved), 0), "
+        "COALESCE(SUM(quantity_exact), 0), COALESCE(MAX(source_id), '') FROM inventory",
+        "SELECT COUNT(*), COALESCE(MAX(updated_at), ''), COUNT(card_id), "
+        "COALESCE(ROUND(SUM(COALESCE(on_curve_pct, 0) + COALESCE(drawn_to_played_pct, 0) "
+        "+ COALESCE(battlefield_survival_pct, 0)), 6), 0), "
+        "COALESCE(MAX(source_id), '') FROM playgroup_card_atlas",
     )
 
     def data_epoch(self) -> tuple[object, ...]:

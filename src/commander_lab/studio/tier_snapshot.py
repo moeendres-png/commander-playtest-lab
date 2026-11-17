@@ -11,7 +11,7 @@ import hashlib
 import json
 import sqlite3
 from collections.abc import Mapping, Sequence
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, cast
 
 from . import strength
 from .store import StudioStore, now_utc
@@ -135,7 +135,7 @@ def write_snapshot(
     """Compute (if not provided) and persist a pure tier snapshot for ``(commander, spec_hash)``."""
     from . import strength_view
 
-    computed: dict[str, Any] = (
+    computed: dict[str, object] = (
         dict(result)
         if result is not None
         else dict(strength_view.compute(store, commander, settings))
@@ -145,9 +145,11 @@ def write_snapshot(
     spec_hash = compute_spec_hash(settings, with_layers)
     data_epoch = epoch_fingerprint(store)
     created_at = now_utc()
-    tier_counts_obj = {
-        "total": dict(computed.get("tier_counts") or {}),
-        "by_kind": dict(computed.get("tier_counts_by_kind") or {}),
+    raw_counts = computed.get("tier_counts")
+    raw_by_kind = computed.get("tier_counts_by_kind")
+    tier_counts_obj: dict[str, object] = {
+        "total": dict(raw_counts) if isinstance(raw_counts, Mapping) else {},
+        "by_kind": dict(raw_by_kind) if isinstance(raw_by_kind, Mapping) else {},
     }
     comp_denoms = _component_denominators(computed)
 
@@ -193,9 +195,10 @@ def _lookup_snapshot_row(
     spec_hash: str,
     profile_name: str | None,
 ) -> sqlite3.Row | None:
+    canonical = commander.strip()
     row = store.connection.execute(
         f"SELECT {_SELECT_COLUMNS} FROM tier_snapshot WHERE commander_name = ? AND spec_hash = ?",
-        (commander, spec_hash),
+        (canonical, spec_hash),
     ).fetchone()
     if row is not None:
         return cast(sqlite3.Row, row)
@@ -203,8 +206,8 @@ def _lookup_snapshot_row(
         fallback = store.connection.execute(
             f"SELECT {_SELECT_COLUMNS} FROM tier_snapshot "
             "WHERE commander_name = ? AND profile_name = ? "
-            "ORDER BY created_at DESC LIMIT 1",
-            (commander, profile_name),
+            "ORDER BY created_at DESC, rowid DESC LIMIT 1",
+            (canonical, profile_name),
         ).fetchone()
         return cast(sqlite3.Row | None, fallback)
     return None
@@ -221,12 +224,13 @@ def read_snapshot(
     notices: Sequence[str] = (),
     saved_weights: Mapping[str, float] | None = None,
 ) -> dict[str, object]:
-    """Return cached ``StrengthResult`` on HIT, or compute live with STALE/MISSING metadata."""
+    """Return cached ``StrengthResult`` on HIT, or compute live with STALE/BYPASSED/MISSING metadata."""
     from . import strength_view
 
+    canonical = commander.strip()
     spec_hash = compute_spec_hash(settings, with_layers)
     current_epoch = epoch_fingerprint(store)
-    row = _lookup_snapshot_row(store, commander, spec_hash, profile_name)
+    row = _lookup_snapshot_row(store, canonical, spec_hash, profile_name)
 
     if row is not None:
         row_spec_hash = str(row["spec_hash"])
@@ -235,15 +239,13 @@ def read_snapshot(
         row_epoch = str(row["data_epoch"])
         row_created = str(row["created_at"])
 
-        exact = (
+        row_up_to_date = (
             row_spec_hash == spec_hash
             and row_spec_version == SPEC_VERSION
             and row_epoch == current_epoch
-            and not dangling_universe_ok
-            and not notices
-            and saved_weights is None
         )
-        if exact:
+        bypassed = bool(dangling_universe_ok or notices or saved_weights is not None)
+        if row_up_to_date and not bypassed:
             try:
                 payload = json.loads(str(row["payload_json"]))
                 tier_counts_obj = json.loads(str(row["tier_counts_json"]))
@@ -267,18 +269,30 @@ def read_snapshot(
                     }
                     return payload
             except (ValueError, TypeError):
-                pass
+                row_up_to_date = False
 
         live = dict(
             strength_view.compute(
                 store,
-                commander,
+                canonical,
                 settings,
                 dangling_universe_ok=dangling_universe_ok,
                 notices=notices,
                 saved_weights=saved_weights,
             )
         )
+        if row_up_to_date and bypassed:
+            live["snapshot"] = {
+                "status": "BYPASSED",
+                "profile_name": row_profile,
+                "spec_hash": row_spec_hash,
+                "spec_version": row_spec_version,
+                "data_epoch": row_epoch,
+                "current_epoch": current_epoch,
+                "created_at": row_created,
+            }
+            return live
+
         raw_notices = live.get("notices")
         existing_notices = list(raw_notices) if isinstance(raw_notices, list) else []
         if STALE_NOTICE not in existing_notices:
@@ -299,7 +313,7 @@ def read_snapshot(
     live = dict(
         strength_view.compute(
             store,
-            commander,
+            canonical,
             settings,
             dangling_universe_ok=dangling_universe_ok,
             notices=notices,
@@ -318,10 +332,11 @@ def read_snapshot(
 
 def latest_snapshot_summary(store: StudioStore, commander: str) -> dict[str, object] | None:
     """Return lightweight #1369 target summary without loading ``payload_json``."""
+    canonical = commander.strip()
     row = store.connection.execute(
         f"SELECT {_SUMMARY_COLUMNS} FROM tier_snapshot "
-        "WHERE commander_name = ? ORDER BY created_at DESC LIMIT 1",
-        (commander,),
+        "WHERE commander_name = ? ORDER BY created_at DESC, rowid DESC LIMIT 1",
+        (canonical,),
     ).fetchone()
     if row is None:
         return None
