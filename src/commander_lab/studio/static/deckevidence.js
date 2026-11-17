@@ -77,7 +77,9 @@ function evidenceCellText(key, cell) {
     }
     case "topdeck":
     case "edhtop16": {
-      const count = cell.n === null ? `Zähler unbekannt` : `${evidenceNumber(cell.n)} / ${evidenceNumber(cell.of)}`;
+      const count = cell.n === null || cell.of === null
+        ? (cell.of === null ? "Nenner unbekannt" : `Zähler unbekannt, N = ${evidenceNumber(cell.of)}`)
+        : `${evidenceNumber(cell.n)} / ${evidenceNumber(cell.of)}`;
       return [`${count}${cell.derived_numerator ? " (aus Rate)" : ""}`, cell.small_group];
     }
     case "roles":

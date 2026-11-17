@@ -206,7 +206,7 @@ NOT_READ_PARTNERS = "für Partner-Decks nicht gelesen"
 def _columns(
     denominators: dict[str, list[int]], commander: str, *, partners: bool = False
 ) -> list[dict[str, object]]:
-    short = commander.split(",")[0]
+    short = commander  # the short names of all commanders of the deck, joined
     columns: list[dict[str, object]] = [
         {
             "key": "decks_all",
@@ -494,7 +494,7 @@ def deck_evidence(
 
     columns = _columns(
         {key: sorted(found) for key, found in tournament_n.items()},
-        commander_names[0],
+        " + ".join(commander.split(",")[0] for commander in commander_names),
         partners=len(commander_names) > 1,
     )
     ordered = order_cards(cards)
