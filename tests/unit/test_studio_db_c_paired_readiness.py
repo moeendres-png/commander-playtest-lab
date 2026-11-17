@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 import json
+import os
 import time
 from pathlib import Path
+from typing import cast
 
 import pytest
 from fastapi.testclient import TestClient
@@ -943,6 +945,11 @@ def test_deck_series_survives_hostile_files_and_malformed_results(tmp_path: Path
     (games / "paired-3-1-cccccccc.paired.json").write_text(
         " " * (deck_series.MAX_FILE_BYTES + 1), encoding="utf-8"
     )
+    (games / "paired-7-1-11111111.paired.json").mkdir()  # not a regular file
+    special = 1
+    if hasattr(os, "mkfifo"):  # a FIFO without a writer must be skipped, not opened
+        os.mkfifo(games / "paired-8-1-22222222.paired.json")
+        special += 1
     for sid, result in (
         ("paired-4-1-dddddddd", "not-a-dict"),
         ("paired-5-1-eeeeeeee", {"pairs_completed": "40", "pairs_played": "x", "seeds": "s"}),
@@ -956,7 +963,7 @@ def test_deck_series_survives_hostile_files_and_malformed_results(tmp_path: Path
     series = out["series"]
     assert isinstance(series, list)
     assert len(series) == 4
-    assert out["skipped"] == 2
+    assert out["skipped"] == 2 + special
     status = {item["series_id"]: item["status"] for item in series}
     assert status["paired-1-1-aaaaaaaa"] == "completed"
     for sid in ("paired-4-1-dddddddd", "paired-5-1-eeeeeeee", "paired-6-1-ffffffff"):
@@ -981,13 +988,13 @@ def test_deck_series_limits_are_reported(tmp_path: Path, monkeypatch: pytest.Mon
     out = deck_series.deck_series(tmp_path, ["rev@m"])
     assert out["scan_truncated"] == 1
     assert out["scan_limit"] == 4
-    assert len(out["series"]) == 4  # type: ignore[arg-type]
+    assert len(cast(list[object], out["series"])) == 4
     monkeypatch.setattr(deck_series, "SCAN_LIMIT", 10)
     monkeypatch.setattr(deck_series, "SERIES_LIMIT", 2)
     capped = deck_series.deck_series(tmp_path, ["rev@m"])
     assert capped["truncated"] is True
     assert capped["scan_truncated"] == 0
-    assert len(capped["series"]) == 2  # type: ignore[arg-type]
+    assert len(cast(list[object], capped["series"])) == 2
 
 
 def test_deck_series_uncounted_seats_are_planned_only() -> None:

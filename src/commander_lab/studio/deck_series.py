@@ -163,6 +163,9 @@ def _entry(raw: Mapping[str, object], status: str) -> dict[str, object]:
 def _read_series_file(path: Path) -> dict[str, object] | None:
     """The parsed series, or None for a file that is corrupt, foreign or not this format."""
     try:
+        # Only regular files: opening a FIFO without a writer would block for good.
+        if not path.is_file():
+            return None
         # A bounded read: a file that grows after a size check cannot exceed the limit.
         with path.open("rb") as handle:
             data = handle.read(MAX_FILE_BYTES + 1)

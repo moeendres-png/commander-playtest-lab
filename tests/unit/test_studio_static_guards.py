@@ -2,8 +2,13 @@
 
 from __future__ import annotations
 
+import json
 import re
+import shutil
+import subprocess
 from pathlib import Path
+
+import pytest
 
 STATIC = Path(__file__).resolve().parents[2] / "src" / "commander_lab" / "studio" / "static"
 PRICE_WORDS = re.compile(r"\b(preis\w*|kaufen|zukauf|price\w*|buy)\b|€", re.IGNORECASE)
@@ -282,3 +287,63 @@ def test_no_raw_model_code_and_average_mana_value_uses_the_german_formatter() ->
     assert "${shape.mana_value === null" not in app
     packages = (STATIC / "packages.js").read_text(encoding="utf-8")
     assert "StudioUI.num(m.deck" in packages and "StudioUI.num(m.target" in packages
+
+
+def _node_json(script: str) -> object:
+    node = shutil.which("node")
+    if node is None:
+        pytest.skip("node is not installed")
+    done = subprocess.run(
+        [node, "-e", script], capture_output=True, text=True, check=True, cwd=STATIC
+    )
+    return json.loads(done.stdout)
+
+
+def test_draft_export_matches_the_server_text_for_astral_names_and_partners() -> None:
+    from commander_lab.studio.decks import export_text
+
+    # U+FF5E sorts before U+1F600 by code point (Python) but after it by UTF-16 unit (JS).
+    names = ["\U0001f600 Grin", "\uff5e Tilde", "Zed", "Apple", "Zed"]
+    script = (
+        "const E = require('./exportformats.js');"
+        f"const names = {json.dumps(names)};"
+        "const cmd = [{name: 'Zoe', quantity: 1}, {name: 'Abe', quantity: 1}];"
+        "const main = names.map((name) => ({name, quantity: 1}));"
+        "console.log(JSON.stringify(['moxfield', 'plain'].map((f) => E.exportFormatText(f, cmd, main))));"
+    )
+    drafts = _node_json(script)
+    rows = [{"zone": "commander", "oracle_name": n, "quantity": 1} for n in ("Zoe", "Abe")]
+    rows += [{"zone": "main", "oracle_name": n, "quantity": 1} for n in names]
+    server = [export_text(rows, f) for f in ("moxfield", "plain")]  # type: ignore[arg-type]
+    assert drafts == server
+    assert "2 Zed" in server[0]
+    assert server[0].index("\uff5e Tilde") < server[0].index("\U0001f600 Grin")
+
+
+def test_build_list_keys_are_stable_order_free_and_per_location() -> None:
+    script = """
+const B = require('./buildlist.js');
+const state = {baseRevision: null, dirty: true, deckId: 'd'};
+const key = (entries) => B.buildListKey({state, entries: () => entries});
+const a = {card_id: 'c1', zone: 'main', quantity: 1};
+const b = {card_id: 'c2', zone: 'main', quantity: 2};
+const box = (id) => ({location_id: id});
+console.log(JSON.stringify({
+  same: key([a, b]) === key([a, b]),
+  order: key([a, b]) === key([b, a]),
+  changed: key([a, b]) !== key([a, {...b, quantity: 3}]),
+  zone: key([a, b]) !== key([a, {...b, zone: 'commander'}]),
+  tick: [B.buildListTickId(box('box-1'), a), B.buildListTickId(box('box-2'), a),
+         B.buildListTickId(box(null), a)],
+  draft: key([a, b]).startsWith('buildlist:d:entwurf-'),
+}));
+"""
+    result = _node_json(script)
+    assert result == {
+        "same": True,
+        "order": True,
+        "changed": True,
+        "zone": True,
+        "tick": ["box-1:c1", "box-2:c1", "unknown:c1"],
+        "draft": True,
+    }

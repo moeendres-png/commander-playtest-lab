@@ -325,7 +325,7 @@ def test_web_application_round_trip(studio: StudioStore) -> None:
         assert "29 Forest\n" in block
         plain = client.get(export_url, params={"format": "plain"}).text
         assert plain.splitlines()[0] == "1 Test Commander"
-        assert "Commander" not in plain.splitlines()[1:2]
+        assert "Commander" not in plain.splitlines()  # no zone heading in the plain format
         assert client.get(export_url, params={"format": "pdf"}).status_code == 422
         assert (
             client.get("/api/revisions/nope/export", params={"format": "moxfield"}).status_code
@@ -426,6 +426,26 @@ def test_export_text_formats_read_back_through_the_list_import(studio: StudioSto
         assert {(c["card_id"], c["quantity"], c["zone"]) for c in parsed["cards"]} == wanted
     with pytest.raises(ValueError):
         export_text(rows, "mtgo")
+    # two commanders (partners): both stay in the commander zone through the round trip
+    pair = [
+        RevisionCard(ids["Test Commander"], 1, "commander"),
+        RevisionCard(ids["Filler 01"], 1, "commander"),
+        RevisionCard(ids["Forest"], 8),
+    ]
+    pair_rows = revision_rows(studio, create_revision(studio, deck_id="p", name="P", cards=pair))
+    assert export_text(pair_rows, "moxfield").splitlines()[:5] == [
+        "Commander",
+        "1 Filler 01",
+        "1 Test Commander",
+        "",
+        "Deck",
+    ]
+    names = ["Test Commander", "Filler 01"]
+    wanted_pair = {(c.card_id, c.quantity, c.zone) for c in pair}
+    for text_format in ("moxfield", "plain"):
+        parsed = parse_decklist_text(studio, names, export_text(pair_rows, text_format))
+        assert parsed["unrecognized_lines"] == []
+        assert {(c["card_id"], c["quantity"], c["zone"]) for c in parsed["cards"]} == wanted_pair
 
 
 def test_roles_are_read_from_a_role_file_and_counted(studio: StudioStore, tmp_path: Path) -> None:

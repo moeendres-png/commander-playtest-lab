@@ -130,3 +130,4 @@ async function showBuildList(deps) {
   nodes.push(h("p", { id: "buildlist-total", class: data.error ? "warn" : "note" }, `Summe: ${BUILD_LIST_NF.format(data.totals.counted)} von ${BUILD_LIST_NF.format(data.totals.list_size)} Karten (Commander ${BUILD_LIST_NF.format(data.totals.commander)}, Standorte ${BUILD_LIST_NF.format(data.totals.in_groups)}, Standardländer ${BUILD_LIST_NF.format(data.totals.basic_lands)}).`));
   box.replaceChildren(...nodes);
 }
+if (typeof module !== "undefined") module.exports = { buildListDigest, buildListKey, buildListTickId };

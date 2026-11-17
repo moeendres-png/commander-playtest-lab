@@ -227,6 +227,43 @@ def test_deck_facts_route_on_a_store(tmp_path: Path) -> None:
     assert body["bracket"]["two_card_combos"]["count"] is None
 
 
+def test_deck_facts_reads_the_real_cohort_for_thin_in_cohort(tmp_path: Path) -> None:
+    from commander_lab.studio import builder, catalog
+    from commander_lab.studio.decks import RevisionCard, create_revision, revision_rows
+    from tests.unit.test_studio_builder import _write_csv
+
+    store = StudioStore.open(tmp_path / "studio")
+    _fill(store, tmp_path)
+    # d2 (no Swarm Rat) is the only tuned deck: Swarm Rat is in 0 of 1 tuned decks.
+    cohort = _write_csv(tmp_path / "tuned.csv", [{"deck_id": "d2"}])
+    catalog.import_cohort(store, cohort, cohort="bracket:4")
+    ids = {
+        str(r["oracle_name"]): str(r["card_id"])
+        for r in store.connection.execute("SELECT * FROM card_fact")
+    }
+    assert builder.cohort_sizes(store, ["Test Commander"])["tuned"] == 1
+    hits = builder._corpus_hits(store, ["Test Commander"])["Swarm Rat"]
+    assert (hits["all"], hits["tuned"]) == (2, 0)  # a real 0, not a missing count
+    assert "Red Outsider" not in builder._corpus_hits(store, ["Test Commander"])
+    cards = [
+        RevisionCard(ids["Test Commander"], 1, "commander"),
+        RevisionCard(ids["Swarm Rat"], 1),
+        RevisionCard(ids["Red Outsider"], 1),  # in no source deck: unknown, not 0
+        RevisionCard(ids["Forest"], 8),
+    ]
+    revision = create_revision(store, deck_id="d", name="D", cards=cards)
+    gaps = deck_facts.deck_facts(store, revision_rows(store, revision))["data_gaps"]
+    by_card = {item["name"]: item for item in gaps["gaps"]}  # type: ignore[index, union-attr]
+    assert by_card["Swarm Rat"]["thin"] == [
+        {"cohort": "tuned", "n": 0, "of": 1},
+        {"cohort": "all", "n": 2, "of": 3},
+    ]
+    assert by_card["Red Outsider"]["reasons"] == ["no_role", "no_source_deck"]
+    assert "thin" not in by_card["Red Outsider"]
+    assert gaps["by_reason"]["thin_in_cohort"] == {"count": 1, "of": 1}  # type: ignore[index]
+    store.close()
+
+
 # --- data gaps: EDHREC lookup by name, audit note, thin cohorts (#1404 option 10) ---
 
 
