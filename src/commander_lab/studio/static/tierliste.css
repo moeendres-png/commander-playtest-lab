@@ -3,7 +3,9 @@ body{height:auto;min-height:100%}
 #notice{padding:var(--s2) var(--s4);background:var(--panel2);border-bottom:1px solid var(--line);font-size:13px}
 #notice b{color:var(--warn)}
 #notice .summary{color:var(--muted);margin-top:2px}
-#pool-body{overflow:auto;max-height:calc(100vh - 150px);min-height:320px;padding:var(--s3) var(--s4);scrollbar-width:thin}
+#pool-body{overflow:auto;min-height:320px;padding:0;scrollbar-width:thin}
+#pool-body>:not(.table-wrap){margin-left:var(--s4);margin-right:var(--s4)}
+#pool-body>:first-child:not(.table-wrap){margin-top:var(--s3)}
 td.cardcell{white-space:nowrap}
 td.cardcell .thumb{display:inline-block;vertical-align:middle;margin-right:var(--s2)}
 .star{color:#ffd257}
@@ -50,7 +52,7 @@ th.layer-head{white-space:normal;min-width:120px}
 #modal{inset:auto 0 0 auto;top:0;width:min(600px,46vw);background:transparent;display:block;z-index:30;pointer-events:none}
 #modal[hidden]{display:none}
 #modal-box.plain{pointer-events:auto;position:absolute;inset:0;max-width:none;width:100%;max-height:none;height:100%;border-radius:0;border-width:0 0 0 1px;box-shadow:var(--shadow);overflow:auto}
-#modal-box img.big{display:block;width:100%;max-width:320px;margin:0 auto 12px;border-radius:14px}
+#modal-box img.big{display:block;width:100%;max-width:240px;margin:0 auto 12px;border-radius:14px}
 @media (max-width:1100px){.setting{grid-template-columns:1fr 130px;}.setting .help{grid-column:1 / -1}}
 @media (max-width:900px){#modal{width:min(520px,60vw)}}
 /* #1365: tier header, distribution, U cell, confidence and borderline marks, detail blocks */
@@ -89,3 +91,73 @@ table.dist th[scope=row],table.dist thead th:first-child{text-align:left}
    Berechnungs-Hinweise). */
 .badge-text{white-space:normal;max-width:100%}
 
+
+/* UX batch 1 (#1369): one scroll area for the table, sticky tier and card columns, method panel, tier chips.
+   The window is filled by the table: the bars above stay in place and #pool-body takes the rest of the height. */
+.skip-link{position:absolute;left:var(--s2);top:-60px;z-index:100;padding:var(--s2) var(--s3);background:var(--accent);color:var(--accent-fg);border-radius:var(--radius-s);font-weight:600;text-decoration:none}
+.skip-link:focus{top:var(--s2)}
+@media (min-width:701px) and (min-height:521px){
+  html,body{height:100%}
+  body{height:100dvh;min-height:0;overflow:hidden}
+  #pool-body{flex:1 1 0;min-height:140px;max-height:none}
+  #brand,#top,#filters,#tier-bar,#method-panel{flex:none}
+}
+.method{border-bottom:1px solid var(--line);background:var(--panel2)}
+.method>summary{cursor:pointer;padding:var(--s2) var(--s4);font-size:14px}
+.method .method-open{color:var(--accent);text-decoration:underline;margin-left:var(--s2)}
+#method-hint{color:var(--warn)}
+.method-body{max-height:45vh;overflow:auto;border-top:1px solid var(--line);background:var(--bg)}
+#tier-bar{display:flex;flex-wrap:wrap;gap:var(--s2);align-items:center;padding:var(--s2) var(--s4);border-bottom:1px solid var(--line);background:var(--panel);min-height:46px}
+#tier-bar .toggle-label{font-size:13px;color:var(--muted)}
+.tier-chip{padding:0 var(--s2);min-height:30px}
+.tier-chip .tier-badge{border:0;min-width:0;padding:0 2px 0 0;gap:4px;font-weight:600}
+.chip.tier-chip.on{background:var(--panel2);color:var(--text);border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.hint{flex:1 1 100%;font-size:13px;color:var(--muted)}
+.hint.warn-hint{color:var(--warn)}
+.col-menu{position:relative}
+.col-menu>summary{cursor:pointer;padding:2px var(--s3);border:1px solid var(--line);border-radius:var(--radius-s);background:var(--panel2);min-height:30px;display:inline-flex;align-items:center}
+.col-menu-body{position:absolute;left:0;top:100%;z-index:40;min-width:260px;margin-top:4px;padding:var(--s3);background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);display:grid;gap:var(--s2)}
+.col-layers{display:grid;gap:var(--s1)}
+.col-layers label{display:flex;gap:var(--s2);align-items:center}
+#pool-body .table-wrap{overflow:visible}
+#pool-body table{border-collapse:separate;border-spacing:0}
+#pool-body th{cursor:default}
+#pool-body thead th{z-index:3}
+.th-sort{background:none;border:0;padding:0;min-height:0;font:inherit;font-weight:600;color:inherit;cursor:pointer;white-space:nowrap;text-align:inherit}
+.th-sort:hover:not(:disabled){background:none;color:var(--text)}
+#pool-body th.stick-1,#pool-body td.stick-1{position:sticky;left:0;width:176px;min-width:176px;max-width:176px;background:var(--panel);z-index:2}
+#pool-body th.stick-2,#pool-body td.stick-2{position:sticky;left:176px;width:230px;min-width:230px;max-width:230px;background:var(--panel);z-index:2;box-shadow:inset -1px 0 0 var(--line)}
+#pool-body thead th.stick-1,#pool-body thead th.stick-2{z-index:5}
+#pool-body thead th.stick-2{box-shadow:0 1px 0 var(--line),inset -1px 0 0 var(--line)}
+#pool-body tbody tr:nth-child(even) td.stick-1,#pool-body tbody tr:nth-child(even) td.stick-2{background:color-mix(in srgb,var(--panel) 94%,var(--text))}
+#pool-body tbody tr:hover td.stick-1,#pool-body tbody tr:hover td.stick-2{background:color-mix(in srgb,var(--panel) 92%,var(--accent))}
+#pool-body td.cardcell{white-space:normal}
+.rankcell{display:grid;gap:2px;font-size:12.5px;white-space:nowrap}
+.rank-line.sel{font-weight:600}
+.why{border-color:var(--accent)}
+.why-list{margin:var(--s1) 0;padding-left:var(--s4)}
+.why-list li{margin:var(--s1) 0}
+.empty-note{padding:var(--s5);color:var(--muted);font-size:15px}
+body.modal-open,body.modal-open #pool-body{overflow:hidden}
+@media (max-width:700px){
+  #pool-body{max-height:none;min-height:0;padding:0}
+  #pool-body th.stick-1,#pool-body td.stick-1{width:92px;min-width:92px;max-width:92px}
+  #pool-body th.stick-2,#pool-body td.stick-2{left:92px;width:132px;min-width:132px;max-width:132px}
+  #pool-body .stick-2 .thumb{display:none}
+  #pool-body td.stick-1 .conf,#pool-body td.stick-1 .borderline{display:none}
+  .method-body{max-height:none}
+}
+.nowrap{white-space:nowrap}
+.tier-badge.t-U .letter,.tier-badge.t-N .letter{background:var(--panel2);color:var(--muted);border:1px solid var(--line)}
+/* reserve the space of images and not-yet-filled selects: the table must not jump while it loads */
+td.cardcell .thumb{width:36px;aspect-ratio:488/680;height:auto;background:var(--panel2)}
+#type-filter{min-width:140px}
+#role-filter{min-width:200px}
+#pod-filter{min-width:250px}
+#deck-pick.pending{visibility:hidden} /* keeps its place in the top bar until the decks are known */
+#deck-select{min-width:300px}
+#branch-select{min-width:72px}
+#universe-select{min-width:130px}
+@media (max-width:700px){#deck-select{min-width:0}}
+.chip.on:hover:not(:disabled){background:var(--accent);color:var(--accent-fg)}
+.chip.tier-chip.on:hover:not(:disabled){background:var(--panel2);color:var(--text)}

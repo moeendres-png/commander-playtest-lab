@@ -390,3 +390,55 @@ def test_engine_check_and_json_export_labels_say_what_they_do() -> None:
     assert '"Mit der Engine prüfen"' not in app
     assert "keine Live-Abfrage der Engine" in app
     assert "für Simulation (" not in app and "als Lab-Datei" in app
+
+
+def test_tierliste_ux_batch_1_contract() -> None:
+    """UX batch 1 (#1369): one labelled scroll region with a skip link, the method panels behind one
+    closed details, a dialog window, table semantics, plain German instead of raw codes, and the
+    comparison "Gleiche Funktion" as a view mode (the quick toggle sends no recalculation)."""
+    html = (STATIC / "tierliste.html").read_text(encoding="utf-8")
+    js = (STATIC / "tierliste.js").read_text(encoding="utf-8")
+    css = (STATIC / "tierliste.css").read_text(encoding="utf-8")
+    assert html and js and css
+    assert 'class="skip-link" href="#pool-body"' in html
+    assert (
+        'id="pool-body" role="region"' in html and 'aria-label="Tierliste: Kartentabelle"' in html
+    )
+    assert 'role="dialog" aria-modal="true" aria-labelledby="modal-title"' in html
+    method = html.split('<details id="method-panel"', 1)[1].split("</details>", 1)[0]
+    panel_ids = [
+        "data-state",
+        "notice",
+        "universe-panel",
+        "strength-panel",
+        "role-audit-panel",
+        "topdeck-conversion-panel",
+    ]
+    assert "Methodik und Datenlage" in method
+    for panel_id in panel_ids:
+        assert f'id="{panel_id}"' in method, panel_id  # behind the one details, not above the table
+        assert f'id="{panel_id}"' in html.split('<div id="filters">', 1)[0]
+    assert 'id="tier-bar"' in html and 'id="layer-controls"' in html
+    # table semantics, sticky columns, one scroll area
+    for token in (
+        'scope: "col"',
+        '"aria-sort"',
+        'class: "visually-hidden"',
+        'role: "tab"',
+        "th-sort",
+    ):
+        assert token in js, token
+    assert "position:sticky;left:0" in css and "#pool-body .table-wrap{overflow:visible}" in css
+    assert "body.modal-open" in css and "closeModal" in js and "trapModalFocus" in js
+    # raw codes are plain German (the code stays in the title), no English leftovers
+    for code in ("COMPLETE", "NORMALIZED_SOURCE", "DERIVED_DESCRIPTIVE", "NEGATIVE_NEUTRAL"):
+        assert f'{code}: "' in js, code
+    for raw_label in ("(ZERO_COUNT)", "(NOT_LISTED)", "(NOT_COLLECTED)", "EDHREC Inclusion"):
+        assert raw_label not in js, raw_label
+    assert "keine echte oracle_id" not in js and "keine echte Oracle-Kennung" in js
+    assert "typeLabel(group)" in js and 'Artifact: "Artefakt"' in js
+    # the quick toggle is a view mode: it must not send rank_group to the server any more
+    assert "rank_group: group" not in js and 'data-rank-group="function"' in html
+    assert "role_ranks" in js and "Rang in Funktion" in js
+    for forbidden in ("innerHTML", "style=", 'setAttribute("style"', ".toFixed("):
+        assert forbidden not in js and forbidden not in html, forbidden

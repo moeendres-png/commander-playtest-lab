@@ -300,8 +300,8 @@ Formula, per commander (`strength.py`, pure):
 4. Tier `U` ("zu wenig Daten") when coverage is below `min_coverage` or fewer than
    `min_components` weighted components are present, or (rule `require_commander_signal`) no
    commander-specific component has a ranked value; otherwise S/A/B/C/D by the index cuts
-   (default 47/17/9/4 since #1358, editable; before 70/55/35/20; legacy rank-mode cuts were
-   90/75/55/35). A card absent from a source is a missing observation: it
+   (default 54/35/20/5 since #1366, editable; 47/17/9/4 from #1358 to #1366; before 70/55/35/20;
+   legacy rank-mode cuts were 90/75/55/35). A card absent from a source is a missing observation: it
    lowers the coverage, never the percentile. The setting "missing value" decides per share
    signal what a card without a value does: `skip` (the component is left out) or `lowest`
    (counts as the lowest score, 0). Recommended since #1350: `lowest` for the commander
@@ -332,7 +332,7 @@ the Universum selector), the comparison group (`rank_group`: `pool`), the share 
 (`share_measure`: `wilson`), the share scale (`share_scale`: `share`, or `rank` for pure percentile ranks), lands apart from spells (`separate_lands`: on), the minimum denominators (`min_denominators`: EDHREC 30,
 tournament 20, conversion 20, playgroup 200; the deck-universe minimum is the universe's own `min_universe`), the missing
 value per share signal (`lowest` for commander and bracket inclusion, `skip` for the deck universe), commander and basics (`rank_commander_and_basics`: off), other commanders in the pool (`rank_other_commanders`: on, ranked like any card),
-`min_coverage` (0.25, "Mindest-Datenlage"), `min_components` (2), `universe_source` (`auto`), `require_commander_signal` (on) and the editable cuts (`tier_cuts` 47/17/9/4).
+`min_coverage` (0.25, "Mindest-Datenlage"), `min_components` (2), `universe_source` (`auto`), `require_commander_signal` (on) and the editable cuts (`tier_cuts` 54/35/20/5, #1366; `min_coverage` is 0.25).
 The page also filters by tier (S/A/B/C/D/U) and sorts by the percentile of any single
 component. Presets (weights commander inclusion / bracket / deck universe / synergy / tournament /
 conversion / global / combos / Playgroup observation; simulation is 0 in all):
@@ -363,6 +363,47 @@ Routes: `POST /api/strength` (body `commander` plus at most one of `preset`, `pr
 The page names two different things and never mixes them: "Stärke-Index (Schätzung aus
 Nutzungsdaten)" (this index) and "Ergebnis aus Partien (noch nicht bewertet)" (the outcome
 evidence, `UNRATED`).
+
+### Tierliste page: operation (UX batch 1, #1369)
+
+Display and operation only; no figure, index or tier changed (the `POST /api/strength` payload is
+byte-identical apart from the snapshot stamp). The sentence "Stufe = Nutzung in Chulane-Decks,
+keine Spielstärke" is the one line above the table; everything else about method and data sits
+behind "Methodik und Datenlage" (closed by default, remembered in the browser): source freshness,
+data findings, the card counts per source (one row per source, every card in exactly one column),
+the deck universe, the strength panel with its settings, the role audit and the TopDeck overview.
+The number of notes inside it is shown next to the title.
+
+- **Table.** One scroll area (`#pool-body`, a labelled region reached by the skip link "Zur
+  Tabelle"); the columns "Stufe" and "Karte" stay at the left, the header row at the top. Column
+  sets: "Kompakt" (tier, card, marks, mana value, roles, source decks; the default below 1500 px)
+  and "Detail" (adds data situation, rating layers, spread, mechanics, EDHREC, real games and
+  layers); the choice is remembered (`studio.tier.preset`). Headers are real buttons that sort
+  (`aria-sort` on the sorted column), the table has a hidden caption and `scope` on every `th`.
+- **Loading.** Until the strength result is there the tier cell says "wird berechnet …", the tier
+  chips and the comparison toggle are disabled, and the bars above keep their size.
+- **Tier chips.** "S 39 · A 33 · … · N 5" are filters (several at once) with the count of the
+  whole pool; they are separate from the column menu ("Spalten").
+- **Comparison "Gleiche Funktion".** A view mode, not a recalculation: the tier badge stays the tier of
+  the whole pool (`rank_group` stays `pool`); the column "Rang in Funktion" shows "Rang k von n" per
+  role of the card from `role_ranks` (n = ranked cards with that role; no role or no tier means
+  no rank, never 0). A hint names the group (the role of the role filter, else the roles of
+  each card). If the setting "Vergleichsgruppe" itself is set to the function, the page warns that
+  those tiers are recalculated and not comparable, with a button back to the whole pool. A stored
+  setting of that kind from the earlier quick toggle is turned into the view mode once.
+- **Card window.** A dialog (`role="dialog"`, `aria-modal`, focus moves in and returns to the
+  card, Tab stays inside, Escape or "Schließen" closes, the table behind does not scroll). It starts
+  with "Warum hier?": two to four sentences built only from numbers of the payload (n of N source
+  decks, function ranks, the split of the index into points per signal when it adds up to the
+  shown index, the data situation as "n von N Quelldecks, solide/dünn/sehr dünn").
+- **Words.** Raw codes (`COMPLETE`, `NORMALIZED_SOURCE`, `NOT_LISTED`, ...) appear as plain
+  German with the code in the tooltip; type filter and column heads are German; numbers go through
+  `StudioUI.num`/`pct` (comma, thousands dot). Rank is "Rang k von n in der Funktion"; the sort
+  entries "Teil-Score" are the scaled 0 to 100 scores of a signal, not percentiles.
+- **Search.** A typed search shows name matches first (name starts with it, then a word of the
+  name starts with it, then contains it), then the strength order. The filter "Favoriten" without
+  favorites says so instead of showing an empty table. The count line names the active filters
+  ("926 von 927 Karten · Filter: nur freie").
 
 ### Strength index v3: purely empirical ("Tierliste v3", #1364)
 
