@@ -30,6 +30,7 @@ from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
 
+from .decks import color_set
 from .store import DataClass, StudioStore, now_utc, rebuild_corpus_deck_role, sha256_file
 
 SEARCH = "https://api.scryfall.com/cards/search"
@@ -765,10 +766,13 @@ def classify_oracle_roles(type_line: str, oracle_text: str) -> tuple[str, ...]:
     return tuple(sorted(found))
 
 
-def role_origin_audit(store: StudioStore) -> dict[str, object]:
+def role_origin_audit(store: StudioStore, commander: str | None = None) -> dict[str, object]:
     """Compare stored Scryfall tagger claims against deterministic Oracle text claims (#1413).
 
-    Pure counts with explicit denominators; never guesses or changes claims.
+    When ``commander`` is provided, also computes pool-scoped coverage (``pool_total``,
+    ``pool_tagged``, ``pool_untagged``, ``per_role_pool_counts``) and per-role tagger vs.
+    Oracle overlap inside the commander's legal collection pool. Pure counts with explicit
+    denominators; never guesses or changes claims.
     """
     db = store.connection
     by_origin = _claims_by_origin(db)
@@ -782,20 +786,107 @@ def role_origin_audit(store: StudioStore) -> dict[str, object]:
             tagger_by_role.setdefault(r, set()).add(oid)
         elif origin == ORIGIN_ORACLE_TEXT:
             oracle_by_role.setdefault(r, set()).add(oid)
+
+    pool_oracle_ids: set[str] | None = None
+    pool_total = 0
+    pool_tagged = 0
+    pool_untagged = 0
+    per_role_pool_counts: dict[str, int] = {}
+    pool_claims_by_origin: dict[str, int] = {}
+    pool_tagger_by_role: dict[str, set[str]] = {}
+    pool_oracle_by_role: dict[str, set[str]] = {}
+
+    if commander is not None:
+        cmd_row = db.execute(
+            "SELECT color_identity FROM card_fact WHERE oracle_name = ?",
+            (commander,),
+        ).fetchone()
+        if cmd_row is None:
+            raise KeyError(commander)
+        identity = color_set(cmd_row["color_identity"])
+        roles_by_oracle: dict[str, set[str]] = {}
+        for oid_val, role_val in db.execute(
+            "SELECT oracle_id, role FROM card_role "
+            "UNION "
+            "SELECT oracle_id, role FROM card_role_claim"
+        ):
+            roles_by_oracle.setdefault(str(oid_val), set()).add(str(role_val))
+
+        per_role_pool_counts = {role: 0 for role in ROLES}
+        pool_oracle_ids = set()
+        for card_row in db.execute(
+            "SELECT c.card_id, c.oracle_id, c.color_identity "
+            "FROM card_fact c JOIN inventory i USING (card_id) "
+            "WHERE c.commander_legal = 1"
+        ):
+            if not color_set(card_row["color_identity"]) <= identity:
+                continue
+            pool_total += 1
+            raw_oid = card_row["oracle_id"]
+            if not raw_oid:
+                continue
+            oid = str(raw_oid)
+            pool_oracle_ids.add(oid)
+            card_roles = roles_by_oracle.get(oid, set())
+            if card_roles:
+                pool_tagged += 1
+                for r in card_roles:
+                    per_role_pool_counts[r] = per_role_pool_counts.get(r, 0) + 1
+        pool_untagged = pool_total - pool_tagged
+
+        for oracle_id, role, origin in db.execute(
+            "SELECT oracle_id, role, role_origin FROM card_role_claim"
+        ):
+            oid = str(oracle_id)
+            if oid not in pool_oracle_ids:
+                continue
+            orig = str(origin)
+            r = str(role)
+            pool_claims_by_origin[orig] = pool_claims_by_origin.get(orig, 0) + 1
+            if orig in (ORIGIN_TAGGER, ORIGIN_CROSSWALK):
+                pool_tagger_by_role.setdefault(r, set()).add(oid)
+            elif orig == ORIGIN_ORACLE_TEXT:
+                pool_oracle_by_role.setdefault(r, set()).add(oid)
+
     rows: list[dict[str, object]] = []
     for role in ROLES:
         tag_ids = tagger_by_role.get(role, set())
         ora_ids = oracle_by_role.get(role, set())
         both = len(tag_ids & ora_ids)
-        rows.append(
-            {
-                "role": role,
-                "tagger_total": len(tag_ids),
-                "oracle_total": len(ora_ids),
-                "both": both,
-                "tagger_only": len(tag_ids - ora_ids),
-                "oracle_only": len(ora_ids - tag_ids),
-                "oracle_confirmed_share": round(both / len(ora_ids), 4) if ora_ids else None,
-            }
-        )
-    return {"claims_by_origin": by_origin, "roles": rows}
+        entry: dict[str, object] = {
+            "role": role,
+            "tagger_total": len(tag_ids),
+            "oracle_total": len(ora_ids),
+            "both": both,
+            "tagger_only": len(tag_ids - ora_ids),
+            "oracle_only": len(ora_ids - tag_ids),
+            "oracle_confirmed_share": round(both / len(ora_ids), 4) if ora_ids else None,
+        }
+        if pool_oracle_ids is not None:
+            p_tag = pool_tagger_by_role.get(role, set())
+            p_ora = pool_oracle_by_role.get(role, set())
+            p_both = len(p_tag & p_ora)
+            p_count = int(per_role_pool_counts.get(role, 0))
+            entry["pool_count"] = p_count
+            entry["pool_total"] = pool_total
+            entry["pool_share"] = round(p_count / pool_total, 4) if pool_total else None
+            entry["pool_tagger_total"] = len(p_tag)
+            entry["pool_oracle_total"] = len(p_ora)
+            entry["pool_both"] = p_both
+            entry["pool_tagger_only"] = len(p_tag - p_ora)
+            entry["pool_oracle_only"] = len(p_ora - p_tag)
+        rows.append(entry)
+
+    if pool_oracle_ids is None:
+        return {"claims_by_origin": by_origin, "roles": rows}
+    return {
+        "commander": commander,
+        "claims_by_origin": by_origin,
+        "pool_claims_by_origin": pool_claims_by_origin,
+        "pool_total": pool_total,
+        "pool_tagged": pool_tagged,
+        "pool_untagged": pool_untagged,
+        "pool_coverage_share": round(pool_tagged / pool_total, 4) if pool_total else None,
+        "per_role_pool_counts": per_role_pool_counts,
+        "roles": rows,
+    }
