@@ -57,21 +57,28 @@ function renderBracketFacts(h, bracket, open) {
   ];
 }
 
+const DECK_FACTS_COHORT_TEXT = { tuned: "Bracket 4 und 5", all: "alle Quelldecks" };
+
+function thinText(thin) {
+  return "dünn belegt (" + thin.map((t) => `${t.n} von ${t.of} in Gruppe ${DECK_FACTS_COHORT_TEXT[t.cohort] || t.cohort}`).join("; ") + ")";
+}
+
 function renderDataGaps(h, gaps, open) {
   const labels = gaps.reason_labels;
   const reasonRows = Object.entries(gaps.by_reason).map(([key, value]) => h("tr", {},
     h("td", {}, labels[key] || key), h("td", { class: "num" }, `${value.count} / ${value.of}`)));
+  const thinCount = gaps.cards_with_thin ? ` Dazu ${gaps.cards_with_thin} Karten dünn belegt (Hinweis auf die Stichprobe, keine fehlende Angabe).` : "";
   const missing = (gaps.sources_missing || []).map((key) => h("li", {}, `${labels[key] || key}: für diesen Commander ist keine solche Quelle im Store – für alle Karten unbekannt.`));
   const list = gaps.gaps.length
     ? h("table", { id: "data-gaps-list" },
       h("thead", {}, h("tr", {}, h("th", {}, "Karte"), h("th", {}, "Was fehlt"))),
       h("tbody", {}, gaps.gaps.map((item) => h("tr", {},
         h("td", {}, h("a", { href: "#", class: "nm", onclick: (event) => { event.preventDefault(); open(item.card_id); } }, item.name)),
-        h("td", {}, item.reasons.map((key) => labels[key] || key).join(" · "))))))
+        h("td", {}, item.reasons.map((key) => labels[key] || key).concat(item.thin && item.thin.length ? [thinText(item.thin)] : []).join(" · "))))))
     : h("p", { class: "muted", id: "data-gaps-none" }, "Zu keiner Karte fehlen geprüfte Daten.");
   return [
     h("h3", {}, "Datenlücken"),
-    h("p", { id: "data-gaps-summary" }, `${gaps.cards_with_gaps} von ${gaps.cards_checked} Karten (ohne Commander) mit mindestens einer Lücke.`),
+    h("p", { id: "data-gaps-summary" }, `${gaps.cards_with_gaps} von ${gaps.cards_checked} Karten (ohne Commander) mit mindestens einer Lücke.` + thinCount),
     h("table", { id: "data-gaps-reasons" }, h("thead", {}, h("tr", {}, h("th", {}, "Grund"), h("th", { class: "num" }, "Karten / geprüft"))), h("tbody", {}, reasonRows)),
     missing.length ? h("ul", { class: "note" }, missing) : "",
     list,
