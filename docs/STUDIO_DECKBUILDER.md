@@ -1229,7 +1229,10 @@ anywhere in a line (currency symbols or ISO codes before or after the figure, in
 thousands separators) are removed before matching and noted only as `Betragsangabe (ignoriert)` in
 `ignored_annotations`; every returned text field is passed through the same removal, and a line
 that consists only of an amount is `unreadable`. Enclosing double quotes are tried against the
-original name first. Sideboard, `sb:` and `#` lines are skipped silently, as before.
+original name first. Sideboard, `Maybe`/maybeboard, cuts, `sb:` lines are not part of the deck but no longer
+vanish silently: each is noted as `Sideboard-Zeile übersprungen (nicht im Deck)` in `ignored_annotations`
+(line number only, no card name, no amount) and counted in `summary.sideboard_lines_skipped`. `#` and `//` comment lines stay
+skipped silently.
 
 ### Alles importieren
 
@@ -1407,6 +1410,13 @@ bracket 3, no limit in 4 and 5); the page shows each bracket's limit next to the
 ("passt", "über der Grenze", "unbekannt" when unknown flags could cross it) and never says
 which bracket the deck is in. Sources: the Commander Brackets updates of 2025-10-21 and
 2026-02-09 (tutor limits removed on 2025-10-21).
+
+"Without oracle text" (`text_unknown`): an empty `oracle_text` of a creature is a fact when the
+card facts exist (`fact_source` set and not the bare workbook): a vanilla creature has no rules
+text, so it counts as read (no match) and is not a gap. The text stays unknown when the card facts
+are missing (`fact_source` empty or `workbook`) and for a non-creature without text. Measured on the QA store
+copy (1,655 card facts): 40 creature rows have a NULL text; a 100-card probe (those 40 plus 60 with text)
+counted 40 of 100 as unknown before and 0 of 100 now.
 
 The same tab lists the data gaps per card of the deck (the commander excluded): no public card
 data, unknown mana value, no role (nonland cards), unknown land colours, no source deck of the
