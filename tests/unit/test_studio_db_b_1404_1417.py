@@ -676,7 +676,7 @@ def test_swap_lift_needs_min_n_and_unknown_lift_sorts_last(tmp_path: Path) -> No
         assert by_name["Elvish Mystic"]["decks"] == 5
         assert by_name["Elvish Mystic"]["lift"] is None
         assert by_name["Obscure Elk"]["lift"] is None
-        assert [c["name"] for c in res["candidates"]][0] == "Birds of Paradise"  # type: ignore[attr-defined]
+        assert next(c["name"] for c in res["candidates"]) == "Birds of Paradise"  # type: ignore[attr-defined]
         assert all(c["lift"] is None for c in res["candidates"][1:])  # type: ignore[index]
     finally:
         store.close()
