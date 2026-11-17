@@ -122,6 +122,8 @@ class SwapBody(BaseModel):
     universe: str | None = Field(default=None, max_length=120)
     exclude_marked: bool = True
     sort_by: Literal["hits", "lift"] = "hits"
+    deck_id: str | None = Field(default=None, max_length=200)
+    branch: str = Field(default="main", min_length=1, max_length=120)
 
 
 class DuelBody(BaseModel):
@@ -1607,6 +1609,8 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
                 universe=body.universe,
                 exclude_marked=body.exclude_marked,
                 sort_by=body.sort_by,
+                deck_id=body.deck_id,
+                branch=body.branch,
             )
         except KeyError as error:
             raise HTTPException(404, f"unknown card or commander: {error}") from error

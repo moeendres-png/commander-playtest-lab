@@ -1649,6 +1649,7 @@ async function renderSwapBox(into, card, initialMode = null) {
         universe: state.universe || null,
         exclude_marked: true,
         sort_by: sortBy,
+        ...(state.deckId ? { deck_id: state.deckId, branch: state.branch || "main" } : {}),
       });
       const modeSwitch = h("div", { class: "actions" },
         h("button", { type: "button", class: "chip" + (mode === "replace" ? " on" : ""), onclick: () => { mode = "replace"; load(); } }, inDeck ? "Ersatz im Pool suchen" : "Andere Pool-Karten dieser Rolle"),
@@ -1661,27 +1662,42 @@ async function renderSwapBox(into, card, initialMode = null) {
       }
       const roleBadges = res.roles.map((r) => roleName(r)).join(", ");
       const headerNote = h("p", { class: "note" },
-        `Rollen: ${roleBadges} · Sortiert nach ${sortBy === "lift" ? "Lift (gegen globale EDHREC-Verbreitung)" : "Häufigkeit"} in „${cohortName(res.source_label)}“ (Nenner: ${res.of} Decks). `,
+        `Rollen: ${roleBadges} · Sortiert nach ${sortBy === "lift" ? "Lift (gegen globale EDHREC-Verbreitung)" : "Häufigkeit"} in „${cohortName(res.source_label)}“ (Nenner: ${Number(res.of).toLocaleString("de-DE")} Decks). `,
         res.small_sample ? h("span", { class: "pill low" }, `Kleine Stichprobe (< ${state.small} Decks)`) : null,
-        res.unknown_count ? ` · ${res.unknown_count} Karte(n) mit unbekanntem Wert stehen am Ende (unbekannt ist nie „selten gespielt“).` : "");
+        res.unknown_count ? ` · ${res.unknown_count} Karte(n) mit unbekanntem Wert stehen am Ende (unbekannt ist nie „selten gespielt“).` : "",
+        ` Lift wird erst ab ${res.lift_min_n} Quelldecks mit der Karte in der Gruppe und bekanntem globalem Anteil ausgewiesen.`,
+        res.history && res.history.truncated ? ` Frühere Revisionen: nur die letzten ${res.history.revisions_checked} geprüft.` : "");
+      const orderNote = res.order_rule ? h("p", { class: "muted" }, res.order_rule) : null;
+      const compare = res.compare_groups || [];
+      const compareKeys = compare.map((g) => g.key);
+      const showOwnGroup = compare.length > 0 && !compareKeys.includes(res.source_label);
+      const fmtDe = (v, digits) => Number(v).toLocaleString("de-DE", { minimumFractionDigits: digits, maximumFractionDigits: digits });
+      const fmtGroup = (fig) => (fig && fig.decks !== null && fig.decks !== undefined && fig.of ? `${fig.decks.toLocaleString("de-DE")}/${fig.of.toLocaleString("de-DE")}` : "unbekannt");
       if (!res.candidates || !res.candidates.length) {
-        into.replaceChildren(h("h3", {}, "Tausch-Helfer (gleiche Rolle)"), modeSwitch, headerNote, h("p", { class: "muted" }, "Keine passenden Karten mit gleicher Rolle gefunden."));
+        into.replaceChildren(h("h3", {}, "Tausch-Helfer (gleiche Rolle)"), modeSwitch, headerNote, orderNote, h("p", { class: "muted" }, "Keine passenden Karten mit gleicher Rolle gefunden."));
         return;
       }
       const shown = res.candidates.slice(0, 10);
       const tbl = h("table", {},
         h("thead", {}, h("tr", {},
           h("th", {}, mode === "replace" ? "Ersatz-Kandidat (frei im Pool)" : "Kandidat im Deck (zum Streichen)"),
-          h("th", {}, "Gemeinsame Rolle"),
-          h("th", { class: "num" }, "Decks (n/N)"),
-          h("th", { class: "num" }, "Anteil"),
-          h("th", { class: "num" }, "Lift"),
+          h("th", {}, `Gemeinsame Rollen (k von ${res.target_role_count || (res.roles || []).length})`),
+          ...(compare.length ? compare.map((g) => h("th", { class: "num" }, `Decks ${g.key} n/N (N=${g.decks ? g.decks.toLocaleString("de-DE") : "unbekannt"})`)) : []),
+          ...(!compare.length || showOwnGroup ? [h("th", { class: "num" }, `Decks ${cohortName(res.source_label)} n/N`)] : []),
+          h("th", { class: "num" }, `Anteil (${cohortName(res.source_label)})`),
+          h("th", { class: "num" }, `Lift (${cohortName(res.source_label)}, n ≥ ${res.lift_min_n})`),
           h("th", {}, ""))),
         h("tbody", {}, shown.map((cand) => {
           const other = state.byId.get(cand.card_id);
           const freqText = cand.decks_known && cand.decks !== null && cand.of ? `${cand.decks}/${cand.of}` : "unbekannt";
-          const pctText = cand.decks_known && cand.share !== null ? `${(100 * cand.share).toFixed(1)} %` : "unbekannt";
-          const liftText = cand.lift === null || cand.lift === undefined ? "unbekannt" : Number(cand.lift).toFixed(2);
+          const pctText = cand.decks_known && cand.share !== null ? `${fmtDe(100 * cand.share, 1)} %` : "unbekannt";
+          const liftThin = cand.decks_known && cand.decks !== null && cand.decks < res.lift_min_n;
+          const liftText = cand.lift === null || cand.lift === undefined
+            ? (liftThin ? `unbekannt (${cand.decks} von ${cand.of} < ${res.lift_min_n})` : "unbekannt")
+            : fmtDe(cand.lift, 2);
+          const removed = cand.removed_before
+            ? h("div", { class: "muted" }, `früher im Deck (Revision ${cand.removed_before.revision_id}${cand.removed_before.created_at ? ", " + cand.removed_before.created_at.slice(0, 16).replace("T", " ") : ""}, entfernt)`)
+            : null;
           let actionBtn = null;
           if (mode === "replace" && other) {
             if (inDeck && maxCopies(other) > 0) {
@@ -1697,14 +1713,15 @@ async function renderSwapBox(into, card, initialMode = null) {
             }
           }
           return h("tr", { class: res.small_sample ? "low" : "" },
-            h("td", { class: "name", onclick: () => { if (other) openCard(other); } }, cand.name),
-            h("td", {}, (cand.shared_roles || []).map((r) => roleName(r)).join(", ")),
-            h("td", { class: "num" }, freqText),
+            h("td", { class: "name", onclick: () => { if (other) openCard(other); } }, cand.name, removed),
+            h("td", {}, `${cand.shared_role_count} von ${cand.target_role_count}: ` + (cand.shared_roles || []).map((r) => roleName(r)).join(", ")),
+            ...(compare.length ? compare.map((g) => h("td", { class: "num" }, fmtGroup(cand.groups && cand.groups[g.key]))) : []),
+            ...(!compare.length || showOwnGroup ? [h("td", { class: "num" }, freqText)] : []),
             h("td", { class: "num" }, pctText),
             h("td", { class: "num" }, liftText),
             h("td", {}, actionBtn));
         })));
-      into.replaceChildren(h("h3", {}, "Tausch-Helfer (gleiche Rolle)"), modeSwitch, headerNote, tbl);
+      into.replaceChildren(h("h3", {}, "Tausch-Helfer (gleiche Rolle)"), modeSwitch, headerNote, orderNote, tbl);
     } catch (error) {
       into.replaceChildren(h("h3", {}, "Tausch-Helfer (gleiche Rolle)"), h("p", { class: "muted" }, "Tausch-Kandidaten nicht lesbar: " + error.message));
     }
