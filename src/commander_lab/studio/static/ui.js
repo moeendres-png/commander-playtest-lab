@@ -146,20 +146,24 @@ const StudioUI = (() => {
   const loading = (text = "lädt …") => el("div", { class: "loading", role: "status" }, el("span", { class: "spinner", "aria-hidden": "true" }), text);
   const skeleton = (lines = 6) => el("div", { class: "skeleton-box", "aria-hidden": "true" }, Array.from({ length: lines }, () => el("div", { class: "skeleton" })));
 
-  // ---------- number inputs with limits ----------
-  // Every numeric field gets min, max and step; a typed value is clamped on leaving the field.
+  // ---------- number display ----------
   // One place for number display: de-DE decimal comma and thousands dot (digits = fixed decimals).
+  // null, undefined and "" are unknown, never 0.
   function num(value, digits = 0) {
+    if (value === null || value === undefined || value === "") return "unbekannt";
     const n = Number(value);
     if (!Number.isFinite(n)) return "unbekannt";
     return n.toLocaleString("de-DE", { minimumFractionDigits: digits, maximumFractionDigits: digits });
   }
   // value is a fraction (0.253 -> "25,3 %").
   function pct(value, digits = 1) {
+    if (value === null || value === undefined || value === "") return "unbekannt";
     const n = Number(value);
     return Number.isFinite(n) ? `${num(100 * n, digits)} %` : "unbekannt";
   }
 
+  // ---------- number inputs with limits ----------
+  // Every numeric field gets min, max and step; a typed value is clamped on leaving the field.
   function limitNumber(input, min, max, step = 1) {
     input.min = String(min); input.max = String(max); input.step = String(step);
     input.addEventListener("change", () => {

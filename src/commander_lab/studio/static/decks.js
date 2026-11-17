@@ -216,7 +216,7 @@ async function start() {
   $("db-apply").addEventListener("click", loadBrowser);
   $("db-reset").addEventListener("click", () => {
     $("db-q").value = "";
-    $("db-origin").value = "all";
+    $("db-origin").value = "source";
     $("db-cohort").value = "all";
     $("db-label").value = "";
     $("db-must-in").value = "";
