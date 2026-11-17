@@ -74,6 +74,11 @@ final class XmageFullGameDecisionController {
         }
     }
 
+    static final String DECISION_TIMEOUT_SECONDS_PROPERTY = "commanderlab.fullGame.decisionTimeoutSeconds";
+    static final int DEFAULT_DECISION_TIMEOUT_SECONDS = 120;
+    static final int MAX_DECISION_TIMEOUT_SECONDS = 86_400;
+    private static final Duration UNLIMITED_DECISION_DURATION = Duration.ofDays(30);
+
     private final long timeoutMillis;
     private final boolean skipForcedDecisions;
     private final Set<Integer> humanSeats = new HashSet<>();
@@ -90,7 +95,36 @@ final class XmageFullGameDecisionController {
     private final Map<UUID, Integer> lostOnTurn = new HashMap<>();
 
     XmageFullGameDecisionController() {
-        this(Duration.ofMinutes(2));
+        this(defaultTimeoutFromProperty());
+    }
+
+    static Duration defaultTimeoutFromProperty() {
+        String raw = System.getProperty(DECISION_TIMEOUT_SECONDS_PROPERTY);
+        if (raw == null || raw.isBlank()) {
+            return Duration.ofSeconds(DEFAULT_DECISION_TIMEOUT_SECONDS);
+        }
+        int parsed;
+        try {
+            parsed = Integer.parseInt(raw.trim());
+        } catch (NumberFormatException exc) {
+            throw new IllegalArgumentException(
+                    DECISION_TIMEOUT_SECONDS_PROPERTY + " must be an integer",
+                    exc
+            );
+        }
+        return timeoutFromSeconds(parsed);
+    }
+
+    static Duration timeoutFromSeconds(int seconds) {
+        if (seconds == 0) {
+            return UNLIMITED_DECISION_DURATION;
+        }
+        if (seconds < 0 || seconds > MAX_DECISION_TIMEOUT_SECONDS) {
+            throw new IllegalArgumentException(
+                    "decision_timeout_seconds must be 0 (unlimited) or 1.." + MAX_DECISION_TIMEOUT_SECONDS
+            );
+        }
+        return Duration.ofSeconds(seconds);
     }
 
     XmageFullGameDecisionController(Duration timeout) {

@@ -46,6 +46,7 @@ from . import (
     packages,
     paired_comparison,
     paired_series,
+    play,
     queries,
     roles,
     signals,
@@ -190,6 +191,25 @@ class GameBody(BaseModel):
     seed: int = Field(ge=0, le=2_000_000_000)
     style: float | None = Field(default=None, ge=0.0, le=1.0)
     seat_styles: list[float] | None = None
+    human_seats: list[int] | None = None
+    decision_timeout_seconds: int = Field(default=0, ge=0, le=86_400)
+    ai_delay_ms: int = Field(default=250, ge=0, le=5_000)
+
+
+class PlayDecisionBody(BaseModel):
+    decision_id: str = Field(min_length=1, max_length=200)
+    selected_option_ids: list[str] = Field(default_factory=list, max_length=200)
+    ordering: list[str] = Field(default_factory=list, max_length=200)
+    numeric_choice: int | None = None
+    numeric_choices: list[int] | None = None
+
+
+class PlayConcedeBody(BaseModel):
+    seat: int | None = Field(default=None, ge=0, le=5)
+
+
+class PlaySpeedBody(BaseModel):
+    ai_delay_ms: int = Field(ge=0, le=5_000)
 
 
 class BatchSimulationBody(BaseModel):
@@ -425,6 +445,8 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
     """The Studio application. ``data_folder`` is the Studio data folder (default: from the
     environment)."""
     app = FastAPI(title="Commander Studio", docs_url=None, redoc_url=None, openapi_url=None)
+    play_manager = play.InteractivePlayManager()
+    app.state.play_manager = play_manager
     _warm_up_once()
 
     def open_store() -> StudioStore:
@@ -1903,6 +1925,34 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
     def new_game(body: GameBody) -> dict[str, object]:
         store = open_store()
         try:
+            if body.human_seats:
+                total_seats = 1 + len(body.opponent_ids)
+                for seat in body.human_seats:
+                    if seat < 0 or seat >= total_seats:
+                        raise ValueError(f"human seat {seat} out of range 0..{total_seats - 1}")
+                game_id, deck_paths = launch.prepare_table_deck_paths(
+                    store,
+                    games_home(),
+                    revision_id=body.revision_id,
+                    opponent_ids=body.opponent_ids,
+                    seed=body.seed,
+                )
+                seat_styles_map = (
+                    {idx: float(val) for idx, val in enumerate(body.seat_styles, start=1)}
+                    if body.seat_styles
+                    else None
+                )
+                return play_manager.start_game(
+                    games_home(),
+                    deck_paths,
+                    seed=body.seed,
+                    human_seats=body.human_seats,
+                    decision_timeout_seconds=body.decision_timeout_seconds,
+                    ai_delay_ms=body.ai_delay_ms,
+                    game_id=game_id,
+                    style=body.style,
+                    seat_styles=seat_styles_map,
+                )
             game_id = launch.start_game(
                 store,
                 games_home(),
@@ -1933,8 +1983,65 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         except (KeyError, ValueError) as error:
             raise HTTPException(404, "unknown game") from error
 
+    @app.get("/api/play/{game_id}")
+    def interactive_game_state(
+        game_id: str,
+        start: int = Query(default=0, ge=0),
+        count: int = Query(default=200, ge=0, le=1000),
+    ) -> dict[str, object]:
+        try:
+            return play_manager.snapshot(games_home(), game_id, start=start, count=count)
+        except (KeyError, ValueError) as error:
+            raise HTTPException(404, "unknown game") from error
+
+    @app.post("/api/play/{game_id}/decision")
+    def submit_interactive_decision(game_id: str, body: PlayDecisionBody) -> dict[str, object]:
+        session = play_manager.get(game_id)
+        if session is None:
+            raise HTTPException(404, "no active interactive game")
+        try:
+            return session.submit_decision(
+                {
+                    "decision_id": body.decision_id,
+                    "selected_option_ids": body.selected_option_ids,
+                    "ordering": body.ordering,
+                    "numeric_choice": body.numeric_choice,
+                    "numeric_choices": body.numeric_choices,
+                }
+            )
+        except ValueError as error:
+            raise HTTPException(422, str(error)) from error
+        except TimeoutError as error:
+            raise HTTPException(504, str(error)) from error
+        except RuntimeError as error:
+            raise HTTPException(409, str(error)) from error
+
+    @app.post("/api/play/{game_id}/concede")
+    def concede_interactive_game(
+        game_id: str, body: PlayConcedeBody | None = None
+    ) -> dict[str, object]:
+        session = play_manager.get(game_id)
+        if session is None:
+            raise HTTPException(404, "no active interactive game")
+        try:
+            return session.concede(None if body is None else body.seat)
+        except ValueError as error:
+            raise HTTPException(422, str(error)) from error
+        except TimeoutError as error:
+            raise HTTPException(504, str(error)) from error
+        except RuntimeError as error:
+            raise HTTPException(409, str(error)) from error
+
+    @app.post("/api/play/{game_id}/speed")
+    def set_interactive_speed(game_id: str, body: PlaySpeedBody) -> dict[str, object]:
+        session = play_manager.get(game_id)
+        if session is None:
+            raise HTTPException(404, "no active interactive game")
+        return {"ai_delay_ms": session.set_speed(body.ai_delay_ms)}
+
     @app.delete("/api/games/{game_id}")
     def delete_game(game_id: str) -> dict[str, object]:
+        play_manager.shutdown_game(game_id)
         try:
             deleted = games.delete_game(games_home(), game_id)
             return {"deleted": deleted, "game_id": game_id}

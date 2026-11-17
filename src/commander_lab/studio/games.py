@@ -395,6 +395,56 @@ def _read_orphaned_out(data_folder: str | Path, game_id: str) -> dict[str, objec
     }
 
 
+def _human_seat_set(raw: object) -> frozenset[int]:
+    if not isinstance(raw, list):
+        return frozenset()
+    return frozenset(item for item in raw if type(item) is int)
+
+
+def redact_frame_for_human_seats(
+    frame: Mapping[str, object],
+    human_seats: frozenset[int] | set[int],
+) -> dict[str, object]:
+    """Return a copy of ``frame`` omitting ``hand`` for every seat not in ``human_seats``."""
+    copy_frame = dict(frame)
+    raw_players = frame.get("players")
+    if isinstance(raw_players, list):
+        redacted_players: list[dict[str, object]] = []
+        for player in raw_players:
+            if not isinstance(player, Mapping):
+                continue
+            p_copy = dict(player)
+            seat = _whole(p_copy.get("seat"))
+            if seat not in human_seats:
+                p_copy.pop("hand", None)
+                p_copy.pop("hand_cards", None)
+            redacted_players.append(p_copy)
+        copy_frame["players"] = redacted_players
+    return copy_frame
+
+
+def redact_pilot_state_for_human_seats(
+    pilot_state: Mapping[str, object],
+    human_seats: frozenset[int] | set[int],
+) -> dict[str, object]:
+    """Return a copy of ``pilot_state`` omitting ``hand`` for every seat not in ``human_seats``."""
+    copy_state = dict(pilot_state)
+    raw_players = pilot_state.get("players")
+    if isinstance(raw_players, list):
+        redacted_players: list[dict[str, object]] = []
+        for player in raw_players:
+            if not isinstance(player, Mapping):
+                continue
+            p_copy = dict(player)
+            seat = _whole(p_copy.get("seat"))
+            if seat not in human_seats:
+                p_copy.pop("hand", None)
+                p_copy.pop("hand_cards", None)
+            redacted_players.append(p_copy)
+        copy_state["players"] = redacted_players
+    return copy_state
+
+
 def read_game(
     data_folder: str | Path, game_id: str, *, start: int = 0, count: int = 200
 ) -> dict[str, object]:
@@ -419,6 +469,9 @@ def read_game(
             total += 1
     if header.get("schema") != LOG_SCHEMA:
         raise ValueError(f"{game_id}: not a game log of this version")
+    human_seats = _human_seat_set(header.get("human_seats"))
+    if result is None and human_seats:
+        frames = [redact_frame_for_human_seats(frame, human_seats) for frame in frames]
     out_path = path.parent / f"{_checked_id(game_id)}.out"
     out_content: str | None = None
     if out_path.is_file():

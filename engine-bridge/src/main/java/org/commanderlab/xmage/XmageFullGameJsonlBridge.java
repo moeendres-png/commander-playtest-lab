@@ -3,7 +3,9 @@ package org.commanderlab.xmage;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.JsonPrimitive;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -225,6 +227,16 @@ final class XmageFullGameJsonlBridge {
             }
             int startingPlayerSeat = requiredInt(payload, "starting_player_seat");
             int startingLife = optionalInt(payload, "starting_life", 40);
+            Duration decisionTimeout;
+            Integer requestedTimeoutSeconds = null;
+            if (payload.has("decision_timeout_seconds")
+                    && !payload.get("decision_timeout_seconds").isJsonNull()) {
+                requestedTimeoutSeconds = requiredInt(payload, "decision_timeout_seconds");
+                decisionTimeout = XmageFullGameDecisionController.timeoutFromSeconds(requestedTimeoutSeconds);
+            } else {
+                decisionTimeout = XmageFullGameDecisionController.defaultTimeoutFromProperty();
+            }
+            List<Integer> humanSeats = optionalIntArray(payload, "human_seats");
 
             if (gamesCreated > 0) {
                 // Batch: the decks of the earlier games (about 2 MiB per four-player game),
@@ -238,7 +250,10 @@ final class XmageFullGameJsonlBridge {
                     startingPlayerSeat,
                     startingLife,
                     seed,
-                    deckImporter
+                    deckImporter,
+                    null,
+                    decisionTimeout,
+                    humanSeats
             );
             // Counted once the game exists: a create that fails does not use up a game slot.
             gamesCreated++;
@@ -248,6 +263,20 @@ final class XmageFullGameJsonlBridge {
             responsePayload.addProperty("player_count", session.playerCount());
             responsePayload.addProperty("starting_player_seat", startingPlayerSeat);
             responsePayload.addProperty("starting_life", startingLife);
+            responsePayload.addProperty(
+                    "decision_timeout_seconds",
+                    requestedTimeoutSeconds != null
+                            ? requestedTimeoutSeconds
+                            : (int) Math.min(Integer.MAX_VALUE, decisionTimeout.toSeconds())
+            );
+            JsonArray humanSeatsJson = new JsonArray();
+            for (int seat : humanSeats) {
+                JsonPrimitive primitive = new JsonPrimitive(seat);
+                if (!humanSeatsJson.contains(primitive)) {
+                    humanSeatsJson.add(primitive);
+                }
+            }
+            responsePayload.add("human_seats", humanSeatsJson);
             responsePayload.addProperty("seed", seed);
             responsePayload.addProperty("seed_controlled", true);
             // WS213: binding proof is available immediately at creation: the
@@ -709,6 +738,36 @@ final class XmageFullGameJsonlBridge {
             throw new IllegalArgumentException(property + " outside integer range");
         }
         return (int) value;
+    }
+
+    private static List<Integer> optionalIntArray(JsonObject object, String property) {
+        if (!object.has(property) || object.get(property).isJsonNull()) {
+            return List.of();
+        }
+        if (!object.get(property).isJsonArray()) {
+            throw new IllegalArgumentException(property + " must be an array");
+        }
+        JsonArray array = object.getAsJsonArray(property);
+        List<Integer> result = new ArrayList<>(array.size());
+        for (int index = 0; index < array.size(); index++) {
+            var element = array.get(index);
+            if (!element.isJsonPrimitive() || !element.getAsJsonPrimitive().isNumber()) {
+                throw new IllegalArgumentException(property + "[" + index + "] must be an integer");
+            }
+            String raw = element.getAsString();
+            if (!raw.matches("-?\\d+")) {
+                throw new IllegalArgumentException(property + "[" + index + "] must be an integer");
+            }
+            long value = Long.parseLong(raw);
+            if (value < Integer.MIN_VALUE || value > Integer.MAX_VALUE) {
+                throw new IllegalArgumentException(property + "[" + index + "] outside integer range");
+            }
+            int seat = (int) value;
+            if (!result.contains(seat)) {
+                result.add(seat);
+            }
+        }
+        return List.copyOf(result);
     }
 
     /** A required integer property; absence is a refusal, never a default. */
