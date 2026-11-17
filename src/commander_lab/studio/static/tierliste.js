@@ -1372,9 +1372,6 @@ async function loadRoleAudit() {
   }
   renderRoleAuditPanel();
 }
-function formatPct(rate) {
-  return rate === null || rate === undefined ? "zu wenig Daten" : `${(100 * rate).toFixed(1)} %`;
-}
 function formatGroupCell(converted, known, rate, low, high) {
   const counts = `${nf(converted)}/${nf(known)}`;
   if (rate === null || rate === undefined) {
@@ -1403,28 +1400,39 @@ function renderTournamentConversionPanel() {
     header.push(h("span", {}, `${nf(data.total_converted_decks)}/${nf(data.total_known_decks)} Top-Cut-Conversions (${(100 * data.baseline_conversion_rate).toFixed(1)} %, 95-%-Wilson ${(100 * data.baseline_ci_low).toFixed(1)}–${(100 * data.baseline_ci_high).toFixed(1)} %)`));
     header.push(h("span", { class: "muted" }, `${nf(comparableCount)} Karten mit Mit/Ohne je ≥ ${nf(data.min_sample)} Listen · ${data.data_class}`));
   }
-  const q = (state.conversionFilter || "").trim().toLowerCase();
-  const filtered = q ? cards.filter((c) => c.card_name.toLowerCase().includes(q)) : cards;
+  const countEl = h("span", { class: "muted" });
+  const tableWrap = h("div", { class: "audit-table-wrap" });
+  const updateFilteredRows = () => {
+    const q = (state.conversionFilter || "").trim().toLowerCase();
+    const filtered = q ? cards.filter((c) => c.card_name.toLowerCase().includes(q)) : cards;
+    countEl.textContent = `${nf(filtered.length)} von ${nf(cards.length)} Karten`;
+    tableWrap.replaceChildren(table(
+      ["Karte", "Mit Karte (n/N)", "Ohne Karte (n/N)", "Differenz (Pp)", "Status"],
+      filtered.slice(0, 120).map((row) => [
+        row.card_name,
+        formatGroupCell(row.with_converted, row.with_known, row.with_rate, row.with_ci_low, row.with_ci_high),
+        formatGroupCell(row.without_converted, row.without_known, row.without_rate, row.without_ci_low, row.without_ci_high),
+        row.diff_pp === null || row.diff_pp === undefined ? h("span", { class: "unknown" }, "zu wenig Daten") : `${row.diff_pp > 0 ? "+" : ""}${row.diff_pp.toFixed(1)} Pp`,
+        row.status === "OK" ? h("span", { class: "badge good" }, "OK") : h("span", { class: "badge warn" }, row.reason || "zu wenig Daten"),
+      ]),
+    ));
+  };
   const searchInput = h("input", {
     type: "search",
     placeholder: "Karte im Turnier-Vergleich filtern …",
+    "aria-label": "Karte im Turnier-Vergleich filtern",
     value: state.conversionFilter,
-    oninput: (event) => { state.conversionFilter = event.target.value; renderTournamentConversionPanel(); },
+    oninput: (event) => {
+      state.conversionFilter = event.target.value;
+      updateFilteredRows();
+    },
   });
+  updateFilteredRows();
   const detailContent = cards.length
     ? [
       h("p", { class: "rule" }, `Kohorte: ${cohortLabel} (${data.data_class}). Nur beschreibend, keine Kausalität. Unter ${nf(data.min_sample)} bekannten Listen bleibt das Feld „zu wenig Daten“ (nie 0).`),
-      h("div", { class: "conv-filter-row" }, searchInput, h("span", { class: "muted" }, `${nf(filtered.length)} von ${nf(cards.length)} Karten`)),
-      h("div", { class: "audit-table-wrap" }, table(
-        ["Karte", "Mit Karte (n/N)", "Ohne Karte (n/N)", "Differenz (Pp)", "Status"],
-        filtered.slice(0, 120).map((row) => [
-          row.card_name,
-          formatGroupCell(row.with_converted, row.with_known, row.with_rate, row.with_ci_low, row.with_ci_high),
-          formatGroupCell(row.without_converted, row.without_known, row.without_rate, row.without_ci_low, row.without_ci_high),
-          row.diff_pp === null || row.diff_pp === undefined ? h("span", { class: "unknown" }, "zu wenig Daten") : `${row.diff_pp > 0 ? "+" : ""}${row.diff_pp.toFixed(1)} Pp`,
-          row.status === "OK" ? h("span", { class: "badge good" }, "OK") : h("span", { class: "badge warn" }, row.reason || "zu wenig Daten"),
-        ]),
-      )),
+      h("div", { class: "conv-filter-row" }, searchInput, countEl),
+      tableWrap,
     ]
     : [h("p", { class: "muted" }, `Keine TopDeck-Turnierlisten für ${COMMANDER} in dieser Auswertung (${data.reason || "zu wenig Daten"}).`)];
   panel.replaceChildren(

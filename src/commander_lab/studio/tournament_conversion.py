@@ -90,6 +90,15 @@ class _ParsedDeck:
     top_cut_reached: bool | None
 
 
+@dataclass(slots=True)
+class _GroupedDeck:
+    """Mutable grouping accumulator before finalizing into _ParsedDeck."""
+
+    commanders: set[str]
+    cards: set[str]
+    top_cut_reached: bool | None
+
+
 def _resolve_research_dir(research_dir: str | Path | None = None) -> Path:
     if research_dir is not None:
         return Path(research_dir)
@@ -138,7 +147,7 @@ def wilson_interval(
     return (low, high)
 
 
-def _tournament_csv_paths(folder: Path) -> list[Path]:
+def _tournament_csv_paths(folder: Path) -> list[tuple[str, Path]]:
     if not folder.is_dir():
         return []
     matched: list[tuple[str, int, Path]] = []
@@ -150,23 +159,25 @@ def _tournament_csv_paths(folder: Path) -> list[Path]:
             part = int(m.group(2)) if m.group(2) else 0
             matched.append((m.group(1), part, path))
     matched.sort(key=lambda item: (item[0], item[1], item[2].name))
-    return [item[2] for item in matched]
+    return [(item[0], item[2]) for item in matched]
 
 
 def _read_commander_decks(commander: str, folder: Path) -> tuple[list[_ParsedDeck], list[str]]:
     """Read and deduplicate single-commander decks across all TopDeck CSVs in ``folder``.
 
-    Deduplication key is ``(tournament, date, player)``; player labels are discarded
-    immediately after grouping and never leave this function.
+    Deduplication key is ``(base_stem, tournament, date, player)``; scoping by the
+    commander-file base stem keeps multipart deduplication intact while preventing
+    anonymized ``Liste N`` labels from colliding across different commander files.
+    Player labels are discarded immediately after grouping and never leave this function.
     """
     target_cf = commander.strip().casefold()
     if not target_cf:
         return [], []
 
-    grouped: dict[tuple[str, str, str], dict[str, object]] = {}
+    grouped: dict[tuple[str, str, str, str], _GroupedDeck] = {}
     used_files: list[str] = []
 
-    for csv_path in _tournament_csv_paths(folder):
+    for base_stem, csv_path in _tournament_csv_paths(folder):
         file_has_target = False
         with csv_path.open(encoding="utf-8-sig", newline="") as handle:
             reader = csv.DictReader(handle)
@@ -180,54 +191,44 @@ def _read_commander_decks(commander: str, folder: Path) -> tuple[list[_ParsedDec
                 t_name = str(row.get("tournament") or "").strip()
                 d_str = str(row.get("date") or "").strip()
                 p_name = str(row.get("player") or "").strip()
-                key = (t_name, d_str, p_name)
+                key = (base_stem, t_name, d_str, p_name)
 
                 entry = grouped.get(key)
                 if entry is None:
                     tc = _optional_int(row.get("topCut") or row.get("top_cut"))
                     wb = _optional_int(row.get("winsBracket") or row.get("wins_bracket"))
                     lb = _optional_int(row.get("lossesBracket") or row.get("losses_bracket"))
-                    entry = {
-                        "commanders": set(),
-                        "cards": set(),
-                        "top_cut_reached": _top_cut_reached(tc, wb, lb),
-                    }
+                    entry = _GroupedDeck(
+                        commanders=set(),
+                        cards=set(),
+                        top_cut_reached=_top_cut_reached(tc, wb, lb),
+                    )
                     grouped[key] = entry
 
-                cmd_set = entry["commanders"]
-                card_set = entry["cards"]
-                assert isinstance(cmd_set, set)
-                assert isinstance(card_set, set)
                 if section == "commander":
-                    cmd_set.add(card_name)
+                    entry.commanders.add(card_name)
                     if card_name.casefold() == target_cf:
                         file_has_target = True
                 else:
                     qty = _optional_int(row.get("quantity"))
                     if qty is None or qty > 0:
-                        card_set.add(card_name)
+                        entry.cards.add(card_name)
 
         if file_has_target:
             used_files.append(csv_path.name)
 
     parsed: list[_ParsedDeck] = []
     for entry in grouped.values():
-        cmd_set = entry["commanders"]
-        card_set = entry["cards"]
-        assert isinstance(cmd_set, set)
-        assert isinstance(card_set, set)
-        if len(cmd_set) != 1:
+        if len(entry.commanders) != 1:
             continue
-        sole_cmd = next(iter(cmd_set))
+        sole_cmd = next(iter(entry.commanders))
         if sole_cmd.casefold() != target_cf:
             continue
-        reached = entry["top_cut_reached"]
-        assert reached is None or isinstance(reached, bool)
         parsed.append(
             _ParsedDeck(
                 commander=sole_cmd,
-                cards=frozenset(card_set),
-                top_cut_reached=reached,
+                cards=frozenset(entry.cards),
+                top_cut_reached=entry.top_cut_reached,
             )
         )
     return parsed, sorted(set(used_files))

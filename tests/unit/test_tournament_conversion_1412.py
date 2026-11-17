@@ -395,3 +395,66 @@ def test_web_route_tournament_conversion(tmp_path: Path, monkeypatch) -> None:
         assert body_m["reason"] == "zu wenig Daten"
         assert body_m["total_known_decks"] == 0
         assert body_m["cards"] == []
+
+
+def test_anonymized_player_labels_do_not_collide_across_commanders(tmp_path: Path) -> None:
+    """Two commander CSVs sharing (tournament, date, 'Liste 1') must never drop or merge decks."""
+    _write_deck_csv(
+        tmp_path / "topdeck_adrix_decks.csv",
+        [
+            {
+                "tournament": "Liga Mesao Presencial",
+                "date": "2026-08-28",
+                "player": "Liste 1",
+                "top_cut": 4,
+                "wins_bracket": 1,
+                "losses_bracket": 1,
+                "commanders": ["Adrix and Nev, Twincasters"],
+                "cards": ["Sol Ring"],
+            }
+        ],
+    )
+    _write_deck_csv(
+        tmp_path / "topdeck_rootha_decks.csv",
+        [
+            {
+                "tournament": "Liga Mesao Presencial",
+                "date": "2026-08-28",
+                "player": "Liste 1",
+                "top_cut": 4,
+                "wins_bracket": 1,
+                "losses_bracket": 1,
+                "commanders": ["Rootha, Mastering the Moment"],
+                "cards": ["Sol Ring"],
+            }
+        ],
+    )
+    # Multipart files of the same commander must still deduplicate on the same base stem.
+    _write_deck_csv(
+        tmp_path / "topdeck_rootha_decks_2.csv",
+        [
+            {
+                "tournament": "Liga Mesao Presencial",
+                "date": "2026-08-28",
+                "player": "Liste 1",
+                "top_cut": 4,
+                "wins_bracket": 1,
+                "losses_bracket": 1,
+                "commanders": ["Rootha, Mastering the Moment"],
+                "cards": ["Sol Ring"],
+            }
+        ],
+    )
+
+    res_adrix = tournament_conversion.analyze_commander_conversion(
+        "Adrix and Nev, Twincasters", tmp_path
+    )
+    res_rootha = tournament_conversion.analyze_commander_conversion(
+        "Rootha, Mastering the Moment", tmp_path
+    )
+    assert res_adrix["total_decks"] == 1
+    assert res_adrix["total_known_decks"] == 1
+    assert res_adrix["total_converted_decks"] == 1
+    assert res_rootha["total_decks"] == 1
+    assert res_rootha["total_known_decks"] == 1
+    assert res_rootha["total_converted_decks"] == 1
