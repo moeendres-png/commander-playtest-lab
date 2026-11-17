@@ -40,7 +40,7 @@ function cutDeltaList(h, item, deps) {
 function cutFreqText(item) {
   if (item.of === null || item.of === undefined) return "keine Quelldecks";
   if (item.decks === null || item.decks === undefined) return `Häufigkeit unbekannt (kein Quelldeck nennt die Karte; Gruppe ${item.of} Decks)`;
-  return `${item.decks} / ${item.of} Quelldecks` + (item.of ? ` (${(100 * item.decks / item.of).toFixed(1).replace(".", ",")} %)` : "");
+  return `${item.decks} / ${item.of} Quelldecks` + (item.of ? ` (${StudioUI.num(100 * item.decks / item.of, 1)} %)` : "");
 }
 
 function cutLabMinimumsDefault(deps) {

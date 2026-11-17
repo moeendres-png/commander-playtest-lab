@@ -85,3 +85,43 @@ def test_every_text_input_and_select_has_a_name() -> None:
             if not labelled:
                 unlabeled.append(f"{path.name}:{ident.group(1) if ident else match.group(1)}")
     assert unlabeled == []
+
+
+def test_decimals_go_through_the_german_number_helpers() -> None:
+    """No raw .toFixed( in any Studio script except the two excluded pages: the de-DE helpers
+    StudioUI.num / StudioUI.pct are the only place that formats decimals (comma, not point)."""
+    excluded = {"tierliste.js"}
+    scripts = [
+        path
+        for path in _files("*.js")
+        if path.name not in excluded and not path.name.startswith("partie")
+    ]
+    assert len(scripts) >= 10
+    for path in scripts:
+        text = path.read_text(encoding="utf-8")
+        assert ".toFixed(" not in text and ".toPrecision(" not in text, path.name
+    ui = (STATIC / "ui.js").read_text(encoding="utf-8")
+    assert 'toLocaleString("de-DE"' in ui and "num, pct" in ui
+    assert 'class: "num"' in (STATIC / "app.js").read_text(encoding="utf-8")
+
+
+def test_bridge_chip_shows_plain_german_with_raw_code_in_tooltip() -> None:
+    sources = {
+        n: (STATIC / n).read_text(encoding="utf-8") for n in ("ui.js", "app.js", "paired.js")
+    }
+    assert len(sources) == 3
+    for name, text in sources.items():
+        assert "Engine-Stand noch nicht qualifiziert" in text, name
+        assert 'label = "BRIDGE_AHEAD_OF_QUALIFICATION"' not in text
+
+
+def test_deck_browser_reset_returns_to_the_source_only_default() -> None:
+    """The reset button must restore the default origin ("Nur Quelldecks"): resetting to the mixed
+    origin would count saved Studio decks into the source-deck denominator."""
+    text = (STATIC / "decks.js").read_text(encoding="utf-8")
+    assert 'state.origin = $("db-origin").value' in text
+    reset = text.split('$("db-reset").addEventListener', 1)[1].split("});", 1)[0]
+    assert '$("db-origin").value = "source"' in reset
+    html = (STATIC / "decks.html").read_text(encoding="utf-8")
+    select = html.split('<select id="db-origin">', 1)[1].split("</select>", 1)[0]
+    assert select.strip().startswith('<option value="source">')  # first option = the default

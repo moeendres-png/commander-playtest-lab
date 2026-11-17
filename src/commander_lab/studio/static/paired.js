@@ -8,7 +8,7 @@ function estimatePairedText(budgetPairs) {
   const pairs = Math.max(0, Number(budgetPairs) || 0);
   const maxGames = pairs * 2;
   const seconds = Math.round(maxGames * (3600.0 / PAIRED_ESTIMATED_GAMES_PER_HOUR));
-  const minutes = (seconds / 60.0).toFixed(1);
+  const minutes = StudioUI.num(seconds / 60.0, 1);
   return `Grober Richtwert: max. ~${minutes} min (${maxGames} Partien bei ~${PAIRED_ESTIMATED_GAMES_PER_HOUR} Partien/h; früher Stopp je nach Look möglich).`;
 }
 
@@ -29,7 +29,7 @@ function pairedVerdictInfo(res) {
 function fmtPp(val) {
   if (val === null || val === undefined) return "–";
   const num = Number(val);
-  return `${num >= 0 ? "+" : ""}${num.toFixed(1)} pp`;
+  return `${num >= 0 ? "+" : ""}${StudioUI.num(num, 1)} pp`;
 }
 
 function fmtCiPp(ci) {
@@ -39,7 +39,7 @@ function fmtCiPp(ci) {
 
 function fmtRatePct(rate) {
   if (rate === null || rate === undefined) return "–";
-  return `${(100 * Number(rate)).toFixed(1)} %`;
+  return `${StudioUI.num(100 * Number(rate), 1)} %`;
 }
 
 async function loadPairedOptions(deps) {
@@ -100,8 +100,8 @@ function renderPairedMonitor(h, job, deps) {
     monitor.append(h("div", { class: "mt-2" },
       h("span", {
         class: "pill warn pill-inline",
-        title: (job.bridge_qualification && job.bridge_qualification.reason) || "",
-      }, "BRIDGE_AHEAD_OF_QUALIFICATION · nicht durch versiegelte Epoche abgedeckt")));
+        title: ["Rohcode: BRIDGE_AHEAD_OF_QUALIFICATION", job.bridge_qualification && job.bridge_qualification.reason].filter(Boolean).join(" · "),
+      }, "Bridge: Engine-Stand noch nicht qualifiziert · nicht durch versiegelte Epoche abgedeckt")));
   }
 
   if (isRunning) {
@@ -129,7 +129,7 @@ function renderPairedMonitor(h, job, deps) {
     const bridgeSha = (res.bridge_jar_sha256s && res.bridge_jar_sha256s[0]) || job.bridge_jar_sha256 || null;
     const epochLabel = res.covered_by_sealed_epoch ? "versiegelt" : ((res.bridge_qualification_states || qualStates).join(", ") || "nicht versiegelt");
     const pVal = res.sign_test_p_value !== null && res.sign_test_p_value !== undefined
-      ? Number(res.sign_test_p_value).toFixed(4)
+      ? StudioUI.num(res.sign_test_p_value, 4)
       : "–";
     const sumBox = h("div", { class: "sim-summary" },
       h("div", { class: "sim-monitor-head" },

@@ -272,6 +272,8 @@ def test_deck_browser_filters_cooccurrence_and_detail_api(tmp_path: Path) -> Non
     assert r_browse.status_code == 200
     b_data = r_browse.json()
     assert b_data["total_decks"] == 3
+    # Saved Studio decks and source decks are reported apart, never as one cohort.
+    assert b_data["origin_counts"] == {"source": 2, "saved": 1}
     co_map = {row["name"]: row for row in b_data["cooccurrence"]}
     assert "Pool Card 10" not in co_map  # filter card is not listed in co-occurrence
     assert co_map["Pool Card 01"]["decks"] == 3
@@ -301,6 +303,7 @@ def test_deck_browser_filters_cooccurrence_and_detail_api(tmp_path: Path) -> Non
     )
     assert r_label.status_code == 200
     assert r_label.json()["total_decks"] == 1
+    assert r_label.json()["origin_counts"] == {"source": 0, "saved": 1}
     assert r_label.json()["decks"][0]["id"] == "saved:d_user:main"
 
     # 3. GET /api/deck-browser/{item_id} read-only inspection
