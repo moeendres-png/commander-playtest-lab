@@ -189,6 +189,8 @@ def series_engine(data_folder: str | Path, games_per_jvm: int) -> SeriesEngine |
     # not depend on the working directory
     base = (*base[:jar_at], str(jar), *base[jar_at + 1 :])
     options = [option for option in fast_jvm_options(jar) if option not in base]
+    if not any(part.startswith("-Dcommanderlab.fullGame.skipForcedDecisions=") for part in base):
+        options.append("-Dcommanderlab.fullGame.skipForcedDecisions=true")
     command = command_with_games_per_jvm((base[0], *options, *base[1:]), games_per_jvm)
     flags = command[1 : command.index("-jar")]
     return SeriesEngine(

@@ -252,10 +252,18 @@ def close_recorded_game(
         }
     # the engine counts seats from 1 in its outcome, the board frames count from 0
     winners = [seat - 1 for seat in outcome.winner_seats]
+    payload = getattr(outcome, "result_payload", None)
+    raw_skipped = (
+        payload.get("forced_decisions_skipped", 0)
+        if isinstance(payload, Mapping)
+        else getattr(outcome, "forced_decisions_skipped", 0)
+    )
+    forced_skipped = int(raw_skipped) if isinstance(raw_skipped, (int, float)) else 0
     closing: dict[str, object] = {
         "status": "finished",
         "winner_seats": winners,
         "decision_count": outcome.decision_count,
+        "forced_decisions_skipped": forced_skipped,
         "engine_version": outcome.engine_version,
         "semantic_transcript_sha256": outcome.semantic_transcript_sha256,
         "bridge_jar_sha256": bridge_sha,
@@ -267,6 +275,8 @@ def close_recorded_game(
         "game_id": recorder.game_id,
         "status": "finished",
         "winner_seats": winners,
+        "decision_count": outcome.decision_count,
+        "forced_decisions_skipped": forced_skipped,
         "frames": recorder.frames,
         "log": str(path),
         "bridge_jar_sha256": bridge_sha,
