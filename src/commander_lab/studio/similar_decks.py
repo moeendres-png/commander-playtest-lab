@@ -712,6 +712,29 @@ def browse_decks(
     co_keyed.sort(key=lambda item: (item[0], item[1]))
     cooccurrence = [item[2] for item in co_keyed]
 
+    displayed = matched_decks[: max(1, min(int(limit_decks), 500))]
+    # The list's "cards" is the deck's full card count — the same total the
+    # detail view sums. Source decks above carry meta["size"] (the distinct
+    # non-basic name count of the similarity index), so replace it here with
+    # the summed quantity over the counted sections; meta["size"] itself
+    # stays untouched for the similarity math.
+    source_ids = [str(d["deck_id"]) for d in displayed if d.get("origin") == "source"]
+    if source_ids:
+        id_marks = ", ".join("?" for _ in source_ids)
+        sec_marks = ", ".join("?" for _ in COUNTED_SECTIONS)
+        totals = {
+            str(r["deck_id"]): int(r["total"])
+            for r in db.execute(
+                "SELECT deck_id, SUM(quantity) AS total FROM corpus_deck_card "
+                f"WHERE deck_id IN ({id_marks}) AND quantity > 0 "
+                f"AND LOWER(section) IN ({sec_marks}) GROUP BY deck_id",
+                (*source_ids, *COUNTED_SECTIONS),
+            )
+        }
+        for deck_row in displayed:
+            if deck_row.get("origin") == "source":
+                deck_row["cards"] = totals.get(str(deck_row["deck_id"]), 0)
+
     return {
         "total_decks": total_decks,
         "origin_counts": {"source": total_decks - saved_decks, "saved": saved_decks},
@@ -727,7 +750,7 @@ def browse_decks(
             "must_not_contain": list(must_not_contain),
             "include_unowned": include_unowned,
         },
-        "decks": matched_decks[: max(1, min(int(limit_decks), 500))],
+        "decks": displayed,
         "cooccurrence": cooccurrence[: max(1, min(int(limit_cards), 300))],
         "total_cooccurrence_cards": len(cooccurrence),
     }

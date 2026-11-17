@@ -321,6 +321,31 @@ def test_deck_browser_filters_cooccurrence_and_detail_api(tmp_path: Path) -> Non
     )
 
 
+def test_deck_browser_source_deck_cards_is_total_quantity(tmp_path: Path) -> None:
+    """The browser list's "cards" for a source deck is its full card count
+    (sum of quantities over the counted sections, commander included) — the
+    same number the detail view shows — not the distinct-name set size the
+    similarity index uses internally (Abnahme 2026-11-17, B1 / #1464)."""
+    _seed_store(tmp_path, num_source_decks=3)
+    app = create_app(tmp_path / "studio")
+    client = TestClient(app)
+
+    r_browse = client.get(
+        "/api/deck-browser",
+        params={"commander": COMMANDER, "origin": "source"},
+    )
+    assert r_browse.status_code == 200
+    decks = {d["id"]: d for d in r_browse.json()["decks"]}
+    # sd_0001 fixture rows: 1 commander + 30 Forest + Pool Card 01..10 + 11 + 12
+    # + Unowned Secret Tech = 44 cards in total quantity.
+    assert decks["source:sd_0001"]["cards"] == 44
+
+    r_det = client.get("/api/deck-browser/source:sd_0001")
+    assert r_det.status_code == 200
+    detail_total = sum(c["quantity"] for c in r_det.json()["cards"])
+    assert decks["source:sd_0001"]["cards"] == detail_total
+
+
 def test_static_deck_browser_and_app_js_hygiene() -> None:
     decks_html = (STATIC_DIR / "decks.html").read_text(encoding="utf-8")
     decks_js = (STATIC_DIR / "decks.js").read_text(encoding="utf-8")
