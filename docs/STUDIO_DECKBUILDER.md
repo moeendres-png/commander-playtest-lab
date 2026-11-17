@@ -1138,6 +1138,12 @@ little data or not rated (commander, basic lands), never a low tier.
 - Derived figures are computed once per store state: `cache.py` keeps the resolved universe,
   the per-card spread and the builder counts keyed by the store file's change counter, so any
   committed write recomputes them. `GET /api/marks` reads the marks without building the pool.
+  The same cache holds the cohort shapes, the land advisor's source-deck groups, the corpus
+  deck sets behind the pool counts and the packages, the layer overview and the data report
+  (per commander, group and day); concurrent identical requests share one computation, a failed
+  computation is never cached, and entries of an older store state are dropped. `serve` fills
+  these in the background for the commanders with source data, so the builder page starts its
+  requests side by side and only the very first load after an import pays for the counting.
 
 ### Data report
 

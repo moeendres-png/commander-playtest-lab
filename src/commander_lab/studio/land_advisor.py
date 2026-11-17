@@ -30,6 +30,7 @@ from collections import Counter
 from collections.abc import Iterable, Mapping, Sequence
 from statistics import median
 
+from . import cache
 from .store import StudioStore
 
 SCHEMA = "studio-land-advisor-1"
@@ -95,6 +96,30 @@ def _produced(row: _Row, type_line: str) -> tuple[set[str], bool]:
     return set(), _has_data(row)
 
 
+def _colour_rows(
+    identity: set[str],
+    pips: Counter[str],
+    land_sources: Counter[str],
+    other_sources: Counter[str],
+    modal_sources: Counter[str],
+) -> tuple[int, list[dict[str, object]]]:
+    """The total of coloured pips and the per-colour entries of one deck's figures."""
+    total = sum(pips.values())
+    shown = [c for c in COLOURS if c in identity or pips[c] or land_sources[c]]
+    return total, [
+        {
+            "colour": colour,
+            "in_identity": colour in identity,
+            "pips": pips[colour],
+            "pip_share": round(pips[colour] / total, 4) if total else None,
+            "land_sources": land_sources[colour],
+            "other_sources": other_sources[colour],
+            "modal_sources": modal_sources[colour],
+        }
+        for colour in shown
+    ]
+
+
 def deck_profile(rows: Iterable[_Row]) -> dict[str, object]:
     """The figures of one deck. ``rows`` carry ``zone``, ``quantity``, ``type_line``,
     ``mana_cost``, ``produced_mana``, ``layout`` and, for commanders, ``color_identity``."""
@@ -145,20 +170,7 @@ def deck_profile(rows: Iterable[_Row]) -> dict[str, object]:
             for colour in {c for c in _text(row, "produced_mana") if c in COLOURS}:
                 if not identity or colour in identity:
                     other_sources[colour] += quantity
-    total = sum(pips.values())
-    shown = [c for c in COLOURS if c in identity or pips[c] or land_sources[c]]
-    colours_out = [
-        {
-            "colour": colour,
-            "in_identity": colour in identity,
-            "pips": pips[colour],
-            "pip_share": round(pips[colour] / total, 4) if total else None,
-            "land_sources": land_sources[colour],
-            "other_sources": other_sources[colour],
-            "modal_sources": modal_sources[colour],
-        }
-        for colour in shown
-    ]
+    total, colours_out = _colour_rows(identity, pips, land_sources, other_sources, modal_sources)
     return {
         "schema": SCHEMA,
         "lands": lands,
@@ -247,28 +259,113 @@ def source_deck_groups(
 ) -> list[dict[str, object]]:
     """The same figures for every comparison group of the commander's source decks (the
     groups ``builder.cohort_shapes`` uses). Decks with cards the card data does not know are
-    left out and counted."""
+    left out and counted.
+
+    Remembered per store state and commander (``cache.py``, read-only result)."""
+    if not commander_names:
+        return []
+    return cache.cached(
+        store,
+        ("land_source_groups", tuple(commander_names)),
+        lambda: _source_deck_groups_uncached(store, commander_names),
+    )
+
+
+class _CardTraits:
+    """What one distinct card row contributes to a source deck's figures, read once."""
+
+    __slots__ = ("colours", "kind", "pips")
+
+    def __init__(self, kind: int, colours: frozenset[str], pips: tuple[tuple[str, int], ...]):
+        self.kind = kind  # 0 land, 1 spell with a land back, 2 other spell
+        self.colours = colours  # land sources / modal sources / other sources
+        self.pips = pips
+
+
+def _card_traits(
+    type_line: object, mana_cost: object, produced: object, layout: object
+) -> _CardTraits:
+    """The same reading as ``deck_profile`` gives a deck's card without a zone (a source
+    deck has no commander row, so the identity is empty and every colour counts)."""
+    # The raw values go in: a NULL produced_mana (no card data) is not an empty one.
+    row = {
+        "type_line": type_line,
+        "mana_cost": mana_cost,
+        "produced_mana": produced,
+        "layout": layout,
+    }
+    type_line = _text(row, "type_line")
+    front_type = _front(type_line)
+    if "Land" in front_type:
+        return _CardTraits(0, frozenset(_produced(row, front_type)[0]), ())
+    pips = tuple(_pips(row)[0].items())
+    if " // " in type_line and "Land" in type_line.split(" // ", 1)[1]:
+        return _CardTraits(1, frozenset(_produced(row, "")[0]), pips)
+    return _CardTraits(2, frozenset(c for c in _text(row, "produced_mana") if c in COLOURS), pips)
+
+
+def _source_deck_groups_uncached(
+    store: StudioStore, commander_names: Sequence[str]
+) -> list[dict[str, object]]:
     from . import builder
 
     members = builder.cohort_members(store, commander_names)
     if not members:
         return []
-    wanted = {str(row["deck_id"]) for group in members.values() for row in group}
-    cards: dict[str, list[sqlite3.Row]] = {deck_id: [] for deck_id in wanted}
-    ordered = sorted(wanted)
-    for start in range(0, len(ordered), _CHUNK):
-        chunk = ordered[start : start + _CHUNK]
+    # Only complete decks enter a group's figures; the others are counted, not read.
+    complete_ids = sorted(
+        {
+            str(row["deck_id"])
+            for group in members.values()
+            for row in group
+            if row["resolved"] == row["cards"]
+        }
+    )
+    # The card data is read once per card (a card is in thousands of decks), the deck rows
+    # without a join; a card without card data is left out, as the inner join did.
+    traits: dict[str, _CardTraits] = {}
+    shared: dict[tuple[object, object, object, object], _CardTraits] = {}
+    for oracle_id, type_line, mana_cost, produced, layout in store.connection.execute(
+        "SELECT oracle_id, type_line, mana_cost, produced_mana, layout FROM scryfall_card"
+    ):
+        key = (type_line, mana_cost, produced, layout)
+        trait = shared.get(key)
+        if trait is None:
+            trait = shared[key] = _card_traits(type_line, mana_cost, produced, layout)
+        traits[oracle_id] = trait
+    totals: dict[str, tuple[list[int], Counter[str], Counter[str], Counter[str], Counter[str]]] = {
+        deck_id: ([0], Counter(), Counter(), Counter(), Counter()) for deck_id in complete_ids
+    }
+    for start in range(0, len(complete_ids), _CHUNK):
+        chunk = complete_ids[start : start + _CHUNK]
         marks = ", ".join("?" for _ in chunk)
         query = (
-            "SELECT k.deck_id, k.quantity, s.type_line, s.mana_cost, s.produced_mana, s.layout "
-            "FROM corpus_deck_card k JOIN scryfall_card s ON s.oracle_id = k.oracle_id "
+            "SELECT k.deck_id, k.quantity, k.oracle_id FROM corpus_deck_card k "
             f"WHERE k.deck_id IN ({marks}) AND LOWER(k.section) IN ('main', 'mainboard')"
         )
-        for row in store.connection.execute(query, chunk):
-            cards[str(row["deck_id"])].append(row)
+        for deck_id, quantity, oracle_id in store.connection.execute(query, chunk):
+            trait = traits.get(oracle_id)
+            if trait is None:
+                continue
+            lands, pips, land_sources, other_sources, modal_sources = totals[deck_id]
+            amount = int(quantity if quantity is not None else 1)
+            if trait.kind == 0:
+                lands[0] += amount
+                for colour in trait.colours:
+                    land_sources[colour] += amount
+            else:
+                for colour, count in trait.pips:
+                    pips[colour] += count * amount
+                target = modal_sources if trait.kind == 1 else other_sources
+                for colour in trait.colours:
+                    target[colour] += amount
     compact: dict[str, dict[str, object]] = {}
-    for deck_id, rows in cards.items():
-        compact[deck_id] = _compact(deck_profile(rows))
+    for deck_id, (lands, pips, land_sources, other_sources, modal_sources) in totals.items():
+        _, colours = _colour_rows(set(), pips, land_sources, other_sources, modal_sources)
+        compact[deck_id] = {
+            "lands": lands[0],
+            "colours": {str(entry["colour"]): entry for entry in colours},
+        }
     groups: list[dict[str, object]] = []
     for cohort, group in members.items():
         complete = [

@@ -9,11 +9,13 @@ binding check for play.
 
 from __future__ import annotations
 
+import copy
 import json
 import re
 import threading
 from collections.abc import Awaitable, Callable
 from dataclasses import asdict
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Literal, cast
 
@@ -336,6 +338,89 @@ def _warm_up_once() -> None:
     threading.Thread(target=builder.warm_up, name="studio-warm-up", daemon=True).start()
 
 
+def data_report_cached(store: StudioStore) -> dict[str, object]:
+    """The data report. Its figures come from the store and the date, so they are remembered per
+    store state and UTC day (the report takes tens of seconds over a full corpus). The one part
+    that is read from the repository, ``bridge_qualification``, is set fresh on every call, and
+    the caller gets its own copy: changing it never changes what is remembered."""
+    from commander_lab.bridge_qualification import bridge_qualification
+
+    day = datetime.now(UTC).date()
+
+    def compute() -> dict[str, object]:
+        # The sweep over every commander of the store must not push warm entries out.
+        with cache.read_only():
+            return data_report.data_report(store, today=day)
+
+    report = copy.deepcopy(cache.cached(store, ("data_report", day.isoformat()), compute))
+    report["bridge_qualification"] = bridge_qualification()
+    return report
+
+
+def strength_answer(store: StudioStore, body: StrengthBody) -> dict[str, object]:
+    """The strength index answer of ``/api/strength``, remembered per store state and request
+    (the resolved settings are part of the key; errors are not kept). Also what the start-up
+    warm-up of ``serve`` fills, under the same key."""
+    settings = strength_view.resolve_settings(
+        store, preset=body.preset, profile=body.profile, settings=body.settings
+    )
+
+    # The snapshot answer names the profile it belongs to: a preset and the same figures typed in
+    # as plain settings are different requests and must not share one remembered answer.
+    profile_name = (
+        None
+        if body.profile is not None
+        else (
+            body.preset
+            if body.preset is not None
+            else ("Ausgewogen" if settings == strength.StrengthSettings.recommended() else None)
+        )
+    )
+
+    def compute() -> dict[str, object]:
+        if body.profile is not None:
+            return dict(
+                strength_view.compute(
+                    store,
+                    body.commander,
+                    settings,
+                    # a saved profile may point to a universe deleted since: fall back
+                    # visibly instead of failing; explicit settings must name a real one
+                    dangling_universe_ok=True,
+                    notices=strength_view.profile_notices(store, body.profile),
+                    saved_weights=strength_view.profile_saved_weights(store, body.profile),
+                )
+            )
+        return dict(
+            strength_view.compute_with_snapshot(
+                store, body.commander, settings, profile_name=profile_name
+            )
+        )
+
+    return cache.cached(
+        store,
+        (
+            "strength",
+            body.commander,
+            body.profile,
+            profile_name,
+            json.dumps(asdict(settings), sort_keys=True, default=str),
+        ),
+        compute,
+    )
+
+
+def layer_overview_cached(store: StudioStore, commander: str) -> dict[str, object]:
+    """``import_all.layer_overview``, remembered per store state and commander. Several pages ask
+    at once and every answer counts the whole pool: one shared computation (the pool figures it
+    needs are cached as well). Also what the start-up warm-up of ``serve`` fills."""
+    return cache.cached(
+        store,
+        ("layer_overview", commander),
+        lambda: import_all.layer_overview(store, commander),
+    )
+
+
 def create_app(data_folder: str | Path | None = None) -> FastAPI:
     """The Studio application. ``data_folder`` is the Studio data folder (default: from the
     environment)."""
@@ -412,7 +497,7 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         in the tool itself. No card name, deck address or note text leaves here."""
         store = open_store()
         try:
-            return data_report.data_report(store)
+            return data_report_cached(store)
         finally:
             store.close()
 
@@ -422,7 +507,7 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         import call, for the empty-state box of the pages."""
         store = open_store()
         try:
-            return import_all.layer_overview(store, commander)
+            return layer_overview_cached(store, commander)
         finally:
             store.close()
 
@@ -564,33 +649,7 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         like every non-GET route, although it changes nothing."""
         store = open_store()
         try:
-            settings = strength_view.resolve_settings(
-                store, preset=body.preset, profile=body.profile, settings=body.settings
-            )
-            if body.profile is not None:
-                return dict(
-                    strength_view.compute(
-                        store,
-                        body.commander,
-                        settings,
-                        # a saved profile may point to a universe deleted since: fall back
-                        # visibly instead of failing; explicit settings must name a real one
-                        dangling_universe_ok=True,
-                        notices=strength_view.profile_notices(store, body.profile),
-                        saved_weights=strength_view.profile_saved_weights(store, body.profile),
-                    )
-                )
-            profile_name = (
-                body.preset
-                if body.preset is not None
-                else ("Ausgewogen" if settings == strength.StrengthSettings.recommended() else None)
-            )
-            return strength_view.compute_with_snapshot(
-                store,
-                body.commander,
-                settings,
-                profile_name=profile_name,
-            )
+            return strength_answer(store, body)
         except ValueError as error:
             raise HTTPException(422, str(error)) from error
         except KeyError as error:

@@ -651,18 +651,28 @@ def _play_batch(args: argparse.Namespace) -> int:
 
 
 def _warm_caches(data: str | None) -> None:
-    """Fill the data-epoch memo for the commanders that have source data, in the background, so
-    the first pool or tier call of the Owner does not pay for the corpus counts."""
-    from . import builder, import_all, strength_view, universe
+    """Fill the caches of the commander-level figures for the commanders that have source data,
+    in the background, so the first page load of the Owner does not pay for the corpus counts.
+    Runs only under ``serve`` (never in tests), each step on its own so one failure keeps the
+    others, and every error is swallowed: a warm-up must never stop the server. A request that
+    needs a figure still being computed here waits for it (``cache.cached``), it does not
+    compute it a second time."""
+    from . import builder, land_advisor, strength_view, universe
+    from .web import StrengthBody, layer_overview_cached, strength_answer
 
     try:
         store = StudioStore.open(data)
     except Exception:  # a warm-up must never stop the server
         return
     try:
+        if store.path is None:  # an in-memory store has nothing a request could share
+            return
         for item in builder.list_commanders(store):
-            if item.get("has_data") and item.get("in_collection"):
-                name = str(item["name"])
+            if not (item.get("has_data") and item.get("in_collection")):
+                continue
+            name = str(item["name"])
+
+            def pool(name: str = name) -> None:
                 builder.pool_cards(store, [name])
                 settings = strength_view.resolve_settings(
                     store, preset=None, profile=None, settings=None
@@ -671,7 +681,24 @@ def _warm_caches(data: str | None) -> None:
                     store, name, settings, profile_name="Ausgewogen"
                 )
                 universe.options(store, commander_names=[name])
-                import_all.layer_overview(store, name)
+
+            def strength(name: str = name) -> None:
+                # the route's own entry (default settings), so the page's request finds it
+                strength_answer(store, StrengthBody(commander=name))
+
+            steps = (
+                ("pool", pool),
+                ("strength", strength),
+                ("layers", lambda name=name: layer_overview_cached(store, name)),
+                ("cohort_shapes", lambda name=name: builder.cohort_shapes(store, [name])),
+                ("land_groups", lambda name=name: land_advisor.source_deck_groups(store, [name])),
+                ("combo_partners", lambda name=name: builder._cached_combo_partners([name])),
+            )
+            for label, step in steps:
+                try:
+                    step()
+                except Exception as error:  # best effort: one line, no traceback
+                    print(f"warm-up {label}: {type(error).__name__}", file=sys.stderr)
     except Exception:  # best effort only
         pass
     finally:

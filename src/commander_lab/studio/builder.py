@@ -11,6 +11,7 @@ import json
 import math
 import re
 import sqlite3
+import threading
 from collections import Counter
 from collections.abc import Iterable, Sequence
 from datetime import UTC, datetime, timedelta
@@ -242,6 +243,28 @@ def cohort_sizes(store: StudioStore, commander_names: Sequence[str]) -> dict[str
     return sizes
 
 
+def corpus_deck_sets(store: StudioStore, commander_names: Sequence[str]) -> dict[str, set[str]]:
+    """The decks listing each card over all non-duplicate source decks bound to the commander
+    (``universe.deck_sets`` with every spelling merged into the card it names).
+
+    The one expensive pass over the corpus behind the pool counts and the package figures,
+    remembered per store state and commander so that the two share it (read-only result)."""
+    from .universe import deck_sets, spelling_owners
+
+    def compute() -> dict[str, set[str]]:
+        bound, bound_args = bound_to("corpus_deck", "d.deck_id", commander_names)
+        deck_ids = {
+            str(row[0])
+            for row in store.connection.execute(
+                f"SELECT d.deck_id FROM corpus_deck d WHERE d.duplicate_of IS NULL{bound}",
+                bound_args,
+            )
+        }
+        return deck_sets(store, deck_ids, spelling_owners(store))
+
+    return cache.cached(store, ("corpus_deck_sets", tuple(commander_names)), compute)
+
+
 def _corpus_hits(store: StudioStore, commander_names: Sequence[str]) -> dict[str, dict[str, int]]:
     """``{card (oracle name): {group: decks}}`` over the non-duplicate source decks bound to the
     commander (see ``_corpus_hits_uncached``). Remembered per store state (read-only result).
@@ -264,8 +287,6 @@ def _corpus_hits_uncached(
     every spelling merged into the card it names). Groups: ``all``, each play group, each
     cohort. A card absent from the result is unknown; a card present has a real count (0
     included) in every group."""
-    from .universe import deck_sets, spelling_owners
-
     db = store.connection
     if not commander_names:
         return {}
@@ -298,7 +319,7 @@ def _corpus_hits_uncached(
     tuned_ids = groups.get("bracket:4", set()) | groups.get("bracket:5", set())
     if tuned_ids:
         groups["tuned"] = tuned_ids
-    sets = deck_sets(store, groups[ALL_DECKS], spelling_owners(store))
+    sets = corpus_deck_sets(store, commander_names)
     return {
         card: {group: len(decks & members) for group, members in groups.items()}
         for card, decks in sets.items()
@@ -649,19 +670,44 @@ def legality_unknown_in_collection(store: StudioStore) -> int:
     return int(row[0])
 
 
+_COMBO_PARTNERS_PATH = (
+    Path(__file__).resolve().parents[3] / "data" / "meta" / "spellbook_combos.json"
+)
+_combo_partners_lock = threading.Lock()
+_combo_partners: dict[tuple[tuple[str, ...], int, int], frozenset[str]] = {}
+
+
 def _cached_combo_partners(commander_names: Sequence[str]) -> frozenset[str]:
-    """Pure file-based Spellbook combo partners for ``commander_names`` (no SQL queries)."""
+    """Pure file-based Spellbook combo partners for ``commander_names`` (no SQL queries).
+
+    The combo file is large (parsing it takes about half a second), so the result is kept per
+    commander list for as long as the file keeps its modification time and size."""
     from .sources import load_spellbook_combo_partners
 
-    combos_path = Path(__file__).resolve().parents[3] / "data" / "meta" / "spellbook_combos.json"
+    try:
+        found = _COMBO_PARTNERS_PATH.stat()
+        file_state = (found.st_mtime_ns, found.st_size)
+    except OSError:
+        file_state = (-1, -1)
+    key = (tuple(commander_names), *file_state)
+    with _combo_partners_lock:
+        if key in _combo_partners:
+            return _combo_partners[key]
     partners: set[str] = set()
     for name in commander_names:
-        by_card = load_spellbook_combo_partners(combos_path, commander=name.split(",")[0].strip())
+        by_card = load_spellbook_combo_partners(
+            _COMBO_PARTNERS_PATH, commander=name.split(",")[0].strip()
+        )
         for card, others in by_card.items():
             partners.add(card.casefold())
             for other in others:
                 partners.add(f"{card.casefold()}||{other.casefold()}")
-    return frozenset(partners)
+    result = frozenset(partners)
+    with _combo_partners_lock:
+        if len(_combo_partners) >= 16:
+            _combo_partners.clear()
+        _combo_partners[key] = result
+    return result
 
 
 def card_cooccurrence(
@@ -995,11 +1041,24 @@ def card_detail(
 
 
 def _percentile(values: list[float], share: float) -> float:
-    ordered = sorted(values)
+    return _percentile_sorted(sorted(values), share)
+
+
+def _percentile_sorted(ordered: Sequence[float], share: float) -> float:
     position = share * (len(ordered) - 1)
     low = int(position)
     high = min(low + 1, len(ordered) - 1)
     return ordered[low] + (ordered[high] - ordered[low]) * (position - low)
+
+
+def _span(values: Sequence[float]) -> dict[str, float]:
+    """Median and middle half of ``values`` (non-empty), sorted once."""
+    ordered = sorted(values)
+    return {
+        "median": round(median(ordered), 2),
+        "p25": round(_percentile_sorted(ordered, 0.25), 2),
+        "p75": round(_percentile_sorted(ordered, 0.75), 2),
+    }
 
 
 def cohort_members(
@@ -1041,45 +1100,71 @@ def cohort_members(
 def cohort_shapes(store: StudioStore, commander_names: Sequence[str]) -> list[dict[str, object]]:
     """How the source decks of the commander are built, per cohort: lands, creatures, average mana value of
     nonland cards (median and middle half). Decks with unresolved cards are left out and
-    counted."""
-    db = store.connection
+    counted.
+
+    Remembered per store state and commander (``cache.py``, read-only result): the figures
+    cost seconds over a full corpus and change only when a write commits."""
     if not commander_names:
         return []
+    return cache.cached(
+        store,
+        ("cohort_shapes", tuple(commander_names)),
+        lambda: _cohort_shapes_uncached(store, commander_names),
+    )
+
+
+_ROLE_CHUNK = 900  # deck ids per statement, below SQLite's older variable limit of 999
+
+
+def _cohort_shapes_uncached(
+    store: StudioStore, commander_names: Sequence[str]
+) -> list[dict[str, object]]:
+    db = store.connection
     members = cohort_members(store, commander_names)
     role_names = [str(r[0]) for r in db.execute("SELECT DISTINCT role FROM card_role ORDER BY 1")]
-    role_cards: dict[tuple[str, str], int] = {
-        (str(r["deck_id"]), str(r["role"])): int(r["cards"])
-        for r in db.execute("SELECT deck_id, role, cards FROM corpus_deck_role")
+    # One pass over the rows of every group: a deck sits in several groups, so its figures
+    # are read once, not once per group.
+    complete_by_group: dict[str, list[sqlite3.Row]] = {
+        cohort: [row for row in group if row["resolved"] == row["cards"]]
+        for cohort, group in members.items()
     }
+    all_complete_ids = sorted(
+        {str(row["deck_id"]) for group in complete_by_group.values() for row in group}
+    )
     nonland_role_by_deck: dict[str, int] = {}
+    role_vectors: dict[str, list[float]] = {}
     if role_names:
-        all_complete_ids = sorted(
-            {
-                str(row["deck_id"])
-                for group in members.values()
-                for row in group
-                if row["resolved"] == row["cards"]
-            }
-        )
-        for start in range(0, len(all_complete_ids), 500):
-            chunk = all_complete_ids[start : start + 500]
+        wanted = set(all_complete_ids)
+        column = {role: index for index, role in enumerate(role_names)}
+        for deck_id, role, cards in db.execute("SELECT deck_id, role, cards FROM corpus_deck_role"):
+            if deck_id in wanted and role in column:
+                vector = role_vectors.get(deck_id)
+                if vector is None:
+                    vector = role_vectors[deck_id] = [0.0] * len(role_names)
+                vector[column[role]] = float(cards)
+        zeros = [0.0] * len(role_names)
+        for deck_id in all_complete_ids:
+            role_vectors.setdefault(deck_id, zeros)
+        # The cards that count as role cards of a nonland kind are fixed per oracle id, so they
+        # are worked out once per statement (a materialised CTE), not once per deck row.
+        for start in range(0, len(all_complete_ids), _ROLE_CHUNK):
+            chunk = all_complete_ids[start : start + _ROLE_CHUNK]
             marks = ", ".join("?" for _ in chunk)
             for row in db.execute(
+                "WITH q AS MATERIALIZED (SELECT DISTINCT r.oracle_id FROM card_role r "
+                "LEFT JOIN scryfall_card s ON s.oracle_id = r.oracle_id "
+                "WHERE SUBSTR(COALESCE(s.type_line, ''), 1, "
+                "INSTR(COALESCE(s.type_line, '') || ' // ', ' // ') - 1) NOT LIKE '%Land%') "
                 "SELECT k.deck_id, SUM(k.quantity) AS cnt "
-                "FROM corpus_deck_card k "
-                "JOIN (SELECT DISTINCT oracle_id FROM card_role) r ON r.oracle_id = k.oracle_id "
-                "LEFT JOIN scryfall_card s ON s.oracle_id = k.oracle_id "
+                "FROM corpus_deck_card k JOIN q ON q.oracle_id = k.oracle_id "
                 f"WHERE k.deck_id IN ({marks}) AND LOWER(k.section) IN ('main', 'mainboard') "
-                "AND k.quantity > 0 "
-                "AND SUBSTR(COALESCE(s.type_line, ''), 1, "
-                "INSTR(COALESCE(s.type_line, '') || ' // ', ' // ') - 1) NOT LIKE '%Land%' "
-                "GROUP BY k.deck_id",
+                "AND k.quantity > 0 GROUP BY k.deck_id",
                 chunk,
             ):
                 nonland_role_by_deck[str(row["deck_id"])] = int(row["cnt"] or 0)
     shapes: list[dict[str, object]] = []
     for cohort, group in members.items():
-        complete = [row for row in group if row["resolved"] == row["cards"]]
+        complete = complete_by_group[cohort]
         shape: dict[str, object] = {
             "cohort": cohort,
             "decks": len(group),
@@ -1099,25 +1184,17 @@ def cohort_shapes(store: StudioStore, commander_names: Sequence[str]) -> list[di
                 ),
             ):
                 if values:
-                    shape[field] = {
-                        "median": round(median(values), 2),
-                        "p25": round(_percentile(values, 0.25), 2),
-                        "p75": round(_percentile(values, 0.75), 2),
-                    }
+                    shape[field] = _span(values)
         if complete and role_names:
-            spans: dict[str, dict[str, float]] = {}
-            for role in role_names:
-                counts = [float(role_cards.get((str(row["deck_id"]), role), 0)) for row in complete]
-                spans[role] = {
-                    "median": round(median(counts), 2),
-                    "p25": round(_percentile(counts, 0.25), 2),
-                    "p75": round(_percentile(counts, 0.75), 2),
-                }
-            shape["roles"] = spans
-            cov_counts = [
-                float(nonland_role_by_deck.get(str(row["deck_id"]), 0)) for row in complete
-            ]
-            shape["role_coverage_median"] = round(median(cov_counts), 2)
+            vectors = [role_vectors[str(row["deck_id"])] for row in complete]
+            shape["roles"] = {
+                role: _span(counts)
+                for role, counts in zip(role_names, zip(*vectors, strict=True), strict=True)
+            }
+            shape["role_coverage_median"] = round(
+                median(float(nonland_role_by_deck.get(str(row["deck_id"]), 0)) for row in complete),
+                2,
+            )
         shapes.append(shape)
     return shapes
 

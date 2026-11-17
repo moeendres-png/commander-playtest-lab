@@ -14,7 +14,7 @@ import sqlite3
 from collections.abc import Iterable, Mapping, Sequence
 from pathlib import Path
 
-from . import builder, combos
+from . import builder, cache, combos
 from .decks import RevisionCard, color_set, list_rows
 from .store import StudioStore
 
@@ -210,6 +210,36 @@ def _cohort_candidates(store: StudioStore, commander_names: Sequence[str], cohor
     }
 
 
+def _cohort_candidates_cached(
+    store: StudioStore, commander_names: Sequence[str], cohort: str
+) -> frozenset[str]:
+    """The non-duplicate source decks of one comparison group, per store state."""
+    return cache.cached(
+        store,
+        ("package_candidates", tuple(commander_names), cohort),
+        lambda: frozenset(_cohort_candidates(store, commander_names, cohort)),
+    )
+
+
+def _cohort_deck_sets(
+    store: StudioStore, commander_names: Sequence[str], cohort: str
+) -> dict[str, set[str]]:
+    """The decks listing each card, over the source decks of one comparison group: the
+    expensive pass over the corpus of the packages. It does not depend on the deck being
+    edited, so it is kept per store state, commander and group (read-only result)."""
+    from .universe import deck_sets, spelling_owners
+
+    if cohort == builder.ALL_DECKS:  # the same pass the pool counts use
+        return builder.corpus_deck_sets(store, commander_names)
+    return cache.cached(
+        store,
+        ("package_deck_sets", tuple(commander_names), cohort),
+        lambda: deck_sets(
+            store, _cohort_candidates_cached(store, commander_names, cohort), spelling_owners(store)
+        ),
+    )
+
+
 def _rows_from_cards(
     store: StudioStore, cards: Sequence[RevisionCard]
 ) -> tuple[Sequence[sqlite3.Row], list[dict[str, object]], set[str]]:
@@ -228,8 +258,6 @@ def deck_packages(
     template_snapshot_path: Path | None = None,
 ) -> dict[str, object]:
     """Identify synergistic card packages & Spellbook shell packages around the current deck."""
-    from .universe import deck_sets, spelling_owners
-
     raw_rows, deck_rows, deck_ids = _rows_from_cards(store, cards)
     chosen = _resolve_commanders(store, commander_names, deck_rows)
     if not chosen:
@@ -265,13 +293,11 @@ def deck_packages(
             shell_packages.append(dict(sh))
 
     # 2. Empirical corpus co-occurrence packages (single batched pass over cohort deck_sets)
-    candidates = _cohort_candidates(store, chosen, cohort)
-    cohort_decks = len(candidates)
+    cohort_decks = len(_cohort_candidates_cached(store, chosen, cohort))
     small = 0 < cohort_decks < builder.SMALL_DENOMINATOR
     synergy_keyed: list[tuple[int, int, str, dict[str, object]]] = []
     if cohort_decks > 0:
-        owners = spelling_owners(store)
-        sets = deck_sets(store, candidates, owners)
+        sets = _cohort_deck_sets(store, chosen, cohort)
         partner_keys = builder._cached_combo_partners(chosen)
 
         deck_nonbasic = [
@@ -289,25 +315,34 @@ def deck_packages(
             key=lambda item: (-item[0], item[1].name),
         )[:20]
 
+        # What a card name stands for in the pool does not depend on the anchor: resolve it
+        # once (same order as ``sets``), not once per anchor.
+        partners_pool: list[tuple[str, set[str], str, _PoolCard]] = []
+        for pname, pset in sets.items():
+            p_cid = id_by_cf.get(pname.casefold()) or id_by_cf.get(
+                pname.split(" // ")[0].casefold()
+            )
+            if p_cid is None or p_cid not in by_id:
+                continue
+            p_info = by_id[p_cid]
+            if p_info.basic or p_info.is_commander:
+                continue
+            partners_pool.append((pname, pset, p_cid, p_info))
+
         for anchor_decks, anchor in anchors:
             anchor_name = anchor.name
             anchor_cf = anchor_name.casefold()
             anchor_set = sets[anchor_name]
+            min_both = max(3, math.ceil(0.05 * anchor_decks))
             missing_keyed: list[tuple[float, int, str, dict[str, object]]] = []
             shared_keyed: list[tuple[float, int, str, dict[str, object]]] = []
-            for pname, pset in sets.items():
+            for pname, pset, p_cid, p_info in partners_pool:
                 if pname == anchor_name:
                     continue
-                p_cid = id_by_cf.get(pname.casefold()) or id_by_cf.get(
-                    pname.split(" // ")[0].casefold()
-                )
-                if p_cid is None or p_cid not in by_id:
-                    continue
-                p_info = by_id[p_cid]
-                if p_info.basic or p_info.is_commander:
+                # The overlap cannot exceed the smaller set: skip the intersection then.
+                if min(len(anchor_set), len(pset)) < min_both:
                     continue
                 both = len(anchor_set & pset)
-                min_both = max(3, math.ceil(0.05 * anchor_decks))
                 if both < min_both:
                     continue
                 p_decks = len(pset)
