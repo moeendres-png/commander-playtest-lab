@@ -35,7 +35,7 @@ from . import builder, cache, signals
 from .combos import _keys, stored_combos
 from .similar_decks import (
     _basic_oracle_names,
-    _canonical_name,
+    _canonical_or_raw,
     _commander_source_index,
 )
 from .store import StudioStore
@@ -191,7 +191,7 @@ def _applicable(row: sqlite3.Row, name: str, basics: frozenset[str]) -> tuple[bo
 
 
 def _columns(denominators: dict[str, list[int]], commander: str) -> list[dict[str, object]]:
-    short = commander.split(",")[0]
+    short = commander
     columns: list[dict[str, object]] = [
         {
             "key": "decks_all",
@@ -370,7 +370,7 @@ def deck_evidence(
     deck_names: dict[str, str] = {}
     applicable_rows: dict[str, tuple[bool, str]] = {}
     for row in rows:
-        canonical = _canonical_name(owners, str(row["oracle_name"]))
+        canonical = _canonical_or_raw(owners, str(row["oracle_name"]))
         applicable_rows[str(row["card_id"])] = _applicable(row, canonical, basics)
         deck_names[str(row["card_id"])] = canonical
     deckset = {deck_names[card_id] for card_id, (ok, _why) in applicable_rows.items() if ok}
@@ -468,7 +468,8 @@ def deck_evidence(
         cards.append({**base, "cells": cells})
 
     columns = _columns(
-        {key: sorted(found) for key, found in tournament_n.items()}, commander_names[0]
+        {key: sorted(found) for key, found in tournament_n.items()},
+        " + ".join(commander.split(",")[0] for commander in commander_names),
     )
     ordered = order_cards(cards)
     known_decks = [
