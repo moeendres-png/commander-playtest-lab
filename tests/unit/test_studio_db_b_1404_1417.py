@@ -798,7 +798,19 @@ def test_swap_removed_before_is_a_fact_and_never_changes_order(tmp_path: Path) -
         assert strip(plain) == strip(with_history)
         assert all(c["removed_before"] is None for c in plain["candidates"])  # type: ignore[attr-defined]
         unknown_deck = swap.swap_candidates(store, deck_id="no-such-deck", **kwargs)  # type: ignore[arg-type]
-        assert unknown_deck["history"] is None
+        assert unknown_deck["history"] == {"found": False}
+        assert with_history["history"]["found"] is True  # type: ignore[index]
+        # A normal short chain is complete: never flagged as truncated.
+        assert with_history["history"]["truncated"] is False  # type: ignore[index]
+        # A dangling parent link (parent row missing) is not a truncation either.
+        store.connection.execute("PRAGMA foreign_keys = OFF")
+        store.connection.execute(
+            "UPDATE deck_revision SET parent_revision_id = 'rev-gone' WHERE revision_id = ?",
+            (rev2,),
+        )
+        dangling = swap.swap_candidates(store, deck_id="deck-x", **kwargs)  # type: ignore[arg-type]
+        assert dangling["history"]["found"] is True  # type: ignore[index]
+        assert dangling["history"]["truncated"] is False  # type: ignore[index]
     finally:
         store.close()
 
@@ -997,7 +1009,7 @@ def test_web_routes_packages_build_plan_upgrade_path_and_swap_lift(tmp_path: Pat
             },
         )
         assert r_hist.status_code == 200, r_hist.text
-        assert r_hist.json()["history"] is None
+        assert r_hist.json()["history"] == {"found": False}
 
 
 def test_studio_static_csp_and_db_b_ui_markers() -> None:

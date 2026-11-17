@@ -148,6 +148,18 @@ const StudioUI = (() => {
 
   // ---------- number inputs with limits ----------
   // Every numeric field gets min, max and step; a typed value is clamped on leaving the field.
+  // One place for number display: de-DE decimal comma and thousands dot (digits = fixed decimals).
+  function num(value, digits = 0) {
+    const n = Number(value);
+    if (!Number.isFinite(n)) return "unbekannt";
+    return n.toLocaleString("de-DE", { minimumFractionDigits: digits, maximumFractionDigits: digits });
+  }
+  // value is a fraction (0.253 -> "25,3 %").
+  function pct(value, digits = 1) {
+    const n = Number(value);
+    return Number.isFinite(n) ? `${num(100 * n, digits)} %` : "unbekannt";
+  }
+
   function limitNumber(input, min, max, step = 1) {
     input.min = String(min); input.max = String(max); input.step = String(step);
     input.addEventListener("change", () => {
@@ -199,12 +211,12 @@ const StudioUI = (() => {
           label = qual.sealed_epoch ? `Bridge: versiegelt (${qual.sealed_epoch})` : "Bridge: versiegelt";
         } else if (state === "BRIDGE_AHEAD_OF_QUALIFICATION") {
           cls = "pill warn";
-          label = "BRIDGE_AHEAD_OF_QUALIFICATION";
+          label = "Bridge: Engine-Stand noch nicht qualifiziert";
         } else {
           cls = "pill bad";
           label = `Bridge: ${state}`;
         }
-        const tip = [qual.reason, qual.sealed_epoch ? `Versiegelte Epoche: ${qual.sealed_epoch}` : null].filter(Boolean).join(" · ");
+        const tip = [state === "BRIDGE_AHEAD_OF_QUALIFICATION" ? `Rohcode: ${state}` : null, qual.reason, qual.sealed_epoch ? `Versiegelte Epoche: ${qual.sealed_epoch}` : null].filter(Boolean).join(" · ");
         const pill = el("span", { id: "bridge-qualification-pill", class: cls, title: tip }, label);
         if (toggle && toggle.parentElement === bar) toggle.before(pill); else bar.append(pill);
       } catch (error) { /* status endpoint is optional in isolated views */ }
@@ -273,17 +285,17 @@ const StudioUI = (() => {
   function layerText(key, item) {
     if (item.status !== "OK") return null;
     if (key === "pod_scaling") return item.detail.factor || item.detail.label; // a scaling card shows its plain factor
-    if (key === "commander_fit") return `${plusSign(item.raw)}${(100 * item.raw).toFixed(0)} %`;
+    if (key === "commander_fit") return `${plusSign(item.raw)}${StudioUI.num(100 * item.raw, 0)} %`;
     // The column sorts by the damped value the index reads, so that value leads; the measured gap follows.
-    if (key === "win_gap") return `${plusSign(item.value)}${item.value.toFixed(1)} Pp (gemessen ${plusSign(item.raw)}${item.raw.toFixed(1)}) · n=${item.n}`;
-    return `${(100 * item.raw).toFixed(0)} % · n=${item.n}`;
+    if (key === "win_gap") return `${plusSign(item.value)}${StudioUI.num(item.value, 1)} Pp (gemessen ${plusSign(item.raw)}${StudioUI.num(item.raw, 1)}) · n=${item.n}`;
+    return `${StudioUI.num(100 * item.raw, 0)} % · n=${item.n}`;
   }
   function layerTitle(meta, item) {
     const head = `${meta.label} (${LAYER_KINDS[meta.kind] || meta.kind}).`;
     if (item.status !== "OK") return `${head} ${LAYER_STATUS[item.status] || item.status}: ${item.note || item.reason}`;
     const parts = [head, item.note ? `${item.note}.` : ""];
-    if (item.wilson !== null && item.wilson !== undefined) parts.push(`Wilson-Untergrenze ${(100 * item.wilson).toFixed(1)} %, Mindeststichprobe ${meta.min_sample || 25}.`);
-    if (item.percentile !== null && item.percentile !== undefined) parts.push(`Perzentil ${item.percentile.toFixed(1)} von 100 im Pool.`);
+    if (item.wilson !== null && item.wilson !== undefined) parts.push(`Wilson-Untergrenze ${StudioUI.num(100 * item.wilson, 1)} %, Mindeststichprobe ${meta.min_sample || 25}.`);
+    if (item.percentile !== null && item.percentile !== undefined) parts.push(`Perzentil ${StudioUI.num(item.percentile, 1)} von 100 im Pool.`);
     parts.push(`Quelle: ${meta.source}. Nenner: ${meta.denominator}.`);
     return parts.filter(Boolean).join(" ");
   }
@@ -305,12 +317,12 @@ const StudioUI = (() => {
         el("td", { title: meta.description }, meta.label),
         el("td", {}, layerShort[meta.kind] || meta.kind),
         el("td", {}, item ? layerNode(meta, item) : el("span", { class: "unknown" }, "–")),
-        el("td", { class: "num" }, ok && item.wilson !== null && item.wilson !== undefined ? `${(100 * item.wilson).toFixed(1)} %` : "–"),
-        el("td", { class: "num" }, ok && item.percentile !== null ? item.percentile.toFixed(1) : "–"),
+        el("td", { class: "num" }, ok && item.wilson !== null && item.wilson !== undefined ? `${StudioUI.num(100 * item.wilson, 1)} %` : "–"),
+        el("td", { class: "num" }, ok && item.percentile !== null ? StudioUI.num(item.percentile, 1) : "–"),
         el("td", {}, item && item.status !== "OK" ? el("span", { class: "unknown" }, item.note || item.reason) : (ok && item.note ? el("span", { class: "rule" }, item.note) : "")));
     });
     return el("table", {}, el("thead", {}, el("tr", {}, ["Ebene", "Art", "Wert", "Wilson-Untergrenze", "Perzentil", "Hinweis"].map((label) => el("th", {}, label)))), el("tbody", {}, rows));
   }
 
-  return { recall, remember, el, h: el, toast, fail, germanError, request, api: request, busy, loading, skeleton, limitNumber, dataState, effectiveTheme, applyTheme, layerText, layerTitle, layerNode, layerTable };
+  return { recall, remember, el, h: el, toast, fail, germanError, request, api: request, busy, loading, skeleton, num, pct, limitNumber, dataState, effectiveTheme, applyTheme, layerText, layerTitle, layerNode, layerTable };
 })();
