@@ -1550,6 +1550,37 @@ function renderSimulations(body) {
     body.append(h("p", { class: "muted" }, "Keine Batch-Simulationsläufe im Store hinterlegt."));
     return;
   }
+  const byPod = new Map();
+  for (const run of state.simulations) {
+    const pKey = String(run.pod || "unbekannt");
+    if (!byPod.has(pKey)) byPod.set(pKey, { pod: pKey, runs: 0, planned: 0, completed: 0, wins: 0, roundsNum: 0, roundsDen: 0, allSealed: true, states: new Set() });
+    const agg = byPod.get(pKey);
+    agg.runs += 1;
+    agg.planned += Number(run.games_planned || 0);
+    const gc = Number(run.games_completed || 0);
+    agg.completed += gc;
+    agg.wins += Number(run.wins_fractional || 0);
+    if (run.mean_rounds != null && gc > 0) { agg.roundsNum += Number(run.mean_rounds) * gc; agg.roundsDen += gc; }
+    if (!run.covered_by_sealed_epoch) agg.allSealed = false;
+    agg.states.add(String(run.bridge_qualification_state || "UNKNOWN"));
+  }
+  const podRows = [...byPod.values()].sort((a, b) => a.pod.localeCompare(b.pod, "de")).map((agg) => {
+    const wr = agg.completed > 0 ? `${StudioUI.num((100 * agg.wins) / agg.completed, 1)} %` : "unbekannt";
+    const mr = agg.roundsDen > 0 ? StudioUI.numFlex(agg.roundsNum / agg.roundsDen, 1) : "unbekannt";
+    const ep = agg.allSealed ? "versiegelt" : (agg.states.has("BRIDGE_AHEAD_OF_QUALIFICATION") ? "Engine-Stand noch nicht qualifiziert" : [...agg.states].join(", "));
+    return h("tr", {},
+      h("td", {}, h("b", {}, agg.pod)),
+      h("td", { class: "num" }, StudioUI.num(agg.runs, 0)),
+      h("td", { class: "num" }, `${StudioUI.num(agg.completed, 0)} / ${StudioUI.num(agg.planned, 0)}`),
+      h("td", { class: "num" }, StudioUI.numFlex(agg.wins, 1)),
+      h("td", { class: "num" }, wr),
+      h("td", { class: "num" }, mr),
+      h("td", {}, ep));
+  });
+  const podMatrixTable = h("div", { class: "table-wrap" }, h("table", { id: "pod-matchup-matrix" },
+    h("thead", {}, h("tr", {}, h("th", {}, "Pod / Tisch"), h("th", { class: "num" }, "Läufe"), h("th", { class: "num" }, "Spiele (n / N)"), h("th", { class: "num" }, "Siege"), h("th", { class: "num" }, "Siegrate"), h("th", { class: "num" }, "Ø Runden"), h("th", {}, "Epochen-Stand"))),
+    h("tbody", {}, podRows)));
+  body.append(h("h3", {}, "Pod-Matchup-Übersicht (aggregiert je Tisch)"), podMatrixTable);
   const runTable = h("div", { class: "table-wrap" }, h("table", {},
     h("thead", {}, h("tr", {}, h("th", {}, "Pod"), h("th", {}, "Engine-Pin"), h("th", {}, "Bridge-JAR"), h("th", {}, "Epoche"), h("th", {}, "Pilot"), h("th", { class: "num" }, "Spiele"), h("th", { class: "num" }, "Siege"), h("th", { class: "num" }, "Siegrate"), h("th", { class: "num" }, "Ø Runden"))),
     h("tbody", {}, state.simulations.map((run) => h("tr", {},

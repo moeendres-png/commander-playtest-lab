@@ -369,3 +369,65 @@ def test_deck_doctor_remedies_and_route(tmp_path: Path) -> None:
     payload = resp.json()
     assert payload["schema"] == packages.DECK_DOCTOR_SCHEMA
     assert len(payload["remedies"]) >= 4
+
+
+def test_pod_matchup_matrix_aggregates_runs_by_pod_with_denominators_and_qualification(
+    tmp_path: Path,
+) -> None:
+    from commander_lab.studio import builder
+
+    commander = "Chulane, Teller of Tales"
+    store = StudioStore.open(tmp_path)
+    try:
+        _insert_card(store, "cmd-chulane", commander)
+        with store.connection:
+            store.connection.execute(
+                "INSERT INTO simulation_run "
+                "(run_id, deck_id, pod, engine_pin, bridge_jar_sha256, bridge_qualification_state, "
+                "pilot_policy, seeds, games_planned, games_completed, games_failed, "
+                "wins_fractional, win_rate, mean_rounds, hand_dwell_status, source_id) "
+                "VALUES ('r1', 'chulane-current', 'precon', 'pin-1', 'sha-a', "
+                "'ALIGNED_WITH_SEALED_EPOCH', 'heuristic_v1', '[1,2]', 10, 10, 0, 3.0, 0.3, 8.0, 'unknown', 'src-dbd')"
+            )
+            store.connection.execute(
+                "INSERT INTO simulation_run "
+                "(run_id, deck_id, pod, engine_pin, bridge_jar_sha256, bridge_qualification_state, "
+                "pilot_policy, seeds, games_planned, games_completed, games_failed, "
+                "wins_fractional, win_rate, mean_rounds, hand_dwell_status, source_id) "
+                "VALUES ('r2', 'chulane-current', 'precon', 'pin-1', 'sha-b', "
+                "'BRIDGE_AHEAD_OF_QUALIFICATION', 'heuristic_v1', '[3,4]', 10, 10, 0, 5.0, 0.5, 6.0, 'unknown', 'src-dbd')"
+            )
+            store.connection.execute(
+                "INSERT INTO commander_binding (kind, key, commander_name, basis) "
+                "VALUES ('simulation_run', 'r1', ?, 'test'), ('simulation_run', 'r2', ?, 'test')",
+                (commander, commander),
+            )
+        mat = builder.pod_matchup_matrix(store, [commander])
+        assert mat["schema"] == "studio-pod-matrix-1"
+        assert mat["data_class"] == "SIMULATED_RESULT"
+        assert mat["total_runs"] == 2
+        assert mat["total_games_completed"] == 20
+        pods = mat["pods"]
+        assert isinstance(pods, list) and len(pods) == 1
+        p0 = pods[0]
+        assert p0["pod"] == "precon"
+        assert p0["runs_count"] == 2
+        assert p0["games_completed"] == 20
+        assert p0["games_planned"] == 20
+        assert p0["wins_fractional"] == 8.0
+        assert p0["win_rate"] == 0.4
+        assert p0["mean_rounds"] == 7.0
+        assert p0["all_covered_by_sealed_epoch"] is False
+        assert p0["bridge_qualification_states"] == [
+            "ALIGNED_WITH_SEALED_EPOCH",
+            "BRIDGE_AHEAD_OF_QUALIFICATION",
+        ]
+    finally:
+        store.close()
+
+    client = TestClient(create_app(tmp_path))
+    resp = client.get("/api/simulations/pod-matrix", params={"commander": commander})
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["total_games_completed"] == 20
+    assert body["pods"][0]["win_rate"] == 0.4
