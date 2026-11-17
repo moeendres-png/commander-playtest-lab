@@ -181,9 +181,14 @@ def test_no_raw_error_message_or_alert_or_missing_favicon_in_studio_pages() -> N
     for page_name in ("index.html", "tierliste.html", "decks.html"):
         html = (STATIC / page_name).read_text(encoding="utf-8")
         assert '<link rel="icon" href="data:,">' in html, page_name
-    for path in _files("*.js"):
+    scripts = _files("*.js")
+    assert len(scripts) >= 10
+    for path in scripts:
         if node:
-            subprocess.run([node, "--check", str(path)], check=True, capture_output=True, text=True)
+            res = subprocess.run(
+                [node, "--check", str(path)], check=False, capture_output=True, text=True
+            )
+            assert res.returncode == 0, f"{path.name}: {res.stderr}"
         if path.name.startswith("partie"):
             continue
         text = path.read_text(encoding="utf-8")
