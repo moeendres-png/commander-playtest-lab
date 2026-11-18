@@ -339,6 +339,644 @@
    "seat": 0
   }
  },
+ "declare_attacker": {
+  "note": "Real engine payload: the engine asks whether Thopter Token attacks, and which opponent (4-seat game, human seat 0); one option is hold_attacker.",
+  "pending_decision": {
+   "actor_id": "c91aeaf2-4606-4cfe-b4da-773bb30cba29",
+   "context": {},
+   "decision_class": "declare_attacker",
+   "decision_id": "703e7ab4b016f5fd8b450d650fcc9f089dbdc85e3cdd70ea91dc22d946bfefe2",
+   "legal_options": [
+    {
+     "label": "Do not attack with Thopter Token",
+     "metadata": {
+      "name": "Thopter Token",
+      "object_id": "9cd5e205-53d2-4941-b2cf-d941b041ca58",
+      "zone": "battlefield",
+      "zone_index": 38
+     },
+     "option_id": "2bdcf594b32d40423906d45a2e1090f2af5c1fd65a036f6b083e68533d782962",
+     "option_type": "hold_attacker"
+    },
+    {
+     "label": "Thopter Token attacks Full Game Seat 2",
+     "metadata": {
+      "defender_id": "de61be79-2571-4690-8c34-4e5e577b8bea",
+      "name": "Thopter Token",
+      "object_id": "9cd5e205-53d2-4941-b2cf-d941b041ca58",
+      "zone": "battlefield",
+      "zone_index": 38
+     },
+     "option_id": "afa8dc63ad3cfc035991c667a4c67ed9378ac0d13c0bdd1c740a34c9696800e8",
+     "option_type": "declare_attacker"
+    },
+    {
+     "label": "Thopter Token attacks Full Game Seat 3",
+     "metadata": {
+      "defender_id": "ec403b9a-25da-4e26-ba7e-9db296797eb7",
+      "name": "Thopter Token",
+      "object_id": "9cd5e205-53d2-4941-b2cf-d941b041ca58",
+      "zone": "battlefield",
+      "zone_index": 38
+     },
+     "option_id": "195f604a4138fee235512a801ac0ab4bc83c551a493e3371a03af7ce38a6da9d",
+     "option_type": "declare_attacker"
+    },
+    {
+     "label": "Thopter Token attacks Full Game Seat 4",
+     "metadata": {
+      "defender_id": "76bfcc88-b758-48f6-a88b-d988eb391dbd",
+      "name": "Thopter Token",
+      "object_id": "9cd5e205-53d2-4941-b2cf-d941b041ca58",
+      "zone": "battlefield",
+      "zone_index": 38
+     },
+     "option_id": "d69d5a36803284a9ceea5a083cdfa4a6e073dd0d3d216e183e2e4416ed58e940",
+     "option_type": "declare_attacker"
+    }
+   ],
+   "maximum_selections": 1,
+   "minimum_selections": 1,
+   "pilot_state": {
+    "active_player_id": "c91aeaf2-4606-4cfe-b4da-773bb30cba29",
+    "actor_id": "c91aeaf2-4606-4cfe-b4da-773bb30cba29",
+    "phase": "combat",
+    "players": [
+     {
+      "battlefield": [
+       {
+        "controller_id": "c91aeaf2-4606-4cfe-b4da-773bb30cba29",
+        "face_down": false,
+        "name": "Island",
+        "object_id": "cbef9348-fe76-43b0-a3ea-8880b6bfd2de",
+        "power": 0,
+        "tapped": false,
+        "toughness": 0
+       },
+       {
+        "controller_id": "c91aeaf2-4606-4cfe-b4da-773bb30cba29",
+        "face_down": false,
+        "name": "Path of Ancestry",
+        "object_id": "05e83c9f-b8e0-4fcf-b710-dd7c8e876464",
+        "power": 0,
+        "tapped": false,
+        "toughness": 0
+       },
+       {
+        "controller_id": "c91aeaf2-4606-4cfe-b4da-773bb30cba29",
+        "face_down": false,
+        "name": "Temple of Mystery",
+        "object_id": "25a8b43f-38f2-423a-a274-eb97a4838c19",
+        "power": 0,
+        "tapped": false,
+        "toughness": 0
+       },
+       {
+        "controller_id": "c91aeaf2-4606-4cfe-b4da-773bb30cba29",
+        "face_down": false,
+        "name": "Island",
+        "object_id": "98d15f29-7942-4cc3-b5d4-f1d0dc3dd13f",
+        "power": 0,
+        "tapped": false,
+        "toughness": 0
+       },
+       {
+        "controller_id": "c91aeaf2-4606-4cfe-b4da-773bb30cba29",
+        "face_down": false,
+        "name": "Sol Ring",
+        "object_id": "45b2c86b-5c67-4225-a436-d2fc82c51a7e",
+        "power": 0,
+        "tapped": true,
+        "toughness": 0
+       },
+       {
+        "controller_id": "c91aeaf2-4606-4cfe-b4da-773bb30cba29",
+        "face_down": false,
+        "name": "Swiftfoot Boots",
+        "object_id": "262421c9-cd34-485c-91c4-a54dd2c6c250",
+        "power": 0,
+        "tapped": true,
+        "toughness": 0
+       },
+       {
+        "controller_id": "c91aeaf2-4606-4cfe-b4da-773bb30cba29",
+        "face_down": false,
+        "name": "Forest",
+        "object_id": "9b9ccbe3-196a-431e-ac79-7b690c627a10",
+        "power": 0,
+        "tapped": true,
+        "toughness": 0
+       },
+       {
+        "controller_id": "c91aeaf2-4606-4cfe-b4da-773bb30cba29",
+        "face_down": false,
+        "name": "Talisman of Curiosity",
+        "object_id": "48811f43-50a4-47fd-9df1-27f87a38a885",
+        "power": 0,
+        "tapped": true,
+        "toughness": 0
+       },
+       {
+        "controller_id": "c91aeaf2-4606-4cfe-b4da-773bb30cba29",
+        "face_down": false,
+        "name": "Forest",
+        "object_id": "bd9efe14-1ba8-46b9-bfbc-b6ff1339aae9",
+        "power": 0,
+        "tapped": true,
+        "toughness": 0
+       },
+       {
+        "controller_id": "c91aeaf2-4606-4cfe-b4da-773bb30cba29",
+        "face_down": false,
+        "name": "Forest",
+        "object_id": "c50381da-0f03-4546-afac-27352e937fb4",
+        "power": 0,
+        "tapped": true,
+        "toughness": 0
+       },
+       {
+        "controller_id": "c91aeaf2-4606-4cfe-b4da-773bb30cba29",
+        "face_down": false,
+        "name": "Whirler Rogue",
+        "object_id": "750087d7-5559-4e46-a64f-4432a8e7cd0f",
+        "power": 2,
+        "tapped": false,
+        "toughness": 2
+       },
+       {
+        "controller_id": "c91aeaf2-4606-4cfe-b4da-773bb30cba29",
+        "face_down": false,
+        "name": "Thopter Token",
+        "object_id": "1d11ce42-6b32-474b-a8aa-a3ddc3811b1c",
+        "power": 1,
+        "tapped": true,
+        "toughness": 1
+       },
+       {
+        "controller_id": "c91aeaf2-4606-4cfe-b4da-773bb30cba29",
+        "face_down": false,
+        "name": "Thopter Token",
+        "object_id": "9cd5e205-53d2-4941-b2cf-d941b041ca58",
+        "power": 1,
+        "tapped": false,
+        "toughness": 1
+       }
+      ],
+      "command": [
+       {
+        "name": "Chulane, Teller of Tales",
+        "object_id": "0f4c148b-8dbe-471a-9314-8f8b4dc2f961"
+       }
+      ],
+      "exile": [],
+      "graveyard": [
+       {
+        "name": "Spectral Sailor",
+        "object_id": "012c36e7-f53e-4734-98eb-3a7e975296ab"
+       },
+       {
+        "name": "Nature's Lore",
+        "object_id": "054dae38-1a87-46f3-a3b9-bee99464b0f2"
+       },
+       {
+        "name": "Terramorphic Expanse",
+        "object_id": "d9b2afd3-6eaa-4320-bdce-be1dc2028b51"
+       }
+      ],
+      "hand": [
+       {
+        "name": "Island",
+        "object_id": "520d45c7-e050-41ba-a8b1-25e83ddf43e9"
+       },
+       {
+        "name": "Azorius Chancery",
+        "object_id": "a1d0fa4a-763b-4a51-bdc1-ee7ee4388eb5"
+       }
+      ],
+      "has_lost": false,
+      "life": 36,
+      "player_id": "c91aeaf2-4606-4cfe-b4da-773bb30cba29",
+      "seat": 0
+     },
+     {
+      "battlefield": [
+       {
+        "controller_id": "op-1",
+        "face_down": false,
+        "name": "Clifftop Retreat",
+        "object_id": "431e9b3d-daf2-45c6-9fe5-40ce0bd09727",
+        "power": 0,
+        "tapped": true,
+        "toughness": 0
+       },
+       {
+        "controller_id": "op-1",
+        "face_down": false,
+        "name": "Plains",
+        "object_id": "fcb49558-367b-461b-b31b-39289bb9ab1c",
+        "power": 0,
+        "tapped": true,
+        "toughness": 0
+       },
+       {
+        "controller_id": "op-1",
+        "face_down": false,
+        "name": "Millikin",
+        "object_id": "2c08b5c2-f2cf-46b8-aa7e-8cfa3d776373",
+        "power": 0,
+        "tapped": true,
+        "toughness": 1
+       },
+       {
+        "controller_id": "op-1",
+        "face_down": false,
+        "name": "Study Hall",
+        "object_id": "ed969e09-516a-48d8-9d0b-a14dd929c36c",
+        "power": 0,
+        "tapped": true,
+        "toughness": 0
+       },
+       {
+        "controller_id": "op-1",
+        "face_down": false,
+        "name": "Skyclave Apparition",
+        "object_id": "465cf916-51ec-45ba-b8fa-07bfcbaa8bad",
+        "power": 2,
+        "tapped": false,
+        "toughness": 2
+       },
+       {
+        "controller_id": "op-1",
+        "face_down": false,
+        "name": "Lorehold Campus",
+        "object_id": "76135d15-8988-4ad8-b561-37e3ccc532f5",
+        "power": 0,
+        "tapped": false,
+        "toughness": 0
+       },
+       {
+        "controller_id": "op-1",
+        "face_down": false,
+        "name": "Emeria, the Sky Ruin",
+        "object_id": "241455e2-8774-4889-a552-1013c8bc63be",
+        "power": 0,
+        "tapped": true,
+        "toughness": 0
+       }
+      ],
+      "command": [
+       {
+        "name": "Quintorius, History Chaser",
+        "object_id": "39fda223-5be2-45b8-80bf-0b92a302abdd"
+       }
+      ],
+      "exile": [],
+      "graveyard": [
+       {
+        "name": "Fellwar Stone",
+        "object_id": "e56917d4-411f-47cf-a9f3-a9b072c7f804"
+       },
+       {
+        "name": "Fields of Strife",
+        "object_id": "7792d4c7-98bb-4dd0-9e5b-8ff0bec42622"
+       },
+       {
+        "name": "Sol Ring",
+        "object_id": "e68d01de-5ec1-491e-ab72-9062a091ac38"
+       },
+       {
+        "name": "Terramorphic Expanse",
+        "object_id": "a1f88ddd-2855-43df-a76a-aaa903f3ebcc"
+       },
+       {
+        "name": "Swords to Plowshares",
+        "object_id": "d417d278-eaea-48a2-b5f7-5dfd40add76d"
+       },
+       {
+        "name": "Sun Titan",
+        "object_id": "43f70d6c-90ba-4c55-9f01-67a09cc0b104"
+       },
+       {
+        "name": "Conspiracy Theorist",
+        "object_id": "348a3721-35bf-4f7b-a9a9-42e6334ccc4c"
+       }
+      ],
+      "has_lost": false,
+      "life": 5,
+      "player_id": "op-1",
+      "seat": 1
+     },
+     {
+      "battlefield": [
+       {
+        "controller_id": "op-2",
+        "face_down": false,
+        "name": "Forest",
+        "object_id": "4591bfab-6e56-46ad-ae25-316b33b7754b",
+        "power": 0,
+        "tapped": true,
+        "toughness": 0
+       },
+       {
+        "controller_id": "op-2",
+        "face_down": false,
+        "name": "Mountain",
+        "object_id": "fc29a664-a850-4a09-82fa-adafe8076fad",
+        "power": 0,
+        "tapped": true,
+        "toughness": 0
+       },
+       {
+        "controller_id": "op-2",
+        "face_down": false,
+        "name": "Wandertale Mentor",
+        "object_id": "76e0915e-64c5-4e62-9d8f-056e24cb7aad",
+        "power": 6,
+        "tapped": true,
+        "toughness": 6
+       },
+       {
+        "controller_id": "op-2",
+        "face_down": false,
+        "name": "Forest",
+        "object_id": "82d66cf9-a5f9-4812-b6e0-a341f7c0bd1d",
+        "power": 0,
+        "tapped": true,
+        "toughness": 0
+       },
+       {
+        "controller_id": "op-2",
+        "face_down": false,
+        "name": "Mountain",
+        "object_id": "0d1548d9-8031-4e04-87fa-286804e857d4",
+        "power": 0,
+        "tapped": true,
+        "toughness": 0
+       },
+       {
+        "controller_id": "op-2",
+        "face_down": false,
+        "name": "Mountain",
+        "object_id": "6e8d48ec-c161-4877-b5ae-ea3d53a09774",
+        "power": 0,
+        "tapped": true,
+        "toughness": 0
+       },
+       {
+        "controller_id": "op-2",
+        "face_down": false,
+        "name": "Forest",
+        "object_id": "6a17bbb0-8736-4273-8c29-7a56f5236dec",
+        "power": 0,
+        "tapped": true,
+        "toughness": 0
+       },
+       {
+        "controller_id": "op-2",
+        "face_down": false,
+        "name": "Outpost Siege",
+        "object_id": "4ca5c0da-c6c8-4826-81e6-edb2dec885d8",
+        "power": 0,
+        "tapped": true,
+        "toughness": 0
+       },
+       {
+        "controller_id": "op-2",
+        "face_down": false,
+        "name": "Forest",
+        "object_id": "e102865e-a71f-4e45-b222-f10f4e73d935",
+        "power": 0,
+        "tapped": true,
+        "toughness": 0
+       },
+       {
+        "controller_id": "op-2",
+        "face_down": false,
+        "name": "Bello, Bard of the Brambles",
+        "object_id": "599d186c-0d50-4fd6-9389-cf9f02ae85a0",
+        "power": 3,
+        "tapped": false,
+        "toughness": 3
+       },
+       {
+        "controller_id": "op-2",
+        "face_down": false,
+        "name": "Copperline Gorge",
+        "object_id": "91c5ac7b-5070-4dba-b090-b16b726941ad",
+        "power": 0,
+        "tapped": true,
+        "toughness": 0
+       }
+      ],
+      "command": [],
+      "exile": [],
+      "graveyard": [
+       {
+        "name": "Sakura-Tribe Elder",
+        "object_id": "6a7ce541-7ed5-4fa9-b801-f50463b0f2ba"
+       },
+       {
+        "name": "Farseek",
+        "object_id": "1a5f1604-5272-4eb6-b8b7-b3a09c6a582e"
+       }
+      ],
+      "has_lost": false,
+      "life": 29,
+      "player_id": "op-2",
+      "seat": 2
+     },
+     {
+      "battlefield": [
+       {
+        "controller_id": "op-3",
+        "face_down": false,
+        "name": "Canopy Vista",
+        "object_id": "2ffaeeaf-cb4b-4afc-b180-d0b55db1e196",
+        "power": 0,
+        "tapped": true,
+        "toughness": 0
+       },
+       {
+        "controller_id": "op-3",
+        "face_down": false,
+        "name": "Plains",
+        "object_id": "365d3c1c-515b-4258-acad-1abb67ce6868",
+        "power": 0,
+        "tapped": true,
+        "toughness": 0
+       },
+       {
+        "controller_id": "op-3",
+        "face_down": false,
+        "name": "Forest",
+        "object_id": "e17decbd-b389-49fc-9723-c2ae2a6fede7",
+        "power": 0,
+        "tapped": true,
+        "toughness": 0
+       },
+       {
+        "controller_id": "op-3",
+        "face_down": false,
+        "name": "Plains",
+        "object_id": "11447ffe-d203-4b54-ad04-a5c9f364e1a1",
+        "power": 0,
+        "tapped": true,
+        "toughness": 0
+       },
+       {
+        "controller_id": "op-3",
+        "face_down": false,
+        "name": "Emmara, Soul of the Accord",
+        "object_id": "175fda0b-cf2d-45c6-8587-d9efdc99c026",
+        "power": 6,
+        "tapped": true,
+        "toughness": 6
+       },
+       {
+        "controller_id": "op-3",
+        "face_down": false,
+        "name": "Forest",
+        "object_id": "77daf4b9-549a-4826-a550-701e223ff50b",
+        "power": 0,
+        "tapped": true,
+        "toughness": 0
+       },
+       {
+        "controller_id": "op-3",
+        "face_down": false,
+        "name": "Loyal Guardian",
+        "object_id": "b15c5cd8-70e6-4d87-8b11-2e7501e516ad",
+        "power": 8,
+        "tapped": true,
+        "toughness": 8
+       },
+       {
+        "controller_id": "op-3",
+        "face_down": false,
+        "name": "Soldier Token",
+        "object_id": "88bc5410-88fd-42b7-9537-58ac3dfddc1c",
+        "power": 4,
+        "tapped": true,
+        "toughness": 4
+       },
+       {
+        "controller_id": "op-3",
+        "face_down": false,
+        "name": "Sporemound",
+        "object_id": "319cfc83-5e81-47cb-b943-c84992e2c47f",
+        "power": 6,
+        "tapped": true,
+        "toughness": 6
+       },
+       {
+        "controller_id": "op-3",
+        "face_down": false,
+        "name": "Soldier Token",
+        "object_id": "bf5025af-f9fa-4dd2-aada-6f5c03760cec",
+        "power": 3,
+        "tapped": true,
+        "toughness": 3
+       },
+       {
+        "controller_id": "op-3",
+        "face_down": false,
+        "name": "Trostani Discordant",
+        "object_id": "fb5a7130-6446-4094-8d0a-a4ef28df445d",
+        "power": 2,
+        "tapped": true,
+        "toughness": 5
+       },
+       {
+        "controller_id": "op-3",
+        "face_down": false,
+        "name": "Soldier Token",
+        "object_id": "7f626dac-b980-40d3-8906-7b9599e73218",
+        "power": 3,
+        "tapped": false,
+        "toughness": 3
+       },
+       {
+        "controller_id": "op-3",
+        "face_down": false,
+        "name": "Soldier Token",
+        "object_id": "9fb32235-ceaa-4cb8-8db8-5d48949aca1e",
+        "power": 3,
+        "tapped": false,
+        "toughness": 3
+       },
+       {
+        "controller_id": "op-3",
+        "face_down": false,
+        "name": "Soldier Token",
+        "object_id": "460d57fc-10bb-41d6-a605-1739e72b4b48",
+        "power": 3,
+        "tapped": false,
+        "toughness": 3
+       },
+       {
+        "controller_id": "op-3",
+        "face_down": false,
+        "name": "Plains",
+        "object_id": "d7d80dfe-5b7b-4b63-8e68-e2806a8d2816",
+        "power": 0,
+        "tapped": true,
+        "toughness": 0
+       },
+       {
+        "controller_id": "op-3",
+        "face_down": false,
+        "name": "Plains",
+        "object_id": "0da444c7-fa32-473e-aaac-f69f920b4791",
+        "power": 0,
+        "tapped": true,
+        "toughness": 0
+       },
+       {
+        "controller_id": "op-3",
+        "face_down": false,
+        "name": "Saproling Token",
+        "object_id": "82a00cac-03e1-4442-a0e3-2317d30ed47e",
+        "power": 3,
+        "tapped": false,
+        "toughness": 3
+       },
+       {
+        "controller_id": "op-3",
+        "face_down": false,
+        "name": "Saproling Token",
+        "object_id": "80a84dc2-4ec9-4106-b095-6ad178b38b22",
+        "power": 3,
+        "tapped": false,
+        "toughness": 3
+       }
+      ],
+      "command": [],
+      "exile": [],
+      "graveyard": [
+       {
+        "name": "Citywide Bust",
+        "object_id": "8be0c3da-81af-4aca-abff-a2b2f5700554"
+       },
+       {
+        "name": "Nissa's Expedition",
+        "object_id": "5c26fe0a-6f61-431f-8d86-6b88ae028196"
+       }
+      ],
+      "has_lost": false,
+      "life": 45,
+      "player_id": "op-3",
+      "seat": 3
+     }
+    ],
+    "seat": 0,
+    "stack": [],
+    "step": "declare_attackers",
+    "turn_number": 28
+   },
+   "prompt": "Choose attack for Thopter Token",
+   "seat": 0
+  }
+ },
  "discard_from_hand": {
   "note": "Real engine payload: choose a card from the hand to discard.",
   "pending_decision": {
@@ -2279,6 +2917,165 @@
     "turn_number": 16
    },
    "prompt": "Choose priority action",
+   "seat": 0
+  }
+ },
+ "target_battlefield_land": {
+  "note": "Real engine payload: a required target decision with one land you control on the battlefield (returntohand).",
+  "pending_decision": {
+   "actor_id": "147d8b86-a194-458a-a2d0-e150671aec1b",
+   "context": {
+    "outcome": "returntohand",
+    "required": true,
+    "target_description": "a land you control",
+    "target_name": "land you control",
+    "targeted": true
+   },
+   "decision_class": "target",
+   "decision_id": "60b2014407e082a2fd356a527b4cbf6ad983b00809acbd1e089433b3f2b322eb",
+   "legal_options": [
+    {
+     "label": "Azorius Chancery",
+     "metadata": {
+      "name": "Azorius Chancery",
+      "object_id": "23849680-12fb-4740-b295-0a1d5fd472e7",
+      "zone": "battlefield",
+      "zone_index": 1
+     },
+     "option_id": "23849680-12fb-4740-b295-0a1d5fd472e7",
+     "option_type": "target"
+    }
+   ],
+   "maximum_selections": 1,
+   "minimum_selections": 1,
+   "pilot_state": {
+    "active_player_id": "147d8b86-a194-458a-a2d0-e150671aec1b",
+    "actor_id": "147d8b86-a194-458a-a2d0-e150671aec1b",
+    "phase": "precombat_main",
+    "players": [
+     {
+      "battlefield": [
+       {
+        "controller_id": "147d8b86-a194-458a-a2d0-e150671aec1b",
+        "face_down": false,
+        "name": "Azorius Chancery",
+        "object_id": "23849680-12fb-4740-b295-0a1d5fd472e7",
+        "power": 0,
+        "tapped": true,
+        "toughness": 0
+       }
+      ],
+      "command": [
+       {
+        "name": "Chulane, Teller of Tales",
+        "object_id": "28474cc9-5982-4904-a7d8-263ccbd8d10f"
+       }
+      ],
+      "exile": [],
+      "graveyard": [],
+      "hand": [
+       {
+        "name": "Forest",
+        "object_id": "3952385d-7bb3-4384-ba88-0c1ec1f0648c"
+       },
+       {
+        "name": "Island",
+        "object_id": "f7700f31-38ab-4e4f-a6e8-cc294b5cd5a2"
+       },
+       {
+        "name": "Temple of Enlightenment",
+        "object_id": "6993eb8a-f561-4653-b3da-8e5a64b3b2be"
+       },
+       {
+        "name": "Farewell",
+        "object_id": "718dda86-ade7-4fa8-b61e-86514530afc0"
+       },
+       {
+        "name": "Felidar Retreat",
+        "object_id": "bab46c5c-acf2-466d-9635-d7395f4966b8"
+       },
+       {
+        "name": "Rampaging Baloths",
+        "object_id": "e546bfc8-6bb6-4c25-9e4d-05d0d5f2adfc"
+       },
+       {
+        "name": "Killer Service",
+        "object_id": "b58005ef-2bd0-4d45-ac6e-75fdce7bb60d"
+       }
+      ],
+      "has_lost": false,
+      "life": 40,
+      "player_id": "147d8b86-a194-458a-a2d0-e150671aec1b",
+      "seat": 0
+     },
+     {
+      "battlefield": [],
+      "command": [
+       {
+        "name": "Quintorius, History Chaser",
+        "object_id": "d3a45f7d-9dc3-456a-9672-a617e2e43991"
+       }
+      ],
+      "exile": [],
+      "graveyard": [],
+      "has_lost": false,
+      "life": 40,
+      "player_id": "op-1",
+      "seat": 1
+     },
+     {
+      "battlefield": [],
+      "command": [
+       {
+        "name": "Bello, Bard of the Brambles",
+        "object_id": "fb94e664-5d0a-4552-8bad-96a0d01e3e76"
+       }
+      ],
+      "exile": [],
+      "graveyard": [],
+      "has_lost": false,
+      "life": 40,
+      "player_id": "op-2",
+      "seat": 2
+     },
+     {
+      "battlefield": [
+       {
+        "controller_id": "op-3",
+        "face_down": false,
+        "name": "Tranquil Expanse",
+        "object_id": "8b8112a7-d5e2-4471-9a78-a92a6ec9166c",
+        "power": 0,
+        "tapped": true,
+        "toughness": 0
+       }
+      ],
+      "command": [
+       {
+        "name": "Emmara, Soul of the Accord",
+        "object_id": "5bb72011-1d52-46fa-a246-5c1419f3e1a4"
+       }
+      ],
+      "exile": [],
+      "graveyard": [],
+      "has_lost": false,
+      "life": 40,
+      "player_id": "op-3",
+      "seat": 3
+     }
+    ],
+    "seat": 0,
+    "stack": [
+     {
+      "controller_id": "147d8b86-a194-458a-a2d0-e150671aec1b",
+      "name": "stack ability (When {this} enters, return a land you control to its owner's hand.)",
+      "object_id": "ccf10d74-c18b-4c54-bd55-6fe29b7606f6"
+     }
+    ],
+    "step": "precombat_main",
+    "turn_number": 2
+   },
+   "prompt": "Select a land you control",
    "seat": 0
   }
  },

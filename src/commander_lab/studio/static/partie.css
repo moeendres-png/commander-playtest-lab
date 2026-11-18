@@ -105,9 +105,10 @@ pre.error-out{background:var(--panel2);border:1px solid var(--line);border-radiu
 /* ---- board clicks: cards, player fields, bar, menu ---- */
 button.card{display:block;padding:0;margin:0;min-height:0;border:0;border-radius:6px;background:none;color:inherit;text-align:center;cursor:pointer}
 button.card:hover:not(:disabled){border:0;background:none}
-.card{transition:transform .12s ease,opacity .12s ease,filter .12s ease}
+.card{transition:transform .12s ease}
 .card.tapped{transition:none}
-.card.dimmed{opacity:.35;filter:grayscale(.6)}
+/* not a legal answer: a veil over the card, never a filter or opacity on the card image itself */
+.card.dimmed::after{content:"";position:absolute;inset:0;border-radius:5px;background:color-mix(in srgb,var(--bg) 62%,transparent);pointer-events:none}
 .card.legal img,.card.legal .nocard{outline:3px solid var(--good);box-shadow:0 0 12px 2px color-mix(in srgb,var(--good) 65%,transparent)}
 .card.legal.role-asked img,.card.legal.role-asked .nocard{outline-color:var(--warn);box-shadow:0 0 14px 3px color-mix(in srgb,var(--warn) 70%,transparent)}
 .card.legal.role-defender img,.card.legal.role-defender .nocard{outline-color:var(--bad);box-shadow:0 0 12px 2px color-mix(in srgb,var(--bad) 65%,transparent)}

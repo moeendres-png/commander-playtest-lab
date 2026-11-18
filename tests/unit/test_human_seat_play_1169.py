@@ -1256,7 +1256,12 @@ console.log(JSON.stringify(out));
             assert row["accounted"] is True, name
     # a mulligan has nothing on the board: nothing is clickable
     mulligan = out["mulligan"]
-    assert (mulligan["kind"], mulligan["objects"], mulligan["seats"], mulligan["emitted"]) == ("none", 0, 0, 0)
+    assert (mulligan["kind"], mulligan["objects"], mulligan["seats"], mulligan["emitted"]) == (
+        "none",
+        0,
+        0,
+        0,
+    )
     # a scry choice offers one card of the library: not on the board, so only the list answers it
     scry = out["target_library_scry"]
     assert (scry["kind"], scry["objects"], scry["emitted"], scry["listOnly"]) == ("target", 0, 0, 1)
@@ -1319,7 +1324,9 @@ console.log(JSON.stringify({
 """
     )
     assert isinstance(out, dict)
-    assert out["pay"]["kind"] == "mana_payment" and out["pay"]["loose"] >= 1  # cancel stays a button
+    assert (
+        out["pay"]["kind"] == "mana_payment" and out["pay"]["loose"] >= 1
+    )  # cancel stays a button
     assert len(out["pay"]["rows"]) >= 1
     for action, own, sent in out["pay"]["rows"]:
         assert action == "send" and own == [sent]
@@ -1375,3 +1382,90 @@ console.log(JSON.stringify([BC.build(withNumbers).kind, BC.build(asModes).kind, 
 """
     )
     assert out == ["none", "none", "none", "none", "none"]
+
+
+def test_boardclick_attack_click_names_the_opponent_the_engine_labelled() -> None:
+    out = _node_json(
+        _BC_PRELUDE
+        + """
+const {p, m} = view('declare_attacker');
+const hold = p.legal_options.find((o) => o.option_type === 'hold_attacker');
+const asked = Object.keys(m.objects)[0];
+// the independent oracle: the engine's own label says "... attacks Full Game Seat N" (seat index N-1)
+const expected = (seat) => p.legal_options.filter((o) => o.option_type === 'declare_attacker'
+  && o.label.endsWith('Full Game Seat ' + (seat + 1))).map((o) => String(o.option_id));
+const seatRows = Object.keys(m.seats).map((s) => {
+  const r = BC.resolve(p, m, {type: 'seat', seat: Number(s)});
+  return {seat: Number(s), action: r.action, sent: r.optionId || null, want: expected(Number(s))};
+});
+// the same oracle against a model whose seats were swapped: it must notice
+const swapped = JSON.parse(JSON.stringify(m));
+const [a, b] = ['1', '2'];
+[swapped.seats[a].optionIds, swapped.seats[b].optionIds] = [m.seats[b].optionIds, m.seats[a].optionIds];
+const wrong = Object.keys(swapped.seats).filter((s) => {
+  const r = BC.resolve(p, swapped, {type: 'seat', seat: Number(s)});
+  return JSON.stringify([r.optionId]) !== JSON.stringify(expected(Number(s)));
+});
+const own = BC.resolve(p, m, {type: 'seat', seat: 0});
+const creature = BC.resolve(p, m, {type: 'object', id: asked});
+console.log(JSON.stringify({kind: m.kind, mode: m.mode, seats: seatRows, wrong, own: own.action,
+  hold: String(hold.option_id), loose: m.loose, creature: creature.action,
+  menu: (creature.options || []).map((o) => o.optionId), all: offered(p)}));
+"""
+    )
+    assert isinstance(out, dict) and (out["kind"], out["mode"]) == ("attacker", "immediate")
+    assert [row["seat"] for row in out["seats"]] == [1, 2, 3]  # never the human's own seat
+    for row in out["seats"]:
+        assert row["action"] == "send" and len(row["want"]) == 1
+        assert row["sent"] == row["want"][0]  # the click names the opponent the engine labelled
+    assert out["wrong"] == ["1", "2"]  # a wrong seat mapping is caught by the same check
+    assert out["own"] == "none"
+    assert out["loose"] == [out["hold"]]  # "do not attack" stays a button
+    assert out["creature"] == "menu" and sorted(out["menu"]) == sorted(out["all"])
+
+
+def test_boardclick_target_on_the_battlefield_sends_the_object_id_of_that_card() -> None:
+    out = _node_json(
+        _BC_PRELUDE
+        + """
+const {p, m} = view('target_battlefield_land');
+const ids = Object.keys(m.objects);
+const r = BC.resolve(p, m, {type: 'object', id: ids[0]});
+// a click on a battlefield card the engine did not offer finds no entry at all
+const other = FX.declare_attacker.pending_decision.pilot_state.players[1].battlefield[0].object_id;
+const miss = BC.resolve(p, m, {type: 'object', id: other});
+const sole = p.legal_options[0];
+console.log(JSON.stringify({kind: m.kind, mode: m.mode, ids, r, miss: miss.action, option: String(sole.option_id),
+  object: sole.metadata.object_id, zone: m.objects[ids[0]].zone}));
+"""
+    )
+    assert isinstance(out, dict) and (out["kind"], out["mode"], out["zone"]) == (
+        "target",
+        "immediate",
+        "battlefield",
+    )
+    assert out["ids"] == [out["object"]] and out["r"] == {
+        "action": "send",
+        "optionId": out["option"],
+    }
+    assert out["option"] == out["object"] and out["miss"] == "none"
+
+
+def test_boardclick_blocker_click_toggles_the_attacker_the_engine_offered() -> None:
+    out = _node_json(
+        _BC_PRELUDE
+        + """
+const {p, m} = view('blocker_one_attacker');
+const rows = Object.entries(m.objects).map(([id, e]) => [e.role, BC.resolve(p, m, {type: 'object', id})]);
+console.log(JSON.stringify({kind: m.kind, mode: m.mode, asked: m.asked, rows, loose: m.loose,
+  attacker: String(p.legal_options[0].option_id), min: p.minimum_selections, max: p.maximum_selections}));
+"""
+    )
+    assert isinstance(out, dict) and (out["kind"], out["mode"]) == ("blocker", "staged")
+    assert (out["min"], out["max"]) == (
+        0,
+        1,
+    )  # not blocking is allowed: the page confirms an empty choice
+    roles = {role: result for role, result in out["rows"]}
+    assert roles["block-target"] == {"action": "toggle", "optionId": out["attacker"]}
+    assert roles["asked"] == {"action": "none"}  # the blocker itself only shows who blocks

@@ -322,11 +322,35 @@ def test_boardclick_script_only_maps_engine_options_and_holds_no_rules() -> None
     )
     assert rule_words.findall(script) == []
     # a click can only name an option the decision offers, and an object must equal its option id
-    assert "const offered = entry.optionIds.map((id) => optionOf(pending, id)).filter(Boolean);" in script
+    assert (
+        "const offered = entry.optionIds.map((id) => optionOf(pending, id)).filter(Boolean);"
+        in script
+    )
     assert "offered.length !== entry.optionIds.length" in script
     assert "objectId !== optionId" in script
     # opponents are recognised only by the engine's own player name
-    assert 'SEAT_NAME = /^Full Game Seat (\\d+)$/' in script
+    assert "SEAT_NAME = /^Full Game Seat (\\d+)$/" in script
+
+
+def test_partie_dims_non_answers_with_a_veil_and_labels_every_engine_decision_class() -> None:
+    css = (STATIC / "partie.css").read_text(encoding="utf-8")
+    js = (STATIC / "partie.js").read_text(encoding="utf-8")
+    # a card that is not a legal answer gets a veil, never a filter or opacity on the card image
+    assert ".card.dimmed::after" in css
+    dimmed = [line for line in css.splitlines() if ".card.dimmed" in line]
+    assert dimmed and all("filter" not in line and "opacity" not in line for line in dimmed)
+    assert "filter" not in css.split(".card{transition", 1)[1].split("}", 1)[0]
+    # every decision class the bridge declares has a German label in the page
+    java = (
+        Path(__file__).resolve().parents[2]
+        / "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameDecisionController.java"
+    ).read_text(encoding="utf-8")
+    declared = re.findall(
+        r'"([a-z_]+)"', java.split("DECISION_CLASSES = Set.of(", 1)[1].split(");", 1)[0]
+    )
+    labels = set(re.findall(r"(\w+): ", js.split("const CLASSES = {", 1)[1].split("};", 1)[0]))
+    assert len(declared) >= 17 and "amount" in declared
+    assert sorted(set(declared) - labels) == []
 
 
 def test_partie_board_clicks_send_only_offered_options_and_only_on_a_click() -> None:
@@ -337,7 +361,9 @@ def test_partie_board_clicks_send_only_offered_options_and_only_on_a_click() -> 
         assert element in html, element
     # boardClick runs only from onclick handlers (never from a timer, a poll or a render)
     calls = [m.start() for m in re.finditer(r"boardClick\(", js)]
-    assert len(calls) == 3  # the definition, the card tile (also in the zone lists) and the seat button
+    assert (
+        len(calls) == 3
+    )  # the definition, the card tile (also in the zone lists) and the seat button
     for start in calls:
         line = js[js.rfind("\n", 0, start) + 1 : js.find("\n", start)]
         assert "function boardClick(" in line or "onclick" in line, line
@@ -353,7 +379,9 @@ def test_partie_board_clicks_send_only_offered_options_and_only_on_a_click() -> 
     # cards on the board carry their object id, are real buttons with a label, and the preview
     # follows the keyboard focus as well as the mouse
     assert 'props["data-object-id"] = options.objectId' in js
-    assert 'h("button", props, cardFace(name))' in js and '"aria-label": clickAria(name, entry)' in js
+    assert (
+        'h("button", props, cardFace(name))' in js and '"aria-label": clickAria(name, entry)' in js
+    )
     assert 'el.addEventListener("focus"' in js and ":focus-visible" in js
     # only the decision of the live table is clickable, never a recorded frame
     assert "atLiveTail && state.click" in js and "!state.submitting && !state.ff.on" in js
@@ -364,9 +392,18 @@ def test_partie_board_clicks_send_only_offered_options_and_only_on_a_click() -> 
     # a refused or outdated answer says so instead of staying silent
     assert "stale" in js and "Vermutlich hat sich die Entscheidung inzwischen geändert" in js
     # classes, no inline styles
-    for rule in (".card.legal ", ".card.dimmed", ".card.clickable:hover", ".card.picked", ".board-menu", ".seat-pick"):
+    for rule in (
+        ".card.legal ",
+        ".card.dimmed",
+        ".card.clickable:hover",
+        ".card.picked",
+        ".board-menu",
+        ".seat-pick",
+    ):
         assert rule in css, rule
-    assert "style=" not in js and "style=" not in html and "setAttribute(\"style\"" not in js
+    assert "style=" not in js and "style=" not in html and 'setAttribute("style"' not in js
+
+
 def test_no_raw_model_code_and_average_mana_value_uses_the_german_formatter() -> None:
     """Visible texts say "Modellrechnung", not the internal code, and a mana-value average goes
     through StudioUI.num (comma), not a raw number (QA finding B3/B4, #1464)."""
