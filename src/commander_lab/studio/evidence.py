@@ -475,6 +475,7 @@ def _card_evidence(
         "oracle_id": oracle_id,
         "mana_value": card["mana_value"],
         "type_line": card["type_line"],
+        "text": card.get("text") or "",
         "group": card["group"],
         "colors": card["colors"],
         "has_image": card["has_image"],

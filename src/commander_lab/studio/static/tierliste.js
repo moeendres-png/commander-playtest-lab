@@ -206,7 +206,10 @@ function renderLayerControls() {
 // ---------- filters and sorting ----------
 function cardRoles(card) { return layer(card, "fact").roles.map((claim) => claim.role); }
 function visibleCards() {
-  const words = $("q").value.trim().toLowerCase().split(/\s+/).filter(Boolean);
+  const query = $("q").value.trim();
+  const parsed = StudioSearch.parseQuery(query);
+  state.searchErrors = parsed.errors || [];
+  if (state.searchErrors.length) return [];
   const type = $("type-filter").value, role = $("role-filter").value;
   const landKind = $("land-filter") ? $("land-filter").value : "";
   const spreadLevel = $("spread-filter") ? $("spread-filter").value : "";
@@ -224,8 +227,8 @@ function visibleCards() {
     if (free && state.view !== "deck" && !(card.available > 0)) return false; // a deck is always shown whole
     if (fav && !mark.favorite) return false;
     if (!showExcluded && mark.excluded) return false;
-    const hay = `${card.name} ${card.type_line}`.toLowerCase();
-    return words.every((word) => hay.includes(word));
+    if (!query) return true;
+    return StudioSearch.rank({ ...card, favorite: Boolean(mark.favorite), excluded: Boolean(mark.excluded) }, parsed) !== null;
   });
   const key = state.sortKey, dir = state.sortDir;
   rows = rows.map((card) => [sortValue(card, key), card]);
@@ -396,6 +399,13 @@ function render() {
   if (!state.data) return;
   const cards = visibleCards();
   $("count").textContent = `${nf(cards.length)} Karten`;
+  if (state.searchErrors && state.searchErrors.length) {
+    body.append(h("div", { id: "search-syntax-error", class: "empty" },
+      h("b", {}, "Hinweis zur Such-Syntax:"),
+      ...state.searchErrors.map((msg) => h("p", {}, msg)),
+      h("p", { class: "muted" }, 'Beispiele: t:creature · mv<=2 · r:ramp · c:gu · id<=gwu · -t:land · "draw a card"')));
+    return;
+  }
   if (state.tab === "research") {
     if (state.view === "global") { body.append(h("p", { class: "note" }, `Der Forschungsbedarf wird je Commander berechnet. Wähle die Ansicht ${VIEW_NAMES.commander}.`)); return; }
     const needs = [...new Set(state.data.cards.flatMap((card) => card.coverage.needs))].sort();
