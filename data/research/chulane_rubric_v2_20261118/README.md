@@ -58,3 +58,7 @@ Aus dem Repository-Stamm, `python3`; nur Schritt 1 braucht den Studio-Code.
 Chargen-Kartenblöcke und Manifeste sind byte-gleich zu den Läufen. H1 bis S2 liefen mit dem Guide vor v2.1
 (Ankerwerte, Zitatregel im Systemteil weichen vom heutigen Guide ab); T1, T2 und F1 sind voll reproduzierbar.
 Grenzen: Chargen zu 7 Karten, alle Rater aus einer Modellfamilie, Pilot nur 63 Karten. Refs #1369
+
+## `audit/` (unabhängige Prüfung, PILOT_REPORT §11)
+Berichte der Prüfungen (Rating-Audit, Regelclaims, Gutachten Gesamtrating), `audit_A_flagged.jsonl` (35 vom Audit als zweifelhaft markierte Karten mit Prüfer-Spanne), die Bewertungen des unabhängigen Raters (70 Karten) und des Testlaufs Guide v2.2 (70 Karten) samt Stichproben, sowie der Guide-v2.2-Entwurf. Nichts davon ist im Studio-Datensatz; alle Prüfungen sind nutzungsblind.
+
