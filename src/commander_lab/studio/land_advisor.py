@@ -732,12 +732,14 @@ def land_cycles_summary(store: StudioStore, rows: Iterable[_Row]) -> dict[str, o
     present). Holds no recommendation, upgrade or purchase language.
     """
     row_list = list(rows)
+    has_commander = False
     identity: set[str] = set()
     in_deck_names: set[str] = set()
     in_deck_ids: set[str] = set()
     for row in row_list:
         zone = _text(row, "zone")
         if zone == "commander":
+            has_commander = True
             identity.update(letter for letter in _text(row, "color_identity") if letter in COLOURS)
         qty = int(_text(row, "quantity") or "1")
         if zone in ("main", "commander", "") and qty > 0:
@@ -781,7 +783,7 @@ def land_cycles_summary(store: StudioStore, rows: Iterable[_Row]) -> dict[str, o
         legal_cards = [
             (str(name), tuple(str(c) for c in colours))
             for name, colours in raw_cards
-            if not identity or set(colours) <= identity
+            if (not has_commander and not identity) or set(colours) <= identity
         ]
         total = len(legal_cards)
         card_entries: list[dict[str, object]] = []
@@ -852,6 +854,7 @@ def land_cycles_summary(store: StudioStore, rows: Iterable[_Row]) -> dict[str, o
     return {
         "schema": LAND_CYCLES_SCHEMA,
         "data_class": "derived_descriptive",
+        "has_commander": has_commander,
         "identity": [c for c in COLOURS if c in identity],
         "cycles_total": len(LAND_CYCLES),
         "legal_lands_total": legal_lands_total,
