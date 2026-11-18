@@ -79,7 +79,7 @@ const StudioBoardClick = (() => {
   //   listOnly option ids that have no place on the board; they stay in the option list
   //   loose    option_type "no object" actions (pass, do not attack, cancel payment): panel/bar buttons
   function build(pending) {
-    const none = { kind: "none", mode: "info", decisionId: null, objects: Object.create(null), seats: Object.create(null), asked: null, listOnly: [], loose: [], byOption: Object.create(null) };
+    const none = { kind: "none", mode: "info", decisionId: pending && typeof pending === "object" && pending.decision_id ? pending.decision_id : null, objects: Object.create(null), seats: Object.create(null), asked: null, listOnly: [], loose: [], byOption: Object.create(null) };
     if (!pending || typeof pending !== "object") return none;
     const options = optionsOf(pending);
     const cls = pending.decision_class;

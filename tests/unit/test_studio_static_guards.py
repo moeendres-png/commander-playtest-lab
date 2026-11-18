@@ -392,7 +392,7 @@ def test_partie_board_clicks_send_only_offered_options_and_only_on_a_click() -> 
     toggle = js.split("function toggleOption(", 1)[1].split("\nfunction ", 1)[0]
     assert "offeredOption(optionId)" in toggle and "submitHumanChoice(" not in toggle
     # a board answer is bound to the decision its model was built for, never to a newer pending one
-    for name in ("toggleOption", "sendBoardOption", "confirmSelection", "boardClick"):
+    for name in ("toggleBoardOption", "sendBoardOption", "confirmSelection", "boardClick"):
         body = js.split(f"function {name}(", 1)[1].split("\nfunction ", 1)[0]
         assert "boardDecision()" in body, name
     assert (
@@ -401,10 +401,8 @@ def test_partie_board_clicks_send_only_offered_options_and_only_on_a_click() -> 
     )
     confirm = js.split("function confirmSelection(", 1)[1].split("\nfunction ", 1)[0]
     assert "decision_id: state.click.decisionId" in confirm and "offeredOption(id)" in confirm
-    assert (
-        "state.click = null;"
-        in js.split("const nextDecision = ", 1)[1].split("state.canConcede", 1)[0]
-    )
+    # the poll hands every new decision over through adoptPendingDecision (behaviour: test_page_drops_...)
+    assert "adoptPendingDecision(page.pending_decision || null);" in js
     # fast-forward, auto-pass and the switch-on code never touch a board click
     for name in ("startFastForward", "endFastForward", "maybeAutoPassHuman", "setAiDelay"):
         body = js.split(f"function {name}(", 1)[1].split("\nfunction ", 1)[0]

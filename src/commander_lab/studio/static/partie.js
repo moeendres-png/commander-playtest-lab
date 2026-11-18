@@ -170,8 +170,9 @@ function boardDecision() {
   const pending = state.pendingDecision;
   return pending && state.click && state.click.decisionId === pending.decision_id ? pending : null;
 }
+// The option list (also for decisions with a number) toggles against the pending decision itself.
 function toggleOption(optionId) {
-  const pending = boardDecision();
+  const pending = state.pendingDecision;
   if (!pending || !offeredOption(optionId)) return;
   const maxSel = Number(pending.maximum_selections ?? 0);
   if (state.selectedOptions.includes(optionId)) state.selectedOptions = state.selectedOptions.filter((id) => id !== optionId);
@@ -179,6 +180,20 @@ function toggleOption(optionId) {
   else if (state.selectedOptions.length < maxSel) state.selectedOptions = [...state.selectedOptions, optionId];
   else toast(`Höchstens ${maxSel} Auswahlen möglich.`);
   render();
+}
+// Takes over the decision a poll delivered. Another decision (or none) drops what was picked, opened
+// or modelled for the old one at once, not only at the next render.
+function adoptPendingDecision(nextDecision) {
+  if (!nextDecision || !state.pendingDecision || nextDecision.decision_id !== state.pendingDecision.decision_id) {
+    closeBoardMenu(false);
+    state.selectedOptions = [];
+    state.click = null;
+    state.clickActive = false;
+  }
+  state.pendingDecision = nextDecision;
+}
+function toggleBoardOption(optionId) {
+  if (boardDecision()) toggleOption(optionId);
 }
 function sendBoardOption(optionId) {
   const pending = boardDecision();
@@ -201,7 +216,7 @@ function boardClick(target, anchor) {
   const result = StudioBoardClick.resolve(pending, state.click, target);
   const key = anchor && anchor.dataset ? anchor.dataset.clickKey : null;
   if (result.action === "send") sendBoardOption(result.optionId);
-  else if (result.action === "toggle") { closeBoardMenu(false); toggleOption(result.optionId); focusClickKey(key); }
+  else if (result.action === "toggle") { closeBoardMenu(false); toggleBoardOption(result.optionId); focusClickKey(key); }
   else if (result.action === "menu") openBoardMenu(anchor, result, key, target.type === "seat" ? seatName(target.seat) : (objectName(target.id) || "Karte"));
   else toast("Dafür bietet die Engine gerade keine Aktion an.");
 }
@@ -219,7 +234,7 @@ function openBoardMenu(anchor, result, key, title) {
       onclick: () => {
         closeBoardMenu(false);
         if (result.mode === "immediate") sendBoardOption(option.optionId);
-        else { toggleOption(option.optionId); focusClickKey(key); }
+        else { toggleBoardOption(option.optionId); focusClickKey(key); }
       }
     }, `${picked ? "✓ " : ""}${localizeActionText(option.label)}`));
   }
@@ -295,7 +310,7 @@ function renderBoardBar(pending, model) {
       type: "button",
       class: option.option_type === "pass_priority" ? "primary" : "",
       disabled: state.submitting,
-      onclick: () => (model.mode === "staged" ? toggleOption(optionId) : sendBoardOption(optionId))
+      onclick: () => (model.mode === "staged" ? toggleBoardOption(optionId) : sendBoardOption(optionId))
     }, localizeActionText(option.label || optionId)));
   }
   if (model.mode === "staged") {
@@ -1226,15 +1241,7 @@ async function loadMoreOnce() {
     state.running = page.running;
     if (state.interactive) {
       state.humanSeats = Array.isArray(page.human_seats) ? page.human_seats : [];
-      const nextDecision = page.pending_decision || null;
-      if (!nextDecision || !state.pendingDecision || nextDecision.decision_id !== state.pendingDecision.decision_id) {
-        // another decision: what was picked or opened for the old one is gone at once, not at the next render
-        closeBoardMenu(false);
-        state.selectedOptions = [];
-        state.click = null;
-        state.clickActive = false;
-      }
-      state.pendingDecision = nextDecision;
+      adoptPendingDecision(page.pending_decision || null);
       state.canConcede = Boolean(page.can_concede);
       state.handsRevealed = Boolean(page.hands_revealed);
     } else {

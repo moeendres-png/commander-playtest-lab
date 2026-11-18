@@ -1541,6 +1541,118 @@ console.log(JSON.stringify(rows));
     assert len(probes) >= 8 * 8 and {row["action"] for row in probes} == {"none"}
 
 
+# ---- partie.js: the functions that send or select, run for real with the page's own source --------
+
+_PAGE_PRELUDE = (
+    _BC_PRELUDE
+    + f"""
+const SRC = require('fs').readFileSync({json.dumps((STATIC / "partie.js").as_posix())}, 'utf8');
+const grab = (name) => {{
+  const start = SRC.indexOf('function ' + name + '(');
+  if (start < 0) throw new Error('missing ' + name);
+  let depth = 0, i = SRC.indexOf('{{', start);
+  for (; i < SRC.length; i += 1) {{ if (SRC[i] === '{{') depth += 1; else if (SRC[i] === '}}' && --depth === 0) break; }}
+  return SRC.slice(start, i + 1);
+}};
+const NAMES = ['offeredOption', 'boardDecision', 'toggleOption', 'toggleBoardOption', 'sendBoardOption',
+  'confirmSelection', 'adoptPendingDecision'];
+function page(pending, click, selected) {{
+  const calls = {{submitted: [], toasts: 0, menuClosed: 0, renders: 0}};
+  const state = {{pendingDecision: pending, click, selectedOptions: selected || [], submitting: false, clickActive: true}};
+  const body = NAMES.map(grab).join('\\n');
+  const make = new Function('state', 'calls', 'toast', 'render', 'closeBoardMenu', 'submitHumanChoice', '$',
+    body + '; return {{' + NAMES.join(',') + '}};');
+  const fns = make(state, calls, () => {{ calls.toasts += 1; }}, () => {{ calls.renders += 1; }},
+    () => {{ calls.menuClosed += 1; }}, (payload) => calls.submitted.push(payload), () => ({{hidden: false}}));
+  return {{state, calls, fns}};
+}}
+const later = (p) => Object.assign({{}}, p, {{decision_id: 'a-later-decision'}});
+"""
+)
+
+
+def test_page_list_toggle_works_for_decisions_with_numbers_and_options() -> None:
+    out = _node_json(
+        _PAGE_PRELUDE
+        + """
+const base = FX.discard_from_hand.pending_decision;
+const p = Object.assign({}, base, {minimum_selections: 1, maximum_selections: 2,
+  context: Object.assign({}, base.context, {numeric_max: 3})});
+const m = BC.build(p);  // a number in the context: no board mapping at all
+const first = String(p.legal_options[0].option_id);
+const rows = [];
+for (const click of [m, null]) {
+  const {state, fns} = page(p, click);
+  fns.toggleOption(first);
+  rows.push(state.selectedOptions.slice());
+}
+// the board path stays shut for such a decision
+const board = page(p, m); board.fns.toggleBoardOption(first);
+console.log(JSON.stringify({kind: m.kind, rows, first}));
+"""
+    )
+    assert isinstance(out, dict) and out["kind"] == "none"
+    assert out["rows"] == [[out["first"]], [out["first"]]]  # the list still selects
+
+
+def test_page_board_answers_only_bind_to_the_decision_the_model_was_built_for() -> None:
+    out = _node_json(
+        _PAGE_PRELUDE
+        + """
+const A = FX.target_battlefield_land.pending_decision;
+const B = later(A);                      // the same options, offered again by a newer decision
+const id = String(A.legal_options[0].option_id);
+const modelA = BC.build(A);
+const stale = page(B, modelA);           // the poll already delivered B, the board still shows A
+stale.fns.sendBoardOption(id); stale.fns.confirmSelection(); stale.fns.toggleBoardOption(id);
+const live = page(A, modelA);
+live.fns.sendBoardOption(id);
+const liveStaged = page(A, modelA, [id]); liveStaged.fns.confirmSelection();
+const notOffered = page(A, modelA, ['not-offered']); notOffered.fns.confirmSelection();
+const toggled = page(A, modelA); toggled.fns.toggleBoardOption(id);
+console.log(JSON.stringify({id, stale: {sent: stale.calls.submitted, picked: stale.state.selectedOptions},
+  live: live.calls.submitted, liveStaged: liveStaged.calls.submitted,
+  notOffered: {sent: notOffered.calls.submitted, toasts: notOffered.calls.toasts}, toggled: toggled.state.selectedOptions,
+  decision: A.decision_id}));
+"""
+    )
+    assert isinstance(out, dict)
+    assert out["stale"] == {"sent": [], "picked": []}  # nothing leaves for the newer decision
+    assert out["live"] == [
+        {"decision_id": out["decision"], "selected_option_ids": [out["id"]], "ordering": []}
+    ]
+    assert [row["decision_id"] for row in out["liveStaged"]] == [out["decision"]]
+    assert out["notOffered"] == {
+        "sent": [],
+        "toasts": 1,
+    }  # an id the engine does not offer is refused
+    assert out["toggled"] == [out["id"]]
+
+
+def test_page_drops_the_picks_and_the_model_when_the_decision_changes() -> None:
+    out = _node_json(
+        _PAGE_PRELUDE
+        + """
+const A = FX.target_battlefield_land.pending_decision;
+const id = String(A.legal_options[0].option_id);
+const run = (next) => {
+  const {state, calls, fns} = page(A, BC.build(A), [id]);
+  fns.adoptPendingDecision(next);
+  return {picked: state.selectedOptions, click: state.click, active: state.clickActive, closed: calls.menuClosed,
+    pending: state.pendingDecision && state.pendingDecision.decision_id};
+};
+console.log(JSON.stringify({changed: run(later(A)), none: run(null), same: run(Object.assign({}, A)), A: A.decision_id}));
+"""
+    )
+    assert isinstance(out, dict)
+    for key in ("changed", "none"):
+        assert (out[key]["picked"], out[key]["click"], out[key]["active"]) == ([], None, False), key
+        assert out[key]["closed"] == 1, key
+    assert out["changed"]["pending"] == "a-later-decision" and out["none"]["pending"] is None
+    # the same decision delivered again (every poll): the picks and the model stay
+    assert out["same"]["picked"] and out["same"]["click"] is not None and out["same"]["closed"] == 0
+
+
 def test_boardclick_decisions_with_numbers_or_choices_have_no_board_mapping() -> None:
     out = _node_json(
         _BC_PRELUDE
