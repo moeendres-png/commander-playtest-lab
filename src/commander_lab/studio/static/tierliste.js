@@ -732,9 +732,10 @@ function renderOverallPanel() {
   const singleRun = rated.length > 0 && rated.every((item) => item.overall.confidence && item.overall.confidence.raters === 1);
   const weights = Object.entries(meta.weights || {}).map(([axis, weight]) => `${OVERALL_AXIS_NAMES[axis] || axis} ${StudioUI.numFlex(100 * weight, 1)} %`).join(" · ");
   const usage = meta.usage_axis || {};
+  const dataset = meta.dataset || {};
   host.replaceChildren(
     h("div", { class: "facts" }, h("b", {}, "Gesamtrating (zweites Ranking)"), h("span", { class: "muted" }, `${nf(meta.n_rated)} von ${nf(meta.n_total)} Karten bewertet`)),
-    h("p", { id: "overall-method" }, `${OVERALL_METHOD} (${singleRun ? "ein Lauf je Karte" : "mehrere Bewerter je Karte"}, ${nf(meta.n_rated)} von ${nf(meta.n_total)} Karten); ${OVERALL_LIMITS}.`),
+    h("p", { id: "overall-method" }, `${OVERALL_METHOD} (${singleRun ? "ein Lauf je Karte" : "mehrere Bewerter je Karte"}, ${nf(dataset.matched === undefined ? meta.n_rated : dataset.matched)} von ${nf(dataset.rows === undefined ? meta.n_total : dataset.rows)} Karten des Datensatzes); ${OVERALL_LIMITS}.`),
     h("p", { class: "rule" }, `Gewichte (Setzung, keine Messung): ${weights}.`),
     h("p", { class: "rule" }, usage.included ? `Die Nutzungs-Achse ist der Stärke-Index dieser Anfrage und bei ${nf(usage.n_with_usage)} von ${nf(usage.n_total)} Karten vorhanden; fehlt sie, werden die übrigen Gewichte auf 100 % umgerechnet.` : `Die Nutzungs-Achse entfällt: ${usage.excluded_reason || "keine Angabe"}.`),
     h("p", { class: "rule" }, meta.stability ? `${meta.stability.note}. Unscharf: ${nf(meta.stability.unscharf_count)} von ${nf(meta.stability.evaluated_cards)} Karten.` : ""),
@@ -2188,6 +2189,12 @@ function syncRankingToggle() {
   if (available) box.removeAttribute("title"); else box.setAttribute("title", reason);
 }
 function syncRanking() {
+  // A remembered overall sort has no values without the rating (other commander, not available): the page then sorts
+  // by the index again. Nothing is written to the memory, so the sort comes back where the rating exists.
+  if (state.strength.status === "ready" && state.view !== "global" && !overallAvailable() && (state.sortKey === "overall" || state.sortKey === "overall_rank" || state.sortKey.startsWith(CRIT_SORT))) {
+    state.sortKey = "strength"; state.sortDir = -1;
+    if ($("sort")) $("sort").value = "strength";
+  }
   syncRankingToggle();
   renderCoreLine();
   renderOverallPanel();

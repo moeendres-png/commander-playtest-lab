@@ -693,3 +693,42 @@ console.log(JSON.stringify({
     )
     assert result["loading"]["usage"][1] is True and result["loading"]["overall"][1] is True
     assert "berechnet" in result["loading"]["title"]
+
+
+def test_remembered_overall_sort_falls_back_to_the_index_without_the_rating() -> None:
+    """A remembered sort by the overall rating has no values where the rating is missing (other
+    commander, not available): the page sorts by the index again and keeps the memory untouched."""
+    js = (STATIC / "tierliste.js").read_text(encoding="utf-8")
+    state_part = js[js.index("const overallMeta = ") : js.index("function overallUnknownCell")]
+    start = js.index("function syncRanking() {")
+    sync_part = js[start : js.index("function setRanking(ranking) {")]
+    script = (
+        _overall_node_prelude()
+        + "const strengthItem = () => null; const syncRankingToggle = () => {};"
+        + "const renderCoreLine = () => {}; const renderOverallPanel = () => {};\n"
+        + state_part
+        + sync_part
+        + """
+const sel = {value: ''};
+globalThis.$ = (id) => (id === 'sort' ? sel : null);
+const run = (sortKey, meta, status = 'ready', view = 'commander') => {
+  sel.value = sortKey;
+  globalThis.state = {view, sortKey, sortDir: 1, ranking: 'overall',
+    strength: {status, map: new Map(), result: meta === undefined ? null : {overall_meta: meta}}};
+  syncRanking(); return [state.sortKey, state.sortDir, sel.value]; };
+const off = {available: false, unavailable_reason: 'x'};
+console.log(JSON.stringify({
+  rank: run('overall_rank', off), crit: run('crit:D', off), score: run('overall', off),
+  kept: run('overall', {available: true}), other: run('name', off), loading: run('overall', off, 'loading'),
+  global: run('overall', off, 'ready', 'global'),
+}));
+"""
+    )
+    result = _node_json(script)
+    assert isinstance(result, dict)
+    for key in ("rank", "crit", "score"):
+        assert result[key] == ["strength", -1, "strength"], key
+    assert result["kept"] == ["overall", 1, "overall"] and result["other"][0] == "name"
+    assert result["loading"][0] == "overall" and result["global"][0] == "overall"
+    seen = js[start : js.index("function setRanking(ranking) {")]
+    assert "StudioUI.remember" not in seen  # the fallback never overwrites the remembered sort
