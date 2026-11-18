@@ -88,7 +88,7 @@ Das ist die zentrale Anti-Scheinpräzisions-Zahl (95 %, Power 80 %, Basis p=0,25
 | 2000 | 3,9 pp | 3,9 | 3,4 | 2,8 | 2,0 |
 | 5000 | 2,5 pp | 2,5 | 2,2 | 1,8 | 1,3 |
 
-Folgerung: Mit 1000 Partien je Variante liegt der MDE bei ~5,5 pp (unabhängig) bzw. ~4 pp (gepaart, t=0,2). Ein einzelner Karten-Tausch in einem 99-Karten-Deck wirkt typischerweise deutlich kleiner. **Das Ergebnis lautet dann "kein Effekt nachweisbar bei n=…, MDE=x pp", nie "Karte ist egal".** (Die Annahme "typisch kleiner" ist meine Einschätzung, nicht belegt.)
+Folgerung: Mit 1000 Partien je Variante liegt der MDE bei ~5,6 pp (unabhängig) bzw. ~4 pp (gepaart, t=0,2). Ein einzelner Karten-Tausch in einem 99-Karten-Deck wirkt typischerweise deutlich kleiner. **Das Ergebnis lautet dann "kein Effekt nachweisbar bei n=…, MDE=x pp", nie "Karte ist egal".** (Die Annahme "typisch kleiner" ist meine Einschätzung, nicht belegt.)
 
 ### 2.5 Mehrfachvergleiche (50 Karten-Swaps)
 Bonferroni/Holm im ungünstigsten Fall: z steigt von 1,96 auf 3,29 (m=50) bzw. 3,48 (m=100); Partienbedarf bei gleicher Halbbreite x2,8 bzw. x3,2. Holm (Holm 1979 **[T]**) ist FWER-kontrollierend und mindestens so stark wie Bonferroni; BH 1995 kontrolliert die FDR und ist **für unabhängige Teststatistiken bewiesen** (Theorem 1, [S-lokal]); Erweiterungen auf Abhängigkeit habe ich nicht abgerufen.
