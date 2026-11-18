@@ -164,8 +164,14 @@ function focusClickKey(key) {
   const el = document.querySelector(`[data-click-key="${key}"]`);
   if (el) el.focus();
 }
-function toggleOption(optionId) {
+// The board model belongs to one decision. While a poll is still loading, the pending decision can
+// already be a newer one: then no board click, menu or confirmation may answer anything.
+function boardDecision() {
   const pending = state.pendingDecision;
+  return pending && state.click && state.click.decisionId === pending.decision_id ? pending : null;
+}
+function toggleOption(optionId) {
+  const pending = boardDecision();
   if (!pending || !offeredOption(optionId)) return;
   const maxSel = Number(pending.maximum_selections ?? 0);
   if (state.selectedOptions.includes(optionId)) state.selectedOptions = state.selectedOptions.filter((id) => id !== optionId);
@@ -175,20 +181,22 @@ function toggleOption(optionId) {
   render();
 }
 function sendBoardOption(optionId) {
-  const pending = state.pendingDecision;
+  const pending = boardDecision();
   if (!pending || state.submitting) return;
   if (!offeredOption(optionId)) { toast("Diese Möglichkeit bietet die Engine gerade nicht an."); return; }
   closeBoardMenu(false);
   $("modal").hidden = true;
-  submitHumanChoice({ decision_id: pending.decision_id, selected_option_ids: [optionId], ordering: [] });
+  // the id of the decision the click was made on: the server refuses an answer to an outdated one
+  submitHumanChoice({ decision_id: state.click.decisionId, selected_option_ids: [optionId], ordering: [] });
 }
 function confirmSelection() {
-  const pending = state.pendingDecision;
+  const pending = boardDecision();
   if (!pending || state.submitting) return;
-  submitHumanChoice({ decision_id: pending.decision_id, selected_option_ids: [...state.selectedOptions], ordering: [] });
+  if (!state.selectedOptions.every((id) => offeredOption(id))) { toast("Diese Auswahl bietet die Engine gerade nicht an."); return; }
+  submitHumanChoice({ decision_id: state.click.decisionId, selected_option_ids: [...state.selectedOptions], ordering: [] });
 }
 function boardClick(target, anchor) {
-  const pending = state.pendingDecision;
+  const pending = boardDecision();
   if (!state.clickActive || !pending || state.submitting) return;
   const result = StudioBoardClick.resolve(pending, state.click, target);
   const key = anchor && anchor.dataset ? anchor.dataset.clickKey : null;
@@ -1218,7 +1226,15 @@ async function loadMoreOnce() {
     state.running = page.running;
     if (state.interactive) {
       state.humanSeats = Array.isArray(page.human_seats) ? page.human_seats : [];
-      state.pendingDecision = page.pending_decision || null;
+      const nextDecision = page.pending_decision || null;
+      if (!nextDecision || !state.pendingDecision || nextDecision.decision_id !== state.pendingDecision.decision_id) {
+        // another decision: what was picked or opened for the old one is gone at once, not at the next render
+        closeBoardMenu(false);
+        state.selectedOptions = [];
+        state.click = null;
+        state.clickActive = false;
+      }
+      state.pendingDecision = nextDecision;
       state.canConcede = Boolean(page.can_concede);
       state.handsRevealed = Boolean(page.hands_revealed);
     } else {

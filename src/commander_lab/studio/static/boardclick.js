@@ -198,6 +198,8 @@ const StudioBoardClick = (() => {
   function resolve(pending, model, target) {
     const nothing = { action: "none" };
     if (!model || model.kind === "none" || model.mode === "info" || !target) return nothing;
+    // a model built for another decision answers nothing, even if an option id is offered by both
+    if (!pending || !model.decisionId || model.decisionId !== pending.decision_id) return nothing;
     const entry = target.type === "object" ? model.objects[target.id] : (target.type === "seat" ? model.seats[String(target.seat)] : null);
     if (!entry) return nothing;
     if (entry.role === "asked" && model.kind === "blocker") return nothing; // the blocker only shows who blocks

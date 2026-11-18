@@ -391,6 +391,20 @@ def test_partie_board_clicks_send_only_offered_options_and_only_on_a_click() -> 
     assert send.index("offeredOption(optionId)") < send.index("submitHumanChoice(")
     toggle = js.split("function toggleOption(", 1)[1].split("\nfunction ", 1)[0]
     assert "offeredOption(optionId)" in toggle and "submitHumanChoice(" not in toggle
+    # a board answer is bound to the decision its model was built for, never to a newer pending one
+    for name in ("toggleOption", "sendBoardOption", "confirmSelection", "boardClick"):
+        body = js.split(f"function {name}(", 1)[1].split("\nfunction ", 1)[0]
+        assert "boardDecision()" in body, name
+    assert (
+        "decision_id: state.click.decisionId" in send
+        and "decision_id: pending.decision_id" not in send
+    )
+    confirm = js.split("function confirmSelection(", 1)[1].split("\nfunction ", 1)[0]
+    assert "decision_id: state.click.decisionId" in confirm and "offeredOption(id)" in confirm
+    assert (
+        "state.click = null;"
+        in js.split("const nextDecision = ", 1)[1].split("state.canConcede", 1)[0]
+    )
     # fast-forward, auto-pass and the switch-on code never touch a board click
     for name in ("startFastForward", "endFastForward", "maybeAutoPassHuman", "setAiDelay"):
         body = js.split(f"function {name}(", 1)[1].split("\nfunction ", 1)[0]

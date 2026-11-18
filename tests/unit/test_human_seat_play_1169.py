@@ -965,15 +965,18 @@ def test_server_refuses_five_and_six_seat_tables_with_a_clear_reason(
 # ---- the real engine: a scripted human seat plays a whole game through the PLAY routes ----------
 
 ENGINE_ENV = "COMMANDER_LAB_XMAGE_FULL_GAME_BRIDGE_CMD"
-SCRIPTED_TURN_LIMIT = 40  # after this turn the script concedes through the route (a recorded end)
+SCRIPTED_TURN_LIMIT = 40  # safety net: after this turn the script concedes, and the test then fails
 
 
 def _scripted_human_answer(pending: dict[str, object]) -> dict[str, object]:
-    """A fixed, rule-free script for a seat that only keeps, plays lands and passes.
+    """A fixed, deterministic script for a seat that keeps, plays lands and passes.
 
-    It never takes the first or a random option: it asks for an option by its engine type and, when
-    several of that type exist, the one with the smallest label. It decides no rule; every id it
-    sends is one the engine offered, and the route would refuse any other.
+    It is a test script, not a pilot and not a strength claim. It picks an option by its engine
+    type (keep, play-land, pass, hold, cancel); where it must choose among options of one kind, or
+    must answer a required choice or a number, it takes the smallest label or the stated minimum.
+    That tie-break is deterministic, not "the first option" and not random (no ratchet violation:
+    tests/unit/test_first_option_ratchet.py). Every id it sends is one the engine offered, and the
+    route refuses any other; it works out no rule itself.
     """
     options = [o for o in pending["legal_options"] if isinstance(o, dict)]  # type: ignore[attr-defined]
     cls = pending["decision_class"]
@@ -1080,6 +1083,9 @@ def test_real_engine_human_seat_plays_a_game_to_its_end_through_the_play_routes(
     result = state.get("result") or {}
     assert isinstance(result, dict)
     assert state.get("running") is False and result.get("status") == "finished", result
+    # a regular end reported by the engine: the script did not have to concede, and someone won
+    assert conceded is False, "the game was cut off by the script's concede at the turn limit"
+    assert result.get("winner_seats"), result
     assert answered.get("mulligan", 0) >= 1 and answered.get("priority", 0) >= 10, answered
     # the engine's end is recorded, and the hands of the AI seat open up only now
     assert state.get("hands_revealed") is True
@@ -1505,17 +1511,21 @@ const rows = [];
 for (const name of Object.keys(FX)) {
   const {p, m} = view(name);
   const ok = new Set(offered(p));
-  const targets = [...probes];
-  for (const id of Object.keys(m.objects)) targets.push({type: 'object', id});
-  for (const seat of Object.keys(m.seats)) targets.push({type: 'seat', seat: Number(seat)});
-  for (const t of targets) {
+  const targets = probes.map((t) => ({t, probe: true}));
+  for (const id of Object.keys(m.objects)) targets.push({t: {type: 'object', id}, probe: false});
+  for (const seat of Object.keys(m.seats)) targets.push({t: {type: 'seat', seat: Number(seat)}, probe: false});
+  for (const {t, probe} of targets) {
     const r = BC.resolve(p, m, t);
     const ids = r.action === 'menu' ? r.options.map((o) => o.optionId) : (r.optionId ? [r.optionId] : []);
-    rows.push({name, action: r.action, fine: ids.every((id) => ok.has(id))});
+    rows.push({name, probe, action: r.action, fine: ids.every((id) => ok.has(id))});
   }
+  // the model of another decision: even when every option id is offered again, no click answers
+  const later = Object.assign({}, p, {decision_id: 'a-later-decision'});
+  for (const id of Object.keys(m.objects)) rows.push({name: name + '/other-decision', action: BC.resolve(later, m, {type: 'object', id}).action, fine: true});
+  for (const seat of Object.keys(m.seats)) rows.push({name: name + '/other-decision', action: BC.resolve(later, m, {type: 'seat', seat: Number(seat)}).action, fine: true});
   // a stale model: the engine has since withdrawn every option, so no click may answer
   const stale = Object.assign({}, p, {legal_options: []});
-  for (const id of Object.keys(m.objects)) rows.push({name: name + '/stale', action: BC.resolve(stale, m, {type: 'object', id}).action, fine: true});
+  for (const id of Object.keys(m.objects)) rows.push({name: name + '/stale', probe: false, action: BC.resolve(stale, m, {type: 'object', id}).action, fine: true});
 }
 console.log(JSON.stringify(rows));
 """
@@ -1524,9 +1534,11 @@ console.log(JSON.stringify(rows));
     assert all(row["fine"] for row in out)
     stale = [row for row in out if row["name"].endswith("/stale")]
     assert len(stale) >= 8 and {row["action"] for row in stale} == {"none"}
-    # the junk probes of the first loop never produce an action either
-    junk = [row for row in out if not row["name"].endswith("/stale")]
-    assert {row["action"] for row in junk} <= {"none", "send", "toggle", "menu"}
+    other = [row for row in out if row["name"].endswith("/other-decision")]
+    assert len(other) >= 20 and {row["action"] for row in other} == {"none"}
+    # the junk probes (unknown ids, "__proto__", bad seats, null) never produce an action
+    probes = [row for row in out if row.get("probe") is True]
+    assert len(probes) >= 8 * 8 and {row["action"] for row in probes} == {"none"}
 
 
 def test_boardclick_decisions_with_numbers_or_choices_have_no_board_mapping() -> None:
@@ -1550,7 +1562,9 @@ def test_boardclick_attack_click_names_the_opponent_the_engine_labelled() -> Non
 const {p, m} = view('declare_attacker');
 const hold = p.legal_options.find((o) => o.option_type === 'hold_attacker');
 const asked = Object.keys(m.objects)[0];
-// the independent oracle: the engine's own label says "... attacks Full Game Seat N" (seat index N-1)
+// the oracle reads the engine's own label "... attacks Full Game Seat N" and takes seat index N-1. That rule is
+// the same one boardclick.js uses, so this is a consistency check, not an independent proof: the rule itself
+// is derived from the Java creation order (checked against the source text below), not from engine output.
 const expected = (seat) => p.legal_options.filter((o) => o.option_type === 'declare_attacker'
   && o.label.endsWith('Full Game Seat ' + (seat + 1))).map((o) => String(o.option_id));
 const seatRows = Object.keys(m.seats).map((s) => {
@@ -1578,6 +1592,11 @@ console.log(JSON.stringify({kind: m.kind, mode: m.mode, seats: seatRows, wrong, 
         assert row["action"] == "send" and len(row["want"]) == 1
         assert row["sent"] == row["want"][0]  # the click names the opponent the engine labelled
     assert out["wrong"] == ["1", "2"]  # a wrong seat mapping is caught by the same check
+    java = (
+        Path(__file__).resolve().parents[2]
+        / "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
+    ).read_text(encoding="utf-8")
+    assert '"Full Game Seat " + (index + 1)' in java  # seat index = N - 1 (creation order)
     assert out["own"] == "none"
     assert out["loose"] == [out["hold"]]  # "do not attack" stays a button
     assert out["creature"] == "menu" and sorted(out["menu"]) == sorted(out["all"])
@@ -1595,11 +1614,12 @@ const other = FX.declare_attacker.pending_decision.pilot_state.players[1].battle
 const miss = BC.resolve(p, m, {type: 'object', id: other});
 const sole = p.legal_options[0];
 // mutation probe: an option whose id is not the object's id must never become a click on that card
+const later = BC.resolve(Object.assign({}, p, {decision_id: 'a-later-decision'}), m, {type: 'object', id: ids[0]}).action;
 const bent = JSON.parse(JSON.stringify(p));
 bent.legal_options[0].option_id = 'not-the-object-id';
 const bm = BC.build(bent);
 console.log(JSON.stringify({kind: m.kind, mode: m.mode, ids, r, miss: miss.action, option: String(sole.option_id),
-  object: sole.metadata.object_id, zone: m.objects[ids[0]].zone,
+  object: sole.metadata.object_id, zone: m.objects[ids[0]].zone, later,
   bent: {objects: Object.keys(bm.objects).length, listOnly: bm.listOnly, click: BC.resolve(bent, bm, {type: 'object', id: ids[0]}).action}}));
 """
     )
@@ -1613,6 +1633,8 @@ console.log(JSON.stringify({kind: m.kind, mode: m.mode, ids, r, miss: miss.actio
         "optionId": out["option"],
     }
     assert out["option"] == out["object"] and out["miss"] == "none"
+    # the model belongs to its decision: a later decision offering the same id gets no answer from it
+    assert out["later"] == "none" and out["r"]["action"] == "send"
     # an option id that is not its object's id stays in the list: no click sends it
     assert out["bent"] == {"objects": 0, "listOnly": ["not-the-object-id"], "click": "none"}
 
