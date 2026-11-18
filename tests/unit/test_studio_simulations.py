@@ -213,6 +213,26 @@ def test_aggregate_batch_results() -> None:
     assert cards["Counterspell"]["games_rotted"] == 1
     assert cards["Counterspell"]["cast_count"] == 1
     assert cards["Counterspell"]["mean_first_cast_round"] == 4.0
+    # the mean covers only the games in which the card was cast: n/N travels with it
+    assert cards["Counterspell"]["first_cast_round_games_reached"] == 1
+    assert cards["Counterspell"]["first_cast_round_games_not_reached"] == 1
+    assert cards["Counterspell"]["first_cast_round_quartiles"] == {
+        "q1": 4,
+        "median": 4,
+        "q3": None,
+    }
+    assert cards["Forest"]["first_cast_round_games_reached"] == 2
+    assert cards["Forest"]["first_cast_round_quartiles"] == {"q1": 1, "median": 1, "q3": 1}
+
+
+def test_censored_round_quartiles_keep_not_reached_games_in_the_denominator() -> None:
+    from commander_lab.studio.simulations import censored_round_quartiles
+
+    # cast in 1 of 4 games: early in that game, but the median game never cast it
+    assert censored_round_quartiles([3], 4) == {"q1": 3, "median": None, "q3": None}
+    assert censored_round_quartiles([7, 2, 5], 3) == {"q1": 2, "median": 5, "q3": 7}
+    assert censored_round_quartiles([], 0) == {"q1": None, "median": None, "q3": None}
+    assert censored_round_quartiles([], 5) == {"q1": None, "median": None, "q3": None}
 
 
 def test_save_batch_to_store(tmp_path: Path) -> None:
