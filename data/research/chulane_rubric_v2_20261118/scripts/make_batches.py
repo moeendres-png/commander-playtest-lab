@@ -1,13 +1,16 @@
 #!/usr/bin/env python3
 """Renders the batch prompts of the pilot runs (7 cards per call, own random order per rater).
 
-  python3 make_batches.py --out <dir> [--run v2|v2.1]
+  python3 make_batches.py --out <dir> [--run v2|v2.1|full]
 
-Writes <dir>/batches[21]/<batch>.md and <dir>/batches[21]_manifest.json. Run v2 (raters H1, H2,
+Writes <dir>/batches[21]/<batch>.md and <dir>/batches[21]_manifest.json (run full: <dir>/full/ and
+<dir>/full_manifest.json; the raw ratings of that run go to <dir>/out_full/, a folder that is
+filled by the lead and lies outside the repository). Run v2 (raters H1, H2,
 S1, S2) is the whole pilot plus 8 retest cards per rater; run v2.1 (raters T1, T2) is the targeted
 re-measurement of the 10 anchors, the 8 retest cards and one more card, in batches of 6.
-The card ids c00 to c62 follow the card order of pilot_sample.json. Nothing from the usage
-holdout is read.
+Run full is the whole pool (rater F1, 7 cards per batch, own random order). The card ids c00 to
+c62 follow the card order of pilot_sample.json, the others are f0000 and up in facts.jsonl order.
+Nothing from the usage holdout is read.
 """
 
 from __future__ import annotations
@@ -46,11 +49,12 @@ class LeaveOut:
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", required=True)
-    ap.add_argument("--run", default="v2", choices=("v2", "v2.1"))
+    ap.add_argument("--run", default="v2", choices=("v2", "v2.1", "full"))
     args = ap.parse_args()
     v21 = args.run == "v2.1"
     out = Path(args.out)
-    batch_dir = out / ("batches21" if v21 else "batches")
+    full = args.run == "full"
+    batch_dir = out / {"v2": "batches", "v2.1": "batches21", "full": "full"}[args.run]
     batch_dir.mkdir(parents=True, exist_ok=True)
 
     guide = (ROOT / "GUIDE_v2.md").read_text(encoding="utf-8")
@@ -67,6 +71,10 @@ def main() -> None:
     id_of = {name: cid for cid, name in name_of.items()}
     retest = [id_of[n] for n in pilot["retest_cards"]]
     facts = {r["name"]: r for r in rp.load_jsonl(ROOT / "data" / "facts.jsonl")}
+    if full:
+        name_of = {}
+        for i, name in enumerate(facts):
+            name_of[id_of.get(name, f"f{i:04d}")] = name
     pats = {r["name"]: r for r in rp.load_jsonl(ROOT / "data" / "patterns.jsonl")}
 
     def system_prompt(names: list[str]) -> str:
@@ -74,7 +82,13 @@ def main() -> None:
         return rp.system_prompt(guide, anchors, LeaveOut(left_out) if left_out else None)
 
     plan: list[tuple[str, list[str], bool]] = []  # (batch id, card ids, retest)
-    if v21:
+    if full:
+        ids = list(name_of)
+        order = ids[:]
+        random.Random("1118-F1").shuffle(order)
+        for i in range(0, len(order), 7):
+            plan.append((f"F1_b{i // 7:03d}", order[i : i + 7], False))
+    elif v21:
         chosen = set(retest)
         chosen |= {id_of[c["name"]] for c in pilot["cards"] if c["v1_is_anchor"]}
         chosen.add(id_of[EXTRA_V21_CARD])
@@ -105,7 +119,7 @@ def main() -> None:
         manifest.append(
             {"batch": batch, "rater": batch.split("_")[0], "cards": names, "retest": is_retest}
         )
-    name = "batches21_manifest.json" if v21 else "batches_manifest.json"
+    name = {"v2": "batches", "v2.1": "batches21", "full": "full"}[args.run] + "_manifest.json"
     (out / name).write_text(
         json.dumps(manifest, indent=1, ensure_ascii=False) + "\n", encoding="utf-8"
     )

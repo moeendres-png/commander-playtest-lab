@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 """Formal check of the pilot ratings: card order per batch (with a manifest) and scores.
 
-  python3 validate.py [--run v2|v2.1] [--manifest <out>/batches_manifest.json]
+  python3 validate.py [--run v2|v2.1|all] [--manifest <out>/batches_manifest.json]
+                      [--ratings fullrun_partial_ratings.jsonl --partial]
 
 Without --manifest only the scores are checked (multiples of 5 from 0 to 100 for E, F, T, R, K,
-D, H). The manifest comes from make_batches.py.
+D, H). The manifest comes from make_batches.py; --partial ignores manifest batches that have no
+rating yet (the partial full run).
 """
 
 from __future__ import annotations
@@ -13,7 +15,7 @@ import argparse
 import json
 from pathlib import Path
 
-from pilot_ratings import load_rows
+from pilot_ratings import RATINGS, load_rows
 
 CRITERIA = "EFTRKDH"
 
@@ -27,11 +29,13 @@ def bad_score(row: dict) -> bool:
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--run", default="v2", choices=("v2", "v2.1"))
+    ap.add_argument("--run", default="v2", choices=("v2", "v2.1", "all"))
     ap.add_argument("--manifest", help="batches_manifest.json written by make_batches.py")
+    ap.add_argument("--ratings", default=str(RATINGS), help="default: pilot_ratings.jsonl")
+    ap.add_argument("--partial", action="store_true")
     args = ap.parse_args()
     batches: dict[str, list[dict]] = {}
-    for row in load_rows(version=args.run):
+    for row in load_rows(Path(args.ratings), None if args.run == "all" else args.run):
         batches.setdefault(row["batch"], []).append(row)
     expected: dict[str, list[str]] = {}
     if args.manifest:
@@ -42,6 +46,8 @@ def main() -> None:
     for batch in sorted(set(batches) | set(expected)):
         rows = batches.get(batch)
         if rows is None:
+            if args.partial:
+                continue
             bad.append((batch, "missing"))
             continue
         got = [r["card"] for r in rows]
