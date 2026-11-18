@@ -169,9 +169,13 @@ def test_backup_is_consistent_under_concurrent_writes_and_restores_cleanly(
     finally:
         conn.close()
 
-    # Restore into empty folder and verify counts + revision id
+    # Restore into empty folder and verify counts + revision id + exact DB sha256
+    from commander_lab.studio.backup import _sha256_file
+
+    expected_db_hash = _sha256_file(backup_dir / DATABASE_NAME)
     restored = restore_backup(backup_dir, restore_dir, repo_root=fake_repo)
     assert restored["integrity_check"] == "ok"
+    assert _sha256_file(restore_dir / DATABASE_NAME) == expected_db_hash
     assert (restore_dir / "games" / "series.json").read_text(encoding="utf-8") == '{"id":"ser-1"}\n'
 
     restored_store = StudioStore.open(restore_dir)
@@ -190,3 +194,89 @@ def test_backup_is_consistent_under_concurrent_writes_and_restores_cleanly(
         assert found_rev is not None and found_rev[0] == rev_id
     finally:
         restored_store.close()
+
+
+def test_restore_rejects_tampered_file_and_leaves_no_partial_artifacts(tmp_path: Path) -> None:
+    data_dir = tmp_path / "studio_data"
+    backup_root = tmp_path / "backups"
+    restore_dir = tmp_path / "restored_tampered"
+    fake_repo = tmp_path / "repo"
+    fake_repo.mkdir()
+    _seed_store(data_dir)
+    (data_dir / "games").mkdir(parents=True)
+    (data_dir / "games" / "a.json").write_text('{"ok":1}\n', encoding="utf-8")
+
+    manifest = create_backup(data_dir, backup_root, repo_root=fake_repo)
+    backup_dir = Path(str(manifest["backup_dir"]))
+    (backup_dir / "games" / "a.json").write_text('{"ok":2}\n', encoding="utf-8")
+
+    with pytest.raises(ValueError, match="Prüfsumme oder Größe"):
+        restore_backup(backup_dir, restore_dir, repo_root=fake_repo)
+    assert not restore_dir.exists()
+    assert not list(tmp_path.glob(f".{restore_dir.name}.restore-*.partial"))
+
+
+@pytest.mark.parametrize("bad_rel", ["../evil.txt", "/Windows/x", "\\\\evil\\x", "E:evil"])
+def test_restore_rejects_windows_and_posix_traversal_paths(tmp_path: Path, bad_rel: str) -> None:
+    data_dir = tmp_path / "studio_data"
+    backup_root = tmp_path / "backups"
+    restore_dir = tmp_path / "restored_traversal"
+    fake_repo = tmp_path / "repo"
+    fake_repo.mkdir()
+    _seed_store(data_dir)
+
+    manifest = create_backup(data_dir, backup_root, repo_root=fake_repo)
+    backup_dir = Path(str(manifest["backup_dir"]))
+    manifest_path = backup_dir / "backup_manifest.json"
+    doc = json.loads(manifest_path.read_text(encoding="utf-8"))
+    doc["files"].append({"path": bad_rel, "size": 1, "sha256": "0" * 64})
+    manifest_path.write_text(json.dumps(doc), encoding="utf-8")
+
+    with pytest.raises(ValueError, match="Ungültiger relativer Pfad"):
+        restore_backup(backup_dir, restore_dir, repo_root=fake_repo)
+    assert not restore_dir.exists()
+
+
+def test_restore_rejects_corrupt_db_missing_db_and_nonempty_target(tmp_path: Path) -> None:
+    from commander_lab.studio.backup import _sha256_file
+
+    data_dir = tmp_path / "studio_data"
+    backup_root = tmp_path / "backups"
+    fake_repo = tmp_path / "repo"
+    fake_repo.mkdir()
+    _seed_store(data_dir)
+    (data_dir / "games").mkdir(parents=True)
+    (data_dir / "games" / "g.json").write_text("{}\n", encoding="utf-8")
+
+    manifest = create_backup(data_dir, backup_root, repo_root=fake_repo)
+    backup_dir = Path(str(manifest["backup_dir"]))
+    manifest_path = backup_dir / "backup_manifest.json"
+
+    # 1) Non-empty target rejected
+    non_empty = tmp_path / "non_empty"
+    non_empty.mkdir()
+    (non_empty / "existing.txt").write_text("keep", encoding="utf-8")
+    with pytest.raises(ValueError, match="muss leer sein"):
+        restore_backup(backup_dir, non_empty, repo_root=fake_repo)
+
+    # 2) Corrupt DB (even with updated manifest checksum) fails in integrity_check with no leftovers
+    corrupt_dir = tmp_path / "restored_corrupt"
+    (backup_dir / DATABASE_NAME).write_bytes(b"not-a-sqlite-database-at-all")
+    new_size, new_sha = _sha256_file(backup_dir / DATABASE_NAME)
+    doc = json.loads(manifest_path.read_text(encoding="utf-8"))
+    for entry in doc["files"]:
+        if entry["path"] == DATABASE_NAME:
+            entry["size"] = new_size
+            entry["sha256"] = new_sha
+    manifest_path.write_text(json.dumps(doc), encoding="utf-8")
+    with pytest.raises(RuntimeError, match="Integritätsprüfung"):
+        restore_backup(backup_dir, corrupt_dir, repo_root=fake_repo)
+    assert not corrupt_dir.exists()
+
+    # 3) Missing DB in manifest fails before copying games/
+    missing_db_dir = tmp_path / "restored_missing_db"
+    doc["files"] = [entry for entry in doc["files"] if entry["path"] != DATABASE_NAME]
+    manifest_path.write_text(json.dumps(doc), encoding="utf-8")
+    with pytest.raises(FileNotFoundError, match="Datenbank fehlt"):
+        restore_backup(backup_dir, missing_db_dir, repo_root=fake_repo)
+    assert not missing_db_dir.exists()

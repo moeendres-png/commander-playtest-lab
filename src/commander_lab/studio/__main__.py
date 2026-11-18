@@ -1038,6 +1038,9 @@ def main(argv: list[str] | None = None) -> int:
         except (FileNotFoundError, ValueError) as error:
             print(f"error: {error}", file=sys.stderr)
             return 2
+        except (OSError, RuntimeError, sqlite3.Error) as error:
+            print(f"error: {error}", file=sys.stderr)
+            return 1
         if args.json:
             print(json.dumps(manifest, indent=2, ensure_ascii=False))
         else:
