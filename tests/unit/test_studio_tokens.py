@@ -264,3 +264,86 @@ def test_tokens_http_routes_and_static_ui_wiring(tmp_path: Path) -> None:
     app_js = (STATIC_DIR / "app.js").read_text(encoding="utf-8")
     assert '["tokens", "Tokens"]' in app_js
     assert "renderTokens" in app_js
+    assert "nur Kreaturen-Erzeuger" in app_js
+    assert 'h("th", {}, "Auslöser")' in app_js
+
+
+def test_tokens_expose_is_creature_trigger_flag_without_scoring(tmp_path: Path) -> None:
+    store = StudioStore.open(tmp_path / "studio")
+    try:
+        _fill(store, tmp_path)
+        bulk_file = tmp_path / "creature_trigger_slice.jsonl"
+        records = [
+            {
+                "object": "card",
+                "id": "scry-c0",
+                "oracle_id": "oracle-0100",
+                "name": "Filler 00",
+                "layout": "normal",
+                "mana_cost": "{2}{G}",
+                "cmc": 3.0,
+                "type_line": "Creature — Elf Druid",
+                "oracle_text": "When Filler 00 enters, create a 3/3 green Beast creature token.",
+                "color_identity": ["G"],
+                "legalities": {"commander": "legal"},
+                "keywords": [],
+                "produced_mana": [],
+                "games": ["paper"],
+                "all_parts": [
+                    {
+                        "object": "related_card",
+                        "id": "tok-beast-id",
+                        "component": "token",
+                        "name": "Beast",
+                        "type_line": "Token Creature — Beast",
+                    }
+                ],
+            },
+            {
+                "object": "card",
+                "id": "scry-c1",
+                "oracle_id": "oracle-0101",
+                "name": "Filler 01",
+                "layout": "normal",
+                "mana_cost": "{1}{U}",
+                "cmc": 2.0,
+                "type_line": "Sorcery",
+                "oracle_text": "Create a Treasure token.",
+                "color_identity": ["U"],
+                "legalities": {"commander": "legal"},
+                "keywords": [],
+                "produced_mana": [],
+                "games": ["paper"],
+                "all_parts": [
+                    {
+                        "object": "related_card",
+                        "id": "tok-treasure-id",
+                        "component": "token",
+                        "name": "Treasure",
+                        "type_line": "Token Artifact — Treasure",
+                    }
+                ],
+            },
+        ]
+        bulk_file.write_text("\n".join(json.dumps(r) for r in records) + "\n", encoding="utf-8")
+        catalog.import_scryfall_oracle(store, bulk_file)
+
+        result = tokens.deck_tokens(
+            store,
+            [
+                RevisionCard("card:project:0100", 1, "main"),
+                RevisionCard("card:project:0101", 1, "main"),
+            ],
+        )
+        by_name = {t["name"]: t for t in result["tokens"]}  # type: ignore[index]
+        beast = by_name["Beast"]
+        assert beast["has_creature_creator"] is True
+        assert beast["creature_creator_count"] == 1
+        assert beast["creating_cards"][0]["is_creature"] is True
+
+        treasure = by_name["Treasure"]
+        assert treasure["has_creature_creator"] is False
+        assert treasure["creature_creator_count"] == 0
+        assert treasure["creating_cards"][0]["is_creature"] is False
+    finally:
+        store.close()

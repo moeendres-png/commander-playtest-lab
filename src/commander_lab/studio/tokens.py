@@ -175,6 +175,8 @@ def deck_tokens(store: StudioStore, cards: Sequence[RevisionCard]) -> dict[str, 
         oid = str(fact["oracle_id"]) if fact["oracle_id"] is not None else ""
         otext = str(fact["oracle_text"]) if fact["oracle_text"] is not None else None
         fsource = str(fact["fact_source"] or "workbook")
+        front_type = str(fact["type_line"] or "").split(" // ", 1)[0]
+        is_creature = "creature" in front_type.casefold()
 
         if fsource == "scryfall" or (otext is not None and otext.strip() != ""):
             cards_with_oracle += 1
@@ -215,6 +217,7 @@ def deck_tokens(store: StudioStore, cards: Sequence[RevisionCard]) -> dict[str, 
                     "name": cname,
                     "quantity": qty,
                     "zone": zone,
+                    "is_creature": is_creature,
                 }
             continue
 
@@ -226,6 +229,7 @@ def deck_tokens(store: StudioStore, cards: Sequence[RevisionCard]) -> dict[str, 
                     "name": cname,
                     "quantity": qty,
                     "zone": zone,
+                    "is_creature": is_creature,
                     "status": DataClass.UNKNOWN.value,
                     "reason_code": "NO_ORACLE_TEXT",
                     "reason": "Kein Oracle-Text im lokalen Scryfall-Snapshot hinterlegt",
@@ -238,6 +242,7 @@ def deck_tokens(store: StudioStore, cards: Sequence[RevisionCard]) -> dict[str, 
                     "name": cname,
                     "quantity": qty,
                     "zone": zone,
+                    "is_creature": is_creature,
                     "status": DataClass.UNKNOWN.value,
                     "reason_code": "ORACLE_MENTIONS_TOKEN_WITHOUT_ALL_PARTS",
                     "reason": (
@@ -254,8 +259,11 @@ def deck_tokens(store: StudioStore, cards: Sequence[RevisionCard]) -> dict[str, 
             token_creators.get(key, {}).values(),
             key=lambda item: str(item["name"]).casefold(),
         )
+        creature_creator_count = sum(1 for item in creating_list if bool(item.get("is_creature")))
         grp["creating_cards"] = creating_list
         grp["creator_count"] = len(creating_list)
+        grp["creature_creator_count"] = creature_creator_count
+        grp["has_creature_creator"] = creature_creator_count > 0
         grp["creator_cards_total_qty"] = sum(
             int(item["quantity"])  # type: ignore[call-overload]
             for item in creating_list
