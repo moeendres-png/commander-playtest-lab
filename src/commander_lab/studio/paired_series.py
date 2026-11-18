@@ -59,11 +59,15 @@ from .strength import StrengthSettings
 SCHEMA_PAIRED_JOB = "studio-paired-series-job-1"
 SCHEMA_READINESS_AUDIT = "studio-sim-readiness-audit-1"
 
-#: Duration estimate per worker (#1513 scales it with the workers). Measured is only the batch
-#: series on the Owner PC (#1251): 541 games/hour for the whole series with 6 workers and 8 games
-#: per JVM, after the #1299 forced-pass option, i.e. about 90 per worker. Paired series
-#: throughput is unmeasured; the per-worker figure is an assumption and probably too high.
+#: Per-worker throughput that #1513 multiplies by the workers: an UNMEASURED assumption, kept as
+#: ``assumed_games_per_hour_unmeasured`` and never used for the duration shown. Measured is only
+#: the batch series on the Owner PC (#1251): 541.2 games/hour for the WHOLE series with 6 workers
+#: and 8 games per JVM, after the #1299 forced-pass option, i.e. about 90 per worker.
 ESTIMATED_GAMES_PER_HOUR = 540.0
+#: The one measured rate (#1251, whole batch series, 6 workers): the duration shown is the time
+#: at this rate, a lower bound while no more than 6 workers run; paired series are unmeasured.
+MEASURED_BATCH_GAMES_PER_HOUR = 541.2
+MEASURED_BATCH_WORKERS = 6
 THROUGHPUT_SOURCE = (
     "gemessen sind nur 541 Partien/h für eine ganze Batch-Serie mit 6 Workern und 8 Partien je "
     "JVM (#1251), also etwa 90 je Worker; für gepaarte Serien ist der Durchsatz ungemessen"
@@ -106,16 +110,19 @@ def planned_detectable_difference_pp(budget_pairs: int, seats_per_seed: int) -> 
     pairs = max(2, int(budget_pairs))
     seats = max(1, int(seats_per_seed))
     design_effect = 1.0 + (seats - 1) * PLANNING_BLOCK_CORRELATION
-    low = _planned_detectable(pairs, seats)
+    seeds = max(1, math.ceil(pairs / seats))
+    # one seed: no spread between seeds, the evaluation gives no interval either (unknown)
+    low: float | None = _planned_detectable(pairs, seats) if seeds >= 2 else None
     effect = PLANNING_REFERENCE_EFFECT_PP / 100.0
     needed = pairs_needed(effect, PLANNED_PAIR_SD)  # normal quantiles: a lower bound
     while _planned_detectable(needed, seats) > effect:
         needed += 1
-    seeds = max(1, math.ceil(pairs / seats))
     return {
         "budget_pairs": pairs,
-        "detectable_pp_low": round(low * 100.0, 1),
-        "detectable_pp_high": round(low * math.sqrt(design_effect) * 100.0, 1),
+        "detectable_pp_low": None if low is None else round(low * 100.0, 1),
+        "detectable_pp_high": (
+            None if low is None else round(low * math.sqrt(design_effect) * 100.0, 1)
+        ),
         "reference_effect_pp": PLANNING_REFERENCE_EFFECT_PP,
         "pairs_needed_low": needed,
         "pairs_needed_high": math.ceil(needed * design_effect),
@@ -146,26 +153,39 @@ def estimate_series_duration(
     games_per_jvm: int | None = None,
     seats_per_seed: int = 4,
 ) -> dict[str, object]:
-    """Rough duration estimate and pre-run plan for a paired A-vs-B comparison series."""
+    """Pre-run duration floor and plan for a paired A-vs-B comparison series.
+
+    The duration is the time at the one measured rate (``MEASURED_BATCH_GAMES_PER_HOUR``, a
+    whole 6-worker batch series): a lower bound, not a forecast, while no more than 6 workers
+    run. ``estimated_seconds`` / ``estimated_minutes`` keep their names for older readers and
+    carry the same floor. The #1513 per-worker figure stays visible as an unmeasured assumption.
+    """
     used_workers = max(1, int(workers)) if workers is not None else 1
-    used_rate = ESTIMATED_GAMES_PER_HOUR * used_workers
+    assumed_rate = ESTIMATED_GAMES_PER_HOUR * used_workers
     pairs = max(0, int(pairs_planned_max if pairs_planned_max is not None else budget_pairs))
     max_games = pairs * 2
-    seconds = round(max_games * (3600.0 / used_rate))
+    seconds = round(max_games * (3600.0 / MEASURED_BATCH_GAMES_PER_HOUR))
     minutes = round(seconds / 60.0, 1)
+    floor_holds = used_workers <= MEASURED_BATCH_WORKERS
     payload: dict[str, object] = {
         "budget_pairs": int(budget_pairs),
         "max_games": max_games,
-        "estimated_games_per_hour": int(used_rate),
+        "measured_batch_games_per_hour": MEASURED_BATCH_GAMES_PER_HOUR,
+        "minimum_seconds": seconds,
+        "minimum_minutes": minutes,
+        "minimum_is_lower_bound": floor_holds,
         "estimated_seconds": seconds,
         "estimated_minutes": minutes,
+        "assumed_games_per_hour_unmeasured": int(assumed_rate),
         "workers": used_workers,
         "throughput_measured_for_paired_series": False,
         "throughput_source": THROUGHPUT_SOURCE,
         "basis": (
-            f"Grober Richtwert bei angenommenen ~{int(used_rate)} Partien/Stunde "
-            f"({used_workers} Worker x ~{int(ESTIMATED_GAMES_PER_HOUR)}/h); "
-            f"{THROUGHPUT_SOURCE}. 2 Partien je Paar; früher Stopp je nach Look möglich."
+            f"mindestens ~{minutes} min bei der gemessenen Rate von "
+            f"{MEASURED_BATCH_GAMES_PER_HOUR:.0f} Partien/h; {THROUGHPUT_SOURCE}, die Dauer ist "
+            "vermutlich deutlich länger"
+            + ("" if floor_holds else " (mit mehr als 6 Workern keine sichere Untergrenze)")
+            + ". 2 Partien je Paar; früher Stopp je nach Look möglich."
         ),
         "planning": planned_detectable_difference_pp(max(2, pairs), seats_per_seed),
     }
@@ -920,6 +940,7 @@ def simulator_readiness_audit(
 
 __all__ = [
     "ESTIMATED_GAMES_PER_HOUR",
+    "MEASURED_BATCH_GAMES_PER_HOUR",
     "SCHEMA_PAIRED_JOB",
     "SCHEMA_READINESS_AUDIT",
     "SERIES_PURPOSES",

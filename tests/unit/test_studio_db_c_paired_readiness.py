@@ -242,15 +242,22 @@ def _mock_exposure(
     }
 
 
-def test_estimate_series_duration_matches_540_games_per_hour() -> None:
+def test_estimate_series_duration_is_a_floor_at_the_measured_batch_rate() -> None:
     est = paired_series.estimate_series_duration(20)
     assert est["budget_pairs"] == 20
     assert est["max_games"] == 40
-    assert est["estimated_games_per_hour"] == 540
-    assert est["estimated_seconds"] == round(40 * 3600.0 / 540.0)
-    assert est["estimated_minutes"] == round(est["estimated_seconds"] / 60.0, 1)
-    # 540/h is the batch-series measurement (#1251), not one of paired series
-    assert est["throughput_measured_for_paired_series"] is False
+    # the one measured rate: 541.2 games/hour for a whole 6-worker batch series (#1251)
+    assert est["measured_batch_games_per_hour"] == 541.2
+    assert est["minimum_seconds"] == round(40 * 3600.0 / 541.2)
+    assert est["minimum_minutes"] == round(est["minimum_seconds"] / 60.0, 1)
+    assert (est["estimated_seconds"], est["estimated_minutes"]) == (
+        est["minimum_seconds"],
+        est["minimum_minutes"],
+    )
+    assert est["minimum_is_lower_bound"] is True
+    assert str(est["basis"]).startswith("mindestens ~")
+    assert "estimated_games_per_hour" not in est
+    # throughput of paired series is unmeasured
     assert "ungemessen" in str(est["throughput_source"])
     assert "ungemessen" in str(est["basis"])
 
@@ -884,12 +891,13 @@ def _paired_js(calls: str) -> object:
 
     node = shutil.which("node")
     if node is None:
-        pytest.skip("node is not installed")
+        pytest.skip("node is not installed: paired.js rendering NOT RUN, not a pass")
     script = (
         "const StudioUI = {num: (v, d = 0) => Number(v).toLocaleString('de-DE', "
         "{minimumFractionDigits: d, maximumFractionDigits: d})};\n"
         + (STATIC_DIR / "paired.js").read_text(encoding="utf-8")
-        + f"\nprocess.stdout.write(JSON.stringify({calls}));\n"
+        + f"\n(async () => {{ const out = {calls}; "
+        "process.stdout.write(JSON.stringify(out)); })();\n"
     )
     out = subprocess.run(
         [node, "-e", script], capture_output=True, text=True, timeout=30, check=True
@@ -900,6 +908,7 @@ def _paired_js(calls: str) -> object:
 def test_paired_js_renders_the_backend_plan_and_honest_sentences() -> None:
     """The dialog shows the backend's plan numbers; the sentences depend on the question."""
     plan = json.dumps(paired_series.planned_detectable_difference_pp(40, 4))
+    single = json.dumps(paired_series.planned_detectable_difference_pp(4, 4))
     out = _paired_js(
         "{"
         f"zero: planPairedLines({plan}, 0), above: planPairedLines({plan}, 2.5),"
@@ -912,7 +921,15 @@ def test_paired_js_renders_the_backend_plan_and_honest_sentences() -> None:
         "legacy: pairedAlignmentText(null),"
         "short: [pairedAlignmentShort(null), pairedAlignmentShort({appended: 0, dropped: 1}),"
         " pairedAlignmentShort({appended: 0, dropped: 0})],"
-        "est: estimatePairedText(40, 4)}"
+        "est: estimatePairedText(40, 4), est8: estimatePairedText(40, 8),"
+        f"single: planPairedLines({single}, 0),"
+        "loaded: await loadPairedPlanLines(async (url) => ({budget_pairs: 77,"
+        " detectable_pp_low: 12.3, detectable_pp_high: 45.6, reference_effect_pp: 5,"
+        " pairs_needed_low: 11, pairs_needed_high: 22, assumptions: {pair_sd: 0.63,"
+        " pair_sd_independent_exact: 0.6124, degrees_of_freedom: 3, seats_per_seed: 2,"
+        " design_effect: 1.25, block_correlation_assumed: 0.25}, url}), 77, 2, 0),"
+        "url: await (async () => { let seen = ''; await loadPairedPlanLines("
+        "async (u) => { seen = u; return {assumptions: {}}; }, 60, 4, 0); return seen; })()}"
     )
     assert isinstance(out, dict)
     zero, above = out["zero"], out["above"]
@@ -937,10 +954,26 @@ def test_paired_js_renders_the_backend_plan_and_honest_sentences() -> None:
     assert out["uneven"].endswith("nicht deckungsgleich (Kartenzahl verschieden)")
     assert out["legacy"] == "nicht ausgerichtet (ältere Serie)"
     assert out["short"] == ["nicht ausgerichtet (älter)", "nicht deckungsgleich", "ausgerichtet"]
-    assert "für gepaarte Serien ist der Durchsatz ungemessen" in out["est"]
+    # the duration is a floor at the measured whole-series rate, never a maximum
+    assert out["est"].startswith("Dauer: mindestens ~8,9 min für bis zu 80 Partien")
+    assert "Für gepaarte Serien ist der Durchsatz ungemessen" in out["est"]
+    assert "max." not in out["est"] and "keine sichere Untergrenze" not in out["est"]
+    assert "keine sichere Untergrenze" in out["est8"]
+    # one seed: no detectable difference can be planned (unknown, as in the evaluation)
+    assert "unbekannt (nur ein Seed" in out["single"][0]
+    # the plan box shows what the API returned, not numbers of its own
+    loaded = out["loaded"]
+    assert "ab etwa 12,3 bis 45,6 Prozentpunkten" in loaded[0]
+    assert "etwa 11 bis 22 Paare" in loaded[1]
+    assert "Student-t mit 3 Freiheitsgraden" in loaded[2]
+    assert out["url"] == "/api/simulations/paired-plan?budget_pairs=60&seats_per_seed=4"
     paired_js = (STATIC_DIR / "paired.js").read_text(encoding="utf-8")
     assert "/api/simulations/paired-plan?" in paired_js
     assert 'res.stop_reason === "BUDGET_EXHAUSTED"' in paired_js
+    # the history table carries the slot column for every stored series
+    assert 'h("th", {}, "Plätze")' in paired_js
+    assert "pairedAlignmentShort(item.slot_alignment)" in paired_js
+    assert "loadPairedPlanLines(deps.api," in paired_js
 
 
 def test_paired_plan_route_serves_the_python_plan(tmp_path: Path) -> None:
@@ -950,8 +983,21 @@ def test_paired_plan_route_serves_the_python_plan(tmp_path: Path) -> None:
     )
     assert response.status_code == 200
     assert response.json() == paired_series.planned_detectable_difference_pp(40, 4)
-    bad = client.get("/api/simulations/paired-plan", params={"budget_pairs": 1})
-    assert bad.status_code == 422
+    for params in (
+        {"budget_pairs": 1},
+        {"budget_pairs": 1001},
+        {"budget_pairs": "abc"},
+        {"budget_pairs": 40, "seats_per_seed": 0},
+        {"budget_pairs": 40, "seats_per_seed": 7},
+    ):
+        bad = client.get("/api/simulations/paired-plan", params=params)
+        assert bad.status_code == 422, params
+    edge = client.get("/api/simulations/paired-plan", params={"budget_pairs": 1000}).json()
+    assert edge["budget_pairs"] == 1000
+    one_seed = client.get(
+        "/api/simulations/paired-plan", params={"budget_pairs": 4, "seats_per_seed": 4}
+    ).json()
+    assert one_seed["detectable_pp_low"] is None and one_seed["detectable_pp_high"] is None
 
 
 def test_aligned_variant_file_keeps_other_zones_and_refuses_a_wrong_reload(
@@ -1296,8 +1342,13 @@ def test_estimate_series_duration_scales_with_workers_and_api_validates_parallel
     est_4 = paired_series.estimate_series_duration(40, workers=4, games_per_jvm=6)
     assert est_4["workers"] == 4
     assert est_4["games_per_jvm"] == 6
-    assert est_4["estimated_games_per_hour"] == 540 * 4
-    assert est_4["estimated_seconds"] == round(80 * 3600.0 / (540 * 4))
+    # #1513's 540/h per worker stays visible, but only as an unmeasured assumption; the
+    # duration is the floor at the measured whole-series rate (#1251)
+    assert est_4["assumed_games_per_hour_unmeasured"] == 540 * 4
+    assert est_4["estimated_seconds"] == round(80 * 3600.0 / 541.2)
+    many = paired_series.estimate_series_duration(40, workers=8)
+    assert many["minimum_is_lower_bound"] is False
+    assert "keine sichere Untergrenze" in str(many["basis"])
 
     store, folder = _make_store(tmp_path)
     try:

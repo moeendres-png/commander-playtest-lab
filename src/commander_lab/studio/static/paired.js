@@ -2,10 +2,12 @@
 // Paired overnight A-vs-B comparison series (#1404 op. 6) and C-3 simulator readiness audit.
 // DOM creation uses only h() and textContent; zero innerHTML, zero eval, zero inline styles.
 
-// Duration estimate per worker (#1513 scales it with the workers). Measured is only the batch
-// series of #1251: 541 games/hour for the whole series with 6 workers, about 90 per worker. A
-// paired series' throughput is unmeasured (paired_series.THROUGHPUT_SOURCE).
-const PAIRED_ESTIMATED_GAMES_PER_HOUR = 540.0;
+// The one measured rate (#1251): 541 games/hour for a WHOLE batch series with 6 workers. The time
+// at that rate is shown as a floor ("mindestens"), never as a maximum; paired series throughput is
+// unmeasured. #1513's 540/h per worker is an unmeasured assumption and not used for the duration
+// (paired_series.MEASURED_BATCH_GAMES_PER_HOUR, assumed_games_per_hour_unmeasured).
+const PAIRED_MEASURED_BATCH_GAMES_PER_HOUR = 541.2;
+const PAIRED_MEASURED_BATCH_WORKERS = 6;
 // Every pod preset of this dialog seats four players; with rotation each seed plays all four.
 const PAIRED_TABLE_SEATS = 4;
 
@@ -13,10 +15,10 @@ function estimatePairedText(budgetPairs, workers = 4) {
   const pairs = Math.max(0, Number(budgetPairs) || 0);
   const usedWorkers = Math.max(1, Math.min(16, Math.round(Number(workers) || 1)));
   const maxGames = pairs * 2;
-  const ratePerHour = PAIRED_ESTIMATED_GAMES_PER_HOUR * usedWorkers;
-  const seconds = Math.round(maxGames * (3600.0 / ratePerHour));
+  const seconds = Math.round(maxGames * (3600.0 / PAIRED_MEASURED_BATCH_GAMES_PER_HOUR));
   const minutes = StudioUI.num(seconds / 60.0, 1);
-  return `Grober Richtwert: max. ~${minutes} min (${StudioUI.num(maxGames, 0)} Partien · ${StudioUI.num(usedWorkers, 0)} Worker × angenommen ~${StudioUI.num(PAIRED_ESTIMATED_GAMES_PER_HOUR, 0)} Partien/h). Gemessen sind nur 541 Partien/h für eine ganze Batch-Serie mit 6 Workern (#1251), etwa 90 je Worker; für gepaarte Serien ist der Durchsatz ungemessen, die Dauer vermutlich deutlich länger. Früher Stopp je nach Look möglich.`;
+  const floorNote = usedWorkers > PAIRED_MEASURED_BATCH_WORKERS ? " Mit mehr als 6 Workern ist das keine sichere Untergrenze." : "";
+  return `Dauer: mindestens ~${minutes} min für bis zu ${StudioUI.num(maxGames, 0)} Partien, gerechnet mit den 541 Partien/h, die nur für eine ganze Batch-Serie mit 6 Workern gemessen sind (#1251). Für gepaarte Serien ist der Durchsatz ungemessen; die Dauer ist vermutlich deutlich länger.${floorNote} Früher Stopp je nach Look möglich.`;
 }
 
 // The pre-run plan comes from the backend (paired_series.planned_detectable_difference_pp via
@@ -26,7 +28,10 @@ function planPairedLines(plan, thresholdPp) {
   const range = (a, b, digits) => (a === b ? StudioUI.num(a, digits) : `${StudioUI.num(a, digits)} bis ${StudioUI.num(b, digits)}`);
   const a = plan.assumptions || {};
   const threshold = Number(thresholdPp) || 0;
-  const first = threshold === 0
+  const unknown = plan.detectable_pp_low === null || plan.detectable_pp_low === undefined;
+  const first = unknown
+    ? `Nachweisbare Differenz mit ${StudioUI.num(plan.budget_pairs, 0)} Paaren: unbekannt (nur ein Seed: keine Streuung zwischen Seeds, die Auswertung gibt dann kein Intervall).`
+    : threshold === 0
     ? `Nachweisbar mit ${StudioUI.num(plan.budget_pairs, 0)} Paaren: erst Unterschiede ab etwa ${range(plan.detectable_pp_low, plan.detectable_pp_high, 1)} Prozentpunkten (95 %, Power 80 %). Kleinere Effekte bleiben „kein Unterschied nachweisbar“ – das heißt nie, dass eine Karte egal ist.`
     : `Mit ${StudioUI.num(plan.budget_pairs, 0)} Paaren entscheidbar: erst Abstände zur Schwelle von ${StudioUI.num(threshold, 1)} pp ab etwa ${range(plan.detectable_pp_low, plan.detectable_pp_high, 1)} Prozentpunkten (95 %, Power 80 %).`;
   return [
@@ -34,6 +39,12 @@ function planPairedLines(plan, thresholdPp) {
     `Für ${StudioUI.num(plan.reference_effect_pp, 0)} pp bräuchte es etwa ${range(plan.pairs_needed_low, plan.pairs_needed_high, 0)} Paare. Referenz: ein einzelner Siegrate-Anteil braucht bei 25 % rund 800 Partien für ±3 pp.`,
     `Annahmen: Paar-Streuung ${StudioUI.num(a.pair_sd, 2)} als vorsichtiger Planungswert (exakt ${StudioUI.num(a.pair_sd_independent_exact, 3)} für unabhängige Partien mit 25 % Siegrate; gepaart: Korrelation ungemessen); Student-t mit ${StudioUI.num(a.degrees_of_freedom, 0)} Freiheitsgraden (Seeds − 1) wie in der Auswertung${a.seats_per_seed > 1 ? `; Sitzrotation mit ${StudioUI.num(a.seats_per_seed, 0)} Sitzen je Seed bis Design-Effekt ${StudioUI.num(a.design_effect, 2)} (Blockkorrelation ${StudioUI.num(a.block_correlation_assumed, 2)} angenommen)` : ""}; Zwischenblicke nicht eingerechnet. Ein Plan, keine Messung.`,
   ];
+}
+
+// Ask the backend for the plan and format it; the dialog only shows what this returns.
+async function loadPairedPlanLines(api, budgetPairs, seatsPerSeed, thresholdPp) {
+  const plan = await api(`/api/simulations/paired-plan?budget_pairs=${encodeURIComponent(budgetPairs)}&seats_per_seed=${encodeURIComponent(seatsPerSeed)}`);
+  return planPairedLines(plan, thresholdPp);
 }
 
 function notDecidedText(res) {
@@ -382,9 +393,9 @@ function renderPairedComparisonSection(body, deps) {
     const mine = ++planRequest;
     const seats = rotateCheck.checked ? PAIRED_TABLE_SEATS : 1;
     try {
-      const plan = await deps.api(`/api/simulations/paired-plan?budget_pairs=${encodeURIComponent(budgetSelect.value)}&seats_per_seed=${seats}`);
+      const lines = await loadPairedPlanLines(deps.api, budgetSelect.value, seats, thresholdInput.value);
       if (mine !== planRequest) return;
-      planBox.replaceChildren(...planPairedLines(plan, thresholdInput.value).map((line) => h("p", { class: "note note-compact" }, line)));
+      planBox.replaceChildren(...lines.map((line) => h("p", { class: "note note-compact" }, line)));
     } catch (error) {
       if (mine === planRequest) planBox.replaceChildren(h("p", { class: "note note-compact" }, "Planung nicht verfügbar (unbekannt)."));
     }
