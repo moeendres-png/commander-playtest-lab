@@ -59,17 +59,21 @@ def run(
     if not common.network_requested(args):
         common.print_dry_run(PACKAGE, run_dir, cap, [f"GET {URL}  (one request, no retry)"])
         return 0
+    # validate every argument before the first file system access
+    pause = common.effective_pause(PACKAGE, args.pause, DEFAULT_PAUSE_SECONDS)
+    max_download = common.mib_limit(args.max_download_mb, "--max-download-mb")
+    max_unpacked = common.mib_limit(args.max_unpacked_mb, "--max-unpacked-mb")
     common.make_run_dir(run_dir)
     fetcher = common.Fetcher(
         package=PACKAGE,
         max_requests=cap,
         log_path=run_dir / "fetch_log.jsonl",
-        pause_seconds=common.effective_pause(PACKAGE, args.pause, DEFAULT_PAUSE_SECONDS),
+        pause_seconds=pause,
         opener=opener,
         sleep=sleep or time.sleep,
         retry_wait=0.0,
         allow_network=True,
-        max_download_bytes=common.mib_limit(args.max_download_mb, "--max-download-mb"),
+        max_download_bytes=max_download,
     )
     manifest = common.base_manifest(
         package=PACKAGE,
@@ -107,9 +111,7 @@ def run(
             "final_url": record.final_url,
         }
         try:
-            manifest["raw"]["decompressed_bytes"] = check_gzip(
-                raw, common.mib_limit(args.max_unpacked_mb, "--max-unpacked-mb")
-            )
+            manifest["raw"]["decompressed_bytes"] = check_gzip(raw, max_unpacked)
             manifest["raw"]["gzip_test"] = "ok"
             complete = True
         except (OSError, EOFError, zlib.error) as error:

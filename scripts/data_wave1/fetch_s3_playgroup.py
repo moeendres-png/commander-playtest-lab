@@ -68,9 +68,10 @@ def run(
             ],
         )
         return 0
-    common.make_run_dir(run_dir)
+    # validate every argument before the first file system access
     pause = common.effective_pause(PACKAGE, args.pause, DEFAULT_PAUSE_SECONDS)
     page_limit = min(common.mib_limit(args.max_download_mb, "--max-download-mb"), MAX_PAGE_BYTES)
+    common.make_run_dir(run_dir)
     fetcher = common.Fetcher(
         package=PACKAGE,
         max_requests=cap,

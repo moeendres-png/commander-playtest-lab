@@ -128,10 +128,11 @@ def run(
             [f"GET {INDEX_URL}", f"then one download each of {', '.join(LABELS)} (from the index)"],
         )
         return 0
-    common.make_run_dir(run_dir)
+    # validate every argument before the first file system access
     pause = common.effective_pause(PACKAGE, args.pause, DEFAULT_PAUSE_SECONDS)
     max_download = common.mib_limit(args.max_download_mb, "--max-download-mb")
     max_unpacked = common.mib_limit(args.max_unpacked_mb, "--max-unpacked-mb")
+    common.make_run_dir(run_dir)
     fetcher = common.Fetcher(
         package=PACKAGE,
         max_requests=cap,

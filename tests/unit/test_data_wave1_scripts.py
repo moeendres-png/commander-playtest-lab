@@ -1308,11 +1308,31 @@ def test_the_pause_has_a_lower_bound_and_a_clean_error() -> None:
     for bad in (-1.0, float("nan"), 0.0, 0.5):
         with pytest.raises(common.WaveError):
             common.effective_pause("S3_playgroup", bad, 1.0)
+
+
+@pytest.mark.parametrize(
+    ("module", "bad"),
+    [
+        (s3_fetch, ["--pause", "-1"]),
+        (s3_fetch, ["--pause", "0.5"]),
+        (s3_fetch, ["--max-download-mb", "0"]),
+        (s1_fetch, ["--pause", "-1"]),
+        (s1_fetch, ["--max-download-mb", "0"]),
+        (s1_fetch, ["--max-unpacked-mb", "0"]),
+        (s2_fetch, ["--pause", "-1"]),
+        (s2_fetch, ["--max-download-mb", "0"]),
+        (s2_fetch, ["--max-unpacked-mb", "0"]),
+    ],
+)
+def test_a_bad_argument_is_refused_before_anything_is_created(
+    tmp_path: Path, module: Any, bad: list[str]
+) -> None:
+    staging = tmp_path / "staging"
+    args = parse(module, "--allow-network", "--staging-dir", str(staging), *bad)
     with pytest.raises(common.WaveError):
-        s3_fetch.run(
-            parse(s3_fetch, "--allow-network", "--pause", "-1", "--staging-dir", "/nonexistent-x"),
-            opener=ScriptedOpener({}),
-        )
+        module.run(args, opener=ScriptedOpener({}))
+    assert not staging.exists()
+    assert list(tmp_path.iterdir()) == []
 
 
 def test_a_missing_turn_damage_value_is_unknown_not_zero() -> None:
