@@ -73,6 +73,7 @@ const SORTS = [
   ["games", "Partien mit der Karte (nur Lesehilfe)"],
   ["research", "Forschungsbedarf (Heuristik)"],
   ["rolerank", "Rang in der Funktion (mit Rollenfilter diese Rolle, sonst der beste Rang)"],
+  ["textfit", "Textfit (Chulane-Regeln, Gewicht 0)"],
 ];
 const INDEX_HEADING = "Stärke-Index (Schätzung aus Nutzungsdaten)";
 const OUTCOME_HEADING = "Ergebnis aus Partien (noch nicht bewertet)";
@@ -202,6 +203,7 @@ function sortValue(card, key) {
   if (key === "games") { const a = layer(card, "observed_game").atlas; return a && a.status === "OK" ? a.times_brought : null; }
   if (key === "research") { const r = card.coverage.research_priority; return r ? r.score : null; }
   if (key === "rolerank") return roleRankValue(card);
+  if (key === "textfit") { const tf = textfitOf(card); return tf ? tf.matched_count : null; }
   return null;
 }
 
@@ -365,6 +367,21 @@ function thumb(card) {
 }
 function featureBadges(card) {
   return layer(card, "fact").features.filter((f) => f.holds).map((f) => h("span", { class: "badge dim", title: f.rule }, FEATURE_NAMES[f.feature] || f.feature));
+}
+function textfitOf(card) {
+  const item = strengthItem(card);
+  return item && item.chulane_textfit ? item.chulane_textfit : null;
+}
+function textfitCell(card) {
+  const tf = textfitOf(card);
+  if (!tf) return unknown("–");
+  const badges = (tf.matches || []).map((m) => h("span", { class: "badge", title: `${m.rule_id}: ${m.matched_phrase}` }, m.label));
+  if (tf.foreign_trigger) {
+    badges.push(h("span", { class: "badge dim", title: `Fremd-ETB-Trigger (nicht eigener ETB): ${tf.foreign_phrase || ""}` }, "Fremd-ETB"));
+  }
+  return h("span", { class: "tcell", title: `Regelstand ${tf.version} · Gewicht im Stärke-Index: ${nf(tf.weight_in_index)}` },
+    h("span", { class: tf.matched_count ? "nowrap" : "unknown nowrap" }, `${nf(tf.matched_count)}/${nf(tf.total_rules)}`),
+    ...badges);
 }
 // One badge per role (several sources can claim the same role); the rank k of n only as tooltip.
 function roleBadges(card) {
@@ -548,6 +565,9 @@ function tableColumns() {
     ...(spread ? [{ head: () => sortHead(SPREAD_LABEL, "spread"), cell: cell("", spreadCell) }] : []),
     { head: () => sortHead("MW", "mv", "num", "Manawert"), cell: (card) => h("td", { class: "num" }, StudioUI.numFlex(card.mana_value, 2)) },
     ...(compact ? [] : [{ head: () => plainHead("Mechanik"), cell: cell("", featureBadges) }]),
+    ...(compact || !(state.strength.result && state.strength.result.chulane_textfit_version)
+      ? []
+      : [{ head: () => sortHead("Textfit (Chulane)", "textfit", "", "Deterministische Chulane-Regeltext-Prüfung (Gewicht im Stärke-Index: 0)."), cell: cell("", textfitCell) }]),
     { head: () => plainHead("Rollen"), cell: cell("", roleBadges) },
     ...(commander
       ? [{ head: () => sortHead("Quelldecks", "corpus"), cell: cell("", corpusCell) }, ...(compact ? [] : [{ head: () => sortHead("Aufnahme (EDHREC)", "edhrec"), cell: cell("", edhrecCell) }])]
@@ -565,7 +585,7 @@ function hiddenSortNote() {
   const key = state.sortKey, option = $("sort").selectedOptions && $("sort").selectedOptions[0];
   const label = option ? option.textContent : key;
   if (key === "rolerank" && !state.funcMode) return `Sortiert nach „${label}“: Spalte nur im Vergleich „Gleiche Funktion“ sichtbar`;
-  const detailOnly = key === "confidence" || key === "spread" || key === "edhrec" || key === "games" || key === "layers" || key.startsWith(LAYER_SORT);
+  const detailOnly = key === "confidence" || key === "spread" || key === "edhrec" || key === "games" || key === "layers" || key === "textfit" || key.startsWith(LAYER_SORT);
   if (detailOnly && state.preset === "compact") return `Sortiert nach „${label}“ (Spalte im Kompakt ausgeblendet)`;
   return "";
 }
@@ -704,9 +724,18 @@ function drawer(card) {
   const box = [];
   const heading = (name, status) => h("h3", {}, LAYER_NAMES[name], statusBadge(status));
   const fact = layer(card, "fact");
+  const tf = textfitOf(card);
+  const tfNodes = tf ? [
+    h("p", {}, `Chulane-Textfit (${tf.version}, Gewicht im Stärke-Index: ${nf(tf.weight_in_index)}): ${nf(tf.matched_count)}/${nf(tf.total_rules)} Regeln erfüllt`),
+    tf.matches && tf.matches.length
+      ? table(["Regel", "Beleg / Phrase"], tf.matches.map((m) => [m.label, h("span", { class: "rule" }, m.matched_phrase)]))
+      : h("p", { class: "rule" }, "Keine Chulane-Textfit-Regel erfüllt."),
+    ...(tf.foreign_trigger ? [h("p", { class: "rule" }, `Fremd-ETB-Trigger (nicht als eigener ETB gezählt): ${tf.foreign_phrase || "–"}`)] : []),
+  ] : [];
   box.push(h("div", { class: "layer" }, heading("fact", fact.status),
     h("p", {}, `Manawert ${StudioUI.numFlex(fact.mana_value, 2)} · ${fact.type_line} · Quelle der Fakten: ${fact.fact_source} · Regelstand ${fact.rules_version}`),
     table(["Merkmal", "trifft zu", "Regel"], fact.features.map((f) => [FEATURE_NAMES[f.feature] || f.feature, f.holds ? "ja" : "nein", h("span", { class: "rule" }, f.rule)])),
+    ...tfNodes,
     h("p", {}, "Rollen mit Herkunft (Tagger-Rollen sind Community-Einordnungen):"),
     fact.roles.length ? fact.roles.map((c) => h("span", { class: "badge", title: [c.original_tag, c.mapping_rule].filter(Boolean).join(" · ") }, `${roleName(c.role)} · ${ORIGIN_NAMES[c.origin] || c.origin}`)) : unknown("keine Rolle erfasst")));
 

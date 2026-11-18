@@ -30,6 +30,7 @@ from dataclasses import dataclass, replace
 from typing import TypedDict, cast
 
 from . import (
+    chulane_textfit,
     corpus_signals,
     layers,
     layers_view,
@@ -108,6 +109,7 @@ class StrengthCard(TypedDict):
     # of fewer than ten ranked cards. Never replaces ``tier``.
     relative_tier: str | None
     relative_rank: strength.RelativeRank | None
+    chulane_textfit: chulane_textfit.ChulaneTextfitResult | None
 
 
 class UnknownBreakdown(TypedDict):
@@ -199,6 +201,7 @@ class StrengthResult(TypedDict):
     relative_tier_info: RelativeTiersInfo
     # D3: per role the number of ranked cards (the denominator of ``role_ranks``)
     role_totals: dict[str, int]
+    chulane_textfit_version: str | None
     cards: list[StrengthCard]
 
 
@@ -1235,11 +1238,24 @@ def compute(
         }
     )
 
+    raw_by_id = {str(card["card_id"]): card for card in prepared.raw_cards}
+    show_chulane_textfit = chulane_textfit.is_chulane_commander(commander)
     cards: list[StrengthCard] = []
     for card_id in prepared.ids:
         result = scored[card_id]
         found = stability.get(card_id)
         rel = relative.get(card_id)
+        raw_card = raw_by_id.get(card_id)
+        textfit_val: chulane_textfit.ChulaneTextfitResult | None = None
+        if show_chulane_textfit and raw_card is not None:
+            mv_raw = raw_card.get("mana_value")
+            mv_val = float(mv_raw) if isinstance(mv_raw, int | float) else None
+            textfit_val = chulane_textfit.evaluate_chulane_textfit(
+                type_line=str(raw_card.get("type_line") or ""),
+                oracle_text=str(raw_card.get("text") or ""),
+                mana_value=mv_val,
+                produced_mana=str(raw_card.get("produced_mana") or ""),
+            )
         cards.append(
             {
                 "card_id": card_id,
@@ -1258,6 +1274,7 @@ def compute(
                 "unscharf": bool(found and found["stability"] < strength.STABILITY_UNSHARP_BELOW),
                 "relative_tier": rel[0] if rel else None,
                 "relative_rank": rel[1] if rel else None,
+                "chulane_textfit": textfit_val,
             }
         )
     tiers = Counter(card["tier"] for card in cards)
@@ -1355,6 +1372,9 @@ def compute(
             ),
         },
         "role_totals": {role: len(bucket) for role, bucket in sorted(scored_by_role.items())},
+        "chulane_textfit_version": (
+            chulane_textfit.CHULANE_TEXTFIT_RULES_VERSION if show_chulane_textfit else None
+        ),
         "relative_tier_info": {
             "note": strength.RELATIVE_TIER_NOTE,
             "f_note": strength.RELATIVE_TIER_F_NOTE,
