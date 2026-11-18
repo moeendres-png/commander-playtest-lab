@@ -1,13 +1,13 @@
 # Which check runs when (state after CI package B, 2026-11-14)
 
 Required checks (branch ruleset): `quality`, `security`, `infrastructure`. Nothing else blocks a merge.
-Wall-clock figures are from real runs of PR #1359 (the pull-request head), not estimates.
+Wall-clock figures are from real runs of PR #1359 (the pull-request head), not estimates; the `quality` row is re-measured (main `51185f2d8`, see its row).
 
 | Check (job) | Starts on | What it proves | Time |
 |---|---|---|---|
-| `quality` (gate over `changes`, `lint`, `tests 1/4..4/4`, `packaging`) | every pull request, push to `main`, dispatch | the ruff, format, mypy, compile, secret-scan and wheel checks, and every test outside `tests/qualification`; the gate (`scripts/ci_gate.py`) is green only if each needed job succeeded | about 2.5 min (slowest `tests` slot) |
+| `quality` (gate over `changes`, `lint`, `tests 1/4..4/4`, `packaging`) | every pull request, push to `main`, dispatch | the ruff, format, mypy, compile, secret-scan and wheel checks, and every test outside `tests/qualification`; the gate (`scripts/ci_gate.py`) is green only if each needed job succeeded | median 260 s for a code PR with `packaging` (n=15), 160 s without `packaging` (n=5), 125 s for a documents-only PR (n=8); measured on main `51185f2d8` (efficiency lane #1558) |
 | `tests` slots | as `quality`; a documents-only PR runs one slot with the docs tests (`tests/pytest_docs_tests.json`) | the unit, integration, contract and golden suites, four runners with four shards each | 100 to 145 s |
-| `packaging` | push to `main`; a PR that changes a packaging input (`pyproject.toml`, `requirements/`, an added/deleted `src/` module, a package `__init__.py`, a console-script module, the smoke tooling) | an isolated wheel install imports and runs every console entrypoint | about 4.5 min when it runs |
+| `packaging` | push to `main`; a PR that changes a packaging input: any file under `src/` (add, modify or delete), `pyproject.toml`, `MANIFEST.in`, `setup.py`, `setup.cfg`, `requirements/`, a package `__init__.py`, a console-script module, the smoke tooling or `.github/workflows/ci.yml` (`scripts/ci_change_scope.py`) | an isolated wheel install imports and runs every console entrypoint | about 4.5 min when it runs |
 | `security` | every pull request, push to `main` | dependency audit, SBOM, license report | 1.5 to 2.5 min |
 | `infrastructure` (`production-qualification.yml`) | every pull request, push to `main`, dispatch | `tests/qualification` (four in-job shards) and the fixture manifest | 105 to 120 s |
 | `exact-main-admission` | push to `main` only | the production admission record for the exact main SHA | about 1 min |
