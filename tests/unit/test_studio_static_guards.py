@@ -527,7 +527,8 @@ def test_tierliste_overall_toggle_and_columns_contract() -> None:
     for letter in "EFTRKDH":
         assert f'["{letter}", "' in js, letter
     assert "Kostenarmut" in js and "100 = kein Risiko" in js
-    assert "Begründung der Modell-Rater (englisch)" in js and "Gewichte sind eine Setzung" in js
+    assert "Begründung der Modell-Rater (englisch; ungeprüft, keine Regelauskunft)" in js
+    assert "Gewichte sind eine Setzung" in js
     assert "keine Nutzungsdaten" in js and "ohne Nutzung" in js
     cells = js[js.index("function overallCell(card) {") : js.index("function overallCriterionCell")]
     assert 'class: "tier-badge' not in cells and "tierBadge(" not in cells
@@ -895,3 +896,201 @@ const renderOverallPanel = () => {};
     assert result["afterInitFail"]["disabled"] is True
     assert "berechnet" not in result["afterInitFail"]["title"]
     assert result["afterInitFail"]["core"] == "Stufe"
+
+
+def _render_node_prelude() -> str:
+    """Prelude of the render tests: the real overall cells, "Warum hier" box and sortValue of
+    tierliste.js run in node against a small stub of h(), table(), unknown(), neutral() and state."""
+    js = (STATIC / "tierliste.js").read_text(encoding="utf-8")
+    cells = js[js.index("const overallMeta = ") : js.index("function overallColumns")]
+    why = js[js.index("function overallWhyBox(card) {") : js.index("// The method panel")]
+    sort_at = js.index("function sortValue(card, key) {")
+    sort_value = js[sort_at : js.index("// ---------- rating layers", sort_at)]
+    stub = """
+const PERCENTILE_SORT = 'pct:', LAYER_SORT = 'layer:';
+const h = (tag, props, ...kids) => { const node = {tag, props: props || {}, kids: [],
+  append(...more) { this.kids.push(...more.flat(Infinity).filter((k) => k !== null && k !== undefined && k !== false)); }};
+  node.append(...kids); return node; };
+const text = (n) => (n === null || n === undefined ? '' : typeof n === 'object' ? n.kids.map(text).join(' ') : String(n));
+const find = (n, pred, out = []) => { if (n && typeof n === 'object') { if (pred(n)) out.push(n); n.kids.forEach((k) => find(k, pred, out)); } return out; };
+const unknown = (t = 'unbekannt') => h('span', {class: 'unknown'}, t);
+const neutral = (t, title) => h('span', {class: 'badge-neutral', title}, t);
+const table = (heads, rows) => h('table', {}, ...heads, ...rows.flat());
+const axes = [
+  {axis: 'usage', value: 95.4, raw_value: 76.5, weight_effective: 0.3, contribution: 28.6},
+  {axis: 'H', value: 90, weight_effective: 0.7, contribution: 63.0}];
+const rated = (extra) => ({status: 'bewertet', score: 91.6, rank: 3, n_rated: 922, group: 'spell', rank_in_group: 3, n_group: 857,
+  flags: [], axes, stability: {rank_min: 1, rank_max: 7, unscharf: false, variants: 80}, reason: 'A big ramp.',
+  confidence: {level: 'high', uncertain: false, rater_confidence: 'high', h_sd: null, raters: 1}, ...extra});
+const noUsage = rated({flags: ['no_usage_axis'], score: 63.0, axes: [axes[1]], rank: 400});
+const unknownOverall = {status: 'unbekannt', score: null, rank: null, n_rated: 922, group: 'spell', rank_in_group: null, n_group: 857, flags: [],
+  axes: [], confidence: null, stability: null, reason: null, unknown_reason: 'keine Kartenverständnis-Bewertung'};
+const noRank = rated({rank: null, rank_in_group: null});
+const cards = {A: {card_id: 'A', tier: 'S', index: 76.5, overall: rated()}, B: {card_id: 'B', tier: 'U', index: null, overall: noUsage},
+  C: {card_id: 'C', tier: 'D', index: 0.2, overall: unknownOverall}, D: {card_id: 'D', tier: 'S', index: 70, overall: noRank},
+  E: {card_id: 'E', tier: 'S', index: 70, overall: noUsage},
+  F: {card_id: 'F', tier: 'N', index: null, note: 'nicht bewertet (Commander)', overall: noUsage}};
+const meta = {available: true, weights: {usage: 0.3, H: 0.3, F: 0.15, E: 0.1, T: 0.05, R: 0.05, D: 0.025, K: 0.025}, usage_scale: 'log',
+  noise_note: 'Unterschiede unter etwa 5 Punkten sind nicht belastbar (Rauschen des Einzelratings)', usage_axis: {included: true},
+  flags: {no_usage_axis: {count: 1, note: 'Rang nicht mit Karten mit Nutzungs-Achse vergleichbar'}}};
+const setup = (overrides = {}) => { globalThis.state = {view: 'commander', ranking: 'overall',
+  strength: {status: 'ready', map: new Map(Object.entries(cards)), result: {cards: Object.values(cards), overall_meta: {...meta, ...overrides}}}}; };
+globalThis.strengthItem = (card) => state.strength.map.get(card.card_id) || null;
+"""
+    return _overall_node_prelude() + stub + cells + "\n" + why + "\n" + sort_value + "\nsetup();\n"
+
+
+def test_overall_cells_and_why_box_render_the_honest_variants() -> None:
+    """The real render functions run in node: a card without the usage axis gets its badge and the
+    cause, an unknown card shows "unbekannt" and never 0,0, a locked usage axis is "nicht
+    eingerechnet", the rank mark carries the server's note, "Warum hier" splits and discloses."""
+    script = (
+        _render_node_prelude()
+        + """
+const A = cards.A, B = cards.B, C = cards.C, D = cards.D;
+const lockedMeta = {usage_axis: {included: false, excluded_reason: 'der Nutzungs-Index gewichtet simulation'}};
+const out = {};
+out.aCell = text(overallCell(A)); out.bCell = text(overallCell(B)); out.cCell = text(overallCell(C));
+out.bBadge = find(overallCell(B), (n) => n.props.class === 'badge dim').map((n) => n.props.title);
+out.aBadge = find(overallCell(A), (n) => n.props.class === 'badge dim').length;
+out.cRank = text(overallRankCell(C)); out.cCrit = text(overallCriterionCell(C, 'E')); out.cConf = text(overallConfidenceCell(C));
+out.sortA = [sortValue(A, 'overall'), sortValue(A, 'overall_rank'), sortValue(A, 'crit:H')];
+out.sortC = [sortValue(C, 'overall'), sortValue(C, 'overall_rank'), sortValue(C, 'crit:H')];
+out.bMark = find(overallRankCell(B), (n) => n.props.class === 'badge warn').map((n) => [text(n), n.props.title]);
+out.aMark = find(overallRankCell(A), (n) => n.props.class === 'badge warn').length;
+out.aGroup = text(overallRankCell(A));
+out.conf = [overallConfidenceCell(A).props.class, overallConfidenceCell(A).props['aria-label']];
+setup(lockedMeta);
+out.locked = text(overallCell(cards.E)); out.lockedBadge = find(overallCell(cards.E), (n) => n.props.class === 'badge dim').map(text);
+setup();
+const why = (c) => overallWhyBox(c);
+out.whyA = text(why(A)); out.whyB = text(why(B)); out.whyC = text(why(C)); out.whyD = text(why(D));
+out.noUsageBox = find(why(B), (n) => n.props.id === 'overall-no-usage').map(text);
+out.noUsageBoxA = find(why(A), (n) => n.props.id === 'overall-no-usage').length;
+out.hint = text(overallHint()[0]);
+out.readingB = find(why(B), (n) => n.props.id === 'overall-reading').map(text);
+out.fBadge = text(overallCell(cards.F)); out.fWhy = find(why(cards.F), (n) => n.props.id === 'overall-no-usage').map(text);
+setup(lockedMeta);
+out.lockedHint = text(overallHint()[0]);
+out.lockedReading = find(why(cards.E), (n) => n.props.id === 'overall-reading').map(text);
+out.lockedNoUsage = find(why(cards.E), (n) => n.props.id === 'overall-no-usage').map(text);
+out.lockedRankMark = find(overallRankCell(cards.E), (n) => n.props.class === 'badge warn').length;
+out.lockedWhyText = text(why(cards.E));
+setup();
+setup({available: false, unavailable_reason: 'nur im Bracket 3 verfügbar'});
+out.hintOff = text(overallHint()[0]);
+state.ranking = 'usage'; setup({available: true}); state.ranking = 'usage';
+out.hintUsage = overallHint().length;
+setup({available: false}); out.hintNoReason = text(overallHint()[0]);
+state.ranking = 'usage'; out.hintOffUsage = overallHint().length;
+console.log(JSON.stringify(out));
+"""
+    )
+    r = _node_json(script)
+    assert isinstance(r, dict)
+    assert (
+        "91,6" in r["aCell"]
+        and "Nutzung S 76,5" in r["aCell"]
+        and "nicht eingerechnet" not in r["aCell"]
+    )
+    assert r["aBadge"] == 0
+    assert "ohne Nutzungsdaten" in r["bCell"] and "ohne Nutzungs-Achse" in r["bCell"]
+    assert any("keine Nutzungsdaten (Stufe U" in title for title in r["bBadge"])
+    assert "unbekannt" in r["cCell"] and "0,0" not in r["cCell"] and r["cRank"] == "\u2013"
+    assert r["cCrit"] == "\u2013" and r["cConf"] == "\u2013"
+    assert r["sortA"] == [91.6, 3, 90] and r["sortC"] == [None, None, None]
+    assert r["bMark"] == [
+        ["Rang nicht vergleichbar", "Rang nicht mit Karten mit Nutzungs-Achse vergleichbar"]
+    ]
+    assert r["aMark"] == 0 and "Zauber: Rang 3 von 857" in r["aGroup"]
+    assert (
+        r["conf"][0] == "badge dim" and "Selbstauskunft" in r["conf"][1]
+    )  # never the "good" green
+    assert "Nutzung S 70,0 (nicht eingerechnet)" in r["locked"]
+    assert r["lockedBadge"] == ["Nutzung nicht eingerechnet"]
+    assert "Summe = Gesamt" in r["whyA"] and "gerundet, sodass die Summe stimmt" in r["whyA"]
+    assert "ungeprüft, keine Regelauskunft" in r["whyA"] and "Rater-Vertrauen" in r["whyA"]
+    assert "(Index 76,5)" in r["whyA"] and "null" not in r["whyA"]
+    assert "unbekannt" in r["whyC"] and "0,0" not in r["whyC"]
+    assert "ohne Rang" in r["whyD"] and "null" not in r["whyD"]
+    assert len(r["noUsageBox"]) == 1 and "keine Nutzungsdaten (Stufe U" in r["noUsageBox"][0]
+    assert "Rang nicht mit Karten mit Nutzungs-Achse vergleichbar" in r["noUsageBox"][0]
+    assert r["noUsageBoxA"] == 0
+    for needle in (
+        "Hold-out-Kriterium verfehlt",
+        "ein Lauf je Karte",
+        "nicht gegen Spielergebnisse validiert",
+        "70 % Modellurteil (ein Lauf je Karte), 30 % Nutzung (log-skaliert)",
+        "unter etwa 5 Punkten",
+    ):
+        assert needle in r["hint"], needle
+    assert "Stufe C" not in r["hint"]
+    assert "nicht verfügbar" in r["hintOff"] and "nur im Bracket 3" in r["hintOff"]
+    assert r["hintUsage"] == 0 and r["hintOffUsage"] == 0  # the default page shows no extra line
+    assert "kein Grund geliefert" in r["hintNoReason"] and "Server liefert" not in r["hintNoReason"]
+    assert r["readingB"][0].startswith("Unterschiede")
+    assert "Nominale Gewichte: 70 % Modellurteil" in r["readingB"][0]
+    assert "Stufe N: ohne Nutzungsindex" in r["fBadge"] and "ohne Nutzungsdaten" not in r["fBadge"]
+    assert "nicht bewertet (Commander)" in r["fWhy"][0]
+    assert (
+        "(Stufe N: kein Nutzungsindex)" in r["fWhy"][0]
+        and "keine Nutzungsdaten" not in r["fWhy"][0]
+    )
+    locked = r["lockedHint"]
+    assert "100 % Modellurteil" in locked and "für diese Anfrage gesperrt" in locked
+    assert "30 % Nutzung" not in locked and "überschneidet sich mit der Nutzung" not in locked
+    assert (
+        "100 % Modellurteil" in r["lockedReading"][0]
+        and "Nutzung (log" not in r["lockedReading"][0]
+    )
+    assert "untereinander vergleichbar" in r["lockedNoUsage"][0]
+    assert "keine Nutzungsdaten" not in r["lockedNoUsage"][0]
+    assert (
+        r["lockedRankMark"] == 0
+    )  # all cards lack the axis: they stay comparable among themselves
+    for text_out in (
+        r["hint"],
+        locked,
+        r["readingB"][0],
+        r["lockedReading"][0],
+        r["lockedWhyText"],
+    ):
+        assert ". ." not in text_out and ".." not in text_out.replace("...", "")
+
+
+def test_overall_reading_texts_come_from_the_data_not_from_assumptions() -> None:
+    """Runs, weights and the cause of a missing usage axis are read from the payload."""
+    script = (
+        _overall_node_prelude()
+        + """
+const card = (raters, score = 50) => ({overall: {score, confidence: {raters}}});
+const weights = {usage: 0.2, H: 0.4, F: 0.4};
+console.log(JSON.stringify({
+  none: overallRunsText([]), single: overallRunsText([card(1), card(1)]), multi: overallRunsText([card(1), card(3)]),
+  unratedOnly: overallRunsText([{overall: {score: null}}]),
+  w: overallWeightsText({weights, usage_scale: 'log'}, 'ein Lauf je Karte'), wLinear: overallWeightsText({weights}, 'x'),
+  wNone: overallWeightsText({}, 'x'), wZero: overallWeightsText({weights: {usage: 0}}, 'x'),
+  locked: overallNoUsageCause({tier: 'S'}, {usage_axis: {included: false, excluded_reason: 'Simulation gewichtet'}}),
+  n: overallNoUsageCause({tier: 'N'}, {usage_axis: {included: true}}), u: overallNoUsageCause({tier: 'U'}, null),
+  other: overallNoUsageCause({tier: 'S'}, null), lockedText: overallUsageText({tier: 'S', index: 12.3}, true),
+  lockedU: overallUsageText({tier: 'U', index: null}, true),
+}));
+"""
+    )
+    r = _node_json(script)
+    assert isinstance(r, dict)
+    assert r["none"] == "keine bewertete Karte" and r["unratedOnly"] == "keine bewertete Karte"
+    assert r["single"] == "ein Lauf je Karte" and r["multi"] == "mehrere Bewerter je Karte"
+    assert r["w"] == "Gewichte: 80 % Modellurteil (ein Lauf je Karte), 20 % Nutzung (log-skaliert)"
+    assert "log-skaliert" not in r["wLinear"] and r["wNone"] is None and r["wZero"] is None
+    assert r["locked"]["kind"] == "locked" and "Simulation gewichtet" in r["locked"]["text"]
+    assert r["n"]["kind"] == "rule" and r["u"]["kind"] == "nodata" and r["other"]["kind"] == "other"
+    assert r["lockedText"] == "Nutzung S 12,3 (nicht eingerechnet)"
+    assert r["lockedU"] == "Nutzung unbekannt"  # no index to show: not "nicht eingerechnet"
+    js = (STATIC / "tierliste.js").read_text(encoding="utf-8")
+    assert "Stufe C" not in js and "OVERALL_LIMITS" not in js and "usage_scale_note" not in js
+    assert (
+        "Gesamtrating = gewichtetes Modellurteil, nicht validiert." in js
+    )  # the always visible core line
+    assert 'plainHead("Rater-Vertrauen (Selbstauskunft)"' in js
+    assert '["confidence", "Datenlage-Konfidenz des Nutzungsindex (Zähler)"]' in js
