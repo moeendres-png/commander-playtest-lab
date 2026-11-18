@@ -390,3 +390,82 @@ def test_engine_check_and_json_export_labels_say_what_they_do() -> None:
     assert '"Mit der Engine prüfen"' not in app
     assert "keine Live-Abfrage der Engine" in app
     assert "für Simulation (" not in app and "als Lab-Datei" in app
+
+
+def test_tierliste_ux_batch_1_contract() -> None:
+    """UX batch 1 (#1369): one labelled scroll region with a skip link, the method panels behind one
+    closed details, a dialog window, table semantics, plain German instead of raw codes, and the
+    comparison "Gleiche Funktion" as a view mode (the quick toggle sends no recalculation)."""
+    html = (STATIC / "tierliste.html").read_text(encoding="utf-8")
+    js = (STATIC / "tierliste.js").read_text(encoding="utf-8")
+    css = (STATIC / "tierliste.css").read_text(encoding="utf-8")
+    assert html and js and css
+    assert 'class="skip-link" href="#pool-body"' in html
+    assert (
+        'id="pool-body" role="region"' in html and 'aria-label="Tierliste: Kartentabelle"' in html
+    )
+    assert 'role="dialog" aria-modal="true" aria-labelledby="modal-title"' in html
+    method = html.split('<details id="method-panel"', 1)[1].split("</details>", 1)[0]
+    panel_ids = [
+        "data-state",
+        "notice",
+        "universe-panel",
+        "strength-panel",
+        "role-audit-panel",
+        "topdeck-conversion-panel",
+    ]
+    assert "Methodik und Datenlage" in method
+    for panel_id in panel_ids:
+        assert f'id="{panel_id}"' in method, panel_id  # behind the one details, not above the table
+        assert f'id="{panel_id}"' in html.split('<div id="filters">', 1)[0]
+    assert 'id="tier-bar"' in html and 'id="layer-controls"' in html
+    # table semantics, sticky columns, one scroll area
+    for token in (
+        'scope: "col"',
+        '"aria-sort"',
+        'class: "visually-hidden"',
+        '"aria-pressed": String(state.tab',
+        "th-sort",
+    ):
+        assert token in js, token
+    assert "position:sticky;left:0" in css and "#pool-body .table-wrap{overflow:visible}" in css
+    assert "body.modal-open" in css and "closeModal" in js and "trapModalFocus" in js
+    # raw codes are plain German (the code stays in the title), no English leftovers
+    for code in ("COMPLETE", "NORMALIZED_SOURCE", "DERIVED_DESCRIPTIVE", "NEGATIVE_NEUTRAL"):
+        assert f'{code}: "' in js, code
+    for raw_label in ("(ZERO_COUNT)", "(NOT_LISTED)", "(NOT_COLLECTED)", "EDHREC Inclusion"):
+        assert raw_label not in js, raw_label
+    assert "keine echte oracle_id" not in js and "keine echte Oracle-Kennung" in js
+    assert "typeLabel(group)" in js and 'Artifact: "Artefakt"' in js
+    # the quick toggle is a view mode: it must not send rank_group to the server any more
+    assert "rank_group: group" not in js and 'data-rank-group="function"' in html
+    assert "role_ranks" in js and "Rang in Funktion" in js
+    for forbidden in ("innerHTML", "style=", 'setAttribute("style"', ".toFixed("):
+        assert forbidden not in js and forbidden not in html, forbidden
+
+
+def test_why_box_split_is_only_shown_when_it_adds_up() -> None:
+    """P2 of the UX batch 1 review: the split of the index into points and percentages ("Warum hier?")
+    runs the real function from tierliste.js. A low index (0,2) gets no percentage split, a high one
+    (80,6) does and its rounded percentages add up to 100 +- 1."""
+    source = (STATIC / "tierliste.js").read_text(encoding="utf-8")
+    start = source.index("function indexShares(item) {")
+    end = source.index('// "Warum hier?"', start)
+    script = (
+        f"eval({json.dumps(source[start:end])} + ';globalThis.indexShares = indexShares;');"
+        "const comp = (component, weight, percentile) => ({component, label: component, weight, percentile});"
+        "const item = (parts) => { const total = parts.reduce((s, p) => s + p[1], 0);"
+        "  const index = Math.round(10 * parts.reduce((s, p) => s + 100 * p[1] * p[2] / total, 0)) / 10;"
+        "  return {index, components: parts.map((p) => comp(...p))}; };"
+        "const low = item([['edhrec', 1, 0.0082], ['deck', 4, 0.0007], ['tour', 0.5, 0.0054], ['combos', 0.5, 0], ['lift', 1, 0.0006]]);"
+        "const high = item([['deck', 4, 1], ['tuned', 1.5, 1], ['lift', 1, 0], ['slope', 1, 0.06], ['glob', 1, 1], ['tour', 0.5, 0.99], ['theme', 0.5, 0.99], ['combos', 0.5, 1]]);"
+        "const a = indexShares(low), b = indexShares(high);"
+        "console.log(JSON.stringify({lowIndex: low.index, lowDetail: a === null ? null : a.detail,"
+        "  highIndex: high.index, highDetail: b.detail,"
+        "  highSum: b.shown.reduce((s, r) => s + Math.round(r.percent), 0) + Math.round(b.restPercent)}));"
+    )
+    result = _node_json(script)
+    assert isinstance(result, dict)
+    assert result["lowIndex"] < 5 and result["lowDetail"] is False
+    assert result["highIndex"] > 70 and result["highDetail"] is True
+    assert 99 <= result["highSum"] <= 101
