@@ -1653,6 +1653,41 @@ console.log(JSON.stringify({changed: run(later(A)), none: run(null), same: run(O
     assert out["same"]["picked"] and out["same"]["click"] is not None and out["same"]["closed"] == 0
 
 
+def test_page_shows_commander_facts_only_as_the_engine_published_them() -> None:
+    out = _node_json(
+        _PAGE_PRELUDE
+        + """
+const rows = new Function(grab('commanderRows') + '; return commanderRows;')();
+const ps = FX.declare_attacker.pending_decision.pilot_state;
+const real = rows(ps);
+const odd = rows({players: ps.players, commander_status: [
+  {owner_id: 'op-1', name: 'No casts reported', commander_damage_to_player: [{player_id: 'op-9', total: 3}, {player_id: 'op-2', total: 'x'}], casts_from_command: null},
+  {owner_id: 'nobody', name: 'Unknown owner', commander_damage_to_player: [], casts_from_command: 4}]});
+console.log(JSON.stringify({real, odd, empty: [rows(null), rows({})], keys: Object.keys(ps.commander_status[0])}));
+"""
+    )
+    assert isinstance(out, dict)
+    real = out["real"]
+    # the engine's seats and numbers, nothing added up: seat 1 took 6 from Bello (seat 2), seat 2 took 7 from Emmara (seat 3)
+    assert real["1"]["received"] == [
+        {"fromSeat": 2, "fromName": "Bello, Bard of the Brambles", "total": 6}
+    ]
+    assert real["2"]["received"] == [
+        {"fromSeat": 3, "fromName": "Emmara, Soul of the Accord", "total": 7}
+    ]
+    assert real["0"]["received"] == [] and real["3"]["received"] == []
+    assert real["3"]["commanders"] == [{"name": "Emmara, Soul of the Accord", "casts": 2}]
+    assert real["0"]["commanders"][0]["casts"] == 0
+    # unknown casts stay unknown (null), an unknown owner or player and a non-number are dropped
+    assert out["odd"] == {
+        "1": {"commanders": [{"name": "No casts reported", "casts": None}], "received": []}
+    }
+    assert out["empty"] == [{}, {}]
+    assert (
+        "commander_tax" not in out["keys"]
+    )  # the engine publishes no tax: the page shows "Steuer unbekannt"
+
+
 def test_boardclick_decisions_with_numbers_or_choices_have_no_board_mapping() -> None:
     out = _node_json(
         _BC_PRELUDE

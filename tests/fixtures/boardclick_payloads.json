@@ -400,6 +400,42 @@
    "pilot_state": {
     "active_player_id": "c91aeaf2-4606-4cfe-b4da-773bb30cba29",
     "actor_id": "c91aeaf2-4606-4cfe-b4da-773bb30cba29",
+    "commander_status": [
+     {
+      "casts_from_command": 0,
+      "commander_damage_to_player": [],
+      "name": "Chulane, Teller of Tales",
+      "owner_id": "c91aeaf2-4606-4cfe-b4da-773bb30cba29"
+     },
+     {
+      "casts_from_command": 2,
+      "commander_damage_to_player": [
+       {
+        "player_id": "op-2",
+        "total": 7
+       }
+      ],
+      "name": "Emmara, Soul of the Accord",
+      "owner_id": "op-3"
+     },
+     {
+      "casts_from_command": 3,
+      "commander_damage_to_player": [
+       {
+        "player_id": "op-1",
+        "total": 6
+       }
+      ],
+      "name": "Bello, Bard of the Brambles",
+      "owner_id": "op-2"
+     },
+     {
+      "casts_from_command": 0,
+      "commander_damage_to_player": [],
+      "name": "Quintorius, History Chaser",
+      "owner_id": "op-1"
+     }
+    ],
     "phase": "combat",
     "players": [
      {

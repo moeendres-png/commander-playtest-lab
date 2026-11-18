@@ -519,6 +519,7 @@ function seatPanel(player, frame) {
       exileStat,
       player.poison ? h("span", { class: "stat" }, `Gift ${player.poison}`) : null,
       player.mana_pool ? h("span", { class: "stat" }, `Mana ${Object.entries(player.mana_pool).map(([color, amount]) => `${amount} ${color}`).join(", ")}`) : null),
+    frame.commanders ? commanderLine(frame.commanders[player.seat] || { commanders: [], received: [] }) : null,
     player.command.length ? h("div", null, h("div", { class: "zone-title" }, "Kommandozone"), h("div", { class: "cards" }, player.command.map((name, at) => cardTile(name, { small: true, objectId: (player.command_ids || [])[at] })))) : null,
     h("div", { class: "zone-title" }, `Spielfeld (${player.battlefield.length})`),
     h("div", { class: "cards" }, others.map((item) => permanentTile(item, frame))),
@@ -581,6 +582,39 @@ function showDeckPlan(title, plan) {
   $("modal").hidden = false;
 }
 
+// Commander facts of the live decision, exactly as the engine published them in pilot_state.commander_status:
+// the commanders a seat owns (with the casts from the command zone, or null when unknown) and the combat
+// damage a seat has taken from each commander. Nothing is added up or derived here; the engine publishes
+// no commander tax, so the page says so instead of working it out.
+function commanderRows(ps) {
+  const status = ps && Array.isArray(ps.commander_status) ? ps.commander_status : [];
+  const players = ps && Array.isArray(ps.players) ? ps.players : [];
+  const seatOf = (playerId) => { const found = players.find((p) => p && p.player_id === playerId); return found && Number.isInteger(found.seat) ? found.seat : null; };
+  const bySeat = {};
+  const seatRow = (seat) => (bySeat[seat] = bySeat[seat] || { commanders: [], received: [] });
+  for (const entry of status) {
+    if (!entry || typeof entry !== "object") continue;
+    const owner = seatOf(entry.owner_id);
+    if (owner === null) continue;
+    const casts = Number.isInteger(entry.casts_from_command) ? entry.casts_from_command : null;
+    seatRow(owner).commanders.push({ name: typeof entry.name === "string" ? entry.name : "?", casts });
+    for (const hit of Array.isArray(entry.commander_damage_to_player) ? entry.commander_damage_to_player : []) {
+      const target = hit && seatOf(hit.player_id);
+      if (target === null || target === undefined || !Number.isFinite(hit.total)) continue;
+      seatRow(target).received.push({ fromSeat: owner, fromName: typeof entry.name === "string" ? entry.name : "?", total: hit.total });
+    }
+  }
+  return bySeat;
+}
+function commanderLine(info) {
+  if (!info) return null;
+  const owned = info.commanders.map((c) => h("span", { class: "stat", title: "Die Engine meldet die Casts aus der Kommandozone, aber keine Commander-Steuer: die Seite rechnet sie nicht aus." },
+    `${c.name}: ${c.casts === null ? "Casts unbekannt" : `${c.casts}× aus der Kommandozone`} · Steuer unbekannt`));
+  const taken = info.received.length
+    ? info.received.map((r) => h("span", { class: "stat", title: "Kampfschaden dieses Kommandanten an diesem Spieler, Wert der Engine" }, `${r.total} von ${r.fromName} (${seatName(r.fromSeat)})`))
+    : [h("span", { class: "stat", title: "Die Engine meldet keinen Kommandantenschaden an diesem Spieler" }, "keiner")];
+  return h("div", { class: "commander-line" }, ...owned, h("span", { class: "muted" }, "Kommandantenschaden erhalten:"), ...taken);
+}
 function pilotStateToFrame(pending) {
   const ps = (pending && pending.pilot_state) || {};
   const playersRaw = Array.isArray(ps.players) ? ps.players : [];
@@ -635,8 +669,10 @@ function pilotStateToFrame(pending) {
   });
   const stack = (ps.stack || []).map((s) => (s && s.face_down ? "(verdeckt)" : (s && s.name) || "?"));
   const stackIds = (ps.stack || []).map((s) => (s && typeof s.object_id === "string" ? s.object_id : null));
+  const commanders = commanderRows(ps);
   return {
     n: state.frames.length + 1,
+    commanders,
     turn: ps.turn_number ?? null,
     phase: ps.phase ?? null,
     step: ps.step ?? null,
