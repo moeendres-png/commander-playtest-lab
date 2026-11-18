@@ -29,7 +29,7 @@
 
 | Programm | „Du bist dran“-Anzeige | Pass-Mechanismus & Hotkeys | Haltepunkte (Stops) & „Passen bis“ | Schutz vor versehentlichem Durchlaufen |
 |---|---|---|---|---|
-| **XMage** | Pfeil auf aktiven Spieler; leuchtender Avatar-Rahmen; Text im oberen Feedback-Panel (`[Player]: Priority`). | Button `Pass` / `OK`; Hotkey `F2` (OK/Priority); `F4` (Pass until end of turn/stack); `F9` (Pass priority until turn ends unless attacked/targeted). | Phasen-Leiste mit 10 konfigurierbaren Stopps je Zug (Upkeep bis End Step), getrennt für eigenen und fremden Zug einstellbar. | Hotkey `F3` hebt alle Skips sofort auf; Stopps auf Phasen erzwingen Halt selbst bei aktivem Auto-Pass. |
+| **XMage** | Pfeil auf aktiven Spieler; leuchtender Avatar-Rahmen; Text im oberen Feedback-Panel (`[Player]: Priority`). | Button `Pass` / `OK`; Hotkey `F2` (OK/Priority); `F4` (bis zum nächsten Zug; hält bei jedem Stack-Objekt an), `F9` (bis zu meinem nächsten Zug). Ein Halt bei Angriff auf mich (`quickStop`, nur mit gesetzter Blocker-Stopp-Option) ist im Quelltext belegt, ein Halt bei „targeted“ nicht (Korrektur 2026-11-18, siehe Abschnitt „Korrekturen“). | Phasen-Leiste mit 10 konfigurierbaren Stopps je Zug (Upkeep bis End Step), getrennt für eigenen und fremden Zug einstellbar. | Hotkey `F3` hebt alle Skips sofort auf; Stopps auf Phasen erzwingen Halt selbst bei aktivem Auto-Pass. |
 | **Forge** | Prompt-Bereich leuchtet gelb/grün; Phase-Tracker zeigt aktiven Step; Buttons werden interaktiv. | Button `OK` / `Pass Priority`; `Leertaste` für OK; `F4` für Turn-Ende; `F6` (Yield to all). | Phase-Track mit Checkboxen für jeden Einzelschritt (getrennt nach „My Turn“ und „Opponent Turn“). | Stapel-Ereignisse brechen automatische Skips ab, es sei denn, für einen spezifischen Trigger wurde explizit „Always Yield“ aktiviert. |
 | **MTG Arena** | Spieler-Porträt pulsiert blau; großer Button unten rechts wechselt zu `Pass` oder `Resolve`; Phasen-Icon leuchtet. | `Leertaste` für Pass/Resolve; `Enter` für „Pass Turn“ (Soft Pass: hält bei gegnerischen Aktionen an); `Shift+Enter` (Hard Pass). | Klick auf Phasen-Symbole setzt temporären Stopp für den aktuellen Zug. „Full Control“-Modus (`Ctrl` oder `Shift+Ctrl`) erzwingt Halt bei jeder Priorität. | Soft Pass hält bei gegnerischem Cast oder Angriff an; Zündschnur/Timeout-System („Rope“) verhindert unendliches Blockieren. |
 | **MTGO** | Pfeil zeigt auf aktiven Spieler; Menüleiste oben wechselt Farbe; Prompt: „Cast Spells or Activate Abilities“. | `F2` (Pass/Yield to current action); `F4` (Pass until something is on stack); `F6` (Yield all priority this turn); `F8` (Yield if no possible plays). | Phase Ladder mit 14 umschaltbaren Stopps (7 Phasen getrennt nach eigenem und gegnerischem Zug). | `F3` entfernt alle aktiven Yields sofort; Not-Halt bei neuen Objekten auf dem Stapel. |
@@ -51,7 +51,7 @@
 
 | Programm | Automatisches Tappen | Manuelles Tappen | Abbruch / Zurückrollen unvollständiger Zahlungen |
 |---|---|---|---|
-| **XMage** | Auto-Mana-Engine (Standard): XMage wählt optimale Farbkombination aus Ländern und Pool automatisch aus. | Manuelles Anklicken von Ländern/Manaquellen vor oder während des Spruch-Casts. | `Cancel`-Button bricht Spruch-Ansage ab und enttappt zuvor im selben Schritt aktivierte Länder (sofern keine irreversiblen Effekte auftraten). |
+| **XMage** | Nicht belegt: eine Auto-Mana-Engine, die „optimale Länder“ wählt. Im Quelltext zahlt der Server je Antwort eine Mana-Quelle; `ManaUtil.tryToAutoPay` wählt nur unter den Fähigkeiten eines einzelnen Objekts die eindeutige. Die Mana-Auto-Zahlungs-Einstellung betrifft nur den Manapool (Korrektur 2026-11-18). | Manuelles Anklicken von Ländern/Manaquellen vor oder während des Spruch-Casts. | `Cancel`-Button bricht Spruch-Ansage ab und enttappt zuvor im selben Schritt aktivierte Länder (sofern keine irreversiblen Effekte auftraten). |
 | **Forge** | Option `Auto-Pay Mana` (Checkbox in Einstellungen, standardmäßig aktiv); ermittelt Kombination automatisch. | Manuelles Anklicken von Manaquellen; Anzeige des Manapools im Seitenpanel. | `ESC` oder `Cancel` im Prompt bricht Bezahlung ab und setzt Zustand vor Beginn des Castings zurück. |
 | **MTG Arena** | Auto-Tapper zeigt visuelle Vorschau (betroffene Länder leuchten weiß auf, bevor der Spruch losgelassen wird). | Länder können manuell getappt werden; Mana landet in sichtbarer Blase („Floating Mana“) neben dem Avatar. | `Z`-Taste oder `Cancel`-Button bricht unfertige Aktionen vor Bestätigung ab (solange der Spruch noch nicht auf den Stapel gelegt wurde). |
 | **MTGO** | Teil-Automatik (Spruch anklicken -> MTGO fragt nach Farboptionen) oder manuelles Vorab-Tappen. | Manuelles Tappen in den Pool; Pool-Symbole werden per Klick verbraucht. | `ESC` oder `Cancel` bricht Ansage ab, solange keine irreversiblen Manafähigkeiten (z. B. Selvala, Chromatic Sphere) involviert sind. |
@@ -62,7 +62,7 @@
 
 | Programm | Darstellung des Stapels | Reihenfolge bei mehreren gleichzeitigen Triggern | Durchwinken gleicher Auslöser (Auto-Yield) |
 |---|---|---|---|
-| **XMage** | Horizontaler oder vertikaler Bereich („Stack“); Karten überlappen chronologisch; Pfeile zeigen Ziele an. | Dialogfenster: `Choose order of triggered abilities on the stack`; Klick bestimmt Reihenfolge. | Rechtsklick auf Fähigkeit: `Always yield`, `Always yes`, `Always no`; Einstellung `Auto-order triggers`. |
+| **XMage** | Horizontaler oder vertikaler Bereich („Stack“); Karten überlappen chronologisch; Pfeile zeigen Ziele an. | Dialogfenster: `Choose order of triggered abilities on the stack`; Klick bestimmt Reihenfolge. | Im Quelltext belegt sind nur Auto-Antworten Ja/Nein für Ja/Nein-Fragen und die automatische Reihenfolge ausgelöster Fähigkeiten (`Auto-order triggers`); ein „Always yield“ ist nicht belegt (Korrektur 2026-11-18). |
 | **Forge** | Eigene Stack-Komponente am Bildschirmrand; Karten liegen gestapelt von oben nach unten. | Dialog zur manuellen Anordnung ausgelöster Fähigkeiten mit Pfeiltasten/Klicks. | Kontextmenü-Option `Always Yes` / `Always Yield` für repetitive Trigger (z. B. Soul Warden). |
 | **MTG Arena** | Dreidimensional überlappender Stapel in der Bildschirmmitte; jeder Zauber liegt physisch auf dem vorherigen. | Einstellung `Auto-order triggered abilities` (standardmäßig ein); wenn aus: Dialogfenster zur Reihenfolge. | Option `Resolve All` winkt alle aktuellen Stapelobjekte ohne Zwischenhalt durch; kein persistentes „Always Yield“. |
 | **MTGO** | Eigenes verschiebbares Stack-Fenster; jede Karte zeigt Name, Quelle und ausgewählte Ziele. | Trigger-Auswahlfenster: Spieler klickt Fähigkeiten in der gewünschten Auflösungsreihenfolge an. | Rechtsklick: `Always yield to this ability`, `Yield until end of turn`, `Save targets`. |
@@ -125,3 +125,18 @@ Die kleinste brauchbare Bedienung für Commander Studio PLAY (#1169) basiert dir
 | **4** | **Trigger-Reihenfolge-Modal** | Einfache Liste mit Drag & Drop oder Klick-Nummerierung, um gleichzeitig auslösende Fähigkeiten auf den Stapel zu legen. Button `Reihenfolge bestätigen`. | `ORDER_TRIGGERED_ABILITIES` (Stapel-Anordnung) |
 | **5** | **Mehrfachauswahl / Mana-Entscheidung** | Schlichtes modales Auswahlfenster (Radio-Buttons oder Kacheln) für diskrete Entscheidungen (z. B. Farbwahl bei Mana, Modus-Wahl bei modalen Sprüchen wie „Wähle zwei“). | `MODAL_CHOICE`, `MANA_PAYMENT_ALTERNATIVE` |
 | **6** | **Tempo- & Auto-Run-Schalter** | Schieberegler für KI-Schrittgeschwindigkeit (z. B. 100 ms bis 2000 ms) sowie Checkbox `Auto-Pass, bis ich am Zug bin`. Lässt Züge anderer Spieler flüssig durchlaufen, bis die Engine wieder den Menschen adressiert. | Client-Orchestrierung (keine Engine-Entscheidung) |
+
+## Korrekturen und Regelnummern (Stand 2026-11-18)
+
+Quelle der Korrekturen: Quelltext-Lane `play_primary` (XMage-Client und -Server, Pin `f4d12f6e8066203fba7aa38bd35ea3358117393d` und Fork-Klon; Dateien mit gleichem Blob-SHA). Die XMage-Zeilen oben sind danach berichtigt: Hotkeys F4/F9, Auto-Mana, „Always yield“. Die Aussagen zu Forge, MTG Arena und MTGO in diesem Dokument sind weiter nur Recherche aus öffentlichen Quellen, nicht am Quelltext geprüft.
+
+Regelnummern der Comprehensive Rules (Fassung 2026-11-06), nur zur Einordnung; XMage bleibt die einzige Regelautorität, die Seite rechnet nichts:
+
+| Nummer | Gegenstand |
+|---|---|
+| 103.5 | Mulligan (London): neue Hand in Starthandgröße, danach so viele Karten unten in die Bibliothek legen, wie Mulligans genommen wurden |
+| 103.5c | Mehrspieler: der erste Mulligan ist kostenlos und zählt nicht für die Zahl der abzulegenden Karten |
+| 903.8 | Commander-Steuer: {2} mehr je früherem Wirken aus der Kommandozone |
+| 903.10a | 21 oder mehr Kampfschaden desselben Commanders über das Spiel = Verlust (Zustandsbasierte Aktion) |
+
+Was die Seite davon zeigt, ist ausschließlich, was die Engine im Entscheidungs-Frame veröffentlicht (`pilot_state.commander_status`: Casts aus der Kommandozone und erhaltener Commander-Schaden je Commander). Eine Commander-Steuer veröffentlicht die Engine nicht; die Seite zeigt „Steuer unbekannt“.
