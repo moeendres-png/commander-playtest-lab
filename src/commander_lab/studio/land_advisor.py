@@ -481,3 +481,382 @@ def land_candidates(
         )
     keyed.sort(key=lambda entry: entry[:3])
     return [entry[3] for entry in keyed]
+
+
+LAND_CYCLES_SCHEMA = "studio-land-cycles-1"
+
+LAND_CYCLES: tuple[dict[str, object], ...] = (
+    {
+        "key": "fetch",
+        "label": "Fetchländer",
+        "description": "Zweifarbige Suchländer für Standardland-Typen",
+        "cards": (
+            ("Flooded Strand", ("W", "U")),
+            ("Polluted Delta", ("U", "B")),
+            ("Bloodstained Mire", ("B", "R")),
+            ("Wooded Foothills", ("R", "G")),
+            ("Windswept Heath", ("G", "W")),
+            ("Marsh Flats", ("W", "B")),
+            ("Scalding Tarn", ("U", "R")),
+            ("Verdant Catacombs", ("B", "G")),
+            ("Arid Mesa", ("R", "W")),
+            ("Misty Rainforest", ("G", "U")),
+        ),
+    },
+    {
+        "key": "shock",
+        "label": "Shockländer",
+        "description": "Zweifarbige Länder mit zwei Standardland-Typen (2 Lebenspunkte für ungetappt)",
+        "cards": (
+            ("Hallowed Fountain", ("W", "U")),
+            ("Watery Grave", ("U", "B")),
+            ("Blood Crypt", ("B", "R")),
+            ("Stomping Ground", ("R", "G")),
+            ("Temple Garden", ("G", "W")),
+            ("Godless Shrine", ("W", "B")),
+            ("Steam Vents", ("U", "R")),
+            ("Overgrown Tomb", ("B", "G")),
+            ("Sacred Foundry", ("R", "W")),
+            ("Breeding Pool", ("G", "U")),
+        ),
+    },
+    {
+        "key": "original_dual",
+        "label": "ABUR-Dualländer",
+        "description": "Klassische zweifarbige Länder mit zwei Standardland-Typen ohne Nachteil",
+        "cards": (
+            ("Tundra", ("W", "U")),
+            ("Underground Sea", ("U", "B")),
+            ("Badlands", ("B", "R")),
+            ("Taiga", ("R", "G")),
+            ("Savannah", ("G", "W")),
+            ("Scrubland", ("W", "B")),
+            ("Volcanic Island", ("U", "R")),
+            ("Bayou", ("B", "G")),
+            ("Plateau", ("R", "W")),
+            ("Tropical Island", ("G", "U")),
+        ),
+    },
+    {
+        "key": "crowd",
+        "label": "Battlebond-/Zuschauerländer",
+        "description": "Zweifarbige Länder, die ab zwei oder mehr Gegnern ungetappt ins Spiel kommen",
+        "cards": (
+            ("Sea of Clouds", ("W", "U")),
+            ("Morphic Pool", ("U", "B")),
+            ("Luxury Suite", ("B", "R")),
+            ("Spire Garden", ("R", "G")),
+            ("Bountiful Promenade", ("G", "W")),
+            ("Vault of Champions", ("W", "B")),
+            ("Training Center", ("U", "R")),
+            ("Undergrowth Stadium", ("B", "G")),
+            ("Spectator Seating", ("R", "W")),
+            ("Rejuvenating Springs", ("G", "U")),
+        ),
+    },
+    {
+        "key": "slow",
+        "label": "Slowländer",
+        "description": "Zweifarbige Länder, die ab zwei anderen Ländern ungetappt ins Spiel kommen",
+        "cards": (
+            ("Deserted Beach", ("W", "U")),
+            ("Shipwreck Marsh", ("U", "B")),
+            ("Haunted Ridge", ("B", "R")),
+            ("Rockfall Vale", ("R", "G")),
+            ("Overgrown Farmland", ("G", "W")),
+            ("Shattered Sanctum", ("W", "B")),
+            ("Stormcarved Coast", ("U", "R")),
+            ("Deathcap Glade", ("B", "G")),
+            ("Sundown Pass", ("R", "W")),
+            ("Dreamroot Cascade", ("G", "U")),
+        ),
+    },
+    {
+        "key": "fast",
+        "label": "Fastländer",
+        "description": "Zweifarbige Länder, die bei höchstens zwei anderen Ländern ungetappt ins Spiel kommen",
+        "cards": (
+            ("Seachrome Coast", ("W", "U")),
+            ("Darkslick Shores", ("U", "B")),
+            ("Blackcleave Cliffs", ("B", "R")),
+            ("Copperline Gorge", ("R", "G")),
+            ("Razorverge Thicket", ("G", "W")),
+            ("Concealed Courtyard", ("W", "B")),
+            ("Spirebluff Canal", ("U", "R")),
+            ("Blooming Marsh", ("B", "G")),
+            ("Inspiring Vantage", ("R", "W")),
+            ("Botanical Sanctum", ("G", "U")),
+        ),
+    },
+    {
+        "key": "pain",
+        "label": "Painländer",
+        "description": "Zweifarbige Länder für farbloses Mana oder farbiges Mana gegen 1 Lebenspunkt",
+        "cards": (
+            ("Adarkar Wastes", ("W", "U")),
+            ("Underground River", ("U", "B")),
+            ("Sulfurous Springs", ("B", "R")),
+            ("Karplusan Forest", ("R", "G")),
+            ("Brushland", ("G", "W")),
+            ("Caves of Koilos", ("W", "B")),
+            ("Shivan Reef", ("U", "R")),
+            ("Llanowar Wastes", ("B", "G")),
+            ("Battlefield Forge", ("R", "W")),
+            ("Yavimaya Coast", ("G", "U")),
+        ),
+    },
+    {
+        "key": "check",
+        "label": "Checkländer",
+        "description": "Zweifarbige Länder, die bei passendem Standardland-Typ ungetappt ins Spiel kommen",
+        "cards": (
+            ("Glacial Fortress", ("W", "U")),
+            ("Drowned Catacomb", ("U", "B")),
+            ("Dragonskull Summit", ("B", "R")),
+            ("Rootbound Crag", ("R", "G")),
+            ("Sunpetal Grove", ("G", "W")),
+            ("Isolated Chapel", ("W", "B")),
+            ("Sulfur Falls", ("U", "R")),
+            ("Woodland Cemetery", ("B", "G")),
+            ("Clifftop Retreat", ("R", "W")),
+            ("Hinterland Harbor", ("G", "U")),
+        ),
+    },
+    {
+        "key": "filter",
+        "label": "Filterländer (Shadowmoor/Eventide)",
+        "description": "Zweifarbige Hybrid-Filterländer",
+        "cards": (
+            ("Mystic Gate", ("W", "U")),
+            ("Sunken Ruins", ("U", "B")),
+            ("Graven Cairns", ("B", "R")),
+            ("Fire-Lit Thicket", ("R", "G")),
+            ("Wooded Bastion", ("G", "W")),
+            ("Fetid Heath", ("W", "B")),
+            ("Cascade Bluffs", ("U", "R")),
+            ("Twilight Mire", ("B", "G")),
+            ("Rugged Prairie", ("R", "W")),
+            ("Flooded Grove", ("G", "U")),
+        ),
+    },
+    {
+        "key": "pathway",
+        "label": "Pathway-Länder (MDFC)",
+        "description": "Modale doppelseitige Einzelfarbländer",
+        "cards": (
+            ("Hengegate Pathway // Mistgate Pathway", ("W", "U")),
+            ("Clearwater Pathway // Murkwater Pathway", ("U", "B")),
+            ("Blightstep Pathway // Searstep Pathway", ("B", "R")),
+            ("Cragcrown Pathway // Timbercrown Pathway", ("R", "G")),
+            ("Branchloft Pathway // Boulderloft Pathway", ("G", "W")),
+            ("Brightclimb Pathway // Grimclimb Pathway", ("W", "B")),
+            ("Riverglide Pathway // Lavaglide Pathway", ("U", "R")),
+            ("Darkbore Pathway // Slitherbore Pathway", ("B", "G")),
+            ("Needleverge Pathway // Pillarverge Pathway", ("R", "W")),
+            ("Barkchannel Pathway // Tidechannel Pathway", ("G", "U")),
+        ),
+    },
+    {
+        "key": "horizon",
+        "label": "Horizon-Länder",
+        "description": "Zweifarbige Länder mit Lebenspunkt-Bezahlung und Kartenzieh-Opferfähigkeit",
+        "cards": (
+            ("Horizon Canopy", ("G", "W")),
+            ("Silent Clearing", ("W", "B")),
+            ("Fiery Islet", ("U", "R")),
+            ("Nurturing Peatland", ("B", "G")),
+            ("Sunbaked Canyon", ("R", "W")),
+            ("Waterlogged Grove", ("G", "U")),
+        ),
+    },
+    {
+        "key": "surveil",
+        "label": "Surveil-Länder",
+        "description": "Zweifarbige Länder mit zwei Standardland-Typen und Überwachen 1 beim Eintritt",
+        "cards": (
+            ("Meticulous Archive", ("W", "U")),
+            ("Undercity Sewers", ("U", "B")),
+            ("Raucous Theater", ("B", "R")),
+            ("Commercial District", ("R", "G")),
+            ("Lush Portico", ("G", "W")),
+            ("Shadowy Backstreet", ("W", "B")),
+            ("Thundering Falls", ("U", "R")),
+            ("Underground Mortuary", ("B", "G")),
+            ("Elegant Parlor", ("R", "W")),
+            ("Hedge Maze", ("G", "U")),
+        ),
+    },
+    {
+        "key": "triome",
+        "label": "Triome / Dreifarbländer",
+        "description": "Dreifarbige Länder mit drei Standardland-Typen und Umwandlung (Ikoria & New Capenna)",
+        "cards": (
+            ("Raugrin Triome", ("U", "R", "W")),
+            ("Zagoth Triome", ("B", "G", "U")),
+            ("Indatha Triome", ("W", "B", "G")),
+            ("Ketria Triome", ("G", "U", "R")),
+            ("Savai Triome", ("R", "W", "B")),
+            ("Raffine's Tower", ("W", "U", "B")),
+            ("Xander's Lounge", ("U", "B", "R")),
+            ("Ziatora's Proving Ground", ("B", "R", "G")),
+            ("Jetmir's Garden", ("R", "G", "W")),
+            ("Spara's Headquarters", ("G", "W", "U")),
+        ),
+    },
+    {
+        "key": "verge",
+        "label": "Verge-Länder",
+        "description": "Zweifarbige Länder mit einer Grundfarbe und bedingter Zweitfarbe über Standardland-Typen",
+        "cards": (
+            ("Floodfarm Verge", ("W", "U")),
+            ("Gloomlake Verge", ("U", "B")),
+            ("Blazemire Verge", ("B", "R")),
+            ("Thornspire Verge", ("R", "G")),
+            ("Hushwood Verge", ("G", "W")),
+            ("Bleachbone Verge", ("W", "B")),
+            ("Riverpyre Verge", ("U", "R")),
+            ("Wastewood Verge", ("B", "G")),
+            ("Sunbillow Verge", ("R", "W")),
+            ("Willowrush Verge", ("G", "U")),
+        ),
+    },
+)
+
+
+def land_cycles_summary(store: StudioStore, rows: Iterable[_Row]) -> dict[str, object]:
+    """Descriptive completeness of the pinned ``LAND_CYCLES`` in the deck and collection pool
+    (#1452).
+
+    Every count carries its explicit denominator (``total``, the cycle cards within the
+    commander's colour identity, or all cycle cards when no commander colour identity is
+    present). Holds no recommendation, upgrade or purchase language.
+    """
+    row_list = list(rows)
+    identity: set[str] = set()
+    in_deck_names: set[str] = set()
+    in_deck_ids: set[str] = set()
+    for row in row_list:
+        zone = _text(row, "zone")
+        if zone == "commander":
+            identity.update(letter for letter in _text(row, "color_identity") if letter in COLOURS)
+        qty = int(_text(row, "quantity") or "1")
+        if zone in ("main", "commander", "") and qty > 0:
+            name = _text(row, "oracle_name")
+            if name:
+                in_deck_names.add(name.casefold())
+                in_deck_names.add(_front(name).casefold())
+            cid = _text(row, "card_id")
+            if cid:
+                in_deck_ids.add(cid)
+
+    pool_by_name: dict[str, dict[str, object]] = {}
+    for db_row in store.connection.execute(
+        "SELECT c.card_id, c.oracle_name, i.owned_lower_bound, i.available_lower_bound "
+        "FROM card_fact c JOIN inventory i USING (card_id) "
+        "WHERE c.commander_legal = 1 ORDER BY c.oracle_name"
+    ):
+        cid = str(db_row["card_id"])
+        oname = str(db_row["oracle_name"])
+        entry: dict[str, object] = {
+            "card_id": cid,
+            "oracle_name": oname,
+            "total_owned": int(db_row["owned_lower_bound"] or 0),
+            "available": int(db_row["available_lower_bound"] or 0),
+        }
+        pool_by_name[oname.casefold()] = entry
+        front_key = _front(oname).casefold()
+        if front_key not in pool_by_name:
+            pool_by_name[front_key] = entry
+
+    cycles_out: list[dict[str, object]] = []
+    legal_lands_total = 0
+    in_deck_total = 0
+    in_pool_extra_total = 0
+    in_pool_total = 0
+
+    for cycle in LAND_CYCLES:
+        raw_cards = cycle["cards"]
+        if not isinstance(raw_cards, tuple):
+            raise TypeError("LAND_CYCLES cards must be a tuple")
+        legal_cards = [
+            (str(name), tuple(str(c) for c in colours))
+            for name, colours in raw_cards
+            if not identity or set(colours) <= identity
+        ]
+        total = len(legal_cards)
+        card_entries: list[dict[str, object]] = []
+        for card_name, colours in legal_cards:
+            key_full = card_name.casefold()
+            key_front = _front(card_name).casefold()
+            pool_entry = pool_by_name.get(key_full) or pool_by_name.get(key_front)
+            pool_card_id: str | None = (
+                str(pool_entry["card_id"]) if pool_entry is not None else None
+            )
+            avail = int(str(pool_entry["available"])) if pool_entry is not None else 0
+            owned_qty = int(str(pool_entry["total_owned"])) if pool_entry is not None else 0
+            is_in_deck = (
+                key_full in in_deck_names
+                or key_front in in_deck_names
+                or (pool_card_id is not None and pool_card_id in in_deck_ids)
+            )
+            owned = pool_entry is not None and (owned_qty > 0 or avail > 0)
+            is_in_pool = bool(owned or is_in_deck)
+            is_extra_in_pool = bool(not is_in_deck and avail > 0)
+            if is_in_deck:
+                status = "im Deck"
+            elif avail > 0:
+                status = "im Pool (frei)"
+            elif owned:
+                status = "im Pool (0 frei)"
+            else:
+                status = "nicht in Sammlung"
+            card_entries.append(
+                {
+                    "name": card_name,
+                    "card_id": pool_card_id,
+                    "colours": [c for c in COLOURS if c in colours],
+                    "in_deck": is_in_deck,
+                    "in_pool": is_in_pool,
+                    "in_pool_extra": is_extra_in_pool,
+                    "available": avail,
+                    "status": status,
+                }
+            )
+        in_deck_count = sum(1 for c in card_entries if c["in_deck"])
+        in_pool_extra_count = sum(1 for c in card_entries if c["in_pool_extra"])
+        in_pool_count = sum(1 for c in card_entries if c["in_pool"])
+        summary = (
+            f"{in_deck_count} / {total} im Deck, {in_pool_extra_count} weitere von {total} im Pool"
+            if total > 0
+            else "0 / 0 in Farbidentität"
+        )
+        legal_lands_total += total
+        in_deck_total += in_deck_count
+        in_pool_extra_total += in_pool_extra_count
+        in_pool_total += in_pool_count
+        cycles_out.append(
+            {
+                "key": str(cycle["key"]),
+                "label": str(cycle["label"]),
+                "description": str(cycle["description"]),
+                "cycle_size": len(raw_cards),
+                "total": total,
+                "in_deck": in_deck_count,
+                "in_pool_extra": in_pool_extra_count,
+                "in_pool_total": in_pool_count,
+                "summary": summary,
+                "cards": card_entries,
+            }
+        )
+
+    return {
+        "schema": LAND_CYCLES_SCHEMA,
+        "data_class": "derived_descriptive",
+        "identity": [c for c in COLOURS if c in identity],
+        "cycles_total": len(LAND_CYCLES),
+        "legal_lands_total": legal_lands_total,
+        "in_deck_total": in_deck_total,
+        "in_pool_extra_total": in_pool_extra_total,
+        "in_pool_total": in_pool_total,
+        "cycles": cycles_out,
+    }
