@@ -33,6 +33,7 @@ from . import (
     cache,
     card_duel,
     card_outcomes,
+    card_understanding,
     castability,
     combos,
     cut_lab,
@@ -48,6 +49,7 @@ from . import (
     labels,
     land_advisor,
     launch,
+    overall_rating,
     packages,
     paired_comparison,
     paired_series,
@@ -483,16 +485,20 @@ def strength_answer(store: StudioStore, body: StrengthBody) -> dict[str, object]
             )
         )
 
+    key = (
+        body.commander,
+        body.profile,
+        profile_name,
+        json.dumps(asdict(settings), sort_keys=True, default=str),
+    )
+    answer = cache.cached(store, ("strength", *key), compute)
+    # Additive: the second overall rating (Kartenverständnis) next to the usage index. Added
+    # after the snapshot and the remembered answer, so neither of them changes; the data file's
+    # stamp is part of the key.
     return cache.cached(
         store,
-        (
-            "strength",
-            body.commander,
-            body.profile,
-            profile_name,
-            json.dumps(asdict(settings), sort_keys=True, default=str),
-        ),
-        compute,
+        ("strength_overall", *key, card_understanding.stamp()),
+        lambda: overall_rating.with_overall(store, answer),
     )
 
 
