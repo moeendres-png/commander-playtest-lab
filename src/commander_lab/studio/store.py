@@ -14,7 +14,7 @@ from pathlib import Path
 from commander_lab.owner_data import owner_data_root
 
 STUDIO_DATA_ENV = "COMMANDER_LAB_STUDIO_DATA"
-SCHEMA_VERSION = 18
+SCHEMA_VERSION = 19
 DATABASE_NAME = "studio.sqlite3"
 # The sections a source deck's cards are counted in, everywhere (universe spread, deck-builder
 # frequencies, co-occurrence, role counts). The corpus importer stores the main deck as
@@ -211,6 +211,22 @@ CREATE TABLE IF NOT EXISTS deck_draft (
     updated_at TEXT NOT NULL,
     PRIMARY KEY (deck_id, branch)
 );
+CREATE TABLE IF NOT EXISTS deck_module (
+    module_id TEXT PRIMARY KEY,
+    deck_id TEXT NOT NULL REFERENCES deck(deck_id) ON DELETE CASCADE,
+    name TEXT NOT NULL,
+    role TEXT NOT NULL CHECK (role IN ('core', 'package')),
+    sort_order INTEGER NOT NULL DEFAULT 0,
+    updated_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS deck_module_deck ON deck_module(deck_id, sort_order, module_id);
+CREATE TABLE IF NOT EXISTS deck_module_card (
+    module_id TEXT NOT NULL REFERENCES deck_module(module_id) ON DELETE CASCADE,
+    card_id TEXT NOT NULL REFERENCES card(card_id),
+    qty INTEGER NOT NULL CHECK (qty > 0),
+    is_commander INTEGER NOT NULL DEFAULT 0 CHECK (is_commander IN (0, 1)),
+    PRIMARY KEY (module_id, card_id)
+) WITHOUT ROWID;
 CREATE TABLE IF NOT EXISTS corpus_cohort (
     cohort TEXT NOT NULL,
     deck_id TEXT NOT NULL REFERENCES corpus_deck(deck_id),
