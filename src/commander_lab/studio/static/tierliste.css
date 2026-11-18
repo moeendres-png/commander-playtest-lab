@@ -168,10 +168,10 @@ td.cardcell .thumb{width:36px;aspect-ratio:488/680;height:auto;background:var(--
 #pod-filter{width:28em;max-width:100%}
 /* phone width: the bars reach their loaded height before the data arrives (measured at 390 px) */
 @media (max-width:700px){#brand{min-height:144px}#top{min-height:195px}#tier-bar{min-height:85px}#filters{min-height:514px}}
-@media (max-width:480px){#filters{min-height:564px}} /* with the ranking toggle in the bar (measured at 390 px) */
+@media (max-width:480px){#filters{min-height:596px}} /* with the ranking toggle in the bar (measured at 390 px) */
 /* desktop: the filter bar and the top bar reach their loaded height from the first paint (measured per width) */
 @media (min-width:701px){#filters{min-height:168px}#top{min-height:71px}}
-@media (min-width:1100px){#filters{min-height:147px}}
+@media (min-width:1100px){#filters{min-height:172px}}
 @media (min-width:1700px){#filters{min-height:156px}#top{min-height:39px}} /* with the ranking toggle in the bar (measured at 1366 and 1920 px) */
 
 .search-help-wrap{position:relative;display:inline-flex;align-items:center}
@@ -190,3 +190,5 @@ td.cardcell .thumb{width:36px;aspect-ratio:488/680;height:auto;background:var(--
 th.crit-head{min-width:34px}
 .overall-reason{margin:var(--s1) 0;padding-left:var(--s3);border-left:3px solid var(--line);color:var(--text);font-size:13px}
 @media (max-width:600px){#overall-panel{padding-left:var(--s2);padding-right:var(--s2);max-width:100%}}
+.oparts{display:inline-flex;flex-direction:column;align-items:flex-end;white-space:nowrap}
+@media (max-width:480px){#areas a{padding-left:var(--s2);padding-right:var(--s2)}} /* five area links (with "Daten") must fit 390 px without a horizontal page scroll */

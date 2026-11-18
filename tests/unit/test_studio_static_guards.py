@@ -732,3 +732,43 @@ console.log(JSON.stringify({
     assert result["loading"][0] == "overall" and result["global"][0] == "overall"
     seen = js[start : js.index("function setRanking(ranking) {")]
     assert "StudioUI.remember" not in seen  # the fallback never overwrites the remembered sort
+
+
+def test_overall_v2_fields_group_rank_raw_index_single_values_and_no_usage_flag() -> None:
+    """overall-v2 fields (real helpers in node): the rank inside Länder or Zauber, the raw index
+    next to the log-scaled usage axis, usage tier/index and H as single values in every row, and
+    the flag no_usage_axis as "ohne Nutzungsdaten" (also when the axis list has a usage entry)."""
+    script = (
+        _overall_node_prelude()
+        + """
+const axes = [{axis: 'usage', value: 3.9, raw_value: 0.2, weight_effective: 0.3, contribution: 1.2},
+  {axis: 'H', value: 10, weight_effective: 0.7, contribution: 7.0}];
+const land = {score: 8.2, rank: 900, n_rated: 922, group: 'land', rank_in_group: 3, n_group: 65, flags: [], axes};
+const spell = {...land, group: 'spell', rank_in_group: 1234, n_group: 1500};
+const flagged = {...land, flags: ['no_usage_axis']};
+const split = overallRows(land);
+console.log(JSON.stringify({
+  land: overallGroupText(land), spell: overallGroupText(spell), none: overallGroupText({score: null, rank_in_group: null}),
+  usageLabel: split.rows.find((r) => r.axis === 'usage').label, usageRaw: split.rows.find((r) => r.axis === 'usage').raw,
+  hRaw: split.rows.find((r) => r.axis === 'H').raw,
+  usageText: overallUsageText({tier: 'S', index: 76.5}), usageU: overallUsageText({tier: 'U', index: null}), usageN: overallUsageText(null),
+  h: overallHText(land), hNone: overallHText({axes: []}),
+  flagged: overallWithoutUsage({tier: 'S'}, flagged), plain: overallWithoutUsage({tier: 'S'}, land),
+}));
+"""
+    )
+    result = _node_json(script)
+    assert isinstance(result, dict)
+    assert (
+        result["land"] == "Länder: Rang 3 von 65"
+        and result["spell"] == "Zauber: Rang 1.234 von 1.500"
+    )
+    assert result["none"] is None
+    assert result["usageLabel"] == "Nutzungsindex (log-skaliert)" and result["usageRaw"] == 0.2
+    assert result["hRaw"] is None
+    assert result["usageText"] == "Nutzung S 76,5" and result["usageU"] == "Nutzung unbekannt"
+    assert result["usageN"] == "Nutzung unbekannt"
+    assert result["h"] == "H 10" and result["hNone"] == "H unbekannt"
+    assert result["flagged"] is True and result["plain"] is False
+    js = (STATIC / "tierliste.js").read_text(encoding="utf-8")
+    assert "ohne Nutzungsdaten" in js and 'id: "overall-hint"' in js and "(Index ${" in js
