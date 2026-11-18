@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import itertools
 import json
 import re
 import time
@@ -927,6 +928,170 @@ def test_web_refuses_a_time_limit_for_a_human_seat(
     assert "Zeitlimit" in refused.text
 
 
+def test_server_refuses_five_and_six_seat_tables_with_a_clear_reason(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """AGENTS.md: two to four seats are active; five and six stay locked until a qualification and
+    an explicit Owner decision. The Studio start refuses them, with and without a human seat."""
+    from commander_lab.studio import launch
+
+    assert (launch.MIN_SEATS, launch.MAX_RELEASED_SEATS) == (2, 4)
+    client = TestClient(create_app(tmp_path), headers={"X-Studio": "1"})
+    for others in (4, 5):
+        for human in (None, [0]):
+            body: dict[str, object] = {
+                "revision_id": "r",
+                "opponent_ids": [f"o{n}" for n in range(others)],
+                "seed": 1,
+            }
+            if human:
+                body["human_seats"] = human
+            refused = client.post("/api/games", json=body)
+            assert refused.status_code == 422, (others, human)
+            assert "locked" in refused.text and "Owner decision" in refused.text
+            assert f"{others + 1} seats" in refused.text
+    # a four-seat table passes the seat rule (it then needs the engine, which this folder lacks)
+    monkeypatch.setattr(launch, "engine_command", lambda _folder: None)
+    store = launch.StudioStore.open(tmp_path)
+    try:
+        with pytest.raises(RuntimeError):
+            launch.prepare_table_deck_paths(
+                store, tmp_path, revision_id="r", opponent_ids=["a", "b", "c"], seed=1
+            )
+    finally:
+        store.close()
+
+
+# ---- the real engine: a scripted human seat plays a whole game through the PLAY routes ----------
+
+ENGINE_ENV = "COMMANDER_LAB_XMAGE_FULL_GAME_BRIDGE_CMD"
+SCRIPTED_TURN_LIMIT = 40  # safety net: after this turn the script concedes, and the test then fails
+
+
+def _scripted_human_answer(pending: dict[str, object]) -> dict[str, object]:
+    """A fixed, deterministic script for a seat that keeps, plays lands and passes.
+
+    It is a test script, not a pilot and not a strength claim. It picks an option by its engine
+    type (keep, play-land, pass, hold, cancel); where it must choose among options of one kind, or
+    must answer a required choice or a number, it takes the smallest label or the stated minimum.
+    That tie-break is deterministic, not "the first option" and not random (no ratchet violation:
+    tests/unit/test_first_option_ratchet.py). Every id it sends is one the engine offered, and the
+    route refuses any other; it works out no rule itself.
+    """
+    options = [o for o in pending["legal_options"] if isinstance(o, dict)]  # type: ignore[attr-defined]
+    cls = pending["decision_class"]
+    minimum = int(pending.get("minimum_selections") or 0)  # type: ignore[call-overload]
+
+    def of_type(*types: str) -> list[dict[str, object]]:
+        return sorted(
+            (o for o in options if o["option_type"] in types), key=lambda o: str(o["label"])
+        )
+
+    body: dict[str, object] = {"decision_id": pending["decision_id"], "selected_option_ids": []}
+    chosen: list[dict[str, object]] = []
+    if cls == "mulligan":
+        chosen = of_type("keep")[:1]
+    elif cls == "priority":
+        land = [
+            o
+            for o in of_type("play_land_ability", "activated_ability")
+            if (o.get("metadata") or {}).get("ability_type") == "play_land"
+        ]  # type: ignore[attr-defined]
+        chosen = (land or of_type("pass_priority"))[:1]
+    elif cls == "declare_attacker":
+        chosen = of_type("hold_attacker")[:1]
+    elif cls == "mana_payment":
+        chosen = of_type("cancel_mana_payment")[:1]
+    elif minimum:
+        chosen = sorted(options, key=lambda o: str(o["label"]))[:minimum]
+    body["selected_option_ids"] = [o["option_id"] for o in chosen]
+    context = pending.get("context") or {}
+    if isinstance(context, dict) and context.get("numeric_min") is not None:
+        body["numeric_choice"] = int(context["numeric_min"])
+    return body
+
+
+@pytest.mark.external
+def test_real_engine_human_seat_plays_a_game_to_its_end_through_the_play_routes(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Needs the pinned XMage bridge (Java 21). Without it this test is SKIPPED, which is not a pass.
+
+    AGENTS.md section 10 (paths the reference set does not reach): the human seat, driven only by
+    ``/api/play/{id}/decision``, plays a two-seat game against the engine's own AI until the engine
+    reports the end.
+    """
+    from commander_lab.studio import launch
+
+    command = launch.engine_command(tmp_path)
+    if command is None:
+        pytest.skip(
+            f"NOT RUN (not a pass): no rules engine here; set {ENGINE_ENV} to the pinned bridge "
+            "command (java -Xmx3g -jar <xmage-engine-bridge.jar> full-game) with Java 21"
+        )
+    jar = next((Path(a) for prev, a in itertools.pairwise(command) if prev == "-jar"), None)
+    if jar is None or not jar.is_file():
+        pytest.skip(
+            f"NOT RUN (not a pass): the bridge jar named by {ENGINE_ENV or 'the data folder'} is missing"
+        )
+    precons = {deck_id: path for deck_id, _n, _c, _y, path in launch._precons()}
+    decks = [precons["precon/2026/lorehold_spirit"], precons["precon/2024/animated_army"]]
+    monkeypatch.setattr(
+        launch, "prepare_table_deck_paths", lambda *_a, **_k: ("real-engine-human", decks)
+    )
+    client = TestClient(create_app(tmp_path), headers={"X-Studio": "1"})
+    started = client.post(
+        "/api/games",
+        json={
+            "revision_id": "r",
+            "opponent_ids": ["o"],
+            "seed": 11,
+            "human_seats": [0],
+            "ai_delay_ms": 0,
+        },
+    )
+    assert started.status_code == 200, started.text
+    game_id = started.json()["game_id"]
+    answered: dict[str, int] = {}
+    conceded = False
+    deadline = time.monotonic() + 900
+    state: dict[str, object] = {}
+    try:
+        while time.monotonic() < deadline:
+            state = client.get(f"/api/play/{game_id}?count=0").json()
+            pending = state.get("pending_decision")
+            if not pending:
+                if not state.get("running"):
+                    break
+                time.sleep(0.2)
+                continue
+            assert isinstance(pending, dict)
+            turn = (pending.get("pilot_state") or {}).get("turn_number", 1)
+            if not conceded and isinstance(turn, int) and turn >= SCRIPTED_TURN_LIMIT:
+                assert client.post(f"/api/play/{game_id}/concede").status_code == 200
+                conceded = True
+                continue
+            body = _scripted_human_answer(pending)
+            cls = str(pending["decision_class"])
+            answered[cls] = answered.get(cls, 0) + 1
+            reply = client.post(f"/api/play/{game_id}/decision", json=body)
+            assert reply.status_code == 200, (cls, body, reply.text)
+        else:
+            pytest.fail(f"the game did not end within the time box; answered so far: {answered}")
+    finally:
+        client.app.state.play_manager.shutdown_all()  # type: ignore[attr-defined]
+    result = state.get("result") or {}
+    assert isinstance(result, dict)
+    assert state.get("running") is False and result.get("status") == "finished", result
+    # a regular end reported by the engine: the script did not have to concede, and someone won
+    assert conceded is False, "the game was cut off by the script's concede at the turn limit"
+    assert result.get("winner_seats"), result
+    assert answered.get("mulligan", 0) >= 1 and answered.get("priority", 0) >= 10, answered
+    # the engine's end is recorded, and the hands of the AI seat open up only now
+    assert state.get("hands_revealed") is True
+    print("real-engine human game ended:", result, "answered:", answered, "conceded:", conceded)
+
+
 def test_terminal_bridge_error_ends_the_game_instead_of_waiting_on(tmp_path: Path) -> None:
     class _TimedOutClient(_FakeInteractiveClient):
         """After the bridge's own timeout the next answer is rejected as a STALE_DECISION (no
@@ -1202,3 +1367,405 @@ def test_fast_forward_page_code_answers_nothing_but_the_verdict_pass() -> None:
     vorspulen = (STATIC / "vorspulen.js").read_text(encoding="utf-8")
     assert 'pending.decision_class !== "priority"' in vorspulen
     assert "innerHTML" not in vorspulen and "style=" not in vorspulen
+
+
+# ---- board clicks (static/boardclick.js): mapping engine options to cards and player fields -----
+
+BOARDCLICK_FIXTURES = Path(__file__).resolve().parents[1] / "fixtures" / "boardclick_payloads.json"
+_BC_PRELUDE = f"""
+const BC = require('./boardclick.js');
+const FX = JSON.parse(require('fs').readFileSync({json.dumps(BOARDCLICK_FIXTURES.as_posix())}, 'utf8'));
+const offered = (p) => p.legal_options.map((o) => String(o.option_id));
+const view = (name) => {{ const p = FX[name].pending_decision; return {{p, m: BC.build(p)}}; }};
+const optionOfCard = (p, id) => p.legal_options.filter((o) => (o.metadata || {{}}).source_object_id === id);
+"""
+
+
+def test_boardclick_fixtures_are_real_engine_payloads_without_hidden_cards() -> None:
+    fixtures = json.loads(BOARDCLICK_FIXTURES.read_text(encoding="utf-8"))
+    assert len(fixtures) >= 8
+    for name, entry in fixtures.items():
+        pending = entry["pending_decision"]
+        assert entry["note"].startswith("Real engine payload"), name
+        actor = pending["actor_id"]
+        players = pending["pilot_state"]["players"]
+        assert players, name
+        for player in players:
+            # only the human's own hand is in a payload; an AI hand never is
+            assert ("hand" in player) <= (player["player_id"] == actor), name
+        assert set(pending) >= {"decision_id", "legal_options", "pilot_state"}, name
+
+
+def test_boardclick_maps_real_payloads_to_the_offered_options_only() -> None:
+    out = _node_json(
+        _BC_PRELUDE
+        + """
+const out = {};
+for (const name of Object.keys(FX)) {
+  const {p, m} = view(name);
+  const ok = new Set(offered(p));
+  const emitted = BC.emittable(m);
+  out[name] = {kind: m.kind, mode: m.mode, offeredOnly: emitted.every((id) => ok.has(id)),
+    emitted: emitted.length, objects: Object.keys(m.objects).length, seats: Object.keys(m.seats).length,
+    listOnly: m.listOnly.length, loose: m.loose.length, options: p.legal_options.length,
+    accounted: offered(p).every((id) => emitted.includes(id) || m.listOnly.includes(id))};
+}
+console.log(JSON.stringify(out));
+"""
+    )
+    assert isinstance(out, dict) and len(out) >= 8
+    for name, row in out.items():
+        assert row["offeredOnly"] is True, name
+        # every offered option is somewhere: on a card or player, a loose button, or the list only
+        if row["kind"] != "none":
+            assert row["accounted"] is True, name
+    # a mulligan has nothing on the board: nothing is clickable
+    mulligan = out["mulligan"]
+    assert (mulligan["kind"], mulligan["objects"], mulligan["seats"], mulligan["emitted"]) == (
+        "none",
+        0,
+        0,
+        0,
+    )
+    # a scry choice offers one card of the library: not on the board, so only the list answers it
+    scry = out["target_library_scry"]
+    assert (scry["kind"], scry["objects"], scry["emitted"], scry["listOnly"]) == ("target", 0, 0, 1)
+    assert out["priority_lands_spells"]["kind"] == "priority"
+    assert out["priority_lands_spells"]["loose"] == 1  # the pass option
+
+
+def test_boardclick_priority_click_sends_the_engine_option_of_that_card() -> None:
+    out = _node_json(
+        _BC_PRELUDE
+        + """
+const {p, m} = view('priority_lands_spells');
+const res = [];
+for (const id of Object.keys(m.objects)) {
+  const own = optionOfCard(p, id).map((o) => String(o.option_id));
+  const r = BC.resolve(p, m, {type: 'object', id});
+  res.push({id, own, action: r.action, optionId: r.optionId || null, menu: (r.options || []).map((o) => o.optionId)});
+}
+const pass = p.legal_options.find((o) => o.option_type === 'pass_priority');
+console.log(JSON.stringify({res, loose: m.loose, pass: String(pass.option_id), mode: m.mode}));
+"""
+    )
+    assert isinstance(out, dict) and out["mode"] == "immediate"
+    assert len(out["res"]) >= 3
+    for row in out["res"]:
+        assert len(row["own"]) == 1 and row["action"] == "send"
+        assert row["optionId"] == row["own"][0]  # exactly the engine's option_id of that card
+    assert out["loose"] == [out["pass"]]  # passing stays a button, never a card
+
+
+def test_boardclick_one_card_with_two_abilities_opens_a_menu_not_a_guess() -> None:
+    out = _node_json(
+        _BC_PRELUDE
+        + """
+const {p, m} = view('priority_temple_two_abilities');
+const multi = Object.keys(m.objects).filter((id) => optionOfCard(p, id).length > 1);
+const r = BC.resolve(p, m, {type: 'object', id: multi[0]});
+console.log(JSON.stringify({multi: multi.length, action: r.action, sent: r.optionId || null,
+  menu: (r.options || []).map((o) => o.optionId), own: optionOfCard(p, multi[0]).map((o) => String(o.option_id)),
+  labels: (r.options || []).map((o) => o.label)}));
+"""
+    )
+    assert isinstance(out, dict) and out["multi"] == 1
+    assert out["action"] == "menu" and out["sent"] is None
+    assert out["menu"] == out["own"] and len(out["menu"]) == 2
+    assert all("Temple" in label for label in out["labels"])  # the engine's own wording
+
+
+def test_boardclick_mana_payment_and_discard_use_the_cards_the_engine_named() -> None:
+    out = _node_json(
+        _BC_PRELUDE
+        + """
+const pay = view('mana_payment');
+const disc = view('discard_from_hand');
+const sends = (v) => Object.keys(v.m.objects).map((id) => [id, BC.resolve(v.p, v.m, {type: 'object', id})]);
+console.log(JSON.stringify({
+  pay: {kind: pay.m.kind, loose: pay.m.loose.length, rows: sends(pay).map(([id, r]) => [r.action, optionOfCard(pay.p, id).map((o) => String(o.option_id)), r.optionId || null])},
+  disc: {kind: disc.m.kind, mode: disc.m.mode, rows: sends(disc).map(([id, r]) => [r.action, id === r.optionId, disc.m.objects[id].zone])},
+}));
+"""
+    )
+    assert isinstance(out, dict)
+    assert (
+        out["pay"]["kind"] == "mana_payment" and out["pay"]["loose"] >= 1
+    )  # cancel stays a button
+    assert len(out["pay"]["rows"]) >= 1
+    for action, own, sent in out["pay"]["rows"]:
+        assert action == "send" and own == [sent]
+    assert out["disc"]["kind"] == "target" and out["disc"]["mode"] == "immediate"
+    assert len(out["disc"]["rows"]) == 8
+    for action, equal, zone in out["disc"]["rows"]:
+        assert (action, equal, zone) == ("send", True, "hand")  # the card's id is its option id
+
+
+def test_boardclick_never_answers_with_an_option_that_was_not_offered() -> None:
+    out = _node_json(
+        _BC_PRELUDE
+        + """
+const probes = [{type: 'object', id: 'no-such-object'}, {type: 'object', id: '__proto__'}, {type: 'object', id: 'constructor'},
+  {type: 'seat', seat: 9}, {type: 'seat', seat: 'x'}, {type: 'other'}, null, {type: 'object'}];
+const rows = [];
+for (const name of Object.keys(FX)) {
+  const {p, m} = view(name);
+  const ok = new Set(offered(p));
+  const targets = probes.map((t) => ({t, probe: true}));
+  for (const id of Object.keys(m.objects)) targets.push({t: {type: 'object', id}, probe: false});
+  for (const seat of Object.keys(m.seats)) targets.push({t: {type: 'seat', seat: Number(seat)}, probe: false});
+  for (const {t, probe} of targets) {
+    const r = BC.resolve(p, m, t);
+    const ids = r.action === 'menu' ? r.options.map((o) => o.optionId) : (r.optionId ? [r.optionId] : []);
+    rows.push({name, probe, action: r.action, fine: ids.every((id) => ok.has(id))});
+  }
+  // the model of another decision: even when every option id is offered again, no click answers
+  const later = Object.assign({}, p, {decision_id: 'a-later-decision'});
+  for (const id of Object.keys(m.objects)) rows.push({name: name + '/other-decision', action: BC.resolve(later, m, {type: 'object', id}).action, fine: true});
+  for (const seat of Object.keys(m.seats)) rows.push({name: name + '/other-decision', action: BC.resolve(later, m, {type: 'seat', seat: Number(seat)}).action, fine: true});
+  // a stale model: the engine has since withdrawn every option, so no click may answer
+  const stale = Object.assign({}, p, {legal_options: []});
+  for (const id of Object.keys(m.objects)) rows.push({name: name + '/stale', probe: false, action: BC.resolve(stale, m, {type: 'object', id}).action, fine: true});
+}
+console.log(JSON.stringify(rows));
+"""
+    )
+    assert isinstance(out, list) and len(out) > 60
+    assert all(row["fine"] for row in out)
+    stale = [row for row in out if row["name"].endswith("/stale")]
+    assert len(stale) >= 8 and {row["action"] for row in stale} == {"none"}
+    other = [row for row in out if row["name"].endswith("/other-decision")]
+    assert len(other) >= 20 and {row["action"] for row in other} == {"none"}
+    # the junk probes (unknown ids, "__proto__", bad seats, null) never produce an action
+    probes = [row for row in out if row.get("probe") is True]
+    assert len(probes) >= 8 * 8 and {row["action"] for row in probes} == {"none"}
+
+
+# ---- partie.js: the functions that send or select, run for real with the page's own source --------
+
+_PAGE_PRELUDE = (
+    _BC_PRELUDE
+    + f"""
+const SRC = require('fs').readFileSync({json.dumps((STATIC / "partie.js").as_posix())}, 'utf8');
+const grab = (name) => {{
+  const start = SRC.indexOf('function ' + name + '(');
+  if (start < 0) throw new Error('missing ' + name);
+  let depth = 0, i = SRC.indexOf('{{', start);
+  for (; i < SRC.length; i += 1) {{ if (SRC[i] === '{{') depth += 1; else if (SRC[i] === '}}' && --depth === 0) break; }}
+  return SRC.slice(start, i + 1);
+}};
+const NAMES = ['offeredOption', 'boardDecision', 'toggleOption', 'toggleBoardOption', 'sendBoardOption',
+  'confirmSelection', 'adoptPendingDecision'];
+function page(pending, click, selected) {{
+  const calls = {{submitted: [], toasts: 0, menuClosed: 0, renders: 0}};
+  const state = {{pendingDecision: pending, click, selectedOptions: selected || [], submitting: false, clickActive: true}};
+  const body = NAMES.map(grab).join('\\n');
+  const make = new Function('state', 'calls', 'toast', 'render', 'closeBoardMenu', 'submitHumanChoice', '$',
+    body + '; return {{' + NAMES.join(',') + '}};');
+  const fns = make(state, calls, () => {{ calls.toasts += 1; }}, () => {{ calls.renders += 1; }},
+    () => {{ calls.menuClosed += 1; }}, (payload) => calls.submitted.push(payload), () => ({{hidden: false}}));
+  return {{state, calls, fns}};
+}}
+const later = (p) => Object.assign({{}}, p, {{decision_id: 'a-later-decision'}});
+"""
+)
+
+
+def test_page_list_toggle_works_for_decisions_with_numbers_and_options() -> None:
+    out = _node_json(
+        _PAGE_PRELUDE
+        + """
+const base = FX.discard_from_hand.pending_decision;
+const p = Object.assign({}, base, {minimum_selections: 1, maximum_selections: 2,
+  context: Object.assign({}, base.context, {numeric_max: 3})});
+const m = BC.build(p);  // a number in the context: no board mapping at all
+const first = String(p.legal_options[0].option_id);
+const rows = [];
+for (const click of [m, null]) {
+  const {state, fns} = page(p, click);
+  fns.toggleOption(first);
+  rows.push(state.selectedOptions.slice());
+}
+// the board path stays shut for such a decision
+const board = page(p, m); board.fns.toggleBoardOption(first);
+console.log(JSON.stringify({kind: m.kind, rows, first}));
+"""
+    )
+    assert isinstance(out, dict) and out["kind"] == "none"
+    assert out["rows"] == [[out["first"]], [out["first"]]]  # the list still selects
+
+
+def test_page_board_answers_only_bind_to_the_decision_the_model_was_built_for() -> None:
+    out = _node_json(
+        _PAGE_PRELUDE
+        + """
+const A = FX.target_battlefield_land.pending_decision;
+const B = later(A);                      // the same options, offered again by a newer decision
+const id = String(A.legal_options[0].option_id);
+const modelA = BC.build(A);
+const stale = page(B, modelA);           // the poll already delivered B, the board still shows A
+stale.fns.sendBoardOption(id); stale.fns.confirmSelection(); stale.fns.toggleBoardOption(id);
+const live = page(A, modelA);
+live.fns.sendBoardOption(id);
+const liveStaged = page(A, modelA, [id]); liveStaged.fns.confirmSelection();
+const notOffered = page(A, modelA, ['not-offered']); notOffered.fns.confirmSelection();
+const toggled = page(A, modelA); toggled.fns.toggleBoardOption(id);
+console.log(JSON.stringify({id, stale: {sent: stale.calls.submitted, picked: stale.state.selectedOptions},
+  live: live.calls.submitted, liveStaged: liveStaged.calls.submitted,
+  notOffered: {sent: notOffered.calls.submitted, toasts: notOffered.calls.toasts}, toggled: toggled.state.selectedOptions,
+  decision: A.decision_id}));
+"""
+    )
+    assert isinstance(out, dict)
+    assert out["stale"] == {"sent": [], "picked": []}  # nothing leaves for the newer decision
+    assert out["live"] == [
+        {"decision_id": out["decision"], "selected_option_ids": [out["id"]], "ordering": []}
+    ]
+    assert [row["decision_id"] for row in out["liveStaged"]] == [out["decision"]]
+    assert out["notOffered"] == {
+        "sent": [],
+        "toasts": 1,
+    }  # an id the engine does not offer is refused
+    assert out["toggled"] == [out["id"]]
+
+
+def test_page_drops_the_picks_and_the_model_when_the_decision_changes() -> None:
+    out = _node_json(
+        _PAGE_PRELUDE
+        + """
+const A = FX.target_battlefield_land.pending_decision;
+const id = String(A.legal_options[0].option_id);
+const run = (next) => {
+  const {state, calls, fns} = page(A, BC.build(A), [id]);
+  fns.adoptPendingDecision(next);
+  return {picked: state.selectedOptions, click: state.click, active: state.clickActive, closed: calls.menuClosed,
+    pending: state.pendingDecision && state.pendingDecision.decision_id};
+};
+console.log(JSON.stringify({changed: run(later(A)), none: run(null), same: run(Object.assign({}, A)), A: A.decision_id}));
+"""
+    )
+    assert isinstance(out, dict)
+    for key in ("changed", "none"):
+        assert (out[key]["picked"], out[key]["click"], out[key]["active"]) == ([], None, False), key
+        assert out[key]["closed"] == 1, key
+    assert out["changed"]["pending"] == "a-later-decision" and out["none"]["pending"] is None
+    # the same decision delivered again (every poll): the picks and the model stay
+    assert out["same"]["picked"] and out["same"]["click"] is not None and out["same"]["closed"] == 0
+
+
+def test_boardclick_decisions_with_numbers_or_choices_have_no_board_mapping() -> None:
+    out = _node_json(
+        _BC_PRELUDE
+        + """
+const base = FX.discard_from_hand.pending_decision;
+const withNumbers = Object.assign({}, base, {context: Object.assign({}, base.context, {numeric_max: 3})});
+const asModes = Object.assign({}, base, {decision_class: 'mode'});
+console.log(JSON.stringify([BC.build(withNumbers).kind, BC.build(asModes).kind, BC.build(null).kind, BC.build({}).kind,
+  BC.build(Object.assign({}, base, {legal_options: []})).kind]));
+"""
+    )
+    assert out == ["none", "none", "none", "none", "none"]
+
+
+def test_boardclick_attack_click_names_the_opponent_the_engine_labelled() -> None:
+    out = _node_json(
+        _BC_PRELUDE
+        + """
+const {p, m} = view('declare_attacker');
+const hold = p.legal_options.find((o) => o.option_type === 'hold_attacker');
+const asked = Object.keys(m.objects)[0];
+// the oracle reads the engine's own label "... attacks Full Game Seat N" and takes seat index N-1. That rule is
+// the same one boardclick.js uses, so this is a consistency check, not an independent proof: the rule itself
+// is derived from the Java creation order (checked against the source text below), not from engine output.
+const expected = (seat) => p.legal_options.filter((o) => o.option_type === 'declare_attacker'
+  && o.label.endsWith('Full Game Seat ' + (seat + 1))).map((o) => String(o.option_id));
+const seatRows = Object.keys(m.seats).map((s) => {
+  const r = BC.resolve(p, m, {type: 'seat', seat: Number(s)});
+  return {seat: Number(s), action: r.action, sent: r.optionId || null, want: expected(Number(s))};
+});
+// the same oracle against a model whose seats were swapped: it must notice
+const swapped = JSON.parse(JSON.stringify(m));
+const [a, b] = ['1', '2'];
+[swapped.seats[a].optionIds, swapped.seats[b].optionIds] = [m.seats[b].optionIds, m.seats[a].optionIds];
+const wrong = Object.keys(swapped.seats).filter((s) => {
+  const r = BC.resolve(p, swapped, {type: 'seat', seat: Number(s)});
+  return JSON.stringify([r.optionId]) !== JSON.stringify(expected(Number(s)));
+});
+const own = BC.resolve(p, m, {type: 'seat', seat: 0});
+const creature = BC.resolve(p, m, {type: 'object', id: asked});
+console.log(JSON.stringify({kind: m.kind, mode: m.mode, seats: seatRows, wrong, own: own.action,
+  hold: String(hold.option_id), loose: m.loose, creature: creature.action,
+  menu: (creature.options || []).map((o) => o.optionId), all: offered(p)}));
+"""
+    )
+    assert isinstance(out, dict) and (out["kind"], out["mode"]) == ("attacker", "immediate")
+    assert [row["seat"] for row in out["seats"]] == [1, 2, 3]  # never the human's own seat
+    for row in out["seats"]:
+        assert row["action"] == "send" and len(row["want"]) == 1
+        assert row["sent"] == row["want"][0]  # the click names the opponent the engine labelled
+    assert out["wrong"] == ["1", "2"]  # a wrong seat mapping is caught by the same check
+    java = (
+        Path(__file__).resolve().parents[2]
+        / "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
+    ).read_text(encoding="utf-8")
+    assert '"Full Game Seat " + (index + 1)' in java  # seat index = N - 1 (creation order)
+    assert out["own"] == "none"
+    assert out["loose"] == [out["hold"]]  # "do not attack" stays a button
+    assert out["creature"] == "menu" and sorted(out["menu"]) == sorted(out["all"])
+
+
+def test_boardclick_target_on_the_battlefield_sends_the_object_id_of_that_card() -> None:
+    out = _node_json(
+        _BC_PRELUDE
+        + """
+const {p, m} = view('target_battlefield_land');
+const ids = Object.keys(m.objects);
+const r = BC.resolve(p, m, {type: 'object', id: ids[0]});
+// a click on a battlefield card the engine did not offer finds no entry at all
+const other = FX.declare_attacker.pending_decision.pilot_state.players[1].battlefield[0].object_id;
+const miss = BC.resolve(p, m, {type: 'object', id: other});
+const sole = p.legal_options[0];
+// mutation probe: an option whose id is not the object's id must never become a click on that card
+const later = BC.resolve(Object.assign({}, p, {decision_id: 'a-later-decision'}), m, {type: 'object', id: ids[0]}).action;
+const bent = JSON.parse(JSON.stringify(p));
+bent.legal_options[0].option_id = 'not-the-object-id';
+const bm = BC.build(bent);
+console.log(JSON.stringify({kind: m.kind, mode: m.mode, ids, r, miss: miss.action, option: String(sole.option_id),
+  object: sole.metadata.object_id, zone: m.objects[ids[0]].zone, later,
+  bent: {objects: Object.keys(bm.objects).length, listOnly: bm.listOnly, click: BC.resolve(bent, bm, {type: 'object', id: ids[0]}).action}}));
+"""
+    )
+    assert isinstance(out, dict) and (out["kind"], out["mode"], out["zone"]) == (
+        "target",
+        "immediate",
+        "battlefield",
+    )
+    assert out["ids"] == [out["object"]] and out["r"] == {
+        "action": "send",
+        "optionId": out["option"],
+    }
+    assert out["option"] == out["object"] and out["miss"] == "none"
+    # the model belongs to its decision: a later decision offering the same id gets no answer from it
+    assert out["later"] == "none" and out["r"]["action"] == "send"
+    # an option id that is not its object's id stays in the list: no click sends it
+    assert out["bent"] == {"objects": 0, "listOnly": ["not-the-object-id"], "click": "none"}
+
+
+def test_boardclick_blocker_click_toggles_the_attacker_the_engine_offered() -> None:
+    out = _node_json(
+        _BC_PRELUDE
+        + """
+const {p, m} = view('blocker_one_attacker');
+const rows = Object.entries(m.objects).map(([id, e]) => [e.role, BC.resolve(p, m, {type: 'object', id})]);
+console.log(JSON.stringify({kind: m.kind, mode: m.mode, asked: m.asked, rows, loose: m.loose,
+  attacker: String(p.legal_options[0].option_id), min: p.minimum_selections, max: p.maximum_selections}));
+"""
+    )
+    assert isinstance(out, dict) and (out["kind"], out["mode"]) == ("blocker", "staged")
+    assert (out["min"], out["max"]) == (
+        0,
+        1,
+    )  # not blocking is allowed: the page confirms an empty choice
+    roles = {role: result for role, result in out["rows"]}
+    assert roles["block-target"] == {"action": "toggle", "optionId": out["attacker"]}
+    assert roles["asked"] == {"action": "none"}  # the blocker itself only shows who blocks

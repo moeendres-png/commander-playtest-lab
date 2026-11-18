@@ -46,6 +46,7 @@
   <span id="where" class="muted"></span>
 </div>
 <div id="ff-status" class="ff-status" role="status" aria-live="polite" hidden></div>
+<div id="board-bar" class="board-bar" role="region" aria-label="Aktion am Brett" hidden></div>
 <main id="game">
   <section id="table"></section>
   <aside id="side">
@@ -60,10 +61,13 @@
   </aside>
 </main>
 <div id="preview" hidden><img alt="" referrerpolicy="no-referrer"></div>
+<div id="board-menu" class="board-menu" role="menu" aria-label="Möglichkeiten" hidden></div>
+<svg id="board-links" class="board-links" aria-hidden="true" focusable="false"></svg>
 <div id="modal" hidden><div id="modal-box" class="plain"></div></div>
 <div id="toast" role="status" aria-live="polite" hidden></div>
 <script src="commander.js"></script>
 <script src="vorspulen.js"></script>
+<script src="boardclick.js"></script>
 <script src="partie.js"></script>
 </body>
 </html>
