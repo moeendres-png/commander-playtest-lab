@@ -17,8 +17,8 @@ plays real 100-card Commander decks rules-correctly, so simulated games can stan
   (five and six seats only after the Owner's go).
 - The simulator is one part of the local Commander Studio (BUILD, PLAY, SIMULATE):
   `docs/OWNER_DECISION_STUDIO_BUILD_PLAY_SIMULATE_20261110.md`. The Owner decisions for the three
-  areas are in `docs/OWNER_DECISIONS_STUDIO_20261112.md` and `docs/STUDIO_PLAN_SIMULATOR.md`; read
-  them before any Studio work. Binding in short: only objective data with provenance; every count
+  areas are in `docs/OWNER_DECISIONS_STUDIO_20261112.md`, `docs/STUDIO_PLAN_SIMULATOR.md` and
+  `docs/STUDIO_TARGET_SCOPE.md`; read them before any Studio work. Binding in short: only objective data with provenance; every count
   with its denominator; cohorts never added; source data bound to one commander; no guessed tier.
   The Owner's marks (favorites, exclusions, notes) never count as a rating. Simulation results do
   not enter the tier list: the `simulation` weight stays 0 in the default and in every preset.
@@ -337,12 +337,11 @@ commands: `docs/STUDIO_PLAN_SIMULATOR.md`, `docs/STUDIO_BRIDGE_GATE_TOOLING.md`)
   is recorded as `NOT_SEALED`, never as PASS. Review and checks as for every MATERIAL change.
 
 Once a change has merged under this gate (the first was #1316) the running bridge is no longer the
-sealed one. Open obligation, tracked in #1401, which the next bridge pull request meets: game logs
-and Studio series results record the bridge jar SHA-256, and wherever the current qualification is
-reported a visible `BRIDGE_AHEAD_OF_QUALIFICATION` state is shown while `engine-bridge/` differs
-from the sealed source. Neither exists yet. Nothing produced on a later bridge is presented as
-covered by the sealed epoch. A bridge change never decides a rule, never picks an option for a seat
-and never widens what a principal may see (§2, §5).
+sealed one (#1401 closed): game logs and Studio series results record `bridge_jar_sha256`, and
+wherever the current qualification is reported a visible `BRIDGE_AHEAD_OF_QUALIFICATION` state is
+shown while `engine-bridge/` differs from the sealed source. Nothing produced on a later bridge is
+presented as covered by the sealed epoch. A bridge change never decides a rule, never picks an
+option for a seat and never widens what a principal may see (§2, §5).
 
 ## 11. Git, worktree, ownership
 
