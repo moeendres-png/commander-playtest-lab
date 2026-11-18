@@ -171,3 +171,8 @@ td.cardcell .thumb{width:36px;aspect-ratio:488/680;height:auto;background:var(--
 @media (min-width:701px){#filters{min-height:168px}#top{min-height:71px}}
 @media (min-width:1100px){#filters{min-height:143px}}
 @media (min-width:1700px){#filters{min-height:109px}#top{min-height:39px}}
+
+.search-help-wrap{position:relative;display:inline-flex;align-items:center}
+.search-help-btn{min-width:28px;padding:3px 8px;font-weight:700}
+.search-help-popover{position:absolute;top:calc(100% + 4px);left:0;z-index:40;min-width:280px;max-width:min(420px,90vw);padding:8px 10px;background:var(--surface,#fff);border:1px solid var(--border,#cbd5e1);border-radius:8px;box-shadow:0 6px 20px rgba(0,0,0,.14)}
+.search-help-title{font-size:12px;font-weight:600;margin-bottom:6px;color:var(--muted,#475569)}
