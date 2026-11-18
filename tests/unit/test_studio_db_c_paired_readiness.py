@@ -1451,3 +1451,595 @@ def test_estimate_series_duration_scales_with_workers_and_api_validates_parallel
         assert ok_resp.status_code == 200
     finally:
         store.close()
+
+
+def test_orphaned_running_series_is_reported_as_interrupted_and_resumed_identically(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    store, folder = _make_store(tmp_path)
+    try:
+        rev_a = create_revision(
+            store,
+            deck_id="chulane",
+            name="Chulane",
+            branch="main",
+            cards=[
+                RevisionCard("cid-chulane", 1, "commander"),
+                RevisionCard("cid-sol-ring", 1, "main"),
+                RevisionCard("cid-forest", 98, "main"),
+            ],
+        )
+        rev_b = create_revision(
+            store,
+            deck_id="chulane",
+            name="Chulane",
+            branch="var",
+            cards=[
+                RevisionCard("cid-chulane", 1, "commander"),
+                RevisionCard("cid-signet", 1, "main"),
+                RevisionCard("cid-forest", 98, "main"),
+            ],
+        )
+        monkeypatch.setattr(paired_series, "_preflight_snapshot_cards", lambda *_a, **_k: None)
+
+        def _make_deterministic_player(
+            called: list[tuple[str, int, int]],
+        ) -> paired_comparison.PairPlayer:
+            def _play(arm: str, seed: int, seat: int) -> paired_comparison.PlayedGame:
+                called.append((arm, seed, seat))
+                if arm == "variant" and seed == 500 and seat == 1:
+                    return {"exposure": None, "failure_class": "BRIDGE_TIMEOUT"}
+                deck_id = "chulane--base" if arm == "base" else "chulane--variant"
+                winner = [seat] if (arm == "variant" or seed % 2 == 0) else [(seat + 1) % 4]
+                return {
+                    "exposure": {
+                        "game_id": f"g-{arm}-{seed}-{seat}",
+                        "seed": seed,
+                        "engine_commit": "5bd29ab6f318",
+                        "pilot": "GenericCommanderPilot 1.0.0",
+                        "decision_policy": "xmage-full-game-policy-1.0.0",
+                        "winner_seats": winner,
+                        "seats": [
+                            {
+                                "seat": seat,
+                                "deck_id": deck_id,
+                                "win_credit": 1.0 if seat in winner else 0.0,
+                                "first_hand": [],
+                                "seen_by_turn_3": [],
+                            }
+                        ],
+                    },
+                    "failure_class": None,
+                }
+
+            return _play
+
+        # 1. Uninterrupted baseline run
+        uninterrupted_calls: list[tuple[str, int, int]] = []
+        mgr_full = paired_series.PairedSeriesManager()
+        full_job = mgr_full.start_series(
+            store,
+            folder / "full",
+            base_revision_id=rev_a,
+            variant_revision_id=rev_b,
+            pod="precon",
+            budget_pairs=8,
+            look_every_pairs=4,
+            base_seed=500,
+            workers=1,
+            games_per_jvm=1,
+            play_override=_make_deterministic_player(uninterrupted_calls),
+        )
+        deadline = time.monotonic() + 10.0
+        while time.monotonic() < deadline and full_job.status in {"pending", "running"}:
+            time.sleep(0.02)
+        assert full_job.status == "completed"
+        assert full_job.result is not None
+
+        # 2. Simulate an interrupted series on disk (first 3 pairs in progress.jsonl, status="running")
+        mgr_init = paired_series.PairedSeriesManager()
+        res_dir = folder / "resumed"
+
+        class _CrashAfterThreePairs(RuntimeError):
+            pass
+
+        crash_calls: list[tuple[str, int, int]] = []
+        base_player = _make_deterministic_player(crash_calls)
+
+        def _crashing_player(arm: str, seed: int, seat: int) -> paired_comparison.PlayedGame:
+            if len(crash_calls) >= 6:
+                raise _CrashAfterThreePairs("simulated power loss")
+            return base_player(arm, seed, seat)
+
+        crashed_job = mgr_init.start_series(
+            store,
+            res_dir,
+            base_revision_id=rev_a,
+            variant_revision_id=rev_b,
+            pod="precon",
+            budget_pairs=8,
+            look_every_pairs=4,
+            base_seed=500,
+            workers=1,
+            games_per_jvm=1,
+            play_override=_crashing_player,
+        )
+        deadline = time.monotonic() + 10.0
+        while time.monotonic() < deadline and crashed_job.status in {"pending", "running"}:
+            time.sleep(0.02)
+        assert crashed_job.status == "failed"
+
+        # Overwrite on-disk status to "running" to simulate a hard process kill without finally block
+        disk_path = crashed_job.series_file()
+        disk_payload = json.loads(disk_path.read_text(encoding="utf-8"))
+        disk_payload["status"] = "running"
+        disk_payload["ended_at"] = None
+        disk_payload["error"] = None
+        disk_payload["pairs_attempted"] = 3
+        disk_path.write_text(json.dumps(disk_payload), encoding="utf-8")
+
+        # 3. Fresh manager (no in-memory jobs) must report "interrupted" with 3/8 pairs
+        mgr_fresh = paired_series.PairedSeriesManager()
+        seen_one = mgr_fresh.get_series(res_dir, crashed_job.series_id)
+        assert seen_one is not None
+        assert seen_one["status"] == "interrupted"
+        assert seen_one["pairs_attempted"] == 3
+        assert seen_one["budget_pairs"] == 8
+        assert seen_one["resumable"] is True
+        listed = mgr_fresh.list_series(res_dir)
+        assert any(
+            row["series_id"] == crashed_job.series_id and row["status"] == "interrupted"
+            for row in listed
+        )
+
+        # 4. Resume and verify only missing pairs play & final result matches uninterrupted run
+        resumed_calls: list[tuple[str, int, int]] = []
+        resumed_job = mgr_fresh.resume_series(
+            res_dir,
+            crashed_job.series_id,
+            workers=1,
+            games_per_jvm=1,
+            play_override=_make_deterministic_player(resumed_calls),
+        )
+        deadline = time.monotonic() + 10.0
+        while time.monotonic() < deadline and resumed_job.status in {"pending", "running"}:
+            time.sleep(0.02)
+        assert resumed_job.status == "completed", resumed_job.error
+        assert resumed_job.result is not None
+
+        # Already-played 3 pairs (6 games) were NOT re-played
+        assert len(resumed_calls) == len(uninterrupted_calls) - 6
+        assert set(resumed_calls).isdisjoint(set(crash_calls))
+
+        # Outcomes & O'Brien-Fleming looks are identical; censored failure class preserved
+        for key in (
+            "status",
+            "answer",
+            "stop_reason",
+            "pairs_played",
+            "pairs_completed",
+            "pairs_censored",
+            "difference_pp",
+            "sign_test_p_value",
+            "failure_classes",
+        ):
+            assert resumed_job.result[key] == full_job.result[key], key
+        assert resumed_job.result["failure_classes"]["variant"].get("BRIDGE_TIMEOUT") == 1
+        assert resumed_job.result["looks_planned"] == full_job.result["looks_planned"]
+        assert resumed_job.result["looks_used"] == full_job.result["looks_used"]
+        assert resumed_job.result["pairs"] == full_job.result["pairs"]
+    finally:
+        store.close()
+
+
+def test_paired_resume_route_returns_updated_job_and_rejects_completed(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    store, folder = _make_store(tmp_path)
+    try:
+        app = create_app(folder)
+        client = TestClient(app)
+        headers = {"x-studio": "1"}
+
+        assert (
+            client.post(
+                "/api/simulations/paired/paired-missing-1/resume", headers=headers
+            ).status_code
+            == 404
+        )
+
+        # Write a completed series on disk -> 409 Conflict
+        games_dir = folder / "games"
+        games_dir.mkdir(parents=True, exist_ok=True)
+        (games_dir / "paired-done-1.paired.json").write_text(
+            json.dumps({"series_id": "paired-done-1", "status": "completed"}),
+            encoding="utf-8",
+        )
+        assert (
+            client.post("/api/simulations/paired/paired-done-1/resume", headers=headers).status_code
+            == 409
+        )
+
+        # Mock resume_series on an interrupted series -> 200
+        class _FakeJob:
+            def to_dict(self) -> dict[str, object]:
+                return {"series_id": "paired-int-1", "status": "running", "pairs_attempted": 3}
+
+        monkeypatch.setattr(
+            paired_series.paired_series_manager,
+            "resume_series",
+            lambda *_a, **_k: _FakeJob(),
+        )
+        ok = client.post("/api/simulations/paired/paired-int-1/resume", headers=headers)
+        assert ok.status_code == 200
+        assert ok.json()["series_id"] == "paired-int-1"
+        assert ok.json()["status"] == "running"
+    finally:
+        store.close()
+
+
+def test_paired_resume_persists_custom_opponents_and_rejects_mismatch(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    store, folder = _make_store(tmp_path)
+    try:
+        rev_a = create_revision(
+            store,
+            deck_id="chulane",
+            name="Chulane",
+            branch="main",
+            cards=[
+                RevisionCard("cid-chulane", 1, "commander"),
+                RevisionCard("cid-sol-ring", 1, "main"),
+                RevisionCard("cid-forest", 98, "main"),
+            ],
+        )
+        rev_b = create_revision(
+            store,
+            deck_id="chulane",
+            name="Chulane",
+            branch="var",
+            cards=[
+                RevisionCard("cid-chulane", 1, "commander"),
+                RevisionCard("cid-signet", 1, "main"),
+                RevisionCard("cid-forest", 98, "main"),
+            ],
+        )
+        monkeypatch.setattr(paired_series, "_preflight_snapshot_cards", lambda *_a, **_k: None)
+
+        custom_opponents = list(paired_series.POD_PRESETS["mixed"][:2])
+        calls: list[tuple[str, int, int]] = []
+
+        def _player(arm: str, seed: int, seat: int) -> paired_comparison.PlayedGame:
+            calls.append((arm, seed, seat))
+            if len(calls) >= 2:
+                raise RuntimeError("stop mid-pair")
+            return {
+                "exposure": _mock_exposure(  # type: ignore[typeddict-item]
+                    f"{arm}-{seed}-{seat}",
+                    seed=seed,
+                    seat=seat,
+                    tested_deck_id="chulane--base",
+                    won=False,
+                ),
+                "failure_class": None,
+            }
+
+        mgr = paired_series.PairedSeriesManager()
+        res_dir = folder / "opp_resume"
+        job = mgr.start_series(
+            store,
+            res_dir,
+            base_revision_id=rev_a,
+            variant_revision_id=rev_b,
+            pod="precon",
+            opponent_ids=custom_opponents,
+            budget_pairs=3,
+            look_every_pairs=3,
+            base_seed=700,
+            workers=1,
+            games_per_jvm=1,
+            play_override=_player,
+        )
+        _wait_job(mgr, res_dir, job.series_id)
+        assert job.status == "failed"
+
+        disk_payload = json.loads(job.series_file().read_text(encoding="utf-8"))
+        assert disk_payload["opponent_ids"] == custom_opponents
+        assert len(disk_payload["opponent_deck_ids"]) == 2
+        assert disk_payload["seed_plan"]["player_count"] == 3
+
+        # Append a truncated line without trailing newline to progress.jsonl to verify crash guard
+        prog_path = job.progress_file()
+        with prog_path.open("ab") as handle:
+            handle.write(b'{"arm":"variant","seed":700,"seat":0,"played":')
+
+        # 1. Tampering opponent_ids to drop custom table must be rejected on resume
+        tampered = dict(disk_payload)
+        tampered["opponent_ids"] = None
+        job.series_file().write_text(json.dumps(tampered), encoding="utf-8")
+        mgr2 = paired_series.PairedSeriesManager()
+        with pytest.raises(ValueError, match=r"weichen ab|Sitzanzahl"):
+            mgr2.resume_series(
+                res_dir,
+                job.series_id,
+                workers=1,
+                games_per_jvm=1,
+                play_override=lambda a, s, t: _player(a, s, t),
+            )
+
+        # 1b. Legacy series without opponent_deck_ids must NOT silently fall back to preset pod
+        legacy = dict(disk_payload)
+        legacy["opponent_ids"] = None
+        legacy.pop("opponent_deck_ids", None)
+        job.series_file().write_text(json.dumps(legacy), encoding="utf-8")
+        legacy_view = mgr2.get_series(res_dir, job.series_id)
+        assert legacy_view is not None and legacy_view["resumable"] is False
+        with pytest.raises(ValueError, match="opponent_deck_ids fehlt"):
+            mgr2.resume_series(
+                res_dir,
+                job.series_id,
+                workers=1,
+                games_per_jvm=1,
+                play_override=lambda a, s, t: _player(a, s, t),
+            )
+
+        # 2. Restoring valid payload resumes mid-pair (base 700/0 skipped, variant 700/0 played)
+        job.series_file().write_text(json.dumps(disk_payload), encoding="utf-8")
+        resumed_calls: list[tuple[str, int, int]] = []
+
+        def _resume_ok(arm: str, seed: int, seat: int) -> paired_comparison.PlayedGame:
+            resumed_calls.append((arm, seed, seat))
+            return {
+                "exposure": _mock_exposure(  # type: ignore[typeddict-item]
+                    f"{arm}-{seed}-{seat}",
+                    seed=seed,
+                    seat=seat,
+                    tested_deck_id=f"chulane--{arm}",
+                    won=(arm == "variant"),
+                ),
+                "failure_class": None,
+            }
+
+        resumed = mgr2.resume_series(
+            res_dir,
+            job.series_id,
+            workers=1,
+            games_per_jvm=1,
+            play_override=_resume_ok,
+        )
+        _wait_job(mgr2, res_dir, resumed.series_id)
+        assert resumed.status == "completed", resumed.error
+        assert ("base", 700, 0) not in resumed_calls
+        assert ("variant", 700, 0) in resumed_calls
+        assert len(resumed_calls) == 5  # 3 pairs * 2 arms - 1 already played base game
+    finally:
+        store.close()
+
+
+def test_paired_resume_live_lockfile_and_engine_chunk_filtering(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # 1. Live running.lock prevents interrupted misclassification and double resume
+    games_dir = tmp_path / "games"
+    sid = "paired-999999-1-locktest"
+    deck_dir = games_dir / "paired_decks" / sid
+    deck_dir.mkdir(parents=True, exist_ok=True)
+    (deck_dir / "base-a.json").write_text("{}", encoding="utf-8")
+    (deck_dir / "variant-b.json").write_text("{}", encoding="utf-8")
+    (games_dir / f"{sid}.paired.json").write_text(
+        json.dumps(
+            {
+                "series_id": sid,
+                "status": "running",
+                "pod": "precon",
+                "opponent_deck_ids": ["opp-a", "opp-b", "opp-c"],
+                "budget_pairs": 4,
+                "look_every_pairs": 2,
+                "tested_seats": [0, 1],
+                "threshold_pp": 0.0,
+                "significance_level": 0.05,
+                "seed_plan": {"first_seed": 100, "seeds_planned": 2, "player_count": 4},
+            }
+        ),
+        encoding="utf-8",
+    )
+    (deck_dir / "running.lock").write_text(
+        json.dumps({"series_id": sid, "pid": os.getpid(), "heartbeat": time.time()}),
+        encoding="utf-8",
+    )
+    mgr = paired_series.PairedSeriesManager()
+    live = mgr.get_series(tmp_path, sid)
+    assert live is not None
+    assert live["status"] == "running"
+    assert live["resumable"] is False
+    with pytest.raises(RuntimeError, match=r"running\.lock|läuft bereits"):
+        mgr.resume_series(
+            tmp_path, sid, play_override=lambda *_a: {"exposure": None, "failure_class": None}
+        )
+
+    # Stale heartbeat with live PID (e.g., during a long engine chunk) must stay running
+    (deck_dir / "running.lock").write_text(
+        json.dumps({"series_id": sid, "pid": os.getpid(), "heartbeat": time.time() - 600.0}),
+        encoding="utf-8",
+    )
+    stale = mgr.get_series(tmp_path, sid)
+    assert stale is not None
+    assert stale["status"] == "running"
+    assert stale["resumable"] is False
+
+    # Windows PID check must use WinDLL("kernel32", use_last_error=True) and never os.kill
+    import ctypes
+    import sys
+
+    monkeypatch.setattr(sys, "platform", "win32")
+    monkeypatch.setattr(
+        os, "kill", lambda *_a: pytest.fail("os.kill must not be called on Windows")
+    )
+    win_state = {"alive": True, "last_err": 0}
+
+    class _FakeFn:
+        def __init__(self, fn: object) -> None:
+            self._fn = fn
+            self.argtypes: list[object] = []
+            self.restype: object = None
+
+        def __call__(self, *args: object) -> object:
+            return self._fn(*args)  # type: ignore[operator]
+
+    class _FakeK32:
+        def __init__(self) -> None:
+            self.OpenProcess = _FakeFn(self._open_process)
+            self.GetExitCodeProcess = _FakeFn(self._get_exit_code)
+            self.CloseHandle = _FakeFn(lambda _h: 1)
+
+        def _open_process(self, _access: int, _inherit: int, pid: int) -> int:
+            return 111 if pid == 4242 else 0
+
+        def _get_exit_code(self, _handle: int, out: object) -> int:
+            out._obj.value = 259 if win_state["alive"] else 0  # type: ignore[attr-defined]
+            return 1
+
+    fake_k32 = _FakeK32()
+    monkeypatch.setattr(
+        ctypes,
+        "WinDLL",
+        lambda name, use_last_error=False: (
+            fake_k32
+            if name == "kernel32" and use_last_error
+            else pytest.fail(f"unexpected WinDLL({name!r}, use_last_error={use_last_error})")
+        ),
+        raising=False,
+    )
+    monkeypatch.setattr(ctypes, "get_last_error", lambda: win_state["last_err"], raising=False)
+    (deck_dir / "running.lock").write_text(
+        json.dumps({"series_id": sid, "pid": 4242, "heartbeat": time.time()}),
+        encoding="utf-8",
+    )
+    win_live = mgr.get_series(tmp_path, sid)
+    assert win_live is not None and win_live["status"] == "running"
+    win_state["alive"] = False
+    win_dead = mgr.get_series(tmp_path, sid)
+    assert win_dead is not None and win_dead["status"] == "interrupted" and win_dead["resumable"]
+    # Access denied (ERROR_ACCESS_DENIED = 5) on foreign PID counts as alive
+    (deck_dir / "running.lock").write_text(
+        json.dumps({"series_id": sid, "pid": 9999}), encoding="utf-8"
+    )
+    win_state["last_err"] = 5
+    win_denied = mgr.get_series(tmp_path, sid)
+    assert win_denied is not None and win_denied["status"] == "running"
+    monkeypatch.undo()
+
+    # Dead lockfile -> reported as interrupted & resumable
+    (deck_dir / "running.lock").write_text(
+        json.dumps({"series_id": sid, "pid": 99999999}), encoding="utf-8"
+    )
+    dead = mgr.get_series(tmp_path, sid)
+    assert dead is not None
+    assert dead["status"] == "interrupted"
+    assert dead["resumable"] is True
+
+    # Missing seed_plan -> not resumable
+    (games_dir / f"{sid}.paired.json").write_text(
+        json.dumps({"series_id": sid, "status": "failed", "pod": "precon"}), encoding="utf-8"
+    )
+    no_plan = mgr.get_series(tmp_path, sid)
+    assert no_plan is not None
+    assert no_plan["resumable"] is False
+
+    # 2. Engine-path chunk filtering skips already-preloaded arm+seed+seat
+    from commander_lab.models import RulesDeckInput
+
+    base_deck = RulesDeckInput(
+        deck_id="chulane--base",
+        name="Base",
+        commander_names=(COMMANDER,),
+        mainboard=("Forest",) * 99,
+    )
+    var_deck = RulesDeckInput(
+        deck_id="chulane--variant",
+        name="Var",
+        commander_names=(COMMANDER,),
+        mainboard=("Island",) * 99,
+    )
+    opp_decks = [
+        RulesDeckInput(
+            deck_id=f"opp-{i}",
+            name=f"Opp {i}",
+            commander_names=(COMMANDER,),
+            mainboard=("Plains",) * 99,
+        )
+        for i in range(3)
+    ]
+    paths_by_id = {
+        d.deck_id: tmp_path / f"{d.deck_id}.json" for d in [base_deck, var_deck, *opp_decks]
+    }
+    recorded_calls: list[tuple[str, list[int]]] = []
+
+    def _fake_play_recorded_games(
+        _data_folder: Path,
+        _deck_paths: list[Path],
+        series_games: list[paired_comparison.SeriesGame],
+        **_kwargs: object,
+    ) -> list[dict[str, object]]:
+        seeds = [g.seed for g in series_games]
+        arm = "variant" if any("--variant" in str(p) for p in _deck_paths) else "base"
+        recorded_calls.append((arm, seeds))
+        return [
+            {
+                "game_id": g.game_id,
+                "seed": g.seed,
+                "winner_seats": [0],
+                "seats": [],
+            }
+            for g in series_games
+        ]
+
+    from commander_lab.studio import play_batch as studio_play_batch
+
+    monkeypatch.setattr(studio_play_batch, "play_recorded_games", _fake_play_recorded_games)
+    monkeypatch.setattr(
+        paired_comparison,
+        "_summary_to_played_game",
+        lambda summary: {
+            "exposure": _mock_exposure(
+                str(summary["game_id"]),
+                seed=int(summary["seed"]),  # type: ignore[arg-type]
+                seat=0,
+                tested_deck_id="chulane--variant"
+                if "-variant-" in str(summary["game_id"])
+                else "chulane--base",
+                won=False,
+            ),
+            "failure_class": None,
+        },
+    )
+
+    preloaded: dict[tuple[str, int, int], paired_comparison.PlayedGame] = {
+        ("base", 100, 0): {
+            "exposure": _mock_exposure(  # type: ignore[typeddict-item]
+                "pre-base-100-0", seed=100, seat=0, tested_deck_id="chulane--base", won=False
+            ),
+            "failure_class": None,
+        }
+    }
+    player = paired_comparison.parallel_window_player(
+        tmp_path,
+        series_id="paired-chunk-test",
+        base_deck=base_deck,
+        variant_deck=var_deck,
+        opponents=opp_decks,
+        paths_by_deck_id=paths_by_id,
+        seeds=[100],
+        tested_seats=[0],
+        budget_pairs=1,
+        look_every_pairs=1,
+        workers=1,
+        games_per_jvm=1,
+        preloaded=preloaded,
+    )
+    res_base = player("base", 100, 0)
+    res_var = player("variant", 100, 0)
+    assert res_base["exposure"] is not None
+    assert res_var["exposure"] is not None
+    assert recorded_calls == [("variant", [100])]
