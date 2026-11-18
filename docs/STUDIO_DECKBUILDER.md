@@ -1822,3 +1822,36 @@ this; shipping the page inside a wheel is a later step.
   Tierliste, Partien, chosen commander, light/dark toggle remembered in the browser).
 - Drafts are kept automatically; a saved state is an immutable revision. Variants are named
   branches of a deck. Export as text list or as deck snapshot for the simulator.
+
+## Vom Stand zur Partie und zur Serie
+
+Der durchgehende Weg im Studio ohne Handarbeit (Refs #1531):
+
+1. **Stand speichern:** Im Deckbauer eine Änderung vornehmen und als Revision speichern
+   (`POST /api/decks/{deck_id}/revisions`). Der Store vergibt eine unveränderliche `revision_id`
+   und berechnet den `deck_hash`.
+2. **Partie aus diesem Stand starten:** Im Deck-Tab auf „Mit diesem Stand eine Partie spielen“
+   klicken (`static/app.js`; öffnet die Partie-Seite mit vorgewählter `revision_id`). Dort startet
+   „Partie starten“ `POST /api/games` mit exakt diesem Stand (`deck_hash` identisch zur Revision).
+   *Nur mit echter Engine prüfbar:* ob die Bridge-JAR am Owner-PC alle Karten lädt und die Partie
+   bis zum Ende durchläuft (Protokoll: `docs/STUDIO_ABNAHME_PROTOKOLL.md`, Block F, bis zur
+   Ausführung `UNKNOWN`).
+3. **Gepaarte Serie starten:** Im Simulations-Tab Basis- und Varianten-Revision sowie Pod wählen
+   und die gepaarte Serie starten (`POST /api/simulations/paired`). Beide Snapshots tragen den
+   `deck_hash` der gewählten Revisionen; die Serie läuft als `SIMULATED_RESULT`.
+   *Nur mit echter Engine prüfbar:* Laufzeit und Vollständigkeit der Partien am Owner-PC (`UNKNOWN`
+   bis Block F).
+4. **Im Deck-Verlauf ablesen:** Im Deckbauer zeigt die Sektion „Serien im Verlauf“
+   (`GET /api/decks/{deck_id}/series`, `static/deckseries.js`) jede Serie genau bei den
+   Revisionen (`by_revision[revision_id]` mit `series_id`, `role`, `counterpart_ref` sowie
+   `series[]` mit `base_ref`, `variant_ref`, `pairs_completed`, `difference_pp`), die daran
+   beteiligt waren (`data_class = SIMULATED_RESULT`).
+   Serien anderer Stände oder Decks werden nicht als Ergebnis des aktuellen Standes gezeigt; die
+   Tierliste bleibt davon unberührt (`simulation`-Gewicht = 0, belegt in
+   `tests/unit/test_studio_simulation_weight_zero.py`).
+
+Belegt über alle vier Routen (`launch.start_game` inkl. `prepare_table_deck_paths` bis `Popen`
+bzw. `play_override` für gepaarte Serien) in `tests/unit/test_studio_deck_to_series_roundtrip.py`;
+Echt-Engine-Gegenprobe am Owner-PC steht aus (`UNKNOWN`, Block F in
+`docs/STUDIO_ABNAHME_PROTOKOLL.md`).
+
