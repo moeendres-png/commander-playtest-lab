@@ -927,6 +927,40 @@ def test_web_refuses_a_time_limit_for_a_human_seat(
     assert "Zeitlimit" in refused.text
 
 
+def test_server_refuses_five_and_six_seat_tables_with_a_clear_reason(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """AGENTS.md: two to four seats are active; five and six stay locked until a qualification and
+    an explicit Owner decision. The Studio start refuses them, with and without a human seat."""
+    from commander_lab.studio import launch
+
+    assert (launch.MIN_SEATS, launch.MAX_RELEASED_SEATS) == (2, 4)
+    client = TestClient(create_app(tmp_path), headers={"X-Studio": "1"})
+    for others in (4, 5):
+        for human in (None, [0]):
+            body: dict[str, object] = {
+                "revision_id": "r",
+                "opponent_ids": [f"o{n}" for n in range(others)],
+                "seed": 1,
+            }
+            if human:
+                body["human_seats"] = human
+            refused = client.post("/api/games", json=body)
+            assert refused.status_code == 422, (others, human)
+            assert "locked" in refused.text and "Owner decision" in refused.text
+            assert f"{others + 1} seats" in refused.text
+    # a four-seat table passes the seat rule (it then needs the engine, which this folder lacks)
+    monkeypatch.setattr(launch, "engine_command", lambda _folder: None)
+    store = launch.StudioStore.open(tmp_path)
+    try:
+        with pytest.raises(RuntimeError):
+            launch.prepare_table_deck_paths(
+                store, tmp_path, revision_id="r", opponent_ids=["a", "b", "c"], seed=1
+            )
+    finally:
+        store.close()
+
+
 def test_terminal_bridge_error_ends_the_game_instead_of_waiting_on(tmp_path: Path) -> None:
     class _TimedOutClient(_FakeInteractiveClient):
         """After the bridge's own timeout the next answer is rejected as a STALE_DECISION (no

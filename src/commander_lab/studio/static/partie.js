@@ -5,6 +5,10 @@
 const PHASES = { beginning: "Beginn", precombat_main: "Hauptphase 1", combat: "Kampf", postcombat_main: "Hauptphase 2", end: "Ende" };
 const STEPS = { untap: "Enttappen", upkeep: "Versorgung", draw: "Ziehen", precombat_main: "Hauptphase 1", beginning_combat: "Kampfbeginn", declare_attackers: "Angreifer", declare_blockers: "Blocker", first_combat_damage: "Erstschlagschaden", combat_damage: "Kampfschaden", end_combat: "Kampfende", postcombat_main: "Hauptphase 2", end_turn: "Endsegment", cleanup: "Aufräumen" };
 const CLASSES = { priority: "Aktion", mana_payment: "Mana zahlen", choose_object: "Auswahl", choose_use: "Ja oder Nein", target: "Ziel", declare_attacker: "Angriff", declare_blocker: "Block", mulligan: "Mulligan", choice: "Wahl", trigger_order: "Reihenfolge", announce_x: "Wert für X", amount: "Anzahl", multi_amount: "Verteilung", mode: "Modus", pile: "Stapelwahl", target_amount: "Zielmenge", replacement_effect: "Ersatzeffekt", order: "Reihenfolge" };
+// Table sizes the Studio offers: two to four players. Five and six stay locked until a qualification
+// and an explicit Owner decision (AGENTS.md); the server refuses them too (launch.MAX_RELEASED_SEATS).
+// Freigabe nur per Owner-Entscheid.
+const OPPONENT_COUNTS = [1, 2, 3];
 const SPEEDS = [[2000, "langsam"], [1000, "1 pro Sekunde"], [500, "2 pro Sekunde"], [250, "4 pro Sekunde"], [120, "8 pro Sekunde"], [50, "sehr schnell"]];
 
 const POOL_COLORS = { white: "Weiß", blue: "Blau", black: "Schwarz", red: "Rot", green: "Grün", colorless: "Farblos" };
@@ -1338,7 +1342,7 @@ async function newGame(wantedRevision) {
     ownStyle.disabled = humanPlay.checked;
     timeoutNote.hidden = !humanPlay.checked;
   });
-  const count = h("select", null, [1, 2, 3, 4, 5].map((n) => h("option", { value: String(n) }, `${n + 1} Spieler`)));
+  const count = h("select", null, OPPONENT_COUNTS.map((n) => h("option", { value: String(n) }, `${n + 1} Spieler`)));
   count.value = "3";
   const seats = h("div", { class: "seat-picks" });
   const pick = () => Math.floor(Math.random() * table.opponents.length);

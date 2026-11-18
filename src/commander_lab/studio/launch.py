@@ -29,7 +29,12 @@ from .store import StudioStore
 
 ENGINE_COMMAND_ENV = "COMMANDER_LAB_XMAGE_FULL_GAME_BRIDGE_CMD"
 ENGINE_JAR = Path("engine") / "xmage-engine-bridge.jar"
-MIN_SEATS, MAX_SEATS = 2, 6
+MIN_SEATS, MAX_SEATS = 2, 6  # what the engine can seat (series and the CLI comparison use this)
+# What the Studio lets someone start (PLAY, watched games): two to four seats. Five and six seats stay
+# locked until a qualification and an explicit Owner decision (AGENTS.md section 1); the engine
+# could seat them, so this is a rule, not a limit. Freigabe nur per Owner-Entscheid: raise this
+# constant (and the page's table-size list in partie.js) only when the Owner has released it.
+MAX_RELEASED_SEATS = 4
 START_WAIT_SECONDS = 20.0
 MIN_WORKERS, MAX_WORKERS = 1, 16
 MIN_GAMES_PER_JVM, MAX_GAMES_PER_JVM, DEFAULT_GAMES_PER_JVM = 1, 24, 6
@@ -492,8 +497,15 @@ def prepare_table_deck_paths(
     seed: int,
 ) -> tuple[str, list[Path]]:
     """Validate decks and resolve ordered seat deck paths plus a fresh ``game_id``."""
-    if not MIN_SEATS - 1 <= len(opponent_ids) <= MAX_SEATS - 1:
+    others = len(opponent_ids)
+    if not MIN_SEATS - 1 <= others <= MAX_SEATS - 1:
         raise ValueError("a game has one to five other seats")
+    if others > MAX_RELEASED_SEATS - 1:
+        raise ValueError(
+            f"tables of {others + 1} seats are locked: the Studio starts {MIN_SEATS} to "
+            f"{MAX_RELEASED_SEATS} seats; five and six seats need a qualification and an explicit "
+            "Owner decision"
+        )
     if len(set(opponent_ids)) != len(opponent_ids):
         raise ValueError("every seat needs its own deck")
     if engine_command(data_folder) is None:

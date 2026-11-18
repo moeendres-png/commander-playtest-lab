@@ -332,6 +332,18 @@ def test_boardclick_script_only_maps_engine_options_and_holds_no_rules() -> None
     assert "SEAT_NAME = /^Full Game Seat (\\d+)$/" in script
 
 
+def test_new_game_dialog_offers_only_the_released_table_sizes() -> None:
+    from commander_lab.studio import launch
+
+    js = (STATIC / "partie.js").read_text(encoding="utf-8")
+    declared = re.search(r"const OPPONENT_COUNTS = \[([0-9, ]+)\];", js)
+    assert declared is not None
+    counts = [int(n) for n in declared.group(1).split(",")]
+    # two to four players: one to three opponents, never five or six seats
+    assert counts == list(range(launch.MIN_SEATS - 1, launch.MAX_RELEASED_SEATS))
+    assert "OPPONENT_COUNTS.map(" in js and "[1, 2, 3, 4, 5].map" not in js
+
+
 def test_partie_dims_non_answers_with_a_veil_and_labels_every_engine_decision_class() -> None:
     css = (STATIC / "partie.css").read_text(encoding="utf-8")
     js = (STATIC / "partie.js").read_text(encoding="utf-8")
