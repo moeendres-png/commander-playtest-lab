@@ -35,7 +35,7 @@ PowerShell:
 
 ```powershell
 $Repo  = "C:\Pfad\zu\commander-playtest-lab"
-$Py    = "$Repo\.venv\Scripts\python.exe"     # sonst: py -3
+$Py    = "$Repo\.venv\Scripts\python.exe"     # der Python des Repositorys (venv); ein Aufruf mit Argumenten wie `py -3` passt nicht in diese Variable
 $Stage = "$env:LOCALAPPDATA\commander-playtest-lab\data-wave1-staging"
 $Live  = "$env:LOCALAPPDATA\CommanderStudio"
 $Backup = "$env:LOCALAPPDATA\CommanderStudio-backup-vor-welle1"
@@ -182,6 +182,18 @@ Jedes Prüfskript endet mit `0`, wenn kein Punkt `FAIL` ist; `checks` steht in `
 
 Voraussetzung: Studio geschlossen, Schritt 3 erledigt, `$Copy` ist die Kopie und **nicht** `$Live`.
 Jeder Schreibbefehl trägt `--data $Copy` (die Option steht **vor** dem Unterbefehl).
+
+**Zuerst den Zeiger umlegen**, damit selbst ein vergessenes `--data` nur die Kopie trifft (ist
+`COMMANDER_LAB_STUDIO_DATA` dauerhaft auf den echten Ordner gesetzt, würde sonst ein Befehl ohne
+`--data` dorthin schreiben; `--data` hat Vorrang, der Importpfad öffnet den Store mit diesem Ordner):
+
+```powershell
+$env:COMMANDER_LAB_STUDIO_DATA = $Copy        # bash: export COMMANDER_LAB_STUDIO_DATA="$COPY"
+```
+
+Öffnet der Importbefehl einen älteren Store, kann er dessen Schema hochziehen; der Wächter meldet das
+in 6b als `the schema changed`. Das ist dann keine Wirkung des Imports, sondern eine Migration:
+anhalten, notieren und entscheiden, nicht stillschweigend weitermachen.
 
 **6a. Wächter vorher** (Zeilenzahl und Inhalt je Tabelle, `PRAGMA integrity_check`,
 `PRAGMA foreign_key_check`, Schema, Karten-Oracle-ID-Zuordnung):

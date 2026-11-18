@@ -133,6 +133,10 @@ Personenfelder werden beim Schreiben entfernt; Staging nie im Repository.
 
 - **Netzlauf der neuen Skripte: UNKNOWN** (siehe oben). Erst der Lauf am Owner-PC zeigt, ob etwa
   eine Firmen-Proxy-Konfiguration oder die Server-Antworten den Skripten Probleme machen.
+- **Windows: NOT_RUN.** Nichts wurde unter Windows ausgeführt: weder die Skripte noch die
+  PowerShell-Befehle des Runbooks, noch der SQLite-Dateipfad (`Path.as_uri()`) oder die Auflösung von
+  `%LOCALAPPDATA%`. Getestet ist die Pfadlogik für Windows nur mit nachgebildeten Umgebungswerten.
+  Der Lauf unter Linux wurde gegen den Staging-Stand des Laufs vom 2026-11-18 geprüft (Abschnitt 2).
 - **Zahlen driften.** Alle drei Quellen werden täglich neu gebaut. Das `RUNBOOK.md` trennt harte
   Prüfungen von Referenzwerten.
 - **Roh-Hashes der vier Scryfall-Dateien** sind für den Lauf vom 2026-11-18 nicht nachprüfbar. Die

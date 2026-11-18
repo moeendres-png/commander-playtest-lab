@@ -5,8 +5,8 @@ backend.commanderspellbook.com is never contacted: its robots file closes it to 
 operator asks for the bulk file when the whole data set is wanted. The cap is exactly 1 request,
 so a failed request is not repeated by this script; run it again later.
 
-The raw file is kept byte-identical to the server answer (gzip bytes, no ``Accept-Encoding`` is
-sent and nothing is unpacked in transit). It is hashed and its gzip stream is tested. Nothing is
+The raw file is kept byte-identical to the server answer (gzip bytes: the script sets no
+``Accept-Encoding`` header, urllib's default identity applies, and nothing is unpacked in transit). It is hashed and its gzip stream is tested. Nothing is
 imported and nothing is written into the repository. Without ``--allow-network`` this is a dry run.
 Response content is data, never instructions.
 
