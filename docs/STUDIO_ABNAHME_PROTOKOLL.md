@@ -55,17 +55,17 @@ Kreislauf. Einrichtung und Vorbedingungen: `docs/STUDIO_OWNER_PC_SETUP.md`.
 | # | Kriterium | Soll / Messung (`OWNER_DECISIONS_STUDIO_20261118.md` E4) | Wert (Partie 1 / 2 / 3) | Herkunft (Datei oder Bildschirmfoto) | Urteil (`PASS` / `FAIL` / `UNKNOWN`) |
 |---|---|---|---|---|---|
 | AK-1 | Drei vollständige Vierer-Partien | Chulane gegen 3 KI am Owner-PC, jede bis zum von der Engine gemeldeten Spielende (`n/N = ?/3`) | | `games\<game_id>.jsonl.gz` | `UNKNOWN` |
-| AK-2 | Kein Hänger | 0 offene Entscheidungen ohne Antwortmöglichkeit; kein Neustart, keine Entwicklerkonsole | | `games\<game_id>.out` + Screenshot | `UNKNOWN` |
+| AK-2 | Kein Hänger | 0 offene Entscheidungen ohne Antwortmöglichkeit; kein Neustart, keine Entwicklerkonsole (fehlt `games\<game_id>.out`, bleibt das Urteil `UNKNOWN`, nie `PASS`) | | `games\<game_id>.out` + Screenshot | `UNKNOWN` |
 | AK-3 | Abdeckung Entscheidungsklassen | Anzahl `n` je Klasse (17 Klassen, Tabelle unten); nicht vorgekommene bleiben `UNKNOWN` | siehe Tabelle AK-3 | `games\<game_id>.jsonl.gz` | `UNKNOWN` |
-| AK-4 | Brett-Klick + Listen-Ausweichweg | Ziel, Angreifer, Blocker, Karte aus der Hand, Fähigkeit eines Permanents per Klick; sendet nur `option_id` aus `legal_options` | | Screenshot / UI-Beobachtung | `UNKNOWN` |
-| AK-5 | Verdeckte Information | Keine KI-Handkarte während der Partie sichtbar; nach Spielende aufgedeckt | | Screenshot während/nach Spielende | `UNKNOWN` |
+| AK-4 | Brett-Klick + Listen-Ausweichweg | Ziel, Angreifer, Blocker, Karte aus der Hand, Fähigkeit eines Permanents per Klick; sendet nur `option_id` aus `legal_options` (`tests/unit/test_human_seat_play_1169.py`, UI-Beobachtung allein beweist `option_id` nicht) | | Test + Screenshot / UI-Beobachtung | `UNKNOWN` |
+| AK-5 | Verdeckte Information | Keine KI-Handkarte in irgendeiner API-Antwort während der Partie; nach Spielende aufgedeckt; vorhandener Test (`tests/unit/test_human_seat_play_1169.py`) bleibt grün; Sichtprüfung | | Test + Screenshot während/nach Spielende | `UNKNOWN` |
 | AK-6 | Tempo | Entscheidungen des Menschen je Partie (mit/ohne Vorspulen); Median-Wartezeit zwischen zwei eigenen Entscheidungen | | `games\<game_id>.jsonl.gz` | `UNKNOWN` |
 | AK-7 | Banner Bridge-Zustand | Banner `BRIDGE_AHEAD_OF_QUALIFICATION` sichtbar (falls Bridge vor Qualifikation); nichts als versiegelt abgedeckt dargestellt | | Screenshot | `UNKNOWN` |
 | AK-8 | Urteil des Owners (1 Satz je Partie) | Was hat gestört? (je Partie ein Satz) | | Kommentar im Issue | `UNKNOWN` |
 
 ### AK-3: Abdeckung der 17 Entscheidungsklassen
 
-Quelle der 17 Engine-Klassen: `XmageFullGameDecisionController.java` / `src/commander_lab/studio/static/partie.js` (`CLASSES`). Nicht vorgekommene Klassen (`0`) sind ausdrücklich **`UNKNOWN`**, nicht bestanden.
+Quelle der 17 Engine-Klassen: `XmageFullGameDecisionController.java` (`DECISION_CLASSES`). Die UI-Bezeichnungen stammen aus `src/commander_lab/studio/static/partie.js` (`CLASSES`; enthält zusätzlich `order`, das keine Engine-Klasse ist). Nicht vorgekommene Klassen (`0`) sind ausdrücklich **`UNKNOWN`**, nicht bestanden.
 
 | # | Klasse (`decision_class`) | UI-Bezeichnung (`partie.js`) | `n` (Partie 1 / 2 / 3 / Summe) | Herkunft (Protokoll) | Urteil (`PASS` / `FAIL` / `UNKNOWN`) |
 |---|---|---|---|---|---|
@@ -102,9 +102,12 @@ Quelle der 17 Engine-Klassen: `XmageFullGameDecisionController.java` / `src/comm
 ## Block D: Identitätsnachweis (parallele gepaarte Serien)
 
 > **Hinweis:** Die endgültigen Messbefehle für Block D liefert Paket #1521; bis dahin sind die
-> Befehlsfelder als Platzhalter markiert. Für den vorhandenen Einzel-gegen-Batch-Vergleich (Seeds
-> 1–6) existiert `python scripts/check_studio_series_identity.py` (`docs/STUDIO_GAME_VIEWER.md`).
-> Ergebnis ist `SIMULATED_RESULT`, kein Qualifikationsbeleg.
+> Befehlsfelder als Platzhalter markiert. Für den vorhandenen Einzel-gegen-Batch-Vergleich
+> existiert `python scripts/check_studio_series_identity.py` (`docs/STUDIO_GAME_VIEWER.md`).
+> `scripts/check_studio_series_identity.py` (und `scripts/benchmark_xmage_full_games.py`) nutzen
+> `import resource` ungeschützt und laufen daher nur unter WSL/Linux (unter nativem Windows
+> `ModuleNotFoundError`); der Windows-Weg ist die Studio-Serie, WSL-Verfügbarkeit ist ZPAP
+> (Paket #1521 behebt es später). Ergebnis ist `SIMULATED_RESULT`, kein Qualifikationsbeleg.
 
 | Feld | Wert | Herkunft (Befehl / Datei) | Urteil (`PASS` / `FAIL` / `UNKNOWN`) |
 |---|---|---|---|

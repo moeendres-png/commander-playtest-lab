@@ -176,9 +176,12 @@ identisch. Das ist ein Vergleichswert, kein Sollwert für den Owner-PC. Ob die �
 des Owners R1 oder eine Studio-Serie (`POST /api/simulations/batch`, `base_seed`, `games_count`,
 `workers`, `games_per_jvm`) ist: ZPAP / mit dem Owner klären. Beide Wege:
 
-- **Weg A, R1 über das Benchmark-Skript:** im Repo
+- **Weg A, R1 über das Benchmark-Skript (nur WSL/Linux):** im Repo
   `python scripts/benchmark_xmage_full_games.py run --jar <JAR> --out serie36.json --seeds 1-36 --workers 4 --games-per-jvm 9 --fast`
   (Befehl aus `docs/STUDIO_PLAN_SIMULATOR.md`; ob `--workers 4` zum PC passt: ZPAP).
+  **Hinweis Windows:** `scripts/benchmark_xmage_full_games.py` nutzt `import resource` ungeschützt
+  und bricht unter nativem Windows mit `ModuleNotFoundError` ab; der Windows-Weg ist Weg B
+  (Studio-Serie). Ob WSL am Owner-PC verfügbar ist: ZPAP (Paket #1521 behebt es später).
   Prüfen: 36 Spiele fertig, keine fehlgeschlagen oder fehlend; Gesamtlaufzeit (Wanduhr) und
   JAR-SHA-256 notieren.
 - **Weg B, Studio-Serie:** Seite „Simulieren“, Chulane-Revision, Pod, `games_count` 36, Basis-Seed 1,
