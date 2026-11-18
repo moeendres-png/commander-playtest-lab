@@ -101,3 +101,42 @@ pre.error-out{background:var(--panel2);border:1px solid var(--line);border-radiu
 #side{overflow-y:auto}
 #side>*{flex-shrink:0}
 #side #log{flex:1 0 120px}
+
+/* ---- board clicks: cards, player fields, bar, menu ---- */
+button.card{display:block;padding:0;margin:0;min-height:0;border:0;border-radius:6px;background:none;color:inherit;text-align:center;cursor:pointer}
+button.card:hover:not(:disabled){border:0;background:none}
+.card{transition:transform .12s ease}
+.card.tapped{transition:none}
+/* not a legal answer: a veil over the card, never a filter or opacity on the card image itself */
+.card.dimmed::after{content:"";position:absolute;inset:0;border-radius:5px;background:color-mix(in srgb,var(--bg) 62%,transparent);pointer-events:none}
+.card.legal img,.card.legal .nocard{outline:3px solid var(--good);box-shadow:0 0 12px 2px color-mix(in srgb,var(--good) 65%,transparent)}
+.card.legal.role-asked img,.card.legal.role-asked .nocard{outline-color:var(--warn);box-shadow:0 0 14px 3px color-mix(in srgb,var(--warn) 70%,transparent)}
+.card.legal.role-defender img,.card.legal.role-defender .nocard{outline-color:var(--bad);box-shadow:0 0 12px 2px color-mix(in srgb,var(--bad) 65%,transparent)}
+.card.legal.role-source img,.card.legal.role-source .nocard{outline-color:var(--accent);box-shadow:0 0 12px 2px color-mix(in srgb,var(--accent) 65%,transparent)}
+.card.picked img,.card.picked .nocard{outline:4px solid var(--accent);box-shadow:0 0 16px 4px color-mix(in srgb,var(--accent) 75%,transparent)}
+.card.clickable:hover,.card.clickable:focus-visible{transform:translateY(-5px) scale(1.07);z-index:4}
+.card.tapped.clickable:hover,.card.tapped.clickable:focus-visible{transform:translateY(-3px)}
+button.card:focus-visible{outline:none}
+button.card:focus-visible img,button.card:focus-visible .nocard{outline:4px solid var(--focus);outline-offset:2px}
+.badge.combat{white-space:nowrap}
+.seat.targetable{border-color:var(--good);box-shadow:0 0 0 2px color-mix(in srgb,var(--good) 55%,transparent)}
+.seat.picked{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent)}
+.seat-pick{margin-left:auto;background:var(--good);border-color:var(--good);color:#06180e;font-weight:700;cursor:pointer}
+.seat-pick:hover:not(:disabled){background:color-mix(in srgb,var(--good) 85%,#fff 15%)}
+.seat-pick.picked{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
+button.stat{background:none;border:0;padding:0;min-height:0;cursor:pointer}
+button.stat:hover:not(:disabled){background:none;border:0;color:var(--text)}
+.stat.zone-legal{color:var(--good);font-weight:700;text-decoration:underline}
+.board-bar{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s2) var(--s3);padding:var(--s2) var(--s4);background:color-mix(in srgb,var(--accent) 14%,var(--panel));border-bottom:2px solid var(--accent)}
+.board-bar[hidden],.board-menu[hidden]{display:none}
+.board-bar-title{color:var(--accent)}
+.board-bar-hint{color:var(--muted);flex:1 1 280px}
+.board-bar-count{font-variant-numeric:tabular-nums;color:var(--muted)}
+.board-menu{position:fixed;z-index:25;min-width:220px;max-width:min(440px,calc(100vw - 16px));max-height:60vh;overflow:auto;display:flex;flex-direction:column;gap:4px;padding:6px;background:var(--panel);border:2px solid var(--accent);border-radius:10px;box-shadow:var(--shadow)}
+.board-menu-title{padding:2px 6px;font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.board-menu-item{text-align:left;cursor:pointer}
+.board-menu-item.picked{background:color-mix(in srgb,var(--accent) 25%,var(--panel));border-color:var(--accent);font-weight:600}
+.board-links{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:6}
+.board-link{stroke:var(--accent);stroke-width:4;stroke-linecap:round;stroke-dasharray:2 9}
+@media (prefers-reduced-motion:reduce){.card{transition:none}.card.clickable:hover,.card.clickable:focus-visible{transform:none}}
+@media (max-width:480px){#areas a{padding-left:var(--s2);padding-right:var(--s2)}} /* five area links (with "Daten") must fit 390 px without a horizontal page scroll */
