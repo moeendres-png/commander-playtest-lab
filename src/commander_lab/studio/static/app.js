@@ -166,6 +166,9 @@ const sortValue = (card, key) => {
 };
 function filtered() {
   const query = $("q").value.trim();
+  const parsed = StudioSearch.parseQuery(query);
+  state.searchErrors = parsed.errors || [];
+  if (state.searchErrors.length) return [];
   const type = $("type-filter").value;
   const role = $("role-filter").value;
   const label = $("label-filter").value;
@@ -189,10 +192,10 @@ function filtered() {
       const colorless = card.colors === "";
       if (!(colorless ? state.colors.has("C") : [...card.colors].some((letter) => state.colors.has(letter)))) return false;
     }
-    return !query || StudioSearch.rank(card, query) !== null;
+    return !query || StudioSearch.rank(card, parsed) !== null;
   });
-  // A search ranks by how well the name fits; the chosen sort applies when the search is empty.
-  if (query) return StudioSearch.sortByRank(rows, query);
+  // A search with freetext terms ranks by how well the name fits; pure field filters or empty search use the chosen sort.
+  if (query && parsed.textQuery) return StudioSearch.sortByRank(rows, parsed);
   const key = state.sortKey, dir = state.sortDir;
   const keyed = rows.map((card) => [sortValue(card, key), card]);
   keyed.sort((a, b) => {
@@ -347,6 +350,13 @@ function renderPool() {
   const rows = filtered();
   $("pool-count").textContent = `${StudioUI.num(rows.length, 0)} von ${StudioUI.num(state.pool.length - state.commanderIds.length, 0)} Karten` + ($("q").value.trim() ? " · nach Treffer sortiert" : "") + (state.subset ? ` · ${state.subset.info.label}` : "");
   const body = $("pool-body"); body.replaceChildren();
+  if (state.searchErrors && state.searchErrors.length) {
+    body.append(h("div", { id: "search-syntax-error", class: "empty" },
+      h("b", {}, "Hinweis zur Such-Syntax:"),
+      ...state.searchErrors.map((msg) => h("p", {}, msg)),
+      h("p", { class: "muted" }, 'Beispiele: t:creature · mv<=2 · r:ramp · c:gu · id<=gwu · -t:land · "draw a card"')));
+    return;
+  }
   if (!rows.length) {
     body.append(h("div", { class: "empty" }, h("b", {}, "Keine Karte passt zu diesen Filtern."), "Lockere einen Filter oder lösche die Suche."));
     return;
@@ -1620,14 +1630,17 @@ function renderDeck() {
     ["packages", "Pakete & Upgrade"],
     ["check", "Prüfung"],
     ["facts", "Bracket & Lücken"],
+    ["tokens", "Tokens"],
     ["compare", "Vergleich"],
     ["similar", "Ähnliche Decks"],
     ["diff", "Varianten-Diff"],
+    ["modules", "Module"],
+    ["primer", "Primer"],
     ["cut", "Kürzen"],
     ["sim", "Simulation"],
   ];
-  // Two groups keep 13 tabs readable: looking at the deck (Analyse) and working on it (Arbeiten).
-  const workTabs = new Set(["compare", "similar", "diff", "cut", "sim"]);
+  // Two groups keep tabs readable: looking at the deck (Analyse) and working on it (Arbeiten).
+  const workTabs = new Set(["compare", "similar", "diff", "modules", "primer", "cut", "sim"]);
   const tabButton = ([key, label]) => h("button", { type: "button", class: "chip" + (state.tab === key ? " on" : ""), "aria-pressed": state.tab === key, onclick: () => { state.tab = key; renderDeck(); } }, label);
   const tabGroup = (name, items) => h("div", { class: "tab-group", role: "group", "aria-label": name }, h("span", { class: "tab-group-label" }, name), ...items.map(tabButton));
   $("deck-tabs").replaceChildren(
@@ -1650,13 +1663,378 @@ function renderDeck() {
     packages: (b) => renderPackagesUpgradeTab(b, planPkgDeps("packages")),
     check: renderCheck,
     facts: renderFacts,
+    tokens: renderTokens,
     evidence: renderEvidence,
     compare: renderCompare,
     similar: renderSimilarDecks,
     diff: renderDiff,
+    modules: renderModules,
+    primer: renderPrimer,
     cut: renderCut,
     sim: renderSimulations,
   })[state.tab](body);
+}
+function renderTokens(body) {
+  const tok = state.renderToken;
+  const wrap = h("div", { class: "section" });
+  body.append(wrap);
+  const currentCards = entries();
+  if (!currentCards.length) {
+    wrap.replaceChildren(
+      h("h3", {}, "Token-Übersicht (lokaler Scryfall-Snapshot)"),
+      h("p", { class: "muted" }, "Keine Karten im aktuellen Deck.")
+    );
+    return;
+  }
+  wrap.replaceChildren(
+    h("h3", {}, "Token-Übersicht (lokaler Scryfall-Snapshot)"),
+    StudioUI.loading("Token-Verknüpfungen laden …")
+  );
+  api("/api/tokens", "POST", { cards: currentCards, owned_only: state.ownedOnly }).then((res) => {
+    if (tok !== state.renderToken || state.tab !== "tokens") return;
+    const c = res.counts || {};
+    const oracleCnt = c.deck_cards_with_oracle || { numerator: 0, denominator: 0 };
+    const creatorCnt = c.resolved_creator_cards || { numerator: 0, denominator: 0 };
+    const tokenList = res.tokens || [];
+    const unresolved = res.unresolved_creators || [];
+
+    const summaryBar = h("div", { class: "summary-bar" },
+      h("span", {}, `Karten mit Oracle-Daten: ${StudioUI.num(oracleCnt.numerator, 0)} / ${StudioUI.num(oracleCnt.denominator, 0)}`),
+      h("span", {}, `Aufgelöste Erzeuger: ${StudioUI.num(creatorCnt.numerator, 0)} / ${StudioUI.num(creatorCnt.denominator, 0)}`),
+      h("span", {}, `Erzeugte Token-Typen: ${StudioUI.num(c.distinct_tokens || 0, 0)}`),
+      h("span", {}, `Nicht ableitbare Erzeuger (unbekannt): ${StudioUI.num(c.unresolved_creator_cards || 0, 0)}`)
+    );
+
+    const tokenSection = tokenList.length
+      ? h("div", { class: "table-wrap" }, h("table", {},
+          h("thead", {}, h("tr", {},
+            h("th", {}, "Token"),
+            h("th", {}, "Typ"),
+            h("th", { class: "num" }, "P/T"),
+            h("th", {}, "Farben"),
+            h("th", {}, "Regeltext"),
+            h("th", {}, "Erzeugende Karten im Deck")
+          )),
+          h("tbody", {}, ...tokenList.map((t) => h("tr", {},
+            h("td", {}, h("b", {}, t.name)),
+            h("td", {}, t.type_line || "–"),
+            h("td", { class: "num" }, t.pt || "–"),
+            h("td", {}, t.colors || "farblos"),
+            h("td", { class: "muted" }, t.oracle_text || (t.detail_status === "PARTIAL_ALL_PARTS" ? "Detaildaten nicht im lokalen Token-Bestand" : "–")),
+            h("td", {}, ...(t.creating_cards || []).map((cr, idx) => {
+              const cardObj = state.byId.get(cr.card_id);
+              const link = h("button", {
+                type: "button",
+                class: "link",
+                onclick: () => { if (cardObj) openCard(cardObj); },
+              }, `${cr.name}${cr.quantity > 1 ? ` (${StudioUI.num(cr.quantity, 0)}x)` : ""}`);
+              return idx > 0 ? h("span", {}, ", ", link) : link;
+            }))
+          )))
+        ))
+      : h("p", { class: "muted" }, "Keine aufgelösten Token-Verknüpfungen für die aktuellen Deck-Karten im lokalen Scryfall-Snapshot.");
+
+    const unresolvedSection = unresolved.length
+      ? h("div", { class: "section" },
+          h("h4", {}, `Nicht ableitbare Token-Erzeuger (${StudioUI.num(unresolved.length, 0)} Karten — Status: unbekannt)`),
+          h("div", { class: "table-wrap" }, h("table", {},
+            h("thead", {}, h("tr", {},
+              h("th", {}, "Karte"),
+              h("th", { class: "num" }, "Menge"),
+              h("th", {}, "Status"),
+              h("th", {}, "Grund")
+            )),
+            h("tbody", {}, ...unresolved.map((u) => {
+              const cardObj = state.byId.get(u.card_id);
+              return h("tr", {},
+                h("td", { class: "name", onclick: () => { if (cardObj) openCard(cardObj); } }, u.name),
+                h("td", { class: "num" }, StudioUI.num(u.quantity, 0)),
+                h("td", {}, "unbekannt"),
+                h("td", { class: "muted" }, u.reason)
+              );
+            }))
+          ))
+        )
+      : h("p", { class: "muted" }, "Keine unaufgelösten Token-Erzeuger im aktuellen Deck (0 Karten mit Status unbekannt).");
+
+    wrap.replaceChildren(
+      h("h3", {}, "Token-Übersicht (lokaler Scryfall-Snapshot)"),
+      h("p", { class: "muted" }, "Abgeleitet aus den all_parts-Token-Verknüpfungen und Token-Datensätzen des lokalen Scryfall-Snapshots (offline, ohne Netz-Abfrage). Karten ohne ableitbare Verknüpfung werden als unbekannt ausgewiesen und nie geraten."),
+      summaryBar,
+      tokenSection,
+      unresolvedSection
+    );
+  }).catch((err) => {
+    wrap.replaceChildren(h("p", { class: "bad" }, StudioUI.germanError(err)));
+  });
+}
+function renderMarkdownSafe(text) {
+  const clean = String(text || "").replace(/\r\n/g, "\n").replace(/\r/g, "\n").trim();
+  if (!clean) return [h("p", { class: "muted" }, "Noch kein Primer-Text eingetragen.")];
+  const nodes = [];
+  let listItems = [];
+  let codeLines = null;
+  const flushList = () => {
+    if (listItems.length) {
+      nodes.push(h("ul", {}, ...listItems.map((it) => h("li", {}, it))));
+      listItems = [];
+    }
+  };
+  for (const rawLine of clean.split("\n")) {
+    const trimmed = rawLine.trim();
+    if (trimmed.startsWith("```")) {
+      flushList();
+      if (codeLines === null) codeLines = [];
+      else {
+        nodes.push(h("pre", {}, h("code", {}, codeLines.join("\n"))));
+        codeLines = null;
+      }
+      continue;
+    }
+    if (codeLines !== null) {
+      codeLines.push(rawLine);
+      continue;
+    }
+    if (!trimmed) {
+      flushList();
+      continue;
+    }
+    if (trimmed.startsWith("### ")) {
+      flushList();
+      nodes.push(h("h5", {}, trimmed.slice(4)));
+    } else if (trimmed.startsWith("## ")) {
+      flushList();
+      nodes.push(h("h4", {}, trimmed.slice(3)));
+    } else if (trimmed.startsWith("# ")) {
+      flushList();
+      nodes.push(h("h3", {}, trimmed.slice(2)));
+    } else if (trimmed.startsWith("- ") || trimmed.startsWith("* ")) {
+      listItems.push(trimmed.slice(2));
+    } else {
+      flushList();
+      nodes.push(h("p", {}, rawLine));
+    }
+  }
+  flushList();
+  if (codeLines !== null && codeLines.length) {
+    nodes.push(h("pre", {}, h("code", {}, codeLines.join("\n"))));
+  }
+  return nodes;
+}
+function renderPrimer(body) {
+  if (!state.deckId) {
+    body.append(h("p", { class: "muted" }, "Wähle oder erstelle zuerst ein Deck, um den Primer zu bearbeiten."));
+    return;
+  }
+  const tok = state.renderToken;
+  const wrap = h("div", { class: "section" });
+  body.append(wrap);
+  wrap.replaceChildren(h("h3", {}, "Deck-Primer (Spielplan & Notizen)"), StudioUI.loading("Primer lädt …"));
+  api(`/api/decks/${encodeURIComponent(state.deckId)}/primer`).then((res) => {
+    if (tok !== state.renderToken || state.tab !== "primer") return;
+    state.primerText = res.content || "";
+    const previewBox = h("div", { class: "card-box" }, ...renderMarkdownSafe(state.primerText));
+    const area = h("textarea", {
+      id: "primer-editor",
+      rows: 10,
+      placeholder: "# Spielplan\n- Frühe Mana-Entwicklung\n- Chulane schützen & Kartenfluss sichern",
+      "aria-label": "Deck-Primer (Markdown)",
+      oninput: () => {
+        previewBox.replaceChildren(...renderMarkdownSafe(area.value));
+      },
+    }, state.primerText);
+    const metaSpan = h("span", { class: "muted" }, res.updated_at ? `Zuletzt gespeichert: ${res.updated_at}` : "Noch nicht gespeichert");
+    const saveBtn = h("button", { type: "button", class: "primary", onclick: async () => {
+      try {
+        const saved = await api(`/api/decks/${encodeURIComponent(state.deckId)}/primer`, "PUT", { content: area.value });
+        state.primerText = saved.content || "";
+        metaSpan.textContent = `Zuletzt gespeichert: ${saved.updated_at} (${StudioUI.num(state.primerText.length, 0)} Zeichen)`;
+        toast("Primer gespeichert.");
+      } catch (err) { fail(err); }
+    } }, "Primer speichern");
+    wrap.replaceChildren(
+      h("h3", {}, "Deck-Primer (Spielplan & Notizen)"),
+      h("p", { class: "muted" }, "Der Primer ist am Deck verankert (bleibt über alle neuen Stände und Varianten hinweg erhalten) und beeinflusst weder Tierliste noch Stärke-Index. Im Export-Dialog kann er optional als //-Kommentarblock vorangestellt werden."),
+      area,
+      h("div", { class: "actions" }, saveBtn, metaSpan),
+      h("h4", {}, "Vorschau (Markdown)"),
+      previewBox
+    );
+  }).catch((err) => {
+    wrap.replaceChildren(h("p", { class: "bad" }, StudioUI.germanError(err)));
+  });
+}
+function renderModules(body) {
+  if (!state.deckId) {
+    body.append(h("p", { class: "muted" }, "Wähle oder erstelle zuerst ein Deck, um Deck-Module zu verwalten."));
+    return;
+  }
+  const tok = state.renderToken;
+  const wrap = h("div", { class: "section" });
+  body.append(wrap);
+  const reload = async () => {
+    wrap.replaceChildren(h("h3", {}, "Deck-Module (Kern + Strategie-Pakete)"), StudioUI.loading("Module laden …"));
+    try {
+      const res = await api(`/api/decks/${encodeURIComponent(state.deckId)}/modules`);
+      if (tok !== state.renderToken || state.tab !== "modules") return;
+      const mods = res.modules || [];
+      if (!state.selectedModuleIds) {
+        const firstCore = mods.find((m) => m.role === "core");
+        const firstPkg = mods.find((m) => m.role === "package");
+        state.selectedModuleIds = new Set([firstCore && firstCore.module_id, firstPkg && firstPkg.module_id].filter(Boolean));
+      } else {
+        const validIds = new Set(mods.map((m) => m.module_id));
+        state.selectedModuleIds = new Set([...state.selectedModuleIds].filter((id) => validIds.has(id)));
+      }
+      const nameInput = h("input", { type: "text", placeholder: "Modulname (z. B. Kern oder Paket A)", "aria-label": "Modulname" });
+      const roleSelect = h("select", { "aria-label": "Modul-Rolle" },
+        h("option", { value: "core" }, "Kern-Modul (core)"),
+        h("option", { value: "package" }, "Strategie-Paket (package)"));
+      const saveBtn = h("button", { type: "button", class: "chip", onclick: async () => {
+        const name = nameInput.value.trim();
+        if (!name) { toast("Bitte einen Modulnamen eingeben."); return; }
+        try {
+          const saved = await api(`/api/decks/${encodeURIComponent(state.deckId)}/modules`, "POST", {
+            name,
+            role: roleSelect.value,
+            cards: entries(),
+          });
+          if (saved.module && saved.module.module_id) state.selectedModuleIds.add(saved.module.module_id);
+          toast(`Modul „${name}“ gespeichert (${StudioUI.num(deckTotal(), 0)} Karten).`);
+          reload();
+        } catch (err) { fail(err); }
+      } }, "Arbeitsliste als Modul speichern");
+      const seedBtn = h("button", { type: "button", class: "chip", onclick: async () => {
+        try {
+          const seeded = await api(`/api/decks/${encodeURIComponent(state.deckId)}/modules/seed`, "POST", {
+            cards: entries(),
+            core_name: "Kern",
+            package_name: "Paket A",
+          });
+          state.selectedModuleIds = new Set((seeded.modules || []).map((m) => m.module_id));
+          toast("Arbeitsliste in „Kern“ (Commander + Länder) und „Paket A“ (Nicht-Länder) aufgeteilt.");
+          reload();
+        } catch (err) { fail(err); }
+      } }, "Arbeitsliste in Kern + Paket A aufteilen");
+
+      const compileOut = h("div", { class: "section" });
+      const runCompile = async (saveRev) => {
+        const chosen = [...state.selectedModuleIds];
+        if (!chosen.length) { toast("Bitte mindestens ein Kern-Modul und ein Paket auswählen."); return; }
+        compileOut.replaceChildren(StudioUI.loading("Kompiliere Module …"));
+        try {
+          const comp = await api(`/api/decks/${encodeURIComponent(state.deckId)}/modules/compile`, "POST", {
+            module_ids: chosen,
+            owned_only: $("f-free") ? $("f-free").checked : true,
+            save: Boolean(saveRev),
+          });
+          const statusCls = comp.valid ? "ok" : "bad";
+          const statusTxt = comp.valid
+            ? `Gültiges 100-Karten-Deck (${StudioUI.num(comp.total_cards, 0)} / ${StudioUI.num(comp.target_cards, 0)} Karten)`
+            : `Prüfung fehlgeschlagen (${StudioUI.num(comp.total_cards, 0)} / ${StudioUI.num(comp.target_cards, 0)} Karten)`;
+          const issueNodes = (comp.issues || []).map((iss) =>
+            h("li", { class: iss.severity === "error" ? "bad" : "warn" }, `${iss.message}`));
+          const exportArea = h("textarea", { rows: 6, readonly: true, "aria-label": "Kompilierte Deckliste" }, comp.export ? comp.export.moxfield : "");
+          compileOut.replaceChildren(
+            h("h4", {}, "Kompilierungs-Ergebnis"),
+            h("p", {},
+              h("span", { class: "pill " + statusCls }, statusTxt),
+              " ",
+              h("span", { class: "muted" }, `Ziel-Variante: ${comp.branch}`),
+              comp.saved && comp.revision_id ? h("span", { class: "pill ok ml-1" }, `Gespeichert: ${comp.revision_id}`) : ""),
+            issueNodes.length ? h("ul", {}, ...issueNodes) : h("p", { class: "muted" }, "Keine Konstruktions- oder Kollisionsfehler gefunden."),
+            h("label", {}, "Text-Export (Moxfield / Studio-Import):", exportArea)
+          );
+          if (comp.saved) {
+            toast(`Kompiliertes Deck als Variante „${comp.branch}“ gespeichert.`);
+            await loadDecks();
+          }
+        } catch (err) {
+          compileOut.replaceChildren();
+          fail(err);
+        }
+      };
+
+      const modTable = mods.length
+        ? h("div", { class: "table-wrap" }, h("table", {},
+            h("thead", {}, h("tr", {},
+              h("th", {}, "Wahl"),
+              h("th", {}, "Modul"),
+              h("th", {}, "Rolle"),
+              h("th", { class: "num" }, "Karten"),
+              h("th", {}, "Aktionen"))),
+            h("tbody", {}, ...mods.map((m) => h("tr", {},
+              h("td", {}, h("input", {
+                type: "checkbox",
+                checked: state.selectedModuleIds.has(m.module_id),
+                "aria-label": `Modul ${m.name} wählen`,
+                onchange: (ev) => {
+                  if (ev.target.checked) state.selectedModuleIds.add(m.module_id);
+                  else state.selectedModuleIds.delete(m.module_id);
+                },
+              })),
+              h("td", { class: "name" }, m.name),
+              h("td", {}, h("span", { class: "pill " + (m.role === "core" ? "ok" : "") }, m.role === "core" ? "Kern" : "Paket")),
+              h("td", { class: "num" }, `${StudioUI.num(m.total_cards, 0)} (${StudioUI.num(m.commander_cards, 0)} Cmd)`),
+              h("td", { class: "actions" },
+                h("button", { type: "button", class: "chip", onclick: () => {
+                  state.list.clear();
+                  state.commanderIds = [];
+                  for (const c of m.cards || []) {
+                    if (c.is_commander) state.commanderIds.push(c.card_id);
+                    else state.list.set(c.card_id, c.qty);
+                  }
+                  if (!state.commanderIds.length && state.decks) {
+                    const curDeck = state.decks.find((d) => d.deck_id === state.deckId);
+                    if (curDeck && curDeck.commanders) {
+                      for (const cmdName of curDeck.commanders) {
+                        const found = state.pool.find((p) => p.oracle_name === cmdName);
+                        if (found) state.commanderIds.push(found.card_id);
+                      }
+                    }
+                  }
+                  markDirty();
+                  renderAll();
+                  toast(`Modul „${m.name}“ in die Arbeitsliste geladen.`);
+                } }, "In Liste laden"),
+                h("button", { type: "button", class: "chip", onclick: async () => {
+                  try {
+                    await api(`/api/decks/${encodeURIComponent(state.deckId)}/modules`, "POST", {
+                      module_id: m.module_id,
+                      name: m.name,
+                      role: m.role,
+                      sort_order: m.sort_order,
+                      cards: entries(),
+                    });
+                    toast(`Modul „${m.name}“ aktualisiert.`);
+                    reload();
+                  } catch (err) { fail(err); }
+                } }, "Überschreiben"),
+                h("button", { type: "button", class: "chip", onclick: async () => {
+                  try {
+                    await api(`/api/decks/${encodeURIComponent(state.deckId)}/modules/${encodeURIComponent(m.module_id)}`, "DELETE");
+                    state.selectedModuleIds.delete(m.module_id);
+                    toast(`Modul „${m.name}“ gelöscht.`);
+                    reload();
+                  } catch (err) { fail(err); }
+                } }, "Löschen")))))))
+        : h("p", { class: "muted" }, "Noch keine Module für dieses Deck hinterlegt. Teile die aktuelle Arbeitsliste auf oder speichere sie als Modul.");
+
+      wrap.replaceChildren(
+        h("h3", {}, "Deck-Module (Kern + Strategie-Pakete)"),
+        h("p", { class: "muted" }, "Ein Deck besteht aus genau 1 geteilten Kern-Modul (z. B. Commander + Länder + Basis) und mindestens 1 austauschbaren Strategie-Paket. Mehrfach vorkommende Nicht-Standardländer werden als Kollision gemeldet und nie still zusammengeführt."),
+        h("div", { class: "actions" }, nameInput, roleSelect, saveBtn, seedBtn),
+        modTable,
+        mods.length ? h("div", { class: "actions" },
+          h("button", { type: "button", class: "chip", onclick: () => runCompile(false) }, "Gewählte Module prüfen & kompilieren"),
+          h("button", { type: "button", class: "primary", onclick: () => runCompile(true) }, "Auf 100 Karten kompilieren & als Variante speichern")) : "",
+        compileOut
+      );
+    } catch (err) {
+      wrap.replaceChildren(h("p", { class: "bad" }, StudioUI.germanError(err)));
+    }
+  };
+  reload();
 }
 function renderOverview(body) {
   if (typeof renderDeckOverview !== "function") {
@@ -2492,11 +2870,21 @@ function showExport() {
   }
   if (state.baseRevision) {
     const base = `/api/revisions/${encodeURIComponent(state.baseRevision)}/export`;
+    const dossierUrl = `/api/revisions/${encodeURIComponent(state.baseRevision)}/dossier`;
     nodes.push(
       h("p", {}, state.dirty ? "Zuletzt gespeicherter Stand " : "Gespeicherter Stand ", h("code", {}, state.baseRevision), ":"),
       h("div", { class: "actions" },
         h("a", { href: base + "?format=txt", target: "_blank", rel: "noopener" }, "Gespeicherter Stand als Text"),
-        h("a", { href: base + "?format=json", target: "_blank", rel: "noopener" }, "Gespeicherter Stand als Lab-Datei (JSON)"))
+        h("a", { href: base + "?format=json", target: "_blank", rel: "noopener" }, "Gespeicherter Stand als Lab-Datei (JSON)"),
+        h("a", { id: "export-dossier-link", href: dossierUrl, target: "_blank", rel: "noopener" }, "Deck-Dossier (.md)"),
+        h("button", { type: "button", id: "export-dossier-download", onclick: async () => {
+          try {
+            const resp = await fetch(dossierUrl);
+            if (!resp.ok) throw new Error(String(resp.status));
+            const md = await resp.text();
+            _downloadBlob(`${slug}-dossier.md`, md, "text/markdown;charset=utf-8");
+          } catch (_) { toast("Dossier konnte nicht geladen werden.", "error"); }
+        } }, "Dossier herunterladen (.md)"))
     );
   }
   nodes.push(...exportFormatsSection({ h, state, toast, slug, download: _downloadBlob }));
@@ -2540,6 +2928,41 @@ function setupControls() {
   const views = [["grid", "Bilder"], ["table", "Tabelle"]];
   const drawViews = () => $("view-toggle").replaceChildren(...views.map(([key, label]) => h("button", { type: "button", class: "chip" + (state.view === key ? " on" : ""), "aria-pressed": state.view === key, onclick: () => { state.view = key; drawViews(); renderPool(); } }, label)));
   drawViews();
+  const applyBuilderFilterPreset = (cfg) => {
+    $("q").value = cfg.q || "";
+    $("type-filter").value = cfg.type || "";
+    $("role-filter").value = cfg.role || "";
+    $("mv-min").value = cfg.mvMin || "";
+    $("mv-max").value = cfg.mvMax || "";
+    $("f-free").checked = cfg.free !== false;
+    $("f-notin").checked = Boolean(cfg.notin);
+    $("f-fav").checked = Boolean(cfg.fav);
+    $("f-excl").checked = Boolean(cfg.excl);
+    state.colors = new Set(Array.isArray(cfg.colors) ? cfg.colors : []);
+    for (const btn of $("color-filter").querySelectorAll("button")) btn.classList.toggle("on", state.colors.has(btn.textContent));
+    state.shown = 120; renderPool();
+  };
+  if ($("quick-filter-presets")) {
+    $("quick-filter-presets").replaceChildren(
+      h("button", { type: "button", class: "chip", onclick: () => applyBuilderFilterPreset({ free: true }) }, "Standardfilter"),
+      h("button", { type: "button", class: "chip", onclick: () => applyBuilderFilterPreset({ free: true, notin: true }) }, "Frei & nicht im Deck"),
+      h("button", { type: "button", class: "chip", onclick: () => applyBuilderFilterPreset({ free: true, mvMax: "2" }) }, "Frühe Aktionen (MV ≤ 2)"),
+      h("button", { type: "button", class: "chip", onclick: () => applyBuilderFilterPreset({ free: true, type: "Creatures" }) }, "Kreaturen (frei)"),
+      h("button", { type: "button", class: "chip", onclick: () => applyBuilderFilterPreset({ free: true, role: "-" }) }, "Ohne Rollenmarke"),
+      h("button", { type: "button", class: "chip", onclick: () => {
+        const snapshot = { q: $("q").value, type: $("type-filter").value, role: $("role-filter").value, mvMin: $("mv-min").value, mvMax: $("mv-max").value, free: $("f-free").checked, notin: $("f-notin").checked, fav: $("f-fav").checked, excl: $("f-excl").checked, colors: [...state.colors] };
+        StudioUI.remember("studio.builder.savedPreset", JSON.stringify(snapshot));
+        toast("Filteransicht gespeichert.");
+      } }, "Ansicht merken"),
+      h("button", { type: "button", class: "chip", onclick: () => {
+        try {
+          const raw = StudioUI.recall("studio.builder.savedPreset", "");
+          if (!raw) { toast("Noch keine Filteransicht gespeichert."); return; }
+          applyBuilderFilterPreset(JSON.parse(raw));
+        } catch (_) { toast("Gespeicherte Filteransicht konnte nicht geladen werden."); }
+      } }, "Gemerkte Ansicht")
+    );
+  }
   setupFilterToggle();
   $("columns").addEventListener("click", () => { $("column-menu").hidden = !$("column-menu").hidden; });
   $("column-menu").replaceChildren(...COLUMNS.map(([key, label]) => h("label", {}, h("input", { type: "checkbox", checked: state.columns.has(key), onchange: (event) => {

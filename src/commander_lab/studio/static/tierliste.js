@@ -206,7 +206,10 @@ function renderLayerControls() {
 // ---------- filters and sorting ----------
 function cardRoles(card) { return layer(card, "fact").roles.map((claim) => claim.role); }
 function visibleCards() {
-  const words = $("q").value.trim().toLowerCase().split(/\s+/).filter(Boolean);
+  const query = $("q").value.trim();
+  const parsed = StudioSearch.parseQuery(query);
+  state.searchErrors = parsed.errors || [];
+  if (state.searchErrors.length) return [];
   const type = $("type-filter").value, role = $("role-filter").value;
   const landKind = $("land-filter") ? $("land-filter").value : "";
   const spreadLevel = $("spread-filter") ? $("spread-filter").value : "";
@@ -224,8 +227,8 @@ function visibleCards() {
     if (free && state.view !== "deck" && !(card.available > 0)) return false; // a deck is always shown whole
     if (fav && !mark.favorite) return false;
     if (!showExcluded && mark.excluded) return false;
-    const hay = `${card.name} ${card.type_line}`.toLowerCase();
-    return words.every((word) => hay.includes(word));
+    if (!query) return true;
+    return StudioSearch.rank({ ...card, favorite: Boolean(mark.favorite), excluded: Boolean(mark.excluded) }, parsed) !== null;
   });
   const key = state.sortKey, dir = state.sortDir;
   rows = rows.map((card) => [sortValue(card, key), card]);
@@ -396,6 +399,13 @@ function render() {
   if (!state.data) return;
   const cards = visibleCards();
   $("count").textContent = `${nf(cards.length)} Karten`;
+  if (state.searchErrors && state.searchErrors.length) {
+    body.append(h("div", { id: "search-syntax-error", class: "empty" },
+      h("b", {}, "Hinweis zur Such-Syntax:"),
+      ...state.searchErrors.map((msg) => h("p", {}, msg)),
+      h("p", { class: "muted" }, 'Beispiele: t:creature · mv<=2 · r:ramp · c:gu · id<=gwu · -t:land · "draw a card"')));
+    return;
+  }
   if (state.tab === "research") {
     if (state.view === "global") { body.append(h("p", { class: "note" }, `Der Forschungsbedarf wird je Commander berechnet. Wähle die Ansicht ${VIEW_NAMES.commander}.`)); return; }
     const needs = [...new Set(state.data.cards.flatMap((card) => card.coverage.needs))].sort();
@@ -1472,6 +1482,36 @@ async function init() {
   if (savedSort && (SORTS.some((item) => item[0] === savedSort) || savedSort.startsWith(PERCENTILE_SORT) || savedSort.startsWith(LAYER_SORT))) { state.sortKey = savedSort; state.sortDir = SMALL_FIRST.has(savedSort) ? 1 : -1; $("sort").value = savedSort; }
   $("sort").addEventListener("change", () => { state.sortKey = $("sort").value; state.sortDir = SMALL_FIRST.has(state.sortKey) ? 1 : -1; StudioUI.remember(SORT_KEY, state.sortKey); render(); });
   for (const id of ["q", "type-filter", "land-filter", "role-filter", "spread-filter", "f-free", "f-fav", "f-excl"]) $(id).addEventListener("input", () => { state.shown = 150; render(); });
+  const applyTierFilterPreset = (cfg) => {
+    $("q").value = cfg.q || "";
+    $("type-filter").value = cfg.type || "";
+    $("land-filter").value = cfg.land || "";
+    $("role-filter").value = cfg.role || "";
+    $("spread-filter").value = cfg.spread || "";
+    $("f-free").checked = cfg.free !== false;
+    $("f-fav").checked = Boolean(cfg.fav);
+    $("f-excl").checked = Boolean(cfg.excl);
+    state.shown = 150; render();
+  };
+  if ($("tier-quick-presets")) {
+    $("tier-quick-presets").replaceChildren(
+      h("button", { type: "button", class: "chip", onclick: () => applyTierFilterPreset({ free: true }) }, "Standardfilter"),
+      h("button", { type: "button", class: "chip", onclick: () => applyTierFilterPreset({ free: true, land: "spells" }) }, "Nur Zauber (frei)"),
+      h("button", { type: "button", class: "chip", onclick: () => applyTierFilterPreset({ free: false, spread: "U" }) }, "Verbreitung unbekannt (U)"),
+      h("button", { type: "button", class: "chip", onclick: () => {
+        const snap = { q: $("q").value, type: $("type-filter").value, land: $("land-filter").value, role: $("role-filter").value, spread: $("spread-filter").value, free: $("f-free").checked, fav: $("f-fav").checked, excl: $("f-excl").checked };
+        StudioUI.remember("studio.tierlist.savedPreset", JSON.stringify(snap));
+        toast("Tierlisten-Filteransicht gespeichert.");
+      } }, "Ansicht merken"),
+      h("button", { type: "button", class: "chip", onclick: () => {
+        try {
+          const raw = StudioUI.recall("studio.tierlist.savedPreset", "");
+          if (!raw) { toast("Noch keine Filteransicht gespeichert."); return; }
+          applyTierFilterPreset(JSON.parse(raw));
+        } catch (_) { toast("Gespeicherte Filteransicht konnte nicht geladen werden."); }
+      } }, "Gemerkte Ansicht")
+    );
+  }
   for (const btn of document.querySelectorAll("#rank-group-toggle button[data-rank-group]")) {
     btn.addEventListener("click", () => setQuickRankGroup(btn.getAttribute("data-rank-group")).catch((error) => fail(error)));
   }

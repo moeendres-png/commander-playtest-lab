@@ -40,6 +40,7 @@ from . import (
     deck_diff,
     deck_evidence,
     deck_facts,
+    deck_modules,
     deck_series,
     engine_check,
     games,
@@ -59,6 +60,7 @@ from . import (
     strength_view,
     swap,
     tier_snapshot,
+    tokens,
     tournament_conversion,
     universe,
     universe_choice,
@@ -67,16 +69,21 @@ from . import (
 from . import evidence as evidence_model
 from .decks import (
     EXPORT_TEXT_FORMATS,
+    MAX_PRIMER_CHARS,
     RevisionCard,
     baseline_decks_for_commander,
     color_set,
     create_revision,
+    export_deck_dossier,
     export_text,
+    format_primer_comments,
+    get_deck_primer,
     lab_snapshot,
     list_rows,
     parse_decklist_text,
     resolve_repo_baseline_cards,
     revision_rows,
+    set_deck_primer,
     validate_rows,
 )
 from .images import image_cache_status, public_card, web_image_url, web_image_url_by_name
@@ -201,6 +208,33 @@ class RevisionBody(BaseModel):
 class DeckBody(BaseModel):
     name: str = Field(min_length=1, max_length=80)
     commander_card_ids: list[str] = Field(min_length=1, max_length=2)
+
+
+class ModuleSaveBody(BaseModel):
+    module_id: str | None = Field(default=None, max_length=200)
+    name: str = Field(min_length=1, max_length=80)
+    role: Literal["core", "package"] = "package"
+    sort_order: int = Field(default=0, ge=-1000, le=1000)
+    cards: list[CardEntry] = Field(default_factory=list, max_length=300)
+
+
+class ModuleSeedBody(BaseModel):
+    cards: list[CardEntry] = Field(default_factory=list, max_length=300)
+    core_card_ids: list[str] | None = None
+    core_name: str = Field(default="Kern", min_length=1, max_length=80)
+    package_name: str = Field(default="Paket A", min_length=1, max_length=80)
+
+
+class ModuleCompileBody(BaseModel):
+    module_ids: list[str] = Field(default_factory=list, max_length=50)
+    owned_only: bool = True
+    save: bool = False
+    branch: str | None = Field(default=None, max_length=60)
+    note: str = Field(default="", max_length=500)
+
+
+class PrimerBody(BaseModel):
+    content: str = Field(default="", max_length=MAX_PRIMER_CHARS)
 
 
 class MarkBody(BaseModel):
@@ -1548,6 +1582,114 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         finally:
             store.close()
 
+    @app.get("/api/decks/{deck_id}/modules")
+    def get_deck_modules(deck_id: str) -> dict[str, object]:
+        store = open_store()
+        try:
+            return {
+                "schema": deck_modules.DECK_MODULES_SCHEMA,
+                "deck_id": deck_id,
+                "modules": deck_modules.list_modules(store, deck_id),
+            }
+        except KeyError as error:
+            raise HTTPException(404, "unknown deck") from error
+        finally:
+            store.close()
+
+    @app.post("/api/decks/{deck_id}/modules")
+    def save_deck_module(deck_id: str, body: ModuleSaveBody) -> dict[str, object]:
+        store = open_store()
+        try:
+            saved = deck_modules.save_module(
+                store,
+                deck_id=deck_id,
+                name=body.name,
+                role=body.role,
+                cards=_cards(body.cards),
+                module_id=body.module_id,
+                sort_order=body.sort_order,
+            )
+            return {"module": saved}
+        except KeyError as error:
+            raise HTTPException(404, "unknown deck or module") from error
+        except ValueError as error:
+            raise HTTPException(422, str(error)) from error
+        finally:
+            store.close()
+
+    @app.delete("/api/decks/{deck_id}/modules/{module_id}")
+    def remove_deck_module(deck_id: str, module_id: str) -> dict[str, object]:
+        store = open_store()
+        try:
+            deck_modules.delete_module(store, deck_id, module_id)
+            return {"deleted": True, "module_id": module_id}
+        except KeyError as error:
+            raise HTTPException(404, "unknown deck or module") from error
+        finally:
+            store.close()
+
+    @app.post("/api/decks/{deck_id}/modules/seed")
+    def seed_deck_modules(deck_id: str, body: ModuleSeedBody) -> dict[str, object]:
+        store = open_store()
+        try:
+            created = deck_modules.seed_modules_from_cards(
+                store,
+                deck_id=deck_id,
+                cards=_cards(body.cards),
+                core_card_ids=body.core_card_ids,
+                core_name=body.core_name,
+                package_name=body.package_name,
+            )
+            return {"modules": created}
+        except KeyError as error:
+            raise HTTPException(404, "unknown deck") from error
+        except ValueError as error:
+            raise HTTPException(422, str(error)) from error
+        finally:
+            store.close()
+
+    @app.post("/api/decks/{deck_id}/modules/compile")
+    def compile_deck_modules(deck_id: str, body: ModuleCompileBody) -> dict[str, object]:
+        store = open_store()
+        try:
+            return deck_modules.compile_modules(
+                store,
+                deck_id,
+                body.module_ids,
+                owned_only=body.owned_only,
+                save=body.save,
+                branch=body.branch,
+                note=body.note,
+            )
+        except KeyError as error:
+            raise HTTPException(404, "unknown deck or module") from error
+        except ValueError as error:
+            raise HTTPException(422, str(error)) from error
+        finally:
+            store.close()
+
+    @app.get("/api/decks/{deck_id}/primer")
+    def read_primer(deck_id: str) -> dict[str, object]:
+        store = open_store()
+        try:
+            return get_deck_primer(store, deck_id)
+        except KeyError as error:
+            raise HTTPException(404, "unknown deck") from error
+        finally:
+            store.close()
+
+    @app.put("/api/decks/{deck_id}/primer")
+    def write_primer(deck_id: str, body: PrimerBody) -> dict[str, object]:
+        store = open_store()
+        try:
+            return set_deck_primer(store, deck_id, body.content)
+        except KeyError as error:
+            raise HTTPException(404, "unknown deck") from error
+        except ValueError as error:
+            raise HTTPException(422, str(error)) from error
+        finally:
+            store.close()
+
     @app.get("/api/revisions/{revision_id}")
     def revision(revision_id: str, owned_only: bool = True) -> dict[str, object]:
         store = open_store()
@@ -1572,7 +1714,7 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
             store.close()
 
     @app.get("/api/revisions/{revision_id}/export")
-    def export(revision_id: str, format: str = "txt") -> Response:
+    def export(revision_id: str, format: str = "txt", include_primer: bool = False) -> Response:
         if format not in {"txt", "json", *EXPORT_TEXT_FORMATS}:
             raise HTTPException(422, "unknown export format")
         store = open_store()
@@ -1580,10 +1722,34 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
             if format == "json":
                 return JSONResponse(lab_snapshot(store, revision_id))
             rows = revision_rows(store, revision_id)
+            primer_text = ""
+            if include_primer:
+                rev_row = store.connection.execute(
+                    "SELECT deck_id FROM deck_revision WHERE revision_id = ?",
+                    (revision_id,),
+                ).fetchone()
+                if rev_row is not None:
+                    primer_text = str(get_deck_primer(store, str(rev_row["deck_id"]))["content"])
             if format in EXPORT_TEXT_FORMATS:
-                return PlainTextResponse(export_text(rows, format))
-            lines = [f"{row['quantity']} {row['engine_name']}" for row in rows]
+                return PlainTextResponse(export_text(rows, format, primer=primer_text))
+            header = format_primer_comments(primer_text)
+            lines = [*header, *(f"{row['quantity']} {row['engine_name']}" for row in rows)]
             return PlainTextResponse("\n".join(lines) + "\n")
+        except KeyError as error:
+            raise HTTPException(404, "unknown revision") from error
+        finally:
+            store.close()
+
+    @app.get("/api/revisions/{revision_id}/dossier")
+    def export_dossier(
+        revision_id: str,
+        base_revision_id: str | None = Query(default=None, max_length=200),
+    ) -> Response:
+        """Printable Markdown deck dossier with shape, role counts, card list, and revision changelog (#1404)."""
+        store = open_store()
+        try:
+            md = export_deck_dossier(store, revision_id, base_revision_id=base_revision_id)
+            return PlainTextResponse(md, media_type="text/markdown;charset=utf-8")
         except KeyError as error:
             raise HTTPException(404, "unknown revision") from error
         finally:
@@ -1610,6 +1776,27 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         store = open_store()
         try:
             return deck_facts.deck_facts(store, list_rows(store, _cards(body.cards)))
+        finally:
+            store.close()
+
+    @app.post("/api/tokens")
+    def tokens_route(body: ListBody) -> dict[str, object]:
+        """Local Scryfall-derived token overview for a deck list (#1450): created tokens with
+        creating cards, explicit denominators, and UNKNOWN list for unresolved creators."""
+        store = open_store()
+        try:
+            return tokens.deck_tokens(store, _cards(body.cards))
+        finally:
+            store.close()
+
+    @app.get("/api/revisions/{revision_id}/tokens")
+    def revision_tokens_route(revision_id: str) -> dict[str, object]:
+        """Local Scryfall-derived token overview for a stored deck revision (#1450)."""
+        store = open_store()
+        try:
+            return tokens.revision_tokens(store, revision_id)
+        except KeyError as error:
+            raise HTTPException(404, "unknown revision") from error
         finally:
             store.close()
 

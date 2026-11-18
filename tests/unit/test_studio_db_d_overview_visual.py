@@ -431,3 +431,90 @@ def test_pod_matchup_matrix_aggregates_runs_by_pod_with_denominators_and_qualifi
     body = resp.json()
     assert body["total_games_completed"] == 20
     assert body["pods"][0]["win_rate"] == 0.4
+
+
+def test_saved_filter_presets_and_quick_chips_wired_in_builder_and_tierlist() -> None:
+    index_html = (STATIC_DIR / "index.html").read_text(encoding="utf-8")
+    app_js = (STATIC_DIR / "app.js").read_text(encoding="utf-8")
+    tier_html = (STATIC_DIR / "tierliste.html").read_text(encoding="utf-8")
+    tier_js = (STATIC_DIR / "tierliste.js").read_text(encoding="utf-8")
+
+    assert 'id="quick-filter-presets"' in index_html
+    assert "studio.builder.savedPreset" in app_js
+    assert "Frühe Aktionen (MV ≤ 2)" in app_js
+    assert "Ohne Rollenmarke" in app_js
+
+    assert 'id="tier-quick-presets"' in tier_html
+    assert "studio.tierlist.savedPreset" in tier_js
+    assert "Verbreitung unbekannt (U)" in tier_js
+
+
+def test_export_deck_dossier_and_route_with_revision_changelog(tmp_path: Path) -> None:
+    from commander_lab.studio.decks import create_revision, export_deck_dossier
+
+    commander = "Chulane, Teller of Tales"
+    store = StudioStore.open(tmp_path)
+    try:
+        _insert_card(
+            store,
+            "cmd-chulane",
+            commander,
+            identity="G,U,W",
+            mana_cost="{2}{G}{W}{U}",
+            mana_value=5.0,
+            type_line="Legendary Creature — Human Druid",
+        )
+        _insert_card(
+            store,
+            "c-dork",
+            "Birds of Paradise",
+            identity="G",
+            mana_cost="{G}",
+            mana_value=1.0,
+            type_line="Creature — Bird",
+        )
+        _insert_card(
+            store,
+            "c-land",
+            "Breeding Pool",
+            identity="G,U",
+            mana_cost="",
+            mana_value=0.0,
+            type_line="Land — Forest Island",
+        )
+        rev1 = create_revision(
+            store,
+            deck_id="chulane-test",
+            name="Chulane Test",
+            cards=[
+                RevisionCard("cmd-chulane", 1, "commander"),
+                RevisionCard("c-land", 1, "main"),
+            ],
+            note="Basis",
+        )
+        rev2 = create_revision(
+            store,
+            deck_id="chulane-test",
+            name="Chulane Test",
+            cards=[
+                RevisionCard("cmd-chulane", 1, "commander"),
+                RevisionCard("c-land", 1, "main"),
+                RevisionCard("c-dork", 1, "main"),
+            ],
+            parent_revision_id=rev1,
+            note="Mit Dork",
+        )
+        md = export_deck_dossier(store, rev2)
+        assert "# Deck-Dossier: Chulane Test (chulane-test)" in md
+        assert f"Änderungsprotokoll gegenüber `{rev1}`" in md
+        assert "1x Birds of Paradise" in md
+        assert "### Länder (1)" in md
+        assert "### Zauber (1)" in md
+    finally:
+        store.close()
+
+    client = TestClient(create_app(tmp_path))
+    resp = client.get(f"/api/revisions/{rev2}/dossier")
+    assert resp.status_code == 200
+    assert "text/markdown" in resp.headers.get("content-type", "")
+    assert "1x Birds of Paradise" in resp.text

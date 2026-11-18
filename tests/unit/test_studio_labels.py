@@ -145,7 +145,7 @@ def test_a_schema_14_database_is_lifted_on_open_and_keeps_every_row(tmp_path: Pa
     version = lifted.connection.execute(
         "SELECT value FROM meta WHERE key = 'schema_version'"
     ).fetchone()[0]
-    assert version == str(SCHEMA_VERSION) == "18"
+    assert version == str(SCHEMA_VERSION) == "21"
     assert lifted.count("card_label") == 0 and lifted.count("deck_label") == 0
     marks_after = lifted.connection.execute("SELECT * FROM card_mark ORDER BY card_id").fetchall()
     assert [tuple(r) for r in marks_after] == [tuple(r) for r in marks_before]

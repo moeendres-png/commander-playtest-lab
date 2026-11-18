@@ -19,6 +19,16 @@ from openpyxl import load_workbook
 from .catalog import refresh_corpus_stats
 from .decks import RevisionCard, create_revision
 from .edhrec_capture_proof import verify_captures
+from .field_read import (
+    CARD_NAME_ALIASES,
+    EDHREC_DECK_COUNT_ALIASES,
+    EDHREC_INCLUSION_PCT_ALIASES,
+    EDHREC_LIFT_ALIASES,
+    EDHREC_POTENTIAL_DECKS_ALIASES,
+    FallbackTracker,
+    read_str,
+    record_store_fallbacks,
+)
 from .printings import EXACT_CANDIDATE, UNRESOLVED, parse_printing_ref
 from .store import DataClass, StudioStore, now_utc, rebuild_corpus_deck_role, sha256_file
 
@@ -696,7 +706,7 @@ def _number(value: str) -> float | None:
     return float(value) if value.strip() else None
 
 
-def import_edhrec_table(store: StudioStore, path: str | Path) -> dict[str, int]:
+def import_edhrec_table(store: StudioStore, path: str | Path) -> dict[str, object]:
     """Read EDHREC card rows: one observation per card and theme page, with numerator,
     denominator, page address and snapshot note. An empty lift stays unknown."""
     table_path = Path(path)
@@ -714,21 +724,27 @@ def import_edhrec_table(store: StudioStore, path: str | Path) -> dict[str, int]:
     )
     known = {str(row[0]) for row in store.connection.execute("SELECT card_id FROM card")}
     count = 0
+    tracker = FallbackTracker()
     with store.connection as db:
         db.execute("DELETE FROM observation WHERE source_id = ?", (source_id,))
         for row in csv_rows:
             card_id = row.get("card_id") or None
+            card_name = read_str(row, CARD_NAME_ALIASES, tracker=tracker)
             base = (
                 card_id if card_id in known else None,
-                row["card_name"],
+                card_name,
                 f"edhrec:{row['theme']}",
             )
             tail = (row["url"], row.get("snapshot_utc") or None, source_id)
-            numerator = int(row["num_decks"]) if row["num_decks"].strip() else None
-            denominator = int(row["potential_decks"]) if row["potential_decks"].strip() else None
+            raw_num = read_str(row, EDHREC_DECK_COUNT_ALIASES, tracker=tracker)
+            raw_den = read_str(row, EDHREC_POTENTIAL_DECKS_ALIASES, tracker=tracker)
+            raw_inc = read_str(row, EDHREC_INCLUSION_PCT_ALIASES, tracker=tracker)
+            raw_lift = read_str(row, EDHREC_LIFT_ALIASES, tracker=tracker)
+            numerator = int(raw_num) if raw_num else None
+            denominator = int(raw_den) if raw_den else None
             for metric, value, num, den in (
-                ("inclusion_pct", _number(row["inclusion_pct"]), numerator, denominator),
-                ("lift", _number(row["lift"]), None, None),
+                ("inclusion_pct", _number(raw_inc), numerator, denominator),
+                ("lift", _number(raw_lift), None, None),
             ):
                 db.execute(
                     "INSERT INTO observation(card_id, card_name, cohort, metric, value, "
@@ -747,7 +763,13 @@ def import_edhrec_table(store: StudioStore, path: str | Path) -> dict[str, int]:
                     ),
                 )
             count += 1
-    return {"rows": count}
+        fallbacks = tracker.to_dict()
+        if fallbacks:
+            record_store_fallbacks(store, fallbacks)
+    result: dict[str, object] = {"rows": count}
+    if fallbacks:
+        result["fallbacks_used"] = fallbacks
+    return result
 
 
 def import_hub_corpus(store: StudioStore, folder: str | Path) -> dict[str, int]:

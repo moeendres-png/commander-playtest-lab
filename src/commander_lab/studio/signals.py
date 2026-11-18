@@ -113,6 +113,18 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import TypedDict
 
+from .field_read import (
+    CARD_NAME_ALIASES,
+    COMMANDER_NAME_ALIASES,
+    DECK_LIST_CARDS_ALIASES,
+    EDHREC_DECK_COUNT_ALIASES,
+    EDHREC_POTENTIAL_DECKS_ALIASES,
+    EDHREC_SYNERGY_ALIASES,
+    FallbackTracker,
+    missing_required_columns,
+    read_str,
+    record_store_fallbacks,
+)
 from .store import DataClass, StudioStore, sha256_file
 
 CARD_FILE = "commander_card_signals"
@@ -224,9 +236,16 @@ class FileReport(TypedDict):
     null_value_reasons: dict[str, int]  # why a stored value is unknown (NULL), per reason
     warnings: list[str]
     rate_alarms: list[SignalRateAlarm]
+    fallbacks_used: dict[str, int]
     pooled_into: str | None  # tournament files: the file that carries the pooled rows stored
     universes_refused: list[RefusedUniverse]  # counted deck-list files: refused universes
     universes_unmatched: list[UnmatchedRows]  # counted deck-list files: rows without a card
+
+
+def _merge_report_fallbacks(report: FileReport, tracker: FallbackTracker) -> None:
+    target = report["fallbacks_used"]
+    for key, cnt in tracker.to_dict().items():
+        target[key] = target.get(key, 0) + cnt
 
 
 def _number(text: str | None) -> float | None:
@@ -262,7 +281,7 @@ def _rows(paths: list[Path], required: set[str]) -> Iterator[dict[str, str]]:
     for path in paths:
         with path.open(newline="", encoding="utf-8-sig") as handle:
             reader = csv.DictReader(handle)
-            missing = required - set(reader.fieldnames or [])
+            missing = missing_required_columns(reader.fieldnames, required)
             if missing:
                 raise ValueError(f"{path.name}: missing column(s) {', '.join(sorted(missing))}")
             for row in reader:
@@ -320,8 +339,12 @@ class _Commanders:
 def _deck_counts(row: dict[str, str], report: FileReport) -> tuple[int | None, int | None]:
     """Numerator and denominator of an inclusion figure; both None, with a counted reason,
     when either is missing or they contradict each other."""
-    numerator = _count(row.get("num_decks"))
-    denominator = _count(row.get("potential_decks"))
+    tracker = FallbackTracker()
+    raw_num = read_str(row, EDHREC_DECK_COUNT_ALIASES, tracker=tracker)
+    raw_den = read_str(row, EDHREC_POTENTIAL_DECKS_ALIASES, tracker=tracker)
+    _merge_report_fallbacks(report, tracker)
+    numerator = _count(raw_num or None)
+    denominator = _count(raw_den or None)
     reasons = report["null_value_reasons"]
     reason: str | None = None
     if numerator is None or denominator is None:
@@ -346,13 +369,12 @@ def _commander_rows(
         (commander, inclusion, card, _share(numerator, denominator), numerator, denominator)
     ]
     if not variant:
-        synergy = _number(row.get("synergy"))
+        tracker = FallbackTracker()
+        raw_syn = read_str(row, EDHREC_SYNERGY_ALIASES, tracker=tracker)
+        _merge_report_fallbacks(report, tracker)
+        synergy = _number(raw_syn or None)
         if synergy is None:
-            reason = (
-                "SYNERGY_NOT_PUBLISHED"
-                if not row.get("synergy", "").strip()
-                else "SYNERGY_NOT_NUMERIC"
-            )
+            reason = "SYNERGY_NOT_PUBLISHED" if not raw_syn else "SYNERGY_NOT_NUMERIC"
             reasons = report["null_value_reasons"]
             reasons[reason] = reasons.get(reason, 0) + 1
         rows.append((commander, SIGNAL_SYNERGY, card, synergy, None, None))
@@ -393,6 +415,7 @@ def _empty(paths: list[Path]) -> FileReport:
         "null_value_reasons": {},
         "warnings": [],
         "rate_alarms": [],
+        "fallbacks_used": {},
         "pooled_into": None,
         "universes_refused": [],
         "universes_unmatched": [],
@@ -409,7 +432,10 @@ def _read_commander_file(
     pairs: list[tuple[tuple[str, str, str], _Row]] = []
     for row in _rows(paths, required):
         report["rows_read"] += 1
-        commander, card = row["commander_name"].strip(), row["card_name"].strip()
+        tracker = FallbackTracker()
+        commander = read_str(row, COMMANDER_NAME_ALIASES, tracker=tracker)
+        card = read_str(row, CARD_NAME_ALIASES, tracker=tracker)
+        _merge_report_fallbacks(report, tracker)
         if commander and card:
             commander = commanders.resolve(commander)
         if not commander or not card:
@@ -438,7 +464,9 @@ def _read_independent(
     pairs: list[tuple[tuple[str, str, str], _Row]] = []
     for row in _rows(paths, required):
         report["rows_read"] += 1
-        card = row["card_name"].strip()
+        tracker = FallbackTracker()
+        card = read_str(row, CARD_NAME_ALIASES, tracker=tracker)
+        _merge_report_fallbacks(report, tracker)
         if not card:
             report["rows_skipped"] += 1
             continue
@@ -615,8 +643,12 @@ def _read_combos(
     seen: set[tuple[str, int]] = set()
     for row in _rows(paths, {"cards", "num_decks"}):
         report["rows_read"] += 1
-        cards = sorted({name.strip() for name in row["cards"].split(";") if name.strip()})
-        decks = _count(row["num_decks"])
+        tracker = FallbackTracker()
+        raw_cards = read_str(row, DECK_LIST_CARDS_ALIASES, tracker=tracker)
+        raw_decks = read_str(row, EDHREC_DECK_COUNT_ALIASES, tracker=tracker)
+        _merge_report_fallbacks(report, tracker)
+        cards = sorted({name.strip() for name in raw_cards.split(";") if name.strip()})
+        decks = _count(raw_decks or None)
         reason = (
             "COMBO_WITHOUT_CARDS"
             if not cards
@@ -1478,6 +1510,7 @@ class SignalFileReport:
     null_value_reasons: dict[str, int] = field(default_factory=dict)
     warnings: list[str] = field(default_factory=list)
     rate_alarms: list[SignalRateAlarm] = field(default_factory=list)
+    fallbacks_used: dict[str, int] = field(default_factory=dict)
     pooled_into: str | None = None
     universes_refused: list[RefusedUniverse] = field(default_factory=list)
     universes_unmatched: list[UnmatchedRows] = field(default_factory=list)
@@ -1497,6 +1530,7 @@ class SignalFileReport:
             "null_value_reasons": dict(self.null_value_reasons),
             "warnings": list(self.warnings),
             "rate_alarms": list(self.rate_alarms),
+            "fallbacks_used": dict(self.fallbacks_used),
             "pooled_into": self.pooled_into,
             "universes_refused": list(self.universes_refused),
             "universes_unmatched": list(self.universes_unmatched),
@@ -1518,6 +1552,7 @@ class SignalFileReport:
             null_value_reasons=dict(data["null_value_reasons"]),
             warnings=list(data["warnings"]),
             rate_alarms=list(data.get("rate_alarms", [])),
+            fallbacks_used=dict(data.get("fallbacks_used", {})),
             pooled_into=data["pooled_into"],
             universes_refused=list(data["universes_refused"]),
             universes_unmatched=list(data["universes_unmatched"]),
@@ -1746,6 +1781,8 @@ def import_signal_file(
     with store.connection:
         rows = _read_file(kind, paths, inferred_variant, report, commanders)
         _apply_file_rate_alarms(rows, report, preferred_commander=preferred)
+        if report["fallbacks_used"]:
+            record_store_fallbacks(store, report["fallbacks_used"])
         source_id = _register(store, paths)
         if source_id is not None and rows:
             written, replaced = _store_rows(
@@ -1831,6 +1868,12 @@ def import_signals(
                 report["status"] = "NOTHING_REPLACED"
                 report["rows_kept"] = _kept_rows(store, _file_signals(kind, variant), None)
         _import_combos(store, root, preferred, reports, replace=replace)
+        total_fallbacks: dict[str, int] = {}
+        for rep in reports.values():
+            for fb_key, fb_cnt in rep["fallbacks_used"].items():
+                total_fallbacks[fb_key] = total_fallbacks.get(fb_key, 0) + fb_cnt
+        if total_fallbacks:
+            record_store_fallbacks(store, total_fallbacks)
     rate_alarms = [alarm for report in reports.values() for alarm in report["rate_alarms"]]
     return {
         "folder": root.name,
@@ -1851,6 +1894,7 @@ def import_signals(
             for warning in report["warnings"]
         ],
         "rate_alarms": rate_alarms,
+        "fallbacks_used": dict(sorted(total_fallbacks.items())),
         "commanders_imported": sorted(commanders.imported),
         "commanders_not_recognised": sorted(commanders.not_recognised),
         "commanders_normalised": [
