@@ -14,9 +14,13 @@ ist als solche gekennzeichnet. Eine spätere Owner-Anweisung geht vor; dann wird
 fortgeschrieben, nie gelöscht (`AGENTS.md` §9).
 
 **Quellen.**
-- Owner-Antworten 2026-11-18 (O1, O3, O4, O6), festgehalten in #1167, Kommentar 6985613347.
-- Owner-Aussagen 2026-11-18 in der Lead-Sitzung zu Scope und Empfehlungen (Abschnitt 1, letzte
-  beiden Zitate), vom Lead in PR #1514 übermittelt.
+- Owner-Antworten 2026-11-18 (O1, O3, O4, O6) und „Sonst arbeite weiter nach deinen
+  Empfehlungen“, festgehalten in #1167, Kommentar 6985613347.
+- „Bitte nach deinen neuen hier ausgemachten scope arbeiten …“, „Bei Unsicherheiten …“ und „Und
+  bitte hinterlege …“ (Owner, 2026-11-18, Session-Chat): wörtlich festgehalten in PR #1514,
+  Kommentar 6987989133.
+- „hier mein GO für alle deinen Empfehlungen“ (Owner, 2026-11-18, Session-Chat): wörtlich vom Lead
+  übermittelt; in Kommentar 6987989133 nur sinngemäß referenziert, ohne eigene Kommentar-ID.
 - Owner-Entscheide PLAY 2026-11-17, festgehalten in #1167, Kommentar 6953814299.
 - Owner-Entscheide Tierliste 2026-11-18, festgehalten in #1369, Kommentar 6967718221.
 - Optionspapier `docs/research/studio_abschluss_20261118/design_options.md` mit
@@ -38,7 +42,14 @@ fortgeschrieben, nie gelöscht (`AGENTS.md` §9).
 - „Sonst arbeite weiter nach deinen Empfehlungen“
 - Auf die Frage, ob `docs/STUDIO_TARGET_SCOPE.md` (gemergt mit PR #1510) oder der neue Scope
   gilt: „Bitte nach deinen neuen hier ausgemachten scope arbeiten und das so hinterlegen“
-- „GO für alle deinen Empfehlungen“
+- „hier mein GO für alle deinen Empfehlungen“
+- „Bei Unsicherheiten nochmal mit mir zusammen planen sonst gerne nach deinen Empfehlungen
+  arbeiten“ (schränkt das GO ein: Wo eine Empfehlung unsicher ist, wird sie mit dem Owner geplant,
+  nicht allein umgesetzt.)
+- „Und bitte hinterlege meine Entscheidungen und Empfehlungen in seine prs und issues die es
+  betreffen damit er richtig weiter arbeitet und bitte pass agents.md bzw die entsprechenden
+  dateien auch an dsmit er weiß was wie abgearbeitet wird“ (Grundlage für den Abschnitt
+  „Abarbeitung (für alle Agents)“ in `docs/STUDIO_SCOPE.md`)
 
 **Folge für `docs/STUDIO_TARGET_SCOPE.md`.** Verbindlich ist `docs/STUDIO_SCOPE.md`; das Ersetzen
 des Zieldokuments war Empfehlung §D.1 des Optionspapiers und ist vom GO gedeckt. Für die dort
@@ -154,7 +165,7 @@ KI-Sitze am eigenen Rechner ohne Zeitlimit.
 ### E5: Entscheide vom 2026-11-17 (PLAY), Wortlaut
 
 Vom Owner am 2026-11-18 mit der Anweisung, nach den Empfehlungen weiterzuarbeiten („Sonst
-arbeite weiter nach deinen Empfehlungen“, „GO für alle deinen Empfehlungen“), angenommen
+arbeite weiter nach deinen Empfehlungen“, „hier mein GO für alle deinen Empfehlungen“), angenommen
 (Empfehlung O5 des Optionspapiers: bestätigen und aufnehmen); Einspruch jederzeit möglich. Wortlaut aus #1167,
 Kommentar 6953814299:
 
@@ -216,7 +227,7 @@ keinen anderen Wert.
 | S2 und Einfrierung neuer Pilot-Mikro-Messreihen (2026-11-10) | nur für die reine Zählung von Pilot-Auslassungen aufgehoben (E3) | O4 |
 | K4 „keine Kombination“, E1.a „Rubrik-Gewicht 0“, Ablehnung einer modellgestützten Einschätzung, A4 „nur objektive Daten“ | nur für das neue, gekennzeichnete Gesamtrating aufgehoben (E6) | Owner 18.11., angenommen 18.11. |
 | PLAY „fertig“, wenn der Owner eine ganze Partie spielt (`STUDIO_ROADMAP_20261112.md`) | Abnahme nach AK-1 bis AK-8 (E4) | O6 |
-| 5 und 6 Sitze: nur durch Regel nicht freigegeben; Code nimmt 2 bis 6 Sitze an (`studio/launch.py`: `MIN_SEATS, MAX_SEATS = 2, 6`) | neu: technische Sperre für 5 und 6 Sitze, nur mit ausdrücklichem Schalter, standardmäßig aus. Im Studio-Startpfad kommt sie mit dem PR „Brett-Klick/Sitz-Sperre“ (PLAY P0), in den Serien-Routen mit dem SIMULATE-Zweig. Bis dahin ist sie nicht durchgesetzt. | Empfehlung O11 des Optionspapiers, Owner-GO 2026-11-18 |
+| 5 und 6 Sitze: nur durch Regel nicht freigegeben; Code nimmt 2 bis 6 Sitze an (`studio/launch.py`: `MIN_SEATS, MAX_SEATS = 2, 6`) | neu: technische Sperre für 5 und 6 Sitze; aufgehoben wird sie nur per Owner-Freigabe. Im Studio-Startpfad (Partie, PLAY) ist sie mit PR #1515 auf `main` (`launch.MAX_RELEASED_SEATS = 4`). In den Serien-Routen ist sie noch offen (SIMULATE-Zweig; PR #1516 enthält sie nicht). | Empfehlung O11 des Optionspapiers, Owner-GO 2026-11-18 |
 | `docs/STUDIO_TARGET_SCOPE.md` als Zielumfang (PR #1510) | ersetzt durch `docs/STUDIO_SCOPE.md` | Owner 2026-11-18 (Abschnitt 1), Optionspapier §D.1 |
 
 ## 4. Gilt unverändert

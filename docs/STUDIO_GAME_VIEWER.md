@@ -137,8 +137,9 @@ with "Neue Partie" stays one game per JVM.
 
 ## Not in this step
 
-Every seat is a pilot. A human seat needs the engine to wait for a person and is a later
-step. Token images are not in the public card data the Studio imports; tokens show as text.
+Token images are not in the public card data the Studio imports; tokens show as text. (An
+earlier sentence here called the human seat a later step; it exists, see "Playing seat 1
+yourself (human seat)" above.)
 
 ## Card outcomes from simulated games
 

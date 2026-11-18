@@ -11,9 +11,12 @@ für den technischen Stand (`AGENTS.md` §3).
 
 Diese Datei ersetzt das Zieldokument `docs/STUDIO_TARGET_SCOPE.md`, das am 2026-11-18 mit PR #1510
 gemergt wurde. Grundlage ist die Owner-Aussage vom 2026-11-18 auf die Frage, welcher Scope gilt:
-„Bitte nach deinen neuen hier ausgemachten scope arbeiten und das so hinterlegen“, dazu „GO für
-alle deinen Empfehlungen“ (deckt Empfehlung §D.1 des Optionspapiers: Zieldokument ersetzen;
-Wortlaut in `docs/OWNER_DECISIONS_STUDIO_20261118.md`). Für die dort genannte Freigabe „S-B,
+„Bitte nach deinen neuen hier ausgemachten scope arbeiten und das so hinterlegen“, dazu „hier mein
+GO für alle deinen Empfehlungen“, eingeschränkt durch „Bei Unsicherheiten nochmal mit mir zusammen
+planen“ (deckt Empfehlung §D.1 des Optionspapiers: Zieldokument ersetzen; Wortlaut und genaue
+Quellen in `docs/OWNER_DECISIONS_STUDIO_20261118.md`: die Scope- und Unsicherheits-Zitate stehen
+wörtlich in PR #1514, Kommentar 6987989133; das GO-Zitat ist vom Lead wörtlich übermittelt, ohne
+eigene Kommentar-ID). Für die dort genannte Freigabe „S-B,
 O1-A bis O4-A“ gibt es keine belegte Owner-Quelle. Das Zieldokument bleibt als Verlaufsdokument
 erhalten (`AGENTS.md` §9), ist aber keine Pflichtlektüre und keine Scope-Quelle mehr; die
 strittigen Punkte stehen am Ende dieser Datei. `docs/STUDIO_ROADMAP_20261112.md` und
@@ -29,10 +32,11 @@ Datei widersprechen, gilt diese Datei.
 - Keine Preise, kein Kaufmodus, keine Bezahldienste (A1, B1).
 - Keine neue Abhängigkeit und keine Änderung an `pyproject.toml` ohne Owner-Go.
 - Sitze: Höchstzahl 6, Standard 4. Aktiv sind 2 bis 4 Sitze; 5 und 6 sind nicht freigegeben
-  (eigene Qualifikation und Owner-Freigabe, A3, A8). Der Code nimmt derzeit 2 bis 6 Sitze an
-  (`studio/launch.py`: `MIN_SEATS, MAX_SEATS = 2, 6`). Die technische Sperre (neu, Empfehlung O11
-  mit Owner-GO) kommt im Studio-Startpfad mit dem PR „Brett-Klick/Sitz-Sperre“ (PLAY P0), in den
-  Serien-Routen mit dem SIMULATE-Zweig.
+  (eigene Qualifikation und Owner-Freigabe, A3, A8). Die Engine nimmt 2 bis 6 Sitze an
+  (Verhalten bei 5/6 nicht qualifiziert: `UNKNOWN`; `studio/launch.py`: `MIN_SEATS, MAX_SEATS = 2, 6`). Technische Sperre (neu, Empfehlung O11 mit
+  Owner-GO): im Studio-Startpfad (Partie, PLAY) seit PR #1515 auf `main`
+  (`MAX_RELEASED_SEATS = 4`); in den Serien-Routen noch offen, sie kommt mit dem SIMULATE-Zweig
+  (in PR #1516 nicht enthalten). Aufgehoben wird sie nur per Owner-Freigabe.
 
 ## BUILD
 
@@ -52,7 +56,7 @@ folgt aus AK-8.
 
 | Stufe | Inhalt |
 |---|---|
-| P0 | (1) Den gesicherten Brett-Klick-Stand fertigstellen: Ziel, Angreifer, Blocker, Karte aus der Hand, Fähigkeit eines Permanents; jeder Klick sendet nur eine `option_id` aus `legal_options`, die Listen bleiben als Ausweichweg (AK-4). (2) Echt-Engine-Test des Mensch-Sitzes ohne Menschen: ein vorhandener Pilot beantwortet die Entscheidungen über die PLAY-Routen; reiner Test, keine Erste- oder Zufallsoption. (3) Technische Sperre für 5 und 6 Sitze in Partie und Serie: nur mit ausdrücklichem Schalter, standardmäßig aus. (4) Abnahme-Partien am Owner-PC. |
+| P0 | (1) Den gesicherten Brett-Klick-Stand fertigstellen: Ziel, Angreifer, Blocker, Karte aus der Hand, Fähigkeit eines Permanents; jeder Klick sendet nur eine `option_id` aus `legal_options`, die Listen bleiben als Ausweichweg (AK-4). (2) Echt-Engine-Test des Mensch-Sitzes ohne Menschen: ein vorhandener Pilot beantwortet die Entscheidungen über die PLAY-Routen; reiner Test, keine Erste- oder Zufallsoption. (3) Technische Sperre für 5 und 6 Sitze im Studio-Startpfad (Partie); die Sperre der Serien-Routen gehört zum SIMULATE-Zweig. Aufgehoben wird sie nur per Owner-Freigabe. (4) Abnahme-Partien am Owner-PC. Stand 2026-11-18: (1) bis (3) mit PR #1515 gemergt; (4) offen. |
 | P1 | Stack-Schiene mit Zielen; Anzeige von Commander-Steuer und Commander-Schaden nur aus Engine-Werten (neuer Frame-Inhalt wäre eine `BEHAVIOUR`-Änderung unter dem Studio-Bridge-Gate); Tastatur mit sichtbarem Fokus; Yield-Modi nur über die Pass-Option, die die Engine anbietet (jede andere Entscheidung hält an, jeder automatische Pass steht im Protokoll); Wiedergabe einer beendeten Partie Zug für Zug. |
 | P2 | Nur auf Owner-Wunsch: serverseitiges Yield (vorher unabhängiges Review gegen `AGENTS.md` §2), Bedienung per Berührung, Mensch auf einem anderen Sitz als 1, Bildvergleichs-Tests (neue Abhängigkeit). Nicht geplant: Speichern und Wiederaufnehmen (kein Zustands-Restore der Engine, E5), freies Rückgängig (P4), Erklärung einzelner KI-Entscheidungen, passiver Gegner (P3). |
 
@@ -111,8 +115,8 @@ Keine Kalenderdaten: Die Dauer hängt an Owner-Zeit am PC und an Nutzungslimits 
 | Phase | Inhalt | Abnahme |
 |---|---|---|
 | 0 Sichern und klären | Offene Stände gepusht; Claim-Tabelle in #1167; diese Datei und die Entscheidungsdatei | beide gemergt, Doku-Drift bereinigt |
-| 1 PLAY P0 | Brett-Klick, Echt-Engine-Test, Sitz-Sperre | Tests grün auf exaktem Head, Review; drei Abnahme-Partien (AK-1 bis AK-8) |
-| 2 SIMULATE A1 (parallel zu 1) | Ausrichtung, parallele gepaarte Serie, Planung, Zensur, Seed-Plan | Starthand-Gleichheitstest, Hash-Nachweis Stapel gegen Einzelspiel; Pilotblock am Owner-PC |
+| 1 PLAY P0 | Brett-Klick, Echt-Engine-Test, Sitz-Sperre im Startpfad (Stand 2026-11-18: gemergt mit PR #1515; Abnahme-Partien offen) | Tests grün auf exaktem Head, Review; drei Abnahme-Partien (AK-1 bis AK-8) |
+| 2 SIMULATE A1 (parallel zu 1) | Ausrichtung, parallele gepaarte Serie, Planung, Zensur, Seed-Plan, Sitz-Sperre der Serien-Routen (Stand 2026-11-18: PR #1516 offen, ohne Serien-Sitz-Sperre) | Starthand-Gleichheitstest, Hash-Nachweis Stapel gegen Einzelspiel; Pilotblock am Owner-PC |
 | 3 BUILD-Klärung | Doku und Verifikation des vorhandenen Starts aus dem Deckbauer (Knopf „Mit diesem Stand eine Partie spielen“) und des Serienstarts zu einem Deck-Stand | ein Chulane-Stand geht ohne Handarbeit in Partie und Serie |
 | 4 SIMULATE A2 und PLAY P1 | Serienplan, Zwei-Stufen-Ablauf, Konsistenz-Tafel, Gültigkeitsblock, Anzeige im Deck-Verlauf; P1 nach AK-8 priorisiert | zwölf Punkte des Mindeststandards belegt; eine Nachtserie zu einer echten Chulane-Frage |
 | 5 Abschluss | Bridge-Siegel oder dauerhaft „vor Qualifikation“; Release-Paket; Einrichtung von null | Abschlusskriterien unten |
@@ -145,8 +149,8 @@ So wird der Scope oben abgearbeitet, von jedem Agenten gleich.
 1. **Reihenfolge:** die Phasen 0 bis 5 aus „Roadmap-Phasen“; Phase 1 (PLAY P0) und Phase 2
    (SIMULATE A1) laufen parallel, weil ihre Flächen getrennt sind.
 2. **Claims:** Die Claim-Tabelle im Übersichts-Issue #1167 ist maßgeblich. Eine Fläche hat einen
-   Halter. Kein Claim ohne gepushten Branch. Bei Überschneidung zuerst dort kommentieren, dann
-   arbeiten.
+   Halter. Ein Claim steht spätestens mit dem ersten gepushten Meilenstein (Optionspapier §D.3).
+   Bei Überschneidung zuerst dort kommentieren, dann arbeiten.
 3. **Pakete:** ein Paket = ein Issue bzw. ein Branch = ein PR. Commits und PR-Texte sagen
    `Refs #N`, nie `Closes #N` (`AGENTS.md` §10).
 4. **Review vor Merge:** Eine MATERIAL-Änderung braucht vor dem Merge einen Review aus frischem
@@ -154,15 +158,18 @@ So wird der Scope oben abgearbeitet, von jedem Agenten gleich.
    wird. Welche Änderung MATERIAL ist, legt die Liste in `AGENTS.md` §10 fest (unter anderem mehr
    als 300 geänderte Zeilen, Policy-Text, Workflows, Engine, Bridge, Gates, Qualifikation).
    Studio-Ergänzung zu §10 (ändert §10 nicht): Zusätzlich zur MATERIAL-Liste sind Texte der
-   Oberfläche, die Aussagen über Ratings oder Simulationsergebnisse machen, review-pflichtig. Ein
-   Merge vor diesem Review ist ein Verstoß gegen das Merge-Gate. Anlass dieser Klarstellung sind zwei Merges vom 2026-11-18
+   Oberfläche, die Aussagen über Ratings oder Simulationsergebnisse machen, review-pflichtig; eine
+   solche Änderung wird wie MATERIAL behandelt. Ein Merge vor dem erforderlichen Review ist nach
+   §10 ein Gate-Verstoß, soweit die Änderung unter die MATERIAL-Liste in §10 fällt. Anlass dieser Klarstellung sind zwei Merges vom 2026-11-18
    (#1509, #1510), bei denen Review-Befunde bzw. ein Halte-Hinweis erst nach dem Merge aufgelöst
    wurden.
 5. **Governance-Dateien:** Änderungen an `AGENTS.md` und `CLAUDE.md` erfolgen durch Lead oder
    Coordinator nach `AGENTS.md` §8. Inhaltliche Änderungen am Scope (diese Datei), an den
    Owner-Entscheiden (`docs/OWNER_DECISIONS_*`) und an Owner-vorbehaltenen Regeln nur auf
    ausdrückliche Owner-Anweisung oder nach Owner-Freigabe einer vorgelegten Option; die Quelle
-   steht im PR. Andere Agents legen Option und Empfehlung vor.
+   steht im PR. Andere Agents legen Option und Empfehlung vor. Entscheide von Lead oder
+   Coordinator innerhalb des Scopes nach `AGENTS.md` §8 bleiben unberührt und stehen im Issue oder
+   PR. Bei Unsicherheit wird mit dem Owner geplant (Owner, 2026-11-18).
 6. **Owner-Entscheide** werden wörtlich in `docs/OWNER_DECISIONS_STUDIO_<Datum>.md` festgehalten,
    mit Quelle; Einordnungen von Agenten sind als solche gekennzeichnet.
 7. **Belege:** Was nicht belegt ist, heißt `UNKNOWN`, nie PASS. Punkte, die eine echte Engine oder
