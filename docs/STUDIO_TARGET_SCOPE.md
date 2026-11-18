@@ -1,8 +1,11 @@
 # Commander Studio — Best-Of-All-Worlds Zielumfang
 
-> **Überholt:** Der verbindliche Scope steht in `docs/STUDIO_SCOPE.md`, die Owner-Entscheide vom
-> 2026-11-18 in `docs/OWNER_DECISIONS_STUDIO_20261118.md`. Die Optionsbezeichnungen S-B, O1-A bis
-> O4-A unten kommen in den dort zitierten Owner-Quellen nicht vor. Diese Datei bleibt als
+> **Überholt:** Owner 2026-11-18: „Bitte nach deinen neuen hier ausgemachten scope arbeiten und das
+> so hinterlegen“ und „GO für alle deinen Empfehlungen“. Der verbindliche Scope steht in
+> `docs/STUDIO_SCOPE.md`, die Owner-Entscheide in `docs/OWNER_DECISIONS_STUDIO_20261118.md`. Für die
+> Freigabe „S-B, O1-A bis O4-A“ unten gibt es keine belegte Owner-Quelle; falls der Owner sie in
+> einer anderen Sitzung gegeben hat, entscheidet er die strittigen Punkte (Liste in
+> `docs/STUDIO_SCOPE.md`) neu, bis dahin wird aus ihnen nichts gebaut. Diese Datei bleibt als
 > Verlaufsdokument erhalten.
 
 Stand: 2026-11-18 (Owner-Freigabe: Option S-B, O1-A, O2-A, O3-A, O4-A), Refs #1167, #1169, #1172, #1251, #1265, #1369.

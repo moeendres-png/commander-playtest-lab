@@ -11,7 +11,7 @@ authority, the Owner-only reservations and the merge gate are in `AGENTS.md` §8
 historical/regression data. Studio work (deck building, simulating, playing): read the binding
 scope `docs/STUDIO_SCOPE.md` and the Owner decisions `docs/OWNER_DECISIONS_STUDIO_20261118.md`
 and `docs/OWNER_DECISIONS_STUDIO_20261112.md`, then `docs/STUDIO_PLAN_SIMULATOR.md` (bridge-gate
-reference set); `docs/STUDIO_ROADMAP_20261112.md` is superseded planning.
+reference set); the roadmap stays as planning history, and where it differs the scope wins.
 Who holds which Studio surface is in the claim table of #1167. Before touching an issue or pull
 request, check that no other agent holds it (`AGENTS.md` §11, parallel agents).
 Abarbeitung: `docs/STUDIO_SCOPE.md` §Abarbeitung.

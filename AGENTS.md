@@ -14,8 +14,8 @@ plays real 100-card Commander decks rules-correctly, so simulated games can stan
 - Rules-correct play is required, but not at any cost: where full correctness for a rare interaction
   is unreachable, record the gap visibly and move on. Simulate as many cards as possible, including
   cards the base XMage engine lacks. Four players is the usual game and six seats the maximum; two
-  to four seats are active, five and six stay locked until their own qualification and the Owner's
-  release.
+  to four seats are active, five and six are not released (own qualification and the Owner's
+  release).
 - The simulator is one part of the local Commander Studio (BUILD, PLAY, SIMULATE):
   `docs/OWNER_DECISION_STUDIO_BUILD_PLAY_SIMULATE_20261110.md`. The binding scope is
   `docs/STUDIO_SCOPE.md`; the Owner decisions for the three areas are in
@@ -24,9 +24,10 @@ plays real 100-card Commander decks rules-correctly, so simulated games can stan
   objective data with provenance; every count with its denominator; cohorts never added; source
   data bound to one commander; no guessed tier. The one exception to objective data is the
   labelled, generated overall rating of the tier list, a second view next to the usage index,
-  which stays the default. The Owner's marks (favorites, exclusions, notes) never count as a
-  rating. Simulation results enter the tier list only once the maturity gate G-SIM in
-  `docs/OWNER_DECISIONS_STUDIO_20261118.md` is met and the Owner confirms weight and display;
+  which stays the default until the Owner decides otherwise after validation. The Owner's marks
+  (favorites, exclusions, notes) never count as a rating. Simulation results enter the tier list
+  only once the maturity gate G-SIM in `docs/OWNER_DECISIONS_STUDIO_20261118.md` (a proposal,
+  thresholds open) is met and the Owner confirms weight and display;
   until then the `simulation` weight stays 0 in the default and in every preset.
 - Chulane, Teller of Tales is the only active owner deck for optimization
   (`docs/OWNER_DECK_FOCUS_CURRENT.md`). RogShai data is historical and regression data only.

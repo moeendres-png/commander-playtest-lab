@@ -10,9 +10,13 @@ O1 und O3. Bei Widerspruch gehen die Owner-Entscheide vor; Git, Tests und Issues
 für den technischen Stand (`AGENTS.md` §3).
 
 Diese Datei ersetzt das Zieldokument `docs/STUDIO_TARGET_SCOPE.md`, das am 2026-11-18 mit PR #1510
-gemergt wurde. Es bleibt als Verlaufsdokument erhalten (`AGENTS.md` §9), ist aber keine
-Pflichtlektüre und keine Scope-Quelle mehr; was daraus nicht übernommen wird, steht am Ende
-dieser Datei. `docs/STUDIO_ROADMAP_20261112.md` und
+gemergt wurde. Grundlage ist die Owner-Aussage vom 2026-11-18 auf die Frage, welcher Scope gilt:
+„Bitte nach deinen neuen hier ausgemachten scope arbeiten und das so hinterlegen“, dazu „GO für
+alle deinen Empfehlungen“ (deckt Empfehlung §D.1 des Optionspapiers: Zieldokument ersetzen;
+Wortlaut in `docs/OWNER_DECISIONS_STUDIO_20261118.md`). Für die dort genannte Freigabe „S-B,
+O1-A bis O4-A“ gibt es keine belegte Owner-Quelle. Das Zieldokument bleibt als Verlaufsdokument
+erhalten (`AGENTS.md` §9), ist aber keine Pflichtlektüre und keine Scope-Quelle mehr; die
+strittigen Punkte stehen am Ende dieser Datei. `docs/STUDIO_ROADMAP_20261112.md` und
 `docs/STUDIO_PLAN_SIMULATOR.md` bleiben als Planungs- und Verlaufsdokumente bestehen; wo sie dieser
 Datei widersprechen, gilt diese Datei.
 
@@ -24,9 +28,11 @@ Datei widersprechen, gilt diese Datei.
 - Chulane ist das einzige aktive Owner-Deck (`docs/OWNER_DECK_FOCUS_CURRENT.md`).
 - Keine Preise, kein Kaufmodus, keine Bezahldienste (A1, B1).
 - Keine neue Abhängigkeit und keine Änderung an `pyproject.toml` ohne Owner-Go.
-- Sitze: Höchstzahl 6, Standard 4. Aktiv sind 2 bis 4 Sitze; 5 und 6 erst nach eigener
-  Qualifikation und Owner-Freigabe (A3, A8). Auf `main` nimmt der Studio-Start heute noch
-  ein bis fünf Gegner an (`studio/launch.py`); die technische Sperre ist PLAY-P0-Arbeit.
+- Sitze: Höchstzahl 6, Standard 4. Aktiv sind 2 bis 4 Sitze; 5 und 6 sind nicht freigegeben
+  (eigene Qualifikation und Owner-Freigabe, A3, A8). Der Code nimmt derzeit 2 bis 6 Sitze an
+  (`studio/launch.py`: `MIN_SEATS, MAX_SEATS = 2, 6`). Die technische Sperre (neu, Empfehlung O11
+  mit Owner-GO) kommt im Studio-Startpfad mit dem PR „Brett-Klick/Sitz-Sperre“ (PLAY P0), in den
+  Serien-Routen mit dem SIMULATE-Zweig.
 
 ## BUILD
 
@@ -64,7 +70,10 @@ Option A2 „Deck-Labor mit Messprotokoll“, geliefert in zwei Schritten.
 | A2 | Serienplan als Datei vor dem ersten Spiel; Zwei-Stufen-Ablauf (Erkundung, Bestätigung auf frischen Seeds mit Holm); Konsistenz-Tafel in drei getrennten Herkunftsklassen (exakt gerechnet, in der Engine gemessen und pilotunabhängig, in der Engine gemessen und pilotabhängig); Gültigkeitsblock an jedem Ergebnis (Sitzkurve neben der Playgroup-Referenz, Zählung der Pilot-Auslassungen nach E3, fester Satz zur KI-Gültigkeit). |
 
 - **Mindeststandard:** die zwölf Punkte in `docs/OWNER_DECISIONS_STUDIO_20261118.md` (G-SIM
-  Punkt 4); nach A2 je Punkt mit Test oder Beispielergebnis belegt.
+  Punkt 4); nach A2 je Punkt mit Test oder Beispielergebnis belegt. Punkt 11 gilt für A2 nur in
+  der schwachen Form (Sitzkurve, Zählung der Pilot-Auslassungen). Eine manuelle Stichprobe von
+  Pilot-Entscheidungen gehört nur zu G-SIM Punkt 2 und braucht vorher eine eigene
+  Owner-Bestätigung (S2 ist nur für die Zählung aufgehoben).
 - **Wo Ergebnisse erscheinen:** nur im Deckbauer (Vergleich zweier Stände) und im Deck-Verlauf,
   als eigene Kohorte `SIMULATED_RESULT`, nie in einer Spalte mit EDHREC-, Playgroup- oder
   TopDeck-Zahlen, nie über Commander oder Deck-Stände summiert. Eine Serie zu einem anderen
@@ -142,15 +151,18 @@ So wird der Scope oben abgearbeitet, von jedem Agenten gleich.
    `Refs #N`, nie `Closes #N` (`AGENTS.md` §10).
 4. **Review vor Merge:** Eine MATERIAL-Änderung braucht vor dem Merge einen Review aus frischem
    Kontext mit Ergebnis PASS, festgehalten als PR-Kommentar mit der exakten Head-SHA, die gemergt
-   wird (`AGENTS.md` §10). MATERIAL sind hier: mehr als 300 geänderte Zeilen; Policy-Text
-   (`AGENTS.md`, `CLAUDE.md`), Workflows; Engine, Bridge, Gates, Qualifikation; Texte der
-   Oberfläche, die aussagen, wie belastbar eine Zahl ist. Ein Merge vor diesem Review ist ein
-   Verstoß gegen das Merge-Gate. Anlass dieser Klarstellung sind zwei Merges vom 2026-11-18
+   wird. Welche Änderung MATERIAL ist, legt die Liste in `AGENTS.md` §10 fest (unter anderem mehr
+   als 300 geänderte Zeilen, Policy-Text, Workflows, Engine, Bridge, Gates, Qualifikation).
+   Studio-Ergänzung zu §10 (ändert §10 nicht): Zusätzlich zur MATERIAL-Liste sind Texte der
+   Oberfläche, die Aussagen über Ratings oder Simulationsergebnisse machen, review-pflichtig. Ein
+   Merge vor diesem Review ist ein Verstoß gegen das Merge-Gate. Anlass dieser Klarstellung sind zwei Merges vom 2026-11-18
    (#1509, #1510), bei denen Review-Befunde bzw. ein Halte-Hinweis erst nach dem Merge aufgelöst
    wurden.
-5. **Governance-Dateien:** `AGENTS.md`, `CLAUDE.md`, diese Datei und `docs/OWNER_DECISIONS_*`
-   ändern sich nur auf ausdrückliche Owner-Anweisung oder nach Owner-Freigabe einer Option; die
-   Quelle steht im Commit oder PR. Sonst legt der Agent dem Owner Optionen mit Empfehlung vor.
+5. **Governance-Dateien:** Änderungen an `AGENTS.md` und `CLAUDE.md` erfolgen durch Lead oder
+   Coordinator nach `AGENTS.md` §8. Inhaltliche Änderungen am Scope (diese Datei), an den
+   Owner-Entscheiden (`docs/OWNER_DECISIONS_*`) und an Owner-vorbehaltenen Regeln nur auf
+   ausdrückliche Owner-Anweisung oder nach Owner-Freigabe einer vorgelegten Option; die Quelle
+   steht im PR. Andere Agents legen Option und Empfehlung vor.
 6. **Owner-Entscheide** werden wörtlich in `docs/OWNER_DECISIONS_STUDIO_<Datum>.md` festgehalten,
    mit Quelle; Einordnungen von Agenten sind als solche gekennzeichnet.
 7. **Belege:** Was nicht belegt ist, heißt `UNKNOWN`, nie PASS. Punkte, die eine echte Engine oder
@@ -163,7 +175,9 @@ Regeln für Hilfs-Agenten (keine rekursiven Teams, kurze Berichte) stehen in `CL
 
 ## Nicht übernommen aus `docs/STUDIO_TARGET_SCOPE.md`
 
-Übernommen sind die Teile, die mit den Owner-Entscheiden übereinstimmen (Herkunftsfelder,
+Empfehlung der Lead-Sitzung. Falls der Owner „S-B, O1-A bis O4-A“ doch in einer anderen Sitzung
+freigegeben hat, entscheidet er die strittigen Einzelpunkte unten neu; bis dahin wird aus ihnen
+nichts gebaut. Übernommen sind die Teile, die mit den Owner-Entscheiden übereinstimmen (Herkunftsfelder,
 `simulation`-Gewicht 0 bis G-SIM, 2 bis 4 Sitze aktiv, kein Fork-Push, parallele gepaarte Serien,
 Ergebnis-Rückfluss getrennt von der Tierliste, Release-Paket mit Bridge-JAR). Nicht übernommen:
 
@@ -171,7 +185,8 @@ Ergebnis-Rückfluss getrennt von der Tierliste, Release-Paket mit Bridge-JAR). N
 |---|---|
 | „Passive-AI-Goldfish-/Resistance-Modus“ | gegen P3: Die KI spielt immer mit voller Stärke. |
 | Rundenlimit, „6-Turn-Goldfish“ | keine Owner-Quelle; als A3-Option mit vollen Piloten nur nach Owner-Entscheid. |
-| Pilot-Fehlentscheidungsberichte | gegen S2 (Einfrierung vom 2026-11-10); zulässig ist nur die Zählung von Auslassungen (E3). |
+| Pilot-Fehlentscheidungsberichte | Lesart der Lead-Sitzung: fällt unter S2 (Einfrierung vom 2026-11-10); O4 hob S2 nur für die Zählung von Auslassungen auf (E3). Eine manuelle Stichprobe (G-SIM Punkt 2) braucht eine eigene Owner-Bestätigung. |
 | „Resolve All“ | nur in der Form der Yield-Modi oben: ausschließlich die Pass-Option der Engine, jede andere Entscheidung hält an. |
-| Multi-Commander, Spaltenansicht im Deckbauer | keine Owner-Quelle; über den Chulane-Fokus hinaus. |
+| Multi-Commander | über den Chulane-Fokus hinaus (B2); keine Owner-Quelle. |
+| Spaltenansicht im Deckbauer | keine Owner-Quelle; als BUILD-Wunsch dem Owner vorzulegen (der Deckbauer bleibt hier, E1). |
 | Schlanke Bridge S4 als Meilenstein | #1264 ohne gemessenen Gewinn geparkt; nur als neuer Messversuch unter dem Studio-Bridge-Gate. |
