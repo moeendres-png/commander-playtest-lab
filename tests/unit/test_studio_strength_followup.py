@@ -6,6 +6,7 @@ from __future__ import annotations
 import copy
 import json
 import math
+from itertools import pairwise
 from pathlib import Path
 
 import pytest
@@ -485,6 +486,89 @@ def test_a_non_finite_or_boolean_index_is_a_missing_axis() -> None:
         )
 
 
+def test_the_usage_axis_is_log_scaled_and_keeps_the_raw_index() -> None:
+    scale = overall_rating.usage_axis_value
+    assert scale(0) == 0.0 and scale(100) == pytest.approx(100.0)
+    assert scale(1) == pytest.approx(15.0, abs=0.1) and scale(5) == pytest.approx(38.8, abs=0.1)
+    assert scale(18) == pytest.approx(63.8, abs=0.2)
+    assert scale(-3) == 0.0 and scale(250) == pytest.approx(100.0)  # clamped to 0..100
+    values = [scale(float(index)) for index in range(101)]
+    assert all(low < high for low, high in pairwise(values))  # type: ignore[operator]
+    for bad in (math.nan, math.inf, -math.inf, True, None):
+        assert scale(bad) is None  # type: ignore[arg-type]
+    found = overall_rating.rate_pool(
+        {"a": 18.0, "b": 0.0, "c": None},
+        {"a": "x", "b": "y", "c": "z"},
+        _dataset([_row(oid) for oid in "xyz"]),
+    )
+    first = found["a"]["axes"][0]
+    assert first["axis"] == "usage" and first["raw_value"] == 18.0
+    assert first["value"] == pytest.approx(scale(18.0))
+    assert found["b"]["axes"][0]["value"] == 0.0 and found["b"]["axes"][0]["raw_value"] == 0.0
+    assert all(item["axis"] != "usage" for item in found["c"]["axes"])  # unknown, not 0
+
+
+def test_the_overall_rating_is_only_offered_for_the_bracket_the_raters_judged() -> None:
+    store, answer = _scored_answer()
+    data = _dataset([_row(f"o-{name}") for name in CARDS])
+    assert answer["settings"]["bracket"] == "upgraded"
+    for bracket in ("cedh", "core", "optimized", "none", None):
+        changed = answer | {"settings": {**answer["settings"], "bracket": bracket}}
+        after = overall_rating.with_overall(store, changed, dataset=data, commander=CMD)  # type: ignore[arg-type]
+        meta = after["overall_meta"]
+        assert meta["available"] is False and "Bracket 3" in meta["unavailable_reason"]  # type: ignore[index,operator]
+        assert all("overall" not in card for card in after["cards"])  # type: ignore[attr-defined]
+    no_settings = {k: v for k, v in answer.items() if k != "settings"}
+    after = overall_rating.with_overall(store, no_settings, dataset=data, commander=CMD)  # type: ignore[arg-type]
+    assert after["overall_meta"]["available"] is False  # type: ignore[index]
+
+
+def test_the_group_rank_of_lands_and_spells_shares_the_best_rank_on_ties() -> None:
+    data = _dataset(
+        [
+            _row("o-a", scores=SCORES | {"H": 80}),
+            _row("o-b", scores=SCORES | {"H": 80}),
+            _row("o-c", scores=SCORES | {"H": 40}),
+            _row("o-d", scores=SCORES | {"H": 60}),
+            _row("o-e", scores=SCORES | {"H": 90}),
+        ]
+    )
+    usage = {name: 10.0 for name in "abcde"}
+    oracle = {name: f"o-{name}" for name in "abcde"}
+    found = overall_rating.rate_pool(usage, oracle, data, lands=frozenset({"c", "d"}))
+    assert [(found[k]["group"], found[k]["rank_in_group"], found[k]["n_group"]) for k in "abe"] == [
+        ("spell", 2, 3),
+        ("spell", 2, 3),
+        ("spell", 1, 3),
+    ]
+    assert (found["d"]["rank_in_group"], found["c"]["rank_in_group"]) == (1, 2)
+    assert found["d"]["n_group"] == 2 and found["d"]["group"] == "land"
+    assert [found[k]["rank"] for k in "eabdc"] == [1, 2, 2, 4, 5]  # the pool rank is kept
+    unknown = overall_rating.rate_pool({"z": 1.0}, {"z": None}, data, lands=frozenset({"z"}))
+    assert unknown["z"]["group"] == "land" and unknown["z"]["rank_in_group"] is None
+
+
+def test_a_card_without_a_usage_axis_is_flagged_and_still_ranked() -> None:
+    data = _dataset([_row("o-a"), _row("o-b")])
+    found = overall_rating.rate_pool({"a": 12.0, "b": None}, {"a": "o-a", "b": "o-b"}, data)
+    assert found["a"]["flags"] == [] and found["b"]["flags"] == ["no_usage_axis"]
+    assert found["b"]["rank"] is not None and found["b"]["coverage"] == 0.7
+
+
+def test_the_meta_names_the_v2_rules_the_scale_the_groups_and_the_noise_limit() -> None:
+    store, answer = _scored_answer()
+    names = CARDS[:4]
+    data = _dataset([_row(f"o-{name}") for name in names])
+    meta = overall_rating.with_overall(store, answer, dataset=data, commander=CMD)["overall_meta"]
+    assert meta["version"] == "overall-v2" and meta["usage_scale"] == "log"  # type: ignore[index]
+    assert "unterhalb Stufe C" in meta["usage_scale_note"]  # type: ignore[index,operator]
+    assert meta["min_meaningful_diff"] == 5 and "5 Punkten" in meta["noise_note"]  # type: ignore[index,operator]
+    assert meta["rater_bracket"] == "upgraded" and "Betonung" in meta["weights_caveat"]  # type: ignore[index,operator]
+    assert sum(meta["groups"]["n_rated"].values()) == meta["n_rated"] == 4  # type: ignore[index]
+    flags = meta["flags"]["no_usage_axis"]  # type: ignore[index]
+    assert 0 <= flags["count"] <= 4 and "renormalisiert" in flags["note"]
+
+
 def test_another_commander_gets_no_overall_rating() -> None:
     store, answer = _scored_answer()
     data = _dataset([_row(f"o-{name}") for name in CARDS])
@@ -591,6 +675,28 @@ def test_a_changed_data_file_invalidates_the_remembered_answer(
             body = client.post("/api/strength", json={"commander": CMD}, headers=head).json()
             counts.append(body["overall_meta"]["n_rated"])
     assert counts == [2, 3]
+
+
+def test_the_strength_route_withholds_the_overall_rating_for_another_bracket(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    folder = tmp_path / "studio"
+    store = _store(folder)
+    _with_oracle_ids(store, CARDS)
+    store.connection.commit()
+    store.close()
+    path = tmp_path / "cu.jsonl"
+    path.write_text(json.dumps(_row("o-Card 00", "Card 00")) + "\n", encoding="utf-8")
+    monkeypatch.setattr(card_understanding, "DATASET_PATH", path)
+    monkeypatch.setattr(card_understanding, "DATASET_COMMANDER", CMD)
+    with TestClient(create_app(folder)) as client:
+        body = client.post(
+            "/api/strength",
+            json={"commander": CMD, "settings": {"bracket": "cedh"}},
+            headers={"X-Studio": "1"},
+        ).json()
+    assert body["overall_meta"]["available"] is False
+    assert all("overall" not in card for card in body["cards"])
 
 
 # ---------- the data set loader ----------
