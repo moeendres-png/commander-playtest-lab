@@ -20,7 +20,7 @@ from .strength import StrengthSettings
 if TYPE_CHECKING:
     from .strength_view import StrengthResult
 
-SNAPSHOT_SCHEMA = "tier-snapshot-1"
+SNAPSHOT_SCHEMA = "tier-snapshot-2"
 SPEC_VERSION = f"{strength.SCHEMA}:{SNAPSHOT_SCHEMA}"
 STALE_NOTICE = "Snapshot veraltet, Neuberechnung läuft"
 

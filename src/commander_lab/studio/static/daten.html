@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Commander Studio · Datenlage &amp; Quellen</title>
+<link rel="stylesheet" href="app.css">
+<link rel="stylesheet" href="tierliste.css">
+</head>
+<body>
+<header id="top">
+  <div id="brand">
+    <span class="title">Commander Studio</span>
+    <span class="commander-pick">
+      <label class="muted" for="commander-select">Commander</label>
+      <select id="commander-select" aria-label="Commander wählen"></select>
+    </span>
+    <nav id="areas" aria-label="Bereiche"><a href="index.html">Deckbau</a><a href="tierliste.html">Tierliste</a><a href="decks.html">Deck-Browser</a><a href="partie.html">Partien</a><a href="daten.html" aria-current="page">Daten</a></nav>
+  </div>
+  <div class="summary-bar">
+    <span id="data-summary" class="muted" role="status">Datenlage lädt …</span>
+    <button id="data-refresh" type="button" class="chip">Aktualisieren</button>
+  </div>
+</header>
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+<main id="data-main" class="data-page">
+  <section id="data-bridge" class="layer"><h2>System- &amp; Bridge-Status</h2></section>
+  <section id="data-sources" class="layer"><h2>Quellen-Register &amp; Frische</h2></section>
+  <section id="data-collection" class="layer"><h2>Sammlung, Scryfall &amp; Import-Hygiene</h2></section>
+  <section id="data-roles" class="layer"><h2>Rollen- &amp; Taxonomie-Gesundheit</h2></section>
+  <section id="data-corpus" class="layer"><h2>Korpus, Universen &amp; Signal-Alarme</h2></section>
+  <section id="data-layers" class="layer"><h2>Schichten je Commander &amp; Offline-Befehle</h2></section>
+</main>
+<script src="ui.js"></script>
+<script src="commander.js"></script>
+<script src="daten.js"></script>
+</body>
+</html>

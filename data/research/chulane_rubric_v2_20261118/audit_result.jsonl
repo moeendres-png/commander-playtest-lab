@@ -1,0 +1,40 @@
+{"n":1,"card":"Puca's Eye","verdict":"richtig","why":"Nicht-Kreatur-Artefakt; Zaubern löst Chulane (nur Kreaturenzauber) nicht aus."}
+{"n":2,"card":"Linden, the Steadfast Queen","verdict":"richtig","why":"Vigilance: Angreifen tappt nicht, Kreatur kann in gegnerischem Zug blocken."}
+{"n":3,"card":"Brazen Borrower // Petty Theft","verdict":"richtig","why":"Als Abenteuer ist der Zauber auf dem Stack nur ein Instant; als Kreatur aus dem Exil ein Kreaturenzauber."}
+{"n":4,"card":"Cultivate","verdict":"richtig","why":"Text: ein Land getappt aufs Feld, das andere auf die Hand (bei zwei gefundenen)."}
+{"n":5,"card":"Helpful Hunter","verdict":"richtig","why":"ETB zieht bei jedem Betreten; erneutes Wirken ist Kreaturenzauber und löst Chulane aus."}
+{"n":6,"card":"Open the Armory","verdict":"falsch","why":"Reconfigure-Karten (z. B. Lion Sash) sind Artifact Creature — Equipment; Kreatur findbar."}
+{"n":7,"card":"Razor Boomerang","verdict":"richtig","why":"Ruling 2010-03-01 nennt Razor Boomerang ausdrücklich als Schadensquelle."}
+{"n":8,"card":"Lys Alana Dignitary","verdict":"richtig","why":"Text: Aktivieren nur, wenn eine Elf-Karte im eigenen Friedhof liegt."}
+{"n":9,"card":"Detective of the Month","verdict":"richtig","why":"Token werden erzeugt, nicht gewirkt; Chulane triggert nur auf gewirkte Kreaturenzauber."}
+{"n":10,"card":"Arcane Denial","verdict":"richtig","why":"Gegner darf bis zu zwei ziehen, Spieler selbst eine; Text und Ruling stimmen."}
+{"n":11,"card":"Sol Ring","verdict":"richtig","why":"{C}{C} bezahlt generische Kosten und Chulanes {3}, aber keine farbigen Symbole."}
+{"n":12,"card":"Chasm Drake","verdict":"richtig","why":"Kreaturenzauber, vom Spieler gewirkt, löst Chulanes Trigger aus."}
+{"n":13,"card":"Brazen Borrower // Petty Theft","verdict":"richtig","why":"Ruling: Abenteuer-Eigenschaften auf dem Stack; dort Instant, kein Kreaturenzauber."}
+{"n":14,"card":"Command Tower","verdict":"richtig","why":"Ruling 2020-11-10: ohne Kommandeur erzeugt der Turm kein Mana."}
+{"n":15,"card":"Brazen Borrower // Petty Theft","verdict":"richtig","why":"Text: Ziel nur nicht-Land-Permanent, das ein Gegner kontrolliert."}
+{"n":16,"card":"Simic Growth Chamber","verdict":"richtig","why":"Kommt getappt ins Spiel; kann im selben Zug nicht für Mana getappt werden."}
+{"n":17,"card":"Seaside Citadel","verdict":"richtig","why":"Kommt getappt ins Spiel, liefert im Zug des Ausspielens kein Mana."}
+{"n":18,"card":"Arcane Denial","verdict":"richtig","why":"Text: Kontrolleur des neutralisierten Zaubers darf in der nächsten Versorgung bis zu zwei ziehen."}
+{"n":19,"card":"Lys Alana Dignitary","verdict":"richtig","why":"Kreaturenzauber laut Typzeile; Wirken löst Chulane aus."}
+{"n":20,"card":"Razor Boomerang","verdict":"richtig","why":"Lösen ist Kosten; danach ist die Ausrüstung gelöst, Ruling bestätigt."}
+{"n":21,"card":"Snapping Creeper","verdict":"richtig","why":"Ruling: Landfall triggert auch bei Land, das ein Zauber oder eine Fähigkeit aufs Feld legt."}
+{"n":22,"card":"Helpful Hunter","verdict":"richtig","why":"Chulane-Bounce und erneutes Wirken lösen ETB-Ziehen erneut aus."}
+{"n":23,"card":"Voracious Greatshark","verdict":"richtig","why":"ETB triggert bei jedem Betreten; Wirkung braucht ein legales Ziel, sonst passiert nichts."}
+{"n":24,"card":"Command Tower","verdict":"richtig","why":"Chulane hat Identität G/W/U; Turm erzeugt eines davon, Rulings stützen das."}
+{"n":25,"card":"Selesnya Sanctuary","verdict":"richtig","why":"Kommt getappt ins Spiel, kein Mana im Zug des Ausspielens."}
+{"n":26,"card":"Tam's Resistance","verdict":"richtig","why":"Token 0 plus 4 Marker = 4 Loyalität; -3 dann später -1 möglich (eine Aktivierung pro Zug)."}
+{"n":27,"card":"Tam's Resistance","verdict":"richtig","why":"Sorcery, kein Kreaturenzauber; 'up to one target' erlaubt Wirken ohne Ziel."}
+{"n":28,"card":"Temple Acolyte","verdict":"richtig","why":"ETB gibt erneut 3 Leben; erneutes Wirken als Kreaturenzauber löst Chulane aus."}
+{"n":29,"card":"Simic Growth Chamber","verdict":"richtig","why":"Zurückgegebenes Land ist Landkarte auf der Hand; Chulane kann es nach Kreaturenzauber legen."}
+{"n":30,"card":"Safe Passage","verdict":"richtig","why":"Text 'this turn': Verhinderung gilt nur für den laufenden Zug."}
+{"n":31,"card":"Azorius Arrester","verdict":"richtig","why":"Detain gilt laut Reminder bis zum nächsten eigenen Zug."}
+{"n":32,"card":"Prudent Fateseer // Peer Review","verdict":"richtig","why":"'Enters prepared' gilt bei jedem Betreten; nach Bounce und Wirken wieder vorbereitet."}
+{"n":33,"card":"Narset, Parter of Veils","verdict":"richtig","why":"Text erlaubt nur nichtKreatur-nichtLand-Karten; bei kreaturenlastigem Deck oft Fehlgriff."}
+{"n":34,"card":"Puca's Eye","verdict":"richtig","why":"ETB: zieht eine Karte beim Betreten."}
+{"n":35,"card":"Temple Acolyte","verdict":"richtig","why":"Bounce und Neuwirken: erneut 3 Leben und erneuter Chulane-Trigger."}
+{"n":36,"card":"Arbor Elf","verdict":"richtig","why":"Kreaturenzauber; Wirken aus Hand löst Chulane aus."}
+{"n":37,"card":"Lys Alana Dignitary","verdict":"offen","why":"Ohne Elf kostet sie 4; 'in a normal game' hängt von Elfen im Deck ab, nicht gezeigt."}
+{"n":38,"card":"Mighty Emergence","verdict":"richtig","why":"Triggert bei jedem Betreten einer Kreatur mit Stärke 5+, auch nach Bounce und Neuwirken."}
+{"n":39,"card":"Cloud Elemental","verdict":"richtig","why":"Kreaturenzauber löst Chulanes Trigger aus."}
+{"n":40,"card":"Evolving Wilds","verdict":"richtig","why":"Text: Standardland kommt getappt aufs Spielfeld."}

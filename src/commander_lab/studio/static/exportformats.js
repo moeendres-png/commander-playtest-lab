@@ -9,17 +9,40 @@ const EXPORT_TEXT_FORMATS = [
   { id: "plain", label: "Einfach (Commander zuerst, eine Karte je Zeile)" },
 ];
 
+// Code-point order like Python's sorted(): the JS operators compare UTF-16 units, which puts
+// characters above U+FFFF (surrogates) before U+E000 to U+FFFF.
+function exportFormatCompare(a, b) {
+  const left = Array.from(a);
+  const right = Array.from(b);
+  for (let i = 0; i < left.length && i < right.length; i += 1) {
+    const diff = left[i].codePointAt(0) - right[i].codePointAt(0);
+    if (diff !== 0) return diff;
+  }
+  return left.length - right.length;
+}
 function exportFormatLines(zone) {
   const sums = new Map();
   for (const item of zone) sums.set(item.name, (sums.get(item.name) || 0) + item.quantity);
-  return [...sums.entries()].sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0)).map(([name, quantity]) => `${quantity} ${name}`);
+  return [...sums.entries()].sort((a, b) => exportFormatCompare(a[0], b[0])).map(([name, quantity]) => `${quantity} ${name}`);
+}
+function exportFormatPrimerLines(primer) {
+  const clean = String(primer || "").replace(/\r\n/g, "\n").replace(/\r/g, "\n").trim();
+  if (!clean) return [];
+  const out = ["// Primer:"];
+  for (const line of clean.split("\n")) {
+    const stripped = line.replace(/\s+$/g, "");
+    out.push(stripped ? `// ${stripped}` : "//");
+  }
+  out.push("");
+  return out;
 }
 // commanders, main: arrays of { name, quantity }
-function exportFormatText(format, commanders, main) {
+function exportFormatText(format, commanders, main, primer = "") {
+  const header = exportFormatPrimerLines(primer);
   const commander = exportFormatLines(commanders);
   const deck = exportFormatLines(main);
-  if (format === "plain") return [...commander, ...deck].join("\n") + "\n";
-  return ["Commander", ...commander, "", "Deck", ...deck].join("\n") + "\n";
+  if (format === "plain") return [...header, ...commander, ...deck].join("\n") + "\n";
+  return [...header, "Commander", ...commander, "", "Deck", ...deck].join("\n") + "\n";
 }
 function exportFormatDraft(state) {
   const commanders = (state.commanderIds || []).map((id) => state.byId.get(id)).filter(Boolean).map((card) => ({ name: card.name, quantity: 1 }));
@@ -36,10 +59,15 @@ function exportFormatsSection(deps) {
   const { h, state } = deps;
   const select = h("select", { id: "export-format", name: "export-format", "aria-label": "Textformat" },
     EXPORT_TEXT_FORMATS.map((format) => h("option", { value: format.id }, format.label)));
+  const includePrimer = h("input", { id: "export-include-primer", type: "checkbox" });
   const area = h("textarea", { id: "export-copy-text", readonly: true, hidden: true, "aria-label": "Exporttext" });
-  const draftText = () => { const draft = exportFormatDraft(state); return exportFormatText(select.value, draft.commanders, draft.main); };
+  const draftText = () => {
+    const draft = exportFormatDraft(state);
+    return exportFormatText(select.value, draft.commanders, draft.main, includePrimer.checked ? (state.primerText || "") : "");
+  };
   const savedText = async () => {
-    const response = await fetch(`/api/revisions/${encodeURIComponent(state.baseRevision)}/export?format=${encodeURIComponent(select.value)}`);
+    const qs = `format=${encodeURIComponent(select.value)}${includePrimer.checked ? "&include_primer=true" : ""}`;
+    const response = await fetch(`/api/revisions/${encodeURIComponent(state.baseRevision)}/export?${qs}`);
     if (!response.ok) throw new Error(`export ${response.status}`);
     return response.text();
   };
@@ -53,9 +81,14 @@ function exportFormatsSection(deps) {
   const group = (title, source, id) => h("div", { class: "actions" }, h("span", { class: "note" }, title),
     h("button", { type: "button", id: `${id}-copy`, onclick: run(source, "copy") }, "In die Zwischenablage kopieren"),
     h("button", { type: "button", id: `${id}-download`, onclick: run(source, "download") }, "Als Textdatei laden"));
-  const nodes = [h("h3", {}, "Textformat"), h("label", {}, "Format: ", select)];
+  const nodes = [
+    h("h3", {}, "Textformat"),
+    h("label", {}, "Format: ", select),
+    h("label", {}, includePrimer, " Primer als Kommentarblock (//) voranstellen"),
+  ];
   if (state.dirty || !state.baseRevision) nodes.push(group("Entwurf (nicht gespeichert)", async () => draftText(), "export-draft"));
   if (state.baseRevision) nodes.push(group(state.dirty ? "Zuletzt gespeicherter Stand" : "Gespeicherter Stand", savedText, "export-saved"));
   nodes.push(area);
   return nodes;
 }
+if (typeof module !== "undefined") module.exports = { exportFormatText, exportFormatCompare, exportFormatPrimerLines };

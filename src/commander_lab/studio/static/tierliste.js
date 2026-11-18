@@ -36,18 +36,69 @@ const NEED_NAMES = {
   NO_ROLE_CLAIM: "keine Rolle erfasst",
   SMALL_GAME_SAMPLE: "kleine Spielstichprobe",
 };
+// Plain German for every raw code the server sends (data classes, coverage grades, reasons). The raw code
+// stays readable in the title of the node (codeNode), never as the label.
+const CODE_NAMES = {
+  ORIGINAL_SOURCE: "Originalquelle", NORMALIZED_SOURCE: "Quelle, vereinheitlicht", DERIVED_DESCRIPTIVE: "abgeleitet, beschreibend",
+  SUBJECTIVE_RATING: "subjektive Einschätzung", SIMULATED_RESULT: "Simulation", OBSERVED_GAME: "beobachtete Spiele",
+  COMPLETE: "vollständig", PARTIAL: "teilweise", SPARSE: "dünn belegt", UNOBSERVED_IN_CORPUS: "im Korpus nicht beobachtet",
+  BELOW_MIN_DENOMINATOR: "Nenner unter dem Mindestwert", NEGATIVE_NEUTRAL: "negativer Wert, neutral gewertet", NOT_LISTED: "von der Quelle nicht gelistet",
+  GROUP_TOO_SMALL: "Vergleichsgruppe zu klein", ZERO_COUNT: "gezählt: 0", VALUE_UNKNOWN: "Quelle nennt keinen Wert", MISSING_AS_LOWEST: "als niedrigster Rang gezählt",
+  NOT_RANKED_BASIC_LAND: "Standardland, nicht bewertet", NOT_RANKED_COMMANDER: "Commander, nicht bewertet", NOT_RANKED_OTHER_COMMANDER: "andere Commander-Karte, nicht bewertet",
+  ENOUGH_DATA: "genug Daten", NOT_COLLECTED: "nicht erhoben", NO_VALUE: "kein Wert", PRESENT: "vorhanden", NOT_RANKED: "nicht bewertet",
+};
+const codeLabel = (code) => CODE_NAMES[code] || code;
+const codeNode = (code) => h("span", { title: code }, codeLabel(code));
+// Raw codes inside a server sentence become plain words (the sentence itself stays the server's).
+const plainCodes = (text) => String(text).replace(/\b[A-Z]{3,}(?:_[A-Z0-9]+)+\b/g, (code) => REASON_SHORT[code] || codeLabel(code));
+const TYPE_NAMES = { Land: "Land", Creature: "Kreatur", Planeswalker: "Planeswalker", Battle: "Schlacht", Artifact: "Artefakt", Enchantment: "Verzauberung", Instant: "Spontanzauber", Sorcery: "Hexerei" };
+const typeLabel = (group) => TYPE_NAMES[group] || group;
+// Component names in plain words for the "Warum hier" sentences (the long labels stay in the detail table).
+const SIGNAL_SHORT = {
+  deck_universe: "Quelldecks", corpus_tuned: "getunte Decks (Bracket 4 und 5)", corpus_log_lift: "Korpus-Lift", corpus_bracket_slope: "Bracket-Neigung",
+  tournament: "Turnier", edhrec_theme_reach: "EDHREC-Themen", global_inclusion: "EDHREC insgesamt", combos: "Kombos",
+  commander_inclusion: "EDHREC beim Commander", bracket_inclusion: "EDHREC im Bracket", synergy: "Synergie", playgroup_observed: "Playgroup", tournament_lists: "Turnierlisten", tournament_conversion: "Turnier-Conversion",
+};
+const CONF_WORDS = { high: "solide", medium: "dünn", low: "sehr dünn" };
+// Second ranking (Gesamtrating, #1369): the ranking the table shows is "usage" (the existing index and its tiers)
+// or "overall" (the score 0 to 100 of the weighted mean). DEFAULT_RANKING is the ONE place to change when the Owner
+// decides which ranking the page starts with; it stays "usage" until then. A remembered choice wins over it.
+const DEFAULT_RANKING = "usage";
+const RANKINGS = ["usage", "overall"];
+const RANKING_KEY = "studio.tier.ranking";
+const CRIT_SORT = "crit:";
+// The seven criteria of the card rating (short words from the rating guide); the letter is the column head.
+const OVERALL_CRITERIA = [
+  ["E", "Effizienz", "Wirkung im Verhältnis zu Mana, Kartenkosten und Tempo, verglichen mit Karten gleicher Aufgabe. Farbkosten zählen hier nicht (sie stehen in D)."],
+  ["F", "Passt zu Chulane", "Belohnt oder ermöglicht die Karte das Muster des Decks (Kreaturenzauber ziehen eine Karte und legen ein Land, Kreaturen mit ETB-Effekt erneut ausspielen, Länder, Mana-Kreaturen)? 50 = neutral, 0 = arbeitet gegen den Plan."],
+  ["T", "Tischwirkung", "Wirkt der Effekt auf mehrere Gegner oder beantwortet er Bedrohungen am Vierertisch? 0 = irrelevant, 100 = verändert den ganzen Tisch."],
+  ["R", "Verlässlichkeit", "Wie oft ist die Karte früh wie spät nützlich, ohne weitere Karten zu brauchen? 0 = oft tot, 100 = nie ein schlechter Zug."],
+  ["K", "Engine und Kombo", "Kann die Karte Teil einer wiederholbaren Wertschleife oder Kombo sein? Für einen Tisch auf Bracket 3 gedeckelt: eine reine Zwei-Karten-Kombo zählt höchstens 50."],
+  ["D", "Kostenarmut", "Kosten und Risiko für das Deck jenseits des Manas (Sweeper, Symmetrie, Lebenszahlung, Farbbelastung, Abhängigkeit von Kreaturen, Game-Changer-Platz). 100 = kein Risiko: hoch ist besser."],
+  ["H", "Gesamtwert", "Wie viel besser wird ein abgestimmtes Chulane-Deck (Bracket 3, vier Spieler) mit dieser Karte? Wird gesondert beurteilt und ist nicht der Mittelwert der anderen Kriterien."],
+];
+const OVERALL_AXIS_NAMES = { usage: "Nutzungsindex", ...Object.fromEntries(OVERALL_CRITERIA.map(([key, name]) => [key, `${key} ${name}`])) };
+const OVERALL_METHOD = "Gesamtrating = gewichtetes Mittel (Setzung) aus Nutzungsindex und Kartenbewertung durch Modell-Rater";
+const OVERALL_GROUPS = { land: "Länder", spell: "Zauber" };
+// Fallback for the reading hint when the server does not send its own text (overall_meta.noise_note).
+const OVERALL_NOISE = "Unterschiede unter etwa 5 Punkten sind nicht belastbar";
 const SORTS = [
   ["name", "Name"],
   ["mv", "Manawert"],
   ["strength", "Stärke-Index (Schätzung, zu wenig Daten zuletzt)"],
-  ["confidence", "Konfidenz (Datenlage und Nenner)"],
+  ["overall", "Gesamtrating: Score 0 bis 100 (unbekannt zuletzt)"],
+  ["overall_rank", "Gesamtrating: Rang (bester zuerst, unbekannt zuletzt)"],
+  ...OVERALL_CRITERIA.map(([key, name]) => [CRIT_SORT + key, `Gesamtrating-Kriterium ${key}: ${name} (0 bis 100)`]),
+  ["confidence", "Datenlage-Konfidenz des Nutzungsindex (Zähler)"],
   ["spread", "Verbreitung (gezählt): Anteil im Universum"],
   ["spread_level", "Verbreitung (gezählt): Stufe im Universum"],
   ["layers", "Anzahl vorhandener Schichten"],
   ["corpus", "Anteil in Quelldecks (nur Lesehilfe)"],
-  ["edhrec", "EDHREC Inclusion (nur Lesehilfe)"],
+  ["edhrec", "Aufnahme in EDHREC (nur Lesehilfe)"],
   ["games", "Partien mit der Karte (nur Lesehilfe)"],
   ["research", "Forschungsbedarf (Heuristik)"],
+  ["rolerank", "Rang in der Funktion (mit Rollenfilter diese Rolle, sonst der beste Rang)"],
+  ["textfit", "Textfit (Chulane-Regeln, Gewicht 0)"],
 ];
 const INDEX_HEADING = "Stärke-Index (Schätzung aus Nutzungsdaten)";
 const OUTCOME_HEADING = "Ergebnis aus Partien (noch nicht bewertet)";
@@ -59,6 +110,15 @@ const GAME_NOTES = {
   NOT_COLLECTED: "Noch keine Spielquelle importiert (Playgroup Card Atlas).",
 };
 const SPREAD_LABEL = "Verbreitung (gezählt)";
+const METRIC_NAMES = { inclusion: "Aufnahme", lift: "Lift", synergy: "Synergie" };
+// Cohort keys of the source rows in plain words ("all" -> all decks, "bracket:4" -> Bracket 4).
+function cohortName(cohort) {
+  if (cohort === "all") return "alle Decks";
+  const bracket = /^bracket:(\d)$/.exec(String(cohort));
+  return bracket ? `Bracket ${bracket[1]}` : String(cohort);
+}
+// Server sentences carry bare digit runs (10128): group them the German way, dates stay as they are.
+const groupDigits = (text) => String(text).replace(/(?<![\d.,-])\d{4,}(?![\d-])/g, (digits) => nf(Number(digits)));
 const LEVEL_RANK = { S: 5, A: 4, B: 3, C: 2, D: 1, U: 0 };
 const NO_UNIVERSE = "kein Universum gewählt";
 const FILTER_LABEL = "Filterkarte";
@@ -67,6 +127,11 @@ const REASON_NAMES = { FILTER_CARD: "Filterkarte des Universums", SHARE_CUT: "An
 const UNIVERSE_KEY = "studio.universe.profile";
 const STRENGTH_KEY = "studio.strength.settings";
 const SORT_KEY = "studio.tier.sort";
+const PRESET_KEY = "studio.tier.preset";
+const COMPARE_KEY = "studio.tier.compare";
+const TIER_MODE_KEY = "studio.tier.mode";
+const METHOD_KEY = "studio.tier.method-open";
+const COMPACT_BELOW = 1500; // px: narrower windows start with the compact column set
 const STRENGTH_NOTE = "Der Stärke-Index ist eine Schätzung aus Nutzungssignalen (wie oft die Karte bei diesem Commander, im Bracket, in den gewählten Decklisten und in Turnierlisten gespielt wird). Er ist keine gemessene Siegrate. Eine Karte, die eine Quelle nicht nennt, senkt die Datenlage, nie die Karte. Favoriten, Ausschlüsse und Notizen fließen nicht ein.";
 const UNKNOWN_TIER = "zu wenig Daten";
 const COMPONENT_STATUS = {
@@ -76,23 +141,21 @@ const COMPONENT_STATUS = {
   FILTER_CARD: ["Filterkarte (nicht gerankt)", "dim"],
   NOT_RANKED: ["nicht bewertet", "dim"],
   MISSING_AS_LOWEST: ["nicht gelistet, als niedrigster Rang gezählt", "warn"],
-  ZERO_COUNT: ["gezählt 0 von N (ZERO_COUNT)", "warn"],
+  ZERO_COUNT: ["gezählt 0 von N (Befund, keine fehlende Beobachtung)", "warn"],
 };
 // A row without a value: NOT_LISTED (the source does not list the card) is told apart from a counted zero.
+// Returns [plain German text, badge kind, raw code for the title].
 function componentStatus(c) {
-  if (c.status === "NO_VALUE" && c.reason === "NOT_LISTED") return ["nicht gelistet (NOT_LISTED): fehlende Beobachtung", "warn"];
-  if (c.status === "NO_VALUE" && c.reason) return [`kein Wert (${c.reason})`, "warn"];
-  if (c.status === "NOT_COLLECTED") return ["nicht erhoben (NOT_COLLECTED)", "dim"];
-  return COMPONENT_STATUS[c.status] || [c.status, "dim"];
+  if (c.status === "NO_VALUE" && c.reason === "NOT_LISTED") return ["nicht gelistet: fehlende Beobachtung", "warn", "NOT_LISTED"];
+  if (c.status === "NO_VALUE" && c.reason) return [`kein Wert: ${codeLabel(c.reason)}`, "warn", c.reason];
+  if (c.status === "NOT_COLLECTED") return ["nicht erhoben", "dim", "NOT_COLLECTED"];
+  const known = COMPONENT_STATUS[c.status];
+  return known ? [known[0], known[1], c.status] : [codeLabel(c.status), "dim", c.status];
 }
 const STRENGTH_TIERS = ["S", "A", "B", "C", "D", "U", "N"];
-const nf = (value) => Number(value).toLocaleString("de-DE");
-const DATA_CLASS_NAMES = {
-  ORIGINAL_SOURCE: "Originalquelle", NORMALIZED_SOURCE: "Quelle, normalisiert", DERIVED_DESCRIPTIVE: "abgeleitet, beschreibend",
-  SUBJECTIVE_RATING: "subjektiv", SIMULATED_RESULT: "Simulation",
-};
+const nf = (value) => StudioUI.num(value, 0);
 const CONFIDENCE_NAMES = { high: "hoch", medium: "mittel", low: "niedrig" };
-const CONFIDENCE_TEXT = "Konfidenz = Datenlage mal Verlässlichkeit der Nenner (n / (n + 30), gewichtet). Ein Hinweis auf die Belege, nicht auf die Karte; sie ändert weder Index noch Stufe.";
+const CONFIDENCE_TEXT = "Konfidenz = Datenlage mal Verlässlichkeit des Zählers k (k / (k + 30), gewichtet); bei gezählter Null zählt der Nenner N. Ein Hinweis auf die Belege, nicht auf die Karte; sie ändert weder Index noch Stufe.";
 const REASON_SHORT = { ZERO_COUNT_ONLY: "nur gezählte Nullen", TOO_LITTLE_DATA: "zu wenig Daten", NO_COMMANDER_SIGNAL: "kein Commander-Signal", NO_SOURCE_FOR_COMMANDER: "keine Quelle für den Commander", NO_POSITIVE_WEIGHT: "alle Gewichte 0" };
 const TIER_FILTER_NAMES = { U: "zu wenig Daten", N: "nicht bewertet" };
 const PERCENTILE_SORT = "pct:";
@@ -100,14 +163,16 @@ const LAYER_SORT = "layer:";
 const LAYER_COLUMNS_KEY = "studio.tier.layer-columns";
 const LAYER_KIND_SHORT = { measured: "gemessen", derived: "abgeleitet" };
 const LAYER_NOTE = "Bewertungsebenen sind eigene Spalten neben dem Stärke-Index. Sie ändern die Stufe nur, wenn du ihnen unter „Zusätzliche Ebenen“ ein Gewicht gibst (empfohlen: 0). Ein unbekannter Wert steht als „–“ mit Grund und ist nie 0.";
-const SMALL_FIRST = new Set(["name", "mv"]);
+const SMALL_FIRST = new Set(["name", "mv", "rolerank", "overall_rank"]);
 
 const state = {
   view: "commander", tab: "cards", data: null, marks: new Map(), decks: [],
   universe: { profiles: [], name: "", summary: null, spread: null, options: null },
-  strength: { meta: null, settings: null, profiles: [], counted: [], result: null, map: null, ticket: 0, tiers: new Set(), selectedProfile: "", good: null, note: "", draft: { fields: {}, name: "" } },
+  strength: { meta: null, settings: null, profiles: [], counted: [], result: null, map: null, ticket: 0, tiers: new Set(), selectedProfile: "", good: null, note: "", draft: { fields: {}, name: "" }, status: "loading" },
   deckCards: new Map(), deckRoles: {}, pool: new Map(), ticket: 0, need: "", sortKey: "strength", sortDir: -1, shown: 150,
   layerCols: new Set(), podFilter: "", roleAudit: null, conversion: null, conversionFilter: "",
+  cohortShapes: [], roleGapOnly: false,
+  preset: "detail", funcMode: false, lastFocus: null, lastFocusCard: "", ranking: DEFAULT_RANKING,
 };
 
 const $ = (id) => document.getElementById(id);
@@ -118,7 +183,117 @@ const toast = (text, kind = "") => StudioUI.toast(text, kind);
 const fail = (error) => StudioUI.fail(StudioUI.germanError(error));
 const roleName = (key) => ROLE_NAMES[key] || key;
 const unknown = (text = "unbekannt") => h("span", { class: "unknown" }, text);
-const pct = (part, of) => (of ? `${(100 * part / of).toFixed(0)} %` : "");
+const pct = (part, of) => (of ? `${StudioUI.num(100 * part / of, 0)} %` : "");
+
+// ---------- overall rating (Gesamtrating): pure helpers, no DOM and no state ----------
+// Score 0 to 100 with one decimal and the rank k of n (n = the rated cards of overall_meta). Unknown is never 0: a
+// card without a score has no score text and no rank text. Every number goes through StudioUI (de-DE).
+function wantedRanking(stored) { return stored === "usage" || stored === "overall" ? stored : DEFAULT_RANKING; }
+// The ranking that is really shown: "overall" only while the server delivers it.
+function effectiveRanking(wanted, available) { return wanted === "overall" && available ? "overall" : "usage"; }
+function overallScoreText(overall) { return overall && overall.score !== null && overall.score !== undefined ? StudioUI.num(overall.score, 1) : null; }
+function overallRankText(overall) { return overall && overall.rank !== null && overall.rank !== undefined ? `Rang ${nf(overall.rank)} von ${nf(overall.n_rated)}` : null; }
+function overallSpanText(overall, factor) {
+  const span = overall ? overall.stability : null;
+  if (!span) return null;
+  const range = factor === null || factor === undefined ? "bei zufällig veränderten Gewichten" : `bei zufällig veränderten Gewichten (jedes ×${StudioUI.numFlex(1 - factor, 2)} bis ×${StudioUI.numFlex(1 + factor, 2)})`;
+  return `Rangspanne ${nf(span.rank_min)} bis ${nf(span.rank_max)} ${range}, ${nf(span.variants)} Varianten`;
+}
+// Rank inside the group of the card (lands have their own anchors and their own rank): "Länder: Rang 3 von 65".
+function overallGroupText(overall) {
+  if (!overall || overall.rank_in_group === null || overall.rank_in_group === undefined || !overall.group) return null;
+  return `${OVERALL_GROUPS[overall.group] || overall.group}: Rang ${nf(overall.rank_in_group)} von ${nf(overall.n_group)}`;
+}
+// The single values behind the score, visible in every row: usage tier and index (the index itself, not the log
+// scale), and H. No usage data is "unbekannt", never 0.
+// notCounted: the usage axis is not part of this score (locked axis); the index is still shown, marked as not counted.
+function overallUsageText(item, notCounted = false) {
+  const known = item && item.tier !== "U" && item.tier !== "N" && item.index !== null && item.index !== undefined;
+  return known ? `Nutzung ${item.tier} ${StudioUI.num(item.index, 1)}${notCounted ? " (nicht eingerechnet)" : ""}` : "Nutzung unbekannt";
+}
+// Why a rated card has no usage axis: the axis is locked for the request, the card is tier N (no tier by rule), tier U
+// (too little data), or the reason is not stated.
+function overallNoUsageCause(item, meta) {
+  const usage = meta && meta.usage_axis ? meta.usage_axis : null;
+  if (usage && usage.included === false) return { kind: "locked", text: `Nutzungs-Achse für diese Anfrage gesperrt${usage.excluded_reason ? `: ${usage.excluded_reason}` : ""}` };
+  if (item && item.tier === "N") return { kind: "rule", text: `Stufe N: ${item.note || "Commander, Standardland oder anderer Commander"}; der Nutzungsindex vergibt dafür per Regel keine Stufe` };
+  if (item && item.tier === "U") return { kind: "nodata", text: "keine Nutzungsdaten (Stufe U: zu wenig Daten)" };
+  return { kind: "other", text: "ohne Nutzungs-Achse" };
+}
+// "Gesamtrating beruht hier nur auf der Kartenbewertung (<Ursache>)": the reason in the brackets follows the cause.
+function overallNoUsageSentence(cause) {
+  const why = { locked: "Nutzungs-Achse für diese Anfrage gesperrt", rule: "Stufe N: kein Nutzungsindex", nodata: "keine Nutzungsdaten", other: "ohne Nutzungs-Achse" }[cause.kind];
+  return `Gesamtrating beruht hier nur auf der Kartenbewertung (${why})`;
+}
+const overallUsageIncluded = (meta) => !(meta && meta.usage_axis && meta.usage_axis.included === false);
+// How the raters ran, read from the cards (never assumed): one run per card, several raters, or nothing rated.
+function overallRunsText(cards) {
+  const rated = (cards || []).filter((entry) => entry.overall && entry.overall.score !== null && entry.overall.score !== undefined);
+  if (!rated.length) return "keine bewertete Karte";
+  return rated.every((entry) => entry.overall.confidence && entry.overall.confidence.raters === 1) ? "ein Lauf je Karte" : "mehrere Bewerter je Karte";
+}
+// What the number is not. "Hold-out-Kriterium verfehlt" is a fixed statement of the Owner decision; it belongs into the
+// backend (overall_meta) and is written here only until the server sends it. The overlap with usage only holds while the
+// usage axis is part of the score.
+function overallLimits(runs, usageIncluded = true) {
+  return `generiertes Modellurteil, ${runs}, nicht gegen Spielergebnisse validiert; vorab festgelegtes Hold-out-Kriterium verfehlt (Ansicht bleibt deshalb Zweitansicht);${usageIncluded ? " überschneidet sich mit der Nutzung;" : ""} Simulationswerte fließen nicht ein`;
+}
+function overallMethod(usageIncluded = true) {
+  return usageIncluded ? OVERALL_METHOD : "Gesamtrating = Kartenbewertung durch Modell-Rater (Nutzungs-Achse für diese Anfrage gesperrt)";
+}
+// Weights as the server states them: the share of the model axes against the usage axis (read from overall_meta.weights).
+// With the usage axis locked the model axes carry all of it. nominal: the card has no usage axis, so these are the
+// nominal weights, not the ones of its score.
+function overallWeightsText(meta, runs, nominal = false) {
+  if (!overallUsageIncluded(meta)) return `Gewichte: 100 % Modellurteil (${runs}); Nutzungs-Achse für diese Anfrage gesperrt`;
+  const weights = meta && meta.weights ? meta.weights : null;
+  if (!weights || typeof weights.usage !== "number") return null;
+  const total = Object.values(weights).reduce((sum, weight) => sum + weight, 0);
+  if (!(total > 0)) return null;
+  const usage = weights.usage / total;
+  return `${nominal ? "Nominale Gewichte" : "Gewichte"}: ${StudioUI.numFlex(100 * (1 - usage), 1)} % Modellurteil (${runs}), ${StudioUI.numFlex(100 * usage, 1)} % Nutzung${meta.usage_scale === "log" ? " (log-skaliert)" : ""}`;
+}
+function overallHText(overall) { const value = overallCriterion(overall, "H"); return value === null ? "H unbekannt" : `H ${StudioUI.numFlex(value, 1)}`; }
+// Sentences joined with ". " and one closing period: never ". ." when a part is missing.
+const sentences = (parts) => `${parts.filter(Boolean).join(". ")}.`;
+// "unter 1 %" instead of "0 %" for a positive share that rounds to nothing.
+function percentOrUnder(percent) { return Math.round(percent) >= 1 ? `${StudioUI.num(percent, 0)} %` : "unter 1 %"; }
+// The breakdown of the score: one row per axis (value, effective weight, contribution), the largest contribution
+// first. The contributions (tenths) must add up to the score; if they do not, nothing is split (null).
+function overallRows(overall) {
+  if (!overall || overall.score === null || overall.score === undefined || !Array.isArray(overall.axes) || !overall.axes.length) return null;
+  const tenths = overall.axes.reduce((sum, axis) => sum + Math.round(axis.contribution * 10), 0);
+  if (tenths !== Math.round(overall.score * 10)) return null;
+  const raw = (axis) => (axis.raw_value === null || axis.raw_value === undefined ? null : axis.raw_value); // raw index behind the log-scaled usage axis
+  const rows = overall.axes.map((axis) => ({ axis: axis.axis, label: (OVERALL_AXIS_NAMES[axis.axis] || axis.axis) + (raw(axis) !== null ? " (log-skaliert)" : ""), value: axis.value, raw: raw(axis), weight: axis.weight_effective, contribution: axis.contribution }));
+  rows.sort((a, b) => b.contribution - a.contribution);
+  return { rows, weightSum: overall.axes.reduce((sum, axis) => sum + axis.weight_effective, 0) };
+}
+// A rated card whose usage axis is missing (no usage data: tier U or N, or no usage index of the request).
+function overallWithoutUsage(item, overall) {
+  if (!overall || overall.score === null || overall.score === undefined) return false;
+  if (Array.isArray(overall.flags) && overall.flags.includes("no_usage_axis")) return true;
+  return !item || item.tier === "U" || item.tier === "N" || !Array.isArray(overall.axes) || !overall.axes.some((axis) => axis.axis === "usage");
+}
+function overallCriterion(overall, key) {
+  const axis = overall && Array.isArray(overall.axes) ? overall.axes.find((entry) => entry.axis === key) : null;
+  return axis ? axis.value : null;
+}
+// Confidence of the raters in words (German, never the raw server text): level word, number of raters, spread of H.
+function overallConfidenceWord(overall) {
+  const conf = overall ? overall.confidence : null;
+  if (!conf) return null;
+  return conf.level === "low" ? "unsicher" : CONFIDENCE_NAMES[conf.level] || conf.level;
+}
+function overallConfidenceText(overall) {
+  const conf = overall ? overall.confidence : null;
+  if (!conf) return null;
+  const raters = conf.raters === 1 ? "ein Lauf je Karte" : `${nf(conf.raters)} Bewerter`;
+  const spread = conf.h_sd === null || conf.h_sd === undefined ? "Streuung von H unbekannt (ein Lauf)" : `Streuung von H ${StudioUI.numFlex(conf.h_sd, 1)} Punkte`;
+  const level = CONFIDENCE_NAMES[conf.rater_confidence] || conf.rater_confidence;
+  return `Rater-Vertrauen (Selbstauskunft des Modells) ${level}; ${raters}; ${spread}${conf.uncertain ? ". Als unsicher markiert (niedriges Vertrauen oder uneinige Bewerter)" : ""}`;
+}
+// ---------- end of the overall rating helpers ----------
 
 // ---------- evidence accessors ----------
 const layer = (card, name) => card.layers[name];
@@ -131,6 +306,17 @@ function widest(card) {
   return edhrec ? edhrec.widest_inclusion : null;
 }
 const presentCount = (card) => card.coverage.present.length;
+// Rank within the function: the chosen role of the role filter, else the best rank over the card's roles;
+// no role or no stage means no rank (sorts last, never 0).
+function roleRankValue(card) {
+  const item = strengthItem(card);
+  const ranks = item && item.role_ranks ? item.role_ranks : null;
+  if (!ranks) return null;
+  const role = $("role-filter") ? $("role-filter").value : "";
+  if (role) return ranks[role] ? ranks[role].rank : null;
+  const all = Object.values(ranks).map((entry) => entry.rank);
+  return all.length ? Math.min(...all) : null;
+}
 function sortValue(card, key) {
   if (key === "name") return card.name.toLowerCase();
   if (key === "mv") return card.mana_value;
@@ -147,11 +333,16 @@ function sortValue(card, key) {
     const item = layerItem(card, key.slice(LAYER_SORT.length));
     return item && item.status === "OK" && item.percentile !== null ? item.percentile : null;
   }
+  if (key === "overall") { const overall = overallOf(card); return overall && overall.score !== null && overall.score !== undefined ? overall.score : null; } // unknown sorts last, never 0
+  if (key === "overall_rank") { const overall = overallOf(card); return overall && overall.rank !== null && overall.rank !== undefined ? overall.rank : null; }
+  if (key.startsWith(CRIT_SORT)) return overallCriterion(overallOf(card), key.slice(CRIT_SORT.length));
   if (key === "layers") return presentCount(card);
   if (key === "corpus") { const c = corpusAll(card); return c && c.decks_known !== false && c.decks !== null && c.of ? c.decks / c.of : null; }
   if (key === "edhrec") { const w = widest(card); return w ? w.value : null; }
   if (key === "games") { const a = layer(card, "observed_game").atlas; return a && a.status === "OK" ? a.times_brought : null; }
   if (key === "research") { const r = card.coverage.research_priority; return r ? r.score : null; }
+  if (key === "rolerank") return roleRankValue(card);
+  if (key === "textfit") { const tf = textfitOf(card); return tf ? tf.matched_count : null; }
   return null;
 }
 
@@ -165,12 +356,20 @@ function sortBy(key) {
   else { state.sortKey = key; state.sortDir = SMALL_FIRST.has(key) ? 1 : -1; }
   StudioUI.remember(SORT_KEY, state.sortKey);
   if ([...$("sort").options].some((option) => option.value === key)) $("sort").value = key;
-  render();
+  const hadFocus = Boolean(document.activeElement && document.activeElement.classList && document.activeElement.classList.contains("th-sort"));
+  render(false);
+  if (hadFocus) { const again = document.querySelector(`button.th-sort[data-sort-key="${CSS.escape(key)}"]`); if (again) again.focus(); } // the head is rebuilt: give the focus back
 }
+// A sortable column head: a real button inside the th, aria-sort on the sorted column only.
+function sortHead(label, key, cls = "", title = "", aria = "") {
+  const active = state.sortKey === key;
+  const arrow = active ? (state.sortDir > 0 ? " ▲" : " ▼") : "";
+  return h("th", { scope: "col", class: cls, title, "aria-sort": active ? (state.sortDir > 0 ? "ascending" : "descending") : null },
+    h("button", { type: "button", class: "th-sort", "data-sort-key": key, "aria-label": aria || null, onclick: () => sortBy(key) }, label, h("span", { "aria-hidden": "true" }, arrow)));
+}
+const plainHead = (label, cls = "", title = "") => h("th", { scope: "col", class: cls, title }, label);
 function layerHead(meta) {
-  const arrow = state.sortKey === LAYER_SORT + meta.key ? (state.sortDir > 0 ? " ▲" : " ▼") : "";
-  return h("th", { class: "layer-head", title: `${meta.description} Quelle: ${meta.source}. Nenner: ${meta.denominator}. Klicken sortiert nach dem Perzentil.`, onclick: () => sortBy(LAYER_SORT + meta.key) },
-    `${meta.label} (${LAYER_KIND_SHORT[meta.kind] || meta.kind})${arrow}`);
+  return sortHead(`${meta.label} (${LAYER_KIND_SHORT[meta.kind] || meta.kind})`, LAYER_SORT + meta.key, "layer-head", `${meta.description} Quelle: ${meta.source}. Nenner: ${meta.denominator}. Klicken sortiert nach dem Perzentil.`);
 }
 function layerCell(card, meta) {
   if (state.view === "global") return h("span", { class: "unknown", title: "Die Ebenen werden je Commander berechnet." }, "–");
@@ -185,32 +384,93 @@ function recallLayerColumns(metas) {
   } catch (error) { /* unreadable memory: show every layer */ }
   return new Set(all);
 }
+// Column menu (preset Kompakt/Detail and the rating-layer columns) and the Großpod filter. The host span sits
+// in the filter bar from the start, so nothing moves when the strength metadata arrives.
+function setPreset(preset) {
+  state.preset = preset === "compact" ? "compact" : "detail";
+  StudioUI.remember(PRESET_KEY, state.preset);
+  renderLayerControls();
+  render();
+}
 function renderLayerControls() {
+  const host = $("layer-controls");
+  if (!host) return;
   const metas = layerMetas();
-  const previous = $("layer-controls");
-  if (previous) previous.remove();
-  if (!metas.length) return;
-  const classes = state.strength.meta.pod_classes;
-  const columns = h("span", { class: "tier-filter", title: LAYER_NOTE }, "Ebenen-Spalten: ",
-    metas.map((meta) => h("label", { title: `${meta.description} (${LAYER_KIND_SHORT[meta.kind] || meta.kind})` },
-      h("input", { type: "checkbox", value: meta.key, checked: state.layerCols.has(meta.key), onchange: (event) => { if (event.target.checked) state.layerCols.add(meta.key); else state.layerCols.delete(meta.key); rememberLayerColumns(); render(); } }), ` ${meta.label}`)));
-  const filter = h("select", { id: "pod-filter", title: `Nach Großpod-Wirkung filtern. ${state.strength.meta.pod_derived_note}.` },
-    h("option", { value: "" }, "Großpod-Wirkung: alle Klassen"),
-    classes.map((item) => h("option", { value: item.key, title: item.help }, `Großpod-Wirkung: ${item.label}`)),
-    h("option", { value: "NONE" }, "Großpod-Wirkung: unbekannt"));
-  filter.value = state.podFilter;
-  filter.addEventListener("input", () => { state.podFilter = filter.value; state.shown = 150; render(); });
-  $("filters").insertBefore(h("span", { id: "layer-controls", class: "layer-controls" }, columns, filter), $("sort").parentElement);
+  const compact = state.preset === "compact";
+  const presetButtons = [["compact", "Kompakt"], ["detail", "Detail"]].map(([key, label]) => h("button", { type: "button", class: "chip" + (state.preset === key ? " on" : ""), "aria-pressed": String(state.preset === key), onclick: () => setPreset(key), title: key === "compact" ? "Stufe, Karte, Rolle, Manawert und Quelldecks" : "Alle Spalten" }, label));
+  const layerChecks = metas.length
+    ? h("div", { class: "col-layers", title: LAYER_NOTE },
+      h("div", { class: "muted" }, compact ? "Bewertungsebenen (nur in der Ansicht Detail)" : "Bewertungsebenen als Spalten"),
+      metas.map((meta) => h("label", { title: `${meta.description} (${LAYER_KIND_SHORT[meta.kind] || meta.kind})` },
+        h("input", { type: "checkbox", value: meta.key, checked: state.layerCols.has(meta.key), disabled: compact, onchange: (event) => { if (event.target.checked) state.layerCols.add(meta.key); else state.layerCols.delete(meta.key); rememberLayerColumns(); render(); } }), ` ${meta.label}`)))
+    : null;
+  const menu = h("details", { class: "col-menu", id: "col-menu" },
+    h("summary", {}, `Spalten: ${compact ? "Kompakt" : "Detail"}`),
+    h("div", { class: "col-menu-body" }, h("div", { class: "chips", role: "group", "aria-label": "Spaltenauswahl" }, ...presetButtons), layerChecks));
+  const nodes = [menu];
+  if (!metas.length) nodes.push(h("select", { id: "pod-filter", "aria-label": "Großpod-Wirkung filtern", title: "wird geladen", disabled: true }, h("option", {}, "Großpod-Wirkung: alle Klassen"))); // keeps the place until the metadata is there
+  if (metas.length) {
+    const classes = state.strength.meta.pod_classes;
+    const filter = h("select", { id: "pod-filter", "aria-label": "Großpod-Wirkung filtern", title: `Nach Großpod-Wirkung filtern. ${state.strength.meta.pod_derived_note}.` },
+      h("option", { value: "" }, "Großpod-Wirkung: alle Klassen"),
+      classes.map((item) => h("option", { value: item.key, title: item.help }, `Großpod-Wirkung: ${item.label}`)),
+      h("option", { value: "NONE" }, "Großpod-Wirkung: unbekannt"));
+    filter.value = state.podFilter;
+    filter.addEventListener("input", () => { state.podFilter = filter.value; state.shown = 150; render(false); });
+    nodes.push(filter);
+  }
+  const wasOpen = $("col-menu") ? $("col-menu").open : false;
+  host.replaceChildren(...nodes);
+  if (wasOpen) $("col-menu").open = true;
 }
 
 // ---------- filters and sorting ----------
 function cardRoles(card) { return layer(card, "fact").roles.map((claim) => claim.role); }
+function activeDeckRoleCounts() {
+  if (!state.pool.size) return state.deckRoles || {};
+  const counts = {};
+  for (const [cardId, qty] of state.deckCards.entries()) {
+    if (!qty || qty <= 0) continue;
+    const card = state.pool.get(cardId);
+    if (!card) continue;
+    for (const role of new Set(cardRoles(card))) {
+      counts[role] = (counts[role] || 0) + 1;
+    }
+  }
+  return counts;
+}
+function openRoleGaps() {
+  const shapes = Array.isArray(state.cohortShapes) ? state.cohortShapes : [];
+  const shape = shapes.find((s) => s.cohort === "all" && s.decks_counted > 0 && s.roles)
+    || shapes.find((s) => s.decks_counted > 0 && s.roles);
+  if (!shape || !shape.roles || !state.deckCards.size) return { decksCounted: 0, gaps: [] };
+  const counts = activeDeckRoleCounts();
+  const gaps = [];
+  for (const [role, span] of Object.entries(shape.roles)) {
+    const p25 = Number(span && span.p25 !== undefined ? span.p25 : 0);
+    const median = Number(span && span.median !== undefined ? span.median : 0);
+    const p75 = Number(span && span.p75 !== undefined ? span.p75 : 0);
+    const deckCount = Number(counts[role] || 0);
+    if (p25 > 0 && deckCount < p25) {
+      gaps.push({ role, deckCount, p25, median, p75 });
+    }
+  }
+  gaps.sort((a, b) => (b.p25 - b.deckCount) - (a.p25 - a.deckCount) || roleName(a.role).localeCompare(roleName(b.role), "de"));
+  return { decksCounted: shape.decks_counted, gaps };
+}
+function baseCards() {
+  return state.view === "deck" ? state.data.cards.filter((card) => state.deckCards && state.deckCards.has(card.card_id)) : state.data.cards;
+}
 function visibleCards() {
-  const words = $("q").value.trim().toLowerCase().split(/\s+/).filter(Boolean);
+  const query = $("q").value.trim();
+  const parsed = StudioSearch.parseQuery(query);
+  state.searchErrors = parsed.errors || [];
+  if (state.searchErrors.length) return [];
   const type = $("type-filter").value, role = $("role-filter").value;
   const landKind = $("land-filter") ? $("land-filter").value : "";
   const spreadLevel = $("spread-filter") ? $("spread-filter").value : "";
   const free = $("f-free").checked, fav = $("f-fav").checked, showExcluded = $("f-excl").checked;
+  const gapRoles = state.roleGapOnly ? new Set(openRoleGaps().gaps.map((g) => g.role)) : null;
   let rows = state.data.cards.filter((card) => {
     const mark = state.marks.get(card.card_id) || {};
     if (state.view === "deck" && !(state.deckCards && state.deckCards.has(card.card_id))) return false;
@@ -218,24 +478,56 @@ function visibleCards() {
     if (landKind === "lands" && card.group !== "Land") return false;
     if (landKind === "spells" && card.group === "Land") return false;
     if (role && !cardRoles(card).includes(role)) return false;
+    if (gapRoles && (state.deckCards.has(card.card_id) || !cardRoles(card).some((r) => gapRoles.has(r)))) return false;
     if (state.podFilter && state.view !== "global") { const cls = podClass(card); if (state.podFilter === "NONE" ? cls !== null : cls !== state.podFilter) return false; }
     if (state.strength.tiers.size && state.strength.map) { const item = state.strength.map.get(card.card_id); if (!item || !state.strength.tiers.has(item.tier)) return false; }
     if (spreadLevel && state.universe.spread) { const item = state.universe.spread.get(card.card_id); if (!item || item.level !== spreadLevel) return false; }
     if (free && state.view !== "deck" && !(card.available > 0)) return false; // a deck is always shown whole
     if (fav && !mark.favorite) return false;
     if (!showExcluded && mark.excluded) return false;
-    const hay = `${card.name} ${card.type_line}`.toLowerCase();
-    return words.every((word) => hay.includes(word));
+    if (!query) return true;
+    return StudioSearch.rank({ ...card, favorite: Boolean(mark.favorite), excluded: Boolean(mark.excluded) }, parsed) !== null;
   });
   const key = state.sortKey, dir = state.sortDir;
-  rows = rows.map((card) => [sortValue(card, key), card]);
+  // A typed search puts the better name matches (StudioSearch rank: name, name word, text) before the strength
+  // order; a pure syntax query (t:..., mv<=2) has no text part, every rank is 0 and nothing is reordered.
+  const byName = Boolean(query) && key === "strength" && (parsed.isPlainFreetext || Boolean(parsed.textQuery));
+  rows = rows.map((card) => [sortValue(card, key), card, byName ? StudioSearch.rank(card, parsed) ?? 99 : 0]);
   rows.sort((a, b) => {
+    if (a[2] !== b[2]) return a[2] - b[2];
     if (a[0] === null && b[0] === null) return a[1].name.localeCompare(b[1].name);
     if (a[0] === null) return 1;
     if (b[0] === null) return -1;
     return (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : a[1].name.localeCompare(b[1].name)) * dir;
   });
+  state.nameSorted = byName && rows.length > 1 && rows.some((row) => row[2] !== rows[0][2]);
   return rows.map((row) => row[1]);
+}
+// The filters that are on, in words: explains why "927 Karten" becomes "926 von 927".
+function activeFilterNames() {
+  const out = [];
+  const q = $("q").value.trim(), type = $("type-filter").value, role = $("role-filter").value;
+  const landKind = $("land-filter") ? $("land-filter").value : "", spreadLevel = $("spread-filter") ? $("spread-filter").value : "";
+  if (q) out.push(`Suche „${q}“`);
+  if (type) out.push(`Typ ${typeLabel(type)}`);
+  if (landKind) out.push(landKind === "lands" ? "nur Länder" : "nur Zauber");
+  if (role) out.push(`Rolle ${roleName(role)}`);
+  if (state.roleGapOnly) out.push("Schließt offenen Deck-Bedarf");
+  if (state.podFilter && state.view !== "global") out.push("Großpod-Wirkung");
+  if (state.strength.tiers.size) out.push(`Stufe ${[...state.strength.tiers].join(", ")}`);
+  if (spreadLevel) out.push(`Verbreitung ${spreadLevel}`);
+  const base = baseCards();
+  if ($("f-free").checked && state.view !== "deck" && base.some((card) => !(card.available > 0))) out.push("nur freie");
+  if ($("f-fav").checked) out.push("Favoriten");
+  if (!$("f-excl").checked && base.some((card) => (state.marks.get(card.card_id) || {}).excluded)) out.push("ohne Ausgeschlossene");
+  return out;
+}
+function countLine(shown) {
+  const total = baseCards().length;
+  const names = activeFilterNames();
+  const what = state.view === "deck" ? "Deckkarten" : "Karten";
+  if (shown === total) return `${nf(total)} ${what}`;
+  return `${nf(shown)} von ${nf(total)} ${what}${names.length ? ` · Filter: ${names.join(", ")}` : ""}`;
 }
 
 // ---------- cells ----------
@@ -252,44 +544,76 @@ function thumb(card) {
 function featureBadges(card) {
   return layer(card, "fact").features.filter((f) => f.holds).map((f) => h("span", { class: "badge dim", title: f.rule }, FEATURE_NAMES[f.feature] || f.feature));
 }
+function textfitOf(card) {
+  const item = strengthItem(card);
+  return item && item.chulane_textfit ? item.chulane_textfit : null;
+}
+function textfitCell(card) {
+  const tf = textfitOf(card);
+  if (!tf) return unknown("–");
+  const badges = (tf.matches || []).map((m) => h("span", { class: "badge", title: `${m.rule_id}: ${m.matched_phrase}` }, m.label));
+  if (tf.foreign_trigger) {
+    badges.push(h("span", { class: "badge dim", title: `Fremd-ETB-Trigger (nicht eigener ETB): ${tf.foreign_phrase || ""}` }, "Fremd-ETB"));
+  }
+  return h("span", { class: "tcell", title: `Regelstand ${tf.version} · Gewicht im Stärke-Index: ${nf(tf.weight_in_index)}` },
+    h("span", { class: tf.matched_count ? "nowrap" : "unknown nowrap" }, `${nf(tf.matched_count)}/${nf(tf.total_rules)}`),
+    ...badges);
+}
+// One badge per role (several sources can claim the same role); the rank k of n only as tooltip.
 function roleBadges(card) {
   const claims = layer(card, "fact").roles;
   if (!claims.length) return unknown("keine Rolle erfasst");
   const item = strengthItem(card);
   const ranks = item && item.role_ranks ? item.role_ranks : {};
-  return claims.map((claim) => {
-    const rInfo = ranks[claim.role];
-    const rankSuffix = rInfo ? ` · #${rInfo.rank}/${rInfo.total}` : "";
-    const title = `Herkunft: ${ORIGIN_NAMES[claim.origin] || claim.origin}` + (rInfo ? ` · Rang ${rInfo.rank} von ${rInfo.total} in ${roleName(claim.role)} (aktueller Index)` : "");
-    return h("span", { class: "badge", title }, `${roleName(claim.role)}${rankSuffix}`);
+  const origins = new Map();
+  for (const claim of claims) {
+    if (!origins.has(claim.role)) origins.set(claim.role, []);
+    const name = ORIGIN_NAMES[claim.origin] || claim.origin;
+    if (!origins.get(claim.role).includes(name)) origins.get(claim.role).push(name);
+  }
+  return [...origins].map(([role, from]) => {
+    const rInfo = ranks[role];
+    const title = `Herkunft: ${from.join(", ")}` + (rInfo ? ` · Rang ${nf(rInfo.rank)} von ${nf(rInfo.total)} in der Funktion ${roleName(role)} (nach dem Index im Gesamtpool)` : "");
+    return h("span", { class: "badge", title }, roleName(role));
   });
+}
+// Rank k of n within each function of the card, without a tier letter (mode "Gleiche Funktion").
+function functionRankCell(card) {
+  const item = strengthItem(card);
+  if (!item) return unknown("–");
+  const ranks = Object.entries(item.role_ranks || {});
+  if (!ranks.length) return unknown(cardRoles(card).length ? "kein Rang (ohne Stufe)" : "keine Rolle: kein Rang");
+  const chosen = $("role-filter") ? $("role-filter").value : "";
+  ranks.sort((a, b) => (a[0] === chosen ? -1 : b[0] === chosen ? 1 : a[1].rank - b[1].rank));
+  return h("div", { class: "rankcell" }, ranks.map(([role, rInfo]) => h("div", { class: "rank-line" + (role === chosen ? " sel" : ""), title: `Rang ${nf(rInfo.rank)} von ${nf(rInfo.total)} Karten mit Stufe in der Funktion ${roleName(role)}, nach dem Index im Gesamtpool` }, `${roleName(role)}: Rang ${nf(rInfo.rank)} von ${nf(rInfo.total)}`)));
 }
 function corpusCell(card) {
   const item = corpusAll(card);
   if (!item) return unknown(layer(card, "observed_deck").status === "NOT_COLLECTED" ? "keine Quelle" : "unbekannt");
   if (item.decks_known === false || item.decks === null) return unknown("unbekannt (kein Quelldeck nennt diese Karte)");
-  const text = `${item.decks}/${item.of} · ${pct(item.decks, item.of)}`;
-  return h("span", { class: item.decks ? "" : "unknown", title: item.decks ? "Quelldecks mit der Karte, ohne Duplikate" : "0 in einem bekannten Korpus: fehlende Beobachtung, keine Schwäche" }, text);
+  const text = `${nf(item.decks)}/${nf(item.of)} · ${pct(item.decks, item.of)}`;
+  return h("span", { class: item.decks ? "nowrap" : "unknown nowrap", title: item.decks ? "Quelldecks mit der Karte, ohne Duplikate" : "0 in einem bekannten Korpus: fehlende Beobachtung, keine Schwäche" }, text);
 }
 function edhrecCell(card) {
   const w = widest(card);
   if (!w) return unknown(layer(card, "observed_deck").edhrec ? "keine Beobachtung" : "keine Quelle");
-  const den = w.denominator === null ? "Nenner unbekannt" : `${w.numerator}/${w.denominator}`;
-  return h("span", { title: `Ansicht ${w.cohort}; Datenklasse ${w.data_class}` }, `${den}`, w.small_denominator ? h("span", { class: "badge warn" }, "n < 30") : null, w.snapshot_known ? null : h("span", { class: "badge dim" }, "Zeit unbekannt"));
+  const den = w.denominator === null ? "Nenner unbekannt" : `${nf(w.numerator)}/${nf(w.denominator)}`;
+  return h("span", { title: `Ansicht ${cohortName(w.cohort)}; Datenklasse ${codeLabel(w.data_class)}` }, `${den}`, w.small_denominator ? h("span", { class: "badge warn" }, "n < 30") : null, w.snapshot_known ? null : h("span", { class: "badge dim" }, "Zeit unbekannt"));
 }
 function gameCell(card) {
   const game = layer(card, "observed_game"), atlas = game.atlas;
   if (game.status !== "PRESENT" || !atlas) return unknown(game.status === "NOT_COLLECTED" ? "keine Quelle" : "keine Beobachtung");
-  const brought = atlas.times_brought === null ? "n unbekannt" : `n = ${atlas.times_brought}`;
-  const gap = atlas.observed_winrate_gap_pp === null ? null : `Differenz ${atlas.observed_winrate_gap_pp > 0 ? "+" : ""}${atlas.observed_winrate_gap_pp} Pp`;
-  const ci = atlas.ci_95_lower_pp === null || atlas.ci_95_upper_pp === null ? null : ` (95 %: ${atlas.ci_95_lower_pp} bis ${atlas.ci_95_upper_pp})`;
-  return h("span", { title: "Playgroup.gg (CC BY 4.0), alle Commander, nur Live-Partien. Beobachteter Zusammenhang, keine kausale Kartenstärke." }, brought, gap ? ` · ${gap}` : "", ci || "", atlas.insufficient_sample ? h("span", { class: "badge warn" }, "kleine Stichprobe") : null);
+  const brought = atlas.times_brought === null ? "n unbekannt" : `n = ${nf(atlas.times_brought)}`;
+  const gap = atlas.observed_winrate_gap_pp === null ? null : `Differenz ${atlas.observed_winrate_gap_pp > 0 ? "+" : ""}${StudioUI.numFlex(atlas.observed_winrate_gap_pp, 2)} Pp`;
+  const ci = atlas.ci_95_lower_pp === null || atlas.ci_95_upper_pp === null ? null : ` (95 %: ${StudioUI.numFlex(atlas.ci_95_lower_pp, 2)} bis ${StudioUI.numFlex(atlas.ci_95_upper_pp, 2)})`;
+  const turn = atlas.median_cast_turn === null || atlas.median_cast_turn === undefined ? null : `Zug ~${StudioUI.numFlex(atlas.median_cast_turn, 1)}`;
+  return h("span", { title: "Playgroup.gg (CC BY 4.0), alle Commander, nur Live-Partien. Beobachteter Zusammenhang (mit Zug-Timing gegen Survival-Verzerrung), keine kausale Kartenstärke." }, brought, gap ? ` · ${gap}` : "", ci || "", turn ? ` · ${turn}` : "", atlas.insufficient_sample ? h("span", { class: "badge warn" }, "kleine Stichprobe") : null);
 }
 function simCell(card) {
   const sim = layer(card, "simulated_result");
   if (sim.status === "NOT_APPLICABLE") return unknown("–");
   if (!sim.totals) return unknown("nicht simuliert");
-  return `${sim.totals.games_cast_after_offer}/${sim.totals.games_offered} Partien`;
+  return `${nf(sim.totals.games_cast_after_offer)}/${nf(sim.totals.games_offered)} Partien`;
 }
 function strengthItem(card) { const map = state.strength.map; return map ? map.get(card.card_id) || null : null; }
 const neutral = (text, title) => h("span", { class: "badge-neutral", title }, text);
@@ -303,26 +627,222 @@ function unknownCell(card, item) {
   const code = item.reason || "TOO_LITTLE_DATA";
   const text = item.reason === "ZERO_COUNT_ONLY" && zero ? `unbekannt (0/${nf(zero.denominator)})` : "unbekannt (zu wenig Daten)";
   const why = `${REASON_SHORT[code] || code} (${code})`;
-  return h("span", { class: "ucell" }, neutral(text, `Zu wenig Daten für eine Stufe: ${why}. Das sagt nichts über die Stärke der Karte.`), h("span", { class: "rule reason-code" }, code));
+  return h("span", { class: "ucell" }, neutral(text, `Zu wenig Daten für eine Stufe: ${why}. Das sagt nichts über die Stärke der Karte.`), h("span", { class: "rule reason-code" }, REASON_SHORT[code] || code));
+}
+// The deck-list count behind the index: n of N source decks (the "Decklisten-Universum" signal).
+function deckCounts(item) {
+  const c = item.components.find((x) => x.component === "deck_universe" && x.denominator);
+  return c && c.numerator !== null && c.numerator !== undefined ? { n: c.numerator, N: c.denominator } : null;
+}
+function confidenceText(item) {
+  if (item.confidence_basis === "gezaehlte_null") { // field of the counted-numerator confidence (when the server sends it)
+    const zero = deckCounts(item);
+    return `hoch (gezählte Abwesenheit: 0 von ${zero ? nf(zero.N) : "N"} Decks)`;
+  }
+  const word = CONF_WORDS[item.confidence_level] || codeLabel(item.confidence_level);
+  const counts = deckCounts(item);
+  return counts ? `${nf(counts.n)} von ${nf(counts.N)} Quelldecks, ${word}` : word;
 }
 function confidenceMark(item) {
   if (item.confidence === null || item.confidence === undefined) return null;
   const level = CONFIDENCE_NAMES[item.confidence_level] || item.confidence_level;
   const dots = item.confidence_level === "high" ? "●●●" : item.confidence_level === "medium" ? "●●○" : "●○○";
-  return h("span", { class: `conf conf-${item.confidence_level}`, title: `Konfidenz ${level} (${item.confidence.toFixed(2)}). ${CONFIDENCE_TEXT}`, "aria-label": `Konfidenz ${level}` }, dots);
+  return h("span", { class: `conf conf-${item.confidence_level}`, title: `Datenlage: ${confidenceText(item)}. Konfidenz ${level} (${StudioUI.num(item.confidence, 2)}). ${CONFIDENCE_TEXT}`, "aria-label": `Datenlage: ${confidenceText(item)}` }, dots);
 }
 function borderlineMark(item) {
   if (!item.borderline) return null;
-  return h("span", { class: "borderline", title: `grenzwertig: ${item.cut_distance.toFixed(1)} Punkte von der Grenze ${item.borderline_cut}. Eine kleine Änderung der Gewichte kann die Stufe ändern.` }, "grenzwertig");
+  return h("span", { class: "borderline", title: `grenzwertig: ${StudioUI.num(item.cut_distance, 1)} Punkte von der Grenze ${StudioUI.numFlex(item.borderline_cut, 1)}. Eine kleine Änderung der Gewichte kann die Stufe ändern.` }, "grenzwertig");
+}
+function unsharpMark(item) {
+  if (!item.unscharf) return null;
+  const alts = (item.tier_alternatives || []).map((a) => `${a.tier}: ${nf(a.count)}/${nf(item.tier_stability_variants)}`).join(", ");
+  const stab = item.tier_stability !== null && item.tier_stability !== undefined ? `${StudioUI.pct(item.tier_stability, 0)} (${nf(item.tier_stability_kept)}/${nf(item.tier_stability_variants)})` : "";
+  return h("span", { class: "unsharp", title: `unscharf: Stufe bleibt nur in ${stab} der Gewichtsvarianten${alts ? ` (${alts})` : ""}.` }, "unscharf");
+}
+// One plain sentence per row (tooltip of the tier badge): tier, source-deck share, best function rank, data situation.
+function rowSummary(item) {
+  const parts = [`Stufe ${item.tier}${item.relative_tier && item.relative_tier !== item.tier ? ` (relativ im Pool ${item.relative_tier})` : ""}, Index ${StudioUI.num(item.index, 1)}`];
+  const counts = deckCounts(item);
+  if (counts) parts.push(`in ${nf(counts.n)} von ${nf(counts.N)} Quelldecks (${StudioUI.pct(counts.n / counts.N, 1)})`);
+  const best = Object.entries(item.role_ranks || {}).sort((a, b) => a[1].rank - b[1].rank)[0];
+  if (best) parts.push(`Rang ${nf(best[1].rank)} von ${nf(best[1].total)} in der Funktion ${roleName(best[0])}`);
+  if (item.confidence !== null && item.confidence !== undefined) parts.push(`Datenlage ${CONF_WORDS[item.confidence_level] || item.confidence_level}`);
+  if (item.unscharf && item.tier_stability !== null && item.tier_stability !== undefined) parts.push(`unscharf (${StudioUI.pct(item.tier_stability, 0)})`);
+  return `${parts.join("; ")}.`;
 }
 function strengthCell(card) {
   if (state.view === "global") return neutral("nur je Commander", "Der Stärke-Index wird je Commander berechnet.");
   const item = strengthItem(card);
-  if (!item) return neutral(state.strength.map ? "nicht berechnet" : "–", "Für diese Karte liegt keine Berechnung vor.");
-  const title = `Schätzung aus Nutzungssignalen, keine Siegrate. Abdeckung ${(100 * item.coverage).toFixed(0)} %, ${item.present} Signale vorhanden.`;
+  if (!item) return state.strength.status === "loading" && !state.strength.map
+    ? neutral("wird berechnet …", "Der Stärke-Index wird gerade berechnet.")
+    : neutral("nicht berechnet", "Für diese Karte liegt keine Berechnung vor.");
+  const title = `${rowSummary(item)} Schätzung aus Nutzungssignalen, keine Siegrate. Abdeckung ${StudioUI.num(100 * item.coverage, 0)} %, ${nf(item.present)} Signale vorhanden.`;
   if (item.tier === "N") return neutral(item.note, `${item.note}: Commander und Standardländer bekommen keine Stufe.`);
   if (item.tier === "U") return unknownCell(card, item);
-  return h("span", { class: "tcell" }, tierBadge(item.tier, item.index.toFixed(1), title), confidenceMark(item), borderlineMark(item));
+  const shownTier = state.tierMode === "relative" && item.relative_tier ? item.relative_tier : item.tier;
+  const relNote = state.tierMode === "relative" && item.relative_tier ? h("span", { class: "rule", title: `Absolute Stufe: ${item.tier}` }, `abs ${item.tier}`) : null;
+  return h("span", { class: "tcell" }, tierBadge(shownTier, StudioUI.num(item.index, 1), title), relNote, confidenceMark(item), borderlineMark(item), unsharpMark(item));
+}
+function datenlageCell(card) {
+  const item = strengthItem(card);
+  if (!item || item.tier === "U" || item.tier === "N" || item.confidence === null || item.confidence === undefined) return unknown("–");
+  // short form in the cell (one line); the full sentence is in the tooltip and the aria-label
+  const counts = deckCounts(item);
+  const short = item.confidence_basis === "gezaehlte_null" ? "hoch · gezählte 0" : counts ? `${nf(counts.n)}/${nf(counts.N)} · ${CONF_WORDS[item.confidence_level] || item.confidence_level}` : confidenceText(item);
+  return h("span", { class: "nowrap", title: `${confidenceText(item)}. ${CONFIDENCE_TEXT}`, "aria-label": `Datenlage: ${confidenceText(item)}` }, short);
+}
+// ---------- overall rating (Gesamtrating): cells, columns, "Warum hier", method panel ----------
+const overallMeta = () => (state.strength.result && state.strength.result.overall_meta) || null;
+function overallAvailable() {
+  const meta = overallMeta();
+  return state.view !== "global" && state.strength.status === "ready" && Boolean(state.strength.map) && Boolean(meta) && meta.available === true;
+}
+const overallActive = () => effectiveRanking(state.ranking, overallAvailable()) === "overall";
+function overallOf(card) { if (state.view === "global") return null; const item = strengthItem(card); return item && item.overall ? item.overall : null; }
+const overallFactor = () => { const meta = overallMeta(); return meta && meta.stability ? meta.stability.factor : null; };
+function overallUnknownCell(overall) {
+  const reason = overall.unknown_reason || "keine Bewertung vorhanden";
+  return h("span", { class: "ucell" }, neutral("unbekannt", `Kein Gesamtrating: ${reason}. Das ist nicht 0 und sagt nichts über die Stärke der Karte.`), h("span", { class: "rule" }, reason));
+}
+const overallNoise = (meta) => (meta && meta.noise_note ? meta.noise_note : OVERALL_NOISE);
+const overallRuns = () => overallRunsText(state.strength.result ? state.strength.result.cards : []);
+// The server's note on cards without a usage axis (overall_meta.flags.no_usage_axis.note).
+const overallNoUsageNote = (meta) => (meta && meta.flags && meta.flags.no_usage_axis && meta.flags.no_usage_axis.note ? meta.flags.no_usage_axis.note : "Der Rang ist nicht mit dem von Karten mit Nutzungs-Achse vergleichbar.");
+// One visible block at the top of the table area while the overall rating is shown (always visible, not only in the
+// closed method panel): what the number is and is not. It sits inside the scroll area, so the bars above the table
+// keep their height (no shift when the page loads). Where the stored choice is the Gesamtrating but it is not available,
+// the reason stands there instead.
+function overallHint() {
+  const meta = overallMeta();
+  if (overallActive()) {
+    const runs = overallRuns(), included = overallUsageIncluded(meta);
+    const text = sentences([`Gesamtrating: ${overallLimits(runs, included)}`, overallWeightsText(meta, runs), overallNoise(meta)]);
+    return [h("div", { id: "overall-hint", class: "hint", title: `${overallNoise(meta)}. ${overallNoUsageNote(meta)}` }, text)];
+  }
+  // only where the Gesamtrating was asked for (stored choice): the default page stays as it was
+  if (state.ranking === "overall" && state.view !== "global" && state.strength.status === "ready" && !overallAvailable()) {
+    return [h("div", { id: "overall-hint", class: "hint" }, `Gesamtrating nicht verfügbar: ${meta && meta.unavailable_reason ? meta.unavailable_reason : "kein Grund geliefert"}.`)];
+  }
+  return [];
+}
+function overallCell(card) {
+  const item = strengthItem(card), overall = overallOf(card), meta = overallMeta();
+  if (!item || !overall) return unknown("–");
+  const score = overallScoreText(overall);
+  if (score === null) return overallUnknownCell(overall);
+  const bare = overallWithoutUsage(item, overall);
+  const cause = bare ? overallNoUsageCause(item, meta) : null;
+  const badgeText = bare ? { locked: "Nutzung nicht eingerechnet", rule: "Stufe N: ohne Nutzungsindex", nodata: "ohne Nutzungsdaten", other: "ohne Nutzungs-Achse" }[cause.kind] : "";
+  const badge = bare ? h("span", { class: "badge dim", title: `${cause.text}. ${overallNoUsageSentence(cause)}.` }, badgeText) : null;
+  return h("span", { class: "ocell", title: `Gesamtrating ${score} von 100 (gewichtetes Mittel, Setzung; keine Spielstärke). ${bare ? `${cause.text}. ${overallNoUsageSentence(cause)}.` : "Ein Teil davon ist die Nutzung."}` },
+    h("b", { class: "oscore" }, score), badge,
+    h("span", { class: "rule oparts", title: "Die Einzelwerte hinter dem Score: Stufe und Index des Nutzungsindex (nicht die log-skalierte Achse) und die Gesamteinschätzung H." }, h("span", {}, bare && cause.kind === "locked" ? overallUsageText(item, true) : bare ? "ohne Nutzungs-Achse" : overallUsageText(item)), h("span", {}, overallHText(overall))));
+}
+function overallRankCell(card) {
+  const overall = overallOf(card), text = overallRankText(overall);
+  if (!text) return unknown("–");
+  const span = overallSpanText(overall, overallFactor());
+  const sharp = overall.stability && overall.stability.unscharf
+    ? h("span", { class: "unsharp", title: `unscharf: ${span}. Der Rang hängt merklich von den gesetzten Gewichten ab.` }, "unscharf") : null;
+  const group = overallGroupText(overall), meta = overallMeta();
+  // with the usage axis locked for the whole request every card is without it: they stay comparable among themselves
+  const bare = overallWithoutUsage(strengthItem(card), overall) && overallNoUsageCause(strengthItem(card), meta).kind !== "locked";
+  const groupNote = meta && meta.groups && meta.groups.note ? meta.groups.note : "Länder haben einen eigenen Rang.";
+  return h("span", { class: "rank-cell" }, h("span", { class: "nowrap", title: span || null }, text), sharp,
+    bare ? h("span", { class: "badge warn", title: overallNoUsageNote(meta) }, "Rang nicht vergleichbar") : null,
+    group ? h("span", { class: "rule nowrap", title: overall.group === "land" ? groupNote : "Rang in der Gruppe der Zauber (Länder haben einen eigenen Rang)." }, group) : null);
+}
+function overallConfidenceCell(card) {
+  const overall = overallOf(card), word = overallConfidenceWord(overall);
+  if (!word) return unknown("–");
+  const kind = overall.confidence.level === "low" ? "warn" : "dim"; // a self-report of the model: never a "good" green
+  return h("span", { class: `badge ${kind}`, title: `${overallConfidenceText(overall)}.`, "aria-label": `Rater-Vertrauen (Selbstauskunft): ${word}` }, word);
+}
+function overallCriterionCell(card, key) {
+  const value = overallCriterion(overallOf(card), key);
+  return value === null ? unknown("–") : StudioUI.numFlex(value, 1);
+}
+// Columns of the second ranking: score, rank (with the "unscharf" mark), rater confidence; in Detail also the
+// seven criteria. They sit right behind the sticky columns (a phone shows the score first); the tier column of the usage
+// index stays as it is.
+function overallColumns(compact) {
+  const columns = [
+    { head: () => sortHead("Gesamt", "overall", "num", "Gesamtrating: gewichtetes Mittel (Setzung) aus Nutzungsindex und Kartenbewertung durch Modell-Rater, Score 0 bis 100, keine Spielstärke und keine Stufe. Klick sortiert.", "Gesamtrating Score"), cell: (card) => h("td", { class: "num" }, overallCell(card)) },
+    { head: () => sortHead("Rang Gesamt", "overall_rank", "", "Rang k von n bewerteten Karten nach dem Gesamtrating (Gleichstände teilen den besten Rang). Klick sortiert, bester Rang zuerst."), cell: (card) => h("td", {}, overallRankCell(card)) },
+    { head: () => plainHead("Rater-Vertrauen (Selbstauskunft)", "", "Selbstauskunft des Modells zu seiner Bewertung der Karte, keine Messung; „unsicher“ bei niedrigem Vertrauen oder uneinigen Bewertern. Es ändert weder Score noch Rang. Nicht zu verwechseln mit der Datenlage-Konfidenz des Nutzungsindex."), cell: (card) => h("td", {}, overallConfidenceCell(card)) },
+  ];
+  if (!compact) {
+    for (const [key, name, description] of OVERALL_CRITERIA) {
+      columns.push({ head: () => sortHead(key, CRIT_SORT + key, "num crit-head", `${key} ${name} (0 bis 100, hoch ist besser): ${description} Klick sortiert.`, `Kriterium ${key} ${name}`), cell: (card) => h("td", { class: "num" }, overallCriterionCell(card, key)) });
+    }
+  }
+  return columns;
+}
+// The overall rating's box of "Warum hier?": a real breakdown (axis, value, weight, contribution; the contributions add up
+// to the score), then the raters' own words, the confidence and what the number is not.
+function overallWhyBox(card) {
+  const item = strengthItem(card), overall = overallOf(card), meta = overallMeta();
+  const box = h("div", { class: "layer why", id: "why-overall" }, h("h3", {}, "Warum hier? Gesamtrating"));
+  if (!item || !overall) { box.append(h("p", {}, "Für diese Karte liegt kein Gesamtrating vor.")); return box; }
+  const score = overallScoreText(overall);
+  if (score === null) {
+    box.append(h("p", {}, `Gesamtrating unbekannt (nicht 0): ${overall.unknown_reason || "keine Bewertung vorhanden"}. Das sagt nichts über die Stärke der Karte.`),
+      h("p", { class: "rule" }, `${overallMethod(overallUsageIncluded(meta))}; ${overallLimits(overallRuns(), overallUsageIncluded(meta))}.`));
+    return box;
+  }
+  const limitsText = overallLimits(overallRuns(), overallUsageIncluded(meta));
+  const rankText = overallRankText(overall);
+  const lines = [`Gesamt ${score} von 100${rankText ? `, ${rankText} (Gleichstände teilen den besten Rang)` : ", ohne Rang"}.`, "Das Gesamtrating hat keinen Stufenbuchstaben; die Stufe der Tabelle bleibt die des Nutzungsindex."];
+  const group = overallGroupText(overall);
+  if (group) lines.push(`${group} (Länder werden gegen eigene Anker bewertet und haben deshalb einen eigenen Rang).`);
+  const span = overallSpanText(overall, overallFactor());
+  if (span) lines.push(`${span}${overall.stability.unscharf ? "; unscharf: der Rang hängt merklich von den gesetzten Gewichten ab" : ""}.`);
+  box.append(h("ul", { class: "why-list" }, lines.map((line) => h("li", {}, line))));
+  if (overallWithoutUsage(item, overall)) {
+    const cause = overallNoUsageCause(item, meta);
+    box.append(h("p", { class: "policy", id: "overall-no-usage" }, sentences([overallNoUsageSentence(cause), `Grund: ${cause.text}`, "Die Gewichte der übrigen Achsen sind auf 100 % umgerechnet", cause.kind === "locked" ? "Alle Karten sind ohne Nutzungs-Achse bewertet und untereinander vergleichbar" : overallNoUsageNote(meta)])));
+  }
+  const split = overallRows(overall);
+  if (split) {
+    box.append(h("p", {}, "Zerlegung des Scores: Wert (0 bis 100) mal wirksames Gewicht ergibt den Beitrag in Punkten; die Beiträge ergeben zusammen den Score (gerundet, sodass die Summe stimmt)."),
+      table(["Achse", "Wert", "Gewicht", "Beitrag"],
+        [...split.rows.map((row) => [row.label, row.raw === null ? StudioUI.numFlex(row.value, 1) : `${StudioUI.numFlex(row.value, 1)} (Index ${StudioUI.numFlex(row.raw, 1)})`, `${StudioUI.numFlex(100 * row.weight, 1)} %`, StudioUI.num(row.contribution, 1)]),
+          [h("b", {}, "Summe = Gesamt"), "", StudioUI.pct(split.weightSum, 0), h("b", {}, score)]]));
+  } else {
+    box.append(h("p", {}, "Die Beiträge der Achsen ergeben nicht genau den Score, deshalb stehen hier keine Zahlen."));
+  }
+  box.append(h("h4", {}, "Begründung der Modell-Rater (englisch; ungeprüft, keine Regelauskunft)"),
+    h("p", { class: "overall-reason", lang: "en" }, overall.reason || "keine Begründung gespeichert"),
+    h("p", { class: "rule" }, `Rater-Vertrauen ${overallConfidenceWord(overall) || "unbekannt"}: ${overallConfidenceText(overall) || "keine Angabe"}.`),
+    h("p", { class: "rule", id: "overall-reading" }, sentences([overallNoise(meta), overallWeightsText(meta, overallRuns(), overallWithoutUsage(item, overall))])),
+    h("p", { class: "rule" }, `Gewichte sind eine Setzung, keine Messung${meta && meta.weights_note && meta.weights_note !== "Setzung, keine Messung" ? ` (${meta.weights_note})` : ""}.`),
+    h("p", { class: "rule" }, `${limitsText.charAt(0).toUpperCase()}${limitsText.slice(1)}.`));
+  return box;
+}
+// The method panel: what the second ranking is, how it is weighted, what it does not contain.
+function renderOverallPanel() {
+  const host = $("overall-panel");
+  if (!host) return;
+  const meta = overallMeta();
+  if (!meta || state.view === "global") { host.replaceChildren(); return; }
+  if (!meta.available) { host.replaceChildren(h("div", { class: "facts" }, h("b", {}, "Gesamtrating: nicht verfügbar"), h("span", { class: "muted" }, meta.unavailable_reason || "keine Angabe"))); return; }
+  const cards = state.strength.result ? state.strength.result.cards : [];
+  const raterText = overallRunsText(cards);
+  const weights = Object.entries(meta.weights || {}).map(([axis, weight]) => `${OVERALL_AXIS_NAMES[axis] || axis} ${StudioUI.numFlex(100 * weight, 1)} %`).join(" · ");
+  const usage = meta.usage_axis || {};
+  const dataset = meta.dataset || {};
+  host.replaceChildren(...[
+    h("div", { class: "facts" }, h("b", {}, "Gesamtrating (zweites Ranking)"), h("span", { class: "muted" }, `${nf(meta.n_rated)} von ${nf(meta.n_total)} Karten bewertet`)),
+    h("p", { id: "overall-method" }, `${overallMethod(usage.included !== false)} (${raterText}, ${nf(dataset.matched === undefined ? meta.n_rated : dataset.matched)} von ${nf(dataset.rows === undefined ? meta.n_total : dataset.rows)} Karten des Datensatzes); ${overallLimits(raterText, usage.included !== false)}.`),
+    h("p", { class: "rule" }, `Gewichte (Setzung, keine Messung): ${weights}.`),
+    h("p", { class: "rule" }, usage.included ? `Die Nutzungs-Achse ist der Stärke-Index dieser Anfrage und bei ${nf(usage.n_with_usage)} von ${nf(usage.n_total)} Karten vorhanden; fehlt sie, werden die übrigen Gewichte auf 100 % umgerechnet.` : `Die Nutzungs-Achse entfällt: ${usage.excluded_reason || "keine Angabe"}.`),
+    h("p", { class: "rule" }, sentences([overallNoise(meta), overallWeightsText(meta, raterText)])),
+    meta.weights_caveat ? h("p", { class: "rule" }, meta.weights_caveat) : null,
+    meta.groups && meta.groups.n_rated && meta.groups.note ? h("p", { class: "rule" }, `Länder und Zauber: ${nf(meta.groups.n_rated.land)} Länder, ${nf(meta.groups.n_rated.spell)} Zauber bewertet. ${meta.groups.note}.`) : null,
+    meta.flags && meta.flags.no_usage_axis ? h("p", { class: "rule" }, `Ohne Nutzungs-Achse: ${nf(meta.flags.no_usage_axis.count)} von ${nf(meta.n_rated)} bewerteten Karten. ${meta.flags.no_usage_axis.note}.`) : null,
+    h("p", { class: "rule" }, meta.stability ? `${meta.stability.note}. Unscharf: ${nf(meta.stability.unscharf_count)} von ${nf(meta.stability.evaluated_cards)} Karten.` : ""),
+    h("p", { class: "rule" }, `Nicht einbezogen: ${(meta.locked_rules || []).join("; ")}.`),
+    h("p", { class: "rule" }, meta.coverage_note || "")].filter(Boolean));
 }
 function spreadCell(card) {
   const uni = state.universe;
@@ -337,8 +857,8 @@ function spreadBadge(item, universe) {
     return neutral(FILTER_LABEL, `${FILTER_LABEL}: das Universum verlangt diese Karte, sie steht per Definition in jedem Deck der Teilmenge (ohne Zählung, ohne Stufe). Universum ${universe.profile}.${subset}`);
   }
   const label = item.level_name || item.level;
-  const counted = item.matched ? `${item.hits}/${item.denominator}` : "unbekannt";
-  const title = `${SPREAD_LABEL}: ${label} (${REASON_NAMES[item.reason] || item.reason}). Universum ${universe.profile}, ${universe.denominator} Decks, Stand ${universe.snapshot_id}.${subset}`;
+  const counted = item.matched ? `${nf(item.hits)}/${nf(item.denominator)}` : "unbekannt";
+  const title = `${SPREAD_LABEL}: ${label} (${REASON_NAMES[item.reason] || item.reason}). Universum ${universe.profile}, ${nf(universe.denominator)} Decks, Stand ${universe.snapshot_id}.${subset}`;
   if (counted === "unbekannt") return neutral(item.level && item.level !== "U" ? `${label} (unbekannt)` : "unbekannt", title);
   return neutral(`${label} · ${counted}`, title);
 }
@@ -351,55 +871,131 @@ function needBadges(card) {
 }
 
 // ---------- tables ----------
-function cardsTable(cards) {
+// Columns of the card table. "Kompakt" keeps the tier, card, marks, rank, mana value, roles and source decks;
+// "Detail" adds the rating layers, spread, mechanics, EDHREC, games and layers. Tier and card stay sticky.
+function tableColumns() {
   const commander = state.view !== "global";
-  const metas = shownLayers();
+  const compact = state.preset === "compact";
+  const metas = compact ? [] : shownLayers();
   // The counted spread is its own column only while a stored universe is chosen. There is no
   // outcome column: no card has a result from games ("Unbewertet"), the pill above says so.
-  const spread = Boolean(state.universe.name && state.universe.spread);
-  const head = ["Stärke-Index (Schätzung)", "Karte", "Favorit / Deck", ...metas.map(layerHead), ...(spread ? [SPREAD_LABEL] : []), "MW", "Mechanik", "Rollen", ...(commander ? ["Quelldecks", "EDHREC Inclusion", "Echte Spiele"] : ["Beliebtheit (global)", "Echte Spiele"]), "Schichten", ...(state.view === "deck" ? ["im Deck"] : [])];
-  const rows = cards.slice(0, state.shown).map((card) => {
-    const mark = state.marks.get(card.card_id) || {};
-    const rank = (layer(card, "observed_deck").items || []).find((item) => item.kind === "edhrec_rank_global");
-    return h("tr", {},
-      h("td", {}, strengthCell(card)),
-      h("td", { class: "cardcell name", onclick: () => openCard(card) }, thumb(card), mark.favorite ? h("span", { class: "star" }, "★ ") : null, card.name),
-      h("td", { class: "acts" }, markButtons(card)),
-      ...metas.map((meta) => h("td", {}, layerCell(card, meta))),
-      ...(spread ? [h("td", {}, spreadCell(card))] : []),
-      h("td", { class: "num" }, card.mana_value),
-      h("td", {}, featureBadges(card)),
-      h("td", {}, roleBadges(card)),
-      ...(commander ? [h("td", {}, corpusCell(card)), h("td", {}, edhrecCell(card)), h("td", {}, gameCell(card))] : [h("td", { class: "num" }, rank ? `Rang ${rank.rank}` : unknown("unbekannt")), h("td", {}, gameCell(card))]),
-      h("td", { title: card.coverage.present.map((name) => LAYER_NAMES[name]).join(", ") }, `${presentCount(card)}/4`),
-      ...(state.view === "deck" ? [h("td", { class: "num" }, state.deckCards.get(card.card_id))] : []));
-  });
-  return h("table", {}, h("thead", {}, h("tr", {}, head.map((label) => (typeof label === "string" ? h("th", {}, label) : label)))), h("tbody", {}, rows));
+  const spread = !compact && Boolean(state.universe.name && state.universe.spread);
+  const cell = (cls, build) => (card) => h("td", { class: cls }, build(card));
+  return [
+    { head: () => sortHead("Stufe", "strength", "stick-1", "Stufe aus dem Stärke-Index: Schätzung aus Nutzungsdaten in Commander-Decks, keine Spielstärke. Klick sortiert."), cell: cell("stick-1", strengthCell) },
+    { head: () => sortHead("Karte", "name", "stick-2"), cell: (card) => {
+      const mark = state.marks.get(card.card_id) || {};
+      return h("td", { class: "cardcell name stick-2", "data-card-id": card.card_id, onclick: () => openCard(card) }, thumb(card), mark.favorite ? h("span", { class: "star" }, "★ ") : null, card.name);
+    } },
+    ...(commander && overallActive() ? overallColumns(compact) : []),
+    { head: () => plainHead("Favorit / Deck"), cell: cell("acts", markButtons) },
+    ...(state.funcMode && commander ? [{ head: () => sortHead("Rang in Funktion", "rolerank", "", "Rang k von n Karten mit Stufe in der gleichen Funktion (Rolle), nach dem Index im Gesamtpool. Die Stufe bleibt die Stufe im Gesamtpool."), cell: cell("", functionRankCell) }] : []),
+    ...(compact || !commander ? [] : [{ head: () => sortHead("Datenlage", "confidence", "", CONFIDENCE_TEXT), cell: cell("", datenlageCell) }]),
+    ...metas.map((meta) => ({ head: () => layerHead(meta), cell: cell("", (card) => layerCell(card, meta)) })),
+    ...(spread ? [{ head: () => sortHead(SPREAD_LABEL, "spread"), cell: cell("", spreadCell) }] : []),
+    { head: () => sortHead("MW", "mv", "num", "Manawert"), cell: (card) => h("td", { class: "num" }, StudioUI.numFlex(card.mana_value, 2)) },
+    ...(compact ? [] : [{ head: () => plainHead("Mechanik"), cell: cell("", featureBadges) }]),
+    ...(compact || !(state.strength.result && state.strength.result.chulane_textfit_version)
+      ? []
+      : [{ head: () => sortHead("Textfit (Chulane)", "textfit", "", "Deterministische Chulane-Regeltext-Prüfung (Gewicht im Stärke-Index: 0)."), cell: cell("", textfitCell) }]),
+    { head: () => plainHead("Rollen"), cell: cell("", roleBadges) },
+    ...(commander
+      ? [{ head: () => sortHead("Quelldecks", "corpus"), cell: cell("", corpusCell) }, ...(compact ? [] : [{ head: () => sortHead("Aufnahme (EDHREC)", "edhrec"), cell: cell("", edhrecCell) }])]
+      : [{ head: () => plainHead("Beliebtheit (global)"), cell: (card) => {
+        const rank = (layer(card, "observed_deck").items || []).find((item) => item.kind === "edhrec_rank_global");
+        return h("td", { class: "num" }, rank ? `Rang ${nf(rank.rank)}` : unknown("unbekannt"));
+      } }]),
+    ...(compact ? [] : [{ head: () => sortHead("Echte Spiele", "games"), cell: cell("", gameCell) }]),
+    ...(compact ? [] : [{ head: () => sortHead("Schichten", "layers"), cell: (card) => h("td", { title: card.coverage.present.map((name) => LAYER_NAMES[name]).join(", ") }, `${nf(presentCount(card))}/4`) }]),
+    ...(state.view === "deck" ? [{ head: () => plainHead("im Deck"), cell: (card) => h("td", { class: "num" }, nf(state.deckCards.get(card.card_id))) }] : []),
+  ];
+}
+// A sort key whose column is not on screen (compact column set, or the function rank outside its mode) says so.
+function hiddenSortNote() {
+  const key = state.sortKey, option = $("sort").selectedOptions && $("sort").selectedOptions[0];
+  const label = option ? option.textContent : key;
+  if (key === "rolerank" && !state.funcMode) return `Sortiert nach „${label}“: Spalte nur im Vergleich „Gleiche Funktion“ sichtbar`;
+  const overallSort = key === "overall" || key === "overall_rank" || key.startsWith(CRIT_SORT);
+  if (overallSort && !overallActive()) {
+    if (state.strength.status === "loading") return "";
+    return overallAvailable() ? `Sortiert nach „${label}“ (Spalte im Ranking „Nutzung“ ausgeblendet)` : `Sortiert nach „${label}“: das Gesamtrating ist nicht verfügbar, alle Karten stehen als unbekannt am Ende`;
+  }
+  if (key.startsWith(CRIT_SORT) && state.preset === "compact") return `Sortiert nach „${label}“ (Spalte im Kompakt ausgeblendet)`;
+  const detailOnly = key === "confidence" || key === "spread" || key === "edhrec" || key === "games" || key === "layers" || key === "textfit" || key.startsWith(LAYER_SORT);
+  if (detailOnly && state.preset === "compact") return `Sortiert nach „${label}“ (Spalte im Kompakt ausgeblendet)`;
+  return "";
+}
+function sortCaption() {
+  const option = $("sort").selectedOptions && $("sort").selectedOptions[0];
+  return `${option ? option.textContent : state.sortKey}, ${state.sortDir > 0 ? "aufsteigend" : "absteigend"}`;
+}
+function cardsTable(cards) {
+  const columns = tableColumns();
+  const rows = cards.slice(0, state.shown).map((card) => h("tr", {}, columns.map((column) => column.cell(card))));
+  return h("div", { class: "table-wrap" }, h("table", { id: "tier-table" },
+    h("caption", { class: "visually-hidden" }, `Tierliste für ${VIEW_NAMES.commander}: ${countLine(cards.length)}, sortiert nach ${sortCaption()}`),
+    h("thead", {}, h("tr", {}, columns.map((column) => column.head()))),
+    h("tbody", {}, rows)));
 }
 function researchTable(cards) {
   const wanted = state.need || "";
   const rows = cards.filter((card) => card.coverage.needs.length && (!wanted || card.coverage.needs.includes(wanted))).slice(0, 200).map((card) => {
     const priority = card.coverage.research_priority;
     return h("tr", {},
-      h("td", { class: "cardcell name", onclick: () => openCard(card) }, thumb(card), card.name),
-      h("td", { class: "num", title: "Heuristik für die Reihenfolge der Recherche, keine Kartenstärke" }, priority ? priority.score.toFixed(2) : unknown("–")),
-      h("td", {}, card.coverage.gap_grade || unknown("–")),
+      h("td", { class: "cardcell name", "data-card-id": card.card_id, onclick: () => openCard(card) }, thumb(card), card.name),
+      h("td", { class: "num", title: "Heuristik für die Reihenfolge der Recherche, keine Kartenstärke" }, priority ? StudioUI.num(priority.score, 2) : unknown("–")),
+      h("td", {}, card.coverage.gap_grade ? codeNode(card.coverage.gap_grade) : unknown("–")),
       h("td", {}, needBadges(card)),
       h("td", {}, roleBadges(card)));
   });
-  return h("table", {}, h("thead", {}, h("tr", {}, ["Karte", "Priorität (Heuristik)", "Abdeckung", "Was fehlt", "Rollen"].map((label) => h("th", {}, label)))), h("tbody", {}, rows));
+  return h("div", { class: "table-wrap" }, h("table", {},
+    h("caption", { class: "visually-hidden" }, `Forschungsliste für ${VIEW_NAMES.commander}: Karten mit offenen Lücken, nach Forschungspriorität`),
+    h("thead", {}, h("tr", {}, ["Karte", "Priorität (Heuristik)", "Abdeckung", "Was fehlt", "Rollen"].map((label) => h("th", { scope: "col" }, label)))),
+    h("tbody", {}, rows)));
+}
+// An empty table always says why (and, where it helps, what to do).
+function emptyState(cards) {
+  const marked = [...state.marks.values()].some((mark) => mark.favorite);
+  if ($("f-fav").checked && !marked) return h("p", { class: "empty-note", id: "empty-note" }, "Keine Favoriten markiert. Markiere Karten in der Tabelle mit ☆, dann erscheinen sie hier.");
+  const names = activeFilterNames();
+  return h("div", { class: "empty-note", id: "empty-note" },
+    h("p", {}, names.length ? `Keine Karte passt zu den Filtern (${names.join(", ")}).` : "Keine Karte in dieser Ansicht."),
+    names.length ? h("button", { type: "button", onclick: resetFilters }, "Filter zurücksetzen") : null);
+}
+function resetFilters() {
+  $("q").value = ""; $("type-filter").value = ""; $("role-filter").value = "";
+  if ($("land-filter")) $("land-filter").value = "";
+  if ($("spread-filter")) $("spread-filter").value = "";
+  $("f-fav").checked = false; $("f-free").checked = true; $("f-excl").checked = false;
+  state.podFilter = ""; state.strength.tiers.clear();
+  if ($("pod-filter")) $("pod-filter").value = "";
+  state.shown = 150;
+  renderTierBar();
+  render(false);
 }
 
-function render() {
+function render(keepScroll = true) {
   const body = $("pool-body");
+  const top = body.scrollTop, left = body.scrollLeft;
   body.replaceChildren();
   if (!state.data) return;
   const cards = visibleCards();
-  $("count").textContent = `${cards.length} Karten`;
+  $("count").textContent = `${countLine(cards.length)}${state.nameSorted ? " · Treffer nach Name zuerst" : ""}`;
+  body.setAttribute("aria-label", state.tab === "research" ? "Forschungsliste" : "Tierliste: Kartentabelle");
+  const sortNote = hiddenSortNote();
+  $("sort-note").textContent = sortNote;
+  $("sort-note").hidden = !sortNote;
+  if (state.searchErrors && state.searchErrors.length) {
+    body.append(h("div", { id: "search-syntax-error", class: "empty" },
+      h("b", {}, "Hinweis zur Such-Syntax:"),
+      ...state.searchErrors.map((msg) => h("p", {}, msg)),
+      h("p", { class: "muted" }, 'Beispiele: t:creature · mv<=2 · r:ramp · c:gu · id<=gwu · -t:land · "draw a card"')));
+    return;
+  }
   if (state.tab === "research") {
     if (state.view === "global") { body.append(h("p", { class: "note" }, `Der Forschungsbedarf wird je Commander berechnet. Wähle die Ansicht ${VIEW_NAMES.commander}.`)); return; }
     const needs = [...new Set(state.data.cards.flatMap((card) => card.coverage.needs))].sort();
-    const select = h("select", { id: "need-filter", onchange: () => { state.need = select.value; render(); } }, h("option", { value: "" }, "alle Lücken"), needs.map((need) => h("option", { value: need }, NEED_NAMES[need] || need)));
+    const select = h("select", { id: "need-filter", onchange: () => { state.need = select.value; render(false); } }, h("option", { value: "" }, "alle Lücken"), needs.map((need) => h("option", { value: need }, NEED_NAMES[need] || need)));
     const previous = needs.includes(state.need) ? state.need : "";
     state.need = previous;
     body.append(h("p", { class: "note" }, "Reihenfolge aus fehlender Evidenz mal Deck-Relevanz. Eine Lücke ist kein schlechtes Urteil über die Karte."), h("label", {}, "Lücke ", select));
@@ -407,8 +1003,10 @@ function render() {
     body.append(researchTable(cards));
     return;
   }
-  body.append(cardsTable(cards));
-  if (cards.length > state.shown) body.append(h("p", {}, h("button", { type: "button", onclick: () => { state.shown += 200; render(); } }, `weitere ${Math.min(200, cards.length - state.shown)} zeigen`)));
+  if (!cards.length) { body.append(emptyState(cards)); return; }
+  body.append(...overallHint(), cardsTable(cards));
+  if (cards.length > state.shown) body.append(h("p", {}, h("button", { type: "button", onclick: () => { state.shown += 200; render(); } }, `weitere ${nf(Math.min(200, cards.length - state.shown))} zeigen`)));
+  if (keepScroll) { body.scrollTop = top; body.scrollLeft = left; }
 }
 
 // ---------- notice ----------
@@ -416,40 +1014,78 @@ function render() {
 function bindingLine() {
   const binding = state.data.corpus_binding;
   if (state.view === "global" || !binding) return null;
-  const parts = [`Quelldecks für ${VIEW_NAMES.commander}: ${binding.bound_decks}`];
-  if (binding.other_commander_decks) parts.push(`${binding.other_commander_decks} gehören zu anderen Commandern und zählen hier nicht`);
-  if (binding.unbound_decks) parts.push(`${binding.unbound_decks} ohne Commander-Zuordnung zählen nirgends`);
+  const parts = [`Quelldecks für ${VIEW_NAMES.commander}: ${nf(binding.bound_decks)}`];
+  if (binding.other_commander_decks) parts.push(`${nf(binding.other_commander_decks)} gehören zu anderen Commandern und zählen hier nicht`);
+  if (binding.unbound_decks) parts.push(`${nf(binding.unbound_decks)} ohne Commander-Zuordnung zählen nirgends`);
   return h("div", { class: "summary" }, parts.join(" · "), binding.bound_decks ? "" : " · Für diesen Commander sind noch keine Quelldecks importiert: fehlende Beobachtung, keine Schwäche.");
+}
+// Per source: how many cards sit in which state. Every card is in exactly one column, so the row adds up to the pool.
+const STATUS_COLUMNS = {
+  PRESENT: "mit Beleg", ABSENT_IN_KNOWN_CORPUS: "gezählt 0 (fehlende Beobachtung, keine Schwäche)", NONE_RECORDED: "nichts erfasst",
+  NOT_COLLECTED: "Quelle noch nicht importiert", NOT_APPLICABLE: "in dieser Ansicht nicht anwendbar",
+};
+function layerStatusTable(status) {
+  const names = ["observed_deck", "observed_game"];
+  const keys = [...new Set(names.flatMap((name) => Object.keys(status[name] || {})))];
+  const sum = (counts) => Object.values(counts || {}).reduce((total, n) => total + n, 0);
+  return h("div", { class: "table-wrap" }, h("table", { class: "dist", id: "layer-status" },
+    h("caption", { class: "visually-hidden" }, "Karten je Quelle und Beleglage"),
+    h("thead", {}, h("tr", {}, h("th", { scope: "col" }, "Quelle"), keys.map((key) => h("th", { scope: "col", class: "num", title: key }, STATUS_COLUMNS[key] || key)), h("th", { scope: "col", class: "num" }, "Summe"))),
+    h("tbody", {}, names.map((name) => h("tr", {}, h("th", { scope: "row" }, LAYER_NAMES[name]), keys.map((key) => h("td", { class: "num" }, nf((status[name] || {})[key] || 0))), h("td", { class: "num" }, nf(sum(status[name]))))))));
+}
+function roleGapLine() {
+  const { decksCounted, gaps } = openRoleGaps();
+  if (!gaps.length) return null;
+  const shown = gaps.slice(0, 6).map((g) => `${roleName(g.role)} (Deck ${nf(g.deckCount)} vs. Korpus p25–p75: ${StudioUI.numFlex(g.p25, 1)}–${StudioUI.numFlex(g.p75, 1)})`);
+  const more = gaps.length > 6 ? ` · +${nf(gaps.length - 6)} weitere` : "";
+  return h("p", { id: "role-gap-line", class: "rule" }, `Offener Bedarf (Deck vs. Korpus, N = ${nf(decksCounted)} Decks): ${shown.join(", ")}${more}`);
 }
 function renderNotice() {
   const summary = state.data.summary, policy = state.data.tier_policy;
   const status = summary.layer_status;
-  const line = (name) => `${LAYER_NAMES[name]}: ${Object.entries(status[name]).map(([key, n]) => `${n} ${(STATUS_NAMES[key] || [key])[0]}`).join(", ")}`;
   const inDeckCount = state.data.cards.filter((card) => state.deckCards.has(card.card_id)).length;
   const viewSummary = state.view === "deck"
-    ? `${inDeckCount} im Deck von ${summary.cards} legalen Karten. `
-    : `${summary.cards} Karten in dieser Ansicht. `;
+    ? `${nf(inDeckCount)} im Deck von ${nf(summary.cards)} legalen Karten. `
+    : `Kartenpool dieser Ansicht: ${nf(summary.cards)} Karten. `;
   $("notice").replaceChildren(
     h("details", { id: "tier-explain", class: "explain", title: `${policy.version}: ${policy.rule}` },
       h("summary", {}, "Was bedeuten die Stufen?"),
       h("p", {}, h("b", {}, `${INDEX_HEADING}: `), INDEX_TEXT),
       h("p", {}, h("b", {}, `${OUTCOME_HEADING}: `), OUTCOME_TEXT)),
-    h("div", { class: "summary" }, viewSummary, ["observed_deck", "observed_game"].map(line).join(" · ")),
-    ...[bindingLine()].filter(Boolean));
+    h("div", { class: "summary" }, viewSummary, "Jede Karte steht je Quelle in genau einer Spalte; die Summe ist die Zahl der Karten im Pool."),
+    layerStatusTable(status),
+    ...[bindingLine(), roleGapLine()].filter(Boolean));
   $("tier-pill").textContent = "Stufen: Schätzung aus Nutzungsdaten · Ergebnis aus Partien: Unbewertet";
+  updateMethodHint();
 }
 
 // ---------- evidence drawer ----------
 function table(heads, rows) {
-  return h("table", {}, h("thead", {}, h("tr", {}, heads.map((x) => h("th", {}, x)))), h("tbody", {}, rows.map((row) => h("tr", {}, row.map((cell) => h("td", {}, cell))))));
+  return h("div", { class: "table-wrap" }, h("table", {}, h("thead", {}, h("tr", {}, heads.map((x) => h("th", { scope: "col" }, x)))), h("tbody", {}, rows.map((row) => h("tr", {}, row.map((cell) => h("td", {}, cell)))))));
 }
 function drawer(card) {
   const box = [];
   const heading = (name, status) => h("h3", {}, LAYER_NAMES[name], statusBadge(status));
   const fact = layer(card, "fact");
+  const tf = textfitOf(card);
+  const tfNodes = tf ? [
+    h("p", {}, `Chulane-Textfit (${tf.version}, Gewicht im Stärke-Index: ${nf(tf.weight_in_index)}): ${nf(tf.matched_count)}/${nf(tf.total_rules)} Regeln erfüllt`),
+    tf.matches && tf.matches.length
+      ? table(["Regel", "Beleg / Phrase"], tf.matches.map((m) => [m.label, h("span", { class: "rule" }, m.matched_phrase)]))
+      : h("p", { class: "rule" }, "Keine Chulane-Textfit-Regel erfüllt."),
+    ...(tf.foreign_trigger ? [h("p", { class: "rule" }, `Fremd-ETB-Trigger (nicht als eigener ETB gezählt): ${tf.foreign_phrase || "–"}`)] : []),
+  ] : [];
+  const { decksCounted: gapDecks, gaps } = openRoleGaps();
+  const cardRoleSet = new Set(cardRoles(card));
+  const matchedGaps = !state.deckCards.has(card.card_id) ? gaps.filter((g) => cardRoleSet.has(g.role)) : [];
+  const gapNodes = matchedGaps.length
+    ? [h("p", { class: "rule" }, `Schließt offenen Deck-Bedarf (N = ${nf(gapDecks)} Decks): ${matchedGaps.map((g) => `${roleName(g.role)} (Deck ${nf(g.deckCount)} vs. p25–p75: ${StudioUI.numFlex(g.p25, 1)}–${StudioUI.numFlex(g.p75, 1)})`).join(", ")}`)]
+    : [];
   box.push(h("div", { class: "layer" }, heading("fact", fact.status),
-    h("p", {}, `Manawert ${fact.mana_value} · ${fact.type_line} · Quelle der Fakten: ${fact.fact_source} · Regelstand ${fact.rules_version}`),
+    h("p", {}, `Manawert ${StudioUI.numFlex(fact.mana_value, 2)} · ${fact.type_line} · Quelle der Fakten: ${fact.fact_source} · Regelstand ${fact.rules_version}`),
     table(["Merkmal", "trifft zu", "Regel"], fact.features.map((f) => [FEATURE_NAMES[f.feature] || f.feature, f.holds ? "ja" : "nein", h("span", { class: "rule" }, f.rule)])),
+    ...tfNodes,
+    ...gapNodes,
     h("p", {}, "Rollen mit Herkunft (Tagger-Rollen sind Community-Einordnungen):"),
     fact.roles.length ? fact.roles.map((c) => h("span", { class: "badge", title: [c.original_tag, c.mapping_rule].filter(Boolean).join(" · ") }, `${roleName(c.role)} · ${ORIGIN_NAMES[c.origin] || c.origin}`)) : unknown("keine Rolle erfasst")));
 
@@ -457,10 +1093,10 @@ function drawer(card) {
   const corpus = (deck.items || []).filter((item) => item.kind === "corpus");
   const rank = (deck.items || []).find((item) => item.kind === "edhrec_rank_global");
   const deckBox = h("div", { class: "layer" }, heading("observed_deck", deck.status));
-  if (rank) deckBox.append(h("p", {}, `Globale Beliebtheit (Scryfall, EDHREC-Rang): ${rank.rank}. Niedriger ist beliebter. Das ist kein Stärkemaß.`));
-  if (corpus.length) deckBox.append(h("p", {}, "Quelldecks nach Gruppe, jeweils mit eigenem Nenner. Die Gruppen überlappen: nie addieren."), table(["Gruppe", "Decks mit Karte", "von", "Anteil", ""], corpus.map((item) => { const known = item.decks_known !== false && item.decks !== null; return [item.cohort, known ? item.decks : unknown(), item.of, known ? pct(item.decks, item.of) : unknown("–"), item.small_denominator ? h("span", { class: "badge warn" }, "n < 30") : ""]; })));
+  if (rank) deckBox.append(h("p", {}, `Globale Beliebtheit (Scryfall, EDHREC-Rang): ${nf(rank.rank)}. Niedriger ist beliebter. Das ist kein Stärkemaß.`));
+  if (corpus.length) deckBox.append(h("p", {}, "Quelldecks nach Gruppe, jeweils mit eigenem Nenner. Die Gruppen überlappen: nie addieren."), table(["Gruppe", "Decks mit Karte", "von", "Anteil", ""], corpus.map((item) => { const known = item.decks_known !== false && item.decks !== null; return [cohortName(item.cohort), known ? nf(item.decks) : unknown(), nf(item.of), known ? pct(item.decks, item.of) : unknown("–"), item.small_denominator ? h("span", { class: "badge warn" }, "n < 30") : ""]; })));
   if (deck.edhrec_rows && deck.edhrec_rows.length) {
-    deckBox.append(h("p", {}, "EDHREC-Beobachtungen. Inclusion, Lift und Synergy sind verschiedene Maße und nie ein gemeinsamer Wert."), table(["Ansicht", "Maß", "Wert", "Decks/Nenner", "Stand", "Datenklasse"], deck.edhrec_rows.map((row) => [row.cohort, row.metric, row.value === null ? unknown() : row.value, row.denominator_known ? `${row.numerator ?? "?"}/${row.denominator}${row.small_denominator ? " (n < 30)" : ""}` : unknown("Nenner unbekannt"), row.snapshot_known ? row.snapshot : unknown("Zeit unbekannt"), row.data_class])));
+    deckBox.append(h("p", {}, "EDHREC-Beobachtungen. Inclusion, Lift und Synergy sind verschiedene Maße und nie ein gemeinsamer Wert."), table(["Ansicht", "Maß", "Wert", "Decks/Nenner", "Stand", "Datenklasse"], deck.edhrec_rows.map((row) => [cohortName(row.cohort), METRIC_NAMES[row.metric] || row.metric, row.value === null ? unknown() : StudioUI.numFlex(row.value, 4), row.denominator_known ? `${row.numerator !== null && row.numerator !== undefined ? nf(row.numerator) : "?"}/${nf(row.denominator)}${row.small_denominator ? " (n < 30)" : ""}` : unknown("Nenner unbekannt"), row.snapshot_known ? row.snapshot : unknown("Zeit unbekannt"), codeNode(row.data_class)])));
   } else if (state.view !== "global") {
     deckBox.append(h("p", {}, "Keine EDHREC-Beobachtung für diese Karte."));
   }
@@ -469,17 +1105,17 @@ function drawer(card) {
 
   const game = layer(card, "observed_game");
   const atlas = game.atlas;
-  const val = (x, suffix = "") => (x === null || x === undefined ? unknown() : `${x}${suffix}`);
+  const val = (x, suffix = "", digits = 2) => (x === null || x === undefined ? unknown() : `${typeof x === "number" ? StudioUI.numFlex(x, digits) : x}${suffix}`);
   box.push(h("div", { class: "layer" }, heading("observed_game", game.status), h("p", {}, GAME_NOTES[game.status] || game.note),
     atlas && game.status === "PRESENT" ? [
       h("p", {}, `Quelle: Playgroup.gg Card Atlas (CC BY 4.0). Grundgesamtheit: alle Commander, nur Playgroup-Live-Partien.`),
       table(["Messwert", "Wert"], [
-        ["Mitgebracht (Partien)", val(atlas.times_brought)],
+        ["Mitgebracht (Partien)", val(atlas.times_brought, "", 0)],
         ["Live-Inclusion", val(atlas.live_inclusion_pct, " %")],
         ["Median Zug des ersten Wirkens", val(atlas.median_cast_turn)],
         ["Siegrate, wenn gewirkt", val(atlas.winrate_when_cast_pct, " %")],
         ["Differenz gewirkt gegen Bibliothek", val(atlas.observed_winrate_gap_pp, " Pp")],
-        ["95-%-Intervall der Differenz", atlas.ci_95_lower_pp === null || atlas.ci_95_upper_pp === null ? unknown() : `${atlas.ci_95_lower_pp} bis ${atlas.ci_95_upper_pp} Pp`],
+        ["95-%-Intervall der Differenz", atlas.ci_95_lower_pp === null || atlas.ci_95_upper_pp === null ? unknown() : `${StudioUI.numFlex(atlas.ci_95_lower_pp, 2)} bis ${StudioUI.numFlex(atlas.ci_95_upper_pp, 2)} Pp`],
         ["Stichprobe", atlas.insufficient_sample ? h("span", { class: "badge warn" }, "zu klein") : "ausreichend laut Import"],
       ]),
       h("p", {}, "Die Differenz vergleicht Partien, in denen die Karte gewirkt wurde, mit Partien, in denen sie in der Bibliothek blieb. Wer eine Karte wirken kann, steht oft schon besser da. Das ist kein Beweis für Kartenstärke."),
@@ -487,20 +1123,20 @@ function drawer(card) {
   const combo = layer(card, "combo_verified");
   box.push(h("div", { class: "layer" }, heading("combo_verified", combo.status), combo.note ? h("p", {}, "Eine gelistete Kombo ist kein Beleg für Stärke und kein bestandener Engine-Test.") : null));
   const sim = layer(card, "simulated_result");
-  box.push(h("div", { class: "layer" }, heading("simulated_result", sim.status), sim.totals ? h("p", {}, `${sim.totals.runs} Läufe: in ${sim.totals.games_cast_after_offer} von ${sim.totals.games_offered} Partien nach dem Angebot gespielt (${sim.totals.cast_count} Zauber). Simulierte Ergebnisse stehen für sich und werden nie mit echten Spielen verrechnet.`) : null));
+  box.push(h("div", { class: "layer" }, heading("simulated_result", sim.status), sim.totals ? h("p", {}, `${nf(sim.totals.runs)} Läufe: in ${nf(sim.totals.games_cast_after_offer)} von ${nf(sim.totals.games_offered)} Partien nach dem Angebot gespielt (${nf(sim.totals.cast_count)} Zauber). Simulierte Ergebnisse stehen für sich und werden nie mit echten Spielen verrechnet.`) : null));
 
   const cov = card.coverage;
   box.push(h("div", { class: "layer" }, h("h3", {}, "Abdeckung und Forschungsbedarf"),
     h("p", {}, `Vorhanden: ${cov.present.map((name) => LAYER_NAMES[name]).join(", ") || "nichts"}.`),
     cov.needs.length ? h("div", {}, needBadges(card)) : h("p", {}, "Keine offene Lücke."),
-    cov.gap_grade ? h("p", {}, `Lückenklasse: ${cov.gap_grade}. Forschungspriorität (Heuristik, keine Kartenstärke): ${cov.research_priority.score.toFixed(2)}${cov.research_priority.long_tail ? ", Long-Tail-Kandidat" : ""}.`) : null));
+    cov.gap_grade ? h("p", {}, `Lückenklasse: ${codeLabel(cov.gap_grade)}. Forschungspriorität (Heuristik, keine Kartenstärke): ${StudioUI.num(cov.research_priority.score, 2)}${cov.research_priority.long_tail ? ", Long-Tail-Kandidat" : ""}.`) : null));
   return box;
 }
 function strengthBox(card) {
   const item = strengthItem(card);
   const label = item && item.tier === "N" ? item.note : item && item.tier === "U" ? UNKNOWN_TIER : null;
   const box = h("div", { class: "layer" }, h("h3", {}, INDEX_HEADING,
-    item ? (label !== null ? neutral(label, STRENGTH_NOTE) : tierBadge(item.tier, item.index.toFixed(1), "Schätzung aus Nutzungsdaten")) : null),
+    item ? (label !== null ? neutral(label, STRENGTH_NOTE) : tierBadge(item.tier, StudioUI.num(item.index, 1), "Schätzung aus Nutzungsdaten")) : null),
     h("p", {}, STRENGTH_NOTE));
   if (!item) { box.append(h("p", {}, state.view === "global" ? "Der Index wird je Commander berechnet." : "Für diese Karte liegt keine Berechnung vor.")); return box; }
   if (item.tier === "N") {
@@ -520,24 +1156,24 @@ function strengthBox(card) {
       : item.reason === "NO_SOURCE_FOR_COMMANDER"
       ? "Für diesen Commander liegt bei keinem gewichteten Signal ein Wert im Pool vor."
       : "Zu wenig Daten für eine Stufe: das sagt nichts über die Stärke der Karte.";
-    box.append(h("p", {}, `Datenlage ${(100 * item.coverage).toFixed(0)} % (Gewicht der Signale mit Wert an allen gewichteten). ${item.tier === "U" ? reasonText : ""}`));
+    box.append(h("p", {}, `Datenlage ${StudioUI.num(100 * item.coverage, 0)} % (Gewicht der Signale mit Wert an allen gewichteten). ${item.tier === "U" ? reasonText : ""}`));
   }
   const used = state.strength.result && state.strength.result.universe_choice;
   if (used && used.kind !== "none") box.append(h("p", { class: "rule" }, `Decklisten-Universum: ${universeLine(used)}`));
   const universe = state.strength.result && state.strength.result.universe;
-  if (universe && universe.subset_note) box.append(h("p", { class: "rule" }, `Decklisten-Universum ${universe.profile}: ${universe.denominator} Decks. ${universe.subset_note}.`));
+  if (universe && universe.subset_note) box.append(h("p", { class: "rule" }, `Decklisten-Universum ${universe.profile}: ${nf(universe.denominator)} Decks. ${universe.subset_note}.`));
   box.append(...strengthDetail(item));
   return box;
 }
 // One signal row of the detail table (#1365): raw value, numerator/denominator, score 0..100, effective
 // weight, status and data class.
 function signalRow(c) {
-  const [text, kind] = componentStatus(c);
-  const score = c.percentile === null ? unknown("–") : `${(100 * c.percentile).toFixed(1)}${c.group_fallback ? " (Rang im ganzen Pool (Gruppe zu klein))" : c.group ? ` (Gruppe ${groupLabel(c.group)}${c.group_size ? `, ${c.group_size}` : ""})` : ""}`;
+  const [text, kind, raw] = componentStatus(c);
+  const score = c.percentile === null ? unknown("–") : `${StudioUI.num(100 * c.percentile, 1)}${c.group_fallback ? " (Rang im ganzen Pool (Gruppe zu klein))" : c.group ? ` (Gruppe ${groupLabel(c.group)}${c.group_size ? `, ${nf(c.group_size)}` : ""})` : ""}`;
   const requested = state.strength.result && state.strength.result.settings.weights[c.component];
-  const weightText = requested !== undefined && Math.abs(requested - c.weight) > 1e-9 ? `${c.weight} (angefragt ${requested})` : `${c.weight}`;
+  const weightText = requested !== undefined && Math.abs(requested - c.weight) > 1e-9 ? `${StudioUI.numFlex(c.weight, 2)} (angefragt ${StudioUI.numFlex(requested, 2)})` : `${StudioUI.numFlex(c.weight, 2)}`;
   const counted = c.denominator ? (c.numerator === null || c.numerator === undefined ? `n = ${nf(c.denominator)}` : `${nf(c.numerator)}/${nf(c.denominator)}`) : unknown("–");
-  return [h("span", { title: c.signal }, c.label), c.value === null ? unknown() : Number(c.value.toPrecision(4)), counted, score, weightText, h("span", { class: `badge ${kind}` }, text), h("span", { title: c.data_class }, `${DATA_CLASS_NAMES[c.data_class] || c.data_class} (${c.data_class})`), c.note ? h("span", { class: "rule" }, c.note) : ""];
+  return [h("span", { title: c.signal }, c.label), c.value === null ? unknown() : StudioUI.numSig(c.value, 4), counted, score, weightText, h("span", { class: `badge ${kind}`, title: raw }, text), codeNode(c.data_class), c.note ? h("span", { class: "rule" }, c.note) : ""];
 }
 const SIGNAL_HEADS = ["Signal", "Rohwert", "Zähler/Nenner", "Score 0 bis 100", "Gewicht (wirksam)", "Status", "Datenklasse", "Hinweis"];
 function strengthDetail(item) {
@@ -547,16 +1183,16 @@ function strengthDetail(item) {
   const out = [];
   if (item.confidence !== null && item.confidence !== undefined) {
     const level = CONFIDENCE_NAMES[item.confidence_level] || item.confidence_level;
-    out.push(h("p", { id: "confidence-line" }, `Konfidenz ${level} (${item.confidence.toFixed(2)}). ${CONFIDENCE_TEXT}`));
+    out.push(h("p", { id: "confidence-line" }, `Konfidenz ${level} (${StudioUI.num(item.confidence, 2)}). ${CONFIDENCE_TEXT}`));
   }
-  if (item.borderline) out.push(h("p", { id: "borderline-detail" }, h("span", { class: "borderline" }, "grenzwertig"), ` Der Index ${item.index.toFixed(1)} liegt ${item.cut_distance.toFixed(1)} Punkte von der Grenze ${item.borderline_cut}.`));
+  if (item.borderline) out.push(h("p", { id: "borderline-detail" }, h("span", { class: "borderline" }, "grenzwertig"), ` Der Index ${StudioUI.num(item.index, 1)} liegt ${StudioUI.num(item.cut_distance, 1)} Punkte von der Grenze ${StudioUI.numFlex(item.borderline_cut, 1)}.`));
   const roleRanks = item.role_ranks ? Object.entries(item.role_ranks) : [];
   if (roleRanks.length) {
-    out.push(h("p", { id: "role-ranks-line" }, "Rang in der Funktion (aktueller Index): ",
-      ...roleRanks.map(([role, rInfo]) => h("span", { class: "badge mr-1" }, `${roleName(role)}: #${rInfo.rank}/${rInfo.total}`))));
+    out.push(h("p", { id: "role-ranks-line" }, "Rang in der Funktion (nach dem aktuellen Index): ",
+      ...roleRanks.map(([role, rInfo]) => h("span", { class: "badge mr-1", title: `Rang ${nf(rInfo.rank)} von ${nf(rInfo.total)} Karten mit Stufe in der Funktion ${roleName(role)}` }, `${roleName(role)}: Rang ${nf(rInfo.rank)} von ${nf(rInfo.total)}`))));
   }
   out.push(h("h4", {}, "Objektive Signale (zählen mit Gewicht)"), table(SIGNAL_HEADS, objective.map(signalRow)));
-  if (subjective.length) out.push(h("div", { class: "block-subjective", id: "block-subjective" }, h("h4", {}, subjective[0].weight > 0 ? `Subjektiv, Gewicht ${subjective[0].weight}: zählt mit (Einstellung)` : "Subjektiv, Gewicht 0: zählt nicht"), h("p", {}, subjective[0].weight > 0 ? "Die Raster-Bewertung ist eine persönliche Einschätzung, kein objektives Signal. Dieses Profil gibt ihr ein Gewicht; die Empfehlung ist 0." : "Die Raster-Bewertung ist eine persönliche Einschätzung, kein objektives Signal. Sie fließt nicht in Index und Stufe ein."), table(SIGNAL_HEADS, subjective.map(signalRow))));
+  if (subjective.length) out.push(h("div", { class: "block-subjective", id: "block-subjective" }, h("h4", {}, subjective[0].weight > 0 ? `Subjektiv, Gewicht ${StudioUI.numFlex(subjective[0].weight, 2)}: zählt mit (Einstellung)` : "Subjektiv, Gewicht 0: zählt nicht"), h("p", {}, subjective[0].weight > 0 ? "Die Raster-Bewertung ist eine persönliche Einschätzung, kein objektives Signal. Dieses Profil gibt ihr ein Gewicht; die Empfehlung ist 0." : "Die Raster-Bewertung ist eine persönliche Einschätzung, kein objektives Signal. Sie fließt nicht in Index und Stufe ein."), table(SIGNAL_HEADS, subjective.map(signalRow))));
   if (simulation.length) out.push(h("div", { class: "block-simulation", id: "block-simulation" }, h("h4", {}, "Simulation: Gewicht 0, nicht erhoben"), h("p", {}, "Ergebnisse aus Simulationen sind keine Beobachtung aus echten Partien und fließen nie in den Index."), table(SIGNAL_HEADS, simulation.map(signalRow))));
   return out;
 }
@@ -586,23 +1222,23 @@ async function alternativesBox(card) {
   if (!shown.length) { box.append(h("p", {}, "Keine freie Karte mit gleicher Rolle gefunden.")); return box; }
   box.append(table(["Karte", "Manawert", "Unterschied", "Gemeinsame Rollen", "Fehlt gegenüber dieser Karte", "Zusätzlich", "Quelldecks", "Echte Spiele"], shown.map((item) => [
     h("span", { class: "name", onclick: () => openCard(item.card) }, (state.marks.get(item.card.card_id) || {}).favorite ? h("span", { class: "star" }, "★ ") : null, item.card.name),
-    item.card.mana_value,
-    item.mana_value_delta === 0 ? "gleich" : `${item.mana_value_delta > 0 ? "+" : ""}${item.mana_value_delta}`,
+    StudioUI.numFlex(item.card.mana_value, 2),
+    item.mana_value_delta === 0 ? "gleich" : `${item.mana_value_delta > 0 ? "+" : ""}${StudioUI.numFlex(item.mana_value_delta, 2)}`,
     item.shared_roles.map(roleName).join(", "),
     item.missing_roles.map(roleName).join(", ") || "nichts",
     item.only_candidate_roles.map(roleName).join(", ") || "nichts",
     corpusCell(item.card),
     gameCell(item.card),
   ])));
-  if (data.total > data.alternatives.length) box.append(h("p", {}, `${data.total - data.alternatives.length} weitere nicht gezeigt.`));
+  if (data.total > data.alternatives.length) box.append(h("p", {}, `${nf(data.total - data.alternatives.length)} weitere nicht gezeigt.`));
   return box;
 }
 function pairsTable(data) {
   return table(["Karte", "Decks zusammen", "Anteil der Decks mit dieser Karte", "Lift", "Kombo-Partner"], data.pairs.map((pair) => [
     pair.card_name,
-    `${pair.decks_together}/${data.decks_with_card}`,
+    `${nf(pair.decks_together)}/${nf(data.decks_with_card)}`,
     pct(pair.decks_together, data.decks_with_card),
-    pair.lift === null || pair.lift === undefined ? unknown("–") : pair.lift.toFixed(2),
+    pair.lift === null || pair.lift === undefined ? unknown("–") : StudioUI.num(pair.lift, 2),
     pair.combo_partner ? "ja (Spellbook-Kombo)" : "–",
   ]));
 }
@@ -612,15 +1248,15 @@ async function universeBox(card) {
   if (!uni.name) { box.append(h("p", {}, NO_UNIVERSE + ". Wähle oben ein Universum, um die gezählte Verbreitung zu sehen.")); return box; }
   const data = await api(`/api/cards/${encodeURIComponent(card.card_id)}/universe?profile=${encodeURIComponent(uni.name)}&commander=${encodeURIComponent(COMMANDER)}`);
   const item = data.cards[0], universe = data.universe;
-  if (universe.subset_note) box.append(h("p", { class: "policy" }, `${universe.subset_note}. Der Nenner ${universe.denominator} ist diese Teilmenge, nicht alle Decks des Commanders.`));
+  if (universe.subset_note) box.append(h("p", { class: "policy" }, `${universe.subset_note}. Der Nenner ${nf(universe.denominator)} ist diese Teilmenge, nicht alle Decks des Commanders.`));
   if (item.filter_card) box.append(h("p", {}, h("b", {}, `${FILTER_LABEL}: `), "das Universum verlangt diese Karte; sie steht in jedem Deck der Teilmenge und bekommt deshalb keinen Anteil und keine Stufe."));
-  box.append(h("p", {}, spreadBadge(item, universe), " ", item.filter_card ? "" : item.matched ? `${item.hits} von ${item.denominator} Decks (${pct(item.hits, item.denominator)})` : "unbekannt: kein Deck des Universums nennt diese Karte unter einem bekannten Namen"));
+  box.append(h("p", {}, spreadBadge(item, universe), " ", item.filter_card ? "" : item.matched ? `${nf(item.hits)} von ${nf(item.denominator)} Decks (${pct(item.hits, item.denominator)})` : "unbekannt: kein Deck des Universums nennt diese Karte unter einem bekannten Namen"));
   box.append(h("p", {}, `Grund: ${REASON_NAMES[item.reason] || item.reason}. Universum ${universe.profile} (${universe.data_class}), Stand ${universe.snapshot_id}.`));
-  box.append(h("p", {}, `Schwellen (Modell ${data.model_version || "unbekannt"}): Universum mindestens ${data.params.min_universe} Decks; ${data.params.cuts.map(([tier, cut]) => `${tier} ab ${(100 * cut).toFixed(0)} %`).join(", ")}; darunter ${data.params.fallback_tier}; ohne Datenbasis U. Nur Lesehilfe für die Häufigkeit, keine Stärke.`));
-  if (universe.excluded_by_card_filter) box.append(h("p", { class: "rule" }, `${universe.excluded_by_card_filter} Decks fallen durch den Kartenfilter heraus und zählen nicht im Nenner.`));
-  if (universe.excluded_no_date) box.append(h("p", { class: "rule" }, `${universe.excluded_no_date} Decks ohne Zeitstempel fallen durch den Datumsfilter des Universums heraus und zählen nicht im Nenner.`));
-  if (item.spellings.length > 1) box.append(h("p", { class: "spellings" }, "Mehrere Schreibweisen kommen vor und werden nie addiert; gezeigt wird die größte: ", item.spellings.map((s) => `${s.name}: ${s.hits}`).join(" · ")));
-  const parts = (label, map) => `${label}: ${Object.entries(map).map(([key, n]) => `${key} ${n}`).join(", ") || "–"}`;
+  box.append(h("p", {}, `Schwellen (Modell ${data.model_version || "unbekannt"}): Universum mindestens ${nf(data.params.min_universe)} Decks; ${data.params.cuts.map(([tier, cut]) => `${tier} ab ${StudioUI.num(100 * cut, 0)} %`).join(", ")}; darunter ${data.params.fallback_tier}; ohne Datenbasis U. Nur Lesehilfe für die Häufigkeit, keine Stärke.`));
+  if (universe.excluded_by_card_filter) box.append(h("p", { class: "rule" }, `${nf(universe.excluded_by_card_filter)} Decks fallen durch den Kartenfilter heraus und zählen nicht im Nenner.`));
+  if (universe.excluded_no_date) box.append(h("p", { class: "rule" }, `${nf(universe.excluded_no_date)} Decks ohne Zeitstempel fallen durch den Datumsfilter des Universums heraus und zählen nicht im Nenner.`));
+  if (item.spellings.length > 1) box.append(h("p", { class: "spellings" }, "Mehrere Schreibweisen kommen vor und werden nie addiert; gezeigt wird die größte: ", item.spellings.map((s) => `${s.name}: ${nf(s.hits)}`).join(" · ")));
+  const parts = (label, map) => `${label}: ${Object.entries(map).map(([key, n]) => `${key} ${nf(n)}`).join(", ") || "–"}`;
   box.append(h("p", { class: "rule" }, parts("Nenner nach Plattform", universe.denominator_by_platform), " · ", parts("nach Bracket", universe.denominator_by_bracket)));
   box.append(h("p", { class: "rule" }, data.meaning));
   const result = h("div", {});
@@ -628,16 +1264,103 @@ async function universeBox(card) {
     button.disabled = true;
     try {
       const co = await api(`/api/cards/${encodeURIComponent(card.card_id)}/cooccurrence?profile=${encodeURIComponent(uni.name)}&limit=25&commander=${encodeURIComponent(COMMANDER)}`);
-      result.replaceChildren(...(co.decks_with_card === null ? [h("p", {}, "unbekannt: die Karte kommt im Universum nicht vor")] : [h("p", {}, `${co.decks_with_card_label}: ${co.decks_with_card}; ${co.denominator_label}: ${co.denominator}.`), co.subset_note ? h("p", { class: "rule" }, `${co.subset_note}. Der Nenner ${co.denominator} ist diese Teilmenge, nicht alle Decks des Commanders.${co.filter_card ? " Diese Karte ist eine Filterkarte: sie steht in allen Decks der Teilmenge." : ""}`) : null, pairsTable(co)].filter(Boolean)));
+      result.replaceChildren(...(co.decks_with_card === null ? [h("p", {}, "unbekannt: die Karte kommt im Universum nicht vor")] : [h("p", {}, `${co.decks_with_card_label}: ${nf(co.decks_with_card)}; ${co.denominator_label}: ${nf(co.denominator)}.`), co.subset_note ? h("p", { class: "rule" }, `${co.subset_note}. Der Nenner ${nf(co.denominator)} ist diese Teilmenge, nicht alle Decks des Commanders.${co.filter_card ? " Diese Karte ist eine Filterkarte: sie steht in allen Decks der Teilmenge." : ""}`) : null, pairsTable(co)].filter(Boolean)));
     } catch (error) { result.replaceChildren(h("p", {}, `Fehler: ${StudioUI.germanError(error)}`)); button.disabled = false; }
   } }, "Zusammen gespielt mit");
   box.append(button, result);
   return box;
 }
+// How the index adds up: weight * score per signal over the signals that count, divided by the sum of those
+// weights. The points must add up to the shown index (checked; if not, nothing is split). Shares are taken of
+// the TRUE sum of the points, never of the rounded index. `detail` says whether numbers may be shown: the
+// index is at least 5, every shown row is above 0,0 points when rounded to one decimal, and the rounded
+// percentages (three rows plus the rest) add up to 100 +- 1; otherwise only the order of the signals is shown.
+function indexShares(item) {
+  const used = item.components.filter((c) => c.weight > 0 && c.percentile !== null && c.percentile !== undefined);
+  const total = used.reduce((sum, c) => sum + c.weight, 0);
+  if (!used.length || !(total > 0) || !(item.index > 0)) return null;
+  const rows = used.map((c) => ({ key: c.component, label: c.label, points: 100 * c.weight * c.percentile / total })).filter((row) => row.points > 0);
+  const sum = rows.reduce((acc, row) => acc + row.points, 0);
+  if (!rows.length || Math.abs(sum - item.index) > 0.06) return null;
+  rows.sort((a, b) => b.points - a.points);
+  for (const row of rows) row.percent = 100 * row.points / sum;
+  const shown = rows.slice(0, 3), rest = rows.slice(3);
+  const restPercent = rest.reduce((acc, row) => acc + row.percent, 0);
+  const roundedSum = shown.reduce((acc, row) => acc + Math.round(row.percent), 0) + Math.round(restPercent);
+  const detail = item.index >= 5 && shown.every((row) => Math.round(row.points * 10) > 0 && Math.round(row.percent) >= 1) && Math.abs(roundedSum - 100) <= 1;
+  return { rows, shown, restPercent, restCount: rest.length, detail };
+}
+// "Warum hier?": two to four plain sentences from numbers the payload already holds (n of N everywhere).
+function whyBox(card, heading = "Warum hier?") {
+  const item = strengthItem(card);
+  const box = h("div", { class: "layer why", id: "why-box" }, h("h3", {}, heading));
+  if (state.view === "global") { box.append(h("p", {}, "Der Index wird je Commander berechnet. Wähle die Ansicht " + VIEW_NAMES.commander + ".")); return box; }
+  if (!item) { box.append(h("p", {}, state.strength.status === "loading" ? "Die Stufe wird noch berechnet …" : "Für diese Karte liegt keine Berechnung vor.")); return box; }
+  if (item.tier === "N") { box.append(h("p", {}, `${item.note}: diese Karte bekommt keine Stufe.`)); return box; }
+  if (item.tier === "U") { box.append(h("p", {}, `Zu wenig Daten für eine Stufe (${REASON_SHORT[item.reason] || codeLabel(item.reason)}). Das sagt nichts über die Stärke der Karte.`)); return box; }
+  const lines = [];
+  const counts = deckCounts(item);
+  lines.push(counts
+    ? `Stufe ${item.tier} (Index ${StudioUI.num(item.index, 1)}): ${nf(counts.n)} von ${nf(counts.N)} Quelldecks für ${VIEW_NAMES.commander} enthalten die Karte (${StudioUI.pct(counts.n / counts.N, 1)}).`
+    : `Stufe ${item.tier} (Index ${StudioUI.num(item.index, 1)}). Für das Decklisten-Universum liegt kein Zähler vor.`);
+  const ranks = Object.entries(item.role_ranks || {}).sort((a, b) => a[1].rank - b[1].rank).slice(0, 3);
+  if (ranks.length) lines.push(`In der Funktion: ${ranks.map(([role, rInfo]) => `${roleName(role)} Rang ${nf(rInfo.rank)} von ${nf(rInfo.total)}`).join("; ")} (nach dem Index im Gesamtpool).`);
+  const shares = indexShares(item);
+  if (shares && shares.detail) {
+    const top = shares.shown.map((row) => `${SIGNAL_SHORT[row.key] || row.label} ${StudioUI.num(row.points, 1)} Punkte (${StudioUI.num(row.percent, 0)} %)`).join(", ");
+    lines.push(`Beitrag zum Index (die Punkte ergeben zusammen ${StudioUI.num(item.index, 1)}): ${top}${shares.restCount ? `, weitere ${nf(shares.restCount)} ${shares.restCount === 1 ? "Signal" : "Signale"} ${percentOrUnder(shares.restPercent)}` : ""}.`);
+  } else if (shares) {
+    const order = shares.shown.map((row) => SIGNAL_SHORT[row.key] || row.label).join(", ");
+    lines.push(item.index < 5 ? `Index unter 5: die Aufteilung in Punkte wäre zu ungenau. Größte Beiträge, ohne Zahlen: ${order}.` : `Größte Beiträge, ohne Zahlen: ${order}.`);
+  }
+  lines.push(`Datenlage: ${confidenceText(item)}.${item.borderline ? ` Grenzwertig: ${StudioUI.num(item.cut_distance, 1)} Punkte von der Grenze ${StudioUI.numFlex(item.borderline_cut, 1)}.` : ""}`);
+  if (item.relative_tier) lines.push(`Relativ im Commander-Pool: Stufe ${item.relative_tier} (im Vergleich zu S–F nach Perzentilen im Pool).`);
+  if (item.tier_stability !== null && item.tier_stability !== undefined) {
+    const alts = (item.tier_alternatives || []).length > 1
+      ? ` Alternativen: ${item.tier_alternatives.map((a) => `${a.tier} (${nf(a.count)}/${nf(item.tier_stability_variants)})`).join(", ")}.`
+      : "";
+    lines.push(`Stabilität bei Gewichts-Variation: ${StudioUI.pct(item.tier_stability, 0)} (${nf(item.tier_stability_kept)}/${nf(item.tier_stability_variants)} Varianten)${item.unscharf ? " — unscharf (< 80 %)" : ""}.${alts}`);
+  }
+  box.append(h("ul", { class: "why-list" }, lines.map((line) => h("li", {}, line))), h("p", { class: "rule" }, "Die Stufe zeigt Nutzung in Decks, keine Spielstärke."));
+  return box;
+}
+// Evidence window as a dialog: focus moves in and returns to the card that opened it, Tab stays inside,
+// the table behind does not scroll (class modal-open), Escape and "Schließen" close it.
+const FOCUSABLE = 'button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+function closeModal() {
+  const modal = $("modal");
+  if (modal.hidden) return;
+  modal.hidden = true;
+  document.body.classList.remove("modal-open");
+  let target = state.lastFocus;
+  if (!target || !target.isConnected) target = state.lastFocusCard ? document.querySelector(`td.name[data-card-id="${CSS.escape(state.lastFocusCard)}"]`) : null;
+  if (!target) target = $("pool-body");
+  state.lastFocus = null; state.lastFocusCard = "";
+  target.focus();
+}
+function trapModalFocus(event) {
+  const modal = $("modal");
+  if (modal.hidden) return;
+  if (event.key === "Escape") { closeModal(); return; }
+  if (event.key !== "Tab") return;
+  const items = [...$("modal-box").querySelectorAll(FOCUSABLE)].filter((node) => node.offsetParent !== null);
+  if (!items.length) { event.preventDefault(); $("modal-box").focus(); return; }
+  const first = items[0], last = items[items.length - 1], active = document.activeElement;
+  if (!$("modal-box").contains(active)) { event.preventDefault(); first.focus(); }
+  else if (event.shiftKey && (active === first || active === $("modal-box"))) { event.preventDefault(); last.focus(); }
+  else if (!event.shiftKey && active === last) { event.preventDefault(); first.focus(); }
+}
 async function openCard(card) {
   const modal = $("modal"), content = $("modal-box");
-  content.replaceChildren(h("h2", {}, card.name), h("p", { class: "muted" }, "lädt …"));
+  if (modal.hidden) {
+    state.lastFocus = document.activeElement;
+    const owner = state.lastFocus && state.lastFocus.closest ? state.lastFocus.closest("td.name") : null;
+    state.lastFocusCard = owner ? owner.getAttribute("data-card-id") || "" : "";
+  }
+  content.replaceChildren(h("h2", { id: "modal-title" }, card.name), h("p", { class: "muted", role: "status" }, "lädt …"));
   modal.hidden = false;
+  document.body.classList.add("modal-open");
+  if (!content.contains(document.activeElement)) content.focus();
   try {
     const query = state.view === "global" ? "view=global" : `view=commander&commander=${encodeURIComponent(COMMANDER)}`;
     const detail = await api(`/api/cards/${encodeURIComponent(card.card_id)}/evidence?${query}`);
@@ -647,15 +1370,18 @@ async function openCard(card) {
     const picture = full.has_image ? h("img", { class: "big", loading: "lazy", referrerpolicy: "no-referrer", alt: full.name, src: cardImageUrl(full, "front") }) : h("div", { class: "muted" }, "Kein Bild in den Kartendaten.");
     if (full.has_image) picture.addEventListener("error", () => picture.replaceWith(h("div", { class: "muted" }, "Kein Bild geladen (offline).")), { once: true });
     const picBox = h("div", {}, picture, full.has_back ? h("div", { class: "actions" }, h("button", { type: "button", onclick: () => { face = face === "front" ? "back" : "front"; picture.src = cardImageUrl(full, face); } }, "Rückseite / Vorderseite")) : null);
+    const hadFocus = content.contains(document.activeElement) && document.activeElement !== content;
     content.replaceChildren(
-      h("div", { class: "actions" }, ...markButtons(card, () => openCard(card)), h("button", { type: "button", onclick: () => { modal.hidden = true; } }, "Schließen")),
-      h("h2", {}, full.name),
+      h("div", { class: "actions" }, ...markButtons(card, () => openCard(card)), h("button", { type: "button", id: "modal-close", onclick: closeModal }, "Schließen")),
+      h("h2", { id: "modal-title" }, full.name),
       h("p", { class: "muted" }, full.type_line),
+      ...(overallActive() ? [overallWhyBox(card), whyBox(card, "Warum hier? Nutzungsindex (Stufe)")] : [whyBox(card)]),
       picBox,
       h("div", { class: "policy" }, h("b", {}, `${OUTCOME_HEADING}. `), "Es gibt kein geprüftes Modell mit Partiedaten. Fehlende Beobachtung ist nie ein niedriger Tier. Favoriten, Ausschlüsse und Notizen fließen nicht ein."),
       strengthSection,
       layersBox(card),
       ...drawer(full));
+    if (!hadFocus) content.focus();
     try { content.append(await universeBox(full)); } catch (error) { content.append(h("p", {}, `Verbreitung nicht ladbar: ${StudioUI.germanError(error)}`)); }
     if (state.view !== "global") content.append(await alternativesBox(full));
   } catch (error) { content.append(h("p", {}, `Fehler: ${StudioUI.germanError(error)}`)); }
@@ -667,14 +1393,14 @@ function rememberedUniverse() { try { return localStorage.getItem(UNIVERSE_KEY) 
 const listText = (text) => text.split(",").map((part) => part.trim()).filter(Boolean);
 function breakdown(label, map) {
   const entries = Object.entries(map || {});
-  return h("span", {}, `${label}: `, entries.length ? entries.map(([key, n]) => `${key} ${n}`).join(", ") : unknown("–"));
+  return h("span", {}, `${label}: `, entries.length ? entries.map(([key, n]) => `${key} ${nf(n)}`).join(", ") : unknown("–"));
 }
 function optionChecks(id, options, selected) {
   const box = h("div", { class: "checks", id });
   if (!options) { box.append(h("span", { class: "muted" }, "Werte nicht verfügbar")); return box; }
   if (!options.length) { box.append(h("span", { class: "muted" }, "keine Werte im Bestand")); return box; }
   for (const option of options) {
-    box.append(h("label", {}, h("input", { type: "checkbox", value: option.value, checked: selected.includes(option.value) }), ` ${option.value} (${option.decks} Decks)`));
+    box.append(h("label", {}, h("input", { type: "checkbox", value: option.value, checked: selected.includes(option.value) }), ` ${option.value} (${nf(option.decks)} Decks)`));
   }
   return box;
 }
@@ -710,7 +1436,7 @@ function renderUniversePanel() {
     return {
       chosen: () => [...chosen],
       node: h("span", {}, input,
-        h("datalist", { id: "u-card-list" }, ...options.map((option) => h("option", { value: option.value }, `${option.decks} Decks`))),
+        h("datalist", { id: "u-card-list" }, ...options.map((option) => h("option", { value: option.value }, `${nf(option.decks)} Decks`))),
         h("button", { type: "button", onclick: add }, "hinzufügen"), chips),
     };
   };
@@ -761,13 +1487,13 @@ function renderUniversePanel() {
     : h("div", { class: "facts" },
       h("b", {}, uni.name),
       h("span", { class: "muted" }, `Version ${summary.version}`),
-      h("span", {}, `${summary.denominator} Decks (Nenner)`),
+      h("span", {}, `${nf(summary.denominator)} Decks (Nenner)`),
       breakdown("Plattform", summary.denominator_by_platform),
       breakdown("Bracket", summary.denominator_by_bracket),
-      summary.empty ? h("span", { id: "universe-empty", class: "badge warn" }, REASON_NAMES[summary.empty_reason] || summary.empty_reason || "Universum ist leer (0 Decks)") : null,
-      summary.subset_note ? h("span", { class: "badge warn" }, summary.subset_note) : null,
-      summary.excluded_no_date ? h("span", { class: "muted" }, `${summary.excluded_no_date} Decks ohne Zeitstempel durch den Datumsfilter ausgeschlossen`) : null,
-      summary.below_min_universe ? h("span", { class: "badge warn" }, `unter dem Mindest-Universum (${summary.min_universe} Decks): alle Karten U`) : null,
+      summary.empty ? h("span", { id: "universe-empty", class: "badge warn badge-text" }, REASON_NAMES[summary.empty_reason] || summary.empty_reason || "Universum ist leer (0 Decks)") : null,
+      summary.subset_note ? h("span", { class: "badge warn badge-text" }, summary.subset_note) : null,
+      summary.excluded_no_date ? h("span", { class: "muted" }, `${nf(summary.excluded_no_date)} Decks ohne Zeitstempel durch den Datumsfilter ausgeschlossen`) : null,
+      summary.below_min_universe ? h("span", { class: "badge warn badge-text" }, `unter dem Mindest-Universum (${nf(summary.min_universe)} Decks): alle Karten U`) : null,
       h("span", { class: "muted", title: summary.snapshot_id }, `Stand ${summary.snapshot_id.slice(0, 28)}`),
       h("span", { class: "muted", title: summary.data_class }, "gezählt, Teilmengen addieren sich zum Nenner"));
   panel.replaceChildren(facts, h("div", { class: "muted" }, SPREAD_NOTE), h("details", {}, h("summary", {}, uni.name ? "Universum ändern oder neu anlegen" : "Universum anlegen"), form));
@@ -887,6 +1613,7 @@ async function refreshStrength() {
     const result = await api("/api/strength", { commander: COMMANDER, settings: s.settings });
     if (ticket !== s.ticket) return;
     s.result = result;
+    s.status = "ready";
     s.map = new Map(result.cards.map((item) => [item.card_id, item]));
     s.good = clone(s.settings);
   } catch (error) {
@@ -894,11 +1621,13 @@ async function refreshStrength() {
     // A failed calculation keeps the last valid result and the last valid settings on screen.
     fail(error);
     if (s.good) { s.settings = clone(s.good); rememberStrength(); renderStrengthPanel(); }
-    else { s.result = null; s.map = null; }
+    else { s.result = null; s.map = null; s.status = "error"; }
   } finally {
     if (ticket === s.ticket) { panel.classList.remove("working"); for (const button of panel.querySelectorAll("button")) button.disabled = false; }
   }
   renderStrengthSummary();
+  syncRankGroupToggle();
+  syncRanking();
   render();
 }
 // Which deck lists and which denominator the index used, and whether the choice was automatic.
@@ -906,7 +1635,7 @@ function universeLine(choice) {
   const verb = choice.automatic ? "automatisch gewählt" : "gewählt";
   if (choice.kind === "none") return `kein Decklisten-Universum (${choice.reason})`;
   const what = choice.kind === "counted" ? `Verbreitung (gezählt): ${choice.short_label}` : choice.label;
-  return `${what} · Nenner ${choice.denominator} Decks · ${verb}${choice.reason ? ` (${choice.reason.replace(/^automatisch gewählt: /, "")})` : ""}`;
+  return groupDigits(`${what} · Nenner ${nf(choice.denominator)} Decks · ${verb}${choice.reason ? ` (${choice.reason.replace(/^automatisch gewählt: /, "")})` : ""}`);
 }
 // Tier header (#1365): S to D, U split into counted zeros and missing data, N; spells and lands counted
 // apart; the counted corpus (universe and denominator) always in view.
@@ -924,7 +1653,7 @@ function distributionTable(result) {
   const note = result.settings.separate_lands ? "Länder und Zauber werden getrennt gerankt." : "Länder und Zauber werden gemeinsam gerankt (Einstellung); die Zählung ist trotzdem getrennt.";
   return h("div", { class: "dist-wrap" },
     h("table", { class: "dist", id: "tier-distribution", title: note },
-      h("thead", {}, h("tr", {}, h("th", {}, ""), cols.map((tier) => h("th", { class: "num", title: TIER_FILTER_NAMES[tier] || `Stufe ${tier}` }, tier)), h("th", { class: "num" }, "Σ"))),
+      h("thead", {}, h("tr", {}, h("th", { scope: "col" }, "Karten"), cols.map((tier) => h("th", { scope: "col", class: "num", title: TIER_FILTER_NAMES[tier] || `Stufe ${tier}` }, tier)), h("th", { scope: "col", class: "num" }, "Σ"))),
       h("tbody", {}, row("Zauber", kinds.spells), row("Länder", kinds.lands), row("Alle", result.tier_counts))),
     h("div", { class: "rule" }, note));
 }
@@ -933,7 +1662,7 @@ function tierHeader(result) {
   const unknownText = `unbekannt (U) ${nf(counts.U)}`;
   const zeroText = u.denominator === null ? "nur gezählte Nullen" : `gezählt 0 von ${nf(u.denominator)} Decks`;
   const breakdown = `${zeroText}: ${nf(u.zero_count)} Karten · fehlende Daten: ${nf(u.missing_data)} Karten`;
-  const codes = Object.entries(u.by_reason).map(([code, n]) => `${code} ${n}`).join(", ");
+  const codes = Object.entries(u.by_reason).map(([code, n]) => `${REASON_SHORT[code] || codeLabel(code)} ${nf(n)}`).join(", ");
   return [h("div", { class: "tier-block" },
     h("div", { class: "tier-head", id: "tier-head" },
       ...["S", "A", "B", "C", "D"].map((tier) => tierBadge(tier, nf(counts[tier]), `Stufe ${tier}: ${nf(counts[tier])} Karten`)),
@@ -941,33 +1670,34 @@ function tierHeader(result) {
       neutral(`N ${nf(counts.N || 0)}`, "nicht bewertet: Commander und Standardländer, wenn sie nicht bewertet werden")),
     distributionTable(result),
     h("div", { class: "rule", id: "corpus-line" }, corpusLine(result)),
-    h("div", { class: "rule", id: "borderline-line" }, `grenzwertig (näher als ${result.settings.borderline_distance} Punkte an einer Stufengrenze): ${nf(result.borderline_count)} Karten. ${CONFIDENCE_TEXT}`))];
+    h("div", { class: "rule", id: "borderline-line" }, `grenzwertig (näher als ${StudioUI.numFlex(result.settings.borderline_distance, 3)} Punkte an einer Stufengrenze): ${nf(result.borderline_count)} Karten${result.stability ? ` · unscharf (< 80 % der Varianten): ${nf(result.stability.unscharf_count)}/${nf(result.stability.evaluated_cards)}` : ""}. ${CONFIDENCE_TEXT}`))];
 }
 function snapshotBadge(result) {
   const snap = result.snapshot;
   if (!snap) return null;
   if (snap.status === "STALE") {
-    return h("span", { id: "snapshot-status", class: "badge warn", title: `Snapshot-Epoche ${(snap.snapshot_epoch || "").slice(0, 12)} ungleich aktueller Epoche ${(snap.current_epoch || "").slice(0, 12)}` }, "Snapshot veraltet, Neuberechnung läuft");
+    return h("span", { id: "snapshot-status", class: "badge warn badge-text", title: `Snapshot-Epoche ${(snap.snapshot_epoch || "").slice(0, 12)} ungleich aktueller Epoche ${(snap.current_epoch || "").slice(0, 12)}` }, "Snapshot veraltet, Neuberechnung läuft");
   }
   if (snap.status === "HIT") {
     const stamp = snap.created_at ? `${snap.created_at.slice(0, 19).replace("T", " ")} UTC` : "–";
     const epochShort = snap.data_epoch ? snap.data_epoch.slice(0, 12) : "–";
-    return h("span", { id: "snapshot-status", class: "badge good", title: `Snapshot ${snap.profile_name || ""} (${snap.spec_version || ""})` }, `Snapshot: Stand ${stamp} · Epoche ${epochShort}`);
+    return h("span", { id: "snapshot-status", class: "badge good badge-text", title: `Snapshot ${snap.profile_name || ""} (${snap.spec_version || ""})` }, `Snapshot: Stand ${stamp} · Epoche ${epochShort}`);
   }
   if (snap.status === "MISSING") {
     const epochShort = snap.current_epoch ? snap.current_epoch.slice(0, 12) : "–";
-    return h("span", { id: "snapshot-status", class: "badge dim" }, `Live berechnet (kein Snapshot · Epoche ${epochShort})`);
+    return h("span", { id: "snapshot-status", class: "badge dim badge-text" }, `Live berechnet (kein Snapshot · Epoche ${epochShort})`);
   }
   return null;
 }
 function renderStrengthSummary() {
   const s = state.strength, box = $("strength-summary");
+  renderTierBar();
   if (!box) return;
-  if (!s.result) { box.replaceChildren(unknown("noch nicht berechnet")); return; }
+  if (!s.result) { box.replaceChildren(unknown(s.status === "loading" ? "wird berechnet …" : "noch nicht berechnet")); updateMethodHint(); return; }
   const result = s.result, counts = result.tier_counts, universe = result.universe;
   const choice = result.universe_choice;
   const universeWeight = result.settings.weights.deck_universe;
-  const universeText = `Index berechnet mit: ${choice ? universeLine(choice) : "kein Decklisten-Universum"}${universe && universe.subset_note ? `; ${universe.subset_note}` : ""}${choice && choice.kind !== "none" ? (universeWeight > 0 ? `; zählt in die Stufe mit Gewicht ${universeWeight}` : "; Gewicht 0: zählt nicht in die Stufe") : ""}`;
+  const universeText = `Index berechnet mit: ${choice ? universeLine(choice) : "kein Decklisten-Universum"}${universe && universe.subset_note ? `; ${universe.subset_note}` : ""}${choice && choice.kind !== "none" ? (universeWeight > 0 ? `; zählt in die Stufe mit Gewicht ${StudioUI.numFlex(universeWeight, 3)}` : "; Gewicht 0: zählt nicht in die Stufe") : ""}`;
   // Sources that can exist for these settings: no simulation (not collected), no bracket source without a
   // bracket, no deck universe without one.
   const possible = s.meta.components.filter((c) => c.key !== "simulation" && !(c.key === "bracket_inclusion" && result.settings.bracket === "none") && !(c.key === "deck_universe" && !(result.universe_choice && result.universe_choice.kind !== "none")) && !(c.key === "rubric" && !result.collected.includes("rubric"))).length;
@@ -975,17 +1705,20 @@ function renderStrengthSummary() {
   const snapStale = result.snapshot && result.snapshot.status === "STALE";
   const notices = (result.notices || [])
     .filter((text) => !(snapStale && text === "Snapshot veraltet, Neuberechnung läuft"))
-    .map((text) => h("div", { class: "badge warn" }, text));
+    .map((text) => h("div", { class: "badge warn badge-text" }, text));
   const ambiguous = result.ambiguous_names || [];
   const shown = ambiguous.slice(0, 10).map((item) => `${item.name} (${item.candidates.join(" / ")})`).join("; ");
+  const families = Array.isArray(result.weight_families) ? result.weight_families.filter((f) => f.share > 0) : [];
   box.replaceChildren(
     ...tierHeader(result),
     snapNode,
-    h("span", { class: "muted" }, `von ${result.cards.length} Karten · ${universeText} · Quellen vorhanden: ${result.collected.length}/${possible}`),
+    h("span", { class: "muted" }, `von ${nf(result.cards.length)} Karten · ${universeText} · Quellen vorhanden: ${nf(result.collected.length)}/${nf(possible)}`),
+    ...(families.length ? [h("div", { class: "rule", id: "weight-families-line" }, `Gewichtungs-Familien: ${families.map((f) => `${f.label} ${StudioUI.pct(f.share, 0)}`).join(" · ")}`)] : []),
     ...notices,
-    ...(result.layer_summary ? result.layer_summary.layers.filter((item) => item.source_discrepancies > 0).map((item) => h("div", { class: "rule" }, `${item.label}: bei ${item.source_discrepancies} Karten nennt die Quelle einen anderen Prozentwert als Zähler/Nenner; die Zelle zeigt Zähler/Nenner, der genannte Wert steht im Tooltip.`)) : []),
-    ...(result.layer_summary ? [h("div", { class: "rule", title: `${result.layer_summary.measured_note} ${result.layer_summary.pod_note}` }, `Ebenen (eigene Spalten): ${result.layer_summary.layers.map((item) => `${item.label} ${item.with_value}/${item.pool_cards} (${LAYER_KIND_SHORT[item.kind] || item.kind})`).join(" · ")}${result.layer_summary.weighted.length ? `. Im Index mit Gewicht: ${result.layer_summary.weighted.map((key) => (layerMetas().find((meta) => meta.key === key) || { label: key }).label).join(", ")}` : ". Keine Ebene hat ein Gewicht: die Stufen entsprechen dem Index ohne Ebenen"}`)] : []),
-    ...(ambiguous.length ? [h("div", { class: "rule" }, `Mehrdeutige Namen in den Quelldaten, keiner Karte zugeordnet: ${shown}${ambiguous.length > 10 ? ` und ${ambiguous.length - 10} weitere` : ""}`)] : []));
+    ...(result.layer_summary ? result.layer_summary.layers.filter((item) => item.source_discrepancies > 0).map((item) => h("div", { class: "rule" }, `${item.label}: bei ${nf(item.source_discrepancies)} Karten nennt die Quelle einen anderen Prozentwert als Zähler/Nenner; die Zelle zeigt Zähler/Nenner, der genannte Wert steht im Tooltip.`)) : []),
+    ...(result.layer_summary ? [h("div", { class: "rule", title: `${result.layer_summary.measured_note} ${result.layer_summary.pod_note}` }, `Ebenen (eigene Spalten): ${result.layer_summary.layers.map((item) => `${item.label} ${nf(item.with_value)}/${nf(item.pool_cards)} (${LAYER_KIND_SHORT[item.kind] || item.kind})`).join(" · ")}${result.layer_summary.weighted.length ? `. Im Index mit Gewicht: ${result.layer_summary.weighted.map((key) => (layerMetas().find((meta) => meta.key === key) || { label: key }).label).join(", ")}` : ". Keine Ebene hat ein Gewicht: die Stufen entsprechen dem Index ohne Ebenen"}`)] : []),
+    ...(ambiguous.length ? [h("div", { class: "rule" }, `Mehrdeutige Namen in den Quelldaten, keiner Karte zugeordnet: ${shown}${ambiguous.length > 10 ? ` und ${nf(ambiguous.length - 10)} weitere` : ""}`)] : []));
+  updateMethodHint();
 }
 async function applyStrength(settings, remember = true) {
   state.strength.settings = { ...withDefaults(settings), universe_profile: state.universe.name || null };
@@ -1005,32 +1738,35 @@ async function loadSavedProfile(profile) {
   s.settings = { ...withDefaults(result.settings), universe_profile: wanted || null };
   s.draft = { fields: {}, name: profile.name };
   s.result = result;
+  s.status = "ready";
   s.map = new Map(result.cards.map((item) => [item.card_id, item]));
+  s.good = clone(s.settings);
   rememberStrength();
   if (wanted !== (state.universe.name || "")) {
     state.universe.profiles = await api("/api/universe/profiles");
     fillUniverseSelect(wanted);
-    await selectUniverse(wanted).catch((error) => toast(`Universum „${wanted}“ konnte nicht gewählt werden: ${error.message}`));
+    await selectUniverse(wanted).catch((error) => toast(`Universum „${wanted}“ konnte nicht gewählt werden: ${StudioUI.germanError(error)}`));
   }
   renderStrengthPanel();
+  syncRanking();
   render();
 }
 function strengthField(key) {
   const s = state.strength, panel = s.meta.panel, kind = fieldKind(key), id = fieldId(key);
   const current = pathGet(s.settings, key), drafted = s.draft.fields[key];
   let input;
-  if (kind.type === "readonly") input = h("input", { id, type: "text", readOnly: true, value: `${universeMinimum()} Decks` });
+  if (kind.type === "readonly") input = h("input", { id, type: "text", readOnly: true, value: `${nf(universeMinimum())} Decks` });
   else if (kind.type === "choice") {
-    input = h("select", { id }, kind.choices.map((item) => h("option", { value: String(item.value) }, item.label)));
+    input = h("select", { id }, kind.choices.map((item) => h("option", { value: String(item.value) }, groupDigits(item.label))));
     input.value = drafted !== undefined ? drafted : String(current);
   } else {
-    input = h("input", { id, type: "number", value: drafted !== undefined ? drafted : current === undefined ? "" : Math.round(current * kind.scale * 1000) / 1000, placeholder: `${pathGet(s.meta.recommended, key) * kind.scale}` });
+    input = h("input", { id, type: "number", value: drafted !== undefined ? drafted : current === undefined ? "" : Math.round(current * kind.scale * 1000) / 1000, placeholder: StudioUI.numFlex(pathGet(s.meta.recommended, key) * kind.scale, 3) });
     StudioUI.limitNumber(input, kind.min, kind.max, kind.step);
   }
   if (kind.type !== "readonly") input.addEventListener("input", () => { s.draft.fields[key] = input.value; });
   input.addEventListener("input", updateDeviations);
   input.addEventListener("change", updateDeviations);
-  return h("div", { class: "setting", title: panel.help[key] }, h("label", { for: id }, panel.labels[key]), input, h("span", { class: "help" }, panel.help[key]));
+  return h("div", { class: "setting", title: plainCodes(panel.help[key]) }, h("label", { for: id }, panel.labels[key]), input, h("span", { class: "help" }, plainCodes(panel.help[key])));
 }
 // Settings that differ from the recommendation, read from the form without changing it.
 function deviationCount() {
@@ -1050,7 +1786,7 @@ function updateDeviations() {
   const box = $("deviations");
   if (!box) return;
   const n = deviationCount();
-  box.textContent = n === 0 ? "Alle Einstellungen entsprechen der Empfehlung." : n === 1 ? "1 Einstellung weicht von der Empfehlung ab." : `${n} Einstellungen weichen von der Empfehlung ab.`;
+  box.textContent = n === 0 ? "Alle Einstellungen entsprechen der Empfehlung." : n === 1 ? "1 Einstellung weicht von der Empfehlung ab." : `${nf(n)} Einstellungen weichen von der Empfehlung ab.`;
   box.classList.toggle("changed", n > 0);
 }
 const SETTING_GROUPS = [
@@ -1063,18 +1799,54 @@ const SETTING_GROUPS = [
 ];
 const OPEN_GROUPS_KEY = "studio.strength.open-groups";
 const SETTINGS_OPEN_KEY = "studio.strength.settings-open";
-function renderStrengthFilters() {
-  const s = state.strength;
-  const previous = $("strength-filter");
-  if (previous) previous.remove();
-  const box = h("span", { id: "strength-filter", class: "tier-filter", title: "Nach Stärke-Index-Stufe filtern (Mehrfachauswahl; keine Auswahl zeigt alle)" }, "Stufe: ",
-    STRENGTH_TIERS.map((tier) => h("label", { title: TIER_FILTER_NAMES[tier] || `Stufe ${tier}` }, h("input", { type: "checkbox", value: tier, checked: s.tiers.has(tier), onchange: (event) => { if (event.target.checked) s.tiers.add(tier); else s.tiers.delete(tier); state.shown = 150; render(); } }), ` ${tier}`)));
-  $("filters").insertBefore(box, $("sort").parentElement);
+// Tier chips: the filter and the counters in one place (S 39 ... N 5), apart from the column menu.
+// Disabled with a placeholder until the strength result is there, so the bar never jumps.
+function functionTotal(role) {
+  const result = state.strength.result;
+  const found = result ? result.cards.find((item) => item.role_ranks && item.role_ranks[role]) : null;
+  return found ? found.role_ranks[role].total : null;
+}
+function compareHint() {
+  const s = state.strength, out = [];
+  if (state.funcMode && state.view !== "global") {
+    const role = $("role-filter") ? $("role-filter").value : "";
+    const total = role ? functionTotal(role) : null;
+    const group = role ? `Gruppe: Funktion ${roleName(role)}${total ? ` (${nf(total)} Karten mit Stufe)` : ""}.` : "Gruppe: jede Karte in ihren Rollen (Spalte „Rang in Funktion“); Karten ohne Rolle oder ohne Stufe haben keinen Rang.";
+    out.push(h("span", { id: "compare-hint", class: "hint", role: "status" }, `Vergleich in der gleichen Funktion: Rang k von n, keine neue Stufe; die Stufe bleibt die Stufe im Gesamtpool. ${group}`));
+  }
+  if (s.settings && s.settings.rank_group === "function") {
+    out.push(h("span", { id: "compare-warning", class: "hint warn-hint" }, "In den Einstellungen ist „Vergleichsgruppe: gleiche Funktion“ gewählt: Index und Stufen sind je Funktion neu berechnet und fallen höher aus; sie sind nicht mit der Stufe im Gesamtpool vergleichbar. ",
+      h("button", { type: "button", class: "small", onclick: () => setQuickRankGroup("pool").catch((error) => fail(error)) }, "Auf Gesamtpool zurück")));
+  }
+  return out;
+}
+function renderTierBar() {
+  const s = state.strength, bar = $("tier-bar");
+  if (!bar) return;
+  const label = h("span", { class: "toggle-label" }, "Stufe:");
+  if (!s.result) {
+    bar.replaceChildren(label, h("span", { class: "muted", role: "status" }, s.status === "error" ? "Stufen nicht verfügbar" : "Stufen werden berechnet …"));
+    return;
+  }
+  const counts = s.result.tier_counts;
+  const apply = () => { state.shown = 150; renderTierBar(); render(false); };
+  const chips = STRENGTH_TIERS.map((tier) => h("button", { type: "button", class: "chip tier-chip" + (s.tiers.has(tier) ? " on" : ""), "aria-pressed": String(s.tiers.has(tier)), title: `${TIER_FILTER_NAMES[tier] || `Stufe ${tier}`}: ${nf(counts[tier] || 0)} Karten im Pool. Klick filtert (Mehrfachauswahl).`, "data-tier": tier,
+    onclick: () => { if (s.tiers.has(tier)) s.tiers.delete(tier); else s.tiers.add(tier); apply(); } },
+  h("span", { class: `tier-badge t-${tier}` }, h("span", { class: "level letter" }, tier), nf(counts[tier] || 0))));
+  const reset = s.tiers.size ? h("button", { type: "button", class: "small", onclick: () => { s.tiers.clear(); apply(); } }, "Filter aufheben") : null;
+  bar.replaceChildren(label, ...chips, ...(reset ? [reset] : []), ...compareHint());
+}
+// The number of notes in the closed method panel, shown in its summary line.
+function updateMethodHint() {
+  const hint = $("method-hint");
+  if (!hint) return;
+  const n = document.querySelectorAll("#oracle-banner, #strength-summary .badge-text.warn, #universe-panel .facts .badge-text.warn, #data-state details.datastate[open]").length;
+  hint.textContent = n ? `· ${nf(n)} ${n === 1 ? "Hinweis" : "Hinweise"}` : "";
 }
 function fillSortOptions() {
   const meta = state.strength.meta;
   const previous = $("sort").value;
-  const percentile = meta ? meta.components.map((c) => [PERCENTILE_SORT + c.key, `Perzentil: ${c.label}`]) : [];
+  const percentile = meta ? meta.components.map((c) => [PERCENTILE_SORT + c.key, `Teil-Score 0 bis 100: ${c.label}`]) : [];
   const rating = meta ? meta.layers.map((c) => [LAYER_SORT + c.key, `Ebene: ${c.label} (Perzentil, ${LAYER_KIND_SHORT[c.kind] || c.kind})`]) : [];
   $("sort").replaceChildren(...[...SORTS, ...percentile, ...rating].map(([key, label]) => h("option", { value: key }, label)));
   $("sort").value = [...$("sort").options].some((option) => option.value === previous) ? previous : state.sortKey;
@@ -1107,7 +1879,7 @@ function renderStrengthPanel() {
     if (p.universe_missing) toast(`Das Universum „${p.universe_missing}“ dieser Einstellung gibt es nicht mehr: sie läuft mit „kein Universum“.`);
     s.draft.name = p.name;
     s.note = `Gespeicherte Einstellung „${p.name}“ geladen und berechnet`;
-    loadSavedProfile(p).catch((error) => toast(error.message));
+    loadSavedProfile(p).catch((error) => toast(StudioUI.germanError(error)));
   });
   const nameInput = h("input", { id: "s-name", type: "text", maxLength: 80, placeholder: "z. B. Mein Index", value: s.draft.name });
   nameInput.addEventListener("input", (event) => { s.draft.name = event.target.value; });
@@ -1168,15 +1940,24 @@ function renderStrengthPanel() {
 }
 async function initStrength() {
   const s = state.strength;
+  s.status = "loading";
   try {
     [s.meta, s.profiles] = await Promise.all([api("/api/strength/presets"), api("/api/strength/profiles")]);
     s.counted = await api(`/api/universe/counted?commander=${encodeURIComponent(COMMANDER)}`).catch(() => []);
-  } catch (error) { toast(`Stärke-Index nicht verfügbar: ${StudioUI.germanError(error)}`); return; }
-  renderStrengthFilters();
+  } catch (error) { toast(`Stärke-Index nicht verfügbar: ${StudioUI.germanError(error)}`); s.status = "error"; renderTierBar(); syncRankGroupToggle(); syncRanking(); render(); return; }
   fillSortOptions();
   state.layerCols = recallLayerColumns(s.meta.layers);
   renderLayerControls();
   const wanted = rememberedStrength();
+  // An earlier version of the quick toggle stored "function" as the setting and so inflated the tiers: that
+  // choice becomes the view mode now and the setting returns to the whole pool.
+  if (wanted && typeof wanted === "object" && wanted.rank_group === "function") {
+    wanted.rank_group = "pool";
+    state.funcMode = true;
+    StudioUI.remember(COMPARE_KEY, "function");
+    try { localStorage.setItem(STRENGTH_KEY, JSON.stringify(wanted)); } catch (error) { /* private mode: no memory */ }
+    toast("Die gespeicherte Einstellung „Vergleichsgruppe: gleiche Funktion“ (auch eine bewusste Wahl im Einstellungs-Panel) wurde in die Anzeige „Gleiche Funktion“ umgewandelt: Rang je Funktion. Die Einstellung steht jetzt auf Gesamtpool, die Stufe ist die Stufe im Gesamtpool.");
+  }
   const base = wanted && typeof wanted === "object" ? wanted : s.meta.recommended;
   s.settings = { ...withDefaults(base), universe_profile: state.universe.name || null };
   renderStrengthPanel();
@@ -1198,8 +1979,9 @@ async function dataBanner() {
   const rows = report && report.corpus ? report.corpus.card_rows_without_oracle_id : null;
   await StudioUI.dataState(host, COMMANDER, { only: ["inventory", "scryfall", "decklists"] });
   if (rows && rows.count > 0) {
-    host.append(h("div", { class: "badge warn", id: "oracle-banner", role: "status" }, `Datenbefund: ${nf(rows.count)} von ${nf(rows.of)} Deckkarten-Zeilen haben keine echte oracle_id und werden keiner Karte zugeordnet (fehlende Beobachtung, keine Schwäche).`));
+    host.append(h("div", { class: "badge warn badge-text", id: "oracle-banner", role: "status" }, `Datenbefund: ${nf(rows.count)} von ${nf(rows.of)} Deckkarten-Zeilen haben keine echte Oracle-Kennung und werden keiner Karte zugeordnet (fehlende Beobachtung, keine Schwäche).`));
   }
+  updateMethodHint();
 }
 
 // ---------- loading ----------
@@ -1214,9 +1996,9 @@ async function loadEvidence() {
     state.pool.clear();
     for (const card of data.cards) state.pool.set(card.card_id, card);
   }
-  const groups = [...new Set(state.data.cards.map((card) => card.group))].sort();
+  const groups = [...new Set(state.data.cards.map((card) => card.group))].sort((a, b) => typeLabel(a).localeCompare(typeLabel(b), "de"));
   const roles = [...new Set(state.data.cards.flatMap(cardRoles))].sort((a, b) => roleName(a).localeCompare(roleName(b)));
-  $("type-filter").replaceChildren(h("option", { value: "" }, "alle Typen"), ...groups.map((group) => h("option", { value: group }, group)));
+  $("type-filter").replaceChildren(h("option", { value: "" }, "alle Typen"), ...groups.map((group) => h("option", { value: group }, typeLabel(group))));
   $("role-filter").replaceChildren(h("option", { value: "" }, "alle Rollen"), ...roles.map((role) => h("option", { value: role }, roleName(role))));
   renderNotice();
   render();
@@ -1249,8 +2031,9 @@ async function initDecks() {
     const wantedBranch = StudioUI.recall(`studio.builder.${COMMANDER}.branch`, "");
     if ([...$("branch-select").options].some((option) => option.value === wantedBranch)) $("branch-select").value = wantedBranch;
     $("deck-pick").hidden = !state.decks.length;
+    $("deck-pick").classList.remove("pending");
     await loadDeck();
-  } catch (error) { fail(error); }
+  } catch (error) { $("deck-pick").hidden = true; fail(error); }
 }
 // ---------- marks and deck from the table (marks never change a rating) ----------
 async function toggleFavorite(card) {
@@ -1277,7 +2060,7 @@ async function changeDeckNow(card, delta) {
   try {
     const result = await api(`/api/decks/${encodeURIComponent(deckId)}/branches/${encodeURIComponent(branch)}/draft/card`, { card_id: card.card_id, delta });
     if (result.quantity) state.deckCards.set(card.card_id, result.quantity); else state.deckCards.delete(card.card_id);
-    toast(delta > 0 ? `${card.name} liegt im Deck (${result.deck_cards} von 100 Karten). Gesichert als Entwurf, im Deckbau speicherst du den Stand.` : `${card.name} ist aus dem Deck genommen (${result.deck_cards} von 100 Karten).`);
+    toast(delta > 0 ? `${card.name} liegt im Deck (${nf(result.deck_cards)} von 100 Karten). Gesichert als Entwurf, im Deckbau speicherst du den Stand.` : `${card.name} ist aus dem Deck genommen (${nf(result.deck_cards)} von 100 Karten).`);
     if (state.data) renderNotice();
     render();
   } catch (error) { fail(error); }
@@ -1289,7 +2072,7 @@ function markButtons(card, after) {
   return [
     h("button", { type: "button", class: "small fav" + (mark.favorite ? " on" : ""), title: mark.favorite ? "Favorit entfernen" : "Als Favorit markieren (ändert keine Bewertung)", "aria-label": `${card.name} Favorit`, "aria-pressed": mark.favorite ? "true" : "false", onclick: then(() => toggleFavorite(card)) }, mark.favorite ? "★" : "☆"),
     count
-      ? h("button", { type: "button", class: "small indeck", title: "Im Ziel-Deck. Klick nimmt die Karte wieder heraus.", "aria-label": `${card.name} aus dem Deck`, onclick: then(() => changeDeck(card, -1)) }, count > 1 ? `✓ ${count}× im Deck` : "✓ im Deck")
+      ? h("button", { type: "button", class: "small indeck", title: "Im Ziel-Deck. Klick nimmt die Karte wieder heraus.", "aria-label": `${card.name} aus dem Deck`, onclick: then(() => changeDeck(card, -1)) }, count > 1 ? `✓ ${nf(count)}× im Deck` : "✓ im Deck")
       : h("button", { type: "button", class: "small", title: !state.decks.length ? "Noch kein Deck für diesen Commander" : !inPool(card) ? "Diese Karte gehört nicht zum Pool dieses Commanders (Farbidentität, Legalität oder nicht in der Sammlung)" : "In das Ziel-Deck legen (oben wählbar)", "aria-label": `${card.name} ins Deck`, disabled: !(card.available > 0) || !state.decks.length || !inPool(card), onclick: then(() => changeDeck(card, 1)) }, "+ Deck"),
   ];
 }
@@ -1298,27 +2081,35 @@ function fillBranches() {
   $("branch-select").replaceChildren(...(deck ? deck.branches : []).map((entry) => h("option", { value: entry.branch }, entry.branch)));
 }
 // ---------- quick comparison toggle, role audit (#1413) & TopDeck Mit/Ohne (#1412) ----------
+// "Gleiche Funktion" is a view mode: the index and the tier stay those of the whole pool (rank_group "pool"),
+// the table adds the rank k of n per function. Nothing is recalculated, so no tier is inflated.
 function syncRankGroupToggle() {
   const box = $("rank-group-toggle");
   if (!box) return;
-  const current = state.strength.settings ? state.strength.settings.rank_group : "";
+  const ready = state.strength.status === "ready" && Boolean(state.strength.settings) && state.view !== "global";
   for (const btn of box.querySelectorAll("button[data-rank-group]")) {
-    const target = btn.getAttribute("data-rank-group");
-    const active = current === target;
+    const active = (btn.getAttribute("data-rank-group") === "function") === state.funcMode;
     btn.classList.toggle("on", active);
     btn.setAttribute("aria-pressed", active ? "true" : "false");
-    btn.disabled = !state.strength.settings || state.view === "global";
+    btn.disabled = !ready;
   }
 }
 async function setQuickRankGroup(group) {
   const s = state.strength;
-  if (!s.settings || state.view === "global" || s.settings.rank_group === group) return;
-  s.settings = { ...s.settings, rank_group: group };
-  s.draft.fields.rank_group = group;
-  rememberStrength();
+  if (!s.settings || state.view === "global" || s.status !== "ready") return;
+  const funcMode = group === "function";
+  StudioUI.remember(COMPARE_KEY, funcMode ? "function" : "pool");
+  const stale = s.settings.rank_group === "function"; // set in the settings (or remembered): the tiers themselves were recalculated
+  if (stale) {
+    s.settings = { ...s.settings, rank_group: "pool" };
+    s.draft.fields.rank_group = "pool";
+    rememberStrength();
+  }
+  state.funcMode = funcMode;
   syncRankGroupToggle();
-  renderStrengthPanel();
-  await refreshStrength();
+  renderTierBar();
+  if (stale) { renderStrengthPanel(); await refreshStrength(); return; }
+  render(false);
 }
 function renderRoleAuditPanel() {
   const panel = $("role-audit-panel");
@@ -1358,7 +2149,7 @@ function renderRoleAuditPanel() {
     : h("p", { class: "muted" }, "Keine Rollen-Belege im aktuellen Ausschnitt.");
   panel.replaceChildren(
     h("div", { class: "facts" }, ...summaryParts),
-    h("details", {}, h("summary", {}, `Rollen-Audit nach Herkunft (${shownRows.length} aktive Rollen)`), detailTable),
+    h("details", {}, h("summary", {}, `Rollen-Audit nach Herkunft (${nf(shownRows.length)} aktive Rollen)`), detailTable),
   );
 }
 async function loadRoleAudit() {
@@ -1378,9 +2169,9 @@ function formatGroupCell(converted, known, rate, low, high) {
     return h("span", { title: `${counts}: unter dem Mindest-N, kein Prozentwert (nie 0)` }, `${counts} · `, h("span", { class: "badge warn" }, "zu wenig Daten"));
   }
   const ci = low !== null && low !== undefined && high !== null && high !== undefined
-    ? ` (95 %: ${(100 * low).toFixed(1)}–${(100 * high).toFixed(1)} %)`
+    ? ` (95 %: ${StudioUI.num(100 * low, 1)}–${StudioUI.num(100 * high, 1)} %)`
     : "";
-  return `${counts} · ${(100 * rate).toFixed(1)} %${ci}`;
+  return `${counts} · ${StudioUI.num(100 * rate, 1)} %${ci}`;
 }
 function renderTournamentConversionPanel() {
   const panel = $("topdeck-conversion-panel");
@@ -1395,10 +2186,10 @@ function renderTournamentConversionPanel() {
   const comparableCount = cards.filter((c) => c.status === "OK").length;
   if (data.status === "INSUFFICIENT_DATA") {
     header.push(h("span", {}, `${nf(data.total_known_decks)} von ${nf(data.total_decks)} Listen mit bekanntem Top-Cut`));
-    header.push(h("span", { class: "badge warn" }, `${data.reason || "zu wenig Daten"} (Mindest-N: ${nf(data.min_sample)})`));
+    header.push(h("span", { class: "badge warn", title: data.reason || "" }, `${data.reason ? codeLabel(data.reason) : "zu wenig Daten"} (Mindest-N: ${nf(data.min_sample)})`));
   } else {
-    header.push(h("span", {}, `${nf(data.total_converted_decks)}/${nf(data.total_known_decks)} Top-Cut-Conversions (${(100 * data.baseline_conversion_rate).toFixed(1)} %, 95-%-Wilson ${(100 * data.baseline_ci_low).toFixed(1)}–${(100 * data.baseline_ci_high).toFixed(1)} %)`));
-    header.push(h("span", { class: "muted" }, `${nf(comparableCount)} Karten mit Mit/Ohne je ≥ ${nf(data.min_sample)} Listen · ${data.data_class}`));
+    header.push(h("span", {}, `${nf(data.total_converted_decks)}/${nf(data.total_known_decks)} Top-Cut-Conversions (${StudioUI.num(100 * data.baseline_conversion_rate, 1)} %, 95-%-Wilson ${StudioUI.num(100 * data.baseline_ci_low, 1)}–${StudioUI.num(100 * data.baseline_ci_high, 1)} %)`));
+    header.push(h("span", { class: "muted", title: data.data_class }, `${nf(comparableCount)} Karten mit Mit/Ohne je ≥ ${nf(data.min_sample)} Listen · ${codeLabel(data.data_class)}`));
   }
   const countEl = h("span", { class: "muted" });
   const tableWrap = h("div", { class: "audit-table-wrap" });
@@ -1412,8 +2203,8 @@ function renderTournamentConversionPanel() {
         row.card_name,
         formatGroupCell(row.with_converted, row.with_known, row.with_rate, row.with_ci_low, row.with_ci_high),
         formatGroupCell(row.without_converted, row.without_known, row.without_rate, row.without_ci_low, row.without_ci_high),
-        row.diff_pp === null || row.diff_pp === undefined ? h("span", { class: "unknown" }, "zu wenig Daten") : `${row.diff_pp > 0 ? "+" : ""}${row.diff_pp.toFixed(1)} Pp`,
-        row.status === "OK" ? h("span", { class: "badge good" }, "OK") : h("span", { class: "badge warn" }, row.reason || "zu wenig Daten"),
+        row.diff_pp === null || row.diff_pp === undefined ? h("span", { class: "unknown" }, "zu wenig Daten") : `${row.diff_pp > 0 ? "+" : ""}${StudioUI.num(row.diff_pp, 1)} Pp`,
+        row.status === "OK" ? h("span", { class: "badge good", title: "OK" }, "auswertbar") : h("span", { class: "badge warn", title: row.reason || "" }, row.reason ? codeLabel(row.reason) : "zu wenig Daten"),
       ]),
     ));
   };
@@ -1430,11 +2221,11 @@ function renderTournamentConversionPanel() {
   updateFilteredRows();
   const detailContent = cards.length
     ? [
-      h("p", { class: "rule" }, `Kohorte: ${cohortLabel} (${data.data_class}). Nur beschreibend, keine Kausalität. Unter ${nf(data.min_sample)} bekannten Listen bleibt das Feld „zu wenig Daten“ (nie 0).`),
+      h("p", { class: "rule" }, `Kohorte: ${cohortLabel} (${codeLabel(data.data_class)}). Nur beschreibend, keine Kausalität. Unter ${nf(data.min_sample)} bekannten Listen bleibt das Feld „zu wenig Daten“ (nie 0).`),
       h("div", { class: "conv-filter-row" }, searchInput, countEl),
       tableWrap,
     ]
-    : [h("p", { class: "muted" }, `Keine TopDeck-Turnierlisten für ${COMMANDER} in dieser Auswertung (${data.reason || "zu wenig Daten"}).`)];
+    : [h("p", { class: "muted" }, `Keine TopDeck-Turnierlisten für ${COMMANDER} in dieser Auswertung (${data.reason ? codeLabel(data.reason) : "zu wenig Daten"}).`)];
   panel.replaceChildren(
     h("div", { class: "facts" }, ...header),
     h("details", {}, h("summary", {}, `TopDeck Mit/Ohne-Übersicht (${nf(cards.length)} Karten)`), ...detailContent),
@@ -1451,6 +2242,7 @@ async function loadTournamentConversion() {
 
 async function setView(view) {
   state.view = view;
+  syncRanking();
   syncRankGroupToggle();
   await loadEvidence();
   if (view === "deck") await loadDeck();
@@ -1458,7 +2250,74 @@ async function setView(view) {
 }
 
 function renderTabs() {
-  $("tabs").replaceChildren(...[["cards", "Karten"], ["research", "Forschungsliste"]].map(([key, label]) => h("span", { class: "chip" + (state.tab === key ? " on" : ""), "aria-pressed": String(state.tab === key), onclick: () => { state.tab = key; renderTabs(); render(); } }, label)));
+  $("tabs").replaceChildren(...[["cards", "Karten"], ["research", "Forschungsliste"]].map(([key, label]) => h("button", { type: "button", class: "chip" + (state.tab === key ? " on" : ""), "aria-pressed": String(state.tab === key), onclick: () => { state.tab = key; renderTabs(); render(false); } }, label)));
+}
+function renderCoreLine() {
+  // while the index is still being calculated the line already shows the wanted ranking, so the line does not change when the result arrives
+  const overall = state.view !== "global" && (state.strength.status === "loading" ? state.ranking === "overall" : overallActive());
+  $("core-line").textContent = state.view === "global"
+    ? "Ohne Commander gibt es keine Stufe: gezeigt wird die globale Beliebtheit, keine Spielstärke."
+    : overall ? "Gesamtrating = gewichtetes Modellurteil, nicht validiert." : `Stufe = Nutzung in ${VIEW_NAMES.commander}-Decks, keine Spielstärke.`;
+  if (overall) $("core-line").setAttribute("title", `${overallMethod(overallUsageIncluded(overallMeta()))}; ${overallLimits(overallRuns(), overallUsageIncluded(overallMeta()))}. Die Stufe der Tabelle bleibt die des Nutzungsindex.`);
+  else $("core-line").removeAttribute("title");
+}
+// ---------- ranking toggle: Nutzung | Gesamtrating ----------
+// The two buttons are fixed in the page (nothing is rebuilt, so the focus stays and nothing moves): only the
+// pressed state, the disabled state and the titles change. The overall button is disabled until the server delivers
+// the rating, in the global view and when overall_meta says it is not available; the reason is in its title and
+// aria-label and, where the rating is missing for a commander, as a visible line at the top of the table (overallHint).
+function syncRankingToggle() {
+  const box = $("ranking-toggle");
+  if (!box) return;
+  const meta = overallMeta();
+  const ready = state.strength.status === "ready" && Boolean(state.strength.map) && state.view !== "global";
+  const available = overallAvailable();
+  const effective = effectiveRanking(state.ranking, available);
+  let reason = "";
+  if (state.view === "global") reason = "Das Gesamtrating gibt es nur je Commander.";
+  else if (state.strength.status === "loading") reason = "Das Gesamtrating wird berechnet …";
+  else if (!ready) reason = "Das Gesamtrating ist nicht verfügbar: die Berechnung des Stärke-Index fehlt.";
+  else if (!meta) reason = "Das Gesamtrating ist nicht verfügbar: der Server liefert es nicht.";
+  else if (!available) reason = `Das Gesamtrating ist nicht verfügbar: ${meta.unavailable_reason || "keine Angabe"}.`;
+  for (const btn of box.querySelectorAll("button[data-ranking]")) {
+    const key = btn.getAttribute("data-ranking");
+    const active = key === effective;
+    btn.classList.toggle("on", active);
+    btn.setAttribute("aria-pressed", active ? "true" : "false");
+    btn.disabled = key === "overall" ? !available : !ready;
+    if (key === "overall") {
+      const title = available ? "Gesamtrating: gewichtetes Mittel (Setzung) aus Nutzungsindex und Kartenbewertung durch Modell-Rater, Score 0 bis 100 und Rang, keine Stufe. Die Stufe des Nutzungsindex bleibt sichtbar." : reason;
+      btn.setAttribute("title", title);
+      btn.setAttribute("aria-label", available ? "Ranking: Gesamtrating" : `Ranking: Gesamtrating, nicht verfügbar. ${reason}`);
+    }
+  }
+  if (available) box.removeAttribute("title"); else box.setAttribute("title", reason);
+}
+function syncRanking() {
+  // A remembered overall sort has no values without the rating (other commander, not available): the page then sorts
+  // by the index again. Nothing is written to the memory, so the sort comes back where the rating exists.
+  if (state.strength.status === "ready" && state.view !== "global" && !overallAvailable() && (state.sortKey === "overall" || state.sortKey === "overall_rank" || state.sortKey.startsWith(CRIT_SORT))) {
+    state.sortKey = "strength"; state.sortDir = -1;
+    if ($("sort")) $("sort").value = "strength";
+  }
+  syncRankingToggle();
+  renderCoreLine();
+  renderOverallPanel();
+}
+function setRanking(ranking) {
+  if (!RANKINGS.includes(ranking) || (ranking === "overall" && !overallAvailable())) return;
+  state.ranking = ranking;
+  StudioUI.remember(RANKING_KEY, ranking);
+  // the sort follows the ranking: the index sort becomes the score sort, and every overall sort goes back to the index sort
+  const follow = ranking === "overall" ? (state.sortKey === "strength" ? "overall" : "") : (state.sortKey === "overall" || state.sortKey === "overall_rank" || state.sortKey.startsWith(CRIT_SORT) ? "strength" : "");
+  if (follow) {
+    state.sortKey = follow; state.sortDir = SMALL_FIRST.has(follow) ? 1 : -1;
+    StudioUI.remember(SORT_KEY, follow);
+    $("sort").value = follow;
+  }
+  state.shown = 150;
+  syncRanking();
+  render(false);
 }
 
 async function init() {
@@ -1468,19 +2327,101 @@ async function init() {
   $("deck-select").addEventListener("change", () => { fillBranches(); loadDeck().catch((error) => fail(error)); });
   $("branch-select").addEventListener("change", () => loadDeck().catch((error) => fail(error)));
   $("sort").value = state.sortKey;
+  const storedPreset = StudioUI.recall(PRESET_KEY, "");
+  state.preset = storedPreset === "compact" || storedPreset === "detail" ? storedPreset : window.innerWidth < COMPACT_BELOW ? "compact" : "detail";
+  state.funcMode = StudioUI.recall(COMPARE_KEY, "") === "function";
+  state.ranking = wantedRanking(StudioUI.recall(RANKING_KEY, ""));
+  const method = $("method-panel");
+  method.open = StudioUI.recall(METHOD_KEY, "") === "1";
+  method.addEventListener("toggle", () => StudioUI.remember(METHOD_KEY, method.open ? "1" : ""));
+  syncRanking();
+  renderLayerControls();
+  renderTierBar();
+  syncRankGroupToggle();
   const savedSort = StudioUI.recall(SORT_KEY, "");
   if (savedSort && (SORTS.some((item) => item[0] === savedSort) || savedSort.startsWith(PERCENTILE_SORT) || savedSort.startsWith(LAYER_SORT))) { state.sortKey = savedSort; state.sortDir = SMALL_FIRST.has(savedSort) ? 1 : -1; $("sort").value = savedSort; }
-  $("sort").addEventListener("change", () => { state.sortKey = $("sort").value; state.sortDir = SMALL_FIRST.has(state.sortKey) ? 1 : -1; StudioUI.remember(SORT_KEY, state.sortKey); render(); });
-  for (const id of ["q", "type-filter", "land-filter", "role-filter", "spread-filter", "f-free", "f-fav", "f-excl"]) $(id).addEventListener("input", () => { state.shown = 150; render(); });
+  $("sort").addEventListener("change", () => { state.sortKey = $("sort").value; state.sortDir = SMALL_FIRST.has(state.sortKey) ? 1 : -1; StudioUI.remember(SORT_KEY, state.sortKey); render(false); });
+  for (const id of ["q", "type-filter", "land-filter", "role-filter", "spread-filter", "f-free", "f-fav", "f-excl"]) $(id).addEventListener("input", () => { state.shown = 150; if (id === "role-filter") renderTierBar(); render(false); });
+  if (typeof StudioSearch !== "undefined" && StudioSearch.attachSyntaxHelper && $("q")) {
+    StudioSearch.attachSyntaxHelper($("q"), () => { state.shown = 150; render(false); });
+  }
+  const applyTierFilterPreset = (cfg) => {
+    $("q").value = cfg.q || "";
+    $("type-filter").value = cfg.type || "";
+    $("land-filter").value = cfg.land || "";
+    $("role-filter").value = cfg.role || "";
+    $("spread-filter").value = cfg.spread || "";
+    $("f-free").checked = cfg.free !== false;
+    $("f-fav").checked = Boolean(cfg.fav);
+    $("f-excl").checked = Boolean(cfg.excl);
+    state.roleGapOnly = Boolean(cfg.roleGapOnly);
+    if ($("chip-role-gap")) {
+      $("chip-role-gap").classList.toggle("on", state.roleGapOnly);
+      $("chip-role-gap").setAttribute("aria-pressed", String(state.roleGapOnly));
+    }
+    state.strength.tiers = new Set((Array.isArray(cfg.tiers) ? cfg.tiers : []).filter((tier) => STRENGTH_TIERS.includes(tier)));
+    state.shown = 150;
+    if (cfg.columns === "compact" || cfg.columns === "detail") { if (cfg.columns !== state.preset) { setPreset(cfg.columns); renderTierBar(); return; } }
+    renderTierBar(); render(false);
+  };
+  if ($("tier-quick-presets")) {
+    $("tier-quick-presets").replaceChildren(
+      h("button", { type: "button", class: "chip", onclick: () => applyTierFilterPreset({ free: true }) }, "Standardfilter"),
+      h("button", { type: "button", class: "chip", onclick: () => applyTierFilterPreset({ free: true, land: "spells" }) }, "Nur Zauber (frei)"),
+      h("button", { type: "button", class: "chip", onclick: () => applyTierFilterPreset({ free: false, spread: "U" }) }, "Verbreitung unbekannt (U)"),
+      h("button", { type: "button", id: "chip-role-gap", class: "chip" + (state.roleGapOnly ? " on" : ""), "aria-pressed": String(state.roleGapOnly), title: "Filtert auf Poolkarten außerhalb des aktiven Decks, die eine im Deck unter p25 besetzte Rolle abdecken", onclick: (event) => {
+        state.roleGapOnly = !state.roleGapOnly;
+        event.currentTarget.classList.toggle("on", state.roleGapOnly);
+        event.currentTarget.setAttribute("aria-pressed", String(state.roleGapOnly));
+        state.shown = 150;
+        render(false);
+      } }, "Schließt offenen Deck-Bedarf"),
+      h("button", { type: "button", class: "chip", onclick: () => {
+        const snap = { q: $("q").value, type: $("type-filter").value, land: $("land-filter").value, role: $("role-filter").value, spread: $("spread-filter").value, free: $("f-free").checked, fav: $("f-fav").checked, excl: $("f-excl").checked, roleGapOnly: state.roleGapOnly, tiers: [...state.strength.tiers], columns: state.preset };
+        StudioUI.remember("studio.tierlist.savedPreset", JSON.stringify(snap));
+        toast("Tierlisten-Filteransicht gespeichert.");
+      } }, "Ansicht merken"),
+      h("button", { type: "button", class: "chip", onclick: () => {
+        try {
+          const raw = StudioUI.recall("studio.tierlist.savedPreset", "");
+          if (!raw) { toast("Noch keine Filteransicht gespeichert."); return; }
+          applyTierFilterPreset(JSON.parse(raw));
+        } catch (_) { toast("Gespeicherte Filteransicht konnte nicht geladen werden."); }
+      } }, "Gemerkte Ansicht")
+    );
+  }
+  for (const btn of document.querySelectorAll("#ranking-toggle button[data-ranking]")) {
+    btn.addEventListener("click", () => setRanking(btn.getAttribute("data-ranking")));
+  }
   for (const btn of document.querySelectorAll("#rank-group-toggle button[data-rank-group]")) {
     btn.addEventListener("click", () => setQuickRankGroup(btn.getAttribute("data-rank-group")).catch((error) => fail(error)));
   }
-  document.addEventListener("keydown", (event) => { if (event.key === "Escape") $("modal").hidden = true; });
+  const syncTierMode = () => {
+    for (const btn of document.querySelectorAll("#tier-mode-toggle button[data-tier-mode]")) {
+      const active = btn.getAttribute("data-tier-mode") === state.tierMode;
+      btn.classList.toggle("on", active);
+      btn.setAttribute("aria-pressed", String(active));
+    }
+  };
+  syncTierMode();
+  for (const btn of document.querySelectorAll("#tier-mode-toggle button[data-tier-mode]")) {
+    btn.addEventListener("click", () => {
+      state.tierMode = btn.getAttribute("data-tier-mode") === "relative" ? "relative" : "absolute";
+      StudioUI.remember(TIER_MODE_KEY, state.tierMode);
+      syncTierMode();
+      render(false);
+    });
+  }
+  document.addEventListener("keydown", trapModalFocus);
   renderTabs();
   $("pool-body").replaceChildren(StudioUI.loading("Tierliste lädt …"));
   await StudioCommander.fill($("commander-select"));
   dataBanner().catch(() => {});
   loadTournamentConversion().catch(() => {});
+  api(`/api/cohorts?commander=${encodeURIComponent(COMMANDER)}`).then((shapes) => {
+    state.cohortShapes = Array.isArray(shapes) ? shapes : [];
+    if (state.data) { renderNotice(); render(false); }
+  }).catch(() => {});
   try {
     const marks = await api("/api/marks");
     for (const [cardId, mark] of Object.entries(marks)) state.marks.set(cardId, { favorite: mark.favorite, excluded: mark.excluded, note: mark.note || "" });

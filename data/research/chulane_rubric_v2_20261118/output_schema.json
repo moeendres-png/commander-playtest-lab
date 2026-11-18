@@ -1,0 +1,270 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "rubric-v2-card-rating-1",
+ "title": "Chulane rubric v2: rating of one card",
+ "description": "One JSON object per card. Scores are integers 0..100 in steps of 5. D is a risk-free-ness score: 100 means no risk, 0 means the card hurts the deck by itself. H is a separate holistic judgement, never the mean of the other scores. Unknown is never written as 0: use confidence and uncertainty.",
+ "type": "object",
+ "additionalProperties": false,
+ "required": [
+  "schema",
+  "oracle_id",
+  "card",
+  "judged_as",
+  "scores",
+  "notes",
+  "reason",
+  "confidence",
+  "uncertainty",
+  "rule_claims",
+  "pattern_check"
+ ],
+ "properties": {
+  "schema": {
+   "const": "rubric-v2-card-rating-1"
+  },
+  "oracle_id": {
+   "type": "string",
+   "description": "copied from the card block"
+  },
+  "card": {
+   "type": "string",
+   "description": "copied from the card block"
+  },
+  "judged_as": {
+   "enum": [
+    "land",
+    "spell"
+   ],
+   "description": "lands are judged against the land anchors, everything else against the spell anchors; a double-faced card with a land face counts as the face that is played as a land only when the front is a land"
+  },
+  "scores": {
+   "type": "object",
+   "additionalProperties": false,
+   "required": [
+    "E",
+    "F",
+    "T",
+    "R",
+    "K",
+    "D",
+    "H"
+   ],
+   "properties": {
+    "E": {
+     "type": "integer",
+     "minimum": 0,
+     "maximum": 100,
+     "multipleOf": 5
+    },
+    "F": {
+     "type": "integer",
+     "minimum": 0,
+     "maximum": 100,
+     "multipleOf": 5
+    },
+    "T": {
+     "type": "integer",
+     "minimum": 0,
+     "maximum": 100,
+     "multipleOf": 5
+    },
+    "R": {
+     "type": "integer",
+     "minimum": 0,
+     "maximum": 100,
+     "multipleOf": 5
+    },
+    "K": {
+     "type": "integer",
+     "minimum": 0,
+     "maximum": 100,
+     "multipleOf": 5
+    },
+    "D": {
+     "type": "integer",
+     "minimum": 0,
+     "maximum": 100,
+     "multipleOf": 5
+    },
+    "H": {
+     "type": "integer",
+     "minimum": 0,
+     "maximum": 100,
+     "multipleOf": 5
+    }
+   }
+  },
+  "notes": {
+   "type": "object",
+   "additionalProperties": false,
+   "required": [
+    "E",
+    "F",
+    "T",
+    "R",
+    "K",
+    "D",
+    "H"
+   ],
+   "description": "one short phrase (at most 15 words) per criterion naming what decided the score",
+   "properties": {
+    "E": {
+     "type": "string",
+     "minLength": 3,
+     "maxLength": 160
+    },
+    "F": {
+     "type": "string",
+     "minLength": 3,
+     "maxLength": 160
+    },
+    "T": {
+     "type": "string",
+     "minLength": 3,
+     "maxLength": 160
+    },
+    "R": {
+     "type": "string",
+     "minLength": 3,
+     "maxLength": 160
+    },
+    "K": {
+     "type": "string",
+     "minLength": 3,
+     "maxLength": 160
+    },
+    "D": {
+     "type": "string",
+     "minLength": 3,
+     "maxLength": 160
+    },
+    "H": {
+     "type": "string",
+     "minLength": 3,
+     "maxLength": 160
+    }
+   }
+  },
+  "reason": {
+   "type": "string",
+   "minLength": 60,
+   "maxLength": 900,
+   "description": "2 to 3 sentences: what the card really does and what follows from it (timing, symmetry, dependencies, interaction with the Chulane trigger and bounce). Where the text is the basis, write 'according to the card text'."
+  },
+  "confidence": {
+   "enum": [
+    "high",
+    "medium",
+    "low"
+   ]
+  },
+  "uncertainty": {
+   "type": "string",
+   "maxLength": 400,
+   "description": "what is unclear or rules-dependent; empty string only when confidence is high"
+  },
+  "rule_claims": {
+   "type": "array",
+   "maxItems": 6,
+   "description": "every rules interaction the rating relies on; each is audited later against the card text and XMage",
+   "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+     "quote",
+     "interaction",
+     "claim",
+     "basis"
+    ],
+    "properties": {
+     "quote": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 300,
+      "description": "literal substring of the card text or of a ruling shown in the card block"
+     },
+     "interaction": {
+      "enum": [
+       "chulane_cast_trigger",
+       "chulane_bounce_replay",
+       "etb_reuse",
+       "landfall",
+       "land_drop",
+       "mana",
+       "symmetry",
+       "wrath_exposure",
+       "self_damage",
+       "timing",
+       "targeting",
+       "combo_loop",
+       "other"
+      ]
+     },
+     "claim": {
+      "type": "string",
+      "minLength": 5,
+      "maxLength": 300
+     },
+     "basis": {
+      "enum": [
+       "card_text",
+       "ruling_shown",
+       "inferred_from_text"
+      ],
+      "description": "inferred_from_text claims must say 'according to the card text' and be marked in uncertainty"
+     }
+    }
+   }
+  },
+  "pattern_check": {
+   "type": "array",
+   "maxItems": 20,
+   "description": "one entry per pattern hit shown in the card block",
+   "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+     "rule_id",
+     "verdict"
+    ],
+    "properties": {
+     "rule_id": {
+      "type": "string"
+     },
+     "verdict": {
+      "enum": [
+       "correct",
+       "wrong",
+       "irrelevant"
+      ]
+     },
+     "why": {
+      "type": "string",
+      "maxLength": 160
+     }
+    }
+   }
+  }
+ },
+ "allOf": [
+  {
+   "if": {
+    "properties": {
+     "confidence": {
+      "enum": [
+       "medium",
+       "low"
+      ]
+     }
+    }
+   },
+   "then": {
+    "properties": {
+     "uncertainty": {
+      "minLength": 10
+     }
+    }
+   }
+  }
+ ]
+}

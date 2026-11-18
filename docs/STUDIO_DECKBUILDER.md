@@ -300,8 +300,8 @@ Formula, per commander (`strength.py`, pure):
 4. Tier `U` ("zu wenig Daten") when coverage is below `min_coverage` or fewer than
    `min_components` weighted components are present, or (rule `require_commander_signal`) no
    commander-specific component has a ranked value; otherwise S/A/B/C/D by the index cuts
-   (default 47/17/9/4 since #1358, editable; before 70/55/35/20; legacy rank-mode cuts were
-   90/75/55/35). A card absent from a source is a missing observation: it
+   (default 54/35/20/5 since #1366, editable; 47/17/9/4 from #1358 to #1366; before 70/55/35/20;
+   legacy rank-mode cuts were 90/75/55/35). A card absent from a source is a missing observation: it
    lowers the coverage, never the percentile. The setting "missing value" decides per share
    signal what a card without a value does: `skip` (the component is left out) or `lowest`
    (counts as the lowest score, 0). Recommended since #1350: `lowest` for the commander
@@ -332,7 +332,7 @@ the Universum selector), the comparison group (`rank_group`: `pool`), the share 
 (`share_measure`: `wilson`), the share scale (`share_scale`: `share`, or `rank` for pure percentile ranks), lands apart from spells (`separate_lands`: on), the minimum denominators (`min_denominators`: EDHREC 30,
 tournament 20, conversion 20, playgroup 200; the deck-universe minimum is the universe's own `min_universe`), the missing
 value per share signal (`lowest` for commander and bracket inclusion, `skip` for the deck universe), commander and basics (`rank_commander_and_basics`: off), other commanders in the pool (`rank_other_commanders`: on, ranked like any card),
-`min_coverage` (0.25, "Mindest-Datenlage"), `min_components` (2), `universe_source` (`auto`), `require_commander_signal` (on) and the editable cuts (`tier_cuts` 47/17/9/4).
+`min_coverage` (0.25, "Mindest-Datenlage"), `min_components` (2), `universe_source` (`auto`), `require_commander_signal` (on) and the editable cuts (`tier_cuts` 54/35/20/5, #1366; `min_coverage` is 0.25).
 The page also filters by tier (S/A/B/C/D/U) and sorts by the percentile of any single
 component. Presets (weights commander inclusion / bracket / deck universe / synergy / tournament /
 conversion / global / combos / Playgroup observation; simulation is 0 in all):
@@ -363,6 +363,47 @@ Routes: `POST /api/strength` (body `commander` plus at most one of `preset`, `pr
 The page names two different things and never mixes them: "Stärke-Index (Schätzung aus
 Nutzungsdaten)" (this index) and "Ergebnis aus Partien (noch nicht bewertet)" (the outcome
 evidence, `UNRATED`).
+
+### Tierliste page: operation (UX batch 1, #1369)
+
+Display and operation only; no figure, index or tier changed (the `POST /api/strength` payload is
+identical apart from the snapshot stamp). The sentence "Stufe = Nutzung in Chulane-Decks,
+keine Spielstärke" is the one line above the table; everything else about method and data sits
+behind "Methodik und Datenlage" (closed by default, remembered in the browser): source freshness,
+data findings, the card counts per source (one row per source, every card in exactly one column),
+the deck universe, the strength panel with its settings, the role audit and the TopDeck overview.
+The number of notes inside it is shown next to the title.
+
+- **Table.** One scroll area (`#pool-body`, a labelled region reached by the skip link "Zur
+  Tabelle"); the columns "Stufe" and "Karte" stay at the left, the header row at the top. Column
+  sets: "Kompakt" (tier, card, marks, mana value, roles, source decks; the default below 1500 px)
+  and "Detail" (adds data situation, rating layers, spread, mechanics, EDHREC, real games and
+  layers); the choice is remembered (`studio.tier.preset`). Headers are real buttons that sort
+  (`aria-sort` on the sorted column), the table has a hidden caption and `scope` on every `th`.
+- **Loading.** Until the strength result is there the tier cell says "wird berechnet …", the tier
+  chips and the comparison toggle are disabled, and the bars above keep their size.
+- **Tier chips.** "S 39 · A 33 · … · N 5" are filters (several at once) with the count of the
+  whole pool; they are separate from the column menu ("Spalten").
+- **Comparison "Gleiche Funktion".** A view mode, not a recalculation: the tier badge stays the tier of
+  the whole pool (`rank_group` stays `pool`); the column "Rang in Funktion" shows "Rang k von n" per
+  role of the card from `role_ranks` (n = ranked cards with that role; no role or no tier means
+  no rank, never 0). A hint names the group (the role of the role filter, else the roles of
+  each card). If the setting "Vergleichsgruppe" itself is set to the function, the page warns that
+  those tiers are recalculated and not comparable, with a button back to the whole pool. A stored
+  setting of that kind from the earlier quick toggle is turned into the view mode once.
+- **Card window.** A dialog (`role="dialog"`, `aria-modal`, focus moves in and returns to the
+  card, Tab stays inside, Escape or "Schließen" closes, the table behind does not scroll). It starts
+  with "Warum hier?": two to four sentences built only from numbers of the payload (n of N source
+  decks, function ranks, the split of the index into points per signal when it adds up to the
+  shown index, the data situation as "n von N Quelldecks, solide/dünn/sehr dünn").
+- **Words.** Raw codes (`COMPLETE`, `NORMALIZED_SOURCE`, `NOT_LISTED`, ...) appear as plain
+  German with the code in the tooltip; type filter and column heads are German; numbers go through
+  `StudioUI.num`/`pct` (comma, thousands dot). Rank is "Rang k von n in der Funktion"; the sort
+  entries "Teil-Score" are the scaled 0 to 100 scores of a signal, not percentiles.
+- **Search.** A typed search shows name matches first (name starts with it, then a word of the
+  name starts with it, then contains it), then the strength order. The filter "Favoriten" without
+  favorites says so instead of showing an empty table. The count line names the active filters
+  ("926 von 927 Karten · Filter: nur freie").
 
 ### Strength index v3: purely empirical ("Tierliste v3", #1364)
 
@@ -480,12 +521,22 @@ The agreement with the counted lists stays above 0.90 for spells and lands in al
 **Confidence and borderline mark (#1365).** Every ranked card carries `confidence` (0..1),
 `confidence_level` and a mark `borderline`:
 
-- `confidence` = `coverage` $\times$ $\sum_i w_i \, n_i/(n_i+30) \,/\, \sum_i w_i$ over the weighted
-  components with a value and a denominator $n_i$ (a counted zero included; `strength.CONFIDENCE_K`
-  = 30). Coverage is the weight share of the signals that have a value; a large denominator
-  (the 2,823 counted decks) counts almost fully, a small one (a theme page with 40 decks) about
-  0.57. A card without an index has no confidence (`null`). It is a hint about the evidence, not
-  about the card, and it never changes the index or the tier.
+- `confidence` (redefined by Owner decision D4, #1369) = `coverage` $\times$
+  $\sum_i w_i \, r_i \,/\, \sum_i w_i$ over the weighted components with a value and a denominator,
+  with the reliability $r_i = k_i/(k_i+30)$ of the COUNT $k_i$ (the numerator; `strength.CONFIDENCE_K`
+  = 30). 3 of 10,000 decks is thin ($r$ = 0.09), 3,000 of 10,000 is not ($r$ = 0.99). A counted zero
+  (0 of N, rule B12/E4.b) stays real evidence: its count is the denominator N, and a zero that rests
+  on fewer than 30 decks (`strength.CONFIDENCE_ZERO_MIN_DENOMINATOR`) is listed in `zero_count_thin`
+  (component names). A row without a numerator (the Playgroup gap has only its sample) has no count to build on and
+  has reliability 0. `confidence_basis` is `gezaehlte_null` when more than half of the confidence
+  weight sits on rows with count 0 (confidence in an absence: the UI shows "hoch (gezählte
+  Abwesenheit: 0 von N Decks)"), else `zaehler`; the formula is unchanged (B12).
+  The earlier definition on the denominator, under which all 922 Chulane cards were "high", is kept
+  as `confidence_by_denominator` and `confidence_by_denominator_level`. Coverage is the weight
+  share of the signals that have a value. A card without an index has no confidence (`null`). It is
+  a hint about how well the figures are counted, not about the card, and it never changes the
+  index or the tier. Measured on the QA store (Chulane, 922 ranked cards): before 922 high, now
+  334 high / 319 medium / 269 low.
 - `confidence_level`: `high` from 0.60, `medium` from 0.35, else `low`.
 - `borderline` is true when the index lies strictly closer than `borderline_distance` index
   points to a tier cut (S, A, B, C); `borderline_cut` names the nearest cut, `cut_distance` the
@@ -588,6 +639,60 @@ that has a combo, like a card without an EDHREC combo row counts for nothing und
 (`strength.zero_floor_ranks`, `combo_quality`); before, the tie-mean rank of the zero group (about
 0.5 for 919 of 927 cards) lifted every card above the low cuts. Under the default source
 (`commander`, 13 cards, no zero values) the ranks are unchanged.
+
+**Additions of #1369 (Tierliste, backend charge 1).** The index, the default weights, the cuts
+54 / 35 / 20 / 5, the tiers S / A / B / C / D / U / N and every index value stay bit-identical
+(frozen-reference test); everything below is an additional field. Snapshots are stored under
+`tier-snapshot-2`: a snapshot of the earlier schema is not read.
+
+- **Stability of the tier (D6).** Per ranked card `tier_stability` (0..1) is the share of weight
+  variants that keep its tier, `tier_stability_kept` of `tier_stability_variants` ("in x von N
+  Varianten"), `tier_alternatives` lists the other tiers the variants gave, most frequent first
+  (`[{tier, variants}]`), and `unscharf` is true below 0.8 (`strength.STABILITY_UNSHARP_BELOW`). The
+  variants run on the effective weights of the request (the preset Ausgewogen by default) and move
+  only weights above 0: every such weight alone by x0.8 and x1.2, plus 64 variants in which all of
+  them move at once by a factor drawn uniformly from 0.8 to 1.2 with the fixed seed 20261117 (80
+  variants for the default eight weights). The ranks of the components do not depend on the
+  weights, so a variant re-aggregates the stored component ranks of each card with the same sums,
+  rounding, cuts and coverage rule as `score_pool`; a test compares it with a full re-score. The
+  header block `stability` names the variants, seed, base and the count of `unscharf` cards. Cards
+  without a tier (U, N) have `null` / `[]` / `false`. Measured on the QA store: 29 of 922 cards
+  (3.2 %) are `unscharf`, 853 keep their tier in all 80 variants. Computing time: 0.06 s on top of
+  `score_pool` (0.07 s) and the 12 s cold `prepare`; it runs inside `compute`, so it is part of the
+  snapshot and of the per-store-state cache of `/api/strength`.
+- **Relative tiers (additional view, never the default).** `relative_tier` (S to F) is the
+  percentile rank inside the pool, lands and spells ranked apart, ranked cards only (tier S to D;
+  U and N have `null`). The limits are a SETTING, not a measurement (`strength.RELATIVE_TIER_PERCENTILES`):
+  S the top 3 %, A up to 10 %, B up to 25 %, C up to 50 %, D up to 75 %, E up to 90 %, F the lowest
+  10 % by rank position. A group of fewer than 10 ranked cards has `relative_tier` `null` (shown
+  "—"); `relative_rank` stays.
+  A card at rank k of n belongs to the first tier with k / n at or below the limit (integer
+  arithmetic). Cards with the same index share the best rank of their group of ties (1, 2, 2, 4)
+  and therefore one tier, so F can turn out smaller than 10 % (QA store: 33 of 857 spells, because
+  the ties at index 0.0 and 0.1 take the tier of their best rank). `relative_rank` is `{rank, total, group}` with group `spells` or `lands`.
+  The header block `relative_tier_info` has the hint "relativ im Pool, keine Aussage über
+  Spielstärke", the F note (`f_note`: "F = die untersten 10 % nach Rangposition; bei Gleichstand
+  teilt die ganze Gruppe die Stufe der besten Rangposition, daher kann F kleiner ausfallen"),
+  `min_group` (10), the limits and the counts per group. The absolute tiers stay the default.
+- **Tournament cohorts (D5).** The `tournament` row pools EDHTop16 and the corpus bracket 5 into one
+  n / N (E3.a); the rows now also list `parts` (`key` `edhtop16` / `corpus_bracket5`, `label`,
+  `numerator`, `denominator`, which add up to the row) and `mixed_cohorts_note` ("zwei Kohorten
+  addiert (E3.a)" when both cohorts are in; `null` with one). Value, score and weight are unchanged.
+- **Weight per source family (D2).** `weight_families` shows the effective weights (after rule
+  E2.a, the bracket switch and the layer weights; the nominal weights are those of the settings):
+  `{family, label, components, effective_weight, share_of_total, note}` for the source-deck corpus (`deck_universe`, `corpus_tuned`, `corpus_log_lift`,
+  `corpus_bracket_slope`: nested subsets of the same decks, no independent confirmations), EDHREC
+  pages and themes, the tournament pool, combos, and the rest. `deck_universe` is filed under the
+  source-deck corpus because the index reads the commander's local decks (hard-coded in
+  `strength.WEIGHT_FAMILIES`; with a stored universe profile or a counted repo universe it would
+  read another deck set). Chulane: 7.5 of 10 (75 %), 1.5
+  (15 %), 0.5 (5 %), 0.5 (5 %), 0. The mapping is the constant `strength.WEIGHT_FAMILIES` with the
+  code places it was read from.
+- **Role totals (D3).** The result has `role_totals` (role to the number of ranked cards of that
+  role, the denominator of every `#r/N`), and each card mirrors its own roles in `role_totals`
+  (the `total` of its `role_ranks`, which already carried it).
+- **Size.** The new fields add about 1.0 MB (10 %) to the `/api/strength` answer of the QA store
+  (9.97 MB to 11.01 MB), mostly the empty `parts` and `mixed_cohorts_note` of every component row.
 
 ### Rating layers ("Bewertungsebenen")
 
@@ -1345,7 +1450,7 @@ The loaders are the functions of `studio/repo_import.py`; the scripts
 ### Engine check ("Prüfung durch die Engine")
 
 The tab "Prüfung" has two separately named checks. "Datenprüfung (gespeicherte Fakten)" reads
-stored card facts. "Prüfung durch die Engine" (button "Mit der Engine prüfen",
+stored card facts. "Prüfung durch die Engine" (button "Gegen die Engine-Kartenliste prüfen",
 `POST /api/engine-check`, `engine_check.py`) runs the full-game runner's own deck construction
 validation (`_validate_deck_construction`: content hash, duplicates, colour identity) on the
 current list, plus the cards the pinned engine cannot load (`launch.cards_unsupported_by_engine`,
@@ -1610,6 +1715,59 @@ content. Other snapshot text ("2026-11") is not evaluable and counts as undated.
 commander-level co-occurrence pass is remembered per store state, commander list and cohort
 (`builder._cohort_deck_sets`, sharing `corpus_deck_sets`), so the second open of a card is a
 lookup; the figures are the same as counting the cohort's decks directly (tested).
+
+### Actionable Deck-Doctor ("Übersicht", #1404)
+
+In the "Übersicht" tab (`POST /api/deck-doctor`, `studio/builder.py`, schema `studio-deck-doctor-1`,
+`DERIVED_DESCRIPTIVE`), every role and shape metric of the current deck list is compared against
+the p25..p75 interquartile range of the selected comparison cohort (`under_p25`, `within_p25_p75`,
+`over_p75`, `no_reference`). For any role below p25, free owned pool cards (`free_copies > 0`, not
+excluded, not already in the deck) carrying that role are listed with their cohort frequency `n / N`
+(denominator ≥ 30 required, otherwise `thin_cohort` is flagged), plus a direct pool-filter button and
+one-click `+ Ins Deck`. Owner marks never alter the ordering (`test_deck_doctor_remedies_and_marks_invariance`).
+
+### Combo completion assistant ("Kombos", #1404)
+
+In the "Kombos" tab (`POST /api/combos`, `studio/combos.py`, field `completion_candidates`,
+`DERIVED_DESCRIPTIVE`), free owned legal pool cards (`free_copies > 0`, not in the deck) are ranked
+by how many nearly-complete Commander Spellbook variants (missing exactly 1 card) and 2-missing
+variants they complete (`completes_1_missing_count`, `completes_2_missing_count`), listing up to 5
+completed variant IDs and partner cards with one-click `+ Ins Deck` buttons.
+
+### Interactive sample opening hand & London Mulligan simulator ("Zahlen", #1404)
+
+In the "Zahlen" tab (`POST /api/sample-hand`, `studio/castability.py`, schema `studio-sample-hand-1`,
+`DERIVED_DESCRIPTIVE`), a deterministic seeded sampler (`random.Random(seed)`) draws a 7-card opening
+hand from the 99-card mainboard, supports London Mulligan steps (`mulligan_count` 0..4 with
+bottom-card selection so `kept_hand_size = 7 - mulligan_count`), simulates the next 3 draw steps
+(Turns 1..3), and evaluates deterministic Turn 1..3 castability per spell based on the lands and
+colored mana sources held by that turn.
+
+### Pod matchup matrix ("Simulation", #1404)
+
+In the "Simulation" tab (`GET /api/simulations/pod-matrix`, `studio/builder.py`, schema
+`studio-pod-matrix-1`, `SIMULATED_RESULT`), imported simulation runs in `simulation_run` and
+`simulation_card` are aggregated by `(engine_pin, pilot_policy)` into a pod table with run count,
+total games (`games_denominator`), cards tracked, and top cast-rate cards (`total_casts / games_with_card`).
+Like all simulation outputs, it never enters the tier list or the strength index (`simulation` weight 0).
+
+### Quick-filter preset chips & saved filter views (#1404)
+
+Both the Deckbuilder pool (`index.html`, `app.js`, `#quick-filter-presets`) and the Tierliste
+(`tierliste.html`, `tierliste.js`, `#tier-quick-presets`) offer one-click preset chips (Ramp ≤ 2 Mana,
+Interaktion ≤ 2 Mana, Kartenziehen, Kreaturen MV ≤ 3, Freie Favoriten, Top-Kohorte / Hohe Konfidenz,
+Stufe S/A frei, Alle zurücksetzen) and a browser-local saved filter view (`★ Ansicht speichern` /
+`Gespeicherte Ansicht laden` via `localStorage` keys `studio.builder.savedPreset` and
+`studio.tierlist.savedPreset`).
+
+### Printable Markdown deck dossier & revision changelog (#1404)
+
+The "Export" dialog (`GET /api/revisions/{revision_id}/dossier`, `studio/decks.py::export_deck_dossier`,
+`DERIVED_DESCRIPTIVE`) serves a printable Markdown dossier (`text/markdown; charset=utf-8`) containing
+revision metadata, card/land/nonland counts, average mana value, collection and form validation
+results, an automatic revision changelog (`+Neu im Deck` / `-Entfernt`) against `parent_revision_id`
+or an explicit `base_revision_id`, Tagger role coverage counts with denominator, and the full card
+list grouped into Commander, Zauber, and Länder.
 
 ### Not built: purchase mode
 

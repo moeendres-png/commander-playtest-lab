@@ -3,7 +3,9 @@ body{height:auto;min-height:100%}
 #notice{padding:var(--s2) var(--s4);background:var(--panel2);border-bottom:1px solid var(--line);font-size:13px}
 #notice b{color:var(--warn)}
 #notice .summary{color:var(--muted);margin-top:2px}
-#pool-body{overflow:auto;max-height:calc(100vh - 150px);min-height:320px;padding:var(--s3) var(--s4);scrollbar-width:thin}
+#pool-body{overflow:auto;min-height:320px;padding:0;scrollbar-width:thin}
+#pool-body>:not(.table-wrap){margin-left:var(--s4);margin-right:var(--s4)}
+#pool-body>:first-child:not(.table-wrap){margin-top:var(--s3)}
 td.cardcell{white-space:nowrap}
 td.cardcell .thumb{display:inline-block;vertical-align:middle;margin-right:var(--s2)}
 .star{color:#ffd257}
@@ -50,7 +52,7 @@ th.layer-head{white-space:normal;min-width:120px}
 #modal{inset:auto 0 0 auto;top:0;width:min(600px,46vw);background:transparent;display:block;z-index:30;pointer-events:none}
 #modal[hidden]{display:none}
 #modal-box.plain{pointer-events:auto;position:absolute;inset:0;max-width:none;width:100%;max-height:none;height:100%;border-radius:0;border-width:0 0 0 1px;box-shadow:var(--shadow);overflow:auto}
-#modal-box img.big{display:block;width:100%;max-width:320px;margin:0 auto 12px;border-radius:14px}
+#modal-box img.big{display:block;width:100%;max-width:240px;margin:0 auto 12px;border-radius:14px}
 @media (max-width:1100px){.setting{grid-template-columns:1fr 130px;}.setting .help{grid-column:1 / -1}}
 @media (max-width:900px){#modal{width:min(520px,60vw)}}
 /* #1365: tier header, distribution, U cell, confidence and borderline marks, detail blocks */
@@ -67,7 +69,8 @@ table.dist th[scope=row],table.dist thead th:first-child{text-align:left}
 .conf{font-size:10px;letter-spacing:1px;color:var(--muted);cursor:help}
 .conf-high{color:var(--good)}
 .conf-low{color:var(--warn)}
-.borderline{display:inline-block;padding:0 var(--s2);border-radius:var(--radius-s);border:1px solid var(--warn);color:var(--warn);font-size:11px;cursor:help;white-space:nowrap}
+.borderline,.unsharp{display:inline-block;padding:0 var(--s2);border-radius:var(--radius-s);border:1px solid var(--warn);color:var(--warn);font-size:11px;cursor:help;white-space:nowrap}
+.tier-badge.t-E .level,.tier-badge.t-F .level{background:var(--muted,#64748b);color:#fff}
 .layer h4{margin:var(--s2) 0 var(--s1);font-size:13px}
 .block-subjective,.block-simulation{border-top:1px dashed var(--muted);margin-top:var(--s3);padding-top:var(--s1)}
 .layer table{display:block;overflow-x:auto}
@@ -82,4 +85,111 @@ table.dist th[scope=row],table.dist thead th:first-child{text-align:left}
 .quick-toggle .toggle-label{font-size:12px;color:var(--muted);margin-right:2px}
 .quick-toggle button.chip{font-size:12px;cursor:pointer}
 .quick-toggle button.chip.on{font-weight:600}
-@media (max-width:600px){#modal{width:100vw}table.dist{font-size:11px}}
+@media (max-width:600px){#modal{width:100vw}table.dist{font-size:11px}#universe-panel,#strength-panel,#role-audit-panel,#topdeck-conversion-panel,#pool-body,#notice{padding-left:var(--s2);padding-right:var(--s2);max-width:100%}body>*{min-width:0;max-width:100%}.setting{grid-template-columns:minmax(0,1fr)}.layer-controls,.quick-toggle,.conv-filter-row,.strength-form label,.strength-form select,#universe-panel label,.layer{max-width:100%;min-width:0;flex-wrap:wrap}#data-state .badge{margin:var(--s1) var(--s2)}.badge,.pill,.tier-badge,.badge-neutral{max-width:100%;overflow-wrap:anywhere}}
+/* Abnahme 2026-11-17 (B2): Status-Badges mit Satz-Text muessen umbrechen statt
+   auf Mobilgeraeten einzeilig aus dem Bild zu laufen. Die Klasse badge-text
+   tragen alle Satz-Badges der Tierliste (Oracle-Banner, Universum-Hinweise,
+   Berechnungs-Hinweise). */
+.badge-text{white-space:normal;max-width:100%}
+
+
+/* UX batch 1 (#1369): one scroll area for the table, sticky tier and card columns, method panel, tier chips.
+   The window is filled by the table: the bars above stay in place and #pool-body takes the rest of the height. */
+.skip-link{position:absolute;left:var(--s2);top:-60px;z-index:100;padding:var(--s2) var(--s3);background:var(--accent);color:var(--accent-fg);border-radius:var(--radius-s);font-weight:600;text-decoration:none}
+.skip-link:focus{top:var(--s2)}
+@media (min-width:701px) and (min-height:521px){
+  html,body{height:100%}
+  body{height:100dvh;min-height:0;overflow:hidden}
+  #pool-body{flex:1 1 0;min-height:140px;max-height:none}
+  #brand,#top,#filters,#tier-bar,#method-panel{flex:none}
+}
+.method{border-bottom:1px solid var(--line);background:var(--panel2)}
+.method>summary{cursor:pointer;padding:var(--s2) var(--s4);font-size:14px}
+.method .method-open{color:var(--accent);text-decoration:underline;margin-left:var(--s2)}
+#method-hint{color:var(--warn)}
+.method-body{max-height:45vh;overflow:auto;border-top:1px solid var(--line);background:var(--bg)}
+#tier-bar{display:flex;flex-wrap:wrap;gap:var(--s2);align-items:center;padding:var(--s2) var(--s4);border-bottom:1px solid var(--line);background:var(--panel);min-height:46px}
+#tier-bar .toggle-label{font-size:13px;color:var(--muted)}
+.tier-chip{padding:0 var(--s2);min-height:30px}
+.tier-chip .tier-badge{border:0;min-width:0;padding:0 2px 0 0;gap:4px;font-weight:600}
+.chip.tier-chip.on{background:var(--panel2);color:var(--text);border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.hint{flex:1 1 100%;font-size:13px;color:var(--muted)}
+.hint.warn-hint{color:var(--warn)}
+.col-menu{position:relative}
+.col-menu>summary{cursor:pointer;padding:2px var(--s3);border:1px solid var(--line);border-radius:var(--radius-s);background:var(--panel2);min-height:30px;display:inline-flex;align-items:center}
+.col-menu-body{position:absolute;left:0;top:100%;z-index:40;min-width:260px;margin-top:4px;padding:var(--s3);background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);display:grid;gap:var(--s2)}
+.col-layers{display:grid;gap:var(--s1)}
+.col-layers label{display:flex;gap:var(--s2);align-items:center}
+#pool-body .table-wrap{overflow:visible}
+#pool-body table{border-collapse:separate;border-spacing:0}
+#pool-body th{cursor:default}
+#pool-body thead th{z-index:3}
+.th-sort{background:none;border:0;padding:0;min-height:0;font:inherit;font-weight:600;color:inherit;cursor:pointer;white-space:nowrap;text-align:inherit}
+.th-sort:hover:not(:disabled){background:none;color:var(--text)}
+#pool-body th.stick-1,#pool-body td.stick-1{position:sticky;left:0;width:176px;min-width:176px;max-width:176px;background:var(--panel);z-index:2}
+#pool-body th.stick-2,#pool-body td.stick-2{position:sticky;left:176px;width:230px;min-width:230px;max-width:230px;background:var(--panel);z-index:2;box-shadow:inset -1px 0 0 var(--line)}
+#pool-body thead th.stick-1,#pool-body thead th.stick-2{z-index:5}
+#pool-body thead th.stick-2{box-shadow:0 1px 0 var(--line),inset -1px 0 0 var(--line)}
+#pool-body tbody tr:nth-child(even) td.stick-1,#pool-body tbody tr:nth-child(even) td.stick-2{background:color-mix(in srgb,var(--panel) 94%,var(--text))}
+#pool-body tbody tr:hover td.stick-1,#pool-body tbody tr:hover td.stick-2{background:color-mix(in srgb,var(--panel) 92%,var(--accent))}
+#pool-body td.cardcell{white-space:normal}
+.rankcell{display:grid;gap:2px;font-size:12.5px;white-space:nowrap}
+.rank-line.sel{font-weight:600}
+.why{border-color:var(--accent)}
+.why-list{margin:var(--s1) 0;padding-left:var(--s4)}
+.why-list li{margin:var(--s1) 0}
+.empty-note{padding:var(--s5);color:var(--muted);font-size:15px}
+body.modal-open,body.modal-open #pool-body{overflow:hidden}
+@media (max-width:700px){
+  #pool-body{max-height:none;min-height:0;padding:0}
+  #pool-body th.stick-1,#pool-body td.stick-1{width:92px;min-width:92px;max-width:92px}
+  #pool-body th.stick-2,#pool-body td.stick-2{left:92px;width:132px;min-width:132px;max-width:132px}
+  #pool-body .stick-2 .thumb{display:none}
+  #pool-body td.stick-1 .conf,#pool-body td.stick-1 .borderline{display:none}
+  .method-body{max-height:none}
+}
+.nowrap{white-space:nowrap}
+.tier-badge.t-U .letter,.tier-badge.t-N .letter{background:var(--panel2);color:var(--muted);border:1px solid var(--line)}
+/* reserve the space of images and not-yet-filled selects: the table must not jump while it loads */
+td.cardcell .thumb{width:36px;aspect-ratio:488/680;height:auto;background:var(--panel2)}
+#type-filter{min-width:140px}
+#role-filter{min-width:230px}
+#pod-filter{min-width:250px}
+#deck-pick.pending{visibility:hidden} /* keeps its place in the top bar until the decks are known */
+#deck-select{min-width:300px}
+#branch-select{min-width:72px}
+#universe-select{min-width:130px}
+@media (max-width:700px){#deck-select{min-width:0}}
+.chip.on:hover:not(:disabled){background:var(--accent);color:var(--accent-fg)}
+.chip.tier-chip.on:hover:not(:disabled){background:var(--panel2);color:var(--text)}
+/* the open method panel leaves the table at least its minimum height (desktop layout only) */
+@media (min-width:701px) and (min-height:521px){.method-body{max-height:min(45vh,max(120px,calc(100dvh - 520px)))}}
+#sort{width:600px;max-width:100%} /* the sort list grows when the signals arrive: the select must not */
+#pod-filter{width:28em;max-width:100%}
+/* phone width: the bars reach their loaded height before the data arrives (measured at 390 px) */
+@media (max-width:700px){#brand{min-height:144px}#top{min-height:195px}#tier-bar{min-height:85px}#filters{min-height:514px}}
+@media (max-width:420px){#brand{min-height:165px}} /* the commander select fills in and wraps the bar (measured at 390 px) */
+@media (max-width:480px){#filters{min-height:596px}} /* with the ranking toggle in the bar (measured at 390 px) */
+/* desktop: the filter bar and the top bar reach their loaded height from the first paint (measured per width) */
+@media (min-width:701px){#filters{min-height:168px}#top{min-height:71px}}
+@media (min-width:1100px){#filters{min-height:172px}}
+@media (min-width:1700px){#filters{min-height:156px}#top{min-height:39px}} /* with the ranking toggle in the bar (measured at 1366 and 1920 px) */
+
+.search-help-wrap{position:relative;display:inline-flex;align-items:center}
+.search-help-btn{min-width:28px;padding:3px 8px;font-weight:700}
+.search-help-popover{position:absolute;top:calc(100% + 4px);left:0;z-index:40;min-width:280px;max-width:min(420px,90vw);padding:8px 10px;background:var(--surface,#fff);border:1px solid var(--border,#cbd5e1);border-radius:8px;box-shadow:0 6px 20px rgba(0,0,0,.14)}
+.search-help-title{font-size:12px;font-weight:600;margin-bottom:6px;color:var(--muted,#475569)}
+
+/* Gesamtrating (#1369): second ranking next to the usage index. The toggle is fixed in the page, so it reserves its own place. */
+#overall-panel{padding:var(--s2) var(--s4);border-bottom:1px solid var(--line);font-size:13px}
+#overall-panel:empty{display:none}
+#overall-panel p{margin:var(--s1) 0}
+#overall-panel .facts{display:flex;gap:var(--s2) var(--s4);flex-wrap:wrap;align-items:baseline}
+.ocell{display:inline-flex;gap:var(--s2);align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.oscore{font-size:14px;font-variant-numeric:tabular-nums}
+.rank-cell{display:inline-flex;gap:var(--s2);align-items:center;flex-wrap:wrap}
+th.crit-head{min-width:34px}
+.overall-reason{margin:var(--s1) 0;padding-left:var(--s3);border-left:3px solid var(--line);color:var(--text);font-size:13px}
+@media (max-width:600px){#overall-panel{padding-left:var(--s2);padding-right:var(--s2);max-width:100%}}
+.oparts{display:inline-flex;flex-direction:column;align-items:flex-end;white-space:nowrap}
+@media (max-width:480px){#areas a{padding-left:var(--s2);padding-right:var(--s2)}} /* five area links (with "Daten") must fit 390 px without a horizontal page scroll */

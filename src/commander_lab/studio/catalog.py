@@ -108,6 +108,59 @@ def _row(
     )
 
 
+_TOKEN_LAYOUTS = frozenset({"token", "double_faced_token"})
+
+
+def _token_row(card: dict[str, object], source_id: str) -> tuple[object, ...] | None:
+    layout = _text(card.get("layout")) or ""
+    if layout not in _TOKEN_LAYOUTS:
+        return None
+    scryfall_id = _text(card.get("id"))
+    name = _text(card.get("name"))
+    if scryfall_id is None or name is None:
+        return None
+    faces = _faces(card)
+    text = _text(card.get("oracle_text"))
+    if text is None and faces:
+        text = "\n//\n".join(str(face.get("oracle_text") or "") for face in faces)
+    first = faces[0] if faces else card
+    raw_colors = card.get("colors") if isinstance(card.get("colors"), list) else first.get("colors")
+    colors = _letters(raw_colors).replace("C", "")
+    front = _image(card) or (_image(faces[0]) if faces else None)
+    return (
+        scryfall_id,
+        _text(card.get("oracle_id")),
+        name,
+        _text(card.get("type_line")) or _text(first.get("type_line")) or "",
+        _text(card.get("power")) or _text(first.get("power")),
+        _text(card.get("toughness")) or _text(first.get("toughness")),
+        colors,
+        text or "",
+        front,
+        source_id,
+    )
+
+
+def _card_token_parts(
+    card: dict[str, object], oracle_id: str, source_id: str
+) -> list[tuple[object, ...]]:
+    parts = card.get("all_parts")
+    if not isinstance(parts, list):
+        return []
+    out: list[tuple[object, ...]] = []
+    for item in parts:
+        if not isinstance(item, dict) or item.get("component") != "token":
+            continue
+        t_name = _text(item.get("name"))
+        if t_name is None:
+            continue
+        t_id = _text(item.get("id")) or ""
+        t_type = _text(item.get("type_line")) or ""
+        t_uri = _text(item.get("uri"))
+        out.append((oracle_id, t_id, t_name, t_type, t_uri, source_id))
+    return out
+
+
 def _is_standard(card: dict[str, object]) -> bool:
     """A plain standard printing (issue #1342): no full art, no borderless frame, no
     showcase or extended-art frame effect, and no promo marking of any kind."""
@@ -267,13 +320,21 @@ def import_scryfall_oracle(
         str, tuple[tuple[int, int, int, int, int, int, int], tuple[object, ...], bool, bool]
     ] = {}
     candidates: dict[str, int] = {}
+    token_rows: dict[str, tuple[object, ...]] = {}
+    card_token_map: dict[tuple[str, str, str], tuple[object, ...]] = {}
     for file_path in files:
         for card in _objects(file_path):
+            tok = _token_row(card, source_id)
+            if tok is not None:
+                token_rows[str(tok[0])] = tok
+                continue
             exact = _is_exact(card, owned)
             row = _row(card, source_id, basis="EXACT_COLLECTION" if exact else "SCRYFALL_DEFAULT")
             if row is None:
                 continue
             oracle_id = str(row[0])
+            for tp in _card_token_parts(card, oracle_id, source_id):
+                card_token_map[(str(tp[0]), str(tp[1]), str(tp[2]))] = tp
             candidates[oracle_id] = candidates.get(oracle_id, 0) + 1
             standard = _is_standard(card)
             rank = _printing_rank(card, row, exact, standard)
@@ -297,8 +358,27 @@ def import_scryfall_oracle(
             "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             rows,
         )
+        has_token_tables = db.execute(
+            "SELECT COUNT(*) FROM sqlite_master WHERE type = 'table' "
+            "AND name IN ('scryfall_token', 'scryfall_card_token')"
+        ).fetchone()[0]
+        if int(has_token_tables) == 2:
+            db.execute("DELETE FROM scryfall_token")
+            db.execute("DELETE FROM scryfall_card_token")
+            if token_rows:
+                db.executemany(
+                    "INSERT OR REPLACE INTO scryfall_token VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                    list(token_rows.values()),
+                )
+            if card_token_map:
+                db.executemany(
+                    "INSERT OR REPLACE INTO scryfall_card_token VALUES (?, ?, ?, ?, ?, ?)",
+                    list(card_token_map.values()),
+                )
     report: dict[str, object] = {
         "oracle_cards": len(rows),
+        "tokens": len(token_rows),
+        "card_token_links": len(card_token_map),
         "files": len(files),
         "printings_exact": basis_counts["EXACT_COLLECTION"],
         "printings_standard": basis_counts["STANDARD_RULE"],

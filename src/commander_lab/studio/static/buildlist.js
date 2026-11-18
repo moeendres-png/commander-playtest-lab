@@ -4,7 +4,7 @@
 // unbekannt", never 0; no rating; marks are not read. The tick boxes live only in
 // this browser (localStorage, per deck state). Opened from the export dialog by app.js.
 
-const BUILD_LIST_NF = new Intl.NumberFormat("de-DE");
+const BUILD_LIST_NF = { format: (value) => StudioUI.num(value, 0) };
 
 function buildListDigest(entries) {
   // An unsaved draft has no revision: its ticks are keyed by the list itself, so two drafts never share them.
@@ -29,7 +29,7 @@ function buildListSaveTicks(key, ticks) {
 
 function buildListAmount(item) {
   const part = item.needed !== item.quantity ? `${BUILD_LIST_NF.format(item.quantity)} von ${BUILD_LIST_NF.format(item.needed)}×` : `${BUILD_LIST_NF.format(item.quantity)}×`;
-  if (item.exact === false) return `${part} (Bestand mindestens${item.unknown_lots ? `, + ${item.unknown_lots} Posten ohne Anzahl` : ""})`;
+  if (item.exact === false) return `${part} (Bestand mindestens${item.unknown_lots ? `, + ${BUILD_LIST_NF.format(item.unknown_lots)} Posten ohne Anzahl` : ""})`;
   return part;
 }
 
@@ -40,18 +40,18 @@ function buildListGroupTitle(data, group) {
 function buildListText(data, deckName) {
   const lines = [`Bauliste ${deckName} (${BUILD_LIST_NF.format(data.totals.list_size)} Karten)`, ""];
   if (data.commander.length) {
-    lines.push(`Commander (${data.commander.length})`);
+    lines.push(`Commander (${BUILD_LIST_NF.format(data.commander.length)})`);
     for (const item of data.commander) lines.push(`1 ${item.name}` + (item.placements.length ? ` – ${item.placements.map((p) => p.name).join(", ")}` : " – Standort unbekannt") + (item.note ? ` – ${item.note}` : ""));
     lines.push("");
   }
   for (const group of data.groups) {
     lines.push(`${buildListGroupTitle(data, group)}`);
-    for (const item of group.cards) lines.push(`${item.quantity} ${item.name}` + (item.exact === false ? " (Bestand mindestens)" : "") + (item.note ? ` – ${item.note}` : ""));
+    for (const item of group.cards) lines.push(`${BUILD_LIST_NF.format(item.quantity)} ${item.name}` + (item.exact === false ? " (Bestand mindestens)" : "") + (item.note ? ` – ${item.note}` : ""));
     lines.push("");
   }
   if (data.basic_lands.cards.length) {
     lines.push(`Standardländer (${BUILD_LIST_NF.format(data.basic_lands.count)} Karten)`);
-    for (const item of data.basic_lands.cards) lines.push(`${item.quantity} ${item.name}`);
+    for (const item of data.basic_lands.cards) lines.push(`${BUILD_LIST_NF.format(item.quantity)} ${item.name}`);
     lines.push("");
   }
   lines.push(`Summe ${BUILD_LIST_NF.format(data.totals.counted)} von ${BUILD_LIST_NF.format(data.totals.list_size)} Karten`);
@@ -66,7 +66,7 @@ function buildListTable(h, data, group, ticks, onTick) {
     return h("tr", {}, h("td", { class: "tick" }, box), h("td", { class: "num" }, buildListAmount(item)), h("td", {}, h("label", { for: id }, item.name)),
       h("td", { class: "note" }, item.note || ""));
   });
-  return h("table", { class: "bl-table" }, h("tbody", {}, rows));
+  return h("div", { class: "table-wrap" }, h("table", { class: "bl-table" }, h("tbody", {}, rows)));
 }
 
 function buildListPrint() {
@@ -115,8 +115,8 @@ async function showBuildList(deps) {
     copyText,
   ];
   if (data.commander.length) {
-    nodes.push(h("h3", {}, `Commander (${data.commander.length})`), h("ul", { class: "bl-commander" }, data.commander.map((item) =>
-      h("li", {}, item.name, " – ", item.placements.length ? item.placements.map((p) => `${p.name}${p.exact ? "" : " (mindestens)"}`).join(", ") : "Standort unbekannt", item.unknown && item.placements.length ? `, ${item.unknown} von ${item.needed} Standort unbekannt` : "", item.note ? ` – ${item.note}` : ""))));
+    nodes.push(h("h3", {}, `Commander (${BUILD_LIST_NF.format(data.commander.length)})`), h("ul", { class: "bl-commander" }, data.commander.map((item) =>
+      h("li", {}, item.name, " – ", item.placements.length ? item.placements.map((p) => `${p.name}${p.exact ? "" : " (mindestens)"}`).join(", ") : "Standort unbekannt", item.unknown && item.placements.length ? `, ${BUILD_LIST_NF.format(item.unknown)} von ${BUILD_LIST_NF.format(item.needed)} Standort unbekannt` : "", item.note ? ` – ${item.note}` : ""))));
   }
   for (const group of data.groups) {
     const unknown = group.location_id === null;
@@ -125,8 +125,9 @@ async function showBuildList(deps) {
   }
   if (data.basic_lands.cards.length) {
     nodes.push(h("h3", {}, `Standardländer (${BUILD_LIST_NF.format(data.basic_lands.count)} Karten)`), h("p", { class: "note" }, "Ohne Standortzwang."),
-      h("table", { class: "bl-table" }, h("tbody", {}, data.basic_lands.cards.map((item) => h("tr", {}, h("td", { class: "num" }, `${BUILD_LIST_NF.format(item.quantity)}×`), h("td", {}, item.name))))));
+      h("div", { class: "table-wrap" }, h("table", { class: "bl-table" }, h("tbody", {}, data.basic_lands.cards.map((item) => h("tr", {}, h("td", { class: "num" }, `${BUILD_LIST_NF.format(item.quantity)}×`), h("td", {}, item.name)))))));
   }
   nodes.push(h("p", { id: "buildlist-total", class: data.error ? "warn" : "note" }, `Summe: ${BUILD_LIST_NF.format(data.totals.counted)} von ${BUILD_LIST_NF.format(data.totals.list_size)} Karten (Commander ${BUILD_LIST_NF.format(data.totals.commander)}, Standorte ${BUILD_LIST_NF.format(data.totals.in_groups)}, Standardländer ${BUILD_LIST_NF.format(data.totals.basic_lands)}).`));
   box.replaceChildren(...nodes);
 }
+if (typeof module !== "undefined") module.exports = { buildListDigest, buildListKey, buildListTickId };

@@ -71,7 +71,7 @@ function deckSeriesTable(h, data, historyRows, deps) {
       rows.push(h("tr", {}, ...(index === 0 ? [stand] : []), ...cells));
     });
   }
-  return h("div", { class: "deck-series-scroll" }, h("table", {},
+  return h("div", { class: "table-wrap deck-series-scroll" }, h("table", {},
     h("thead", {}, h("tr", {}, ["Stand", "Serie", "Paare (n/N)", "Zählwerte der Serie", "Status", "Seeds · Sitze · Stand", ""].map((label) => h("th", {}, label)))),
     h("tbody", {}, rows)));
 }

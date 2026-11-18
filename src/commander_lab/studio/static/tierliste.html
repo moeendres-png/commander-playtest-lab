@@ -4,33 +4,42 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Commander Studio: Tierliste</title>
+<link rel="icon" href="data:,">
 <link rel="stylesheet" href="app.css">
 <link rel="stylesheet" href="tierliste.css">
 <script src="ui.js"></script>
 </head>
 <body>
+<a class="skip-link" href="#pool-body">Zur Tabelle</a>
 <header id="brand">
   <h1 class="brand-h1"><a class="logo" href="index.html">Commander Studio</a><span class="visually-hidden"> – Tierliste</span></h1>
-  <nav id="areas" aria-label="Bereiche"><a href="index.html">Deckbau</a><a href="tierliste.html">Tierliste</a><a href="decks.html">Deck-Browser</a><a href="partie.html">Partien</a></nav>
+  <nav id="areas" aria-label="Bereiche"><a href="index.html">Deckbau</a><a href="tierliste.html">Tierliste</a><a href="decks.html">Deck-Browser</a><a href="partie.html">Partien</a><a href="daten.html">Daten</a></nav>
   <span class="spacer"></span>
   <label>Commander <select id="commander-select"></select></label>
   <button id="theme-toggle" type="button" class="ghost"></button>
 </header>
 <header id="top">
   <label>Ansicht <select id="view"></select></label>
-  <span id="deck-pick" hidden title="Karten, die du in der Tabelle mit „+ Deck“ wählst, kommen in dieses Deck (als Entwurf).">
+  <span id="deck-pick" class="pending" title="Karten, die du in der Tabelle mit „+ Deck“ wählst, kommen in dieses Deck (als Entwurf).">
     <label>Ziel-Deck <select id="deck-select"></select></label>
     <label>Variante <select id="branch-select"></select></label>
   </span>
   <label>Universum <select id="universe-select" title="Deck-Universum für die gezählte Verbreitung"></select></label>
-  <span id="tier-pill" class="pill warn" title="Ein Ergebnis-Tier aus Partien braucht ein Modell mit Ergebnisdaten. Ein solches Modell gibt es noch nicht. Die Stufen S bis D gehören zum Stärke-Index (Schätzung aus Nutzungsdaten).">Ergebnis aus Partien: noch nicht bewertet</span>
+  <span id="tier-pill" class="pill warn" title="Ein Ergebnis-Tier aus Partien braucht ein Modell mit Ergebnisdaten. Ein solches Modell gibt es noch nicht. Die Stufen S bis D gehören zum Stärke-Index (Schätzung aus Nutzungsdaten).">Stufen: Schätzung aus Nutzungsdaten · Ergebnis aus Partien: Unbewertet</span>
 </header>
-<div id="data-state"></div>
-<div id="notice"></div>
-<div id="universe-panel"></div>
-<div id="strength-panel"></div>
-<div id="role-audit-panel"></div>
-<div id="topdeck-conversion-panel"></div>
+<details id="method-panel" class="method">
+  <summary id="method-summary"><b id="core-line">Stufe = Nutzung in Commander-Decks, keine Spielstärke.</b> <span class="method-open">Methodik und Datenlage</span> <span id="method-hint" class="muted"></span></summary>
+  <div class="method-body">
+    <div id="data-state"></div>
+    <div id="notice"></div>
+    <div id="universe-panel"></div>
+    <div id="strength-panel"></div>
+    <div id="overall-panel"></div>
+    <div id="role-audit-panel"></div>
+    <div id="topdeck-conversion-panel"></div>
+  </div>
+</details>
+<div id="tier-bar" role="group" aria-label="Nach Stufe filtern"></div>
 <div id="filters">
   <input id="q" aria-label="Karten suchen" type="search" placeholder="Suche in Name und Typ" autocomplete="off">
   <select id="type-filter" aria-label="Kartentyp"></select>
@@ -50,22 +59,36 @@
     <option value="U">Verbreitung: unbekannt (U)</option>
     <option value="F">Verbreitung: Filterkarten</option>
   </select>
+  <span id="layer-controls" class="layer-controls"></span>
+  <span id="ranking-toggle" class="quick-toggle" role="group" aria-label="Ranking der Tabelle">
+    <span class="toggle-label">Ranking:</span>
+    <button id="rk-usage" type="button" class="chip on" data-ranking="usage" aria-pressed="true" disabled title="Nutzung: Stärke-Index mit Stufen S bis D aus Nutzungsdaten">Nutzung</button>
+    <button id="rk-overall" type="button" class="chip" data-ranking="overall" aria-pressed="false" disabled title="Das Gesamtrating wird berechnet …">Gesamtrating</button>
+  </span>
   <span id="rank-group-toggle" class="quick-toggle" role="group" aria-label="Vergleichsgruppe für den Stärke-Index">
     <span class="toggle-label">Vergleich:</span>
-    <button id="rg-pool" type="button" class="chip" data-rank-group="pool" title="Karten gegen den gesamten legalen Pool des Commanders vergleichen">Gesamtpool</button>
-    <button id="rg-function" type="button" class="chip" data-rank-group="function" title="Karten nur innerhalb der gleichen Funktion (Rolle) vergleichen">Gleiche Funktion</button>
+    <button id="rg-pool" type="button" class="chip" data-rank-group="pool" title="Stufe und Index gelten im gesamten legalen Pool des Commanders">Gesamtpool</button>
+    <button id="rg-function" type="button" class="chip" data-rank-group="function" title="Zusätzlich den Rang innerhalb der gleichen Funktion (Rolle) zeigen: Rang k von n. Die Stufe bleibt die Stufe im Gesamtpool.">Gleiche Funktion</button>
+  </span>
+  <span id="tier-mode-toggle" class="quick-toggle" role="group" aria-label="Stufen-Bezug">
+    <span class="toggle-label">Stufe:</span>
+    <button id="tm-abs" type="button" class="chip" data-tier-mode="absolute" title="Absolute Stufen S bis D aus dem Stärke-Index">Absolut (S–D)</button>
+    <button id="tm-rel" type="button" class="chip" data-tier-mode="relative" title="Relative Stufen S bis F nach Perzentilen innerhalb des Commander-Pools">Relativ (S–F)</button>
   </span>
   <label><input id="f-free" type="checkbox" checked> nur freie</label>
   <label><input id="f-fav" type="checkbox"> Favoriten</label>
   <label><input id="f-excl" type="checkbox"> Ausgeschlossene zeigen</label>
   <label>Sortierung <select id="sort"></select></label>
-  <span class="chips" id="tabs"></span>
-  <span id="count" class="muted"></span>
+  <span id="sort-note" class="muted" role="status" hidden></span>
+  <span id="tier-quick-presets" class="chips" role="group" aria-label="Filter-Schnellansichten"></span>
+  <span class="chips" id="tabs" role="group" aria-label="Ansicht der Tabelle"></span>
+  <span id="count" class="muted" role="status" aria-live="polite"></span>
 </div>
-<div id="pool-body"></div>
-<div id="modal" hidden><div id="modal-box" class="plain"></div></div>
+<div id="pool-body" role="region" aria-label="Tierliste: Kartentabelle" tabindex="0"></div>
+<div id="modal" hidden><div id="modal-box" class="plain" role="dialog" aria-modal="true" aria-labelledby="modal-title" tabindex="-1"></div></div>
 <div id="toast" hidden></div>
 <script src="commander.js"></script>
+<script src="search.js"></script>
 <script src="tierliste.js"></script>
 </body>
 </html>

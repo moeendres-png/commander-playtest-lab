@@ -27,9 +27,10 @@ import math
 from collections import Counter
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, replace
-from typing import TypedDict
+from typing import TypedDict, cast
 
 from . import (
+    chulane_textfit,
     corpus_signals,
     layers,
     layers_view,
@@ -82,9 +83,33 @@ class StrengthCard(TypedDict):
     borderline: bool
     borderline_cut: str | None
     cut_distance: float | None
+    # D4: the count-based ``confidence`` above replaces the denominator-based one; that one stays
+    # here, and ``zero_count_thin`` lists the components whose counted zero rests on < 30 decks.
+    confidence_by_denominator: float | None
+    confidence_by_denominator_level: str | None
+    zero_count_thin: list[str]
+    # "gezaehlte_null": more than half of the confidence weight rests on counted zeros (0 of N
+    # decks: confidence in an absence), else "zaehler"; None without a confidence.
+    confidence_basis: str | None
     is_land: bool
     layers: dict[str, layers.LayerValue]
     role_ranks: dict[str, dict[str, int]]
+    # D3: the number of ranked cards per role (the ``total`` of ``role_ranks``), by role.
+    role_totals: dict[str, int]
+    # D6: share of weight variants that keep the tier (kept of variants), the other tiers the
+    # variants gave (most frequent first), and "unscharf" below ``stability.unsharp_below``. All
+    # None / empty / False for a card without a tier (U, N).
+    tier_stability: float | None
+    tier_stability_kept: int | None
+    tier_stability_variants: int | None
+    tier_alternatives: list[strength.TierAlternative]
+    unscharf: bool
+    # Additional view: tier by percentile rank inside the pool (S to F, lands and spells apart),
+    # and the rank k of n. None for a card without a tier, and ``relative_tier`` None in a group
+    # of fewer than ten ranked cards. Never replaces ``tier``.
+    relative_tier: str | None
+    relative_rank: strength.RelativeRank | None
+    chulane_textfit: chulane_textfit.ChulaneTextfitResult | None
 
 
 class UnknownBreakdown(TypedDict):
@@ -97,6 +122,37 @@ class UnknownBreakdown(TypedDict):
     missing_data: int
     by_reason: dict[str, int]
     denominator: int | None
+
+
+class StabilityInfo(TypedDict):
+    """How ``tier_stability`` was derived (D6)."""
+
+    variants: int
+    single_weight_variants: int
+    random_variants: int
+    factor: float
+    seed: int
+    unsharp_below: float
+    unscharf_count: int
+    evaluated_cards: int
+    base: str
+    note: str
+
+
+class RelativeTierPercent(TypedDict):
+    tier: str
+    up_to_percent: int
+
+
+class RelativeTiersInfo(TypedDict):
+    """The additional relative view (percentile tiers inside the pool)."""
+
+    note: str
+    f_note: str
+    min_group: int
+    percentiles: list[RelativeTierPercent]
+    totals: dict[str, int]
+    counts: dict[str, dict[str, int]]
 
 
 class LayerSummaryBlock(TypedDict):
@@ -137,6 +193,15 @@ class StrengthResult(TypedDict):
     effective_weights: dict[str, float]
     corpus: corpus_signals.CorpusInfo
     shrinkage: dict[str, object]
+    # D2: the effective weight per source family (nominal weight and share of the total)
+    weight_families: list[strength.WeightFamily]
+    # D6: how the stability of the tiers was derived
+    stability: StabilityInfo
+    # the relative tiers (percentiles inside the pool): the hint, the limits and the counts
+    relative_tier_info: RelativeTiersInfo
+    # D3: per role the number of ranked cards (the denominator of ``role_ranks``)
+    role_totals: dict[str, int]
+    chulane_textfit_version: str | None
     cards: list[StrengthCard]
 
 
@@ -1157,9 +1222,40 @@ def compute(
                 "total": total,
             }
 
+    raw_inputs = diagnostics.get("tier_inputs")
+    tier_inputs = cast("dict[str, strength.TierInputs]", raw_inputs) if raw_inputs else {}
+    stability = strength.tier_stability(
+        prepared.effective,
+        tier_inputs,
+        {card_id: scored[card_id]["tier"] for card_id in tier_inputs},
+    )
+    relative = strength.relative_tiers(
+        {
+            card_id: (float(scored[card_id]["index"] or 0.0), is_land)
+            for card_id in prepared.ids
+            if scored[card_id]["tier"] in strength.TIERS and scored[card_id]["index"] is not None
+            for is_land in (prepared.context.type_group.get(card_id) == "Land",)
+        }
+    )
+
+    raw_by_id = {str(card["card_id"]): card for card in prepared.raw_cards}
+    show_chulane_textfit = chulane_textfit.is_chulane_commander(commander)
     cards: list[StrengthCard] = []
     for card_id in prepared.ids:
         result = scored[card_id]
+        found = stability.get(card_id)
+        rel = relative.get(card_id)
+        raw_card = raw_by_id.get(card_id)
+        textfit_val: chulane_textfit.ChulaneTextfitResult | None = None
+        if show_chulane_textfit and raw_card is not None:
+            mv_raw = raw_card.get("mana_value")
+            mv_val = float(mv_raw) if isinstance(mv_raw, int | float) else None
+            textfit_val = chulane_textfit.evaluate_chulane_textfit(
+                type_line=str(raw_card.get("type_line") or ""),
+                oracle_text=str(raw_card.get("text") or ""),
+                mana_value=mv_val,
+                produced_mana=str(raw_card.get("produced_mana") or ""),
+            )
         cards.append(
             {
                 "card_id": card_id,
@@ -1168,6 +1264,17 @@ def compute(
                 "is_land": prepared.context.type_group.get(card_id) == "Land",
                 "layers": layer_result["cards"][card_id],
                 "role_ranks": ranks_for_card.get(card_id, {}),
+                "role_totals": {
+                    role: info["total"] for role, info in ranks_for_card.get(card_id, {}).items()
+                },
+                "tier_stability": found["stability"] if found else None,
+                "tier_stability_kept": found["kept"] if found else None,
+                "tier_stability_variants": found["variants"] if found else None,
+                "tier_alternatives": found["alternatives"] if found else [],
+                "unscharf": bool(found and found["stability"] < strength.STABILITY_UNSHARP_BELOW),
+                "relative_tier": rel[0] if rel else None,
+                "relative_rank": rel[1] if rel else None,
+                "chulane_textfit": textfit_val,
             }
         )
     tiers = Counter(card["tier"] for card in cards)
@@ -1201,6 +1308,14 @@ def compute(
         "denominator": next(iter(zero_denominators)) if len(zero_denominators) == 1 else None,
     }
     shrinkage = diagnostics["shrinkage"]
+    relative_counts: dict[str, dict[str, int]] = {
+        group: {name: 0 for name in strength.RELATIVE_TIERS}
+        for group in (strength.RELATIVE_GROUP_SPELLS, strength.RELATIVE_GROUP_LANDS)
+    }
+    for tier_name, rank_info in relative.values():
+        if tier_name is not None:
+            relative_counts[rank_info["group"]][tier_name] += 1
+    variants = next(iter(stability.values()))["variants"] if stability else 0
     return {
         "schema": strength.SCHEMA,
         "data_class": strength.DATA_CLASS,
@@ -1237,6 +1352,43 @@ def compute(
         "effective_weights": dict(prepared.effective.weights),
         "corpus": prepared.corpus,
         "shrinkage": dict(shrinkage) if isinstance(shrinkage, dict) else {},
+        "weight_families": strength.weight_families(prepared.effective),
+        "stability": {
+            "variants": variants,
+            "single_weight_variants": variants - strength.STABILITY_RANDOM_VARIANTS
+            if variants
+            else 0,
+            "random_variants": strength.STABILITY_RANDOM_VARIANTS if variants else 0,
+            "factor": strength.STABILITY_FACTOR,
+            "seed": strength.STABILITY_SEED,
+            "unsharp_below": strength.STABILITY_UNSHARP_BELOW,
+            "unscharf_count": sum(1 for card in cards if card["unscharf"]),
+            "evaluated_cards": len(stability),
+            "base": "wirksame Gewichte der Anfrage (im Standard das Preset Ausgewogen)",
+            "note": (
+                "Anteil der Gewichtsvarianten, in denen die Karte ihre Stufe behält: jedes "
+                "Gewicht über 0 einzeln ±20 %, dazu alle zugleich zufällig ±20 % (fester Seed); "
+                "unscharf: weniger als 80 % der Varianten"
+            ),
+        },
+        "role_totals": {role: len(bucket) for role, bucket in sorted(scored_by_role.items())},
+        "chulane_textfit_version": (
+            chulane_textfit.CHULANE_TEXTFIT_RULES_VERSION if show_chulane_textfit else None
+        ),
+        "relative_tier_info": {
+            "note": strength.RELATIVE_TIER_NOTE,
+            "f_note": strength.RELATIVE_TIER_F_NOTE,
+            "min_group": strength.RELATIVE_MIN_GROUP,
+            "percentiles": [
+                {"tier": name, "up_to_percent": percent}
+                for name, percent in (*strength.RELATIVE_TIER_PERCENTILES, ("F", 100))
+            ],
+            "totals": {
+                group: sum(1 for _tier, info in relative.values() if info["group"] == group)
+                for group in relative_counts
+            },
+            "counts": relative_counts,
+        },
         "cards": cards,
     }
 

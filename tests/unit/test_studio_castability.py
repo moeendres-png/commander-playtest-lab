@@ -233,6 +233,21 @@ def test_hand_roles_without_role_data_is_unknown_not_zero() -> None:
     assert result["library"] == 99
 
 
+def test_hand_roles_names_modal_lands_without_changing_any_figure() -> None:
+    plain = [_row(f"Card {i}", card_id=f"c{i}") for i in range(98)]
+    face = _row("Valakut Awakening", card_id="m", type_line="Instant // Land")
+    land = _row("Forest", card_id="f", type_line="Basic Land — Forest")
+    roles = {"m": ["ramp"], "c0": ["ramp"]}
+    with_modal = castability.hand_roles([*plain, face], roles)
+    baseline = castability.hand_roles([*plain, _row("Valakut Awakening", card_id="m")], roles)
+    assert with_modal["modal_land_cards"] == 1  # 1 of 99 nonland cards, counted as nonland
+    assert with_modal["nonland_cards"] == 99
+    assert baseline["modal_land_cards"] == 0
+    assert with_modal["roles"] == baseline["roles"]  # the probabilities are the same
+    assert castability.hand_roles([*plain, land], roles)["modal_land_cards"] == 0
+    assert "Modal-Land" in str(with_modal["assumption"])
+
+
 def test_castability_route_on_a_store(tmp_path) -> None:  # type: ignore[no-untyped-def]
     from fastapi.testclient import TestClient
 
@@ -268,3 +283,72 @@ def test_castability_route_on_a_store(tmp_path) -> None:  # type: ignore[no-unty
     )
     for item in body["requirements"]:
         assert "condition" in item and item["condition"].startswith("bedingt auf")
+
+
+def test_draw_sample_hand_deterministic_mulligan_and_route(tmp_path) -> None:  # type: ignore[no-untyped-def]
+    from fastapi.testclient import TestClient
+
+    from commander_lab.studio import StudioStore
+    from commander_lab.studio.web import create_app
+    from tests.unit.test_studio_builder import _fill
+
+    rows = [
+        _row("Chulane", zone="commander", mana_cost="{2}{G}{W}{U}", mana_value=5),
+        _row("Forest", card_id="land_g", type_line="Basic Land — Forest", quantity=5),
+        _row(
+            "Llanowar Elves",
+            card_id="elf_1",
+            type_line="Creature",
+            mana_cost="{G}",
+            mana_value=1,
+            quantity=5,
+        ),
+        _row(
+            "Counterspell",
+            card_id="cs_1",
+            type_line="Instant",
+            mana_cost="{U}{U}",
+            mana_value=2,
+            quantity=5,
+        ),
+    ]
+    h1 = castability.draw_sample_hand(rows, seed=42, mulligans=0, draw_steps=2)
+    h1_reversed = castability.draw_sample_hand(
+        list(reversed(rows)), seed=42, mulligans=0, draw_steps=2
+    )
+    assert h1 == h1_reversed
+    assert h1["schema"] == castability.SAMPLE_HAND_SCHEMA
+    assert h1["data_class"] == "HEURISTIC_MODEL"
+    assert h1["library_size"] == 15
+    assert h1["bottom_required"] == 0
+    assert len(h1["hand"]) == 7  # type: ignore[arg-type]
+    assert len(h1["extra_draws"]) == 2  # type: ignore[arg-type]
+
+    # Commander 1st mulligan is free (bottom_required == 0); 2nd mulligan requires 1 bottomed card
+    m1 = castability.draw_sample_hand(rows, seed=42, mulligans=1)
+    assert m1["bottom_required"] == 0
+    m2 = castability.draw_sample_hand(rows, seed=42, mulligans=2, bottom_indices=[0, 2])
+    assert m2["bottom_required"] == 1
+    assert m2["bottom_indices"] == [0, 2]
+    assert len(m2["kept_hand"]) == 5  # type: ignore[arg-type]
+
+    store = StudioStore.open(tmp_path / "studio")
+    _fill(store, tmp_path)
+    store.close()
+    client = TestClient(create_app(tmp_path / "studio"), headers={"X-Studio": "1"})
+    cards = [
+        {"card_id": "card:project:0001", "quantity": 1, "zone": "commander"},
+        {"card_id": "card:project:0002", "quantity": 10, "zone": "main"},
+        {"card_id": "card:project:0100", "quantity": 5, "zone": "main"},
+    ]
+    res = client.post(
+        "/api/sample-hand",
+        json={"cards": cards, "seed": 7, "mulligans": 2, "draw_steps": 1, "bottom_indices": [1]},
+    )
+    assert res.status_code == 200, res.text
+    payload = res.json()
+    assert payload["seed"] == 7
+    assert payload["mulligans"] == 2
+    assert payload["bottom_required"] == 1
+    assert payload["summary"]["kept_cards"] == 6
+    assert len(payload["extra_draws"]) == 1

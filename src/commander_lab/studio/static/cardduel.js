@@ -7,19 +7,19 @@ function duelPct(value) { return value === null || value === undefined ? "unbeka
 
 function duelTable(h, data, deps) {
   const a = data.a, b = data.b;
-  const freq = (side) => side.decks === null ? `unbekannt / ${side.of}` : `${side.decks} / ${side.of} (${duelPct(side.share)})`;
-  const fit = (side) => side.fit === null ? "unbekannt (kein Quelldeck spielt die Karte)" : `${duelPct(side.fit)} in ${side.fit_decks} Decks` + (side.small ? " · kleine Gruppe" : "");
+  const freq = (side) => side.decks === null ? `unbekannt / ${StudioUI.num(side.of, 0)}` : `${StudioUI.num(side.decks, 0)} / ${StudioUI.num(side.of, 0)} (${duelPct(side.share)})`;
+  const fit = (side) => side.fit === null ? "unbekannt (kein Quelldeck spielt die Karte)" : `${duelPct(side.fit)} in ${StudioUI.num(side.fit_decks, 0)} Decks` + (side.small ? " · kleine Gruppe" : "");
   const roles = (side) => side.roles.length ? side.roles.map(deps.roleName).join(", ") : "keine Rolle bekannt";
   const row = (label, left, right) => h("tr", {}, h("th", { scope: "row" }, label), h("td", {}, left), h("td", {}, right));
-  return h("table", { id: "duel-table" },
+  return h("div", { class: "table-wrap" }, h("table", { id: "duel-table" },
     h("thead", {}, h("tr", {}, h("th", {}, ""), h("th", {}, a.name), h("th", {}, b.name))),
     h("tbody", {},
       row("Im Deck", a.in_deck ? "ja" : "nein", b.in_deck ? "ja" : "nein"),
       row("Typ", deps.groupName(a.group), deps.groupName(b.group)),
-      row("Manawert", a.mana_value === null ? "unbekannt" : String(a.mana_value), b.mana_value === null ? "unbekannt" : String(b.mana_value)),
+      row("Manawert", a.mana_value === null ? "unbekannt" : StudioUI.numFlex(a.mana_value, 2), b.mana_value === null ? "unbekannt" : StudioUI.numFlex(b.mana_value, 2)),
       row("Rollen", roles(a), roles(b)),
       row("Spielen sie (Quelldecks)", freq(a), freq(b)),
-      row("Passung zu deinen übrigen Karten", fit(a), fit(b))));
+      row("Passung zu deinen übrigen Karten", fit(a), fit(b)))));
 }
 
 function renderDuelBox(into, card, deps) {
@@ -39,7 +39,7 @@ function renderDuelBox(into, card, deps) {
       if (mine !== request) return;
       out.replaceChildren(
         duelTable(h, data, deps),
-        h("p", { class: "note" }, `Grundwert: Ø ${duelPct(data.baseline)} deiner ${data.other_cards} übrigen Karten je Quelldeck in „${deps.cohortLabel()}“ (${data.cohort.decks} Decks${data.cohort.small ? ", kleine Gruppe" : ""}).` + (data.shared_roles.length ? ` Gemeinsame Rollen: ${data.shared_roles.map(deps.roleName).join(", ")}.` : " Keine gemeinsame Rolle.")),
+        h("p", { class: "note" }, `Grundwert: Ø ${duelPct(data.baseline)} deiner ${StudioUI.num(data.other_cards, 0)} übrigen Karten je Quelldeck in „${deps.cohortLabel()}“ (${StudioUI.num(data.cohort.decks, 0)} Decks${data.cohort.small ? ", kleine Gruppe" : ""}).` + (data.shared_roles.length ? ` Gemeinsame Rollen: ${data.shared_roles.map(deps.roleName).join(", ")}.` : " Keine gemeinsame Rolle.")),
         h("p", { class: "note" }, data.meaning));
     } catch (error) { if (mine !== request) return; out.replaceChildren(h("p", { class: "warn" }, "Das Duell konnte nicht berechnet werden.")); deps.fail(error); }
   };

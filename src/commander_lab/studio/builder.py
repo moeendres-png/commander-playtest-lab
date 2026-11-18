@@ -1013,6 +1013,63 @@ def list_simulations(store: StudioStore, commander_names: Sequence[str]) -> list
     return runs
 
 
+def pod_matchup_matrix(store: StudioStore, commander_names: Sequence[str]) -> dict[str, object]:
+    """Aggregate stored simulation runs of the commander by pod (#1404)."""
+    runs = list_simulations(store, commander_names)
+    by_pod: dict[str, list[dict[str, object]]] = {}
+    for run in runs:
+        pod_name = str(run.get("pod") or "unknown")
+        by_pod.setdefault(pod_name, []).append(run)
+
+    pods_out: list[dict[str, object]] = []
+    for pod_name in sorted(by_pod):
+        pod_runs = by_pod[pod_name]
+        planned = sum(int(str(r.get("games_planned") or 0)) for r in pod_runs)
+        completed = sum(int(str(r.get("games_completed") or 0)) for r in pod_runs)
+        failed = sum(int(str(r.get("games_failed") or 0)) for r in pod_runs)
+        wins = round(sum(float(str(r.get("wins_fractional") or 0.0)) for r in pod_runs), 4)
+        win_rate = round(wins / completed, 4) if completed > 0 else None
+        rounds_num = 0.0
+        rounds_den = 0
+        for r in pod_runs:
+            mr = r.get("mean_rounds")
+            gc = int(str(r.get("games_completed") or 0))
+            if mr is not None and gc > 0:
+                rounds_num += float(str(mr)) * gc
+                rounds_den += gc
+        mean_rounds = round(rounds_num / rounds_den, 2) if rounds_den > 0 else None
+        qual_states = sorted(
+            {str(r.get("bridge_qualification_state") or "UNKNOWN") for r in pod_runs}
+        )
+        all_sealed = bool(pod_runs) and all(
+            bool(r.get("covered_by_sealed_epoch")) for r in pod_runs
+        )
+        deck_ids = sorted({str(r["deck_id"]) for r in pod_runs if r.get("deck_id")})
+        pods_out.append(
+            {
+                "pod": pod_name,
+                "runs_count": len(pod_runs),
+                "games_planned": planned,
+                "games_completed": completed,
+                "games_failed": failed,
+                "wins_fractional": wins,
+                "win_rate": win_rate,
+                "mean_rounds": mean_rounds,
+                "bridge_qualification_states": qual_states,
+                "all_covered_by_sealed_epoch": all_sealed,
+                "deck_ids": deck_ids,
+            }
+        )
+    return {
+        "schema": "studio-pod-matrix-1",
+        "data_class": "SIMULATED_RESULT",
+        "commander": list(commander_names),
+        "total_runs": len(runs),
+        "total_games_completed": sum(int(str(r.get("games_completed") or 0)) for r in runs),
+        "pods": pods_out,
+    }
+
+
 def card_detail(
     store: StudioStore,
     card_id: str,
@@ -1849,9 +1906,10 @@ def list_decks(store: StudioStore) -> list[dict[str, object]]:
 
 
 def history(store: StudioStore, deck_id: str) -> list[dict[str, object]]:
-    return [
+    db = store.connection
+    rows = [
         dict(row)
-        for row in store.connection.execute(
+        for row in db.execute(
             "SELECT r.revision_id, r.parent_revision_id, r.note, r.created_at, "
             "(SELECT SUM(quantity) FROM deck_revision_card c "
             " WHERE c.revision_id = r.revision_id) AS cards "
@@ -1859,3 +1917,29 @@ def history(store: StudioStore, deck_id: str) -> list[dict[str, object]]:
             (deck_id,),
         )
     ]
+    parents: dict[str, str | None] = {
+        str(row["revision_id"]): (
+            str(row["parent_revision_id"]) if row["parent_revision_id"] is not None else None
+        )
+        for row in rows
+    }
+    heads = sorted(
+        (
+            (str(b["branch"]), str(b["revision_id"]))
+            for b in db.execute(
+                "SELECT branch, revision_id FROM deck_branch WHERE deck_id = ?", (deck_id,)
+            )
+        ),
+        key=lambda item: (0 if item[0] == "main" else 1, item[0]),
+    )
+    branch_by_rev: dict[str, str] = {}
+    for branch_name, head_rev in heads:
+        cur: str | None = head_rev
+        seen: set[str] = set()
+        while cur is not None and cur not in seen and cur in parents:
+            seen.add(cur)
+            branch_by_rev.setdefault(cur, branch_name)
+            cur = parents[cur]
+    for row in rows:
+        row["branch"] = branch_by_rev.get(str(row["revision_id"]))
+    return rows

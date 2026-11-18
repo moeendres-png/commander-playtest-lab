@@ -1,0 +1,763 @@
+{
+ "land": {
+  "D": [
+   {
+    "card": "Maze's End",
+    "kind": "v2_proposal",
+    "value": 25,
+    "why": "tapped, colourless, and a bounce cost in the effect"
+   },
+   {
+    "card": "Reliquary Tower",
+    "kind": "v2_proposal",
+    "value": 50,
+    "why": "colourless land strains a three-colour mana base"
+   },
+   {
+    "card": "Tranquil Cove",
+    "kind": "v2_proposal",
+    "value": 50,
+    "why": "enters tapped"
+   },
+   {
+    "card": "Azorius Chancery",
+    "kind": "v2_proposal",
+    "value": 50,
+    "why": "tapped and loses a land drop's tempo if no land to bounce"
+   },
+   {
+    "card": "Adarkar Wastes",
+    "kind": "v2_proposal",
+    "value": 75,
+    "why": "1 damage per coloured tap"
+   },
+   {
+    "card": "Prairie Stream",
+    "kind": "v2_proposal",
+    "value": 90,
+    "why": "small risk of entering tapped early; no pool land without any cost is outside the pilot"
+   }
+  ],
+  "E": [
+   {
+    "card": "Maze's End",
+    "kind": "v1_consensus",
+    "value": 0,
+    "why": "tapped, colourless, a Gate tutor with a high price"
+   },
+   {
+    "card": "Reliquary Tower",
+    "kind": "v1_consensus",
+    "value": 10,
+    "why": "colourless, no effect worth a slot"
+   },
+   {
+    "card": "Sungrass Prairie",
+    "kind": "v1_consensus",
+    "value": 25,
+    "why": "needs {1} each time it taps for mana; a filter"
+   },
+   {
+    "card": "Selesnya Guildgate",
+    "kind": "v1_fixed",
+    "value": 25,
+    "why": "v1 fixed (E 1)"
+   },
+   {
+    "card": "Tranquil Cove",
+    "kind": "v1_consensus",
+    "value": 35,
+    "why": "tapped dual with 1 life"
+   },
+   {
+    "card": "Adarkar Wastes",
+    "kind": "v1_consensus",
+    "value": 50,
+    "why": "untapped dual with 1 damage per colour tap"
+   },
+   {
+    "card": "Evolving Wilds",
+    "kind": "v1_fixed",
+    "value": 50,
+    "why": "v1 fixed (E 2)"
+   },
+   {
+    "card": "Prairie Stream",
+    "kind": "v1_consensus",
+    "value": 75,
+    "why": "check land: untapped early with two basics"
+   },
+   {
+    "card": "Azorius Chancery",
+    "kind": "v1_consensus",
+    "value": 75,
+    "why": "bounce land: two mana for one land card"
+   },
+   {
+    "card": "Simic Growth Chamber",
+    "kind": "v1_fixed",
+    "value": 75,
+    "why": "v1 fixed (E 3)"
+   },
+   {
+    "card": "Command Tower",
+    "kind": "v1_fixed",
+    "value": 100,
+    "why": "v1 fixed (E 4)"
+   }
+  ],
+  "F": [
+   {
+    "card": "Maze's End",
+    "kind": "v1_consensus",
+    "value": 15,
+    "why": "no link to the plan"
+   },
+   {
+    "card": "Selesnya Guildgate",
+    "kind": "v1_fixed",
+    "value": 25,
+    "why": "v1 fixed (F 1)"
+   },
+   {
+    "card": "Tranquil Cove",
+    "kind": "v1_consensus",
+    "value": 35,
+    "why": "no link to the plan"
+   },
+   {
+    "card": "Adarkar Wastes",
+    "kind": "v1_consensus",
+    "value": 40,
+    "why": "no link to the plan; colours only"
+   },
+   {
+    "card": "Command Tower",
+    "kind": "v1_fixed",
+    "value": 50,
+    "why": "v1 fixed (F 2)"
+   },
+   {
+    "card": "Prairie Stream",
+    "kind": "v1_consensus",
+    "value": 50,
+    "why": "good in any deck"
+   },
+   {
+    "card": "Evolving Wilds",
+    "kind": "v1_fixed",
+    "value": 75,
+    "why": "v1 fixed (F 3): puts a land onto the battlefield, a landfall trigger"
+   },
+   {
+    "card": "Azorius Chancery",
+    "kind": "v1_consensus",
+    "value": 100,
+    "why": "returns a land to the hand: a second land drop per turn cycle, landfall twice"
+   },
+   {
+    "card": "Simic Growth Chamber",
+    "kind": "v1_fixed",
+    "value": 100,
+    "why": "v1 fixed (F 4)"
+   }
+  ],
+  "H": [
+   {
+    "card": "Maze's End",
+    "kind": "v1_consensus",
+    "value": 0,
+    "why": "v1 H 1.0"
+   },
+   {
+    "card": "Cryptic Caves",
+    "kind": "v1_consensus",
+    "value": 10,
+    "why": "v1 H 2.0: colourless, cashes in for a card late"
+   },
+   {
+    "card": "Selesnya Guildgate",
+    "kind": "v1_fixed",
+    "value": 22,
+    "why": "v1 fixed (H 3)"
+   },
+   {
+    "card": "Tranquil Cove",
+    "kind": "v1_consensus",
+    "value": 25,
+    "why": "v1 H 3.3"
+   },
+   {
+    "card": "Evolving Wilds",
+    "kind": "v1_fixed",
+    "value": 44,
+    "why": "v1 fixed (H 5)"
+   },
+   {
+    "card": "Temple of Plenty",
+    "kind": "v1_consensus",
+    "value": 45,
+    "why": "v1 H 5.0: tapped, scry 1"
+   },
+   {
+    "card": "Prairie Stream",
+    "kind": "v1_consensus",
+    "value": 60,
+    "why": "v1 H 6.3"
+   },
+   {
+    "card": "Azorius Chancery",
+    "kind": "v1_consensus",
+    "value": 75,
+    "why": "v1 H 7.7"
+   },
+   {
+    "card": "Simic Growth Chamber",
+    "kind": "v1_fixed",
+    "value": 78,
+    "why": "v1 fixed (H 8)"
+   },
+   {
+    "card": "Command Tower",
+    "kind": "v1_fixed",
+    "value": 100,
+    "why": "v1 fixed (H 10)"
+   }
+  ],
+  "R": [
+   {
+    "card": "Maze's End",
+    "kind": "v1_consensus",
+    "value": 35,
+    "why": "tapped and colourless"
+   },
+   {
+    "card": "Reliquary Tower",
+    "kind": "v1_consensus",
+    "value": 50,
+    "why": "colourless: hurts WUG costs"
+   },
+   {
+    "card": "Sungrass Prairie",
+    "kind": "v1_consensus",
+    "value": 50,
+    "why": "needs {1} to make coloured mana"
+   },
+   {
+    "card": "Selesnya Guildgate",
+    "kind": "v1_fixed",
+    "value": 75,
+    "why": "v1 fixed (R 3)"
+   },
+   {
+    "card": "Azorius Chancery",
+    "kind": "v1_consensus",
+    "value": 75,
+    "why": "tapped, and needs another land to bounce"
+   },
+   {
+    "card": "Evolving Wilds",
+    "kind": "v1_fixed",
+    "value": 75,
+    "why": "v1 fixed (R 3)"
+   },
+   {
+    "card": "Simic Growth Chamber",
+    "kind": "v1_fixed",
+    "value": 75,
+    "why": "v1 fixed (R 3)"
+   },
+   {
+    "card": "Adarkar Wastes",
+    "kind": "v1_consensus",
+    "value": 90,
+    "why": "untapped, two colours"
+   },
+   {
+    "card": "Prairie Stream",
+    "kind": "v1_consensus",
+    "value": 100,
+    "why": "two colours, untapped from turn 3"
+   },
+   {
+    "card": "Command Tower",
+    "kind": "v1_fixed",
+    "value": 100,
+    "why": "v1 fixed (R 4)"
+   }
+  ]
+ },
+ "schema": "rubric-v2-anchors-1",
+ "spell": {
+  "D": [
+   {
+    "card": "Winds of Rath",
+    "kind": "v2_proposal",
+    "value": 0,
+    "why": "destroys the own creature engine; Wrath-style, symmetric"
+   },
+   {
+    "card": "Rites of Flourishing",
+    "kind": "v2_proposal",
+    "value": 25,
+    "why": "symmetric: every opponent draws and lands as much as you"
+   },
+   {
+    "card": "Rampaging Baloths",
+    "kind": "v2_proposal",
+    "value": 50,
+    "why": "6 mana, GG, Wrath-exposed, but leaves tokens behind"
+   },
+   {
+    "card": "Elvish Mystic",
+    "kind": "v2_proposal",
+    "value": 75,
+    "why": "dies to every sweeper but costs 1 and is replaceable; one pip"
+   },
+   {
+    "card": "Arcane Signet",
+    "kind": "v2_proposal",
+    "value": 100,
+    "why": "no Wrath exposure, no symmetry, no self-damage, no colour strain"
+   }
+  ],
+  "E": [
+   {
+    "card": "Divine Favor",
+    "kind": "v1_consensus",
+    "value": 10,
+    "why": "2 mana Aura: 3 life and +1/+3; clearly overcosted"
+   },
+   {
+    "card": "Grizzly Bears",
+    "kind": "v1_consensus",
+    "value": 25,
+    "why": "vanilla 2/2 for 2; below the format's average for its job"
+   },
+   {
+    "card": "Reclamation Sage",
+    "kind": "v1_consensus",
+    "value": 50,
+    "why": "3 mana 2/1 with a conditional ETB; fair price"
+   },
+   {
+    "card": "Fellwar Stone",
+    "kind": "v1_consensus",
+    "value": 50,
+    "why": "2 mana rock whose colours depend on opponents' lands; fair"
+   },
+   {
+    "card": "Cultivate",
+    "kind": "v1_fixed",
+    "value": 50,
+    "why": "v1 fixed (E 2)"
+   },
+   {
+    "card": "Kor Skyfisher",
+    "kind": "v1_consensus",
+    "value": 75,
+    "why": "2 mana 2/3 flier with a bounce ETB; better than most"
+   },
+   {
+    "card": "Mind Stone",
+    "kind": "v1_consensus",
+    "value": 75,
+    "why": "2 mana rock that cashes in for a card later"
+   },
+   {
+    "card": "Counterspell",
+    "kind": "v1_fixed",
+    "value": 75,
+    "why": "v1 fixed (E 3)"
+   },
+   {
+    "card": "Farseek",
+    "kind": "v1_fixed",
+    "value": 75,
+    "why": "v1 fixed (E 3)"
+   },
+   {
+    "card": "Path to Exile",
+    "kind": "v1_consensus",
+    "value": 100,
+    "why": "1 mana unconditional creature exile"
+   },
+   {
+    "card": "Arcane Signet",
+    "kind": "v1_consensus",
+    "value": 100,
+    "why": "2 mana rock, any colour of the identity, no drawback"
+   },
+   {
+    "card": "Sol Ring",
+    "kind": "v1_fixed",
+    "value": 100,
+    "why": "v1 fixed (E 4)"
+   },
+   {
+    "card": "Swords to Plowshares",
+    "kind": "v1_fixed",
+    "value": 100,
+    "why": "v1 fixed (E 4)"
+   },
+   {
+    "card": "Llanowar Elves",
+    "kind": "v1_fixed",
+    "value": 100,
+    "why": "v1 fixed (E 4)"
+   }
+  ],
+  "F": [
+   {
+    "card": "Winds of Rath",
+    "kind": "v1_consensus",
+    "value": 0,
+    "why": "destroys all own creatures: works against the plan"
+   },
+   {
+    "card": "Pacifism",
+    "kind": "v1_consensus",
+    "value": 25,
+    "why": "creature-slot removal; no link to cast triggers, lands or bounce"
+   },
+   {
+    "card": "Counterspell",
+    "kind": "v1_fixed",
+    "value": 25,
+    "why": "v1 fixed (F 1)"
+   },
+   {
+    "card": "Path to Exile",
+    "kind": "v1_consensus",
+    "value": 50,
+    "why": "good in any deck, nothing special here"
+   },
+   {
+    "card": "Arcane Signet",
+    "kind": "v1_consensus",
+    "value": 50,
+    "why": "good in any deck, nothing special here"
+   },
+   {
+    "card": "Sol Ring",
+    "kind": "v1_fixed",
+    "value": 50,
+    "why": "v1 fixed (F 2)"
+   },
+   {
+    "card": "Swords to Plowshares",
+    "kind": "v1_fixed",
+    "value": 50,
+    "why": "v1 fixed (F 2)"
+   },
+   {
+    "card": "Farseek",
+    "kind": "v1_fixed",
+    "value": 50,
+    "why": "v1 fixed (F 2)"
+   },
+   {
+    "card": "Cultivate",
+    "kind": "v1_fixed",
+    "value": 50,
+    "why": "v1 fixed (F 2)"
+   },
+   {
+    "card": "Elvish Mystic",
+    "kind": "v1_consensus",
+    "value": 75,
+    "why": "1 mana creature: casting it triggers Chulane, it ramps, it can be replayed"
+   },
+   {
+    "card": "Llanowar Elves",
+    "kind": "v1_fixed",
+    "value": 75,
+    "why": "v1 fixed (F 3)"
+   },
+   {
+    "card": "Shrieking Drake",
+    "kind": "v1_consensus",
+    "value": 100,
+    "why": "1 mana creature whose ETB bounces an own creature: replays ETBs, re-triggers Chulane"
+   },
+   {
+    "card": "Tireless Provisioner",
+    "kind": "v1_consensus",
+    "value": 100,
+    "why": "creature, landfall engine, extra land drops pay off twice"
+   }
+  ],
+  "H": [
+   {
+    "card": "Storm Crow",
+    "kind": "v1_consensus",
+    "value": 0,
+    "why": "v1 H 1.0 (spread 0): does not belong in the deck"
+   },
+   {
+    "card": "Gilded Lotus",
+    "kind": "v1_consensus",
+    "value": 25,
+    "why": "v1 H 3.3: slow, expensive, special builds"
+   },
+   {
+    "card": "Negate",
+    "kind": "v1_consensus",
+    "value": 30,
+    "why": "v1 H 3.7: narrow counter"
+   },
+   {
+    "card": "Cultivate",
+    "kind": "v1_fixed",
+    "value": 44,
+    "why": "v1 fixed (H 5)"
+   },
+   {
+    "card": "Reality Shift",
+    "kind": "v1_consensus",
+    "value": 50,
+    "why": "v1 H 5.7: playable, 2 mana exile with a drawback"
+   },
+   {
+    "card": "Farseek",
+    "kind": "v1_fixed",
+    "value": 56,
+    "why": "v1 fixed (H 6)"
+   },
+   {
+    "card": "Kor Skyfisher",
+    "kind": "v1_consensus",
+    "value": 65,
+    "why": "v1 H 6.7: good, played in most strong lists"
+   },
+   {
+    "card": "Counterspell",
+    "kind": "v1_fixed",
+    "value": 67,
+    "why": "v1 fixed (H 7)"
+   },
+   {
+    "card": "Avacyn's Pilgrim",
+    "kind": "v1_consensus",
+    "value": 75,
+    "why": "v1 H 7.7: excellent"
+   },
+   {
+    "card": "Llanowar Elves",
+    "kind": "v1_fixed",
+    "value": 78,
+    "why": "v1 fixed (H 8)"
+   },
+   {
+    "card": "Tatyova, Benthic Druid",
+    "kind": "v1_consensus",
+    "value": 80,
+    "why": "v1 H 8.3: excellent, a landfall draw engine"
+   },
+   {
+    "card": "Path to Exile",
+    "kind": "v1_consensus",
+    "value": 85,
+    "why": "v1 H 8.7: nearly always played"
+   },
+   {
+    "card": "Swords to Plowshares",
+    "kind": "v1_fixed",
+    "value": 89,
+    "why": "v1 fixed (H 9)"
+   },
+   {
+    "card": "Sol Ring",
+    "kind": "v1_fixed",
+    "value": 100,
+    "why": "v1 fixed (H 10)"
+   }
+  ],
+  "K": [
+   {
+    "card": "Storm Crow",
+    "kind": "v2_proposal",
+    "value": 0,
+    "why": "no repeatable part, no loop, no combo link"
+   },
+   {
+    "card": "Path to Exile",
+    "kind": "v2_proposal",
+    "value": 25,
+    "why": "one-shot effect, nothing to repeat"
+   },
+   {
+    "card": "Mistmeadow Council",
+    "kind": "v2_proposal",
+    "value": 50,
+    "why": "own ETB (draw): can repeat through Chulane's {3},{T} bounce, but at a high price per loop"
+   },
+   {
+    "card": "Tireless Provisioner",
+    "kind": "v2_proposal",
+    "value": 75,
+    "why": "repeatable value engine: every land drop (Chulane gives extra ones) pays out"
+   },
+   {
+    "card": "Primeval Bounty",
+    "kind": "v2_proposal",
+    "value": 75,
+    "why": "every creature spell, so every Chulane replay, pays out again"
+   },
+   {
+    "card": "Shrieking Drake",
+    "kind": "v2_proposal",
+    "value": 100,
+    "why": "1 mana self-bounce: with another ETB creature it re-casts and re-triggers Chulane for almost nothing"
+   }
+  ],
+  "R": [
+   {
+    "card": "Mechanized Production",
+    "kind": "v1_consensus",
+    "value": 0,
+    "why": "dead without a very specific artifact setup"
+   },
+   {
+    "card": "Giant Growth",
+    "kind": "v1_consensus",
+    "value": 25,
+    "why": "situational combat trick"
+   },
+   {
+    "card": "Gilded Lotus",
+    "kind": "v1_consensus",
+    "value": 50,
+    "why": "5 mana rock: usually useful, but late and slow"
+   },
+   {
+    "card": "Kor Skyfisher",
+    "kind": "v1_consensus",
+    "value": 75,
+    "why": "useful in almost every game state; needs a permanent to return"
+   },
+   {
+    "card": "Counterspell",
+    "kind": "v1_fixed",
+    "value": 75,
+    "why": "v1 fixed (R 3)"
+   },
+   {
+    "card": "Farseek",
+    "kind": "v1_fixed",
+    "value": 75,
+    "why": "v1 fixed (R 3)"
+   },
+   {
+    "card": "Cultivate",
+    "kind": "v1_fixed",
+    "value": 75,
+    "why": "v1 fixed (R 3)"
+   },
+   {
+    "card": "Llanowar Elves",
+    "kind": "v1_fixed",
+    "value": 75,
+    "why": "v1 fixed (R 3)"
+   },
+   {
+    "card": "Arcane Signet",
+    "kind": "v1_consensus",
+    "value": 100,
+    "why": "never a bad draw"
+   },
+   {
+    "card": "Path to Exile",
+    "kind": "v1_consensus",
+    "value": 100,
+    "why": "never a bad draw"
+   },
+   {
+    "card": "Sol Ring",
+    "kind": "v1_fixed",
+    "value": 100,
+    "why": "v1 fixed (R 4)"
+   },
+   {
+    "card": "Swords to Plowshares",
+    "kind": "v1_fixed",
+    "value": 100,
+    "why": "v1 fixed (R 4)"
+   }
+  ],
+  "T": [
+   {
+    "card": "Grizzly Bears",
+    "kind": "v1_consensus",
+    "value": 0,
+    "why": "no effect on any opponent"
+   },
+   {
+    "card": "Elvish Mystic",
+    "kind": "v1_consensus",
+    "value": 25,
+    "why": "only you, small"
+   },
+   {
+    "card": "Sol Ring",
+    "kind": "v1_fixed",
+    "value": 25,
+    "why": "v1 fixed (T 1)"
+   },
+   {
+    "card": "Llanowar Elves",
+    "kind": "v1_fixed",
+    "value": 25,
+    "why": "v1 fixed (T 1)"
+   },
+   {
+    "card": "Farseek",
+    "kind": "v1_fixed",
+    "value": 25,
+    "why": "v1 fixed (T 1)"
+   },
+   {
+    "card": "Cultivate",
+    "kind": "v1_fixed",
+    "value": 25,
+    "why": "v1 fixed (T 1)"
+   },
+   {
+    "card": "Path to Exile",
+    "kind": "v1_consensus",
+    "value": 50,
+    "why": "flexible answer to any one opponent's threat"
+   },
+   {
+    "card": "Pacifism",
+    "kind": "v1_consensus",
+    "value": 50,
+    "why": "answers one opponent's creature"
+   },
+   {
+    "card": "Swords to Plowshares",
+    "kind": "v1_fixed",
+    "value": 50,
+    "why": "v1 fixed (T 2)"
+   },
+   {
+    "card": "Counterspell",
+    "kind": "v1_fixed",
+    "value": 50,
+    "why": "v1 fixed (T 2)"
+   },
+   {
+    "card": "Hornet Queen",
+    "kind": "v1_consensus",
+    "value": 75,
+    "why": "a board that deters attacks from all three opponents"
+   },
+   {
+    "card": "Koma, Cosmos Serpent",
+    "kind": "v1_consensus",
+    "value": 90,
+    "why": "uncounterable, makes a threat every upkeep, answers anything; no pool card reaches 100 on T"
+   }
+  ]
+ }
+}
