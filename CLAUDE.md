@@ -15,7 +15,8 @@ reference set); the roadmap stays as planning history, and where it differs the 
 Who holds which Studio surface is in the claim table of #1167. Before touching an issue or pull
 request, check that no other agent holds it (`AGENTS.md` §11, parallel agents).
 Abarbeitung: `docs/STUDIO_SCOPE.md` §Abarbeitung. Shared files and the entry page for other
-agents: `docs/STUDIO_AGENT_ONBOARDING.md`.
+agents: `docs/STUDIO_AGENT_ONBOARDING.md`. Claim your own work too, before you start (`AGENTS.md`
+§11, Claims).
 
 **Cold start.** Run `python3 .claude/skills/lab-ops/scripts/gh_ops.py brief`, then read the
 issue or pull request you own. Git/GitHub, tests and sealed evidence are Source Truth. When the

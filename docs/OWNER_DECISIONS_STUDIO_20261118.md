@@ -98,7 +98,7 @@ sieben Punkte belegt sind:
 | # | Kriterium | Messung |
 |---|---|---|
 | 1 | Regelkonformität | Jedes Ergebnis weist den Bridge-Zustand aus. Freigabe nur mit einer qualifizierten, versiegelten Epoche, die den eingesetzten Stand von `engine-bridge/` abdeckt, oder mit einer ausdrücklichen Owner-Annahme „vor Qualifikation“ je Freigabe. |
-| 2 | Pilotgültigkeit | Pilot-Audit, dreiteilig (vom Owner angenommen am 2026-11-18, C1; Schwellen Vorschlag): (a) Vollzählung der Auslassungen (E3) und der vorhandenen Entscheidungszähler je Serie und Sitz, n/N; (b) geschichtete Stichprobe von mindestens 240 wertbaren Entscheidungen (mindestens zwei legale Optionen mit verschiedener Spielfolge) aus mindestens 24 Partien mit Sitzrotation, die Hälfte vom Chulane-Sitz, Schichten und Seeds vor den Partien festgelegt; Urteil mit Schweregraden, verblindet aus der Sicht des entscheidenden Sitzes durch zwei unabhängige Annotatoren, der Owner als Referenz für eine Kalibrierprobe und alle strittigen Fälle (Owner-Zeit etwa 2 bis 2,5 Stunden). Bestanden, wenn die Wilson-Obergrenze (95 %) der klaren Fehlentscheidungen höchstens 10 % beträgt (höchstens 14 von 240), die der spielentscheidenden höchstens 3 % (höchstens 2 von 240) und die des Chulane-Sitzes höchstens 10 % (höchstens 5 von 120); (c) alle spielentscheidenden Fälle eines eingefrorenen Satzes von Goldfällen werden vertretbar beantwortet. Das Ergebnis gilt für genau einen Pilot-Fingerabdruck und legt die Aussagegrenze fest (geprüfte Decktypen, ausgeschlossene Kartenrollen). Voraussetzungen: Audit-Mitschnitt im Studio-Pfad und Pilot-Fingerabdruck über die verhaltensbestimmenden Dateien. |
+| 2 | Pilotgültigkeit | Pilot-Audit, dreiteilig (vom Owner angenommen am 2026-11-18, C1: Vollzählung, 240 wertbare Entscheidungen aus 24 Partien mit Schweregraden, Goldfälle, Aussagegrenze; Einzelheiten Vorschlag der Plan-Lane (Gesamtplan und Pilot-Gültigkeitsstudie der Lead-Sitzung, nicht im Repository), nicht wörtlich im Owner-Kommentar: Annotatoren und Verblindung, die Schwellen 14/240, 2/240 und 5/120): (a) Vollzählung der Auslassungen (E3) und der vorhandenen Entscheidungszähler je Serie und Sitz, n/N; (b) geschichtete Stichprobe von mindestens 240 wertbaren Entscheidungen (mindestens zwei legale Optionen mit verschiedener Spielfolge) aus mindestens 24 Partien mit Sitzrotation, die Hälfte vom Chulane-Sitz, Schichten und Seeds vor den Partien festgelegt; Urteil mit Schweregraden, verblindet aus der Sicht des entscheidenden Sitzes durch zwei unabhängige Annotatoren, der Owner als Referenz für eine Kalibrierprobe und alle strittigen Fälle (Owner-Zeit etwa 2 bis 2,5 Stunden). Bestanden, wenn die Wilson-Obergrenze (95 %) der klaren Fehlentscheidungen höchstens 10 % beträgt (höchstens 14 von 240), die der spielentscheidenden höchstens 3 % (höchstens 2 von 240) und die des Chulane-Sitzes höchstens 10 % (höchstens 5 von 120); (c) alle spielentscheidenden Fälle eines eingefrorenen Satzes von Goldfällen werden vertretbar beantwortet. Das Ergebnis gilt für genau einen Pilot-Fingerabdruck und legt die Aussagegrenze fest (geprüfte Decktypen, ausgeschlossene Kartenrollen). Voraussetzungen: Audit-Mitschnitt im Studio-Pfad und Pilot-Fingerabdruck über die verhaltensbestimmenden Dateien. |
 | 3 | Sitzbalance | Sitzrotation je Block. Die simulierte Sitzkurve steht neben der Referenz: Playgroup, Vierer-Partien, Sitz 1 bis 4 = 29,1 / 25,7 / 23,6 / 21,5 %, n = 300.240, Stand 16.11.2026, Casual, Selbstangabe, Sitz nicht randomisiert, Unentschieden ausgeschlossen. |
 | 4 | Statistik | Der Mindeststandard unten (zwölf Punkte) ist erfüllt, jeder Punkt mit Test oder Beispielergebnis. |
 | 5 | Nutzen | Mindestens eine vom Owner gestellte Chulane-Frage auf Paket- oder Bauachsen-Ebene ist mit vorab abgelegtem Serienplan beantwortet (vom Owner angenommen am 2026-11-18, C2). Erste Frage: Landzahl-Achse 33 / 36 / 39 Länder (Basis 36); getauscht werden je drei Karten, die der Owner vor dem Lauf benennt. Der Plan enthält die erwartete Richtung, eine Negativkontrolle (Basis gegen Basis), eine Positivkontrolle (absichtlich verschlechterte Liste, 27 Länder) und eine exakte Gegenprobe (zuerst ausgeteilte Hand gegen die hypergeometrische Verteilung). Erfüllt, wenn beide Kontrollen und die Gegenprobe bestehen, das Ergebnis Intervall, nachweisbare Differenz und Aussagegrenze nennt und der Owner es danach als sinnvoll bestätigt. „Kein nachweisbarer Unterschied“ ist ein gültiges Ergebnis. |
@@ -111,7 +111,7 @@ Entscheidungsklasse schließt die zugehörigen Kartenrollen von Simulationsaussa
 Tor insgesamt scheitern zu lassen. Die Schwellen sind Setzungen; ein Vergleichswert für menschliche
 Spieler ist nicht belegt.
 
-**Stufen zur Tierliste (vom Owner angenommen am 2026-11-18, C3).** Stufe 0: wie heute, Gewicht 0.
+**Stufen zur Tierliste (vom Owner angenommen am 2026-11-18, C3; die Prüfungen vor Stufe 2 sind Einzelheiten Vorschlag der Plan-Lane (Gesamtplan und Pilot-Gültigkeitsstudie der Lead-Sitzung, nicht im Repository), nicht wörtlich im Owner-Kommentar).** Stufe 0: wie heute, Gewicht 0.
 Stufe 1, nach G-SIM 1 bis 6 und Owner-Go zur Darstellung: getrennte Markierung an Karten eines
 bestätigten Paket-Ergebnisses, ohne Gewicht, ohne Sortierung, mit Intervall, n und Aussagegrenze.
 Stufe 2, Gewicht größer 0: erst nach einer Hold-out-Prüfung (ein vorab benanntes Außenkriterium
@@ -260,10 +260,19 @@ deinem Empfehlungen bitte so in den issues hinterlegen damit gemini das auch ric
   jeweils anderen Agenten geprüft; der Review-Kommentar nennt die prüfende Sitzung neutral, die
   Head-SHA, die Befehle und das Urteil; der Autor mergt frühestens danach (`AGENTS.md` §10). Wer
   Development Lead ist und fremde PRs mergt, bleibt Owner-Sache und ist damit nicht geregelt.
-- **C8** `docs/research/studio_abschluss_20261118/ist_lage_dbs.md` prüfen und kürzen. Sichtbarkeit
+- **C8** `docs/research/studio_abschluss_20261118/ist_lage_dbs.md` prüfen, gegebenenfalls kürzen. Sichtbarkeit
   und #1108 bleiben Owner-Sache, ohne Empfehlung.
 
 Die Einschränkung „Bei Unsicherheiten nochmal mit mir zusammen planen“ (Abschnitt 1) gilt weiter.
+
+### E8: Claims für alle Agenten (2026-11-18)
+
+Owner, 2026-11-18 (Session-Chat, wörtlich festgehalten in #1167, Kommentar 6992745252): „claime du
+auch bitte immer deine Arbeit wie die anderen Agenten und schreib das vielleicht als Dauerregel ins
+agents.md damit es zu keiner doppelarbeit kommt“. Umgesetzt als Dauerregel in `AGENTS.md` §11
+(„Claims“); die Einzelheiten (Prüfung vor dem Start, Freigabe, Verfall 24 Stunden nach einer
+unbeantworteten Rückfrage bei einem Claim ohne gepushten Meilenstein, Übernahme danach) sind
+Ausgestaltung des Leads nach `AGENTS.md` §8.
 
 ## 3. Was aufgehoben, geändert oder neu ist
 
@@ -274,7 +283,7 @@ Die Einschränkung „Bei Unsicherheiten nochmal mit mir zusammen planen“ (Abs
 | S2 und Einfrierung neuer Pilot-Mikro-Messreihen (2026-11-10) | nur für die reine Zählung von Pilot-Auslassungen aufgehoben (E3) | O4 |
 | K4 „keine Kombination“, E1.a „Rubrik-Gewicht 0“, Ablehnung einer modellgestützten Einschätzung, A4 „nur objektive Daten“ | nur für das neue, gekennzeichnete Gesamtrating aufgehoben (E6) | Owner 18.11., angenommen 18.11. |
 | PLAY „fertig“, wenn der Owner eine ganze Partie spielt (`STUDIO_ROADMAP_20261112.md`) | Abnahme nach AK-1 bis AK-8 (E4) | O6 |
-| 5 und 6 Sitze: nur durch Regel nicht freigegeben; Code nimmt 2 bis 6 Sitze an (`studio/launch.py`: `MIN_SEATS, MAX_SEATS = 2, 6`) | neu: technische Sperre für 5 und 6 Sitze; aufgehoben wird sie nur per Owner-Freigabe. Im Studio-Startpfad (Partie, PLAY) ist sie mit PR #1515 auf `main` (`launch.MAX_RELEASED_SEATS = 4`). In den Serien-Routen ist sie noch offen (SIMULATE-Zweig; PR #1516 enthält sie nicht). | Empfehlung O11 des Optionspapiers, Owner-GO 2026-11-18 |
+| 5 und 6 Sitze: nur durch Regel nicht freigegeben; Code nimmt 2 bis 6 Sitze an (`studio/launch.py`: `MIN_SEATS, MAX_SEATS = 2, 6`) | neu: technische Sperre für 5 und 6 Sitze; aufgehoben wird sie nur per Owner-Freigabe. Im Studio-Startpfad (Partie, PLAY) ist sie mit PR #1515 auf `main` (`launch.MAX_RELEASED_SEATS = 4`). In den Serien-Routen und in `compare-decks` gilt sie seit PR #1536 (`compare-decks` mit Schalter `--allow-unreleased-seats`, standardmäßig aus). | Empfehlung O11 des Optionspapiers, Owner-GO 2026-11-18 |
 | `docs/STUDIO_TARGET_SCOPE.md` als Zielumfang (PR #1510) | ersetzt durch `docs/STUDIO_SCOPE.md` | Owner 2026-11-18 (Abschnitt 1), Optionspapier §D.1 |
 | G-SIM Punkt 2: Stichprobe 200/20, eigene Owner-Bestätigung nötig; S2 nur für die Zählung aufgehoben | Pilot-Audit dreiteilig; S2 zusätzlich nur für dieses Audit aufgehoben | E7, C1 |
 | Weg in die Tierliste: „nach G-SIM eigenes Design“ | Stufen 0 / 1 / 2; Gewicht größer 0 erst in Stufe 2 | E7, C3 |
