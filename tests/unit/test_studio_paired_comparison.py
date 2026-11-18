@@ -143,6 +143,8 @@ def test_no_pairs_is_reported_not_scored(tmp_path: Path) -> None:
     result = compare_logs(tmp_path, base_deck_id=BASE, variant_deck_id=VARIANT)
     assert result["status"] == "NO_PAIRS" and result["stop_reason"] == "NO_PAIRS"
     assert result["difference_pp"] is None and result["sign_test_p_value"] is None
+    assert result["discordant_share"] is None
+    assert result["discordant_share_if_independent"] is None
     assert result["unpaired_base"] == 1
 
 
@@ -170,6 +172,9 @@ def test_paired_statistics_match_hand_computed_values(tmp_path: Path) -> None:
     assert result["difference_pp"] == 40.0
     assert result["variant_only_wins"] == 7 and result["baseline_only_wins"] == 3
     assert result["tied_pairs"] == 0
+    # all 10 pairs discordant; independent games at 30 % / 70 % would give 0.3*0.3+0.7*0.7
+    assert result["discordant_share"] == 1.0
+    assert result["discordant_share_if_independent"] == pytest.approx(0.58)
     # exact sign test: 2 * (1 + 10 + 45 + 120) / 1024
     assert result["sign_test_p_value"] == 0.34375
     ci = result["difference_ci95_pp"]

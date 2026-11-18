@@ -17,6 +17,7 @@ from __future__ import annotations
 import contextlib
 import hashlib
 import json
+import math
 import re
 import threading
 import time
@@ -26,8 +27,11 @@ from pathlib import Path
 from commander_lab.agents.card_knowledge import CardCatalogError, card_facts
 from commander_lab.bridge_qualification import bridge_qualification
 from commander_lab.engine.rules.full_game_comparison import (
+    PLANNED_PAIR_SD,
     SlotAlignment,
     align_to_baseline_slots,
+    pairs_needed,
+    planned_detectable_difference,
 )
 from commander_lab.engine.rules.project import load_rules_deck_snapshot
 from commander_lab.models import RulesDeckInput
@@ -53,8 +57,18 @@ from .strength import StrengthSettings
 SCHEMA_PAIRED_JOB = "studio-paired-series-job-1"
 SCHEMA_READINESS_AUDIT = "studio-sim-readiness-audit-1"
 
-#: Rough pre-run throughput estimate after #1299 forced-pass bridge optimization (~540 games/hour).
+#: Throughput measured for *batch* series on the Owner PC (#1251: 6 workers, 8 games per JVM,
+#: after the #1299 forced-pass option). A paired series plays one game after the other, one
+#: fresh JVM per game, without those options: its throughput is unmeasured and lower.
 ESTIMATED_GAMES_PER_HOUR = 540.0
+THROUGHPUT_SOURCE = (
+    "gemessen nur für Batch-Serien (6 Worker mit je 8 Partien pro JVM, #1251); für gepaarte Serien "
+    "ungemessen: sie spielen nacheinander, eine frische JVM je Partie"
+)
+#: Assumed block correlation of the seat rotations of one seed, as in ``power_table`` (#1043).
+PLANNING_BLOCK_CORRELATION = 0.25
+PLANNING_REFERENCE_EFFECT_PP = 5.0
+SERIES_PURPOSES = ("unspecified", "exploration", "confirmation")
 _SAFE_SERIES_ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_-]{0,95}$")
 
 
@@ -69,10 +83,45 @@ def validate_series_id(series_id: str) -> str:
     return cleaned
 
 
+def planned_detectable_difference_pp(budget_pairs: int, seats_per_seed: int) -> dict[str, object]:
+    """What ``budget_pairs`` can detect before a game is played, with the assumptions named.
+
+    The engine lane's planning arithmetic (``planned_detectable_difference``,
+    ``pairs_needed``: 95 % two-sided, 80 % power, assumed pair sd 0.63 = independent games
+    at a 25 % win rate). The pairing correlation is unmeasured, so the sd is not lowered for
+    it; the seat rotations of one seed count with the design effect
+    ``1 + (m - 1) * 0.25`` as the upper end. A plan, not a measurement.
+    """
+    pairs = max(1, int(budget_pairs))
+    seats = max(1, int(seats_per_seed))
+    design_effect = 1.0 + (seats - 1) * PLANNING_BLOCK_CORRELATION
+    low = planned_detectable_difference(pairs)
+    effect = PLANNING_REFERENCE_EFFECT_PP / 100.0
+    needed = pairs_needed(effect, PLANNED_PAIR_SD)
+    return {
+        "budget_pairs": pairs,
+        "detectable_pp_low": round(low * 100.0, 1),
+        "detectable_pp_high": round(low * math.sqrt(design_effect) * 100.0, 1),
+        "reference_effect_pp": PLANNING_REFERENCE_EFFECT_PP,
+        "pairs_needed_low": needed,
+        "pairs_needed_high": math.ceil(needed * design_effect),
+        "assumptions": {
+            "confidence": 0.95,
+            "power": 0.80,
+            "pair_sd": PLANNED_PAIR_SD,
+            "pair_sd_basis": "independent games at 25 % win rate; pairing correlation unmeasured",
+            "seats_per_seed": seats,
+            "design_effect": round(design_effect, 4),
+            "block_correlation_assumed": PLANNING_BLOCK_CORRELATION,
+            "sequential_looks": "not included (O'Brien-Fleming looks cost a little power)",
+        },
+    }
+
+
 def estimate_series_duration(
-    budget_pairs: int, *, pairs_planned_max: int | None = None
+    budget_pairs: int, *, pairs_planned_max: int | None = None, seats_per_seed: int = 4
 ) -> dict[str, object]:
-    """Rough duration estimate for a paired A-vs-B comparison series."""
+    """Rough duration estimate and pre-run plan for a paired A-vs-B comparison series."""
     pairs = max(0, int(pairs_planned_max if pairs_planned_max is not None else budget_pairs))
     max_games = pairs * 2
     seconds = round(max_games * (3600.0 / ESTIMATED_GAMES_PER_HOUR))
@@ -83,10 +132,13 @@ def estimate_series_duration(
         "estimated_games_per_hour": int(ESTIMATED_GAMES_PER_HOUR),
         "estimated_seconds": seconds,
         "estimated_minutes": minutes,
+        "throughput_measured_for_paired_series": False,
+        "throughput_source": THROUGHPUT_SOURCE,
         "basis": (
-            f"Grober Richtwert auf Basis ~{int(ESTIMATED_GAMES_PER_HOUR)} Partien/Stunde "
-            "(2 Partien pro Paar bei frühem Stopp je nach Sequential-Look möglich)."
+            f"Untergrenze der Dauer bei ~{int(ESTIMATED_GAMES_PER_HOUR)} Partien/Stunde; "
+            f"{THROUGHPUT_SOURCE}. 2 Partien je Paar; früher Stopp je nach Look möglich."
         ),
+        "planning": planned_detectable_difference_pp(max(1, pairs), seats_per_seed),
     }
 
 
@@ -239,6 +291,8 @@ class PairedSeriesJob:
         bridge_sha: str | None = None,
         qualification: Mapping[str, object] | None = None,
         slot_alignment: SlotAlignment | None = None,
+        purpose: str = "unspecified",
+        player_count: int | None = None,
     ) -> None:
         self.series_id = series_id
         self.data_folder = data_folder
@@ -260,7 +314,19 @@ class PairedSeriesJob:
         self.bridge_qualification = (
             dict(qualification) if qualification is not None else bridge_qualification()
         )
-        self.estimate = estimate_series_duration(budget_pairs)
+        self.estimate = estimate_series_duration(budget_pairs, seats_per_seed=len(tested_seats))
+        table_size = player_count if player_count is not None else 1 + len(self.opponents)
+        #: Consecutive seeds on purpose: the engine starts the game at seat ``seed % players``
+        #: (``full_game``), so a run of consecutive seeds balances the turn order.
+        self.seed_plan: dict[str, object] = {
+            "purpose": purpose,
+            "first_seed": self.seeds[0] if self.seeds else None,
+            "last_seed": self.seeds[-1] if self.seeds else None,
+            "seeds_planned": len(self.seeds),
+            "seed_rule": "consecutive",
+            "player_count": table_size,
+            "starting_seat_rule": "seed % player_count",
+        }
         #: How the variant's library was lined up with the base's; ``None`` only for a
         #: series written before the alignment existed (its pairs share no shuffle).
         self.slot_alignment: dict[str, object] | None = (
@@ -330,6 +396,7 @@ class PairedSeriesJob:
                 "error": self.error,
                 "estimate": self.estimate,
                 "slot_alignment": self.slot_alignment,
+                "seed_plan": self.seed_plan,
                 "bridge_jar_sha256": bridge_shas[0]
                 if len(bridge_shas) == 1
                 else self.bridge_jar_sha256,
@@ -394,6 +461,7 @@ class PairedSeriesJob:
                     "budget_pairs": self.budget_pairs,
                     "games_dir": str(games_folder(self.data_folder)),
                     "slot_alignment": self.slot_alignment,
+                    "seed_plan": self.seed_plan,
                 },
             )
             with self._lock:
@@ -439,8 +507,11 @@ class PairedSeriesManager:
         threshold_pp: float = paired_comparison.DEFAULT_THRESHOLD_PP,
         significance_level: float = paired_comparison.DEFAULT_SIGNIFICANCE_LEVEL,
         play_override: paired_comparison.PairPlayer | None = None,
+        purpose: str = "unspecified",
     ) -> PairedSeriesJob:
         data_path = Path(data_folder).resolve()
+        if purpose not in SERIES_PURPOSES:
+            raise ValueError(f"purpose muss eines von {', '.join(SERIES_PURPOSES)} sein")
         if base_revision_id.strip() == variant_revision_id.strip():
             raise ValueError("Basis und Variante müssen zwei verschiedene Stände sein")
         if (
@@ -530,6 +601,8 @@ class PairedSeriesManager:
             bridge_sha=jar_sha,
             qualification=bridge_qualification(),
             slot_alignment=alignment,
+            purpose=purpose,
+            player_count=table_size,
         )
         job.persist()
         with self._lock:
@@ -783,10 +856,13 @@ __all__ = [
     "ESTIMATED_GAMES_PER_HOUR",
     "SCHEMA_PAIRED_JOB",
     "SCHEMA_READINESS_AUDIT",
+    "SERIES_PURPOSES",
+    "THROUGHPUT_SOURCE",
     "PairedSeriesJob",
     "PairedSeriesManager",
     "estimate_series_duration",
     "paired_series_manager",
+    "planned_detectable_difference_pp",
     "simulator_readiness_audit",
     "validate_series_id",
 ]

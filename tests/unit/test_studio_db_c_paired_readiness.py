@@ -249,6 +249,29 @@ def test_estimate_series_duration_matches_540_games_per_hour() -> None:
     assert est["estimated_games_per_hour"] == 540
     assert est["estimated_seconds"] == round(40 * 3600.0 / 540.0)
     assert est["estimated_minutes"] == round(est["estimated_seconds"] / 60.0, 1)
+    # 540/h is the batch-series measurement (#1251), not one of paired series
+    assert est["throughput_measured_for_paired_series"] is False
+    assert "ungemessen" in str(est["throughput_source"])
+    assert "ungemessen" in str(est["basis"])
+
+
+def test_series_plan_names_the_detectable_difference_and_its_assumptions() -> None:
+    from commander_lab.engine.rules.full_game_comparison import planned_detectable_difference
+
+    plan = paired_series.estimate_series_duration(40)["planning"]
+    assert isinstance(plan, dict)
+    # (1.96 + 0.8416) * 0.63 / sqrt(40) = 27.9 pp; with design effect 1.75 for 4 seats/seed
+    assert plan["detectable_pp_low"] == round(planned_detectable_difference(40) * 100, 1) == 27.9
+    assert plan["detectable_pp_high"] == 36.9
+    # 5 pp needs about 1247 pairs (independent seeds) up to 2183 (design effect 1.75)
+    assert (plan["pairs_needed_low"], plan["pairs_needed_high"]) == (1247, 2183)
+    assumptions = plan["assumptions"]
+    assert assumptions["confidence"] == 0.95 and assumptions["power"] == 0.80
+    assert "unmeasured" in assumptions["pair_sd_basis"]
+    one_seat = paired_series.estimate_series_duration(40, seats_per_seed=1)["planning"]
+    assert one_seat["detectable_pp_high"] == one_seat["detectable_pp_low"]
+    # cross-check with the methods paper: about 5.5 pp at 1000 pairs
+    assert paired_series.planned_detectable_difference_pp(1000, 1)["detectable_pp_low"] == 5.6
 
 
 def test_validate_series_id_rejects_path_traversal() -> None:
@@ -488,6 +511,26 @@ def test_paired_series_plays_the_variant_in_the_baseline_library_slots(
         result = finished["result"]
         assert isinstance(result, dict)
         assert result["execution"]["slot_alignment"] == alignment
+        # consecutive seeds on purpose: the starting seat is seed % players
+        assert finished["seed_plan"] == {
+            "purpose": "unspecified",
+            "first_seed": 1000,
+            "last_seed": 1003,
+            "seeds_planned": 4,
+            "seed_rule": "consecutive",
+            "player_count": 4,
+            "starting_seat_rule": "seed % player_count",
+        }
+        assert result["execution"]["seed_plan"] == finished["seed_plan"]
+        with pytest.raises(ValueError, match="purpose"):
+            mgr.start_series(
+                store,
+                folder,
+                base_revision_id=rev_base,
+                variant_revision_id=rev_var,
+                play_override=_noop,
+                purpose="whatever",
+            )
     finally:
         store.close()
 
