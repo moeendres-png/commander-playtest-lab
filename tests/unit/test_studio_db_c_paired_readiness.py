@@ -861,6 +861,44 @@ def test_paired_js_csp_and_in_place_slot_refresh() -> None:
     assert "refreshPairedSlots(" in app_js
 
 
+def test_paired_js_plan_mirrors_the_python_planning_constants_and_wording() -> None:
+    """The start dialog computes the plan in the browser; its constants are the engine lane's."""
+    import re
+
+    from commander_lab.engine.rules.full_game_comparison import (
+        DIFFERENCE_Z80,
+        DIFFERENCE_Z95,
+        PLANNED_PAIR_SD,
+    )
+
+    paired_js = (STATIC_DIR / "paired.js").read_text(encoding="utf-8")
+
+    def _const(name: str) -> float:
+        found = re.search(rf"const {name} = ([0-9.]+);", paired_js)
+        assert found is not None, name
+        return float(found.group(1))
+
+    assert _const("PLAN_Z95") == DIFFERENCE_Z95
+    assert _const("PLAN_Z80") == DIFFERENCE_Z80
+    assert _const("PLAN_PAIR_SD") == PLANNED_PAIR_SD
+    assert _const("PLAN_BLOCK_CORRELATION") == paired_series.PLANNING_BLOCK_CORRELATION
+    assert _const("PLAN_REFERENCE_EFFECT_PP") == paired_series.PLANNING_REFERENCE_EFFECT_PP
+    assert _const("PAIRED_ESTIMATED_GAMES_PER_HOUR") == paired_series.ESTIMATED_GAMES_PER_HOUR
+    # throughput is labelled as unmeasured for paired series, never as a measurement
+    assert "für gepaarte Serien ist er ungemessen" in paired_js
+    assert "Grober Richtwert" not in paired_js
+    # the plan names its assumptions; a non-decided series never reads as "the card is irrelevant"
+    assert "gepaart: Korrelation ungemessen" in paired_js
+    assert "Power 80 %" in paired_js
+    assert "Kein Unterschied nachweisbar bei n = " in paired_js
+    assert "das heißt nie, dass eine Karte egal ist" in paired_js
+    assert "Karte ist egal" not in paired_js
+    assert "detectable_difference_pp" in paired_js
+    assert "discordant_share_if_independent" in paired_js
+    assert "slot_alignment" in paired_js and "seed_plan" in paired_js
+    assert 'id: "paired-plan"' in paired_js
+
+
 # ---- Serien im Deck-Verlauf (#1404): studio/deck_series.py, GET /api/decks/{id}/series ----
 
 
