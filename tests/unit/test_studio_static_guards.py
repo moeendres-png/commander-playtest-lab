@@ -424,7 +424,7 @@ def test_tierliste_ux_batch_1_contract() -> None:
         'scope: "col"',
         '"aria-sort"',
         'class: "visually-hidden"',
-        'role: "tab"',
+        '"aria-pressed": String(state.tab',
         "th-sort",
     ):
         assert token in js, token
@@ -442,3 +442,30 @@ def test_tierliste_ux_batch_1_contract() -> None:
     assert "role_ranks" in js and "Rang in Funktion" in js
     for forbidden in ("innerHTML", "style=", 'setAttribute("style"', ".toFixed("):
         assert forbidden not in js and forbidden not in html, forbidden
+
+
+def test_why_box_split_is_only_shown_when_it_adds_up() -> None:
+    """P2 of the UX batch 1 review: the split of the index into points and percentages ("Warum hier?")
+    runs the real function from tierliste.js. A low index (0,2) gets no percentage split, a high one
+    (80,6) does and its rounded percentages add up to 100 +- 1."""
+    source = (STATIC / "tierliste.js").read_text(encoding="utf-8")
+    start = source.index("function indexShares(item) {")
+    end = source.index('// "Warum hier?"', start)
+    script = (
+        f"eval({json.dumps(source[start:end])} + ';globalThis.indexShares = indexShares;');"
+        "const comp = (component, weight, percentile) => ({component, label: component, weight, percentile});"
+        "const item = (parts) => { const total = parts.reduce((s, p) => s + p[1], 0);"
+        "  const index = Math.round(10 * parts.reduce((s, p) => s + 100 * p[1] * p[2] / total, 0)) / 10;"
+        "  return {index, components: parts.map((p) => comp(...p))}; };"
+        "const low = item([['edhrec', 1, 0.0082], ['deck', 4, 0.0007], ['tour', 0.5, 0.0054], ['combos', 0.5, 0], ['lift', 1, 0.0006]]);"
+        "const high = item([['deck', 4, 1], ['tuned', 1.5, 1], ['lift', 1, 0], ['slope', 1, 0.06], ['glob', 1, 1], ['tour', 0.5, 0.99], ['theme', 0.5, 0.99], ['combos', 0.5, 1]]);"
+        "const a = indexShares(low), b = indexShares(high);"
+        "console.log(JSON.stringify({lowIndex: low.index, lowDetail: a === null ? null : a.detail,"
+        "  highIndex: high.index, highDetail: b.detail,"
+        "  highSum: b.shown.reduce((s, r) => s + Math.round(r.percent), 0) + Math.round(b.restPercent)}));"
+    )
+    result = _node_json(script)
+    assert isinstance(result, dict)
+    assert result["lowIndex"] < 5 and result["lowDetail"] is False
+    assert result["highIndex"] > 70 and result["highDetail"] is True
+    assert 99 <= result["highSum"] <= 101

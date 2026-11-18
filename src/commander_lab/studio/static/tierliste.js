@@ -549,6 +549,15 @@ function tableColumns() {
     ...(state.view === "deck" ? [{ head: () => plainHead("im Deck"), cell: (card) => h("td", { class: "num" }, nf(state.deckCards.get(card.card_id))) }] : []),
   ];
 }
+// A sort key whose column is not on screen (compact column set, or the function rank outside its mode) says so.
+function hiddenSortNote() {
+  const key = state.sortKey, option = $("sort").selectedOptions && $("sort").selectedOptions[0];
+  const label = option ? option.textContent : key;
+  if (key === "rolerank" && !state.funcMode) return `Sortiert nach „${label}“: Spalte nur im Vergleich „Gleiche Funktion“ sichtbar`;
+  const detailOnly = key === "confidence" || key === "spread" || key === "edhrec" || key === "games" || key === "layers" || key.startsWith(LAYER_SORT);
+  if (detailOnly && state.preset === "compact") return `Sortiert nach „${label}“ (Spalte im Kompakt ausgeblendet)`;
+  return "";
+}
 function sortCaption() {
   const option = $("sort").selectedOptions && $("sort").selectedOptions[0];
   return `${option ? option.textContent : state.sortKey}, ${state.sortDir > 0 ? "aufsteigend" : "absteigend"}`;
@@ -606,6 +615,9 @@ function render(keepScroll = true) {
   const cards = visibleCards();
   $("count").textContent = `${countLine(cards.length)}${state.nameSorted ? " · Treffer nach Name zuerst" : ""}`;
   body.setAttribute("aria-label", state.tab === "research" ? "Forschungsliste" : "Tierliste: Kartentabelle");
+  const sortNote = hiddenSortNote();
+  $("sort-note").textContent = sortNote;
+  $("sort-note").hidden = !sortNote;
   if (state.searchErrors && state.searchErrors.length) {
     body.append(h("div", { id: "search-syntax-error", class: "empty" },
       h("b", {}, "Hinweis zur Such-Syntax:"),
@@ -869,7 +881,10 @@ async function universeBox(card) {
   return box;
 }
 // How the index adds up: weight * score per signal over the signals that count, divided by the sum of those
-// weights. The points add up to the shown index (checked here; if they do not, no split is shown).
+// weights. The points must add up to the shown index (checked; if not, nothing is split). Shares are taken of
+// the TRUE sum of the points, never of the rounded index. `detail` says whether numbers may be shown: the
+// index is at least 5, every shown row is above 0,0 points when rounded to one decimal, and the rounded
+// percentages (three rows plus the rest) add up to 100 +- 1; otherwise only the order of the signals is shown.
 function indexShares(item) {
   const used = item.components.filter((c) => c.weight > 0 && c.percentile !== null && c.percentile !== undefined);
   const total = used.reduce((sum, c) => sum + c.weight, 0);
@@ -877,7 +892,13 @@ function indexShares(item) {
   const rows = used.map((c) => ({ key: c.component, label: c.label, points: 100 * c.weight * c.percentile / total })).filter((row) => row.points > 0);
   const sum = rows.reduce((acc, row) => acc + row.points, 0);
   if (!rows.length || Math.abs(sum - item.index) > 0.06) return null;
-  return rows.sort((a, b) => b.points - a.points);
+  rows.sort((a, b) => b.points - a.points);
+  for (const row of rows) row.percent = 100 * row.points / sum;
+  const shown = rows.slice(0, 3), rest = rows.slice(3);
+  const restPercent = rest.reduce((acc, row) => acc + row.percent, 0);
+  const roundedSum = shown.reduce((acc, row) => acc + Math.round(row.percent), 0) + Math.round(restPercent);
+  const detail = item.index >= 5 && shown.every((row) => Math.round(row.points * 10) > 0) && Math.abs(roundedSum - 100) <= 1;
+  return { rows, shown, restPercent, detail };
 }
 // "Warum hier?": two to four plain sentences from numbers the payload already holds (n of N everywhere).
 function whyBox(card) {
@@ -895,9 +916,12 @@ function whyBox(card) {
   const ranks = Object.entries(item.role_ranks || {}).sort((a, b) => a[1].rank - b[1].rank).slice(0, 3);
   if (ranks.length) lines.push(`In der Funktion: ${ranks.map(([role, rInfo]) => `${roleName(role)} Rang ${nf(rInfo.rank)} von ${nf(rInfo.total)}`).join("; ")} (nach dem Index im Gesamtpool).`);
   const shares = indexShares(item);
-  if (shares) {
-    const top = shares.slice(0, 3).map((row) => `${SIGNAL_SHORT[row.key] || row.label} ${StudioUI.num(row.points, 1)} Punkte (${StudioUI.pct(row.points / item.index, 0)})`).join(", ");
-    lines.push(`Beitrag zum Index (die Punkte ergeben zusammen ${StudioUI.num(item.index, 1)}): ${top}${shares.length > 3 ? ` und ${nf(shares.length - 3)} weitere Signale` : ""}.`);
+  if (shares && shares.detail) {
+    const top = shares.shown.map((row) => `${SIGNAL_SHORT[row.key] || row.label} ${StudioUI.num(row.points, 1)} Punkte (${StudioUI.num(row.percent, 0)} %)`).join(", ");
+    lines.push(`Beitrag zum Index (die Punkte ergeben zusammen ${StudioUI.num(item.index, 1)}): ${top}${shares.rows.length > 3 ? `, weitere Signale ${StudioUI.num(shares.restPercent, 0)} %` : ""}.`);
+  } else if (shares) {
+    const order = shares.shown.map((row) => SIGNAL_SHORT[row.key] || row.label).join(", ");
+    lines.push(item.index < 5 ? `Index unter 5: die Aufteilung in Punkte wäre zu ungenau. Größte Beiträge, ohne Zahlen: ${order}.` : `Größte Beiträge, ohne Zahlen: ${order}.`);
   }
   lines.push(`Datenlage: ${confidenceText(item)}.${item.borderline ? ` Grenzwertig: ${StudioUI.num(item.cut_distance, 1)} Punkte von der Grenze ${StudioUI.numFlex(item.borderline_cut, 1)}.` : ""}`);
   box.append(h("ul", { class: "why-list" }, lines.map((line) => h("li", {}, line))), h("p", { class: "rule" }, "Die Stufe zeigt Nutzung in Decks, keine Spielstärke."));
@@ -1530,7 +1554,7 @@ async function initStrength() {
     state.funcMode = true;
     StudioUI.remember(COMPARE_KEY, "function");
     try { localStorage.setItem(STRENGTH_KEY, JSON.stringify(wanted)); } catch (error) { /* private mode: no memory */ }
-    toast("„Gleiche Funktion“ zeigt jetzt den Rang je Funktion; die Stufe bleibt die Stufe im Gesamtpool.");
+    toast("Die gespeicherte Einstellung „Vergleichsgruppe: gleiche Funktion“ (auch eine bewusste Wahl im Einstellungs-Panel) wurde in die Anzeige „Gleiche Funktion“ umgewandelt: Rang je Funktion. Die Einstellung steht jetzt auf Gesamtpool, die Stufe ist die Stufe im Gesamtpool.");
   }
   const base = wanted && typeof wanted === "object" ? wanted : s.meta.recommended;
   s.settings = { ...withDefaults(base), universe_profile: state.universe.name || null };
@@ -1824,7 +1848,7 @@ async function setView(view) {
 }
 
 function renderTabs() {
-  $("tabs").replaceChildren(...[["cards", "Karten"], ["research", "Forschungsliste"]].map(([key, label]) => h("button", { type: "button", role: "tab", class: "chip" + (state.tab === key ? " on" : ""), "aria-selected": String(state.tab === key), onclick: () => { state.tab = key; renderTabs(); render(false); } }, label)));
+  $("tabs").replaceChildren(...[["cards", "Karten"], ["research", "Forschungsliste"]].map(([key, label]) => h("button", { type: "button", class: "chip" + (state.tab === key ? " on" : ""), "aria-pressed": String(state.tab === key), onclick: () => { state.tab = key; renderTabs(); render(false); } }, label)));
 }
 function renderCoreLine() {
   $("core-line").textContent = state.view === "global"
