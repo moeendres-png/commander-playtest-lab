@@ -68,17 +68,21 @@ from . import (
 from . import evidence as evidence_model
 from .decks import (
     EXPORT_TEXT_FORMATS,
+    MAX_PRIMER_CHARS,
     RevisionCard,
     baseline_decks_for_commander,
     color_set,
     create_revision,
     export_deck_dossier,
     export_text,
+    format_primer_comments,
+    get_deck_primer,
     lab_snapshot,
     list_rows,
     parse_decklist_text,
     resolve_repo_baseline_cards,
     revision_rows,
+    set_deck_primer,
     validate_rows,
 )
 from .images import image_cache_status, public_card, web_image_url, web_image_url_by_name
@@ -226,6 +230,10 @@ class ModuleCompileBody(BaseModel):
     save: bool = False
     branch: str | None = Field(default=None, max_length=60)
     note: str = Field(default="", max_length=500)
+
+
+class PrimerBody(BaseModel):
+    content: str = Field(default="", max_length=MAX_PRIMER_CHARS)
 
 
 class MarkBody(BaseModel):
@@ -1659,6 +1667,28 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         finally:
             store.close()
 
+    @app.get("/api/decks/{deck_id}/primer")
+    def read_primer(deck_id: str) -> dict[str, object]:
+        store = open_store()
+        try:
+            return get_deck_primer(store, deck_id)
+        except KeyError as error:
+            raise HTTPException(404, "unknown deck") from error
+        finally:
+            store.close()
+
+    @app.put("/api/decks/{deck_id}/primer")
+    def write_primer(deck_id: str, body: PrimerBody) -> dict[str, object]:
+        store = open_store()
+        try:
+            return set_deck_primer(store, deck_id, body.content)
+        except KeyError as error:
+            raise HTTPException(404, "unknown deck") from error
+        except ValueError as error:
+            raise HTTPException(422, str(error)) from error
+        finally:
+            store.close()
+
     @app.get("/api/revisions/{revision_id}")
     def revision(revision_id: str, owned_only: bool = True) -> dict[str, object]:
         store = open_store()
@@ -1683,7 +1713,7 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
             store.close()
 
     @app.get("/api/revisions/{revision_id}/export")
-    def export(revision_id: str, format: str = "txt") -> Response:
+    def export(revision_id: str, format: str = "txt", include_primer: bool = False) -> Response:
         if format not in {"txt", "json", *EXPORT_TEXT_FORMATS}:
             raise HTTPException(422, "unknown export format")
         store = open_store()
@@ -1691,9 +1721,18 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
             if format == "json":
                 return JSONResponse(lab_snapshot(store, revision_id))
             rows = revision_rows(store, revision_id)
+            primer_text = ""
+            if include_primer:
+                rev_row = store.connection.execute(
+                    "SELECT deck_id FROM deck_revision WHERE revision_id = ?",
+                    (revision_id,),
+                ).fetchone()
+                if rev_row is not None:
+                    primer_text = str(get_deck_primer(store, str(rev_row["deck_id"]))["content"])
             if format in EXPORT_TEXT_FORMATS:
-                return PlainTextResponse(export_text(rows, format))
-            lines = [f"{row['quantity']} {row['engine_name']}" for row in rows]
+                return PlainTextResponse(export_text(rows, format, primer=primer_text))
+            header = format_primer_comments(primer_text)
+            lines = [*header, *(f"{row['quantity']} {row['engine_name']}" for row in rows)]
             return PlainTextResponse("\n".join(lines) + "\n")
         except KeyError as error:
             raise HTTPException(404, "unknown revision") from error

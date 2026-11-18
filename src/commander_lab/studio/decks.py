@@ -133,18 +133,76 @@ def revision_rows(store: StudioStore, revision_id: str) -> list[sqlite3.Row]:
 
 
 EXPORT_TEXT_FORMATS = ("plain", "moxfield")
+MAX_PRIMER_CHARS = 50_000
 
 
-def export_text(rows: Iterable[sqlite3.Row], text_format: str) -> str:
+def get_deck_primer(store: StudioStore, deck_id: str) -> dict[str, object]:
+    """Return the stored Markdown primer for ``deck_id`` (bound to deck, survives new revisions)."""
+    db = store.connection
+    deck_row = db.execute("SELECT 1 FROM deck WHERE deck_id = ?", (deck_id,)).fetchone()
+    if deck_row is None:
+        raise KeyError(deck_id)
+    row = db.execute(
+        "SELECT content, updated_at FROM deck_primer WHERE deck_id = ?",
+        (deck_id,),
+    ).fetchone()
+    if row is None:
+        return {"deck_id": deck_id, "content": "", "updated_at": None}
+    return {
+        "deck_id": deck_id,
+        "content": str(row["content"]),
+        "updated_at": str(row["updated_at"]),
+    }
+
+
+def set_deck_primer(store: StudioStore, deck_id: str, content: str) -> dict[str, object]:
+    """Store or update the Markdown primer for ``deck_id`` (capped at ``MAX_PRIMER_CHARS``)."""
+    db = store.connection
+    deck_row = db.execute("SELECT 1 FROM deck WHERE deck_id = ?", (deck_id,)).fetchone()
+    if deck_row is None:
+        raise KeyError(deck_id)
+    normalized = content.replace("\r\n", "\n").replace("\r", "\n")
+    if len(normalized) > MAX_PRIMER_CHARS:
+        raise ValueError(
+            f"Primer zu lang: {len(normalized)} Zeichen (höchstens {MAX_PRIMER_CHARS} erlaubt)"
+        )
+    ts = now_utc()
+    with db:
+        db.execute(
+            "INSERT INTO deck_primer(deck_id, content, updated_at) VALUES (?, ?, ?) "
+            "ON CONFLICT(deck_id) DO UPDATE SET content = excluded.content, "
+            "updated_at = excluded.updated_at",
+            (deck_id, normalized, ts),
+        )
+    return {"deck_id": deck_id, "content": normalized, "updated_at": ts}
+
+
+def format_primer_comments(primer: str) -> list[str]:
+    """Format a Markdown primer as ``//``-prefixed comment lines for decklist text export."""
+    clean = primer.replace("\r\n", "\n").replace("\r", "\n").strip()
+    if not clean:
+        return []
+    out = ["// Primer:"]
+    for line in clean.split("\n"):
+        stripped = line.rstrip()
+        out.append(f"// {stripped}" if stripped else "//")
+    out.append("")
+    return out
+
+
+def export_text(rows: Iterable[sqlite3.Row], text_format: str, *, primer: str = "") -> str:
     """The list as text with the commander zone marked, names exactly as the store holds them.
 
     ``plain``: ``n Name`` per line, the commander first. ``moxfield``: the block
     ``Commander`` / ``Deck`` that the list import reads (also Moxfield and Archidekt text
     imports). Order is fixed: commander zone first, then name; equal names are summed.
+    When ``primer`` is non-empty, it is prepended as ``//`` comment lines so
+    ``parse_decklist_text`` ignores it on re-import.
     Raises ``ValueError`` for an unknown format.
     """
     if text_format not in EXPORT_TEXT_FORMATS:
         raise ValueError(text_format)
+    header = format_primer_comments(primer)
     zones: dict[str, dict[str, int]] = {"commander": {}, "main": {}}
     for row in rows:
         zone = zones["commander" if row["zone"] == "commander" else "main"]
@@ -153,8 +211,8 @@ def export_text(rows: Iterable[sqlite3.Row], text_format: str) -> str:
     commander = [f"{qty} {name}" for name, qty in sorted(zones["commander"].items())]
     deck = [f"{qty} {name}" for name, qty in sorted(zones["main"].items())]
     if text_format == "plain":
-        return "\n".join([*commander, *deck]) + "\n"
-    return "\n".join(["Commander", *commander, "", "Deck", *deck]) + "\n"
+        return "\n".join([*header, *commander, *deck]) + "\n"
+    return "\n".join([*header, "Commander", *commander, "", "Deck", *deck]) + "\n"
 
 
 def list_rows(store: StudioStore, cards: Iterable[RevisionCard]) -> list[sqlite3.Row]:
@@ -413,8 +471,14 @@ def _collection_lookup(
 def _detect_format(lines: list[str]) -> str:
     if not lines:
         return "plain"
-    cleaned = [ln.lstrip("\ufeff") for ln in lines]
-    first_nonempty = next((ln.strip() for ln in cleaned if ln.strip()), "")
+    cleaned = [
+        ln.lstrip("\ufeff")
+        for ln in lines
+        if ln.strip() and not ln.lstrip("\ufeff").strip().startswith(("//", "#"))
+    ]
+    if not cleaned:
+        return "plain"
+    first_nonempty = cleaned[0].strip()
     if "," in first_nonempty:
         lowered = [col.strip().strip('"').casefold() for col in first_nonempty.split(",")]
         if any(col in _CSV_NAME_COLS for col in lowered) and (len(lowered) >= 2):

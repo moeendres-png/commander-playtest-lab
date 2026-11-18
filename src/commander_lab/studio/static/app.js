@@ -1624,11 +1624,12 @@ function renderDeck() {
     ["similar", "Ähnliche Decks"],
     ["diff", "Varianten-Diff"],
     ["modules", "Module"],
+    ["primer", "Primer"],
     ["cut", "Kürzen"],
     ["sim", "Simulation"],
   ];
   // Two groups keep tabs readable: looking at the deck (Analyse) and working on it (Arbeiten).
-  const workTabs = new Set(["compare", "similar", "diff", "modules", "cut", "sim"]);
+  const workTabs = new Set(["compare", "similar", "diff", "modules", "primer", "cut", "sim"]);
   const tabButton = ([key, label]) => h("button", { type: "button", class: "chip" + (state.tab === key ? " on" : ""), "aria-pressed": state.tab === key, onclick: () => { state.tab = key; renderDeck(); } }, label);
   const tabGroup = (name, items) => h("div", { class: "tab-group", role: "group", "aria-label": name }, h("span", { class: "tab-group-label" }, name), ...items.map(tabButton));
   $("deck-tabs").replaceChildren(
@@ -1656,9 +1657,106 @@ function renderDeck() {
     similar: renderSimilarDecks,
     diff: renderDiff,
     modules: renderModules,
+    primer: renderPrimer,
     cut: renderCut,
     sim: renderSimulations,
   })[state.tab](body);
+}
+function renderMarkdownSafe(text) {
+  const clean = String(text || "").replace(/\r\n/g, "\n").replace(/\r/g, "\n").trim();
+  if (!clean) return [h("p", { class: "muted" }, "Noch kein Primer-Text eingetragen.")];
+  const nodes = [];
+  let listItems = [];
+  let codeLines = null;
+  const flushList = () => {
+    if (listItems.length) {
+      nodes.push(h("ul", {}, ...listItems.map((it) => h("li", {}, it))));
+      listItems = [];
+    }
+  };
+  for (const rawLine of clean.split("\n")) {
+    const trimmed = rawLine.trim();
+    if (trimmed.startsWith("```")) {
+      flushList();
+      if (codeLines === null) codeLines = [];
+      else {
+        nodes.push(h("pre", {}, h("code", {}, codeLines.join("\n"))));
+        codeLines = null;
+      }
+      continue;
+    }
+    if (codeLines !== null) {
+      codeLines.push(rawLine);
+      continue;
+    }
+    if (!trimmed) {
+      flushList();
+      continue;
+    }
+    if (trimmed.startsWith("### ")) {
+      flushList();
+      nodes.push(h("h5", {}, trimmed.slice(4)));
+    } else if (trimmed.startsWith("## ")) {
+      flushList();
+      nodes.push(h("h4", {}, trimmed.slice(3)));
+    } else if (trimmed.startsWith("# ")) {
+      flushList();
+      nodes.push(h("h3", {}, trimmed.slice(2)));
+    } else if (trimmed.startsWith("- ") || trimmed.startsWith("* ")) {
+      listItems.push(trimmed.slice(2));
+    } else {
+      flushList();
+      nodes.push(h("p", {}, rawLine));
+    }
+  }
+  flushList();
+  if (codeLines !== null && codeLines.length) {
+    nodes.push(h("pre", {}, h("code", {}, codeLines.join("\n"))));
+  }
+  return nodes;
+}
+function renderPrimer(body) {
+  if (!state.deckId) {
+    body.append(h("p", { class: "muted" }, "Wähle oder erstelle zuerst ein Deck, um den Primer zu bearbeiten."));
+    return;
+  }
+  const tok = state.renderToken;
+  const wrap = h("div", { class: "section" });
+  body.append(wrap);
+  wrap.replaceChildren(h("h3", {}, "Deck-Primer (Spielplan & Notizen)"), StudioUI.loading("Primer lädt …"));
+  api(`/api/decks/${encodeURIComponent(state.deckId)}/primer`).then((res) => {
+    if (tok !== state.renderToken || state.tab !== "primer") return;
+    state.primerText = res.content || "";
+    const previewBox = h("div", { class: "card-box" }, ...renderMarkdownSafe(state.primerText));
+    const area = h("textarea", {
+      id: "primer-editor",
+      rows: 10,
+      placeholder: "# Spielplan\n- Frühe Mana-Entwicklung\n- Chulane schützen & Kartenfluss sichern",
+      "aria-label": "Deck-Primer (Markdown)",
+      oninput: () => {
+        previewBox.replaceChildren(...renderMarkdownSafe(area.value));
+      },
+    }, state.primerText);
+    const metaSpan = h("span", { class: "muted" }, res.updated_at ? `Zuletzt gespeichert: ${res.updated_at}` : "Noch nicht gespeichert");
+    const saveBtn = h("button", { type: "button", class: "primary", onclick: async () => {
+      try {
+        const saved = await api(`/api/decks/${encodeURIComponent(state.deckId)}/primer`, "PUT", { content: area.value });
+        state.primerText = saved.content || "";
+        metaSpan.textContent = `Zuletzt gespeichert: ${saved.updated_at} (${StudioUI.num(state.primerText.length, 0)} Zeichen)`;
+        toast("Primer gespeichert.");
+      } catch (err) { fail(err); }
+    } }, "Primer speichern");
+    wrap.replaceChildren(
+      h("h3", {}, "Deck-Primer (Spielplan & Notizen)"),
+      h("p", { class: "muted" }, "Der Primer ist am Deck verankert (bleibt über alle neuen Stände und Varianten hinweg erhalten) und beeinflusst weder Tierliste noch Stärke-Index. Im Export-Dialog kann er optional als //-Kommentarblock vorangestellt werden."),
+      area,
+      h("div", { class: "actions" }, saveBtn, metaSpan),
+      h("h4", {}, "Vorschau (Markdown)"),
+      previewBox
+    );
+  }).catch((err) => {
+    wrap.replaceChildren(h("p", { class: "bad" }, StudioUI.germanError(err)));
+  });
 }
 function renderModules(body) {
   if (!state.deckId) {
