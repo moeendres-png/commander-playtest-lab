@@ -11,7 +11,7 @@ Karten des Pools mit einem Rater-Lauf der großen Stufe (Raster v2.1, 132 Charge
 Nicht alle vorab festgelegten Schwellen sind erfüllt: Anker (3a) verfehlt, Drift (5a) verfehlt/offen (Ersatzgröße
 T gegen S: im Mittel 5,5 > 5 und 2 von 16 = 12,5 % > 10 %), Zitatregel nur mit Chulane-Text als Quelle erfüllt (Bericht,
 Abschnitte 7 und 9). Der Owner-Entscheid zu den Ankern (Frage 7) steht aus; ob die Bewertungen Verwendung finden, ist
-nicht entschieden. Ein zweiter Lauf für Grenzfälle und der Drift-Test (5 % Wiederholungen) stehen aus.
+nicht entschieden. Ein Drift-Test (49 Karten, zweiter Lauf) ist gelaufen (PILOT_REPORT §10, 5a knapp verfehlt); ein zweiter Lauf für Grenzfälle steht aus.
 
 ## Dateien
 
@@ -25,6 +25,7 @@ nicht entschieden. Ein zweiter Lauf für Grenzfälle und der Drift-Test (5 % Wie
 | `pilot_sample.json` | Pilotstichprobe (63 Karten, Strata, Retest, v1-Werte); nur zur Kalibrierung |
 | `pilot_ratings.jsonl` | 318 Pilotbewertungen: `rater`, `rater_tier`, `batch`, `retest`, `version` plus voller Rater-Inhalt |
 | `fullrun_ratings.jsonl` | 922 Bewertungen des Vollaufs (Rater F1, `rater_tier` large, `version` v2.1), eine je Karte |
+| `fulldrift_ratings.jsonl` | 49 Zweitbewertungen für den Drift-Test (Rater F2, gleiche Rubrik); Auswertung `scripts/drift_eval.py` |
 | `audit_result.jsonl`, `audit_claims_index.json` | Handprüfung von 40 Regelbehauptungen |
 | `data/` | `facts.jsonl`, `patterns.jsonl` (rater-sichtbar), Benchmarks, Manifeste, Muster-Stichproben |
 | `scripts/` | Extraktion, Prompt, Stichprobe, Anker, Chargen, Auswertung |

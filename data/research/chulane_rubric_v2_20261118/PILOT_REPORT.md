@@ -128,3 +128,19 @@ Beschreibender Vergleich mit Nutzung, erst nach dem Einfrieren (`usage_holdout.j
 - Das Referenzdeck ist teils nach Beliebtheit gebaut (zirkulär für den Nutzungsvergleich, siehe Plan).
 
 Grenzen: ein Rater-Lauf ohne zweiten Lauf, kein Drift-Test, Modell-Vorwissen über Beliebtheit (die drei Treffer des Scans), alle Rater aus einer Modellfamilie, Chargen zu 7 Karten, Anker-Abweichung (3a) ungeklärt.
+
+## 10. Drift-Test des Vollaufs (49 zufällige Karten, zweiter Lauf, 2026-11-18)
+
+Vorab festgelegt (5a): mittlere absolute H-Differenz höchstens 5 und Anteil der Karten mit H-Differenz ab 15 höchstens 10 %. Stichprobe: 49 Karten (Zufallsziehung, Seed `1118-drift`) aus den 922, in 7 Chargen zu 7 Karten ein zweites Mal von derselben Rater-Stufe bewertet (Rater F2, gleicher Guide v2.1, eigene Zufallsreihenfolge; Rohdaten `fulldrift_ratings.jsonl`, Auswertung `scripts/drift_eval.py`).
+
+| Kennzahl (n = 49 Karten) | Ergebnis |
+|---|---|
+| H: mittlere absolute Differenz | **5,10** (95-%-Intervall 3,88 bis 6,53) |
+| H: Anteil Karten mit Differenz ab 15 | **3 von 49 = 6,1 %** (größte Differenz 30) |
+| ICC(2,1) je Kriterium | E 0,92 · F 0,96 · T 0,92 · R 0,95 · K 0,95 · D 0,87 · H 0,93 |
+| Spearman H, Lauf 1 gegen Lauf 2 | 0,939 |
+| Verzerrung H (zweiter minus erster Lauf) | −1,2 |
+| alle Werte Vielfache von 5 | 49 von 49 Karten |
+
+Bewertung gegen die vorab festgelegte Schwelle: Der Anteil (6,1 % ≤ 10 %) besteht; die mittlere Differenz (5,10) liegt **knapp über** der Schwelle 5, das Intervall enthält die 5. Streng nach Regel ist 5a damit **knapp verfehlt** (Punktschätzung), mit Tendenz zur Erfüllung; die Rangordnung bleibt stabil (Spearman 0,94, ICC H 0,93). Die größten Abweichungen sind Karten mit mehreren plausiblen Lesarten (z. B. Eclipsed Kithkin 70 → 40, Confiscate 45 → 30).
+Folgerung: Die Einzel-Bewertung je Karte hat einen Stichprobenfehler von rund 5 H-Punkten; das stützt die `unscharf`-Kennzeichnung und die Notwendigkeit eines zweiten Laufs für Grenzfälle. Die Drift-Karten wurden **nicht** in den Datensatz des Studios übernommen (dort steht weiter ein Lauf je Karte).
