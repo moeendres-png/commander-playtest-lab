@@ -7,7 +7,8 @@ compact and derived: ``scripts/import_card_understanding.py`` builds it from the
 
 This module only reads and checks. A broken line makes the whole load fail with the line numbers
 (fail closed): a half-read data set would silently rank some cards without their rating. A card
-the file does not list is unknown, never 0. The scores are a model rater's judgement of what a
+the file does not list is unknown, never 0. A line whose ``version`` or ``rubric`` is not the
+data set's is rejected: cohorts of different rubrics are never mixed. The scores are a model rater's judgement of what a
 card does in the deck from its rules text, not a measurement; they never carry price, popularity
 or any played-game result (the raters are blind to those).
 """
@@ -72,13 +73,20 @@ class UnderstandingRow(TypedDict):
 
 
 class UnderstandingDataError(ValueError):
-    """The data set (or a line of it) violates the contract."""
+    """The data set (or a line of it) violates the contract or cannot be read."""
+
+
+class DatasetNotFoundError(UnderstandingDataError):
+    """The data file does not exist (a missing file is not an empty data set)."""
 
 
 def _number(value: object) -> float | None:
     if isinstance(value, bool) or not isinstance(value, (int, float)):
         return None
-    number = float(value)
+    try:
+        number = float(value)
+    except OverflowError:  # an integer too large for a float
+        return None
     return number if math.isfinite(number) else None
 
 
@@ -131,6 +139,14 @@ def parse_row(raw: object) -> UnderstandingRow:
         "rater_tier": _text(raw, "rater_tier"),
         "rubric": _text(raw, "rubric"),
     }
+    if row["version"] != DATASET_VERSION:
+        raise UnderstandingDataError(
+            f"version {row['version']!r} is not the data set version {DATASET_VERSION!r}"
+        )
+    if row["rubric"] != DATASET_RUBRIC:
+        raise UnderstandingDataError(
+            f"rubric {row['rubric']!r} is not the data set rubric {DATASET_RUBRIC!r}"
+        )
     if row["confidence"] not in CONFIDENCE_LEVELS:
         raise UnderstandingDataError(f"confidence must be one of {list(CONFIDENCE_LEVELS)}")
     if row["rater_tier"] not in RATER_TIERS:
@@ -181,6 +197,9 @@ def parse_lines(lines: list[str]) -> dict[str, UnderstandingRow]:
         except UnderstandingDataError as error:
             errors.append(f"line {number}: {error}")
             continue
+        except (ValueError, OverflowError, RecursionError) as error:
+            errors.append(f"line {number}: cannot be decoded ({type(error).__name__})")
+            continue
         if row["oracle_id"] in rows:
             errors.append(f"line {number}: oracle_id {row['oracle_id']} appears twice")
             continue
@@ -193,12 +212,19 @@ def parse_lines(lines: list[str]) -> dict[str, UnderstandingRow]:
 
 
 def load(path: Path | None = None) -> dict[str, UnderstandingRow]:
-    """The data set at ``path`` (default ``DATASET_PATH``). A missing file is an empty data set:
-    no card is rated, none is 0."""
+    """The data set at ``path`` (default ``DATASET_PATH``). Every failure (file missing,
+    unreadable, not UTF-8, a broken line) is an ``UnderstandingDataError``: a missing file is
+    ``DatasetNotFoundError`` and never an empty data set."""
     target = DATASET_PATH if path is None else path
     if not target.is_file():
-        return {}
-    return parse_lines(target.read_text(encoding="utf-8").splitlines())
+        raise DatasetNotFoundError(f"Datensatz nicht gefunden: {target.name}")
+    try:
+        text = target.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError) as error:
+        raise UnderstandingDataError(
+            f"data file cannot be read ({type(error).__name__})"
+        ) from error
+    return parse_lines(text.splitlines())
 
 
 def stamp(path: Path | None = None) -> tuple[str, int, int] | None:

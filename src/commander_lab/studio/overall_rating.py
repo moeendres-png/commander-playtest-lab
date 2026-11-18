@@ -23,6 +23,7 @@ tenths, largest remainder), so the breakdown is a real decomposition.
 
 from __future__ import annotations
 
+import math
 import random
 from collections.abc import Mapping, Sequence
 from typing import Final, TypedDict
@@ -254,16 +255,18 @@ def confidence_of(row: UnderstandingRow) -> OverallConfidence:
 def usage_blocked(answer: Mapping[str, object]) -> str | None:
     """Why the usage index of this answer may not be an axis (None: it may). An index that
     weights simulation, the rubric itself or a measured result layer would carry a locked or
-    double-counted signal into the overall rating."""
+    double-counted signal into the overall rating. Without the weights the answer cannot be
+    vouched for: the axis is blocked (fail closed)."""
     weights = answer.get("effective_weights")
-    if isinstance(weights, dict):
-        for name in _BLOCKED_COMPONENTS:
-            value = weights.get(name)
-            if isinstance(value, (int, float)) and value > 0:
-                return f"der Nutzungs-Index gewichtet {name}"
     summary = answer.get("layer_summary")
     weighted = summary.get("weighted") if isinstance(summary, dict) else None
-    if isinstance(weighted, list) and weighted:
+    if not isinstance(weights, dict) or not isinstance(weighted, list):
+        return "die Gewichte des Nutzungs-Index fehlen in der Antwort"
+    for name in _BLOCKED_COMPONENTS:
+        value = weights.get(name)
+        if isinstance(value, (int, float)) and value > 0:
+            return f"der Nutzungs-Index gewichtet {name}"
+    if weighted:
         return "der Nutzungs-Index gewichtet gemessene Ergebnisschichten"
     return None
 
@@ -467,8 +470,12 @@ def with_overall(
             available=False,
             n_rated=0,
             n_total=n_total,
-            note=f"0 von {n_total} Karten bewertet: der Datensatz ist fehlerhaft",
-            unavailable=f"Datensatz Kartenverständnis nicht lesbar: {error}",
+            note=f"0 von {n_total} Karten bewertet: der Datensatz ist nicht verfügbar",
+            unavailable=(
+                str(error)
+                if isinstance(error, card_understanding.DatasetNotFoundError)
+                else f"Datensatz Kartenverständnis nicht lesbar: {error}"
+            ),
         )
         return out
     usage_reason = usage_blocked(answer)
@@ -482,6 +489,8 @@ def with_overall(
             usage_reason is None
             and card.get("tier") in strength.TIERS
             and isinstance(index, (int, float))
+            and not isinstance(index, bool)
+            and math.isfinite(index)
         )
         usage[str(card["card_id"])] = float(index) if ok else None  # type: ignore[arg-type]
     oracle = _oracle_ids(store, ids)

@@ -9,9 +9,10 @@ rater is the optional ``rater_tier`` field of a line, else ``--rater-tier``.
 Output: one line per ``oracle_id`` in ``data/card_understanding/card_understanding_v2_1.jsonl``,
 sorted by card name, with the rules of the Studio loader (``studio/card_understanding.py``):
 
-* Versions: only the versions of ``--versions`` are read, first named = highest priority. A card
-  takes its rating from the best version that has one; ratings of a lower version are used only
-  for a card without a better one. Default: ``v2.1`` only.
+* Version: only lines of the data set version (``card_understanding.DATASET_VERSION``) are read,
+  other versions are skipped and counted. The loader rejects any line of another version or rubric
+  (cohorts are never mixed), so ``--version`` other than that one is refused. The rubric written
+  is the one of that version.
 * One rating per card. Several raters of the chosen version: the score is the mean per
   criterion, ``score_sd`` the standard deviation of the raters (sample, None for one rater: an
   unknown spread is not 0), ``raters`` their number, ``confidence`` the lowest of them, and the
@@ -51,7 +52,7 @@ def round5(value: float) -> int:
 
 
 def read_ratings(
-    paths: list[Path], versions: list[str], default_tier: str
+    paths: list[Path], version: str, default_tier: str
 ) -> tuple[list[dict[str, object]], dict[str, int]]:
     """The accepted rater lines, each with its resolved ``rater_tier``, plus counts of what was
     skipped. Raises ``cu.UnderstandingDataError`` for lines that are not usable."""
@@ -71,9 +72,9 @@ def read_ratings(
             if not isinstance(raw, dict):
                 errors.append(f"{where}: not a JSON object")
                 continue
-            version = raw.get("version")
-            if version not in versions:
-                skipped[f"version {version}"] += 1
+            found = raw.get("version")
+            if found != version:
+                skipped[f"version {found}"] += 1
                 continue
             tier = raw.get("rater_tier", default_tier)
             probe = {key: raw[key] for key in _COPIED if key in raw}
@@ -153,21 +154,16 @@ def combine(rows: list[dict[str, object]], version: str) -> cu.UnderstandingRow:
 
 
 def build(
-    ratings: list[dict[str, object]], versions: list[str]
+    ratings: list[dict[str, object]], version: str
 ) -> tuple[list[cu.UnderstandingRow], dict[str, int]]:
     """The data set lines (sorted by card name) and how many cards each version supplied."""
-    by_card: dict[str, dict[str, list[dict[str, object]]]] = defaultdict(lambda: defaultdict(list))
+    by_card: dict[str, list[dict[str, object]]] = defaultdict(list)
     for row in ratings:
-        by_card[str(row["oracle_id"])][str(row["version"])].append(row)
-    lines: list[cu.UnderstandingRow] = []
-    used: dict[str, int] = defaultdict(int)
-    for per_version in by_card.values():
-        version = next(name for name in versions if name in per_version)
-        used[version] += 1
-        lines.append(combine(per_version[version], version))
+        by_card[str(row["oracle_id"])].append(row)
+    lines = [combine(rows, version) for rows in by_card.values()]
     lines.sort(key=lambda line: (line["card"].casefold(), line["oracle_id"]))
     cu.parse_lines([json.dumps(line) for line in lines])  # same checks as the loader (and dupes)
-    return lines, dict(used)
+    return lines, {version: len(lines)}
 
 
 def render(lines: list[cu.UnderstandingRow]) -> str:
@@ -181,9 +177,9 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("inputs", nargs="+", type=Path, help="rater ratings, JSON lines")
     parser.add_argument("--out", type=Path, default=DEFAULT_OUT, help="data set file to write")
     parser.add_argument(
-        "--versions",
+        "--version",
         default=cu.DATASET_VERSION,
-        help="comma-separated rater versions to read, best first (default: %(default)s)",
+        help="rater version to read; only the data set version is accepted (default: %(default)s)",
     )
     parser.add_argument(
         "--rater-tier",
@@ -195,10 +191,16 @@ def main(argv: list[str] | None = None) -> int:
         "--check", action="store_true", help="do not write; exit 1 if --out differs"
     )
     args = parser.parse_args(argv)
-    versions = [name.strip() for name in args.versions.split(",") if name.strip()]
+    if args.version != cu.DATASET_VERSION:
+        print(
+            f"error: --version {args.version!r} is not the data set version "
+            f"{cu.DATASET_VERSION!r}; the loader would reject the file",
+            file=sys.stderr,
+        )
+        return 2
     try:
-        ratings, skipped = read_ratings(args.inputs, versions, args.rater_tier)
-        lines, used = build(ratings, versions)
+        ratings, skipped = read_ratings(args.inputs, args.version, args.rater_tier)
+        lines, used = build(ratings, args.version)
     except cu.UnderstandingDataError as error:
         print(f"error: {error}", file=sys.stderr)
         return 2

@@ -87,8 +87,10 @@ Felder (`cards[].overall`, `overall_meta`), angehängt nach dem Snapshot in `web
   `rounded`, `uncertainty`). Lader und Prüfung: `studio/card_understanding.py` (kaputte Zeile, Bereich, fehlendes Feld, unbekanntes
   Kriterium, doppelte `oracle_id` lassen das Laden scheitern; fehlende Karte = unbekannt, nie 0). Erzeugt mit
   `scripts/import_card_understanding.py` aus den Rater-Rohdaten (je Karte eine Bewertung, Vorrang der Version v2.1; mehrere Bewerter:
-  Mittel auf Vielfache von 5, `score_sd` je Kriterium, niedrigste Konfidenz). Stand: nur ein Teil der 922 Karten bewertet
-  (Teilabdeckung ist der Normalfall bis zum Abschluss des Vollaufs); der Datensatz gilt nur für Chulane.
+  Mittel auf Vielfache von 5, `score_sd` je Kriterium, niedrigste Konfidenz). Stand: alle 922 Karten bewertet (922 von 922); Karten ohne
+  Zeile blieben „unbekannt“, nicht 0. Der Datensatz gilt nur für Chulane. Herkunft kommt aus den Daten: der Lader lehnt jede Zeile ab,
+  deren `version` oder `rubric` nicht zum Datensatz passt (Kohorten nie mischen); jeder Lesefehler (fehlende Datei, kein UTF-8, zu große Zahl,
+  kaputte Zeile) macht nur `overall_meta.available` false, `/api/strength` antwortet weiter mit dem unveränderten Index.
 - **Rechnung:** `studio/overall_rating.py`, Regelversion `OVERALL_RULES_VERSION`. Gewichtetes Mittel 0–100, Gewichte
   `OVERALL_WEIGHTS_V1` (Setzung, keine Messung): Nutzung 0,30 · H 0,30 · F 0,15 · E 0,10 · T 0,05 · R 0,05 · D 0,025 · K 0,025.
   Fehlende Achsen (z. B. Nutzung bei Stufe U/N) werden renormalisiert; `coverage` ist die Summe der vorhandenen Gewichte; unter 0,6 oder

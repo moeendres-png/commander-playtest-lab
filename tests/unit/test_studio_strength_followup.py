@@ -454,6 +454,9 @@ def test_the_usage_axis_is_dropped_when_the_index_carries_a_locked_signal() -> N
     for patch in (
         {"effective_weights": {**answer["effective_weights"], "playgroup_observed": 0.5}},
         {"effective_weights": {**answer["effective_weights"], "rubric": 1.0}},
+        {"effective_weights": {**answer["effective_weights"], "simulation": 0.2}},
+        {"effective_weights": None},
+        {"layer_summary": None},
         {"layer_summary": {**answer["layer_summary"], "weighted": ["tempo"]}},
     ):
         after = overall_rating.with_overall(store, answer | patch, dataset=data, commander=CMD)  # type: ignore[arg-type]
@@ -463,6 +466,23 @@ def test_the_usage_axis_is_dropped_when_the_index_carries_a_locked_signal() -> N
         )
         for card in (c for c in after["cards"] if c["name"] in CARDS):  # type: ignore[attr-defined]
             assert card["overall"]["coverage"] == 0.7 and card["overall"]["score"] is not None
+
+
+def test_a_non_finite_or_boolean_index_is_a_missing_axis() -> None:
+    store, answer = _scored_answer()
+    data = _dataset([_row(f"o-{name}") for name in CARDS])
+    for bad in (math.nan, math.inf, True):
+        cards = [{**card, "index": bad, "tier": "S"} for card in answer["cards"]]
+        after = overall_rating.with_overall(
+            store,
+            answer | {"cards": cards},
+            dataset=data,
+            commander=CMD,  # type: ignore[arg-type]
+        )
+        rated = [c["overall"] for c in after["cards"] if c["name"] in CARDS]  # type: ignore[attr-defined]
+        assert rated and all(
+            item["coverage"] == 0.7 and item["score"] is not None for item in rated
+        )
 
 
 def test_another_commander_gets_no_overall_rating() -> None:
@@ -502,6 +522,77 @@ def test_the_strength_route_adds_the_overall_fields_and_nothing_else(
     assert sum(1 for c in body["cards"] if c["overall"]["score"] is not None) == 4
 
 
+def _route(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, path: Path
+) -> tuple[dict[str, object], dict[str, object]]:
+    """The answer of ``/api/strength`` with the data file ``path``, and the index answer."""
+    folder = tmp_path / "studio"
+    store = _store(folder)
+    _with_oracle_ids(store, CARDS)
+    store.connection.commit()
+    expected = strength_view.compute(store, CMD, StrengthSettings())
+    store.close()
+    monkeypatch.setattr(card_understanding, "DATASET_PATH", path)
+    monkeypatch.setattr(card_understanding, "DATASET_COMMANDER", CMD)
+    with TestClient(create_app(folder)) as client:
+        response = client.post("/api/strength", json={"commander": CMD}, headers={"X-Studio": "1"})
+    assert response.status_code == 200
+    return response.json(), json.loads(json.dumps(expected))
+
+
+@pytest.mark.parametrize(
+    ("content", "reason"),
+    [
+        (b"\xff\xfe not utf-8\n", "nicht lesbar"),
+        (
+            json.dumps(_row("o-Card 00", scores=SCORES | {"H": 10**400})).encode() + b"\n",
+            "nicht lesbar",
+        ),
+        (json.dumps(_row("o-Card 00", version="v2")).encode() + b"\n", "nicht lesbar"),
+        (
+            json.dumps(_row("o-Card 00", rubric="chulane-rubric-v1")).encode() + b"\n",
+            "nicht lesbar",
+        ),
+        (b"[" * 100000 + b"\n", "nicht lesbar"),
+        (None, "Datensatz nicht gefunden"),
+    ],
+)
+def test_a_defective_data_file_never_breaks_the_strength_route(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, content: bytes | None, reason: str
+) -> None:
+    path = tmp_path / "cu.jsonl"
+    if content is not None:
+        path.write_bytes(content)
+    body, expected = _route(tmp_path, monkeypatch, path)
+    meta = body["overall_meta"]
+    assert meta["available"] is False and reason in meta["unavailable_reason"]  # type: ignore[index,operator]
+    assert body["cards"] == expected["cards"] and body["tier_counts"] == expected["tier_counts"]
+
+
+def test_a_changed_data_file_invalidates_the_remembered_answer(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    folder = tmp_path / "studio"
+    store = _store(folder)
+    _with_oracle_ids(store, CARDS)
+    store.connection.commit()
+    store.close()
+    path = tmp_path / "cu.jsonl"
+    monkeypatch.setattr(card_understanding, "DATASET_PATH", path)
+    monkeypatch.setattr(card_understanding, "DATASET_COMMANDER", CMD)
+    head = {"X-Studio": "1"}
+    with TestClient(create_app(folder)) as client:
+        counts = []
+        for rows in (CARDS[:2], CARDS[:3]):
+            path.write_text(
+                "\n".join(json.dumps(_row(f"o-{name}", name)) for name in rows) + "\n",
+                encoding="utf-8",
+            )
+            body = client.post("/api/strength", json={"commander": CMD}, headers=head).json()
+            counts.append(body["overall_meta"]["n_rated"])
+    assert counts == [2, 3]
+
+
 # ---------- the data set loader ----------
 
 
@@ -511,7 +602,8 @@ def test_the_loader_accepts_a_valid_line_and_keeps_the_optional_fields() -> None
     )
     assert row["scores"]["H"] == 65 and row["raters"] == 2 and row["rounded"] is True
     assert card_understanding.parse_row(_row("y", score_sd=None))["score_sd"] is None
-    assert card_understanding.load(Path("does/not/exist.jsonl")) == {}
+    with pytest.raises(card_understanding.DatasetNotFoundError):
+        card_understanding.load(Path("does/not/exist.jsonl"))
 
 
 @pytest.mark.parametrize(
@@ -529,6 +621,8 @@ def test_the_loader_accepts_a_valid_line_and_keeps_the_optional_fields() -> None
         {"rater_tier": "medium"},
         {"rater_tier": None},
         {"model": "anything"},
+        {"version": "v2"},
+        {"rubric": "chulane-rubric-v1"},
         {"oracle_id": ""},
         {"reason": "  "},
         {"notes": {"Z": "unknown criterion"}},
@@ -563,6 +657,12 @@ def test_the_loader_rejects_a_line_without_a_required_field(missing: str) -> Non
     del row[missing]
     with pytest.raises(card_understanding.UnderstandingDataError, match="missing"):
         card_understanding.parse_row(row)
+
+
+def test_the_loader_rejects_a_mixed_version_data_set() -> None:
+    lines = [json.dumps(_row("a")), json.dumps(_row("b", version="v2", rubric="other"))]
+    with pytest.raises(card_understanding.UnderstandingDataError, match="line 2"):
+        card_understanding.parse_lines(lines)
 
 
 def test_the_loader_fails_closed_and_names_the_lines() -> None:
@@ -622,12 +722,12 @@ def _raw(oracle_id: str, rater: str, version: str = "v2.1", **changes: object) -
 
 
 def _import(
-    rows: list[dict[str, object]], versions: list[str], tmp_path: Path
+    rows: list[dict[str, object]], version: str, tmp_path: Path
 ) -> list[card_understanding.UnderstandingRow]:
     source = tmp_path / "in.jsonl"
     source.write_text("\n".join(json.dumps(row) for row in rows) + "\n", encoding="utf-8")
-    ratings, _skipped = importer.read_ratings([source], versions, "large")
-    lines, _used = importer.build(ratings, versions)
+    ratings, _skipped = importer.read_ratings([source], version, "large")
+    lines, _used = importer.build(ratings, version)
     return lines
 
 
@@ -637,7 +737,7 @@ def test_the_importer_means_rounds_and_keeps_the_lowest_confidence(tmp_path: Pat
         _raw("a", "R2", scores=SCORES | {"H": 50, "E": 50}, confidence="low"),
         _raw("b", "R1"),
     ]
-    lines = {line["oracle_id"]: line for line in _import(rows, ["v2.1"], tmp_path)}
+    lines = {line["oracle_id"]: line for line in _import(rows, "v2.1", tmp_path)}
     one, single = lines["a"], lines["b"]
     assert one["scores"]["H"] == 50 and one["scores"]["E"] == 50  # 47.5 rounds half up
     assert one["rounded"] is True and one["raters"] == 2 and one["confidence"] == "low"
@@ -649,22 +749,24 @@ def test_the_importer_means_rounds_and_keeps_the_lowest_confidence(tmp_path: Pat
     assert single["rater_tier"] == "large" and "model" not in single
 
 
-def test_the_importer_prefers_the_better_version_and_rounds_off_grid_scores(tmp_path: Path) -> None:
+def test_the_importer_reads_one_version_and_rounds_off_grid_scores(tmp_path: Path) -> None:
     rows = [
         _raw("a", "R1", version="v2", scores=SCORES | {"H": 5}),
         _raw("a", "R2", version="v2.1"),
-        _raw("c", "R1", version="v2", scores=SCORES | {"H": 44}, rater_tier="small"),
+        _raw("c", "R1", scores=SCORES | {"H": 44}, rater_tier="small"),
         _raw("d", "R1", version="v1"),
     ]
-    lines = {line["oracle_id"]: line for line in _import(rows, ["v2.1", "v2"], tmp_path)}
-    assert set(lines) == {"a", "c"}  # v1 is not read
+    lines = {line["oracle_id"]: line for line in _import(rows, "v2.1", tmp_path)}
+    assert set(lines) == {"a", "c"}  # the other versions are not read
     assert lines["a"]["version"] == "v2.1" and lines["a"]["scores"]["H"] == 65
-    assert (
-        lines["c"]["version"] == "v2"
-        and lines["c"]["scores"]["H"] == 45
-        and lines["c"]["rounded"] is True
-    )
+    assert lines["a"]["raters"] == 1 and lines["a"]["rubric"] == card_understanding.DATASET_RUBRIC
+    assert lines["c"]["scores"]["H"] == 45 and lines["c"]["rounded"] is True
     assert lines["c"]["rater_tier"] == "small"
+    source = tmp_path / "in.jsonl"
+    out = tmp_path / "out.jsonl"
+    assert importer.main([str(source), "--out", str(out), "--version", "v2"]) == 2
+    assert not out.exists()
+    assert card_understanding.parse_lines(importer.render(list(lines.values())).splitlines())
 
 
 def test_the_importer_rejects_a_broken_input_line(tmp_path: Path) -> None:
@@ -673,7 +775,7 @@ def test_the_importer_rejects_a_broken_input_line(tmp_path: Path) -> None:
         json.dumps(_raw("a", "R1", scores=SCORES | {"H": 130})) + "\n", encoding="utf-8"
     )
     with pytest.raises(card_understanding.UnderstandingDataError, match=r"in\.jsonl:1"):
-        importer.read_ratings([source], ["v2.1"], "large")
+        importer.read_ratings([source], "v2.1", "large")
     out = tmp_path / "out.jsonl"
     assert importer.main([str(source), "--out", str(out)]) == 2 and not out.exists()
 
