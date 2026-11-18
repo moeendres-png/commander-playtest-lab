@@ -1768,6 +1768,22 @@ def test_paired_resume_persists_custom_opponents_and_rejects_mismatch(
                 play_override=lambda a, s, t: _player(a, s, t),
             )
 
+        # 1b. Legacy series without opponent_deck_ids must NOT silently fall back to preset pod
+        legacy = dict(disk_payload)
+        legacy["opponent_ids"] = None
+        legacy.pop("opponent_deck_ids", None)
+        job.series_file().write_text(json.dumps(legacy), encoding="utf-8")
+        legacy_view = mgr2.get_series(res_dir, job.series_id)
+        assert legacy_view is not None and legacy_view["resumable"] is False
+        with pytest.raises(ValueError, match="opponent_deck_ids fehlt"):
+            mgr2.resume_series(
+                res_dir,
+                job.series_id,
+                workers=1,
+                games_per_jvm=1,
+                play_override=lambda a, s, t: _player(a, s, t),
+            )
+
         # 2. Restoring valid payload resumes mid-pair (base 700/0 skipped, variant 700/0 played)
         job.series_file().write_text(json.dumps(disk_payload), encoding="utf-8")
         resumed_calls: list[tuple[str, int, int]] = []
@@ -1817,6 +1833,7 @@ def test_paired_resume_live_lockfile_and_engine_chunk_filtering(
                 "series_id": sid,
                 "status": "running",
                 "pod": "precon",
+                "opponent_deck_ids": ["opp-a", "opp-b", "opp-c"],
                 "budget_pairs": 4,
                 "look_every_pairs": 2,
                 "tested_seats": [0, 1],
@@ -1828,7 +1845,8 @@ def test_paired_resume_live_lockfile_and_engine_chunk_filtering(
         encoding="utf-8",
     )
     (deck_dir / "running.lock").write_text(
-        json.dumps({"series_id": sid, "pid": os.getpid()}), encoding="utf-8"
+        json.dumps({"series_id": sid, "pid": os.getpid(), "heartbeat": time.time()}),
+        encoding="utf-8",
     )
     mgr = paired_series.PairedSeriesManager()
     live = mgr.get_series(tmp_path, sid)
@@ -1839,6 +1857,53 @@ def test_paired_resume_live_lockfile_and_engine_chunk_filtering(
         mgr.resume_series(
             tmp_path, sid, play_override=lambda *_a: {"exposure": None, "failure_class": None}
         )
+
+    # Stale heartbeat -> reported as interrupted & resumable even with current PID
+    (deck_dir / "running.lock").write_text(
+        json.dumps({"series_id": sid, "pid": os.getpid(), "heartbeat": time.time() - 600.0}),
+        encoding="utf-8",
+    )
+    stale = mgr.get_series(tmp_path, sid)
+    assert stale is not None
+    assert stale["status"] == "interrupted"
+    assert stale["resumable"] is True
+
+    # Windows PID check must use OpenProcess (ctypes) and never os.kill
+    import ctypes
+    import sys
+    from types import SimpleNamespace
+
+    monkeypatch.setattr(sys, "platform", "win32")
+    monkeypatch.setattr(
+        os, "kill", lambda *_a: pytest.fail("os.kill must not be called on Windows")
+    )
+    win_state = {"alive": True}
+
+    class _FakeK32:
+        def OpenProcess(self, _access: int, _inherit: bool, pid: int) -> int:
+            return 111 if pid == 4242 else 0
+
+        def GetLastError(self) -> int:
+            return 87
+
+        def GetExitCodeProcess(self, _handle: int, out: object) -> int:
+            out._obj.value = 259 if win_state["alive"] else 0  # type: ignore[attr-defined]
+            return 1
+
+        def CloseHandle(self, _handle: int) -> int:
+            return 1
+
+    monkeypatch.setattr(ctypes, "windll", SimpleNamespace(kernel32=_FakeK32()), raising=False)
+    (deck_dir / "running.lock").write_text(
+        json.dumps({"series_id": sid, "pid": 4242, "heartbeat": time.time()}),
+        encoding="utf-8",
+    )
+    win_live = mgr.get_series(tmp_path, sid)
+    assert win_live is not None and win_live["status"] == "running"
+    win_state["alive"] = False
+    win_dead = mgr.get_series(tmp_path, sid)
+    assert win_dead is not None and win_dead["status"] == "interrupted" and win_dead["resumable"]
+    monkeypatch.undo()
 
     # Dead lockfile -> reported as interrupted & resumable
     (deck_dir / "running.lock").write_text(

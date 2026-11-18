@@ -20,6 +20,7 @@ import json
 import math
 import os
 import re
+import sys
 import threading
 import time
 from collections.abc import Callable, Mapping, Sequence
@@ -452,7 +453,12 @@ class PairedSeriesJob:
         path = self.lock_file()
         _write_json_atomic(
             path,
-            {"series_id": self.series_id, "pid": os.getpid(), "started_at": now_utc()},
+            {
+                "series_id": self.series_id,
+                "pid": os.getpid(),
+                "started_at": now_utc(),
+                "heartbeat": time.time(),
+            },
         )
 
     def _release_lock(self) -> None:
@@ -486,6 +492,7 @@ class PairedSeriesJob:
             with path.open("a", encoding="utf-8") as handle:
                 handle.write(line + "\n")
                 handle.flush()
+        self._write_lock()
 
     def cancel(self) -> None:
         with self._lock:
@@ -787,7 +794,35 @@ class PairedSeriesManager:
         return job
 
     @staticmethod
-    def _is_lock_alive(lock_path: Path) -> bool:
+    def _is_pid_alive(pid: int) -> bool:
+        if sys.platform == "win32":
+            import ctypes
+
+            kernel32 = getattr(ctypes, "windll", None)
+            if kernel32 is None:
+                return False
+            k32 = kernel32.kernel32
+            process_query_limited_info = 0x1000
+            still_active = 259
+            handle = k32.OpenProcess(process_query_limited_info, False, pid)
+            if not handle:
+                return int(k32.GetLastError()) == 5
+            try:
+                exit_code = ctypes.c_ulong()
+                ok = k32.GetExitCodeProcess(handle, ctypes.byref(exit_code))
+                return bool(ok) and exit_code.value == still_active
+            finally:
+                k32.CloseHandle(handle)
+        try:
+            os.kill(pid, 0)
+        except PermissionError:
+            return True
+        except OSError:
+            return False
+        return True
+
+    @classmethod
+    def _is_lock_alive(cls, lock_path: Path) -> bool:
         if not lock_path.is_file():
             return False
         try:
@@ -799,16 +834,24 @@ class PairedSeriesManager:
         pid = data.get("pid")
         if type(pid) is not int or pid <= 0:
             return False
-        try:
-            os.kill(pid, 0)
-        except PermissionError:
-            return True
-        except OSError:
+        heartbeat = data.get("heartbeat")
+        if (
+            isinstance(heartbeat, (int, float))
+            and not isinstance(heartbeat, bool)
+            and (time.time() - float(heartbeat)) > 300.0
+        ):
             return False
-        return True
+        return cls._is_pid_alive(pid)
 
     @classmethod
     def _is_disk_resumable(cls, raw: dict[str, object], target_folder: Path | None = None) -> bool:
+        opp_deck_ids = raw.get("opponent_deck_ids")
+        if (
+            not isinstance(opp_deck_ids, list)
+            or not opp_deck_ids
+            or not all(isinstance(x, str) and x for x in opp_deck_ids)
+        ):
+            return False
         seed_plan = raw.get("seed_plan")
         if not isinstance(seed_plan, dict):
             return False
@@ -957,9 +1000,16 @@ class PairedSeriesManager:
             opponents = [load_rules_deck_snapshot(path) for path in opp_paths]
 
             raw_opp_deck_ids = raw.get("opponent_deck_ids")
-            if isinstance(raw_opp_deck_ids, list) and [d.deck_id for d in opponents] != [
-                str(x) for x in raw_opp_deck_ids
-            ]:
+            if (
+                not isinstance(raw_opp_deck_ids, list)
+                or not raw_opp_deck_ids
+                or not all(isinstance(x, str) and x for x in raw_opp_deck_ids)
+            ):
+                raise ValueError(
+                    f"opponent_deck_ids fehlt in Serie {safe_id} "
+                    "(Alt-Serie ohne Gegner-Bindung, nicht fortsetzbar)"
+                )
+            if [d.deck_id for d in opponents] != [str(x) for x in raw_opp_deck_ids]:
                 raise ValueError(
                     f"Gegner-Deck-IDs in Serie {safe_id} weichen ab (nicht fortsetzbar)"
                 )
@@ -1077,10 +1127,15 @@ class PairedSeriesManager:
                 preloaded_games=preloaded,
             )
             job.persist()
+            job._write_lock()
             self._jobs[safe_id] = job
 
         thread = threading.Thread(target=job.run, daemon=True)
-        thread.start()
+        try:
+            thread.start()
+        except Exception:
+            job._release_lock()
+            raise
         return job
 
     def get_series(self, data_folder: str | Path, series_id: str) -> dict[str, object] | None:
