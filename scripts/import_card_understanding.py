@@ -2,7 +2,7 @@
 """Build the compact card-understanding data set from raw rater output (rubric v2.1).
 
 Input: JSON lines of rater ratings (``rater``, ``batch``, ``version``, ``card``, ``oracle_id``,
-``scores``, ``notes``, ``reason``, ``confidence``, ...), for example the ``fullrun_partial_ratings
+``scores``, ``notes``, ``reason``, ``confidence``, ...), for example the ``fullrun_ratings
 .jsonl`` of the rubric research folder. A ``model`` field in the input is ignored; the tier of the
 rater is the optional ``rater_tier`` field of a line, else ``--rater-tier``.
 
