@@ -285,18 +285,11 @@ function cardRoles(card) { return layer(card, "fact").roles.map((claim) => claim
 function baseCards() {
   return state.view === "deck" ? state.data.cards.filter((card) => state.deckCards && state.deckCards.has(card.card_id)) : state.data.cards;
 }
-// How well a card name matches the typed words: 0 name starts with the phrase, 1 every word starts a word
-// of the name, 2 name contains every word, 3 only the type line matches. Display order only.
-function nameRelevance(card, words) {
-  const name = card.name.toLowerCase();
-  if (name.startsWith(words.join(" "))) return 0;
-  const parts = name.split(/[^\p{L}\p{N}']+/u).filter(Boolean);
-  if (words.every((word) => parts.some((part) => part.startsWith(word)))) return 1;
-  if (words.every((word) => name.includes(word))) return 2;
-  return 3;
-}
 function visibleCards() {
-  const words = $("q").value.trim().toLowerCase().split(/\s+/).filter(Boolean);
+  const query = $("q").value.trim();
+  const parsed = StudioSearch.parseQuery(query);
+  state.searchErrors = parsed.errors || [];
+  if (state.searchErrors.length) return [];
   const type = $("type-filter").value, role = $("role-filter").value;
   const landKind = $("land-filter") ? $("land-filter").value : "";
   const spreadLevel = $("spread-filter") ? $("spread-filter").value : "";
@@ -314,12 +307,14 @@ function visibleCards() {
     if (free && state.view !== "deck" && !(card.available > 0)) return false; // a deck is always shown whole
     if (fav && !mark.favorite) return false;
     if (!showExcluded && mark.excluded) return false;
-    const hay = `${card.name} ${card.type_line}`.toLowerCase();
-    return words.every((word) => hay.includes(word));
+    if (!query) return true;
+    return StudioSearch.rank({ ...card, favorite: Boolean(mark.favorite), excluded: Boolean(mark.excluded) }, parsed) !== null;
   });
   const key = state.sortKey, dir = state.sortDir;
-  const byName = words.length > 0 && key === "strength"; // a typed search puts name matches before the strength order
-  rows = rows.map((card) => [sortValue(card, key), card, byName ? nameRelevance(card, words) : 0]);
+  // A typed search puts the better name matches (StudioSearch rank: name, name word, text) before the strength
+  // order; a pure syntax query (t:..., mv<=2) has no text part, every rank is 0 and nothing is reordered.
+  const byName = Boolean(query) && key === "strength" && (parsed.isPlainFreetext || Boolean(parsed.textQuery));
+  rows = rows.map((card) => [sortValue(card, key), card, byName ? StudioSearch.rank(card, parsed) ?? 99 : 0]);
   rows.sort((a, b) => {
     if (a[2] !== b[2]) return a[2] - b[2];
     if (a[0] === null && b[0] === null) return a[1].name.localeCompare(b[1].name);
@@ -327,7 +322,7 @@ function visibleCards() {
     if (b[0] === null) return -1;
     return (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : a[1].name.localeCompare(b[1].name)) * dir;
   });
-  state.nameSorted = byName && rows.length > 1;
+  state.nameSorted = byName && rows.length > 1 && rows.some((row) => row[2] !== rows[0][2]);
   return rows.map((row) => row[1]);
 }
 // The filters that are on, in words: explains why "927 Karten" becomes "926 von 927".
@@ -487,7 +482,10 @@ function strengthCell(card) {
 function datenlageCell(card) {
   const item = strengthItem(card);
   if (!item || item.tier === "U" || item.tier === "N" || item.confidence === null || item.confidence === undefined) return unknown("–");
-  return h("span", { class: "nowrap", title: CONFIDENCE_TEXT }, confidenceText(item));
+  // short form in the cell (one line); the full sentence is in the tooltip and the aria-label
+  const counts = deckCounts(item);
+  const short = item.confidence_basis === "gezaehlte_null" ? "hoch · gezählte 0" : counts ? `${nf(counts.n)}/${nf(counts.N)} · ${CONF_WORDS[item.confidence_level] || item.confidence_level}` : confidenceText(item);
+  return h("span", { class: "nowrap", title: `${confidenceText(item)}. ${CONFIDENCE_TEXT}`, "aria-label": `Datenlage: ${confidenceText(item)}` }, short);
 }
 function spreadCell(card) {
   const uni = state.universe;
@@ -608,6 +606,13 @@ function render(keepScroll = true) {
   const cards = visibleCards();
   $("count").textContent = `${countLine(cards.length)}${state.nameSorted ? " · Treffer nach Name zuerst" : ""}`;
   body.setAttribute("aria-label", state.tab === "research" ? "Forschungsliste" : "Tierliste: Kartentabelle");
+  if (state.searchErrors && state.searchErrors.length) {
+    body.append(h("div", { id: "search-syntax-error", class: "empty" },
+      h("b", {}, "Hinweis zur Such-Syntax:"),
+      ...state.searchErrors.map((msg) => h("p", {}, msg)),
+      h("p", { class: "muted" }, 'Beispiele: t:creature · mv<=2 · r:ramp · c:gu · id<=gwu · -t:land · "draw a card"')));
+    return;
+  }
   if (state.tab === "research") {
     if (state.view === "global") { body.append(h("p", { class: "note" }, `Der Forschungsbedarf wird je Commander berechnet. Wähle die Ansicht ${VIEW_NAMES.commander}.`)); return; }
     const needs = [...new Set(state.data.cards.flatMap((card) => card.coverage.needs))].sort();
@@ -1848,6 +1853,39 @@ async function init() {
   if (savedSort && (SORTS.some((item) => item[0] === savedSort) || savedSort.startsWith(PERCENTILE_SORT) || savedSort.startsWith(LAYER_SORT))) { state.sortKey = savedSort; state.sortDir = SMALL_FIRST.has(savedSort) ? 1 : -1; $("sort").value = savedSort; }
   $("sort").addEventListener("change", () => { state.sortKey = $("sort").value; state.sortDir = SMALL_FIRST.has(state.sortKey) ? 1 : -1; StudioUI.remember(SORT_KEY, state.sortKey); render(false); });
   for (const id of ["q", "type-filter", "land-filter", "role-filter", "spread-filter", "f-free", "f-fav", "f-excl"]) $(id).addEventListener("input", () => { state.shown = 150; if (id === "role-filter") renderTierBar(); render(false); });
+  const applyTierFilterPreset = (cfg) => {
+    $("q").value = cfg.q || "";
+    $("type-filter").value = cfg.type || "";
+    $("land-filter").value = cfg.land || "";
+    $("role-filter").value = cfg.role || "";
+    $("spread-filter").value = cfg.spread || "";
+    $("f-free").checked = cfg.free !== false;
+    $("f-fav").checked = Boolean(cfg.fav);
+    $("f-excl").checked = Boolean(cfg.excl);
+    state.strength.tiers = new Set((Array.isArray(cfg.tiers) ? cfg.tiers : []).filter((tier) => STRENGTH_TIERS.includes(tier)));
+    state.shown = 150;
+    if (cfg.columns === "compact" || cfg.columns === "detail") { if (cfg.columns !== state.preset) { setPreset(cfg.columns); renderTierBar(); return; } }
+    renderTierBar(); render(false);
+  };
+  if ($("tier-quick-presets")) {
+    $("tier-quick-presets").replaceChildren(
+      h("button", { type: "button", class: "chip", onclick: () => applyTierFilterPreset({ free: true }) }, "Standardfilter"),
+      h("button", { type: "button", class: "chip", onclick: () => applyTierFilterPreset({ free: true, land: "spells" }) }, "Nur Zauber (frei)"),
+      h("button", { type: "button", class: "chip", onclick: () => applyTierFilterPreset({ free: false, spread: "U" }) }, "Verbreitung unbekannt (U)"),
+      h("button", { type: "button", class: "chip", onclick: () => {
+        const snap = { q: $("q").value, type: $("type-filter").value, land: $("land-filter").value, role: $("role-filter").value, spread: $("spread-filter").value, free: $("f-free").checked, fav: $("f-fav").checked, excl: $("f-excl").checked, tiers: [...state.strength.tiers], columns: state.preset };
+        StudioUI.remember("studio.tierlist.savedPreset", JSON.stringify(snap));
+        toast("Tierlisten-Filteransicht gespeichert.");
+      } }, "Ansicht merken"),
+      h("button", { type: "button", class: "chip", onclick: () => {
+        try {
+          const raw = StudioUI.recall("studio.tierlist.savedPreset", "");
+          if (!raw) { toast("Noch keine Filteransicht gespeichert."); return; }
+          applyTierFilterPreset(JSON.parse(raw));
+        } catch (_) { toast("Gespeicherte Filteransicht konnte nicht geladen werden."); }
+      } }, "Gemerkte Ansicht")
+    );
+  }
   for (const btn of document.querySelectorAll("#rank-group-toggle button[data-rank-group]")) {
     btn.addEventListener("click", () => setQuickRankGroup(btn.getAttribute("data-rank-group")).catch((error) => fail(error)));
   }

@@ -496,6 +496,8 @@ def data_report(
     """The counts-only report. ``today`` is only injectable for tests."""
     from commander_lab.bridge_qualification import bridge_qualification
 
+    from .field_read import store_fallbacks_used
+
     db = store.connection
     moment = today or datetime.now(UTC).date()
     return {
@@ -515,6 +517,7 @@ def data_report(
         "universes": _universes(store),
         "commanders": _commanders(store),
         "signal_rate_alarms": signals.compute_store_signal_rate_alarms(store, commander=commander),
+        "fallbacks_used": store_fallbacks_used(store),
         **_marks_and_games(db),
         "not_measured_here": list(NOT_MEASURED),
     }
@@ -536,6 +539,12 @@ def format_data_report(report: dict[str, object]) -> str:
         "Datenbericht (nur Zählungen):",
         json.dumps(report, indent=2, ensure_ascii=False),
     ]
+    raw_fallbacks = report.get("fallbacks_used")
+    if isinstance(raw_fallbacks, dict) and raw_fallbacks:
+        lines.append("")
+        lines.append("Defensive Feld-Fallbacks (#1453):")
+        for fb_key, fb_cnt in sorted(raw_fallbacks.items()):
+            lines.append(f"- FALLBACK: {fb_key}: {fb_cnt}")
     raw_alarms = report.get("signal_rate_alarms")
     alarms = (
         [item for item in raw_alarms if isinstance(item, dict)]

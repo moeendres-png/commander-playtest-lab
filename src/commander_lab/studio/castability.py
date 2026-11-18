@@ -342,3 +342,142 @@ def deck_castability(rows: Iterable[Mapping[str, object]]) -> dict[str, object]:
             "Consistently-Cast-Your-Spells-A-2022-Update/dc23a7d2-0a16-4c0b-ad36-586fcca03ad8"
         ),
     }
+
+
+SAMPLE_HAND_SCHEMA = "studio-sample-hand-1"
+
+
+def draw_sample_hand(
+    rows: Iterable[Mapping[str, object]],
+    *,
+    seed: int = 1,
+    mulligans: int = 0,
+    draw_steps: int = 0,
+    bottom_indices: Sequence[int] = (),
+) -> dict[str, object]:
+    """Deterministic seeded 7-card sample opening hand and London Mulligan simulator (#1404)."""
+    import random
+
+    clamped_mulligans = max(0, min(int(mulligans), OPENING_HAND))
+    clamped_draws = max(0, min(int(draw_steps), 10))
+    keyed_cards: list[tuple[str, int, dict[str, object]]] = []
+    for row in rows:
+        if _text(row, "zone") == "commander":
+            continue
+        quantity = max(0, int(_text(row, "quantity") or "1"))
+        is_land = "Land" in _text(row, "type_line").split(" // ")[0]
+        colours_set = land_colours(row) if is_land else frozenset()
+        raw_mv = row.get("mana_value")
+        mv = float(str(raw_mv)) if raw_mv is not None else None
+        need_map, _ = requirement(_text(row, "mana_cost")) if not is_land else ({}, False)
+        cid = _text(row, "card_id")
+        base_card: dict[str, object] = {
+            "card_id": cid,
+            "name": _text(row, "oracle_name") or cid,
+            "type_line": _text(row, "type_line"),
+            "mana_cost": _text(row, "mana_cost"),
+            "mana_value": mv,
+            "is_land": is_land,
+            "produced_colours": sorted(colours_set) if colours_set else [],
+            "need": dict(sorted(need_map.items())),
+        }
+        for copy_idx in range(quantity):
+            keyed_cards.append((cid, copy_idx, dict(base_card)))
+    keyed_cards.sort(key=lambda item: (item[0], item[1]))
+    library_cards = [item[2] for item in keyed_cards]
+
+    rng = random.Random(int(seed))
+    deck_copy = list(library_cards)
+    for _ in range(clamped_mulligans + 1):
+        deck_copy = list(library_cards)
+        rng.shuffle(deck_copy)
+
+    hand_slice = deck_copy[:OPENING_HAND]
+    extra_slice = deck_copy[OPENING_HAND : OPENING_HAND + clamped_draws]
+    valid_bottom = sorted({int(i) for i in bottom_indices if 0 <= int(i) < len(hand_slice)})
+    bottom_set = set(valid_bottom)
+
+    kept_lands = 0
+    kept_sources: Counter[str] = Counter()
+    for idx, card in enumerate(hand_slice):
+        if idx not in bottom_set and card["is_land"]:
+            kept_lands += 1
+            for c in card["produced_colours"]:  # type: ignore[attr-defined]
+                kept_sources[str(c)] += 1
+
+    def _can_cast(
+        card: Mapping[str, object], lands_avail: int, sources_avail: Mapping[str, int]
+    ) -> bool | None:
+        if card["is_land"] or card["mana_value"] is None:
+            return None
+        if lands_avail < int(float(str(card["mana_value"]))):
+            return False
+        need_dict = card["need"]
+        return isinstance(need_dict, Mapping) and all(
+            int(sources_avail.get(str(col), 0)) >= int(cnt) for col, cnt in need_dict.items()
+        )
+
+    hand_out: list[dict[str, object]] = []
+    kept_out: list[dict[str, object]] = []
+    early_kept = castable_kept = nonland_kept = 0
+    for idx, card in enumerate(hand_slice):
+        bottomed = idx in bottom_set
+        castable = _can_cast(card, kept_lands, kept_sources)
+        item = {
+            **card,
+            "index": idx,
+            "bottomed": bottomed,
+            "castable_from_kept_lands": castable,
+        }
+        hand_out.append(item)
+        if not bottomed:
+            kept_out.append(item)
+            if not card["is_land"]:
+                nonland_kept += 1
+                mv_val = card["mana_value"]
+                if mv_val is not None and float(str(mv_val)) <= EARLY_ACTION_MAX_MV:
+                    early_kept += 1
+                if castable is True:
+                    castable_kept += 1
+
+    running_lands = kept_lands
+    running_sources: Counter[str] = Counter(kept_sources)
+    extra_out: list[dict[str, object]] = []
+    for step_idx, card in enumerate(extra_slice, start=1):
+        if card["is_land"]:
+            running_lands += 1
+            for c in card["produced_colours"]:  # type: ignore[attr-defined]
+                running_sources[str(c)] += 1
+        extra_out.append(
+            {
+                **card,
+                "turn_drawn": step_idx,
+                "castable_by_turn_drawn": _can_cast(card, running_lands, running_sources),
+            }
+        )
+
+    return {
+        "schema": SAMPLE_HAND_SCHEMA,
+        "data_class": "HEURISTIC_MODEL",
+        "seed": int(seed),
+        "mulligans": clamped_mulligans,
+        "bottom_required": max(0, clamped_mulligans - 1),
+        "bottom_indices": valid_bottom,
+        "draw_steps": clamped_draws,
+        "library_size": len(library_cards),
+        "hand": hand_out,
+        "kept_hand": kept_out,
+        "extra_draws": extra_out,
+        "summary": {
+            "kept_cards": len(kept_out),
+            "lands_in_kept": kept_lands,
+            "nonlands_in_kept": nonland_kept,
+            "early_actions_in_kept": early_kept,
+            "castable_nonlands_in_kept": castable_kept,
+            "kept_land_sources": {c: int(kept_sources.get(c, 0)) for c in COLOURS},
+        },
+        "assumption": (
+            "Deterministische Beispielhand (London-Mulligan mit freiem erstem Commander-Mulligan; "
+            "Zufalls-Seed explizit; Quellenprüfung nur über gezogene Länder)."
+        ),
+    }

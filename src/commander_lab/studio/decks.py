@@ -133,18 +133,76 @@ def revision_rows(store: StudioStore, revision_id: str) -> list[sqlite3.Row]:
 
 
 EXPORT_TEXT_FORMATS = ("plain", "moxfield")
+MAX_PRIMER_CHARS = 50_000
 
 
-def export_text(rows: Iterable[sqlite3.Row], text_format: str) -> str:
+def get_deck_primer(store: StudioStore, deck_id: str) -> dict[str, object]:
+    """Return the stored Markdown primer for ``deck_id`` (bound to deck, survives new revisions)."""
+    db = store.connection
+    deck_row = db.execute("SELECT 1 FROM deck WHERE deck_id = ?", (deck_id,)).fetchone()
+    if deck_row is None:
+        raise KeyError(deck_id)
+    row = db.execute(
+        "SELECT content, updated_at FROM deck_primer WHERE deck_id = ?",
+        (deck_id,),
+    ).fetchone()
+    if row is None:
+        return {"deck_id": deck_id, "content": "", "updated_at": None}
+    return {
+        "deck_id": deck_id,
+        "content": str(row["content"]),
+        "updated_at": str(row["updated_at"]),
+    }
+
+
+def set_deck_primer(store: StudioStore, deck_id: str, content: str) -> dict[str, object]:
+    """Store or update the Markdown primer for ``deck_id`` (capped at ``MAX_PRIMER_CHARS``)."""
+    db = store.connection
+    deck_row = db.execute("SELECT 1 FROM deck WHERE deck_id = ?", (deck_id,)).fetchone()
+    if deck_row is None:
+        raise KeyError(deck_id)
+    normalized = content.replace("\r\n", "\n").replace("\r", "\n")
+    if len(normalized) > MAX_PRIMER_CHARS:
+        raise ValueError(
+            f"Primer zu lang: {len(normalized)} Zeichen (höchstens {MAX_PRIMER_CHARS} erlaubt)"
+        )
+    ts = now_utc()
+    with db:
+        db.execute(
+            "INSERT INTO deck_primer(deck_id, content, updated_at) VALUES (?, ?, ?) "
+            "ON CONFLICT(deck_id) DO UPDATE SET content = excluded.content, "
+            "updated_at = excluded.updated_at",
+            (deck_id, normalized, ts),
+        )
+    return {"deck_id": deck_id, "content": normalized, "updated_at": ts}
+
+
+def format_primer_comments(primer: str) -> list[str]:
+    """Format a Markdown primer as ``//``-prefixed comment lines for decklist text export."""
+    clean = primer.replace("\r\n", "\n").replace("\r", "\n").strip()
+    if not clean:
+        return []
+    out = ["// Primer:"]
+    for line in clean.split("\n"):
+        stripped = line.rstrip()
+        out.append(f"// {stripped}" if stripped else "//")
+    out.append("")
+    return out
+
+
+def export_text(rows: Iterable[sqlite3.Row], text_format: str, *, primer: str = "") -> str:
     """The list as text with the commander zone marked, names exactly as the store holds them.
 
     ``plain``: ``n Name`` per line, the commander first. ``moxfield``: the block
     ``Commander`` / ``Deck`` that the list import reads (also Moxfield and Archidekt text
     imports). Order is fixed: commander zone first, then name; equal names are summed.
+    When ``primer`` is non-empty, it is prepended as ``//`` comment lines so
+    ``parse_decklist_text`` ignores it on re-import.
     Raises ``ValueError`` for an unknown format.
     """
     if text_format not in EXPORT_TEXT_FORMATS:
         raise ValueError(text_format)
+    header = format_primer_comments(primer)
     zones: dict[str, dict[str, int]] = {"commander": {}, "main": {}}
     for row in rows:
         zone = zones["commander" if row["zone"] == "commander" else "main"]
@@ -153,8 +211,8 @@ def export_text(rows: Iterable[sqlite3.Row], text_format: str) -> str:
     commander = [f"{qty} {name}" for name, qty in sorted(zones["commander"].items())]
     deck = [f"{qty} {name}" for name, qty in sorted(zones["main"].items())]
     if text_format == "plain":
-        return "\n".join([*commander, *deck]) + "\n"
-    return "\n".join(["Commander", *commander, "", "Deck", *deck]) + "\n"
+        return "\n".join([*header, *commander, *deck]) + "\n"
+    return "\n".join([*header, "Commander", *commander, "", "Deck", *deck]) + "\n"
 
 
 def list_rows(store: StudioStore, cards: Iterable[RevisionCard]) -> list[sqlite3.Row]:
@@ -413,8 +471,14 @@ def _collection_lookup(
 def _detect_format(lines: list[str]) -> str:
     if not lines:
         return "plain"
-    cleaned = [ln.lstrip("\ufeff") for ln in lines]
-    first_nonempty = next((ln.strip() for ln in cleaned if ln.strip()), "")
+    cleaned = [
+        ln.lstrip("\ufeff")
+        for ln in lines
+        if ln.strip() and not ln.lstrip("\ufeff").strip().startswith(("//", "#"))
+    ]
+    if not cleaned:
+        return "plain"
+    first_nonempty = cleaned[0].strip()
     if "," in first_nonempty:
         lowered = [col.strip().strip('"').casefold() for col in first_nonempty.split(",")]
         if any(col in _CSV_NAME_COLS for col in lowered) and (len(lowered) >= 2):
@@ -836,3 +900,125 @@ def parse_decklist_text(
             "sideboard_lines_skipped": sideboard_skipped,
         },
     }
+
+
+def export_deck_dossier(
+    store: StudioStore,
+    revision_id: str,
+    *,
+    base_revision_id: str | None = None,
+) -> str:
+    """Printable Markdown deck dossier with shape, role counts, card list, and revision changelog (#1404)."""
+    from . import builder
+
+    rev_meta = store.connection.execute(
+        "SELECT r.revision_id, r.deck_id, r.parent_revision_id, r.deck_hash, r.note, r.created_at, d.name "
+        "FROM deck_revision r JOIN deck d USING (deck_id) WHERE r.revision_id = ?",
+        (revision_id,),
+    ).fetchone()
+    if rev_meta is None:
+        raise KeyError(revision_id)
+
+    rows = revision_rows(store, revision_id)
+    rev_cards = [RevisionCard(str(r["card_id"]), int(r["quantity"]), str(r["zone"])) for r in rows]
+    shape = builder.deck_shape(rows)
+    roles_info = builder.deck_roles(store, rev_cards)
+    issues = validate_rows(rows, owned_only=True)
+
+    commanders = [str(r["oracle_name"]) for r in rows if r["zone"] == "commander"]
+    lands: list[tuple[str, int]] = []
+    spells: list[tuple[str, int, str]] = []
+    for r in rows:
+        if r["zone"] == "commander":
+            continue
+        name = str(r["oracle_name"])
+        qty = int(r["quantity"])
+        tl = str(r["type_line"] or "")
+        mc = str(r["mana_cost"] or "")
+        if "Land" in tl.split(" // ")[0]:
+            lands.append((name, qty))
+        else:
+            spells.append((name, qty, mc))
+    lands.sort(key=lambda x: x[0])
+    spells.sort(key=lambda x: x[0])
+
+    total_cards = sum(int(r["quantity"]) for r in rows)
+    lands_count = sum(q for _, q in lands)
+    nonlands_count = sum(q for _, q, _ in spells)
+    avg_mv = shape.get("average_mana_value")
+    avg_mv_str = (
+        f"{float(str(avg_mv)):.2f}".replace(".", ",") if avg_mv is not None else "unbekannt"
+    )
+    lines = [
+        f"# Deck-Dossier: {rev_meta['name']} ({rev_meta['deck_id']})",
+        "",
+        "> Beschreibendes Deck-Dossier (`DERIVED_DESCRIPTIVE`, kein Urteil, keine Wertung).",
+        "",
+        f"- **Stand (Revision):** `{revision_id}`",
+        f"- **Inhalts-Hash:** `{str(rev_meta['deck_hash'])[:16]}`",
+        f"- **Erstellt (UTC):** {rev_meta['created_at']}",
+        f"- **Commander:** {', '.join(commanders) if commanders else 'unbekannt'}",
+        f"- **Karten gesamt:** {total_cards} / {DECK_SIZE} (Länder: {lands_count}, Nichtländer: {nonlands_count}, Ø Manawert ohne Länder: {avg_mv_str})",
+    ]
+    if rev_meta["note"]:
+        lines.append(f"- **Notiz:** {_scrub_amounts(str(rev_meta['note']))}")
+
+    lines.extend(["", "## 1. Form- & Sammlungsprüfung"])
+    if not issues:
+        lines.append(
+            "- Keine Abweichungen (100 Karten, Singleton, Farbidentität und Sammlungsbestand erfüllt)."
+        )
+    else:
+        for iss in issues:
+            lines.append(f"- [{iss.severity.upper()}] `{iss.code}`: {iss.message}")
+
+    compare_id = base_revision_id or (
+        str(rev_meta["parent_revision_id"]) if rev_meta["parent_revision_id"] else None
+    )
+    if compare_id and compare_id != revision_id:
+        try:
+            base_rows = revision_rows(store, compare_id)
+            cur_map = {
+                str(r["oracle_name"]): int(r["quantity"]) for r in rows if r["zone"] != "commander"
+            }
+            old_map = {
+                str(r["oracle_name"]): int(r["quantity"])
+                for r in base_rows
+                if r["zone"] != "commander"
+            }
+            added = sorted(
+                (n, q - old_map.get(n, 0)) for n, q in cur_map.items() if q > old_map.get(n, 0)
+            )
+            removed = sorted(
+                (n, q - cur_map.get(n, 0)) for n, q in old_map.items() if q > cur_map.get(n, 0)
+            )
+            lines.extend(["", f"## 2. Änderungsprotokoll gegenüber `{compare_id}`"])
+            lines.append(
+                f"- **Neu im Deck (+{sum(q for _, q in added)}):** "
+                + (", ".join(f"{q}x {n}" for n, q in added) if added else "keine")
+            )
+            lines.append(
+                f"- **Entfernt (-{sum(q for _, q in removed)}):** "
+                + (", ".join(f"{q}x {n}" for n, q in removed) if removed else "keine")
+            )
+        except KeyError:
+            pass
+
+    lines.extend(["", "## 3. Rollenabdeckung (Tagger, Mehrfachzählung möglich)"])
+    if roles_info:
+        for role_key, cnt in sorted(roles_info.items()):
+            lines.append(f"- **{role_key}:** {cnt} / {nonlands_count} Nichtländer")
+    else:
+        lines.append("- Keine Rollendaten hinterlegt.")
+
+    lines.extend(["", "## 4. Kartenliste", "", "### Commander"])
+    for c_name in commanders:
+        lines.append(f"- 1 {c_name}")
+    lines.extend(["", f"### Zauber ({sum(q for _, q, _ in spells)})"])
+    for s_name, s_qty, s_mc in spells:
+        suffix = f" ({s_mc})" if s_mc else ""
+        lines.append(f"- {s_qty} {s_name}{suffix}")
+    lines.extend(["", f"### Länder ({sum(q for _, q in lands)})"])
+    for l_name, l_qty in lands:
+        lines.append(f"- {l_qty} {l_name}")
+    return "\n".join(lines) + "\n"

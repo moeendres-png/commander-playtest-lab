@@ -866,6 +866,18 @@ def test_strength_view_role_ranks_and_score_invariance(tmp_path: Path) -> None:
             == elves["role_ranks"]["ramp"]["total"]
             == 3
         )
+        # D3: the denominator of every role rank is also given per role
+        assert res["cards"] and res["role_totals"]["ramp"] == 3
+        assert res["role_totals"] == {
+            role: max(card["role_totals"].get(role, 0) for card in res["cards"])
+            for role in res["role_totals"]
+        }
+        for card in res["cards"]:
+            assert card["role_totals"] == {
+                role: rank["total"] for role, rank in card["role_ranks"].items()
+            }
+        assert birds["role_totals"]["ramp"] == 3
+        assert by_name[COMMANDER]["role_totals"] == {}
     finally:
         store.close()
 
