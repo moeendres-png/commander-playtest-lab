@@ -3421,5 +3421,1027 @@
    "prompt": "Select up to one card to PUT on the BOTTOM of your library (Scry)",
    "seat": 0
   }
+ },
+ "target_london_bottom": {
+  "note": "Real engine payload: after two mulligans (4 seats) the London choice 'Select a card (1 more) to put on the bottom of your library' lists the cards of the own hand.",
+  "pending_decision": {
+   "actor_id": "0cd327ac-e8f4-492a-bdb4-77489995c1a5",
+   "context": {
+    "bottom_of_library_selection": true,
+    "outcome": "discard",
+    "required": true,
+    "target_description": "a card (1 more) to put on the bottom of your library",
+    "target_name": "card (1 more) to put on the bottom of your library",
+    "targeted": true
+   },
+   "decision_class": "target",
+   "decision_id": "8243256303ccc07ef7a5cf2e55fb94864adc3bb705013a20d75509a76c44908d",
+   "legal_options": [
+    {
+     "label": "Akoum Refuge",
+     "metadata": {
+      "name": "Akoum Refuge",
+      "object_id": "9ac0e1e7-7619-40e2-bb27-45bb386013d4",
+      "zone": "hand",
+      "zone_index": 0
+     },
+     "option_id": "9ac0e1e7-7619-40e2-bb27-45bb386013d4",
+     "option_type": "target"
+    },
+    {
+     "label": "Llanowar Reborn",
+     "metadata": {
+      "name": "Llanowar Reborn",
+      "object_id": "9056af03-2c1f-4046-9be7-5805c1bd6fb2",
+      "zone": "hand",
+      "zone_index": 1
+     },
+     "option_id": "9056af03-2c1f-4046-9be7-5805c1bd6fb2",
+     "option_type": "target"
+    },
+    {
+     "label": "Mountain",
+     "metadata": {
+      "name": "Mountain",
+      "object_id": "d74cf8c6-26dc-433c-b7f7-5e4ec4f9fb90",
+      "zone": "hand",
+      "zone_index": 2
+     },
+     "option_id": "d74cf8c6-26dc-433c-b7f7-5e4ec4f9fb90",
+     "option_type": "target"
+    },
+    {
+     "label": "Rupture Spire",
+     "metadata": {
+      "name": "Rupture Spire",
+      "object_id": "268dd35a-32ea-46c0-beb9-1e0822ce95c6",
+      "zone": "hand",
+      "zone_index": 3
+     },
+     "option_id": "268dd35a-32ea-46c0-beb9-1e0822ce95c6",
+     "option_type": "target"
+    },
+    {
+     "label": "Blood Rites",
+     "metadata": {
+      "name": "Blood Rites",
+      "object_id": "2e48336c-64c2-48e3-a7f9-d4f0038a2f57",
+      "zone": "hand",
+      "zone_index": 4
+     },
+     "option_id": "2e48336c-64c2-48e3-a7f9-d4f0038a2f57",
+     "option_type": "target"
+    },
+    {
+     "label": "Widespread Panic",
+     "metadata": {
+      "name": "Widespread Panic",
+      "object_id": "44e7b659-468c-40e2-8f86-6493cf206c59",
+      "zone": "hand",
+      "zone_index": 5
+     },
+     "option_id": "44e7b659-468c-40e2-8f86-6493cf206c59",
+     "option_type": "target"
+    },
+    {
+     "label": "Hooded Horror",
+     "metadata": {
+      "name": "Hooded Horror",
+      "object_id": "736b6ee6-c51b-4467-9b7d-9280b8daa415",
+      "zone": "hand",
+      "zone_index": 6
+     },
+     "option_id": "736b6ee6-c51b-4467-9b7d-9280b8daa415",
+     "option_type": "target"
+    }
+   ],
+   "maximum_selections": 1,
+   "minimum_selections": 1,
+   "pilot_state": {
+    "active_player_id": null,
+    "actor_id": "0cd327ac-e8f4-492a-bdb4-77489995c1a5",
+    "phase": null,
+    "players": [
+     {
+      "battlefield": [],
+      "command": [
+       {
+        "name": "Prossh, Skyraider of Kher",
+        "object_id": "0901b664-575c-44a9-8641-f77e47a00b81"
+       }
+      ],
+      "exile": [],
+      "graveyard": [],
+      "hand": [
+       {
+        "name": "Akoum Refuge",
+        "object_id": "9ac0e1e7-7619-40e2-bb27-45bb386013d4"
+       },
+       {
+        "name": "Llanowar Reborn",
+        "object_id": "9056af03-2c1f-4046-9be7-5805c1bd6fb2"
+       },
+       {
+        "name": "Mountain",
+        "object_id": "d74cf8c6-26dc-433c-b7f7-5e4ec4f9fb90"
+       },
+       {
+        "name": "Rupture Spire",
+        "object_id": "268dd35a-32ea-46c0-beb9-1e0822ce95c6"
+       },
+       {
+        "name": "Blood Rites",
+        "object_id": "2e48336c-64c2-48e3-a7f9-d4f0038a2f57"
+       },
+       {
+        "name": "Widespread Panic",
+        "object_id": "44e7b659-468c-40e2-8f86-6493cf206c59"
+       },
+       {
+        "name": "Hooded Horror",
+        "object_id": "736b6ee6-c51b-4467-9b7d-9280b8daa415"
+       }
+      ],
+      "has_lost": false,
+      "life": 40,
+      "player_id": "0cd327ac-e8f4-492a-bdb4-77489995c1a5",
+      "seat": 0
+     },
+     {
+      "battlefield": [],
+      "command": [
+       {
+        "name": "Quintorius, History Chaser",
+        "object_id": "76c7a744-6e9d-4a9a-9523-a10cb460e958"
+       }
+      ],
+      "exile": [],
+      "graveyard": [],
+      "has_lost": false,
+      "life": 40,
+      "player_id": "op-1",
+      "seat": 1
+     },
+     {
+      "battlefield": [],
+      "command": [
+       {
+        "name": "Bello, Bard of the Brambles",
+        "object_id": "d1a152f1-4a62-4b3b-9e58-fa23bd81dcd7"
+       }
+      ],
+      "exile": [],
+      "graveyard": [],
+      "has_lost": false,
+      "life": 40,
+      "player_id": "op-2",
+      "seat": 2
+     },
+     {
+      "battlefield": [],
+      "command": [
+       {
+        "name": "Emmara, Soul of the Accord",
+        "object_id": "d7f3edc4-a6d8-4f32-a5ca-1a92a5949a1d"
+       }
+      ],
+      "exile": [],
+      "graveyard": [],
+      "has_lost": false,
+      "life": 40,
+      "player_id": "op-3",
+      "seat": 3
+     }
+    ],
+    "seat": 0,
+    "stack": [],
+    "step": null,
+    "turn_number": 1
+   },
+   "prompt": "Select a card (1 more) to put on the bottom of your library",
+   "seat": 0
+  }
+ },
+ "target_player_opponent": {
+  "note": "Real engine payload (4 seats, human seat 0): 'Select an opponent'; the option ids are the engine's player ids, the pilot_state names the opponents op-N; the option names them 'Full Game Seat N'.",
+  "pending_decision": {
+   "actor_id": "0cd327ac-e8f4-492a-bdb4-77489995c1a5",
+   "context": {
+    "outcome": "putcreatureinplay",
+    "required": true,
+    "target_description": "target opponent",
+    "target_name": "opponent",
+    "targeted": true
+   },
+   "decision_class": "target",
+   "decision_id": "c9f3f5d7802e0ded1f03b04b0481ca47762d0b227524a65a1cbd736d03bc7adb",
+   "legal_options": [
+    {
+     "label": "Full Game Seat 2",
+     "metadata": {
+      "name": "Full Game Seat 2",
+      "object_id": "42c36c89-d345-47c1-9e82-3613fe0a70b2"
+     },
+     "option_id": "42c36c89-d345-47c1-9e82-3613fe0a70b2",
+     "option_type": "target"
+    },
+    {
+     "label": "Full Game Seat 3",
+     "metadata": {
+      "name": "Full Game Seat 3",
+      "object_id": "c22590be-0afa-4308-82da-3ee2238f3e79"
+     },
+     "option_id": "c22590be-0afa-4308-82da-3ee2238f3e79",
+     "option_type": "target"
+    },
+    {
+     "label": "Full Game Seat 4",
+     "metadata": {
+      "name": "Full Game Seat 4",
+      "object_id": "e66ee100-cad9-437a-8458-596100269f53"
+     },
+     "option_id": "e66ee100-cad9-437a-8458-596100269f53",
+     "option_type": "target"
+    }
+   ],
+   "maximum_selections": 1,
+   "minimum_selections": 1,
+   "pilot_state": {
+    "active_player_id": "0cd327ac-e8f4-492a-bdb4-77489995c1a5",
+    "actor_id": "0cd327ac-e8f4-492a-bdb4-77489995c1a5",
+    "phase": "precombat_main",
+    "players": [
+     {
+      "battlefield": [
+       {
+        "controller_id": "0cd327ac-e8f4-492a-bdb4-77489995c1a5",
+        "face_down": false,
+        "name": "Evolving Wilds",
+        "object_id": "0067ec7c-4c15-4062-b47a-92873af3fd72",
+        "power": 0,
+        "tapped": false,
+        "toughness": 0
+       },
+       {
+        "controller_id": "0cd327ac-e8f4-492a-bdb4-77489995c1a5",
+        "face_down": false,
+        "name": "Llanowar Reborn",
+        "object_id": "9056af03-2c1f-4046-9be7-5805c1bd6fb2",
+        "power": 0,
+        "tapped": true,
+        "toughness": 0
+       },
+       {
+        "controller_id": "0cd327ac-e8f4-492a-bdb4-77489995c1a5",
+        "face_down": false,
+        "name": "Golgari Guildgate",
+        "object_id": "fcff86ca-f3e4-4f50-8469-6d6554ff32e8",
+        "power": 0,
+        "tapped": true,
+        "toughness": 0
+       },
+       {
+        "controller_id": "0cd327ac-e8f4-492a-bdb4-77489995c1a5",
+        "face_down": false,
+        "name": "Mountain",
+        "object_id": "d74cf8c6-26dc-433c-b7f7-5e4ec4f9fb90",
+        "power": 0,
+        "tapped": false,
+        "toughness": 0
+       },
+       {
+        "controller_id": "0cd327ac-e8f4-492a-bdb4-77489995c1a5",
+        "face_down": false,
+        "name": "Sol Ring",
+        "object_id": "161878c6-6a72-4c0d-b200-b4c419be7a45",
+        "power": 0,
+        "tapped": true,
+        "toughness": 0
+       },
+       {
+        "controller_id": "0cd327ac-e8f4-492a-bdb4-77489995c1a5",
+        "face_down": false,
+        "name": "Widespread Panic",
+        "object_id": "44e7b659-468c-40e2-8f86-6493cf206c59",
+        "power": 0,
+        "tapped": false,
+        "toughness": 0
+       },
+       {
+        "controller_id": "0cd327ac-e8f4-492a-bdb4-77489995c1a5",
+        "face_down": false,
+        "name": "Sprouting Thrinax",
+        "object_id": "498882bc-febd-4dd6-b34e-00053b445fb0",
+        "power": 3,
+        "tapped": false,
+        "toughness": 3
+       },
+       {
+        "controller_id": "0cd327ac-e8f4-492a-bdb4-77489995c1a5",
+        "face_down": false,
+        "name": "Rakdos Guildgate",
+        "object_id": "6c0aafb2-a63c-4d9c-af1d-016bae3b4930",
+        "power": 0,
+        "tapped": true,
+        "toughness": 0
+       },
+       {
+        "controller_id": "0cd327ac-e8f4-492a-bdb4-77489995c1a5",
+        "face_down": false,
+        "name": "Hunted Troll",
+        "object_id": "cc8d20bd-dfcc-4f79-9583-215d6ba3d81a",
+        "power": 8,
+        "tapped": false,
+        "toughness": 4
+       }
+      ],
+      "command": [
+       {
+        "name": "Prossh, Skyraider of Kher",
+        "object_id": "0901b664-575c-44a9-8641-f77e47a00b81"
+       }
+      ],
+      "exile": [],
+      "graveyard": [
+       {
+        "name": "Rupture Spire",
+        "object_id": "268dd35a-32ea-46c0-beb9-1e0822ce95c6"
+       },
+       {
+        "name": "Golgari Guildmage",
+        "object_id": "34d78d18-15ed-433e-91ee-3b9c2bd7ffee"
+       }
+      ],
+      "hand": [
+       {
+        "name": "Blood Rites",
+        "object_id": "2e48336c-64c2-48e3-a7f9-d4f0038a2f57"
+       },
+       {
+        "name": "Hooded Horror",
+        "object_id": "736b6ee6-c51b-4467-9b7d-9280b8daa415"
+       }
+      ],
+      "has_lost": false,
+      "life": 40,
+      "player_id": "0cd327ac-e8f4-492a-bdb4-77489995c1a5",
+      "seat": 0
+     },
+     {
+      "battlefield": [
+       {
+        "controller_id": "op-1",
+        "face_down": false,
+        "name": "Plains",
+        "object_id": "0548be92-ec0a-4b85-ad57-13ed35d9203d",
+        "power": 0,
+        "tapped": true,
+        "toughness": 0
+       },
+       {
+        "controller_id": "op-1",
+        "face_down": false,
+        "name": "Currency Converter",
+        "object_id": "86688c5e-c00e-409c-87e1-ae668626fc4b",
+        "power": 0,
+        "tapped": true,
+        "toughness": 0
+       },
+       {
+        "controller_id": "op-1",
+        "face_down": false,
+        "name": "Plains",
+        "object_id": "a8daeb23-ddb7-46e0-ab42-461f70ab92cd",
+        "power": 0,
+        "tapped": true,
+        "toughness": 0
+       },
+       {
+        "controller_id": "op-1",
+        "face_down": false,
+        "name": "White Orchid Phantom",
+        "object_id": "ed1779bb-cc42-4228-914c-499737e93459",
+        "power": 2,
+        "tapped": false,
+        "toughness": 2
+       },
+       {
+        "controller_id": "op-1",
+        "face_down": false,
+        "name": "Radiant Summit",
+        "object_id": "fa0a7faf-9a9a-4494-9b7f-141546305cb6",
+        "power": 0,
+        "tapped": true,
+        "toughness": 0
+       },
+       {
+        "controller_id": "op-1",
+        "face_down": false,
+        "name": "Venerable Warsinger",
+        "object_id": "c663e71c-a7d6-4bcc-ad08-39ae385c2cc5",
+        "power": 3,
+        "tapped": false,
+        "toughness": 3
+       },
+       {
+        "controller_id": "op-1",
+        "face_down": false,
+        "name": "Plains",
+        "object_id": "2a94bd69-a11b-46d1-97ab-b28f04578905",
+        "power": 0,
+        "tapped": true,
+        "toughness": 0
+       },
+       {
+        "controller_id": "op-1",
+        "face_down": false,
+        "name": "Spirit Token",
+        "object_id": "2341dab7-86ce-4e22-a73c-cc97117ca50f",
+        "power": 3,
+        "tapped": false,
+        "toughness": 2
+       },
+       {
+        "controller_id": "op-1",
+        "face_down": false,
+        "name": "Rogue Token",
+        "object_id": "04fd893b-fd26-4c3b-82cd-5cab7997618d",
+        "power": 2,
+        "tapped": false,
+        "toughness": 2
+       },
+       {
+        "controller_id": "op-1",
+        "face_down": false,
+        "name": "Lorehold Campus",
+        "object_id": "6dc2056f-b25c-4213-b7bb-f63c7e939b3f",
+        "power": 0,
+        "tapped": true,
+        "toughness": 0
+       },
+       {
+        "controller_id": "op-1",
+        "face_down": false,
+        "name": "Naktamun Lorespinner",
+        "object_id": "6b557fbb-80e3-4a69-8a4b-a4d23091bfc0",
+        "power": 3,
+        "tapped": false,
+        "toughness": 3
+       },
+       {
+        "controller_id": "op-1",
+        "face_down": false,
+        "name": "Spirit Token",
+        "object_id": "cf684c4c-6412-45a3-b84f-4bcf357c07cf",
+        "power": 3,
+        "tapped": false,
+        "toughness": 2
+       },
+       {
+        "controller_id": "op-1",
+        "face_down": false,
+        "name": "Treasure Token",
+        "object_id": "f718ccde-54f3-42e2-850f-e3cff70a3e16",
+        "power": 0,
+        "tapped": false,
+        "toughness": 0
+       },
+       {
+        "controller_id": "op-1",
+        "face_down": false,
+        "name": "Mountain",
+        "object_id": "dde92aa0-ce55-4cbb-a49a-5345fba37ab0",
+        "power": 0,
+        "tapped": false,
+        "toughness": 0
+       }
+      ],
+      "command": [
+       {
+        "name": "Quintorius, History Chaser",
+        "object_id": "76c7a744-6e9d-4a9a-9523-a10cb460e958"
+       }
+      ],
+      "exile": [],
+      "graveyard": [
+       {
+        "name": "Patchwork Banner",
+        "object_id": "2cdb55b1-4c7e-4128-a3e5-0d53f1e69657"
+       },
+       {
+        "name": "Ao, the Dawn Sky",
+        "object_id": "4a0425bc-977e-40af-941a-5fa87b98aa5b"
+       },
+       {
+        "name": "Furycalm Snarl",
+        "object_id": "52eb356e-e811-4209-b3fa-1edf417c9315"
+       },
+       {
+        "name": "Emeria, the Sky Ruin",
+        "object_id": "af115be0-9df1-4054-be7f-114eaa8b8d4d"
+       }
+      ],
+      "has_lost": false,
+      "life": 30,
+      "player_id": "op-1",
+      "seat": 1
+     },
+     {
+      "battlefield": [
+       {
+        "controller_id": "op-2",
+        "face_down": false,
+        "name": "Forest",
+        "object_id": "eece8f33-e04e-429f-b03f-7e50d217f4d5",
+        "power": 0,
+        "tapped": true,
+        "toughness": 0
+       },
+       {
+        "controller_id": "op-2",
+        "face_down": false,
+        "name": "Tranquil Thicket",
+        "object_id": "7fa909f7-6ff4-4bc9-8166-3122f97a4b27",
+        "power": 0,
+        "tapped": true,
+        "toughness": 0
+       },
+       {
+        "controller_id": "op-2",
+        "face_down": false,
+        "name": "Mountain",
+        "object_id": "ba95e1ff-50ca-418c-afcc-de9a70626e01",
+        "power": 0,
+        "tapped": true,
+        "toughness": 0
+       },
+       {
+        "controller_id": "op-2",
+        "face_down": false,
+        "name": "Saproling Token",
+        "object_id": "6a50f216-ef0d-440c-95d4-f4b8b1b59373",
+        "power": 1,
+        "tapped": true,
+        "toughness": 1
+       },
+       {
+        "controller_id": "op-2",
+        "face_down": false,
+        "name": "Saproling Token",
+        "object_id": "c430f3c5-9ca1-41a8-915c-38f158e4f0f1",
+        "power": 1,
+        "tapped": true,
+        "toughness": 1
+       },
+       {
+        "controller_id": "op-2",
+        "face_down": false,
+        "name": "Cinder Glade",
+        "object_id": "a899463b-1c4b-4ea7-b96d-d8e6148b16e1",
+        "power": 0,
+        "tapped": true,
+        "toughness": 0
+       },
+       {
+        "controller_id": "op-2",
+        "face_down": false,
+        "name": "Brightcap Badger",
+        "object_id": "106a2a36-0a3a-4166-bc4c-0c4f9ab512f6",
+        "power": 3,
+        "tapped": true,
+        "toughness": 4
+       },
+       {
+        "controller_id": "op-2",
+        "face_down": false,
+        "name": "Exotic Orchard",
+        "object_id": "fc2fe35e-6f36-4175-b4f8-3c08017776d2",
+        "power": 0,
+        "tapped": true,
+        "toughness": 0
+       },
+       {
+        "controller_id": "op-2",
+        "face_down": false,
+        "name": "Saproling Token",
+        "object_id": "498842e7-4499-441f-8d2a-4da13f1b2c21",
+        "power": 1,
+        "tapped": true,
+        "toughness": 1
+       },
+       {
+        "controller_id": "op-2",
+        "face_down": false,
+        "name": "Bello, Bard of the Brambles",
+        "object_id": "d1a152f1-4a62-4b3b-9e58-fa23bd81dcd7",
+        "power": 3,
+        "tapped": true,
+        "toughness": 3
+       },
+       {
+        "controller_id": "op-2",
+        "face_down": false,
+        "name": "Lotus Cobra",
+        "object_id": "34ab6cc4-d6a1-456c-ac6c-cab2250bb406",
+        "power": 2,
+        "tapped": true,
+        "toughness": 1
+       },
+       {
+        "controller_id": "op-2",
+        "face_down": false,
+        "name": "Saproling Token",
+        "object_id": "95507393-9b73-46cb-9ead-d4ab747cc4c2",
+        "power": 1,
+        "tapped": true,
+        "toughness": 1
+       },
+       {
+        "controller_id": "op-2",
+        "face_down": false,
+        "name": "Rolling Hamsphere",
+        "object_id": "51da59a6-5d32-4c7b-a5c7-07a62b70e83b",
+        "power": 7,
+        "tapped": true,
+        "toughness": 7
+       },
+       {
+        "controller_id": "op-2",
+        "face_down": false,
+        "name": "Forest",
+        "object_id": "3a3723c7-c884-42ef-aa38-554e5568898e",
+        "power": 0,
+        "tapped": true,
+        "toughness": 0
+       },
+       {
+        "controller_id": "op-2",
+        "face_down": false,
+        "name": "Mountain",
+        "object_id": "1c741fbe-cf6a-4924-b303-cea1279ea481",
+        "power": 0,
+        "tapped": true,
+        "toughness": 0
+       },
+       {
+        "controller_id": "op-2",
+        "face_down": false,
+        "name": "Mountain",
+        "object_id": "126ae1f5-e536-4fbc-a2f9-ac3a2b204ed5",
+        "power": 0,
+        "tapped": true,
+        "toughness": 0
+       },
+       {
+        "controller_id": "op-2",
+        "face_down": false,
+        "name": "Ghalta, Primal Hunger",
+        "object_id": "f34a9e8f-09b6-47c9-9874-e411990beec9",
+        "power": 12,
+        "tapped": true,
+        "toughness": 12
+       },
+       {
+        "controller_id": "op-2",
+        "face_down": false,
+        "name": "Hamster Token",
+        "object_id": "570dc516-fe46-452a-8861-bd136477543b",
+        "power": 1,
+        "tapped": true,
+        "toughness": 1
+       },
+       {
+        "controller_id": "op-2",
+        "face_down": false,
+        "name": "Hamster Token",
+        "object_id": "408fba68-5c6a-44e1-bba1-56cc1db6c2ae",
+        "power": 1,
+        "tapped": true,
+        "toughness": 1
+       },
+       {
+        "controller_id": "op-2",
+        "face_down": false,
+        "name": "Hamster Token",
+        "object_id": "1ab2e0ac-7e08-47de-a7a7-86183be495c6",
+        "power": 1,
+        "tapped": true,
+        "toughness": 1
+       }
+      ],
+      "command": [],
+      "exile": [],
+      "graveyard": [
+       {
+        "name": "Evolving Wilds",
+        "object_id": "7abddc3f-5653-41ae-a117-8ae740c62d1d"
+       },
+       {
+        "name": "Burnished Hart",
+        "object_id": "0f2d8b0a-e809-47d9-8a32-3b9c4369eef6"
+       }
+      ],
+      "has_lost": false,
+      "life": 23,
+      "player_id": "op-2",
+      "seat": 2
+     },
+     {
+      "battlefield": [
+       {
+        "controller_id": "op-3",
+        "face_down": false,
+        "name": "Fortified Village",
+        "object_id": "e1309e83-4d4d-40b7-ae8a-84c62ac7c1a1",
+        "power": 0,
+        "tapped": true,
+        "toughness": 0
+       },
+       {
+        "controller_id": "op-3",
+        "face_down": false,
+        "name": "Forest",
+        "object_id": "57c548d9-6aa4-43af-9f97-37f98725fd1f",
+        "power": 0,
+        "tapped": true,
+        "toughness": 0
+       },
+       {
+        "controller_id": "op-3",
+        "face_down": false,
+        "name": "Plains",
+        "object_id": "e8abf267-178d-4db2-bf2c-2244f338b272",
+        "power": 0,
+        "tapped": true,
+        "toughness": 0
+       },
+       {
+        "controller_id": "op-3",
+        "face_down": false,
+        "name": "Rishkar, Peema Renegade",
+        "object_id": "0f90a8f2-7ecd-4355-ad97-3da5baa4b1fc",
+        "power": 3,
+        "tapped": true,
+        "toughness": 3
+       },
+       {
+        "controller_id": "op-3",
+        "face_down": false,
+        "name": "Soldier Token",
+        "object_id": "9d627f49-94cc-4988-a231-4d5eb329610c",
+        "power": 1,
+        "tapped": false,
+        "toughness": 1
+       },
+       {
+        "controller_id": "op-3",
+        "face_down": false,
+        "name": "Leafkin Druid",
+        "object_id": "976c64f6-7d73-403c-a51e-4609ea46a19f",
+        "power": 0,
+        "tapped": true,
+        "toughness": 3
+       },
+       {
+        "controller_id": "op-3",
+        "face_down": false,
+        "name": "Forest",
+        "object_id": "751058ea-7f66-4bcd-963d-00210349e21c",
+        "power": 0,
+        "tapped": true,
+        "toughness": 0
+       },
+       {
+        "controller_id": "op-3",
+        "face_down": false,
+        "name": "Soldier Token",
+        "object_id": "bbff8176-5528-4747-811c-eb0c62629f7b",
+        "power": 1,
+        "tapped": false,
+        "toughness": 1
+       },
+       {
+        "controller_id": "op-3",
+        "face_down": false,
+        "name": "Soldier Token",
+        "object_id": "f88ac2d3-aded-4031-bff2-30a0b08628c6",
+        "power": 1,
+        "tapped": false,
+        "toughness": 1
+       },
+       {
+        "controller_id": "op-3",
+        "face_down": false,
+        "name": "Soldier Token",
+        "object_id": "4a030fbd-78b7-4910-963b-29d440bd0bdf",
+        "power": 1,
+        "tapped": false,
+        "toughness": 1
+       },
+       {
+        "controller_id": "op-3",
+        "face_down": false,
+        "name": "Soldier Token",
+        "object_id": "24464058-872d-4b0b-a8a5-0ae99d72cb7c",
+        "power": 1,
+        "tapped": false,
+        "toughness": 1
+       },
+       {
+        "controller_id": "op-3",
+        "face_down": false,
+        "name": "Graypelt Refuge",
+        "object_id": "99923565-54cf-43ee-89f9-6c5d7a02f8e7",
+        "power": 0,
+        "tapped": false,
+        "toughness": 0
+       },
+       {
+        "controller_id": "op-3",
+        "face_down": false,
+        "name": "Conclave Tribunal",
+        "object_id": "a9955b50-2ad7-4026-8967-05db86c71619",
+        "power": 0,
+        "tapped": false,
+        "toughness": 0
+       },
+       {
+        "controller_id": "op-3",
+        "face_down": false,
+        "name": "Plains",
+        "object_id": "4d4cd576-2efd-494a-bc19-360a81498b45",
+        "power": 0,
+        "tapped": true,
+        "toughness": 0
+       },
+       {
+        "controller_id": "op-3",
+        "face_down": false,
+        "name": "Cat Token",
+        "object_id": "db5aadd2-f708-4051-983c-158cb891c3f3",
+        "power": 2,
+        "tapped": false,
+        "toughness": 2
+       },
+       {
+        "controller_id": "op-3",
+        "face_down": false,
+        "name": "Cat Token",
+        "object_id": "9a92246d-6345-4fb9-ba4d-6ead7324b150",
+        "power": 2,
+        "tapped": false,
+        "toughness": 2
+       },
+       {
+        "controller_id": "op-3",
+        "face_down": false,
+        "name": "Cat Token",
+        "object_id": "9d7af186-4f24-4d38-b717-91f89b41c497",
+        "power": 2,
+        "tapped": false,
+        "toughness": 2
+       },
+       {
+        "controller_id": "op-3",
+        "face_down": false,
+        "name": "Cat Token",
+        "object_id": "ab41e2b7-2646-44ac-8f31-ee1c72c9a5cf",
+        "power": 2,
+        "tapped": false,
+        "toughness": 2
+       },
+       {
+        "controller_id": "op-3",
+        "face_down": false,
+        "name": "Cat Token",
+        "object_id": "3c0a9416-9b58-40aa-a190-81ec6addeae8",
+        "power": 2,
+        "tapped": false,
+        "toughness": 2
+       },
+       {
+        "controller_id": "op-3",
+        "face_down": false,
+        "name": "Cat Token",
+        "object_id": "be127961-c93f-4a2f-ab59-005419827554",
+        "power": 2,
+        "tapped": false,
+        "toughness": 2
+       },
+       {
+        "controller_id": "op-3",
+        "face_down": false,
+        "name": "Avacyn's Pilgrim",
+        "object_id": "dc36066b-6702-4e8a-8634-55f718a77270",
+        "power": 1,
+        "tapped": true,
+        "toughness": 1
+       },
+       {
+        "controller_id": "op-3",
+        "face_down": false,
+        "name": "Emmara, Soul of the Accord",
+        "object_id": "d7f3edc4-a6d8-4f32-a5ca-1a92a5949a1d",
+        "power": 2,
+        "tapped": false,
+        "toughness": 2
+       },
+       {
+        "controller_id": "op-3",
+        "face_down": false,
+        "name": "Forest",
+        "object_id": "2936841d-d012-4974-8d80-e1741790d2b3",
+        "power": 0,
+        "tapped": true,
+        "toughness": 0
+       },
+       {
+        "controller_id": "op-3",
+        "face_down": false,
+        "name": "Valor in Akros",
+        "object_id": "d045a438-990b-4f22-a977-caa6a4affc4b",
+        "power": 0,
+        "tapped": false,
+        "toughness": 0
+       },
+       {
+        "controller_id": "op-3",
+        "face_down": false,
+        "name": "Curse of Bounty",
+        "object_id": "484809b4-a8ef-4ca2-b687-7cc644955bb8",
+        "power": 0,
+        "tapped": false,
+        "toughness": 0
+       },
+       {
+        "controller_id": "op-3",
+        "face_down": false,
+        "name": "Slate of Ancestry",
+        "object_id": "19fa68cc-6c88-43b2-9df2-412d1c279df4",
+        "power": 0,
+        "tapped": false,
+        "toughness": 0
+       }
+      ],
+      "command": [],
+      "exile": [],
+      "graveyard": [
+       {
+        "name": "Command Tower",
+        "object_id": "feaafa90-d924-4bea-a63b-07b2ff55be61"
+       },
+       {
+        "name": "March of the Multitudes",
+        "object_id": "0870ed9d-ed39-4d2e-90ef-7442ce43c515"
+       },
+       {
+        "name": "Camaraderie",
+        "object_id": "4eca1bd1-063e-4c5c-8643-c1cdbe0803bc"
+       },
+       {
+        "name": "Dauntless Escort",
+        "object_id": "1a1bdef1-ae9c-41c2-8ca5-11275cca9fb7"
+       },
+       {
+        "name": "Great Oak Guardian",
+        "object_id": "19bf3d9d-98c6-4aca-9dda-725b22ba105b"
+       },
+       {
+        "name": "Sylvan Reclamation",
+        "object_id": "c9ef26d6-9798-4d5b-8368-0af987d1420d"
+       },
+       {
+        "name": "Blossoming Sands",
+        "object_id": "00f20f54-bdd7-44a5-8244-3b6330d13956"
+       },
+       {
+        "name": "Trostani Discordant",
+        "object_id": "a7d268ac-dc45-4d12-8b27-60102aec594f"
+       },
+       {
+        "name": "Jaspera Sentinel",
+        "object_id": "07c68e2c-477d-40cd-911b-76746fb02b7a"
+       }
+      ],
+      "has_lost": false,
+      "life": 49,
+      "player_id": "op-3",
+      "seat": 3
+     }
+    ],
+    "seat": 0,
+    "stack": [
+     {
+      "controller_id": "0cd327ac-e8f4-492a-bdb4-77489995c1a5",
+      "name": "stack ability (When {this} enters, target opponent creates four 1/1 blue Faerie creature tokens with flying.)",
+      "object_id": "989c200d-5502-4790-8a9a-91a728ae70ac"
+     }
+    ],
+    "step": "precombat_main",
+    "turn_number": 27
+   },
+   "prompt": "Select an opponent",
+   "seat": 0
+  }
  }
 }
