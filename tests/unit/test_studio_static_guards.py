@@ -772,3 +772,126 @@ console.log(JSON.stringify({
     assert result["flagged"] is True and result["plain"] is False
     js = (STATIC / "tierliste.js").read_text(encoding="utf-8")
     assert "ohne Nutzungsdaten" in js and 'id: "overall-hint"' in js and "(Index ${" in js
+
+
+def test_overall_global_view_and_profile_loading_sync() -> None:
+    """PR #1509 regression: global view clears overallOf/sortValue so commander scores never leak
+    into global sorting; loadSavedProfile and initStrength error handling invoke syncRanking so
+    toggle state, core-line, panel and sortKey stay consistent across bracket transitions."""
+    js = (STATIC / "tierliste.js").read_text(encoding="utf-8")
+    state_part = js[js.index("const overallMeta = ") : js.index("function overallUnknownCell")]
+    sort_part = js[
+        js.index("function sortValue(card, key) {") : js.index("// ---------- rating layers")
+    ]
+    strength_item_line = next(
+        line for line in js.splitlines() if line.startswith("function strengthItem(card)")
+    )
+    sync_part = js[
+        js.index("function syncRankingToggle() {") : js.index("function setRanking(ranking) {")
+    ]
+    load_part = js[
+        js.index("async function loadSavedProfile(profile) {") : js.index(
+            "function strengthField(key)"
+        )
+    ]
+    init_part = js[
+        js.index("async function initStrength() {") : js.index("// ---------- data state banner")
+    ]
+    sort_constants = "\n".join(
+        next(line for line in js.splitlines() if line.startswith(prefix))
+        for prefix in ("const PERCENTILE_SORT", "const LAYER_SORT")
+    )
+    script = (
+        _overall_node_prelude()
+        + sort_constants
+        + "\nStudioUI.germanError = (e) => String(e);\n"
+        + strength_item_line
+        + "\n"
+        + state_part
+        + "\n"
+        + sort_part
+        + "\n"
+        + load_part
+        + "\n"
+        + init_part
+        + "\n"
+        + """
+const fakeButton = (key) => { const attrs = {'data-ranking': key}; const cls = new Set();
+  return {disabled: true, attrs, cls, classList: {toggle: (name, on) => (on ? cls.add(name) : cls.delete(name))},
+    getAttribute: (k) => (k in attrs ? attrs[k] : null), setAttribute: (k, v) => { attrs[k] = v; }}; };
+const makeBox = () => { const buttons = [fakeButton('usage'), fakeButton('overall')]; const attrs = {};
+  return {buttons, attrs, querySelectorAll: () => buttons, setAttribute: (k, v) => { attrs[k] = v; }, removeAttribute: (k) => { delete attrs[k]; }}; };
+let box = makeBox();
+const coreLine = {textContent: '', attrs: {}, setAttribute: (k, v) => { coreLine.attrs[k] = v; }, removeAttribute: (k) => { delete coreLine.attrs[k]; }};
+const sortSel = {value: 'overall'};
+globalThis.VIEW_NAMES = {commander: 'Chulane'};
+globalThis.$ = (id) => (id === 'ranking-toggle' ? box : id === 'core-line' ? coreLine : id === 'sort' ? sortSel : id === 'overall-panel' ? null : null);
+globalThis.COMMANDER = 'Chulane, Teller of Tales';
+globalThis.withDefaults = (s) => ({...s});
+globalThis.clone = (x) => JSON.parse(JSON.stringify(x));
+globalThis.rememberStrength = () => {};
+globalThis.renderStrengthPanel = () => {};
+globalThis.renderTierBar = () => {};
+globalThis.syncRankGroupToggle = () => {};
+globalThis.render = () => {};
+globalThis.toast = () => {};
+const renderCoreLine = () => {
+  const overall = state.view !== 'global' && (state.strength.status === 'loading' ? state.ranking === 'overall' : overallActive());
+  coreLine.textContent = overall ? 'Gesamtrating' : 'Stufe';
+};
+const renderOverallPanel = () => {};
+"""
+        + sync_part
+        + """
+(async () => {
+  const card = {card_id: 'c1', name: 'Test', mana_value: 2, coverage: {present: []}};
+  const rated = {tier: 'S', index: 80, overall: {score: 77.5, rank: 1, axes: [{axis: 'D', value: 90}]}};
+  globalThis.state = {
+    view: 'global', ranking: 'overall', sortKey: 'overall', sortDir: -1,
+    universe: {name: 'u1', profiles: []},
+    strength: {meta: {recommended: {}}, status: 'ready', ticket: 0, settings: {universe_profile: 'u1'}, map: new Map([['c1', rated]]), result: {overall_meta: {available: true}}},
+  };
+  const globalVals = [overallOf(card), sortValue(card, 'overall'), sortValue(card, 'overall_rank'), sortValue(card, 'crit:D')];
+  state.view = 'commander';
+  const cmdVals = [overallOf(card) !== null, sortValue(card, 'overall'), sortValue(card, 'overall_rank'), sortValue(card, 'crit:D')];
+
+  globalThis.api = async (_path, body) => ({
+    settings: {universe_profile: 'u1', bracket: body.profile === 'b4' ? 'optimized' : 'upgraded'},
+    cards: [{card_id: 'c1', ...rated}],
+    overall_meta: body.profile === 'b4' ? {available: false, unavailable_reason: 'nur Bracket 3'} : {available: true},
+  });
+  await loadSavedProfile({name: 'b4'});
+  const afterLeave = {disabled: box.buttons[1].disabled, pressed: box.buttons[1].attrs['aria-pressed'], core: coreLine.textContent, sortKey: state.sortKey};
+  await loadSavedProfile({name: 'b3'});
+  const afterEnter = {disabled: box.buttons[1].disabled, pressed: box.buttons[1].attrs['aria-pressed'], core: coreLine.textContent};
+
+  globalThis.api = async () => { throw new Error('offline'); };
+  state.strength.status = 'loading';
+  state.strength.result = null;
+  state.strength.map = null;
+  await initStrength();
+  const afterInitFail = {status: state.strength.status, disabled: box.buttons[1].disabled, title: box.buttons[1].attrs.title, core: coreLine.textContent};
+
+  console.log(JSON.stringify({globalVals, cmdVals, afterLeave, afterEnter, afterInitFail}));
+})();
+"""
+    )
+    result = _node_json(script)
+    assert isinstance(result, dict)
+    assert result["globalVals"] == [None, None, None, None]
+    assert result["cmdVals"] == [True, 77.5, 1, 90]
+    assert result["afterLeave"] == {
+        "disabled": True,
+        "pressed": "false",
+        "core": "Stufe",
+        "sortKey": "strength",
+    }
+    assert result["afterEnter"] == {
+        "disabled": False,
+        "pressed": "true",
+        "core": "Gesamtrating",
+    }
+    assert result["afterInitFail"]["status"] == "error"
+    assert result["afterInitFail"]["disabled"] is True
+    assert "berechnet" not in result["afterInitFail"]["title"]
+    assert result["afterInitFail"]["core"] == "Stufe"

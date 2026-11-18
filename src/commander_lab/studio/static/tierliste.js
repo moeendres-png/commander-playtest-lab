@@ -656,7 +656,7 @@ function overallAvailable() {
   return state.view !== "global" && state.strength.status === "ready" && Boolean(state.strength.map) && Boolean(meta) && meta.available === true;
 }
 const overallActive = () => effectiveRanking(state.ranking, overallAvailable()) === "overall";
-function overallOf(card) { const item = strengthItem(card); return item && item.overall ? item.overall : null; }
+function overallOf(card) { if (state.view === "global") return null; const item = strengthItem(card); return item && item.overall ? item.overall : null; }
 const overallFactor = () => { const meta = overallMeta(); return meta && meta.stability ? meta.stability.factor : null; };
 function overallUnknownCell(overall) {
   const reason = overall.unknown_reason || "keine Bewertung vorhanden";
@@ -669,18 +669,19 @@ const overallLowTiers = (meta) => (meta && meta.usage_scale_note ? meta.usage_sc
 function overallHint() {
   const meta = overallMeta();
   if (!overallActive()) return [];
-  const short = meta && meta.min_meaningful_diff ? `Gesamtrating: Unterschiede unter ${nf(meta.min_meaningful_diff)} Punkten sind nicht belastbar; unterhalb Stufe C sortiert faktisch das Modellurteil.` : `Gesamtrating: ${OVERALL_NOISE.toLowerCase()}; ${OVERALL_LOW_TIERS}.`;
-  return [h("span", { id: "overall-hint", class: "hint", title: `${overallNoise(meta)}. ${overallLowTiers(meta)}.` }, short)];
+  const short = meta && meta.min_meaningful_diff ? `Gesamtrating: Unterschiede unter ${nf(meta.min_meaningful_diff)} Punkten sind nicht belastbar; ${overallLowTiers(meta)}.` : `Gesamtrating: ${OVERALL_NOISE.toLowerCase()}; ${OVERALL_LOW_TIERS}.`;
+  return [h("div", { id: "overall-hint", class: "hint", title: `${overallNoise(meta)}. ${overallLowTiers(meta)}.` }, short)];
 }
 function overallCell(card) {
-  const item = strengthItem(card), overall = overallOf(card);
+  const item = strengthItem(card), overall = overallOf(card), meta = overallMeta();
   if (!item || !overall) return unknown("–");
   const score = overallScoreText(overall);
   if (score === null) return overallUnknownCell(overall);
   const bare = overallWithoutUsage(item, overall);
+  const usageLabel = bare && meta && meta.usage_axis && meta.usage_axis.included === false ? "ohne Nutzungs-Achse" : overallUsageText(item);
   return h("span", { class: "ocell", title: `Gesamtrating ${score} von 100 (gewichtetes Mittel, Setzung; keine Spielstärke). ${bare ? `${OVERALL_NO_USAGE}.` : "Ein Teil davon ist die Nutzung."}` },
     h("b", { class: "oscore" }, score), bare ? h("span", { class: "badge dim", title: OVERALL_NO_USAGE }, "ohne Nutzungsdaten") : null,
-    h("span", { class: "rule oparts", title: "Die Einzelwerte hinter dem Score: Stufe und Index des Nutzungsindex (nicht die log-skalierte Achse) und die Gesamteinschätzung H." }, h("span", {}, overallUsageText(item)), h("span", {}, overallHText(overall))));
+    h("span", { class: "rule oparts", title: "Die Einzelwerte hinter dem Score: Stufe und Index des Nutzungsindex (nicht die log-skalierte Achse) und die Gesamteinschätzung H." }, h("span", {}, usageLabel), h("span", {}, overallHText(overall))));
 }
 function overallRankCell(card) {
   const overall = overallOf(card), text = overallRankText(overall);
@@ -765,12 +766,13 @@ function renderOverallPanel() {
   const cards = state.strength.result ? state.strength.result.cards : [];
   const rated = cards.filter((item) => item.overall && item.overall.score !== null && item.overall.score !== undefined);
   const singleRun = rated.length > 0 && rated.every((item) => item.overall.confidence && item.overall.confidence.raters === 1);
+  const raterText = rated.length === 0 ? "keine bewertete Karte" : singleRun ? "ein Lauf je Karte" : "mehrere Bewerter je Karte";
   const weights = Object.entries(meta.weights || {}).map(([axis, weight]) => `${OVERALL_AXIS_NAMES[axis] || axis} ${StudioUI.numFlex(100 * weight, 1)} %`).join(" · ");
   const usage = meta.usage_axis || {};
   const dataset = meta.dataset || {};
   host.replaceChildren(...[
     h("div", { class: "facts" }, h("b", {}, "Gesamtrating (zweites Ranking)"), h("span", { class: "muted" }, `${nf(meta.n_rated)} von ${nf(meta.n_total)} Karten bewertet`)),
-    h("p", { id: "overall-method" }, `${OVERALL_METHOD} (${singleRun ? "ein Lauf je Karte" : "mehrere Bewerter je Karte"}, ${nf(dataset.matched === undefined ? meta.n_rated : dataset.matched)} von ${nf(dataset.rows === undefined ? meta.n_total : dataset.rows)} Karten des Datensatzes); ${OVERALL_LIMITS}.`),
+    h("p", { id: "overall-method" }, `${OVERALL_METHOD} (${raterText}, ${nf(dataset.matched === undefined ? meta.n_rated : dataset.matched)} von ${nf(dataset.rows === undefined ? meta.n_total : dataset.rows)} Karten des Datensatzes); ${OVERALL_LIMITS}.`),
     h("p", { class: "rule" }, `Gewichte (Setzung, keine Messung): ${weights}.`),
     h("p", { class: "rule" }, usage.included ? `Die Nutzungs-Achse ist der Stärke-Index dieser Anfrage und bei ${nf(usage.n_with_usage)} von ${nf(usage.n_total)} Karten vorhanden; fehlt sie, werden die übrigen Gewichte auf 100 % umgerechnet.` : `Die Nutzungs-Achse entfällt: ${usage.excluded_reason || "keine Angabe"}.`),
     h("p", { class: "rule" }, `${overallNoise(meta)}. ${overallLowTiers(meta)}.`),
@@ -1677,6 +1679,7 @@ async function loadSavedProfile(profile) {
   s.result = result;
   s.status = "ready";
   s.map = new Map(result.cards.map((item) => [item.card_id, item]));
+  s.good = clone(s.settings);
   rememberStrength();
   if (wanted !== (state.universe.name || "")) {
     state.universe.profiles = await api("/api/universe/profiles");
@@ -1684,6 +1687,7 @@ async function loadSavedProfile(profile) {
     await selectUniverse(wanted).catch((error) => toast(`Universum „${wanted}“ konnte nicht gewählt werden: ${StudioUI.germanError(error)}`));
   }
   renderStrengthPanel();
+  syncRanking();
   render();
 }
 function strengthField(key) {
@@ -1879,7 +1883,7 @@ async function initStrength() {
   try {
     [s.meta, s.profiles] = await Promise.all([api("/api/strength/presets"), api("/api/strength/profiles")]);
     s.counted = await api(`/api/universe/counted?commander=${encodeURIComponent(COMMANDER)}`).catch(() => []);
-  } catch (error) { toast(`Stärke-Index nicht verfügbar: ${StudioUI.germanError(error)}`); s.status = "error"; renderTierBar(); syncRankGroupToggle(); render(); return; }
+  } catch (error) { toast(`Stärke-Index nicht verfügbar: ${StudioUI.germanError(error)}`); s.status = "error"; renderTierBar(); syncRankGroupToggle(); syncRanking(); render(); return; }
   fillSortOptions();
   state.layerCols = recallLayerColumns(s.meta.layers);
   renderLayerControls();
