@@ -2492,11 +2492,21 @@ function showExport() {
   }
   if (state.baseRevision) {
     const base = `/api/revisions/${encodeURIComponent(state.baseRevision)}/export`;
+    const dossierUrl = `/api/revisions/${encodeURIComponent(state.baseRevision)}/dossier`;
     nodes.push(
       h("p", {}, state.dirty ? "Zuletzt gespeicherter Stand " : "Gespeicherter Stand ", h("code", {}, state.baseRevision), ":"),
       h("div", { class: "actions" },
         h("a", { href: base + "?format=txt", target: "_blank", rel: "noopener" }, "Gespeicherter Stand als Text"),
-        h("a", { href: base + "?format=json", target: "_blank", rel: "noopener" }, "Gespeicherter Stand als Lab-Datei (JSON)"))
+        h("a", { href: base + "?format=json", target: "_blank", rel: "noopener" }, "Gespeicherter Stand als Lab-Datei (JSON)"),
+        h("a", { id: "export-dossier-link", href: dossierUrl, target: "_blank", rel: "noopener" }, "Deck-Dossier (.md)"),
+        h("button", { type: "button", id: "export-dossier-download", onclick: async () => {
+          try {
+            const resp = await fetch(dossierUrl);
+            if (!resp.ok) throw new Error(String(resp.status));
+            const md = await resp.text();
+            _downloadBlob(`${slug}-dossier.md`, md, "text/markdown;charset=utf-8");
+          } catch (_) { toast("Dossier konnte nicht geladen werden.", "error"); }
+        } }, "Dossier herunterladen (.md)"))
     );
   }
   nodes.push(...exportFormatsSection({ h, state, toast, slug, download: _downloadBlob }));
