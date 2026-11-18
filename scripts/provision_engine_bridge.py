@@ -19,8 +19,10 @@ from commander_lab.qualification.current_boundary.bridge_launcher import (
     canonical_xmage_engine_pin,
 )
 from commander_lab.studio.launch import (
+    APPCDS_TRAINING_DECISIONS,
     ENGINE_JAR,
     _java_executable,
+    build_appcds_archive,
     engine_state,
 )
 from commander_lab.studio.store import studio_data_dir
@@ -37,6 +39,9 @@ def _compute_sha256(path: Path) -> str:
 def provision_bridge(
     source_path: Path,
     target_data_dir: Path | None = None,
+    *,
+    with_appcds: bool = False,
+    decisions: int = APPCDS_TRAINING_DECISIONS,
 ) -> dict[str, object]:
     """Copy and verify an engine bridge JAR into the Studio data folder."""
     if not source_path.is_file():
@@ -62,13 +67,16 @@ def provision_bridge(
     )
     (engine_dir / "ENGINE_PIN.txt").write_text(f"{pin}\n", encoding="utf-8")
 
-    return {
+    payload: dict[str, object] = {
         "status": "provisioned",
         "jar_path": str(dest_jar),
         "sha256": dest_sha256,
         "engine_pin": pin,
         "java_executable": _java_executable(),
     }
+    if with_appcds:
+        payload["appcds"] = build_appcds_archive(data_dir, jar=dest_jar, decisions=decisions)
+    return payload
 
 
 def verify_installed_engine(target_data_dir: Path | None = None) -> dict[str, object]:
@@ -117,6 +125,17 @@ def main(argv: list[str] | None = None) -> int:
         help="Custom Studio data directory (default: COMMANDER_LAB_STUDIO_DATA or standard system path)",
     )
     parser.add_argument(
+        "--appcds",
+        action="store_true",
+        help="Build companion AppCDS archive (<jar>.jsa) for faster series startup",
+    )
+    parser.add_argument(
+        "--decisions",
+        type=int,
+        default=APPCDS_TRAINING_DECISIONS,
+        help=f"Training smoke decision count when --appcds is passed (default: {APPCDS_TRAINING_DECISIONS})",
+    )
+    parser.add_argument(
         "--status",
         action="store_true",
         help="Report status and verification of current engine installation",
@@ -124,8 +143,26 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     if args.source:
-        res = provision_bridge(args.source, args.data_dir)
+        try:
+            res = provision_bridge(
+                args.source,
+                args.data_dir,
+                with_appcds=args.appcds,
+                decisions=args.decisions,
+            )
+        except (FileNotFoundError, RuntimeError, ValueError) as exc:
+            print(f"error: {exc}", file=sys.stderr)
+            return 2
         print(json.dumps(res, indent=2))
+        return 0
+
+    if args.appcds:
+        try:
+            appcds_res = build_appcds_archive(args.data_dir, decisions=args.decisions)
+        except (FileNotFoundError, RuntimeError, ValueError) as exc:
+            print(f"error: {exc}", file=sys.stderr)
+            return 2
+        print(json.dumps(appcds_res, indent=2))
         return 0
 
     status = verify_installed_engine(args.data_dir)

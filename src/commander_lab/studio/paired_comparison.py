@@ -23,8 +23,10 @@ engine pin.
 
 from __future__ import annotations
 
+import threading
 from collections import Counter
 from collections.abc import Callable, Mapping, Sequence
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Literal, TypedDict
 
@@ -727,6 +729,20 @@ def run_comparison_series(
     return result
 
 
+def _summary_to_played_game(summary: Mapping[str, object]) -> PlayedGame:
+    if summary.get("status") != "finished":
+        failure = summary.get("failure_class")
+        return {
+            "exposure": None,
+            "failure_class": failure if isinstance(failure, str) else "Failed",
+        }
+    log = summary.get("log")
+    exposure = game_exposures(log) if isinstance(log, str) else None
+    if exposure is None:
+        return {"exposure": None, "failure_class": "UnfinishedLog"}
+    return {"exposure": exposure, "failure_class": None}
+
+
 def recorded_game_player(
     data_folder: str | Path,
     *,
@@ -752,17 +768,197 @@ def recorded_game_player(
         paths = [paths_by_deck_id[deck.deck_id] for deck in ordered]
         game_id = f"{series_id}-{arm}-s{seed}-t{seat}"
         summary = play_recorded_game(data_folder, paths, seed=seed, game_id=game_id)
-        if summary.get("status") != "finished":
-            failure = summary.get("failure_class")
-            return {
-                "exposure": None,
-                "failure_class": failure if isinstance(failure, str) else "Failed",
-            }
-        log = summary.get("log")
-        exposure = game_exposures(log) if isinstance(log, str) else None
-        if exposure is None:
-            return {"exposure": None, "failure_class": "UnfinishedLog"}
-        return {"exposure": exposure, "failure_class": None}
+        return _summary_to_played_game(summary)
+
+    return play
+
+
+def plan_look_window_chunks(
+    units: Sequence[tuple[int, int]],
+    *,
+    workers: int,
+    games_per_jvm: int,
+) -> list[tuple[str, int, list[int]]]:
+    """Group one O'Brien-Fleming look window into `(arm, seat, seeds)` chunks for parallel JVMs.
+
+    Every game in one chunk shares the exact same ordered deck list, so one bridge JVM
+    (``play_batch``) can play multiple seeds sequentially while distinct chunks run across
+    ``workers`` threads.
+    """
+    if not units:
+        return []
+    seats_seen: list[int] = []
+    for _seed, seat in units:
+        if seat not in seats_seen:
+            seats_seen.append(seat)
+    total_games = len(ARMS) * len(units)
+    worker_count = max(1, int(workers))
+    batch_cap = max(1, int(games_per_jvm))
+    chunk_cap = max(1, min(batch_cap, -(-total_games // worker_count)))
+    chunks: list[tuple[str, int, list[int]]] = []
+    for arm in ARMS:
+        for seat in seats_seen:
+            seat_seeds = [seed for seed, u_seat in units if u_seat == seat]
+            for start in range(0, len(seat_seeds), chunk_cap):
+                chunks.append((arm, seat, seat_seeds[start : start + chunk_cap]))
+    return chunks
+
+
+def parallel_window_player(
+    data_folder: str | Path,
+    *,
+    series_id: str,
+    base_deck: RulesDeckInput,
+    variant_deck: RulesDeckInput,
+    opponents: Sequence[RulesDeckInput],
+    paths_by_deck_id: Mapping[str, Path],
+    seeds: Sequence[int],
+    tested_seats: Sequence[int],
+    budget_pairs: int,
+    look_every_pairs: int,
+    workers: int,
+    games_per_jvm: int,
+    command: tuple[str, ...] | None = None,
+    play_single: PairPlayer | None = None,
+    is_cancelled: Callable[[], bool] | None = None,
+    on_pair_done: Callable[[int], None] | None = None,
+    cancel_error_factory: Callable[[], BaseException] | None = None,
+) -> PairPlayer:
+    """Execute each O'Brien-Fleming look window in parallel without changing sequential outcomes."""
+    from .play_batch import SeriesGame, play_recorded_games
+
+    planned_units = [(seed, seat) for seed in seeds for seat in tested_seats][:budget_pairs]
+    look_counts = sequential_look_seed_counts(budget_pairs, look_every_pairs)
+    windows_by_start: dict[int, list[tuple[int, int]]] = {}
+    prev_end = 0
+    for end in look_counts:
+        windows_by_start[prev_end] = planned_units[prev_end:end]
+        prev_end = end
+    unit_index = {(seed, seat): idx for idx, (seed, seat) in enumerate(planned_units)}
+    contenders = {"base": base_deck, "variant": variant_deck}
+    used_workers = max(1, int(workers))
+    used_batch = max(1, int(games_per_jvm))
+
+    lock = threading.Lock()
+    cache: dict[tuple[str, int, int], PlayedGame] = {}
+    seen_games: set[tuple[str, int, int]] = set()
+    completed_pairs: set[tuple[int, int]] = set()
+
+    def _raise_if_cancelled() -> None:
+        if is_cancelled is not None and is_cancelled():
+            if cancel_error_factory is not None:
+                raise cancel_error_factory()
+            raise RuntimeError("Serie vom Benutzer abgebrochen")
+
+    def _mark_game_done(arm: str, seed: int, seat: int) -> None:
+        new_count: int | None = None
+        with lock:
+            seen_games.add((arm, seed, seat))
+            if (
+                ("base", seed, seat) in seen_games
+                and ("variant", seed, seat) in seen_games
+                and (seed, seat) not in completed_pairs
+            ):
+                completed_pairs.add((seed, seat))
+                new_count = len(completed_pairs)
+        if new_count is not None and on_pair_done is not None:
+            on_pair_done(new_count)
+
+    def _run_window(window_units: list[tuple[int, int]]) -> None:
+        if play_single is not None:
+            tasks = [(arm, seed, seat) for seed, seat in window_units for arm in ARMS]
+
+            def _eval_single(item: tuple[str, int, int]) -> tuple[tuple[str, int, int], PlayedGame]:
+                w_arm, w_seed, w_seat = item
+                _raise_if_cancelled()
+                res = play_single(w_arm, w_seed, w_seat)
+                _mark_game_done(w_arm, w_seed, w_seat)
+                return item, res
+
+            if used_workers == 1:
+                for item in tasks:
+                    key, val = _eval_single(item)
+                    with lock:
+                        cache[key] = val
+            else:
+                with ThreadPoolExecutor(
+                    max_workers=min(used_workers, len(tasks)),
+                    thread_name_prefix=f"paired-{series_id}",
+                ) as pool:
+                    single_futures = [pool.submit(_eval_single, item) for item in tasks]
+                    for single_future in single_futures:
+                        key, val = single_future.result()
+                        with lock:
+                            cache[key] = val
+            _raise_if_cancelled()
+            return
+
+        chunks = plan_look_window_chunks(
+            window_units, workers=used_workers, games_per_jvm=used_batch
+        )
+
+        def _eval_chunk(
+            chunk: tuple[str, int, list[int]],
+        ) -> list[tuple[tuple[str, int, int], PlayedGame]]:
+            w_arm, w_seat, chunk_seeds = chunk
+            _raise_if_cancelled()
+            ordered = pod_decks(contenders[w_arm], opponents, w_seat + 1)
+            deck_paths = [paths_by_deck_id[deck.deck_id] for deck in ordered]
+            series_games = [
+                SeriesGame(w_seed, f"{series_id}-{w_arm}-s{w_seed}-t{w_seat}")
+                for w_seed in chunk_seeds
+            ]
+            by_game_id = {g.game_id: g.seed for g in series_games}
+
+            def _on_game(summary: Mapping[str, object]) -> None:
+                gid = summary.get("game_id")
+                if isinstance(gid, str) and gid in by_game_id:
+                    _mark_game_done(w_arm, by_game_id[gid], w_seat)
+
+            summaries = play_recorded_games(
+                data_folder,
+                deck_paths,
+                series_games,
+                command=command,
+                private_card_repository=(used_workers > 1),
+                on_game=_on_game,
+            )
+            results: list[tuple[tuple[str, int, int], PlayedGame]] = []
+            for w_seed, summary in zip(chunk_seeds, summaries, strict=True):
+                _mark_game_done(w_arm, w_seed, w_seat)
+                results.append(((w_arm, w_seed, w_seat), _summary_to_played_game(summary)))
+            return results
+
+        if used_workers == 1:
+            for chunk in chunks:
+                for key, val in _eval_chunk(chunk):
+                    with lock:
+                        cache[key] = val
+        else:
+            with ThreadPoolExecutor(
+                max_workers=min(used_workers, len(chunks)),
+                thread_name_prefix=f"paired-{series_id}",
+            ) as pool:
+                chunk_futures = [pool.submit(_eval_chunk, chunk) for chunk in chunks]
+                for chunk_future in chunk_futures:
+                    for key, val in chunk_future.result():
+                        with lock:
+                            cache[key] = val
+        _raise_if_cancelled()
+
+    def play(arm: str, seed: int, seat: int) -> PlayedGame:
+        _raise_if_cancelled()
+        with lock:
+            cached = cache.get((arm, seed, seat))
+        if cached is not None:
+            return cached
+        idx = unit_index[(seed, seat)]
+        window_units = windows_by_start.get(idx)
+        if window_units is None:
+            raise RuntimeError(f"unexpected uncached unit at index {idx}: {(arm, seed, seat)}")
+        _run_window(window_units)
+        with lock:
+            return cache[(arm, seed, seat)]
 
     return play
 

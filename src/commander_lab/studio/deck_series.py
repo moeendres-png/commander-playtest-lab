@@ -131,6 +131,16 @@ def _entry(raw: Mapping[str, object], status: str) -> dict[str, object]:
         raw.get("bridge_qualification_states")
     )
     stop_reason = res.get("stop_reason")
+    # Library slots of the variant: a series without slot_alignment was played before the
+    # alignment existed; aligned and unaligned series are never added up.
+    raw_alignment = raw.get("slot_alignment")
+    alignment = raw_alignment if isinstance(raw_alignment, dict) else None
+    if alignment is None:
+        alignment_state = "not_aligned_legacy"
+    elif (_as_int(alignment.get("appended")) or 0) + (_as_int(alignment.get("dropped")) or 0):
+        alignment_state = "not_congruent"
+    else:
+        alignment_state = "aligned"
     return {
         "series_id": str(raw["series_id"]),
         "created_at": raw.get("created_at") if isinstance(raw.get("created_at"), str) else None,
@@ -157,6 +167,8 @@ def _entry(raw: Mapping[str, object], status: str) -> dict[str, object]:
         "bridge_qualification_states": qualification,
         "covered_by_sealed_epoch": bool(res.get("covered_by_sealed_epoch")) if res else None,
         "error": raw.get("error") if isinstance(raw.get("error"), str) else None,
+        "slot_alignment": alignment,
+        "slot_alignment_state": alignment_state,
     }
 
 

@@ -301,6 +301,8 @@ class PairedSeriesBody(BaseModel):
     significance_level: float = Field(
         default=paired_comparison.DEFAULT_SIGNIFICANCE_LEVEL, gt=0.0, lt=0.5
     )
+    workers: int | None = Field(default=None, ge=MIN_WORKERS, le=MAX_WORKERS)
+    games_per_jvm: int | None = Field(default=None, ge=MIN_GAMES_PER_JVM, le=MAX_GAMES_PER_JVM)
 
 
 class ReadinessAuditBody(BaseModel):
@@ -1203,6 +1205,8 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
                 rotate_seats=body.rotate_seats,
                 threshold_pp=body.threshold_pp,
                 significance_level=body.significance_level,
+                workers=body.workers,
+                games_per_jvm=body.games_per_jvm,
             )
             return job.to_dict()
         except KeyError as error:
@@ -1213,6 +1217,16 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
             raise HTTPException(409, str(error)) from error
         finally:
             store.close()
+
+    @app.get("/api/simulations/paired-plan")
+    def paired_series_plan(
+        budget_pairs: int = Query(
+            ge=paired_comparison.MIN_BUDGET_PAIRS, le=paired_comparison.MAX_BUDGET_PAIRS
+        ),
+        seats_per_seed: int = Query(default=4, ge=1, le=6),
+    ) -> dict[str, object]:
+        """Pre-run plan of a paired series: detectable difference and its assumptions."""
+        return paired_series.planned_detectable_difference_pp(budget_pairs, seats_per_seed)
 
     @app.get("/api/simulations/paired")
     def list_paired_series() -> list[dict[str, object]]:

@@ -184,6 +184,34 @@ def test_paired_statistics_match_hand_computed_values(tmp_path: Path) -> None:
     assert result["pods"] == [{"opponents": [OPP1, OPP2], "pairs": 10}]
 
 
+def test_discordant_share_counts_tied_pairs_in_the_denominator(tmp_path: Path) -> None:
+    # 10 pairs: variant only 3, base only 1, both win 1, both lose 5 -> rates 0.2 / 0.4
+    outcomes = {1: (0, 1), 2: (0, 1), 3: (0, 1), 4: (1, 0), 5: (1, 1)}
+    for seed in range(1, 11):
+        base_won, variant_won = outcomes.get(seed, (0, 0))
+        _write_log(
+            tmp_path,
+            f"b{seed}",
+            decks=[BASE, OPP1, OPP2],
+            winners=[0] if base_won else [1],
+            seed=seed,
+        )
+        _write_log(
+            tmp_path,
+            f"v{seed}",
+            decks=[VARIANT, OPP1, OPP2],
+            winners=[0] if variant_won else [1],
+            seed=seed,
+        )
+    result = compare_logs(tmp_path, base_deck_id=BASE, variant_deck_id=VARIANT)
+    assert result["base_rate"] == 0.2 and result["variant_rate"] == 0.4
+    assert result["tied_pairs"] == 6
+    # 4 discordant of 10 pairs (not of the 4 discordant ones)
+    assert result["discordant_share"] == 0.4
+    # independent games: 0.2 * 0.6 + 0.4 * 0.8 = 0.44 (not 0.2**2 + 0.4**2 = 0.2)
+    assert result["discordant_share_if_independent"] == pytest.approx(0.44)
+
+
 def test_mixed_engine_commits_are_refused_unless_allowed(tmp_path: Path) -> None:
     _write_log(tmp_path, "b1", decks=[BASE, OPP1, OPP2], winners=[0], seed=1)
     _write_log(tmp_path, "v1", decks=[VARIANT, OPP1, OPP2], winners=[0], seed=1, commit="b" * 40)
@@ -858,3 +886,143 @@ def test_paired_comparison_and_card_outcomes_never_import_strength_or_tiers() ->
                     )
         assert import_count > 0, f"{filename} unexpectedly parsed zero import statements"
     assert offending == []
+
+
+def test_parallel_window_player_matches_sequential_statistics_and_early_stops(
+    tmp_path: Path,
+) -> None:
+    units = [(seed, seat) for seed in (1, 2) for seat in (0, 1)]
+    chunks = paired_comparison.plan_look_window_chunks(units, workers=2, games_per_jvm=3)
+    assert chunks == [
+        ("base", 0, [1, 2]),
+        ("base", 1, [1, 2]),
+        ("variant", 0, [1, 2]),
+        ("variant", 1, [1, 2]),
+    ]
+
+    seq_player = _ScriptedPlayer(
+        tmp_path / "seq",
+        _variant_sweeps,
+        fail=lambda arm, seed, seat: "EngineError" if (arm, seed, seat) == ("base", 3, 0) else None,
+    )
+    par_inner = _ScriptedPlayer(
+        tmp_path / "par",
+        _variant_sweeps,
+        fail=lambda arm, seed, seat: "EngineError" if (arm, seed, seat) == ("base", 3, 0) else None,
+    )
+    progress_seen: list[int] = []
+
+    base_deck = SimpleNamespace(deck_id=BASE)
+    var_deck = SimpleNamespace(deck_id=VARIANT)
+    opp_decks = [SimpleNamespace(deck_id=OPP1), SimpleNamespace(deck_id=OPP2)]
+    par_player = paired_comparison.parallel_window_player(
+        tmp_path / "par",
+        series_id="eq",
+        base_deck=base_deck,  # type: ignore[arg-type]
+        variant_deck=var_deck,  # type: ignore[arg-type]
+        opponents=opp_decks,  # type: ignore[arg-type]
+        paths_by_deck_id={},
+        seeds=list(range(1, 21)),
+        tested_seats=[0, 1],
+        budget_pairs=40,
+        look_every_pairs=10,
+        workers=4,
+        games_per_jvm=6,
+        play_single=par_inner,
+        on_pair_done=progress_seen.append,
+    )
+
+    seq_res = run_comparison_series(
+        base_deck_id=BASE,
+        variant_deck_id=VARIANT,
+        seeds=list(range(1, 21)),
+        tested_seats=[0, 1],
+        budget_pairs=40,
+        look_every_pairs=10,
+        play=seq_player,
+    )
+    par_res = run_comparison_series(
+        base_deck_id=BASE,
+        variant_deck_id=VARIANT,
+        seeds=list(range(1, 21)),
+        tested_seats=[0, 1],
+        budget_pairs=40,
+        look_every_pairs=10,
+        play=par_player,
+    )
+
+    for key in (
+        "status",
+        "answer",
+        "stop_reason",
+        "pairs_played",
+        "pairs_completed",
+        "pairs_censored",
+        "looks_used",
+        "looks_planned",
+        "base_rate",
+        "variant_rate",
+        "difference_pp",
+        "difference_ci95_pp",
+        "decision_ci_pp",
+        "sign_test_p_value",
+        "seeds",
+    ):
+        assert par_res[key] == seq_res[key], key  # type: ignore[literal-required]
+    # Look 3 (30 pairs) decides, so pairs 31..40 were never scheduled or played
+    assert len(par_inner.calls) == len(seq_player.calls) == seq_res["pairs_played"] * 2
+    assert progress_seen[-1] == seq_res["pairs_played"]
+
+
+def test_play_recorded_games_forwards_explicit_series_engine_command(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from commander_lab.studio.play_batch import SeriesGame, play_recorded_games
+
+    root = Path(__file__).resolve().parents[2]
+    decks = [
+        root / "data/decks/deckbau/chulane_current.json",
+        root / "data/decks/precons/2026_lorehold_spirit.json",
+    ]
+    seen_commands: list[tuple[str, ...] | None] = []
+
+    class _FakeRunner:
+        def __init__(
+            self,
+            _data: str | Path,
+            _headers: dict[str, tuple[str, dict[str, object]]],
+            *,
+            command: tuple[str, ...] | None,
+            **_kwargs: object,
+        ) -> None:
+            self.command = command
+            seen_commands.append(command)
+
+        def run_batch(self, _items: object) -> list[object]:
+            return [RuntimeError("stop-before-jvm")]
+
+        def recorder_of(self, _sid: str) -> SimpleNamespace:
+            return SimpleNamespace(close=lambda *_a, **_k: {"status": "failed"})
+
+    monkeypatch.setattr("commander_lab.studio.play_batch.BatchRecordingRunner", _FakeRunner)
+    monkeypatch.setattr(
+        "commander_lab.studio.play_batch.close_recorded_game",
+        lambda _rec, _out: {"game_id": "g1", "status": "failed", "failure_class": "Stopped"},
+    )
+    custom_cmd = (
+        "java",
+        "-XX:+UseSerialGC",
+        "-Dcommanderlab.fullGame.gamesPerJvm=6",
+        "-jar",
+        "/x.jar",
+        "full-game",
+    )
+    summaries = play_recorded_games(
+        tmp_path,
+        decks,
+        [SeriesGame(1000, "g1")],
+        private_card_repository=True,
+        command=custom_cmd,
+    )
+    assert seen_commands == [custom_cmd]
+    assert summaries == [{"game_id": "g1", "status": "failed", "failure_class": "Stopped"}]

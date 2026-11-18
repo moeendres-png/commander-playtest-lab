@@ -256,22 +256,38 @@ def test_estimate_series_duration_matches_540_games_per_hour() -> None:
 
 
 def test_series_plan_names_the_detectable_difference_and_its_assumptions() -> None:
-    from commander_lab.engine.rules.full_game_comparison import planned_detectable_difference
+    from commander_lab.engine.rules.full_game_comparison import (
+        PLANNED_PAIR_SD,
+        difference_quantiles,
+    )
 
     plan = paired_series.estimate_series_duration(40)["planning"]
     assert isinstance(plan, dict)
-    # (1.96 + 0.8416) * 0.63 / sqrt(40) = 27.9 pp; with design effect 1.75 for 4 seats/seed
-    assert plan["detectable_pp_low"] == round(planned_detectable_difference(40) * 100, 1) == 27.9
-    assert plan["detectable_pp_high"] == 36.9
-    # 5 pp needs about 1247 pairs (independent seeds) up to 2183 (design effect 1.75)
-    assert (plan["pairs_needed_low"], plan["pairs_needed_high"]) == (1247, 2183)
+    # the evaluation's arithmetic: t at seeds - 1 = 9 df, (t95 + t80) * 0.63 / sqrt(40) = 31.3 pp,
+    # with the design effect 1.75 of four seats per seed 41.5 pp (normal quantiles: 27.9 / 36.9)
+    t95, t80 = difference_quantiles(9)
+    expected = (t95 + t80) * PLANNED_PAIR_SD / 40**0.5 * 100
+    assert plan["detectable_pp_low"] == round(expected, 1) == 31.3
+    assert plan["detectable_pp_high"] == round(expected * 1.75**0.5, 1) == 41.5
+    # 5 pp needs about 1254 pairs (independent seeds) up to 2195 (design effect 1.75)
+    assert (plan["pairs_needed_low"], plan["pairs_needed_high"]) == (1254, 2195)
     assumptions = plan["assumptions"]
     assert assumptions["confidence"] == 0.95 and assumptions["power"] == 0.80
+    assert assumptions["degrees_of_freedom"] == 9
+    assert assumptions["pair_sd_independent_exact"] == 0.6124
     assert "unmeasured" in assumptions["pair_sd_basis"]
     one_seat = paired_series.estimate_series_duration(40, seats_per_seed=1)["planning"]
-    assert one_seat["detectable_pp_high"] == one_seat["detectable_pp_low"]
+    assert one_seat["detectable_pp_high"] == one_seat["detectable_pp_low"] == 28.6
+    assert one_seat["assumptions"]["degrees_of_freedom"] == 39
     # cross-check with the methods paper: about 5.5 pp at 1000 pairs
     assert paired_series.planned_detectable_difference_pp(1000, 1)["detectable_pp_low"] == 5.6
+    # a job plans with its own seats per seed, not a fixed four
+    assert (
+        paired_series.estimate_series_duration(40, seats_per_seed=3)["planning"]["assumptions"][
+            "seats_per_seed"
+        ]
+        == 3
+    )
 
 
 def test_validate_series_id_rejects_path_traversal() -> None:
@@ -861,42 +877,128 @@ def test_paired_js_csp_and_in_place_slot_refresh() -> None:
     assert "refreshPairedSlots(" in app_js
 
 
-def test_paired_js_plan_mirrors_the_python_planning_constants_and_wording() -> None:
-    """The start dialog computes the plan in the browser; its constants are the engine lane's."""
-    import re
+def _paired_js(calls: str) -> object:
+    """Run paired.js under node with a German number stub and return ``calls`` as JSON."""
+    import shutil
+    import subprocess
 
-    from commander_lab.engine.rules.full_game_comparison import (
-        DIFFERENCE_Z80,
-        DIFFERENCE_Z95,
-        PLANNED_PAIR_SD,
+    node = shutil.which("node")
+    if node is None:
+        pytest.skip("node is not installed")
+    script = (
+        "const StudioUI = {num: (v, d = 0) => Number(v).toLocaleString('de-DE', "
+        "{minimumFractionDigits: d, maximumFractionDigits: d})};\n"
+        + (STATIC_DIR / "paired.js").read_text(encoding="utf-8")
+        + f"\nprocess.stdout.write(JSON.stringify({calls}));\n"
     )
+    out = subprocess.run(
+        [node, "-e", script], capture_output=True, text=True, timeout=30, check=True
+    )
+    return json.loads(out.stdout)
 
+
+def test_paired_js_renders_the_backend_plan_and_honest_sentences() -> None:
+    """The dialog shows the backend's plan numbers; the sentences depend on the question."""
+    plan = json.dumps(paired_series.planned_detectable_difference_pp(40, 4))
+    out = _paired_js(
+        "{"
+        f"zero: planPairedLines({plan}, 0), above: planPairedLines({plan}, 2.5),"
+        "nd0: notDecidedText({pairs_completed: 40, detectable_difference_pp: 31.25,"
+        " question: {threshold_pp: 0}}),"
+        "nd5: notDecidedText({pairs_completed: 40, detectable_difference_pp: null,"
+        " question: {threshold_pp: 5}}),"
+        "same: pairedAlignmentText({swapped_slots: 1, appended: 0, dropped: 0}),"
+        "uneven: pairedAlignmentText({swapped_slots: 1, appended: 2, dropped: 0}),"
+        "legacy: pairedAlignmentText(null),"
+        "short: [pairedAlignmentShort(null), pairedAlignmentShort({appended: 0, dropped: 1}),"
+        " pairedAlignmentShort({appended: 0, dropped: 0})],"
+        "est: estimatePairedText(40, 4)}"
+    )
+    assert isinstance(out, dict)
+    zero, above = out["zero"], out["above"]
+    assert "ab etwa 31,3 bis 41,5 Prozentpunkten (95 %, Power 80 %)" in zero[0]
+    assert "das heißt nie, dass eine Karte egal ist" in zero[0]
+    assert "etwa 1.254 bis 2.195 Paare" in zero[1]
+    assert "rund 800 Partien für ±3 pp" in zero[1]
+    assert "0,63 als vorsichtiger Planungswert (exakt 0,612" in zero[2]
+    assert "gepaart: Korrelation ungemessen" in zero[2]
+    assert "Student-t mit 9 Freiheitsgraden" in zero[2]
+    assert "Design-Effekt 1,75" in zero[2]
+    # a question with a threshold never reads as "no difference"
+    assert "Schwelle von 2,5 pp" in above[0] and "kein Unterschied" not in above[0]
+    assert out["nd0"] == (
+        "Kein Unterschied nachweisbar bei n = 40 Paaren; nachweisbar wären mindestens 31,3 pp "
+        "(95 %, Power 80 %, aus der gemessenen Paar-Streuung). Das heißt nicht, dass die Karte "
+        "egal ist."
+    )
+    assert "nicht entschieden bei n = 40" in out["nd5"] and "unbekannt" in out["nd5"]
+    assert "Kein Unterschied" not in out["nd5"]
+    assert out["same"] == "an Basis ausgerichtet: 1 getauscht, 0 angehängt, 0 entfallen"
+    assert out["uneven"].endswith("nicht deckungsgleich (Kartenzahl verschieden)")
+    assert out["legacy"] == "nicht ausgerichtet (ältere Serie)"
+    assert out["short"] == ["nicht ausgerichtet (älter)", "nicht deckungsgleich", "ausgerichtet"]
+    assert "für gepaarte Serien ist der Durchsatz ungemessen" in out["est"]
     paired_js = (STATIC_DIR / "paired.js").read_text(encoding="utf-8")
+    assert "/api/simulations/paired-plan?" in paired_js
+    assert 'res.stop_reason === "BUDGET_EXHAUSTED"' in paired_js
 
-    def _const(name: str) -> float:
-        found = re.search(rf"const {name} = ([0-9.]+);", paired_js)
-        assert found is not None, name
-        return float(found.group(1))
 
-    assert _const("PLAN_Z95") == DIFFERENCE_Z95
-    assert _const("PLAN_Z80") == DIFFERENCE_Z80
-    assert _const("PLAN_PAIR_SD") == PLANNED_PAIR_SD
-    assert _const("PLAN_BLOCK_CORRELATION") == paired_series.PLANNING_BLOCK_CORRELATION
-    assert _const("PLAN_REFERENCE_EFFECT_PP") == paired_series.PLANNING_REFERENCE_EFFECT_PP
-    assert _const("PAIRED_ESTIMATED_GAMES_PER_HOUR") == paired_series.ESTIMATED_GAMES_PER_HOUR
-    # throughput is labelled as unmeasured for paired series, never as a measurement
-    assert "für gepaarte Serien ist er ungemessen" in paired_js
-    assert "Grober Richtwert" not in paired_js
-    # the plan names its assumptions; a non-decided series never reads as "the card is irrelevant"
-    assert "gepaart: Korrelation ungemessen" in paired_js
-    assert "Power 80 %" in paired_js
-    assert "Kein Unterschied nachweisbar bei n = " in paired_js
-    assert "das heißt nie, dass eine Karte egal ist" in paired_js
-    assert "Karte ist egal" not in paired_js
-    assert "detectable_difference_pp" in paired_js
-    assert "discordant_share_if_independent" in paired_js
-    assert "slot_alignment" in paired_js and "seed_plan" in paired_js
-    assert 'id: "paired-plan"' in paired_js
+def test_paired_plan_route_serves_the_python_plan(tmp_path: Path) -> None:
+    client = TestClient(create_app(tmp_path / "studio_data"))
+    response = client.get(
+        "/api/simulations/paired-plan", params={"budget_pairs": 40, "seats_per_seed": 4}
+    )
+    assert response.status_code == 200
+    assert response.json() == paired_series.planned_detectable_difference_pp(40, 4)
+    bad = client.get("/api/simulations/paired-plan", params={"budget_pairs": 1})
+    assert bad.status_code == 422
+
+
+def test_aligned_variant_file_keeps_other_zones_and_refuses_a_wrong_reload(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from commander_lab.engine.rules.project import load_rules_deck_snapshot
+    from commander_lab.models import RulesDeckInput
+
+    fillers = tuple(f"Filler {index:02d}" for index in range(96))
+
+    def _deck(deck_id: str, main: tuple[str, ...]) -> RulesDeckInput:
+        return RulesDeckInput(
+            deck_id=deck_id,
+            name=deck_id,
+            commander_names=(COMMANDER,),
+            mainboard=(*main, *fillers),
+        )
+
+    snap: dict[str, object] = {
+        "deck_id": "v",
+        "name": "v",
+        "commander": {"commanders": [COMMANDER]},
+        "cards": [
+            {"oracle_name": "Aardvark", "quantity": 1, "zone": "main"},
+            {"oracle_name": COMMANDER, "quantity": 1, "zone": "commander"},
+            {"oracle_name": "Forest", "quantity": 2, "zone": "main"},
+            {"oracle_name": "Spare", "quantity": 1, "zone": "sideboard"},
+        ],
+    }
+    path = tmp_path / "variant.json"
+    base = _deck("b", ("Forest", "Zephyr", "Forest"))
+    variant = _deck("v", ("Aardvark", "Forest", "Forest"))
+    aligned, alignment = paired_series._align_variant_file(base, variant, snap, path)
+    assert aligned.mainboard == ("Forest", "Aardvark", "Forest", *fillers)
+    assert alignment.swapped_slots == 1
+    written = json.loads(path.read_text(encoding="utf-8"))
+    zones = {(c["oracle_name"], c["zone"]) for c in written["cards"]}
+    assert (COMMANDER, "commander") in zones and ("Spare", "sideboard") in zones
+    assert load_rules_deck_snapshot(path).sideboard == ("Spare",)
+
+    # a file that does not reload in the aligned order is refused, never played
+    def _wrong(_path: object) -> RulesDeckInput:
+        return _deck("v", ("Aardvark", "Forest", "Forest"))
+
+    monkeypatch.setattr(paired_series, "load_rules_deck_snapshot", _wrong)
+    with pytest.raises(ValueError, match="aligned order"):
+        paired_series._align_variant_file(base, variant, snap, path)
 
 
 # ---- Serien im Deck-Verlauf (#1404): studio/deck_series.py, GET /api/decks/{id}/series ----
@@ -1038,6 +1140,20 @@ def test_deck_series_filter_status_and_skips(tmp_path: Path) -> None:
     assert {entry["role"] for entry in by_rev["rev@mine-2"]} == {"variant"}
     assert {entry["role"] for entry in by_rev["rev@mine-1"]} == {"base"}
     assert by_rev["rev@mine-2"][0]["counterpart_ref"] == "repo:x"
+    # series written before the alignment carry no slot_alignment: marked, never pooled
+    assert done["slot_alignment"] is None
+    assert done["slot_alignment_state"] == "not_aligned_legacy"
+    aligned = _stored_series("paired-10-1-12121212", "rev@mine-2", "rev@other")
+    aligned["slot_alignment"] = {"swapped_slots": 1, "appended": 0, "dropped": 0}
+    uneven = _stored_series("paired-11-1-34343434", "rev@mine-2", "rev@other")
+    uneven["slot_alignment"] = {"swapped_slots": 0, "appended": 1, "dropped": 0}
+    _write_series(games, aligned)
+    _write_series(games, uneven)
+    again = {
+        item["series_id"]: item for item in deck_series.deck_series(tmp_path, wanted)["series"]
+    }
+    assert again["paired-10-1-12121212"]["slot_alignment_state"] == "aligned"
+    assert again["paired-11-1-34343434"]["slot_alignment_state"] == "not_congruent"
 
 
 def test_deck_series_empty_and_missing_folder(tmp_path: Path) -> None:
@@ -1098,6 +1214,8 @@ def test_deck_series_js_csp_and_history_hook() -> None:
     for forbidden in (".innerHTML", ".outerHTML", "eval(", "style:", "style =", "toLocaleString"):
         assert forbidden not in js
     assert "keine gespeicherte Serie" in js
+    assert "DECK_SERIES_ALIGNMENT_TEXT[item.slot_alignment_state]" in js
+    assert "nicht ausgerichtet (ältere Serie" in js
 
 
 def test_deck_series_survives_hostile_files_and_malformed_results(tmp_path: Path) -> None:
@@ -1170,3 +1288,115 @@ def test_deck_series_uncounted_seats_are_planned_only() -> None:
     assert entry["counts_as_result"] is False
     assert entry["seats_planned"] is True
     assert entry["tested_seats"] == [0, 1, 2, 3]
+
+
+def test_estimate_series_duration_scales_with_workers_and_api_validates_parallel_settings(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    est_4 = paired_series.estimate_series_duration(40, workers=4, games_per_jvm=6)
+    assert est_4["workers"] == 4
+    assert est_4["games_per_jvm"] == 6
+    assert est_4["estimated_games_per_hour"] == 540 * 4
+    assert est_4["estimated_seconds"] == round(80 * 3600.0 / (540 * 4))
+
+    store, folder = _make_store(tmp_path)
+    try:
+        rev_a = create_revision(
+            store,
+            deck_id="chulane-par",
+            name="Chulane Par",
+            branch="main",
+            cards=[
+                RevisionCard("cid-chulane", 1, "commander"),
+                RevisionCard("cid-sol-ring", 1, "main"),
+                RevisionCard("cid-forest", 98, "main"),
+            ],
+        )
+        rev_b = create_revision(
+            store,
+            deck_id="chulane-par",
+            name="Chulane Par",
+            branch="var",
+            cards=[
+                RevisionCard("cid-chulane", 1, "commander"),
+                RevisionCard("cid-signet", 1, "main"),
+                RevisionCard("cid-forest", 98, "main"),
+            ],
+        )
+
+        def _play(arm: str, seed: int, seat: int) -> paired_comparison.PlayedGame:
+            did = "chulane-par--base" if arm == "base" else "chulane-par--variant"
+            return {
+                "exposure": _mock_exposure(  # type: ignore[typeddict-item]
+                    f"{arm}-{seed}-{seat}",
+                    seed=seed,
+                    seat=seat,
+                    tested_deck_id=did,
+                    won=(arm == "variant"),
+                ),
+                "failure_class": None,
+            }
+
+        mgr = PairedSeriesManager()
+        job = mgr.start_series(
+            store,
+            folder,
+            base_revision_id=rev_a,
+            variant_revision_id=rev_b,
+            budget_pairs=40,
+            look_every_pairs=8,
+            workers=4,
+            games_per_jvm=6,
+            play_override=_play,
+        )
+        assert job.workers == 4
+        assert job.games_per_jvm == 6
+        assert job.to_dict()["execution"] == {
+            "workers": 4,
+            "games_per_jvm": 6,
+            "serial_gc": False,
+            "appcds": False,
+        }
+        finished = _wait_job(mgr, folder, job.series_id)
+        assert finished["status"] == "completed"
+        assert finished["result"]["status"] == "DECIDED"  # type: ignore[index]
+
+        app = create_app(folder)
+        client = TestClient(app)
+        bad_workers = client.post(
+            "/api/simulations/paired",
+            json={
+                "base_revision_id": rev_a,
+                "variant_revision_id": rev_b,
+                "workers": 17,
+            },
+            headers={"x-studio": "1"},
+        )
+        assert bad_workers.status_code == 422
+        bad_batch = client.post(
+            "/api/simulations/paired",
+            json={
+                "base_revision_id": rev_a,
+                "variant_revision_id": rev_b,
+                "games_per_jvm": 25,
+            },
+            headers={"x-studio": "1"},
+        )
+        assert bad_batch.status_code == 422
+
+        monkeypatch.setattr(
+            paired_series.paired_series_manager, "start_series", lambda *_a, **_k: job
+        )
+        ok_resp = client.post(
+            "/api/simulations/paired",
+            json={
+                "base_revision_id": rev_a,
+                "variant_revision_id": rev_b,
+                "workers": 3,
+                "games_per_jvm": 5,
+            },
+            headers={"x-studio": "1"},
+        )
+        assert ok_resp.status_code == 200
+    finally:
+        store.close()

@@ -548,7 +548,11 @@ def aggregate_batch_results(
                 "cast_count": total_casts,
                 # mean over the games in which the card was cast only (n below)
                 "mean_first_cast_round": mean_first_round,
-                "first_cast_round_basis": "mean over games_reached of games_completed",
+                "first_cast_round_basis": (
+                    "mean over games_reached of games_completed only; quartiles nearest-rank "
+                    "over all games_completed, a game that never cast it ranks as later than "
+                    "the game lasted (None = not reached)"
+                ),
                 "first_cast_round_games_reached": reached_games,
                 "first_cast_round_games_not_reached": completed_count - reached_games,
                 "first_cast_round_quartiles": censored_round_quartiles(

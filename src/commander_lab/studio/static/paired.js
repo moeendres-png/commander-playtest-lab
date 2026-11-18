@@ -2,56 +2,69 @@
 // Paired overnight A-vs-B comparison series (#1404 op. 6) and C-3 simulator readiness audit.
 // DOM creation uses only h() and textContent; zero innerHTML, zero eval, zero inline styles.
 
-// Measured for batch series only (#1251: 6 workers, 8 games per JVM). A paired series plays one
-// game after the other in a fresh JVM each: its throughput is unmeasured (paired_series.py).
+// Duration estimate per worker (#1513 scales it with the workers). Measured is only the batch
+// series of #1251: 541 games/hour for the whole series with 6 workers, about 90 per worker. A
+// paired series' throughput is unmeasured (paired_series.THROUGHPUT_SOURCE).
 const PAIRED_ESTIMATED_GAMES_PER_HOUR = 540.0;
-// Planning constants of the engine lane (full_game_comparison.py: DIFFERENCE_Z95,
-// DIFFERENCE_Z80, PLANNED_PAIR_SD) and the assumed seat-rotation block correlation of
-// power_table; mirrored in paired_series.planned_detectable_difference_pp.
-const PLAN_Z95 = 1.96;
-const PLAN_Z80 = 0.8416;
-const PLAN_PAIR_SD = 0.63;
-const PLAN_BLOCK_CORRELATION = 0.25;
-const PLAN_REFERENCE_EFFECT_PP = 5;
+// Every pod preset of this dialog seats four players; with rotation each seed plays all four.
+const PAIRED_TABLE_SEATS = 4;
 
-function estimatePairedText(budgetPairs) {
+function estimatePairedText(budgetPairs, workers = 4) {
   const pairs = Math.max(0, Number(budgetPairs) || 0);
+  const usedWorkers = Math.max(1, Math.min(16, Math.round(Number(workers) || 1)));
   const maxGames = pairs * 2;
-  const seconds = Math.round(maxGames * (3600.0 / PAIRED_ESTIMATED_GAMES_PER_HOUR));
+  const ratePerHour = PAIRED_ESTIMATED_GAMES_PER_HOUR * usedWorkers;
+  const seconds = Math.round(maxGames * (3600.0 / ratePerHour));
   const minutes = StudioUI.num(seconds / 60.0, 1);
-  return `Dauer: mindestens ~${minutes} min für bis zu ${StudioUI.num(maxGames, 0)} Partien, gerechnet mit ${StudioUI.num(PAIRED_ESTIMATED_GAMES_PER_HOUR, 0)} Partien/h. Dieser Durchsatz ist nur für Batch-Serien gemessen (6 Worker, 8 Partien je JVM); für gepaarte Serien ist er ungemessen (sie laufen nacheinander, eine frische JVM je Partie) und vermutlich deutlich niedriger. Früher Stopp je nach Look möglich.`;
+  return `Grober Richtwert: max. ~${minutes} min (${StudioUI.num(maxGames, 0)} Partien · ${StudioUI.num(usedWorkers, 0)} Worker × angenommen ~${StudioUI.num(PAIRED_ESTIMATED_GAMES_PER_HOUR, 0)} Partien/h). Gemessen sind nur 541 Partien/h für eine ganze Batch-Serie mit 6 Workern (#1251), etwa 90 je Worker; für gepaarte Serien ist der Durchsatz ungemessen, die Dauer vermutlich deutlich länger. Früher Stopp je nach Look möglich.`;
 }
 
-// What a budget can detect before a game is played: (z95 + z80) * sd / sqrt(n), with the seat
-// rotations of one seed as design effect 1 + (m - 1) * 0.25 at the upper end. A plan, not a
-// measurement: the pairing correlation is unmeasured, so the sd is not lowered for it.
-function planPairedLines(budgetPairs, rotateSeats) {
-  const pairs = Math.max(1, Number(budgetPairs) || 1);
-  const seatsPerSeed = rotateSeats ? 4 : 1;
-  const designEffect = 1 + (seatsPerSeed - 1) * PLAN_BLOCK_CORRELATION;
-  const low = (PLAN_Z95 + PLAN_Z80) * PLAN_PAIR_SD / Math.sqrt(pairs) * 100;
-  const high = low * Math.sqrt(designEffect);
-  const needed = Math.ceil(((PLAN_Z95 + PLAN_Z80) * PLAN_PAIR_SD / (PLAN_REFERENCE_EFFECT_PP / 100)) ** 2);
-  const neededHigh = Math.ceil(needed * designEffect);
+// The pre-run plan comes from the backend (paired_series.planned_detectable_difference_pp via
+// GET /api/simulations/paired-plan): one computation, with the Student-t quantiles at
+// (seeds - 1) degrees of freedom that the evaluation uses. This only formats it.
+function planPairedLines(plan, thresholdPp) {
   const range = (a, b, digits) => (a === b ? StudioUI.num(a, digits) : `${StudioUI.num(a, digits)} bis ${StudioUI.num(b, digits)}`);
+  const a = plan.assumptions || {};
+  const threshold = Number(thresholdPp) || 0;
+  const first = threshold === 0
+    ? `Nachweisbar mit ${StudioUI.num(plan.budget_pairs, 0)} Paaren: erst Unterschiede ab etwa ${range(plan.detectable_pp_low, plan.detectable_pp_high, 1)} Prozentpunkten (95 %, Power 80 %). Kleinere Effekte bleiben „kein Unterschied nachweisbar“ – das heißt nie, dass eine Karte egal ist.`
+    : `Mit ${StudioUI.num(plan.budget_pairs, 0)} Paaren entscheidbar: erst Abstände zur Schwelle von ${StudioUI.num(threshold, 1)} pp ab etwa ${range(plan.detectable_pp_low, plan.detectable_pp_high, 1)} Prozentpunkten (95 %, Power 80 %).`;
   return [
-    `Nachweisbar mit ${StudioUI.num(pairs, 0)} Paaren: erst Unterschiede ab etwa ${range(Math.round(low * 10) / 10, Math.round(high * 10) / 10, 1)} Prozentpunkten (95 %, Power 80 %). Kleinere Effekte bleiben „kein Unterschied nachweisbar“ – das heißt nie, dass eine Karte egal ist.`,
-    `Für ${StudioUI.num(PLAN_REFERENCE_EFFECT_PP, 0)} pp bräuchte es etwa ${range(needed, neededHigh, 0)} Paare. Referenz: ein einzelner Siegrate-Anteil braucht bei 25 % rund 800 Partien für ±3 pp.`,
-    `Annahmen: Paar-Streuung 0,63 wie bei unabhängigen Partien mit 25 % Siegrate (gepaart: Korrelation ungemessen)${rotateSeats ? "; Sitzrotation eines Seeds mit Design-Effekt bis 1,75 (Blockkorrelation 0,25 angenommen)" : ""}; Zwischenblicke nicht eingerechnet. Ein Plan, keine Messung.`,
+    first,
+    `Für ${StudioUI.num(plan.reference_effect_pp, 0)} pp bräuchte es etwa ${range(plan.pairs_needed_low, plan.pairs_needed_high, 0)} Paare. Referenz: ein einzelner Siegrate-Anteil braucht bei 25 % rund 800 Partien für ±3 pp.`,
+    `Annahmen: Paar-Streuung ${StudioUI.num(a.pair_sd, 2)} als vorsichtiger Planungswert (exakt ${StudioUI.num(a.pair_sd_independent_exact, 3)} für unabhängige Partien mit 25 % Siegrate; gepaart: Korrelation ungemessen); Student-t mit ${StudioUI.num(a.degrees_of_freedom, 0)} Freiheitsgraden (Seeds − 1) wie in der Auswertung${a.seats_per_seed > 1 ? `; Sitzrotation mit ${StudioUI.num(a.seats_per_seed, 0)} Sitzen je Seed bis Design-Effekt ${StudioUI.num(a.design_effect, 2)} (Blockkorrelation ${StudioUI.num(a.block_correlation_assumed, 2)} angenommen)` : ""}; Zwischenblicke nicht eingerechnet. Ein Plan, keine Messung.`,
   ];
 }
 
 function notDecidedText(res) {
   const n = StudioUI.num(res.pairs_completed ?? 0, 0);
   const mde = res.detectable_difference_pp;
+  const threshold = Number(res.question && res.question.threshold_pp) || 0;
   const mdeText = mde === null || mde === undefined
     ? "die nachweisbare Differenz ist unbekannt"
     : `nachweisbar wären mindestens ${StudioUI.num(mde, 1)} pp (95 %, Power 80 %, aus der gemessenen Paar-Streuung)`;
+  if (threshold !== 0) {
+    return `Frage „größer als ${StudioUI.num(threshold, 1)} pp?“ nicht entschieden bei n = ${n} Paaren; ${mdeText}.`;
+  }
   return `Kein Unterschied nachweisbar bei n = ${n} Paaren; ${mdeText}. Das heißt nicht, dass die Karte egal ist.`;
 }
 
 function fmtShare(val) {
   return val === null || val === undefined ? "unbekannt" : StudioUI.num(Number(val), 2);
+}
+
+// Library slots of the variant (slot_alignment of the series). A series without the field was
+// played before the alignment existed: not aligned, never pooled with aligned series.
+function pairedAlignmentText(sa) {
+  if (!sa) return "nicht ausgerichtet (ältere Serie)";
+  const extra = (Number(sa.appended) || 0) + (Number(sa.dropped) || 0);
+  const text = `an Basis ausgerichtet: ${StudioUI.num(sa.swapped_slots, 0)} getauscht, ${StudioUI.num(sa.appended, 0)} angehängt, ${StudioUI.num(sa.dropped, 0)} entfallen`;
+  return extra > 0 ? `${text} – nicht deckungsgleich (Kartenzahl verschieden)` : text;
+}
+
+function pairedAlignmentShort(sa) {
+  if (!sa) return "nicht ausgerichtet (älter)";
+  return (Number(sa.appended) || 0) + (Number(sa.dropped) || 0) > 0 ? "nicht deckungsgleich" : "ausgerichtet";
 }
 
 function pairedVerdictInfo(res) {
@@ -188,7 +201,7 @@ function renderPairedMonitor(h, job, deps) {
         h("div", {}, h("span", { class: "muted" }, "Sign-Test p / Diskordant: "), h("b", {}, `${pVal} (${StudioUI.num(res.variant_only_wins, 0)}B : ${StudioUI.num(res.baseline_only_wins, 0)}A · ${StudioUI.num(res.tied_pairs, 0)} gleich)`)),
         h("div", {}, h("span", { class: "muted" }, "Paare fertig / zensiert: "), h("b", {}, `${StudioUI.num(res.pairs_completed, 0)} / ${StudioUI.num(res.pairs_censored, 0)}`)),
         h("div", { title: "Paarung spart Partien nur, wenn der gemessene Anteil deutlich unter dem Wert unabhängiger Partien liegt." }, h("span", { class: "muted" }, "Diskordante Paare (gemessen / unabhängig erwartet): "), h("b", {}, `${StudioUI.num((res.variant_only_wins ?? 0) + (res.baseline_only_wins ?? 0), 0)}/${StudioUI.num(res.pairs_completed ?? 0, 0)} = ${fmtShare(res.discordant_share)} / ${fmtShare(res.discordant_share_if_independent)}`)),
-        h("div", {}, h("span", { class: "muted" }, "Bibliotheksplätze: "), h("b", {}, job.slot_alignment ? `an Basis ausgerichtet (${StudioUI.num(job.slot_alignment.swapped_slots, 0)} getauscht)` : "nicht ausgerichtet (ältere Serie)")),
+        h("div", {}, h("span", { class: "muted" }, "Bibliotheksplätze: "), h("b", {}, pairedAlignmentText(job.slot_alignment))),
         h("div", {}, h("span", { class: "muted" }, "Seeds: "), h("b", {}, job.seed_plan && job.seed_plan.first_seed !== null && job.seed_plan.first_seed !== undefined ? `${job.seed_plan.first_seed} bis ${job.seed_plan.last_seed} (fortlaufend)` : "unbekannt")),
         h("div", {}, h("span", { class: "muted" }, "Bridge-JAR: "), h("code", { title: bridgeSha || "" }, bridgeSha ? String(bridgeSha).slice(0, 12) : "–")),
         h("div", {}, h("span", { class: "muted" }, "Epoche: "), h("b", {}, epochLabel))),
@@ -300,7 +313,7 @@ function refreshPairedSlots(deps) {
       histSlot.replaceChildren(
         h("h4", { class: "mt-2" }, "Gespeicherte Nachtlauf-Serien"),
         h("div", { class: "table-wrap" }, h("table", {},
-          h("thead", {}, h("tr", {}, h("th", {}, "Serie"), h("th", {}, "Status"), h("th", {}, "Ergebnis"), h("th", { class: "num" }, "Differenz"), h("th", {}, ""))),
+          h("thead", {}, h("tr", {}, h("th", {}, "Serie"), h("th", {}, "Status"), h("th", {}, "Ergebnis"), h("th", { class: "num" }, "Differenz"), h("th", {}, "Plätze"), h("th", {}, ""))),
           h("tbody", {}, historyList.slice(0, 10).map((item) => {
             const r = item.result || null;
             const v = pairedVerdictInfo(r);
@@ -309,6 +322,7 @@ function refreshPairedSlots(deps) {
               h("td", {}, item.status),
               h("td", {}, v ? v[1] : `${StudioUI.num(item.pairs_attempted ?? 0, 0)}/${item.budget_pairs !== null && item.budget_pairs !== undefined ? StudioUI.num(item.budget_pairs, 0) : "?"} Paare`),
               h("td", { class: "num" }, r ? fmtPp(r.difference_pp) : "–"),
+              h("td", { title: pairedAlignmentText(item.slot_alignment) }, pairedAlignmentShort(item.slot_alignment)),
               h("td", {}, h("button", {
                 type: "button",
                 class: "small",
@@ -354,16 +368,32 @@ function renderPairedComparisonSection(body, deps) {
   );
   const seedInput = h("input", { type: "number", value: "1000", class: "seed-input", id: "paired-seed-input" });
   const thresholdInput = h("input", { type: "number", value: "0", step: "0.5", class: "seed-input", id: "paired-threshold-input" });
+  const workersInput = h("input", { type: "number", value: "4", min: "1", max: "16", class: "seed-input", id: "paired-workers-input" });
+  const gamesPerJvmInput = h("input", { type: "number", value: "6", min: "1", max: "24", class: "seed-input", id: "paired-games-per-jvm-input" });
   const rotateCheck = h("input", { type: "checkbox", checked: true, id: "paired-rotate-check" });
 
-  const estLine = h("p", { class: "note", id: "paired-estimate" }, estimatePairedText(budgetSelect.value));
+  const estLine = h("p", { class: "note", id: "paired-estimate" }, estimatePairedText(budgetSelect.value, workersInput.value));
   const planBox = h("div", { class: "note", id: "paired-plan" });
-  const refreshPlan = () => {
-    estLine.textContent = estimatePairedText(budgetSelect.value);
-    planBox.replaceChildren(...planPairedLines(budgetSelect.value, rotateCheck.checked).map((line) => h("p", { class: "note note-compact" }, line)));
+  const updateEstimate = () => {
+    estLine.textContent = estimatePairedText(budgetSelect.value, workersInput.value);
   };
-  budgetSelect.addEventListener("change", refreshPlan);
+  let planRequest = 0;
+  const refreshPlan = async () => {
+    const mine = ++planRequest;
+    const seats = rotateCheck.checked ? PAIRED_TABLE_SEATS : 1;
+    try {
+      const plan = await deps.api(`/api/simulations/paired-plan?budget_pairs=${encodeURIComponent(budgetSelect.value)}&seats_per_seed=${seats}`);
+      if (mine !== planRequest) return;
+      planBox.replaceChildren(...planPairedLines(plan, thresholdInput.value).map((line) => h("p", { class: "note note-compact" }, line)));
+    } catch (error) {
+      if (mine === planRequest) planBox.replaceChildren(h("p", { class: "note note-compact" }, "Planung nicht verfügbar (unbekannt)."));
+    }
+  };
+  budgetSelect.addEventListener("change", () => { updateEstimate(); refreshPlan(); });
   rotateCheck.addEventListener("change", refreshPlan);
+  thresholdInput.addEventListener("change", refreshPlan);
+  workersInput.addEventListener("change", updateEstimate);
+  workersInput.addEventListener("input", updateEstimate);
   refreshPlan();
 
   const startBtn = h("button", { type: "submit", class: "primary", id: "paired-start-btn" }, "Nachtlauf starten");
@@ -390,6 +420,8 @@ function renderPairedComparisonSection(body, deps) {
           base_seed: parseInt(seedInput.value, 10),
           rotate_seats: rotateCheck.checked,
           threshold_pp: parseFloat(thresholdInput.value) || 0.0,
+          workers: Math.max(1, Math.min(16, parseInt(workersInput.value, 10) || 4)),
+          games_per_jvm: Math.max(1, Math.min(24, parseInt(gamesPerJvmInput.value, 10) || 6)),
         });
         deps.setActivePaired(res);
         refreshPairedSlots(deps);
@@ -408,6 +440,8 @@ function renderPairedComparisonSection(body, deps) {
     h("label", {}, "Sequential-Look", lookSelect),
     h("label", {}, "Schwelle (pp)", thresholdInput),
     h("label", {}, "Basis-Seed", seedInput),
+    h("label", {}, "Worker", workersInput),
+    h("label", {}, "Partien / JVM", gamesPerJvmInput),
     h("label", { class: "paired-check" }, rotateCheck, "Sitze 1–4 rotieren"),
     startBtn
   );

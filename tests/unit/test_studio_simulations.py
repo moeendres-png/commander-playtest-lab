@@ -222,6 +222,9 @@ def test_aggregate_batch_results() -> None:
         "q3": None,
     }
     assert cards["Forest"]["first_cast_round_games_reached"] == 2
+    # the denominator is every finished game, not the games in which the card was offered
+    assert cards["Sol Ring"]["first_cast_round_games_reached"] == 1
+    assert cards["Sol Ring"]["first_cast_round_games_not_reached"] == 1
     assert cards["Forest"]["first_cast_round_quartiles"] == {"q1": 1, "median": 1, "q3": 1}
 
 
