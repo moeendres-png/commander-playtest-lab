@@ -1,0 +1,155 @@
+name: Studio Human Seat Real Engine
+
+on:
+  pull_request:
+    paths:
+      - ".github/actions/**"
+      - ".github/workflows/studio-human-seat-real-engine.yml"
+      - "engine-bridge/**"
+      - "src/commander_lab/studio/play.py"
+      - "src/commander_lab/studio/games.py"
+      - "src/commander_lab/studio/launch.py"
+      - "src/commander_lab/studio/static/partie.js"
+      - "src/commander_lab/studio/static/boardclick.js"
+      - "src/commander_lab/studio/static/vorspulen.js"
+      - "tests/unit/test_human_seat_play_1169.py"
+      - "src/commander_lab/__init__.py"
+      - "src/commander_lab/agents/**"
+      - "src/commander_lab/bridge_qualification.py"
+      - "src/commander_lab/candidates/**"
+      - "src/commander_lab/cards/**"
+      - "src/commander_lab/decision_statistics.py"
+      - "src/commander_lab/deck_profile.py"
+      - "src/commander_lab/deck_readiness.py"
+      - "src/commander_lab/deck_variant.py"
+      - "src/commander_lab/engine/**"
+      - "src/commander_lab/freeze_readiness.py"
+      - "src/commander_lab/mana_analysis.py"
+      - "src/commander_lab/models/**"
+      - "src/commander_lab/owner_data.py"
+      - "src/commander_lab/qualification/**"
+      - "src/commander_lab/semantic_replay/**"
+      - "src/commander_lab/storage/**"
+      - "src/commander_lab/studio/**"
+      - "tests/conftest.py"
+  push:
+    branches: [main]
+    paths:
+      - ".github/actions/**"
+      - ".github/workflows/studio-human-seat-real-engine.yml"
+      - "engine-bridge/**"
+      - "src/commander_lab/studio/play.py"
+      - "src/commander_lab/studio/games.py"
+      - "src/commander_lab/studio/launch.py"
+      - "src/commander_lab/studio/static/partie.js"
+      - "src/commander_lab/studio/static/boardclick.js"
+      - "src/commander_lab/studio/static/vorspulen.js"
+      - "tests/unit/test_human_seat_play_1169.py"
+      - "src/commander_lab/__init__.py"
+      - "src/commander_lab/agents/**"
+      - "src/commander_lab/bridge_qualification.py"
+      - "src/commander_lab/candidates/**"
+      - "src/commander_lab/cards/**"
+      - "src/commander_lab/decision_statistics.py"
+      - "src/commander_lab/deck_profile.py"
+      - "src/commander_lab/deck_readiness.py"
+      - "src/commander_lab/deck_variant.py"
+      - "src/commander_lab/engine/**"
+      - "src/commander_lab/freeze_readiness.py"
+      - "src/commander_lab/mana_analysis.py"
+      - "src/commander_lab/models/**"
+      - "src/commander_lab/owner_data.py"
+      - "src/commander_lab/qualification/**"
+      - "src/commander_lab/semantic_replay/**"
+      - "src/commander_lab/storage/**"
+      - "src/commander_lab/studio/**"
+      - "tests/conftest.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: studio-human-seat-real-engine-${{ github.event_name == 'pull_request' && github.head_ref || github.sha }}
+  cancel-in-progress: true
+
+env:
+  PYTHONHASHSEED: "0"
+  COMMANDER_LAB_XMAGE_FULL_GAME_BRIDGE_CMD: >-
+    java -Xmx3g -jar ${{ github.workspace }}/engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar full-game
+
+jobs:
+  human-seat-real-engine:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - name: Checkout lab
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Resolve pinned XMage commit
+        run: |
+          set -euo pipefail
+          eval "$(python3 scripts/docker_resolve_engine_pin.py --provider xmage --format shell)"
+          echo "XMAGE_COMMIT=${XMAGE_ENGINE_COMMIT}" >> "$GITHUB_ENV"
+
+      - name: Checkout pinned XMage
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: moeendres-png/mage
+          ref: ${{ env.XMAGE_COMMIT }}
+          path: vendor/engine-source/xmage
+          fetch-depth: 1
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: maven
+
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements/lock.txt
+
+      - name: Verify immutable XMage pin
+        working-directory: vendor/engine-source/xmage
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$XMAGE_COMMIT"
+
+      - name: Pinned XMage engine (restored by pin commit, built on a miss)
+        uses: ./.github/actions/pinned-xmage-engine
+        with:
+          commit: ${{ env.XMAGE_COMMIT }}
+
+      - name: Install lab
+        run: |
+          python -m pip install --require-hashes -r requirements/lock.txt
+          python -m pip install --no-deps --no-build-isolation -e .
+
+      - name: Package XMage bridge
+        working-directory: engine-bridge
+        run: mvn -B -ntp -DskipTests package
+
+      - name: Run real-engine human-seat play-routes test (skip fails job)
+        run: |
+          set -euo pipefail
+          pytest -v -rs --junitxml=junit-human-seat.xml \
+            tests/unit/test_human_seat_play_1169.py \
+            -k test_real_engine_human_seat_plays_a_game_to_its_end_through_the_play_routes
+          python - <<'PY'
+          import xml.etree.ElementTree as ET
+          from pathlib import Path
+          root = ET.fromstring(Path("junit-human-seat.xml").read_text(encoding="utf-8"))
+          suite = root.find("testsuite") if root.tag == "testsuites" else root
+          assert suite is not None
+          tests = int(suite.attrib.get("tests", "0"))
+          failures = int(suite.attrib.get("failures", "0"))
+          errors = int(suite.attrib.get("errors", "0"))
+          skipped = int(suite.attrib.get("skipped", "0"))
+          print(f"human-seat real-engine: tests={tests} failures={failures} errors={errors} skipped={skipped}")
+          assert tests == 1 and failures == 0 and errors == 0 and skipped == 0
+          PY
+          rm -f junit-human-seat.xml
