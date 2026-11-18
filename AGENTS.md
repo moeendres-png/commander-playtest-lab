@@ -377,12 +377,14 @@ split and reviewed: `docs/STUDIO_SCOPE.md`, section "Abarbeitung (für alle Agen
 agent starts and which files several lanes share: `docs/STUDIO_AGENT_ONBOARDING.md`.
 
 **Claims.** Every agent, the Development Lead and a Coordinator included, claims its work before
-it starts: a comment in the issue and a row in the claim table of the workstream's overview issue
-(surface, branch, state). Before claiming it checks that table and the open pull requests and
-branches, so that no work is done twice. It releases the claim on merge, handover or abandonment.
-A claim without a pushed milestone lapses after 24 hours without activity, after a question in the
-issue. Reason: Owner instruction of 2026-11-18 to avoid duplicate work
-(`docs/OWNER_DECISIONS_STUDIO_20261118.md` E8).
+it starts (Owner instruction of 2026-11-18 to avoid duplicate work,
+`docs/OWNER_DECISIONS_STUDIO_20261118.md` E8). The following details are the Lead's elaboration
+under §8 (E8): the claim is a comment in the issue and a row in the claim table of the
+workstream's overview issue (surface, branch, state); before claiming, the agent checks that table
+and the open pull requests and branches; it releases the claim on merge, handover or abandonment.
+For a claim without a pushed milestone, anyone may ask in the issue; if 24 hours then pass without
+an answer or a push, the claim lapses and another agent may take the work over. Another agent's
+active branch stays untouched without a handover (above).
 
 **Cross-workstream access.** Project-wide understanding does not imply project-wide write authority.
 A normal run owns one writable worktree; a bounded integration task may declare more surfaces, each

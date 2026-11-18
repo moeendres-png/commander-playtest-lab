@@ -270,8 +270,9 @@ Die Einschränkung „Bei Unsicherheiten nochmal mit mir zusammen planen“ (Abs
 Owner, 2026-11-18 (Session-Chat, wörtlich festgehalten in #1167, Kommentar 6992745252): „claime du
 auch bitte immer deine Arbeit wie die anderen Agenten und schreib das vielleicht als Dauerregel ins
 agents.md damit es zu keiner doppelarbeit kommt“. Umgesetzt als Dauerregel in `AGENTS.md` §11
-(„Claims“); die Einzelheiten (Prüfung vor dem Start, Freigabe, Verfall nach 24 Stunden ohne
-gepushten Meilenstein) sind Ausgestaltung des Leads nach `AGENTS.md` §8.
+(„Claims“); die Einzelheiten (Prüfung vor dem Start, Freigabe, Verfall 24 Stunden nach einer
+unbeantworteten Rückfrage bei einem Claim ohne gepushten Meilenstein, Übernahme danach) sind
+Ausgestaltung des Leads nach `AGENTS.md` §8.
 
 ## 3. Was aufgehoben, geändert oder neu ist
 
