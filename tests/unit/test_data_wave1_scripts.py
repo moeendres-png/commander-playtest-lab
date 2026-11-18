@@ -26,6 +26,7 @@ SCRIPTS = Path(__file__).resolve().parents[2] / "scripts" / "data_wave1"
 sys.path.insert(0, str(SCRIPTS))
 
 import _common as common  # noqa: E402
+import db_guard  # noqa: E402
 import derive_s1_subsets as s1_subsets  # noqa: E402
 import derive_s2_variants as s2_derive  # noqa: E402
 import derive_s3_commanders as s3_derive  # noqa: E402
@@ -1046,6 +1047,58 @@ def test_s3_validation_fails_a_duplicate_id_and_a_missing_credit_link() -> None:
 
 
 # ---------------------------------------------------------------------------------------------
+# store guard
+# ---------------------------------------------------------------------------------------------
+
+
+def test_the_guard_passes_when_only_the_allowed_table_changes(tmp_path: Path) -> None:
+    db = make_store(tmp_path / "studio.sqlite3", [("cmr", "1", "en")], ["oid-1"])
+    before = db_guard.snapshot(db)
+    assert before["integrity_check"] == ["ok"]
+    assert before["foreign_key_check_rows"] == 0
+    assert before["tables"]["card"]["rows"] == 1
+    connection = sqlite3.connect(db)
+    connection.execute("INSERT INTO card_printing VALUES (9, 'mh2', '2', 'en')")
+    connection.commit()
+    connection.close()
+    after = db_guard.snapshot(db)
+    lines, failures = db_guard.compare(before, after, {"card_printing"})
+    assert failures == []
+    assert "  card_printing: rows 1 -> 2, content changed" in lines
+    _lines, strict = db_guard.compare(before, after, set())
+    assert strict == ["table card_printing changed but is not in --allow-changed"]
+
+
+def test_the_guard_fails_on_a_schema_change_or_a_changed_oracle_id_map(tmp_path: Path) -> None:
+    db = make_store(tmp_path / "studio.sqlite3", [], ["oid-1"])
+    before = db_guard.snapshot(db)
+    connection = sqlite3.connect(db)
+    connection.execute("UPDATE card SET oracle_id = 'oid-2'")
+    connection.execute("CREATE TABLE extra (x INTEGER)")
+    connection.commit()
+    connection.close()
+    _lines, failures = db_guard.compare(before, db_guard.snapshot(db), {"card", "extra"})
+    assert "the schema changed" in failures
+    assert "the card to oracle id map changed" in failures
+
+
+def test_the_guard_commands_write_and_compare_snapshots_without_touching_the_store(
+    tmp_path: Path,
+) -> None:
+    db = make_store(tmp_path / "studio.sqlite3", [], ["oid-1"])
+    content = db.read_bytes()
+    first, second = tmp_path / "a.json", tmp_path / "b.json"
+    assert db_guard.main(["snapshot", "--db", str(db), "--out", str(first)]) == 0
+    assert db_guard.main(["snapshot", "--db", str(db), "--out", str(second)]) == 0
+    assert db_guard.main(["compare", str(first), str(second)]) == 0
+    assert db.read_bytes() == content
+    assert (
+        db_guard.main(["snapshot", "--db", str(tmp_path / "none.sqlite3"), "--out", str(first)])
+        == 2
+    )
+
+
+# ---------------------------------------------------------------------------------------------
 # what the scripts must never do
 # ---------------------------------------------------------------------------------------------
 
@@ -1059,7 +1112,7 @@ def test_the_network_guard_of_this_file_works() -> None:
 
 def test_no_script_sends_a_project_repository_or_person_identity() -> None:
     sources = {path.name: path.read_text(encoding="utf-8") for path in sorted(SCRIPTS.glob("*.py"))}
-    assert len(sources) == 11
+    assert len(sources) == 12
     assert common.USER_AGENT == "mtg-deck-tool/1.0 (local research script)"
     for name, text in sources.items():
         assert "github.com" not in text, name
