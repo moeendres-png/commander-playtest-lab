@@ -1,0 +1,215 @@
+{
+ "historical_run_note": "Manifest des Welle-1-Laufs vom 2026-11-18 (Hilfs-Agent-Lauf in einem fluechtigen Arbeitsverzeichnis), nur um Pfade bereinigt. Die Rohdaten und Ableitungen liegen nicht im Repository. Wiederholbare Fassung der Skripte: scripts/data_wave1/fetch_s2_spellbook.py, derive_s2_variants.py, validate_s2.py (Ablauf in RUNBOOK.md). Die im Manifest genannten Hilfsskripte (collect_scripts, collect_scripts_w1) existieren nur im fluechtigen Arbeitsverzeichnis des Laufs; ihre Logik ist in scripts/data_wave1/ uebernommen.",
+ "package": "S2 Commander-Spellbook-Bulk",
+ "source": {
+  "url": "https://json.commanderspellbook.com/variants.json.gz",
+  "publisher": "Commander Spellbook (Quelle laut Plan)",
+  "source_id": "ungeklaert",
+  "http_status": 200,
+  "content_type": "application/json (Header); Bytes sind gzip (Magic 1f8b)",
+  "content_encoding_header": "gzip (curl ohne --compressed, Rohbytes gespeichert)",
+  "etag": "\"69d9da3cc93981c1236522d5e30be197\"",
+  "last_modified": "Wed, 18 Nov 2026 22:13:29 GMT",
+  "timestamp_in_file": "2026-11-18T22:13:17.179328+00:00",
+  "version_in_file": "7.4.4",
+  "source_id_note": "Kein Register-Eintrag fuer das Bulk-Bundle bestaetigt. Kandidat in data/provenance/source_inventory.json (nur gelesen): spellbook:variants-api (Register-Status VERIFIED, beschreibt aber die REST-API backend.commanderspellbook.com, nicht das Bulk json.commanderspellbook.com; laut data_plan.md Problem 2 ueberholt). Zuordnung durch Owner/Lead; hier nicht erfunden."
+ },
+ "raw": {
+  "path": "raw/variants.json.gz",
+  "bytes": 32664289,
+  "sha256_compressed": "fcaab1e1252077de9677ee22985c2ff9e137072ee71d1fcb5df3354b06ff39a2",
+  "decompressed_bytes": 743920732,
+  "gzip_test": "ok (gzip -t)"
+ },
+ "derived": {
+  "files": [
+   {
+    "path": "derived/variants_wug.jsonl",
+    "lines": 31544,
+    "rows_in": 123315,
+    "rows_out": 31544,
+    "bytes": 49593945,
+    "sha256": "d0f0df24688cd2e52c65c0d5cd9275414c64ce2328b6dfeb433a03bdb46d59d4",
+    "data_class": "Kartenfakten",
+    "filter": "identity subset of {W,U,G,C} (C = farblos)",
+    "cohort_scope": "keine (Kartenfakten)",
+    "version": 2
+   },
+   {
+    "path": "derived/aliases.jsonl",
+    "lines": 6397,
+    "rows_in": 6397,
+    "rows_out": 6397,
+    "bytes": 349973,
+    "sha256": "31dc27bf2ddea74e81067e6062da66dc62d1fb7dd0de9eaa1eefba362670260c",
+    "data_class": "Kartenfakten",
+    "note": "echte Aliastabelle: alte Varianten-ID -> aktuelle variant-ID; variant_id null bei 6.278 (Alias ohne Ziel), gesetzt bei 119",
+    "aliases_with_target": 119
+   },
+   {
+    "path": "derived/variants_wug_coverage_counts.json",
+    "bytes": 1072,
+    "sha256": "ca2ec616cd648165f8722c318e45482b4eca6ac06dc1f6ca64f3ac1c3e84b163",
+    "data_class": "Zaehlung (Sammlungsbezug, ausserhalb der Kartenfakten)"
+   }
+  ],
+  "filter": "identity subset of {W,U,G,C} (C = farblos)",
+  "cohort_scope": "keine (Kartenfakten)",
+  "data_class": "Kartenfakten",
+  "dropped_fields": [
+   "prices",
+   "salt",
+   "saltVoteCount",
+   "popularity",
+   "variantCount",
+   "description",
+   "notes",
+   "image URIs",
+   "purchase_uris (nicht vorhanden)",
+   "cards_all_in_collection (Fassung 1, Sammlungsbezug)",
+   "legalities_commander (Fassung 1, Dublette von commander_legal)"
+  ],
+  "field_mapping_source_to_derived": {
+   "of": "generates (Liste von Kombo-Datensatz-IDs, die diese Variante erzeugen; KEINE Aliase)",
+   "includes": "includes_combos (Liste enthaltener Kombo-Datensatz-IDs; KEINE Aliase)",
+   "aliases (oberste Ebene der Rohdatei, 6.397 Eintraege)": "derived/aliases.jsonl {alias_id, variant_id}",
+   "legalities.commander": "commander_legal",
+   "bracketTag": "bracket_tag (roh, unverarbeitet)",
+   "uses[].card.oracleId": "cards[].oracle_id"
+  },
+  "kept_alias_fields": null,
+  "bracket_tag_note": "roh behalten. Werte (WUG): E 23.210, S 3.940, R 2.722, P 592, B 503, O 463, C 114. Belegt: B <=> nicht commander-legal (503/503). Legende der uebrigen Buchstaben nicht belegt: Schaetzung der Quelle je Kombo, kein erklaertes Deck-Bracket; nie mit der Bracket-Kohorte der Decks mischen, bis die Legende aus der Quelldoku belegt ist."
+ },
+ "counts": {
+  "timestamp": "2026-11-18T22:13:17.179328+00:00",
+  "version": "7.4.4",
+  "variants_total": 123315,
+  "commander_legal_total": 121792,
+  "wug_rows": 31544,
+  "wug_commander_legal": 31041,
+  "status_values": {
+   "OK": 122972,
+   "E": 343
+  },
+  "wug_bracket_tag_values": {
+   "E": 23210,
+   "S": 3940,
+   "B": 503,
+   "R": 2722,
+   "P": 592,
+   "O": 463,
+   "C": 114
+  },
+  "aliases_rows": 6397,
+  "aliases_with_target": 119,
+  "aliases_duplicate_ids": 0,
+  "forbidden_key_hits_in_output": {},
+  "top_level_keys_variant": [
+   "bracketTag",
+   "description",
+   "easyPrerequisites",
+   "id",
+   "identity",
+   "includes",
+   "legalities",
+   "manaNeeded",
+   "manaValueNeeded",
+   "notablePrerequisites",
+   "notes",
+   "of",
+   "popularity",
+   "prices",
+   "produces",
+   "requires",
+   "salt",
+   "saltVoteCount",
+   "spoiler",
+   "status",
+   "uses",
+   "variantCount"
+  ],
+  "note": "wug_all_cards_in_collection (4) der Fassung 1 entfernt: Sammlungsbezug steht in coverage (Sinnzahlen), nicht in den Kartenfakten"
+ },
+ "terms_url": null,
+ "terms_checked_utc": null,
+ "license_status": "ungeklaert: Datenlizenz der Inhalte auf den gelesenen Seiten nicht belegt (Register nennt CC BY 4.0, nicht belegt); keine Kombo-Daten ins Repo vor Klaerung (data_plan.md F4)",
+ "user_agent": "mtg-deck-tool/1.0 (local research script)",
+ "accept": "*/*",
+ "personal_data": "none",
+ "automatic_import": false,
+ "repo_commit_read": "dced77b8d3a1fc0a693c33bccf41cdba6f46867f",
+ "requests_made": 1,
+ "request_limit": 1,
+ "backend_commanderspellbook_requests": 0,
+ "raw_retained": true,
+ "terms_status": "ungeklaert: Auflagen-Lauf ohne Netzwerk; Bedingungen des Bulk-Exports nicht geprueft",
+ "coverage_for_builder": {
+  "file": "derived/variants_wug_coverage_counts.json",
+  "N": 30941,
+  "population": "WUG-Varianten, commander_legal und status OK",
+  "buildable_complete": 4,
+  "buildable_missing_1": 226,
+  "complete_or_missing_1": 230,
+  "missing_1_without_requires": 207,
+  "missing_1_distinct_missing_cards": 123,
+  "at_least_1_collection_card": 4495,
+  "missing_cards_distribution_N": {
+   "0": 4,
+   "1": 226,
+   "2": 3623,
+   "3": 16205,
+   ">=4": 10883
+  },
+  "with_chulane": {
+   "variants_in_N": 56,
+   "complete": 3,
+   "missing_1": 17,
+   "missing_2plus": 36
+  },
+  "must_be_commander_variants_in_N": 249,
+  "reading": "Nicht '4 von 31.544': 3.614 verschiedene Karten in N, nur 181 in der Sammlung; bei 3-4 Pflichtkarten je Variante ist Vollabdeckung selten (4 vollstaendig, 226 bis auf 1 Karte)."
+ },
+ "reference_check": {
+  "reference_file": "data/meta/spellbook_combos.json (nur gelesen)",
+  "id_regex": "/combo/([\\d-]+)  (volle ID inkl. >= 4 Segmenten und Endung --N)",
+  "ref_ids": 16565,
+  "ref_ids_found_in_wug": 16560,
+  "card_set_equal": 16559,
+  "card_set_differs": 1,
+  "differing_ids": [
+   "3314-4377-5238"
+  ],
+  "differing_note": "3314-4377-5238: handgepflegter Chulane-Eintrag, dritte Karte als any_of: gewollt",
+  "new_vs_v1_derivation": {
+   "rows_compared": 31544,
+   "rows_equal_after_rename": 31544,
+   "rows_different": 0,
+   "fields_different": {}
+  },
+  "scripts_v1_defect": "s2_check.py/s2_check_all.py v1 lasen (\\d+-\\d+-\\d+) und schnitten IDs ab -> 12 Scheinabweichungen"
+ },
+ "superseded": [
+  {
+   "path": "derived/variants_wug.jsonl",
+   "sha256": "d97d74f57544c545273bff373a5bbaec066136b661078d11832bd79f6e3b7756",
+   "kept_copy": "superseded/variants_wug.jsonl",
+   "status": "superseded",
+   "reason": "of/includes falsch als alias_of/alias_includes benannt, Aliastabelle fehlte, Sammlungsfeld und Dublette enthalten"
+  },
+  {
+   "path": "MANIFEST.json",
+   "sha256": "e61ba3b8638c6c30ef8337894b9aa6376ca6ecbedb72dbe077ad8d8fc5f0225f",
+   "kept_copy": "superseded/MANIFEST.json",
+   "status": "superseded",
+   "reason": "Auflagen Welle 1"
+  }
+ ],
+ "w1_revision": {
+  "utc": "2026-11-18T22:31:45Z",
+  "network_access": "none",
+  "requests_added": 0,
+  "scripts": "collect_scripts_w1/s2_derive_v2.py, s2_check.py, s2_coverage.py, s2_manifest_w1.py (alte Fassungen: collect_scripts/v1_superseded)",
+  "note": "Neu abgeleitet aus raw/variants.json.gz (SHA-256 unveraendert); keine neue Anfrage"
+ },
+ "script_historical": "collect_scripts/s2_fetch.sh (Abruf), collect_scripts_w1/ (Ableitung Fassung 2, Pruefung, Sinnzahlen; ausserhalb Repo)"
+}
