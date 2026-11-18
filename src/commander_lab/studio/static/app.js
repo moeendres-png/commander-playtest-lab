@@ -1738,64 +1738,107 @@ function renderTokens(body) {
       h("span", {}, `Nicht ableitbare Erzeuger (unbekannt): ${StudioUI.num(c.unresolved_creator_cards || 0, 0)}`)
     );
 
-    const tokenSection = tokenList.length
-      ? h("div", { class: "table-wrap" }, h("table", {},
-          h("thead", {}, h("tr", {},
-            h("th", {}, "Token"),
-            h("th", {}, "Typ"),
-            h("th", { class: "num" }, "P/T"),
-            h("th", {}, "Farben"),
-            h("th", {}, "Regeltext"),
-            h("th", {}, "Erzeugende Karten im Deck")
-          )),
-          h("tbody", {}, ...tokenList.map((t) => h("tr", {},
-            h("td", {}, h("b", {}, t.name)),
-            h("td", {}, t.type_line || "–"),
-            h("td", { class: "num" }, t.pt || "–"),
-            h("td", {}, t.colors || "farblos"),
-            h("td", { class: "muted" }, t.oracle_text || (t.detail_status === "PARTIAL_ALL_PARTS" ? "Detaildaten nicht im lokalen Token-Bestand" : "–")),
-            h("td", {}, ...(t.creating_cards || []).map((cr, idx) => {
-              const cardObj = state.byId.get(cr.card_id);
-              const link = h("button", {
-                type: "button",
-                class: "link",
-                onclick: () => { if (cardObj) openCard(cardObj); },
-              }, `${cr.name}${cr.quantity > 1 ? ` (${StudioUI.num(cr.quantity, 0)}x)` : ""}`);
-              return idx > 0 ? h("span", {}, ", ", link) : link;
-            }))
-          )))
-        ))
-      : h("p", { class: "muted" }, "Keine aufgelösten Token-Verknüpfungen für die aktuellen Deck-Karten im lokalen Scryfall-Snapshot.");
+    let onlyCreatureCreators = Boolean(state.tokenCreatureOnly);
+    const bodyHost = h("div", {});
 
-    const unresolvedSection = unresolved.length
-      ? h("div", { class: "section" },
-          h("h4", {}, `Nicht ableitbare Token-Erzeuger (${StudioUI.num(unresolved.length, 0)} Karten — Status: unbekannt)`),
-          h("div", { class: "table-wrap" }, h("table", {},
+    const drawTokensBody = () => {
+      const shownTokens = onlyCreatureCreators
+        ? tokenList.filter((t) => Boolean(t.has_creature_creator))
+        : tokenList;
+
+      const filterBar = h("div", { class: "chips", role: "group", "aria-label": "Token-Erzeuger filtern" },
+        h("button", {
+          type: "button",
+          class: "chip" + (onlyCreatureCreators ? " on" : ""),
+          "aria-pressed": String(onlyCreatureCreators),
+          title: "Zeigt nur Token-Typen, die mindestens eine Kreatur im Deck erzeugt (relevant für Kreaturen-Zauber-Auslöser wie Chulane)",
+          onclick: () => {
+            onlyCreatureCreators = !onlyCreatureCreators;
+            state.tokenCreatureOnly = onlyCreatureCreators;
+            drawTokensBody();
+          },
+        }, "nur Kreaturen-Erzeuger"),
+        onlyCreatureCreators
+          ? h("span", { class: "muted" }, `${StudioUI.num(shownTokens.length, 0)} von ${StudioUI.num(tokenList.length, 0)} Token-Typen`)
+          : null
+      );
+
+      const tokenSection = shownTokens.length
+        ? h("div", { class: "table-wrap" }, h("table", {},
             h("thead", {}, h("tr", {},
-              h("th", {}, "Karte"),
-              h("th", { class: "num" }, "Menge"),
-              h("th", {}, "Status"),
-              h("th", {}, "Grund")
+              h("th", {}, "Token"),
+              h("th", {}, "Typ"),
+              h("th", { class: "num" }, "P/T"),
+              h("th", {}, "Farben"),
+              h("th", {}, "Regeltext"),
+              h("th", {}, "Auslöser"),
+              h("th", {}, "Erzeugende Karten im Deck")
             )),
-            h("tbody", {}, ...unresolved.map((u) => {
-              const cardObj = state.byId.get(u.card_id);
+            h("tbody", {}, ...shownTokens.map((t) => {
+              const totalCreators = Number(t.creator_count || (t.creating_cards || []).length || 0);
+              const creatureCreators = Number(t.creature_creator_count || 0);
+              const triggerText = creatureCreators > 0
+                ? `Kreatur (${StudioUI.num(creatureCreators, 0)}/${StudioUI.num(totalCreators, 0)})`
+                : `Nicht-Kreatur (0/${StudioUI.num(totalCreators, 0)})`;
               return h("tr", {},
-                h("td", { class: "name", onclick: () => { if (cardObj) openCard(cardObj); } }, u.name),
-                h("td", { class: "num" }, StudioUI.num(u.quantity, 0)),
-                h("td", {}, "unbekannt"),
-                h("td", { class: "muted" }, u.reason)
+                h("td", {}, h("b", {}, t.name)),
+                h("td", {}, t.type_line || "–"),
+                h("td", { class: "num" }, t.pt || "–"),
+                h("td", {}, t.colors || "farblos"),
+                h("td", { class: "muted" }, t.oracle_text || (t.detail_status === "PARTIAL_ALL_PARTS" ? "Detaildaten nicht im lokalen Token-Bestand" : "–")),
+                h("td", { title: creatureCreators > 0 ? "Mindestens ein Erzeuger ist ein Kreaturen-Zauberspruch" : "Kein Erzeuger ist ein Kreaturen-Zauberspruch" },
+                  h("span", { class: "badge" + (creatureCreators > 0 ? "" : " dim") }, triggerText)
+                ),
+                h("td", {}, ...(t.creating_cards || []).map((cr, idx) => {
+                  const cardObj = state.byId.get(cr.card_id);
+                  const label = `${cr.name}${cr.quantity > 1 ? ` (${StudioUI.num(cr.quantity, 0)}x)` : ""}${cr.is_creature ? " [Kreatur]" : ""}`;
+                  const link = h("button", {
+                    type: "button",
+                    class: "link",
+                    title: cr.is_creature ? "Kreaturen-Zauberspruch" : "Kein Kreaturen-Zauberspruch",
+                    onclick: () => { if (cardObj) openCard(cardObj); },
+                  }, label);
+                  return idx > 0 ? h("span", {}, ", ", link) : link;
+                }))
               );
             }))
           ))
-        )
-      : h("p", { class: "muted" }, "Keine unaufgelösten Token-Erzeuger im aktuellen Deck (0 Karten mit Status unbekannt).");
+        : h("p", { class: "muted" }, onlyCreatureCreators
+            ? "Keine Token-Verknüpfung durch eine Kreaturen-Karte im aktuellen Deck."
+            : "Keine aufgelösten Token-Verknüpfungen für die aktuellen Deck-Karten im lokalen Scryfall-Snapshot.");
 
+      const unresolvedSection = unresolved.length
+        ? h("div", { class: "section" },
+            h("h4", {}, `Nicht ableitbare Token-Erzeuger (${StudioUI.num(unresolved.length, 0)} Karten — Status: unbekannt)`),
+            h("div", { class: "table-wrap" }, h("table", {},
+              h("thead", {}, h("tr", {},
+                h("th", {}, "Karte"),
+                h("th", { class: "num" }, "Menge"),
+                h("th", {}, "Status"),
+                h("th", {}, "Grund")
+              )),
+              h("tbody", {}, ...unresolved.map((u) => {
+                const cardObj = state.byId.get(u.card_id);
+                return h("tr", {},
+                  h("td", { class: "name", onclick: () => { if (cardObj) openCard(cardObj); } }, u.name),
+                  h("td", { class: "num" }, StudioUI.num(u.quantity, 0)),
+                  h("td", {}, "unbekannt"),
+                  h("td", { class: "muted" }, u.reason)
+                );
+              }))
+            ))
+          )
+        : h("p", { class: "muted" }, "Keine unaufgelösten Token-Erzeuger im aktuellen Deck (0 Karten mit Status unbekannt).");
+
+      bodyHost.replaceChildren(filterBar, tokenSection, unresolvedSection);
+    };
+
+    drawTokensBody();
     wrap.replaceChildren(
       h("h3", {}, "Token-Übersicht (lokaler Scryfall-Snapshot)"),
       h("p", { class: "muted" }, "Abgeleitet aus den all_parts-Token-Verknüpfungen und Token-Datensätzen des lokalen Scryfall-Snapshots (offline, ohne Netz-Abfrage). Karten ohne ableitbare Verknüpfung werden als unbekannt ausgewiesen und nie geraten."),
       summaryBar,
-      tokenSection,
-      unresolvedSection
+      bodyHost
     );
   }).catch((err) => {
     wrap.replaceChildren(h("p", { class: "bad" }, StudioUI.germanError(err)));
