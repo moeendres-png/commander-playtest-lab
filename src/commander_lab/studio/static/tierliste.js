@@ -103,6 +103,7 @@ const STRENGTH_KEY = "studio.strength.settings";
 const SORT_KEY = "studio.tier.sort";
 const PRESET_KEY = "studio.tier.preset";
 const COMPARE_KEY = "studio.tier.compare";
+const TIER_MODE_KEY = "studio.tier.mode";
 const METHOD_KEY = "studio.tier.method-open";
 const COMPACT_BELOW = 1500; // px: narrower windows start with the compact column set
 const STRENGTH_NOTE = "Der Stärke-Index ist eine Schätzung aus Nutzungssignalen (wie oft die Karte bei diesem Commander, im Bracket, in den gewählten Decklisten und in Turnierlisten gespielt wird). Er ist keine gemessene Siegrate. Eine Karte, die eine Quelle nicht nennt, senkt die Datenlage, nie die Karte. Favoriten, Ausschlüsse und Notizen fließen nicht ein.";
@@ -412,7 +413,8 @@ function gameCell(card) {
   const brought = atlas.times_brought === null ? "n unbekannt" : `n = ${nf(atlas.times_brought)}`;
   const gap = atlas.observed_winrate_gap_pp === null ? null : `Differenz ${atlas.observed_winrate_gap_pp > 0 ? "+" : ""}${StudioUI.numFlex(atlas.observed_winrate_gap_pp, 2)} Pp`;
   const ci = atlas.ci_95_lower_pp === null || atlas.ci_95_upper_pp === null ? null : ` (95 %: ${StudioUI.numFlex(atlas.ci_95_lower_pp, 2)} bis ${StudioUI.numFlex(atlas.ci_95_upper_pp, 2)})`;
-  return h("span", { title: "Playgroup.gg (CC BY 4.0), alle Commander, nur Live-Partien. Beobachteter Zusammenhang, keine kausale Kartenstärke." }, brought, gap ? ` · ${gap}` : "", ci || "", atlas.insufficient_sample ? h("span", { class: "badge warn" }, "kleine Stichprobe") : null);
+  const turn = atlas.median_cast_turn === null || atlas.median_cast_turn === undefined ? null : `Zug ~${StudioUI.numFlex(atlas.median_cast_turn, 1)}`;
+  return h("span", { title: "Playgroup.gg (CC BY 4.0), alle Commander, nur Live-Partien. Beobachteter Zusammenhang (mit Zug-Timing gegen Survival-Verzerrung), keine kausale Kartenstärke." }, brought, gap ? ` · ${gap}` : "", ci || "", turn ? ` · ${turn}` : "", atlas.insufficient_sample ? h("span", { class: "badge warn" }, "kleine Stichprobe") : null);
 }
 function simCell(card) {
   const sim = layer(card, "simulated_result");
@@ -458,14 +460,21 @@ function borderlineMark(item) {
   if (!item.borderline) return null;
   return h("span", { class: "borderline", title: `grenzwertig: ${StudioUI.num(item.cut_distance, 1)} Punkte von der Grenze ${StudioUI.numFlex(item.borderline_cut, 1)}. Eine kleine Änderung der Gewichte kann die Stufe ändern.` }, "grenzwertig");
 }
+function unsharpMark(item) {
+  if (!item.unscharf) return null;
+  const alts = (item.tier_alternatives || []).map((a) => `${a.tier}: ${nf(a.count)}/${nf(item.tier_stability_variants)}`).join(", ");
+  const stab = item.tier_stability !== null && item.tier_stability !== undefined ? `${StudioUI.pct(item.tier_stability, 0)} (${nf(item.tier_stability_kept)}/${nf(item.tier_stability_variants)})` : "";
+  return h("span", { class: "unsharp", title: `unscharf: Stufe bleibt nur in ${stab} der Gewichtsvarianten${alts ? ` (${alts})` : ""}.` }, "unscharf");
+}
 // One plain sentence per row (tooltip of the tier badge): tier, source-deck share, best function rank, data situation.
 function rowSummary(item) {
-  const parts = [`Stufe ${item.tier}, Index ${StudioUI.num(item.index, 1)}`];
+  const parts = [`Stufe ${item.tier}${item.relative_tier && item.relative_tier !== item.tier ? ` (relativ im Pool ${item.relative_tier})` : ""}, Index ${StudioUI.num(item.index, 1)}`];
   const counts = deckCounts(item);
   if (counts) parts.push(`in ${nf(counts.n)} von ${nf(counts.N)} Quelldecks (${StudioUI.pct(counts.n / counts.N, 1)})`);
   const best = Object.entries(item.role_ranks || {}).sort((a, b) => a[1].rank - b[1].rank)[0];
   if (best) parts.push(`Rang ${nf(best[1].rank)} von ${nf(best[1].total)} in der Funktion ${roleName(best[0])}`);
   if (item.confidence !== null && item.confidence !== undefined) parts.push(`Datenlage ${CONF_WORDS[item.confidence_level] || item.confidence_level}`);
+  if (item.unscharf && item.tier_stability !== null && item.tier_stability !== undefined) parts.push(`unscharf (${StudioUI.pct(item.tier_stability, 0)})`);
   return `${parts.join("; ")}.`;
 }
 function strengthCell(card) {
@@ -477,7 +486,9 @@ function strengthCell(card) {
   const title = `${rowSummary(item)} Schätzung aus Nutzungssignalen, keine Siegrate. Abdeckung ${StudioUI.num(100 * item.coverage, 0)} %, ${nf(item.present)} Signale vorhanden.`;
   if (item.tier === "N") return neutral(item.note, `${item.note}: Commander und Standardländer bekommen keine Stufe.`);
   if (item.tier === "U") return unknownCell(card, item);
-  return h("span", { class: "tcell" }, tierBadge(item.tier, StudioUI.num(item.index, 1), title), confidenceMark(item), borderlineMark(item));
+  const shownTier = state.tierMode === "relative" && item.relative_tier ? item.relative_tier : item.tier;
+  const relNote = state.tierMode === "relative" && item.relative_tier ? h("span", { class: "rule", title: `Absolute Stufe: ${item.tier}` }, `abs ${item.tier}`) : null;
+  return h("span", { class: "tcell" }, tierBadge(shownTier, StudioUI.num(item.index, 1), title), relNote, confidenceMark(item), borderlineMark(item), unsharpMark(item));
 }
 function datenlageCell(card) {
   const item = strengthItem(card);
@@ -924,6 +935,13 @@ function whyBox(card) {
     lines.push(item.index < 5 ? `Index unter 5: die Aufteilung in Punkte wäre zu ungenau. Größte Beiträge, ohne Zahlen: ${order}.` : `Größte Beiträge, ohne Zahlen: ${order}.`);
   }
   lines.push(`Datenlage: ${confidenceText(item)}.${item.borderline ? ` Grenzwertig: ${StudioUI.num(item.cut_distance, 1)} Punkte von der Grenze ${StudioUI.numFlex(item.borderline_cut, 1)}.` : ""}`);
+  if (item.relative_tier) lines.push(`Relativ im Commander-Pool: Stufe ${item.relative_tier} (im Vergleich zu S–F nach Perzentilen im Pool).`);
+  if (item.tier_stability !== null && item.tier_stability !== undefined) {
+    const alts = (item.tier_alternatives || []).length > 1
+      ? ` Alternativen: ${item.tier_alternatives.map((a) => `${a.tier} (${nf(a.count)}/${nf(item.tier_stability_variants)})`).join(", ")}.`
+      : "";
+    lines.push(`Stabilität bei Gewichts-Variation: ${StudioUI.pct(item.tier_stability, 0)} (${nf(item.tier_stability_kept)}/${nf(item.tier_stability_variants)} Varianten)${item.unscharf ? " — unscharf (< 80 %)" : ""}.${alts}`);
+  }
   box.append(h("ul", { class: "why-list" }, lines.map((line) => h("li", {}, line))), h("p", { class: "rule" }, "Die Stufe zeigt Nutzung in Decks, keine Spielstärke."));
   return box;
 }
@@ -1272,7 +1290,7 @@ function tierHeader(result) {
       neutral(`N ${nf(counts.N || 0)}`, "nicht bewertet: Commander und Standardländer, wenn sie nicht bewertet werden")),
     distributionTable(result),
     h("div", { class: "rule", id: "corpus-line" }, corpusLine(result)),
-    h("div", { class: "rule", id: "borderline-line" }, `grenzwertig (näher als ${StudioUI.numFlex(result.settings.borderline_distance, 3)} Punkte an einer Stufengrenze): ${nf(result.borderline_count)} Karten. ${CONFIDENCE_TEXT}`))];
+    h("div", { class: "rule", id: "borderline-line" }, `grenzwertig (näher als ${StudioUI.numFlex(result.settings.borderline_distance, 3)} Punkte an einer Stufengrenze): ${nf(result.borderline_count)} Karten${result.stability ? ` · unscharf (< 80 % der Varianten): ${nf(result.stability.unscharf_count)}/${nf(result.stability.evaluated_cards)}` : ""}. ${CONFIDENCE_TEXT}`))];
 }
 function snapshotBadge(result) {
   const snap = result.snapshot;
@@ -1310,10 +1328,12 @@ function renderStrengthSummary() {
     .map((text) => h("div", { class: "badge warn badge-text" }, text));
   const ambiguous = result.ambiguous_names || [];
   const shown = ambiguous.slice(0, 10).map((item) => `${item.name} (${item.candidates.join(" / ")})`).join("; ");
+  const families = Array.isArray(result.weight_families) ? result.weight_families.filter((f) => f.share > 0) : [];
   box.replaceChildren(
     ...tierHeader(result),
     snapNode,
     h("span", { class: "muted" }, `von ${nf(result.cards.length)} Karten · ${universeText} · Quellen vorhanden: ${nf(result.collected.length)}/${nf(possible)}`),
+    ...(families.length ? [h("div", { class: "rule", id: "weight-families-line" }, `Gewichtungs-Familien: ${families.map((f) => `${f.label} ${StudioUI.pct(f.share, 0)}`).join(" · ")}`)] : []),
     ...notices,
     ...(result.layer_summary ? result.layer_summary.layers.filter((item) => item.source_discrepancies > 0).map((item) => h("div", { class: "rule" }, `${item.label}: bei ${nf(item.source_discrepancies)} Karten nennt die Quelle einen anderen Prozentwert als Zähler/Nenner; die Zelle zeigt Zähler/Nenner, der genannte Wert steht im Tooltip.`)) : []),
     ...(result.layer_summary ? [h("div", { class: "rule", title: `${result.layer_summary.measured_note} ${result.layer_summary.pod_note}` }, `Ebenen (eigene Spalten): ${result.layer_summary.layers.map((item) => `${item.label} ${nf(item.with_value)}/${nf(item.pool_cards)} (${LAYER_KIND_SHORT[item.kind] || item.kind})`).join(" · ")}${result.layer_summary.weighted.length ? `. Im Index mit Gewicht: ${result.layer_summary.weighted.map((key) => (layerMetas().find((meta) => meta.key === key) || { label: key }).label).join(", ")}` : ". Keine Ebene hat ein Gewicht: die Stufen entsprechen dem Index ohne Ebenen"}`)] : []),
@@ -1915,6 +1935,22 @@ async function init() {
   }
   for (const btn of document.querySelectorAll("#rank-group-toggle button[data-rank-group]")) {
     btn.addEventListener("click", () => setQuickRankGroup(btn.getAttribute("data-rank-group")).catch((error) => fail(error)));
+  }
+  const syncTierMode = () => {
+    for (const btn of document.querySelectorAll("#tier-mode-toggle button[data-tier-mode]")) {
+      const active = btn.getAttribute("data-tier-mode") === state.tierMode;
+      btn.classList.toggle("on", active);
+      btn.setAttribute("aria-pressed", String(active));
+    }
+  };
+  syncTierMode();
+  for (const btn of document.querySelectorAll("#tier-mode-toggle button[data-tier-mode]")) {
+    btn.addEventListener("click", () => {
+      state.tierMode = btn.getAttribute("data-tier-mode") === "relative" ? "relative" : "absolute";
+      StudioUI.remember(TIER_MODE_KEY, state.tierMode);
+      syncTierMode();
+      render(false);
+    });
   }
   document.addEventListener("keydown", trapModalFocus);
   renderTabs();

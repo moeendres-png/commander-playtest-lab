@@ -64,6 +64,11 @@
     <button id="rg-pool" type="button" class="chip" data-rank-group="pool" title="Stufe und Index gelten im gesamten legalen Pool des Commanders">Gesamtpool</button>
     <button id="rg-function" type="button" class="chip" data-rank-group="function" title="Zusätzlich den Rang innerhalb der gleichen Funktion (Rolle) zeigen: Rang k von n. Die Stufe bleibt die Stufe im Gesamtpool.">Gleiche Funktion</button>
   </span>
+  <span id="tier-mode-toggle" class="quick-toggle" role="group" aria-label="Stufen-Bezug">
+    <span class="toggle-label">Stufe:</span>
+    <button id="tm-abs" type="button" class="chip" data-tier-mode="absolute" title="Absolute Stufen S bis D aus dem Stärke-Index">Absolut (S–D)</button>
+    <button id="tm-rel" type="button" class="chip" data-tier-mode="relative" title="Relative Stufen S bis F nach Perzentilen innerhalb des Commander-Pools">Relativ (S–F)</button>
+  </span>
   <label><input id="f-free" type="checkbox" checked> nur freie</label>
   <label><input id="f-fav" type="checkbox"> Favoriten</label>
   <label><input id="f-excl" type="checkbox"> Ausgeschlossene zeigen</label>
