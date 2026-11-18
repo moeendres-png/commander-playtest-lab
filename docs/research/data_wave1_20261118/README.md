@@ -13,7 +13,7 @@ nötig ist, um die Sammlung dort zu wiederholen und nachzuvollziehen.
 | `PLAN.md` | Abschnitte C (Lückenliste, Zugangsstatus der Quellen) und D (Sammlungsplan) des Datenplans |
 | `manifests/` | Die drei Provenienz-Manifeste des Laufs (`S1_scryfall`, `S2_spellbook`, `S3_playgroup`), nur Pfade bereinigt, ohne Rohdaten |
 | `../../../scripts/data_wave1/` | Die wiederholbaren Skripte (reines Python 3, nur Standardbibliothek) |
-| `../../../tests/unit/test_data_wave1_scripts.py` | Offline-Tests der Skripte (kein Netz, eingebettete Mini-Fixtures) |
+| `../../../tests/unit/test_data_wave1_scripts.py` | Offline-Tests der Skripte (kein Netz, eingebettete Mini-Fixtures), auch gegen feindliche Antworten (Kennungen, Umleitungen, Größen) |
 
 ## 1. Ergebnis
 
@@ -21,7 +21,12 @@ Alle drei Pakete wurden am 2026-11-18 als Hilfs-Agent-Lauf gesammelt und von ein
 Prüfsitzung **abgenommen mit Auflagen** (`ACCEPTANCE.md`). Anfragen: S1 5 von höchstens 5,
 S2 1 von 1, S3 59 von höchstens 80; alle HTTP 200, kein 429 oder 403, keine Wiederholung, generische
 Kennung `mtg-deck-tool/1.0 (local research script)`. Kein Paket hat ins Repository geschrieben oder
-importiert; alle Manifeste sagen `automatic_import: false`, `personal_data: none`.
+importiert; alle Manifeste sagen `automatic_import: false`. `personal_data: none` gilt für die
+abgeleiteten Dateien. Die Rohdaten des Laufs (S2 `variants.json.gz`, S3 Rohseiten) enthalten Felder,
+die die Regeln ausschließen (Preise, Salt-Werte, `top_decks`, Eigner-Namen); die Manifeste dieses
+Laufs (`manifests/`) tragen `personal_data: none` und S2 `raw_retained: true`, ohne diesen Zusatz zu
+nennen. Seither gilt: die Skripte löschen die Rohdaten nach dem Ableiten (Standard) und vermerken in
+den Manifesten `raw_retained` und `raw_contains_excluded_fields`; `--keep-raw` hält sie.
 
 Danach wurde S1 offline in eine Kopie der Studio-DB (Stand 2026-11-16) importiert: `import-scryfall`,
 `import-rulings` (nur die Teilmenge), Tags nur als Audit. Wächter vorher und nachher: `integrity_check`
@@ -122,6 +127,13 @@ Server gefahren (kein Netz in dieser Aufgabe); sie sind mit einem nachgebildeten
 | S3-1 `cohort_scope` berichtigen | `fetch_s3_playgroup.py` schreibt „bewertete Sitze; ohne Solo-Playtests und Cube“ | erledigt |
 | S3-2 Ableitung neu: `rated_seats_*`, `wins_exceed_games`, Platzhalter, `turn_damage` mit Warnhinweis | `derive_s3_commanders.py` | erledigt |
 | S3-3 Nennungspflicht (CC BY 4.0, Link auf `playgroup_url`) in jede Anzeige | `playgroup_url` bleibt in jeder Zeile und im Manifest; die Anzeige in der Oberfläche gibt es noch nicht | **offen** (mit dem Importer, Abschnitt 5) |
+
+Härtung nach Review: Kennungen aus Antworten (Commander-ID) gehen nur als einfache positive Ganzzahl in
+Adresse und Dateiname, Zielpfade werden auf den Lauf-Ordner begrenzt; Umleitungen werden nicht
+befolgt und die liefernde Adresse (`final_url`) steht im Manifest; Rohdaten werden nach dem Ableiten
+gelöscht (Standard); Antwort- und Entpackgröße sind begrenzt; `--pause` hat eine Untergrenze; ein
+fehlender `turn_damage`-Wert ist `null`, nicht 0; `--out` von `export_collection_ids.py` und
+`db_guard.py` darf nicht im Repository liegen.
 
 Weitere Regeln des Plans, die jetzt im Code stehen (und getestet sind): Netz nur mit
 `--allow-network`; Anfragelimit je Paket (S1 5, S2 1, S3 80), Wiederholungen zählen mit; Stopp bei

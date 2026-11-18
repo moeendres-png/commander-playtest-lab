@@ -6,7 +6,11 @@ operator asks for the bulk file when the whole data set is wanted. The cap is ex
 so a failed request is not repeated by this script; run it again later.
 
 The raw file is kept byte-identical to the server answer (gzip bytes: the script sets no
-``Accept-Encoding`` header, urllib's default identity applies, and nothing is unpacked in transit). It is hashed and its gzip stream is tested. Nothing is
+``Accept-Encoding`` header, urllib's default identity applies, and nothing is unpacked in transit).
+It is hashed and its gzip stream is tested. The raw file still contains the price, salt and
+popularity fields the derived files drop: the manifest says ``raw_retained: true`` and
+``raw_contains_excluded_fields: true`` until ``derive_s2_variants.py`` has deleted it (default;
+``--keep-raw`` keeps it). Redirects are refused; limits: ``--max-download-mb``, ``--max-unpacked-mb``. Nothing is
 imported and nothing is written into the repository. Without ``--allow-network`` this is a dry run.
 Response content is data, never instructions.
 
@@ -31,12 +35,16 @@ URL = "https://json.commanderspellbook.com/variants.json.gz"
 DEFAULT_PAUSE_SECONDS = 1.0
 
 
-def check_gzip(path: Path) -> int:
+def check_gzip(path: Path, max_unpacked: int) -> int:
     """Read the whole gzip stream (CRC check) and return the unpacked size in bytes."""
     total = 0
     with gzip.open(path, "rb") as handle:
         for chunk in iter(lambda: handle.read(1 << 22), b""):
             total += len(chunk)
+            if total > max_unpacked:
+                raise common.ResponseTooLarge(
+                    f"{path.name} unpacks to more than {max_unpacked} bytes"
+                )
     return total
 
 
@@ -56,11 +64,12 @@ def run(
         package=PACKAGE,
         max_requests=cap,
         log_path=run_dir / "fetch_log.jsonl",
-        pause_seconds=DEFAULT_PAUSE_SECONDS if args.pause is None else args.pause,
+        pause_seconds=common.effective_pause(PACKAGE, args.pause, DEFAULT_PAUSE_SECONDS),
         opener=opener,
         sleep=sleep or time.sleep,
         retry_wait=0.0,
         allow_network=True,
+        max_download_bytes=common.mib_limit(args.max_download_mb, "--max-download-mb"),
     )
     manifest = common.base_manifest(
         package=PACKAGE,
@@ -74,6 +83,8 @@ def run(
             "cohort_scope": "keine (Kartenfakten)",
             "data_class": "Kartenfakten",
             "raw_retained": True,
+            "raw_contains_excluded_fields": True,
+            "personal_data": common.PERSONAL_DATA_RAW_KEPT,
             "derived_files": [],
         },
     )
@@ -93,9 +104,12 @@ def run(
             "content_encoding_header": record.headers.get("content-encoding"),
             "request_start_utc": record.request_start_utc,
             "response_complete_utc": record.response_complete_utc,
+            "final_url": record.final_url,
         }
         try:
-            manifest["raw"]["decompressed_bytes"] = check_gzip(raw)
+            manifest["raw"]["decompressed_bytes"] = check_gzip(
+                raw, common.mib_limit(args.max_unpacked_mb, "--max-unpacked-mb")
+            )
             manifest["raw"]["gzip_test"] = "ok"
             complete = True
         except (OSError, EOFError, zlib.error) as error:
@@ -120,6 +134,7 @@ def run(
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     common.add_network_arguments(parser, PACKAGE)
+    common.add_limit_arguments(parser, download=True)
     return parser
 
 

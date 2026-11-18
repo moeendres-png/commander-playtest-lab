@@ -130,8 +130,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = parser.parse_args(argv)
     try:
         if args.command == "snapshot":
+            out_path = common.assert_outside_repository(args.out)  # snapshots are owner data
             result = snapshot(args.db, immutable=args.immutable)
-            common.write_json(args.out, result)
+            common.write_json(out_path, result)
             print(
                 f"{args.db}: integrity {result['integrity_check']}, "
                 f"foreign_key_check rows {result['foreign_key_check_rows']}, "

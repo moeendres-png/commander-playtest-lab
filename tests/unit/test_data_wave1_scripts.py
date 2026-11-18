@@ -55,6 +55,11 @@ class FakeResponse:
         self.status = status
         self.headers = {"Content-Length": str(len(body)), **(headers or {})}
         self._stream = io.BytesIO(body)
+        self.final_url: str | None = None  # None: answers from the address that was asked
+        self.asked_url = ""
+
+    def geturl(self) -> str:
+        return self.final_url or self.asked_url
 
     def read(self, size: int = -1) -> bytes:
         return self._stream.read(size)
@@ -78,6 +83,8 @@ class ScriptedOpener:
         item = queue.pop(0)
         if isinstance(item, BaseException):
             raise item
+        if isinstance(item, FakeResponse):
+            item.asked_url = request.full_url
         return item
 
 
@@ -969,7 +976,7 @@ def test_s3_skip_turn_damage_and_cap_before_the_empty_page(tmp_path: Path) -> No
     assert code == 2
     assert len(opener.requests) == 2
     assert manifest["complete"] is False
-    assert "request cap reached before the first empty page" in manifest["stop_reason"]
+    assert "request cap reached" in manifest["stop_reason"]
 
 
 def test_s3_429_on_a_page_stops_without_repeating(tmp_path: Path) -> None:
@@ -1096,6 +1103,334 @@ def test_the_guard_commands_write_and_compare_snapshots_without_touching_the_sto
         db_guard.main(["snapshot", "--db", str(tmp_path / "none.sqlite3"), "--out", str(first)])
         == 2
     )
+
+
+# ---------------------------------------------------------------------------------------------
+# review round: identifiers from answers, redirects, raw files, size limits, pauses
+# ---------------------------------------------------------------------------------------------
+
+HOSTILE_IDS: list[Any] = [
+    "../x",
+    "a/b",
+    "a\\b",
+    "C:x",
+    "x/../../../../ESCAPED",
+    "",
+    " 7",
+    "7 ",
+    "\u0663",
+    True,
+    False,
+    -1,
+    0,
+    None,
+    1.5,
+    [1],
+]
+
+
+@pytest.mark.parametrize("hostile", HOSTILE_IDS, ids=repr)
+def test_positive_int_id_refuses_everything_but_a_plain_positive_integer(hostile: Any) -> None:
+    with pytest.raises(common.WaveError):
+        common.positive_int_id(hostile)
+
+
+def test_positive_int_id_accepts_integers_and_digit_strings() -> None:
+    assert common.positive_int_id(7) == 7
+    assert common.positive_int_id("2143") == 2143
+
+
+@pytest.mark.parametrize("hostile", HOSTILE_IDS, ids=repr)
+def test_s3_never_builds_an_address_or_a_file_name_from_an_unusable_commander_id(
+    tmp_path: Path, hostile: Any
+) -> None:
+    page = [dict(s3_item(1, "Chulane, Teller of Tales", 40, 20), id=hostile)]
+    code, opener, run_dir = run_s3(tmp_path / "stage", [page, []])
+    manifest = manifest_of(run_dir)
+    assert code == 2
+    assert manifest["complete"] is False
+    assert "unusable identifier" in manifest["stop_reason"]
+    assert [r.full_url.rsplit("/", 1)[-1] for r in opener.requests] == [
+        "commanders?page=1&limit=100",
+        "commanders?page=2&limit=100",
+    ]
+    written = sorted(p.relative_to(tmp_path).parts[0] for p in tmp_path.rglob("*") if p.is_file())
+    assert set(written) == {"stage"}
+    assert not (tmp_path / "ESCAPED.body").exists()
+    assert not (tmp_path / "stage" / "ESCAPED.body").exists()
+
+
+def test_safe_child_keeps_every_path_inside_the_run_folder(tmp_path: Path) -> None:
+    assert common.safe_child(tmp_path, "raw/a.body") == (tmp_path / "raw" / "a.body").resolve()
+    for relative in ("../x", "raw/../../x", "/etc/passwd", ".", ""):
+        with pytest.raises(common.WaveError):
+            common.safe_child(tmp_path, relative)
+
+
+def test_a_redirect_is_never_followed(tmp_path: Path) -> None:
+    handler = common._NoRedirect()
+    request = urllib.request.Request("https://example.org/a")
+    assert (
+        handler.redirect_request(request, io.BytesIO(b""), 302, "Found", {}, "http://evil/") is None
+    )
+
+    class Answers302(urllib.request.HTTPSHandler):
+        def https_open(self, req: urllib.request.Request) -> Any:
+            import email.message
+
+            headers = email.message.Message()
+            headers["Location"] = "http://evil.example.org/x"
+            answer = urllib.response.addinfourl(io.BytesIO(b""), headers, req.full_url, 302)
+            answer.msg = "Found"
+            return answer
+
+    opener = urllib.request.build_opener(common._NoRedirect(), Answers302())
+    with pytest.raises(urllib.error.HTTPError) as caught:
+        opener.open(request)
+    assert caught.value.code == 302
+
+
+def test_the_fetcher_stops_on_a_redirect_status_without_a_retry() -> None:
+    url = "https://example.org/a"
+    opener = ScriptedOpener(
+        {url: [http_error(url, 302, {"Location": "http://evil.example.org"}), FakeResponse(b"ok")]}
+    )
+    sleeps: list[float] = []
+    fetcher = common.Fetcher(
+        package="S3_playgroup",
+        max_requests=80,
+        log_path=None,
+        pause_seconds=1,
+        opener=opener,
+        sleep=sleeps.append,
+        allow_network=True,
+    )
+    with pytest.raises(common.FetchFailed, match="redirect"):
+        fetcher.get(url, "a")
+    assert len(opener.requests) == 1
+    assert sleeps == []
+
+
+def test_an_answer_from_another_address_is_refused_and_the_final_address_is_logged() -> None:
+    url = "https://example.org/a"
+    moved = FakeResponse(b"ok")
+    moved.final_url = "https://other.example.org/b"
+    fetcher = common.Fetcher(
+        package="S3_playgroup",
+        max_requests=80,
+        log_path=None,
+        pause_seconds=0,
+        opener=ScriptedOpener({url: [moved]}),
+        sleep=lambda _s: None,
+        allow_network=True,
+    )
+    with pytest.raises(common.FetchFailed, match="another address"):
+        fetcher.get(url, "a")
+    assert fetcher.records[0].final_url == "https://other.example.org/b"
+    assert fetcher.records[0].body is None
+    good = common.Fetcher(
+        package="S3_playgroup",
+        max_requests=80,
+        log_path=None,
+        pause_seconds=0,
+        opener=ScriptedOpener({url: [FakeResponse(b"ok")]}),
+        allow_network=True,
+    )
+    assert good.get(url, "a").final_url == url
+
+
+def test_the_s1_manifest_names_the_address_that_answered(tmp_path: Path) -> None:
+    args = parse(s1_fetch, "--allow-network", "--staging-dir", str(tmp_path), "--run-id", "r")
+    assert s1_fetch.run(args, opener=ScriptedOpener(s1_routes()), sleep=lambda _s: None) == 0
+    fetched = manifest_of(tmp_path / "S1_scryfall" / "r")["files_fetched"]
+    assert [e["final_url"] == e["url"] for e in fetched] == [True] * 5
+
+
+def test_a_response_above_the_limit_is_refused_by_header_or_by_counting(tmp_path: Path) -> None:
+    url = "https://example.org/a"
+    liar = FakeResponse(b"x" * 100)
+    liar.headers.pop("Content-Length")
+    for response in (FakeResponse(b"x" * 100), liar):
+        fetcher = common.Fetcher(
+            package="S3_playgroup",
+            max_requests=80,
+            log_path=None,
+            pause_seconds=0,
+            opener=ScriptedOpener({url: [response]}),
+            sleep=lambda _s: None,
+            allow_network=True,
+            max_download_bytes=50,
+        )
+        target = tmp_path / "a.bin"
+        with pytest.raises(common.FetchFailed, match="limit"):
+            fetcher.get(url, "a", dest=target)
+        assert not target.exists()
+        assert fetcher.request_count == 1
+    memory = common.Fetcher(
+        package="S3_playgroup",
+        max_requests=80,
+        log_path=None,
+        pause_seconds=0,
+        opener=ScriptedOpener({url: [FakeResponse(b"x" * 100)]}),
+        allow_network=True,
+        max_download_bytes=50,
+    )
+    with pytest.raises(common.FetchFailed):
+        memory.get(url, "a")
+
+
+def test_an_unpacked_stream_or_a_line_above_the_limit_stops_the_processing(tmp_path: Path) -> None:
+    source = tmp_path / "bomb.jsonl.gz"
+    source.write_bytes(gzip.compress(b'{"a":"' + b"x" * 5000 + b'"}\n' + b'{"b":1}\n'))
+    with pytest.raises(common.ResponseTooLarge, match="line"):
+        s1_fetch.process_bulk_file(source, tmp_path / "o1.jsonl", max_line=1000)
+    with pytest.raises(common.ResponseTooLarge, match="unpacks"):
+        s1_fetch.process_bulk_file(source, tmp_path / "o2.jsonl", max_unpacked=1000)
+    assert s1_fetch.process_bulk_file(source, tmp_path / "o3.jsonl")["rows_in"] == 2
+
+
+def test_s2_reading_and_testing_respect_the_unpacked_limit(tmp_path: Path) -> None:
+    raw = tmp_path / "variants.json.gz"
+    raw.write_bytes(s2_document(S2_VARIANTS))
+    with pytest.raises(common.ResponseTooLarge):
+        s2_fetch.check_gzip(raw, 100)
+    assert s2_fetch.check_gzip(raw, 10**9) > 100
+    with pytest.raises(common.ResponseTooLarge):
+        list(s2_derive.VariantStream(raw, 100).variants())
+    with pytest.raises(common.WaveError):
+        common.mib_limit(0, "--max-download-mb")
+
+
+def test_the_pause_has_a_lower_bound_and_a_clean_error() -> None:
+    assert common.effective_pause("S3_playgroup", None, 1.0) == 1.0
+    assert common.effective_pause("S3_playgroup", 2.5, 1.0) == 2.5
+    assert common.effective_pause("S2_spellbook", 0, 1.0) == 0.0
+    for bad in (-1.0, float("nan"), 0.0, 0.5):
+        with pytest.raises(common.WaveError):
+            common.effective_pause("S3_playgroup", bad, 1.0)
+    with pytest.raises(common.WaveError):
+        s3_fetch.run(
+            parse(s3_fetch, "--allow-network", "--pause", "-1", "--staging-dir", "/nonexistent-x"),
+            opener=ScriptedOpener({}),
+        )
+
+
+def test_a_missing_turn_damage_value_is_unknown_not_zero() -> None:
+    document = s3_derive.turn_damage_document(
+        {
+            "id": 1,
+            "name": "C",
+            "average_turn_data": [
+                {"turn": 1, "normal_damage": None, "healing": "abc"},
+                {"turn": 2, "normal_damage": "4.0"},
+            ],
+        }
+    )
+    assert document["outliers"]["max_normal_damage"] == {"turn": 2, "value": 4.0}
+    assert document["outliers"]["max_healing"] is None
+    assert document["outliers"]["median_normal_damage_over_turns"] == 4.0
+    empty = s3_derive.turn_damage_document({"id": 1, "name": "C", "average_turn_data": []})
+    assert empty["outliers"] == {
+        "max_normal_damage": None,
+        "max_healing": None,
+        "median_normal_damage_over_turns": None,
+    }
+    assert s3_derive._float(None) is None
+    assert s3_derive._float(float("nan")) is None
+
+
+def test_owner_data_files_are_never_written_into_the_repository(tmp_path: Path) -> None:
+    db = make_store(tmp_path / "studio.sqlite3", [], ["oid-1"])
+    inside = common.REPO_ROOT / "collection_ids_must_not_exist.txt"
+    with pytest.raises(common.StagingInsideRepositoryError):
+        export_ids.export_ids(db, inside)
+    assert not inside.exists()
+    snapshot_inside = common.REPO_ROOT / "guard_must_not_exist.json"
+    assert db_guard.main(["snapshot", "--db", str(db), "--out", str(snapshot_inside)]) == 2
+    assert not snapshot_inside.exists()
+    assert export_ids.main(["--db", str(db), "--out", str(inside)]) == 2
+
+
+def test_the_raw_files_of_s2_are_deleted_after_deriving_unless_kept(
+    tmp_path: Path,
+) -> None:
+    body = s2_document(S2_VARIANTS)
+    for keep in (False, True):
+        stage = tmp_path / ("keep" if keep else "drop")
+        opener = ScriptedOpener({s2_fetch.URL: [FakeResponse(body)]})
+        args = parse(s2_fetch, "--allow-network", "--staging-dir", str(stage), "--run-id", "r")
+        assert s2_fetch.run(args, opener=opener, sleep=lambda _s: None) == 0
+        run_dir = stage / "S2_spellbook" / "r"
+        fetched = manifest_of(run_dir)
+        assert fetched["raw_retained"] is True
+        assert fetched["raw_contains_excluded_fields"] is True
+        assert fetched["personal_data"] != "none"
+        argv = ["--run-dir", str(run_dir)] + (["--keep-raw"] if keep else [])
+        assert s2_derive.main(argv) == 0
+        settled = manifest_of(run_dir)
+        assert settled["raw"]["sha256_compressed"] == common.sha256_bytes(body)
+        assert (run_dir / "raw" / "variants.json.gz").exists() is keep
+        assert settled["raw_retained"] is keep
+        assert settled["raw_contains_excluded_fields"] is keep
+        assert (settled["personal_data"] == "none") is (not keep)
+        assert (run_dir / "derived" / "variants_wug.jsonl").exists()
+
+
+def test_the_raw_pages_of_s3_are_deleted_after_deriving_unless_kept(tmp_path: Path) -> None:
+    for keep in (False, True):
+        stage = tmp_path / ("keep" if keep else "drop")
+        code, _opener, run_dir = run_s3(stage, S3_PAGES)
+        assert code == 0
+        fetched = manifest_of(run_dir)
+        assert fetched["raw_contains_excluded_fields"] is True
+        assert fetched["personal_data"] != "none"
+        argv = ["--run-dir", str(run_dir)] + (["--keep-raw"] if keep else [])
+        assert s3_derive.main(argv) == 0
+        settled = manifest_of(run_dir)
+        assert (run_dir / "raw").exists() is keep
+        assert settled["raw_retained"] is keep
+        assert settled["raw_contains_excluded_fields"] is keep
+        assert (settled["personal_data"] == "none") is (not keep)
+        assert settled["raw_files"][0]["sha256"]
+        if not keep:
+            assert settled["raw_files_deleted"] >= 5
+            assert "raw_deleted_utc" in settled
+
+
+def test_s1_says_so_when_the_compressed_downloads_are_kept(tmp_path: Path) -> None:
+    kept = parse(
+        s1_fetch,
+        "--allow-network",
+        "--keep-raw",
+        "--staging-dir",
+        str(tmp_path / "k"),
+        "--run-id",
+        "r",
+    )
+    assert s1_fetch.run(kept, opener=ScriptedOpener(s1_routes()), sleep=lambda _s: None) == 0
+    manifest = manifest_of(tmp_path / "k" / "S1_scryfall" / "r")
+    assert manifest["raw_retained"] is True
+    assert manifest["raw_contains_excluded_fields"] is True
+    assert manifest["personal_data"] != "none"
+    dropped = parse(
+        s1_fetch, "--allow-network", "--staging-dir", str(tmp_path / "d"), "--run-id", "r"
+    )
+    assert s1_fetch.run(dropped, opener=ScriptedOpener(s1_routes()), sleep=lambda _s: None) == 0
+    manifest = manifest_of(tmp_path / "d" / "S1_scryfall" / "r")
+    assert manifest["raw_retained"] is False
+    assert manifest["personal_data"] == "none"
+
+
+def test_a_download_address_with_a_foreign_host_behind_the_prefix_is_refused() -> None:
+    entries = [
+        {"type": t, "jsonl_download_uri": f"https://data.scryfall.io/{t}"} for t in s1_fetch.LABELS
+    ]
+    entries[0]["jsonl_download_uri"] = "https://data.scryfall.io@evil.example.org/x"
+    with pytest.raises(common.WaveError):
+        s1_fetch.select_downloads({"data": entries})
+    entries[0]["jsonl_download_uri"] = "http://data.scryfall.io/x"
+    with pytest.raises(common.WaveError):
+        s1_fetch.select_downloads({"data": entries})
 
 
 # ---------------------------------------------------------------------------------------------

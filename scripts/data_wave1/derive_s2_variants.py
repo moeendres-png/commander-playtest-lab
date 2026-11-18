@@ -1,7 +1,10 @@
 """S2, offline: derive the white-blue-green variants and the alias table from the raw bulk file.
 
 Input: ``raw/variants.json.gz`` of a run folder written by ``fetch_s2_spellbook.py``. No network.
-The 740 MB unpacked JSON is read as a stream (never held whole in memory). Output:
+The 740 MB unpacked JSON is read as a stream (never held whole in memory; limits
+``--max-unpacked-mb`` and 64 MiB per object). When it has succeeded the raw file is DELETED (it still
+contains prices, salt votes and popularity), only hash and size stay in the manifest; ``--keep-raw``
+keeps it and the manifest then says so (``raw_contains_excluded_fields: true``). Output:
 
 * ``derived/variants_wug.jsonl``: every variant whose colour identity is a subset of {W, U, G}
   (plus colourless): id, status, commander legality, identity, cards with Oracle id and zones,
@@ -42,8 +45,12 @@ COMPACT_AFTER = 1 << 23
 class VariantStream:
     """Incremental reader: header text, then variant objects, then the alias list."""
 
-    def __init__(self, path: Path) -> None:
+    def __init__(
+        self, path: Path, max_unpacked: int = common.DEFAULT_MAX_UNPACKED_MB * common.MIB
+    ) -> None:
         self._path = path
+        self._max_unpacked = max_unpacked
+        self._read_total = 0
         self._file: Any = None
         self._buffer = ""
         self._eof = False
@@ -59,6 +66,11 @@ class VariantStream:
         if not chunk:
             self._eof = True
             return False
+        self._read_total += len(chunk)
+        if self._read_total > self._max_unpacked:
+            raise common.ResponseTooLarge(
+                f"unpacked stream exceeds {self._max_unpacked} characters"
+            )
         self._buffer += chunk
         return True
 
@@ -70,6 +82,8 @@ class VariantStream:
     def _variants(self) -> Iterator[dict[str, Any]]:
         decoder = json.JSONDecoder()
         while MARKER not in self._buffer:
+            if len(self._buffer) > common.MAX_LINE_BYTES:
+                raise common.ResponseTooLarge("no 'variants' list within the size limit")
             if not self._fill():
                 raise common.WaveError("variants.json.gz has no 'variants' list")
         start = self._buffer.index(MARKER)
@@ -95,6 +109,10 @@ class VariantStream:
             try:
                 item, end = decoder.raw_decode(buffer, pos)
             except json.JSONDecodeError:
+                if len(buffer) - pos > common.MAX_LINE_BYTES:
+                    raise common.ResponseTooLarge(
+                        "one variant object exceeds the size limit"
+                    ) from None
                 self._buffer = buffer
                 if not self._fill():
                     raise common.WaveError("truncated variant object") from None
@@ -169,8 +187,10 @@ def variant_row(variant: dict[str, Any], shape: collections.Counter[str]) -> dic
     }
 
 
-def derive(raw: Path, derived_dir: Path) -> dict[str, Any]:
-    stream = VariantStream(raw)
+def derive(
+    raw: Path, derived_dir: Path, max_unpacked: int = common.DEFAULT_MAX_UNPACKED_MB * common.MIB
+) -> dict[str, Any]:
+    stream = VariantStream(raw, max_unpacked)
     total = legal_total = wug = wug_legal = 0
     status: collections.Counter[str | None] = collections.Counter()
     bracket: collections.Counter[str | None] = collections.Counter()
@@ -221,11 +241,20 @@ def derive(raw: Path, derived_dir: Path) -> dict[str, Any]:
 def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     parser.add_argument("--run-dir", type=Path, required=True, help="S2 run folder")
+    common.add_limit_arguments(parser, download=False)
+    parser.add_argument(
+        "--keep-raw",
+        action="store_true",
+        help="keep raw/variants.json.gz (it contains price, salt and popularity fields); "
+        "default: delete it after deriving",
+    )
     args = parser.parse_args(argv)
     run_dir = common.assert_outside_repository(args.run_dir)
     raw = run_dir / "raw" / "variants.json.gz"
     try:
-        counts = derive(raw, run_dir / "derived")
+        counts = derive(
+            raw, run_dir / "derived", common.mib_limit(args.max_unpacked_mb, "--max-unpacked-mb")
+        )
     except (common.WaveError, OSError, EOFError, json.JSONDecodeError) as error:
         print(f"STOP: {error}", file=sys.stderr)
         return 2
@@ -280,6 +309,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         },
         entries,
     )
+    common.settle_raw(run_dir, keep=args.keep_raw)
     print(json.dumps(counts, ensure_ascii=False, indent=1))
     return 0
 

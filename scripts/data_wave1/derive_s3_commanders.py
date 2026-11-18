@@ -1,7 +1,10 @@
 """S3, offline: derive the commander rows from the raw pages of one S3 run.
 
 Input: ``raw/list_p*.body`` (and ``raw/turn_damage_chulane_*.body`` when present) written by
-``fetch_s3_playgroup.py``. No network. Output:
+``fetch_s3_playgroup.py``. No network. The raw pages still contain ``top_decks``, deck owner names and
+ratings, so they are DELETED once the rows are derived (only hash and size stay in the manifest);
+``--keep-raw`` keeps them and the manifest then says so (``raw_contains_excluded_fields: true``,
+``personal_data`` no longer "none"). Output:
 
 * ``derived/playgroup_commanders.jsonl``: one row per commander with the list fields.
   IMPORTANT, the names are the truth about what is counted: ``rated_seats_played`` and
@@ -20,7 +23,6 @@ Dropped: ``average_salt_rating``, ``average_fun_rating``, ``top_decks`` and imag
 from __future__ import annotations
 
 import argparse
-import glob
 import json
 import statistics
 import sys
@@ -93,7 +95,7 @@ def commander_row(item: dict[str, Any]) -> dict[str, Any]:
     for key in KEEP_WIN:
         row[key] = item.get(key)
     row["wins_exceed_games"] = bool(won is not None and played is not None and won > played)
-    row["placeholder"] = item["id"] <= 0
+    row["placeholder"] = isinstance(item["id"], int) and item["id"] <= 0
     row["cohort"] = COHORT
     row["data_class"] = "beobachtetes_spiel"
     row["source_package"] = "playgroup_public_api_v1"
@@ -101,17 +103,26 @@ def commander_row(item: dict[str, Any]) -> dict[str, Any]:
     return row
 
 
-def _float(value: Any) -> float:
+def _float(value: Any) -> float | None:
+    """A number or None: a missing or unreadable value is UNKNOWN, never 0."""
     try:
-        return float(value)
+        result = float(value)
     except (TypeError, ValueError):
-        return 0.0
+        return None
+    return None if result != result else result
+
+
+def _extreme(series: list[dict[str, Any]], key: str) -> dict[str, Any] | None:
+    valid = [(v, t) for t in series if (v := _float(t.get(key))) is not None]
+    if not valid:
+        return None
+    value, turn = max(valid, key=lambda pair: pair[0])
+    return {"turn": turn.get("turn"), "value": value}
 
 
 def turn_damage_document(raw: dict[str, Any]) -> dict[str, Any]:
     series = raw.get("average_turn_data", [])
-    top_damage = max(series, key=lambda t: _float(t["normal_damage"]))
-    top_healing = max(series, key=lambda t: _float(t["healing"]))
+    damage = [v for t in series if (v := _float(t.get("normal_damage"))) is not None]
     return {
         "id": raw["id"],
         "name": raw["name"],
@@ -120,14 +131,9 @@ def turn_damage_document(raw: dict[str, Any]) -> dict[str, Any]:
         "cohort": COHORT,
         "warning": TURN_DAMAGE_WARNING,
         "outliers": {
-            "max_normal_damage": {
-                "turn": top_damage["turn"],
-                "value": _float(top_damage["normal_damage"]),
-            },
-            "max_healing": {"turn": top_healing["turn"], "value": _float(top_healing["healing"])},
-            "median_normal_damage_over_turns": statistics.median(
-                _float(t["normal_damage"]) for t in series
-            ),
+            "max_normal_damage": _extreme(series, "normal_damage"),
+            "max_healing": _extreme(series, "healing"),
+            "median_normal_damage_over_turns": statistics.median(damage) if damage else None,
         },
         "average_turn_data": series,
     }
@@ -139,8 +145,8 @@ def derive(run_dir: Path) -> dict[str, Any]:
     rows: list[dict[str, Any]] = []
     rows_in = 0
     dropped_seen: set[str] = set()
-    for name in sorted(glob.glob(str(raw / "list_p*.body"))):
-        items = json.loads(Path(name).read_text(encoding="utf-8"))
+    for name in sorted(raw.glob("list_p*.body")):
+        items = json.loads(common.read_limited_text(name, common.MAX_LINE_BYTES))
         rows_in += len(items)
         for item in items:
             dropped_seen.update(key for key in item if key in DROPPED)
@@ -148,10 +154,10 @@ def derive(run_dir: Path) -> dict[str, Any]:
     with common.open_text_out(derived / "playgroup_commanders.jsonl") as writer:
         for row in rows:
             writer.write(json.dumps(row, ensure_ascii=False) + "\n")
-    turn_damage_files = sorted(glob.glob(str(raw / "turn_damage_chulane_*.body")))
+    turn_damage_files = sorted(raw.glob("turn_damage_chulane_*.body"))
     if turn_damage_files:
         document = turn_damage_document(
-            json.loads(Path(turn_damage_files[0]).read_text(encoding="utf-8"))
+            json.loads(common.read_limited_text(turn_damage_files[0], common.MAX_LINE_BYTES))
         )
         common.write_json(derived / "chulane_turn_damage.json", document)
     return {
@@ -165,11 +171,17 @@ def derive(run_dir: Path) -> dict[str, Any]:
 def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     parser.add_argument("--run-dir", type=Path, required=True, help="S3 run folder")
+    parser.add_argument(
+        "--keep-raw",
+        action="store_true",
+        help="keep raw/ (the pages contain top_decks, owner names and ratings the derived rows "
+        "drop); default: delete it after deriving",
+    )
     args = parser.parse_args(argv)
     run_dir = common.assert_outside_repository(args.run_dir)
     try:
         counts = derive(run_dir)
-    except (common.WaveError, OSError, KeyError, ValueError) as error:
+    except (common.WaveError, OSError, KeyError, TypeError, ValueError) as error:
         print(f"STOP: {error}", file=sys.stderr)
         return 2
     derived = run_dir / "derived"
@@ -211,6 +223,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         },
         entries,
     )
+    common.settle_raw(run_dir, keep=args.keep_raw)
     print(json.dumps(counts, ensure_ascii=False, indent=1))
     return 0
 

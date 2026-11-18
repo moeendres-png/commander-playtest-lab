@@ -38,7 +38,7 @@ $Repo  = "C:\Pfad\zu\commander-playtest-lab"
 $Py    = "$Repo\.venv\Scripts\python.exe"     # der Python des Repositorys (venv); ein Aufruf mit Argumenten wie `py -3` passt nicht in diese Variable
 $Stage = "$env:LOCALAPPDATA\commander-playtest-lab\data-wave1-staging"
 $Live  = "$env:LOCALAPPDATA\CommanderStudio"
-$Backup = "$env:LOCALAPPDATA\CommanderStudio-backup-vor-welle1"
+$BackupRoot = "$env:LOCALAPPDATA\CommanderStudio-backups"   # außerhalb des Repositorys und des Datenordners
 $Copy  = "$env:LOCALAPPDATA\CommanderStudio-copy-welle1"
 $Id    = (Get-Date).ToUniversalTime().ToString("yyyyMMddTHHmmssZ")
 $W1    = "$Repo\scripts\data_wave1"
@@ -53,7 +53,7 @@ bash (Linux, WSL):
 REPO=~/commander-playtest-lab; PY=python3
 STAGE="${XDG_DATA_HOME:-$HOME/.local/share}/commander-playtest-lab/data-wave1-staging"
 LIVE=~/studio-data                      # der echte Datenordner (WSL: Kopie des Windows-Ordners)
-BACKUP=~/studio-backup-vor-welle1; COPY=~/studio-copy-welle1
+BACKUP_ROOT=~/studio-backups; COPY=~/studio-copy-welle1
 ID=$(date -u +%Y%m%dT%H%M%SZ); W1="$REPO/scripts/data_wave1"
 S1="$STAGE/S1_scryfall/$ID"; S2="$STAGE/S2_spellbook/$ID"; S3="$STAGE/S3_playgroup/$ID"
 IDS="$STAGE/collection_oracle_ids.txt"
@@ -78,24 +78,41 @@ nichts angelegt.
 
 ## 3. Sicherung vor allem anderen
 
-Studio schließen. Dann Sicherung des **ganzen** Datenordners (`studio.sqlite3` samt etwaiger
-`-wal`/`-shm`-Dateien, `engine\`, `games\`).
-
-Der Befehl `python -m commander_lab.studio backup` (konsistente Sicherung mit Rückspiel) ist Stand
-2026-11-18 noch nicht gemergt (PR #1537 offen). Ist er gemergt, `--help` lesen und ihn statt des
-Kopierens benutzen. Bis dahin von Hand:
+Studio schließen. Dann mit dem Studio-Befehl `backup` (PR #1537, gemergt) eine konsistente Sicherung
+anlegen: sie nutzt die SQLite-Sicherungsschnittstelle, prüft `PRAGMA integrity_check` der Sicherung
+und schreibt `backup_manifest.json` und `SHA256SUMS.txt`. Gesichert werden `studio.sqlite3` und
+`games\`; `engine\` und `images\` gehören nicht dazu. Das Ziel muss **außerhalb** des Repositorys und
+des Datenordners liegen; der Befehl legt darin einen Ordner `commander-studio-backup-<Zeit>` an und
+gibt dessen Pfad aus.
 
 ```powershell
-Copy-Item -Recurse -Path $Live -Destination $Backup
-(Get-FileHash "$Live\studio.sqlite3").Hash; (Get-FileHash "$Backup\studio.sqlite3").Hash   # gleich?
+(Get-FileHash "$Live\studio.sqlite3").Hash                       # merken: Vergleichswert für Schritt 6e
+$BackupDir = & $Py -m commander_lab.studio --data $Live backup --to $BackupRoot
+$BackupDir
 ```
 
 ```bash
-cp -a "$LIVE" "$BACKUP" && sha256sum "$LIVE/studio.sqlite3" "$BACKUP/studio.sqlite3"
+sha256sum "$LIVE/studio.sqlite3"                                 # merken: Vergleichswert für Schritt 6e
+BACKUP_DIR=$($PY -m commander_lab.studio --data "$LIVE" backup --to "$BACKUP_ROOT"); echo "$BACKUP_DIR"
 ```
 
-Erwartet: zwei gleiche Hashes. Die Sicherung wird nie geändert. Dann die **Arbeitskopie** anlegen
-(`$Copy` aus `$Live`, gleicher Befehl). Alle weiteren Schreibbefehle zeigen auf `$Copy`.
+Erwartet: ein Pfad `…\commander-studio-backup-<JJJJMMTT-hhmmss>` mit `studio.sqlite3`,
+`backup_manifest.json`, `SHA256SUMS.txt`; Exit 0 (bei Fehler Exit 1 oder 2 und eine Meldung `error:`).
+Die Sicherung wird nie geändert. Ein Rückspiel-Befehl existiert nicht (`restore_backup` in
+`src/commander_lab/studio/backup.py` ist nur eine Funktion): darum schreibt dieses Runbook nie in
+`$Live`, und die Kopie wird einfach verworfen und neu angelegt.
+
+Dann die **Arbeitskopie** anlegen: einen neuen Ordner `$Copy` mit nur der Datenbank aus der
+Sicherung. Alle weiteren Schreibbefehle zeigen auf `$Copy`.
+
+```powershell
+New-Item -ItemType Directory -Path $Copy | Out-Null
+Copy-Item "$BackupDir\studio.sqlite3" $Copy
+```
+
+```bash
+mkdir -p "$COPY" && cp "$BACKUP_DIR/studio.sqlite3" "$COPY/"
+```
 
 ## 4. Sammeln (Netz, nacheinander, nie gleichzeitig)
 
@@ -113,9 +130,23 @@ Harte Prüfungen je Lauf (Ausgabe und `MANIFEST.json`):
 | S2 | `requests: 1/1; complete: True` | genau 1 Anfrage, schlägt sie fehl: nicht wiederholen, später neu starten |
 | S3 | `requests: 59/80; complete: True` (Referenz: 57 volle Seiten, 1 leere, 1 `turn_damage`) | höchstens 80; erreicht der Lauf das Limit vor der leeren Seite, steht `complete: False` |
 
-Im Manifest: `rate_limit_429: 0`, `forbidden_403: 0`, `retries: 0`, `personal_data: none`,
-`automatic_import: false`, `import_performed: false`, `terms_checked_utc: null`,
-`license_status: ungeklaert`.
+Im Manifest: `rate_limit_429: 0`, `forbidden_403: 0`, `retries: 0`, `automatic_import: false`,
+`import_performed: false`, `terms_checked_utc: null`, `license_status: ungeklaert`, je Anfrage
+`final_url` gleich `url` (Umleitungen werden nicht befolgt; eine Umleitung beendet den Lauf).
+
+**Rohdaten:** die rohen Antworten von S2 (`raw\variants.json.gz`) und S3 (`raw\list_p*.body`) enthalten
+Felder, die die Regeln ausschließen (Preise, Salt- und Beliebtheitswerte, `top_decks`, Namen von
+Deck-Eignern). Nach dem Sammeln steht darum im Manifest `raw_retained: true`,
+`raw_contains_excluded_fields: true` und `personal_data` sagt nicht „none“. Die Ableitungsskripte in
+Schritt 5 **löschen die Rohdaten nach dem Ableiten** (Standard; Hash und Größe bleiben im Manifest,
+danach `raw_retained: false`, `personal_data: none`). `--keep-raw` hält sie für eine spätere
+Wiederableitung und das Manifest sagt das ehrlich. Die komprimierten Scryfall-Dateien (S1) enthalten
+ebenfalls Preisfelder und werden schon beim Sammeln nach dem Verarbeiten gelöscht (`--keep-raw` hält
+sie). Rohdaten bleiben lokal im Staging, nie im Repository.
+
+**Obergrenzen:** `--max-download-mb` (Standard 1024) und `--max-unpacked-mb` (Standard 4096) brechen
+den Lauf ab, wenn eine Antwort oder ein entpackter Strom größer ist; eine Zeile oder ein Objekt über
+64 MiB ebenfalls. `--pause` darf nur erhöht werden (mindestens 1 s bei S1 und S3).
 
 **Stopp bei 429 oder 403:** das Skript hört sofort auf, wiederholt nichts, der Status und
 `Retry-After` stehen in `fetch_log.jsonl` und im Manifest (`stop_reason`). Nicht von Hand nachfassen,
@@ -138,9 +169,9 @@ Erwartet: `1655 oracle ids written` (Referenz 2026-11-18; die Sammlung kann gewa
 ```powershell
 & $Py -I "$W1\derive_s1_subsets.py" --run-dir $S1 --collection-ids $Ids
 & $Py -I "$W1\validate_s1.py"       --run-dir $S1 --collection-ids $Ids --db "$Copy\studio.sqlite3"
-& $Py -I "$W1\derive_s2_variants.py" --run-dir $S2
+& $Py -I "$W1\derive_s2_variants.py" --run-dir $S2          # löscht raw\ (Standard), `--keep-raw` hält es
 & $Py -I "$W1\validate_s2.py"        --run-dir $S2 --collection-ids $Ids
-& $Py -I "$W1\derive_s3_commanders.py" --run-dir $S3
+& $Py -I "$W1\derive_s3_commanders.py" --run-dir $S3        # löscht raw\ (Standard), `--keep-raw` hält es
 & $Py -I "$W1\validate_s3.py"          --run-dir $S3
 ```
 
@@ -251,7 +282,7 @@ dieses Runbooks.
 
 ```powershell
 & $Py -I "$W1\db_guard.py" compare "$Stage\guard_0_vorher.json" "$Stage\guard_3_tags.json" --allow-changed scryfall_card scryfall_card_token scryfall_token card_ruling card_ruling_source source
-(Get-FileHash "$Live\studio.sqlite3").Hash   # muss dem Hash aus Schritt 3 entsprechen: das Original blieb unberührt
+(Get-FileHash "$Live\studio.sqlite3").Hash   # muss dem in Schritt 3 gemerkten Hash entsprechen: das Original blieb unberührt
 ```
 
 ## 7. Danach
@@ -265,7 +296,7 @@ Manifeste aus dem Staging gehören nicht ins Repository (groß, Lizenz je Quelle
 ## 8. Was NICHT zu tun ist
 
 - Nichts in `$Live` schreiben, solange es nicht ausdrücklich beschlossen ist; kein Import mit dem
-  Studio-Server oder einem Fenster offen; nie die Sicherung ändern.
+  Studio-Server oder einem Fenster offen; nie die Sicherung ändern; die Sicherung nicht „zurückspielen“ (es gibt keinen Befehl dafür).
 - Kein `import-all`, kein `fetch-images`, kein `import-printings`, kein `import-roles`, kein
   `--replace-scope`, kein `--out-roles` und kein Rollen-Import aus diesem Runbook. `import-printings`
   braucht die Arbeitsmappe des Owners und vorher die Zuordnung der vier Fremdcodes; die 148 deutschen
@@ -276,8 +307,9 @@ Manifeste aus dem Staging gehören nicht ins Repository (groß, Lizenz je Quelle
   Kennung und keine Kontaktdaten in den User-Agent schreiben (offene Owner-Frage).
 - Nicht `scripts/spellbook_combos_fetch.py` (REST, hunderte Seiten) und nicht
   `backend.commanderspellbook.com` benutzen: der Betreiber schließt das ausdrücklich aus.
-- Keine Preise, keine Personendaten: die Skripte entfernen sie beim Schreiben; nichts davon
-  wiederherstellen oder nachladen.
+- Keine Preise, keine Personendaten: die Skripte entfernen sie beim Schreiben der abgeleiteten
+  Dateien; nichts davon wiederherstellen oder nachladen. Rohdateien nicht aufheben, ohne dass es
+  einen Grund gibt (`--keep-raw`), und nie ins Repository legen.
 - EDHREC, Archidekt, Moxfield und TopDeck gehören nicht zur Welle 1 (`PLAN.md`, Abschnitt C).
 - Keine Daten, Staging-Dateien oder Manifeste ins Repository committen; keinen Staging-Ordner im
   Repository anlegen.
@@ -297,3 +329,5 @@ Manifeste aus dem Staging gehören nicht ins Repository (groß, Lizenz je Quelle
 | `FAIL` in `checks` | Anhalten. Datei und Zeile aus `validation.json` melden; nichts in die Kopie importieren. |
 | Zahl weicht von der Referenz ab | Kein Fehler. Notieren (Quelle ändert sich täglich) und im Kommentar nennen. |
 | `GUARD: FAIL` | Kopie verwerfen, neu aus der Sicherung anlegen, Ursache melden. |
+| `STOP: … redirect`, `another address` oder `limit` | Eine Umleitung, eine Antwort von anderer Adresse oder eine Größe über der Obergrenze: der Lauf ist unvollständig. Nicht umgehen, melden. |
+| `STOP: unusable identifier` (S3) | Die Antwort enthält eine Commander-ID, die keine einfache positive Ganzzahl ist; sie wird nie in Adresse oder Dateiname übernommen. Melden. |

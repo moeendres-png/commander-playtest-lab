@@ -33,6 +33,7 @@ import hashlib
 import http.client
 import json
 import os
+import shutil
 import subprocess
 import sys
 import time
@@ -49,6 +50,14 @@ ACCEPT = "*/*"
 STOP_STATUSES = frozenset({403, 429})
 RETRY_WAIT_SECONDS = 60.0
 REQUEST_TIMEOUT_SECONDS = 120.0
+MIB = 1 << 20
+# Size limits (configurable per run with --max-download-mb / --max-unpacked-mb).
+MAX_MEMORY_BYTES = 16 * MIB  # a response kept in memory (index, small answers)
+DEFAULT_MAX_DOWNLOAD_MB = 1024
+DEFAULT_MAX_UNPACKED_MB = 4096
+MAX_LINE_BYTES = 64 * MIB  # one JSONL line or one JSON object
+PAUSE_MINIMUM_SECONDS = {"S1_scryfall": 1.0, "S2_spellbook": 0.0, "S3_playgroup": 1.0}
+REDIRECT_STATUSES = frozenset({301, 302, 303, 307, 308})
 UNCLEAR = "ungeklaert"
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
@@ -105,6 +114,10 @@ class StopRequested(WaveError):
 
 class FetchFailed(WaveError):
     """A request failed twice or failed in a way that is not repeated."""
+
+
+class ResponseTooLarge(WaveError):
+    """A response or an unpacked stream is bigger than the configured limit."""
 
 
 class NetworkNotAllowed(WaveError):
@@ -243,6 +256,33 @@ def assert_outside_repository(path: Path, repo_root: Path = REPO_ROOT) -> Path:
     return resolved
 
 
+def safe_child(root: Path, relative: str) -> Path:
+    """``root / relative``, refused unless the resolved result stays inside ``root``.
+
+    File names derived from an answer of a server must go through here.
+    """
+    base = root.resolve()
+    candidate = (base / relative).resolve()
+    if candidate == base or not candidate.is_relative_to(base):
+        raise WaveError(f"refusing a path outside the run folder: {relative!r}")
+    return candidate
+
+
+def positive_int_id(value: object) -> int:
+    """An identifier taken from an answer: a plain positive integer, nothing else.
+
+    Rejects booleans, negative numbers, None, and strings that are not pure ASCII digits, so the
+    value can neither change a URL nor a file name.
+    """
+    if isinstance(value, bool):
+        raise WaveError(f"unusable identifier in an answer: {value!r}")
+    if isinstance(value, int) and value > 0:
+        return value
+    if isinstance(value, str) and value.isascii() and value.isdigit() and int(value) > 0:
+        return int(value)
+    raise WaveError(f"unusable identifier in an answer: {value!r}")
+
+
 def resolve_run_dir(
     staging: Path | None, package: str, run_id: str | None, repo_root: Path = REPO_ROOT
 ) -> Path:
@@ -318,6 +358,40 @@ def add_network_arguments(parser: argparse.ArgumentParser, package: str) -> None
     )
 
 
+def effective_pause(package: str, requested: float | None, default: float) -> float:
+    """The pause between two requests; never below the package minimum, never negative."""
+    if requested is None:
+        return default
+    if requested != requested or requested < 0:
+        raise WaveError("--pause must be a number of seconds, zero or more")
+    minimum = PAUSE_MINIMUM_SECONDS[package]
+    if requested < minimum:
+        raise WaveError(f"--pause below the minimum of {minimum} s for {package}")
+    return float(requested)
+
+
+def add_limit_arguments(parser: argparse.ArgumentParser, *, download: bool) -> None:
+    if download:
+        parser.add_argument(
+            "--max-download-mb",
+            type=int,
+            default=DEFAULT_MAX_DOWNLOAD_MB,
+            help="refuse a response bigger than this many MiB",
+        )
+    parser.add_argument(
+        "--max-unpacked-mb",
+        type=int,
+        default=DEFAULT_MAX_UNPACKED_MB,
+        help="refuse an unpacked stream bigger than this many MiB",
+    )
+
+
+def mib_limit(value: int, name: str) -> int:
+    if value < 1:
+        raise WaveError(f"{name} must be at least 1 MiB")
+    return value * MIB
+
+
 def network_requested(args: argparse.Namespace) -> bool:
     if args.allow_network and args.dry_run:
         raise WaveError("--allow-network and --dry-run exclude each other")
@@ -359,6 +433,8 @@ class FetchRecord:
     headers: dict[str, str] = field(default_factory=dict)
     error: str | None = None
     body: bytes | None = None
+    final_url: str | None = None
+    fatal: bool = False
 
     @property
     def ok(self) -> bool:
@@ -368,6 +444,7 @@ class FetchRecord:
         return {
             "label": self.label,
             "url": self.url,
+            "final_url": self.final_url,
             "attempt": self.attempt,
             "request_start_utc": self.request_start_utc,
             "response_complete_utc": self.response_complete_utc,
@@ -383,8 +460,16 @@ class FetchRecord:
         }
 
 
+class _NoRedirect(urllib.request.HTTPRedirectHandler):
+    """Refuse every redirect: only the address that was checked is ever contacted."""
+
+    def redirect_request(self, *_args: Any, **_kwargs: Any) -> None:
+        return None
+
+
 def _default_opener(request: urllib.request.Request, timeout: float) -> Any:
-    return urllib.request.urlopen(request, timeout=timeout)  # https URLs only
+    opener = urllib.request.build_opener(_NoRedirect())
+    return opener.open(request, timeout=timeout)  # https URLs only, no redirect is followed
 
 
 def _header_map(source: Any) -> dict[str, str]:
@@ -392,6 +477,10 @@ def _header_map(source: Any) -> dict[str, str]:
         return {}
     items = source.items() if hasattr(source, "items") else []
     return {str(k).lower(): str(v) for k, v in items if str(k).lower() != "set-cookie"}
+
+
+class _Refused(Exception):
+    """Internal: stop reading a response (wrong address, too large)."""
 
 
 class Fetcher:
@@ -412,8 +501,10 @@ class Fetcher:
         clock: Callable[[], datetime] = utc_now,
         retry_wait: float = RETRY_WAIT_SECONDS,
         allow_network: bool = False,
+        max_download_bytes: int = DEFAULT_MAX_DOWNLOAD_MB * MIB,
     ) -> None:
         self.package = package
+        self.max_download_bytes = max_download_bytes
         self.max_requests = min(max_requests, REQUEST_CAPS[package])
         self.log_path = log_path
         self.pause_seconds = pause_seconds
@@ -451,6 +542,8 @@ class Fetcher:
             self.log_event(record.as_log())
             if record.ok:
                 return record
+            if record.fatal:
+                raise FetchFailed(f"{label}: {record.error}")
             if record.http_status in STOP_STATUSES:
                 self.log_event({"event": "stop", "status": record.http_status, "label": label})
                 raise StopRequested(record.http_status or 0, record.headers.get("retry-after"), url)
@@ -483,11 +576,31 @@ class Fetcher:
         size = 0
         chunks: list[bytes] = []
         sink: BinaryIO | None = None
+        final_url: str | None = None
+        fatal = False
+        limit = (
+            self.max_download_bytes
+            if dest is not None
+            else min(self.max_download_bytes, MAX_MEMORY_BYTES)
+        )
         try:
             response = self._opener(request, timeout=REQUEST_TIMEOUT_SECONDS)
             try:
                 status = int(getattr(response, "status", None) or response.getcode())
                 headers = _header_map(getattr(response, "headers", None))
+                geturl = getattr(response, "geturl", None)
+                final_url = str(geturl()) if geturl is not None else url
+                if final_url != url:
+                    fatal = True
+                    raise _Refused(f"answered from another address: {final_url}")
+                declared_size = headers.get("content-length")
+                if (
+                    declared_size is not None
+                    and declared_size.isdigit()
+                    and int(declared_size) > limit
+                ):
+                    fatal = True
+                    raise _Refused(f"declared size {declared_size} exceeds the limit of {limit}")
                 if dest is not None and status == 200:
                     dest.parent.mkdir(parents=True, exist_ok=True)
                     sink = dest.open("wb")
@@ -497,6 +610,9 @@ class Fetcher:
                         break
                     digest.update(chunk)
                     size += len(chunk)
+                    if size > limit:
+                        fatal = True
+                        raise _Refused(f"body exceeds the limit of {limit} bytes")
                     if sink is not None:
                         sink.write(chunk)
                     else:
@@ -515,10 +631,15 @@ class Fetcher:
                 and int(declared) != size
             ):
                 error = f"truncated body: {size} of {declared} bytes"
+        except _Refused as refused:
+            error = str(refused)
         except urllib.error.HTTPError as exc:
             status = int(exc.code)
             headers = _header_map(exc.headers)
             error = f"HTTP {status}"
+            if status in REDIRECT_STATUSES:
+                fatal = True
+                error = f"HTTP {status}: a redirect is not followed"
             exc.close()
         except (urllib.error.URLError, OSError, http.client.HTTPException, TimeoutError) as exc:
             error = f"{type(exc).__name__}: {exc}"
@@ -539,6 +660,8 @@ class Fetcher:
             headers=headers,
             error=error,
             body=b"".join(chunks) if ok and dest is None else None,
+            final_url=final_url,
+            fatal=fatal,
         )
 
 
@@ -614,6 +737,52 @@ def update_manifest(
     manifest["derived_files"] = [known[key] for key in sorted(known)]
     write_json(path, manifest)
     return manifest
+
+
+PERSONAL_DATA_RAW_KEPT = (
+    "derived files: none; the raw files kept in raw/ may contain excluded price and person "
+    "fields (see raw_contains_excluded_fields)"
+)
+
+
+def read_limited_text(path: Path, max_bytes: int) -> str:
+    if path.stat().st_size > max_bytes:
+        raise ResponseTooLarge(f"{path.name} is bigger than the limit of {max_bytes} bytes")
+    return path.read_text(encoding="utf-8")
+
+
+def settle_raw(run_dir: Path, *, keep: bool) -> None:
+    """After deriving: delete the raw files (default) or keep them and say so honestly.
+
+    Raw answers can contain fields the rules exclude (prices, salt votes, deck owners). The
+    manifest keeps only hash and size of what was received; with ``keep`` the manifest says that
+    the raw files are retained and contain excluded fields, and ``personal_data`` stops saying none.
+    """
+    raw = run_dir / "raw"
+    if keep:
+        update_manifest(
+            run_dir,
+            {
+                "raw_retained": True,
+                "raw_contains_excluded_fields": True,
+                "personal_data": PERSONAL_DATA_RAW_KEPT,
+            },
+        )
+        return
+    removed = 0
+    if raw.is_dir():
+        removed = sum(1 for item in raw.rglob("*") if item.is_file())
+        shutil.rmtree(raw)
+    update_manifest(
+        run_dir,
+        {
+            "raw_retained": False,
+            "raw_contains_excluded_fields": False,
+            "raw_files_deleted": removed,
+            "raw_deleted_utc": utc_text(),
+            "personal_data": "none",
+        },
+    )
 
 
 def exit_with(error: WaveError) -> int:

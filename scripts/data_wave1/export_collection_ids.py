@@ -19,6 +19,7 @@ import _common as common
 
 
 def export_ids(db_path: Path, out: Path, *, immutable: bool = False) -> int:
+    out = common.assert_outside_repository(out)  # the collection ids are owner data
     if not db_path.is_file():
         raise common.WaveError(f"store file not found: {db_path}")
     connection = sqlite3.connect(common.sqlite_uri(db_path, immutable=immutable), uri=True)

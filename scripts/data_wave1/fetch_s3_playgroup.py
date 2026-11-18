@@ -7,9 +7,13 @@ it were 57 full pages plus the empty one), then, for the commander named Chulane
 once. The hard cap is 80 requests including retries; reaching it before the first empty page makes
 the run INCOMPLETE (manifest ``complete: false``).
 
-The response of each page is hashed as received and kept under ``raw/``. Only aggregate list fields
-are derived later (``derive_s3_commanders.py``); ``top_decks`` and every user field are dropped
-there. The licence named by the API documentation is CC BY 4.0 with a credit link per row
+The response of each page is hashed as received and kept under ``raw/`` until
+``derive_s3_commanders.py`` has derived the rows and deleted them (default; ``--keep-raw`` there keeps
+them). The raw pages still contain fields the derived rows drop (``top_decks``, deck owner names,
+salt and fun ratings), so the manifest says ``raw_retained: true`` and
+``raw_contains_excluded_fields: true`` while they exist. Redirects are refused. The identifier of the
+commander that goes into the ``turn_damage`` address and file name must be a plain positive integer.
+The licence named by the API documentation is CC BY 4.0 with a credit link per row
 (``playgroup_url``); the manifest still says "ungeklaert" until the terms are decided by a person.
 The operator asks callers to be identifiable: the open Owner question is whether a contact detail
 may go into the User-Agent; this script sends the generic identity only.
@@ -27,6 +31,7 @@ import time
 from collections.abc import Sequence
 from pathlib import Path
 from typing import Any
+from urllib.parse import quote
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import _common as common
@@ -36,6 +41,7 @@ BASE_URL = "https://playgroup.gg/api/public/v1"
 PAGE_LIMIT = 100
 DEFAULT_PAUSE_SECONDS = 1.0
 COMMANDER_NEEDLE = "chulane"
+MAX_PAGE_BYTES = 64 * common.MIB
 
 
 def header_text(record: common.FetchRecord) -> str:
@@ -63,7 +69,8 @@ def run(
         )
         return 0
     common.make_run_dir(run_dir)
-    pause = DEFAULT_PAUSE_SECONDS if args.pause is None else args.pause
+    pause = common.effective_pause(PACKAGE, args.pause, DEFAULT_PAUSE_SECONDS)
+    page_limit = min(common.mib_limit(args.max_download_mb, "--max-download-mb"), MAX_PAGE_BYTES)
     fetcher = common.Fetcher(
         package=PACKAGE,
         max_requests=cap,
@@ -72,6 +79,7 @@ def run(
         opener=opener,
         sleep=sleep or time.sleep,
         allow_network=True,
+        max_download_bytes=page_limit,
     )
     manifest = common.base_manifest(
         package=PACKAGE,
@@ -92,6 +100,9 @@ def run(
             ),
             "data_class": "beobachtetes_spiel",
             "raw_files": [],
+            "raw_retained": True,
+            "raw_contains_excluded_fields": True,
+            "personal_data": common.PERSONAL_DATA_RAW_KEPT,
             "derived_files": [],
         },
     )
@@ -103,7 +114,7 @@ def run(
         listed: list[dict[str, Any]] = []
         while True:
             name = f"list_p{page:03d}"
-            target = run_dir / "raw" / f"{name}.body"
+            target = common.safe_child(run_dir, f"raw/{name}.body")
             record = fetcher.get(
                 f"{BASE_URL}/commanders?page={page}&limit={PAGE_LIMIT}", name, dest=target
             )
@@ -134,11 +145,15 @@ def run(
         ]
         manifest["commander_lookup"] = {"needle": COMMANDER_NEEDLE, "matches": matches}
         if matches and not args.skip_turn_damage:
-            commander_id = matches[0][0]
+            # the id comes from an answer: a plain positive integer or nothing (it ends up in a
+            # URL and in a file name)
+            commander_id = common.positive_int_id(matches[0][0])
             name = f"turn_damage_chulane_{commander_id}"
-            target = run_dir / "raw" / f"{name}.body"
+            target = common.safe_child(run_dir, f"raw/{name}.body")
             record = fetcher.get(
-                f"{BASE_URL}/commanders/{commander_id}/turn_damage", name, dest=target
+                f"{BASE_URL}/commanders/{quote(str(commander_id), safe='')}/turn_damage",
+                name,
+                dest=target,
             )
             raw_files.append(
                 {
@@ -152,7 +167,7 @@ def run(
         stop_reason = f"HTTP {stop.status}, Retry-After {stop.retry_after or 'none'}"
         print(f"STOP: {stop}", file=sys.stderr)
     except common.RequestLimitExceeded as error:
-        stop_reason = f"request cap reached before the first empty page: {error}"
+        stop_reason = f"request cap reached before the run was complete: {error}"
         print(f"STOP: {error}", file=sys.stderr)
     except (common.WaveError, json.JSONDecodeError) as error:
         stop_reason = str(error)
@@ -167,6 +182,7 @@ def run(
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     common.add_network_arguments(parser, PACKAGE)
+    common.add_limit_arguments(parser, download=True)
     parser.add_argument(
         "--skip-turn-damage", action="store_true", help="do not request turn_damage"
     )
