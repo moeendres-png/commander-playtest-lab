@@ -1,29 +1,36 @@
 # Commander Studio: was auf dem Owner-PC liegen muss und wie ich es prüfe
 
-Stand: 2026-11-17, Refs #1167. Diese Seite sammelt nur, was im Repository steht. Jede Angabe
-nennt ihre Quelle. **Nichts hier sagt, dass es auf dem Owner-PC läuft.** „zu prüfen am PC“
+Stand: 2026-11-18, Refs #1519, #1167. Diese Seite sammelt nur, was im Repository steht. Jede
+Angabe nennt ihre Quelle. **Nichts hier sagt, dass es auf dem Owner-PC läuft.** „zu prüfen am PC“
 (ZPAP) heißt: aus dem Repository nicht belegbar oder nur am PC feststellbar. Ergebnisse von
-dort sind `SIMULATED_RESULT` und kein Qualifikationsbeleg (`docs/STUDIO_PLAN_SIMULATOR.md`,
-„What a result must always say“).
+dort sind `SIMULATED_RESULT` und kein Qualifikationsbeleg (`docs/STUDIO_SCOPE.md`,
+`docs/STUDIO_PLAN_SIMULATOR.md`, „What a result must always say“).
+
+Die ausfüllbare Vorlage für die Abnahme am Owner-PC liegt in
+`docs/STUDIO_ABNAHME_PROTOKOLL.md`.
 
 ## 1. Voraussetzungen
 
 | Was | Angabe | Quelle |
 |---|---|---|
 | Java | Version 17 oder neuer; Suche über `java` im PATH, sonst `JAVA_HOME\bin\java`. Eine nicht lesbare Version gilt nicht als „zu alt“, dann entscheidet der Engine-Prozess. | `src/commander_lab/studio/launch.py` (`MIN_JAVA_MAJOR`, `_java_executable`, `_java_too_old`); `scripts/studio_start.ps1`. Die Bridge ist mit `maven.compiler.release` 17 gebaut: `engine-bridge/pom.xml`. |
-| Python | 3.12 oder neuer; der Starter nimmt `<Repo>\.venv\Scripts\python.exe`, sonst `python` im PATH. Welche Python-Pakete installiert sein müssen: ZPAP. | `docs/engine_setup.md` (Prerequisites); `scripts/studio_start.ps1` |
-| Bridge-JAR | Datei `xmage-engine-bridge.jar` in `<Studio-Datenordner>\engine\`. Gebaut wird sie im Ordner `engine-bridge` (`mvn -B verify`); Ausgabe `engine-bridge\target\xmage-engine-bridge-0.1.0-SNAPSHOT.jar`. Maven 3.9.16 oder der Wrapper des Repos. | `launch.py` (`ENGINE_JAR`); `scripts/studio_start.ps1`, `scripts/studio_start.sh`; `docs/engine_setup.md` |
+| Python | 3.12 oder neuer; der Starter nimmt `<Repo>\.venv\Scripts\python.exe`, sonst `python` im PATH. Kern- und Studio-Pakete für den Start: `pydantic`, `openpyxl`, `PyYAML`, `typer`, `fastapi`, `uvicorn` (geprüft durch `doctor`). Ob sie am PC installiert sind: ZPAP. | `docs/engine_setup.md` (Prerequisites); `scripts/studio_start.ps1`; `src/commander_lab/studio/doctor.py` (`_REQUIRED_IMPORTS`, `_check_python`) |
+| Bridge-JAR | Datei `xmage-engine-bridge.jar` in `<Studio-Datenordner>\engine\`. Entweder aus dem Release-Artefakt (siehe unten) oder selbst gebaut im Ordner `engine-bridge` (`mvn -B verify`, Ausgabe `engine-bridge\target\xmage-engine-bridge-0.1.0-SNAPSHOT.jar`, Maven 3.9.16 oder Wrapper). | `launch.py` (`ENGINE_JAR`); `scripts/studio_start.ps1`, `scripts/studio_start.sh`; `docs/engine_setup.md`; `.github/workflows/release-artifacts.yml` |
 | Passende Engine-Version | Die JAR muss zum Engine-Pin aus `config/rules_engines.json` gehören; eine ältere Kopie führt dazu, dass der Spielstarter jede Partie wegen „commit mismatch“ ablehnt. | Kommentar in `scripts/studio_start.ps1`; `launch.engine_state` (Pin aus `canonical_xmage_engine_pin`) |
 | Studio-Datenordner | Standard `%LOCALAPPDATA%\CommanderStudio`, gesetzt vom Starter über `COMMANDER_LAB_STUDIO_DATA`. Ohne diese Variable und ohne `COMMANDER_LAB_OWNER_DATA` bricht das Studio ab. Der Ordner muss außerhalb des Repositorys liegen. Partien liegen darin unter `games\`. | `scripts/studio_start.ps1`; `src/commander_lab/studio/store.py` (`studio_data_dir`); `games.py` (`GAMES_FOLDER`) |
 | Plattenplatz für Quellbau | nur nötig, wenn die JAR selbst gebaut wird: Engine-Quellen, Maven-Abhängigkeiten, Build-Ausgabe. Wieviel: ZPAP. | `docs/engine_setup.md` |
 
-Optionale Dateien neben der JAR (vom Provisionierungsskript geschrieben):
-`xmage-engine-bridge.jar.sha256` und `ENGINE_PIN.txt` (`scripts/provision_engine_bridge.py`).
-Fehlt `ENGINE_PIN.txt`, wird der Pin nicht verglichen (`launch.engine_state`).
+Optionale Dateien neben der JAR (vom Provisionierungsskript oder aus dem Release-Artefakt):
+`xmage-engine-bridge.jar.sha256` und `ENGINE_PIN.txt` (`scripts/provision_engine_bridge.py`,
+`.github/workflows/release-artifacts.yml`). Fehlt `ENGINE_PIN.txt`, wird der Pin in
+`launch.engine_state` nicht verglichen (`doctor` meldet dann `UNKNOWN` bzw. fehlende Pin-Datei).
 
-Ein Workflow `package-engine-bridge.yml` existiert im Repository nicht (geprüft in
-`.github/workflows/`). Ein fertig gebautes JAR kommt daher nicht aus diesem Workflow; wie der
-Owner an ein JAR kommt, außer es selbst zu bauen: ZPAP / offen.
+**Fertige Bridge-JAR aus GitHub Actions:** Der Workflow `.github/workflows/release-artifacts.yml`
+läuft bei jedem Push auf `main` und `release/**` sowie manuell (`workflow_dispatch`) und lädt
+das Artefakt `commander-playtest-lab-release-<version>-<sha>` hoch (`retention-days: 30`, also
+nach 30 Tagen verfallen). Darin liegen `xmage-engine-bridge.jar`, `ENGINE_PIN.txt`,
+`xmage-engine-bridge.jar.sha256` und `PLAYTEST_LAB_SHA256SUMS.txt`. Ob der Download und die
+Prüfung am Owner-PC klappen: ZPAP.
 
 ## 2. Umgebungsvariablen
 
@@ -44,22 +51,32 @@ Der Heap von 3 GB ist im Code festgelegt; ob der Owner-PC das trägt (RAM): ZPAP
 Alle Schritte sind aus den Skripten abgeleitet; keiner wurde auf dem Owner-PC ausgeführt.
 
 1. Java 17+ installieren; in einer neuen PowerShell `java -version` prüfen (ZPAP).
-2. Repository auf den PC holen, Python-Umgebung `.venv` im Repo anlegen (Pakete: ZPAP).
-3. Bridge-JAR beschaffen: im Ordner `engine-bridge` `mvn -B verify` ausführen, oder eine
-   fertige JAR bereitstellen (`studio_start.ps1`, Hinweis bei fehlender Datei).
+2. Repository auf den PC holen, Python-Umgebung `.venv` (Python 3.12+) im Repo anlegen
+   (`requirements/lock.txt` oder `pip install -e ".[api]"`; Pakete am PC: ZPAP).
+3. Bridge-JAR beschaffen: entweder aus dem aktuellen GitHub-Actions-Artefakt von
+   `.github/workflows/release-artifacts.yml` (`commander-playtest-lab-release-<version>-<sha>`,
+   30 Tage gültig) entpacken oder im Ordner `engine-bridge` mit `mvn -B verify` selbst bauen.
 4. JAR bereitstellen, eine der zwei Möglichkeiten:
-   - der Starter kopiert die gebaute JAR selbst nach `<Datenordner>\engine\`, sobald sie sich von
-     der dortigen Kopie unterscheidet (`studio_start.ps1`);
-   - oder per Skript (Aufruf aus dem Repo-Ordner, nötige Umgebung ZPAP, da das Skript
-     `commander_lab` importiert):
+   - der Starter kopiert eine im Repo gebaute JAR selbst nach `<Datenordner>\engine\`, sobald
+     sie sich von der dortigen Kopie unterscheidet (`studio_start.ps1`);
+   - oder per Skript (Aufruf aus dem Repo-Ordner, mit gesetztem `PYTHONPATH=src` bzw. aktivierter
+     `.venv`, da das Skript `commander_lab` importiert):
      `python scripts/provision_engine_bridge.py --source <Pfad zur JAR>` kopiert, prüft die
      Prüfsumme und schreibt `.sha256` und `ENGINE_PIN.txt`; ohne `--source` meldet
      `--status` den Zustand als JSON und liefert Exit-Code 1, wenn die Engine nicht bereit ist
      (`scripts/provision_engine_bridge.py`).
-5. Daten ins Studio importieren (Sammlung, Decks): `docs/STUDIO_DECKBUILDER.md`
+5. Systemprüfung ausführen:
+   `python -m commander_lab.studio doctor` (oder `--json` für das Abnahme-Protokoll).
+   Prüft Python >= 3.12, Pflichtpakete, Java 17+, Bridge-JAR, Pin-Abgleich, Kartenkatalog und
+   Datenordner (`src/commander_lab/studio/doctor.py`, `__main__.py`).
+6. Optional für Serien (schnellerer JVM-Start):
+   `python -m commander_lab.studio build-appcds` baut `<jar>.jsa` neben der Bridge-JAR
+   (`src/commander_lab/studio/__main__.py`, `launch.build_appcds_archive`).
+7. Daten ins Studio importieren (Sammlung, Decks): `docs/STUDIO_DECKBUILDER.md`
    (Abschnitte zu `import-all`); nicht Teil dieser Seite.
-6. Studio starten (Abschnitt 4), Seite „Partien“ öffnen.
-7. Preflight lesen (Abschnitt 5), erst danach die Abnahmen (Abschnitte 6 und 7).
+8. Studio starten (Abschnitt 4), Seite „Partien“ öffnen.
+9. Preflight lesen (Abschnitt 5), danach die Abnahme nach `docs/STUDIO_ABNAHME_PROTOKOLL.md`
+   durchführen und protokollieren.
 
 ## 4. Startbefehl
 
@@ -97,7 +114,9 @@ auf diesem Rechner noch nicht eingerichtet.“ plus den Grund. Gründe (`launch.
 
 Beim Start einer Partie (`prepare_table_deck_paths`) kommen weitere Ablehnungen:
 „Die Regeln-Engine XMage unterstützt diese Karten noch nicht: ...“,
-„Das Kartenwissen der KI kennt diese Karten noch nicht: ...“ (`launch.py`) und
+„Das Kartenwissen der KI kennt diese Karten noch nicht: ...“ (`launch.py`),
+die Sitz-Sperre (`MAX_RELEASED_SEATS = 4`: 2 bis 4 Sitze aktiv, 5 und 6 technisch gesperrt,
+`launch.py`, PR #1515) und
 „Die Partie konnte nicht gestartet werden: <letzte 5 Zeilen von games\<id>.out>“, wenn innerhalb von
 20 Sekunden kein Spiellog entsteht. Daher ist `games\<id>.out` die erste Log-Datei, die ein
 Befund beilegen soll.
@@ -118,39 +137,36 @@ Zusätzlich liefert die Antwort `bridge_qualification` (`src/commander_lab/bridg
 `ALIGNED_WITH_SEALED_EPOCH`, `BRIDGE_AHEAD_OF_QUALIFICATION` oder `UNKNOWN`. `BRIDGE_AHEAD...`
 heißt: `engine-bridge/` weicht von der versiegelten Quelle ab (auch durch uncommittete Änderungen)
 oder der Pin ist weitergezogen; Ergebnisse gelten dann nicht als von der versiegelten Epoche
-gedeckt (`AGENTS.md` §10, Studio bridge gate). `UNKNOWN`: Git-Herkunft nicht prüfbar. Ob die Seite
-diesen Zustand sichtbar anzeigt: ZPAP (die Obligation steht in `AGENTS.md` §10 noch offen, #1401).
+gedeckt (`AGENTS.md` §10, Studio bridge gate). `UNKNOWN`: Git-Herkunft nicht prüfbar. Die
+Oberfläche zeigt `BRIDGE_AHEAD_OF_QUALIFICATION` sichtbar in der Partie-, Serien- und
+Verlaufsansicht an (`static/partie.js`, `static/app.js`, `static/paired.js`, `static/ui.js`;
+#1401 erledigt mit PR #1411). Ob die Darstellung am Owner-PC lesbar und vollständig ist: ZPAP.
 
 `GET /api/engine/missing-cards` (optional `?revision_id=`) listet Karten, die der KI unbekannt oder
 von XMage nicht unterstützt sind, für eine Deck-Revision oder die ganze Sammlung (`web.py`).
 
-## 6. Abnahme M4: ein ganzes Spiel gegen drei KI-Plätze
+## 6. Abnahme PLAY (AK-1 bis AK-8): Chulane gegen drei KI-Sitze
 
-Ziel laut Plan: Der Owner spielt eine vollständige Partie mit seinem Commander (Chulane) gegen drei
-KI-Plätze auf dem eigenen Rechner (`docs/STUDIO_ROADMAP_20261112.md`, PLAY, „Done when“, #1169).
-Dass das mit dem aktuellen Stand der Menschen-Sitz-Seite möglich ist, ist aus dem Repository nicht
-belegt: ZPAP. Die Punkte unten prüfen zuerst die Simulation gegen drei KI-Plätze; für einen
-menschlichen Platz gilt `docs/research/PLAY_HUMAN_SEAT_REQUIREMENTS.md`.
+Verbindliche Abnahme-Definition ist AK-1 bis AK-8 (`docs/OWNER_DECISIONS_STUDIO_20261118.md`, E4;
+`docs/STUDIO_SCOPE.md`, PLAY P0). Auf `main` ist PLAY P0 gemergt (PR #1515): Brett-Klick für
+Ziel, Angreifer, Blocker, Karte aus der Hand und Fähigkeit eines Permanents (`static/boardclick.js`,
+Listen bleiben als Ausweichweg), Sitz-Sperre 2–4 im Startpfad (`launch.MAX_RELEASED_SEATS = 4`),
+kein Timeout für den Mensch-Sitz (`decision_timeout_seconds = 0`, `studio/play.py`), KI-Hände live
+verborgen und nach Spielende aufgedeckt (`docs/STUDIO_GAME_VIEWER.md`), Vorspulen ausschließlich
+über die Pass-Option auf Prioritätsabfragen (`static/vorspulen.js`).
 
-- [ ] **Preflight grün.** *Tun:* Studio starten, „Neue Partie“ öffnen. *Sichtbar:* kein Hinweis „Die
-  Regel-Engine ... noch nicht eingerichtet“; im Deck-Tab „Mit der Engine prüfen“ für die Chulane-
-  Revision zeigt `PASS`. *Melden bei Abweichung:* Screenshot der Meldung inkl. Grund; Ausgabe von
-  `python scripts/provision_engine_bridge.py --status`; `java -version`.
-- [ ] **Partie starten.** *Tun:* Chulane-Revision, drei Gegner-Decks (Voreinstellungen „precon“,
-  „mixed“, „optimized“ stehen in `launch.POD_PRESETS`), Seed wählen, starten. *Sichtbar:* die Partie
-  öffnet sich innerhalb von 20 Sekunden, das Log wächst. *Melden:* Screenshot der Fehlermeldung;
-  `<Datenordner>\games\<game_id>.out`.
-- [ ] **Partie läuft bis zum Ende.** *Sichtbar:* ein Ergebnis (Sieger oder Abbruchgrund) im Log und
-  auf der Seite, vier Sitze. Gewünscht laut Roadmap und Owner-Entscheid 2026-11-17: ohne Zeitlimit-Abbruch; Dauer notieren
-  (Soll-Dauer: ZPAP). *Melden:* Screenshot der Endansicht, Pfad `games\<game_id>.jsonl.gz`, Seed,
-  Wanduhr-Dauer.
-- [ ] **Kein Platz bleibt hängen.** *Sichtbar:* jeder KI-Platz entscheidet weiter, kein Stillstand.
-  *Melden:* Zeitpunkt und Entscheidungsnummer des Stillstands, Screenshot, Log-Pfad.
-- [ ] **Herkunft festhalten.** *Sichtbar/zu notieren:* Bridge-JAR-SHA-256 (`xmage-engine-bridge.jar.sha256`
-  oder `bridge_jar_sha256` im Zustand), Engine-Pin, `bridge_qualification`-Status. *Melden:* alle drei
-  Werte im Befund. Ergebnis nur als `SIMULATED_RESULT` bezeichnen.
+Dass dies am Owner-PC vollständig und ohne Hänger durchläuft, ist nicht vom PC belegt: ZPAP.
+Die konkreten Prüfpunkte und Felder stehen in `docs/STUDIO_ABNAHME_PROTOKOLL.md` (Blöcke B und C):
 
-## 7. Abnahme Serie: 36-Seed-Referenzserie, Laufzeit notieren
+- **Preflight grün:** Studio starten, „Neue Partie“ öffnen (kein Hinweis „Die Regel-Engine ... noch
+  nicht eingerichtet“); im Deck-Tab „Mit der Engine prüfen“ für die Chulane-Revision zeigt `PASS`.
+- **Drei vollständige Vierer-Partien (AK-1 bis AK-8):** Chulane gegen drei KI-Sitze (Voreinstellungen
+  `precon`, `mixed`, `optimized` aus `launch.POD_PRESETS`), ohne Zeitlimit-Abbruch, bis zum von der
+  Engine gemeldeten Spielende. Alle Werte, Herkunftspfade (`games\<game_id>.jsonl.gz`,
+  `games\<game_id>.out`) und das Urteil je AK-Zeile werden in `docs/STUDIO_ABNAHME_PROTOKOLL.md`
+  eingetragen; nicht vorgekommene Entscheidungsklassen (AK-3) bleiben `UNKNOWN`.
+
+## 7. Abnahme Serie: 36-Seed-Referenzserie und gepaarte Serien
 
 Im Repository heißt die Referenz R1: das echte Vier-Spieler-Pod von
 `scripts/run_real_4p_full_game_smoke.py`, Seeds 1 bis 36 (`docs/STUDIO_PLAN_SIMULATOR.md`,
@@ -160,36 +176,41 @@ identisch. Das ist ein Vergleichswert, kein Sollwert für den Owner-PC. Ob die �
 des Owners R1 oder eine Studio-Serie (`POST /api/simulations/batch`, `base_seed`, `games_count`,
 `workers`, `games_per_jvm`) ist: ZPAP / mit dem Owner klären. Beide Wege:
 
-- [ ] **Weg A, R1 über das Benchmark-Skript.** *Tun:* im Repo
+- **Weg A, R1 über das Benchmark-Skript (nur WSL/Linux):** im Repo
   `python scripts/benchmark_xmage_full_games.py run --jar <JAR> --out serie36.json --seeds 1-36 --workers 4 --games-per-jvm 9 --fast`
-  (Befehl aus `docs/STUDIO_PLAN_SIMULATOR.md`; ob `--workers 4` zum PC passt: ZPAP). *Sichtbar:* 36
-  Spiele fertig, keine fehlgeschlagen oder fehlend; Gesamtlaufzeit (Wanduhr) und die Kennung der JAR.
-  *Melden:* `serie36.json`, Gesamtlaufzeit, Zahl fertig/fehlgeschlagen, JAR-SHA-256, Maschine (Kerne,
-  RAM, Java-Version).
-- [ ] **Weg B, Studio-Serie.** *Tun:* Seite „Simulieren“, Chulane-Revision, Pod, `games_count` 36,
-  Basis-Seed 1, Schrittweite 1, Arbeiter und Spiele je JVM notieren (Standard: Arbeiter
-  `min(4, Kerne-1)`, 6 Spiele je JVM; `launch.default_workers`, `DEFAULT_GAMES_PER_JVM`). *Sichtbar:*
-  Fortschritt „x von n“, am Ende Status und Ergebnis `SIMULATED_RESULT`. *Melden:* Serien-Datei
-  `games\<batch_id>.series.json`, Start- und Endzeit (`started_at` im Serienzustand), Screenshot der
-  Serienansicht, Zahl abgeschlossen/fehlgeschlagen.
-- [ ] **Laufzeit notieren.** In jedem Fall: Gesamtlaufzeit, Arbeiter, Spiele je JVM, Kerne/RAM, Java-
-  Version, Bridge-JAR-SHA-256, `bridge_qualification`-Status. Während der Serie keine anderen
-  schweren Programme laufen lassen (die Messungen im Performance-Dokument setzen das voraus).
-- [ ] **Ergebnis richtig einordnen.** Laufzeit und Ausfälle sind Messwerte, keine Qualifikation
+  (Befehl aus `docs/STUDIO_PLAN_SIMULATOR.md`; ob `--workers 4` zum PC passt: ZPAP).
+  **Hinweis Windows:** `scripts/benchmark_xmage_full_games.py` nutzt `import resource` ungeschützt
+  und bricht unter nativem Windows mit `ModuleNotFoundError` ab; der Windows-Weg ist Weg B
+  (Studio-Serie). Ob WSL am Owner-PC verfügbar ist: ZPAP (Paket #1521 behebt es später).
+  Prüfen: 36 Spiele fertig, keine fehlgeschlagen oder fehlend; Gesamtlaufzeit (Wanduhr) und
+  JAR-SHA-256 notieren.
+- **Weg B, Studio-Serie:** Seite „Simulieren“, Chulane-Revision, Pod, `games_count` 36, Basis-Seed 1,
+  Schrittweite 1, Arbeiter und Spiele je JVM notieren (Standard: Arbeiter `min(4, Kerne-1)`, 6
+  Spiele je JVM; `launch.default_workers`, `DEFAULT_GAMES_PER_JVM`). Fortschritt „x von n“, am Ende
+  Status und Ergebnis `SIMULATED_RESULT` (`games\<batch_id>.series.json`).
+- **Gepaarte Serien (SIMULATE A1, PR #1516):** `python -m commander_lab.studio compare-decks` bzw.
+  die gepaarte Serien-Ansicht in der Oberfläche nutzen Slot-Ausrichtung, MDE-Planung und Seed-Plan.
+  Die 5/6-Sitz-Sperre in den Serien-Routen und `compare-decks` ist als eigenes Paket (#1520) noch
+  offen. Identitätsnachweis und Pilotblock am Owner-PC folgen mit Paket #1521 (Platzhalter in
+  `docs/STUDIO_ABNAHME_PROTOKOLL.md`, Blöcke D und E).
+- **Einordnung:** Laufzeit und Ausfälle sind Messwerte, keine Qualifikation
   (`scripts/benchmark_xmage_full_games.py`: „Local timings are measurements, not qualification
-  evidence“). Ein Vergleich zweier JARs per `compare` gehört zum Bridge-Gate, nicht zu dieser Abnahme.
+  evidence“). Alle Ergebnisse sind `SIMULATED_RESULT`.
 
 ## 8. Zu prüfen am PC (Sammelliste)
 
-1. Installierte Java-Version und ob sie im PATH liegt.
-2. Welche Python-Pakete die `.venv` braucht und ob `python scripts/provision_engine_bridge.py`
-   ohne weitere Umgebung läuft (es importiert `commander_lab`).
-3. Wie der Owner an die Bridge-JAR kommt (selbst bauen mit Maven vs. fertig bereitgestellt);
-   es gibt keinen `package-engine-bridge`-Workflow.
-4. Ob JAR und Pin zusammenpassen (`ENGINE_PIN.txt`, Starter-Meldungen).
-5. RAM für `-Xmx3g` je JVM bei mehreren Arbeitern; Plattenplatz für Quellbau.
-6. Ob die Seite `BRIDGE_AHEAD_OF_QUALIFICATION` sichtbar anzeigt (#1401 offen).
-7. Ob ein menschlicher Platz in „Neue Partie“ bereits spielbar ist (M4-Wortlaut „spielt selbst“).
-8. Was mit „36-Seed-Referenzserie“ gemeint ist (R1-Benchmark oder Studio-Serie) und welche Laufzeit
-   als akzeptabel gilt; der Repo-Messwert 408 s stammt von anderer Hardware.
-9. Dass Partie und Serie überhaupt vollständig laufen: dazu gibt es hier keine Aussage.
+1. Installierte Java-Version (`java -version`) und ob sie im PATH liegt.
+2. Python 3.12+ und installierte Pakete in `.venv` (`python -m commander_lab.studio doctor --json`)
+   sowie ob `python scripts/provision_engine_bridge.py --status` läuft.
+3. Bezug der Bridge-JAR aus dem Artefakt von `.github/workflows/release-artifacts.yml` (oder
+   Eigenbau per Maven) sowie Pin-Abgleich (`ENGINE_PIN.txt`).
+4. RAM für `-Xmx3g` je JVM bei mehreren Arbeitern; Plattenplatz für Quellbau; AppCDS-Erstellung
+   (`python -m commander_lab.studio build-appcds`).
+5. Sichtbare Anzeige von `BRIDGE_AHEAD_OF_QUALIFICATION` in der Oberfläche (PR #1411 umgesetzt, am
+   Owner-PC optisch zu prüfen).
+6. Drei vollständige Vierer-Partien mit Mensch auf Sitz 1 nach AK-1 bis AK-8 inkl. Störfällen
+   (`docs/STUDIO_ABNAHME_PROTOKOLL.md`, Blöcke B und C).
+7. Was mit „36-Seed-Referenzserie“ gemeint ist (R1-Benchmark oder Studio-Serie) und welche Laufzeit
+   am Owner-PC akzeptabel gilt; der Repo-Messwert 408 s stammt von anderer Hardware.
+8. Identitätsnachweis, Pilotblock und Kreislauf Deck-Stand → Partie → Serie → Verlauf
+   (`docs/STUDIO_ABNAHME_PROTOKOLL.md`, Blöcke D–F, nach #1521 / #1531).
