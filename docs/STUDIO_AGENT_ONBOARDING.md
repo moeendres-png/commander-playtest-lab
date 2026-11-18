@@ -17,7 +17,13 @@ die Dateien so anzupassen, dass ein weiterer Agent weiß, wie abgearbeitet wird
 
 - Stand holen und einen eigenen Branch von `origin/main` anlegen. Nie auf `main` schreiben, nie
   Force-Push (`AGENTS.md` §10).
-- Claim in #1167 (Paket, Fläche, Branch); er steht spätestens mit dem ersten gepushten Meilenstein.
+- Vor dem Start die Claim-Tabelle in #1167 und die offenen PRs und Branches prüfen (keine
+  Doppelarbeit), dann claimen: Kommentar im Issue und Zeile in der Claim-Tabelle (Fläche, Branch,
+  Stand). Claimen gilt für jeden Agenten, auch Lead und Coordinator (Owner, 2026-11-18). Freigeben
+  bei Merge, Übergabe oder Abbruch. Bei einem Claim ohne gepushten Meilenstein darf jeder im Issue
+  nachfragen; sind danach 24 Stunden ohne Antwort oder Push vergangen, verfällt er und darf
+  übernommen werden. Der aktive Branch eines anderen Agenten bleibt ohne Übergabe unberührt.
+  Einzelheiten und Verfallsfrist sind Ausgestaltung des Leads (`AGENTS.md` §8, §11).
 - Ein Paket = ein Issue bzw. ein Branch = ein PR. Commits und PR-Texte sagen `Refs #N`, nie
   `Closes #N`.
 
