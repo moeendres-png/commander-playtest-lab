@@ -1096,7 +1096,7 @@ def test_real_engine_human_seat_plays_a_game_to_its_end_through_the_play_routes(
 
 class _ActiveScript:
     """A deterministic test script for a human seat that really plays: it takes two mulligans
-    (to reach the London bottom choice), plays a land, casts the cheapest spell it can pay for once
+    (to reach the London bottom choice; the first one is free with four seats), plays a land, casts the cheapest spell it can pay for once
     per turn, pays with the sources the engine offers, attacks on even turns and holds on odd ones,
     blocks when asked, and otherwise answers with the smallest label or the stated minimum.
 
@@ -1104,8 +1104,9 @@ class _ActiveScript:
     was offered by the engine for that very decision, and the route refuses any other.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, mulligans: int = 2) -> None:
         self.mulligans = 0
+        self.take = mulligans
         self.pay_streak = 0
         self.last_cast = ""
         self.tried: set[tuple[str, int]] = set()
@@ -1142,7 +1143,7 @@ class _ActiveScript:
         if cls != "mana_payment":
             self.pay_streak = 0
         if cls == "mulligan":
-            if self.mulligans < 2:
+            if self.mulligans < self.take:
                 self.mulligans += 1
                 chosen = [o for o in by_label if o["option_type"] == "mulligan"]
             else:
@@ -1232,10 +1233,11 @@ _OPPONENTS = (
     "precon/2024/animated_army",
     "precon/2022/token_triumph",
 )
-_ACTIVE_GAMES = {
-    "open_hostility": (21, "precon/2016/open_hostility"),
-    "power_hungry": (22, "precon/2013/power_hungry"),
-    "draconic_domination": (23, "precon/2017/draconic_domination"),
+_ACTIVE_GAMES = {  # name: (seed, human deck, mulligans the script takes)
+    "open_hostility": (21, "precon/2016/open_hostility", 2),
+    "open_hostility_one_mulligan": (21, "precon/2016/open_hostility", 1),
+    "power_hungry": (22, "precon/2013/power_hungry", 2),
+    "draconic_domination": (23, "precon/2017/draconic_domination", 2),
 }
 
 
@@ -1254,7 +1256,12 @@ def _engine_or_skip(tmp_path: Path) -> None:
 
 
 def _play_scripted_game(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, seed: int, human_deck: str, turn_limit: int
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    seed: int,
+    human_deck: str,
+    turn_limit: int,
+    mulligans: int,
 ) -> dict[str, object]:
     from commander_lab.studio import launch
 
@@ -1276,7 +1283,7 @@ def _play_scripted_game(
     )
     assert started.status_code == 200, started.text
     game_id = started.json()["game_id"]
-    script = _ActiveScript()
+    script = _ActiveScript(mulligans)
     answered: collections.Counter[str] = collections.Counter()
     refused: list[tuple[str, int, str]] = []
     conceded = False
@@ -1341,7 +1348,13 @@ _REQUIRED = {
         ("mana_payment", ""),
         ("declare_attacker", "Choose attack for"),
         ("declare_blocker", "Choose creatures blocked by"),
-        ("multi_amount", "Assign amounts"),
+    },
+    "open_hostility_one_mulligan": {
+        ("mulligan", "Keep or mulligan"),
+        ("mana_payment", ""),
+        ("declare_attacker", "Choose attack for"),
+        ("declare_blocker", "Choose creatures blocked by"),
+        ("multi_amount", "Assign amounts"),  # the human's attacker blocked by several creatures
     },
     "power_hungry": {
         ("mulligan", "Keep or mulligan"),
@@ -1377,8 +1390,8 @@ def test_real_engine_scripted_human_covers_decision_classes_through_the_play_rou
     the engine's start-player answer "Full Game Seat K" must be followed by seat K-1 acting first.
     """
     _engine_or_skip(tmp_path)
-    seed, deck = _ACTIVE_GAMES[name]
-    game = _play_scripted_game(tmp_path, monkeypatch, seed, deck, turn_limit=60)
+    seed, deck, mulligans = _ACTIVE_GAMES[name]
+    game = _play_scripted_game(tmp_path, monkeypatch, seed, deck, 60, mulligans)
     result = game["result"]
     assert isinstance(result, dict) and result.get("status") == "finished", result
     assert game["refused"] == [], game["refused"]
@@ -1390,9 +1403,9 @@ def test_real_engine_scripted_human_covers_decision_classes_through_the_play_rou
         if not any(cls == need[0] and prompt.startswith(need[1]) for cls, prompt in seen)
     }
     assert missing == set(), (missing, sorted(seen)[:40])
-    # London bottom after the second mulligan: a "put on the bottom" choice, answered and accepted
-    assert sum(f["decision_class"] == "mulligan" for f in human) == 3
-    assert any("put on the bottom" in _bare(str(f["prompt"])) for f in human)
+    # the mulligans taken, then keep; after the second one the London bottom choice is asked and accepted
+    assert sum(f["decision_class"] == "mulligan" for f in human) == mulligans + 1
+    assert any("put on the bottom" in _bare(str(f["prompt"])) for f in human) == (mulligans >= 2)
     # seat rule: the engine's own start-player choice against the seat that then acts first
     chosen = next(f for f in frames if "starting player" in str(f["prompt"]))
     picked = re.search(r"Full Game Seat (\d+)", str(chosen["chosen"][0]))  # type: ignore[index]
