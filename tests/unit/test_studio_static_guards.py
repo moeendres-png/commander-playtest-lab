@@ -344,6 +344,18 @@ def test_new_game_dialog_offers_only_the_released_table_sizes() -> None:
     assert "OPPONENT_COUNTS.map(" in js and "[1, 2, 3, 4, 5].map" not in js
 
 
+def test_commander_line_shows_engine_values_and_computes_nothing() -> None:
+    js = (STATIC / "partie.js").read_text(encoding="utf-8")
+    rows = js.split("function commanderRows(", 1)[1].split("\nfunction commanderLine(", 1)[0]
+    line = js.split("function commanderLine(", 1)[1].split("\nfunction pilotStateToFrame(", 1)[0]
+    assert "Steuer unbekannt" in line and "Casts unbekannt" in line
+    for word in ("tax", "21", "* 2", "+ 2"):
+        assert word not in rows and word not in line, word
+    # damage totals are shown as the engine's own numbers: only assigned, never summed
+    assert "+=" not in rows and "reduce(" not in rows and "reduce(" not in line
+    assert "commanders," in js.split("function pilotStateToFrame(", 1)[1].split("return {", 1)[1]
+
+
 def test_partie_dims_non_answers_with_a_veil_and_labels_every_engine_decision_class() -> None:
     css = (STATIC / "partie.css").read_text(encoding="utf-8")
     js = (STATIC / "partie.js").read_text(encoding="utf-8")
