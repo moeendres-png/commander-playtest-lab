@@ -13,8 +13,10 @@ Diese Datei ersetzt das Zieldokument `docs/STUDIO_TARGET_SCOPE.md`, das am 2026-
 gemergt wurde. Grundlage ist die Owner-Aussage vom 2026-11-18 auf die Frage, welcher Scope gilt:
 „Bitte nach deinen neuen hier ausgemachten scope arbeiten und das so hinterlegen“, dazu „hier mein
 GO für alle deinen Empfehlungen“, eingeschränkt durch „Bei Unsicherheiten nochmal mit mir zusammen
-planen“ (deckt Empfehlung §D.1 des Optionspapiers: Zieldokument ersetzen;
-Wortlaut in `docs/OWNER_DECISIONS_STUDIO_20261118.md`). Für die dort genannte Freigabe „S-B,
+planen“ (deckt Empfehlung §D.1 des Optionspapiers: Zieldokument ersetzen; Wortlaut und genaue
+Quellen in `docs/OWNER_DECISIONS_STUDIO_20261118.md`: die Scope- und Unsicherheits-Zitate stehen
+wörtlich in PR #1514, Kommentar 6987989133; das GO-Zitat ist vom Lead wörtlich übermittelt, ohne
+eigene Kommentar-ID). Für die dort genannte Freigabe „S-B,
 O1-A bis O4-A“ gibt es keine belegte Owner-Quelle. Das Zieldokument bleibt als Verlaufsdokument
 erhalten (`AGENTS.md` §9), ist aber keine Pflichtlektüre und keine Scope-Quelle mehr; die
 strittigen Punkte stehen am Ende dieser Datei. `docs/STUDIO_ROADMAP_20261112.md` und
@@ -30,8 +32,8 @@ Datei widersprechen, gilt diese Datei.
 - Keine Preise, kein Kaufmodus, keine Bezahldienste (A1, B1).
 - Keine neue Abhängigkeit und keine Änderung an `pyproject.toml` ohne Owner-Go.
 - Sitze: Höchstzahl 6, Standard 4. Aktiv sind 2 bis 4 Sitze; 5 und 6 sind nicht freigegeben
-  (eigene Qualifikation und Owner-Freigabe, A3, A8). Die Engine kann 2 bis 6 Sitze
-  (`studio/launch.py`: `MIN_SEATS, MAX_SEATS = 2, 6`). Technische Sperre (neu, Empfehlung O11 mit
+  (eigene Qualifikation und Owner-Freigabe, A3, A8). Die Engine nimmt 2 bis 6 Sitze an
+  (Verhalten bei 5/6 nicht qualifiziert: `UNKNOWN`; `studio/launch.py`: `MIN_SEATS, MAX_SEATS = 2, 6`). Technische Sperre (neu, Empfehlung O11 mit
   Owner-GO): im Studio-Startpfad (Partie, PLAY) seit PR #1515 auf `main`
   (`MAX_RELEASED_SEATS = 4`); in den Serien-Routen noch offen, sie kommt mit dem SIMULATE-Zweig
   (in PR #1516 nicht enthalten). Aufgehoben wird sie nur per Owner-Freigabe.
@@ -157,7 +159,8 @@ So wird der Scope oben abgearbeitet, von jedem Agenten gleich.
    als 300 geänderte Zeilen, Policy-Text, Workflows, Engine, Bridge, Gates, Qualifikation).
    Studio-Ergänzung zu §10 (ändert §10 nicht): Zusätzlich zur MATERIAL-Liste sind Texte der
    Oberfläche, die Aussagen über Ratings oder Simulationsergebnisse machen, review-pflichtig; eine
-   solche Änderung wird wie MATERIAL behandelt. Anlass dieser Klarstellung sind zwei Merges vom 2026-11-18
+   solche Änderung wird wie MATERIAL behandelt. Ein Merge vor dem erforderlichen Review ist nach
+   §10 ein Gate-Verstoß, soweit die Änderung unter die MATERIAL-Liste in §10 fällt. Anlass dieser Klarstellung sind zwei Merges vom 2026-11-18
    (#1509, #1510), bei denen Review-Befunde bzw. ein Halte-Hinweis erst nach dem Merge aufgelöst
    wurden.
 5. **Governance-Dateien:** Änderungen an `AGENTS.md` und `CLAUDE.md` erfolgen durch Lead oder

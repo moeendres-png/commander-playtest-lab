@@ -14,10 +14,13 @@ ist als solche gekennzeichnet. Eine spätere Owner-Anweisung geht vor; dann wird
 fortgeschrieben, nie gelöscht (`AGENTS.md` §9).
 
 **Quellen.**
-- Owner-Antworten 2026-11-18 (O1, O3, O4, O6), festgehalten in #1167, Kommentar 6985613347.
-- Owner-Aussagen 2026-11-18 in der Lead-Sitzung zu Scope, Empfehlungen und Abarbeitung
-  (Abschnitt 1, letzte fünf Zitate), festgehalten in PR #1514, Kommentar 6987989133 (Session-Chat,
-  keine eigene Kommentar-ID des Owners).
+- Owner-Antworten 2026-11-18 (O1, O3, O4, O6) und „Sonst arbeite weiter nach deinen
+  Empfehlungen“, festgehalten in #1167, Kommentar 6985613347.
+- „Bitte nach deinen neuen hier ausgemachten scope arbeiten …“, „Bei Unsicherheiten …“ und „Und
+  bitte hinterlege …“ (Owner, 2026-11-18, Session-Chat): wörtlich festgehalten in PR #1514,
+  Kommentar 6987989133.
+- „hier mein GO für alle deinen Empfehlungen“ (Owner, 2026-11-18, Session-Chat): wörtlich vom Lead
+  übermittelt; in Kommentar 6987989133 nur sinngemäß referenziert, ohne eigene Kommentar-ID.
 - Owner-Entscheide PLAY 2026-11-17, festgehalten in #1167, Kommentar 6953814299.
 - Owner-Entscheide Tierliste 2026-11-18, festgehalten in #1369, Kommentar 6967718221.
 - Optionspapier `docs/research/studio_abschluss_20261118/design_options.md` mit
