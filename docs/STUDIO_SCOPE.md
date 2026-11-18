@@ -149,8 +149,7 @@ Keine Kalenderdaten: Die Dauer hängt an Owner-Zeit am PC und an Nutzungslimits 
 ## Phasenplan S0 bis S6
 
 Quelle: Gesamtplan der Lead-Sitzung (Teil D), als Verfeinerung der Roadmap-Phasen durch den Lead
-nach `AGENTS.md` §8. Er verfeinert die Roadmap-Phasen und legt zwei Owner-Sitzungen am PC fest, weil alles Messbare daran
-hängt. `UNKNOWN` ist nie PASS.
+nach `AGENTS.md` §8. Er legt zwei Owner-Sitzungen am PC fest, weil alles Messbare daran hängt. `UNKNOWN` ist nie PASS.
 
 | Schritt | Phase | Inhalt | Abnahme |
 |---|---|---|---|
@@ -159,7 +158,7 @@ hängt. `UNKNOWN` ist nie PASS.
 | S2 Owner-Sitzung 1 (am PC) | 1, 2 | Einrichtung, drei Abnahme-Partien, Pilotblock | ausgefülltes Abnahme-Protokoll mit Dateien; AK-1 bis AK-8 je PASS, FAIL oder `UNKNOWN`; Pilotblock liefert Durchsatz, Diskordanz, Paar-Streuung und Sitzkurve je mit n/N |
 | S3 Auswerten | 4 | P1-Reihenfolge aus AK-8; Budget-Tabelle mit gemessenem Durchsatz und gemessener Diskordanz; Schwellen des Pilot-Audits mit dem Owner kalibrieren (Owner-Zeit etwa 2 bis 2,5 Stunden; C1 bis C3 und C6 sind angenommen, E7) | Kommentar in #1167 mit den Messwerten und der P1-Liste; Owner-Antworten in einer Entscheidungsdatei |
 | S4 Bauen (parallel) | 4 | SIMULATE A2; PLAY P1a, danach P1b; Backup | zwölf Punkte des Mindeststandards je mit Test oder Beispielergebnis; jeder P1-Punkt mit Test, der ohne die Änderung fällt |
-| S5 Owner-Sitzung 2 (am PC) | 4 | Nachtserie zur ersten Chulane-Frage (Landzahl-Achse mit Kontrollen); Spielprobe P1; Pilot-Audit | Frage beantwortet mit Serienplan, Intervall, nachweisbarer Differenz und Gültigkeitsblock |
+| S5 Owner-Sitzung 2 (am PC) | 4 | Nachtserie zur ersten Chulane-Frage (Landzahl-Achse mit Kontrollen); Spielprobe P1; optional Pilot-Audit | Frage beantwortet mit Serienplan, Intervall, nachweisbarer Differenz und Gültigkeitsblock |
 | S6 Abschluss | 5 | Epoche oder „vor Qualifikation“; Release-Paket; Tierliste-Abnahme | Abschlusskriterien 1 bis 6 je mit Beleg; Einrichtung von null aus dem Paket |
 
 **Abnahme-Protokoll (Gerüst; die ausfüllbare Vorlage ist ein eigenes Paket).** Jede Zeile bekommt
@@ -210,7 +209,11 @@ So wird der Scope oben abgearbeitet, von jedem Agenten gleich.
    bis S6; Phase 1 (PLAY P0) und Phase 2 (SIMULATE A1) laufen parallel, weil ihre Flächen getrennt
    sind.
 2. **Claims:** Die Claim-Tabelle im Übersichts-Issue #1167 ist maßgeblich. Eine Fläche hat einen
-   Halter. Ein Claim steht spätestens mit dem ersten gepushten Meilenstein (Optionspapier §D.3).
+   Halter. Jeder Agent, auch Lead und Coordinator, claimt seine Arbeit vor dem Start: Kommentar im
+   Issue und Zeile in der Claim-Tabelle von #1167 (Fläche, Branch, Stand). Vorher prüft er die
+   Claim-Tabelle und die offenen PRs und Branches, damit keine Doppelarbeit entsteht. Der Claim wird
+   bei Merge, Übergabe oder Abbruch freigegeben. Ein Claim ohne gepushten Meilenstein verfällt nach
+   24 Stunden ohne Aktivität; vorher wird im Issue nachgefragt (`AGENTS.md` §11; Owner, 2026-11-18).
    Bei Überschneidung zuerst dort kommentieren, dann arbeiten. Flächen-Karte und
    Kollisionsdateien: `docs/STUDIO_AGENT_ONBOARDING.md`.
 3. **Pakete:** ein Paket = ein Issue bzw. ein Branch = ein PR. Commits und PR-Texte sagen
