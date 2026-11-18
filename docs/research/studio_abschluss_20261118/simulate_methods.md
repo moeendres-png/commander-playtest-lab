@@ -1,6 +1,6 @@
 # SIMULATE-Methodik: belastbare Deckbau-Analysen aus Commander-Simulationen
 
-Lane `simulate_methods`. Abrufdatum aller Quellen: **2026-11-18**. Nur Webrecherche und eigene Rechnung (stdlib-Python, Skripte unter `.../costudio/calc/`), nichts gebaut oder gepostet. Ergänzt `OPEN_SOURCE_LANES_20261117.md` (dort schon: Wilson/Jeffreys, statsmodels, Fishtest/SPRT, always-valid, OpenSkill, Herkunftsfeld-Idee) und wiederholt es nicht, sondern schließt die dort als "nicht im Web belegt" markierten Lücken (McNemar/gepaarter Bootstrap, Control Variates/CRN, Power-Planung, alpha-spending, Sitzeffekte).
+Lane `simulate_methods`. Abrufdatum aller Quellen: **2026-11-18**. Nur Webrecherche und eigene Rechnung (stdlib-Python, Skripte unter `calc/` in diesem Ordner), nichts gebaut oder gepostet. Ergänzt `OPEN_SOURCE_LANES_20261117.md` (dort schon: Wilson/Jeffreys, statsmodels, Fishtest/SPRT, always-valid, OpenSkill, Herkunftsfeld-Idee) und wiederholt es nicht, sondern schließt die dort als "nicht im Web belegt" markierten Lücken (McNemar/gepaarter Bootstrap, Control Variates/CRN, Power-Planung, alpha-spending, Sitzeffekte).
 
 **Belegstatus je Quelle** (Frame: Eigenangabe vs. geprüft): **[S]** = Seite/PDF abgerufen und gelesen; **[A]** = nur Abstract-Seite abgerufen; **[T]** = nur Suchtreffer-Text, Seite selbst nicht gelesen. Abruf-Werkzeug fasst Seiten per Kleinmodell zusammen; PDFs habe ich lokal mit `pdftotext` selbst gelesen, wo markiert (**[S-lokal]**).
 
@@ -34,7 +34,7 @@ Weitere nur als Suchtreffer **[T]**, nicht tragend: Lan/DeMets-Spending (O'Brien
 
 ---
 
-## 2. Eigene Rechnungen (stdlib, reproduzierbar: `.../costudio/calc/calc.py`, `crn.py`, `mde.py`)
+## 2. Eigene Rechnungen (stdlib, reproduzierbar: `calc/calc.py`, `crn.py`, `mde.py` in diesem Ordner)
 
 Gemeinsame Annahmen: 95 % zweiseitig (z=1,96), Power 80 % (z=0,84), Gewinnwahrscheinlichkeit des Fokusdecks p=0,25 (gleichstarke Decks, 4er-Pod, ein Sieger, keine Unentschieden). Jede Partie liefert **eine** 0/1-Beobachtung für das Fokusdeck (Bernoulli). Das gilt nur, wenn Partien unabhängig sind; siehe §4 (Blöcke).
 

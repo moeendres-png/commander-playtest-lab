@@ -14,3 +14,14 @@ Entscheidungen stehen als Optionen mit Empfehlung. Refs #1167, #1369.
 
 Grenzen: Lizenzaussagen sind keine Rechtsberatung; „unbekannt“ heißt nicht belegt; kein Engine-Lauf, kein Test ausgeführt.
 Pfade unter `/tmp/…` in den Berichten sind flüchtige Arbeitsverzeichnisse und nicht mehr abrufbar.
+
+## Stand und Lesehinweise (Ergänzung nach Review)
+
+- **Stand der Ist-Lage-Zahlen:** `main` 8e2852d07 und deckbuild-studio-`main` 1b4305e am 2026-11-18 gegen 16:20 UTC. Seither: `main` = de69830cf (#1511
+  gemergt, die fünf P2 aus der Prüfung zu #1509 sind behoben), `play/board-click` ist als WIP-Branch gepusht, #1510 steht weiter offen
+  (Einordnung im Kommentar dort). Alle anderen Zahlen als Momentaufnahme lesen.
+- **Evidenz-Kennzeichen je Datei verschieden:** in `play_qol.md` und `simulate_methods.md` bedeutet `[S]` „Seite abgerufen und gelesen“;
+  in `simulate_projects.md` bedeutet `[F]` „Seite abgerufen“ und `[S]` „nur Suchtreffer“. Maßgeblich ist die Legende am Kopf der jeweiligen Datei.
+- **Überholte Empfehlungen:** siehe Nachtrag am Kopf von `design_options.md` (Owner-Antworten 2026-11-18).
+- Namen von Agent-Sitzungen sind neutral („Agent-Session A“). `ist_lage_dbs.md` enthält Angaben aus einem privaten Repo (PR-Titel, Zahlen); vor einer
+  Veröffentlichung des Repos zu prüfen.

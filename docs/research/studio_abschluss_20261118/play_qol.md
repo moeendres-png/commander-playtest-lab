@@ -124,7 +124,7 @@ Ausgangslage: Studio PLAY (Mensch gegen KI), XMage-Bridge liefert Objekt-IDs und
 - Kampf-Zuweisung bei mehreren Blockern und Trample: in keiner Quelle belegt.
 - London-Mulligan-Regeln: nicht auf der WotC-Seite; Comprehensive Rules nicht gelesen (Regelnummern unbekannt).
 - Moxfield nicht abrufbar (403/404), Archidekt nur Startseite, Playgroup Live nicht auflösbar. Deren Playtest-Funktionen: unbekannt.
-- Lizenz/Commit-Datum fehlen bei mehreren GitHub-Seiten (nur Zahlen sichtbar): Forge, Cockatrice, Magarena, phase.rs, XMage jeweils "letzter Commit: unbekannt". Sterne stammen aus den Seiten zum Abrufzeitpunkt.
+- Letzter Commit/Aktivität: für Forge, Cockatrice, Magarena, phase.rs und XMage unbekannt (aus den abgerufenen Seiten nicht ersichtlich). Lizenzangaben in der Tabelle stammen aus den abgerufenen Seiten; Sterne wurden nicht erhoben.
 - mtg-replay-notation, Argentum Engine, MTG-Causal-RL, SpellTable, TTS-Mods: nur Suchtreffer, nicht selbst gelesen.
 - Ironsmith-Commit-Stand, Ironsmith-BSL-Inhalt: nur Dateiname gesehen.
 - KI-Qualität: keine vergleichbare Messung in den Quellen.

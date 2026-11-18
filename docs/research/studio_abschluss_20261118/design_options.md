@@ -5,6 +5,11 @@
 > sind überholt). O3: Simulation darf in die Tierliste fließen, wenn sie nachweislich gut ist; B11 wird bedingt (Gewicht 0, bis ein
 > Reife-Tor erfüllt und vom Owner bestätigt ist; Tor in `docs/OWNER_DECISIONS_STUDIO_20261118.md`). O4: Zählen von Pilot-Auslassungen
 > zulässig. O6: Abnahme-Definition PLAY angenommen. Verbindlicher Scope: `docs/STUDIO_SCOPE.md` (in Arbeit).
+>
+> **Überholte Passagen (nicht einzeln markiert, hier gesammelt):** §E Phase 0/3 (Deck-Snapshot, „CPL-Deckbauer einfrieren“, „O1 umgesetzt“,
+> Snapshot-Issue), §D „gehört nach B-X1 ohnehin nach DBS“, §F O3 und die Empfehlung „Anzeige nur im Deckbauer“ (O3 ist jetzt bedingt, nicht
+> absolut), W4 (B11 als absolutes Verbot), und die Einstufung von O4/O6 als „offen“ (beide entschieden). §E/§A bleiben als Planungsgrundlage
+> gültig, soweit sie nicht BUILD-Eigner, Deck-Snapshot oder die absolute B11-Lesart voraussetzen. Stand der Ist-Lage-Zahlen: siehe README.
 
 
 Stand 2026-11-18. Planungspapier, kein Bau. Es ändert nichts in den Repos und ist keine Owner-Quelle:
