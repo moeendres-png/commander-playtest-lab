@@ -1,0 +1,362 @@
+[
+ {
+  "rater": "S2",
+  "card": "Puca's Eye",
+  "i": 1,
+  "interaction": "Chulane cast trigger",
+  "quote": "When this artifact enters, draw a card, then choose a color. This artifact becomes the chosen color.",
+  "claim": "It is a non-creature artifact, so according to Chulane's text casting it does not trigger the draw-and-land ability.",
+  "basis": "type line and Chulane's Oracle text"
+ },
+ {
+  "rater": "H1",
+  "card": "Linden, the Steadfast Queen",
+  "i": 1,
+  "interaction": "Vigilance",
+  "quote": "Vigilance (Attacking doesn't cause this creature to tap.)",
+  "claim": "Linden can attack and still block on the opponent's turn.",
+  "basis": "Keyword reminder text on the card."
+ },
+ {
+  "rater": "H1",
+  "card": "Brazen Borrower // Petty Theft",
+  "i": 0,
+  "interaction": "Adventure cast versus creature cast",
+  "quote": "Whenever you cast a creature spell, draw a card, then you may put a land card from your hand onto the battlefield.",
+  "claim": "Casting Petty Theft (an instant) does not trigger Chulane; casting the creature from exile does.",
+  "basis": "Chulane's text refers to creature spells; the ruling states an adventurer uses its non-Adventure characteristics except on the stack when not cast as an Adventure, and Petty Theft is an Instant."
+ },
+ {
+  "rater": "H1",
+  "card": "Cultivate",
+  "i": 0,
+  "interaction": "land to hand for Chulane's land trigger",
+  "quote": "put one onto the battlefield tapped and the other into your hand",
+  "claim": "One basic land enters tapped and one goes to hand, so the hand gets a land for Chulane's trigger.",
+  "basis": "card text"
+ },
+ {
+  "rater": "S2",
+  "card": "Helpful Hunter",
+  "i": 0,
+  "interaction": "Replay through Chulane's {3},{T} bounce",
+  "quote": "When this creature enters, draw a card.",
+  "claim": "According to the card text each time it enters it draws a card, and recasting it also triggers Chulane's cast trigger.",
+  "basis": "card text"
+ },
+ {
+  "rater": "H2",
+  "card": "Open the Armory",
+  "i": 0,
+  "interaction": "Tutor restriction",
+  "quote": "Search your library for an Aura or Equipment card, reveal it, put it into your hand, then shuffle.",
+  "claim": "The card can only find an Aura or Equipment, never a creature.",
+  "basis": "Card text: search for an Aura or Equipment card."
+ },
+ {
+  "rater": "H1",
+  "card": "Razor Boomerang",
+  "i": 1,
+  "interaction": "Damage source of the ability",
+  "quote": "The source of the damage is Razor Boomerang, not the equipped creature.",
+  "claim": "The 1 damage comes from the Boomerang, not from the equipped creature.",
+  "basis": "ruling shown in card block (2010-03-01)"
+ },
+ {
+  "rater": "H1",
+  "card": "Lys Alana Dignitary",
+  "i": 1,
+  "interaction": "Mana ability condition",
+  "quote": "{T}: Add {G}{G}. Activate only if there is an Elf card in your graveyard.",
+  "claim": "The GG ability works only while an Elf card is in its controller's graveyard.",
+  "basis": "Card text."
+ },
+ {
+  "rater": "S1",
+  "card": "Detective of the Month",
+  "i": 1,
+  "interaction": "Detective tokens entering",
+  "quote": "Whenever you cast a creature spell, draw a card, then you may put a land card from your hand onto the battlefield.",
+  "claim": "The token is created, not cast, so according to the text it does not trigger Chulane.",
+  "basis": "Chulane text says 'cast'; the token is created by an ability."
+ },
+ {
+  "rater": "S2",
+  "card": "Arcane Denial",
+  "i": 0,
+  "interaction": "Symmetry in card draw",
+  "quote": "Its controller may draw up to two cards at the beginning of the next turn's upkeep.",
+  "claim": "The countered spell's controller may draw up to two cards, I draw one.",
+  "basis": "card text and ruling 2007-09-16"
+ },
+ {
+  "rater": "S2",
+  "card": "Sol Ring",
+  "i": 0,
+  "interaction": "Ramp into Chulane and creature spells",
+  "quote": "{T}: Add {C}{C}.",
+  "claim": "It adds only colourless mana, so it pays generic costs and Chulane's {3} but not coloured pips.",
+  "basis": "card text"
+ },
+ {
+  "rater": "H1",
+  "card": "Chasm Drake",
+  "i": 0,
+  "interaction": "Casting this creature triggers Chulane",
+  "quote": "Whenever you cast a creature spell, draw a card, then you may put a land card from your hand onto the battlefield.",
+  "claim": "Casting this creature triggers Chulane's draw and optional land put, because it is a creature spell cast by you.",
+  "basis": "Commander text and this card's type line"
+ },
+ {
+  "rater": "H1",
+  "card": "Brazen Borrower // Petty Theft",
+  "i": 1,
+  "interaction": "Card type on the stack",
+  "quote": "An adventurer card uses only its non-Adventure characteristics in every zone except the stack, as well as while on the stack if not cast as an Adventure.",
+  "claim": "On the stack as an Adventure the card is an instant, so it does not count as a creature spell.",
+  "basis": "Ruling shown in the card block (2025-06-06)."
+ },
+ {
+  "rater": "H2",
+  "card": "Command Tower",
+  "i": 1,
+  "interaction": "Commander absent",
+  "quote": "If you don't have a commander, Command Tower's ability produces no mana.",
+  "claim": "Without a commander, the Tower produces no mana.",
+  "basis": "Ruling 2020-11-10."
+ },
+ {
+  "rater": "H2",
+  "card": "Brazen Borrower // Petty Theft",
+  "i": 0,
+  "interaction": "Targeting of Petty Theft",
+  "quote": "Return target nonland permanent an opponent controls to its owner's hand.",
+  "claim": "Petty Theft can target only a nonland permanent an opponent controls, not one of your own.",
+  "basis": "card text"
+ },
+ {
+  "rater": "H2",
+  "card": "Simic Growth Chamber",
+  "i": 0,
+  "interaction": "Tempo cost of the land",
+  "quote": "This land enters tapped.",
+  "claim": "The land enters tapped, so it cannot tap for mana on the turn it is played.",
+  "basis": "Card text: 'This land enters tapped.'"
+ },
+ {
+  "rater": "S1",
+  "card": "Seaside Citadel",
+  "i": 0,
+  "interaction": "land drop and Chulane's land put onto the battlefield",
+  "quote": "This land enters tapped.",
+  "claim": "According to the card text the land gives no mana on the turn it arrives.",
+  "basis": "card text"
+ },
+ {
+  "rater": "H1",
+  "card": "Arcane Denial",
+  "i": 0,
+  "interaction": "opponent draw after the counter",
+  "quote": "Its controller may draw up to two cards at the beginning of the next turn's upkeep.",
+  "claim": "The countered spell's controller may draw up to two cards in the next upkeep.",
+  "basis": "card text; ruling 2007-09-16 on choosing the number before drawing"
+ },
+ {
+  "rater": "S1",
+  "card": "Lys Alana Dignitary",
+  "i": 2,
+  "interaction": "Chulane's cast trigger",
+  "quote": "Creature \u2014 Elf Advisor",
+  "claim": "It is a creature spell, so casting it is a creature-spell cast for Chulane, according to the type line.",
+  "basis": "type line"
+ },
+ {
+  "rater": "S1",
+  "card": "Razor Boomerang",
+  "i": 1,
+  "interaction": "Cost of the granted ability",
+  "quote": "2010-03-01: Unattaching Razor Boomerang is a cost to activate the equipped creature\u2019s ability.",
+  "claim": "The unattach is paid as a cost, so the ability always ends with the Equipment unattached.",
+  "basis": "ruling shown in the card block"
+ },
+ {
+  "rater": "H1",
+  "card": "Snapping Creeper",
+  "i": 1,
+  "interaction": "landfall with Chulane",
+  "quote": "A landfall ability triggers whenever a land you control enters for any reason.",
+  "claim": "Lands put onto the battlefield by Chulane's trigger also fire landfall.",
+  "basis": "Ruling 2024-11-08 as shown in the card block."
+ },
+ {
+  "rater": "H1",
+  "card": "Helpful Hunter",
+  "i": 0,
+  "interaction": "replay with Chulane",
+  "quote": "When this creature enters, draw a card.",
+  "claim": "Each time the creature enters, including after Chulane's bounce and recast, you draw a card.",
+  "basis": "Card text, with Chulane's bounce text: 'Return target creature you control to its owner's hand.'"
+ },
+ {
+  "rater": "H2",
+  "card": "Voracious Greatshark",
+  "i": 1,
+  "interaction": "enters-the-battlefield trigger and Chulane bounce replay",
+  "quote": "When this creature enters, counter target artifact or creature spell.",
+  "claim": "Each time it enters, the trigger counters a target artifact or creature spell; a replay after Chulane's bounce triggers it again.",
+  "basis": "card text: the trigger is on entering the battlefield"
+ },
+ {
+  "rater": "S2",
+  "card": "Command Tower",
+  "i": 0,
+  "interaction": "Chulane's colour identity is green, white and blue.",
+  "quote": "{T}: Add one mana of any color in your commander's color identity.",
+  "claim": "The land taps for G, W or U as needed, as long as the deck has its commander available as the identity source.",
+  "basis": "card text; rulings shown say it produces no mana only without a commander or with a colourless identity"
+ },
+ {
+  "rater": "H1",
+  "card": "Selesnya Sanctuary",
+  "i": 1,
+  "interaction": "Enters tapped",
+  "quote": "This land enters tapped.",
+  "claim": "It produces no mana on the turn it is played.",
+  "basis": "Card text"
+ },
+ {
+  "rater": "S1",
+  "card": "Tam's Resistance",
+  "i": 0,
+  "interaction": "Card draw from the Jace token",
+  "quote": "Empower Jace 4. (Put four loyalty counters on a Jace token you control. If you don't control one, first create a blue Jace planeswalker token with \"[\u22121]: Surveil 1\" and \"[\u22123]: Draw a card.\")",
+  "claim": "According to the card text, the token starts with four loyalty and can use -3 to draw a card, then -1 to surveil.",
+  "basis": "Reminder text of Empower Jace in the card block."
+ },
+ {
+  "rater": "S2",
+  "card": "Tam's Resistance",
+  "i": 1,
+  "interaction": "Sorcery, not a creature spell.",
+  "quote": "Put a +1/+1 counter on up to one target creature.",
+  "claim": "The spell can be cast with no target and does not trigger Chulane's cast ability.",
+  "basis": "card text ('up to one') and Chulane text ('cast a creature spell')"
+ },
+ {
+  "rater": "S1",
+  "card": "Temple Acolyte",
+  "i": 0,
+  "interaction": "ETB replayed through Chulane's bounce",
+  "quote": "When this creature enters, you gain 3 life.",
+  "claim": "Returning and recasting it gives another 3 life and another Chulane cast trigger.",
+  "basis": "Card text is a plain ETB; recasting a creature spell triggers Chulane."
+ },
+ {
+  "rater": "S1",
+  "card": "Simic Growth Chamber",
+  "i": 0,
+  "interaction": "Chulane's cast trigger putting a land from hand",
+  "quote": "When this land enters, return a land you control to its owner's hand.",
+  "claim": "The returned land is a land card in hand that Chulane's trigger can put onto the battlefield after a creature spell is cast.",
+  "basis": "Chulane's text: you may put a land card from your hand onto the battlefield; the bounce puts a land card in hand."
+ },
+ {
+  "rater": "H2",
+  "card": "Safe Passage",
+  "i": 0,
+  "interaction": "duration and scope",
+  "quote": "Prevent all damage that would be dealt to you and creatures you control this turn.",
+  "claim": "It prevents damage to you and your creatures for the rest of this turn only, not on other turns.",
+  "basis": "card text: 'this turn'"
+ },
+ {
+  "rater": "S2",
+  "card": "Azorius Arrester",
+  "i": 0,
+  "interaction": "Detain duration",
+  "quote": "detain target creature an opponent controls. (Until your next turn, that creature can't attack or block and its activated abilities can't be activated.)",
+  "claim": "The detained creature is restricted only until my next turn.",
+  "basis": "card text"
+ },
+ {
+  "rater": "H2",
+  "card": "Prudent Fateseer // Peer Review",
+  "i": 0,
+  "interaction": "Chulane's bounce replay",
+  "quote": "This creature enters prepared.",
+  "claim": "Each time the Fateseer re-enters, it becomes prepared again.",
+  "basis": "Card text: the enters-prepared effect applies whenever the creature enters."
+ },
+ {
+  "rater": "S2",
+  "card": "Narset, Parter of Veils",
+  "i": 1,
+  "interaction": "Narset's dig with a creature-heavy deck",
+  "quote": "You may reveal a noncreature, nonland card from among them and put it into your hand.",
+  "claim": "According to the card text creatures and lands cannot be taken, so the dig misses most of this deck.",
+  "basis": "card text"
+ },
+ {
+  "rater": "H2",
+  "card": "Puca's Eye",
+  "i": 0,
+  "interaction": "ETB draw",
+  "quote": "When this artifact enters, draw a card, then choose a color.",
+  "claim": "Puca's Eye draws one card when it enters.",
+  "basis": "Card text."
+ },
+ {
+  "rater": "S2",
+  "card": "Temple Acolyte",
+  "i": 0,
+  "interaction": "Chulane's bounce replay",
+  "quote": "When this creature enters, you gain 3 life.",
+  "claim": "According to the card text and Chulane's {3},{T} ability, returning and recasting it gains 3 life again and triggers Chulane again.",
+  "basis": "card text and Chulane's Oracle text"
+ },
+ {
+  "rater": "H1",
+  "card": "Arbor Elf",
+  "i": 1,
+  "interaction": "Arbor Elf cast versus Chulane's trigger",
+  "quote": "Whenever you cast a creature spell, draw a card, then you may put a land card from your hand onto the battlefield.",
+  "claim": "Casting Arbor Elf triggers Chulane, since it is a creature spell cast from hand or by Chulane's replay.",
+  "basis": "commander card text"
+ },
+ {
+  "rater": "H2",
+  "card": "Lys Alana Dignitary",
+  "i": 0,
+  "interaction": "Cost of the spell",
+  "quote": "As an additional cost to cast this spell, behold an Elf or pay {2}.",
+  "claim": "Without an Elf to behold, the spell costs {2} more, so in a normal game it costs four mana.",
+  "basis": "card text"
+ },
+ {
+  "rater": "S2",
+  "card": "Mighty Emergence",
+  "i": 0,
+  "interaction": "Triggers on any entering creature with power 5 or more, cast or not.",
+  "quote": "Whenever a creature you control with power 5 or greater enters, you may put two +1/+1 counters on it.",
+  "claim": "A big creature replayed with Chulane's bounce triggers it again each time it enters.",
+  "basis": "card text: it says 'enters', not 'cast'"
+ },
+ {
+  "rater": "H1",
+  "card": "Cloud Elemental",
+  "i": 1,
+  "interaction": "cast trigger",
+  "quote": "Creature \u2014 Elemental",
+  "claim": "Casting it is a creature spell cast, so it triggers Chulane's draw.",
+  "basis": "Type line Creature; Chulane triggers on casting a creature spell."
+ },
+ {
+  "rater": "H2",
+  "card": "Evolving Wilds",
+  "i": 0,
+  "interaction": "Fetch",
+  "quote": "Search your library for a basic land card, put it onto the battlefield tapped, then shuffle.",
+  "claim": "The fetched basic enters tapped.",
+  "basis": "Card text."
+ }
+]
