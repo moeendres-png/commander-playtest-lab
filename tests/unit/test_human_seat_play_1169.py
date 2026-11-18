@@ -1104,7 +1104,9 @@ class _ActiveScript:
     was offered by the engine for that very decision, and the route refuses any other.
     """
 
-    def __init__(self, mulligans: int = 2) -> None:
+    def __init__(self, mulligans: int = 2, illegal_amount_once: bool = False) -> None:
+        self.illegal_amount_once = illegal_amount_once  # first damage split deliberately off by one
+        self.sent_illegal = False
         self.mulligans = 0
         self.take = mulligans
         self.pay_streak = 0
@@ -1214,6 +1216,9 @@ class _ActiveScript:
                 step = min(room, int(leg["max"]) - values[at])
                 values[at] += step
                 room -= step
+            if self.illegal_amount_once and not self.sent_illegal:
+                self.sent_illegal = True
+                values[0] += 1
             body["numeric_choices"] = values
         elif cls in ("announce_x", "amount") or context.get("numeric_min") is not None:
             body["numeric_choice"] = int(context.get("numeric_min") or 0)
@@ -1233,11 +1238,11 @@ _OPPONENTS = (
     "precon/2024/animated_army",
     "precon/2022/token_triumph",
 )
-_ACTIVE_GAMES = {  # name: (seed, human deck, mulligans the script takes)
-    "open_hostility": (21, "precon/2016/open_hostility", 2),
-    "open_hostility_one_mulligan": (21, "precon/2016/open_hostility", 1),
-    "power_hungry": (22, "precon/2013/power_hungry", 2),
-    "draconic_domination": (23, "precon/2017/draconic_domination", 2),
+_ACTIVE_GAMES = {  # name: (seed, human deck, mulligans the script takes, first split illegal)
+    "open_hostility": (21, "precon/2016/open_hostility", 2, False),
+    "open_hostility_one_mulligan": (21, "precon/2016/open_hostility", 1, True),
+    "power_hungry": (22, "precon/2013/power_hungry", 2, False),
+    "draconic_domination": (23, "precon/2017/draconic_domination", 2, False),
 }
 
 
@@ -1262,6 +1267,7 @@ def _play_scripted_game(
     human_deck: str,
     turn_limit: int,
     mulligans: int,
+    illegal_amount_once: bool,
 ) -> dict[str, object]:
     from commander_lab.studio import launch
 
@@ -1283,9 +1289,10 @@ def _play_scripted_game(
     )
     assert started.status_code == 200, started.text
     game_id = started.json()["game_id"]
-    script = _ActiveScript(mulligans)
+    script = _ActiveScript(mulligans, illegal_amount_once)
     answered: collections.Counter[str] = collections.Counter()
     refused: list[tuple[str, int, str]] = []
+    expected_refusals: list[tuple[str, int, str]] = []
     conceded = False
     began = time.monotonic()
     state: dict[str, object] = {}
@@ -1308,6 +1315,9 @@ def _play_scripted_game(
             reply = client.post(f"/api/play/{game_id}/decision", json=script.answer(pending))
             answered[cls] += 1
             if reply.status_code != 200:
+                if cls == "multi_amount" and script.sent_illegal and not expected_refusals:
+                    expected_refusals.append((cls, reply.status_code, reply.text[:200]))
+                    continue  # the engine asks the same decision again
                 refused.append((cls, reply.status_code, reply.text[:200]))
                 break
         else:
@@ -1320,6 +1330,7 @@ def _play_scripted_game(
         "result": result,
         "answered": answered,
         "refused": refused,
+        "expected_refusals": expected_refusals,
         "conceded": conceded,
         "seconds": round(time.monotonic() - began, 1),
     }
@@ -1390,11 +1401,17 @@ def test_real_engine_scripted_human_covers_decision_classes_through_the_play_rou
     the engine's start-player answer "Full Game Seat K" must be followed by seat K-1 acting first.
     """
     _engine_or_skip(tmp_path)
-    seed, deck, mulligans = _ACTIVE_GAMES[name]
-    game = _play_scripted_game(tmp_path, monkeypatch, seed, deck, 60, mulligans)
+    seed, deck, mulligans, illegal = _ACTIVE_GAMES[name]
+    game = _play_scripted_game(tmp_path, monkeypatch, seed, deck, 60, mulligans, illegal)
     result = game["result"]
     assert isinstance(result, dict) and result.get("status") == "finished", result
     assert game["refused"] == [], game["refused"]
+    if illegal:
+        # an illegal damage split is refused by the engine (PILOT_RESPONSE_INVALID, HTTP 422), the same
+        # decision stays open, and the next legal answer is accepted: no hang
+        expected = game["expected_refusals"]
+        assert isinstance(expected, list) and len(expected) == 1
+        assert expected[0][1] == 422 and "PILOT_RESPONSE_INVALID" in expected[0][2], expected
     frames, human = _human_frames(str(result["log"]))
     seen = {(str(f["decision_class"]), _bare(str(f["prompt"]))) for f in human}
     missing = {
