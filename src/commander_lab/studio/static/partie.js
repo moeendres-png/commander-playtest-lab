@@ -587,7 +587,9 @@ function showDeckPlan(title, plan) {
 // damage a seat has taken from each commander. Nothing is added up or derived here; the engine publishes
 // no commander tax, so the page says so instead of working it out.
 function commanderRows(ps) {
-  const status = ps && Array.isArray(ps.commander_status) ? ps.commander_status : [];
+  // no list from the engine (missing, wrong type, empty) means unknown: the page then shows no commander line at all
+  if (!ps || !Array.isArray(ps.commander_status) || !ps.commander_status.length) return null;
+  const status = ps.commander_status;
   const players = ps && Array.isArray(ps.players) ? ps.players : [];
   const seatOf = (playerId) => { const found = players.find((p) => p && p.player_id === playerId); return found && Number.isInteger(found.seat) ? found.seat : null; };
   const bySeat = {};

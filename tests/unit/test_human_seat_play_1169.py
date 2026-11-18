@@ -1293,6 +1293,8 @@ def _play_scripted_game(
     answered: collections.Counter[str] = collections.Counter()
     refused: list[tuple[str, int, str]] = []
     expected_refusals: list[tuple[str, int, str]] = []
+    illegal_id = ""
+    recovered_same_id = False
     conceded = False
     began = time.monotonic()
     state: dict[str, object] = {}
@@ -1312,12 +1314,27 @@ def _play_scripted_game(
                 conceded = True
                 continue
             cls = str(pending["decision_class"])
-            reply = client.post(f"/api/play/{game_id}/decision", json=script.answer(pending))
+            was_illegal = script.sent_illegal
+            body = script.answer(pending)
+            if script.sent_illegal and not was_illegal:
+                illegal_id = str(pending["decision_id"])  # this very answer is the illegal one
+            reply = client.post(f"/api/play/{game_id}/decision", json=body)
             answered[cls] += 1
+            if (
+                reply.status_code == 200
+                and expected_refusals
+                and not recovered_same_id
+                and str(pending["decision_id"]) == illegal_id
+            ):
+                recovered_same_id = True  # the next legal answer to the SAME decision was accepted
             if reply.status_code != 200:
-                if cls == "multi_amount" and script.sent_illegal and not expected_refusals:
+                if (
+                    illegal_id
+                    and str(pending["decision_id"]) == illegal_id
+                    and not expected_refusals
+                ):
                     expected_refusals.append((cls, reply.status_code, reply.text[:200]))
-                    continue  # the engine asks the same decision again
+                    continue  # the engine keeps the same decision open
                 refused.append((cls, reply.status_code, reply.text[:200]))
                 break
         else:
@@ -1331,6 +1348,7 @@ def _play_scripted_game(
         "answered": answered,
         "refused": refused,
         "expected_refusals": expected_refusals,
+        "recovered_same_id": recovered_same_id,
         "conceded": conceded,
         "seconds": round(time.monotonic() - began, 1),
     }
@@ -1406,12 +1424,20 @@ def test_real_engine_scripted_human_covers_decision_classes_through_the_play_rou
     result = game["result"]
     assert isinstance(result, dict) and result.get("status") == "finished", result
     assert game["refused"] == [], game["refused"]
+    # a regular end reported by the engine: the script did not have to concede, and someone won
+    assert game["conceded"] is False, (
+        "the game was cut off by the script's concede at the turn limit"
+    )
+    assert result.get("winner_seats"), result
     if illegal:
         # an illegal damage split is refused by the engine (PILOT_RESPONSE_INVALID, HTTP 422), the same
         # decision stays open, and the next legal answer is accepted: no hang
         expected = game["expected_refusals"]
         assert isinstance(expected, list) and len(expected) == 1
         assert expected[0][1] == 422 and "PILOT_RESPONSE_INVALID" in expected[0][2], expected
+        assert (
+            game["recovered_same_id"] is True
+        )  # the next legal answer to that same decision_id: 200
     frames, human = _human_frames(str(result["log"]))
     seen = {(str(f["decision_class"]), _bare(str(f["prompt"]))) for f in human}
     missing = {
@@ -2009,7 +2035,7 @@ const real = rows(ps);
 const odd = rows({players: ps.players, commander_status: [
   {owner_id: 'op-1', name: 'No casts reported', commander_damage_to_player: [{player_id: 'op-9', total: 3}, {player_id: 'op-2', total: 'x'}], casts_from_command: null},
   {owner_id: 'nobody', name: 'Unknown owner', commander_damage_to_player: [], casts_from_command: 4}]});
-console.log(JSON.stringify({real, odd, empty: [rows(null), rows({})], keys: Object.keys(ps.commander_status[0])}));
+console.log(JSON.stringify({real, odd, empty: [rows(null), rows({}), rows({commander_status: []}), rows({commander_status: 'x'}), rows({commander_status: {}})], keys: Object.keys(ps.commander_status[0])}));
 """
     )
     assert isinstance(out, dict)
@@ -2028,7 +2054,7 @@ console.log(JSON.stringify({real, odd, empty: [rows(null), rows({})], keys: Obje
     assert out["odd"] == {
         "1": {"commanders": [{"name": "No casts reported", "casts": None}], "received": []}
     }
-    assert out["empty"] == [{}, {}]
+    assert out["empty"] == [None] * 5  # no list from the engine: unknown, no line (not "none")
     assert (
         "commander_tax" not in out["keys"]
     )  # the engine publishes no tax: the page shows "Steuer unbekannt"

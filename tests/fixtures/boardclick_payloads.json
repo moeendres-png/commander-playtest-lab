@@ -1,6 +1,6 @@
 {
  "blocker_one_attacker": {
-  "note": "Real engine payload: the engine asks Helpful Hunter whether it blocks Skyclave Apparition (min 0, max 1).",
+  "note": "Real engine payload: the engine asks Helpful Hunter whether it blocks Skyclave Apparition (min 0, max 1). Sanitized: commander_status, looked_at and revealed were removed by the sanitizer.",
   "pending_decision": {
    "actor_id": "1da87bc2-e697-403f-af64-de7a4119ebfe",
    "context": {},
@@ -340,7 +340,7 @@
   }
  },
  "declare_attacker": {
-  "note": "Real engine payload: the engine asks whether Thopter Token attacks, and which opponent (4-seat game, human seat 0); one option is hold_attacker.",
+  "note": "Real engine payload: the engine asks whether Thopter Token attacks, and which opponent (4-seat game, human seat 0); one option is hold_attacker. Sanitized (other players' hands and card details removed); pilot_state.commander_status is the unchanged list of the same raw payload, put back after sanitizing.",
   "pending_decision": {
    "actor_id": "c91aeaf2-4606-4cfe-b4da-773bb30cba29",
    "context": {},
@@ -1014,7 +1014,7 @@
   }
  },
  "discard_from_hand": {
-  "note": "Real engine payload: choose a card from the hand to discard.",
+  "note": "Real engine payload: choose a card from the hand to discard. Sanitized: commander_status, looked_at and revealed were removed by the sanitizer.",
   "pending_decision": {
    "actor_id": "99602474-3401-40bf-a136-7a50f420328b",
    "context": {
@@ -1375,7 +1375,7 @@
   }
  },
  "mana_payment": {
-  "note": "Real engine payload: paying {2} for Lightning Greaves by tapping a land.",
+  "note": "Real engine payload: paying {2} for Lightning Greaves by tapping a land. Sanitized: commander_status, looked_at and revealed were removed by the sanitizer.",
   "pending_decision": {
    "actor_id": "2f08dbda-2953-414b-86be-96a47d0af0b9",
    "context": {
@@ -1647,7 +1647,7 @@
   }
  },
  "mana_payment_with_pool": {
-  "note": "Real engine payload: paying {G}; mana already in the pool can be spent (mana_pool option).",
+  "note": "Real engine payload: paying {G}; mana already in the pool can be spent (mana_pool option). Sanitized: commander_status, looked_at and revealed were removed by the sanitizer.",
   "pending_decision": {
    "actor_id": "1da87bc2-e697-403f-af64-de7a4119ebfe",
    "context": {
@@ -1938,7 +1938,7 @@
   }
  },
  "mulligan": {
-  "note": "Real engine payload: keep or mulligan (no board object).",
+  "note": "Real engine payload: keep or mulligan (no board object). Sanitized: commander_status, looked_at and revealed were removed by the sanitizer.",
   "pending_decision": {
    "actor_id": "2f08dbda-2953-414b-86be-96a47d0af0b9",
    "context": {},
@@ -2066,7 +2066,7 @@
   }
  },
  "priority_lands_spells": {
-  "note": "Real engine payload: priority with play-land, spell and mana-ability options (4-seat game, human seat 0).",
+  "note": "Real engine payload: priority with play-land, spell and mana-ability options (4-seat game, human seat 0). Sanitized: commander_status, looked_at and revealed were removed by the sanitizer.",
   "pending_decision": {
    "actor_id": "2f08dbda-2953-414b-86be-96a47d0af0b9",
    "context": {},
@@ -2374,7 +2374,7 @@
   }
  },
  "priority_temple_two_abilities": {
-  "note": "Real engine payload: one Temple offers two mana abilities (a menu case).",
+  "note": "Real engine payload: one Temple offers two mana abilities (a menu case). Sanitized: commander_status, looked_at and revealed were removed by the sanitizer.",
   "pending_decision": {
    "actor_id": "8ff0221c-fd1b-4b59-96ba-d7cb8d0f5f4c",
    "context": {},
@@ -2957,7 +2957,7 @@
   }
  },
  "target_battlefield_land": {
-  "note": "Real engine payload: a required target decision with one land you control on the battlefield (returntohand).",
+  "note": "Real engine payload: a required target decision with one land you control on the battlefield (returntohand). Sanitized: commander_status, looked_at and revealed were removed by the sanitizer.",
   "pending_decision": {
    "actor_id": "147d8b86-a194-458a-a2d0-e150671aec1b",
    "context": {
@@ -3116,7 +3116,7 @@
   }
  },
  "target_library_scry": {
-  "note": "Real engine payload: a target decision whose only option sits in the library (list only).",
+  "note": "Real engine payload: a target decision whose only option sits in the library (list only). Sanitized: commander_status, looked_at and revealed were removed by the sanitizer.",
   "pending_decision": {
    "actor_id": "8ff0221c-fd1b-4b59-96ba-d7cb8d0f5f4c",
    "context": {
@@ -3423,7 +3423,7 @@
   }
  },
  "target_london_bottom": {
-  "note": "Real engine payload: after two mulligans (4 seats) the London choice 'Select a card (1 more) to put on the bottom of your library' lists the cards of the own hand.",
+  "note": "Real engine payload: after two mulligans (4 seats) the London choice 'Select a card (1 more) to put on the bottom of your library' lists the cards of the own hand. Sanitized: commander_status, looked_at and revealed were removed by the sanitizer.",
   "pending_decision": {
    "actor_id": "0cd327ac-e8f4-492a-bdb4-77489995c1a5",
    "context": {
@@ -3623,7 +3623,7 @@
   }
  },
  "target_player_opponent": {
-  "note": "Real engine payload (4 seats, human seat 0): 'Select an opponent'; the option ids are the engine's player ids, the pilot_state names the opponents op-N; the option names them 'Full Game Seat N'.",
+  "note": "Real engine payload (4 seats, human seat 0): 'Select an opponent'; the option ids are the engine's player ids, the pilot_state names the opponents op-N; the option names them 'Full Game Seat N'. Sanitized: commander_status, looked_at and revealed were removed by the sanitizer.",
   "pending_decision": {
    "actor_id": "0cd327ac-e8f4-492a-bdb4-77489995c1a5",
    "context": {

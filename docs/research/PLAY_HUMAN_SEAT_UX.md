@@ -148,26 +148,26 @@ Beleg: `tests/unit/test_human_seat_play_1169.py`, `test_real_engine_scripted_hum
 | Entscheidungsklasse | mit echter Engine beantwortet | Beleg |
 |---|---|---|
 | priority | ja | alle Partien, 297 bis 965 je Partie |
-| mana_payment | ja | Seed 21 (36), Seed 22 (279), Seed 23 (377) |
-| target | ja | Seed 22 (13: Kreatur, Spieler „Select an opponent“, London-Bottom), Seed 21 (4) |
-| choose_object | ja, nur in Erkundungslauf | Seed 24, Deck open_hostility, 40-Zug-Limit (Karte verdeckt exilieren; Startspieler); nicht im Test |
-| choice | ja | Seed 23 (54), Seed 21 (3) |
+| mana_payment | ja | Seed 21 Ein-Mulligan-Variante (36), Seed 22 (279), Seed 23 (377) |
+| target | ja | Seed 22 (13: Kreatur, Spieler „Select an opponent“, London-Bottom), Seed 21 Ein-Mulligan-Variante (4) |
+| choose_object | ja | Seed 21 mit zwei Mulligans (1 Antwort, Test erreicht sie, assertet sie aber nicht); Erkundungslauf Seed 24: Karte verdeckt exilieren, Startspieler |
+| choice | ja | Seed 23 (54), Seed 21 Ein-Mulligan-Variante (3) |
 | mode | ja | Seed 23 (1) |
-| multi_amount | ja | Seed 21 mit einem Mulligan: Schadenszuweisung mit 4 Beinen, Summe 5 bis 5 (kein Trample); ein absichtlich falscher Vektor (Summe 6) wurde mit HTTP 422 `PILOT_RESPONSE_INVALID` abgelehnt, dieselbe Entscheidung blieb offen, die nächste legale Antwort wurde angenommen: kein Hänger |
+| multi_amount | ja | Seed 21 Ein-Mulligan-Variante (mit absichtlich falscher erster Antwort): Schadenszuweisung mit 4 Beinen, Summe 5 bis 5 (kein Trample); ein absichtlich falscher Vektor (Summe 6) wurde mit HTTP 422 `PILOT_RESPONSE_INVALID` abgelehnt, dieselbe Entscheidung blieb offen, die nächste legale Antwort wurde angenommen: kein Hänger |
 | trigger_order | ja | Seed 22 (22) |
 | replacement_effect | ja | Seed 22 (1) |
 | choose_use | ja | Seed 22 (97) |
 | mulligan | ja | alle Partien; mit Zurücklegen (London): nach dem zweiten Mulligan fragt die Engine „Select a card (1 more) to put on the bottom of your library“ (Klasse `target`, 7 Karten der eigenen Hand), nach einem Mulligan nicht (Gratis-Mulligan, CR 103.5c) |
-| declare_attacker | ja | Seed 22 (25), Seed 23 (3), Seed 21 (2) |
-| declare_blocker | ja | Seed 22 (3), Seed 23 (3), Seed 21 (1) |
+| declare_attacker | ja | Seed 22 (25), Seed 23 (3), Seed 21 Ein-Mulligan-Variante (2) |
+| declare_blocker | ja | Seed 22 (3), Seed 23 (3), Seed 21 Ein-Mulligan-Variante (1) |
 | target_amount | UNKNOWN | in keiner Partie vorgekommen |
 | announce_x | UNKNOWN | in keiner Partie vorgekommen |
 | amount | UNKNOWN | in keiner Partie vorgekommen |
 | pile | UNKNOWN | in keiner Partie vorgekommen |
 
-Einzelfälle: Trample mit mehreren Blockern: UNKNOWN (die beobachtete Zuweisung war ohne Trample). Pflichtangreifer mit Haltefrage: UNKNOWN (kein Pflichtangreifer vorgekommen, keine Ablehnung beobachtet). Spieler als Ziel: Die Optionen tragen die Engine-IDs der Spieler (`option_id` = `metadata.object_id`, `name` „Full Game Seat N“), `pilot_state.players` nennt die Gegner `op-N`; die IDs passen nie zusammen, die Seite findet den Sitz nur über den Namen („Full Game Seat N“ = Sitz N-1, `boardclick.js`). Die Regel N → N-1 wurde an 22 Partien gegen die Engine geprüft: Die Antwort auf die Startspielerfrage „Full Game Seat K“ wurde jedes Mal von Sitz K-1 als erstem am Zug gefolgt (K = 1 bis 4).
+Einzelfälle: Trample mit mehreren Blockern: UNKNOWN (die beobachtete Zuweisung war ohne Trample). Pflichtangreifer mit Haltefrage: UNKNOWN (kein Pflichtangreifer vorgekommen, keine Ablehnung beobachtet). Spieler als Ziel: Die Optionen tragen die Engine-IDs der Spieler (`option_id` = `metadata.object_id`, `name` „Full Game Seat N“), `pilot_state.players` nennt die Gegner `op-N`; die IDs passen nie zusammen, die Seite findet den Sitz nur über den Namen („Full Game Seat N“ = Sitz N-1, `boardclick.js`). Die Regel N → N-1 wurde (LOCAL_OBSERVED: lokale Läufe, kein abgelegtes Artefakt; der Test prüft sie je Lauf für 4 Seeds) an 22 Partien gegen die Engine geprüft: Die Antwort auf die Startspielerfrage „Full Game Seat K“ wurde jedes Mal von Sitz K-1 als erstem am Zug gefolgt (K = 1 bis 4).
 
-Messung je Partie (AK-6, Vierer-Partie, Sitz 1 gespielt vom Skript, KI ohne Verzögerung; Zeiten einer Messung, keine Zielwerte): Seed 21: 346 Entscheidungen des Menschen von 1801 Frames, 32 Spielzüge, 54 s, davon 286 reine Prioritäts-Pässe (83 Prozent). Seed 22: 1408 von 5184 Frames, 183 s. Seed 23: 1035 von 3148 Frames, 106 s. Zweisitz-Partie mit nur Passen (Erststand): 357 von 899 Frames in 74 s.
+Messung je Partie (AK-6, Vierer-Partie, Sitz 1 gespielt vom Skript, KI ohne Verzögerung; Zeiten einer Messung, keine Zielwerte): Seed 21, reguläre Partie mit zwei Mulligans: 549 Entscheidungen des Menschen von 2788 Frames, 90 s. Seed 21, Ein-Mulligan-Variante mit absichtlich falscher erster Schadenszuweisung (347 Antworten einschließlich der abgelehnten): 346 angenommene Entscheidungen von 1801 Frames, 32 Spielzüge, 54 s, davon 286 reine Prioritäts-Pässe (83 Prozent). Seed 22: 1408 von 5184 Frames, 183 s. Seed 23: 1035 von 3148 Frames, 106 s. Zweisitz-Partie mit nur Passen (Erststand): 357 von 899 Frames in 74 s. Alle Zahlen LOCAL_OBSERVED (Läufe im Container, Frames und Antworten vom Review nachgemessen: 1801, 3148, 5184).
 
 Vorschläge für die Brücke (nicht gebaut, `BEHAVIOUR`-Änderungen unter dem Studio-Bridge-Gate): (1) Mulligan-Frame (`XmageFullGamePlayer.java` um Zeile 2024-2055, Kontext heute leer) um Zielgröße und „frei“ aus der Engine ergänzen; (2) `multi_amount` (`XmageFullGamePlayer.java` um Zeile 3195-3290, Vorgabewert wird bei 3228-3230 nicht weitergereicht): `default_value` und Objekt-ID je Bein; (3) eine Kampfsicht (Angreifer, Blocker, Angriffsziele) in `XmageFullGameStateRedactor.java` bei `pilot_state`; (4) eine Commander-Steuer aus der Engine (heute nur `casts_from_command`, `XmageFullGameStateRedactor.java` um Zeile 848-851).
 
