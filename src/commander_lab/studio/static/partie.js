@@ -7,9 +7,10 @@ const STEPS = { untap: "Enttappen", upkeep: "Versorgung", draw: "Ziehen", precom
 const CLASSES = { priority: "Aktion", mana_payment: "Mana zahlen", choose_object: "Auswahl", choose_use: "Ja oder Nein", target: "Ziel", declare_attacker: "Angriff", declare_blocker: "Block", mulligan: "Mulligan", choice: "Wahl", trigger_order: "Reihenfolge", announce_x: "Wert für X", multi_amount: "Verteilung", mode: "Modus", pile: "Stapelwahl", target_amount: "Zielmenge", replacement_effect: "Ersatzeffekt", order: "Reihenfolge" };
 const SPEEDS = [[2000, "langsam"], [1000, "1 pro Sekunde"], [500, "2 pro Sekunde"], [250, "4 pro Sekunde"], [120, "8 pro Sekunde"], [50, "sehr schnell"]];
 
+const POOL_COLORS = { white: "Weiß", blue: "Blau", black: "Schwarz", red: "Rot", green: "Grün", colorless: "Farblos" };
 const OPTION_TYPES = { pass_priority: "Passen", play_land: "Land spielen", cast_spell: "Zauber wirken", activated_ability: "Fähigkeit aktivieren", mana_ability: "Mana-Fähigkeit", special_action: "Sonderaktion", target: "Ziel", choose_object: "Objekt wählen", attacker: "Angreifer", blocker: "Blocker", mode: "Modus", choice: "Auswahl", mana_payment: "Mana", trigger_order: "Auslöser", yes: "Ja", no: "Nein" };
 
-const state = { games: [], gameId: null, header: null, result: null, running: false, interactive: false, humanSeats: [], pendingDecision: null, pendingDecisionId: null, selectedOptions: [], orderList: [], submitting: false, canConcede: false, handsRevealed: false, autoPassAttempt: null, pollFailures: 0, ff: { on: false, boosted: false, startTurn: null, stopOnOpponentStack: true }, frames: [], index: 0, playing: false, timer: 0, facts: {}, noImage: new Set(), lines: [], seatKeys: [], poll: 0 };
+const state = { click: null, clickActive: false, menu: null, openZone: null, games: [], gameId: null, header: null, result: null, running: false, interactive: false, humanSeats: [], pendingDecision: null, pendingDecisionId: null, selectedOptions: [], orderList: [], submitting: false, canConcede: false, handsRevealed: false, autoPassAttempt: null, pollFailures: 0, ff: { on: false, boosted: false, startTurn: null, stopOnOpponentStack: true }, frames: [], index: 0, playing: false, timer: 0, facts: {}, noImage: new Set(), lines: [], seatKeys: [], poll: 0 };
 
 const $ = (id) => document.getElementById(id);
 function h(tag, props, ...children) {
@@ -41,9 +42,9 @@ async function api(path, method = "GET", body) {
   return response.json();
 }
 let toastTimer = 0;
-function toast(text) {
+function toast(text, milliseconds = 3500) {
   const box = $("toast"); box.textContent = text; box.hidden = false;
-  clearTimeout(toastTimer); toastTimer = setTimeout(() => { box.hidden = true; }, 3500);
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => { box.hidden = true; }, milliseconds);
 }
 
 const seatName = (seat) => (seat === null || seat === undefined ? "?" : `Sitz ${seat + 1}`);
@@ -63,7 +64,10 @@ function isCreature(name, card) {
 
 function localizeActionText(text) {
   if (!text) return "";
-  let s = text.replace(/Full Game Seat (\d)/g, "Sitz $1");
+  // labels may carry the engine's reminder markup; the page shows text only
+  let s = text.replace(/<[^>]*>/g, "").replace(/Full Game Seat (\d)/g, "Sitz $1");
+  const pool = /^Spend (\w+) mana from pool$/.exec(s);
+  if (pool) s = `Mana aus dem Pool ausgeben: ${POOL_COLORS[pool[1].toLowerCase()] || pool[1]}`;
   if (s.startsWith("Play ")) s = "Spiele " + s.slice(5);
   else if (s.startsWith("Cast ")) s = "Wirke " + s.slice(5);
   else if (s.startsWith("Activate: ")) s = "Aktiviere: " + s.slice(10);
@@ -98,6 +102,193 @@ function answer(frame) {
   return frame.decision_class === "priority" ? text : `${CLASSES[frame.decision_class] || frame.decision_class}: ${text}`;
 }
 
+// ---- board clicks (boardclick.js maps, the engine decides) -----------------------------------------
+// A card or a player field is clickable only if the pending decision offers an option for it; a click
+// sends exactly that option's id (one unique option), toggles it (several to choose from, the page
+// confirms) or opens a menu of the offered options. Nothing here answers a decision by itself.
+const SELECTING_KINDS = ["target", "attacker", "blocker", "trigger_order", "mana_payment"];
+const SVG_NS = "http://www.w3.org/2000/svg";
+function offeredOption(optionId) {
+  const options = (state.pendingDecision && state.pendingDecision.legal_options) || [];
+  return options.find((option) => String(option.option_id) === optionId) || null;
+}
+function clickEntry(objectId) { return state.clickActive && objectId ? (state.click.objects[objectId] || null) : null; }
+function seatEntry(seat) { return state.clickActive ? (state.click.seats[String(seat)] || null) : null; }
+function clickDimmed(objectId) { return state.clickActive && Boolean(objectId) && SELECTING_KINDS.includes(state.click.kind) && !state.click.objects[objectId]; }
+function clickAction(target) {
+  if (!state.clickActive) return "none";
+  return StudioBoardClick.resolve(state.pendingDecision, state.click, target).action;
+}
+function objectName(objectId) {
+  const pilot = state.pendingDecision && state.pendingDecision.pilot_state;
+  if (!pilot || !objectId) return null;
+  const rows = [];
+  for (const player of pilot.players || []) for (const zone of ["battlefield", "hand", "command", "graveyard", "exile"]) rows.push(...(player[zone] || []));
+  rows.push(...(pilot.stack || []));
+  const found = rows.find((row) => row && row.object_id === objectId);
+  return found && !found.face_down && found.name ? found.name : null;
+}
+function entryPicked(entry) { return Boolean(entry) && entry.optionIds.some((id) => state.selectedOptions.includes(id)); }
+function clickAria(name, entry) {
+  const who = name === "(verdeckt)" ? "Verdeckte Karte" : name;
+  const options = entry.optionIds.map(offeredOption).filter(Boolean);
+  if (entry.role === "asked") return `${who}: die Engine fragt jetzt nach dieser Kreatur. Menü mit ${options.length} Möglichkeiten öffnen`;
+  if (options.length !== 1) return `${who}: ${options.length} Möglichkeiten, Menü öffnen`;
+  const label = localizeActionText(options[0].label || options[0].option_id);
+  if (state.click.mode === "staged") return `${who}: ${entryPicked(entry) ? "Auswahl aufheben" : "auswählen"} (${label})`;
+  return label;
+}
+function clickBadge(objectId, entry) {
+  if (!entry) return null;
+  const picked = entryPicked(entry);
+  if (entry.role === "asked") {
+    if (state.click.kind === "blocker") return state.selectedOptions.length ? "🛡️ blockt" : "🛡️ blockt?";
+    return "⚔️ greift an?";
+  }
+  if (entry.role === "block-target" && picked) return "🛡️ geblockt";
+  if (entry.role === "defender") return "🎯 Angriffsziel";
+  if (entry.role === "target" && picked) return "🎯 gewählt";
+  if (entry.role === "source") return "⚡ Auslöser";
+  return null;
+}
+function focusClickKey(key) {
+  if (!key) return;
+  const el = document.querySelector(`[data-click-key="${key}"]`);
+  if (el) el.focus();
+}
+function toggleOption(optionId) {
+  const pending = state.pendingDecision;
+  if (!pending || !offeredOption(optionId)) return;
+  const maxSel = Number(pending.maximum_selections ?? 0);
+  if (state.selectedOptions.includes(optionId)) state.selectedOptions = state.selectedOptions.filter((id) => id !== optionId);
+  else if (maxSel <= 1) state.selectedOptions = [optionId];
+  else if (state.selectedOptions.length < maxSel) state.selectedOptions = [...state.selectedOptions, optionId];
+  else toast(`Höchstens ${maxSel} Auswahlen möglich.`);
+  render();
+}
+function sendBoardOption(optionId) {
+  const pending = state.pendingDecision;
+  if (!pending || state.submitting) return;
+  if (!offeredOption(optionId)) { toast("Diese Möglichkeit bietet die Engine gerade nicht an."); return; }
+  closeBoardMenu(false);
+  $("modal").hidden = true;
+  submitHumanChoice({ decision_id: pending.decision_id, selected_option_ids: [optionId], ordering: [] });
+}
+function confirmSelection() {
+  const pending = state.pendingDecision;
+  if (!pending || state.submitting) return;
+  submitHumanChoice({ decision_id: pending.decision_id, selected_option_ids: [...state.selectedOptions], ordering: [] });
+}
+function boardClick(target, anchor) {
+  const pending = state.pendingDecision;
+  if (!state.clickActive || !pending || state.submitting) return;
+  const result = StudioBoardClick.resolve(pending, state.click, target);
+  const key = anchor && anchor.dataset ? anchor.dataset.clickKey : null;
+  if (result.action === "send") sendBoardOption(result.optionId);
+  else if (result.action === "toggle") { closeBoardMenu(false); toggleOption(result.optionId); focusClickKey(key); }
+  else if (result.action === "menu") openBoardMenu(anchor, result, key, target.type === "seat" ? seatName(target.seat) : (objectName(target.id) || "Karte"));
+  else toast("Dafür bietet die Engine gerade keine Aktion an.");
+}
+function openBoardMenu(anchor, result, key, title) {
+  const box = $("board-menu");
+  box.textContent = "";
+  box.setAttribute("aria-label", `Möglichkeiten für ${title}`);
+  box.append(h("div", { class: "board-menu-title" }, title));
+  for (const option of result.options) {
+    const picked = result.mode === "staged" && state.selectedOptions.includes(option.optionId);
+    box.append(h("button", {
+      type: "button",
+      role: "menuitem",
+      class: `board-menu-item${picked ? " picked" : ""}`,
+      onclick: () => {
+        closeBoardMenu(false);
+        if (result.mode === "immediate") sendBoardOption(option.optionId);
+        else { toggleOption(option.optionId); focusClickKey(key); }
+      }
+    }, `${picked ? "✓ " : ""}${localizeActionText(option.label)}`));
+  }
+  state.menu = { key };
+  box.hidden = false;
+  const rect = anchor && anchor.getBoundingClientRect ? anchor.getBoundingClientRect() : { left: 40, right: 40, top: 40, bottom: 40 };
+  const width = box.offsetWidth;
+  const height = box.offsetHeight;
+  const below = rect.bottom + 6;
+  box.style.left = `${Math.max(8, Math.min(rect.left, window.innerWidth - width - 8))}px`;
+  box.style.top = `${Math.max(8, below + height > window.innerHeight - 8 ? rect.top - height - 6 : below)}px`;
+  const first = box.querySelector("button");
+  if (first) first.focus();
+}
+function closeBoardMenu(restoreFocus) {
+  const box = $("board-menu");
+  if (!box || box.hidden) return false;
+  const key = state.menu && state.menu.key;
+  box.hidden = true;
+  box.textContent = "";
+  state.menu = null;
+  if (restoreFocus) focusClickKey(key);
+  return true;
+}
+// Lines from the blocker the engine asks about to the attackers chosen so far.
+function drawBlockLinks() {
+  const svg = $("board-links");
+  if (!svg) return;
+  svg.textContent = "";
+  if (!state.clickActive || state.click.kind !== "blocker" || !state.click.asked) return;
+  const from = document.querySelector(`[data-object-id="${state.click.asked}"]`);
+  if (!from) return;
+  const a = from.getBoundingClientRect();
+  for (const optionId of state.selectedOptions) {
+    const to = document.querySelector(`[data-object-id="${optionId}"]`);
+    if (!to) continue;
+    const b = to.getBoundingClientRect();
+    const line = document.createElementNS(SVG_NS, "line");
+    line.setAttribute("class", "board-link");
+    line.setAttribute("x1", String(Math.round(a.left + a.width / 2)));
+    line.setAttribute("y1", String(Math.round(a.top + a.height / 2)));
+    line.setAttribute("x2", String(Math.round(b.left + b.width / 2)));
+    line.setAttribute("y2", String(Math.round(b.top + b.height / 2)));
+    svg.append(line);
+  }
+}
+const BAR_HINTS = {
+  priority: "Klicke eine leuchtende Karte (Hand oder Brett) oder gib die Priorität ab.",
+  mana_payment: "Klicke eine leuchtende Mana-Quelle.",
+  target: "Klicke ein leuchtendes Ziel (Karte, Spielerfeld, Friedhof oder Exil).",
+  attacker: "Klicke ein Angriffsziel oder die leuchtende Kreatur für das Menü.",
+  blocker: "Klicke die Angreifer, die geblockt werden sollen, und bestätige.",
+  trigger_order: "Die Quelle des Auslösers leuchtet; die Reihenfolge legst du in der Liste fest."
+};
+function renderBoardBar(pending, model) {
+  const bar = $("board-bar");
+  if (!bar) return;
+  bar.textContent = "";
+  if (!pending || !model || model.kind === "none") { bar.hidden = true; return; }
+  const minSel = Number(pending.minimum_selections ?? 0);
+  const maxSel = Number(pending.maximum_selections ?? 0);
+  const askedName = model.asked ? objectName(model.asked) : null;
+  const lead = askedName && (model.kind === "attacker" || model.kind === "blocker")
+    ? `${CLASSES[pending.decision_class] || ""}: ${askedName}`
+    : (CLASSES[pending.decision_class] || pending.decision_class);
+  bar.append(h("b", { class: "board-bar-title" }, lead), h("span", { class: "board-bar-hint" }, BAR_HINTS[model.kind] || ""));
+  if (model.mode === "staged") bar.append(h("span", { class: "board-bar-count" }, `${state.selectedOptions.length} von ${maxSel} gewählt (mindestens ${minSel})`));
+  for (const optionId of model.loose) {
+    const option = offeredOption(optionId);
+    if (!option) continue;
+    bar.append(h("button", {
+      type: "button",
+      class: option.option_type === "pass_priority" ? "primary" : "",
+      disabled: state.submitting,
+      onclick: () => (model.mode === "staged" ? toggleOption(optionId) : sendBoardOption(optionId))
+    }, localizeActionText(option.label || optionId)));
+  }
+  if (model.mode === "staged") {
+    const count = state.selectedOptions.length;
+    const label = count === 0 && minSel === 0 ? (model.kind === "blocker" ? "Nicht blocken" : "Bestätigen (0 gewählt)") : "Auswahl bestätigen";
+    bar.append(h("button", { type: "button", class: "primary", disabled: state.submitting || count < minSel || count > maxSel, onclick: confirmSelection }, label));
+  }
+  bar.hidden = false;
+}
+
 // ---- cards ---------------------------------------------------------------------------------
 function cardFace(name) {
   if (state.noImage.has(name) || name === "(verdeckt)") return h("div", { class: "nocard" }, name);
@@ -105,49 +296,78 @@ function cardFace(name) {
   img.addEventListener("error", () => { state.noImage.add(name); img.replaceWith(h("div", { class: "nocard" }, name)); });
   return img;
 }
+function showPreview(name, event) {
+  if (state.noImage.has(name) || name === "(verdeckt)") return;
+  const box = $("preview");
+  const img = box.firstChild;
+  img.referrerPolicy = "no-referrer";
+  img.onerror = () => { box.hidden = true; };
+  img.src = `/img-name?name=${encodeURIComponent(name)}`;
+  box.hidden = false; move(event);
+}
 function hover(el, name) {
-  el.addEventListener("mouseenter", (event) => {
-    if (state.noImage.has(name)) return;
-    const box = $("preview");
-    const img = box.firstChild;
-    img.referrerPolicy = "no-referrer";
-    img.onerror = () => { box.hidden = true; };
-    img.src = `/img-name?name=${encodeURIComponent(name)}`;
-    box.hidden = false; move(event);
-  });
+  el.addEventListener("mouseenter", (event) => showPreview(name, event));
   el.addEventListener("mousemove", move);
   el.addEventListener("mouseleave", () => { $("preview").hidden = true; });
+  // keyboard focus shows the same enlarged preview next to the card
+  el.addEventListener("focus", () => {
+    if (!el.matches(":focus-visible")) return;
+    const rect = el.getBoundingClientRect();
+    showPreview(name, { clientX: rect.right, clientY: rect.top + rect.height / 2 });
+  });
+  el.addEventListener("blur", () => { $("preview").hidden = true; });
 }
 function move(event) {
   const box = $("preview");
-  box.style.left = `${Math.min(event.clientX + 18, window.innerWidth - 280)}px`;
+  // beside the pointer: to its right, or to its left when the right edge of the window is too close
+  const right = event.clientX + 18;
+  box.style.left = `${Math.max(8, right + 270 > window.innerWidth ? event.clientX - 18 - 270 : right)}px`;
   box.style.top = `${Math.max(8, Math.min(event.clientY - 120, window.innerHeight - 380))}px`;
 }
 function cardTile(name, options = {}) {
+  const entry = clickEntry(options.objectId);
+  const answerable = Boolean(entry) && clickAction({ type: "object", id: options.objectId }) !== "none";
+  const picked = Boolean(entry) && entry.optionIds.some((id) => state.selectedOptions.includes(id));
   const classes = [
     "card",
     options.tapped && "tapped",
     options.small && "small",
     options.attacking && "attacking",
     options.blocking && "blocking",
-    options.targeted && "targeted"
+    options.targeted && "targeted",
+    entry && "legal",
+    entry && `role-${entry.role}`,
+    answerable && "clickable",
+    picked && "picked",
+    !entry && clickDimmed(options.objectId) && "dimmed"
   ].filter(Boolean).join(" ");
-  const el = h("div", { class: classes, title: options.title || name }, cardFace(name));
+  const props = { class: classes, title: options.title || name };
+  if (options.objectId) props["data-object-id"] = options.objectId;
+  let el;
+  if (answerable) {
+    Object.assign(props, { type: "button", "data-click-key": `obj:${options.objectId}`, "aria-label": clickAria(name, entry), onclick: (event) => boardClick({ type: "object", id: options.objectId }, event.currentTarget) });
+    el = h("button", props, cardFace(name));
+  } else {
+    el = h("div", props, cardFace(name));
+  }
   if (options.count > 1) el.append(h("span", { class: "badge count" }, `×${options.count}`));
   if (options.pt) el.append(h("span", { class: `badge pt${options.damage ? " hurt" : ""}` }, options.pt));
   if (options.counters) el.append(h("span", { class: "badge counter" }, options.counters));
-  if (options.combatBadge) {
+  const badge = options.combatBadge || clickBadge(options.objectId, entry);
+  if (badge) {
     const bClass = `badge combat${options.blocking ? " blocking" : ""}${options.targeted ? " targeted" : ""}`;
-    el.append(h("span", { class: bClass, title: options.combatBadge }, options.combatBadge));
+    el.append(h("span", { class: bClass, title: badge }, badge));
   }
   hover(el, name);
   return el;
 }
 function grouped(cards) {
-  // identical permanents (same name, same state) share one tile with a count
+  // identical permanents (same name, same state) share one tile with a count; a permanent the
+  // current decision points at stays its own tile, so a click never has to guess between twins
   const groups = new Map();
   for (const card of cards) {
-    const key = JSON.stringify([card.name, card.tapped, card.power, card.toughness, card.damage, card.counters || null]);
+    const own = state.clickActive && card.object_id && state.click.objects[card.object_id] ? card.object_id : null;
+    const key = JSON.stringify([card.name, card.tapped, card.power, card.toughness, card.damage, card.counters || null, own]);
     const entry = groups.get(key) || { card, count: 0 };
     entry.count += 1; groups.set(key, entry);
   }
@@ -187,7 +407,8 @@ function permanentTile({ card, count }, frame) {
     attacking,
     blocking,
     targeted,
-    combatBadge
+    combatBadge,
+    objectId: count === 1 ? card.object_id : null
   });
 }
 
@@ -211,8 +432,13 @@ function seatPanel(player, frame) {
     })
   );
   const humanPending = Boolean(state.interactive && state.pendingDecision && state.pendingDecision.seat === player.seat);
+  const seatClick = seatEntry(player.seat);
+  const seatAnswerable = Boolean(seatClick) && clickAction({ type: "seat", seat: player.seat }) !== "none";
+  const inZone = (zone) => state.clickActive && Object.values(state.click.objects).some((entry) => entry.zone === zone && entry.seat === player.seat);
   const classes = [
     "seat",
+    seatAnswerable && "targetable",
+    entryPicked(seatClick) && "picked",
     frame.active_seat === player.seat && "active",
     frame.seat === player.seat && "acting",
     humanPending && "human-turn",
@@ -222,14 +448,15 @@ function seatPanel(player, frame) {
   ].filter(Boolean).join(" ");
   const lands = grouped(player.battlefield.filter((card) => isLand(card.name)));
   const others = grouped(player.battlefield.filter((card) => !isLand(card.name)));
-  const yard = h("span", { class: "stat link", title: "Friedhof ansehen", onclick: () => showList(`Friedhof von ${seatName(player.seat)}`, player.graveyard) }, `Friedhof ${player.graveyard.length}`);
+  const yard = h("button", { type: "button", class: `stat link${inZone("graveyard") ? " zone-legal" : ""}`, title: "Friedhof ansehen", onclick: () => showZone(player, "graveyard") }, `Friedhof ${player.graveyard.length}`);
   const exileList = player.exile || [];
   const exileCount = player.exile_count || exileList.length;
   const exileStat = exileCount
-    ? h("span", {
-        class: "stat link",
+    ? h("button", {
+        type: "button",
+        class: `stat link${inZone("exile") ? " zone-legal" : ""}`,
         title: "Exil ansehen",
-        onclick: () => showList(`Exil von ${seatName(player.seat)}`, exileList)
+        onclick: () => showZone(player, "exile")
       }, `Exil ${exileCount}`)
     : null;
   return h("div", { class: classes },
@@ -242,6 +469,13 @@ function seatPanel(player, frame) {
       humanPending && h("span", { class: "pill warn" }, "Du bist am Zug!"),
       frame.active_seat === player.seat && h("span", { class: "pill good" }, "am Zug"),
       isTargetSeat && h("span", { class: "pill bad" }, "⚔️ Ziel"),
+      seatAnswerable && h("button", {
+        type: "button",
+        class: `seat-pick${entryPicked(seatClick) ? " picked" : ""}`,
+        "data-click-key": `seat:${player.seat}`,
+        "aria-label": seatAria(player.seat, seatClick),
+        onclick: (event) => boardClick({ type: "seat", seat: player.seat }, event.currentTarget)
+      }, seatClickText(seatClick)),
       info.style !== undefined && info.pilot !== "Mensch" && h("span", { class: "pill", title: `KI-Stil: ${info.style} (${info.style_name || ""})` }, `Stil ${info.style}`),
       info.deck_plan && h("span", { class: "pill link", title: "Spielplan ansehen (abgeleitet)", onclick: () => showDeckPlan(seatName(player.seat), info.deck_plan) }, "Plan"),
       player.lost && h("span", { class: "pill bad" }, "ausgeschieden"),
@@ -253,18 +487,34 @@ function seatPanel(player, frame) {
       exileStat,
       player.poison ? h("span", { class: "stat" }, `Gift ${player.poison}`) : null,
       player.mana_pool ? h("span", { class: "stat" }, `Mana ${Object.entries(player.mana_pool).map(([color, amount]) => `${amount} ${color}`).join(", ")}`) : null),
-    player.command.length ? h("div", null, h("div", { class: "zone-title" }, "Kommandozone"), h("div", { class: "cards" }, player.command.map((name) => cardTile(name, { small: true })))) : null,
+    player.command.length ? h("div", null, h("div", { class: "zone-title" }, "Kommandozone"), h("div", { class: "cards" }, player.command.map((name, at) => cardTile(name, { small: true, objectId: (player.command_ids || [])[at] })))) : null,
     h("div", { class: "zone-title" }, `Spielfeld (${player.battlefield.length})`),
     h("div", { class: "cards" }, others.map((item) => permanentTile(item, frame))),
     lands.length ? h("div", { class: "cards lands" }, lands.map((item) => permanentTile(item, frame))) : null);
 }
-function showList(title, names) {
+function seatAria(seat, entry) {
+  const options = entry.optionIds.map(offeredOption).filter(Boolean);
+  const who = `${seatName(seat)} (${seatLabel(seat)})`;
+  if (options.length !== 1) return `${who}: ${options.length} Möglichkeiten, Menü öffnen`;
+  const label = localizeActionText(options[0].label || options[0].option_id);
+  return state.click.mode === "staged" ? `${who}: ${entryPicked(entry) ? "Auswahl aufheben" : "auswählen"} (${label})` : `${who}: ${label}`;
+}
+function seatClickText(entry) {
+  if (state.click.kind === "attacker") return "⚔️ Angreifen";
+  return entryPicked(entry) ? "✓ Ziel" : "🎯 Ziel wählen";
+}
+function showList(title, names, ids, zoneKey) {
   const box = $("modal-box"); box.textContent = "";
-  box.append(h("h2", null, title), names.length ? h("div", { class: "cards" }, names.map((name) => cardTile(name))) : h("p", { class: "muted" }, "leer"), h("p", null, h("button", { type: "button", onclick: () => { $("modal").hidden = true; } }, "Schließen")));
+  box.dataset.zone = zoneKey || "";
+  box.append(h("h2", null, title), names.length ? h("div", { class: "cards" }, names.map((name, at) => cardTile(name, { objectId: (ids || [])[at] }))) : h("p", { class: "muted" }, "leer"), h("p", null, h("button", { type: "button", onclick: () => { $("modal").hidden = true; } }, "Schließen")));
   $("modal").hidden = false;
 }
+function showZone(player, zone) {
+  const graveyard = zone === "graveyard";
+  showList(`${graveyard ? "Friedhof" : "Exil"} von ${seatName(player.seat)}`, graveyard ? player.graveyard : (player.exile || []), player[`${zone}_ids`], `${player.seat}:${zone}`);
+}
 function showDeckPlan(title, plan) {
-  const box = $("modal-box"); box.textContent = "";
+  const box = $("modal-box"); box.textContent = ""; box.dataset.zone = "";
   const combos = Array.isArray(plan.combos) ? plan.combos : [];
   const winAxes = Array.isArray(plan.win_axes) ? plan.win_axes : [];
   const tutors = Array.isArray(plan.tutor_priorities) ? plan.tutor_priorities : [];
@@ -307,6 +557,7 @@ function pilotStateToFrame(pending) {
   const players = playersRaw.map((p) => {
     if (activeId && p.player_id === activeId) activeSeat = p.seat;
     const cardName = (c) => (c && c.face_down ? "(verdeckt)" : (c && c.name) || "?");
+    const objectIdOf = (c) => (c && typeof c.object_id === "string" ? c.object_id : null);
     const row = {
       seat: p.seat,
       life: p.life ?? null,
@@ -328,6 +579,7 @@ function pilotStateToFrame(pending) {
           counters = rawCounters;
         }
         const rowCard = {
+          object_id: c && typeof c.object_id === "string" ? c.object_id : null,
           name: cardName(c),
           tapped: Boolean(c.tapped),
           power: c.power,
@@ -338,15 +590,19 @@ function pilotStateToFrame(pending) {
         return rowCard;
       }),
       graveyard: (p.graveyard || []).map(cardName),
+      graveyard_ids: (p.graveyard || []).map(objectIdOf),
       command: (p.command || []).map(cardName),
+      command_ids: (p.command || []).map(objectIdOf),
       exile_count: p.exile_count || (p.exile || []).length,
-      exile: (p.exile || []).map(cardName)
+      exile: (p.exile || []).map(cardName),
+      exile_ids: (p.exile || []).map(objectIdOf)
     };
-    if (Array.isArray(p.hand)) row.hand = p.hand.map(cardName);
+    if (Array.isArray(p.hand)) { row.hand = p.hand.map(cardName); row.hand_ids = p.hand.map(objectIdOf); }
     if (p.mana_pool && typeof p.mana_pool === "object") row.mana_pool = p.mana_pool;
     return row;
   });
   const stack = (ps.stack || []).map((s) => (s && s.face_down ? "(verdeckt)" : (s && s.name) || "?"));
+  const stackIds = (ps.stack || []).map((s) => (s && typeof s.object_id === "string" ? s.object_id : null));
   return {
     n: state.frames.length + 1,
     turn: ps.turn_number ?? null,
@@ -359,7 +615,8 @@ function pilotStateToFrame(pending) {
     options: (pending.legal_options || []).length,
     chosen: [],
     players,
-    stack
+    stack,
+    stack_ids: stackIds
   };
 }
 
@@ -376,8 +633,15 @@ async function submitHumanChoice(payload) {
     go(Math.max(0, state.frames.length - 1));
     follow();
   } catch (error) {
-    toast(`Entscheidung abgelehnt: ${error.message}`);
+    // A click or button that arrives after the decision moved on (or that the engine refuses) is
+    // never silent: say what happened, then show the table as the engine has it now.
+    const stale = error.status === 422 || error.status === 409;
+    toast(stale
+      ? `Die Engine hat diese Antwort nicht angenommen (${error.message}). Vermutlich hat sich die Entscheidung inzwischen geändert; der Tisch wird neu geladen, bitte wähle noch einmal.`
+      : `Entscheidung abgelehnt: ${error.message}`, 8000);
     endFastForward(`die Engine hat die Antwort nicht angenommen (${error.message})`);
+    state.selectedOptions = [];
+    if (stale) { try { await loadMore(); } catch (reloadError) { /* the next poll tries again */ } }
   } finally {
     state.submitting = false;
     render();
@@ -499,6 +763,10 @@ function renderHumanDecision() {
   if (!pending) {
     panel.hidden = true;
     panel.textContent = "";
+    panel.dataset.sig = "";
+    state.click = null;
+    closeBoardMenu(false);
+    renderBoardBar(null, null);
     return;
   }
   const isNew = state.pendingDecisionId !== pending.decision_id;
@@ -506,12 +774,26 @@ function renderHumanDecision() {
     state.pendingDecisionId = pending.decision_id;
     state.selectedOptions = [];
     state.orderList = (pending.legal_options || []).map((opt) => String(opt.option_id));
+    closeBoardMenu(false);
   }
   if (maybeAutoPassHuman(pending)) return;
-  if (state.ff.on) { panel.hidden = true; panel.textContent = ""; return; }
+  if (state.ff.on) {
+    panel.hidden = true; panel.textContent = ""; panel.dataset.sig = "";
+    state.click = null;
+    closeBoardMenu(false);
+    renderBoardBar(null, null);
+    return;
+  }
   if (isNew) announceDecision(pending);
+  if (!state.click || state.click.decisionId !== pending.decision_id) state.click = StudioBoardClick.build(pending);
+  // The poll renders again every moment: an unchanged decision keeps its panel, so a typed number,
+  // an open menu and the keyboard focus survive.
+  const panelSig = JSON.stringify([pending.decision_id, state.selectedOptions, state.orderList, state.submitting]);
+  if (!panel.hidden && panel.dataset.sig === panelSig) return;
+  panel.dataset.sig = panelSig;
   panel.hidden = false;
   panel.textContent = "";
+  renderBoardBar(pending, state.click);
   const dc = pending.decision_class || "choice";
   const options = Array.isArray(pending.legal_options) ? pending.legal_options : [];
   const minSel = Number(pending.minimum_selections ?? 0);
@@ -679,13 +961,7 @@ function renderHumanDecision() {
       class: `human-opt legal-target${active ? " selected" : ""}`,
       "aria-pressed": active ? "true" : "false",
       disabled: state.submitting,
-      onclick: () => {
-        if (active) state.selectedOptions = state.selectedOptions.filter((id) => id !== optId);
-        else if (maxSel <= 1) state.selectedOptions = [optId];
-        else if (state.selectedOptions.length < maxSel) state.selectedOptions = [...state.selectedOptions, optId];
-        else toast(`Höchstens ${maxSel} Auswahlen möglich.`);
-        renderHumanDecision();
-      }
+      onclick: () => toggleOption(optId)
     }, `${active ? "✓ " : ""}${localizeActionText(opt.label || optId)}`));
   }
   if (options.length) panel.append(listEl);
@@ -733,6 +1009,9 @@ function render() {
   renderHumanDecision();
   const atLiveTail = state.interactive && state.running && state.pendingDecision && state.index >= Math.max(0, state.frames.length - 1);
   const frame = atLiveTail ? pilotStateToFrame(state.pendingDecision) : state.frames[state.index];
+  // board clicks exist only on the live decision of the human, never on a recorded frame
+  state.clickActive = Boolean(atLiveTail && state.click && state.click.kind !== "none" && state.click.decisionId === state.pendingDecision.decision_id && !state.submitting && !state.ff.on);
+  const clickSig = state.clickActive ? JSON.stringify([state.click.decisionId, state.selectedOptions]) : "";
   const table = $("table");
   if (!frame) {
     table.textContent = ""; state.seatKeys = [];
@@ -746,7 +1025,7 @@ function render() {
   const finished = state.index === state.frames.length - 1 && !state.running;
   const banner = finished ? `banner:${JSON.stringify(state.result)}` : "";
   const humanPendingSeat = state.interactive && state.pendingDecision ? state.pendingDecision.seat : null;
-  const keys = frame.players.map((player) => JSON.stringify([player, frame.active_seat, frame.seat, humanPendingSeat, finished]));
+  const keys = frame.players.map((player) => JSON.stringify([player, frame.active_seat, frame.seat, humanPendingSeat, finished, clickSig]));
   if (table.dataset.banner !== banner || keys.length !== state.seatKeys.length) {
     table.textContent = ""; state.seatKeys = []; table.dataset.banner = banner;
     if (finished) {
@@ -772,7 +1051,7 @@ function render() {
     h("div", { class: "ask" }, [CLASSES[frame.decision_class] || frame.decision_class, frame.prompt, frame.source ? `Quelle: ${frame.source}` : null, `${frame.options} Möglichkeiten`].filter(Boolean).join(" · ")),
     h("div", { class: "hint" }, "Der Spielstand zeigt den Tisch zum Zeitpunkt der Frage; das Ergebnis der gewählten Aktion wird im nächsten Schritt sichtbar."));
   const stack = $("stack"); stack.textContent = "";
-  if (frame.stack.length) frame.stack.forEach((name) => stack.append(name.startsWith("stack ability") ? h("div", { class: "muted" }, name.replace(/^stack ability \(/, "Fähigkeit: ").replace(/\)$/, "")) : cardTile(name, { small: true })));
+  if (frame.stack.length) frame.stack.forEach((name, at) => stack.append(name.startsWith("stack ability") ? h("div", { class: "muted" }, name.replace(/^stack ability \(/, "Fähigkeit: ").replace(/\)$/, "")) : cardTile(name, { small: true, objectId: (frame.stack_ids || [])[at] })));
   else stack.append(h("span", { class: "muted" }, "leer"));
   const actor = frame.players.find((player) => player.seat === frame.seat);
   const handOwner = actor && Array.isArray(actor.hand)
@@ -784,7 +1063,7 @@ function render() {
   const revealedNote = state.handsRevealed && !state.humanSeats.includes(handSeat) ? " (nach Spielende aufgedeckt)" : "";
   $("hand-title").textContent = `Hand von ${seatName(handSeat)}${revealedNote}`;
   const hand = $("hand"); hand.textContent = "";
-  if (handOwner && handOwner.hand && handOwner.hand.length) handOwner.hand.forEach((name) => hand.append(cardTile(name, { small: true })));
+  if (handOwner && handOwner.hand && handOwner.hand.length) handOwner.hand.forEach((name, at) => hand.append(cardTile(name, { small: !state.humanSeats.includes(handSeat), objectId: (handOwner.hand_ids || [])[at] })));
   else hand.append(h("span", { class: "muted" }, handOwner && handOwner.hand ? "leer" : "nicht sichtbar"));
 
   $("position").value = String(state.index);
@@ -795,6 +1074,14 @@ function render() {
     ? `Entscheidung ${frame.n} (Live)`
     : `Entscheidung ${frame.n} von ${state.frames.length}`;
   $("where").textContent = `Zug ${frame.turn ?? "?"} · ${phase} · ${decisionPosText}${skippedSuffix}${state.running ? " (Partie läuft noch)" : ""}`;
+  // a graveyard or exile list that is open follows the decision (targets in it are clickable)
+  const openKey = $("modal").hidden ? "" : ($("modal-box").dataset.zone || "");
+  if (openKey && $("modal-box").dataset.sig !== clickSig) {
+    const [openSeat, openName] = openKey.split(":");
+    const owner = frame.players.find((player) => player.seat === Number(openSeat));
+    if (owner) { showZone(owner, openName); $("modal-box").dataset.sig = clickSig; }
+  }
+  drawBlockLinks();
   for (const line of document.querySelectorAll("#log .here")) line.classList.remove("here");
   const line = lineFor(state.index);
   if (line) { line.classList.add("here"); line.scrollIntoView({ block: "nearest" }); }
@@ -1023,7 +1310,7 @@ function gameTitle(game) {
 async function newGame(wantedRevision) {
   let table;
   try { table = await api("/api/table"); } catch (error) { toast(`Fehler: ${error.message}`); return; }
-  const box = $("modal-box"); box.textContent = "";
+  const box = $("modal-box"); box.textContent = ""; box.dataset.zone = "";
   const close = h("button", { type: "button", onclick: () => { $("modal").hidden = true; } }, "Schließen");
   box.append(h("h2", null, "Neue Partie"));
   $("modal").hidden = false;
@@ -1217,7 +1504,7 @@ async function start() {
   });
   document.addEventListener("keydown", (event) => {
     if (event.ctrlKey || event.metaKey || event.altKey) return;
-    if (event.key === "Escape") { $("modal").hidden = true; return; }
+    if (event.key === "Escape") { if (closeBoardMenu(true)) return; $("modal").hidden = true; return; }
     const target = event.target;
     const field = target && target.closest ? target.closest("input, select, textarea") : null;
     if (field && field.type !== "range") return;
@@ -1228,6 +1515,20 @@ async function start() {
     else if (event.key === "ArrowLeft") { event.preventDefault(); step(-1); }
   });
   $("new-game").addEventListener("click", () => newGame());
+  // board menu: arrow keys move inside it, a click elsewhere or a scroll closes it (Esc is above)
+  $("board-menu").addEventListener("keydown", (event) => {
+    const items = [...$("board-menu").querySelectorAll("button")];
+    const at = items.indexOf(document.activeElement);
+    if (event.key === "ArrowDown") { event.preventDefault(); items[(at + 1) % items.length].focus(); }
+    else if (event.key === "ArrowUp") { event.preventDefault(); items[(at - 1 + items.length) % items.length].focus(); }
+    else if (event.key === "Tab") { event.preventDefault(); items[(at + (event.shiftKey ? -1 : 1) + items.length) % items.length].focus(); }
+    if (event.key === "ArrowLeft" || event.key === "ArrowRight") event.stopPropagation();
+  });
+  document.addEventListener("click", (event) => {
+    if (!$("board-menu").hidden && !event.target.closest("#board-menu, .clickable, .seat-pick")) closeBoardMenu(false);
+  });
+  $("table").addEventListener("scroll", () => { closeBoardMenu(false); drawBlockLinks(); }, { passive: true });
+  window.addEventListener("resize", () => { closeBoardMenu(false); drawBlockLinks(); });
   let any = false;
   try { any = await listGames(new URLSearchParams(location.search).get("partie")); } catch (error) { toast(`Partien konnten nicht geladen werden: ${error.message}`); return; }
   const query = new URLSearchParams(location.search);

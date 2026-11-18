@@ -1202,3 +1202,176 @@ def test_fast_forward_page_code_answers_nothing_but_the_verdict_pass() -> None:
     vorspulen = (STATIC / "vorspulen.js").read_text(encoding="utf-8")
     assert 'pending.decision_class !== "priority"' in vorspulen
     assert "innerHTML" not in vorspulen and "style=" not in vorspulen
+
+
+# ---- board clicks (static/boardclick.js): mapping engine options to cards and player fields -----
+
+BOARDCLICK_FIXTURES = Path(__file__).resolve().parents[1] / "fixtures" / "boardclick_payloads.json"
+_BC_PRELUDE = f"""
+const BC = require('./boardclick.js');
+const FX = JSON.parse(require('fs').readFileSync({json.dumps(BOARDCLICK_FIXTURES.as_posix())}, 'utf8'));
+const offered = (p) => p.legal_options.map((o) => String(o.option_id));
+const view = (name) => {{ const p = FX[name].pending_decision; return {{p, m: BC.build(p)}}; }};
+const optionOfCard = (p, id) => p.legal_options.filter((o) => (o.metadata || {{}}).source_object_id === id);
+"""
+
+
+def test_boardclick_fixtures_are_real_engine_payloads_without_hidden_cards() -> None:
+    fixtures = json.loads(BOARDCLICK_FIXTURES.read_text(encoding="utf-8"))
+    assert len(fixtures) >= 8
+    for name, entry in fixtures.items():
+        pending = entry["pending_decision"]
+        assert entry["note"].startswith("Real engine payload"), name
+        actor = pending["actor_id"]
+        players = pending["pilot_state"]["players"]
+        assert players, name
+        for player in players:
+            # only the human's own hand is in a payload; an AI hand never is
+            assert ("hand" in player) <= (player["player_id"] == actor), name
+        assert set(pending) >= {"decision_id", "legal_options", "pilot_state"}, name
+
+
+def test_boardclick_maps_real_payloads_to_the_offered_options_only() -> None:
+    out = _node_json(
+        _BC_PRELUDE
+        + """
+const out = {};
+for (const name of Object.keys(FX)) {
+  const {p, m} = view(name);
+  const ok = new Set(offered(p));
+  const emitted = BC.emittable(m);
+  out[name] = {kind: m.kind, mode: m.mode, offeredOnly: emitted.every((id) => ok.has(id)),
+    emitted: emitted.length, objects: Object.keys(m.objects).length, seats: Object.keys(m.seats).length,
+    listOnly: m.listOnly.length, loose: m.loose.length, options: p.legal_options.length,
+    accounted: offered(p).every((id) => emitted.includes(id) || m.listOnly.includes(id))};
+}
+console.log(JSON.stringify(out));
+"""
+    )
+    assert isinstance(out, dict) and len(out) >= 8
+    for name, row in out.items():
+        assert row["offeredOnly"] is True, name
+        # every offered option is somewhere: on a card or player, a loose button, or the list only
+        if row["kind"] != "none":
+            assert row["accounted"] is True, name
+    # a mulligan has nothing on the board: nothing is clickable
+    mulligan = out["mulligan"]
+    assert (mulligan["kind"], mulligan["objects"], mulligan["seats"], mulligan["emitted"]) == ("none", 0, 0, 0)
+    # a scry choice offers one card of the library: not on the board, so only the list answers it
+    scry = out["target_library_scry"]
+    assert (scry["kind"], scry["objects"], scry["emitted"], scry["listOnly"]) == ("target", 0, 0, 1)
+    assert out["priority_lands_spells"]["kind"] == "priority"
+    assert out["priority_lands_spells"]["loose"] == 1  # the pass option
+
+
+def test_boardclick_priority_click_sends_the_engine_option_of_that_card() -> None:
+    out = _node_json(
+        _BC_PRELUDE
+        + """
+const {p, m} = view('priority_lands_spells');
+const res = [];
+for (const id of Object.keys(m.objects)) {
+  const own = optionOfCard(p, id).map((o) => String(o.option_id));
+  const r = BC.resolve(p, m, {type: 'object', id});
+  res.push({id, own, action: r.action, optionId: r.optionId || null, menu: (r.options || []).map((o) => o.optionId)});
+}
+const pass = p.legal_options.find((o) => o.option_type === 'pass_priority');
+console.log(JSON.stringify({res, loose: m.loose, pass: String(pass.option_id), mode: m.mode}));
+"""
+    )
+    assert isinstance(out, dict) and out["mode"] == "immediate"
+    assert len(out["res"]) >= 3
+    for row in out["res"]:
+        assert len(row["own"]) == 1 and row["action"] == "send"
+        assert row["optionId"] == row["own"][0]  # exactly the engine's option_id of that card
+    assert out["loose"] == [out["pass"]]  # passing stays a button, never a card
+
+
+def test_boardclick_one_card_with_two_abilities_opens_a_menu_not_a_guess() -> None:
+    out = _node_json(
+        _BC_PRELUDE
+        + """
+const {p, m} = view('priority_temple_two_abilities');
+const multi = Object.keys(m.objects).filter((id) => optionOfCard(p, id).length > 1);
+const r = BC.resolve(p, m, {type: 'object', id: multi[0]});
+console.log(JSON.stringify({multi: multi.length, action: r.action, sent: r.optionId || null,
+  menu: (r.options || []).map((o) => o.optionId), own: optionOfCard(p, multi[0]).map((o) => String(o.option_id)),
+  labels: (r.options || []).map((o) => o.label)}));
+"""
+    )
+    assert isinstance(out, dict) and out["multi"] == 1
+    assert out["action"] == "menu" and out["sent"] is None
+    assert out["menu"] == out["own"] and len(out["menu"]) == 2
+    assert all("Temple" in label for label in out["labels"])  # the engine's own wording
+
+
+def test_boardclick_mana_payment_and_discard_use_the_cards_the_engine_named() -> None:
+    out = _node_json(
+        _BC_PRELUDE
+        + """
+const pay = view('mana_payment');
+const disc = view('discard_from_hand');
+const sends = (v) => Object.keys(v.m.objects).map((id) => [id, BC.resolve(v.p, v.m, {type: 'object', id})]);
+console.log(JSON.stringify({
+  pay: {kind: pay.m.kind, loose: pay.m.loose.length, rows: sends(pay).map(([id, r]) => [r.action, optionOfCard(pay.p, id).map((o) => String(o.option_id)), r.optionId || null])},
+  disc: {kind: disc.m.kind, mode: disc.m.mode, rows: sends(disc).map(([id, r]) => [r.action, id === r.optionId, disc.m.objects[id].zone])},
+}));
+"""
+    )
+    assert isinstance(out, dict)
+    assert out["pay"]["kind"] == "mana_payment" and out["pay"]["loose"] >= 1  # cancel stays a button
+    assert len(out["pay"]["rows"]) >= 1
+    for action, own, sent in out["pay"]["rows"]:
+        assert action == "send" and own == [sent]
+    assert out["disc"]["kind"] == "target" and out["disc"]["mode"] == "immediate"
+    assert len(out["disc"]["rows"]) == 8
+    for action, equal, zone in out["disc"]["rows"]:
+        assert (action, equal, zone) == ("send", True, "hand")  # the card's id is its option id
+
+
+def test_boardclick_never_answers_with_an_option_that_was_not_offered() -> None:
+    out = _node_json(
+        _BC_PRELUDE
+        + """
+const probes = [{type: 'object', id: 'no-such-object'}, {type: 'object', id: '__proto__'}, {type: 'object', id: 'constructor'},
+  {type: 'seat', seat: 9}, {type: 'seat', seat: 'x'}, {type: 'other'}, null, {type: 'object'}];
+const rows = [];
+for (const name of Object.keys(FX)) {
+  const {p, m} = view(name);
+  const ok = new Set(offered(p));
+  const targets = [...probes];
+  for (const id of Object.keys(m.objects)) targets.push({type: 'object', id});
+  for (const seat of Object.keys(m.seats)) targets.push({type: 'seat', seat: Number(seat)});
+  for (const t of targets) {
+    const r = BC.resolve(p, m, t);
+    const ids = r.action === 'menu' ? r.options.map((o) => o.optionId) : (r.optionId ? [r.optionId] : []);
+    rows.push({name, action: r.action, fine: ids.every((id) => ok.has(id))});
+  }
+  // a stale model: the engine has since withdrawn every option, so no click may answer
+  const stale = Object.assign({}, p, {legal_options: []});
+  for (const id of Object.keys(m.objects)) rows.push({name: name + '/stale', action: BC.resolve(stale, m, {type: 'object', id}).action, fine: true});
+}
+console.log(JSON.stringify(rows));
+"""
+    )
+    assert isinstance(out, list) and len(out) > 60
+    assert all(row["fine"] for row in out)
+    stale = [row for row in out if row["name"].endswith("/stale")]
+    assert len(stale) >= 8 and {row["action"] for row in stale} == {"none"}
+    # the junk probes of the first loop never produce an action either
+    junk = [row for row in out if not row["name"].endswith("/stale")]
+    assert {row["action"] for row in junk} <= {"none", "send", "toggle", "menu"}
+
+
+def test_boardclick_decisions_with_numbers_or_choices_have_no_board_mapping() -> None:
+    out = _node_json(
+        _BC_PRELUDE
+        + """
+const base = FX.discard_from_hand.pending_decision;
+const withNumbers = Object.assign({}, base, {context: Object.assign({}, base.context, {numeric_max: 3})});
+const asModes = Object.assign({}, base, {decision_class: 'mode'});
+console.log(JSON.stringify([BC.build(withNumbers).kind, BC.build(asModes).kind, BC.build(null).kind, BC.build({}).kind,
+  BC.build(Object.assign({}, base, {legal_options: []})).kind]));
+"""
+    )
+    assert out == ["none", "none", "none", "none", "none"]

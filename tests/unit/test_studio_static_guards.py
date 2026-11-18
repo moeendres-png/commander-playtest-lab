@@ -246,3 +246,64 @@ def test_partie_leave_restore_deleted_game_and_attempt_reset() -> None:
     assert "restoreAiDelayOnLeave(state.gameId);" in js  # when another game is opened
     ended = js.split("function endFastForward(", 1)[1].split("\nfunction ", 1)[0]
     assert "state.autoPassAttempt = null" in ended
+
+
+def test_boardclick_script_only_maps_engine_options_and_holds_no_rules() -> None:
+    script = (STATIC / "boardclick.js").read_text(encoding="utf-8")
+    html = (STATIC / "partie.html").read_text(encoding="utf-8")
+    assert html.index('src="boardclick.js"') < html.index('src="partie.js"')
+    # a pure mapping: no DOM, no network, no markup sinks, no style attribute
+    for sink in ("document.", "window.", "fetch(", "innerHTML", "outerHTML", "eval(", "style="):
+        assert sink not in script, sink
+    # no rule words: legality is the engine's, the page never works a rule out
+    rule_words = re.compile(
+        r"\b(hexproof|shroud|ward|protection|summoning|vigilance|haste|flying|reach|lethal|deathtouch)\b",
+        re.IGNORECASE,
+    )
+    assert rule_words.findall(script) == []
+    # a click can only name an option the decision offers, and an object must equal its option id
+    assert "const offered = entry.optionIds.map((id) => optionOf(pending, id)).filter(Boolean);" in script
+    assert "offered.length !== entry.optionIds.length" in script
+    assert "objectId !== optionId" in script
+    # opponents are recognised only by the engine's own player name
+    assert 'SEAT_NAME = /^Full Game Seat (\\d+)$/' in script
+
+
+def test_partie_board_clicks_send_only_offered_options_and_only_on_a_click() -> None:
+    js = (STATIC / "partie.js").read_text(encoding="utf-8")
+    css = (STATIC / "partie.css").read_text(encoding="utf-8")
+    html = (STATIC / "partie.html").read_text(encoding="utf-8")
+    for element in ('id="board-bar"', 'id="board-menu"', 'id="board-links"', 'role="menu"'):
+        assert element in html, element
+    # boardClick runs only from onclick handlers (never from a timer, a poll or a render)
+    calls = [m.start() for m in re.finditer(r"boardClick\(", js)]
+    assert len(calls) == 3  # the definition, the card tile (also in the zone lists) and the seat button
+    for start in calls:
+        line = js[js.rfind("\n", 0, start) + 1 : js.find("\n", start)]
+        assert "function boardClick(" in line or "onclick" in line, line
+    # the one place a board answer leaves: it checks the id against the pending decision first
+    send = js.split("function sendBoardOption(", 1)[1].split("\nfunction ", 1)[0]
+    assert send.index("offeredOption(optionId)") < send.index("submitHumanChoice(")
+    toggle = js.split("function toggleOption(", 1)[1].split("\nfunction ", 1)[0]
+    assert "offeredOption(optionId)" in toggle and "submitHumanChoice(" not in toggle
+    # fast-forward, auto-pass and the switch-on code never touch a board click
+    for name in ("startFastForward", "endFastForward", "maybeAutoPassHuman", "setAiDelay"):
+        body = js.split(f"function {name}(", 1)[1].split("\nfunction ", 1)[0]
+        assert "boardClick(" not in body and "sendBoardOption(" not in body, name
+    # cards on the board carry their object id, are real buttons with a label, and the preview
+    # follows the keyboard focus as well as the mouse
+    assert 'props["data-object-id"] = options.objectId' in js
+    assert 'h("button", props, cardFace(name))' in js and '"aria-label": clickAria(name, entry)' in js
+    assert 'el.addEventListener("focus"' in js and ":focus-visible" in js
+    # only the decision of the live table is clickable, never a recorded frame
+    assert "atLiveTail && state.click" in js and "!state.submitting && !state.ff.on" in js
+    # Esc closes an open menu before it closes anything else; the option list stays
+    keydown = js.split('addEventListener("keydown"', 1)[1].split('$("new-game")', 1)[0]
+    assert keydown.index("closeBoardMenu(true)") < keydown.index('$("modal").hidden = true')
+    assert 'class: "human-options"' in js and "toggleOption(optId)" in js
+    # a refused or outdated answer says so instead of staying silent
+    assert "stale" in js and "Vermutlich hat sich die Entscheidung inzwischen geändert" in js
+    # classes, no inline styles
+    for rule in (".card.legal ", ".card.dimmed", ".card.clickable:hover", ".card.picked", ".board-menu", ".seat-pick"):
+        assert rule in css, rule
+    assert "style=" not in js and "style=" not in html and "setAttribute(\"style\"" not in js
