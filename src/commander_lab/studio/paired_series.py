@@ -445,6 +445,34 @@ class PairedSeriesJob:
     def progress_file(self) -> Path:
         return games_folder(self.data_folder) / "paired_decks" / self.series_id / "progress.jsonl"
 
+    def lock_file(self) -> Path:
+        return games_folder(self.data_folder) / "paired_decks" / self.series_id / "running.lock"
+
+    def _write_lock(self) -> None:
+        path = self.lock_file()
+        _write_json_atomic(
+            path,
+            {"series_id": self.series_id, "pid": os.getpid(), "started_at": now_utc()},
+        )
+
+    def _release_lock(self) -> None:
+        with contextlib.suppress(OSError):
+            self.lock_file().unlink(missing_ok=True)
+
+    def _ensure_progress_newline(self) -> None:
+        path = self.progress_file()
+        if not path.is_file():
+            return
+        with self._progress_lock:
+            size = path.stat().st_size
+            if size > 0:
+                with path.open("rb") as handle:
+                    handle.seek(-1, os.SEEK_END)
+                    last = handle.read(1)
+                if last != b"\n":
+                    with path.open("ab") as handle:
+                        handle.write(b"\n")
+
     def _append_game_result(
         self, arm: str, seed: int, seat: int, played: paired_comparison.PlayedGame
     ) -> None:
@@ -507,6 +535,8 @@ class PairedSeriesJob:
                 "base_deck_id": self.base_deck.deck_id,
                 "variant_deck_id": self.variant_deck.deck_id,
                 "pod": self.pod_name,
+                "opponent_ids": list(self.opponent_ids) if self.opponent_ids is not None else None,
+                "opponent_deck_ids": [deck.deck_id for deck in self.opponents],
                 "budget_pairs": self.budget_pairs,
                 "look_every_pairs": self.look_every_pairs,
                 "tested_seats": list(self.tested_seats),
@@ -532,9 +562,12 @@ class PairedSeriesJob:
             }
 
     def run(self) -> None:
+        self._write_lock()
+        self._ensure_progress_newline()
         with self._lock:
             self.status = "running"
             self.started_at = now_utc()
+            self.error = None
         self.persist()
 
         def _on_pair_done(count: int) -> None:
@@ -606,6 +639,7 @@ class PairedSeriesJob:
                 self.error = str(exc)
                 self.ended_at = now_utc()
         finally:
+            self._release_lock()
             self.persist()
 
 
@@ -753,13 +787,83 @@ class PairedSeriesManager:
         return job
 
     @staticmethod
-    def _normalize_disk_series(raw: dict[str, object]) -> dict[str, object]:
+    def _is_lock_alive(lock_path: Path) -> bool:
+        if not lock_path.is_file():
+            return False
+        try:
+            data = json.loads(lock_path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            return False
+        if not isinstance(data, dict):
+            return False
+        pid = data.get("pid")
+        if type(pid) is not int or pid <= 0:
+            return False
+        try:
+            os.kill(pid, 0)
+        except PermissionError:
+            return True
+        except OSError:
+            return False
+        return True
+
+    @classmethod
+    def _is_disk_resumable(cls, raw: dict[str, object], target_folder: Path | None = None) -> bool:
+        seed_plan = raw.get("seed_plan")
+        if not isinstance(seed_plan, dict):
+            return False
+        if type(seed_plan.get("first_seed")) is not int:
+            return False
+        seeds_planned = seed_plan.get("seeds_planned")
+        if type(seeds_planned) is not int or seeds_planned < 1:
+            return False
+        tested_seats = raw.get("tested_seats")
+        if (
+            not isinstance(tested_seats, list)
+            or not tested_seats
+            or not all(type(s) is int for s in tested_seats)
+        ):
+            return False
+        budget_pairs = raw.get("budget_pairs")
+        if type(budget_pairs) is not int or budget_pairs < 1:
+            return False
+        threshold_pp = raw.get("threshold_pp")
+        if not isinstance(threshold_pp, (int, float)) or isinstance(threshold_pp, bool):
+            return False
+        err = raw.get("error")
+        if isinstance(err, str) and (
+            "mixed " in err or "abweichen" in err or "nicht fortsetzbar" in err
+        ):
+            return False
+        if target_folder is not None and isinstance(raw.get("series_id"), str):
+            sid = str(raw["series_id"])
+            deck_dir = games_folder(target_folder) / "paired_decks" / sid
+            if not list(deck_dir.glob("base-*.json")) or not list(deck_dir.glob("variant-*.json")):
+                return False
+        return True
+
+    @classmethod
+    def _normalize_disk_series(
+        cls, raw: dict[str, object], target_folder: Path | None = None
+    ) -> dict[str, object]:
         out = dict(raw)
-        if out.get("status") in {"running", "pending"}:
-            out["status"] = "interrupted"
-            out["resumable"] = True
-        elif out.get("status") in {"cancelled", "failed"}:
-            out["resumable"] = True
+        status = out.get("status")
+        if status in {"running", "pending"}:
+            sid = out.get("series_id")
+            if (
+                target_folder is not None
+                and isinstance(sid, str)
+                and cls._is_lock_alive(
+                    games_folder(target_folder) / "paired_decks" / sid / "running.lock"
+                )
+            ):
+                out["status"] = "running"
+                out["resumable"] = False
+            else:
+                out["status"] = "interrupted"
+                out["resumable"] = cls._is_disk_resumable(out, target_folder)
+        elif status in {"cancelled", "failed"}:
+            out["resumable"] = cls._is_disk_resumable(out, target_folder)
         else:
             out["resumable"] = False
         return out
@@ -771,7 +875,11 @@ class PairedSeriesManager:
         loaded: dict[tuple[str, int, int], paired_comparison.PlayedGame] = {}
         if not path.is_file():
             return loaded
-        for line in path.read_text(encoding="utf-8").splitlines():
+        text = path.read_text(encoding="utf-8")
+        lines = text.splitlines()
+        if text and not text.endswith("\n") and lines:
+            lines = lines[:-1]
+        for line in lines:
             line = line.strip()
             if not line:
                 continue
@@ -810,111 +918,165 @@ class PairedSeriesManager:
             if existing is not None and existing.status in {"pending", "running"}:
                 raise RuntimeError(f"Serie {safe_id} läuft bereits (status={existing.status})")
 
-        disk = games_folder(target_folder) / f"{safe_id}.paired.json"
-        if not disk.is_file():
-            raise FileNotFoundError(f"Unbekannte Serie: {safe_id}")
-        raw = json.loads(disk.read_text(encoding="utf-8"))
-        if not isinstance(raw, dict):
-            raise ValueError(f"Ungültige Serien-Datei: {safe_id}")
-        if raw.get("status") == "completed":
-            raise RuntimeError(f"Serie {safe_id} ist bereits abgeschlossen")
+            deck_dir = games_folder(target_folder) / "paired_decks" / safe_id
+            if self._is_lock_alive(deck_dir / "running.lock"):
+                raise RuntimeError(
+                    f"Serie {safe_id} läuft bereits in einem aktiven Prozess (running.lock)"
+                )
 
-        deck_dir = games_folder(target_folder) / "paired_decks" / safe_id
-        base_files = sorted(deck_dir.glob("base-*.json"))
-        variant_files = sorted(deck_dir.glob("variant-*.json"))
-        if not base_files or not variant_files:
-            raise FileNotFoundError(f"Deck-Snapshots für Serie {safe_id} fehlen")
-        base_path = base_files[0]
-        variant_path = variant_files[0]
-        base_deck = load_rules_deck_snapshot(base_path)
-        variant_deck = load_rules_deck_snapshot(variant_path)
+            disk = games_folder(target_folder) / f"{safe_id}.paired.json"
+            if not disk.is_file():
+                raise FileNotFoundError(f"Unbekannte Serie: {safe_id}")
+            raw = json.loads(disk.read_text(encoding="utf-8"))
+            if not isinstance(raw, dict):
+                raise ValueError(f"Ungültige Serien-Datei: {safe_id}")
+            if raw.get("status") == "completed":
+                raise RuntimeError(f"Serie {safe_id} ist bereits abgeschlossen")
 
-        pod = str(raw.get("pod") or "precon")
-        raw_opp_ids = raw.get("opponent_ids")
-        opp_ids = [str(x) for x in raw_opp_ids] if isinstance(raw_opp_ids, list) else None
-        opp_paths = _resolve_opponent_paths(pod, opp_ids)
-        opponents = [load_rules_deck_snapshot(path) for path in opp_paths]
-        paths_by_deck_id: dict[str, Path] = {
-            base_deck.deck_id: base_path,
-            variant_deck.deck_id: variant_path,
-        }
-        for deck, path in zip(opponents, opp_paths, strict=True):
-            paths_by_deck_id[deck.deck_id] = path
+            base_files = sorted(deck_dir.glob("base-*.json"))
+            variant_files = sorted(deck_dir.glob("variant-*.json"))
+            if not base_files or not variant_files:
+                raise FileNotFoundError(f"Deck-Snapshots für Serie {safe_id} fehlen")
+            base_path = base_files[0]
+            variant_path = variant_files[0]
+            base_deck = load_rules_deck_snapshot(base_path)
+            variant_deck = load_rules_deck_snapshot(variant_path)
 
-        seed_plan = raw.get("seed_plan")
-        if not isinstance(seed_plan, dict):
-            raise ValueError(f"seed_plan fehlt in Serie {safe_id}")
-        first_seed = seed_plan.get("first_seed")
-        seeds_planned = seed_plan.get("seeds_planned")
-        if type(first_seed) is not int or type(seeds_planned) is not int or seeds_planned < 1:
-            raise ValueError(f"Ungültiger seed_plan in Serie {safe_id}")
-        seeds = [first_seed + i for i in range(seeds_planned)]
+            pod_raw = raw.get("pod")
+            if not isinstance(pod_raw, str) or not pod_raw:
+                raise ValueError(f"pod fehlt in Serie {safe_id} (nicht fortsetzbar)")
+            pod = pod_raw
+            raw_opp_ids = raw.get("opponent_ids")
+            if raw_opp_ids is not None and (
+                not isinstance(raw_opp_ids, list)
+                or not all(isinstance(x, str) and x for x in raw_opp_ids)
+            ):
+                raise ValueError(f"Ungültige opponent_ids in Serie {safe_id} (nicht fortsetzbar)")
+            opp_ids = list(raw_opp_ids) if isinstance(raw_opp_ids, list) else None
+            opp_paths = _resolve_opponent_paths(pod, opp_ids)
+            opponents = [load_rules_deck_snapshot(path) for path in opp_paths]
 
-        raw_exec = raw.get("execution")
-        exec_meta = raw_exec if isinstance(raw_exec, dict) else {}
-        used_workers, used_batch = checked_series_settings(
-            workers if workers is not None else exec_meta.get("workers"),
-            games_per_jvm if games_per_jvm is not None else exec_meta.get("games_per_jvm"),
-        )
+            raw_opp_deck_ids = raw.get("opponent_deck_ids")
+            if isinstance(raw_opp_deck_ids, list) and [d.deck_id for d in opponents] != [
+                str(x) for x in raw_opp_deck_ids
+            ]:
+                raise ValueError(
+                    f"Gegner-Deck-IDs in Serie {safe_id} weichen ab (nicht fortsetzbar)"
+                )
 
-        engine: SeriesEngine | None = None
-        if play_override is None:
-            engine = series_engine(target_folder, used_batch)
-            if engine is None:
-                state = engine_state(target_folder)
-                raise RuntimeError(str(state.get("reason") or "Engine ist nicht bereitgestellt"))
-        jar_sha = (
-            command_bridge_jar_sha256(target_folder, engine.command)
-            if engine is not None
-            else (str(raw["bridge_jar_sha256"]) if raw.get("bridge_jar_sha256") else None)
-        )
+            seed_plan = raw.get("seed_plan")
+            if not isinstance(seed_plan, dict):
+                raise ValueError(f"seed_plan fehlt in Serie {safe_id} (nicht fortsetzbar)")
+            first_seed = seed_plan.get("first_seed")
+            seeds_planned = seed_plan.get("seeds_planned")
+            if type(first_seed) is not int or type(seeds_planned) is not int or seeds_planned < 1:
+                raise ValueError(f"Ungültiger seed_plan in Serie {safe_id} (nicht fortsetzbar)")
+            plan_players = seed_plan.get("player_count")
+            if type(plan_players) is int and plan_players != 1 + len(opponents):
+                raise ValueError(
+                    f"Sitzanzahl ({1 + len(opponents)}) weicht vom seed_plan "
+                    f"({plan_players}) ab (nicht fortsetzbar)"
+                )
+            seeds = [first_seed + i for i in range(seeds_planned)]
 
-        tested_seats_raw = raw.get("tested_seats")
-        tested_seats = (
-            [int(s) for s in tested_seats_raw]
-            if isinstance(tested_seats_raw, list) and tested_seats_raw
-            else [0, 1, 2, 3]
-        )
-        budget_pairs = int(raw.get("budget_pairs") or 0)
-        look_every_pairs = int(raw.get("look_every_pairs") or 1)
-        threshold_pp = float(raw.get("threshold_pp") or 0.0)
-        significance_level = float(raw.get("significance_level") or 0.05)
-        raw_alignment = (
-            raw.get("slot_alignment") if isinstance(raw.get("slot_alignment"), dict) else None
-        )
-        preloaded = self._load_progress_jsonl(deck_dir / "progress.jsonl")
+            tested_seats_raw = raw.get("tested_seats")
+            if (
+                not isinstance(tested_seats_raw, list)
+                or not tested_seats_raw
+                or not all(type(s) is int for s in tested_seats_raw)
+            ):
+                raise ValueError(f"tested_seats fehlt in Serie {safe_id} (nicht fortsetzbar)")
+            tested_seats = list(tested_seats_raw)
 
-        job = PairedSeriesJob(
-            series_id=safe_id,
-            data_folder=target_folder,
-            base_ref=str(raw.get("base_ref") or base_deck.deck_id),
-            variant_ref=str(raw.get("variant_ref") or variant_deck.deck_id),
-            base_deck=base_deck,
-            variant_deck=variant_deck,
-            opponents=opponents,
-            paths_by_deck_id=paths_by_deck_id,
-            pod_name=pod,
-            seeds=seeds,
-            tested_seats=tested_seats,
-            budget_pairs=budget_pairs,
-            look_every_pairs=look_every_pairs,
-            threshold_pp=threshold_pp,
-            significance_level=significance_level,
-            play_override=play_override,
-            workers=used_workers,
-            games_per_jvm=used_batch,
-            engine=engine,
-            bridge_sha=jar_sha,
-            qualification=bridge_qualification(),
-            raw_slot_alignment=raw_alignment,
-            purpose=str(seed_plan.get("purpose") or "unspecified"),
-            player_count=1 + len(opponents),
-            opponent_ids=opp_ids,
-            created_at=str(raw.get("created_at")) if raw.get("created_at") else None,
-            preloaded_games=preloaded,
-        )
-        job.persist()
-        with self._lock:
+            budget_pairs = raw.get("budget_pairs")
+            if type(budget_pairs) is not int or budget_pairs < 1:
+                raise ValueError(f"budget_pairs fehlt in Serie {safe_id} (nicht fortsetzbar)")
+            look_every_pairs = raw.get("look_every_pairs")
+            if type(look_every_pairs) is not int or look_every_pairs < 1:
+                raise ValueError(f"look_every_pairs fehlt in Serie {safe_id} (nicht fortsetzbar)")
+            threshold_raw = raw.get("threshold_pp")
+            if not isinstance(threshold_raw, (int, float)) or isinstance(threshold_raw, bool):
+                raise ValueError(f"threshold_pp fehlt in Serie {safe_id} (nicht fortsetzbar)")
+            threshold_pp = float(threshold_raw)
+            sig_raw = raw.get("significance_level")
+            if not isinstance(sig_raw, (int, float)) or isinstance(sig_raw, bool):
+                raise ValueError(f"significance_level fehlt in Serie {safe_id} (nicht fortsetzbar)")
+            significance_level = float(sig_raw)
+
+            paths_by_deck_id: dict[str, Path] = {
+                base_deck.deck_id: base_path,
+                variant_deck.deck_id: variant_path,
+            }
+            for deck, path in zip(opponents, opp_paths, strict=True):
+                paths_by_deck_id[deck.deck_id] = path
+
+            raw_exec = raw.get("execution")
+            exec_meta = raw_exec if isinstance(raw_exec, dict) else {}
+            used_workers, used_batch = checked_series_settings(
+                workers if workers is not None else exec_meta.get("workers"),
+                games_per_jvm if games_per_jvm is not None else exec_meta.get("games_per_jvm"),
+            )
+
+            engine: SeriesEngine | None = None
+            if play_override is None:
+                engine = series_engine(target_folder, used_batch)
+                if engine is None:
+                    state = engine_state(target_folder)
+                    raise RuntimeError(
+                        str(state.get("reason") or "Engine ist nicht bereitgestellt")
+                    )
+            jar_sha = (
+                command_bridge_jar_sha256(target_folder, engine.command)
+                if engine is not None
+                else (str(raw["bridge_jar_sha256"]) if raw.get("bridge_jar_sha256") else None)
+            )
+            recorded_sha = raw.get("bridge_jar_sha256")
+            if (
+                isinstance(recorded_sha, str)
+                and recorded_sha
+                and jar_sha is not None
+                and recorded_sha != jar_sha
+            ):
+                raise ValueError(
+                    f"Bridge-JAR-SHA weicht ab ({recorded_sha[:12]} != {jar_sha[:12]}, "
+                    "nicht fortsetzbar)"
+                )
+
+            raw_alignment = (
+                raw.get("slot_alignment") if isinstance(raw.get("slot_alignment"), dict) else None
+            )
+            preloaded = self._load_progress_jsonl(deck_dir / "progress.jsonl")
+
+            job = PairedSeriesJob(
+                series_id=safe_id,
+                data_folder=target_folder,
+                base_ref=str(raw.get("base_ref") or base_deck.deck_id),
+                variant_ref=str(raw.get("variant_ref") or variant_deck.deck_id),
+                base_deck=base_deck,
+                variant_deck=variant_deck,
+                opponents=opponents,
+                paths_by_deck_id=paths_by_deck_id,
+                pod_name=pod,
+                seeds=seeds,
+                tested_seats=tested_seats,
+                budget_pairs=budget_pairs,
+                look_every_pairs=look_every_pairs,
+                threshold_pp=threshold_pp,
+                significance_level=significance_level,
+                play_override=play_override,
+                workers=used_workers,
+                games_per_jvm=used_batch,
+                engine=engine,
+                bridge_sha=jar_sha,
+                qualification=bridge_qualification(),
+                raw_slot_alignment=raw_alignment,
+                purpose=str(seed_plan.get("purpose") or "unspecified"),
+                player_count=1 + len(opponents),
+                opponent_ids=opp_ids,
+                created_at=str(raw.get("created_at")) if raw.get("created_at") else None,
+                preloaded_games=preloaded,
+            )
+            job.persist()
             self._jobs[safe_id] = job
 
         thread = threading.Thread(target=job.run, daemon=True)
@@ -935,7 +1097,7 @@ class PairedSeriesManager:
             except ValueError:
                 return None
             if isinstance(raw, dict):
-                return self._normalize_disk_series(raw)
+                return self._normalize_disk_series(raw, target_folder)
         return None
 
     def cancel_series(self, series_id: str) -> bool:
@@ -956,7 +1118,9 @@ class PairedSeriesManager:
                 with contextlib.suppress(OSError, ValueError):
                     raw = json.loads(path.read_text(encoding="utf-8"))
                     if isinstance(raw, dict) and isinstance(raw.get("series_id"), str):
-                        by_id[str(raw["series_id"])] = self._normalize_disk_series(raw)
+                        by_id[str(raw["series_id"])] = self._normalize_disk_series(
+                            raw, target_folder
+                        )
         with self._lock:
             for sid, job in self._jobs.items():
                 if job.data_folder == target_folder:

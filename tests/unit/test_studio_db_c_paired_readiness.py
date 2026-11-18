@@ -1676,3 +1676,280 @@ def test_paired_resume_route_returns_updated_job_and_rejects_completed(
         assert ok.json()["status"] == "running"
     finally:
         store.close()
+
+
+def test_paired_resume_persists_custom_opponents_and_rejects_mismatch(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    store, folder = _make_store(tmp_path)
+    try:
+        rev_a = create_revision(
+            store,
+            deck_id="chulane",
+            name="Chulane",
+            branch="main",
+            cards=[
+                RevisionCard("cid-chulane", 1, "commander"),
+                RevisionCard("cid-sol-ring", 1, "main"),
+                RevisionCard("cid-forest", 98, "main"),
+            ],
+        )
+        rev_b = create_revision(
+            store,
+            deck_id="chulane",
+            name="Chulane",
+            branch="var",
+            cards=[
+                RevisionCard("cid-chulane", 1, "commander"),
+                RevisionCard("cid-signet", 1, "main"),
+                RevisionCard("cid-forest", 98, "main"),
+            ],
+        )
+        monkeypatch.setattr(paired_series, "_preflight_snapshot_cards", lambda *_a, **_k: None)
+
+        custom_opponents = list(paired_series.POD_PRESETS["mixed"][:2])
+        calls: list[tuple[str, int, int]] = []
+
+        def _player(arm: str, seed: int, seat: int) -> paired_comparison.PlayedGame:
+            calls.append((arm, seed, seat))
+            if len(calls) >= 2:
+                raise RuntimeError("stop mid-pair")
+            return {
+                "exposure": _mock_exposure(  # type: ignore[typeddict-item]
+                    f"{arm}-{seed}-{seat}",
+                    seed=seed,
+                    seat=seat,
+                    tested_deck_id="chulane--base",
+                    won=False,
+                ),
+                "failure_class": None,
+            }
+
+        mgr = paired_series.PairedSeriesManager()
+        res_dir = folder / "opp_resume"
+        job = mgr.start_series(
+            store,
+            res_dir,
+            base_revision_id=rev_a,
+            variant_revision_id=rev_b,
+            pod="precon",
+            opponent_ids=custom_opponents,
+            budget_pairs=3,
+            look_every_pairs=3,
+            base_seed=700,
+            workers=1,
+            games_per_jvm=1,
+            play_override=_player,
+        )
+        _wait_job(mgr, res_dir, job.series_id)
+        assert job.status == "failed"
+
+        disk_payload = json.loads(job.series_file().read_text(encoding="utf-8"))
+        assert disk_payload["opponent_ids"] == custom_opponents
+        assert len(disk_payload["opponent_deck_ids"]) == 2
+        assert disk_payload["seed_plan"]["player_count"] == 3
+
+        # Append a truncated line without trailing newline to progress.jsonl to verify crash guard
+        prog_path = job.progress_file()
+        with prog_path.open("ab") as handle:
+            handle.write(b'{"arm":"variant","seed":700,"seat":0,"played":')
+
+        # 1. Tampering opponent_ids to drop custom table must be rejected on resume
+        tampered = dict(disk_payload)
+        tampered["opponent_ids"] = None
+        job.series_file().write_text(json.dumps(tampered), encoding="utf-8")
+        mgr2 = paired_series.PairedSeriesManager()
+        with pytest.raises(ValueError, match=r"weichen ab|Sitzanzahl"):
+            mgr2.resume_series(
+                res_dir,
+                job.series_id,
+                workers=1,
+                games_per_jvm=1,
+                play_override=lambda a, s, t: _player(a, s, t),
+            )
+
+        # 2. Restoring valid payload resumes mid-pair (base 700/0 skipped, variant 700/0 played)
+        job.series_file().write_text(json.dumps(disk_payload), encoding="utf-8")
+        resumed_calls: list[tuple[str, int, int]] = []
+
+        def _resume_ok(arm: str, seed: int, seat: int) -> paired_comparison.PlayedGame:
+            resumed_calls.append((arm, seed, seat))
+            return {
+                "exposure": _mock_exposure(  # type: ignore[typeddict-item]
+                    f"{arm}-{seed}-{seat}",
+                    seed=seed,
+                    seat=seat,
+                    tested_deck_id=f"chulane--{arm}",
+                    won=(arm == "variant"),
+                ),
+                "failure_class": None,
+            }
+
+        resumed = mgr2.resume_series(
+            res_dir,
+            job.series_id,
+            workers=1,
+            games_per_jvm=1,
+            play_override=_resume_ok,
+        )
+        _wait_job(mgr2, res_dir, resumed.series_id)
+        assert resumed.status == "completed", resumed.error
+        assert ("base", 700, 0) not in resumed_calls
+        assert ("variant", 700, 0) in resumed_calls
+        assert len(resumed_calls) == 5  # 3 pairs * 2 arms - 1 already played base game
+    finally:
+        store.close()
+
+
+def test_paired_resume_live_lockfile_and_engine_chunk_filtering(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # 1. Live running.lock prevents interrupted misclassification and double resume
+    games_dir = tmp_path / "games"
+    sid = "paired-999999-1-locktest"
+    deck_dir = games_dir / "paired_decks" / sid
+    deck_dir.mkdir(parents=True, exist_ok=True)
+    (deck_dir / "base-a.json").write_text("{}", encoding="utf-8")
+    (deck_dir / "variant-b.json").write_text("{}", encoding="utf-8")
+    (games_dir / f"{sid}.paired.json").write_text(
+        json.dumps(
+            {
+                "series_id": sid,
+                "status": "running",
+                "pod": "precon",
+                "budget_pairs": 4,
+                "look_every_pairs": 2,
+                "tested_seats": [0, 1],
+                "threshold_pp": 0.0,
+                "significance_level": 0.05,
+                "seed_plan": {"first_seed": 100, "seeds_planned": 2, "player_count": 4},
+            }
+        ),
+        encoding="utf-8",
+    )
+    (deck_dir / "running.lock").write_text(
+        json.dumps({"series_id": sid, "pid": os.getpid()}), encoding="utf-8"
+    )
+    mgr = paired_series.PairedSeriesManager()
+    live = mgr.get_series(tmp_path, sid)
+    assert live is not None
+    assert live["status"] == "running"
+    assert live["resumable"] is False
+    with pytest.raises(RuntimeError, match=r"running\.lock|läuft bereits"):
+        mgr.resume_series(
+            tmp_path, sid, play_override=lambda *_a: {"exposure": None, "failure_class": None}
+        )
+
+    # Dead lockfile -> reported as interrupted & resumable
+    (deck_dir / "running.lock").write_text(
+        json.dumps({"series_id": sid, "pid": 99999999}), encoding="utf-8"
+    )
+    dead = mgr.get_series(tmp_path, sid)
+    assert dead is not None
+    assert dead["status"] == "interrupted"
+    assert dead["resumable"] is True
+
+    # Missing seed_plan -> not resumable
+    (games_dir / f"{sid}.paired.json").write_text(
+        json.dumps({"series_id": sid, "status": "failed", "pod": "precon"}), encoding="utf-8"
+    )
+    no_plan = mgr.get_series(tmp_path, sid)
+    assert no_plan is not None
+    assert no_plan["resumable"] is False
+
+    # 2. Engine-path chunk filtering skips already-preloaded arm+seed+seat
+    from commander_lab.models import RulesDeckInput
+
+    base_deck = RulesDeckInput(
+        deck_id="chulane--base",
+        name="Base",
+        commander_names=(COMMANDER,),
+        mainboard=("Forest",) * 99,
+    )
+    var_deck = RulesDeckInput(
+        deck_id="chulane--variant",
+        name="Var",
+        commander_names=(COMMANDER,),
+        mainboard=("Island",) * 99,
+    )
+    opp_decks = [
+        RulesDeckInput(
+            deck_id=f"opp-{i}",
+            name=f"Opp {i}",
+            commander_names=(COMMANDER,),
+            mainboard=("Plains",) * 99,
+        )
+        for i in range(3)
+    ]
+    paths_by_id = {
+        d.deck_id: tmp_path / f"{d.deck_id}.json" for d in [base_deck, var_deck, *opp_decks]
+    }
+    recorded_calls: list[tuple[str, list[int]]] = []
+
+    def _fake_play_recorded_games(
+        _data_folder: Path,
+        _deck_paths: list[Path],
+        series_games: list[paired_comparison.SeriesGame],
+        **_kwargs: object,
+    ) -> list[dict[str, object]]:
+        seeds = [g.seed for g in series_games]
+        arm = "variant" if any("--variant" in str(p) for p in _deck_paths) else "base"
+        recorded_calls.append((arm, seeds))
+        return [
+            {
+                "game_id": g.game_id,
+                "seed": g.seed,
+                "winner_seats": [0],
+                "seats": [],
+            }
+            for g in series_games
+        ]
+
+    from commander_lab.studio import play_batch as studio_play_batch
+
+    monkeypatch.setattr(studio_play_batch, "play_recorded_games", _fake_play_recorded_games)
+    monkeypatch.setattr(
+        paired_comparison,
+        "_summary_to_played_game",
+        lambda summary: {
+            "exposure": _mock_exposure(
+                str(summary["game_id"]),
+                seed=int(summary["seed"]),  # type: ignore[arg-type]
+                seat=0,
+                tested_deck_id="chulane--variant"
+                if "-variant-" in str(summary["game_id"])
+                else "chulane--base",
+                won=False,
+            ),
+            "failure_class": None,
+        },
+    )
+
+    preloaded: dict[tuple[str, int, int], paired_comparison.PlayedGame] = {
+        ("base", 100, 0): {
+            "exposure": _mock_exposure(  # type: ignore[typeddict-item]
+                "pre-base-100-0", seed=100, seat=0, tested_deck_id="chulane--base", won=False
+            ),
+            "failure_class": None,
+        }
+    }
+    player = paired_comparison.parallel_window_player(
+        tmp_path,
+        series_id="paired-chunk-test",
+        base_deck=base_deck,
+        variant_deck=var_deck,
+        opponents=opp_decks,
+        paths_by_deck_id=paths_by_id,
+        seeds=[100],
+        tested_seats=[0],
+        budget_pairs=1,
+        look_every_pairs=1,
+        workers=1,
+        games_per_jvm=1,
+        preloaded=preloaded,
+    )
+    res_base = player("base", 100, 0)
+    res_var = player("variant", 100, 0)
+    assert res_base["exposure"] is not None
+    assert res_var["exposure"] is not None
+    assert recorded_calls == [("variant", [100])]

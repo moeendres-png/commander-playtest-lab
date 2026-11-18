@@ -348,7 +348,27 @@ function refreshPairedSlots(deps) {
           h("tbody", {}, historyList.slice(0, 10).map((item) => {
             const r = item.result || null;
             const v = pairedVerdictInfo(r);
-            const canResume = item.status === "interrupted" || item.status === "cancelled" || item.status === "failed";
+            const canResume = item.resumable !== undefined
+              ? Boolean(item.resumable)
+              : (item.status === "interrupted" || item.status === "cancelled" || item.status === "failed");
+            let histResumeBtn = null;
+            if (canResume) {
+              histResumeBtn = h("button", {
+                type: "button",
+                class: "small primary",
+                onclick: async () => {
+                  histResumeBtn.disabled = true;
+                  try {
+                    const resumed = await deps.api(`/api/simulations/paired/${encodeURIComponent(item.series_id)}/resume`, "POST");
+                    deps.setActivePaired(resumed);
+                    deps.pollPaired(item.series_id);
+                  } catch (err) {
+                    deps.fail(err);
+                    histResumeBtn.disabled = false;
+                  }
+                },
+              }, "Fortsetzen");
+            }
             return h("tr", {},
               h("td", {}, h("code", {}, item.series_id)),
               h("td", {}, item.status === "interrupted" ? "unterbrochen" : item.status),
@@ -364,19 +384,7 @@ function refreshPairedSlots(deps) {
                     refreshPairedSlots(deps);
                   },
                 }, "Details"),
-                canResume ? h("button", {
-                  type: "button",
-                  class: "small primary",
-                  onclick: async () => {
-                    try {
-                      const resumed = await deps.api(`/api/simulations/paired/${encodeURIComponent(item.series_id)}/resume`, "POST");
-                      deps.setActivePaired(resumed);
-                      deps.pollPaired(item.series_id);
-                    } catch (err) {
-                      deps.fail(err);
-                    }
-                  },
-                }, "Fortsetzen") : null)));
+                histResumeBtn)));
           }))))
       );
     }
