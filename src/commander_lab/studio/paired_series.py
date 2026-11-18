@@ -49,6 +49,7 @@ from .launch import (
     checked_series_settings,
     engine_state,
     series_engine,
+    validate_released_seat_count,
 )
 from .launch import (
     bridge_jar_sha256 as command_bridge_jar_sha256,
@@ -194,14 +195,21 @@ def estimate_series_duration(
     return payload
 
 
-def _resolve_opponent_paths(pod: str, opponent_ids: Sequence[str] | None) -> list[Path]:
+def _resolve_opponent_paths(
+    pod: str,
+    opponent_ids: Sequence[str] | None,
+    *,
+    allow_unreleased_seats: bool = False,
+) -> list[Path]:
     by_id = {deck_id: path for deck_id, _name, _cmds, _year, path in _precons()}
     if opponent_ids is not None:
-        if not 1 <= len(opponent_ids) <= 5:
-            raise ValueError("opponent_ids muss zwischen 1 und 5 Gegner-Decks enthalten")
+        validate_released_seat_count(
+            len(opponent_ids), allow_unreleased_seats=allow_unreleased_seats
+        )
         opp_list = [str(oid).strip() for oid in opponent_ids]
     elif pod in POD_PRESETS:
         opp_list = list(POD_PRESETS[pod])
+        validate_released_seat_count(len(opp_list), allow_unreleased_seats=allow_unreleased_seats)
     else:
         raise ValueError(f"Unbekannter Gegnertisch (pod): {pod!r}")
 
@@ -590,6 +598,7 @@ class PairedSeriesManager:
         games_per_jvm: int | None = None,
         play_override: paired_comparison.PairPlayer | None = None,
         purpose: str = "unspecified",
+        allow_unreleased_seats: bool = False,
     ) -> PairedSeriesJob:
         data_path = Path(data_folder).resolve()
         if purpose not in SERIES_PURPOSES:
@@ -607,6 +616,10 @@ class PairedSeriesManager:
             )
         if look_every_pairs < 1:
             raise ValueError("look_every_pairs muss mindestens 1 sein")
+        if opponent_ids is not None:
+            validate_released_seat_count(
+                len(opponent_ids), allow_unreleased_seats=allow_unreleased_seats
+            )
         used_workers, used_batch = checked_series_settings(workers, games_per_jvm)
 
         engine: SeriesEngine | None = None
@@ -621,7 +634,9 @@ class PairedSeriesManager:
         _preflight_snapshot_cards("Basis-Deck", base_snap)
         _preflight_snapshot_cards("Varianten-Deck", variant_snap)
 
-        opp_paths = _resolve_opponent_paths(pod, opponent_ids)
+        opp_paths = _resolve_opponent_paths(
+            pod, opponent_ids, allow_unreleased_seats=allow_unreleased_seats
+        )
         opponents = [load_rules_deck_snapshot(p) for p in opp_paths]
 
         with self._lock:

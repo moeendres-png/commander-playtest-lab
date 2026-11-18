@@ -695,6 +695,23 @@ def collection_cards_unsupported_by_engine(store: StudioStore) -> list[str]:
     return unsupported
 
 
+def validate_released_seat_count(
+    opponent_count: int,
+    *,
+    allow_unreleased_seats: bool = False,
+) -> int:
+    """Validate opponent count (1..5) and enforce ``MAX_RELEASED_SEATS`` unless overridden."""
+    if not MIN_SEATS - 1 <= opponent_count <= MAX_SEATS - 1:
+        raise ValueError("a game requires 1 to 5 opponents")
+    if not allow_unreleased_seats and opponent_count > MAX_RELEASED_SEATS - 1:
+        raise ValueError(
+            f"tables of {opponent_count + 1} seats are locked: the Studio starts {MIN_SEATS} to "
+            f"{MAX_RELEASED_SEATS} seats; five and six seats need a qualification and an explicit "
+            "Owner decision"
+        )
+    return 1 + opponent_count
+
+
 def prepare_table_deck_paths(
     store: StudioStore,
     data_folder: str | Path,
@@ -705,14 +722,7 @@ def prepare_table_deck_paths(
 ) -> tuple[str, list[Path]]:
     """Validate decks and resolve ordered seat deck paths plus a fresh ``game_id``."""
     others = len(opponent_ids)
-    if not MIN_SEATS - 1 <= others <= MAX_SEATS - 1:
-        raise ValueError("a game has one to five other seats")
-    if others > MAX_RELEASED_SEATS - 1:
-        raise ValueError(
-            f"tables of {others + 1} seats are locked: the Studio starts {MIN_SEATS} to "
-            f"{MAX_RELEASED_SEATS} seats; five and six seats need a qualification and an explicit "
-            "Owner decision"
-        )
+    validate_released_seat_count(others)
     if len(set(opponent_ids)) != len(opponent_ids):
         raise ValueError("every seat needs its own deck")
     if engine_command(data_folder) is None:
