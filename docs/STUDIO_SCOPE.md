@@ -35,9 +35,10 @@ Datei widersprechen, gilt diese Datei.
   (eigene Qualifikation und Owner-Freigabe, A3, A8). Die Engine nimmt 2 bis 6 Sitze an
   (Verhalten bei 5/6 nicht qualifiziert: `UNKNOWN`; `studio/launch.py`: `MIN_SEATS, MAX_SEATS = 2, 6`). Technische Sperre (neu, Empfehlung O11 mit
   Owner-GO): im Studio-Startpfad (Partie, PLAY) seit PR #1515 auf `main`
-  (`MAX_RELEASED_SEATS = 4`). In den Serien-Routen und im Befehl `compare-decks` ist sie noch nicht
-  durchgesetzt (`studio/__main__.py` prüft nur `MIN_SEATS` bis `MAX_SEATS`); das ist ein eigenes
-  SIMULATE-Paket (PR #1516 ist ohne sie gemergt). Aufgehoben wird sie nur per Owner-Freigabe.
+  (`MAX_RELEASED_SEATS = 4`), in den Serien-Routen und im Befehl `compare-decks` seit PR #1536
+  (`compare-decks` hat den Schalter `--allow-unreleased-seats`, standardmäßig aus; setzen nur nach
+  Owner-Freigabe).
+  Aufgehoben wird sie nur per Owner-Freigabe.
 
 ## BUILD
 
@@ -141,7 +142,7 @@ Keine Kalenderdaten: Die Dauer hängt an Owner-Zeit am PC und an Nutzungslimits 
 |---|---|---|
 | 0 Sichern und klären | Offene Stände gepusht; Claim-Tabelle in #1167; diese Datei und die Entscheidungsdatei | beide gemergt, Doku-Drift bereinigt |
 | 1 PLAY P0 | Brett-Klick, Echt-Engine-Test, Sitz-Sperre im Startpfad (Stand 2026-11-18: gemergt mit PR #1515; P0b in Arbeit; Abnahme-Partien offen) | Tests grün auf exaktem Head, Review; drei Abnahme-Partien (AK-1 bis AK-8) |
-| 2 SIMULATE A1 (parallel zu 1) | Ausrichtung, parallele gepaarte Serie, Planung, Zensur, Seed-Plan, Sitz-Sperre der Serien-Routen (Stand 2026-11-18: PR #1516 gemergt; Serien-Sitz-Sperre offen als eigenes Paket) | Starthand-Gleichheitstest, Hash-Nachweis Stapel gegen Einzelspiel; Pilotblock am Owner-PC |
+| 2 SIMULATE A1 (parallel zu 1) | Ausrichtung, parallele gepaarte Serie, Planung, Zensur, Seed-Plan, Sitz-Sperre der Serien-Routen (Stand 2026-11-18: PR #1516 gemergt; Serien-Sitz-Sperre mit PR #1536 gemergt) | Starthand-Gleichheitstest, Hash-Nachweis Stapel gegen Einzelspiel; Pilotblock am Owner-PC |
 | 3 BUILD-Klärung | Doku und Verifikation des vorhandenen Starts aus dem Deckbauer (Knopf „Mit diesem Stand eine Partie spielen“) und des Serienstarts zu einem Deck-Stand | ein Chulane-Stand geht ohne Handarbeit in Partie und Serie |
 | 4 SIMULATE A2 und PLAY P1 | Serienplan, Zwei-Stufen-Ablauf, Konsistenz-Tafel, Gültigkeitsblock, Anzeige im Deck-Verlauf; P1 nach AK-8 priorisiert | zwölf Punkte des Mindeststandards belegt; eine Nachtserie zu einer echten Chulane-Frage |
 | 5 Abschluss | Bridge-Siegel oder dauerhaft „vor Qualifikation“; Release-Paket; Einrichtung von null | Abschlusskriterien unten |
@@ -154,7 +155,7 @@ nach `AGENTS.md` §8. Er legt zwei Owner-Sitzungen am PC fest, weil alles Messba
 | Schritt | Phase | Inhalt | Abnahme |
 |---|---|---|---|
 | S0 Laufendes schließen | 0 bis 2 | PRs #1515, #1516, #1517 (gemergt); P0b; diese Onboarding-Regeln (`docs/STUDIO_AGENT_ONBOARDING.md`) | gemergt mit PASS-Kommentar auf exakter Head-SHA; Claim-Tabelle in #1167 nennt Paket, Halter und Branch |
-| S1 Bereit für den Owner-PC | 1 bis 3 | Serien-Sitz-Sperre; Identitätsnachweis des parallelen gepaarten Pfads; Echt-Engine-Test des Mensch-Sitzes in CI; Messskripte unter Windows; Owner-PC-Seite aktualisiert | (1) Serien und `compare-decks` lehnen 5 und 6 Sitze ab, mit Test, der ohne die Prüfung fällt; (2) gepaart-parallel n identisch von N mit N ≥ 20 Spielen, sonst laufen gepaarte Serien mit einem Worker; (3) der Echt-Engine-Test läuft in einem CI-Job und ist dort nicht übersprungen; (4) die Messskripte starten unter Windows; (5) die Owner-PC-Seite ist einmal von null in sauberer Umgebung durchgespielt, jede Abweichung ist ein Befund |
+| S1 Bereit für den Owner-PC | 1 bis 3 | Serien-Sitz-Sperre (gemergt mit PR #1536); Identitätsnachweis des parallelen gepaarten Pfads; Echt-Engine-Test des Mensch-Sitzes in CI; Messskripte unter Windows; Owner-PC-Seite aktualisiert | (1) Serien und `compare-decks` lehnen 5 und 6 Sitze ab, mit Test, der ohne die Prüfung fällt; (2) gepaart-parallel n identisch von N mit N ≥ 20 Spielen, sonst laufen gepaarte Serien mit einem Worker; (3) der Echt-Engine-Test läuft in einem CI-Job und ist dort nicht übersprungen; (4) die Messskripte starten unter Windows; (5) die Owner-PC-Seite ist einmal von null in sauberer Umgebung durchgespielt, jede Abweichung ist ein Befund |
 | S2 Owner-Sitzung 1 (am PC) | 1, 2 | Einrichtung, drei Abnahme-Partien, Pilotblock | ausgefülltes Abnahme-Protokoll mit Dateien; AK-1 bis AK-8 je PASS, FAIL oder `UNKNOWN`; Pilotblock liefert Durchsatz, Diskordanz, Paar-Streuung und Sitzkurve je mit n/N |
 | S3 Auswerten | 4 | P1-Reihenfolge aus AK-8; Budget-Tabelle mit gemessenem Durchsatz und gemessener Diskordanz; Schwellen des Pilot-Audits mit dem Owner kalibrieren (Owner-Zeit etwa 2 bis 2,5 Stunden; C1 bis C3 und C6 sind angenommen, E7) | Kommentar in #1167 mit den Messwerten und der P1-Liste; Owner-Antworten in einer Entscheidungsdatei |
 | S4 Bauen (parallel) | 4 | SIMULATE A2; PLAY P1a, danach P1b; Backup | zwölf Punkte des Mindeststandards je mit Test oder Beispielergebnis; jeder P1-Punkt mit Test, der ohne die Änderung fällt |
