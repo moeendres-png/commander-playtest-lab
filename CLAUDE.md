@@ -8,11 +8,13 @@ authority, the Owner-only reservations and the merge gate are in `AGENTS.md` §8
 ## Efficient operation
 
 **Focus.** Owner-deck work: Chulane only (`docs/OWNER_DECK_FOCUS_CURRENT.md`); RogShai is
-historical/regression data. Studio work (deck building, simulating, playing): read
-`docs/OWNER_DECISIONS_STUDIO_20261112.md`, `docs/STUDIO_ROADMAP_20261112.md`,
-`docs/STUDIO_PLAN_SIMULATOR.md` and `docs/STUDIO_TARGET_SCOPE.md`. Tierliste (`#1369`) calibration
-and rating stay in Claude's active lane while keeping `simulation = 0`. Before touching an issue
-or pull request, check that no other agent holds it (`AGENTS.md` §11, parallel agents).
+historical/regression data. Studio work (deck building, simulating, playing): read the binding
+scope `docs/STUDIO_SCOPE.md` and the Owner decisions `docs/OWNER_DECISIONS_STUDIO_20261118.md`
+and `docs/OWNER_DECISIONS_STUDIO_20261112.md`, then `docs/STUDIO_PLAN_SIMULATOR.md` (bridge-gate
+reference set); the roadmap stays as planning history, and where it differs the scope wins.
+Who holds which Studio surface is in the claim table of #1167. Before touching an issue or pull
+request, check that no other agent holds it (`AGENTS.md` §11, parallel agents).
+Abarbeitung: `docs/STUDIO_SCOPE.md` §Abarbeitung.
 
 **Cold start.** Run `python3 .claude/skills/lab-ops/scripts/gh_ops.py brief`, then read the
 issue or pull request you own. Git/GitHub, tests and sealed evidence are Source Truth. When the
