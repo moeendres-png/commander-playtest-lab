@@ -1,5 +1,12 @@
 # Commander Studio: Optionen und Empfehlungen für SIMULATE, BUILD, PLAY und den Weg zum Projektabschluss
 
+> **Nachtrag Owner-Antworten 2026-11-18 (haben Vorrang vor diesem Papier):** O1: Der Studio-BUILD in diesem Repo bleibt der
+> Deckbauer des Projekts; **B-X1, „Deck-Snapshot v1“ und O2 entfallen**, `deckbuild-studio` wird nicht angefasst (§0 Punkt 4, §B, §F O1/O2
+> sind überholt). O3: Simulation darf in die Tierliste fließen, wenn sie nachweislich gut ist; B11 wird bedingt (Gewicht 0, bis ein
+> Reife-Tor erfüllt und vom Owner bestätigt ist; Tor in `docs/OWNER_DECISIONS_STUDIO_20261118.md`). O4: Zählen von Pilot-Auslassungen
+> zulässig. O6: Abnahme-Definition PLAY angenommen. Verbindlicher Scope: `docs/STUDIO_SCOPE.md` (in Arbeit).
+
+
 Stand 2026-11-18. Planungspapier, kein Bau. Es ändert nichts in den Repos und ist keine Owner-Quelle:
 Jede Entscheidung unten ist ein Vorschlag, der erst mit Owner-Freigabe gilt, wo das vermerkt ist.
 
