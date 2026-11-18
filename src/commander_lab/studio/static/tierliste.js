@@ -1877,6 +1877,9 @@ async function init() {
   if (savedSort && (SORTS.some((item) => item[0] === savedSort) || savedSort.startsWith(PERCENTILE_SORT) || savedSort.startsWith(LAYER_SORT))) { state.sortKey = savedSort; state.sortDir = SMALL_FIRST.has(savedSort) ? 1 : -1; $("sort").value = savedSort; }
   $("sort").addEventListener("change", () => { state.sortKey = $("sort").value; state.sortDir = SMALL_FIRST.has(state.sortKey) ? 1 : -1; StudioUI.remember(SORT_KEY, state.sortKey); render(false); });
   for (const id of ["q", "type-filter", "land-filter", "role-filter", "spread-filter", "f-free", "f-fav", "f-excl"]) $(id).addEventListener("input", () => { state.shown = 150; if (id === "role-filter") renderTierBar(); render(false); });
+  if (typeof StudioSearch !== "undefined" && StudioSearch.attachSyntaxHelper && $("q")) {
+    StudioSearch.attachSyntaxHelper($("q"), () => { state.shown = 150; render(false); });
+  }
   const applyTierFilterPreset = (cfg) => {
     $("q").value = cfg.q || "";
     $("type-filter").value = cfg.type || "";

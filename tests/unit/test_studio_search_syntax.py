@@ -271,3 +271,32 @@ def test_ui_and_docs_wiring_for_search_syntax() -> None:
     doc_text = doc_path.read_text(encoding="utf-8")
     for token in ("t:", "o:", "r:", "c:", "id:", "mv", "is:", "search-syntax-error"):
         assert token in doc_text
+
+
+def test_syntax_helper_operators_and_saved_preset_wiring() -> None:
+    script = (
+        f"const S = require({json.dumps(str(STATIC_DIR / 'search.js'))});\n"
+        """
+const out = {
+  examplesCount: S.SYNTAX_EXAMPLES.length,
+  firstEmpty: S.appendOperator("", "t:creature"),
+  appendSecond: S.appendOperator("t:creature", "mv<=2"),
+  noDuplicate: S.appendOperator("t:creature mv<=2", "t:creature"),
+  parsedValid: S.SYNTAX_EXAMPLES.every((ex) => S.parseQuery(ex.op).errors.length === 0),
+};
+console.log(JSON.stringify(out));
+"""
+    )
+    res = json.loads(_node(script))
+    assert res["examplesCount"] >= 8
+    assert res["firstEmpty"] == "t:creature"
+    assert res["appendSecond"] == "t:creature mv<=2"
+    assert res["noDuplicate"] == "t:creature mv<=2"
+    assert res["parsedValid"] is True
+
+    app_js = (STATIC_DIR / "app.js").read_text(encoding="utf-8")
+    tierliste_js = (STATIC_DIR / "tierliste.js").read_text(encoding="utf-8")
+    assert "StudioSearch.attachSyntaxHelper" in app_js
+    assert "StudioSearch.attachSyntaxHelper" in tierliste_js
+    assert "studio.builder.savedPreset" in app_js
+    assert "studio.tierlist.savedPreset" in tierliste_js

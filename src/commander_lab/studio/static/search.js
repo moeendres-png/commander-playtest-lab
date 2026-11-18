@@ -553,6 +553,90 @@ const StudioSearch = (() => {
     return scored.map((item) => item[1]);
   }
 
-  return { rank, sortByRank, parseQuery, baseRank };
+  const SYNTAX_EXAMPLES = [
+    { op: "t:creature", label: "Kreaturen" },
+    { op: "mv<=2", label: "Manawert ≤ 2" },
+    { op: "r:ramp", label: "Rolle Ramp" },
+    { op: "c:gu", label: "Farbe GU" },
+    { op: "id<=gwu", label: "Identität Bant" },
+    { op: "-t:land", label: "ohne Länder" },
+    { op: 'o:"draw a card"', label: "Regeltext" },
+    { op: "is:fav", label: "Favoriten" },
+    { op: "is:free", label: "nur freie" },
+  ];
+
+  function appendOperator(currentQuery, operatorToken) {
+    const base = String(currentQuery || "").trim();
+    const token = String(operatorToken || "").trim();
+    if (!token) return base;
+    if (!base) return token;
+    const parts = tokenize(base).tokens.map((item) => item.text);
+    if (parts.includes(token)) return base;
+    return `${base} ${token}`;
+  }
+
+  function attachSyntaxHelper(inputEl, onApply) {
+    if (!inputEl || typeof document === "undefined" || inputEl.dataset.syntaxHelpAttached === "1") {
+      return null;
+    }
+    inputEl.dataset.syntaxHelpAttached = "1";
+    const wrap = document.createElement("span");
+    wrap.className = "search-help-wrap";
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "chip search-help-btn";
+    btn.textContent = "?";
+    btn.title = "Such-Operatoren einfügen (z. B. t:creature, mv<=2, r:ramp)";
+    btn.setAttribute("aria-label", "Such-Operatoren anzeigen");
+    btn.setAttribute("aria-expanded", "false");
+
+    const pop = document.createElement("div");
+    pop.className = "search-help-popover";
+    pop.hidden = true;
+    pop.setAttribute("role", "region");
+    pop.setAttribute("aria-label", "Such-Operatoren");
+
+    const head = document.createElement("div");
+    head.className = "search-help-title";
+    head.textContent = "Such-Operatoren (Klick fügt ein):";
+    pop.appendChild(head);
+
+    const chips = document.createElement("div");
+    chips.className = "chips";
+    for (const item of SYNTAX_EXAMPLES) {
+      const chip = document.createElement("button");
+      chip.type = "button";
+      chip.className = "chip";
+      chip.title = item.label;
+      chip.textContent = item.op;
+      chip.addEventListener("click", () => {
+        inputEl.value = appendOperator(inputEl.value, item.op);
+        inputEl.focus();
+        if (typeof onApply === "function") onApply(inputEl.value);
+      });
+      chips.appendChild(chip);
+    }
+    pop.appendChild(chips);
+
+    btn.addEventListener("click", (event) => {
+      event.stopPropagation();
+      const next = pop.hidden;
+      pop.hidden = !next;
+      btn.setAttribute("aria-expanded", String(next));
+    });
+    document.addEventListener("click", (event) => {
+      if (!pop.hidden && !wrap.contains(event.target)) {
+        pop.hidden = true;
+        btn.setAttribute("aria-expanded", "false");
+      }
+    });
+
+    wrap.appendChild(btn);
+    wrap.appendChild(pop);
+    inputEl.insertAdjacentElement("afterend", wrap);
+    return { wrap, button: btn, popover: pop };
+  }
+
+  return { rank, sortByRank, parseQuery, baseRank, SYNTAX_EXAMPLES, appendOperator, attachSyntaxHelper };
 })();
 if (typeof module !== "undefined") module.exports = StudioSearch;

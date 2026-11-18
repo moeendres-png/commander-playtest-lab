@@ -3018,6 +3018,9 @@ function setupControls() {
   $("sort").addEventListener("change", () => { if (!$("sort").value) return; const [key, dir] = $("sort").value.split(":"); state.sortKey = key; state.sortDir = Number(dir); StudioUI.remember("studio.builder.sort", $("sort").value); if (key === "strength") loadStrength(); renderPool(); });
   $("cohort").addEventListener("change", () => { state.cohort = $("cohort").value; renderBracketBar(); renderUniverseInfo(); renderPool(); renderDeck(); });
   for (const id of ["q", "type-filter", "role-filter", "label-filter", "mv-min", "mv-max", "f-free", "f-notin", "f-fav", "f-excl", "f-sim"]) if ($(id)) $(id).addEventListener("input", () => { state.shown = 120; renderPool(); });
+  if (typeof StudioSearch !== "undefined" && StudioSearch.attachSyntaxHelper && $("q")) {
+    StudioSearch.attachSyntaxHelper($("q"), () => { state.shown = 120; renderPool(); });
+  }
   // "Stufe zeigen": the current tier on every card (view setting, on unless switched off).
   state.showTier = StudioUI.recall("studio.builder.show-tier", "1") !== "0";
   $("f-tier").checked = state.showTier;
