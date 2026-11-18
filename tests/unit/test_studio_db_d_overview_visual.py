@@ -447,3 +447,74 @@ def test_saved_filter_presets_and_quick_chips_wired_in_builder_and_tierlist() ->
     assert 'id="tier-quick-presets"' in tier_html
     assert "studio.tierlist.savedPreset" in tier_js
     assert "Verbreitung unbekannt (U)" in tier_js
+
+
+def test_export_deck_dossier_and_route_with_revision_changelog(tmp_path: Path) -> None:
+    from commander_lab.studio.decks import create_revision, export_deck_dossier
+
+    commander = "Chulane, Teller of Tales"
+    store = StudioStore.open(tmp_path)
+    try:
+        _insert_card(
+            store,
+            "cmd-chulane",
+            commander,
+            identity="G,U,W",
+            mana_cost="{2}{G}{W}{U}",
+            mana_value=5.0,
+            type_line="Legendary Creature — Human Druid",
+        )
+        _insert_card(
+            store,
+            "c-dork",
+            "Birds of Paradise",
+            identity="G",
+            mana_cost="{G}",
+            mana_value=1.0,
+            type_line="Creature — Bird",
+        )
+        _insert_card(
+            store,
+            "c-land",
+            "Breeding Pool",
+            identity="G,U",
+            mana_cost="",
+            mana_value=0.0,
+            type_line="Land — Forest Island",
+        )
+        rev1 = create_revision(
+            store,
+            deck_id="chulane-test",
+            name="Chulane Test",
+            cards=[
+                RevisionCard("cmd-chulane", 1, "commander"),
+                RevisionCard("c-land", 1, "main"),
+            ],
+            note="Basis",
+        )
+        rev2 = create_revision(
+            store,
+            deck_id="chulane-test",
+            name="Chulane Test",
+            cards=[
+                RevisionCard("cmd-chulane", 1, "commander"),
+                RevisionCard("c-land", 1, "main"),
+                RevisionCard("c-dork", 1, "main"),
+            ],
+            parent_revision_id=rev1,
+            note="Mit Dork",
+        )
+        md = export_deck_dossier(store, rev2)
+        assert "# Deck-Dossier: Chulane Test (chulane-test)" in md
+        assert f"Änderungsprotokoll gegenüber `{rev1}`" in md
+        assert "1x Birds of Paradise" in md
+        assert "### Länder (1)" in md
+        assert "### Zauber (1)" in md
+    finally:
+        store.close()
+
+    client = TestClient(create_app(tmp_path))
+    resp = client.get(f"/api/revisions/{rev2}/dossier")
+    assert resp.status_code == 200
+    assert "text/markdown" in resp.headers.get("content-type", "")
+    assert "1x Birds of Paradise" in resp.text

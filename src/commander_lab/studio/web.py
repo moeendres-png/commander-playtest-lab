@@ -71,6 +71,7 @@ from .decks import (
     baseline_decks_for_commander,
     color_set,
     create_revision,
+    export_deck_dossier,
     export_text,
     lab_snapshot,
     list_rows,
@@ -1584,6 +1585,21 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
                 return PlainTextResponse(export_text(rows, format))
             lines = [f"{row['quantity']} {row['engine_name']}" for row in rows]
             return PlainTextResponse("\n".join(lines) + "\n")
+        except KeyError as error:
+            raise HTTPException(404, "unknown revision") from error
+        finally:
+            store.close()
+
+    @app.get("/api/revisions/{revision_id}/dossier")
+    def export_dossier(
+        revision_id: str,
+        base_revision_id: str | None = Query(default=None, max_length=200),
+    ) -> Response:
+        """Printable Markdown deck dossier with shape, role counts, card list, and revision changelog (#1404)."""
+        store = open_store()
+        try:
+            md = export_deck_dossier(store, revision_id, base_revision_id=base_revision_id)
+            return PlainTextResponse(md, media_type="text/markdown;charset=utf-8")
         except KeyError as error:
             raise HTTPException(404, "unknown revision") from error
         finally:
