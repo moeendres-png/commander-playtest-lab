@@ -17,9 +17,11 @@ on:
       - 'src/commander_lab/models/**'
       - 'src/commander_lab/semantic_replay/**'
       - 'src/commander_lab/storage/**'
+      - 'src/commander_lab/studio/**'
       - 'tests/unit/test_atomic_storage.py'
       - 'tests/unit/test_runtime_hygiene.py'
       - 'tests/unit/test_phase86_atomic_and_integrity.py'
+      - 'tests/unit/test_studio_*.py'
       - 'tests/contract/test_phase86_phase85_claims.py'
       - 'tests/integration/test_phase85_validation.py'
       - 'config/**'
@@ -27,6 +29,14 @@ on:
       - 'requirements/lock.txt'
       - '.github/workflows/windows-runtime.yml'
       - "tests/conftest.py"
+      - "src/commander_lab/bridge_qualification.py"
+      - "src/commander_lab/decision_statistics.py"
+      - "src/commander_lab/deck_profile.py"
+      - "src/commander_lab/deck_readiness.py"
+      - "src/commander_lab/deck_variant.py"
+      - "src/commander_lab/mana_analysis.py"
+      - "src/commander_lab/owner_data.py"
+      - "src/commander_lab/qualification/**"
   workflow_dispatch:
 
 permissions:
@@ -76,6 +86,32 @@ jobs:
       - name: Atomic-write and integrity contracts on Windows
         shell: pwsh
         run: python -m pytest -q tests/unit/test_phase86_atomic_and_integrity.py
+      - name: Studio Windows smoke (doctor, imports, selected studio tests)
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $PSNativeCommandUseErrorActionPreference = $true
+          python -c @"
+          import json, subprocess, sys
+          proc = subprocess.run([sys.executable, '-m', 'commander_lab.studio', 'doctor', '--json'], capture_output=True, text=True)
+          print(proc.stdout)
+          if proc.stderr:
+              print(proc.stderr, file=sys.stderr)
+          report = json.loads(proc.stdout)
+          by_name = {c['name']: c for c in report.get('checks', [])}
+          for core in ('python', 'dependencies'):
+              item = by_name.get(core, {})
+              assert item.get('status') == 'PASS', f'Core doctor check failed: {item}'
+          for engine_dep in ('java', 'engine_bridge', 'card_knowledge'):
+              item = by_name.get(engine_dep, {})
+              if item.get('status') != 'PASS':
+                  print(f'doctor {engine_dep}: MISSING_ON_CI_RUNNER (status={item.get("status")}; NOT PASS)')
+          "@
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python -c "import commander_lab.studio.web, commander_lab.studio.play, commander_lab.studio.paired_series, commander_lab.studio.launch"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python -m pytest -q tests/unit/test_studio_engine_provisioning.py tests/unit/test_studio_simulations.py
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Assert repository remains clean
         shell: pwsh
         run: |
