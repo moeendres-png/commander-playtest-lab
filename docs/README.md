@@ -20,6 +20,7 @@ and bridge are fit for this; it is never edited.
 |---|---|
 | `PROJECT_MISSION.md` | Governing mission and gates |
 | `STUDIO_SCOPE.md` | Binding Studio scope (BUILD, PLAY, SIMULATE, bridge, release) up to project completion |
+| `STUDIO_AGENT_ONBOARDING.md` | Entry page for another agent: reading order, surface map, shared files, checks, traps, handover |
 | `OWNER_DECISIONS_STUDIO_20261118.md`, `OWNER_DECISIONS_STUDIO_20261112.md`, `OWNER_DECISION_STUDIO_BUILD_PLAY_SIMULATE_20261110.md`, `OWNER_DECISION_SIX_PLAYER_MAX_20261108.md` | Owner decisions for the Studio (maximum 6 players, default 4; simulation in the tier list only after G-SIM, a proposal with thresholds open) |
 | `OWNER_DECK_FOCUS_CURRENT.md` | Owner-deck work focus: Chulane only |
 | `STUDIO_ROADMAP_20261112.md`, `STUDIO_PLAN_SIMULATOR.md` | Studio plan, and what stays and goes around the simulator |
