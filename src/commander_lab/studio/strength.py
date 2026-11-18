@@ -1101,6 +1101,9 @@ class CardStrength(TypedDict):
     confidence_by_denominator: float | None
     confidence_by_denominator_level: str | None
     zero_count_thin: list[str]
+    # "gezaehlte_null" when more than half of the confidence weight rests on counted zeros
+    # (confidence in an absence, 0 of N decks), else "zaehler"; None without a confidence.
+    confidence_basis: str | None
 
 
 def _confidence_rows(components: Collection[ComponentResult]) -> list[ComponentResult]:
@@ -1132,12 +1135,27 @@ def confidence_by_denominator_value(
 def count_reliability(row: ComponentResult) -> float:
     """Reliability 0..1 of one row from its COUNT k: ``k / (k + CONFIDENCE_K)`` (D4). A counted
     zero (0 of N, rule B12/E4.b) is real evidence: its count is the denominator N, thin only below
-    ``CONFIDENCE_ZERO_MIN_DENOMINATOR``. A row with a sample but no numerator (the Playgroup gap)
-    counts its sample."""
-    denominator = row["denominator"] or 0
+    ``CONFIDENCE_ZERO_MIN_DENOMINATOR``. A row without a numerator (the Playgroup gap has only its
+    sample) has no count to build on: reliability 0, never the sample size."""
     numerator = row["numerator"]
-    count = denominator if numerator is None or numerator == 0 else numerator
+    if numerator is None:
+        return 0.0
+    count = (row["denominator"] or 0) if numerator == 0 else numerator
     return count / (count + CONFIDENCE_K)
+
+
+CONFIDENCE_BASIS_ZERO = "gezaehlte_null"
+CONFIDENCE_BASIS_COUNT = "zaehler"
+
+
+def confidence_basis(components: Collection[ComponentResult]) -> str:
+    """Where the confidence comes from: ``gezaehlte_null`` when more than half of the weight of
+    the rows it is made of sits on counted zeros (0 of N decks: confidence in an ABSENCE),
+    otherwise ``zaehler`` (it rests on positive counts). The formula does not change (B12)."""
+    rows = _confidence_rows(components)
+    total = sum(row["weight"] for row in rows)
+    zeros = sum(row["weight"] for row in rows if row["numerator"] == 0)
+    return CONFIDENCE_BASIS_ZERO if total > 0 and zeros * 2 > total else CONFIDENCE_BASIS_COUNT
 
 
 def zero_count_thin_components(components: Collection[ComponentResult]) -> list[str]:
@@ -1974,8 +1992,10 @@ def tier_stability(
 
 # A SETTING, not a measurement: the percentile rank inside the ranked cards of the group decides
 # the relative tier. S is the top 3 %, A up to 10 %, B up to 25 %, C up to 50 %, D up to 75 %,
-# E up to 90 %, F the rest (10 %). Lands and spells are ranked apart; only ranked cards (tier S to
-# D) count; cards with the same index share the best rank of their group of ties.
+# E up to 90 %, F the lowest 10 % by rank position. Lands and spells are ranked apart; only ranked
+# cards (tier S to D) count; cards with the same index share the tier of the best rank position of
+# their group of ties, so F can turn out smaller than 10 %. A group of fewer than
+# ``RELATIVE_MIN_GROUP`` ranked cards has no relative tier (a single card would be "F").
 RELATIVE_TIER_PERCENTILES: tuple[tuple[str, int], ...] = (
     ("S", 3),
     ("A", 10),
@@ -1987,6 +2007,11 @@ RELATIVE_TIER_PERCENTILES: tuple[tuple[str, int], ...] = (
 RELATIVE_TIER_LAST = "F"
 RELATIVE_TIERS = (*(name for name, _percent in RELATIVE_TIER_PERCENTILES), RELATIVE_TIER_LAST)
 RELATIVE_TIER_NOTE = "relativ im Pool, keine Aussage über Spielstärke"
+RELATIVE_TIER_F_NOTE = (
+    "F = die untersten 10 % nach Rangposition; bei Gleichstand teilt die ganze Gruppe die Stufe "
+    "der besten Rangposition, daher kann F kleiner ausfallen"
+)
+RELATIVE_MIN_GROUP = 10
 RELATIVE_GROUP_SPELLS = "spells"
 RELATIVE_GROUP_LANDS = "lands"
 
@@ -1999,9 +2024,12 @@ class RelativeRank(TypedDict):
     group: str
 
 
-def relative_tier_for(rank: int, total: int) -> str:
+def relative_tier_for(rank: int, total: int) -> str | None:
     """The relative tier of a card at ``rank`` (1 = best) of ``total``: the first tier whose
-    percentage covers ``rank / total`` (integer arithmetic, so a limit is exact)."""
+    percentage covers ``rank / total`` (integer arithmetic, so a limit is exact). ``None`` for a
+    group of fewer than ``RELATIVE_MIN_GROUP`` ranked cards."""
+    if total < RELATIVE_MIN_GROUP:
+        return None
     for name, percent in RELATIVE_TIER_PERCENTILES:
         if rank * 100 <= percent * total:
             return name
@@ -2010,11 +2038,11 @@ def relative_tier_for(rank: int, total: int) -> str:
 
 def relative_tiers(
     entries: Mapping[str, tuple[float, bool]],
-) -> dict[str, tuple[str, RelativeRank]]:
+) -> dict[str, tuple[str | None, RelativeRank]]:
     """Per card of ``entries`` (card -> (index, is land); only ranked cards) its relative tier and
     ``RelativeRank``. Lands and spells are ranked apart; equal indexes share the best rank of
     their group of ties (competition ranking: 1, 2, 2, 4) and therefore the same tier."""
-    result: dict[str, tuple[str, RelativeRank]] = {}
+    result: dict[str, tuple[str | None, RelativeRank]] = {}
     for is_land, group in ((False, RELATIVE_GROUP_SPELLS), (True, RELATIVE_GROUP_LANDS)):
         members = sorted(
             ((index, card) for card, (index, land) in entries.items() if land == is_land),
@@ -2088,14 +2116,17 @@ class WeightFamily(TypedDict):
     family: str
     label: str
     components: list[str]
-    nominal_weight: float
+    effective_weight: float
     share_of_total: float
     note: str
 
 
 def weight_families(settings: StrengthSettings) -> list[WeightFamily]:
     """The effective weight of ``settings`` per source family (D2), as the index uses it: the
-    weights after rule E2.a, the bracket switch and the layer weights. Every component belongs to
+    weights after rule E2.a, the bracket switch and the layer weights (field ``effective_weight``).
+    ``deck_universe`` counts as source-deck corpus because the index reads the commander's local
+    decks (hard-coded: with a stored universe profile or a counted repo universe it would read
+    another deck set). Every component belongs to
     exactly one family; ``share_of_total`` is the family weight over the total weight (0 without
     any positive weight). Display only: no weight changes."""
     all_components = (*COMPONENTS, *(layer_component(key) for key in LAYER_KEYS))
@@ -2112,7 +2143,7 @@ def weight_families(settings: StrengthSettings) -> list[WeightFamily]:
             "family": key,
             "label": label,
             "components": list(names),
-            "nominal_weight": round(sum(weights[name] for name in names), 4),
+            "effective_weight": round(sum(weights[name] for name in names), 4),
             "share_of_total": round(sum(weights[name] for name in names) / total, 4)
             if total > 0
             else 0.0,
@@ -2339,6 +2370,7 @@ def score_pool(
                 "confidence_by_denominator": None,
                 "confidence_by_denominator_level": None,
                 "zero_count_thin": [],
+                "confidence_basis": None,
             }
             continue
         # A filter card has no deck-universe value by definition: that component is not
@@ -2412,6 +2444,9 @@ def score_pool(
                 zero_count_thin_components(components)
                 if index is not None and tier in TIERS
                 else []
+            ),
+            "confidence_basis": (
+                confidence_basis(components) if index is not None and tier in TIERS else None
             ),
         }
     return result

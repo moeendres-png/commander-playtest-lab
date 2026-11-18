@@ -18,8 +18,8 @@ HEADER = {"X-Studio": "1"}
 
 def _expected_confidence(card: strength_view.StrengthCard, *, by_count: bool = True) -> float:
     """The documented formula (D4): coverage x the weighted mean of k / (k + 30) over the weighted
-    components that have a value and a denominator, k the numerator (a counted zero and a row
-    without a numerator use the denominator). ``by_count=False`` is the earlier formula with the
+    components that have a value and a denominator, k the numerator (a counted zero uses the
+    denominator, a row without a numerator has reliability 0). ``by_count=False`` is the earlier formula with the
     denominator for every row, kept as ``confidence_by_denominator``."""
     rows = [
         row
@@ -31,6 +31,8 @@ def _expected_confidence(card: strength_view.StrengthCard, *, by_count: bool = T
     reliability = 0.0
     for row in rows:
         count = row["denominator"] or 0
+        if by_count and row["numerator"] is None:
+            continue
         if by_count and row["numerator"]:
             count = row["numerator"]
         reliability += row["weight"] * count / (count + 30)

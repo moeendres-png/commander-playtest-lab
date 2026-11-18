@@ -87,6 +87,9 @@ class StrengthCard(TypedDict):
     confidence_by_denominator: float | None
     confidence_by_denominator_level: str | None
     zero_count_thin: list[str]
+    # "gezaehlte_null": more than half of the confidence weight rests on counted zeros (0 of N
+    # decks: confidence in an absence), else "zaehler"; None without a confidence.
+    confidence_basis: str | None
     is_land: bool
     layers: dict[str, layers.LayerValue]
     role_ranks: dict[str, dict[str, int]]
@@ -101,7 +104,8 @@ class StrengthCard(TypedDict):
     tier_alternatives: list[strength.TierAlternative]
     unscharf: bool
     # Additional view: tier by percentile rank inside the pool (S to F, lands and spells apart),
-    # and the rank k of n. None for a card without a tier. Never replaces ``tier``.
+    # and the rank k of n. None for a card without a tier, and ``relative_tier`` None in a group
+    # of fewer than ten ranked cards. Never replaces ``tier``.
     relative_tier: str | None
     relative_rank: strength.RelativeRank | None
 
@@ -142,6 +146,8 @@ class RelativeTiersInfo(TypedDict):
     """The additional relative view (percentile tiers inside the pool)."""
 
     note: str
+    f_note: str
+    min_group: int
     percentiles: list[RelativeTierPercent]
     totals: dict[str, int]
     counts: dict[str, dict[str, int]]
@@ -1290,7 +1296,8 @@ def compute(
         for group in (strength.RELATIVE_GROUP_SPELLS, strength.RELATIVE_GROUP_LANDS)
     }
     for tier_name, rank_info in relative.values():
-        relative_counts[rank_info["group"]][tier_name] += 1
+        if tier_name is not None:
+            relative_counts[rank_info["group"]][tier_name] += 1
     variants = next(iter(stability.values()))["variants"] if stability else 0
     return {
         "schema": strength.SCHEMA,
@@ -1350,11 +1357,16 @@ def compute(
         "role_totals": {role: len(bucket) for role, bucket in sorted(scored_by_role.items())},
         "relative_tier_info": {
             "note": strength.RELATIVE_TIER_NOTE,
+            "f_note": strength.RELATIVE_TIER_F_NOTE,
+            "min_group": strength.RELATIVE_MIN_GROUP,
             "percentiles": [
                 {"tier": name, "up_to_percent": percent}
                 for name, percent in (*strength.RELATIVE_TIER_PERCENTILES, ("F", 100))
             ],
-            "totals": {group: sum(counts.values()) for group, counts in relative_counts.items()},
+            "totals": {
+                group: sum(1 for _tier, info in relative.values() if info["group"] == group)
+                for group in relative_counts
+            },
             "counts": relative_counts,
         },
         "cards": cards,

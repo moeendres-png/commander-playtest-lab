@@ -509,8 +509,10 @@ def test_the_payload_carries_stability_relative_tiers_and_weight_families() -> N
         )
         assert card["tier_stability_variants"] == info["variants"]
         assert card["unscharf"] == (card["tier_stability"] < strength.STABILITY_UNSHARP_BELOW)
-        assert card["relative_tier"] in strength.RELATIVE_TIERS
+        # both groups of this fixture hold fewer than 10 ranked cards: a rank, but no tier
+        assert card["relative_tier"] is None
         assert card["relative_rank"] is not None
+        assert card["confidence_basis"] in ("gezaehlte_null", "zaehler")
         assert card["tier_stability"] is not None
         if card["tier_stability"] == 1.0:
             assert card["tier_alternatives"] == []
@@ -525,6 +527,9 @@ def test_the_payload_carries_stability_relative_tiers_and_weight_families() -> N
     assert unranked["tier_alternatives"] == []
     assert result["relative_tier_info"]["note"] == "relativ im Pool, keine Aussage über Spielstärke"
     assert result["relative_tier_info"]["totals"] == {"spells": 8, "lands": 1}
+    assert result["relative_tier_info"]["min_group"] == 10
+    assert result["relative_tier_info"]["f_note"].startswith("F = die untersten 10 %")
+    assert sum(sum(c.values()) for c in result["relative_tier_info"]["counts"].values()) == 0
     # a land is ranked with the lands only: the only land is rank 1 of 1, the best spell 1 of 8
     assert cards[LAND]["relative_rank"] == {"rank": 1, "total": 1, "group": "lands"}
     assert cards["Card 00"]["relative_rank"] == {"rank": 1, "total": 8, "group": "spells"}

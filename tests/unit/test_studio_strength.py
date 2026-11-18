@@ -12,6 +12,7 @@ import sqlite3
 from collections.abc import Iterator
 from itertools import pairwise
 from pathlib import Path
+from typing import cast
 
 import pytest
 from fastapi.testclient import TestClient
@@ -3118,6 +3119,10 @@ def test_confidence_hangs_on_the_count_not_the_denominator() -> None:
     assert small["confidence"] == pytest.approx(10 / 40, abs=1e-4)
     assert small["confidence_level"] == "low"
     assert small["zero_count_thin"] == ["deck_universe"]
+    # the basis names what the confidence rests on: an absence (counted zero) or positive counts
+    assert scored["zero"]["confidence_basis"] == "gezaehlte_null"
+    assert scored["thin"]["confidence_basis"] == "zaehler"
+    assert scored["solid"]["confidence_basis"] == "zaehler"
     # an unranked card has none of it
     unranked = strength.score_pool(
         _land_settings(),
@@ -3126,6 +3131,26 @@ def test_confidence_hangs_on_the_count_not_the_denominator() -> None:
         context=PoolContext(unranked={"c": strength.NOT_RANKED_COMMANDER}),
     )["c"]
     assert unranked["confidence_by_denominator"] is None and unranked["zero_count_thin"] == []
+    assert unranked["confidence_basis"] is None
+
+
+def test_a_row_without_a_numerator_has_no_count_to_build_confidence_on() -> None:
+    row = cast("strength.ComponentResult", {"numerator": None, "denominator": 5_000})
+    assert strength.count_reliability(row) == 0.0
+    assert strength.count_reliability({**row, "numerator": 0}) == pytest.approx(5_000 / 5_030)
+    assert strength.count_reliability({**row, "numerator": 30}) == 0.5  # type: ignore[typeddict-item]
+    mixed = [
+        cast(
+            "strength.ComponentResult",
+            {"weight": 1.0, "percentile": 0.5, "denominator": 500, "numerator": None},
+        ),
+        cast(
+            "strength.ComponentResult",
+            {"weight": 1.0, "percentile": 0.5, "denominator": 500, "numerator": 470},
+        ),
+    ]
+    assert strength.confidence_value(1.0, mixed) == pytest.approx(0.47, abs=1e-4)  # (0 + 0.94) / 2
+    assert strength.confidence_basis(mixed) == "zaehler"
 
 
 def _two_weights() -> StrengthSettings:
@@ -3251,7 +3276,9 @@ def test_relative_tier_limits_are_exact_percent_limits() -> None:
     expected |= {51: "D", 75: "D", 76: "E", 90: "E", 91: "F", 100: "F"}
     for rank, tier in expected.items():
         assert strength.relative_tier_for(rank, 100) == tier
-    assert strength.relative_tier_for(1, 1) == "F"  # 100 % of a pool of one
+    assert strength.relative_tier_for(1, 1) is None  # a group below 10 cards has no tier
+    assert strength.relative_tier_for(10, 9) is None
+    assert strength.relative_tier_for(10, 10) == "F"
     assert strength.relative_tier_for(1, 33) == "A"  # 3.03 % is not in the top 3 %
     assert strength.relative_tier_for(1, 34) == "S"
 
@@ -3286,6 +3313,12 @@ def test_relative_tiers_rank_lands_and_spells_apart_and_share_ties() -> None:
     ] * 3
     assert tied["e"][1]["rank"] == 5 and tied["e"][0] == "C"
     assert strength.relative_tiers({}) == {}
+    # a group of fewer than 10 ranked cards has a rank but no tier (a lone card would be "F")
+    lone = strength.relative_tiers(
+        {"only": (50.0, False), **{f"l{i}": (i, True) for i in range(10)}}
+    )
+    assert lone["only"] == (None, {"rank": 1, "total": 1, "group": "spells"})
+    assert lone["l9"][0] == "A" and lone["l0"][0] == "F"
 
 
 def test_the_weight_per_source_family_covers_every_component_exactly_once() -> None:
@@ -3304,7 +3337,7 @@ def test_the_weight_per_source_family_covers_every_component_exactly_once() -> N
     by_family = {family["family"]: family for family in families}
     assert sum(family["share_of_total"] for family in families) == pytest.approx(1.0)
     source = by_family["source_decks"]
-    assert (source["nominal_weight"], source["share_of_total"]) == (7.5, 0.75)
+    assert (source["effective_weight"], source["share_of_total"]) == (7.5, 0.75)
     assert (
         source["note"]
         == "verschachtelte Teilmengen derselben Decks, keine unabhängigen Bestätigungen"
@@ -3315,19 +3348,19 @@ def test_the_weight_per_source_family_covers_every_component_exactly_once() -> N
         "corpus_log_lift",
         "corpus_bracket_slope",
     ]
-    assert by_family["edhrec"]["nominal_weight"] == 1.5
-    assert by_family["tournament"]["nominal_weight"] == 0.5
-    assert by_family["combos"]["nominal_weight"] == 0.5
-    assert by_family["other"]["nominal_weight"] == 0.0
+    assert by_family["edhrec"]["effective_weight"] == 1.5
+    assert by_family["tournament"]["effective_weight"] == 0.5
+    assert by_family["combos"]["effective_weight"] == 0.5
+    assert by_family["other"]["effective_weight"] == 0.0
     # without a corpus the EDHREC inclusion weights apply (E2.a fallback) and the family grows
     fallback, _ = strength.apply_corpus_rule(StrengthSettings(), corpus_decks=0, min_universe=30)
     grown = {f["family"]: f for f in strength.weight_families(fallback)}
-    assert grown["edhrec"]["nominal_weight"] == 6.5
+    assert grown["edhrec"]["effective_weight"] == 6.5
     assert grown["source_decks"]["share_of_total"] == pytest.approx(7.5 / 15.0, abs=1e-4)
     # a rating layer with a weight is "other", never lost; no weight at all gives shares of 0
     layered = StrengthSettings(layer_weights={**settings.layer_weights, "tempo": 1.0})
     assert {f["family"]: f for f in strength.weight_families(layered)}["other"][
-        "nominal_weight"
+        "effective_weight"
     ] == 1.0
     none = StrengthSettings(weights={name: 0.0 for name in strength.COMPONENTS})
     assert all(f["share_of_total"] == 0.0 for f in strength.weight_families(none))

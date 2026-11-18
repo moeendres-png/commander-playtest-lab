@@ -486,7 +486,10 @@ The agreement with the counted lists stays above 0.90 for spells and lands in al
   = 30). 3 of 10,000 decks is thin ($r$ = 0.09), 3,000 of 10,000 is not ($r$ = 0.99). A counted zero
   (0 of N, rule B12/E4.b) stays real evidence: its count is the denominator N, and a zero that rests
   on fewer than 30 decks (`strength.CONFIDENCE_ZERO_MIN_DENOMINATOR`) is listed in `zero_count_thin`
-  (component names). A row with a sample but no numerator (the Playgroup gap) counts its sample.
+  (component names). A row without a numerator (the Playgroup gap has only its sample) has no count to build on and
+  has reliability 0. `confidence_basis` is `gezaehlte_null` when more than half of the confidence
+  weight sits on rows with count 0 (confidence in an absence: the UI shows "hoch (gezählte
+  Abwesenheit: 0 von N Decks)"), else `zaehler`; the formula is unchanged (B12).
   The earlier definition on the denominator, under which all 922 Chulane cards were "high", is kept
   as `confidence_by_denominator` and `confidence_by_denominator_level`. Coverage is the weight
   share of the signals that have a value. A card without an index has no confidence (`null`). It is
@@ -619,21 +622,29 @@ that has a combo, like a card without an EDHREC combo row counts for nothing und
 - **Relative tiers (additional view, never the default).** `relative_tier` (S to F) is the
   percentile rank inside the pool, lands and spells ranked apart, ranked cards only (tier S to D;
   U and N have `null`). The limits are a SETTING, not a measurement (`strength.RELATIVE_TIER_PERCENTILES`):
-  S the top 3 %, A up to 10 %, B up to 25 %, C up to 50 %, D up to 75 %, E up to 90 %, F the rest.
+  S the top 3 %, A up to 10 %, B up to 25 %, C up to 50 %, D up to 75 %, E up to 90 %, F the lowest
+  10 % by rank position. A group of fewer than 10 ranked cards has `relative_tier` `null` (shown
+  "—"); `relative_rank` stays.
   A card at rank k of n belongs to the first tier with k / n at or below the limit (integer
   arithmetic). Cards with the same index share the best rank of their group of ties (1, 2, 2, 4)
-  and therefore one tier. `relative_rank` is `{rank, total, group}` with group `spells` or `lands`.
+  and therefore one tier, so F can turn out smaller than 10 % (QA store: 33 of 857 spells, because
+  the ties at index 0.0 and 0.1 take the tier of their best rank). `relative_rank` is `{rank, total, group}` with group `spells` or `lands`.
   The header block `relative_tier_info` has the hint "relativ im Pool, keine Aussage über
-  Spielstärke", the limits and the counts per group. The absolute tiers stay the default.
+  Spielstärke", the F note (`f_note`: "F = die untersten 10 % nach Rangposition; bei Gleichstand
+  teilt die ganze Gruppe die Stufe der besten Rangposition, daher kann F kleiner ausfallen"),
+  `min_group` (10), the limits and the counts per group. The absolute tiers stay the default.
 - **Tournament cohorts (D5).** The `tournament` row pools EDHTop16 and the corpus bracket 5 into one
   n / N (E3.a); the rows now also list `parts` (`key` `edhtop16` / `corpus_bracket5`, `label`,
   `numerator`, `denominator`, which add up to the row) and `mixed_cohorts_note` ("zwei Kohorten
   addiert (E3.a)" when both cohorts are in; `null` with one). Value, score and weight are unchanged.
 - **Weight per source family (D2).** `weight_families` shows the effective weights (after rule
-  E2.a) next to the nominal ones: `{family, label, components, nominal_weight, share_of_total,
-  note}` for the source-deck corpus (`deck_universe`, `corpus_tuned`, `corpus_log_lift`,
+  E2.a, the bracket switch and the layer weights; the nominal weights are those of the settings):
+  `{family, label, components, effective_weight, share_of_total, note}` for the source-deck corpus (`deck_universe`, `corpus_tuned`, `corpus_log_lift`,
   `corpus_bracket_slope`: nested subsets of the same decks, no independent confirmations), EDHREC
-  pages and themes, the tournament pool, combos, and the rest. Chulane: 7.5 of 10 (75 %), 1.5
+  pages and themes, the tournament pool, combos, and the rest. `deck_universe` is filed under the
+  source-deck corpus because the index reads the commander's local decks (hard-coded in
+  `strength.WEIGHT_FAMILIES`; with a stored universe profile or a counted repo universe it would
+  read another deck set). Chulane: 7.5 of 10 (75 %), 1.5
   (15 %), 0.5 (5 %), 0.5 (5 %), 0. The mapping is the constant `strength.WEIGHT_FAMILIES` with the
   code places it was read from.
 - **Role totals (D3).** The result has `role_totals` (role to the number of ranked cards of that
