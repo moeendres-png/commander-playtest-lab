@@ -44,7 +44,7 @@ Datei widersprechen, gilt diese Datei.
 | Punkt | Scope | Quelle |
 |---|---|---|
 | Deckbauer | Der Studio-BUILD dieses Repositorys bleibt der Deckbauer des Projekts. `deckbuild-studio` ist eine eigene Ausgründung außerhalb der PLAY/SIMULATE-Pipeline; kein Austauschvertrag, kein Einfrieren des Deckbauers hier. Der generische Text-Import `scripts/import_deck.py` bleibt, wie er ist. | E1 |
-| Tierliste | Standardansicht ist der Nutzungsindex (objektiv, Schnitte 54/35/20/5). Das Kartenverständnis-Gesamtrating (#1369) ist eine wählbare, gekennzeichnete, generierte Zweitansicht; Standard erst nach der Validierung aus E6. | B10, E6 |
+| Tierliste | Standardansicht ist der Nutzungsindex (objektiv, Schnitte 54/35/20/5). Das Kartenverständnis-Gesamtrating (#1369) ist eine wählbare, gekennzeichnete, generierte Zweitansicht; Standard erst nach der Validierung aus E6. Standard bleibt „Nutzung“; Guide v2.2 wird nicht ausgerollt; Ankerfrage 7 gilt als gewolltes Urteil; eine menschliche Referenz ist optional. | B10, E6, E7 (C6) |
 | Simulation in der Tierliste | Gewicht `simulation` = 0 in Code und Test, bis G-SIM erfüllt ist und der Owner Gewicht und Darstellung bestätigt. K5: gemessene Partie-Ergebnisebenen ohne Gewicht. | B11 (bedingt), E2 |
 | Offene Punkte | Folgepunkte des Gesamtratings (#1369); Validierung vor einem Standardwechsel; Datenlücken für eine objektivere Bewertung (#1261). Pausiert und owner-vorbehalten: #1210, #1187/#1176. | Issues |
 
@@ -78,14 +78,22 @@ Option A2 „Deck-Labor mit Messprotokoll“, geliefert in zwei Schritten.
 - **Mindeststandard:** die zwölf Punkte in `docs/OWNER_DECISIONS_STUDIO_20261118.md` (G-SIM
   Punkt 4); nach A2 je Punkt mit Test oder Beispielergebnis belegt. Punkt 11 gilt für A2 nur in
   der schwachen Form (Sitzkurve, Zählung der Pilot-Auslassungen). Eine manuelle Stichprobe von
-  Pilot-Entscheidungen gehört nur zu G-SIM Punkt 2 und braucht vorher eine eigene
-  Owner-Bestätigung (S2 ist nur für die Zählung aufgehoben).
+  Pilot-Entscheidungen gehört nur zum dreiteiligen Pilot-Audit nach G-SIM Punkt 2 (vom Owner
+  angenommen, E7/C1; S2 ist nur für dieses Audit aufgehoben, Schwellen Vorschlag). Voraussetzungen
+  dafür: Audit-Mitschnitt im Studio-Pfad und Pilot-Fingerabdruck über die verhaltensbestimmenden
+  Dateien.
+- **Erste Chulane-Frage (G-SIM Punkt 5, E7/C2):** Landzahl-Achse 33 / 36 / 39 mit Negativkontrolle
+  (Basis gegen Basis), Positivkontrolle (27 Länder) und exakter Gegenprobe gegen die
+  hypergeometrische Verteilung; die drei Tauschkarten benennt der Owner vor dem Lauf.
 - **Wo Ergebnisse erscheinen:** nur im Deckbauer (Vergleich zweier Stände) und im Deck-Verlauf,
   als eigene Kohorte `SIMULATED_RESULT`, nie in einer Spalte mit EDHREC-, Playgroup- oder
   TopDeck-Zahlen, nie über Commander oder Deck-Stände summiert. Eine Serie zu einem anderen
   Deck-Stand wird nie als Ergebnis des aktuellen Standes gezeigt.
-- **Weg in die Tierliste:** nur über G-SIM und die Owner-Bestätigung von Gewicht und
-  Darstellung (E2); danach ein eigenes Design. Bis dahin auf der Tierliste nichts aus Simulation.
+- **Weg in die Tierliste:** in Stufen (E2, E7/C3). Stufe 0: heute, Gewicht 0, nichts aus
+  Simulation auf der Tierliste. Stufe 1, nach G-SIM 1 bis 6 und Owner-Go zur Darstellung:
+  getrennte Markierung ohne Gewicht und ohne Sortierung, mit Intervall, n und Aussagegrenze.
+  Stufe 2: Gewicht größer 0 erst nach Hold-out- und Halbierungs-Prüfung, gedeckelt
+  (`docs/OWNER_DECISIONS_STUDIO_20261118.md`). K5 und B11 gelten bis einschließlich Stufe 1.
 - **Ehrliche Reichweite:** SIMULATE entscheidet Pakete und Bauachsen (Landzahl, Ramp-, Schutzpaket),
   nicht einzelne Kartentausche; die Oberfläche sagt das.
 - **Später, nur bei Bedarf (A3):** rundenbegrenzte Serien mit vollen Piloten, Kontrollgrößen,
@@ -140,7 +148,8 @@ Keine Kalenderdaten: Die Dauer hängt an Owner-Zeit am PC und an Nutzungslimits 
 
 ## Phasenplan S0 bis S6
 
-Verfeinert die Roadmap-Phasen und legt zwei Owner-Sitzungen am PC fest, weil alles Messbare daran
+Quelle: Gesamtplan der Lead-Sitzung (Teil D), als Verfeinerung der Roadmap-Phasen durch den Lead
+nach `AGENTS.md` §8. Er verfeinert die Roadmap-Phasen und legt zwei Owner-Sitzungen am PC fest, weil alles Messbare daran
 hängt. `UNKNOWN` ist nie PASS.
 
 | Schritt | Phase | Inhalt | Abnahme |
@@ -148,9 +157,9 @@ hängt. `UNKNOWN` ist nie PASS.
 | S0 Laufendes schließen | 0 bis 2 | PRs #1515, #1516, #1517 (gemergt); P0b; diese Onboarding-Regeln (`docs/STUDIO_AGENT_ONBOARDING.md`) | gemergt mit PASS-Kommentar auf exakter Head-SHA; Claim-Tabelle in #1167 nennt Paket, Halter und Branch |
 | S1 Bereit für den Owner-PC | 1 bis 3 | Serien-Sitz-Sperre; Identitätsnachweis des parallelen gepaarten Pfads; Echt-Engine-Test des Mensch-Sitzes in CI; Messskripte unter Windows; Owner-PC-Seite aktualisiert | (1) Serien und `compare-decks` lehnen 5 und 6 Sitze ab, mit Test, der ohne die Prüfung fällt; (2) gepaart-parallel n identisch von N mit N ≥ 20 Spielen, sonst laufen gepaarte Serien mit einem Worker; (3) der Echt-Engine-Test läuft in einem CI-Job und ist dort nicht übersprungen; (4) die Messskripte starten unter Windows; (5) die Owner-PC-Seite ist einmal von null in sauberer Umgebung durchgespielt, jede Abweichung ist ein Befund |
 | S2 Owner-Sitzung 1 (am PC) | 1, 2 | Einrichtung, drei Abnahme-Partien, Pilotblock | ausgefülltes Abnahme-Protokoll mit Dateien; AK-1 bis AK-8 je PASS, FAIL oder `UNKNOWN`; Pilotblock liefert Durchsatz, Diskordanz, Paar-Streuung und Sitzkurve je mit n/N |
-| S3 Auswerten | 4 | P1-Reihenfolge aus AK-8; Budget-Tabelle mit gemessenem Durchsatz und gemessener Diskordanz; Owner-Vorlagen (Vorschläge zu G-SIM und zur Tierliste-Abnahme, Owner offen) | Kommentar in #1167 mit den Messwerten und der P1-Liste; Owner-Antworten in einer Entscheidungsdatei |
+| S3 Auswerten | 4 | P1-Reihenfolge aus AK-8; Budget-Tabelle mit gemessenem Durchsatz und gemessener Diskordanz; Schwellen des Pilot-Audits mit dem Owner kalibrieren (Owner-Zeit etwa 2 bis 2,5 Stunden; C1 bis C3 und C6 sind angenommen, E7) | Kommentar in #1167 mit den Messwerten und der P1-Liste; Owner-Antworten in einer Entscheidungsdatei |
 | S4 Bauen (parallel) | 4 | SIMULATE A2; PLAY P1a, danach P1b; Backup | zwölf Punkte des Mindeststandards je mit Test oder Beispielergebnis; jeder P1-Punkt mit Test, der ohne die Änderung fällt |
-| S5 Owner-Sitzung 2 (am PC) | 4 | Nachtserie zu einer echten Chulane-Frage; Spielprobe P1 | Frage beantwortet mit Serienplan, Intervall, nachweisbarer Differenz und Gültigkeitsblock |
+| S5 Owner-Sitzung 2 (am PC) | 4 | Nachtserie zur ersten Chulane-Frage (Landzahl-Achse mit Kontrollen); Spielprobe P1; Pilot-Audit | Frage beantwortet mit Serienplan, Intervall, nachweisbarer Differenz und Gültigkeitsblock |
 | S6 Abschluss | 5 | Epoche oder „vor Qualifikation“; Release-Paket; Tierliste-Abnahme | Abschlusskriterien 1 bis 6 je mit Beleg; Einrichtung von null aus dem Paket |
 
 **Abnahme-Protokoll (Gerüst; die ausfüllbare Vorlage ist ein eigenes Paket).** Jede Zeile bekommt
@@ -213,9 +222,12 @@ So wird der Scope oben abgearbeitet, von jedem Agenten gleich.
    Studio-Ergänzung zu §10 (ändert §10 nicht): Zusätzlich zur MATERIAL-Liste sind Texte der
    Oberfläche, die Aussagen über Ratings oder Simulationsergebnisse machen, review-pflichtig; eine
    solche Änderung wird wie MATERIAL behandelt. Ein Merge vor dem erforderlichen Review ist nach
-   §10 ein Gate-Verstoß, soweit die Änderung unter die MATERIAL-Liste in §10 fällt. Anlass dieser Klarstellung sind zwei Merges vom 2026-11-18
-   (#1509, #1510), bei denen Review-Befunde bzw. ein Halte-Hinweis erst nach dem Merge aufgelöst
-   wurden.
+   §10 ein Gate-Verstoß, soweit die Änderung unter die MATERIAL-Liste in §10 fällt. Kreuz-Review
+   (E7/C7): Arbeiten zwei Agenten parallel, prüft eine Sitzung des jeweils anderen Agenten den
+   MATERIAL-PR; der Autor mergt frühestens nach diesem Kommentar. Wer Development Lead ist und
+   fremde PRs mergt, bleibt Owner-Sache. Anlass dieser Klarstellung sind zwei Merges vom
+   2026-11-18 (#1509, #1510), bei denen Review-Befunde bzw. ein Halte-Hinweis erst nach dem Merge
+   aufgelöst wurden.
 5. **Governance-Dateien:** Änderungen an `AGENTS.md` und `CLAUDE.md` erfolgen durch Lead oder
    Coordinator nach `AGENTS.md` §8. Inhaltliche Änderungen am Scope (diese Datei), an den
    Owner-Entscheiden (`docs/OWNER_DECISIONS_*`) und an Owner-vorbehaltenen Regeln nur auf

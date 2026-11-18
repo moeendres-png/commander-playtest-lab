@@ -289,9 +289,14 @@ unless the Owner specifies otherwise), with no blocking findings. A MATERIAL cha
 before that review is recorded on the pull request with its verdict and the exact head SHA it
 reviewed, and that SHA is the head being merged; green required checks alone are not enough. The
 review record names the reviewing session in neutral words, the exact head SHA, the commands it
-ran and its verdict. One review per head; after fixes the same reviewer re-checks only the delta.
-After merging, the session reads back the merge commit and the resulting `main` HEAD/TREE
-(`commander-quality-gate`, Phase 6) and reports the merge in one line with the PR link.
+ran and its verdict; "neutral" only means without personal names, and §7 (record the actual
+identity and level, never relabel) still applies. Where two agents work in parallel, a session of
+the other agent reviews a MATERIAL pull request, and the author merges no earlier than that
+review comment (Owner decision 2026-11-18, `docs/OWNER_DECISIONS_STUDIO_20261118.md` E7); who is
+Development Lead and merges other agents' pull requests stays an Owner matter. One review per
+head; after fixes the same reviewer re-checks only the delta. After merging, the session reads
+back the merge commit and the resulting `main` HEAD/TREE (`commander-quality-gate`, Phase 6) and
+reports the merge in one line with the PR link.
 
 These need the Owner's explicit go before merge: pushes to the engine fork (`moeendres-png/mage`),
 repins, and any change to signed or sealed qualification records or, outside a reseal or the D5 go

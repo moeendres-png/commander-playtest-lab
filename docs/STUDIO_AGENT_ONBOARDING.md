@@ -18,7 +18,7 @@ die Dateien so anzupassen, dass ein weiterer Agent weiß, wie abgearbeitet wird
 - Stand holen und einen eigenen Branch von `origin/main` anlegen. Nie auf `main` schreiben, nie
   Force-Push (`AGENTS.md` §10).
 - Claim in #1167 (Paket, Fläche, Branch); er steht spätestens mit dem ersten gepushten Meilenstein.
-- Ein Paket = ein Issue = ein Branch = ein PR. Commits und PR-Texte sagen `Refs #N`, nie
+- Ein Paket = ein Issue bzw. ein Branch = ein PR. Commits und PR-Texte sagen `Refs #N`, nie
   `Closes #N`.
 
 ## 3. Flächen
@@ -66,9 +66,10 @@ geplant.
 
 - Testumgebung außerhalb des Arbeitsbaums anlegen: `.claude/skills/lab-ops/SKILL.md`, Abschnitt
   „Local test environment“.
-- Schmal testen: die Tests des geänderten Moduls, z. B.
-  `python -m pytest -q --shards=4 tests/unit -k "<modul>"`.
-- Vor dem PR einmal breit: `python -m pytest -q --shards=4 tests/unit -k "studio or paired"`,
+- Schmal testen, ohne `--shards`: `python -m pytest -q tests/unit -k "<modul>"`.
+- Vor dem PR einmal breit, mit Pfaden statt `-k` (`--shards` nimmt kein `-k` an,
+  `tests/pytest_shards.py`):
+  `python -m pytest -q --shards=4 tests/unit/test_studio_*.py tests/unit/test_human_seat_play_1169.py`,
   dazu `ruff check .`, `ruff format --check .`, `mypy src/commander_lab` und für geänderte
   Seiten-Skripte `node --check <datei>`.
 - Reine Doku: `python scripts/classify_docs.py --check` und `--links`; neue Datei unter `docs/` in
@@ -78,8 +79,10 @@ geplant.
 
 - MATERIAL (Liste in `AGENTS.md` §10; dazu Texte der Oberfläche über Ratings oder
   Simulationsergebnisse, `docs/STUDIO_SCOPE.md` Abarbeitung Punkt 4): zuerst ein Review aus
-  frischem Kontext mit PASS als PR-Kommentar. Der Kommentar nennt die prüfende Sitzung neutral, die
-  exakte Head-SHA, die ausgeführten Befehle und das Urteil. Gemergt wird genau diese SHA.
+  frischem Kontext mit PASS als PR-Kommentar. Der Kommentar nennt die prüfende Sitzung neutral
+  (ohne Personennamen), die exakte Head-SHA, die ausgeführten Befehle und das Urteil. Gemergt wird
+  genau diese SHA. Arbeiten zwei Agenten parallel, prüft eine Sitzung des jeweils anderen Agenten;
+  der Autor mergt frühestens nach diesem Kommentar (Kreuz-Review, `AGENTS.md` §10).
 - Pflicht-Checks `quality`, `security`, `infrastructure` grün auf dem exakten Head.
 - Wer selbst mergen darf, steht in `AGENTS.md` §6, §10 und §11. Nicht bestellte externe Agenten
   mergen nicht selbst; Lead oder Owner prüfen und mergen.
