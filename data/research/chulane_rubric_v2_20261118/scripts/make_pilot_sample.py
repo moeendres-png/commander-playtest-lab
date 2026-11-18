@@ -118,18 +118,18 @@ def main() -> None:
         add(
             n,
             "C",
-            "tier-D land with the lowest usage among tier-D lands; bucket land",
+            "stratum C land (lower tier band); bucket land",
         )
     pick(
         "C",
         [n for n in used_d if n not in low_lands and not facts[n]["is_land_front"]],
-        "tier D with usage > 0",
+        "stratum C (lower tier band, not in the reference deck)",
     )
 
     zero = [n for n, u in usage.items() if u["deck_list_count"] == 0]
     zero_lands = sorted(n for n in zero if facts[n]["is_land_front"])
     for n in zero_lands[:1]:
-        add(n, "D", "land without usage (the only one in the pool); bucket land")
+        add(n, "D", "stratum D land; bucket land")
     # positive Chulane patterns hidden among the zero-usage cards: test whether the rater finds them
     hidden = sorted(
         n
@@ -141,20 +141,20 @@ def main() -> None:
         add(
             n,
             "D",
-            "no usage, carries a positive Chulane pattern ("
+            "stratum D; carries a positive Chulane pattern ("
             + ", ".join(sorted(set(pats[n]["rule_ids"]) & POSITIVE_RULES))
             + ")",
         )
     vanilla = sorted(n for n in zero if not facts[n]["has_oracle_text"])
     rng.shuffle(vanilla)
     for n in vanilla[:2]:
-        add(n, "D", "no usage, creature without rules text (vanilla)")
+        add(n, "D", "stratum D; creature without rules text (vanilla)")
     rest = [n for n in zero if n not in chosen and not (set(pats[n]["rule_ids"]) & POSITIVE_RULES)]
     rng.shuffle(rest)
     for n in rest:
         if sum(1 for c in chosen.values() if c["stratum"] == "D") >= 15:
             break
-        add(n, "D", "no usage, no positive pattern (plain)")
+        add(n, "D", "stratum D; no positive pattern (plain)")
 
     # Coverage extras (stratum E, at most 4 cards beyond the 60): at least 2 multi-face cards (the
     # pool has 12) and at least 1 Game Changer (Bracket 3 allows at most three)
@@ -196,7 +196,7 @@ def main() -> None:
         "retest_cards": sorted(retest),
         "seed": args.seed,
         "RATER_VISIBLE": False,
-        "note": "v1 values are for calibration only; usage fields (tier, deck counts) are not part of this file (usage_holdout.jsonl is local and never checked in); the rater prompt gets the card id and nothing else of this file",
+        "note": "v1 values are for calibration only. No usage counts are stored here, but strata C and D separate cards with usage (C, tier D) from cards without usage (D) as a category. Raters never see this file: the rater prompt gets the card id and nothing else of this file. usage_holdout.jsonl is local and never checked in.",
         "reference_deck": "chulane-current@41f393530bb16ee9",
         "v1_reference_rule": "v1 H_mean (summary.csv) is the reference for Spearman except for the 10 anchors, whose v1 H is fixed by the guide and therefore not an independent rating",
         "quota": QUOTA,

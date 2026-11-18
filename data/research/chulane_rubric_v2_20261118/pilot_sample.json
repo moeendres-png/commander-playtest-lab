@@ -278,7 +278,7 @@
    "stratum": "C",
    "v1_H_mean": 3.67,
    "v1_is_anchor": false,
-   "why": "tier D with usage > 0; bucket creature_etb"
+   "why": "stratum C (lower tier band, not in the reference deck); bucket creature_etb"
   },
   {
    "bucket": "land",
@@ -287,7 +287,7 @@
    "stratum": "C",
    "v1_H_mean": 1.33,
    "v1_is_anchor": false,
-   "why": "tier-D land with the lowest usage among tier-D lands; bucket land"
+   "why": "stratum C land (lower tier band); bucket land"
   },
   {
    "bucket": "noncreature",
@@ -296,7 +296,7 @@
    "stratum": "C",
    "v1_H_mean": 1.67,
    "v1_is_anchor": false,
-   "why": "tier D with usage > 0; bucket noncreature"
+   "why": "stratum C (lower tier band, not in the reference deck); bucket noncreature"
   },
   {
    "bucket": "land",
@@ -305,7 +305,7 @@
    "stratum": "C",
    "v1_H_mean": 1.0,
    "v1_is_anchor": false,
-   "why": "tier-D land with the lowest usage among tier-D lands; bucket land"
+   "why": "stratum C land (lower tier band); bucket land"
   },
   {
    "bucket": "mana",
@@ -314,7 +314,7 @@
    "stratum": "C",
    "v1_H_mean": 1.33,
    "v1_is_anchor": false,
-   "why": "tier D with usage > 0; bucket mana"
+   "why": "stratum C (lower tier band, not in the reference deck); bucket mana"
   },
   {
    "bucket": "creature_other",
@@ -323,7 +323,7 @@
    "stratum": "C",
    "v1_H_mean": 3.0,
    "v1_is_anchor": false,
-   "why": "tier D with usage > 0; bucket creature_other"
+   "why": "stratum C (lower tier band, not in the reference deck); bucket creature_other"
   },
   {
    "bucket": "land",
@@ -332,7 +332,7 @@
    "stratum": "C",
    "v1_H_mean": 2.0,
    "v1_is_anchor": false,
-   "why": "tier-D land with the lowest usage among tier-D lands; bucket land"
+   "why": "stratum C land (lower tier band); bucket land"
   },
   {
    "bucket": "creature_other",
@@ -341,7 +341,7 @@
    "stratum": "C",
    "v1_H_mean": 1.33,
    "v1_is_anchor": false,
-   "why": "tier D with usage > 0; bucket creature_other"
+   "why": "stratum C (lower tier band, not in the reference deck); bucket creature_other"
   },
   {
    "bucket": "mana",
@@ -350,7 +350,7 @@
    "stratum": "C",
    "v1_H_mean": 2.0,
    "v1_is_anchor": false,
-   "why": "tier D with usage > 0; bucket mana"
+   "why": "stratum C (lower tier band, not in the reference deck); bucket mana"
   },
   {
    "bucket": "creature_etb",
@@ -359,7 +359,7 @@
    "stratum": "C",
    "v1_H_mean": 2.67,
    "v1_is_anchor": false,
-   "why": "tier D with usage > 0; bucket creature_etb"
+   "why": "stratum C (lower tier band, not in the reference deck); bucket creature_etb"
   },
   {
    "bucket": "noncreature",
@@ -368,7 +368,7 @@
    "stratum": "C",
    "v1_H_mean": 2.33,
    "v1_is_anchor": false,
-   "why": "tier D with usage > 0; bucket noncreature"
+   "why": "stratum C (lower tier band, not in the reference deck); bucket noncreature"
   },
   {
    "bucket": "noncreature",
@@ -377,7 +377,7 @@
    "stratum": "C",
    "v1_H_mean": 2.0,
    "v1_is_anchor": false,
-   "why": "tier D with usage > 0; bucket noncreature"
+   "why": "stratum C (lower tier band, not in the reference deck); bucket noncreature"
   },
   {
    "bucket": "noncreature",
@@ -386,7 +386,7 @@
    "stratum": "C",
    "v1_H_mean": 1.33,
    "v1_is_anchor": false,
-   "why": "tier D with usage > 0; bucket noncreature"
+   "why": "stratum C (lower tier band, not in the reference deck); bucket noncreature"
   },
   {
    "bucket": "creature_other",
@@ -395,7 +395,7 @@
    "stratum": "C",
    "v1_H_mean": 2.67,
    "v1_is_anchor": false,
-   "why": "tier D with usage > 0; bucket creature_other"
+   "why": "stratum C (lower tier band, not in the reference deck); bucket creature_other"
   },
   {
    "bucket": "creature_etb",
@@ -404,7 +404,7 @@
    "stratum": "C",
    "v1_H_mean": 2.33,
    "v1_is_anchor": false,
-   "why": "tier D with usage > 0; bucket creature_etb"
+   "why": "stratum C (lower tier band, not in the reference deck); bucket creature_etb"
   },
   {
    "bucket": "creature_other",
@@ -413,7 +413,7 @@
    "stratum": "D",
    "v1_H_mean": 1.67,
    "v1_is_anchor": false,
-   "why": "no usage, no positive pattern (plain)"
+   "why": "stratum D; no positive pattern (plain)"
   },
   {
    "bucket": "creature_other",
@@ -422,7 +422,7 @@
    "stratum": "D",
    "v1_H_mean": 1.33,
    "v1_is_anchor": false,
-   "why": "no usage, no positive pattern (plain)"
+   "why": "stratum D; no positive pattern (plain)"
   },
   {
    "bucket": "noncreature",
@@ -431,7 +431,7 @@
    "stratum": "D",
    "v1_H_mean": 1.67,
    "v1_is_anchor": false,
-   "why": "no usage, no positive pattern (plain)"
+   "why": "stratum D; no positive pattern (plain)"
   },
   {
    "bucket": "creature_other",
@@ -440,7 +440,7 @@
    "stratum": "D",
    "v1_H_mean": 1.67,
    "v1_is_anchor": false,
-   "why": "no usage, no positive pattern (plain)"
+   "why": "stratum D; no positive pattern (plain)"
   },
   {
    "bucket": "creature_other",
@@ -449,7 +449,7 @@
    "stratum": "D",
    "v1_H_mean": 1.0,
    "v1_is_anchor": false,
-   "why": "no usage, creature without rules text (vanilla)"
+   "why": "stratum D; creature without rules text (vanilla)"
   },
   {
    "bucket": "noncreature",
@@ -458,7 +458,7 @@
    "stratum": "D",
    "v1_H_mean": 1.33,
    "v1_is_anchor": false,
-   "why": "no usage, carries a positive Chulane pattern (etb_other_creature)"
+   "why": "stratum D; carries a positive Chulane pattern (etb_other_creature)"
   },
   {
    "bucket": "noncreature",
@@ -467,7 +467,7 @@
    "stratum": "D",
    "v1_H_mean": 2.67,
    "v1_is_anchor": false,
-   "why": "no usage, carries a positive Chulane pattern (etb_own_draw)"
+   "why": "stratum D; carries a positive Chulane pattern (etb_own_draw)"
   },
   {
    "bucket": "noncreature",
@@ -476,7 +476,7 @@
    "stratum": "D",
    "v1_H_mean": 4.0,
    "v1_is_anchor": false,
-   "why": "no usage, carries a positive Chulane pattern (bounce_any_creature_target)"
+   "why": "stratum D; carries a positive Chulane pattern (bounce_any_creature_target)"
   },
   {
    "bucket": "noncreature",
@@ -485,7 +485,7 @@
    "stratum": "D",
    "v1_H_mean": 1.67,
    "v1_is_anchor": false,
-   "why": "no usage, carries a positive Chulane pattern (bounce_self)"
+   "why": "stratum D; carries a positive Chulane pattern (bounce_self)"
   },
   {
    "bucket": "land",
@@ -494,7 +494,7 @@
    "stratum": "D",
    "v1_H_mean": 1.0,
    "v1_is_anchor": false,
-   "why": "land without usage (the only one in the pool); bucket land"
+   "why": "stratum D land; bucket land"
   },
   {
    "bucket": "creature_other",
@@ -503,7 +503,7 @@
    "stratum": "D",
    "v1_H_mean": 1.67,
    "v1_is_anchor": false,
-   "why": "no usage, no positive pattern (plain)"
+   "why": "stratum D; no positive pattern (plain)"
   },
   {
    "bucket": "noncreature",
@@ -512,7 +512,7 @@
    "stratum": "D",
    "v1_H_mean": 1.33,
    "v1_is_anchor": false,
-   "why": "no usage, no positive pattern (plain)"
+   "why": "stratum D; no positive pattern (plain)"
   },
   {
    "bucket": "creature_other",
@@ -521,7 +521,7 @@
    "stratum": "D",
    "v1_H_mean": 1.67,
    "v1_is_anchor": false,
-   "why": "no usage, carries a positive Chulane pattern (landfall)"
+   "why": "stratum D; carries a positive Chulane pattern (landfall)"
   },
   {
    "bucket": "creature_other",
@@ -530,7 +530,7 @@
    "stratum": "D",
    "v1_H_mean": 1.0,
    "v1_is_anchor": false,
-   "why": "no usage, creature without rules text (vanilla)"
+   "why": "stratum D; creature without rules text (vanilla)"
   },
   {
    "bucket": "noncreature",
@@ -539,7 +539,7 @@
    "stratum": "D",
    "v1_H_mean": 1.33,
    "v1_is_anchor": false,
-   "why": "no usage, no positive pattern (plain)"
+   "why": "stratum D; no positive pattern (plain)"
   },
   {
    "bucket": "noncreature",
@@ -597,7 +597,7 @@
   "vanilla_creatures": 2,
   "with_own_etb": 12
  },
- "note": "v1 values are for calibration only; usage fields (tier, deck counts) are not part of this file (usage_holdout.jsonl is local and never checked in); the rater prompt gets the card id and nothing else of this file",
+ "note": "v1 values are for calibration only. No usage counts are stored here, but strata C and D separate cards with usage (C, tier D) from cards without usage (D) as a category. Raters never see this file: the rater prompt gets the card id and nothing else of this file. usage_holdout.jsonl is local and never checked in.",
  "quota": {
   "B": {
    "creature_etb": 5,

@@ -8,8 +8,10 @@ Das Raster v1 (`../chulane_rubric_20261114/`) bleibt unverändert.
 
 **Status: Entwurf + Pilot + Vollauf (922 von 922 Karten bewertet), keine Gewichtung im Index.** Bewertet sind alle
 Karten des Pools mit einem Rater-Lauf der großen Stufe (Raster v2.1, 132 Chargen zu 7 Karten, Stand 2026-11-18).
-Der Pilot hat nicht alle vorab festgelegten Schwellen erreicht (Bericht); der Owner-Entscheid zu den Ankern
-(Frage 7) steht aus. Ein zweiter Lauf für Grenzfälle und der Drift-Test (5 % Wiederholungen) stehen aus.
+Nicht alle vorab festgelegten Schwellen sind erfüllt: Anker (3a) verfehlt, Drift (5a) verfehlt/offen (Ersatzgröße
+T gegen S: im Mittel 5,5 > 5 und 2 von 16 = 12,5 % > 10 %), Zitatregel nur mit Chulane-Text als Quelle erfüllt (Bericht,
+Abschnitte 7 und 9). Der Owner-Entscheid zu den Ankern (Frage 7) steht aus; ob die Bewertungen Verwendung finden, ist
+nicht entschieden. Ein zweiter Lauf für Grenzfälle und der Drift-Test (5 % Wiederholungen) stehen aus.
 
 ## Dateien
 
@@ -35,8 +37,8 @@ Modell-Identität der Rater ist im Verlauf der Owner-Session festgehalten, nicht
 
 Rater sehen nur `facts.jsonl`, `patterns.jsonl` und den Guide, nie Nutzung, Beliebtheit, Preise oder
 v1-Werte. `data/usage_holdout.jsonl` wird von `scripts/extract_facts.py` lokal erzeugt, ist nicht
-eingecheckt (`.gitignore`) und darf nie in einen Rater-Prompt. `pilot_sample.json` hat keine Nutzungsfelder;
-"Stufe D mit Nutzung" ist nur eine Kategorie. Modellwissen über Beliebtheit lässt sich nicht ausschließen.
+eingecheckt (`.gitignore`) und darf nie in einen Rater-Prompt. `pilot_sample.json` hat keine Zählwerte, aber
+die Strata C und D unterscheiden Karten mit und ohne Nutzung (Kategorie); Rater sehen die Datei nicht. Modellwissen über Beliebtheit lässt sich nicht ausschließen.
 
 ## Reproduzieren
 
@@ -48,6 +50,9 @@ Aus dem Repository-Stamm, `python3`; nur Schritt 1 braucht den Studio-Code.
    sind Kurzaufrufe). Vollauf: Rohdateien in `<Ordner>/out_full/`, außerhalb des Repos, vom Lead gefüllt.
 4. `python3 scripts/analyze.py`, `extra.py --batches <Ordner>`, `validate.py [--run v2.1]` lesen
    `pilot_ratings.jsonl`; `validate_full.py --out <Ordner> [--write-ratings <Datei>]` prüft und führt den Vollauf zusammen.
+5. `python3 scripts/quote_check.py --run v2|v2.1|full --batches <Ordner>` (Zitatregel); `python3 scripts/full_qa.py
+   --ratings <out_full-Ordner|fullrun_ratings.jsonl> --facts data/facts.jsonl [--usage <usage_holdout.jsonl>]` (Vollauf-QA;
+   `--usage` nur nach dem Einfrieren, die Datei bleibt lokal).
 
 Chargen-Kartenblöcke und Manifeste sind byte-gleich zu den Läufen. H1 bis S2 liefen mit dem Guide vor v2.1
 (Ankerwerte, Zitatregel im Systemteil weichen vom heutigen Guide ab); T1, T2 und F1 sind voll reproduzierbar.
