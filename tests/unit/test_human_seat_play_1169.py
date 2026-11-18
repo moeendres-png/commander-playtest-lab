@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import itertools
 import json
 import re
 import time
@@ -959,6 +960,130 @@ def test_server_refuses_five_and_six_seat_tables_with_a_clear_reason(
             )
     finally:
         store.close()
+
+
+# ---- the real engine: a scripted human seat plays a whole game through the PLAY routes ----------
+
+ENGINE_ENV = "COMMANDER_LAB_XMAGE_FULL_GAME_BRIDGE_CMD"
+SCRIPTED_TURN_LIMIT = 40  # after this turn the script concedes through the route (a recorded end)
+
+
+def _scripted_human_answer(pending: dict[str, object]) -> dict[str, object]:
+    """A fixed, rule-free script for a seat that only keeps, plays lands and passes.
+
+    It never takes the first or a random option: it asks for an option by its engine type and, when
+    several of that type exist, the one with the smallest label. It decides no rule; every id it
+    sends is one the engine offered, and the route would refuse any other.
+    """
+    options = [o for o in pending["legal_options"] if isinstance(o, dict)]  # type: ignore[attr-defined]
+    cls = pending["decision_class"]
+    minimum = int(pending.get("minimum_selections") or 0)  # type: ignore[call-overload]
+
+    def of_type(*types: str) -> list[dict[str, object]]:
+        return sorted(
+            (o for o in options if o["option_type"] in types), key=lambda o: str(o["label"])
+        )
+
+    body: dict[str, object] = {"decision_id": pending["decision_id"], "selected_option_ids": []}
+    chosen: list[dict[str, object]] = []
+    if cls == "mulligan":
+        chosen = of_type("keep")[:1]
+    elif cls == "priority":
+        land = [
+            o
+            for o in of_type("play_land_ability", "activated_ability")
+            if (o.get("metadata") or {}).get("ability_type") == "play_land"
+        ]  # type: ignore[attr-defined]
+        chosen = (land or of_type("pass_priority"))[:1]
+    elif cls == "declare_attacker":
+        chosen = of_type("hold_attacker")[:1]
+    elif cls == "mana_payment":
+        chosen = of_type("cancel_mana_payment")[:1]
+    elif minimum:
+        chosen = sorted(options, key=lambda o: str(o["label"]))[:minimum]
+    body["selected_option_ids"] = [o["option_id"] for o in chosen]
+    context = pending.get("context") or {}
+    if isinstance(context, dict) and context.get("numeric_min") is not None:
+        body["numeric_choice"] = int(context["numeric_min"])
+    return body
+
+
+@pytest.mark.external
+def test_real_engine_human_seat_plays_a_game_to_its_end_through_the_play_routes(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Needs the pinned XMage bridge (Java 21). Without it this test is SKIPPED, which is not a pass.
+
+    AGENTS.md section 10 (paths the reference set does not reach): the human seat, driven only by
+    ``/api/play/{id}/decision``, plays a two-seat game against the engine's own AI until the engine
+    reports the end.
+    """
+    from commander_lab.studio import launch
+
+    command = launch.engine_command(tmp_path)
+    if command is None:
+        pytest.skip(
+            f"NOT RUN (not a pass): no rules engine here; set {ENGINE_ENV} to the pinned bridge "
+            "command (java -Xmx3g -jar <xmage-engine-bridge.jar> full-game) with Java 21"
+        )
+    jar = next((Path(a) for prev, a in itertools.pairwise(command) if prev == "-jar"), None)
+    if jar is None or not jar.is_file():
+        pytest.skip(
+            f"NOT RUN (not a pass): the bridge jar named by {ENGINE_ENV or 'the data folder'} is missing"
+        )
+    precons = {deck_id: path for deck_id, _n, _c, _y, path in launch._precons()}
+    decks = [precons["precon/2026/lorehold_spirit"], precons["precon/2024/animated_army"]]
+    monkeypatch.setattr(
+        launch, "prepare_table_deck_paths", lambda *_a, **_k: ("real-engine-human", decks)
+    )
+    client = TestClient(create_app(tmp_path), headers={"X-Studio": "1"})
+    started = client.post(
+        "/api/games",
+        json={
+            "revision_id": "r",
+            "opponent_ids": ["o"],
+            "seed": 11,
+            "human_seats": [0],
+            "ai_delay_ms": 0,
+        },
+    )
+    assert started.status_code == 200, started.text
+    game_id = started.json()["game_id"]
+    answered: dict[str, int] = {}
+    conceded = False
+    deadline = time.monotonic() + 900
+    state: dict[str, object] = {}
+    try:
+        while time.monotonic() < deadline:
+            state = client.get(f"/api/play/{game_id}?count=0").json()
+            pending = state.get("pending_decision")
+            if not pending:
+                if not state.get("running"):
+                    break
+                time.sleep(0.2)
+                continue
+            assert isinstance(pending, dict)
+            turn = (pending.get("pilot_state") or {}).get("turn_number", 1)
+            if not conceded and isinstance(turn, int) and turn >= SCRIPTED_TURN_LIMIT:
+                assert client.post(f"/api/play/{game_id}/concede").status_code == 200
+                conceded = True
+                continue
+            body = _scripted_human_answer(pending)
+            cls = str(pending["decision_class"])
+            answered[cls] = answered.get(cls, 0) + 1
+            reply = client.post(f"/api/play/{game_id}/decision", json=body)
+            assert reply.status_code == 200, (cls, body, reply.text)
+        else:
+            pytest.fail(f"the game did not end within the time box; answered so far: {answered}")
+    finally:
+        client.app.state.play_manager.shutdown_all()  # type: ignore[attr-defined]
+    result = state.get("result") or {}
+    assert isinstance(result, dict)
+    assert state.get("running") is False and result.get("status") == "finished", result
+    assert answered.get("mulligan", 0) >= 1 and answered.get("priority", 0) >= 10, answered
+    # the engine's end is recorded, and the hands of the AI seat open up only now
+    assert state.get("hands_revealed") is True
+    print("real-engine human game ended:", result, "answered:", answered, "conceded:", conceded)
 
 
 def test_terminal_bridge_error_ends_the_game_instead_of_waiting_on(tmp_path: Path) -> None:
