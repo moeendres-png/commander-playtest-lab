@@ -70,7 +70,9 @@ def test_doctor_fails_on_java_too_old_or_pin_mismatch(
 
     report = doctor.run_doctor(tmp_path, check_dependencies=False)
     assert report["ok"] is False
-    by_name = {c["name"]: c for c in report["checks"]}  # type: ignore[union-attr]
+    checks = report["checks"]
+    assert isinstance(checks, list)
+    by_name = {c["name"]: c for c in checks}
     assert by_name["java"]["status"] == "FAIL"
     assert by_name["engine_pin"]["status"] == "FAIL"
     assert by_name["appcds_archive"]["status"] == "WARN"
@@ -87,7 +89,9 @@ def test_doctor_reports_missing_dependencies_and_env_command(
 
     # Normal run with valid non-java executable passes engine_bridge + java checks
     report = doctor.run_doctor(tmp_path, check_dependencies=False)
-    by_name = {c["name"]: c for c in report["checks"]}  # type: ignore[union-attr]
+    checks = report["checks"]
+    assert isinstance(checks, list)
+    by_name = {c["name"]: c for c in checks}
     assert by_name["java"]["status"] == "PASS"
     assert by_name["engine_bridge"]["status"] == "PASS"
     assert report["ok"] is True
@@ -115,6 +119,8 @@ def test_doctor_warns_without_crashing_when_data_dir_env_unset(
     monkeypatch.setattr("commander_lab.studio.builder.sim_readiness_available", lambda: True)
 
     report = doctor.run_doctor(None, check_dependencies=False)
-    by_name = {c["name"]: c for c in report["checks"]}  # type: ignore[union-attr]
+    checks = report["checks"]
+    assert isinstance(checks, list)
+    by_name = {c["name"]: c for c in checks}
     assert by_name["studio_data"]["status"] == "WARN"
     assert by_name["engine_bridge"]["status"] == "FAIL"

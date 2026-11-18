@@ -216,7 +216,17 @@ def _check_engine_bridge(
             "detail": f"Über {launch.ENGINE_COMMAND_ENV} konfiguriert (ohne -jar).",
             "remediation": None,
         }
-    assert jar_path is not None
+    if jar_path is None:
+        return {
+            "name": "engine_bridge",
+            "status": "FAIL",
+            "required": True,
+            "jar_path": None,
+            "sha256": None,
+            "bridge_qualification": qual,
+            "detail": "Kein Bridge-JAR-Pfad auflösbar.",
+            "remediation": f"{launch.ENGINE_COMMAND_ENV} oder Datenordner prüfen.",
+        }
     if not jar_path.is_file():
         repo_jar = _repo_built_jar()
         if repo_jar.is_file():
