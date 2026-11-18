@@ -29,6 +29,14 @@ on:
       - 'requirements/lock.txt'
       - '.github/workflows/windows-runtime.yml'
       - "tests/conftest.py"
+      - "src/commander_lab/bridge_qualification.py"
+      - "src/commander_lab/decision_statistics.py"
+      - "src/commander_lab/deck_profile.py"
+      - "src/commander_lab/deck_readiness.py"
+      - "src/commander_lab/deck_variant.py"
+      - "src/commander_lab/mana_analysis.py"
+      - "src/commander_lab/owner_data.py"
+      - "src/commander_lab/qualification/**"
   workflow_dispatch:
 
 permissions:
