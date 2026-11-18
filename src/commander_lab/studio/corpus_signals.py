@@ -222,6 +222,10 @@ def corpus_observations(
     return result
 
 
+PART_EDHTOP16 = "edhtop16"
+PART_CORPUS_BRACKET5 = "corpus_bracket5"
+
+
 def tournament_observations(
     counts: CorpusCounts | None, edhtop16: Mapping[str, Observation]
 ) -> dict[str, Observation]:
@@ -234,23 +238,29 @@ def tournament_observations(
     if group is not None:
         card_ids |= set(group.hits)
     for card_id in sorted(card_ids):
-        parts: list[tuple[str, int, int]] = []
+        parts: list[tuple[str, str, int, int]] = []
         top16 = edhtop16.get(card_id)
         if top16 is not None and top16.numerator is not None and top16.denominator:
-            parts.append(("EDHTop16", top16.numerator, top16.denominator))
+            parts.append((PART_EDHTOP16, "EDHTop16", top16.numerator, top16.denominator))
         if group is not None and group.denominator > 0 and card_id in group.hits:
-            parts.append(("Korpus Bracket 5", group.hits[card_id], group.denominator))
+            parts.append(
+                (PART_CORPUS_BRACKET5, "Korpus Bracket 5", group.hits[card_id], group.denominator)
+            )
         if not parts:
             continue
-        numerator = sum(part[1] for part in parts)
-        denominator = sum(part[2] for part in parts)
+        numerator = sum(part[2] for part in parts)
+        denominator = sum(part[3] for part in parts)
         result[card_id] = Observation(
             numerator / denominator,
             numerator,
             denominator,
             note=(
-                " + ".join(f"{name} {num} von {den}" for name, num, den in parts)
+                " + ".join(f"{name} {num} von {den}" for _key, name, num, den in parts)
                 + f" (zusammengelegt: {numerator} von {denominator})"
+            ),
+            # D5: the cohorts stay visible with their own n / N; the pooled value is unchanged
+            parts=tuple(
+                strength.ObservationPart(key, name, num, den) for key, name, num, den in parts
             ),
         )
     return result
