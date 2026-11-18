@@ -19,6 +19,20 @@ Missing axes: the weights of the axes a card has are renormalised, ``coverage`` 
 the nominal weights present. Below ``MIN_COVERAGE``, or without a card-understanding rating, the
 score is None ("unbekannt"). The contributions of the axes sum exactly to the score (integer
 tenths, largest remainder), so the breakdown is a real decomposition.
+
+Rules version ``overall-v2`` (after the methodology review of 2026-11-18):
+* The usage axis is log-scaled, ``100 * ln(1 + index) / ln(101)`` (index 0 to 100): with the raw
+  index two thirds of the pool (index of 5 or less) moved the rating by under 2 points, so below
+  tier C the model judgement alone ordered the cards. The raw index stays in the axis row.
+* The weights are unchanged (a setting). The mix is an emphasis, not independent evidence: H is
+  explained to about 90 % by the six partial scores, and D and K (0.025 each) hardly move the
+  rating at all.
+* The rating is only offered for the cohort H is defined for: Bracket 3, the setting "upgraded".
+* Rank inside the group (lands, spells) next to the pool rank: the lands are rated against their
+  own anchors and are structurally lower (T is 0 for most of them).
+* A rated card without a usage axis (tier U or N) is renormalised as before, carries the flag
+  ``no_usage_axis`` and its rank is not comparable with that of a card that has one.
+* Differences under ``MIN_MEANINGFUL_DIFF`` points are not reliable (single-run rating noise).
 """
 
 from __future__ import annotations
@@ -26,13 +40,13 @@ from __future__ import annotations
 import math
 import random
 from collections.abc import Mapping, Sequence
-from typing import Final, TypedDict
+from typing import Final, NotRequired, TypedDict
 
 from . import card_understanding, strength
 from .card_understanding import UnderstandingRow
 from .store import StudioStore
 
-OVERALL_RULES_VERSION: Final = "overall-v1"
+OVERALL_RULES_VERSION: Final = "overall-v2"
 USAGE: Final = "usage"
 # Setzung, keine Messung: chosen by the Owner's decision of 2026-11-18, not fitted to any data.
 OVERALL_WEIGHTS_V1: Final[Mapping[str, float]] = {
@@ -52,6 +66,24 @@ STABILITY_SEED: Final = 20261118
 STABILITY_FACTOR: Final = 0.3
 UNSHARP_SHARE: Final = 0.10
 UNCERTAIN_H_SD: Final = 20.0
+MIN_MEANINGFUL_DIFF: Final = 5
+RATER_BRACKET: Final = "upgraded"  # Bracket 3, the cohort the raters judged for
+USAGE_SCALE: Final = "log"
+GROUP_LAND: Final = "land"
+GROUP_SPELL: Final = "spell"
+FLAG_NO_USAGE: Final = "no_usage_axis"
+USAGE_SCALE_NOTE: Final = (
+    "Nutzungs-Achse log-skaliert: 100 · ln(1 + Index) / ln(101); unterhalb Stufe C sortiert "
+    "faktisch das Modellurteil"
+)
+WEIGHTS_CAVEAT: Final = (
+    "Die Mischung ist eine Betonung, keine unabhängige Evidenz: H ist zu etwa 90 % aus den "
+    "Teilkriterien erklärbar; D und K (je 0,025) wirken praktisch nicht"
+)
+NOISE_NOTE: Final = (
+    f"Unterschiede unter etwa {MIN_MEANINGFUL_DIFF} Punkten sind nicht belastbar "
+    "(Rauschen des Einzelratings)"
+)
 RATED: Final = "bewertet"
 UNKNOWN: Final = "unbekannt"
 NAME: Final = "Kartenverständnis-Gesamtrating"
@@ -80,6 +112,8 @@ class OverallAxis(TypedDict):
     value: float
     weight_effective: float
     contribution: float
+    # the usage axis only: the index before the log scale
+    raw_value: NotRequired[float]
 
 
 class OverallConfidence(TypedDict):
@@ -104,6 +138,11 @@ class OverallCard(TypedDict):
     score: float | None
     rank: int | None
     n_rated: int
+    # rank k of n_group inside the group "land" or "spell" (ties share the best rank)
+    group: str
+    rank_in_group: int | None
+    n_group: int
+    flags: list[str]
     coverage: float
     axes: list[OverallAxis]
     confidence: OverallConfidence | None
@@ -271,6 +310,15 @@ def usage_blocked(answer: Mapping[str, object]) -> str | None:
     return None
 
 
+def usage_axis_value(index: float | None) -> float | None:
+    """The usage axis from the usage index (0 to 100): ``100 * ln(1 + index) / ln(101)``.
+    Monotone, no data fitted; None for a missing or non-finite index (never 0)."""
+    if index is None or isinstance(index, bool) or not math.isfinite(index):
+        return None
+    clamped = min(max(float(index), 0.0), 100.0)
+    return 100.0 * math.log1p(clamped) / math.log(101.0)
+
+
 def _card_axes(usage: float | None, row: UnderstandingRow | None) -> dict[str, float | None]:
     values: dict[str, float | None] = {USAGE: usage}
     for axis in card_understanding.CRITERIA:
@@ -279,7 +327,12 @@ def _card_axes(usage: float | None, row: UnderstandingRow | None) -> dict[str, f
 
 
 def _unrated(
-    n_rated: int, coverage: float, reason: str, version: str = OVERALL_RULES_VERSION
+    n_rated: int,
+    n_group: int,
+    group: str,
+    coverage: float,
+    reason: str,
+    version: str = OVERALL_RULES_VERSION,
 ) -> OverallCard:
     return {
         "status": UNKNOWN,
@@ -287,6 +340,10 @@ def _unrated(
         "score": None,
         "rank": None,
         "n_rated": n_rated,
+        "group": group,
+        "rank_in_group": None,
+        "n_group": n_group,
+        "flags": [],
         "coverage": round(coverage, 4),
         "axes": [],
         "confidence": None,
@@ -303,9 +360,12 @@ def rate_pool(
     dataset: Mapping[str, UnderstandingRow],
     *,
     weights: Mapping[str, float] = OVERALL_WEIGHTS_V1,
+    lands: frozenset[str] = frozenset(),
 ) -> dict[str, OverallCard]:
-    """The overall rating of every card id in ``usage`` (usage index or None per card). A card
-    whose oracle id the data set does not list, or whose coverage is too low, is "unbekannt"."""
+    """The overall rating of every card id in ``usage`` (the usage INDEX, 0 to 100, or None per
+    card; ``usage_axis_value`` scales it). ``lands`` are the card ids of the group "land", all
+    others are "spell". A card whose oracle id the data set does not list, or whose coverage is
+    too low, is "unbekannt"."""
     values: dict[str, dict[str, float | None]] = {}
     parts: dict[str, Decomposition] = {}
     rows: dict[str, UnderstandingRow] = {}
@@ -314,12 +374,25 @@ def rate_pool(
         row = dataset.get(oracle_id) if oracle_id else None
         if row is None:
             continue
-        axes = _card_axes(usage_value, row)
+        axes = _card_axes(usage_axis_value(usage_value), row)
         found = decompose(axes, weights)
         if found is None:
             continue
+        for item in found["axes"]:
+            if item["axis"] == USAGE and usage_value is not None:
+                item["raw_value"] = float(usage_value)
         values[card_id], parts[card_id], rows[card_id] = axes, found, row
-    ranks = competition_ranks({card_id: part["score"] for card_id, part in parts.items()})
+    scores = {card_id: part["score"] for card_id, part in parts.items()}
+    ranks = competition_ranks(scores)
+    group_of = {card_id: GROUP_LAND if card_id in lands else GROUP_SPELL for card_id in usage}
+    in_group: dict[str, int] = {}
+    group_sizes = {GROUP_LAND: 0, GROUP_SPELL: 0}
+    for group in group_sizes:
+        members = {
+            card_id: score for card_id, score in scores.items() if group_of[card_id] == group
+        }
+        group_sizes[group] = len(members)
+        in_group.update(competition_ranks(members))
     spans = rank_spans(values, ranks, weights)
     n_rated = len(parts)
     threshold = UNSHARP_SHARE * n_rated
@@ -333,8 +406,9 @@ def rate_pool(
                 if not oracle_id or oracle_id not in dataset
                 else "zu wenig Achsen (Abdeckung unter dem Mindestwert)"
             )
-            partial = coverage_of({USAGE: usage_value}, weights)
-            result[card_id] = _unrated(n_rated, partial, reason)
+            partial = coverage_of({USAGE: usage_axis_value(usage_value)}, weights)
+            group = group_of[card_id]
+            result[card_id] = _unrated(n_rated, group_sizes[group], group, partial, reason)
             continue
         low, high = spans[card_id]
         row = rows[card_id]
@@ -344,6 +418,10 @@ def rate_pool(
             "score": part["score"],
             "rank": ranks[card_id],
             "n_rated": n_rated,
+            "group": group_of[card_id],
+            "rank_in_group": in_group[card_id],
+            "n_group": group_sizes[group_of[card_id]],
+            "flags": [] if usage_value is not None else [FLAG_NO_USAGE],
             "coverage": part["coverage"],
             "axes": part["axes"],
             "confidence": confidence_of(row),
@@ -386,6 +464,8 @@ def _meta(
     n_usage: int = 0,
     cohort: Mapping[str, object] | None = None,
     unscharf_count: int = 0,
+    group_sizes: Mapping[str, int] | None = None,
+    no_usage_count: int = 0,
 ) -> dict[str, object]:
     rows = dataset or {}
     tiers: dict[str, int] = {}
@@ -400,6 +480,29 @@ def _meta(
         "n_total": n_total,
         "weights": dict(OVERALL_WEIGHTS_V1),
         "weights_note": "Setzung, keine Messung",
+        "weights_caveat": WEIGHTS_CAVEAT,
+        "usage_scale": USAGE_SCALE,
+        "usage_scale_note": USAGE_SCALE_NOTE,
+        "min_meaningful_diff": MIN_MEANINGFUL_DIFF,
+        "noise_note": NOISE_NOTE,
+        "rater_bracket": RATER_BRACKET,
+        "groups": {
+            "n_rated": dict(group_sizes or {GROUP_LAND: 0, GROUP_SPELL: 0}),
+            "note": (
+                "Länder werden gegen eigene Anker bewertet und sind strukturell benachteiligt "
+                "(T ist bei fast allen Ländern 0): der Rang in der Gruppe ist der "
+                "vergleichbare Rang"
+            ),
+        },
+        "flags": {
+            FLAG_NO_USAGE: {
+                "count": no_usage_count,
+                "note": (
+                    "ohne Nutzungs-Achse (Stufe U/N): Gewichte renormalisiert, Rang nicht "
+                    "mit Karten mit Nutzungs-Achse vergleichbar"
+                ),
+            }
+        },
         "min_coverage": MIN_COVERAGE,
         "coverage_note": note,
         "caveat": CAVEAT,
@@ -463,6 +566,20 @@ def with_overall(
             unavailable=f"Kartenverständnis liegt nur für {commander} vor",
         )
         return out
+    settings = answer.get("settings")
+    settings_map = settings if isinstance(settings, dict) else {}
+    if settings_map.get("bracket") != RATER_BRACKET:
+        out["overall_meta"] = _meta(
+            available=False,
+            n_rated=0,
+            n_total=n_total,
+            note=f"0 von {n_total} Karten bewertet: Kartenverständnis gilt für Bracket 3",
+            unavailable=(
+                "Kartenverständnis gilt für Bracket 3 (Einstellung „upgraded“), "
+                f"die Anfrage nutzt {settings_map.get('bracket')!r}"
+            ),
+        )
+        return out
     try:
         rows = card_understanding.load() if dataset is None else dataset
     except card_understanding.UnderstandingDataError as error:
@@ -494,7 +611,10 @@ def with_overall(
         )
         usage[str(card["card_id"])] = float(index) if ok else None  # type: ignore[arg-type]
     oracle = _oracle_ids(store, ids)
-    rated = rate_pool(usage, oracle, rows)
+    lands = frozenset(
+        str(card["card_id"]) for card in cards if isinstance(card, dict) and card.get("is_land")
+    )
+    rated = rate_pool(usage, oracle, rows, lands=lands)
     n_rated = sum(1 for item in rated.values() if item["status"] == RATED)
     matched = len({oid for oid in oracle.values() if oid in rows})
     new_cards: list[object] = []
@@ -505,8 +625,6 @@ def with_overall(
             new_cards.append(merged)
         else:
             new_cards.append(card)
-    settings = answer.get("settings")
-    settings_map = settings if isinstance(settings, dict) else {}
     out["cards"] = new_cards
     out["overall_meta"] = _meta(
         available=True,
@@ -527,6 +645,13 @@ def with_overall(
             "bracket": settings_map.get("bracket"),
             "universe_source": settings_map.get("universe_source"),
         },
+        group_sizes={
+            group: sum(
+                1 for item in rated.values() if item["status"] == RATED and item["group"] == group
+            )
+            for group in (GROUP_LAND, GROUP_SPELL)
+        },
+        no_usage_count=sum(1 for item in rated.values() if FLAG_NO_USAGE in item["flags"]),
         unscharf_count=sum(
             1
             for item in rated.values()

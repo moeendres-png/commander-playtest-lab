@@ -102,3 +102,17 @@ Felder (`cards[].overall`, `overall_meta`), angehängt nach dem Snapshot in `web
   Sieg-Abstand, Großpod), keine Preise, Markierungen ohne Einfluss, Kohorten nie vermischt (die Nutzungs-Achse ist der Index der Anfrage;
   gewichtet dieser Simulation, Rubrik, Playgroup-Beobachtung oder eine Ergebnisschicht, entfällt die Nutzungs-Achse und `overall_meta`
   sagt es). `overall_meta.caveat`: Setzung der Gewichte, Kartenverständnis durch Modell-Rater (große Stufe), Nutzung ist eine Achse.
+- **Regelversion `overall-v2` (nach einem unabhängigen Methodik-Gutachten vom 2026-11-18, nicht eingecheckt):** Gewichte unverändert (Setzung).
+  1. *Nutzungs-Achse log-skaliert:* `100·ln(1+Index)/ln(101)` (Index 0–100; `overall_meta.usage_scale` = "log", der Rohindex bleibt als
+     `raw_value` in der Achsenzeile). Mit dem Rohindex lag der Index bei etwa zwei Dritteln des Pools bei 5 oder darunter und bewegte
+     das Gesamtrating um unter 2 Punkte: unterhalb Stufe C sortierte faktisch das Modellurteil. Beispiele (Index → Achse): 1 → 15, 5 → 39, 18 → 64.
+  2. *Bracket-Prüfung:* `overall` nur bei der Einstellung „upgraded“ (Bracket 3, der Kontext der Bewerter); sonst `overall_meta.available` false
+     mit Grund „Kartenverständnis gilt für Bracket 3“.
+  3. *Gruppenrang:* zusätzlich zu `rank` ein `rank_in_group` (`group` "land" | "spell", `n_group`, Gleichstände teilen den besten Rang);
+     `overall_meta.groups` nennt die Gruppengrößen. Länder werden gegen eigene Anker bewertet und sind strukturell benachteiligt
+     (T ist bei fast allen Ländern 0).
+  4. *Ohne Nutzungs-Achse (Stufe U/N):* weiter renormalisiert, aber `overall.flags` enthält "no_usage_axis"; der Rang wird ausgewiesen, ist
+     aber nicht mit Karten mit Nutzungs-Achse vergleichbar (renormalisierte Karten stehen höher). Nach dem Lauf betrifft das nur wenige Karten (5).
+  5. *Rauschen:* `overall_meta.min_meaningful_diff` = 5: Unterschiede unter etwa 5 Punkten sind nicht belastbar (Einzelrating-Rauschen).
+  6. *Ehrlichkeit der Mischung:* H ist zu etwa 90 % aus den Teilkriterien erklärbar, D und K (je 0,025) wirken praktisch nicht. Die Mischung ist
+     eine Betonung von Synergie und Effizienz, keine unabhängige Evidenz (`overall_meta.weights_caveat`).
