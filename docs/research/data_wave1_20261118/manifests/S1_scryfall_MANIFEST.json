@@ -1,0 +1,402 @@
+{
+ "historical_run_note": "Manifest des Welle-1-Laufs vom 2026-11-18 (Hilfs-Agent-Lauf in einem fluechtigen Arbeitsverzeichnis), nur um Pfade bereinigt. Die Rohdaten und Ableitungen liegen nicht im Repository. Wiederholbare Fassung der Skripte: scripts/data_wave1/fetch_s1_scryfall.py, derive_s1_subsets.py, validate_s1.py (Ablauf in RUNBOOK.md). Die im Manifest genannten Hilfsskripte (collect_scripts, collect_scripts_w1) existieren nur im fluechtigen Arbeitsverzeichnis des Laufs; ihre Logik ist in scripts/data_wave1/ uebernommen.",
+ "package": "S1_scryfall",
+ "package_title": "Scryfall-Bulk-Bündel",
+ "publisher": "Scryfall LLC (api.scryfall.com, data.scryfall.io)",
+ "source_id": "ungeklaert",
+ "terms_url": "https://scryfall.com/docs/api (Nutzungsbedingungen nicht in diesem Lauf geprüft; terms_checked_utc = null)",
+ "terms_checked_utc": null,
+ "license_status": "unverified (Bedingungen ungeprueft; Register-Text 'Scryfall API Terms' ist nicht belegt)",
+ "user_agent": "mtg-deck-tool/1.0 (local research script)",
+ "accept": "*/*",
+ "repo_commit_checked": "dced77b8d3a1fc0a693c33bccf41cdba6f46867f",
+ "repo_status_note": "Repo nicht beschrieben; Commit nur lesend ermittelt",
+ "requests_total": 5,
+ "request_cap": 5,
+ "pause_seconds": 2,
+ "retries": 0,
+ "rate_limit_429": 0,
+ "forbidden_403": 0,
+ "import_performed": false,
+ "written_to_repo": false,
+ "personal_data": "none",
+ "automatic_import": false,
+ "cohort_scope": "Kartenfakten (keine Kohorte)",
+ "price_fields_removed": [
+  "prices",
+  "purchase_uris"
+ ],
+ "price_fields_remaining_by_grep": 0,
+ "files_fetched": [
+  {
+   "label": "bulk-data-index",
+   "url": "https://api.scryfall.com/bulk-data",
+   "http_status": 200,
+   "raw_size_bytes": 3472,
+   "request_start_utc": "2026-11-18T22:14:16Z",
+   "response_complete_utc": "2026-11-18T22:14:17Z",
+   "etag": "W/\"1d05b1320d587454abf4c344a95f2006\"",
+   "last_modified": null,
+   "raw_response_sha256_compressed": "1d05b1320d587454abf4c344a95f20064755a324619e323e3a77c7f9e3979a9b",
+   "note": "Index selbst (Zeitpunkt der Anfrage; kein updated_at im Index)"
+  },
+  {
+   "label": "oracle_cards",
+   "url": "https://data.scryfall.io/oracle-cards/oracle-cards-20261118220155.jsonl.gz",
+   "http_status": 200,
+   "raw_size_bytes": 25526808,
+   "request_start_utc": "2026-11-18T22:14:32Z",
+   "response_complete_utc": "2026-11-18T22:14:32Z",
+   "etag": "\"443a6875d7cce6c8d0eb6a9457f3fbec\"",
+   "last_modified": "Wed, 18 Nov 2026 22:01:58 GMT",
+   "raw_response_sha256_compressed": "630d667cb439469bf4755528893bea44b9791dc8f7eab83abe1b0e1bbef96f5e",
+   "index_type": "oracle_cards",
+   "index_id": "27bf3214-1271-490b-bdfe-c0be6c23d02e",
+   "updated_at": "2026-11-18T22:01:55.902+00:00",
+   "download_uri": "https://data.scryfall.io/oracle-cards/oracle-cards-20261118220155.jsonl.gz",
+   "compressed_size_index": 25526808,
+   "compressed_size_equals_raw_size": true
+  },
+  {
+   "label": "rulings",
+   "url": "https://data.scryfall.io/rulings/rulings-20261118220033.jsonl.gz",
+   "http_status": 200,
+   "raw_size_bytes": 5508481,
+   "request_start_utc": "2026-11-18T22:14:53Z",
+   "response_complete_utc": "2026-11-18T22:14:53Z",
+   "etag": "\"233ac9781cb5015ea7415966f3b96d90\"",
+   "last_modified": "Wed, 18 Nov 2026 22:00:34 GMT",
+   "raw_response_sha256_compressed": "60a567283a5a4946fde376f50a8e3e5595e59361bdc9669439e0f4b96cb4779a",
+   "index_type": "rulings",
+   "index_id": "06f54c0b-ab9c-452d-b35a-8297db5eb940",
+   "updated_at": "2026-11-18T22:00:33.955+00:00",
+   "download_uri": "https://data.scryfall.io/rulings/rulings-20261118220033.jsonl.gz",
+   "compressed_size_index": 5508481,
+   "compressed_size_equals_raw_size": true
+  },
+  {
+   "label": "oracle_tags",
+   "url": "https://data.scryfall.io/oracle-tags/oracle-tags-20261118220038.jsonl.gz",
+   "http_status": 200,
+   "raw_size_bytes": 6125790,
+   "request_start_utc": "2026-11-18T22:15:00Z",
+   "response_complete_utc": "2026-11-18T22:15:00Z",
+   "etag": "\"3bdd88173c1ac7a1ea50abdb76ccec8b\"",
+   "last_modified": "Wed, 18 Nov 2026 22:00:39 GMT",
+   "raw_response_sha256_compressed": "8ece4c3056847ccf3c7566f2a16156180c7e720554da6adbc6b59893919b952a",
+   "index_type": "oracle_tags",
+   "index_id": "bd8df61e-5d0a-47a2-9086-40137a645b98",
+   "updated_at": "2026-11-18T22:00:38.846+00:00",
+   "download_uri": "https://data.scryfall.io/oracle-tags/oracle-tags-20261118220038.jsonl.gz",
+   "compressed_size_index": 6125790,
+   "compressed_size_equals_raw_size": true
+  },
+  {
+   "label": "default_cards",
+   "url": "https://data.scryfall.io/default-cards/default-cards-20261118220622.jsonl.gz",
+   "http_status": 200,
+   "raw_size_bytes": 81265022,
+   "request_start_utc": "2026-11-18T22:15:05Z",
+   "response_complete_utc": "2026-11-18T22:15:07Z",
+   "etag": "\"5948709ce78bba5d57ad07ecbeb52fda\"",
+   "last_modified": "Wed, 18 Nov 2026 22:06:25 GMT",
+   "raw_response_sha256_compressed": "38cb4f0099381e748900952e9f8a8848fd928edd281adc7f1bd69c9a83644007",
+   "index_type": "default_cards",
+   "index_id": "e2ef41e3-5778-4bc2-af3f-78eca4dd9c23",
+   "updated_at": "2026-11-18T22:06:22.607+00:00",
+   "download_uri": "https://data.scryfall.io/default-cards/default-cards-20261118220622.jsonl.gz",
+   "compressed_size_index": 81265022,
+   "compressed_size_equals_raw_size": true
+  }
+ ],
+ "derived_files": [
+  {
+   "path": "derived/collection_oracle_ids.txt",
+   "bytes": 61235,
+   "sha256": "bc0f0faaf0e7beca100ac7ca29fd38f8ca3492a4df9a79049afa336cea7757d4",
+   "kind": "Sammlungs-Oracle-IDs (Eingabe fuer Teilmengen)",
+   "rows_in": 1655,
+   "rows_out": 1655,
+   "personal_data": "none"
+  },
+  {
+   "path": "derived/oracle_cards.jsonl",
+   "bytes": 188650386,
+   "sha256": "952445e969f967cca8516bb1d58dba42e1f7d28cdb9495de959080fb235381e3",
+   "source_label": "oracle_cards",
+   "kind": "voll",
+   "rows_in": 39356,
+   "rows_out": 39356,
+   "data_class": "Kartenfakten",
+   "dropped_fields": [
+    "prices",
+    "purchase_uris"
+   ],
+   "source_id": "ungeklaert",
+   "personal_data": "none"
+  },
+  {
+   "path": "derived/oracle_cards_collection_subset.jsonl",
+   "bytes": 7639195,
+   "sha256": "71655748c28271bdc25c0e4d06782c229fb949c6aa41f2fcb47c48894c7dfaba",
+   "source_label": "oracle_cards",
+   "kind": "teilmenge",
+   "rows_in": 39356,
+   "rows_out": 1655,
+   "data_class": "Kartenfakten",
+   "dropped_fields": [
+    "prices",
+    "purchase_uris"
+   ],
+   "source_id": "ungeklaert",
+   "personal_data": "none",
+   "rule": "oracle_id in den 1.655 Sammlungs-Oracle-IDs"
+  },
+  {
+   "path": "derived/rulings.jsonl",
+   "bytes": 26835337,
+   "sha256": "50f74f2a944a8d660a9819a1b05c2b69439528188734c60ab67b070931e241c1",
+   "source_label": "rulings",
+   "kind": "voll",
+   "rows_in": 80928,
+   "rows_out": 80928,
+   "data_class": "Kartenfakten (offizielle Regelauskuenfte)",
+   "dropped_fields": [],
+   "source_id": "ungeklaert",
+   "personal_data": "none"
+  },
+  {
+   "path": "derived/card_rulings_1655.jsonl",
+   "bytes": 1077659,
+   "sha256": "fd670634304ba92d54ced87b4c75b5d20242544226dae4980e6fbaa03c4b5a2e",
+   "source_label": "rulings",
+   "kind": "teilmenge",
+   "rows_in": 80928,
+   "rows_out": 3264,
+   "data_class": "Kartenfakten (offizielle Regelauskuenfte)",
+   "dropped_fields": [],
+   "source_id": "ungeklaert",
+   "personal_data": "none",
+   "rule": "Zeilen unveraendert, oracle_id in den 1.655 Sammlungs-Oracle-IDs; Dateiname = Importer-Name (import-rulings ersetzt je Dateiname)",
+   "distinct_oracle_id_published_at_comment": 3264,
+   "cards_with_ruling": 952
+  },
+  {
+   "path": "derived/oracle_tags.jsonl",
+   "bytes": 19060006,
+   "sha256": "97f65ae6419e0bdf9f44a4c4502b821ded72d616d00717deb11abef3499d722f",
+   "source_label": "oracle_tags",
+   "kind": "voll",
+   "rows_in": 4606,
+   "rows_out": 4606,
+   "data_class": "Community-Einschaetzung (Tagger, nicht autoritativ)",
+   "dropped_fields": [],
+   "source_id": "ungeklaert",
+   "personal_data": "none"
+  },
+  {
+   "path": "derived/collection_subset_oracle_tags.jsonl",
+   "bytes": 2442146,
+   "sha256": "59ba8db5beb2494ce65da5cfa038469854371c084002172903d6e62970ab86a4",
+   "source_label": "oracle_tags",
+   "kind": "teilmenge",
+   "rows_in": 4606,
+   "rows_out": 4606,
+   "data_class": "Community-Einschaetzung (Tagger, nicht autoritativ)",
+   "dropped_fields": [],
+   "source_id": "ungeklaert",
+   "personal_data": "none",
+   "rule": "alle 4.606 Tag-Knoten (Hierarchie parent_ids/child_ids bleibt vollstaendig), taggings nur fuer die 1.655 Oracle-IDs",
+   "taggings_in": 241088,
+   "taggings_out": 9692,
+   "nodes_with_collection_tagging": 1377,
+   "collection_cards_tagged": 1629
+  },
+  {
+   "path": "derived/default_cards.jsonl",
+   "bytes": 587642785,
+   "sha256": "132d02da1e777c83639821d3c10edd38826a14011d1d4176071b2d44a0012e6e",
+   "source_label": "default_cards",
+   "kind": "voll",
+   "rows_in": 120210,
+   "rows_out": 120210,
+   "data_class": "Kartenfakten",
+   "dropped_fields": [
+    "prices",
+    "purchase_uris"
+   ],
+   "source_id": "ungeklaert",
+   "personal_data": "none"
+  },
+  {
+   "path": "derived/collection_subset_default_cards.jsonl",
+   "bytes": 73572215,
+   "sha256": "50f4337a92aa352a5cf03077b8e2ed2083cb3ed1e7c683eb9f3de2a4c65446b6",
+   "source_label": "default_cards",
+   "kind": "teilmenge",
+   "rows_in": 120210,
+   "rows_out": 16614,
+   "data_class": "Kartenfakten",
+   "dropped_fields": [
+    "prices",
+    "purchase_uris"
+   ],
+   "source_id": "ungeklaert",
+   "personal_data": "none",
+   "rule": "alle Druckungen, deren oracle_id (oder card_faces[].oracle_id) in den 1.655 Sammlungs-Oracle-IDs liegt",
+   "rows_matched_only_via_card_faces": 17,
+   "distinct_collection_oracle_ids_present": 1655
+  },
+  {
+   "path": "derived/set_code_mapping.json",
+   "bytes": 1544,
+   "sha256": "5728f270d9dc2f4af0d4a7631b296b61a07a9d125ab13e15d657c447c6102b72",
+   "source_label": "default_cards",
+   "kind": "zuordnungstabelle",
+   "rows_in": 4,
+   "rows_out": 4,
+   "data_class": "Kartenfakten",
+   "dropped_fields": [
+    "prices",
+    "purchase_uris"
+   ],
+   "source_id": "ungeklaert",
+   "personal_data": "none",
+   "rule": "4 Fremd-Setcodes der Sammlungsquelle -> Scryfall-Setcodes (xcmr/456->cmr/456, xdmc/68->dmc/68, xmh2/381->mh2/381, sch/189->prna/189); nur Dokumentation"
+  },
+  {
+   "path": "derived/default_cards_counts.json",
+   "bytes": 619,
+   "sha256": "b2efadc310d025f0d53ebe40ab4e2de47bb6309ae57058b76d82d7187731bbb1"
+  },
+  {
+   "path": "derived/oracle_cards_counts.json",
+   "bytes": 902,
+   "sha256": "e38ea3b3dd855e2400f45507e48bbfc362e0aba18a30960bc417c757af746ed6"
+  },
+  {
+   "path": "derived/oracle_tags_counts.json",
+   "bytes": 596,
+   "sha256": "fb96f035e79091bdaf7bac15deac9fb3b999f8d2caa01321753ed4cc01531d3c"
+  },
+  {
+   "path": "derived/rulings_counts.json",
+   "bytes": 582,
+   "sha256": "725b9ba8a1e2df1b4c5cb5aa7a8f2a5f1769c3221d051fb57e8447f6db3b9ea7"
+  },
+  {
+   "path": "derived/validation.json",
+   "bytes": 1126,
+   "sha256": "e1b1c31c1f3050efb628014bab5af687cb641a887dff7c86795a3cb5d64be0df",
+   "source_label": "default_cards",
+   "kind": "pruefbericht",
+   "rows_in": null,
+   "rows_out": null,
+   "data_class": "Kartenfakten",
+   "dropped_fields": [
+    "prices",
+    "purchase_uris"
+   ],
+   "source_id": "ungeklaert",
+   "personal_data": "none",
+   "rule": "Fassung 2 (Abgleich ohne Sprache), s1_validate.py (collect_scripts_w1)"
+  },
+  {
+   "path": "fetch_log.jsonl",
+   "bytes": 2257,
+   "sha256": "ebf16a3f7a77a547fd0fe6149c8480326921e80eb7d03be3619547b4dadda9b2"
+  }
+ ],
+ "validation": "derived/validation.json",
+ "sources_index": "raw/index/bulk-data.json",
+ "raw_gz_retained": false,
+ "bulk_index_sha256": "1d05b1320d587454abf4c344a95f20064755a324619e323e3a77c7f9e3979a9b",
+ "source_id_note": "Kein Register-Eintrag fuer dieses Buendel bestaetigt. Kandidaten in data/provenance/source_inventory.json (nur gelesen): scryfall:bulk-oracle (oracle_cards, rulings, default_cards; Register-Status VERIFIED, laut data_plan.md Problem 2 Register teils ueberholt) und scryfall:tagger (oracle_tags; Register-Status REVIEW). Zuordnung durch Owner/Lead; hier nicht erfunden.",
+ "source_id_register_candidates": {
+  "oracle_cards": "scryfall:bulk-oracle",
+  "rulings": "scryfall:bulk-oracle",
+  "default_cards": "scryfall:bulk-oracle",
+  "oracle_tags": "scryfall:tagger"
+ },
+ "terms_status": "nicht geprueft: Auflagen-Lauf ohne Netzwerkzugriff (offline); eine Pruefung der Nutzungsbedingungen braucht einen Abruf von https://scryfall.com/docs/api (nicht Teil der erlaubten Anfragen). Offen bis Owner/Lead pruefen oder freigeben.",
+ "superseded": [
+  {
+   "path": "derived/validation.json",
+   "sha256": "123f7c2a2b66b194f13d016996ef0598e86fe59d4197202b88f662b7eb077529",
+   "bytes": 836,
+   "status": "superseded",
+   "kept_copy": "superseded/validation.json",
+   "reason": "Abgleich Set+Nummer+Sprache nicht reproduzierbar mit 1.646/1.650; Fassung 2 ohne Sprache, mit Zuordnung der 4 Fehlpaare"
+  },
+  {
+   "path": "MANIFEST.json",
+   "sha256": "faf3678206e40500364a6ef42e0e1ae25e65a32dbbab66f19437b2b63a2ab879",
+   "bytes": 5557,
+   "status": "superseded",
+   "kept_copy": "superseded/MANIFEST.json",
+   "reason": "Ergaenzung der Welle-1-Auflagen"
+  }
+ ],
+ "validation_summary": {
+  "oracle_cards_rows": 39356,
+  "collection_ids_present": "1655/1655",
+  "rulings_total": 80928,
+  "collection_cards_with_ruling": 952,
+  "collection_rulings_total": 3264,
+  "oracle_tags": 4606,
+  "collection_cards_tagged": "1629/1655",
+  "default_cards_rows": 120210,
+  "set_number_pairs_exactly_one_without_lang": "1646/1650",
+  "pairs_zero": [
+   [
+    "sch",
+    "189"
+   ],
+   [
+    "xcmr",
+    "456"
+   ],
+   [
+    "xdmc",
+    "68"
+   ],
+   [
+    "xmh2",
+    "381"
+   ]
+  ],
+  "mapping_resolving_exactly_one": "4/4",
+  "info_exactly_one_with_lang": "417/1650 (Fassung 1 des Skripts; 148 deutsche Drucke fehlen im Default-Bulk, 1.087 Drucke lang NULL)"
+ },
+ "w1_revision": {
+  "utc": "2026-11-18T22:29:44Z",
+  "network_access": "none",
+  "requests_added": 0,
+  "scripts": "collect_scripts_w1/s1_subsets.py, s1_validate.py, s1_manifest_w1.py (alte Fassungen: collect_scripts/v1_superseded)",
+  "note": "Auflagen der Abnahme Welle 1 offline erledigt; fetch_log.jsonl und Rohdaten unveraendert"
+ },
+ "usage_rules": [
+  "rulings: nur die Teilmenge card_rulings_1655.jsonl importieren (der Importer filtert nicht auf die Sammlung)",
+  "oracle_tags: Audit/Import mit der vollen oracle_tags.jsonl; die Teilmenge ist nur eine Leseform",
+  "Preise sind entfernt (prices, purchase_uris); kein Wiederherstellen"
+ ],
+ "dropped_fields": {
+  "oracle_cards": [
+   "prices",
+   "purchase_uris"
+  ],
+  "default_cards": [
+   "prices",
+   "purchase_uris"
+  ],
+  "rulings": [],
+  "oracle_tags": []
+ },
+ "data_class": {
+  "oracle_cards": "Kartenfakten",
+  "default_cards": "Kartenfakten",
+  "rulings": "Kartenfakten (offizielle Regelauskuenfte)",
+  "oracle_tags": "Community-Einschaetzung (Tagger, nicht autoritativ)"
+ },
+ "script_dir_historical": "collect_scripts_w1 (s1_subsets.py, s1_validate.py, s1_manifest_w1.py); Abruf: collect_scripts (s1_get.sh, s1_process.py); alte Pruefskripte: collect_scripts/v1_superseded"
+}
