@@ -113,3 +113,17 @@ def test_release_status_still_refuses_readiness_under_no_provider_ready(tmp_path
     completed = _run_release_status(tmp_path, mutate)
     assert completed.returncode != 0
     assert "while NO_PROVIDER_READY" in completed.stderr
+
+
+def test_release_workflow_packages_pinned_engine_bridge_jar() -> None:
+    workflow = _release_workflow()
+    assert '- "engine-bridge/**"' in workflow
+    assert '- "config/rules_engines.json"' in workflow
+    assert "uses: ./.github/actions/pinned-xmage-engine" in workflow
+    assert "mvn -B -ntp -f engine-bridge/pom.xml package -DskipTests" in workflow
+    assert "release/xmage-engine-bridge.jar" in workflow
+    assert "release/ENGINE_PIN.txt" in workflow
+    assert "xmage-engine-bridge.jar.sha256" in workflow
+    assert 'lines[0].get("payload", {}).get("engine_commit")' in workflow
+    # Bridge artifacts must be created before PLAYTEST_LAB_SHA256SUMS.txt is generated.
+    assert workflow.index("release/ENGINE_PIN.txt") < workflow.index("PLAYTEST_LAB_SHA256SUMS.txt")

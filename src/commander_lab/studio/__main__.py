@@ -428,6 +428,11 @@ def _parser() -> argparse.ArgumentParser:
         "--allow-mixed", action="store_true", help="pool mixed engine commits or pilots"
     )
     commands.add_parser("status")
+    doctor_cmd = commands.add_parser(
+        "doctor",
+        help="check local prerequisites (Python, packages, Java 17+, bridge JAR, pin, card catalog, data dir)",
+    )
+    doctor_cmd.add_argument("--json", action="store_true", help="print diagnostics as JSON")
     commands.add_parser(
         "data-report", help="counts-only report on what the store has, lacks and does not know"
     )
@@ -923,6 +928,15 @@ def main(argv: list[str] | None = None) -> int:
     args = _parser().parse_args(argv)
     if args.command == "serve":
         return _serve(args.data, args.port, args.open)
+    if args.command == "doctor":
+        from .doctor import format_doctor_report, run_doctor
+
+        doctor_report = run_doctor(args.data)
+        if args.json:
+            print(json.dumps(doctor_report, indent=2, ensure_ascii=False))
+        else:
+            print(format_doctor_report(doctor_report))
+        return 0 if bool(doctor_report["ok"]) else 1
     if args.command == "import-all":
         from .import_all import run_command
 
