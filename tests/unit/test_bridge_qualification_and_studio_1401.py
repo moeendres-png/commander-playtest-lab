@@ -336,7 +336,7 @@ def test_schema_17_to_18_migration_and_fail_closed_simulation_readback(tmp_path:
         ver = store.connection.execute(
             "SELECT value FROM meta WHERE key = 'schema_version'"
         ).fetchone()[0]
-        assert ver == str(SCHEMA_VERSION) == "19"
+        assert ver == str(SCHEMA_VERSION) == "20"
 
         # Register commander + simulated file importing fail-closed
         store.connection.execute(

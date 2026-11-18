@@ -495,7 +495,7 @@ def test_schema_16_upgrades_an_existing_store_idempotently(
         version = store.connection.execute(
             "SELECT value FROM meta WHERE key = 'schema_version'"
         ).fetchone()
-        assert version["value"] == str(SCHEMA_VERSION) == "19"
+        assert version["value"] == str(SCHEMA_VERSION) == "20"
         store.close()
 
 
@@ -510,7 +510,7 @@ def test_fresh_store_has_the_printing_schema() -> None:
     version = store.connection.execute(
         "SELECT value FROM meta WHERE key = 'schema_version'"
     ).fetchone()
-    assert version["value"] == "19"
+    assert version["value"] == "20"
 
 
 def test_import_printings_command_runs_without_candidates(
