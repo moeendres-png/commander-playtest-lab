@@ -396,7 +396,7 @@ def test_schema_16_to_17_migration_converts_tables_to_without_rowid(tmp_path: Pa
         ver = store.connection.execute(
             "SELECT value FROM meta WHERE key = 'schema_version'"
         ).fetchone()[0]
-        assert ver == "18"
+        assert ver == "19"
         ddl = store.connection.execute(
             "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'corpus_deck_card'"
         ).fetchone()[0]

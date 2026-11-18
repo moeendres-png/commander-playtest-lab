@@ -1623,11 +1623,12 @@ function renderDeck() {
     ["compare", "Vergleich"],
     ["similar", "Ähnliche Decks"],
     ["diff", "Varianten-Diff"],
+    ["modules", "Module"],
     ["cut", "Kürzen"],
     ["sim", "Simulation"],
   ];
-  // Two groups keep 13 tabs readable: looking at the deck (Analyse) and working on it (Arbeiten).
-  const workTabs = new Set(["compare", "similar", "diff", "cut", "sim"]);
+  // Two groups keep tabs readable: looking at the deck (Analyse) and working on it (Arbeiten).
+  const workTabs = new Set(["compare", "similar", "diff", "modules", "cut", "sim"]);
   const tabButton = ([key, label]) => h("button", { type: "button", class: "chip" + (state.tab === key ? " on" : ""), "aria-pressed": state.tab === key, onclick: () => { state.tab = key; renderDeck(); } }, label);
   const tabGroup = (name, items) => h("div", { class: "tab-group", role: "group", "aria-label": name }, h("span", { class: "tab-group-label" }, name), ...items.map(tabButton));
   $("deck-tabs").replaceChildren(
@@ -1654,9 +1655,182 @@ function renderDeck() {
     compare: renderCompare,
     similar: renderSimilarDecks,
     diff: renderDiff,
+    modules: renderModules,
     cut: renderCut,
     sim: renderSimulations,
   })[state.tab](body);
+}
+function renderModules(body) {
+  if (!state.deckId) {
+    body.append(h("p", { class: "muted" }, "Wähle oder erstelle zuerst ein Deck, um Deck-Module zu verwalten."));
+    return;
+  }
+  const tok = state.renderToken;
+  const wrap = h("div", { class: "section" });
+  body.append(wrap);
+  const reload = async () => {
+    wrap.replaceChildren(h("h3", {}, "Deck-Module (Kern + Strategie-Pakete)"), StudioUI.loading("Module laden …"));
+    try {
+      const res = await api(`/api/decks/${encodeURIComponent(state.deckId)}/modules`);
+      if (tok !== state.renderToken || state.tab !== "modules") return;
+      const mods = res.modules || [];
+      if (!state.selectedModuleIds) {
+        const firstCore = mods.find((m) => m.role === "core");
+        const firstPkg = mods.find((m) => m.role === "package");
+        state.selectedModuleIds = new Set([firstCore && firstCore.module_id, firstPkg && firstPkg.module_id].filter(Boolean));
+      } else {
+        const validIds = new Set(mods.map((m) => m.module_id));
+        state.selectedModuleIds = new Set([...state.selectedModuleIds].filter((id) => validIds.has(id)));
+      }
+      const nameInput = h("input", { type: "text", placeholder: "Modulname (z. B. Kern oder Paket A)", "aria-label": "Modulname" });
+      const roleSelect = h("select", { "aria-label": "Modul-Rolle" },
+        h("option", { value: "core" }, "Kern-Modul (core)"),
+        h("option", { value: "package" }, "Strategie-Paket (package)"));
+      const saveBtn = h("button", { type: "button", class: "chip", onclick: async () => {
+        const name = nameInput.value.trim();
+        if (!name) { toast("Bitte einen Modulnamen eingeben."); return; }
+        try {
+          const saved = await api(`/api/decks/${encodeURIComponent(state.deckId)}/modules`, "POST", {
+            name,
+            role: roleSelect.value,
+            cards: entries(),
+          });
+          if (saved.module && saved.module.module_id) state.selectedModuleIds.add(saved.module.module_id);
+          toast(`Modul „${name}“ gespeichert (${StudioUI.num(deckTotal(), 0)} Karten).`);
+          reload();
+        } catch (err) { fail(err); }
+      } }, "Arbeitsliste als Modul speichern");
+      const seedBtn = h("button", { type: "button", class: "chip", onclick: async () => {
+        try {
+          const seeded = await api(`/api/decks/${encodeURIComponent(state.deckId)}/modules/seed`, "POST", {
+            cards: entries(),
+            core_name: "Kern",
+            package_name: "Paket A",
+          });
+          state.selectedModuleIds = new Set((seeded.modules || []).map((m) => m.module_id));
+          toast("Arbeitsliste in „Kern“ (Commander + Länder) und „Paket A“ (Nicht-Länder) aufgeteilt.");
+          reload();
+        } catch (err) { fail(err); }
+      } }, "Arbeitsliste in Kern + Paket A aufteilen");
+
+      const compileOut = h("div", { class: "section" });
+      const runCompile = async (saveRev) => {
+        const chosen = [...state.selectedModuleIds];
+        if (!chosen.length) { toast("Bitte mindestens ein Kern-Modul und ein Paket auswählen."); return; }
+        compileOut.replaceChildren(StudioUI.loading("Kompiliere Module …"));
+        try {
+          const comp = await api(`/api/decks/${encodeURIComponent(state.deckId)}/modules/compile`, "POST", {
+            module_ids: chosen,
+            owned_only: $("f-free") ? $("f-free").checked : true,
+            save: Boolean(saveRev),
+          });
+          const statusCls = comp.valid ? "ok" : "bad";
+          const statusTxt = comp.valid
+            ? `Gültiges 100-Karten-Deck (${StudioUI.num(comp.total_cards, 0)} / ${StudioUI.num(comp.target_cards, 0)} Karten)`
+            : `Prüfung fehlgeschlagen (${StudioUI.num(comp.total_cards, 0)} / ${StudioUI.num(comp.target_cards, 0)} Karten)`;
+          const issueNodes = (comp.issues || []).map((iss) =>
+            h("li", { class: iss.severity === "error" ? "bad" : "warn" }, `${iss.message}`));
+          const exportArea = h("textarea", { rows: 6, readonly: true, "aria-label": "Kompilierte Deckliste" }, comp.export ? comp.export.moxfield : "");
+          compileOut.replaceChildren(
+            h("h4", {}, "Kompilierungs-Ergebnis"),
+            h("p", {},
+              h("span", { class: "pill " + statusCls }, statusTxt),
+              " ",
+              h("span", { class: "muted" }, `Ziel-Variante: ${comp.branch}`),
+              comp.saved && comp.revision_id ? h("span", { class: "pill ok ml-1" }, `Gespeichert: ${comp.revision_id}`) : ""),
+            issueNodes.length ? h("ul", {}, ...issueNodes) : h("p", { class: "muted" }, "Keine Konstruktions- oder Kollisionsfehler gefunden."),
+            h("label", {}, "Text-Export (Moxfield / Studio-Import):", exportArea)
+          );
+          if (comp.saved) {
+            toast(`Kompiliertes Deck als Variante „${comp.branch}“ gespeichert.`);
+            await loadDecks();
+          }
+        } catch (err) {
+          compileOut.replaceChildren();
+          fail(err);
+        }
+      };
+
+      const modTable = mods.length
+        ? h("div", { class: "table-wrap" }, h("table", {},
+            h("thead", {}, h("tr", {},
+              h("th", {}, "Wahl"),
+              h("th", {}, "Modul"),
+              h("th", {}, "Rolle"),
+              h("th", { class: "num" }, "Karten"),
+              h("th", {}, "Aktionen"))),
+            h("tbody", {}, ...mods.map((m) => h("tr", {},
+              h("td", {}, h("input", {
+                type: "checkbox",
+                checked: state.selectedModuleIds.has(m.module_id),
+                "aria-label": `Modul ${m.name} wählen`,
+                onchange: (ev) => {
+                  if (ev.target.checked) state.selectedModuleIds.add(m.module_id);
+                  else state.selectedModuleIds.delete(m.module_id);
+                },
+              })),
+              h("td", { class: "name" }, m.name),
+              h("td", {}, h("span", { class: "pill " + (m.role === "core" ? "ok" : "") }, m.role === "core" ? "Kern" : "Paket")),
+              h("td", { class: "num" }, `${StudioUI.num(m.total_cards, 0)} (${StudioUI.num(m.commander_cards, 0)} Cmd)`),
+              h("td", { class: "actions" },
+                h("button", { type: "button", class: "chip", onclick: () => {
+                  state.list.clear();
+                  state.commanderIds = [];
+                  for (const c of m.cards || []) {
+                    if (c.is_commander) state.commanderIds.push(c.card_id);
+                    else state.list.set(c.card_id, c.qty);
+                  }
+                  if (!state.commanderIds.length && state.decks) {
+                    const curDeck = state.decks.find((d) => d.deck_id === state.deckId);
+                    if (curDeck && curDeck.commanders) {
+                      for (const cmdName of curDeck.commanders) {
+                        const found = state.pool.find((p) => p.oracle_name === cmdName);
+                        if (found) state.commanderIds.push(found.card_id);
+                      }
+                    }
+                  }
+                  markDirty();
+                  renderAll();
+                  toast(`Modul „${m.name}“ in die Arbeitsliste geladen.`);
+                } }, "In Liste laden"),
+                h("button", { type: "button", class: "chip", onclick: async () => {
+                  try {
+                    await api(`/api/decks/${encodeURIComponent(state.deckId)}/modules`, "POST", {
+                      module_id: m.module_id,
+                      name: m.name,
+                      role: m.role,
+                      sort_order: m.sort_order,
+                      cards: entries(),
+                    });
+                    toast(`Modul „${m.name}“ aktualisiert.`);
+                    reload();
+                  } catch (err) { fail(err); }
+                } }, "Überschreiben"),
+                h("button", { type: "button", class: "chip", onclick: async () => {
+                  try {
+                    await api(`/api/decks/${encodeURIComponent(state.deckId)}/modules/${encodeURIComponent(m.module_id)}`, "DELETE");
+                    state.selectedModuleIds.delete(m.module_id);
+                    toast(`Modul „${m.name}“ gelöscht.`);
+                    reload();
+                  } catch (err) { fail(err); }
+                } }, "Löschen")))))))
+        : h("p", { class: "muted" }, "Noch keine Module für dieses Deck hinterlegt. Teile die aktuelle Arbeitsliste auf oder speichere sie als Modul.");
+
+      wrap.replaceChildren(
+        h("h3", {}, "Deck-Module (Kern + Strategie-Pakete)"),
+        h("p", { class: "muted" }, "Ein Deck besteht aus genau 1 geteilten Kern-Modul (z. B. Commander + Länder + Basis) und mindestens 1 austauschbaren Strategie-Paket. Mehrfach vorkommende Nicht-Standardländer werden als Kollision gemeldet und nie still zusammengeführt."),
+        h("div", { class: "actions" }, nameInput, roleSelect, saveBtn, seedBtn),
+        modTable,
+        mods.length ? h("div", { class: "actions" },
+          h("button", { type: "button", class: "chip", onclick: () => runCompile(false) }, "Gewählte Module prüfen & kompilieren"),
+          h("button", { type: "button", class: "primary", onclick: () => runCompile(true) }, "Auf 100 Karten kompilieren & als Variante speichern")) : "",
+        compileOut
+      );
+    } catch (err) {
+      wrap.replaceChildren(h("p", { class: "bad" }, StudioUI.germanError(err)));
+    }
+  };
+  reload();
 }
 function renderOverview(body) {
   if (typeof renderDeckOverview !== "function") {

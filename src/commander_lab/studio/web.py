@@ -40,6 +40,7 @@ from . import (
     deck_diff,
     deck_evidence,
     deck_facts,
+    deck_modules,
     deck_series,
     engine_check,
     games,
@@ -202,6 +203,29 @@ class RevisionBody(BaseModel):
 class DeckBody(BaseModel):
     name: str = Field(min_length=1, max_length=80)
     commander_card_ids: list[str] = Field(min_length=1, max_length=2)
+
+
+class ModuleSaveBody(BaseModel):
+    module_id: str | None = Field(default=None, max_length=200)
+    name: str = Field(min_length=1, max_length=80)
+    role: Literal["core", "package"] = "package"
+    sort_order: int = Field(default=0, ge=-1000, le=1000)
+    cards: list[CardEntry] = Field(default_factory=list, max_length=300)
+
+
+class ModuleSeedBody(BaseModel):
+    cards: list[CardEntry] = Field(default_factory=list, max_length=300)
+    core_card_ids: list[str] | None = None
+    core_name: str = Field(default="Kern", min_length=1, max_length=80)
+    package_name: str = Field(default="Paket A", min_length=1, max_length=80)
+
+
+class ModuleCompileBody(BaseModel):
+    module_ids: list[str] = Field(default_factory=list, max_length=50)
+    owned_only: bool = True
+    save: bool = False
+    branch: str | None = Field(default=None, max_length=60)
+    note: str = Field(default="", max_length=500)
 
 
 class MarkBody(BaseModel):
@@ -1544,6 +1568,92 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
             )
             builder.drop_draft(store, deck_id, body.branch)
             return {"revision_id": revision_id}
+        except ValueError as error:
+            raise HTTPException(422, str(error)) from error
+        finally:
+            store.close()
+
+    @app.get("/api/decks/{deck_id}/modules")
+    def get_deck_modules(deck_id: str) -> dict[str, object]:
+        store = open_store()
+        try:
+            return {
+                "schema": deck_modules.DECK_MODULES_SCHEMA,
+                "deck_id": deck_id,
+                "modules": deck_modules.list_modules(store, deck_id),
+            }
+        except KeyError as error:
+            raise HTTPException(404, "unknown deck") from error
+        finally:
+            store.close()
+
+    @app.post("/api/decks/{deck_id}/modules")
+    def save_deck_module(deck_id: str, body: ModuleSaveBody) -> dict[str, object]:
+        store = open_store()
+        try:
+            saved = deck_modules.save_module(
+                store,
+                deck_id=deck_id,
+                name=body.name,
+                role=body.role,
+                cards=_cards(body.cards),
+                module_id=body.module_id,
+                sort_order=body.sort_order,
+            )
+            return {"module": saved}
+        except KeyError as error:
+            raise HTTPException(404, "unknown deck or module") from error
+        except ValueError as error:
+            raise HTTPException(422, str(error)) from error
+        finally:
+            store.close()
+
+    @app.delete("/api/decks/{deck_id}/modules/{module_id}")
+    def remove_deck_module(deck_id: str, module_id: str) -> dict[str, object]:
+        store = open_store()
+        try:
+            deck_modules.delete_module(store, deck_id, module_id)
+            return {"deleted": True, "module_id": module_id}
+        except KeyError as error:
+            raise HTTPException(404, "unknown deck or module") from error
+        finally:
+            store.close()
+
+    @app.post("/api/decks/{deck_id}/modules/seed")
+    def seed_deck_modules(deck_id: str, body: ModuleSeedBody) -> dict[str, object]:
+        store = open_store()
+        try:
+            created = deck_modules.seed_modules_from_cards(
+                store,
+                deck_id=deck_id,
+                cards=_cards(body.cards),
+                core_card_ids=body.core_card_ids,
+                core_name=body.core_name,
+                package_name=body.package_name,
+            )
+            return {"modules": created}
+        except KeyError as error:
+            raise HTTPException(404, "unknown deck") from error
+        except ValueError as error:
+            raise HTTPException(422, str(error)) from error
+        finally:
+            store.close()
+
+    @app.post("/api/decks/{deck_id}/modules/compile")
+    def compile_deck_modules(deck_id: str, body: ModuleCompileBody) -> dict[str, object]:
+        store = open_store()
+        try:
+            return deck_modules.compile_modules(
+                store,
+                deck_id,
+                body.module_ids,
+                owned_only=body.owned_only,
+                save=body.save,
+                branch=body.branch,
+                note=body.note,
+            )
+        except KeyError as error:
+            raise HTTPException(404, "unknown deck or module") from error
         except ValueError as error:
             raise HTTPException(422, str(error)) from error
         finally:
