@@ -146,6 +146,7 @@ const state = {
   strength: { meta: null, settings: null, profiles: [], counted: [], result: null, map: null, ticket: 0, tiers: new Set(), selectedProfile: "", good: null, note: "", draft: { fields: {}, name: "" }, status: "loading" },
   deckCards: new Map(), deckRoles: {}, pool: new Map(), ticket: 0, need: "", sortKey: "strength", sortDir: -1, shown: 150,
   layerCols: new Set(), podFilter: "", roleAudit: null, conversion: null, conversionFilter: "",
+  cohortShapes: [], roleGapOnly: false,
   preset: "detail", funcMode: false, lastFocus: null, lastFocusCard: "",
 };
 
@@ -285,6 +286,38 @@ function renderLayerControls() {
 
 // ---------- filters and sorting ----------
 function cardRoles(card) { return layer(card, "fact").roles.map((claim) => claim.role); }
+function activeDeckRoleCounts() {
+  if (!state.pool.size) return state.deckRoles || {};
+  const counts = {};
+  for (const [cardId, qty] of state.deckCards.entries()) {
+    if (!qty || qty <= 0) continue;
+    const card = state.pool.get(cardId);
+    if (!card) continue;
+    for (const role of new Set(cardRoles(card))) {
+      counts[role] = (counts[role] || 0) + 1;
+    }
+  }
+  return counts;
+}
+function openRoleGaps() {
+  const shapes = Array.isArray(state.cohortShapes) ? state.cohortShapes : [];
+  const shape = shapes.find((s) => s.cohort === "all" && s.decks_counted > 0 && s.roles)
+    || shapes.find((s) => s.decks_counted > 0 && s.roles);
+  if (!shape || !shape.roles || !state.deckCards.size) return { decksCounted: 0, gaps: [] };
+  const counts = activeDeckRoleCounts();
+  const gaps = [];
+  for (const [role, span] of Object.entries(shape.roles)) {
+    const p25 = Number(span && span.p25 !== undefined ? span.p25 : 0);
+    const median = Number(span && span.median !== undefined ? span.median : 0);
+    const p75 = Number(span && span.p75 !== undefined ? span.p75 : 0);
+    const deckCount = Number(counts[role] || 0);
+    if (p25 > 0 && deckCount < p25) {
+      gaps.push({ role, deckCount, p25, median, p75 });
+    }
+  }
+  gaps.sort((a, b) => (b.p25 - b.deckCount) - (a.p25 - a.deckCount) || roleName(a.role).localeCompare(roleName(b.role), "de"));
+  return { decksCounted: shape.decks_counted, gaps };
+}
 function baseCards() {
   return state.view === "deck" ? state.data.cards.filter((card) => state.deckCards && state.deckCards.has(card.card_id)) : state.data.cards;
 }
@@ -297,6 +330,7 @@ function visibleCards() {
   const landKind = $("land-filter") ? $("land-filter").value : "";
   const spreadLevel = $("spread-filter") ? $("spread-filter").value : "";
   const free = $("f-free").checked, fav = $("f-fav").checked, showExcluded = $("f-excl").checked;
+  const gapRoles = state.roleGapOnly ? new Set(openRoleGaps().gaps.map((g) => g.role)) : null;
   let rows = state.data.cards.filter((card) => {
     const mark = state.marks.get(card.card_id) || {};
     if (state.view === "deck" && !(state.deckCards && state.deckCards.has(card.card_id))) return false;
@@ -304,6 +338,7 @@ function visibleCards() {
     if (landKind === "lands" && card.group !== "Land") return false;
     if (landKind === "spells" && card.group === "Land") return false;
     if (role && !cardRoles(card).includes(role)) return false;
+    if (gapRoles && (state.deckCards.has(card.card_id) || !cardRoles(card).some((r) => gapRoles.has(r)))) return false;
     if (state.podFilter && state.view !== "global") { const cls = podClass(card); if (state.podFilter === "NONE" ? cls !== null : cls !== state.podFilter) return false; }
     if (state.strength.tiers.size && state.strength.map) { const item = state.strength.map.get(card.card_id); if (!item || !state.strength.tiers.has(item.tier)) return false; }
     if (spreadLevel && state.universe.spread) { const item = state.universe.spread.get(card.card_id); if (!item || item.level !== spreadLevel) return false; }
@@ -337,6 +372,7 @@ function activeFilterNames() {
   if (type) out.push(`Typ ${typeLabel(type)}`);
   if (landKind) out.push(landKind === "lands" ? "nur Länder" : "nur Zauber");
   if (role) out.push(`Rolle ${roleName(role)}`);
+  if (state.roleGapOnly) out.push("Schließt offenen Deck-Bedarf");
   if (state.podFilter && state.view !== "global") out.push("Großpod-Wirkung");
   if (state.strength.tiers.size) out.push(`Stufe ${[...state.strength.tiers].join(", ")}`);
   if (spreadLevel) out.push(`Verbreitung ${spreadLevel}`);
@@ -697,6 +733,13 @@ function layerStatusTable(status) {
     h("thead", {}, h("tr", {}, h("th", { scope: "col" }, "Quelle"), keys.map((key) => h("th", { scope: "col", class: "num", title: key }, STATUS_COLUMNS[key] || key)), h("th", { scope: "col", class: "num" }, "Summe"))),
     h("tbody", {}, names.map((name) => h("tr", {}, h("th", { scope: "row" }, LAYER_NAMES[name]), keys.map((key) => h("td", { class: "num" }, nf((status[name] || {})[key] || 0))), h("td", { class: "num" }, nf(sum(status[name]))))))));
 }
+function roleGapLine() {
+  const { decksCounted, gaps } = openRoleGaps();
+  if (!gaps.length) return null;
+  const shown = gaps.slice(0, 6).map((g) => `${roleName(g.role)} (Deck ${nf(g.deckCount)} vs. Korpus p25–p75: ${StudioUI.numFlex(g.p25, 1)}–${StudioUI.numFlex(g.p75, 1)})`);
+  const more = gaps.length > 6 ? ` · +${nf(gaps.length - 6)} weitere` : "";
+  return h("p", { id: "role-gap-line", class: "rule" }, `Offener Bedarf (Deck vs. Korpus, N = ${nf(decksCounted)} Decks): ${shown.join(", ")}${more}`);
+}
 function renderNotice() {
   const summary = state.data.summary, policy = state.data.tier_policy;
   const status = summary.layer_status;
@@ -711,7 +754,7 @@ function renderNotice() {
       h("p", {}, h("b", {}, `${OUTCOME_HEADING}: `), OUTCOME_TEXT)),
     h("div", { class: "summary" }, viewSummary, "Jede Karte steht je Quelle in genau einer Spalte; die Summe ist die Zahl der Karten im Pool."),
     layerStatusTable(status),
-    ...[bindingLine()].filter(Boolean));
+    ...[bindingLine(), roleGapLine()].filter(Boolean));
   $("tier-pill").textContent = "Stufen: Schätzung aus Nutzungsdaten · Ergebnis aus Partien: Unbewertet";
   updateMethodHint();
 }
@@ -732,10 +775,17 @@ function drawer(card) {
       : h("p", { class: "rule" }, "Keine Chulane-Textfit-Regel erfüllt."),
     ...(tf.foreign_trigger ? [h("p", { class: "rule" }, `Fremd-ETB-Trigger (nicht als eigener ETB gezählt): ${tf.foreign_phrase || "–"}`)] : []),
   ] : [];
+  const { decksCounted: gapDecks, gaps } = openRoleGaps();
+  const cardRoleSet = new Set(cardRoles(card));
+  const matchedGaps = !state.deckCards.has(card.card_id) ? gaps.filter((g) => cardRoleSet.has(g.role)) : [];
+  const gapNodes = matchedGaps.length
+    ? [h("p", { class: "rule" }, `Schließt offenen Deck-Bedarf (N = ${nf(gapDecks)} Decks): ${matchedGaps.map((g) => `${roleName(g.role)} (Deck ${nf(g.deckCount)} vs. p25–p75: ${StudioUI.numFlex(g.p25, 1)}–${StudioUI.numFlex(g.p75, 1)})`).join(", ")}`)]
+    : [];
   box.push(h("div", { class: "layer" }, heading("fact", fact.status),
     h("p", {}, `Manawert ${StudioUI.numFlex(fact.mana_value, 2)} · ${fact.type_line} · Quelle der Fakten: ${fact.fact_source} · Regelstand ${fact.rules_version}`),
     table(["Merkmal", "trifft zu", "Regel"], fact.features.map((f) => [FEATURE_NAMES[f.feature] || f.feature, f.holds ? "ja" : "nein", h("span", { class: "rule" }, f.rule)])),
     ...tfNodes,
+    ...gapNodes,
     h("p", {}, "Rollen mit Herkunft (Tagger-Rollen sind Community-Einordnungen):"),
     fact.roles.length ? fact.roles.map((c) => h("span", { class: "badge", title: [c.original_tag, c.mapping_rule].filter(Boolean).join(" · ") }, `${roleName(c.role)} · ${ORIGIN_NAMES[c.origin] || c.origin}`)) : unknown("keine Rolle erfasst")));
 
@@ -1938,6 +1988,11 @@ async function init() {
     $("f-free").checked = cfg.free !== false;
     $("f-fav").checked = Boolean(cfg.fav);
     $("f-excl").checked = Boolean(cfg.excl);
+    state.roleGapOnly = Boolean(cfg.roleGapOnly);
+    if ($("chip-role-gap")) {
+      $("chip-role-gap").classList.toggle("on", state.roleGapOnly);
+      $("chip-role-gap").setAttribute("aria-pressed", String(state.roleGapOnly));
+    }
     state.strength.tiers = new Set((Array.isArray(cfg.tiers) ? cfg.tiers : []).filter((tier) => STRENGTH_TIERS.includes(tier)));
     state.shown = 150;
     if (cfg.columns === "compact" || cfg.columns === "detail") { if (cfg.columns !== state.preset) { setPreset(cfg.columns); renderTierBar(); return; } }
@@ -1948,8 +2003,15 @@ async function init() {
       h("button", { type: "button", class: "chip", onclick: () => applyTierFilterPreset({ free: true }) }, "Standardfilter"),
       h("button", { type: "button", class: "chip", onclick: () => applyTierFilterPreset({ free: true, land: "spells" }) }, "Nur Zauber (frei)"),
       h("button", { type: "button", class: "chip", onclick: () => applyTierFilterPreset({ free: false, spread: "U" }) }, "Verbreitung unbekannt (U)"),
+      h("button", { type: "button", id: "chip-role-gap", class: "chip" + (state.roleGapOnly ? " on" : ""), "aria-pressed": String(state.roleGapOnly), title: "Filtert auf Poolkarten außerhalb des aktiven Decks, die eine im Deck unter p25 besetzte Rolle abdecken", onclick: (event) => {
+        state.roleGapOnly = !state.roleGapOnly;
+        event.currentTarget.classList.toggle("on", state.roleGapOnly);
+        event.currentTarget.setAttribute("aria-pressed", String(state.roleGapOnly));
+        state.shown = 150;
+        render(false);
+      } }, "Schließt offenen Deck-Bedarf"),
       h("button", { type: "button", class: "chip", onclick: () => {
-        const snap = { q: $("q").value, type: $("type-filter").value, land: $("land-filter").value, role: $("role-filter").value, spread: $("spread-filter").value, free: $("f-free").checked, fav: $("f-fav").checked, excl: $("f-excl").checked, tiers: [...state.strength.tiers], columns: state.preset };
+        const snap = { q: $("q").value, type: $("type-filter").value, land: $("land-filter").value, role: $("role-filter").value, spread: $("spread-filter").value, free: $("f-free").checked, fav: $("f-fav").checked, excl: $("f-excl").checked, roleGapOnly: state.roleGapOnly, tiers: [...state.strength.tiers], columns: state.preset };
         StudioUI.remember("studio.tierlist.savedPreset", JSON.stringify(snap));
         toast("Tierlisten-Filteransicht gespeichert.");
       } }, "Ansicht merken"),
@@ -1987,6 +2049,10 @@ async function init() {
   await StudioCommander.fill($("commander-select"));
   dataBanner().catch(() => {});
   loadTournamentConversion().catch(() => {});
+  api(`/api/cohorts?commander=${encodeURIComponent(COMMANDER)}`).then((shapes) => {
+    state.cohortShapes = Array.isArray(shapes) ? shapes : [];
+    if (state.data) { renderNotice(); render(false); }
+  }).catch(() => {});
   try {
     const marks = await api("/api/marks");
     for (const [cardId, mark] of Object.entries(marks)) state.marks.set(cardId, { favorite: mark.favorite, excluded: mark.excluded, note: mark.note || "" });
