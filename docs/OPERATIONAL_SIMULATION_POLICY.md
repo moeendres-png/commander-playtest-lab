@@ -6,8 +6,9 @@
 > qualification named below (WS215) does not cover six seats; six-seat behaviour is `UNKNOWN`
 > (`docs/OWNER_DECISION_SIX_PLAYER_MAX_20261108.md`). Studio rule: two to four seats are active;
 > five and six stay locked until their own qualification and the Owner's release
-> (`docs/STUDIO_SCOPE.md`, `docs/OWNER_DECISIONS_STUDIO_20261118.md`). That lock is not yet enforced
-> in code: on `main` the Studio start still accepts one to five other seats (`studio/launch.py`).
+> (`docs/STUDIO_SCOPE.md`, `docs/OWNER_DECISIONS_STUDIO_20261118.md`). The Studio start path
+> enforces it (`studio/launch.py`, `MAX_RELEASED_SEATS = 4`, PR #1515); the series routes do not
+> yet.
 
 Current policy effective 2026-09-15 (WS221; supersedes the 2026-08-20 revision,
 which restricted operations to a single pod size):
