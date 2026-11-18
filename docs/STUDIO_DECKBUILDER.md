@@ -1611,6 +1611,59 @@ commander-level co-occurrence pass is remembered per store state, commander list
 (`builder._cohort_deck_sets`, sharing `corpus_deck_sets`), so the second open of a card is a
 lookup; the figures are the same as counting the cohort's decks directly (tested).
 
+### Actionable Deck-Doctor ("Übersicht", #1404)
+
+In the "Übersicht" tab (`POST /api/deck-doctor`, `studio/builder.py`, schema `studio-deck-doctor-1`,
+`DERIVED_DESCRIPTIVE`), every role and shape metric of the current deck list is compared against
+the p25..p75 interquartile range of the selected comparison cohort (`under_p25`, `within_p25_p75`,
+`over_p75`, `no_reference`). For any role below p25, free owned pool cards (`free_copies > 0`, not
+excluded, not already in the deck) carrying that role are listed with their cohort frequency `n / N`
+(denominator ≥ 30 required, otherwise `thin_cohort` is flagged), plus a direct pool-filter button and
+one-click `+ Ins Deck`. Owner marks never alter the ordering (`test_deck_doctor_remedies_and_marks_invariance`).
+
+### Combo completion assistant ("Kombos", #1404)
+
+In the "Kombos" tab (`POST /api/combos`, `studio/combos.py`, field `completion_candidates`,
+`DERIVED_DESCRIPTIVE`), free owned legal pool cards (`free_copies > 0`, not in the deck) are ranked
+by how many nearly-complete Commander Spellbook variants (missing exactly 1 card) and 2-missing
+variants they complete (`completes_1_missing_count`, `completes_2_missing_count`), listing up to 5
+completed variant IDs and partner cards with one-click `+ Ins Deck` buttons.
+
+### Interactive sample opening hand & London Mulligan simulator ("Zahlen", #1404)
+
+In the "Zahlen" tab (`POST /api/sample-hand`, `studio/castability.py`, schema `studio-sample-hand-1`,
+`DERIVED_DESCRIPTIVE`), a deterministic seeded sampler (`random.Random(seed)`) draws a 7-card opening
+hand from the 99-card mainboard, supports London Mulligan steps (`mulligan_count` 0..4 with
+bottom-card selection so `kept_hand_size = 7 - mulligan_count`), simulates the next 3 draw steps
+(Turns 1..3), and evaluates deterministic Turn 1..3 castability per spell based on the lands and
+colored mana sources held by that turn.
+
+### Pod matchup matrix ("Simulation", #1404)
+
+In the "Simulation" tab (`GET /api/simulations/pod-matrix`, `studio/builder.py`, schema
+`studio-pod-matrix-1`, `SIMULATED_RESULT`), imported simulation runs in `simulation_run` and
+`simulation_card` are aggregated by `(engine_pin, pilot_policy)` into a pod table with run count,
+total games (`games_denominator`), cards tracked, and top cast-rate cards (`total_casts / games_with_card`).
+Like all simulation outputs, it never enters the tier list or the strength index (`simulation` weight 0).
+
+### Quick-filter preset chips & saved filter views (#1404)
+
+Both the Deckbuilder pool (`index.html`, `app.js`, `#quick-filter-presets`) and the Tierliste
+(`tierliste.html`, `tierliste.js`, `#tier-quick-presets`) offer one-click preset chips (Ramp ≤ 2 Mana,
+Interaktion ≤ 2 Mana, Kartenziehen, Kreaturen MV ≤ 3, Freie Favoriten, Top-Kohorte / Hohe Konfidenz,
+Stufe S/A frei, Alle zurücksetzen) and a browser-local saved filter view (`★ Ansicht speichern` /
+`Gespeicherte Ansicht laden` via `localStorage` keys `studio.builder.savedPreset` and
+`studio.tierlist.savedPreset`).
+
+### Printable Markdown deck dossier & revision changelog (#1404)
+
+The "Export" dialog (`GET /api/revisions/{revision_id}/dossier`, `studio/decks.py::export_deck_dossier`,
+`DERIVED_DESCRIPTIVE`) serves a printable Markdown dossier (`text/markdown; charset=utf-8`) containing
+revision metadata, card/land/nonland counts, average mana value, collection and form validation
+results, an automatic revision changelog (`+Neu im Deck` / `-Entfernt`) against `parent_revision_id`
+or an explicit `base_revision_id`, Tagger role coverage counts with denominator, and the full card
+list grouped into Commander, Zauber, and Länder.
+
 ### Not built: purchase mode
 
 "Kauf-Modus" (try cards outside the collection) is explicitly later (issue #1174 item 7).
