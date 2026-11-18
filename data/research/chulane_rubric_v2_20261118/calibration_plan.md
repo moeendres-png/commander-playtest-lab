@@ -12,14 +12,14 @@ billigste, die vorab festgelegte Verlässlichkeit erreicht?
 
 - **Stichprobe:** `pilot_sample.json`, 63 Karten (10 v1-Anker, 20 Referenzdeck, 15 Stufe D mit Nutzung, 15 ohne Nutzung, 3 Abdeckungskarten;
   Auswahlregeln und Abweichungen im Abschnitt 6).
-- **Rater:** vier Rater-Läufe: **H1, H2** (Haiku-Stufe) und **S1, S2** (Sonnet-Stufe). Die Modellwahl liegt beim Owner (Frage im Bericht); es
+- **Rater:** vier Rater-Läufe: **H1, H2** (kleine Rater-Stufe) und **S1, S2** (große Rater-Stufe). Die Modellwahl liegt beim Owner (Frage im Bericht); es
   gibt keinen automatischen Wechsel zwischen Modellen. Im Laufprotokoll stehen je Aufruf Modell-ID und Version, Temperatur, Zeitstempel und der
   Hash des Systemteils, damit ein Modellwechsel während des Laufs sichtbar bleibt.
 - **Was "Rater" hier bedeutet (ehrlich):** Jeder Aufruf ist **zustandslos, eine Karte, ohne Nachbarkarten** (keine Chargen, kein Gespräch). Zwei Läufe
   desselben Modells unterscheiden sich daher **nur durch das Sampling bei Temperatur 0,7** (nicht 0, sonst identische Duplikate). Der ICC innerhalb eines
   Modells misst also die **Konsistenz des Samplings** und ist eine **obere Schranke** für die Verlässlichkeit unabhängiger Rater. Spearman-Brown auf diesen
   ICC sagt, **wie viele Stichproben desselben Modells** man mitteln sollte, nicht wie viele unabhängige Rater. Gegen gemeinsame Fehler eines Modells
-  schützen nur die Vergleiche Haiku gegen Sonnet (2a bis 2c), die Anker (3) und v1 (4). Die Läufe laufen in je eigener zufälliger Reihenfolge nur als
+  schützen nur die Vergleiche der kleinen gegen die große Stufe (2a bis 2c), die Anker (3) und v1 (4). Die Läufe laufen in je eigener zufälliger Reihenfolge nur als
   Zeitplan (damit ein Modellwechsel mitten im Lauf nicht ein Stratum trifft), nicht als Kontext.
 - **Drift:** je Rater werden 8 feste Karten (2 je Stratum A, B, C, D, Seed 1118, in `pilot_sample.json` Feld `retest_cards`, vor dem Lauf festgelegt)
   **nach allen 63 Karten ein zweites Mal** bewertet (Test-Retest, zählt nicht doppelt in Mittelwerten, nur die erste Bewertung zählt). Echter Drift
@@ -37,7 +37,7 @@ Bedingung "untere Grenze" in Abschnitt 4.
 1. **Übereinstimmung zwischen Ratern:** ICC(2,1) (absolute Übereinstimmung, ein Rater) und ICC(2,k) (Mittel von k Ratern) **je Kriterium
    E, F, T, R, K, D, H**, getrennt für H1 mit H2, S1 mit S2 und alle vier gemeinsam (Rater als zufälliger Faktor), plus Krippendorffs
    Alpha (Intervall) als zweite Zahl. Ankerkarten gehen mit ein (n = 63) und werden zusätzlich einzeln ohne Anker (n = 53) gerechnet.
-2. **Modell-Effekt Haiku gegen Sonnet:** Spearman zwischen Mittel(H1, H2) und Mittel(S1, S2) auf H und je Kriterium; mittlere absolute
+2. **Effekt der Modellstufe, klein gegen groß:** Spearman zwischen Mittel(H1, H2) und Mittel(S1, S2) auf H und je Kriterium; mittlere absolute
    Abweichung (MAD) und mittlere Differenz (Verzerrung) in Punkten; ICC(2,1) je Modell.
 3. **Ankerkonsistenz (leave-one-anchor-out):** für die 10 v1-Anker im Pool (die beim Bewerten nicht in der eigenen Tabelle stehen) der
    mittlere absolute Fehler (MAE) und der größte Fehler gegen den festen Wert (E, F, T, R mal 25; H nach der Studio-Formel) je Rater;
@@ -68,9 +68,9 @@ Schwelle erreicht. Bezugswerte aus v1 (912 Karten, 3 Rater): ICC(2,1) H 0,84, F 
 | 1b | ICC(2,1) **E, T, R, D**, je Modell | 0,70 (0,60) |
 | 1c | ICC(2,1) **F, K**, je Modell | 0,65 (0,55) (urteilslastiger; v1-F lag bei 0,71) |
 | 1d | ICC(2,k) von **H** für das gewählte k: für k = 2 direkt aus den zwei Läufen des Modells, für k = 3 nur als Spearman-Brown-Projektion aus 1a (gekennzeichnet, nicht gemessen) | 0,90 (0,85) |
-| 2a | Spearman Haiku-Mittel gegen Sonnet-Mittel, **H** | 0,90 (0,85) |
+| 2a | Spearman Mittel der kleinen gegen Mittel der großen Stufe, **H** | 0,90 (0,85) |
 | 2b | MAD **H** zwischen den Modell-Mitteln / Verzerrung | höchstens 8 Punkte / Betrag höchstens 5 Punkte |
-| 2c | ICC(2,1) H Haiku minus Sonnet | nicht schlechter als minus 0,08 |
+| 2c | ICC(2,1) H kleine minus große Stufe | nicht schlechter als minus 0,08 |
 | 3a | Anker-MAE **H** (Mittel der Rater) / größter Einzelfehler | höchstens 10 / höchstens 25 Punkte |
 | 3b | Anker-MAE **E, F, T, R** (Mittel der Rater) | höchstens 12,5 Punkte |
 | 3c | Spearman Anker-H gegen feste H | 0,90 (0,80) |
@@ -88,10 +88,10 @@ bestandenen Kriterien einzeln, alle Kriterien in der Karte mit der Angabe "Streu
 
 ## 4. Entscheidungsregel "Modell und Raterzahl reichen"
 
-Konfigurationen in dieser Kostenreihenfolge: 1 Haiku, 2 Haiku, 3 Haiku, 1 Sonnet, 2 Sonnet, 3 Sonnet (kein gemischtes Mittel als Standard).
+Konfigurationen in dieser Kostenreihenfolge: 1, 2, 3 Läufe der kleinen Stufe, dann 1, 2, 3 Läufe der großen Stufe (kein gemischtes Mittel als Standard).
 Gewählt wird die **erste**, die alle diese Bedingungen erfüllt: 1a, 1b, 1c für das Modell; 1d für die Raterzahl; 3a, 3b, 3c, 5a, 5b,
-6, 7, 8a, 8b, 8c. **Haiku darf gewählt werden nur, wenn zusätzlich 2a, 2b, 2c bestehen** (Haiku und Sonnet liefern dasselbe Bild);
-sonst Sonnet. ICC für k Läufe: Spearman-Brown aus dem gemessenen ICC(2,1) des Modells; k = 2 wird direkt nachgeprüft, k = 3 bleibt eine Projektion.
+6, 7, 8a, 8b, 8c. **Die kleine Stufe darf gewählt werden nur, wenn zusätzlich 2a, 2b, 2c bestehen** (beide Stufen liefern dasselbe Bild);
+sonst die große Stufe. ICC für k Läufe: Spearman-Brown aus dem gemessenen ICC(2,1) des Modells; k = 2 wird direkt nachgeprüft, k = 3 bleibt eine Projektion.
 "k Läufe" heißt k Stichproben desselben Modells zu mitteln, nicht k unabhängige Rater. Erreicht keine Konfiguration bis 3 Rater die Schwellen, ist die Antwort **nicht mehr Rater, sondern Raster überarbeiten**
 (Guide, Anker, Fakten), danach neuer Pilot; mehr als 3 Rater je Karte sind für 922 Karten nicht vorgesehen.
 
@@ -137,7 +137,7 @@ Mittel 441, p90 642, p99 774, Maximum 894 (über 922 Karten); Ausgabe 420 Tokens
 
 Der statische Präfix ist bei Prompt-Caching je Rater-Lauf nur einmal pro Cache-Fenster zu schreiben und sonst billig zu lesen; wirksam bleibt dann
 nur der Teil je Karte. Geldbeträge sind hier bewusst nicht angegeben (Preise werden nicht aus dem Gedächtnis genannt); sie sind mit der aktuellen
-Preisliste und dem Token-Zähler der API im ersten Pilotaufruf zu rechnen. Ein Haiku-Lauf kostet weniger als ein Sonnet-Lauf, ob er genügt, entscheidet Abschnitt 4.
+Preisliste und dem Token-Zähler der API im ersten Pilotaufruf zu rechnen. Ein Lauf der kleinen Stufe kostet weniger als einer der großen, ob er genügt, entscheidet Abschnitt 4.
 
 ## 8. Risiken
 

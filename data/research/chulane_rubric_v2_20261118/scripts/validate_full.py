@@ -6,7 +6,7 @@
 <dir> is the --out of make_batches.py (run full): it holds full_manifest.json and the raw rating
 files out_full/<batch>.json. That folder is filled by the lead and is not part of the repository.
 Batches without a raw file yet are not counted as problems. --write-ratings merges the valid
-batches into one JSONL file (one rating per line with rater F1, batch and version v2.1), the
+batches into one JSONL file (one rating per line with rater F1, rater_tier large, batch and version v2.1), the
 format of ../fullrun_partial_ratings.jsonl.
 """
 
@@ -45,7 +45,10 @@ def main() -> None:
             bad.append((batch, "scores"))
         else:
             ok += 1
-            merged += [{"rater": m["rater"], "batch": batch, "version": "v2.1", **x} for x in rows]
+            merged += [
+                {"rater": m["rater"], "rater_tier": "large", "batch": batch, "version": "v2.1", **x}
+                for x in rows
+            ]
     if args.write_ratings:
         lines = [json.dumps(r, ensure_ascii=False) + "\n" for r in merged]
         Path(args.write_ratings).write_text("".join(lines), encoding="utf-8")

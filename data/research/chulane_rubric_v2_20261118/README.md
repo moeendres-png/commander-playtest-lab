@@ -8,7 +8,7 @@ Das Raster v1 (`../chulane_rubric_20261114/`) bleibt unverändert.
 
 **Status: Entwurf + Pilot, keine Gewichtung im Index.** Bewertet sind die 63 Pilotkarten und ein Teil des
 Vollaufs. Der Pilot hat nicht alle Schwellen erreicht (Bericht); der Owner-Entscheid zu den Ankern (Frage 7)
-steht aus. Stand Vollauf: 50 von 132 Chargen (350 von 922 Karten) sind eingefroren, der Lauf ist
+steht aus. Stand Vollauf: 83 von 132 Chargen (581 von 922 Karten) sind eingefroren, der Lauf ist
 unterbrochen; fehlende Karten sind nicht bewertet, nicht null.
 
 ## Dateien
@@ -21,14 +21,15 @@ unterbrochen; fehlende Karten sind nicht bewertet, nicht null.
 | `anchors.json`, `anchors.md` | Ankerkarten und -werte |
 | `output_schema.json`, `example_output.json` | Ausgabeschema; Formatbeispiel mit erfundener Karte |
 | `pilot_sample.json` | Pilotstichprobe (63 Karten, Strata, Retest, v1-Werte); nur zur Kalibrierung |
-| `pilot_ratings.jsonl` | 318 Pilotbewertungen: `rater`, `batch`, `retest`, `version` plus voller Rater-Inhalt |
-| `fullrun_partial_ratings.jsonl` | 350 Bewertungen des Vollaufs (Rater F1, `version` v2.1), gleiches Format |
+| `pilot_ratings.jsonl` | 318 Pilotbewertungen: `rater`, `rater_tier`, `batch`, `retest`, `version` plus voller Rater-Inhalt |
+| `fullrun_partial_ratings.jsonl` | 581 Bewertungen des Vollaufs (Rater F1, `version` v2.1), gleiches Format |
 | `audit_result.jsonl`, `audit_claims_index.json` | Handprüfung von 40 Regelbehauptungen |
 | `data/` | `facts.jsonl`, `patterns.jsonl` (rater-sichtbar), Benchmarks, Manifeste, Muster-Stichproben |
 | `scripts/` | Extraktion, Prompt, Stichprobe, Anker, Chargen, Auswertung |
 
-`version` v2: H1, H2, S1, S2 (H = untere, S = höhere Modellstufe; je 63 Karten plus 8 Retest-Karten);
-v2.1: T1, T2 (17 Karten je Rater) und F1. Die rohen Rater-Dateien sind nicht einzeln eingecheckt.
+`version` v2: H1, H2 (`rater_tier` small) und S1, S2 (large), je 63 Karten plus 8 Retest-Karten; v2.1: T1, T2
+(17 Karten je Rater) und F1, alle large. Die rohen Rater-Dateien sind nicht einzeln eingecheckt. Die genaue
+Modell-Identität der Rater ist im Verlauf der Owner-Session festgehalten, nicht im Repo.
 
 ## Blindheits-Regel
 

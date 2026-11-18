@@ -1,7 +1,8 @@
 """Reads ``pilot_ratings.jsonl`` (one rating per line) for the pilot scripts.
 
-Each line holds the rater content plus ``rater``, ``batch``, ``retest`` and ``version``
-(``v2`` for H1, H2, S1, S2; ``v2.1`` for T1, T2).
+Each line holds the rater content plus ``rater``, ``rater_tier`` (``small`` for H1, H2, ``large``
+for S1, S2, T1, T2, F1), ``batch``, ``retest`` and ``version`` (``v2`` for H1, H2, S1, S2; ``v2.1``
+for T1, T2).
 """
 
 from __future__ import annotations
