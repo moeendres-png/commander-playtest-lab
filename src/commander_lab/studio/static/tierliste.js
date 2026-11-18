@@ -64,7 +64,7 @@ const SORTS = [
   ["name", "Name"],
   ["mv", "Manawert"],
   ["strength", "Stärke-Index (Schätzung, zu wenig Daten zuletzt)"],
-  ["confidence", "Konfidenz (Datenlage und Nenner)"],
+  ["confidence", "Konfidenz (Datenlage, Zähler)"],
   ["spread", "Verbreitung (gezählt): Anteil im Universum"],
   ["spread_level", "Verbreitung (gezählt): Stufe im Universum"],
   ["layers", "Anzahl vorhandener Schichten"],
@@ -128,7 +128,7 @@ function componentStatus(c) {
 const STRENGTH_TIERS = ["S", "A", "B", "C", "D", "U", "N"];
 const nf = (value) => StudioUI.num(value, 0);
 const CONFIDENCE_NAMES = { high: "hoch", medium: "mittel", low: "niedrig" };
-const CONFIDENCE_TEXT = "Konfidenz = Datenlage mal Verlässlichkeit der Nenner (n / (n + 30), gewichtet). Ein Hinweis auf die Belege, nicht auf die Karte; sie ändert weder Index noch Stufe.";
+const CONFIDENCE_TEXT = "Konfidenz = Datenlage mal Verlässlichkeit des Zählers k (k / (k + 30), gewichtet); bei gezählter Null zählt der Nenner N. Ein Hinweis auf die Belege, nicht auf die Karte; sie ändert weder Index noch Stufe.";
 const REASON_SHORT = { ZERO_COUNT_ONLY: "nur gezählte Nullen", TOO_LITTLE_DATA: "zu wenig Daten", NO_COMMANDER_SIGNAL: "kein Commander-Signal", NO_SOURCE_FOR_COMMANDER: "keine Quelle für den Commander", NO_POSITIVE_WEIGHT: "alle Gewichte 0" };
 const TIER_FILTER_NAMES = { U: "zu wenig Daten", N: "nicht bewertet" };
 const PERCENTILE_SORT = "pct:";
@@ -445,6 +445,10 @@ function deckCounts(item) {
   return c && c.numerator !== null && c.numerator !== undefined ? { n: c.numerator, N: c.denominator } : null;
 }
 function confidenceText(item) {
+  if (item.confidence_basis === "gezaehlte_null") { // field of the counted-numerator confidence (when the server sends it)
+    const zero = deckCounts(item);
+    return `hoch (gezählte Abwesenheit: 0 von ${zero ? nf(zero.N) : "N"} Decks)`;
+  }
   const word = CONF_WORDS[item.confidence_level] || codeLabel(item.confidence_level);
   const counts = deckCounts(item);
   return counts ? `${nf(counts.n)} von ${nf(counts.N)} Quelldecks, ${word}` : word;
@@ -453,7 +457,7 @@ function confidenceMark(item) {
   if (item.confidence === null || item.confidence === undefined) return null;
   const level = CONFIDENCE_NAMES[item.confidence_level] || item.confidence_level;
   const dots = item.confidence_level === "high" ? "●●●" : item.confidence_level === "medium" ? "●●○" : "●○○";
-  return h("span", { class: `conf conf-${item.confidence_level}`, title: `Datenlage: ${confidenceText(item)}. Konfidenz ${level} (${StudioUI.num(item.confidence, 2)}). ${CONFIDENCE_TEXT} Die Stufe richtet sich nach der Größe der Nenner, nicht nach der Zahl der Treffer.`, "aria-label": `Datenlage: ${confidenceText(item)}` }, dots);
+  return h("span", { class: `conf conf-${item.confidence_level}`, title: `Datenlage: ${confidenceText(item)}. Konfidenz ${level} (${StudioUI.num(item.confidence, 2)}). ${CONFIDENCE_TEXT}`, "aria-label": `Datenlage: ${confidenceText(item)}` }, dots);
 }
 function borderlineMark(item) {
   if (!item.borderline) return null;
