@@ -76,3 +76,27 @@ Information addieren (Trennschärfe), ohne das Hold-out-Ergebnis zu verschlechte
 K1 Lesart: **Achsen nebeneinander** (Empfehlung) statt ein kombinierter Index. K2 Rubrik als eigene, klar beschriftete Achse anzeigen (Empfehlung ja, Gewicht bleibt 0 nach E1.a).
 K3 Textfit-Achse bauen (Empfehlung ja, mit Stichprobenvalidierung). K4 Kombination: Empfehlung **nein**, später prüfen. K5 Ergebnisebenen nur getrennt, kein Gewicht (Empfehlung ja; Mindest-n-Vorschlag 300/1.000 bestätigen).
 K6 Rollen-Soll-Werte: nur Land-Anker (38–39) belegt, übrige Quoten als „Quelle unbelegt“ konfigurierbar. K7 Lift gegen Farbidentität: hängt an #1210 (geparkt).
+
+## 9. Umsetzung Kartenverständnis-Gesamtrating (Backend, Owner-Entscheid 2026-11-18, Refs #1369)
+
+Der Owner hat entschieden, neben dem Nutzungs-Index ein zweites Gesamtrating zu führen. Es ersetzt den Index nicht: Index, Stufen
+(S–D, U/N), Gewichte, Schnitte, Snapshots und alle bisherigen API-Felder bleiben unverändert; `/api/strength` erhält nur additive
+Felder (`cards[].overall`, `overall_meta`), angehängt nach dem Snapshot in `web.strength_answer`.
+- **Datensatz:** `data/card_understanding/card_understanding_v2_1.jsonl`, eine Zeile je Karte (`oracle_id`, `card`, `scores` E F T R K D H
+  in 0–100, `confidence`, `reason`, `notes`, `rule_claims`, `version`, `rater_tier` small|large, `rubric`; optional `raters`, `score_sd`,
+  `rounded`, `uncertainty`). Lader und Prüfung: `studio/card_understanding.py` (kaputte Zeile, Bereich, fehlendes Feld, unbekanntes
+  Kriterium, doppelte `oracle_id` lassen das Laden scheitern; fehlende Karte = unbekannt, nie 0). Erzeugt mit
+  `scripts/import_card_understanding.py` aus den Rater-Rohdaten (je Karte eine Bewertung, Vorrang der Version v2.1; mehrere Bewerter:
+  Mittel auf Vielfache von 5, `score_sd` je Kriterium, niedrigste Konfidenz). Stand: nur ein Teil der 922 Karten bewertet
+  (Teilabdeckung ist der Normalfall bis zum Abschluss des Vollaufs); der Datensatz gilt nur für Chulane.
+- **Rechnung:** `studio/overall_rating.py`, Regelversion `OVERALL_RULES_VERSION`. Gewichtetes Mittel 0–100, Gewichte
+  `OVERALL_WEIGHTS_V1` (Setzung, keine Messung): Nutzung 0,30 · H 0,30 · F 0,15 · E 0,10 · T 0,05 · R 0,05 · D 0,025 · K 0,025.
+  Fehlende Achsen (z. B. Nutzung bei Stufe U/N) werden renormalisiert; `coverage` ist die Summe der vorhandenen Gewichte; unter 0,6 oder
+  ohne Bewertung ist `score` None („unbekannt“). Die Beiträge je Achse summieren sich exakt zur Punktzahl (Zehntel, größter Rest).
+- **Rang und Stabilität:** Rang k von `n_rated` (Gleichstände teilen den besten Rang). `stability`: 80 Gewichtsvarianten (jedes Gewicht
+  zufällig ×0,7–1,3, Seed 20261118, je Karte renormalisiert); „unscharf“ bei einer Rangspanne von mindestens 10 % der bewerteten Karten.
+  `confidence`: Bewerter-Konfidenz, „unsicher“ bei `low` oder H-Streuung ≥ 20.
+- **Gesperrt (B11, E1.a, K5):** keine Simulationswerte, keine gemessenen Ergebnisschichten (Tempo, Ausspielquote, Standfestigkeit,
+  Sieg-Abstand, Großpod), keine Preise, Markierungen ohne Einfluss, Kohorten nie vermischt (die Nutzungs-Achse ist der Index der Anfrage;
+  gewichtet dieser Simulation, Rubrik, Playgroup-Beobachtung oder eine Ergebnisschicht, entfällt die Nutzungs-Achse und `overall_meta`
+  sagt es). `overall_meta.caveat`: Setzung der Gewichte, Kartenverständnis durch Modell-Rater (große Stufe), Nutzung ist eine Achse.
