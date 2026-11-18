@@ -89,6 +89,8 @@ jobs:
       - name: Studio Windows smoke (doctor, imports, selected studio tests)
         shell: pwsh
         run: |
+          $ErrorActionPreference = 'Stop'
+          $PSNativeCommandUseErrorActionPreference = $true
           python -c @"
           import json, subprocess, sys
           proc = subprocess.run([sys.executable, '-m', 'commander_lab.studio', 'doctor', '--json'], capture_output=True, text=True)
@@ -98,14 +100,18 @@ jobs:
           report = json.loads(proc.stdout)
           by_name = {c['name']: c for c in report.get('checks', [])}
           for core in ('python', 'dependencies'):
-              assert by_name.get(core, {}).get('ok'), f'Core doctor check failed: {by_name.get(core)}'
-          for engine_dep in ('java', 'engine_bridge', 'card_catalog'):
+              item = by_name.get(core, {})
+              assert item.get('status') == 'PASS', f'Core doctor check failed: {item}'
+          for engine_dep in ('java', 'engine_bridge', 'card_knowledge'):
               item = by_name.get(engine_dep, {})
-              if not item.get('ok'):
-                  print(f'doctor {engine_dep}: MISSING_ON_CI_RUNNER (expected without engine; NOT PASS)')
+              if item.get('status') != 'PASS':
+                  print(f'doctor {engine_dep}: MISSING_ON_CI_RUNNER (status={item.get("status")}; NOT PASS)')
           "@
-          python -c "import commander_lab.studio.web, commander_lab.studio.play, commander_lab.studio.paired_series, commander_lab.studio.launch, commander_lab.studio.backup"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python -c "import commander_lab.studio.web, commander_lab.studio.play, commander_lab.studio.paired_series, commander_lab.studio.launch"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           python -m pytest -q tests/unit/test_studio_engine_provisioning.py tests/unit/test_studio_simulations.py
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Assert repository remains clean
         shell: pwsh
         run: |
