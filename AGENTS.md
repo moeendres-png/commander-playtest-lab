@@ -13,15 +13,21 @@ plays real 100-card Commander decks rules-correctly, so simulated games can stan
 
 - Rules-correct play is required, but not at any cost: where full correctness for a rare interaction
   is unreachable, record the gap visibly and move on. Simulate as many cards as possible, including
-  cards the base XMage engine lacks. Four players is the usual game; two to six seats are supported
-  (five and six seats only after the Owner's go).
+  cards the base XMage engine lacks. Four players is the usual game and six seats the maximum; two
+  to four seats are active, five and six stay locked until their own qualification and the Owner's
+  release.
 - The simulator is one part of the local Commander Studio (BUILD, PLAY, SIMULATE):
-  `docs/OWNER_DECISION_STUDIO_BUILD_PLAY_SIMULATE_20261110.md`. The Owner decisions for the three
-  areas are in `docs/OWNER_DECISIONS_STUDIO_20261112.md` and `docs/STUDIO_PLAN_SIMULATOR.md`; read
-  them before any Studio work. Binding in short: only objective data with provenance; every count
-  with its denominator; cohorts never added; source data bound to one commander; no guessed tier.
-  The Owner's marks (favorites, exclusions, notes) never count as a rating. Simulation results do
-  not enter the tier list: the `simulation` weight stays 0 in the default and in every preset.
+  `docs/OWNER_DECISION_STUDIO_BUILD_PLAY_SIMULATE_20261110.md`. The binding scope is
+  `docs/STUDIO_SCOPE.md`; the Owner decisions for the three areas are in
+  `docs/OWNER_DECISIONS_STUDIO_20261112.md`, `docs/OWNER_DECISIONS_STUDIO_20261118.md` and
+  `docs/STUDIO_PLAN_SIMULATOR.md`; read them before any Studio work. Binding in short: only
+  objective data with provenance; every count with its denominator; cohorts never added; source
+  data bound to one commander; no guessed tier. The one exception to objective data is the
+  labelled, generated overall rating of the tier list, a second view next to the usage index,
+  which stays the default. The Owner's marks (favorites, exclusions, notes) never count as a
+  rating. Simulation results enter the tier list only once the maturity gate G-SIM in
+  `docs/OWNER_DECISIONS_STUDIO_20261118.md` is met and the Owner confirms weight and display;
+  until then the `simulation` weight stays 0 in the default and in every preset.
 - Chulane, Teller of Tales is the only active owner deck for optimization
   (`docs/OWNER_DECK_FOCUS_CURRENT.md`). RogShai data is historical and regression data only.
 
@@ -337,11 +343,10 @@ commands: `docs/STUDIO_PLAN_SIMULATOR.md`, `docs/STUDIO_BRIDGE_GATE_TOOLING.md`)
   is recorded as `NOT_SEALED`, never as PASS. Review and checks as for every MATERIAL change.
 
 Once a change has merged under this gate (the first was #1316) the running bridge is no longer the
-sealed one. Open obligation, tracked in #1401, which the next bridge pull request meets: game logs
-and Studio series results record the bridge jar SHA-256, and wherever the current qualification is
-reported a visible `BRIDGE_AHEAD_OF_QUALIFICATION` state is shown while `engine-bridge/` differs
-from the sealed source. Neither exists yet. Nothing produced on a later bridge is presented as
-covered by the sealed epoch. A bridge change never decides a rule, never picks an option for a seat
+sealed one (#1401 closed, PR #1411): game logs and Studio series results record the bridge jar
+SHA-256, and wherever the current qualification is reported a visible
+`BRIDGE_AHEAD_OF_QUALIFICATION` state is shown while `engine-bridge/` differs from the sealed
+source. Nothing produced on a later bridge is presented as covered by the sealed epoch. A bridge change never decides a rule, never picks an option for a seat
 and never widens what a principal may see (§2, §5).
 
 ## 11. Git, worktree, ownership
