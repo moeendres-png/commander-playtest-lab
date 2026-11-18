@@ -29,7 +29,7 @@ def test_doctor_passes_when_all_prerequisites_present(
 ) -> None:
     pin = canonical_xmage_engine_pin()
     jar = _write_fake_jar_and_pin(tmp_path, pin)
-    Path(f"{jar}.jsa").write_bytes(b"fake-jsa")
+    jar.with_suffix(".jsa").write_bytes(b"fake-jsa")
     sqlite3.connect(tmp_path / "studio.sqlite3").close()
 
     monkeypatch.delenv(launch.ENGINE_COMMAND_ENV, raising=False)
@@ -76,6 +76,7 @@ def test_doctor_fails_on_java_too_old_or_pin_mismatch(
     assert by_name["java"]["status"] == "FAIL"
     assert by_name["engine_pin"]["status"] == "FAIL"
     assert by_name["appcds_archive"]["status"] == "WARN"
+    assert "build-appcds" in str(by_name["appcds_archive"]["remediation"])
 
 
 def test_doctor_reports_missing_dependencies_and_env_command(

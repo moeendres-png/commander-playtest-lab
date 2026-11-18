@@ -4,12 +4,14 @@
 
 const PAIRED_ESTIMATED_GAMES_PER_HOUR = 540.0;
 
-function estimatePairedText(budgetPairs) {
+function estimatePairedText(budgetPairs, workers = 4) {
   const pairs = Math.max(0, Number(budgetPairs) || 0);
+  const usedWorkers = Math.max(1, Math.min(16, Math.round(Number(workers) || 1)));
   const maxGames = pairs * 2;
-  const seconds = Math.round(maxGames * (3600.0 / PAIRED_ESTIMATED_GAMES_PER_HOUR));
+  const ratePerHour = PAIRED_ESTIMATED_GAMES_PER_HOUR * usedWorkers;
+  const seconds = Math.round(maxGames * (3600.0 / ratePerHour));
   const minutes = StudioUI.num(seconds / 60.0, 1);
-  return `Grober Richtwert: max. ~${minutes} min (${StudioUI.num(maxGames, 0)} Partien bei ~${StudioUI.num(PAIRED_ESTIMATED_GAMES_PER_HOUR, 0)} Partien/h; früher Stopp je nach Look möglich).`;
+  return `Grober Richtwert: max. ~${minutes} min (${StudioUI.num(maxGames, 0)} Partien · ${StudioUI.num(usedWorkers, 0)} Worker ≈ ${StudioUI.num(ratePerHour, 0)} Partien/h; früher Stopp je nach Look möglich).`;
 }
 
 function pairedVerdictInfo(res) {
@@ -308,12 +310,17 @@ function renderPairedComparisonSection(body, deps) {
   );
   const seedInput = h("input", { type: "number", value: "1000", class: "seed-input", id: "paired-seed-input" });
   const thresholdInput = h("input", { type: "number", value: "0", step: "0.5", class: "seed-input", id: "paired-threshold-input" });
+  const workersInput = h("input", { type: "number", value: "4", min: "1", max: "16", class: "seed-input", id: "paired-workers-input" });
+  const gamesPerJvmInput = h("input", { type: "number", value: "6", min: "1", max: "24", class: "seed-input", id: "paired-games-per-jvm-input" });
   const rotateCheck = h("input", { type: "checkbox", checked: true, id: "paired-rotate-check" });
 
-  const estLine = h("p", { class: "note", id: "paired-estimate" }, estimatePairedText(budgetSelect.value));
-  budgetSelect.addEventListener("change", () => {
-    estLine.textContent = estimatePairedText(budgetSelect.value);
-  });
+  const updateEstimate = () => {
+    estLine.textContent = estimatePairedText(budgetSelect.value, workersInput.value);
+  };
+  const estLine = h("p", { class: "note", id: "paired-estimate" }, estimatePairedText(budgetSelect.value, workersInput.value));
+  budgetSelect.addEventListener("change", updateEstimate);
+  workersInput.addEventListener("change", updateEstimate);
+  workersInput.addEventListener("input", updateEstimate);
 
   const startBtn = h("button", { type: "submit", class: "primary", id: "paired-start-btn" }, "Nachtlauf starten");
   const form = h("form", {
@@ -339,6 +346,8 @@ function renderPairedComparisonSection(body, deps) {
           base_seed: parseInt(seedInput.value, 10),
           rotate_seats: rotateCheck.checked,
           threshold_pp: parseFloat(thresholdInput.value) || 0.0,
+          workers: Math.max(1, Math.min(16, parseInt(workersInput.value, 10) || 4)),
+          games_per_jvm: Math.max(1, Math.min(24, parseInt(gamesPerJvmInput.value, 10) || 6)),
         });
         deps.setActivePaired(res);
         refreshPairedSlots(deps);
@@ -357,6 +366,8 @@ function renderPairedComparisonSection(body, deps) {
     h("label", {}, "Sequential-Look", lookSelect),
     h("label", {}, "Schwelle (pp)", thresholdInput),
     h("label", {}, "Basis-Seed", seedInput),
+    h("label", {}, "Worker", workersInput),
+    h("label", {}, "Partien / JVM", gamesPerJvmInput),
     h("label", { class: "paired-check" }, rotateCheck, "Sitze 1–4 rotieren"),
     startBtn
   );

@@ -207,11 +207,218 @@ def series_engine(data_folder: str | Path, games_per_jvm: int) -> SeriesEngine |
     )
 
 
+APPCDS_JVM_LOG_FLAGS = ("-Xlog:disable", "-Xlog:all=warning:stderr")
+APPCDS_SPEED_FLAGS = ("-XX:+UseSerialGC", "-Dh2.bindAddress=127.0.0.1")
+APPCDS_TRAINING_DECISIONS = 40
+APPCDS_SHUTDOWN_GRACE_SECONDS = 300.0
+_APPCDS_DECK_PATHS = (
+    Path("data/decks/rogshai_current.json"),
+    Path("data/decks/opponents/kaervek/current/deck.json"),
+    Path("data/opponents/hosts_of_mordor_precon.json"),
+    Path("data/opponents/lorehold_spirit_precon.json"),
+)
+
+
 def command_text(command: Sequence[str]) -> str:
     """``command`` as the one string ``COMMANDER_LAB_XMAGE_FULL_GAME_BRIDGE_CMD`` takes."""
     if os.name == "nt":
         return subprocess.list2cmdline(list(command))
     return shlex.join(command)
+
+
+def resolve_bridge_jar(
+    data_folder: str | Path | None = None, jar_path: str | Path | None = None
+) -> Path:
+    """Resolve the XMage bridge JAR path from explicit argument, data dir/env, or repo build."""
+    if jar_path is not None:
+        return Path(jar_path).resolve()
+    if data_folder is not None:
+        cmd = engine_command(data_folder)
+        jar = jar_path_for_command(cmd)
+        if jar is not None:
+            return jar.resolve()
+        candidate = Path(data_folder) / ENGINE_JAR
+        if candidate.is_file():
+            return candidate.resolve()
+    from .store import studio_data_dir
+
+    data_dir = Path(data_folder).resolve() if data_folder is not None else studio_data_dir()
+    cmd = engine_command(data_dir)
+    jar = jar_path_for_command(cmd)
+    if jar is not None and jar.is_file():
+        return jar.resolve()
+    installed = data_dir / ENGINE_JAR
+    if installed.is_file():
+        return installed.resolve()
+    return (
+        _repository_root() / "engine-bridge" / "target" / "xmage-engine-bridge-0.1.0-SNAPSHOT.jar"
+    ).resolve()
+
+
+def appcds_archive_path(jar: Path, archive: str | Path | None = None) -> Path:
+    """Companion AppCDS ``.jsa`` path matching ``fast_jvm_options(jar)``."""
+    return (Path(archive) if archive is not None else jar.with_suffix(".jsa")).resolve()
+
+
+def default_appcds_deck_paths(root: Path | None = None) -> tuple[Path, ...]:
+    """Resolve 4 training deck paths for AppCDS class-loading coverage."""
+    base = _repository_root() if root is None else root
+    explicit = tuple((base / rel).resolve() for rel in _APPCDS_DECK_PATHS)
+    if all(path.is_file() for path in explicit):
+        return explicit
+    precons = tuple(path.resolve() for _did, _name, _cmds, _yr, path in _precons()[:4])
+    if len(precons) >= 2:
+        return precons
+    missing = ", ".join(str(p) for p in explicit if not p.is_file())
+    raise FileNotFoundError(
+        f"Standard-Trainingsdecks für AppCDS nicht gefunden ({missing}); bitte 2-6 Decks per --deck angeben."
+    )
+
+
+def build_appcds_archive(
+    data_folder: str | Path | None = None,
+    *,
+    jar: str | Path | None = None,
+    archive: str | Path | None = None,
+    deck_paths: Sequence[str | Path] | None = None,
+    decisions: int = APPCDS_TRAINING_DECISIONS,
+) -> dict[str, object]:
+    """Train a companion ``<jar>.jsa`` AppCDS archive using a short smoke game."""
+    from commander_lab.candidates.models import FutureXmageScenario
+    from commander_lab.engine.rules.full_game import FullGamePilotBinding, XmageFullGameRunner
+    from commander_lab.engine.rules.project import load_rules_deck_snapshot
+    from commander_lab.models import PilotConfig, PilotDecisionMode, PilotStrength
+    from commander_lab.qualification.current_boundary.bridge_launcher import (
+        canonical_xmage_engine_pin,
+    )
+    from commander_lab.storage import sha256_value
+
+    if decisions < 1:
+        raise ValueError("decisions must be at least 1")
+
+    resolved_jar = resolve_bridge_jar(data_folder, jar)
+    if not resolved_jar.is_file():
+        raise FileNotFoundError(f"Bridge-JAR nicht gefunden: {resolved_jar}")
+
+    java = _java_executable()
+    if java is None:
+        raise RuntimeError("Java 17 oder neuer wurde nicht im PATH/JAVA_HOME gefunden.")
+    old_major = _java_too_old(java)
+    if old_major is not None:
+        raise RuntimeError(
+            f"Java ist zu alt: gefunden wurde Version {old_major}, nötig ist Java {MIN_JAVA_MAJOR} oder neuer."
+        )
+
+    resolved_decks = (
+        tuple(Path(p).resolve() for p in deck_paths) if deck_paths else default_appcds_deck_paths()
+    )
+    if not MIN_SEATS <= len(resolved_decks) <= MAX_SEATS:
+        raise ValueError(
+            f"AppCDS benötigt {MIN_SEATS} bis {MAX_SEATS} Decks, erhalten: {len(resolved_decks)}"
+        )
+
+    loaded_decks = []
+    for path in resolved_decks:
+        if not path.is_file():
+            raise FileNotFoundError(f"Trainingsdeck nicht gefunden: {path}")
+        deck = load_rules_deck_snapshot(path)
+        if deck.deck_hash is None:
+            deck = deck.model_copy(
+                update={
+                    "deck_hash": sha256_value(
+                        {
+                            "deck_id": deck.deck_id,
+                            "commander_names": list(deck.commander_names),
+                            "mainboard": list(deck.mainboard),
+                            "sideboard": list(deck.sideboard),
+                        }
+                    )
+                }
+            )
+        loaded_decks.append(deck)
+
+    deck_tuple = tuple(loaded_decks)
+    own = deck_tuple[0]
+    if own.deck_hash is None:
+        raise RuntimeError("deck_hash missing after snapshot hash fallback")
+    pin = canonical_xmage_engine_pin()
+    scenario = FutureXmageScenario(
+        candidate_id=own.deck_id,
+        deck_hash=own.deck_hash,
+        opponent_deck_ids=tuple(d.deck_id for d in deck_tuple[1:]),
+        player_count=len(deck_tuple),
+        seat=1,
+        scenario_id="studio-appcds-training-smoke-v1",
+        seed=20260923,
+        xmage_commit=pin,
+        bridge_version="xmage-engine-bridge-0.1.0-SNAPSHOT",
+        pilot_identity="GenericCommanderPilot",
+        pilot_version="1.0.0",
+        decision_policy_version="xmage-full-game-policy-1.0.0",
+    )
+    pilots = tuple(
+        FullGamePilotBinding(
+            seat=seat,
+            deck_id=deck.deck_id,
+            strategy="generic",
+            commander_names=deck.commander_names,
+            config=PilotConfig(
+                pilot_name="auto",
+                strength=PilotStrength.NEAR_OPTIMAL_HEURISTIC,
+                mode=PilotDecisionMode.DETERMINISTIC,
+            ),
+            pilot_identity="GenericCommanderPilot",
+            pilot_version="1.0.0",
+            decision_policy_version="xmage-full-game-policy-1.0.0",
+        )
+        for seat, deck in enumerate(deck_tuple, start=1)
+    )
+
+    target_archive = appcds_archive_path(resolved_jar, archive)
+    target_archive.parent.mkdir(parents=True, exist_ok=True)
+    target_archive.unlink(missing_ok=True)
+
+    runner = XmageFullGameRunner(
+        (
+            java,
+            *APPCDS_JVM_LOG_FLAGS,
+            *APPCDS_SPEED_FLAGS,
+            f"-XX:ArchiveClassesAtExit={target_archive}",
+            "-jar",
+            str(resolved_jar),
+            "full-game",
+        ),
+        shutdown_grace_seconds=APPCDS_SHUTDOWN_GRACE_SECONDS,
+    )
+    runner.run_smoke(
+        scenario=scenario,
+        decks=deck_tuple,
+        pilots=pilots,
+        smoke_decision_target=decisions,
+    )
+    if not target_archive.is_file():
+        raise RuntimeError(
+            f"Die Trainings-JVM hat kein AppCDS-Archiv geschrieben: {target_archive}"
+        )
+
+    run_cmd = (
+        java,
+        *APPCDS_JVM_LOG_FLAGS,
+        *APPCDS_SPEED_FLAGS,
+        f"-XX:SharedArchiveFile={target_archive}",
+        "-jar",
+        str(resolved_jar),
+        "full-game",
+    )
+    return {
+        "status": "built",
+        "jar_path": str(resolved_jar),
+        "archive_path": str(target_archive),
+        "archive_bytes": target_archive.stat().st_size,
+        "decisions": decisions,
+        "engine_pin": pin,
+        "command": command_text(run_cmd),
+    }
 
 
 @lru_cache(maxsize=16)
