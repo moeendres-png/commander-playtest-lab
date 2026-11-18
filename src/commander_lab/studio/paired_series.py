@@ -25,6 +25,10 @@ from pathlib import Path
 
 from commander_lab.agents.card_knowledge import CardCatalogError, card_facts
 from commander_lab.bridge_qualification import bridge_qualification
+from commander_lab.engine.rules.full_game_comparison import (
+    SlotAlignment,
+    align_to_baseline_slots,
+)
 from commander_lab.engine.rules.project import load_rules_deck_snapshot
 from commander_lab.models import RulesDeckInput
 
@@ -171,6 +175,38 @@ def _snapshot_file(folder: Path, prefix: str, ref_id: str, snapshot: Mapping[str
     return path
 
 
+def _align_variant_file(
+    base_deck: RulesDeckInput,
+    variant_deck: RulesDeckInput,
+    variant_snap: Mapping[str, object],
+    variant_path: Path,
+) -> tuple[RulesDeckInput, SlotAlignment]:
+    """Rewrite the variant's deck file with its cards in the baseline's library slots.
+
+    Studio snapshots list cards by name, so a swap that crosses the alphabet moves every
+    card in between to another slot and the two games of a pair share no library shuffle.
+    The engine reads the deck file (``recorded_game_player`` passes paths), so the file
+    itself gets the aligned main-zone order (``align_to_baseline_slots`` of the engine
+    lane); every other entry stays as it was. The cards are exactly the variant's.
+    """
+    aligned, alignment = align_to_baseline_slots(base_deck, variant_deck)
+    raw_cards = variant_snap.get("cards")
+    entries = [e for e in raw_cards if isinstance(e, dict)] if isinstance(raw_cards, list) else []
+    runs: list[dict[str, object]] = []
+    for name in aligned.mainboard:
+        last = runs[-1] if runs else None
+        if last is not None and last["oracle_name"] == name:
+            last["quantity"] = int(str(last["quantity"])) + 1
+        else:
+            runs.append({"oracle_name": name, "quantity": 1, "zone": "main"})
+    others = [e for e in entries if e.get("zone") not in (None, "main")]
+    _write_json_atomic(variant_path, {**variant_snap, "cards": [*others, *runs]})
+    reloaded = load_rules_deck_snapshot(variant_path)
+    if reloaded.mainboard != aligned.mainboard:
+        raise ValueError("aligned variant deck file does not reload in the aligned order")
+    return reloaded, alignment
+
+
 def _write_json_atomic(path: Path, payload: Mapping[str, object]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     tmp = path.with_suffix(path.suffix + ".tmp")
@@ -202,6 +238,7 @@ class PairedSeriesJob:
         play_override: paired_comparison.PairPlayer | None = None,
         bridge_sha: str | None = None,
         qualification: Mapping[str, object] | None = None,
+        slot_alignment: SlotAlignment | None = None,
     ) -> None:
         self.series_id = series_id
         self.data_folder = data_folder
@@ -224,6 +261,11 @@ class PairedSeriesJob:
             dict(qualification) if qualification is not None else bridge_qualification()
         )
         self.estimate = estimate_series_duration(budget_pairs)
+        #: How the variant's library was lined up with the base's; ``None`` only for a
+        #: series written before the alignment existed (its pairs share no shuffle).
+        self.slot_alignment: dict[str, object] | None = (
+            slot_alignment.model_dump() if slot_alignment is not None else None
+        )
 
         self.status = "pending"
         self.pairs_attempted = 0
@@ -287,6 +329,7 @@ class PairedSeriesJob:
                 "ended_at": self.ended_at,
                 "error": self.error,
                 "estimate": self.estimate,
+                "slot_alignment": self.slot_alignment,
                 "bridge_jar_sha256": bridge_shas[0]
                 if len(bridge_shas) == 1
                 else self.bridge_jar_sha256,
@@ -350,6 +393,7 @@ class PairedSeriesJob:
                     "look_every_pairs": self.look_every_pairs,
                     "budget_pairs": self.budget_pairs,
                     "games_dir": str(games_folder(self.data_folder)),
+                    "slot_alignment": self.slot_alignment,
                 },
             )
             with self._lock:
@@ -447,6 +491,9 @@ class PairedSeriesManager:
             variant_path = _snapshot_file(deck_dir, "variant", variant_revision_id, variant_snap)
             base_deck = load_rules_deck_snapshot(base_path)
             variant_deck = load_rules_deck_snapshot(variant_path)
+        variant_deck, alignment = _align_variant_file(
+            base_deck, variant_deck, variant_snap, variant_path
+        )
 
         paths_by_deck_id: dict[str, Path] = {
             base_deck.deck_id: base_path,
@@ -482,6 +529,7 @@ class PairedSeriesManager:
             play_override=play_override,
             bridge_sha=jar_sha,
             qualification=bridge_qualification(),
+            slot_alignment=alignment,
         )
         job.persist()
         with self._lock:

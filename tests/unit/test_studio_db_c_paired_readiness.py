@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import time
@@ -405,6 +406,88 @@ def test_paired_series_not_decided_and_preflight_same_revision_rejected(tmp_path
         assert finished["status"] == "completed"
         assert finished["result"]["status"] == "NOT_DECIDED"  # type: ignore[index]
         assert finished["result"]["pairs_completed"] == 8  # type: ignore[index]
+    finally:
+        store.close()
+
+
+def test_paired_series_plays_the_variant_in_the_baseline_library_slots(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A one-card swap reaches the engine in the baseline's slots, not re-sorted.
+
+    Studio snapshots list their cards by name, so a swap that crosses the alphabet shifts
+    every card in between to another library slot and the paired games of one seed share
+    no shuffle. The engine reads the deck files, so the files themselves must hold the
+    aligned order.
+    """
+    from collections import Counter
+
+    from commander_lab.engine.rules.project import load_rules_deck_snapshot
+
+    # synthetic card names: the engine/pilot card preflight is not under test here
+    monkeypatch.setattr(builder, "sim_readiness_available", lambda: False)
+    store, folder = _make_store(tmp_path)
+    try:
+        named = [f"Middle Card {letter}" for letter in "BCDEFGHIJK"]
+        for index, name in enumerate([*named, "Zephyr Card", "Aardvark Card"]):
+            _add_card(store, f"cid-slot-{index}", name)
+        shared = [RevisionCard(f"cid-slot-{index}", 1, "main") for index in range(len(named))]
+        commander = RevisionCard("cid-chulane", 1, "commander")
+        forests = RevisionCard("cid-forest", 88, "main")
+        rev_base = create_revision(
+            store,
+            deck_id="slot-base",
+            name="Slot Base",
+            cards=[commander, *shared, RevisionCard("cid-slot-10", 1, "main"), forests],
+        )
+        rev_var = create_revision(
+            store,
+            deck_id="slot-variant",
+            name="Slot Variant",
+            cards=[commander, *shared, RevisionCard("cid-slot-11", 1, "main"), forests],
+        )
+
+        def _noop(_arm: str, _seed: int, _seat: int) -> paired_comparison.PlayedGame:
+            return {"exposure": None, "failure_class": "noop"}
+
+        mgr = PairedSeriesManager()
+        job = mgr.start_series(
+            store,
+            folder,
+            base_revision_id=rev_base,
+            variant_revision_id=rev_var,
+            budget_pairs=4,
+            look_every_pairs=4,
+            rotate_seats=False,
+            play_override=_noop,
+        )
+        finished = _wait_job(mgr, folder, job.series_id)
+        base_file = job.paths_by_deck_id[job.base_deck.deck_id]
+        variant_file = job.paths_by_deck_id[job.variant_deck.deck_id]
+        base_main = load_rules_deck_snapshot(base_file).mainboard
+        variant_main = load_rules_deck_snapshot(variant_file).mainboard
+        differing = [
+            (index, b, v)
+            for index, (b, v) in enumerate(zip(base_main, variant_main, strict=True))
+            if b != v
+        ]
+        assert differing == [(base_main.index("Zephyr Card"), "Zephyr Card", "Aardvark Card")]
+        # the variant still plays exactly its own cards
+        revision_cards = Counter([*named, "Aardvark Card", *(["Forest"] * 88)])
+        assert Counter(variant_main) == revision_cards
+        assert job.variant_deck.mainboard == variant_main
+
+        alignment = finished["slot_alignment"]
+        assert isinstance(alignment, dict)
+        assert alignment["swapped_slots"] == 1
+        assert alignment["appended"] == 0 and alignment["dropped"] == 0
+        assert (
+            alignment["played_mainboard_sha256"]
+            == hashlib.sha256("\n".join(variant_main).encode()).hexdigest()
+        )
+        result = finished["result"]
+        assert isinstance(result, dict)
+        assert result["execution"]["slot_alignment"] == alignment
     finally:
         store.close()
 
