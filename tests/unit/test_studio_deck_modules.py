@@ -307,3 +307,5 @@ def test_module_http_routes_and_static_ui_wiring(tmp_path: Path) -> None:
     app_js = (STATIC_DIR / "app.js").read_text(encoding="utf-8")
     assert '["modules", "Module"]' in app_js
     assert "renderModules" in app_js
+    assert "loadCompiledIntoDiff" in app_js
+    assert "Mit aktuellem Stand vergleichen" in app_js

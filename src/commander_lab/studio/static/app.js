@@ -1950,8 +1950,26 @@ function renderModules(body) {
         } catch (err) { fail(err); }
       } }, "Arbeitsliste in Kern + Paket A aufteilen");
 
+      const loadCompiledIntoDiff = (comp) => {
+        if (!comp || !Array.isArray(comp.cards) || !comp.cards.length) {
+          toast("Kompilierte Liste ist leer.");
+          return;
+        }
+        state.list.clear();
+        state.commanderIds = [];
+        for (const c of comp.cards) {
+          if (c.zone === "commander") state.commanderIds.push(c.card_id);
+          else state.list.set(c.card_id, Number(c.quantity || 1));
+        }
+        if (state.baseRevision) state.diffBaseRev = state.baseRevision;
+        markDirty();
+        state.tab = "diff";
+        renderAll();
+        toast(`Kompilierte Liste (${StudioUI.num(comp.total_cards, 0)} Karten) in Varianten-Diff geladen.`);
+      };
+
       const compileOut = h("div", { class: "section" });
-      const runCompile = async (saveRev) => {
+      const runCompile = async (saveRev, openInDiff = false) => {
         const chosen = [...state.selectedModuleIds];
         if (!chosen.length) { toast("Bitte mindestens ein Kern-Modul und ein Paket auswählen."); return; }
         compileOut.replaceChildren(StudioUI.loading("Kompiliere Module …"));
@@ -1961,6 +1979,10 @@ function renderModules(body) {
             owned_only: $("f-free") ? $("f-free").checked : true,
             save: Boolean(saveRev),
           });
+          if (openInDiff) {
+            loadCompiledIntoDiff(comp);
+            return;
+          }
           const statusCls = comp.valid ? "ok" : "bad";
           const statusTxt = comp.valid
             ? `Gültiges 100-Karten-Deck (${StudioUI.num(comp.total_cards, 0)} / ${StudioUI.num(comp.target_cards, 0)} Karten)`
@@ -1976,6 +1998,9 @@ function renderModules(body) {
               h("span", { class: "muted" }, `Ziel-Variante: ${comp.branch}`),
               comp.saved && comp.revision_id ? h("span", { class: "pill ok ml-1" }, `Gespeichert: ${comp.revision_id}`) : ""),
             issueNodes.length ? h("ul", {}, ...issueNodes) : h("p", { class: "muted" }, "Keine Konstruktions- oder Kollisionsfehler gefunden."),
+            h("div", { class: "actions" },
+              h("button", { type: "button", class: "chip", onclick: () => loadCompiledIntoDiff(comp) }, "Mit aktuellem Stand vergleichen")
+            ),
             h("label", {}, "Text-Export (Moxfield / Studio-Import):", exportArea)
           );
           if (comp.saved) {
@@ -2060,6 +2085,7 @@ function renderModules(body) {
         modTable,
         mods.length ? h("div", { class: "actions" },
           h("button", { type: "button", class: "chip", onclick: () => runCompile(false) }, "Gewählte Module prüfen & kompilieren"),
+          h("button", { type: "button", class: "chip", onclick: () => runCompile(false, true) }, "Mit aktuellem Stand vergleichen"),
           h("button", { type: "button", class: "primary", onclick: () => runCompile(true) }, "Auf 100 Karten kompilieren & als Variante speichern")) : "",
         compileOut
       );
