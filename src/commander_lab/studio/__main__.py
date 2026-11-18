@@ -27,6 +27,7 @@ from .data_report import data_report
 from .decks import lab_snapshot, validate_revision
 from .images import fetch_images
 from .launch import (
+    APPCDS_TRAINING_DECISIONS,
     DEFAULT_GAMES_PER_JVM,
     MAX_GAMES_PER_JVM,
     MAX_SEATS,
@@ -34,7 +35,9 @@ from .launch import (
     MIN_GAMES_PER_JVM,
     MIN_SEATS,
     MIN_WORKERS,
+    build_appcds_archive,
     checked_series_settings,
+    series_engine,
 )
 from .marks import import_owner_marks
 from .queries import corpus_inclusion, legal_pool
@@ -427,12 +430,46 @@ def _parser() -> argparse.ArgumentParser:
     compare.add_argument(
         "--allow-mixed", action="store_true", help="pool mixed engine commits or pilots"
     )
+    compare.add_argument(
+        "--workers",
+        type=int,
+        default=None,
+        help=f"parallel games, {MIN_WORKERS} to {MAX_WORKERS} (default: min(4, cpu count - 1))",
+    )
+    compare.add_argument(
+        "--games-per-jvm",
+        type=int,
+        default=None,
+        help=f"games per JVM, {MIN_GAMES_PER_JVM} to {MAX_GAMES_PER_JVM} (default: {DEFAULT_GAMES_PER_JVM})",
+    )
     commands.add_parser("status")
     doctor_cmd = commands.add_parser(
         "doctor",
         help="check local prerequisites (Python, packages, Java 17+, bridge JAR, pin, card catalog, data dir)",
     )
     doctor_cmd.add_argument("--json", action="store_true", help="print diagnostics as JSON")
+    appcds_cmd = commands.add_parser(
+        "build-appcds",
+        help="build a companion AppCDS archive (<jar>.jsa) for faster bridge JVM startup",
+    )
+    appcds_cmd.add_argument("--jar", type=Path, default=None, help="bridge JAR path")
+    appcds_cmd.add_argument(
+        "--archive", type=Path, default=None, help="output .jsa archive path (default: <jar>.jsa)"
+    )
+    appcds_cmd.add_argument(
+        "--decisions",
+        type=int,
+        default=APPCDS_TRAINING_DECISIONS,
+        help=f"smoke decisions to train class loading (default: {APPCDS_TRAINING_DECISIONS})",
+    )
+    appcds_cmd.add_argument(
+        "--deck",
+        action="append",
+        dest="decks",
+        default=None,
+        help="optional training deck path (repeat 2-6 times; defaults to repo training pod)",
+    )
+    appcds_cmd.add_argument("--json", action="store_true", help="print full JSON output")
     commands.add_parser(
         "data-report", help="counts-only report on what the store has, lacks and does not know"
     )
@@ -537,6 +574,7 @@ def _compare_decks(args: argparse.Namespace) -> int:
             tested_seats = [args.seat]
         else:
             raise ValueError(f"seat must be within 0..{table_size - 1}")
+        used_workers, used_batch = checked_series_settings(args.workers, args.games_per_jvm)
         folder = Path(args.data).resolve() if args.data else studio_data_dir()
         paths = [Path(args.base_deck), Path(args.variant_deck)]
         paths += [Path(path) for path in args.opponent]
@@ -548,14 +586,33 @@ def _compare_decks(args: argparse.Namespace) -> int:
         needed_seeds = -(-args.pairs // len(tested_seats))
         seeds = [args.base_seed + index for index in range(needed_seeds)]
         series_id = args.series_id or f"cmp-{int(time.time())}"
-        play = paired_comparison.recorded_game_player(
-            folder,
-            series_id=series_id,
-            base_deck=base,
-            variant_deck=variant,
-            opponents=opponents,
-            paths_by_deck_id=dict(zip(deck_ids, paths, strict=True)),
-        )
+        paths_by_deck_id = dict(zip(deck_ids, paths, strict=True))
+        engine = series_engine(folder, used_batch)
+        if engine is not None and (used_workers > 1 or engine.games_per_jvm > 1):
+            play = paired_comparison.parallel_window_player(
+                folder,
+                series_id=series_id,
+                base_deck=base,
+                variant_deck=variant,
+                opponents=opponents,
+                paths_by_deck_id=paths_by_deck_id,
+                seeds=seeds,
+                tested_seats=tested_seats,
+                budget_pairs=args.pairs,
+                look_every_pairs=args.look_every,
+                workers=used_workers,
+                games_per_jvm=engine.games_per_jvm,
+                command=engine.command,
+            )
+        else:
+            play = paired_comparison.recorded_game_player(
+                folder,
+                series_id=series_id,
+                base_deck=base,
+                variant_deck=variant,
+                opponents=opponents,
+                paths_by_deck_id=paths_by_deck_id,
+            )
         result = paired_comparison.run_comparison_series(
             base_deck_id=base.deck_id,
             variant_deck_id=variant.deck_id,
@@ -572,6 +629,8 @@ def _compare_decks(args: argparse.Namespace) -> int:
                 "rotate_seats": args.rotate_seats,
                 "look_every_pairs": args.look_every,
                 "budget_pairs": args.pairs,
+                "workers": used_workers,
+                "games_per_jvm": engine.games_per_jvm if engine is not None else used_batch,
                 "games_dir": str(games_folder(folder)),
             },
         )
@@ -937,6 +996,26 @@ def main(argv: list[str] | None = None) -> int:
         else:
             print(format_doctor_report(doctor_report))
         return 0 if bool(doctor_report["ok"]) else 1
+    if args.command == "build-appcds":
+        try:
+            payload = build_appcds_archive(
+                args.data,
+                jar=args.jar,
+                archive=args.archive,
+                deck_paths=args.decks,
+                decisions=args.decisions,
+            )
+        except (FileNotFoundError, ValueError) as error:
+            print(f"error: {error}", file=sys.stderr)
+            return 2
+        except RuntimeError as error:
+            print(f"error: {error}", file=sys.stderr)
+            return 1
+        if args.json:
+            print(json.dumps(payload, indent=2, ensure_ascii=False))
+        else:
+            print(str(payload["command"]))
+        return 0
     if args.command == "import-all":
         from .import_all import run_command
 

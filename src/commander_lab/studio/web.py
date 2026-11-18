@@ -301,6 +301,8 @@ class PairedSeriesBody(BaseModel):
     significance_level: float = Field(
         default=paired_comparison.DEFAULT_SIGNIFICANCE_LEVEL, gt=0.0, lt=0.5
     )
+    workers: int | None = Field(default=None, ge=MIN_WORKERS, le=MAX_WORKERS)
+    games_per_jvm: int | None = Field(default=None, ge=MIN_GAMES_PER_JVM, le=MAX_GAMES_PER_JVM)
 
 
 class ReadinessAuditBody(BaseModel):
@@ -1203,6 +1205,8 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
                 rotate_seats=body.rotate_seats,
                 threshold_pp=body.threshold_pp,
                 significance_level=body.significance_level,
+                workers=body.workers,
+                games_per_jvm=body.games_per_jvm,
             )
             return job.to_dict()
         except KeyError as error:
