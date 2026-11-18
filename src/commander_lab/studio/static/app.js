@@ -926,6 +926,39 @@ function renderLandAdvisor(body) {
   } else {
     body.append(h("p", { class: "muted", id: "land-advisor-candidates-empty" }, "Keine weiteren freien Nicht-Standardländer ab 20 % in dieser Vergleichsgruppe."));
   }
+  const lc = found.data.land_cycles;
+  if (lc && Array.isArray(lc.cycles)) {
+    body.append(
+      h("h4", {}, "Länder-Zyklen in Farbidentität (Deck & Pool)"),
+      h("p", { class: "note", id: "land-advisor-cycles-summary" }, `Gezählte Zyklus-Länder in der Farbidentität: ${StudioUI.num(lc.in_deck_total, 0)} / ${StudioUI.num(lc.legal_lands_total, 0)} im Deck · ${StudioUI.num(lc.in_pool_extra_total, 0)} / ${StudioUI.num(lc.legal_lands_total, 0)} weitere frei im Pool (${StudioUI.num(lc.in_pool_total, 0)} / ${StudioUI.num(lc.legal_lands_total, 0)} gesamt in Sammlung). Rein deskriptive Bestandszählung über ${StudioUI.num(lc.cycles_total, 0)} gepinnte Zyklen.`));
+    const cycleRows = lc.cycles.map((cycle) => {
+      const cardNodes = (cycle.cards || []).map((c) => {
+        const poolCard = c.card_id ? state.byId.get(c.card_id) : null;
+        const nameEl = h("span", { class: poolCard ? "nm" : "", onclick: () => { if (poolCard) openCard(poolCard); } }, c.name);
+        if (poolCard) hoverPreview(nameEl, poolCard);
+        const colSpans = (c.colours || []).map((col) => h("span", { class: "ms ms-" + col }, col));
+        const pillClass = c.in_deck ? "pill good" : c.in_pool_extra ? "pill" : c.in_pool ? "pill warn" : "pill muted";
+        const addBtn = c.in_pool_extra && poolCard && !qty(poolCard.card_id)
+          ? h("button", { class: "small", type: "button", onclick: () => add(poolCard) }, "+")
+          : null;
+        return h("span", { class: "cycle-card-item" }, ...colSpans, " ", nameEl, " ", h("span", { class: pillClass }, c.status), addBtn ? " " : null, addBtn);
+      });
+      return h("tr", {},
+        h("td", {}, h("b", {}, cycle.label), h("div", { class: "muted" }, cycle.description)),
+        h("td", { class: "num" }, `${StudioUI.num(cycle.in_deck, 0)} / ${StudioUI.num(cycle.total, 0)}`),
+        h("td", { class: "num" }, `${StudioUI.num(cycle.in_pool_extra, 0)} / ${StudioUI.num(cycle.total, 0)}`),
+        h("td", { class: "num" }, `${StudioUI.num(cycle.in_pool_total, 0)} / ${StudioUI.num(cycle.total, 0)}`),
+        h("td", {}, cardNodes.length ? h("div", { class: "chips" }, ...cardNodes) : h("span", { class: "muted" }, "0 / 0 in Farbidentität")));
+    });
+    body.append(h("div", { class: "table-wrap" }, h("table", { id: "land-advisor-cycles" },
+      h("thead", {}, h("tr", {},
+        h("th", {}, "Zyklus"),
+        h("th", { class: "num" }, "Im Deck (n/N)"),
+        h("th", { class: "num" }, "Weitere frei im Pool (n/N)"),
+        h("th", { class: "num" }, "Gesamt in Sammlung (n/N)"),
+        h("th", {}, "Karten in Farbidentität"))),
+      h("tbody", {}, cycleRows))));
+  }
   body.append(h("p", { class: "note" }, "Beobachtung, keine Vorschrift. Farbsymbole stehen in den Manakosten der Nicht-Land-Karten; ein Hybrid-Symbol zählt für beide Farben, Generisches und X zählen nicht, eine geteilte Karte zählt beide Hälften. Die Kosten des Commanders zählen nicht mit. Ein Land zählt für jede Farbe, die es erzeugt. Quellen, die keine Länder sind (Manasteine, Kreaturen), stehen getrennt. Vergleich: Median und mittlere Hälfte der Quelldecks der gewählten Vergleichsgruppe."));
 }
 // Listed combos of the commander against the deck: complete, or one card short. A count

@@ -1904,6 +1904,7 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
                     cohort=body.cohort,
                     min_share=body.min_share,
                 ),
+                "land_cycles": land_advisor.land_cycles_summary(store, rows),
             }
         finally:
             store.close()
