@@ -2,16 +2,80 @@
 // Paired overnight A-vs-B comparison series (#1404 op. 6) and C-3 simulator readiness audit.
 // DOM creation uses only h() and textContent; zero innerHTML, zero eval, zero inline styles.
 
-const PAIRED_ESTIMATED_GAMES_PER_HOUR = 540.0;
+// The one measured rate (#1251): 541 games/hour for a WHOLE batch series with 6 workers. The time
+// at that rate is shown as a floor ("mindestens"), never as a maximum; paired series throughput is
+// unmeasured. #1513's 540/h per worker is an unmeasured assumption and not used for the duration
+// (paired_series.MEASURED_BATCH_GAMES_PER_HOUR, assumed_games_per_hour_unmeasured).
+const PAIRED_MEASURED_BATCH_GAMES_PER_HOUR = 541.2;
+const PAIRED_MEASURED_BATCH_WORKERS = 6;
+// Every pod preset of this dialog seats four players; with rotation each seed plays all four.
+const PAIRED_TABLE_SEATS = 4;
 
 function estimatePairedText(budgetPairs, workers = 4) {
   const pairs = Math.max(0, Number(budgetPairs) || 0);
   const usedWorkers = Math.max(1, Math.min(16, Math.round(Number(workers) || 1)));
   const maxGames = pairs * 2;
-  const ratePerHour = PAIRED_ESTIMATED_GAMES_PER_HOUR * usedWorkers;
-  const seconds = Math.round(maxGames * (3600.0 / ratePerHour));
+  const seconds = Math.round(maxGames * (3600.0 / PAIRED_MEASURED_BATCH_GAMES_PER_HOUR));
   const minutes = StudioUI.num(seconds / 60.0, 1);
-  return `Grober Richtwert: max. ~${minutes} min (${StudioUI.num(maxGames, 0)} Partien · ${StudioUI.num(usedWorkers, 0)} Worker ≈ ${StudioUI.num(ratePerHour, 0)} Partien/h; früher Stopp je nach Look möglich).`;
+  const floorNote = usedWorkers > PAIRED_MEASURED_BATCH_WORKERS ? " Mit mehr als 6 Workern ist das keine sichere Untergrenze." : "";
+  return `Dauer: mindestens ~${minutes} min für bis zu ${StudioUI.num(maxGames, 0)} Partien, gerechnet mit den 541 Partien/h, die nur für eine ganze Batch-Serie mit 6 Workern gemessen sind (#1251). Für gepaarte Serien ist der Durchsatz ungemessen; die Dauer ist vermutlich deutlich länger.${floorNote} Früher Stopp je nach Look möglich.`;
+}
+
+// The pre-run plan comes from the backend (paired_series.planned_detectable_difference_pp via
+// GET /api/simulations/paired-plan): one computation, with the Student-t quantiles at
+// (seeds - 1) degrees of freedom that the evaluation uses. This only formats it.
+function planPairedLines(plan, thresholdPp) {
+  const range = (a, b, digits) => (a === b ? StudioUI.num(a, digits) : `${StudioUI.num(a, digits)} bis ${StudioUI.num(b, digits)}`);
+  const a = plan.assumptions || {};
+  const threshold = Number(thresholdPp) || 0;
+  const unknown = plan.detectable_pp_low === null || plan.detectable_pp_low === undefined;
+  const first = unknown
+    ? `Nachweisbare Differenz mit ${StudioUI.num(plan.budget_pairs, 0)} Paaren: unbekannt (nur ein Seed: keine Streuung zwischen Seeds, die Auswertung gibt dann kein Intervall).`
+    : threshold === 0
+    ? `Nachweisbar mit ${StudioUI.num(plan.budget_pairs, 0)} Paaren: erst Unterschiede ab etwa ${range(plan.detectable_pp_low, plan.detectable_pp_high, 1)} Prozentpunkten (95 %, Power 80 %). Kleinere Effekte bleiben „kein Unterschied nachweisbar“ – das heißt nie, dass eine Karte egal ist.`
+    : `Mit ${StudioUI.num(plan.budget_pairs, 0)} Paaren entscheidbar: erst Abstände zur Schwelle von ${StudioUI.num(threshold, 1)} pp ab etwa ${range(plan.detectable_pp_low, plan.detectable_pp_high, 1)} Prozentpunkten (95 %, Power 80 %).`;
+  return [
+    first,
+    `Für ${StudioUI.num(plan.reference_effect_pp, 0)} pp bräuchte es etwa ${range(plan.pairs_needed_low, plan.pairs_needed_high, 0)} Paare. Referenz: ein einzelner Siegrate-Anteil braucht bei 25 % rund 800 Partien für ±3 pp.`,
+    `Annahmen: Paar-Streuung ${StudioUI.num(a.pair_sd, 2)} als vorsichtiger Planungswert (exakt ${StudioUI.num(a.pair_sd_independent_exact, 3)} für unabhängige Partien mit 25 % Siegrate; gepaart: Korrelation ungemessen); Student-t mit ${StudioUI.num(a.degrees_of_freedom, 0)} Freiheitsgraden (Seeds − 1) wie in der Auswertung${a.seats_per_seed > 1 ? `; Sitzrotation mit ${StudioUI.num(a.seats_per_seed, 0)} Sitzen je Seed bis Design-Effekt ${StudioUI.num(a.design_effect, 2)} (Blockkorrelation ${StudioUI.num(a.block_correlation_assumed, 2)} angenommen)` : ""}; Zwischenblicke nicht eingerechnet. Ein Plan, keine Messung.`,
+  ];
+}
+
+// Ask the backend for the plan and format it; the dialog only shows what this returns.
+async function loadPairedPlanLines(api, budgetPairs, seatsPerSeed, thresholdPp) {
+  const plan = await api(`/api/simulations/paired-plan?budget_pairs=${encodeURIComponent(budgetPairs)}&seats_per_seed=${encodeURIComponent(seatsPerSeed)}`);
+  return planPairedLines(plan, thresholdPp);
+}
+
+function notDecidedText(res) {
+  const n = StudioUI.num(res.pairs_completed ?? 0, 0);
+  const mde = res.detectable_difference_pp;
+  const threshold = Number(res.question && res.question.threshold_pp) || 0;
+  const mdeText = mde === null || mde === undefined
+    ? "die nachweisbare Differenz ist unbekannt"
+    : `nachweisbar wären mindestens ${StudioUI.num(mde, 1)} pp (95 %, Power 80 %, aus der gemessenen Paar-Streuung)`;
+  if (threshold !== 0) {
+    return `Frage „größer als ${StudioUI.num(threshold, 1)} pp?“ nicht entschieden bei n = ${n} Paaren; ${mdeText}.`;
+  }
+  return `Kein Unterschied nachweisbar bei n = ${n} Paaren; ${mdeText}. Das heißt nicht, dass die Karte egal ist.`;
+}
+
+function fmtShare(val) {
+  return val === null || val === undefined ? "unbekannt" : StudioUI.num(Number(val), 2);
+}
+
+// Library slots of the variant (slot_alignment of the series). A series without the field was
+// played before the alignment existed: not aligned, never pooled with aligned series.
+function pairedAlignmentText(sa) {
+  if (!sa) return "nicht ausgerichtet (ältere Serie)";
+  const extra = (Number(sa.appended) || 0) + (Number(sa.dropped) || 0);
+  const text = `an Basis ausgerichtet: ${StudioUI.num(sa.swapped_slots, 0)} getauscht, ${StudioUI.num(sa.appended, 0)} angehängt, ${StudioUI.num(sa.dropped, 0)} entfallen`;
+  return extra > 0 ? `${text} – nicht deckungsgleich (Kartenzahl verschieden)` : text;
+}
+
+function pairedAlignmentShort(sa) {
+  if (!sa) return "nicht ausgerichtet (älter)";
+  return (Number(sa.appended) || 0) + (Number(sa.dropped) || 0) > 0 ? "nicht deckungsgleich" : "ausgerichtet";
 }
 
 function pairedVerdictInfo(res) {
@@ -138,6 +202,7 @@ function renderPairedMonitor(h, job, deps) {
         h("h4", { class: "mt-0" }, "Sequentielles Paar-Ergebnis"),
         vInfo ? h("span", { class: `pill ${vInfo[0]}` }, vInfo[1]) : null),
       h("p", { class: "note" }, res.stop_reason || ""),
+      res.stop_reason === "BUDGET_EXHAUSTED" ? h("p", { class: "note", id: "paired-not-decided" }, notDecidedText(res)) : null,
       h("div", { class: "sim-grid" },
         h("div", {}, h("span", { class: "muted" }, "Basis-Siegrate (A): "), h("b", {}, fmtRatePct(res.base_rate))),
         h("div", {}, h("span", { class: "muted" }, "Varianten-Siegrate (B): "), h("b", {}, fmtRatePct(res.variant_rate))),
@@ -146,6 +211,9 @@ function renderPairedMonitor(h, job, deps) {
         h("div", {}, h("span", { class: "muted" }, `Look-CI (${res.decision_level_pct !== null && res.decision_level_pct !== undefined ? StudioUI.numFlex(res.decision_level_pct, 2) : "–"} %): `), h("b", {}, fmtCiPp(res.decision_ci_pp))),
         h("div", {}, h("span", { class: "muted" }, "Sign-Test p / Diskordant: "), h("b", {}, `${pVal} (${StudioUI.num(res.variant_only_wins, 0)}B : ${StudioUI.num(res.baseline_only_wins, 0)}A · ${StudioUI.num(res.tied_pairs, 0)} gleich)`)),
         h("div", {}, h("span", { class: "muted" }, "Paare fertig / zensiert: "), h("b", {}, `${StudioUI.num(res.pairs_completed, 0)} / ${StudioUI.num(res.pairs_censored, 0)}`)),
+        h("div", { title: "Paarung spart Partien nur, wenn der gemessene Anteil deutlich unter dem Wert unabhängiger Partien liegt." }, h("span", { class: "muted" }, "Diskordante Paare (gemessen / unabhängig erwartet): "), h("b", {}, `${StudioUI.num((res.variant_only_wins ?? 0) + (res.baseline_only_wins ?? 0), 0)}/${StudioUI.num(res.pairs_completed ?? 0, 0)} = ${fmtShare(res.discordant_share)} / ${fmtShare(res.discordant_share_if_independent)}`)),
+        h("div", {}, h("span", { class: "muted" }, "Bibliotheksplätze: "), h("b", {}, pairedAlignmentText(job.slot_alignment))),
+        h("div", {}, h("span", { class: "muted" }, "Seeds: "), h("b", {}, job.seed_plan && job.seed_plan.first_seed !== null && job.seed_plan.first_seed !== undefined ? `${job.seed_plan.first_seed} bis ${job.seed_plan.last_seed} (fortlaufend)` : "unbekannt")),
         h("div", {}, h("span", { class: "muted" }, "Bridge-JAR: "), h("code", { title: bridgeSha || "" }, bridgeSha ? String(bridgeSha).slice(0, 12) : "–")),
         h("div", {}, h("span", { class: "muted" }, "Epoche: "), h("b", {}, epochLabel))),
       ...(res.warnings && res.warnings.length
@@ -256,7 +324,7 @@ function refreshPairedSlots(deps) {
       histSlot.replaceChildren(
         h("h4", { class: "mt-2" }, "Gespeicherte Nachtlauf-Serien"),
         h("div", { class: "table-wrap" }, h("table", {},
-          h("thead", {}, h("tr", {}, h("th", {}, "Serie"), h("th", {}, "Status"), h("th", {}, "Ergebnis"), h("th", { class: "num" }, "Differenz"), h("th", {}, ""))),
+          h("thead", {}, h("tr", {}, h("th", {}, "Serie"), h("th", {}, "Status"), h("th", {}, "Ergebnis"), h("th", { class: "num" }, "Differenz"), h("th", {}, "Plätze"), h("th", {}, ""))),
           h("tbody", {}, historyList.slice(0, 10).map((item) => {
             const r = item.result || null;
             const v = pairedVerdictInfo(r);
@@ -265,6 +333,7 @@ function refreshPairedSlots(deps) {
               h("td", {}, item.status),
               h("td", {}, v ? v[1] : `${StudioUI.num(item.pairs_attempted ?? 0, 0)}/${item.budget_pairs !== null && item.budget_pairs !== undefined ? StudioUI.num(item.budget_pairs, 0) : "?"} Paare`),
               h("td", { class: "num" }, r ? fmtPp(r.difference_pp) : "–"),
+              h("td", { title: pairedAlignmentText(item.slot_alignment) }, pairedAlignmentShort(item.slot_alignment)),
               h("td", {}, h("button", {
                 type: "button",
                 class: "small",
@@ -314,13 +383,29 @@ function renderPairedComparisonSection(body, deps) {
   const gamesPerJvmInput = h("input", { type: "number", value: "6", min: "1", max: "24", class: "seed-input", id: "paired-games-per-jvm-input" });
   const rotateCheck = h("input", { type: "checkbox", checked: true, id: "paired-rotate-check" });
 
+  const estLine = h("p", { class: "note", id: "paired-estimate" }, estimatePairedText(budgetSelect.value, workersInput.value));
+  const planBox = h("div", { class: "note", id: "paired-plan" });
   const updateEstimate = () => {
     estLine.textContent = estimatePairedText(budgetSelect.value, workersInput.value);
   };
-  const estLine = h("p", { class: "note", id: "paired-estimate" }, estimatePairedText(budgetSelect.value, workersInput.value));
-  budgetSelect.addEventListener("change", updateEstimate);
+  let planRequest = 0;
+  const refreshPlan = async () => {
+    const mine = ++planRequest;
+    const seats = rotateCheck.checked ? PAIRED_TABLE_SEATS : 1;
+    try {
+      const lines = await loadPairedPlanLines(deps.api, budgetSelect.value, seats, thresholdInput.value);
+      if (mine !== planRequest) return;
+      planBox.replaceChildren(...lines.map((line) => h("p", { class: "note note-compact" }, line)));
+    } catch (error) {
+      if (mine === planRequest) planBox.replaceChildren(h("p", { class: "note note-compact" }, "Planung nicht verfügbar (unbekannt)."));
+    }
+  };
+  budgetSelect.addEventListener("change", () => { updateEstimate(); refreshPlan(); });
+  rotateCheck.addEventListener("change", refreshPlan);
+  thresholdInput.addEventListener("change", refreshPlan);
   workersInput.addEventListener("change", updateEstimate);
   workersInput.addEventListener("input", updateEstimate);
+  refreshPlan();
 
   const startBtn = h("button", { type: "submit", class: "primary", id: "paired-start-btn" }, "Nachtlauf starten");
   const form = h("form", {
@@ -374,7 +459,7 @@ function renderPairedComparisonSection(body, deps) {
 
   const monSlot = h("div", { id: "paired-monitor-slot" });
   const histSlot = h("div", { id: "paired-history-slot" });
-  pBox.append(form, estLine, monSlot, histSlot);
+  pBox.append(form, estLine, planBox, monSlot, histSlot);
 
   body.append(pBox, renderReadinessAuditBox(h, deps));
   refreshPairedSlots(deps);

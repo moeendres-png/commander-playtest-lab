@@ -143,6 +143,8 @@ def test_no_pairs_is_reported_not_scored(tmp_path: Path) -> None:
     result = compare_logs(tmp_path, base_deck_id=BASE, variant_deck_id=VARIANT)
     assert result["status"] == "NO_PAIRS" and result["stop_reason"] == "NO_PAIRS"
     assert result["difference_pp"] is None and result["sign_test_p_value"] is None
+    assert result["discordant_share"] is None
+    assert result["discordant_share_if_independent"] is None
     assert result["unpaired_base"] == 1
 
 
@@ -170,6 +172,9 @@ def test_paired_statistics_match_hand_computed_values(tmp_path: Path) -> None:
     assert result["difference_pp"] == 40.0
     assert result["variant_only_wins"] == 7 and result["baseline_only_wins"] == 3
     assert result["tied_pairs"] == 0
+    # all 10 pairs discordant; independent games at 30 % / 70 % would give 0.3*0.3+0.7*0.7
+    assert result["discordant_share"] == 1.0
+    assert result["discordant_share_if_independent"] == pytest.approx(0.58)
     # exact sign test: 2 * (1 + 10 + 45 + 120) / 1024
     assert result["sign_test_p_value"] == 0.34375
     ci = result["difference_ci95_pp"]
@@ -177,6 +182,34 @@ def test_paired_statistics_match_hand_computed_values(tmp_path: Path) -> None:
     assert result["detectable_difference_pp"] is not None
     assert result["status"] == "NOT_DECIDED" and result["stop_reason"] == "SINGLE_LOOK"
     assert result["pods"] == [{"opponents": [OPP1, OPP2], "pairs": 10}]
+
+
+def test_discordant_share_counts_tied_pairs_in_the_denominator(tmp_path: Path) -> None:
+    # 10 pairs: variant only 3, base only 1, both win 1, both lose 5 -> rates 0.2 / 0.4
+    outcomes = {1: (0, 1), 2: (0, 1), 3: (0, 1), 4: (1, 0), 5: (1, 1)}
+    for seed in range(1, 11):
+        base_won, variant_won = outcomes.get(seed, (0, 0))
+        _write_log(
+            tmp_path,
+            f"b{seed}",
+            decks=[BASE, OPP1, OPP2],
+            winners=[0] if base_won else [1],
+            seed=seed,
+        )
+        _write_log(
+            tmp_path,
+            f"v{seed}",
+            decks=[VARIANT, OPP1, OPP2],
+            winners=[0] if variant_won else [1],
+            seed=seed,
+        )
+    result = compare_logs(tmp_path, base_deck_id=BASE, variant_deck_id=VARIANT)
+    assert result["base_rate"] == 0.2 and result["variant_rate"] == 0.4
+    assert result["tied_pairs"] == 6
+    # 4 discordant of 10 pairs (not of the 4 discordant ones)
+    assert result["discordant_share"] == 0.4
+    # independent games: 0.2 * 0.6 + 0.4 * 0.8 = 0.44 (not 0.2**2 + 0.4**2 = 0.2)
+    assert result["discordant_share_if_independent"] == pytest.approx(0.44)
 
 
 def test_mixed_engine_commits_are_refused_unless_allowed(tmp_path: Path) -> None:

@@ -462,6 +462,23 @@ def _aggregate_plan_summary(
     }
 
 
+def censored_round_quartiles(reached_rounds: Sequence[int], games: int) -> dict[str, int | None]:
+    """Quartiles of a first-event round over all ``games``; ``None`` where it was not reached.
+
+    A game in which the event never happened stays in the denominator as "later than the
+    game lasted": the nearest-rank quantile ``ceil(q * games)`` over the reached rounds in
+    order is ``None`` once that rank lies among the games that never reached it. So the
+    median is ``None`` when fewer than half of the games reached the event, instead of a
+    mean over only the games that did (which reads early whatever the card does).
+    """
+    ordered = sorted(reached_rounds)
+    quartiles: dict[str, int | None] = {}
+    for label, share in (("q1", 0.25), ("median", 0.5), ("q3", 0.75)):
+        rank = math.ceil(share * games)
+        quartiles[label] = ordered[rank - 1] if games > 0 and 1 <= rank <= len(ordered) else None
+    return quartiles
+
+
 def aggregate_batch_results(
     games: Sequence[GameSummary],
     deck_card_names: Sequence[str] | None = None,
@@ -518,6 +535,7 @@ def aggregate_batch_results(
         ]
         mean_first_round = round(sum(first_rounds) / len(first_rounds), 2) if first_rounds else None
         rotted_games = max(0, offered_games - cast_games)
+        reached_games = len(first_rounds)
 
         cards_summary.append(
             {
@@ -528,7 +546,18 @@ def aggregate_batch_results(
                 "games_rotted": rotted_games,
                 "offered_castable": offered_games,
                 "cast_count": total_casts,
+                # mean over the games in which the card was cast only (n below)
                 "mean_first_cast_round": mean_first_round,
+                "first_cast_round_basis": (
+                    "mean over games_reached of games_completed only; quartiles nearest-rank "
+                    "over all games_completed, a game that never cast it ranks as later than "
+                    "the game lasted (None = not reached)"
+                ),
+                "first_cast_round_games_reached": reached_games,
+                "first_cast_round_games_not_reached": completed_count - reached_games,
+                "first_cast_round_quartiles": censored_round_quartiles(
+                    first_rounds, completed_count
+                ),
             }
         )
 

@@ -115,6 +115,12 @@ class PairedComparison(TypedDict):
     variant_only_wins: int
     baseline_only_wins: int
     tied_pairs: int
+    #: Share of pairs whose two games ended differently for the tested deck, measured; and
+    #: the share two independent games at the observed rates would give,
+    #: ``p_base * (1 - p_variant) + p_variant * (1 - p_base)``. Pairing saves games only
+    #: when the measured share lies clearly below that reference.
+    discordant_share: float | None
+    discordant_share_if_independent: float | None
     sign_test_p_value: float | None
     seeds: list[int]
     seeds_completed: list[int]
@@ -442,6 +448,12 @@ def _summarize(
         "variant_only_wins": variant_only,
         "baseline_only_wins": baseline_only,
         "tied_pairs": n - variant_only - baseline_only,
+        "discordant_share": round((variant_only + baseline_only) / n, 6) if n else None,
+        "discordant_share_if_independent": (
+            None
+            if base_rate is None or variant_rate is None
+            else round(base_rate * (1 - variant_rate) + variant_rate * (1 - base_rate), 6)
+        ),
         "sign_test_p_value": None if sign_p is None else round(sign_p, 6),
         "seeds": [],
         "seeds_completed": sorted({pair["seed"] for pair in pairs}),

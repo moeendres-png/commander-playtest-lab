@@ -1218,6 +1218,16 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         finally:
             store.close()
 
+    @app.get("/api/simulations/paired-plan")
+    def paired_series_plan(
+        budget_pairs: int = Query(
+            ge=paired_comparison.MIN_BUDGET_PAIRS, le=paired_comparison.MAX_BUDGET_PAIRS
+        ),
+        seats_per_seed: int = Query(default=4, ge=1, le=6),
+    ) -> dict[str, object]:
+        """Pre-run plan of a paired series: detectable difference and its assumptions."""
+        return paired_series.planned_detectable_difference_pp(budget_pairs, seats_per_seed)
+
     @app.get("/api/simulations/paired")
     def list_paired_series() -> list[dict[str, object]]:
         """List recent paired A-vs-B comparison series."""

@@ -16,6 +16,12 @@ const deckSeriesPp = (value) =>
 const deckSeriesInterval = (ci) =>
   Array.isArray(ci) && ci.length === 2 ? `[${deckSeriesPp(ci[0])}; ${deckSeriesPp(ci[1])}]` : "unbekannt";
 const deckSeriesDate = (iso) => (iso ? iso.slice(0, 16).replace("T", " ") : "unbekannt");
+// slot_alignment_state of deck_series.py: unaligned (older) series are marked, never pooled.
+const DECK_SERIES_ALIGNMENT_TEXT = {
+  aligned: "Bibliotheksplätze an Basis ausgerichtet",
+  not_congruent: "Bibliotheksplätze nicht deckungsgleich (Kartenzahl verschieden)",
+  not_aligned_legacy: "nicht ausgerichtet (ältere Serie, nicht mit ausgerichteten zusammenzählen)",
+};
 
 function deckSeriesRefLabel(ref, labels) {
   if (labels.has(ref)) return labels.get(ref);
@@ -50,7 +56,8 @@ function deckSeriesCells(h, item, role, deps, labels) {
       item.stop_reason && !/^(DECIDED_|BUDGET_EXHAUSTED)/.test(item.stop_reason) ? h("div", { class: "muted" }, item.stop_reason) : null),
     h("td", {}, h("div", {}, `Seeds: ${seeds}`), h("div", {}, `Sitze${item.seats_planned ? " (geplant)" : ""}: ${seats}`),
       h("div", { class: "muted" }, `Bridge-JAR: ${sha} · Qualifizierung: ${qual}${item.covered_by_sealed_epoch === null ? "" : item.covered_by_sealed_epoch ? " · versiegelt" : " · nicht versiegelt"}`),
-      h("div", { class: "muted" }, `Piloten: ${item.pilots.length ? item.pilots.join(", ") : "unbekannt"}`)),
+      h("div", { class: "muted" }, `Piloten: ${item.pilots.length ? item.pilots.join(", ") : "unbekannt"}`),
+      h("div", { class: "muted" }, DECK_SERIES_ALIGNMENT_TEXT[item.slot_alignment_state] || "Ausrichtung unbekannt")),
     h("td", {}, h("button", { type: "button", class: "small", onclick: () => deps.open(item.series_id) }, "Serie öffnen")),
   ];
 }
