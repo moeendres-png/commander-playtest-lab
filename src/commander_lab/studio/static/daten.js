@@ -27,8 +27,8 @@ function kvTable(pairs) {
 function renderBridge(report) {
   const host = $("data-bridge");
   const bq = report.bridge_qualification || {};
-  const stateCode = bq.state || bq.status || "UNKNOWN";
-  const badgeCls = stateCode === "SEALED" ? "good" : "warn";
+  const stateCode = bq.status || bq.state || "UNKNOWN";
+  const badgeCls = stateCode === "ALIGNED_WITH_SEALED_EPOCH" || stateCode === "SEALED" ? "good" : "warn";
   const notMeasured = Array.isArray(report.not_measured_here) ? report.not_measured_here : [];
   host.replaceChildren(...[
     h("h2", {}, "System- & Bridge-Status"),
@@ -48,38 +48,52 @@ function renderBridge(report) {
 function renderSources(status) {
   const host = $("data-sources");
   const inv = status.source_inventory || {};
+  const sc = inv.status_counts || {};
+  const ic = status.image_cache;
   const layers = Array.isArray(status.source_layers) ? status.source_layers : [];
   const fresh = status.freshness || {};
   const recent = Array.isArray(status.sources) ? status.sources : [];
 
+  const cacheText = !ic
+    ? "unbekannt"
+    : ic.cache_enabled
+      ? `${nf(ic.files)} Dateien (${StudioUI.num(ic.megabytes, 1)} MB)`
+      : "deaktiviert";
+
   const summary = h("p", { class: "muted" },
-    `Registrierte Quellen: ${nf(inv.total)} (Verifiziert: ${nf(inv.verified)}, Prüfung: ${nf(inv.review)}, Nicht verfügbar: ${nf(inv.unavailable)}) · Bild-Cache: ${status.image_cache ? `${nf(status.image_cache.cached)}/${nf(status.image_cache.total)}` : "unbekannt"}`);
+    `Registrierte Quellen: ${nf(inv.total_sources)} (Verifiziert: ${nf(sc.VERIFIED)}, Prüfung: ${nf(sc.REVIEW)}, Nicht verfügbar: ${nf(sc.UNAVAILABLE)}) · Bild-Cache: ${cacheText}`);
 
   const layerRows = layers.map((item) => [
-    item.label || item.layer || "–",
-    nf(item.rows),
-    item.snapshot_date || unknown("kein Stand"),
-    item.age_days === null || item.age_days === undefined ? unknown("–") : `${nf(item.age_days)} Tage`,
-    item.stale === true ? h("span", { class: "badge warn" }, "veraltet") : item.stale === false ? h("span", { class: "badge good" }, "aktuell") : unknown("–"),
+    item.layer || "–",
+    nf(item.sources),
+    item.sources ? `${nf(item.dated)}/${nf(item.sources)}` : nf(item.dated),
+    item.oldest || unknown("–"),
+    item.newest || unknown("–"),
+    item.undated_note || "–",
   ]);
 
   const recentRows = recent.slice(0, 12).map((src) => [
-    src.source_id || "–",
-    src.kind || "–",
+    src.title || "–",
+    src.data_class || "–",
     src.snapshot_date || unknown("–"),
     src.imported_at ? String(src.imported_at).slice(0, 19).replace("T", " ") : "–",
   ]);
+
+  const freshLine = fresh.total_sources !== undefined
+    ? h("p", { class: "rule" },
+        `Frische: ${nf(fresh.with_snapshot_date)}/${nf(fresh.total_sources)} Quellen mit Snapshot-Datum (Ältester: ${fresh.oldest_snapshot || "–"}, Neuester: ${fresh.newest_snapshot || "–"}).`)
+    : null;
 
   host.replaceChildren(...[
     h("h2", {}, "Quellen-Register & Frische"),
     summary,
     layerRows.length
-      ? simpleTable(["Schicht / Quelle", "Zeilen", "Stand", "Alter", "Status"], layerRows)
+      ? simpleTable(["Schicht / Quelle", "Quellen", "Mit Stand", "Ältester", "Neuester", "Hinweis"], layerRows)
       : h("p", { class: "muted" }, "Keine Schicht-Metadaten vorhanden."),
     recentRows.length
-      ? h("details", {}, h("summary", {}, `Letzte Importe (${nf(recent.length)})`), simpleTable(["Quelle", "Typ", "Snapshot", "Importiert (UTC)"], recentRows))
+      ? h("details", {}, h("summary", {}, `Letzte Importe (${nf(recent.length)})`), simpleTable(["Quelle", "Datenklasse", "Snapshot", "Importiert (UTC)"], recentRows))
       : null,
-    fresh && fresh.note ? h("p", { class: "rule" }, String(fresh.note)) : null,
+    freshLine,
   ].filter(Boolean));
 }
 
@@ -100,7 +114,8 @@ function renderCollection(report) {
   host.replaceChildren(
     h("h2", {}, "Sammlung, Scryfall & Import-Hygiene"),
     kvTable([
-      ["Sammlungskarten (Zeilen)", nf(col.cards)],
+      ["Sammlungskarten (Identitäten)", nf(col.identities)],
+      ["Inventarzeilen", nf(col.inventory_rows)],
       ["Karten mit Oracle-ID", shareText(col.with_oracle_id)],
       ["Exakte Stückzahl bekannt", shareText(col.quantity_exact)],
       ["Nie verifizierte Stückzahl", shareText(col.never_verified)],
@@ -129,17 +144,23 @@ function renderRoles(report, roleAudit) {
   ]);
 
   const auditNodes = [];
-  if (roleAudit && roleAudit.summary) {
-    const s = roleAudit.summary;
-    auditNodes.push(
-      h("h3", {}, "Rollen-Abgleich (Tagger vs. Heuristik)"),
-      kvTable([
-        ["Poolkarten geprüft", nf(s.pool_cards)],
-        ["Mit Tagger-Rolle", `${nf(s.with_tagger)}/${nf(s.pool_cards)}`],
-        ["Nur Regel-/Heuristik-Rolle", `${nf(s.only_heuristic)}/${nf(s.pool_cards)}`],
-        ["Ohne jede Rolle", `${nf(s.without_role)}/${nf(s.pool_cards)}`],
-      ])
-    );
+  if (roleAudit && (roleAudit.pool_total !== undefined || roleAudit.claims_by_origin)) {
+    const pairs = [];
+    if (roleAudit.pool_total !== undefined) {
+      pairs.push(["Poolkarten geprüft", nf(roleAudit.pool_total)]);
+      pairs.push(["Mit mindestens einer Rolle", `${nf(roleAudit.pool_tagged)}/${nf(roleAudit.pool_total)}`]);
+      pairs.push(["Ohne jede Rolle", `${nf(roleAudit.pool_untagged)}/${nf(roleAudit.pool_total)}`]);
+    }
+    const cbo = roleAudit.pool_claims_by_origin || roleAudit.claims_by_origin || {};
+    for (const [originKey, count] of Object.entries(cbo)) {
+      pairs.push([`Claims (${originKey})`, nf(count)]);
+    }
+    if (pairs.length) {
+      auditNodes.push(
+        h("h3", {}, "Rollen-Abgleich (Tagger vs. Heuristik)"),
+        kvTable(pairs)
+      );
+    }
   }
 
   host.replaceChildren(...[
@@ -204,15 +225,16 @@ function renderLayersAndRecipes(commander, layersPayload, conversion) {
   const host = $("data-layers");
   const layerList = layersPayload && Array.isArray(layersPayload.layers) ? layersPayload.layers : [];
   const layerRows = layerList.map((item) => [
-    item.label || item.layer || "–",
+    item.layer || "–",
     nf(item.rows),
-    item.pool_total ? `${nf(item.pool_covered)}/${nf(item.pool_total)}` : "–",
+    item.pool !== null && item.pool !== undefined ? `${nf(item.covered)}/${nf(item.pool)}` : "–",
     item.status || "–",
     item.command || "–",
   ]);
 
-  const convSummary = conversion && conversion.summary
-    ? h("p", { class: "rule" }, `TopDeck-Turnier-Umwandlung (${StudioCommander.shortName(commander)}): ${nf(conversion.summary.matched_cards)}/${nf(conversion.summary.pool_cards)} Poolkarten belegt.`)
+  const convSummary = conversion && conversion.total_decks !== undefined
+    ? h("p", { class: "rule" },
+        `TopDeck-Turnier-Umwandlung (${StudioCommander.shortName(commander)}, ${conversion.cohort || "Turnier"}): ${nf(conversion.total_converted_decks)}/${nf(conversion.total_known_decks)} bekannte Decks konvertiert (gesamt ${nf(conversion.total_decks)} Decks, Status: ${conversion.status || "–"}).`)
     : null;
 
   const recipes = [
@@ -250,7 +272,7 @@ async function loadAll() {
     renderCorpus(report);
     renderLayersAndRecipes(commander, layersPayload, conversion);
     const alarmCount = Array.isArray(report.signal_rate_alarms) ? report.signal_rate_alarms.length : 0;
-    $("data-summary").textContent = `Stand ${report.generated_on || "–"} · Sammlung ${nf((report.collection || {}).cards)} Karten · Korpus ${nf((report.corpus || {}).decks)} Decks · Alarme: ${nf(alarmCount)}`;
+    $("data-summary").textContent = `Stand ${report.generated_on || "–"} · Sammlung ${nf((report.collection || {}).identities)} Karten · Korpus ${nf((report.corpus || {}).decks)} Decks · Alarme: ${nf(alarmCount)}`;
   } catch (err) {
     $("data-summary").textContent = "Fehler beim Laden der Datenlage.";
     StudioUI.fail(StudioUI.germanError(err));
