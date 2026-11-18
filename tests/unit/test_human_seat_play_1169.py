@@ -1594,8 +1594,13 @@ const r = BC.resolve(p, m, {type: 'object', id: ids[0]});
 const other = FX.declare_attacker.pending_decision.pilot_state.players[1].battlefield[0].object_id;
 const miss = BC.resolve(p, m, {type: 'object', id: other});
 const sole = p.legal_options[0];
+// mutation probe: an option whose id is not the object's id must never become a click on that card
+const bent = JSON.parse(JSON.stringify(p));
+bent.legal_options[0].option_id = 'not-the-object-id';
+const bm = BC.build(bent);
 console.log(JSON.stringify({kind: m.kind, mode: m.mode, ids, r, miss: miss.action, option: String(sole.option_id),
-  object: sole.metadata.object_id, zone: m.objects[ids[0]].zone}));
+  object: sole.metadata.object_id, zone: m.objects[ids[0]].zone,
+  bent: {objects: Object.keys(bm.objects).length, listOnly: bm.listOnly, click: BC.resolve(bent, bm, {type: 'object', id: ids[0]}).action}}));
 """
     )
     assert isinstance(out, dict) and (out["kind"], out["mode"], out["zone"]) == (
@@ -1608,6 +1613,8 @@ console.log(JSON.stringify({kind: m.kind, mode: m.mode, ids, r, miss: miss.actio
         "optionId": out["option"],
     }
     assert out["option"] == out["object"] and out["miss"] == "none"
+    # an option id that is not its object's id stays in the list: no click sends it
+    assert out["bent"] == {"objects": 0, "listOnly": ["not-the-object-id"], "click": "none"}
 
 
 def test_boardclick_blocker_click_toggles_the_attacker_the_engine_offered() -> None:
