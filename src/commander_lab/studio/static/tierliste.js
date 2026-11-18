@@ -79,7 +79,6 @@ const OVERALL_CRITERIA = [
 ];
 const OVERALL_AXIS_NAMES = { usage: "Nutzungsindex", ...Object.fromEntries(OVERALL_CRITERIA.map(([key, name]) => [key, `${key} ${name}`])) };
 const OVERALL_METHOD = "Gesamtrating = gewichtetes Mittel (Setzung) aus Nutzungsindex und Kartenbewertung durch Modell-Rater";
-const OVERALL_NO_USAGE = "Gesamtrating beruht hier nur auf der Kartenbewertung (keine Nutzungsdaten)";
 const OVERALL_GROUPS = { land: "Länder", spell: "Zauber" };
 // Fallback for the reading hint when the server does not send its own text (overall_meta.noise_note).
 const OVERALL_NOISE = "Unterschiede unter etwa 5 Punkten sind nicht belastbar";
@@ -217,29 +216,46 @@ function overallUsageText(item, notCounted = false) {
 function overallNoUsageCause(item, meta) {
   const usage = meta && meta.usage_axis ? meta.usage_axis : null;
   if (usage && usage.included === false) return { kind: "locked", text: `Nutzungs-Achse für diese Anfrage gesperrt${usage.excluded_reason ? `: ${usage.excluded_reason}` : ""}` };
-  if (item && item.tier === "N") return { kind: "rule", text: "Stufe N: Commander und Standardländer bekommen im Nutzungsindex per Regel keine Stufe" };
+  if (item && item.tier === "N") return { kind: "rule", text: `Stufe N: ${item.note || "Commander, Standardland oder anderer Commander"}; der Nutzungsindex vergibt dafür per Regel keine Stufe` };
   if (item && item.tier === "U") return { kind: "nodata", text: "keine Nutzungsdaten (Stufe U: zu wenig Daten)" };
   return { kind: "other", text: "ohne Nutzungs-Achse" };
 }
+// "Gesamtrating beruht hier nur auf der Kartenbewertung (<Ursache>)": the reason in the brackets follows the cause.
+function overallNoUsageSentence(cause) {
+  const why = { locked: "Nutzungs-Achse für diese Anfrage gesperrt", rule: "Stufe N: kein Nutzungsindex", nodata: "keine Nutzungsdaten", other: "ohne Nutzungs-Achse" }[cause.kind];
+  return `Gesamtrating beruht hier nur auf der Kartenbewertung (${why})`;
+}
+const overallUsageIncluded = (meta) => !(meta && meta.usage_axis && meta.usage_axis.included === false);
 // How the raters ran, read from the cards (never assumed): one run per card, several raters, or nothing rated.
 function overallRunsText(cards) {
   const rated = (cards || []).filter((entry) => entry.overall && entry.overall.score !== null && entry.overall.score !== undefined);
   if (!rated.length) return "keine bewertete Karte";
   return rated.every((entry) => entry.overall.confidence && entry.overall.confidence.raters === 1) ? "ein Lauf je Karte" : "mehrere Bewerter je Karte";
 }
-function overallLimits(runs) {
-  return `generiertes Modellurteil, ${runs}, nicht gegen Spielergebnisse validiert; vorab festgelegtes Hold-out-Kriterium verfehlt (Ansicht bleibt deshalb Zweitansicht); überschneidet sich mit der Nutzung; Simulationswerte fließen nicht ein`;
+// What the number is not. "Hold-out-Kriterium verfehlt" is a fixed statement of the Owner decision; it belongs into the
+// backend (overall_meta) and is written here only until the server sends it. The overlap with usage only holds while the
+// usage axis is part of the score.
+function overallLimits(runs, usageIncluded = true) {
+  return `generiertes Modellurteil, ${runs}, nicht gegen Spielergebnisse validiert; vorab festgelegtes Hold-out-Kriterium verfehlt (Ansicht bleibt deshalb Zweitansicht);${usageIncluded ? " überschneidet sich mit der Nutzung;" : ""} Simulationswerte fließen nicht ein`;
+}
+function overallMethod(usageIncluded = true) {
+  return usageIncluded ? OVERALL_METHOD : "Gesamtrating = Kartenbewertung durch Modell-Rater (Nutzungs-Achse für diese Anfrage gesperrt)";
 }
 // Weights as the server states them: the share of the model axes against the usage axis (read from overall_meta.weights).
-function overallWeightsText(meta, runs) {
+// With the usage axis locked the model axes carry all of it. nominal: the card has no usage axis, so these are the
+// nominal weights, not the ones of its score.
+function overallWeightsText(meta, runs, nominal = false) {
+  if (!overallUsageIncluded(meta)) return `Gewichte: 100 % Modellurteil (${runs}); Nutzungs-Achse für diese Anfrage gesperrt`;
   const weights = meta && meta.weights ? meta.weights : null;
   if (!weights || typeof weights.usage !== "number") return null;
   const total = Object.values(weights).reduce((sum, weight) => sum + weight, 0);
   if (!(total > 0)) return null;
   const usage = weights.usage / total;
-  return `Gewichte: ${StudioUI.numFlex(100 * (1 - usage), 1)} % Modellurteil (${runs}), ${StudioUI.numFlex(100 * usage, 1)} % Nutzung${meta.usage_scale === "log" ? " (log-skaliert)" : ""}`;
+  return `${nominal ? "Nominale Gewichte" : "Gewichte"}: ${StudioUI.numFlex(100 * (1 - usage), 1)} % Modellurteil (${runs}), ${StudioUI.numFlex(100 * usage, 1)} % Nutzung${meta.usage_scale === "log" ? " (log-skaliert)" : ""}`;
 }
 function overallHText(overall) { const value = overallCriterion(overall, "H"); return value === null ? "H unbekannt" : `H ${StudioUI.numFlex(value, 1)}`; }
+// Sentences joined with ". " and one closing period: never ". ." when a part is missing.
+const sentences = (parts) => `${parts.filter(Boolean).join(". ")}.`;
 // "unter 1 %" instead of "0 %" for a positive share that rounds to nothing.
 function percentOrUnder(percent) { return Math.round(percent) >= 1 ? `${StudioUI.num(percent, 0)} %` : "unter 1 %"; }
 // The breakdown of the score: one row per axis (value, effective weight, contribution), the largest contribution
@@ -694,16 +710,18 @@ const overallRuns = () => overallRunsText(state.strength.result ? state.strength
 const overallNoUsageNote = (meta) => (meta && meta.flags && meta.flags.no_usage_axis && meta.flags.no_usage_axis.note ? meta.flags.no_usage_axis.note : "Der Rang ist nicht mit dem von Karten mit Nutzungs-Achse vergleichbar.");
 // One visible block at the top of the table area while the overall rating is shown (always visible, not only in the
 // closed method panel): what the number is and is not. It sits inside the scroll area, so the bars above the table
-// keep their height (no shift when the page loads). Where the rating is not available the reason stands there instead.
+// keep their height (no shift when the page loads). Where the stored choice is the Gesamtrating but it is not available,
+// the reason stands there instead.
 function overallHint() {
   const meta = overallMeta();
   if (overallActive()) {
-    const runs = overallRuns(), weights = overallWeightsText(meta, runs);
-    const text = `Gesamtrating: ${overallLimits(runs)}. ${weights ? `${weights}. ` : ""}${overallNoise(meta)}.`;
+    const runs = overallRuns(), included = overallUsageIncluded(meta);
+    const text = sentences([`Gesamtrating: ${overallLimits(runs, included)}`, overallWeightsText(meta, runs), overallNoise(meta)]);
     return [h("div", { id: "overall-hint", class: "hint", title: `${overallNoise(meta)}. ${overallNoUsageNote(meta)}` }, text)];
   }
-  if (state.view !== "global" && state.strength.status === "ready" && !overallAvailable()) {
-    return [h("div", { id: "overall-hint", class: "hint" }, `Gesamtrating nicht verfügbar: ${meta && meta.unavailable_reason ? meta.unavailable_reason : "der Server liefert es nicht"}.`)];
+  // only where the Gesamtrating was asked for (stored choice): the default page stays as it was
+  if (state.ranking === "overall" && state.view !== "global" && state.strength.status === "ready" && !overallAvailable()) {
+    return [h("div", { id: "overall-hint", class: "hint" }, `Gesamtrating nicht verfügbar: ${meta && meta.unavailable_reason ? meta.unavailable_reason : "kein Grund geliefert"}.`)];
   }
   return [];
 }
@@ -714,8 +732,9 @@ function overallCell(card) {
   if (score === null) return overallUnknownCell(overall);
   const bare = overallWithoutUsage(item, overall);
   const cause = bare ? overallNoUsageCause(item, meta) : null;
-  const badge = bare ? h("span", { class: "badge dim", title: `${cause.text}. ${OVERALL_NO_USAGE}.` }, cause.kind === "locked" ? "Nutzung nicht eingerechnet" : "ohne Nutzungsdaten") : null;
-  return h("span", { class: "ocell", title: `Gesamtrating ${score} von 100 (gewichtetes Mittel, Setzung; keine Spielstärke). ${bare ? `${cause.text}. ${OVERALL_NO_USAGE}.` : "Ein Teil davon ist die Nutzung."}` },
+  const badgeText = bare ? { locked: "Nutzung nicht eingerechnet", rule: "Stufe N: ohne Nutzungsindex", nodata: "ohne Nutzungsdaten", other: "ohne Nutzungs-Achse" }[cause.kind] : "";
+  const badge = bare ? h("span", { class: "badge dim", title: `${cause.text}. ${overallNoUsageSentence(cause)}.` }, badgeText) : null;
+  return h("span", { class: "ocell", title: `Gesamtrating ${score} von 100 (gewichtetes Mittel, Setzung; keine Spielstärke). ${bare ? `${cause.text}. ${overallNoUsageSentence(cause)}.` : "Ein Teil davon ist die Nutzung."}` },
     h("b", { class: "oscore" }, score), badge,
     h("span", { class: "rule oparts", title: "Die Einzelwerte hinter dem Score: Stufe und Index des Nutzungsindex (nicht die log-skalierte Achse) und die Gesamteinschätzung H." }, h("span", {}, bare && cause.kind === "locked" ? overallUsageText(item, true) : bare ? "ohne Nutzungs-Achse" : overallUsageText(item)), h("span", {}, overallHText(overall))));
 }
@@ -726,7 +745,8 @@ function overallRankCell(card) {
   const sharp = overall.stability && overall.stability.unscharf
     ? h("span", { class: "unsharp", title: `unscharf: ${span}. Der Rang hängt merklich von den gesetzten Gewichten ab.` }, "unscharf") : null;
   const group = overallGroupText(overall), meta = overallMeta();
-  const bare = overallWithoutUsage(strengthItem(card), overall);
+  // with the usage axis locked for the whole request every card is without it: they stay comparable among themselves
+  const bare = overallWithoutUsage(strengthItem(card), overall) && overallNoUsageCause(strengthItem(card), meta).kind !== "locked";
   const groupNote = meta && meta.groups && meta.groups.note ? meta.groups.note : "Länder haben einen eigenen Rang.";
   return h("span", { class: "rank-cell" }, h("span", { class: "nowrap", title: span || null }, text), sharp,
     bare ? h("span", { class: "badge warn", title: overallNoUsageNote(meta) }, "Rang nicht vergleichbar") : null,
@@ -767,9 +787,10 @@ function overallWhyBox(card) {
   const score = overallScoreText(overall);
   if (score === null) {
     box.append(h("p", {}, `Gesamtrating unbekannt (nicht 0): ${overall.unknown_reason || "keine Bewertung vorhanden"}. Das sagt nichts über die Stärke der Karte.`),
-      h("p", { class: "rule" }, `${OVERALL_METHOD}; ${overallLimits(overallRuns())}.`));
+      h("p", { class: "rule" }, `${overallMethod(overallUsageIncluded(meta))}; ${overallLimits(overallRuns(), overallUsageIncluded(meta))}.`));
     return box;
   }
+  const limitsText = overallLimits(overallRuns(), overallUsageIncluded(meta));
   const rankText = overallRankText(overall);
   const lines = [`Gesamt ${score} von 100${rankText ? `, ${rankText} (Gleichstände teilen den besten Rang)` : ", ohne Rang"}.`, "Das Gesamtrating hat keinen Stufenbuchstaben; die Stufe der Tabelle bleibt die des Nutzungsindex."];
   const group = overallGroupText(overall);
@@ -779,7 +800,7 @@ function overallWhyBox(card) {
   box.append(h("ul", { class: "why-list" }, lines.map((line) => h("li", {}, line))));
   if (overallWithoutUsage(item, overall)) {
     const cause = overallNoUsageCause(item, meta);
-    box.append(h("p", { class: "policy", id: "overall-no-usage" }, `${OVERALL_NO_USAGE}. Grund: ${cause.text}. Die Gewichte der übrigen Achsen sind auf 100 % umgerechnet. ${overallNoUsageNote(meta)}`));
+    box.append(h("p", { class: "policy", id: "overall-no-usage" }, sentences([overallNoUsageSentence(cause), `Grund: ${cause.text}`, "Die Gewichte der übrigen Achsen sind auf 100 % umgerechnet", cause.kind === "locked" ? "Alle Karten sind ohne Nutzungs-Achse bewertet und untereinander vergleichbar" : overallNoUsageNote(meta)])));
   }
   const split = overallRows(overall);
   if (split) {
@@ -793,9 +814,9 @@ function overallWhyBox(card) {
   box.append(h("h4", {}, "Begründung der Modell-Rater (englisch; ungeprüft, keine Regelauskunft)"),
     h("p", { class: "overall-reason", lang: "en" }, overall.reason || "keine Begründung gespeichert"),
     h("p", { class: "rule" }, `Rater-Vertrauen ${overallConfidenceWord(overall) || "unbekannt"}: ${overallConfidenceText(overall) || "keine Angabe"}.`),
-    h("p", { class: "rule", id: "overall-reading" }, `${overallNoise(meta)}. ${overallWeightsText(meta, overallRuns()) || ""}.`),
+    h("p", { class: "rule", id: "overall-reading" }, sentences([overallNoise(meta), overallWeightsText(meta, overallRuns(), overallWithoutUsage(item, overall))])),
     h("p", { class: "rule" }, `Gewichte sind eine Setzung, keine Messung${meta && meta.weights_note && meta.weights_note !== "Setzung, keine Messung" ? ` (${meta.weights_note})` : ""}.`),
-    h("p", { class: "rule" }, `${overallLimits(overallRuns()).charAt(0).toUpperCase()}${overallLimits(overallRuns()).slice(1)}.`));
+    h("p", { class: "rule" }, `${limitsText.charAt(0).toUpperCase()}${limitsText.slice(1)}.`));
   return box;
 }
 // The method panel: what the second ranking is, how it is weighted, what it does not contain.
@@ -812,10 +833,10 @@ function renderOverallPanel() {
   const dataset = meta.dataset || {};
   host.replaceChildren(...[
     h("div", { class: "facts" }, h("b", {}, "Gesamtrating (zweites Ranking)"), h("span", { class: "muted" }, `${nf(meta.n_rated)} von ${nf(meta.n_total)} Karten bewertet`)),
-    h("p", { id: "overall-method" }, `${OVERALL_METHOD} (${raterText}, ${nf(dataset.matched === undefined ? meta.n_rated : dataset.matched)} von ${nf(dataset.rows === undefined ? meta.n_total : dataset.rows)} Karten des Datensatzes); ${overallLimits(raterText)}.`),
+    h("p", { id: "overall-method" }, `${overallMethod(usage.included !== false)} (${raterText}, ${nf(dataset.matched === undefined ? meta.n_rated : dataset.matched)} von ${nf(dataset.rows === undefined ? meta.n_total : dataset.rows)} Karten des Datensatzes); ${overallLimits(raterText, usage.included !== false)}.`),
     h("p", { class: "rule" }, `Gewichte (Setzung, keine Messung): ${weights}.`),
     h("p", { class: "rule" }, usage.included ? `Die Nutzungs-Achse ist der Stärke-Index dieser Anfrage und bei ${nf(usage.n_with_usage)} von ${nf(usage.n_total)} Karten vorhanden; fehlt sie, werden die übrigen Gewichte auf 100 % umgerechnet.` : `Die Nutzungs-Achse entfällt: ${usage.excluded_reason || "keine Angabe"}.`),
-    h("p", { class: "rule" }, `${overallNoise(meta)}. ${overallWeightsText(meta, raterText) || ""}.`),
+    h("p", { class: "rule" }, sentences([overallNoise(meta), overallWeightsText(meta, raterText)])),
     meta.weights_caveat ? h("p", { class: "rule" }, meta.weights_caveat) : null,
     meta.groups && meta.groups.n_rated && meta.groups.note ? h("p", { class: "rule" }, `Länder und Zauber: ${nf(meta.groups.n_rated.land)} Länder, ${nf(meta.groups.n_rated.spell)} Zauber bewertet. ${meta.groups.note}.`) : null,
     meta.flags && meta.flags.no_usage_axis ? h("p", { class: "rule" }, `Ohne Nutzungs-Achse: ${nf(meta.flags.no_usage_axis.count)} von ${nf(meta.n_rated)} bewerteten Karten. ${meta.flags.no_usage_axis.note}.`) : null,
@@ -2236,8 +2257,8 @@ function renderCoreLine() {
   const overall = state.view !== "global" && (state.strength.status === "loading" ? state.ranking === "overall" : overallActive());
   $("core-line").textContent = state.view === "global"
     ? "Ohne Commander gibt es keine Stufe: gezeigt wird die globale Beliebtheit, keine Spielstärke."
-    : overall ? "Gesamtrating = Modellurteil (ein Lauf je Karte) plus Nutzung, nicht validiert." : `Stufe = Nutzung in ${VIEW_NAMES.commander}-Decks, keine Spielstärke.`;
-  if (overall) $("core-line").setAttribute("title", `${OVERALL_METHOD}; ${overallLimits(overallRuns())}. Die Stufe der Tabelle bleibt die des Nutzungsindex.`);
+    : overall ? "Gesamtrating = gewichtetes Modellurteil, nicht validiert." : `Stufe = Nutzung in ${VIEW_NAMES.commander}-Decks, keine Spielstärke.`;
+  if (overall) $("core-line").setAttribute("title", `${overallMethod(overallUsageIncluded(overallMeta()))}; ${overallLimits(overallRuns(), overallUsageIncluded(overallMeta()))}. Die Stufe der Tabelle bleibt die des Nutzungsindex.`);
   else $("core-line").removeAttribute("title");
 }
 // ---------- ranking toggle: Nutzung | Gesamtrating ----------

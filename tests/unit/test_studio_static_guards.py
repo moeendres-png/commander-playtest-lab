@@ -928,7 +928,8 @@ const unknownOverall = {status: 'unbekannt', score: null, rank: null, n_rated: 9
 const noRank = rated({rank: null, rank_in_group: null});
 const cards = {A: {card_id: 'A', tier: 'S', index: 76.5, overall: rated()}, B: {card_id: 'B', tier: 'U', index: null, overall: noUsage},
   C: {card_id: 'C', tier: 'D', index: 0.2, overall: unknownOverall}, D: {card_id: 'D', tier: 'S', index: 70, overall: noRank},
-  E: {card_id: 'E', tier: 'S', index: 70, overall: noUsage}};
+  E: {card_id: 'E', tier: 'S', index: 70, overall: noUsage},
+  F: {card_id: 'F', tier: 'N', index: null, note: 'nicht bewertet (Commander)', overall: noUsage}};
 const meta = {available: true, weights: {usage: 0.3, H: 0.3, F: 0.15, E: 0.1, T: 0.05, R: 0.05, D: 0.025, K: 0.025}, usage_scale: 'log',
   noise_note: 'Unterschiede unter etwa 5 Punkten sind nicht belastbar (Rauschen des Einzelratings)', usage_axis: {included: true},
   flags: {no_usage_axis: {count: 1, note: 'Rang nicht mit Karten mit Nutzungs-Achse vergleichbar'}}};
@@ -967,10 +968,21 @@ out.whyA = text(why(A)); out.whyB = text(why(B)); out.whyC = text(why(C)); out.w
 out.noUsageBox = find(why(B), (n) => n.props.id === 'overall-no-usage').map(text);
 out.noUsageBoxA = find(why(A), (n) => n.props.id === 'overall-no-usage').length;
 out.hint = text(overallHint()[0]);
+out.readingB = find(why(B), (n) => n.props.id === 'overall-reading').map(text);
+out.fBadge = text(overallCell(cards.F)); out.fWhy = find(why(cards.F), (n) => n.props.id === 'overall-no-usage').map(text);
+setup(lockedMeta);
+out.lockedHint = text(overallHint()[0]);
+out.lockedReading = find(why(cards.E), (n) => n.props.id === 'overall-reading').map(text);
+out.lockedNoUsage = find(why(cards.E), (n) => n.props.id === 'overall-no-usage').map(text);
+out.lockedRankMark = find(overallRankCell(cards.E), (n) => n.props.class === 'badge warn').length;
+out.lockedWhyText = text(why(cards.E));
+setup();
 setup({available: false, unavailable_reason: 'nur im Bracket 3 verfügbar'});
 out.hintOff = text(overallHint()[0]);
 state.ranking = 'usage'; setup({available: true}); state.ranking = 'usage';
 out.hintUsage = overallHint().length;
+setup({available: false}); out.hintNoReason = text(overallHint()[0]);
+state.ranking = 'usage'; out.hintOffUsage = overallHint().length;
 console.log(JSON.stringify(out));
 """
     )
@@ -1014,7 +1026,36 @@ console.log(JSON.stringify(out));
         assert needle in r["hint"], needle
     assert "Stufe C" not in r["hint"]
     assert "nicht verfügbar" in r["hintOff"] and "nur im Bracket 3" in r["hintOff"]
-    assert r["hintUsage"] == 0
+    assert r["hintUsage"] == 0 and r["hintOffUsage"] == 0  # the default page shows no extra line
+    assert "kein Grund geliefert" in r["hintNoReason"] and "Server liefert" not in r["hintNoReason"]
+    assert r["readingB"][0].startswith("Unterschiede")
+    assert "Nominale Gewichte: 70 % Modellurteil" in r["readingB"][0]
+    assert "Stufe N: ohne Nutzungsindex" in r["fBadge"] and "ohne Nutzungsdaten" not in r["fBadge"]
+    assert "nicht bewertet (Commander)" in r["fWhy"][0]
+    assert (
+        "(Stufe N: kein Nutzungsindex)" in r["fWhy"][0]
+        and "keine Nutzungsdaten" not in r["fWhy"][0]
+    )
+    locked = r["lockedHint"]
+    assert "100 % Modellurteil" in locked and "für diese Anfrage gesperrt" in locked
+    assert "30 % Nutzung" not in locked and "überschneidet sich mit der Nutzung" not in locked
+    assert (
+        "100 % Modellurteil" in r["lockedReading"][0]
+        and "Nutzung (log" not in r["lockedReading"][0]
+    )
+    assert "untereinander vergleichbar" in r["lockedNoUsage"][0]
+    assert "keine Nutzungsdaten" not in r["lockedNoUsage"][0]
+    assert (
+        r["lockedRankMark"] == 0
+    )  # all cards lack the axis: they stay comparable among themselves
+    for text_out in (
+        r["hint"],
+        locked,
+        r["readingB"][0],
+        r["lockedReading"][0],
+        r["lockedWhyText"],
+    ):
+        assert ". ." not in text_out and ".." not in text_out.replace("...", "")
 
 
 def test_overall_reading_texts_come_from_the_data_not_from_assumptions() -> None:
@@ -1049,7 +1090,7 @@ console.log(JSON.stringify({
     js = (STATIC / "tierliste.js").read_text(encoding="utf-8")
     assert "Stufe C" not in js and "OVERALL_LIMITS" not in js and "usage_scale_note" not in js
     assert (
-        "Modellurteil (ein Lauf je Karte) plus Nutzung, nicht validiert" in js
+        "Gesamtrating = gewichtetes Modellurteil, nicht validiert." in js
     )  # the always visible core line
     assert 'plainHead("Rater-Vertrauen (Selbstauskunft)"' in js
     assert '["confidence", "Datenlage-Konfidenz des Nutzungsindex (Zähler)"]' in js
