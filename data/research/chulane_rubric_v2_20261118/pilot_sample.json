@@ -1,0 +1,638 @@
+{
+ "RATER_VISIBLE": false,
+ "cards": [
+  {
+   "bucket": "land",
+   "name": "Command Tower",
+   "oracle_id": "0895c9b7-ae7d-4bb3-af17-3b75deb50a25",
+   "stratum": "A",
+   "v1_H_mean": 10.0,
+   "v1_is_anchor": true,
+   "why": "v1 anchor in the pool (fixed v1 value; checks that v2 reproduces the order of the anchors)"
+  },
+  {
+   "bucket": "noncreature",
+   "name": "Counterspell",
+   "oracle_id": "cc187110-1148-4090-bbb8-e205694a39f5",
+   "stratum": "A",
+   "v1_H_mean": 7.0,
+   "v1_is_anchor": true,
+   "why": "v1 anchor in the pool (fixed v1 value; checks that v2 reproduces the order of the anchors)"
+  },
+  {
+   "bucket": "mana",
+   "name": "Cultivate",
+   "oracle_id": "8b755881-a72d-4e21-a369-d2924eb4585a",
+   "stratum": "A",
+   "v1_H_mean": 5.0,
+   "v1_is_anchor": true,
+   "why": "v1 anchor in the pool (fixed v1 value; checks that v2 reproduces the order of the anchors)"
+  },
+  {
+   "bucket": "land",
+   "name": "Evolving Wilds",
+   "oracle_id": "a75445d3-1303-4bb5-89ad-26ea93fecd48",
+   "stratum": "A",
+   "v1_H_mean": 5.0,
+   "v1_is_anchor": true,
+   "why": "v1 anchor in the pool (fixed v1 value; checks that v2 reproduces the order of the anchors)"
+  },
+  {
+   "bucket": "mana",
+   "name": "Farseek",
+   "oracle_id": "495e52e6-4c2b-4574-9474-eadbdcc8b4ac",
+   "stratum": "A",
+   "v1_H_mean": 6.0,
+   "v1_is_anchor": true,
+   "why": "v1 anchor in the pool (fixed v1 value; checks that v2 reproduces the order of the anchors)"
+  },
+  {
+   "bucket": "mana",
+   "name": "Llanowar Elves",
+   "oracle_id": "68954295-54e3-4303-a6bc-fc4547a4e3a3",
+   "stratum": "A",
+   "v1_H_mean": 8.0,
+   "v1_is_anchor": true,
+   "why": "v1 anchor in the pool (fixed v1 value; checks that v2 reproduces the order of the anchors)"
+  },
+  {
+   "bucket": "land",
+   "name": "Selesnya Guildgate",
+   "oracle_id": "75b235d3-595a-4859-be45-9559d8445db5",
+   "stratum": "A",
+   "v1_H_mean": 3.0,
+   "v1_is_anchor": true,
+   "why": "v1 anchor in the pool (fixed v1 value; checks that v2 reproduces the order of the anchors)"
+  },
+  {
+   "bucket": "land",
+   "name": "Simic Growth Chamber",
+   "oracle_id": "046f5783-cc7b-416a-8cf6-2bcef9c2cc1a",
+   "stratum": "A",
+   "v1_H_mean": 8.0,
+   "v1_is_anchor": true,
+   "why": "v1 anchor in the pool (fixed v1 value; checks that v2 reproduces the order of the anchors)"
+  },
+  {
+   "bucket": "mana",
+   "name": "Sol Ring",
+   "oracle_id": "6ad8011d-3471-4369-9d68-b264cc027487",
+   "stratum": "A",
+   "v1_H_mean": 10.0,
+   "v1_is_anchor": true,
+   "why": "v1 anchor in the pool (fixed v1 value; checks that v2 reproduces the order of the anchors)"
+  },
+  {
+   "bucket": "noncreature",
+   "name": "Swords to Plowshares",
+   "oracle_id": "b1544f21-7e98-461b-aed5-e748b0168c52",
+   "stratum": "A",
+   "v1_H_mean": 9.0,
+   "v1_is_anchor": true,
+   "why": "v1 anchor in the pool (fixed v1 value; checks that v2 reproduces the order of the anchors)"
+  },
+  {
+   "bucket": "mana",
+   "name": "Academy Manufactor",
+   "oracle_id": "f36d1d8b-8303-44a9-ab56-531931641ea2",
+   "stratum": "B",
+   "v1_H_mean": 1.67,
+   "v1_is_anchor": false,
+   "why": "reference deck card; bucket mana"
+  },
+  {
+   "bucket": "mana",
+   "name": "Arbor Elf",
+   "oracle_id": "4567a528-75f0-4ea6-b927-3a500caf76ac",
+   "stratum": "B",
+   "v1_H_mean": 5.67,
+   "v1_is_anchor": false,
+   "why": "reference deck card; bucket mana"
+  },
+  {
+   "bucket": "noncreature",
+   "name": "Arcane Denial",
+   "oracle_id": "ab1cc360-b9de-48d9-9983-4dfe4a7d2a37",
+   "stratum": "B",
+   "v1_H_mean": 5.0,
+   "v1_is_anchor": false,
+   "why": "reference deck card; bucket noncreature"
+  },
+  {
+   "bucket": "creature_other",
+   "name": "Bennie Bracks, Zoologist",
+   "oracle_id": "17bd7ef7-8b4b-4a2d-a667-c751e10e2a47",
+   "stratum": "B",
+   "v1_H_mean": 3.0,
+   "v1_is_anchor": false,
+   "why": "reference deck card; bucket creature_other"
+  },
+  {
+   "bucket": "creature_other",
+   "name": "Brazen Borrower // Petty Theft",
+   "oracle_id": "c7b044c3-3cfa-407e-bf20-2875e8e04b7b",
+   "stratum": "B",
+   "v1_H_mean": 7.0,
+   "v1_is_anchor": false,
+   "why": "reference deck card; bucket creature_other"
+  },
+  {
+   "bucket": "creature_etb",
+   "name": "Cloudblazer",
+   "oracle_id": "f84d1291-1f82-4b67-a26e-b79624b4ce1d",
+   "stratum": "B",
+   "v1_H_mean": 7.33,
+   "v1_is_anchor": false,
+   "why": "reference deck card; bucket creature_etb"
+  },
+  {
+   "bucket": "creature_other",
+   "name": "Detective of the Month",
+   "oracle_id": "10d1d6ca-95f8-48da-8798-37c8aadb1f1f",
+   "stratum": "B",
+   "v1_H_mean": 4.33,
+   "v1_is_anchor": false,
+   "why": "reference deck card; bucket creature_other"
+  },
+  {
+   "bucket": "noncreature",
+   "name": "Felidar Retreat",
+   "oracle_id": "16629f59-bae8-4c19-bf50-443eb0ed6856",
+   "stratum": "B",
+   "v1_H_mean": 7.0,
+   "v1_is_anchor": false,
+   "why": "reference deck card; bucket noncreature"
+  },
+  {
+   "bucket": "noncreature",
+   "name": "Fumigate",
+   "oracle_id": "b17ea905-0696-4e58-b564-557e87236e27",
+   "stratum": "B",
+   "v1_H_mean": 2.67,
+   "v1_is_anchor": false,
+   "why": "reference deck card; bucket noncreature"
+  },
+  {
+   "bucket": "creature_etb",
+   "name": "Helpful Hunter",
+   "oracle_id": "c0864adb-e9aa-40b6-91ff-a0646193e887",
+   "stratum": "B",
+   "v1_H_mean": 6.0,
+   "v1_is_anchor": false,
+   "why": "reference deck card; bucket creature_etb"
+  },
+  {
+   "bucket": "mana",
+   "name": "Horizon Explorer",
+   "oracle_id": "e8d20361-d9b7-4f9c-8ec5-3ac7c460dcb2",
+   "stratum": "B",
+   "v1_H_mean": 5.67,
+   "v1_is_anchor": false,
+   "why": "reference deck card; bucket mana"
+  },
+  {
+   "bucket": "creature_etb",
+   "name": "Loran of the Third Path",
+   "oracle_id": "b3d81980-76f2-44e2-b1c9-01e30c726312",
+   "stratum": "B",
+   "v1_H_mean": 4.67,
+   "v1_is_anchor": false,
+   "why": "reference deck card; bucket creature_etb"
+  },
+  {
+   "bucket": "mana",
+   "name": "Noxious Newt",
+   "oracle_id": "1232c461-643c-40a3-901e-09b665f817da",
+   "stratum": "B",
+   "v1_H_mean": 5.0,
+   "v1_is_anchor": false,
+   "why": "reference deck card; bucket mana"
+  },
+  {
+   "bucket": "noncreature",
+   "name": "Open the Armory",
+   "oracle_id": "2ecf7771-8061-4710-ad2e-80b092ae0b4b",
+   "stratum": "B",
+   "v1_H_mean": 1.33,
+   "v1_is_anchor": false,
+   "why": "reference deck card; bucket noncreature"
+  },
+  {
+   "bucket": "land",
+   "name": "Seaside Citadel",
+   "oracle_id": "2ae77795-6a80-498b-bf69-6fd612f601e4",
+   "stratum": "B",
+   "v1_H_mean": 6.33,
+   "v1_is_anchor": false,
+   "why": "reference deck card; bucket land"
+  },
+  {
+   "bucket": "land",
+   "name": "Selesnya Sanctuary",
+   "oracle_id": "00ef1c55-dea1-4564-bd57-66de86cba4df",
+   "stratum": "B",
+   "v1_H_mean": 7.67,
+   "v1_is_anchor": false,
+   "why": "reference deck card; bucket land"
+  },
+  {
+   "bucket": "land",
+   "name": "Terramorphic Expanse",
+   "oracle_id": "1bd3e453-aa21-4ee6-95c2-d6d920ee8e7a",
+   "stratum": "B",
+   "v1_H_mean": 5.0,
+   "v1_is_anchor": false,
+   "why": "reference deck card; bucket land"
+  },
+  {
+   "bucket": "creature_etb",
+   "name": "Voracious Greatshark",
+   "oracle_id": "5d96840e-f9b3-4c86-8f59-f12e5736318f",
+   "stratum": "B",
+   "v1_H_mean": 4.33,
+   "v1_is_anchor": false,
+   "why": "reference deck card; bucket creature_etb"
+  },
+  {
+   "bucket": "creature_etb",
+   "name": "Whitemane Lion",
+   "oracle_id": "e8d6084b-9b72-438e-a30a-851b888f3e4d",
+   "stratum": "B",
+   "v1_H_mean": 6.67,
+   "v1_is_anchor": false,
+   "why": "reference deck card; bucket creature_etb"
+  },
+  {
+   "bucket": "noncreature",
+   "name": "Wilderness Reclamation",
+   "oracle_id": "6f856f99-4cb4-479d-958d-964220965ed6",
+   "stratum": "B",
+   "v1_H_mean": 1.67,
+   "v1_is_anchor": false,
+   "why": "reference deck card; bucket noncreature"
+  },
+  {
+   "bucket": "creature_etb",
+   "name": "Azorius Arrester",
+   "oracle_id": "3f2a27a1-f9cf-4dac-a248-5c6af4de3722",
+   "stratum": "C",
+   "v1_H_mean": 3.67,
+   "v1_is_anchor": false,
+   "why": "stratum C (lower tier band, not in the reference deck); bucket creature_etb"
+  },
+  {
+   "bucket": "land",
+   "name": "Dread Statuary",
+   "oracle_id": "a9789ce4-69cf-435c-b99a-78a21609830c",
+   "stratum": "C",
+   "v1_H_mean": 1.33,
+   "v1_is_anchor": false,
+   "why": "stratum C land (lower tier band); bucket land"
+  },
+  {
+   "bucket": "noncreature",
+   "name": "Formless Genesis",
+   "oracle_id": "b978bdfe-a73e-4e99-90d7-4f99182c45ee",
+   "stratum": "C",
+   "v1_H_mean": 1.67,
+   "v1_is_anchor": false,
+   "why": "stratum C (lower tier band, not in the reference deck); bucket noncreature"
+  },
+  {
+   "bucket": "land",
+   "name": "Grixis Panorama",
+   "oracle_id": "743f4488-fef1-4f4d-b745-d2de92423e00",
+   "stratum": "C",
+   "v1_H_mean": 1.0,
+   "v1_is_anchor": false,
+   "why": "stratum C land (lower tier band); bucket land"
+  },
+  {
+   "bucket": "mana",
+   "name": "Hydro-Channeler",
+   "oracle_id": "95630a83-3699-4340-b3e5-17e81db1b82f",
+   "stratum": "C",
+   "v1_H_mean": 1.33,
+   "v1_is_anchor": false,
+   "why": "stratum C (lower tier band, not in the reference deck); bucket mana"
+  },
+  {
+   "bucket": "creature_other",
+   "name": "Jhessian Infiltrator",
+   "oracle_id": "6ec8dc98-adc7-4fc3-94e5-31037235ceab",
+   "stratum": "C",
+   "v1_H_mean": 3.0,
+   "v1_is_anchor": false,
+   "why": "stratum C (lower tier band, not in the reference deck); bucket creature_other"
+  },
+  {
+   "bucket": "land",
+   "name": "Jund Panorama",
+   "oracle_id": "f39f33ac-074d-442d-ae4c-1d694ee315f3",
+   "stratum": "C",
+   "v1_H_mean": 2.0,
+   "v1_is_anchor": false,
+   "why": "stratum C land (lower tier band); bucket land"
+  },
+  {
+   "bucket": "creature_other",
+   "name": "Linden, the Steadfast Queen",
+   "oracle_id": "dbc56f3b-83b3-41c8-a8ae-d3774fe6ee01",
+   "stratum": "C",
+   "v1_H_mean": 1.33,
+   "v1_is_anchor": false,
+   "why": "stratum C (lower tier band, not in the reference deck); bucket creature_other"
+  },
+  {
+   "bucket": "mana",
+   "name": "Lys Alana Dignitary",
+   "oracle_id": "ce7582a2-e014-41fb-8753-00d29cffc81a",
+   "stratum": "C",
+   "v1_H_mean": 2.0,
+   "v1_is_anchor": false,
+   "why": "stratum C (lower tier band, not in the reference deck); bucket mana"
+  },
+  {
+   "bucket": "creature_etb",
+   "name": "Pelakka Wurm",
+   "oracle_id": "d36075c2-de66-4202-9217-b1102a2bc14b",
+   "stratum": "C",
+   "v1_H_mean": 2.67,
+   "v1_is_anchor": false,
+   "why": "stratum C (lower tier band, not in the reference deck); bucket creature_etb"
+  },
+  {
+   "bucket": "noncreature",
+   "name": "Safe Passage",
+   "oracle_id": "dfa459a1-b065-4488-88d3-4da388261b52",
+   "stratum": "C",
+   "v1_H_mean": 2.33,
+   "v1_is_anchor": false,
+   "why": "stratum C (lower tier band, not in the reference deck); bucket noncreature"
+  },
+  {
+   "bucket": "noncreature",
+   "name": "Stalactite Dagger",
+   "oracle_id": "064c3269-c012-4fc7-84c3-5f147a82a03c",
+   "stratum": "C",
+   "v1_H_mean": 2.0,
+   "v1_is_anchor": false,
+   "why": "stratum C (lower tier band, not in the reference deck); bucket noncreature"
+  },
+  {
+   "bucket": "noncreature",
+   "name": "Steal Artifact",
+   "oracle_id": "cd8ae9f2-edac-473a-8846-c08219e617c3",
+   "stratum": "C",
+   "v1_H_mean": 1.33,
+   "v1_is_anchor": false,
+   "why": "stratum C (lower tier band, not in the reference deck); bucket noncreature"
+  },
+  {
+   "bucket": "creature_other",
+   "name": "Sun-Dappled Celebrant",
+   "oracle_id": "27c87371-697e-4ca6-a7f4-d99215d908bc",
+   "stratum": "C",
+   "v1_H_mean": 2.67,
+   "v1_is_anchor": false,
+   "why": "stratum C (lower tier band, not in the reference deck); bucket creature_other"
+  },
+  {
+   "bucket": "creature_etb",
+   "name": "Temple Acolyte",
+   "oracle_id": "17e4085e-af44-4ba8-af05-ccfe4b35f96a",
+   "stratum": "C",
+   "v1_H_mean": 2.33,
+   "v1_is_anchor": false,
+   "why": "stratum C (lower tier band, not in the reference deck); bucket creature_etb"
+  },
+  {
+   "bucket": "creature_other",
+   "name": "Chasm Drake",
+   "oracle_id": "e0f44bb8-f07b-416c-b767-87b9fe6461aa",
+   "stratum": "D",
+   "v1_H_mean": 1.67,
+   "v1_is_anchor": false,
+   "why": "stratum D; no positive pattern (plain)"
+  },
+  {
+   "bucket": "creature_other",
+   "name": "Cloud Elemental",
+   "oracle_id": "0b751cc7-3a19-4207-9e64-83e18d279588",
+   "stratum": "D",
+   "v1_H_mean": 1.33,
+   "v1_is_anchor": false,
+   "why": "stratum D; no positive pattern (plain)"
+  },
+  {
+   "bucket": "noncreature",
+   "name": "Flayer Husk",
+   "oracle_id": "5cfdfcac-57fb-4507-a97a-cccbac2d1327",
+   "stratum": "D",
+   "v1_H_mean": 1.67,
+   "v1_is_anchor": false,
+   "why": "stratum D; no positive pattern (plain)"
+  },
+  {
+   "bucket": "creature_other",
+   "name": "Greater Basilisk",
+   "oracle_id": "6e42e7dc-acd9-4125-a90d-75fd8da204b3",
+   "stratum": "D",
+   "v1_H_mean": 1.67,
+   "v1_is_anchor": false,
+   "why": "stratum D; no positive pattern (plain)"
+  },
+  {
+   "bucket": "creature_other",
+   "name": "Kindercatch",
+   "oracle_id": "c690f92f-f34f-4df0-9e01-d2ecf3b8f857",
+   "stratum": "D",
+   "v1_H_mean": 1.0,
+   "v1_is_anchor": false,
+   "why": "stratum D; creature without rules text (vanilla)"
+  },
+  {
+   "bucket": "noncreature",
+   "name": "Mighty Emergence",
+   "oracle_id": "e7f038af-977a-42ff-bebb-718b7490188a",
+   "stratum": "D",
+   "v1_H_mean": 1.33,
+   "v1_is_anchor": false,
+   "why": "stratum D; carries a positive Chulane pattern (etb_other_creature)"
+  },
+  {
+   "bucket": "noncreature",
+   "name": "Puca's Eye",
+   "oracle_id": "499b4cf9-2aaa-45a0-8362-77b727b7f7cc",
+   "stratum": "D",
+   "v1_H_mean": 2.67,
+   "v1_is_anchor": false,
+   "why": "stratum D; carries a positive Chulane pattern (etb_own_draw)"
+  },
+  {
+   "bucket": "noncreature",
+   "name": "Quicksilver Geyser",
+   "oracle_id": "6ee7b00b-b875-48e2-92f2-889c154b0f82",
+   "stratum": "D",
+   "v1_H_mean": 4.0,
+   "v1_is_anchor": false,
+   "why": "stratum D; carries a positive Chulane pattern (bounce_any_creature_target)"
+  },
+  {
+   "bucket": "noncreature",
+   "name": "Razor Boomerang",
+   "oracle_id": "f2649e48-4252-43f3-bd1e-c4c6fcb0aa3a",
+   "stratum": "D",
+   "v1_H_mean": 1.67,
+   "v1_is_anchor": false,
+   "why": "stratum D; carries a positive Chulane pattern (bounce_self)"
+  },
+  {
+   "bucket": "land",
+   "name": "Rocky Tar Pit",
+   "oracle_id": "8709b5b1-ef9e-45b2-bf4f-ef4c4d613dcd",
+   "stratum": "D",
+   "v1_H_mean": 1.0,
+   "v1_is_anchor": false,
+   "why": "stratum D land; bucket land"
+  },
+  {
+   "bucket": "creature_other",
+   "name": "Silverclaw Griffin",
+   "oracle_id": "5a7ecb5c-9b22-4d2c-b851-db92c1d3c745",
+   "stratum": "D",
+   "v1_H_mean": 1.67,
+   "v1_is_anchor": false,
+   "why": "stratum D; no positive pattern (plain)"
+  },
+  {
+   "bucket": "noncreature",
+   "name": "Skinwing",
+   "oracle_id": "100c877d-4cce-4b96-8f21-a4f8a43e7d84",
+   "stratum": "D",
+   "v1_H_mean": 1.33,
+   "v1_is_anchor": false,
+   "why": "stratum D; no positive pattern (plain)"
+  },
+  {
+   "bucket": "creature_other",
+   "name": "Snapping Creeper",
+   "oracle_id": "bb4e1340-da63-46b8-a5e3-79dfedec3e78",
+   "stratum": "D",
+   "v1_H_mean": 1.67,
+   "v1_is_anchor": false,
+   "why": "stratum D; carries a positive Chulane pattern (landfall)"
+  },
+  {
+   "bucket": "creature_other",
+   "name": "Stonework Puma",
+   "oracle_id": "841b1010-a7d3-415e-b76d-7b50fea909cb",
+   "stratum": "D",
+   "v1_H_mean": 1.0,
+   "v1_is_anchor": false,
+   "why": "stratum D; creature without rules text (vanilla)"
+  },
+  {
+   "bucket": "noncreature",
+   "name": "Tam's Resistance",
+   "oracle_id": "7500b7dc-588d-46bd-acc5-885dcd464668",
+   "stratum": "D",
+   "v1_H_mean": 1.33,
+   "v1_is_anchor": false,
+   "why": "stratum D; no positive pattern (plain)"
+  },
+  {
+   "bucket": "noncreature",
+   "name": "Farewell",
+   "oracle_id": "4eb813fd-2d5a-4b02-8193-662681ef4e7d",
+   "stratum": "E",
+   "v1_H_mean": 3.33,
+   "v1_is_anchor": false,
+   "why": "coverage: Game Changer (Bracket 3 limit)"
+  },
+  {
+   "bucket": "noncreature",
+   "name": "Narset, Parter of Veils",
+   "oracle_id": "ab26fbe2-e808-48b9-8d0d-3fbb6c3d554f",
+   "stratum": "E",
+   "v1_H_mean": 4.0,
+   "v1_is_anchor": false,
+   "why": "coverage: Game Changer (Bracket 3 limit)"
+  },
+  {
+   "bucket": "creature_other",
+   "name": "Prudent Fateseer // Peer Review",
+   "oracle_id": "63f67baa-3f37-41b8-9ee6-3c37f828917d",
+   "stratum": "E",
+   "v1_H_mean": 3.67,
+   "v1_is_anchor": false,
+   "why": "coverage: multi-face card (prepare)"
+  }
+ ],
+ "coverage": {
+  "by_bucket": {
+   "creature_etb": 8,
+   "creature_other": 14,
+   "land": 11,
+   "mana": 10,
+   "noncreature": 20
+  },
+  "by_stratum": {
+   "A": 10,
+   "B": 20,
+   "C": 15,
+   "D": 15,
+   "E": 3
+  },
+  "game_changers": [
+   "Farewell",
+   "Narset, Parter of Veils"
+  ],
+  "lands": 11,
+  "multi_face": [
+   "Brazen Borrower // Petty Theft",
+   "Prudent Fateseer // Peer Review"
+  ],
+  "n_cards": 63,
+  "vanilla_creatures": 2,
+  "with_own_etb": 12
+ },
+ "note": "v1 values are for calibration only. No usage counts are stored here, but strata C and D separate cards with usage (C, tier D) from cards without usage (D) as a category. Raters never see this file: the rater prompt gets the card id and nothing else of this file. usage_holdout.jsonl is local and never checked in.",
+ "quota": {
+  "B": {
+   "creature_etb": 5,
+   "creature_other": 3,
+   "land": 3,
+   "mana": 4,
+   "noncreature": 5
+  },
+  "C": {
+   "creature_etb": 3,
+   "creature_other": 3,
+   "land": 3,
+   "mana": 2,
+   "noncreature": 4
+  },
+  "D": {
+   "creature_etb": 3,
+   "creature_other": 5,
+   "land": 1,
+   "mana": 1,
+   "noncreature": 5
+  }
+ },
+ "reference_deck": "chulane-current@41f393530bb16ee9",
+ "retest_cards": [
+  "Detective of the Month",
+  "Farseek",
+  "Loran of the Third Path",
+  "Pelakka Wurm",
+  "Quicksilver Geyser",
+  "Skinwing",
+  "Sol Ring",
+  "Steal Artifact"
+ ],
+ "schema": "rubric-v2-pilot-sample-1",
+ "seed": 1118,
+ "v1_reference_rule": "v1 H_mean (summary.csv) is the reference for Spearman except for the 10 anchors, whose v1 H is fixed by the guide and therefore not an independent rating"
+}

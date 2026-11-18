@@ -1,0 +1,1931 @@
+{
+ "blink_own": [
+  {
+   "evidence": "exile x target creatures, then investigate x times. return the exiled cards to the battlefield tapped under their owners' control at the beginning of the next end step.",
+   "hits": 1,
+   "mv": 2.0,
+   "name": "Disorder in the Court",
+   "type_line": "Instant"
+  },
+  {
+   "evidence": "whenever you cast a creature spell, exile up to one other target creature you control, then return that card to the battlefield under its owner's control.",
+   "hits": 1,
+   "mv": 4.0,
+   "name": "Flickering Hound",
+   "type_line": "Creature — Dog"
+  },
+  {
+   "evidence": "when ~ enters, exile another target permanent. return that card to the battlefield under its owner's control at the beginning of the next end step.",
+   "hits": 1,
+   "mv": 4.0,
+   "name": "Glimmerpoint Stag",
+   "type_line": "Creature — Elk"
+  },
+  {
+   "evidence": "exile target creature you control, then return that card to the battlefield under its owner's control. create a 1/1 colorless shapeshifter creature token with changeling.",
+   "hits": 1,
+   "mv": 2.0,
+   "name": "Personify",
+   "type_line": "Instant"
+  },
+  {
+   "evidence": "{w}, {t}: exile target land you control, then return it to the battlefield under your control.",
+   "hits": 1,
+   "mv": 2.0,
+   "name": "Ruin Ghost",
+   "type_line": "Creature — Spirit"
+  }
+ ],
+ "bounce_any_creature_target": [
+  {
+   "evidence": "when ~ enters, return target creature to its owner's hand.",
+   "hits": 1,
+   "mv": 3.0,
+   "name": "Aether Adept",
+   "type_line": "Creature — Human Wizard"
+  },
+  {
+   "evidence": "return six target nonland permanents to their owners' hands.",
+   "hits": 1,
+   "mv": 5.0,
+   "name": "Aether Gale",
+   "type_line": "Sorcery"
+  },
+  {
+   "evidence": "{u}, sacrifice ~: return target creature to its owner's hand.",
+   "hits": 1,
+   "mv": 1.0,
+   "name": "Aether Spellbomb",
+   "type_line": "Artifact"
+  },
+  {
+   "evidence": "return target nonland permanent to its owner's hand. surveil 1.",
+   "hits": 1,
+   "mv": 2.0,
+   "name": "Banishing Betrayal",
+   "type_line": "Instant"
+  },
+  {
+   "evidence": "return target creature to its owner's hand. its controller draws a card.",
+   "hits": 1,
+   "mv": 2.0,
+   "name": "Call to Heel",
+   "type_line": "Instant"
+  },
+  {
+   "evidence": "return target nonland permanent to its owner's hand.",
+   "hits": 1,
+   "mv": 2.0,
+   "name": "Disperse",
+   "type_line": "Instant"
+  },
+  {
+   "evidence": "return target nonland permanent to its owner's hand. if ~ was kicked, draw a card.",
+   "hits": 1,
+   "mv": 2.0,
+   "name": "Into the Roil",
+   "type_line": "Instant"
+  },
+  {
+   "evidence": "when ~ enters, return up to one other target creature to its owner's hand.",
+   "hits": 1,
+   "mv": 3.0,
+   "name": "Matterbending Mage",
+   "type_line": "Creature — Human Wizard"
+  },
+  {
+   "evidence": "{1}{u}, sacrifice ~: return target creature to its owner's hand.",
+   "hits": 1,
+   "mv": 3.0,
+   "name": "Neurok Replica",
+   "type_line": "Artifact Creature — Wizard"
+  },
+  {
+   "evidence": "return up to two target nonland permanents to their owners' hands.",
+   "hits": 1,
+   "mv": 5.0,
+   "name": "Quicksilver Geyser",
+   "type_line": "Instant"
+  },
+  {
+   "evidence": "choose two target creatures controlled by different players. return those creatures to their owners' hands.",
+   "hits": 1,
+   "mv": 2.0,
+   "name": "Run Away Together",
+   "type_line": "Instant"
+  },
+  {
+   "evidence": "return target creature to its owner's hand.",
+   "hits": 1,
+   "mv": 2.0,
+   "name": "Snapback",
+   "type_line": "Instant"
+  },
+  {
+   "evidence": "return target creature to its owner's hand.",
+   "hits": 1,
+   "mv": 1.0,
+   "name": "Unsummon",
+   "type_line": "Instant"
+  },
+  {
+   "evidence": "return target nonland permanent to its owner's hand. if ~ was kicked, draw a card.",
+   "hits": 1,
+   "mv": 2.0,
+   "name": "Whoosh!",
+   "type_line": "Instant"
+  }
+ ],
+ "bounce_mass_includes_own": [
+  {
+   "evidence": "when ~ enters, return all other nonland permanents to their owners' hands.",
+   "hits": 1,
+   "mv": 8.0,
+   "name": "Kederekt Leviathan",
+   "type_line": "Creature — Leviathan"
+  }
+ ],
+ "bounce_own_creature": [
+  {
+   "evidence": "return target permanent you control and target permanent you don't control to their owners' hands.",
+   "hits": 1,
+   "mv": 3.0,
+   "name": "Aether Tradewinds",
+   "type_line": "Instant"
+  },
+  {
+   "evidence": "when ~ enters, return a green or white creature you control to its owner's hand.",
+   "hits": 1,
+   "mv": 3.0,
+   "name": "Fleetfoot Panther",
+   "type_line": "Creature — Cat"
+  },
+  {
+   "evidence": "whenever ~ attacks, return another creature you control to its owner's hand.",
+   "hits": 1,
+   "mv": 6.0,
+   "name": "Havengul Skaab",
+   "type_line": "Creature — Zombie Horror"
+  },
+  {
+   "evidence": "when ~ enters, return a permanent you control to its owner's hand.",
+   "hits": 1,
+   "mv": 2.0,
+   "name": "Kor Skyfisher",
+   "type_line": "Creature — Kor Soldier"
+  },
+  {
+   "evidence": "return target permanent you control to its owner's hand. you gain 4 life.",
+   "hits": 1,
+   "mv": 3.0,
+   "name": "Narrow Escape",
+   "type_line": "Instant"
+  },
+  {
+   "evidence": "when ~ enters, return a creature you control to its owner's hand.",
+   "hits": 1,
+   "mv": 1.0,
+   "name": "Shrieking Drake",
+   "type_line": "Creature — Drake"
+  },
+  {
+   "evidence": "when ~ enters, return two creatures you control to their owner's hand.",
+   "hits": 1,
+   "mv": 5.0,
+   "name": "Stormfront Riders",
+   "type_line": "Creature — Human Soldier"
+  },
+  {
+   "evidence": "when ~ enters, return a creature you control to its owner's hand.",
+   "hits": 1,
+   "mv": 2.0,
+   "name": "Whitemane Lion",
+   "type_line": "Creature — Cat"
+  }
+ ],
+ "bounce_own_land": [
+  {
+   "evidence": "when ~ enters, return a land you control to its owner's hand.",
+   "hits": 1,
+   "mv": 0.0,
+   "name": "Azorius Chancery",
+   "type_line": "Land"
+  },
+  {
+   "evidence": "when ~ enters, return a land you control to its owner's hand.",
+   "hits": 1,
+   "mv": 0.0,
+   "name": "Selesnya Sanctuary",
+   "type_line": "Land"
+  },
+  {
+   "evidence": "when ~ enters, return a land you control to its owner's hand.",
+   "hits": 1,
+   "mv": 0.0,
+   "name": "Simic Growth Chamber",
+   "type_line": "Land"
+  },
+  {
+   "evidence": "at the beginning of your upkeep, sacrifice ~ unless you return a land you control to its owner's hand.",
+   "hits": 1,
+   "mv": 5.0,
+   "name": "Vapor Snare",
+   "type_line": "Enchantment — Aura"
+  }
+ ],
+ "bounce_own_other_permanent": [
+  {
+   "evidence": "at the beginning of your upkeep, return an artifact you control to its owner's hand.",
+   "hits": 1,
+   "mv": 3.0,
+   "name": "Esperzoa",
+   "type_line": "Artifact Creature — Jellyfish"
+  }
+ ],
+ "bounce_self": [
+  {
+   "evidence": "{2}{u}{u}: return ~ to its owner's hand.",
+   "hits": 1,
+   "mv": 6.0,
+   "name": "Arcanis the Omnipotent",
+   "type_line": "Legendary Creature — Wizard"
+  },
+  {
+   "evidence": "{3}, {t}, return ~ to its owner's hand: search your library for a gate card, put it onto the battlefield, then shuffle. if you control ten or more gates with different names, you win the game.",
+   "hits": 1,
+   "mv": 0.0,
+   "name": "Maze's End",
+   "type_line": "Land"
+  },
+  {
+   "evidence": "equipped creature has \"{t}, unattach ~: it deals 1 damage to any target. return ~ to its owner's hand.\"",
+   "hits": 1,
+   "mv": 3.0,
+   "name": "Razor Boomerang",
+   "type_line": "Artifact — Equipment"
+  }
+ ],
+ "cast_creature_draw": [
+  {
+   "evidence": "whenever you cast a creature spell, draw a card.",
+   "hits": 1,
+   "mv": 4.0,
+   "name": "Champions of the Perfect",
+   "type_line": "Creature — Elf Warrior"
+  }
+ ],
+ "cast_trigger_any_spell": [],
+ "cast_trigger_creature": [
+  {
+   "evidence": "whenever you cast a creature spell, draw a card.",
+   "hits": 1,
+   "mv": 4.0,
+   "name": "Champions of the Perfect",
+   "type_line": "Creature — Elf Warrior"
+  },
+  {
+   "evidence": "whenever you cast a creature spell, exile up to one other target creature you control, then return that card to the battlefield under its owner's control.",
+   "hits": 1,
+   "mv": 4.0,
+   "name": "Flickering Hound",
+   "type_line": "Creature — Dog"
+  },
+  {
+   "evidence": "whenever you cast a creature spell, create a 3/3 green beast creature token.",
+   "hits": 1,
+   "mv": 6.0,
+   "name": "Primeval Bounty",
+   "type_line": "Enchantment"
+  }
+ ],
+ "cast_trigger_other_type": [
+  {
+   "evidence": "magecraft — whenever you cast or copy an instant or sorcery spell, draw a card.",
+   "hits": 1,
+   "mv": 4.0,
+   "name": "Archmage Emeritus",
+   "type_line": "Creature — Human Wizard"
+  },
+  {
+   "evidence": "whenever you cast a spell during an opponent's turn, put a +1/+1 counter on ~.",
+   "hits": 1,
+   "mv": 2.0,
+   "name": "Brineborn Cutthroat",
+   "type_line": "Creature — Merfolk Pirate"
+  },
+  {
+   "evidence": "opus — whenever you cast an instant or sorcery spell, ~ gets +1/+1 until end of turn. if five or more mana was spent to cast that spell, ~ gets +2/+2 until end of turn instead.",
+   "hits": 1,
+   "mv": 3.0,
+   "name": "Deluge Virtuoso",
+   "type_line": "Creature — Human Wizard"
+  },
+  {
+   "evidence": "whenever you cast a spell of the chosen color, you gain 1 life.",
+   "hits": 1,
+   "mv": 2.0,
+   "name": "Diamond Mare",
+   "type_line": "Artifact Creature — Horse"
+  },
+  {
+   "evidence": "whenever you cast an instant or sorcery spell, put a page counter on ~.",
+   "hits": 1,
+   "mv": 2.0,
+   "name": "Diary of Dreams",
+   "type_line": "Artifact — Book"
+  },
+  {
+   "evidence": "whenever you cast an instant or sorcery spell with mana value 5 or greater from your hand, ~ becomes prepared.",
+   "hits": 1,
+   "mv": 3.0,
+   "name": "Dirgur Focusmage // Braingeyser",
+   "type_line": "Creature — Djinn Monk // Sorcery"
+  },
+  {
+   "evidence": "whenever you cast a spirit or arcane spell, you may put a ki counter on ~.",
+   "hits": 1,
+   "mv": 3.0,
+   "name": "Faithful Squire // Kaiso, Memory of Loyalty",
+   "type_line": "Creature — Human Soldier // Legendary Creature — Spirit"
+  },
+  {
+   "evidence": "whenever you cast a spirit or arcane spell, regenerate ~.",
+   "hits": 1,
+   "mv": 5.0,
+   "name": "Fiddlehead Kami",
+   "type_line": "Creature — Spirit"
+  },
+  {
+   "evidence": "whenever you cast a spell that targets ~, draw a card.",
+   "hits": 1,
+   "mv": 4.0,
+   "name": "Gnarlback Rhino",
+   "type_line": "Creature — Rhino"
+  },
+  {
+   "evidence": "whenever you cast a spell with mana value 4 or greater, ~ gets +2/+0 and gains vigilance until end of turn.",
+   "hits": 1,
+   "mv": 3.0,
+   "name": "Kulrath Mystic",
+   "type_line": "Creature — Elemental Wizard"
+  },
+  {
+   "evidence": "whenever you cast an instant or sorcery spell with mana value 5 or greater, create a token that's a copy of ~.",
+   "hits": 1,
+   "mv": 3.0,
+   "name": "Leitmotif Composer",
+   "type_line": "Creature — Human Bard"
+  },
+  {
+   "evidence": "whenever you cast a spell with mana value 4 or greater, put a +1/+1 counter on ~.",
+   "hits": 1,
+   "mv": 2.0,
+   "name": "Lurking Lizards",
+   "type_line": "Creature — Lizard Villain"
+  },
+  {
+   "evidence": "whenever you cast a spell with {x} in its mana cost, ~ can't be blocked this turn.",
+   "hits": 1,
+   "mv": 3.0,
+   "name": "Matterbending Mage",
+   "type_line": "Creature — Human Wizard"
+  },
+  {
+   "evidence": "whenever you cast an artifact spell, you may untap target creature.",
+   "hits": 1,
+   "mv": 3.0,
+   "name": "Mirran Spy",
+   "type_line": "Creature — Drone"
+  },
+  {
+   "evidence": "whenever you cast your first noncreature spell each turn, empower jace 1.",
+   "hits": 1,
+   "mv": 4.0,
+   "name": "Plan for All Outcomes",
+   "type_line": "Enchantment"
+  },
+  {
+   "evidence": "whenever you cast a noncreature spell, put three +1/+1 counters on target creature you control.",
+   "hits": 1,
+   "mv": 6.0,
+   "name": "Primeval Bounty",
+   "type_line": "Enchantment"
+  },
+  {
+   "evidence": "whenever you cast an aura, equipment, or vehicle spell, draw a card.",
+   "hits": 1,
+   "mv": 2.0,
+   "name": "Sram, Senior Edificer",
+   "type_line": "Legendary Creature — Dwarf Advisor"
+  },
+  {
+   "evidence": "whenever you cast a spell with mana value 4 or greater, draw a card.",
+   "hits": 1,
+   "mv": 4.0,
+   "name": "Tanufel Rimespeaker",
+   "type_line": "Creature — Elemental Wizard"
+  }
+ ],
+ "cost_reduction_any_spell": [],
+ "cost_reduction_creature": [],
+ "cost_reduction_typed_spell": [
+  {
+   "evidence": "kithkin spells and soldier spells you cast cost {1} less to cast.",
+   "hits": 1,
+   "mv": 2.0,
+   "name": "Ballyrush Banneret",
+   "type_line": "Creature — Kithkin Soldier"
+  },
+  {
+   "evidence": "instant and sorcery spells you cast cost {1} less to cast.",
+   "hits": 1,
+   "mv": 3.0,
+   "name": "Dirgur Focusmage // Braingeyser",
+   "type_line": "Creature — Djinn Monk // Sorcery"
+  },
+  {
+   "evidence": "spells you cast of the chosen type cost {1} less to cast.",
+   "hits": 1,
+   "mv": 4.0,
+   "name": "Gathering Stone",
+   "type_line": "Artifact"
+  },
+  {
+   "evidence": "instant and sorcery spells you cast cost {1} less to cast.",
+   "hits": 1,
+   "mv": 3.0,
+   "name": "Mocking Sprite",
+   "type_line": "Creature — Faerie Rogue"
+  },
+  {
+   "evidence": "instant and sorcery spells you cast cost {1} less to cast.",
+   "hits": 1,
+   "mv": 2.0,
+   "name": "Thunderclap Drake",
+   "type_line": "Creature — Drake"
+  }
+ ],
+ "creature_dependent": [
+  {
+   "evidence": "enchanted creature gets +1/+2.",
+   "hits": 1,
+   "mv": 2.0,
+   "name": "Aquitect's Defenses",
+   "type_line": "Enchantment — Aura"
+  },
+  {
+   "evidence": "equipped creature gets +4/-1.",
+   "hits": 1,
+   "mv": 3.0,
+   "name": "Barbed Battlegear",
+   "type_line": "Artifact — Equipment"
+  },
+  {
+   "evidence": "equipped creature gets +0/+1.",
+   "hits": 2,
+   "mv": 2.0,
+   "name": "Bark of Doran",
+   "type_line": "Artifact — Equipment"
+  },
+  {
+   "evidence": "equipped creature has deathtouch and lifelink.",
+   "hits": 1,
+   "mv": 1.0,
+   "name": "Basilisk Collar",
+   "type_line": "Artifact — Equipment"
+  },
+  {
+   "evidence": "when ~ enters, you gain 1 life for each creature you control.",
+   "hits": 1,
+   "mv": 5.0,
+   "name": "Conclave Phalanx",
+   "type_line": "Creature — Human Soldier"
+  },
+  {
+   "evidence": "werewolf creatures you control get +1/+0 and have trample.",
+   "hits": 1,
+   "mv": 2.0,
+   "name": "Full Moon's Rise",
+   "type_line": "Enchantment"
+  },
+  {
+   "evidence": "creatures you control have trample.",
+   "hits": 1,
+   "mv": 3.0,
+   "name": "Garruk's Uprising",
+   "type_line": "Enchantment"
+  },
+  {
+   "evidence": "equipped creature gets +1/+1.",
+   "hits": 2,
+   "mv": 2.0,
+   "name": "Goldvein Pick",
+   "type_line": "Artifact — Equipment"
+  },
+  {
+   "evidence": "draw a card for each creature you control with a +1/+1 counter on it. those creatures gain indestructible until end of turn.",
+   "hits": 1,
+   "mv": 3.0,
+   "name": "Inspiring Call",
+   "type_line": "Instant"
+  },
+  {
+   "evidence": "{4}{g}{g}: until end of turn, creatures you control have base power and toughness x/x, where x is the number of cards in your hand.",
+   "hits": 1,
+   "mv": 2.0,
+   "name": "Jolrael, Mwonvuli Recluse",
+   "type_line": "Legendary Creature — Human Druid"
+  },
+  {
+   "evidence": "creatures you control have flying.",
+   "hits": 1,
+   "mv": 4.0,
+   "name": "Levitation",
+   "type_line": "Enchantment"
+  },
+  {
+   "evidence": "equipped creature has haste and shroud.",
+   "hits": 1,
+   "mv": 2.0,
+   "name": "Lightning Greaves",
+   "type_line": "Artifact — Equipment"
+  },
+  {
+   "evidence": "equipped creature gets +0/+1 and has \"sacrifice ~: ~ deals 1 damage to any target.\"",
+   "hits": 1,
+   "mv": 2.0,
+   "name": "Mortarpod",
+   "type_line": "Artifact — Equipment"
+  },
+  {
+   "evidence": "equipped creature gets +3/+1.",
+   "hits": 1,
+   "mv": 3.0,
+   "name": "Piston Sledge",
+   "type_line": "Artifact — Equipment"
+  },
+  {
+   "evidence": "creatures you control get +0/+5 until end of turn.",
+   "hits": 1,
+   "mv": 4.0,
+   "name": "Solidarity",
+   "type_line": "Instant"
+  },
+  {
+   "evidence": "enchanted creature gets +1/+1 and has protection from creatures.",
+   "hits": 1,
+   "mv": 2.0,
+   "name": "Spirit Mantle",
+   "type_line": "Enchantment — Aura"
+  },
+  {
+   "evidence": "sacrifice ~: creatures you control gain flying until end of turn.",
+   "hits": 1,
+   "mv": 4.0,
+   "name": "Stormcaller's Boon",
+   "type_line": "Enchantment"
+  },
+  {
+   "evidence": "whenever ~ attacks, other creatures you control get +1/+1 until end of turn.",
+   "hits": 1,
+   "mv": 5.0,
+   "name": "Syr Alin, the Lion's Claw",
+   "type_line": "Legendary Creature — Human Knight"
+  },
+  {
+   "evidence": "{4}{w}: creatures you control get +1/+1 until end of turn.",
+   "hits": 1,
+   "mv": 2.0,
+   "name": "Timid Shieldbearer",
+   "type_line": "Creature — Kithkin Soldier"
+  },
+  {
+   "evidence": "enchanted creature gets +2/+2 and has \"{1}{g}: regenerate ~.\"",
+   "hits": 1,
+   "mv": 3.0,
+   "name": "Trollhide",
+   "type_line": "Enchantment — Aura"
+  }
+ ],
+ "edict_symmetric": [],
+ "etb_doubler": [],
+ "etb_other_creature": [
+  {
+   "evidence": "whenever a creature you control enters, you may have ~ become a 3/3 white angel artifact creature with flying until end of turn.",
+   "hits": 1,
+   "mv": 3.0,
+   "name": "Angel's Tomb",
+   "type_line": "Artifact"
+  },
+  {
+   "evidence": "whenever another creature you control enters while ~ has a -1/-1 counter on it, remove a -1/-1 counter from ~.",
+   "hits": 1,
+   "mv": 2.0,
+   "name": "Bristlebane Battler",
+   "type_line": "Creature — Kithkin Soldier"
+  },
+  {
+   "evidence": "whenever another creature you control enters, put a +1/+1 counter on ~.",
+   "hits": 1,
+   "mv": 3.0,
+   "name": "Champion of Lambholt",
+   "type_line": "Creature — Human Warrior"
+  },
+  {
+   "evidence": "whenever another creature you control enters, ~ gets +1/+0 until end of turn.",
+   "hits": 1,
+   "mv": 3.0,
+   "name": "Crossroads Watcher",
+   "type_line": "Creature — Kithkin Ranger"
+  },
+  {
+   "evidence": "whenever a creature you control with power 4 or greater enters, draw a card.",
+   "hits": 1,
+   "mv": 3.0,
+   "name": "Garruk's Uprising",
+   "type_line": "Enchantment"
+  },
+  {
+   "evidence": "whenever another creature you control enters, ~ gets +1/+1 until end of turn.",
+   "hits": 1,
+   "mv": 1.0,
+   "name": "Kinsbaile Aspirant",
+   "type_line": "Creature — Kithkin Citizen"
+  },
+  {
+   "evidence": "whenever another nontoken creature you control enters, investigate.",
+   "hits": 1,
+   "mv": 2.0,
+   "name": "Lonis, Cryptozoologist",
+   "type_line": "Legendary Creature — Snake Elf Scout"
+  },
+  {
+   "evidence": "whenever a creature you control with power 5 or greater enters, you may put two +1/+1 counters on it.",
+   "hits": 1,
+   "mv": 3.0,
+   "name": "Mighty Emergence",
+   "type_line": "Enchantment"
+  },
+  {
+   "evidence": "whenever another creature you control enters while ~ has a -1/-1 counter on it, remove a -1/-1 counter from ~.",
+   "hits": 1,
+   "mv": 3.0,
+   "name": "Reluctant Dounguard",
+   "type_line": "Creature — Kithkin Soldier"
+  },
+  {
+   "evidence": "alliance — whenever another creature you control enters, ~ gains deathtouch until end of turn. if this is the second time this ability has resolved this turn, all creatures you control gain deathtouch until end of turn.",
+   "hits": 1,
+   "mv": 2.0,
+   "name": "Venom Connoisseur",
+   "type_line": "Creature — Human Druid"
+  },
+  {
+   "evidence": "whenever another non-human creature you control enters, you may pay {x}. when you do, put x +1/+1 counters on ~.",
+   "hits": 1,
+   "mv": 2.0,
+   "name": "Wildborn Preserver",
+   "type_line": "Creature — Elf Archer"
+  }
+ ],
+ "etb_other_permanent": [
+  {
+   "evidence": "whenever a gate you control enters, you may put ~ from your graveyard on top of your library.",
+   "hits": 1,
+   "mv": 8.0,
+   "name": "Gate Colossus",
+   "type_line": "Artifact Creature — Construct"
+  },
+  {
+   "evidence": "whenever a gate you control enters, ~ can't be blocked this turn.",
+   "hits": 1,
+   "mv": 3.0,
+   "name": "Gateway Sneak",
+   "type_line": "Creature — Vedalken Rogue"
+  },
+  {
+   "evidence": "whenever ~ or another ally you control enters, you may put a +1/+1 counter on ~.",
+   "hits": 1,
+   "mv": 1.0,
+   "name": "Hada Freeblade",
+   "type_line": "Creature — Human Soldier Ally"
+  },
+  {
+   "evidence": "whenever a token you control enters, tap target nonland permanent an opponent controls. it doesn't untap during its controller's next untap step.",
+   "hits": 1,
+   "mv": 7.0,
+   "name": "Junk Winder",
+   "type_line": "Creature — Serpent"
+  },
+  {
+   "evidence": "whenever ~ or another artifact you control enters, put a +1/+1 counter on ~. it can't be blocked this turn.",
+   "hits": 1,
+   "mv": 6.0,
+   "name": "Kappa Cannoneer",
+   "type_line": "Artifact Creature — Turtle Warrior"
+  },
+  {
+   "evidence": "whenever a spider you control enters, draw a card. this ability triggers only once each turn.",
+   "hits": 1,
+   "mv": 2.0,
+   "name": "Mary Jane Watson",
+   "type_line": "Legendary Creature — Human Performer"
+  },
+  {
+   "evidence": "whenever ~ or another ally you control enters, you may have allies you control gain lifelink until end of turn, and you may put a +1/+1 counter on ~.",
+   "hits": 1,
+   "mv": 4.0,
+   "name": "Talus Paladin",
+   "type_line": "Creature — Human Knight Ally"
+  },
+  {
+   "evidence": "whenever ~ or another kithkin you control enters, target creature you control gets +1/+1 and gains trample until end of turn.",
+   "hits": 1,
+   "mv": 2.0,
+   "name": "Thoughtweft Lieutenant",
+   "type_line": "Creature — Kithkin Soldier"
+  }
+ ],
+ "etb_own": [
+  {
+   "evidence": "when ~ enters, detain target creature an opponent controls.",
+   "hits": 1,
+   "mv": 2.0,
+   "name": "Azorius Arrester",
+   "type_line": "Creature — Human Soldier"
+  },
+  {
+   "evidence": "when ~ enters, you gain 2 life and draw two cards.",
+   "hits": 1,
+   "mv": 5.0,
+   "name": "Cloudblazer",
+   "type_line": "Creature — Human Scout"
+  },
+  {
+   "evidence": "when ~ enters and at the beginning of your upkeep, look at the top card of your library. if it's a card of the chosen type, you may reveal it and put it into your hand. if you don't put the card into your hand, you may …",
+   "hits": 1,
+   "mv": 4.0,
+   "name": "Gathering Stone",
+   "type_line": "Artifact"
+  },
+  {
+   "evidence": "when ~ enters, choose one —",
+   "hits": 1,
+   "mv": 3.0,
+   "name": "Glamermite",
+   "type_line": "Creature — Faerie Rogue"
+  },
+  {
+   "evidence": "when ~ enters, you may search your library for a plains card, put it onto the battlefield tapped, then shuffle.",
+   "hits": 1,
+   "mv": 4.0,
+   "name": "Kor Cartographer",
+   "type_line": "Creature — Kor Scout"
+  },
+  {
+   "evidence": "when ~ enters, tap target creature an opponent controls. that creature doesn't untap during its controller's next untap step.",
+   "hits": 1,
+   "mv": 3.0,
+   "name": "Kor Hookmaster",
+   "type_line": "Creature — Kor Soldier"
+  },
+  {
+   "evidence": "when ~ enters, create a 1/1 white and blue merfolk creature token.",
+   "hits": 1,
+   "mv": 5.0,
+   "name": "Merrow Skyswimmer",
+   "type_line": "Creature — Merfolk Soldier"
+  },
+  {
+   "evidence": "when ~ enters, destroy target nonland permanent an opponent controls.",
+   "hits": 1,
+   "mv": 7.0,
+   "name": "Meteor Golem",
+   "type_line": "Artifact Creature — Golem"
+  },
+  {
+   "evidence": "when ~ enters, you may search your library for an instant or sorcery card with mana value 1, reveal it, put it into your hand, then shuffle.",
+   "hits": 1,
+   "mv": 4.0,
+   "name": "Micromancer",
+   "type_line": "Creature — Human Wizard"
+  },
+  {
+   "evidence": "when ~ enters untapped, you may put target instant or sorcery card from your graveyard on top of your library.",
+   "hits": 1,
+   "mv": 0.0,
+   "name": "Mystic Sanctuary",
+   "type_line": "Land — Island"
+  },
+  {
+   "evidence": "when ~ enters, surveil 1.",
+   "hits": 1,
+   "mv": 1.0,
+   "name": "Ransom Note",
+   "type_line": "Artifact — Clue"
+  },
+  {
+   "evidence": "when ~ enters, create two 1/1 white cat creature tokens with lifelink.",
+   "hits": 1,
+   "mv": 5.0,
+   "name": "Regal Caracal",
+   "type_line": "Creature — Cat"
+  },
+  {
+   "evidence": "when ~ enters, return target instant or sorcery card from your graveyard to your hand.",
+   "hits": 1,
+   "mv": 5.0,
+   "name": "Shipwreck Dowser",
+   "type_line": "Creature — Merfolk Wizard"
+  },
+  {
+   "evidence": "when ~ enters, exile target card from a graveyard.",
+   "hits": 1,
+   "mv": 1.0,
+   "name": "Soul-Guide Lantern",
+   "type_line": "Artifact"
+  },
+  {
+   "evidence": "when ~ enters, you may sacrifice a land. if you do, search your library for up to two basic land cards, put them onto the battlefield tapped, then shuffle.",
+   "hits": 1,
+   "mv": 3.0,
+   "name": "Springbloom Druid",
+   "type_line": "Creature — Elf Druid"
+  },
+  {
+   "evidence": "when ~ enters, exile target creature an opponent controls until ~ leaves the battlefield.",
+   "hits": 1,
+   "mv": 3.0,
+   "name": "Stasis Snare",
+   "type_line": "Enchantment"
+  },
+  {
+   "evidence": "when ~ enters, search your library for an aura or equipment card, reveal it, put it into your hand, then shuffle.",
+   "hits": 1,
+   "mv": 4.0,
+   "name": "Sun-Spider, Nimble Webber",
+   "type_line": "Legendary Creature — Spider Human Hero"
+  },
+  {
+   "evidence": "when ~ enters, scry 1.",
+   "hits": 1,
+   "mv": 0.0,
+   "name": "Temple of Mystery",
+   "type_line": "Land"
+  },
+  {
+   "evidence": "when ~ enters, you gain 1 life.",
+   "hits": 1,
+   "mv": 0.0,
+   "name": "Tranquil Cove",
+   "type_line": "Land"
+  },
+  {
+   "evidence": "when ~ enters, target creature gets +2/+2 and gains flying until end of turn.",
+   "hits": 1,
+   "mv": 5.0,
+   "name": "Welkin Guide",
+   "type_line": "Creature — Bird Cleric"
+  }
+ ],
+ "etb_own_draw": [
+  {
+   "evidence": "when ~ enters, you gain 2 life and draw two cards.",
+   "hits": 1,
+   "mv": 5.0,
+   "name": "Cloudblazer",
+   "type_line": "Creature — Human Scout"
+  },
+  {
+   "evidence": "when ~ enters, if you control a creature with power 4 or greater, draw a card.",
+   "hits": 1,
+   "mv": 3.0,
+   "name": "Garruk's Uprising",
+   "type_line": "Enchantment"
+  },
+  {
+   "evidence": "when ~ enters, draw a card.",
+   "hits": 1,
+   "mv": 2.0,
+   "name": "Helpful Hunter",
+   "type_line": "Creature — Cat"
+  },
+  {
+   "evidence": "when ~ enters or is put into a graveyard from the battlefield, draw a card.",
+   "hits": 1,
+   "mv": 2.0,
+   "name": "Ichor Wellspring",
+   "type_line": "Artifact"
+  },
+  {
+   "evidence": "when ~ enters, draw a card.",
+   "hits": 1,
+   "mv": 5.0,
+   "name": "Mistmeadow Council",
+   "type_line": "Creature — Kithkin Advisor"
+  },
+  {
+   "evidence": "when ~ enters, draw cards equal to its power.",
+   "hits": 1,
+   "mv": 6.0,
+   "name": "Prime Speaker Zegana",
+   "type_line": "Legendary Creature — Merfolk Wizard"
+  },
+  {
+   "evidence": "when ~ enters, draw a card, then choose a color. ~ becomes the chosen color.",
+   "hits": 1,
+   "mv": 2.0,
+   "name": "Puca's Eye",
+   "type_line": "Artifact"
+  },
+  {
+   "evidence": "vivid — when ~ enters, draw cards equal to the number of colors among permanents you control.",
+   "hits": 1,
+   "mv": 6.0,
+   "name": "Shinestriker",
+   "type_line": "Creature — Elemental"
+  },
+  {
+   "evidence": "when ~ enters, draw a card, then discard a card.",
+   "hits": 1,
+   "mv": 5.0,
+   "name": "Sky-Eel School",
+   "type_line": "Creature — Fish"
+  },
+  {
+   "evidence": "when ~ enters, draw two cards.",
+   "hits": 1,
+   "mv": 7.0,
+   "name": "Thought Monitor",
+   "type_line": "Artifact Creature — Construct"
+  }
+ ],
+ "land_extra_drop_or_from_hand": [
+  {
+   "evidence": "draw three cards. you may put a land card from your hand onto the battlefield tapped.",
+   "hits": 1,
+   "mv": 5.0,
+   "name": "Embrace the Paradox",
+   "type_line": "Instant"
+  },
+  {
+   "evidence": "3+ | you may play an additional land on each of your turns.",
+   "hits": 1,
+   "mv": 1.0,
+   "name": "Exploration Broodship",
+   "type_line": "Artifact — Spacecraft"
+  },
+  {
+   "evidence": "you may play an additional land this turn.",
+   "hits": 1,
+   "mv": 2.0,
+   "name": "Explore",
+   "type_line": "Sorcery"
+  },
+  {
+   "evidence": "whenever you draw your second card each turn, you may put a land card from your hand onto the battlefield tapped.",
+   "hits": 1,
+   "mv": 2.0,
+   "name": "On the Trail",
+   "type_line": "Enchantment"
+  },
+  {
+   "evidence": "you may play an additional land on each of your turns.",
+   "hits": 1,
+   "mv": 4.0,
+   "name": "Oracle of Mul Daya",
+   "type_line": "Creature — Elf Shaman"
+  },
+  {
+   "evidence": "you may play an additional land on each of your turns.",
+   "hits": 1,
+   "mv": 4.0,
+   "name": "Prismatic Undercurrents",
+   "type_line": "Enchantment"
+  },
+  {
+   "evidence": "each player may play an additional land on each of their turns.",
+   "hits": 1,
+   "mv": 3.0,
+   "name": "Rites of Flourishing",
+   "type_line": "Enchantment"
+  },
+  {
+   "evidence": "{t}: you may put a land card from your hand onto the battlefield.",
+   "hits": 1,
+   "mv": 2.0,
+   "name": "Walking Atlas",
+   "type_line": "Artifact Creature — Construct"
+  }
+ ],
+ "land_onto_battlefield_effect": [
+  {
+   "evidence": "{3}, sacrifice ~: search your library for up to two basic land cards, put them onto the battlefield tapped, then shuffle.",
+   "hits": 1,
+   "mv": 3.0,
+   "name": "Burnished Hart",
+   "type_line": "Artifact Creature — Elk"
+  },
+  {
+   "evidence": "search your library for up to two basic land cards and/or gate cards, put them onto the battlefield tapped, then shuffle.",
+   "hits": 1,
+   "mv": 4.0,
+   "name": "Circuitous Route",
+   "type_line": "Sorcery"
+  },
+  {
+   "evidence": "search your library for a land card, put that card onto the battlefield, then shuffle.",
+   "hits": 1,
+   "mv": 1.0,
+   "name": "Crop Rotation",
+   "type_line": "Instant"
+  },
+  {
+   "evidence": "search your library for up to two basic land cards, reveal those cards, put one onto the battlefield tapped and the other into your hand, then shuffle.",
+   "hits": 1,
+   "mv": 3.0,
+   "name": "Cultivate",
+   "type_line": "Sorcery"
+  },
+  {
+   "evidence": "{g}, sacrifice ~: search your library for a basic land card, put it onto the battlefield tapped, then shuffle.",
+   "hits": 1,
+   "mv": 2.0,
+   "name": "Dawntreader Elk",
+   "type_line": "Creature — Elk"
+  },
+  {
+   "evidence": "{2}, {t}, sacrifice ~: destroy target nonbasic land an opponent controls. that land's controller may search their library for a basic land card, put it onto the battlefield, then shuffle. you may search your library for…",
+   "hits": 1,
+   "mv": 0.0,
+   "name": "Demolition Field",
+   "type_line": "Land"
+  },
+  {
+   "evidence": "{t}, sacrifice ~: search your library for a basic land card, put it onto the battlefield tapped, then shuffle.",
+   "hits": 1,
+   "mv": 0.0,
+   "name": "Evolving Wilds",
+   "type_line": "Land"
+  },
+  {
+   "evidence": "{t}, sacrifice ~: search your library for a basic land card, put it onto the battlefield tapped, then shuffle. then if you control four or more lands, untap that land.",
+   "hits": 1,
+   "mv": 0.0,
+   "name": "Fabled Passage",
+   "type_line": "Land"
+  },
+  {
+   "evidence": "search your library for up to two basic land cards, put them onto the battlefield, then shuffle.",
+   "hits": 1,
+   "mv": 3.0,
+   "name": "Harrow",
+   "type_line": "Instant"
+  },
+  {
+   "evidence": "whenever ~ is dealt damage, you may search your library for up to that many land cards, put them onto the battlefield tapped, then shuffle.",
+   "hits": 1,
+   "mv": 4.0,
+   "name": "Hexhaven Invigorator",
+   "type_line": "Creature — Chimera Horror"
+  },
+  {
+   "evidence": "remove three quest counters from ~ and sacrifice it: search your library for up to two basic land cards, put them onto the battlefield tapped, then shuffle.",
+   "hits": 1,
+   "mv": 2.0,
+   "name": "Khalni Heart Expedition",
+   "type_line": "Enchantment"
+  },
+  {
+   "evidence": "{2}, {t}, sacrifice ~: search your library for up to two basic land cards that share a land type, put them onto the battlefield tapped, then shuffle.",
+   "hits": 1,
+   "mv": 0.0,
+   "name": "Myriad Landscape",
+   "type_line": "Land"
+  },
+  {
+   "evidence": "sacrifice a land. search your library for up to two basic land cards, put them onto the battlefield tapped, then shuffle.",
+   "hits": 1,
+   "mv": 3.0,
+   "name": "Roiling Regrowth",
+   "type_line": "Instant"
+  },
+  {
+   "evidence": "sacrifice ~: search your library for a basic land card, put that card onto the battlefield tapped, then shuffle.",
+   "hits": 1,
+   "mv": 2.0,
+   "name": "Sakura-Tribe Elder",
+   "type_line": "Creature — Snake Shaman"
+  },
+  {
+   "evidence": "when ~ enters, you may search your library for a basic land card, put that card onto the battlefield tapped, then shuffle.",
+   "hits": 1,
+   "mv": 4.0,
+   "name": "Solemn Simulacrum",
+   "type_line": "Artifact Creature — Golem"
+  },
+  {
+   "evidence": "when ~ enters, you may sacrifice a land. if you do, search your library for up to two basic land cards, put them onto the battlefield tapped, then shuffle.",
+   "hits": 1,
+   "mv": 3.0,
+   "name": "Springbloom Druid",
+   "type_line": "Creature — Elf Druid"
+  },
+  {
+   "evidence": "search your library for a basic land card, put that card onto the battlefield tapped, then shuffle.",
+   "hits": 1,
+   "mv": 1.0,
+   "name": "Studious First-Year // Rampant Growth",
+   "type_line": "Creature — Bear Wizard // Sorcery"
+  },
+  {
+   "evidence": "search your library for a basic land card, put it onto the battlefield tapped, then shuffle. then if you control seven or more lands and/or treefolk, create a 3/4 green treefolk creature token with reach.",
+   "hits": 1,
+   "mv": 3.0,
+   "name": "Tend the Sprigs",
+   "type_line": "Sorcery"
+  },
+  {
+   "evidence": "{t}, sacrifice ~: search your library for a basic land card, put it onto the battlefield tapped, then shuffle.",
+   "hits": 1,
+   "mv": 0.0,
+   "name": "Terramorphic Expanse",
+   "type_line": "Land"
+  },
+  {
+   "evidence": "{t}, sacrifice ~: search your library for a basic land card, put it onto the battlefield tapped, then shuffle.",
+   "hits": 1,
+   "mv": 0.0,
+   "name": "Vibrant Cityscape",
+   "type_line": "Land"
+  }
+ ],
+ "landfall": [
+  {
+   "evidence": "landfall — whenever a land you control enters, you may switch ~'s power and toughness until end of turn.",
+   "hits": 1,
+   "mv": 3.0,
+   "name": "Calcite Snapper",
+   "type_line": "Creature — Turtle"
+  },
+  {
+   "evidence": "landfall — whenever a land you control enters, choose one —",
+   "hits": 1,
+   "mv": 4.0,
+   "name": "Felidar Retreat",
+   "type_line": "Enchantment"
+  },
+  {
+   "evidence": "landfall — whenever a land you control enters, ~ gains flying until end of turn.",
+   "hits": 1,
+   "mv": 2.0,
+   "name": "Fledgling Griffin",
+   "type_line": "Creature — Griffin"
+  },
+  {
+   "evidence": "landfall — whenever a land you control enters, you may gain 2 life.",
+   "hits": 1,
+   "mv": 3.0,
+   "name": "Grazing Gladehart",
+   "type_line": "Creature — Antelope"
+  },
+  {
+   "evidence": "landfall — if you had a land enter the battlefield under your control this turn, that creature gets +4/+4 until end of turn instead.",
+   "hits": 1,
+   "mv": 1.0,
+   "name": "Groundswell",
+   "type_line": "Instant"
+  },
+  {
+   "evidence": "landfall — whenever a land you control enters, ~ gets +2/+2 until end of turn.",
+   "hits": 1,
+   "mv": 4.0,
+   "name": "Hedron Rover",
+   "type_line": "Artifact Creature — Construct"
+  },
+  {
+   "evidence": "landfall — whenever a land you control enters, you may put a quest counter on ~.",
+   "hits": 1,
+   "mv": 2.0,
+   "name": "Khalni Heart Expedition",
+   "type_line": "Enchantment"
+  },
+  {
+   "evidence": "landfall — if you had a land enter the battlefield under your control this turn, draw three cards instead.",
+   "hits": 1,
+   "mv": 5.0,
+   "name": "Mysteries of the Deep",
+   "type_line": "Instant"
+  },
+  {
+   "evidence": "landfall — whenever a land you control enters, you gain 3 life.",
+   "hits": 1,
+   "mv": 6.0,
+   "name": "Primeval Bounty",
+   "type_line": "Enchantment"
+  },
+  {
+   "evidence": "landfall — whenever a land you control enters, create a 4/4 green beast creature token.",
+   "hits": 1,
+   "mv": 6.0,
+   "name": "Rampaging Baloths",
+   "type_line": "Creature — Beast"
+  },
+  {
+   "evidence": "landfall — if you had a land enter the battlefield under your control this turn, that player gains 8 life instead.",
+   "hits": 1,
+   "mv": 2.0,
+   "name": "Rest for the Weary",
+   "type_line": "Instant"
+  },
+  {
+   "evidence": "landfall — whenever a land you control enters, ~ gains vigilance until end of turn.",
+   "hits": 1,
+   "mv": 3.0,
+   "name": "Snapping Creeper",
+   "type_line": "Creature — Plant"
+  },
+  {
+   "evidence": "landfall — whenever a land you control enters, ~ gets +2/+2 until end of turn.",
+   "hits": 1,
+   "mv": 1.0,
+   "name": "Steppe Lynx",
+   "type_line": "Creature — Cat"
+  },
+  {
+   "evidence": "landfall — whenever a land you control enters, ~ becomes prepared.",
+   "hits": 1,
+   "mv": 4.0,
+   "name": "Tam, Observant Sequencer // Deep Sight",
+   "type_line": "Legendary Creature — Gorgon Wizard // Sorcery"
+  },
+  {
+   "evidence": "landfall — whenever a land you control enters, you gain 1 life and draw a card.",
+   "hits": 1,
+   "mv": 5.0,
+   "name": "Tatyova, Benthic Druid",
+   "type_line": "Legendary Creature — Merfolk Druid"
+  },
+  {
+   "evidence": "landfall — whenever a land you control enters, create a food token or a treasure token.",
+   "hits": 1,
+   "mv": 3.0,
+   "name": "Tireless Provisioner",
+   "type_line": "Creature — Elf Scout"
+  },
+  {
+   "evidence": "landfall — whenever a land you control enters, investigate.",
+   "hits": 1,
+   "mv": 3.0,
+   "name": "Tireless Tracker",
+   "type_line": "Creature — Human Scout"
+  },
+  {
+   "evidence": "landfall — whenever a land you control enters, you may have target creature block ~ this turn if able.",
+   "hits": 1,
+   "mv": 3.0,
+   "name": "Turntimber Basilisk",
+   "type_line": "Creature — Basilisk"
+  }
+ ],
+ "mana_creature_cheap": [
+  {
+   "evidence": "{t}: untap target forest.",
+   "hits": 1,
+   "mv": 1.0,
+   "name": "Arbor Elf",
+   "type_line": "Creature — Elf Druid"
+  },
+  {
+   "evidence": "{t}: add {w}.",
+   "hits": 1,
+   "mv": 1.0,
+   "name": "Avacyn's Pilgrim",
+   "type_line": "Creature — Human Monk"
+  },
+  {
+   "evidence": "{t}: add {g}.",
+   "hits": 1,
+   "mv": 2.0,
+   "name": "Copper Myr",
+   "type_line": "Artifact Creature — Myr"
+  },
+  {
+   "evidence": "{t}: add {g}.",
+   "hits": 1,
+   "mv": 1.0,
+   "name": "Elvish Mystic",
+   "type_line": "Creature — Elf Druid"
+  },
+  {
+   "evidence": "{t}: add one mana of any color.",
+   "hits": 1,
+   "mv": 2.0,
+   "name": "Great Forest Druid",
+   "type_line": "Creature — Treefolk Druid"
+  },
+  {
+   "evidence": "{t}: add {u}. spend this mana only to cast an instant or sorcery spell.",
+   "hits": 1,
+   "mv": 2.0,
+   "name": "Hydro-Channeler",
+   "type_line": "Creature — Merfolk Wizard"
+  },
+  {
+   "evidence": "{t}: add {g}.",
+   "hits": 1,
+   "mv": 1.0,
+   "name": "Llanowar Elves",
+   "type_line": "Creature — Elf Druid"
+  },
+  {
+   "evidence": "{t}: add {g}{g}. activate only if there is an elf card in your graveyard.",
+   "hits": 1,
+   "mv": 2.0,
+   "name": "Lys Alana Dignitary",
+   "type_line": "Creature — Elf Advisor"
+  },
+  {
+   "evidence": "{t}: add {g}.",
+   "hits": 1,
+   "mv": 2.0,
+   "name": "Noxious Newt",
+   "type_line": "Creature — Salamander"
+  },
+  {
+   "evidence": "{t}: add {g} for each elf on the battlefield.",
+   "hits": 1,
+   "mv": 2.0,
+   "name": "Priest of Titania",
+   "type_line": "Creature — Elf Druid"
+  },
+  {
+   "evidence": "{t}: add {u}.",
+   "hits": 1,
+   "mv": 2.0,
+   "name": "Silver Myr",
+   "type_line": "Artifact Creature — Myr"
+  },
+  {
+   "evidence": "{t}: add {g}.",
+   "hits": 1,
+   "mv": 2.0,
+   "name": "Steward of Valeron",
+   "type_line": "Creature — Human Druid Knight"
+  },
+  {
+   "evidence": "{t}: add {g}.",
+   "hits": 1,
+   "mv": 2.0,
+   "name": "Vine Trellis",
+   "type_line": "Creature — Plant Wall"
+  }
+ ],
+ "mana_creature_other": [
+  {
+   "evidence": "{t}: add x {g} or x {w}, where x is the number of other creatures you control.",
+   "hits": 1,
+   "mv": 3.0,
+   "name": "Brigid, Clachan's Heart // Brigid, Doun's Mind",
+   "type_line": "Legendary Creature — Kithkin Warrior // Legendary Creature — Kithkin Soldier"
+  },
+  {
+   "evidence": "{t}: add {g}. when you spend this mana to cast a spell with mana value 6 or greater, draw a card.",
+   "hits": 1,
+   "mv": 3.0,
+   "name": "Gilanra, Caller of Wirewood",
+   "type_line": "Legendary Creature — Elf Druid"
+  },
+  {
+   "evidence": "{t}: add {g}{g}.",
+   "hits": 1,
+   "mv": 3.0,
+   "name": "Greenweaver Druid",
+   "type_line": "Creature — Elf Druid"
+  },
+  {
+   "evidence": "{t}: add {c}{c}.",
+   "hits": 1,
+   "mv": 3.0,
+   "name": "Palladium Myr",
+   "type_line": "Artifact Creature — Myr"
+  },
+  {
+   "evidence": "parley — {t}: each player reveals the top card of their library. for each nonland card revealed this way, add {g} and you gain 1 life. then each player draws a card.",
+   "hits": 1,
+   "mv": 3.0,
+   "name": "Selvala, Explorer Returned",
+   "type_line": "Legendary Creature — Elf Scout"
+  }
+ ],
+ "noncreature_draw_or_ramp": [
+  {
+   "evidence": "roles by text: card_advantage, card_draw",
+   "hits": 1,
+   "mv": 5.0,
+   "name": "Balance of Power",
+   "type_line": "Sorcery"
+  },
+  {
+   "evidence": "roles by text: card_draw",
+   "hits": 1,
+   "mv": 3.0,
+   "name": "Blue Sun's Zenith",
+   "type_line": "Instant"
+  },
+  {
+   "evidence": "roles by text: land_ramp, ramp",
+   "hits": 1,
+   "mv": 4.0,
+   "name": "Circuitous Route",
+   "type_line": "Sorcery"
+  },
+  {
+   "evidence": "roles by text: land_ramp, ramp",
+   "hits": 1,
+   "mv": 1.0,
+   "name": "Crop Rotation",
+   "type_line": "Instant"
+  },
+  {
+   "evidence": "roles by text: card_draw",
+   "hits": 1,
+   "mv": 2.0,
+   "name": "Culling Dais",
+   "type_line": "Artifact"
+  },
+  {
+   "evidence": "roles by text: card_advantage, card_draw",
+   "hits": 1,
+   "mv": 4.0,
+   "name": "Deep Analysis",
+   "type_line": "Sorcery"
+  },
+  {
+   "evidence": "roles by text: card_draw",
+   "hits": 1,
+   "mv": 3.0,
+   "name": "Dictate of Kruphix",
+   "type_line": "Enchantment"
+  },
+  {
+   "evidence": "roles by text: card_advantage, card_draw",
+   "hits": 1,
+   "mv": 4.0,
+   "name": "Distant Memories",
+   "type_line": "Sorcery"
+  },
+  {
+   "evidence": "roles by text: cantrip, card_draw",
+   "hits": 1,
+   "mv": 2.0,
+   "name": "Glorious Decay",
+   "type_line": "Instant"
+  },
+  {
+   "evidence": "roles by text: card_advantage, card_draw, ramp",
+   "hits": 1,
+   "mv": 4.0,
+   "name": "Hedron Archive",
+   "type_line": "Artifact"
+  },
+  {
+   "evidence": "roles by text: card_advantage, card_draw",
+   "hits": 1,
+   "mv": 3.0,
+   "name": "Hunter's Insight",
+   "type_line": "Instant"
+  },
+  {
+   "evidence": "roles by text: ramp",
+   "hits": 1,
+   "mv": 3.0,
+   "name": "Imprisoned in the Moon",
+   "type_line": "Enchantment — Aura"
+  },
+  {
+   "evidence": "roles by text: cantrip, card_draw",
+   "hits": 1,
+   "mv": 2.0,
+   "name": "Into the Roil",
+   "type_line": "Instant"
+  },
+  {
+   "evidence": "roles by text: card_advantage, card_draw",
+   "hits": 1,
+   "mv": 5.0,
+   "name": "Jace's Ingenuity",
+   "type_line": "Instant"
+  },
+  {
+   "evidence": "roles by text: card_advantage, card_draw",
+   "hits": 1,
+   "mv": 3.0,
+   "name": "Quick Study",
+   "type_line": "Instant"
+  },
+  {
+   "evidence": "roles by text: card_draw",
+   "hits": 1,
+   "mv": 1.0,
+   "name": "Ransom Note",
+   "type_line": "Artifact — Clue"
+  },
+  {
+   "evidence": "roles by text: ramp",
+   "hits": 1,
+   "mv": 2.0,
+   "name": "Sphere of the Suns",
+   "type_line": "Artifact"
+  },
+  {
+   "evidence": "roles by text: card_draw",
+   "hits": 1,
+   "mv": 2.0,
+   "name": "Tam's Resistance",
+   "type_line": "Sorcery"
+  },
+  {
+   "evidence": "roles by text: card_advantage, card_draw",
+   "hits": 1,
+   "mv": 3.0,
+   "name": "Ulvenwald Mysteries",
+   "type_line": "Enchantment"
+  },
+  {
+   "evidence": "roles by text: cantrip, card_draw",
+   "hits": 1,
+   "mv": 1.0,
+   "name": "Veil of Summer",
+   "type_line": "Instant"
+  }
+ ],
+ "self_cost_reduction": [
+  {
+   "evidence": "keyword: convoke",
+   "hits": 1,
+   "mv": 8.0,
+   "name": "Angel of Salvation",
+   "type_line": "Creature — Angel"
+  },
+  {
+   "evidence": "keyword: convoke",
+   "hits": 1,
+   "mv": 4.0,
+   "name": "Appeal to Eirdu",
+   "type_line": "Instant"
+  },
+  {
+   "evidence": "keyword: convoke",
+   "hits": 1,
+   "mv": 4.0,
+   "name": "Bennie Bracks, Zoologist",
+   "type_line": "Legendary Creature — Elf Druid"
+  },
+  {
+   "evidence": "keyword: convoke",
+   "hits": 1,
+   "mv": 5.0,
+   "name": "Conclave Phalanx",
+   "type_line": "Creature — Human Soldier"
+  },
+  {
+   "evidence": "keyword: affinity",
+   "hits": 1,
+   "mv": 8.0,
+   "name": "Gate Colossus",
+   "type_line": "Artifact Creature — Construct"
+  },
+  {
+   "evidence": "~ costs {1} less to cast if it targets a spider.",
+   "hits": 1,
+   "mv": 2.0,
+   "name": "Grow Extra Arms",
+   "type_line": "Instant"
+  },
+  {
+   "evidence": "~ costs {2} less to cast if it's bargained.",
+   "hits": 1,
+   "mv": 7.0,
+   "name": "Hamlet Glutton",
+   "type_line": "Creature — Giant"
+  },
+  {
+   "evidence": "keyword: improvise",
+   "hits": 1,
+   "mv": 6.0,
+   "name": "Kappa Cannoneer",
+   "type_line": "Artifact Creature — Turtle Warrior"
+  },
+  {
+   "evidence": "keyword: convoke",
+   "hits": 1,
+   "mv": 5.0,
+   "name": "Merrow Skyswimmer",
+   "type_line": "Creature — Merfolk Soldier"
+  },
+  {
+   "evidence": "keyword: convoke",
+   "hits": 1,
+   "mv": 5.0,
+   "name": "Omni-Changeling",
+   "type_line": "Creature — Shapeshifter"
+  },
+  {
+   "evidence": "keyword: improvise",
+   "hits": 1,
+   "mv": 10.0,
+   "name": "Organic Extinction",
+   "type_line": "Sorcery"
+  },
+  {
+   "evidence": "keyword: affinity",
+   "hits": 1,
+   "mv": 8.0,
+   "name": "Qumulox",
+   "type_line": "Creature — Beast"
+  },
+  {
+   "evidence": "vivid — ~ costs {1} less to cast for each color among permanents you control.",
+   "hits": 1,
+   "mv": 7.0,
+   "name": "Rime Chill",
+   "type_line": "Instant"
+  },
+  {
+   "evidence": "metalcraft — ~ costs {1} less to cast if you control three or more artifacts.",
+   "hits": 1,
+   "mv": 3.0,
+   "name": "Stoic Rebuttal",
+   "type_line": "Instant"
+  },
+  {
+   "evidence": "keyword: convoke",
+   "hits": 1,
+   "mv": 6.0,
+   "name": "Sun-Dappled Celebrant",
+   "type_line": "Creature — Treefolk Cleric"
+  },
+  {
+   "evidence": "keyword: affinity",
+   "hits": 1,
+   "mv": 7.0,
+   "name": "Thought Monitor",
+   "type_line": "Artifact Creature — Construct"
+  },
+  {
+   "evidence": "~ costs {1} less to cast for each instant and sorcery card in your graveyard.",
+   "hits": 1,
+   "mv": 7.0,
+   "name": "Tolarian Terror",
+   "type_line": "Creature — Serpent"
+  },
+  {
+   "evidence": "keyword: delve",
+   "hits": 1,
+   "mv": 8.0,
+   "name": "Treasure Cruise",
+   "type_line": "Sorcery"
+  },
+  {
+   "evidence": "keyword: convoke",
+   "hits": 1,
+   "mv": 5.0,
+   "name": "Unexpected Assistance",
+   "type_line": "Instant"
+  },
+  {
+   "evidence": "vivid — ~ costs {1} less to cast for each color among permanents you control.",
+   "hits": 1,
+   "mv": 7.0,
+   "name": "Wildvine Pummeler",
+   "type_line": "Creature — Giant Berserker"
+  }
+ ],
+ "self_life_loss": [
+  {
+   "evidence": "{t}: add {w} or {u}. ~ deals 1 damage to you.",
+   "hits": 1,
+   "mv": 0.0,
+   "name": "Adarkar Wastes",
+   "type_line": "Land"
+  },
+  {
+   "evidence": "flashback—{1}{u}, pay 3 life.",
+   "hits": 1,
+   "mv": 4.0,
+   "name": "Deep Analysis",
+   "type_line": "Sorcery"
+  },
+  {
+   "evidence": "{t}, pay 1 life: add one mana of any color. activate only if you control an artifact.",
+   "hits": 1,
+   "mv": 0.0,
+   "name": "Spire of Industry",
+   "type_line": "Land"
+  },
+  {
+   "evidence": "{t}: add {g} or {u}. ~ deals 1 damage to you.",
+   "hits": 1,
+   "mv": 2.0,
+   "name": "Talisman of Curiosity",
+   "type_line": "Artifact"
+  },
+  {
+   "evidence": "{t}: add {w} or {u}. ~ deals 1 damage to you.",
+   "hits": 1,
+   "mv": 2.0,
+   "name": "Talisman of Progress",
+   "type_line": "Artifact"
+  },
+  {
+   "evidence": "{t}: add {g} or {w}. ~ deals 1 damage to you.",
+   "hits": 1,
+   "mv": 2.0,
+   "name": "Talisman of Unity",
+   "type_line": "Artifact"
+  }
+ ],
+ "symmetric_benefit": [
+  {
+   "evidence": "whenever ~ attacks, each player chooses a card name. then each player reveals the top card of their library. if the card a player revealed has the name they chose, that player puts it into their hand. if it doesn't, tha…",
+   "hits": 1,
+   "mv": 4.0,
+   "name": "Conundrum Sphinx",
+   "type_line": "Creature — Sphinx"
+  },
+  {
+   "evidence": "{3}{u}: each player draws a card.",
+   "hits": 1,
+   "mv": 2.0,
+   "name": "Faerie Mastermind",
+   "type_line": "Creature — Faerie Rogue"
+  },
+  {
+   "evidence": "parley — whenever ~ attacks, each player reveals the top card of their library. for each nonland card revealed this way, you investigate. then each player draws a card.",
+   "hits": 1,
+   "mv": 4.0,
+   "name": "Innocuous Researcher",
+   "type_line": "Creature — Centaur Detective"
+  },
+  {
+   "evidence": "each player may play an additional land on each of their turns.",
+   "hits": 1,
+   "mv": 3.0,
+   "name": "Rites of Flourishing",
+   "type_line": "Enchantment"
+  },
+  {
+   "evidence": "when ~ dies, each player draws a card.",
+   "hits": 1,
+   "mv": 2.0,
+   "name": "Runed Servitor",
+   "type_line": "Artifact Creature — Construct"
+  },
+  {
+   "evidence": "parley — {t}: each player reveals the top card of their library. for each nonland card revealed this way, add {g} and you gain 1 life. then each player draws a card.",
+   "hits": 1,
+   "mv": 3.0,
+   "name": "Selvala, Explorer Returned",
+   "type_line": "Legendary Creature — Elf Scout"
+  }
+ ],
+ "untapper": [
+  {
+   "evidence": "{t}: untap target forest.",
+   "hits": 1,
+   "mv": 1.0,
+   "name": "Arbor Elf",
+   "type_line": "Creature — Elf Druid"
+  },
+  {
+   "evidence": "at the beginning of your end step, untap target merfolk you control.",
+   "hits": 1,
+   "mv": 2.0,
+   "name": "Deepchannel Duelist",
+   "type_line": "Creature — Merfolk Soldier"
+  },
+  {
+   "evidence": "{t}, sacrifice ~: search your library for a basic land card, put it onto the battlefield tapped, then shuffle. then if you control four or more lands, untap that land.",
+   "hits": 1,
+   "mv": 0.0,
+   "name": "Fabled Passage",
+   "type_line": "Land"
+  },
+  {
+   "evidence": "draw x cards. if x is 10 or more, instead shuffle your graveyard into your library, draw x cards, untap up to five lands, and you have no maximum hand size for the rest of the game.",
+   "hits": 1,
+   "mv": 2.0,
+   "name": "Finale of Revelation",
+   "type_line": "Sorcery"
+  },
+  {
+   "evidence": "• untap target creature.",
+   "hits": 1,
+   "mv": 3.0,
+   "name": "Glamermite",
+   "type_line": "Creature — Faerie Rogue"
+  },
+  {
+   "evidence": "{2}{u}: untap target creature.",
+   "hits": 1,
+   "mv": 4.0,
+   "name": "Hapatra, the Desert Frost",
+   "type_line": "Legendary Creature — Human Wizard"
+  },
+  {
+   "evidence": "at the beginning of your end step, you may untap all lands you control. if you do, you can't cast spells until your next turn.",
+   "hits": 1,
+   "mv": 4.0,
+   "name": "Innocuous Researcher",
+   "type_line": "Creature — Centaur Detective"
+  },
+  {
+   "evidence": "whenever you cast an artifact spell, you may untap target creature.",
+   "hits": 1,
+   "mv": 3.0,
+   "name": "Mirran Spy",
+   "type_line": "Creature — Drone"
+  },
+  {
+   "evidence": "target creature gets +2/+2 and gains reach until end of turn. untap it.",
+   "hits": 1,
+   "mv": 1.0,
+   "name": "Tethermage's Advantage",
+   "type_line": "Instant"
+  },
+  {
+   "evidence": "you may tap or untap target artifact, creature, or land.",
+   "hits": 1,
+   "mv": 3.0,
+   "name": "Twitch",
+   "type_line": "Instant"
+  },
+  {
+   "evidence": "target creature gains flying until end of turn. untap it.",
+   "hits": 1,
+   "mv": 1.0,
+   "name": "Vault Skyward",
+   "type_line": "Instant"
+  },
+  {
+   "evidence": "{2}{u}, {t}: put a -1/-1 counter on target creature. you may tap or untap that creature.",
+   "hits": 1,
+   "mv": 3.0,
+   "name": "Vedalken Anatomist",
+   "type_line": "Creature — Phyrexian Vedalken Wizard"
+  },
+  {
+   "evidence": "target creature gets +1/+1 until end of turn. untap that creature.",
+   "hits": 1,
+   "mv": 1.0,
+   "name": "Veteran's Reflexes",
+   "type_line": "Instant"
+  },
+  {
+   "evidence": "at the beginning of your end step, untap all lands you control.",
+   "hits": 1,
+   "mv": 4.0,
+   "name": "Wilderness Reclamation",
+   "type_line": "Enchantment"
+  }
+ ],
+ "wipe_one_sided": [],
+ "wipe_symmetric": [
+  {
+   "evidence": "• exile all creatures.",
+   "hits": 1,
+   "mv": 6.0,
+   "name": "Farewell",
+   "type_line": "Sorcery"
+  },
+  {
+   "evidence": "destroy all creatures. you gain 1 life for each creature destroyed this way.",
+   "hits": 1,
+   "mv": 5.0,
+   "name": "Fumigate",
+   "type_line": "Sorcery"
+  },
+  {
+   "evidence": "destroy all nonartifact creatures.",
+   "hits": 1,
+   "mv": 10.0,
+   "name": "Organic Extinction",
+   "type_line": "Sorcery"
+  },
+  {
+   "evidence": "destroy all creatures and planeswalkers except for commanders.",
+   "hits": 1,
+   "mv": 5.0,
+   "name": "Slash the Ranks",
+   "type_line": "Sorcery"
+  },
+  {
+   "evidence": "destroy all creatures that aren't enchanted. they can't be regenerated.",
+   "hits": 1,
+   "mv": 5.0,
+   "name": "Winds of Rath",
+   "type_line": "Sorcery"
+  }
+ ]
+}

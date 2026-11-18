@@ -1,0 +1,71 @@
+{
+ "cards": 922,
+ "counts": {
+  "castability_defined": 857,
+  "creatures_front": 478,
+  "faces_parse_failed": 0,
+  "game_changer": 3,
+  "lands": 65,
+  "multi_face": 12,
+  "off_colour_identity": 0,
+  "rulings_cards": 518,
+  "with_oracle_text": 900,
+  "with_role": 817,
+  "without_oracle_text": 22,
+  "without_role": 105,
+  "zero_source_decks": 186
+ },
+ "deck_basis": {
+  "candidate_added": 1,
+  "land_groups": [
+   [
+    "-",
+    3
+   ],
+   [
+    "BGRUW",
+    3
+   ],
+   [
+    "G",
+    8
+   ],
+   [
+    "GU",
+    2
+   ],
+   [
+    "GUW",
+    1
+   ],
+   [
+    "GW",
+    4
+   ],
+   [
+    "U",
+    8
+   ],
+   [
+    "UW",
+    3
+   ],
+   [
+    "W",
+    4
+   ]
+  ],
+  "lands": 36,
+  "nonland": 63,
+  "revision": "chulane-current@41f393530bb16ee9"
+ },
+ "facts_version": "facts-1",
+ "outputs_sha256": {
+  "facts.jsonl": "47557ee77d3cbadbf84745dde3b70d00434db09a37410202a7817d8a72d05a16",
+  "pool_benchmarks.json": "e1618ad8e0c466a498d9e5afc87464613a9292a4f3a4f4ca771955fdf87e2080",
+  "usage_holdout.jsonl": "c3d1f69367c0a4224f9b0b494771ad5d9316ebf6c3cfc7162dd99b6b9df75c33"
+ },
+ "pool_matches_summary": true,
+ "store_sha256": "244d6ac2038762a1b987d35f13790fbf8227d5019659336c5479e9088fefc2dc",
+ "summary_csv_sha256": "b05e23c6d773c595719ddb8962bb602d415521dc003092897de83bee47a58f5e"
+}

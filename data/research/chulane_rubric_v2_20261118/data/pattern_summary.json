@@ -1,0 +1,338 @@
+{
+ "cards_with_any_positive_rule_except_etb_own_landfall": 105,
+ "pattern_rules_version": "chulane-patterns-1",
+ "pool": 922,
+ "rules": {
+  "blink_own": {
+   "creatures": 3,
+   "description": "Exiles a creature or permanent (you control, or any target; field scope) or itself and returns it to the battlefield (flicker); a land target counts as blink of a land.",
+   "group": "bounce",
+   "hits": 5,
+   "in_zero_source_decks": 0,
+   "kind": "positive",
+   "lands": 0,
+   "of": 922
+  },
+  "bounce_any_creature_target": {
+   "creatures": 3,
+   "description": "Returns a target creature or permanent to its owner's hand without limiting it to opponents (own creature can be chosen, rule text only).",
+   "group": "bounce",
+   "hits": 14,
+   "in_zero_source_decks": 1,
+   "kind": "positive",
+   "lands": 0,
+   "of": 922
+  },
+  "bounce_mass_includes_own": {
+   "creatures": 1,
+   "description": "Returns all (nonland) permanents or all creatures to their owners' hands, own included.",
+   "group": "bounce",
+   "hits": 1,
+   "in_zero_source_decks": 0,
+   "kind": "info",
+   "lands": 0,
+   "of": 922
+  },
+  "bounce_own_creature": {
+   "creatures": 6,
+   "description": "Returns a creature or permanent YOU control (chosen or each; a creature among the legal choices) to its owner's hand.",
+   "group": "bounce",
+   "hits": 8,
+   "in_zero_source_decks": 1,
+   "kind": "positive",
+   "lands": 0,
+   "of": 922
+  },
+  "bounce_own_land": {
+   "creatures": 0,
+   "description": "Returns a land you control to its owner's hand (bounce land; the land can be played again).",
+   "group": "bounce",
+   "hits": 4,
+   "in_zero_source_decks": 0,
+   "kind": "positive",
+   "lands": 3,
+   "of": 922
+  },
+  "bounce_own_other_permanent": {
+   "creatures": 1,
+   "description": "Returns an artifact or enchantment you control to its owner's hand (not a creature).",
+   "group": "bounce",
+   "hits": 1,
+   "in_zero_source_decks": 0,
+   "kind": "info",
+   "lands": 0,
+   "of": 922
+  },
+  "bounce_self": {
+   "creatures": 1,
+   "description": "Returns ITSELF to its owner's hand.",
+   "group": "bounce",
+   "hits": 3,
+   "in_zero_source_decks": 1,
+   "kind": "positive",
+   "lands": 1,
+   "of": 922
+  },
+  "cast_creature_draw": {
+   "creatures": 1,
+   "description": "Cast trigger on a creature spell (or any spell) whose effect draws a card.",
+   "group": "cast",
+   "hits": 1,
+   "in_zero_source_decks": 0,
+   "kind": "positive",
+   "lands": 0,
+   "of": 922
+  },
+  "cast_trigger_any_spell": {
+   "creatures": 0,
+   "description": "Trigger on casting any spell (unrestricted), which includes creature spells.",
+   "group": "cast",
+   "hits": 0,
+   "in_zero_source_decks": 0,
+   "kind": "positive",
+   "lands": 0,
+   "of": 922
+  },
+  "cast_trigger_creature": {
+   "creatures": 2,
+   "description": "Trigger on casting a creature spell (Whenever you cast a creature spell ...).",
+   "group": "cast",
+   "hits": 3,
+   "in_zero_source_decks": 0,
+   "kind": "positive",
+   "lands": 0,
+   "of": 922
+  },
+  "cast_trigger_other_type": {
+   "creatures": 15,
+   "description": "Trigger on casting a restricted kind of spell (instant/sorcery, artifact, a tribe, mana value restriction ...): does not fire on every creature spell.",
+   "group": "cast",
+   "hits": 18,
+   "in_zero_source_decks": 2,
+   "kind": "info",
+   "lands": 0,
+   "of": 922
+  },
+  "cost_reduction_any_spell": {
+   "creatures": 0,
+   "description": "All spells you cast cost less.",
+   "group": "cost",
+   "hits": 0,
+   "in_zero_source_decks": 0,
+   "kind": "positive",
+   "lands": 0,
+   "of": 922
+  },
+  "cost_reduction_creature": {
+   "creatures": 0,
+   "description": "Creature spells you cast cost less.",
+   "group": "cost",
+   "hits": 0,
+   "in_zero_source_decks": 0,
+   "kind": "positive",
+   "lands": 0,
+   "of": 922
+  },
+  "cost_reduction_typed_spell": {
+   "creatures": 4,
+   "description": "A type or subtype of spells other than creatures costs less (instant/sorcery, a tribe).",
+   "group": "cost",
+   "hits": 5,
+   "in_zero_source_decks": 0,
+   "kind": "info",
+   "lands": 0,
+   "of": 922
+  },
+  "creature_dependent": {
+   "creatures": 10,
+   "description": "Needs creatures to do anything (Aura, Equipment, anthem, 'for each creature you control').",
+   "group": "anti",
+   "hits": 61,
+   "in_zero_source_decks": 15,
+   "kind": "anti",
+   "lands": 0,
+   "of": 922
+  },
+  "edict_symmetric": {
+   "creatures": 0,
+   "description": "Each player sacrifices creatures: the own too.",
+   "group": "anti",
+   "hits": 0,
+   "in_zero_source_decks": 0,
+   "kind": "anti",
+   "lands": 0,
+   "of": 922
+  },
+  "etb_doubler": {
+   "creatures": 0,
+   "description": "Makes triggers of permanents entering trigger an additional time.",
+   "group": "engine",
+   "hits": 0,
+   "in_zero_source_decks": 0,
+   "kind": "positive",
+   "lands": 0,
+   "of": 922
+  },
+  "etb_other_creature": {
+   "creatures": 8,
+   "description": "Trigger of ANOTHER permanent when a creature enters (Whenever another creature you control enters ...).",
+   "group": "etb",
+   "hits": 11,
+   "in_zero_source_decks": 1,
+   "kind": "positive",
+   "lands": 0,
+   "of": 922
+  },
+  "etb_other_permanent": {
+   "creatures": 8,
+   "description": "Trigger when another permanent that is not literally 'creature' or 'land' enters (token, artifact, Gate, a creature subtype such as 'a spider'); may include creatures.",
+   "group": "etb",
+   "hits": 8,
+   "in_zero_source_decks": 0,
+   "kind": "info",
+   "lands": 0,
+   "of": 922
+  },
+  "etb_own": {
+   "creatures": 114,
+   "description": "Own enter-the-battlefield trigger of a permanent (When ~ enters ...; also '~ or another X enters'), apart from landfall; Auras, lands and non-creatures count (field creature in the summary).",
+   "group": "etb",
+   "hits": 154,
+   "in_zero_source_decks": 22,
+   "kind": "positive",
+   "lands": 17,
+   "of": 922
+  },
+  "etb_own_draw": {
+   "creatures": 7,
+   "description": "Own ETB trigger whose effect draws cards.",
+   "group": "etb",
+   "hits": 10,
+   "in_zero_source_decks": 1,
+   "kind": "positive",
+   "lands": 0,
+   "of": 922
+  },
+  "land_extra_drop_or_from_hand": {
+   "creatures": 2,
+   "description": "Additional land drop, or puts a land card from the hand onto the battlefield.",
+   "group": "land",
+   "hits": 8,
+   "in_zero_source_decks": 0,
+   "kind": "positive",
+   "lands": 0,
+   "of": 922
+  },
+  "land_onto_battlefield_effect": {
+   "creatures": 8,
+   "description": "Searches for a land and puts it onto the battlefield, or puts a land from a graveyard onto it (lands that enter without a land drop).",
+   "group": "land",
+   "hits": 23,
+   "in_zero_source_decks": 0,
+   "kind": "positive",
+   "lands": 7,
+   "of": 922
+  },
+  "landfall": {
+   "creatures": 12,
+   "description": "Landfall: ability word or trigger when a land enters (own, or any player's); includes landfall conditions on spells.",
+   "group": "land",
+   "hits": 18,
+   "in_zero_source_decks": 1,
+   "kind": "positive",
+   "lands": 0,
+   "of": 922
+  },
+  "mana_creature_cheap": {
+   "creatures": 13,
+   "description": "Creature with mana value at most 2 that adds mana (or untaps a land for mana).",
+   "group": "mana",
+   "hits": 13,
+   "in_zero_source_decks": 0,
+   "kind": "positive",
+   "lands": 0,
+   "of": 922
+  },
+  "mana_creature_other": {
+   "creatures": 5,
+   "description": "Creature with mana value 3 or more that adds mana (or untaps a land for mana).",
+   "group": "mana",
+   "hits": 5,
+   "in_zero_source_decks": 0,
+   "kind": "positive",
+   "lands": 0,
+   "of": 922
+  },
+  "noncreature_draw_or_ramp": {
+   "creatures": 0,
+   "description": "Non-creature, non-land card that draws or ramps: it does not trigger Chulane (neutral to weak anti-synergy, not a penalty by itself).",
+   "group": "anti",
+   "hits": 104,
+   "in_zero_source_decks": 12,
+   "kind": "anti",
+   "lands": 0,
+   "of": 922
+  },
+  "self_cost_reduction": {
+   "creatures": 15,
+   "description": "The card makes itself cheaper (convoke, delve, affinity, improvise, this spell costs less).",
+   "group": "cost",
+   "hits": 23,
+   "in_zero_source_decks": 1,
+   "kind": "info",
+   "lands": 0,
+   "of": 922
+  },
+  "self_life_loss": {
+   "creatures": 0,
+   "description": "Costs the controller life or deals damage to the controller.",
+   "group": "anti",
+   "hits": 6,
+   "in_zero_source_decks": 0,
+   "kind": "anti",
+   "lands": 2,
+   "of": 922
+  },
+  "symmetric_benefit": {
+   "creatures": 5,
+   "description": "Gives each player a benefit (draw, land, mana, life ...): opponents profit equally.",
+   "group": "anti",
+   "hits": 6,
+   "in_zero_source_decks": 1,
+   "kind": "anti",
+   "lands": 0,
+   "of": 922
+  },
+  "untapper": {
+   "creatures": 7,
+   "description": "Untaps permanents (can untap Chulane or mana sources).",
+   "group": "engine",
+   "hits": 14,
+   "in_zero_source_decks": 4,
+   "kind": "info",
+   "lands": 1,
+   "of": 922
+  },
+  "wipe_one_sided": {
+   "creatures": 0,
+   "description": "Mass removal restricted to opponents' creatures (spares the own).",
+   "group": "anti",
+   "hits": 0,
+   "in_zero_source_decks": 0,
+   "kind": "info",
+   "lands": 0,
+   "of": 922
+  },
+  "wipe_symmetric": {
+   "creatures": 0,
+   "description": "Destroys, exiles or shrinks all creatures (or all permanents) with no opponent restriction: hits the own creatures.",
+   "group": "anti",
+   "hits": 5,
+   "in_zero_source_decks": 0,
+   "kind": "anti",
+   "lands": 0,
+   "of": 922
+  }
+ },
+ "zero_source_decks": 186
+}

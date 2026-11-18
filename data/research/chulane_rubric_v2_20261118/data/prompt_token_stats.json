@@ -1,0 +1,23 @@
+{
+ "chars_per_token_assumed": 3.5,
+ "note": "estimates, replace with the API token counter in the first pilot call",
+ "system_prompt_tokens": 6949,
+ "user_prompt_tokens": {
+  "n_cards": 922,
+  "min": 184,
+  "median": 426.5,
+  "mean": 441,
+  "p90": 642,
+  "p99": 774,
+  "max": 894
+ },
+ "largest_cards": [
+  "Brigid, Clachan's Heart // Brigid, Doun's Mind",
+  "Prudent Fateseer // Peer Review",
+  "Kederekt Leviathan",
+  "Innocuous Researcher",
+  "Plan for All Outcomes"
+ ],
+ "output_tokens_assumed_per_card": 420,
+ "output_tokens_basis": "example_output.json is about 330 tokens at this ratio; 420 allows a longer reason and up to 3 rule claims"
+}

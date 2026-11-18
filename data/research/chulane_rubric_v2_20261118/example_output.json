@@ -1,0 +1,45 @@
+{
+ "schema": "rubric-v2-card-rating-1",
+ "oracle_id": "00000000-0000-0000-0000-000000000000",
+ "card": "Example Cloudhopper (invented card, format example only)",
+ "judged_as": "spell",
+ "scores": {
+  "E": 60,
+  "F": 85,
+  "T": 0,
+  "R": 65,
+  "K": 55,
+  "D": 65,
+  "H": 65
+ },
+ "notes": {
+  "E": "2 mana body with a small ETB, average for its role",
+  "F": "cast trigger plus ETB that Chulane's bounce can replay",
+  "T": "no effect on opponents",
+  "R": "ETB is useful with or without other creatures",
+  "K": "replayable ETB, but each loop costs {3}",
+  "D": "small body dies to sweepers, one blue pip",
+  "H": "solid ETB creature for the loop"
+ },
+ "reason": "According to the card text the ETB draws a card and the body is a 2/2 flier, so it triggers Chulane when cast and again when Chulane's {3},{T} ability returns it to hand and it is cast again. The loop is slow at three mana per replay, so the value is one extra card now and a late-game engine. A sweeper kills the body but not the card already drawn.",
+ "confidence": "medium",
+ "uncertainty": "The value of replaying depends on spare mana; the invented text has no cheaper way to return it.",
+ "rule_claims": [
+  {
+   "quote": "When this creature enters, draw a card.",
+   "interaction": "etb_reuse",
+   "claim": "each cast after a bounce draws another card",
+   "basis": "card_text"
+  }
+ ],
+ "pattern_check": [
+  {
+   "rule_id": "etb_own",
+   "verdict": "correct"
+  },
+  {
+   "rule_id": "etb_own_draw",
+   "verdict": "correct"
+  }
+ ]
+}
