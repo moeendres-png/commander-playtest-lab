@@ -23,13 +23,17 @@ from __future__ import annotations
 import argparse
 import json
 import os
-import resource
 import shutil
 import subprocess
 import sys
 import time
 from pathlib import Path
 from typing import Any
+
+try:
+    import resource
+except ImportError:
+    resource = None  # type: ignore[assignment]
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
@@ -50,9 +54,21 @@ DEFAULT_JAR = ROOT / "engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.ja
 BASE_COMMAND = ("java", "-Xmx3g", "-jar", "{jar}", "full-game")
 
 
-def _cpu_seconds() -> float:
+def _cpu_seconds() -> float | None:
+    if resource is None:
+        return None
     usage = resource.getrusage(resource.RUSAGE_CHILDREN)
-    return usage.ru_utime + usage.ru_stime
+    return float(usage.ru_utime + usage.ru_stime)
+
+
+def _cpu_delta(start: float | None, end: float | None) -> float | None:
+    if start is None or end is None:
+        return None
+    return round(end - start, 1)
+
+
+def _format_cpu(delta: float | None) -> str:
+    return f"{delta:.1f} s" if delta is not None else "nicht verfügbar"
 
 
 def _fingerprint(data: Path, game_id: str) -> dict[str, Any]:
@@ -192,10 +208,12 @@ def main(argv: list[str] | None = None) -> int:
     print(f"identical {identical}/{len(seeds)}")
     execution = batch.execution()
     print("series execution:", json.dumps({k: v for k, v in execution.items() if k != "chunks"}))
-    print(f"(a) one game per JVM: wall {wall1 - wall0:.1f} s, cpu {cpu1 - cpu0:.1f} s")
+    cpu_a = _cpu_delta(cpu0, cpu1)
+    cpu_b = _cpu_delta(cpu1, cpu2)
+    print(f"(a) one game per JVM: wall {wall1 - wall0:.1f} s, cpu {_format_cpu(cpu_a)}")
     print(
         f"(b) series workers={args.workers} games_per_jvm={args.games_per_jvm}: "
-        f"wall {wall2 - wall1:.1f} s, cpu {cpu2 - cpu1:.1f} s (a measurement, not evidence)"
+        f"wall {wall2 - wall1:.1f} s, cpu {_format_cpu(cpu_b)} (a measurement, not evidence)"
     )
     print("IDENTITY", "PASS" if ok else "FAIL")
     if args.out is not None:
@@ -204,7 +222,7 @@ def main(argv: list[str] | None = None) -> int:
             "table": table,
             "execution": execution,
             "wall_s": {"a": round(wall1 - wall0, 1), "b": round(wall2 - wall1, 1)},
-            "cpu_s": {"a": round(cpu1 - cpu0, 1), "b": round(cpu2 - cpu1, 1)},
+            "cpu_s": {"a": cpu_a, "b": cpu_b},
             "identical": identical,
         }
         args.out.write_text(json.dumps(report, indent=1) + "\n", encoding="utf-8")

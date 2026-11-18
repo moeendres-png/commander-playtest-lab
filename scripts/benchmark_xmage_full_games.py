@@ -32,13 +32,25 @@ import argparse
 import hashlib
 import json
 import re
-import resource
 import subprocess
 import sys
 import time
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Any
+
+try:
+    import resource
+except ImportError:
+    resource = None  # type: ignore[assignment]
+
+
+def _children_cpu_seconds() -> float | None:
+    if resource is None:
+        return None
+    usage = resource.getrusage(resource.RUSAGE_CHILDREN)
+    return float(usage.ru_utime + usage.ru_stime)
+
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
@@ -168,7 +180,7 @@ def _play(
     scenario, decks, pilots = setup
     scenario = scenario.model_copy(update={"seed": seed})
     runner = _runner(command, private, frame_digest, skip_forced_frames)
-    before = resource.getrusage(resource.RUSAGE_CHILDREN)
+    cpu_before = _children_cpu_seconds()
     started = time.monotonic()
     row: dict[str, Any] = {"pod": pod, "seed": seed}
     try:
@@ -181,11 +193,13 @@ def _play(
         } | _frame_fields(runner, seed, decks, status_ok=True)
     except Exception as exc:  # a failed game is a result row, not a crash
         row |= {"status": "failed", "error": f"{type(exc).__name__}: {exc}"[:400]}
-    after = resource.getrusage(resource.RUSAGE_CHILDREN)
+    cpu_after = _children_cpu_seconds()
     row["wall_s"] = round(time.monotonic() - started, 2)
     # Children's CPU is process-wide: exact with one worker, shared across games otherwise.
-    row["child_cpu_s"] = round(
-        (after.ru_utime - before.ru_utime) + (after.ru_stime - before.ru_stime), 2
+    row["child_cpu_s"] = (
+        round(cpu_after - cpu_before, 2)
+        if cpu_before is not None and cpu_after is not None
+        else None
     )
     print(json.dumps(row), flush=True)
     return row
@@ -214,16 +228,18 @@ def _play_batch(
     games = [
         (setup[0].model_copy(update={"seed": seed}), setup[1], setup[2]) for _, setup, seed in jobs
     ]
-    before = resource.getrusage(resource.RUSAGE_CHILDREN)
+    cpu_before = _children_cpu_seconds()
     started = time.monotonic()
     try:
         outcomes: list[Any] = runner.run_batch(games)
     except Exception as exc:
         outcomes = [exc] * len(jobs)
-    after = resource.getrusage(resource.RUSAGE_CHILDREN)
+    cpu_after = _children_cpu_seconds()
     wall = round((time.monotonic() - started) / len(jobs), 2)
-    cpu = round(
-        ((after.ru_utime - before.ru_utime) + (after.ru_stime - before.ru_stime)) / len(jobs), 2
+    cpu = (
+        round((cpu_after - cpu_before) / len(jobs), 2)
+        if cpu_before is not None and cpu_after is not None
+        else None
     )
     setup_of = {pod: setup for pod, setup, _ in jobs}
     rows = []
@@ -432,7 +448,12 @@ def compare(args: argparse.Namespace) -> int:
     ]
     missing = len(a.keys() ^ b.keys())
     wall = [sum(d[k]["wall_s"] for k in keys) for d in (a, b)]
-    cpu = [sum(d[k]["child_cpu_s"] for k in keys) for d in (a, b)]
+    cpu: list[float | None] = [
+        sum(float(d[k]["child_cpu_s"]) for k in keys)
+        if all(isinstance(d[k].get("child_cpu_s"), (int, float)) for k in keys)
+        else None
+        for d in (a, b)
+    ]
     print(_settings_line("A", base))
     print(_settings_line("B", other))
     print(f"identical {len(keys) - len(differ)}/{len(keys)}")
@@ -459,7 +480,7 @@ def compare(args: argparse.Namespace) -> int:
 
 
 def _print_time_comparison(
-    base: dict[str, Any], other: dict[str, Any], wall: list[float], cpu: list[float]
+    base: dict[str, Any], other: dict[str, Any], wall: list[float], cpu: list[float | None]
 ) -> None:
     """Time lines of ``compare``: per-game sums only where they mean something (#1075).
 
@@ -486,9 +507,13 @@ def _print_time_comparison(
         else:
             print("elapsed n/a (a file has no total_wall_s)")
         return
-    if wall[0] and cpu[0]:
+    if wall[0]:
         print(f"wall {wall[0]:.1f} -> {wall[1]:.1f} s ({100 * (wall[1] / wall[0] - 1):+.1f} %)")
-        print(f"cpu  {cpu[0]:.1f} -> {cpu[1]:.1f} s ({100 * (cpu[1] / cpu[0] - 1):+.1f} %)")
+    c0, c1 = cpu[0], cpu[1]
+    if c0 is not None and c1 is not None and c0 > 0:
+        print(f"cpu  {c0:.1f} -> {c1:.1f} s ({100 * (c1 / c0 - 1):+.1f} %)")
+    elif wall[0]:
+        print("cpu  nicht verfügbar")
 
 
 def parse_reference_metadata(doc_path: Path) -> dict[str, str]:
