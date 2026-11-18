@@ -2540,6 +2540,41 @@ function setupControls() {
   const views = [["grid", "Bilder"], ["table", "Tabelle"]];
   const drawViews = () => $("view-toggle").replaceChildren(...views.map(([key, label]) => h("button", { type: "button", class: "chip" + (state.view === key ? " on" : ""), "aria-pressed": state.view === key, onclick: () => { state.view = key; drawViews(); renderPool(); } }, label)));
   drawViews();
+  const applyBuilderFilterPreset = (cfg) => {
+    $("q").value = cfg.q || "";
+    $("type-filter").value = cfg.type || "";
+    $("role-filter").value = cfg.role || "";
+    $("mv-min").value = cfg.mvMin || "";
+    $("mv-max").value = cfg.mvMax || "";
+    $("f-free").checked = cfg.free !== false;
+    $("f-notin").checked = Boolean(cfg.notin);
+    $("f-fav").checked = Boolean(cfg.fav);
+    $("f-excl").checked = Boolean(cfg.excl);
+    state.colors = new Set(Array.isArray(cfg.colors) ? cfg.colors : []);
+    for (const btn of $("color-filter").querySelectorAll("button")) btn.classList.toggle("on", state.colors.has(btn.textContent));
+    state.shown = 120; renderPool();
+  };
+  if ($("quick-filter-presets")) {
+    $("quick-filter-presets").replaceChildren(
+      h("button", { type: "button", class: "chip", onclick: () => applyBuilderFilterPreset({ free: true }) }, "Standardfilter"),
+      h("button", { type: "button", class: "chip", onclick: () => applyBuilderFilterPreset({ free: true, notin: true }) }, "Frei & nicht im Deck"),
+      h("button", { type: "button", class: "chip", onclick: () => applyBuilderFilterPreset({ free: true, mvMax: "2" }) }, "Frühe Aktionen (MV ≤ 2)"),
+      h("button", { type: "button", class: "chip", onclick: () => applyBuilderFilterPreset({ free: true, type: "Creatures" }) }, "Kreaturen (frei)"),
+      h("button", { type: "button", class: "chip", onclick: () => applyBuilderFilterPreset({ free: true, role: "-" }) }, "Ohne Rollenmarke"),
+      h("button", { type: "button", class: "chip", onclick: () => {
+        const snapshot = { q: $("q").value, type: $("type-filter").value, role: $("role-filter").value, mvMin: $("mv-min").value, mvMax: $("mv-max").value, free: $("f-free").checked, notin: $("f-notin").checked, fav: $("f-fav").checked, excl: $("f-excl").checked, colors: [...state.colors] };
+        StudioUI.remember("studio.builder.savedPreset", JSON.stringify(snapshot));
+        toast("Filteransicht gespeichert.");
+      } }, "Ansicht merken"),
+      h("button", { type: "button", class: "chip", onclick: () => {
+        try {
+          const raw = StudioUI.recall("studio.builder.savedPreset", "");
+          if (!raw) { toast("Noch keine Filteransicht gespeichert."); return; }
+          applyBuilderFilterPreset(JSON.parse(raw));
+        } catch (_) { toast("Gespeicherte Filteransicht konnte nicht geladen werden."); }
+      } }, "Gemerkte Ansicht")
+    );
+  }
   setupFilterToggle();
   $("columns").addEventListener("click", () => { $("column-menu").hidden = !$("column-menu").hidden; });
   $("column-menu").replaceChildren(...COLUMNS.map(([key, label]) => h("label", {}, h("input", { type: "checkbox", checked: state.columns.has(key), onchange: (event) => {
