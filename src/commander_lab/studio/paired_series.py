@@ -361,6 +361,10 @@ class PairedSeriesJob:
         slot_alignment: SlotAlignment | None = None,
         purpose: str = "unspecified",
         player_count: int | None = None,
+        opponent_ids: Sequence[str] | None = None,
+        raw_slot_alignment: dict[str, object] | None = None,
+        created_at: str | None = None,
+        preloaded_games: dict[tuple[str, int, int], paired_comparison.PlayedGame] | None = None,
     ) -> None:
         self.series_id = series_id
         self.data_folder = data_folder
@@ -369,6 +373,7 @@ class PairedSeriesJob:
         self.base_deck = base_deck
         self.variant_deck = variant_deck
         self.opponents = list(opponents)
+        self.opponent_ids = list(opponent_ids) if opponent_ids is not None else None
         self.paths_by_deck_id = dict(paths_by_deck_id)
         self.pod_name = pod_name
         self.seeds = list(seeds)
@@ -406,12 +411,25 @@ class PairedSeriesJob:
         #: How the variant's library was lined up with the base's; ``None`` only for a
         #: series written before the alignment existed (its pairs share no shuffle).
         self.slot_alignment: dict[str, object] | None = (
-            slot_alignment.model_dump() if slot_alignment is not None else None
+            dict(raw_slot_alignment)
+            if raw_slot_alignment is not None
+            else (slot_alignment.model_dump() if slot_alignment is not None else None)
+        )
+        self.preloaded_games: dict[tuple[str, int, int], paired_comparison.PlayedGame] = (
+            dict(preloaded_games) if preloaded_games else {}
         )
 
         self.status = "pending"
-        self.pairs_attempted = 0
-        self.created_at = now_utc()
+        self.pairs_attempted = len(
+            {
+                (seed, seat)
+                for seed in self.seeds
+                for seat in self.tested_seats
+                if ("base", seed, seat) in self.preloaded_games
+                and ("variant", seed, seat) in self.preloaded_games
+            }
+        )
+        self.created_at = created_at or now_utc()
         self.started_at: str | None = None
         self.ended_at: str | None = None
         self.error: str | None = None
@@ -419,9 +437,27 @@ class PairedSeriesJob:
         self._cancel_requested = False
         self._lock = threading.Lock()
         self._persist_lock = threading.Lock()
+        self._progress_lock = threading.Lock()
 
     def series_file(self) -> Path:
         return games_folder(self.data_folder) / f"{self.series_id}.paired.json"
+
+    def progress_file(self) -> Path:
+        return games_folder(self.data_folder) / "paired_decks" / self.series_id / "progress.jsonl"
+
+    def _append_game_result(
+        self, arm: str, seed: int, seat: int, played: paired_comparison.PlayedGame
+    ) -> None:
+        path = self.progress_file()
+        line = json.dumps(
+            {"arm": arm, "seed": seed, "seat": seat, "played": played},
+            ensure_ascii=False,
+        )
+        with self._progress_lock:
+            path.parent.mkdir(parents=True, exist_ok=True)
+            with path.open("a", encoding="utf-8") as handle:
+                handle.write(line + "\n")
+                handle.flush()
 
     def cancel(self) -> None:
         with self._lock:
@@ -524,6 +560,8 @@ class PairedSeriesJob:
             is_cancelled=self.is_cancelled,
             on_pair_done=_on_pair_done,
             cancel_error_factory=lambda: SeriesCancelledError("Serie vom Benutzer abgebrochen"),
+            preloaded=self.preloaded_games,
+            on_game_result=self._append_game_result,
         )
 
         try:
@@ -704,10 +742,180 @@ class PairedSeriesManager:
             slot_alignment=alignment,
             purpose=purpose,
             player_count=table_size,
+            opponent_ids=opponent_ids,
         )
         job.persist()
         with self._lock:
             self._jobs[series_id] = job
+
+        thread = threading.Thread(target=job.run, daemon=True)
+        thread.start()
+        return job
+
+    @staticmethod
+    def _normalize_disk_series(raw: dict[str, object]) -> dict[str, object]:
+        out = dict(raw)
+        if out.get("status") in {"running", "pending"}:
+            out["status"] = "interrupted"
+            out["resumable"] = True
+        elif out.get("status") in {"cancelled", "failed"}:
+            out["resumable"] = True
+        else:
+            out["resumable"] = False
+        return out
+
+    @staticmethod
+    def _load_progress_jsonl(
+        path: Path,
+    ) -> dict[tuple[str, int, int], paired_comparison.PlayedGame]:
+        loaded: dict[tuple[str, int, int], paired_comparison.PlayedGame] = {}
+        if not path.is_file():
+            return loaded
+        for line in path.read_text(encoding="utf-8").splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                rec = json.loads(line)
+            except ValueError:
+                continue
+            if not isinstance(rec, dict):
+                continue
+            arm = rec.get("arm")
+            seed = rec.get("seed")
+            seat = rec.get("seat")
+            played = rec.get("played")
+            if (
+                isinstance(arm, str)
+                and type(seed) is int
+                and type(seat) is int
+                and isinstance(played, dict)
+            ):
+                loaded[(arm, seed, seat)] = played  # type: ignore[assignment]
+        return loaded
+
+    def resume_series(
+        self,
+        data_folder: str | Path,
+        series_id: str,
+        *,
+        workers: int | None = None,
+        games_per_jvm: int | None = None,
+        play_override: paired_comparison.PairPlayer | None = None,
+    ) -> PairedSeriesJob:
+        safe_id = validate_series_id(series_id)
+        target_folder = Path(data_folder).resolve()
+        with self._lock:
+            existing = self._jobs.get(safe_id)
+            if existing is not None and existing.status in {"pending", "running"}:
+                raise RuntimeError(f"Serie {safe_id} läuft bereits (status={existing.status})")
+
+        disk = games_folder(target_folder) / f"{safe_id}.paired.json"
+        if not disk.is_file():
+            raise FileNotFoundError(f"Unbekannte Serie: {safe_id}")
+        raw = json.loads(disk.read_text(encoding="utf-8"))
+        if not isinstance(raw, dict):
+            raise ValueError(f"Ungültige Serien-Datei: {safe_id}")
+        if raw.get("status") == "completed":
+            raise RuntimeError(f"Serie {safe_id} ist bereits abgeschlossen")
+
+        deck_dir = games_folder(target_folder) / "paired_decks" / safe_id
+        base_files = sorted(deck_dir.glob("base-*.json"))
+        variant_files = sorted(deck_dir.glob("variant-*.json"))
+        if not base_files or not variant_files:
+            raise FileNotFoundError(f"Deck-Snapshots für Serie {safe_id} fehlen")
+        base_path = base_files[0]
+        variant_path = variant_files[0]
+        base_deck = load_rules_deck_snapshot(base_path)
+        variant_deck = load_rules_deck_snapshot(variant_path)
+
+        pod = str(raw.get("pod") or "precon")
+        raw_opp_ids = raw.get("opponent_ids")
+        opp_ids = [str(x) for x in raw_opp_ids] if isinstance(raw_opp_ids, list) else None
+        opp_paths = _resolve_opponent_paths(pod, opp_ids)
+        opponents = [load_rules_deck_snapshot(path) for path in opp_paths]
+        paths_by_deck_id: dict[str, Path] = {
+            base_deck.deck_id: base_path,
+            variant_deck.deck_id: variant_path,
+        }
+        for deck, path in zip(opponents, opp_paths, strict=True):
+            paths_by_deck_id[deck.deck_id] = path
+
+        seed_plan = raw.get("seed_plan")
+        if not isinstance(seed_plan, dict):
+            raise ValueError(f"seed_plan fehlt in Serie {safe_id}")
+        first_seed = seed_plan.get("first_seed")
+        seeds_planned = seed_plan.get("seeds_planned")
+        if type(first_seed) is not int or type(seeds_planned) is not int or seeds_planned < 1:
+            raise ValueError(f"Ungültiger seed_plan in Serie {safe_id}")
+        seeds = [first_seed + i for i in range(seeds_planned)]
+
+        raw_exec = raw.get("execution")
+        exec_meta = raw_exec if isinstance(raw_exec, dict) else {}
+        used_workers, used_batch = checked_series_settings(
+            workers if workers is not None else exec_meta.get("workers"),
+            games_per_jvm if games_per_jvm is not None else exec_meta.get("games_per_jvm"),
+        )
+
+        engine: SeriesEngine | None = None
+        if play_override is None:
+            engine = series_engine(target_folder, used_batch)
+            if engine is None:
+                state = engine_state(target_folder)
+                raise RuntimeError(str(state.get("reason") or "Engine ist nicht bereitgestellt"))
+        jar_sha = (
+            command_bridge_jar_sha256(target_folder, engine.command)
+            if engine is not None
+            else (str(raw["bridge_jar_sha256"]) if raw.get("bridge_jar_sha256") else None)
+        )
+
+        tested_seats_raw = raw.get("tested_seats")
+        tested_seats = (
+            [int(s) for s in tested_seats_raw]
+            if isinstance(tested_seats_raw, list) and tested_seats_raw
+            else [0, 1, 2, 3]
+        )
+        budget_pairs = int(raw.get("budget_pairs") or 0)
+        look_every_pairs = int(raw.get("look_every_pairs") or 1)
+        threshold_pp = float(raw.get("threshold_pp") or 0.0)
+        significance_level = float(raw.get("significance_level") or 0.05)
+        raw_alignment = (
+            raw.get("slot_alignment") if isinstance(raw.get("slot_alignment"), dict) else None
+        )
+        preloaded = self._load_progress_jsonl(deck_dir / "progress.jsonl")
+
+        job = PairedSeriesJob(
+            series_id=safe_id,
+            data_folder=target_folder,
+            base_ref=str(raw.get("base_ref") or base_deck.deck_id),
+            variant_ref=str(raw.get("variant_ref") or variant_deck.deck_id),
+            base_deck=base_deck,
+            variant_deck=variant_deck,
+            opponents=opponents,
+            paths_by_deck_id=paths_by_deck_id,
+            pod_name=pod,
+            seeds=seeds,
+            tested_seats=tested_seats,
+            budget_pairs=budget_pairs,
+            look_every_pairs=look_every_pairs,
+            threshold_pp=threshold_pp,
+            significance_level=significance_level,
+            play_override=play_override,
+            workers=used_workers,
+            games_per_jvm=used_batch,
+            engine=engine,
+            bridge_sha=jar_sha,
+            qualification=bridge_qualification(),
+            raw_slot_alignment=raw_alignment,
+            purpose=str(seed_plan.get("purpose") or "unspecified"),
+            player_count=1 + len(opponents),
+            opponent_ids=opp_ids,
+            created_at=str(raw.get("created_at")) if raw.get("created_at") else None,
+            preloaded_games=preloaded,
+        )
+        job.persist()
+        with self._lock:
+            self._jobs[safe_id] = job
 
         thread = threading.Thread(target=job.run, daemon=True)
         thread.start()
@@ -727,7 +935,7 @@ class PairedSeriesManager:
             except ValueError:
                 return None
             if isinstance(raw, dict):
-                return raw
+                return self._normalize_disk_series(raw)
         return None
 
     def cancel_series(self, series_id: str) -> bool:
@@ -748,7 +956,7 @@ class PairedSeriesManager:
                 with contextlib.suppress(OSError, ValueError):
                     raw = json.loads(path.read_text(encoding="utf-8"))
                     if isinstance(raw, dict) and isinstance(raw.get("series_id"), str):
-                        by_id[str(raw["series_id"])] = raw
+                        by_id[str(raw["series_id"])] = self._normalize_disk_series(raw)
         with self._lock:
             for sid, job in self._jobs.items():
                 if job.data_folder == target_folder:

@@ -823,6 +823,8 @@ def parallel_window_player(
     is_cancelled: Callable[[], bool] | None = None,
     on_pair_done: Callable[[int], None] | None = None,
     cancel_error_factory: Callable[[], BaseException] | None = None,
+    preloaded: Mapping[tuple[str, int, int], PlayedGame] | None = None,
+    on_game_result: Callable[[str, int, int, PlayedGame], None] | None = None,
 ) -> PairPlayer:
     """Execute each O'Brien-Fleming look window in parallel without changing sequential outcomes."""
     from .play_batch import SeriesGame, play_recorded_games
@@ -832,7 +834,9 @@ def parallel_window_player(
     windows_by_start: dict[int, list[tuple[int, int]]] = {}
     prev_end = 0
     for end in look_counts:
-        windows_by_start[prev_end] = planned_units[prev_end:end]
+        window = planned_units[prev_end:end]
+        for pos in range(prev_end, end):
+            windows_by_start[pos] = window
         prev_end = end
     unit_index = {(seed, seat): idx for idx, (seed, seat) in enumerate(planned_units)}
     contenders = {"base": base_deck, "variant": variant_deck}
@@ -840,9 +844,13 @@ def parallel_window_player(
     used_batch = max(1, int(games_per_jvm))
 
     lock = threading.Lock()
-    cache: dict[tuple[str, int, int], PlayedGame] = {}
-    seen_games: set[tuple[str, int, int]] = set()
-    completed_pairs: set[tuple[int, int]] = set()
+    cache: dict[tuple[str, int, int], PlayedGame] = dict(preloaded) if preloaded else {}
+    seen_games: set[tuple[str, int, int]] = set(cache.keys())
+    completed_pairs: set[tuple[int, int]] = {
+        (seed, seat)
+        for seed, seat in planned_units
+        if ("base", seed, seat) in seen_games and ("variant", seed, seat) in seen_games
+    }
 
     def _raise_if_cancelled() -> None:
         if is_cancelled is not None and is_cancelled():
@@ -866,12 +874,22 @@ def parallel_window_player(
 
     def _run_window(window_units: list[tuple[int, int]]) -> None:
         if play_single is not None:
-            tasks = [(arm, seed, seat) for seed, seat in window_units for arm in ARMS]
+            with lock:
+                tasks = [
+                    (arm, seed, seat)
+                    for seed, seat in window_units
+                    for arm in ARMS
+                    if (arm, seed, seat) not in cache
+                ]
+            if not tasks:
+                return
 
             def _eval_single(item: tuple[str, int, int]) -> tuple[tuple[str, int, int], PlayedGame]:
                 w_arm, w_seed, w_seat = item
                 _raise_if_cancelled()
                 res = play_single(w_arm, w_seed, w_seat)
+                if on_game_result is not None:
+                    on_game_result(w_arm, w_seed, w_seat, res)
                 _mark_game_done(w_arm, w_seed, w_seat)
                 return item, res
 
@@ -893,9 +911,23 @@ def parallel_window_player(
             _raise_if_cancelled()
             return
 
-        chunks = plan_look_window_chunks(
-            window_units, workers=used_workers, games_per_jvm=used_batch
+        with lock:
+            missing_units = [
+                (seed, seat)
+                for seed, seat in window_units
+                if ("base", seed, seat) not in cache or ("variant", seed, seat) not in cache
+            ]
+        if not missing_units:
+            return
+        raw_chunks = plan_look_window_chunks(
+            missing_units, workers=used_workers, games_per_jvm=used_batch
         )
+        with lock:
+            chunks = [
+                (w_arm, w_seat, [s for s in chunk_seeds if (w_arm, s, w_seat) not in cache])
+                for w_arm, w_seat, chunk_seeds in raw_chunks
+            ]
+        chunks = [c for c in chunks if c[2]]
 
         def _eval_chunk(
             chunk: tuple[str, int, list[int]],
@@ -925,8 +957,11 @@ def parallel_window_player(
             )
             results: list[tuple[tuple[str, int, int], PlayedGame]] = []
             for w_seed, summary in zip(chunk_seeds, summaries, strict=True):
+                played = _summary_to_played_game(summary)
+                if on_game_result is not None:
+                    on_game_result(w_arm, w_seed, w_seat, played)
                 _mark_game_done(w_arm, w_seed, w_seat)
-                results.append(((w_arm, w_seed, w_seat), _summary_to_played_game(summary)))
+                results.append(((w_arm, w_seed, w_seat), played))
             return results
 
         if used_workers == 1:

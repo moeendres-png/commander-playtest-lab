@@ -1451,3 +1451,228 @@ def test_estimate_series_duration_scales_with_workers_and_api_validates_parallel
         assert ok_resp.status_code == 200
     finally:
         store.close()
+
+
+def test_orphaned_running_series_is_reported_as_interrupted_and_resumed_identically(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    store, folder = _make_store(tmp_path)
+    try:
+        rev_a = create_revision(
+            store,
+            deck_id="chulane",
+            name="Chulane",
+            branch="main",
+            cards=[
+                RevisionCard("cid-chulane", 1, "commander"),
+                RevisionCard("cid-sol-ring", 1, "main"),
+                RevisionCard("cid-forest", 98, "main"),
+            ],
+        )
+        rev_b = create_revision(
+            store,
+            deck_id="chulane",
+            name="Chulane",
+            branch="var",
+            cards=[
+                RevisionCard("cid-chulane", 1, "commander"),
+                RevisionCard("cid-signet", 1, "main"),
+                RevisionCard("cid-forest", 98, "main"),
+            ],
+        )
+        monkeypatch.setattr(paired_series, "_preflight_snapshot_cards", lambda *_a, **_k: None)
+
+        def _make_deterministic_player(
+            called: list[tuple[str, int, int]],
+        ) -> paired_comparison.PairPlayer:
+            def _play(arm: str, seed: int, seat: int) -> paired_comparison.PlayedGame:
+                called.append((arm, seed, seat))
+                if arm == "variant" and seed == 500 and seat == 1:
+                    return {"exposure": None, "failure_class": "BRIDGE_TIMEOUT"}
+                deck_id = "chulane--base" if arm == "base" else "chulane--variant"
+                winner = [seat] if (arm == "variant" or seed % 2 == 0) else [(seat + 1) % 4]
+                return {
+                    "exposure": {
+                        "game_id": f"g-{arm}-{seed}-{seat}",
+                        "seed": seed,
+                        "engine_commit": "5bd29ab6f318",
+                        "pilot": "GenericCommanderPilot 1.0.0",
+                        "decision_policy": "xmage-full-game-policy-1.0.0",
+                        "winner_seats": winner,
+                        "seats": [
+                            {
+                                "seat": seat,
+                                "deck_id": deck_id,
+                                "win_credit": 1.0 if seat in winner else 0.0,
+                                "first_hand": [],
+                                "seen_by_turn_3": [],
+                            }
+                        ],
+                    },
+                    "failure_class": None,
+                }
+
+            return _play
+
+        # 1. Uninterrupted baseline run
+        uninterrupted_calls: list[tuple[str, int, int]] = []
+        mgr_full = paired_series.PairedSeriesManager()
+        full_job = mgr_full.start_series(
+            store,
+            folder / "full",
+            base_revision_id=rev_a,
+            variant_revision_id=rev_b,
+            pod="precon",
+            budget_pairs=8,
+            look_every_pairs=4,
+            base_seed=500,
+            workers=1,
+            games_per_jvm=1,
+            play_override=_make_deterministic_player(uninterrupted_calls),
+        )
+        deadline = time.monotonic() + 10.0
+        while time.monotonic() < deadline and full_job.status in {"pending", "running"}:
+            time.sleep(0.02)
+        assert full_job.status == "completed"
+        assert full_job.result is not None
+
+        # 2. Simulate an interrupted series on disk (first 3 pairs in progress.jsonl, status="running")
+        mgr_init = paired_series.PairedSeriesManager()
+        res_dir = folder / "resumed"
+
+        class _CrashAfterThreePairs(RuntimeError):
+            pass
+
+        crash_calls: list[tuple[str, int, int]] = []
+        base_player = _make_deterministic_player(crash_calls)
+
+        def _crashing_player(arm: str, seed: int, seat: int) -> paired_comparison.PlayedGame:
+            if len(crash_calls) >= 6:
+                raise _CrashAfterThreePairs("simulated power loss")
+            return base_player(arm, seed, seat)
+
+        crashed_job = mgr_init.start_series(
+            store,
+            res_dir,
+            base_revision_id=rev_a,
+            variant_revision_id=rev_b,
+            pod="precon",
+            budget_pairs=8,
+            look_every_pairs=4,
+            base_seed=500,
+            workers=1,
+            games_per_jvm=1,
+            play_override=_crashing_player,
+        )
+        deadline = time.monotonic() + 10.0
+        while time.monotonic() < deadline and crashed_job.status in {"pending", "running"}:
+            time.sleep(0.02)
+        assert crashed_job.status == "failed"
+
+        # Overwrite on-disk status to "running" to simulate a hard process kill without finally block
+        disk_path = crashed_job.series_file()
+        disk_payload = json.loads(disk_path.read_text(encoding="utf-8"))
+        disk_payload["status"] = "running"
+        disk_payload["ended_at"] = None
+        disk_payload["error"] = None
+        disk_payload["pairs_attempted"] = 3
+        disk_path.write_text(json.dumps(disk_payload), encoding="utf-8")
+
+        # 3. Fresh manager (no in-memory jobs) must report "interrupted" with 3/8 pairs
+        mgr_fresh = paired_series.PairedSeriesManager()
+        seen_one = mgr_fresh.get_series(res_dir, crashed_job.series_id)
+        assert seen_one is not None
+        assert seen_one["status"] == "interrupted"
+        assert seen_one["pairs_attempted"] == 3
+        assert seen_one["budget_pairs"] == 8
+        assert seen_one["resumable"] is True
+        listed = mgr_fresh.list_series(res_dir)
+        assert any(
+            row["series_id"] == crashed_job.series_id and row["status"] == "interrupted"
+            for row in listed
+        )
+
+        # 4. Resume and verify only missing pairs play & final result matches uninterrupted run
+        resumed_calls: list[tuple[str, int, int]] = []
+        resumed_job = mgr_fresh.resume_series(
+            res_dir,
+            crashed_job.series_id,
+            workers=1,
+            games_per_jvm=1,
+            play_override=_make_deterministic_player(resumed_calls),
+        )
+        deadline = time.monotonic() + 10.0
+        while time.monotonic() < deadline and resumed_job.status in {"pending", "running"}:
+            time.sleep(0.02)
+        assert resumed_job.status == "completed", resumed_job.error
+        assert resumed_job.result is not None
+
+        # Already-played 3 pairs (6 games) were NOT re-played
+        assert len(resumed_calls) == len(uninterrupted_calls) - 6
+        assert set(resumed_calls).isdisjoint(set(crash_calls))
+
+        # Outcomes & O'Brien-Fleming looks are identical; censored failure class preserved
+        for key in (
+            "status",
+            "answer",
+            "stop_reason",
+            "pairs_played",
+            "pairs_completed",
+            "pairs_censored",
+            "difference_pp",
+            "sign_test_p_value",
+            "failure_classes",
+        ):
+            assert resumed_job.result[key] == full_job.result[key], key
+        assert resumed_job.result["failure_classes"]["variant"].get("BRIDGE_TIMEOUT") == 1
+        assert resumed_job.result["looks_planned"] == full_job.result["looks_planned"]
+        assert resumed_job.result["looks_used"] == full_job.result["looks_used"]
+        assert resumed_job.result["pairs"] == full_job.result["pairs"]
+    finally:
+        store.close()
+
+
+def test_paired_resume_route_returns_updated_job_and_rejects_completed(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    store, folder = _make_store(tmp_path)
+    try:
+        app = create_app(folder)
+        client = TestClient(app)
+        headers = {"x-studio": "1"}
+
+        assert (
+            client.post(
+                "/api/simulations/paired/paired-missing-1/resume", headers=headers
+            ).status_code
+            == 404
+        )
+
+        # Write a completed series on disk -> 409 Conflict
+        games_dir = folder / "games"
+        games_dir.mkdir(parents=True, exist_ok=True)
+        (games_dir / "paired-done-1.paired.json").write_text(
+            json.dumps({"series_id": "paired-done-1", "status": "completed"}),
+            encoding="utf-8",
+        )
+        assert (
+            client.post("/api/simulations/paired/paired-done-1/resume", headers=headers).status_code
+            == 409
+        )
+
+        # Mock resume_series on an interrupted series -> 200
+        class _FakeJob:
+            def to_dict(self) -> dict[str, object]:
+                return {"series_id": "paired-int-1", "status": "running", "pairs_attempted": 3}
+
+        monkeypatch.setattr(
+            paired_series.paired_series_manager,
+            "resume_series",
+            lambda *_a, **_k: _FakeJob(),
+        )
+        ok = client.post("/api/simulations/paired/paired-int-1/resume", headers=headers)
+        assert ok.status_code == 200
+        assert ok.json()["series_id"] == "paired-int-1"
+        assert ok.json()["status"] == "running"
+    finally:
+        store.close()

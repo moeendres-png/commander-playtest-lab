@@ -143,13 +143,16 @@ async function loadPairedOptions(deps) {
 
 function renderPairedMonitor(h, job, deps) {
   const isRunning = job.status === "running" || job.status === "pending";
+  const isInterrupted = job.status === "interrupted";
   const statusText = isRunning
     ? "Läuft..."
-    : job.status === "completed"
-      ? "Abgeschlossen"
-      : job.status === "cancelled"
-        ? "Abgebrochen"
-        : `Fehler: ${job.error || "Unbekannt"}`;
+    : isInterrupted
+      ? "Unterbrochen"
+      : job.status === "completed"
+        ? "Abgeschlossen"
+        : job.status === "cancelled"
+          ? "Abgebrochen"
+          : `Fehler: ${job.error || "Unbekannt"}`;
   const maxPairs = Math.max(1, Number(job.budget_pairs) || 1);
   const donePairs = Number(job.pairs_attempted) || 0;
   const pct = Math.min(100, Math.round((donePairs / maxPairs) * 100));
@@ -157,7 +160,7 @@ function renderPairedMonitor(h, job, deps) {
   const monitor = h("div", { class: "sim-monitor" },
     h("div", { class: "sim-monitor-head" },
       h("b", {}, `Paar-Serie „${job.pod}“ (${job.series_id}): ${StudioUI.num(donePairs, 0)} / ${StudioUI.num(maxPairs, 0)} Paare (${StudioUI.num(pct, 0)} %)`),
-      h("span", { class: "pill " + (isRunning ? "warn" : job.status === "completed" ? "good" : "bad") }, statusText)),
+      h("span", { class: "pill " + (isRunning || isInterrupted ? "warn" : job.status === "completed" ? "good" : "bad") }, statusText)),
     h("progress", { value: donePairs, max: maxPairs }),
     h("p", { class: "note note-compact" }, `Basis (A): ${job.base_ref} · Variante (B): ${job.variant_ref}`));
 
@@ -187,6 +190,23 @@ function renderPairedMonitor(h, job, deps) {
       },
     }, "Nachtlauf abbrechen");
     monitor.append(cancelBtn);
+  } else if (isInterrupted || job.status === "cancelled" || job.status === "failed") {
+    const resumeBtn = h("button", {
+      type: "button",
+      class: "primary mt-2",
+      onclick: async () => {
+        resumeBtn.disabled = true;
+        try {
+          const resumed = await deps.api(`/api/simulations/paired/${encodeURIComponent(job.series_id)}/resume`, "POST");
+          deps.setActivePaired(resumed);
+          deps.pollPaired(job.series_id);
+        } catch (err) {
+          deps.fail(err);
+          resumeBtn.disabled = false;
+        }
+      },
+    }, "Serie fortsetzen");
+    monitor.append(resumeBtn);
   }
 
   const res = job.result;
@@ -328,20 +348,35 @@ function refreshPairedSlots(deps) {
           h("tbody", {}, historyList.slice(0, 10).map((item) => {
             const r = item.result || null;
             const v = pairedVerdictInfo(r);
+            const canResume = item.status === "interrupted" || item.status === "cancelled" || item.status === "failed";
             return h("tr", {},
               h("td", {}, h("code", {}, item.series_id)),
-              h("td", {}, item.status),
+              h("td", {}, item.status === "interrupted" ? "unterbrochen" : item.status),
               h("td", {}, v ? v[1] : `${StudioUI.num(item.pairs_attempted ?? 0, 0)}/${item.budget_pairs !== null && item.budget_pairs !== undefined ? StudioUI.num(item.budget_pairs, 0) : "?"} Paare`),
               h("td", { class: "num" }, r ? fmtPp(r.difference_pp) : "–"),
               h("td", { title: pairedAlignmentText(item.slot_alignment) }, pairedAlignmentShort(item.slot_alignment)),
-              h("td", {}, h("button", {
-                type: "button",
-                class: "small",
-                onclick: () => {
-                  deps.setActivePaired(item);
-                  refreshPairedSlots(deps);
-                },
-              }, "Details")));
+              h("td", {}, h("div", { class: "actions" },
+                h("button", {
+                  type: "button",
+                  class: "small",
+                  onclick: () => {
+                    deps.setActivePaired(item);
+                    refreshPairedSlots(deps);
+                  },
+                }, "Details"),
+                canResume ? h("button", {
+                  type: "button",
+                  class: "small primary",
+                  onclick: async () => {
+                    try {
+                      const resumed = await deps.api(`/api/simulations/paired/${encodeURIComponent(item.series_id)}/resume`, "POST");
+                      deps.setActivePaired(resumed);
+                      deps.pollPaired(item.series_id);
+                    } catch (err) {
+                      deps.fail(err);
+                    }
+                  },
+                }, "Fortsetzen") : null)));
           }))))
       );
     }

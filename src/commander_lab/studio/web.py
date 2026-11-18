@@ -1256,6 +1256,19 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         except ValueError as error:
             raise HTTPException(422, str(error)) from error
 
+    @app.post("/api/simulations/paired/{series_id}/resume")
+    def resume_paired_series(series_id: str) -> dict[str, object]:
+        """Resume an interrupted, cancelled, or failed paired comparison series."""
+        try:
+            job = paired_series.paired_series_manager.resume_series(games_home(), series_id)
+            return job.to_dict()
+        except FileNotFoundError as error:
+            raise HTTPException(404, str(error)) from error
+        except ValueError as error:
+            raise HTTPException(422, str(error)) from error
+        except RuntimeError as error:
+            raise HTTPException(409, str(error)) from error
+
     @app.post("/api/simulations/readiness-audit")
     def readiness_audit_route(body: ReadinessAuditBody) -> dict[str, object]:
         """C-3 audit: check XMage card facts and pilot knowledge for deck + free Tier-S/A pool."""
