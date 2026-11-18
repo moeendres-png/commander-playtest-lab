@@ -78,6 +78,8 @@ function localizeActionText(text) {
   else if (s.startsWith("Activate ")) s = "Aktiviere " + s.slice(9);
   else if (s.startsWith("Discard ")) s = "Wirf ab: " + s.slice(8);
   else if (s === "Pass priority") s = "Priorität abgeben";
+  else if (s === "Cancel mana payment") s = "Zahlung abbrechen";
+  else if (s.startsWith("Do not attack with ")) s = `${s.slice(19)} greift nicht an`;
   if (s.includes(" attacks ")) {
     const [att, def] = s.split(" attacks ", 2);
     s = `${att} greift ${def} an`;
@@ -118,7 +120,9 @@ function offeredOption(optionId) {
 }
 function clickEntry(objectId) { return state.clickActive && objectId ? (state.click.objects[objectId] || null) : null; }
 function seatEntry(seat) { return state.clickActive ? (state.click.seats[String(seat)] || null) : null; }
-function clickDimmed(objectId) { return state.clickActive && Boolean(objectId) && SELECTING_KINDS.includes(state.click.kind) && !state.click.objects[objectId]; }
+// A decision whose options sit off the board (a library card, a number) lights nothing up and dims nothing.
+function boardHasClickables(model) { return Object.keys(model.objects).length > 0 || Object.keys(model.seats).length > 0; }
+function clickDimmed(objectId) { return state.clickActive && Boolean(objectId) && SELECTING_KINDS.includes(state.click.kind) && boardHasClickables(state.click) && !state.click.objects[objectId]; }
 function clickAction(target) {
   if (!state.clickActive) return "none";
   return StudioBoardClick.resolve(state.pendingDecision, state.click, target).action;
@@ -273,7 +277,8 @@ function renderBoardBar(pending, model) {
   const lead = askedName && (model.kind === "attacker" || model.kind === "blocker")
     ? `${CLASSES[pending.decision_class] || ""}: ${askedName}`
     : (CLASSES[pending.decision_class] || pending.decision_class);
-  bar.append(h("b", { class: "board-bar-title" }, lead), h("span", { class: "board-bar-hint" }, BAR_HINTS[model.kind] || ""));
+  const hint = boardHasClickables(model) ? (BAR_HINTS[model.kind] || "") : "Die Möglichkeiten dieser Entscheidung liegen nicht auf dem Brett (zum Beispiel in der Bibliothek): wähle in der Liste.";
+  bar.append(h("b", { class: "board-bar-title" }, lead), h("span", { class: "board-bar-hint" }, hint));
   if (model.mode === "staged") bar.append(h("span", { class: "board-bar-count" }, `${state.selectedOptions.length} von ${maxSel} gewählt (mindestens ${minSel})`));
   for (const optionId of model.loose) {
     const option = offeredOption(optionId);

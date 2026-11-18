@@ -139,3 +139,4 @@ button.stat:hover:not(:disabled){background:none;border:0;color:var(--text)}
 .board-links{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:6}
 .board-link{stroke:var(--accent);stroke-width:4;stroke-linecap:round;stroke-dasharray:2 9}
 @media (prefers-reduced-motion:reduce){.card{transition:none}.card.clickable:hover,.card.clickable:focus-visible{transform:none}}
+@media (max-width:480px){#areas a{padding-left:var(--s2);padding-right:var(--s2)}} /* five area links (with "Daten") must fit 390 px without a horizontal page scroll */

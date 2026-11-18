@@ -352,6 +352,13 @@ def test_partie_dims_non_answers_with_a_veil_and_labels_every_engine_decision_cl
     dimmed = [line for line in css.splitlines() if ".card.dimmed" in line]
     assert dimmed and all("filter" not in line and "opacity" not in line for line in dimmed)
     assert "filter" not in css.split(".card{transition", 1)[1].split("}", 1)[0]
+    # a decision whose options are all off the board (a library card) dims nothing and says so
+    assert "boardHasClickables(state.click) && !state.click.objects[objectId]" in js
+    assert "liegen nicht auf dem Brett" in js
+    # the engine's two label-only actions are shown in German, and five area links fit 390 px
+    assert 'Cancel mana payment") s = "Zahlung abbrechen"' in js
+    assert 'startsWith("Do not attack with ")' in js
+    assert "@media (max-width:480px){#areas a{" in css
     # every decision class the bridge declares has a German label in the page
     java = (
         Path(__file__).resolve().parents[2]
