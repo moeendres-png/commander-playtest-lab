@@ -30,14 +30,13 @@ from .launch import (
     APPCDS_TRAINING_DECISIONS,
     DEFAULT_GAMES_PER_JVM,
     MAX_GAMES_PER_JVM,
-    MAX_SEATS,
     MAX_WORKERS,
     MIN_GAMES_PER_JVM,
-    MIN_SEATS,
     MIN_WORKERS,
     build_appcds_archive,
     checked_series_settings,
     series_engine,
+    validate_released_seat_count,
 )
 from .marks import import_owner_marks
 from .queries import corpus_inclusion, legal_pool
@@ -431,6 +430,11 @@ def _parser() -> argparse.ArgumentParser:
         "--allow-mixed", action="store_true", help="pool mixed engine commits or pilots"
     )
     compare.add_argument(
+        "--allow-unreleased-seats",
+        action="store_true",
+        help="allow 5 or 6 seats (unreleased outside Owner qualification)",
+    )
+    compare.add_argument(
         "--workers",
         type=int,
         default=None,
@@ -552,13 +556,10 @@ def _compare_decks(args: argparse.Namespace) -> int:
 
     try:
         opponents_count = len(args.opponent)
-        min_opponents, max_opponents = MIN_SEATS - 1, MAX_SEATS - 1
-        if not min_opponents <= opponents_count <= max_opponents:
-            raise ValueError(
-                f"compare-decks requires {min_opponents} to {max_opponents} opponents "
-                f"(table size {MIN_SEATS} to {MAX_SEATS}), got {opponents_count}"
-            )
-        table_size = 1 + opponents_count
+        table_size = validate_released_seat_count(
+            opponents_count,
+            allow_unreleased_seats=bool(getattr(args, "allow_unreleased_seats", False)),
+        )
         if not (
             paired_comparison.MIN_BUDGET_PAIRS <= args.pairs <= paired_comparison.MAX_BUDGET_PAIRS
         ):
