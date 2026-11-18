@@ -1620,6 +1620,7 @@ function renderDeck() {
     ["packages", "Pakete & Upgrade"],
     ["check", "Prüfung"],
     ["facts", "Bracket & Lücken"],
+    ["tokens", "Tokens"],
     ["compare", "Vergleich"],
     ["similar", "Ähnliche Decks"],
     ["diff", "Varianten-Diff"],
@@ -1652,6 +1653,7 @@ function renderDeck() {
     packages: (b) => renderPackagesUpgradeTab(b, planPkgDeps("packages")),
     check: renderCheck,
     facts: renderFacts,
+    tokens: renderTokens,
     evidence: renderEvidence,
     compare: renderCompare,
     similar: renderSimilarDecks,
@@ -1661,6 +1663,100 @@ function renderDeck() {
     cut: renderCut,
     sim: renderSimulations,
   })[state.tab](body);
+}
+function renderTokens(body) {
+  const tok = state.renderToken;
+  const wrap = h("div", { class: "section" });
+  body.append(wrap);
+  const currentCards = entries();
+  if (!currentCards.length) {
+    wrap.replaceChildren(
+      h("h3", {}, "Token-Übersicht (lokaler Scryfall-Snapshot)"),
+      h("p", { class: "muted" }, "Keine Karten im aktuellen Deck.")
+    );
+    return;
+  }
+  wrap.replaceChildren(
+    h("h3", {}, "Token-Übersicht (lokaler Scryfall-Snapshot)"),
+    StudioUI.loading("Token-Verknüpfungen laden …")
+  );
+  api("/api/tokens", "POST", { cards: currentCards, owned_only: state.ownedOnly }).then((res) => {
+    if (tok !== state.renderToken || state.tab !== "tokens") return;
+    const c = res.counts || {};
+    const oracleCnt = c.deck_cards_with_oracle || { numerator: 0, denominator: 0 };
+    const creatorCnt = c.resolved_creator_cards || { numerator: 0, denominator: 0 };
+    const tokenList = res.tokens || [];
+    const unresolved = res.unresolved_creators || [];
+
+    const summaryBar = h("div", { class: "summary-bar" },
+      h("span", {}, `Karten mit Oracle-Daten: ${StudioUI.num(oracleCnt.numerator, 0)} / ${StudioUI.num(oracleCnt.denominator, 0)}`),
+      h("span", {}, `Aufgelöste Erzeuger: ${StudioUI.num(creatorCnt.numerator, 0)} / ${StudioUI.num(creatorCnt.denominator, 0)}`),
+      h("span", {}, `Erzeugte Token-Typen: ${StudioUI.num(c.distinct_tokens || 0, 0)}`),
+      h("span", {}, `Nicht ableitbare Erzeuger (unbekannt): ${StudioUI.num(c.unresolved_creator_cards || 0, 0)}`)
+    );
+
+    const tokenSection = tokenList.length
+      ? h("div", { class: "table-wrap" }, h("table", {},
+          h("thead", {}, h("tr", {},
+            h("th", {}, "Token"),
+            h("th", {}, "Typ"),
+            h("th", { class: "num" }, "P/T"),
+            h("th", {}, "Farben"),
+            h("th", {}, "Regeltext"),
+            h("th", {}, "Erzeugende Karten im Deck")
+          )),
+          h("tbody", {}, ...tokenList.map((t) => h("tr", {},
+            h("td", {}, h("b", {}, t.name)),
+            h("td", {}, t.type_line || "–"),
+            h("td", { class: "num" }, t.pt || "–"),
+            h("td", {}, t.colors || "farblos"),
+            h("td", { class: "muted" }, t.oracle_text || (t.detail_status === "PARTIAL_ALL_PARTS" ? "Detaildaten nicht im lokalen Token-Bestand" : "–")),
+            h("td", {}, ...(t.creating_cards || []).map((cr, idx) => {
+              const cardObj = state.byId.get(cr.card_id);
+              const link = h("button", {
+                type: "button",
+                class: "link",
+                onclick: () => { if (cardObj) openCard(cardObj); },
+              }, `${cr.name}${cr.quantity > 1 ? ` (${StudioUI.num(cr.quantity, 0)}x)` : ""}`);
+              return idx > 0 ? h("span", {}, ", ", link) : link;
+            }))
+          )))
+        ))
+      : h("p", { class: "muted" }, "Keine aufgelösten Token-Verknüpfungen für die aktuellen Deck-Karten im lokalen Scryfall-Snapshot.");
+
+    const unresolvedSection = unresolved.length
+      ? h("div", { class: "section" },
+          h("h4", {}, `Nicht ableitbare Token-Erzeuger (${StudioUI.num(unresolved.length, 0)} Karten — Status: unbekannt)`),
+          h("div", { class: "table-wrap" }, h("table", {},
+            h("thead", {}, h("tr", {},
+              h("th", {}, "Karte"),
+              h("th", { class: "num" }, "Menge"),
+              h("th", {}, "Status"),
+              h("th", {}, "Grund")
+            )),
+            h("tbody", {}, ...unresolved.map((u) => {
+              const cardObj = state.byId.get(u.card_id);
+              return h("tr", {},
+                h("td", { class: "name", onclick: () => { if (cardObj) openCard(cardObj); } }, u.name),
+                h("td", { class: "num" }, StudioUI.num(u.quantity, 0)),
+                h("td", {}, "unbekannt"),
+                h("td", { class: "muted" }, u.reason)
+              );
+            }))
+          ))
+        )
+      : h("p", { class: "muted" }, "Keine unaufgelösten Token-Erzeuger im aktuellen Deck (0 Karten mit Status unbekannt).");
+
+    wrap.replaceChildren(
+      h("h3", {}, "Token-Übersicht (lokaler Scryfall-Snapshot)"),
+      h("p", { class: "muted" }, "Abgeleitet aus den all_parts-Token-Verknüpfungen und Token-Datensätzen des lokalen Scryfall-Snapshots (offline, ohne Netz-Abfrage). Karten ohne ableitbare Verknüpfung werden als unbekannt ausgewiesen und nie geraten."),
+      summaryBar,
+      tokenSection,
+      unresolvedSection
+    );
+  }).catch((err) => {
+    wrap.replaceChildren(h("p", { class: "bad" }, StudioUI.germanError(err)));
+  });
 }
 function renderMarkdownSafe(text) {
   const clean = String(text || "").replace(/\r\n/g, "\n").replace(/\r/g, "\n").trim();

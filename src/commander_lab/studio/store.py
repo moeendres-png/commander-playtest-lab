@@ -14,7 +14,7 @@ from pathlib import Path
 from commander_lab.owner_data import owner_data_root
 
 STUDIO_DATA_ENV = "COMMANDER_LAB_STUDIO_DATA"
-SCHEMA_VERSION = 20
+SCHEMA_VERSION = 21
 DATABASE_NAME = "studio.sqlite3"
 # The sections a source deck's cards are counted in, everywhere (universe spread, deck-builder
 # frequencies, co-occurrence, role counts). The corpus importer stores the main deck as
@@ -232,6 +232,29 @@ CREATE TABLE IF NOT EXISTS deck_primer (
     content TEXT NOT NULL DEFAULT '',
     updated_at TEXT NOT NULL
 );
+CREATE TABLE IF NOT EXISTS scryfall_token (
+    scryfall_id TEXT PRIMARY KEY,
+    oracle_id TEXT,
+    name TEXT NOT NULL,
+    type_line TEXT NOT NULL DEFAULT '',
+    power TEXT,
+    toughness TEXT,
+    colors TEXT NOT NULL DEFAULT '',
+    oracle_text TEXT NOT NULL DEFAULT '',
+    image_front TEXT,
+    source_id TEXT NOT NULL REFERENCES source(source_id)
+);
+CREATE INDEX IF NOT EXISTS scryfall_token_name ON scryfall_token(name);
+CREATE TABLE IF NOT EXISTS scryfall_card_token (
+    oracle_id TEXT NOT NULL,
+    token_scryfall_id TEXT NOT NULL,
+    token_name TEXT NOT NULL,
+    token_type_line TEXT NOT NULL DEFAULT '',
+    token_uri TEXT,
+    source_id TEXT NOT NULL REFERENCES source(source_id),
+    PRIMARY KEY (oracle_id, token_scryfall_id, token_name)
+) WITHOUT ROWID;
+CREATE INDEX IF NOT EXISTS scryfall_card_token_oracle ON scryfall_card_token(oracle_id);
 CREATE TABLE IF NOT EXISTS corpus_cohort (
     cohort TEXT NOT NULL,
     deck_id TEXT NOT NULL REFERENCES corpus_deck(deck_id),

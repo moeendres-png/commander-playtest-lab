@@ -60,6 +60,7 @@ from . import (
     strength_view,
     swap,
     tier_snapshot,
+    tokens,
     tournament_conversion,
     universe,
     universe_choice,
@@ -1775,6 +1776,27 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         store = open_store()
         try:
             return deck_facts.deck_facts(store, list_rows(store, _cards(body.cards)))
+        finally:
+            store.close()
+
+    @app.post("/api/tokens")
+    def tokens_route(body: ListBody) -> dict[str, object]:
+        """Local Scryfall-derived token overview for a deck list (#1450): created tokens with
+        creating cards, explicit denominators, and UNKNOWN list for unresolved creators."""
+        store = open_store()
+        try:
+            return tokens.deck_tokens(store, _cards(body.cards))
+        finally:
+            store.close()
+
+    @app.get("/api/revisions/{revision_id}/tokens")
+    def revision_tokens_route(revision_id: str) -> dict[str, object]:
+        """Local Scryfall-derived token overview for a stored deck revision (#1450)."""
+        store = open_store()
+        try:
+            return tokens.revision_tokens(store, revision_id)
+        except KeyError as error:
+            raise HTTPException(404, "unknown revision") from error
         finally:
             store.close()
 
