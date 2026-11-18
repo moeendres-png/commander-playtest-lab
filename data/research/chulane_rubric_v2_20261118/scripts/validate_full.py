@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """Formal check of the raw full-run files: card order, JSON and scores (multiples of 5).
 
-  python3 validate_full.py --out <dir> [--write-ratings fullrun_partial_ratings.jsonl]
+  python3 validate_full.py --out <dir> [--write-ratings fullrun_ratings.jsonl]
 
 <dir> is the --out of make_batches.py (run full): it holds full_manifest.json and the raw rating
 files out_full/<batch>.json. That folder is filled by the lead and is not part of the repository.
 Batches without a raw file yet are not counted as problems. --write-ratings merges the valid
 batches into one JSONL file (one rating per line with rater F1, rater_tier large, batch and version v2.1), the
-format of ../fullrun_partial_ratings.jsonl.
+format of ../fullrun_ratings.jsonl.
 """
 
 from __future__ import annotations

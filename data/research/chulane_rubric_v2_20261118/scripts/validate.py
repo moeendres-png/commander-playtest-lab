@@ -2,7 +2,7 @@
 """Formal check of the pilot ratings: card order per batch (with a manifest) and scores.
 
   python3 validate.py [--run v2|v2.1|all] [--manifest <out>/batches_manifest.json]
-                      [--ratings fullrun_partial_ratings.jsonl --partial]
+                      [--ratings fullrun_ratings.jsonl --partial]
 
 Without --manifest only the scores are checked (multiples of 5 from 0 to 100 for E, F, T, R, K,
 D, H). The manifest comes from make_batches.py; --partial ignores manifest batches that have no

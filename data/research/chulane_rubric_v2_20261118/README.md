@@ -6,10 +6,10 @@ Schritten von 5). Es ist das "zweite Gesamtrating" aus dem Owner-Entscheid vom 2
 ([#1369-Kommentar](https://github.com/moeendres-png/commander-playtest-lab/issues/1369#issuecomment-6967718221)).
 Das Raster v1 (`../chulane_rubric_20261114/`) bleibt unverändert.
 
-**Status: Entwurf + Pilot, keine Gewichtung im Index.** Bewertet sind die 63 Pilotkarten und ein Teil des
-Vollaufs. Der Pilot hat nicht alle Schwellen erreicht (Bericht); der Owner-Entscheid zu den Ankern (Frage 7)
-steht aus. Stand Vollauf: 83 von 132 Chargen (581 von 922 Karten) sind eingefroren, der Lauf ist
-unterbrochen; fehlende Karten sind nicht bewertet, nicht null.
+**Status: Entwurf + Pilot + Vollauf (922 von 922 Karten bewertet), keine Gewichtung im Index.** Bewertet sind alle
+Karten des Pools mit einem Rater-Lauf der großen Stufe (Raster v2.1, 132 Chargen zu 7 Karten, Stand 2026-11-18).
+Der Pilot hat nicht alle vorab festgelegten Schwellen erreicht (Bericht); der Owner-Entscheid zu den Ankern
+(Frage 7) steht aus. Ein zweiter Lauf für Grenzfälle und der Drift-Test (5 % Wiederholungen) stehen aus.
 
 ## Dateien
 
@@ -22,7 +22,7 @@ unterbrochen; fehlende Karten sind nicht bewertet, nicht null.
 | `output_schema.json`, `example_output.json` | Ausgabeschema; Formatbeispiel mit erfundener Karte |
 | `pilot_sample.json` | Pilotstichprobe (63 Karten, Strata, Retest, v1-Werte); nur zur Kalibrierung |
 | `pilot_ratings.jsonl` | 318 Pilotbewertungen: `rater`, `rater_tier`, `batch`, `retest`, `version` plus voller Rater-Inhalt |
-| `fullrun_partial_ratings.jsonl` | 581 Bewertungen des Vollaufs (Rater F1, `version` v2.1), gleiches Format |
+| `fullrun_ratings.jsonl` | 922 Bewertungen des Vollaufs (Rater F1, `rater_tier` large, `version` v2.1), eine je Karte |
 | `audit_result.jsonl`, `audit_claims_index.json` | Handprüfung von 40 Regelbehauptungen |
 | `data/` | `facts.jsonl`, `patterns.jsonl` (rater-sichtbar), Benchmarks, Manifeste, Muster-Stichproben |
 | `scripts/` | Extraktion, Prompt, Stichprobe, Anker, Chargen, Auswertung |
