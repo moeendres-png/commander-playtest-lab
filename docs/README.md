@@ -25,6 +25,7 @@ and bridge are fit for this; it is never edited.
 | `STUDIO_ROADMAP_20261112.md`, `STUDIO_PLAN_SIMULATOR.md` | Studio plan, and what stays and goes around the simulator |
 | `STUDIO_TARGET_SCOPE.md` | Target scope merged with PR #1510; superseded by `STUDIO_SCOPE.md` |
 | `STUDIO_DECKBUILDER.md`, `STUDIO_GAME_VIEWER.md`, `DECKBUILDER_DATA_1205.md`, `DECKBUILDER_TIERLIST_DESIGN.md` | Deck builder, spectator page, data and tier-list design |
+| `STUDIO_OWNER_PC_SETUP.md`, `STUDIO_ABNAHME_PROTOKOLL.md` | Owner-PC setup prerequisites, preflight and fillable acceptance protocol (AK-1 to AK-8) |
 | `STUDIO_BRIDGE_GATE_TOOLING.md` | Bridge and gate tooling used by the Studio |
 | `CURRENT_EXECUTION_AUTHORITY.md` | Who runs what, at which effort (with `AGENTS.md` §6–§8) |
 | `CI_WHICH_CHECK_RUNS_WHEN.md`, `CI_GATES_IMPROVEMENT_PLAN_20261112.md` | Which check starts when; open CI points |
