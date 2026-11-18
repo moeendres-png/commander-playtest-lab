@@ -365,7 +365,8 @@ or the Owner, for the Lead too. A draft pull request, or one whose text says "do
 merged only after Lead adjudication, the required checks and a recorded fresh-context review PASS.
 When another agent's work is needed, comment on its pull request or open an issue. Issue references
 follow §10 (`Refs #N`). Reason: on 2026-11-14 unfinished branches were copied and merged before
-their review ended, and content a review had rejected reached `main`.
+their review ended, and content a review had rejected reached `main`. How Studio work is claimed,
+split and reviewed: `docs/STUDIO_SCOPE.md`, section "Abarbeitung (für alle Agents)".
 
 **Cross-workstream access.** Project-wide understanding does not imply project-wide write authority.
 A normal run owns one writable worktree; a bounded integration task may declare more surfaces, each

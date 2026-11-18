@@ -129,6 +129,38 @@ Wer welche Fläche hält, steht in der Claim-Tabelle im Übersichts-Issue #1167 
 6985613347 und Nachfolger), nicht in `AGENTS.md` oder `CLAUDE.md`. Vor einer Änderung an einer
 geclaimten Fläche zuerst dort kommentieren (`AGENTS.md` §11).
 
+## Abarbeitung (für alle Agents)
+
+So wird der Scope oben abgearbeitet, von jedem Agenten gleich.
+
+1. **Reihenfolge:** die Phasen 0 bis 5 aus „Roadmap-Phasen“; Phase 1 (PLAY P0) und Phase 2
+   (SIMULATE A1) laufen parallel, weil ihre Flächen getrennt sind.
+2. **Claims:** Die Claim-Tabelle im Übersichts-Issue #1167 ist maßgeblich. Eine Fläche hat einen
+   Halter. Kein Claim ohne gepushten Branch. Bei Überschneidung zuerst dort kommentieren, dann
+   arbeiten.
+3. **Pakete:** ein Paket = ein Issue bzw. ein Branch = ein PR. Commits und PR-Texte sagen
+   `Refs #N`, nie `Closes #N` (`AGENTS.md` §10).
+4. **Review vor Merge:** Eine MATERIAL-Änderung braucht vor dem Merge einen Review aus frischem
+   Kontext mit Ergebnis PASS, festgehalten als PR-Kommentar mit der exakten Head-SHA, die gemergt
+   wird (`AGENTS.md` §10). MATERIAL sind hier: mehr als 300 geänderte Zeilen; Policy-Text
+   (`AGENTS.md`, `CLAUDE.md`), Workflows; Engine, Bridge, Gates, Qualifikation; Texte der
+   Oberfläche, die aussagen, wie belastbar eine Zahl ist. Ein Merge vor diesem Review ist ein
+   Verstoß gegen das Merge-Gate. Anlass dieser Klarstellung sind zwei Merges vom 2026-11-18
+   (#1509, #1510), bei denen Review-Befunde bzw. ein Halte-Hinweis erst nach dem Merge aufgelöst
+   wurden.
+5. **Governance-Dateien:** `AGENTS.md`, `CLAUDE.md`, diese Datei und `docs/OWNER_DECISIONS_*`
+   ändern sich nur auf ausdrückliche Owner-Anweisung oder nach Owner-Freigabe einer Option; die
+   Quelle steht im Commit oder PR. Sonst legt der Agent dem Owner Optionen mit Empfehlung vor.
+6. **Owner-Entscheide** werden wörtlich in `docs/OWNER_DECISIONS_STUDIO_<Datum>.md` festgehalten,
+   mit Quelle; Einordnungen von Agenten sind als solche gekennzeichnet.
+7. **Belege:** Was nicht belegt ist, heißt `UNKNOWN`, nie PASS. Punkte, die eine echte Engine oder
+   den Owner-PC brauchen, werden als solche ausgewiesen und nicht durch Tests mit nachgebautem
+   Client als erledigt gemeldet.
+8. **Simulation:** Ergebnisse nur als `SIMULATED_RESULT` mit Herkunft; kein Einfluss auf die
+   Tierliste, bevor G-SIM erfüllt und vom Owner bestätigt ist (E2).
+
+Regeln für Hilfs-Agenten (keine rekursiven Teams, kurze Berichte) stehen in `CLAUDE.md`.
+
 ## Nicht übernommen aus `docs/STUDIO_TARGET_SCOPE.md`
 
 Übernommen sind die Teile, die mit den Owner-Entscheiden übereinstimmen (Herkunftsfelder,

@@ -14,6 +14,7 @@ and `docs/OWNER_DECISIONS_STUDIO_20261112.md`, then `docs/STUDIO_PLAN_SIMULATOR.
 reference set); `docs/STUDIO_ROADMAP_20261112.md` is superseded planning.
 Who holds which Studio surface is in the claim table of #1167. Before touching an issue or pull
 request, check that no other agent holds it (`AGENTS.md` §11, parallel agents).
+Abarbeitung: `docs/STUDIO_SCOPE.md` §Abarbeitung.
 
 **Cold start.** Run `python3 .claude/skills/lab-ops/scripts/gh_ops.py brief`, then read the
 issue or pull request you own. Git/GitHub, tests and sealed evidence are Source Truth. When the
