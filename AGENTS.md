@@ -287,10 +287,16 @@ containment and security configuration, workflow files, or more than 300 changed
 independent review PASS from a fresh context that did not write it (at the Lead's inherited level
 unless the Owner specifies otherwise), with no blocking findings. A MATERIAL change is not merged
 before that review is recorded on the pull request with its verdict and the exact head SHA it
-reviewed, and that SHA is the head being merged; green required checks alone are not enough. One
-review per head; after fixes the same reviewer re-checks only the delta. After merging, the session
-reads back the merge commit and the resulting `main` HEAD/TREE (`commander-quality-gate`, Phase 6)
-and reports the merge in one line with the PR link.
+reviewed, and that SHA is the head being merged; green required checks alone are not enough. The
+review record names the reviewing session in neutral words, the exact head SHA, the commands it
+ran and its verdict; "neutral" only means without personal names, and §7 (record the actual
+identity and level, never relabel) still applies. Where two agents work in parallel, a session of
+the other agent reviews a MATERIAL pull request, and the author, where §6 lets it merge at all,
+merges no earlier than that review comment (Owner decision 2026-11-18,
+`docs/OWNER_DECISIONS_STUDIO_20261118.md` E7); who is Development Lead and merges other agents'
+pull requests stays an Owner matter. One review per head; after fixes the same reviewer re-checks
+only the delta. After merging, the session reads back the merge commit and the resulting `main`
+HEAD/TREE (`commander-quality-gate`, Phase 6) and reports the merge in one line with the PR link.
 
 These need the Owner's explicit go before merge: pushes to the engine fork (`moeendres-png/mage`),
 repins, and any change to signed or sealed qualification records or, outside a reseal or the D5 go
@@ -367,7 +373,18 @@ merged only after Lead adjudication, the required checks and a recorded fresh-co
 When another agent's work is needed, comment on its pull request or open an issue. Issue references
 follow §10 (`Refs #N`). Reason: on 2026-11-14 unfinished branches were copied and merged before
 their review ended, and content a review had rejected reached `main`. How Studio work is claimed,
-split and reviewed: `docs/STUDIO_SCOPE.md`, section "Abarbeitung (für alle Agents)".
+split and reviewed: `docs/STUDIO_SCOPE.md`, section "Abarbeitung (für alle Agents)". Where a new
+agent starts and which files several lanes share: `docs/STUDIO_AGENT_ONBOARDING.md`.
+
+**Claims.** Every agent, the Development Lead and a Coordinator included, claims its work before
+it starts (Owner instruction of 2026-11-18 to avoid duplicate work,
+`docs/OWNER_DECISIONS_STUDIO_20261118.md` E8). The following details are the Lead's elaboration
+under §8 (E8): the claim is a comment in the issue and a row in the claim table of the
+workstream's overview issue (surface, branch, state); before claiming, the agent checks that table
+and the open pull requests and branches; it releases the claim on merge, handover or abandonment.
+For a claim without a pushed milestone, anyone may ask in the issue; if 24 hours then pass without
+an answer or a push, the claim lapses and another agent may take the work over. Another agent's
+active branch stays untouched without a handover (above).
 
 **Cross-workstream access.** Project-wide understanding does not imply project-wide write authority.
 A normal run owns one writable worktree; a bounded integration task may declare more surfaces, each

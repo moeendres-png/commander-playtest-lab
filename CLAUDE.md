@@ -14,7 +14,9 @@ and `docs/OWNER_DECISIONS_STUDIO_20261112.md`, then `docs/STUDIO_PLAN_SIMULATOR.
 reference set); the roadmap stays as planning history, and where it differs the scope wins.
 Who holds which Studio surface is in the claim table of #1167. Before touching an issue or pull
 request, check that no other agent holds it (`AGENTS.md` §11, parallel agents).
-Abarbeitung: `docs/STUDIO_SCOPE.md` §Abarbeitung.
+Abarbeitung: `docs/STUDIO_SCOPE.md` §Abarbeitung. Shared files and the entry page for other
+agents: `docs/STUDIO_AGENT_ONBOARDING.md`. Claim your own work too, before you start (`AGENTS.md`
+§11, Claims).
 
 **Cold start.** Run `python3 .claude/skills/lab-ops/scripts/gh_ops.py brief`, then read the
 issue or pull request you own. Git/GitHub, tests and sealed evidence are Source Truth. When the
@@ -60,6 +62,8 @@ incomplete, or the run ends without resumable state.
   testing: `AGENTS.md` §10).
 - Long Java suites, PB-03 and CI waits run in the background, never as repeated polls.
 - GitHub GraphQL is unavailable: use `gh api` REST and the CCR routes.
+- GitHub 429: one attempt, then stop and record it in the issue.
+- A skipped real-engine test is `NOT_RUN`; report it as such.
 - `WS17_SHA256SUMS`: regenerating its digest line (`python scripts/regenerate_hash_manifests.py`)
   is allowed only within a change to `.github/workflows/production-qualification.yml`; any
   other change to it needs the Owner's go (`AGENTS.md` §8).

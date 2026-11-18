@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import collections
+import gzip
 import itertools
 import json
 import re
@@ -1092,6 +1094,376 @@ def test_real_engine_human_seat_plays_a_game_to_its_end_through_the_play_routes(
     print("real-engine human game ended:", result, "answered:", answered, "conceded:", conceded)
 
 
+class _ActiveScript:
+    """A deterministic test script for a human seat that really plays: it takes two mulligans
+    (to reach the London bottom choice; the first one is free with four seats), plays a land, casts the cheapest spell it can pay for once
+    per turn, pays with the sources the engine offers, attacks on even turns and holds on odd ones,
+    blocks when asked, and otherwise answers with the smallest label or the stated minimum.
+
+    Not a pilot and not a strength claim; no first-option and no random choice. Every id it sends
+    was offered by the engine for that very decision, and the route refuses any other.
+    """
+
+    def __init__(self, mulligans: int = 2, illegal_amount_once: bool = False) -> None:
+        self.illegal_amount_once = illegal_amount_once  # first damage split deliberately off by one
+        self.sent_illegal = False
+        self.mulligans = 0
+        self.take = mulligans
+        self.pay_streak = 0
+        self.last_cast = ""
+        self.tried: set[tuple[str, int]] = set()
+
+    @staticmethod
+    def _label(option: dict[str, object]) -> str:
+        return str(option["label"])
+
+    @staticmethod
+    def _meta(option: dict[str, object]) -> dict[str, object]:
+        meta = option.get("metadata")
+        return meta if isinstance(meta, dict) else {}
+
+    def _cost(self, option: dict[str, object]) -> int:
+        return sum(
+            v
+            for k, v in self._meta(option).items()
+            if k.startswith("mana_cost") and isinstance(v, int)
+        )
+
+    def answer(self, pending: dict[str, object]) -> dict[str, object]:
+        options = [o for o in pending["legal_options"] if isinstance(o, dict)]  # type: ignore[attr-defined]
+        cls = str(pending["decision_class"])
+        minimum = int(pending.get("minimum_selections") or 0)  # type: ignore[call-overload]
+        maximum = int(pending.get("maximum_selections") or 0)  # type: ignore[call-overload]
+        context = pending.get("context")
+        context = context if isinstance(context, dict) else {}
+        state = pending.get("pilot_state")
+        state = state if isinstance(state, dict) else {}
+        turn = int(state.get("turn_number") or 1)
+        by_label = sorted(options, key=self._label)
+        chosen: list[dict[str, object]] = []
+        body: dict[str, object] = {"decision_id": pending["decision_id"], "selected_option_ids": []}
+        if cls != "mana_payment":
+            self.pay_streak = 0
+        if cls == "mulligan":
+            if self.mulligans < self.take:
+                self.mulligans += 1
+                chosen = [o for o in by_label if o["option_type"] == "mulligan"]
+            else:
+                chosen = [o for o in by_label if o["option_type"] == "keep"]
+        elif cls == "priority":
+            sources = {
+                self._meta(o).get("source_object_id")
+                for o in options
+                if o["option_type"] == "mana_ability"
+            }
+            lands = [o for o in by_label if self._meta(o).get("ability_type") == "play_land"]
+            spells = sorted(
+                (
+                    o
+                    for o in options
+                    if self._meta(o).get("ability_type") == "spell"
+                    and self._cost(o) <= len(sources)
+                    and (str(self._meta(o).get("source_name")), turn) not in self.tried
+                ),
+                key=lambda o: (self._cost(o), self._label(o)),
+            )
+            own_main = state.get("phase") in ("precombat_main", "postcombat_main") and state.get(
+                "active_player_id"
+            ) == pending.get("actor_id")
+            if lands:
+                chosen = lands
+            elif spells and own_main:
+                self.last_cast = str(self._meta(spells[0]).get("source_name"))
+                self.tried.add((self.last_cast, turn))
+                chosen = spells
+            else:
+                chosen = [o for o in by_label if o["option_type"] == "pass_priority"]
+        elif cls == "mana_payment":
+            self.pay_streak += 1
+            needed = set(re.findall(r"\{([WUBRG])\}", str(context.get("unpaid_mana", ""))))
+
+            def produces(option: dict[str, object]) -> str | None:
+                found = re.search(r"Add \{([WUBRGC])\}", self._label(option))
+                return found.group(1) if found else None
+
+            pool = [
+                o
+                for o in by_label
+                if o["option_type"] == "mana_pool" and self._meta(o).get("advances_payment")
+            ]
+            mana = [o for o in by_label if o["option_type"] == "mana_ability"]
+            cancel = [o for o in by_label if o["option_type"] == "cancel_mana_payment"]
+            fitting = [o for o in mana if produces(o) in needed] or [
+                o for o in mana if produces(o) == "C"
+            ]
+            chosen = (
+                cancel if self.pay_streak > 8 and cancel else (pool or fitting or mana or cancel)
+            )
+        elif cls == "declare_attacker":
+            attacks = [o for o in by_label if o["option_type"] == "declare_attacker"]
+            holds = [o for o in by_label if o["option_type"] == "hold_attacker"]
+            chosen = attacks[-1:] if turn % 2 == 0 and attacks else (holds or attacks)
+        elif cls == "declare_blocker":
+            chosen = by_label if maximum else []
+        elif cls == "multi_amount":
+            legs = [leg for leg in context.get("numeric_legs", []) if isinstance(leg, dict)]
+            total = context.get("numeric_total_max")
+            values = [int(leg["min"]) for leg in legs]
+            room = (
+                int(total) if total is not None else sum(int(leg["max"]) for leg in legs)
+            ) - sum(values)
+            for at, leg in enumerate(legs):
+                step = min(room, int(leg["max"]) - values[at])
+                values[at] += step
+                room -= step
+            if self.illegal_amount_once and not self.sent_illegal:
+                self.sent_illegal = True
+                values[0] += 1
+            body["numeric_choices"] = values
+        elif cls in ("announce_x", "amount") or context.get("numeric_min") is not None:
+            body["numeric_choice"] = int(context.get("numeric_min") or 0)
+        else:
+            chosen = by_label
+        if cls in ("declare_blocker",):
+            chosen = chosen[:1]
+        elif cls not in ("multi_amount", "announce_x", "amount"):
+            chosen = chosen[: max(minimum, 1 if maximum else 0, 1 if cls == "priority" else 0)]
+        body["selected_option_ids"] = [o["option_id"] for o in chosen]
+        return body
+
+
+# Decks and seeds of the scripted real-engine games (all precon decks of the repository).
+_OPPONENTS = (
+    "precon/2026/lorehold_spirit",
+    "precon/2024/animated_army",
+    "precon/2022/token_triumph",
+)
+_ACTIVE_GAMES = {  # name: (seed, human deck, mulligans the script takes, first split illegal)
+    "open_hostility": (21, "precon/2016/open_hostility", 2, False),
+    "open_hostility_one_mulligan": (21, "precon/2016/open_hostility", 1, True),
+    "power_hungry": (22, "precon/2013/power_hungry", 2, False),
+    "draconic_domination": (23, "precon/2017/draconic_domination", 2, False),
+}
+
+
+def _engine_or_skip(tmp_path: Path) -> None:
+    from commander_lab.studio import launch
+
+    command = launch.engine_command(tmp_path)
+    if command is None:
+        pytest.skip(
+            f"NOT RUN (not a pass): no rules engine here; set {ENGINE_ENV} to the pinned bridge "
+            "command (java -Xmx3g -jar <xmage-engine-bridge.jar> full-game) with Java 21"
+        )
+    jar = next((Path(a) for prev, a in itertools.pairwise(command) if prev == "-jar"), None)
+    if jar is None or not jar.is_file():
+        pytest.skip(f"NOT RUN (not a pass): the bridge jar named by {ENGINE_ENV} is missing")
+
+
+def _play_scripted_game(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    seed: int,
+    human_deck: str,
+    turn_limit: int,
+    mulligans: int,
+    illegal_amount_once: bool,
+) -> dict[str, object]:
+    from commander_lab.studio import launch
+
+    precons = {deck_id: path for deck_id, _n, _c, _y, path in launch._precons()}
+    decks = [precons[human_deck], *(precons[o] for o in _OPPONENTS)]
+    monkeypatch.setattr(
+        launch, "prepare_table_deck_paths", lambda *_a, **_k: (f"active-{seed}", decks)
+    )
+    client = TestClient(create_app(tmp_path), headers={"X-Studio": "1"})
+    started = client.post(
+        "/api/games",
+        json={
+            "revision_id": "r",
+            "opponent_ids": ["a", "b", "c"],
+            "seed": seed,
+            "human_seats": [0],
+            "ai_delay_ms": 0,
+        },
+    )
+    assert started.status_code == 200, started.text
+    game_id = started.json()["game_id"]
+    script = _ActiveScript(mulligans, illegal_amount_once)
+    answered: collections.Counter[str] = collections.Counter()
+    refused: list[tuple[str, int, str]] = []
+    expected_refusals: list[tuple[str, int, str]] = []
+    illegal_id = ""
+    recovered_same_id = False
+    conceded = False
+    began = time.monotonic()
+    state: dict[str, object] = {}
+    try:
+        while time.monotonic() - began < 900:
+            state = client.get(f"/api/play/{game_id}?count=0").json()
+            pending = state.get("pending_decision")
+            if not pending:
+                if not state.get("running"):
+                    break
+                time.sleep(0.15)
+                continue
+            assert isinstance(pending, dict)
+            turn = (pending.get("pilot_state") or {}).get("turn_number", 1)
+            if not conceded and isinstance(turn, int) and turn >= turn_limit:
+                assert client.post(f"/api/play/{game_id}/concede").status_code == 200
+                conceded = True
+                continue
+            cls = str(pending["decision_class"])
+            was_illegal = script.sent_illegal
+            body = script.answer(pending)
+            if script.sent_illegal and not was_illegal:
+                illegal_id = str(pending["decision_id"])  # this very answer is the illegal one
+            reply = client.post(f"/api/play/{game_id}/decision", json=body)
+            answered[cls] += 1
+            if (
+                reply.status_code == 200
+                and expected_refusals
+                and not recovered_same_id
+                and str(pending["decision_id"]) == illegal_id
+            ):
+                recovered_same_id = True  # the next legal answer to the SAME decision was accepted
+            if reply.status_code != 200:
+                if (
+                    illegal_id
+                    and str(pending["decision_id"]) == illegal_id
+                    and not expected_refusals
+                ):
+                    expected_refusals.append((cls, reply.status_code, reply.text[:200]))
+                    continue  # the engine keeps the same decision open
+                refused.append((cls, reply.status_code, reply.text[:200]))
+                break
+        else:
+            pytest.fail(f"the game did not end within the time box; answered so far: {answered}")
+    finally:
+        client.app.state.play_manager.shutdown_all()  # type: ignore[attr-defined]
+    result = state.get("result")
+    assert isinstance(result, dict)
+    return {
+        "result": result,
+        "answered": answered,
+        "refused": refused,
+        "expected_refusals": expected_refusals,
+        "recovered_same_id": recovered_same_id,
+        "conceded": conceded,
+        "seconds": round(time.monotonic() - began, 1),
+    }
+
+
+def _human_frames(log: str) -> tuple[list[dict[str, object]], list[dict[str, object]]]:
+    frames = []
+    with gzip.open(log, "rt", encoding="utf-8") as handle:
+        for line in handle:
+            row = json.loads(line)
+            if row.get("kind") == "frame":
+                frames.append(row)
+    return frames, [f for f in frames if f["seat"] == 0]
+
+
+def _bare(text: str) -> str:
+    return re.sub(r"\s+", " ", re.sub(r"<[^>]*>", "", text)).strip()
+
+
+# What each scripted game must have shown the human (decision class, start of its prompt).
+_REQUIRED = {
+    "open_hostility": {
+        ("mulligan", "Keep or mulligan"),
+        ("target", "Select a card"),  # the London bottom: "(N more) to put on the bottom"
+        ("priority", "Choose priority action"),
+        ("mana_payment", ""),
+        ("declare_attacker", "Choose attack for"),
+        ("declare_blocker", "Choose creatures blocked by"),
+    },
+    "open_hostility_one_mulligan": {
+        ("mulligan", "Keep or mulligan"),
+        ("mana_payment", ""),
+        ("declare_attacker", "Choose attack for"),
+        ("declare_blocker", "Choose creatures blocked by"),
+        ("multi_amount", "Assign amounts"),  # the human's attacker blocked by several creatures
+    },
+    "power_hungry": {
+        ("mulligan", "Keep or mulligan"),
+        ("target", "Select a card"),
+        ("target", "Select an opponent"),  # a player as the target of a decision
+        ("trigger_order", "Choose next triggered ability"),
+        ("choose_use", ""),
+        ("replacement_effect", "Choose replacement effect"),
+        ("declare_attacker", "Choose attack for"),
+        ("declare_blocker", "Choose creatures blocked by"),
+    },
+    "draconic_domination": {
+        ("mulligan", "Keep or mulligan"),
+        ("choice", ""),
+        ("mode", ""),
+        ("priority", "Choose priority action"),
+    },
+}
+
+
+@pytest.mark.external
+@pytest.mark.parametrize("name", sorted(_ACTIVE_GAMES))
+def test_real_engine_scripted_human_covers_decision_classes_through_the_play_routes(
+    name: str, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Needs the pinned XMage bridge (Java 21); without it SKIPPED, which is not a pass.
+
+    A four-seat game (human seat 0, three engine AI seats) driven only through
+    ``/api/play/{id}/decision`` by a deterministic script (see ``_ActiveScript``). The engine must
+    accept every answer (no refusal, no hang), the game must end, and the log of the human's own
+    frames must show the decision classes this game is known to reach. Classes it did not reach are
+    UNKNOWN, not passed. The Seat-N to seat N-1 rule is checked against the engine's own report:
+    the engine's start-player answer "Full Game Seat K" must be followed by seat K-1 acting first.
+    """
+    _engine_or_skip(tmp_path)
+    seed, deck, mulligans, illegal = _ACTIVE_GAMES[name]
+    game = _play_scripted_game(tmp_path, monkeypatch, seed, deck, 60, mulligans, illegal)
+    result = game["result"]
+    assert isinstance(result, dict) and result.get("status") == "finished", result
+    assert game["refused"] == [], game["refused"]
+    # a regular end reported by the engine: the script did not have to concede, and someone won
+    assert game["conceded"] is False, (
+        "the game was cut off by the script's concede at the turn limit"
+    )
+    assert result.get("winner_seats"), result
+    if illegal:
+        # an illegal damage split is refused by the engine (PILOT_RESPONSE_INVALID, HTTP 422), the same
+        # decision stays open, and the next legal answer is accepted: no hang
+        expected = game["expected_refusals"]
+        assert isinstance(expected, list) and len(expected) == 1
+        assert expected[0][1] == 422 and "PILOT_RESPONSE_INVALID" in expected[0][2], expected
+        assert (
+            game["recovered_same_id"] is True
+        )  # the next legal answer to that same decision_id: 200
+    frames, human = _human_frames(str(result["log"]))
+    seen = {(str(f["decision_class"]), _bare(str(f["prompt"]))) for f in human}
+    missing = {
+        need
+        for need in _REQUIRED[name]
+        if not any(cls == need[0] and prompt.startswith(need[1]) for cls, prompt in seen)
+    }
+    assert missing == set(), (missing, sorted(seen)[:40])
+    # the mulligans taken, then keep; after the second one the London bottom choice is asked and accepted
+    assert sum(f["decision_class"] == "mulligan" for f in human) == mulligans + 1
+    assert any("put on the bottom" in _bare(str(f["prompt"])) for f in human) == (mulligans >= 2)
+    # seat rule: the engine's own start-player choice against the seat that then acts first
+    chosen = next(f for f in frames if "starting player" in str(f["prompt"]))
+    picked = re.search(r"Full Game Seat (\d+)", str(chosen["chosen"][0]))  # type: ignore[index]
+    assert picked is not None
+    first_active = next(f["active_seat"] for f in frames if f["active_seat"] is not None)
+    assert int(picked.group(1)) - 1 == first_active
+    answered = game["answered"]
+    assert isinstance(answered, collections.Counter)
+    print(
+        f"scripted human game {name}: seed {seed}, {sum(answered.values())} human decisions, "
+        f"{len(frames)} frames, {game['seconds']} s, conceded {game['conceded']}, "
+        f"result {result.get('winner_seats')}, answered {dict(answered)}"
+    )
+
+
 def test_terminal_bridge_error_ends_the_game_instead_of_waiting_on(tmp_path: Path) -> None:
     class _TimedOutClient(_FakeInteractiveClient):
         """After the bridge's own timeout the next answer is rejected as a STALE_DECISION (no
@@ -1653,6 +2025,41 @@ console.log(JSON.stringify({changed: run(later(A)), none: run(null), same: run(O
     assert out["same"]["picked"] and out["same"]["click"] is not None and out["same"]["closed"] == 0
 
 
+def test_page_shows_commander_facts_only_as_the_engine_published_them() -> None:
+    out = _node_json(
+        _PAGE_PRELUDE
+        + """
+const rows = new Function(grab('commanderRows') + '; return commanderRows;')();
+const ps = FX.declare_attacker.pending_decision.pilot_state;
+const real = rows(ps);
+const odd = rows({players: ps.players, commander_status: [
+  {owner_id: 'op-1', name: 'No casts reported', commander_damage_to_player: [{player_id: 'op-9', total: 3}, {player_id: 'op-2', total: 'x'}], casts_from_command: null},
+  {owner_id: 'nobody', name: 'Unknown owner', commander_damage_to_player: [], casts_from_command: 4}]});
+console.log(JSON.stringify({real, odd, empty: [rows(null), rows({}), rows({commander_status: []}), rows({commander_status: 'x'}), rows({commander_status: {}})], keys: Object.keys(ps.commander_status[0])}));
+"""
+    )
+    assert isinstance(out, dict)
+    real = out["real"]
+    # the engine's seats and numbers, nothing added up: seat 1 took 6 from Bello (seat 2), seat 2 took 7 from Emmara (seat 3)
+    assert real["1"]["received"] == [
+        {"fromSeat": 2, "fromName": "Bello, Bard of the Brambles", "total": 6}
+    ]
+    assert real["2"]["received"] == [
+        {"fromSeat": 3, "fromName": "Emmara, Soul of the Accord", "total": 7}
+    ]
+    assert real["0"]["received"] == [] and real["3"]["received"] == []
+    assert real["3"]["commanders"] == [{"name": "Emmara, Soul of the Accord", "casts": 2}]
+    assert real["0"]["commanders"][0]["casts"] == 0
+    # unknown casts stay unknown (null), an unknown owner or player and a non-number are dropped
+    assert out["odd"] == {
+        "1": {"commanders": [{"name": "No casts reported", "casts": None}], "received": []}
+    }
+    assert out["empty"] == [None] * 5  # no list from the engine: unknown, no line (not "none")
+    assert (
+        "commander_tax" not in out["keys"]
+    )  # the engine publishes no tax: the page shows "Steuer unbekannt"
+
+
 def test_boardclick_decisions_with_numbers_or_choices_have_no_board_mapping() -> None:
     out = _node_json(
         _BC_PRELUDE
@@ -1749,6 +2156,36 @@ console.log(JSON.stringify({kind: m.kind, mode: m.mode, ids, r, miss: miss.actio
     assert out["later"] == "none" and out["r"]["action"] == "send"
     # an option id that is not its object's id stays in the list: no click sends it
     assert out["bent"] == {"objects": 0, "listOnly": ["not-the-object-id"], "click": "none"}
+
+
+def test_boardclick_player_target_and_london_bottom_use_real_engine_ids() -> None:
+    out = _node_json(
+        _BC_PRELUDE
+        + """
+const {p, m} = view('target_player_opponent');
+const ids = new Set(p.players ? [] : p.pilot_state.players.map((pl) => pl.player_id));
+const seats = Object.keys(m.seats).map((s) => {
+  const r = BC.resolve(p, m, {type: 'seat', seat: Number(s)});
+  const o = p.legal_options.find((x) => String(x.option_id) === r.optionId);
+  return {seat: Number(s), action: r.action, label: o && o.label, uuid: o && o.option_id};
+});
+const bottom = view('target_london_bottom');
+const own = bottom.p.pilot_state.players.find((pl) => pl.player_id === bottom.p.actor_id);
+const rows = Object.keys(bottom.m.objects).map((id) => [BC.resolve(bottom.p, bottom.m, {type: 'object', id}).action, bottom.m.objects[id].zone, (own.hand || []).some((c) => c.object_id === id)]);
+console.log(JSON.stringify({kind: m.kind, seats, pilotIds: [...ids], bottomKind: bottom.m.kind, rows, hand: (own.hand || []).length}));
+"""
+    )
+    assert isinstance(out, dict) and out["kind"] == "target"
+    # the option ids are the engine's player ids; pilot_state calls the opponents op-N, so they never match
+    assert all(row["uuid"] not in out["pilotIds"] for row in out["seats"])
+    assert {pid for pid in out["pilotIds"] if pid.startswith("op-")} == {"op-1", "op-2", "op-3"}
+    # the page finds the seat only through the engine's own player name "Full Game Seat N" (seat N-1)
+    for row in out["seats"]:
+        assert row["action"] == "send" and row["label"] == f"Full Game Seat {row['seat'] + 1}"
+    assert [row["seat"] for row in out["seats"]] == [1, 2, 3]
+    # the London bottom choice sits on the cards of the own hand: every one is a click, nothing else
+    assert out["bottomKind"] == "target" and len(out["rows"]) == out["hand"] == 7
+    assert all(row == ["send", "hand", True] for row in out["rows"])
 
 
 def test_boardclick_blocker_click_toggles_the_attacker_the_engine_offered() -> None:

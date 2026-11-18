@@ -40,6 +40,7 @@ from .launch import (
     command_text,
     engine_state,
     series_engine,
+    validate_released_seat_count,
 )
 from .launch import (
     bridge_jar_sha256 as command_bridge_jar_sha256,
@@ -1340,6 +1341,7 @@ class SimulationBatchManager:
         workers: int | None = None,
         games_per_jvm: int | None = None,
         chunk_runner: ChunkRunner | None = None,
+        allow_unreleased_seats: bool = False,
     ) -> BatchSimulation:
         """Prepare and start a new batch simulation in a background thread.
 
@@ -1349,6 +1351,17 @@ class SimulationBatchManager:
         data_path = Path(data_folder).resolve()
         used_workers, used_games_per_jvm = checked_series_settings(workers, games_per_jvm)
 
+        if opponent_ids is not None:
+            validate_released_seat_count(
+                len(opponent_ids), allow_unreleased_seats=allow_unreleased_seats
+            )
+            opp_list = list(opponent_ids)
+        elif pod in POD_PRESETS:
+            opp_list = list(POD_PRESETS[pod])
+        else:
+            opp_list = list(POD_PRESETS["precon"])
+        validate_released_seat_count(len(opp_list), allow_unreleased_seats=allow_unreleased_seats)
+
         # Engine preflight check
         engine: SeriesEngine | None = None
         if game_executor is None and chunk_runner is None:
@@ -1356,14 +1369,6 @@ class SimulationBatchManager:
             if engine is None:
                 state = engine_state(data_path)
                 raise RuntimeError(str(state.get("reason") or "Engine is not ready"))
-
-        # Resolve opponent decks
-        if opponent_ids:
-            opp_list = opponent_ids
-        elif pod in POD_PRESETS:
-            opp_list = list(POD_PRESETS[pod])
-        else:
-            opp_list = list(POD_PRESETS["precon"])
 
         root = Path(__file__).resolve().parents[3]
         opp_paths: list[Path] = []

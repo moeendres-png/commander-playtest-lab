@@ -16,6 +16,7 @@ import json
 import time
 from pathlib import Path
 
+import pytest
 from starlette.testclient import TestClient
 
 from commander_lab.studio import builder, games
@@ -359,3 +360,114 @@ def test_simulation_web_endpoints(tmp_path: Path) -> None:
     # If 409, message explains missing engine
     if res.status_code == 409:
         assert "Engine" in res.json()["detail"] or "Java" in res.json()["detail"]
+
+
+def test_batch_series_rejects_five_and_six_seats_via_api_and_manager(tmp_path: Path) -> None:
+    from commander_lab.studio.web import BatchSimulationBody
+
+    assert "allow_unreleased_seats" not in BatchSimulationBody.model_fields
+
+    store = StudioStore.open(tmp_path)
+    try:
+        rev_id = _seed_test_deck(store)
+    finally:
+        store.close()
+
+    app = create_app(tmp_path)
+    client = TestClient(app)
+
+    for opp_count in (4, 5):
+        seats = 1 + opp_count
+        opps = [f"precon/d{i}" for i in range(opp_count)]
+        res = client.post(
+            "/api/simulations/batch",
+            headers={"X-Studio": "1"},
+            json={
+                "revision_id": rev_id,
+                "opponent_ids": opps,
+                "games_count": 2,
+                "base_seed": 100,
+            },
+        )
+        assert res.status_code == 422
+        assert f"tables of {seats} seats are locked" in res.json()["detail"]
+
+
+def test_paired_series_rejects_five_and_six_seats_via_api_and_manager(tmp_path: Path) -> None:
+    from commander_lab.studio.paired_series import PairedSeriesManager
+    from commander_lab.studio.web import PairedSeriesBody
+
+    assert "allow_unreleased_seats" not in PairedSeriesBody.model_fields
+
+    store = StudioStore.open(tmp_path)
+    try:
+        rev_id = _seed_test_deck(store)
+        app = create_app(tmp_path)
+        client = TestClient(app)
+
+        for opp_count in (4, 5):
+            seats = 1 + opp_count
+            opps = [f"precon/d{i}" for i in range(opp_count)]
+            res = client.post(
+                "/api/simulations/paired",
+                headers={"X-Studio": "1"},
+                json={
+                    "base_revision_id": rev_id,
+                    "variant_revision_id": "rev@other",
+                    "opponent_ids": opps,
+                },
+            )
+            assert res.status_code == 422
+            assert f"tables of {seats} seats are locked" in res.json()["detail"]
+
+        mgr = PairedSeriesManager()
+        with pytest.raises(ValueError, match="tables of 5 seats are locked"):
+            mgr.start_series(
+                store,
+                tmp_path,
+                base_revision_id=rev_id,
+                variant_revision_id="rev@other",
+                opponent_ids=["a", "b", "c", "d"],
+            )
+    finally:
+        store.close()
+
+
+def test_compare_decks_cli_rejects_five_and_six_seats_by_default(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    from commander_lab.studio.__main__ import main as studio_main
+
+    for opp_count in (4, 5):
+        seats = 1 + opp_count
+        argv = [
+            "--data",
+            str(tmp_path),
+            "compare-decks",
+            "--base-deck",
+            str(tmp_path / "base.json"),
+            "--variant-deck",
+            str(tmp_path / "var.json"),
+        ]
+        for idx in range(opp_count):
+            argv.extend(["--opponent", str(tmp_path / f"opp{idx}.json")])
+        rc = studio_main(argv)
+        captured = capsys.readouterr()
+        assert rc != 0
+        assert f"tables of {seats} seats are locked" in captured.err
+
+    # Explicit opt-in flag passes the seat check (fails later when reading missing deck files)
+    argv_opt = [
+        "--data",
+        str(tmp_path),
+        "compare-decks",
+        "--base-deck",
+        str(tmp_path / "missing_base.json"),
+        "--variant-deck",
+        str(tmp_path / "missing_var.json"),
+        "--allow-unreleased-seats",
+    ]
+    for idx in range(4):
+        argv_opt.extend(["--opponent", str(tmp_path / f"opp{idx}.json")])
+    with pytest.raises(FileNotFoundError):
+        studio_main(argv_opt)

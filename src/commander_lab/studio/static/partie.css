@@ -140,3 +140,4 @@ button.stat:hover:not(:disabled){background:none;border:0;color:var(--text)}
 .board-link{stroke:var(--accent);stroke-width:4;stroke-linecap:round;stroke-dasharray:2 9}
 @media (prefers-reduced-motion:reduce){.card{transition:none}.card.clickable:hover,.card.clickable:focus-visible{transform:none}}
 @media (max-width:480px){#areas a{padding-left:var(--s2);padding-right:var(--s2)}} /* five area links (with "Daten") must fit 390 px without a horizontal page scroll */
+.commander-line{display:flex;flex-wrap:wrap;gap:2px 10px;align-items:center;font-size:12px;color:var(--muted);margin:2px 0 4px}
