@@ -306,6 +306,8 @@ jobs:
               raise SystemExit(f"expected 2 bridge responses, got {len(lines)}: {lines!r}")
           if not (lines[0].get("success") and lines[0].get("status") == "ok"):
               raise SystemExit(f"unexpected version reply: {lines[0]!r}")
+          if lines[0].get("payload", {}).get("protocol_version") != "2.0.0":
+              raise SystemExit(f"unexpected protocol_version={lines[0].get('payload', {}).get('protocol_version')!r}")
           commit = lines[0].get("payload", {}).get("engine_commit")
           if commit != os.environ["EXPECTED_PIN"]:
               raise SystemExit(f"bridge jar engine_commit={commit!r} != {os.environ['EXPECTED_PIN']!r}")

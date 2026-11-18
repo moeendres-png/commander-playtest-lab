@@ -124,3 +124,23 @@ def test_doctor_warns_without_crashing_when_data_dir_env_unset(
     by_name = {c["name"]: c for c in checks}
     assert by_name["studio_data"]["status"] == "WARN"
     assert by_name["engine_bridge"]["status"] == "FAIL"
+
+
+def test_doctor_fails_on_incomplete_jar_env_and_invalid_data_dir(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    repo_root = launch._repository_root()
+    monkeypatch.setenv("COMMANDER_LAB_STUDIO_DATA", str(repo_root / "tmp_studio_data_test"))
+    monkeypatch.delenv("COMMANDER_LAB_OWNER_DATA", raising=False)
+    monkeypatch.setenv(launch.ENGINE_COMMAND_ENV, "java -jar")
+    monkeypatch.setattr(launch, "_java_executable", lambda: "/usr/bin/java")
+    monkeypatch.setattr(launch, "_java_major", lambda _java: 17)
+    monkeypatch.setattr("commander_lab.studio.builder.sim_readiness_available", lambda: True)
+
+    report = doctor.run_doctor(None, check_dependencies=False)
+    checks = report["checks"]
+    assert isinstance(checks, list)
+    by_name = {c["name"]: c for c in checks}
+    assert by_name["engine_bridge"]["status"] == "FAIL"
+    assert by_name["studio_data"]["status"] == "FAIL"
+    assert report["ok"] is False

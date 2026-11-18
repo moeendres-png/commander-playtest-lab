@@ -34,13 +34,17 @@ def _default_unconfigured_data_dir() -> Path:
     return Path.home() / ".local" / "share" / "commander-studio"
 
 
-def _resolve_data_folder(data_folder: str | Path | None) -> tuple[Path, bool]:
+def _resolve_data_folder(data_folder: str | Path | None) -> tuple[Path, bool, str | None]:
     if data_folder is not None:
-        return Path(data_folder).expanduser().resolve(), True
+        return Path(data_folder).expanduser().resolve(), True, None
     try:
-        return studio_data_dir().resolve(), True
-    except RuntimeError:
-        return _default_unconfigured_data_dir().resolve(), False
+        return studio_data_dir().resolve(), True, None
+    except RuntimeError as exc:
+        for env_key in (STUDIO_DATA_ENV, "COMMANDER_LAB_OWNER_DATA"):
+            raw = os.environ.get(env_key, "").strip()
+            if raw:
+                return Path(raw).expanduser().resolve(), True, str(exc)
+        return _default_unconfigured_data_dir().resolve(), False, None
 
 
 def _is_dir_writable(target: Path) -> bool:
@@ -205,6 +209,18 @@ def _check_engine_bridge(
         }
     jar_path = _resolve_active_jar(data_dir, env_cmd)
     if env_cmd is not None and jar_path is None:
+        if "-jar" in env_cmd:
+            return {
+                "name": "engine_bridge",
+                "status": "FAIL",
+                "required": True,
+                "mode": "env_command",
+                "jar_path": None,
+                "sha256": None,
+                "bridge_qualification": qual,
+                "detail": f"Fehlender JAR-Pfad nach -jar in {launch.ENGINE_COMMAND_ENV}.",
+                "remediation": f"{launch.ENGINE_COMMAND_ENV} korrigieren oder entfernen.",
+            }
         return {
             "name": "engine_bridge",
             "status": "PASS",
@@ -351,7 +367,20 @@ def _check_card_knowledge() -> dict[str, object]:
     }
 
 
-def _check_studio_data(data_dir: Path, configured: bool) -> dict[str, object]:
+def _check_studio_data(
+    data_dir: Path, configured: bool, data_err: str | None = None
+) -> dict[str, object]:
+    if data_err is not None:
+        return {
+            "name": "studio_data",
+            "status": "FAIL",
+            "required": True,
+            "data_dir": str(data_dir),
+            "configured": configured,
+            "database_exists": False,
+            "detail": f"Ungültiger Studio-Datenordner: {data_err}",
+            "remediation": f"{STUDIO_DATA_ENV} auf einen Ordner außerhalb des Repositories setzen.",
+        }
     writable = _is_dir_writable(data_dir)
     db_path = data_dir / DATABASE_NAME
     has_db = db_path.is_file()
@@ -401,7 +430,7 @@ def run_doctor(
     check_dependencies: bool = True,
 ) -> dict[str, object]:
     """Run local environment diagnostics and return structured status payload."""
-    data_dir, configured = _resolve_data_folder(data_folder)
+    data_dir, configured, data_err = _resolve_data_folder(data_folder)
     expected_pin = canonical_xmage_engine_pin()
     qual = launch.bridge_qualification_state()
     env_cmd, env_err = _parse_env_command()
@@ -419,7 +448,7 @@ def run_doctor(
             _check_engine_pin(jar_path, expected_pin),
             _check_appcds(jar_path),
             _check_card_knowledge(),
-            _check_studio_data(data_dir, configured),
+            _check_studio_data(data_dir, configured, data_err),
         ]
     )
 

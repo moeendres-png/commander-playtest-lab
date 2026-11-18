@@ -9,7 +9,7 @@ Git, Tests und versiegelte Belege sind Source Truth (`AGENTS.md` §3).
 
 ## Zuständigkeitsgrenze & Arbeitsteilung: Tierliste vs. Simulator/Studio
 
-- **Tierliste (`#1369`, Gesamtrating, Bracket-/Nutzungsachsen, Rater-Kalibrierung — Claude-Lane):**
+- **Tierliste (`#1369`, Gesamtrating, Bracket-/Nutzungsachsen, Rater-Kalibrierung — eigene parallele Lane):**
   bleibt ein eigenes Arbeitspaket getrennt vom Simulator. Simulationsergebnisse fließen **nicht** in
   den Tierliste-Gesamtscore (`simulation`-Gewicht bleibt überall `0`, `AGENTS.md` §1, Option O2-A).
 - **BUILD, PLAY, SIMULATE, Bridge & Bereitstellung:** folgen den Meilensteinen dieses
