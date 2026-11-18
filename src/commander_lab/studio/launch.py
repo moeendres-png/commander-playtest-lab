@@ -702,7 +702,7 @@ def validate_released_seat_count(
 ) -> int:
     """Validate opponent count (1..5) and enforce ``MAX_RELEASED_SEATS`` unless overridden."""
     if not MIN_SEATS - 1 <= opponent_count <= MAX_SEATS - 1:
-        raise ValueError("a game requires 1 to 5 opponents")
+        raise ValueError("a game requires 1 to 5 opponents (zwischen 1 und 5)")
     if not allow_unreleased_seats and opponent_count > MAX_RELEASED_SEATS - 1:
         raise ValueError(
             f"tables of {opponent_count + 1} seats are locked: the Studio starts {MIN_SEATS} to "
