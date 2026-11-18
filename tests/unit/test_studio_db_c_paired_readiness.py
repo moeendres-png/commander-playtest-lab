@@ -1858,42 +1858,60 @@ def test_paired_resume_live_lockfile_and_engine_chunk_filtering(
             tmp_path, sid, play_override=lambda *_a: {"exposure": None, "failure_class": None}
         )
 
-    # Stale heartbeat -> reported as interrupted & resumable even with current PID
+    # Stale heartbeat with live PID (e.g., during a long engine chunk) must stay running
     (deck_dir / "running.lock").write_text(
         json.dumps({"series_id": sid, "pid": os.getpid(), "heartbeat": time.time() - 600.0}),
         encoding="utf-8",
     )
     stale = mgr.get_series(tmp_path, sid)
     assert stale is not None
-    assert stale["status"] == "interrupted"
-    assert stale["resumable"] is True
+    assert stale["status"] == "running"
+    assert stale["resumable"] is False
 
-    # Windows PID check must use OpenProcess (ctypes) and never os.kill
+    # Windows PID check must use WinDLL("kernel32", use_last_error=True) and never os.kill
     import ctypes
     import sys
-    from types import SimpleNamespace
 
     monkeypatch.setattr(sys, "platform", "win32")
     monkeypatch.setattr(
         os, "kill", lambda *_a: pytest.fail("os.kill must not be called on Windows")
     )
-    win_state = {"alive": True}
+    win_state = {"alive": True, "last_err": 0}
+
+    class _FakeFn:
+        def __init__(self, fn: object) -> None:
+            self._fn = fn
+            self.argtypes: list[object] = []
+            self.restype: object = None
+
+        def __call__(self, *args: object) -> object:
+            return self._fn(*args)  # type: ignore[operator]
 
     class _FakeK32:
-        def OpenProcess(self, _access: int, _inherit: bool, pid: int) -> int:
+        def __init__(self) -> None:
+            self.OpenProcess = _FakeFn(self._open_process)
+            self.GetExitCodeProcess = _FakeFn(self._get_exit_code)
+            self.CloseHandle = _FakeFn(lambda _h: 1)
+
+        def _open_process(self, _access: int, _inherit: int, pid: int) -> int:
             return 111 if pid == 4242 else 0
 
-        def GetLastError(self) -> int:
-            return 87
-
-        def GetExitCodeProcess(self, _handle: int, out: object) -> int:
+        def _get_exit_code(self, _handle: int, out: object) -> int:
             out._obj.value = 259 if win_state["alive"] else 0  # type: ignore[attr-defined]
             return 1
 
-        def CloseHandle(self, _handle: int) -> int:
-            return 1
-
-    monkeypatch.setattr(ctypes, "windll", SimpleNamespace(kernel32=_FakeK32()), raising=False)
+    fake_k32 = _FakeK32()
+    monkeypatch.setattr(
+        ctypes,
+        "WinDLL",
+        lambda name, use_last_error=False: (
+            fake_k32
+            if name == "kernel32" and use_last_error
+            else pytest.fail(f"unexpected WinDLL({name!r}, use_last_error={use_last_error})")
+        ),
+        raising=False,
+    )
+    monkeypatch.setattr(ctypes, "get_last_error", lambda: win_state["last_err"], raising=False)
     (deck_dir / "running.lock").write_text(
         json.dumps({"series_id": sid, "pid": 4242, "heartbeat": time.time()}),
         encoding="utf-8",
@@ -1903,6 +1921,13 @@ def test_paired_resume_live_lockfile_and_engine_chunk_filtering(
     win_state["alive"] = False
     win_dead = mgr.get_series(tmp_path, sid)
     assert win_dead is not None and win_dead["status"] == "interrupted" and win_dead["resumable"]
+    # Access denied (ERROR_ACCESS_DENIED = 5) on foreign PID counts as alive
+    (deck_dir / "running.lock").write_text(
+        json.dumps({"series_id": sid, "pid": 9999}), encoding="utf-8"
+    )
+    win_state["last_err"] = 5
+    win_denied = mgr.get_series(tmp_path, sid)
+    assert win_denied is not None and win_denied["status"] == "running"
     monkeypatch.undo()
 
     # Dead lockfile -> reported as interrupted & resumable

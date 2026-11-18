@@ -798,17 +798,23 @@ class PairedSeriesManager:
         if sys.platform == "win32":
             import ctypes
 
-            kernel32 = getattr(ctypes, "windll", None)
-            if kernel32 is None:
+            win_dll = getattr(ctypes, "WinDLL", None)
+            if win_dll is None:
                 return False
-            k32 = kernel32.kernel32
+            k32 = win_dll("kernel32", use_last_error=True)
+            k32.OpenProcess.argtypes = [ctypes.c_uint32, ctypes.c_int, ctypes.c_uint32]
+            k32.OpenProcess.restype = ctypes.c_void_p
+            k32.GetExitCodeProcess.argtypes = [ctypes.c_void_p, ctypes.POINTER(ctypes.c_uint32)]
+            k32.GetExitCodeProcess.restype = ctypes.c_int
+            k32.CloseHandle.argtypes = [ctypes.c_void_p]
+            k32.CloseHandle.restype = ctypes.c_int
             process_query_limited_info = 0x1000
             still_active = 259
-            handle = k32.OpenProcess(process_query_limited_info, False, pid)
+            handle = k32.OpenProcess(process_query_limited_info, 0, pid)
             if not handle:
-                return int(k32.GetLastError()) == 5
+                return ctypes.get_last_error() == 5
             try:
-                exit_code = ctypes.c_ulong()
+                exit_code = ctypes.c_uint32()
                 ok = k32.GetExitCodeProcess(handle, ctypes.byref(exit_code))
                 return bool(ok) and exit_code.value == still_active
             finally:
@@ -833,13 +839,6 @@ class PairedSeriesManager:
             return False
         pid = data.get("pid")
         if type(pid) is not int or pid <= 0:
-            return False
-        heartbeat = data.get("heartbeat")
-        if (
-            isinstance(heartbeat, (int, float))
-            and not isinstance(heartbeat, bool)
-            and (time.time() - float(heartbeat)) > 300.0
-        ):
             return False
         return cls._is_pid_alive(pid)
 
