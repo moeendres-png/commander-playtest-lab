@@ -5,7 +5,12 @@
 // DOM only through h() and text nodes; numbers only through StudioUI.num / StudioUI.pct.
 // Rendered by app.js (Simulation tab) through renderCardOutcomes(slot, deps).
 
-const OUTCOMES_CARD_ORDER = { OK: 0, TOO_FEW: 1, NO_VARIATION: 2, ALL_GAMES: 3, COMMANDER_EXCLUDED: 4 };
+const OUTCOMES_CARD_ORDER = { MEASURED: 0, INSUFFICIENT_SAMPLE: 1 };
+
+const OUTCOMES_QUAL_LABELS = {
+  QUALIFIED: "QUALIFIED (qualifiziert)",
+  BRIDGE_AHEAD_OF_QUALIFICATION: "BRIDGE_AHEAD_OF_QUALIFICATION (Bridge neuer als Qualifizierung)",
+};
 
 const outcomesDeckHash = (revisionId) => {
   if (!revisionId || typeof revisionId !== "string") return "unbekannt";
@@ -27,62 +32,93 @@ const outcomesPctInterval = (rate, ci) => {
 };
 
 const outcomesRatio = (wins, games) => {
-  if (games === null || games === undefined || games <= 0) return "0 / 0";
+  if (games === null || games === undefined || games <= 0) return "unbekannt";
   const w = Number.isInteger(wins) ? StudioUI.num(wins, 0) : StudioUI.num(wins, 1);
   return `${w} / ${StudioUI.num(games, 0)}`;
 };
 
+const outcomesInt = (value) => (typeof value === "number" ? StudioUI.num(value, 0) : "unbekannt");
+
+const outcomesQueryLabel = (queryId, baseRevision, revHash) =>
+  baseRevision && queryId === baseRevision
+    ? `Deck-Stand (Hash): ${revHash}`
+    : `über Deck-ID ${queryId || "unbekannt"}, Deck-Stand der Partien unbekannt`;
+
 function outcomesCardRow(h, card, deps) {
-  const few = card.status === "TOO_FEW" || card.status === "NO_VARIATION" || card.status === "ALL_GAMES";
-  const label = card.status === "COMMANDER_EXCLUDED"
-    ? "Commander (immer verfügbar)"
-    : few
-      ? "zu wenig Daten"
-      : null;
+  const isMeasured = card && card.status === "MEASURED";
+  const reasonText = card && card.status === "INSUFFICIENT_SAMPLE"
+    ? (card.reason || "zu wenig Daten")
+    : "unbekannter Status (zu wenig Daten)";
 
-  const diffCell = label !== null
-    ? h("span", { class: "muted" }, label)
-    : h("div", {}, h("div", {}, outcomesPp(card.difference_pp)), h("div", { class: "muted" }, `95 %-Intervall: ${outcomesPpInterval(card.difference_ci95_pp)}`));
+  let diffCell;
+  if (!isMeasured) {
+    diffCell = h("span", { class: "muted" }, reasonText);
+  } else {
+    const ci = card.difference_ci95_pp;
+    const includesZero = Array.isArray(ci) && ci.length === 2 && ci[0] <= 0 && ci[1] >= 0;
+    const totalN = typeof card.games_total === "number"
+      ? card.games_total
+      : (card.games_in_first_hand || 0) + (card.games_not_in_first_hand || 0);
+    diffCell = h("div", {},
+      h("div", {}, outcomesPp(card.difference_pp)),
+      h("div", { class: "muted" }, `95 %-Intervall: ${outcomesPpInterval(ci)}`),
+      includesZero ? h("div", { class: "muted" }, `kein Unterschied nachweisbar bei n=${StudioUI.num(totalN, 0)}`) : null);
+  }
 
-  const inCell = label !== null
+  const inCell = !isMeasured
     ? h("div", {}, h("div", {}, outcomesRatio(card.wins_in_first_hand, card.games_in_first_hand)), h("div", { class: "muted" }, "zu wenig Daten"))
     : h("div", {}, h("div", {}, outcomesRatio(card.wins_in_first_hand, card.games_in_first_hand)), h("div", { class: "muted" }, outcomesPctInterval(card.rate_in, card.rate_in_ci95)));
 
-  const notCell = label !== null
+  const notCell = !isMeasured
     ? h("div", {}, h("div", {}, outcomesRatio(card.wins_not_in_first_hand, card.games_not_in_first_hand)), h("div", { class: "muted" }, "zu wenig Daten"))
     : h("div", {}, h("div", {}, outcomesRatio(card.wins_not_in_first_hand, card.games_not_in_first_hand)), h("div", { class: "muted" }, outcomesPctInterval(card.rate_not, card.rate_not_ci95)));
 
   const nameNode = deps.openCard
-    ? h("button", { type: "button", class: "linkish", onclick: () => deps.openCard(card.card) }, card.card)
+    ? h("button", { type: "button", class: "ghost", onclick: () => deps.openCard(card.card) }, card.card)
     : card.card;
 
   return h("tr", {}, h("td", {}, nameNode), h("td", {}, inCell), h("td", {}, notCell), h("td", {}, diffCell));
 }
 
-function outcomesMetadataNodes(h, data, revHash) {
+function outcomesMetadataNodes(h, data, queryLabel) {
   const pilots = Array.isArray(data.pilots) && data.pilots.length ? data.pilots.join(", ") : "unbekannt";
+  const policies = Array.isArray(data.decision_policies) && data.decision_policies.length ? data.decision_policies.join(", ") : "unbekannt";
   const engines = Array.isArray(data.engine_commits) && data.engine_commits.length ? data.engine_commits.join(", ") : "unbekannt";
+  const jars = Array.isArray(data.bridge_jar_sha256s) && data.bridge_jar_sha256s.length
+    ? data.bridge_jar_sha256s.map((s) => String(s).slice(0, 12)).join(", ")
+    : "unbekannt";
   const pods = Array.isArray(data.pods) && data.pods.length
-    ? data.pods.map((p) => `${(p.opponents || []).join(" / ") || "unbekannt"} (${StudioUI.num(p.games, 0)})`).join("; ")
+    ? data.pods.map((p) => `${(p.opponents || []).join(" / ") || "unbekannt"} (${outcomesInt(p.games)})`).join("; ")
     : "unbekannt";
   const qual = Array.isArray(data.bridge_qualification_states) && data.bridge_qualification_states.length
-    ? data.bridge_qualification_states.join(", ")
+    ? data.bridge_qualification_states.map((q) => OUTCOMES_QUAL_LABELS[q] || q).join(", ")
     : "unbekannt";
-  return [
+  const sealed = data.covered_by_sealed_epoch === true ? "ja" : data.covered_by_sealed_epoch === false ? "nein" : "unbekannt";
+  const chanceNote = typeof data.comparisons === "number" && data.comparisons > 0
+    ? ` · Vergleiche: ${StudioUI.num(data.comparisons, 0)} (erwartete Zufallsfunde bei 5 %: ${typeof data.expected_chance_findings === "number" ? StudioUI.num(data.expected_chance_findings, 1) : "unbekannt"})`
+    : "";
+
+  const nodes = [
     h("p", { class: "muted" },
-      `Kohorte: ${data.data_class || "SIMULATED_RESULT"} · Deck-Stand (Hash): ${revHash} · Deck-ID im Log: ${data.deck_id || "unbekannt"} · `,
-      `Partien: ${StudioUI.num(data.games_total || 0, 0)} ausgewertet, ${StudioUI.num(data.games_skipped || 0, 0)} übersprungen · `,
-      `Mindestzahl je Seite: ${StudioUI.num(data.min_exposed || 0, 0)}`),
+      `Kohorte: ${data.data_class || "unbekannt"} · ${queryLabel} · Deck-ID im Log: ${data.deck_id || "unbekannt"} · `,
+      `Partien: ${outcomesInt(data.games_total)} ausgewertet, ${outcomesInt(data.games_skipped)} übersprungen, ohne Starthand: ${outcomesInt(data.seats_without_opening_hand)} · `,
+      `Seeds: ${outcomesInt(data.seeds)} · Mindestzahl je Seite: ${outcomesInt(data.min_exposed)}${chanceNote}`),
     h("p", { class: "muted" },
-      `Piloten: ${pilots} · Pods: ${pods} · Engine: ${engines} · Qualifizierung: ${qual}`),
+      `Piloten: ${pilots} · Policies: ${policies} · Pods: ${pods} · Engine: ${engines} · Bridge-JAR: ${jars} · Qualifizierung: ${qual} · Siegel-Epoche: ${sealed}`),
+    h("p", { class: "muted" }, `Schätzgröße (Estimand): ${data.estimand || "unbekannt"}`),
   ];
+
+  if (Array.isArray(data.warnings) && data.warnings.length) {
+    nodes.push(h("ul", { class: "note note-compact" }, data.warnings.map((w) => h("li", {}, w))));
+  }
+  return nodes;
 }
 
 async function renderCardOutcomes(slot, deps) {
   const { h } = deps;
   const title = "Karten-Auswertung aus Partien (SIMULATED_RESULT)";
   const fixedNote = h("p", { class: "note note-compact" },
-    "SIMULATED_RESULT · Herkunftsklasse: in der Engine gemessen, vom Piloten wenig abhängig (Sieganteil mit der Karte in der zuerst ausgeteilten Hand gegen ohne). ",
+    "SIMULATED_RESULT · Herkunftsklasse: in der Engine gemessen · Exposition zufällig (Mischung), Ergebnis pilotabhängig (Sieganteil mit der Karte in der zuerst ausgeteilten Hand gegen ohne). ",
     "Gilt für diese Piloten, diese Pods, diese Engine-Version. Kein Rang, keine Kartennote und kein Teil der Tierliste (Gewicht 0).");
   const revHash = outcomesDeckHash(deps.baseRevision);
   slot.replaceChildren(h("h3", {}, title), fixedNote, h("p", { class: "muted" }, "lädt …"));
@@ -103,24 +139,30 @@ async function renderCardOutcomes(slot, deps) {
     // Fall back to deps.deckId if /api/outcomes/decks is unavailable.
   }
 
+  const queryLabel = outcomesQueryLabel(queryId, deps.baseRevision, revHash);
+
   let data = null;
   try {
     data = await deps.api(`/api/outcomes?deck_id=${encodeURIComponent(queryId)}`);
-  } catch (_error) {
+  } catch (error) {
+    const detailText = error && error.detail
+      ? String(error.detail)
+      : (typeof StudioUI.germanError === "function" ? StudioUI.germanError(error) : "");
+    const detail = detailText ? `: ${detailText}` : "";
     slot.replaceChildren(h("h3", {}, title), fixedNote,
-      h("p", { class: "muted" }, `Deck-Stand (Hash): ${revHash} · Auswertung konnte nicht geladen werden (unbekannt, nicht 0).`));
+      h("p", { class: "muted" }, `${queryLabel} · Auswertung konnte nicht geladen werden (unbekannt, nicht 0)${detail}.`));
     return;
   }
 
   const dirtyNote = deps.dirty
     ? h("p", { class: "note note-compact" }, "Hinweis: Der aktuelle Entwurf hat ungespeicherte Änderungen; die Auswertung bezieht sich nur auf den gespeicherten Stand.")
     : null;
-  const meta = outcomesMetadataNodes(h, data, revHash);
+  const meta = outcomesMetadataNodes(h, data, queryLabel);
 
   if (data.status === "NO_GAMES" || !Array.isArray(data.cards) || !data.cards.length) {
     slot.replaceChildren(...StudioUI.kids(
       h("h3", {}, title), fixedNote, dirtyNote, ...meta,
-      h("p", { class: "muted" }, `Für Deck-Stand ${revHash} liegen noch keine abgeschlossenen Partien mit Starthand-Daten vor (zu wenig Daten, nicht 0).`)));
+      h("p", { class: "muted" }, `Für ${queryLabel} liegen noch keine abgeschlossenen Partien mit Starthand-Daten vor (zu wenig Daten, nicht 0).`)));
     return;
   }
 
@@ -131,11 +173,12 @@ async function renderCardOutcomes(slot, deps) {
   });
 
   const table = h("div", { class: "table-wrap deck-series-scroll" }, h("table", {},
+    h("caption", { class: "visually-hidden" }, "Karten-Auswertung aus simulierten Partien (Starthand gegen nicht in Starthand)"),
     h("thead", {}, h("tr", {},
-      h("th", {}, "Karte"),
-      h("th", {}, "In Starthand (Siege / n)"),
-      h("th", {}, "Nicht in Starthand (Siege / n)"),
-      h("th", {}, "Differenz & 95 %-Intervall"))),
+      h("th", { scope: "col" }, "Karte"),
+      h("th", { scope: "col" }, "In Starthand (Siege inkl. Remis / n)"),
+      h("th", { scope: "col" }, "Nicht in Starthand (Siege inkl. Remis / n)"),
+      h("th", { scope: "col" }, "Differenz & 95 %-Intervall"))),
     h("tbody", {}, cards.map((card) => outcomesCardRow(h, card, deps)))));
 
   slot.replaceChildren(...StudioUI.kids(h("h3", {}, title), fixedNote, dirtyNote, ...meta, table));

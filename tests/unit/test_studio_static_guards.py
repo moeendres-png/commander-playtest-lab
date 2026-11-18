@@ -1224,106 +1224,189 @@ console.log(JSON.stringify({
 
 
 def test_kartenauswertung_renders_outcomes_cohort_and_few_data_honestly() -> None:
-    """kartenauswertung.js renders n/N, 95% CI, deck hash, SIMULATED_RESULT, and 'zu wenig Daten'."""
-    script = """
-global.StudioUI = {
+    """kartenauswertung.js renders real card_outcomes.aggregate() payloads honestly (fail-closed on
+    status != MEASURED, warnings/provenance shown, hash only when queryId === baseRevision)."""
+    from commander_lab.studio.card_outcomes import aggregate, empty_table
+
+    exposures = []
+    for i in range(40):
+        has_sol = i < 12
+        has_rare = i < 2
+        hand = ["Island", "Forest", "Plains", "Command Tower", "Cultivate"]
+        if has_sol:
+            hand.append("Sol Ring")
+        if has_rare:
+            hand.append("Rare Card")
+        while len(hand) < 7:
+            hand.append(f"Filler {len(hand)}")
+        won = (i % 3 == 0) if has_sol else (i % 4 == 0)
+        exposures.append(
+            {
+                "game_id": f"g-{i}",
+                "seed": 1000 + i,
+                "engine_commit": "5bd29ab6f318",
+                "bridge_jar_sha256": "abc123def4567890",
+                "bridge_qualification_state": "BRIDGE_AHEAD_OF_QUALIFICATION",
+                "covered_by_sealed_epoch": False,
+                "pilot": "GenericCommanderPilot 1.0.0",
+                "decision_policy": "heuristic_v1",
+                "winner_seats": [0 if won else 1],
+                "seats": [
+                    {
+                        "seat": 0,
+                        "deck_id": "chulane@deadbeef1234",
+                        "commanders": ["Chulane, Teller of Tales"],
+                        "first_dealt_hand": hand,
+                        "mulligans_taken": 0,
+                        "seen_by_own_turn_3": hand,
+                        "result": "win" if won else "loss",
+                        "win_credit": 1.0 if won else 0.0,
+                    },
+                    {
+                        "seat": 1,
+                        "deck_id": "kaervek",
+                        "commanders": ["Kaervek"],
+                        "first_dealt_hand": [],
+                        "mulligans_taken": 0,
+                        "seen_by_own_turn_3": [],
+                        "result": "loss" if won else "win",
+                        "win_credit": 0.0 if won else 1.0,
+                    },
+                ],
+            }
+        )
+
+    payload = aggregate(exposures, deck_id="chulane@deadbeef1234", min_exposed=10, games_skipped=2)  # type: ignore[arg-type]
+    # Add an unknown status card to verify fail-closed UI handling.
+    payload["cards"].append(
+        {**payload["cards"][1], "card": "Unknown Status Card", "status": "BOGUS"}
+    )  # type: ignore[typeddict-item]
+    empty_payload = empty_table("other-deck", min_exposed=10)
+
+    script = f"""
+global.StudioUI = {{
   num: (n, d = 0) => Number(n).toFixed(d).replace('.', ','),
-  pct: (r) => `${(Number(r) * 100).toFixed(1).replace('.', ',')} %`,
+  pct: (r) => `${{(Number(r) * 100).toFixed(1).replace('.', ',')}} %`,
   kids: (...a) => a.flat(Infinity).filter((x) => x !== null && x !== undefined && x !== false),
-};
+}};
 const mod = require('./kartenauswertung.js');
-const textOf = (node) => {
+const textOf = (node) => {{
   if (node === null || node === undefined) return '';
   if (typeof node === 'string' || typeof node === 'number') return String(node);
   if (Array.isArray(node)) return node.map(textOf).join('');
   return (node.kids || []).map(textOf).join(' ');
-};
-const h = (tag, attrs, ...kids) => ({ tag, attrs: attrs || {}, kids: kids.flat(Infinity) });
-const slot = { children: [], replaceChildren(...kids) { this.children = kids; } };
-const payload = {
-  status: 'OK',
-  deck_id: 'chulane',
-  data_class: 'SIMULATED_RESULT',
-  min_exposed: 10,
-  games_total: 40,
-  games_skipped: 2,
-  pilots: ['GenericCommanderPilot 1.0.0'],
-  engine_commits: ['5bd29ab6f318'],
-  bridge_qualification_states: ['QUALIFIED'],
-  pods: [{ opponents: ['kaervek', 'lorehold', 'token'], games: 40 }],
-  cards: [
-    {
-      card: 'Sol Ring',
-      status: 'OK',
-      games_in_first_hand: 12,
-      wins_in_first_hand: 6,
-      games_not_in_first_hand: 28,
-      wins_not_in_first_hand: 7,
-      rate_in: 0.5,
-      rate_in_ci95: [0.25, 0.75],
-      rate_not: 0.25,
-      rate_not_ci95: [0.12, 0.43],
-      difference_pp: 25.0,
-      difference_ci95_pp: [1.5, 48.5],
-    },
-    {
-      card: 'Rare Card',
-      status: 'TOO_FEW',
-      games_in_first_hand: 2,
-      wins_in_first_hand: 0,
-      games_not_in_first_hand: 38,
-      wins_not_in_first_hand: 10,
-      rate_in: null,
-      rate_in_ci95: null,
-      rate_not: null,
-      rate_not_ci95: null,
-      difference_pp: null,
-      difference_ci95_pp: null,
-    },
-  ],
-};
-(async () => {
-  let askedUrl = null;
-  await mod.renderCardOutcomes(slot, {
+}};
+const findRows = (node, out = []) => {{
+  if (!node || typeof node !== 'object') return out;
+  if (Array.isArray(node)) {{ node.forEach((n) => findRows(n, out)); return out; }}
+  if (node.tag === 'tr') out.push(node);
+  if (node.kids) findRows(node.kids, out);
+  return out;
+}};
+const h = (tag, attrs, ...kids) => ({{ tag, attrs: attrs || {{}}, kids: kids.flat(Infinity) }});
+const slot = {{ children: [], replaceChildren(...kids) {{ this.children = kids; }} }};
+const payload = {json.dumps(payload)};
+const emptyPayload = {json.dumps(empty_payload)};
+(async () => {{
+  let askedRevUrl = null;
+  await mod.renderCardOutcomes(slot, {{
     h,
     deckId: 'chulane',
     baseRevision: 'chulane@deadbeef1234',
     dirty: false,
-    api: async (url) => {
-      if (url === '/api/outcomes/decks') return { decks: [{ deck_id: 'chulane', games: 40 }] };
-      askedUrl = url;
+    api: async (url) => {{
+      if (url === '/api/outcomes/decks') return {{ decks: [{{ deck_id: 'chulane@deadbeef1234', games: 40 }}] }};
+      askedRevUrl = url;
       return payload;
-    },
-  });
-  const okText = textOf(slot.children);
+    }},
+  }});
+  const revText = textOf(slot.children);
+  const rows = findRows(slot.children).slice(1).map((tr) => ({{
+    card: textOf(tr.kids[0]),
+    rowText: textOf(tr),
+  }}));
 
-  await mod.renderCardOutcomes(slot, {
+  let askedDeckUrl = null;
+  await mod.renderCardOutcomes(slot, {{
+    h,
+    deckId: 'chulane',
+    baseRevision: 'chulane@deadbeef1234',
+    dirty: false,
+    api: async (url) => {{
+      if (url === '/api/outcomes/decks') return {{ decks: [{{ deck_id: 'chulane', games: 40 }}] }};
+      askedDeckUrl = url;
+      return {{ ...payload, deck_id: 'chulane' }};
+    }},
+  }});
+  const fallbackText = textOf(slot.children);
+
+  await mod.renderCardOutcomes(slot, {{
     h,
     deckId: 'other-deck',
     baseRevision: 'other-deck@cafe9999',
     dirty: false,
-    api: async (url) => {
-      if (url === '/api/outcomes/decks') return { decks: [{ deck_id: 'chulane', games: 40 }] };
-      return { status: 'NO_GAMES', deck_id: 'other-deck', data_class: 'SIMULATED_RESULT', min_exposed: 10, games_total: 0, games_skipped: 0, pilots: [], engine_commits: [], bridge_qualification_states: [], pods: [], cards: [] };
-    },
-  });
+    api: async (url) => {{
+      if (url === '/api/outcomes/decks') return {{ decks: [{{ deck_id: 'chulane', games: 40 }}] }};
+      return emptyPayload;
+    }},
+  }});
   const emptyText = textOf(slot.children);
-  console.log(JSON.stringify({ askedUrl, okText, emptyText }));
-})();
+
+  await mod.renderCardOutcomes(slot, {{
+    h,
+    deckId: 'chulane',
+    baseRevision: 'chulane@deadbeef1234',
+    dirty: false,
+    api: async (url) => {{
+      if (url === '/api/outcomes/decks') return {{ decks: [{{ deck_id: 'chulane@deadbeef1234', games: 40 }}] }};
+      const err = new Error('mixed engine commits');
+      err.detail = 'mixed engine commits';
+      throw err;
+    }},
+  }});
+  const errText = textOf(slot.children);
+  console.log(JSON.stringify({{
+    askedRevUrl,
+    revText,
+    rows,
+    askedDeckUrl,
+    fallbackText,
+    emptyText,
+    errText,
+    zeroRatio: mod.outcomesRatio(0, 0),
+  }}));
+}})();
 """
     r = _node_json(script)
     assert isinstance(r, dict)
-    assert r["askedUrl"] == "/api/outcomes?deck_id=chulane"
-    ok_text = r["okText"]
-    assert "SIMULATED_RESULT" in ok_text
-    assert "in der Engine gemessen, vom Piloten wenig abhängig" in ok_text
-    assert "Gilt für diese Piloten, diese Pods, diese Engine-Version" in ok_text
-    assert "deadbeef1234" in ok_text
-    assert "6 / 12" in ok_text and "7 / 28" in ok_text
-    assert "95 %-Intervall" in ok_text
-    assert "zu wenig Daten" in ok_text
-    assert "EDHREC" not in ok_text and "Top16" not in ok_text
-    empty_text = r["emptyText"]
-    assert "cafe9999" in empty_text
-    assert "Sol Ring" not in empty_text
-    assert "zu wenig Daten" in empty_text
+    assert r["askedRevUrl"] == "/api/outcomes?deck_id=chulane%40deadbeef1234"
+    rev_text = r["revText"]
+    assert "SIMULATED_RESULT" in rev_text
+    assert "Exposition zufällig (Mischung), Ergebnis pilotabhängig" in rev_text
+    assert "vom Piloten wenig abhängig" not in rev_text
+    assert "Gewicht 0" in rev_text
+    assert "Deck-Stand (Hash): deadbeef1234" in rev_text
+    assert "Siegel-Epoche: nein" in rev_text
+    assert "BRIDGE_AHEAD_OF_QUALIFICATION" in rev_text
+    assert "abc123def456" in rev_text
+    assert "heuristic_v1" in rev_text
+    assert "erwartete Zufallsfunde bei 5 %" in rev_text
+    assert "EDHREC" not in rev_text and "Top16" not in rev_text
+
+    rows_by_card = {row["card"]: row["rowText"] for row in r["rows"]}
+    assert "pp" in rows_by_card["Sol Ring"]
+    assert "kein Unterschied nachweisbar bei n=40" in rows_by_card["Sol Ring"]
+    assert "pp" not in rows_by_card["Rare Card"]
+    assert "pp" not in rows_by_card["Unknown Status Card"]
+    assert "unbekannter Status" in rows_by_card["Unknown Status Card"]
+
+    # When baseRevision is not in /api/outcomes/decks, fall back to deck_id without claiming revHash.
+    assert r["askedDeckUrl"] == "/api/outcomes?deck_id=chulane"
+    assert "über Deck-ID chulane, Deck-Stand der Partien unbekannt" in r["fallbackText"]
+    assert "Deck-Stand (Hash): deadbeef1234" not in r["fallbackText"]
+
+    assert "cafe9999" not in r["emptyText"]
+    assert "über Deck-ID other-deck, Deck-Stand der Partien unbekannt" in r["emptyText"]
+    assert "Sol Ring" not in r["emptyText"]
+    assert "mixed engine commits" in r["errText"]
+    assert r["zeroRatio"] == "unbekannt"
