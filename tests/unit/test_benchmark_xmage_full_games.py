@@ -696,3 +696,54 @@ def test_the_summary_prints_both_reports_settings(tmp_path: Path, capsys) -> Non
     out = capsys.readouterr().out
     assert "settings A: workers 2, games_per_jvm 2, jvm_options ['-Xfoo']" in out
     assert "settings B:" in out
+
+
+def test_benchmark_and_identity_scripts_run_without_resource_module(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import sys
+
+    monkeypatch.setitem(sys.modules, "resource", None)
+    bench = _module()
+    assert bench.resource is None
+    assert bench._children_cpu_seconds() is None
+    with pytest.raises(SystemExit) as exc_info:
+        bench.main(["--help"])
+    assert exc_info.value.code == 0
+
+    spec = importlib.util.spec_from_file_location(
+        "check_studio_series_identity", ROOT / "scripts/check_studio_series_identity.py"
+    )
+    assert spec is not None and spec.loader is not None
+    identity = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(identity)
+    assert identity.resource is None
+    assert identity._cpu_seconds() is None
+    assert identity._cpu_delta(None, None) is None
+    assert identity._format_cpu(None) == "nicht verfügbar"
+    with pytest.raises(SystemExit) as exc_info2:
+        identity.main(["--help"])
+    assert exc_info2.value.code == 0
+
+
+def test_compare_handles_unavailable_cpu_time_without_reporting_zero(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    rows = [
+        {
+            "pod": "p1",
+            "seed": 1,
+            "status": "ok",
+            "semantic": "s1",
+            "wall_s": 5.0,
+            "child_cpu_s": None,
+        }
+    ]
+    a = tmp_path / "a.json"
+    b = tmp_path / "b.json"
+    a.write_text(json.dumps({"games": rows}), encoding="utf-8")
+    b.write_text(json.dumps({"games": rows}), encoding="utf-8")
+    assert _module().main(["compare", str(a), str(b)]) == 0
+    out = capsys.readouterr().out
+    assert "wall 5.0 -> 5.0 s" in out
+    assert "cpu  nicht verfügbar" in out
