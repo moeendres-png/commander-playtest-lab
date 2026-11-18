@@ -60,10 +60,34 @@ const SIGNAL_SHORT = {
   commander_inclusion: "EDHREC beim Commander", bracket_inclusion: "EDHREC im Bracket", synergy: "Synergie", playgroup_observed: "Playgroup", tournament_lists: "Turnierlisten", tournament_conversion: "Turnier-Conversion",
 };
 const CONF_WORDS = { high: "solide", medium: "dünn", low: "sehr dünn" };
+// Second ranking (Gesamtrating, #1369): the ranking the table shows is "usage" (the existing index and its tiers)
+// or "overall" (the score 0 to 100 of the weighted mean). DEFAULT_RANKING is the ONE place to change when the Owner
+// decides which ranking the page starts with; it stays "usage" until then. A remembered choice wins over it.
+const DEFAULT_RANKING = "usage";
+const RANKINGS = ["usage", "overall"];
+const RANKING_KEY = "studio.tier.ranking";
+const CRIT_SORT = "crit:";
+// The seven criteria of the card rating (short words from the rating guide); the letter is the column head.
+const OVERALL_CRITERIA = [
+  ["E", "Effizienz", "Wirkung im Verhältnis zu Mana, Kartenkosten und Tempo, verglichen mit Karten gleicher Aufgabe. Farbkosten zählen hier nicht (sie stehen in D)."],
+  ["F", "Passt zu Chulane", "Belohnt oder ermöglicht die Karte das Muster des Decks (Kreaturenzauber ziehen eine Karte und legen ein Land, Kreaturen mit ETB-Effekt erneut ausspielen, Länder, Mana-Kreaturen)? 50 = neutral, 0 = arbeitet gegen den Plan."],
+  ["T", "Tischwirkung", "Wirkt der Effekt auf mehrere Gegner oder beantwortet er Bedrohungen am Vierertisch? 0 = irrelevant, 100 = verändert den ganzen Tisch."],
+  ["R", "Verlässlichkeit", "Wie oft ist die Karte früh wie spät nützlich, ohne weitere Karten zu brauchen? 0 = oft tot, 100 = nie ein schlechter Zug."],
+  ["K", "Engine und Kombo", "Kann die Karte Teil einer wiederholbaren Wertschleife oder Kombo sein? Für einen Tisch auf Bracket 3 gedeckelt: eine reine Zwei-Karten-Kombo zählt höchstens 50."],
+  ["D", "Kostenarmut", "Kosten und Risiko für das Deck jenseits des Manas (Sweeper, Symmetrie, Lebenszahlung, Farbbelastung, Abhängigkeit von Kreaturen, Game-Changer-Platz). 100 = kein Risiko: hoch ist besser."],
+  ["H", "Gesamtwert", "Wie viel besser wird ein abgestimmtes Chulane-Deck (Bracket 3, vier Spieler) mit dieser Karte? Wird gesondert beurteilt und ist nicht der Mittelwert der anderen Kriterien."],
+];
+const OVERALL_AXIS_NAMES = { usage: "Nutzungsindex", ...Object.fromEntries(OVERALL_CRITERIA.map(([key, name]) => [key, `${key} ${name}`])) };
+const OVERALL_METHOD = "Gesamtrating = gewichtetes Mittel (Setzung) aus Nutzungsindex und Kartenbewertung durch Modell-Rater";
+const OVERALL_LIMITS = "nicht validiert gegen Spielergebnisse; überschneidet sich mit der Nutzung; Simulationswerte fließen nicht ein";
+const OVERALL_NO_USAGE = "Gesamtrating beruht hier nur auf der Kartenbewertung (keine Nutzungsdaten)";
 const SORTS = [
   ["name", "Name"],
   ["mv", "Manawert"],
   ["strength", "Stärke-Index (Schätzung, zu wenig Daten zuletzt)"],
+  ["overall", "Gesamtrating: Score 0 bis 100 (unbekannt zuletzt)"],
+  ["overall_rank", "Gesamtrating: Rang (bester zuerst, unbekannt zuletzt)"],
+  ...OVERALL_CRITERIA.map(([key, name]) => [CRIT_SORT + key, `Gesamtrating-Kriterium ${key}: ${name} (0 bis 100)`]),
   ["confidence", "Konfidenz (Datenlage, Zähler)"],
   ["spread", "Verbreitung (gezählt): Anteil im Universum"],
   ["spread_level", "Verbreitung (gezählt): Stufe im Universum"],
@@ -138,7 +162,7 @@ const LAYER_SORT = "layer:";
 const LAYER_COLUMNS_KEY = "studio.tier.layer-columns";
 const LAYER_KIND_SHORT = { measured: "gemessen", derived: "abgeleitet" };
 const LAYER_NOTE = "Bewertungsebenen sind eigene Spalten neben dem Stärke-Index. Sie ändern die Stufe nur, wenn du ihnen unter „Zusätzliche Ebenen“ ein Gewicht gibst (empfohlen: 0). Ein unbekannter Wert steht als „–“ mit Grund und ist nie 0.";
-const SMALL_FIRST = new Set(["name", "mv", "rolerank"]);
+const SMALL_FIRST = new Set(["name", "mv", "rolerank", "overall_rank"]);
 
 const state = {
   view: "commander", tab: "cards", data: null, marks: new Map(), decks: [],
@@ -147,7 +171,7 @@ const state = {
   deckCards: new Map(), deckRoles: {}, pool: new Map(), ticket: 0, need: "", sortKey: "strength", sortDir: -1, shown: 150,
   layerCols: new Set(), podFilter: "", roleAudit: null, conversion: null, conversionFilter: "",
   cohortShapes: [], roleGapOnly: false,
-  preset: "detail", funcMode: false, lastFocus: null, lastFocusCard: "",
+  preset: "detail", funcMode: false, lastFocus: null, lastFocusCard: "", ranking: DEFAULT_RANKING,
 };
 
 const $ = (id) => document.getElementById(id);
@@ -159,6 +183,57 @@ const fail = (error) => StudioUI.fail(StudioUI.germanError(error));
 const roleName = (key) => ROLE_NAMES[key] || key;
 const unknown = (text = "unbekannt") => h("span", { class: "unknown" }, text);
 const pct = (part, of) => (of ? `${StudioUI.num(100 * part / of, 0)} %` : "");
+
+// ---------- overall rating (Gesamtrating): pure helpers, no DOM and no state ----------
+// Score 0 to 100 with one decimal and the rank k of n (n = the rated cards of overall_meta). Unknown is never 0: a
+// card without a score has no score text and no rank text. Every number goes through StudioUI (de-DE).
+function wantedRanking(stored) { return stored === "usage" || stored === "overall" ? stored : DEFAULT_RANKING; }
+// The ranking that is really shown: "overall" only while the server delivers it.
+function effectiveRanking(wanted, available) { return wanted === "overall" && available ? "overall" : "usage"; }
+function overallScoreText(overall) { return overall && overall.score !== null && overall.score !== undefined ? StudioUI.num(overall.score, 1) : null; }
+function overallRankText(overall) { return overall && overall.rank !== null && overall.rank !== undefined ? `Rang ${nf(overall.rank)} von ${nf(overall.n_rated)}` : null; }
+function overallSpanText(overall, factor) {
+  const span = overall ? overall.stability : null;
+  if (!span) return null;
+  const range = factor === null || factor === undefined ? "bei zufällig veränderten Gewichten" : `bei zufällig veränderten Gewichten (jedes ×${StudioUI.numFlex(1 - factor, 2)} bis ×${StudioUI.numFlex(1 + factor, 2)})`;
+  return `Rangspanne ${nf(span.rank_min)} bis ${nf(span.rank_max)} ${range}, ${nf(span.variants)} Varianten`;
+}
+// "unter 1 %" instead of "0 %" for a positive share that rounds to nothing.
+function percentOrUnder(percent) { return Math.round(percent) >= 1 ? `${StudioUI.num(percent, 0)} %` : "unter 1 %"; }
+// The breakdown of the score: one row per axis (value, effective weight, contribution), the largest contribution
+// first. The contributions (tenths) must add up to the score; if they do not, nothing is split (null).
+function overallRows(overall) {
+  if (!overall || overall.score === null || overall.score === undefined || !Array.isArray(overall.axes) || !overall.axes.length) return null;
+  const tenths = overall.axes.reduce((sum, axis) => sum + Math.round(axis.contribution * 10), 0);
+  if (tenths !== Math.round(overall.score * 10)) return null;
+  const rows = overall.axes.map((axis) => ({ axis: axis.axis, label: OVERALL_AXIS_NAMES[axis.axis] || axis.axis, value: axis.value, weight: axis.weight_effective, contribution: axis.contribution }));
+  rows.sort((a, b) => b.contribution - a.contribution);
+  return { rows, weightSum: overall.axes.reduce((sum, axis) => sum + axis.weight_effective, 0) };
+}
+// A rated card whose usage axis is missing (no usage data: tier U or N, or no usage index of the request).
+function overallWithoutUsage(item, overall) {
+  if (!overall || overall.score === null || overall.score === undefined) return false;
+  return !item || item.tier === "U" || item.tier === "N" || !Array.isArray(overall.axes) || !overall.axes.some((axis) => axis.axis === "usage");
+}
+function overallCriterion(overall, key) {
+  const axis = overall && Array.isArray(overall.axes) ? overall.axes.find((entry) => entry.axis === key) : null;
+  return axis ? axis.value : null;
+}
+// Confidence of the raters in words (German, never the raw server text): level word, number of raters, spread of H.
+function overallConfidenceWord(overall) {
+  const conf = overall ? overall.confidence : null;
+  if (!conf) return null;
+  return conf.level === "low" ? "unsicher" : CONFIDENCE_NAMES[conf.level] || conf.level;
+}
+function overallConfidenceText(overall) {
+  const conf = overall ? overall.confidence : null;
+  if (!conf) return null;
+  const raters = conf.raters === 1 ? "ein Lauf je Karte" : `${nf(conf.raters)} Bewerter`;
+  const spread = conf.h_sd === null || conf.h_sd === undefined ? "Streuung von H unbekannt (ein Lauf)" : `Streuung von H ${StudioUI.numFlex(conf.h_sd, 1)} Punkte`;
+  const level = CONFIDENCE_NAMES[conf.rater_confidence] || conf.rater_confidence;
+  return `Vertrauen der Bewerter ${level}; ${raters}; ${spread}${conf.uncertain ? ". Als unsicher markiert (niedriges Vertrauen oder uneinige Bewerter)" : ""}`;
+}
+// ---------- end of the overall rating helpers ----------
 
 // ---------- evidence accessors ----------
 const layer = (card, name) => card.layers[name];
@@ -198,6 +273,9 @@ function sortValue(card, key) {
     const item = layerItem(card, key.slice(LAYER_SORT.length));
     return item && item.status === "OK" && item.percentile !== null ? item.percentile : null;
   }
+  if (key === "overall") { const overall = overallOf(card); return overall && overall.score !== null && overall.score !== undefined ? overall.score : null; } // unknown sorts last, never 0
+  if (key === "overall_rank") { const overall = overallOf(card); return overall && overall.rank !== null && overall.rank !== undefined ? overall.rank : null; }
+  if (key.startsWith(CRIT_SORT)) return overallCriterion(overallOf(card), key.slice(CRIT_SORT.length));
   if (key === "layers") return presentCount(card);
   if (key === "corpus") { const c = corpusAll(card); return c && c.decks_known !== false && c.decks !== null && c.of ? c.decks / c.of : null; }
   if (key === "edhrec") { const w = widest(card); return w ? w.value : null; }
@@ -218,14 +296,16 @@ function sortBy(key) {
   else { state.sortKey = key; state.sortDir = SMALL_FIRST.has(key) ? 1 : -1; }
   StudioUI.remember(SORT_KEY, state.sortKey);
   if ([...$("sort").options].some((option) => option.value === key)) $("sort").value = key;
+  const hadFocus = Boolean(document.activeElement && document.activeElement.classList && document.activeElement.classList.contains("th-sort"));
   render(false);
+  if (hadFocus) { const again = document.querySelector(`button.th-sort[data-sort-key="${CSS.escape(key)}"]`); if (again) again.focus(); } // the head is rebuilt: give the focus back
 }
 // A sortable column head: a real button inside the th, aria-sort on the sorted column only.
-function sortHead(label, key, cls = "", title = "") {
+function sortHead(label, key, cls = "", title = "", aria = "") {
   const active = state.sortKey === key;
   const arrow = active ? (state.sortDir > 0 ? " ▲" : " ▼") : "";
   return h("th", { scope: "col", class: cls, title, "aria-sort": active ? (state.sortDir > 0 ? "ascending" : "descending") : null },
-    h("button", { type: "button", class: "th-sort", onclick: () => sortBy(key) }, label, h("span", { "aria-hidden": "true" }, arrow)));
+    h("button", { type: "button", class: "th-sort", "data-sort-key": key, "aria-label": aria || null, onclick: () => sortBy(key) }, label, h("span", { "aria-hidden": "true" }, arrow)));
 }
 const plainHead = (label, cls = "", title = "") => h("th", { scope: "col", class: cls, title }, label);
 function layerHead(meta) {
@@ -551,6 +631,116 @@ function datenlageCell(card) {
   const short = item.confidence_basis === "gezaehlte_null" ? "hoch · gezählte 0" : counts ? `${nf(counts.n)}/${nf(counts.N)} · ${CONF_WORDS[item.confidence_level] || item.confidence_level}` : confidenceText(item);
   return h("span", { class: "nowrap", title: `${confidenceText(item)}. ${CONFIDENCE_TEXT}`, "aria-label": `Datenlage: ${confidenceText(item)}` }, short);
 }
+// ---------- overall rating (Gesamtrating): cells, columns, "Warum hier", method panel ----------
+const overallMeta = () => (state.strength.result && state.strength.result.overall_meta) || null;
+function overallAvailable() {
+  const meta = overallMeta();
+  return state.view !== "global" && state.strength.status === "ready" && Boolean(state.strength.map) && Boolean(meta) && meta.available === true;
+}
+const overallActive = () => effectiveRanking(state.ranking, overallAvailable()) === "overall";
+function overallOf(card) { const item = strengthItem(card); return item && item.overall ? item.overall : null; }
+const overallFactor = () => { const meta = overallMeta(); return meta && meta.stability ? meta.stability.factor : null; };
+function overallUnknownCell(overall) {
+  const reason = overall.unknown_reason || "keine Bewertung vorhanden";
+  return h("span", { class: "ucell" }, neutral("unbekannt", `Kein Gesamtrating: ${reason}. Das ist nicht 0 und sagt nichts über die Stärke der Karte.`), h("span", { class: "rule" }, reason));
+}
+function overallCell(card) {
+  const item = strengthItem(card), overall = overallOf(card);
+  if (!item || !overall) return unknown("–");
+  const score = overallScoreText(overall);
+  if (score === null) return overallUnknownCell(overall);
+  const bare = overallWithoutUsage(item, overall);
+  return h("span", { class: "ocell", title: `Gesamtrating ${score} von 100 (gewichtetes Mittel, Setzung; keine Spielstärke). ${bare ? `${OVERALL_NO_USAGE}.` : "Ein Teil davon ist die Nutzung."}` },
+    h("b", { class: "oscore" }, score), bare ? h("span", { class: "badge dim", title: OVERALL_NO_USAGE }, "ohne Nutzung") : null);
+}
+function overallRankCell(card) {
+  const overall = overallOf(card), text = overallRankText(overall);
+  if (!text) return unknown("–");
+  const span = overallSpanText(overall, overallFactor());
+  const sharp = overall.stability && overall.stability.unscharf
+    ? h("span", { class: "unsharp", title: `unscharf: ${span}. Der Rang hängt merklich von den gesetzten Gewichten ab.` }, "unscharf") : null;
+  return h("span", { class: "rank-cell" }, h("span", { class: "nowrap", title: span || null }, text), sharp);
+}
+function overallConfidenceCell(card) {
+  const overall = overallOf(card), word = overallConfidenceWord(overall);
+  if (!word) return unknown("–");
+  const kind = overall.confidence.level === "low" ? "warn" : overall.confidence.level === "high" ? "good" : "dim";
+  return h("span", { class: `badge ${kind}`, title: `${overallConfidenceText(overall)}.`, "aria-label": `Konfidenz der Bewerter: ${word}` }, word);
+}
+function overallCriterionCell(card, key) {
+  const value = overallCriterion(overallOf(card), key);
+  return value === null ? unknown("–") : StudioUI.numFlex(value, 1);
+}
+// Columns of the second ranking: score, rank (with the "unscharf" mark), rater confidence; in Detail also the
+// seven criteria. They sit right behind the sticky columns (a phone shows the score first); the tier column of the usage
+// index stays as it is.
+function overallColumns(compact) {
+  const columns = [
+    { head: () => sortHead("Gesamt", "overall", "num", "Gesamtrating: gewichtetes Mittel (Setzung) aus Nutzungsindex und Kartenbewertung durch Modell-Rater, Score 0 bis 100, keine Spielstärke und keine Stufe. Klick sortiert.", "Gesamtrating Score"), cell: (card) => h("td", { class: "num" }, overallCell(card)) },
+    { head: () => sortHead("Rang Gesamt", "overall_rank", "", "Rang k von n bewerteten Karten nach dem Gesamtrating (Gleichstände teilen den besten Rang). Klick sortiert, bester Rang zuerst."), cell: (card) => h("td", {}, overallRankCell(card)) },
+    { head: () => plainHead("Konfidenz", "", "Vertrauen der Modell-Rater in ihre Bewertung der Karte; „unsicher“ bei niedrigem Vertrauen oder uneinigen Bewertern. Es ändert weder Score noch Rang."), cell: (card) => h("td", {}, overallConfidenceCell(card)) },
+  ];
+  if (!compact) {
+    for (const [key, name, description] of OVERALL_CRITERIA) {
+      columns.push({ head: () => sortHead(key, CRIT_SORT + key, "num crit-head", `${key} ${name} (0 bis 100, hoch ist besser): ${description} Klick sortiert.`, `Kriterium ${key} ${name}`), cell: (card) => h("td", { class: "num" }, overallCriterionCell(card, key)) });
+    }
+  }
+  return columns;
+}
+// The overall rating's box of "Warum hier?": a real breakdown (axis, value, weight, contribution; the contributions add up
+// to the score), then the raters' own words, the confidence and what the number is not.
+function overallWhyBox(card) {
+  const item = strengthItem(card), overall = overallOf(card), meta = overallMeta();
+  const box = h("div", { class: "layer why", id: "why-overall" }, h("h3", {}, "Warum hier? Gesamtrating"));
+  if (!item || !overall) { box.append(h("p", {}, "Für diese Karte liegt kein Gesamtrating vor.")); return box; }
+  const score = overallScoreText(overall);
+  if (score === null) {
+    box.append(h("p", {}, `Gesamtrating unbekannt (nicht 0): ${overall.unknown_reason || "keine Bewertung vorhanden"}. Das sagt nichts über die Stärke der Karte.`),
+      h("p", { class: "rule" }, `${OVERALL_METHOD}; ${OVERALL_LIMITS}.`));
+    return box;
+  }
+  const lines = [`Gesamt ${score} von 100, ${overallRankText(overall)} (Gleichstände teilen den besten Rang).`, "Das Gesamtrating hat keinen Stufenbuchstaben; die Stufe der Tabelle bleibt die des Nutzungsindex."];
+  const span = overallSpanText(overall, overallFactor());
+  if (span) lines.push(`${span}${overall.stability.unscharf ? "; unscharf: der Rang hängt merklich von den gesetzten Gewichten ab" : ""}.`);
+  box.append(h("ul", { class: "why-list" }, lines.map((line) => h("li", {}, line))));
+  if (overallWithoutUsage(item, overall)) box.append(h("p", { class: "policy", id: "overall-no-usage" }, `${OVERALL_NO_USAGE}; die Gewichte der übrigen Achsen sind auf 100 % umgerechnet.`));
+  const split = overallRows(overall);
+  if (split) {
+    box.append(h("p", {}, "Zerlegung des Scores: Wert (0 bis 100) mal wirksames Gewicht ergibt den Beitrag in Punkten; die Beiträge ergeben zusammen den Score."),
+      table(["Achse", "Wert", "Gewicht", "Beitrag"],
+        [...split.rows.map((row) => [row.label, StudioUI.numFlex(row.value, 1), `${StudioUI.numFlex(100 * row.weight, 1)} %`, StudioUI.num(row.contribution, 1)]),
+          [h("b", {}, "Summe = Gesamt"), "", StudioUI.pct(split.weightSum, 0), h("b", {}, score)]]));
+  } else {
+    box.append(h("p", {}, "Die Beiträge der Achsen ergeben nicht genau den Score, deshalb stehen hier keine Zahlen."));
+  }
+  box.append(h("h4", {}, "Begründung der Modell-Rater (englisch)"),
+    h("p", { class: "overall-reason", lang: "en" }, overall.reason || "keine Begründung gespeichert"),
+    h("p", { class: "rule" }, `Konfidenz ${overallConfidenceWord(overall) || "unbekannt"}: ${overallConfidenceText(overall) || "keine Angabe"}.`),
+    h("p", { class: "rule" }, `Gewichte sind eine Setzung, keine Messung${meta && meta.weights_note && meta.weights_note !== "Setzung, keine Messung" ? ` (${meta.weights_note})` : ""}.`),
+    h("p", { class: "rule" }, `${OVERALL_LIMITS.charAt(0).toUpperCase()}${OVERALL_LIMITS.slice(1)}.`));
+  return box;
+}
+// The method panel: what the second ranking is, how it is weighted, what it does not contain.
+function renderOverallPanel() {
+  const host = $("overall-panel");
+  if (!host) return;
+  const meta = overallMeta();
+  if (!meta || state.view === "global") { host.replaceChildren(); return; }
+  if (!meta.available) { host.replaceChildren(h("div", { class: "facts" }, h("b", {}, "Gesamtrating: nicht verfügbar"), h("span", { class: "muted" }, meta.unavailable_reason || "keine Angabe"))); return; }
+  const cards = state.strength.result ? state.strength.result.cards : [];
+  const rated = cards.filter((item) => item.overall && item.overall.score !== null && item.overall.score !== undefined);
+  const singleRun = rated.length > 0 && rated.every((item) => item.overall.confidence && item.overall.confidence.raters === 1);
+  const weights = Object.entries(meta.weights || {}).map(([axis, weight]) => `${OVERALL_AXIS_NAMES[axis] || axis} ${StudioUI.numFlex(100 * weight, 1)} %`).join(" · ");
+  const usage = meta.usage_axis || {};
+  host.replaceChildren(
+    h("div", { class: "facts" }, h("b", {}, "Gesamtrating (zweites Ranking)"), h("span", { class: "muted" }, `${nf(meta.n_rated)} von ${nf(meta.n_total)} Karten bewertet`)),
+    h("p", { id: "overall-method" }, `${OVERALL_METHOD} (${singleRun ? "ein Lauf je Karte" : "mehrere Bewerter je Karte"}, ${nf(meta.n_rated)} von ${nf(meta.n_total)} Karten); ${OVERALL_LIMITS}.`),
+    h("p", { class: "rule" }, `Gewichte (Setzung, keine Messung): ${weights}.`),
+    h("p", { class: "rule" }, usage.included ? `Die Nutzungs-Achse ist der Stärke-Index dieser Anfrage und bei ${nf(usage.n_with_usage)} von ${nf(usage.n_total)} Karten vorhanden; fehlt sie, werden die übrigen Gewichte auf 100 % umgerechnet.` : `Die Nutzungs-Achse entfällt: ${usage.excluded_reason || "keine Angabe"}.`),
+    h("p", { class: "rule" }, meta.stability ? `${meta.stability.note}. Unscharf: ${nf(meta.stability.unscharf_count)} von ${nf(meta.stability.evaluated_cards)} Karten.` : ""),
+    h("p", { class: "rule" }, `Nicht einbezogen: ${(meta.locked_rules || []).join("; ")}.`),
+    h("p", { class: "rule" }, meta.coverage_note || ""));
+}
 function spreadCell(card) {
   const uni = state.universe;
   if (!uni.name || !uni.spread) return neutral(NO_UNIVERSE, "Wähle oben ein Universum, um die gezählte Verbreitung zu sehen.");
@@ -594,6 +784,7 @@ function tableColumns() {
       const mark = state.marks.get(card.card_id) || {};
       return h("td", { class: "cardcell name stick-2", "data-card-id": card.card_id, onclick: () => openCard(card) }, thumb(card), mark.favorite ? h("span", { class: "star" }, "★ ") : null, card.name);
     } },
+    ...(commander && overallActive() ? overallColumns(compact) : []),
     { head: () => plainHead("Favorit / Deck"), cell: cell("acts", markButtons) },
     ...(state.funcMode && commander ? [{ head: () => sortHead("Rang in Funktion", "rolerank", "", "Rang k von n Karten mit Stufe in der gleichen Funktion (Rolle), nach dem Index im Gesamtpool. Die Stufe bleibt die Stufe im Gesamtpool."), cell: cell("", functionRankCell) }] : []),
     ...(compact || !commander ? [] : [{ head: () => sortHead("Datenlage", "confidence", "", CONFIDENCE_TEXT), cell: cell("", datenlageCell) }]),
@@ -621,6 +812,12 @@ function hiddenSortNote() {
   const key = state.sortKey, option = $("sort").selectedOptions && $("sort").selectedOptions[0];
   const label = option ? option.textContent : key;
   if (key === "rolerank" && !state.funcMode) return `Sortiert nach „${label}“: Spalte nur im Vergleich „Gleiche Funktion“ sichtbar`;
+  const overallSort = key === "overall" || key === "overall_rank" || key.startsWith(CRIT_SORT);
+  if (overallSort && !overallActive()) {
+    if (state.strength.status === "loading") return "";
+    return overallAvailable() ? `Sortiert nach „${label}“ (Spalte im Ranking „Nutzung“ ausgeblendet)` : `Sortiert nach „${label}“: das Gesamtrating ist nicht verfügbar, alle Karten stehen als unbekannt am Ende`;
+  }
+  if (key.startsWith(CRIT_SORT) && state.preset === "compact") return `Sortiert nach „${label}“ (Spalte im Kompakt ausgeblendet)`;
   const detailOnly = key === "confidence" || key === "spread" || key === "edhrec" || key === "games" || key === "layers" || key === "textfit" || key.startsWith(LAYER_SORT);
   if (detailOnly && state.preset === "compact") return `Sortiert nach „${label}“ (Spalte im Kompakt ausgeblendet)`;
   return "";
@@ -987,13 +1184,13 @@ function indexShares(item) {
   const shown = rows.slice(0, 3), rest = rows.slice(3);
   const restPercent = rest.reduce((acc, row) => acc + row.percent, 0);
   const roundedSum = shown.reduce((acc, row) => acc + Math.round(row.percent), 0) + Math.round(restPercent);
-  const detail = item.index >= 5 && shown.every((row) => Math.round(row.points * 10) > 0) && Math.abs(roundedSum - 100) <= 1;
-  return { rows, shown, restPercent, detail };
+  const detail = item.index >= 5 && shown.every((row) => Math.round(row.points * 10) > 0 && Math.round(row.percent) >= 1) && Math.abs(roundedSum - 100) <= 1;
+  return { rows, shown, restPercent, restCount: rest.length, detail };
 }
 // "Warum hier?": two to four plain sentences from numbers the payload already holds (n of N everywhere).
-function whyBox(card) {
+function whyBox(card, heading = "Warum hier?") {
   const item = strengthItem(card);
-  const box = h("div", { class: "layer why", id: "why-box" }, h("h3", {}, "Warum hier?"));
+  const box = h("div", { class: "layer why", id: "why-box" }, h("h3", {}, heading));
   if (state.view === "global") { box.append(h("p", {}, "Der Index wird je Commander berechnet. Wähle die Ansicht " + VIEW_NAMES.commander + ".")); return box; }
   if (!item) { box.append(h("p", {}, state.strength.status === "loading" ? "Die Stufe wird noch berechnet …" : "Für diese Karte liegt keine Berechnung vor.")); return box; }
   if (item.tier === "N") { box.append(h("p", {}, `${item.note}: diese Karte bekommt keine Stufe.`)); return box; }
@@ -1008,7 +1205,7 @@ function whyBox(card) {
   const shares = indexShares(item);
   if (shares && shares.detail) {
     const top = shares.shown.map((row) => `${SIGNAL_SHORT[row.key] || row.label} ${StudioUI.num(row.points, 1)} Punkte (${StudioUI.num(row.percent, 0)} %)`).join(", ");
-    lines.push(`Beitrag zum Index (die Punkte ergeben zusammen ${StudioUI.num(item.index, 1)}): ${top}${shares.rows.length > 3 ? `, weitere Signale ${StudioUI.num(shares.restPercent, 0)} %` : ""}.`);
+    lines.push(`Beitrag zum Index (die Punkte ergeben zusammen ${StudioUI.num(item.index, 1)}): ${top}${shares.restCount ? `, weitere ${nf(shares.restCount)} ${shares.restCount === 1 ? "Signal" : "Signale"} ${percentOrUnder(shares.restPercent)}` : ""}.`);
   } else if (shares) {
     const order = shares.shown.map((row) => SIGNAL_SHORT[row.key] || row.label).join(", ");
     lines.push(item.index < 5 ? `Index unter 5: die Aufteilung in Punkte wäre zu ungenau. Größte Beiträge, ohne Zahlen: ${order}.` : `Größte Beiträge, ohne Zahlen: ${order}.`);
@@ -1075,7 +1272,7 @@ async function openCard(card) {
       h("div", { class: "actions" }, ...markButtons(card, () => openCard(card)), h("button", { type: "button", id: "modal-close", onclick: closeModal }, "Schließen")),
       h("h2", { id: "modal-title" }, full.name),
       h("p", { class: "muted" }, full.type_line),
-      whyBox(card),
+      ...(overallActive() ? [overallWhyBox(card), whyBox(card, "Warum hier? Nutzungsindex (Stufe)")] : [whyBox(card)]),
       picBox,
       h("div", { class: "policy" }, h("b", {}, `${OUTCOME_HEADING}. `), "Es gibt kein geprüftes Modell mit Partiedaten. Fehlende Beobachtung ist nie ein niedriger Tier. Favoriten, Ausschlüsse und Notizen fließen nicht ein."),
       strengthSection,
@@ -1327,6 +1524,7 @@ async function refreshStrength() {
   }
   renderStrengthSummary();
   syncRankGroupToggle();
+  syncRanking();
   render();
 }
 // Which deck lists and which denominator the index used, and whether the choice was automatic.
@@ -1939,7 +2137,7 @@ async function loadTournamentConversion() {
 
 async function setView(view) {
   state.view = view;
-  renderCoreLine();
+  syncRanking();
   syncRankGroupToggle();
   await loadEvidence();
   if (view === "deck") await loadDeck();
@@ -1950,9 +2148,64 @@ function renderTabs() {
   $("tabs").replaceChildren(...[["cards", "Karten"], ["research", "Forschungsliste"]].map(([key, label]) => h("button", { type: "button", class: "chip" + (state.tab === key ? " on" : ""), "aria-pressed": String(state.tab === key), onclick: () => { state.tab = key; renderTabs(); render(false); } }, label)));
 }
 function renderCoreLine() {
+  // while the index is still being calculated the line already shows the wanted ranking, and both texts are about as long (one wrapped line count at 390 px): nothing moves when the result arrives
+  const overall = state.view !== "global" && (state.strength.status === "loading" ? state.ranking === "overall" : overallActive());
   $("core-line").textContent = state.view === "global"
     ? "Ohne Commander gibt es keine Stufe: gezeigt wird die globale Beliebtheit, keine Spielstärke."
-    : `Stufe = Nutzung in ${VIEW_NAMES.commander}-Decks, keine Spielstärke.`;
+    : overall ? "Gesamtrating = Mittel (Setzung), keine Spielstärke." : `Stufe = Nutzung in ${VIEW_NAMES.commander}-Decks, keine Spielstärke.`;
+  if (overall) $("core-line").setAttribute("title", `${OVERALL_METHOD}; ${OVERALL_LIMITS}. Die Stufe der Tabelle bleibt die des Nutzungsindex.`);
+  else $("core-line").removeAttribute("title");
+}
+// ---------- ranking toggle: Nutzung | Gesamtrating ----------
+// The two buttons are fixed in the page (nothing is rebuilt, so the focus stays and nothing moves): only the
+// pressed state, the disabled state and the titles change. The toggle is off until the server delivers the
+// overall rating, in the global view, and when overall_meta says it is not available (with the reason).
+function syncRankingToggle() {
+  const box = $("ranking-toggle");
+  if (!box) return;
+  const meta = overallMeta();
+  const ready = state.strength.status === "ready" && Boolean(state.strength.map) && state.view !== "global";
+  const available = overallAvailable();
+  const effective = effectiveRanking(state.ranking, available);
+  let reason = "";
+  if (state.view === "global") reason = "Das Gesamtrating gibt es nur je Commander.";
+  else if (state.strength.status === "loading") reason = "Das Gesamtrating wird berechnet …";
+  else if (!ready) reason = "Das Gesamtrating ist nicht verfügbar: die Berechnung des Stärke-Index fehlt.";
+  else if (!meta) reason = "Das Gesamtrating ist nicht verfügbar: der Server liefert es nicht.";
+  else if (!available) reason = `Das Gesamtrating ist nicht verfügbar: ${meta.unavailable_reason || "keine Angabe"}.`;
+  for (const btn of box.querySelectorAll("button[data-ranking]")) {
+    const key = btn.getAttribute("data-ranking");
+    const active = key === effective;
+    btn.classList.toggle("on", active);
+    btn.setAttribute("aria-pressed", active ? "true" : "false");
+    btn.disabled = key === "overall" ? !available : !ready;
+    if (key === "overall") {
+      const title = available ? "Gesamtrating: gewichtetes Mittel (Setzung) aus Nutzungsindex und Kartenbewertung durch Modell-Rater, Score 0 bis 100 und Rang, keine Stufe. Die Stufe des Nutzungsindex bleibt sichtbar." : reason;
+      btn.setAttribute("title", title);
+      btn.setAttribute("aria-label", available ? "Ranking: Gesamtrating" : `Ranking: Gesamtrating, nicht verfügbar. ${reason}`);
+    }
+  }
+  if (available) box.removeAttribute("title"); else box.setAttribute("title", reason);
+}
+function syncRanking() {
+  syncRankingToggle();
+  renderCoreLine();
+  renderOverallPanel();
+}
+function setRanking(ranking) {
+  if (!RANKINGS.includes(ranking) || (ranking === "overall" && !overallAvailable())) return;
+  state.ranking = ranking;
+  StudioUI.remember(RANKING_KEY, ranking);
+  // the sort follows the ranking when it was the default sort of the other one
+  const follow = ranking === "overall" ? (state.sortKey === "strength" ? "overall" : "") : (state.sortKey === "overall" || state.sortKey === "overall_rank" || state.sortKey.startsWith(CRIT_SORT) ? "strength" : "");
+  if (follow) {
+    state.sortKey = follow; state.sortDir = SMALL_FIRST.has(follow) ? 1 : -1;
+    StudioUI.remember(SORT_KEY, follow);
+    $("sort").value = follow;
+  }
+  state.shown = 150;
+  syncRanking();
+  render(false);
 }
 
 async function init() {
@@ -1965,10 +2218,11 @@ async function init() {
   const storedPreset = StudioUI.recall(PRESET_KEY, "");
   state.preset = storedPreset === "compact" || storedPreset === "detail" ? storedPreset : window.innerWidth < COMPACT_BELOW ? "compact" : "detail";
   state.funcMode = StudioUI.recall(COMPARE_KEY, "") === "function";
+  state.ranking = wantedRanking(StudioUI.recall(RANKING_KEY, ""));
   const method = $("method-panel");
   method.open = StudioUI.recall(METHOD_KEY, "") === "1";
   method.addEventListener("toggle", () => StudioUI.remember(METHOD_KEY, method.open ? "1" : ""));
-  renderCoreLine();
+  syncRanking();
   renderLayerControls();
   renderTierBar();
   syncRankGroupToggle();
@@ -2023,6 +2277,9 @@ async function init() {
         } catch (_) { toast("Gespeicherte Filteransicht konnte nicht geladen werden."); }
       } }, "Gemerkte Ansicht")
     );
+  }
+  for (const btn of document.querySelectorAll("#ranking-toggle button[data-ranking]")) {
+    btn.addEventListener("click", () => setRanking(btn.getAttribute("data-ranking")));
   }
   for (const btn of document.querySelectorAll("#rank-group-toggle button[data-rank-group]")) {
     btn.addEventListener("click", () => setQuickRankGroup(btn.getAttribute("data-rank-group")).catch((error) => fail(error)));

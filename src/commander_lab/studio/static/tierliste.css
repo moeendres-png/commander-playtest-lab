@@ -168,12 +168,25 @@ td.cardcell .thumb{width:36px;aspect-ratio:488/680;height:auto;background:var(--
 #pod-filter{width:28em;max-width:100%}
 /* phone width: the bars reach their loaded height before the data arrives (measured at 390 px) */
 @media (max-width:700px){#brand{min-height:144px}#top{min-height:195px}#tier-bar{min-height:85px}#filters{min-height:514px}}
+@media (max-width:480px){#filters{min-height:564px}} /* with the ranking toggle in the bar (measured at 390 px) */
 /* desktop: the filter bar and the top bar reach their loaded height from the first paint (measured per width) */
 @media (min-width:701px){#filters{min-height:168px}#top{min-height:71px}}
-@media (min-width:1100px){#filters{min-height:143px}}
-@media (min-width:1700px){#filters{min-height:109px}#top{min-height:39px}}
+@media (min-width:1100px){#filters{min-height:147px}}
+@media (min-width:1700px){#filters{min-height:156px}#top{min-height:39px}} /* with the ranking toggle in the bar (measured at 1366 and 1920 px) */
 
 .search-help-wrap{position:relative;display:inline-flex;align-items:center}
 .search-help-btn{min-width:28px;padding:3px 8px;font-weight:700}
 .search-help-popover{position:absolute;top:calc(100% + 4px);left:0;z-index:40;min-width:280px;max-width:min(420px,90vw);padding:8px 10px;background:var(--surface,#fff);border:1px solid var(--border,#cbd5e1);border-radius:8px;box-shadow:0 6px 20px rgba(0,0,0,.14)}
 .search-help-title{font-size:12px;font-weight:600;margin-bottom:6px;color:var(--muted,#475569)}
+
+/* Gesamtrating (#1369): second ranking next to the usage index. The toggle is fixed in the page, so it reserves its own place. */
+#overall-panel{padding:var(--s2) var(--s4);border-bottom:1px solid var(--line);font-size:13px}
+#overall-panel:empty{display:none}
+#overall-panel p{margin:var(--s1) 0}
+#overall-panel .facts{display:flex;gap:var(--s2) var(--s4);flex-wrap:wrap;align-items:baseline}
+.ocell{display:inline-flex;gap:var(--s2);align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.oscore{font-size:14px;font-variant-numeric:tabular-nums}
+.rank-cell{display:inline-flex;gap:var(--s2);align-items:center;flex-wrap:wrap}
+th.crit-head{min-width:34px}
+.overall-reason{margin:var(--s1) 0;padding-left:var(--s3);border-left:3px solid var(--line);color:var(--text);font-size:13px}
+@media (max-width:600px){#overall-panel{padding-left:var(--s2);padding-right:var(--s2);max-width:100%}}
