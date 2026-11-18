@@ -168,6 +168,7 @@ td.cardcell .thumb{width:36px;aspect-ratio:488/680;height:auto;background:var(--
 #pod-filter{width:28em;max-width:100%}
 /* phone width: the bars reach their loaded height before the data arrives (measured at 390 px) */
 @media (max-width:700px){#brand{min-height:144px}#top{min-height:195px}#tier-bar{min-height:85px}#filters{min-height:514px}}
+@media (max-width:420px){#brand{min-height:165px}} /* the commander select fills in and wraps the bar (measured at 390 px) */
 @media (max-width:480px){#filters{min-height:596px}} /* with the ranking toggle in the bar (measured at 390 px) */
 /* desktop: the filter bar and the top bar reach their loaded height from the first paint (measured per width) */
 @media (min-width:701px){#filters{min-height:168px}#top{min-height:71px}}
