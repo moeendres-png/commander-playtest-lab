@@ -1434,6 +1434,26 @@ function renderSimulations(body) {
     renderPairedComparisonSection(body, pairedDeps());
   }
 
+  const outcomesSlot = h("div", { id: "card-outcomes-slot" });
+  body.append(outcomesSlot);
+  if (typeof renderCardOutcomes === "function") {
+    renderCardOutcomes(outcomesSlot, {
+      h,
+      api,
+      deckId: state.deckId,
+      baseRevision: state.baseRevision,
+      dirty: state.dirty,
+      openCard: (name) => {
+        const card = Array.from(state.byId.values()).find((c) => c.name === name);
+        if (card) {
+          openCard(card);
+        } else {
+          toast(`„${name}“ ist im aktuellen Deck-Katalog nicht geladen.`);
+        }
+      },
+    });
+  }
+
   // Batch simulation launcher & live monitor
   const bBox = h("div", { class: "sim-box" },
     h("h3", { class: "mt-0" }, "Neue Simulationsserie starten"),
