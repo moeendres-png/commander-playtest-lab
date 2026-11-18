@@ -1,5 +1,14 @@
 # Operational Simulation Policy
 
+> **State 2026-11-18 (seat counts).** The player bounds below are out of date. In current source
+> `XmageFullGameRunner` (`src/commander_lab/engine/rules/full_game.py`) and the bridge
+> (`XmageFullGameSession.java`) both have `MIN_PLAYERS = 2` and `MAX_PLAYERS = 6`. The 2–5P lane
+> qualification named below (WS215) does not cover six seats; six-seat behaviour is `UNKNOWN`
+> (`docs/OWNER_DECISION_SIX_PLAYER_MAX_20261108.md`). Studio rule: two to four seats are active;
+> five and six stay locked until their own qualification and the Owner's release
+> (`docs/STUDIO_SCOPE.md`, `docs/OWNER_DECISIONS_STUDIO_20261118.md`). That lock is not yet enforced
+> in code: on `main` the Studio start still accepts one to five other seats (`studio/launch.py`).
+
 Current policy effective 2026-09-15 (WS221; supersedes the 2026-08-20 revision,
 which restricted operations to a single pod size):
 

@@ -1,5 +1,13 @@
 # Commander Studio: plan and recommendations, 2026-11-12
 
+> **State 2026-11-18: superseded.** The binding scope, phases and completion criteria are in
+> `docs/STUDIO_SCOPE.md`; the Owner decisions of 2026-11-18 are in
+> `docs/OWNER_DECISIONS_STUDIO_20261118.md`. Kept as history. Out of date here in particular: the
+> human seat is no longer open (it exists in `main`); B-2a "game outcomes per card as a component"
+> of the strength index is replaced by B11 as now conditional (simulation weight 0 until the
+> maturity gate G-SIM is met and the Owner confirms weight and display); PLAY is accepted by AK-1 to
+> AK-8, not by one game.
+
 Plan for the three areas of the Studio. It follows the Owner decisions in
 `docs/OWNER_DECISIONS_STUDIO_20261112.md` (cited as A1..P7) and names, per step, what is
 recommended and what needs an Owner decision first. Planning document, not Source Truth:

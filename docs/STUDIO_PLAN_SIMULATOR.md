@@ -1,5 +1,12 @@
 # Commander Studio: plan for PLAY and SIMULATE (2026-11-12)
 
+> **State 2026-11-18.** The binding scope is `docs/STUDIO_SCOPE.md`; the Owner decisions of
+> 2026-11-18 are in `docs/OWNER_DECISIONS_STUDIO_20261118.md`. Decisions D1 to D6 and the reference
+> set for the Studio bridge gate below still hold. Superseded: step S2 "results on the Tierliste
+> page as their own field". Simulation results stay off the tier list until the maturity gate G-SIM
+> is met and the Owner confirms weight and display (B11, now conditional); until then they appear
+> only in the deck builder and the deck history as `SIMULATED_RESULT`.
+
 Owner decisions of 2026-11-12 (evening) and the plan that follows from them. It replaces no
 decision in `docs/OWNER_DECISIONS_STUDIO_20261112.md` except rows A8, S5 and P7, which are
 updated there. The BUILD plan stays in `docs/STUDIO_ROADMAP_20261112.md`.
