@@ -1006,3 +1006,115 @@ def test_deck_series_uncounted_seats_are_planned_only() -> None:
     assert entry["counts_as_result"] is False
     assert entry["seats_planned"] is True
     assert entry["tested_seats"] == [0, 1, 2, 3]
+
+
+def test_estimate_series_duration_scales_with_workers_and_api_validates_parallel_settings(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    est_4 = paired_series.estimate_series_duration(40, workers=4, games_per_jvm=6)
+    assert est_4["workers"] == 4
+    assert est_4["games_per_jvm"] == 6
+    assert est_4["estimated_games_per_hour"] == 540 * 4
+    assert est_4["estimated_seconds"] == round(80 * 3600.0 / (540 * 4))
+
+    store, folder = _make_store(tmp_path)
+    try:
+        rev_a = create_revision(
+            store,
+            deck_id="chulane-par",
+            name="Chulane Par",
+            branch="main",
+            cards=[
+                RevisionCard("cid-chulane", 1, "commander"),
+                RevisionCard("cid-sol-ring", 1, "main"),
+                RevisionCard("cid-forest", 98, "main"),
+            ],
+        )
+        rev_b = create_revision(
+            store,
+            deck_id="chulane-par",
+            name="Chulane Par",
+            branch="var",
+            cards=[
+                RevisionCard("cid-chulane", 1, "commander"),
+                RevisionCard("cid-signet", 1, "main"),
+                RevisionCard("cid-forest", 98, "main"),
+            ],
+        )
+
+        def _play(arm: str, seed: int, seat: int) -> paired_comparison.PlayedGame:
+            did = "chulane-par--base" if arm == "base" else "chulane-par--variant"
+            return {
+                "exposure": _mock_exposure(  # type: ignore[typeddict-item]
+                    f"{arm}-{seed}-{seat}",
+                    seed=seed,
+                    seat=seat,
+                    tested_deck_id=did,
+                    won=(arm == "variant"),
+                ),
+                "failure_class": None,
+            }
+
+        mgr = PairedSeriesManager()
+        job = mgr.start_series(
+            store,
+            folder,
+            base_revision_id=rev_a,
+            variant_revision_id=rev_b,
+            budget_pairs=40,
+            look_every_pairs=8,
+            workers=4,
+            games_per_jvm=6,
+            play_override=_play,
+        )
+        assert job.workers == 4
+        assert job.games_per_jvm == 6
+        assert job.to_dict()["execution"] == {
+            "workers": 4,
+            "games_per_jvm": 6,
+            "serial_gc": False,
+            "appcds": False,
+        }
+        finished = _wait_job(mgr, folder, job.series_id)
+        assert finished["status"] == "completed"
+        assert finished["result"]["status"] == "DECIDED"  # type: ignore[index]
+
+        app = create_app(folder)
+        client = TestClient(app)
+        bad_workers = client.post(
+            "/api/simulations/paired",
+            json={
+                "base_revision_id": rev_a,
+                "variant_revision_id": rev_b,
+                "workers": 17,
+            },
+            headers={"x-studio": "1"},
+        )
+        assert bad_workers.status_code == 422
+        bad_batch = client.post(
+            "/api/simulations/paired",
+            json={
+                "base_revision_id": rev_a,
+                "variant_revision_id": rev_b,
+                "games_per_jvm": 25,
+            },
+            headers={"x-studio": "1"},
+        )
+        assert bad_batch.status_code == 422
+
+        monkeypatch.setattr(
+            paired_series.paired_series_manager, "start_series", lambda *_a, **_k: job
+        )
+        ok_resp = client.post(
+            "/api/simulations/paired",
+            json={
+                "base_revision_id": rev_a,
+                "variant_revision_id": rev_b,
+                "workers": 3,
+                "games_per_jvm": 5,
+            },
+            headers={"x-studio": "1"},
+        )
+        assert ok_resp.status_code == 200
+    finally:
+        store.close()

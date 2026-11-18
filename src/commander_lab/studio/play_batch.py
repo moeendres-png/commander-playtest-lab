@@ -119,6 +119,7 @@ def play_recorded_games(
     max_decisions: int = 50_000,
     request_timeout_seconds: float = 120.0,
     private_card_repository: bool = False,
+    command: tuple[str, ...] | None = None,
     on_game: Callable[[dict[str, object]], None] | None = None,
     runner_factory: RunnerFactory = _real_runner,
 ) -> list[dict[str, object]]:
@@ -131,7 +132,7 @@ def play_recorded_games(
     failure with the public failure class; the other games of the chunk are unaffected.
     """
     decks = load_decks(deck_paths)
-    cmd = engine_command(data_folder)
+    cmd = command if command is not None else engine_command(data_folder)
     prepared = [
         prepare_game(
             decks,
@@ -146,9 +147,19 @@ def play_recorded_games(
         for game in games
     ]
     headers = {item.scenario.scenario_id: (item.game_id, item.header) for item in prepared}
-    runner = runner_factory(
-        data_folder, headers, max_decisions, request_timeout_seconds, private_card_repository
-    )
+    if runner_factory is _real_runner:
+        runner = BatchRecordingRunner(
+            data_folder,
+            headers,
+            command=cmd,
+            max_decisions=max_decisions,
+            request_timeout_seconds=request_timeout_seconds,
+            private_card_repository=private_card_repository,
+        )
+    else:
+        runner = runner_factory(
+            data_folder, headers, max_decisions, request_timeout_seconds, private_card_repository
+        )
     if runner.command != cmd:
         sha = bridge_jar_sha256(data_folder, runner.command)
         for item in prepared:

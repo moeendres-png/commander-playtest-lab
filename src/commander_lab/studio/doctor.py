@@ -334,7 +334,7 @@ def _check_appcds(jar_path: Path | None) -> dict[str, object]:
             "detail": "AppCDS-Archiv nicht geprüft (keine JAR-Datei).",
             "remediation": None,
         }
-    archive = Path(f"{jar_path}.jsa")
+    archive = jar_path.with_suffix(".jsa")
     exists = archive.is_file()
     return {
         "name": "appcds_archive",
@@ -348,7 +348,10 @@ def _check_appcds(jar_path: Path | None) -> dict[str, object]:
         ),
         "remediation": None
         if exists
-        else "Optional nach Bereitstellung einmalig erzeugen für schnellere JVM-Starts.",
+        else (
+            f"Optional einmalig erzeugen mit: python -m commander_lab.studio build-appcds "
+            f"--jar {jar_path} (oder scripts/provision_engine_bridge.py --appcds)."
+        ),
     }
 
 
