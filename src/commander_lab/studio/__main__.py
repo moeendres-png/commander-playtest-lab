@@ -470,6 +470,18 @@ def _parser() -> argparse.ArgumentParser:
         help="optional training deck path (repeat 2-6 times; defaults to repo training pod)",
     )
     appcds_cmd.add_argument("--json", action="store_true", help="print full JSON output")
+    backup_cmd = commands.add_parser(
+        "backup",
+        help="create a timestamped, consistent local backup of the Studio store and games/",
+    )
+    backup_cmd.add_argument(
+        "--to",
+        required=True,
+        type=Path,
+        dest="to",
+        help="destination folder outside the repository and outside the Studio data folder",
+    )
+    backup_cmd.add_argument("--json", action="store_true", help="print backup manifest as JSON")
     commands.add_parser(
         "data-report", help="counts-only report on what the store has, lacks and does not know"
     )
@@ -1015,6 +1027,21 @@ def main(argv: list[str] | None = None) -> int:
             print(json.dumps(payload, indent=2, ensure_ascii=False))
         else:
             print(str(payload["command"]))
+        return 0
+    if args.command == "backup":
+        from .backup import create_backup
+        from .store import studio_data_dir
+
+        folder = Path(args.data).resolve() if args.data else studio_data_dir()
+        try:
+            manifest = create_backup(folder, args.to)
+        except (FileNotFoundError, ValueError) as error:
+            print(f"error: {error}", file=sys.stderr)
+            return 2
+        if args.json:
+            print(json.dumps(manifest, indent=2, ensure_ascii=False))
+        else:
+            print(str(manifest["backup_dir"]))
         return 0
     if args.command == "import-all":
         from .import_all import run_command
