@@ -176,12 +176,26 @@ identisch. Das ist ein Vergleichswert, kein Sollwert für den Owner-PC. Ob die �
 des Owners R1 oder eine Studio-Serie (`POST /api/simulations/batch`, `base_seed`, `games_count`,
 `workers`, `games_per_jvm`) ist: ZPAP / mit dem Owner klären. Beide Wege:
 
-- **Weg A, R1 über das Benchmark-Skript (nur WSL/Linux):** im Repo
+- **Weg A, R1 über das Benchmark-Skript (belegt nur unter Linux/WSL):** im Repo
   `python scripts/benchmark_xmage_full_games.py run --jar <JAR> --out serie36.json --seeds 1-36 --workers 4 --games-per-jvm 9 --fast`
   (Befehl aus `docs/STUDIO_PLAN_SIMULATOR.md`; ob `--workers 4` zum PC passt: ZPAP).
-  **Hinweis Windows:** `scripts/benchmark_xmage_full_games.py` nutzt `import resource` ungeschützt
-  und bricht unter nativem Windows mit `ModuleNotFoundError` ab; der Windows-Weg ist Weg B
-  (Studio-Serie). Ob WSL am Owner-PC verfügbar ist: ZPAP (Paket #1521 behebt es später).
+  **Hinweis Windows (Stand PR #1551):** der `import resource` in
+  `scripts/benchmark_xmage_full_games.py` und `scripts/check_studio_series_identity.py` ist
+  abgesichert; ohne das Modul bricht der Aufruf nicht mehr mit `ModuleNotFoundError` ab, die
+  CPU-Zeit wird als `nicht verfügbar` ausgegeben (nie als `0`). Belegt ist das durch einen
+  Unit-Test mit simuliert fehlendem `resource` (`--help`), nicht durch einen Lauf unter Windows.
+  Ein Engine-Lauf dieser Skripte unter Windows ist nicht belegt (`UNKNOWN`), ebenso ein Lauf am
+  Owner-PC; der belegte Windows-Weg bleibt Weg B (Studio-Serie). Ob WSL am Owner-PC verfügbar
+  ist: ZPAP.
+  Was unter Windows heute in der CI geprüft wird (`.github/workflows/windows-runtime.yml`, Runner
+  `windows-latest`; Engine-Abhängigkeiten werden nicht vorausgesetzt): atomare Speicherung und Laufzeit-Hygiene,
+  `python -m commander_lab.studio doctor --json` (Kernprüfungen `python` und `dependencies` müssen
+  `PASS` sein; `java`, `engine_bridge`, `card_knowledge` werden nur als `MISSING_ON_CI_RUNNER`
+  ausgegeben, nicht als `PASS` gewertet), Import von `studio.web`, `play`, `paired_series`,
+  `launch` und die Tests `test_studio_engine_provisioning` und `test_studio_simulations`. Die
+  Windows-Prozess-Lebendprüfung für unterbrochene gepaarte Serien (`_is_pid_alive`, PR #1544) ist
+  im Code vorhanden; ein eigener Windows-Beleg dafür ist hier nicht geprüft. Nicht belegt:
+  Lauf auf dem echten Owner-PC, Engine-Lauf (Spiele mit echter Brücke) unter Windows.
   Prüfen: 36 Spiele fertig, keine fehlgeschlagen oder fehlend; Gesamtlaufzeit (Wanduhr) und
   JAR-SHA-256 notieren.
 - **Weg B, Studio-Serie:** Seite „Simulieren“, Chulane-Revision, Pod, `games_count` 36, Basis-Seed 1,

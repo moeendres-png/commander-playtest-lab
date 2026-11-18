@@ -104,10 +104,14 @@ Quelle der 17 Engine-Klassen: `XmageFullGameDecisionController.java` (`DECISION_
 > **Hinweis:** Die endgültigen Messbefehle für Block D liefert Paket #1521; bis dahin sind die
 > Befehlsfelder als Platzhalter markiert. Für den vorhandenen Einzel-gegen-Batch-Vergleich
 > existiert `python scripts/check_studio_series_identity.py` (`docs/STUDIO_GAME_VIEWER.md`).
-> `scripts/check_studio_series_identity.py` (und `scripts/benchmark_xmage_full_games.py`) nutzen
-> `import resource` ungeschützt und laufen daher nur unter WSL/Linux (unter nativem Windows
-> `ModuleNotFoundError`); der Windows-Weg ist die Studio-Serie, WSL-Verfügbarkeit ist ZPAP
-> (Paket #1521 behebt es später). Ergebnis ist `SIMULATED_RESULT`, kein Qualifikationsbeleg.
+> Seit PR #1551 ist der `import resource` in `scripts/check_studio_series_identity.py` und
+> `scripts/benchmark_xmage_full_games.py` abgesichert: ohne das Modul (natives Windows) kein
+> `ModuleNotFoundError` mehr, die CPU-Zeit wird als `nicht verfügbar` ausgegeben. Belegt durch
+> einen Unit-Test mit simuliert fehlendem `resource`; ein Engine-Lauf dieser Skripte unter Windows
+> und jeder Lauf am Owner-PC sind nicht belegt (`UNKNOWN`). Die Windows-CI
+> (`.github/workflows/windows-runtime.yml`) ist ein Smoke, der keine Engine-Abhängigkeiten voraussetzt (Doctor-Kernprüfungen,
+> Studio-Imports, ausgewählte Studio-Tests), kein Engine-Lauf. Weg B (Studio-Serie) bleibt der
+> belegte Windows-Weg; WSL-Verfügbarkeit ist ZPAP. Ergebnis ist `SIMULATED_RESULT`, kein Qualifikationsbeleg.
 
 | Feld | Wert | Herkunft (Befehl / Datei) | Urteil (`PASS` / `FAIL` / `UNKNOWN`) |
 |---|---|---|---|
