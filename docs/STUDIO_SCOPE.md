@@ -35,8 +35,9 @@ Datei widersprechen, gilt diese Datei.
   (eigene Qualifikation und Owner-Freigabe, A3, A8). Die Engine nimmt 2 bis 6 Sitze an
   (Verhalten bei 5/6 nicht qualifiziert: `UNKNOWN`; `studio/launch.py`: `MIN_SEATS, MAX_SEATS = 2, 6`). Technische Sperre (neu, Empfehlung O11 mit
   Owner-GO): im Studio-Startpfad (Partie, PLAY) seit PR #1515 auf `main`
-  (`MAX_RELEASED_SEATS = 4`); in den Serien-Routen noch offen, sie kommt mit dem SIMULATE-Zweig
-  (in PR #1516 nicht enthalten). Aufgehoben wird sie nur per Owner-Freigabe.
+  (`MAX_RELEASED_SEATS = 4`). In den Serien-Routen und im Befehl `compare-decks` ist sie noch nicht
+  durchgesetzt (`studio/__main__.py` prüft nur `MIN_SEATS` bis `MAX_SEATS`); das ist ein eigenes
+  SIMULATE-Paket (PR #1516 ist ohne sie gemergt). Aufgehoben wird sie nur per Owner-Freigabe.
 
 ## BUILD
 
@@ -56,8 +57,9 @@ folgt aus AK-8.
 
 | Stufe | Inhalt |
 |---|---|
-| P0 | (1) Den gesicherten Brett-Klick-Stand fertigstellen: Ziel, Angreifer, Blocker, Karte aus der Hand, Fähigkeit eines Permanents; jeder Klick sendet nur eine `option_id` aus `legal_options`, die Listen bleiben als Ausweichweg (AK-4). (2) Echt-Engine-Test des Mensch-Sitzes ohne Menschen: ein vorhandener Pilot beantwortet die Entscheidungen über die PLAY-Routen; reiner Test, keine Erste- oder Zufallsoption. (3) Technische Sperre für 5 und 6 Sitze im Studio-Startpfad (Partie); die Sperre der Serien-Routen gehört zum SIMULATE-Zweig. Aufgehoben wird sie nur per Owner-Freigabe. (4) Abnahme-Partien am Owner-PC. Stand 2026-11-18: (1) bis (3) mit PR #1515 gemergt; (4) offen. |
-| P1 | Stack-Schiene mit Zielen; Anzeige von Commander-Steuer und Commander-Schaden nur aus Engine-Werten (neuer Frame-Inhalt wäre eine `BEHAVIOUR`-Änderung unter dem Studio-Bridge-Gate); Tastatur mit sichtbarem Fokus; Yield-Modi nur über die Pass-Option, die die Engine anbietet (jede andere Entscheidung hält an, jeder automatische Pass steht im Protokoll); Wiedergabe einer beendeten Partie Zug für Zug. |
+| P0 | (1) Den gesicherten Brett-Klick-Stand fertigstellen: Ziel, Angreifer, Blocker, Karte aus der Hand, Fähigkeit eines Permanents; jeder Klick sendet nur eine `option_id` aus `legal_options`, die Listen bleiben als Ausweichweg (AK-4). (2) Echt-Engine-Test des Mensch-Sitzes ohne Menschen: ein vorhandener Pilot beantwortet die Entscheidungen über die PLAY-Routen; reiner Test, keine Erste- oder Zufallsoption. (3) Technische Sperre für 5 und 6 Sitze im Studio-Startpfad (Partie); die Sperre der Serien-Routen gehört zum SIMULATE-Zweig. Aufgehoben wird sie nur per Owner-Freigabe. (4) Abnahme-Partien am Owner-PC. Stand 2026-11-18: (1) bis (3) mit PR #1515 gemergt. Der Echt-Engine-Lauf dort beantwortete nur Mulligan, Priorität, Ziel und Objektwahl; Angriff, Block, Mana-Zahlung und Mulligan mit Zurücklegen gegen die laufende Engine sind `UNKNOWN` und Gegenstand von P0b (in Arbeit). (4) offen. |
+| P1a (nur Seite) | Stack-Schiene mit Zielen aus dem veröffentlichten Zustand; Tastatur mit sichtbarem Fokus; Yield-Modi nur über die Pass-Option, die die Engine anbietet (jede andere Entscheidung hält an, jeder automatische Pass steht im Protokoll); Wiedergabe einer beendeten Partie Zug für Zug. Keine Bridge-Änderung. Reihenfolge aus AK-8. |
+| P1b (Bridge-Gate) | Anzeige von Commander-Steuer und Commander-Schaden nur als Engine-Werte, nie auf der Seite errechnet; neuer Frame-Inhalt ist eine `BEHAVIOUR`-Änderung unter dem Studio-Bridge-Gate (`AGENTS.md` §10). Erst nach AK-8 und nach P1a-Punkten, die AK-8 vorzieht. |
 | P2 | Nur auf Owner-Wunsch: serverseitiges Yield (vorher unabhängiges Review gegen `AGENTS.md` §2), Bedienung per Berührung, Mensch auf einem anderen Sitz als 1, Bildvergleichs-Tests (neue Abhängigkeit). Nicht geplant: Speichern und Wiederaufnehmen (kein Zustands-Restore der Engine, E5), freies Rückgängig (P4), Erklärung einzelner KI-Entscheidungen, passiver Gegner (P3). |
 
 Fest aus E5: KI-Hände nach Spielende offen, während der Partie nicht ausgeliefert; kein Timeout,
@@ -105,6 +107,21 @@ Option A2 „Deck-Labor mit Messprotokoll“, geliefert in zwei Schritten.
 
 - Release-Paket mit Bridge-JAR und eine nachvollziehbare Einrichtung am Owner-PC nach
   `docs/STUDIO_OWNER_PC_SETUP.md`.
+- **Plattform:** Der Owner-PC ist Windows; Start über `scripts/studio_start.ps1`, Datenordner
+  standardmäßig `%LOCALAPPDATA%\CommanderStudio` (`docs/STUDIO_OWNER_PC_SETUP.md`). Linux/WSL
+  (`scripts/studio_start.sh`) ist nur Ausweichweg; ob am Owner-PC WSL vorhanden ist: `UNKNOWN`.
+  Messwerkzeuge für Bridge-Gate und Serien-Identität müssen unter Windows laufen. Stand:
+  `scripts/benchmark_xmage_full_games.py` und `scripts/check_studio_series_identity.py`
+  importieren `resource`, das es unter Windows nicht gibt (offen, eigenes Paket).
+- **Release-Paket:** das Artefakt des Workflows `.github/workflows/release-artifacts.yml` zum
+  abgenommenen Commit (mit `xmage-engine-bridge.jar`, dessen `.sha256` und `ENGINE_PIN.txt`). Das
+  Artefakt hält 30 Tage (`retention-days: 30`) und wird vor dem Abschluss neu erzeugt. Ein
+  dauerhaftes GitHub-Release wäre eine Veröffentlichung und ist Owner-Entscheid.
+- **Backup:** Der Studio-Datenordner (Deck-Verlauf, Markierungen, Serien, Partien) liegt nur auf
+  dem Owner-PC. Sicherung und Rückspiel sind eine Anforderung, noch nicht gebaut (eigenes Paket).
+- **Keine Telemetrie:** Das Studio sendet keine Nutzungs- oder Messdaten nach außen. Nach außen
+  gehen nur Abrufe öffentlicher Kartenbilder und Kartendaten (`AGENTS.md` §12). Messwerte der
+  Abnahme kommen als Dateien zurück.
 - Zum Abschluss: neue Qualifikations-Epoche (Versiegeln braucht das Owner-Go) oder dauerhaft
   sichtbar „vor Qualifikation“.
 
@@ -115,11 +132,45 @@ Keine Kalenderdaten: Die Dauer hängt an Owner-Zeit am PC und an Nutzungslimits 
 | Phase | Inhalt | Abnahme |
 |---|---|---|
 | 0 Sichern und klären | Offene Stände gepusht; Claim-Tabelle in #1167; diese Datei und die Entscheidungsdatei | beide gemergt, Doku-Drift bereinigt |
-| 1 PLAY P0 | Brett-Klick, Echt-Engine-Test, Sitz-Sperre im Startpfad (Stand 2026-11-18: gemergt mit PR #1515; Abnahme-Partien offen) | Tests grün auf exaktem Head, Review; drei Abnahme-Partien (AK-1 bis AK-8) |
-| 2 SIMULATE A1 (parallel zu 1) | Ausrichtung, parallele gepaarte Serie, Planung, Zensur, Seed-Plan, Sitz-Sperre der Serien-Routen (Stand 2026-11-18: PR #1516 offen, ohne Serien-Sitz-Sperre) | Starthand-Gleichheitstest, Hash-Nachweis Stapel gegen Einzelspiel; Pilotblock am Owner-PC |
+| 1 PLAY P0 | Brett-Klick, Echt-Engine-Test, Sitz-Sperre im Startpfad (Stand 2026-11-18: gemergt mit PR #1515; P0b in Arbeit; Abnahme-Partien offen) | Tests grün auf exaktem Head, Review; drei Abnahme-Partien (AK-1 bis AK-8) |
+| 2 SIMULATE A1 (parallel zu 1) | Ausrichtung, parallele gepaarte Serie, Planung, Zensur, Seed-Plan, Sitz-Sperre der Serien-Routen (Stand 2026-11-18: PR #1516 gemergt; Serien-Sitz-Sperre offen als eigenes Paket) | Starthand-Gleichheitstest, Hash-Nachweis Stapel gegen Einzelspiel; Pilotblock am Owner-PC |
 | 3 BUILD-Klärung | Doku und Verifikation des vorhandenen Starts aus dem Deckbauer (Knopf „Mit diesem Stand eine Partie spielen“) und des Serienstarts zu einem Deck-Stand | ein Chulane-Stand geht ohne Handarbeit in Partie und Serie |
 | 4 SIMULATE A2 und PLAY P1 | Serienplan, Zwei-Stufen-Ablauf, Konsistenz-Tafel, Gültigkeitsblock, Anzeige im Deck-Verlauf; P1 nach AK-8 priorisiert | zwölf Punkte des Mindeststandards belegt; eine Nachtserie zu einer echten Chulane-Frage |
 | 5 Abschluss | Bridge-Siegel oder dauerhaft „vor Qualifikation“; Release-Paket; Einrichtung von null | Abschlusskriterien unten |
+
+## Phasenplan S0 bis S6
+
+Verfeinert die Roadmap-Phasen und legt zwei Owner-Sitzungen am PC fest, weil alles Messbare daran
+hängt. `UNKNOWN` ist nie PASS.
+
+| Schritt | Phase | Inhalt | Abnahme |
+|---|---|---|---|
+| S0 Laufendes schließen | 0 bis 2 | PRs #1515, #1516, #1517 (gemergt); P0b; diese Onboarding-Regeln (`docs/STUDIO_AGENT_ONBOARDING.md`) | gemergt mit PASS-Kommentar auf exakter Head-SHA; Claim-Tabelle in #1167 nennt Paket, Halter und Branch |
+| S1 Bereit für den Owner-PC | 1 bis 3 | Serien-Sitz-Sperre; Identitätsnachweis des parallelen gepaarten Pfads; Echt-Engine-Test des Mensch-Sitzes in CI; Messskripte unter Windows; Owner-PC-Seite aktualisiert | (1) Serien und `compare-decks` lehnen 5 und 6 Sitze ab, mit Test, der ohne die Prüfung fällt; (2) gepaart-parallel n identisch von N mit N ≥ 20 Spielen, sonst laufen gepaarte Serien mit einem Worker; (3) der Echt-Engine-Test läuft in einem CI-Job und ist dort nicht übersprungen; (4) die Messskripte starten unter Windows; (5) die Owner-PC-Seite ist einmal von null in sauberer Umgebung durchgespielt, jede Abweichung ist ein Befund |
+| S2 Owner-Sitzung 1 (am PC) | 1, 2 | Einrichtung, drei Abnahme-Partien, Pilotblock | ausgefülltes Abnahme-Protokoll mit Dateien; AK-1 bis AK-8 je PASS, FAIL oder `UNKNOWN`; Pilotblock liefert Durchsatz, Diskordanz, Paar-Streuung und Sitzkurve je mit n/N |
+| S3 Auswerten | 4 | P1-Reihenfolge aus AK-8; Budget-Tabelle mit gemessenem Durchsatz und gemessener Diskordanz; Owner-Vorlagen (Vorschläge zu G-SIM und zur Tierliste-Abnahme, Owner offen) | Kommentar in #1167 mit den Messwerten und der P1-Liste; Owner-Antworten in einer Entscheidungsdatei |
+| S4 Bauen (parallel) | 4 | SIMULATE A2; PLAY P1a, danach P1b; Backup | zwölf Punkte des Mindeststandards je mit Test oder Beispielergebnis; jeder P1-Punkt mit Test, der ohne die Änderung fällt |
+| S5 Owner-Sitzung 2 (am PC) | 4 | Nachtserie zu einer echten Chulane-Frage; Spielprobe P1 | Frage beantwortet mit Serienplan, Intervall, nachweisbarer Differenz und Gültigkeitsblock |
+| S6 Abschluss | 5 | Epoche oder „vor Qualifikation“; Release-Paket; Tierliste-Abnahme | Abschlusskriterien 1 bis 6 je mit Beleg; Einrichtung von null aus dem Paket |
+
+**Abnahme-Protokoll (Gerüst; die ausfüllbare Vorlage ist ein eigenes Paket).** Jede Zeile bekommt
+Wert, Herkunft (Datei oder Bildschirmfoto) und Urteil PASS, FAIL oder `UNKNOWN`.
+
+- A Einrichtung: Betriebssystem, Kerne, Arbeitsspeicher; Java-Version; Ausgabe von
+  `python -m commander_lab.studio doctor`; Herkunft der JAR (Artefakt, Commit);
+  `bridge_jar_sha256`, Engine-Pin, Bridge-Zustand; Dauer und jede Stelle, an der die Anleitung
+  nicht stimmte.
+- B PLAY je Partie (drei): Spiel-ID, Seed, Pod, Dauer; AK-1 bis AK-8 je Zeile; AK-3 als Tabelle n
+  je Entscheidungsklasse (nicht vorgekommen = `UNKNOWN`).
+- C PLAY-Störfälle (einmal): Tab neu laden; Seite schließen und wieder öffnen; Aufgeben.
+- D SIMULATE-Identität: n identisch von N (Hash, Sieger, Entscheidungszahl), Worker, Spiele je JVM.
+- E SIMULATE-Pilotblock: Serien-ID, Deck-Hashes, Platz-Ausrichtung; Paare geplant, fertig,
+  zensiert, Fehlerklassen; Wanduhr und Spiele je Stunde; Diskordanz neben dem
+  Unabhängigkeitswert; Paar-Streuung; Sitzkurve je Sitz n/N neben der Referenz mit Datum.
+- F Kreislauf: Chulane-Stand, Partie, Serie, Eintrag im Deck-Verlauf ohne Handarbeit (ja/nein, wo
+  es hakte).
+- G Rückgabe: Spielprotokolle, Serien-Dateien, `doctor`-Ausgabe; alles `SIMULATED_RESULT`, kein
+  Qualifikationsbeleg.
 
 ## Abschlusskriterien
 
@@ -146,11 +197,13 @@ geclaimten Fläche zuerst dort kommentieren (`AGENTS.md` §11).
 
 So wird der Scope oben abgearbeitet, von jedem Agenten gleich.
 
-1. **Reihenfolge:** die Phasen 0 bis 5 aus „Roadmap-Phasen“; Phase 1 (PLAY P0) und Phase 2
-   (SIMULATE A1) laufen parallel, weil ihre Flächen getrennt sind.
+1. **Reihenfolge:** die Phasen 0 bis 5 aus „Roadmap-Phasen“, verfeinert durch den Phasenplan S0
+   bis S6; Phase 1 (PLAY P0) und Phase 2 (SIMULATE A1) laufen parallel, weil ihre Flächen getrennt
+   sind.
 2. **Claims:** Die Claim-Tabelle im Übersichts-Issue #1167 ist maßgeblich. Eine Fläche hat einen
    Halter. Ein Claim steht spätestens mit dem ersten gepushten Meilenstein (Optionspapier §D.3).
-   Bei Überschneidung zuerst dort kommentieren, dann arbeiten.
+   Bei Überschneidung zuerst dort kommentieren, dann arbeiten. Flächen-Karte und
+   Kollisionsdateien: `docs/STUDIO_AGENT_ONBOARDING.md`.
 3. **Pakete:** ein Paket = ein Issue bzw. ein Branch = ein PR. Commits und PR-Texte sagen
    `Refs #N`, nie `Closes #N` (`AGENTS.md` §10).
 4. **Review vor Merge:** Eine MATERIAL-Änderung braucht vor dem Merge einen Review aus frischem
