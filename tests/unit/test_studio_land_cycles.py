@@ -264,6 +264,33 @@ def test_mono_colour_commander_reports_zero_over_zero_without_division_error(
         assert cycle["summary"] == "0 / 0 in Farbidentität"
 
 
+def test_colourless_commander_separates_from_commanderless_list(tmp_path: Path) -> None:
+    from tests.unit.test_studio_builder import _fill
+
+    store = StudioStore.open(tmp_path / "studio")
+    _fill(store, tmp_path)
+
+    colourless = land_advisor.land_cycles_summary(
+        store, [_row("Kozilek, the Great Distortion", zone="commander", identity="")]
+    )
+    commanderless = land_advisor.land_cycles_summary(
+        store, [_row("Sol Ring", zone="main", identity="")]
+    )
+    store.close()
+
+    assert colourless["has_commander"] is True
+    assert colourless["identity"] == []
+    assert colourless["legal_lands_total"] == 0
+    for cycle in colourless["cycles"]:
+        assert isinstance(cycle, dict)
+        assert cycle["total"] == 0
+        assert cycle["summary"] == "0 / 0 in Farbidentität"
+
+    assert commanderless["has_commander"] is False
+    assert commanderless["identity"] == []
+    assert commanderless["legal_lands_total"] == 136
+
+
 def test_land_cycles_holds_no_recommendation_or_purchase_language(tmp_path: Path) -> None:
     from tests.unit.test_studio_builder import _fill
 
