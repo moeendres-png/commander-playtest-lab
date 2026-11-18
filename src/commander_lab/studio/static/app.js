@@ -166,6 +166,9 @@ const sortValue = (card, key) => {
 };
 function filtered() {
   const query = $("q").value.trim();
+  const parsed = StudioSearch.parseQuery(query);
+  state.searchErrors = parsed.errors || [];
+  if (state.searchErrors.length) return [];
   const type = $("type-filter").value;
   const role = $("role-filter").value;
   const label = $("label-filter").value;
@@ -189,10 +192,10 @@ function filtered() {
       const colorless = card.colors === "";
       if (!(colorless ? state.colors.has("C") : [...card.colors].some((letter) => state.colors.has(letter)))) return false;
     }
-    return !query || StudioSearch.rank(card, query) !== null;
+    return !query || StudioSearch.rank(card, parsed) !== null;
   });
-  // A search ranks by how well the name fits; the chosen sort applies when the search is empty.
-  if (query) return StudioSearch.sortByRank(rows, query);
+  // A search with freetext terms ranks by how well the name fits; pure field filters or empty search use the chosen sort.
+  if (query && parsed.textQuery) return StudioSearch.sortByRank(rows, parsed);
   const key = state.sortKey, dir = state.sortDir;
   const keyed = rows.map((card) => [sortValue(card, key), card]);
   keyed.sort((a, b) => {
@@ -347,6 +350,13 @@ function renderPool() {
   const rows = filtered();
   $("pool-count").textContent = `${StudioUI.num(rows.length, 0)} von ${StudioUI.num(state.pool.length - state.commanderIds.length, 0)} Karten` + ($("q").value.trim() ? " · nach Treffer sortiert" : "") + (state.subset ? ` · ${state.subset.info.label}` : "");
   const body = $("pool-body"); body.replaceChildren();
+  if (state.searchErrors && state.searchErrors.length) {
+    body.append(h("div", { id: "search-syntax-error", class: "empty" },
+      h("b", {}, "Hinweis zur Such-Syntax:"),
+      ...state.searchErrors.map((msg) => h("p", {}, msg)),
+      h("p", { class: "muted" }, 'Beispiele: t:creature · mv<=2 · r:ramp · c:gu · id<=gwu · -t:land · "draw a card"')));
+    return;
+  }
   if (!rows.length) {
     body.append(h("div", { class: "empty" }, h("b", {}, "Keine Karte passt zu diesen Filtern."), "Lockere einen Filter oder lösche die Suche."));
     return;
