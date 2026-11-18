@@ -1843,11 +1843,15 @@ Der durchgehende Weg im Studio ohne Handarbeit (Refs #1531):
    bis Block F).
 4. **Im Deck-Verlauf ablesen:** Im Deckbauer zeigt die Sektion „Serien im Verlauf“
    (`GET /api/decks/{deck_id}/series`, `static/deckseries.js`) jede Serie genau bei den
-   Revisionen (`base_revision_id` / `variant_revision_id`), die daran beteiligt waren. Serien
-   anderer Stände oder Decks werden nicht als Ergebnis des aktuellen Standes gezeigt; die Tierliste
-   bleibt davon unberührt (`simulation`-Gewicht = 0).
+   Revisionen (`by_revision[revision_id]` mit `series_id`, `role`, `counterpart_ref` sowie
+   `series[]` mit `base_ref`, `variant_ref`, `pairs_completed`, `difference_pp`), die daran
+   beteiligt waren (`data_class = SIMULATED_RESULT`).
+   Serien anderer Stände oder Decks werden nicht als Ergebnis des aktuellen Standes gezeigt; die
+   Tierliste bleibt davon unberührt (`simulation`-Gewicht = 0, belegt in
+   `tests/unit/test_studio_simulation_weight_zero.py`).
 
-Belegt mit nachgebauter Engine über alle vier Routen in
-`tests/unit/test_studio_deck_to_series_roundtrip.py`; Echt-Engine-Gegenprobe am Owner-PC steht
-aus (`UNKNOWN`).
+Belegt über alle vier Routen (`launch.start_game` inkl. `prepare_table_deck_paths` bis `Popen`
+bzw. `play_override` für gepaarte Serien) in `tests/unit/test_studio_deck_to_series_roundtrip.py`;
+Echt-Engine-Gegenprobe am Owner-PC steht aus (`UNKNOWN`, Block F in
+`docs/STUDIO_ABNAHME_PROTOKOLL.md`).
 
