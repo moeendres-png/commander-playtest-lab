@@ -9,8 +9,10 @@ Inhaltlich folgt sie den Empfehlungen des Optionspapiers
 O1 und O3. Bei Widerspruch gehen die Owner-Entscheide vor; Git, Tests und Issues sind Source Truth
 für den technischen Stand (`AGENTS.md` §3).
 
-Diese Datei ersetzt das Zieldokument `docs/STUDIO_TARGET_SCOPE.md` aus PR #1510; jenes Dokument
-wird nicht angelegt und ist keine Quelle. `docs/STUDIO_ROADMAP_20261112.md` und
+Diese Datei ersetzt das Zieldokument `docs/STUDIO_TARGET_SCOPE.md`, das am 2026-11-18 mit PR #1510
+gemergt wurde. Es bleibt als Verlaufsdokument erhalten (`AGENTS.md` §9), ist aber keine
+Pflichtlektüre und keine Scope-Quelle mehr; was daraus nicht übernommen wird, steht am Ende
+dieser Datei. `docs/STUDIO_ROADMAP_20261112.md` und
 `docs/STUDIO_PLAN_SIMULATOR.md` bleiben als Planungs- und Verlaufsdokumente bestehen; wo sie dieser
 Datei widersprechen, gilt diese Datei.
 
@@ -126,3 +128,18 @@ Das Projekt ist abgeschlossen, wenn:
 Wer welche Fläche hält, steht in der Claim-Tabelle im Übersichts-Issue #1167 (Kommentar
 6985613347 und Nachfolger), nicht in `AGENTS.md` oder `CLAUDE.md`. Vor einer Änderung an einer
 geclaimten Fläche zuerst dort kommentieren (`AGENTS.md` §11).
+
+## Nicht übernommen aus `docs/STUDIO_TARGET_SCOPE.md`
+
+Übernommen sind die Teile, die mit den Owner-Entscheiden übereinstimmen (Herkunftsfelder,
+`simulation`-Gewicht 0 bis G-SIM, 2 bis 4 Sitze aktiv, kein Fork-Push, parallele gepaarte Serien,
+Ergebnis-Rückfluss getrennt von der Tierliste, Release-Paket mit Bridge-JAR). Nicht übernommen:
+
+| Punkt | Grund |
+|---|---|
+| „Passive-AI-Goldfish-/Resistance-Modus“ | gegen P3: Die KI spielt immer mit voller Stärke. |
+| Rundenlimit, „6-Turn-Goldfish“ | keine Owner-Quelle; als A3-Option mit vollen Piloten nur nach Owner-Entscheid. |
+| Pilot-Fehlentscheidungsberichte | gegen S2 (Einfrierung vom 2026-11-10); zulässig ist nur die Zählung von Auslassungen (E3). |
+| „Resolve All“ | nur in der Form der Yield-Modi oben: ausschließlich die Pass-Option der Engine, jede andere Entscheidung hält an. |
+| Multi-Commander, Spaltenansicht im Deckbauer | keine Owner-Quelle; über den Chulane-Fokus hinaus. |
+| Schlanke Bridge S4 als Meilenstein | #1264 ohne gemessenen Gewinn geparkt; nur als neuer Messversuch unter dem Studio-Bridge-Gate. |

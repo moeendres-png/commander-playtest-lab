@@ -343,11 +343,12 @@ commands: `docs/STUDIO_PLAN_SIMULATOR.md`, `docs/STUDIO_BRIDGE_GATE_TOOLING.md`)
   is recorded as `NOT_SEALED`, never as PASS. Review and checks as for every MATERIAL change.
 
 Once a change has merged under this gate (the first was #1316) the running bridge is no longer the
-sealed one (#1401 closed, PR #1411): game logs and Studio series results record the bridge jar
-SHA-256, and wherever the current qualification is reported a visible
+sealed one (#1401 closed, PR #1411): game logs and Studio series results record
+`bridge_jar_sha256`, and wherever the current qualification is reported a visible
 `BRIDGE_AHEAD_OF_QUALIFICATION` state is shown while `engine-bridge/` differs from the sealed
-source. Nothing produced on a later bridge is presented as covered by the sealed epoch. A bridge change never decides a rule, never picks an option for a seat
-and never widens what a principal may see (§2, §5).
+source. Nothing produced on a later bridge is presented as covered by the sealed epoch. A bridge
+change never decides a rule, never picks an option for a seat and never widens what a principal
+may see (§2, §5).
 
 ## 11. Git, worktree, ownership
 

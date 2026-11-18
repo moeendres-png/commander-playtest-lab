@@ -23,6 +23,7 @@ and bridge are fit for this; it is never edited.
 | `OWNER_DECISIONS_STUDIO_20261118.md`, `OWNER_DECISIONS_STUDIO_20261112.md`, `OWNER_DECISION_STUDIO_BUILD_PLAY_SIMULATE_20261110.md`, `OWNER_DECISION_SIX_PLAYER_MAX_20261108.md` | Owner decisions for the Studio (maximum 6 players, default 4; simulation in the tier list only after G-SIM) |
 | `OWNER_DECK_FOCUS_CURRENT.md` | Owner-deck work focus: Chulane only |
 | `STUDIO_ROADMAP_20261112.md`, `STUDIO_PLAN_SIMULATOR.md` | Studio plan, and what stays and goes around the simulator |
+| `STUDIO_TARGET_SCOPE.md` | Target scope merged with PR #1510; superseded by `STUDIO_SCOPE.md` |
 | `STUDIO_DECKBUILDER.md`, `STUDIO_GAME_VIEWER.md`, `DECKBUILDER_DATA_1205.md`, `DECKBUILDER_TIERLIST_DESIGN.md` | Deck builder, spectator page, data and tier-list design |
 | `STUDIO_BRIDGE_GATE_TOOLING.md` | Bridge and gate tooling used by the Studio |
 | `CURRENT_EXECUTION_AUTHORITY.md` | Who runs what, at which effort (with `AGENTS.md` §6–§8) |

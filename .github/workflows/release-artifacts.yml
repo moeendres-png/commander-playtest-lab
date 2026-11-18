@@ -9,6 +9,9 @@ on:
     paths:
       - "pyproject.toml"
       - ".github/workflows/release-artifacts.yml"
+      - "engine-bridge/**"
+      - "config/rules_engines.json"
+      - ".github/actions/pinned-xmage-engine/**"
   workflow_dispatch:
 
 permissions:
@@ -27,7 +30,7 @@ env:
 jobs:
   build-release:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -227,6 +230,52 @@ jobs:
           PY
           version='${{ steps.meta.outputs.version }}'
           printf 'release=%s\ngit_head=%s\nroundtrip=pending\n' "$version" "$GITHUB_SHA" > release/PLAYTEST_LAB_REPRODUCIBILITY.txt
+      - name: Resolve pinned XMage engine commit
+        id: engine_pin
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          import re
+          from pathlib import Path
+
+          pin = str(
+              json.loads(Path("config/rules_engines.json").read_text(encoding="utf-8"))[
+                  "primary_engine"
+              ]["commit"]
+          )
+          if re.fullmatch(r"[0-9a-f]{40}", pin) is None:
+              raise SystemExit(f"invalid primary_engine.commit: {pin!r}")
+          with Path(os.environ["GITHUB_OUTPUT"]).open("a", encoding="utf-8") as handle:
+              handle.write(f"commit={pin}\n")
+          PY
+      - name: Checkout pinned XMage
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: moeendres-png/mage
+          ref: ${{ steps.engine_pin.outputs.commit }}
+          path: vendor/engine-source/xmage
+          fetch-depth: 1
+      - name: Set up JDK 17
+        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: maven
+      - name: Build or restore pinned XMage engine
+        uses: ./.github/actions/pinned-xmage-engine
+        with:
+          commit: ${{ steps.engine_pin.outputs.commit }}
+      - name: Package engine bridge JAR for release
+        shell: bash
+        run: |
+          set -euo pipefail
+          mvn -B -ntp -f engine-bridge/pom.xml package -DskipTests
+          jar_src="engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar"
+          test -f "$jar_src"
+          cp "$jar_src" release/xmage-engine-bridge.jar
+          printf '%s\n' "${{ steps.engine_pin.outputs.commit }}" > release/ENGINE_PIN.txt
+          (cd release && sha256sum xmage-engine-bridge.jar > xmage-engine-bridge.jar.sha256)
       - name: Verify package and artifact roundtrip
         shell: bash
         run: |
@@ -246,6 +295,25 @@ jobs:
           "$RUNNER_TEMP/wheel-verify/bin/python" -m pip install --quiet "release/commander_playtest_lab-${version}-py3-none-any.whl"
           test "$("$RUNNER_TEMP/wheel-verify/bin/python" -c 'import importlib.metadata; print(importlib.metadata.version("commander-playtest-lab"))')" = "$version"
           "$RUNNER_TEMP/wheel-verify/bin/commander-lab" --help >/dev/null
+          (cd release && sha256sum -c xmage-engine-bridge.jar.sha256)
+          bridge_out="$(printf '{"request_id":"release-smoke-1","protocol_version":"2.0.0","message_type":"get_provider_version"}\n{"request_id":"release-smoke-2","protocol_version":"2.0.0","message_type":"shutdown_engine"}\n' | java -jar release/xmage-engine-bridge.jar full-game)"
+          BRIDGE_OUT="$bridge_out" EXPECTED_PIN="${{ steps.engine_pin.outputs.commit }}" python - <<'PY'
+          import json
+          import os
+
+          lines = [json.loads(line) for line in os.environ["BRIDGE_OUT"].splitlines() if line.strip()]
+          if len(lines) != 2:
+              raise SystemExit(f"expected 2 bridge responses, got {len(lines)}: {lines!r}")
+          if not (lines[0].get("success") and lines[0].get("status") == "ok"):
+              raise SystemExit(f"unexpected version reply: {lines[0]!r}")
+          if lines[0].get("payload", {}).get("protocol_version") != "2.0.0":
+              raise SystemExit(f"unexpected protocol_version={lines[0].get('payload', {}).get('protocol_version')!r}")
+          commit = lines[0].get("payload", {}).get("engine_commit")
+          if commit != os.environ["EXPECTED_PIN"]:
+              raise SystemExit(f"bridge jar engine_commit={commit!r} != {os.environ['EXPECTED_PIN']!r}")
+          if not (lines[1].get("success") and lines[1].get("status") == "ok"):
+              raise SystemExit(f"unexpected shutdown reply: {lines[1]!r}")
+          PY
           printf 'release=%s\ngit_head=%s\nroundtrip=passed\n' "$version" "$GITHUB_SHA" > release/PLAYTEST_LAB_REPRODUCIBILITY.txt
       - name: Generate and verify checksums
         shell: bash
