@@ -1221,3 +1221,109 @@ console.log(JSON.stringify({
     )  # the always visible core line
     assert 'plainHead("Rater-Vertrauen (Selbstauskunft)"' in js
     assert '["confidence", "Datenlage-Konfidenz des Nutzungsindex (Zähler)"]' in js
+
+
+def test_kartenauswertung_renders_outcomes_cohort_and_few_data_honestly() -> None:
+    """kartenauswertung.js renders n/N, 95% CI, deck hash, SIMULATED_RESULT, and 'zu wenig Daten'."""
+    script = """
+global.StudioUI = {
+  num: (n, d = 0) => Number(n).toFixed(d).replace('.', ','),
+  pct: (r) => `${(Number(r) * 100).toFixed(1).replace('.', ',')} %`,
+  kids: (...a) => a.flat(Infinity).filter((x) => x !== null && x !== undefined && x !== false),
+};
+const mod = require('./kartenauswertung.js');
+const textOf = (node) => {
+  if (node === null || node === undefined) return '';
+  if (typeof node === 'string' || typeof node === 'number') return String(node);
+  if (Array.isArray(node)) return node.map(textOf).join('');
+  return (node.kids || []).map(textOf).join(' ');
+};
+const h = (tag, attrs, ...kids) => ({ tag, attrs: attrs || {}, kids: kids.flat(Infinity) });
+const slot = { children: [], replaceChildren(...kids) { this.children = kids; } };
+const payload = {
+  status: 'OK',
+  deck_id: 'chulane',
+  data_class: 'SIMULATED_RESULT',
+  min_exposed: 10,
+  games_total: 40,
+  games_skipped: 2,
+  pilots: ['GenericCommanderPilot 1.0.0'],
+  engine_commits: ['5bd29ab6f318'],
+  bridge_qualification_states: ['QUALIFIED'],
+  pods: [{ opponents: ['kaervek', 'lorehold', 'token'], games: 40 }],
+  cards: [
+    {
+      card: 'Sol Ring',
+      status: 'OK',
+      games_in_first_hand: 12,
+      wins_in_first_hand: 6,
+      games_not_in_first_hand: 28,
+      wins_not_in_first_hand: 7,
+      rate_in: 0.5,
+      rate_in_ci95: [0.25, 0.75],
+      rate_not: 0.25,
+      rate_not_ci95: [0.12, 0.43],
+      difference_pp: 25.0,
+      difference_ci95_pp: [1.5, 48.5],
+    },
+    {
+      card: 'Rare Card',
+      status: 'TOO_FEW',
+      games_in_first_hand: 2,
+      wins_in_first_hand: 0,
+      games_not_in_first_hand: 38,
+      wins_not_in_first_hand: 10,
+      rate_in: null,
+      rate_in_ci95: null,
+      rate_not: null,
+      rate_not_ci95: null,
+      difference_pp: null,
+      difference_ci95_pp: null,
+    },
+  ],
+};
+(async () => {
+  let askedUrl = null;
+  await mod.renderCardOutcomes(slot, {
+    h,
+    deckId: 'chulane',
+    baseRevision: 'chulane@deadbeef1234',
+    dirty: false,
+    api: async (url) => {
+      if (url === '/api/outcomes/decks') return { decks: [{ deck_id: 'chulane', games: 40 }] };
+      askedUrl = url;
+      return payload;
+    },
+  });
+  const okText = textOf(slot.children);
+
+  await mod.renderCardOutcomes(slot, {
+    h,
+    deckId: 'other-deck',
+    baseRevision: 'other-deck@cafe9999',
+    dirty: false,
+    api: async (url) => {
+      if (url === '/api/outcomes/decks') return { decks: [{ deck_id: 'chulane', games: 40 }] };
+      return { status: 'NO_GAMES', deck_id: 'other-deck', data_class: 'SIMULATED_RESULT', min_exposed: 10, games_total: 0, games_skipped: 0, pilots: [], engine_commits: [], bridge_qualification_states: [], pods: [], cards: [] };
+    },
+  });
+  const emptyText = textOf(slot.children);
+  console.log(JSON.stringify({ askedUrl, okText, emptyText }));
+})();
+"""
+    r = _node_json(script)
+    assert isinstance(r, dict)
+    assert r["askedUrl"] == "/api/outcomes?deck_id=chulane"
+    ok_text = r["okText"]
+    assert "SIMULATED_RESULT" in ok_text
+    assert "in der Engine gemessen, vom Piloten wenig abhängig" in ok_text
+    assert "Gilt für diese Piloten, diese Pods, diese Engine-Version" in ok_text
+    assert "deadbeef1234" in ok_text
+    assert "6 / 12" in ok_text and "7 / 28" in ok_text
+    assert "95 %-Intervall" in ok_text
+    assert "zu wenig Daten" in ok_text
+    assert "EDHREC" not in ok_text and "Top16" not in ok_text
+    empty_text = r["emptyText"]
+    assert "cafe9999" in empty_text
+    assert "Sol Ring" not in empty_text
+    assert "zu wenig Daten" in empty_text
