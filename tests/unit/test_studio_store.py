@@ -7,6 +7,8 @@ from __future__ import annotations
 
 import csv
 import json
+import sqlite3
+import sys
 from pathlib import Path
 
 import pytest
@@ -27,6 +29,9 @@ from commander_lab.studio.__main__ import main as studio_main
 from commander_lab.studio.decks import deck_hash
 from commander_lab.studio.queries import corpus_inclusion, legal_pool
 from commander_lab.studio.store import SCHEMA_VERSION, STUDIO_DATA_ENV
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "scripts"))
+import studio_import_guard as guard
 
 IDENTITY_COLUMNS = [
     "card_id", "oracle_id", "oracle_name", "color_identity", "mana_cost", "mana_value",
@@ -775,3 +780,84 @@ def test_cli_universe_profile_lifecycle(tmp_path: Path, capsys: pytest.CaptureFi
     assert json.loads(capsys.readouterr().out) == {"profiles": []}
     with pytest.raises(SystemExit, match="unknown universe profile"):
         studio_main(["--data", str(data), "delete-profile", "cli-profil"])
+
+
+# ---------------------------------------------------------------------------------------------
+# import guard (scripts/studio_import_guard.py), synthetic store in a temporary folder
+# ---------------------------------------------------------------------------------------------
+
+
+def _guard_store(tmp_path: Path) -> Path:
+    store = StudioStore.open(tmp_path / "data")
+    store.connection.execute(
+        "INSERT INTO source VALUES ('s1', 'x', 't', 'h', NULL, NULL, '2026-01-01')"
+    )
+    for index in range(3):
+        store.connection.execute(
+            "INSERT INTO card_ruling VALUES ('o1', ?, '2020-01-01', 'w', ?, 's1')",
+            (index, f"c{index}"),
+        )
+    store.connection.execute("INSERT INTO card_ruling_source VALUES ('o1','2020-01-01','c0','s1')")
+    for _ in range(2):
+        store.connection.execute(
+            "INSERT INTO observation (card_name, metric, cohort, data_class, source_id)"
+            " VALUES ('Karte', 'm', 'k', 'x', 's1')"
+        )
+    store.connection.commit()
+    path = store.path
+    store.close()
+    assert path is not None
+    return path
+
+
+def _sql(db: Path, statement: str) -> None:
+    connection = sqlite3.connect(db)
+    connection.execute(statement)
+    connection.commit()
+    connection.close()
+
+
+def test_import_guard_passes_unchanged_and_fails_naming_the_table_after_a_deleted_row(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    db = _guard_store(tmp_path)
+    snapshot = tmp_path / "before.json"
+    assert guard.main(["before", "--db", str(db), "--out", str(snapshot)]) == 0
+    text = snapshot.read_text(encoding="utf-8")
+    saved = json.loads(text)
+    assert saved["schema_version"] == str(SCHEMA_VERSION)
+    assert saved["tables"]["card_ruling"]["rows"] == 3
+    assert saved["consistency"]["card_ruling_in_card_ruling_source"] == {"n": 1, "N": 3}
+    assert saved["consistency"]["observation_exact_duplicates"] == {"groups": 1, "rows": 2}
+    assert saved["consistency"]["corpus_deck_with_stat_row"] == {"n": 0, "N": 0}
+    assert "Karte" not in text
+    content = db.read_bytes()
+    capsys.readouterr()
+    assert guard.main(["verify", "--db", str(db), "--before", str(snapshot)]) == 0
+    assert "IMPORT GUARD: PASS" in capsys.readouterr().out
+    assert db.read_bytes() == content  # the guard only reads
+    _sql(db, "DELETE FROM card_ruling WHERE ordinal = 2")
+    assert guard.main(["verify", "--db", str(db), "--before", str(snapshot)]) == 1
+    out = capsys.readouterr().out
+    assert "FAIL: table card_ruling changed but is not in --allow-changed" in out
+    assert "IMPORT GUARD: FAIL" in out
+
+
+def test_import_guard_checks_the_expected_row_delta_and_new_duplicates(tmp_path: Path) -> None:
+    db = _guard_store(tmp_path)
+    snapshot = tmp_path / "before.json"
+    assert guard.main(["before", "--db", str(db), "--out", str(snapshot)]) == 0
+    _sql(db, "INSERT INTO card_ruling VALUES ('o1', 9, '2020-01-01', 'w', 'c9', 's1')")
+    run = ["verify", "--db", str(db), "--before", str(snapshot), "--expect"]
+    assert guard.main([*run, "card_ruling=+1"]) == 0
+    assert guard.main([*run, "card_ruling=any"]) == 0
+    assert guard.main([*run, "card_ruling=+2"]) == 1
+    assert guard.main([*run, "source=0"]) == 1  # card_ruling changed but is not listed
+    assert guard.main([*run, "card_ruling=1x"]) == 2
+    _sql(
+        db,
+        "INSERT INTO observation (card_name, metric, cohort, data_class, source_id)"
+        " VALUES ('Karte', 'm', 'k', 'x', 's1')",
+    )
+    assert guard.main([*run, "card_ruling=+1", "observation=+1"]) == 1  # duplicate rows grew
+    assert guard.main(["verify", "--db", str(tmp_path / "none"), "--before", str(snapshot)]) == 2
