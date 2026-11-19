@@ -26,6 +26,7 @@ from datetime import UTC, date, datetime
 from typing import cast
 
 from . import builder, gc_band, signals, strength_view, universe
+from .corpus_audit import corpus_audit
 from .roles import ORIGIN_CROSSWALK, ORIGIN_TAGGER, ROLES
 from .store import StudioStore
 from .tiers import MODEL_VERSION, TierParams
@@ -516,6 +517,7 @@ def data_report(
         "roles": _roles(db),
         "rulings": _rulings(db),
         "corpus": _corpus(db),
+        "corpus_audit": corpus_audit(db, today=moment),
         "gc_band_crosstab": gc_band.gc_band_crosstab(store, commander=commander),
         "observations": _observations(db),
         "universes": _universes(store),
