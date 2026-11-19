@@ -911,47 +911,55 @@ def _ci() -> dict:
     return yaml.safe_load(CI_WORKFLOW.read_text(encoding="utf-8"))
 
 
+# The packaging work runs on two runners (#1570); each builds the wheel and runs the smoke and
+# its evidence check itself, so every assertion below holds for both.
+PACKAGING_JOBS = ("packaging-1", "packaging-2")
+
+
 def test_packaging_smoke_runs_in_the_packaging_job_the_quality_gate_needs() -> None:
     workflow = _ci()
-    packaging = workflow["jobs"]["packaging"]
-    assert "quality" not in workflow["jobs"]["packaging"].get("needs", [])
-    assert "packaging" in workflow["jobs"]["quality"]["needs"]
-    names = [step.get("name") for step in packaging["steps"]]
-    assert "Build wheel" in names, names
-    smoke_index = next(
-        index
-        for index, name in enumerate(names)
-        if name == "Packaging smoke (isolated wheel install, import and CLI)"
-    )
-    # It runs after the wheel it consumes is actually built.
-    assert smoke_index > names.index("Build wheel")
-    smoke = packaging["steps"][smoke_index]
-    assert smoke["if"] == "${{ success() || failure() }}"
-    assert "continue-on-error" not in smoke
-    assert "scripts/verify_packaging_smoke.py smoke" in smoke["run"]
-    assert "--wheel-dir dist" in smoke["run"]
-    assert "artifacts/quality/PACKAGING_SMOKE.json" in smoke["run"]
-    assert "$RUNNER_TEMP" in smoke["run"], (
-        "the isolated environment must live outside the workspace"
-    )
-    assert "|| true" not in smoke["run"]
+    for job in PACKAGING_JOBS:
+        packaging = workflow["jobs"][job]
+        assert "quality" not in packaging.get("needs", []), job
+        assert job in workflow["jobs"]["quality"]["needs"], job
+        names = [step.get("name") for step in packaging["steps"]]
+        assert "Build wheel" in names, (job, names)
+        smoke_index = next(
+            index
+            for index, name in enumerate(names)
+            if name == "Packaging smoke (isolated wheel install, import and CLI)"
+        )
+        # It runs after the wheel it consumes is actually built.
+        assert smoke_index > names.index("Build wheel"), job
+        smoke = packaging["steps"][smoke_index]
+        assert smoke["if"] == "${{ success() || failure() }}", job
+        assert "continue-on-error" not in smoke, job
+        assert "scripts/verify_packaging_smoke.py smoke" in smoke["run"], job
+        assert "--wheel-dir dist" in smoke["run"], job
+        assert "artifacts/quality/PACKAGING_SMOKE.json" in smoke["run"], job
+        assert "$RUNNER_TEMP" in smoke["run"], (
+            "the isolated environment must live outside the workspace"
+        )
+        assert "|| true" not in smoke["run"], job
     assert "continue-on-error: true" not in CI_WORKFLOW.read_text(encoding="utf-8")
 
 
 def test_packaging_evidence_is_independently_rechecked_and_uploaded() -> None:
     workflow = _ci()
-    packaging = workflow["jobs"]["packaging"]
-    names = [step.get("name") for step in packaging["steps"]]
-    check_index = names.index("Packaging smoke evidence check")
-    check = packaging["steps"][check_index]
-    assert check["if"] == "${{ success() || failure() }}"
-    assert "continue-on-error" not in check
-    assert "scripts/verify_packaging_smoke.py check" in check["run"]
-    assert "|| true" not in check["run"]
-    upload = packaging["steps"][-1]
-    assert "artifacts/quality/" in upload["with"]["path"]
-    assert upload["with"]["name"] == "ci-evidence-packaging"
-    assert upload["timeout-minutes"] == 3
+    for job in PACKAGING_JOBS:
+        packaging = workflow["jobs"][job]
+        names = [step.get("name") for step in packaging["steps"]]
+        check_index = names.index("Packaging smoke evidence check")
+        check = packaging["steps"][check_index]
+        assert check["if"] == "${{ success() || failure() }}", job
+        assert "continue-on-error" not in check, job
+        assert "scripts/verify_packaging_smoke.py check" in check["run"], job
+        assert "|| true" not in check["run"], job
+        upload = packaging["steps"][-1]
+        assert "artifacts/quality/" in upload["with"]["path"], job
+        # One artifact per job (ci-evidence-packaging-1, -2): a shared name would collide.
+        assert upload["with"]["name"] == "ci-evidence-${{ github.job }}", job
+        assert upload["timeout-minutes"] == 3, job
 
 
 def test_existing_quality_gates_are_preserved() -> None:
@@ -977,7 +985,7 @@ def test_existing_quality_gates_are_preserved() -> None:
         "changes",
         "lint",
         "tests",
-        "packaging",
+        *PACKAGING_JOBS,
         "quality",
         "security-audit",
         "security-secret-scan",
@@ -988,6 +996,7 @@ def test_existing_quality_gates_are_preserved() -> None:
         assert workflow["jobs"][context].get("name") in (None, context)
         assert workflow["jobs"][context].get("strategy") is None
         assert workflow["jobs"][context].get("if") == "always()"
+    assert workflow["jobs"]["quality"]["needs"] == ["changes", "lint", "tests", *PACKAGING_JOBS]
     assert set(workflow["jobs"]["security"].get("needs") or ()) == {
         "changes",
         "security-audit",

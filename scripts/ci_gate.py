@@ -2,9 +2,11 @@
 """Decide the required ``quality`` gate of ``.github/workflows/ci.yml`` from job results.
 
 Every needed job must have ended ``success``. The only accepted ``skipped`` is a job named by
-``--allow-skipped`` (the packaging job) while the ``changes`` job succeeded and its flag
-``--packaging-needed`` is exactly ``false``. ``cancelled``, ``failure``, any other value and a
-skip while the flag is not ``false`` fail the gate. Every result is printed.
+``--allow-skipped`` (the two packaging jobs) while the ``changes`` job succeeded, its flag
+``--packaging-needed`` is exactly ``false`` and every job named by ``--allow-skipped`` was
+skipped: the named jobs are halves of one piece of work and are skipped together or not at all.
+``cancelled``, ``failure``, any other value and a skip while the flag is not ``false`` fail the
+gate. Every result is printed.
 """
 
 from __future__ import annotations
@@ -22,12 +24,16 @@ def evaluate(
     """Return ``(ok, lines)``: the verdict and one report line per job."""
     ok = True
     lines: list[str] = []
+    skipped_together = all(
+        results.get(name) == "skipped" for name in skip_allowed if name in results
+    )
     for name, result in results.items():
         if result == "success":
             lines.append(f"ok: {name} = success")
         elif (
             result == "skipped"
             and name in skip_allowed
+            and skipped_together
             and results.get(CONTROL_JOB) == "success"
             and needed_flag == "false"
         ):
