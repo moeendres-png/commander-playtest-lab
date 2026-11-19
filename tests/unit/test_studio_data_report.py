@@ -1019,8 +1019,8 @@ def test_a_rulings_source_has_an_address_only_when_the_readme_names_one(tmp_path
     for name in names:
         line = _line("00000000-0000-0000-0000-000000000001", "2020-01-01", f"Ruling {name}.")
         ruling_file(data / name, [line])
-    # an older import stored the Scryfall rulings address for every rulings file
-    old = "https://scryfall.com/docs/api/rulings"
+    # an older import stored one default address for every rulings file
+    old = "https://default.example/rulings"
     for name in ("named.jsonl", "kept.jsonl"):
         digest = sha256_file(data / name)
         store.connection.execute(
