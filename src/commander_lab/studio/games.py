@@ -69,11 +69,16 @@ def _text(value: object) -> str | None:
     return value if isinstance(value, str) else None
 
 
+@lru_cache(maxsize=4096)
+def _plain_str(text: str) -> str:
+    return _SPACE.sub(" ", html.unescape(_TAG.sub(" ", text))).strip()
+
+
 def _plain(value: object) -> str:
     """Engine texts carry markup for XMage's own client; the log keeps the words only."""
     if not isinstance(value, str):
         return ""
-    return _SPACE.sub(" ", html.unescape(_TAG.sub(" ", value))).strip()
+    return _plain_str(value)
 
 
 def _whole(value: object) -> int | None:
@@ -196,25 +201,39 @@ def _is_private_selection(decision: Mapping[str, object], response: Mapping[str,
     return False
 
 
-def frame_of(
-    number: int,
-    decision: Mapping[str, object],
-    response: Mapping[str, object],
-    *,
-    combat: Mapping[str, object] | None = None,
-) -> dict[str, object]:
-    """One log entry: the published board at a decision and what the pilot answered."""
-    raw_state = decision.get("pilot_state")
-    state: Mapping[str, object] = raw_state if isinstance(raw_state, dict) else {}
-    labels = {
-        str(option.get("option_id")): _plain(option.get("label")) or str(option.get("option_id"))
-        for option in _items(decision.get("legal_options"))
+SERIES_BUFFER_BYTES = 65_536
+SERIES_GZIP_COMPRESSLEVEL = 1
+DEFAULT_GZIP_COMPRESSLEVEL = 9
+
+
+def _resolve_options(
+    decision: Mapping[str, object], response: Mapping[str, object]
+) -> tuple[int, list[str]]:
+    by_id = {
+        str(option.get("option_id")): option for option in _items(decision.get("legal_options"))
     }
     chosen: list[str] = []
     for key in ("selected_option_ids", "ordering"):
         picked = response.get(key)
         for option_id in picked if isinstance(picked, list) else []:
-            chosen.append(labels.get(str(option_id), str(option_id)))
+            oid = str(option_id)
+            option = by_id.get(oid)
+            label = _plain(option.get("label")) if option is not None else ""
+            chosen.append(label or oid)
+    return len(by_id), chosen
+
+
+def _build_frame(
+    number: int,
+    decision: Mapping[str, object],
+    response: Mapping[str, object],
+    *,
+    option_count: int,
+    chosen: list[str],
+    combat: Mapping[str, object] | None = None,
+) -> dict[str, object]:
+    raw_state = decision.get("pilot_state")
+    state: Mapping[str, object] = raw_state if isinstance(raw_state, dict) else {}
     dc = _text(decision.get("decision_class")) or "?"
     frame: dict[str, object] = {
         "kind": "frame",
@@ -226,7 +245,7 @@ def frame_of(
         "seat": _whole(decision.get("seat")),
         "decision_class": dc,
         "prompt": _plain(decision.get("prompt")),
-        "options": len(labels),
+        "options": option_count,
         "chosen": chosen,
         "players": [_player(player) for player in _items(state.get("players"))],
         "stack": [_card_name(item) for item in _items(state.get("stack"))],
@@ -252,19 +271,55 @@ def frame_of(
     return frame
 
 
-class GameRecorder:
-    """Writes one game log. Every entry is flushed, so a running game can be watched."""
+def frame_of(
+    number: int,
+    decision: Mapping[str, object],
+    response: Mapping[str, object],
+    *,
+    combat: Mapping[str, object] | None = None,
+) -> dict[str, object]:
+    """One log entry: the published board at a decision and what the pilot answered."""
+    option_count, chosen = _resolve_options(decision, response)
+    return _build_frame(
+        number, decision, response, option_count=option_count, chosen=chosen, combat=combat
+    )
 
-    def __init__(self, data_folder: str | Path, game_id: str, header: Mapping[str, object]) -> None:
+
+class GameRecorder:
+    """Writes one game log.
+
+    Interactive games keep ``flush_each_frame=True`` so a running game can be watched live;
+    non-interactive series pass ``flush_each_frame=False`` and ``gzip_compresslevel=1`` for
+    buffered writes and faster closing compression with byte-identical decompressed logs.
+    """
+
+    def __init__(
+        self,
+        data_folder: str | Path,
+        game_id: str,
+        header: Mapping[str, object],
+        *,
+        flush_each_frame: bool = True,
+        gzip_compresslevel: int = DEFAULT_GZIP_COMPRESSLEVEL,
+    ) -> None:
+        if (
+            isinstance(gzip_compresslevel, bool)
+            or not isinstance(gzip_compresslevel, int)
+            or not 1 <= gzip_compresslevel <= 9
+        ):
+            raise ValueError("gzip_compresslevel must be an integer between 1 and 9")
         self.game_id = _checked_id(game_id)
         self.path = games_folder(data_folder) / f"{self.game_id}.jsonl"
         self.frames = 0
         self.header: dict[str, object] = dict(header)
+        self.flush_each_frame = bool(flush_each_frame)
+        self.gzip_compresslevel = gzip_compresslevel
         self._current_turn: int | None = None
         self._combat_attacks: list[dict[str, str]] = []
         self._combat_blocks: list[dict[str, str]] = []
         self._events: list[dict[str, object]] = []
-        self._handle: IO[str] | None = self.path.open("w", encoding="utf-8")
+        buffering = -1 if self.flush_each_frame else SERIES_BUFFER_BYTES
+        self._handle: IO[str] | None = self.path.open("w", encoding="utf-8", buffering=buffering)
         self._write(
             {
                 "kind": "header",
@@ -281,7 +336,8 @@ class GameRecorder:
         if self._handle is None:
             raise RuntimeError("the game log is closed")
         self._handle.write(json.dumps(entry, separators=(",", ":"), ensure_ascii=False) + "\n")
-        self._handle.flush()
+        if self.flush_each_frame:
+            self._handle.flush()
 
     def record(
         self, decision: Mapping[str, object], response: Mapping[str, object]
@@ -295,23 +351,14 @@ class GameRecorder:
             self._combat_blocks = []
             self._current_turn = turn
 
-        labels = {
-            str(option.get("option_id")): _plain(option.get("label"))
-            or str(option.get("option_id"))
-            for option in _items(decision.get("legal_options"))
-        }
-        chosen: list[str] = []
-        for key in ("selected_option_ids", "ordering"):
-            picked = response.get(key)
-            for option_id in picked if isinstance(picked, list) else []:
-                chosen.append(labels.get(str(option_id), str(option_id)))
-
+        option_count, chosen = _resolve_options(decision, response)
         dc = str(decision.get("decision_class"))
-        parsed = _parse_combat_declaration(dc, chosen)
-        if "attacks" in parsed:
-            self._combat_attacks.extend(parsed["attacks"])
-        if "blocks" in parsed:
-            self._combat_blocks.extend(parsed["blocks"])
+        if dc in {"declare_attacker", "declare_blocker"}:
+            parsed = _parse_combat_declaration(dc, chosen)
+            if "attacks" in parsed:
+                self._combat_attacks.extend(parsed["attacks"])
+            if "blocks" in parsed:
+                self._combat_blocks.extend(parsed["blocks"])
 
         combat_data: dict[str, list[dict[str, str]]] | None = None
         if phase == "combat" and (self._combat_attacks or self._combat_blocks):
@@ -322,7 +369,14 @@ class GameRecorder:
                 combat_data["blocks"] = list(self._combat_blocks)
 
         self.frames += 1
-        frame = frame_of(self.frames, decision, response, combat=combat_data)
+        frame = _build_frame(
+            self.frames,
+            decision,
+            response,
+            option_count=option_count,
+            chosen=chosen,
+            combat=combat_data,
+        )
         self._write(frame)
         return frame
 
@@ -353,7 +407,10 @@ class GameRecorder:
         if handle is not None:
             handle.close()
         packed = self.path.with_suffix(".jsonl.gz")
-        with self.path.open("rb") as source, gzip.open(packed, "wb") as target:
+        with (
+            self.path.open("rb") as source,
+            gzip.open(packed, "wb", compresslevel=self.gzip_compresslevel) as target,
+        ):
             for chunk in iter(lambda: source.read(1 << 20), b""):
                 target.write(chunk)
         self.path.unlink()

@@ -719,3 +719,71 @@ def test_recorder_and_read_game_canonicalize_event_log_including_legacy_logs(
         )
     legacy = games.read_game(tmp_path, "legacy-swapped")
     assert legacy["result"]["event_log"] == g1["result"]["event_log"]
+
+
+def test_buffered_fast_gzip_recorder_matches_flushed_level9_byte_for_byte(tmp_path: Path) -> None:
+    """#1579: buffered series recording (flush_each_frame=False, gzip_compresslevel=1) produces
+    byte-identical decompressed frames to interactive recording (flush_each_frame=True, level 9),
+    keeps live-frame visibility for interactive mode, and fails closed on invalid compress levels."""
+    import gzip
+
+    from commander_lab.studio.play_batch import BatchRecordingRunner
+
+    d_priority = _decision(turn=1, label="<b>Cast</b> Sol Ring")
+    d_attack = _decision(turn=2, label="Attack — Grizzly Bears attacks Seat 2")
+    d_attack["decision_class"] = "declare_attacker"
+    d_attack["pilot_state"]["phase"] = "combat"
+    d_attack["pilot_state"]["step"] = "declare_attackers"
+    d_block = _decision(turn=2, label="Block — Llanowar Elves blocks Grizzly Bears")
+    d_block["decision_class"] = "declare_blocker"
+    d_block["pilot_state"]["phase"] = "combat"
+    d_block["pilot_state"]["step"] = "declare_blockers"
+    sample_decisions = [
+        (d_priority, {"selected_option_ids": ["o1"]}),
+        (d_attack, {"selected_option_ids": ["o1"]}),
+        (d_block, {"selected_option_ids": ["o1"]}),
+    ]
+
+    interactive = games.GameRecorder(
+        tmp_path, "rec-interactive", HEADER, flush_each_frame=True, gzip_compresslevel=9
+    )
+    interactive.record(*sample_decisions[0])
+    # Live PLAY must flush immediately so a spectator reading the open .jsonl sees the frame.
+    live_view = games.read_game(tmp_path, "rec-interactive")
+    assert len(live_view["frames"]) == 1
+    for dec, resp in sample_decisions[1:]:
+        interactive.record(dec, resp)
+    p_interactive = interactive.close({"status": "finished", "winner_seat": 1})
+
+    series = games.GameRecorder(
+        tmp_path, "rec-series", HEADER, flush_each_frame=False, gzip_compresslevel=1
+    )
+    for dec, resp in sample_decisions:
+        series.record(dec, resp)
+    p_series = series.close({"status": "finished", "winner_seat": 1})
+
+    lines_interactive = gzip.decompress(p_interactive.read_bytes()).decode("utf-8").splitlines()
+    lines_series = gzip.decompress(p_series.read_bytes()).decode("utf-8").splitlines()
+    assert lines_interactive[1:-1] == lines_series[1:-1]
+
+    read_i = games.read_game(tmp_path, "rec-interactive")
+    read_s = games.read_game(tmp_path, "rec-series")
+    assert read_i["frames"] == read_s["frames"]
+    assert read_s["frames"][1]["combat"] == {
+        "attacks": [{"attacker": "Grizzly Bears", "target": "Seat 2"}]
+    }
+    assert read_s["frames"][2]["combat"] == {
+        "attacks": [{"attacker": "Grizzly Bears", "target": "Seat 2"}],
+        "blocks": [{"blocker": "Llanowar Elves", "attacker": "Grizzly Bears"}],
+    }
+
+    with pytest.raises(ValueError, match="gzip_compresslevel"):
+        games.GameRecorder(tmp_path, "bad-level", HEADER, gzip_compresslevel=0)
+
+    runner = BatchRecordingRunner(tmp_path, {"s1": ("batch-g1", dict(HEADER))}, command=None)
+    batch_rec = runner.begin_game("s1")
+    try:
+        assert batch_rec.flush_each_frame is False
+        assert batch_rec.gzip_compresslevel == 1
+    finally:
+        batch_rec.discard()
