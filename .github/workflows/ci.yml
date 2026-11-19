@@ -221,6 +221,7 @@ jobs:
           # Full history: tests such as test_technical_truth and test_benchmark_xmage_full_games
           # diff against old commits and must not skip or fail on a shallow clone.
           fetch-depth: 0
+          persist-credentials: false
       - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.0.0 immutable revision
         with:
           python-version: "3.12"
@@ -310,6 +311,7 @@ jobs:
           # Full history: tests such as test_technical_truth and test_benchmark_xmage_full_games
           # diff against old commits and must not skip or fail on a shallow clone.
           fetch-depth: 0
+          persist-credentials: false
       - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.0.0 immutable revision
         with:
           python-version: "3.12"

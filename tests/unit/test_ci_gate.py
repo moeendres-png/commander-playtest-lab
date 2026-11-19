@@ -78,6 +78,24 @@ def test_gate_decision_table(overrides: dict[str, str], flag: str, expected: int
     assert run({**OK, **overrides}, flag) == expected
 
 
+@pytest.mark.parametrize("first", ["skipped", "success"])
+def test_an_allowed_skip_without_its_job_result_fails(first: str) -> None:
+    """``--allow-skipped`` names a job the gate was not given: never assume it skipped or passed."""
+    argv = [
+        "--job",
+        "changes=success",
+        "--job",
+        f"packaging-1={first}",
+        "--allow-skipped",
+        "packaging-1",
+        "--allow-skipped",
+        "packaging-2",
+        "--packaging-needed",
+        "false",
+    ]
+    assert gate.main(argv) == 1
+
+
 def test_gate_prints_every_job_result(capsys: pytest.CaptureFixture[str]) -> None:
     run({**OK, "tests": "failure"}, "false")
     out = capsys.readouterr().out
@@ -197,6 +215,8 @@ def test_tests_and_packaging_checkouts_fetch_full_history() -> None:
             assert str((step.get("with") or {}).get("fetch-depth")) == "0", (
                 f"{name}: shallow checkout"
             )
+            if name != "tests":  # tests keeps main's checkout options unchanged
+                assert step["with"].get("persist-credentials") is False, name
     text = (ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
     assert "--unshallow" not in text
 

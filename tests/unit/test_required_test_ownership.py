@@ -68,8 +68,10 @@ def _matrix_count() -> int:
 def selection(command: tuple[str, ...], test_files: list[str]) -> set[str]:
     """The test files a pytest command collects (paths, test ids and ``--ignore`` only).
 
-    No argument selects ``testpaths`` (``tests``). A test id ``file::name`` selects (part of)
-    its file; which part is proven per test by test_the_packaging_halves_partition_...
+    No argument selects ``testpaths`` (``tests``). A test id ``file::name`` is accepted only for
+    the packaging module, whose split into two halves is proven per test by
+    test_the_packaging_halves_partition_the_packaging_tests; it counts that module as owned.
+    A test id of any other file fails the guard: owning a file means running all of it.
     Any option this function does not model fails the guard instead of being guessed.
     """
     args = list(command[command.index("pytest") + 1 :])
@@ -86,8 +88,16 @@ def selection(command: tuple[str, ...], test_files: list[str]) -> set[str]:
             ignored.append(arg.split("=", 1)[1].rstrip("/"))
         elif arg.startswith("-"):
             raise AssertionError(f"unmodelled pytest option {arg!r} in {command}")
+        elif "::" in arg:
+            module = arg.split("::", 1)[0]
+            if module != pytest_shards.PACKAGING_TEST:
+                raise AssertionError(
+                    f"test id {arg!r} in {command}: only {pytest_shards.PACKAGING_TEST} may be "
+                    "split by test id (its partition is proven per test)"
+                )
+            paths.append(module)
         else:
-            paths.append(arg.split("::", 1)[0].rstrip("/"))
+            paths.append(arg.rstrip("/"))
     paths = paths or ["tests"]
 
     def under(path: str, root: str) -> bool:
@@ -290,16 +300,49 @@ def test_the_tests_job_runs_its_slot_through_the_in_job_shards() -> None:
             ),
             {"tests/a/test_x.py"},
         ),
-        (("pytest", "-q", "tests/a/test_x.py::test_one"), {"tests/a/test_x.py"}),
-        (
-            ("pytest", "-q", "tests/a/test_x.py::test_one", "tests/a/test_x.py::test_two"),
-            {"tests/a/test_x.py"},
-        ),
     ],
 )
 def test_the_selection_model(command, expected) -> None:
     files = ["tests/a/test_x.py", "tests/qualification/test_q.py"]
     assert selection(command, files) == expected
+
+
+@pytest.mark.parametrize(
+    ("command", "expected"),
+    [
+        (
+            ("pytest", "-q", f"{pytest_shards.PACKAGING_TEST}::test_one"),
+            {pytest_shards.PACKAGING_TEST},
+        ),
+        (
+            (
+                "pytest",
+                "-q",
+                f"{pytest_shards.PACKAGING_TEST}::test_one",
+                f"{pytest_shards.PACKAGING_TEST}::test_two",
+            ),
+            {pytest_shards.PACKAGING_TEST},
+        ),
+    ],
+)
+def test_packaging_test_ids_count_for_the_packaging_module(command, expected) -> None:
+    files = ["tests/a/test_x.py", "tests/qualification/test_q.py", pytest_shards.PACKAGING_TEST]
+    assert selection(command, files) == expected
+
+
+@pytest.mark.parametrize(
+    "test_id",
+    [
+        "tests/qualification/test_q.py::test_one",
+        "tests/a/test_x.py::test_one",
+        f"{pytest_shards.PACKAGING_TEST}x::test_one",
+    ],
+)
+def test_a_test_id_outside_the_packaging_module_fails_closed(test_id: str) -> None:
+    """Running one test of a file must never count as owning the whole file."""
+    files = ["tests/a/test_x.py", "tests/qualification/test_q.py", pytest_shards.PACKAGING_TEST]
+    with pytest.raises(AssertionError, match="may be split by test id"):
+        selection(("pytest", "-q", test_id), files)
 
 
 def test_an_unmodelled_option_fails_closed() -> None:

@@ -10,7 +10,7 @@ check exists: ``lint`` and the ``quality`` gate job always run.
   ``data/``, ``qualification/``, ``tests/``, ``src/`` or ``scripts/``. Anything else, an empty
   diff, a diff that cannot be read and every event other than ``pull_request`` (a push to
   ``main``, a manual dispatch) is ``full``.
-* ``packaging`` is ``true`` when the packaging job must run: on every non-pull-request event,
+* ``packaging`` is ``true`` when the two packaging jobs must run: on every non-pull-request event,
   and on a pull request that changes a packaging input (see ``packaging_reason``).
 * ``test_matrix`` is the JSON matrix of the ``tests`` job: ``MATRIX_COUNT`` slots that share
   every test of the ``quality`` context for ``full``, one slot with only the documentation
@@ -90,7 +90,7 @@ def console_script_modules(pyproject: Path) -> set[str]:
 def packaging_reason(
     changes: Sequence[tuple[str, str]], entrypoint_files: Iterable[str]
 ) -> str | None:
-    """The first changed path that makes the packaging job necessary, else None.
+    """The first changed path that makes the packaging jobs necessary, else None.
 
     ``changes`` are ``(status, path)`` pairs. Besides the named packaging inputs and declared
     console-script target modules, any change (add, modify, delete, typechange) below ``src/``

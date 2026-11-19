@@ -1513,7 +1513,7 @@ def _two_part_packaging(document: dict[Any, Any]) -> None:
     sparse = {"persist-credentials": False, "sparse-checkout-cone-mode": False}
     jobs["changes"]["steps"][0]["with"] = {
         **sparse,
-        "sparse-checkout": "scripts/ci_change_scope.py\npyproject.toml\n",
+        "sparse-checkout": "scripts/ci_change_scope.py\n/pyproject.toml\n",
     }
     jobs["quality"]["steps"][0]["with"] = {**sparse, "sparse-checkout": "scripts/ci_gate.py"}
     step = _gate_step(document)

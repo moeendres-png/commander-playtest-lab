@@ -5,7 +5,7 @@ Every needed job must have ended ``success``. The only accepted ``skipped`` is a
 ``--allow-skipped`` (the two packaging jobs) while the ``changes`` job succeeded, its flag
 ``--packaging-needed`` is exactly ``false`` and every job named by ``--allow-skipped`` was
 skipped: the named jobs are halves of one piece of work and are skipped together or not at all.
-``cancelled``, ``failure``, any other value and a skip while the flag is not ``false`` fail the
+A ``--allow-skipped`` name without a ``--job`` result fails the gate. ``cancelled``, ``failure``, any other value and a skip while the flag is not ``false`` fail the
 gate. Every result is printed.
 """
 
@@ -24,9 +24,7 @@ def evaluate(
     """Return ``(ok, lines)``: the verdict and one report line per job."""
     ok = True
     lines: list[str] = []
-    skipped_together = all(
-        results.get(name) == "skipped" for name in skip_allowed if name in results
-    )
+    skipped_together = all(results.get(name) == "skipped" for name in skip_allowed)
     for name, result in results.items():
         if result == "success":
             lines.append(f"ok: {name} = success")
@@ -44,6 +42,10 @@ def evaluate(
     if CONTROL_JOB not in results:
         ok = False
         lines.append(f"::error::the {CONTROL_JOB} job result was not provided")
+    for name in skip_allowed:
+        if name not in results:
+            ok = False
+            lines.append(f"::error::--allow-skipped {name} has no --job {name} result")
     return ok, lines
 
 
