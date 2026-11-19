@@ -1473,3 +1473,155 @@ def test_static_files_send_cache_control_no_cache_and_keep_security_headers(tmp_
         img_resp = client.get("/img/card:1", follow_redirects=False)
         assert img_resp.status_code == 302
         assert img_resp.headers.get("cache-control") == "max-age=604800"
+
+
+def test_studio_ui_deduplicates_status_and_layers_and_retries_after_failure() -> None:
+    """#1564: StudioUI.request shares /api/status and /api/layers GET promises, runs them
+    concurrently in dataState, evicts rejections on failure, and resets via clearSharedCache."""
+    ui_source = (STATIC / "ui.js").read_text(encoding="utf-8")
+    assert "StudioUI.clearSharedCache()" in (STATIC / "daten.js").read_text(encoding="utf-8")
+    script = f"""
+const vm = require("vm");
+const calls = [];
+let failNext = false, inFlight = 0, maxPar = 0, track = false;
+const statusBody = {{ freshness: null, source_layers: [], bridge_qualification: {{ status: "ALIGNED_WITH_SEALED_EPOCH" }} }};
+const layersBody = {{ layers: [{{ key: "inventory", layer: "Sammlung", rows: 10, covered: 10, pool: 10, status: "COMPLETE" }}], pool_size: 10 }};
+const ctx = {{
+  console, Promise, Map, Set, Error, Number, Math, Array, Object, String, Boolean, JSON, encodeURIComponent,
+  localStorage: {{ getItem: () => null, setItem() {{}} }}, location: {{ pathname: "/index.html" }},
+  window: {{ matchMedia: () => ({{ matches: false }}) }},
+  document: {{ documentElement: {{ dataset: {{}} }}, addEventListener() {{}}, querySelectorAll: () => [], getElementById: () => null,
+    createElement: (t) => ({{ tagName: t.toUpperCase(), className: "", children: [], setAttribute() {{}}, hasAttribute: () => false, addEventListener() {{}}, append(...n) {{ this.children.push(...n); }}, replaceChildren(...n) {{ this.children = n; }} }}) }},
+  fetch: (path, opts) => {{
+    calls.push({{ path, method: (opts && opts.method) || "GET" }});
+    if (track) {{ inFlight += 1; maxPar = Math.max(maxPar, inFlight); }}
+    return new Promise((res, rej) => setTimeout(() => {{
+      if (track) inFlight -= 1;
+      if (path === "/api/status" && failNext) {{ failNext = false; rej(new Error("boom")); return; }}
+      const body = path.startsWith("/api/layers") ? layersBody : path === "/api/status" ? statusBody : {{ n: calls.length }};
+      res({{ ok: true, status: 200, statusText: "OK", json: async () => body }});
+    }}, 5));
+  }},
+}};
+vm.createContext(ctx);
+vm.runInContext({json.dumps(ui_source)} + "\\nglobalThis.StudioUI = StudioUI;", ctx);
+(async () => {{
+  const UI = ctx.StudioUI, host = {{ replaceChildren() {{}} }}, count = (p) => calls.filter((c) => c.path === p).length;
+  const [s1, s2] = await Promise.all([UI.request("/api/status"), UI.request("/api/status")]);
+  const s3 = await UI.request("/api/status");
+  const [l1, l2] = await Promise.all([UI.request("/api/layers?commander=Chulane"), UI.request("/api/layers?commander=Chulane")]);
+  await UI.dataState(host, "Chulane");
+  const shared = [count("/api/status"), count("/api/layers?commander=Chulane")];
+  UI.clearSharedCache(); track = true; await UI.dataState(host, "Chulane"); track = false;
+  const refreshed = [count("/api/status"), count("/api/layers?commander=Chulane")];
+  UI.clearSharedCache(); failNext = true;
+  let failedOnce = false;
+  try {{ await UI.request("/api/status"); }} catch (_) {{ failedOnce = true; }}
+  const recovered = await UI.request("/api/status");
+  const [d1, d2] = [await UI.request("/api/decks"), await UI.request("/api/decks")];
+  console.log(JSON.stringify([
+    JSON.stringify(s1) === JSON.stringify(s2) && JSON.stringify(s2) === JSON.stringify(s3),
+    JSON.stringify(l1) === JSON.stringify(l2), shared, refreshed, maxPar, failedOnce,
+    Boolean(recovered && recovered.bridge_qualification), count("/api/decks"), d1.n !== d2.n,
+  ]));
+}})();
+"""
+    assert _node_json(script) == [True, True, [1, 1], [2, 2], 2, True, True, 2, True]
+
+
+def test_tierliste_init_parallelizes_independent_requests_and_keeps_equivalence() -> None:
+    """#1564: tierliste.js starts independent fetches in parallel, fires strength once after
+    universe without waiting for evidence/decks, keeps loading state, and preserves equivalence."""
+    js = (STATIC / "tierliste.js").read_text(encoding="utf-8")
+    rhead = js[
+        js.index("function render(keepScroll = true) {") : js.index("const cards = visibleCards();")
+    ]
+    assert rhead.index("if (!state.data) return;") < rhead.index("body.replaceChildren();")
+    slices = [
+        ("async function selectUniverse(name) {", "// ---------- strength index ----------"),
+        ("async function initStrength() {", "// ---------- data state banner ----------"),
+        ("async function dataBanner() {", "// ---------- loading ----------"),
+        ("async function loadEvidence() {", "// ---------- marks and deck from the table"),
+        ("async function loadRoleAudit() {", "function formatGroupCell("),
+        ("async function setView(view) {", "function renderTabs() {"),
+    ]
+    parts = "\n".join(js[js.index(a) : js.index(b)] for a, b in slices)
+    init_tail = js[js.index("await StudioCommander.fill(") : js.index("init().catch(")].rsplit(
+        "}", 1
+    )[0]
+    script = f"""
+const harness = {json.dumps(parts)}, tailCode = {json.dumps(init_tail)};
+async function runOrder(delays) {{
+  let strengthCalls = 0, strBeforeEv = false, strBeforeDecks = false, evDone = false, decksDone = false, anyDone = false;
+  const wave1 = new Set(), snaps = [], els = new Map(), noop = () => {{}};
+  const $ = (id) => {{ if (!els.has(id)) els.set(id, {{ id, value: "", hidden: false, options: [], children: [], classList: {{ add() {{}}, remove() {{}}, toggle() {{}} }}, addEventListener() {{}}, replaceChildren(...k) {{ this.children = k; if (k.length && k[0] && k[0].props && k[0].props.value !== undefined) this.value = k[0].props.value; }}, append(...k) {{ this.children.push(...k); }} }}); return els.get(id); }};
+  $("pool-body").replaceChildren("LOADING");
+  const COMMANDER = "Chulane, Teller of Tales";
+  const state = {{ view: "commander", ticket: 0, data: null, pool: new Map(), marks: new Map(), decks: [], deckCards: new Map(), deckRoles: {{}}, roleAudit: null, cohortShapes: [], universe: {{ ticket: 0, name: "", profiles: [], options: null, summary: null, spread: null }}, strength: {{ status: "idle", meta: null, profiles: [], counted: [], settings: null, result: null, map: null, ticket: 0 }} }};
+  const render = () => {{ if (!state.data) return; snaps.push({{ cards: state.data.cards.map((c) => c.card_id), marks: [...state.marks.keys()].sort(), deck: [...state.deckCards.keys()].sort(), universe: state.universe.name, strengthProfile: state.strength.settings ? state.strength.settings.universe_profile : null, strengthReady: state.strength.status === "ready" }}); }};
+  const refreshStrength = async () => {{
+    strengthCalls += 1; if (!evDone) strBeforeEv = true; if (!decksDone) strBeforeDecks = true;
+    await new Promise((r) => setTimeout(r, delays.strength || 5));
+    state.strength.result = {{ cards: [{{ card_id: "c1", tier: "S" }}] }}; state.strength.status = "ready"; render();
+  }};
+  const replies = {{
+    "/api/evidence": () => ({{ cards: [{{ card_id: "c1", group: "Creature", roles: ["ramp"] }}] }}),
+    "/api/marks": () => ({{ c1: {{ favorite: true, excluded: false, note: "top" }} }}),
+    "/api/universe/profiles": () => ([{{ name: "u1" }}]), "/api/universe/options": () => ({{ ok: true }}),
+    "/api/universe/spread": () => ({{ universe: "u1", cards: [{{ card_id: "c1" }}] }}),
+    "/api/decks": () => ([{{ deck_id: "d1", name: "Chulane", commanders: [COMMANDER], branches: [{{ branch: "main", revision_id: "r1" }}] }}]),
+    "/api/revisions/r1": () => ({{ cards: [{{ card_id: "c1", zone: "main", quantity: 1 }}], roles: {{}} }}),
+    "/api/strength/presets": () => ({{ layers: [], recommended: {{ universe_source: "auto" }} }}),
+    "/api/strength/profiles": () => [], "/api/universe/counted": () => [], "/api/roles/audit": () => ({{ rows: [] }}),
+    "/api/data-report": () => ({{ corpus: {{ card_rows_without_oracle_id: {{ count: 0, of: 10 }} }} }}),
+  }};
+  const api = (path) => {{
+    const key = path.split("?")[0]; if (!anyDone) wave1.add(key);
+    return new Promise((res) => setTimeout(() => {{
+      anyDone = true; if (key === "/api/evidence") evDone = true; if (key === "/api/decks") decksDone = true;
+      res(replies[key] ? replies[key]() : key.startsWith("/api/universe/profiles/") ? {{ decks: 50 }} : key.endsWith("/draft") ? {{ draft: null }} : []);
+    }}, delays[key] !== undefined ? delays[key] : 5));
+  }};
+  const names = "COMMANDER,state,$,StudioCommander,StudioUI,h,nf,typeLabel,cardRoles,roleName,rememberedUniverse,rememberUniverse,fillUniverseSelect,renderUniversePanel,fillSortOptions,recallLayerColumns,renderLayerControls,rememberedStrength,rememberStrength,withDefaults,renderStrengthPanel,renderTierBar,syncRankGroupToggle,syncRanking,renderNotice,renderRoleAuditPanel,updateMethodHint,loadTournamentConversion,fillBranches,toast,fail,render,refreshStrength,api".split(",");
+  const fn = new Function(...names, harness + "\\nreturn (async () => {{\\n" + tailCode + "\\n}})();");
+  await fn(COMMANDER, state, $, {{ fill: async () => {{}} }}, {{ recall: () => "", remember: noop, germanError: String, dataState: async () => {{}} }},
+    (tag, props, ...kids) => ({{ tag, props, kids }}), String, (x) => x, (c) => c.roles || [], (x) => x,
+    () => "u1", noop, noop, noop, noop, () => [], noop, () => null, noop, (x) => ({{ ...x }}),
+    noop, noop, noop, noop, noop, noop, noop, async () => {{}},
+    () => {{ $("branch-select").options = [{{ value: "main" }}]; $("branch-select").value = "main"; }},
+    noop, (e) => {{ throw e; }}, render, refreshStrength, api);
+  return {{ wave1: [...wave1].sort(), strengthCalls, strBeforeEv, strBeforeDecks, loadingPreserved: $("pool-body").children[0] === "LOADING", finalSnap: snaps[snaps.length - 1] }};
+}}
+(async () => {{
+  const slow = await runOrder({{ "/api/evidence": 60, "/api/decks": 60, "/api/marks": 30, "/api/universe/profiles": 5, "/api/universe/options": 5, "/api/strength/presets": 5, "/api/strength/profiles": 5, "/api/universe/counted": 5, strength: 5 }});
+  const fast = await runOrder({{ "/api/evidence": 5, "/api/decks": 5, "/api/marks": 40, "/api/universe/profiles": 30, "/api/universe/options": 30, "/api/strength/presets": 30, "/api/strength/profiles": 30, "/api/universe/counted": 30, strength: 10 }});
+  console.log(JSON.stringify({{ slow, fast }}));
+}})();
+"""
+    result = _node_json(script)
+    assert isinstance(result, dict)
+    slow, fast = result["slow"], result["fast"]
+    expected_w1 = [
+        "/api/marks",
+        "/api/evidence",
+        "/api/roles/audit",
+        "/api/universe/profiles",
+        "/api/universe/options",
+        "/api/decks",
+        "/api/strength/presets",
+        "/api/strength/profiles",
+        "/api/universe/counted",
+        "/api/data-report",
+    ]
+    assert set(expected_w1).issubset(set(slow["wave1"])), slow["wave1"]
+    assert slow["strengthCalls"] == 1 and fast["strengthCalls"] == 1
+    assert slow["strBeforeEv"] and slow["strBeforeDecks"] and slow["loadingPreserved"]
+    expected_snap = {
+        "cards": ["c1"],
+        "marks": ["c1"],
+        "deck": ["c1"],
+        "universe": "u1",
+        "strengthProfile": "u1",
+        "strengthReady": True,
+    }
+    assert slow["finalSnap"] == fast["finalSnap"] == expected_snap

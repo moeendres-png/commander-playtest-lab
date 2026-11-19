@@ -119,21 +119,37 @@ const StudioUI = (() => {
     for (const [pattern, sentence] of KNOWN) if (pattern.test(text)) return sentence;
     return `Das hat nicht geklappt (${text}).`;
   }
+  // Shared per-page GET cache for /api/status and /api/layers: mountBar, dataState and page
+  // modules ask for the same snapshot concurrently; failures evict so retries work cleanly.
+  const sharedGetCache = new Map();
+  const isSharedGetPath = (path) => path === "/api/status" || path === "/api/layers" || path.startsWith("/api/layers?");
+  function clearSharedCache() { sharedGetCache.clear(); }
   // The same fetch wrapper for every page: errors carry the server detail for germanError.
-  async function request(path, method = "GET", body) {
-    const options = { method, headers: { "X-Studio": "1" } };
-    if (body !== undefined) { options.headers["Content-Type"] = "application/json"; options.body = JSON.stringify(body); }
-    let response;
-    try { response = await fetch(path, options); } catch (error) { const failure = new Error("Failed to fetch"); failure.detail = "Failed to fetch"; throw failure; }
-    if (!response.ok) {
-      let detail = response.statusText;
-      try { detail = (await response.json()).detail || detail; } catch (error) { /* keep status text */ }
-      const failure = new Error(typeof detail === "string" ? detail : JSON.stringify(detail));
-      failure.detail = detail;
-      failure.status = response.status;
-      throw failure;
-    }
-    return response.json();
+  function request(path, method = "GET", body) {
+    const cacheable = method === "GET" && body === undefined && isSharedGetPath(path);
+    if (cacheable && sharedGetCache.has(path)) return sharedGetCache.get(path);
+    const run = (async () => {
+      const options = { method, headers: { "X-Studio": "1" } };
+      if (body !== undefined) { options.headers["Content-Type"] = "application/json"; options.body = JSON.stringify(body); }
+      let response;
+      try { response = await fetch(path, options); } catch (error) { const failure = new Error("Failed to fetch"); failure.detail = "Failed to fetch"; throw failure; }
+      if (!response.ok) {
+        let detail = response.statusText;
+        try { detail = (await response.json()).detail || detail; } catch (error) { /* keep status text */ }
+        const failure = new Error(typeof detail === "string" ? detail : JSON.stringify(detail));
+        failure.detail = detail;
+        failure.status = response.status;
+        throw failure;
+      }
+      return response.json();
+    })();
+    if (!cacheable) return run;
+    const tracked = run.catch((error) => {
+      if (sharedGetCache.get(path) === tracked) sharedGetCache.delete(path);
+      throw error;
+    });
+    sharedGetCache.set(path, tracked);
+    return tracked;
   }
 
   // ---------- busy buttons ----------
@@ -268,10 +284,11 @@ const StudioUI = (() => {
   // ---------- data state: which layers are there, which are missing ----------
   const STATUS_TEXT = { COMPLETE: "vollständig", PARTIAL: "teilweise", MISSING: "fehlt", PRESENT: "vorhanden", NOT_PROVIDED: "nicht angegeben" };
   async function dataState(host, commander, { onlyWhenMissing = true, only = null } = {}) {
-    let overview;
-    try { overview = await request(`/api/layers?commander=${encodeURIComponent(commander)}`); } catch (error) { host.replaceChildren(); return; }
-    let status = null;
-    try { status = await request("/api/status"); } catch (error) { /* optional */ }
+    const [overview, status] = await Promise.all([
+      request(`/api/layers?commander=${encodeURIComponent(commander)}`).catch(() => null),
+      request("/api/status").catch(() => null),
+    ]);
+    if (!overview) { host.replaceChildren(); return; }
     // ``only`` limits the check to the named layer keys (the tier list needs just the sources of the index)
     const missing = overview.layers.filter((layer) => layer.status === "MISSING" && (!only || only.includes(layer.key)));
     const freshness = status && status.freshness ? status.freshness : null;
@@ -364,6 +381,6 @@ const StudioUI = (() => {
     return el("div", { class: "table-wrap" }, el("table", {}, el("thead", {}, el("tr", {}, ["Ebene", "Art", "Wert", "Wilson-Untergrenze", "Perzentil", "Hinweis"].map((label) => el("th", {}, label)))), el("tbody", {}, rows)));
   }
 
-  return { recall, remember, el, h: el, toast, fail, germanError, request, api: request, busy, loading, skeleton, num, pct, numFlex, numSig, simStatusLabel, limitNumber, dataState, effectiveTheme, applyTheme, layerText, layerTitle, layerNode, layerTable };
+  return { recall, remember, el, h: el, toast, fail, germanError, request, api: request, clearSharedCache, busy, loading, skeleton, num, pct, numFlex, numSig, simStatusLabel, limitNumber, dataState, effectiveTheme, applyTheme, layerText, layerTitle, layerNode, layerTable };
 })();
 
