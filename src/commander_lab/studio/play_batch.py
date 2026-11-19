@@ -12,6 +12,7 @@ Evidence and qualification lanes do not use this module: they keep one game per 
 
 from __future__ import annotations
 
+import contextlib
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
@@ -66,6 +67,12 @@ class BatchRecordingRunner(_RecordingRunner):
         self._data_folder = data_folder
         self._headers = headers
         self._recorders: dict[str, GameRecorder] = {}
+        #: Called with the log id of a game once the engine has played it to its end, while
+        #: the chunk's other games are still to come. A progress signal only: the log is closed
+        #: and the result built after the engine process ends (see ``play_recorded_games``).
+        self.on_played: Callable[[str], None] | None = None
+        self._current_game_id: str | None = None
+        self._announced: set[str] = set()
 
     def begin_game(self, scenario_id: str) -> GameRecorder:
         previous = self._recorders.pop(scenario_id, None)
@@ -81,7 +88,30 @@ class BatchRecordingRunner(_RecordingRunner):
         )
         self._recorders[scenario_id] = recorder
         self.recorder = recorder
+        self._current_game_id = game_id
         return recorder
+
+    def _drive(  # type: ignore[override]
+        self, client: object, policy: object, *, stop_after: int | None = None, **kwargs: object
+    ) -> tuple[int, object, bool]:
+        """Drive one game; tell ``on_played`` once the engine has played it to its end.
+
+        The outcome of the drive is returned untouched, and a progress callback that raises
+        changes nothing about the game. A game played again (after an unclean engine end, or a
+        start-up collision) is announced once.
+        """
+        outcome = super()._drive(client, policy, stop_after=stop_after, **kwargs)
+        game_id = self._current_game_id
+        if (
+            outcome[2] is True
+            and game_id is not None
+            and self.on_played is not None
+            and game_id not in self._announced
+        ):
+            self._announced.add(game_id)
+            with contextlib.suppress(Exception):
+                self.on_played(game_id)
+        return outcome
 
     def recorder_of(self, scenario_id: str) -> GameRecorder:
         """The log of a game; a game that failed before its play began still gets one."""
@@ -127,6 +157,7 @@ def play_recorded_games(
     private_card_repository: bool = False,
     command: tuple[str, ...] | None = None,
     on_game: Callable[[dict[str, object]], None] | None = None,
+    on_played: Callable[[str], None] | None = None,
     runner_factory: RunnerFactory = _real_runner,
 ) -> list[dict[str, object]]:
     """Play ``games`` (seed and log id each) on the configured engine, several per JVM.
@@ -136,6 +167,11 @@ def play_recorded_games(
     Returns one short summary per game, in order, as ``play_recorded_game`` does, and calls
     ``on_game`` with each once its log is closed. A game that fails keeps its log up to the
     failure with the public failure class; the other games of the chunk are unaffected.
+
+    ``on_played`` is the progress signal of a chunk: it gets the log id of each game as soon as
+    the engine has played it to its end, before the chunk returns. It is not a result: the log is
+    closed and the result built only once the engine process has ended (``on_game``), and a game
+    that fails is never announced. Neither the order of the games nor their outcomes depend on it.
     """
     decks = load_decks(deck_paths)
     cmd = command if command is not None else engine_command(data_folder)
@@ -175,6 +211,7 @@ def play_recorded_games(
                 sha,
                 item.header.get("covered_by_sealed_epoch", False),
             )
+    runner.on_played = on_played
     permitted = _games_per_jvm_permitted(runner.command) if runner.command else 1
     summaries: list[dict[str, object]] = []
     for start in range(0, len(prepared), permitted):

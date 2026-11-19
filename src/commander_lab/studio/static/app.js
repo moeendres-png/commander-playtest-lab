@@ -35,7 +35,7 @@ const ISSUE_NAMES = { deck_size: "Deckgröße", commander_count: "Commander", co
 
 const state = {
   pool: [], byId: new Map(), cohorts: {}, small: 30, commanderIds: [],
-  universe: "", universeInfo: null, countedUniverse: null,
+  universe: "", universeInfo: null, countedUniverse: null, gcBand: "", gcBandData: null,
   decks: [], deckId: null, branch: "main", baseRevision: null,
   list: new Map(), dirty: false, draftUpdatedAt: "", draftConflict: false, needsDraftPut: false, issues: [], shape: null, deckRoles: {}, combos: null, roles: [], shapes: [],
   simulations: [], diffBaseRev: null, diffData: null, deckFacts: null, castability: null, activeBatch: null, batchPollTimer: null,
@@ -114,9 +114,12 @@ function isRedundantCohort(key) {
 function visibleCohortEntries() {
   return Object.entries(state.cohorts).filter(([key]) => !isRedundantCohort(key));
 }
-// With a universe profile chosen, the pool shows that universe's counted spread
-// (same snapshot as the tier list) instead of the legacy cohort figures. A card the
-// universe does not name is "unbekannt" (hits null), never 0.
+// The active counted scope (universe profile or Game-Changer-Band), decided in one place
+// (gcband.js); null means the legacy cohort figures of state.cohort.
+const activeScope = () => StudioGcBand.activeScope(state);
+// With a universe profile or a Game-Changer-Band chosen, the pool shows that scope's counted
+// spread (same snapshot as the tier list) instead of the legacy cohort figures. A card the
+// scope does not name is "unbekannt" (hits null), never 0.
 function displayFreq(card) {
   if (state.subset) {
     // Only the decks that contain every chosen card: the denominator is the subset. A chosen
@@ -125,12 +128,10 @@ function displayFreq(card) {
     const item = state.subset.map.get(card.card_id);
     if (item) return { hits: item.filter_card ? null : item.hits, total: item.denominator, share: item.share, filter: Boolean(item.filter_card) };
   }
-  if (state.universe) {
-    const u = card.universe;
-    // A card the universe's card filter requires is in every deck of the subset by
-    // definition: it has no count to show, only the label "Filterkarte".
-    if (u) return { hits: u.matched && !u.filter_card ? u.hits : null, total: u.denominator, share: u.share, filter: Boolean(u.filter_card) };
-  }
+  // A card the universe's card filter requires is in every deck of the subset by
+  // definition: it has no count to show, only the label "Filterkarte".
+  const scoped = StudioGcBand.scopedFreq(card, activeScope(), state.universeInfo ? state.universeInfo.denominator : 0);
+  if (scoped) return scoped;
   // No local deck lists and no chosen universe: the counted deck-list universe the server picked
   // automatically (the same choice as the tier list). A card without a row is a counted zero.
   if (state.countedUniverse && card.counted && !(state.cohorts[state.cohort] || 0)) {
@@ -257,7 +258,7 @@ function tile(card) {
       h("b", { class: "count", title: "Kopien im Deck" }, count ? count + "×" : "0×"),
       h("button", { class: "small", type: "button", title: "aus dem Deck", "aria-label": `${card.name} aus dem Deck`, disabled: !count, onclick: () => remove(card) }, "−"),
       h("span", { class: "spacer" }),
-      h("span", { class: "freq" + (f.total && f.total < state.small ? " low" : ""), title: (state.universe ? "Decks des gewählten Universums mit dieser Karte" : state.countedUniverse ? `${countedName()}: Decks mit dieser Karte` : "Decks der Vergleichsgruppe mit dieser Karte") + subsetTitle }, f.filter ? "Filterkarte" : f.hits === null ? "unbekannt" : f.total ? `${StudioUI.num(f.hits, 0)}/${StudioUI.num(f.total, 0)}` : "–")),
+      h("span", { class: "freq" + (f.total && f.total < state.small ? " low" : ""), title: (activeScope() ? `${activeScope().label}: Decks mit dieser Karte` : state.countedUniverse ? `${countedName()}: Decks mit dieser Karte` : "Decks der Vergleichsgruppe mit dieser Karte") + subsetTitle }, f.filter ? "Filterkarte" : f.hits === null ? "unbekannt" : f.total ? `${StudioUI.num(f.hits, 0)}/${StudioUI.num(f.total, 0)}` : "–")),
     h("div", { class: "own" }, "Besitz ", h("b", {}, card.owned), " · frei ", h("b", {}, card.available), card.reserved ? ` · reserviert ${card.reserved}` : "", allocationTileNote(h, card)));
 }
 const COLUMNS = [
@@ -348,7 +349,7 @@ function setupFilterToggle() {
 function renderPool() {
   updateFilterChip();
   const rows = filtered();
-  $("pool-count").textContent = `${StudioUI.num(rows.length, 0)} von ${StudioUI.num(state.pool.length - state.commanderIds.length, 0)} Karten` + ($("q").value.trim() ? " · nach Treffer sortiert" : "") + (state.subset ? ` · ${state.subset.info.label}` : "");
+  $("pool-count").textContent = `${StudioUI.num(rows.length, 0)} von ${StudioUI.num(state.pool.length - state.commanderIds.length, 0)} Karten` + ($("q").value.trim() ? " · nach Treffer sortiert" : "") + ($("q").value.trim() && state.germanNames === false ? " · deutsche Namen nicht verfügbar" : "") + (state.subset ? ` · ${state.subset.info.label}` : "");
   const body = $("pool-body"); body.replaceChildren();
   if (state.searchErrors && state.searchErrors.length) {
     body.append(h("div", { id: "search-syntax-error", class: "empty" },
@@ -369,7 +370,7 @@ function renderPool() {
     const head = h("tr", {}, h("th", {}, ""), columns.map(([key, label, sortKey]) => h("th", {
       class: ["available", "owned", "reserved", "freq", "edhrec", "edhrec_rank", "mana_value", "synergy", "strength"].includes(key) ? "num" : "",
       onclick: sortKey ? () => { state.sortDir = state.sortKey === sortKey ? -state.sortDir : (["name", "type_line", "edhrec_rank", "mana_value"].includes(sortKey) ? 1 : -1); state.sortKey = sortKey; $("sort").value = ""; if (sortKey === "strength") loadStrength(); renderPool(); } : null,
-    }, (key === "freq" && state.subset ? label + " (Teilmenge)" : key === "freq" && state.countedUniverse && !state.universe ? "Verbreitung (gezählt)" : label) + (state.sortKey === sortKey && sortKey ? (state.sortDir > 0 ? " ▲" : " ▼") : ""))));
+    }, (key === "freq" && state.subset ? label + " (Teilmenge)" : key === "freq" && state.countedUniverse && !activeScope() ? "Verbreitung (gezählt)" : label) + (state.sortKey === sortKey && sortKey ? (state.sortDir > 0 ? " ▲" : " ▼") : ""))));
     const lines = part.map((card) => {
       const count = qty(card.card_id);
       return h("tr", { class: count ? "in" : "" },
@@ -559,6 +560,13 @@ async function applySubset(names) {
   if (!names.length) { state.subset = null; state.subsetNames = []; state.subsetWanted = null; renderAll(); return; }
   const query = `commander=${encodeURIComponent(COMMANDER)}` + names.map((name) => `&card=${encodeURIComponent(name)}`).join("") + (state.universe ? `&profile=${encodeURIComponent(state.universe)}` : "");
   try {
+    if (state.gcBand) {
+      // The deck filter counts over all decks (or a universe), not inside a band: clear the
+      // band explicitly instead of showing the band's label over other numbers.
+      Object.assign(state, pickView(StudioGcBand.select(state, "subset", names)));
+      await loadPool();
+      if (ticket !== subsetTicket) return;
+    }
     const info = await api("/api/deck-filter?" + query);
     if (ticket !== subsetTicket) return;
     state.subset = { info, map: new Map(info.cards.map((item) => [item.card_id, item])) };
@@ -618,7 +626,7 @@ function emptyDecks(what) {
 }
 function sourceDecks() {
   if (state.subset) return state.subset.info.decks;
-  if (state.universe) return state.universeInfo ? state.universeInfo.denominator : 0;
+  if (activeScope()) return state.universeInfo ? state.universeInfo.denominator : 0;
   if (state.countedUniverse && !(state.cohorts[state.cohort] || 0)) return state.countedUniverse.denominator;
   return state.cohorts[state.cohort] || 0;
 }
@@ -1160,8 +1168,9 @@ function renderCompare(body) {
       visibleShapes.map((row) => h("tr", { class: row.decks < state.small ? "low" : "" }, h("td", {}, cohortName(row.cohort)), h("td", { class: "num" }, row.decks_counted === row.decks ? StudioUI.num(row.decks, 0) : `${StudioUI.num(row.decks_counted, 0)} von ${StudioUI.num(row.decks, 0)}`),
         h("td", { class: "num" }, span(row.lands)), h("td", { class: "num" }, span(row.creatures)), h("td", { class: "num" }, span(row.mana_value)))))));
   body.append(h("h3", {}, "Aufbau im Vergleich"), table, h("p", { class: "note" }, "Median und mittlere Hälfte der Quelldecks. Gelb: Gruppe mit weniger als 30 Decks, sehr unsicher. Länder nach Vorderseite gezählt."));
-  const counted = !state.universe && !state.subset && state.countedUniverse && !(state.cohorts[state.cohort] || 0);
-  const name = (state.universe ? `Universum ${state.universe}` : counted ? countedName() : cohortName(state.cohort)) + (state.subset ? `, ${state.subset.info.label}` : "");
+  const scope = activeScope();
+  const counted = !scope && !state.subset && state.countedUniverse && !(state.cohorts[state.cohort] || 0);
+  const name = (scope ? scope.label : counted ? countedName() : cohortName(state.cohort)) + (state.subset ? `, ${state.subset.info.label}` : "");
   if (!sourceDecks()) { body.append(emptyDecks("Oft gespielt und selten gespielt")); return; }
   // Only cards with a known count are ranked; a card without a count is not "rarely played".
   const candidates = state.pool.filter((card) => !qty(card.card_id) && !state.commanderIds.includes(card.card_id) && card.available > 0 && !card.excluded && !card.basic && displayFreq(card).hits !== null && displayFreq(card).hits > 0)
@@ -1525,7 +1534,9 @@ function renderSimulations(body) {
         h("b", {}, `Serie „${b.pod}“: ${StudioUI.num(b.games_completed, 0)} von ${StudioUI.num(b.games_planned, 0)} Partien abgeschlossen (${StudioUI.num(pct, 0)} %)`),
         h("span", { class: "pill " + (isRunning ? "warn" : b.status === "completed" ? "good" : "bad") }, statusText)
       ),
-      h("progress", { value: b.games_completed, max: b.games_planned })
+      // the bar follows the games the engine has played (plus failed ones); the headline counts finished results
+      h("progress", { value: b.games_played !== null && b.games_played !== undefined && Number.isFinite(Number(b.games_played)) ? Math.min(b.games_planned, Number(b.games_played) + Number(b.games_failed || 0)) : b.games_completed, max: b.games_planned, title: "Fortschrittsbalken: gespielte plus gescheiterte Partien" }),
+      h("p", { class: "note note-compact" }, seriesPlayedText(b.games_played, b.games_planned, b.games_completed, false, isRunning))
     );
 
     if (b.bridge_qualification && b.bridge_qualification.status === "BRIDGE_AHEAD_OF_QUALIFICATION") {
@@ -2376,7 +2387,7 @@ async function openCard(card) {
     h("div", { class: "actions" }, labelInput, h("button", { type: "button", id: "card-labels-save", onclick: saveLabels }, "Marken speichern")),
     h("h3", {}, "Häufigkeit in den Quelldecks"), frequencies, h("p", { class: "note" }, "Gelb: Gruppe mit weniger als 30 Decks."),
     h("p", {}, h("a", { href: `decks.html?commander=${encodeURIComponent(COMMANDER)}&must=${encodeURIComponent(card.name)}`, class: "chip" }, "Quelldecks mit dieser Karte im Deck-Browser öffnen →")),
-    card.universe ? h("p", { class: "note" }, `Im Universum ${state.universe}: ${card.universe.filter_card ? "Filterkarte des Universums (steht per Definition in jedem Deck der Teilmenge, ohne Zählung und ohne Stufe)" : card.universe.matched ? `${StudioUI.num(card.universe.hits, 0)}/${StudioUI.num(card.universe.denominator, 0)} Decks, Stufe ${card.universe.level} (Verbreitung gezählt, keine Stärke)` : "unbekannt (kein Deck des Universums nennt diese Karte unter einem bekannten Namen)"}`) : null,
+    card.universe && activeScope() ? h("p", { class: "note" }, `Im ${activeScope().label}: ${card.universe.filter_card ? "Filterkarte des Universums (steht per Definition in jedem Deck der Teilmenge, ohne Zählung und ohne Stufe)" : card.universe.matched ? `${StudioUI.num(card.universe.hits, 0)}/${StudioUI.num(card.universe.denominator, 0)} Decks, Stufe ${card.universe.level} (Verbreitung gezählt, keine Stärke)` : "unbekannt (kein Deck des Universums nennt diese Karte unter einem bekannten Namen)"}`) : null,
     card.universe && state.universeInfo && state.universeInfo.subset_note ? h("p", { class: "note" }, state.universeInfo.subset_note) : null, strengthBox, layerBox, extra);
   box.append(left, right); $("modal").hidden = false;
   if (!state.commanderIds.includes(card.card_id) && !card.basic) renderSwapBox(swapBox, card, initialSwapMode);
@@ -2633,17 +2644,34 @@ function renderUniverseInfo() {
     return;
   }
   if (!u) { box.textContent = ""; return; }
+  if (u.gc_band) {
+    box.textContent = StudioGcBand.infoText(u);
+    return;
+  }
   const parts = [`Universum ${u.profile} (Version ${u.version}): ${StudioUI.num(u.denominator, 0)} Decks (Nenner), Stand ${u.snapshot_id}`];
   if (u.subset_note) parts.push(u.subset_note);
   if (u.excluded_no_date) parts.push(`${StudioUI.num(u.excluded_no_date, 0)} ohne Zeitstempel ausgeschlossen`);
   if (u.below_min_universe) parts.push(`unter dem Mindest-Universum ${StudioUI.num(u.min_universe, 0)}: alle Stufen U`);
   box.textContent = parts.join(" · ");
 }
+// Only the view fields of a StudioGcBand.select result go into state.
+const pickView = (next) => ({ universe: next.universe, gcBand: next.gcBand, cohort: next.cohort });
+function renderGcBandBar() {
+  const disabled = Boolean(state.universe);
+  StudioGcBand.renderBar($("gc-band-bar"), state.gcBandData, state.gcBand, disabled, async (band) => {
+    const next = StudioGcBand.select(state, "gc_band", band);
+    Object.assign(state, pickView(next));
+    if ($("cohort")) $("cohort").value = state.cohort;
+    if (next.clearSubset && (state.subset || state.subsetNames.length)) { subsetTicket++; state.subset = null; state.subsetNames = []; state.subsetWanted = null; }
+    try { await loadPool(); renderAll(); } catch (error) { fail(error); }
+  });
+}
 function renderBracketBar() {
   const bar = $("bracket-bar");
   if (!bar) return;
   const disabled = Boolean(state.universe) || (Boolean(state.countedUniverse) && !(state.cohorts.all || 0));
   const b5Key = state.cohorts["bracket:5"] !== undefined ? "bracket:5" : (state.cohorts.cedh !== undefined ? "cedh" : "bracket:5");
+  const originTip = StudioGcBand.bracketOriginText(state.gcBandData);
   const items = [
     ["all", "Alle"],
     ["bracket:1", "B1"],
@@ -2654,19 +2682,24 @@ function renderBracketBar() {
     ["tuned", "B4+5 (Tuned)"],
   ];
   bar.replaceChildren(
-    h("span", { class: "muted" }, "Bracket:"),
+    h("span", { class: "muted", title: originTip || "Erklärte Brackets (Selbstauskunft der Quelldecks)" }, "Bracket:"),
     ...items.map(([key, label]) => {
       const count = state.cohorts[key] ?? 0;
       const isLow = count > 0 && count < state.small;
-      const active = !disabled && state.cohort === key;
+      const active = !disabled && !state.gcBand && state.cohort === key;
       return h("button", {
         type: "button",
         class: "chip" + (active ? " on" : "") + (isLow ? " low" : ""),
         disabled: disabled || (key !== "all" && count === 0),
-        title: isLow ? `Kleine Stichprobe (${StudioUI.num(count, 0)} Decks < ${StudioUI.num(state.small, 0)})` : `${cohortName(key)}: ${StudioUI.num(count, 0)} Decks`,
-        onclick: () => {
-          state.cohort = key;
-          if ($("cohort")) $("cohort").value = key;
+        title: (isLow ? `Kleine Stichprobe (${StudioUI.num(count, 0)} Decks < ${StudioUI.num(state.small, 0)})` : `${cohortName(key)}: ${StudioUI.num(count, 0)} Decks`) + (originTip ? ` · ${originTip}` : ""),
+        onclick: async () => {
+          const hadBand = Boolean(state.gcBand);
+          Object.assign(state, pickView(StudioGcBand.select(state, "cohort", key)));
+          if ($("cohort")) $("cohort").value = state.cohort;
+          if (hadBand) {
+            try { await loadPool(); renderAll(); } catch (error) { fail(error); }
+            return;
+          }
           renderBracketBar(); renderUniverseInfo(); renderPool(); renderDeck();
         },
       }, `${label} (${StudioUI.num(count, 0)})`);
@@ -2678,9 +2711,10 @@ function applyPool(pool) {
   state.roles = (pool.roles || []).sort((x, y) => roleName(x).localeCompare(roleName(y)));
   state.cohorts = pool.cohorts; state.small = pool.small_denominator; state.commanderIds = pool.commander_ids;
   state.universeInfo = pool.universe || null;
+  state.germanNames = pool.german_names_available !== false;
   state.countedUniverse = pool.counted_universe || null;
   state.simReadiness = pool.sim_readiness || null;
-  renderUniverseInfo(); renderBracketBar(); renderSimReadiness(); renderLabelFilter();
+  renderUniverseInfo(); renderBracketBar(); renderGcBandBar(); renderSimReadiness(); renderLabelFilter();
 }
 // Archetype labels are the Owner's own words for ordering cards and decks: a filter and a
 // display, never a rating.
@@ -2776,6 +2810,8 @@ function openImportDecklistModal() {
       const missing = parsed.not_in_collection || [];
       const illegal = parsed.outside_color_identity || [];
       const badLines = parsed.unrecognized_lines || [];
+      const unclear = parsed.ambiguous || [];
+      const noGerman = parsed.german_names_available === false;
       const applyImport = () => {
         useCards(cards);
         changed();
@@ -2793,6 +2829,10 @@ function openImportDecklistModal() {
         missing.length ? h("div", {},
           h("h3", {}, `Nicht in deiner Sammlung (${StudioUI.num(missing.length, 0)})`),
           h("ul", {}, missing.map((m) => h("li", {}, `${StudioUI.num(m.quantity, 0)}x ${m.name} — nicht in deiner Sammlung`)))) : null,
+        noGerman ? h("p", { class: "muted" }, "Deutsche Namen nicht verfügbar: nur englische Namen werden erkannt.") : null,
+        unclear.length ? h("div", {},
+          h("h3", {}, `Mehrdeutige Namen, nicht übernommen (${StudioUI.num(unclear.length, 0)})`),
+          h("ul", {}, unclear.map((m) => h("li", {}, `Zeile ${StudioUI.num(m.line, 0)}: ${StudioUI.num(m.quantity, 0)}x ${m.name} — bezeichnet mehrere Karten: ${m.candidates.map((c) => c.name).join(" / ")}`)))) : null,
         badLines.length ? h("div", {},
           h("h3", {}, `Nicht erkannte Zeilen (${StudioUI.num(badLines.length, 0)})`),
           h("ul", {}, badLines.slice(0, 15).map((b) => h("li", {}, `Zeile ${StudioUI.num(b.line, 0)}: ${b.raw} (${b.reason})`)))) : null
@@ -2813,11 +2853,12 @@ function strengthQuery() {
   } catch (error) { return ""; }
 }
 async function loadPool() {
-  const query = StudioCommander.query + strengthQuery() + (state.universe ? `&profile=${encodeURIComponent(state.universe)}` : "");
+  const query = StudioCommander.query + strengthQuery() + StudioGcBand.scopeQuery(state);
   applyPool(await api("/api/pool?" + query));
   try { localStorage.setItem("studio.universe.profile", state.universe); } catch (error) { /* view setting only */ }
-  if ($("cohort")) $("cohort").disabled = Boolean(state.universe) || (Boolean(state.countedUniverse) && !(state.cohorts.all || 0));
+  if ($("cohort")) $("cohort").disabled = Boolean(state.universe) || Boolean(state.gcBand) || (Boolean(state.countedUniverse) && !(state.cohorts.all || 0));
   renderBracketBar();
+  renderGcBandBar();
 }
 
 // ---------- decks, variants, saving ----------
@@ -3026,17 +3067,22 @@ function setupControls() {
   $("cohort").replaceChildren(...visibleCohortEntries(state.cohorts).map(([key, size]) => h("option", { value: key }, `${cohortName(key)} (${StudioUI.num(size, 0)})`)));
   $("universe").replaceChildren(h("option", { value: "" }, "kein Universum"), ...(state.universeProfiles || []).map((p) => h("option", { value: p.name, selected: p.name === state.universe }, p.name)));
   $("universe").addEventListener("change", async () => {
-    state.universe = $("universe").value;
+    Object.assign(state, pickView(StudioGcBand.select(state, "universe", $("universe").value)));
     try { await loadPool(); if (state.subsetNames.length) await applySubset(state.subsetNames); else renderAll(); } catch (error) { fail(error); }
   });
-  $("cohort").disabled = Boolean(state.universe) || (Boolean(state.countedUniverse) && !(state.cohorts.all || 0));
+  $("cohort").disabled = Boolean(state.universe) || Boolean(state.gcBand) || (Boolean(state.countedUniverse) && !(state.cohorts.all || 0));
   renderBracketBar();
+  renderGcBandBar();
   const sorts = [["freq:-1", "Häufigkeit in Quelldecks"], ["name:1", "Name"], ["mana_value:1", "Manawert"], ["edhrec:-1", "EDHREC-Anteil"], ["synergy:-1", "Synergie"], ["strength:-1", "Stärke-Index"], ["edhrec_rank:1", "EDHREC-Rang"], ["available:-1", "freie Kopien"]];
   $("sort").replaceChildren(...sorts.map(([value, label]) => h("option", { value }, label)), h("option", { value: "" }, "Spaltenkopf"));
   const savedSort = StudioUI.recall("studio.builder.sort", "");
   if (savedSort && sorts.some((item) => item[0] === savedSort)) { const [key, dir] = savedSort.split(":"); state.sortKey = key; state.sortDir = Number(dir); $("sort").value = savedSort; if (key === "strength") loadStrength(); }
   $("sort").addEventListener("change", () => { if (!$("sort").value) return; const [key, dir] = $("sort").value.split(":"); state.sortKey = key; state.sortDir = Number(dir); StudioUI.remember("studio.builder.sort", $("sort").value); if (key === "strength") loadStrength(); renderPool(); });
-  $("cohort").addEventListener("change", () => { state.cohort = $("cohort").value; renderBracketBar(); renderUniverseInfo(); renderPool(); renderDeck(); });
+  $("cohort").addEventListener("change", () => {
+    const hadBand = Boolean(state.gcBand);
+    Object.assign(state, pickView(StudioGcBand.select(state, "cohort", $("cohort").value)));
+    if (hadBand) { loadPool().then(renderAll).catch(fail); return; }
+    renderBracketBar(); renderUniverseInfo(); renderPool(); renderDeck(); });
   for (const id of ["q", "type-filter", "role-filter", "label-filter", "mv-min", "mv-max", "f-free", "f-notin", "f-fav", "f-excl", "f-sim"]) if ($(id)) $(id).addEventListener("input", () => { state.shown = 120; renderPool(); });
   if (typeof StudioSearch !== "undefined" && StudioSearch.attachSyntaxHelper && $("q")) {
     StudioSearch.attachSyntaxHelper($("q"), () => { state.shown = 120; renderPool(); });
@@ -3144,10 +3190,11 @@ async function start() {
       state.universe = "";
       return api("/api/pool?" + StudioCommander.query);
     });
-    const otherRequests = Promise.all([api("/api/cohorts?" + StudioCommander.query), api("/api/simulations?" + StudioCommander.query), api("/api/games").catch(() => []), api("/api/simulations/paired").catch(() => [])]);
+    const otherRequests = Promise.all([api("/api/cohorts?" + StudioCommander.query), api("/api/simulations?" + StudioCommander.query), api("/api/games").catch(() => []), api("/api/simulations/paired").catch(() => []), api("/api/universe/gc-bands?" + StudioCommander.query).catch(() => null)]);
     otherRequests.catch(() => {}); // awaited after the pool: the pool's own error is shown first
     const pool = await poolRequest;
-    const [shapes, sims, recordedGames, pairedList] = await otherRequests;
+    const [shapes, sims, recordedGames, pairedList, gcBandData] = await otherRequests;
+    state.gcBandData = gcBandData;
     applyPool(pool);
     state.shapes = shapes; state.simulations = sims || []; state.recordedGames = recordedGames || [];
     state.pairedHistory = pairedList || [];

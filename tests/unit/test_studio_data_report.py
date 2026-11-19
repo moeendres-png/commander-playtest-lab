@@ -367,6 +367,21 @@ def test_source_status_shows_each_non_deck_source_with_a_date_or_unknown(
         "SELECT COUNT(DISTINCT source_id) FROM corpus_deck"
     ).fetchone()[0]
     assert status["deck_file_sources"]["total"] == deck_sources > 0  # type: ignore[index]
+    # deck-file sources are a group of their own: none of them is a detail row, the rest is
+    deck_titles = {
+        str(r[0])
+        for r in studio.connection.execute(
+            "SELECT title FROM source WHERE source_id IN (SELECT source_id FROM corpus_deck)"
+        )
+    }
+    assert not deck_titles & {str(i["title"]) for i in status["details"]}  # type: ignore[attr-defined]
+    all_sources = studio.connection.execute("SELECT COUNT(*) FROM source").fetchone()[0]
+    assert len(status["details"]) + deck_sources == all_sources  # type: ignore[arg-type]
+    # their stored date is the author's save date: never reported as a retrieval date
+    decks = status["deck_file_sources"]
+    assert decks["retrieval_date"] == "unbekannt"  # type: ignore[index]
+    assert "author's save date" in str(decks["note"])  # type: ignore[index]
+    assert "date_known" not in decks  # type: ignore[operator]
     assert "nicht im Store erfasst" in str(status["licence_and_access"])
     assert "url" not in json.dumps(status).lower().replace("address_stored", "")
 
@@ -557,8 +572,11 @@ def test_source_status_date_validation_covers_deck_files_and_future_dates(
     assert shown["timestamp.csv"] == "2026-11-01T10:00:00Z"
     assert shown["future.csv"] == shown["impossible.csv"] == "unbekannt"
     decks = status["deck_file_sources"]
-    assert decks["date_unknown"] >= 1  # type: ignore[index]
-    assert decks["date_known"] + decks["date_unknown"] == decks["total"]  # type: ignore[index,operator]
+    assert decks["author_save_date_unknown"] >= 1  # type: ignore[index]
+    assert (
+        decks["author_save_date_known"] + decks["author_save_date_unknown"] == decks["total"]  # type: ignore[index,operator]
+    )
+    assert decks["retrieval_date"] == "unbekannt"  # type: ignore[index]
 
 
 def test_importers_write_snapshot_date_only_for_a_stated_retrieval_date(tmp_path: Path) -> None:
@@ -619,3 +637,106 @@ def test_gap_matrix_counts_a_filter_card_as_unknown_not_as_in_no_deck(
     assert narrowed["classes_sum"] == len(ids)
     assert narrowed["classes"]["unknown"] >= 1  # type: ignore[index]
     assert narrowed["classes"]["unknown"] > plain["classes"]["unknown"]  # type: ignore[index]
+
+
+def test_data_report_includes_exact_gc_band_crosstab_and_declared_bracket_origins(
+    studio: StudioStore,
+) -> None:
+    db = studio.connection
+    # Stamp a Scryfall snapshot date and mark 4 cards as Game Changers.
+    db.execute(
+        "UPDATE source SET snapshot_date = '2026-11-16' "
+        "WHERE source_id IN (SELECT DISTINCT source_id FROM scryfall_card)"
+    )
+    # A complete list: every card is marked (0 or 1), so no deck is unknown for NULLs.
+    db.execute("UPDATE scryfall_card SET game_changer = 0")
+    db.execute(
+        "UPDATE scryfall_card SET game_changer = 1 "
+        "WHERE name IN ('Filler 01', 'Filler 02', 'Filler 03', 'Filler 04')"
+    )
+    # Attach explicit bracket cohorts to two of the deduplicated corpus decks.
+    deck_ids = [
+        str(row[0])
+        for row in db.execute(
+            "SELECT deck_id FROM corpus_deck WHERE duplicate_of IS NULL ORDER BY deck_id"
+        )
+    ]
+    assert len(deck_ids) == 3
+    db.execute("DELETE FROM corpus_cohort WHERE cohort LIKE 'bracket:%'")
+    db.execute("INSERT INTO corpus_cohort(cohort, deck_id) VALUES ('bracket:2', ?)", (deck_ids[0],))
+    db.execute("INSERT INTO corpus_cohort(cohort, deck_id) VALUES ('bracket:4', ?)", (deck_ids[1],))
+    # Give deck_ids[1] two Game Changers and deck_ids[2] (no bracket) four Game Changers.
+    db.executemany(
+        "INSERT OR REPLACE INTO corpus_deck_card"
+        "(deck_id, card_name, oracle_id, quantity, section, normalization_status) "
+        "VALUES (?, ?, NULL, 1, 'mainboard', 'UNRESOLVED')",
+        [
+            (deck_ids[1], "Filler 01"),
+            (deck_ids[1], "Filler 02"),
+            (deck_ids[2], "Filler 01"),
+            (deck_ids[2], "Filler 02"),
+            (deck_ids[2], "Filler 03"),
+            (deck_ids[2], "Filler 04"),
+        ],
+    )
+    db.commit()
+
+    report = data_report(studio, today=TODAY)
+    ct = _section(report, "gc_band_crosstab")
+    assert ct["total_decks"] == 3
+    assert ct["list_date"] == "2026-11-16"
+    assert ct["provenance"] == (
+        "regelabgeleitet aus Deckliste und Game-Changer-Liste (Markierung vom 2026-11-16)"
+    )
+    assert ct["marking_status"] == "complete"
+    assert "kein Bracket" in str(ct["disclaimer"])
+    rows = ct["rows"]
+    assert isinstance(rows, dict)
+    every_row = ("gc_band:0", "gc_band:1-3", "gc_band:4+", "gc_band:unknown")
+    assert sum(int(rows[band]["total"]) for band in every_row) == 3
+    assert rows["gc_band:0"]["total"] == 1
+    assert rows["gc_band:0"]["by_bracket"]["bracket:2"] == 1
+    assert rows["gc_band:1-3"]["total"] == 1
+    assert rows["gc_band:1-3"]["by_bracket"]["bracket:4"] == 1
+    # deck_ids[2] holds four Game Changers but also the fixture's "Unknown Card", which no
+    # scryfall row resolves: its band is unknown (counted as unresolved), never silently 4+.
+    assert rows["gc_band:4+"]["total"] == 0
+    assert rows["gc_band:unknown"]["total"] == 1
+    assert rows["gc_band:unknown"]["by_bracket"]["ohne_bracket"] == 1
+    assert rows["gc_band:unknown"]["decks_with_unresolved"] == 1
+    assert rows["gc_band:unknown"]["unresolved_cards"] == 1
+    assert ct["decks_with_unresolved"] == 1 and ct["unresolved_cards"] == 1
+    origins = ct["declared_bracket_origins"]
+    assert isinstance(origins, dict) and origins
+    assert sum(int(item["decks_total"]) for item in origins.values()) == 3
+    assert sum(int(item["decks_with_bracket"]) for item in origins.values()) == 2
+    assert sum(int(item["decks_without_bracket"]) for item in origins.values()) == 1
+    # Strictly counts only: no card names or URLs leak into the report.
+    text = json.dumps(report)
+    for forbidden in ("Filler 00", "Filler 01", "http"):
+        assert forbidden not in text
+
+    # NULL markings (an older cache): every deck is unknown in the report, never gc_band:0.
+    db.execute("UPDATE scryfall_card SET game_changer = NULL")
+    db.commit()
+    unknown = _section(data_report(studio, today=TODAY), "gc_band_crosstab")
+    assert unknown["marking_status"] == "missing"
+    assert unknown["rows"]["gc_band:unknown"]["total"] == 3  # type: ignore[index]
+    assert unknown["rows"]["gc_band:0"]["total"] == 0  # type: ignore[index]
+    assert "keine Game-Changer-Markierung" in str(unknown["provenance"])
+
+
+def test_gap_matrix_counts_pool_cards_the_spread_does_not_return_as_unknown(
+    studio: StudioStore,
+) -> None:
+    from commander_lab.studio import builder, universe_choice
+    from commander_lab.studio.gap_matrix import _matrix
+    from tests.unit.test_studio_strength import COMMANDER
+
+    cards = builder.pool_cards(studio, [COMMANDER], with_signals=False)["cards"]
+    ids = [str(card["card_id"]) for card in cards]  # type: ignore[index]
+    base = universe_choice.local_spec(studio, COMMANDER)
+    full = _matrix(studio, base, ids, COMMANDER, len(ids))
+    short = _matrix(studio, base, ids[:-2], COMMANDER, len(ids))  # two pool cards not returned
+    assert short["classes_sum"] == len(ids) == short["pool"]
+    assert short["classes"]["unknown"] == full["classes"]["unknown"] + 2  # type: ignore[index]

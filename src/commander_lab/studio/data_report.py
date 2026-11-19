@@ -26,7 +26,7 @@ import sqlite3
 from datetime import UTC, date, datetime
 from typing import cast
 
-from . import builder, signals, strength_view, universe
+from . import builder, gc_band, signals, strength_view, universe
 from .corpus_audit import corpus_audit
 from .roles import ORIGIN_CROSSWALK, ORIGIN_TAGGER, ROLES
 from .store import StudioStore
@@ -171,7 +171,9 @@ SNAPSHOT_DATE_ORIGIN = (
     "cell 'Abruf <Datum>'; a README count, build or filter date, the generation date of a "
     "deck-list file and the import day are never taken; a value stored by an earlier import is "
     "not re-checked (a source keeps its date until a new store or a changed file); a missing "
-    "date stays unbekannt"
+    "date stays unbekannt. Deck-file sources are different: their date is the author's own "
+    "save date (savedate / updated_at), not a retrieval date; it is shown as its own "
+    "figure and their retrieval date is unbekannt"
 )
 
 
@@ -221,7 +223,8 @@ def _source_status(db: sqlite3.Connection, today: date) -> dict[str, object]:
     row points at has a counted 0 (for example a part file registered next to its combined
     source), which is a count, not a missing value.
     The date is ``source.snapshot_date`` (see ``snapshot_date_origin``); it counts as known only
-    when it is a valid calendar date that is not in the future.
+    when it is a valid calendar date that is not in the future. The deck-file group reports the
+    authors' save dates under their own name; their retrieval date is ``unbekannt``.
     Licence and access terms have no column in the store and are therefore listed as not
     recorded, never as free or open."""
     rows_of: dict[str, int] = {}
@@ -254,6 +257,9 @@ def _source_status(db: sqlite3.Connection, today: date) -> dict[str, object]:
         )
     total = len(entries)
     unknown = sorted(str(e["title"]) for e in entries if e["snapshot_date"] == UNKNOWN)
+    # The date of a deck-file source is the author's own save date (``savedate`` / ``updated_at``
+    # of the deck, see decklist_import); no retrieval date is stored for them, so that stays
+    # unknown and is never derived from it.
     deck_dates = [
         _valid_retrieval_age(str(r[0]) if r[0] else None, today) is not None
         for r in db.execute(
@@ -275,8 +281,13 @@ def _source_status(db: sqlite3.Connection, today: date) -> dict[str, object]:
         "address_stored": _share(sum(1 for e in entries if e["address_stored"]), total),
         "deck_file_sources": {
             "total": deck_total,
-            "date_unknown": deck_total - deck_known,
-            "date_known": deck_known,
+            "retrieval_date": UNKNOWN,
+            "author_save_date_known": deck_known,
+            "author_save_date_unknown": deck_total - deck_known,
+            "note": (
+                "the stored date of a deck file is the author's save date, not a retrieval date; "
+                "the retrieval date of the deck files is not stored"
+            ),
         },
         "licence_and_access": "nicht im Store erfasst (keine Spalte); weder frei noch offen belegt",
         "imported_at_note": (
@@ -529,6 +540,7 @@ def _universes(store: StudioStore) -> dict[str, object]:
                 "spec_dimensions": {
                     "platforms": _selected(spec, "platforms"),
                     "cohorts": _selected(spec, "cohorts"),
+                    "gc_band": _selected(spec, "gc_band"),
                     "commanders": _selected(spec, "commanders"),
                     "must_contain_cards": _selected(spec, "must_contain"),
                     "date_filter": bool(spec.get("date_from") or spec.get("date_to")),
@@ -644,6 +656,7 @@ def data_report(
         "rulings": _rulings(db),
         "corpus": _corpus(db),
         "corpus_audit": corpus_audit(db, today=moment),
+        "gc_band_crosstab": gc_band.gc_band_crosstab(store, commander=commander),
         "observations": _observations(db),
         "universes": _universes(store),
         "commanders": _commanders(store),

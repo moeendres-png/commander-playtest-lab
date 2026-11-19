@@ -46,6 +46,7 @@ from . import (
     deck_series,
     engine_check,
     games,
+    gc_band,
     import_all,
     labels,
     land_advisor,
@@ -369,6 +370,7 @@ class UniverseBody(BaseModel):
     model_config = ConfigDict(extra="forbid")
     platforms: list[str] | None = Field(default=None, max_length=50)
     cohorts: list[str] | None = Field(default=None, max_length=100)
+    gc_band: list[str] | None = Field(default=None, max_length=3)
     commanders: list[str] | None = Field(default=None, max_length=10)
     date_from: str | None = Field(default=None, max_length=10)
     date_to: str | None = Field(default=None, max_length=10)
@@ -641,6 +643,7 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
     def pool(
         commander: list[str] = Query(min_length=1, max_length=2),
         profile: str | None = Query(default=None, max_length=80),
+        gc_band_key: str | None = Query(default=None, alias="gc_band", max_length=20),
         strength_universe: str | None = Query(default=None, max_length=120),
         strength_bracket: str | None = Query(default=None, max_length=20),
     ) -> Response:
@@ -664,13 +667,15 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
                     )
                 except ValueError:
                     settings = None  # a stale remembered value must not block the builder
-            return builder.pool_cards(store, commander, profile=profile, strength=settings)
+            return builder.pool_cards(
+                store, commander, profile=profile, gc_band=gc_band_key, strength=settings
+            )
 
         try:
             return answer_cache.json_answer(
                 store,
                 "pool",
-                (tuple(commander), profile, strength_universe, strength_bracket),
+                (tuple(commander), profile, gc_band_key, strength_universe, strength_bracket),
                 compute,
             )
         except ValueError as error:
@@ -917,6 +922,18 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         store = open_store()
         try:
             return dict(universe.options(store, commander_names=commander))
+        finally:
+            store.close()
+
+    @app.get("/api/universe/gc-bands")
+    def universe_gc_bands(
+        commander: list[str] = Query(min_length=1, max_length=2),
+    ) -> dict[str, object]:
+        """Rule-derived Game-Changer-Band counts, provenance, disclaimer and declared bracket
+        origins for this commander (or pair), alongside — never mixed with — declared brackets."""
+        store = open_store()
+        try:
+            return dict(gc_band.gc_band_crosstab(store, commander=commander))
         finally:
             store.close()
 

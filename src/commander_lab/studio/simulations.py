@@ -836,6 +836,9 @@ class BatchSimulation:
         self.run_id: str | None = None
 
         self._cancel_requested = False
+        #: Log ids of games the engine has played to their end (a progress signal that comes
+        #: before the result: the log is closed after the engine process ends).
+        self._played: set[str] = set()
         self._processes: set[subprocess.Popen[str]] = set()
         self._summary: dict[str, object] | None = (
             aggregate_batch_results(self._games) if not remaining_seeds else None
@@ -873,6 +876,24 @@ class BatchSimulation:
         with self._lock:
             return self._cancel_requested
 
+    def mark_played(self, game_id: str) -> None:
+        """Count a game of this series as played by the engine; any other id is ignored."""
+        if game_id not in {self.game_id_of(seed) for seed in self.seeds}:
+            return
+        with self._lock:
+            self._played.add(game_id)
+
+    def _games_played(self) -> int:
+        """Games the engine played and that did not end as a failed row; caller holds the lock.
+
+        A game announced as played can still end as a failed row (cancelled while its log was
+        open, a failure after the drive): it is not counted as played, so played plus failed
+        counts every game once.
+        """
+        finished = {g.game_id for g in self._games if g.status == "finished"}
+        failed_only = {g.game_id for g in self._games if g.status != "finished"} - finished
+        return len((self._played | finished) - failed_only)
+
     def _games_in_seed_order(self) -> list[GameSummary]:
         order = {self.game_id_of(seed): index for index, seed in enumerate(self.seeds)}
         return sorted(self._games, key=lambda game: order.get(game.game_id, len(order)))
@@ -898,6 +919,7 @@ class BatchSimulation:
                 "games_planned": len(self.seeds),
                 "games_completed": sum(1 for g in games if g.status == "finished"),
                 "games_failed": sum(1 for g in games if g.status != "finished"),
+                "games_played": self._games_played(),
                 "current_index": self.current_index,
                 "current_game_id": self.current_game_id,
                 "started_at": self.started_at,
@@ -1266,6 +1288,11 @@ class BatchSimulation:
             try:
                 if proc.stdout is not None:
                     for line in proc.stdout:
+                        played_id = _played_game(line)
+                        if played_id is not None:
+                            if played_id in expected:
+                                self.mark_played(played_id)
+                            continue
                         game_id = _reported_game(line)
                         if game_id in expected and game_id not in done:
                             done.add(game_id)
@@ -1308,13 +1335,31 @@ class BatchSimulation:
 
 
 def _reported_game(line: str) -> str | None:
-    """The game id of a ``play-batch`` report line; other output lines are ignored."""
+    """The game id of a ``play-batch`` result line; other output lines are ignored.
+
+    A progress line (``_played_game``) names its game under another key and is not a result.
+    """
     try:
         raw = json.loads(line)
     except ValueError:
         return None
     if isinstance(raw, dict) and isinstance(raw.get("game_id"), str):
         return str(raw["game_id"])
+    return None
+
+
+def _played_game(line: str) -> str | None:
+    """The game id of a ``play-batch`` progress line (the engine played the game to its end)."""
+    try:
+        raw = json.loads(line)
+    except ValueError:
+        return None
+    if (
+        isinstance(raw, dict)
+        and raw.get("event") == "played"
+        and isinstance(raw.get("played_game_id"), str)
+    ):
+        return str(raw["played_game_id"])
     return None
 
 

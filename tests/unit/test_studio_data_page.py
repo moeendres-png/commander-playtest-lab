@@ -108,3 +108,84 @@ def test_daten_js_renders_counts_only_without_unsafe_html_or_pricing(tmp_path: P
     assert "total_decks" in conv and "total_known_decks" in conv and "total_converted_decks" in conv
     for key in ("total_decks", "total_known_decks", "total_converted_decks"):
         assert key in js
+
+
+def test_daten_js_renders_source_status_with_authors_save_date_apart_from_retrieval() -> None:
+    """#1545: run the real render function of daten.js against a report, not only grep its text."""
+    import json
+    import shutil
+    import subprocess
+
+    import pytest
+
+    node = shutil.which("node")
+    if node is None:
+        pytest.skip("node is not installed")
+    script = """
+const fs = require('fs');
+const src = fs.readFileSync('daten.js', 'utf8').replace(/^init\\(\\)[^\\n]*$/m, '');
+const flat = (n) => (n === null || n === undefined ? '' : typeof n !== 'object' ? String(n)
+  : Array.isArray(n) ? n.map(flat).join(' ') : [flat(n.children)].join(' '));
+globalThis.StudioUI = { h: (tag, props, ...kids) => ({ tag, children: kids }),
+  num: (v) => String(v), pct: (v) => String(v) };
+globalThis.StudioCommander = {};
+globalThis.document = { getElementById: () => null };
+const report = JSON.parse(process.argv[1]);
+const load = new Function(src + '; return sourceStatusNodes;');
+console.log(flat(load()(report)));
+"""
+    report = {
+        "source_status": {
+            "date_known": {"count": 1, "of": 2},
+            "date_unknown": 1,
+            "date_unknown_of_which_value_not_a_date": 0,
+            "date_unknown_titles": ["undated.csv"],
+            "snapshot_date_origin": "ORIGIN-TEXT",
+            "rows_in_store_origin": "ROWS-TEXT",
+            "address_stored": {"count": 0, "of": 2},
+            "deck_file_sources": {
+                "total": 7,
+                "retrieval_date": "unbekannt",
+                "author_save_date_known": 5,
+                "author_save_date_unknown": 2,
+            },
+            "licence_and_access": "LICENCE-TEXT",
+            "details": [
+                {
+                    "title": "dated.csv",
+                    "data_class": "X",
+                    "rows_in_store": 3,
+                    "snapshot_date": "2026-11-01",
+                    "age_days": 10,
+                    "address_stored": False,
+                },
+                {
+                    "title": "undated.csv",
+                    "data_class": "X",
+                    "rows_in_store": 0,
+                    "snapshot_date": "unbekannt",
+                    "age_days": "unbekannt",
+                    "address_stored": False,
+                },
+            ],
+        }
+    }
+    done = subprocess.run(
+        [node, "-e", script, json.dumps(report)],
+        capture_output=True,
+        text=True,
+        check=True,
+        cwd=STATIC,
+    )
+    out = done.stdout
+    for expected in (
+        "1 / 2",
+        "Speicherdatum des Autors (kein Abrufdatum) 5 / 7",
+        "Abrufdatum (als eine Gruppe) unbekannt (7 Dateien)",
+        "ORIGIN-TEXT",
+        "undated.csv",
+        "dated.csv",
+        "2026-11-01",
+        "10 Tage",
+    ):
+        assert expected in out, expected

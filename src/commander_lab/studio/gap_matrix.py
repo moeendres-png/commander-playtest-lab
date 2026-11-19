@@ -8,7 +8,8 @@ size. The whole local universe and each bracket cohort group are separate matric
 own denominator; they are never added together. The header carries the generation time, the pool
 size, the denominators and a fingerprint of the store state the figures were read from.
 
-Reads only; the store must be a copy or the Owner's own store, never written here.
+No row is written here. Opening a store can still migrate the schema of an older copy
+(``StudioStore.open``, which changes its schema digest), so run it on a copy.
 
 Not the same matrix as ``sources.calculate_pool_gap_matrix`` (``studio sources --gap-report``),
 and deliberately not merged with it:

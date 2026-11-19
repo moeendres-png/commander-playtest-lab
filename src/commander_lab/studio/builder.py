@@ -29,6 +29,7 @@ from commander_lab.models import RulesDeckInput
 
 from . import cache
 from .decks import RevisionCard, color_set, list_rows
+from .german_names import load_german_names
 from .store import BINDING_KINDS, StudioStore, now_utc
 
 if TYPE_CHECKING:
@@ -486,11 +487,21 @@ def playgroup_entry(pg: sqlite3.Row | None) -> dict[str, object] | None:
     }
 
 
+def _german_alias_names(oracle_id: object, oracle_name: str) -> list[str] | None:
+    """The German printed names of a card that differ from its Oracle name, or ``None``
+    when the print data holds no German name for it (unknown)."""
+    names = load_german_names().names_for(oracle_id)
+    if names is None:
+        return None
+    return [name for name in names if name.casefold() != oracle_name.casefold()]
+
+
 def pool_cards(
     store: StudioStore,
     commander_names: Sequence[str],
     *,
     profile: str | None = None,
+    gc_band: str | None = None,
     with_signals: bool = True,
     strength: StrengthSettings | None = None,
 ) -> dict[str, object]:
@@ -571,6 +582,9 @@ def pool_cards(
                 "card_id": card_id,
                 "oracle_id": row["oracle_id"],
                 "name": row["oracle_name"],
+                # German printed names (#1553), only those that differ from the Oracle name;
+                # None: the print data holds none for this card (unknown, not "has none").
+                "names_de": _german_alias_names(row["oracle_id"], str(row["oracle_name"])),
                 "mana_cost": row["mana_cost"] or "",
                 "mana_value": row["mana_value"],
                 "type_line": row["type_line"] or "",
@@ -609,6 +623,8 @@ def pool_cards(
         )
     result: dict[str, object] = {
         "commander_ids": commander_ids,
+        # False: the German name files could not be read (the search then knows English only).
+        "german_names_available": load_german_names().available,
         "identity": "".join(sorted(identity, key="WUBRG".index)),
         "cohorts": cohort_sizes(store, commander_names),
         "corpus_binding": corpus_binding(store, commander_names),
@@ -617,7 +633,9 @@ def pool_cards(
         "sim_readiness": _sim_readiness_summary(cards),
         "cards": cards,
     }
-    if profile is None and with_signals and len(commander_names) == 1:
+    if profile is not None and gc_band is not None:
+        raise ValueError("gc_band and universe profile cannot be combined")
+    if profile is None and gc_band is None and with_signals and len(commander_names) == 1:
         # The counted deck-list universe the tier list chooses automatically (the same server
         # function, ``universe_choice.choose``, through ``strength_view``), if it picks one.
         # Skipped for the light read (``with_signals=False``: ranking, import, which only need
@@ -642,12 +660,25 @@ def pool_cards(
                         "share": count.numerator / count.denominator,
                     }
             result["counted_universe"] = dict(choice)
-    if profile is not None:
+    if profile is not None or gc_band is not None:
         # Imported here, not at module level: sources.py imports this module, and
         # universe_view imports sources — a top-level import would close the circle.
+        from . import gc_band as gc_band_mod
         from . import universe_view
 
-        spread = universe_view.pool_spread(store, profile, commander_names=commander_names)
+        if gc_band is not None:
+            if gc_band not in gc_band_mod.GC_BANDS:
+                raise ValueError(
+                    f"unknown gc_band: {gc_band!r}; valid values: {list(gc_band_mod.GC_BANDS)}"
+                )
+            spread = universe_view.pool_spread_for_spec(
+                store,
+                {"gc_band": [gc_band]},
+                commander_names=commander_names,
+                label=gc_band,
+            )
+        else:
+            spread = universe_view.pool_spread(store, str(profile), commander_names=commander_names)
         by_card = {item["card_id"]: item for item in spread["cards"]}
         for card in cards:
             item = by_card.get(str(card["card_id"]))
@@ -662,12 +693,20 @@ def pool_cards(
                 "reason": item["reason"],
                 "filter_card": item["filter_card"],
             }
-        result["universe"] = {
+        universe_payload: dict[str, object] = {
             **spread["universe"],
             "params": spread["params"],
             "model_version": spread["model_version"],
             "meaning": spread["meaning"],
         }
+        if gc_band is not None:
+            meta = gc_band_mod.gc_band_metadata(store.connection)
+            universe_payload["gc_band"] = gc_band
+            universe_payload["gc_band_meta"] = meta
+            if meta["marking_status"] == gc_band_mod.MARKING_MISSING:
+                # No marked card in the store: no deck has a known band (unknown, never 0).
+                universe_payload["empty_reason"] = gc_band_mod.MARKING_MISSING_REASON
+        result["universe"] = universe_payload
     return result
 
 
