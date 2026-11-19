@@ -17,7 +17,7 @@ from collections.abc import Sequence
 from pathlib import Path
 from typing import TypedDict
 
-from .provenance import readme_retrieval_date
+from .provenance import readme_retrieval_date, readme_source_url, register_stated_source
 from .store import DataClass, StudioStore, sha256_file
 
 _REQUIRED = ("oracle_id", "published_at", "comment")
@@ -62,12 +62,13 @@ def import_rulings(store: StudioStore, paths: Sequence[str | Path]) -> dict[str,
     with store.connection as db:
         for file in files:
             digest = sha256_file(file)
-            source_id = store.register_source(
+            source_id = register_stated_source(
+                store,
                 data_class=DataClass.NORMALIZED_SOURCE,
                 title=file.name,
                 sha256=digest,
                 snapshot_date=readme_retrieval_date(file),
-                url="https://scryfall.com/docs/api/rulings",
+                url=readme_source_url(file) or "https://scryfall.com/docs/api/rulings",
             )
             current_ids.append(source_id)
             report: RulingFileReport = {

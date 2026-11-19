@@ -800,3 +800,79 @@ def test_mainboard_and_deck_card_count_metrics_use_real_main_and_commander_secti
         assert "corpus_deck_card" in str(not_100["provenance"])
     finally:
         store.close()
+
+
+def test_readme_source_url_is_read_only_when_the_row_names_exactly_one_address(
+    tmp_path: Path,
+) -> None:
+    from commander_lab.studio.provenance import README_NAME, readme_source_url
+
+    (tmp_path / README_NAME).write_text(
+        "| Datei | Inhalt | Quelle |\n|---|---|---|\n"
+        "| `one.csv` | x (https://not-the-source.example/x) | API, Abruf 2026-11-12. Data by A (https://a.example). |\n"
+        "| `two.csv` | x | https://a.example und https://b.example |\n"
+        "| `same.csv` | x | https://a.example, https://a.example |\n"
+        "| `none.csv` | x | Seite ohne Adresse, Abruf 2026-11-12 |\n",
+        encoding="utf-8",
+    )
+    # only the last cell counts; a full stop after the address is not part of it
+    assert readme_source_url(tmp_path / "one.csv") == "https://a.example"
+    assert readme_source_url(tmp_path / "two.csv") is None  # two addresses: unknown
+    assert readme_source_url(tmp_path / "same.csv") == "https://a.example"
+    assert readme_source_url(tmp_path / "none.csv") is None
+    assert readme_source_url(tmp_path / "unlisted.csv") is None
+    assert readme_source_url(tmp_path / "sub" / "one.csv") is None  # no README there
+
+
+def test_committed_readme_names_an_address_only_for_the_tournament_files() -> None:
+    from commander_lab.studio.provenance import readme_source_url
+
+    folder = Path(__file__).resolve().parents[2] / "data" / "research" / "deckbuilder_1655"
+    expected = {
+        "topdeck_chulane_decks.csv": "https://topdeck.gg",
+        "topdeck_commander_presence.csv": "https://topdeck.gg",
+        "commander_card_signals_2.csv": None,  # names a site, not an address
+        "card_rulings_1655.jsonl": None,
+    }
+    assert {name: readme_source_url(folder / name) for name in expected} == expected
+
+
+def test_a_stated_date_and_address_replace_what_an_older_rule_stored(tmp_path: Path) -> None:
+    from commander_lab.studio.provenance import README_NAME
+    from commander_lab.studio.signals import _register
+    from commander_lab.studio.store import sha256_file
+
+    store = StudioStore.open(tmp_path / "studio")
+    data = tmp_path / "data"
+    data.mkdir()
+    (data / README_NAME).write_text(
+        "| Datei | Inhalt | Quelle |\n|---|---|---|\n"
+        "| `stated.csv` | x | API, Abruf 2026-11-12 (https://a.example) |\n"
+        "| `silent.csv` | x | Seite ohne Datum |\n",
+        encoding="utf-8",
+    )
+    for name in ("stated.csv", "silent.csv"):
+        (data / name).write_text(f"card_name\n{name}\n", encoding="utf-8")
+    # a store imported before the rule: an id fragment and a tournament date, no address
+    for name, old in (("stated.csv", "20261115"), ("silent.csv", "2026-09-17")):
+        digest = sha256_file(data / name)
+        store.connection.execute(
+            "INSERT INTO source(source_id, data_class, title, sha256, snapshot_date, url, "
+            "imported_at) VALUES (?, 'NORMALIZED_SOURCE', ?, ?, ?, NULL, '2026-11-16')",
+            (f"src:{digest[:16]}", name, digest, old),
+        )
+    _register(store, [data / "stated.csv"])
+    _register(store, [data / "silent.csv"])
+    rows = {
+        title: (date, url)
+        for title, date, url in store.connection.execute(
+            "SELECT title, snapshot_date, url FROM source"
+        )
+    }
+    # the stated retrieval date and address replace the old values ...
+    assert rows["stated.csv"] == ("2026-11-12", "https://a.example")
+    # ... a file that states nothing keeps what is stored: nothing is estimated or erased
+    assert rows["silent.csv"] == ("2026-09-17", None)
+    # a second run changes nothing
+    _register(store, [data / "stated.csv"])
+    assert store.connection.execute("SELECT COUNT(*) FROM source").fetchone()[0] == 2
