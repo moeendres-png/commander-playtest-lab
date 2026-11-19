@@ -99,8 +99,16 @@ def main() -> int:
         default=None,
         help="optional path for pool/template shell snapshot JSON",
     )
-    parser.add_argument("--commander", default=spellbook_shells.CHULANE_NAME)
-    parser.add_argument("--identity", default="WUG")
+    parser.add_argument(
+        "--commander",
+        default=spellbook_shells.CHULANE_NAME,
+        help="commander name (default: Chulane, Teller of Tales)",
+    )
+    parser.add_argument(
+        "--identity",
+        default="WUG",
+        help="colour identity (default: WUG for Chulane; e.g. WUBRG for Tam, the Possibility)",
+    )
     parser.add_argument(
         "--user-agent",
         default=DEFAULT_USER_AGENT,
