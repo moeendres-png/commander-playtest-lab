@@ -126,3 +126,11 @@ geplant.
 Nach jedem Meilenstein committen und pushen (`AGENTS.md` §14). Am Ende ein Kommentar im Issue:
 Head-SHA, was getan ist, Tests mit Ergebnis, PASS/FAIL/UNKNOWN, was offen ist, nächster Schritt.
 Punkte, die eine echte Engine oder den Owner-PC brauchen, werden als solche ausgewiesen.
+
+Ergebnisse, die andere Agenten brauchen (Analyse-, Mess-, Recherche-, Entscheidungs- und
+Planberichte, Beweisauszüge, Briefings/Prompts), bleiben nicht im Scratchpad oder Chat (Owner,
+2026-11-19): Kurzfassung und Wortlaut der Owner-Entscheide mit Datum als Issue-/PR-Kommentar,
+der volle Bericht als Datei unter `docs/analysis-reports/` auf einem Branch oder per PR
+(Dateiname ohne Modellnamen; vorher auf persönliche Daten und Zugangsdaten prüfen; rohe
+Messdaten, Store-Kopien und Rohdaten Dritter bleiben außerhalb des Repos). Der Kommentar
+verlinkt die Datei. Ein Hand-off nur im Chat gilt als nicht übergeben (`AGENTS.md` §11).
