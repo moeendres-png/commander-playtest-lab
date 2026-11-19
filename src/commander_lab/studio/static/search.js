@@ -6,7 +6,8 @@
 // instead of returning a silent empty list.
 
 const StudioSearch = (() => {
-  const fold = (text) => String(text || "").toLowerCase();
+  // Case-insensitive and sharp-s tolerant ("strasse" finds "Straße"), composed form.
+  const fold = (text) => String(text || "").normalize("NFC").toLowerCase().replace(/ß/g, "ss");
 
   const FIELD_ALIASES = {
     t: "type",
@@ -405,7 +406,8 @@ const StudioSearch = (() => {
     const typeLine = fold(card.type_line);
     const group = fold(card.group);
     const text = fold(card.text !== undefined ? card.text : card.oracle_text);
-    const hay = `${name}\n${typeLine}\n${text}`;
+    const german = Array.isArray(card.names_de) ? card.names_de.map(fold) : [];
+    const hay = [name, typeLine, text, ...german].join("\n");
 
     let result = false;
     switch (clause.kind) {
@@ -413,7 +415,7 @@ const StudioSearch = (() => {
         result = hay.includes(clause.value);
         break;
       case "name":
-        result = name.includes(clause.value);
+        result = name.includes(clause.value) || german.some((item) => item.includes(clause.value));
         break;
       case "type":
         result = typeLine.includes(clause.value)
@@ -495,10 +497,7 @@ const StudioSearch = (() => {
 
   // 0 exact name, 1 name starts with the query, 2 a word of the name starts with it,
   // 3 the name contains it, 4 type line or oracle text contains it, null no match.
-  function baseRank(card, query) {
-    const q = fold(query).trim();
-    if (!q) return 0;
-    const name = fold(card.name);
+  function nameRank(name, q) {
     if (name === q) return 0;
     if (name.startsWith(q)) return 1;
     const nameWords = name.split(/[\s,'/-]+/).filter(Boolean);
@@ -511,6 +510,28 @@ const StudioSearch = (() => {
       if (at.some((tail) => tail.startsWith(q))) return 2;
     }
     if (name.includes(q)) return 3;
+    return null;
+  }
+
+  // The German printed names (card.names_de, #1553) rank like the Oracle name; the card
+  // is shown under its Oracle name either way.
+  function germanNameRank(card, q) {
+    if (!Array.isArray(card.names_de)) return null;
+    let best = null;
+    for (const german of card.names_de) {
+      const r = nameRank(fold(german), q);
+      if (r !== null && (best === null || r < best)) best = r;
+    }
+    return best;
+  }
+
+  function baseRank(card, query) {
+    const q = fold(query).trim();
+    if (!q) return 0;
+    const name = fold(card.name);
+    const byName = nameRank(name, q);
+    const byGerman = germanNameRank(card, q);
+    if (byName !== null || byGerman !== null) return Math.min(byName ?? 99, byGerman ?? 99);
     const text = fold(card.text !== undefined ? card.text : card.oracle_text);
     const hay = `${name}\n${fold(card.type_line)}\n${text}`;
     if (hay.includes(q)) return 4;
