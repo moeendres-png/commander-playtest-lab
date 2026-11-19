@@ -1,5 +1,11 @@
 # Owner decision 2026-10-15: batch runs may play several games per JVM
 
+> **Geltungsbereich (Stand 2026-11-19):** `run_batch` und Konformanz-Evidenz. Für Studio-Serien
+> siehe E-1a (Owner, 2026-11-19, #1612; `docs/OWNER_DECISIONS_STUDIO_20261118.md` E9): dort ruht
+> das Ergebnis auf dem bestätigten `shutdown_game` je Partie in einem eigenen Ergebnistyp. Der
+> Satz „Every result still rests on the graceful shutdown of the process that played it“ unten
+> bleibt unverändert stehen und gilt nur in diesem Geltungsbereich.
+
 **Decided by:** Owner (project chat, 2026-10-15), accepting the Coordinator's recommendation.
 **Owner's words:** "setze deine recommendation um". In English: implement your recommendation.
 
