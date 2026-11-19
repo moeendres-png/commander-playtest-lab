@@ -42,6 +42,7 @@ const state = {
   activePaired: null, pairedPollTimer: null, pairedHistory: [], readinessAudit: null,
   view: "grid", tab: "list", shown: 120, sortKey: "freq", sortDir: -1, cohort: "all",
   subset: null, subsetNames: [], subsetWanted: null, strength: null, showTier: true, changeSeq: 0, savedSeq: 0, layers: null, diffDefault: null,
+  cardTrend: null, cardTrendDays: 180, cardTrendBracket: "", cardTrendReq: null,
   colors: new Set(), columns: new Set(["img", "name", "mana_cost", "type_line", "available", "freq", "edhrec"]),
 };
 
@@ -161,6 +162,7 @@ const sortValue = (card, key) => {
   if (key === "playgroup") return card.playgroup && card.playgroup.live_inclusion_pct !== null ? card.playgroup.live_inclusion_pct : null;
   if (key === "synergy") return card.signals && card.signals.synergy ? card.signals.synergy.value : null;
   if (key === "strength") { const item = state.strength && state.strength.map.get(card.card_id); return item && item.tier !== "U" && item.tier !== "N" ? item.index : null; }
+  if (key === "trend") return cardTrendSortValue(state.cardTrend, card.card_id);
   const value = card[key];
   return value === undefined ? null : value;
 };
@@ -263,7 +265,7 @@ function tile(card) {
 const COLUMNS = [
   ["img", "Bild", null], ["name", "Karte", "name"], ["mana_cost", "Kosten", "mana_value"], ["mana_value", "Manawert", "mana_value"],
   ["type_line", "Typ", "type_line"], ["text", "Text", null], ["pt", "S/W", null], ["available", "frei", "available"], ["owned", "Besitz", "owned"],
-  ["reserved", "reserviert", "reserved"], ["freq", "Quelldecks", "freq"], ["edhrec", "EDHREC", "edhrec"], ["edhrec_rank", "EDHREC-Rang", "edhrec_rank"], ["synergy", "Synergie", "synergy"], ["strength", "Stärke-Index", "strength"],
+  ["reserved", "reserviert", "reserved"], ["freq", "Quelldecks", "freq"], ["trend", "Trend (jung vs. alt)", "trend"], ["edhrec", "EDHREC", "edhrec"], ["edhrec_rank", "EDHREC-Rang", "edhrec_rank"], ["synergy", "Synergie", "synergy"], ["strength", "Stärke-Index", "strength"],
   ["playgroup", "Playgroup", "playgroup"],
   ["roles", "Rollen", null], ["labels", "Archetyp-Marken", null], ["produced_mana", "erzeugt Mana", null], ["sim_status", "Simulator", "sim_status"], ["note", "Notiz", null],
 ];
@@ -290,6 +292,7 @@ function cell(card, key) {
   if (key === "sim_status") return h("td", { title: card.sim_status || "" }, StudioUI.simStatusLabel(card.sim_status));
   if (key === "pt") return h("td", {}, card.power !== null ? `${card.power}/${card.toughness}` : "");
   if (key === "freq") { const f = displayFreq(card); return h("td", { class: "num" + (f.total && f.total < state.small ? " low" : "") }, displayFreqText(card)); }
+  if (key === "trend") return cardTrendCell(h, state.cardTrend, card.card_id);
   if (key === "edhrec") {
     const e = card.edhrec;
     if (!e || e.pct === null || e.pct === undefined) return h("td", { class: "num muted" }, "unbekannt");
@@ -367,8 +370,8 @@ function renderPool() {
   } else {
     const columns = COLUMNS.filter(([key]) => state.columns.has(key));
     const head = h("tr", {}, h("th", {}, ""), columns.map(([key, label, sortKey]) => h("th", {
-      class: ["available", "owned", "reserved", "freq", "edhrec", "edhrec_rank", "mana_value", "synergy", "strength"].includes(key) ? "num" : "",
-      onclick: sortKey ? () => { state.sortDir = state.sortKey === sortKey ? -state.sortDir : (["name", "type_line", "edhrec_rank", "mana_value"].includes(sortKey) ? 1 : -1); state.sortKey = sortKey; $("sort").value = ""; if (sortKey === "strength") loadStrength(); renderPool(); } : null,
+      class: ["available", "owned", "reserved", "freq", "trend", "edhrec", "edhrec_rank", "mana_value", "synergy", "strength"].includes(key) ? "num" : "",
+      onclick: sortKey ? () => { state.sortDir = state.sortKey === sortKey ? -state.sortDir : (["name", "type_line", "edhrec_rank", "mana_value"].includes(sortKey) ? 1 : -1); state.sortKey = sortKey; $("sort").value = ""; if (sortKey === "strength") loadStrength(); if (sortKey === "trend") loadCardTrend(); renderPool(); } : null,
     }, (key === "freq" && state.subset ? label + " (Teilmenge)" : key === "freq" && state.countedUniverse && !state.universe ? "Verbreitung (gezählt)" : label) + (state.sortKey === sortKey && sortKey ? (state.sortDir > 0 ? " ▲" : " ▼") : ""))));
     const lines = part.map((card) => {
       const count = qty(card.card_id);
@@ -2353,6 +2356,7 @@ async function openCard(card) {
     h("tbody", {}, visibleCohortEntries(state.cohorts).map(([key]) => { const f = freq(card, key); return h("tr", { class: f.total < state.small ? "low" : "" }, h("td", {}, cohortName(key)), h("td", { class: "num" }, f.hits === null ? "unbekannt" : StudioUI.num(f.hits, 0)), h("td", { class: "num" }, StudioUI.num(f.total, 0)), h("td", { class: "num" }, f.hits !== null && f.total ? StudioUI.pct(f.share, 1) : "unbekannt")); }))));
   const swapBox = h("div", { id: "swap-helper-box" });
   const duelBox = h("div", { id: "card-duel-box" });
+  const trendBox = h("div", { id: "card-trend-box" });
   const strengthBox = h("div", { id: "card-strength-box" });
   const extra = h("div", {}, h("p", { class: "muted" }, "Lädt EDHREC-Zeilen."));
   const layerBox = h("div", {});
@@ -2376,6 +2380,7 @@ async function openCard(card) {
     h("div", { class: "actions" }, labelInput, h("button", { type: "button", id: "card-labels-save", onclick: saveLabels }, "Marken speichern")),
     h("h3", {}, "Häufigkeit in den Quelldecks"), frequencies, h("p", { class: "note" }, "Gelb: Gruppe mit weniger als 30 Decks."),
     h("p", {}, h("a", { href: `decks.html?commander=${encodeURIComponent(COMMANDER)}&must=${encodeURIComponent(card.name)}`, class: "chip" }, "Quelldecks mit dieser Karte im Deck-Browser öffnen →")),
+    trendBox,
     card.universe ? h("p", { class: "note" }, `Im Universum ${state.universe}: ${card.universe.filter_card ? "Filterkarte des Universums (steht per Definition in jedem Deck der Teilmenge, ohne Zählung und ohne Stufe)" : card.universe.matched ? `${StudioUI.num(card.universe.hits, 0)}/${StudioUI.num(card.universe.denominator, 0)} Decks, Stufe ${card.universe.level} (Verbreitung gezählt, keine Stärke)` : "unbekannt (kein Deck des Universums nennt diese Karte unter einem bekannten Namen)"}`) : null,
     card.universe && state.universeInfo && state.universeInfo.subset_note ? h("p", { class: "note" }, state.universeInfo.subset_note) : null, strengthBox, layerBox, extra);
   box.append(left, right); $("modal").hidden = false;
@@ -2387,6 +2392,17 @@ async function openCard(card) {
     deckCardIds: () => [...state.commanderIds, ...state.list.keys()],
     cohort: () => state.cohort,
     cohortLabel: () => cohortName(state.cohort),
+  });
+  renderCardTrendBox(trendBox, card, {
+    h,
+    loadTrend: () => loadCardTrend(),
+    onSettingsChange: (days, bracket) => {
+      state.cardTrendDays = days;
+      state.cardTrendBracket = bracket;
+      state.cardTrend = null;
+      state.cardTrendReq = null;
+      loadCardTrend();
+    },
   });
   showStrengthBreakdown(strengthBox, card);
   showLayers(layerBox, card);
@@ -2602,6 +2618,23 @@ async function loadStrength() {
     finally { state.strengthLoading = false; state.strengthPromise = null; }
   })();
   return state.strengthPromise;
+}
+async function loadCardTrend() {
+  if (state.cardTrend) return state.cardTrend;
+  if (state.cardTrendReq) return state.cardTrendReq;
+  const query = `${StudioCommander.query}&recent_days=${encodeURIComponent(state.cardTrendDays)}`
+    + (state.cardTrendBracket ? `&bracket=${encodeURIComponent(state.cardTrendBracket)}` : "");
+  state.cardTrendReq = (async () => {
+    try {
+      const result = await api("/api/card-trend?" + query);
+      state.cardTrend = { ...result, map: new Map((result.cards || []).map((item) => [item.card_id, item])) };
+      renderPool();
+      return state.cardTrend;
+    } finally {
+      state.cardTrendReq = null;
+    }
+  })();
+  return state.cardTrendReq;
 }
 function renderSimReadiness() {
   const info = state.simReadiness, box = $("f-sim"), text = $("f-sim-text");
@@ -3093,6 +3126,7 @@ function setupControls() {
   $("column-menu").replaceChildren(...COLUMNS.map(([key, label]) => h("label", {}, h("input", { type: "checkbox", checked: state.columns.has(key), onchange: (event) => {
     if (event.target.checked) state.columns.add(key); else state.columns.delete(key);
     try { localStorage.setItem("studio-columns", JSON.stringify([...state.columns])); } catch (error) { /* view setting only */ }
+    if (key === "trend" && event.target.checked) loadCardTrend().catch(() => {});
     state.view = "table"; drawViews(); renderPool();
   } }), " " + label)));
   $("f-sim").addEventListener("change", () => {
@@ -3126,6 +3160,7 @@ async function start() {
     const stored = JSON.parse(localStorage.getItem("studio-columns") || "null");
     if (Array.isArray(stored)) state.columns = new Set(stored);
   } catch (error) { /* view setting only */ }
+  if (state.columns.has("trend")) loadCardTrend().catch(() => {});
   try {
     let remembered = "";
     try { remembered = localStorage.getItem("studio.universe.profile") || ""; } catch (error) { /* view setting only */ }

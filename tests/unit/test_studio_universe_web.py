@@ -887,3 +887,212 @@ def test_corpus_aggregation_sets_and_join_order_for_a_small_and_the_full_univers
             assert steps[1].startswith("SEARCH c USING PRIMARY KEY"), plan
     finally:
         store.close()
+
+
+def _dated_deck(
+    store: StudioStore,
+    deck_id: str,
+    deck_date: str,
+    bracket: int,
+    cards: list[str],
+    fingerprint: str | None = None,
+) -> None:
+    db = store.connection
+    db.execute(
+        "INSERT OR IGNORE INTO source(source_id, data_class, title, sha256, imported_at) "
+        "VALUES ('raw', 'DERIVED_DESCRIPTIVE', 'raw', 'x', '2026-01-01')"
+    )
+    db.execute(
+        "INSERT INTO corpus_deck(deck_id, cohort, url, platform, play_group, deck_date, tags, "
+        "fingerprint, duplicate_of, legality_audit, source_id) "
+        "VALUES (?, 'c', '', 'edhrec', 'g', ?, '[]', ?, NULL, 'not_audited', 'raw')",
+        (deck_id, deck_date, fingerprint if fingerprint is not None else f"fp-{deck_id}"),
+    )
+    db.executemany(
+        "INSERT INTO corpus_deck_card(deck_id, card_name, section, oracle_id, quantity, "
+        "normalization_status) VALUES (?, ?, 'main', NULL, 1, 'source_name')",
+        [(deck_id, name) for name in cards],
+    )
+    db.execute(
+        "INSERT INTO corpus_cohort(cohort, deck_id) VALUES (?, ?)", (f"bracket:{bracket}", deck_id)
+    )
+    db.execute(
+        "INSERT OR IGNORE INTO commander_binding(kind, key, commander_name, basis) "
+        "VALUES ('corpus_deck', ?, ?, 'TEST')",
+        (deck_id, COMMANDER["commander"]),
+    )
+
+
+def test_card_trend_known_difference_and_zero_vs_unknown(tmp_path: Path) -> None:
+    from commander_lab.studio import card_outcomes, card_trend
+
+    store = StudioStore.open(tmp_path / "studio")
+    try:
+        _fill(store, tmp_path)
+        # Unbind seed decks from _fill so denominators are controlled exactly.
+        store.connection.execute("DELETE FROM commander_binding WHERE kind = 'corpus_deck'")
+        for idx in range(40):
+            cards = ["Forest"]
+            if idx < 32:
+                cards.append("Filler 03")  # 32/40 = 80 % recent
+            if idx < 4:
+                cards.append("Filler 04")  # 4/40 = 10 % recent
+            _dated_deck(store, f"rec-{idx:02d}", "2026-10-01", 3 if idx < 25 else 4, cards)
+        # Exact duplicate of rec-00 must not be counted twice.
+        _dated_deck(
+            store, "rec-dup", "2026-10-01", 3, ["Forest", "Filler 03"], fingerprint="fp-rec-00"
+        )
+        # Undated deck must be excluded from both windows and reported.
+        _dated_deck(store, "undated-01", "", 3, ["Forest", "Filler 03"])
+        for idx in range(40):
+            cards = ["Forest"]
+            if idx < 8:
+                cards.append("Filler 03")  # 8/40 = 20 % older
+            if idx < 32:
+                cards.append("Filler 04")  # 32/40 = 80 % older
+            _dated_deck(store, f"old-{idx:02d}", "2025-10-01", 3 if idx < 25 else 4, cards)
+        store.connection.commit()
+
+        result = card_trend.card_trend(store, NAMES, recent_days=180, min_decks_per_window=30)
+        assert result["status"] == "ok"
+        assert result["data_as_of"] == "2026-10-01"
+        assert result["cutoff_date"] == "2026-04-04"
+        assert result["recent_total"] == 40
+        assert result["older_total"] == 40
+        assert result["excluded_no_date"] == 1
+        assert len(result["limitations"]) == 3
+        assert any("Erstelldatum" in text for text in result["limitations"])
+        assert any("Verbreitung ist nicht Stärke" in text for text in result["limitations"])
+
+        by_name = {row["name"]: row for row in result["cards"]}
+        rising = by_name["Filler 03"]
+        exp_diff, exp_low, exp_high = card_outcomes.newcombe_difference(
+            0.8,
+            card_outcomes.wilson_unrounded(32, 40),
+            0.2,
+            card_outcomes.wilson_unrounded(8, 40),
+        )
+        assert rising["status"] == "ok"
+        assert (rising["recent_hits"], rising["recent_total"]) == (32, 40)
+        assert (rising["older_hits"], rising["older_total"]) == (8, 40)
+        assert rising["diff"] == pytest.approx(exp_diff, abs=1e-5)
+        assert rising["ci_low"] == pytest.approx(exp_low, abs=1e-5)
+        assert rising["ci_high"] == pytest.approx(exp_high, abs=1e-5)
+        assert rising["excludes_zero"] is True
+        assert rising["direction"] == "rising"
+
+        falling = by_name["Filler 04"]
+        assert falling["diff"] == pytest.approx(-0.7, abs=1e-5)
+        assert falling["ci_high"] is not None and falling["ci_high"] < 0
+        assert falling["excludes_zero"] is True
+        assert falling["direction"] == "falling"
+
+        # Card with 0 of N (N > 0) stays 0 / N (0.0), never None / unknown.
+        zero_card = by_name["Filler 05"]
+        assert zero_card["recent_hits"] == 0
+        assert zero_card["recent_total"] == 40
+        assert zero_card["recent_share"] == 0.0
+        assert zero_card["older_hits"] == 0
+        assert zero_card["older_total"] == 40
+        assert zero_card["older_share"] == 0.0
+        assert zero_card["diff"] == 0.0
+        assert zero_card["excludes_zero"] is False
+
+        # Bracket filter carries a visible warning about small young bracket cohorts.
+        bracketed = card_trend.card_trend(
+            store, NAMES, recent_days=180, min_decks_per_window=30, bracket="bracket:4"
+        )
+        assert bracketed["bracket"] == "bracket:4"
+        assert bracketed["status"] == "too_few_data"
+        assert bracketed["recent_total"] == 15
+        assert bracketed["older_total"] == 15
+        assert any("Bracket-Filter aktiv" in w for w in bracketed["warnings"])
+    finally:
+        store.close()
+
+
+def test_card_trend_too_few_data_and_empty_window(tmp_path: Path) -> None:
+    from commander_lab.studio import card_trend
+
+    store = StudioStore.open(tmp_path / "studio")
+    try:
+        _fill(store, tmp_path)
+        store.connection.execute("DELETE FROM commander_binding WHERE kind = 'corpus_deck'")
+        for idx in range(10):
+            _dated_deck(store, f"rec-{idx:02d}", "2026-10-01", 3, ["Forest", "Filler 03"])
+        for idx in range(40):
+            _dated_deck(store, f"old-{idx:02d}", "2025-10-01", 3, ["Forest"])
+        store.connection.commit()
+
+        few = card_trend.card_trend(store, NAMES, recent_days=180, min_decks_per_window=30)
+        assert few["status"] == "too_few_data"
+        by_name = {row["name"]: row for row in few["cards"]}
+        assert by_name["Filler 03"]["status"] == "too_few_data"
+        assert by_name["Filler 03"]["diff"] is None
+        assert by_name["Filler 03"]["ci_low"] is None
+        assert by_name["Filler 03"]["ci_high"] is None
+        assert by_name["Filler 03"]["excludes_zero"] is False
+        assert by_name["Filler 03"]["recent_share"] == 1.0
+        assert by_name["Filler 03"]["older_share"] == 0.0
+
+        # Unbind older decks so older_total == 0 -> unknown (None).
+        store.connection.execute(
+            "DELETE FROM commander_binding WHERE kind = 'corpus_deck' AND key LIKE 'old-%'"
+        )
+        store.connection.commit()
+
+        empty_old = card_trend.card_trend(store, NAMES, recent_days=180, min_decks_per_window=30)
+        assert empty_old["status"] == "unknown"
+        assert empty_old["older_total"] == 0
+        row = {item["name"]: item for item in empty_old["cards"]}["Filler 03"]
+        assert row["status"] == "unknown"
+        assert row["older_share"] is None
+        assert row["recent_share"] == 1.0
+        assert row["diff"] is None
+        assert row["excludes_zero"] is False
+    finally:
+        store.close()
+
+
+def test_card_trend_web_route_and_strength_independence(tmp_path: Path) -> None:
+    store = StudioStore.open(tmp_path / "studio")
+    try:
+        _fill(store, tmp_path)
+        for idx in range(35):
+            _dated_deck(store, f"web-rec-{idx:02d}", "2026-10-15", 3, ["Forest", "Filler 03"])
+            _dated_deck(store, f"web-old-{idx:02d}", "2025-10-15", 3, ["Forest"])
+        store.connection.commit()
+    finally:
+        store.close()
+
+    with _CommanderClient(create_app(tmp_path / "studio")) as test_client:
+        before_strength = test_client.post(
+            "/api/strength", json={"commander": COMMANDER["commander"]}, headers=MARK
+        )
+        assert before_strength.status_code == 200
+        resp = test_client.get(
+            "/api/card-trend",
+            params={"commander": COMMANDER["commander"], "recent_days": 180},
+        )
+        assert resp.status_code == 200
+        payload = resp.json()
+        assert payload["schema"] == "studio-card-trend-1"
+        assert payload["status"] == "ok"
+        assert payload["data_as_of"] == "2026-10-15"
+        assert payload["recent_total"] >= 35
+        assert payload["older_total"] >= 35
+        assert len(payload["cards"]) > 0
+        assert len(payload["limitations"]) == 3
+
+        bad = test_client.get(
+            "/api/card-trend",
+            params={"commander": COMMANDER["commander"], "bracket": "invalid"},
+        )
+        assert bad.status_code == 422
+
+        after_strength = test_client.post(
+            "/api/strength", json={"commander": COMMANDER["commander"]}, headers=MARK
+        )
+        assert after_strength.status_code == 200
+        assert after_strength.json() == before_strength.json()
+        assert "trend" not in after_strength.json()["settings"]["weights"]
