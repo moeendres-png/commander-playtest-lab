@@ -15,6 +15,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from commander_lab.studio import StudioStore, decklist_import, tiers, universe
+from commander_lab.studio.store import COUNTED_SECTIONS
 from commander_lab.studio.web import STATIC, create_app
 from tests.unit.test_studio_builder import _fill
 
@@ -745,3 +746,144 @@ def test_the_tier_page_carries_the_steps_4_to_7_controls() -> None:
     # the excluded count is part of the shared subset note since the review of #1205
     assert "excluded_by_card_filter" in script and "subset_note" in builder_script
     assert "Version" in script and "version" in builder_script
+
+
+def _expected_counted_sets(
+    store: StudioStore, deck_ids: set[str]
+) -> tuple[dict[str, set[str]], dict[str, dict[str, set[str]]], dict[tuple[str, str], set[str]]]:
+    """Reference for the corpus aggregation, built in Python from the raw card rows: per raw
+    name, per oracle id and raw name, and per (name, oracle id) group."""
+    by_name: dict[str, set[str]] = {}
+    by_oracle: dict[str, dict[str, set[str]]] = {}
+    by_pair: dict[tuple[str, str], set[str]] = {}
+    for deck_id, name, oracle_id, section, quantity in store.connection.execute(
+        "SELECT deck_id, card_name, oracle_id, section, quantity FROM corpus_deck_card"
+    ):
+        if deck_id not in deck_ids or section not in COUNTED_SECTIONS or quantity <= 0:
+            continue
+        by_name.setdefault(name, set()).add(deck_id)
+        by_pair.setdefault((name, oracle_id or ""), set()).add(deck_id)
+        if oracle_id:
+            by_oracle.setdefault(oracle_id, {}).setdefault(name, set()).add(deck_id)
+    return by_name, by_oracle, by_pair
+
+
+def _expected_card_options(store: StudioStore, deck_ids: list[str]) -> list[dict[str, object]]:
+    spellings: dict[str, set[str]] = {}
+    for deck_id, name, section, quantity in store.connection.execute(
+        "SELECT deck_id, card_name, section, quantity FROM corpus_deck_card"
+    ):
+        if deck_id in deck_ids and section in universe.MAIN_SECTIONS and quantity > 0:
+            spellings.setdefault(deck_id, set()).add(name.casefold())
+    by_oracle, unique = universe._card_name_index(store)
+    bound = dict(
+        store.connection.execute(
+            "SELECT key, commander_name FROM commander_binding WHERE kind = 'corpus_deck'"
+        ).fetchall()
+    )
+    counts: dict[str, int] = {}
+    for deck_id in deck_ids:
+        found = {
+            oracle for oracle, keys in by_oracle.items() if keys & spellings.get(deck_id, set())
+        }
+        commander = bound.get(deck_id)
+        if commander is not None and commander.casefold() in unique:
+            found.add(unique[commander.casefold()])
+        for oracle in found:
+            counts[oracle] = counts.get(oracle, 0) + 1
+    return [{"value": oracle, "decks": decks} for oracle, decks in sorted(counts.items())]
+
+
+def _join_plans(store: StudioStore, run: Any) -> list[list[str]]:
+    """EXPLAIN QUERY PLAN of every universe-table join ``run`` sends, replayed on a fresh
+    temp table (the function drops its own table on exit)."""
+    sent: list[str] = []
+    db = store.connection
+    db.set_trace_callback(sent.append)
+    try:
+        run()
+    finally:
+        db.set_trace_callback(None)
+    plans = []
+    for sql in sent:
+        if "temp.universe_deck u" not in sql or not sql.lstrip().startswith("SELECT"):
+            continue
+        db.execute("CREATE TEMP TABLE universe_deck(deck_id TEXT)")
+        db.execute("CREATE UNIQUE INDEX temp.universe_deck_id ON universe_deck(deck_id)")
+        try:
+            marks = sql.count("?")
+            params = COUNTED_SECTIONS if marks == len(COUNTED_SECTIONS) else universe.MAIN_SECTIONS
+            rows = db.execute(f"EXPLAIN QUERY PLAN {sql}", params[:marks] if marks else ())
+            plans.append([str(row[3]) for row in rows])
+        finally:
+            db.execute("DROP TABLE temp.universe_deck")
+    return plans
+
+
+def test_corpus_aggregation_sets_and_join_order_for_a_small_and_the_full_universe(
+    folder: Path,
+) -> None:
+    """The universe aggregation (#1560) reads the universe table first and returns exactly
+    the decks a plain reading of the card rows gives: counted sections only, quantity above
+    zero, a card in "main" and "mainboard" of one deck once, raw names and oracle ids apart."""
+    store = StudioStore.open(folder)
+    try:
+        db = store.connection
+        oracle_04 = db.execute(
+            "SELECT oracle_id FROM card WHERE oracle_name = 'Filler 04' AND oracle_id IS NOT NULL"
+        ).fetchone()[0]
+        db.executemany(
+            "INSERT INTO corpus_deck_card(deck_id, card_name, section, oracle_id, quantity, "
+            "normalization_status) VALUES (?, ?, ?, ?, ?, 'source_name')",
+            [
+                ("u00", "Filler 03", "mainboard", None, 1),  # main and mainboard: one deck
+                ("u00", "Forest", "sideboard", None, 1),  # not a counted section
+                ("u00", "Ghost Card", "main", None, 0),  # quantity zero
+                ("u01", "Ghost Card", "maybeboard", None, 2),
+                ("u01", "Fíller 04", "main", oracle_04, 1),  # unknown spelling, known id
+                ("u02", "Filler 04", "commander", oracle_04, 1),
+                ("u03", "Filler 04", "companion", None, 1),
+            ],
+        )
+        db.commit()
+        everything = {str(row[0]) for row in db.execute("SELECT deck_id FROM corpus_deck")}
+        small = {"u00", "u01", "u02", "u03", "u07"}
+        owners = universe.spelling_owners(store)
+        by_id = {
+            str(row[0]): str(row[1])
+            for row in db.execute(
+                "SELECT oracle_id, oracle_name FROM card_fact WHERE oracle_id IS NOT NULL"
+            )
+        }
+        for deck_ids in (small, everything):
+            by_name, by_oracle, by_pair = _expected_counted_sets(store, deck_ids)
+            assert "Ghost Card" not in by_name and by_name["Filler 03"] >= {"u00"}
+            assert universe._universe_raw_sets(store, deck_ids) == (by_name, by_oracle)
+            assert universe.deck_sets(store, deck_ids) == by_name
+            grouped: dict[str, set[str]] = {}
+            for (name, oracle_id), decks in by_pair.items():
+                groups = owners.get(name.casefold())
+                if groups is None and oracle_id in by_id:
+                    groups = [by_id[oracle_id]]
+                for group in groups or [name]:
+                    grouped.setdefault(group, set()).update(decks)
+            assert universe.deck_sets(store, deck_ids, owners) == grouped
+            assert grouped["Filler 04"] >= {"u01", "u02", "u03"} & deck_ids
+        for spec in ({"platforms": ["archidekt"]}, {}):
+            scope = universe._validate_spec(spec)
+            resolved = universe.resolve_universe(store, scope)
+            assert resolved, spec
+            assert universe._card_options(store, scope) == _expected_card_options(store, resolved)
+        # Every universe join drives from the universe table and looks each deck up by key.
+        plans = _join_plans(store, lambda: universe._universe_raw_sets(store, small))
+        plans += _join_plans(store, lambda: universe.deck_sets(store, small))
+        plans += _join_plans(
+            store, lambda: universe._card_options(store, universe._validate_spec({}))
+        )
+        assert len(plans) == 3
+        for plan in plans:
+            steps = [step for step in plan if step.startswith(("SCAN", "SEARCH"))]
+            assert steps[0].startswith("SCAN u"), plan
+            assert steps[1].startswith("SEARCH c USING PRIMARY KEY"), plan
+    finally:
+        store.close()

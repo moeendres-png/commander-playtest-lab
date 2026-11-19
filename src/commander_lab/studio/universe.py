@@ -566,9 +566,10 @@ def _card_options(store: StudioStore, scope: UniverseSpec) -> list[OptionValue]:
     main_marks = ", ".join("?" for _ in MAIN_SECTIONS)
     with _universe_table(store, deck_ids) as universe_deck:
         spellings: dict[str, set[str]] = {}
+        # CROSS JOIN fixes the join order (universe table first), as in ``deck_sets``.
         for deck_id, card_name in store.connection.execute(
-            f"SELECT c.deck_id, c.card_name FROM corpus_deck_card c "
-            f"JOIN {universe_deck} u ON u.deck_id = c.deck_id "
+            f"SELECT c.deck_id, c.card_name "
+            f"FROM {universe_deck} u CROSS JOIN corpus_deck_card c ON c.deck_id = u.deck_id "
             f"WHERE c.section IN ({main_marks}) AND c.quantity > 0",
             MAIN_SECTIONS,
         ):
@@ -923,10 +924,12 @@ def deck_sets(
     with _universe_table(store, sorted(deck_ids)) as universe_deck:
         # The aggregation runs inside SQLite: one row per raw card name, with the decks
         # listing it (unit-separator joined; a deck listed twice collapses in the set), instead of one Python step per (deck, card) row.
+        # CROSS JOIN fixes the join order: the universe table drives, each deck is a primary-key
+        # lookup. A plain JOIN lets SQLite scan the whole card index for any universe size.
         by_id: dict[str, str] | None = None
         for name, oracle_id, joined in store.connection.execute(
             f"SELECT c.card_name, c.oracle_id, group_concat(c.deck_id, char(31)) "
-            f"FROM corpus_deck_card c JOIN {universe_deck} u ON u.deck_id = c.deck_id "
+            f"FROM {universe_deck} u CROSS JOIN corpus_deck_card c ON c.deck_id = u.deck_id "
             f"WHERE c.section IN ({marks}) AND c.quantity > 0 GROUP BY c.card_name, c.oracle_id",
             COUNTED_SECTIONS,
         ):
@@ -1068,9 +1071,10 @@ def _universe_raw_sets(
     by_oracle: dict[str, dict[str, set[str]]] = {}
     marks = ", ".join("?" for _ in COUNTED_SECTIONS)
     with _universe_table(store, sorted(deck_ids)) as universe_deck:
+        # CROSS JOIN fixes the join order (universe table first), as in ``deck_sets``.
         for name, oracle_id, joined in store.connection.execute(
             f"SELECT c.card_name, c.oracle_id, group_concat(c.deck_id, char(31)) "
-            f"FROM corpus_deck_card c JOIN {universe_deck} u ON u.deck_id = c.deck_id "
+            f"FROM {universe_deck} u CROSS JOIN corpus_deck_card c ON c.deck_id = u.deck_id "
             f"WHERE c.section IN ({marks}) AND c.quantity > 0 GROUP BY c.card_name, c.oracle_id",
             COUNTED_SECTIONS,
         ):
