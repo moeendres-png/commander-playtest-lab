@@ -331,27 +331,75 @@ def _check_appcds(jar_path: Path | None) -> dict[str, object]:
             "status": "WARN",
             "required": False,
             "archive_path": None,
+            "archive_matches_jar": None,
             "detail": "AppCDS-Archiv nicht geprüft (keine JAR-Datei).",
             "remediation": None,
         }
-    archive = jar_path.with_suffix(".jsa")
-    exists = archive.is_file()
+    archive = launch.appcds_archive_path(jar_path)
+    rebuild_cmd = (
+        f"python -m commander_lab.studio build-appcds --jar {jar_path} "
+        "(oder scripts/provision_engine_bridge.py --appcds)"
+    )
+    if not archive.is_file():
+        return {
+            "name": "appcds_archive",
+            "status": "WARN",
+            "required": False,
+            "archive_path": str(archive),
+            "archive_matches_jar": False,
+            "detail": (
+                f"Empfohlenes AppCDS-Archiv fehlt ({archive}); "
+                "Serien und Partien starten ohne schnelleres Klassenladen."
+            ),
+            "remediation": (
+                f"Empfohlen einmalig erzeugen mit: {rebuild_cmd}. Nach jedem JAR-Wechsel neu bauen."
+            ),
+        }
+
+    sidecar = launch.appcds_jar_sha256_path(archive)
+    if sidecar.is_file():
+        recorded_sha = sidecar.read_text(encoding="utf-8").strip()
+        current_sha = launch._file_sha256(jar_path)
+        if not recorded_sha or current_sha is None or recorded_sha != current_sha:
+            return {
+                "name": "appcds_archive",
+                "status": "WARN",
+                "required": False,
+                "archive_path": str(archive),
+                "archive_matches_jar": False,
+                "detail": (
+                    f"AppCDS-Archiv passt nicht zur aktuellen Bridge-JAR ({archive}); "
+                    "die JVM ignoriert unpassende Archive."
+                ),
+                "remediation": f"Nach dem JAR-Wechsel neu erzeugen mit: {rebuild_cmd}.",
+            }
+
+    try:
+        archive_older = archive.stat().st_mtime_ns < jar_path.stat().st_mtime_ns
+    except OSError:
+        archive_older = False
+    if archive_older:
+        return {
+            "name": "appcds_archive",
+            "status": "WARN",
+            "required": False,
+            "archive_path": str(archive),
+            "archive_matches_jar": False,
+            "detail": (
+                f"AppCDS-Archiv ist älter als die Bridge-JAR ({archive}); "
+                "die JVM ignoriert veraltete Archive."
+            ),
+            "remediation": f"Nach dem JAR-Wechsel neu erzeugen mit: {rebuild_cmd}.",
+        }
+
     return {
         "name": "appcds_archive",
-        "status": "PASS" if exists else "WARN",
+        "status": "PASS",
         "required": False,
         "archive_path": str(archive),
-        "detail": (
-            f"AppCDS-Archiv vorhanden: {archive}"
-            if exists
-            else f"Optionales AppCDS-Archiv fehlt ({archive}); Serien starten ohne schnelleres Klassenladen."
-        ),
-        "remediation": None
-        if exists
-        else (
-            f"Optional einmalig erzeugen mit: python -m commander_lab.studio build-appcds "
-            f"--jar {jar_path} (oder scripts/provision_engine_bridge.py --appcds)."
-        ),
+        "archive_matches_jar": True,
+        "detail": f"AppCDS-Archiv vorhanden und passend zur Bridge-JAR: {archive}",
+        "remediation": None,
     }
 
 

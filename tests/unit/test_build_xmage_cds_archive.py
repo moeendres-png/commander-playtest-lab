@@ -111,3 +111,46 @@ def test_provision_engine_bridge_with_appcds(tmp_path: Path, monkeypatch, capsys
     assert out["status"] == "provisioned"
     assert out["appcds"]["status"] == "built"
     assert Path(out["appcds"]["archive_path"]).name == "xmage-engine-bridge.jsa"
+
+
+def test_build_appcds_writes_jar_sha256_sidecar_for_doctor(
+    tmp_path: Path,
+    monkeypatch,  # type: ignore[no-untyped-def]
+) -> None:
+    import hashlib
+
+    from commander_lab.studio import doctor, launch
+
+    jar = tmp_path / "xmage-engine-bridge.jar"
+    jar.write_bytes(b"fake-bridge-jar-v1")
+
+    class _FakeRunner:
+        def __init__(self, cmd: tuple[str, ...], shutdown_grace_seconds: float = 0.0) -> None:
+            self.cmd = cmd
+
+        def run_smoke(self, **_kwargs: object) -> None:
+            for part in self.cmd:
+                if part.startswith("-XX:ArchiveClassesAtExit="):
+                    Path(part.split("=", 1)[1]).write_bytes(b"fake-jsa-v1")
+
+    monkeypatch.setattr(launch, "_java_executable", lambda: "/usr/bin/java")
+    monkeypatch.setattr(launch, "_java_major", lambda _java: 17)
+    monkeypatch.setattr(
+        "commander_lab.engine.rules.full_game.XmageFullGameRunner",
+        _FakeRunner,
+    )
+
+    payload = launch.build_appcds_archive(jar=jar, decisions=8)
+    expected_sha = hashlib.sha256(b"fake-bridge-jar-v1").hexdigest()
+    archive = launch.appcds_archive_path(jar)
+    sidecar = launch.appcds_jar_sha256_path(archive)
+    assert payload["jar_sha256"] == expected_sha
+    assert sidecar.is_file()
+    assert sidecar.read_text(encoding="utf-8").strip() == expected_sha
+    assert doctor._check_appcds(jar)["status"] == "PASS"
+
+    # Replacing JAR invalidates the archive for doctor
+    jar.write_bytes(b"fake-bridge-jar-v2")
+    after = doctor._check_appcds(jar)
+    assert after["status"] == "WARN"
+    assert after["archive_matches_jar"] is False
