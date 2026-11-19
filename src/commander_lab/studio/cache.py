@@ -215,8 +215,14 @@ def kind_of(name: str) -> Kind:
     return _ANSWER if name.startswith("answer:") else _UNDECLARED
 
 
+_ORDER: dict[frozenset[Group], tuple[Group, ...]] = {}
+
+
 def _ordered(groups: frozenset[Group]) -> tuple[Group, ...]:
-    return tuple(group for group in Group if group in groups)
+    found = _ORDER.get(groups)
+    if found is None:
+        found = _ORDER[groups] = tuple(group for group in Group if group in groups)
+    return found
 
 
 @dataclass(slots=True)
@@ -396,13 +402,21 @@ def cached[T](store: StudioStore, key: tuple[Hashable, ...], compute: Callable[[
     call ``corpus_hits``/``corpus_deck_sets``/``cohort_shapes``, never the other way round. A
     write window never asks for a key (I5), so the window lock never waits for a key lock."""
     name = kind_name(key)
-    if store.path is not None and str(store.path) in _writing():
+    writing = getattr(_local, "writing", None)
+    if writing and store.path is not None and str(store.path) in writing:
         _count(name, "bypass_window")
         return compute()
     stamp = store_stamp(store)
     if stamp is None:
         return compute()
     kind = kind_of(name)
+    with _lock:  # the common case in one step: anchor unchanged and the entry still valid
+        state = _states.get(stamp[0])
+        if state is not None and state.anchor == stamp:
+            full = (stamp[0], *key)
+            entry = _entries.get(full)
+            if entry is not None and entry.gens == _gens_locked(state, kind):
+                return cast("T", _hit_locked(full, entry))
     stamp, gens = _generations(store, stamp, kind)
     path = stamp[0]
     full = (path, *key)
