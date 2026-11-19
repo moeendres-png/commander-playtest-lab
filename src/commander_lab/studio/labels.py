@@ -78,7 +78,11 @@ def _replace(store: StudioStore, table: str, key: str, owner: str, values: list[
 
 def set_card_labels(store: StudioStore, card_id: str, values: object) -> list[str]:
     """Replace the labels of a card. ``KeyError`` for an unknown card."""
+    from .store import ensure_scryfall_cards
+
     cleaned = clean(values)
+    if card_id.startswith("scryfall:"):
+        ensure_scryfall_cards(store, [card_id])
     if (
         store.connection.execute("SELECT 1 FROM card WHERE card_id = ?", (card_id,)).fetchone()
         is None
