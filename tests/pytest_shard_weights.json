@@ -84,7 +84,6 @@
   "tests/unit/test_exact_main_recovery_payload.py": 0.1,
   "tests/unit/test_exiled_land_play_retries.py": 0.1,
   "tests/unit/test_external_engine_foundation.py": 0.1,
-  "tests/unit/test_extract_scryfall_prices.py": 0.1,
   "tests/unit/test_f27_controlled_turn_replay_fingerprint.py": 0.1,
   "tests/unit/test_f31_f33_observation_replay_fingerprint.py": 0.1,
   "tests/unit/test_failure_privacy_trust_boundary.py": 12.4,
