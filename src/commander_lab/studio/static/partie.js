@@ -57,8 +57,7 @@ function seatLabel(seat) {
   const info = seatInfo(seat);
   return info.commanders && info.commanders.length ? info.commanders.join(" + ") : (info.deck_id || seatName(seat));
 }
-const isPass = (frame) => frame.decision_class === "priority" && frame.chosen.length === 1 && frame.chosen[0] === "Pass priority";
-const isMinor = (frame) => isPass(frame) || frame.decision_class === "mana_payment";
+const { isPass, isMinor } = StudioReplay; // one definition, shared with replay.js
 function isLand(name) { const fact = state.facts[name]; return Boolean(fact && fact.type_line && fact.type_line.split("//")[0].includes("Land")); }
 function isCreature(name, card) {
   const fact = state.facts[name];
@@ -1174,6 +1173,7 @@ function render() {
   renderBridgeBanner();
   if (state.ff.on && !state.running) endFastForward("die Partie ist zu Ende");
   renderHumanDecision();
+  renderReplayControls();
   const atLiveTail = state.interactive && state.running && state.pendingDecision && state.index >= Math.max(0, state.frames.length - 1);
   const frame = atLiveTail ? pilotStateToFrame(state.pendingDecision) : state.frames[state.index];
   // board clicks exist only on the live decision of the human, never on a recorded frame
@@ -1286,38 +1286,80 @@ function appendLog(from) {
       }
     }
     if (isMinor(frame)) continue;
-    const el = h("div", { class: "line", onclick: () => go(index) }, h("span", { class: `tag s${frame.seat}` }, `S${(frame.seat ?? 0) + 1}`), h("span", null, answer(frame)));
+    const el = h("div", { class: "line", onclick: () => { if (!StudioReplay.isReplayAvailable(state)) return; setPlaying(false); go(index); } }, h("span", { class: `tag s${frame.seat}` }, `S${(frame.seat ?? 0) + 1}`), h("span", null, answer(frame)));
     log.append(el);
     state.lines.push({ index, el });
   }
 }
 
-// ---- playback ------------------------------------------------------------------------------
+// ---- playback (finished games only; replay.js navigates loaded frames without extra requests) --
 function isInteractive(target) {
   return Boolean(target && target.closest && target.closest("button, a[href], input, select, textarea, summary, [contenteditable], [role=button]"));
 }
+function renderReplayControls() {
+  const box = $("replay-controls");
+  if (!box) return;
+  const available = StudioReplay.isReplayAvailable(state);
+  box.hidden = !available;
+  const turns = available ? StudioReplay.listTurns(state.frames) : [];
+  const select = $("turn-jump");
+  if (select) {
+    const sig = turns.map((entry) => entry.turn).join(",");
+    if (select.dataset.turns !== sig) {
+      select.dataset.turns = sig;
+      select.textContent = "";
+      for (const entry of turns) select.append(h("option", { value: String(entry.turn) }, `Zug ${entry.turn}`));
+    }
+    const frame = available ? state.frames[state.index] : null;
+    const turnValue = frame && Number.isInteger(frame.turn) ? String(frame.turn) : "";
+    if (turnValue && turns.some((entry) => String(entry.turn) === turnValue)) select.value = turnValue;
+    select.disabled = !available || turns.length === 0;
+  }
+  const atStart = !available || state.index <= 0;
+  const atEnd = !available || state.index >= state.frames.length - 1;
+  const prevIdx = available ? StudioReplay.prevTurn(state.frames, state.index) : 0;
+  $("first").disabled = atStart;
+  $("prev-turn").disabled = !available || prevIdx === state.index;
+  $("back").disabled = atStart;
+  $("play").disabled = !available;
+  $("next").disabled = atEnd;
+  $("next-turn").disabled = atEnd;
+  $("skip").disabled = !available;
+  $("position").disabled = !available;
+  const note = $("replay-note");
+  if (note) note.hidden = !(available && state.interactive);
+  if (!available && state.playing) setPlaying(false);
+}
 function go(index) { state.index = Math.max(0, Math.min(state.frames.length - 1, index)); render(); }
 function step(direction) {
-  let index = state.index + direction;
-  if ($("skip").checked) while (index > 0 && index < state.frames.length - 1 && isMinor(state.frames[index])) index += direction;
-  go(index);
+  if (!StudioReplay.isReplayAvailable(state)) return;
+  const skipMinor = $("skip").checked;
+  const nextIndex = direction >= 0
+    ? StudioReplay.stepForward(state.frames, state.index, skipMinor)
+    : StudioReplay.stepBackward(state.frames, state.index, skipMinor);
+  go(nextIndex);
+}
+function prevTurn() {
+  if (!StudioReplay.isReplayAvailable(state)) return;
+  go(StudioReplay.prevTurn(state.frames, state.index));
 }
 function nextTurn() {
-  const turn = state.frames[state.index] ? state.frames[state.index].turn : null;
-  let index = state.index + 1;
-  while (index < state.frames.length - 1 && state.frames[index].turn === turn) index += 1;
-  go(index);
+  if (!StudioReplay.isReplayAvailable(state)) return;
+  go(StudioReplay.nextTurn(state.frames, state.index));
 }
 function setPlaying(on) {
-  state.playing = on;
-  $("play").textContent = on ? "⏸ Anhalten" : "▶ Abspielen";
+  const active = Boolean(on) && StudioReplay.isReplayAvailable(state);
+  state.playing = active;
+  $("play").textContent = active ? "⏸ Anhalten" : "▶ Abspielen";
   clearTimeout(state.timer);
-  if (on) tick();
+  if (active) tick();
 }
 function tick() {
-  if (!state.playing) return;
-  if (state.index >= state.frames.length - 1) { if (!state.running) { setPlaying(false); return; } }
-  else step(1);
+  if (!state.playing || !StudioReplay.isReplayAvailable(state)) { setPlaying(false); return; }
+  if (state.index >= state.frames.length - 1) {
+    // a running AI game keeps playing as frames arrive; a finished one stops at its end
+    if (!state.running) { setPlaying(false); return; }
+  } else step(1);
   state.timer = setTimeout(tick, Number($("speed").value));
 }
 
@@ -1608,6 +1650,7 @@ async function listGames(wanted) {
     $("position").max = "0";
     $("where").textContent = "";
     renderHumanDecision();
+    renderReplayControls();
     return false;
   }
   const first = state.games.some((game) => game.game_id === wanted) ? wanted : state.games[0].game_id;
@@ -1635,12 +1678,14 @@ async function start() {
   });
   syncFastForwardControls();
   $("ff-stack").addEventListener("change", () => { state.ff.stopOnOpponentStack = $("ff-stack").checked; });
-  $("first").addEventListener("click", () => go(0));
-  $("back").addEventListener("click", () => step(-1));
-  $("next").addEventListener("click", () => step(1));
-  $("next-turn").addEventListener("click", nextTurn);
-  $("play").addEventListener("click", () => setPlaying(!state.playing));
-  $("position").addEventListener("input", () => go(Number($("position").value)));
+  $("first").addEventListener("click", () => { if (!StudioReplay.isReplayAvailable(state)) return; setPlaying(false); go(0); });
+  $("prev-turn").addEventListener("click", () => { if (!StudioReplay.isReplayAvailable(state)) return; setPlaying(false); prevTurn(); });
+  $("back").addEventListener("click", () => { if (!StudioReplay.isReplayAvailable(state)) return; setPlaying(false); step(-1); });
+  $("next").addEventListener("click", () => { if (!StudioReplay.isReplayAvailable(state)) return; setPlaying(false); step(1); });
+  $("next-turn").addEventListener("click", () => { if (!StudioReplay.isReplayAvailable(state)) return; setPlaying(false); nextTurn(); });
+  $("turn-jump").addEventListener("change", () => { if (!StudioReplay.isReplayAvailable(state)) return; setPlaying(false); go(StudioReplay.jumpToTurn(state.frames, Number($("turn-jump").value))); });
+  $("play").addEventListener("click", () => { if (!StudioReplay.isReplayAvailable(state)) return; setPlaying(!state.playing); });
+  $("position").addEventListener("input", () => { if (!StudioReplay.isReplayAvailable(state)) return; setPlaying(false); go(Number($("position").value)); });
   $("game-select").addEventListener("change", () => openGame($("game-select").value));
   $("modal").addEventListener("click", (event) => { if (event.target === $("modal")) $("modal").hidden = true; });
   $("auto-pass-human").addEventListener("change", () => {
@@ -1682,11 +1727,12 @@ async function start() {
     const target = event.target;
     const field = target && target.closest ? target.closest("input, select, textarea") : null;
     if (field && field.type !== "range") return;
+    if (!StudioReplay.isReplayAvailable(state)) return;
     // Space belongs to a focused button, link or field (it activates it); only without such a
     // focus does it toggle the playback.
     if (event.key === " ") { if (isInteractive(target)) return; event.preventDefault(); setPlaying(!state.playing); }
-    else if (event.key === "ArrowRight") { event.preventDefault(); step(1); }
-    else if (event.key === "ArrowLeft") { event.preventDefault(); step(-1); }
+    else if (event.key === "ArrowRight") { event.preventDefault(); setPlaying(false); if (event.shiftKey) nextTurn(); else step(1); }
+    else if (event.key === "ArrowLeft") { event.preventDefault(); setPlaying(false); if (event.shiftKey) prevTurn(); else step(-1); }
   });
   $("new-game").addEventListener("click", () => newGame());
   // board menu: arrow keys move inside it, a click elsewhere or a scroll closes it (Esc is above)

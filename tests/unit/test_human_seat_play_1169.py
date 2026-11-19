@@ -2250,6 +2250,284 @@ console.log(JSON.stringify({kind: m.kind, mode: m.mode, asked: m.asked, rows, lo
     assert roles["asked"] == {"action": "none"}  # the blocker itself only shows who blocks
 
 
+# ---- finished-game replay (static/replay.js & partie.html/partie.js, #1530) -------------------
+
+
+def test_replay_module_steps_and_jumps_on_loaded_frames_only_when_finished() -> None:
+    script = (STATIC / "replay.js").read_text(encoding="utf-8")
+    for forbidden in (
+        "document.",
+        "window.",
+        "fetch(",
+        "/api/",
+        "innerHTML",
+        "outerHTML",
+        "eval(",
+        "style=",
+        ".toFixed(",
+    ):
+        assert forbidden not in script, forbidden
+
+    out = _node_json(
+        """
+const R = require('./replay.js');
+const frames = [
+  { n: 1, turn: null, decision_class: 'mulligan', chosen: ['Keep'] },
+  { n: 2, turn: 1, decision_class: 'priority', chosen: ['Play Forest'] },
+  { n: 3, turn: 1, decision_class: 'priority', chosen: ['Pass priority'] },
+  { n: 4, turn: 1, decision_class: 'mana_payment', chosen: ['Tap Forest'] },
+  { n: 5, turn: 2, decision_class: 'priority', chosen: ['Cast Sol Ring'] },
+  { n: 6, turn: 2, decision_class: 'priority', chosen: ['Pass priority'] },
+  { n: 7, turn: 4, decision_class: 'priority', chosen: ['Cast Chulane'] },
+  { n: 8, turn: 4, decision_class: 'priority', chosen: ['Pass priority'] },
+];
+console.log(JSON.stringify({
+  avail: {
+    runningHuman: R.isReplayAvailable({ running: true, interactive: true, result: null, handsRevealed: false, frames }),
+    runningHumanWithResult: R.isReplayAvailable({ running: true, interactive: true, result: { status: 'finished' }, handsRevealed: true, frames }),
+    runningAi: R.isReplayAvailable({ running: true, interactive: false, result: null, frames }),
+    runningAiNoFrames: R.isReplayAvailable({ running: true, interactive: false, result: null, frames: [] }),
+    emptyFinished: R.isReplayAvailable({ running: false, interactive: false, result: { status: 'finished' }, frames: [] }),
+    humanNoResult: R.isReplayAvailable({ running: false, interactive: true, result: null, handsRevealed: true, frames }),
+    humanNotRevealed: R.isReplayAvailable({ running: false, interactive: true, result: { status: 'finished' }, handsRevealed: false, frames }),
+    finishedHuman: R.isReplayAvailable({ running: false, interactive: true, result: { status: 'finished' }, handsRevealed: true, frames }),
+    finishedAi: R.isReplayAvailable({ running: false, interactive: false, result: { status: 'finished' }, frames }),
+    notRunningNoResultAi: R.isReplayAvailable({ running: false, interactive: false, result: null, frames }),
+  },
+  minor: [R.isPass(frames[2]), R.isMinor(frames[3]), R.isMinor(frames[1]), R.isPass(null)],
+  turns: R.listTurns(frames),
+  fwdRaw: [R.stepForward(frames, 1, false), R.stepForward(frames, 7, false)],
+  fwdSkip: [R.stepForward(frames, 1, true), R.stepForward(frames, 4, true), R.stepForward(frames, 6, true)],
+  backRaw: [R.stepBackward(frames, 4, false), R.stepBackward(frames, 0, false)],
+  backSkip: [R.stepBackward(frames, 4, true), R.stepBackward(frames, 6, true), R.stepBackward(frames, 1, true)],
+  jump: {
+    t1: R.jumpToTurn(frames, 1),
+    t2: R.jumpToTurn(frames, 2),
+    t4: R.jumpToTurn(frames, 4),
+    below: R.jumpToTurn(frames, 0),
+    gap: R.jumpToTurn(frames, 3),
+    above: R.jumpToTurn(frames, 99),
+  },
+  nextTurn: [R.nextTurn(frames, 0), R.nextTurn(frames, 1), R.nextTurn(frames, 3), R.nextTurn(frames, 4), R.nextTurn(frames, 6)],
+  prevTurn: [R.prevTurn(frames, 7), R.prevTurn(frames, 6), R.prevTurn(frames, 5), R.prevTurn(frames, 4), R.prevTurn(frames, 2), R.prevTurn(frames, 0)],
+}));
+"""
+    )
+    assert isinstance(out, dict)
+    assert out["avail"] == {
+        "runningHuman": False,
+        "runningHumanWithResult": False,
+        "runningAi": True,
+        "runningAiNoFrames": False,
+        "emptyFinished": False,
+        "humanNoResult": False,
+        "humanNotRevealed": False,
+        "finishedHuman": True,
+        "finishedAi": True,
+        "notRunningNoResultAi": False,
+    }
+    assert out["minor"] == [True, True, False, False]
+    assert out["turns"] == [
+        {"turn": 1, "index": 1},
+        {"turn": 2, "index": 4},
+        {"turn": 4, "index": 6},
+    ]
+    assert out["fwdRaw"] == [2, 7]
+    assert out["fwdSkip"] == [4, 6, 7]
+    assert out["backRaw"] == [3, 0]
+    assert out["backSkip"] == [1, 4, 0]
+    assert out["jump"] == {"t1": 1, "t2": 4, "t4": 6, "below": 1, "gap": 4, "above": 6}
+    assert out["nextTurn"] == [1, 4, 4, 6, 7]
+    assert out["prevTurn"] == [4, 4, 1, 1, 0, 0]
+
+
+def test_partie_replay_controls_contract_and_no_extra_api_routes() -> None:
+    html = (STATIC / "partie.html").read_text(encoding="utf-8")
+    js = (STATIC / "partie.js").read_text(encoding="utf-8")
+    css = (STATIC / "partie.css").read_text(encoding="utf-8")
+
+    # replay.js is loaded before partie.js and #replay-controls starts hidden with all controls
+    assert html.index('src="replay.js"') < html.index('src="partie.js"')
+    assert 'id="replay-controls"' in html and 'id="prev-turn"' in html and 'id="turn-jump"' in html
+    assert 'aria-label="Zu Zug springen"' in html
+    assert ".replay-controls" in css and "#replay-controls button:focus-visible" in css
+
+    # One definition of isPass/isMinor (replay.js), the hint for revealed AI hands exists
+    assert "const { isPass, isMinor } = StudioReplay;" in js
+    assert "const isPass" not in js.replace("const { isPass", "")
+    assert 'id="replay-note"' in html and "KI-Hände aufgedeckt" in html
+
+    # No new/additional server route in partie.js (only the existing Studio endpoints)
+    api_paths = sorted(set(re.findall(r"/api/[a-z0-9_/${}()?=&.-]+", js, re.IGNORECASE)))
+    allowed_prefixes = (
+        "/api/games",
+        "/api/play/",
+        "/api/public-cards",
+        "/api/table",
+    )
+    assert api_paths and all(p.startswith(allowed_prefixes) for p in api_paths), api_paths
+    assert not any("replay" in p.lower() or "turn" in p.lower() for p in api_paths), api_paths
+
+    # Real renderReplayControls() from partie.js hides and disables all controls while running,
+    # and reveals + populates #turn-jump once the game is finished.
+    fn_src = js[js.index("function renderReplayControls() {") : js.index("function go(index)")]
+    dom_out = _node_json(
+        f"""
+const StudioReplay = require('./replay.js');
+const els = new Map();
+const makeEl = (id) => ({{ id, hidden: false, disabled: false, value: '', dataset: {{}}, children: [], textContent: '',
+  append(...kids) {{ this.children.push(...kids); }} }});
+const $ = (id) => {{ if (!els.has(id)) els.set(id, makeEl(id)); return els.get(id); }};
+const h = (tag, props, ...kids) => ({{ tag, props: props || {{}}, text: kids.join('') }});
+const frames = [
+  {{ n: 1, turn: 1, decision_class: 'priority', chosen: ['Play Forest'] }},
+  {{ n: 2, turn: 2, decision_class: 'priority', chosen: ['Cast Sol Ring'] }},
+  {{ n: 3, turn: 3, decision_class: 'priority', chosen: ['Cast Chulane'] }},
+];
+let stopped = 0;
+const setPlaying = (on) => {{ if (!on) {{ state.playing = false; stopped += 1; }} }};
+const state = {{ running: true, interactive: true, result: null, handsRevealed: false, frames, index: 2, playing: true }};
+eval({json.dumps(fn_src)} + '\\nglobalThis.renderReplayControls = renderReplayControls;');
+renderReplayControls();
+const ids = ['first', 'prev-turn', 'back', 'play', 'next', 'next-turn', 'turn-jump', 'skip', 'position'];
+const whileRunning = {{
+  hidden: $('replay-controls').hidden,
+  allDisabled: ids.every((id) => $(id).disabled === true),
+  stopped,
+}};
+state.running = false;
+state.result = {{ status: 'finished', winner_seats: [0] }};
+state.handsRevealed = true;
+state.index = 0;
+renderReplayControls();
+const atStart = {{
+  hidden: $('replay-controls').hidden,
+  options: $('turn-jump').children.map((o) => [o.props.value, o.text]),
+  selected: $('turn-jump').value,
+  firstDis: $('first').disabled,
+  prevTurnDis: $('prev-turn').disabled,
+  backDis: $('back').disabled,
+  nextDis: $('next').disabled,
+  nextTurnDis: $('next-turn').disabled,
+  note: $('replay-note').hidden,
+}};
+state.index = 2;
+renderReplayControls();
+const atEnd = {{
+  selected: $('turn-jump').value,
+  prevTurnDis: $('prev-turn').disabled,
+  nextDis: $('next').disabled,
+  nextTurnDis: $('next-turn').disabled,
+}};
+state.running = true; state.interactive = false; state.result = null; state.handsRevealed = false;
+state.playing = true;
+renderReplayControls();
+const runningAi = {{
+  hidden: $('replay-controls').hidden,
+  playDisabled: $('play').disabled,
+  speedUntouched: true,
+  note: $('replay-note').hidden,
+  stillPlaying: state.playing,
+}};
+console.log(JSON.stringify({{ whileRunning, atStart, atEnd, runningAi }}));
+"""
+    )
+    assert isinstance(dom_out, dict)
+    assert dom_out["whileRunning"] == {"hidden": True, "allDisabled": True, "stopped": 1}
+    assert dom_out["atStart"] == {
+        "hidden": False,
+        "options": [["1", "Zug 1"], ["2", "Zug 2"], ["3", "Zug 3"]],
+        "selected": "1",
+        "firstDis": True,
+        "prevTurnDis": True,
+        "backDis": True,
+        "nextDis": False,
+        "nextTurnDis": False,
+        "note": False,
+    }
+    assert dom_out["runningAi"] == {
+        "hidden": False,
+        "playDisabled": False,
+        "speedUntouched": True,
+        "note": True,
+        "stillPlaying": True,
+    }
+    assert dom_out["atEnd"] == {
+        "selected": "3",
+        "prevTurnDis": False,
+        "nextDis": True,
+        "nextTurnDis": True,
+    }
+
+
+def test_replay_keyboard_and_tick_behaviour_per_game_kind() -> None:
+    js = (STATIC / "partie.js").read_text(encoding="utf-8")
+    key_src = js[
+        js.index('document.addEventListener("keydown", (event) => {') : js.index(
+            '$("new-game").addEventListener("click"'
+        )
+    ]
+    tick_src = js[js.index("function step(direction) {") : js.index("// ---- loading")]
+    out = _node_json(
+        f"""
+const StudioReplay = require('./replay.js');
+const frames = [
+  {{ turn: 1, decision_class: 'priority', chosen: ['Play Forest'] }},
+  {{ turn: 1, decision_class: 'priority', chosen: ['Pass priority'] }},
+  {{ turn: 2, decision_class: 'priority', chosen: ['Cast Sol Ring'] }},
+  {{ turn: 3, decision_class: 'priority', chosen: ['Cast Chulane'] }},
+];
+const state = {{ running: false, interactive: false, result: {{ status: 'finished' }}, handsRevealed: false, frames, index: 0, playing: false, timer: 0 }};
+const calls = [];
+const els = {{ skip: {{ checked: false }}, speed: {{ value: '5' }}, play: {{ textContent: '' }} }};
+const $ = (id) => els[id] || (els[id] = {{}});
+const go = (i) => {{ state.index = i; calls.push('go' + i); }};
+let handler = null;
+const document = {{ addEventListener: (name, fn) => {{ if (name === 'keydown') handler = fn; }} }};
+const closeBoardMenu = () => false;
+eval({json.dumps(tick_src)});
+function isInteractive() {{ return false; }}
+eval({json.dumps(key_src)});
+const press = (key, extra, at) => {{
+  calls.length = 0;
+  state.index = at === undefined ? 0 : at;
+  const ev = Object.assign({{ key, target: {{ closest: () => null }}, preventDefault() {{ calls.push('pd'); }} }}, extra || {{}});
+  handler(ev);
+  return calls.slice();
+}};
+const res = {{}};
+state.index = 0;
+res.finishedRight = press('ArrowRight');
+res.finishedShiftRight = press('ArrowRight', {{ shiftKey: true }}, 0);
+res.finishedLeft = press('ArrowLeft', {{}}, 3);
+state.running = true; state.interactive = true; state.result = null; state.index = 0;
+res.runningHumanRight = press('ArrowRight');
+res.runningHumanSpace = press(' ');
+state.interactive = false; state.index = 0;
+res.runningAiRight = press('ArrowRight');
+// tick at the live tail of a running AI game keeps waiting; a finished game stops
+state.index = 3; state.playing = true;
+setPlaying(true);
+res.runningAiTailKeepsPlaying = state.playing;
+clearTimeout(state.timer);
+state.running = false; state.result = {{ status: 'finished' }}; state.playing = true;
+setPlaying(true);
+res.finishedTailStops = state.playing;
+clearTimeout(state.timer);
+console.log(JSON.stringify(res));
+"""
+    )
+    assert isinstance(out, dict)
+    assert out["finishedRight"] == ["pd", "go1"]
+    assert out["finishedShiftRight"] == ["pd", "go2"]  # next turn start
+    assert out["finishedLeft"] == ["pd", "go2"]
+    assert out["runningHumanRight"] == []
+    assert out["runningHumanSpace"] == []
+    assert out["runningAiRight"] == ["pd", "go1"]
+    assert out["runningAiTailKeepsPlaying"] is True
+    assert out["finishedTailStops"] is False
+
+
 # ---- Play P1a (#1529): yield modes, mana_payment land click, stack rail, own combat ledger ------
 
 
