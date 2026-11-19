@@ -8,6 +8,9 @@ evidence layers, licensing terms, rate limits, bias characteristics, and coverag
 from __future__ import annotations
 
 import json
+import os
+import stat
+import threading
 from collections.abc import Sequence
 from dataclasses import asdict, dataclass
 from pathlib import Path
@@ -517,24 +520,50 @@ def write_source_inventory_json(path: str | Path, *, status: SourceStatus | None
     return out_path
 
 
+_COMBO_CARDS_MAX = 16
+_combo_cards_lock = threading.Lock()
+_combo_cards: dict[tuple[str, int, int, str], frozenset[str]] = {}
+
+
 def load_spellbook_combo_cards(
     combos_path: str | Path | None = None, *, commander: str = "Chulane"
 ) -> set[str]:
     """Load the set of card names participating in verified combos listed for ``commander``
-    (matched against the combo's ``commander`` field; another commander's combos never count)."""
+    (matched against the combo's ``commander`` field; another commander's combos never count).
+
+    Read once per state of the file (path, size, modification time) and commander (#1563): the
+    file is parsed again only when it changed. The caller gets its own set."""
     if not commander:
         return set()
     target_path = Path(combos_path) if combos_path else Path("data/meta/spellbook_combos.json")
-    if not target_path.is_file():
+    try:
+        found = os.stat(target_path)
+    except OSError:
         return set()
+    if not stat.S_ISREG(found.st_mode):
+        return set()
+    key = (str(target_path.resolve()), found.st_size, found.st_mtime_ns, commander)
+    with _combo_cards_lock:
+        known = _combo_cards.get(key)
+    if known is not None:
+        return set(known)
     try:
         data = json.loads(target_path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError):
-        return set()
+        return set()  # not remembered: a passing read error must not stick
+    cards = frozenset(_combo_cards_of(data, commander))
+    with _combo_cards_lock:
+        if len(_combo_cards) >= _COMBO_CARDS_MAX:
+            _combo_cards.clear()
+        _combo_cards[key] = cards
+    return set(cards)
+
+
+def _combo_cards_of(data: dict[str, object], commander: str) -> set[str]:
     cards: set[str] = set()
     combos = data.get("combos")
     if not isinstance(combos, list):
-        return set()
+        return cards
     for combo in combos:
         if isinstance(combo, dict) and commander in str(combo.get("commander", "")):
             combo_cards = combo.get("cards")
