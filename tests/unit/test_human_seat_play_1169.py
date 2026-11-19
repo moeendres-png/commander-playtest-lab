@@ -7,6 +7,7 @@ import gzip
 import itertools
 import json
 import re
+import threading
 import time
 from pathlib import Path
 
@@ -3222,3 +3223,223 @@ def test_ai_tempo_visible_only_pause_and_delay_equivalence(tmp_path: Path) -> No
     assert elapsed_250 >= 0.20
     assert elapsed_250 < 1.25
     assert elapsed_0 < 1.0
+
+
+# ---- new decisions are reported at once, not at a fixed interval (#1593) ---------------------------
+
+
+def _held_get(
+    client: TestClient, game_id: str, *, start: int, since: int | None, wait_ms: int
+) -> tuple[dict[str, object], float]:
+    query = f"start={start}&wait_ms={wait_ms}" + ("" if since is None else f"&since={since}")
+    began = time.monotonic()
+    response = client.get(f"/api/play/{game_id}?{query}")
+    assert response.status_code == 200
+    return response.json(), time.monotonic() - began
+
+
+def test_a_held_state_request_returns_with_the_next_decision_and_hides_nothing(
+    tmp_path: Path,
+) -> None:
+    app, client = _start_fake_session(tmp_path, "held-1", _FakeInteractiveClient())
+    try:
+        first = _wait_for_pending(client, "held-1", "dec-h-1")
+        revision = first["revision"]
+        assert type(revision) is int
+        answered: dict[str, object] = {}
+
+        def hold() -> None:
+            other = TestClient(app, headers={"X-Studio": "1"})
+            page, took = _held_get(other, "held-1", start=0, since=revision, wait_ms=6000)
+            answered.update(page=page, took=took)
+
+        waiter = threading.Thread(target=hold)
+        waiter.start()
+        time.sleep(0.3)
+        assert not answered, "nothing changed yet: the request must still be held"
+        sent = time.monotonic()
+        post = client.post(
+            "/api/play/held-1/decision",
+            json={"decision_id": "dec-h-1", "selected_option_ids": ["pass-1"], "ordering": []},
+        )
+        assert post.status_code == 200
+        waiter.join(timeout=5.0)
+        assert answered, "the held request must end when the decision was answered"
+        page = answered["page"]
+        assert isinstance(page, dict)
+        assert page["revision"] != revision
+        assert time.monotonic() - sent < 3.0 and float(answered["took"]) < 5.0  # type: ignore[arg-type]
+        assert _FakeInteractiveClient.SECRET_CARD not in json.dumps(
+            page
+        )  # hidden info (AGENTS.md section 5)
+        # Follow the game the way the page does: ask again with the last revision until the next
+        # decision of the human is there, always from the number of frames already held.
+        held = list(page["frames"])  # type: ignore[arg-type]
+        last = page
+        for _ in range(20):
+            pending = last.get("pending_decision")
+            if isinstance(pending, dict) and pending.get("decision_id") == "dec-h-2":
+                break
+            last, _took = _held_get(
+                client,
+                "held-1",
+                start=len(held),
+                since=int(last["revision"]),
+                wait_ms=2000,  # type: ignore[call-overload]
+            )
+            held.extend(last["frames"])  # type: ignore[arg-type]
+        assert isinstance(last["pending_decision"], dict)
+        assert last["pending_decision"]["decision_id"] == "dec-h-2"
+        assert _FakeInteractiveClient.SECRET_CARD not in json.dumps(last)
+        # No frame lost or doubled by the held requests.
+        full = client.get("/api/play/held-1").json()
+        assert held == full["frames"]
+    finally:
+        app.state.play_manager.shutdown_all()  # type: ignore[attr-defined]
+
+
+def test_a_held_state_request_without_change_times_out_with_the_same_state(
+    tmp_path: Path,
+) -> None:
+    app, client = _start_fake_session(tmp_path, "held-2", _FakeInteractiveClient())
+    try:
+        first = _wait_for_pending(client, "held-2", "dec-h-1")
+        page, took = _held_get(
+            client,
+            "held-2",
+            start=0,
+            since=int(first["revision"]),
+            wait_ms=300,  # type: ignore[call-overload]
+        )
+        assert 0.25 <= took < 2.0
+        assert page["revision"] == first["revision"]
+        assert page["pending_decision"] == first["pending_decision"]
+        # A stale revision, no revision, and an unknown game never wait.
+        stale, took = _held_get(client, "held-2", start=0, since=0, wait_ms=6000)
+        assert took < 1.0 and stale["revision"] == first["revision"]
+        plain, took = _held_get(client, "held-2", start=0, since=None, wait_ms=6000)
+        assert took < 1.0 and "revision" in plain
+        assert client.get("/api/play/held-2?since=-1&wait_ms=10").status_code == 422
+        assert client.get("/api/play/nope?since=1&wait_ms=10").status_code == 404
+    finally:
+        app.state.play_manager.shutdown_all()  # type: ignore[attr-defined]
+
+
+def test_a_held_state_request_is_capped_and_never_waits_on_a_finished_game(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(play, "MAX_LONG_POLL_SECONDS", 0.2)
+    app, client = _start_fake_session(tmp_path, "held-3", _FakeInteractiveClient())
+    try:
+        first = _wait_for_pending(client, "held-3", "dec-h-1")
+        _page, took = _held_get(
+            client,
+            "held-3",
+            start=0,
+            since=int(first["revision"]),
+            wait_ms=60_000,  # type: ignore[call-overload]
+        )
+        assert 0.15 <= took < 2.0  # the server cap, not the 60 s asked for
+        assert client.post("/api/play/held-3/concede", json={}).status_code == 200
+        done = _wait_finished(client, "held-3")
+        again, took = _held_get(
+            client, "held-3", start=0, since=int(done["revision"]), wait_ms=6000
+        )  # type: ignore[call-overload]
+        assert took < 1.0 and again["running"] is False
+    finally:
+        app.state.play_manager.shutdown_all()  # type: ignore[attr-defined]
+
+
+def test_revision_moves_with_every_visible_change_and_only_then(tmp_path: Path) -> None:
+    app, client = _start_fake_session(tmp_path, "rev-1", _FakeInteractiveClient())
+    try:
+        first = _wait_for_pending(client, "rev-1", "dec-h-1")
+        same = client.get("/api/play/rev-1").json()
+        assert same["revision"] == first["revision"]  # reading and speed changes are no change
+        assert client.post("/api/play/rev-1/speed", json={"ai_delay_ms": 0}).status_code == 200
+        assert client.get("/api/play/rev-1").json()["revision"] == first["revision"]
+        client.post(
+            "/api/play/rev-1/decision",
+            json={"decision_id": "dec-h-1", "selected_option_ids": ["pass-1"], "ordering": []},
+        )
+        second = _wait_for_pending(client, "rev-1", "dec-h-2")
+        assert int(second["revision"]) > int(first["revision"])  # type: ignore[call-overload]
+    finally:
+        app.state.play_manager.shutdown_all()  # type: ignore[attr-defined]
+
+
+_FOLLOW_PRELUDE = "const F = require('./follow.js');"
+
+
+def test_follow_module_holds_requests_and_falls_back_to_the_fixed_intervals() -> None:
+    script = (
+        _FOLLOW_PRELUDE
+        + """
+const base = {interactive: true, fastForward: false, hasPendingDecision: false, revision: 5,
+  failed: false, held: true, changed: true, elapsedMs: 3000};
+const delay = (over) => F.nextDelayMs(Object.assign({}, base, over));
+console.log(JSON.stringify({
+  heldChanged: delay({}),
+  heldTimedOut: delay({changed: false, elapsedMs: 8000}),
+  rateLimited: delay({elapsedMs: 5}),
+  instantUnchanged: delay({changed: false, elapsedMs: 3}),
+  instantUnchangedFf: delay({changed: false, elapsedMs: 3, fastForward: true}),
+  instantUnchangedPending: delay({changed: false, elapsedMs: 3, hasPendingDecision: true}),
+  firstAsk: delay({held: false, elapsedMs: 0}),
+  failedPlain: delay({failed: true}),
+  failedPending: delay({failed: true, hasPendingDecision: true}),
+  failedFf: delay({failed: true, fastForward: true}),
+  noRevision: delay({revision: null, held: false}),
+  watching: delay({interactive: false}),
+  path: F.statePath('g 1', 7, true, 5, true),
+  pathNoHold: F.statePath('g 1', 7, true, 5, false),
+  pathNoRevision: F.statePath('g 1', 7, true, null, true),
+  pathWatching: F.statePath('g1', 0, false, 5, true),
+  revisions: [F.parseRevision({revision: 0}), F.parseRevision({revision: 4}), F.parseRevision({}),
+    F.parseRevision({revision: '4'}), F.parseRevision({revision: -1}), F.parseRevision(null)]
+}));
+"""
+    )
+    out = _node_json(script)
+    assert isinstance(out, dict)
+    assert out["heldChanged"] == 0 and out["heldTimedOut"] == 0
+    assert out["rateLimited"] == 35  # at most about 25 held requests a second while the AI plays
+    # the fixed intervals of before (400 ms, 1.5 s with an open decision, 150 ms fast-forward)
+    assert out["instantUnchanged"] == 400 and out["instantUnchangedPending"] == 1500
+    assert out["instantUnchangedFf"] == 150
+    assert out["failedPlain"] == 400 and out["failedPending"] == 1500 and out["failedFf"] == 150
+    assert out["firstAsk"] == 0 and out["noRevision"] == 400 and out["watching"] == 2000
+    assert out["path"] == "/api/play/g%201?start=7&count=1000&since=5&wait_ms=8000"
+    assert out["pathNoHold"] == "/api/play/g%201?start=7&count=1000"
+    assert out["pathNoRevision"] == "/api/play/g%201?start=7&count=1000"
+    assert out["pathWatching"] == "/api/games/g1?start=0&count=1000"
+    assert out["revisions"] == [0, 4, None, None, None, None]
+
+
+def test_partie_page_follows_with_held_requests_and_no_second_loop() -> None:
+    html = (STATIC / "partie.html").read_text(encoding="utf-8")
+    js = (STATIC / "partie.js").read_text(encoding="utf-8")
+    follow_js = (STATIC / "follow.js").read_text(encoding="utf-8")
+    assert html.index('src="follow.js"') < html.index('src="partie.js"')
+    # the fixed 400/1500/150 ms intervals live in one place (follow.js), not in the page
+    for interval in ("? 1500 : 400", "? 150 :"):
+        assert interval not in js
+    assert "StudioFollow.nextDelayMs(" in js and "StudioFollow.statePath(" in js
+    # one follow loop at a time: a newer loop ends the older one and its held request
+    assert "state.followGen += 1" in js and "generation !== state.followGen" in js
+    assert "abortHeldRequest()" in js and "new AbortController()" in js
+    # a failed request keeps the banner and the fixed intervals; frames are asked from what is held
+    assert "showConnectionLost(state.pollFailures, error.message)" in js
+    assert "start=${start}" in follow_js
+    for forbidden in (
+        "innerHTML",
+        "outerHTML",
+        "style=",
+        "document.",
+        "window.",
+        "fetch(",
+        "eval(",
+    ):
+        assert forbidden not in follow_js, forbidden
+    paths = sorted(set(re.findall(r"/api/[a-z0-9_/${}()?=&.-]+", follow_js, re.IGNORECASE)))
+    assert paths and all(p.startswith(("/api/games/", "/api/play/")) for p in paths), paths

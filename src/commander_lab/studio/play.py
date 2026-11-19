@@ -74,6 +74,9 @@ _HUMAN_TIMEOUT_MESSAGE = (
 _PARK_POLL_SECONDS = 2.0
 DEFAULT_AI_DELAY_MS = 250
 _AI_DELAY_SLICE_SECONDS = 0.05
+# Longest time one state request may be held open waiting for a change (#1593). Short on purpose:
+# the page asks again at once, and a server shutdown waits for held requests.
+MAX_LONG_POLL_SECONDS = 8.0
 
 
 def _is_numeric_choice_decision(
@@ -546,6 +549,10 @@ class InteractiveGameSession:
         self._client_factory = client_factory
         self._recorder = GameRecorder(data_folder, self.game_id, prepared.header)
         self._lock = threading.Lock()
+        # Wakes held state requests (#1593); shares the state lock, so a revision is only ever
+        # read together with the state it describes.
+        self._changed = threading.Condition(self._lock)
+        self._revision = 0
         self._ready = threading.Event()
         self._commands: queue.Queue[_InteractiveCommand] = queue.Queue()
         self._frames: list[dict[str, object]] = []
@@ -597,6 +604,12 @@ class InteractiveGameSession:
             cwd=runner.cwd,
             request_timeout_seconds=ipc_timeout,
         )
+
+    def _notify_change(self) -> None:
+        """Counts one visible state change and wakes every held state request (#1593)."""
+        with self._changed:
+            self._revision += 1
+            self._changed.notify_all()
 
     def _update_outcomes_locked(self, status: Mapping[str, object]) -> None:
         outcomes = status.get("outcomes")
@@ -670,6 +683,7 @@ class InteractiveGameSession:
             else:
                 self._pending_decision = None
                 self._pending_raw_decision = None
+        self._notify_change()
         self._ready.set()
 
     def _record_decision(
@@ -682,6 +696,7 @@ class InteractiveGameSession:
             self._raw_frames.append(frame)
             self._pending_decision = None
             self._pending_raw_decision = None
+        self._notify_change()
 
     def _run_concede_command(
         self, client: object, cmd: _InteractiveCommand, current_status: dict[str, object]
@@ -997,9 +1012,33 @@ class InteractiveGameSession:
                     self._pending_raw_decision = None
                     self._running = False
                     self._result = closed
+            self._notify_change()
             self._ready.set()
 
-    def snapshot(self, *, start: int = 0, count: int = 200) -> dict[str, object]:
+    def wait_for_change(self, since: int, wait_seconds: float) -> None:
+        """Holds the caller until the state moved past revision ``since`` (#1593).
+
+        Returns at once when ``since`` is already out of date or the game is over, and after
+        ``wait_seconds`` (at most ``MAX_LONG_POLL_SECONDS``) when nothing changed. It only waits;
+        what the caller then reads is the ordinary, redacted snapshot.
+        """
+        limit = max(0.0, min(MAX_LONG_POLL_SECONDS, float(wait_seconds)))
+        with self._changed:
+            self._changed.wait_for(
+                lambda: self._revision != since or not self._running,
+                timeout=limit,
+            )
+
+    def snapshot(
+        self,
+        *,
+        start: int = 0,
+        count: int = 200,
+        since: int | None = None,
+        wait_seconds: float = 0.0,
+    ) -> dict[str, object]:
+        if since is not None and wait_seconds > 0.0:
+            self.wait_for_change(since, wait_seconds)
         with self._lock:
             # Owner decision 2026-11-17: hands of the AI seats are revealed after the game ends,
             # never while it runs. The unredacted frames are used only from the moment the game
@@ -1018,6 +1057,8 @@ class InteractiveGameSession:
                 "game_id": self.game_id,
                 "interactive": True,
                 "running": self._running,
+                # Counts visible state changes; the page sends it back as ``since`` (#1593).
+                "revision": self._revision,
                 "header": copy.deepcopy(self.prepared.header),
                 "human_seats": sorted(self.human_seats),
                 "decision_timeout_seconds": self.decision_timeout_seconds,
@@ -1202,10 +1243,14 @@ class InteractivePlayManager:
         *,
         start: int = 0,
         count: int = 200,
+        since: int | None = None,
+        wait_seconds: float = 0.0,
     ) -> dict[str, object]:
         session = self.get(game_id)
         if session is not None:
-            return session.snapshot(start=start, count=count)
+            return session.snapshot(
+                start=start, count=count, since=since, wait_seconds=wait_seconds
+            )
         from .games import read_game
 
         recorded = read_game(data_folder, game_id, start=start, count=count)

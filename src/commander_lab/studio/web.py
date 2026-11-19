@@ -2513,9 +2513,20 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         game_id: str,
         start: int = Query(default=0, ge=0),
         count: int = Query(default=200, ge=0, le=1000),
+        since: int | None = Query(default=None, ge=0),
+        wait_ms: int = Query(default=0, ge=0, le=60_000),
     ) -> dict[str, object]:
+        # With ``since`` (the ``revision`` of the last state the page holds) and ``wait_ms`` the
+        # request is held until the live game changed, at most MAX_LONG_POLL_SECONDS (#1593).
         try:
-            return play_manager.snapshot(games_home(), game_id, start=start, count=count)
+            return play_manager.snapshot(
+                games_home(),
+                game_id,
+                start=start,
+                count=count,
+                since=since,
+                wait_seconds=wait_ms / 1000.0,
+            )
         except (KeyError, ValueError) as error:
             raise HTTPException(404, "unknown game") from error
 
