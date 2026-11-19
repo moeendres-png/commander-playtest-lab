@@ -1781,3 +1781,6 @@ console.log(JSON.stringify({
         "missingMatch": True,
         "missingNonMatch": False,
     }
+    app_js = (STATIC / "app.js").read_text(encoding="utf-8")
+    assert "async function ensureUnownedLoadedFor(" in app_js
+    assert app_js.count("await ensureUnownedLoadedFor(") >= 4

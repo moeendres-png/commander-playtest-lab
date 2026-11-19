@@ -2985,6 +2985,14 @@ async function loadDecks() {
   $("deck-select").replaceChildren(...state.decks.map((item) => h("option", { value: item.deck_id, selected: item.deck_id === state.deckId }, item.name)));
   $("branch-select").replaceChildren(...deck.branches.map((item) => h("option", { value: item.branch, selected: item.branch === state.branch }, `${item.branch} (${StudioUI.num(item.cards, 0)})${item.has_draft ? " *" : ""}`)));
 }
+async function ensureUnownedLoadedFor(cards) {
+  if (state.includeUnowned || !Array.isArray(cards)) return;
+  const hasMissing = cards.some((entry) => entry && entry.zone === "main" && !state.byId.has(entry.card_id));
+  if (!hasMissing) return;
+  state.includeUnowned = true;
+  if ($("f-unowned")) $("f-unowned").checked = true;
+  await loadPool();
+}
 function useCards(cards) {
   state.list = new Map();
   for (const entry of cards) if (entry.zone === "main" && state.byId.has(entry.card_id)) state.list.set(entry.card_id, entry.quantity);
@@ -3004,9 +3012,11 @@ async function loadBranch() {
   state.needsDraftPut = false;
   if (draft.draft) {
     state.draftUpdatedAt = draft.draft.updated_at || "";
+    await ensureUnownedLoadedFor(draft.draft.cards);
     useCards(draft.draft.cards); state.dirty = true;
   } else {
     state.draftUpdatedAt = "";
+    await ensureUnownedLoadedFor(revision.cards);
     useCards(revision.cards); state.dirty = false; state.issues = revision.issues; state.shape = revision.shape; state.deckRoles = revision.roles || {}; state.combos = revision.combos || null;
   }
   renderSaveState();
@@ -3061,7 +3071,7 @@ async function showHistory() {
         h("td", { class: "num" }, StudioUI.num(row.cards, 0)),
         h("td", {}, row.note),
         h("td", {}, h("div", { class: "actions" },
-          h("button", { type: "button", class: "small", onclick: async () => { const revision = await api(`/api/revisions/${encodeURIComponent(row.revision_id)}`); useCards(revision.cards); closeModal(); changed(); toast("Alter Stand geladen. Er wird erst mit Speichern zum aktuellen Stand."); } }, "Laden"),
+          h("button", { type: "button", class: "small", onclick: async () => { const revision = await api(`/api/revisions/${encodeURIComponent(row.revision_id)}`); await ensureUnownedLoadedFor(revision.cards); useCards(revision.cards); closeModal(); changed(); toast("Alter Stand geladen. Er wird erst mit Speichern zum aktuellen Stand."); } }, "Laden"),
           h("button", { type: "button", class: "small", onclick: () => { state.diffBaseRev = row.revision_id; state.tab = "diff"; closeModal(); renderDeck(); } }, "Vergleichen")))))))),
     h("div", { id: "deck-series-slot" }),
     h("div", { class: "actions" }, h("button", { type: "button", onclick: closeModal }, "Schließen")));
