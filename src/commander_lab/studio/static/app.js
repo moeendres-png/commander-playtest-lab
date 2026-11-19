@@ -1224,6 +1224,9 @@ function renderCompare(body) {
       visibleShapes.map((row) => h("tr", { class: row.decks < state.small ? "low" : "" }, h("td", {}, cohortName(row.cohort)), h("td", { class: "num" }, row.decks_counted === row.decks ? StudioUI.num(row.decks, 0) : `${StudioUI.num(row.decks_counted, 0)} von ${StudioUI.num(row.decks, 0)}`),
         h("td", { class: "num" }, span(row.lands)), h("td", { class: "num" }, span(row.creatures)), h("td", { class: "num" }, span(row.mana_value)))))));
   body.append(h("h3", {}, "Aufbau im Vergleich"), table, h("p", { class: "note" }, "Median und mittlere Hälfte der Quelldecks. Gelb: Gruppe mit weniger als 30 Decks, sehr unsicher. Länder nach Vorderseite gezählt."));
+  const auditSlot = h("div", { id: "corpus-audit-slot" });
+  body.append(auditSlot);
+  if (typeof mountCorpusAudit === "function") mountCorpusAudit(auditSlot, { h, api, cohortName, commander: StudioCommander.current });
   const scope = activeScope();
   const counted = !scope && !state.subset && state.countedUniverse && !(state.cohorts[state.cohort] || 0);
   const name = (scope ? scope.label : counted ? countedName() : cohortName(state.cohort)) + (state.subset ? `, ${state.subset.info.label}` : "");

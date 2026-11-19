@@ -180,6 +180,40 @@ def test_counted_universe_source_date_is_a_readme_retrieval_date_never_the_file_
     assert dates() == ["2026-11-13", "2026-11-13"]
 
 
+def test_counted_universe_source_address_is_a_readme_address_and_stays_when_unstated(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    """#1545: the address of a deck-list source is the one its README row names, nothing else."""
+    from commander_lab.studio.provenance import README_NAME
+
+    def addresses() -> list[object]:
+        return [
+            r[0]
+            for r in store.connection.execute(
+                "SELECT url FROM source WHERE title LIKE ? ORDER BY title", (f"{FILE}#%",)
+            )
+        ]
+
+    def readme(cell: str) -> None:
+        (folder / README_NAME).write_text(
+            f"| Datei | Inhalt | Quelle |\n|---|---|---|\n| `{FILE}` | x | {cell} |\n",
+            encoding="utf-8",
+        )
+
+    folder = _write_counted(tmp_path / "counted", _both())
+    _import_counted(store, folder)
+    assert addresses() == [None, None]  # no README: unknown, not a guess
+    readme("Abruf 2026-11-13, https://a.example")
+    _import_counted(store, folder)
+    assert addresses() == ["https://a.example"] * 2  # one source per counted universe
+    readme("Abruf 2026-11-14")  # a README without an address does not erase the stored one
+    _import_counted(store, folder)
+    assert addresses() == ["https://a.example"] * 2
+    readme("Abruf 2026-11-14, https://b.example")  # a stated address replaces the stored one
+    _import_counted(store, folder)
+    assert addresses() == ["https://b.example"] * 2
+
+
 def test_numbered_parts_are_read_in_order(store: StudioStore, tmp_path: Path) -> None:
     rows = _both()
     folder = tmp_path / "parts"
