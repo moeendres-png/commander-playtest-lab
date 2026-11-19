@@ -25,7 +25,8 @@ import sqlite3
 from datetime import UTC, date, datetime
 from typing import cast
 
-from . import builder, signals, strength_view, universe
+from . import builder, gc_band, signals, strength_view, universe
+from .corpus_audit import corpus_audit
 from .roles import ORIGIN_CROSSWALK, ORIGIN_TAGGER, ROLES
 from .store import StudioStore
 from .tiers import MODEL_VERSION, TierParams
@@ -402,6 +403,7 @@ def _universes(store: StudioStore) -> dict[str, object]:
                 "spec_dimensions": {
                     "platforms": _selected(spec, "platforms"),
                     "cohorts": _selected(spec, "cohorts"),
+                    "gc_band": _selected(spec, "gc_band"),
                     "commanders": _selected(spec, "commanders"),
                     "must_contain_cards": _selected(spec, "must_contain"),
                     "date_filter": bool(spec.get("date_from") or spec.get("date_to")),
@@ -515,6 +517,8 @@ def data_report(
         "roles": _roles(db),
         "rulings": _rulings(db),
         "corpus": _corpus(db),
+        "corpus_audit": corpus_audit(db, today=moment),
+        "gc_band_crosstab": gc_band.gc_band_crosstab(store, commander=commander),
         "observations": _observations(db),
         "universes": _universes(store),
         "commanders": _commanders(store),

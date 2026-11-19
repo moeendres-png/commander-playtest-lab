@@ -108,6 +108,11 @@ def _resolve_research_dir(research_dir: str | Path | None = None) -> Path:
     return DEFAULT_RESEARCH_DIR
 
 
+def research_dir() -> Path:
+    """The TopDeck folder ``analyze_commander_conversion`` reads without an explicit folder."""
+    return _resolve_research_dir()
+
+
 def _optional_int(raw: object) -> int | None:
     if raw is None:
         return None

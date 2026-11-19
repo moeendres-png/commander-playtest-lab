@@ -28,6 +28,7 @@ from pydantic import BaseModel, ConfigDict, Field, StrictInt
 
 from . import (
     allocation,
+    answer_cache,
     build_list,
     builder,
     cache,
@@ -45,6 +46,7 @@ from . import (
     deck_series,
     engine_check,
     games,
+    gc_band,
     import_all,
     labels,
     land_advisor,
@@ -368,6 +370,7 @@ class UniverseBody(BaseModel):
     model_config = ConfigDict(extra="forbid")
     platforms: list[str] | None = Field(default=None, max_length=50)
     cohorts: list[str] | None = Field(default=None, max_length=100)
+    gc_band: list[str] | None = Field(default=None, max_length=3)
     commanders: list[str] | None = Field(default=None, max_length=10)
     date_from: str | None = Field(default=None, max_length=10)
     date_to: str | None = Field(default=None, max_length=10)
@@ -515,6 +518,36 @@ def layer_overview_cached(store: StudioStore, commander: str) -> dict[str, objec
     )
 
 
+def _status_store_part(store: StudioStore) -> dict[str, object]:
+    """The figures of ``/api/status`` that come from the store alone, remembered per store state
+    (#1563). The caller gets its own deep copy: changing it never changes what is remembered."""
+
+    def compute() -> dict[str, object]:
+        return {
+            "cards": store.count("card"),
+            "public_cards": store.count("scryfall_card"),
+            "source_decks": store.count("corpus_deck"),
+            "neutral_board_rows": store.count("neutral_board_row"),
+            "simulation_runs": store.count("simulation_run"),
+            # The three counts above are store totals over all commanders; this
+            # says how many of them are bound to a commander at all.
+            "source_data_binding": store.binding_counts(),
+            "decks": store.count("deck"),
+            "universe_profiles": store.count("universe_profile"),
+            # The qualified evidence-source layers and their review states
+            # (register in `sources.py`), so the data state is visible here;
+            # the counted detail of every layer is under /api/data-report.
+            "source_inventory": _inventory_summary(),
+            "freshness": source_freshness(store.connection),
+            "source_layers": source_layers(store.connection),
+            # Only the newest dated rows travel with the page load (the full list was 1.7 MB);
+            # the per-layer table in ``source_layers`` carries the counts of all of them.
+            "sources": recent_dated_sources(store.connection, 25),
+        }
+
+    return copy.deepcopy(cache.cached(store, ("status_store_part",), compute))
+
+
 def create_app(data_folder: str | Path | None = None) -> FastAPI:
     """The Studio application. ``data_folder`` is the Studio data folder (default: from the
     environment)."""
@@ -563,29 +596,24 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
 
         store = open_store()
         try:
-            # Only the newest dated rows travel with the page load (the full list was 1.7 MB);
-            # the per-layer table in ``source_layers`` carries the counts of all of them.
-            recent = recent_dated_sources(store.connection, 25)
+            # The store part is remembered per store state (#1563); the bridge state and the
+            # image folder are read fresh on every call, and the caller gets its own copy.
+            part = _status_store_part(store)
             return {
                 "bridge_qualification": bridge_qualification(),
-                "cards": store.count("card"),
-                "public_cards": store.count("scryfall_card"),
-                "source_decks": store.count("corpus_deck"),
-                "neutral_board_rows": store.count("neutral_board_row"),
-                "simulation_runs": store.count("simulation_run"),
-                # The three counts above are store totals over all commanders; this
-                # says how many of them are bound to a commander at all.
-                "source_data_binding": store.binding_counts(),
-                "decks": store.count("deck"),
-                "universe_profiles": store.count("universe_profile"),
-                # The qualified evidence-source layers and their review states
-                # (register in `sources.py`), so the data state is visible here;
-                # the counted detail of every layer is under /api/data-report.
-                "source_inventory": _inventory_summary(),
-                "freshness": source_freshness(store.connection),
-                "source_layers": source_layers(store.connection),
+                "cards": part["cards"],
+                "public_cards": part["public_cards"],
+                "source_decks": part["source_decks"],
+                "neutral_board_rows": part["neutral_board_rows"],
+                "simulation_runs": part["simulation_runs"],
+                "source_data_binding": part["source_data_binding"],
+                "decks": part["decks"],
+                "universe_profiles": part["universe_profiles"],
+                "source_inventory": part["source_inventory"],
+                "freshness": part["freshness"],
+                "source_layers": part["source_layers"],
                 "image_cache": image_cache_status(store),
-                "sources": recent,
+                "sources": part["sources"],
             }
         finally:
             store.close()
@@ -615,14 +643,17 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
     def pool(
         commander: list[str] = Query(min_length=1, max_length=2),
         profile: str | None = Query(default=None, max_length=80),
+        gc_band_key: str | None = Query(default=None, alias="gc_band", max_length=20),
         strength_universe: str | None = Query(default=None, max_length=120),
         strength_bracket: str | None = Query(default=None, max_length=20),
-    ) -> dict[str, object]:
+    ) -> Response:
         """The pool. ``strength_universe`` and ``strength_bracket`` are the universe source and
         bracket of the tier list's settings: the builder then shows the same counted universe
-        the tier list takes (the recommended settings when they are not given)."""
+        the tier list takes (the recommended settings when they are not given). Remembered per
+        store state and parameters (#1563)."""
         store = open_store()
-        try:
+
+        def compute() -> dict[str, object]:
             overrides: dict[str, object] = {}
             if strength_universe:
                 overrides["universe_source"] = strength_universe
@@ -636,7 +667,17 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
                     )
                 except ValueError:
                     settings = None  # a stale remembered value must not block the builder
-            return builder.pool_cards(store, commander, profile=profile, strength=settings)
+            return builder.pool_cards(
+                store, commander, profile=profile, gc_band=gc_band_key, strength=settings
+            )
+
+        try:
+            return answer_cache.json_answer(
+                store,
+                "pool",
+                (tuple(commander), profile, gc_band_key, strength_universe, strength_bracket),
+                compute,
+            )
         except ValueError as error:
             raise HTTPException(422, str(error)) from error
         except KeyError as error:
@@ -692,15 +733,22 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
     def evidence(
         view: str = evidence_model.VIEW_COMMANDER,
         commander: list[str] = Query(default=[], max_length=2),
-    ) -> dict[str, object]:
-        """Evidence per pool card for the tier list view. Marks are not part of it."""
+    ) -> Response:
+        """Evidence per pool card for the tier list view. Marks are not part of it. Remembered
+        per store state, parameters and the combo file (#1563)."""
         if view not in evidence_model.VIEWS:
             raise HTTPException(422, "view must be 'commander' or 'global'")
         if view == evidence_model.VIEW_COMMANDER and not commander:
             raise HTTPException(422, "the commander view needs a commander")
         store = open_store()
         try:
-            return evidence_model.pool_evidence(store, commander, view=view)
+            return answer_cache.json_answer(
+                store,
+                "evidence",
+                (view, tuple(commander)),
+                lambda: evidence_model.pool_evidence(store, commander, view=view),
+                files=evidence_model.ANSWER_FILES,
+            )
         except KeyError as error:
             raise HTTPException(404, f"commander not in the collection: {error}") from error
         finally:
@@ -765,12 +813,18 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         pod_size: int = Query(
             default=strength.DEFAULT_POD_SIZE, ge=strength.POD_SIZE_MIN, le=strength.POD_SIZE_MAX
         ),
-    ) -> dict[str, object]:
+    ) -> Response:
         """The rating layers (Bewertungsebenen) of one commander's pool, without the strength
-        index: for the card window of the builder. Derived or observed, never a tier."""
+        index: for the card window of the builder. Derived or observed, never a tier.
+        Remembered per store state and parameters (#1563)."""
         store = open_store()
         try:
-            return dict(strength_view.rating_layers(store, commander, pod_size))
+            return answer_cache.json_answer(
+                store,
+                "rating_layers",
+                (commander, pod_size),
+                lambda: dict(strength_view.rating_layers(store, commander, pod_size)),
+            )
         except KeyError as error:
             raise HTTPException(404, f"commander not in the collection: {error}") from error
         finally:
@@ -779,12 +833,18 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
     @app.get("/api/roles/audit")
     def role_audit_route(
         commander: str | None = Query(default=None, min_length=1, max_length=200),
-    ) -> dict[str, object]:
+    ) -> Response:
         """Compare Scryfall tagger claims vs. deterministic Oracle text claims (#1413),
-        optionally scoped to one commander's legal collection pool with n/N coverage."""
+        optionally scoped to one commander's legal collection pool with n/N coverage.
+        Remembered per store state and parameters (#1563)."""
         store = open_store()
         try:
-            return roles.role_origin_audit(store, commander=commander)
+            return answer_cache.json_answer(
+                store,
+                "role_audit",
+                (commander,),
+                lambda: roles.role_origin_audit(store, commander=commander),
+            )
         except KeyError as error:
             raise HTTPException(404, f"commander not in the collection: {error}") from error
         finally:
@@ -793,9 +853,16 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
     @app.get("/api/tournament-conversion")
     def tournament_conversion_route(
         commander: str = Query(min_length=1, max_length=200),
-    ) -> dict[str, object]:
-        """TopDeck with-vs-without (mit/ohne) top-cut conversion rates per card (#1412)."""
-        return dict(tournament_conversion.analyze_commander_conversion(commander))
+    ) -> Response:
+        """TopDeck with-vs-without (mit/ohne) top-cut conversion rates per card (#1412).
+        Reads only the TopDeck files: remembered per state of their folder (#1563)."""
+        folder = tournament_conversion.research_dir()
+        return answer_cache.file_answer(
+            "tournament_conversion",
+            (commander, str(folder)),
+            answer_cache.folder_stamp(folder),
+            lambda: dict(tournament_conversion.analyze_commander_conversion(commander, folder)),
+        )
 
     @app.get("/api/strength/profiles")
     def strength_profiles() -> list[dict[str, object]]:
@@ -858,16 +925,29 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         finally:
             store.close()
 
+    @app.get("/api/universe/gc-bands")
+    def universe_gc_bands(
+        commander: list[str] = Query(min_length=1, max_length=2),
+    ) -> dict[str, object]:
+        """Rule-derived Game-Changer-Band counts, provenance, disclaimer and declared bracket
+        origins for this commander (or pair), alongside — never mixed with — declared brackets."""
+        store = open_store()
+        try:
+            return dict(gc_band.gc_band_crosstab(store, commander=commander))
+        finally:
+            store.close()
+
     @app.get("/api/universe/counted")
     def universe_counted(
         commander: str = Query(min_length=1, max_length=200),
-    ) -> list[dict[str, object]]:
+    ) -> Response:
         """The counted deck-list universes stored for this commander (source, bracket, decks,
         snapshot, label) with the stored rows whose name matches no card of the store
         (``unmatched_rows``, up to ten ``unmatched_examples``, a German ``notice``). Never
-        another commander's."""
+        another commander's. Remembered per store state and commander (#1563)."""
         store = open_store()
-        try:
+
+        def compute() -> list[dict[str, object]]:
             known = signals.known_card_names(store)
             listed: list[dict[str, object]] = []
             for item in universe_choice.counted_universes(store, commander):
@@ -882,6 +962,11 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
                     }
                 )
             return listed
+
+        try:
+            return answer_cache.json_answer(
+                store, "universe_counted", (commander,), compute, shape="list"
+            )
         finally:
             store.close()
 
@@ -2141,22 +2226,39 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         include_unowned: bool = Query(default=False),
         limit_decks: int = Query(default=100, ge=1, le=500),
         limit_cards: int = Query(default=60, ge=1, le=300),
-    ) -> dict[str, object]:
-        """Read-only Deck-Browser (#1323): filter saved and source decks + card co-occurrence."""
+    ) -> Response:
+        """Read-only Deck-Browser (#1323): filter saved and source decks + card co-occurrence.
+        Remembered per store state and parameters (#1563)."""
         store = open_store()
         try:
-            return similar_decks.browse_decks(
+            return answer_cache.json_answer(
                 store,
-                commander=commander,
-                q=q,
-                origin=origin,
-                cohort=cohort,
-                label=label,
-                must_contain=must_contain,
-                must_not_contain=must_not_contain,
-                include_unowned=include_unowned,
-                limit_decks=limit_decks,
-                limit_cards=limit_cards,
+                "deck_browser",
+                (
+                    commander,
+                    q,
+                    origin,
+                    cohort,
+                    label,
+                    tuple(must_contain),
+                    tuple(must_not_contain),
+                    include_unowned,
+                    limit_decks,
+                    limit_cards,
+                ),
+                lambda: similar_decks.browse_decks(
+                    store,
+                    commander=commander,
+                    q=q,
+                    origin=origin,
+                    cohort=cohort,
+                    label=label,
+                    must_contain=must_contain,
+                    must_not_contain=must_not_contain,
+                    include_unowned=include_unowned,
+                    limit_decks=limit_decks,
+                    limit_cards=limit_cards,
+                ),
             )
         finally:
             store.close()

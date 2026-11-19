@@ -11,7 +11,8 @@ Nachweise, kanonische Decks und Bestand ändern sich mit dieser Datei nicht.
 **Lesart.** Jeder Punkt nennt seine Quelle. Owner-Wortlaut steht in Anführungszeichen und ist
 unverändert übernommen. Was keine Owner-Aussage ist, sondern eine Einordnung der Lead-Sitzung,
 ist als solche gekennzeichnet. Eine spätere Owner-Anweisung geht vor; dann wird diese Datei
-fortgeschrieben, nie gelöscht (`AGENTS.md` §9).
+fortgeschrieben. Überholter Wortlaut darf nach E10 ersetzt werden; die Git-Historie bleibt die
+Quelle.
 
 **Quellen.**
 - Owner-Antworten 2026-11-18 (O1, O3, O4, O6) und „Sonst arbeite weiter nach deinen
@@ -274,6 +275,68 @@ agents.md damit es zu keiner doppelarbeit kommt“. Umgesetzt als Dauerregel in 
 unbeantworteten Rückfrage bei einem Claim ohne gepushten Meilenstein, Übernahme danach) sind
 Ausgestaltung des Leads nach `AGENTS.md` §8.
 
+### E9 (E-1a): Studio-Serien, Ergebnis auf bestätigtem `shutdown_game` (2026-11-19, #1612)
+
+Owner, 2026-11-19 (Session-Chat, festgehalten in #1612): „E-1a ok.“ Für Studio-Serien ruht das
+Partie-Ergebnis auf dem bestätigten `shutdown_game` je Partie, in einem **eigenen Ergebnistyp**
+(D-2 P2). Auflagen aus dem Evidenz-Review: kein Subtyp von `FullGameConformanceResult`; die
+Bestätigung (Ack) wird fail-closed gelesen; Hash-Identität auf dem Referenzsatz, auch über
+Look-Fenster-Grenzen; Budget höchstens 56 Partien je JVM bis zur Neumessung;
+`bridge_jar_sha256` und `BRIDGE_AHEAD_OF_QUALIFICATION` bleiben sichtbar. D-2 P2 bis P5 dürfen
+gebaut werden; P2 und D-3 berühren beide `full_game.py`, die Reihenfolge wird im Claim
+abgestimmt. Der Satz der Owner-Entscheidung vom 2026-10-15 (jedes Ergebnis ruhe auf dem sauberen
+Herunterfahren des Prozesses) gilt damit nur für `run_batch` und die Konformanz-Evidenz, nicht für
+Studio-`SIMULATED_RESULT`
+(`docs/owner_decision_20261015_batch_games_per_jvm/OWNER_DECISION_BATCH_GAMES_PER_JVM.md`).
+Batched Ergebnisse bleiben Messungen, keine Qualifikationsbeweise.
+
+### E10: Alte Owner-Entscheidungen dürfen überarbeitet werden (2026-11-19)
+
+Owner, 2026-11-19 (Session-Chat, festgehalten in #1612): „Merke dir allgemein dass du alte owner
+Entscheidungen gerne erstmal entfernen kannst und komplett auch überarbeiten“. Folge: Alte
+Owner-Entscheidungen (Entscheid-Dokumente wie `docs/OWNER_DECISIONS_*` und `docs/owner_decision_*`,
+ältere Festlegungen in Issues und Docs) dürfen vom Lead und vom Co-Lead zuerst entfernt oder
+vollständig überarbeitet werden, wenn sie dem aktuellen Scope oder neuen Entscheiden im Weg stehen
+oder veraltet sind. Vorgehen: Der überholte Wortlaut wird nicht still gelöscht, sondern im PR mit
+Begründung, Datum und Verweis auf diesen Entscheid ersetzt oder entfernt; die Git-Historie bleibt
+die Quelle. Die Owner-Vorbehalte in `AGENTS.md` §8 (Fork-Push und Repin, Siegel, `qualification/`
+und WS17, 5 und 6 Sitze, Sichtbarkeit und #1108, Bezahldienste, Kollektionstrennung) bleiben
+bestehen, solange der Owner sie nicht ausdrücklich nennt.
+
+### E11: Go D, Brownfield-Bewertung (2026-11-19, #1612)
+
+Owner, 2026-11-19 (Session-Chat, festgehalten in #1612): „Und ja Go D“. Gemeint ist die
+Brownfield-Bewertung (Option D: kein Neubau, Härten plus drei Ersatz-Nähte D-1 bis D-3). Die
+Entscheide des Co-Leads zu den fünf Punkten der Bewertung stehen in #1612; sie sind durch das Go
+gedeckt. Fork-Push, Repin, Siegel, `qualification/` und WS17 bleiben Owner-Vorbehalt (Abschnitt 5).
+
+### E12: MTGJSON-Guard, Option A (2026-11-19, #1553)
+
+Owner, 2026-11-19 (Session-Chat, festgehalten in #1553): „Option A. Aber spiele sowieso lieber auf
+englisch“. Der MTGJSON-Guard (`tests/unit/test_studio_mtgjson_guard.py`) wird um genau eine Datei
+erweitert (`studio/german_names.py`), mit Begründung und Verweis auf diesen Entscheid im Test.
+MTGJSON-Druckdaten sind damit als Quelle für deutsche Namen freigegeben: nur diese Datei, nur
+Namen, keine Preise, keine anderen Produktionspfade. Der Negativtest des Guards bleibt
+unverändert. Anzeige bleibt der Oracle-Name; deutsche Namen dienen nur Suche und Import-Auflösung.
+Die Rechte an den MTGJSON-Kartendaten sind laut `docs/research/OPEN_SOURCE_LANES_20261117.md`
+ungeklärt; die Freigabe ist die ausdrückliche Owner-Entscheidung dazu.
+
+### E13: Effizienz-Lane #1558, Freigaben (2026-11-18/19)
+
+Owner, 2026-11-18 (Session-Chat, festgehalten in #1558): „Hier mein Go für deine Empfehlungen“
+(gedeckt: #1568, #1560, #1573, #1569, #1562, #1563, #1564, #1566, #1567, #1572) und „Go #1570
+#1571 #1574“. Für #1570, #1571 und #1574 galten die Auflagen: Pflicht-Check-Namen (`quality`,
+`security`, `infrastructure`), Bedeutung und Strenge unverändert; kein Test gestrichen oder
+geschwächt; MATERIAL-Review durch einen anderen Agenten auf exakter Head-SHA; die
+`WS17_SHA256SUMS`-Digestzeile nur innerhalb einer Änderung an
+`.github/workflows/production-qualification.yml` regenerieren. Nicht gedeckt blieben neue
+Python-Abhängigkeiten, `pyproject.toml`, Siegel/`qualification/` und das Branch-Ruleset.
+Stand 2026-11-19: #1570 und #1571 sind umgesetzt (geschlossen). #1574 ist nicht umgesetzt
+(geschlossen als `not_planned`): Eine Messung (n = 20) ergab, dass Teilen nach Einzeltests die
+Laufzeit höchstens um 1 bis 10 s senkt, bei neuer MATERIAL-Läuferlogik; die Prämisse des Issues
+traf nicht zu (Entscheid des Co-Leads in #1574). Die Freigabe ist damit nicht verbraucht, aber
+auch nicht Auftrag, etwas anderes in `production-qualification.yml` zu ändern.
+
 ## 3. Was aufgehoben, geändert oder neu ist
 
 | Bisher | Jetzt | Quelle |
@@ -288,6 +351,8 @@ Ausgestaltung des Leads nach `AGENTS.md` §8.
 | G-SIM Punkt 2: Stichprobe 200/20, eigene Owner-Bestätigung nötig; S2 nur für die Zählung aufgehoben | Pilot-Audit dreiteilig; S2 zusätzlich nur für dieses Audit aufgehoben | E7, C1 |
 | Weg in die Tierliste: „nach G-SIM eigenes Design“ | Stufen 0 / 1 / 2; Gewicht größer 0 erst in Stufe 2 | E7, C3 |
 | Review eines MATERIAL-PR aus frischem Kontext | zusätzlich Kreuz-Review durch den jeweils anderen Agenten, soweit zwei parallel arbeiten | E7, C7 |
+| Owner-Entscheidung 2026-10-15 (`owner_decision_20261015_batch_games_per_jvm`): jedes Ergebnis ruht auf dem sauberen Herunterfahren des Prozesses | gilt nur für `run_batch` und die Konformanz-Evidenz; für Studio-Serien ruht das Ergebnis auf dem bestätigten `shutdown_game` je Partie in eigenem Ergebnistyp (E9) | Owner 2026-11-19, #1612 |
+| Entscheid-Dokumente: „fortgeschrieben, nie gelöscht“ (diese Datei, `AGENTS.md` §9 „archived, never deleted“) | überholter Wortlaut darf mit Begründung, Datum und Verweis im PR ersetzt oder entfernt werden; Git-Historie bleibt Quelle (E10) | Owner 2026-11-19, #1612 |
 
 ## 4. Gilt unverändert
 

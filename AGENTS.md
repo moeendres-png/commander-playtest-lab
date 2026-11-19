@@ -242,7 +242,10 @@ reused.
 
 **Cleanups.** Code or a document is kept because something machine-read, imported or executed needs
 it, or a JSON/manifest record under `qualification/` names it by path; a mention in prose does not
-keep it. A document that records an Owner decision is archived, never deleted. A test is deleted
+keep it. A document that records an Owner decision is archived, not silently deleted; outdated
+wording may be replaced or removed in a pull request that states reason, date and the Owner
+decision (Owner, 2026-11-19, `docs/OWNER_DECISIONS_STUDIO_20261118.md` E10); the §8 reservations
+stay. A test is deleted
 only when its subject is gone; a test of living code that merely used removed helpers for setup is
 re-hosted, not deleted.
 
@@ -386,6 +389,15 @@ and the open pull requests and branches; it releases the claim on merge, handove
 For a claim without a pushed milestone, anyone may ask in the issue; if 24 hours then pass without
 an answer or a push, the claim lapses and another agent may take the work over. Another agent's
 active branch stays untouched without a handover (above).
+
+**Reports on GitHub.** Results other agents need (analysis, measurement, research, decision and
+plan reports, evidence excerpts, briefings and prompts) do not stay in a scratchpad or the chat
+(Owner instruction of 2026-11-19). They go to GitHub at once: a short issue or pull request
+comment (summary, Owner decisions verbatim with date) and the full report as a file on a branch
+or in a pull request under `docs/analysis-reports/`, with file names free of model names; the
+comment links the file. Check for personal data and credentials before pushing; raw measurement
+data, store copies and third-party raw data stay outside the repository. A handover that exists
+only in the chat counts as not handed over.
 
 **Cross-workstream access.** Project-wide understanding does not imply project-wide write authority.
 A normal run owns one writable worktree; a bounded integration task may declare more surfaces, each
