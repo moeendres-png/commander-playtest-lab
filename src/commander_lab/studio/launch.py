@@ -260,6 +260,11 @@ def appcds_archive_path(jar: Path, archive: str | Path | None = None) -> Path:
     return (Path(archive) if archive is not None else jar.with_suffix(".jsa")).resolve()
 
 
+def appcds_jar_sha256_path(archive: Path) -> Path:
+    """Sidecar recording the bridge JAR SHA-256 used to train ``archive``."""
+    return archive.with_name(f"{archive.name}.jar.sha256")
+
+
 def default_appcds_deck_paths(root: Path | None = None) -> tuple[Path, ...]:
     """Resolve 4 training deck paths for AppCDS class-loading coverage."""
     base = _repository_root() if root is None else root
@@ -375,8 +380,10 @@ def build_appcds_archive(
     )
 
     target_archive = appcds_archive_path(resolved_jar, archive)
+    sidecar = appcds_jar_sha256_path(target_archive)
     target_archive.parent.mkdir(parents=True, exist_ok=True)
     target_archive.unlink(missing_ok=True)
+    sidecar.unlink(missing_ok=True)
 
     runner = XmageFullGameRunner(
         (
@@ -401,6 +408,10 @@ def build_appcds_archive(
             f"Die Trainings-JVM hat kein AppCDS-Archiv geschrieben: {target_archive}"
         )
 
+    jar_sha256 = _file_sha256(resolved_jar)
+    if jar_sha256 is not None:
+        sidecar.write_text(f"{jar_sha256}\n", encoding="utf-8")
+
     run_cmd = (
         java,
         *APPCDS_JVM_LOG_FLAGS,
@@ -413,6 +424,7 @@ def build_appcds_archive(
     return {
         "status": "built",
         "jar_path": str(resolved_jar),
+        "jar_sha256": jar_sha256,
         "archive_path": str(target_archive),
         "archive_bytes": target_archive.stat().st_size,
         "decisions": decisions,
