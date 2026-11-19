@@ -15,6 +15,24 @@ from pathlib import Path
 _NEEDLE = "mtgjson"
 _PRODUCTION_ROOT = Path(__file__).resolve().parents[2] / "src" / "commander_lab"
 
+# The one deliberate exception (Owner decision 2026-11-19, issue #1553, "Option A"): the
+# checked-in MTGJSON print data is a source for German card NAMES only (deck builder search
+# and deck list import resolution; no prices, no other production path). Exactly this file.
+_ALLOWED = (_PRODUCTION_ROOT / "studio" / "german_names.py",)
+
+
+def _allowed(path: Path) -> bool:
+    """The allowed file, or its compiled copy (the scan reads every file type)."""
+    return any(
+        path == item
+        or (
+            path.parent == item.parent / "__pycache__"
+            and path.suffix == ".pyc"
+            and path.name.startswith(item.stem + ".")
+        )
+        for item in _ALLOWED
+    )
+
 
 def _flagged(root: Path) -> list[Path]:
     """Every file below ``root`` whose text names MTGJSON, case-insensitively.
@@ -32,7 +50,24 @@ def _flagged(root: Path) -> list[Path]:
 
 def test_no_mtgjson_reference_in_production_sources() -> None:
     assert _PRODUCTION_ROOT.is_dir()
-    assert _flagged(_PRODUCTION_ROOT) == []
+    assert [path for path in _flagged(_PRODUCTION_ROOT) if not _allowed(path)] == []
+
+
+def test_the_exception_is_exactly_one_file_and_is_still_needed() -> None:
+    assert len(_ALLOWED) == 1
+    assert [p for p in _flagged(_PRODUCTION_ROOT) if _allowed(p)] != []
+    assert [p for p in _flagged(_PRODUCTION_ROOT) if p.suffix == ".py" and _allowed(p)] == list(
+        _ALLOWED
+    )
+
+
+def test_the_compiled_copy_exception_covers_only_pyc_files() -> None:
+    cache = _ALLOWED[0].parent / "__pycache__"
+    assert _allowed(_ALLOWED[0])
+    assert _allowed(cache / "german_names.cpython-313.pyc")
+    assert not _allowed(cache / "german_names.evil.txt")
+    assert not _allowed(cache / "other.cpython-313.pyc")
+    assert not _allowed(_ALLOWED[0].with_name("german_names.evil.txt"))
 
 
 def test_scan_flags_a_planted_reference(tmp_path: Path) -> None:

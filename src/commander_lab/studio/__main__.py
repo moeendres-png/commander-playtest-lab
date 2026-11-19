@@ -715,6 +715,12 @@ def _play_batch(args: argparse.Namespace) -> int:
     def _report(summary: dict[str, object]) -> None:
         print(json.dumps({"game_id": summary["game_id"], "status": summary["status"]}), flush=True)
 
+    def _report_played(game_id: str) -> None:
+        # progress only (the engine has played the game to its end); the result line above
+        # follows once the engine process has ended. The key is not ``game_id`` on purpose: a
+        # reader of the result lines must never take this line for a closed game.
+        print(json.dumps({"event": "played", "played_game_id": game_id}), flush=True)
+
     summaries = play_recorded_games(
         folder,
         [Path(path) for path in args.deck],
@@ -723,6 +729,7 @@ def _play_batch(args: argparse.Namespace) -> int:
         max_decisions=args.max_decisions,
         private_card_repository=args.private_card_repository,
         on_game=_report,
+        on_played=_report_played,
     )
     return 0 if all(item["status"] == "finished" for item in summaries) else 1
 

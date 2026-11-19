@@ -436,6 +436,13 @@ class PairedSeriesJob:
         self.error: str | None = None
         self.result: paired_comparison.PairedComparison | None = None
         self._cancel_requested = False
+        #: Games the engine has played to their end: the ones taken over from disk plus those
+        #: announced during this run. A progress count that comes before the pair is complete.
+        self._games_played: set[tuple[str, int, int]] = {
+            key
+            for key, played in self.preloaded_games.items()
+            if played.get("failure_class") is None
+        }
         self._lock = threading.Lock()
         self._persist_lock = threading.Lock()
         self._progress_lock = threading.Lock()
@@ -482,6 +489,9 @@ class PairedSeriesJob:
     def _append_game_result(
         self, arm: str, seed: int, seat: int, played: paired_comparison.PlayedGame
     ) -> None:
+        if played.get("failure_class") is not None:
+            with self._lock:  # a game that ended as a failure is not a played game
+                self._games_played.discard((arm, seed, seat))
         path = self.progress_file()
         line = json.dumps(
             {"arm": arm, "seed": seed, "seat": seat, "played": played},
@@ -493,6 +503,12 @@ class PairedSeriesJob:
                 handle.write(line + "\n")
                 handle.flush()
         self._write_lock()
+
+    def mark_game_played(self, arm: str, seed: int, seat: int) -> None:
+        """Count one game of this series as played by the engine (progress only)."""
+        with self._lock:
+            self._games_played.add((arm, seed, seat))
+        self.persist()
 
     def cancel(self) -> None:
         with self._lock:
@@ -550,6 +566,8 @@ class PairedSeriesJob:
                 "threshold_pp": self.threshold_pp,
                 "significance_level": self.significance_level,
                 "pairs_attempted": self.pairs_attempted,
+                "games_played": len(self._games_played),
+                "games_planned_max": 2 * self.budget_pairs,
                 "created_at": self.created_at,
                 "started_at": self.started_at,
                 "ended_at": self.ended_at,
@@ -602,6 +620,7 @@ class PairedSeriesJob:
             cancel_error_factory=lambda: SeriesCancelledError("Serie vom Benutzer abgebrochen"),
             preloaded=self.preloaded_games,
             on_game_result=self._append_game_result,
+            on_game_played=self.mark_game_played,
         )
 
         try:

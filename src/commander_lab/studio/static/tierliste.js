@@ -1450,6 +1450,7 @@ function renderUniversePanel() {
     const body = name === uni.name && spec.commanders && spec.commanders.length ? { commanders: [...spec.commanders] } : {};
     if (checkedValues("u-platforms").length) body.platforms = checkedValues("u-platforms");
     if (checkedValues("u-cohorts").length) body.cohorts = checkedValues("u-cohorts");
+    if (checkedValues("u-gc-bands").length) body.gc_band = checkedValues("u-gc-bands");
     if ($("u-from").value) body.date_from = $("u-from").value;
     if ($("u-to").value) body.date_to = $("u-to").value;
     if ($("u-min").value !== "") body.min_main_cards = Number($("u-min").value);
@@ -1466,6 +1467,7 @@ function renderUniversePanel() {
     field("Name", "u-name", uni.name),
     h("span", {}, "Plattformen", optionChecks("u-platforms", uni.options && uni.options.platforms, spec.platforms || [])),
     h("span", {}, "Kohorten", optionChecks("u-cohorts", uni.options && uni.options.cohorts, spec.cohorts || [])),
+    h("span", { title: (uni.options && uni.options.gc_band_meta && uni.options.gc_band_meta.provenance) || "regelabgeleitet aus Deckliste und Game-Changer-Liste" }, "Game-Changer-Band (regelabgeleitet, kein Bracket)", optionChecks("u-gc-bands", uni.options && uni.options.gc_bands, spec.gc_band || [])),
     h("span", {}, "Muss enthalten (alle, im Hauptdeck)", picker.node),
     field("Datum ab", "u-from", spec.date_from, "date"),
     field("Datum bis", "u-to", spec.date_to, "date"),

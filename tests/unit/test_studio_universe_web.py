@@ -887,3 +887,141 @@ def test_corpus_aggregation_sets_and_join_order_for_a_small_and_the_full_univers
             assert steps[1].startswith("SEARCH c USING PRIMARY KEY"), plan
     finally:
         store.close()
+
+
+def test_gc_band_api_and_pool_report_unknown_without_markings_never_zero(
+    folder: Path,
+) -> None:
+    from commander_lab.studio import builder, gc_band
+
+    with _CommanderClient(create_app(folder)) as client:
+        # The fixture marks no card as Game Changer: every deck is unknown, none in gc_band:0.
+        table = client.get("/api/universe/gc-bands").json()
+        assert table["marking_status"] == "missing"
+        total = table["total_decks"]
+        assert total > 0
+        assert table["rows"]["gc_band:unknown"]["total"] == total
+        assert table["rows"]["gc_band:0"]["total"] == 0
+        pool = client.get("/api/pool", params={"commander": NAMES[0], "gc_band": "gc_band:0"})
+        assert pool.status_code == 200, pool.text
+        scope = pool.json()["universe"]
+        assert scope["gc_band"] == "gc_band:0" and scope["denominator"] == 0
+        assert scope["empty_reason"] == gc_band.MARKING_MISSING_REASON
+        assert scope["gc_band_meta"]["marking_status"] == "missing"
+        # "unknown" is a report row, not a selectable band; it never mixes with a profile.
+        refused = client.get(
+            "/api/pool", params={"commander": NAMES[0], "gc_band": "gc_band:unknown"}
+        )
+        assert refused.status_code == 422
+
+    # A complete list with one marked card: the bands add up and the pool scope matches.
+    store = StudioStore.open(folder)
+    try:
+        store.connection.execute("UPDATE scryfall_card SET game_changer = 0")
+        store.connection.execute(
+            "UPDATE scryfall_card SET game_changer = 1 WHERE name = 'Filler 03'"
+        )
+        store.connection.commit()
+        direct = gc_band.gc_band_crosstab(store, commander=NAMES)
+        rows = direct["rows"]
+        assert sum(rows[band]["total"] for band in gc_band.GC_BAND_ROWS) == direct["total_decks"]
+        assert rows["gc_band:1-3"]["total"] > 0
+        banded = builder.pool_cards(store, NAMES, gc_band="gc_band:1-3")
+        scope = banded["universe"]
+        assert isinstance(scope, dict)
+        assert scope["denominator"] == rows["gc_band:1-3"]["total"]
+        assert scope["gc_band_meta"]["marking_status"] == "complete"
+        assert scope["empty_reason"] is None
+        with pytest.raises(ValueError, match="cannot be combined"):
+            builder.pool_cards(store, NAMES, profile="x", gc_band="gc_band:0")
+    finally:
+        store.close()
+    with _CommanderClient(create_app(folder)) as client:
+        assert client.get("/api/universe/gc-bands").json()["rows"] == json.loads(json.dumps(rows))
+
+
+def _gc_node(script: str) -> Any:
+    import shutil
+    import subprocess
+
+    node = shutil.which("node")
+    if node is None:
+        pytest.skip("node is not installed")
+    prelude = "const G = require('./gcband.js');\n"
+    done = subprocess.run(
+        [node, "-e", prelude + script], capture_output=True, text=True, check=True, cwd=STATIC
+    )
+    return json.loads(done.stdout)
+
+
+def test_gc_band_ui_scope_never_shows_declared_cohort_numbers_under_the_band() -> None:
+    # A card with B3 cohort figures and the counted spread of the band "4+ GC".
+    result = _gc_node(
+        """
+        const card = {decks: {"bracket:3": 40, all: 90},
+                      universe: {matched: true, filter_card: false, hits: 7, denominator: 20,
+                                 share: 0.35, level: "B"}};
+        let view = {universe: "", gcBand: "", cohort: "bracket:3"};
+        const before = {scope: G.activeScope(view), freq: G.scopedFreq(card, G.activeScope(view), 0)};
+        const picked = G.select(view, "gc_band", "gc_band:4+");
+        view = {universe: picked.universe, gcBand: picked.gcBand, cohort: picked.cohort};
+        const scope = G.activeScope(view);
+        const freq = G.scopedFreq(card, scope, 20);
+        const unknownCard = G.scopedFreq({decks: {"bracket:3": 40}}, scope, 20);
+        const back = G.select(view, "cohort", "bracket:3");
+        const uni = G.select(view, "universe", "chulane-alle");
+        const filter = G.select(view, "subset", ["Sol Ring"]);
+        const keepUniverse = G.scopedFreq({decks: {}}, G.activeScope({universe: "u"}), 5);
+        console.log(JSON.stringify({before, picked, scope, freq, unknownCard, back, uni, filter,
+          keepUniverse, query: G.scopeQuery(view), uniQuery: G.scopeQuery({universe: "a b"}),
+          rows: G.bandRows({rows: {"gc_band:0": {total: 0}, "gc_band:1-3": {total: 2},
+            "gc_band:4+": {total: 1}, "gc_band:unknown": {total: 5, unresolved_cards: 3,
+            decks_with_unresolved: 2}}}).map((r) => [r.key, r.count, r.selectable])}));
+        """
+    )
+    assert result["before"] == {"scope": None, "freq": None}
+    # Choosing the band resets the declared cohort and clears the deck filter explicitly.
+    assert result["picked"] == {
+        "universe": "",
+        "gcBand": "gc_band:4+",
+        "cohort": "all",
+        "clearSubset": True,
+    }
+    assert result["scope"]["kind"] == "gc_band" and result["scope"]["param"] == "gc_band"
+    assert result["scope"]["label"] == "Game-Changer-Band 4+ GC (regelabgeleitet, kein Bracket)"
+    assert "B3" not in result["scope"]["label"] and "bracket" not in result["scope"]["label"]
+    # The numbers are the band's counted spread, never the B3 figures (40).
+    assert result["freq"] == {"hits": 7, "total": 20, "share": 0.35, "filter": False}
+    assert result["unknownCard"] == {"hits": None, "total": 20, "share": None, "filter": False}
+    # A declared cohort or a universe clears the band; a deck filter clears it as well.
+    assert result["back"]["gcBand"] == "" and result["back"]["cohort"] == "bracket:3"
+    assert result["uni"]["gcBand"] == "" and result["uni"]["universe"] == "chulane-alle"
+    assert result["filter"]["gcBand"] == ""
+    assert result["keepUniverse"] is None  # a universe without a row keeps the old fallback
+    assert result["query"] == "&gc_band=gc_band%3A4%2B"
+    assert result["uniQuery"] == "&profile=a%20b"
+    assert result["rows"] == [
+        ["gc_band:0", 0, True],
+        ["gc_band:1-3", 2, True],
+        ["gc_band:4+", 1, True],
+        ["gc_band:unknown", 5, False],
+    ]
+
+
+def test_gc_band_page_reads_every_count_and_label_through_the_active_scope() -> None:
+    app = (STATIC / "app.js").read_text(encoding="utf-8")
+    html = (STATIC / "index.html").read_text(encoding="utf-8")
+    assert html.index('src="gcband.js"') < html.index('src="app.js"')
+    for start, end in (
+        ("function displayFreq(card)", "const countedName"),
+        ("function sourceDecks()", "function similarCacheKey()"),
+        ("function renderCompare(body)", "Only cards with a known count"),
+    ):
+        block = app[app.index(start) : app.index(end)]
+        assert "activeScope()" in block, start
+        assert "if (state.universe)" not in block, start
+    assert "`Im Universum ${state.universe}" not in app
+    assert "Im ${activeScope().label}" in app
+    assert "StudioGcBand.scopeQuery(state)" in app
+    gcband = (STATIC / "gcband.js").read_text(encoding="utf-8")
+    assert "vom unbekannt" not in gcband and "vom unbekannt" not in app
