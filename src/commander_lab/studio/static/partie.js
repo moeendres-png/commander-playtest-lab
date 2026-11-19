@@ -15,7 +15,7 @@ const SPEEDS = [[2000, "langsam"], [1000, "1 pro Sekunde"], [500, "2 pro Sekunde
 const POOL_COLORS = { white: "Weiß", blue: "Blau", black: "Schwarz", red: "Rot", green: "Grün", colorless: "Farblos" };
 const OPTION_TYPES = { pass_priority: "Passen", play_land: "Land spielen", cast_spell: "Zauber wirken", activated_ability: "Fähigkeit aktivieren", mana_ability: "Mana-Fähigkeit", special_action: "Sonderaktion", target: "Ziel", choose_object: "Objekt wählen", attacker: "Angreifer", blocker: "Blocker", mode: "Modus", choice: "Auswahl", mana_payment: "Mana", trigger_order: "Auslöser", yes: "Ja", no: "Nein" };
 
-const state = { click: null, clickActive: false, menu: null, openZone: null, games: [], gameId: null, header: null, result: null, running: false, interactive: false, humanSeats: [], pendingDecision: null, pendingDecisionId: null, selectedOptions: [], orderList: [], submitting: false, canConcede: false, handsRevealed: false, autoPassAttempt: null, pollFailures: 0, ownCombat: StudioPlayP1a.emptyCombatLedger(), ff: { on: false, boosted: false, mode: "until_my_turn", startTurn: null, stopOnOpponentStack: true, watchStackObjectId: null }, frames: [], index: 0, playing: false, timer: 0, facts: {}, noImage: new Set(), lines: [], seatKeys: [], poll: 0 };
+const state = { click: null, clickActive: false, menu: null, openZone: null, games: [], gameId: null, header: null, result: null, running: false, interactive: false, humanSeats: [], pendingDecision: null, pendingDecisionId: null, selectedOptions: [], orderList: [], submitting: false, canConcede: false, handsRevealed: false, autoPassAttempt: null, pollFailures: 0, revision: null, followGen: 0, foreground: 0, pollAbort: null, ownCombat: StudioPlayP1a.emptyCombatLedger(), ff: { on: false, boosted: false, mode: "until_my_turn", startTurn: null, stopOnOpponentStack: true, watchStackObjectId: null }, frames: [], index: 0, playing: false, timer: 0, facts: {}, noImage: new Set(), lines: [], seatKeys: [], poll: 0 };
 
 const $ = (id) => document.getElementById(id);
 function h(tag, props, ...children) {
@@ -33,8 +33,9 @@ function h(tag, props, ...children) {
   }
   return el;
 }
-async function api(path, method = "GET", body) {
+async function api(path, method = "GET", body, signal) {
   const options = { method, headers: { "X-Studio": "1" } };
+  if (signal) options.signal = signal;
   if (body !== undefined) { options.headers["Content-Type"] = "application/json"; options.body = JSON.stringify(body); }
   const response = await fetch(path, options);
   if (!response.ok) {
@@ -1380,24 +1381,40 @@ async function loadFacts(from) {
 // One load at a time: loads run one after the other, so two calls never ask for the same frames
 // and an older answer can never overwrite a newer pending decision.
 let loadTail = Promise.resolve();
-function loadMore() {
-  const run = loadTail.then(loadMoreOnce);
+// opts.hold: the follow loop asks the server to hold the request until the game changed (#1593).
+// Every other load (after an own answer, a concede, a reload) is wanted now, so it ends a held
+// request that is still waiting, and a held request that has not started yet is asked plainly.
+function loadMore(opts) {
+  const hold = Boolean(opts && opts.hold);
+  if (!hold) { state.foreground += 1; abortHeldRequest(); }
+  const run = loadTail.then(() => loadMoreOnce(hold));
   loadTail = run.catch(() => { /* the caller of this load sees the error */ });
+  if (!hold) { const done = () => { state.foreground -= 1; }; run.then(done, done); }
   return run;
+}
+function abortHeldRequest() {
+  if (state.pollAbort) { state.pollAbort.abort(); state.pollAbort = null; }
 }
 function resetFrames() {
   Object.assign(state, { frames: [], lines: [], seatKeys: [] });
   $("log").textContent = ""; $("table").textContent = ""; delete $("table").dataset.banner;
 }
-async function loadMoreOnce() {
+async function loadMoreOnce(hold) {
   let added = false;
   const gameId = state.gameId;
+  let holdThis = Boolean(hold) && state.foreground === 0;
   for (;;) {
-    const endpoint = state.interactive
-      ? `/api/play/${encodeURIComponent(gameId)}?start=${state.frames.length}&count=1000`
-      : `/api/games/${encodeURIComponent(gameId)}?start=${state.frames.length}&count=1000`;
     const requestedStart = state.frames.length;
-    const page = await api(endpoint);
+    const endpoint = StudioFollow.statePath(gameId, requestedStart, state.interactive, state.revision, holdThis);
+    let controller = null;
+    if (holdThis && state.interactive && state.revision !== null) { controller = new AbortController(); state.pollAbort = controller; }
+    let page;
+    try {
+      page = await api(endpoint, "GET", undefined, controller ? controller.signal : undefined);
+    } finally {
+      if (controller && state.pollAbort === controller) state.pollAbort = null;
+    }
+    holdThis = false; // the pages after the first one are asked for at once
     if (state.gameId !== gameId) return false; // another game was opened meanwhile
     const hasHumans = Boolean(page.interactive || (page.header && Array.isArray(page.header.human_seats) && page.header.human_seats.length));
     if (hasHumans && !state.interactive) {
@@ -1416,6 +1433,7 @@ async function loadMoreOnce() {
     state.header = page.header;
     state.result = page.result;
     state.running = page.running;
+    state.revision = state.interactive ? StudioFollow.parseRevision(page) : null;
     if (state.interactive) {
       state.humanSeats = Array.isArray(page.human_seats) ? page.human_seats : [];
       adoptPendingDecision(page.pending_decision || null);
@@ -1442,11 +1460,11 @@ async function loadMoreOnce() {
   return added;
 }
 async function openGame(gameId) {
-  setPlaying(false); clearTimeout(state.poll);
+  setPlaying(false); clearTimeout(state.poll); abortHeldRequest(); state.followGen += 1;
   restoreAiDelayOnLeave(state.gameId);
   const listed = state.games.find((entry) => entry.game_id === gameId);
   const listedInteractive = Boolean(listed && listed.header && Array.isArray(listed.header.human_seats) && listed.header.human_seats.length);
-  Object.assign(state, { gameId, frames: [], lines: [], index: 0, seatKeys: [], header: null, result: null, interactive: listedInteractive, humanSeats: [], pendingDecision: null, pendingDecisionId: null, selectedOptions: [], orderList: [], submitting: false, canConcede: false, handsRevealed: false, autoPassAttempt: null, pollFailures: 0, ownCombat: StudioPlayP1a.emptyCombatLedger(), ff: { on: false, boosted: false, mode: selectedFastForwardMode(), startTurn: null, stopOnOpponentStack: $("ff-stack").checked, watchStackObjectId: null } });
+  Object.assign(state, { gameId, frames: [], lines: [], index: 0, seatKeys: [], header: null, result: null, interactive: listedInteractive, humanSeats: [], pendingDecision: null, pendingDecisionId: null, selectedOptions: [], orderList: [], submitting: false, canConcede: false, handsRevealed: false, autoPassAttempt: null, pollFailures: 0, revision: null, ownCombat: StudioPlayP1a.emptyCombatLedger(), ff: { on: false, boosted: false, mode: selectedFastForwardMode(), startTurn: null, stopOnOpponentStack: $("ff-stack").checked, watchStackObjectId: null } });
   ffStatus(""); showConnectionLost(0, "");
   $("log").textContent = ""; $("table").textContent = ""; delete $("table").dataset.banner;
   await loadMore();
@@ -1469,36 +1487,62 @@ function showConnectionLost(failures, detail) {
   banner.hidden = failures < POLL_FAILURES_BEFORE_BANNER;
   banner.textContent = banner.hidden ? "" : `Verbindung zum Studio unterbrochen (${failures} Abfragen in Folge fehlgeschlagen: ${detail}). Die Seite versucht es weiter; ob die Partie weiterläuft, ist unbekannt.`;
 }
+// The follow loop (#1593). While a live game of a human runs, the page asks the server to hold each
+// state request until the game changed, so a new decision shows up as soon as the engine published
+// it, not at the next fixed interval. Without a revision from the server, or after a failed request,
+// the fixed intervals of StudioFollow.legacyIntervalMs apply. Frames are always requested from the
+// number the page already holds, so a dropped connection loses none.
 function follow() {
   clearTimeout(state.poll);
+  abortHeldRequest();
+  state.followGen += 1;
   if (!state.running) return;
-  const intervalMs = state.interactive ? (state.ff.on ? 150 : (state.pendingDecision ? 1500 : 400)) : 2000;
-  state.poll = setTimeout(async () => {
-    const atEnd = state.index >= state.frames.length - 1;
-    let added = null;
-    try {
-      added = await loadMore();
-    } catch (error) {
-      if (error.status === 404) {
-        // The game is gone (deleted): that is not a lost connection; stop following it.
-        state.running = false;
-        toast("Die Partie existiert nicht mehr (gelöscht).");
-        refreshTitles();
-        return;
-      }
-      // No silent retry: after a few failures in a row the page says the connection is lost.
-      state.pollFailures += 1;
-      showConnectionLost(state.pollFailures, error.message);
+  armFollow(state.followGen, false, false, 0);
+}
+function armFollow(generation, held, failed, elapsedMs, changed) {
+  clearTimeout(state.poll);
+  const delay = StudioFollow.nextDelayMs({
+    interactive: state.interactive, fastForward: state.ff.on, hasPendingDecision: Boolean(state.pendingDecision),
+    revision: state.revision, failed, held, changed: Boolean(changed), elapsedMs
+  });
+  state.poll = setTimeout(() => followTick(generation), delay);
+}
+async function followTick(generation) {
+  const atEnd = state.index >= state.frames.length - 1;
+  const held = state.interactive && state.revision !== null;
+  const revisionBefore = state.revision;
+  const startedAt = performance.now();
+  let added = null;
+  let failed = false;
+  try {
+    added = await loadMore({ hold: held });
+  } catch (error) {
+    if (error.name === "AbortError") {
+      // An own load ended the held request: ask again once it is done (unless a newer loop took over).
+      if (generation === state.followGen) armFollow(generation, false, false, 0);
+      return;
     }
-    if (added !== null) {
-      state.pollFailures = 0;
-      showConnectionLost(0, "");
-      if (added && atEnd && !state.playing) go(Math.max(0, state.frames.length - 1));
-      else render();
+    if (error.status === 404) {
+      // The game is gone (deleted): that is not a lost connection; stop following it.
+      state.running = false;
+      toast("Die Partie existiert nicht mehr (gelöscht).");
+      refreshTitles();
+      return;
     }
-    if (!state.running) refreshTitles();
-    follow();
-  }, intervalMs);
+    // No silent retry: after a few failures in a row the page says the connection is lost.
+    failed = true;
+    state.pollFailures += 1;
+    showConnectionLost(state.pollFailures, error.message);
+  }
+  if (added !== null) {
+    state.pollFailures = 0;
+    showConnectionLost(0, "");
+    if (added && atEnd && !state.playing) go(Math.max(0, state.frames.length - 1));
+    else render();
+  }
+  if (!state.running) { refreshTitles(); return; }
+  if (generation !== state.followGen) return; // a newer follow loop took over
+  armFollow(generation, held, failed, performance.now() - startedAt, state.revision !== revisionBefore);
 }
 async function refreshTitles() {
   try { state.games = await api("/api/games"); } catch (error) { return; }

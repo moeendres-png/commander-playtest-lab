@@ -600,6 +600,31 @@ def _card_catalog_for_slots(
     return deck, pool, collection
 
 
+def _commander_slug(name: str) -> str:
+    cleaned = "".join(ch.lower() if ch.isalnum() else "_" for ch in name.strip())
+    return "_".join(part for part in cleaned.split("_") if part)
+
+
+def _resolve_template_snapshot_path(
+    commanders: Sequence[str], template_snapshot_path: Path | None
+) -> Path:
+    if template_snapshot_path is not None:
+        return template_snapshot_path
+    default_snap = _load_template_snapshot(str(_TEMPLATES_PATH))
+    if default_snap is not None:
+        snap_cmd = str(default_snap.get("commander") or "").strip()
+        if not snap_cmd or any(c.strip().casefold() == snap_cmd.casefold() for c in commanders):
+            return _TEMPLATES_PATH
+    for commander in commanders:
+        slug = _commander_slug(commander)
+        if not slug:
+            continue
+        candidate = _TEMPLATES_PATH.parent / f"spellbook_shell_templates_{slug}.json"
+        if candidate.exists():
+            return candidate
+    return _TEMPLATES_PATH
+
+
 def _spellbook_shells_section(
     store: StudioStore,
     commanders: Sequence[str],
@@ -607,7 +632,7 @@ def _spellbook_shells_section(
     deck_names_cf: set[str],
     template_snapshot_path: Path | None,
 ) -> tuple[str, list[dict[str, object]], list[dict[str, object]]]:
-    snap_path = template_snapshot_path if template_snapshot_path is not None else _TEMPLATES_PATH
+    snap_path = _resolve_template_snapshot_path(commanders, template_snapshot_path)
     snap = _load_template_snapshot(str(snap_path))
     if snap is None:
         return ("NOT_COLLECTED", [], [])

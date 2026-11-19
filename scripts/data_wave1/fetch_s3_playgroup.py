@@ -139,17 +139,25 @@ def run(
                 break
             listed.extend(item for item in items if isinstance(item, dict))
             page += 1
+        needle = (
+            str(getattr(args, "commander_needle", COMMANDER_NEEDLE) or COMMANDER_NEEDLE)
+            .strip()
+            .lower()
+        )
+        needle_slug = (
+            "".join(ch if ch.isalnum() else "_" for ch in needle).strip("_") or "commander"
+        )
         matches = [
             (item["id"], item["name"])
             for item in listed
-            if COMMANDER_NEEDLE in str(item.get("name") or "").lower() and "id" in item
+            if needle in str(item.get("name") or "").lower() and "id" in item
         ]
-        manifest["commander_lookup"] = {"needle": COMMANDER_NEEDLE, "matches": matches}
+        manifest["commander_lookup"] = {"needle": needle, "matches": matches}
         if matches and not args.skip_turn_damage:
             # the id comes from an answer: a plain positive integer or nothing (it ends up in a
             # URL and in a file name)
             commander_id = common.positive_int_id(matches[0][0])
-            name = f"turn_damage_chulane_{commander_id}"
+            name = f"turn_damage_{needle_slug}_{commander_id}"
             target = common.safe_child(run_dir, f"raw/{name}.body")
             record = fetcher.get(
                 f"{BASE_URL}/commanders/{quote(str(commander_id), safe='')}/turn_damage",
@@ -184,6 +192,11 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     common.add_network_arguments(parser, PACKAGE)
     common.add_limit_arguments(parser, download=True)
+    parser.add_argument(
+        "--commander-needle",
+        default=COMMANDER_NEEDLE,
+        help="case-insensitive substring to match commander for turn_damage (default: chulane)",
+    )
     parser.add_argument(
         "--skip-turn-damage", action="store_true", help="do not request turn_damage"
     )

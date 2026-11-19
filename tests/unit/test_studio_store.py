@@ -1118,3 +1118,632 @@ def test_import_guard_counts_the_prefixed_cohort_and_both_duplicate_definitions(
     assert result["corpus_deck_cohort_in_corpus_cohort"] == {"n": 1, "N": 1}
     assert result["observation_exact_duplicates"] == {"groups": 1, "rows": 2}
     assert result["observation_duplicates_ignoring_source_id"] == {"groups": 1, "rows": 3}
+
+
+# ---------------------------------------------------------------------------------------------
+# TAM data import (Refs #1635, #1187): TAM_91, TAM_CHANDRA_381 separated cohorts, EDHREC-78
+# ---------------------------------------------------------------------------------------------
+
+
+def _write_bom_csv(path: Path, fieldnames: list[str], rows: list[dict[str, object]]) -> Path:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8-sig", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(rows)
+    return path
+
+
+def _make_tam91_fixture(folder: Path) -> tuple[Path, Path, Path]:
+    reg = _write_bom_csv(
+        folder / "TAM_STUDIO_DECKREGISTER_91_20261110.csv",
+        [
+            "deck_id",
+            "source_cohort",
+            "original_url",
+            "source_platform",
+            "group",
+            "date",
+            "source_archetype_tags",
+            "fingerprint_scryfall_oracle",
+            "exact_duplicate_of",
+            "current_legality_name_audit",
+        ],
+        [
+            {
+                "deck_id": "tam91_01",
+                "source_cohort": "tam_91",
+                "original_url": "https://example.invalid/tam91_01",
+                "source_platform": "moxfield",
+                "group": "community",
+                "date": "2026-11-01",
+                "source_archetype_tags": "superfriends",
+                "fingerprint_scryfall_oracle": "fp_tam91_01",
+                "exact_duplicate_of": "",
+                "current_legality_name_audit": "legal",
+            },
+            {
+                "deck_id": "tam91_02",
+                "source_cohort": "tam_91",
+                "original_url": "https://example.invalid/tam91_02",
+                "source_platform": "archidekt",
+                "group": "community",
+                "date": "2026-11-02",
+                "source_archetype_tags": "enchantress",
+                "fingerprint_scryfall_oracle": "fp_tam91_02",
+                "exact_duplicate_of": "",
+                "current_legality_name_audit": "legal",
+            },
+        ],
+    )
+    main_csv = _write_bom_csv(
+        folder / "TAM_STUDIO_MAINBOARD_91_20261110.csv",
+        [
+            "source",
+            "deck_id",
+            "raw_card_name",
+            "canonical_name",
+            "oracle_id",
+            "quantity",
+            "section",
+            "normalization_status",
+        ],
+        [
+            {
+                "source": "moxfield",
+                "deck_id": "tam91_01",
+                "raw_card_name": "Sol Ring",
+                "canonical_name": "Sol Ring",
+                "oracle_id": "ora-sol-ring",
+                "quantity": 1,
+                "section": "mainboard",
+                "normalization_status": "exact",
+            },
+            {
+                "source": "archidekt",
+                "deck_id": "tam91_02",
+                "raw_card_name": "Arcane Signet",
+                "canonical_name": "Arcane Signet",
+                "oracle_id": "ora-arcane-signet",
+                "quantity": 1,
+                "section": "main",
+                "normalization_status": "exact",
+            },
+        ],
+    )
+    cmd_csv = _write_bom_csv(
+        folder / "TAM_STUDIO_COMMANDER_91_20261110.csv",
+        [
+            "deck_id",
+            "commander_name",
+            "oracle_id",
+            "quantity",
+            "source_level",
+            "verification_status",
+        ],
+        [
+            {
+                "deck_id": "tam91_01",
+                "commander_name": "Tam, the Possibility",
+                "oracle_id": "ora-tam",
+                "quantity": 1,
+                "source_level": "register",
+                "verification_status": "verified",
+            },
+            {
+                "deck_id": "tam91_02",
+                "commander_name": "Tam, the Possibility",
+                "oracle_id": "ora-tam",
+                "quantity": 1,
+                "source_level": "register",
+                "verification_status": "verified",
+            },
+        ],
+    )
+    return reg, main_csv, cmd_csv
+
+
+def _make_tam381_fixture(folder: Path) -> tuple[Path, Path, Path, Path]:
+    reg = _write_bom_csv(
+        folder / "TAM_CHANDRA_381_STUDIO_REVIEW_REGISTER.csv",
+        [
+            "deck_id",
+            "source_cohort",
+            "original_url",
+            "source_platform",
+            "group",
+            "date",
+            "source_archetype_tags",
+            "fingerprint_scryfall_oracle",
+            "exact_duplicate_of",
+            "current_legality_name_audit",
+        ],
+        [
+            {
+                "deck_id": "tam381_b24_new",
+                "source_cohort": "tam_381",
+                "original_url": "https://example.invalid/tam381_b24_new",
+                "source_platform": "moxfield",
+                "group": "curated",
+                "date": "2026-11-05",
+                "source_archetype_tags": "superfriends",
+                "fingerprint_scryfall_oracle": "fp_381_1",
+                "exact_duplicate_of": "",
+                "current_legality_name_audit": "legal",
+            },
+            {
+                "deck_id": "tam381_b24_overlap",
+                "source_cohort": "tam_381",
+                "original_url": "https://example.invalid/tam381_b24_overlap",
+                "source_platform": "moxfield",
+                "group": "curated",
+                "date": "2026-11-05",
+                "source_archetype_tags": "superfriends",
+                "fingerprint_scryfall_oracle": "fp_tam91_01",
+                "exact_duplicate_of": "",
+                "current_legality_name_audit": "legal",
+            },
+            {
+                "deck_id": "tam381_unknown_bracket",
+                "source_cohort": "tam_381",
+                "original_url": "https://example.invalid/tam381_unknown",
+                "source_platform": "archidekt",
+                "group": "curated",
+                "date": "2026-11-06",
+                "source_archetype_tags": "control",
+                "fingerprint_scryfall_oracle": "fp_381_3",
+                "exact_duplicate_of": "",
+                "current_legality_name_audit": "legal",
+            },
+            {
+                "deck_id": "tam381_illegal",
+                "source_cohort": "tam_381",
+                "original_url": "https://example.invalid/tam381_illegal",
+                "source_platform": "moxfield",
+                "group": "curated",
+                "date": "2026-11-06",
+                "source_archetype_tags": "illegal",
+                "fingerprint_scryfall_oracle": "fp_381_4",
+                "exact_duplicate_of": "",
+                "current_legality_name_audit": "not_paper_legal",
+            },
+        ],
+    )
+    elig_cols = [
+        "deck_id",
+        "original_deck_id",
+        "bracket_evidence_class",
+        "bracket_decision_original",
+        "paper_legal_snapshot_2026_11_09",
+        "verified_bracket_2_4",
+        "candidate_for_future_studio_import",
+        "not_autoimport",
+        "review_or_cohort",
+        "snapshot_captured_utc",
+        "source_platform_reported",
+        "source_url",
+        "source_html_sha256",
+        "original_raw_archive_path",
+        "legacy91_cardset_overlap",
+        "legacy91_deck_id",
+        "source_full100_fingerprint",
+        "mainboard99_fingerprint_algorithm",
+    ]
+
+    def _elig_row(
+        deck_id: str,
+        *,
+        paper_legal: str,
+        b24: str,
+        overlap: str = "FALSE",
+        legacy_id: str = "",
+    ) -> dict[str, object]:
+        return {
+            "deck_id": deck_id,
+            "original_deck_id": deck_id,
+            "bracket_evidence_class": "VERIFIED" if b24 == "TRUE" else "UNKNOWN",
+            "bracket_decision_original": "B3" if b24 == "TRUE" else "UNKNOWN",
+            "paper_legal_snapshot_2026_11_09": paper_legal,
+            "verified_bracket_2_4": b24,
+            "candidate_for_future_studio_import": "TRUE",
+            "not_autoimport": "TRUE",
+            "review_or_cohort": "review",
+            "snapshot_captured_utc": "2026-11-09T12:00:00Z",
+            "source_platform_reported": "moxfield",
+            "source_url": f"https://example.invalid/{deck_id}",
+            "source_html_sha256": "0" * 64,
+            "original_raw_archive_path": f"raw/{deck_id}.html",
+            "legacy91_cardset_overlap": overlap,
+            "legacy91_deck_id": legacy_id,
+            "source_full100_fingerprint": f"full_{deck_id}",
+            "mainboard99_fingerprint_algorithm": "sha256_v1",
+        }
+
+    elig = _write_bom_csv(
+        folder / "TAM_CHANDRA_381_STUDIO_REVIEW_ELIGIBILITY.csv",
+        elig_cols,
+        [
+            _elig_row("tam381_b24_new", paper_legal="TRUE", b24="TRUE"),
+            _elig_row(
+                "tam381_b24_overlap",
+                paper_legal="TRUE",
+                b24="TRUE",
+                overlap="TRUE",
+                legacy_id="tam91_01",
+            ),
+            _elig_row("tam381_unknown_bracket", paper_legal="TRUE", b24="UNKNOWN"),
+            _elig_row("tam381_illegal", paper_legal="FALSE", b24="TRUE"),
+        ],
+    )
+    main_csv = _write_bom_csv(
+        folder / "TAM_CHANDRA_381_STUDIO_REVIEW_MAINBOARD.csv",
+        [
+            "source",
+            "deck_id",
+            "raw_card_name",
+            "canonical_name",
+            "oracle_id",
+            "quantity",
+            "section",
+            "normalization_status",
+        ],
+        [
+            {
+                "source": "moxfield",
+                "deck_id": did,
+                "raw_card_name": "Sol Ring",
+                "canonical_name": "Sol Ring",
+                "oracle_id": "ora-sol-ring",
+                "quantity": 1,
+                "section": "mainboard",
+                "normalization_status": "exact",
+            }
+            for did in (
+                "tam381_b24_new",
+                "tam381_b24_overlap",
+                "tam381_unknown_bracket",
+                "tam381_illegal",
+            )
+        ],
+    )
+    cmd_csv = _write_bom_csv(
+        folder / "TAM_CHANDRA_381_STUDIO_REVIEW_COMMANDERS.csv",
+        [
+            "deck_id",
+            "commander_name",
+            "oracle_id",
+            "quantity",
+            "source_level",
+            "verification_status",
+        ],
+        [
+            {
+                "deck_id": did,
+                "commander_name": "Tam, the Possibility",
+                "oracle_id": "ora-tam",
+                "quantity": 1,
+                "source_level": "review",
+                "verification_status": "verified",
+            }
+            for did in (
+                "tam381_b24_new",
+                "tam381_b24_overlap",
+                "tam381_unknown_bracket",
+                "tam381_illegal",
+            )
+        ],
+    )
+    return reg, elig, main_csv, cmd_csv
+
+
+def _make_edhrec78_fixture(folder: Path) -> tuple[Path, Path]:
+    sources = _write_bom_csv(
+        folder / "EDHREC_78_THEMEN_QUELLEN_UND_NENNER.csv",
+        ["view", "n_cardrecs", "deck_denominator", "source_url"],
+        [
+            {
+                "view": "superfriends",
+                "n_cardrecs": 2,
+                "deck_denominator": 120,
+                "source_url": "https://edhrec.com/commanders/tam-the-possibility/planeswalkers",
+            },
+            {
+                "view": "enchantress",
+                "n_cardrecs": 1,
+                "deck_denominator": 45,
+                "source_url": "https://edhrec.com/commanders/tam-the-possibility/enchantments",
+            },
+        ],
+    )
+    cardrecs = _write_bom_csv(
+        folder / "EDHREC_78_THEMEN_16023_CARDRECS_20261110.csv",
+        ["view", "name", "num_decks", "potential_decks", "synergy"],
+        [
+            {
+                "view": "superfriends",
+                "name": "Deepglow Skate",
+                "num_decks": 90,
+                "potential_decks": 120,
+                "synergy": "0.42",
+            },
+            # Exact duplicate row in the same view must be dropped on import.
+            {
+                "view": "superfriends",
+                "name": "Deepglow Skate",
+                "num_decks": 90,
+                "potential_decks": 120,
+                "synergy": "0.42",
+            },
+            # Missing potential_decks falls back to sources_csv deck_denominator (45).
+            {
+                "view": "enchantress",
+                "name": "Sythis, Harvest's Hand",
+                "num_decks": 30,
+                "potential_decks": "",
+                "synergy": "",
+            },
+        ],
+    )
+    return sources, cardrecs
+
+
+def test_tam_91_and_381_cohorts_strictly_separated_and_isolated_from_chulane(
+    tmp_path: Path,
+) -> None:
+    from commander_lab.studio import tam_import
+    from commander_lab.studio.store import sha256_file
+
+    opened = StudioStore.in_memory()
+    # Seed an existing Chulane deck to prove commander isolation.
+    with opened.importing_for("Chulane, Teller of Tales"), opened.connection as db:
+        ch_src = opened.register_source(
+            data_class=DataClass.NORMALIZED_SOURCE,
+            title="chulane_reg.csv",
+            sha256="cc" * 32,
+        )
+        db.execute(
+            "INSERT INTO corpus_deck VALUES "
+            "('chulane_01', 'chulane_ref', 'https://example.invalid/c1', 'moxfield', "
+            "'community', '2026-11-01', '', 'fp_ch_1', NULL, 'legal', ?)",
+            (ch_src,),
+        )
+
+    reg91, main91, cmd91 = _make_tam91_fixture(tmp_path / "tam91")
+    rep91 = tam_import.import_tam_91(opened, reg91, main91, cmd91)
+    assert rep91["cohort"] == tam_import.COHORT_TAM_91
+    assert rep91["decks_imported"] == 2
+    assert rep91["decks_total"] == 2
+    assert rep91["decks_ratio"] == "2/2"
+    sources91 = rep91["sources"]
+    assert isinstance(sources91, dict)
+    assert sources91["register"]["sha256"] == sha256_file(reg91)
+
+    # 'mainboard' section must be normalized to 'main'.
+    sections = {
+        str(row[0])
+        for row in opened.connection.execute(
+            "SELECT DISTINCT section FROM corpus_deck_card WHERE deck_id LIKE 'tam91_%'"
+        )
+    }
+    assert sections == {"main", "commander"}
+
+    reg381, elig381, main381, cmd381 = _make_tam381_fixture(tmp_path / "tam381")
+    rep381 = tam_import.import_tam_381(opened, reg381, elig381, main381, cmd381)
+    assert rep381["decks_total"] == 4
+    assert rep381["decks_imported"] == 3
+    assert rep381["decks_imported_ratio"] == "3/4"
+    assert rep381["rejected_not_paper_legal"] == 1
+    assert rep381["rejected_not_paper_legal_ratio"] == "1/4"
+    assert rep381["overlaps_with_tam91"] == 1
+    assert rep381["overlaps_with_tam91_ratio"] == "1/3"
+    cohorts_rep = rep381["cohorts"]
+    assert isinstance(cohorts_rep, dict)
+    assert cohorts_rep[tam_import.COHORT_TAM_381_B2_4] == {
+        "count": 2,
+        "denominator": 4,
+        "ratio": "2/4",
+    }
+    assert cohorts_rep[tam_import.COHORT_TAM_381_UNBRACKETED] == {
+        "count": 1,
+        "denominator": 4,
+        "ratio": "1/4",
+    }
+
+    # Verify strict cohort separation and no illegal deck imported.
+    by_cohort: dict[str, set[str]] = {}
+    for cohort, deck_id in opened.connection.execute("SELECT cohort, deck_id FROM corpus_cohort"):
+        by_cohort.setdefault(str(cohort), set()).add(str(deck_id))
+    assert by_cohort == {
+        "tam:active_91": {"tam91_01", "tam91_02"},
+        "tam:curated_b2_4": {"tam381_b24_new", "tam381_b24_overlap"},
+        "tam:curated_unbracketed": {"tam381_unknown_bracket"},
+    }
+    assert (
+        opened.connection.execute(
+            "SELECT COUNT(*) FROM corpus_deck WHERE deck_id = 'tam381_illegal'"
+        ).fetchone()[0]
+        == 0
+    )
+    overlap_row = opened.connection.execute(
+        "SELECT duplicate_of, cohort FROM corpus_deck WHERE deck_id = 'tam381_b24_overlap'"
+    ).fetchone()
+    assert (overlap_row["duplicate_of"], overlap_row["cohort"]) == (
+        "tam91_01",
+        "tam:curated_b2_4",
+    )
+
+    # Commander bindings strictly isolated between Chulane and TAM.
+    bindings = {
+        str(row["key"]): str(row["commander_name"])
+        for row in opened.connection.execute(
+            "SELECT key, commander_name FROM commander_binding WHERE kind = 'corpus_deck'"
+        )
+    }
+    assert bindings == {
+        "chulane_01": "Chulane, Teller of Tales",
+        "tam91_01": tam_import.TAM_COMMANDER_NAME,
+        "tam91_02": tam_import.TAM_COMMANDER_NAME,
+        "tam381_b24_new": tam_import.TAM_COMMANDER_NAME,
+        "tam381_b24_overlap": tam_import.TAM_COMMANDER_NAME,
+        "tam381_unknown_bracket": tam_import.TAM_COMMANDER_NAME,
+    }
+
+    # Idempotency: re-importing produces identical row counts.
+    snapshot_counts = (
+        opened.count("corpus_deck"),
+        opened.count("corpus_deck_card"),
+        opened.count("corpus_cohort"),
+        opened.count("commander_binding"),
+        opened.count("source"),
+    )
+    tam_import.import_tam_91(opened, reg91, main91, cmd91)
+    tam_import.import_tam_381(opened, reg381, elig381, main381, cmd381)
+    assert (
+        opened.count("corpus_deck"),
+        opened.count("corpus_deck_card"),
+        opened.count("corpus_cohort"),
+        opened.count("commander_binding"),
+        opened.count("source"),
+    ) == snapshot_counts
+
+    # Negative control: attempting to overwrite a Chulane deck fails closed.
+    collision_reg = _write_bom_csv(
+        tmp_path / "collision" / "TAM_STUDIO_DECKREGISTER_91_20261110.csv",
+        [
+            "deck_id",
+            "source_cohort",
+            "original_url",
+            "source_platform",
+            "group",
+            "date",
+            "source_archetype_tags",
+            "fingerprint_scryfall_oracle",
+            "exact_duplicate_of",
+            "current_legality_name_audit",
+        ],
+        [
+            {
+                "deck_id": "chulane_01",
+                "source_cohort": "tam_91",
+                "original_url": "https://example.invalid/collision",
+                "source_platform": "moxfield",
+                "group": "community",
+                "date": "2026-11-01",
+                "source_archetype_tags": "",
+                "fingerprint_scryfall_oracle": "fp_collision",
+                "exact_duplicate_of": "",
+                "current_legality_name_audit": "legal",
+            }
+        ],
+    )
+    with pytest.raises(sqlite3.IntegrityError, match="bound to another commander"):
+        tam_import.import_tam_91(opened, collision_reg, main91, cmd91)
+
+
+def test_tam_edhrec_views_observed_theme_idempotent_and_bound(tmp_path: Path) -> None:
+    from commander_lab.studio import tam_import
+    from commander_lab.studio.store import sha256_file
+
+    opened = StudioStore.in_memory()
+    sources_csv, cardrecs_csv = _make_edhrec78_fixture(tmp_path / "edhrec78")
+    report = tam_import.import_tam_edhrec_views(opened, sources_csv, cardrecs_csv)
+
+    assert report["commander"] == tam_import.TAM_COMMANDER_NAME
+    assert report["data_class"] == "OBSERVED_THEME"
+    assert report["views_imported"] == 2
+    assert report["views_in_sources"] == 2
+    assert report["views_ratio"] == "2/2"
+    assert report["duplicate_observations_dropped"] == 2  # inclusion_pct + synergy_pct dup
+    assert report["observations_written"] == 3  # superfriends inc+syn, enchantress inc
+    sources_rep = report["sources"]
+    assert isinstance(sources_rep, dict)
+    assert sources_rep["sources_csv"]["sha256"] == sha256_file(sources_csv)
+    assert sources_rep["cardrecs_csv"]["sha256"] == sha256_file(cardrecs_csv)
+
+    # EDHREC views are observations, never decklists.
+    assert opened.count("corpus_deck") == 0
+
+    rows = [
+        dict(row)
+        for row in opened.connection.execute(
+            "SELECT card_name, cohort, metric, value, numerator, denominator, data_class "
+            "FROM observation ORDER BY cohort, card_name, metric"
+        )
+    ]
+    assert rows == [
+        {
+            "card_name": "Sythis, Harvest's Hand",
+            "cohort": "tam:edhrec_view:enchantress",
+            "metric": "inclusion_pct",
+            "value": round(30 * 100.0 / 45, 4),
+            "numerator": 30,
+            "denominator": 45,
+            "data_class": "OBSERVED_THEME",
+        },
+        {
+            "card_name": "Deepglow Skate",
+            "cohort": "tam:edhrec_view:superfriends",
+            "metric": "inclusion_pct",
+            "value": 75.0,
+            "numerator": 90,
+            "denominator": 120,
+            "data_class": "OBSERVED_THEME",
+        },
+        {
+            "card_name": "Deepglow Skate",
+            "cohort": "tam:edhrec_view:superfriends",
+            "metric": "synergy_pct",
+            "value": 42.0,
+            "numerator": None,
+            "denominator": 120,
+            "data_class": "OBSERVED_THEME",
+        },
+    ]
+
+    bindings = {
+        str(row["key"]): str(row["commander_name"])
+        for row in opened.connection.execute(
+            "SELECT key, commander_name FROM commander_binding WHERE kind = 'observation_cohort'"
+        )
+    }
+    assert bindings == {
+        "tam:edhrec_view:enchantress": tam_import.TAM_COMMANDER_NAME,
+        "tam:edhrec_view:superfriends": tam_import.TAM_COMMANDER_NAME,
+    }
+
+    # Re-import is idempotent.
+    tam_import.import_tam_edhrec_views(opened, sources_csv, cardrecs_csv)
+    assert opened.count("observation") == 3
+
+
+def test_import_tam_drive_cli_end_to_end(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    import import_tam_drive as tam_cli
+
+    tam91_dir = tmp_path / "tam91"
+    tam381_dir = tmp_path / "tam381"
+    edhrec_dir = tmp_path / "edhrec78"
+    _make_tam91_fixture(tam91_dir)
+    _make_tam381_fixture(tam381_dir)
+    _make_edhrec78_fixture(edhrec_dir)
+
+    db_dir = tmp_path / "studio_data"
+    rc = tam_cli.main(
+        [
+            "--db",
+            str(db_dir),
+            "--tam91-dir",
+            str(tam91_dir),
+            "--tam381-dir",
+            str(tam381_dir),
+            "--edhrec78-dir",
+            str(edhrec_dir),
+        ]
+    )
+    assert rc == 0
+    payload = json.loads(capsys.readouterr().out)
+    assert payload["tam_91"]["decks_ratio"] == "2/2"
+    assert payload["tam_381"]["decks_imported_ratio"] == "3/4"
+    assert payload["tam_381"]["rejected_not_paper_legal_ratio"] == "1/4"
+    assert payload["edhrec_78"]["views_ratio"] == "2/2"

@@ -452,6 +452,18 @@ def test_interactive_command_honours_the_environment_override(
         ("java", "-XX:+UseSerialGC", "-jar", str(jar), "full-game")
     )
     assert twice is not None and twice.count("-XX:+UseSerialGC") == 1
+    # another collector named by the user: no second collector flag (the JVM would not start)
+    for gc in ("-XX:+UseG1GC", "-XX:+UseParallelGC", "-XX:+UseZGC"):
+        own = launch.interactive_bridge_command(("java", gc, "-jar", str(jar), "full-game"))
+        assert own is not None and gc in own and "-XX:+UseSerialGC" not in own
+        assert SKIP_ON in own and "-Dh2.bindAddress=127.0.0.1" in own
+        series = launch.fast_bridge_command(("java", gc, "-jar", str(jar), "full-game"))
+        assert series == own
+    # a program argument after -jar is no collector choice of the user
+    after = launch.interactive_bridge_command(
+        ("java", "-jar", str(jar), "full-game", "-XX:+UseZGC")
+    )
+    assert after is not None and "-XX:+UseSerialGC" in after
     # a launcher that is not java, or has no -jar file, is used as it is; no engine stays none
     assert launch.interactive_bridge_command(("/opt/wrapper", "full-game")) == (
         "/opt/wrapper",

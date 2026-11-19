@@ -329,3 +329,161 @@ def test_build_script_writes_commander_scoped_csv_and_validates_identity(
             "shell_ids": "7",
         }
     ]
+
+
+def test_tam_wubrg_qualifies_five_colour_planeswalker_shells_rejected_for_chulane(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    assert spellbook_shells.TAM_NAME == "Tam, the Possibility"
+    assert frozenset({"W", "U", "B", "R", "G"}) == spellbook_shells.TAM_IDENTITY
+
+    tam_pool = {
+        spellbook_shells.TAM_NAME,
+        "Chandra, Hope's Beacon",
+        "Deepglow Skate",
+        "The Chain Veil",
+    }
+    variants = [
+        _variant(
+            "pw-wubrg",
+            501,
+            [spellbook_shells.TAM_NAME, "Chandra, Hope's Beacon", "Deepglow Skate"],
+            identity="WUBRG",
+        ),
+        _variant(
+            "pw-br",
+            502,
+            ["Chandra, Hope's Beacon", "The Chain Veil"],
+            identity="BR",
+        ),
+    ]
+    index = spellbook_shells.build_variant_index(variants, [])
+
+    # Default Chulane (WUG) rejects both 5-colour and BR Planeswalker shells.
+    chulane_counts = spellbook_shells.count_shells(["pw-wubrg", "pw-br"], index, tam_pool)
+    assert chulane_counts.shells == 0
+    chulane_snap = spellbook_shells.build_template_snapshot(variants, tam_pool)
+    assert chulane_snap["pool_shells"] == []
+
+    # TAM (WUBRG) qualifies both shells and recognises Tam as the commander.
+    tam_counts = spellbook_shells.count_shells(
+        ["pw-wubrg", "pw-br"],
+        index,
+        tam_pool,
+        identity=spellbook_shells.TAM_IDENTITY,
+        commander=spellbook_shells.TAM_NAME,
+    )
+    assert tam_counts.shells == 2
+    assert tam_counts.two_card == 1
+    assert tam_counts.three_plus == 1
+    assert tam_counts.with_commander == 1
+    assert tam_counts.shell_ids == (501, 502)
+
+    tam_snap = spellbook_shells.build_template_snapshot(
+        variants,
+        tam_pool,
+        identity=spellbook_shells.TAM_IDENTITY,
+        commander=spellbook_shells.TAM_NAME,
+    )
+    assert tam_snap["commander"] == spellbook_shells.TAM_NAME
+    assert tam_snap["identity"] == "BGRUW"
+    pool_shells = tam_snap["pool_shells"]
+    assert isinstance(pool_shells, list) and len(pool_shells) == 2
+
+    # CLI build_spellbook_shells.py accepts --identity WUBRG for TAM.
+    script_path = Path(__file__).resolve().parents[2] / "scripts" / "build_spellbook_shells.py"
+    spec = importlib.util.spec_from_file_location("build_spellbook_shells_tam", script_path)
+    assert spec is not None and spec.loader is not None
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+
+    bulk = tmp_path / "variants.json.gz"
+    bulk.write_bytes(
+        gzip.compress(
+            json.dumps(
+                {
+                    "version": "test-tam",
+                    "timestamp": "2026-11-19T00:00:00Z",
+                    "variants": variants,
+                    "aliases": [],
+                }
+            ).encode("utf-8")
+        )
+    )
+    links = tmp_path / "links.csv"
+    with links.open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(handle, fieldnames=["card_name", "fetch_status", "variant_ids"])
+        writer.writeheader()
+        writer.writerow(
+            {
+                "card_name": "Chandra, Hope's Beacon",
+                "fetch_status": "AVAILABLE",
+                "variant_ids": "pw-wubrg;pw-br",
+            }
+        )
+    pool_file = tmp_path / "pool.json"
+    pool_file.write_text(
+        json.dumps({"cards": [{"card_name": name} for name in sorted(tam_pool)]}),
+        encoding="utf-8",
+    )
+    out = tmp_path / "tam_shells.csv"
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "build_spellbook_shells.py",
+            "--bulk",
+            str(bulk),
+            "--links",
+            str(links),
+            "--pool",
+            str(pool_file),
+            "--output",
+            str(out),
+            "--commander",
+            spellbook_shells.TAM_NAME,
+            "--identity",
+            "WUBRG",
+        ],
+    )
+    assert mod.main() == 0
+    with out.open(newline="", encoding="utf-8") as handle:
+        rows = list(csv.DictReader(handle))
+    assert rows == [
+        {
+            "commander_name": spellbook_shells.TAM_NAME,
+            "card_name": "Chandra, Hope's Beacon",
+            "fetch_status": "AVAILABLE",
+            "shell_count": "2",
+            "shell_count_2card": "1",
+            "shell_count_3plus": "1",
+            "shell_count_commander": "1",
+            "shell_ids": "501;502",
+        }
+    ]
+
+
+def test_combos_resolves_commander_specific_shell_snapshot(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from commander_lab.studio import combos
+
+    default_path = tmp_path / "spellbook_shell_templates.json"
+    tam_path = tmp_path / "spellbook_shell_templates_tam_the_possibility.json"
+    default_path.write_text(
+        json.dumps({"commander": "Chulane, Teller of Tales", "pool_shells": []}),
+        encoding="utf-8",
+    )
+    tam_path.write_text(
+        json.dumps({"commander": "Tam, the Possibility", "pool_shells": []}),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(combos, "_TEMPLATES_PATH", default_path)
+    combos._load_template_snapshot.cache_clear()
+
+    assert combos._commander_slug("Tam, the Possibility") == "tam_the_possibility"
+    assert (
+        combos._resolve_template_snapshot_path(["Chulane, Teller of Tales"], None) == default_path
+    )
+    assert combos._resolve_template_snapshot_path(["Tam, the Possibility"], None) == tam_path
+    assert combos._resolve_template_snapshot_path(["Unknown Commander"], None) == default_path
