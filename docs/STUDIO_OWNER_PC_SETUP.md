@@ -69,9 +69,12 @@ Alle Schritte sind aus den Skripten abgeleitet; keiner wurde auf dem Owner-PC au
    `python -m commander_lab.studio doctor` (oder `--json` für das Abnahme-Protokoll).
    Prüft Python >= 3.12, Pflichtpakete, Java 17+, Bridge-JAR, Pin-Abgleich, Kartenkatalog und
    Datenordner (`src/commander_lab/studio/doctor.py`, `__main__.py`).
-6. Optional für Serien (schnellerer JVM-Start):
-   `python -m commander_lab.studio build-appcds` baut `<jar>.jsa` neben der Bridge-JAR
-   (`src/commander_lab/studio/__main__.py`, `launch.build_appcds_archive`).
+6. Empfohlen (schnellerer JVM-Start für Serien und Partien; einmalig ~24 s Bau, ~322 MB):
+   `python -m commander_lab.studio build-appcds` baut `<jar>.jsa` (und die zugehörige
+   Prüfsummendatei `<jar>.jsa.jar.sha256`) neben der Bridge-JAR
+   (`src/commander_lab/studio/__main__.py`, `launch.build_appcds_archive`). Das Archiv passt nur
+   zur genau dieser Bridge-JAR und muss nach jedem JAR-Wechsel neu gebaut werden;
+   `studio doctor` meldet ein fehlendes oder unpassendes Archiv als Warnung.
 7. Daten ins Studio importieren (Sammlung, Decks): `docs/STUDIO_DECKBUILDER.md`
    (Abschnitte zu `import-all`); nicht Teil dieser Seite.
 8. Studio starten (Abschnitt 4), Seite „Partien“ öffnen.

@@ -145,3 +145,48 @@ def test_doctor_fails_on_incomplete_jar_env_and_invalid_data_dir(
     assert by_name["engine_bridge"]["status"] == "FAIL"
     assert by_name["studio_data"]["status"] == "FAIL"
     assert report["ok"] is False
+
+
+def test_doctor_appcds_warns_on_missing_mismatched_or_older_archive(tmp_path: Path) -> None:
+    import hashlib
+    import os
+
+    jar = _write_fake_jar_and_pin(tmp_path, canonical_xmage_engine_pin())
+    jar_sha = hashlib.sha256(jar.read_bytes()).hexdigest()
+
+    # 1. Missing archive -> WARN (recommended, not required)
+    missing = doctor._check_appcds(jar)
+    assert missing["status"] == "WARN"
+    assert missing["required"] is False
+    assert "Empfohlen" in str(missing["detail"])
+    assert "build-appcds" in str(missing["remediation"])
+
+    # 2. Matching archive + matching sidecar -> PASS
+    archive = launch.appcds_archive_path(jar)
+    sidecar = launch.appcds_jar_sha256_path(archive)
+    archive.write_bytes(b"fake-jsa-bytes")
+    sidecar.write_text(f"{jar_sha}\n", encoding="utf-8")
+    matching = doctor._check_appcds(jar)
+    assert matching["status"] == "PASS"
+    assert matching["archive_matches_jar"] is True
+    assert matching["remediation"] is None
+
+    # 3. JAR replaced (sidecar digest mismatch even if archive mtime is newer) -> WARN
+    jar.write_bytes(b"replaced-bridge-jar-payload")
+    archive_mtime = jar.stat().st_mtime + 10.0
+    os.utime(archive, (archive_mtime, archive_mtime))
+    mismatched = doctor._check_appcds(jar)
+    assert mismatched["status"] == "WARN"
+    assert mismatched["archive_matches_jar"] is False
+    assert "passt nicht" in str(mismatched["detail"])
+    assert "build-appcds" in str(mismatched["remediation"])
+
+    # 4. Legacy archive without sidecar that is older than the JAR -> WARN
+    sidecar.unlink()
+    older_mtime = jar.stat().st_mtime - 60.0
+    os.utime(archive, (older_mtime, older_mtime))
+    stale = doctor._check_appcds(jar)
+    assert stale["status"] == "WARN"
+    assert stale["archive_matches_jar"] is False
+    assert "älter" in str(stale["detail"])
+    assert "build-appcds" in str(stale["remediation"])
