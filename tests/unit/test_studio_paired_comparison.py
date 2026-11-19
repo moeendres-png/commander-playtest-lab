@@ -974,6 +974,95 @@ def test_parallel_window_player_matches_sequential_statistics_and_early_stops(
     assert progress_seen[-1] == seq_res["pairs_played"]
 
 
+def test_parallel_window_player_announces_each_played_game_before_the_pair_is_done(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Progress per game: every game of a chunk is announced when the engine has played it, before
+    the chunk returns, and the pair counting and the results are those of a run without it."""
+    deck_ids = ("b", "v", "o1", "o2", "o3")
+    decks = {d: SimpleNamespace(deck_id=d) for d in deck_ids}
+    events: list[str] = []
+
+    def fake_play_recorded_games(  # type: ignore[no-untyped-def]
+        _data, _paths, series_games, *, on_played=None, on_game=None, **_kwargs
+    ):
+        for game in series_games:
+            if on_played is not None:
+                on_played(game.game_id)
+        for game in series_games:
+            if on_game is not None:
+                on_game({"game_id": game.game_id})
+        return [{"game_id": g.game_id, "seed": g.seed} for g in series_games]
+
+    monkeypatch.setattr(
+        "commander_lab.studio.play_batch.play_recorded_games", fake_play_recorded_games
+    )
+    monkeypatch.setattr(
+        paired_comparison,
+        "_summary_to_played_game",
+        lambda _s: {"exposure": None, "failure_class": None},
+    )
+    played: list[tuple[str, int, int]] = []
+    pair_counts: list[int] = []
+
+    def on_played(arm: str, seed: int, seat: int) -> None:
+        played.append((arm, seed, seat))
+        events.append("played")
+
+    def on_pair(count: int) -> None:
+        pair_counts.append(count)
+        events.append("pair")
+
+    player = paired_comparison.parallel_window_player(
+        tmp_path,
+        series_id="prog",
+        base_deck=decks["b"],  # type: ignore[arg-type]
+        variant_deck=decks["v"],  # type: ignore[arg-type]
+        opponents=[decks["o1"], decks["o2"], decks["o3"]],  # type: ignore[arg-type]
+        paths_by_deck_id={d: tmp_path / f"{d}.json" for d in deck_ids},
+        seeds=[1, 2, 3],
+        tested_seats=[0],
+        budget_pairs=3,
+        look_every_pairs=3,
+        workers=1,
+        games_per_jvm=6,
+        on_pair_done=on_pair,
+        on_game_played=on_played,
+    )
+    player("base", 1, 0)  # runs the window of the three pairs
+    assert sorted(played) == [(arm, seed, 0) for arm in ("base", "variant") for seed in (1, 2, 3)]
+    assert pair_counts == [1, 2, 3]
+    # all six games are announced before the first pair is counted as done
+    assert events == ["played"] * 6 + ["pair"] * 3
+
+
+def test_a_game_that_failed_is_not_announced_as_played(tmp_path: Path) -> None:
+    played: list[tuple[str, int, int]] = []
+    inner = _ScriptedPlayer(
+        tmp_path,
+        _variant_sweeps,
+        fail=lambda arm, seed, seat: "EngineError" if (arm, seed) == ("base", 2) else None,
+    )
+    player = paired_comparison.parallel_window_player(
+        tmp_path,
+        series_id="prog2",
+        base_deck=SimpleNamespace(deck_id=BASE),  # type: ignore[arg-type]
+        variant_deck=SimpleNamespace(deck_id=VARIANT),  # type: ignore[arg-type]
+        opponents=[SimpleNamespace(deck_id=OPP1), SimpleNamespace(deck_id=OPP2)],  # type: ignore[arg-type]
+        paths_by_deck_id={},
+        seeds=[1, 2],
+        tested_seats=[0],
+        budget_pairs=2,
+        look_every_pairs=2,
+        workers=1,
+        games_per_jvm=1,
+        play_single=inner,
+        on_game_played=lambda *key: played.append(key),
+    )
+    player("base", 1, 0)
+    assert sorted(played) == [("base", 1, 0), ("variant", 1, 0), ("variant", 2, 0)]
+
+
 def test_play_recorded_games_forwards_explicit_series_engine_command(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

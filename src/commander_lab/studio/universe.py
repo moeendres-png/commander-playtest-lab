@@ -55,11 +55,20 @@ import datetime
 import json
 from collections.abc import Collection, Iterator, Mapping, Sequence
 from contextlib import contextmanager
-from typing import TypedDict, cast
+from typing import NotRequired, TypedDict, cast
 
 from . import memo
 from ._coerce import to_int
 from .cache import cached
+from .gc_band import (
+    GC_BAND_FAMILY,
+    GC_BANDS,
+    DeclaredBracketOriginRow,
+    GcBandMetadata,
+    deck_gc_bands,
+    declared_bracket_origins,
+    gc_band_metadata,
+)
 from .store import COUNTED_SECTIONS, StudioStore, now_utc
 
 # The sections a ``must_contain`` requirement reads: the main deck only. Deliberately
@@ -69,6 +78,7 @@ MAIN_SECTIONS = ("main", "mainboard")
 _SPEC_KEYS = {
     "platforms",
     "cohorts",
+    "gc_band",
     "commanders",
     "date_from",
     "date_to",
@@ -83,6 +93,7 @@ class UniverseSpec(TypedDict, total=False):
 
     platforms: list[str]
     cohorts: list[str]
+    gc_band: list[str]
     commanders: list[str]
     date_from: str
     date_to: str
@@ -140,6 +151,9 @@ class UniverseOptions(TypedDict):
     cohorts: list[OptionValue]
     commanders: list[OptionValue]
     cards: list[OptionValue]
+    gc_bands: NotRequired[list[OptionValue]]
+    gc_band_meta: NotRequired[GcBandMetadata]
+    declared_bracket_origins: NotRequired[dict[str, DeclaredBracketOriginRow]]
 
 
 class CooccurrenceRow(TypedDict):
@@ -187,7 +201,24 @@ def _validate_spec(spec: Mapping[str, object]) -> UniverseSpec:
         cleaned["platforms"] = platforms
     cohorts = _string_list(spec, "cohorts")
     if cohorts:
+        misplaced = [value for value in cohorts if cohort_family(value) == GC_BAND_FAMILY]
+        if misplaced:
+            raise ValueError(
+                f"gc_band values must be passed via 'gc_band', not 'cohorts': {misplaced}"
+            )
         cleaned["cohorts"] = cohorts
+    gc_band = _string_list(spec, "gc_band")
+    if gc_band:
+        invalid_bands = sorted(set(gc_band) - set(GC_BANDS))
+        if invalid_bands:
+            raise ValueError(
+                f"unknown universe gc_band(s): {invalid_bands}; valid values: {list(GC_BANDS)}"
+            )
+        if any(cohort_family(value) == "bracket" for value in cohorts):
+            raise ValueError(
+                "gc_band and declared bracket cohorts must not be mixed in one universe spec"
+            )
+        cleaned["gc_band"] = gc_band
     commanders = _string_list(spec, "commanders")
     if commanders:
         cleaned["commanders"] = commanders
@@ -475,7 +506,7 @@ def _options(store: StudioStore, commander_names: Sequence[str] | None) -> Unive
                 "SELECT DISTINCT commander_name FROM commander_binding WHERE kind = 'corpus_deck'",
             )
         ]
-    return {
+    result: UniverseOptions = {
         "platforms": collect(
             [(cast(UniverseSpec, {**scope, "platforms": [value]}), value) for value in platforms]
         ),
@@ -485,6 +516,22 @@ def _options(store: StudioStore, commander_names: Sequence[str] | None) -> Unive
         "commanders": collect(commander_specs),
         "cards": _with_pool_cards(store, _card_options(store, scope), commander_names),
     }
+    scope_decks = resolve_universe(store, scope)
+    if scope_decks:
+        bands_by_deck = deck_gc_bands(store.connection, scope_decks)
+        band_counts: dict[str, int] = {band: 0 for band in GC_BANDS}
+        for band in bands_by_deck.values():
+            band_counts[band] = band_counts.get(band, 0) + 1
+        result["gc_bands"] = [
+            {"value": band, "decks": band_counts[band]}
+            for band in GC_BANDS
+            if band_counts[band] > 0
+        ]
+        result["gc_band_meta"] = gc_band_metadata(store.connection)
+        result["declared_bracket_origins"] = declared_bracket_origins(
+            store.connection, deck_ids=scope_decks
+        )
+    return result
 
 
 def _with_pool_cards(
@@ -743,6 +790,12 @@ def _resolve(store: StudioStore, cleaned: UniverseSpec) -> list[str]:
             )
 
         deck_ids = [deck_id for deck_id in deck_ids if _contains(deck_id)]
+    wanted_gc_bands = frozenset(cleaned.get("gc_band", []))
+    if wanted_gc_bands and deck_ids:
+        bands_by_deck = deck_gc_bands(store.connection, deck_ids)
+        deck_ids = [
+            deck_id for deck_id in deck_ids if bands_by_deck.get(deck_id) in wanted_gc_bands
+        ]
     # Query-time dedupe inside the selected universe: one deck per content fingerprint,
     # the lowest deck id wins.
     fingerprints = dict(selected)

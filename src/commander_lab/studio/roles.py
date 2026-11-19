@@ -34,7 +34,9 @@ from .decks import color_set
 from .store import DataClass, StudioStore, now_utc, rebuild_corpus_deck_role, sha256_file
 
 SEARCH = "https://api.scryfall.com/cards/search"
-_USER_AGENT = "CommanderStudio/0.1 (local deck builder)"
+# Generic client identity: no project, repository or person reference, no contact details
+# (Owner decision #1557 point 4).
+_USER_AGENT = "mtg-card-roles-tool/1.0"
 
 # role -> tagger tag (every value is a canonical otag: slug verified 200 OK on api.scryfall.com)
 ROLES: dict[str, str] = {

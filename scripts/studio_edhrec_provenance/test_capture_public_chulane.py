@@ -6,10 +6,12 @@ import hashlib
 import importlib.util
 import io
 import json
+import os
 import tempfile
 import unittest
 import urllib.error
 from pathlib import Path
+from unittest import mock
 
 script = Path(__file__).with_name("capture_public_chulane.py")
 spec = importlib.util.spec_from_file_location("capture_public", script)
@@ -35,6 +37,13 @@ class Fake(io.BytesIO):
 
 
 class SourceTest(unittest.TestCase):
+    def setUp(self):
+        # The capture lane is fail-closed (Owner decision #1557): these offline tests stand in
+        # for a run with a written permission reference.
+        patcher = mock.patch.dict(os.environ, {mod.PERMISSION_ENV: "test-permission-reference"})
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
     def test_allowlist_and_duplicate_sources(self):
         with self.assertRaises(ValueError):
             mod.capture_one("https://other.example.org/secret", opener=lambda *args, **kw: Fake())
