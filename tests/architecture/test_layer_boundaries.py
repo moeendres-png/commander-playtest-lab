@@ -3,6 +3,7 @@ from __future__ import annotations
 import ast
 import importlib.util
 import json
+import re
 import sys
 from pathlib import Path
 from types import ModuleType
@@ -237,3 +238,98 @@ def test_studio_qualification_check_flags_a_new_import_but_not_bridge_qualificat
     assert studio_qualification_violations(
         _COUNTS.qualification_imports(copy), facade_baseline
     ) == ([], [])
+
+
+_STUDIO_RATCHET_FIELDS = (
+    "max_cyclic_components",
+    "max_largest_cyclic_component",
+    "cyclic_modules",
+    "qualification_facades",
+    "qualification_import_exceptions",
+)
+
+
+def studio_baseline_history_problems(baseline: dict[str, object]) -> list[str]:
+    """A ratchet value changes only together with a new ``history`` entry (date, issue or pull
+    request reference, reason), and the top-level values are those of the last entry."""
+    history = baseline.get("history")
+    if not isinstance(history, list) or not history:
+        return ["no history"]
+    problems: list[str] = []
+    for index, entry in enumerate(history):
+        if not isinstance(entry, dict):
+            problems.append(f"history[{index}] is no object")
+            continue
+        if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", str(entry.get("date", ""))):
+            problems.append(f"history[{index}] has no date YYYY-MM-DD")
+        if not re.fullmatch(r"#\d+", str(entry.get("ref", ""))):
+            problems.append(f"history[{index}] has no #issue reference")
+        if len(str(entry.get("reason", "")).strip()) < 20:
+            problems.append(f"history[{index}] has no reason")
+        missing = [field for field in _STUDIO_RATCHET_FIELDS if field not in entry]
+        if missing:
+            problems.append(f"history[{index}] lacks {missing}")
+    last = history[-1]
+    if isinstance(last, dict):
+        changed = [f for f in _STUDIO_RATCHET_FIELDS if baseline.get(f) != last.get(f)]
+        if changed:
+            problems.append(f"values changed without a history entry: {changed}")
+    return problems
+
+
+def test_studio_architecture_baseline_changes_are_recorded_with_a_reason() -> None:
+    baseline = _studio_baseline()
+    assert studio_baseline_history_problems(baseline) == []
+    raised = {**baseline, "max_largest_cyclic_component": 99}
+    assert studio_baseline_history_problems(raised) == [
+        "values changed without a history entry: ['max_largest_cyclic_component']"
+    ]
+    history = cast(list[dict[str, object]], baseline["history"])
+    unexplained = {**baseline, "history": [*history[:-1], {**history[-1], "reason": ""}]}
+    assert studio_baseline_history_problems(unexplained) == [
+        f"history[{len(history) - 1}] has no reason"
+    ]
+
+
+def test_studio_qualification_check_sees_parent_and_dynamic_imports(
+    repo_root: Path, tmp_path: Path
+) -> None:
+    copy = _studio_copy(repo_root, tmp_path)
+    baseline = _studio_baseline()
+    web = copy / "web.py"
+    web.write_text(
+        web.read_text(encoding="utf-8") + "\n\ndef _mutation() -> None:\n"
+        "    import importlib\n"
+        "    from commander_lab import qualification\n"
+        "    from .. import qualification as again\n"
+        "    importlib.import_module('commander_lab.qualification.current_boundary')\n"
+        "    del qualification, again\n",
+        encoding="utf-8",
+    )
+    grown, _shrunk = studio_qualification_violations(_COUNTS.qualification_imports(copy), baseline)
+    assert grown == [
+        "web -> commander_lab.qualification: 2 import statement(s), recorded 0",
+        "web -> commander_lab.qualification.current_boundary: 1 import statement(s), recorded 0",
+    ]
+
+
+def test_studio_private_override_count_follows_studio_subclasses(tmp_path: Path) -> None:
+    engine = tmp_path / "engine.py"
+    engine.write_text("class Runner:\n    def _drive(self): ...\n", encoding="utf-8")
+    first = tmp_path / "first.py"
+    first.write_text(
+        "from commander_lab.engine.rules import Runner\n"
+        "class Recording(Runner):\n    def _drive(self): ...\n",
+        encoding="utf-8",
+    )
+    second = tmp_path / "second.py"
+    second.write_text(
+        "from .first import Recording\n"
+        "class Batch(Recording):\n    def _drive(self): ...\n"
+        "class Other:\n    def _drive(self): ...\n",
+        encoding="utf-8",
+    )
+    assert _COUNTS.private_engine_overrides([first, second], [engine]) == [
+        "first.py:3 _drive",
+        "second.py:3 _drive",
+    ]

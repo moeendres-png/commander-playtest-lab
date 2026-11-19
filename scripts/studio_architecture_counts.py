@@ -184,7 +184,11 @@ def qualification_imports(
     Key ``"<studio module> -> <imported module>"``, value the number of such statements (an
     import in a function body counts). Matches ``commander_lab.qualification`` and its
     submodules exactly; ``commander_lab.bridge_qualification`` is a different module and does
-    not match. A relative import that climbs out of ``studio`` to ``qualification`` matches too.
+    not match. Also matched: ``from commander_lab import qualification`` (a parent package
+    importing the name), the relative forms ``from ..qualification import x`` and
+    ``from .. import qualification``, and ``importlib.import_module("commander_lab.qualification…")``
+    / ``__import__(...)`` with a constant string. Static boundary: a module name built at run
+    time (a variable or an f-string passed to ``import_module``) is not seen.
     """
     found: dict[str, int] = {}
     for path in sorted(studio_root.rglob("*.py")):
@@ -195,19 +199,33 @@ def qualification_imports(
             if isinstance(node, ast.Import):
                 names = [alias.name for alias in node.names]
             elif isinstance(node, ast.ImportFrom):
+                source: str | None = None
                 if node.level == 0:
-                    names = [node.module] if node.module else []
+                    source = node.module
                 elif node.level < len(full):
                     base = full[: len(full) - node.level]
-                    if node.module:
-                        names = [".".join([*base, node.module])]
-                    else:
-                        names = [".".join([*base, alias.name]) for alias in node.names]
+                    source = ".".join([*base, *([node.module] if node.module else [])])
+                if source and (source == package or source.startswith(package + ".")):
+                    names = [source]
+                elif source:
+                    names = [f"{source}.{alias.name}" for alias in node.names]
+            elif isinstance(node, ast.Call) and _dynamic_import(node):
+                first = node.args[0]
+                if isinstance(first, ast.Constant) and isinstance(first.value, str):
+                    names = [first.value]
             for name in names:
                 if name == package or name.startswith(package + "."):
                     key = f"{module} -> {name}"
                     found[key] = found.get(key, 0) + 1
     return dict(sorted(found.items()))
+
+
+def _dynamic_import(node: ast.Call) -> bool:
+    func = node.func
+    named = (isinstance(func, ast.Attribute) and func.attr == "import_module") or (
+        isinstance(func, ast.Name) and func.id in {"import_module", "__import__"}
+    )
+    return named and bool(node.args) and isinstance(node.args[0], ast.Constant)
 
 
 def any_uses(paths: Iterable[Path]) -> int:
@@ -358,12 +376,15 @@ def _site_key(site: str) -> tuple[str, int, str]:
 
 
 def private_engine_overrides(studio_paths: list[Path], engine_paths: list[Path]) -> list[str]:
-    """Private methods (single underscore) of Studio classes that subclass a name imported from
-    ``commander_lab.engine`` and that the engine package also defines: a Studio subclass that
-    overrides engine internals. ``"<file>:<line> <name>"``.
+    """Private methods (single underscore) of Studio classes derived from an engine class, whose
+    name the engine package also defines: a Studio subclass that overrides engine internals.
+    A class is engine-derived if a base (bare name or ``module.Name``) is imported from
+    ``commander_lab.engine``, or, transitively, is an engine-derived Studio class (by class
+    name across all Studio modules, so a subclass of ``play._RecordingRunner`` in another module
+    counts). ``"<file>:<line> <name>"``.
     """
     engine_names = {name for name in _defined_names(engine_paths) if _private(name)}
-    hits: list[str] = []
+    classes: list[tuple[Path, ast.ClassDef, set[str], bool]] = []
     for path in studio_paths:
         tree = _parse(path)
         engine_imports = {
@@ -375,18 +396,37 @@ def private_engine_overrides(studio_paths: list[Path], engine_paths: list[Path])
             for alias in node.names
         }
         for node in ast.walk(tree):
-            if not isinstance(node, ast.ClassDef):
-                continue
-            bases = {base.id for base in node.bases if isinstance(base, ast.Name)}
-            if not bases & engine_imports:
-                continue
-            hits.extend(
-                f"{path.name}:{item.lineno} {item.name}"
-                for item in node.body
-                if isinstance(item, ast.FunctionDef | ast.AsyncFunctionDef)
-                and _private(item.name)
-                and item.name in engine_names
-            )
+            if isinstance(node, ast.ClassDef):
+                bases = {
+                    base.id if isinstance(base, ast.Name) else base.attr
+                    for base in node.bases
+                    if isinstance(base, ast.Name | ast.Attribute)
+                }
+                direct = bool(bases & engine_imports) or any(
+                    isinstance(base, ast.Attribute)
+                    and "commander_lab.engine" in ast.unparse(base.value)
+                    for base in node.bases
+                )
+                classes.append((path, node, bases, direct))
+    derived = {node.name for _path, node, _bases, direct in classes if direct}
+    changed = True
+    while changed:
+        changed = False
+        for _path, node, bases, _direct in classes:
+            if node.name not in derived and bases & derived:
+                derived.add(node.name)
+                changed = True
+    hits: list[str] = []
+    for path, node, _bases, _direct in classes:
+        if node.name not in derived:
+            continue
+        hits.extend(
+            f"{path.name}:{item.lineno} {item.name}"
+            for item in node.body
+            if isinstance(item, ast.FunctionDef | ast.AsyncFunctionDef)
+            and _private(item.name)
+            and item.name in engine_names
+        )
     return sorted(hits, key=_site_key)
 
 

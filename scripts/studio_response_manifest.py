@@ -113,6 +113,7 @@ class DeckInputs:
             "revision_id": self.revision_id,
             "cards": len(self.cards),
             "cards_sha256": hashlib.sha256(listing).hexdigest(),
+            "environment": studio_environment(),
         }
 
 
@@ -396,9 +397,19 @@ def _sha256_file(path: Path) -> str:
     return digest.hexdigest()
 
 
+SQLITE_SIDECARS = ("-wal", "-shm", "-journal")
+
+
+def _single_file_set(template: Path) -> list[Path]:
+    """A single-file template plus its SQLite side files that exist next to it."""
+    sidecars = [template.with_name(template.name + suffix) for suffix in SQLITE_SIDECARS]
+    return [template, *(path for path in sidecars if path.is_file())]
+
+
 def template_fingerprint(template: Path) -> dict[str, dict[str, object]]:
-    """Per file of the template: size, mtime in ns and SHA-256 (the template is only read)."""
-    files = [template] if template.is_file() else sorted(template.rglob("*"))
+    """Per file of the template: size, mtime in ns and SHA-256 (the template is only read).
+    A single-file template counts together with its ``-wal``/``-shm``/``-journal`` files."""
+    files = _single_file_set(template) if template.is_file() else sorted(template.rglob("*"))
     result: dict[str, dict[str, object]] = {}
     for path in files:
         if not path.is_file():
@@ -437,7 +448,8 @@ def copy_store(template: Path, destination: Path) -> Path:
         shutil.copytree(template, destination)
     else:
         destination.mkdir(parents=True)
-        shutil.copy2(template, destination / DATABASE)
+        for path in _single_file_set(template):
+            shutil.copy2(path, destination / (DATABASE + path.name[len(template.name) :]))
     return destination
 
 
@@ -465,6 +477,16 @@ def _git(src: Path, *args: str) -> str:
         ).stdout.strip()
     except (OSError, subprocess.CalledProcessError):
         return "UNKNOWN"
+
+
+def studio_environment() -> dict[str, str]:
+    """``COMMANDER_LAB_*`` variables the server inherits (they can change answers, e.g.
+    ``COMMANDER_LAB_TOPDECK_DIR``); the data folder variable is set by this tool."""
+    return {
+        name: value
+        for name, value in sorted(os.environ.items())
+        if name.startswith("COMMANDER_LAB_") and name != "COMMANDER_LAB_STUDIO_DATA"
+    }
 
 
 def resolve_inputs(base: str, commander: str, deck_id: str) -> DeckInputs:
@@ -547,6 +569,7 @@ class RunContext:
     port: int
     start_timeout: float
     settle: float
+    owned_copy: bool = False
 
 
 def _header(
@@ -577,6 +600,13 @@ def _guard_template(context: RunContext, before: Mapping[str, Mapping[str, objec
         raise SafetyStop(f"the store template changed during the run: {changed}")
 
 
+def _copy(context: RunContext) -> Path:
+    """The store copy of this run; only a copy this run created is ever deleted again."""
+    data = copy_store(context.template, context.work / "store")
+    context.owned_copy = True
+    return data
+
+
 def _start(context: RunContext, data: Path) -> StudioServer:
     server = StudioServer(
         context.python, context.src, data, context.work / "server.log", context.port
@@ -593,15 +623,18 @@ def run_manifest(
     before = template_fingerprint(context.template)
     started = time.perf_counter()
     load_before = _load()
-    data = copy_store(context.template, context.work / "store")
-    copy_seconds = round(time.perf_counter() - started, 2)
-    server = _start(context, data)
     try:
-        inputs = resolve_inputs(server.base, commander, deck_id)
-        records = answer_records(server.base, read_requests(inputs), data, repeat)
+        data = _copy(context)
+        copy_seconds = round(time.perf_counter() - started, 2)
+        server = _start(context, data)
+        try:
+            inputs = resolve_inputs(server.base, commander, deck_id)
+            records = answer_records(server.base, read_requests(inputs), data, repeat)
+        finally:
+            server.stop()
     finally:
-        server.stop()
-    _guard_template(context, before)
+        # also after a failure: a changed template is a safety stop (exit 3), not a setup error
+        _guard_template(context, before)
     return {
         "format": FORMAT,
         "tool": "scripts/studio_response_manifest.py",
@@ -661,10 +694,11 @@ def run_writes(
     """Write matrix on one copy: per write, running server against a fresh restart."""
     before = template_fingerprint(context.template)
     started = time.perf_counter()
-    data = copy_store(context.template, context.work / "store")
-    server = _start(context, data)
     steps: list[dict[str, object]] = []
+    server: StudioServer | None = None
     try:
+        data = _copy(context)
+        server = _start(context, data)
         inputs = resolve_inputs(server.base, commander, deck_id)
         reads = read_requests(inputs) + observer_requests(inputs)
         writes = [(name, request) for name, request in write_requests(inputs) if name in selected]
@@ -693,8 +727,9 @@ def run_writes(
                 }
             )
     finally:
-        server.stop()
-    _guard_template(context, before)
+        if server is not None:
+            server.stop()
+        _guard_template(context, before)
     ok = all(step["status"] == 200 and not step["differences"] for step in steps)
     return {
         "format": WRITES_FORMAT,
@@ -729,11 +764,19 @@ def _context(args: argparse.Namespace) -> tuple[RunContext, bool]:
     out = Path(args.out).resolve()
     checkout = src.parent
     check_out_path(out, [ROOT, *([checkout] if (checkout / "pyproject.toml").is_file() else [])])
+    template = Path(args.store).resolve()
     created = args.work_dir is None
+    if not created:
+        given = Path(args.work_dir).resolve()
+        folder = template if template.is_dir() else template.parent
+        if _inside(given, folder) or _inside(folder, given):
+            raise ManifestError("--work-dir and the store template overlap; nothing was touched")
+        if (given / "store").exists():
+            raise ManifestError(f"{given / 'store'} exists already; nothing was touched")
     work = Path(tempfile.mkdtemp(prefix="studio-manifest-")) if created else Path(args.work_dir)
     work.mkdir(parents=True, exist_ok=True)
     context = RunContext(
-        template=Path(args.store).resolve(),
+        template=template,
         src=src,
         python=args.python,
         work=work.resolve(),
@@ -748,8 +791,9 @@ def _cleanup(context: RunContext, created: bool, keep: bool) -> None:
     if keep:
         print(f"work folder kept: {context.work}", flush=True)
         return
-    shutil.rmtree(context.work / "store", ignore_errors=True)
-    if created:
+    if context.owned_copy:
+        shutil.rmtree(context.work / "store", ignore_errors=True)
+    if created:  # a fresh temporary folder of this run, never a given --work-dir
         shutil.rmtree(context.work, ignore_errors=True)
 
 

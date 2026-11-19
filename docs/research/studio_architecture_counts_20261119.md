@@ -36,7 +36,7 @@ in die angegebene Richtung, bei gleichem Antwort-Manifest (unten).
 | SQL-Aufrufe Spitzen | `builder` 75, `importers` 51, `store` 51, `universe` 31, `catalog` 30 | ↓ | `sql_calls` je Modul | gleich |
 | `response_model` in `web.py` | 0 | ↑ | `keyword_uses` | gleich |
 | Private Zugriffe `studio/` → `engine` | 11 Stellen (`play.py` 9, `engine_check.py` 1, `play_batch.py` 1) | ↓ (D-3: 0) | `private_engine_accesses` | Bewertung: 5 Beispielstellen in `play.py`; s. Anm. 1 |
-| Private Überschreibungen `studio/` → `engine` | 2 (`play.py` `_validated_policy`, `_drive`) | ↓ | `private_engine_overrides` | gleich (`play.py:128-161`) |
+| Private Überschreibungen `studio/` → `engine` | 2 (`play.py` `_validated_policy`, `_drive`) | ↓ | `private_engine_overrides` (auch über Studio-Unterklassen, transitiv) | gleich (`play.py:128-161`) |
 | Importgraph `studio/` | 74 Module, 312 Kanten, davon 42 nur über Importe in Funktionsrümpfen | – | `studio_import_graph` | gleich |
 | Importzyklen | 1 Zyklus, 12 Module | ↓ (Ratsche, Abschnitt 2) | `cyclic_components` | gleich |
 | Importe aus `commander_lab.qualification` | 6 Anweisungen in 5 Modulen | ↓ (Ratsche) | `qualification_imports` | gleich |
@@ -58,6 +58,12 @@ Anm. 2: Die Methode hinter der Zahl 8 ist in der Bewertung nicht festgehalten un
 Messskripten nicht nachzubilden. Hier zählt eine Testfunktion, wenn sie selbst
 `shutil.which("node")` aufruft oder (transitiv) eine Hilfsfunktion derselben Datei, die das tut.
 
+**Nachtrag `main` @ `0792a59b`** (nach Einmergen in den D-0-Branch): Zyklus 13 Module (neu
+`gc_band`, über #1622: `universe` importiert `gc_band` auf Modulebene, `gc_band` importiert
+`universe` in einem Funktionsrumpf); private Überschreibungen 3 (neu `play_batch.py:94 _drive` aus
+#1629, Unterklasse von `play._RecordingRunner`); übrige Werte der Tabelle unverändert geprüft:
+`qualification`-Importe 6, private Zugriffe 11.
+
 ## 2. Architekturtest (Ratsche)
 
 `tests/architecture/test_layer_boundaries.py` prüft mit denselben Funktionen gegen
@@ -74,6 +80,13 @@ Messskripten nicht nachzubilden. Hier zählt eine Testfunktion, wenn sie selbst
   `simulations` 1, alle `current_boundary.bridge_launcher.canonical_xmage_engine_pin`).
 - Sinkt ein Wert, wird der Test ebenfalls rot und nennt den neuen Wert für die Fixture (Gewinn
   festschreiben, wie `test_any_usage_ratchet.py`).
+- Keine stille Erhöhung: Jede Änderung eines Ratschenwerts ist ein neuer Eintrag in `history` der
+  Fixture (Datum, `#Issue`, Begründung); die obersten Werte müssen dem letzten Eintrag gleichen,
+  sonst ist der Test rot. Heute zwei Einträge: Erstaufnahme (12 Module, #1612) und `gc_band`
+  (13 Module, #1622, vor der Ratsche gemergt, festgehalten, nicht neu erlaubt).
+- Erkannt werden auch `from commander_lab import qualification`, `from .. import qualification`
+  und `importlib.import_module("commander_lab.qualification…")`/`__import__` mit konstantem Text.
+  Statische Grenze: ein zur Laufzeit gebauter Modulname (Variable, f-String) bleibt unsichtbar.
 - Mutationsprüfung im Test selbst: synthetischer Graph, und eine Kopie von `studio/` mit einem
   zusätzlichen Funktions-Import `store` → `builder` bzw. `web` → `..qualification` muss rot werden.
   Von Hand auf dem echten Baum geprüft (danach zurückgesetzt): ein Funktions-Import
@@ -95,7 +108,12 @@ python scripts/studio_response_manifest.py writes --store <Vorlage> --out <auße
   Exit 3 bei Änderung), der Server läuft gegen eine frische Kopie in einem Arbeitsordner, die danach
   gelöscht wird. Vor der ersten Anfrage prüft das Werkzeug, dass der Server den Ordner dieser Kopie
   meldet (sonst Exit 3); der Port ist frei gewählt, der Prozess wird nur über den eigenen Handle
-  beendet.
+  beendet. Gelöscht wird nur, was dieser Lauf angelegt hat: ein schon vorhandener Ordner
+  `<work-dir>/store` oder eine Überschneidung von Vorlage und `--work-dir` bricht mit Exit 2 ab,
+  ohne etwas anzufassen. Die Vorlagenprüfung läuft auch nach einem Fehler (geänderte Vorlage →
+  Exit 3). Eine Einzeldatei-Vorlage wird samt `-wal`/`-shm`/`-journal` kopiert und gehasht.
+  `COMMANDER_LAB_*`-Variablen (z. B. `COMMANDER_LAB_TOPDECK_DIR`) stehen unter
+  `inputs.environment`; `compare` meldet abweichende Werte.
 - 30 Routen, je zweimal abgefragt (`stable` = beide Antworten byte-gleich): `/`, `/tierliste.html`,
   `status`, `commanders`, `pool`, `layers`, `cohorts`, `allocation`, `evidence`, `data-report`,
   `strength` (POST), `rating-layers`, `universe/options`, `universe/counted`, `roles/audit`,

@@ -322,3 +322,75 @@ def test_studio_write_matrix_compares_running_and_restarted_server(tmp_path: Pat
     assert all(step["differences"] == [] for step in result["steps"])
     assert len(result["steps"][0]["warm"]) == 33
     assert result["steps"][0]["warm"][-3]["key"] == "GET /api/decks/chulane/primer"
+
+
+def _run_args(template: Path, out: Path, src: Path, *extra: str) -> list[str]:
+    return [
+        "run", "--store", str(template), "--out", str(out), "--src", str(src),
+        "--start-timeout", "60", "--repeat", "1", *extra,
+    ]  # fmt: skip
+
+
+def test_studio_run_never_deletes_a_template_inside_the_work_dir(tmp_path: Path) -> None:
+    """``--store X/store --work-dir X``: refused before anything is copied or removed."""
+    src = _fake_src(tmp_path)
+    work = tmp_path / "x"
+    template = work / "store"
+    template.mkdir(parents=True)
+    (template / "studio.sqlite3").write_text("store-v1", encoding="utf-8")
+    (template / "keep.txt").write_text("owner data", encoding="utf-8")
+    before = tool.template_fingerprint(template)
+    code = tool.main(_run_args(template, tmp_path / "m.json", src, "--work-dir", str(work)))
+    assert code == 2
+    assert tool.template_fingerprint(template) == before
+
+
+def test_studio_run_never_deletes_a_store_folder_it_did_not_create(tmp_path: Path) -> None:
+    src, template = _fake_src(tmp_path), _template(tmp_path)
+    work = tmp_path / "work"
+    (work / "store").mkdir(parents=True)
+    (work / "store" / "keep.txt").write_text("someone else's", encoding="utf-8")
+    code = tool.main(_run_args(template, tmp_path / "m.json", src, "--work-dir", str(work)))
+    assert code == 2
+    assert (work / "store" / "keep.txt").read_text(encoding="utf-8") == "someone else's"
+
+
+def test_studio_run_reports_a_changed_template_even_when_the_run_fails(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    src, template = _fake_src(tmp_path), _template(tmp_path)
+
+    def broken(base: str, commander: str, deck_id: str) -> object:
+        (template / "studio.sqlite3").write_text("changed", encoding="utf-8")
+        raise tool.ManifestError("deck missing")
+
+    monkeypatch.setattr(tool, "resolve_inputs", broken)
+    assert tool.main(_run_args(template, tmp_path / "m.json", src)) == 3
+
+
+def test_studio_single_file_template_is_copied_with_its_wal(tmp_path: Path) -> None:
+    folder = tmp_path / "t"
+    folder.mkdir()
+    (folder / "owner.sqlite3").write_bytes(b"main")
+    (folder / "owner.sqlite3-wal").write_bytes(b"wal")
+    assert set(tool.template_fingerprint(folder / "owner.sqlite3")) == {
+        "owner.sqlite3",
+        "owner.sqlite3-wal",
+    }
+    copy = tool.copy_store(folder / "owner.sqlite3", tmp_path / "copy")
+    assert (copy / "studio.sqlite3").read_bytes() == b"main"
+    assert (copy / "studio.sqlite3-wal").read_bytes() == b"wal"
+
+
+def test_studio_inputs_record_the_commander_lab_environment(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("COMMANDER_LAB_TOPDECK_DIR", "/data/topdeck")
+    monkeypatch.setenv("COMMANDER_LAB_STUDIO_DATA", "/set/by/the/tool")
+    environment = INPUTS.record()["environment"]
+    assert environment["COMMANDER_LAB_TOPDECK_DIR"] == "/data/topdeck"
+    assert "COMMANDER_LAB_STUDIO_DATA" not in environment
+    a = {"format": tool.FORMAT, "inputs": INPUTS.record(), "requests": []}
+    monkeypatch.setenv("COMMANDER_LAB_TOPDECK_DIR", "/other")
+    b = {"format": tool.FORMAT, "inputs": INPUTS.record(), "requests": []}
+    assert tool.compare_manifests(a, b)[0].startswith("inputs differ")

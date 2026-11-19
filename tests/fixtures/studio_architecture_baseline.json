@@ -1,12 +1,13 @@
 {
-  "definition": "Import graph of src/commander_lab/studio/*.py with every import statement found by ast.walk (function bodies and TYPE_CHECKING blocks included); see scripts/studio_architecture_counts.py and tests/architecture/test_layer_boundaries.py. Ratchet: the values may only go down.",
-  "measured_at": "main 14a802bcd393921622d5f431f629c2e7cd8e4570 (2026-11-19, Refs #1612)",
+  "definition": "Import graph of src/commander_lab/studio/*.py with every import statement found by ast.walk (function bodies and TYPE_CHECKING blocks included); see scripts/studio_architecture_counts.py and tests/architecture/test_layer_boundaries.py. Ratchet: the values may only go down. Every change of a ratchet value is a new entry in `history` (date, ref, reason), and the top-level values equal the last entry; tests/architecture/test_layer_boundaries.py checks this.",
+  "measured_at": "main 0792a59b (2026-11-19, merged into the D-0 branch, Refs #1612)",
   "max_cyclic_components": 1,
-  "max_largest_cyclic_component": 12,
+  "max_largest_cyclic_component": 13,
   "cyclic_modules": [
     "builder",
     "corpus_signals",
     "decks",
+    "gc_band",
     "research_import",
     "roles",
     "sources",
@@ -24,5 +25,66 @@
     "paired_comparison -> commander_lab.qualification.current_boundary.bridge_launcher": 1,
     "play -> commander_lab.qualification.current_boundary.bridge_launcher": 1,
     "simulations -> commander_lab.qualification.current_boundary.bridge_launcher": 1
-  }
+  },
+  "history": [
+    {
+      "date": "2026-11-19",
+      "ref": "#1612",
+      "reason": "First record on main 14a802bc: one cycle of 12 modules around builder; 6 imports of commander_lab.qualification in 5 modules, no facade yet.",
+      "max_cyclic_components": 1,
+      "max_largest_cyclic_component": 12,
+      "cyclic_modules": [
+        "builder",
+        "corpus_signals",
+        "decks",
+        "research_import",
+        "roles",
+        "sources",
+        "strength_view",
+        "tier_snapshot",
+        "tiers",
+        "universe",
+        "universe_choice",
+        "universe_view"
+      ],
+      "qualification_facades": [],
+      "qualification_import_exceptions": {
+        "doctor -> commander_lab.qualification.current_boundary.bridge_launcher": 1,
+        "launch -> commander_lab.qualification.current_boundary.bridge_launcher": 2,
+        "paired_comparison -> commander_lab.qualification.current_boundary.bridge_launcher": 1,
+        "play -> commander_lab.qualification.current_boundary.bridge_launcher": 1,
+        "simulations -> commander_lab.qualification.current_boundary.bridge_launcher": 1
+      }
+    },
+    {
+      "date": "2026-11-19",
+      "ref": "#1622",
+      "reason": "Recorded, not newly allowed: #1622 (merged before this ratchet existed, main 0792a59b) put gc_band into the cycle (universe imports gc_band at module level, gc_band imports universe in a function body). May only go down again.",
+      "max_cyclic_components": 1,
+      "max_largest_cyclic_component": 13,
+      "cyclic_modules": [
+        "builder",
+        "corpus_signals",
+        "decks",
+        "gc_band",
+        "research_import",
+        "roles",
+        "sources",
+        "strength_view",
+        "tier_snapshot",
+        "tiers",
+        "universe",
+        "universe_choice",
+        "universe_view"
+      ],
+      "qualification_facades": [],
+      "qualification_import_exceptions": {
+        "doctor -> commander_lab.qualification.current_boundary.bridge_launcher": 1,
+        "launch -> commander_lab.qualification.current_boundary.bridge_launcher": 2,
+        "paired_comparison -> commander_lab.qualification.current_boundary.bridge_launcher": 1,
+        "play -> commander_lab.qualification.current_boundary.bridge_launcher": 1,
+        "simulations -> commander_lab.qualification.current_boundary.bridge_launcher": 1
+      }
+    }
+  ]
 }
