@@ -721,13 +721,16 @@ def test_the_write_matrix_carries_only_the_declared_figures_and_stays_exact(
     client = TestClient(create_app(tmp_path / "studio"), headers={"X-Studio": "1"})
     declared_reads: set[str] = set()
     probe = StudioStore.open(tmp_path / "studio")
+    assert cache.IMPORT_ONLY
     for kind in cache.IMPORT_ONLY:
         declared_reads |= set(
             _trace_reads(probe, lambda kind=kind: _IMPORT_ONLY_TRACERS[kind](probe))
         )
     probe.close()
     cache.invalidate()
-    for name, method, path, body in _wrapped_writes():
+    writes = _wrapped_writes()
+    assert len(writes) == 11
+    for name, method, path, body in writes:
         reader = StudioStore.open(tmp_path / "studio")
         groups = land_advisor.source_deck_groups(reader, [COMMANDER])
         cache.cached(reader, ("undeclared_probe",), lambda: calls.__setitem__("strength", 1))
