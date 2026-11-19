@@ -136,7 +136,7 @@ Die Qualifizierung erfolgt in der vom Owner verbindlich festgelegten Reihenfolge
 ---
 
 ### Priorität 6: ACTIVE-Drive Curated Chulane 99-Card Deck-Korpus
-- **Quellen-ID:** `active_drive:chulane-corpus-975`
+- **Quellen-ID:** `repo:chulane-corpus` (bis 2026-11-19 `active_drive:chulane-corpus-975`; Kennung berichtigt, weil Titel und Zahlen den 975er-Bestand überholt haben)
 - **Direkte URL:** `local:data/hub/03_MAINBOARD_99_COMPACT_*.jsonl`
 - **Referenz-Dokumentation:** [`docs/STUDIO_DECKBUILDER.md`](../STUDIO_DECKBUILDER.md)
 - **Herausgeber:** Commander Studio ACTIVE Archive / Owner
@@ -358,7 +358,7 @@ Die obigen Abschnitte 1–5 dokumentieren den historischen Stand vom 2026-11-11 
 
 1. **Trennung von Datenqualität (`status`) und automatisiertem Zugangsrecht (`access_status`):**
    Jede Quelle führt nun zusätzlich `access_status` (`ok`, `ok_with_conditions`, `unclear`, `prohibited`), `access_evidence_url` und `access_checked_at_utc` (`2026-11-18`). Der bestehende Datenqualitäts-Status (`VERIFIED` / `REVIEW` / `UNAVAILABLE`) bleibt davon getrennt.
-2. **Tote lokale Pfade bereinigt (`active_drive:chulane-corpus-975`):**
+2. **Tote lokale Pfade bereinigt und Kennung berichtigt (`repo:chulane-corpus`, früher `active_drive:chulane-corpus-975`):**
    Der historische Verweis `local:data/hub/…` existierte nie im Repository. Der gezählte kanonische Chulane-Korpus liegt im Repository unter `local:data/research/chulane_corpus` (`local:data/research/chulane_corpus/README.md`). Seine Decks stammen aus EDHREC- (2.300 + 7.528) und Archidekt-Ernte (723), beide im Register `prohibited`; der Eintrag führt darum `access_status: prohibited` (Bestand nutzbar nach Owner-Entscheid #1557: EDHREC-Bestand weiter nutzen, keine neuen automatisierten Abrufe ohne schriftliche Erlaubnis, Archidekt kein Scraping; keine Nachernte). Abrufzeit und Snapshot-Kennung des Korpus als Ganzes sind nicht belegt (README nennt nur den Refresh vom 2026-11-15): beide Felder sind leer (unbekannt), die Reproduzierbarkeit steht auf `UNKNOWN_NO_SNAPSHOT_RECORDED`. Ein Unit-Test prüft nun, dass jeder `local:`-Pfad im Register tatsächlich existiert.
 3. **Berichtigter Zugangsstatus je Quelle (Stand 2026-11-18):**
    - **Scryfall Bulk Oracle (`scryfall:bulk-oracle`)** & **Scryfall Tagger (`scryfall:tagger`):** `ok_with_conditions` — Scryfall API Terms; Tagger-Daten stehen als offizieller Bulk-Export („Oracle Tags“) bereit (nicht mehr wegen Lizenz blockiert; Datenqualität bleibt `REVIEW` wegen Community-Subjektivität). Generischer `User-Agent` und `Accept`, Preisfelder entfernen, kein KI-Training.

@@ -38,7 +38,7 @@ EXPECTED_PRIORITIES = (
     (3, "playgroup:chulane", "REVIEW"),
     (4, "edhrec:chulane", "VERIFIED"),
     (5, "spellbook:variants-api", "VERIFIED"),
-    (6, "active_drive:chulane-corpus-975", "VERIFIED"),
+    (6, "repo:chulane-corpus", "VERIFIED"),
     (7, "tournament:cedh-meta", "REVIEW"),
     (8, "xmage:card-facts", "VERIFIED"),
     (9, "scryfall:tagger", "REVIEW"),
@@ -151,7 +151,9 @@ def test_missing_timestamps_remain_none_never_fabricated() -> None:
     assert xmage.snapshot_id == "xmage-card-facts-1.0.0-database-78c12c7d"
 
     # The corpus has no recorded retrieval time or snapshot: unbekannt, never invented
-    corpus = get_source("active_drive:chulane-corpus-975")
+    with pytest.raises(KeyError):
+        get_source("active_drive:chulane-corpus-975")  # misleading id (title and counts changed)
+    corpus = get_source("repo:chulane-corpus")
     assert corpus.retrieved_at_utc is None
     assert corpus.snapshot_id is None
 
@@ -171,7 +173,7 @@ def test_get_source_and_list_sources() -> None:
         "scryfall:bulk-oracle",
         "edhrec:chulane",
         "spellbook:variants-api",
-        "active_drive:chulane-corpus-975",
+        "repo:chulane-corpus",
         "xmage:card-facts",
     }
 
@@ -660,8 +662,8 @@ def test_every_source_has_valid_access_status_and_json_matches_code() -> None:
     assert by_id["moxfield:decks"]["access_status"] == "prohibited"
     assert by_id["tournament:cedh-meta"]["access_status"] == "unclear"
     # The corpus stems from prohibited origin sources (EDHREC, Archidekt): stock only (#1557)
-    assert by_id["active_drive:chulane-corpus-975"]["access_status"] == "prohibited"
-    assert by_id["active_drive:chulane-corpus-975"]["status"] == "VERIFIED"
+    assert by_id["repo:chulane-corpus"]["access_status"] == "prohibited"
+    assert by_id["repo:chulane-corpus"]["status"] == "VERIFIED"
     assert by_id["xmage:card-facts"]["access_status"] == "ok"
     assert by_id["xmage:card-facts"]["access_checked_at_utc"] is None
 
@@ -684,6 +686,7 @@ def test_spellbook_combos_fetch_bulk_parsing_and_generic_user_agent(tmp_path: Pa
 
     # Bulk URL points to official variants.json.gz, not paginated REST API
     assert mod.DEFAULT_BULK_URL == "https://json.commanderspellbook.com/variants.json.gz"  # type: ignore[attr-defined]
+    mod.check_bulk_url(mod.DEFAULT_BULK_URL)  # type: ignore[attr-defined]
 
     # Generic default User-Agent across updated fetch scripts (no project/repo/person tokens)
     forbidden = (
@@ -793,14 +796,11 @@ def test_a_snapshot_claiming_source_records_a_snapshot() -> None:
         if source.retrieved_at_utc is None and source.snapshot_id is None:
             assert source.reproducibility != "DETERMINISTIC_OFFLINE_SNAPSHOT", source.source_id
     assert get_source("scryfall:tagger").reproducibility == "UNKNOWN_NO_SNAPSHOT_RECORDED"
-    assert (
-        get_source("active_drive:chulane-corpus-975").reproducibility
-        == "UNKNOWN_NO_SNAPSHOT_RECORDED"
-    )
+    assert get_source("repo:chulane-corpus").reproducibility == "UNKNOWN_NO_SNAPSHOT_RECORDED"
 
 
 def test_stock_from_prohibited_sources_carries_the_owner_decision_note() -> None:
-    corpus = get_source("active_drive:chulane-corpus-975")
+    corpus = get_source("repo:chulane-corpus")
     assert corpus.access_status == "prohibited"
     rationale = corpus.status_rationale
     assert "Owner-Entscheid #1557" in rationale

@@ -51,7 +51,8 @@ import urllib.error
 import urllib.request
 from collections.abc import Iterator
 from pathlib import Path
-from typing import IO, NamedTuple
+from typing import IO, Any, NamedTuple
+from urllib.parse import urlsplit
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
@@ -63,6 +64,8 @@ DEFAULT_BULK_URL = "https://json.commanderspellbook.com/variants.json.gz"
 DEFAULT_USER_AGENT = "mtg-combo-fetch-tool/1.0"
 USER_AGENT = DEFAULT_USER_AGENT
 WUG = frozenset("WUG")
+# The only host the bulk download may contact (the operator's documented bulk export host).
+ALLOWED_BULK_HOSTS = frozenset({"json.commanderspellbook.com"})
 _NETWORK_REFUSAL = (
     "No network access without --allow-network: pass --bulk <local variants.json[.gz]> to work "
     "offline, or --allow-network to download the bulk export once. Nothing was requested."
@@ -116,6 +119,34 @@ def _corpus_keys(store: StudioStore, commander: str) -> tuple[set[str], int]:
     return keys, len(deck_ids)
 
 
+class _NoRedirect(urllib.request.HTTPRedirectHandler):
+    """Refuse every redirect: only the address that was checked is ever contacted."""
+
+    def redirect_request(self, *_args: Any, **_kwargs: Any) -> None:
+        return None
+
+
+def _open_url(request: urllib.request.Request, timeout: float) -> Any:
+    opener = urllib.request.build_opener(_NoRedirect())
+    return opener.open(request, timeout=timeout)  # https URL on the allowlist, no redirect
+
+
+def check_bulk_url(url: str) -> None:
+    """Only an https URL on an allowlisted host (no credentials, no port) may be downloaded."""
+    parts = urlsplit(url)
+    if (
+        parts.scheme != "https"
+        or parts.hostname not in ALLOWED_BULK_HOSTS
+        or parts.username is not None
+        or parts.password is not None
+        or parts.port is not None
+    ):
+        raise SystemExit(
+            f"Spellbook bulk download refused: {url!r} is not an https URL on "
+            f"{', '.join(sorted(ALLOWED_BULK_HOSTS))}"
+        )
+
+
 def _mib_limit(value: int, name: str) -> int:
     if value < 1:
         raise SystemExit(f"{name} must be at least 1 MiB")
@@ -134,12 +165,11 @@ def _download_bulk(
     Any HTTP error stops the run with the status as evidence; a response that declares or
     delivers more than ``max_bytes`` is refused and nothing is kept.
     """
-    if not url.startswith("https://"):
-        raise SystemExit(f"Spellbook bulk download refused: not an https URL: {url}")
+    check_bulk_url(url)
     request = urllib.request.Request(url, headers={"User-Agent": user_agent, "Accept": "*/*"})
     size = 0
     try:
-        with urllib.request.urlopen(request, timeout=300) as response:
+        with _open_url(request, 300) as response:
             declared = response.headers.get("Content-Length")
             if declared is not None and declared.isdigit() and int(declared) > max_bytes:
                 raise SystemExit(
@@ -159,6 +189,11 @@ def _download_bulk(
                         )
                     sink.write(chunk)
     except urllib.error.HTTPError as error:
+        if 300 <= error.code < 400:
+            raise SystemExit(
+                f"Spellbook bulk download stopped the run: HTTP {error.code} redirect for {url} "
+                "is not followed"
+            ) from error
         detail = error.read().decode("utf-8", errors="replace")[:200]
         raise SystemExit(
             f"Spellbook bulk download stopped the run: HTTP {error.code} for {url} — {detail}"
@@ -499,11 +534,6 @@ def main() -> int:
         default=DEFAULT_MAX_UNPACKED_MB,
         help="refuse a bulk document that unpacks to more than this many MiB of text",
     )
-    parser.add_argument(
-        "--user-agent",
-        default=DEFAULT_USER_AGENT,
-        help="Generic client User-Agent string (no project, repository, or person reference).",
-    )
     parser.add_argument("--commander", default="Chulane, Teller of Tales")
     parser.add_argument(
         "--retrieved-at",
@@ -514,6 +544,8 @@ def main() -> int:
     args = parser.parse_args()
     if args.bulk is None and not args.allow_network:
         raise SystemExit(_NETWORK_REFUSAL)
+    if args.bulk is None:
+        check_bulk_url(args.bulk_url)
     max_download = _mib_limit(args.max_download_mb, "--max-download-mb")
     max_unpacked = _mib_limit(args.max_unpacked_mb, "--max-unpacked-mb")
 
@@ -539,7 +571,6 @@ def main() -> int:
         args.bulk,
         bulk_url=args.bulk_url,
         commander=args.commander,
-        user_agent=args.user_agent,
         allow_network=args.allow_network,
         max_download_bytes=max_download,
         max_unpacked_bytes=max_unpacked,
@@ -585,7 +616,7 @@ def main() -> int:
             sources.append(bulk_source)
         provenance["extension_1378"] = {
             "retrieved_at": args.retrieved_at,
-            "endpoint": str(args.bulk) if args.bulk is not None else args.bulk_url,
+            "endpoint": args.bulk.name if args.bulk is not None else args.bulk_url,
             "retrieval_mode": "bulk",
             "scope": (
                 "identity within WUG; status OK; Commander-legal; no spoiler; no card "

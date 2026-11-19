@@ -401,7 +401,7 @@ QUALIFIED_SOURCES: tuple[EvidenceSource, ...] = (
         access_checked_at_utc="2026-11-18",
     ),
     EvidenceSource(
-        source_id="active_drive:chulane-corpus-975",
+        source_id="repo:chulane-corpus",
         priority=6,
         title="Curated Chulane 99-Card Deck Corpus (Repository Archive)",
         direct_url="local:data/research/chulane_corpus",
