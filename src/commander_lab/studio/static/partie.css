@@ -3,7 +3,11 @@ a.nav:hover{border-color:var(--accent)}
 #controls{display:flex;align-items:center;gap:var(--s2) var(--s3);padding:var(--s2) var(--s4);background:var(--panel);border-bottom:1px solid var(--line);flex-wrap:wrap}
 #controls label{display:inline-flex;gap:4px;align-items:center;color:var(--muted)}
 #controls [hidden]{display:none}
-#position{flex:1 1 260px;padding:0}
+.replay-controls{display:inline-flex;align-items:center;gap:var(--s2);flex-wrap:wrap;flex:1 1 auto}
+.replay-controls[hidden]{display:none}
+#replay-controls button:focus-visible,#replay-controls select:focus-visible,#replay-controls input:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+#turn-jump{min-width:92px}
+#position{flex:1 1 200px;padding:0}
 #game{grid-template-columns:minmax(0,1fr) 410px}
 #table{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--s3);padding:var(--s3);overflow:auto;align-content:start;scrollbar-width:thin}
 #table.one{grid-template-columns:1fr}
