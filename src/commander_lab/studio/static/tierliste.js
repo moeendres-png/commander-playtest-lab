@@ -975,10 +975,10 @@ function resetFilters() {
 }
 
 function render(keepScroll = true) {
+  if (!state.data) return;
   const body = $("pool-body");
   const top = body.scrollTop, left = body.scrollLeft;
   body.replaceChildren();
-  if (!state.data) return;
   const cards = visibleCards();
   $("count").textContent = `${countLine(cards.length)}${state.nameSorted ? " · Treffer nach Name zuerst" : ""}`;
   body.setAttribute("aria-label", state.tab === "research" ? "Forschungsliste" : "Tierliste: Kartentabelle");
@@ -1530,8 +1530,12 @@ async function universeChanged() {
 async function initUniverse() {
   const uni = state.universe;
   uni.ticket = 0;
-  try { uni.profiles = await api("/api/universe/profiles"); } catch (error) { fail(error); uni.profiles = []; }
-  try { uni.options = await api(`/api/universe/options?commander=${encodeURIComponent(COMMANDER)}`); } catch (error) { uni.options = null; }
+  const [profiles, options] = await Promise.all([
+    api("/api/universe/profiles").catch((error) => { fail(error); return []; }),
+    api(`/api/universe/options?commander=${encodeURIComponent(COMMANDER)}`).catch(() => null),
+  ]);
+  uni.profiles = profiles;
+  uni.options = options;
   const wanted = rememberedUniverse();
   const name = uni.profiles.some((p) => p.name === wanted) ? wanted : "";
   fillUniverseSelect(name);
@@ -1942,12 +1946,16 @@ async function initStrength() {
   const s = state.strength;
   s.status = "loading";
   try {
-    [s.meta, s.profiles] = await Promise.all([api("/api/strength/presets"), api("/api/strength/profiles")]);
-    s.counted = await api(`/api/universe/counted?commander=${encodeURIComponent(COMMANDER)}`).catch(() => []);
+    [s.meta, s.profiles, s.counted] = await Promise.all([
+      api("/api/strength/presets"),
+      api("/api/strength/profiles"),
+      api(`/api/universe/counted?commander=${encodeURIComponent(COMMANDER)}`).catch(() => []),
+    ]);
   } catch (error) { toast(`Stärke-Index nicht verfügbar: ${StudioUI.germanError(error)}`); s.status = "error"; renderTierBar(); syncRankGroupToggle(); syncRanking(); render(); return; }
   fillSortOptions();
   state.layerCols = recallLayerColumns(s.meta.layers);
   renderLayerControls();
+  if (state.universe.ready) await state.universe.ready.catch(() => {});
   const wanted = rememberedStrength();
   // An earlier version of the quick toggle stored "function" as the setting and so inflated the tiers: that
   // choice becomes the view mode now and the setting returns to the whole pool.
@@ -1974,10 +1982,11 @@ async function initStrength() {
 // have no real oracle_id (they cannot be matched to a card). Otherwise there is none.
 async function dataBanner() {
   const host = $("data-state");
-  let report = null;
-  try { report = await api("/api/data-report"); } catch (error) { report = null; }
+  const [report] = await Promise.all([
+    api("/api/data-report").catch(() => null),
+    StudioUI.dataState(host, COMMANDER, { only: ["inventory", "scryfall", "decklists"] }),
+  ]);
   const rows = report && report.corpus ? report.corpus.card_rows_without_oracle_id : null;
-  await StudioUI.dataState(host, COMMANDER, { only: ["inventory", "scryfall", "decklists"] });
   if (rows && rows.count > 0) {
     host.append(h("div", { class: "badge warn badge-text", id: "oracle-banner", role: "status" }, `Datenbefund: ${nf(rows.count)} von ${nf(rows.of)} Deckkarten-Zeilen haben keine echte Oracle-Kennung und werden keiner Karte zugeordnet (fehlende Beobachtung, keine Schwäche).`));
   }
@@ -2244,9 +2253,10 @@ async function setView(view) {
   state.view = view;
   syncRanking();
   syncRankGroupToggle();
+  const audit = loadRoleAudit().catch(() => {});
   await loadEvidence();
   if (view === "deck") await loadDeck();
-  loadRoleAudit().catch(() => {});
+  await audit;
 }
 
 function renderTabs() {
@@ -2422,12 +2432,20 @@ async function init() {
     state.cohortShapes = Array.isArray(shapes) ? shapes : [];
     if (state.data) { renderNotice(); render(false); }
   }).catch(() => {});
-  try {
-    const marks = await api("/api/marks");
-    for (const [cardId, mark] of Object.entries(marks)) state.marks.set(cardId, { favorite: mark.favorite, excluded: mark.excluded, note: mark.note || "" });
-  } catch (error) { fail(error); }
-  await Promise.all([setView("commander"), initUniverse()]);
-  await initDecks();
-  await initStrength();
+  const marksPromise = api("/api/marks")
+    .then((marks) => {
+      for (const [cardId, mark] of Object.entries(marks)) state.marks.set(cardId, { favorite: mark.favorite, excluded: mark.excluded, note: mark.note || "" });
+      if (state.data) render();
+    })
+    .catch((error) => fail(error));
+  const universePromise = initUniverse();
+  state.universe.ready = universePromise;
+  await Promise.all([
+    marksPromise,
+    setView("commander"),
+    universePromise,
+    initDecks(),
+    initStrength(),
+  ]);
 }
 init().catch((error) => fail(error));

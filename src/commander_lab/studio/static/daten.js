@@ -282,7 +282,7 @@ async function loadAll() {
 async function init() {
   await StudioCommander.fill($("commander-select"));
   $("commander-select").addEventListener("change", () => loadAll());
-  $("data-refresh").addEventListener("click", () => loadAll());
+  $("data-refresh").addEventListener("click", () => { StudioUI.clearSharedCache(); loadAll(); });
   await loadAll();
 }
 
