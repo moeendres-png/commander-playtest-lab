@@ -320,4 +320,5 @@ def test_studio_write_matrix_compares_running_and_restarted_server(tmp_path: Pat
     assert result["ok"] is True
     assert [step["write"] for step in result["steps"]] == ["favorite", "primer"]
     assert all(step["differences"] == [] for step in result["steps"])
-    assert len(result["steps"][0]["warm"]) == 30
+    assert len(result["steps"][0]["warm"]) == 33
+    assert result["steps"][0]["warm"][-3]["key"] == "GET /api/decks/chulane/primer"

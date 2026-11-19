@@ -120,7 +120,16 @@ auf der Maschine (load 6,3 bis 6,6):
 | 1 | 6,5 s | 48,0 s | 6,52 / 6,29 | 30 Routen, alle 200, alle `stable` |
 | 2 | 2,6 s | 48,5 s | 6,29 / 6,56 | 30 Routen, alle 200, alle `stable` |
 | `compare` 1 gegen 2 | | | | Exit 0, „30 routes, 0 difference(s)“; Roh-Hash `status` verschieden, normalisiert gleich |
-| `writes` (alle 7) | | 531 s | – / 4,46 | Exit 0; je Schreibvorgang Status 200 und 30 von 30 Antworten warm = nach Neustart |
+| `writes` (alle 7, 30 Routen) | | 531 s | – / 4,46 | Exit 0; je Schreibvorgang Status 200 und 30 von 30 Antworten warm = nach Neustart |
+| `writes` label, primer, universe_profile (33 Routen) | | 308 s | – / 8,03 | Exit 0; 33 von 33 warm = nach Neustart |
+
+Empfindlichkeit der Schreibmatrix (Routen, deren Hash sich durch den Schreibvorgang gegenüber dem
+Stand davor ändert; nur so belegt ein „gleich“ etwas): Favorit 3 (`pool`, `layers`,
+`data-report`), Markierung 3 (dieselben), Label 1 (`pool`), Entwurf 1 (`decks`), Revision 3
+(`allocation`, `decks`, `deck-browser`), Universumsprofil 3 (`status`, `data-report`, `strength`;
+mit Zusatzroute 4), Primer 0 unter den 30 Leserouten. Deshalb fragt `writes` zusätzlich
+`GET /api/decks/<id>/primer`, `GET /api/universe/profiles` und `GET /api/labels` ab
+(`observer_requests`); damit ändert der Primer 1 Antwort und ist belegt.
 
 Langsamste Antwort je Lauf: `data-report` 21,0 s / 23,6 s (kalt, Aufwärmphase läuft parallel).
 Zeiten sind wegen der Fremdlast nur Orientierung, kein Messwert für Effizienzvergleiche.

@@ -11,8 +11,8 @@ before and after a change.
             writes status, length and SHA-256 per answer as a manifest JSON. The manifest must
             lie outside the repository. The copy is deleted afterwards (``--keep-work`` keeps it).
 ``writes``  the optional write matrix: after each write (favorite, mark, label, draft, revision,
-            primer, universe profile) the read routes of the running server must equal those of
-            a freshly started server on the same written copy.
+            primer, universe profile) the read routes plus ``observer_requests`` of the running
+            server must equal those of a freshly started server on the same written copy.
 ``compare`` two ``run`` manifests; exit 0 if the inputs and every answer agree, 1 otherwise.
 
 Normalisation: only for fields shown to depend on the run, listed in ``NORMALIZATIONS``. Today
@@ -172,6 +172,16 @@ def read_requests(inputs: DeckInputs) -> list[Request]:
         ),
         Request("POST", "/api/castability", owned),
         Request("POST", "/api/packages", {"commander": inputs.commander, "cards": cards}),
+    ]
+
+
+def observer_requests(inputs: DeckInputs) -> list[Request]:
+    """Extra reads of the write matrix only: the routes that show the primer, the universe
+    profiles and the label list, which none of the 30 read routes reflects."""
+    return [
+        Request("GET", f"/api/decks/{_q(inputs.deck_id)}/primer"),
+        Request("GET", "/api/universe/profiles"),
+        Request("GET", "/api/labels"),
     ]
 
 
@@ -656,7 +666,7 @@ def run_writes(
     steps: list[dict[str, object]] = []
     try:
         inputs = resolve_inputs(server.base, commander, deck_id)
-        reads = read_requests(inputs)
+        reads = read_requests(inputs) + observer_requests(inputs)
         writes = [(name, request) for name, request in write_requests(inputs) if name in selected]
         unknown = sorted(set(selected) - {name for name, _ in write_requests(inputs)})
         if unknown:
