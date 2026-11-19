@@ -1,16 +1,14 @@
-"""Broaden the curated Spellbook combo file from the variants API (issue #1378).
+"""Broaden the curated Spellbook combo file from the bulk variants export (issues #1378, #1546).
 
 The curated file ``data/meta/spellbook_combos.json`` held 7 hand-picked Chulane
 lines (2026-10-25, text retrieval). This script rebuilds the machine-generated
-part of the file from the Commander Spellbook backend API, under the scope the
-project's source register states for ``spellbook:variants-api`` ("all known and
-rule-verified MTG combos matching Chulane color identity (Bant / WUG)") narrowed
-by the local project scope:
+part of the file from the Commander Spellbook bulk export
+(``https://json.commanderspellbook.com/variants.json.gz`` or a local ``--bulk``
+snapshot), under the operator's documented retrieval rules (no full export over
+the paginated REST API):
 
-* the API query is ``identity<=WUG`` — a deterministic public filter (under the
-  2026-11-15 AGENTS.md §12 relaxation, collection/deck lists are also permitted for
-  Studio tools; price/purchase signals remain excluded for Chulane). All further
-  filtering is local;
+* the bulk document is filtered locally — no collection or deck data leaves the
+  machine;
 * a variant is kept when its identity letters are a subset of WUG (colorless
   ``C`` counts as inside every identity), its status is ``OK``, it is legal in
   Commander, it is not a spoiler, no card is required to be a *different*
@@ -37,11 +35,10 @@ no retries, no workarounds. The store must hold the repository data
 from __future__ import annotations
 
 import argparse
+import gzip
 import json
 import sys
-import time
 import urllib.error
-import urllib.parse
 import urllib.request
 from pathlib import Path
 from typing import NamedTuple
@@ -52,9 +49,9 @@ from commander_lab.studio.store import COUNTED_SECTIONS, StudioStore
 from commander_lab.studio.universe import resolve_universe
 
 GENERATED_PREFIX = "chulane-sb-"
-DEFAULT_BASE_URL = "https://backend.commanderspellbook.com"
-DEFAULT_QUERY = "identity<=WUG"
-USER_AGENT = "commander-playtest-lab spellbook_combos_fetch (issue #1378)"
+DEFAULT_BULK_URL = "https://json.commanderspellbook.com/variants.json.gz"
+DEFAULT_USER_AGENT = "mtg-combo-fetch-tool/1.0"
+USER_AGENT = DEFAULT_USER_AGENT
 WUG = frozenset("WUG")
 
 
@@ -96,22 +93,21 @@ def _corpus_keys(store: StudioStore, commander: str) -> tuple[set[str], int]:
     return keys, len(deck_ids)
 
 
-def _fetch_json(url: str) -> dict[str, object]:
-    """One polite GET; any HTTP error stops the run with the status as evidence."""
-    request = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
+def _download_bulk(url: str, *, user_agent: str = DEFAULT_USER_AGENT) -> bytes:
+    """One polite bulk GET; any HTTP error stops the run with the status as evidence."""
+    request = urllib.request.Request(url, headers={"User-Agent": user_agent, "Accept": "*/*"})
     try:
-        with urllib.request.urlopen(request, timeout=120) as response:
-            payload = json.loads(response.read().decode("utf-8"))
+        with urllib.request.urlopen(request, timeout=300) as response:
+            return bytes(response.read())
     except urllib.error.HTTPError as error:
         detail = error.read().decode("utf-8", errors="replace")[:200]
         raise SystemExit(
-            f"Spellbook API stopped the run: HTTP {error.code} for {url} — {detail}"
+            f"Spellbook bulk download stopped the run: HTTP {error.code} for {url} — {detail}"
         ) from error
     except urllib.error.URLError as error:
-        raise SystemExit(f"Spellbook API unreachable: {error.reason} for {url}") from error
-    if not isinstance(payload, dict):
-        raise SystemExit(f"Spellbook API returned a non-object payload for {url}")
-    return payload
+        raise SystemExit(
+            f"Spellbook bulk download unreachable: {error.reason} for {url}"
+        ) from error
 
 
 def _as_str(value: object) -> str:
@@ -119,7 +115,7 @@ def _as_str(value: object) -> str:
 
 
 def _variant_facts(raw: object, commander: str) -> _Variant | None:
-    """The fields this script uses from one API variant; None when malformed."""
+    """The fields this script uses from one bulk variant; None when malformed."""
     if not isinstance(raw, dict):
         return None
     names: list[str] = []
@@ -163,25 +159,46 @@ def _variant_facts(raw: object, commander: str) -> _Variant | None:
     )
 
 
-def _fetch_all_variants(base_url: str, query: str, commander: str) -> list[_Variant]:
-    """Every variant of the query, following the API's ``next`` links verbatim."""
-    url: str | None = f"{base_url}/variants/?limit=100&q={urllib.parse.quote(query)}"
+def _parse_bulk_variants(document: object, commander: str) -> list[_Variant]:
+    """Extract normalized variant facts from a decoded Spellbook bulk document."""
+    if isinstance(document, dict):
+        raw_variants = document.get("variants")
+    elif isinstance(document, list):
+        raw_variants = document
+    else:
+        raw_variants = None
+    if not isinstance(raw_variants, list):
+        raise SystemExit("Spellbook bulk export lacks a 'variants' list")
     facts: list[_Variant] = []
-    pages = 0
-    while url is not None:
-        payload = _fetch_json(url)
-        pages += 1
-        results = payload.get("results")
-        if isinstance(results, list):
-            for raw in results:
-                fact = _variant_facts(raw, commander)
-                if fact is not None and fact.variant_id:
-                    facts.append(fact)
-        next_url = payload.get("next")
-        url = next_url if isinstance(next_url, str) and next_url else None
-        if url is not None:
-            time.sleep(0.25)
-    print(f"fetched {len(facts)} variants in {pages} pages", file=sys.stderr)
+    for raw in raw_variants:
+        fact = _variant_facts(raw, commander)
+        if fact is not None and fact.variant_id:
+            facts.append(fact)
+    return facts
+
+
+def _load_bulk_variants(
+    bulk_path: Path | None,
+    *,
+    bulk_url: str = DEFAULT_BULK_URL,
+    commander: str,
+    user_agent: str = DEFAULT_USER_AGENT,
+) -> list[_Variant]:
+    """Load variants from a local ``variants.json[.gz]`` file or download the bulk export."""
+    raw = (
+        bulk_path.read_bytes()
+        if bulk_path is not None
+        else _download_bulk(bulk_url, user_agent=user_agent)
+    )
+    if raw[:2] == b"\x1f\x8b":
+        raw = gzip.decompress(raw)
+    try:
+        document = json.loads(raw.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError) as error:
+        raise SystemExit(f"Spellbook bulk export is not valid UTF-8 JSON: {error}") from error
+    facts = _parse_bulk_variants(document, commander)
+    source_desc = str(bulk_path) if bulk_path is not None else bulk_url
+    print(f"loaded {len(facts)} variants from bulk {source_desc}", file=sys.stderr)
     return facts
 
 
@@ -315,8 +332,18 @@ def main() -> int:
         default="data/meta/spellbook_combos.json",
         help="The curated combos file to extend (default: repo path).",
     )
-    parser.add_argument("--base-url", default=DEFAULT_BASE_URL)
-    parser.add_argument("--query", default=DEFAULT_QUERY)
+    parser.add_argument(
+        "--bulk",
+        type=Path,
+        default=None,
+        help="Local variants.json or variants.json.gz bulk export (default: download --bulk-url).",
+    )
+    parser.add_argument("--bulk-url", default=DEFAULT_BULK_URL)
+    parser.add_argument(
+        "--user-agent",
+        default=DEFAULT_USER_AGENT,
+        help="Generic client User-Agent string (no project, repository, or person reference).",
+    )
     parser.add_argument("--commander", default="Chulane, Teller of Tales")
     parser.add_argument(
         "--retrieved-at",
@@ -344,10 +371,15 @@ def main() -> int:
     preserved_sets = {_entry_card_keys(combo) for combo in preserved}
     violations = _preserved_violations(preserved, args.commander, corpus_keys)
 
-    facts = _fetch_all_variants(args.base_url, args.query, args.commander)
+    facts = _load_bulk_variants(
+        args.bulk,
+        bulk_url=args.bulk_url,
+        commander=args.commander,
+        user_agent=args.user_agent,
+    )
     note = (
-        f"Added {args.retrieved_at} from the Commander Spellbook variants API "
-        f"(issue #1378): color identity within WUG and every card appears in the "
+        f"Added {args.retrieved_at} from the Commander Spellbook bulk export "
+        f"(issues #1378, #1546): color identity within WUG and every card appears in the "
         f"canonical Chulane corpus ({deck_count} decks, counted sections). "
         f"All-decks EDHREC count, NOT a Chulane count."
     )
@@ -378,16 +410,16 @@ def main() -> int:
         if not isinstance(sources, list):
             sources = []
             provenance["sources"] = sources
-        api_source = (
-            f"backend.commanderspellbook.com variants API (query {args.query}, "
-            f"retrieved {args.retrieved_at}, issue #1378)"
+        bulk_source = (
+            f"json.commanderspellbook.com bulk export (variants.json.gz, "
+            f"retrieved {args.retrieved_at}, issues #1378/#1546)"
         )
-        if api_source not in sources:
-            sources.append(api_source)
+        if bulk_source not in sources:
+            sources.append(bulk_source)
         provenance["extension_1378"] = {
             "retrieved_at": args.retrieved_at,
-            "endpoint": f"{args.base_url}/variants/",
-            "query": args.query,
+            "endpoint": str(args.bulk) if args.bulk is not None else args.bulk_url,
+            "retrieval_mode": "bulk",
             "scope": (
                 "identity within WUG; status OK; Commander-legal; no spoiler; no card "
                 "required as a different commander; every card in the canonical corpus "

@@ -349,3 +349,26 @@ Gemäß den P0-Abnahmekriterien aus Issue #1185 wurde ein strukturierter Beispie
    - [`data/research/chulane_legal_pool_gap_matrix.json`](../../data/research/chulane_legal_pool_gap_matrix.json): Vollständige Matrix für alle 801 legalen Poolkarten mit `research_priority_score`, `coverage_grade` und Long-Tail-Kennzeichnung.
 3. **Unit-Tests:**
    - [`tests/unit/test_studio_sources.py`](../../tests/unit/test_studio_sources.py): 12 Tests, $100\,\%$ Test-Hygiene, 0 `Any`-Verletzungen, vollständige CLI-Abdeckung.
+
+---
+
+## 6. Nachtrag 2026-11-19 (Korrekturvermerk, Refs #1546)
+
+Die obigen Abschnitte 1–5 dokumentieren den historischen Stand vom 2026-11-11 unverändert. Eine Prüfung der Originalseiten, Nutzungsbedingungen und `robots.txt` am **2026-11-18** (vgl. [`docs/research/data_wave1_20261118/PLAN.md`](data_wave1_20261118/PLAN.md), Issue `#1546`) ergab wesentliche Korrekturen am maschinenlesbaren Quellregister ([`src/commander_lab/studio/sources.py`](../../src/commander_lab/studio/sources.py) und [`data/provenance/source_inventory.json`](../../data/provenance/source_inventory.json)):
+
+1. **Trennung von Datenqualität (`status`) und automatisiertem Zugangsrecht (`access_status`):**
+   Jede Quelle führt nun zusätzlich `access_status` (`ok`, `ok_with_conditions`, `unclear`, `prohibited`), `access_evidence_url` und `access_checked_at_utc` (`2026-11-18`). Der bestehende Datenqualitäts-Status (`VERIFIED` / `REVIEW` / `UNAVAILABLE`) bleibt davon getrennt.
+2. **Tote lokale Pfade bereinigt (`active_drive:chulane-corpus-975`):**
+   Der historische Verweis `local:data/hub/…` existierte nie im Repository. Der gezählte kanonische Chulane-Korpus liegt im Repository unter `local:data/research/chulane_corpus` (`local:data/research/chulane_corpus/README.md`, `access_status: ok`). Ein Unit-Test prüft nun, dass jeder `local:`-Pfad im Register tatsächlich existiert.
+3. **Berichtigter Zugangsstatus je Quelle (Stand 2026-11-18):**
+   - **Scryfall Bulk Oracle (`scryfall:bulk-oracle`)** & **Scryfall Tagger (`scryfall:tagger`):** `ok_with_conditions` — Scryfall API Terms; Tagger-Daten stehen als offizieller Bulk-Export („Oracle Tags“) bereit (nicht mehr wegen Lizenz blockiert; Datenqualität bleibt `REVIEW` wegen Community-Subjektivität). Generischer `User-Agent` und `Accept`, Preisfelder entfernen, kein KI-Training.
+   - **Commander Spellbook (`spellbook:variants-api`):** `ok_with_conditions` — die frühere Aussage „uneingeschränkt frei nutzbar via REST-API“ trifft nicht zu. Der Betreiber schließt Vollexporte über die HTTP-API aus und empfiehlt den Bulk-Export `https://json.commanderspellbook.com/variants.json.gz`; REST nur für vereinzelte Anfragen (~80/min, HTTP 429 beachten); `backend.commanderspellbook.com/robots.txt` sperrt Crawler. Datenlizenz „CC BY 4.0“ auf den gelesenen Seiten nicht bestätigt (Quellcode MIT). `scripts/spellbook_combos_fetch.py` wurde auf den Bulk-Export umgestellt.
+   - **Playgroup.gg (`playgroup:card-atlas`, `playgroup:chulane`):** `ok_with_conditions` — die frühere Angabe „keine Bulk-API, Scraping untersagt“ ist überholt. Die öffentliche OpenAPI-Beschreibung erlaubt Massenabruf ausdrücklich (400 Anfragen/min mit erkennbarem generischem User-Agent, sonst 10/min; Nennung mit Link unter CC BY 4.0; authentifizierter Spiele-Endpunkt bleibt ausgeschlossen).
+   - **EDHREC (`edhrec:chulane`):** `prohibited` — die Nutzungsbedingungen (gültig ab 2024-08-06) erlauben nur persönliche Nutzung und untersagen automatisierte Abfragen/Skripte; `robots.txt` sperrt `/deckpreview/`, `json.edhrec.com/robots.txt` liefert HTTP 403. Der Datenqualitäts-Status `VERIFIED` bezieht sich ausschließlich auf die historischen Snapshots, nicht auf ein Zugangsrecht.
+   - **Archidekt (`archidekt:decks`):** `prohibited` (neu im Register, Priorität 10) — wortgleiche Nutzungsbedingungen wie EDHREC (ab 2018-09-07), keine öffentliche API-Dokumentation.
+   - **Moxfield (`moxfield:decks`):** `prohibited` (neu im Register, Priorität 11) — `api2.moxfield.com/robots.txt` sperrt alle Pfade (`Disallow: /`).
+   - **Turnierquellen (`tournament:cedh-meta`):** `unclear` — EDHTop16 dokumentiert kein Rate-Limit; TopDeck.gg API v2 verlangt einen Owner-Schlüssel und verbietet Scraping außerhalb der API.
+   - **XMage Card Facts (`xmage:card-facts`):** `ok` — lokales Repository-Asset (`local:data/cards/xmage_card_facts.json`).
+4. **Abrufskripte (`scripts/`):**
+   Skripte mit projekt- oder repository-bezogenem `User-Agent` akzeptieren nun `--user-agent` mit einem generischen Standard ohne Projekt-, Personen- oder Repository-Bezug.
+

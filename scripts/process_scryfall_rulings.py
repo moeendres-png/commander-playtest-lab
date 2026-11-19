@@ -34,9 +34,8 @@ from pathlib import Path
 from typing import IO
 
 SCRYFALL_BULK_METADATA_URL = "https://api.scryfall.com/bulk-data"
-USER_AGENT = (
-    "CommanderPlaytestLab-Research/1.0 (+https://github.com/moeendres-png/commander-playtest-lab)"
-)
+DEFAULT_USER_AGENT = "mtg-rulings-tool/1.0"
+USER_AGENT = DEFAULT_USER_AGENT
 DATE_PATTERN = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 
 
@@ -219,11 +218,11 @@ def write_rulings_jsonl(rulings: list[RulingRecord], out_path: Path) -> None:
             f.write(json.dumps(r.to_dict(), ensure_ascii=False) + "\n")
 
 
-def fetch_rulings_bulk_metadata() -> dict[str, str]:
+def fetch_rulings_bulk_metadata(*, user_agent: str = DEFAULT_USER_AGENT) -> dict[str, str]:
     """Fetch download URL and timestamp for Scryfall rulings bulk data."""
     req = urllib.request.Request(
         SCRYFALL_BULK_METADATA_URL,
-        headers={"User-Agent": USER_AGENT, "Accept": "application/json"},
+        headers={"User-Agent": user_agent, "Accept": "application/json"},
     )
     with urllib.request.urlopen(req) as resp:
         if resp.status != 200:
@@ -243,11 +242,11 @@ def fetch_rulings_bulk_metadata() -> dict[str, str]:
     raise RuntimeError("No 'rulings' bulk entry found in Scryfall bulk metadata")
 
 
-def download_file(url: str, dest: Path) -> Path:
+def download_file(url: str, dest: Path, *, user_agent: str = DEFAULT_USER_AGENT) -> Path:
     """Download a remote file using chunked streaming."""
     req = urllib.request.Request(
         url,
-        headers={"User-Agent": USER_AGENT, "Accept": "*/*"},
+        headers={"User-Agent": user_agent, "Accept": "*/*"},
     )
     dest.parent.mkdir(parents=True, exist_ok=True)
     with urllib.request.urlopen(req) as resp, dest.open("wb") as out_f:
@@ -308,16 +307,21 @@ def main(argv: list[str] | None = None) -> int:
         required=True,
         help="Path to output JSONL file with filtered rulings.",
     )
+    parser.add_argument(
+        "--user-agent",
+        default=DEFAULT_USER_AGENT,
+        help="Generic client User-Agent string.",
+    )
     args = parser.parse_args(argv)
 
     bulk_path = args.bulk
     if bulk_path is None:
-        meta = fetch_rulings_bulk_metadata()
+        meta = fetch_rulings_bulk_metadata(user_agent=args.user_agent)
         uri = meta["download_uri"]
         print(f"Discovered Scryfall rulings bulk: {uri} (updated: {meta['updated_at']})")
         target_dest = args.download_to or Path("tmp") / Path(uri).name
         print(f"Downloading rulings bulk to {target_dest}...")
-        bulk_path = download_file(uri, target_dest)
+        bulk_path = download_file(uri, target_dest, user_agent=args.user_agent)
 
     print(f"Reading target Oracle IDs from {args.oracle_ids}...")
     target_ids = set(load_target_oracle_ids(args.oracle_ids))

@@ -7,13 +7,17 @@ long-tail candidate identification, and full 927-card pool gap matrix calculatio
 
 from __future__ import annotations
 
+import gzip
+import importlib.util
 import json
+import re
 from pathlib import Path
 
 import pytest
 
 from commander_lab.studio.__main__ import main as studio_main
 from commander_lab.studio.sources import (
+    ACCESS_STATUSES,
     QUALIFIED_SOURCES,
     PoolGapMatrixPayload,
     calculate_card_coverage_record,
@@ -38,15 +42,17 @@ EXPECTED_PRIORITIES = (
     (7, "tournament:cedh-meta", "REVIEW"),
     (8, "xmage:card-facts", "VERIFIED"),
     (9, "scryfall:tagger", "REVIEW"),
+    (10, "archidekt:decks", "UNAVAILABLE"),
+    (11, "moxfield:decks", "UNAVAILABLE"),
 )
 
 
-def test_qualified_sources_covers_all_nine_priorities_in_exact_order() -> None:
-    assert len(QUALIFIED_SOURCES) == 9
+def test_qualified_sources_covers_all_eleven_priorities_in_exact_order() -> None:
+    assert len(QUALIFIED_SOURCES) == 11
     priorities = [s.priority for s in QUALIFIED_SOURCES]
-    assert priorities == list(range(1, 10))
+    assert priorities == list(range(1, 12))
 
-    assert len(EXPECTED_PRIORITIES) == 9
+    assert len(EXPECTED_PRIORITIES) == 11
     for (expected_prio, expected_id, expected_status), source in zip(
         EXPECTED_PRIORITIES, QUALIFIED_SOURCES, strict=True
     ):
@@ -57,6 +63,7 @@ def test_qualified_sources_covers_all_nine_priorities_in_exact_order() -> None:
 
 def test_every_source_has_all_seventeen_dimensions_populated() -> None:
     allowed_statuses = {"VERIFIED", "REVIEW", "UNAVAILABLE"}
+    allowed_access_statuses = set(ACCESS_STATUSES)
     allowed_layers = {
         "FACT",
         "DERIVED_MECHANICAL",
@@ -68,7 +75,7 @@ def test_every_source_has_all_seventeen_dimensions_populated() -> None:
         "EXTERNAL_OPINION",
     }
 
-    assert len(QUALIFIED_SOURCES) == 9
+    assert len(QUALIFIED_SOURCES) == 11
     for source in QUALIFIED_SOURCES:
         # Core identification & URL
         assert source.source_id.strip() != ""
@@ -87,7 +94,7 @@ def test_every_source_has_all_seventeen_dimensions_populated() -> None:
         assert isinstance(source.game_context, dict)
         assert len(source.game_context) > 0
 
-        # Governance, licensing & reproducibility
+        # Governance, licensing, access & reproducibility
         assert source.double_counting_risk.strip() != ""
         assert source.license_terms.strip() != ""
         assert source.allowed_retrieval_method.strip() != ""
@@ -101,6 +108,9 @@ def test_every_source_has_all_seventeen_dimensions_populated() -> None:
         assert len(source.bias_risks) > 0
         assert source.status in allowed_statuses
         assert source.status_rationale.strip() != ""
+        assert source.access_status in allowed_access_statuses
+        assert source.access_evidence_url.startswith(("https://", "local:"))
+        assert re.fullmatch(r"\d{4}-\d{2}-\d{2}", source.access_checked_at_utc) is not None
 
 
 def test_missing_timestamps_remain_none_never_fabricated() -> None:
@@ -160,17 +170,27 @@ def test_get_source_and_list_sources() -> None:
     }
 
     unavailable = list_sources(status="UNAVAILABLE")
-    assert len(unavailable) == 0
+    assert len(unavailable) == 2
+    assert {s.source_id for s in unavailable} == {
+        "archidekt:decks",
+        "moxfield:decks",
+    }
 
 
 def test_source_inventory_payload_matches_schema() -> None:
     payload = source_inventory_payload()
     assert payload["schema_version"] == "evidence-source-inventory-1.0.0"
-    assert payload["total_sources"] == 9
+    assert payload["total_sources"] == 11
     assert payload["status_counts"]["VERIFIED"] == 5
     assert payload["status_counts"]["REVIEW"] == 4
-    assert payload["status_counts"]["UNAVAILABLE"] == 0
-    assert len(payload["sources"]) == 9
+    assert payload["status_counts"]["UNAVAILABLE"] == 2
+    assert payload["access_status_counts"] == {
+        "ok": 2,
+        "ok_with_conditions": 5,
+        "unclear": 1,
+        "prohibited": 3,
+    }
+    assert len(payload["sources"]) == 11
 
 
 def test_write_source_inventory_json_roundtrip(tmp_path: Path) -> None:
@@ -180,8 +200,8 @@ def test_write_source_inventory_json_roundtrip(tmp_path: Path) -> None:
 
     loaded = json.loads(written_path.read_text(encoding="utf-8"))
     assert loaded["schema_version"] == "evidence-source-inventory-1.0.0"
-    assert loaded["total_sources"] == 9
-    assert len(loaded["sources"]) == 9
+    assert loaded["total_sources"] == 11
+    assert len(loaded["sources"]) == 11
     first = loaded["sources"][0]
     assert first["source_id"] == "scryfall:bulk-oracle"
     assert first["priority"] == 1
@@ -517,7 +537,7 @@ def test_cli_sources_commands(tmp_path: Path, capsys: pytest.CaptureFixture[str]
     captured = capsys.readouterr()
     payload = json.loads(captured.out)
     assert payload["schema_version"] == "evidence-source-inventory-1.0.0"
-    assert payload["total_sources"] == 9
+    assert payload["total_sources"] == 11
 
     # 2. Verified-only flag
     rc_v = studio_main(["sources", "--verified-only"])
@@ -556,3 +576,172 @@ def test_cli_sources_commands(tmp_path: Path, capsys: pytest.CaptureFixture[str]
         assert ex_report["schema_version"] == "gap-example-report-1.0.0"
         assert ex_report["total_pool_cards"] == 927
         assert "UNOBSERVED_IN_CORPUS" in ex_report["examples_by_grade"]
+
+
+def _extract_local_paths(entries: list[dict[str, object]]) -> list[tuple[str, str]]:
+    found: list[tuple[str, str]] = []
+    for entry in entries:
+        source_id = str(entry.get("source_id", ""))
+        for field in ("direct_url", "access_evidence_url"):
+            val = entry.get(field)
+            if isinstance(val, str) and val.startswith("local:"):
+                found.append((source_id, val.removeprefix("local:")))
+        refs = entry.get("reference_urls")
+        if isinstance(refs, (list, tuple)):
+            for ref in refs:
+                if isinstance(ref, str) and ref.startswith("local:"):
+                    found.append((source_id, ref.removeprefix("local:")))
+    return found
+
+
+def test_every_local_path_in_registry_exists() -> None:
+    repo_root = Path(__file__).resolve().parents[2]
+
+    py_entries = [s.to_dict() for s in QUALIFIED_SOURCES]
+    py_locals = _extract_local_paths(py_entries)
+    assert len(py_locals) > 0
+    missing_py = [f"{sid}: local:{rel}" for sid, rel in py_locals if not (repo_root / rel).exists()]
+    assert not missing_py, f"Missing local: paths in sources.py: {missing_py}"
+
+    inventory_file = repo_root / "data" / "provenance" / "source_inventory.json"
+    assert inventory_file.is_file()
+    inv_data = json.loads(inventory_file.read_text(encoding="utf-8"))
+    json_entries = inv_data.get("sources", [])
+    assert isinstance(json_entries, list)
+    json_locals = _extract_local_paths(json_entries)
+    assert len(json_locals) > 0
+    missing_json = [
+        f"{sid}: local:{rel}" for sid, rel in json_locals if not (repo_root / rel).exists()
+    ]
+    assert not missing_json, f"Missing local: paths in source_inventory.json: {missing_json}"
+
+
+def test_every_source_has_valid_access_status_and_json_matches_code() -> None:
+    repo_root = Path(__file__).resolve().parents[2]
+    inventory_file = repo_root / "data" / "provenance" / "source_inventory.json"
+    inv_data = json.loads(inventory_file.read_text(encoding="utf-8"))
+
+    # Committed JSON must stay in sync with source_inventory_payload()
+    expected_payload = json.loads(json.dumps(source_inventory_payload()))
+    assert inv_data == expected_payload
+
+    allowed = set(ACCESS_STATUSES)
+    for entry in inv_data["sources"]:
+        assert entry["access_status"] in allowed
+        assert isinstance(entry["access_evidence_url"], str)
+        assert entry["access_evidence_url"].startswith(("https://", "local:"))
+        assert isinstance(entry["access_checked_at_utc"], str)
+        assert re.fullmatch(r"\d{4}-\d{2}-\d{2}", entry["access_checked_at_utc"]) is not None
+
+    # Key access classifications and separation from data quality status (Issue #1546)
+    by_id = {entry["source_id"]: entry for entry in inv_data["sources"]}
+    assert by_id["scryfall:bulk-oracle"]["access_status"] == "ok_with_conditions"
+    assert by_id["scryfall:tagger"]["access_status"] == "ok_with_conditions"
+    assert by_id["spellbook:variants-api"]["access_status"] == "ok_with_conditions"
+    assert by_id["playgroup:card-atlas"]["access_status"] == "ok_with_conditions"
+    assert by_id["playgroup:chulane"]["access_status"] == "ok_with_conditions"
+    assert by_id["edhrec:chulane"]["access_status"] == "prohibited"
+    assert by_id["edhrec:chulane"]["status"] == "VERIFIED"
+    assert by_id["archidekt:decks"]["access_status"] == "prohibited"
+    assert by_id["moxfield:decks"]["access_status"] == "prohibited"
+    assert by_id["tournament:cedh-meta"]["access_status"] == "unclear"
+    assert by_id["active_drive:chulane-corpus-975"]["access_status"] == "ok"
+    assert by_id["xmage:card-facts"]["access_status"] == "ok"
+
+
+def _load_script_module(rel_path: str, name: str) -> object:
+    import sys
+
+    repo_root = Path(__file__).resolve().parents[2]
+    script_path = repo_root / rel_path
+    spec = importlib.util.spec_from_file_location(name, script_path)
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+def test_spellbook_combos_fetch_bulk_parsing_and_generic_user_agent(tmp_path: Path) -> None:
+    mod = _load_script_module("scripts/spellbook_combos_fetch.py", "spellbook_combos_fetch_1546")
+
+    # Bulk URL points to official variants.json.gz, not paginated REST API
+    assert mod.DEFAULT_BULK_URL == "https://json.commanderspellbook.com/variants.json.gz"  # type: ignore[attr-defined]
+
+    # Generic default User-Agent across updated fetch scripts (no project/repo/person tokens)
+    forbidden = ("commander", "playtest", "lab", "github", "moeendres", "http")
+    for rel_path, mod_name in (
+        ("scripts/spellbook_combos_fetch.py", "ua_check_spellbook_fetch"),
+        ("scripts/build_spellbook_shells.py", "ua_check_spellbook_shells"),
+        ("scripts/build_pilot_card_knowledge.py", "ua_check_pilot_knowledge"),
+        ("scripts/import_oracle_cards.py", "ua_check_import_oracle"),
+        ("scripts/import_scryfall_oracle_tags.py", "ua_check_oracle_tags"),
+        ("scripts/process_scryfall_rulings.py", "ua_check_rulings"),
+        ("scripts/studio_edhrec_provenance/capture_public_chulane.py", "ua_check_edhrec_capture"),
+    ):
+        script_mod = _load_script_module(rel_path, mod_name)
+        ua = str(script_mod.DEFAULT_USER_AGENT)  # type: ignore[attr-defined]
+        assert ua.strip() != "", f"Blank DEFAULT_USER_AGENT in {rel_path}"
+        ua_low = ua.lower()
+        for token in forbidden:
+            assert token not in ua_low, f"Forbidden token {token!r} in {rel_path} UA: {ua!r}"
+
+    # Offline bulk parsing test with synthetic .json and .json.gz fixtures
+    synthetic_bulk = {
+        "variants": [
+            {
+                "id": "sb-001",
+                "identity": "WUG",
+                "status": "OK",
+                "spoiler": False,
+                "legalities": {"commander": True},
+                "popularity": 120,
+                "uses": [
+                    {"card": {"name": "Chulane, Teller of Tales"}, "mustBeCommander": True},
+                    {"card": {"name": "Shrieking Drake"}, "mustBeCommander": False},
+                ],
+                "produces": [{"feature": {"name": "Infinite draw triggers"}}],
+            },
+            {
+                "id": "sb-002",
+                "identity": "UBR",
+                "status": "OK",
+                "spoiler": False,
+                "legalities": {"commander": True},
+                "uses": [
+                    {"card": {"name": "Thassa's Oracle"}, "mustBeCommander": False},
+                    {"card": {"name": "Demonic Consultation"}, "mustBeCommander": False},
+                ],
+                "produces": [{"feature": {"name": "Win the game"}}],
+            },
+        ]
+    }
+    raw_bytes = json.dumps(synthetic_bulk).encode("utf-8")
+
+    plain_path = tmp_path / "variants.json"
+    plain_path.write_bytes(raw_bytes)
+    gz_path = tmp_path / "variants.json.gz"
+    gz_path.write_bytes(gzip.compress(raw_bytes))
+
+    for fixture_path in (plain_path, gz_path):
+        facts = mod._load_bulk_variants(  # type: ignore[attr-defined]
+            fixture_path, commander="Chulane, Teller of Tales"
+        )
+        assert len(facts) == 2
+        assert facts[0].variant_id == "sb-001"
+        assert facts[0].names == ("Chulane, Teller of Tales", "Shrieking Drake")
+        assert facts[0].foreign_commander is False
+        assert facts[0].produces == ("Infinite draw triggers",)
+        assert facts[0].edhrec_decks == 120
+
+        generated, counts = mod._select_variants(  # type: ignore[attr-defined]
+            facts,
+            corpus_keys={"chulane, teller of tales", "shrieking drake"},
+            preserved_sets=set(),
+            commander="Chulane, Teller of Tales",
+            note="synthetic bulk test",
+        )
+        assert counts["fetched"] == 2
+        assert counts["identity_outside_wug"] == 1
+        assert counts["kept"] == 1
+        assert [entry["combo_id"] for entry in generated] == ["chulane-sb-sb-001"]

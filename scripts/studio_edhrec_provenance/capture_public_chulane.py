@@ -18,7 +18,8 @@ import urllib.request
 from datetime import UTC, datetime
 from pathlib import Path
 
-UA = "CommanderStudioEDHRECProof/1.0 (public noncommercial research; 1.5s per page)"
+DEFAULT_USER_AGENT = "mtg-json-archive-tool/1.0"
+UA = DEFAULT_USER_AGENT
 ALLOW = re.compile(
     r"^https://json\.edhrec\.com/pages/commanders/chulane-teller-of-tales(?:/[a-z0-9-]+)?\.json$"
 )
@@ -51,11 +52,19 @@ def read_urls(path: Path) -> list[str]:
     return urls
 
 
-def capture_one(url: str, *, opener=urllib.request.urlopen, sleep=time.sleep):
+def capture_one(
+    url: str,
+    *,
+    opener=urllib.request.urlopen,
+    sleep=time.sleep,
+    user_agent: str = DEFAULT_USER_AGENT,
+):
     if not ALLOW.fullmatch(url):
         raise ValueError("External URL is not authorized")
     began = utc()
-    request = urllib.request.Request(url, headers={"User-Agent": UA, "Accept": "application/json"})
+    request = urllib.request.Request(
+        url, headers={"User-Agent": user_agent, "Accept": "application/json"}
+    )
     attempts = 0
     while True:
         try:
@@ -110,14 +119,20 @@ def capture_one(url: str, *, opener=urllib.request.urlopen, sleep=time.sleep):
 
 
 def capture(
-    urls: list[str], output: Path, *, opener=urllib.request.urlopen, sleep=time.sleep, delay=1.5
+    urls: list[str],
+    output: Path,
+    *,
+    opener=urllib.request.urlopen,
+    sleep=time.sleep,
+    delay=1.5,
+    user_agent: str = DEFAULT_USER_AGENT,
 ):
     records = []
     for index, url in enumerate(urls):
         if index:
             sleep(delay)
         try:
-            meta, body = capture_one(url, opener=opener, sleep=sleep)
+            meta, body = capture_one(url, opener=opener, sleep=sleep, user_agent=user_agent)
         except Exception as ex:
             failure = {
                 "status": "CAPTURE_BLOCKED_NO_HISTORICAL_PROOF",
@@ -168,6 +183,7 @@ if __name__ == "__main__":
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--limit", type=int, default=20)
     parser.add_argument("--pause", type=float, default=1.5)
+    parser.add_argument("--user-agent", default=DEFAULT_USER_AGENT)
     parser.add_argument("--dry-run", action="store_true")
     opts = parser.parse_args()
     targets = read_urls(opts.urls)
@@ -187,7 +203,7 @@ if __name__ == "__main__":
             )
         )
     else:
-        results = capture(targets, opts.out, delay=opts.pause)
+        results = capture(targets, opts.out, delay=opts.pause, user_agent=opts.user_agent)
         print(
             json.dumps(
                 {

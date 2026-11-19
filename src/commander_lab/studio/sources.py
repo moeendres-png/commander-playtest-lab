@@ -18,6 +18,15 @@ from .store import StudioStore, now_utc
 
 SourceStatus = Literal["VERIFIED", "REVIEW", "UNAVAILABLE"]
 
+AccessStatus = Literal["ok", "ok_with_conditions", "unclear", "prohibited"]
+
+ACCESS_STATUSES: tuple[AccessStatus, ...] = (
+    "ok",
+    "ok_with_conditions",
+    "unclear",
+    "prohibited",
+)
+
 EvidenceLayer = Literal[
     "FACT",
     "DERIVED_MECHANICAL",
@@ -41,12 +50,13 @@ CoverageGrade = Literal[
 class EvidenceSource:
     """Systematic metadata record for one qualified evidence source (P0 Deliverable 1).
 
-    Captures all 17 required governance, legal, technical and bias dimensions:
-    source_id, priority (1..7), title, direct_url, reference_urls, publisher,
+    Captures governance, legal, technical, access, and bias dimensions:
+    source_id, priority, title, direct_url, reference_urls, publisher,
     retrieved_at_utc, observation_period, snapshot_id, schema_format, card_identifier,
     coverage_scope, evidence_layer, has_exact_numerator_denominator, game_context,
     double_counting_risk, license_terms, allowed_retrieval_method, reproducibility,
-    bias_risks, status, and status_rationale.
+    bias_risks, status (data quality), status_rationale, access_status (automated
+    retrieval permission), access_evidence_url, and access_checked_at_utc.
     """
 
     source_id: str
@@ -71,6 +81,9 @@ class EvidenceSource:
     bias_risks: tuple[str, ...]
     status: SourceStatus
     status_rationale: str
+    access_status: AccessStatus
+    access_evidence_url: str
+    access_checked_at_utc: str
 
     def to_dict(self) -> dict[str, object]:
         return asdict(self)
@@ -105,7 +118,7 @@ class CardCoverageRecord:
 
 
 # ---------------------------------------------------------------------------
-# The 7 Prioritized Sources (Qualified in Exact Priority Order 1..7)
+# Qualified Sources (Data quality status separated from automated access status)
 # ---------------------------------------------------------------------------
 
 QUALIFIED_SOURCES: tuple[EvidenceSource, ...] = (
@@ -116,7 +129,9 @@ QUALIFIED_SOURCES: tuple[EvidenceSource, ...] = (
         direct_url="https://api.scryfall.com/bulk-data",
         reference_urls=(
             "https://scryfall.com/docs/api",
-            "https://scryfall.com/docs/faqs/i-m-having-trouble-accessing-the-scryfall-api-or-i-m-blocked-17",
+            "https://scryfall.com/docs/api/rate-limits",
+            "https://scryfall.com/docs/api/bulk-data",
+            "https://data.scryfall.io/robots.txt",
         ),
         publisher="Scryfall, LLC",
         retrieved_at_utc="2026-11-10T00:00:00Z",
@@ -129,8 +144,11 @@ QUALIFIED_SOURCES: tuple[EvidenceSource, ...] = (
         has_exact_numerator_denominator=True,
         game_context={"format": "Commander", "pod_size": None, "commander": None},
         double_counting_risk="None; cards fold strictly 1:1 to canonical oracle_id across printings.",
-        license_terms="Scryfall API Terms: free personal / non-commercial use with fan content attribution.",
-        allowed_retrieval_method="Bulk GET (daily manifest, conditional ETag requests; no single-card polling loop).",
+        license_terms="Scryfall API Terms: free personal / non-commercial use with fan content attribution; no AI training.",
+        allowed_retrieval_method=(
+            "Bulk GET (daily manifest, conditional ETag requests; generic User-Agent and Accept "
+            "headers required; strip price fields on write; no single-card polling loop)."
+        ),
         reproducibility="DETERMINISTIC_OFFLINE_SNAPSHOT",
         bias_risks=(
             "Facts and mechanics, no evaluation of gameplay strength or deck fit",
@@ -141,6 +159,9 @@ QUALIFIED_SOURCES: tuple[EvidenceSource, ...] = (
             "Fully verified daily bulk dataset imported into studio.sqlite3 (scryfall_card, 35,353 cards); "
             "covers 801 / 801 legal Chulane cards."
         ),
+        access_status="ok_with_conditions",
+        access_evidence_url="https://scryfall.com/docs/api/rate-limits",
+        access_checked_at_utc="2026-11-18",
     ),
     EvidenceSource(
         source_id="playgroup:card-atlas",
@@ -150,13 +171,15 @@ QUALIFIED_SOURCES: tuple[EvidenceSource, ...] = (
         reference_urls=(
             "https://playgroup.gg/about",
             "https://playgroup.gg/research",
-            "https://playgroup.gg/api-docs/index.html",
+            "https://playgroup.gg/api/public/v1/openapi.yaml",
+            "https://playgroup.gg/legal",
+            "https://playgroup.gg/robots.txt",
         ),
         publisher="Playgroup.gg",
         retrieved_at_utc=None,
         observation_period="Ongoing (Playgroup Live Sessions 2024-2026)",
         snapshot_id=None,
-        schema_format="HTML / Web Application (proprietary)",
+        schema_format="Public REST API (commander stats) / HTML (/cards/...)",
         card_identifier="card_name / slug",
         coverage_scope="Subset of cards actively cast in Playgroup Live games",
         evidence_layer="OBSERVED_GAME",
@@ -171,10 +194,14 @@ QUALIFIED_SOURCES: tuple[EvidenceSource, ...] = (
             "paper games tracked without digital card logging lack card events."
         ),
         license_terms=(
-            "Aggregated statistics CC BY 4.0 with attribution; raw game events, client code "
-            "and card graphics are proprietary and not licensed."
+            "Aggregated statistics CC BY 4.0 with attribution and link; public API explicitly "
+            "permits scraping and bulk access; authenticated raw-games endpoint excluded."
         ),
-        allowed_retrieval_method="MANUAL_INSPECTION_ONLY (No public unauthenticated bulk export; automated scraping violates ToS).",
+        allowed_retrieval_method=(
+            "Public API / HTML GET with recognizable generic User-Agent (400 req/min with UA, "
+            "10 req/min without; max 20 requests/10 min per commander path; respect 429 Retry-After; "
+            "CC BY 4.0 attribution with link required)."
+        ),
         reproducibility="DYNAMIC_EPHEMERAL_WEB",
         bias_risks=(
             "Observed correlations are NOT causal proof of card efficacy",
@@ -184,9 +211,13 @@ QUALIFIED_SOURCES: tuple[EvidenceSource, ...] = (
         ),
         status="REVIEW",
         status_rationale=(
-            "Methodology is valuable for metric definition (cast turn, drawn-to-played); "
-            "automated data extraction is blocked by lack of open bulk API. Documented as gap."
+            "Public API permits bulk access with generic User-Agent and CC BY 4.0 attribution; "
+            "Card Atlas itself is HTML (/cards/...) with survivorship and pod-clustering biases, "
+            "so data quality remains REVIEW."
         ),
+        access_status="ok_with_conditions",
+        access_evidence_url="https://playgroup.gg/api/public/v1/openapi.yaml",
+        access_checked_at_utc="2026-11-18",
     ),
     EvidenceSource(
         source_id="playgroup:chulane",
@@ -196,12 +227,14 @@ QUALIFIED_SOURCES: tuple[EvidenceSource, ...] = (
         reference_urls=(
             "https://playgroup.gg/about",
             "https://playgroup.gg/research",
+            "https://playgroup.gg/api/public/v1/openapi.yaml",
+            "https://playgroup.gg/legal",
         ),
         publisher="Playgroup.gg",
         retrieved_at_utc=None,
         observation_period="Aggregated live games through November 2026 (~2,094 recorded games)",
         snapshot_id=None,
-        schema_format="HTML / Web Page",
+        schema_format="Public REST API / HTML Web Page",
         card_identifier="card_name",
         coverage_scope="Chulane cards with sufficient live appearances in Playgroup Live",
         evidence_layer="OBSERVED_GAME",
@@ -212,8 +245,15 @@ QUALIFIED_SOURCES: tuple[EvidenceSource, ...] = (
             "pod_size": 4,
         },
         double_counting_risk="Repeated matches of the same deck/pilot combination in a recurring playgroup.",
-        license_terms="CC BY 4.0 for aggregated statistics; no licensed raw data feed.",
-        allowed_retrieval_method="MANUAL_INSPECTION_ONLY",
+        license_terms=(
+            "CC BY 4.0 for aggregated commander statistics with attribution and link; "
+            "public API explicitly permits bulk access."
+        ),
+        allowed_retrieval_method=(
+            "Public API GET with recognizable generic User-Agent (400 req/min with UA, "
+            "10 req/min without; max 20 requests/10 min per commander path; respect 429 Retry-After; "
+            "CC BY 4.0 attribution with link required)."
+        ),
         reproducibility="DYNAMIC_EPHEMERAL_WEB",
         bias_risks=(
             "Seat position skew: Seat 1 shows 45.3% winrate (674 games), Seat 5 shows 16.3% (43 games)",
@@ -222,9 +262,13 @@ QUALIFIED_SOURCES: tuple[EvidenceSource, ...] = (
         ),
         status="REVIEW",
         status_rationale=(
-            "Chulane winrate (36%) and card lifts are documented, but lack open bulk export "
-            "and carry heavy pilot/seat confounding. Gaps must remain explicit."
+            "Public API permits bulk access with generic User-Agent and CC BY 4.0 attribution; "
+            "Chulane winrate (36%) and card lifts remain REVIEW due to heavy pilot, seat-position, "
+            "and archetype confounding."
         ),
+        access_status="ok_with_conditions",
+        access_evidence_url="https://playgroup.gg/api/public/v1/openapi.yaml",
+        access_checked_at_utc="2026-11-18",
     ),
     EvidenceSource(
         source_id="edhrec:chulane",
@@ -232,9 +276,10 @@ QUALIFIED_SOURCES: tuple[EvidenceSource, ...] = (
         title="EDHREC Chulane Recommendations & Relative Lift",
         direct_url="https://edhrec.com/commanders/chulane-teller-of-tales",
         reference_urls=(
+            "https://edhrec.com/terms",
+            "https://edhrec.com/robots.txt",
             "https://edhrec.com/articles/changelog-replacing-synergy-with-lift-on-edhrecs-card-pages",
             "https://edhrec.com/guides/how-to-use-edhrec",
-            "https://json.edhrec.com/pages/commanders/chulane-teller-of-tales.json",
         ),
         publisher="EDHREC (Space Cow Media / MTGGoldfish)",
         retrieved_at_utc="2026-11-11T12:55:00Z",
@@ -254,8 +299,15 @@ QUALIFIED_SOURCES: tuple[EvidenceSource, ...] = (
             "Thematic and budget subviews overlap with the main commander page; "
             "must never be summed across cohorts."
         ),
-        license_terms="EDHREC Public API / Web usage: Non-commercial citation; rate limiting required.",
-        allowed_retrieval_method="Polite GET with retry/backoff; conditional caching; respect robots.txt.",
+        license_terms=(
+            "EDHREC Terms of Service (effective 2024-08-06): personal non-commercial viewing only; "
+            "automated queries, scripts, and downloading are prohibited; robots.txt disallows /deckpreview/."
+        ),
+        allowed_retrieval_method=(
+            "PROHIBITED_AUTOMATED_RETRIEVAL (ToS effective 2024-08-06 prohibit automated queries/scripts; "
+            "robots.txt disallows /deckpreview/; json.edhrec.com/robots.txt returns HTTP 403; "
+            "historical snapshots only, no new automated fetches)."
+        ),
         reproducibility="REPRODUCIBLE_API",
         bias_risks=(
             "Popularity bias: deckbuilding presence != gameplay strength or winrate",
@@ -264,24 +316,30 @@ QUALIFIED_SOURCES: tuple[EvidenceSource, ...] = (
         ),
         status="VERIFIED",
         status_rationale=(
-            "20 fresh HTTP200 snapshots from 2026-11-11 are SHA-256 verified (Run #43024442970, Refs #1186). "
-            "1,304 legacy rows remain explicitly qualified with retrieved_at_utc=NULL."
+            "Data quality VERIFIED for 20 SHA-256-verified historical snapshots from 2026-11-11 "
+            "(Run #43024442970, Refs #1186; 1,304 legacy rows remain retrieved_at_utc=NULL). "
+            "Automated retrieval is separately classified access_status=prohibited per ToS (2024-08-06)."
         ),
+        access_status="prohibited",
+        access_evidence_url="https://edhrec.com/terms",
+        access_checked_at_utc="2026-11-18",
     ),
     EvidenceSource(
         source_id="spellbook:variants-api",
         priority=5,
-        title="Commander Spellbook Combo Variants API",
-        direct_url="https://backend.commanderspellbook.com/variants/",
+        title="Commander Spellbook Combo Variants (Bulk Export)",
+        direct_url="https://json.commanderspellbook.com/variants.json.gz",
         reference_urls=(
             "https://commanderspellbook.com/",
-            "https://spacecowmedia.github.io/commander-spellbook-backend/index.html",
+            "https://spacecowmedia.github.io/commander-spellbook-backend/api.html",
+            "https://backend.commanderspellbook.com/robots.txt",
+            "https://commanderspellbook.com/about/",
         ),
         publisher="Commander Spellbook (Space Cow Media / Community)",
         retrieved_at_utc="2026-11-11T14:00:00Z",
         observation_period="Current verified combo catalog (continuous)",
         snapshot_id="spellbook-backend-v1",
-        schema_format="JSON REST API",
+        schema_format="JSON Bulk (variants.json.gz) / JSON REST API (sparse only)",
         card_identifier="oracle_name / Card Name",
         coverage_scope="All known and rule-verified MTG combos matching Chulane color identity (Bant / WUG)",
         evidence_layer="COMBO_VERIFIED",
@@ -295,8 +353,15 @@ QUALIFIED_SOURCES: tuple[EvidenceSource, ...] = (
             "Redundant combo variants (e.g. same loop with different bounce targets) "
             "must not be counted as independent strength claims."
         ),
-        license_terms="MIT License (Backend) / CC BY 4.0 (Combo Dataset); completely open for free use.",
-        allowed_retrieval_method="REST API GET (with commander filter); local caching; polite polling.",
+        license_terms=(
+            "MIT License (backend source code); combo dataset license unconfirmed on operator pages "
+            "(attribution with link requested)."
+        ),
+        allowed_retrieval_method=(
+            "Bulk GET via https://json.commanderspellbook.com/variants.json.gz (no full export via "
+            "REST API; REST only for sparse unauthenticated requests at ~80 req/min respecting HTTP 429; "
+            "backend.commanderspellbook.com/robots.txt disallows crawlers; strip price/salt fields)."
+        ),
         reproducibility="REPRODUCIBLE_API",
         bias_risks=(
             "Existence of a combo is NOT proof of consistency, speed, resilience or in-game winrate",
@@ -304,27 +369,30 @@ QUALIFIED_SOURCES: tuple[EvidenceSource, ...] = (
         ),
         status="VERIFIED",
         status_rationale=(
-            "Fully open and licensed REST API. Fetched deterministically via "
-            "scripts/spellbook_combos_fetch.py (curated data/meta/spellbook_combos.json) "
-            "and bulk-processed by scripts/build_spellbook_shells.py."
+            "Operator-recommended bulk export (variants.json.gz) for full combo data; REST API is "
+            "sparse-only. Processed deterministically via scripts/spellbook_combos_fetch.py (bulk mode) "
+            "and scripts/build_spellbook_shells.py."
         ),
+        access_status="ok_with_conditions",
+        access_evidence_url="https://spacecowmedia.github.io/commander-spellbook-backend/api.html",
+        access_checked_at_utc="2026-11-18",
     ),
     EvidenceSource(
         source_id="active_drive:chulane-corpus-975",
         priority=6,
-        title="ACTIVE-Drive Curated Chulane 99-Card Deck Corpus",
-        direct_url="local:data/hub/03_MAINBOARD_99_COMPACT_*.jsonl",
+        title="Curated Chulane 99-Card Deck Corpus (Repository Archive)",
+        direct_url="local:data/research/chulane_corpus",
         reference_urls=(
-            "local:data/hub/01_DECK_CATALOG_994_SOURCES.csv",
+            "local:data/research/chulane_corpus/README.md",
             "docs/STUDIO_DECKBUILDER.md",
         ),
-        publisher="Commander Studio ACTIVE Archive / Owner",
+        publisher="Commander Studio Archive / Owner",
         retrieved_at_utc="2026-11-10T00:00:00Z",
         observation_period="Curated Chulane decklists 2024-2026",
         snapshot_id="active-hub-975-unique",
-        schema_format="JSONL / CSV",
+        schema_format="Per-deck normalized JSON (data/research/chulane_corpus/)",
         card_identifier="oracle_id",
-        coverage_scope="975 deduplicated full 99-card Chulane decks (429 observed, 372 unobserved cards in 801 pool)",
+        coverage_scope="Canonical Chulane decklist corpus in repository (10,551 raw / 10,150 deduplicated decks; initial 975-deck ACTIVE archive superseded)",
         evidence_layer="OBSERVED_DECK",
         has_exact_numerator_denominator=True,
         game_context={
@@ -332,19 +400,22 @@ QUALIFIED_SOURCES: tuple[EvidenceSource, ...] = (
             "deck_size": 99,
             "format": "Commander",
         },
-        double_counting_risk="19 content duplicates in the 994 registered sources resolved to 975 unique decks.",
+        double_counting_risk="Content duplicates resolved via canonical oracle_id fingerprint at import time.",
         license_terms="Project research dataset under AGENTS.md §12 (2026-11-15 relaxation; purchase/price signals excluded for Chulane).",
-        allowed_retrieval_method="Local file import (SQLite / JSONL / CSV).",
+        allowed_retrieval_method="Local repository file import (scripts/import_chulane_corpus.py).",
         reproducibility="DETERMINISTIC_OFFLINE_SNAPSHOT",
         bias_risks=(
             "Corpus reflects historical collection choices and specific community deck sources",
-            "Null-case trap: 372 pool cards have 0 hits, which means unobserved, never weak",
+            "Null-case trap: unobserved pool cards (0 hits) mean unobserved, never weak",
         ),
         status="VERIFIED",
         status_rationale=(
-            "Fully imported into studio.sqlite3 (corpus_deck, corpus_deck_card) with "
-            "deduplicated denominator N=975."
+            "Canonical Chulane decklist corpus stored in-repo under data/research/chulane_corpus/ "
+            "(replaces historical non-existent local:data/hub/ reference) and imported into studio.sqlite3."
         ),
+        access_status="ok",
+        access_evidence_url="local:data/research/chulane_corpus/README.md",
+        access_checked_at_utc="2026-11-18",
     ),
     EvidenceSource(
         source_id="tournament:cedh-meta",
@@ -352,8 +423,10 @@ QUALIFIED_SOURCES: tuple[EvidenceSource, ...] = (
         title="cEDH Tournament Placement & Competitive Meta",
         direct_url="https://edhtop16.com/commander/Chulane,%20Teller%20of%20Tales",
         reference_urls=(
+            "https://edhtop16.com/terms",
+            "https://topdeck.gg/developer-terms",
+            "https://topdeck.gg/docs/tournaments-v2",
             "https://mtgtop8.com/",
-            "https://topdeck.gg/",
         ),
         publisher="EDHTop16 / TopDeck.gg",
         retrieved_at_utc=None,
@@ -370,8 +443,15 @@ QUALIFIED_SOURCES: tuple[EvidenceSource, ...] = (
             "pod_size": 4,
         },
         double_counting_risk="Same player entering sequential tournaments with minor card swaps.",
-        license_terms="Terms of service vary; no automated scraping without license agreement.",
-        allowed_retrieval_method="MANUAL_INSPECTION_ONLY (or authorized partner API).",
+        license_terms=(
+            "EDHTop16 terms: API as-is, no excessive automated requests, no redistribution without "
+            "permission, no documented rate limit; TopDeck.gg API v2 requires Owner API key, "
+            "attribution with link, no scraping outside API, no storing player names."
+        ),
+        allowed_retrieval_method=(
+            "EDHTop16: unclear (no documented rate limit); TopDeck.gg: API v2 only with Owner key "
+            "(5/50/100 req/min by tier, attribution required, omit player names)."
+        ),
         reproducibility="DYNAMIC_EPHEMERAL_WEB",
         bias_risks=(
             "Extreme selection bias: cEDH optimizes for turn 2-3 wins and fast mana incompatible with casual play",
@@ -380,8 +460,11 @@ QUALIFIED_SOURCES: tuple[EvidenceSource, ...] = (
         status="REVIEW",
         status_rationale=(
             "Valuable supplementary perspective, but requires manual audit due to cEDH "
-            "selection divergence and non-bulk license terms."
+            "selection divergence and undocumented EDHTop16 rate limits."
         ),
+        access_status="unclear",
+        access_evidence_url="https://edhtop16.com/terms",
+        access_checked_at_utc="2026-11-18",
     ),
     EvidenceSource(
         source_id="xmage:card-facts",
@@ -419,21 +502,25 @@ QUALIFIED_SOURCES: tuple[EvidenceSource, ...] = (
             "100% verified locally against pinned engine rules. "
             "All 801 legal Chulane pool cards are qualified with sim_status=OK."
         ),
+        access_status="ok",
+        access_evidence_url="local:data/cards/xmage_card_facts.json",
+        access_checked_at_utc="2026-11-18",
     ),
     EvidenceSource(
         source_id="scryfall:tagger",
         priority=9,
-        title="Scryfall Tagger Functional Roles & Community Tags",
+        title="Scryfall Tagger Functional Roles & Oracle Tags Bulk",
         direct_url="https://tagger.scryfall.com/",
         reference_urls=(
+            "https://scryfall.com/docs/api/bulk-data",
             "https://scryfall.com/docs/tagger-tags",
             "src/commander_lab/studio/roles.py",
         ),
-        publisher="Scryfall Community / Tagger Project",
+        publisher="Scryfall, LLC / Scryfall Tagger Community",
         retrieved_at_utc=None,
-        observation_period="Continuous community tag catalog (2024-2026)",
+        observation_period="Continuous community tag catalog (official Oracle Tags bulk)",
         snapshot_id=None,
-        schema_format="Web / Community Tagging (CSV export when available)",
+        schema_format="JSONL Bulk (Scryfall Bulk oracle_tags, official bulk export)",
         card_identifier="oracle_id / card_name",
         coverage_scope="Community functional tags: ramp, draw, removal, bounce, tutor, combo-piece",
         evidence_layer="EXTERNAL_OPINION",
@@ -446,18 +533,116 @@ QUALIFIED_SOURCES: tuple[EvidenceSource, ...] = (
             "Multiple overlapping tags for the same functional role "
             "(e.g. bounce-creature and bounce-permanent)."
         ),
-        license_terms="Public Community Fan Content Policy; non-commercial citation only.",
-        allowed_retrieval_method="MANUAL_INSPECTION_ONLY (or authorized Scryfall bulk tags export).",
-        reproducibility="DYNAMIC_EPHEMERAL_WEB",
+        license_terms="Scryfall API Terms: free non-commercial / research use with fan content attribution; official Oracle Tags bulk.",
+        allowed_retrieval_method=(
+            "Bulk GET via Scryfall Bulk Data API (type: oracle_tags) with generic User-Agent "
+            "and Accept headers; no AI training."
+        ),
+        reproducibility="DETERMINISTIC_OFFLINE_SNAPSHOT",
         bias_risks=(
             "Community tags are subjective, non-authoritative annotations, not official MTG Oracle mechanics",
             "Inconsistent granularity across card types",
         ),
         status="REVIEW",
         status_rationale=(
-            "Valuable semantic role mappings imported into card_role, "
-            "but requires external audit due to community subjectivity."
+            "Official Scryfall 'Oracle Tags' bulk export is accessible (access_status=ok_with_conditions, "
+            "no longer blocked on license); data quality remains REVIEW due to community tag subjectivity."
         ),
+        access_status="ok_with_conditions",
+        access_evidence_url="https://scryfall.com/docs/api/bulk-data",
+        access_checked_at_utc="2026-11-18",
+    ),
+    EvidenceSource(
+        source_id="archidekt:decks",
+        priority=10,
+        title="Archidekt Public Decklists",
+        direct_url="https://archidekt.com/",
+        reference_urls=(
+            "https://archidekt.com/terms",
+            "https://archidekt.com/robots.txt",
+        ),
+        publisher="Archidekt (Space Cow Media)",
+        retrieved_at_utc=None,
+        observation_period="Historical Chulane bracket decklists in local corpus (723 decks)",
+        snapshot_id=None,
+        schema_format="Web / Unofficial JSON",
+        card_identifier="card_name / oracle_id",
+        coverage_scope="Public Commander decklists with optional bracket metadata",
+        evidence_layer="OBSERVED_DECK",
+        has_exact_numerator_denominator=False,
+        game_context={
+            "format": "Commander",
+            "commander": "Chulane, Teller of Tales",
+        },
+        double_counting_risk=(
+            "Decks indexed by Archidekt overlap with EDHREC decklists; "
+            "deduplicate by canonical oracle_id fingerprint."
+        ),
+        license_terms=(
+            "Archidekt Terms of Service (effective 2018-09-07): same wording as EDHREC; "
+            "personal use only, automated queries and scripts prohibited; no public API documentation."
+        ),
+        allowed_retrieval_method=(
+            "PROHIBITED_AUTOMATED_RETRIEVAL (Terms of Service prohibit automated queries/scripts; "
+            "no public API documentation)."
+        ),
+        reproducibility="DYNAMIC_EPHEMERAL_WEB",
+        bias_risks=(
+            "Deckbuilding popularity != gameplay strength",
+            "Self-reported bracket tags may be inconsistent across authors",
+        ),
+        status="UNAVAILABLE",
+        status_rationale=(
+            "No authorized automated retrieval path; Terms of Service (2018-09-07) prohibit "
+            "automated queries with the same wording as EDHREC."
+        ),
+        access_status="prohibited",
+        access_evidence_url="https://archidekt.com/terms",
+        access_checked_at_utc="2026-11-18",
+    ),
+    EvidenceSource(
+        source_id="moxfield:decks",
+        priority=11,
+        title="Moxfield Public Decklists",
+        direct_url="https://www.moxfield.com/",
+        reference_urls=(
+            "https://api2.moxfield.com/robots.txt",
+            "https://www.moxfield.com/terms",
+        ),
+        publisher="Moxfield",
+        retrieved_at_utc=None,
+        observation_period="Not directly harvested (blocked by robots.txt)",
+        snapshot_id=None,
+        schema_format="Web / Private API",
+        card_identifier="card_name / scryfall_id",
+        coverage_scope="Not collected directly; API host disallowed",
+        evidence_layer="OBSERVED_DECK",
+        has_exact_numerator_denominator=False,
+        game_context={
+            "format": "Commander",
+            "commander": "Chulane, Teller of Tales",
+        },
+        double_counting_risk="Decks hosted on Moxfield overlap with EDHREC aggregations.",
+        license_terms=(
+            "api2.moxfield.com/robots.txt disallows all paths (User-agent: * / Disallow: /); "
+            "moxfield.com/terms returns HTTP 403 to automated clients."
+        ),
+        allowed_retrieval_method=(
+            "PROHIBITED_AUTOMATED_RETRIEVAL (api2.moxfield.com/robots.txt disallows all paths)."
+        ),
+        reproducibility="DYNAMIC_EPHEMERAL_WEB",
+        bias_risks=(
+            "Deckbuilding popularity != gameplay strength",
+            "Direct automated access blocked",
+        ),
+        status="UNAVAILABLE",
+        status_rationale=(
+            "Automated access blocked: api2.moxfield.com/robots.txt disallows all paths "
+            "for all user agents."
+        ),
+        access_status="prohibited",
+        access_evidence_url="https://api2.moxfield.com/robots.txt",
+        access_checked_at_utc="2026-11-18",
     ),
 )
 
@@ -484,6 +669,7 @@ class SourceInventoryPayload(TypedDict):
     description: str
     total_sources: int
     status_counts: dict[str, int]
+    access_status_counts: dict[str, int]
     sources: list[dict[str, object]]
 
 
@@ -494,6 +680,10 @@ def source_inventory_payload(*, status: SourceStatus | None = None) -> SourceInv
     verified_count = sum(1 for s in QUALIFIED_SOURCES if s.status == "VERIFIED")
     review_count = sum(1 for s in QUALIFIED_SOURCES if s.status == "REVIEW")
     unavailable_count = sum(1 for s in QUALIFIED_SOURCES if s.status == "UNAVAILABLE")
+    access_counts: dict[str, int] = {
+        str(key): sum(1 for s in QUALIFIED_SOURCES if s.access_status == key)
+        for key in ACCESS_STATUSES
+    }
 
     return {
         "schema_version": "evidence-source-inventory-1.0.0",
@@ -504,6 +694,7 @@ def source_inventory_payload(*, status: SourceStatus | None = None) -> SourceInv
             "REVIEW": review_count,
             "UNAVAILABLE": unavailable_count,
         },
+        "access_status_counts": access_counts,
         "sources": sources_data,
     }
 
