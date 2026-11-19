@@ -2294,7 +2294,7 @@ const custom = Object.assign({}, base, {
   decision_id: 'mana-p1a-test',
   legal_options: [
     {option_id: 'cancel-1', option_type: 'cancel_mana_payment', label: 'Cancel mana payment', metadata: {}},
-    {option_id: 'tap-a-green', option_type: 'mana_ability', label: 'Forest — {T}: Add {G}.', metadata: {object_id: landA}},
+    {option_id: 'tap-a-green', option_type: 'mana_ability', label: 'Forest — {T}: Add {G}.', metadata: {source_object_id: landA}},
     {option_id: 'tap-b-white', option_type: 'mana_ability', label: 'Dual — {T}: Add {W}.', metadata: {source_object_id: landB}},
     {option_id: 'tap-b-blue', option_type: 'mana_ability', label: 'Dual — {T}: Add {U}.', metadata: {source_object_id: landB}},
   ],
@@ -2396,3 +2396,162 @@ console.log(JSON.stringify({rail, ledger, afterBlk, clearedStep, clearedTurn}));
     assert out["afterBlk"]["entries"][1]["kind"] == "no_block"
     assert out["clearedStep"]["entries"] == []
     assert out["clearedTurn"]["entries"] == []
+
+
+_P1A_IO_PRELUDE = """
+const P1a = require('./play_p1a.js');
+const atk = {decision_id: 'atk-1', decision_class: 'declare_attacker',
+  legal_options: [{option_id: 'opt-atk', option_type: 'declare_attacker', label: 'Chulane attacks Seat 2'}],
+  pilot_state: {turn_number: 5, step: 'declare_attackers'}};
+const nextPending = {decision_id: 'pri-9', decision_class: 'priority',
+  legal_options: [{option_id: 'p9', option_type: 'pass_priority', label: 'Pass priority'}],
+  pilot_state: {turn_number: 5, step: 'declare_attackers'}};
+function makeIo(post) {
+  const calls = [];
+  const io = {
+    pending: atk,
+    ledger: P1a.emptyCombatLedger(),
+    log: [],
+    getPendingDecision() { return io.pending; },
+    async post(payload) { calls.push('post'); return post(io, payload); },
+    getLedger() { return io.ledger; },
+    setLedger(l) { calls.push('ledger'); io.ledger = l; },
+    logAutoPass(line) { calls.push('log'); io.log.push(line); },
+  };
+  return {io, calls};
+}
+"""
+
+
+def test_play_p1a_submit_answer_books_the_sent_decision_and_logs_only_accepted_passes() -> None:
+    script = (
+        _P1A_IO_PRELUDE
+        + """
+(async () => {
+  // (a) a poll replaces the pending decision while the post is in flight: the answer still belongs
+  // to the decision that was sent, not to the new one
+  const a = makeIo(async (io) => { io.pending = nextPending; return {ok: true}; });
+  const sentA = await P1a.submitAnswer(a.io, {decision_id: 'atk-1', selected_option_ids: ['opt-atk']}, {});
+  // (b) accepted automatic pass: exactly one log line, written after the post
+  const b = makeIo(async () => ({ok: true}));
+  b.io.pending = nextPending;
+  await P1a.submitAnswer(b.io, {decision_id: 'pri-9', selected_option_ids: ['p9']}, {autoPassReason: 'Bis Zugende'});
+  // (c) refused answer (post rejects): the rejection propagates, no ledger entry, no log line
+  const c = makeIo(async () => { throw new Error('422 refused'); });
+  c.io.pending = nextPending;
+  let rejected = null;
+  try { await P1a.submitAnswer(c.io, {decision_id: 'pri-9', selected_option_ids: ['p9']}, {autoPassReason: 'Bis Zugende'}); }
+  catch (error) { rejected = String(error.message); }
+  const c2 = makeIo(async () => { throw new Error('409 stale'); });
+  let rejected2 = null;
+  try { await P1a.submitAnswer(c2.io, {decision_id: 'atk-1', selected_option_ids: ['opt-atk']}, {}); }
+  catch (error) { rejected2 = String(error.message); }
+  // (d) a manual answer writes no auto-pass line; (e) nothing pending sends nothing
+  const d = makeIo(async () => ({ok: true}));
+  await P1a.submitAnswer(d.io, {decision_id: 'atk-1', selected_option_ids: ['opt-atk']});
+  const e = makeIo(async () => ({ok: true}));
+  e.io.pending = null;
+  const sentE = await P1a.submitAnswer(e.io, {decision_id: 'x', selected_option_ids: []}, {autoPassReason: 'x'});
+  console.log(JSON.stringify({
+    a: {sent: sentA.decision_id, entries: a.io.ledger.entries, calls: a.calls, log: a.io.log},
+    b: {calls: b.calls, log: b.io.log, entries: b.io.ledger.entries},
+    c: {rejected, calls: c.calls, log: c.io.log, entries: c.io.ledger.entries},
+    c2: {rejected: rejected2, calls: c2.calls, entries: c2.io.ledger.entries},
+    d: {calls: d.calls, log: d.io.log, entries: d.io.ledger.entries},
+    e: {sent: sentE, calls: e.calls},
+    lineManual: P1a.autoPassLine({seat: 0}, 'Auto-Pass bis eigene Aktion'),
+  }));
+})();
+"""
+    )
+    out = _node_json(script)
+    assert isinstance(out, dict)
+    a = out["a"]
+    assert a["sent"] == "atk-1" and a["calls"] == ["post", "ledger"] and a["log"] == []
+    assert [(e["kind"], e["decisionId"], e["optionId"]) for e in a["entries"]] == [
+        ("attacker", "atk-1", "opt-atk")
+    ]
+    b = out["b"]
+    assert b["calls"] == ["post", "ledger", "log"]  # the line comes after the accepted post
+    assert b["log"] == [
+        {"seat": 0, "tag": "S1", "text": "Auto-Pass (Bis Zugende): Priorität abgegeben"}
+    ]
+    assert b["entries"] == []  # a priority pass is no combat answer
+    for key in ("c", "c2"):
+        assert out[key]["entries"] == [] and out[key]["calls"] == ["post"], key
+    assert "422" in out["c"]["rejected"] and out["c"]["log"] == []
+    assert "409" in out["c2"]["rejected"]
+    assert out["d"]["log"] == [] and out["d"]["calls"] == ["post", "ledger"]
+    assert len(out["d"]["entries"]) == 1
+    assert out["e"] == {"sent": None, "calls": []}
+    assert out["lineManual"]["text"].startswith("Auto-Pass (Auto-Pass bis eigene Aktion)")
+
+
+def test_play_p1a_own_combat_survives_rewind_and_is_cleaned_up_only_at_the_live_end() -> None:
+    script = """
+const P1a = require('./play_p1a.js');
+const dec = {decision_id: 'atk-1', decision_class: 'declare_attacker',
+  legal_options: [{option_id: 'opt-atk', option_type: 'declare_attacker', label: 'Chulane attacks Seat 2'}],
+  pilot_state: {turn_number: 5, step: 'declare_attackers'}};
+const ledger = P1a.recordOwnCombatAnswer(P1a.emptyCombatLedger(), dec, ['opt-atk'], dec.pilot_state);
+const live = {turn: 5, step: 'declare_attackers'};
+// rewind to an earlier turn, to a frame outside of combat, and back to the live end
+const rewoundTurn = P1a.ownCombatView(ledger, {turn: 3, step: 'upkeep'}, false, true);
+const rewoundStep = P1a.ownCombatView(rewoundTurn.ledger, {turn: 5, step: 'precombat_main'}, false, true);
+const backLive = P1a.ownCombatView(rewoundStep.ledger, live, true, true);
+const liveNonInteractive = P1a.ownCombatView(ledger, live, true, false);
+// the live end is the only place where the interim state is cleaned up
+const liveOtherStep = P1a.ownCombatView(ledger, {turn: 5, step: 'postcombat_main'}, true, true);
+const liveNextTurn = P1a.ownCombatView(ledger, {turn: 6, step: 'declare_attackers'}, true, true);
+// XMage publishes PhaseStep.BEGIN_COMBAT lower-cased: begin_combat is a combat step
+const liveBegin = P1a.ownCombatView(ledger, {turn: 5, step: 'begin_combat'}, true, true);
+const liveOldName = P1a.ownCombatView(ledger, {turn: 5, step: 'beginning_combat'}, true, true);
+console.log(JSON.stringify({
+  ledger, rewoundTurn, rewoundStep, backLive, liveNonInteractive, liveOtherStep, liveNextTurn,
+  liveBegin, liveOldName, steps: P1a.COMBAT_STEPS,
+}));
+"""
+    out = _node_json(script)
+    assert isinstance(out, dict)
+    kept = out["ledger"]["entries"]
+    assert len(kept) == 1
+    for key in ("rewoundTurn", "rewoundStep"):
+        assert out[key]["visible"] is False and out[key]["ledger"]["entries"] == kept, key
+    assert out["backLive"]["visible"] is True and out["backLive"]["ledger"]["entries"] == kept
+    assert out["liveNonInteractive"]["visible"] is False
+    assert out["liveOtherStep"]["ledger"]["entries"] == []
+    assert out["liveNextTurn"]["ledger"]["entries"] == []
+    assert out["liveBegin"]["ledger"]["entries"] == kept and out["liveBegin"]["visible"] is True
+    assert out["liveOldName"]["ledger"]["entries"] == []
+    assert "begin_combat" in out["steps"] and "beginning_combat" not in out["steps"]
+
+
+def test_fast_forward_stack_checkbox_is_disabled_with_a_hint_and_mode_switch_retargets() -> None:
+    script = (
+        _FF_PRELUDE
+        + """
+const boxStack = FF.stackCheckboxState('until_stack_resolves');
+const boxMy = FF.stackCheckboxState('until_my_turn');
+const boxEot = FF.stackCheckboxState('until_end_of_turn');
+const opp = {object_id: 's-1', name: 'Counterspell', controller_id: 'op-1'};
+// no entry to watch and the checkbox off: the opponent object stops the run anyway (not ignored)
+const noWatchOpp = FF.verdict(pending({}, {stack: [opp]}), ctx({mode: 'until_stack_resolves', stopOnOpponentStack: false}));
+const base = {on: true, boosted: true, mode: 'until_my_turn', startTurn: 3, stopOnOpponentStack: true, watchStackObjectId: null};
+const toStack = FF.retarget(base, 'until_stack_resolves', {topStackObjectId: 's-7', currentTurn: 4});
+const toEot = FF.retarget(toStack, 'until_end_of_turn', {topStackObjectId: 's-7', currentTurn: 4});
+const toMy = FF.retarget(toEot, 'until_my_turn', {topStackObjectId: null, currentTurn: 4});
+const toStackEmpty = FF.retarget(base, 'until_stack_resolves', {topStackObjectId: null, currentTurn: 4});
+console.log(JSON.stringify({boxStack, boxMy, boxEot, noWatchOpp, toStack, toEot, toMy, toStackEmpty, base}));
+"""
+    )
+    out = _node_json(script)
+    assert isinstance(out, dict)
+    assert out["boxStack"]["disabled"] is True and "Gegner" in out["boxStack"]["hint"]
+    assert out["boxMy"] == out["boxEot"] == {"disabled": False, "hint": ""}
+    assert out["noWatchOpp"]["action"] == "stop" and "Counterspell" in out["noWatchOpp"]["reason"]
+    assert out["toStack"]["mode"] == "until_stack_resolves"
+    assert out["toStack"]["watchStackObjectId"] == "s-7" and out["toStack"]["startTurn"] == 3
+    assert out["toEot"]["watchStackObjectId"] is None and out["toEot"]["startTurn"] == 4
+    assert out["toMy"]["mode"] == "until_my_turn" and out["toMy"]["watchStackObjectId"] is None
+    assert out["toStackEmpty"]["watchStackObjectId"] is None
+    assert out["base"]["watchStackObjectId"] is None and out["base"]["mode"] == "until_my_turn"

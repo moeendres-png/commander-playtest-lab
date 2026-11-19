@@ -71,7 +71,9 @@ const StudioFastForward = (() => {
             return { action: "stop", reason: `neues Gegner-Objekt auf dem Stack (${stackName(top)})` };
           }
         }
-      } else if (context && context.stopOnOpponentStack) {
+      } else {
+        // no entry to watch: the checkbox is off in this mode (see stackCheckboxState), so an
+        // opponent object always stops the run here
         const foreign = stack.find((item) => !item || item.controller_id !== pending.actor_id);
         if (foreign !== undefined) return { action: "stop", reason: `Gegner-Objekt auf dem Stack (${stackName(foreign)})` };
       }
@@ -88,6 +90,32 @@ const StudioFastForward = (() => {
     }
     return { action: "pass", optionId: pass.option_id };
   }
-  return { MODES, modeLabel, verdict };
+
+  // The checkbox "stop at opponent spells" has no effect in the mode "until the stack entry
+  // resolved": there the run stops at every new opponent object anyway. The page disables the
+  // checkbox in that mode and says so, instead of ignoring it silently.
+  function stackCheckboxState(mode) {
+    if (mode === "until_stack_resolves") {
+      return {
+        disabled: true,
+        hint: "In diesem Modus hält Vorspulen immer bei neuen Gegner-Objekten auf dem Stack an."
+      };
+    }
+    return { disabled: false, hint: "" };
+  }
+
+  // Changing the mode while a run is going: the target of the new mode is taken from the table as
+  // it is now (the stack entry to watch, the turn to stay in), never carried over from the old mode.
+  // ff: the run state of the page; now: { topStackObjectId, currentTurn }.
+  function retarget(ff, mode, now) {
+    const top = now && typeof now.topStackObjectId === "string" && now.topStackObjectId ? now.topStackObjectId : null;
+    const turn = now && Number.isInteger(now.currentTurn) ? now.currentTurn : null;
+    return Object.assign({}, ff, {
+      mode,
+      watchStackObjectId: mode === "until_stack_resolves" ? top : null,
+      startTurn: mode === "until_end_of_turn" ? turn : ff.startTurn
+    });
+  }
+  return { MODES, modeLabel, verdict, stackCheckboxState, retarget };
 })();
 if (typeof module !== "undefined") module.exports = StudioFastForward;

@@ -6,7 +6,7 @@ const StudioPlayP1a = (() => {
   const OWN_COMBAT_LABEL =
     "Eigener Kampf-Zwischenstand (eigene Angaben, kein Engine-Kampfzustand)";
   const COMBAT_STEPS = new Set([
-    "beginning_combat",
+    "begin_combat", // XMage PhaseStep.BEGIN_COMBAT, lower-cased by the bridge
     "declare_attackers",
     "declare_blockers",
     "first_combat_damage",
@@ -238,13 +238,60 @@ const StudioPlayP1a = (() => {
     };
   }
 
+  // What the own-combat box shows for the frame on screen. The ledger is cleaned up only at the
+  // live end (the decision the engine is asking now): looking at an older frame (rewind) must not
+  // delete the interim state for good, it only hides the box until the live end is shown again.
+  function ownCombatView(ledger, frame, atLiveTail, interactive) {
+    const current = ledger && Array.isArray(ledger.entries) ? ledger : emptyCombatLedger();
+    if (!atLiveTail) return { ledger: current, visible: false };
+    const next = clearOwnCombatLedger(
+      current,
+      frame && Number.isInteger(frame.turn) ? frame.turn : null,
+      frame ? frame.step : null
+    );
+    return { ledger: next, visible: Boolean(interactive) && next.entries.length > 0 };
+  }
+
+  // Text of the auto-pass log line (the line itself is built by the page).
+  function autoPassLine(pending, reasonText) {
+    const seat = pending && Number.isInteger(pending.seat) ? pending.seat : 0;
+    return { seat, tag: `S${seat + 1}`, text: `Auto-Pass (${stripMarkup(reasonText)}): Priorität abgegeben` };
+  }
+
+  // Sends one answer of the human and keeps the books about it. io carries the page side:
+  //   getPendingDecision(), post(payload) (rejects when the engine refuses), getLedger(),
+  //   setLedger(ledger), logAutoPass(line).
+  // The decision answered is the one that was pending when the answer was sent (a poll may replace
+  // the pending decision while the post is in flight). Ledger and auto-pass line are written only
+  // after the post was accepted: a refused answer leaves no trace (the rejection propagates).
+  // opts.autoPassReason marks an automatic pass and gets one log line after the accepted post.
+  async function submitAnswer(io, payload, opts) {
+    const submitted = io.getPendingDecision();
+    if (!submitted) return null;
+    await io.post(payload);
+    io.setLedger(
+      recordOwnCombatAnswer(
+        io.getLedger(),
+        submitted,
+        payload && payload.selected_option_ids ? payload.selected_option_ids : [],
+        submitted.pilot_state
+      )
+    );
+    const reason = opts && text(opts.autoPassReason);
+    if (reason) io.logAutoPass(autoPassLine(submitted, reason));
+    return submitted;
+  }
+
   return {
     OWN_COMBAT_LABEL,
     COMBAT_STEPS: [...COMBAT_STEPS],
     buildStackRail,
     emptyCombatLedger,
     recordOwnCombatAnswer,
-    clearOwnCombatLedger
+    clearOwnCombatLedger,
+    ownCombatView,
+    autoPassLine,
+    submitAnswer
   };
 })();
 if (typeof globalThis !== "undefined") globalThis.StudioPlayP1a = StudioPlayP1a;

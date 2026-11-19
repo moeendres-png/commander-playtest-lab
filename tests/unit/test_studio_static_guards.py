@@ -1645,20 +1645,37 @@ def test_play_p1a_accessibility_focus_and_static_sinks() -> None:
         'value="until_end_of_turn"',
         'value="until_stack_resolves"',
         'id="own-combat"',
+        'id="ff-stack-hint"',
         'class="stack-rail"',
     ):
         assert token in html, token
 
     for rule in (
-        ".stack-item:focus-visible",
         "#ff-mode:focus-visible",
         "button.card:focus-visible",
         ".own-combat",
     ):
         assert rule in css, rule
 
-    assert 'tabindex: "0"' in partie_js
-    assert "appendAutoPassLog(" in partie_js
+    # the stack items do nothing themselves (their card tile is the only control): no extra tab stop
+    assert "tabindex" not in partie_js
+    # the book-keeping of an answer runs in play_p1a.js (node-tested), after the engine accepted it;
+    # both automatic passes hand over their reason instead of writing the log line themselves
+    assert "StudioPlayP1a.submitAnswer(" in partie_js
+    for wiring in (
+        " getPendingDecision: () => state.pendingDecision",
+        ' post: (body) => api(`/api/play/${encodeURIComponent(state.gameId)}/decision`, "POST", body)',
+        " getLedger: () => state.ownCombat",
+        " setLedger: (ledger) => { state.ownCombat = ledger; }",
+        " logAutoPass: appendAutoPassLog",
+    ):
+        assert wiring in partie_js, wiring
+    assert partie_js.count("autoPassReason:") == 2
+    assert "appendAutoPassLog(pending" not in partie_js
+    assert "StudioPlayP1a.ownCombatView(" in partie_js
+    assert "StudioPlayP1a.clearOwnCombatLedger(" not in partie_js
+    assert "syncFastForwardControls()" in partie_js and "StudioFastForward.retarget(" in partie_js
+    assert "beginning_combat" not in partie_js
     assert "eigene Angaben" in p1a_js
 
     for name, src in (

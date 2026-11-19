@@ -146,7 +146,6 @@ button.stat:hover:not(:disabled){background:none;border:0;color:var(--text)}
 .stack-rail{display:flex;flex-direction:column;gap:6px;min-height:20px}
 .stack-item{display:flex;align-items:flex-start;gap:8px;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--panel2);font-size:12.5px}
 .stack-item.top{border-color:var(--warn);box-shadow:0 0 0 1px color-mix(in srgb,var(--warn) 45%,transparent)}
-.stack-item:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
 .stack-item-body{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}
 .stack-item-head{display:flex;flex-wrap:wrap;align-items:center;gap:4px 6px}
 .stack-item-name{font-weight:700;word-break:break-word}

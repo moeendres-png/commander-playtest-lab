@@ -3,7 +3,7 @@
 // and what the pilots chose; it never works out a rule itself.
 
 const PHASES = { beginning: "Beginn", precombat_main: "Hauptphase 1", combat: "Kampf", postcombat_main: "Hauptphase 2", end: "Ende" };
-const STEPS = { untap: "Enttappen", upkeep: "Versorgung", draw: "Ziehen", precombat_main: "Hauptphase 1", beginning_combat: "Kampfbeginn", declare_attackers: "Angreifer", declare_blockers: "Blocker", first_combat_damage: "Erstschlagschaden", combat_damage: "Kampfschaden", end_combat: "Kampfende", postcombat_main: "Hauptphase 2", end_turn: "Endsegment", cleanup: "Aufräumen" };
+const STEPS = { untap: "Enttappen", upkeep: "Versorgung", draw: "Ziehen", precombat_main: "Hauptphase 1", begin_combat: "Kampfbeginn", declare_attackers: "Angreifer", declare_blockers: "Blocker", first_combat_damage: "Erstschlagschaden", combat_damage: "Kampfschaden", end_combat: "Kampfende", postcombat_main: "Hauptphase 2", end_turn: "Endsegment", cleanup: "Aufräumen" };
 const CLASSES = { priority: "Aktion", mana_payment: "Mana zahlen", choose_object: "Auswahl", choose_use: "Ja oder Nein", target: "Ziel", declare_attacker: "Angriff", declare_blocker: "Block", mulligan: "Mulligan", choice: "Wahl", trigger_order: "Reihenfolge", announce_x: "Wert für X", amount: "Anzahl", multi_amount: "Verteilung", mode: "Modus", pile: "Stapelwahl", target_amount: "Zielmenge", replacement_effect: "Ersatzeffekt", order: "Reihenfolge" };
 // Table sizes the Studio offers: two to four players. Five and six stay locked until a qualification
 // and an explicit Owner decision (AGENTS.md); the server refuses them too (launch.MAX_RELEASED_SEATS).
@@ -690,20 +690,21 @@ function pilotStateToFrame(pending) {
   };
 }
 
-async function submitHumanChoice(payload) {
+// opts.autoPassReason marks an automatic pass: its log line is written only after the engine
+// accepted the answer (play_p1a.js submitAnswer), a refused pass leaves no line.
+async function submitHumanChoice(payload, opts) {
   if (!state.gameId || !state.pendingDecision || state.submitting) return;
   if (!state.ff.on) ffStatus("");
-  const submittedDecision = state.pendingDecision;
   state.submitting = true;
   renderHumanDecision();
   try {
-    await api(`/api/play/${encodeURIComponent(state.gameId)}/decision`, "POST", payload);
-    state.ownCombat = StudioPlayP1a.recordOwnCombatAnswer(
-      state.ownCombat,
-      submittedDecision,
-      payload.selected_option_ids || [],
-      submittedDecision.pilot_state
-    );
+    await StudioPlayP1a.submitAnswer({
+      getPendingDecision: () => state.pendingDecision,
+      post: (body) => api(`/api/play/${encodeURIComponent(state.gameId)}/decision`, "POST", body),
+      getLedger: () => state.ownCombat,
+      setLedger: (ledger) => { state.ownCombat = ledger; },
+      logAutoPass: appendAutoPassLog
+    }, payload, opts);
     state.selectedOptions = [];
     state.orderList = [];
     await loadMore();
@@ -746,14 +747,24 @@ function topStackObjectId() {
   const top = stack[0];
   return top && typeof top.object_id === "string" && top.object_id ? top.object_id : null;
 }
-function appendAutoPassLog(pending, reasonText) {
+function appendAutoPassLog(line) {
   const log = $("log");
-  if (!log || !pending) return;
+  if (!log || !line) return;
   const el = h("div", { class: "line event auto-pass" },
-    h("span", { class: `tag s${pending.seat}` }, `S${(pending.seat ?? 0) + 1}`),
-    h("span", null, `Auto-Pass (${reasonText}): Priorität abgegeben`));
+    h("span", { class: `tag s${line.seat}` }, line.tag),
+    h("span", null, line.text));
   log.append(el);
   state.lines.push({ index: Math.max(0, state.frames.length - 1), el });
+}
+// The "stop at opponent spells" checkbox does nothing in the mode "until the stack entry resolved":
+// it is disabled there and the page says why (vorspulen.js stackCheckboxState).
+function syncFastForwardControls() {
+  const box = $("ff-stack");
+  const hint = $("ff-stack-hint");
+  if (!box) return;
+  const info = StudioFastForward.stackCheckboxState(selectedFastForwardMode());
+  box.disabled = info.disabled;
+  if (hint) { hint.textContent = info.hint; hint.hidden = !info.hint; }
 }
 function renderFastForwardButton() {
   const button = $("ff-btn");
@@ -822,8 +833,8 @@ function maybeAutoPassHuman(pending) {
     });
     if (verdict.action !== "pass") { endFastForward(verdict.reason); return false; }
     state.autoPassAttempt = pending.decision_id;
-    appendAutoPassLog(pending, StudioFastForward.modeLabel(state.ff.mode));
-    submitHumanChoice({ decision_id: pending.decision_id, selected_option_ids: [verdict.optionId], ordering: [] });
+    submitHumanChoice({ decision_id: pending.decision_id, selected_option_ids: [verdict.optionId], ordering: [] },
+      { autoPassReason: StudioFastForward.modeLabel(state.ff.mode) });
     return true;
   }
   const autoBox = $("auto-pass-human");
@@ -839,12 +850,11 @@ function maybeAutoPassHuman(pending) {
   const safeOpponentEmptyStack = frame.active_seat !== pending.seat && stack.length === 0;
   if (!onlyPass && !safeOpponentEmptyStack) return false;
   state.autoPassAttempt = pending.decision_id;
-  appendAutoPassLog(pending, "Auto-Pass bis eigene Aktion");
   submitHumanChoice({
     decision_id: pending.decision_id,
     selected_option_ids: [passOpt.option_id],
     ordering: []
-  });
+  }, { autoPassReason: "Auto-Pass bis eigene Aktion" });
   return true;
 }
 
@@ -1105,12 +1115,14 @@ function renderBridgeBanner() {
   banner.hidden = false;
 }
 
-function renderOwnCombat(frame) {
+function renderOwnCombat(frame, atLiveTail) {
   const box = $("own-combat");
   if (!box) return;
-  state.ownCombat = StudioPlayP1a.clearOwnCombatLedger(state.ownCombat, frame ? frame.turn : null, frame ? frame.step : null);
+  // the ledger is cleaned up only at the live end; a rewind just hides the box (play_p1a.js)
+  const view = StudioPlayP1a.ownCombatView(state.ownCombat, frame, Boolean(atLiveTail), state.interactive);
+  state.ownCombat = view.ledger;
   box.textContent = "";
-  if (!state.interactive || !state.ownCombat.entries.length) {
+  if (!view.visible) {
     box.hidden = true;
     return;
   }
@@ -1153,8 +1165,7 @@ function renderStackRail(frame, atLiveTail) {
       : cardTile(item.faceDown ? "(verdeckt)" : item.name, { small: true, objectId: item.objectId });
     stack.append(h("div", {
       class: `stack-item${item.isTop ? " top" : ""}`,
-      role: "listitem",
-      tabindex: "0"
+      role: "listitem"
     }, tile, body));
   }
 }
@@ -1206,7 +1217,7 @@ function render() {
     h("div", { class: "what" }, atLiveTail ? "Wartet auf deine Entscheidung" : answer(frame)),
     h("div", { class: "ask" }, [CLASSES[frame.decision_class] || frame.decision_class, frame.prompt, frame.source ? `Quelle: ${frame.source}` : null, `${frame.options} Möglichkeiten`].filter(Boolean).join(" · ")),
     h("div", { class: "hint" }, "Der Spielstand zeigt den Tisch zum Zeitpunkt der Frage; das Ergebnis der gewählten Aktion wird im nächsten Schritt sichtbar."));
-  renderOwnCombat(frame);
+  renderOwnCombat(frame, atLiveTail);
   renderStackRail(frame, atLiveTail);
   const actor = frame.players.find((player) => player.seat === frame.seat);
   const handOwner = actor && Array.isArray(actor.hand)
@@ -1617,7 +1628,12 @@ async function start() {
   });
   window.addEventListener("pagehide", () => restoreAiDelayOnLeave(state.gameId));
   $("ff-btn").addEventListener("click", () => { if (state.ff.on) endFastForward("von dir beendet"); else startFastForward(); });
-  $("ff-mode").addEventListener("change", () => { state.ff.mode = selectedFastForwardMode(); });
+  $("ff-mode").addEventListener("change", () => {
+    syncFastForwardControls();
+    // a run in progress takes the target of the new mode from the table as it is now
+    if (state.ff.on) state.ff = StudioFastForward.retarget(state.ff, selectedFastForwardMode(), { topStackObjectId: topStackObjectId(), currentTurn: currentTurn() });
+  });
+  syncFastForwardControls();
   $("ff-stack").addEventListener("change", () => { state.ff.stopOnOpponentStack = $("ff-stack").checked; });
   $("first").addEventListener("click", () => go(0));
   $("back").addEventListener("click", () => step(-1));
