@@ -286,8 +286,10 @@ def test_the_word_urteil_only_appears_in_negations() -> None:
 def test_partie_loads_one_page_at_a_time_and_reloads_when_hands_are_revealed() -> None:
     js = (STATIC / "partie.js").read_text(encoding="utf-8")
     # loads run one after the other, never two with the same start
-    assert "loadTail = run.catch(" in js and "loadTail.then(loadMoreOnce)" in js
-    once = js.split("async function loadMoreOnce() {", 1)[1].split("async function openGame", 1)[0]
+    assert "loadTail = run.catch(" in js and "loadTail.then(() => loadMoreOnce(hold))" in js
+    once = js.split("async function loadMoreOnce(hold) {", 1)[1].split(
+        "async function openGame", 1
+    )[0]
     assert "page.start !== requestedStart" in once  # a page for another position is dropped
     assert "state.gameId !== gameId" in once  # an answer for a game that is no longer open
     # the game ended while watched: reload from the start so the revealed hands arrive
