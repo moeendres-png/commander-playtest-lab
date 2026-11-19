@@ -5,7 +5,7 @@ from __future__ import annotations
 import hashlib
 import os
 import sqlite3
-from collections.abc import Iterator
+from collections.abc import Iterable, Iterator
 from contextlib import contextmanager
 from datetime import UTC, datetime
 from enum import StrEnum
@@ -1078,3 +1078,68 @@ class StudioStore:
         }:  # fmt: skip
             raise ValueError(table)
         return int(self.connection.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0])
+
+
+def ensure_scryfall_cards(store: StudioStore, card_ids: Iterable[str]) -> int:
+    """Materialize ``scryfall:<oracle_id>`` catalog entries into ``card`` without touching
+    ``inventory``.
+
+    Used when saving a revision or user mark/label that references an unowned Scryfall card
+    (Zukauf-Modus, #1636). Unknown ``oracle_id`` values are never inserted so callers still
+    fail closed on bogus IDs.
+    """
+    prefix = "scryfall:"
+    oracle_ids = sorted(
+        {
+            cid[len(prefix) :]
+            for cid in card_ids
+            if cid.startswith(prefix) and len(cid) > len(prefix)
+        }
+    )
+    if not oracle_ids:
+        return 0
+    db = store.connection
+    placeholders = ",".join("?" for _ in oracle_ids)
+    rows = db.execute(
+        "SELECT s.oracle_id, s.name, s.color_identity, s.mana_cost, s.mana_value, "
+        "s.type_line, s.oracle_text, s.commander_legality, s.source_id "
+        "FROM scryfall_card s "
+        f"WHERE s.oracle_id IN ({placeholders}) "
+        "AND NOT EXISTS (SELECT 1 FROM card c WHERE c.card_id = ? || s.oracle_id)",
+        [*oracle_ids, prefix],
+    ).fetchall()
+    if not rows:
+        return 0
+    to_insert: list[tuple[object, ...]] = []
+    for row in rows:
+        type_line = str(row["type_line"] or "")
+        is_basic = 1 if type_line.startswith("Basic ") and "Land" in type_line else 0
+        legality = row["commander_legality"]
+        legal_flag = None if legality is None else (1 if str(legality) == "legal" else 0)
+        to_insert.append(
+            (
+                f"{prefix}{row['oracle_id']}",
+                row["oracle_id"],
+                row["name"],
+                row["color_identity"],
+                row["mana_cost"],
+                row["mana_value"],
+                row["type_line"],
+                row["oracle_text"],
+                is_basic,
+                legal_flag,
+                None,
+                "scryfall_catalog",
+                row["source_id"],
+            )
+        )
+    with db:
+        db.executemany(
+            "INSERT OR IGNORE INTO card("
+            "card_id, oracle_id, oracle_name, color_identity, mana_cost, mana_value, "
+            "type_line, oracle_text, is_basic_land, commander_legal, legality_verified_at, "
+            "identity_evidence, source_id"
+            ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            to_insert,
+        )
+    return len(to_insert)
