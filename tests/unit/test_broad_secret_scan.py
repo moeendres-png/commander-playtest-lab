@@ -138,9 +138,21 @@ def test_the_required_security_job_runs_the_scan_fail_closed() -> None:
     gate_step = gate["steps"][-1]
     assert "scripts/ci_gate.py" in str(gate_step.get("run", ""))
     assert "--allow-skipped" not in str(gate_step.get("run", ""))
-    for needed in ("changes", "security-audit", "security-secret-scan"):
-        assert f"needs.{needed}.result" in str((gate_step.get("env") or {}).values())
-        assert f'--job {needed}="$' in str(gate_step.get("run", ""))
+    env = gate_step.get("env") or {}
+    run = str(gate_step.get("run", ""))
+    # Every env var is bound to exactly one needed job's result, and each --job flag
+    # reads the variable bound to that same job (a swapped pair must fail).
+    bound = {}
+    for var, expr in env.items():
+        found = re.findall(r"needs\.([A-Za-z0-9_-]+)\.result", str(expr))
+        assert len(found) == 1, (var, expr)
+        assert re.fullmatch(r"\$\{\{\s*needs\.[A-Za-z0-9_-]+\.result\s*\}\}", str(expr).strip())
+        bound[found[0]] = var
+    assert set(bound) == {"changes", "security-audit", "security-secret-scan"}
+    assert len(env) == 3
+    for needed, var in bound.items():
+        assert re.search(rf'--job {re.escape(needed)}="\${var}"', run), (needed, var)
+    assert len(re.findall(r"--job ", run)) == 3
 
 
 def test_the_project_sentinel_is_retained_as_a_separate_signal() -> None:
