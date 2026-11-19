@@ -1,0 +1,18 @@
+# Gemeinsame Builder-Regeln (Commander Studio, Repo moeendres-png/commander-playtest-lab)
+
+Sprache: Deutsch, Ergebnis zuerst, Bericht ≤15 Zeilen. Du bist Implementierungs-Agent; der Co-Lead (Claude) reviewt, wartet auf CI und merged. Du mergst NIE.
+
+## Kaltstart
+1. `CLAUDE.md`, `AGENTS.md` (§7, §8 Owner-Vorbehalte, §10 Merge-Gate/MATERIAL, §11 Claims), `docs/STUDIO_SCOPE.md` §Abarbeitung, `docs/OWNER_DECISIONS_STUDIO_20261118.md`, `docs/STUDIO_AGENT_ONBOARDING.md` lesen. Issue und alle Kommentare lesen (`gh api repos/moeendres-png/commander-playtest-lab/issues/N --jq .body` und `/comments`), insbesondere Owner-Go und Entscheide des Co-Leads.
+2. Flacher Clone (Plattenplatz knapp, ca. 6 GB frei): `git clone --depth 50 https://github.com/moeendres-png/commander-playtest-lab <ordner>` unter `/tmp/claude-0/-home-user/ef006e8b-893c-5ebd-80a1-8743a09c7458/scratchpad/`; nach dem PR löschen. Keine großen Kopien (Store-Kopie nur wenn nötig, danach löschen).
+3. Claim vor dem ersten Edit: Kommentar im Issue (Fläche/Dateien, Branch, Datum) und eine Zeile in einem NEUEN Kommentar in #1167 („Claim-Update (Datum, Builder für Co-Lead): …“). Nach PR-Eröffnung Claim-Stand im Issue nennen.
+
+## Arbeitsweise
+- 1 Issue = 1 Branch = 1 PR. Commits und PR „Refs #N“, nie „Closes“. Branch aus aktuellem origin/main.
+- Erst Test schreiben/erweitern (bestehende Testdateien erweitern, neue nur mit Begründung), schmal testen, am Ende einmal `python -m pytest -q -k "studio or hygiene or runtime_asserts or any_usage or shards"`, `ruff check`, `ruff format --check`, `node --check` für JS. Kein `assert` in src, kein neues `Any`, keine neuen Python-Abhängigkeiten, `pyproject.toml`/Hash-Manifeste/`WS17_SHA256SUMS`/`qualification/` unverändert, keine Modellnamen in Repo-Dateien. Neue Testdateien: Shard-Gewichte beachten (`python -m tests.pytest_shards`, Test `test_pytest_shards.py` grün; Gewicht nur eintragen, wenn der Test es verlangt).
+- Effizienzänderungen: messen vor und nach (n ≥ 5, Last notieren), Äquivalenznachweis (gleiche Eingabe/Seed → byte- bzw. ergebnisgleich). Ergebnisse nie schlechter oder anders: bei Abweichung stoppen und berichten.
+- Harte Regeln: XMage entscheidet jede Regel; der Client rechnet keine Regeln und wählt nie still „die erste Option“; Simulationsergebnisse nur `SIMULATED_RESULT`, Gewicht `simulation` in der Tierliste bleibt 0; jede Zahl mit n/N und Herkunft; dünne Daten „unbekannt“, nie 0; Kohorten nie mischen; keine Preise; Fokus Chulane; 2–4 Sitze (5/6 nicht freigegeben). UI: strikte CSP, DOM über `h()`, keine Inline-Styles.
+- NICHT anfassen: AGENTS.md, CLAUDE.md, docs/STUDIO_SCOPE.md, docs/OWNER_DECISIONS_*, `engine-bridge/` (Java), `qualification/`, WS17, requirements/pyproject, XMage-Fork, Freigabe 5/6 Sitze, Sichtbarkeit. Scope-/Sachfrage: Option + Empfehlung als Issue-Kommentar, nicht selbst entscheiden und stoppen.
+- GitHub: GraphQL nicht verfügbar; REST via `gh api` (`gh pr create` meiden). PR anlegen: `gh api -X POST repos/moeendres-png/commander-playtest-lab/pulls --input <json>` mit Template `.github/pull_request_template.md` (Überschriften spiegeln). Bei HTTP 429: ein Versuch, dann stoppen und berichten. Kein CI-Polling (macht der Co-Lead).
+- Commit-Trailer: `Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>` und `Claude-Session: https://claude.ai/code/session_011vaKpe3NEKpcUvzSn39pe1`. PR-Text endet mit `🤖 Generated with [Claude Code](https://claude.com/claude-code)` und der Session-URL. Normaler Push (kein force).
+- Bericht: PR-Nummer, Head-SHA, Testzahlen, Messwerte (n, Last), UNKNOWN/offen, ob MATERIAL (>300 geänderte Zeilen, Policy/Workflows, Engine/Bridge/Gates, UI-Texte mit Aussagen zu Rating/Simulation).
