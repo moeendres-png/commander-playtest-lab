@@ -97,8 +97,12 @@ const StudioBoardClick = (() => {
       const data = meta(option);
       const optionId = text(option.option_id);
       if (!optionId) return null;
-      if (cls === "priority" || cls === "mana_payment") {
+      if (cls === "priority") {
         const source = text(data.source_object_id);
+        return source ? { objectId: source, role: "action" } : null;
+      }
+      if (cls === "mana_payment") {
+        const source = text(data.source_object_id) || text(data.object_id);
         return source ? { objectId: source, role: "action" } : null;
       }
       if (cls === "trigger_order" || cls === "order") {

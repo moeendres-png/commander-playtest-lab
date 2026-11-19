@@ -2206,3 +2206,193 @@ console.log(JSON.stringify({kind: m.kind, mode: m.mode, asked: m.asked, rows, lo
     roles = {role: result for role, result in out["rows"]}
     assert roles["block-target"] == {"action": "toggle", "optionId": out["attacker"]}
     assert roles["asked"] == {"action": "none"}  # the blocker itself only shows who blocks
+
+
+# ---- Play P1a (#1529): yield modes, mana_payment land click, stack rail, own combat ledger ------
+
+
+def test_yield_modes_only_send_pass_priority_and_stop_on_every_non_priority_class() -> None:
+    non_priority = [
+        "mulligan",
+        "declare_attacker",
+        "declare_blocker",
+        "target",
+        "mana_payment",
+        "choose_use",
+        "mode",
+        "announce_x",
+        "order",
+        "trigger_order",
+        "choice",
+        "amount",
+    ]
+    script = (
+        _FF_PRELUDE
+        + f"""
+const modes = ['until_my_turn', 'until_end_of_turn', 'until_stack_resolves'];
+const nonPriority = {json.dumps(non_priority)};
+const stoppedNonPriority = [];
+for (const mode of modes) {{
+  for (const cls of nonPriority) {{
+    const v = FF.verdict(
+      pending({{decision_class: cls, legal_options: [others[0], pass]}}, {{turn_number: 3, stack: [{{object_id: 's1', name: 'Bolt', controller_id: 'op-1'}}]}}),
+      ctx({{mode, startTurn: 3, watchStackObjectId: 's1', stopOnOpponentStack: false}})
+    );
+    stoppedNonPriority.push({{mode, cls, action: v.action, hasOptionId: 'optionId' in v}});
+  }}
+}}
+const eotSameTurn = FF.verdict(pending({{}}, {{active_player_id: 'p0', turn_number: 3}}), ctx({{mode: 'until_end_of_turn', startTurn: 3}}));
+const eotNextTurn = FF.verdict(pending({{}}, {{active_player_id: 'op-1', turn_number: 4}}), ctx({{mode: 'until_end_of_turn', startTurn: 3}}));
+const eotUnknownTurn = FF.verdict(pending({{}}, {{active_player_id: 'p0', turn_number: 3}}), ctx({{mode: 'until_end_of_turn', startTurn: null}}));
+const eotOppStack = FF.verdict(pending({{}}, {{active_player_id: 'p0', turn_number: 3, stack: [{{object_id: 's1', name: 'Counterspell', controller_id: 'op-1'}}]}}), ctx({{mode: 'until_end_of_turn', startTurn: 3, stopOnOpponentStack: true}}));
+
+const sWatch = {{object_id: 's-1', name: 'Sol Ring', controller_id: 'op-1'}};
+const sResp = {{object_id: 's-2', name: 'Counterspell', controller_id: 'op-1'}};
+const sOld = {{object_id: 's-0', name: 'Arcane Signet', controller_id: 'p0'}};
+const stackPass = FF.verdict(pending({{}}, {{stack: [sWatch]}}), ctx({{mode: 'until_stack_resolves', watchStackObjectId: 's-1'}}));
+const stackEmpty = FF.verdict(pending({{}}, {{stack: []}}), ctx({{mode: 'until_stack_resolves', watchStackObjectId: 's-1'}}));
+const stackResolved = FF.verdict(pending({{}}, {{stack: [sOld]}}), ctx({{mode: 'until_stack_resolves', watchStackObjectId: 's-1'}}));
+const stackNewOpp = FF.verdict(pending({{}}, {{stack: [sResp, sWatch]}}), ctx({{mode: 'until_stack_resolves', watchStackObjectId: 's-1'}}));
+const badMode = FF.verdict(pending({{}}, {{}}), ctx({{mode: 'unknown_mode'}}));
+
+console.log(JSON.stringify({{
+  stoppedNonPriority,
+  eotSameTurn, eotNextTurn, eotUnknownTurn, eotOppStack,
+  stackPass, stackEmpty, stackResolved, stackNewOpp, badMode,
+  modes: Object.keys(FF.MODES),
+}}));
+"""
+    )
+    out = _node_json(script)
+    assert isinstance(out, dict)
+    assert set(out["modes"]) == {"until_my_turn", "until_end_of_turn", "until_stack_resolves"}
+    assert len(out["stoppedNonPriority"]) == 3 * len(non_priority)
+    for row in out["stoppedNonPriority"]:
+        assert row["action"] == "stop" and row["hasOptionId"] is False, row
+    assert out["eotSameTurn"] == {"action": "pass", "optionId": "pass-1"}
+    assert out["eotNextTurn"]["action"] == "stop" and "Zug" in out["eotNextTurn"]["reason"]
+    assert out["eotUnknownTurn"]["action"] == "stop"
+    assert out["eotOppStack"]["action"] == "stop" and "Counterspell" in out["eotOppStack"]["reason"]
+    assert out["stackPass"] == {"action": "pass", "optionId": "pass-1"}
+    assert out["stackEmpty"]["action"] == "stop" and "leer" in out["stackEmpty"]["reason"]
+    assert (
+        out["stackResolved"]["action"] == "stop" and "aufgelöst" in out["stackResolved"]["reason"]
+    )
+    assert out["stackNewOpp"]["action"] == "stop" and "Counterspell" in out["stackNewOpp"]["reason"]
+    assert out["badMode"]["action"] == "stop"
+
+
+def test_boardclick_mana_payment_land_click_emits_only_offered_option_id() -> None:
+    script = (
+        _BC_PRELUDE
+        + """
+const base = JSON.parse(JSON.stringify(FX.mana_payment.pending_decision));
+const bf = base.pilot_state.players[0].battlefield;
+const landA = bf[0].object_id;
+const landB = bf[1].object_id;
+const custom = Object.assign({}, base, {
+  decision_id: 'mana-p1a-test',
+  legal_options: [
+    {option_id: 'cancel-1', option_type: 'cancel_mana_payment', label: 'Cancel mana payment', metadata: {}},
+    {option_id: 'tap-a-green', option_type: 'mana_ability', label: 'Forest — {T}: Add {G}.', metadata: {object_id: landA}},
+    {option_id: 'tap-b-white', option_type: 'mana_ability', label: 'Dual — {T}: Add {W}.', metadata: {source_object_id: landB}},
+    {option_id: 'tap-b-blue', option_type: 'mana_ability', label: 'Dual — {T}: Add {U}.', metadata: {source_object_id: landB}},
+  ],
+});
+const m = BC.build(custom);
+const clickA = BC.resolve(custom, m, {type: 'object', id: landA});
+const clickB = BC.resolve(custom, m, {type: 'object', id: landB});
+const clickMissing = BC.resolve(custom, m, {type: 'object', id: 'unoffered-land'});
+const okIds = new Set(custom.legal_options.map((o) => o.option_id));
+const emitted = BC.emittable(m);
+console.log(JSON.stringify({
+  kind: m.kind,
+  mode: m.mode,
+  clickA,
+  clickB,
+  clickMissing,
+  loose: m.loose,
+  emittedOnlyOffered: emitted.every((id) => okIds.has(id)),
+}));
+"""
+    )
+    out = _node_json(script)
+    assert isinstance(out, dict)
+    assert (out["kind"], out["mode"]) == ("mana_payment", "immediate")
+    assert out["clickA"] == {"action": "send", "optionId": "tap-a-green"}
+    assert out["clickB"]["action"] == "menu"
+    assert [opt["optionId"] for opt in out["clickB"]["options"]] == [
+        "tap-b-white",
+        "tap-b-blue",
+    ]
+    assert out["clickMissing"] == {"action": "none"}
+    assert out["loose"] == ["cancel-1"]
+    assert out["emittedOnlyOffered"] is True
+
+
+def test_play_p1a_stack_rail_and_own_combat_ledger_project_published_state_only() -> None:
+    script = """
+const P1a = require('./play_p1a.js');
+const pilotState = {
+  turn_number: 5,
+  step: 'declare_attackers',
+  players: [
+    {seat: 0, player_id: 'p0', battlefield: [{object_id: 'cre-1', name: 'Llanowar Elves'}]},
+    {seat: 1, player_id: 'op-1', battlefield: [{object_id: 'cre-2', name: 'Hidden Morph', face_down: true}]},
+  ],
+  stack: [
+    {object_id: 'st-top', name: 'Swords to Plowshares', controller_id: 'op-1', target_ids: ['cre-1']},
+    {object_id: 'st-mid', name: 'Secret Spell', face_down: true, controller_id: 'op-1'},
+    {object_id: 'st-bot', name: 'stack ability (Draw a card.)', controller_id: 'p0', targets: [{object_id: 'cre-2', face_down: true}, {player_id: 'p0'}]},
+  ],
+};
+const rail = P1a.buildStackRail(pilotState, (s) => 'Sitz ' + (s + 1));
+
+let ledger = P1a.emptyCombatLedger();
+const atkDec = {
+  decision_id: 'atk-1',
+  decision_class: 'declare_attacker',
+  legal_options: [
+    {option_id: 'opt-atk', option_type: 'declare_attacker', label: 'Chulane attacks Full Game Seat 2'},
+    {option_id: 'opt-hold', option_type: 'hold_attacker', label: 'Do not attack with Chulane'},
+  ],
+  pilot_state: {turn_number: 5, step: 'declare_attackers'},
+};
+ledger = P1a.recordOwnCombatAnswer(ledger, atkDec, ['opt-atk', 'forged-id']);
+// Non-combat decision must not add an entry
+ledger = P1a.recordOwnCombatAnswer(ledger, {decision_id: 'pri-1', decision_class: 'priority', legal_options: [{option_id: 'p', label: 'Pass'}], pilot_state: {turn_number: 5, step: 'declare_attackers'}}, ['p']);
+const blkDec = {
+  decision_id: 'blk-1',
+  decision_class: 'declare_blocker',
+  prompt: 'Block with Llanowar Elves',
+  legal_options: [{option_id: 'att-9', option_type: 'blocker', label: 'Llanowar Elves blocks Grizzly Bears'}],
+  pilot_state: {turn_number: 5, step: 'declare_blockers'},
+};
+const afterBlk = P1a.recordOwnCombatAnswer(ledger, blkDec, []);
+const clearedStep = P1a.clearOwnCombatLedger(afterBlk, 5, 'postcombat_main');
+const clearedTurn = P1a.clearOwnCombatLedger(afterBlk, 6, 'declare_attackers');
+
+console.log(JSON.stringify({rail, ledger, afterBlk, clearedStep, clearedTurn}));
+"""
+    out = _node_json(script)
+    assert isinstance(out, dict)
+    rail = out["rail"]
+    assert len(rail) == 3
+    assert rail[0]["isTop"] is True and rail[0]["name"] == "Swords to Plowshares"
+    assert rail[0]["controllerLabel"] == "Sitz 2"
+    assert rail[0]["targets"] == ["Llanowar Elves"] and rail[0]["targetsPublished"] is True
+    assert rail[1]["isTop"] is False and rail[1]["name"] == "verdeckt"
+    assert rail[1]["targets"] == [] and rail[1]["targetsPublished"] is False
+    assert "Secret Spell" not in json.dumps(rail)
+    assert rail[2]["isAbility"] is True and rail[2]["displayName"] == "Fähigkeit: Draw a card."
+    assert rail[2]["controllerLabel"] == "Sitz 1"
+    assert rail[2]["targets"] == ["verdeckt", "Sitz 1"]
+
+    ledger = out["ledger"]
+    assert "eigene Angaben" in ledger["label"]
+    assert len(ledger["entries"]) == 1
+    assert ledger["entries"][0]["optionId"] == "opt-atk"
+    assert len(out["afterBlk"]["entries"]) == 2
+    assert out["afterBlk"]["entries"][1]["kind"] == "no_block"
+    assert out["clearedStep"]["entries"] == []
+    assert out["clearedTurn"]["entries"] == []

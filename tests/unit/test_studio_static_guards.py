@@ -1625,3 +1625,51 @@ async function runOrder(delays) {{
         "strengthReady": True,
     }
     assert slow["finalSnap"] == fast["finalSnap"] == expected_snap
+
+
+def test_play_p1a_accessibility_focus_and_static_sinks() -> None:
+    """Issue #1529 (Play P1a): keyboard focus, stack rail, own-combat label, yield modes,
+    and no innerHTML / style= / .toFixed( in the Play P1a files."""
+    html = (STATIC / "partie.html").read_text(encoding="utf-8")
+    css = (STATIC / "partie.css").read_text(encoding="utf-8")
+    partie_js = (STATIC / "partie.js").read_text(encoding="utf-8")
+    p1a_js = (STATIC / "play_p1a.js").read_text(encoding="utf-8")
+    vorspulen_js = (STATIC / "vorspulen.js").read_text(encoding="utf-8")
+    boardclick_js = (STATIC / "boardclick.js").read_text(encoding="utf-8")
+
+    assert html.index('src="play_p1a.js"') < html.index('src="partie.js"')
+    for token in (
+        'id="ff-mode"',
+        'aria-label="Vorspul-Modus"',
+        'value="until_my_turn"',
+        'value="until_end_of_turn"',
+        'value="until_stack_resolves"',
+        'id="own-combat"',
+        'class="stack-rail"',
+    ):
+        assert token in html, token
+
+    for rule in (
+        ".stack-item:focus-visible",
+        "#ff-mode:focus-visible",
+        "button.card:focus-visible",
+        ".own-combat",
+    ):
+        assert rule in css, rule
+
+    assert 'tabindex: "0"' in partie_js
+    assert "appendAutoPassLog(" in partie_js
+    assert "eigene Angaben" in p1a_js
+
+    for name, src in (
+        ("play_p1a.js", p1a_js),
+        ("vorspulen.js", vorspulen_js),
+        ("boardclick.js", boardclick_js),
+        ("partie.js", partie_js),
+        ("partie.html", html),
+    ):
+        for forbidden in ("innerHTML", "outerHTML", "style=", 'setAttribute("style"', ".toFixed("):
+            assert forbidden not in src, f"{name}: {forbidden}"
+
+    for sink in ("document.", "window.", "fetch(", "eval("):
+        assert sink not in p1a_js, sink
