@@ -8,7 +8,7 @@ from __future__ import annotations
 import json
 import random
 import sqlite3
-from collections.abc import Iterator, Sequence
+from collections.abc import Callable, Iterator, Sequence
 from pathlib import Path
 from statistics import median
 
@@ -570,6 +570,328 @@ def _preset_items(presets: dict[str, object]) -> list[tuple[str, dict[str, objec
         if isinstance(item, dict) and isinstance(item.get("settings"), dict):
             found.append((str(item["name"]), dict(item["settings"])))
     return found
+
+
+# -- figures carried over a known user-state write (#1561) -------------------------------
+
+
+def _trace_reads(store: StudioStore, compute: Callable[[], object]) -> dict[str, set[str]]:
+    """The tables (and columns) ``compute`` reads on ``store``'s connection, with every cached
+    figure dropped first so that nothing is served from memory (SQLite authorizer)."""
+    reads: dict[str, set[str]] = {}
+
+    def authorizer(action: int, table: str | None, column: str | None, *_: object) -> int:
+        if action == sqlite3.SQLITE_READ and table:
+            reads.setdefault(table, set()).add(str(column))
+        return sqlite3.SQLITE_OK
+
+    cache.invalidate()
+    store.connection.set_authorizer(authorizer)
+    try:
+        compute()
+    finally:
+        store.connection.set_authorizer(None)
+    return reads
+
+
+def _strength_kind(store: StudioStore) -> object:
+    from commander_lab.studio.web import StrengthBody, strength_answer
+
+    return strength_answer(store, StrengthBody(commander=COMMANDER))
+
+
+# One tracer per declared kind: what computes exactly that figure. A declared kind without a
+# tracer fails ``test_every_import_only_kind_reads_no_user_state``.
+_IMPORT_ONLY_TRACERS: dict[str, Callable[[StudioStore], object]] = {
+    "land_source_groups": lambda store: land_advisor.source_deck_groups(store, [COMMANDER]),
+}
+
+
+def _import_only_violations(
+    store: StudioStore,
+    kinds: frozenset[str],
+    tracers: dict[str, Callable[[StudioStore], object]],
+) -> dict[str, list[str]]:
+    """Per declared kind: the user-state tables its computation reads (or that it has no
+    tracer). Empty means every declaration is proven."""
+    found: dict[str, list[str]] = {}
+    for kind in sorted(kinds):
+        tracer = tracers.get(kind)
+        if tracer is None:
+            found[kind] = ["<no tracer>"]
+            continue
+        reads = _trace_reads(store, lambda tracer=tracer: tracer(store))
+        assert reads, kind  # the tracer really ran SQL
+        touched = sorted(set(reads) & cache.USER_STATE_TABLES)
+        if touched:
+            found[kind] = touched
+    return found
+
+
+def test_every_import_only_kind_reads_no_user_state(tmp_path: Path) -> None:
+    store = _big_store(tmp_path)
+    assert cache.IMPORT_ONLY  # the whitelist is not empty by accident
+    assert _import_only_violations(store, cache.IMPORT_ONLY, _IMPORT_ONLY_TRACERS) == {}
+
+
+def test_a_kind_wrongly_declared_import_only_is_caught(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Mutation counter-test: ``strength`` reads the marks (through ``pool_cards``); declaring
+    it import-only must make the proof fail, and so must a declaration without a tracer."""
+    store = _big_store(tmp_path)
+    monkeypatch.setattr(cache, "IMPORT_ONLY", cache.IMPORT_ONLY | {"strength", "undeclared"})
+    tracers = {**_IMPORT_ONLY_TRACERS, "strength": _strength_kind}
+    violations = _import_only_violations(store, cache.IMPORT_ONLY, tracers)
+    assert "card_mark" in violations["strength"]
+    assert "card_label" in violations["strength"]
+    assert violations["undeclared"] == ["<no tracer>"]
+    assert "land_source_groups" not in violations
+
+
+def _wrapped_writes() -> list[tuple[str, str, str, dict[str, object] | None]]:
+    """Every write route that runs inside ``cache.user_state_write``, with a valid body for the
+    builder fixture (deck ``probe`` is created by the first one)."""
+    commander = "card:project:0001"
+    cards = [{"card_id": commander, "quantity": 1, "zone": "commander"}] + [
+        {"card_id": f"card:project:{100 + i:04d}", "quantity": 1, "zone": "main"} for i in range(5)
+    ]
+    return [
+        ("new_deck", "POST", "/api/decks", {"name": "Probe", "commander_card_ids": [commander]}),
+        ("favorite", "PUT", "/api/cards/card:project:0101/favorite", {"favorite": True}),
+        (
+            "mark_excluded",
+            "PUT",
+            "/api/cards/card:project:0102/mark",
+            {"favorite": False, "excluded": True, "note": "probe"},
+        ),
+        ("card_labels", "PUT", "/api/cards/card:project:0101/labels", {"labels": ["probe"]}),
+        ("deck_labels", "PUT", "/api/decks/probe/labels", {"labels": ["probe"]}),
+        ("draft", "PUT", "/api/decks/probe/branches/main/draft", {"cards": cards}),
+        (
+            "draft_card",
+            "POST",
+            "/api/decks/probe/branches/main/draft/card",
+            {"card_id": "card:project:0110", "delta": 1},
+        ),
+        ("draft_drop", "DELETE", "/api/decks/probe/branches/main/draft", None),
+        ("draft_again", "PUT", "/api/decks/probe/branches/main/draft", {"cards": cards}),
+        ("revision", "POST", "/api/decks/probe/revisions", {"cards": cards[:-1], "note": "x"}),
+        ("primer", "PUT", "/api/decks/probe/primer", {"content": "Probe primer."}),
+    ]
+
+
+def test_the_write_matrix_carries_only_the_declared_figures_and_stays_exact(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Each wrapped write writes only user-state tables, none of them read by a declared kind;
+    afterwards the declared figure is carried (not recomputed) and equals a fresh computation,
+    while every undeclared figure is computed again."""
+    from fastapi.testclient import TestClient
+
+    from commander_lab.studio.web import create_app
+
+    _big_store(tmp_path).close()
+    written: dict[str, set[str]] = {}
+    current: list[str | None] = [None]
+    real_open = StudioStore.open.__func__  # type: ignore[attr-defined]
+
+    def tracing_open(cls: type[StudioStore], folder: object = None) -> StudioStore:
+        opened = real_open(cls, folder)
+
+        def authorizer(action: int, table: str | None, *_: object) -> int:
+            writes = (sqlite3.SQLITE_INSERT, sqlite3.SQLITE_UPDATE, sqlite3.SQLITE_DELETE)
+            if current[0] and action in writes and table and not table.startswith("sqlite_"):
+                written.setdefault(current[0], set()).add(table)
+            return sqlite3.SQLITE_OK
+
+        opened.connection.set_authorizer(authorizer)
+        return opened
+
+    monkeypatch.setattr(StudioStore, "open", classmethod(tracing_open))
+    calls = {"land": 0, "strength": 0}
+    real_land = land_advisor._source_deck_groups_uncached
+
+    def counting_land(store: StudioStore, names: Sequence[str]) -> list[dict[str, object]]:
+        calls["land"] += 1
+        return real_land(store, names)
+
+    monkeypatch.setattr(land_advisor, "_source_deck_groups_uncached", counting_land)
+    cache.invalidate()
+    client = TestClient(create_app(tmp_path / "studio"), headers={"X-Studio": "1"})
+    declared_reads: set[str] = set()
+    probe = StudioStore.open(tmp_path / "studio")
+    assert cache.IMPORT_ONLY
+    for kind in cache.IMPORT_ONLY:
+        declared_reads |= set(
+            _trace_reads(probe, lambda kind=kind: _IMPORT_ONLY_TRACERS[kind](probe))
+        )
+    probe.close()
+    cache.invalidate()
+    writes = _wrapped_writes()
+    assert len(writes) == 11
+    for name, method, path, body in writes:
+        reader = StudioStore.open(tmp_path / "studio")
+        groups = land_advisor.source_deck_groups(reader, [COMMANDER])
+        cache.cached(reader, ("undeclared_probe",), lambda: calls.__setitem__("strength", 1))
+        reader.close()
+        before = calls["land"]
+        current[0] = name
+        response = client.request(method, path, json=body)
+        current[0] = None
+        assert response.status_code == 200, (name, response.text[:200])
+        assert written.get(name), name
+        assert written[name] <= cache.USER_STATE_TABLES, (name, written[name])
+        assert not written[name] & declared_reads, (name, written[name] & declared_reads)
+        reader = StudioStore.open(tmp_path / "studio")
+        carried = land_advisor.source_deck_groups(reader, [COMMANDER])
+        assert calls["land"] == before, name  # carried over, not computed again
+        assert carried is groups
+        calls["strength"] = 0
+        cache.cached(reader, ("undeclared_probe",), lambda: calls.__setitem__("strength", 1))
+        assert calls["strength"] == 1, name  # an undeclared figure is computed again
+        reader.connection.execute("INSERT INTO meta(key, value) VALUES ('pending', 'x')")
+        assert land_advisor.source_deck_groups(reader, [COMMANDER]) == carried  # plain read
+        reader.connection.rollback()
+        reader.close()
+
+
+def test_a_foreign_commit_or_an_import_is_never_served_from_a_carried_figure(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Negative tests: a direct SQL write from another connection between two requests, one
+    inside the write window of a user-state write, and an import all drop the figure."""
+    from fastapi.testclient import TestClient
+
+    from commander_lab.studio import catalog
+    from commander_lab.studio.web import create_app
+    from tests.unit.test_studio_builder import _write_csv
+
+    _big_store(tmp_path).close()
+    client = TestClient(create_app(tmp_path / "studio"), headers={"X-Studio": "1"})
+    calls = [0]
+    real_land = land_advisor._source_deck_groups_uncached
+
+    def counting_land(store: StudioStore, names: Sequence[str]) -> list[dict[str, object]]:
+        calls[0] += 1
+        return real_land(store, names)
+
+    monkeypatch.setattr(land_advisor, "_source_deck_groups_uncached", counting_land)
+    cache.invalidate()
+
+    def groups() -> list[dict[str, object]]:
+        reader = StudioStore.open(tmp_path / "studio")
+        try:
+            return land_advisor.source_deck_groups(reader, [COMMANDER])
+        finally:
+            reader.close()
+
+    def plain() -> list[dict[str, object]]:
+        reader = StudioStore.open(tmp_path / "studio")
+        try:
+            reader.connection.execute("INSERT INTO meta(key, value) VALUES ('pending', 'x')")
+            return land_advisor.source_deck_groups(reader, [COMMANDER])
+        finally:
+            reader.connection.rollback()
+            reader.close()
+
+    # 1. Direct SQL between two requests: a source deck leaves the commander.
+    first = groups()
+    other = sqlite3.connect(tmp_path / "studio" / "studio.sqlite3")
+    other.execute("DELETE FROM commander_binding WHERE kind = 'corpus_deck' AND key = 'g0000'")
+    other.commit()
+    other.close()
+    after_sql = groups()
+    assert calls[0] == 2
+    assert after_sql == plain()
+    assert after_sql != first
+
+    # 2. A foreign commit inside the window of a favourite write: nothing is carried.
+    groups()
+    real_set = builder.set_favorite
+
+    def favourite_with_a_foreign_write(
+        store: StudioStore, card_id: str, favorite: bool
+    ) -> dict[str, object]:
+        found = real_set(store, card_id, favorite)
+        foreign = sqlite3.connect(tmp_path / "studio" / "studio.sqlite3")
+        foreign.execute(
+            "DELETE FROM commander_binding WHERE kind = 'corpus_deck' AND key = 'g0001'"
+        )
+        foreign.commit()
+        foreign.close()
+        return found
+
+    monkeypatch.setattr(builder, "set_favorite", favourite_with_a_foreign_write)
+    before = calls[0]
+    assert (
+        client.put("/api/cards/card:project:0101/favorite", json={"favorite": True}).status_code
+        == 200
+    )
+    window = groups()
+    assert calls[0] == before + 1  # computed again
+    assert window == plain()
+    monkeypatch.setattr(builder, "set_favorite", real_set)
+
+    # 3. An import (a cohort over the commander's decks) after a carried write.
+    assert (
+        client.put("/api/cards/card:project:0101/favorite", json={"favorite": False}).status_code
+        == 200
+    )
+    carried = groups()
+    importer = StudioStore.open(tmp_path / "studio")
+    picked = [{"deck_id": f"g{n:04d}"} for n in range(10, 60)]
+    catalog.import_cohort(importer, _write_csv(tmp_path / "picked.csv", picked), cohort="bracket:4")
+    importer.close()
+    imported = groups()
+    assert imported == plain()
+    assert imported != carried
+
+
+def test_nothing_is_carried_from_a_wal_store_or_after_a_failed_write(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from fastapi.testclient import TestClient
+
+    from commander_lab.studio.web import create_app
+
+    _big_store(tmp_path).close()
+    client = TestClient(create_app(tmp_path / "studio"), headers={"X-Studio": "1"})
+    calls = [0]
+    real_land = land_advisor._source_deck_groups_uncached
+
+    def counting_land(store: StudioStore, names: Sequence[str]) -> list[dict[str, object]]:
+        calls[0] += 1
+        return real_land(store, names)
+
+    monkeypatch.setattr(land_advisor, "_source_deck_groups_uncached", counting_land)
+    cache.invalidate()
+
+    def groups() -> None:
+        reader = StudioStore.open(tmp_path / "studio")
+        land_advisor.source_deck_groups(reader, [COMMANDER])
+        reader.close()
+
+    groups()
+    # an unknown card: the write fails, the store is unchanged, the entry simply stays valid
+    assert client.put("/api/cards/nope/favorite", json={"favorite": True}).status_code == 404
+    groups()
+    assert calls[0] == 1
+    # an unknown deck inside the wrapped block: no carry, and still nothing stale
+    assert client.put("/api/decks/nope/primer", json={"content": "x"}).status_code == 404
+    groups()
+    assert calls[0] == 1
+    wal = sqlite3.connect(tmp_path / "studio" / "studio.sqlite3")
+    assert wal.execute("PRAGMA journal_mode=WAL").fetchone()[0] == "wal"
+    wal.close()
+    groups()
+    before = calls[0]
+    assert (
+        client.put("/api/cards/card:project:0101/favorite", json={"favorite": True}).status_code
+        == 200
+    )
+    groups()
+    assert calls[0] == before + 1  # WAL: the origin cannot be proven, everything is dropped
 
 
 # -- remembered answers of the read routes (#1563) ---------------------------------------
