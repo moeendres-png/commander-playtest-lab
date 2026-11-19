@@ -443,6 +443,8 @@ def _commanders(store: StudioStore) -> dict[str, object]:
     are the keys every figure is bound to."""
     db = store.connection
     details: list[dict[str, object]] = []
+    # Read once for the whole sweep, not once per commander: the stored signal rows.
+    signal_rows = signals.store_signal_rows_by_commander(store)
     for name in _commander_names(db):
         entry: dict[str, object] = {"commander": name}
         try:
@@ -464,7 +466,7 @@ def _commanders(store: StudioStore) -> dict[str, object]:
                 )
             }
             entry["signal_rate_alarms"] = signals.compute_store_signal_rate_alarms(
-                store, commander=name
+                store, commander=name, rows_by_commander=signal_rows
             )
             details.append(entry)
             continue
@@ -477,7 +479,7 @@ def _commanders(store: StudioStore) -> dict[str, object]:
         }
         entry["signals"] = {signal: dict(item) for signal, item in coverage.items()}
         entry["signal_rate_alarms"] = signals.compute_store_signal_rate_alarms(
-            store, commander=name
+            store, commander=name, rows_by_commander=signal_rows
         )
         details.append(entry)
     return {

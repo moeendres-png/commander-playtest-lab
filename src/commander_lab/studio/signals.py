@@ -1687,15 +1687,51 @@ def evaluate_core_signal_rate_alarms(
     return alarms
 
 
+def store_signal_rows_by_commander(store: StudioStore) -> dict[str, list[_Row]]:
+    """Every stored signal row as the rate alarms read it, per commander name, each list in
+    the order ``compute_store_signal_rate_alarms`` reads it (signal, card name)."""
+    found: dict[str, list[_Row]] = {}
+    for r in store.connection.execute(
+        "SELECT commander_name, signal, card_name, value, numerator, denominator "
+        "FROM card_signal ORDER BY commander_name, signal, card_name"
+    ):
+        found.setdefault(str(r[0]), []).append(
+            (
+                str(r[0]),
+                str(r[1]),
+                str(r[2]),
+                float(r[3]) if r[3] is not None else None,
+                int(r[4]) if r[4] is not None else None,
+                int(r[5]) if r[5] is not None else None,
+            )
+        )
+    return found
+
+
 def compute_store_signal_rate_alarms(
     store: StudioStore,
     *,
     commander: str | None = None,
     null_threshold: float = NULL_REASON_RATE_ALARM_THRESHOLD,
     zero_threshold: float = ZERO_NUMERATOR_RATE_ALARM_THRESHOLD,
+    rows_by_commander: Mapping[str, Sequence[_Row]] | None = None,
 ) -> list[SignalRateAlarm]:
-    """Compute core-signal rate alarms across stored rows in ``store`` (#1416)."""
+    """Compute core-signal rate alarms across stored rows in ``store`` (#1416).
+
+    ``rows_by_commander`` (from ``store_signal_rows_by_commander``, read once by a caller that
+    asks for many commanders) replaces the per-call read of one commander's rows; the rows and
+    their order are the same, so are the alarms."""
     db = store.connection
+    if commander is not None and rows_by_commander is not None:
+        cmd = commander.strip()
+        # The SQL order below (commander name first): the independent rows ('') come first.
+        own = rows_by_commander.get(cmd, ()) if cmd else ()
+        return evaluate_core_signal_rate_alarms(
+            [*rows_by_commander.get("", ()), *own],
+            commander=commander,
+            null_threshold=null_threshold,
+            zero_threshold=zero_threshold,
+        )
     if commander is not None:
         cmd = commander.strip()
         sql_rows = db.execute(
