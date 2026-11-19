@@ -15,6 +15,7 @@ from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
+from .german_names import load_german_names
 from .store import StudioStore, now_utc
 
 DECK_SIZE = 100
@@ -435,12 +436,13 @@ def _collection_lookup(
     """Name lookup across collection cards (`card_fact` + `inventory`) and public cards (`scryfall_card`)."""
     coll: dict[str, dict[str, object]] = {}
     for row in store.connection.execute(
-        "SELECT c.card_id, c.oracle_name, c.engine_name, c.color_identity, "
+        "SELECT c.card_id, c.oracle_id, c.oracle_name, c.engine_name, c.color_identity, "
         "c.commander_legal, i.available_lower_bound "
         "FROM card_fact c JOIN inventory i USING (card_id)"
     ):
         info: dict[str, object] = {
             "card_id": str(row["card_id"]),
+            "oracle_id": str(row["oracle_id"]) if row["oracle_id"] else "",
             "name": str(row["oracle_name"]),
             "color_identity": str(row["color_identity"] or ""),
             "commander_legal": row["commander_legal"],
@@ -456,6 +458,7 @@ def _collection_lookup(
         "SELECT oracle_id, name, front_name, color_identity, commander_legality FROM scryfall_card"
     ):
         pinfo: dict[str, object] = {
+            "oracle_id": str(row["oracle_id"]) if row["oracle_id"] else "",
             "name": str(row["name"]),
             "color_identity": str(row["color_identity"] or ""),
             "commander_legal": 1 if row["commander_legality"] == "legal" else 0,
@@ -665,6 +668,11 @@ def parse_decklist_text(
     cmd_set = set(commander_ids)
     cmd_names_cf = {n.casefold() for n in commander_names}
     coll, public = _collection_lookup(store)
+    german = load_german_names()
+    coll_by_oracle = {str(i["oracle_id"]): i for i in coll.values() if i["oracle_id"]}
+    public_by_oracle = {str(i["oracle_id"]): i for i in public.values() if i["oracle_id"]}
+    ambiguous: list[dict[str, object]] = []
+    german_lines = 0
 
     if text.startswith("\ufeff"):
         text = text[1:]
@@ -692,7 +700,7 @@ def parse_decklist_text(
         ignored_annotations.append({"line": lineno, "annotation": _SIDEBOARD_ANNOTATION})
 
     def _classify_entry(qty: int, raw_name: str, lineno: int, raw_line: str) -> None:
-        nonlocal not_in_collection_qty, outside_qty
+        nonlocal not_in_collection_qty, outside_qty, german_lines
         scrubbed = _scrub_amounts(raw_name)
         if scrubbed != raw_name:
             ignored_annotations.append({"line": lineno, "annotation": _PRICE_ANNOTATION})
@@ -714,6 +722,38 @@ def parse_decklist_text(
         if any(v.casefold() in cmd_names_cf for v in variants):
             return
         found = next((h for v in variants if (h := _hit(coll, v)) is not None), None)
+        pub = (
+            None
+            if found is not None
+            else next((h for v in variants if (h := _hit(public, v)) is not None), None)
+        )
+        german_name: str | None = None
+        if found is None and pub is None:
+            # Only a name no English spelling resolves is looked up as a German printed
+            # name; a name that denotes several cards is reported, never guessed.
+            ids = sorted(set[str]().union(*(german.oracle_ids(v) for v in variants)))
+            if len(ids) > 1:
+                ambiguous.append(
+                    {
+                        "line": lineno,
+                        "name": variants[-1],
+                        "quantity": qty,
+                        "status": "mehrdeutig",
+                        "candidates": [
+                            {
+                                "name": german.oracle_name(oid) or oid,
+                                "card_id": (coll_by_oracle.get(oid) or {}).get("card_id"),
+                            }
+                            for oid in ids
+                        ],
+                    }
+                )
+                return
+            if ids:
+                german_lines += 1
+                found = coll_by_oracle.get(ids[0])
+                pub = public_by_oracle.get(ids[0])
+                german_name = german.oracle_name(ids[0])
         if found is not None:
             cid = str(found["card_id"])
             if cid in cmd_set:
@@ -735,8 +775,7 @@ def parse_decklist_text(
             matched_qty[cid] = matched_qty.get(cid, 0) + qty
             matched_info[cid] = found
             return
-        pub = next((h for v in variants if (h := _hit(public, v)) is not None), None)
-        name = variants[-1]
+        name = german_name or variants[-1]
         if pub is not None:
             id_ok = color_set(str(pub["color_identity"] or "")) <= identity
             legal_ok = pub["commander_legal"] == 1
@@ -890,6 +929,8 @@ def parse_decklist_text(
         "in_collection": matched_list,
         "not_in_collection": not_in_collection,
         "outside_color_identity": outside_color_identity,
+        "ambiguous": ambiguous,
+        "german_name_lines": german_lines,
         "unrecognized_lines": unrecognized_lines,
         "ignored_annotations": ignored_annotations,
         "summary": {

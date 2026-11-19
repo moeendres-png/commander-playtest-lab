@@ -2776,6 +2776,7 @@ function openImportDecklistModal() {
       const missing = parsed.not_in_collection || [];
       const illegal = parsed.outside_color_identity || [];
       const badLines = parsed.unrecognized_lines || [];
+      const unclear = parsed.ambiguous || [];
       const applyImport = () => {
         useCards(cards);
         changed();
@@ -2793,6 +2794,9 @@ function openImportDecklistModal() {
         missing.length ? h("div", {},
           h("h3", {}, `Nicht in deiner Sammlung (${StudioUI.num(missing.length, 0)})`),
           h("ul", {}, missing.map((m) => h("li", {}, `${StudioUI.num(m.quantity, 0)}x ${m.name} — nicht in deiner Sammlung`)))) : null,
+        unclear.length ? h("div", {},
+          h("h3", {}, `Mehrdeutige Namen, nicht übernommen (${StudioUI.num(unclear.length, 0)})`),
+          h("ul", {}, unclear.map((m) => h("li", {}, `Zeile ${StudioUI.num(m.line, 0)}: ${StudioUI.num(m.quantity, 0)}x ${m.name} — bezeichnet mehrere Karten: ${m.candidates.map((c) => c.name).join(" / ")}`)))) : null,
         badLines.length ? h("div", {},
           h("h3", {}, `Nicht erkannte Zeilen (${StudioUI.num(badLines.length, 0)})`),
           h("ul", {}, badLines.slice(0, 15).map((b) => h("li", {}, `Zeile ${StudioUI.num(b.line, 0)}: ${b.raw} (${b.reason})`)))) : null

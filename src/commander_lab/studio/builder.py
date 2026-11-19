@@ -29,6 +29,7 @@ from commander_lab.models import RulesDeckInput
 
 from . import cache
 from .decks import RevisionCard, color_set, list_rows
+from .german_names import load_german_names
 from .store import BINDING_KINDS, StudioStore, now_utc
 
 if TYPE_CHECKING:
@@ -486,6 +487,15 @@ def playgroup_entry(pg: sqlite3.Row | None) -> dict[str, object] | None:
     }
 
 
+def _german_alias_names(oracle_id: object, oracle_name: str) -> list[str] | None:
+    """The German printed names of a card that differ from its Oracle name, or ``None``
+    when the print data holds no German name for it (unknown)."""
+    names = load_german_names().names_for(oracle_id)
+    if names is None:
+        return None
+    return [name for name in names if name.casefold() != oracle_name.casefold()]
+
+
 def pool_cards(
     store: StudioStore,
     commander_names: Sequence[str],
@@ -571,6 +581,9 @@ def pool_cards(
                 "card_id": card_id,
                 "oracle_id": row["oracle_id"],
                 "name": row["oracle_name"],
+                # German printed names (#1553), only those that differ from the Oracle name;
+                # None: the print data holds none for this card (unknown, not "has none").
+                "names_de": _german_alias_names(row["oracle_id"], str(row["oracle_name"])),
                 "mana_cost": row["mana_cost"] or "",
                 "mana_value": row["mana_value"],
                 "type_line": row["type_line"] or "",
