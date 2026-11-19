@@ -327,9 +327,12 @@ def private_engine_accesses(studio_paths: list[Path], engine_paths: list[Path]) 
             receiver = node.value
             if isinstance(receiver, ast.Name) and receiver.id in {"self", "cls"}:
                 continue
-            if isinstance(receiver, ast.Call) and isinstance(receiver.func, ast.Name):
-                if receiver.func.id == "super":
-                    continue
+            if (
+                isinstance(receiver, ast.Call)
+                and isinstance(receiver.func, ast.Name)
+                and receiver.func.id == "super"
+            ):
+                continue
             if node.attr in engine_names and node.attr not in studio_names:
                 hits.append(f"{path.name}:{node.lineno} {node.attr}")
         for node in ast.walk(tree):
