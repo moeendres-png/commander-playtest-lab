@@ -38,11 +38,12 @@ jobs:
           # Slim checkout (#1570): only the files scripts/ci_change_scope.py reads. It parses
           # pyproject.toml for the console-script modules (without it every pull request would
           # run everything). The diff is read between the two commits, which needs no working
-          # tree files; the base commit is fetched below.
+          # tree files; the base commit is fetched below. The leading slash keeps the
+          # non-cone pattern to the root pyproject.toml.
           persist-credentials: false
           sparse-checkout: |
             scripts/ci_change_scope.py
-            pyproject.toml
+            /pyproject.toml
           sparse-checkout-cone-mode: false
       - name: Classify the change
         id: scope

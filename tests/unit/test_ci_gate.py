@@ -213,7 +213,7 @@ def _sparse_checkout(job: dict) -> tuple[dict, list[str]]:
     [
         # ci_change_scope.py reads pyproject.toml; without it every pull request would fall
         # back to the full run (packaging always on) and no other test would notice.
-        ("changes", ["scripts/ci_change_scope.py", "pyproject.toml"]),
+        ("changes", ["scripts/ci_change_scope.py", "/pyproject.toml"]),
         ("quality", ["scripts/ci_gate.py"]),
         ("security", ["scripts/ci_gate.py"]),
     ],
@@ -227,11 +227,12 @@ def test_changes_and_gate_jobs_use_a_slim_checkout_without_credentials(
     assert options.get("sparse-checkout-cone-mode") is False
     assert options.get("persist-credentials") is False
     assert "fetch-depth" not in options and "ref" not in options
-    for path in files:
+    paths = [path.removeprefix("/") for path in files]
+    for path in paths:
         assert (ROOT / path).is_file(), path
     for step in job["steps"]:
         for token in re.findall(r"scripts/[A-Za-z0-9_./-]+\.py", str(step.get("run", ""))):
-            assert token in files, f"{job_name} runs {token}, which its checkout leaves out"
+            assert token in paths, f"{job_name} runs {token}, which its checkout leaves out"
 
 
 def test_changes_still_fetches_the_base_commit_for_the_diff() -> None:
