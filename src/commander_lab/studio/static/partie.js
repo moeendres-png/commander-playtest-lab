@@ -3,7 +3,7 @@
 // and what the pilots chose; it never works out a rule itself.
 
 const PHASES = { beginning: "Beginn", precombat_main: "Hauptphase 1", combat: "Kampf", postcombat_main: "Hauptphase 2", end: "Ende" };
-const STEPS = { untap: "Enttappen", upkeep: "Versorgung", draw: "Ziehen", precombat_main: "Hauptphase 1", beginning_combat: "Kampfbeginn", declare_attackers: "Angreifer", declare_blockers: "Blocker", first_combat_damage: "Erstschlagschaden", combat_damage: "Kampfschaden", end_combat: "Kampfende", postcombat_main: "Hauptphase 2", end_turn: "Endsegment", cleanup: "Aufräumen" };
+const STEPS = { untap: "Enttappen", upkeep: "Versorgung", draw: "Ziehen", precombat_main: "Hauptphase 1", begin_combat: "Kampfbeginn", declare_attackers: "Angreifer", declare_blockers: "Blocker", first_combat_damage: "Erstschlagschaden", combat_damage: "Kampfschaden", end_combat: "Kampfende", postcombat_main: "Hauptphase 2", end_turn: "Endsegment", cleanup: "Aufräumen" };
 const CLASSES = { priority: "Aktion", mana_payment: "Mana zahlen", choose_object: "Auswahl", choose_use: "Ja oder Nein", target: "Ziel", declare_attacker: "Angriff", declare_blocker: "Block", mulligan: "Mulligan", choice: "Wahl", trigger_order: "Reihenfolge", announce_x: "Wert für X", amount: "Anzahl", multi_amount: "Verteilung", mode: "Modus", pile: "Stapelwahl", target_amount: "Zielmenge", replacement_effect: "Ersatzeffekt", order: "Reihenfolge" };
 // Table sizes the Studio offers: two to four players. Five and six stay locked until a qualification
 // and an explicit Owner decision (AGENTS.md); the server refuses them too (launch.MAX_RELEASED_SEATS).
@@ -14,7 +14,7 @@ const SPEEDS = [[2000, "langsam"], [1000, "1 pro Sekunde"], [500, "2 pro Sekunde
 const POOL_COLORS = { white: "Weiß", blue: "Blau", black: "Schwarz", red: "Rot", green: "Grün", colorless: "Farblos" };
 const OPTION_TYPES = { pass_priority: "Passen", play_land: "Land spielen", cast_spell: "Zauber wirken", activated_ability: "Fähigkeit aktivieren", mana_ability: "Mana-Fähigkeit", special_action: "Sonderaktion", target: "Ziel", choose_object: "Objekt wählen", attacker: "Angreifer", blocker: "Blocker", mode: "Modus", choice: "Auswahl", mana_payment: "Mana", trigger_order: "Auslöser", yes: "Ja", no: "Nein" };
 
-const state = { click: null, clickActive: false, menu: null, openZone: null, games: [], gameId: null, header: null, result: null, running: false, interactive: false, humanSeats: [], pendingDecision: null, pendingDecisionId: null, selectedOptions: [], orderList: [], submitting: false, canConcede: false, handsRevealed: false, autoPassAttempt: null, pollFailures: 0, ff: { on: false, boosted: false, startTurn: null, stopOnOpponentStack: true }, frames: [], index: 0, playing: false, timer: 0, facts: {}, noImage: new Set(), lines: [], seatKeys: [], poll: 0 };
+const state = { click: null, clickActive: false, menu: null, openZone: null, games: [], gameId: null, header: null, result: null, running: false, interactive: false, humanSeats: [], pendingDecision: null, pendingDecisionId: null, selectedOptions: [], orderList: [], submitting: false, canConcede: false, handsRevealed: false, autoPassAttempt: null, pollFailures: 0, ownCombat: StudioPlayP1a.emptyCombatLedger(), ff: { on: false, boosted: false, mode: "until_my_turn", startTurn: null, stopOnOpponentStack: true, watchStackObjectId: null }, frames: [], index: 0, playing: false, timer: 0, facts: {}, noImage: new Set(), lines: [], seatKeys: [], poll: 0 };
 
 const $ = (id) => document.getElementById(id);
 function h(tag, props, ...children) {
@@ -690,13 +690,21 @@ function pilotStateToFrame(pending) {
   };
 }
 
-async function submitHumanChoice(payload) {
+// opts.autoPassReason marks an automatic pass: its log line is written only after the engine
+// accepted the answer (play_p1a.js submitAnswer), a refused pass leaves no line.
+async function submitHumanChoice(payload, opts) {
   if (!state.gameId || !state.pendingDecision || state.submitting) return;
   if (!state.ff.on) ffStatus("");
   state.submitting = true;
   renderHumanDecision();
   try {
-    await api(`/api/play/${encodeURIComponent(state.gameId)}/decision`, "POST", payload);
+    await StudioPlayP1a.submitAnswer({
+      getPendingDecision: () => state.pendingDecision,
+      post: (body) => api(`/api/play/${encodeURIComponent(state.gameId)}/decision`, "POST", body),
+      getLedger: () => state.ownCombat,
+      setLedger: (ledger) => { state.ownCombat = ledger; },
+      logAutoPass: appendAutoPassLog
+    }, payload, opts);
     state.selectedOptions = [];
     state.orderList = [];
     await loadMore();
@@ -728,6 +736,35 @@ function ffStatus(text, kind) {
   box.textContent = text || "";
   box.hidden = !text;
   box.className = `ff-status${kind ? ` ${kind}` : ""}`;
+}
+function selectedFastForwardMode() {
+  const sel = $("ff-mode");
+  return sel && sel.value ? sel.value : "until_my_turn";
+}
+function topStackObjectId() {
+  const stack = state.pendingDecision && state.pendingDecision.pilot_state && state.pendingDecision.pilot_state.stack;
+  if (!Array.isArray(stack) || !stack.length) return null;
+  const top = stack[0];
+  return top && typeof top.object_id === "string" && top.object_id ? top.object_id : null;
+}
+function appendAutoPassLog(line) {
+  const log = $("log");
+  if (!log || !line) return;
+  const el = h("div", { class: "line event auto-pass" },
+    h("span", { class: `tag s${line.seat}` }, line.tag),
+    h("span", null, line.text));
+  log.append(el);
+  state.lines.push({ index: Math.max(0, state.frames.length - 1), el });
+}
+// The "stop at opponent spells" checkbox does nothing in the mode "until the stack entry resolved":
+// it is disabled there and the page says why (vorspulen.js stackCheckboxState).
+function syncFastForwardControls() {
+  const box = $("ff-stack");
+  const hint = $("ff-stack-hint");
+  if (!box) return;
+  const info = StudioFastForward.stackCheckboxState(selectedFastForwardMode());
+  box.disabled = info.disabled;
+  if (hint) { hint.textContent = info.hint; hint.hidden = !info.hint; }
 }
 function renderFastForwardButton() {
   const button = $("ff-btn");
@@ -762,8 +799,10 @@ function currentTurn() {
 }
 function startFastForward() {
   if (state.ff.on || !state.interactive || !state.running) return;
-  state.ff = { on: true, boosted: true, startTurn: currentTurn(), stopOnOpponentStack: $("ff-stack").checked };
-  ffStatus("Vorspulen läuft: auf Prioritätsabfragen wird nur „Passen“ gesendet. Es hält an, sobald dein Zug beginnt oder du etwas anderes entscheiden musst.", "run");
+  const mode = selectedFastForwardMode();
+  const watchStackObjectId = mode === "until_stack_resolves" ? topStackObjectId() : null;
+  state.ff = { on: true, boosted: true, mode, startTurn: currentTurn(), stopOnOpponentStack: $("ff-stack").checked, watchStackObjectId };
+  ffStatus(`Vorspulen läuft (${StudioFastForward.modeLabel(mode)}): auf Prioritätsabfragen wird nur „Passen“ gesendet. Bei jeder anderen Entscheidung hält es sofort an.`, "run");
   renderFastForwardButton();
   setAiDelay(0);
   if (state.pendingDecision) maybeAutoPassHuman(state.pendingDecision);
@@ -772,7 +811,7 @@ function startFastForward() {
 function endFastForward(reason) {
   if (!state.ff.on) return;
   const boosted = state.ff.boosted;
-  state.ff = { on: false, boosted: false, startTurn: null, stopOnOpponentStack: $("ff-stack").checked };
+  state.ff = { on: false, boosted: false, mode: selectedFastForwardMode(), startTurn: null, stopOnOpponentStack: $("ff-stack").checked, watchStackObjectId: null };
   state.autoPassAttempt = null; // a pass that was never sent must not block the next try
   if (boosted) setAiDelay(Number($("speed").value));
   ffStatus(`Vorspulen beendet: ${reason}.`, "stop");
@@ -786,13 +825,16 @@ function maybeAutoPassHuman(pending) {
   if (state.ff.on) {
     // Fast-forward: the pass option of the engine on a priority question, otherwise it stops.
     const verdict = StudioFastForward.verdict(pending, {
+      mode: state.ff.mode,
       startTurn: state.ff.startTurn,
       stopOnOpponentStack: state.ff.stopOnOpponentStack,
+      watchStackObjectId: state.ff.watchStackObjectId,
       labelOf: (value) => CLASSES[value] || value
     });
     if (verdict.action !== "pass") { endFastForward(verdict.reason); return false; }
     state.autoPassAttempt = pending.decision_id;
-    submitHumanChoice({ decision_id: pending.decision_id, selected_option_ids: [verdict.optionId], ordering: [] });
+    submitHumanChoice({ decision_id: pending.decision_id, selected_option_ids: [verdict.optionId], ordering: [] },
+      { autoPassReason: StudioFastForward.modeLabel(state.ff.mode) });
     return true;
   }
   const autoBox = $("auto-pass-human");
@@ -812,7 +854,7 @@ function maybeAutoPassHuman(pending) {
     decision_id: pending.decision_id,
     selected_option_ids: [passOpt.option_id],
     ordering: []
-  });
+  }, { autoPassReason: "Auto-Pass bis eigene Aktion" });
   return true;
 }
 
@@ -1073,6 +1115,61 @@ function renderBridgeBanner() {
   banner.hidden = false;
 }
 
+function renderOwnCombat(frame, atLiveTail) {
+  const box = $("own-combat");
+  if (!box) return;
+  // the ledger is cleaned up only at the live end; a rewind just hides the box (play_p1a.js)
+  const view = StudioPlayP1a.ownCombatView(state.ownCombat, frame, Boolean(atLiveTail), state.interactive);
+  state.ownCombat = view.ledger;
+  box.textContent = "";
+  if (!view.visible) {
+    box.hidden = true;
+    return;
+  }
+  box.append(
+    h("div", { class: "own-combat-title" }, state.ownCombat.label),
+    h("ul", { class: "own-combat-list" }, state.ownCombat.entries.map((entry) => h("li", null, localizeActionText(entry.text))))
+  );
+  box.hidden = false;
+}
+
+function renderStackRail(frame, atLiveTail) {
+  const stack = $("stack");
+  if (!stack) return;
+  stack.textContent = "";
+  const pilotState = atLiveTail && state.pendingDecision && state.pendingDecision.pilot_state
+    ? state.pendingDecision.pilot_state
+    : {
+        players: [],
+        stack: (frame.stack || []).map((name, at) => ({
+          name: name === "(verdeckt)" ? null : name,
+          face_down: name === "(verdeckt)",
+          object_id: (frame.stack_ids || [])[at] || null
+        }))
+      };
+  const rail = StudioPlayP1a.buildStackRail(pilotState, seatName);
+  if (!rail.length) {
+    stack.append(h("span", { class: "muted" }, "leer"));
+    return;
+  }
+  for (const item of rail) {
+    const body = h("div", { class: "stack-item-body" },
+      h("div", { class: "stack-item-head" },
+        item.isTop && h("span", { class: "pill warn" }, "oben"),
+        h("span", { class: "stack-item-name" }, item.displayName)),
+      item.controllerLabel && h("div", { class: "stack-item-meta" }, `Kontrolle: ${item.controllerLabel}`),
+      item.targetsPublished && h("div", { class: "stack-item-targets" }, `Ziel: ${item.targets.join(", ")}`)
+    );
+    const tile = item.isAbility
+      ? null
+      : cardTile(item.faceDown ? "(verdeckt)" : item.name, { small: true, objectId: item.objectId });
+    stack.append(h("div", {
+      class: `stack-item${item.isTop ? " top" : ""}`,
+      role: "listitem"
+    }, tile, body));
+  }
+}
+
 function render() {
   renderBridgeBanner();
   if (state.ff.on && !state.running) endFastForward("die Partie ist zu Ende");
@@ -1120,9 +1217,8 @@ function render() {
     h("div", { class: "what" }, atLiveTail ? "Wartet auf deine Entscheidung" : answer(frame)),
     h("div", { class: "ask" }, [CLASSES[frame.decision_class] || frame.decision_class, frame.prompt, frame.source ? `Quelle: ${frame.source}` : null, `${frame.options} Möglichkeiten`].filter(Boolean).join(" · ")),
     h("div", { class: "hint" }, "Der Spielstand zeigt den Tisch zum Zeitpunkt der Frage; das Ergebnis der gewählten Aktion wird im nächsten Schritt sichtbar."));
-  const stack = $("stack"); stack.textContent = "";
-  if (frame.stack.length) frame.stack.forEach((name, at) => stack.append(name.startsWith("stack ability") ? h("div", { class: "muted" }, name.replace(/^stack ability \(/, "Fähigkeit: ").replace(/\)$/, "")) : cardTile(name, { small: true, objectId: (frame.stack_ids || [])[at] })));
-  else stack.append(h("span", { class: "muted" }, "leer"));
+  renderOwnCombat(frame, atLiveTail);
+  renderStackRail(frame, atLiveTail);
   const actor = frame.players.find((player) => player.seat === frame.seat);
   const handOwner = actor && Array.isArray(actor.hand)
     ? actor
@@ -1307,7 +1403,7 @@ async function openGame(gameId) {
   restoreAiDelayOnLeave(state.gameId);
   const listed = state.games.find((entry) => entry.game_id === gameId);
   const listedInteractive = Boolean(listed && listed.header && Array.isArray(listed.header.human_seats) && listed.header.human_seats.length);
-  Object.assign(state, { gameId, frames: [], lines: [], index: 0, seatKeys: [], header: null, result: null, interactive: listedInteractive, humanSeats: [], pendingDecision: null, pendingDecisionId: null, selectedOptions: [], orderList: [], submitting: false, canConcede: false, handsRevealed: false, autoPassAttempt: null, pollFailures: 0, ff: { on: false, boosted: false, startTurn: null, stopOnOpponentStack: $("ff-stack").checked } });
+  Object.assign(state, { gameId, frames: [], lines: [], index: 0, seatKeys: [], header: null, result: null, interactive: listedInteractive, humanSeats: [], pendingDecision: null, pendingDecisionId: null, selectedOptions: [], orderList: [], submitting: false, canConcede: false, handsRevealed: false, autoPassAttempt: null, pollFailures: 0, ownCombat: StudioPlayP1a.emptyCombatLedger(), ff: { on: false, boosted: false, mode: selectedFastForwardMode(), startTurn: null, stopOnOpponentStack: $("ff-stack").checked, watchStackObjectId: null } });
   ffStatus(""); showConnectionLost(0, "");
   $("log").textContent = ""; $("table").textContent = ""; delete $("table").dataset.banner;
   await loadMore();
@@ -1501,8 +1597,10 @@ async function listGames(wanted) {
     state.canConcede = false;
     state.frames = [];
     state.lines = [];
+    state.ownCombat = StudioPlayP1a.emptyCombatLedger();
     $("game-info").textContent = "";
     $("now").textContent = "";
+    if ($("own-combat")) { $("own-combat").textContent = ""; $("own-combat").hidden = true; }
     $("stack").textContent = "";
     $("hand").textContent = "";
     $("log").textContent = "";
@@ -1530,6 +1628,12 @@ async function start() {
   });
   window.addEventListener("pagehide", () => restoreAiDelayOnLeave(state.gameId));
   $("ff-btn").addEventListener("click", () => { if (state.ff.on) endFastForward("von dir beendet"); else startFastForward(); });
+  $("ff-mode").addEventListener("change", () => {
+    syncFastForwardControls();
+    // a run in progress takes the target of the new mode from the table as it is now
+    if (state.ff.on) state.ff = StudioFastForward.retarget(state.ff, selectedFastForwardMode(), { topStackObjectId: topStackObjectId(), currentTurn: currentTurn() });
+  });
+  syncFastForwardControls();
   $("ff-stack").addEventListener("change", () => { state.ff.stopOnOpponentStack = $("ff-stack").checked; });
   $("first").addEventListener("click", () => go(0));
   $("back").addEventListener("click", () => step(-1));
