@@ -79,6 +79,9 @@ TIER_POLICY: dict[str, object] = {
 }
 
 _COMBOS_PATH = Path(__file__).resolve().parents[3] / "data" / "meta" / "spellbook_combos.json"
+# The data files ``pool_evidence`` reads on every call: part of the key of the remembered
+# ``/api/evidence`` answer (``answer_cache``), so a changed file is seen at once.
+ANSWER_FILES = (_COMBOS_PATH,)
 _GAME_COHORT_PREFIXES = ("playgroup",)
 _ETB = re.compile(r"\b(?:when|whenever)\b[^.\n]*\benters\b", re.IGNORECASE)
 _ADD_MANA = re.compile(r"\badd\b[^.\n]*\{", re.IGNORECASE)
