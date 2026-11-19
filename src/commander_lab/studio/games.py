@@ -14,11 +14,13 @@ from __future__ import annotations
 
 import contextlib
 import gzip
+import hashlib
 import html
+import itertools
 import json
 import re
 import time
-from collections.abc import Iterator, Mapping
+from collections.abc import Iterator, Mapping, Sequence
 from collections.abc import Set as AbstractSet
 from functools import lru_cache
 from pathlib import Path
@@ -332,7 +334,9 @@ class GameRecorder:
 
     def save_event_log(self, events: object) -> None:
         if isinstance(events, list):
-            self._events = [item for item in events if isinstance(item, dict)]
+            self._events = canonicalize_event_log(
+                [item for item in events if isinstance(item, Mapping)]
+            )
 
     def close(self, result: Mapping[str, object]) -> Path:
         """Write the closing entry and pack the log. Returns the packed file."""
@@ -354,6 +358,48 @@ class GameRecorder:
                 target.write(chunk)
         self.path.unlink()
         return packed
+
+
+def _event_step_group(event: Mapping[str, object]) -> tuple[object, object]:
+    return (event.get("turn"), event.get("step"))
+
+
+def _event_content_key(event: Mapping[str, object]) -> str:
+    payload = {key: value for key, value in event.items() if key != "sequence"}
+    return json.dumps(payload, sort_keys=True, ensure_ascii=False, separators=(",", ":"))
+
+
+def canonicalize_event_log(events: Sequence[Mapping[str, object]]) -> list[dict[str, object]]:
+    """Return a copy of ``events`` with simultaneous events in each ``(turn, step)`` stably ordered.
+
+    Contiguous runs sharing ``(turn, step)`` are sorted by their canonical JSON content (ignoring
+    ``sequence``) so non-deterministic iteration order of simultaneous engine events (such as
+    combat damage to multiple permanents) yields an identical sequence and digest across runs,
+    while preserving chronological step and turn boundaries.
+    """
+    canonical: list[dict[str, object]] = []
+    seq = 0
+    for _group_key, group in itertools.groupby(events, key=_event_step_group):
+        ordered = sorted(group, key=_event_content_key)
+        for item in ordered:
+            seq += 1
+            entry = dict(item)
+            if "sequence" in entry:
+                entry["sequence"] = seq
+            canonical.append(entry)
+    return canonical
+
+
+def event_log_sha256(events: Sequence[Mapping[str, object]]) -> str:
+    """Deterministic SHA-256 hex digest of ``events`` after canonicalizing simultaneous entries."""
+    canonical = canonicalize_event_log(events)
+    stripped = [
+        {key: value for key, value in entry.items() if key != "sequence"} for entry in canonical
+    ]
+    encoded = json.dumps(
+        stripped, sort_keys=True, ensure_ascii=False, separators=(",", ":")
+    ).encode("utf-8")
+    return hashlib.sha256(encoded).hexdigest()
 
 
 class RecordingPolicy:
@@ -553,8 +599,17 @@ def read_game(
             "failure_class": "abgebrochen",
             "failure_message": failure_msg,
         }
-    if result is not None and out_content and "stdout" not in result:
-        result["stdout"] = out_content
+    if result is not None:
+        raw_events = result.get("event_log")
+        needs_stdout = bool(out_content and "stdout" not in result)
+        if isinstance(raw_events, list) or needs_stdout:
+            result = dict(result)
+            if isinstance(raw_events, list):
+                result["event_log"] = canonicalize_event_log(
+                    [item for item in raw_events if isinstance(item, Mapping)]
+                )
+            if needs_stdout and out_content is not None:
+                result["stdout"] = out_content
     return {
         "header": header,
         "frames": frames,

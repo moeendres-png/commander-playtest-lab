@@ -558,3 +558,164 @@ def test_java_major_version_is_read_from_both_version_formats() -> None:
     assert launch._parse_java_major('openjdk version "21" 2023-09-19') == 21
     assert launch._parse_java_major("keine Versionsangabe") is None
     assert launch._java_major("/nonexistent/java-binary") is None
+
+
+def test_canonicalize_event_log_orders_simultaneous_events_stably_across_permutations() -> None:
+    import random
+
+    before_combat: list[dict[str, object]] = [
+        {
+            "sequence": 1,
+            "type": "BEGIN_TURN",
+            "turn": 5,
+            "step": "UNTAP",
+            "player_player": "seat_1",
+        },
+        {
+            "sequence": 2,
+            "type": "DECLARED_ATTACKERS",
+            "turn": 5,
+            "step": "DECLARE_ATTACKERS",
+            "player_player": "seat_1",
+        },
+    ]
+    simultaneous: list[dict[str, object]] = [
+        {
+            "sequence": 3,
+            "type": "DAMAGED_PERMANENT",
+            "turn": 5,
+            "step": "COMBAT_DAMAGE",
+            "combat": True,
+            "amount": 3,
+            "source_name": "Llanowar Elves",
+            "target_name": "Runeclaw Bear",
+        },
+        {
+            "sequence": 4,
+            "type": "DAMAGED_PERMANENT",
+            "turn": 5,
+            "step": "COMBAT_DAMAGE",
+            "combat": True,
+            "amount": 2,
+            "source_name": "Runeclaw Bear",
+            "target_name": "Llanowar Elves",
+        },
+        {
+            "sequence": 5,
+            "type": "DAMAGED_PLAYER",
+            "turn": 5,
+            "step": "COMBAT_DAMAGE",
+            "combat": True,
+            "amount": 4,
+            "source_name": "Questing Beast",
+            "target_player": "seat_2",
+        },
+    ]
+    after_combat: list[dict[str, object]] = [
+        {
+            "sequence": 6,
+            "type": "SPELL_CAST",
+            "turn": 5,
+            "step": "POSTCOMBAT_MAIN",
+            "source_name": "Cultivate",
+        },
+        {
+            "sequence": 7,
+            "type": "BEGIN_TURN",
+            "turn": 6,
+            "step": "UNTAP",
+            "player_player": "seat_2",
+        },
+    ]
+
+    rng = random.Random(1595)
+    canonical_runs: list[list[dict[str, object]]] = []
+    hashes: set[str] = set()
+    for _ in range(10):
+        shuffled = [dict(ev) for ev in simultaneous]
+        rng.shuffle(shuffled)
+        combined = [dict(ev) for ev in before_combat] + shuffled + [dict(ev) for ev in after_combat]
+        for idx, ev in enumerate(combined, start=1):
+            ev["sequence"] = idx
+        canon = games.canonicalize_event_log(combined)
+        canonical_runs.append(canon)
+        hashes.add(games.event_log_sha256(combined))
+
+    assert len(hashes) == 1
+    first = canonical_runs[0]
+    for run in canonical_runs[1:]:
+        assert run == first
+    # Idempotence & preserved chronological step boundaries
+    assert games.canonicalize_event_log(first) == first
+    assert [ev["sequence"] for ev in first] == list(range(1, len(first) + 1))
+    assert [ev["step"] for ev in first] == [
+        "UNTAP",
+        "DECLARE_ATTACKERS",
+        "COMBAT_DAMAGE",
+        "COMBAT_DAMAGE",
+        "COMBAT_DAMAGE",
+        "POSTCOMBAT_MAIN",
+        "UNTAP",
+    ]
+    assert [ev["turn"] for ev in first] == [5, 5, 5, 5, 5, 5, 6]
+
+    # Negative control: an actual semantic change changes the digest
+    altered = [dict(ev) for ev in first]
+    altered[2] = {**altered[2], "amount": 99}
+    assert games.event_log_sha256(altered) != next(iter(hashes))
+
+
+def test_recorder_and_read_game_canonicalize_event_log_including_legacy_logs(
+    tmp_path: Path,
+) -> None:
+    import gzip
+    import json
+
+    ev_a: dict[str, object] = {
+        "sequence": 1,
+        "type": "DAMAGED_PERMANENT",
+        "turn": 4,
+        "step": "COMBAT_DAMAGE",
+        "amount": 2,
+        "target_name": "Alpha",
+    }
+    ev_b: dict[str, object] = {
+        "sequence": 2,
+        "type": "DAMAGED_PERMANENT",
+        "turn": 4,
+        "step": "COMBAT_DAMAGE",
+        "amount": 2,
+        "target_name": "Beta",
+    }
+
+    rec1 = games.GameRecorder(tmp_path, "run-a", HEADER)
+    rec1.save_event_log([ev_a, ev_b])
+    rec1.close({"status": "finished"})
+
+    rec2 = games.GameRecorder(tmp_path, "run-b", HEADER)
+    rec2.save_event_log([{**ev_b, "sequence": 1}, {**ev_a, "sequence": 2}])
+    rec2.close({"status": "finished"})
+
+    g1 = games.read_game(tmp_path, "run-a")
+    g2 = games.read_game(tmp_path, "run-b")
+    assert g1["result"]["event_log"] == g2["result"]["event_log"]
+    assert games.event_log_sha256(g1["result"]["event_log"]) == games.event_log_sha256(
+        g2["result"]["event_log"]
+    )
+
+    # Legacy log written in swapped order on disk must also be canonicalized on read
+    legacy_path = tmp_path / "games" / "legacy-swapped.jsonl.gz"
+    with gzip.open(legacy_path, "wt", encoding="utf-8") as fh:
+        fh.write(json.dumps({"kind": "header", "schema": games.LOG_SCHEMA, **HEADER}) + "\n")
+        fh.write(
+            json.dumps(
+                {
+                    "kind": "result",
+                    "status": "finished",
+                    "event_log": [{**ev_b, "sequence": 1}, {**ev_a, "sequence": 2}],
+                }
+            )
+            + "\n"
+        )
+    legacy = games.read_game(tmp_path, "legacy-swapped")
+    assert legacy["result"]["event_log"] == g1["result"]["event_log"]
