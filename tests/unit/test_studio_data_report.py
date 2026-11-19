@@ -463,6 +463,10 @@ def test_signal_source_dates_come_from_the_readme_never_from_an_id_fragment(
     assert _snapshot_from_signal_path(other) is None  # unlisted: stays unknown
     assert _decklist_snapshot_date("universe:abc:12", other) is None
     assert _decklist_snapshot_date("2026-13-45", other) is None  # not a calendar date
+    # a date in the name of a deck-list file is when it was generated, not a retrieval date
+    named = tmp_path / "chulane_corpus_decklist_inclusion_20261115.csv"
+    named.write_text("card_name\nA\n", encoding="utf-8")
+    assert _decklist_snapshot_date("universe:abc:12", named) is None
     assert _decklist_snapshot_date("universe:abc:12", path) == "2026-11-12"
     assert _decklist_snapshot_date("2026-11-15T10:00", other) == "2026-11-15"
 

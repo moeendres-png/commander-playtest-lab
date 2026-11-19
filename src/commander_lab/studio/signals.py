@@ -1217,12 +1217,14 @@ def _snapshot_from_signal_path(path: Path) -> str | None:
 
 
 def _decklist_snapshot_date(snapshot: object, path: Path) -> str | None:
-    """A date for a counted deck-list source: the snapshot when it is a date, otherwise the date
-    the file name or its folder README states; never an id fragment (#1545)."""
+    """A date for a counted deck-list source: the snapshot when it is a calendar date, otherwise
+    only the ``Abruf`` date the folder README states. A date in the file name is not taken here:
+    for an inclusion file it is when the file was generated, not when the lists were fetched; and
+    never an id fragment (#1545)."""
     m = re.fullmatch(r"(20\d{2})-(\d{2})-(\d{2})", str(snapshot or "")[:10])
     if m and (found := _calendar_date(m.group(1), m.group(2), m.group(3))):
         return found
-    return _snapshot_from_signal_path(path)
+    return readme_retrieval_date(path)
 
 
 def _register(store: StudioStore, paths: list[Path]) -> str | None:

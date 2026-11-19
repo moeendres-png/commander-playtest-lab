@@ -166,9 +166,12 @@ def _scryfall(db: sqlite3.Connection, today: date) -> dict[str, object]:
 UNKNOWN = "unbekannt"
 _ISO_DATE = re.compile(r"\d{4}-\d{2}-\d{2}(?:[T ].*)?")
 SNAPSHOT_DATE_ORIGIN = (
-    "source.snapshot_date, written at import and only from a stated retrieval date (a date field "
-    "of the file, a date in the file or folder name, or a README cell 'Abruf <Datum>'); a count, "
-    "build, creation or import date is never taken, a missing date stays unbekannt"
+    "source.snapshot_date, written at import from a date the data states: a retrieval field of "
+    "the file, a date in the file or folder name (the author's label, not checked), or a README "
+    "cell 'Abruf <Datum>'; a README count, build or filter date, the generation date of a "
+    "deck-list file and the import day are never taken; a value stored by an earlier import is "
+    "not re-checked (a source keeps its date until a new store or a changed file); a missing "
+    "date stays unbekannt"
 )
 
 
