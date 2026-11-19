@@ -45,7 +45,41 @@ function renderBridge(report) {
   ].filter(Boolean));
 }
 
-function renderSources(status) {
+function sourceStatusNodes(report) {
+  const ss = report.source_status;
+  if (!ss) return [];
+  const details = Array.isArray(ss.details) ? ss.details : [];
+  const decks = ss.deck_file_sources || {};
+  const unknownTitles = Array.isArray(ss.date_unknown_titles) ? ss.date_unknown_titles : [];
+  const rows = details.map((src) => [
+    src.title || "–",
+    src.data_class || "–",
+    nf(src.rows_in_store),
+    src.snapshot_date === "unbekannt" ? unknown("unbekannt") : src.snapshot_date,
+    src.age_days === "unbekannt" ? unknown("unbekannt") : `${nf(src.age_days)} Tage`,
+    src.address_stored ? "ja" : "nein",
+  ]);
+  return [
+    h("h3", {}, "Datenstand je Quelle"),
+    kvTable([
+      ["Quellen mit Abrufdatum (ohne einzelne Deck-Dateien)", shareText(ss.date_known)],
+      ["Davon Wert kein gültiges Datum", nf(ss.date_unknown_of_which_value_not_a_date)],
+      ["Quellen mit gespeicherter Adresse", shareText(ss.address_stored)],
+      ["Deck-Dateien: Abrufdatum (als eine Gruppe)", `${decks.retrieval_date || "unbekannt"} (${nf(decks.total)} Dateien)`],
+      ["Deck-Dateien: Speicherdatum des Autors (kein Abrufdatum)", `${nf(decks.author_save_date_known)} / ${nf(decks.total)}`],
+      ["Lizenz und Zugang", ss.licence_and_access || "unbekannt"],
+    ]),
+    h("p", { class: "rule" }, `Herkunft des Datums: ${ss.snapshot_date_origin || "unbekannt"}. Zeilen: ${ss.rows_in_store_origin || "unbekannt"}.`),
+    unknownTitles.length
+      ? h("details", {}, h("summary", {}, `Datum unbekannt (${nf(unknownTitles.length)})`), h("ul", {}, ...unknownTitles.map((title) => h("li", {}, title))))
+      : null,
+    rows.length
+      ? h("details", {}, h("summary", {}, `Alle Quellen (${nf(rows.length)})`), simpleTable(["Quelle", "Datenklasse", "Zeilen im Store", "Abrufdatum", "Alter", "Adresse"], rows))
+      : null,
+  ].filter(Boolean);
+}
+
+function renderSources(status, report) {
   const host = $("data-sources");
   const inv = status.source_inventory || {};
   const sc = inv.status_counts || {};
@@ -60,8 +94,14 @@ function renderSources(status) {
       ? `${nf(ic.files)} Dateien (${StudioUI.num(ic.megabytes, 1)} MB)`
       : "deaktiviert";
 
+  const ac = inv.access_status_counts || {};
+  const stockOnly = Number(inv.verified_access_prohibited) || 0;
+  const verifiedOpen = Number(sc.VERIFIED) - stockOnly;
+  const verifiedText = Number.isFinite(verifiedOpen) ? nf(verifiedOpen) : nf(sc.VERIFIED);
   const summary = h("p", { class: "muted" },
-    `Registrierte Quellen: ${nf(inv.total_sources)} (Verifiziert: ${nf(sc.VERIFIED)}, Prüfung: ${nf(sc.REVIEW)}, Nicht verfügbar: ${nf(sc.UNAVAILABLE)}) · Bild-Cache: ${cacheText}`);
+    `Registrierte Quellen: ${nf(inv.total_sources)} (Verifiziert: ${verifiedText}, Bestand aus Quelle mit Abrufverbot (Owner-Entscheid #1557, nur Bestand, keine neuen Abrufe): ${nf(stockOnly)}, Prüfung: ${nf(sc.REVIEW)}, Nicht verfügbar: ${nf(sc.UNAVAILABLE)}) · Bild-Cache: ${cacheText}`);
+  const accessLine = h("p", { class: "rule" },
+    `Automatisierter Abruf laut Register: erlaubt ${nf(ac.ok)}, mit Bedingungen ${nf(ac.ok_with_conditions)}, ungeklärt ${nf(ac.unclear)}, verboten ${nf(ac.prohibited)}.`);
 
   const layerRows = layers.map((item) => [
     item.layer || "–",
@@ -87,6 +127,7 @@ function renderSources(status) {
   host.replaceChildren(...[
     h("h2", {}, "Quellen-Register & Frische"),
     summary,
+    accessLine,
     layerRows.length
       ? simpleTable(["Schicht / Quelle", "Quellen", "Mit Stand", "Ältester", "Neuester", "Hinweis"], layerRows)
       : h("p", { class: "muted" }, "Keine Schicht-Metadaten vorhanden."),
@@ -94,6 +135,7 @@ function renderSources(status) {
       ? h("details", {}, h("summary", {}, `Letzte Importe (${nf(recent.length)})`), simpleTable(["Quelle", "Datenklasse", "Snapshot", "Importiert (UTC)"], recentRows))
       : null,
     freshLine,
+    ...sourceStatusNodes(report || {}),
   ].filter(Boolean));
 }
 
@@ -197,6 +239,46 @@ function renderCorpus(report) {
       : h("span", { class: "badge good" }, "0 Alarme"),
   ]);
 
+  const gcTab = report.gc_band_crosstab || null;
+  const gcNodes = [];
+  if (gcTab && gcTab.rows && Array.isArray(gcTab.bracket_columns)) {
+    const cols = gcTab.bracket_columns;
+    const heads = ["Game-Changer-Band", ...cols.map((c) => (c === "ohne_bracket" ? "Ohne Bracket" : c)), "Summe (n/N)", "Decks mit unaufgelösten Karten (Karten)"];
+    // "unbekannt": no marking, unknown marking or unresolved cards; never counted as 0.
+    const bandKeys = ["gc_band:0", "gc_band:1-3", "gc_band:4+", "gc_band:unknown"];
+    const gcRows = bandKeys
+      .filter((k) => gcTab.rows[k])
+      .map((k) => {
+        const row = gcTab.rows[k];
+        return [
+          row.label || k,
+          ...cols.map((c) => nf((row.by_bracket || {})[c] ?? 0)),
+          `${nf(row.total)} / ${nf(row.of)}`,
+          `${nf(row.decks_with_unresolved ?? 0)} (${nf(row.unresolved_cards ?? 0)})`,
+        ];
+      });
+    const origins = Object.values(gcTab.declared_bracket_origins || {});
+    const originRows = origins.map((item) => [
+      item.platform || "–",
+      item.origin || "unbekannt",
+      `${nf(item.decks_with_bracket)} / ${nf(item.decks_total)}`,
+      `${nf(item.decks_without_bracket)} / ${nf(item.decks_total)}`,
+    ]);
+    gcNodes.push(
+      h("h3", {}, "Game-Changer-Band (regelabgeleitet, kein Bracket) vs. erklärtes Bracket"),
+      h("p", { class: "muted" }, `${gcTab.provenance || ""} · ${gcTab.disclaimer || ""}`),
+      gcTab.marking_status === "missing"
+        ? h("p", { class: "badge warn" }, "Keine Game-Changer-Markierung gespeichert: alle Decks „unbekannt“, nie 0 Game Changer.")
+        : gcTab.marking_status === "partial"
+          ? h("p", { class: "muted" }, `Markierung unvollständig: ${nf(gcTab.game_changer_cards_unknown)} Karten ohne Markierung; Decks mit solchen Karten sind „unbekannt“.`)
+          : null,
+      gcRows.length ? simpleTable(heads, gcRows) : null,
+      originRows.length
+        ? simpleTable(["Plattform", "Herkunft erklärter Brackets", "Mit Bracket", "Ohne Bracket"], originRows)
+        : null
+    );
+  }
+
   host.replaceChildren(...[
     h("h2", {}, "Korpus, Universen & Signal-Alarme"),
     alarms.length
@@ -217,6 +299,7 @@ function renderCorpus(report) {
       ["Legalität unbekannt in Sammlung", nf(cmds.legality_unknown_in_collection)],
     ]),
     cohortRows.length ? simpleTable(["Korpus-Kohorte", "Decks"], cohortRows) : null,
+    ...gcNodes,
     cmdRows.length ? simpleTable(["Commander", "In Sammlung", "Pool (legal)", "Alarme"], cmdRows) : null,
   ].filter(Boolean));
 }
@@ -266,7 +349,7 @@ async function loadAll() {
       StudioUI.request(`/api/tournament-conversion?commander=${encodeURIComponent(commander)}`).catch(() => null),
     ]);
     renderBridge(report);
-    renderSources(status);
+    renderSources(status, report);
     renderCollection(report);
     renderRoles(report, roleAudit);
     renderCorpus(report);

@@ -25,9 +25,12 @@ from __future__ import annotations
 from collections.abc import Collection, Iterable, Mapping
 from dataclasses import dataclass, replace
 
-# Chulane, Teller of Tales — the one commander this package scopes to (#1363).
+# Chulane, Teller of Tales — default commander for backward-compatible calls (#1363).
 CHULANE_IDENTITY = frozenset({"W", "U", "G"})
 CHULANE_NAME = "Chulane, Teller of Tales"
+# Tam, the Possibility — 5-colour (WUBRG) commander (#1635).
+TAM_NAME = "Tam, the Possibility"
+TAM_IDENTITY = frozenset({"W", "U", "B", "R", "G"})
 # The export writes the identity of a colourless variant as "C": no colour at all.
 COLOURLESS = "C"
 

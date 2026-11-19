@@ -173,7 +173,12 @@ def merged_catalog(catalog: Mapping[str, Any], entries: Sequence[dict[str, Any]]
     return out
 
 
-def fetch_cards(names: Sequence[str]) -> tuple[dict[str, dict[str, Any]], list[str]]:
+DEFAULT_USER_AGENT = "mtg-oracle-import-tool/1.0"
+
+
+def fetch_cards(
+    names: Sequence[str], *, user_agent: str = DEFAULT_USER_AGENT
+) -> tuple[dict[str, dict[str, Any]], list[str]]:
     """Scryfall card objects for the names (a card with several faces is asked for by its front name)."""
     found: dict[str, dict[str, Any]] = {}
     missing: list[str] = []
@@ -186,7 +191,7 @@ def fetch_cards(names: Sequence[str]) -> tuple[dict[str, dict[str, Any]], list[s
             headers={
                 "Content-Type": "application/json",
                 "Accept": "application/json",
-                "User-Agent": "commander-playtest-lab/import-oracle-cards",
+                "User-Agent": user_agent,
             },
             method="POST",
         )
@@ -278,6 +283,11 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--dry-run", action="store_true", help="print what would be added, write nothing"
     )
+    parser.add_argument(
+        "--user-agent",
+        default=DEFAULT_USER_AGENT,
+        help="generic client User-Agent string",
+    )
     args = parser.parse_args(argv)
     if not (args.decks or args.name or args.names_file):
         parser.error("give a deck file, --name or --names-file")
@@ -309,7 +319,11 @@ def main(argv: list[str] | None = None) -> int:
             "source_name": "Scryfall Oracle bulk file (on-demand import)",
         }
     else:
-        found, missing = fetch_cards(todo)
+        found, missing = (
+            fetch_cards(todo)
+            if args.user_agent == DEFAULT_USER_AGENT
+            else fetch_cards(todo, user_agent=args.user_agent)
+        )
         now = datetime.now(UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z")
         provenance = {"retrieved_at": now, "source_url": COLLECTION_URL}
     entries: dict[str, dict[str, Any]] = {}

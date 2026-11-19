@@ -172,31 +172,77 @@ def _is_java_launcher(command: Sequence[str]) -> bool:
     return bool(command) and os.path.basename(command[0]).lower() in ("java", "javaw", "java.exe")
 
 
+SKIP_FORCED_DECISIONS_PROPERTY = "commanderlab.fullGame.skipForcedDecisions"
+# a JVM option that selects a garbage collector (-XX:+UseG1GC, -XX:+UseParallelGC, -XX:+UseZGC, ...)
+_GC_SELECTOR = re.compile(r"-XX:[+-]Use\w*GC")
+
+
+def fast_bridge_command(base: Sequence[str]) -> tuple[str, ...] | None:
+    """``base`` with the fast JVM options and the forced-pass switch, or ``None``.
+
+    One builder for a series and for interactive play, so both start the bridge the same way.
+    The options come from the benchmark's helper ``fast_jvm_options`` (serial GC; the AppCDS
+    archive only when ``<jar>.jsa`` exists next to the jar; the JVM itself ignores an archive that
+    does not match the jar and says so on stderr) plus
+    ``-Dcommanderlab.fullGame.skipForcedDecisions=true`` (the engine answers a forced priority
+    pass of an AI seat itself; a human seat is never skipped, the bridge sees to that). They
+    change how the JVM runs and how often Python is asked, not the game. An option the command
+    already carries is kept as it is, so the environment command can switch the pass skipping
+    off with ``-Dcommanderlab.fullGame.skipForcedDecisions=false``.
+    ``None``: not a java launcher with ``-jar <file>`` (a wrapper is used as it is).
+    """
+    from commander_lab.engine.rules.fast_jvm_options import fast_jvm_options
+
+    command = tuple(base)
+    if (
+        not _is_java_launcher(command)
+        or "-jar" not in command
+        or command.index("-jar") + 1 >= len(command)
+    ):
+        return None
+    jar_at = command.index("-jar") + 1
+    jar = Path(command[jar_at]).resolve()
+    # a private card repository starts each JVM in a directory of its own: the jar path must
+    # not depend on the working directory
+    command = (*command[:jar_at], str(jar), *command[jar_at + 1 :])
+    options = [option for option in fast_jvm_options(jar) if option not in command]
+    if any(_GC_SELECTOR.fullmatch(part) for part in command[: command.index("-jar")]):
+        # the JVM refuses to start with two collectors: the user's choice stands (#1577)
+        options = [option for option in options if option != "-XX:+UseSerialGC"]
+    if not any(part.startswith(f"-D{SKIP_FORCED_DECISIONS_PROPERTY}=") for part in command):
+        options.append(f"-D{SKIP_FORCED_DECISIONS_PROPERTY}=true")
+    return (command[0], *options, *command[1:])
+
+
+def interactive_bridge_command(base: Sequence[str] | None) -> tuple[str, ...] | None:
+    """The engine command of an interactive game: the same fast options as a series (#1591).
+
+    A forced priority pass of an AI seat then no longer runs through Python as a decision of its
+    own (it waited out the AI pause each time); the engine answers it, and the game log counts
+    them in ``forced_decisions_skipped``. Every decision of a human seat still comes to the
+    human. ``None`` stays ``None``; a command that is not a java launcher is returned unchanged.
+    """
+    if base is None:
+        return None
+    fast = fast_bridge_command(base)
+    return fast if fast is not None else tuple(base)
+
+
 def series_engine(data_folder: str | Path, games_per_jvm: int) -> SeriesEngine | None:
     """The engine command of a series: fast JVM options and room for ``games_per_jvm`` games.
 
-    The options come from the benchmark's helper ``fast_jvm_options`` (serial GC; the AppCDS
-    archive only when ``<jar>.jsa`` exists next to the jar; the JVM itself ignores an archive that
-    does not match the jar and says so on stderr). They change how the JVM runs, not a game. A
-    launcher that is not java is used as it is, one game per process. ``None``: no engine.
+    The options are those of ``fast_bridge_command``. A launcher that is not java is used as it
+    is, one game per process. ``None``: no engine.
     """
-    from commander_lab.engine.rules.fast_jvm_options import fast_jvm_options
     from commander_lab.engine.rules.full_game_batch import command_with_games_per_jvm
 
     base = engine_command(data_folder)
     if base is None:
         return None
-    if not _is_java_launcher(base) or "-jar" not in base or base.index("-jar") + 1 >= len(base):
+    fast = fast_bridge_command(base)
+    if fast is None:
         return SeriesEngine(base, (), 1, serial_gc=False, appcds=False)
-    jar_at = base.index("-jar") + 1
-    jar = Path(base[jar_at]).resolve()
-    # a private card repository starts each JVM in a directory of its own: the jar path must
-    # not depend on the working directory
-    base = (*base[:jar_at], str(jar), *base[jar_at + 1 :])
-    options = [option for option in fast_jvm_options(jar) if option not in base]
-    if not any(part.startswith("-Dcommanderlab.fullGame.skipForcedDecisions=") for part in base):
-        options.append("-Dcommanderlab.fullGame.skipForcedDecisions=true")
-    command = command_with_games_per_jvm((base[0], *options, *base[1:]), games_per_jvm)
+    command = command_with_games_per_jvm(fast, games_per_jvm)
     flags = command[1 : command.index("-jar")]
     return SeriesEngine(
         command=command,

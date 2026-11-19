@@ -456,6 +456,67 @@ def test_paired_series_not_decided_and_preflight_same_revision_rejected(tmp_path
         store.close()
 
 
+def test_paired_series_counts_only_games_that_did_not_fail_as_played(tmp_path: Path) -> None:
+    store, folder = _make_store(tmp_path)
+    try:
+        rev_a = create_revision(
+            store,
+            deck_id="deck-a",
+            name="Deck A",
+            cards=[
+                RevisionCard("cid-chulane", 1, "commander"),
+                RevisionCard("cid-sol-ring", 1, "main"),
+                RevisionCard("cid-forest", 98, "main"),
+            ],
+        )
+        rev_b = create_revision(
+            store,
+            deck_id="deck-b",
+            name="Deck B",
+            cards=[
+                RevisionCard("cid-chulane", 1, "commander"),
+                RevisionCard("cid-signet", 1, "main"),
+                RevisionCard("cid-forest", 98, "main"),
+            ],
+        )
+        failed: list[tuple[str, int, int]] = []
+
+        def _one_failure(arm: str, seed: int, seat: int) -> paired_comparison.PlayedGame:
+            if not failed:
+                failed.append((arm, seed, seat))
+                return {"exposure": None, "failure_class": "EngineError"}
+            did = "deck-a" if arm == "base" else "deck-b"
+            return {
+                "exposure": _mock_exposure(  # type: ignore[typeddict-item]
+                    f"{arm}-{seed}-{seat}", seed=seed, seat=seat, tested_deck_id=did, won=False
+                ),
+                "failure_class": None,
+            }
+
+        mgr = PairedSeriesManager()
+        job = mgr.start_series(
+            store,
+            folder,
+            base_revision_id=rev_a,
+            variant_revision_id=rev_b,
+            budget_pairs=8,
+            look_every_pairs=8,
+            rotate_seats=False,
+            play_override=_one_failure,
+        )
+        finished = _wait_job(mgr, folder, job.series_id)
+        assert finished["status"] == "completed" and len(failed) == 1
+        # sixteen games were attempted; the one that failed is not a played game
+        assert finished["games_played"] == 15 and finished["games_planned_max"] == 16
+        # a game announced as played that then ends as a failure (chunk path) is taken back
+        job.mark_game_played("base", 999, 0)
+        assert job.to_dict()["games_played"] == 16
+        job._append_game_result("base", 999, 0, {"exposure": None, "failure_class": "EngineError"})
+        assert job.to_dict()["games_played"] == 15
+    finally:
+        store.close()
+
+
 def test_paired_series_plays_the_variant_in_the_baseline_library_slots(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -976,6 +1037,45 @@ def test_paired_js_renders_the_backend_plan_and_honest_sentences() -> None:
     assert "loadPairedPlanLines(deps.api," in paired_js
 
 
+def test_series_progress_text_counts_played_games_and_says_unknown_when_absent() -> None:
+    out = _paired_js(
+        "{"
+        "batch: seriesPlayedText(7, 10, 4, false, true),"
+        "paired: seriesPlayedText(12, 80, null, true, true),"
+        "zero: seriesPlayedText(0, 10, 0, false),"
+        "absent: seriesPlayedText(undefined, 10, 4, false),"
+        "nul: seriesPlayedText(null, 80, null, true),"
+        "unplanned: seriesPlayedText(3, null, null, false), "
+        "running: seriesPlayedText(7, 10, 4, false, true),"
+        "done: seriesPlayedText(10, 10, 10, false, false)}"
+    )
+    assert isinstance(out, dict)
+    assert out["batch"] == (
+        "Gespielt: 7 von 10 Partien · abgeschlossen: 4. Das Ergebnis folgt, wenn der "
+        "Engine-Prozess endet."
+    )
+    assert out["paired"].startswith("Gespielt: 12 von höchstens 80 Partien.")  # type: ignore[union-attr]
+    # the "result follows" note belongs to a running series only
+    assert out["running"] == out["batch"]
+    assert out["done"] == "Gespielt: 10 von 10 Partien · abgeschlossen: 10."
+    assert out["zero"].startswith("Gespielt: 0 von 10 Partien")  # type: ignore[union-attr]
+    # an older record has no count: unknown, never 0
+    for key in ("absent", "nul"):
+        assert out[key] == "Gespielt: unbekannt (ältere Serie ohne Zählung je Partie)."
+    assert out["unplanned"].startswith("Gespielt: 3 von unbekannt vielen Partien")  # type: ignore[union-attr]
+    paired_js = (STATIC_DIR / "paired.js").read_text(encoding="utf-8")
+    app_js = (STATIC_DIR / "app.js").read_text(encoding="utf-8")
+    assert (
+        "seriesPlayedText(job.games_played, job.games_planned_max, null, true, isRunning)"
+        in paired_js
+    )
+    assert (
+        "seriesPlayedText(b.games_played, b.games_planned, b.games_completed, false, isRunning)"
+        in app_js
+    )
+    assert "games_played: 0" not in app_js  # the optimistic stub must not claim a count
+
+
 def test_paired_plan_route_serves_the_python_plan(tmp_path: Path) -> None:
     client = TestClient(create_app(tmp_path / "studio_data"))
     response = client.get(
@@ -1411,6 +1511,9 @@ def test_estimate_series_duration_scales_with_workers_and_api_validates_parallel
         finished = _wait_job(mgr, folder, job.series_id)
         assert finished["status"] == "completed"
         assert finished["result"]["status"] == "DECIDED"  # type: ignore[index]
+        # progress per game: every game of the played windows was counted, never more than planned
+        assert finished["games_planned_max"] == 80
+        assert 2 * int(finished["pairs_attempted"]) <= finished["games_played"] <= 80  # type: ignore[arg-type,operator]
 
         app = create_app(folder)
         client = TestClient(app)

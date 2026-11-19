@@ -34,6 +34,7 @@ from . import (
     cache,
     card_duel,
     card_outcomes,
+    card_trend,
     card_understanding,
     castability,
     combos,
@@ -46,6 +47,7 @@ from . import (
     deck_series,
     engine_check,
     games,
+    gc_band,
     import_all,
     labels,
     land_advisor,
@@ -261,7 +263,7 @@ class GameBody(BaseModel):
     seat_styles: list[float] | None = None
     human_seats: list[int] | None = None
     decision_timeout_seconds: int = Field(default=0, ge=0, le=86_400)
-    ai_delay_ms: int = Field(default=250, ge=0, le=5_000)
+    ai_delay_ms: int = Field(default=play.DEFAULT_AI_DELAY_MS, ge=0, le=5_000)
 
 
 class PlayDecisionBody(BaseModel):
@@ -376,6 +378,7 @@ class UniverseBody(BaseModel):
     model_config = ConfigDict(extra="forbid")
     platforms: list[str] | None = Field(default=None, max_length=50)
     cohorts: list[str] | None = Field(default=None, max_length=100)
+    gc_band: list[str] | None = Field(default=None, max_length=3)
     commanders: list[str] | None = Field(default=None, max_length=10)
     date_from: str | None = Field(default=None, max_length=10)
     date_to: str | None = Field(default=None, max_length=10)
@@ -414,10 +417,19 @@ def _inventory_summary() -> dict[str, object]:
     """Compact form of the qualified evidence-source inventory for /api/status:
     how many source layers exist and how they split over the review states."""
     inventory = source_inventory_payload()
+    verified_prohibited = sum(
+        1
+        for source in inventory["sources"]
+        if source["status"] == "VERIFIED" and source["access_status"] == "prohibited"
+    )
     return {
         "schema_version": inventory["schema_version"],
         "total_sources": inventory["total_sources"],
         "status_counts": inventory["status_counts"],
+        "access_status_counts": inventory["access_status_counts"],
+        # Data-quality VERIFIED sources whose automated retrieval is prohibited (stock only,
+        # usable by Owner decision #1557): shown apart from the plainly verified ones.
+        "verified_access_prohibited": verified_prohibited,
     }
 
 
@@ -648,6 +660,7 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
     def pool(
         commander: list[str] = Query(min_length=1, max_length=2),
         profile: str | None = Query(default=None, max_length=80),
+        gc_band_key: str | None = Query(default=None, alias="gc_band", max_length=20),
         strength_universe: str | None = Query(default=None, max_length=120),
         strength_bracket: str | None = Query(default=None, max_length=20),
     ) -> Response:
@@ -671,13 +684,15 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
                     )
                 except ValueError:
                     settings = None  # a stale remembered value must not block the builder
-            return builder.pool_cards(store, commander, profile=profile, strength=settings)
+            return builder.pool_cards(
+                store, commander, profile=profile, gc_band=gc_band_key, strength=settings
+            )
 
         try:
             return answer_cache.json_answer(
                 store,
                 "pool",
-                (tuple(commander), profile, strength_universe, strength_bracket),
+                (tuple(commander), profile, gc_band_key, strength_universe, strength_bracket),
                 compute,
             )
         except ValueError as error:
@@ -930,6 +945,18 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         finally:
             store.close()
 
+    @app.get("/api/universe/gc-bands")
+    def universe_gc_bands(
+        commander: list[str] = Query(min_length=1, max_length=2),
+    ) -> dict[str, object]:
+        """Rule-derived Game-Changer-Band counts, provenance, disclaimer and declared bracket
+        origins for this commander (or pair), alongside — never mixed with — declared brackets."""
+        store = open_store()
+        try:
+            return dict(gc_band.gc_band_crosstab(store, commander=commander))
+        finally:
+            store.close()
+
     @app.get("/api/universe/counted")
     def universe_counted(
         commander: str = Query(min_length=1, max_length=200),
@@ -1036,6 +1063,36 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
             raise HTTPException(422, str(error)) from error
         except KeyError as error:
             raise HTTPException(404, "unknown universe profile") from error
+        finally:
+            store.close()
+
+    @app.get("/api/card-trend")
+    def card_trend_view(
+        commander: list[str] = Query(min_length=1, max_length=2),
+        recent_days: int = Query(default=card_trend.DEFAULT_RECENT_DAYS, ge=1, le=3650),
+        min_decks_per_window: int = Query(
+            default=card_trend.DEFAULT_MIN_DECKS_PER_WINDOW, ge=1, le=10000
+        ),
+        bracket: str | None = Query(default=None, max_length=32),
+        source: str | None = Query(default=None, max_length=32),
+    ) -> dict[str, object]:
+        """Per-card corpus trend (recent vs. older deduplicated decks) of ONE source (default
+        ``edhrec``, never mixed with the other). An unknown bracket or source is a 422. No
+        weight in strength."""
+        store = open_store()
+        try:
+            return dict(
+                card_trend.card_trend(
+                    store,
+                    commander,
+                    recent_days=recent_days,
+                    min_decks_per_window=min_decks_per_window,
+                    bracket=bracket,
+                    source=source,
+                )
+            )
+        except ValueError as error:
+            raise HTTPException(422, str(error)) from error
         finally:
             store.close()
 
@@ -2478,9 +2535,20 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         game_id: str,
         start: int = Query(default=0, ge=0),
         count: int = Query(default=200, ge=0, le=1000),
+        since: int | None = Query(default=None, ge=0),
+        wait_ms: int = Query(default=0, ge=0, le=60_000),
     ) -> dict[str, object]:
+        # With ``since`` (the ``revision`` of the last state the page holds) and ``wait_ms`` the
+        # request is held until the live game changed, at most MAX_LONG_POLL_SECONDS (#1593).
         try:
-            return play_manager.snapshot(games_home(), game_id, start=start, count=count)
+            return play_manager.snapshot(
+                games_home(),
+                game_id,
+                start=start,
+                count=count,
+                since=since,
+                wait_seconds=wait_ms / 1000.0,
+            )
         except (KeyError, ValueError) as error:
             raise HTTPException(404, "unknown game") from error
 

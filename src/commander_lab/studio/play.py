@@ -54,7 +54,7 @@ from .games import (
     redact_frame_for_human_seats,
     redact_pilot_state_for_human_seats,
 )
-from .launch import bridge_jar_sha256, engine_command
+from .launch import bridge_jar_sha256, engine_command, interactive_bridge_command
 
 PILOT_IDENTITY = "GenericCommanderPilot"
 PILOT_VERSION = "1.0.0"
@@ -72,7 +72,96 @@ _HUMAN_TIMEOUT_MESSAGE = (
 # While the loop waits for the human it looks at the bridge process this often, so a dead
 # bridge ends the game as failed instead of leaving the page waiting for ever.
 _PARK_POLL_SECONDS = 2.0
+DEFAULT_AI_DELAY_MS = 250
 _AI_DELAY_SLICE_SECONDS = 0.05
+# Longest time one state request may be held open waiting for a change (#1593). Short on purpose:
+# the page asks again at once, and a server shutdown waits for held requests.
+MAX_LONG_POLL_SECONDS = 8.0
+
+
+def _is_numeric_choice_decision(
+    decision: Mapping[str, object], response: Mapping[str, object] | None
+) -> bool:
+    decision_class = str(decision.get("decision_class") or "")
+    if decision_class in {"announce_x", "x_value", "amount", "multi_amount"}:
+        return True
+    context = decision.get("context")
+    if isinstance(context, Mapping) and (
+        context.get("numeric_min") is not None
+        or context.get("numeric_max") is not None
+        or isinstance(context.get("numeric_legs"), list)
+    ):
+        return True
+    return isinstance(response, Mapping) and (
+        response.get("numeric_choice") is not None or response.get("numeric_choices") is not None
+    )
+
+
+def _is_forced_numeric_decision(decision: Mapping[str, object]) -> bool:
+    context = decision.get("context")
+    if not isinstance(context, Mapping):
+        return False
+    legs = context.get("numeric_legs")
+    if isinstance(legs, list) and legs:
+        for leg in legs:
+            if not isinstance(leg, Mapping):
+                return False
+            low = leg.get("min")
+            high = leg.get("max")
+            if type(low) is not int or type(high) is not int or low != high:
+                return False
+        return True
+    low = context.get("numeric_min")
+    high = context.get("numeric_max")
+    return type(low) is int and type(high) is int and low == high
+
+
+def _is_priority_pass(
+    options: Sequence[Mapping[str, object]],
+    response: Mapping[str, object] | None,
+) -> bool:
+    if not isinstance(response, Mapping):
+        return False
+    raw_selected = response.get("selected_option_ids")
+    if not isinstance(raw_selected, list) or not raw_selected:
+        return True
+    if len(raw_selected) != 1:
+        return False
+    chosen_id = str(raw_selected[0])
+    for option in options:
+        if str(option.get("option_id")) == chosen_id:
+            option_type = str(option.get("option_type") or "").strip().lower()
+            label = str(option.get("label") or "").strip().lower()
+            return option_type == "pass_priority" or label == "pass priority"
+    return False
+
+
+def should_pause_for_ai_step(
+    decision: Mapping[str, object],
+    response: Mapping[str, object] | None = None,
+) -> bool:
+    """True only for visible AI steps that should observe ``ai_delay_ms`` (#1592).
+
+    Uses exclusively fields published by the rules engine (``decision_class``, ``legal_options``,
+    ``option_type``/``label``, numeric context) and the pilot's chosen response. Forced decisions
+    (at most 1 legal option) and priority passes without an action run without delay; visible
+    actions (casting spells, playing lands, activating abilities, combat declarations, targets,
+    multi-option mana payments, and other choices) pause.
+    """
+    raw_options = decision.get("legal_options")
+    options = (
+        [opt for opt in raw_options if isinstance(opt, Mapping)]
+        if isinstance(raw_options, list)
+        else []
+    )
+    if not options and _is_numeric_choice_decision(decision, response):
+        return not _is_forced_numeric_decision(decision)
+    if len(options) <= 1:
+        return False
+    decision_class = str(decision.get("decision_class") or "")
+    return not (decision_class == "priority" and _is_priority_pass(options, response))
+
+
 # Bridge errors after which the engine cannot continue: waiting for another answer is pointless.
 _TERMINAL_BRIDGE_CODES = frozenset(
     {
@@ -440,7 +529,7 @@ class InteractiveGameSession:
         *,
         human_seats: Sequence[int],
         decision_timeout_seconds: int = 0,
-        ai_delay_ms: int = 250,
+        ai_delay_ms: int = DEFAULT_AI_DELAY_MS,
         max_decisions: int = 50_000,
         command: Sequence[str] | None = None,
         client_factory: Callable[..., object] | None = None,
@@ -460,6 +549,10 @@ class InteractiveGameSession:
         self._client_factory = client_factory
         self._recorder = GameRecorder(data_folder, self.game_id, prepared.header)
         self._lock = threading.Lock()
+        # Wakes held state requests (#1593); shares the state lock, so a revision is only ever
+        # read together with the state it describes.
+        self._changed = threading.Condition(self._lock)
+        self._revision = 0
         self._ready = threading.Event()
         self._commands: queue.Queue[_InteractiveCommand] = queue.Queue()
         self._frames: list[dict[str, object]] = []
@@ -474,6 +567,9 @@ class InteractiveGameSession:
         self._shutdown_event = threading.Event()
         self._active_client: object | None = None
         self._result: dict[str, object] | None = None
+        # Forced AI priority passes the engine answered itself (#1591), as the engine's status
+        # reports them; None until the engine has said so (unknown, not zero).
+        self._forced_passes_answered: int | None = None
         self._thread = threading.Thread(
             target=self._run,
             name=f"interactive-play-{self.game_id}",
@@ -508,6 +604,12 @@ class InteractiveGameSession:
             cwd=runner.cwd,
             request_timeout_seconds=ipc_timeout,
         )
+
+    def _notify_change(self) -> None:
+        """Counts one visible state change and wakes every held state request (#1593)."""
+        with self._changed:
+            self._revision += 1
+            self._changed.notify_all()
 
     def _update_outcomes_locked(self, status: Mapping[str, object]) -> None:
         outcomes = status.get("outcomes")
@@ -550,6 +652,9 @@ class InteractiveGameSession:
         decision = status.get("decision")
         with self._lock:
             self._update_outcomes_locked(status)
+            answered = status.get("forced_decisions_skipped")
+            if type(answered) is int and answered >= 0:
+                self._forced_passes_answered = answered
             if isinstance(decision, Mapping):
                 seat = decision.get("seat")
                 if type(seat) is int and seat in self.human_seats:
@@ -578,6 +683,7 @@ class InteractiveGameSession:
             else:
                 self._pending_decision = None
                 self._pending_raw_decision = None
+        self._notify_change()
         self._ready.set()
 
     def _record_decision(
@@ -590,6 +696,7 @@ class InteractiveGameSession:
             self._raw_frames.append(frame)
             self._pending_decision = None
             self._pending_raw_decision = None
+        self._notify_change()
 
     def _run_concede_command(
         self, client: object, cmd: _InteractiveCommand, current_status: dict[str, object]
@@ -661,12 +768,19 @@ class InteractiveGameSession:
             return "moved", status
         return "same", None
 
-    def _wait_ai_delay(self) -> _InteractiveCommand | None:
-        """Pause before an AI seat acts; a concede or shutdown command ends the pause early.
+    def _wait_ai_delay(self, *, pause: bool = True) -> _InteractiveCommand | None:
+        """Pause before a visible AI step; a concede or shutdown command ends the pause early.
 
+        When ``pause`` is False (forced decision or priority pass), no delay is taken, but any
+        already-queued concede or shutdown command is still returned immediately.
         The delay is read again every slice, so a lowered speed (fast-forward) takes effect at
         once, not only for the next AI decision.
         """
+        if not pause:
+            try:
+                return self._commands.get_nowait()
+            except queue.Empty:
+                return None
         started = time.monotonic()
         while True:
             remaining = float(self.ai_delay_ms) / 1000.0 - (time.monotonic() - started)
@@ -834,8 +948,11 @@ class InteractiveGameSession:
                                     break
                             continue
 
-                        # AI seat: allow responsive concede/shutdown during delay.
-                        ai_cmd = self._wait_ai_delay()
+                        # AI seat: choose first so only visible steps pause (#1592), while still
+                        # allowing responsive concede/shutdown commands on every step.
+                        response = policy.decide(decision)
+                        pause = should_pause_for_ai_step(decision, response)
+                        ai_cmd = self._wait_ai_delay(pause=pause)
                         if ai_cmd is not None:
                             if ai_cmd.kind == "shutdown":
                                 shutdown_requested = True
@@ -845,7 +962,6 @@ class InteractiveGameSession:
                                 status = self._run_concede_command(client, ai_cmd, status)
                                 continue
                             ai_cmd.reject(ValueError("no human decision currently pending"))
-                        response = policy.decide(decision)
                         next_status = client.request(  # type: ignore[attr-defined]
                             "submit_full_game_decision",
                             {"response": response},
@@ -896,9 +1012,33 @@ class InteractiveGameSession:
                     self._pending_raw_decision = None
                     self._running = False
                     self._result = closed
+            self._notify_change()
             self._ready.set()
 
-    def snapshot(self, *, start: int = 0, count: int = 200) -> dict[str, object]:
+    def wait_for_change(self, since: int, wait_seconds: float) -> None:
+        """Holds the caller until the state moved past revision ``since`` (#1593).
+
+        Returns at once when ``since`` is already out of date or the game is over, and after
+        ``wait_seconds`` (at most ``MAX_LONG_POLL_SECONDS``) when nothing changed. It only waits;
+        what the caller then reads is the ordinary, redacted snapshot.
+        """
+        limit = max(0.0, min(MAX_LONG_POLL_SECONDS, float(wait_seconds)))
+        with self._changed:
+            self._changed.wait_for(
+                lambda: self._revision != since or not self._running,
+                timeout=limit,
+            )
+
+    def snapshot(
+        self,
+        *,
+        start: int = 0,
+        count: int = 200,
+        since: int | None = None,
+        wait_seconds: float = 0.0,
+    ) -> dict[str, object]:
+        if since is not None and wait_seconds > 0.0:
+            self.wait_for_change(since, wait_seconds)
         with self._lock:
             # Owner decision 2026-11-17: hands of the AI seats are revealed after the game ends,
             # never while it runs. The unredacted frames are used only from the moment the game
@@ -917,6 +1057,8 @@ class InteractiveGameSession:
                 "game_id": self.game_id,
                 "interactive": True,
                 "running": self._running,
+                # Counts visible state changes; the page sends it back as ``since`` (#1593).
+                "revision": self._revision,
                 "header": copy.deepcopy(self.prepared.header),
                 "human_seats": sorted(self.human_seats),
                 "decision_timeout_seconds": self.decision_timeout_seconds,
@@ -930,6 +1072,7 @@ class InteractiveGameSession:
                 "start": start,
                 "total": len(self._frames),
                 "hands_revealed": revealed,
+                "forced_passes_answered_by_engine": self._forced_passes_answered,
                 "result": copy.deepcopy(self._result),
             }
 
@@ -1039,7 +1182,7 @@ class InteractivePlayManager:
         seed: int,
         human_seats: Sequence[int],
         decision_timeout_seconds: int = HUMAN_SEAT_TIMEOUT_SECONDS,
-        ai_delay_ms: int = 250,
+        ai_delay_ms: int = DEFAULT_AI_DELAY_MS,
         game_id: str | None = None,
         strategy: str = "generic",
         style: float | None = None,
@@ -1053,7 +1196,8 @@ class InteractivePlayManager:
         resolved_id = game_id or free_game_id(
             data_folder, f"{decks[0].deck_id}-{len(decks)}p-seed{seed}"
         )
-        cmd = engine_command(data_folder)
+        # the fast JVM options of a series, the pass skipping of AI seats included (#1591)
+        cmd = interactive_bridge_command(engine_command(data_folder))
         sha = bridge_jar_sha256(data_folder, cmd)
         prepared = prepare_game(
             decks,
@@ -1099,10 +1243,14 @@ class InteractivePlayManager:
         *,
         start: int = 0,
         count: int = 200,
+        since: int | None = None,
+        wait_seconds: float = 0.0,
     ) -> dict[str, object]:
         session = self.get(game_id)
         if session is not None:
-            return session.snapshot(start=start, count=count)
+            return session.snapshot(
+                start=start, count=count, since=since, wait_seconds=wait_seconds
+            )
         from .games import read_game
 
         recorded = read_game(data_folder, game_id, start=start, count=count)

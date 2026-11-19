@@ -156,6 +156,7 @@ _ANSWER = Kind(seal="bytes", limit="answer")
 KINDS: Final[Mapping[str, Kind]] = MappingProxyType(
     {
         "card_name_index": Kind(),
+        "card_trend": Kind(),
         "cohort_deck_sets": Kind(),
         "cohort_shapes": Kind(),
         "cohort_sizes": Kind(seal="copy", limit="cohort_sizes"),

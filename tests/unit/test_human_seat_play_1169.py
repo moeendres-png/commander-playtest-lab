@@ -7,6 +7,7 @@ import gzip
 import itertools
 import json
 import re
+import threading
 import time
 from pathlib import Path
 
@@ -964,6 +965,34 @@ def test_server_refuses_five_and_six_seat_tables_with_a_clear_reason(
         store.close()
 
 
+def test_snapshot_names_the_forced_ai_passes_the_engine_answered_or_unknown(
+    tmp_path: Path,
+) -> None:
+    """#1591: with the pass skipping on, the AI passes the engine answers never reach Python as
+    frames. The live snapshot carries the engine's own count; before the engine has reported one
+    it is unknown (None), never 0."""
+    decks = (
+        _make_deck("own", "Chulane, Teller of Tales"),
+        _make_deck("opp", "Kinnan, Bonder Prodigy"),
+    )
+    prepared = play.prepare_game(
+        decks, seed=1, game_id="g-live", human_seats=[0], decision_timeout_seconds=0
+    )
+    session = play.InteractiveGameSession(
+        tmp_path, prepared, human_seats=[0], decision_timeout_seconds=0
+    )
+    assert session.snapshot()["forced_passes_answered_by_engine"] is None
+    session._publish_status({"terminal": False, "decision": None}, object())
+    assert session.snapshot()["forced_passes_answered_by_engine"] is None
+    for bad in ("7", 7.0, True, -1, None):
+        session._publish_status({"forced_decisions_skipped": bad}, object())
+        assert session.snapshot()["forced_passes_answered_by_engine"] is None
+    session._publish_status({"forced_decisions_skipped": 7}, object())
+    assert session.snapshot()["forced_passes_answered_by_engine"] == 7
+    session._publish_status({"terminal": False, "decision": None}, object())
+    assert session.snapshot()["forced_passes_answered_by_engine"] == 7
+
+
 # ---- the real engine: a scripted human seat plays a whole game through the PLAY routes ----------
 
 ENGINE_ENV = "COMMANDER_LAB_XMAGE_FULL_GAME_BRIDGE_CMD"
@@ -1091,7 +1120,21 @@ def test_real_engine_human_seat_plays_a_game_to_its_end_through_the_play_routes(
     assert answered.get("mulligan", 0) >= 1 and answered.get("priority", 0) >= 10, answered
     # the engine's end is recorded, and the hands of the AI seat open up only now
     assert state.get("hands_revealed") is True
-    print("real-engine human game ended:", result, "answered:", answered, "conceded:", conceded)
+    # #1591: interactive games start the bridge with the pass skipping on, so the engine answered
+    # the forced AI passes itself; the closing entry counts them (a run without the switch says 0)
+    skipped = result.get("forced_decisions_skipped")
+    assert isinstance(skipped, int) and skipped > 0, result
+    assert state.get("forced_passes_answered_by_engine") == skipped
+    print(
+        "real-engine human game ended:",
+        result,
+        "answered:",
+        answered,
+        "forced AI passes answered by the engine:",
+        skipped,
+        "conceded:",
+        conceded,
+    )
 
 
 class _ActiveScript:
@@ -1564,7 +1607,34 @@ def test_dead_bridge_while_the_human_thinks_fails_the_game(
 
 
 def test_speed_zero_hurries_the_ai_but_never_answers_the_human(tmp_path: Path) -> None:
-    fake = _FakeInteractiveClient()
+    class _VisibleAiClient(_FakeInteractiveClient):
+        def _status(self) -> dict[str, object]:
+            payload = super()._status()
+            if self.phase == 1:
+                decision = payload["decision"]
+                assert isinstance(decision, dict)
+                decision["decision_class"] = "choose_use"
+                decision["prompt"] = "Use optional trigger?"
+                pilot_state = decision["pilot_state"]
+                assert isinstance(pilot_state, dict)
+                pilot_state["actor_id"] = "p1"
+                decision["legal_options"] = [
+                    {
+                        "option_id": "yes-ai",
+                        "option_type": "yes",
+                        "label": "Yes",
+                        "metadata": {"value": True},
+                    },
+                    {
+                        "option_id": "no-ai",
+                        "option_type": "no",
+                        "label": "No",
+                        "metadata": {"value": False},
+                    },
+                ]
+            return payload
+
+    fake = _VisibleAiClient()
     app, client = _start_fake_session(tmp_path, "hurry", fake, ai_delay_ms=5_000)
     try:
         _wait_for_pending(client, "hurry", "dec-h-1")
@@ -2206,3 +2276,1170 @@ console.log(JSON.stringify({kind: m.kind, mode: m.mode, asked: m.asked, rows, lo
     roles = {role: result for role, result in out["rows"]}
     assert roles["block-target"] == {"action": "toggle", "optionId": out["attacker"]}
     assert roles["asked"] == {"action": "none"}  # the blocker itself only shows who blocks
+
+
+# ---- finished-game replay (static/replay.js & partie.html/partie.js, #1530) -------------------
+
+
+def test_replay_module_steps_and_jumps_on_loaded_frames_only_when_finished() -> None:
+    script = (STATIC / "replay.js").read_text(encoding="utf-8")
+    for forbidden in (
+        "document.",
+        "window.",
+        "fetch(",
+        "/api/",
+        "innerHTML",
+        "outerHTML",
+        "eval(",
+        "style=",
+        ".toFixed(",
+    ):
+        assert forbidden not in script, forbidden
+
+    out = _node_json(
+        """
+const R = require('./replay.js');
+const frames = [
+  { n: 1, turn: null, decision_class: 'mulligan', chosen: ['Keep'] },
+  { n: 2, turn: 1, decision_class: 'priority', chosen: ['Play Forest'] },
+  { n: 3, turn: 1, decision_class: 'priority', chosen: ['Pass priority'] },
+  { n: 4, turn: 1, decision_class: 'mana_payment', chosen: ['Tap Forest'] },
+  { n: 5, turn: 2, decision_class: 'priority', chosen: ['Cast Sol Ring'] },
+  { n: 6, turn: 2, decision_class: 'priority', chosen: ['Pass priority'] },
+  { n: 7, turn: 4, decision_class: 'priority', chosen: ['Cast Chulane'] },
+  { n: 8, turn: 4, decision_class: 'priority', chosen: ['Pass priority'] },
+];
+console.log(JSON.stringify({
+  avail: {
+    runningHuman: R.isReplayAvailable({ running: true, interactive: true, result: null, handsRevealed: false, frames }),
+    runningHumanWithResult: R.isReplayAvailable({ running: true, interactive: true, result: { status: 'finished' }, handsRevealed: true, frames }),
+    runningAi: R.isReplayAvailable({ running: true, interactive: false, result: null, frames }),
+    runningAiNoFrames: R.isReplayAvailable({ running: true, interactive: false, result: null, frames: [] }),
+    emptyFinished: R.isReplayAvailable({ running: false, interactive: false, result: { status: 'finished' }, frames: [] }),
+    humanNoResult: R.isReplayAvailable({ running: false, interactive: true, result: null, handsRevealed: true, frames }),
+    humanNotRevealed: R.isReplayAvailable({ running: false, interactive: true, result: { status: 'finished' }, handsRevealed: false, frames }),
+    finishedHuman: R.isReplayAvailable({ running: false, interactive: true, result: { status: 'finished' }, handsRevealed: true, frames }),
+    finishedAi: R.isReplayAvailable({ running: false, interactive: false, result: { status: 'finished' }, frames }),
+    notRunningNoResultAi: R.isReplayAvailable({ running: false, interactive: false, result: null, frames }),
+  },
+  minor: [R.isPass(frames[2]), R.isMinor(frames[3]), R.isMinor(frames[1]), R.isPass(null)],
+  turns: R.listTurns(frames),
+  fwdRaw: [R.stepForward(frames, 1, false), R.stepForward(frames, 7, false)],
+  fwdSkip: [R.stepForward(frames, 1, true), R.stepForward(frames, 4, true), R.stepForward(frames, 6, true)],
+  backRaw: [R.stepBackward(frames, 4, false), R.stepBackward(frames, 0, false)],
+  backSkip: [R.stepBackward(frames, 4, true), R.stepBackward(frames, 6, true), R.stepBackward(frames, 1, true)],
+  jump: {
+    t1: R.jumpToTurn(frames, 1),
+    t2: R.jumpToTurn(frames, 2),
+    t4: R.jumpToTurn(frames, 4),
+    below: R.jumpToTurn(frames, 0),
+    gap: R.jumpToTurn(frames, 3),
+    above: R.jumpToTurn(frames, 99),
+  },
+  nextTurn: [R.nextTurn(frames, 0), R.nextTurn(frames, 1), R.nextTurn(frames, 3), R.nextTurn(frames, 4), R.nextTurn(frames, 6)],
+  prevTurn: [R.prevTurn(frames, 7), R.prevTurn(frames, 6), R.prevTurn(frames, 5), R.prevTurn(frames, 4), R.prevTurn(frames, 2), R.prevTurn(frames, 0)],
+}));
+"""
+    )
+    assert isinstance(out, dict)
+    assert out["avail"] == {
+        "runningHuman": False,
+        "runningHumanWithResult": False,
+        "runningAi": True,
+        "runningAiNoFrames": False,
+        "emptyFinished": False,
+        "humanNoResult": False,
+        "humanNotRevealed": False,
+        "finishedHuman": True,
+        "finishedAi": True,
+        "notRunningNoResultAi": False,
+    }
+    assert out["minor"] == [True, True, False, False]
+    assert out["turns"] == [
+        {"turn": 1, "index": 1},
+        {"turn": 2, "index": 4},
+        {"turn": 4, "index": 6},
+    ]
+    assert out["fwdRaw"] == [2, 7]
+    assert out["fwdSkip"] == [4, 6, 7]
+    assert out["backRaw"] == [3, 0]
+    assert out["backSkip"] == [1, 4, 0]
+    assert out["jump"] == {"t1": 1, "t2": 4, "t4": 6, "below": 1, "gap": 4, "above": 6}
+    assert out["nextTurn"] == [1, 4, 4, 6, 7]
+    assert out["prevTurn"] == [4, 4, 1, 1, 0, 0]
+
+
+def test_partie_replay_controls_contract_and_no_extra_api_routes() -> None:
+    html = (STATIC / "partie.html").read_text(encoding="utf-8")
+    js = (STATIC / "partie.js").read_text(encoding="utf-8")
+    css = (STATIC / "partie.css").read_text(encoding="utf-8")
+
+    # replay.js is loaded before partie.js and #replay-controls starts hidden with all controls
+    assert html.index('src="replay.js"') < html.index('src="partie.js"')
+    assert 'id="replay-controls"' in html and 'id="prev-turn"' in html and 'id="turn-jump"' in html
+    assert 'aria-label="Zu Zug springen"' in html
+    assert ".replay-controls" in css and "#replay-controls button:focus-visible" in css
+
+    # One definition of isPass/isMinor (replay.js), the hint for revealed AI hands exists
+    assert "const { isPass, isMinor } = StudioReplay;" in js
+    assert "const isPass" not in js.replace("const { isPass", "")
+    assert 'id="replay-note"' in html and "KI-Hände aufgedeckt" in html
+
+    # No new/additional server route in partie.js (only the existing Studio endpoints)
+    api_paths = sorted(set(re.findall(r"/api/[a-z0-9_/${}()?=&.-]+", js, re.IGNORECASE)))
+    allowed_prefixes = (
+        "/api/games",
+        "/api/play/",
+        "/api/public-cards",
+        "/api/table",
+    )
+    assert api_paths and all(p.startswith(allowed_prefixes) for p in api_paths), api_paths
+    assert not any("replay" in p.lower() or "turn" in p.lower() for p in api_paths), api_paths
+
+    # Real renderReplayControls() from partie.js hides and disables all controls while running,
+    # and reveals + populates #turn-jump once the game is finished.
+    fn_src = js[js.index("function renderReplayControls() {") : js.index("function go(index)")]
+    dom_out = _node_json(
+        f"""
+const StudioReplay = require('./replay.js');
+const els = new Map();
+const makeEl = (id) => ({{ id, hidden: false, disabled: false, value: '', dataset: {{}}, children: [], textContent: '',
+  append(...kids) {{ this.children.push(...kids); }} }});
+const $ = (id) => {{ if (!els.has(id)) els.set(id, makeEl(id)); return els.get(id); }};
+const h = (tag, props, ...kids) => ({{ tag, props: props || {{}}, text: kids.join('') }});
+const frames = [
+  {{ n: 1, turn: 1, decision_class: 'priority', chosen: ['Play Forest'] }},
+  {{ n: 2, turn: 2, decision_class: 'priority', chosen: ['Cast Sol Ring'] }},
+  {{ n: 3, turn: 3, decision_class: 'priority', chosen: ['Cast Chulane'] }},
+];
+let stopped = 0;
+const setPlaying = (on) => {{ if (!on) {{ state.playing = false; stopped += 1; }} }};
+const state = {{ running: true, interactive: true, result: null, handsRevealed: false, frames, index: 2, playing: true }};
+eval({json.dumps(fn_src)} + '\\nglobalThis.renderReplayControls = renderReplayControls;');
+renderReplayControls();
+const ids = ['first', 'prev-turn', 'back', 'play', 'next', 'next-turn', 'turn-jump', 'skip', 'position'];
+const whileRunning = {{
+  hidden: $('replay-controls').hidden,
+  allDisabled: ids.every((id) => $(id).disabled === true),
+  stopped,
+}};
+state.running = false;
+state.result = {{ status: 'finished', winner_seats: [0] }};
+state.handsRevealed = true;
+state.index = 0;
+renderReplayControls();
+const atStart = {{
+  hidden: $('replay-controls').hidden,
+  options: $('turn-jump').children.map((o) => [o.props.value, o.text]),
+  selected: $('turn-jump').value,
+  firstDis: $('first').disabled,
+  prevTurnDis: $('prev-turn').disabled,
+  backDis: $('back').disabled,
+  nextDis: $('next').disabled,
+  nextTurnDis: $('next-turn').disabled,
+  note: $('replay-note').hidden,
+}};
+state.index = 2;
+renderReplayControls();
+const atEnd = {{
+  selected: $('turn-jump').value,
+  prevTurnDis: $('prev-turn').disabled,
+  nextDis: $('next').disabled,
+  nextTurnDis: $('next-turn').disabled,
+}};
+state.running = true; state.interactive = false; state.result = null; state.handsRevealed = false;
+state.playing = true;
+renderReplayControls();
+const runningAi = {{
+  hidden: $('replay-controls').hidden,
+  playDisabled: $('play').disabled,
+  speedUntouched: true,
+  note: $('replay-note').hidden,
+  stillPlaying: state.playing,
+}};
+console.log(JSON.stringify({{ whileRunning, atStart, atEnd, runningAi }}));
+"""
+    )
+    assert isinstance(dom_out, dict)
+    assert dom_out["whileRunning"] == {"hidden": True, "allDisabled": True, "stopped": 1}
+    assert dom_out["atStart"] == {
+        "hidden": False,
+        "options": [["1", "Zug 1"], ["2", "Zug 2"], ["3", "Zug 3"]],
+        "selected": "1",
+        "firstDis": True,
+        "prevTurnDis": True,
+        "backDis": True,
+        "nextDis": False,
+        "nextTurnDis": False,
+        "note": False,
+    }
+    assert dom_out["runningAi"] == {
+        "hidden": False,
+        "playDisabled": False,
+        "speedUntouched": True,
+        "note": True,
+        "stillPlaying": True,
+    }
+    assert dom_out["atEnd"] == {
+        "selected": "3",
+        "prevTurnDis": False,
+        "nextDis": True,
+        "nextTurnDis": True,
+    }
+
+
+def test_replay_keyboard_and_tick_behaviour_per_game_kind() -> None:
+    js = (STATIC / "partie.js").read_text(encoding="utf-8")
+    key_src = js[
+        js.index('document.addEventListener("keydown", (event) => {') : js.index(
+            '$("new-game").addEventListener("click"'
+        )
+    ]
+    tick_src = js[js.index("function step(direction) {") : js.index("// ---- loading")]
+    out = _node_json(
+        f"""
+const StudioReplay = require('./replay.js');
+const frames = [
+  {{ turn: 1, decision_class: 'priority', chosen: ['Play Forest'] }},
+  {{ turn: 1, decision_class: 'priority', chosen: ['Pass priority'] }},
+  {{ turn: 2, decision_class: 'priority', chosen: ['Cast Sol Ring'] }},
+  {{ turn: 3, decision_class: 'priority', chosen: ['Cast Chulane'] }},
+];
+const state = {{ running: false, interactive: false, result: {{ status: 'finished' }}, handsRevealed: false, frames, index: 0, playing: false, timer: 0 }};
+const calls = [];
+const els = {{ skip: {{ checked: false }}, speed: {{ value: '5' }}, play: {{ textContent: '' }} }};
+const $ = (id) => els[id] || (els[id] = {{}});
+const go = (i) => {{ state.index = i; calls.push('go' + i); }};
+let handler = null;
+const document = {{ addEventListener: (name, fn) => {{ if (name === 'keydown') handler = fn; }} }};
+const closeBoardMenu = () => false;
+eval({json.dumps(tick_src)});
+function isInteractive() {{ return false; }}
+eval({json.dumps(key_src)});
+const press = (key, extra, at) => {{
+  calls.length = 0;
+  state.index = at === undefined ? 0 : at;
+  const ev = Object.assign({{ key, target: {{ closest: () => null }}, preventDefault() {{ calls.push('pd'); }} }}, extra || {{}});
+  handler(ev);
+  return calls.slice();
+}};
+const res = {{}};
+state.index = 0;
+res.finishedRight = press('ArrowRight');
+res.finishedShiftRight = press('ArrowRight', {{ shiftKey: true }}, 0);
+res.finishedLeft = press('ArrowLeft', {{}}, 3);
+state.running = true; state.interactive = true; state.result = null; state.index = 0;
+res.runningHumanRight = press('ArrowRight');
+res.runningHumanSpace = press(' ');
+state.interactive = false; state.index = 0;
+res.runningAiRight = press('ArrowRight');
+// tick at the live tail of a running AI game keeps waiting; a finished game stops
+state.index = 3; state.playing = true;
+setPlaying(true);
+res.runningAiTailKeepsPlaying = state.playing;
+clearTimeout(state.timer);
+state.running = false; state.result = {{ status: 'finished' }}; state.playing = true;
+setPlaying(true);
+res.finishedTailStops = state.playing;
+clearTimeout(state.timer);
+console.log(JSON.stringify(res));
+"""
+    )
+    assert isinstance(out, dict)
+    assert out["finishedRight"] == ["pd", "go1"]
+    assert out["finishedShiftRight"] == ["pd", "go2"]  # next turn start
+    assert out["finishedLeft"] == ["pd", "go2"]
+    assert out["runningHumanRight"] == []
+    assert out["runningHumanSpace"] == []
+    assert out["runningAiRight"] == ["pd", "go1"]
+    assert out["runningAiTailKeepsPlaying"] is True
+    assert out["finishedTailStops"] is False
+
+
+# ---- Play P1a (#1529): yield modes, mana_payment land click, stack rail, own combat ledger ------
+
+
+def test_yield_modes_only_send_pass_priority_and_stop_on_every_non_priority_class() -> None:
+    non_priority = [
+        "mulligan",
+        "declare_attacker",
+        "declare_blocker",
+        "target",
+        "mana_payment",
+        "choose_use",
+        "mode",
+        "announce_x",
+        "order",
+        "trigger_order",
+        "choice",
+        "amount",
+    ]
+    script = (
+        _FF_PRELUDE
+        + f"""
+const modes = ['until_my_turn', 'until_end_of_turn', 'until_stack_resolves'];
+const nonPriority = {json.dumps(non_priority)};
+const stoppedNonPriority = [];
+for (const mode of modes) {{
+  for (const cls of nonPriority) {{
+    const v = FF.verdict(
+      pending({{decision_class: cls, legal_options: [others[0], pass]}}, {{turn_number: 3, stack: [{{object_id: 's1', name: 'Bolt', controller_id: 'op-1'}}]}}),
+      ctx({{mode, startTurn: 3, watchStackObjectId: 's1', stopOnOpponentStack: false}})
+    );
+    stoppedNonPriority.push({{mode, cls, action: v.action, hasOptionId: 'optionId' in v}});
+  }}
+}}
+const eotSameTurn = FF.verdict(pending({{}}, {{active_player_id: 'p0', turn_number: 3}}), ctx({{mode: 'until_end_of_turn', startTurn: 3}}));
+const eotNextTurn = FF.verdict(pending({{}}, {{active_player_id: 'op-1', turn_number: 4}}), ctx({{mode: 'until_end_of_turn', startTurn: 3}}));
+const eotUnknownTurn = FF.verdict(pending({{}}, {{active_player_id: 'p0', turn_number: 3}}), ctx({{mode: 'until_end_of_turn', startTurn: null}}));
+const eotOppStack = FF.verdict(pending({{}}, {{active_player_id: 'p0', turn_number: 3, stack: [{{object_id: 's1', name: 'Counterspell', controller_id: 'op-1'}}]}}), ctx({{mode: 'until_end_of_turn', startTurn: 3, stopOnOpponentStack: true}}));
+
+const sWatch = {{object_id: 's-1', name: 'Sol Ring', controller_id: 'op-1'}};
+const sResp = {{object_id: 's-2', name: 'Counterspell', controller_id: 'op-1'}};
+const sOld = {{object_id: 's-0', name: 'Arcane Signet', controller_id: 'p0'}};
+const stackPass = FF.verdict(pending({{}}, {{stack: [sWatch]}}), ctx({{mode: 'until_stack_resolves', watchStackObjectId: 's-1'}}));
+const stackEmpty = FF.verdict(pending({{}}, {{stack: []}}), ctx({{mode: 'until_stack_resolves', watchStackObjectId: 's-1'}}));
+const stackResolved = FF.verdict(pending({{}}, {{stack: [sOld]}}), ctx({{mode: 'until_stack_resolves', watchStackObjectId: 's-1'}}));
+const stackNewOpp = FF.verdict(pending({{}}, {{stack: [sResp, sWatch]}}), ctx({{mode: 'until_stack_resolves', watchStackObjectId: 's-1'}}));
+const badMode = FF.verdict(pending({{}}, {{}}), ctx({{mode: 'unknown_mode'}}));
+
+console.log(JSON.stringify({{
+  stoppedNonPriority,
+  eotSameTurn, eotNextTurn, eotUnknownTurn, eotOppStack,
+  stackPass, stackEmpty, stackResolved, stackNewOpp, badMode,
+  modes: Object.keys(FF.MODES),
+}}));
+"""
+    )
+    out = _node_json(script)
+    assert isinstance(out, dict)
+    assert set(out["modes"]) == {"until_my_turn", "until_end_of_turn", "until_stack_resolves"}
+    assert len(out["stoppedNonPriority"]) == 3 * len(non_priority)
+    for row in out["stoppedNonPriority"]:
+        assert row["action"] == "stop" and row["hasOptionId"] is False, row
+    assert out["eotSameTurn"] == {"action": "pass", "optionId": "pass-1"}
+    assert out["eotNextTurn"]["action"] == "stop" and "Zug" in out["eotNextTurn"]["reason"]
+    assert out["eotUnknownTurn"]["action"] == "stop"
+    assert out["eotOppStack"]["action"] == "stop" and "Counterspell" in out["eotOppStack"]["reason"]
+    assert out["stackPass"] == {"action": "pass", "optionId": "pass-1"}
+    assert out["stackEmpty"]["action"] == "stop" and "leer" in out["stackEmpty"]["reason"]
+    assert (
+        out["stackResolved"]["action"] == "stop" and "aufgelöst" in out["stackResolved"]["reason"]
+    )
+    assert out["stackNewOpp"]["action"] == "stop" and "Counterspell" in out["stackNewOpp"]["reason"]
+    assert out["badMode"]["action"] == "stop"
+
+
+def test_boardclick_mana_payment_land_click_emits_only_offered_option_id() -> None:
+    script = (
+        _BC_PRELUDE
+        + """
+const base = JSON.parse(JSON.stringify(FX.mana_payment.pending_decision));
+const bf = base.pilot_state.players[0].battlefield;
+const landA = bf[0].object_id;
+const landB = bf[1].object_id;
+const custom = Object.assign({}, base, {
+  decision_id: 'mana-p1a-test',
+  legal_options: [
+    {option_id: 'cancel-1', option_type: 'cancel_mana_payment', label: 'Cancel mana payment', metadata: {}},
+    {option_id: 'tap-a-green', option_type: 'mana_ability', label: 'Forest — {T}: Add {G}.', metadata: {source_object_id: landA}},
+    {option_id: 'tap-b-white', option_type: 'mana_ability', label: 'Dual — {T}: Add {W}.', metadata: {source_object_id: landB}},
+    {option_id: 'tap-b-blue', option_type: 'mana_ability', label: 'Dual — {T}: Add {U}.', metadata: {source_object_id: landB}},
+  ],
+});
+const m = BC.build(custom);
+const clickA = BC.resolve(custom, m, {type: 'object', id: landA});
+const clickB = BC.resolve(custom, m, {type: 'object', id: landB});
+const clickMissing = BC.resolve(custom, m, {type: 'object', id: 'unoffered-land'});
+const okIds = new Set(custom.legal_options.map((o) => o.option_id));
+const emitted = BC.emittable(m);
+console.log(JSON.stringify({
+  kind: m.kind,
+  mode: m.mode,
+  clickA,
+  clickB,
+  clickMissing,
+  loose: m.loose,
+  emittedOnlyOffered: emitted.every((id) => okIds.has(id)),
+}));
+"""
+    )
+    out = _node_json(script)
+    assert isinstance(out, dict)
+    assert (out["kind"], out["mode"]) == ("mana_payment", "immediate")
+    assert out["clickA"] == {"action": "send", "optionId": "tap-a-green"}
+    assert out["clickB"]["action"] == "menu"
+    assert [opt["optionId"] for opt in out["clickB"]["options"]] == [
+        "tap-b-white",
+        "tap-b-blue",
+    ]
+    assert out["clickMissing"] == {"action": "none"}
+    assert out["loose"] == ["cancel-1"]
+    assert out["emittedOnlyOffered"] is True
+
+
+def test_play_p1a_stack_rail_and_own_combat_ledger_project_published_state_only() -> None:
+    script = """
+const P1a = require('./play_p1a.js');
+const pilotState = {
+  turn_number: 5,
+  step: 'declare_attackers',
+  players: [
+    {seat: 0, player_id: 'p0', battlefield: [{object_id: 'cre-1', name: 'Llanowar Elves'}]},
+    {seat: 1, player_id: 'op-1', battlefield: [{object_id: 'cre-2', name: 'Hidden Morph', face_down: true}]},
+  ],
+  stack: [
+    {object_id: 'st-top', name: 'Swords to Plowshares', controller_id: 'op-1', target_ids: ['cre-1']},
+    {object_id: 'st-mid', name: 'Secret Spell', face_down: true, controller_id: 'op-1'},
+    {object_id: 'st-bot', name: 'stack ability (Draw a card.)', controller_id: 'p0', targets: [{object_id: 'cre-2', face_down: true}, {player_id: 'p0'}]},
+  ],
+};
+const rail = P1a.buildStackRail(pilotState, (s) => 'Sitz ' + (s + 1));
+
+let ledger = P1a.emptyCombatLedger();
+const atkDec = {
+  decision_id: 'atk-1',
+  decision_class: 'declare_attacker',
+  legal_options: [
+    {option_id: 'opt-atk', option_type: 'declare_attacker', label: 'Chulane attacks Full Game Seat 2'},
+    {option_id: 'opt-hold', option_type: 'hold_attacker', label: 'Do not attack with Chulane'},
+  ],
+  pilot_state: {turn_number: 5, step: 'declare_attackers'},
+};
+ledger = P1a.recordOwnCombatAnswer(ledger, atkDec, ['opt-atk', 'forged-id']);
+// Non-combat decision must not add an entry
+ledger = P1a.recordOwnCombatAnswer(ledger, {decision_id: 'pri-1', decision_class: 'priority', legal_options: [{option_id: 'p', label: 'Pass'}], pilot_state: {turn_number: 5, step: 'declare_attackers'}}, ['p']);
+const blkDec = {
+  decision_id: 'blk-1',
+  decision_class: 'declare_blocker',
+  prompt: 'Block with Llanowar Elves',
+  legal_options: [{option_id: 'att-9', option_type: 'blocker', label: 'Llanowar Elves blocks Grizzly Bears'}],
+  pilot_state: {turn_number: 5, step: 'declare_blockers'},
+};
+const afterBlk = P1a.recordOwnCombatAnswer(ledger, blkDec, []);
+const clearedStep = P1a.clearOwnCombatLedger(afterBlk, 5, 'postcombat_main');
+const clearedTurn = P1a.clearOwnCombatLedger(afterBlk, 6, 'declare_attackers');
+
+console.log(JSON.stringify({rail, ledger, afterBlk, clearedStep, clearedTurn}));
+"""
+    out = _node_json(script)
+    assert isinstance(out, dict)
+    rail = out["rail"]
+    assert len(rail) == 3
+    assert rail[0]["isTop"] is True and rail[0]["name"] == "Swords to Plowshares"
+    assert rail[0]["controllerLabel"] == "Sitz 2"
+    assert rail[0]["targets"] == ["Llanowar Elves"] and rail[0]["targetsPublished"] is True
+    assert rail[1]["isTop"] is False and rail[1]["name"] == "verdeckt"
+    assert rail[1]["targets"] == [] and rail[1]["targetsPublished"] is False
+    assert "Secret Spell" not in json.dumps(rail)
+    assert rail[2]["isAbility"] is True and rail[2]["displayName"] == "Fähigkeit: Draw a card."
+    assert rail[2]["controllerLabel"] == "Sitz 1"
+    assert rail[2]["targets"] == ["verdeckt", "Sitz 1"]
+
+    ledger = out["ledger"]
+    assert "eigene Angaben" in ledger["label"]
+    assert len(ledger["entries"]) == 1
+    assert ledger["entries"][0]["optionId"] == "opt-atk"
+    assert len(out["afterBlk"]["entries"]) == 2
+    assert out["afterBlk"]["entries"][1]["kind"] == "no_block"
+    assert out["clearedStep"]["entries"] == []
+    assert out["clearedTurn"]["entries"] == []
+
+
+_P1A_IO_PRELUDE = """
+const P1a = require('./play_p1a.js');
+const atk = {decision_id: 'atk-1', decision_class: 'declare_attacker',
+  legal_options: [{option_id: 'opt-atk', option_type: 'declare_attacker', label: 'Chulane attacks Seat 2'}],
+  pilot_state: {turn_number: 5, step: 'declare_attackers'}};
+const nextPending = {decision_id: 'pri-9', decision_class: 'priority',
+  legal_options: [{option_id: 'p9', option_type: 'pass_priority', label: 'Pass priority'}],
+  pilot_state: {turn_number: 5, step: 'declare_attackers'}};
+function makeIo(post) {
+  const calls = [];
+  const io = {
+    pending: atk,
+    ledger: P1a.emptyCombatLedger(),
+    log: [],
+    getPendingDecision() { return io.pending; },
+    async post(payload) { calls.push('post'); return post(io, payload); },
+    getLedger() { return io.ledger; },
+    setLedger(l) { calls.push('ledger'); io.ledger = l; },
+    logAutoPass(line) { calls.push('log'); io.log.push(line); },
+  };
+  return {io, calls};
+}
+"""
+
+
+def test_play_p1a_submit_answer_books_the_sent_decision_and_logs_only_accepted_passes() -> None:
+    script = (
+        _P1A_IO_PRELUDE
+        + """
+(async () => {
+  // (a) a poll replaces the pending decision while the post is in flight: the answer still belongs
+  // to the decision that was sent, not to the new one
+  const a = makeIo(async (io) => { io.pending = nextPending; return {ok: true}; });
+  const sentA = await P1a.submitAnswer(a.io, {decision_id: 'atk-1', selected_option_ids: ['opt-atk']}, {});
+  // (b) accepted automatic pass: exactly one log line, written after the post
+  const b = makeIo(async () => ({ok: true}));
+  b.io.pending = nextPending;
+  await P1a.submitAnswer(b.io, {decision_id: 'pri-9', selected_option_ids: ['p9']}, {autoPassReason: 'Bis Zugende'});
+  // (c) refused answer (post rejects): the rejection propagates, no ledger entry, no log line
+  const c = makeIo(async () => { throw new Error('422 refused'); });
+  c.io.pending = nextPending;
+  let rejected = null;
+  try { await P1a.submitAnswer(c.io, {decision_id: 'pri-9', selected_option_ids: ['p9']}, {autoPassReason: 'Bis Zugende'}); }
+  catch (error) { rejected = String(error.message); }
+  const c2 = makeIo(async () => { throw new Error('409 stale'); });
+  let rejected2 = null;
+  try { await P1a.submitAnswer(c2.io, {decision_id: 'atk-1', selected_option_ids: ['opt-atk']}, {}); }
+  catch (error) { rejected2 = String(error.message); }
+  // (d) a manual answer writes no auto-pass line; (e) nothing pending sends nothing
+  const d = makeIo(async () => ({ok: true}));
+  await P1a.submitAnswer(d.io, {decision_id: 'atk-1', selected_option_ids: ['opt-atk']});
+  const e = makeIo(async () => ({ok: true}));
+  e.io.pending = null;
+  const sentE = await P1a.submitAnswer(e.io, {decision_id: 'x', selected_option_ids: []}, {autoPassReason: 'x'});
+  console.log(JSON.stringify({
+    a: {sent: sentA.decision_id, entries: a.io.ledger.entries, calls: a.calls, log: a.io.log},
+    b: {calls: b.calls, log: b.io.log, entries: b.io.ledger.entries},
+    c: {rejected, calls: c.calls, log: c.io.log, entries: c.io.ledger.entries},
+    c2: {rejected: rejected2, calls: c2.calls, entries: c2.io.ledger.entries},
+    d: {calls: d.calls, log: d.io.log, entries: d.io.ledger.entries},
+    e: {sent: sentE, calls: e.calls},
+    lineManual: P1a.autoPassLine({seat: 0}, 'Auto-Pass bis eigene Aktion'),
+  }));
+})();
+"""
+    )
+    out = _node_json(script)
+    assert isinstance(out, dict)
+    a = out["a"]
+    assert a["sent"] == "atk-1" and a["calls"] == ["post", "ledger"] and a["log"] == []
+    assert [(e["kind"], e["decisionId"], e["optionId"]) for e in a["entries"]] == [
+        ("attacker", "atk-1", "opt-atk")
+    ]
+    b = out["b"]
+    assert b["calls"] == ["post", "ledger", "log"]  # the line comes after the accepted post
+    assert b["log"] == [
+        {"seat": 0, "tag": "S1", "text": "Auto-Pass (Bis Zugende): Priorität abgegeben"}
+    ]
+    assert b["entries"] == []  # a priority pass is no combat answer
+    for key in ("c", "c2"):
+        assert out[key]["entries"] == [] and out[key]["calls"] == ["post"], key
+    assert "422" in out["c"]["rejected"] and out["c"]["log"] == []
+    assert "409" in out["c2"]["rejected"]
+    assert out["d"]["log"] == [] and out["d"]["calls"] == ["post", "ledger"]
+    assert len(out["d"]["entries"]) == 1
+    assert out["e"] == {"sent": None, "calls": []}
+    assert out["lineManual"]["text"].startswith("Auto-Pass (Auto-Pass bis eigene Aktion)")
+
+
+def test_play_p1a_own_combat_survives_rewind_and_is_cleaned_up_only_at_the_live_end() -> None:
+    script = """
+const P1a = require('./play_p1a.js');
+const dec = {decision_id: 'atk-1', decision_class: 'declare_attacker',
+  legal_options: [{option_id: 'opt-atk', option_type: 'declare_attacker', label: 'Chulane attacks Seat 2'}],
+  pilot_state: {turn_number: 5, step: 'declare_attackers'}};
+const ledger = P1a.recordOwnCombatAnswer(P1a.emptyCombatLedger(), dec, ['opt-atk'], dec.pilot_state);
+const live = {turn: 5, step: 'declare_attackers'};
+// rewind to an earlier turn, to a frame outside of combat, and back to the live end
+const rewoundTurn = P1a.ownCombatView(ledger, {turn: 3, step: 'upkeep'}, false, true);
+const rewoundStep = P1a.ownCombatView(rewoundTurn.ledger, {turn: 5, step: 'precombat_main'}, false, true);
+const backLive = P1a.ownCombatView(rewoundStep.ledger, live, true, true);
+const liveNonInteractive = P1a.ownCombatView(ledger, live, true, false);
+// the live end is the only place where the interim state is cleaned up
+const liveOtherStep = P1a.ownCombatView(ledger, {turn: 5, step: 'postcombat_main'}, true, true);
+const liveNextTurn = P1a.ownCombatView(ledger, {turn: 6, step: 'declare_attackers'}, true, true);
+// XMage publishes PhaseStep.BEGIN_COMBAT lower-cased: begin_combat is a combat step
+const liveBegin = P1a.ownCombatView(ledger, {turn: 5, step: 'begin_combat'}, true, true);
+const liveOldName = P1a.ownCombatView(ledger, {turn: 5, step: 'beginning_combat'}, true, true);
+console.log(JSON.stringify({
+  ledger, rewoundTurn, rewoundStep, backLive, liveNonInteractive, liveOtherStep, liveNextTurn,
+  liveBegin, liveOldName, steps: P1a.COMBAT_STEPS,
+}));
+"""
+    out = _node_json(script)
+    assert isinstance(out, dict)
+    kept = out["ledger"]["entries"]
+    assert len(kept) == 1
+    for key in ("rewoundTurn", "rewoundStep"):
+        assert out[key]["visible"] is False and out[key]["ledger"]["entries"] == kept, key
+    assert out["backLive"]["visible"] is True and out["backLive"]["ledger"]["entries"] == kept
+    assert out["liveNonInteractive"]["visible"] is False
+    assert out["liveOtherStep"]["ledger"]["entries"] == []
+    assert out["liveNextTurn"]["ledger"]["entries"] == []
+    assert out["liveBegin"]["ledger"]["entries"] == kept and out["liveBegin"]["visible"] is True
+    assert out["liveOldName"]["ledger"]["entries"] == []
+    assert "begin_combat" in out["steps"] and "beginning_combat" not in out["steps"]
+
+
+def test_fast_forward_stack_checkbox_is_disabled_with_a_hint_and_mode_switch_retargets() -> None:
+    script = (
+        _FF_PRELUDE
+        + """
+const boxStack = FF.stackCheckboxState('until_stack_resolves');
+const boxMy = FF.stackCheckboxState('until_my_turn');
+const boxEot = FF.stackCheckboxState('until_end_of_turn');
+const opp = {object_id: 's-1', name: 'Counterspell', controller_id: 'op-1'};
+// no entry to watch and the checkbox off: the opponent object stops the run anyway (not ignored)
+const noWatchOpp = FF.verdict(pending({}, {stack: [opp]}), ctx({mode: 'until_stack_resolves', stopOnOpponentStack: false}));
+const base = {on: true, boosted: true, mode: 'until_my_turn', startTurn: 3, stopOnOpponentStack: true, watchStackObjectId: null};
+const toStack = FF.retarget(base, 'until_stack_resolves', {topStackObjectId: 's-7', currentTurn: 4});
+const toEot = FF.retarget(toStack, 'until_end_of_turn', {topStackObjectId: 's-7', currentTurn: 4});
+const toMy = FF.retarget(toEot, 'until_my_turn', {topStackObjectId: null, currentTurn: 4});
+const toStackEmpty = FF.retarget(base, 'until_stack_resolves', {topStackObjectId: null, currentTurn: 4});
+console.log(JSON.stringify({boxStack, boxMy, boxEot, noWatchOpp, toStack, toEot, toMy, toStackEmpty, base}));
+"""
+    )
+    out = _node_json(script)
+    assert isinstance(out, dict)
+    assert out["boxStack"]["disabled"] is True and "Gegner" in out["boxStack"]["hint"]
+    assert out["boxMy"] == out["boxEot"] == {"disabled": False, "hint": ""}
+    assert out["noWatchOpp"]["action"] == "stop" and "Counterspell" in out["noWatchOpp"]["reason"]
+    assert out["toStack"]["mode"] == "until_stack_resolves"
+    assert out["toStack"]["watchStackObjectId"] == "s-7" and out["toStack"]["startTurn"] == 3
+    assert out["toEot"]["watchStackObjectId"] is None and out["toEot"]["startTurn"] == 4
+    assert out["toMy"]["mode"] == "until_my_turn" and out["toMy"]["watchStackObjectId"] is None
+    assert out["toStackEmpty"]["watchStackObjectId"] is None
+    assert out["base"]["watchStackObjectId"] is None and out["base"]["mode"] == "until_my_turn"
+
+
+def test_should_pause_for_ai_step_distinguishes_visible_and_invisible_steps() -> None:
+    pass_opt = {"option_id": "pass-1", "option_type": "pass_priority", "label": "Pass priority"}
+    cast_opt = {"option_id": "cast-1", "option_type": "cast_spell", "label": "Cast Sol Ring"}
+    land_opt = {"option_id": "land-1", "option_type": "play_land", "label": "Play Forest"}
+    act_opt = {
+        "option_id": "act-1",
+        "option_type": "activated_ability",
+        "label": "Activate: Draw a card",
+    }
+
+    # Forced decisions (at most 1 legal option): never pause.
+    assert (
+        play.should_pause_for_ai_step(
+            {"decision_class": "priority", "legal_options": [pass_opt]},
+            {"selected_option_ids": ["pass-1"]},
+        )
+        is False
+    )
+    assert (
+        play.should_pause_for_ai_step(
+            {
+                "decision_class": "mana_payment",
+                "legal_options": [
+                    {"option_id": "m1", "option_type": "mana_payment", "label": "Tap Forest"}
+                ],
+            },
+            {"selected_option_ids": ["m1"]},
+        )
+        is False
+    )
+    assert (
+        play.should_pause_for_ai_step(
+            {
+                "decision_class": "target",
+                "legal_options": [
+                    {"option_id": "t1", "option_type": "target", "label": "Llanowar Elves"}
+                ],
+            },
+            {"selected_option_ids": ["t1"]},
+        )
+        is False
+    )
+    assert play.should_pause_for_ai_step({"decision_class": "choice", "legal_options": []}) is False
+
+    # Priority pass without an action (even with multiple legal options): never pause.
+    assert (
+        play.should_pause_for_ai_step(
+            {"decision_class": "priority", "legal_options": [pass_opt, cast_opt]},
+            {"selected_option_ids": ["pass-1"]},
+        )
+        is False
+    )
+    assert (
+        play.should_pause_for_ai_step(
+            {
+                "decision_class": "priority",
+                "legal_options": [
+                    {"option_id": "p-label", "label": "Pass priority"},
+                    cast_opt,
+                ],
+            },
+            {"selected_option_ids": ["p-label"]},
+        )
+        is False
+    )
+
+    # Visible priority actions: pause.
+    for chosen in (cast_opt, land_opt, act_opt):
+        assert (
+            play.should_pause_for_ai_step(
+                {"decision_class": "priority", "legal_options": [pass_opt, chosen]},
+                {"selected_option_ids": [chosen["option_id"]]},
+            )
+            is True
+        )
+
+    # Combat, targets, multi-option mana payment, and other 2+-option choices: pause.
+    for dc in (
+        "declare_attacker",
+        "declare_blocker",
+        "target",
+        "mana_payment",
+        "mode",
+        "choose_use",
+        "choice",
+        "choose_object",
+        "mulligan",
+        "order",
+        "trigger_order",
+    ):
+        assert (
+            play.should_pause_for_ai_step(
+                {
+                    "decision_class": dc,
+                    "legal_options": [
+                        {"option_id": "o1", "label": "Option A"},
+                        {"option_id": "o2", "label": "Option B"},
+                    ],
+                },
+                {"selected_option_ids": ["o1"]},
+            )
+            is True
+        ), dc
+
+    # Numeric choices: pause when a real range exists, skip when forced (min == max).
+    assert (
+        play.should_pause_for_ai_step(
+            {
+                "decision_class": "announce_x",
+                "legal_options": [],
+                "context": {"numeric_min": 0, "numeric_max": 4},
+            },
+            {"selected_option_ids": [], "numeric_choice": 2},
+        )
+        is True
+    )
+    assert (
+        play.should_pause_for_ai_step(
+            {
+                "decision_class": "announce_x",
+                "legal_options": [],
+                "context": {"numeric_min": 0, "numeric_max": 0},
+            },
+            {"selected_option_ids": [], "numeric_choice": 0},
+        )
+        is False
+    )
+    assert (
+        play.should_pause_for_ai_step(
+            {
+                "decision_class": "multi_amount",
+                "legal_options": [],
+                "context": {"numeric_legs": [{"min": 0, "max": 3}, {"min": 0, "max": 3}]},
+            },
+            {"selected_option_ids": [], "numeric_choices": [2, 1]},
+        )
+        is True
+    )
+    assert (
+        play.should_pause_for_ai_step(
+            {
+                "decision_class": "multi_amount",
+                "legal_options": [],
+                "context": {"numeric_legs": [{"min": 1, "max": 1}, {"min": 2, "max": 2}]},
+            },
+            {"selected_option_ids": [], "numeric_choices": [1, 2]},
+        )
+        is False
+    )
+
+
+def test_ai_tempo_default_250_and_zero_no_pause_server_and_ui(tmp_path: Path) -> None:
+    assert play.DEFAULT_AI_DELAY_MS == 250
+
+    decks = (
+        _make_deck("own", "Chulane, Teller of Tales"),
+        _make_deck("opp", "Kinnan, Bonder Prodigy"),
+    )
+    prep = play.prepare_game(
+        decks, seed=11, game_id="tempo-default", human_seats=[0], decision_timeout_seconds=0
+    )
+    session = play.InteractiveGameSession(
+        tmp_path,
+        prep,
+        human_seats=[0],
+        decision_timeout_seconds=0,
+        command=("fake-bridge",),
+    )
+    try:
+        assert session.ai_delay_ms == 250
+        assert session.set_speed(0) == 0
+        assert session.ai_delay_ms == 0
+        assert session.set_speed(-50) == 0
+        assert session.set_speed(9_999) == 5_000
+    finally:
+        session._recorder.discard()
+
+    js_text = (STATIC / "partie.js").read_text(encoding="utf-8")
+    m_default = re.search(r"const DEFAULT_AI_DELAY_MS = (\d+);", js_text)
+    assert m_default is not None and int(m_default.group(1)) == 250
+    m_speeds = re.search(r"const SPEEDS = (\[.*?\]);", js_text)
+    assert m_speeds is not None
+    speeds = json.loads(m_speeds.group(1))
+    delays = [entry[0] for entry in speeds]
+    assert delays == [2000, 1000, 500, 250, 120, 50, 0]
+    labels_by_delay = {entry[0]: entry[1] for entry in speeds}
+    assert "ohne Pause" in labels_by_delay[0]
+    assert "250 ms" in labels_by_delay[250]
+    assert '$("speed").value = String(DEFAULT_AI_DELAY_MS);' in js_text
+
+
+def test_ai_tempo_visible_only_pause_and_delay_equivalence(tmp_path: Path) -> None:
+    class _TempoEquivalenceClient(_FakeInteractiveClient):
+        def _status(self) -> dict[str, object]:
+            base_outcomes = [
+                {"seat": 0, "player_id": "p0", "life": 40, "can_concede": True},
+                {"seat": 1, "player_id": "p1", "life": 40, "can_concede": True},
+            ]
+            if self.phase == 0:
+                return super()._status()
+            if 1 <= self.phase <= 6:
+                # 6 forced 1-option AI priority passes: 0 ms pause
+                return {
+                    "terminal": False,
+                    "outcomes": base_outcomes,
+                    "decision": {
+                        "decision_id": f"dec-ai-forced-{self.phase}",
+                        "decision_offset": self.phase + 1,
+                        "actor_id": "p1",
+                        "seat": 1,
+                        "acting_for_seat": 1,
+                        "decision_class": "priority",
+                        "prompt": "Pass priority",
+                        "minimum_selections": 1,
+                        "maximum_selections": 1,
+                        "legal_options": [
+                            {
+                                "option_id": f"forced-{self.phase}",
+                                "option_type": "pass_priority",
+                                "label": "Pass priority",
+                            }
+                        ],
+                        "pilot_state": _pilot_state(
+                            seat=1, turn=2, active_player_id="p1", secret_opp_card=self.SECRET_CARD
+                        ),
+                    },
+                }
+            if self.phase == 7:
+                # 1 visible AI step (2-option choose_use): observes ai_delay_ms
+                return {
+                    "terminal": False,
+                    "outcomes": base_outcomes,
+                    "decision": {
+                        "decision_id": "dec-ai-visible-1",
+                        "decision_offset": 8,
+                        "actor_id": "p1",
+                        "seat": 1,
+                        "acting_for_seat": 1,
+                        "decision_class": "choose_use",
+                        "prompt": "Use optional trigger?",
+                        "minimum_selections": 1,
+                        "maximum_selections": 1,
+                        "legal_options": [
+                            {
+                                "option_id": "vis-yes",
+                                "option_type": "yes",
+                                "label": "Yes",
+                                "metadata": {"value": True},
+                            },
+                            {
+                                "option_id": "vis-no",
+                                "option_type": "no",
+                                "label": "No",
+                                "metadata": {"value": False},
+                            },
+                        ],
+                        "pilot_state": _pilot_state(
+                            seat=1, turn=2, active_player_id="p1", secret_opp_card=self.SECRET_CARD
+                        )
+                        | {"actor_id": "p1"},
+                    },
+                }
+            return {
+                "terminal": False,
+                "outcomes": base_outcomes,
+                "decision": {
+                    "decision_id": "dec-h-2",
+                    "decision_offset": 9,
+                    "actor_id": "p0",
+                    "seat": 0,
+                    "acting_for_seat": 0,
+                    "decision_class": "target",
+                    "prompt": "Choose up to 1 target",
+                    "minimum_selections": 0,
+                    "maximum_selections": 1,
+                    "legal_options": [
+                        {"option_id": "tgt-1", "option_type": "target", "label": "Llanowar Elves"}
+                    ],
+                    "pilot_state": _pilot_state(
+                        seat=0, turn=2, active_player_id="p1", secret_opp_card=self.SECRET_CARD
+                    ),
+                },
+            }
+
+    def _run_with_delay(
+        delay_ms: int, subdir: str
+    ) -> tuple[list[dict[str, object]], list[object], float]:
+        folder = tmp_path / subdir
+        folder.mkdir(parents=True, exist_ok=True)
+        fake = _TempoEquivalenceClient()
+        app, client = _start_fake_session(folder, f"eq-{delay_ms}", fake, ai_delay_ms=delay_ms)
+        try:
+            _wait_for_pending(client, f"eq-{delay_ms}", "dec-h-1")
+            t0 = time.monotonic()
+            resp = client.post(
+                f"/api/play/eq-{delay_ms}/decision",
+                json={"decision_id": "dec-h-1", "selected_option_ids": ["pass-1"], "ordering": []},
+            )
+            assert resp.status_code == 200
+            snap = _wait_for_pending(client, f"eq-{delay_ms}", "dec-h-2")
+            elapsed = time.monotonic() - t0
+            frames = snap["frames"]
+            assert isinstance(frames, list)
+            return list(fake.submitted_responses), list(frames), elapsed
+        finally:
+            app.state.play_manager.shutdown_all()  # type: ignore[attr-defined]
+
+    responses_0, frames_0, elapsed_0 = _run_with_delay(0, "d0")
+    responses_250, frames_250, elapsed_250 = _run_with_delay(250, "d250")
+
+    # Pause must never alter the decision sequence or the recorded frames.
+    assert responses_0 == responses_250
+    assert frames_0 == frames_250
+    assert len(responses_0) == 8  # 1 human + 6 forced AI + 1 visible AI
+    # With 6 forced + 1 visible step at 250 ms, only the 1 visible step pauses (~0.25 s, not 1.75 s).
+    assert elapsed_250 >= 0.20
+    assert elapsed_250 < 1.25
+    assert elapsed_0 < 1.0
+
+
+# ---- new decisions are reported at once, not at a fixed interval (#1593) ---------------------------
+
+
+def _held_get(
+    client: TestClient, game_id: str, *, start: int, since: int | None, wait_ms: int
+) -> tuple[dict[str, object], float]:
+    query = f"start={start}&wait_ms={wait_ms}" + ("" if since is None else f"&since={since}")
+    began = time.monotonic()
+    response = client.get(f"/api/play/{game_id}?{query}")
+    assert response.status_code == 200
+    return response.json(), time.monotonic() - began
+
+
+def test_a_held_state_request_returns_with_the_next_decision_and_hides_nothing(
+    tmp_path: Path,
+) -> None:
+    app, client = _start_fake_session(tmp_path, "held-1", _FakeInteractiveClient())
+    try:
+        first = _wait_for_pending(client, "held-1", "dec-h-1")
+        revision = first["revision"]
+        assert type(revision) is int
+        answered: dict[str, object] = {}
+
+        def hold() -> None:
+            other = TestClient(app, headers={"X-Studio": "1"})
+            page, took = _held_get(other, "held-1", start=0, since=revision, wait_ms=6000)
+            answered.update(page=page, took=took)
+
+        waiter = threading.Thread(target=hold)
+        waiter.start()
+        time.sleep(0.3)
+        assert not answered, "nothing changed yet: the request must still be held"
+        sent = time.monotonic()
+        post = client.post(
+            "/api/play/held-1/decision",
+            json={"decision_id": "dec-h-1", "selected_option_ids": ["pass-1"], "ordering": []},
+        )
+        assert post.status_code == 200
+        waiter.join(timeout=5.0)
+        assert answered, "the held request must end when the decision was answered"
+        page = answered["page"]
+        assert isinstance(page, dict)
+        assert page["revision"] != revision
+        assert time.monotonic() - sent < 3.0 and float(answered["took"]) < 5.0  # type: ignore[arg-type]
+        assert _FakeInteractiveClient.SECRET_CARD not in json.dumps(
+            page
+        )  # hidden info (AGENTS.md section 5)
+        # Follow the game the way the page does: ask again with the last revision until the next
+        # decision of the human is there, always from the number of frames already held.
+        held = list(page["frames"])  # type: ignore[arg-type]
+        last = page
+        for _ in range(20):
+            pending = last.get("pending_decision")
+            if isinstance(pending, dict) and pending.get("decision_id") == "dec-h-2":
+                break
+            last, _took = _held_get(
+                client,
+                "held-1",
+                start=len(held),
+                since=int(last["revision"]),
+                wait_ms=2000,  # type: ignore[call-overload]
+            )
+            held.extend(last["frames"])  # type: ignore[arg-type]
+        assert isinstance(last["pending_decision"], dict)
+        assert last["pending_decision"]["decision_id"] == "dec-h-2"
+        assert _FakeInteractiveClient.SECRET_CARD not in json.dumps(last)
+        # No frame lost or doubled by the held requests.
+        full = client.get("/api/play/held-1").json()
+        assert held == full["frames"]
+    finally:
+        app.state.play_manager.shutdown_all()  # type: ignore[attr-defined]
+
+
+def test_a_held_state_request_without_change_times_out_with_the_same_state(
+    tmp_path: Path,
+) -> None:
+    app, client = _start_fake_session(tmp_path, "held-2", _FakeInteractiveClient())
+    try:
+        first = _wait_for_pending(client, "held-2", "dec-h-1")
+        page, took = _held_get(
+            client,
+            "held-2",
+            start=0,
+            since=int(first["revision"]),
+            wait_ms=300,  # type: ignore[call-overload]
+        )
+        assert 0.25 <= took < 2.0
+        assert page["revision"] == first["revision"]
+        assert page["pending_decision"] == first["pending_decision"]
+        # A stale revision, no revision, and an unknown game never wait.
+        stale, took = _held_get(client, "held-2", start=0, since=0, wait_ms=6000)
+        assert took < 1.0 and stale["revision"] == first["revision"]
+        plain, took = _held_get(client, "held-2", start=0, since=None, wait_ms=6000)
+        assert took < 1.0 and "revision" in plain
+        assert client.get("/api/play/held-2?since=-1&wait_ms=10").status_code == 422
+        assert client.get("/api/play/nope?since=1&wait_ms=10").status_code == 404
+    finally:
+        app.state.play_manager.shutdown_all()  # type: ignore[attr-defined]
+
+
+def test_a_held_state_request_is_capped_and_never_waits_on_a_finished_game(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(play, "MAX_LONG_POLL_SECONDS", 0.2)
+    app, client = _start_fake_session(tmp_path, "held-3", _FakeInteractiveClient())
+    try:
+        first = _wait_for_pending(client, "held-3", "dec-h-1")
+        _page, took = _held_get(
+            client,
+            "held-3",
+            start=0,
+            since=int(first["revision"]),
+            wait_ms=60_000,  # type: ignore[call-overload]
+        )
+        assert 0.15 <= took < 2.0  # the server cap, not the 60 s asked for
+        assert client.post("/api/play/held-3/concede", json={}).status_code == 200
+        done = _wait_finished(client, "held-3")
+        again, took = _held_get(
+            client, "held-3", start=0, since=int(done["revision"]), wait_ms=6000
+        )  # type: ignore[call-overload]
+        assert took < 1.0 and again["running"] is False
+    finally:
+        app.state.play_manager.shutdown_all()  # type: ignore[attr-defined]
+
+
+def test_revision_moves_with_every_visible_change_and_only_then(tmp_path: Path) -> None:
+    app, client = _start_fake_session(tmp_path, "rev-1", _FakeInteractiveClient())
+    try:
+        first = _wait_for_pending(client, "rev-1", "dec-h-1")
+        same = client.get("/api/play/rev-1").json()
+        assert same["revision"] == first["revision"]  # reading and speed changes are no change
+        assert client.post("/api/play/rev-1/speed", json={"ai_delay_ms": 0}).status_code == 200
+        assert client.get("/api/play/rev-1").json()["revision"] == first["revision"]
+        client.post(
+            "/api/play/rev-1/decision",
+            json={"decision_id": "dec-h-1", "selected_option_ids": ["pass-1"], "ordering": []},
+        )
+        second = _wait_for_pending(client, "rev-1", "dec-h-2")
+        assert int(second["revision"]) > int(first["revision"])  # type: ignore[call-overload]
+    finally:
+        app.state.play_manager.shutdown_all()  # type: ignore[attr-defined]
+
+
+_FOLLOW_PRELUDE = "const F = require('./follow.js');"
+
+
+def test_follow_module_holds_requests_and_falls_back_to_the_fixed_intervals() -> None:
+    script = (
+        _FOLLOW_PRELUDE
+        + """
+const base = {interactive: true, fastForward: false, hasPendingDecision: false, revision: 5,
+  failed: false, held: true, changed: true, elapsedMs: 3000};
+const delay = (over) => F.nextDelayMs(Object.assign({}, base, over));
+console.log(JSON.stringify({
+  heldChanged: delay({}),
+  heldTimedOut: delay({changed: false, elapsedMs: 8000}),
+  rateLimited: delay({elapsedMs: 5}),
+  instantUnchanged: delay({changed: false, elapsedMs: 3}),
+  instantUnchangedFf: delay({changed: false, elapsedMs: 3, fastForward: true}),
+  instantUnchangedPending: delay({changed: false, elapsedMs: 3, hasPendingDecision: true}),
+  firstAsk: delay({held: false, elapsedMs: 0}),
+  failedPlain: delay({failed: true}),
+  failedPending: delay({failed: true, hasPendingDecision: true}),
+  failedFf: delay({failed: true, fastForward: true}),
+  noRevision: delay({revision: null, held: false}),
+  watching: delay({interactive: false}),
+  path: F.statePath('g 1', 7, true, 5, true),
+  pathNoHold: F.statePath('g 1', 7, true, 5, false),
+  pathNoRevision: F.statePath('g 1', 7, true, null, true),
+  pathWatching: F.statePath('g1', 0, false, 5, true),
+  revisions: [F.parseRevision({revision: 0}), F.parseRevision({revision: 4}), F.parseRevision({}),
+    F.parseRevision({revision: '4'}), F.parseRevision({revision: -1}), F.parseRevision(null)]
+}));
+"""
+    )
+    out = _node_json(script)
+    assert isinstance(out, dict)
+    assert out["heldChanged"] == 0 and out["heldTimedOut"] == 0
+    assert out["rateLimited"] == 35  # at most about 25 held requests a second while the AI plays
+    # the fixed intervals of before (400 ms, 1.5 s with an open decision, 150 ms fast-forward)
+    assert out["instantUnchanged"] == 400 and out["instantUnchangedPending"] == 1500
+    assert out["instantUnchangedFf"] == 150
+    assert out["failedPlain"] == 400 and out["failedPending"] == 1500 and out["failedFf"] == 150
+    assert out["firstAsk"] == 0 and out["noRevision"] == 400 and out["watching"] == 2000
+    assert out["path"] == "/api/play/g%201?start=7&count=1000&since=5&wait_ms=8000"
+    assert out["pathNoHold"] == "/api/play/g%201?start=7&count=1000"
+    assert out["pathNoRevision"] == "/api/play/g%201?start=7&count=1000"
+    assert out["pathWatching"] == "/api/games/g1?start=0&count=1000"
+    assert out["revisions"] == [0, 4, None, None, None, None]
+
+
+def test_partie_page_follows_with_held_requests_and_no_second_loop() -> None:
+    html = (STATIC / "partie.html").read_text(encoding="utf-8")
+    js = (STATIC / "partie.js").read_text(encoding="utf-8")
+    follow_js = (STATIC / "follow.js").read_text(encoding="utf-8")
+    assert html.index('src="follow.js"') < html.index('src="partie.js"')
+    # the fixed 400/1500/150 ms intervals live in one place (follow.js), not in the page
+    for interval in ("? 1500 : 400", "? 150 :"):
+        assert interval not in js
+    assert "StudioFollow.nextDelayMs(" in js and "StudioFollow.statePath(" in js
+    # one follow loop at a time: a newer loop ends the older one and its held request
+    assert "state.followGen += 1" in js and "generation !== state.followGen" in js
+    assert "abortHeldRequest()" in js and "new AbortController()" in js
+    # a failed request keeps the banner and the fixed intervals; frames are asked from what is held
+    assert "showConnectionLost(state.pollFailures, error.message)" in js
+    assert "start=${start}" in follow_js
+    for forbidden in (
+        "innerHTML",
+        "outerHTML",
+        "style=",
+        "document.",
+        "window.",
+        "fetch(",
+        "eval(",
+    ):
+        assert forbidden not in follow_js, forbidden
+    paths = sorted(set(re.findall(r"/api/[a-z0-9_/${}()?=&.-]+", follow_js, re.IGNORECASE)))
+    assert paths and all(p.startswith(("/api/games/", "/api/play/")) for p in paths), paths

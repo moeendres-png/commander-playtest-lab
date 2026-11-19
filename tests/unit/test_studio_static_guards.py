@@ -286,8 +286,10 @@ def test_the_word_urteil_only_appears_in_negations() -> None:
 def test_partie_loads_one_page_at_a_time_and_reloads_when_hands_are_revealed() -> None:
     js = (STATIC / "partie.js").read_text(encoding="utf-8")
     # loads run one after the other, never two with the same start
-    assert "loadTail = run.catch(" in js and "loadTail.then(loadMoreOnce)" in js
-    once = js.split("async function loadMoreOnce() {", 1)[1].split("async function openGame", 1)[0]
+    assert "loadTail = run.catch(" in js and "loadTail.then(() => loadMoreOnce(hold))" in js
+    once = js.split("async function loadMoreOnce(hold) {", 1)[1].split(
+        "async function openGame", 1
+    )[0]
     assert "page.start !== requestedStart" in once  # a page for another position is dropped
     assert "state.gameId !== gameId" in once  # an answer for a game that is no longer open
     # the game ended while watched: reload from the start so the revealed hands arrive
@@ -1625,6 +1627,71 @@ async function runOrder(delays) {{
         "strengthReady": True,
     }
     assert slow["finalSnap"] == fast["finalSnap"] == expected_snap
+
+
+def test_play_p1a_accessibility_focus_and_static_sinks() -> None:
+    """Issue #1529 (Play P1a): keyboard focus, stack rail, own-combat label, yield modes,
+    and no innerHTML / style= / .toFixed( in the Play P1a files."""
+    html = (STATIC / "partie.html").read_text(encoding="utf-8")
+    css = (STATIC / "partie.css").read_text(encoding="utf-8")
+    partie_js = (STATIC / "partie.js").read_text(encoding="utf-8")
+    p1a_js = (STATIC / "play_p1a.js").read_text(encoding="utf-8")
+    vorspulen_js = (STATIC / "vorspulen.js").read_text(encoding="utf-8")
+    boardclick_js = (STATIC / "boardclick.js").read_text(encoding="utf-8")
+
+    assert html.index('src="play_p1a.js"') < html.index('src="partie.js"')
+    for token in (
+        'id="ff-mode"',
+        'aria-label="Vorspul-Modus"',
+        'value="until_my_turn"',
+        'value="until_end_of_turn"',
+        'value="until_stack_resolves"',
+        'id="own-combat"',
+        'id="ff-stack-hint"',
+        'class="stack-rail"',
+    ):
+        assert token in html, token
+
+    for rule in (
+        "#ff-mode:focus-visible",
+        "button.card:focus-visible",
+        ".own-combat",
+    ):
+        assert rule in css, rule
+
+    # the stack items do nothing themselves (their card tile is the only control): no extra tab stop
+    assert "tabindex" not in partie_js
+    # the book-keeping of an answer runs in play_p1a.js (node-tested), after the engine accepted it;
+    # both automatic passes hand over their reason instead of writing the log line themselves
+    assert "StudioPlayP1a.submitAnswer(" in partie_js
+    for wiring in (
+        " getPendingDecision: () => state.pendingDecision",
+        ' post: (body) => api(`/api/play/${encodeURIComponent(state.gameId)}/decision`, "POST", body)',
+        " getLedger: () => state.ownCombat",
+        " setLedger: (ledger) => { state.ownCombat = ledger; }",
+        " logAutoPass: appendAutoPassLog",
+    ):
+        assert wiring in partie_js, wiring
+    assert partie_js.count("autoPassReason:") == 2
+    assert "appendAutoPassLog(pending" not in partie_js
+    assert "StudioPlayP1a.ownCombatView(" in partie_js
+    assert "StudioPlayP1a.clearOwnCombatLedger(" not in partie_js
+    assert "syncFastForwardControls()" in partie_js and "StudioFastForward.retarget(" in partie_js
+    assert "beginning_combat" not in partie_js
+    assert "eigene Angaben" in p1a_js
+
+    for name, src in (
+        ("play_p1a.js", p1a_js),
+        ("vorspulen.js", vorspulen_js),
+        ("boardclick.js", boardclick_js),
+        ("partie.js", partie_js),
+        ("partie.html", html),
+    ):
+        for forbidden in ("innerHTML", "outerHTML", "style=", 'setAttribute("style"', ".toFixed("):
+            assert forbidden not in src, f"{name}: {forbidden}"
+
+    for sink in ("document.", "window.", "fetch(", "eval("):
+        assert sink not in p1a_js, sink
 
 
 def test_home_page_reserves_layout_space_against_cls() -> None:

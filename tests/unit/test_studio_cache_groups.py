@@ -161,7 +161,7 @@ def test_every_cached_call_names_a_registered_kind_and_every_kind_is_used() -> N
     assert unreadable == []
     assert found - set(cache.KINDS) == set()  # no call with an undeclared kind
     assert set(cache.KINDS) - found == set()  # no declaration without a call
-    assert len(found) == 27
+    assert len(found) == 28
 
 
 def test_answer_keys_are_one_kind_per_route_sharing_one_size_limit() -> None:

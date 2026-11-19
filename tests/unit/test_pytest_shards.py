@@ -604,3 +604,48 @@ def test_any_weight_table_still_partitions_every_file(
             for i in range(len(plan))
         ]
     assert sorted(name for run in runs for name in run) == sorted(names)
+
+
+def test_shard_timing_breakdown_is_logged_in_stdout_and_shard_logs(tmp_path: Path) -> None:
+    root = _suite(tmp_path)
+    done = _run_sharded(root)
+    assert done.returncode == 1, done.stdout + done.stderr
+
+    timing_pattern = re.compile(
+        r"^pytest shard (?P<shard>\d+)/2 timing: "
+        r"copy=(?P<copy>\d+\.\d+)s pytest=(?P<pytest>\d+\.\d+)s "
+        r"cleanup=(?P<cleanup>\d+\.\d+)s total=(?P<total>\d+\.\d+)s$",
+        re.MULTILINE,
+    )
+    summary_pattern = re.compile(
+        r"^shard run summary: wall=(?P<wall>\d+\.\d+)s "
+        r"max_copy=(?P<max_copy>\d+\.\d+)s max_pytest=(?P<max_pytest>\d+\.\d+)s "
+        r"max_cleanup=(?P<max_cleanup>\d+\.\d+)s merge=(?P<merge>\d+\.\d+)s "
+        r"scratch_cleanup=(?P<scratch_cleanup>\d+\.\d+)s$",
+        re.MULTILINE,
+    )
+
+    for shard_index in (1, 2):
+        shard_log = (root / f"out/pytest-shard-{shard_index}.log").read_text(encoding="utf-8")
+        matches = list(timing_pattern.finditer(shard_log))
+        assert len(matches) == 1, shard_log
+        match = matches[0]
+        assert int(match.group("shard")) == shard_index
+        for field in ("copy", "pytest", "cleanup", "total"):
+            assert float(match.group(field)) >= 0.0
+        assert match.group(0) in done.stdout
+
+    summary_match = summary_pattern.search(done.stdout)
+    assert summary_match is not None, done.stdout
+    for field in ("wall", "max_copy", "max_pytest", "max_cleanup", "merge", "scratch_cleanup"):
+        assert float(summary_match.group(field)) >= 0.0
+
+    # Timing output does not alter test selection or shard results.
+    report = ET.parse(root / "out/pytest-junit.xml").getroot()
+    assert (report.get("tests"), report.get("failures")) == ("5", "1")
+    assert {case.get("name") for case in report.iter("testcase")} == {
+        "test_a",
+        "test_b",
+        "test_ok",
+        "test_bad",
+    }

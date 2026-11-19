@@ -411,3 +411,124 @@ def test_condition4_telemetry_persisted_and_exposed_by_studio_games(tmp_path: Pa
     partie_js = (ROOT / "src/commander_lab/studio/static/partie.js").read_text(encoding="utf-8")
     assert "forced_decisions_skipped" in partie_js
     assert "erzwungene Pässe" in partie_js
+
+
+# ---- interactive play uses the series switches (#1591) ----------------------------------------
+
+SKIP_ON = "-Dcommanderlab.fullGame.skipForcedDecisions=true"
+SKIP_OFF = "-Dcommanderlab.fullGame.skipForcedDecisions=false"
+
+
+def test_interactive_command_has_the_series_flags_and_keeps_the_jar_and_launch_words(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    jar = tmp_path / "bridge.jar"
+    jar.write_bytes(b"x")
+    monkeypatch.setenv(launch.ENGINE_COMMAND_ENV, f"java -Xmx3g -jar {jar} full-game")
+    base = launch.engine_command(tmp_path)
+    assert base == ("java", "-Xmx3g", "-jar", str(jar), "full-game")
+    command = launch.interactive_bridge_command(base)
+    assert command is not None
+    assert SKIP_ON in command and "-XX:+UseSerialGC" in command
+    assert command[0] == "java" and command[-3:] == ("-jar", str(jar.resolve()), "full-game")
+    assert "-Xmx3g" in command and command.count(SKIP_ON) == 1
+    # no batch property: an interactive game is one game in one JVM
+    assert not any("gamesPerJvm" in part for part in command)
+    # the series command is the same command plus the batch property, nothing else
+    series = launch.series_engine(tmp_path, 1)
+    assert series is not None and series.command == command
+
+
+def test_interactive_command_honours_the_environment_override(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    jar = tmp_path / "bridge.jar"
+    jar.write_bytes(b"x")
+    # the switch can be turned off in the environment command (the "without switch" probe)
+    off = launch.interactive_bridge_command(("java", SKIP_OFF, "-jar", str(jar), "full-game"))
+    assert off is not None and SKIP_OFF in off and SKIP_ON not in off
+    # serial GC is not added twice
+    twice = launch.interactive_bridge_command(
+        ("java", "-XX:+UseSerialGC", "-jar", str(jar), "full-game")
+    )
+    assert twice is not None and twice.count("-XX:+UseSerialGC") == 1
+    # another collector named by the user: no second collector flag (the JVM would not start)
+    for gc in ("-XX:+UseG1GC", "-XX:+UseParallelGC", "-XX:+UseZGC"):
+        own = launch.interactive_bridge_command(("java", gc, "-jar", str(jar), "full-game"))
+        assert own is not None and gc in own and "-XX:+UseSerialGC" not in own
+        assert SKIP_ON in own and "-Dh2.bindAddress=127.0.0.1" in own
+        series = launch.fast_bridge_command(("java", gc, "-jar", str(jar), "full-game"))
+        assert series == own
+    # a program argument after -jar is no collector choice of the user
+    after = launch.interactive_bridge_command(
+        ("java", "-jar", str(jar), "full-game", "-XX:+UseZGC")
+    )
+    assert after is not None and "-XX:+UseSerialGC" in after
+    # a launcher that is not java, or has no -jar file, is used as it is; no engine stays none
+    assert launch.interactive_bridge_command(("/opt/wrapper", "full-game")) == (
+        "/opt/wrapper",
+        "full-game",
+    )
+    assert launch.interactive_bridge_command(("java", "-jar")) == ("java", "-jar")
+    assert launch.interactive_bridge_command(None) is None
+    # the environment command itself is not changed: it is still what engine_command returns
+    monkeypatch.setenv(launch.ENGINE_COMMAND_ENV, f"java -jar {jar} full-game")
+    assert launch.engine_command(tmp_path) == ("java", "-jar", str(jar), "full-game")
+
+
+def test_interactive_command_names_the_archive_only_when_present(tmp_path: Path) -> None:
+    jar = tmp_path / "bridge.jar"
+    jar.write_bytes(b"x")
+    base = ("java", "-jar", str(jar), "full-game")
+    plain = launch.interactive_bridge_command(base)
+    assert plain is not None
+    assert not any(part.startswith("-XX:SharedArchiveFile=") for part in plain)
+    jar.with_suffix(".jsa").write_bytes(b"x")
+    archived = launch.interactive_bridge_command(base)
+    assert archived is not None
+    assert any(part.startswith("-XX:SharedArchiveFile=") for part in archived)
+
+
+def test_the_play_manager_starts_the_session_with_the_fast_command(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from commander_lab.models import RulesDeckInput
+    from commander_lab.studio import play
+
+    jar = tmp_path / "bridge.jar"
+    jar.write_bytes(b"x")
+    monkeypatch.setenv(launch.ENGINE_COMMAND_ENV, f"java -Xmx3g -jar {jar} full-game")
+    decks = tuple(
+        play._with_hash(
+            RulesDeckInput(
+                deck_id=deck_id,
+                name=deck_id,
+                deck_hash=None,
+                commander_names=(name,),
+                mainboard=("Forest",) * 99,
+                sideboard=(),
+            )
+        )
+        for deck_id, name in (
+            ("own", "Chulane, Teller of Tales"),
+            ("opp", "Kinnan, Bonder Prodigy"),
+        )
+    )
+    monkeypatch.setattr(play, "load_decks", lambda _paths: decks)
+    monkeypatch.setattr(play, "bridge_jar_sha256", lambda *_a, **_k: "ab" * 32)
+    started: list[play.InteractiveGameSession] = []
+
+    def fake_start(self: play.InteractiveGameSession, **_kwargs: object) -> None:
+        started.append(self)
+
+    monkeypatch.setattr(play.InteractiveGameSession, "start", fake_start)
+    play.InteractivePlayManager().start_game(
+        tmp_path, [Path("a.json"), Path("b.json")], seed=3, human_seats=[0], game_id="g-1591"
+    )
+    assert len(started) == 1
+    command = started[0]._command
+    assert command is not None
+    assert SKIP_ON in command and "-XX:+UseSerialGC" in command
+    assert command[-3:] == ("-jar", str(jar.resolve()), "full-game")
+    # the human seat is still declared to the bridge, which never skips a human decision
+    assert started[0].human_seats == frozenset({0})

@@ -136,7 +136,7 @@ Die Qualifizierung erfolgt in der vom Owner verbindlich festgelegten Reihenfolge
 ---
 
 ### Priorität 6: ACTIVE-Drive Curated Chulane 99-Card Deck-Korpus
-- **Quellen-ID:** `active_drive:chulane-corpus-975`
+- **Quellen-ID:** `repo:chulane-corpus` (bis 2026-11-19 `active_drive:chulane-corpus-975`; Kennung berichtigt, weil Titel und Zahlen den 975er-Bestand überholt haben)
 - **Direkte URL:** `local:data/hub/03_MAINBOARD_99_COMPACT_*.jsonl`
 - **Referenz-Dokumentation:** [`docs/STUDIO_DECKBUILDER.md`](../STUDIO_DECKBUILDER.md)
 - **Herausgeber:** Commander Studio ACTIVE Archive / Owner
@@ -216,6 +216,17 @@ Die Qualifizierung erfolgt in der vom Owner verbindlich festgelegten Reihenfolge
 ## 3. Deliverable 2: 801-Karten-Lückenmatrix & Long-Tail-Analyse
 
 Die vollständige Lückenmatrix für den gesamten legalen Chulane-Pool ($N = 801$ Karten) wurde berechnet und in [`data/research/chulane_legal_pool_gap_matrix.json`](../../data/research/chulane_legal_pool_gap_matrix.json) hinterlegt.
+
+### Zwei Lückenmatrizen, zwei Zwecke (Refs #1545)
+
+| | Evidenz-Lückenmatrix (diese Datei, `studio sources --gap-report`) | Deck-Häufigkeitsmatrix (`scripts/build_gap_matrix_from_store.py`) |
+|---|---|---|
+| Frage | Welche Poolkarten sollen als Nächstes recherchiert werden? | Wie dünn sind die Deck-Daten unter dem Pool? |
+| Je Karte | Coverage-Grade und `research_priority_score` über alle Evidenzschichten, mit Kartenname | nur Zählklassen (in keinem Deck, 1 bis 4, 5 bis 29, 30 bis 99, 100 oder mehr, unbekannt), keine Namen |
+| Nenner | Korpus-Kohorte `ALL_DECKS` des Pools (Standard 975 nur, wenn keine Kohorte vorliegt) | Zahl der deduplizierten lokalen Deck-Listen des Universums; je Universum und je Bracket-Gruppe ein eigener Nenner, nie addiert |
+| Stand | wird nur auf Aufruf geschrieben | aus dem aktuellen Store erzeugt; Kopf mit Zeit, Pool-Größe, Nennern, Store-Fingerabdruck |
+
+Die beiden benutzen verschiedene Karten-Maße und Nenner; ein Zusammenführen würde die bestehenden Grade und Zahlen ändern und ist deshalb nicht erfolgt. Gemeinsam ist nur der Pool (`builder.pool_cards`). Eine Zahl aus einer der beiden wird nie ohne ihren Nenner genannt. Aktuelle Werte stehen in der jeweils erzeugten Datei, nicht in diesem Text.
 
 ### Methodik der Lückenberechnung
 
@@ -349,3 +360,30 @@ Gemäß den P0-Abnahmekriterien aus Issue #1185 wurde ein strukturierter Beispie
    - [`data/research/chulane_legal_pool_gap_matrix.json`](../../data/research/chulane_legal_pool_gap_matrix.json): Vollständige Matrix für alle 801 legalen Poolkarten mit `research_priority_score`, `coverage_grade` und Long-Tail-Kennzeichnung.
 3. **Unit-Tests:**
    - [`tests/unit/test_studio_sources.py`](../../tests/unit/test_studio_sources.py): 12 Tests, $100\,\%$ Test-Hygiene, 0 `Any`-Verletzungen, vollständige CLI-Abdeckung.
+
+---
+
+## 6. Nachtrag 2026-11-19 (Korrekturvermerk, Refs #1546)
+
+Die obigen Abschnitte 1–5 dokumentieren den historischen Stand vom 2026-11-11 unverändert. Eine Prüfung der Originalseiten, Nutzungsbedingungen und `robots.txt` am **2026-11-18** (vgl. [`docs/research/data_wave1_20261118/PLAN.md`](data_wave1_20261118/PLAN.md), Issue `#1546`) ergab wesentliche Korrekturen am maschinenlesbaren Quellregister ([`src/commander_lab/studio/sources.py`](../../src/commander_lab/studio/sources.py) und [`data/provenance/source_inventory.json`](../../data/provenance/source_inventory.json)):
+
+1. **Trennung von Datenqualität (`status`) und automatisiertem Zugangsrecht (`access_status`):**
+   Jede Quelle führt nun zusätzlich `access_status` (`ok`, `ok_with_conditions`, `unclear`, `prohibited`), `access_evidence_url` und `access_checked_at_utc` (`2026-11-18`). Der bestehende Datenqualitäts-Status (`VERIFIED` / `REVIEW` / `UNAVAILABLE`) bleibt davon getrennt.
+2. **Tote lokale Pfade bereinigt und Kennung berichtigt (`repo:chulane-corpus`, früher `active_drive:chulane-corpus-975`):**
+   Der historische Verweis `local:data/hub/…` existierte nie im Repository. Der gezählte kanonische Chulane-Korpus liegt im Repository unter `local:data/research/chulane_corpus` (`local:data/research/chulane_corpus/README.md`). Seine Decks stammen aus EDHREC- (2.300 + 7.528) und Archidekt-Ernte (723), beide im Register `prohibited`; der Eintrag führt darum `access_status: prohibited` (Bestand nutzbar nach Owner-Entscheid #1557: EDHREC-Bestand weiter nutzen, keine neuen automatisierten Abrufe ohne schriftliche Erlaubnis, Archidekt kein Scraping; keine Nachernte). Abrufzeit und Snapshot-Kennung des Korpus als Ganzes sind nicht belegt (README nennt nur den Refresh vom 2026-11-15): beide Felder sind leer (unbekannt), die Reproduzierbarkeit steht auf `UNKNOWN_NO_SNAPSHOT_RECORDED`. Ein Unit-Test prüft nun, dass jeder `local:`-Pfad im Register tatsächlich existiert.
+3. **Berichtigter Zugangsstatus je Quelle (Stand 2026-11-18):**
+   - **Scryfall Bulk Oracle (`scryfall:bulk-oracle`)** & **Scryfall Tagger (`scryfall:tagger`):** `ok_with_conditions` — Scryfall API Terms; Tagger-Daten stehen als offizieller Bulk-Export („Oracle Tags“) bereit (nicht mehr wegen Lizenz blockiert; Datenqualität bleibt `REVIEW` wegen Community-Subjektivität). Generischer `User-Agent` und `Accept`, Preisfelder entfernen, kein KI-Training.
+   - **Commander Spellbook (`spellbook:variants-api`):** `ok_with_conditions` — die frühere Aussage „uneingeschränkt frei nutzbar via REST-API“ trifft nicht zu. Der Betreiber schließt Vollexporte über die HTTP-API aus und empfiehlt den Bulk-Export `https://json.commanderspellbook.com/variants.json.gz`; REST nur für vereinzelte Anfragen (~80/min, HTTP 429 beachten); `backend.commanderspellbook.com/robots.txt` sperrt Crawler. Datenlizenz „CC BY 4.0“ auf den gelesenen Seiten nicht bestätigt (Quellcode MIT). `scripts/spellbook_combos_fetch.py` wurde auf den Bulk-Export umgestellt.
+   - **Playgroup.gg (`playgroup:card-atlas`, `playgroup:chulane`):** `ok_with_conditions` — die frühere Angabe „keine Bulk-API, Scraping untersagt“ ist überholt. Die öffentliche OpenAPI-Beschreibung erlaubt Massenabruf ausdrücklich (400 Anfragen/min mit erkennbarem generischem User-Agent, sonst 10/min; authentifizierter Spiele-Endpunkt bleibt ausgeschlossen). Die dort genannte Lizenz CC BY 4.0 (Nennung mit Link) ist **ungeklärt, keine rechtliche Prüfung** ([`data_wave1_20261118/README.md`](data_wave1_20261118/README.md) §4). Chulane-Winrate „36 %“ (770 Siege, 1.304 Niederlagen, 2.094 aufgezeichnete Spiele) ist die vom Anbieter veröffentlichte Zahl laut Spezifikation vom 2026-11-08 und rechnet sich nicht auf einen Nenner auf; die Zählweisen Welle 1 (449 / 1.111 bewertete Sitze, 40,4 %, Abruf 2026-11-18) und CSV (782 / 2.110 Spiele, 37 %) bleiben getrennt.
+   - **EDHREC (`edhrec:chulane`):** `prohibited` — die Nutzungsbedingungen (gültig ab 2024-08-06) erlauben nur persönliche Nutzung und untersagen automatisierte Abfragen/Skripte; `robots.txt` sperrt `/deckpreview/`, `json.edhrec.com/robots.txt` liefert HTTP 403. Der Datenqualitäts-Status `VERIFIED` bezieht sich ausschließlich auf die historischen Snapshots, nicht auf ein Zugangsrecht.
+   - **Archidekt (`archidekt:decks`):** `prohibited` (neu im Register, Priorität 10) — wortgleiche Nutzungsbedingungen wie EDHREC (ab 2018-09-07), keine öffentliche API-Dokumentation.
+   - **Moxfield (`moxfield:decks`):** `prohibited` (neu im Register, Priorität 11) — `api2.moxfield.com/robots.txt` sperrt alle Pfade (`Disallow: /`).
+   - **Turnierquellen (`tournament:cedh-meta`):** `unclear` — EDHTop16 dokumentiert kein Rate-Limit; TopDeck.gg API v2 verlangt einen Owner-Schlüssel und verbietet Scraping außerhalb der API. Owner-Entscheid #1557 Punkt 3: kein TopDeck-API-Schlüssel, solange kein cEDH-Bezug gewünscht ist; `scripts/collect_topdeck_decks.py` verweigert jede Live-Anfrage ohne Schlüssel.
+   - **XMage Card Facts (`xmage:card-facts`):** `ok` — lokales Repository-Asset (`local:data/cards/xmage_card_facts.json`, Export 2026-11-12, 32.615 Karten); kein Prüfdatum, da lokale Quelle ohne Nutzungsbedingungen. Poolabdeckung laut Lückenmatrix vom 2026-11-12: `has_xmage_rules` 807 / 927 Poolkarten (die frühere Angabe „801 / 801“ ist nicht belegt und entfernt).
+4. **Abrufskripte (`scripts/`):**
+   Alle Abrufskripte führen einen generischen `User-Agent` ohne Projekt-, Personen-, Repository- oder Kontaktbezug (Owner-Entscheid #1557 Punkt 4; auch `roles.py` und `collect_topdeck_decks.py`, das zuvor einen Browser nachahmte). Mehrere akzeptieren `--user-agent`; das EDHREC-Fangskript nicht mehr.
+5. **Sperren der Abrufskripte (fail-closed, Refs #1557):**
+   - `scripts/studio_edhrec_provenance/capture_public_chulane.py` (EDHREC, `prohibited`) läuft live nur mit der Umgebungsvariable `EDHREC_WRITTEN_PERMISSION_REF`, die auf die schriftliche Erlaubnis des Betreibers verweist; ohne sie Exit 2 mit Erklärung und ohne Netzwerkzugriff (`--dry-run` bleibt offline).
+   - `scripts/spellbook_combos_fetch.py` greift nur mit `--allow-network` aufs Netz (ohne `--bulk` und ohne Flag Abbruch vor Store und Verbindung), begrenzt den Abruf (`--max-download-mb`, Standard 1024; `Content-Length` über der Grenze wird vor dem Lesen abgelehnt) und liest das entpackte Dokument inkrementell mit Grenze (`--max-unpacked-mb`, Standard 4096; Muster `scripts/data_wave1/_common.py`).
+   - `scripts/collect_topdeck_decks.py` verweigert Live-Abrufe ohne API-Schlüssel (#1557 Punkt 3) vor jeder Anfrage.
+

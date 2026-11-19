@@ -21,7 +21,7 @@ bestandenes Kriterium (Repo-Regel, AGENTS.md §4).
   - `observation` (Tabelle): jede externe Kennzahl liegt als Zeile mit `metric`, `cohort`,
     `value`, `numerator`, `denominator`, `data_class`, `url`, `snapshot`, `source_id`.
   - `corpus_deck` / `corpus_deck_card` / `corpus_cohort`: lokal gespeicherte Roh-Decklisten
-    (Hub-Korpus: 975 deduplizierte Chulane-Decks, Quelle `active_drive:chulane-corpus-975`,
+    (Hub-Korpus: 975 deduplizierte Chulane-Decks, Quelle `repo:chulane-corpus`,
     VERIFIED). Zählungen daraus sind jederzeit lokal nachrechenbar.
   - Kohorten-Mechanik existiert: `builder.cohort_sizes()` (Gruppen: `all`, je `play_group`,
     je benannte Kohorte), `builder._corpus_hits()`, `queries.corpus_inclusion()`
@@ -282,7 +282,7 @@ Jeder Tier-Wert wird mit dieser Struktur ausgeliefert (API-Feld
   "parameter_set_id": "…", "parameter_hash": "…",
   "computed_at": "<UTC>",
   "signals": [
-    { "signal_id": "A1", "source_id": "active_drive:chulane-corpus-975",
+    { "signal_id": "A1", "source_id": "repo:chulane-corpus",
       "cohort": "all", "numerator": <int|null>, "denominator": <int|null>,
       "value": <float|null>, "data_class": "…",
       "snapshot": "<Quellen-Snapshot/imported_at>", "percentile": <float|null> }
