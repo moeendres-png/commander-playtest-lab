@@ -181,6 +181,13 @@ def corpus_audit(db: sqlite3.Connection, *, today: date) -> dict[str, object]:
             "decks with a finding stay in every denominator; "
             "unbekannt means a point could not be measured, not that it passed"
         ),
+        "notes": [
+            "card_not_legal also counts token rows from the import (not_legal, e.g. Treasure, "
+            "Eldrazi, Merfolk); a deck can be listed for a token alone, not only for a banned card",
+            "card rows without an oracle id are tokens; they raise the card count and are "
+            "counted as they are (nothing is filtered or changed)",
+            "companion and sideboard rows are outside the 100 and not counted",
+        ],
     }
 
 
