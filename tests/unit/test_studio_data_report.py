@@ -326,3 +326,90 @@ def report_names(store: StudioStore) -> list[str]:
     from commander_lab.studio.data_report import _commander_names
 
     return _commander_names(store.connection)
+
+
+def test_data_report_includes_exact_gc_band_crosstab_and_declared_bracket_origins(
+    studio: StudioStore,
+) -> None:
+    db = studio.connection
+    # Stamp a Scryfall snapshot date and mark 4 cards as Game Changers.
+    db.execute(
+        "UPDATE source SET snapshot_date = '2026-11-16' "
+        "WHERE source_id IN (SELECT DISTINCT source_id FROM scryfall_card)"
+    )
+    # A complete list: every card is marked (0 or 1), so no deck is unknown for NULLs.
+    db.execute("UPDATE scryfall_card SET game_changer = 0")
+    db.execute(
+        "UPDATE scryfall_card SET game_changer = 1 "
+        "WHERE name IN ('Filler 01', 'Filler 02', 'Filler 03', 'Filler 04')"
+    )
+    # Attach explicit bracket cohorts to two of the deduplicated corpus decks.
+    deck_ids = [
+        str(row[0])
+        for row in db.execute(
+            "SELECT deck_id FROM corpus_deck WHERE duplicate_of IS NULL ORDER BY deck_id"
+        )
+    ]
+    assert len(deck_ids) == 3
+    db.execute("DELETE FROM corpus_cohort WHERE cohort LIKE 'bracket:%'")
+    db.execute("INSERT INTO corpus_cohort(cohort, deck_id) VALUES ('bracket:2', ?)", (deck_ids[0],))
+    db.execute("INSERT INTO corpus_cohort(cohort, deck_id) VALUES ('bracket:4', ?)", (deck_ids[1],))
+    # Give deck_ids[1] two Game Changers and deck_ids[2] (no bracket) four Game Changers.
+    db.executemany(
+        "INSERT OR REPLACE INTO corpus_deck_card"
+        "(deck_id, card_name, oracle_id, quantity, section, normalization_status) "
+        "VALUES (?, ?, NULL, 1, 'mainboard', 'UNRESOLVED')",
+        [
+            (deck_ids[1], "Filler 01"),
+            (deck_ids[1], "Filler 02"),
+            (deck_ids[2], "Filler 01"),
+            (deck_ids[2], "Filler 02"),
+            (deck_ids[2], "Filler 03"),
+            (deck_ids[2], "Filler 04"),
+        ],
+    )
+    db.commit()
+
+    report = data_report(studio, today=TODAY)
+    ct = _section(report, "gc_band_crosstab")
+    assert ct["total_decks"] == 3
+    assert ct["list_date"] == "2026-11-16"
+    assert ct["provenance"] == (
+        "regelabgeleitet aus Deckliste und Game-Changer-Liste (Markierung vom 2026-11-16)"
+    )
+    assert ct["marking_status"] == "complete"
+    assert "kein Bracket" in str(ct["disclaimer"])
+    rows = ct["rows"]
+    assert isinstance(rows, dict)
+    every_row = ("gc_band:0", "gc_band:1-3", "gc_band:4+", "gc_band:unknown")
+    assert sum(int(rows[band]["total"]) for band in every_row) == 3
+    assert rows["gc_band:0"]["total"] == 1
+    assert rows["gc_band:0"]["by_bracket"]["bracket:2"] == 1
+    assert rows["gc_band:1-3"]["total"] == 1
+    assert rows["gc_band:1-3"]["by_bracket"]["bracket:4"] == 1
+    # deck_ids[2] holds four Game Changers but also the fixture's "Unknown Card", which no
+    # scryfall row resolves: its band is unknown (counted as unresolved), never silently 4+.
+    assert rows["gc_band:4+"]["total"] == 0
+    assert rows["gc_band:unknown"]["total"] == 1
+    assert rows["gc_band:unknown"]["by_bracket"]["ohne_bracket"] == 1
+    assert rows["gc_band:unknown"]["decks_with_unresolved"] == 1
+    assert rows["gc_band:unknown"]["unresolved_cards"] == 1
+    assert ct["decks_with_unresolved"] == 1 and ct["unresolved_cards"] == 1
+    origins = ct["declared_bracket_origins"]
+    assert isinstance(origins, dict) and origins
+    assert sum(int(item["decks_total"]) for item in origins.values()) == 3
+    assert sum(int(item["decks_with_bracket"]) for item in origins.values()) == 2
+    assert sum(int(item["decks_without_bracket"]) for item in origins.values()) == 1
+    # Strictly counts only: no card names or URLs leak into the report.
+    text = json.dumps(report)
+    for forbidden in ("Filler 00", "Filler 01", "http"):
+        assert forbidden not in text
+
+    # NULL markings (an older cache): every deck is unknown in the report, never gc_band:0.
+    db.execute("UPDATE scryfall_card SET game_changer = NULL")
+    db.commit()
+    unknown = _section(data_report(studio, today=TODAY), "gc_band_crosstab")
+    assert unknown["marking_status"] == "missing"
+    assert unknown["rows"]["gc_band:unknown"]["total"] == 3  # type: ignore[index]
+    assert unknown["rows"]["gc_band:0"]["total"] == 0  # type: ignore[index]
+    assert "keine Game-Changer-Markierung" in str(unknown["provenance"])
