@@ -68,7 +68,7 @@ def import_rulings(store: StudioStore, paths: Sequence[str | Path]) -> dict[str,
                 title=file.name,
                 sha256=digest,
                 snapshot_date=readme_retrieval_date(file),
-                url=readme_source_url(file) or "https://scryfall.com/docs/api/rulings",
+                url=readme_source_url(file),
             )
             current_ids.append(source_id)
             report: RulingFileReport = {
