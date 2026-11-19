@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import os
 import re
 import subprocess
 import sys
@@ -108,14 +109,34 @@ def test_red_controls_are_deterministic_and_never_committed() -> None:
 
 def test_the_required_security_job_runs_the_scan_fail_closed() -> None:
     steps = _security_steps()
-    scan = [step for step in steps if "run_broad_secret_scan.py" in (step.get("run") or "")]
-    assert len(scan) == 1
-    step = scan[0]
-    assert "--install-dir" in step["run"]
-    assert "|| true" not in step["run"]
-    assert "continue-on-error" not in step
-    assert step.get("if") == "${{ success() || failure() }}"
+    start_matches = [
+        (idx, step)
+        for idx, step in enumerate(steps)
+        if "run_broad_secret_scan.py" in (step.get("run") or "")
+    ]
+    assert len(start_matches) == 1
+    start_idx, start_step = start_matches[0]
+    assert "--install-dir" in start_step["run"]
+    assert "|| true" not in start_step["run"]
+    assert "continue-on-error" not in start_step
+
+    audit_idx = next(idx for idx, step in enumerate(steps) if step.get("id") == "audit-tooling")
+    assert start_idx < audit_idx, "broad secret scan must start before audit/SBOM steps"
+
+    collect_matches = [
+        (idx, step)
+        for idx, step in enumerate(steps)
+        if step.get("name") == "Collect broad secret scan (pinned gitleaks)"
+    ]
+    assert len(collect_matches) == 1
+    collect_idx, collect_step = collect_matches[0]
+    assert collect_idx > audit_idx
+    assert "|| true" not in collect_step["run"]
+    assert "continue-on-error" not in collect_step
+    assert collect_step.get("if") == "${{ success() || failure() }}"
+
     upload = steps[-1]
+    assert collect_idx < len(steps) - 1
     assert upload["uses"].startswith("actions/upload-artifact@")
     assert upload["with"]["path"] == "artifacts/security/"
 
@@ -341,3 +362,93 @@ def test_root_configuration_bytes_are_scanned_outside_filename_allowlist(tmp_pat
     assert len(calls) == 2
     assert rows[0]["file"] == ".gitleaks.toml"
     assert rows[0]["fingerprint"] == ".gitleaks.toml:github-pat:1"
+
+
+def test_security_parallel_scan_collect_step_fail_closed_controls(tmp_path: Path) -> None:
+    steps = _security_steps()
+    collect = next(
+        step for step in steps if step.get("name") == "Collect broad secret scan (pinned gitleaks)"
+    )
+    script = str(collect["run"])
+
+    def _run_collect(case_name: str, *, setup_fn) -> subprocess.CompletedProcess[str]:
+        work = tmp_path / case_name
+        work.mkdir()
+        runner_temp = work / "runner_temp"
+        scan_dir = runner_temp / "broad-secret-scan"
+        scan_dir.mkdir(parents=True)
+        setup_fn(work, scan_dir)
+        env = {**os.environ, "RUNNER_TEMP": str(runner_temp)}
+        return subprocess.run(
+            ["bash", "-c", script],
+            cwd=work,
+            env=env,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+
+    # 1. Passing background scan: waits, prints full log, verifies report, exits 0.
+    def _ok(work: Path, scan_dir: Path) -> None:
+        (scan_dir / "pid").write_text("999999\n", encoding="utf-8")
+        (scan_dir / "output.log").write_text("broad secret scan PASS\n", encoding="utf-8")
+        (scan_dir / "rc").write_text("0\n", encoding="utf-8")
+        report = work / "artifacts" / "security" / "broad-secret-scan.json"
+        report.parent.mkdir(parents=True, exist_ok=True)
+        report.write_text('{"status": "PASS"}\n', encoding="utf-8")
+
+    ok = _run_collect("pass", setup_fn=_ok)
+    assert ok.returncode == 0, ok.stdout + ok.stderr
+    assert "broad secret scan PASS" in ok.stdout
+
+    # 2. Secret finding (rc=1): fails closed with exit 1 and prints full log.
+    def _finding(work: Path, scan_dir: Path) -> None:
+        (scan_dir / "pid").write_text("999999\n", encoding="utf-8")
+        (scan_dir / "output.log").write_text("finding detected in repo\n", encoding="utf-8")
+        (scan_dir / "rc").write_text("1\n", encoding="utf-8")
+
+    finding = _run_collect("finding", setup_fn=_finding)
+    assert finding.returncode == 1
+    assert "finding detected in repo" in finding.stdout
+
+    # 3. Aborted/killed background process (no rc file): fails closed.
+    def _aborted(work: Path, scan_dir: Path) -> None:
+        (scan_dir / "pid").write_text("999999\n", encoding="utf-8")
+        (scan_dir / "output.log").write_text("killed mid-scan\n", encoding="utf-8")
+
+    aborted = _run_collect("aborted", setup_fn=_aborted)
+    assert aborted.returncode != 0
+    assert "killed mid-scan" in aborted.stdout
+
+    # 4. Missing report even when rc=0: fails closed.
+    def _missing_report(work: Path, scan_dir: Path) -> None:
+        (scan_dir / "pid").write_text("999999\n", encoding="utf-8")
+        (scan_dir / "output.log").write_text("no report written\n", encoding="utf-8")
+        (scan_dir / "rc").write_text("0\n", encoding="utf-8")
+
+    missing_report = _run_collect("missing_report", setup_fn=_missing_report)
+    assert missing_report.returncode != 0
+
+    # 5. Live background process still running when collect starts: waits and collects PASS.
+    def _live_wait(work: Path, scan_dir: Path) -> None:
+        report = work / "artifacts" / "security" / "broad-secret-scan.json"
+        bg = subprocess.Popen(
+            [
+                "bash",
+                "-c",
+                "sleep 0.3; mkdir -p artifacts/security; "
+                'echo \'{"status":"PASS"}\' > "$1"; '
+                'echo "live bg scan finished" > "$2"; '
+                'printf "0\\n" > "$3.tmp" && mv "$3.tmp" "$3"',
+                "_",
+                str(report),
+                str(scan_dir / "output.log"),
+                str(scan_dir / "rc"),
+            ],
+            cwd=work,
+        )
+        (scan_dir / "pid").write_text(f"{bg.pid}\n", encoding="utf-8")
+
+    live_wait = _run_collect("live_wait", setup_fn=_live_wait)
+    assert live_wait.returncode == 0, live_wait.stdout + live_wait.stderr
+    assert "live bg scan finished" in live_wait.stdout

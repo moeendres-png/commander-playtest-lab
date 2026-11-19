@@ -296,6 +296,26 @@ jobs:
           python-version: "3.12"
           cache: pip
           cache-dependency-path: requirements/lock.txt
+      - name: Start broad secret scan (pinned gitleaks)
+        shell: bash
+        # B10 (#491), #1571: run the full gitleaks rule set and red controls
+        # concurrently with the audit/SBOM/license steps. Independent of them;
+        # the Collect step before artifact upload waits for completion, prints
+        # the full log, verifies the report and fails closed on finding/abort.
+        run: |
+          set -euo pipefail
+          scan_dir="${RUNNER_TEMP}/broad-secret-scan"
+          mkdir -p "$scan_dir"
+          rm -f "$scan_dir/pid" "$scan_dir/rc" "$scan_dir/output.log"
+          nohup bash -c '
+            set -uo pipefail
+            python scripts/run_broad_secret_scan.py --install-dir "$1"
+            rc=$?
+            printf "%s\n" "$rc" > "$2.tmp"
+            mv "$2.tmp" "$2"
+          ' _ "${{ runner.temp }}/gitleaks" "$scan_dir/rc" \
+            </dev/null >"$scan_dir/output.log" 2>&1 &
+          printf '%s\n' "$!" > "$scan_dir/pid"
       - name: Install hash-locked audit tools
         id: install-tooling
         run: |
@@ -362,13 +382,46 @@ jobs:
         run: >-
           python scripts/security_evidence.py seal --repo . --wheel-dir dist
           --runtime "$RUNNER_TEMP/security-product-venv" --out artifacts/security
-      - name: Broad secret scan (pinned gitleaks)
+      - name: Collect broad secret scan (pinned gitleaks)
         if: ${{ success() || failure() }}
-        # B10 (#491): the full gitleaks rule set over exactly the tracked files,
-        # after red controls prove the pinned scanner finds representative
-        # secrets. Independent of the audit steps above; the quality job's
-        # Secret-pattern scan stays a separate project sentinel.
-        run: python scripts/run_broad_secret_scan.py --install-dir "${{ runner.temp }}/gitleaks"
+        shell: bash
+        # B10 (#491), #1571: wait for the concurrent scan started after setup-python,
+        # emit its full output into this step's log, verify exit code and report, and
+        # fail closed if the scan found a secret, was aborted or never started.
+        run: |
+          set -euo pipefail
+          scan_dir="${RUNNER_TEMP}/broad-secret-scan"
+          if [[ ! -f "$scan_dir/pid" ]]; then
+            echo "ERROR: broad secret scan was never started (missing pid file)." >&2
+            exit 1
+          fi
+          pid="$(<"$scan_dir/pid")"
+          if [[ ! "$pid" =~ ^[0-9]+$ ]]; then
+            echo "ERROR: invalid broad secret scan pid: $pid" >&2
+            exit 1
+          fi
+          while [[ ! -f "$scan_dir/rc" ]] && kill -0 "$pid" 2>/dev/null; do
+            sleep 0.5
+          done
+          if [[ -f "$scan_dir/output.log" ]]; then
+            cat "$scan_dir/output.log"
+          fi
+          if [[ ! -f "$scan_dir/rc" ]]; then
+            echo "ERROR: broad secret scan exited without status (aborted or killed)." >&2
+            exit 1
+          fi
+          rc="$(<"$scan_dir/rc")"
+          if [[ ! "$rc" =~ ^[0-9]+$ ]]; then
+            echo "ERROR: invalid broad secret scan exit code: $rc" >&2
+            exit 1
+          fi
+          if ((rc != 0)); then
+            exit "$rc"
+          fi
+          if [[ ! -f "artifacts/security/broad-secret-scan.json" ]]; then
+            echo "ERROR: broad secret scan report artifacts/security/broad-secret-scan.json missing." >&2
+            exit 1
+          fi
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2 immutable revision
         if: always()
         with:
