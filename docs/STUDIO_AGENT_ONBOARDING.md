@@ -72,6 +72,8 @@ geplant.
 
 - Testumgebung außerhalb des Arbeitsbaums anlegen: `.claude/skills/lab-ops/SKILL.md`, Abschnitt
   „Local test environment“.
+- Schnelle Vorab-Prüfung vor dem Push (ohne Netz/Java, spiegelt den `lint`-Job plus geänderte
+  Tests, kein Ersatz für CI): `bash scripts/check_fast.sh`.
 - Schmal testen, ohne `--shards`: `python -m pytest -q tests/unit -k "<modul>"`.
 - Vor dem PR einmal breit, mit Pfaden statt `-k` (`--shards` nimmt kein `-k` an,
   `tests/pytest_shards.py`):
