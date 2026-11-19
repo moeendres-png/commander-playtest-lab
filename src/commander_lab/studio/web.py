@@ -644,14 +644,15 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
     def corpus_audit_route() -> Response:
         """The counts-only formal audit of the counted corpus decks (#1549), the same section
         as ``corpus_audit`` in the data report, without the rest of the report. Read only,
-        remembered per store state and UTC day."""
+        remembered per store state, UTC day and the commander it is bound to (the cache lives
+        in this process only, so no answer of an earlier version is served)."""
         store = open_store()
         try:
             day = datetime.now(UTC).date()
             return answer_cache.json_answer(
                 store,
                 "corpus_audit",
-                (day.isoformat(),),
+                (corpus_audit.COMMANDER_NAME, day.isoformat()),
                 lambda: corpus_audit.corpus_audit(store.connection, today=day),
             )
         finally:

@@ -15,6 +15,11 @@ unmeasurable point, otherwise ``ohne_befund``. The report holds counts with deno
 date of the card facts, no card names and no deck addresses. Cohort dimensions (source, bracket,
 variant) are listed one by one and never crossed; a deck without a value in a dimension is
 counted under ``unbekannt``.
+
+Source data is read bound to Chulane only (``builder.bound_to``, ``AGENTS.md`` §1): a deck bound
+to another commander, to a pair or to none is not audited and does not raise any count; the
+decks outside the binding are reported as their own numbers (``binding``), so the audit N is
+the same figure as ``cohort_sizes`` ("Alle") of the deck builder.
 """
 
 from __future__ import annotations
@@ -24,6 +29,7 @@ from collections import defaultdict
 from dataclasses import dataclass, field
 from datetime import date
 
+from .builder import bound_to
 from .decklist_import import COMMANDER_NAME
 from .decks import color_set
 
@@ -59,12 +65,20 @@ def _chulane(db: sqlite3.Connection) -> tuple[str | None, frozenset[str] | None]
     return str(row[0]), color_set(str(row[1]))
 
 
+def _bound() -> tuple[str, list[str]]:
+    return bound_to("corpus_deck", "d.deck_id", [COMMANDER_NAME])
+
+
 def audit_decks(db: sqlite3.Connection) -> dict[str, DeckAudit]:
-    """Audit every counted deck (``duplicate_of IS NULL``); returns deck id to outcome."""
+    """Audit every counted deck (``duplicate_of IS NULL``) bound to Chulane; returns deck id to
+    outcome. Decks of another commander or without a binding are not read."""
     chulane_id, identity = _chulane(db)
+    bound, bound_args = _bound()
     decks = {
         str(r[0]): DeckAudit()
-        for r in db.execute("SELECT deck_id FROM corpus_deck WHERE duplicate_of IS NULL")
+        for r in db.execute(
+            f"SELECT d.deck_id FROM corpus_deck d WHERE d.duplicate_of IS NULL{bound}", bound_args
+        )
     }
     total: dict[str, int] = defaultdict(int)
     has_chulane: set[str] = set()
@@ -137,12 +151,37 @@ def _facts_date(db: sqlite3.Connection, today: date) -> dict[str, object]:
     }
 
 
+def _binding(db: sqlite3.Connection, bound_decks: int) -> dict[str, object]:
+    """Counted decks (``duplicate_of IS NULL``) outside the audit: bound to another commander
+    (or a pair) and bound to none. Same arithmetic as ``builder.corpus_binding``."""
+    total = int(
+        db.execute("SELECT COUNT(*) FROM corpus_deck WHERE duplicate_of IS NULL").fetchone()[0]
+    )
+    unbound = int(
+        db.execute(
+            "SELECT COUNT(*) FROM corpus_deck d WHERE d.duplicate_of IS NULL AND NOT EXISTS "
+            "(SELECT 1 FROM commander_binding cb WHERE cb.kind = 'corpus_deck' "
+            "AND cb.key = d.deck_id)"
+        ).fetchone()[0]
+    )
+    return {
+        "commander": COMMANDER_NAME,
+        "bound_decks": bound_decks,
+        "other_commander_decks": total - bound_decks - unbound,
+        "unbound_decks": unbound,
+        "of": total,
+    }
+
+
 def corpus_audit(db: sqlite3.Connection, *, today: date) -> dict[str, object]:
-    """Counts-only audit section for the data report; never writes."""
+    """Counts-only audit section for the data report; never writes. Bound to Chulane."""
     decks = audit_decks(db)
     n_decks = len(decks)
     with_cards = sum(1 for a in decks.values() if a.has_cards)
-    all_rows = int(db.execute("SELECT COUNT(*) FROM corpus_deck").fetchone()[0])
+    bound, bound_args = _bound()
+    all_rows = int(
+        db.execute(f"SELECT COUNT(*) FROM corpus_deck d WHERE 1{bound}", bound_args).fetchone()[0]
+    )
     by_reason = {
         reason: {
             "count": sum(1 for a in decks.values() if reason in a.reasons),
@@ -157,7 +196,11 @@ def corpus_audit(db: sqlite3.Connection, *, today: date) -> dict[str, object]:
     }
     cohort: dict[str, dict[str, dict[str, int]]] = {dim: {} for dim in DIMENSIONS}
     values: dict[str, dict[str, set[str]]] = {dim: defaultdict(set) for dim in DIMENSIONS}
-    for deck_id, name in db.execute("SELECT deck_id, cohort FROM corpus_cohort"):
+    for deck_id, name in db.execute(
+        "SELECT c.deck_id, c.cohort FROM corpus_cohort c JOIN corpus_deck d USING (deck_id) "
+        f"WHERE d.duplicate_of IS NULL{bound}",
+        bound_args,
+    ):
         dim, _, value = str(name).partition(":")
         if dim in values and deck_id in decks and value:
             values[dim][str(deck_id)].add(value)
@@ -170,8 +213,12 @@ def corpus_audit(db: sqlite3.Connection, *, today: date) -> dict[str, object]:
     return {
         "schema": AUDIT_SCHEMA,
         "origin": "corpus_deck_card + scryfall_card (read only, nothing written)",
-        "cohort": "commander:chulane, counted decks (duplicate_of IS NULL)",
+        "cohort": (
+            "commander:chulane (commander_binding, exactly this commander), "
+            "counted decks (duplicate_of IS NULL)"
+        ),
         "decks_counted": _share_of(n_decks, all_rows),
+        "binding": _binding(db, n_decks),
         "decks_with_card_rows": _share_of(with_cards, n_decks),
         "status": {**status, "of": n_decks},
         "by_reason": by_reason,
