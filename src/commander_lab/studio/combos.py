@@ -20,7 +20,7 @@ from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
-from . import decks
+from . import cache, decks
 from .store import StudioStore
 
 SCHEMA = "studio-deck-combos-1"
@@ -482,84 +482,120 @@ def _load_template_snapshot(path_str: str) -> dict[str, object] | None:
     return data if isinstance(data, dict) else None
 
 
+type _CatalogRow = tuple[
+    str, str, str, str, float | None, str, str, frozenset[str], bool, frozenset[str],
+    object, object, int, int,
+]  # fmt: skip
+
+
+def _catalog_rows(
+    store: StudioStore, commanders: Sequence[str]
+) -> tuple[frozenset[str], tuple[_CatalogRow, ...]]:
+    """The commander identity and every collection card with its normalized metadata (owned
+    count last), as immutable tuples. Remembered per store state and commanders (#1563): the
+    two callers of one request and later requests share one read."""
+
+    def compute() -> tuple[frozenset[str], tuple[_CatalogRow, ...]]:
+        db = store.connection
+        has_scryfall_join = (
+            db.execute(
+                "SELECT 1 FROM sqlite_master WHERE type='table' AND name='scryfall_card'"
+            ).fetchone()
+            is not None
+        )
+        identity: frozenset[str] = frozenset()
+        if commanders:
+            rows_cmd = db.execute(
+                f"SELECT color_identity FROM card_fact WHERE oracle_name IN ({','.join('?' for _ in commanders)})",
+                tuple(commanders),
+            ).fetchall()
+            merged: set[str] = set()
+            for r in rows_cmd:
+                merged.update(decks.color_set(r["color_identity"]))
+            identity = frozenset(merged)
+
+        if has_scryfall_join:
+            sql = (
+                "SELECT c.card_id, c.oracle_name, c.mana_cost, c.mana_value, c.type_line, "
+                "c.oracle_text, c.color_identity, c.commander_legal, "
+                "i.owned_lower_bound, i.available_lower_bound, "
+                "s.front_name, s.keywords, s.power, s.toughness "
+                "FROM card_fact c "
+                "JOIN inventory i USING (card_id) "
+                "LEFT JOIN scryfall_card s USING (oracle_id) "
+                "ORDER BY c.oracle_name"
+            )
+        else:
+            sql = (
+                "SELECT c.card_id, c.oracle_name, c.mana_cost, c.mana_value, c.type_line, "
+                "c.oracle_text, c.color_identity, c.commander_legal, "
+                "i.owned_lower_bound, i.available_lower_bound, "
+                "NULL AS front_name, '[]' AS keywords, NULL AS power, NULL AS toughness "
+                "FROM card_fact c JOIN inventory i USING (card_id) ORDER BY c.oracle_name"
+            )
+        rows: list[_CatalogRow] = []
+        for r in db.execute(sql):
+            rows.append(
+                (
+                    str(r["card_id"]),
+                    str(r["oracle_name"]),
+                    str(r["front_name"] or ""),
+                    str(r["mana_cost"] or ""),
+                    float(r["mana_value"]) if r["mana_value"] is not None else None,
+                    str(r["type_line"] or ""),
+                    str(r["oracle_text"] or ""),
+                    decks.color_set(r["color_identity"]),
+                    bool(r["commander_legal"]),
+                    _parse_keywords(r["keywords"]),
+                    r["power"],
+                    r["toughness"],
+                    int(r["available_lower_bound"] or 0),
+                    int(r["owned_lower_bound"] or 0),
+                )
+            )
+        return identity, tuple(rows)
+
+    return cache.cached(store, ("slot_catalog", tuple(commanders)), compute)
+
+
 def _card_catalog_for_slots(
     store: StudioStore,
     commanders: Sequence[str],
     deck_ids: set[str],
 ) -> tuple[list[dict[str, object]], list[dict[str, object]], list[dict[str, object]]]:
-    """Return ``(deck_cards, pool_cards, collection_cards)`` with normalized metadata."""
-    db = store.connection
-    has_scryfall_join = (
-        db.execute(
-            "SELECT 1 FROM sqlite_master WHERE type='table' AND name='scryfall_card'"
-        ).fetchone()
-        is not None
-    )
-    identity: frozenset[str] = frozenset()
-    if commanders:
-        rows_cmd = db.execute(
-            f"SELECT color_identity FROM card_fact WHERE oracle_name IN ({','.join('?' for _ in commanders)})",
-            tuple(commanders),
-        ).fetchall()
-        merged: set[str] = set()
-        for r in rows_cmd:
-            merged.update(decks.color_set(r["color_identity"]))
-        identity = frozenset(merged)
-
-    if has_scryfall_join:
-        sql = (
-            "SELECT c.card_id, c.oracle_name, c.mana_cost, c.mana_value, c.type_line, "
-            "c.oracle_text, c.color_identity, c.commander_legal, "
-            "i.owned_lower_bound, i.available_lower_bound, "
-            "s.front_name, s.keywords, s.power, s.toughness "
-            "FROM card_fact c "
-            "JOIN inventory i USING (card_id) "
-            "LEFT JOIN scryfall_card s USING (oracle_id) "
-            "ORDER BY c.oracle_name"
-        )
-    else:
-        sql = (
-            "SELECT c.card_id, c.oracle_name, c.mana_cost, c.mana_value, c.type_line, "
-            "c.oracle_text, c.color_identity, c.commander_legal, "
-            "i.owned_lower_bound, i.available_lower_bound, "
-            "NULL AS front_name, '[]' AS keywords, NULL AS power, NULL AS toughness "
-            "FROM card_fact c JOIN inventory i USING (card_id) ORDER BY c.oracle_name"
-        )
-
+    """Return ``(deck_cards, pool_cards, collection_cards)`` with normalized metadata. The rows
+    are remembered (``_catalog_rows``); the dictionaries are new on every call."""
+    identity, rows = _catalog_rows(store, commanders)
     collection: list[dict[str, object]] = []
     pool: list[dict[str, object]] = []
     deck: list[dict[str, object]] = []
-    for r in db.execute(sql):
-        cid = str(r["card_id"])
-        owned = int(r["owned_lower_bound"] or 0)
+    for (
+        cid, name, front_name, mana_cost, mana_value, type_line, oracle_text, card_id_colors,
+        commander_legal, keywords, power, toughness, available, owned,
+    ) in rows:  # fmt: skip
         in_deck = cid in deck_ids
         if owned <= 0 and not in_deck:
             continue
-        card_id_colors = decks.color_set(r["color_identity"])
         item: dict[str, object] = {
             "card_id": cid,
-            "name": str(r["oracle_name"]),
-            "front_name": str(r["front_name"] or ""),
-            "mana_cost": str(r["mana_cost"] or ""),
-            "mana_value": float(r["mana_value"]) if r["mana_value"] is not None else None,
-            "type_line": str(r["type_line"] or ""),
-            "oracle_text": str(r["oracle_text"] or ""),
+            "name": name,
+            "front_name": front_name,
+            "mana_cost": mana_cost,
+            "mana_value": mana_value,
+            "type_line": type_line,
+            "oracle_text": oracle_text,
             "identity": card_id_colors,
-            "commander_legal": bool(r["commander_legal"]),
-            "keywords": _parse_keywords(r["keywords"]),
-            "power": r["power"],
-            "toughness": r["toughness"],
-            "available": int(r["available_lower_bound"] or 0),
+            "commander_legal": commander_legal,
+            "keywords": keywords,
+            "power": power,
+            "toughness": toughness,
+            "available": available,
             "in_deck": in_deck,
         }
         collection.append(item)
         if in_deck:
             deck.append(item)
-        if (
-            owned > 0
-            and bool(r["commander_legal"])
-            and (not commanders or card_id_colors <= identity)
-        ):
+        if owned > 0 and commander_legal and (not commanders or card_id_colors <= identity):
             pool.append(item)
     return deck, pool, collection
 

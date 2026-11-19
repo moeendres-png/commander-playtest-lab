@@ -289,3 +289,28 @@ code.cmd{white-space:pre-wrap;word-break:break-all;font-size:12px}
 .search-help-btn{min-width:28px;padding:3px 8px;font-weight:700}
 .search-help-popover{position:absolute;top:calc(100% + 4px);left:0;z-index:40;min-width:280px;max-width:min(420px,90vw);padding:8px 10px;background:var(--surface,#fff);border:1px solid var(--border,#cbd5e1);border-radius:8px;box-shadow:0 6px 20px rgba(0,0,0,.14)}
 .search-help-title{font-size:12px;font-weight:600;margin-bottom:6px;color:var(--muted,#475569)}
+
+/* layout stability (CLS): reserve space for asynchronously populated headers, filters and deck tabs */
+#brand{min-height:53px}
+#brand #commander-select{min-width:160px;max-width:230px}
+#brand #theme-toggle{min-width:86px;white-space:nowrap}
+#top{min-height:47px}
+#top #deck-select,#top #branch-select{min-width:88px;max-width:150px}
+#top button,#top .pill{white-space:nowrap}
+#save-state{min-width:74px;white-space:nowrap}
+#data-state{min-height:54px}
+#color-filter{min-width:205px;min-height:28px}
+#bracket-bar{flex:1 0 100%;min-height:28px}
+#quick-filter-presets{flex:1 0 100%;min-height:62px}
+#view-toggle{min-width:136px;min-height:28px}
+#type-filter,#role-filter,#label-filter{min-width:135px}
+#cohort{min-width:195px}
+#universe{min-width:145px}
+#sort{min-width:195px}
+#deck-tabs{min-height:112px}
+@media (min-width:1181px){
+  #brand{flex-wrap:nowrap;gap:var(--s2)}
+  #top{flex-wrap:nowrap;gap:var(--s1) var(--s2)}
+  #pool>#filters{min-height:312px;align-content:flex-start}
+}
+
