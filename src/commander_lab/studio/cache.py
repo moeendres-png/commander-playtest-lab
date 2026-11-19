@@ -180,6 +180,7 @@ KINDS: Final[Mapping[str, Kind]] = MappingProxyType(
         # One kind per remembered route answer (``answer_cache.json_answer``): a shared kind
         # could never carry one declaration (``pool`` reads the marks, ``deck_browser`` the deck
         # labels). They share one size limit.
+        "answer:corpus_audit": _ANSWER,
         "answer:deck_browser": _ANSWER,
         "answer:evidence": _ANSWER,
         "answer:pool": _ANSWER,

@@ -13,7 +13,7 @@ import copy
 import json
 import re
 import threading
-from collections.abc import AsyncIterator, Awaitable, Callable
+from collections.abc import AsyncIterator, Awaitable, Callable, Iterable
 from contextlib import asynccontextmanager
 from dataclasses import asdict
 from datetime import UTC, datetime
@@ -107,6 +107,19 @@ from .universe import UnknownUniverseCards
 _MARKS = frozenset({cache.Group.MARKS})
 _DECKS = frozenset({cache.Group.DECKS})
 _PROFILES = frozenset({cache.Group.PROFILES})
+_CATALOG = frozenset({cache.Group.IMPORT})
+
+
+def _with_catalog(
+    groups: frozenset[cache.Group], card_ids: Iterable[str]
+) -> frozenset[cache.Group]:
+    """``groups``, plus IMPORT when a ``scryfall:`` card is among ``card_ids``: saving a mark,
+    label or revision of such a card first adds its catalog entry to ``card``
+    (``store.ensure_scryfall_cards``, Zukauf-Modus)."""
+    if any(card_id.startswith("scryfall:") for card_id in card_ids):
+        return groups | _CATALOG
+    return groups
+
 
 STATIC = Path(__file__).resolve().parent / "static"
 _LOCAL_HOSTS = frozenset({"127.0.0.1", "localhost", "[::1]", "testserver"})
@@ -1579,7 +1592,7 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         """Only the favorite mark; the exclusion and the note of the card stay as stored."""
         store = open_store()
         try:
-            with cache.write(store, _MARKS):
+            with cache.write(store, _with_catalog(_MARKS, [card_id])):
                 return builder.set_favorite(store, card_id, body.favorite)
         except KeyError as error:
             raise HTTPException(404, "unknown card") from error
@@ -1590,7 +1603,7 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
     def mark(card_id: str, body: MarkBody) -> dict[str, object]:
         store = open_store()
         try:
-            with cache.write(store, _MARKS):
+            with cache.write(store, _with_catalog(_MARKS, [card_id])):
                 builder.set_mark(
                     store, card_id, favorite=body.favorite, excluded=body.excluded, note=body.note
                 )
@@ -1613,7 +1626,7 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         """The Owner's archetype labels of a card. Never an input of a tier or the index."""
         store = open_store()
         try:
-            with cache.write(store, _MARKS):
+            with cache.write(store, _with_catalog(_MARKS, [card_id])):
                 found = labels.set_card_labels(store, card_id, body.labels)
             return {"card_id": card_id, "labels": found}
         except KeyError as error:
@@ -1668,7 +1681,7 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
                 deck_id = f"{base}-{number}"
                 number += 1
             cards = [RevisionCard(card_id, 1, "commander") for card_id in body.commander_card_ids]
-            with cache.write(store, _DECKS):
+            with cache.write(store, _with_catalog(_DECKS, body.commander_card_ids)):
                 revision_id = create_revision(store, deck_id=deck_id, name=body.name, cards=cards)
             return {"deck_id": deck_id, "revision_id": revision_id}
         except ValueError as error:
@@ -1776,7 +1789,7 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
             ).fetchone()
             if deck is None:
                 raise HTTPException(404, "unknown deck")
-            with cache.write(store, _DECKS):
+            with cache.write(store, _with_catalog(_DECKS, [card.card_id for card in body.cards])):
                 revision_id = create_revision(
                     store,
                     deck_id=deck_id,
@@ -1866,7 +1879,9 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
     def compile_deck_modules(deck_id: str, body: ModuleCompileBody) -> dict[str, object]:
         store = open_store()
         try:
-            with cache.write(store, _DECKS):
+            # the module cards are read inside: a ``scryfall:`` card among them may add its
+            # catalog entry (IMPORT); declared always, only what is seen written is raised
+            with cache.write(store, _DECKS | _CATALOG):
                 return deck_modules.compile_modules(
                     store,
                     deck_id,

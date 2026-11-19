@@ -161,14 +161,14 @@ def test_every_cached_call_names_a_registered_kind_and_every_kind_is_used() -> N
     assert unreadable == []
     assert found - set(cache.KINDS) == set()  # no call with an undeclared kind
     assert set(cache.KINDS) - found == set()  # no declaration without a call
-    assert len(found) == 28
+    assert len(found) == 29
 
 
 def test_answer_keys_are_one_kind_per_route_sharing_one_size_limit() -> None:
     assert cache.kind_name(("answer", "pool", (), ())) == "answer:pool"
     assert cache.kind_name(("strength", "x")) == "strength"
     answers = {name: kind for name, kind in cache.KINDS.items() if name.startswith("answer:")}
-    assert len(answers) == 6
+    assert len(answers) == 7
     assert {kind.limit for kind in answers.values()} == {"answer"}
     assert {kind.seal for kind in answers.values()} == {"bytes"}
     assert cache.kind_of("answer:not_registered").limit == "answer"

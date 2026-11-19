@@ -996,6 +996,7 @@ def _route_writes() -> list[
     marks = frozenset({cache.Group.MARKS})
     decks = frozenset({cache.Group.DECKS})
     profiles = frozenset({cache.Group.PROFILES})
+    catalog = frozenset({cache.Group.IMPORT})
     universe = f"/api/universe/profiles/probe?commander={COMMANDER.replace(' ', '%20')}"
     return [
         (
@@ -1108,7 +1109,41 @@ def _route_writes() -> list[
             profiles,
             lambda _: ("DELETE", "/api/universe/profiles/probe", None),
         ),
+        # An unowned ``scryfall:`` card (Zukauf-Modus): saving it adds its catalog entry to
+        # ``card`` first, so these writes also write IMPORT (``_UNOWNED`` in the matrix test).
+        (
+            "favorite_unowned",
+            marks | catalog,
+            lambda _: ("PUT", f"/api/cards/{_UNOWNED[0]}/favorite", {"favorite": True}),
+        ),
+        (
+            "mark_unowned",
+            marks | catalog,
+            lambda _: (
+                "PUT",
+                f"/api/cards/{_UNOWNED[1]}/mark",
+                {"favorite": False, "excluded": True, "note": ""},
+            ),
+        ),
+        (
+            "card_labels_unowned",
+            marks | catalog,
+            lambda _: ("PUT", f"/api/cards/{_UNOWNED[2]}/labels", {"labels": ["probe"]}),
+        ),
+        (
+            "revision_unowned",
+            decks | catalog,
+            lambda _: (
+                "POST",
+                "/api/decks/probe/revisions",
+                {"cards": [*cards, {"card_id": _UNOWNED[3], "quantity": 1, "zone": "main"}]},
+            ),
+        ),
     ]
+
+
+# Unowned cards known only to the Scryfall catalog, one per write of the matrix that adds one.
+_UNOWNED = tuple(f"scryfall:probe-unowned-{n}" for n in range(4))
 
 
 def test_the_write_matrix_keeps_exactly_the_kinds_that_read_no_written_group(
@@ -1118,14 +1153,26 @@ def test_the_write_matrix_keeps_exactly_the_kinds_that_read_no_written_group(
     every connection, inside and outside the window) and books one proven window. Afterwards a
     kind is kept (not recomputed, the same object, equal to a plain read) exactly when none of
     its groups was written, in both directions: the narrowed ``land_source_groups`` (IMPORT),
-    one probe kind per user-state group, and an undeclared kind (all groups)."""
+    one probe kind per group (IMPORT through the writes of an unowned ``scryfall:`` card), and
+    an undeclared kind (all groups)."""
     from types import MappingProxyType
 
     from fastapi.testclient import TestClient
 
     from commander_lab.studio.web import create_app
+    from tests.unit.test_studio_builder import _insert_scryfall
 
-    _big_store(tmp_path).close()
+    seeded = _big_store(tmp_path)
+    for card_id in _UNOWNED:
+        _insert_scryfall(
+            seeded,
+            oracle_id=card_id.removeprefix("scryfall:"),
+            name=f"Unowned {card_id[-1]}",
+            colors="G",
+            type_line="Creature — Elf",
+        )
+    seeded.connection.commit()
+    seeded.close()
     written: dict[str, set[str]] = {}
     current: list[str | None] = [None]
     recorders: dict[int, Callable[..., int]] = {}
@@ -1173,7 +1220,13 @@ def test_the_write_matrix_keeps_exactly_the_kinds_that_read_no_written_group(
     monkeypatch.setattr(cache, "_install_observer", composed_install)
     probes = {
         f"probe_{group.value}": cache.Kind(reads=frozenset({group}))
-        for group in (cache.Group.MARKS, cache.Group.DECKS, cache.Group.PROFILES, cache.Group.META)
+        for group in (
+            cache.Group.IMPORT,
+            cache.Group.MARKS,
+            cache.Group.DECKS,
+            cache.Group.PROFILES,
+            cache.Group.META,
+        )
     }
     monkeypatch.setattr(cache, "KINDS", MappingProxyType({**cache.KINDS, **probes}))
     calls: dict[str, int] = {"land": 0}
@@ -1190,7 +1243,7 @@ def test_the_write_matrix_keeps_exactly_the_kinds_that_read_no_written_group(
         "recommended": client.get("/api/strength/presets").json()["recommended"]
     }
     routes = _route_writes()
-    assert len(routes) == 19  # 18 write routes, the draft written twice
+    assert len(routes) == 23  # 18 write routes, the draft twice, 4 with an unowned card
     kept_over: dict[str, set[str]] = {}
     for name, groups, request in routes:
         reader = StudioStore.open(tmp_path / "studio")
@@ -1214,8 +1267,12 @@ def test_the_write_matrix_keeps_exactly_the_kinds_that_read_no_written_group(
         assert "* window_undeclared" not in cache.counters(), name
         assert "* window_unproven" not in cache.counters(), name
         reader = StudioStore.open(tmp_path / "studio")
-        assert land_advisor.source_deck_groups(reader, [COMMANDER]) is land, name
-        assert calls["land"] == before, name  # kept, not computed again
+        now = land_advisor.source_deck_groups(reader, [COMMANDER])
+        if cache.Group.IMPORT in groups:
+            assert now is not land and calls["land"] == before + 1, name  # computed again
+        else:
+            assert now is land, name
+            assert calls["land"] == before, name  # kept, not computed again
         kept_over[name] = set()
         for kind, value in held.items():
             again = cache.cached(reader, (kind,), lambda kind=kind: [kind])
@@ -1226,7 +1283,7 @@ def test_the_write_matrix_keeps_exactly_the_kinds_that_read_no_written_group(
                 assert again is value, (name, kind)  # no written group: kept
                 kept_over[name].add(kind)
         reader.connection.execute("INSERT INTO meta(key, value) VALUES ('pending', 'x')")
-        assert land_advisor.source_deck_groups(reader, [COMMANDER]) == land  # plain read
+        assert land_advisor.source_deck_groups(reader, [COMMANDER]) == now  # plain read
         reader.connection.rollback()
         reader.close()
     # both directions were exercised: every probe was kept over some write and dropped by another
