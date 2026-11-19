@@ -3,6 +3,13 @@
 
 Never backfill a C079 historical timestamp. New observations only, review-only.
 No packages, no personal inventory and no secrets.
+
+FAIL-CLOSED: EDHREC's Terms of Service (effective 2024-08-06) prohibit automated queries and
+scripts (register status ``prohibited``), and the Owner decision #1557 point 1 allows no new
+automated retrieval without the operator's written permission. A live capture therefore runs
+only when the environment variable ``EDHREC_WRITTEN_PERMISSION_REF`` names that written
+permission (a reference, not a secret). Without it the script exits non-zero with an
+explanation and never opens a network connection. ``--dry-run`` stays network-free.
 """
 
 from __future__ import annotations
@@ -12,16 +19,41 @@ import hashlib
 import json
 import os
 import re
+import sys
 import time
 import urllib.error
 import urllib.request
+from collections.abc import Mapping, Sequence
 from datetime import UTC, datetime
 from pathlib import Path
 
-UA = "CommanderStudioEDHRECProof/1.0 (public noncommercial research; 1.5s per page)"
+DEFAULT_USER_AGENT = "mtg-json-archive-tool/1.0"
+UA = DEFAULT_USER_AGENT
+PERMISSION_ENV = "EDHREC_WRITTEN_PERMISSION_REF"
 ALLOW = re.compile(
     r"^https://json\.edhrec\.com/pages/commanders/chulane-teller-of-tales(?:/[a-z0-9-]+)?\.json$"
 )
+
+
+class PermissionRequired(RuntimeError):
+    """A live EDHREC capture was requested without a reference to written permission."""
+
+
+def require_written_permission(environ: Mapping[str, str] | None = None) -> str:
+    """The reference to the operator's written permission, or PermissionRequired.
+
+    Called before any request is built, so a missing permission never reaches the network.
+    """
+    source = os.environ if environ is None else environ
+    ref = source.get(PERMISSION_ENV, "").strip()
+    if not ref:
+        raise PermissionRequired(
+            "EDHREC capture refused: EDHREC's Terms of Service (2024-08-06) prohibit automated "
+            "queries and Owner decision #1557 point 1 allows no new automated retrieval without "
+            f"the operator's written permission. Set {PERMISSION_ENV} to a reference to that "
+            "permission to run a live capture. No network access was attempted."
+        )
+    return ref
 
 
 def utc() -> str:
@@ -51,11 +83,20 @@ def read_urls(path: Path) -> list[str]:
     return urls
 
 
-def capture_one(url: str, *, opener=urllib.request.urlopen, sleep=time.sleep):
+def capture_one(
+    url: str,
+    *,
+    opener=urllib.request.urlopen,
+    sleep=time.sleep,
+    user_agent: str = DEFAULT_USER_AGENT,
+):
     if not ALLOW.fullmatch(url):
         raise ValueError("External URL is not authorized")
+    permission_ref = require_written_permission()
     began = utc()
-    request = urllib.request.Request(url, headers={"User-Agent": UA, "Accept": "application/json"})
+    request = urllib.request.Request(
+        url, headers={"User-Agent": user_agent, "Accept": "application/json"}
+    )
     attempts = 0
     while True:
         try:
@@ -102,6 +143,7 @@ def capture_one(url: str, *, opener=urllib.request.urlopen, sleep=time.sleep):
         "raw_response_sha256": digest,
         "raw_size_bytes": len(body),
         "cardlists": len(j["cardlists"]),
+        "written_permission_ref": permission_ref,
         "provenance_class": "NEW_HTTP_CAPTURE_ONLY",
         "historical_C079_timestamp_backfilled": False,
         "automatic_import": False,
@@ -110,14 +152,21 @@ def capture_one(url: str, *, opener=urllib.request.urlopen, sleep=time.sleep):
 
 
 def capture(
-    urls: list[str], output: Path, *, opener=urllib.request.urlopen, sleep=time.sleep, delay=1.5
+    urls: list[str],
+    output: Path,
+    *,
+    opener=urllib.request.urlopen,
+    sleep=time.sleep,
+    delay=1.5,
+    user_agent: str = DEFAULT_USER_AGENT,
 ):
+    require_written_permission()
     records = []
     for index, url in enumerate(urls):
         if index:
             sleep(delay)
         try:
-            meta, body = capture_one(url, opener=opener, sleep=sleep)
+            meta, body = capture_one(url, opener=opener, sleep=sleep, user_agent=user_agent)
         except Exception as ex:
             failure = {
                 "status": "CAPTURE_BLOCKED_NO_HISTORICAL_PROOF",
@@ -162,14 +211,20 @@ def capture(
     return records
 
 
-if __name__ == "__main__":
+def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--urls", type=Path, required=True)
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--limit", type=int, default=20)
     parser.add_argument("--pause", type=float, default=1.5)
     parser.add_argument("--dry-run", action="store_true")
-    opts = parser.parse_args()
+    opts = parser.parse_args(argv)
+    if not opts.dry_run:
+        try:
+            require_written_permission()
+        except PermissionRequired as refusal:
+            print(str(refusal), file=sys.stderr)
+            return 2
     targets = read_urls(opts.urls)
     if not 1 <= opts.limit <= 20 or opts.pause < 1.2:
         raise ValueError("Source count and pause constraints")
@@ -197,3 +252,8 @@ if __name__ == "__main__":
                 }
             )
         )
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

@@ -199,7 +199,12 @@ def project_card(card: dict[str, Any]) -> dict[str, Any]:
     return result
 
 
-def fetch_cards(names: Sequence[str]) -> tuple[dict[str, dict[str, Any]], list[str]]:
+DEFAULT_USER_AGENT = "mtg-card-knowledge-tool/1.0"
+
+
+def fetch_cards(
+    names: Sequence[str], *, user_agent: str = DEFAULT_USER_AGENT
+) -> tuple[dict[str, dict[str, Any]], list[str]]:
     cards: dict[str, dict[str, Any]] = {}
     missing: list[str] = []
     for start in range(0, len(names), BATCH):
@@ -213,7 +218,7 @@ def fetch_cards(names: Sequence[str]) -> tuple[dict[str, dict[str, Any]], list[s
             headers={
                 "Content-Type": "application/json",
                 "Accept": "application/json",
-                "User-Agent": "commander-playtest-lab/pilot-card-knowledge",
+                "User-Agent": user_agent,
             },
             method="POST",
         )
@@ -368,6 +373,11 @@ def main(argv: list[str] | None = None) -> int:
         default=[],
         help="plain card list, one name per line; use --bulk-file for private lists",
     )
+    parser.add_argument(
+        "--user-agent",
+        default=DEFAULT_USER_AGENT,
+        help="Generic client User-Agent string",
+    )
     args = parser.parse_args(argv)
     if args.all_cards and (not args.bulk_file or args.decks or args.names_file):
         parser.error("--all-cards requires --bulk-file and excludes decks and --names-file")
@@ -421,7 +431,9 @@ def main(argv: list[str] | None = None) -> int:
                 else:
                     fetched[name] = card
         else:
-            fetched, missing = fetch_cards(wanted) if wanted else ({}, [])
+            fetched, missing = (
+                fetch_cards(wanted, user_agent=args.user_agent) if wanted else ({}, [])
+            )
     cards = {**fetched, **existing}
     document = {
         **existing_doc,
