@@ -176,9 +176,25 @@ def list_commanders(
         fact = db.execute(
             "SELECT card_id, color_identity FROM card_fact WHERE oracle_name = ?", (name,)
         ).fetchone()
-        item["in_collection"] = fact is not None
-        item["card_id"] = None if fact is None else str(fact["card_id"])
-        item["identity"] = None if fact is None else fact["color_identity"]
+        if fact is not None:
+            owned = (
+                db.execute(
+                    "SELECT 1 FROM inventory WHERE card_id = ?", (str(fact["card_id"]),)
+                ).fetchone()
+                is not None
+            )
+            item["in_collection"] = owned
+            item["card_id"] = str(fact["card_id"])
+            item["identity"] = fact["color_identity"]
+        else:
+            scry = db.execute(
+                "SELECT oracle_id, color_identity FROM scryfall_card "
+                "WHERE name = ? OR front_name = ? LIMIT 1",
+                (name, name),
+            ).fetchone()
+            item["in_collection"] = False
+            item["card_id"] = None if scry is None else f"scryfall:{scry['oracle_id']}"
+            item["identity"] = None if scry is None else scry["color_identity"]
         item["has_data"] = True
     if include_collection:
         for row in db.execute(
@@ -187,7 +203,7 @@ def list_commanders(
         ):
             front = str(row["type_line"] or "").split(" // ")[0]
             legendary_creature = "Legendary" in front and "Creature" in front
-            named = "can be your commander" in str(row["oracle_text"] or "")
+            named = "can be your commander" in str(row["oracle_text"] or "").casefold()
             if (legendary_creature or named) and str(row["oracle_name"]) not in found:
                 found[str(row["oracle_name"])] = {
                     "name": str(row["oracle_name"]),
@@ -364,7 +380,8 @@ def commander_identity(
     store: StudioStore, commander_names: Sequence[str]
 ) -> tuple[frozenset[str], list[str]]:
     """Colour identity of the commanders (all five colours without a commander) and their
-    card ids. Raises KeyError for a commander that is not in the collection."""
+    card ids. Falls back to ``scryfall_card`` (``scryfall:<oracle_id>``) when a commander is
+    known to Scryfall but not yet in the collection. Raises KeyError if unknown everywhere."""
     db = store.connection
     identity: frozenset[str] = frozenset() if commander_names else frozenset("WUBRG")
     commander_ids: list[str] = []
@@ -372,10 +389,19 @@ def commander_identity(
         row = db.execute(
             "SELECT card_id, color_identity FROM card_fact WHERE oracle_name = ?", (name,)
         ).fetchone()
-        if row is None:
+        if row is not None:
+            identity |= color_set(row["color_identity"])
+            commander_ids.append(str(row["card_id"]))
+            continue
+        scry = db.execute(
+            "SELECT oracle_id, color_identity FROM scryfall_card "
+            "WHERE name = ? OR front_name = ? LIMIT 1",
+            (name, name),
+        ).fetchone()
+        if scry is None:
             raise KeyError(name)
-        identity |= color_set(row["color_identity"])
-        commander_ids.append(str(row["card_id"]))
+        identity |= color_set(scry["color_identity"])
+        commander_ids.append(f"scryfall:{scry['oracle_id']}")
     return identity, commander_ids
 
 
@@ -1082,6 +1108,22 @@ def _cohort_deck_sets(
     return cache.cached(store, ("cohort_deck_sets", tuple(commander_names), cohort), compute)
 
 
+def _resolve_scryfall_card_row(db: sqlite3.Connection, card_id: str) -> sqlite3.Row | None:
+    if not card_id.startswith("scryfall:"):
+        return None
+    oracle_id = card_id.removeprefix("scryfall:")
+    row: sqlite3.Row | None = db.execute(
+        "SELECT ? AS card_id, oracle_id, name AS oracle_name, "
+        "CASE WHEN layout = 'split' THEN name ELSE COALESCE(front_name, name) END AS engine_name, "
+        "color_identity, mana_cost, mana_value, type_line, oracle_text, "
+        "CASE WHEN type_line LIKE 'Basic %Land%' THEN 1 ELSE 0 END AS is_basic_land, "
+        "CASE WHEN commander_legality = 'legal' THEN 1 ELSE 0 END AS commander_legal "
+        "FROM scryfall_card WHERE oracle_id = ?",
+        (card_id, oracle_id),
+    ).fetchone()
+    return row
+
+
 def card_cooccurrence(
     store: StudioStore,
     card_id: str,
@@ -1111,6 +1153,11 @@ def card_cooccurrence(
         ids[str(fact["oracle_name"])] = str(fact["card_id"])
         if str(fact["card_id"]) == card_id:
             oracle_name = str(fact["oracle_name"])
+    if not oracle_name:
+        scry = _resolve_scryfall_card_row(db, card_id)
+        if scry is not None:
+            oracle_name = str(scry["oracle_name"])
+            ids[oracle_name] = card_id
     if not oracle_name:
         raise KeyError(card_id)
     cohort_decks, sets = _cohort_deck_sets(store, commander_names, cohort)
@@ -1171,6 +1218,8 @@ def card_neutral_boards(
     target = db.execute(
         "SELECT oracle_id, oracle_name FROM card_fact WHERE card_id = ?", (card_id,)
     ).fetchone()
+    if target is None:
+        target = _resolve_scryfall_card_row(db, card_id)
     if target is None:
         raise KeyError(card_id)
     bound, bound_args = bound_to("neutral_source", "n.source_key", commander_names)
@@ -1233,6 +1282,8 @@ def card_simulations(
     target = db.execute(
         "SELECT oracle_name, engine_name FROM card_fact WHERE card_id = ?", (card_id,)
     ).fetchone()
+    if target is None:
+        target = _resolve_scryfall_card_row(db, card_id)
     if target is None:
         raise KeyError(card_id)
     bound, bound_args = bound_to("simulation_run", "r.run_id", commander_names)
@@ -1367,6 +1418,8 @@ def card_detail(
     simulation runs. Source rows bound to another commander are never shown."""
     db = store.connection
     row = db.execute("SELECT * FROM card_fact WHERE card_id = ?", (card_id,)).fetchone()
+    if row is None:
+        row = _resolve_scryfall_card_row(db, card_id)
     if row is None:
         raise KeyError(card_id)
     cohort_bound, cohort_args = bound_to("observation_cohort", "o.cohort", commander_names)

@@ -1525,7 +1525,7 @@ function renderSimulations(body) {
     h("p", { class: "note" }, "Spielt mehrere vollständige 4-Spieler-Partien nacheinander in prozessisolierten Durchläufen mit deterministischen Seeds. Berechnet Siegrate mit Nenner und 95%-Wilson-Konfidenzintervall.")
   );
 
-  const curRev = state.baseRevision || (state.deckId ? `rev@${state.deckId}/main/current` : "rev@chulane/main/current");
+  const curRev = state.baseRevision || (state.deckId ? `rev@${state.deckId}/main/current` : "rev@deck/main/current");
   const revInput = h("input", { type: "text", value: curRev, class: "rev-input", title: "Deck-Revision" });
   const podSelect = h("select", {},
     h("option", { value: "precon" }, "Precon (Lorehold, Animated Army, Token Triumph)"),
@@ -2000,7 +2000,7 @@ function renderPrimer(body) {
     const area = h("textarea", {
       id: "primer-editor",
       rows: 10,
-      placeholder: "# Spielplan\n- Frühe Mana-Entwicklung\n- Chulane schützen & Kartenfluss sichern",
+      placeholder: `# Spielplan\n- Frühe Mana-Entwicklung\n- ${StudioCommander.shortName(COMMANDER)} schützen & Kartenfluss sichern`,
       "aria-label": "Deck-Primer (Markdown)",
       oninput: () => {
         previewBox.replaceChildren(...renderMarkdownSafe(area.value));

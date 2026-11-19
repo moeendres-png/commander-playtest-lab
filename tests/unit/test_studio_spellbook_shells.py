@@ -461,3 +461,29 @@ def test_tam_wubrg_qualifies_five_colour_planeswalker_shells_rejected_for_chulan
             "shell_ids": "501;502",
         }
     ]
+
+
+def test_combos_resolves_commander_specific_shell_snapshot(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from commander_lab.studio import combos
+
+    default_path = tmp_path / "spellbook_shell_templates.json"
+    tam_path = tmp_path / "spellbook_shell_templates_tam_the_possibility.json"
+    default_path.write_text(
+        json.dumps({"commander": "Chulane, Teller of Tales", "pool_shells": []}),
+        encoding="utf-8",
+    )
+    tam_path.write_text(
+        json.dumps({"commander": "Tam, the Possibility", "pool_shells": []}),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(combos, "_TEMPLATES_PATH", default_path)
+    combos._load_template_snapshot.cache_clear()
+
+    assert combos._commander_slug("Tam, the Possibility") == "tam_the_possibility"
+    assert (
+        combos._resolve_template_snapshot_path(["Chulane, Teller of Tales"], None) == default_path
+    )
+    assert combos._resolve_template_snapshot_path(["Tam, the Possibility"], None) == tam_path
+    assert combos._resolve_template_snapshot_path(["Unknown Commander"], None) == default_path

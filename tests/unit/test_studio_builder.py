@@ -1135,3 +1135,57 @@ def test_unowned_scryfall_card_check_revision_and_marks(studio: StudioStore) -> 
         assert teferi["favorite"] is True
         assert teferi["note"] == "Zukauf Prio 1"
         assert teferi["labels"] == ["Superfriends"]
+
+
+def test_unowned_commander_resolution_and_scryfall_card_detail(studio: StudioStore) -> None:
+    """A commander present in scryfall_card (e.g. Tam, the Possibility) but absent from
+    card/inventory resolves cleanly in list_commanders, commander_identity, /api/pool, and
+    /api/cards/scryfall:<oid>, while truly unknown commanders still fail closed."""
+    _insert_scryfall(
+        studio,
+        oracle_id="oracle-tam-unowned",
+        name="Tam, the Possibility",
+        colors="WUBRG",
+        type_line="Legendary Planeswalker — Tam",
+        oracle_text="Tam, the Possibility can be your commander.",
+    )
+    studio.connection.execute(
+        "INSERT OR IGNORE INTO commander_binding(kind, key, commander_name, basis) "
+        "VALUES ('observation_cohort', 'tam:edhrec_view:planeswalkers', 'Tam, the Possibility', 'IMPORT_DECLARED')"
+    )
+    studio.connection.commit()
+
+    commanders = {c["name"]: c for c in builder.list_commanders(studio)}
+    assert "Tam, the Possibility" in commanders
+    tam = commanders["Tam, the Possibility"]
+    assert tam["in_collection"] is False
+    assert tam["card_id"] == "scryfall:oracle-tam-unowned"
+    assert tam["identity"] == "WUBRG"
+
+    ident, ids = builder.commander_identity(studio, ["Tam, the Possibility"])
+    assert ident == frozenset("WUBRG")
+    assert ids == ["scryfall:oracle-tam-unowned"]
+    with pytest.raises(KeyError):
+        builder.commander_identity(studio, ["Nonexistent Commander"])
+
+    assert studio.path is not None
+    folder = studio.path.parent
+    studio.close()
+
+    with TestClient(create_app(folder)) as client:
+        r_pool = client.get(
+            "/api/pool",
+            params={"commander": "Tam, the Possibility", "include_unowned": "true"},
+        )
+        assert r_pool.status_code == 200
+        assert r_pool.json()["commander_ids"] == ["scryfall:oracle-tam-unowned"]
+
+        r_detail = client.get(
+            "/api/cards/scryfall:oracle-tam-unowned",
+            params={"commander": "Tam, the Possibility"},
+        )
+        assert r_detail.status_code == 200
+        assert r_detail.json()["card_id"] == "scryfall:oracle-tam-unowned"
+
+        r_unknown = client.get("/api/pool", params={"commander": "Nonexistent Commander"})
+        assert r_unknown.status_code == 404
