@@ -220,7 +220,8 @@ Owner's go); setting or rotating secrets, paid services, account or repository v
 (privatizing repositories, external Drive sharing) and publication; releasing five- and six-seat
 play or qualification; lifting paused or externally gated items (the all-commander harvest #1210,
 the Drive-dependent import #1187/#1176, scraping a site without a public API, removing a required
-check, activating purchase mode or price features).
+check, activating price features or purchase handling; a purchase mode (Zukauf) for BUILD
+without prices was released on 2026-11-19, `docs/OWNER_DECISIONS_STUDIO_20261118.md` E14).
 
 The delegation never relaxes Rules Core authority (§2), evidence semantics (§4), hidden information
 in play (§5), the secret, credential and personal-data rules (§12), the Git hard boundaries and
@@ -426,7 +427,7 @@ Collection, deck, store and ownership card data may leave the Owner's machine (O
 lists in agent environments and fetch card images and public MTG metadata from public sources (such
 as Scryfall, EDHREC, Commander Spellbook, playgroup.gg, Archidekt). Studio web image requests carry
 no referrer or credentials (`referrerpolicy="no-referrer"`). Purchase data and card prices are never
-collected or committed unless the Owner orders the purchase mode.
+collected or committed unless the Owner orders price data (E14, T3).
 
 ## 13. Semantic Completion Rule
 

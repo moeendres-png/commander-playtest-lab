@@ -42,6 +42,7 @@ const state = {
   activePaired: null, pairedPollTimer: null, pairedHistory: [], readinessAudit: null,
   view: "grid", tab: "list", shown: 120, sortKey: "freq", sortDir: -1, cohort: "all",
   subset: null, subsetNames: [], subsetWanted: null, strength: null, showTier: true, changeSeq: 0, savedSeq: 0, layers: null, diffDefault: null,
+  includeUnowned: false, superfriendsFilter: "",
   cardTrend: null, cardTrendDays: 180, cardTrendBracket: "", cardTrendSource: "edhrec", cardTrendReq: null,
   colors: new Set(), columns: new Set(["img", "name", "mana_cost", "type_line", "available", "freq", "edhrec"]),
 };
@@ -151,6 +152,10 @@ function displayFreqText(card) {
 const qty = (id) => state.list.get(id) || 0;
 const deckTotal = () => state.commanderIds.length + [...state.list.values()].reduce((a, b) => a + b, 0);
 function maxCopies(card) {
+  if (state.includeUnowned && typeof StudioWishlist !== "undefined" && StudioWishlist.isUnowned(card)) {
+    if (card.basic || /A deck can have any number of cards named/.test(card.text)) return 99;
+    return 1;
+  }
   if (card.basic || /A deck can have any number of cards named/.test(card.text)) return Math.max(card.available, 0);
   return Math.min(1, Math.max(card.available, 0));
 }
@@ -186,6 +191,7 @@ function filtered() {
     if (fav && !card.favorite) return false;
     if (!showExcluded && card.excluded) return false;
     if (simReady && card.sim_status !== "OK") return false;
+    if (state.superfriendsFilter && typeof StudioWishlist !== "undefined" && !StudioWishlist.matchesSuperfriendsFilter(card, state.superfriendsFilter)) return false;
     if (type && card.group !== type) return false;
     if (label === "-" ? card.labels.length > 0 : label && !card.labels.some((item) => item.toLowerCase() === label.toLowerCase())) return false;
     if (role === "-" ? card.roles.length > 0 : role && !card.roles.includes(role)) return false;
@@ -248,11 +254,16 @@ function movePreview(event) {
   const left = event.clientX + 290 > innerWidth ? event.clientX - 280 : event.clientX + 20;
   box.style.left = left + "px"; box.style.top = Math.min(event.clientY - 40, innerHeight - 380) + "px";
 }
+function wishlistBadge(card) {
+  if (typeof StudioWishlist === "undefined" || !StudioWishlist.isUnowned(card)) return null;
+  return h("span", { class: "pill warn" }, "Zukauf (0 im Besitz)");
+}
 function tile(card) {
   const count = qty(card.card_id);
   const face = cardFace(card, () => openCard(card));
   const f = displayFreq(card);
   const subsetTitle = state.subset ? ` (${state.subset.info.label})` : "";
+  const unownedBadge = wishlistBadge(card);
   return h("div", { class: "tile" + (count ? " in" : "") + (card.available < 1 ? " none" : "") },
     face, card.favorite && h("span", { class: "star" }, "★"), tierMark(card, " corner"),
     h("div", { class: "bar" },
@@ -261,7 +272,9 @@ function tile(card) {
       h("button", { class: "small", type: "button", title: "aus dem Deck", "aria-label": `${card.name} aus dem Deck`, disabled: !count, onclick: () => remove(card) }, "−"),
       h("span", { class: "spacer" }),
       h("span", { class: "freq" + (f.total && f.total < state.small ? " low" : ""), title: (activeScope() ? `${activeScope().label}: Decks mit dieser Karte` : state.countedUniverse ? `${countedName()}: Decks mit dieser Karte` : "Decks der Vergleichsgruppe mit dieser Karte") + subsetTitle }, f.filter ? "Filterkarte" : f.hits === null ? "unbekannt" : f.total ? `${StudioUI.num(f.hits, 0)}/${StudioUI.num(f.total, 0)}` : "–")),
-    h("div", { class: "own" }, "Besitz ", h("b", {}, card.owned), " · frei ", h("b", {}, card.available), card.reserved ? ` · reserviert ${card.reserved}` : "", allocationTileNote(h, card)));
+    unownedBadge
+      ? h("div", { class: "own" }, unownedBadge)
+      : h("div", { class: "own" }, "Besitz ", h("b", {}, card.owned), " · frei ", h("b", {}, card.available), card.reserved ? ` · reserviert ${card.reserved}` : "", allocationTileNote(h, card)));
 }
 const COLUMNS = [
   ["img", "Bild", null], ["name", "Karte", "name"], ["mana_cost", "Kosten", "mana_value"], ["mana_value", "Manawert", "mana_value"],
@@ -285,7 +298,12 @@ function tierBadge(tier, text) {
 }
 function cell(card, key) {
   if (key === "img") return h("td", {}, card.has_image ? image(card, "thumb") : null);
-  if (key === "name") { const td = h("td", { class: "name", onclick: () => openCard(card) }, (card.favorite ? "★ " : "") + card.name); hoverPreview(td, card); return td; }
+  if (key === "name") {
+    const badge = wishlistBadge(card);
+    const td = h("td", { class: "name", onclick: () => openCard(card) }, (card.favorite ? "★ " : "") + card.name, badge ? " " : null, badge);
+    hoverPreview(td, card);
+    return td;
+  }
   if (key === "mana_cost") return h("td", {}, mana(card.mana_cost));
   if (key === "text") return h("td", { class: "text" }, card.text);
   if (key === "roles") return h("td", {}, card.roles.map(roleName).join(", "));
@@ -327,7 +345,8 @@ function activeSecondaryFilters() {
   const on = [$("type-filter").value, $("role-filter").value, $("label-filter").value].filter((value) => value !== "").length
     + ($("mv-min").value !== "" || $("mv-max").value !== "" ? 1 : 0)
     + ($("f-free").checked ? 0 : 1)
-    + ["f-notin", "f-fav", "f-excl", "f-sim"].filter((id) => $(id) && $(id).checked).length;
+    + (state.superfriendsFilter ? 1 : 0)
+    + ["f-notin", "f-fav", "f-excl", "f-sim", "f-unowned"].filter((id) => $(id) && $(id).checked).length;
   return on;
 }
 function updateFilterChip() {
@@ -435,7 +454,7 @@ async function syncDraftNow() {
     const cards = entries();
     const shouldPut = state.needsDraftPut && state.dirty;
     const [result, putRes] = await Promise.all([
-      api("/api/check", "POST", { cards, owned_only: true }),
+      api("/api/check", "POST", { cards, owned_only: !state.includeUnowned }),
       shouldPut
         ? api(`/api/decks/${encodeURIComponent(state.deckId)}/branches/${encodeURIComponent(state.branch)}/draft`, "PUT", {
             cards,
@@ -483,6 +502,7 @@ async function adoptForeignDraft() {
     state.draftUpdatedAt = found.draft.updated_at || "";
     state.draftConflict = false;
     state.needsDraftPut = false;
+    await ensureUnownedLoadedFor(found.draft.cards);
     useCards(found.draft.cards); state.dirty = true; renderAll(); await syncDraft();
     toast("Das Deck wurde auf einer anderen Seite geändert (zum Beispiel in der Tierliste). Die Liste hier ist jetzt aktuell.");
   } catch (error) { /* the next look at the tab tries again */ }
@@ -516,6 +536,31 @@ function renderPlayButton() {
 function deckCards() {
   return [...state.list.keys()].map((id) => state.byId.get(id)).filter(Boolean);
 }
+function copyWishlist(ownership) {
+  if (typeof StudioWishlist === "undefined" || !ownership || !ownership.missing) return;
+  const text = StudioWishlist.formatWishlistText(ownership.missingCards);
+  if (!text) return;
+  const openFallbackModal = () => {
+    const box = $("modal-box"); box.className = "plain";
+    const area = h("textarea", { rows: 12, readonly: true, "aria-label": "Zukauf-Liste" }, text);
+    box.replaceChildren(
+      h("h2", {}, `Zukauf-Liste (${StudioUI.num(ownership.missing, 0)} fehlende Karten)`),
+      h("p", { class: "note" }, "Reine Kartenliste (nur fehlende Karten aus diesem Deck)."),
+      area,
+      h("div", { class: "actions" }, h("button", { type: "button", onclick: closeModal }, "Schließen"))
+    );
+    $("modal").hidden = false;
+    area.select();
+  };
+  if (navigator.clipboard && typeof navigator.clipboard.writeText === "function") {
+    navigator.clipboard.writeText(text).then(
+      () => toast(`Zukauf-Liste (${StudioUI.num(ownership.missing, 0)} Karten) kopiert.`),
+      openFallbackModal
+    );
+  } else {
+    openFallbackModal();
+  }
+}
 function renderList(body) {
   const problems = new Set(state.issues.map((issue) => issue.card_id).filter(Boolean));
   for (const id of state.commanderIds) {
@@ -524,6 +569,14 @@ function renderList(body) {
     body.append(h("div", { class: "commander" }, card.has_image ? image(card, "") : null,
       h("div", {}, h("b", {}, card.name), h("div", { class: "muted" }, "Commander"), h("div", {}, mana(card.mana_cost)),
         h("div", { class: "note" }, `Farbidentität ${card.colors || "farblos"}`))));
+  }
+  if (typeof StudioWishlist !== "undefined") {
+    const ownership = StudioWishlist.summarizeDeckOwnership(entries(), state.byId);
+    if (ownership.missing > 0) {
+      body.append(h("div", { class: "actions", id: "wishlist-summary" },
+        h("span", { class: "pill warn" }, `Im Besitz: ${StudioUI.num(ownership.owned, 0)} · Zukauf: ${StudioUI.num(ownership.missing, 0)}`),
+        h("button", { type: "button", class: "small", id: "copy-wishlist", onclick: () => copyWishlist(ownership) }, "Zukauf-Liste kopieren")));
+    }
   }
   const cards = deckCards();
   if (!cards.length) body.append(h("p", { class: "muted" }, "Noch keine Karten. Wähle links Karten aus deiner Sammlung aus."));
@@ -536,7 +589,7 @@ function renderList(body) {
       const name = h("span", { class: "nm", onclick: () => openCard(card) }, card.name);
       hoverPreview(name, card);
       box.append(h("div", { class: "row" + (problems.has(card.card_id) ? " problem" : "") },
-        h("span", { class: "qty" }, qty(card.card_id)), tierMark(card), name, mana(card.mana_cost),
+        h("span", { class: "qty" }, qty(card.card_id)), tierMark(card), name, wishlistBadge(card), mana(card.mana_cost),
         !card.basic && card.roles && card.roles.length ? h("button", { class: "small", type: "button", title: "Tausch-Helfer: Karten mit gleicher Rolle", onclick: () => openCard(card, "replace") }, "⇄") : null,
         card.basic ? h("button", { class: "small", type: "button", disabled: qty(card.card_id) >= maxCopies(card), onclick: () => add(card) }, "+") : null,
         h("button", { class: "small", type: "button", onclick: () => remove(card) }, "−")));
@@ -1475,7 +1528,7 @@ function renderSimulations(body) {
     h("p", { class: "note" }, "Spielt mehrere vollständige 4-Spieler-Partien nacheinander in prozessisolierten Durchläufen mit deterministischen Seeds. Berechnet Siegrate mit Nenner und 95%-Wilson-Konfidenzintervall.")
   );
 
-  const curRev = state.baseRevision || (state.deckId ? `rev@${state.deckId}/main/current` : "rev@chulane/main/current");
+  const curRev = state.baseRevision || (state.deckId ? `rev@${state.deckId}/main/current` : "rev@deck/main/current");
   const revInput = h("input", { type: "text", value: curRev, class: "rev-input", title: "Deck-Revision" });
   const podSelect = h("select", {},
     h("option", { value: "precon" }, "Precon (Lorehold, Animated Army, Token Triumph)"),
@@ -1950,7 +2003,7 @@ function renderPrimer(body) {
     const area = h("textarea", {
       id: "primer-editor",
       rows: 10,
-      placeholder: "# Spielplan\n- Frühe Mana-Entwicklung\n- Chulane schützen & Kartenfluss sichern",
+      placeholder: `# Spielplan\n- Frühe Mana-Entwicklung\n- ${StudioCommander.shortName(COMMANDER)} schützen & Kartenfluss sichern`,
       "aria-label": "Deck-Primer (Markdown)",
       oninput: () => {
         previewBox.replaceChildren(...renderMarkdownSafe(area.value));
@@ -2745,7 +2798,12 @@ function renderBracketBar() {
   );
 }
 function applyPool(pool) {
-  state.pool = pool.cards; state.byId = new Map(pool.cards.map((card) => [card.card_id, card]));
+  const previous = state.byId || new Map();
+  const nextById = new Map(pool.cards.map((card) => [card.card_id, card]));
+  for (const id of state.list.keys()) {
+    if (!nextById.has(id) && previous.has(id)) nextById.set(id, previous.get(id));
+  }
+  state.pool = pool.cards; state.byId = nextById;
   state.roles = (pool.roles || []).sort((x, y) => roleName(x).localeCompare(roleName(y)));
   state.cohorts = pool.cohorts; state.small = pool.small_denominator; state.commanderIds = pool.commander_ids;
   state.universeInfo = pool.universe || null;
@@ -2891,7 +2949,7 @@ function strengthQuery() {
   } catch (error) { return ""; }
 }
 async function loadPool() {
-  const query = StudioCommander.query + strengthQuery() + StudioGcBand.scopeQuery(state);
+  const query = StudioCommander.query + strengthQuery() + StudioGcBand.scopeQuery(state) + (state.includeUnowned ? "&include_unowned=true" : "");
   applyPool(await api("/api/pool?" + query));
   try { localStorage.setItem("studio.universe.profile", state.universe); } catch (error) { /* view setting only */ }
   if ($("cohort")) $("cohort").disabled = Boolean(state.universe) || Boolean(state.gcBand) || (Boolean(state.countedUniverse) && !(state.cohorts.all || 0));
@@ -2930,6 +2988,14 @@ async function loadDecks() {
   $("deck-select").replaceChildren(...state.decks.map((item) => h("option", { value: item.deck_id, selected: item.deck_id === state.deckId }, item.name)));
   $("branch-select").replaceChildren(...deck.branches.map((item) => h("option", { value: item.branch, selected: item.branch === state.branch }, `${item.branch} (${StudioUI.num(item.cards, 0)})${item.has_draft ? " *" : ""}`)));
 }
+async function ensureUnownedLoadedFor(cards) {
+  if (state.includeUnowned || !Array.isArray(cards)) return;
+  const hasMissing = cards.some((entry) => entry && entry.zone === "main" && !state.byId.has(entry.card_id));
+  if (!hasMissing) return;
+  state.includeUnowned = true;
+  if ($("f-unowned")) $("f-unowned").checked = true;
+  await loadPool();
+}
 function useCards(cards) {
   state.list = new Map();
   for (const entry of cards) if (entry.zone === "main" && state.byId.has(entry.card_id)) state.list.set(entry.card_id, entry.quantity);
@@ -2949,9 +3015,11 @@ async function loadBranch() {
   state.needsDraftPut = false;
   if (draft.draft) {
     state.draftUpdatedAt = draft.draft.updated_at || "";
+    await ensureUnownedLoadedFor(draft.draft.cards);
     useCards(draft.draft.cards); state.dirty = true;
   } else {
     state.draftUpdatedAt = "";
+    await ensureUnownedLoadedFor(revision.cards);
     useCards(revision.cards); state.dirty = false; state.issues = revision.issues; state.shape = revision.shape; state.deckRoles = revision.roles || {}; state.combos = revision.combos || null;
   }
   renderSaveState();
@@ -3006,7 +3074,7 @@ async function showHistory() {
         h("td", { class: "num" }, StudioUI.num(row.cards, 0)),
         h("td", {}, row.note),
         h("td", {}, h("div", { class: "actions" },
-          h("button", { type: "button", class: "small", onclick: async () => { const revision = await api(`/api/revisions/${encodeURIComponent(row.revision_id)}`); useCards(revision.cards); closeModal(); changed(); toast("Alter Stand geladen. Er wird erst mit Speichern zum aktuellen Stand."); } }, "Laden"),
+          h("button", { type: "button", class: "small", onclick: async () => { const revision = await api(`/api/revisions/${encodeURIComponent(row.revision_id)}`); await ensureUnownedLoadedFor(revision.cards); useCards(revision.cards); closeModal(); changed(); toast("Alter Stand geladen. Er wird erst mit Speichern zum aktuellen Stand."); } }, "Laden"),
           h("button", { type: "button", class: "small", onclick: () => { state.diffBaseRev = row.revision_id; state.tab = "diff"; closeModal(); renderDeck(); } }, "Vergleichen")))))))),
     h("div", { id: "deck-series-slot" }),
     h("div", { class: "actions" }, h("button", { type: "button", onclick: closeModal }, "Schließen")));
@@ -3137,7 +3205,7 @@ function setupControls() {
   const views = [["grid", "Bilder"], ["table", "Tabelle"]];
   const drawViews = () => $("view-toggle").replaceChildren(...views.map(([key, label]) => h("button", { type: "button", class: "chip" + (state.view === key ? " on" : ""), "aria-pressed": state.view === key, onclick: () => { state.view = key; drawViews(); renderPool(); } }, label)));
   drawViews();
-  const applyBuilderFilterPreset = (cfg) => {
+  const applyBuilderFilterPreset = async (cfg) => {
     $("q").value = cfg.q || "";
     $("type-filter").value = cfg.type || "";
     $("role-filter").value = cfg.role || "";
@@ -3147,19 +3215,59 @@ function setupControls() {
     $("f-notin").checked = Boolean(cfg.notin);
     $("f-fav").checked = Boolean(cfg.fav);
     $("f-excl").checked = Boolean(cfg.excl);
+    state.superfriendsFilter = cfg.superfriends || "";
     state.colors = new Set(Array.isArray(cfg.colors) ? cfg.colors : []);
     for (const btn of $("color-filter").querySelectorAll("button")) btn.classList.toggle("on", state.colors.has(btn.textContent));
-    state.shown = 120; renderPool();
+    state.shown = 120;
+    if (state.superfriendsFilter === "missing") {
+      $("f-free").checked = false;
+      if (!state.includeUnowned) {
+        state.includeUnowned = true;
+        if ($("f-unowned")) $("f-unowned").checked = true;
+        try { await loadPool(); renderAll(); } catch (error) { fail(error); }
+        return;
+      }
+    }
+    renderPool();
   };
-  if ($("quick-filter-presets")) {
+  const renderQuickFilterPresets = () => {
+    if (!$("quick-filter-presets")) return;
+    const toggleSuperfriends = async (kind) => {
+      const next = state.superfriendsFilter === kind ? "" : kind;
+      state.superfriendsFilter = next;
+      if (next === "missing") {
+        $("f-free").checked = false;
+        if (!state.includeUnowned) {
+          state.includeUnowned = true;
+          if ($("f-unowned")) $("f-unowned").checked = true;
+          state.shown = 120;
+          renderQuickFilterPresets();
+          try { await loadPool(); renderAll(); } catch (error) { fail(error); }
+          return;
+        }
+      }
+      state.shown = 120;
+      renderQuickFilterPresets();
+      renderPool();
+    };
+    const sfChip = (kind, label, title) => h("button", {
+      type: "button",
+      class: "chip" + (state.superfriendsFilter === kind ? " on" : ""),
+      "aria-pressed": state.superfriendsFilter === kind,
+      title,
+      onclick: () => toggleSuperfriends(kind),
+    }, label);
     $("quick-filter-presets").replaceChildren(
-      h("button", { type: "button", class: "chip", onclick: () => applyBuilderFilterPreset({ free: true }) }, "Standardfilter"),
-      h("button", { type: "button", class: "chip", onclick: () => applyBuilderFilterPreset({ free: true, notin: true }) }, "Frei & nicht im Deck"),
-      h("button", { type: "button", class: "chip", onclick: () => applyBuilderFilterPreset({ free: true, mvMax: "2" }) }, "Frühe Aktionen (MV ≤ 2)"),
-      h("button", { type: "button", class: "chip", onclick: () => applyBuilderFilterPreset({ free: true, type: "Creatures" }) }, "Kreaturen (frei)"),
-      h("button", { type: "button", class: "chip", onclick: () => applyBuilderFilterPreset({ free: true, role: "-" }) }, "Ohne Rollenmarke"),
+      h("button", { type: "button", class: "chip", onclick: () => { applyBuilderFilterPreset({ free: true }); renderQuickFilterPresets(); } }, "Standardfilter"),
+      h("button", { type: "button", class: "chip", onclick: () => { applyBuilderFilterPreset({ free: true, notin: true }); renderQuickFilterPresets(); } }, "Frei & nicht im Deck"),
+      h("button", { type: "button", class: "chip", onclick: () => { applyBuilderFilterPreset({ free: true, mvMax: "2" }); renderQuickFilterPresets(); } }, "Frühe Aktionen (MV ≤ 2)"),
+      h("button", { type: "button", class: "chip", onclick: () => { applyBuilderFilterPreset({ free: true, type: "Creature" }); renderQuickFilterPresets(); } }, "Kreaturen (frei)"),
+      h("button", { type: "button", class: "chip", onclick: () => { applyBuilderFilterPreset({ free: true, role: "-" }); renderQuickFilterPresets(); } }, "Ohne Rollenmarke"),
+      sfChip("planeswalker", "Planeswalker", "Filtert wörtlich nach Typzeile „Planeswalker“."),
+      sfChip("proliferate", "Proliferate", "Filtert wörtlich nach „Proliferate“ im Oracle-Text."),
+      sfChip("missing", "Nur Zukauf (fehlt)", "Zeigt nur fehlende Karten außerhalb deiner Sammlung (aktiviert den Zukauf-Pool)."),
       h("button", { type: "button", class: "chip", onclick: () => {
-        const snapshot = { q: $("q").value, type: $("type-filter").value, role: $("role-filter").value, mvMin: $("mv-min").value, mvMax: $("mv-max").value, free: $("f-free").checked, notin: $("f-notin").checked, fav: $("f-fav").checked, excl: $("f-excl").checked, colors: [...state.colors] };
+        const snapshot = { q: $("q").value, type: $("type-filter").value, role: $("role-filter").value, mvMin: $("mv-min").value, mvMax: $("mv-max").value, free: $("f-free").checked, notin: $("f-notin").checked, fav: $("f-fav").checked, excl: $("f-excl").checked, superfriends: state.superfriendsFilter, colors: [...state.colors] };
         StudioUI.remember("studio.builder.savedPreset", JSON.stringify(snapshot));
         toast("Filteransicht gespeichert.");
       } }, "Ansicht merken"),
@@ -3168,9 +3276,25 @@ function setupControls() {
           const raw = StudioUI.recall("studio.builder.savedPreset", "");
           if (!raw) { toast("Noch keine Filteransicht gespeichert."); return; }
           applyBuilderFilterPreset(JSON.parse(raw));
+          renderQuickFilterPresets();
         } catch (_) { toast("Gespeicherte Filteransicht konnte nicht geladen werden."); }
       } }, "Gemerkte Ansicht")
     );
+  };
+  renderQuickFilterPresets();
+  if ($("f-unowned")) {
+    $("f-unowned").checked = Boolean(state.includeUnowned);
+    $("f-unowned").addEventListener("change", async () => {
+      state.includeUnowned = $("f-unowned").checked;
+      if (state.includeUnowned) {
+        $("f-free").checked = false;
+      } else if (state.superfriendsFilter === "missing") {
+        state.superfriendsFilter = "";
+        renderQuickFilterPresets();
+      }
+      state.shown = 120;
+      try { await loadPool(); renderAll(); } catch (error) { fail(error); }
+    });
   }
   setupFilterToggle();
   $("columns").addEventListener("click", () => { $("column-menu").hidden = !$("column-menu").hidden; });

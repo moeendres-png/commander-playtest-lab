@@ -173,6 +173,8 @@ def _is_java_launcher(command: Sequence[str]) -> bool:
 
 
 SKIP_FORCED_DECISIONS_PROPERTY = "commanderlab.fullGame.skipForcedDecisions"
+# a JVM option that selects a garbage collector (-XX:+UseG1GC, -XX:+UseParallelGC, -XX:+UseZGC, ...)
+_GC_SELECTOR = re.compile(r"-XX:[+-]Use\w*GC")
 
 
 def fast_bridge_command(base: Sequence[str]) -> tuple[str, ...] | None:
@@ -204,6 +206,9 @@ def fast_bridge_command(base: Sequence[str]) -> tuple[str, ...] | None:
     # not depend on the working directory
     command = (*command[:jar_at], str(jar), *command[jar_at + 1 :])
     options = [option for option in fast_jvm_options(jar) if option not in command]
+    if any(_GC_SELECTOR.fullmatch(part) for part in command[: command.index("-jar")]):
+        # the JVM refuses to start with two collectors: the user's choice stands (#1577)
+        options = [option for option in options if option != "-XX:+UseSerialGC"]
     if not any(part.startswith(f"-D{SKIP_FORCED_DECISIONS_PROPERTY}=") for part in command):
         options.append(f"-D{SKIP_FORCED_DECISIONS_PROPERTY}=true")
     return (command[0], *options, *command[1:])

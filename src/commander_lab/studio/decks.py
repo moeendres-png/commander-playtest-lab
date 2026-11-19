@@ -16,7 +16,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from .german_names import load_german_names
-from .store import StudioStore, now_utc
+from .store import StudioStore, ensure_scryfall_cards, now_utc
 
 DECK_SIZE = 100
 _COLORS = frozenset("WUBRG")
@@ -82,6 +82,7 @@ def create_revision(
     digest = deck_hash(merged)
     revision_id = f"{deck_id}@{digest[:16]}"
     db = store.connection
+    ensure_scryfall_cards(store, (card.card_id for card in merged))
     known = {str(row[0]) for row in db.execute("SELECT card_id FROM card")}
     missing = sorted({card.card_id for card in merged} - known)
     if missing:
@@ -236,8 +237,26 @@ def list_rows(store: StudioStore, cards: Iterable[RevisionCard]) -> list[sqlite3
     if not was_open:
         db.commit()
     return db.execute(
-        f"SELECT {_ROW_COLUMNS} FROM work_list rc JOIN card_fact c USING (card_id) "
-        "LEFT JOIN inventory i USING (card_id) ORDER BY rc.zone, c.oracle_name"
+        "SELECT "
+        "rc.card_id, rc.zone, rc.quantity, "
+        "COALESCE(c.oracle_name, s.name) AS oracle_name, "
+        "COALESCE(c.engine_name, CASE WHEN s.layout = 'split' THEN s.name ELSE COALESCE(s.front_name, s.name) END) AS engine_name, "
+        "COALESCE(c.color_identity, s.color_identity) AS color_identity, "
+        "COALESCE(c.is_basic_land, CASE WHEN s.type_line LIKE 'Basic %Land%' THEN 1 ELSE 0 END) AS is_basic_land, "
+        "COALESCE(c.commander_legal, CASE WHEN s.commander_legality IS NULL THEN NULL WHEN s.commander_legality = 'legal' THEN 1 ELSE 0 END) AS commander_legal, "
+        "COALESCE(c.type_line, s.type_line) AS type_line, "
+        "COALESCE(c.oracle_text, s.oracle_text) AS oracle_text, "
+        "COALESCE(c.mana_cost, s.mana_cost) AS mana_cost, "
+        "COALESCE(c.mana_value, s.mana_value) AS mana_value, "
+        "COALESCE(c.produced_mana, s.produced_mana) AS produced_mana, "
+        "COALESCE(c.layout, s.layout) AS layout, "
+        "i.available_lower_bound, i.reserved "
+        "FROM work_list rc "
+        "LEFT JOIN card_fact c USING (card_id) "
+        "LEFT JOIN scryfall_card s ON c.card_id IS NULL AND rc.card_id = 'scryfall:' || s.oracle_id "
+        "LEFT JOIN inventory i USING (card_id) "
+        "WHERE c.card_id IS NOT NULL OR s.oracle_id IS NOT NULL "
+        "ORDER BY rc.zone, COALESCE(c.oracle_name, s.name)"
     ).fetchall()
 
 
