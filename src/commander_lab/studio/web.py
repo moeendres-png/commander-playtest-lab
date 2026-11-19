@@ -553,6 +553,8 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         response.headers["Referrer-Policy"] = "no-referrer"
         if request.url.path.startswith("/api/"):
             response.headers["Cache-Control"] = "no-store"
+        elif "cache-control" not in response.headers:
+            response.headers["Cache-Control"] = "no-cache"
         return response
 
     @app.get("/api/status")
