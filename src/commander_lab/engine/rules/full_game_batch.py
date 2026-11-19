@@ -343,7 +343,7 @@ def execute_batch_case(
     """
     started = time.monotonic()
     try:
-        result = _run_with_startup_retry(runner, case)
+        result = conformance_result_or_refuse(_run_with_startup_retry(runner, case))
         if execution_identity_of(runner) != execution:
             raise ValueError("full-game batch execution identity changed during game")
         return FullGameBatchRecord(
@@ -361,6 +361,22 @@ def execute_batch_case(
         return _failed_record(case, run_key, started, FullGameFailureClass.CONFIGURATION, exc)
     except RuntimeError as exc:
         return _failed_record(case, run_key, started, FullGameFailureClass.ENGINE, exc)
+
+
+def conformance_result_or_refuse(outcome: object) -> FullGameConformanceResult:
+    """``outcome`` if it is a game played the evidence-lane way, else ``TypeError``.
+
+    Evidence rests on ``FullGameConformanceResult`` (the clean exit of the game's process). A
+    Studio series result (``full_game_series.FullGameSeriesResult``, Owner decision E9) or any
+    other look-alike is refused loudly as a defect of the Lab, never turned into a record: a
+    ``ValueError`` here would become a failed CONFIGURATION record and hide the mix-up.
+    """
+    if not isinstance(outcome, FullGameConformanceResult):
+        raise TypeError(
+            "full-game evidence takes FullGameConformanceResult only, not "
+            f"{type(outcome).__name__} (a Studio series result is no evidence)"
+        )
+    return outcome
 
 
 # XMage's card repository is an on-disk database every bridge JVM scans at
@@ -465,7 +481,7 @@ def execute_batch_chunk(
                 run_key=run_key,
                 status="completed",
                 elapsed_seconds=share,
-                result=outcome,
+                result=conformance_result_or_refuse(outcome),
             )
         )
     return records

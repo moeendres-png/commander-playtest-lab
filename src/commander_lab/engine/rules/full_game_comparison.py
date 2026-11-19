@@ -40,7 +40,7 @@ from commander_lab.models import (
 )
 
 from .full_game import FullGameConformanceResult, FullGamePilotBinding
-from .full_game_batch import FullGameBatchCase, FullGameBatchReport
+from .full_game_batch import FullGameBatchCase, FullGameBatchReport, conformance_result_or_refuse
 
 COMPARISON_SCHEMA_VERSION: Literal["xmage-full-game-deck-comparison-1.0.0"] = (
     "xmage-full-game-deck-comparison-1.0.0"
@@ -1131,20 +1131,23 @@ def aggregate_comparison(
                         name = record.failure_class.value if record.failure_class else "unknown"
                         failures[name] = failures.get(name, 0) + 1
                     continue
+                # a Studio series result (E9) is no comparison evidence, even in a record
+                # built without validation: refused before it is counted
+                result = conformance_result_or_refuse(record.result)
                 completed += 1
-                share, without_winner = _tested_outcome(record.result, seat)
+                share, without_winner = _tested_outcome(result, seat)
                 no_winner += int(without_winner)
                 wins += share
                 outcome[key] = share
-                place_score = _tested_placement(record.result, spec.player_count, seat)
+                place_score = _tested_placement(result, spec.player_count, seat)
                 placement[key] = place_score
                 if place_score is not None:
                     place_scores.append(place_score)
-                transcript_of[key] = record.result.semantic_transcript_sha256
-                turn = record.result.result_payload.get("turn_number")
+                transcript_of[key] = result.semantic_transcript_sha256
+                turn = result.result_payload.get("turn_number")
                 if isinstance(turn, int) and not isinstance(turn, bool):
                     turns.append(turn)
-                decisions.append(record.result.decision_count)
+                decisions.append(result.decision_count)
         summaries.append(
             ContenderSummary(
                 deck_id=contender.deck_id,

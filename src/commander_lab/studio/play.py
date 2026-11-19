@@ -41,6 +41,7 @@ from commander_lab.engine.rules.full_game import (
     XmageFullGameRunner,
     _RawFullGameClient,
 )
+from commander_lab.engine.rules.full_game_series import FullGameSeriesResult
 from commander_lab.engine.rules.project import load_rules_deck_snapshot
 from commander_lab.models import PilotConfig, PilotDecisionMode, PilotStrength, RulesDeckInput
 from commander_lab.qualification.current_boundary.bridge_launcher import canonical_xmage_engine_pin
@@ -386,7 +387,7 @@ def covered_by_sealed_epoch(qual_state: object, bridge_sha: object, covered_flag
 
 
 def close_recorded_game(
-    recorder: GameRecorder, outcome: FullGameConformanceResult | Exception
+    recorder: GameRecorder, outcome: FullGameConformanceResult | FullGameSeriesResult | Exception
 ) -> dict[str, object]:
     """Write the closing entry of a game log from its outcome and return the short summary."""
     header = getattr(recorder, "header", {})
@@ -433,6 +434,16 @@ def close_recorded_game(
         "bridge_qualification_state": qual_state,
         "covered_by_sealed_epoch": covered,
     }
+    series_basis: dict[str, object] = {}
+    if isinstance(outcome, FullGameSeriesResult):
+        # a Studio series game rests on its own shutdown_game acknowledgement (Owner decision
+        # E9); the log says so, with the JVM life that played it and the position in it
+        series_basis = {
+            "result_basis": outcome.result_basis,
+            "jvm_life_id": outcome.jvm_life_id,
+            "position_in_jvm": outcome.position_in_jvm,
+        }
+    closing.update(series_basis)
     path = recorder.close(closing)
     return {
         "game_id": recorder.game_id,
@@ -445,6 +456,7 @@ def close_recorded_game(
         "bridge_jar_sha256": bridge_sha,
         "bridge_qualification_state": qual_state,
         "covered_by_sealed_epoch": covered,
+        **series_basis,
     }
 
 

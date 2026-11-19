@@ -2146,3 +2146,79 @@ def test_paired_resume_live_lockfile_and_engine_chunk_filtering(
     assert res_base["exposure"] is not None
     assert res_var["exposure"] is not None
     assert recorded_calls == [("variant", [100])]
+
+
+def test_a_paired_series_ends_its_worker_pool_and_records_what_the_pool_did(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The series owns the worker processes of its player: they end with it, after a result, a
+    failure or a cancel, and the result says what the pool did (#1585)."""
+    store, folder = _make_store(tmp_path)
+    try:
+        cards = [
+            RevisionCard("cid-chulane", 1, "commander"),
+            RevisionCard("cid-sol-ring", 1, "main"),
+            RevisionCard("cid-forest", 98, "main"),
+        ]
+        rev_base = create_revision(
+            store, deck_id="chulane-test", name="C", branch="main", cards=cards
+        )
+        rev_var = create_revision(
+            store,
+            deck_id="chulane-test",
+            name="C",
+            branch="variant",
+            cards=[cards[0], RevisionCard("cid-signet", 1, "main"), cards[2]],
+        )
+
+        def _play(arm: str, seed: int, seat: int) -> paired_comparison.PlayedGame:
+            did = "chulane-test--base" if arm == "base" else "chulane-test--variant"
+            return {
+                "exposure": _mock_exposure(  # type: ignore[typeddict-item]
+                    f"{arm}-{seed}-{seat}",
+                    seed=seed,
+                    seat=seat,
+                    tested_deck_id=did,
+                    won=(arm == "variant"),
+                ),
+                "failure_class": None,
+            }
+
+        class _Pool:
+            closed = 0
+
+            def summary(self) -> dict[str, object]:
+                return {"executor": "studio-game-pool-1", "games_finished": 0}
+
+            def close(self) -> None:
+                _Pool.closed += 1
+
+        pool = _Pool()
+        monkeypatch.setenv("COMMANDER_LAB_XMAGE_FULL_GAME_BRIDGE_CMD", "/opt/wrapper full-game")
+        monkeypatch.setattr(
+            paired_comparison,
+            "parallel_window_player",
+            lambda *_a, **_k: paired_comparison.WindowPlayer(_play, [pool]),  # type: ignore[list-item]
+        )
+        mgr = PairedSeriesManager()
+        job = mgr.start_series(
+            store,
+            folder,
+            base_revision_id=rev_base,
+            variant_revision_id=rev_var,
+            pod="precon",
+            budget_pairs=8,
+            look_every_pairs=4,
+            base_seed=2000,
+        )
+        finished = _wait_job(mgr, folder, job.series_id)
+        assert finished["status"] == "completed"
+        result = finished["result"]
+        assert isinstance(result, dict)
+        assert result["execution"]["pool"] == {  # type: ignore[index]
+            "executor": "studio-game-pool-1",
+            "games_finished": 0,
+        }
+        assert _Pool.closed == 1
+    finally:
+        store.close()

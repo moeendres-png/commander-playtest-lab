@@ -61,6 +61,7 @@ import run_real_4p_full_game_smoke as smoke  # noqa: E402
 from commander_lab.engine.rules.fast_jvm_options import fast_jvm_options  # noqa: E402
 from commander_lab.engine.rules.frame_digest import FrameDigestRunner  # noqa: E402
 from commander_lab.engine.rules.full_game import XmageFullGameRunner  # noqa: E402
+from commander_lab.engine.rules.full_game_series import FullGameSeriesResult  # noqa: E402
 
 COVERAGE_DIR = ROOT / "data/coverage_decks/collection"
 # Five disjoint-as-possible pods over the 18 coverage decks (sorted file order).
@@ -206,6 +207,10 @@ def _play(
 
 
 def _row_of(outcome: Any) -> dict[str, Any]:
+    if isinstance(outcome, FullGameSeriesResult):
+        # a Studio series result (Owner decision E9) is no measurement or qualification row of
+        # the evidence lane (``qualify_game_batching`` reads its rows through here)
+        raise TypeError("a Studio series result (FullGameSeriesResult) is no benchmark row")
     if isinstance(outcome, Exception):  # a failed game is a result row, not a crash
         return {"status": "failed", "error": f"{type(outcome).__name__}: {outcome}"[:400]}
     return {
