@@ -337,6 +337,37 @@ Laufzeit höchstens um 1 bis 10 s senkt, bei neuer MATERIAL-Läuferlogik; die Pr
 traf nicht zu (Entscheid des Co-Leads in #1574). Die Freigabe ist damit nicht verbraucht, aber
 auch nicht Auftrag, etwas anderes in `production-qualification.yml` zu ändern.
 
+### E14: TAM in Studio BUILD und Zukauf-Modus ohne Preise (2026-11-19, #1187, #1636)
+
+Owner, 2026-11-19 (Session-Chat, Wortlaut in #1187, Kommentar 7018395774). Zu TAM im Builder:
+„TAM Commander Studio (zweiter Commander, Google Drive) das soll später noch in den BUILDER part
+… da sind zukäufe als feature schon erlaubt“. Zu Zukauf und Preisen: „1. ja erstmal ohne Preis,
+aber für später: am besten sollen bei den zukäufen auch die preisdaten angezeigt werden (…
+günstigste angebot eines deutschen anbieters auf cardmarket in mind Zustand Excellent …)“. Zum
+381-Korpus: „2. Ja, getrennt nach Kohorte“. Zum Start: „3. bitte kümmer dich jetzt darum …“.
+
+Folge: Ein Zukauf-Modus im BUILD ist als Feature erlaubt, zunächst ohne Preise. TAM ist ein
+zweiter Commander im BUILD. Plan (Unter-Issues von #1187):
+
+- **T1 (Datenbasis und Import):** idempotenter, SHA-256-geprüfter Import von `TAM_91`
+  (`tam:active_91`), `TAM_CHANDRA_381` getrennt nach Kohorte (`tam:curated_b2_4`,
+  `tam:curated_unbracketed`) und EDHREC-78-Ansichten (`OBSERVED_THEME`); `spellbook_shells.py`
+  auf beliebige Commander und Identitäten verallgemeinert. Keine Rohdecks im öffentlichen
+  Repository.
+- **T2 (BUILD Zukauf-Modus ohne Preise):** Opt-in `include_unowned` im Deckbauer-Pool, Kennzeichnung
+  `Im Besitz (n)` gegenüber `Fehlt / Zukauf (0)`, Deck-Aufteilung, Export `Zukauf-Liste` (nur
+  Kartennamen und Anzahl), wörtliche Oracle-/Tagger-Schnellfilter für TAM-Superfriends.
+- **T3 (später, `needs:owner`):** Preisdaten für Zukäufe (günstigstes Angebot eines deutschen
+  Anbieters auf Cardmarket, mindestens Zustand Excellent, Minimum aus Foil und Non-Foil) erst nach
+  rechtlicher und technischer Klärung des API-Zugangs; kein Scraping.
+
+Grenzen: Chulane bleibt Fokus und Standard („nur Sammlung“, `include_unowned` aus). Die
+Kollektionstrennung bleibt: Zukauf-Karten sind ein Merkmal im Deck, keine Änderung der Sammlung.
+Preise, Preisdaten und Kaufabwicklung bleiben Owner-vorbehalten (`AGENTS.md` §8). Kohorten werden
+nie gemischt; Chulane-Daten bleiben von TAM-Daten strikt getrennt (`commander_binding`).
+Überholt (E10, 2026-11-19): „kein Kaufmodus“ (B1) und „Multi-Commander über den Chulane-Fokus
+hinaus“ (B2) gelten für BUILD nicht mehr in dieser Form.
+
 ## 3. Was aufgehoben, geändert oder neu ist
 
 | Bisher | Jetzt | Quelle |
@@ -352,16 +383,17 @@ auch nicht Auftrag, etwas anderes in `production-qualification.yml` zu ändern.
 | Weg in die Tierliste: „nach G-SIM eigenes Design“ | Stufen 0 / 1 / 2; Gewicht größer 0 erst in Stufe 2 | E7, C3 |
 | Review eines MATERIAL-PR aus frischem Kontext | zusätzlich Kreuz-Review durch den jeweils anderen Agenten, soweit zwei parallel arbeiten | E7, C7 |
 | Owner-Entscheidung 2026-10-15 (`owner_decision_20261015_batch_games_per_jvm`): jedes Ergebnis ruht auf dem sauberen Herunterfahren des Prozesses | gilt nur für `run_batch` und die Konformanz-Evidenz; für Studio-Serien ruht das Ergebnis auf dem bestätigten `shutdown_game` je Partie in eigenem Ergebnistyp (E9) | Owner 2026-11-19, #1612 |
+| „Keine Preise, kein Kaufmodus“ (B1) und „kein Multi-Commander über den Chulane-Fokus hinaus“ (B2), soweit BUILD betroffen | Zukauf-Modus im BUILD ohne Preise und TAM als zweiter Commander im BUILD erlaubt; Preise bleiben Owner-Vorbehalt, Chulane bleibt Standard (E14) | Owner 2026-11-19, #1187 |
 | Entscheid-Dokumente: „fortgeschrieben, nie gelöscht“ (diese Datei, `AGENTS.md` §9 „archived, never deleted“) | überholter Wortlaut darf mit Begründung, Datum und Verweis im PR ersetzt oder entfernt werden; Git-Historie bleibt Quelle (E10) | Owner 2026-11-19, #1612 |
 
 ## 4. Gilt unverändert
 
 - XMage ist die alleinige Regelautorität (`AGENTS.md` §2, A2).
 - Keine Erste-, Zufalls- oder Standard-Option in produktionserreichbaren Pfaden (`AGENTS.md` §2).
-- Keine Preise, kein Kaufmodus (B1, `AGENTS.md` §12).
+- Keine Preise und keine Kaufabwicklung (B1, `AGENTS.md` §12); ein Zukauf-Modus im BUILD ohne Preise ist seit 2026-11-19 erlaubt (E14).
 - Jede Zahl mit n/N und Herkunft; „unbekannt“ statt 0 (A4, A5).
 - Kohorten werden nie gemischt oder addiert (A5, B3).
-- Chulane ist das einzige aktive Owner-Deck (`docs/OWNER_DECK_FOCUS_CURRENT.md`).
+- Chulane ist das Standard-Owner-Deck und der Fokus (`docs/OWNER_DECK_FOCUS_CURRENT.md`); TAM kommt im BUILD als zweiter Commander dazu (E14).
 - Keine neuen Abhängigkeiten und keine Änderung an `pyproject.toml` ohne Owner-Go (`AGENTS.md`
   §4, §10).
 - Sitze: Höchstzahl 6 (`docs/OWNER_DECISION_SIX_PLAYER_MAX_20261108.md`), Standard 4. Aktiv sind
@@ -382,4 +414,4 @@ Nicht durch die Anweisung, nach den Empfehlungen zu arbeiten, oder das GO abgede
   Neuversiegelung oder der D5-Freigabe, `AGENTS.md` §4, §10).
 - Freigabe von 5 und 6 Sitzen.
 - Sichtbarkeit der Repositorys und #1108.
-- Bezahldienste.
+- Bezahldienste, Preisdaten und Kaufabwicklung (T3 aus E14).

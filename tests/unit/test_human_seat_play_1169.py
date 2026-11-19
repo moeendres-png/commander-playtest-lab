@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import collections
+import copy
 import gzip
 import itertools
 import json
@@ -3443,3 +3444,120 @@ def test_partie_page_follows_with_held_requests_and_no_second_loop() -> None:
         assert forbidden not in follow_js, forbidden
     paths = sorted(set(re.findall(r"/api/[a-z0-9_/${}()?=&.-]+", follow_js, re.IGNORECASE)))
     assert paths and all(p.startswith(("/api/games/", "/api/play/")) for p in paths), paths
+
+
+# ---- snapshot() copies nothing and redacts nothing a second time (#1578) -----------------------
+
+
+def _snapshot_as_before(
+    session: play.InteractiveGameSession, start: int, count: int
+) -> dict[str, object]:
+    """The answer the snapshot gave before #1578: deep copies and a second redaction."""
+    with session._lock:
+        revealed = not session._running and session._result is not None
+        source = session._raw_frames if revealed else session._frames
+        pending = copy.deepcopy(session._pending_decision)
+        if isinstance(pending, dict):
+            raw_state = pending.get("pilot_state")
+            if isinstance(raw_state, dict):
+                pending["pilot_state"] = games.redact_pilot_state_for_human_seats(
+                    raw_state, session.human_seats
+                )
+        return {
+            "game_id": session.game_id,
+            "interactive": True,
+            "running": session._running,
+            "revision": session._revision,
+            "header": copy.deepcopy(session.prepared.header),
+            "human_seats": sorted(session.human_seats),
+            "decision_timeout_seconds": session.decision_timeout_seconds,
+            "ai_delay_ms": session.ai_delay_ms,
+            "can_concede": any(
+                session._can_concede_by_seat.get(s, False) for s in session.human_seats
+            )
+            and session._running,
+            "pending_decision": pending,
+            "frames": [copy.deepcopy(f) for f in source[start : start + count]],
+            "start": start,
+            "total": len(session._frames),
+            "hands_revealed": revealed,
+            "forced_passes_answered_by_engine": session._forced_passes_answered,
+            "result": copy.deepcopy(session._result),
+        }
+
+
+def _dump(value: object) -> str:
+    return json.dumps(value, sort_keys=True)
+
+
+def _answer_pass(client: TestClient, game_id: str, decision_id: str) -> None:
+    posted = client.post(
+        f"/api/play/{game_id}/decision",
+        json={"decision_id": decision_id, "selected_option_ids": ["pass-1"], "ordering": []},
+    )
+    assert posted.status_code == 200
+
+
+def test_snapshot_gives_the_same_answer_with_no_copy_and_no_second_redaction(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    app, client = _start_fake_session(tmp_path, "snap-1", _FakeInteractiveClient())
+    session = app.state.play_manager.get("snap-1")  # type: ignore[attr-defined]
+    try:
+        _wait_for_pending(client, "snap-1", "dec-h-1")
+        _answer_pass(client, "snap-1", "dec-h-1")
+        _wait_for_pending(client, "snap-1", "dec-h-2")
+        # The game waits for the human now: nothing else touches the state while this runs.
+        calls = {"copy": 0, "redact": 0}
+        real_redact = games.redact_pilot_state_for_human_seats
+
+        def counting_copy(value: object, *args: object, **kwargs: object) -> object:
+            calls["copy"] += 1
+            return copy.deepcopy(value, *args, **kwargs)  # type: ignore[arg-type]
+
+        def counting_redact(*args: object, **kwargs: object) -> dict[str, object]:
+            calls["redact"] += 1
+            return real_redact(*args, **kwargs)  # type: ignore[arg-type]
+
+        fake_copy = type("FakeCopyModule", (), {"deepcopy": staticmethod(counting_copy)})
+        monkeypatch.setattr(play, "copy", fake_copy)
+        monkeypatch.setattr(play, "redact_pilot_state_for_human_seats", counting_redact)
+        views = [session.snapshot(start=0, count=200) for _ in range(5)]
+        views.append(session.snapshot(start=1, count=1))
+        monkeypatch.undo()
+        assert calls == {"copy": 0, "redact": 0}, calls
+        # Same answer as before the change, for the whole range and for a slice.
+        assert _dump(views[0]) == _dump(_snapshot_as_before(session, 0, 200))
+        assert _dump(views[-1]) == _dump(_snapshot_as_before(session, 1, 1))
+        pending = views[0]["pending_decision"]
+        assert isinstance(pending, dict) and pending["decision_id"] == "dec-h-2"
+        assert views[0]["frames"], "the answered decision is a frame"
+        assert _FakeInteractiveClient.SECRET_CARD not in _dump(views[0])  # hidden info (section 5)
+        # The route answer is the same too.
+        routed = client.get("/api/play/snap-1").json()
+        assert _dump(routed) == _dump(_snapshot_as_before(session, 0, 200))
+    finally:
+        app.state.play_manager.shutdown_all()  # type: ignore[attr-defined]
+
+
+def test_snapshot_taken_earlier_stays_as_it_was_when_the_game_moves_on(tmp_path: Path) -> None:
+    """Without copies the answers share the state: nothing may change under a held answer."""
+    app, client = _start_fake_session(tmp_path, "snap-2", _FakeInteractiveClient())
+    session = app.state.play_manager.get("snap-2")  # type: ignore[attr-defined]
+    try:
+        _wait_for_pending(client, "snap-2", "dec-h-1")
+        early = session.snapshot()
+        early_text = _dump(early)
+        _answer_pass(client, "snap-2", "dec-h-1")
+        _wait_for_pending(client, "snap-2", "dec-h-2")
+        assert _dump(early) == early_text
+        mid = session.snapshot()
+        mid_text = _dump(mid)
+        assert client.post("/api/play/snap-2/concede", json={}).status_code == 200
+        done = _wait_finished(client, "snap-2")
+        assert _dump(mid) == mid_text and _dump(early) == early_text
+        # After the game the hands of the AI seats are shown, as before (Owner decision 2026-11-17).
+        assert done["hands_revealed"] is True
+        assert _dump(session.snapshot()) == _dump(_snapshot_as_before(session, 0, 200))
+    finally:
+        app.state.play_manager.shutdown_all()  # type: ignore[attr-defined]

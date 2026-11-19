@@ -663,11 +663,13 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         gc_band_key: str | None = Query(default=None, alias="gc_band", max_length=20),
         strength_universe: str | None = Query(default=None, max_length=120),
         strength_bracket: str | None = Query(default=None, max_length=20),
+        include_unowned: bool = Query(default=False),
     ) -> Response:
         """The pool. ``strength_universe`` and ``strength_bracket`` are the universe source and
         bracket of the tier list's settings: the builder then shows the same counted universe
-        the tier list takes (the recommended settings when they are not given). Remembered per
-        store state and parameters (#1563)."""
+        the tier list takes (the recommended settings when they are not given). ``include_unowned``
+        adds relevant Commander-legal Scryfall cards outside the collection (no prices).
+        Remembered per store state and parameters (#1563)."""
         store = open_store()
 
         def compute() -> dict[str, object]:
@@ -685,14 +687,26 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
                 except ValueError:
                     settings = None  # a stale remembered value must not block the builder
             return builder.pool_cards(
-                store, commander, profile=profile, gc_band=gc_band_key, strength=settings
+                store,
+                commander,
+                profile=profile,
+                gc_band=gc_band_key,
+                strength=settings,
+                include_unowned=include_unowned,
             )
 
         try:
             return answer_cache.json_answer(
                 store,
                 "pool",
-                (tuple(commander), profile, gc_band_key, strength_universe, strength_bracket),
+                (
+                    tuple(commander),
+                    profile,
+                    gc_band_key,
+                    strength_universe,
+                    strength_bracket,
+                    include_unowned,
+                ),
                 compute,
             )
         except ValueError as error:
