@@ -154,6 +154,8 @@ CREATE TABLE IF NOT EXISTS observation (
     source_id TEXT NOT NULL REFERENCES source(source_id)
 );
 CREATE INDEX IF NOT EXISTS observation_card ON observation(card_name, metric);
+-- Importers replace the rows of one source (DELETE by source_id) before they write them again.
+CREATE INDEX IF NOT EXISTS observation_source ON observation(source_id);
 CREATE TABLE IF NOT EXISTS scryfall_card (
     oracle_id TEXT PRIMARY KEY,
     scryfall_id TEXT NOT NULL,
@@ -260,6 +262,8 @@ CREATE TABLE IF NOT EXISTS corpus_cohort (
     deck_id TEXT NOT NULL REFERENCES corpus_deck(deck_id),
     PRIMARY KEY (cohort, deck_id)
 ) WITHOUT ROWID;
+-- The primary key leads with cohort; the per-deck delete of an import needs deck_id alone.
+CREATE INDEX IF NOT EXISTS corpus_cohort_deck ON corpus_cohort(deck_id);
 CREATE TABLE IF NOT EXISTS universe_profile (
     profile_id TEXT PRIMARY KEY,
     name TEXT NOT NULL UNIQUE,
@@ -728,7 +732,7 @@ def _migrate_schema_17(connection: sqlite3.Connection) -> None:
                 "cohort TEXT NOT NULL, deck_id TEXT NOT NULL REFERENCES corpus_deck(deck_id), "
                 "PRIMARY KEY (cohort, deck_id)) WITHOUT ROWID",
                 "cohort, deck_id",
-                (),
+                ("CREATE INDEX IF NOT EXISTS corpus_cohort_deck ON corpus_cohort(deck_id)",),
             ),
             (
                 "card_role",
