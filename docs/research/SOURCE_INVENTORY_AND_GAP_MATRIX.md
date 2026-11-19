@@ -217,6 +217,17 @@ Die Qualifizierung erfolgt in der vom Owner verbindlich festgelegten Reihenfolge
 
 Die vollständige Lückenmatrix für den gesamten legalen Chulane-Pool ($N = 801$ Karten) wurde berechnet und in [`data/research/chulane_legal_pool_gap_matrix.json`](../../data/research/chulane_legal_pool_gap_matrix.json) hinterlegt.
 
+### Zwei Lückenmatrizen, zwei Zwecke (Refs #1545)
+
+| | Evidenz-Lückenmatrix (diese Datei, `studio sources --gap-report`) | Deck-Häufigkeitsmatrix (`scripts/build_gap_matrix_from_store.py`) |
+|---|---|---|
+| Frage | Welche Poolkarten sollen als Nächstes recherchiert werden? | Wie dünn sind die Deck-Daten unter dem Pool? |
+| Je Karte | Coverage-Grade und `research_priority_score` über alle Evidenzschichten, mit Kartenname | nur Zählklassen (in keinem Deck, 1 bis 4, 5 bis 29, 30 bis 99, 100 oder mehr, unbekannt), keine Namen |
+| Nenner | Korpus-Kohorte `ALL_DECKS` des Pools (Standard 975 nur, wenn keine Kohorte vorliegt) | Zahl der deduplizierten lokalen Deck-Listen des Universums; je Universum und je Bracket-Gruppe ein eigener Nenner, nie addiert |
+| Stand | wird nur auf Aufruf geschrieben | aus dem aktuellen Store erzeugt; Kopf mit Zeit, Pool-Größe, Nennern, Store-Fingerabdruck |
+
+Die beiden benutzen verschiedene Karten-Maße und Nenner; ein Zusammenführen würde die bestehenden Grade und Zahlen ändern und ist deshalb nicht erfolgt. Gemeinsam ist nur der Pool (`builder.pool_cards`). Eine Zahl aus einer der beiden wird nie ohne ihren Nenner genannt. Aktuelle Werte stehen in der jeweils erzeugten Datei, nicht in diesem Text.
+
 ### Methodik der Lückenberechnung
 
 Für jede der 801 Poolkarten wird die Evidenzabdeckung und das Research-Potential objektiv bewertet:
