@@ -931,6 +931,7 @@ def parse_decklist_text(
         "outside_color_identity": outside_color_identity,
         "ambiguous": ambiguous,
         "german_name_lines": german_lines,
+        "german_names_available": german.available,
         "unrecognized_lines": unrecognized_lines,
         "ignored_annotations": ignored_annotations,
         "summary": {

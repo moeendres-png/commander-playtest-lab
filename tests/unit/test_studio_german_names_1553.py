@@ -77,6 +77,37 @@ def test_reader_orders_parts_numerically_and_skips_damage(tmp_path: Path) -> Non
     assert read_german_names(tmp_path / "missing").card_count == 0
 
 
+def test_unreadable_files_are_survived_and_reported_as_not_available(tmp_path: Path) -> None:
+    (tmp_path / "mtgjson_printings_1655_1.jsonl").write_bytes(b"\xff\xfe\x00 not utf-8\n")
+    names = read_german_names(tmp_path)
+    assert names.card_count == 0 and names.available is False
+    (tmp_path / "mtgjson_printings_1655_2.jsonl").write_text(
+        _row("o1", "One", ["Eins"]) + "\n", encoding="utf-8"
+    )
+    assert read_german_names(tmp_path).available is True
+    assert read_german_names(tmp_path / "missing").available is False
+
+
+def test_names_are_matched_in_composed_form_and_case_folded(tmp_path: Path) -> None:
+    (tmp_path / "mtgjson_printings_1655_1.jsonl").write_text(
+        _row("o1", "Street", ["Straße"]) + "\n" + _row("o2", "Bear", ["Bär"]) + "\n",
+        encoding="utf-8",
+    )
+    names = read_german_names(tmp_path)
+    assert names.oracle_ids("STRASSE") == {"o1"}  # sharp s folds to ss
+    assert names.oracle_ids("straße") == {"o1"}
+    assert names.oracle_ids("Ba\u0308r") == {"o2"}  # decomposed umlaut
+    assert names.oracle_ids("  bär  ") == {"o2"}
+
+
+def test_real_names_with_sharp_s_are_found_by_their_ss_spelling() -> None:
+    names = load_german_names()
+    sharp = [n for ns in names.names.values() for n in ns if "ß" in n]
+    assert len(sharp) > 0
+    for name in sharp[:10]:
+        assert names.oracle_ids(name.replace("ß", "ss")) == names.oracle_ids(name) != frozenset()
+
+
 @pytest.fixture()
 def store(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> StudioStore:
     folder = tmp_path / "prints"
@@ -198,6 +229,47 @@ def test_german_name_of_a_card_outside_the_collection_stays_neutral(store: Studi
     assert _summary(parsed)["not_in_collection_cards"] == 2
 
 
+def test_english_back_face_name_is_not_reported_as_ambiguous(
+    store: StudioStore, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    # the German index holds the same text for two other cards; an English spelling wins
+    folder = tmp_path / "prints2"
+    folder.mkdir()
+    (folder / "mtgjson_printings_1655_1.jsonl").write_text(
+        "\n".join(
+            [
+                _row("oid-x", "Other X", ["Kaiso, Memory of Loyalty"]),
+                _row("oid-y", "Other Y", ["Kaiso, Memory of Loyalty"]),
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    german = read_german_names(folder)
+    monkeypatch.setattr(decks, "load_german_names", lambda: german)
+    with store.connection as db:
+        db.execute(
+            "INSERT INTO card (card_id, oracle_id, oracle_name, color_identity, mana_cost, "
+            "mana_value, type_line, oracle_text, is_basic_land, commander_legal, "
+            "legality_verified_at, identity_evidence, source_id) SELECT 'c-squire', "
+            "'oid-c-squire', 'Faithful Squire // Kaiso, Memory of Loyalty', 'U', '{1}', 1, "
+            "'Card', '', 0, 1, '2026-11-10', 'scryfall', source_id FROM card LIMIT 1"
+        )
+        db.execute(
+            "INSERT INTO inventory SELECT 'c-squire', owned_lower_bound, available_lower_bound,"
+            " reserved, 2, 1, 1, '2026-11-10', source_id FROM inventory WHERE card_id = 'c-sol'"
+        )
+    parsed = decks.parse_decklist_text(store, CMD, "1 Kaiso, Memory of Loyalty")
+    assert parsed["ambiguous"] == []
+    assert [m["card_id"] for m in parsed["in_collection"]] == ["c-squire"]  # type: ignore[attr-defined]
+
+
+def test_parse_result_says_whether_german_names_were_available(store: StudioStore) -> None:
+    parsed = decks.parse_decklist_text(store, CMD, "1 Sol Ring")
+    assert parsed["german_names_available"] is True
+    assert parsed["ambiguous"] == [] and parsed["german_name_lines"] == 0
+
+
 def test_unknown_name_is_not_resolved(store: StudioStore) -> None:
     parsed = decks.parse_decklist_text(store, CMD, "1 Gibt es nicht")
     assert _summary(parsed)["german_name_lines"] == 0
@@ -239,6 +311,8 @@ console.log(JSON.stringify([
   r(duress, "Zwang"), r(coercion, "Zwang"), r(plain, "Zwang"),
   r(condemn, 'n:verdammen'), r(condemn, '"verdammen"'),
   r(plain, "sol"), r(plain, "ring"), r(plain, "tifact"),
+  r({ name: "Street", type_line: "", text: "", names_de: ["Straße"] }, "strasse"),
+  r({ name: "Street", type_line: "", text: "", names_de: ["Straße"] }, "STRAßE"),
   S.sortByRank([plain, coercion, duress, condemn], "zwang").map((c) => c.name),
 ]));
 """
@@ -256,5 +330,7 @@ console.log(JSON.stringify([
         1,
         2,
         4,
+        0,
+        0,
         ["Coercion", "Duress"],
     ]

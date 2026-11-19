@@ -348,7 +348,7 @@ function setupFilterToggle() {
 function renderPool() {
   updateFilterChip();
   const rows = filtered();
-  $("pool-count").textContent = `${StudioUI.num(rows.length, 0)} von ${StudioUI.num(state.pool.length - state.commanderIds.length, 0)} Karten` + ($("q").value.trim() ? " · nach Treffer sortiert" : "") + (state.subset ? ` · ${state.subset.info.label}` : "");
+  $("pool-count").textContent = `${StudioUI.num(rows.length, 0)} von ${StudioUI.num(state.pool.length - state.commanderIds.length, 0)} Karten` + ($("q").value.trim() ? " · nach Treffer sortiert" : "") + ($("q").value.trim() && state.germanNames === false ? " · deutsche Namen nicht verfügbar" : "") + (state.subset ? ` · ${state.subset.info.label}` : "");
   const body = $("pool-body"); body.replaceChildren();
   if (state.searchErrors && state.searchErrors.length) {
     body.append(h("div", { id: "search-syntax-error", class: "empty" },
@@ -2678,6 +2678,7 @@ function applyPool(pool) {
   state.roles = (pool.roles || []).sort((x, y) => roleName(x).localeCompare(roleName(y)));
   state.cohorts = pool.cohorts; state.small = pool.small_denominator; state.commanderIds = pool.commander_ids;
   state.universeInfo = pool.universe || null;
+  state.germanNames = pool.german_names_available !== false;
   state.countedUniverse = pool.counted_universe || null;
   state.simReadiness = pool.sim_readiness || null;
   renderUniverseInfo(); renderBracketBar(); renderSimReadiness(); renderLabelFilter();
@@ -2777,6 +2778,7 @@ function openImportDecklistModal() {
       const illegal = parsed.outside_color_identity || [];
       const badLines = parsed.unrecognized_lines || [];
       const unclear = parsed.ambiguous || [];
+      const noGerman = parsed.german_names_available === false;
       const applyImport = () => {
         useCards(cards);
         changed();
@@ -2794,6 +2796,7 @@ function openImportDecklistModal() {
         missing.length ? h("div", {},
           h("h3", {}, `Nicht in deiner Sammlung (${StudioUI.num(missing.length, 0)})`),
           h("ul", {}, missing.map((m) => h("li", {}, `${StudioUI.num(m.quantity, 0)}x ${m.name} — nicht in deiner Sammlung`)))) : null,
+        noGerman ? h("p", { class: "muted" }, "Deutsche Namen nicht verfügbar: nur englische Namen werden erkannt.") : null,
         unclear.length ? h("div", {},
           h("h3", {}, `Mehrdeutige Namen, nicht übernommen (${StudioUI.num(unclear.length, 0)})`),
           h("ul", {}, unclear.map((m) => h("li", {}, `Zeile ${StudioUI.num(m.line, 0)}: ${StudioUI.num(m.quantity, 0)}x ${m.name} — bezeichnet mehrere Karten: ${m.candidates.map((c) => c.name).join(" / ")}`)))) : null,

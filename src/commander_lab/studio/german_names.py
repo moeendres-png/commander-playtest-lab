@@ -3,7 +3,10 @@
 The names come from the checked-in print data of the collection
 (``data/research/deckbuilder_1655/mtgjson_printings_1655_{1..3}.jsonl``, MTGJSON build
 2026-11-11, filtered per ``oracle_id``): every print row carries the foreign names that
-exist for it, and the German one is read here. Nothing is written to the Studio database
+exist for it, and the German one is read here. Basis: Owner decision of 2026-11-19 on
+issue #1553 (option A, this file only, names only, no prices). The data rights are
+unclear according to ``docs/research/OPEN_SOURCE_LANES_20261117.md`` (code MIT, rights to
+the card data unclear) and are released by that Owner decision. Nothing is written to the Studio database
 (no table, no schema change): the files are read at the first use and kept in memory, so
 the start of the Studio does not pay for them.
 
@@ -53,6 +56,10 @@ class GermanNames:
         return self.english.get(oracle_id)
 
     @property
+    def available(self) -> bool:
+        return bool(self.names)
+
+    @property
     def card_count(self) -> int:
         return len(self.names)
 
@@ -78,15 +85,17 @@ def _german_names(row: object) -> Iterable[str]:
 def read_german_names(folder: str | Path) -> GermanNames:
     """Read the print files of ``folder`` in the order of their part numbers.
 
-    A folder without part files, an unreadable file or a damaged line yields fewer names,
-    never an error: the German names are an addition to the search, not a requirement."""
+    A folder without part files, an unreadable file or a damaged line yields fewer names
+    (also one that is not valid UTF-8) never an error: the German names are an addition to the
+    search, not a requirement. ``GermanNames.available`` tells callers whether any name was
+    read, so the UI can say "not available" instead of showing nothing."""
     names: dict[str, list[str]] = {}
     english: dict[str, str] = {}
     keys: dict[str, set[str]] = {}
     for path in _part_files(Path(folder)):
         try:
             lines = path.read_text(encoding="utf-8").splitlines()
-        except OSError:
+        except (OSError, UnicodeDecodeError):
             continue
         for line in lines:
             try:

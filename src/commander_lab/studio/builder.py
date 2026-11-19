@@ -622,6 +622,8 @@ def pool_cards(
         )
     result: dict[str, object] = {
         "commander_ids": commander_ids,
+        # False: the German name files could not be read (the search then knows English only).
+        "german_names_available": load_german_names().available,
         "identity": "".join(sorted(identity, key="WUBRG".index)),
         "cohorts": cohort_sizes(store, commander_names),
         "corpus_binding": corpus_binding(store, commander_names),

@@ -6,7 +6,8 @@
 // instead of returning a silent empty list.
 
 const StudioSearch = (() => {
-  const fold = (text) => String(text || "").toLowerCase();
+  // Case-insensitive and sharp-s tolerant ("strasse" finds "Straße"), composed form.
+  const fold = (text) => String(text || "").normalize("NFC").toLowerCase().replace(/ß/g, "ss");
 
   const FIELD_ALIASES = {
     t: "type",
