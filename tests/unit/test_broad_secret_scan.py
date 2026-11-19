@@ -10,7 +10,6 @@ from __future__ import annotations
 
 import importlib.util
 import json
-import os
 import re
 import subprocess
 import sys
@@ -43,7 +42,7 @@ def _config() -> dict:
 
 def _security_steps() -> list[dict]:
     workflow = yaml.safe_load((REPO / ".github/workflows/ci.yml").read_text(encoding="utf-8"))
-    return workflow["jobs"]["security"]["steps"]
+    return workflow["jobs"]["security-secret-scan"]["steps"]
 
 
 def test_the_scanner_is_pinned_by_version_and_digest() -> None:
@@ -108,37 +107,40 @@ def test_red_controls_are_deterministic_and_never_committed() -> None:
 
 
 def test_the_required_security_job_runs_the_scan_fail_closed() -> None:
-    steps = _security_steps()
-    start_matches = [
+    workflow = yaml.safe_load((REPO / ".github/workflows/ci.yml").read_text(encoding="utf-8"))
+    scan_job = workflow["jobs"]["security-secret-scan"]
+    assert scan_job.get("if") is None
+    assert scan_job.get("needs") is None
+    assert "continue-on-error" not in scan_job
+
+    steps = scan_job["steps"]
+    matches = [
         (idx, step)
         for idx, step in enumerate(steps)
         if "run_broad_secret_scan.py" in (step.get("run") or "")
     ]
-    assert len(start_matches) == 1
-    start_idx, start_step = start_matches[0]
-    assert "--install-dir" in start_step["run"]
-    assert "|| true" not in start_step["run"]
-    assert "continue-on-error" not in start_step
-
-    audit_idx = next(idx for idx, step in enumerate(steps) if step.get("id") == "audit-tooling")
-    assert start_idx < audit_idx, "broad secret scan must start before audit/SBOM steps"
-
-    collect_matches = [
-        (idx, step)
-        for idx, step in enumerate(steps)
-        if step.get("name") == "Collect broad secret scan (pinned gitleaks)"
-    ]
-    assert len(collect_matches) == 1
-    collect_idx, collect_step = collect_matches[0]
-    assert collect_idx > audit_idx
-    assert "|| true" not in collect_step["run"]
-    assert "continue-on-error" not in collect_step
-    assert collect_step.get("if") == "${{ success() || failure() }}"
+    assert len(matches) == 1
+    scan_idx, scan_step = matches[0]
+    assert "--install-dir" in scan_step["run"]
+    assert "|| true" not in scan_step["run"]
+    assert "continue-on-error" not in scan_step
+    assert scan_step.get("if") is None
 
     upload = steps[-1]
-    assert collect_idx < len(steps) - 1
+    assert scan_idx < len(steps) - 1
     assert upload["uses"].startswith("actions/upload-artifact@")
     assert upload["with"]["path"] == "artifacts/security/"
+
+    gate = workflow["jobs"]["security"]
+    assert gate.get("if") == "always()"
+    assert "continue-on-error" not in gate
+    assert set(gate.get("needs") or ()) == {"changes", "security-audit", "security-secret-scan"}
+    gate_step = gate["steps"][-1]
+    assert "scripts/ci_gate.py" in str(gate_step.get("run", ""))
+    assert "--allow-skipped" not in str(gate_step.get("run", ""))
+    for needed in ("changes", "security-audit", "security-secret-scan"):
+        assert f"needs.{needed}.result" in str((gate_step.get("env") or {}).values())
+        assert f'--job {needed}="$' in str(gate_step.get("run", ""))
 
 
 def test_the_project_sentinel_is_retained_as_a_separate_signal() -> None:
@@ -326,15 +328,16 @@ def test_security_scan_uses_the_exact_event_head() -> None:
     import yaml
 
     workflow = yaml.safe_load((REPO / ".github/workflows/ci.yml").read_text())
-    checkout = next(
-        step
-        for step in workflow["jobs"]["security"]["steps"]
-        if step.get("uses", "").startswith("actions/checkout@")
-    )
-    assert checkout.get("with", {}).get("ref") == (
-        "${{ github.event.pull_request.head.sha || github.sha }}"
-    )
-    assert checkout["with"]["persist-credentials"] is False
+    for job_id in ("security-audit", "security-secret-scan"):
+        checkout = next(
+            step
+            for step in workflow["jobs"][job_id]["steps"]
+            if step.get("uses", "").startswith("actions/checkout@")
+        )
+        assert checkout.get("with", {}).get("ref") == (
+            "${{ github.event.pull_request.head.sha || github.sha }}"
+        ), job_id
+        assert checkout["with"]["persist-credentials"] is False, job_id
 
 
 def test_root_configuration_bytes_are_scanned_outside_filename_allowlist(tmp_path, monkeypatch):
@@ -364,91 +367,34 @@ def test_root_configuration_bytes_are_scanned_outside_filename_allowlist(tmp_pat
     assert rows[0]["fingerprint"] == ".gitleaks.toml:github-pat:1"
 
 
-def test_security_parallel_scan_collect_step_fail_closed_controls(tmp_path: Path) -> None:
-    steps = _security_steps()
-    collect = next(
-        step for step in steps if step.get("name") == "Collect broad secret scan (pinned gitleaks)"
+@pytest.mark.parametrize(
+    ("changes", "audit", "secret_scan", "expected"),
+    [
+        ("success", "success", "success", 0),
+        ("success", "success", "failure", 1),
+        ("success", "success", "cancelled", 1),
+        ("success", "success", "skipped", 1),
+        ("success", "failure", "success", 1),
+        ("success", "skipped", "success", 1),
+        ("failure", "success", "success", 1),
+    ],
+)
+def test_security_gate_fails_closed_on_any_non_success_job(
+    changes: str, audit: str, secret_scan: str, expected: int
+) -> None:
+    completed = subprocess.run(
+        [
+            sys.executable,
+            str(REPO / "scripts" / "ci_gate.py"),
+            "--job",
+            f"changes={changes}",
+            "--job",
+            f"security-audit={audit}",
+            "--job",
+            f"security-secret-scan={secret_scan}",
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
     )
-    script = str(collect["run"])
-
-    def _run_collect(case_name: str, *, setup_fn) -> subprocess.CompletedProcess[str]:
-        work = tmp_path / case_name
-        work.mkdir()
-        runner_temp = work / "runner_temp"
-        scan_dir = runner_temp / "broad-secret-scan"
-        scan_dir.mkdir(parents=True)
-        setup_fn(work, scan_dir)
-        env = {**os.environ, "RUNNER_TEMP": str(runner_temp)}
-        return subprocess.run(
-            ["bash", "-c", script],
-            cwd=work,
-            env=env,
-            capture_output=True,
-            text=True,
-            check=False,
-        )
-
-    # 1. Passing background scan: waits, prints full log, verifies report, exits 0.
-    def _ok(work: Path, scan_dir: Path) -> None:
-        (scan_dir / "pid").write_text("999999\n", encoding="utf-8")
-        (scan_dir / "output.log").write_text("broad secret scan PASS\n", encoding="utf-8")
-        (scan_dir / "rc").write_text("0\n", encoding="utf-8")
-        report = work / "artifacts" / "security" / "broad-secret-scan.json"
-        report.parent.mkdir(parents=True, exist_ok=True)
-        report.write_text('{"status": "PASS"}\n', encoding="utf-8")
-
-    ok = _run_collect("pass", setup_fn=_ok)
-    assert ok.returncode == 0, ok.stdout + ok.stderr
-    assert "broad secret scan PASS" in ok.stdout
-
-    # 2. Secret finding (rc=1): fails closed with exit 1 and prints full log.
-    def _finding(work: Path, scan_dir: Path) -> None:
-        (scan_dir / "pid").write_text("999999\n", encoding="utf-8")
-        (scan_dir / "output.log").write_text("finding detected in repo\n", encoding="utf-8")
-        (scan_dir / "rc").write_text("1\n", encoding="utf-8")
-
-    finding = _run_collect("finding", setup_fn=_finding)
-    assert finding.returncode == 1
-    assert "finding detected in repo" in finding.stdout
-
-    # 3. Aborted/killed background process (no rc file): fails closed.
-    def _aborted(work: Path, scan_dir: Path) -> None:
-        (scan_dir / "pid").write_text("999999\n", encoding="utf-8")
-        (scan_dir / "output.log").write_text("killed mid-scan\n", encoding="utf-8")
-
-    aborted = _run_collect("aborted", setup_fn=_aborted)
-    assert aborted.returncode != 0
-    assert "killed mid-scan" in aborted.stdout
-
-    # 4. Missing report even when rc=0: fails closed.
-    def _missing_report(work: Path, scan_dir: Path) -> None:
-        (scan_dir / "pid").write_text("999999\n", encoding="utf-8")
-        (scan_dir / "output.log").write_text("no report written\n", encoding="utf-8")
-        (scan_dir / "rc").write_text("0\n", encoding="utf-8")
-
-    missing_report = _run_collect("missing_report", setup_fn=_missing_report)
-    assert missing_report.returncode != 0
-
-    # 5. Live background process still running when collect starts: waits and collects PASS.
-    def _live_wait(work: Path, scan_dir: Path) -> None:
-        report = work / "artifacts" / "security" / "broad-secret-scan.json"
-        bg = subprocess.Popen(
-            [
-                "bash",
-                "-c",
-                "sleep 0.3; mkdir -p artifacts/security; "
-                'echo \'{"status":"PASS"}\' > "$1"; '
-                'echo "live bg scan finished" > "$2"; '
-                'printf "0\\n" > "$3.tmp" && mv "$3.tmp" "$3"',
-                "_",
-                str(report),
-                str(scan_dir / "output.log"),
-                str(scan_dir / "rc"),
-            ],
-            cwd=work,
-        )
-        (scan_dir / "pid").write_text(f"{bg.pid}\n", encoding="utf-8")
-
-    live_wait = _run_collect("live_wait", setup_fn=_live_wait)
-    assert live_wait.returncode == 0, live_wait.stdout + live_wait.stderr
-    assert "live bg scan finished" in live_wait.stdout
+    assert completed.returncode == expected, completed.stdout + completed.stderr

@@ -282,7 +282,7 @@ jobs:
           set -euo pipefail
           python3 scripts/ci_gate.py --job changes="$CHANGES" --job lint="$LINT" --job tests="$TESTS" --job packaging="$PACKAGING" --allow-skipped packaging --packaging-needed "$PACKAGING_NEEDED"
 
-  security:
+  security-audit:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -296,26 +296,6 @@ jobs:
           python-version: "3.12"
           cache: pip
           cache-dependency-path: requirements/lock.txt
-      - name: Start broad secret scan (pinned gitleaks)
-        shell: bash
-        # B10 (#491), #1571: run the full gitleaks rule set and red controls
-        # concurrently with the audit/SBOM/license steps. Independent of them;
-        # the Collect step before artifact upload waits for completion, prints
-        # the full log, verifies the report and fails closed on finding/abort.
-        run: |
-          set -euo pipefail
-          scan_dir="${RUNNER_TEMP}/broad-secret-scan"
-          mkdir -p "$scan_dir"
-          rm -f "$scan_dir/pid" "$scan_dir/rc" "$scan_dir/output.log"
-          nohup bash -c '
-            set -uo pipefail
-            python scripts/run_broad_secret_scan.py --install-dir "$1"
-            rc=$?
-            printf "%s\n" "$rc" > "$2.tmp"
-            mv "$2.tmp" "$2"
-          ' _ "${{ runner.temp }}/gitleaks" "$scan_dir/rc" \
-            </dev/null >"$scan_dir/output.log" 2>&1 &
-          printf '%s\n' "$!" > "$scan_dir/pid"
       - name: Install hash-locked audit tools
         id: install-tooling
         run: |
@@ -382,49 +362,58 @@ jobs:
         run: >-
           python scripts/security_evidence.py seal --repo . --wheel-dir dist
           --runtime "$RUNNER_TEMP/security-product-venv" --out artifacts/security
-      - name: Collect broad secret scan (pinned gitleaks)
-        if: ${{ success() || failure() }}
-        shell: bash
-        # B10 (#491), #1571: wait for the concurrent scan started after setup-python,
-        # emit its full output into this step's log, verify exit code and report, and
-        # fail closed if the scan found a secret, was aborted or never started.
-        run: |
-          set -euo pipefail
-          scan_dir="${RUNNER_TEMP}/broad-secret-scan"
-          if [[ ! -f "$scan_dir/pid" ]]; then
-            echo "ERROR: broad secret scan was never started (missing pid file)." >&2
-            exit 1
-          fi
-          pid="$(<"$scan_dir/pid")"
-          if [[ ! "$pid" =~ ^[0-9]+$ ]]; then
-            echo "ERROR: invalid broad secret scan pid: $pid" >&2
-            exit 1
-          fi
-          while [[ ! -f "$scan_dir/rc" ]] && kill -0 "$pid" 2>/dev/null; do
-            sleep 0.5
-          done
-          if [[ -f "$scan_dir/output.log" ]]; then
-            cat "$scan_dir/output.log"
-          fi
-          if [[ ! -f "$scan_dir/rc" ]]; then
-            echo "ERROR: broad secret scan exited without status (aborted or killed)." >&2
-            exit 1
-          fi
-          rc="$(<"$scan_dir/rc")"
-          if [[ ! "$rc" =~ ^[0-9]+$ ]]; then
-            echo "ERROR: invalid broad secret scan exit code: $rc" >&2
-            exit 1
-          fi
-          if ((rc != 0)); then
-            exit "$rc"
-          fi
-          if [[ ! -f "artifacts/security/broad-secret-scan.json" ]]; then
-            echo "ERROR: broad secret scan report artifacts/security/broad-secret-scan.json missing." >&2
-            exit 1
-          fi
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2 immutable revision
         if: always()
         with:
           name: security-evidence
           path: artifacts/security/
           if-no-files-found: warn
+
+  security-secret-scan:
+    # B10 (#491), #1571: runs the pinned gitleaks rule set and red controls on its
+    # own runner in parallel with security-audit so gitleaks does not contend with
+    # pip/SBOM on a single 2-vCPU runner. Gated by the required `security` context.
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # Security evidence binds the event head, never a synthetic merge ref.
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.0.0 immutable revision
+        with:
+          python-version: "3.12"
+      - name: Broad secret scan (pinned gitleaks)
+        run: python scripts/run_broad_secret_scan.py --install-dir "${{ runner.temp }}/gitleaks"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2 immutable revision
+        if: always()
+        with:
+          name: security-secret-scan-evidence
+          path: artifacts/security/
+          if-no-files-found: warn
+
+  security:
+    # The required context. It is green only when `changes`, `security-audit` and
+    # `security-secret-scan` all ended `success` (no job may be skipped).
+    # `if: always()` keeps it from being skipped when a needed job fails or is cancelled; it
+    # fails then. scripts/ci_gate.py holds the decision and
+    # scripts/verify_required_check_definitions.py verifies this exact pattern.
+    if: always()
+    needs: [changes, security-audit, security-secret-scan]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          sparse-checkout: scripts/ci_gate.py
+          sparse-checkout-cone-mode: false
+      - name: Every needed job succeeded
+        shell: bash
+        env:
+          CHANGES: ${{ needs.changes.result }}
+          SECURITY_AUDIT: ${{ needs.security-audit.result }}
+          SECURITY_SECRET_SCAN: ${{ needs.security-secret-scan.result }}
+        run: |
+          set -euo pipefail
+          python3 scripts/ci_gate.py --job changes="$CHANGES" --job security-audit="$SECURITY_AUDIT" --job security-secret-scan="$SECURITY_SECRET_SCAN"
