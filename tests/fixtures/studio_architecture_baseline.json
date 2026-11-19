@@ -1,0 +1,28 @@
+{
+  "definition": "Import graph of src/commander_lab/studio/*.py with every import statement found by ast.walk (function bodies and TYPE_CHECKING blocks included); see scripts/studio_architecture_counts.py and tests/architecture/test_layer_boundaries.py. Ratchet: the values may only go down.",
+  "measured_at": "main 14a802bcd393921622d5f431f629c2e7cd8e4570 (2026-11-19, Refs #1612)",
+  "max_cyclic_components": 1,
+  "max_largest_cyclic_component": 12,
+  "cyclic_modules": [
+    "builder",
+    "corpus_signals",
+    "decks",
+    "research_import",
+    "roles",
+    "sources",
+    "strength_view",
+    "tier_snapshot",
+    "tiers",
+    "universe",
+    "universe_choice",
+    "universe_view"
+  ],
+  "qualification_facades": [],
+  "qualification_import_exceptions": {
+    "doctor -> commander_lab.qualification.current_boundary.bridge_launcher": 1,
+    "launch -> commander_lab.qualification.current_boundary.bridge_launcher": 2,
+    "paired_comparison -> commander_lab.qualification.current_boundary.bridge_launcher": 1,
+    "play -> commander_lab.qualification.current_boundary.bridge_launcher": 1,
+    "simulations -> commander_lab.qualification.current_boundary.bridge_launcher": 1
+  }
+}
