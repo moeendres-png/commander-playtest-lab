@@ -28,9 +28,9 @@ from commander_lab.deck_variant import compare_variant, comparison_to_dict
 from commander_lab.models import RulesDeckInput
 
 from . import cache
-from .decks import RevisionCard, color_set, ensure_scryfall_cards, list_rows
+from .decks import RevisionCard, color_set, list_rows
 from .german_names import load_german_names
-from .store import BINDING_KINDS, StudioStore, now_utc
+from .store import BINDING_KINDS, StudioStore, ensure_scryfall_cards, now_utc
 
 if TYPE_CHECKING:
     from .strength import StrengthSettings

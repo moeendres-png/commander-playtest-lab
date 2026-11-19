@@ -78,7 +78,7 @@ def _replace(store: StudioStore, table: str, key: str, owner: str, values: list[
 
 def set_card_labels(store: StudioStore, card_id: str, values: object) -> list[str]:
     """Replace the labels of a card. ``KeyError`` for an unknown card."""
-    from .decks import ensure_scryfall_cards
+    from .store import ensure_scryfall_cards
 
     cleaned = clean(values)
     if card_id.startswith("scryfall:"):
