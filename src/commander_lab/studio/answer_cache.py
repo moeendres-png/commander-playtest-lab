@@ -4,9 +4,10 @@ Several read routes (``/api/evidence``, ``/api/pool``, ``/api/rating-layers`` an
 recomputed the same answer on every call although nothing had changed. Here an answer is kept
 as the JSON bytes the route would send, keyed by
 
-- the store state (``cache.cached``: the store file's stamp, so every committed write, import or
-  mark change makes the next request recompute; an open transaction or an in-memory store is
-  never remembered),
+- the store state (``cache.cached``: the generations of the table groups the route's kind
+  ``answer:<route>`` reads, so every committed write, import or mark change those groups see
+  makes the next request recompute; an open transaction or an in-memory store is never
+  remembered),
 - the route name and all of its parameters, and
 - the identity (path, size, modification time) of every data file the answer reads per call
   (``files``), so a changed repository file is seen at once, as before.
@@ -19,8 +20,8 @@ the remembered value is safe by construction, whatever a reader does with what i
 Answers that read no store at all (``/api/tournament-conversion`` reads only the TopDeck
 files) are kept per file state alone (``file_answer``).
 
-Size: the answers share the size limit of ``cache`` and have a limit of their own there (kind
-``answer``: at most ``cache.KIND_LIMITS['answer']`` entries and bytes), so many distinct
+Size: the answers share the size limit of ``cache`` and have a limit of their own there (all
+``answer:<route>`` kinds together: at most ``cache.KIND_LIMITS['answer']`` entries and bytes), so many distinct
 parameters (a search typed letter by letter) push out older answers, never the warm figures
 behind them. ``file_answer`` holds at most ``_MAX_FILE_ANSWERS`` entries.
 """

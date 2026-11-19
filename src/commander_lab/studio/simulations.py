@@ -30,6 +30,7 @@ from commander_lab.bridge_qualification import (
 )
 from commander_lab.qualification.current_boundary.bridge_launcher import canonical_xmage_engine_pin
 
+from . import cache
 from .decks import lab_snapshot
 from .games import games_folder, read_game
 from .launch import (
@@ -46,6 +47,10 @@ from .launch import (
     bridge_jar_sha256 as command_bridge_jar_sha256,
 )
 from .store import DataClass, StudioStore, now_utc
+
+# What ``save_batch_to_store`` writes (``cache.write``): the series tables, its source row and
+# the commander binding of that source.
+_SERIES_WRITES = frozenset({cache.Group.SIMULATION, cache.Group.IMPORT})
 
 PILOT_POLICY = "GenericCommanderPilot 1.0.0"
 
@@ -1062,7 +1067,9 @@ class BatchSimulation:
             ):
                 store = store_factory()
                 try:
-                    self.run_id = save_batch_to_store(store, self, self._summary)
+                    # the series rows and their source row: a known write of this process
+                    with cache.write(store, _SERIES_WRITES):
+                        self.run_id = save_batch_to_store(store, self, self._summary)
                 finally:
                     store.close()
 
