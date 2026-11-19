@@ -712,9 +712,10 @@ def _insert_observation_once(
 ) -> bool:
     """Write one ``observation`` row unless the same source already wrote an exact duplicate.
 
-    ``row`` holds the eleven columns after ``observation_id`` in table order and ends with the
-    source id. A duplicate has the same values in all of them (NULL equals NULL, a NaN value is
-    NULL as the store keeps it); ``seen`` is the set of rows of this import and this source.
+    ``row`` holds the eleven columns after ``observation_id`` in INSERT order (card_id,
+    card_name, cohort, metric, value, ...) and ends with the source id. A duplicate has the same
+    values in all of them (NULL equals NULL, a NaN value is NULL as the store keeps it); ``seen``
+    is the set of rows of this import and this source.
     Returns False for a dropped duplicate."""
     value = row[4]
     key = (*row[:4], None if isinstance(value, float) and value != value else value, *row[5:])

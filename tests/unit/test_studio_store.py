@@ -494,6 +494,36 @@ def test_edhrec_import_drops_only_exact_duplicates_of_one_source(
     assert same == 2
 
 
+def test_duplicate_rule_treats_nan_as_null(store: StudioStore) -> None:
+    source_id = store.register_source(
+        data_class=DataClass.ORIGINAL_SOURCE, title="n", sha256="cd" * 32
+    )
+
+    def row(value: float | None) -> tuple[object, ...]:
+        return (
+            None,
+            "Swarm Rat",
+            "edhrec:x",
+            "lift",
+            value,
+            None,
+            None,
+            "UNKNOWN",
+            None,
+            None,
+            source_id,
+        )
+
+    seen: set[tuple[object, ...]] = set()
+    with store.connection as db:
+        assert importers._insert_observation_once(db, seen, row(float("nan")))
+        assert not importers._insert_observation_once(db, seen, row(float("nan")))  # other object
+        assert not importers._insert_observation_once(db, seen, row(None))
+    assert store.count("observation") == 1
+    stored = store.connection.execute("SELECT value FROM observation").fetchone()[0]
+    assert stored is None  # SQLite keeps NaN as NULL
+
+
 def test_edhrec_delta_import_drops_exact_duplicates(store: StudioStore, tmp_path: Path) -> None:
     line = json.dumps(
         {

@@ -16,6 +16,8 @@ prints PASS or FAIL with the deviating tables; exit 0 for PASS, 1 for FAIL, 2 fo
 store error. DELTA is ``+N``, ``-N``, ``0`` or ``any`` (rows may change by any amount). A table
 that is not listed must be unchanged in rows and content. The output holds table names and numbers
 only: no card names, no deck addresses. Run it on a store copy while no Studio process has it open.
+Opening a store with newer code can add indexes without a new schema version (#1548) and that
+changes the schema digest: open the copy once with the new code, then run ``before``.
 """
 
 from __future__ import annotations

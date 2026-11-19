@@ -226,6 +226,10 @@ $env:COMMANDER_LAB_STUDIO_DATA = $Copy        # bash: export COMMANDER_LAB_STUDI
 in 6b als `the schema changed`. Das ist dann keine Wirkung des Imports, sondern eine Migration:
 anhalten, notieren und entscheiden, nicht stillschweigend weitermachen.
 
+Auch ohne neue Schema-Version kann das erste Öffnen mit neuerem Code additive Indizes anlegen
+(#1548: `corpus_cohort_deck`, `observation_source`). Vor Schritt 6a die Kopie deshalb einmal mit
+dem neuen Code öffnen (z. B. `--data $Copy commanders`), erst dann snapshotten.
+
 **6a. Wächter vorher** (Zeilenzahl und Inhalt je Tabelle, `PRAGMA integrity_check`,
 `PRAGMA foreign_key_check`, Schema, Karten-Oracle-ID-Zuordnung):
 
@@ -328,6 +332,6 @@ Manifeste aus dem Staging gehören nicht ins Repository (groß, Lizenz je Quelle
 | `complete: False` bei S3 mit „request cap reached“ | Die Quelle hat mehr Seiten als erwartet oder die Seitenlogik hat sich geändert. Nicht das Limit anheben, melden. |
 | `FAIL` in `checks` | Anhalten. Datei und Zeile aus `validation.json` melden; nichts in die Kopie importieren. |
 | Zahl weicht von der Referenz ab | Kein Fehler. Notieren (Quelle ändert sich täglich) und im Kommentar nennen. |
-| `GUARD: FAIL` | Kopie verwerfen, neu aus der Sicherung anlegen, Ursache melden. |
+| `GUARD: FAIL` | Kopie verwerfen, neu aus der Sicherung anlegen (danach erneut einmal mit dem neuen Code öffnen, dann erst snapshotten, sonst meldet der Wächter wieder die Indizes als `the schema changed`), Ursache melden. |
 | `STOP: … redirect`, `another address` oder `limit` | Eine Umleitung, eine Antwort von anderer Adresse oder eine Größe über der Obergrenze: der Lauf ist unvollständig. Nicht umgehen, melden. |
 | `STOP: unusable identifier` (S3) | Die Antwort enthält eine Commander-ID, die keine einfache positive Ganzzahl ist; sie wird nie in Adresse oder Dateiname übernommen. Melden. |
