@@ -59,7 +59,8 @@ class EvidenceSource:
     coverage_scope, evidence_layer, has_exact_numerator_denominator, game_context,
     double_counting_risk, license_terms, allowed_retrieval_method, reproducibility,
     bias_risks, status (data quality), status_rationale, access_status (automated
-    retrieval permission), access_evidence_url, and access_checked_at_utc.
+    retrieval permission), access_evidence_url, and access_checked_at_utc (the date the
+    terms were read; None for purely local sources, which have no terms to check).
     """
 
     source_id: str
@@ -86,7 +87,7 @@ class EvidenceSource:
     status_rationale: str
     access_status: AccessStatus
     access_evidence_url: str
-    access_checked_at_utc: str
+    access_checked_at_utc: str | None
 
     def to_dict(self) -> dict[str, object]:
         return asdict(self)
@@ -142,7 +143,10 @@ QUALIFIED_SOURCES: tuple[EvidenceSource, ...] = (
         snapshot_id="scryfall-oracle-cards-20261110",
         schema_format="JSON (Scryfall Bulk oracle_cards)",
         card_identifier="oracle_id",
-        coverage_scope="100% of all MTG cards; 801 / 801 format- and color-legal Chulane cards",
+        coverage_scope=(
+            "100% of all MTG cards; has_scryfall_facts 927 / 927 pool cards "
+            "(gap matrix data/research/chulane_legal_pool_gap_matrix.json, generated 2026-11-12)"
+        ),
         evidence_layer="FACT",
         has_exact_numerator_denominator=True,
         game_context={"format": "Commander", "pod_size": None, "commander": None},
@@ -160,7 +164,8 @@ QUALIFIED_SOURCES: tuple[EvidenceSource, ...] = (
         status="VERIFIED",
         status_rationale=(
             "Fully verified daily bulk dataset imported into studio.sqlite3 (scryfall_card, 35,353 cards); "
-            "covers 801 / 801 legal Chulane cards."
+            "covers 927 / 927 pool cards of the gap matrix generated 2026-11-12 (pool size at "
+            "other dates: unbekannt)."
         ),
         access_status="ok_with_conditions",
         access_evidence_url="https://scryfall.com/docs/api/rate-limits",
@@ -197,13 +202,15 @@ QUALIFIED_SOURCES: tuple[EvidenceSource, ...] = (
             "paper games tracked without digital card logging lack card events."
         ),
         license_terms=(
-            "Aggregated statistics CC BY 4.0 with attribution and link; public API explicitly "
-            "permits scraping and bulk access; authenticated raw-games endpoint excluded."
+            "Licence status ungeklärt, no legal review (docs/research/data_wave1_20261118/"
+            "README.md section 4): the public OpenAPI description states CC BY 4.0 for aggregated "
+            "statistics with attribution and link and permits bulk access; authenticated "
+            "raw-games endpoint excluded."
         ),
         allowed_retrieval_method=(
             "Public API / HTML GET with recognizable generic User-Agent (400 req/min with UA, "
             "10 req/min without; max 20 requests/10 min per commander path; respect 429 Retry-After; "
-            "CC BY 4.0 attribution with link required)."
+            "attribution with link requested; the CC BY 4.0 licence claim is ungeklärt, no legal review)."
         ),
         reproducibility="DYNAMIC_EPHEMERAL_WEB",
         bias_risks=(
@@ -214,7 +221,8 @@ QUALIFIED_SOURCES: tuple[EvidenceSource, ...] = (
         ),
         status="REVIEW",
         status_rationale=(
-            "Public API permits bulk access with generic User-Agent and CC BY 4.0 attribution; "
+            "The public OpenAPI description permits bulk access with a generic User-Agent "
+            "(licence CC BY 4.0 stated there, ungeklärt, no legal review); "
             "Card Atlas itself is HTML (/cards/...) with survivorship and pod-clustering biases, "
             "so data quality remains REVIEW."
         ),
@@ -235,7 +243,10 @@ QUALIFIED_SOURCES: tuple[EvidenceSource, ...] = (
         ),
         publisher="Playgroup.gg",
         retrieved_at_utc=None,
-        observation_period="Aggregated live games through November 2026 (~2,094 recorded games)",
+        observation_period=(
+            "Aggregated live games, manual page inspection with state per the Phase-7 spec dated "
+            "2026-11-08 (2,094 recorded games, provider figure, not recounted)"
+        ),
         snapshot_id=None,
         schema_format="Public REST API / HTML Web Page",
         card_identifier="card_name",
@@ -249,25 +260,32 @@ QUALIFIED_SOURCES: tuple[EvidenceSource, ...] = (
         },
         double_counting_risk="Repeated matches of the same deck/pilot combination in a recurring playgroup.",
         license_terms=(
-            "CC BY 4.0 for aggregated commander statistics with attribution and link; "
-            "public API explicitly permits bulk access."
+            "Licence status ungeklärt, no legal review (docs/research/data_wave1_20261118/"
+            "README.md section 4): the public OpenAPI description states CC BY 4.0 for aggregated "
+            "commander statistics with attribution and link and permits bulk access."
         ),
         allowed_retrieval_method=(
             "Public API GET with recognizable generic User-Agent (400 req/min with UA, "
             "10 req/min without; max 20 requests/10 min per commander path; respect 429 Retry-After; "
-            "CC BY 4.0 attribution with link required)."
+            "attribution with link requested; the CC BY 4.0 licence claim is ungeklärt, no legal review)."
         ),
         reproducibility="DYNAMIC_EPHEMERAL_WEB",
         bias_risks=(
-            "Seat position skew: Seat 1 shows 45.3% winrate (674 games), Seat 5 shows 16.3% (43 games)",
+            "Seat position skew (state 2026-11-08, provider figures): seat 1 45.3% in 674 games, "
+            "seat 5 16.3% in 43 games (seat 5 is not released for Studio play)",
             "Archetype skew: Playgroup Chulane population is heavily Landfall-focused",
             "Small sample sizes for non-staple cards (n < 30)",
         ),
         status="REVIEW",
         status_rationale=(
-            "Public API permits bulk access with generic User-Agent and CC BY 4.0 attribution; "
-            "Chulane winrate (36%) and card lifts remain REVIEW due to heavy pilot, seat-position, "
-            "and archetype confounding."
+            "The public OpenAPI description permits bulk access with a generic User-Agent "
+            "(licence CC BY 4.0 stated there, ungeklärt, no legal review). Provider-published "
+            "Chulane win rate 36% (770 wins, 1,304 losses, 2,094 recorded games; the figures do not "
+            "reconcile to one denominator, state per the Phase-7 spec dated 2026-11-08). Other "
+            "counting methods, never mixed with it: data wave 1 commander list 449 / 1,111 rated "
+            "seats (40.4%, retrieved 2026-11-18) and per-commander CSV 782 / 2,110 games (37%, "
+            "retrieved 2026-11-11/12). Winrate and card lifts remain REVIEW due to heavy pilot, "
+            "seat-position, and archetype confounding."
         ),
         access_status="ok_with_conditions",
         access_evidence_url="https://playgroup.gg/api/public/v1/openapi.yaml",
@@ -321,7 +339,9 @@ QUALIFIED_SOURCES: tuple[EvidenceSource, ...] = (
         status_rationale=(
             "Data quality VERIFIED for 20 SHA-256-verified historical snapshots from 2026-11-11 "
             "(Run #43024442970, Refs #1186; 1,304 legacy rows remain retrieved_at_utc=NULL). "
-            "Automated retrieval is separately classified access_status=prohibited per ToS (2024-08-06)."
+            "Automated retrieval is separately classified access_status=prohibited per ToS (2024-08-06). "
+            "Stock usable unchanged per Owner decision #1557 point 1; no new automated retrievals "
+            "without the operator's written permission."
         ),
         access_status="prohibited",
         access_evidence_url="https://edhrec.com/terms",
@@ -387,12 +407,18 @@ QUALIFIED_SOURCES: tuple[EvidenceSource, ...] = (
         direct_url="local:data/research/chulane_corpus",
         reference_urls=(
             "local:data/research/chulane_corpus/README.md",
+            "https://archidekt.com/terms",
             "docs/STUDIO_DECKBUILDER.md",
         ),
-        publisher="Commander Studio Archive / Owner",
-        retrieved_at_utc="2026-11-10T00:00:00Z",
-        observation_period="Curated Chulane decklists 2024-2026",
-        snapshot_id="active-hub-975-unique",
+        publisher="Commander Studio repository archive (harvested from EDHREC and Archidekt)",
+        retrieved_at_utc=None,
+        observation_period=(
+            "Public Chulane decklists harvested from EDHREC (2,300 classified + 7,528 unclassified) "
+            "and Archidekt (723); first capture date unbekannt, last refresh 2026-11-15 "
+            "(corpus README, issue #1388); EDHREC retrievals 2026-11-11 to 2026-11-15 (#1557). "
+            "Decks that left EDHREC's rolling two-year window stay in the corpus."
+        ),
+        snapshot_id=None,
         schema_format="Per-deck normalized JSON (data/research/chulane_corpus/)",
         card_identifier="oracle_id",
         coverage_scope="Canonical Chulane decklist corpus in repository (10,551 raw / 10,150 deduplicated decks; initial 975-deck ACTIVE archive superseded)",
@@ -404,9 +430,18 @@ QUALIFIED_SOURCES: tuple[EvidenceSource, ...] = (
             "format": "Commander",
         },
         double_counting_risk="Content duplicates resolved via canonical oracle_id fingerprint at import time.",
-        license_terms="Project research dataset under AGENTS.md §12 (2026-11-15 relaxation; purchase/price signals excluded for Chulane).",
-        allowed_retrieval_method="Local repository file import (scripts/import_chulane_corpus.py).",
-        reproducibility="DETERMINISTIC_OFFLINE_SNAPSHOT",
+        license_terms=(
+            "Origin sources EDHREC (Terms of Service 2024-08-06) and Archidekt (Terms of Service "
+            "2018-09-07) both prohibit automated retrieval (register status prohibited); stock "
+            "usable per Owner decision #1557 (point 1: keep using the EDHREC stock, no new "
+            "automated retrievals without written permission; point 2: no Archidekt scraping). "
+            "Purchase/price signals excluded for Chulane (AGENTS.md §12)."
+        ),
+        allowed_retrieval_method=(
+            "NO_NEW_HARVEST (origin sources prohibit automated retrieval, #1557). Stock is read "
+            "from the repository by local import only (scripts/import_chulane_corpus.py)."
+        ),
+        reproducibility="UNKNOWN_NO_SNAPSHOT_RECORDED",
         bias_risks=(
             "Corpus reflects historical collection choices and specific community deck sources",
             "Null-case trap: unobserved pool cards (0 hits) mean unobserved, never weak",
@@ -414,10 +449,15 @@ QUALIFIED_SOURCES: tuple[EvidenceSource, ...] = (
         status="VERIFIED",
         status_rationale=(
             "Canonical Chulane decklist corpus stored in-repo under data/research/chulane_corpus/ "
-            "(replaces historical non-existent local:data/hub/ reference) and imported into studio.sqlite3."
+            "(replaces historical non-existent local:data/hub/ reference) and imported into "
+            "studio.sqlite3. Bestand nutzbar nach Owner-Entscheid #1557 (Punkt 1: EDHREC-Bestand "
+            "weiter nutzen, keine neuen automatisierten Abrufe ohne schriftliche Erlaubnis; "
+            "Punkt 2: Archidekt kein Scraping), Herkunft verbotene Quellen, keine Nachernte. "
+            "No retrieval timestamp or snapshot id is recorded for the corpus as a whole, so "
+            "both stay None (unbekannt)."
         ),
-        access_status="ok",
-        access_evidence_url="local:data/research/chulane_corpus/README.md",
+        access_status="prohibited",
+        access_evidence_url="https://edhrec.com/terms",
         access_checked_at_utc="2026-11-18",
     ),
     EvidenceSource(
@@ -452,8 +492,11 @@ QUALIFIED_SOURCES: tuple[EvidenceSource, ...] = (
             "attribution with link, no scraping outside API, no storing player names."
         ),
         allowed_retrieval_method=(
-            "EDHTop16: unclear (no documented rate limit); TopDeck.gg: API v2 only with Owner key "
-            "(5/50/100 req/min by tier, attribution required, omit player names)."
+            "EDHTop16: unclear (no documented rate limit, no automated retrieval built); TopDeck.gg: "
+            "API v2 only with an Owner key (5/50/100 req/min by tier, attribution required, omit "
+            "player names). Owner decision #1557 point 3: no TopDeck API key is created while no "
+            "cEDH reference is wanted, so no TopDeck retrieval (scripts/collect_topdeck_decks.py "
+            "stays closed without a key)."
         ),
         reproducibility="DYNAMIC_EPHEMERAL_WEB",
         bias_risks=(
@@ -463,7 +506,8 @@ QUALIFIED_SOURCES: tuple[EvidenceSource, ...] = (
         status="REVIEW",
         status_rationale=(
             "Valuable supplementary perspective, but requires manual audit due to cEDH "
-            "selection divergence and undocumented EDHTop16 rate limits."
+            "selection divergence and undocumented EDHTop16 rate limits. No TopDeck data is "
+            "collected (Owner decision #1557 point 3: no API key)."
         ),
         access_status="unclear",
         access_evidence_url="https://edhtop16.com/terms",
@@ -479,12 +523,18 @@ QUALIFIED_SOURCES: tuple[EvidenceSource, ...] = (
             "src/commander_lab/deck_readiness.py",
         ),
         publisher="XMage Project / Commander Lab",
-        retrieved_at_utc="2026-11-10T00:00:00Z",
-        observation_period="All cards implemented in the canonical pinned XMage Rules Core (7,231 verified cards)",
-        snapshot_id="xmage-card-facts-v1",
+        retrieved_at_utc="2026-11-12T13:04:32Z",
+        observation_period=(
+            "XMage card repository export of 2026-11-12 (exported_at in data/cards/xmage_card_facts.json)"
+        ),
+        snapshot_id="xmage-card-facts-1.0.0-database-78c12c7d",
         schema_format="JSON (xmage_card_facts.json)",
         card_identifier="engine_name / oracle_name",
-        coverage_scope="7,231 cards implemented in pinned XMage engine; 801 / 801 legal Chulane cards have verified readiness",
+        coverage_scope=(
+            "32,615 cards in the XMage card repository export (card_count in "
+            "data/cards/xmage_card_facts.json); has_xmage_rules 807 / 927 pool cards "
+            "(gap matrix generated 2026-11-12)"
+        ),
         evidence_layer="DERIVED_MECHANICAL",
         has_exact_numerator_denominator=True,
         game_context={
@@ -502,12 +552,13 @@ QUALIFIED_SOURCES: tuple[EvidenceSource, ...] = (
         ),
         status="VERIFIED",
         status_rationale=(
-            "100% verified locally against pinned engine rules. "
-            "All 801 legal Chulane pool cards are qualified with sim_status=OK."
+            "Local engine card facts export (32,615 cards, exported 2026-11-12). Pool coverage: "
+            "has_xmage_rules 807 / 927 pool cards per the gap matrix of 2026-11-12; the other 120 "
+            "are not covered. A per-card sim_status is not recorded in this register (unbekannt)."
         ),
         access_status="ok",
         access_evidence_url="local:data/cards/xmage_card_facts.json",
-        access_checked_at_utc="2026-11-18",
+        access_checked_at_utc=None,
     ),
     EvidenceSource(
         source_id="scryfall:tagger",
@@ -541,7 +592,7 @@ QUALIFIED_SOURCES: tuple[EvidenceSource, ...] = (
             "Bulk GET via Scryfall Bulk Data API (type: oracle_tags) with generic User-Agent "
             "and Accept headers; no AI training."
         ),
-        reproducibility="DETERMINISTIC_OFFLINE_SNAPSHOT",
+        reproducibility="UNKNOWN_NO_SNAPSHOT_RECORDED",
         bias_risks=(
             "Community tags are subjective, non-authoritative annotations, not official MTG Oracle mechanics",
             "Inconsistent granularity across card types",
@@ -597,7 +648,8 @@ QUALIFIED_SOURCES: tuple[EvidenceSource, ...] = (
         status="UNAVAILABLE",
         status_rationale=(
             "No authorized automated retrieval path; Terms of Service (2018-09-07) prohibit "
-            "automated queries with the same wording as EDHREC."
+            "automated queries with the same wording as EDHREC. Owner decision #1557 point 2: "
+            "no scraping; the operator is asked, the rule-derived Game Changer band is the substitute."
         ),
         access_status="prohibited",
         access_evidence_url="https://archidekt.com/terms",

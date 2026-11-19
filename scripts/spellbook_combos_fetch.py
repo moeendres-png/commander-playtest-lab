@@ -27,6 +27,13 @@ preserved entry ``chulane-forager-turns`` uses Ethereal Forager, which appears
 in the stored corpus only in a maybeboard section (never in a counted section
 of a canonical deck).
 
+Network access happens only with ``--allow-network``; without it and without ``--bulk`` the
+script exits non-zero before it opens the store or a connection. The download is capped
+(``--max-download-mb``, a declared ``Content-Length`` above the cap is refused before the body is
+read) and the unpacked stream is read incrementally and capped (``--max-unpacked-mb``); neither
+the compressed nor the unpacked document is held in memory (pattern of
+``scripts/data_wave1/_common.py``).
+
 On HTTP 403/429 (or any HTTP error) the script stops and reports the status —
 no retries, no workarounds. The store must hold the repository data
 (``import-all --from-repo``), as for ``scripts/subarchetype_analysis.py``.
@@ -37,11 +44,14 @@ from __future__ import annotations
 import argparse
 import gzip
 import json
+import re
 import sys
+import tempfile
 import urllib.error
 import urllib.request
+from collections.abc import Iterator
 from pathlib import Path
-from typing import NamedTuple
+from typing import IO, NamedTuple
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
@@ -53,6 +63,19 @@ DEFAULT_BULK_URL = "https://json.commanderspellbook.com/variants.json.gz"
 DEFAULT_USER_AGENT = "mtg-combo-fetch-tool/1.0"
 USER_AGENT = DEFAULT_USER_AGENT
 WUG = frozenset("WUG")
+_NETWORK_REFUSAL = (
+    "No network access without --allow-network: pass --bulk <local variants.json[.gz]> to work "
+    "offline, or --allow-network to download the bulk export once. Nothing was requested."
+)
+
+# Size limits, same defaults as scripts/data_wave1/_common.py (MiB, configurable per run).
+MIB = 1 << 20
+DEFAULT_MAX_DOWNLOAD_MB = 1024
+DEFAULT_MAX_UNPACKED_MB = 4096
+CHUNK_CHARS = 1 << 22
+COMPACT_AFTER = 1 << 23
+MAX_OBJECT_CHARS = 64 * MIB  # one variant object
+_VARIANTS_KEY = re.compile(r'"variants"\s*:\s*\[')
 
 
 class _Variant(NamedTuple):
@@ -93,12 +116,48 @@ def _corpus_keys(store: StudioStore, commander: str) -> tuple[set[str], int]:
     return keys, len(deck_ids)
 
 
-def _download_bulk(url: str, *, user_agent: str = DEFAULT_USER_AGENT) -> bytes:
-    """One polite bulk GET; any HTTP error stops the run with the status as evidence."""
+def _mib_limit(value: int, name: str) -> int:
+    if value < 1:
+        raise SystemExit(f"{name} must be at least 1 MiB")
+    return value * MIB
+
+
+def _download_bulk(
+    url: str,
+    dest: Path,
+    *,
+    user_agent: str = DEFAULT_USER_AGENT,
+    max_bytes: int = DEFAULT_MAX_DOWNLOAD_MB * MIB,
+) -> int:
+    """One bulk GET streamed into ``dest``; returns the byte count.
+
+    Any HTTP error stops the run with the status as evidence; a response that declares or
+    delivers more than ``max_bytes`` is refused and nothing is kept.
+    """
+    if not url.startswith("https://"):
+        raise SystemExit(f"Spellbook bulk download refused: not an https URL: {url}")
     request = urllib.request.Request(url, headers={"User-Agent": user_agent, "Accept": "*/*"})
+    size = 0
     try:
         with urllib.request.urlopen(request, timeout=300) as response:
-            return bytes(response.read())
+            declared = response.headers.get("Content-Length")
+            if declared is not None and declared.isdigit() and int(declared) > max_bytes:
+                raise SystemExit(
+                    f"Spellbook bulk download refused: declared size {declared} exceeds "
+                    f"the limit of {max_bytes} bytes"
+                )
+            with dest.open("wb") as sink:
+                while True:
+                    chunk = response.read(MIB)
+                    if not chunk:
+                        break
+                    size += len(chunk)
+                    if size > max_bytes:
+                        raise SystemExit(
+                            f"Spellbook bulk download refused: body exceeds the limit of "
+                            f"{max_bytes} bytes"
+                        )
+                    sink.write(chunk)
     except urllib.error.HTTPError as error:
         detail = error.read().decode("utf-8", errors="replace")[:200]
         raise SystemExit(
@@ -108,6 +167,89 @@ def _download_bulk(url: str, *, user_agent: str = DEFAULT_USER_AGENT) -> bytes:
         raise SystemExit(
             f"Spellbook bulk download unreachable: {error.reason} for {url}"
         ) from error
+    except SystemExit:
+        dest.unlink(missing_ok=True)
+        raise
+    return size
+
+
+def _iter_bulk_objects(handle: IO[str], max_unpacked: int) -> Iterator[object]:
+    """The variant objects of a decoded bulk document, read incrementally.
+
+    Accepts ``{"variants": [...]}`` or a bare list. Reads at most ``max_unpacked`` characters
+    and never holds more than a window of the document (plus one object) in memory.
+    """
+    decoder = json.JSONDecoder()
+    state = {"read": 0, "eof": False}
+
+    def fill(buffer: str) -> str:
+        if state["eof"]:
+            return buffer
+        chunk = handle.read(CHUNK_CHARS)
+        if not chunk:
+            state["eof"] = True
+            return buffer
+        state["read"] += len(chunk)
+        if state["read"] > max_unpacked:
+            raise SystemExit(
+                f"Spellbook bulk export unpacks to more than {max_unpacked} characters"
+            )
+        return buffer + chunk
+
+    buffer = fill("")
+    pos = 0
+    while True:
+        stripped = buffer.lstrip()
+        if stripped.startswith("["):
+            pos = len(buffer) - len(stripped) + 1
+            break
+        found = _VARIANTS_KEY.search(buffer)
+        if found:
+            pos = found.end()
+            break
+        if state["eof"]:
+            raise SystemExit("Spellbook bulk export lacks a 'variants' list")
+        if len(buffer) > MAX_OBJECT_CHARS:
+            raise SystemExit("Spellbook bulk export: no 'variants' list within the size limit")
+        buffer = fill(buffer)
+    while True:
+        while True:
+            while pos < len(buffer) and buffer[pos] in ", \n\r\t":
+                pos += 1
+            if pos < len(buffer):
+                break
+            if state["eof"]:
+                raise SystemExit("Spellbook bulk export: the variants list is not closed")
+            buffer = fill(buffer[pos:])
+            pos = 0
+        if buffer[pos] == "]":
+            return
+        try:
+            item, end = decoder.raw_decode(buffer, pos)
+        except json.JSONDecodeError:
+            if state["eof"]:
+                raise SystemExit("Spellbook bulk export: truncated or invalid JSON") from None
+            if len(buffer) - pos > MAX_OBJECT_CHARS:
+                raise SystemExit(
+                    "Spellbook bulk export: one variant exceeds the size limit"
+                ) from None
+            buffer = fill(buffer[pos:])
+            pos = 0
+            continue
+        pos = end
+        yield item
+        if pos > COMPACT_AFTER:
+            buffer = buffer[pos:]
+            pos = 0
+
+
+def _open_bulk_text(path: Path) -> IO[str]:
+    """Open a local bulk file as text, gunzipping on the fly when it is a gzip stream."""
+    with path.open("rb") as probe:
+        magic = probe.read(2)
+    if magic == b"\x1f\x8b":
+        return gzip.open(path, "rt", encoding="utf-8")
+    return path.open("r", encoding="utf-8")
 
 
 def _as_str(value: object) -> str:
@@ -159,46 +301,47 @@ def _variant_facts(raw: object, commander: str) -> _Variant | None:
     )
 
 
-def _parse_bulk_variants(document: object, commander: str) -> list[_Variant]:
-    """Extract normalized variant facts from a decoded Spellbook bulk document."""
-    if isinstance(document, dict):
-        raw_variants = document.get("variants")
-    elif isinstance(document, list):
-        raw_variants = document
-    else:
-        raw_variants = None
-    if not isinstance(raw_variants, list):
-        raise SystemExit("Spellbook bulk export lacks a 'variants' list")
-    facts: list[_Variant] = []
-    for raw in raw_variants:
-        fact = _variant_facts(raw, commander)
-        if fact is not None and fact.variant_id:
-            facts.append(fact)
-    return facts
-
-
 def _load_bulk_variants(
     bulk_path: Path | None,
     *,
     bulk_url: str = DEFAULT_BULK_URL,
     commander: str,
     user_agent: str = DEFAULT_USER_AGENT,
+    allow_network: bool = False,
+    max_download_bytes: int = DEFAULT_MAX_DOWNLOAD_MB * MIB,
+    max_unpacked_bytes: int = DEFAULT_MAX_UNPACKED_MB * MIB,
 ) -> list[_Variant]:
-    """Load variants from a local ``variants.json[.gz]`` file or download the bulk export."""
-    raw = (
-        bulk_path.read_bytes()
-        if bulk_path is not None
-        else _download_bulk(bulk_url, user_agent=user_agent)
-    )
-    if raw[:2] == b"\x1f\x8b":
-        raw = gzip.decompress(raw)
+    """Load variants from a local ``variants.json[.gz]`` file or download the bulk export.
+
+    A download needs ``allow_network``; without it (and without a local file) the run stops
+    before any connection. Only the normalized per-variant facts are kept in memory.
+    """
+    if bulk_path is None and not allow_network:
+        raise SystemExit(_NETWORK_REFUSAL)
     try:
-        document = json.loads(raw.decode("utf-8"))
-    except (UnicodeDecodeError, json.JSONDecodeError) as error:
+        if bulk_path is not None:
+            facts = _read_variant_facts(bulk_path, commander, max_unpacked_bytes)
+        else:
+            with tempfile.TemporaryDirectory(prefix="spellbook-bulk-") as folder:
+                downloaded = Path(folder) / "variants.json.gz"
+                _download_bulk(
+                    bulk_url, downloaded, user_agent=user_agent, max_bytes=max_download_bytes
+                )
+                facts = _read_variant_facts(downloaded, commander, max_unpacked_bytes)
+    except (UnicodeDecodeError, OSError, EOFError, json.JSONDecodeError) as error:
         raise SystemExit(f"Spellbook bulk export is not valid UTF-8 JSON: {error}") from error
-    facts = _parse_bulk_variants(document, commander)
     source_desc = str(bulk_path) if bulk_path is not None else bulk_url
     print(f"loaded {len(facts)} variants from bulk {source_desc}", file=sys.stderr)
+    return facts
+
+
+def _read_variant_facts(path: Path, commander: str, max_unpacked: int) -> list[_Variant]:
+    facts: list[_Variant] = []
+    with _open_bulk_text(path) as handle:
+        for raw in _iter_bulk_objects(handle, max_unpacked):
+            fact = _variant_facts(raw, commander)
+            if fact is not None and fact.variant_id:
+                facts.append(fact)
     return facts
 
 
@@ -340,6 +483,23 @@ def main() -> int:
     )
     parser.add_argument("--bulk-url", default=DEFAULT_BULK_URL)
     parser.add_argument(
+        "--allow-network",
+        action="store_true",
+        help="really download the bulk export (without it and without --bulk nothing is requested)",
+    )
+    parser.add_argument(
+        "--max-download-mb",
+        type=int,
+        default=DEFAULT_MAX_DOWNLOAD_MB,
+        help="refuse a download bigger than this many MiB",
+    )
+    parser.add_argument(
+        "--max-unpacked-mb",
+        type=int,
+        default=DEFAULT_MAX_UNPACKED_MB,
+        help="refuse a bulk document that unpacks to more than this many MiB of text",
+    )
+    parser.add_argument(
         "--user-agent",
         default=DEFAULT_USER_AGENT,
         help="Generic client User-Agent string (no project, repository, or person reference).",
@@ -352,6 +512,10 @@ def main() -> int:
     )
     parser.add_argument("--dry-run", action="store_true", help="Count only, write nothing.")
     args = parser.parse_args()
+    if args.bulk is None and not args.allow_network:
+        raise SystemExit(_NETWORK_REFUSAL)
+    max_download = _mib_limit(args.max_download_mb, "--max-download-mb")
+    max_unpacked = _mib_limit(args.max_unpacked_mb, "--max-unpacked-mb")
 
     store = StudioStore.open(args.data)
     corpus_keys, deck_count = _corpus_keys(store, args.commander)
@@ -376,6 +540,9 @@ def main() -> int:
         bulk_url=args.bulk_url,
         commander=args.commander,
         user_agent=args.user_agent,
+        allow_network=args.allow_network,
+        max_download_bytes=max_download,
+        max_unpacked_bytes=max_unpacked,
     )
     note = (
         f"Added {args.retrieved_at} from the Commander Spellbook bulk export "

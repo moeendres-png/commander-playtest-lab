@@ -61,6 +61,15 @@ def test_qualified_sources_covers_all_eleven_priorities_in_exact_order() -> None
         assert source.status == expected_status
 
 
+def _assert_check_date(checked: object, evidence_url: str) -> None:
+    """Terms are read on a date; a purely local source has no terms, so it carries None."""
+    if checked is None:
+        assert evidence_url.startswith("local:"), "only local sources may omit the check date"
+        return
+    assert isinstance(checked, str)
+    assert re.fullmatch(r"\d{4}-\d{2}-\d{2}", checked) is not None
+
+
 def test_every_source_has_all_seventeen_dimensions_populated() -> None:
     allowed_statuses = {"VERIFIED", "REVIEW", "UNAVAILABLE"}
     allowed_access_statuses = set(ACCESS_STATUSES)
@@ -103,6 +112,7 @@ def test_every_source_has_all_seventeen_dimensions_populated() -> None:
             "REPRODUCIBLE_API",
             "DYNAMIC_EPHEMERAL_WEB",
             "MANUAL_ARCHIVE",
+            "UNKNOWN_NO_SNAPSHOT_RECORDED",
         }
         assert isinstance(source.bias_risks, tuple)
         assert len(source.bias_risks) > 0
@@ -110,7 +120,7 @@ def test_every_source_has_all_seventeen_dimensions_populated() -> None:
         assert source.status_rationale.strip() != ""
         assert source.access_status in allowed_access_statuses
         assert source.access_evidence_url.startswith(("https://", "local:"))
-        assert re.fullmatch(r"\d{4}-\d{2}-\d{2}", source.access_checked_at_utc) is not None
+        _assert_check_date(source.access_checked_at_utc, source.access_evidence_url)
 
 
 def test_missing_timestamps_remain_none_never_fabricated() -> None:
@@ -137,8 +147,13 @@ def test_missing_timestamps_remain_none_never_fabricated() -> None:
     assert scryfall.snapshot_id == "scryfall-oracle-cards-20261110"
 
     xmage = get_source("xmage:card-facts")
-    assert xmage.retrieved_at_utc == "2026-11-10T00:00:00Z"
-    assert xmage.snapshot_id == "xmage-card-facts-v1"
+    assert xmage.retrieved_at_utc == "2026-11-12T13:04:32Z"  # exported_at of the facts file
+    assert xmage.snapshot_id == "xmage-card-facts-1.0.0-database-78c12c7d"
+
+    # The corpus has no recorded retrieval time or snapshot: unbekannt, never invented
+    corpus = get_source("active_drive:chulane-corpus-975")
+    assert corpus.retrieved_at_utc is None
+    assert corpus.snapshot_id is None
 
 
 def test_get_source_and_list_sources() -> None:
@@ -185,10 +200,10 @@ def test_source_inventory_payload_matches_schema() -> None:
     assert payload["status_counts"]["REVIEW"] == 4
     assert payload["status_counts"]["UNAVAILABLE"] == 2
     assert payload["access_status_counts"] == {
-        "ok": 2,
+        "ok": 1,
         "ok_with_conditions": 5,
         "unclear": 1,
-        "prohibited": 3,
+        "prohibited": 4,
     }
     assert len(payload["sources"]) == 11
 
@@ -630,8 +645,7 @@ def test_every_source_has_valid_access_status_and_json_matches_code() -> None:
         assert entry["access_status"] in allowed
         assert isinstance(entry["access_evidence_url"], str)
         assert entry["access_evidence_url"].startswith(("https://", "local:"))
-        assert isinstance(entry["access_checked_at_utc"], str)
-        assert re.fullmatch(r"\d{4}-\d{2}-\d{2}", entry["access_checked_at_utc"]) is not None
+        _assert_check_date(entry["access_checked_at_utc"], entry["access_evidence_url"])
 
     # Key access classifications and separation from data quality status (Issue #1546)
     by_id = {entry["source_id"]: entry for entry in inv_data["sources"]}
@@ -645,8 +659,11 @@ def test_every_source_has_valid_access_status_and_json_matches_code() -> None:
     assert by_id["archidekt:decks"]["access_status"] == "prohibited"
     assert by_id["moxfield:decks"]["access_status"] == "prohibited"
     assert by_id["tournament:cedh-meta"]["access_status"] == "unclear"
-    assert by_id["active_drive:chulane-corpus-975"]["access_status"] == "ok"
+    # The corpus stems from prohibited origin sources (EDHREC, Archidekt): stock only (#1557)
+    assert by_id["active_drive:chulane-corpus-975"]["access_status"] == "prohibited"
+    assert by_id["active_drive:chulane-corpus-975"]["status"] == "VERIFIED"
     assert by_id["xmage:card-facts"]["access_status"] == "ok"
+    assert by_id["xmage:card-facts"]["access_checked_at_utc"] is None
 
 
 def _load_script_module(rel_path: str, name: str) -> object:
@@ -669,7 +686,18 @@ def test_spellbook_combos_fetch_bulk_parsing_and_generic_user_agent(tmp_path: Pa
     assert mod.DEFAULT_BULK_URL == "https://json.commanderspellbook.com/variants.json.gz"  # type: ignore[attr-defined]
 
     # Generic default User-Agent across updated fetch scripts (no project/repo/person tokens)
-    forbidden = ("commander", "playtest", "lab", "github", "moeendres", "http")
+    forbidden = (
+        "commander",
+        "playtest",
+        "lab",
+        "github",
+        "moeendres",
+        "http",
+        "mozilla",
+        "chrome",
+        "safari",
+        "@",
+    )
     for rel_path, mod_name in (
         ("scripts/spellbook_combos_fetch.py", "ua_check_spellbook_fetch"),
         ("scripts/build_spellbook_shells.py", "ua_check_spellbook_shells"),
@@ -678,6 +706,7 @@ def test_spellbook_combos_fetch_bulk_parsing_and_generic_user_agent(tmp_path: Pa
         ("scripts/import_scryfall_oracle_tags.py", "ua_check_oracle_tags"),
         ("scripts/process_scryfall_rulings.py", "ua_check_rulings"),
         ("scripts/studio_edhrec_provenance/capture_public_chulane.py", "ua_check_edhrec_capture"),
+        ("scripts/collect_topdeck_decks.py", "ua_check_topdeck"),
     ):
         script_mod = _load_script_module(rel_path, mod_name)
         ua = str(script_mod.DEFAULT_USER_AGENT)  # type: ignore[attr-defined]
@@ -685,6 +714,13 @@ def test_spellbook_combos_fetch_bulk_parsing_and_generic_user_agent(tmp_path: Pa
         ua_low = ua.lower()
         for token in forbidden:
             assert token not in ua_low, f"Forbidden token {token!r} in {rel_path} UA: {ua!r}"
+
+    # The Scryfall roles fetch inside the package uses the same generic identity (#1557 point 4)
+    from commander_lab.studio import roles
+
+    roles_agent = roles._USER_AGENT.lower()
+    for token in forbidden:
+        assert token not in roles_agent, f"Forbidden token {token!r} in roles UA"
 
     # Offline bulk parsing test with synthetic .json and .json.gz fixtures
     synthetic_bulk = {
@@ -745,3 +781,53 @@ def test_spellbook_combos_fetch_bulk_parsing_and_generic_user_agent(tmp_path: Pa
         assert counts["identity_outside_wug"] == 1
         assert counts["kept"] == 1
         assert [entry["combo_id"] for entry in generated] == ["chulane-sb-sb-001"]
+
+
+def test_a_snapshot_claiming_source_records_a_snapshot() -> None:
+    # reproducibility DETERMINISTIC_OFFLINE_SNAPSHOT needs a retrieval time and a snapshot id;
+    # without them the register says UNKNOWN_NO_SNAPSHOT_RECORDED, never a fabricated claim.
+    for source in QUALIFIED_SOURCES:
+        if source.reproducibility == "DETERMINISTIC_OFFLINE_SNAPSHOT":
+            assert source.retrieved_at_utc is not None, source.source_id
+            assert source.snapshot_id is not None, source.source_id
+        if source.retrieved_at_utc is None and source.snapshot_id is None:
+            assert source.reproducibility != "DETERMINISTIC_OFFLINE_SNAPSHOT", source.source_id
+    assert get_source("scryfall:tagger").reproducibility == "UNKNOWN_NO_SNAPSHOT_RECORDED"
+    assert (
+        get_source("active_drive:chulane-corpus-975").reproducibility
+        == "UNKNOWN_NO_SNAPSHOT_RECORDED"
+    )
+
+
+def test_stock_from_prohibited_sources_carries_the_owner_decision_note() -> None:
+    corpus = get_source("active_drive:chulane-corpus-975")
+    assert corpus.access_status == "prohibited"
+    rationale = corpus.status_rationale
+    assert "Owner-Entscheid #1557" in rationale
+    assert "keine Nachernte" in rationale
+    assert "Herkunft verbotene Quellen" in rationale
+    for origin in ("EDHREC", "Archidekt"):
+        assert origin in corpus.license_terms
+    assert "#1557" in get_source("edhrec:chulane").status_rationale
+    assert "#1557" in get_source("archidekt:decks").status_rationale
+    tournament = get_source("tournament:cedh-meta")
+    assert "#1557 point 3" in tournament.allowed_retrieval_method
+    assert "no API key" in tournament.allowed_retrieval_method.lower() or (
+        "no topdeck api key" in tournament.allowed_retrieval_method.lower()
+    )
+
+
+def test_register_has_no_unsourced_pool_size_and_no_personal_names() -> None:
+    text = json.dumps([s.to_dict() for s in QUALIFIED_SOURCES], ensure_ascii=False)
+    assert "801" not in text  # pool size: 927 in the gap matrix of 2026-11-12, dated where used
+    assert "7,231" not in text
+    for token in ("moeendres", "/home/", "C:\\", "Moritz"):
+        assert token not in text
+    # Playgroup's licence claim is stated as unresolved, not as fact
+    for source_id in ("playgroup:card-atlas", "playgroup:chulane"):
+        license_text = get_source(source_id).license_terms
+        assert "ungeklärt" in license_text and "no legal review" in license_text
+    chulane = get_source("playgroup:chulane")
+    assert "449 / 1,111" in chulane.status_rationale  # other counting, kept apart
+    assert "2026-11-08" in chulane.status_rationale
+    assert "2026-11-08" in chulane.observation_period

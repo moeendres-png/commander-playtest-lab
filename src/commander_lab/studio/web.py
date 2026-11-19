@@ -407,10 +407,19 @@ def _inventory_summary() -> dict[str, object]:
     """Compact form of the qualified evidence-source inventory for /api/status:
     how many source layers exist and how they split over the review states."""
     inventory = source_inventory_payload()
+    verified_prohibited = sum(
+        1
+        for source in inventory["sources"]
+        if source["status"] == "VERIFIED" and source["access_status"] == "prohibited"
+    )
     return {
         "schema_version": inventory["schema_version"],
         "total_sources": inventory["total_sources"],
         "status_counts": inventory["status_counts"],
+        "access_status_counts": inventory["access_status_counts"],
+        # Data-quality VERIFIED sources whose automated retrieval is prohibited (stock only,
+        # usable by Owner decision #1557): shown apart from the plainly verified ones.
+        "verified_access_prohibited": verified_prohibited,
     }
 
 
