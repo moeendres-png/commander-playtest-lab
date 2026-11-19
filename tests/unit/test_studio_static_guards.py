@@ -1422,3 +1422,54 @@ const emptyPayload = {json.dumps(empty_payload)};
     assert "Sol Ring" not in r["emptyText"]
     assert "mixed engine commits" in r["errText"]
     assert r["zeroRatio"] == "unbekannt"
+
+
+def test_static_files_send_cache_control_no_cache_and_keep_security_headers(tmp_path: Path) -> None:
+    from fastapi.testclient import TestClient
+
+    from commander_lab.studio import StudioStore
+    from commander_lab.studio.web import create_app
+
+    folder = tmp_path / "studio"
+    store = StudioStore.open(folder)
+    store.connection.execute(
+        "INSERT OR IGNORE INTO source(source_id, data_class, title, sha256, imported_at) "
+        "VALUES ('s1', 'DERIVED_DESCRIPTIVE', 's1', 'h', '2026-11-18')"
+    )
+    store.connection.execute(
+        "INSERT INTO card(card_id, oracle_id, oracle_name, color_identity, source_id) "
+        "VALUES ('card:1', 'o1', 'Sol Ring', 'C', 's1')"
+    )
+    store.connection.execute(
+        "INSERT INTO scryfall_card(oracle_id, scryfall_id, name, front_name, layout,"
+        " color_identity, commander_legality, keywords, produced_mana, image_front, source_id) "
+        "VALUES ('o1', 'scry1', 'Sol Ring', 'Sol Ring', 'normal', '', 'legal', '[]', '[]',"
+        " 'https://cards.scryfall.io/normal/front/a/b/ab.jpg', 's1')"
+    )
+    store.connection.commit()
+    store.close()
+
+    with TestClient(create_app(folder), base_url="http://127.0.0.1") as client:
+        static_resp = client.get("/app.js")
+        assert static_resp.status_code == 200
+        assert static_resp.headers.get("cache-control") == "no-cache"
+        etag = static_resp.headers.get("etag")
+        assert etag
+        assert static_resp.headers.get("content-security-policy")
+        assert static_resp.headers.get("x-content-type-options") == "nosniff"
+        assert static_resp.headers.get("referrer-policy") == "no-referrer"
+
+        not_modified = client.get("/app.js", headers={"If-None-Match": etag})
+        assert not_modified.status_code == 304
+        assert not_modified.headers.get("cache-control") == "no-cache"
+        assert not_modified.headers.get("content-security-policy")
+        assert not_modified.headers.get("x-content-type-options") == "nosniff"
+        assert not_modified.headers.get("referrer-policy") == "no-referrer"
+
+        api_resp = client.get("/api/status")
+        assert api_resp.status_code == 200
+        assert api_resp.headers.get("cache-control") == "no-store"
+
+        img_resp = client.get("/img/card:1", follow_redirects=False)
+        assert img_resp.status_code == 302
+        assert img_resp.headers.get("cache-control") == "max-age=604800"
