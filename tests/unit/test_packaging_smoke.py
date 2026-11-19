@@ -1036,6 +1036,7 @@ _FIRST_SCRIPT = next(iter(CONTRACT.scripts))
 
 def test_every_forged_binding_is_rejected_independently(accepted_evidence, tmp_path):
     import copy
+    from concurrent.futures import ThreadPoolExecutor
 
     wheel_dir, _, valid = accepted_evidence
     controls = [
@@ -1088,9 +1089,12 @@ def test_every_forged_binding_is_rejected_independently(accepted_evidence, tmp_p
         ("expected_bindings",): "expected_binding_mismatch:source_sha",
         ("python_version",): "runtime_observation_mismatch:python_version",
     }
-    checked = list(controls)
-    assert checked, "nothing was checked: controls is empty"
-    for keys, value in checked:
+    checked_controls = list(controls)
+    assert checked_controls, "nothing was checked: controls is empty"
+
+    missing_keys = ("package_contract", "environment", "install", "cli_entrypoints")
+    jobs: list[tuple[object, Path, str, bool]] = []
+    for index, (keys, value) in enumerate(checked_controls):
         forged = copy.deepcopy(valid)
         target = forged
         for key in keys[:-1]:
@@ -1100,12 +1104,8 @@ def test_every_forged_binding_is_rejected_independently(accepted_evidence, tmp_p
             # Keep redundant sections consistent: prove the runtime observation
             # guard, not an earlier representation mismatch, catches the forgery.
             forged["cli_entrypoints"] = list(forged["cli_entrypoint_results"].values())
-        evidence = tmp_path / "forged.json"
-        evidence.write_text(json.dumps(forged))
-        checked = _run_script(
-            "check", "--repo", str(ROOT), "--evidence", str(evidence), "--wheel-dir", str(wheel_dir)
-        )
-        assert checked.returncode == EXIT_FAIL, (keys, checked.stdout, checked.stderr)
+        evidence = tmp_path / f"forged_{index:02d}.json"
+        evidence.write_text(json.dumps(forged), encoding="utf-8")
         if keys == ("installed_import", "module"):
             expected = (
                 "installed_import_module_invalid"
@@ -1118,17 +1118,42 @@ def test_every_forged_binding_is_rejected_independently(accepted_evidence, tmp_p
             expected = "runtime_observation_mismatch:cli_entrypoint_results"
         else:
             expected = expected_failures[keys]
-        assert expected in checked.stderr, (keys, checked.stderr)
-        assert "artifact_reverification_required" not in checked.stderr
-    for key in ("package_contract", "environment", "install", "cli_entrypoints"):
+        jobs.append((keys, evidence, expected, False))
+
+    for key in missing_keys:
         forged = copy.deepcopy(valid)
         del forged[key]
-        evidence.write_text(json.dumps(forged))
-        checked = _run_script(
-            "check", "--repo", str(ROOT), "--evidence", str(evidence), "--wheel-dir", str(wheel_dir)
+        evidence = tmp_path / f"forged_missing_{key}.json"
+        evidence.write_text(json.dumps(forged), encoding="utf-8")
+        jobs.append((key, evidence, "missing required keys", True))
+
+    def _check_one(
+        job: tuple[object, Path, str, bool],
+    ) -> tuple[object, str, bool, subprocess.CompletedProcess[str]]:
+        label, evidence_path, expected_reason, is_missing_key = job
+        result = _run_script(
+            "check",
+            "--repo",
+            str(ROOT),
+            "--evidence",
+            str(evidence_path),
+            "--wheel-dir",
+            str(wheel_dir),
         )
-        assert checked.returncode == EXIT_FAIL, key
-        assert "missing required keys" in checked.stderr and key in checked.stderr
+        return label, expected_reason, is_missing_key, result
+
+    workers = min(4, max(1, os.cpu_count() or 1))
+    with ThreadPoolExecutor(max_workers=workers) as pool:
+        outcomes = list(pool.map(_check_one, jobs))
+
+    assert len(outcomes) == len(checked_controls) + len(missing_keys)
+    for label, expected_reason, is_missing_key, checked in outcomes:
+        assert checked.returncode == EXIT_FAIL, (label, checked.stdout, checked.stderr)
+        assert expected_reason in checked.stderr, (label, checked.stderr)
+        if is_missing_key:
+            assert isinstance(label, str) and label in checked.stderr, (label, checked.stderr)
+        else:
+            assert "artifact_reverification_required" not in checked.stderr, (label, checked.stderr)
 
 
 def test_wheel_from_foreign_source_fails_binding(built_wheel, work_dir, tmp_path):
