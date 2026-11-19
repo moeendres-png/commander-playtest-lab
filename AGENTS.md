@@ -307,7 +307,8 @@ boundaries above.
 ### CI checks
 
 Required checks: `quality`, `security`, `infrastructure`, nothing else. `quality` is a gate job
-(`scripts/ci_gate.py`) over parallel jobs (`changes`, `lint`, four `tests` slots, `packaging`); a
+(`scripts/ci_gate.py`) over parallel jobs (`changes`, `lint`, four `tests` slots, `packaging-1`, `packaging-2`;
+the two halves are skipped together or not at all); a
 documents-only change takes a fast path with the docs tests only. `infrastructure`
 (`.github/workflows/production-qualification.yml`) runs on every pull request and push to `main`;
 `ci-definition-integrity-shadow` and repository-tree-integrity run on every pull request, exact-main

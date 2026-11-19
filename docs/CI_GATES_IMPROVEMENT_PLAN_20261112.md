@@ -60,6 +60,10 @@ touched.
 
 ## Implemented: parallel `quality` graph (2026-11-14, Owner-approved)
 
+Stand: since #1606 the single `packaging` job is two fixed halves, `packaging-1` and `packaging-2`
+(33 tests); `quality` is green only if both are green or both are skipped together. The text
+below is the original plan wording and says `packaging` for the pair.
+
 `quality` is now a gate job (`if: always()`, `needs: [changes, lint, tests, packaging]`, decision in
 `scripts/ci_gate.py`). `changes` classifies the diff (`scripts/ci_change_scope.py`); `lint` runs
 ruff, format, mypy, compile, the secret scan and the wheel build; `tests` is a matrix of four

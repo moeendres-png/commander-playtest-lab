@@ -5,8 +5,8 @@ Every needed job must have ended ``success``. The only accepted ``skipped`` is a
 ``--allow-skipped`` (the two packaging jobs) while the ``changes`` job succeeded, its flag
 ``--packaging-needed`` is exactly ``false`` and every job named by ``--allow-skipped`` was
 skipped: the named jobs are halves of one piece of work and are skipped together or not at all.
-A ``--allow-skipped`` name without a ``--job`` result fails the gate. ``cancelled``, ``failure``, any other value and a skip while the flag is not ``false`` fail the
-gate. Every result is printed.
+A ``--allow-skipped`` name without a ``--job`` result fails the gate. ``cancelled``,
+``failure``, any other value and a skip while the flag is not ``false`` fail the gate. Every result is printed.
 """
 
 from __future__ import annotations
