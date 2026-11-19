@@ -94,9 +94,17 @@ def http_error(
     return urllib.error.HTTPError(url, status, "error", headers or {}, io.BytesIO(b""))  # type: ignore[arg-type]
 
 
+def test_gz_helper_is_independent_of_the_clock(monkeypatch: pytest.MonkeyPatch) -> None:
+    """gzip writes the current second into its header; the helper must pin it (Refs #1554)."""
+    ticks = iter(range(1_700_000_000, 1_700_000_100))
+    monkeypatch.setattr(gzip.time, "time", lambda: next(ticks))
+    rows = [{"a": 1}]
+    assert gz(rows) == gz(rows)
+
+
 def gz(lines: list[dict[str, Any]]) -> bytes:
     text = "".join(json.dumps(line) + "\n" for line in lines)
-    return gzip.compress(text.encode("utf-8"))
+    return gzip.compress(text.encode("utf-8"), mtime=0)
 
 
 def parse(module: Any, *argv: str) -> argparse.Namespace:
@@ -688,7 +696,7 @@ def s2_document(variants: list[dict[str, Any]]) -> bytes:
         "variants": variants,
         "aliases": [{"id": "1-2", "variant": None}, {"id": "3-4-5", "variant": "9-9-9"}],
     }
-    return gzip.compress(json.dumps(document).encode("utf-8"))
+    return gzip.compress(json.dumps(document).encode("utf-8"), mtime=0)
 
 
 S2_VARIANTS = [
@@ -1281,7 +1289,7 @@ def test_a_response_above_the_limit_is_refused_by_header_or_by_counting(tmp_path
 
 def test_an_unpacked_stream_or_a_line_above_the_limit_stops_the_processing(tmp_path: Path) -> None:
     source = tmp_path / "bomb.jsonl.gz"
-    source.write_bytes(gzip.compress(b'{"a":"' + b"x" * 5000 + b'"}\n' + b'{"b":1}\n'))
+    source.write_bytes(gzip.compress(b'{"a":"' + b"x" * 5000 + b'"}\n' + b'{"b":1}\n', mtime=0))
     with pytest.raises(common.ResponseTooLarge, match="line"):
         s1_fetch.process_bulk_file(source, tmp_path / "o1.jsonl", max_line=1000)
     with pytest.raises(common.ResponseTooLarge, match="unpacks"):
