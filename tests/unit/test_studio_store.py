@@ -861,3 +861,66 @@ def test_import_guard_checks_the_expected_row_delta_and_new_duplicates(tmp_path:
     )
     assert guard.main([*run, "card_ruling=+1", "observation=+1"]) == 1  # duplicate rows grew
     assert guard.main(["verify", "--db", str(tmp_path / "none"), "--before", str(snapshot)]) == 2
+
+
+def test_import_guard_zero_delta_also_requires_equal_content(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    db = _guard_store(tmp_path)
+    snapshot = tmp_path / "before.json"
+    assert guard.main(["before", "--db", str(db), "--out", str(snapshot)]) == 0
+    _sql(db, "UPDATE card_ruling SET comment = 'geaendert' WHERE ordinal = 0")  # same row count
+    run = ["verify", "--db", str(db), "--before", str(snapshot), "--expect"]
+    capsys.readouterr()
+    assert guard.main([*run, "card_ruling=0"]) == 1
+    assert "content digest differs" in capsys.readouterr().out
+    assert guard.main([*run, "card_ruling=any"]) == 0
+    assert guard.main([*run, "card_ruling=+0"]) == 1
+
+
+def test_import_guard_rejects_a_table_named_twice_in_expect(tmp_path: Path) -> None:
+    db = _guard_store(tmp_path)
+    snapshot = tmp_path / "before.json"
+    assert guard.main(["before", "--db", str(db), "--out", str(snapshot)]) == 0
+    run = ["verify", "--db", str(db), "--before", str(snapshot), "--expect"]
+    assert guard.main([*run, "source=0", "source=any"]) == 2
+
+
+def test_import_guard_reports_unknown_for_missing_tables_and_a_changed_schema_version(
+    tmp_path: Path,
+) -> None:
+    bare = tmp_path / "bare.sqlite3"
+    _sql(bare, "CREATE TABLE x (a INTEGER)")
+    unknown = guard.consistency(bare)
+    assert set(unknown.values()) == {"unbekannt"}
+    db = _guard_store(tmp_path)
+    snapshot = tmp_path / "before.json"
+    assert guard.main(["before", "--db", str(db), "--out", str(snapshot)]) == 0
+    _sql(db, "UPDATE meta SET value = '999' WHERE key = 'schema_version'")
+    lines, failures = guard.verify(
+        json.loads(snapshot.read_text(encoding="utf-8")), guard.measure(db), {"meta": "0"}
+    )
+    assert any(item.startswith("schema_version changed") for item in failures)
+    assert lines
+
+
+def test_import_guard_counts_the_prefixed_cohort_and_both_duplicate_definitions(
+    tmp_path: Path,
+) -> None:
+    db = _guard_store(tmp_path)
+    _sql(
+        db,
+        "INSERT INTO corpus_deck VALUES ('d1', 'chulane', 'u', 'p', 'g', NULL, '', 'f', NULL,"
+        " '', 's1')",
+    )
+    _sql(db, "INSERT INTO corpus_cohort VALUES ('commander:chulane', 'd1')")
+    _sql(
+        db,
+        "INSERT INTO observation (card_name, metric, cohort, data_class, source_id)"
+        " VALUES ('Karte', 'm', 'k', 'x', 's2')",
+    )
+    _sql(db, "INSERT INTO source VALUES ('s2', 'x', 't', 'h', NULL, NULL, '2026-01-01')")
+    result = guard.consistency(db)
+    assert result["corpus_deck_cohort_in_corpus_cohort"] == {"n": 1, "N": 1}
+    assert result["observation_exact_duplicates"] == {"groups": 1, "rows": 2}
+    assert result["observation_duplicates_ignoring_source_id"] == {"groups": 1, "rows": 3}

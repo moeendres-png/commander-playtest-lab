@@ -51,7 +51,7 @@ _RATIO_CHECKS: dict[str, tuple[str, tuple[str, ...]]] = {
     ),
     "corpus_deck_cohort_in_corpus_cohort": (
         "SELECT SUM(EXISTS (SELECT 1 FROM corpus_cohort c WHERE c.deck_id = d.deck_id"
-        " AND c.cohort = d.cohort)), COUNT(*) FROM corpus_deck d",
+        " AND c.cohort = 'commander:' || d.cohort)), COUNT(*) FROM corpus_deck d",
         ("corpus_deck", "corpus_cohort"),
     ),
     "corpus_deck_with_stat_row": (
@@ -65,6 +65,11 @@ _OBSERVATION_DUPLICATES = (
     " SELECT COUNT(*) AS n FROM observation"
     " GROUP BY card_id, card_name, metric, cohort, value, numerator, denominator,"
     " data_class, url, snapshot, source_id HAVING COUNT(*) > 1)"
+)
+
+
+_OBSERVATION_DUPLICATES_NO_SOURCE = _OBSERVATION_DUPLICATES.replace(
+    "data_class, url, snapshot, source_id HAVING", "data_class, url, snapshot HAVING"
 )
 
 
@@ -93,8 +98,14 @@ def consistency(db_path: Path, *, immutable: bool = False) -> dict[str, Any]:
         if "observation" in tables:
             groups, rows = connection.execute(_OBSERVATION_DUPLICATES).fetchone()
             result["observation_exact_duplicates"] = {"groups": int(groups), "rows": int(rows)}
+            groups, rows = connection.execute(_OBSERVATION_DUPLICATES_NO_SOURCE).fetchone()
+            result["observation_duplicates_ignoring_source_id"] = {
+                "groups": int(groups),
+                "rows": int(rows),
+            }
         else:
             result["observation_exact_duplicates"] = UNKNOWN
+            result["observation_duplicates_ignoring_source_id"] = UNKNOWN
         return result
     finally:
         connection.close()
@@ -126,6 +137,8 @@ def parse_expect(items: Sequence[str]) -> dict[str, str]:
             raise common.WaveError(
                 f"--expect needs TABLE=+N, TABLE=-N, TABLE=0 or TABLE=any: {item}"
             )
+        if table in expected:
+            raise common.WaveError(f"--expect names the table twice: {table}")
         expected[table] = delta
     return expected
 
@@ -148,6 +161,8 @@ def verify(
         lines.append(
             f"  expect {table}: {delta}, actual {actual:+d} ({old['rows']} -> {new['rows']})"
         )
+        if delta != "any" and int(delta) == 0 and old["digest"] != new["digest"]:
+            failures.append(f"table {table}: expected no change, content digest differs")
         if delta != "any" and actual != int(delta):
             failures.append(f"table {table}: expected row delta {delta}, actual {actual:+d}")
     old_consistency = before.get("consistency", {})
