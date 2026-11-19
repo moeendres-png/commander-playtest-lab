@@ -1494,6 +1494,98 @@ def test_hardcoded_packaging_needed_in_gate_is_rejected(repository: tuple[Path, 
     assert _quality_findings(_gated_report(repository, edit))["quality.needs"]["status"] != "PASS"
 
 
+_TWO_PART_GATE_CALL = (
+    "set -euo pipefail\n"
+    'python3 scripts/ci_gate.py --job changes="$CHANGES" --job lint="$LINT" '
+    '--job tests="$TESTS" --job packaging-1="$PACKAGING_1" --job packaging-2="$PACKAGING_2" '
+    "--allow-skipped packaging-1 --allow-skipped packaging-2 "
+    '--packaging-needed "$PACKAGING_NEEDED"\n'
+)
+
+
+def _two_part_packaging(document: dict[Any, Any]) -> None:
+    """#1570 shape: two skippable packaging jobs and slim checkouts for `changes` and the gate."""
+    jobs = document["jobs"]
+    part = jobs.pop("packaging")
+    jobs["packaging-1"] = json.loads(json.dumps(part))
+    jobs["packaging-2"] = json.loads(json.dumps(part))
+    jobs["quality"]["needs"] = ["changes", "lint", "tests", "packaging-1", "packaging-2"]
+    sparse = {"persist-credentials": False, "sparse-checkout-cone-mode": False}
+    jobs["changes"]["steps"][0]["with"] = {
+        **sparse,
+        "sparse-checkout": "scripts/ci_change_scope.py\n/pyproject.toml\n",
+    }
+    jobs["quality"]["steps"][0]["with"] = {**sparse, "sparse-checkout": "scripts/ci_gate.py"}
+    step = _gate_step(document)
+    env = step["env"]
+    env.pop("PACKAGING")
+    env["PACKAGING_1"] = "${{ needs.packaging-1.result }}"
+    env["PACKAGING_2"] = "${{ needs.packaging-2.result }}"
+    step["run"] = _TWO_PART_GATE_CALL
+
+
+def test_two_skippable_packaging_parts_with_slim_checkouts_are_accepted(
+    repository: tuple[Path, str],
+) -> None:
+    """The trusted verifier recognises the #1570 gate shape without any change of its own."""
+    report = _gated_report(repository, _two_part_packaging)
+    findings = _quality_findings(report)
+    assert [k for k, v in findings.items() if v["status"] != "PASS"] == []
+    assert findings["quality.needs"]["reason"] == "required_job_is_a_verified_gate_over_its_needs"
+    assert report["overall_classification"] == "GATE_DEFINITION_CHANGED_REVIEW_REQUIRED"
+
+
+def _drop_allow_skipped_part_2(document: dict[Any, Any]) -> None:
+    step = _gate_step(document)
+    step["run"] = step["run"].replace("--allow-skipped packaging-2 ", "")
+
+
+def _bind_part_2_to_part_1(document: dict[Any, Any]) -> None:
+    _gate_step(document)["env"]["PACKAGING_2"] = "${{ needs.packaging-1.result }}"
+
+
+def _hardcode_part_2(document: dict[Any, Any]) -> None:
+    _gate_step(document)["env"]["PACKAGING_2"] = "success"
+
+
+def _part_2_other_condition(document: dict[Any, Any]) -> None:
+    document["jobs"]["packaging-2"]["if"] = "${{ github.event_name == 'push' }}"
+
+
+def _part_2_as_matrix(document: dict[Any, Any]) -> None:
+    document["jobs"]["packaging-2"]["strategy"] = {"matrix": {"half": [1, 2]}}
+
+
+def _part_2_may_fail_silently(document: dict[Any, Any]) -> None:
+    document["jobs"]["packaging-2"]["continue-on-error"] = True
+
+
+def _gate_checkout_from_a_local_action(document: dict[Any, Any]) -> None:
+    document["jobs"]["quality"]["steps"][0]["uses"] = "./.github/actions/checkout"
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    [
+        _drop_allow_skipped_part_2,
+        _bind_part_2_to_part_1,
+        _hardcode_part_2,
+        _part_2_other_condition,
+        _part_2_as_matrix,
+        _part_2_may_fail_silently,
+        _gate_checkout_from_a_local_action,
+    ],
+)
+def test_two_part_packaging_gate_mutations_are_flagged(
+    repository: tuple[Path, str], mutation: Callable[[dict[Any, Any]], None]
+) -> None:
+    def edit(document: dict[Any, Any]) -> None:
+        _two_part_packaging(document)
+        mutation(document)
+
+    assert _flagged(_gated_report(repository, edit))
+
+
 @pytest.mark.parametrize(
     "mutate_fn",
     [

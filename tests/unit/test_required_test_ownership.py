@@ -1,9 +1,9 @@
 """B5 (#486): every test file has exactly one required-context owner.
 
 The required ``quality`` context (``ci.yml``) is a gate over the ``tests`` matrix (the universal
-pytest suite, split into slots by ``tests/pytest_shards.py``) and the ``packaging`` job (the
-packaging test); the required ``infrastructure`` context (``production-qualification.yml``) runs
-``tests/qualification``. Before B5 the qualification tests ran in both. This guard
+pytest suite, split into slots by ``tests/pytest_shards.py``) and the two packaging jobs (the
+packaging test, split into two fixed halves by test id); the required ``infrastructure`` context
+(``production-qualification.yml``) runs ``tests/qualification``. Before B5 the qualification tests ran in both. This guard
 derives each context's selection from its workflow command and requires every
 test file to be selected by exactly one of them, so no file is run twice and no
 file is left without a required owner.
@@ -13,6 +13,8 @@ from __future__ import annotations
 
 import importlib.util
 import shlex
+import subprocess
+import sys
 from functools import cache
 from pathlib import Path
 
@@ -26,6 +28,8 @@ OWNERS = {
     "quality": (".github/workflows/ci.yml", "quality"),
     "infrastructure": (".github/workflows/production-qualification.yml", "infrastructure"),
 }
+# The jobs that share tests/unit/test_packaging_smoke.py, each running one fixed half (#1570).
+PACKAGING_JOBS = ("packaging-1", "packaging-2")
 
 
 def _jobs(workflow: str) -> dict:
@@ -62,10 +66,13 @@ def _matrix_count() -> int:
 
 
 def selection(command: tuple[str, ...], test_files: list[str]) -> set[str]:
-    """The test files a pytest command collects (paths and ``--ignore`` only).
+    """The test files a pytest command collects (paths, test ids and ``--ignore`` only).
 
-    No argument selects ``testpaths`` (``tests``). Any option this function does
-    not model fails the guard instead of being guessed.
+    No argument selects ``testpaths`` (``tests``). A test id ``file::name`` is accepted only for
+    the packaging module, whose split into two halves is proven per test by
+    test_the_packaging_halves_partition_the_packaging_tests; it counts that module as owned.
+    A test id of any other file fails the guard: owning a file means running all of it.
+    Any option this function does not model fails the guard instead of being guessed.
     """
     args = list(command[command.index("pytest") + 1 :])
     paths: list[str] = []
@@ -81,6 +88,14 @@ def selection(command: tuple[str, ...], test_files: list[str]) -> set[str]:
             ignored.append(arg.split("=", 1)[1].rstrip("/"))
         elif arg.startswith("-"):
             raise AssertionError(f"unmodelled pytest option {arg!r} in {command}")
+        elif "::" in arg:
+            module = arg.split("::", 1)[0]
+            if module != pytest_shards.PACKAGING_TEST:
+                raise AssertionError(
+                    f"test id {arg!r} in {command}: only {pytest_shards.PACKAGING_TEST} may be "
+                    "split by test id (its partition is proven per test)"
+                )
+            paths.append(module)
         else:
             paths.append(arg.rstrip("/"))
     paths = paths or ["tests"]
@@ -113,12 +128,78 @@ def _quality_slots(files: list[str]) -> list[set[str]]:
     ]
 
 
+def _packaging_command(job: str) -> tuple[str, ...]:
+    commands = _pytest_commands(OWNERS["quality"][0], job)
+    assert len(commands) == 1, f"{job}: expected one pytest command, found {commands}"
+    return commands[0]
+
+
 def _quality_selection(files: list[str]) -> set[str]:
-    packaging = _pytest_commands(*OWNERS["quality"][:1], "packaging")
-    assert len(packaging) == 1
-    owned = selection(packaging[0], files)
-    assert owned == {pytest_shards.PACKAGING_TEST}
+    jobs = _jobs(OWNERS["quality"][0])
+    assert sorted(name for name in jobs if name.startswith("packaging")) == list(PACKAGING_JOBS)
+    assert set(PACKAGING_JOBS) <= set(jobs["quality"]["needs"])
+    owned: set[str] = set()
+    for job in PACKAGING_JOBS:
+        part = selection(_packaging_command(job), files)
+        assert part == {pytest_shards.PACKAGING_TEST}, job
+        owned |= part
     return set().union(*_quality_slots(files)) | owned
+
+
+def _collected_packaging_ids() -> list[str]:
+    """The test ids pytest itself collects from the packaging module (parametrize included)."""
+    completed = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "pytest",
+            "--collect-only",
+            "-q",
+            "-p",
+            "no:cacheprovider",
+            pytest_shards.PACKAGING_TEST,
+        ],
+        cwd=REPO,
+        capture_output=True,
+        text=True,
+        timeout=300,
+        check=False,
+    )
+    assert completed.returncode == 0, completed.stdout[-2000:] + completed.stderr[-2000:]
+    ids = [
+        line.strip()
+        for line in completed.stdout.splitlines()
+        if line.startswith(pytest_shards.PACKAGING_TEST + "::")
+    ]
+    assert ids, completed.stdout[-2000:]
+    return ids
+
+
+def packaging_half(command: tuple[str, ...], collected: list[str]) -> list[str]:
+    """The test ids one packaging job runs; a bare file path stands for every collected id."""
+    selected: list[str] = []
+    for arg in command[command.index("pytest") + 1 :]:
+        if arg.startswith("-"):
+            continue
+        if arg == pytest_shards.PACKAGING_TEST:
+            selected.extend(collected)
+        elif arg.startswith(pytest_shards.PACKAGING_TEST + "::"):
+            selected.append(arg)
+        else:
+            raise AssertionError(f"a packaging job selects {arg!r} outside the packaging module")
+    return selected
+
+
+def assert_partition(halves: list[list[str]], collected: list[str]) -> None:
+    """The halves are disjoint, repeat nothing, and together are exactly the collected tests."""
+    flat = [test_id for half in halves for test_id in half]
+    repeated = sorted({test_id for test_id in flat if flat.count(test_id) > 1})
+    assert not repeated, f"run twice: {repeated}"
+    assert all(halves), "an empty half"
+    missing = sorted(set(collected) - set(flat))
+    unknown = sorted(set(flat) - set(collected))
+    assert not missing, f"collected but run by no packaging half: {missing}"
+    assert not unknown, f"selected but not collected (renamed or removed?): {unknown}"
 
 
 def test_every_test_file_has_exactly_one_required_owner() -> None:
@@ -148,6 +229,47 @@ def test_the_matrix_slots_select_each_quality_file_exactly_once() -> None:
     assert sum(len(slot) for slot in slots) == len(set().union(*slots)), "a file is in two slots"
     expected = {path for path in files if not path.startswith("tests/qualification/")}
     assert set().union(*slots) == expected - {pytest_shards.PACKAGING_TEST}
+
+
+def test_the_packaging_halves_partition_the_packaging_tests() -> None:
+    """#1570: each packaging test runs in exactly one of the two packaging jobs.
+
+    A new test that is in neither half, a test in both halves, or a renamed test fails here.
+    """
+    collected = _collected_packaging_ids()
+    halves = [packaging_half(_packaging_command(job), collected) for job in PACKAGING_JOBS]
+    assert_partition(halves, collected)
+
+
+@pytest.mark.parametrize(
+    ("halves", "message"),
+    [
+        ([["m::a", "m::b"], ["m::c"]], None),
+        ([["m::a"], ["m::c"]], "run by no packaging half"),
+        ([["m::a", "m::b"], ["m::b", "m::c"]], "run twice"),
+        ([["m::a", "m::a", "m::b"], ["m::c"]], "run twice"),
+        ([["m::a", "m::b", "m::c"], []], "an empty half"),
+        ([["m::a", "m::b"], ["m::c", "m::d"]], "not collected"),
+    ],
+)
+def test_the_partition_check_model(halves: list[list[str]], message: str | None) -> None:
+    collected = ["m::a", "m::b", "m::c"]
+    if message is None:
+        assert_partition(halves, collected)
+    else:
+        with pytest.raises(AssertionError, match=message):
+            assert_partition(halves, collected)
+
+
+def test_a_bare_packaging_file_in_a_half_stands_for_every_test() -> None:
+    module = pytest_shards.PACKAGING_TEST
+    collected = [f"{module}::test_a", f"{module}::test_b"]
+    whole = packaging_half(("pytest", "-q", module), collected)
+    assert whole == collected
+    with pytest.raises(AssertionError, match="run twice"):
+        assert_partition([whole, [f"{module}::test_b"]], collected)
+    with pytest.raises(AssertionError, match="outside the packaging module"):
+        packaging_half(("pytest", "-q", "tests/unit/test_other.py::test_a"), collected)
 
 
 def test_the_tests_job_runs_its_slot_through_the_in_job_shards() -> None:
@@ -183,6 +305,44 @@ def test_the_tests_job_runs_its_slot_through_the_in_job_shards() -> None:
 def test_the_selection_model(command, expected) -> None:
     files = ["tests/a/test_x.py", "tests/qualification/test_q.py"]
     assert selection(command, files) == expected
+
+
+@pytest.mark.parametrize(
+    ("command", "expected"),
+    [
+        (
+            ("pytest", "-q", f"{pytest_shards.PACKAGING_TEST}::test_one"),
+            {pytest_shards.PACKAGING_TEST},
+        ),
+        (
+            (
+                "pytest",
+                "-q",
+                f"{pytest_shards.PACKAGING_TEST}::test_one",
+                f"{pytest_shards.PACKAGING_TEST}::test_two",
+            ),
+            {pytest_shards.PACKAGING_TEST},
+        ),
+    ],
+)
+def test_packaging_test_ids_count_for_the_packaging_module(command, expected) -> None:
+    files = ["tests/a/test_x.py", "tests/qualification/test_q.py", pytest_shards.PACKAGING_TEST]
+    assert selection(command, files) == expected
+
+
+@pytest.mark.parametrize(
+    "test_id",
+    [
+        "tests/qualification/test_q.py::test_one",
+        "tests/a/test_x.py::test_one",
+        f"{pytest_shards.PACKAGING_TEST}x::test_one",
+    ],
+)
+def test_a_test_id_outside_the_packaging_module_fails_closed(test_id: str) -> None:
+    """Running one test of a file must never count as owning the whole file."""
+    files = ["tests/a/test_x.py", "tests/qualification/test_q.py", pytest_shards.PACKAGING_TEST]
+    with pytest.raises(AssertionError, match="may be split by test id"):
+        selection(("pytest", "-q", test_id), files)
 
 
 def test_an_unmodelled_option_fails_closed() -> None:
