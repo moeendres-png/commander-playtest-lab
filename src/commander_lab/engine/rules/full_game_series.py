@@ -58,13 +58,25 @@ JvmLifeEnd = Literal["open", "budget", "game_failed", "series_closed"]
 
 
 class ShutdownGameAck(_StrictModel):
-    """The fields of the bridge's ``shutdown_game`` answer that a result rests on."""
+    """The fields of the bridge's ``shutdown_game`` answer that a result rests on.
+
+    ``shutdown_unwind`` is ``"none"`` when the engine thread had already ended on its own before
+    the shutdown (the game was over); any other value names the exception the thread was unwound
+    with through a refused decision (``XmageFullGameSession.runEngine``), i.e. the shutdown ended
+    a game that was still running. ``game_over`` cannot tell the two apart: ``shutdownGame``
+    calls ``game.end()`` before it reads the flag, so the bridge always reports it true.
+    """
 
     game_id: str = Field(min_length=1)
     shut_down: Literal[True]
     engine_thread_alive: Literal[False]
     game_over: Literal[True]
-    shutdown_unwind: str | None = None
+    shutdown_unwind: Literal["none"]
+
+
+#: The flags of the acknowledgement that must be JSON booleans, not ``1``/``1.0``/``0``
+#: (``Literal[True]`` accepts ``1`` even in strict mode).
+_ACK_BOOL_FIELDS: Final = ("shut_down", "engine_thread_alive", "game_over")
 
 
 class FullGameSeriesResult(_StrictModel):
@@ -132,12 +144,16 @@ def checked_shutdown_ack(raw: object, *, game_id: str) -> ShutdownGameAck:
     """The acknowledged ``shutdown_game`` answer, or ``FullGameConformanceError``.
 
     Fail-closed: a missing answer, ``shut_down`` not true, a live engine thread, a game that is
-    not over, or the answer of another game gives no result.
+    not over, an engine thread that the shutdown had to unwind (``shutdown_unwind`` other than
+    ``"none"``: the game was still running), a flag that is not a JSON boolean, or the answer of
+    another game gives no result.
     """
     if not isinstance(raw, dict):
         raise FullGameConformanceError("shutdown_game gave no acknowledgement")
+    if any(type(raw.get(name)) is not bool for name in _ACK_BOOL_FIELDS):
+        raise FullGameConformanceError("shutdown_game acknowledgement is not clean")
     try:
-        ack = ShutdownGameAck.model_validate(raw, strict=False)
+        ack = ShutdownGameAck.model_validate(raw, strict=True)
     except ValueError as error:
         raise FullGameConformanceError("shutdown_game acknowledgement is not clean") from error
     if ack.game_id != game_id:

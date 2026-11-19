@@ -9,10 +9,12 @@ identity.py`` is the real-engine identity check).
 
 from __future__ import annotations
 
+import contextlib
 import gzip
 import hashlib
 import io
 import json
+import queue
 import sys
 import textwrap
 from collections.abc import Callable, Mapping
@@ -61,11 +63,23 @@ _WORKER = textwrap.dedent(
                     "games": 0, "end": "open", "disposition": None,
                 }
                 self.lives.append(self.life)
-            if "crash" in game_id:
+            if "crash" in game_id and "kid" not in game_id:
                 # the worker dies in a game, with a log that has no closing entry
                 games_folder(DATA).joinpath(game_id + ".jsonl").write_text(
                     '{"kind":"header"}\\n', encoding="utf-8")
                 os._exit(3)
+            if "kid" in game_id:
+                # the worker starts a process of its own (as it starts its bridge JVM) ...
+                import subprocess
+                # (pipes of its own, like the JVM: it holds none of the worker's)
+                kid = subprocess.Popen(
+                    [sys.executable, "-c", "import time; time.sleep(3600)"],
+                    stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                )
+                DATA.joinpath("grandchild.pid").write_text(str(kid.pid), encoding="utf-8")
+                if "crash" in game_id:
+                    os._exit(3)  # ... and dies on its own, leaving it behind
             if "hang" in game_id:
                 time.sleep(3600)
             digest = hashlib.sha256(
@@ -319,7 +333,13 @@ def _series_result(scenario: object, position: int):  # type: ignore[no-untyped-
     }
     game_id = f"{scenario.scenario_id}:{scenario.candidate_id}:{seed}"  # type: ignore[attr-defined]
     ack = checked_shutdown_ack(
-        {"game_id": game_id, "shut_down": True, "engine_thread_alive": False, "game_over": True},
+        {
+            "game_id": game_id,
+            "shut_down": True,
+            "engine_thread_alive": False,
+            "game_over": True,
+            "shutdown_unwind": "none",
+        },
         game_id=game_id,
     )
     from commander_lab.engine.rules.full_game import FullGameHiddenInformationAudit
@@ -390,3 +410,188 @@ def test_the_session_worker_engine_records_a_game_like_a_game_played_alone(
     assert log["result"]["result_basis"] == "SHUTDOWN_GAME_ACK_NOT_PROCESS_EXIT"  # type: ignore[index]
     # the setup of the next game does not see this game's header any more
     assert engine._headers == {}
+
+
+# --- P2-4: a given-up worker takes its whole process tree (its bridge JVM) with it --------------
+
+
+def _process_gone(pid: int) -> bool:
+    """Dead or a zombie waiting for its new parent: ``kill(pid, 0)`` succeeds on zombies."""
+    stat = Path(f"/proc/{pid}/stat")
+    try:
+        text = stat.read_text(encoding="utf-8")
+    except OSError:
+        return True
+    return text.rsplit(")", 1)[1].split()[0] == "Z"
+
+
+def _grandchild_after(pool_run: Callable[[], object], data: Path) -> tuple[object, bool]:
+    import os
+    import signal
+    import time
+
+    pid_file = data / "grandchild.pid"
+    outcome = pool_run()
+    pid = int(pid_file.read_text(encoding="utf-8"))
+    try:
+        deadline = time.monotonic() + 5.0
+        while time.monotonic() < deadline and not _process_gone(pid):
+            time.sleep(0.05)
+        return outcome, _process_gone(pid)
+    finally:
+        with contextlib.suppress(OSError):
+            os.kill(pid, signal.SIGKILL)  # never leave a sleeper behind, also when a check fails
+
+
+posix_only = pytest.mark.skipif(sys.platform == "win32", reason="POSIX process groups")
+
+
+@posix_only
+def test_a_worker_given_up_at_the_wall_limit_takes_its_jvm_with_it(tmp_path: Path) -> None:
+    pool, _ = _pool(tmp_path, workers=1, budget=8, wall=1.5)
+
+    def run() -> object:
+        with pool:
+            return pool.run([_tasks(range(1, 2), "hangkid")[0]])
+
+    results, gone = _grandchild_after(run, tmp_path)
+    assert results["hangkid:1"]["failure_class"] == "TimeLimit"  # type: ignore[index]
+    assert gone, "the process the hung worker started survived the worker"
+    # the killed worker never reported the end of its JVM life: counted, unknown stays unknown
+    info = pool.summary()
+    assert info["jvm_lives_lost"] == 1
+    lost = [life for life in info["jvm_lives"] if life["end"] == "worker_lost"]  # type: ignore[union-attr]
+    assert lost[0]["games"] is None and lost[0]["life_id"] is None
+    assert lost[0]["reason"] == "TimeLimit"
+
+
+@posix_only
+def test_a_worker_that_dies_on_its_own_does_not_leave_its_jvm_running(tmp_path: Path) -> None:
+    pool, _ = _pool(tmp_path, workers=1, budget=8)
+
+    def run() -> object:
+        with pool:
+            return pool.run([_tasks(range(1, 2), "crashkid")[0], *_tasks(range(2, 3))])
+
+    results, gone = _grandchild_after(run, tmp_path)
+    assert results["crashkid:1"]["failure_class"] == "WorkerExited"  # type: ignore[index]
+    assert results["t:2"]["status"] == "finished"  # type: ignore[index]
+    assert gone, "the process the dead worker started was left running"
+    assert pool.summary()["jvm_lives_lost"] == 1
+
+
+class _FakeProc:
+    def __init__(self, returncode: int | None = None) -> None:
+        self.pid = 4242
+        self.returncode = returncode
+        self.calls: list[str] = []
+
+    def kill(self) -> None:
+        self.calls.append("kill")
+
+    def wait(self, timeout: float | None = None) -> int:
+        self.calls.append("wait")
+        return 0
+
+
+def test_the_posix_branch_kills_the_process_group_of_a_worker_not_yet_reaped(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import os
+    import signal
+
+    killed: list[tuple[int, int]] = []
+    ran: list[object] = []
+    monkeypatch.setattr(os, "killpg", lambda pid, sig: killed.append((pid, sig)), raising=False)
+    monkeypatch.setattr(game_pool.subprocess, "run", lambda *a, **k: ran.append(a))
+    proc = _FakeProc()
+    game_pool.kill_process_tree(proc, windows=False)  # type: ignore[arg-type]
+    assert killed == [(4242, signal.SIGKILL)] and ran == []
+    assert proc.calls == ["kill", "wait"]
+    # a worker already reaped: its id may name another group by now, so no group signal
+    killed.clear()
+    game_pool.kill_process_tree(_FakeProc(returncode=0), windows=False)  # type: ignore[arg-type]
+    assert killed == []
+
+
+def test_the_windows_branch_ends_the_process_tree_with_taskkill(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import os
+
+    killed: list[object] = []
+    ran: list[list[str]] = []
+    monkeypatch.setattr(os, "killpg", lambda *a: killed.append(a), raising=False)
+    monkeypatch.setattr(game_pool.subprocess, "run", lambda argv, **_k: ran.append(list(argv)))
+    proc = _FakeProc()
+    game_pool.kill_process_tree(proc, windows=True)  # type: ignore[arg-type]
+    assert ran == [["taskkill", "/T", "/F", "/PID", "4242"]] and killed == []
+    assert proc.calls == ["kill", "wait"]
+
+
+def test_a_missing_taskkill_does_not_stop_the_kill_of_the_worker(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    def no_taskkill(*_a: object, **_k: object) -> None:
+        raise FileNotFoundError("taskkill")
+
+    monkeypatch.setattr(game_pool.subprocess, "run", no_taskkill)
+    proc = _FakeProc()
+    game_pool.kill_process_tree(proc, windows=True)  # type: ignore[arg-type]
+    assert proc.calls == ["kill", "wait"]
+
+
+def test_workers_lead_a_process_group_of_their_own_on_posix(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    seen: dict[str, object] = {}
+
+    class _Popen:
+        def __init__(self, argv: list[str], **kwargs: object) -> None:
+            seen.update(kwargs)
+            self.stdout = self.stderr = self.stdin = None
+
+    monkeypatch.setattr(game_pool.subprocess, "Popen", _Popen)
+    monkeypatch.setattr(game_pool, "_WINDOWS", False)
+    game_pool._ProcessWorker("w1", ["x"], {}, queue.Queue())
+    assert seen["start_new_session"] is True
+    monkeypatch.setattr(game_pool, "_WINDOWS", True)
+    game_pool._ProcessWorker("w2", ["x"], {}, queue.Queue())
+    assert seen["start_new_session"] is False
+
+
+# --- P3: an engine that cannot be built is a pool error, not one lost game per fresh worker ------
+
+
+def test_a_worker_whose_engine_cannot_be_built_never_says_ready() -> None:
+    def broken() -> game_pool.WorkerEngine:
+        raise RuntimeError("engine command is broken")
+
+    out = io.StringIO()
+    with pytest.raises(RuntimeError, match="broken"):
+        worker_main(stdin=io.StringIO(""), stdout=out, label="w1", engine_factory=broken)
+    assert [json.loads(line)["ev"] for line in out.getvalue().splitlines()] == ["bye"]
+
+
+def test_a_broken_engine_command_is_a_pool_error(tmp_path: Path) -> None:
+    script = tmp_path / "broken_worker.py"
+    script.write_text(
+        textwrap.dedent(
+            """
+            import sys
+            from commander_lab.studio.game_pool import worker_main
+
+            def broken():
+                raise RuntimeError("engine command is broken")
+
+            sys.exit(worker_main(stdin=sys.stdin, stdout=sys.stdout, label="w",
+                                 engine_factory=broken))
+            """
+        ),
+        encoding="utf-8",
+    )
+    pool = GamePool(tmp_path, workers=1, worker_argv=lambda _l: [sys.executable, str(script)])
+    with pytest.raises(GamePoolError, match="ended before it was ready"):
+        pool.run(_tasks(range(1, 4)))
+    pool.close()
+    assert pool.summary()["worker_processes_started"] == 1

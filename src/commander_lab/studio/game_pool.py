@@ -30,6 +30,7 @@ import contextlib
 import json
 import os
 import queue
+import signal
 import subprocess
 import sys
 import threading
@@ -56,6 +57,9 @@ GAME_WALL_LIMIT_SECONDS = 1800.0
 RETIRE_WAIT_SECONDS = 30.0
 _POLL_SECONDS = 0.5
 _STDERR_TAIL_LINES = 40
+#: Windows has no process groups to signal; a worker's process tree is ended with ``taskkill``.
+_WINDOWS = os.name == "nt"
+_TASKKILL_WAIT_SECONDS = 30.0
 
 
 def series_pool_enabled() -> bool:
@@ -187,9 +191,12 @@ def worker_main(
             _emit(stdout, {"ev": "jvm_exit", **life})
         reported = len(lives)
 
-    _emit(stdout, {"ev": "ready", "pid": os.getpid(), "label": label})
     try:
+        # ``ready`` only once the engine exists: a worker whose engine cannot be built ends
+        # before it is ready, and the supervisor raises ``GamePoolError`` instead of handing
+        # out (and losing) one game per freshly started worker
         engine = engine_factory()
+        _emit(stdout, {"ev": "ready", "pid": os.getpid(), "label": label})
         for raw in stdin:
             line = raw.strip()
             if not line:
@@ -267,6 +274,11 @@ class _ProcessWorker:
         self.task: GameTask | None = None
         self.task_started = 0.0
         self.stderr_tail: deque[str] = deque(maxlen=_STDERR_TAIL_LINES)
+        self.killed = False
+        self.said_bye = False
+        # POSIX: the worker leads a process group of its own, which its bridge JVM joins (the
+        # JVM is started without a session of its own), so killing the group ends both (#1584).
+        # A worker started this way no longer gets the terminal's Ctrl+C; the supervisor ends it.
         self.proc = subprocess.Popen(
             list(argv),
             stdin=subprocess.PIPE,
@@ -274,6 +286,7 @@ class _ProcessWorker:
             stderr=subprocess.PIPE,
             text=True,
             env=dict(env),
+            start_new_session=not _WINDOWS,
         )
         self._events = events
         self._out = threading.Thread(target=self._read_stdout, daemon=True)
@@ -331,10 +344,35 @@ class _ProcessWorker:
         self._err.join(timeout=2)
 
     def kill(self) -> None:
-        with contextlib.suppress(OSError):
-            self.proc.kill()
-        with contextlib.suppress(subprocess.TimeoutExpired):
-            self.proc.wait(timeout=10)
+        """End the worker and every process it started (its bridge JVM), then reap it."""
+        self.killed = True
+        kill_process_tree(self.proc, windows=_WINDOWS)
+
+
+def kill_process_tree(proc: subprocess.Popen[str], *, windows: bool) -> None:
+    """End ``proc`` and its descendants: the whole tree, not only the Python worker.
+
+    POSIX: ``SIGKILL`` to the process group the worker leads (``start_new_session``), sent only
+    while the worker is not yet reaped, so its id still names that group and no other. Windows:
+    ``taskkill /T /F`` on the worker's tree, which finds the JVM only while the worker still
+    lives (a JVM whose worker already died is not reached; UNKNOWN, not run on Windows).
+    """
+    if windows:
+        with contextlib.suppress(OSError, subprocess.SubprocessError):
+            subprocess.run(
+                ["taskkill", "/T", "/F", "/PID", str(proc.pid)],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                timeout=_TASKKILL_WAIT_SECONDS,
+                check=False,
+            )
+    elif proc.returncode is None:
+        with contextlib.suppress(ProcessLookupError, PermissionError):
+            os.killpg(proc.pid, signal.SIGKILL)
+    with contextlib.suppress(OSError):
+        proc.kill()
+    with contextlib.suppress(subprocess.TimeoutExpired):
+        proc.wait(timeout=10)
 
 
 @dataclass
@@ -481,6 +519,8 @@ class GamePool:
             kind = message.get("ev")
             if kind == "ready":
                 worker.ready = True
+            elif kind == "bye":
+                worker.said_bye = True
             elif kind == "played":
                 if worker.task is not None and on_played is not None:
                     on_played(worker.task)
@@ -496,7 +536,7 @@ class GamePool:
         now = time.monotonic()
         for worker in list(self._workers):
             if worker.task is not None and now - worker.task_started > self.game_wall_limit_seconds:
-                worker.kill()
+                worker.kill()  # the worker and its JVM (process group / tree), not the worker only
                 self._lose(worker, finish=finish, failure_class="TimeLimit")
 
     def _not_started(self, worker: _ProcessWorker) -> str:
@@ -510,14 +550,34 @@ class GamePool:
         finish: Callable[[_ProcessWorker, GameSummary], None] | None,
         failure_class: str = "WorkerExited",
     ) -> None:
-        """A worker process ended (or was given up). Its game in flight failed as infrastructure."""
+        """A worker process ended (or was given up). Its game in flight failed as infrastructure.
+
+        Whatever the worker started (its JVM) is ended with it: a worker that died on its own
+        would otherwise leave its JVM running. The JVM life open in it never reported its end;
+        it is recorded here with what is unknown left unknown.
+        """
         self._drop(worker)
         with contextlib.suppress(Exception):
-            worker.proc.wait(timeout=10)
+            worker.kill()
         if not worker.ready:
             raise GamePoolError(self._not_started(worker))
-        if worker.task is not None and finish is not None:
-            finish(worker, self._lost_game_summary(worker.task, failure_class))
+        if worker.task is not None:
+            self._record_lost_life(worker, failure_class)
+            if finish is not None:
+                finish(worker, self._lost_game_summary(worker.task, failure_class))
+
+    def _record_lost_life(self, worker: _ProcessWorker, reason: str) -> None:
+        """A JVM life that ended without its ``jvm_exit``: id and games played are unknown."""
+        self._jvm_lives.append(
+            {
+                "life_id": None,
+                "games": None,
+                "end": "worker_lost",
+                "disposition": "process_tree_killed",
+                "worker": worker.label,
+                "reason": reason,
+            }
+        )
 
     def _lost_game_summary(self, task: GameTask, failure_class: str) -> GameSummary:
         message = {
@@ -537,6 +597,7 @@ class GamePool:
     def summary(self) -> dict[str, object]:
         """What the workers did: n of N games, and each JVM life with its way of ending."""
         lives = list(self._jvm_lives)
+        lost = sum(1 for life in lives if life.get("end") == "worker_lost")
         return {
             "executor": "studio-game-pool-1",
             "workers": self.workers,
@@ -545,6 +606,8 @@ class GamePool:
             "games_failed": self._games_failed,
             "jvm_lives": lives,
             "jvm_lives_ended": len(lives),
+            # of those, lives whose worker was lost or killed: id and games played unknown
+            "jvm_lives_lost": lost,
         }
 
     def close(self) -> None:
@@ -555,11 +618,17 @@ class GamePool:
             worker.retire(RETIRE_WAIT_SECONDS)
         while True:
             try:
-                _worker, message = self._events.get_nowait()
+                sender, message = self._events.get_nowait()
             except queue.Empty:
                 break
             if message is not None and message.get("ev") == "jvm_exit":
                 self._jvm_lives.append({k: v for k, v in message.items() if k != "ev"})
+            elif message is not None and message.get("ev") == "bye":
+                sender.said_bye = True
+        for worker in workers:
+            # killed while ending its JVM, before it reported every life: one life is unknown
+            if worker.killed and worker.ready and not worker.said_bye:
+                self._record_lost_life(worker, "RetireTimeout")
 
     def __enter__(self) -> GamePool:
         return self

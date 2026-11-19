@@ -23,6 +23,7 @@ from commander_lab.engine.rules.full_game_batch import (
     FullGameBatchCase,
     XmageFullGameBatchRunner,
 )
+from commander_lab.engine.rules.full_game_series import FullGameSeriesResult
 from commander_lab.engine.rules.project import load_project_rules_decks
 from commander_lab.models import (
     PilotConfig,
@@ -133,6 +134,9 @@ def build_gate_setup(
 
 
 def summarize_result(result, gate: str) -> dict:
+    if isinstance(result, FullGameSeriesResult):
+        # a Studio series result (Owner decision E9) is no gate evidence
+        raise TypeError("the real-deck gate takes no Studio series result (FullGameSeriesResult)")
     return {
         "gate": gate,
         "evidence_class": result.evidence_class,
