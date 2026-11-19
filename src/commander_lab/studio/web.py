@@ -1476,7 +1476,8 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         """Only the favorite mark; the exclusion and the note of the card stay as stored."""
         store = open_store()
         try:
-            return builder.set_favorite(store, card_id, body.favorite)
+            with cache.user_state_write(store):
+                return builder.set_favorite(store, card_id, body.favorite)
         except KeyError as error:
             raise HTTPException(404, "unknown card") from error
         finally:
@@ -1486,9 +1487,10 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
     def mark(card_id: str, body: MarkBody) -> dict[str, object]:
         store = open_store()
         try:
-            builder.set_mark(
-                store, card_id, favorite=body.favorite, excluded=body.excluded, note=body.note
-            )
+            with cache.user_state_write(store):
+                builder.set_mark(
+                    store, card_id, favorite=body.favorite, excluded=body.excluded, note=body.note
+                )
             return {"card_id": card_id, **body.model_dump()}
         except KeyError as error:
             raise HTTPException(404, "unknown card") from error
@@ -1508,10 +1510,9 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         """The Owner's archetype labels of a card. Never an input of a tier or the index."""
         store = open_store()
         try:
-            return {
-                "card_id": card_id,
-                "labels": labels.set_card_labels(store, card_id, body.labels),
-            }
+            with cache.user_state_write(store):
+                found = labels.set_card_labels(store, card_id, body.labels)
+            return {"card_id": card_id, "labels": found}
         except KeyError as error:
             raise HTTPException(404, "unknown card") from error
         except ValueError as error:
@@ -1523,10 +1524,9 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
     def deck_labels(deck_id: str, body: LabelsBody) -> dict[str, object]:
         store = open_store()
         try:
-            return {
-                "deck_id": deck_id,
-                "labels": labels.set_deck_labels(store, deck_id, body.labels),
-            }
+            with cache.user_state_write(store):
+                found = labels.set_deck_labels(store, deck_id, body.labels)
+            return {"deck_id": deck_id, "labels": found}
         except KeyError as error:
             raise HTTPException(404, "unknown deck") from error
         except ValueError as error:
@@ -1565,7 +1565,8 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
                 deck_id = f"{base}-{number}"
                 number += 1
             cards = [RevisionCard(card_id, 1, "commander") for card_id in body.commander_card_ids]
-            revision_id = create_revision(store, deck_id=deck_id, name=body.name, cards=cards)
+            with cache.user_state_write(store):
+                revision_id = create_revision(store, deck_id=deck_id, name=body.name, cards=cards)
             return {"deck_id": deck_id, "revision_id": revision_id}
         except ValueError as error:
             raise HTTPException(422, str(error)) from error
@@ -1603,7 +1604,8 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         list's "ins Deck"). Writes a draft, never a saved state."""
         store = open_store()
         try:
-            return builder.change_draft_card(store, deck_id, branch, body.card_id, body.delta)
+            with cache.user_state_write(store):
+                return builder.change_draft_card(store, deck_id, branch, body.card_id, body.delta)
         except KeyError as error:
             raise HTTPException(404, "unknown deck, variant or card") from error
         except builder.DraftChangeRefused as error:
@@ -1633,16 +1635,17 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
                 "SELECT 1 FROM deck WHERE deck_id = ?", (deck_id,)
             ).fetchone():
                 raise HTTPException(404, "unknown deck")
-            updated_at = builder.write_draft(
-                store,
-                deck_id,
-                branch,
-                _cards(body.cards),
-                body.base_revision_id,
-                expected_updated_at=body.expected_updated_at,
-                expected_base_revision_id=body.expected_base_revision_id,
-                check_conflict=body.check_conflict,
-            )
+            with cache.user_state_write(store):
+                updated_at = builder.write_draft(
+                    store,
+                    deck_id,
+                    branch,
+                    _cards(body.cards),
+                    body.base_revision_id,
+                    expected_updated_at=body.expected_updated_at,
+                    expected_base_revision_id=body.expected_base_revision_id,
+                    check_conflict=body.check_conflict,
+                )
             return {"saved": True, "updated_at": updated_at}
         except builder.DraftConflict as error:
             raise HTTPException(409, str(error)) from error
@@ -1655,7 +1658,8 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
     ) -> dict[str, object]:
         store = open_store()
         try:
-            builder.drop_draft(store, deck_id, branch)
+            with cache.user_state_write(store):
+                builder.drop_draft(store, deck_id, branch)
             return {"dropped": True}
         finally:
             store.close()
@@ -1669,16 +1673,17 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
             ).fetchone()
             if deck is None:
                 raise HTTPException(404, "unknown deck")
-            revision_id = create_revision(
-                store,
-                deck_id=deck_id,
-                name=str(deck["name"]),
-                cards=_cards(body.cards),
-                parent_revision_id=body.parent_revision_id,
-                note=body.note,
-                branch=body.branch,
-            )
-            builder.drop_draft(store, deck_id, body.branch)
+            with cache.user_state_write(store):
+                revision_id = create_revision(
+                    store,
+                    deck_id=deck_id,
+                    name=str(deck["name"]),
+                    cards=_cards(body.cards),
+                    parent_revision_id=body.parent_revision_id,
+                    note=body.note,
+                    branch=body.branch,
+                )
+                builder.drop_draft(store, deck_id, body.branch)
             return {"revision_id": revision_id}
         except ValueError as error:
             raise HTTPException(422, str(error)) from error
@@ -1785,7 +1790,8 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
     def write_primer(deck_id: str, body: PrimerBody) -> dict[str, object]:
         store = open_store()
         try:
-            return set_deck_primer(store, deck_id, body.content)
+            with cache.user_state_write(store):
+                return set_deck_primer(store, deck_id, body.content)
         except KeyError as error:
             raise HTTPException(404, "unknown deck") from error
         except ValueError as error:
