@@ -20,7 +20,7 @@ from commander_lab.candidates.models import FutureXmageScenario
 from commander_lab.engine.rules.full_game import FullGameConformanceResult
 from commander_lab.engine.rules.full_game_batch import _games_per_jvm_permitted
 
-from .games import GameRecorder
+from .games import SERIES_GZIP_COMPRESSLEVEL, GameRecorder
 from .launch import bridge_jar_sha256, engine_command
 from .play import (
     _RecordingRunner,
@@ -72,7 +72,13 @@ class BatchRecordingRunner(_RecordingRunner):
         if previous is not None:
             previous.discard()
         game_id, header = self._headers[scenario_id]
-        recorder = GameRecorder(self._data_folder, game_id, header)
+        recorder = GameRecorder(
+            self._data_folder,
+            game_id,
+            header,
+            flush_each_frame=False,
+            gzip_compresslevel=SERIES_GZIP_COMPRESSLEVEL,
+        )
         self._recorders[scenario_id] = recorder
         self.recorder = recorder
         return recorder
