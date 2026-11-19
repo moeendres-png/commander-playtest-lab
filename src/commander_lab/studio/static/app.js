@@ -1525,7 +1525,9 @@ function renderSimulations(body) {
         h("b", {}, `Serie „${b.pod}“: ${StudioUI.num(b.games_completed, 0)} von ${StudioUI.num(b.games_planned, 0)} Partien abgeschlossen (${StudioUI.num(pct, 0)} %)`),
         h("span", { class: "pill " + (isRunning ? "warn" : b.status === "completed" ? "good" : "bad") }, statusText)
       ),
-      h("progress", { value: b.games_completed, max: b.games_planned })
+      // the bar follows the games the engine has played (plus failed ones); the headline counts finished results
+      h("progress", { value: b.games_played !== null && b.games_played !== undefined && Number.isFinite(Number(b.games_played)) ? Math.min(b.games_planned, Number(b.games_played) + Number(b.games_failed || 0)) : b.games_completed, max: b.games_planned, title: "Fortschrittsbalken: gespielte plus gescheiterte Partien" }),
+      h("p", { class: "note note-compact" }, seriesPlayedText(b.games_played, b.games_planned, b.games_completed, false, isRunning))
     );
 
     if (b.bridge_qualification && b.bridge_qualification.status === "BRIDGE_AHEAD_OF_QUALIFICATION") {

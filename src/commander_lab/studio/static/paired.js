@@ -141,6 +141,19 @@ async function loadPairedOptions(deps) {
   return options.filter((opt) => opt.ref && !seen.has(opt.ref) && seen.add(opt.ref));
 }
 
+// Progress per game, as far as the backend knows it. "gespielt" means the engine has played the game
+// to its end; the result of a game only exists once the engine process has ended ("abgeschlossen").
+// A record without the figure (an older series) says "unbekannt", never 0; a planned maximum is
+// worded as a maximum, because a paired series may stop early.
+function seriesPlayedText(played, planned, closed, atMost, running) {
+  const known = (v) => v !== null && v !== undefined && v !== "" && Number.isFinite(Number(v));
+  if (!known(played)) return "Gespielt: unbekannt (ältere Serie ohne Zählung je Partie).";
+  const of = known(planned) ? `${atMost ? "von höchstens" : "von"} ${StudioUI.num(planned, 0)}` : "von unbekannt vielen";
+  const tail = known(closed) ? ` · abgeschlossen: ${StudioUI.num(closed, 0)}` : "";
+  const note = running ? " Das Ergebnis folgt, wenn der Engine-Prozess endet." : "";
+  return `Gespielt: ${StudioUI.num(played, 0)} ${of} Partien${tail}.${note}`;
+}
+
 function renderPairedMonitor(h, job, deps) {
   const isRunning = job.status === "running" || job.status === "pending";
   const isInterrupted = job.status === "interrupted";
@@ -162,6 +175,7 @@ function renderPairedMonitor(h, job, deps) {
       h("b", {}, `Paar-Serie „${job.pod}“ (${job.series_id}): ${StudioUI.num(donePairs, 0)} / ${StudioUI.num(maxPairs, 0)} Paare (${StudioUI.num(pct, 0)} %)`),
       h("span", { class: "pill " + (isRunning || isInterrupted ? "warn" : job.status === "completed" ? "good" : "bad") }, statusText)),
     h("progress", { value: donePairs, max: maxPairs }),
+    h("p", { class: "note note-compact" }, seriesPlayedText(job.games_played, job.games_planned_max, null, true, isRunning)),
     h("p", { class: "note note-compact" }, `Basis (A): ${job.base_ref} · Variante (B): ${job.variant_ref}`));
 
   const qualStates = job.bridge_qualification_states || (job.bridge_qualification && job.bridge_qualification.status ? [job.bridge_qualification.status] : []);
