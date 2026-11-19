@@ -63,6 +63,10 @@ def test_daten_js_renders_counts_only_without_unsafe_html_or_pricing(tmp_path: P
     status = client.get("/api/status").json()
     assert "total_sources" in status["source_inventory"]
     assert "status_counts" in status["source_inventory"]
+    inventory = status["source_inventory"]
+    assert inventory["access_status_counts"]["prohibited"] >= 1
+    # VERIFIED sources whose retrieval is prohibited (stock only) are counted apart
+    assert inventory["verified_access_prohibited"] == 2
     assert "cache_enabled" in status["image_cache"]
     assert "with_snapshot_date" in status["freshness"]
     assert status["source_layers"] and "dated" in status["source_layers"][0]
@@ -70,6 +74,8 @@ def test_daten_js_renders_counts_only_without_unsafe_html_or_pricing(tmp_path: P
     for key in (
         "total_sources",
         "status_counts",
+        "access_status_counts",
+        "verified_access_prohibited",
         "cache_enabled",
         "with_snapshot_date",
         "undated_note",

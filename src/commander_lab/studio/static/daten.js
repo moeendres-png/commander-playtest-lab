@@ -94,8 +94,14 @@ function renderSources(status, report) {
       ? `${nf(ic.files)} Dateien (${StudioUI.num(ic.megabytes, 1)} MB)`
       : "deaktiviert";
 
+  const ac = inv.access_status_counts || {};
+  const stockOnly = Number(inv.verified_access_prohibited) || 0;
+  const verifiedOpen = Number(sc.VERIFIED) - stockOnly;
+  const verifiedText = Number.isFinite(verifiedOpen) ? nf(verifiedOpen) : nf(sc.VERIFIED);
   const summary = h("p", { class: "muted" },
-    `Registrierte Quellen: ${nf(inv.total_sources)} (Verifiziert: ${nf(sc.VERIFIED)}, Prüfung: ${nf(sc.REVIEW)}, Nicht verfügbar: ${nf(sc.UNAVAILABLE)}) · Bild-Cache: ${cacheText}`);
+    `Registrierte Quellen: ${nf(inv.total_sources)} (Verifiziert: ${verifiedText}, Bestand aus Quelle mit Abrufverbot (Owner-Entscheid #1557, nur Bestand, keine neuen Abrufe): ${nf(stockOnly)}, Prüfung: ${nf(sc.REVIEW)}, Nicht verfügbar: ${nf(sc.UNAVAILABLE)}) · Bild-Cache: ${cacheText}`);
+  const accessLine = h("p", { class: "rule" },
+    `Automatisierter Abruf laut Register: erlaubt ${nf(ac.ok)}, mit Bedingungen ${nf(ac.ok_with_conditions)}, ungeklärt ${nf(ac.unclear)}, verboten ${nf(ac.prohibited)}.`);
 
   const layerRows = layers.map((item) => [
     item.layer || "–",
@@ -121,6 +127,7 @@ function renderSources(status, report) {
   host.replaceChildren(...[
     h("h2", {}, "Quellen-Register & Frische"),
     summary,
+    accessLine,
     layerRows.length
       ? simpleTable(["Schicht / Quelle", "Quellen", "Mit Stand", "Ältester", "Neuester", "Hinweis"], layerRows)
       : h("p", { class: "muted" }, "Keine Schicht-Metadaten vorhanden."),

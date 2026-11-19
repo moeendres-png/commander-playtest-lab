@@ -36,10 +36,9 @@ if str(_REPO_ROOT / "src") not in sys.path:
 logger = logging.getLogger("collect_topdeck")
 
 TOPDECK_API_URL = "https://topdeck.gg/api/v2/tournaments"
-DEFAULT_USER_AGENT = (
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-    "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
-)
+# Generic client identity: no browser imitation, no project, repository or person reference and
+# no contact details (Owner decision #1557 point 4).
+DEFAULT_USER_AGENT = "mtg-tournament-tool/1.0"
 
 # Canonical 107 collection commanders in CPL
 DEFAULT_107_COMMANDERS = [
@@ -183,11 +182,18 @@ def neutral_player_labels(names: Iterable[str]) -> dict[str, str]:
 
 
 def get_api_key() -> str:
-    """Retrieve API key from TOPDECK_API_KEY environment variable."""
+    """Retrieve API key from TOPDECK_API_KEY environment variable.
+
+    Owner decision #1557 point 3: no TopDeck API key is created while no cEDH reference is
+    wanted, so without an Owner-supplied key every live request is refused (fail-closed).
+    """
     key = os.environ.get("TOPDECK_API_KEY", "").strip()
     if key:
         return key
-    raise RuntimeError("TopDeck API key not found. Set TOPDECK_API_KEY environment variable.")
+    raise RuntimeError(
+        "TopDeck API key not found. Set TOPDECK_API_KEY environment variable "
+        "(Owner decision #1557 point 3: no key is created; live retrieval stays closed)."
+    )
 
 
 def extract_cards_from_section(section_data: object) -> list[tuple[str, int]]:
@@ -268,7 +274,11 @@ def fetch_slice(
     offline_only: bool = False,
     force_refresh: bool = False,
 ) -> list[dict[str, object]]:
-    """Fetch or load cached tournaments for a time slice."""
+    """Fetch or load cached tournaments for a time slice.
+
+    A live request (cache miss or forced refresh) needs an Owner-supplied API key (#1557
+    point 3); without one this raises before any request is built.
+    """
     if cache_path.is_file() and not force_refresh:
         logger.info("Loading cached slice: %s", cache_path.name)
         try:
@@ -282,6 +292,12 @@ def fetch_slice(
     if offline_only:
         logger.warning("Offline mode: cache missing for slice %s", cache_path.name)
         return []
+
+    if not api_key.strip():
+        raise RuntimeError(
+            "TopDeck live retrieval refused: no API key (Owner decision #1557 point 3). "
+            "No request was made."
+        )
 
     logger.info(
         "Requesting TopDeck tournaments [%s - %s] (start=%d, end=%d)...",

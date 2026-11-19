@@ -80,6 +80,7 @@ The other leave suites stay green:
 - **Before:** the systemic rule above ended the lane fail-closed with `PLAYER_LEFT_GAME_UNSUPPORTED_DECISION: declare_blocker`. That was safe, but a concession at a block prompt is an ordinary game event, and CR 800.4a says the game goes on for everyone else.
 - **Fix:** `declare_blocker` is now a qualified class.
   - In `selectBlockers`, a cancelled frame, or a defender no longer in the game, ends that defender's declaration.
+  - Since #1584 the player asked can also be a block controller other than the defender (Brutal Hordechief, Invasion Plans). The check covers the player asked, not the defender; a defender, or a block controller, that leaves during the block controller's frames is untested (UNKNOWN in #1584).
   - This is not a choice made on the defender's behalf: its creatures left the game with it (800.4a), so "no block" is the only possible outcome.
 - **Test:** 4/4 red before (`PLAYER_LEFT_GAME_UNSUPPORTED_DECISION`), 4/4 green after. After the fix:
   - combat finishes;

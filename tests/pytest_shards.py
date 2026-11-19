@@ -41,6 +41,7 @@ import subprocess
 import sys
 import tempfile
 import threading
+import time
 import xml.etree.ElementTree as ET
 from collections.abc import Mapping, Sequence
 from concurrent.futures import ThreadPoolExecutor
@@ -216,7 +217,29 @@ def exit_status(codes: Sequence[int]) -> int:
     return max(128 - code if code < 0 else code for code in codes)
 
 
+@dataclass(frozen=True)
+class ShardTiming:
+    """Wall-clock timing breakdown in seconds for a single shard."""
+
+    shard: int
+    exit_code: int
+    copy_s: float
+    pytest_s: float
+    cleanup_s: float
+    total_s: float
+
+
+def format_shard_timing(timing: ShardTiming, count: int) -> str:
+    """Format one shard's monotonic timing breakdown for job and artifact logs."""
+    return (
+        f"pytest shard {timing.shard}/{count} timing: "
+        f"copy={timing.copy_s:.2f}s pytest={timing.pytest_s:.2f}s "
+        f"cleanup={timing.cleanup_s:.2f}s total={timing.total_s:.2f}s"
+    )
+
+
 def run_shards(rootdir: Path, selection: Selection, plan: Sequence[Sequence[str]]) -> int:
+    run_started = time.monotonic()
     count = len(plan)
     outdir = Path(selection.junit).resolve().parent if selection.junit else rootdir
     outdir.mkdir(parents=True, exist_ok=True)
@@ -228,9 +251,12 @@ def run_shards(rootdir: Path, selection: Selection, plan: Sequence[Sequence[str]
     lock = threading.Lock()
     grouped = bool(os.environ.get("GITHUB_ACTIONS"))
 
-    def run_one(index: int) -> int:
+    def run_one(index: int) -> ShardTiming:
+        shard_started = time.monotonic()
         checkout = scratch / f"shard-{index + 1}"
+        copy_started = time.monotonic()
         shutil.copytree(rootdir, checkout, symlinks=True, ignore=CHECKOUT_COPY_IGNORE)
+        copy_s = time.monotonic() - copy_started
         log = outdir / f"pytest-shard-{index + 1}.log"
         command = [
             sys.executable,
@@ -240,27 +266,54 @@ def run_shards(rootdir: Path, selection: Selection, plan: Sequence[Sequence[str]
             f"--junitxml={junit[index]}",
         ]
         environment = {**os.environ, CHILD_ENV: f"{index + 1}/{count}"}
+        pytest_s = 0.0
+        cleanup_s = 0.0
         try:
             with log.open("w", encoding="utf-8") as sink:
+                pytest_started = time.monotonic()
                 code = subprocess.run(
                     command, cwd=checkout, env=environment, stdout=sink, stderr=subprocess.STDOUT
                 ).returncode
+                pytest_s = time.monotonic() - pytest_started
         finally:
+            cleanup_started = time.monotonic()
             shutil.rmtree(checkout, ignore_errors=True)
+            cleanup_s = time.monotonic() - cleanup_started
+        total_s = time.monotonic() - shard_started
+        timing = ShardTiming(
+            shard=index + 1,
+            exit_code=code,
+            copy_s=copy_s,
+            pytest_s=pytest_s,
+            cleanup_s=cleanup_s,
+            total_s=total_s,
+        )
+        timing_line = format_shard_timing(timing, count)
+        with log.open("a", encoding="utf-8") as sink:
+            sink.write(f"\n{timing_line}\n")
         with lock:
-            title = f"pytest shard {index + 1}/{count}: exit code {code}"
+            title = (
+                f"pytest shard {index + 1}/{count}: exit code {code} "
+                f"(copy={copy_s:.2f}s pytest={pytest_s:.2f}s "
+                f"cleanup={cleanup_s:.2f}s total={total_s:.2f}s)"
+            )
             print(f"::group::{title}" if grouped else f"===== {title} =====")
             print(log.read_text(encoding="utf-8", errors="replace"), end="")
             print("::endgroup::" if grouped else "")
             sys.stdout.flush()
-        return code
+        return timing
 
+    scratch_cleanup_s = 0.0
     try:
         with ThreadPoolExecutor(max_workers=count) as pool:
-            codes = list(pool.map(run_one, range(count)))
+            timings = list(pool.map(run_one, range(count)))
     finally:
+        scratch_cleanup_started = time.monotonic()
         shutil.rmtree(scratch, ignore_errors=True)
+        scratch_cleanup_s = time.monotonic() - scratch_cleanup_started
+    codes = [item.exit_code for item in timings]
     status = exit_status(codes)
+    merge_started = time.monotonic()
     missing = [index + 1 for index, part in enumerate(junit) if not part.is_file()]
     if missing:
         # A shard that left no report cannot be told from one that ran nothing.
@@ -270,7 +323,18 @@ def run_shards(rootdir: Path, selection: Selection, plan: Sequence[Sequence[str]
         merge_junit(junit, Path(selection.junit).resolve())
     for part in junit:
         part.unlink(missing_ok=True)
+    merge_s = time.monotonic() - merge_started
+    wall_s = time.monotonic() - run_started
     print("shard exit codes:", ", ".join(str(code) for code in codes))
+    for item in timings:
+        print(format_shard_timing(item, count))
+    print(
+        f"shard run summary: wall={wall_s:.2f}s "
+        f"max_copy={max((item.copy_s for item in timings), default=0.0):.2f}s "
+        f"max_pytest={max((item.pytest_s for item in timings), default=0.0):.2f}s "
+        f"max_cleanup={max((item.cleanup_s for item in timings), default=0.0):.2f}s "
+        f"merge={merge_s:.2f}s scratch_cleanup={scratch_cleanup_s:.2f}s"
+    )
     return status
 
 

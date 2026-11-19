@@ -34,6 +34,7 @@ from . import (
     cache,
     card_duel,
     card_outcomes,
+    card_trend,
     card_understanding,
     castability,
     combos,
@@ -255,7 +256,7 @@ class GameBody(BaseModel):
     seat_styles: list[float] | None = None
     human_seats: list[int] | None = None
     decision_timeout_seconds: int = Field(default=0, ge=0, le=86_400)
-    ai_delay_ms: int = Field(default=250, ge=0, le=5_000)
+    ai_delay_ms: int = Field(default=play.DEFAULT_AI_DELAY_MS, ge=0, le=5_000)
 
 
 class PlayDecisionBody(BaseModel):
@@ -409,10 +410,19 @@ def _inventory_summary() -> dict[str, object]:
     """Compact form of the qualified evidence-source inventory for /api/status:
     how many source layers exist and how they split over the review states."""
     inventory = source_inventory_payload()
+    verified_prohibited = sum(
+        1
+        for source in inventory["sources"]
+        if source["status"] == "VERIFIED" and source["access_status"] == "prohibited"
+    )
     return {
         "schema_version": inventory["schema_version"],
         "total_sources": inventory["total_sources"],
         "status_counts": inventory["status_counts"],
+        "access_status_counts": inventory["access_status_counts"],
+        # Data-quality VERIFIED sources whose automated retrieval is prohibited (stock only,
+        # usable by Owner decision #1557): shown apart from the plainly verified ones.
+        "verified_access_prohibited": verified_prohibited,
     }
 
 
@@ -1041,6 +1051,36 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
             raise HTTPException(422, str(error)) from error
         except KeyError as error:
             raise HTTPException(404, "unknown universe profile") from error
+        finally:
+            store.close()
+
+    @app.get("/api/card-trend")
+    def card_trend_view(
+        commander: list[str] = Query(min_length=1, max_length=2),
+        recent_days: int = Query(default=card_trend.DEFAULT_RECENT_DAYS, ge=1, le=3650),
+        min_decks_per_window: int = Query(
+            default=card_trend.DEFAULT_MIN_DECKS_PER_WINDOW, ge=1, le=10000
+        ),
+        bracket: str | None = Query(default=None, max_length=32),
+        source: str | None = Query(default=None, max_length=32),
+    ) -> dict[str, object]:
+        """Per-card corpus trend (recent vs. older deduplicated decks) of ONE source (default
+        ``edhrec``, never mixed with the other). An unknown bracket or source is a 422. No
+        weight in strength."""
+        store = open_store()
+        try:
+            return dict(
+                card_trend.card_trend(
+                    store,
+                    commander,
+                    recent_days=recent_days,
+                    min_decks_per_window=min_decks_per_window,
+                    bracket=bracket,
+                    source=source,
+                )
+            )
+        except ValueError as error:
+            raise HTTPException(422, str(error)) from error
         finally:
             store.close()
 

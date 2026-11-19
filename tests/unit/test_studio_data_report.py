@@ -740,3 +740,63 @@ def test_gap_matrix_counts_pool_cards_the_spread_does_not_return_as_unknown(
     short = _matrix(studio, base, ids[:-2], COMMANDER, len(ids))  # two pool cards not returned
     assert short["classes_sum"] == len(ids) == short["pool"]
     assert short["classes"]["unknown"] == full["classes"]["unknown"] + 2  # type: ignore[index]
+
+
+def test_mainboard_and_deck_card_count_metrics_use_real_main_and_commander_sections(
+    tmp_path: Path,
+) -> None:
+    """#1624: corpus.mainboard_not_99_cards counts real 'main' rows (not only 'mainboard'),
+    and deck_not_100_cards counts commander + main/mainboard with provenance."""
+    store = StudioStore.open(tmp_path / "studio_1624")
+    try:
+        db = store.connection
+        src = "src-1624"
+        db.execute(
+            "INSERT INTO source(source_id, data_class, title, sha256, imported_at) "
+            "VALUES (?, 'OBSERVED_DECK', 'test', 'deadbeef', '2026-11-19')",
+            (src,),
+        )
+        # 1) Standard 100-card deck: 1 commander + 99 main (+ 2 sideboard ignored)
+        # 2) Partner 100-card deck: 2 commander + 98 main
+        # 3) Short deck: 1 commander + 50 main
+        for idx, (cmd_qty, main_qty, side_qty) in enumerate(
+            [(1, 99, 2), (2, 98, 0), (1, 50, 0)], start=1
+        ):
+            did = f"deck-{idx}"
+            db.execute(
+                "INSERT INTO corpus_deck(deck_id, cohort, url, platform, play_group, tags, "
+                "fingerprint, legality_audit, source_id) "
+                "VALUES (?, 'bracket:3', '', 'edhrec', '', '[]', ?, 'ok', ?)",
+                (did, f"fp-{idx}", src),
+            )
+            db.execute(
+                "INSERT INTO corpus_deck_card(deck_id, card_name, quantity, section, "
+                "normalization_status) VALUES (?, 'Cmd', ?, 'commander', 'matched')",
+                (did, cmd_qty),
+            )
+            db.execute(
+                "INSERT INTO corpus_deck_card(deck_id, card_name, quantity, section, "
+                "normalization_status) VALUES (?, 'Forest', ?, 'main', 'matched')",
+                (did, main_qty),
+            )
+            if side_qty:
+                db.execute(
+                    "INSERT INTO corpus_deck_card(deck_id, card_name, quantity, section, "
+                    "normalization_status) VALUES (?, 'Side', ?, 'sideboard', 'matched')",
+                    (did, side_qty),
+                )
+        db.commit()
+
+        corpus = _section(data_report(store, today=TODAY), "corpus")
+        # Only deck-2 (98 main) and deck-3 (50 main) have main != 99; deck-1 (99 main) is valid!
+        # Mutation back to LOWER(section) = 'mainboard' would report 3/3 and fail here.
+        assert corpus["mainboard_not_99_cards"] == {"count": 2, "of": 3}
+        not_100 = corpus["deck_not_100_cards"]
+        assert isinstance(not_100, dict)
+        # deck-1 (1+99=100) and deck-2 (2+98=100) are 100 cards; only deck-3 (51) is not.
+        assert not_100["count"] == 1
+        assert not_100["of"] == 3
+        assert not_100["counted_sections"] == ["commander", "main", "mainboard"]
+        assert "corpus_deck_card" in str(not_100["provenance"])
+    finally:
+        store.close()

@@ -29,13 +29,19 @@
 <div id="conn-status" class="conn-status" role="alert" hidden></div>
 <div id="sr-announce" class="visually-hidden" role="status" aria-live="polite" aria-atomic="true"></div>
 <div id="controls">
-  <button id="first" type="button" title="Anfang">⏮</button>
-  <button id="back" type="button" title="Eine Aktion zurück (Pfeil links)">◀</button>
-  <button id="play" type="button" class="primary" title="Abspielen oder anhalten (Leertaste)">▶ Abspielen</button>
-  <button id="next" type="button" title="Eine Aktion weiter (Pfeil rechts)">▶</button>
-  <button id="next-turn" type="button" title="Zum nächsten Zug">Zug ⏭</button>
+  <span id="replay-controls" class="replay-controls" role="group" aria-label="Wiedergabe der beendeten Partie" hidden>
+    <button id="first" type="button" title="Anfang">⏮</button>
+    <button id="prev-turn" type="button" title="Zum vorherigen Zug (Umschalt + Pfeil links)">⏮ Zug</button>
+    <button id="back" type="button" title="Eine Aktion zurück (Pfeil links)">◀</button>
+    <button id="play" type="button" class="primary" title="Abspielen oder anhalten (Leertaste)">▶ Abspielen</button>
+    <button id="next" type="button" title="Eine Aktion weiter (Pfeil rechts)">▶</button>
+    <button id="next-turn" type="button" title="Zum nächsten Zug (Umschalt + Pfeil rechts)">Zug ⏭</button>
+    <label>Zug <select id="turn-jump" aria-label="Zu Zug springen"></select></label>
+    <label><input id="skip" type="checkbox" checked> Passen und Manazahlung überspringen</label>
+    <input id="position" aria-label="Position in der Partie" type="range" min="0" max="0" value="0">
+    <span id="replay-note" class="muted" hidden>KI-Hände aufgedeckt (Partie beendet)</span>
+  </span>
   <label>Tempo <select id="speed"></select></label>
-  <label><input id="skip" type="checkbox" checked> Passen und Manazahlung überspringen</label>
   <label id="auto-pass-wrap" hidden><input id="auto-pass-human" type="checkbox"> Auto-Pass bis eigene Aktion</label>
   <span id="ff-wrap" class="ff-wrap" hidden>
     <button id="ff-btn" type="button" aria-pressed="false" title="Spielt schnell bis zu deiner nächsten Entscheidung: gibt nur die Pass-Option der Engine ab, wenn du nach Priorität gefragt wirst">⏩ Vorspulen bis zu meiner nächsten Entscheidung</button>
@@ -48,7 +54,6 @@
     <span id="ff-stack-hint" class="muted" hidden></span>
     <span id="ff-rule" class="muted">Gibt auf Prioritätsabfragen nur „Passen“ ab. Hält an: je nach Modus (eigener Zug, Zugwechsel oder Stapel-Auflösung), bei jeder anderen Entscheidung (Mulligan, Angriff, Block, Ziel, Modus, X, Mana, Reihenfolge, Ja/Nein) und, wenn angehakt, bei Gegner-Objekten auf dem Stack.</span>
   </span>
-  <input id="position" aria-label="Position in der Partie" type="range" min="0" max="0" value="0">
   <span id="where" class="muted"></span>
 </div>
 <div id="ff-status" class="ff-status" role="status" aria-live="polite" hidden></div>
@@ -75,6 +80,7 @@
 <script src="commander.js"></script>
 <script src="vorspulen.js"></script>
 <script src="boardclick.js"></script>
+<script src="replay.js"></script>
 <script src="play_p1a.js"></script>
 <script src="partie.js"></script>
 </body>
