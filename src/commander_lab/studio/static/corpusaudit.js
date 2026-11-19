@@ -45,7 +45,7 @@ function corpusAuditBinding(h, data) {
   const binding = data.binding;
   if (!binding || typeof binding !== "object") return [];
   return [h("p", { class: "note", id: "corpus-audit-binding" },
-    `Nicht mitgezählt: ${corpusAuditCount(binding.other_commander_decks)} Quelldecks eines anderen Commanders, ${corpusAuditCount(binding.unbound_decks)} nicht gebunden (von ${corpusAuditCount(binding.of)} gezählten Quelldecks des Stores).`)];
+    `Nicht mitgezählt: ${corpusAuditCount(binding.other_commander_decks)} Quelldecks mit anderer Bindung (anderer Commander oder Commander-Paar, auch mit Chulane), ${corpusAuditCount(binding.unbound_decks)} nicht gebunden (von ${corpusAuditCount(binding.of)} gezählten Quelldecks des Stores).`)];
 }
 
 function corpusAuditSummary(h, data) {
@@ -55,9 +55,11 @@ function corpusAuditSummary(h, data) {
     const open = typeof row.not_measurable === "number" && row.not_measurable > 0 ? `, ${StudioUI.num(row.not_measurable, 0)} nicht messbar` : "";
     return h("li", {}, `${label}: ${corpusAuditShare(row.count, row.of)}${open}`);
   });
+  const counted = typeof status.of === "number" && status.of > 0;
   return [
-    h("p", { id: "corpus-audit-total" },
-      `Von ${corpusAuditCount(status.of)} gezählten, an Chulane gebundenen Quelldecks haben ${corpusAuditCount(status.befund)} einen Befund, ${corpusAuditCount(status.unbekannt)} sind nicht vollständig messbar (unbekannt), ${corpusAuditCount(status.ohne_befund)} ohne Befund.`),
+    h("p", { id: "corpus-audit-total" }, !counted
+      ? "Formale Befunde der gezählten, an Chulane gebundenen Quelldecks: unbekannt (keine gezählten Quelldecks)."
+      : `Von ${corpusAuditCount(status.of)} gezählten, an Chulane gebundenen Quelldecks haben ${corpusAuditCount(status.befund)} einen Befund, ${corpusAuditCount(status.unbekannt)} sind nicht vollständig messbar (unbekannt), ${corpusAuditCount(status.ohne_befund)} ohne Befund.`),
     h("ul", { class: "muted" }, reasons),
     ...corpusAuditBinding(h, data),
     h("p", { class: "note", id: "corpus-audit-facts" }, corpusAuditFacts(data)),

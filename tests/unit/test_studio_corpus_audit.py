@@ -374,7 +374,8 @@ def test_corpus_audit_js_shows_n_of_n_and_unknown_never_zero() -> None:
     ok = out["ok"]  # type: ignore[index]
     assert "Von 6 gezählten, an Chulane gebundenen Quelldecks haben 4 einen Befund, 1 sind" in ok
     assert (
-        "Nicht mitgezählt: 2 Quelldecks eines anderen Commanders, 1 nicht gebunden "
+        "Nicht mitgezählt: 2 Quelldecks mit anderer Bindung (anderer Commander oder "
+        "Commander-Paar, auch mit Chulane), 1 nicht gebunden "
         "(von 9 gezählten Quelldecks des Stores)." in ok
     )
     assert "im ganzen Korpus" not in ok
@@ -442,6 +443,11 @@ def test_corpus_audit_js_keeps_unknown_apart_from_without_finding_and_never_zero
     assert "NAME bracket:2|5|davon mindestens 2 von 5 mit Befund|unbekannt" in missing
     empty = out["empty"]  # type: ignore[index]
     assert "nicht 100 Karten: unbekannt" in empty
+    assert (
+        "Formale Befunde der gezählten, an Chulane gebundenen Quelldecks: unbekannt "
+        "(keine gezählten Quelldecks)." in empty
+    )
+    assert "Von 0" not in empty and "0 einen Befund" not in empty and "0 ohne Befund" not in empty
     assert "0 von 0" not in empty
     assert "Keine Gruppen: unbekannt." in empty
 

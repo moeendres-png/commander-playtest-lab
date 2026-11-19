@@ -73,6 +73,7 @@ from . import (
     universe_view,
 )
 from . import evidence as evidence_model
+from .decklist_import import COMMANDER_NAME
 from .decks import (
     EXPORT_TEXT_FORMATS,
     MAX_PRIMER_CHARS,
@@ -652,7 +653,7 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
             return answer_cache.json_answer(
                 store,
                 "corpus_audit",
-                (corpus_audit.COMMANDER_NAME, day.isoformat()),
+                (COMMANDER_NAME, day.isoformat()),
                 lambda: corpus_audit.corpus_audit(store.connection, today=day),
             )
         finally:

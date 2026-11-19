@@ -152,8 +152,9 @@ def _facts_date(db: sqlite3.Connection, today: date) -> dict[str, object]:
 
 
 def _binding(db: sqlite3.Connection, bound_decks: int) -> dict[str, object]:
-    """Counted decks (``duplicate_of IS NULL``) outside the audit: bound to another commander
-    (or a pair) and bound to none. Same arithmetic as ``builder.corpus_binding``."""
+    """Counted decks (``duplicate_of IS NULL``) outside the audit: ``other_commander_decks``
+    holds every other binding (another commander, or a pair, also a pair with Chulane) and
+    ``unbound_decks`` the decks bound to none. Same arithmetic as ``builder.corpus_binding``."""
     total = int(
         db.execute("SELECT COUNT(*) FROM corpus_deck WHERE duplicate_of IS NULL").fetchone()[0]
     )
