@@ -13,7 +13,7 @@ import re
 import sqlite3
 import threading
 from collections import Counter
-from collections.abc import Iterable, Sequence
+from collections.abc import Iterable, Mapping, Sequence
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from statistics import median
@@ -496,6 +496,209 @@ def _german_alias_names(oracle_id: object, oracle_name: str) -> list[str] | None
     return [name for name in names if name.casefold() != oracle_name.casefold()]
 
 
+def _as_int(value: object, default: int = 0) -> int:
+    if isinstance(value, bool):
+        return int(value)
+    if isinstance(value, (int, float)):
+        return int(value)
+    if isinstance(value, str):
+        try:
+            return int(value)
+        except ValueError:
+            return default
+    return default
+
+
+def build_wishlist(
+    deck_cards: Sequence[Mapping[str, object] | RevisionCard],
+    pool_by_id: Mapping[str, Mapping[str, object]],
+) -> dict[str, object]:
+    """Count owned vs. missing cards for a deck list and emit a pure wishlist (no prices).
+
+    Each entry contributes ``quantity`` to ``total_count``; ``owned_count`` is capped at the
+    number owned in the collection and ``missing_count`` is ``max(0, quantity - owned)``.
+    Only cards with ``missing > 0`` appear in ``missing_cards`` (sorted by name) and in ``text``
+    as ``"<missing> <name>"`` lines."""
+    aggregated: dict[str, tuple[int, str]] = {}
+    for entry in deck_cards:
+        if isinstance(entry, RevisionCard):
+            card_id = str(entry.card_id)
+            qty = max(0, int(entry.quantity))
+            fallback_name = ""
+        else:
+            raw_id = entry.get("card_id")
+            if not raw_id:
+                continue
+            card_id = str(raw_id)
+            qty = max(0, _as_int(entry.get("quantity", 1), 1))
+            fallback_name = str(entry.get("name") or "")
+        if qty <= 0:
+            continue
+        prev_qty, prev_name = aggregated.get(card_id, (0, fallback_name))
+        aggregated[card_id] = (prev_qty + qty, prev_name or fallback_name)
+
+    total_count = 0
+    owned_count = 0
+    missing_count = 0
+    missing_cards: list[dict[str, object]] = []
+    for card_id, (qty, fallback_name) in aggregated.items():
+        card = pool_by_id.get(card_id)
+        if card is not None and card.get("in_collection") is not False:
+            owned = max(0, _as_int(card.get("owned", 0), 0))
+        else:
+            owned = 0
+        have = min(qty, owned)
+        need = max(0, qty - owned)
+        total_count += qty
+        owned_count += have
+        missing_count += need
+        if need > 0:
+            name = (
+                str(card.get("name") or card.get("oracle_name") or fallback_name or card_id)
+                if card is not None
+                else (fallback_name or card_id)
+            )
+            missing_cards.append(
+                {
+                    "card_id": card_id,
+                    "name": name,
+                    "quantity": qty,
+                    "owned": owned,
+                    "missing": need,
+                }
+            )
+    missing_cards.sort(
+        key=lambda item: (
+            str(item["name"]).casefold(),
+            str(item["name"]),
+            str(item["card_id"]),
+        )
+    )
+    text = "\n".join(f"{item['missing']} {item['name']}" for item in missing_cards)
+    return {
+        "owned_count": owned_count,
+        "missing_count": missing_count,
+        "total_count": total_count,
+        "missing_cards": missing_cards,
+        "text": text,
+    }
+
+
+def _unowned_pool_cards(
+    store: StudioStore,
+    commander_names: Sequence[str],
+    identity: frozenset[str],
+    *,
+    owned_oracle_ids: set[str],
+    owned_names_cf: set[str],
+    hits: dict[str, dict[str, int]],
+    roles: dict[str, list[str]],
+    playgroup: dict[str, sqlite3.Row],
+) -> list[dict[str, object]]:
+    """Commander-legal Scryfall cards outside the collection that match objective criteria:
+    (a) listed in a bound corpus deck or EDHREC observation/signal of this commander, OR
+    (b) Planeswalker (type_line contains 'Planeswalker'), OR
+    (c) literal 'Proliferate' in oracle_text. No prices, no subjective ratings."""
+    from .images import valid_image_url
+
+    db = store.connection
+    relevant_names_cf: set[str] = {name.casefold() for name in hits}
+    edhrec_by_name: dict[str, sqlite3.Row] = {}
+    cohort_bound, cohort_args = bound_to("observation_cohort", "o.cohort", commander_names)
+    for obs in db.execute(
+        "SELECT o.card_name, o.cohort, o.value, o.numerator, o.denominator FROM observation o "
+        f"WHERE o.metric = 'inclusion_pct'{cohort_bound} ORDER BY o.denominator DESC",
+        cohort_args,
+    ):
+        name_cf = str(obs["card_name"]).casefold()
+        relevant_names_cf.add(name_cf)
+        edhrec_by_name.setdefault(name_cf, obs)
+    if len(commander_names) == 1:
+        for sig in db.execute(
+            "SELECT DISTINCT card_name FROM card_signal WHERE commander_name = ?",
+            (commander_names[0],),
+        ):
+            relevant_names_cf.add(str(sig["card_name"]).casefold())
+
+    unowned: list[dict[str, object]] = []
+    for row in db.execute(
+        "SELECT s.*, c.card_id AS existing_card_id "
+        "FROM scryfall_card s "
+        "LEFT JOIN card c ON c.oracle_id = s.oracle_id "
+        "WHERE s.commander_legality = 'legal' "
+        "ORDER BY s.name"
+    ):
+        oracle_id = str(row["oracle_id"])
+        name = str(row["name"])
+        front_name = str(row["front_name"] or name)
+        name_cf = name.casefold()
+        front_cf = front_name.casefold()
+        if oracle_id in owned_oracle_ids or name_cf in owned_names_cf or front_cf in owned_names_cf:
+            continue
+        if not color_set(row["color_identity"]) <= identity:
+            continue
+        type_line = str(row["type_line"] or "")
+        oracle_text = str(row["oracle_text"] or "")
+        is_relevant = (
+            name_cf in relevant_names_cf
+            or front_cf in relevant_names_cf
+            or "planeswalker" in type_line.casefold()
+            or "proliferate" in oracle_text.casefold()
+        )
+        if not is_relevant:
+            continue
+        card_id = str(row["existing_card_id"] or f"scryfall:{oracle_id}")
+        image_url_front = valid_image_url(row["image_front"])
+        image_url_back = valid_image_url(row["image_back"])
+        engine_name = name if row["layout"] == "split" else front_name
+        card_hits = hits.get(name) if name in hits else hits.get(front_name, {})
+        decks_known = name in hits or front_name in hits
+        widest = edhrec_by_name.get(name_cf) or edhrec_by_name.get(front_cf)
+        pg = playgroup.get(oracle_id)
+        unowned.append(
+            {
+                "card_id": card_id,
+                "oracle_id": oracle_id,
+                "name": name,
+                "names_de": _german_alias_names(oracle_id, name),
+                "mana_cost": row["mana_cost"] or "",
+                "mana_value": row["mana_value"],
+                "type_line": type_line,
+                "group": main_type(type_line),
+                "text": oracle_text,
+                "colors": row["color_identity"],
+                "power": row["power"],
+                "toughness": row["toughness"],
+                "basic": type_line.startswith("Basic ") and "Land" in type_line,
+                "produced_mana": row["produced_mana"] or "",
+                "edhrec_rank": row["edhrec_rank"],
+                "game_changer": bool(row["game_changer"]),
+                "has_back": image_url_back is not None,
+                "has_image": image_url_front is not None,
+                "image_url_front": image_url_front,
+                "image_url_back": image_url_back,
+                "fact_source": "scryfall",
+                "sim_status": sim_readiness_status(engine_name),
+                "in_collection": False,
+                "wishlist_candidate": True,
+                "owned": 0,
+                "available": 0,
+                "reserved": 0,
+                "favorite": False,
+                "excluded": False,
+                "note": "",
+                "labels": [],
+                "roles": roles.get(oracle_id, []),
+                "decks": card_hits,
+                "decks_known": decks_known,
+                "edhrec": _edhrec_entry(widest, None),
+                "signals": {},
+                "playgroup": playgroup_entry(pg),
+            }
+        )
+    return unowned
+
+
 def pool_cards(
     store: StudioStore,
     commander_names: Sequence[str],
@@ -504,9 +707,14 @@ def pool_cards(
     gc_band: str | None = None,
     with_signals: bool = True,
     strength: StrengthSettings | None = None,
+    include_unowned: bool = False,
 ) -> dict[str, object]:
     """The collection cards a deck under these commanders may use, with everything the
     builder shows per card. Without any commander the colour filter is off (all legal cards).
+
+    With ``include_unowned=True`` the pool additionally carries relevant Commander-legal
+    Scryfall cards outside the collection (``in_collection=False``, ``owned=0``,
+    ``wishlist_candidate=True``, no prices).
 
     With ``profile`` each card additionally carries its counted spread in that deck
     universe (``universe`` per card, plus one ``universe`` block for the whole pool):
@@ -557,12 +765,17 @@ def pool_cards(
         if pf is not None:
             printing_images[str(prow["card_id"])] = (pf, valid_image_url(prow["image_back"]))
     cards: list[dict[str, object]] = []
+    owned_oracle_ids: set[str] = set()
+    owned_names_cf: set[str] = set()
     for row in db.execute(
         "SELECT c.*, i.owned_lower_bound, i.available_lower_bound, i.reserved, "
         "m.favorite, m.excluded, m.note "
         "FROM card_fact c JOIN inventory i USING (card_id) LEFT JOIN card_mark m USING (card_id) "
         "WHERE c.commander_legal = 1 ORDER BY c.oracle_name"
     ):
+        if row["oracle_id"]:
+            owned_oracle_ids.add(str(row["oracle_id"]))
+        owned_names_cf.add(str(row["oracle_name"]).casefold())
         if not color_set(row["color_identity"]) <= identity:
             continue
         card_id = str(row["card_id"])
@@ -603,6 +816,8 @@ def pool_cards(
                 "image_url_back": image_url_back,
                 "fact_source": row["fact_source"],
                 "sim_status": sim_readiness_status(str(row["oracle_name"])),
+                "in_collection": True,
+                "wishlist_candidate": False,
                 "owned": row["owned_lower_bound"],
                 "available": row["available_lower_bound"],
                 "reserved": row["reserved"],
@@ -621,6 +836,20 @@ def pool_cards(
                 "playgroup": playgroup_entry(pg),
             }
         )
+    if include_unowned:
+        cards.extend(
+            _unowned_pool_cards(
+                store,
+                commander_names,
+                identity,
+                owned_oracle_ids=owned_oracle_ids,
+                owned_names_cf=owned_names_cf,
+                hits=hits,
+                roles=roles,
+                playgroup=playgroup,
+            )
+        )
+        cards.sort(key=lambda item: str(item["name"]))
     result: dict[str, object] = {
         "commander_ids": commander_ids,
         # False: the German name files could not be read (the search then knows English only).
@@ -631,6 +860,7 @@ def pool_cards(
         "small_denominator": SMALL_DENOMINATOR,
         "roles": [str(r[0]) for r in db.execute("SELECT DISTINCT role FROM card_role ORDER BY 1")],
         "sim_readiness": _sim_readiness_summary(cards),
+        "include_unowned": include_unowned,
         "cards": cards,
     }
     if profile is not None and gc_band is not None:

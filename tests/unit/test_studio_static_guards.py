@@ -11,7 +11,9 @@ from pathlib import Path
 import pytest
 
 STATIC = Path(__file__).resolve().parents[2] / "src" / "commander_lab" / "studio" / "static"
-PRICE_WORDS = re.compile(r"\b(preis\w*|kaufen|zukauf|price\w*|buy)\b|€", re.IGNORECASE)
+# Owner decision 2026-11-19 (#1187, #1636): "Zukauf" (missing-card wishlist without prices) is
+# allowed in BUILD; all price and buy wording remains strictly forbidden.
+PRICE_WORDS = re.compile(r"\b(preis\w*|kaufen|price\w*|buy)\b|€", re.IGNORECASE)
 
 
 def _files(pattern: str) -> list[Path]:
@@ -1712,3 +1714,70 @@ def test_home_page_reserves_layout_space_against_cls() -> None:
         assert required in css, f"missing CLS layout reservation rule: {required}"
     html = (STATIC / "index.html").read_text(encoding="utf-8")
     assert "style=" not in html
+
+
+def test_wishlist_js_behavior_and_static_guards() -> None:
+    """#1636 / #1187: StudioWishlist pure helpers (ownership summary, wishlist text without
+    prices, literal Oracle Superfriends filters) run in node and respect all static guards."""
+    wishlist_js = (STATIC / "wishlist.js").read_text(encoding="utf-8")
+    app_js = (STATIC / "app.js").read_text(encoding="utf-8")
+    html = (STATIC / "index.html").read_text(encoding="utf-8")
+
+    assert html.index('src="wishlist.js"') < html.index('src="app.js"')
+    assert 'id="f-unowned"' in html
+    assert "include_unowned=true" in app_js
+    assert "Zukauf (0 im Besitz)" in app_js
+    assert "Zukauf-Liste kopieren" in app_js
+
+    for name, src in (("wishlist.js", wishlist_js), ("index.html", html)):
+        for forbidden in ("innerHTML", "outerHTML", "style=", 'setAttribute("style"', ".toFixed("):
+            assert forbidden not in src, f"{name}: {forbidden}"
+    for sink in ("document.", "window.", "fetch(", "eval("):
+        assert sink not in wishlist_js, sink
+
+    script = """
+const W = require('./wishlist.js');
+const pool = new Map([
+  ['c1', { card_id: 'c1', name: 'Sol Ring', owned: 1, in_collection: true, type_line: 'Artifact', oracle_text: '{T}: Add {C}{C}.' }],
+  ['c2', { card_id: 'c2', name: 'Teferi, Hero of Dominaria', owned: 0, in_collection: false, type_line: 'Legendary Planeswalker — Teferi', oracle_text: '+1: Draw a card.' }],
+  ['c3', { card_id: 'c3', name: 'Flux Channeler', owned: 0, in_collection: false, type_line: 'Creature — Human Wizard', text: 'Whenever you cast a noncreature spell, proliferate.' }],
+  ['c4', { card_id: 'c4', name: 'Forest', owned: 2, in_collection: true, type_line: 'Basic Land — Forest', oracle_text: '' }],
+]);
+const deck = [
+  { card_id: 'c1', quantity: 1 },
+  { card_id: 'c2', quantity: 1 },
+  { card_id: 'c3', quantity: 1 },
+  { card_id: 'c4', quantity: 4 },
+];
+const summary = W.summarizeDeckOwnership(deck, pool);
+const text = W.formatWishlistText(summary.missingCards);
+console.log(JSON.stringify({
+  total: summary.total,
+  owned: summary.owned,
+  missing: summary.missing,
+  missingNames: summary.missingCards.map((c) => c.name),
+  text,
+  emptyText: W.formatWishlistText([]),
+  pwMatch: W.matchesSuperfriendsFilter(pool.get('c2'), 'planeswalker'),
+  pwNonMatch: W.matchesSuperfriendsFilter(pool.get('c3'), 'planeswalker'),
+  prolifMatch: W.matchesSuperfriendsFilter(pool.get('c3'), 'proliferate'),
+  prolifNonMatch: W.matchesSuperfriendsFilter(pool.get('c2'), 'proliferate'),
+  missingMatch: W.matchesSuperfriendsFilter(pool.get('c2'), 'missing'),
+  missingNonMatch: W.matchesSuperfriendsFilter(pool.get('c1'), 'missing'),
+}));
+"""
+    result = _node_json(script)
+    assert result == {
+        "total": 7,
+        "owned": 3,
+        "missing": 4,
+        "missingNames": ["Flux Channeler", "Forest", "Teferi, Hero of Dominaria"],
+        "text": "1 Flux Channeler\n2 Forest\n1 Teferi, Hero of Dominaria",
+        "emptyText": "",
+        "pwMatch": True,
+        "pwNonMatch": False,
+        "prolifMatch": True,
+        "prolifNonMatch": False,
+        "missingMatch": True,
+        "missingNonMatch": False,
+    }

@@ -794,3 +794,224 @@ console.log(JSON.stringify(out));
     assert data["negSig"] == "\u22120,045"
     assert data["negPct"] == "\u221212,3 %"
     assert data["thousands"] == "10.348"
+
+
+def _insert_scryfall(
+    store: StudioStore,
+    *,
+    oracle_id: str,
+    name: str,
+    colors: str,
+    type_line: str,
+    oracle_text: str = "",
+    legality: str = "legal",
+) -> None:
+    db = store.connection
+    source_id = str(db.execute("SELECT source_id FROM scryfall_card LIMIT 1").fetchone()[0])
+    db.execute(
+        "INSERT OR REPLACE INTO scryfall_card("
+        "oracle_id, scryfall_id, name, front_name, layout, mana_cost, mana_value, type_line, "
+        "oracle_text, color_identity, commander_legality, edhrec_rank, keywords, produced_mana, "
+        "power, toughness, game_changer, released_at, image_front, image_back, source_id) "
+        "VALUES (?, ?, ?, ?, 'normal', '{3}', 3.0, ?, ?, ?, ?, NULL, '', '', NULL, NULL, 0, "
+        "'2026-01-01', NULL, NULL, ?)",
+        (
+            oracle_id,
+            f"scry-{oracle_id}",
+            name,
+            name,
+            type_line,
+            oracle_text,
+            colors,
+            legality,
+            source_id,
+        ),
+    )
+
+
+def test_pool_include_unowned_tam_superfriends_and_color_identity(studio: StudioStore) -> None:
+    db = studio.connection
+    source_id = str(db.execute("SELECT source_id FROM card LIMIT 1").fetchone()[0])
+    # Add Tam, the Possibility (WUBRG) to collection
+    _insert_scryfall(
+        studio,
+        oracle_id="oracle-tam",
+        name="Tam, the Possibility",
+        colors="WUBRG",
+        type_line="Legendary Creature — Avatar",
+    )
+    db.execute(
+        "INSERT INTO card(card_id, oracle_name, oracle_id, color_identity, mana_cost, mana_value, "
+        "type_line, oracle_text, is_basic_land, commander_legal, source_id) "
+        "VALUES ('card:project:tam', 'Tam, the Possibility', 'oracle-tam', 'WUBRG', "
+        "'{W}{U}{B}{R}{G}', 5.0, 'Legendary Creature — Avatar', '', 0, 1, ?)",
+        (source_id,),
+    )
+    db.execute(
+        "INSERT INTO inventory(card_id, observed, owned_lower_bound, reserved, "
+        "available_lower_bound, quantity_exact, source_id) "
+        "VALUES ('card:project:tam', 1, 1, 0, 1, 1, ?)",
+        (source_id,),
+    )
+    # Add unowned cards to scryfall_card only (NOT in inventory)
+    _insert_scryfall(
+        studio,
+        oracle_id="oracle-bolas",
+        name="Nicol Bolas, Dragon-God",
+        colors="UBR",
+        type_line="Legendary Planeswalker — Bolas",
+    )
+    _insert_scryfall(
+        studio,
+        oracle_id="oracle-teferi",
+        name="Teferi, Hero of Dominaria",
+        colors="WU",
+        type_line="Legendary Planeswalker — Teferi",
+    )
+    _insert_scryfall(
+        studio,
+        oracle_id="oracle-flux",
+        name="Flux Channeler",
+        colors="U",
+        type_line="Creature — Human Wizard",
+        oracle_text="Whenever you cast a noncreature spell, proliferate.",
+    )
+    _insert_scryfall(
+        studio,
+        oracle_id="oracle-corpus-staple",
+        name="Corpus Staple",
+        colors="G",
+        type_line="Instant",
+        oracle_text="Draw a card.",
+    )
+    _insert_scryfall(
+        studio,
+        oracle_id="oracle-vanilla",
+        name="Irrelevant Vanilla",
+        colors="G",
+        type_line="Creature — Elk",
+    )
+    _insert_scryfall(
+        studio,
+        oracle_id="oracle-banned-pw",
+        name="Banned Walker",
+        colors="W",
+        type_line="Legendary Planeswalker — Test",
+        legality="banned",
+    )
+    db.execute(
+        "INSERT INTO corpus_deck_card(deck_id, card_name, oracle_id, quantity, section, "
+        "normalization_status) VALUES ('d1', 'Corpus Staple', 'oracle-corpus-staple', 1, "
+        "'mainboard', 'exact')"
+    )
+    db.commit()
+
+    # Default include_unowned=False: strictly inventory cards only
+    default_pool = builder.pool_cards(studio, ["Test Commander"])
+    default_cards = {str(c["name"]): c for c in default_pool["cards"]}  # type: ignore[union-attr]
+    assert default_pool["include_unowned"] is False
+    assert all(
+        c["in_collection"] is True and c["wishlist_candidate"] is False
+        for c in default_cards.values()
+    )
+    assert "Teferi, Hero of Dominaria" not in default_cards
+    assert "Flux Channeler" not in default_cards
+    assert "Corpus Staple" not in default_cards
+
+    # include_unowned=True for Tam, the Possibility (WUBRG)
+    tam_pool = builder.pool_cards(studio, ["Tam, the Possibility"], include_unowned=True)
+    tam_cards = {str(c["name"]): c for c in tam_pool["cards"]}  # type: ignore[union-attr]
+    assert tam_pool["include_unowned"] is True
+    for expected_name in ("Nicol Bolas, Dragon-God", "Teferi, Hero of Dominaria", "Flux Channeler"):
+        card = tam_cards[expected_name]
+        assert card["in_collection"] is False
+        assert card["wishlist_candidate"] is True
+        assert card["owned"] == 0
+        assert card["available"] == 0
+        assert card["reserved"] == 0
+    assert "Irrelevant Vanilla" not in tam_cards
+    assert "Banned Walker" not in tam_cards
+    assert "Corpus Staple" not in tam_cards  # corpus deck belongs to Test Commander, not Tam
+
+    # include_unowned=True for Test Commander (WUG) enforces color_identity
+    wug_pool = builder.pool_cards(studio, ["Test Commander"], include_unowned=True)
+    wug_cards = {str(c["name"]): c for c in wug_pool["cards"]}  # type: ignore[union-attr]
+    assert "Teferi, Hero of Dominaria" in wug_cards
+    assert "Flux Channeler" in wug_cards
+    assert "Corpus Staple" in wug_cards
+    assert "Nicol Bolas, Dragon-God" not in wug_cards  # UBR violates WUG identity
+    assert "Irrelevant Vanilla" not in wug_cards
+    assert "Banned Walker" not in wug_cards
+
+
+def test_build_wishlist_counts_owned_and_missing_without_prices() -> None:
+    pool_by_id: dict[str, dict[str, object]] = {
+        "c1": {"card_id": "c1", "name": "Sol Ring", "owned": 2, "in_collection": True},
+        "c2": {"card_id": "c2", "name": "Forest", "owned": 2, "in_collection": True},
+        "s1": {
+            "card_id": "s1",
+            "name": "Teferi, Hero of Dominaria",
+            "owned": 0,
+            "in_collection": False,
+        },
+        "s2": {"card_id": "s2", "name": "Doubling Season", "owned": 0, "in_collection": False},
+    }
+    deck = [
+        RevisionCard("c1", 1, "main"),
+        RevisionCard("c2", 5, "main"),
+        RevisionCard("s1", 1, "main"),
+        RevisionCard("s2", 1, "main"),
+    ]
+    res = builder.build_wishlist(deck, pool_by_id)
+    assert res["total_count"] == 8
+    assert res["owned_count"] == 3
+    assert res["missing_count"] == 5
+    missing = res["missing_cards"]
+    assert isinstance(missing, list)
+    assert [m["name"] for m in missing] == [
+        "Doubling Season",
+        "Forest",
+        "Teferi, Hero of Dominaria",
+    ]
+    assert [m["missing"] for m in missing] == [1, 3, 1]
+    text = str(res["text"])
+    assert text == "1 Doubling Season\n3 Forest\n1 Teferi, Hero of Dominaria"
+    for forbidden in ("€", "$", "eur", "usd", "price", "preis"):
+        assert forbidden not in text.casefold()
+
+
+def test_api_pool_caches_include_unowned_separately(studio: StudioStore) -> None:
+    _insert_scryfall(
+        studio,
+        oracle_id="oracle-teferi-cache",
+        name="Teferi, Time Raveler",
+        colors="WU",
+        type_line="Legendary Planeswalker — Teferi",
+    )
+    studio.connection.commit()
+    assert studio.path is not None
+    folder = studio.path.parent
+    studio.close()
+
+    with TestClient(create_app(folder)) as client:
+        r_false_1 = client.get("/api/pool", params={"commander": "Test Commander"})
+        assert r_false_1.status_code == 200
+        names_false_1 = {c["name"] for c in r_false_1.json()["cards"]}
+        assert "Teferi, Time Raveler" not in names_false_1
+
+        r_true = client.get(
+            "/api/pool", params={"commander": "Test Commander", "include_unowned": "true"}
+        )
+        assert r_true.status_code == 200
+        cards_true = {c["name"]: c for c in r_true.json()["cards"]}
+        assert "Teferi, Time Raveler" in cards_true
+        assert cards_true["Teferi, Time Raveler"]["in_collection"] is False
+        assert cards_true["Teferi, Time Raveler"]["wishlist_candidate"] is True
+
+        # Re-requesting include_unowned=false must still return the unowned-free cached answer
+        r_false_2 = client.get(
+            "/api/pool", params={"commander": "Test Commander", "include_unowned": "false"}
+        )
+        assert r_false_2.status_code == 200
+        names_false_2 = {c["name"] for c in r_false_2.json()["cards"]}
+        assert "Teferi, Time Raveler" not in names_false_2
