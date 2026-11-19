@@ -120,6 +120,7 @@ auf der Maschine (load 6,3 bis 6,6):
 | 1 | 6,5 s | 48,0 s | 6,52 / 6,29 | 30 Routen, alle 200, alle `stable` |
 | 2 | 2,6 s | 48,5 s | 6,29 / 6,56 | 30 Routen, alle 200, alle `stable` |
 | `compare` 1 gegen 2 | | | | Exit 0, „30 routes, 0 difference(s)“; Roh-Hash `status` verschieden, normalisiert gleich |
+| `writes` (alle 7) | | 531 s | – / 4,46 | Exit 0; je Schreibvorgang Status 200 und 30 von 30 Antworten warm = nach Neustart |
 
 Langsamste Antwort je Lauf: `data-report` 21,0 s / 23,6 s (kalt, Aufwärmphase läuft parallel).
 Zeiten sind wegen der Fremdlast nur Orientierung, kein Messwert für Effizienzvergleiche.
