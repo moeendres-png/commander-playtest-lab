@@ -35,7 +35,7 @@ const ISSUE_NAMES = { deck_size: "Deckgröße", commander_count: "Commander", co
 
 const state = {
   pool: [], byId: new Map(), cohorts: {}, small: 30, commanderIds: [],
-  universe: "", universeInfo: null, countedUniverse: null,
+  universe: "", universeInfo: null, countedUniverse: null, gcBand: "", gcBandData: null,
   decks: [], deckId: null, branch: "main", baseRevision: null,
   list: new Map(), dirty: false, draftUpdatedAt: "", draftConflict: false, needsDraftPut: false, issues: [], shape: null, deckRoles: {}, combos: null, roles: [], shapes: [],
   simulations: [], diffBaseRev: null, diffData: null, deckFacts: null, castability: null, activeBatch: null, batchPollTimer: null,
@@ -2633,17 +2633,30 @@ function renderUniverseInfo() {
     return;
   }
   if (!u) { box.textContent = ""; return; }
+  if (u.gc_band && typeof StudioGcBand !== "undefined") {
+    box.textContent = StudioGcBand.infoText(u);
+    return;
+  }
   const parts = [`Universum ${u.profile} (Version ${u.version}): ${StudioUI.num(u.denominator, 0)} Decks (Nenner), Stand ${u.snapshot_id}`];
   if (u.subset_note) parts.push(u.subset_note);
   if (u.excluded_no_date) parts.push(`${StudioUI.num(u.excluded_no_date, 0)} ohne Zeitstempel ausgeschlossen`);
   if (u.below_min_universe) parts.push(`unter dem Mindest-Universum ${StudioUI.num(u.min_universe, 0)}: alle Stufen U`);
   box.textContent = parts.join(" · ");
 }
+function renderGcBandBar() {
+  if (typeof StudioGcBand === "undefined") return;
+  const disabled = Boolean(state.universe);
+  StudioGcBand.renderBar($("gc-band-bar"), state.gcBandData, state.gcBand, disabled, async (band) => {
+    state.gcBand = band;
+    try { await loadPool(); renderAll(); } catch (error) { fail(error); }
+  });
+}
 function renderBracketBar() {
   const bar = $("bracket-bar");
   if (!bar) return;
   const disabled = Boolean(state.universe) || (Boolean(state.countedUniverse) && !(state.cohorts.all || 0));
   const b5Key = state.cohorts["bracket:5"] !== undefined ? "bracket:5" : (state.cohorts.cedh !== undefined ? "cedh" : "bracket:5");
+  const originTip = typeof StudioGcBand !== "undefined" ? StudioGcBand.bracketOriginText(state.gcBandData) : "";
   const items = [
     ["all", "Alle"],
     ["bracket:1", "B1"],
@@ -2654,19 +2667,24 @@ function renderBracketBar() {
     ["tuned", "B4+5 (Tuned)"],
   ];
   bar.replaceChildren(
-    h("span", { class: "muted" }, "Bracket:"),
+    h("span", { class: "muted", title: originTip || "Erklärte Brackets (Selbstauskunft der Quelldecks)" }, "Bracket:"),
     ...items.map(([key, label]) => {
       const count = state.cohorts[key] ?? 0;
       const isLow = count > 0 && count < state.small;
-      const active = !disabled && state.cohort === key;
+      const active = !disabled && !state.gcBand && state.cohort === key;
       return h("button", {
         type: "button",
         class: "chip" + (active ? " on" : "") + (isLow ? " low" : ""),
         disabled: disabled || (key !== "all" && count === 0),
-        title: isLow ? `Kleine Stichprobe (${StudioUI.num(count, 0)} Decks < ${StudioUI.num(state.small, 0)})` : `${cohortName(key)}: ${StudioUI.num(count, 0)} Decks`,
-        onclick: () => {
+        title: (isLow ? `Kleine Stichprobe (${StudioUI.num(count, 0)} Decks < ${StudioUI.num(state.small, 0)})` : `${cohortName(key)}: ${StudioUI.num(count, 0)} Decks`) + (originTip ? ` · ${originTip}` : ""),
+        onclick: async () => {
           state.cohort = key;
           if ($("cohort")) $("cohort").value = key;
+          if (state.gcBand) {
+            state.gcBand = "";
+            try { await loadPool(); renderAll(); } catch (error) { fail(error); }
+            return;
+          }
           renderBracketBar(); renderUniverseInfo(); renderPool(); renderDeck();
         },
       }, `${label} (${StudioUI.num(count, 0)})`);
@@ -2680,7 +2698,7 @@ function applyPool(pool) {
   state.universeInfo = pool.universe || null;
   state.countedUniverse = pool.counted_universe || null;
   state.simReadiness = pool.sim_readiness || null;
-  renderUniverseInfo(); renderBracketBar(); renderSimReadiness(); renderLabelFilter();
+  renderUniverseInfo(); renderBracketBar(); renderGcBandBar(); renderSimReadiness(); renderLabelFilter();
 }
 // Archetype labels are the Owner's own words for ordering cards and decks: a filter and a
 // display, never a rating.
@@ -2813,11 +2831,15 @@ function strengthQuery() {
   } catch (error) { return ""; }
 }
 async function loadPool() {
-  const query = StudioCommander.query + strengthQuery() + (state.universe ? `&profile=${encodeURIComponent(state.universe)}` : "");
+  const scopeParam = state.universe
+    ? `&profile=${encodeURIComponent(state.universe)}`
+    : (state.gcBand ? `&gc_band=${encodeURIComponent(state.gcBand)}` : "");
+  const query = StudioCommander.query + strengthQuery() + scopeParam;
   applyPool(await api("/api/pool?" + query));
   try { localStorage.setItem("studio.universe.profile", state.universe); } catch (error) { /* view setting only */ }
-  if ($("cohort")) $("cohort").disabled = Boolean(state.universe) || (Boolean(state.countedUniverse) && !(state.cohorts.all || 0));
+  if ($("cohort")) $("cohort").disabled = Boolean(state.universe) || Boolean(state.gcBand) || (Boolean(state.countedUniverse) && !(state.cohorts.all || 0));
   renderBracketBar();
+  renderGcBandBar();
 }
 
 // ---------- decks, variants, saving ----------
@@ -3027,10 +3049,12 @@ function setupControls() {
   $("universe").replaceChildren(h("option", { value: "" }, "kein Universum"), ...(state.universeProfiles || []).map((p) => h("option", { value: p.name, selected: p.name === state.universe }, p.name)));
   $("universe").addEventListener("change", async () => {
     state.universe = $("universe").value;
+    if (state.universe) state.gcBand = "";
     try { await loadPool(); if (state.subsetNames.length) await applySubset(state.subsetNames); else renderAll(); } catch (error) { fail(error); }
   });
-  $("cohort").disabled = Boolean(state.universe) || (Boolean(state.countedUniverse) && !(state.cohorts.all || 0));
+  $("cohort").disabled = Boolean(state.universe) || Boolean(state.gcBand) || (Boolean(state.countedUniverse) && !(state.cohorts.all || 0));
   renderBracketBar();
+  renderGcBandBar();
   const sorts = [["freq:-1", "Häufigkeit in Quelldecks"], ["name:1", "Name"], ["mana_value:1", "Manawert"], ["edhrec:-1", "EDHREC-Anteil"], ["synergy:-1", "Synergie"], ["strength:-1", "Stärke-Index"], ["edhrec_rank:1", "EDHREC-Rang"], ["available:-1", "freie Kopien"]];
   $("sort").replaceChildren(...sorts.map(([value, label]) => h("option", { value }, label)), h("option", { value: "" }, "Spaltenkopf"));
   const savedSort = StudioUI.recall("studio.builder.sort", "");
@@ -3144,10 +3168,11 @@ async function start() {
       state.universe = "";
       return api("/api/pool?" + StudioCommander.query);
     });
-    const otherRequests = Promise.all([api("/api/cohorts?" + StudioCommander.query), api("/api/simulations?" + StudioCommander.query), api("/api/games").catch(() => []), api("/api/simulations/paired").catch(() => [])]);
+    const otherRequests = Promise.all([api("/api/cohorts?" + StudioCommander.query), api("/api/simulations?" + StudioCommander.query), api("/api/games").catch(() => []), api("/api/simulations/paired").catch(() => []), api("/api/universe/gc-bands?" + StudioCommander.query).catch(() => null)]);
     otherRequests.catch(() => {}); // awaited after the pool: the pool's own error is shown first
     const pool = await poolRequest;
-    const [shapes, sims, recordedGames, pairedList] = await otherRequests;
+    const [shapes, sims, recordedGames, pairedList, gcBandData] = await otherRequests;
+    state.gcBandData = gcBandData;
     applyPool(pool);
     state.shapes = shapes; state.simulations = sims || []; state.recordedGames = recordedGames || [];
     state.pairedHistory = pairedList || [];

@@ -197,6 +197,39 @@ function renderCorpus(report) {
       : h("span", { class: "badge good" }, "0 Alarme"),
   ]);
 
+  const gcTab = report.gc_band_crosstab || null;
+  const gcNodes = [];
+  if (gcTab && gcTab.rows && Array.isArray(gcTab.bracket_columns)) {
+    const cols = gcTab.bracket_columns;
+    const heads = ["Game-Changer-Band", ...cols.map((c) => (c === "ohne_bracket" ? "Ohne Bracket" : c)), "Summe (n/N)"];
+    const bandKeys = ["gc_band:0", "gc_band:1-3", "gc_band:4+"];
+    const gcRows = bandKeys
+      .filter((k) => gcTab.rows[k])
+      .map((k) => {
+        const row = gcTab.rows[k];
+        return [
+          row.label || k,
+          ...cols.map((c) => nf((row.by_bracket || {})[c] ?? 0)),
+          `${nf(row.total)} / ${nf(row.of)}`,
+        ];
+      });
+    const origins = Object.values(gcTab.declared_bracket_origins || {});
+    const originRows = origins.map((item) => [
+      item.platform || "–",
+      item.origin || "unbekannt",
+      `${nf(item.decks_with_bracket)} / ${nf(item.decks_total)}`,
+      `${nf(item.decks_without_bracket)} / ${nf(item.decks_total)}`,
+    ]);
+    gcNodes.push(
+      h("h3", {}, "Game-Changer-Band (regelabgeleitet, kein Bracket) vs. erklärtes Bracket"),
+      h("p", { class: "muted" }, `${gcTab.provenance || ""} · ${gcTab.disclaimer || ""}`),
+      gcRows.length ? simpleTable(heads, gcRows) : null,
+      originRows.length
+        ? simpleTable(["Plattform", "Herkunft erklärter Brackets", "Mit Bracket", "Ohne Bracket"], originRows)
+        : null
+    );
+  }
+
   host.replaceChildren(...[
     h("h2", {}, "Korpus, Universen & Signal-Alarme"),
     alarms.length
@@ -217,6 +250,7 @@ function renderCorpus(report) {
       ["Legalität unbekannt in Sammlung", nf(cmds.legality_unknown_in_collection)],
     ]),
     cohortRows.length ? simpleTable(["Korpus-Kohorte", "Decks"], cohortRows) : null,
+    ...gcNodes,
     cmdRows.length ? simpleTable(["Commander", "In Sammlung", "Pool (legal)", "Alarme"], cmdRows) : null,
   ].filter(Boolean));
 }

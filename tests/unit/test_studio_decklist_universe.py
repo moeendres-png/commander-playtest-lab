@@ -1157,3 +1157,159 @@ def test_options_for_a_pair_scope_offer_no_single_commander_spec(store: StudioSt
     assert both["commanders"] == []
     assert both["platforms"] == [{"value": "raw", "decks": 1}]  # the pair's own deck
     assert both["cohorts"] == [{"value": "bracket:3", "decks": 1}]
+
+
+# ---------- Game-Changer-Band (Refs #1552) ----------
+
+
+def _insert_scryfall_gc(
+    store: StudioStore,
+    oracle_id: str,
+    name: str,
+    game_changer: int | None,
+    *,
+    snapshot_date: str | None = "2026-11-16",
+    source_id: str = "src:scry-gc",
+) -> None:
+    db = store.connection
+    db.execute(
+        "INSERT OR REPLACE INTO source(source_id, data_class, title, sha256, snapshot_date, imported_at) "
+        "VALUES (?, 'ORIGINAL_SOURCE', 'scryfall', 'sha-gc', ?, '2026-11-16T00:00:00Z')",
+        (source_id, snapshot_date),
+    )
+    db.execute(
+        "INSERT OR REPLACE INTO scryfall_card("
+        "oracle_id, scryfall_id, name, front_name, layout, color_identity, commander_legality, "
+        "keywords, produced_mana, game_changer, source_id"
+        ") VALUES (?, ?, ?, ?, 'normal', 'U', 'legal', '[]', '[]', ?, ?)",
+        (oracle_id, f"scry:{oracle_id}", name, name, game_changer, source_id),
+    )
+
+
+def test_gc_band_sum_equals_selection_and_never_mixes_with_declared_brackets(
+    store: StudioStore,
+) -> None:
+    from commander_lab.studio import gc_band
+
+    for idx in range(1, 6):
+        _insert_scryfall_gc(store, f"oid:gc{idx}", f"GC Card {idx}", 1)
+    _insert_scryfall_gc(store, "oid:plain", "Sol Ring", 0)
+
+    _raw_deck(
+        store,
+        "d0",
+        [("Sol Ring", "main", 1)],
+        fingerprint="fp0",
+        cohorts=("bracket:2",),
+    )
+    _raw_deck(
+        store,
+        "d1",
+        [("Sol Ring", "main", 1), ("GC Card 1", "main", 1), ("GC Card 2", "main", 1)],
+        fingerprint="fp1",
+        cohorts=(),
+    )
+    _raw_deck(
+        store,
+        "d2",
+        [
+            ("GC Card 1", "main", 1),
+            ("GC Card 2", "main", 1),
+            ("GC Card 3", "main", 1),
+            ("GC Card 4", "main", 1),
+        ],
+        fingerprint="fp2",
+        cohorts=("bracket:4",),
+    )
+    store.connection.execute("UPDATE corpus_deck SET platform = 'archidekt' WHERE deck_id = 'd0'")
+    store.connection.execute(
+        "UPDATE corpus_deck SET platform = 'edhrec' WHERE deck_id IN ('d1', 'd2')"
+    )
+    store.connection.commit()
+
+    all_decks = universe.resolve_universe(store, {})
+    b0 = universe.resolve_universe(store, {"gc_band": [gc_band.GC_BAND_0]})
+    b13 = universe.resolve_universe(store, {"gc_band": [gc_band.GC_BAND_1_3]})
+    b4p = universe.resolve_universe(store, {"gc_band": [gc_band.GC_BAND_4_PLUS]})
+    assert len(b0) + len(b13) + len(b4p) == len(all_decks) == 3
+    assert b0 == ["d0"] and b13 == ["d1"] and b4p == ["d2"]
+
+    # Non-mixing: combining gc_band with bracket:* or putting gc_band into cohorts fails closed.
+    with pytest.raises(ValueError, match="must not be mixed"):
+        universe.resolve_universe(store, {"cohorts": ["bracket:2"], "gc_band": ["gc_band:0"]})
+    with pytest.raises(ValueError, match="not 'cohorts'"):
+        universe.resolve_universe(store, {"cohorts": ["gc_band:0"]})
+    with pytest.raises(ValueError, match="unknown universe gc_band"):
+        universe.resolve_universe(store, {"gc_band": ["gc_band:99"]})
+
+    # denominator_by_bracket never mixes gc_band keys into declared brackets.
+    inc = universe.inclusion(store, spec={"gc_band": ["gc_band:1-3"]}, commander_names=None)
+    assert inc["denominator"] == 1
+    assert inc["denominator_by_bracket"] == {"unknown": 1}
+
+    # Declared bracket origin follows unambiguously from corpus_deck.platform (no new schema).
+    origins = gc_band.declared_bracket_origins(store)
+    assert origins["archidekt"]["origin"].startswith("Archidekt")
+    assert origins["archidekt"]["decks_with_bracket"] == 1
+    assert origins["archidekt"]["decks_total"] == 1
+    assert origins["edhrec"]["origin"].startswith("EDHREC")
+    assert origins["edhrec"]["decks_with_bracket"] == 1
+    assert origins["edhrec"]["decks_without_bracket"] == 1
+    assert origins["edhrec"]["decks_total"] == 2
+    assert gc_band.declared_bracket_origin("") == "unbekannt"
+
+
+def test_gc_band_switches_dynamically_when_game_changer_list_and_date_change(
+    store: StudioStore,
+) -> None:
+    from commander_lab.studio import gc_band
+
+    _insert_scryfall_gc(store, "oid:a", "Card A", 0, snapshot_date=None)
+    _insert_scryfall_gc(store, "oid:b", "Card B", 0, snapshot_date=None)
+    _insert_scryfall_gc(store, "oid:c", "Card C", 0, snapshot_date=None)
+    _insert_scryfall_gc(store, "oid:d", "Card D", 0, snapshot_date=None)
+    _raw_deck(
+        store,
+        "dyn1",
+        [
+            ("Card A", "main", 1),
+            ("Card B", "main", 1),
+            ("Card C", "main", 1),
+            ("Card D", "main", 1),
+        ],
+        fingerprint="fp-dyn",
+        cohorts=(),
+    )
+    store.connection.commit()
+
+    # Without snapshot_date -> provenance says "unbekannt" (never guessed) and deck is in gc_band:0.
+    meta0 = gc_band.gc_band_metadata(store)
+    assert meta0["list_date"] is None
+    assert (
+        meta0["provenance"] == "regelabgeleitet aus Deckliste und Game-Changer-Liste vom unbekannt"
+    )
+    assert "kein Bracket" in meta0["disclaimer"]
+    assert universe.resolve_universe(store, {"gc_band": ["gc_band:0"]}) == ["dyn1"]
+    assert universe.resolve_universe(store, {"gc_band": ["gc_band:1-3"]}) == []
+
+    # Flip 2 cards to game_changer = 1 and stamp snapshot_date -> deck moves to gc_band:1-3.
+    store.connection.execute(
+        "UPDATE scryfall_card SET game_changer = 1 WHERE oracle_id IN ('oid:a', 'oid:b')"
+    )
+    store.connection.execute(
+        "UPDATE source SET snapshot_date = '2026-11-16' WHERE source_id = 'src:scry-gc'"
+    )
+    store.connection.commit()
+    meta1 = gc_band.gc_band_metadata(store)
+    assert meta1["list_date"] == "2026-11-16"
+    assert (
+        meta1["provenance"] == "regelabgeleitet aus Deckliste und Game-Changer-Liste vom 2026-11-16"
+    )
+    assert universe.resolve_universe(store, {"gc_band": ["gc_band:0"]}) == []
+    assert universe.resolve_universe(store, {"gc_band": ["gc_band:1-3"]}) == ["dyn1"]
+
+    # Flip all 4 cards to game_changer = 1 -> deck moves to gc_band:4+.
+    store.connection.execute("UPDATE scryfall_card SET game_changer = 1")
+    store.connection.commit()
+    assert universe.resolve_universe(store, {"gc_band": ["gc_band:1-3"]}) == []
+    assert universe.resolve_universe(store, {"gc_band": ["gc_band:4+"]}) == ["dyn1"]
