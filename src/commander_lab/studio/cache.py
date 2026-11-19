@@ -50,7 +50,13 @@ from typing import cast
 from . import memo
 from .store import StudioStore
 
-MAX_ENTRIES = 48
+MAX_ENTRIES = 64
+# Limits of one kind of entry (the first element of the caller's key): at most so many entries
+# and, for ``bytes`` values, so many bytes in total. ``answer``: the remembered JSON answers of
+# the read routes (``answer_cache``), whose parameters can vary freely (a search query); they
+# push out older answers, not the warm figures. The total limit was raised from 48 by the 16
+# answer entries, so the figures keep the room they had.
+KIND_LIMITS: dict[str, tuple[int, int]] = {"answer": (16, 48 * 1024 * 1024)}
 _lock = threading.Lock()
 _entries: OrderedDict[tuple[Hashable, ...], object] = OrderedDict()
 
@@ -148,6 +154,7 @@ def cached[T](store: StudioStore, key: tuple[Hashable, ...], compute: Callable[[
                     ]:
                         del _entries[old]
                     _entries[full] = value
+                    _apply_kind_limit(full)
                     while len(_entries) > MAX_ENTRIES:
                         _entries.popitem(last=False)
             return value
@@ -156,6 +163,24 @@ def cached[T](store: StudioStore, key: tuple[Hashable, ...], compute: Callable[[
             flight.users -= 1
             if flight.users == 0 and _flights.get(full) is flight:
                 del _flights[full]
+
+
+def _apply_kind_limit(full: tuple[Hashable, ...]) -> None:
+    """Drop the oldest entries of ``full``'s kind beyond its ``KIND_LIMITS`` (never ``full``
+    itself). Called with ``_lock`` held."""
+    kind = full[1] if len(full) > 1 else None
+    if not isinstance(kind, str) or kind not in KIND_LIMITS:
+        return
+    max_count, max_bytes = KIND_LIMITS[kind]
+    same = [k for k in _entries if len(k) > 1 and k[1] == kind]
+    total = sum(len(v) for k in same if isinstance(v := _entries[k], bytes))
+    for old in same[:-1]:
+        if len(same) <= max_count and total <= max_bytes:
+            break
+        value = _entries.pop(old)
+        same.remove(old)
+        if isinstance(value, bytes):
+            total -= len(value)
 
 
 def invalidate() -> None:

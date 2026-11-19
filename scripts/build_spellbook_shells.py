@@ -39,6 +39,7 @@ if str(_REPO_ROOT / "src") not in sys.path:
 from commander_lab.studio import spellbook_shells  # noqa: E402
 
 BULK_URL = "https://json.commanderspellbook.com/variants.json.gz"
+DEFAULT_USER_AGENT = "mtg-combo-shells-tool/1.0"
 RESEARCH = _REPO_ROOT / "data" / "research"
 LINKS_FILE = RESEARCH / "deckbuilder_1655" / "spellbook_card_links.csv"
 POOL_FILE = RESEARCH / "chulane_legal_pool_gap_matrix.json"
@@ -65,10 +66,14 @@ def _parse_identity(text: str) -> frozenset[str]:
     return frozenset(letters - {spellbook_shells.COLOURLESS})
 
 
-def _load_bulk(path: Path | None) -> tuple[dict[str, object], str]:
+def _load_bulk(
+    path: Path | None, *, user_agent: str = DEFAULT_USER_AGENT
+) -> tuple[dict[str, object], str]:
     """The bulk document and the SHA-256 of the exact bytes it was read from."""
     if path is None:
-        request = urllib.request.Request(BULK_URL, headers={"User-Agent": "commander-lab-shells"})
+        request = urllib.request.Request(
+            BULK_URL, headers={"User-Agent": user_agent, "Accept": "*/*"}
+        )
         with urllib.request.urlopen(request, timeout=300) as response:
             raw = response.read()
     else:
@@ -96,6 +101,11 @@ def main() -> int:
     )
     parser.add_argument("--commander", default=spellbook_shells.CHULANE_NAME)
     parser.add_argument("--identity", default="WUG")
+    parser.add_argument(
+        "--user-agent",
+        default=DEFAULT_USER_AGENT,
+        help="generic client User-Agent string",
+    )
     args = parser.parse_args()
 
     identity = _parse_identity(args.identity)
@@ -103,7 +113,7 @@ def main() -> int:
     if not commander:
         raise ValueError("--commander must not be blank")
 
-    document, digest = _load_bulk(args.bulk)
+    document, digest = _load_bulk(args.bulk, user_agent=args.user_agent)
     variants = document.get("variants")
     aliases = document.get("aliases")
     if not isinstance(variants, list) or not isinstance(aliases, list):

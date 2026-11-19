@@ -569,6 +569,38 @@ def test_extra_combat_phases_keep_the_block_judgment(combats: int) -> None:
     assert picks == [[] for _ in range(combats)]
 
 
+def test_block_controller_frames_for_two_defenders_each_start_at_the_judgment() -> None:
+    """#1584: one block controller, two defenders, one turn.
+
+    With a block controller other than the defender (Brutal Hordechief,
+    Invasion Plans) XMage asks the same seat once per defender, back to back,
+    each time about that defender's creatures. The re-ask counter is per seat
+    and turn, keyed by the engine's blocker and attacker ids, so the second
+    defender's frame is a first ask (the judgment), not a re-ask of the first
+    defender's frame; a genuine re-ask of a frame still escalates the ladder.
+    """
+    policy = _policy()
+    state = _state(
+        actor_board=[
+            _card("brute-a", "Kindercatch", 6, 6, tapped=True),
+            _card("brute-b", "Kindercatch", 6, 6, tapped=True),
+        ],
+        opponent_board=[_card("bear-1", "Grizzly Bears", 2, 2)],
+    )
+    state["players"][2]["battlefield"] = [_card("bear-2", "Grizzly Bears", 2, 2)]
+    first_defender = [_block_option("bear-1", "brute-a")]
+    second_defender = [_block_option("bear-2", "brute-b")]
+    picks = [
+        policy.decide(_request("declare_blocker", frame, state, minimum=0, offset=n))[
+            "selected_option_ids"
+        ]
+        for n, frame in enumerate([first_defender, second_defender, second_defender], start=1)
+    ]
+    # Judgment (a 2/2 does not chump a 6/6), judgment again for the other
+    # defender's creature, then the maximal declaration on the engine's re-ask.
+    assert picks == [[], [], ["block-bear-2"]]
+
+
 def test_block_option_without_engine_ids_fails_closed() -> None:
     """#802 review P3: a frame the pilot cannot attribute must fail closed.
 

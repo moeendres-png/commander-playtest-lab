@@ -510,6 +510,43 @@ def spread_for_spec(
     return universe["denominator"], universe["snapshot_id"], [entry[0] for entry in entries]
 
 
+def pool_spread_for_spec(
+    store: StudioStore,
+    spec: UniverseSpec,
+    card_ids: Sequence[str] | None = None,
+    *,
+    commander_names: Sequence[str] | None,
+    label: str = "",
+) -> PoolSpread:
+    """Counted spread of Studio cards over a free spec (e.g. a derived ``gc_band``)."""
+    context = _context(store, None, spec, commander_names)
+    universe, entries, params = _spread_all(store, None, card_ids, commander_names, spec)
+    excluded_cards = context.excluded_by_card_filter
+    return {
+        "universe": {
+            "profile": label,
+            "version": 0,
+            "snapshot_id": universe["snapshot_id"],
+            "denominator": universe["denominator"],
+            "denominator_by_platform": universe["denominator_by_platform"],
+            "denominator_by_bracket": universe["denominator_by_bracket"],
+            "excluded_no_date": context.excluded_no_date,
+            "excluded_by_card_filter": excluded_cards,
+            "must_contain": list(universe["spec"].get("must_contain", [])),
+            "subset_note": subset_note(universe["spec"], excluded_cards),
+            "min_universe": params.min_universe,
+            "below_min_universe": universe["denominator"] < params.min_universe,
+            "empty": universe["empty"],
+            "empty_reason": universe["empty_reason"],
+            "data_class": universe["data_class"],
+        },
+        "params": params.to_dict(),
+        "model_version": MODEL_VERSION,
+        "meaning": MEANING,
+        "cards": [spread for spread, _, _ in entries],
+    }
+
+
 class DeckFilterCard(TypedDict):
     card_id: str
     name: str

@@ -55,7 +55,8 @@ from commander_lab.studio.store import (
 logger = logging.getLogger(__name__)
 
 SCRYFALL_BULK_METADATA_URL = "https://api.scryfall.com/bulk-data"
-USER_AGENT = "CommanderPlaytestLab/1.0 (+https://github.com/moeendres-png/commander-playtest-lab)"
+DEFAULT_USER_AGENT = "mtg-oracle-tags-tool/1.0"
+USER_AGENT = DEFAULT_USER_AGENT
 DEFAULT_SCOPE_KEY = "ALL_CARDS"
 
 # Negative vocabulary targets that must not exist in Scryfall Tagger bulk vocabulary
@@ -274,11 +275,13 @@ def audit_vocabulary(graph: BulkGraph) -> VocabularyAudit:
     )
 
 
-def fetch_oracle_tags_bulk_metadata(timeout: float = 30.0) -> dict[str, str]:
+def fetch_oracle_tags_bulk_metadata(
+    timeout: float = 30.0, *, user_agent: str = DEFAULT_USER_AGENT
+) -> dict[str, str]:
     """Discover official download URI and timestamp from Scryfall bulk-data API."""
     req = urllib.request.Request(
         SCRYFALL_BULK_METADATA_URL,
-        headers={"User-Agent": USER_AGENT, "Accept": "application/json"},
+        headers={"User-Agent": user_agent, "Accept": "application/json"},
     )
     with urllib.request.urlopen(req, timeout=timeout) as resp:
         if resp.status != 200:
@@ -298,9 +301,11 @@ def fetch_oracle_tags_bulk_metadata(timeout: float = 30.0) -> dict[str, str]:
     raise RuntimeError("No 'oracle_tags' bulk entry found in Scryfall bulk metadata")
 
 
-def download_file(url: str, dest: Path, timeout: float = 30.0) -> Path:
+def download_file(
+    url: str, dest: Path, timeout: float = 30.0, *, user_agent: str = DEFAULT_USER_AGENT
+) -> Path:
     """Download a file with chunked streaming via a .part temporary file."""
-    req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT, "Accept": "*/*"})
+    req = urllib.request.Request(url, headers={"User-Agent": user_agent, "Accept": "*/*"})
     dest.parent.mkdir(parents=True, exist_ok=True)
     part_dest = dest.with_name(dest.name + ".part")
     with urllib.request.urlopen(req, timeout=timeout) as resp, part_dest.open("wb") as out_f:
@@ -454,6 +459,11 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument("--store", help="Path to Studio SQLite directory or file")
     parser.add_argument("--audit-only", action="store_true", help="Only audit vocabulary and exit")
+    parser.add_argument(
+        "--user-agent",
+        default=DEFAULT_USER_AGENT,
+        help="Generic client User-Agent string",
+    )
 
     args = parser.parse_args(argv)
     logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
@@ -463,7 +473,7 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.download or not args.bulk_file:
         logger.info("Fetching Scryfall oracle_tags bulk metadata...")
-        meta = fetch_oracle_tags_bulk_metadata()
+        meta = fetch_oracle_tags_bulk_metadata(user_agent=args.user_agent)
         download_url = meta["download_uri"]
         snapshot_date = meta["updated_at"]
         dest_filename = Path(download_url).name
@@ -472,7 +482,7 @@ def main(argv: list[str] | None = None) -> int:
 
         if not bulk_path.exists():
             logger.info("Downloading %s to %s...", download_url, bulk_path)
-            download_file(download_url, bulk_path)
+            download_file(download_url, bulk_path, user_agent=args.user_agent)
         else:
             logger.info("Found cached bulk file at %s", bulk_path)
     else:

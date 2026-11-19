@@ -25,7 +25,8 @@ import sqlite3
 from datetime import UTC, date, datetime
 from typing import cast
 
-from . import builder, signals, strength_view, universe
+from . import builder, gc_band, signals, strength_view, universe
+from .corpus_audit import corpus_audit
 from .roles import ORIGIN_CROSSWALK, ORIGIN_TAGGER, ROLES
 from .store import StudioStore
 from .tiers import MODEL_VERSION, TierParams
@@ -245,11 +246,28 @@ def _corpus(db: sqlite3.Connection) -> dict[str, object]:
             _scalar(
                 db,
                 "SELECT COUNT(*) FROM (SELECT deck_id FROM corpus_deck_card "
-                "GROUP BY deck_id HAVING SUM(CASE WHEN LOWER(section) = 'mainboard' "
+                "GROUP BY deck_id HAVING SUM(CASE WHEN LOWER(section) IN ('main', 'mainboard') "
                 "THEN quantity ELSE 0 END) != 99)",
             ),
             with_rows,
         ),
+        "deck_not_100_cards": {
+            **_share(
+                _scalar(
+                    db,
+                    "SELECT COUNT(*) FROM (SELECT deck_id FROM corpus_deck_card "
+                    "GROUP BY deck_id HAVING SUM(CASE "
+                    "WHEN LOWER(section) IN ('commander', 'main', 'mainboard') "
+                    "THEN quantity ELSE 0 END) != 100)",
+                ),
+                with_rows,
+            ),
+            "counted_sections": ["commander", "main", "mainboard"],
+            "provenance": (
+                "gezählt aus corpus_deck_card (Sektionen commander + main/mainboard; "
+                "ohne Sideboard/Maybeboard)"
+            ),
+        },
         "by_cohort": _counter(db, "SELECT cohort, COUNT(*) FROM corpus_deck GROUP BY cohort"),
         "fingerprint_missing": _share(
             _scalar(db, "SELECT COUNT(*) FROM corpus_deck WHERE fingerprint = ''"), decks
@@ -402,6 +420,7 @@ def _universes(store: StudioStore) -> dict[str, object]:
                 "spec_dimensions": {
                     "platforms": _selected(spec, "platforms"),
                     "cohorts": _selected(spec, "cohorts"),
+                    "gc_band": _selected(spec, "gc_band"),
                     "commanders": _selected(spec, "commanders"),
                     "must_contain_cards": _selected(spec, "must_contain"),
                     "date_filter": bool(spec.get("date_from") or spec.get("date_to")),
@@ -515,6 +534,8 @@ def data_report(
         "roles": _roles(db),
         "rulings": _rulings(db),
         "corpus": _corpus(db),
+        "corpus_audit": corpus_audit(db, today=moment),
+        "gc_band_crosstab": gc_band.gc_band_crosstab(store, commander=commander),
         "observations": _observations(db),
         "universes": _universes(store),
         "commanders": _commanders(store),

@@ -6,10 +6,12 @@ import hashlib
 import importlib.util
 import io
 import json
+import os
 import tempfile
 import unittest
 import urllib.error
 from pathlib import Path
+from unittest import mock
 
 script = (
     Path(__file__).resolve().parents[2]
@@ -40,6 +42,13 @@ class Fake(io.BytesIO):
 
 
 class SourceTest(unittest.TestCase):
+    def setUp(self):
+        # The capture lane is fail-closed (Owner decision #1557): these offline tests stand in
+        # for a run with a written permission reference.
+        patcher = mock.patch.dict(os.environ, {mod.PERMISSION_ENV: "test-permission-reference"})
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
     def test_allowlist_and_duplicate_sources(self):
         with self.assertRaises(ValueError):
             mod.capture_one("https://other.example.org/secret", opener=lambda *args, **kw: Fake())
@@ -84,6 +93,87 @@ class SourceTest(unittest.TestCase):
     def test_non_edhrec_json_cannot_be_source_evidence(self):
         with self.assertRaises(ValueError):
             mod.capture_one(URL, opener=lambda *args, **kw: Fake(b"{}"))
+
+
+class PermissionGateTest(unittest.TestCase):
+    """Without a written-permission reference the lane never touches the network."""
+
+    def setUp(self):
+        patcher = mock.patch.dict(os.environ)
+        patcher.start()
+        self.addCleanup(patcher.stop)
+        os.environ.pop(mod.PERMISSION_ENV, None)
+
+    def _opener(self, calls):
+        def opener(*args, **kw):
+            calls.append(args)
+            return Fake()
+
+        return opener
+
+    def test_capture_one_refuses_without_permission_and_opens_nothing(self):
+        calls: list[object] = []
+        with self.assertRaises(mod.PermissionRequired):
+            mod.capture_one(URL, opener=self._opener(calls))
+        self.assertEqual([], calls)
+
+    def test_blank_permission_is_no_permission(self):
+        os.environ[mod.PERMISSION_ENV] = "   "
+        with self.assertRaises(mod.PermissionRequired):
+            mod.require_written_permission()
+
+    def test_capture_refuses_without_permission_and_writes_nothing(self):
+        calls: list[object] = []
+        with tempfile.TemporaryDirectory() as root:
+            out = Path(root) / "evidence"
+            with self.assertRaises(mod.PermissionRequired):
+                mod.capture([URL], out, opener=self._opener(calls), sleep=lambda seconds: None)
+            self.assertFalse(out.exists())
+        self.assertEqual([], calls)
+
+    def test_command_line_exits_nonzero_with_explanation_and_no_request(self):
+        import contextlib
+
+        calls: list[object] = []
+        with tempfile.TemporaryDirectory() as root:
+            urls = Path(root) / "urls.txt"
+            urls.write_text(URL + "\n")
+            err = io.StringIO()
+            with (
+                mock.patch.object(mod.urllib.request, "urlopen", self._opener(calls)),
+                contextlib.redirect_stderr(err),
+            ):
+                code = mod.main(["--urls", str(urls), "--out", str(Path(root) / "out")])
+            self.assertEqual(2, code)
+            self.assertFalse((Path(root) / "out").exists())
+        self.assertEqual([], calls)
+        self.assertIn("#1557", err.getvalue())
+        self.assertIn(mod.PERMISSION_ENV, err.getvalue())
+
+    def test_dry_run_needs_no_permission_and_stays_offline(self):
+        import contextlib
+
+        calls: list[object] = []
+        with tempfile.TemporaryDirectory() as root:
+            urls = Path(root) / "urls.txt"
+            urls.write_text(URL + "\n")
+            out = io.StringIO()
+            with (
+                mock.patch.object(mod.urllib.request, "urlopen", self._opener(calls)),
+                contextlib.redirect_stdout(out),
+            ):
+                code = mod.main(["--urls", str(urls), "--out", str(Path(root) / "o"), "--dry-run"])
+            self.assertEqual(0, code)
+        self.assertEqual([], calls)
+
+    def test_permission_reference_is_recorded_in_the_proof(self):
+        os.environ[mod.PERMISSION_ENV] = "operator-mail-ref-1"
+        meta, _ = mod.capture_one(URL, opener=lambda *a, **k: Fake(), sleep=lambda s: None)
+        self.assertEqual("operator-mail-ref-1", meta["written_permission_ref"])
+
+    def test_no_user_agent_option_on_the_command_line(self):
+        with self.assertRaises(SystemExit):
+            mod.main(["--urls", "x", "--out", "y", "--user-agent", "anything"])
 
 
 if __name__ == "__main__":

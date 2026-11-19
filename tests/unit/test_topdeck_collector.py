@@ -316,3 +316,49 @@ def test_split_commander_parts_assign_commander_wide_liste_labels(tmp_path: Path
     part2 = list(csv.DictReader((out_dir / "topdeck_the_gitrog_monster_decks_2.csv").open()))
     assert [r["player"] for r in part1[::100]] == ["Liste 1", "Liste 2"]
     assert [r["player"] for r in part2[::100]] == ["Liste 3", "Liste 1"]
+
+
+def test_live_fetch_is_refused_without_an_api_key_and_makes_no_request(
+    monkeypatch, tmp_path: Path
+) -> None:
+    import pytest
+    from scripts import collect_topdeck_decks as collector
+
+    calls: list[object] = []
+
+    def no_network(*args: object, **kwargs: object) -> None:
+        calls.append(args)
+        raise AssertionError("no request expected")
+
+    monkeypatch.setattr(collector.urllib.request, "urlopen", no_network)
+    with pytest.raises(RuntimeError, match="#1557"):
+        collector.fetch_slice(
+            0,
+            86400,
+            api_key="  ",
+            user_agent=collector.DEFAULT_USER_AGENT,
+            cache_path=tmp_path / "slice.json",
+            delay=0.0,
+        )
+    assert calls == []
+
+
+def test_a_cached_slice_still_loads_without_a_key(tmp_path: Path) -> None:
+    from scripts import collect_topdeck_decks as collector
+
+    cache = tmp_path / "slice.json"
+    cache.write_text("[]", encoding="utf-8")
+    assert (
+        collector.fetch_slice(
+            0, 86400, api_key="", user_agent=collector.DEFAULT_USER_AGENT, cache_path=cache
+        )
+        == []
+    )
+
+
+def test_default_user_agent_is_generic() -> None:
+    from scripts import collect_topdeck_decks as collector
+
+    agent = collector.DEFAULT_USER_AGENT.lower()
+    for token in ("mozilla", "chrome", "safari", "http", "@", "commander", "moeendres"):
+        assert token not in agent
