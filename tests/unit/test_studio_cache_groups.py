@@ -257,6 +257,25 @@ def test_a_foreign_commit_drops_everything_and_so_does_a_write_outside_a_window(
     assert _kept(store, held) == set()
 
 
+def test_the_counter_rule_alone_catches_a_foreign_commit_in_the_window(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The second probe: with ``data_version`` blinded, a file counter that rose by more than
+    the window's own commits still drops everything."""
+    _probe_kinds(monkeypatch)
+    store = _store(tmp_path)
+    held = _held(store)
+    monkeypatch.setattr(cache, "_data_version", lambda _store: 0)
+    with cache.write(store, {cache.Group.MARKS}):
+        _mark(store)
+        other = sqlite3.connect(tmp_path / "studio" / "studio.sqlite3")
+        other.execute("INSERT INTO meta(key, value) VALUES ('foreign', 'x')")
+        other.commit()
+        other.close()
+    assert _kept(store, held) == set()
+    assert cache.counters()["* window_unproven"] == 1
+
+
 def test_the_writing_thread_computes_directly_inside_its_window(tmp_path: Path) -> None:
     """I5: inside the window (also after its own commit) nothing is served or remembered, and
     asking for a figure there does not wait for the window itself."""
