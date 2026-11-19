@@ -42,7 +42,7 @@ const state = {
   activePaired: null, pairedPollTimer: null, pairedHistory: [], readinessAudit: null,
   view: "grid", tab: "list", shown: 120, sortKey: "freq", sortDir: -1, cohort: "all",
   subset: null, subsetNames: [], subsetWanted: null, strength: null, showTier: true, changeSeq: 0, savedSeq: 0, layers: null, diffDefault: null,
-  cardTrend: null, cardTrendDays: 180, cardTrendBracket: "", cardTrendReq: null,
+  cardTrend: null, cardTrendDays: 180, cardTrendBracket: "", cardTrendSource: "edhrec", cardTrendReq: null,
   colors: new Set(), columns: new Set(["img", "name", "mana_cost", "type_line", "available", "freq", "edhrec"]),
 };
 
@@ -372,7 +372,7 @@ function renderPool() {
     const head = h("tr", {}, h("th", {}, ""), columns.map(([key, label, sortKey]) => h("th", {
       class: ["available", "owned", "reserved", "freq", "trend", "edhrec", "edhrec_rank", "mana_value", "synergy", "strength"].includes(key) ? "num" : "",
       onclick: sortKey ? () => { state.sortDir = state.sortKey === sortKey ? -state.sortDir : (["name", "type_line", "edhrec_rank", "mana_value"].includes(sortKey) ? 1 : -1); state.sortKey = sortKey; $("sort").value = ""; if (sortKey === "strength") loadStrength(); if (sortKey === "trend") loadCardTrend(); renderPool(); } : null,
-    }, (key === "freq" && state.subset ? label + " (Teilmenge)" : key === "freq" && state.countedUniverse && !state.universe ? "Verbreitung (gezählt)" : label) + (state.sortKey === sortKey && sortKey ? (state.sortDir > 0 ? " ▲" : " ▼") : ""))));
+    }, (key === "trend" ? cardTrendHeaderLabel(state.cardTrend, state.cardTrendSource, state.cardTrendBracket) : key === "freq" && state.subset ? label + " (Teilmenge)" : key === "freq" && state.countedUniverse && !state.universe ? "Verbreitung (gezählt)" : label) + (state.sortKey === sortKey && sortKey ? (state.sortDir > 0 ? " ▲" : " ▼") : ""))));
     const lines = part.map((card) => {
       const count = qty(card.card_id);
       return h("tr", { class: count ? "in" : "" },
@@ -2396,9 +2396,10 @@ async function openCard(card) {
   renderCardTrendBox(trendBox, card, {
     h,
     loadTrend: () => loadCardTrend(),
-    onSettingsChange: (days, bracket) => {
+    onSettingsChange: (days, bracket, source) => {
       state.cardTrendDays = days;
       state.cardTrendBracket = bracket;
+      state.cardTrendSource = source;
       state.cardTrend = null;
       state.cardTrendReq = null;
       loadCardTrend();
@@ -2623,6 +2624,7 @@ async function loadCardTrend() {
   if (state.cardTrend) return state.cardTrend;
   if (state.cardTrendReq) return state.cardTrendReq;
   const query = `${StudioCommander.query}&recent_days=${encodeURIComponent(state.cardTrendDays)}`
+    + `&source=${encodeURIComponent(state.cardTrendSource)}`
     + (state.cardTrendBracket ? `&bracket=${encodeURIComponent(state.cardTrendBracket)}` : "");
   state.cardTrendReq = (async () => {
     try {

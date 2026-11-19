@@ -4,12 +4,18 @@ Everything here is a derived descriptive count over the deduplicated source deck
 in the Studio store (``corpus_deck.deck_date`` and ``corpus_deck_card``), with no network
 access and no schema change.
 
-For a commander (and an optional bracket filter), deduplicated decks are partitioned by
-``deck_date`` relative to the newest stored ``deck_date`` (``data_as_of``):
+For a commander, one source and an optional bracket filter, deduplicated decks are
+partitioned by ``deck_date`` relative to the newest stored ``deck_date`` (``data_as_of``):
 
 - recent window: ``deck_date >= data_as_of - recent_days``
 - older window: ``deck_date < data_as_of - recent_days``
 - undated decks: excluded from both windows and reported in ``excluded_no_date``
+
+The source is never mixed (Owner rule: cohorts and sources are never pooled). The default is
+``edhrec`` (the largest source); ``archidekt`` can be chosen on its own. A pooled "whole corpus"
+would change its source mix between the windows (Archidekt share 5.4 % in the older window,
+9.8 % in the recent one, measured on the Chulane corpus of 2026-11-15) and so show a source
+effect as a card trend. "Whole corpus" in the sense of #1550 means: all brackets of one source.
 
 For each Studio card, the module reports ``recent_hits / recent_total``,
 ``older_hits / older_total``, their shares, the difference ``recent_share - older_share``,
@@ -23,8 +29,20 @@ Semantics:
   (including ``0 / N = 0.0``), ``status = "too_few_data"`` ("zu wenig Daten"), ``diff`` and
   interval are ``None`` so no unstable trend is shown.
 - Sufficient windows (both ``>= min_decks_per_window``): ``status = "ok"``, with ``diff``,
-  ``ci_low``, ``ci_high``, ``excludes_zero``, and ``direction`` (``rising``, ``falling``,
-  ``flat``). A card in ``0`` of ``N > 0`` decks stays ``0 / N`` (``0.0``), never ``None``.
+  ``ci_low``, ``ci_high``, ``excludes_zero`` and ``direction``. A card in ``0`` of ``N > 0``
+  decks stays ``0 / N`` (``0.0``), never ``None``.
+- A card with 0 hits in the older window and hits in the recent one is no trend but a release
+  date effect: ``status = direction = "new_in_recent_window"``, no arrow.
+- An arrow (``rising`` / ``falling``) needs the interval to exclude zero AND
+  ``|diff| >= min_arrow_diff`` (default 2 percentage points); otherwise ``flat``. The interval
+  alone is not enough: one 95 % interval is computed per card (1,655 cards, 741 of them with
+  hits), and without a multiple-testing correction about 5 % of unchanged cards still get an
+  arrow. A fixed minimum effect is the simpler, auditable guard. Not chosen: a Bonferroni/Holm
+  correction (z about 4.0 for 741 cards with hits instead of 1.96) needs a z other than the
+  fixed one of the shared ``wilson_unrounded`` in ``card_outcomes.py`` (a change to a shared
+  function), and with about 3,000 recent and 6,700 older decks it would still flag
+  differences below one percentage point for cards with a small share, which carry no
+  practical meaning for a deck builder.
 
 This signal has zero weight in the strength index and stays strictly separate from EDHREC,
 playgroup and tournament figures.
@@ -45,6 +63,12 @@ SCHEMA = "studio-card-trend-1"
 DATA_CLASS = "DERIVED_DESCRIPTIVE"
 DEFAULT_RECENT_DAYS = 180
 DEFAULT_MIN_DECKS_PER_WINDOW = 30
+# Sources of the corpus (``corpus_deck.platform``); never mixed. The first is the default.
+SOURCES = ("edhrec", "archidekt")
+DEFAULT_SOURCE = SOURCES[0]
+# Smallest absolute share difference (2 percentage points) that earns an arrow, on top of the
+# interval excluding zero. Why: see the module docstring (multiple testing without correction).
+DEFAULT_MIN_ARROW_DIFF = 0.02
 
 ORIGIN_NOTE = (
     "Abgeleitet aus den deduplizierten Quelldecks des eigenen Korpus "
@@ -55,16 +79,26 @@ LIMITATION_DATE = (
     "nicht das Erstelldatum."
 )
 LIMITATION_BRACKET = (
-    "Je Bracket sind die jungen Kohorten klein; Standard ist deshalb der ganze Korpus, "
-    "Bracket nur mit Warnung."
+    "Je Bracket sind die jungen Kohorten klein; Standard sind deshalb alle Brackets einer "
+    "Quelle, ein einzelnes Bracket nur mit Warnung."
+)
+LIMITATION_SOURCE = (
+    "Die Quellen (EDHREC, Archidekt) werden nie gemischt; der Trend gilt für die gewählte Quelle."
+)
+LIMITATION_MULTIPLE_TESTS = (
+    "Alle Karten werden gleichzeitig geprüft, ohne Korrektur für Mehrfachtests: einzelne Pfeile "
+    "können Zufall sein. Ein Pfeil braucht deshalb zusätzlich mindestens {pp} Prozentpunkte "
+    "Unterschied. Eine Karte, die im alten Fenster nicht vorkam, ist neu und kein Trend."
 )
 LIMITATION_STRENGTH = (
     "Verbreitung ist nicht Stärke. Der Trend hat kein Gewicht im Stärke-Index und ist "
     "getrennt von EDHREC-, Playgroup- und Turnierzahlen."
 )
 
-TrendStatus = Literal["ok", "too_few_data", "unknown"]
-TrendDirection = Literal["rising", "falling", "flat", "too_few_data", "unknown"]
+TrendStatus = Literal["ok", "too_few_data", "unknown", "new_in_recent_window"]
+TrendDirection = Literal[
+    "rising", "falling", "flat", "new_in_recent_window", "too_few_data", "unknown"
+]
 
 
 class CardTrendRow(TypedDict):
@@ -87,18 +121,23 @@ class CardTrendRow(TypedDict):
 
 class CardTrendSummary(TypedDict):
     cards_total: int
+    cards_tested: int  # cards with hits in at least one window, in a window pair that is "ok"
+    excludes_zero: int  # interval excludes zero (new cards not counted)
+    below_min_arrow_diff: int  # interval excludes zero, but the difference is too small
+    new_in_recent_window: int
     rising: int
     falling: int
-    excludes_zero: int
 
 
 class CardTrendResult(TypedDict):
     schema: str
     data_class: str
     commander: list[str]
+    source: str
     bracket: str | None
     recent_days: int
     min_decks_per_window: int
+    min_arrow_diff: float
     data_as_of: str | None
     oldest_date: str | None
     cutoff_date: str | None
@@ -113,17 +152,44 @@ class CardTrendResult(TypedDict):
     cards: list[CardTrendRow]
 
 
+_BRACKETS = ("1", "2", "3", "4", "5")
+
+
 def _normalize_bracket(bracket: str | None) -> str | None:
     if bracket is None:
         return None
     cleaned = bracket.strip()
     if not cleaned or cleaned.casefold() == "all":
         return None
-    if cleaned in {"1", "2", "3", "4", "5"}:
-        return f"bracket:{cleaned}"
-    if cleaned.startswith("bracket:") and len(cleaned) > len("bracket:"):
-        return cleaned
-    raise ValueError(f"unsupported bracket filter: {bracket}")
+    number = cleaned.removeprefix("bracket:")
+    if number in _BRACKETS:
+        return f"bracket:{number}"
+    raise ValueError(
+        f"unsupported bracket filter: {bracket} (expected 1 to 5, bracket:1 to bracket:5 or all)"
+    )
+
+
+def _normalize_source(source: str | None) -> str:
+    if source is None or not source.strip():
+        return DEFAULT_SOURCE
+    cleaned = source.strip().casefold()
+    if cleaned not in SOURCES:
+        raise ValueError(f"unsupported source: {source} (expected one of {', '.join(SOURCES)})")
+    return cleaned
+
+
+def _arrow(
+    diff: float, low: float, high: float, min_arrow_diff: float
+) -> Literal["rising", "falling", "flat"]:
+    """The arrow of a card: the interval must exclude zero AND the (rounded, as reported)
+    difference must reach ``min_arrow_diff`` in size; else ``flat``."""
+    if round(abs(diff), 6) < min_arrow_diff:
+        return "flat"
+    if low > 0.0:
+        return "rising"
+    if high < 0.0:
+        return "falling"
+    return "flat"
 
 
 def _parse_iso_date(raw: object) -> datetime.date | None:
@@ -144,14 +210,26 @@ def _bracket_label(cohort: str) -> str:
     return cohort
 
 
+def _pp_text(fraction: float) -> str:
+    """``0.02`` -> ``2`` (German decimal comma for non-integers)."""
+    text = f"{fraction * 100:.1f}".rstrip("0").rstrip(".")
+    return text.replace(".", ",")
+
+
+def _source_label(source: str) -> str:
+    return {"edhrec": "EDHREC", "archidekt": "Archidekt"}.get(source, source)
+
+
 def _compute_card_trend(
     store: StudioStore,
     commander_names: tuple[str, ...],
     recent_days: int,
     min_decks_per_window: int,
     bracket: str | None,
+    source: str,
+    min_arrow_diff: float,
 ) -> CardTrendResult:
-    spec: UniverseSpec = {"commanders": list(commander_names)}
+    spec: UniverseSpec = {"commanders": list(commander_names), "platforms": [source]}
     if bracket is not None:
         spec["cohorts"] = [bracket]
 
@@ -207,6 +285,10 @@ def _compute_card_trend(
     cards: list[CardTrendRow] = []
     rising = 0
     falling = 0
+    new_cards = 0
+    tested = 0
+    interval_excludes_zero = 0
+    below_min_diff = 0
 
     for row in card_rows:
         card_id = str(row["card_id"])
@@ -231,21 +313,33 @@ def _compute_card_trend(
             ci_low: float | None = round(max(-1.0, raw_low), 6)
             ci_high: float | None = round(min(1.0, raw_high), 6)
             excludes_zero = raw_low > 0.0 or raw_high < 0.0
-            if raw_low > 0.0:
-                direction: TrendDirection = "rising"
-                rising += 1
-            elif raw_high < 0.0:
-                direction = "falling"
-                falling += 1
+            row_status: TrendStatus = "ok"
+            if older_hits == 0 and recent_hits > 0:
+                # Not in a single older deck: a release date, not a trend. No arrow.
+                direction: TrendDirection = "new_in_recent_window"
+                row_status = "new_in_recent_window"
+                new_cards += 1
             else:
-                direction = "flat"
+                direction = _arrow(raw_diff, raw_low, raw_high, min_arrow_diff)
+                if excludes_zero:
+                    interval_excludes_zero += 1
+                    if direction == "flat":
+                        below_min_diff += 1
+                if direction == "rising":
+                    rising += 1
+                elif direction == "falling":
+                    falling += 1
+            if recent_hits + older_hits > 0:
+                tested += 1
         elif window_status == "too_few_data":
+            row_status = "too_few_data"
             diff = None
             ci_low = None
             ci_high = None
             excludes_zero = False
             direction = "too_few_data"
         else:
+            row_status = "unknown"
             diff = None
             ci_low = None
             ci_high = None
@@ -257,7 +351,7 @@ def _compute_card_trend(
                 "card_id": card_id,
                 "oracle_id": oracle_id,
                 "name": name,
-                "status": window_status,
+                "status": row_status,
                 "recent_hits": recent_hits,
                 "recent_total": recent_total,
                 "recent_share": recent_share,
@@ -277,7 +371,7 @@ def _compute_card_trend(
         warnings.append(
             f"Bracket-Filter aktiv ({_bracket_label(bracket)}): Je Bracket sind die jungen "
             "Kohorten klein; der Trend ist im Einzel-Bracket deutlich unsicherer als im "
-            "ganzen Korpus."
+            "ganzen Korpus der Quelle."
         )
     if window_status == "unknown":
         warnings.append(
@@ -299,9 +393,11 @@ def _compute_card_trend(
         "schema": SCHEMA,
         "data_class": DATA_CLASS,
         "commander": list(commander_names),
+        "source": source,
         "bracket": bracket,
         "recent_days": recent_days,
         "min_decks_per_window": min_decks_per_window,
+        "min_arrow_diff": min_arrow_diff,
         "data_as_of": data_as_of,
         "oldest_date": oldest_date,
         "cutoff_date": cutoff_date,
@@ -311,13 +407,22 @@ def _compute_card_trend(
         "status": window_status,
         "summary": {
             "cards_total": len(cards),
+            "cards_tested": tested,
+            "excludes_zero": interval_excludes_zero,
+            "below_min_arrow_diff": below_min_diff,
+            "new_in_recent_window": new_cards,
             "rising": rising,
             "falling": falling,
-            "excludes_zero": rising + falling,
         },
         "origin_note": ORIGIN_NOTE,
         "warnings": warnings,
-        "limitations": [LIMITATION_DATE, LIMITATION_BRACKET, LIMITATION_STRENGTH],
+        "limitations": [
+            LIMITATION_DATE,
+            LIMITATION_SOURCE,
+            LIMITATION_BRACKET,
+            LIMITATION_MULTIPLE_TESTS.format(pp=_pp_text(min_arrow_diff)),
+            LIMITATION_STRENGTH,
+        ],
         "cards": cards,
     }
 
@@ -329,6 +434,8 @@ def card_trend(
     recent_days: int = DEFAULT_RECENT_DAYS,
     min_decks_per_window: int = DEFAULT_MIN_DECKS_PER_WINDOW,
     bracket: str | None = None,
+    source: str | None = None,
+    min_arrow_diff: float = DEFAULT_MIN_ARROW_DIFF,
 ) -> CardTrendResult:
     """Compute (or serve cached) per-card recent-vs-older corpus trends for a commander."""
     cleaned_commanders = tuple(
@@ -340,18 +447,29 @@ def card_trend(
         raise ValueError("recent_days must be at least 1")
     if min_decks_per_window < 1:
         raise ValueError("min_decks_per_window must be at least 1")
+    if not 0.0 <= min_arrow_diff <= 1.0:
+        raise ValueError("min_arrow_diff must be between 0 and 1")
     normalized_bracket = _normalize_bracket(bracket)
+    normalized_source = _normalize_source(source)
     key = (
         "card_trend",
         cleaned_commanders,
         recent_days,
         min_decks_per_window,
         normalized_bracket,
+        normalized_source,
+        min_arrow_diff,
     )
     return cached(
         store,
         key,
         lambda: _compute_card_trend(
-            store, cleaned_commanders, recent_days, min_decks_per_window, normalized_bracket
+            store,
+            cleaned_commanders,
+            recent_days,
+            min_decks_per_window,
+            normalized_bracket,
+            normalized_source,
+            min_arrow_diff,
         ),
     )

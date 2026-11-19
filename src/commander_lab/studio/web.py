@@ -1036,8 +1036,11 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
             default=card_trend.DEFAULT_MIN_DECKS_PER_WINDOW, ge=1, le=10000
         ),
         bracket: str | None = Query(default=None, max_length=32),
+        source: str | None = Query(default=None, max_length=32),
     ) -> dict[str, object]:
-        """Per-card corpus trend (recent vs. older deduplicated decks). No weight in strength."""
+        """Per-card corpus trend (recent vs. older deduplicated decks) of ONE source (default
+        ``edhrec``, never mixed with the other). An unknown bracket or source is a 422. No
+        weight in strength."""
         store = open_store()
         try:
             return dict(
@@ -1047,6 +1050,7 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
                     recent_days=recent_days,
                     min_decks_per_window=min_decks_per_window,
                     bracket=bracket,
+                    source=source,
                 )
             )
         except ValueError as error:

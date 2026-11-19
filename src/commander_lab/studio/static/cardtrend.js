@@ -9,14 +9,37 @@ const CARD_TREND_WINDOWS = [
   { days: 365, label: "365 Tage" },
 ];
 
+const CARD_TREND_SOURCES = [
+  { value: "edhrec", label: "EDHREC (Standard)" },
+  { value: "archidekt", label: "Archidekt" },
+];
+
 const CARD_TREND_BRACKETS = [
-  { value: "", label: "Ganzer Korpus (Standard)" },
+  { value: "", label: "Alle Brackets der Quelle (Standard)" },
   { value: "bracket:1", label: "Bracket 1 (kleine Kohorte)" },
   { value: "bracket:2", label: "Bracket 2 (kleine Kohorte)" },
   { value: "bracket:3", label: "Bracket 3 (kleine Kohorte)" },
   { value: "bracket:4", label: "Bracket 4 (kleine Kohorte)" },
   { value: "bracket:5", label: "Bracket 5 (kleine Kohorte)" },
 ];
+
+function cardTrendSourceLabel(source) {
+  const found = CARD_TREND_SOURCES.find((opt) => opt.value === (source || "edhrec"));
+  return found ? found.label.replace(" (Standard)", "") : String(source);
+}
+
+function cardTrendBracketLabel(bracket) {
+  const found = CARD_TREND_BRACKETS.find((opt) => opt.value === (bracket || ""));
+  return found ? found.label.replace(" (Standard)", "").replace(" (kleine Kohorte)", "") : String(bracket);
+}
+
+// Column head: the chosen source and bracket are part of the label, so no number is read
+// against another cohort.
+function cardTrendHeaderLabel(trendState, source, bracket) {
+  const src = trendState && trendState.source ? trendState.source : source;
+  const brk = trendState ? (trendState.bracket || "") : bracket;
+  return `Trend (jung vs. alt) · ${cardTrendSourceLabel(src)} · ${cardTrendBracketLabel(brk)}`;
+}
 
 function cardTrendPp(diff) {
   if (diff === null || diff === undefined) return "unbekannt";
@@ -57,17 +80,37 @@ function cardTrendCell(h, trendState, cardId) {
     const tip = `Zu wenig Daten (jung: ${cardTrendRatio(item.recent_hits, item.recent_total)}, alt: ${cardTrendRatio(item.older_hits, item.older_total)}; Mindestzahl je Fenster: ${StudioUI.num(trendState.min_decks_per_window, 0)}).`;
     return h("td", { class: "num muted", title: tip }, "zu wenig Daten");
   }
+  const bracketWarning = trendState.bracket && Array.isArray(trendState.warnings)
+    ? trendState.warnings.find((w) => w.startsWith("Bracket-Filter aktiv"))
+    : null;
+  const context = `Quelle ${cardTrendSourceLabel(trendState.source)}, ${cardTrendBracketLabel(trendState.bracket)}`;
+  const counts = `Jung: ${cardTrendRatio(item.recent_hits, item.recent_total)} (${StudioUI.pct(item.recent_share, 1)}) · `
+    + `Alt: ${cardTrendRatio(item.older_hits, item.older_total)} (${StudioUI.pct(item.older_share, 1)})`;
+  if (item.status === "new_in_recent_window") {
+    const tip = `${counts} · im alten Fenster nicht erschienen / neue Karte: ein Erscheinungstermin, kein Trend, kein Pfeil · ${context}`
+      + (bracketWarning ? ` · ${bracketWarning}` : "");
+    return h("td", { class: "num muted", title: tip }, "neu (im alten Fenster nicht erschienen)");
+  }
   const dirLabel = item.direction === "rising"
-    ? "steigend (95 %-Intervall > 0)"
+    ? `steigend (Intervall > 0 und mindestens ${cardTrendMinPp(trendState)} pp)`
     : item.direction === "falling"
-      ? "fallend (95 %-Intervall < 0)"
-      : "Intervall enthält 0";
-  const tip = `Jung: ${cardTrendRatio(item.recent_hits, item.recent_total)} (${StudioUI.pct(item.recent_share, 1)}) · `
-    + `Alt: ${cardTrendRatio(item.older_hits, item.older_total)} (${StudioUI.pct(item.older_share, 1)}) · `
+      ? `fallend (Intervall < 0 und mindestens ${cardTrendMinPp(trendState)} pp)`
+      : item.excludes_zero
+        ? `kein Pfeil: Unterschied unter ${cardTrendMinPp(trendState)} pp`
+        : "kein Pfeil: Intervall enthält 0";
+  const tip = `${counts} · `
     + `95 %-Intervall (Newcombe): ${cardTrendInterval(item.ci_low, item.ci_high)} · ${dirLabel} · `
-    + `Datenstand ${trendState.data_as_of || "unbekannt"} · Verbreitung ist nicht Stärke`;
-  const cls = item.excludes_zero ? "num" : "num muted";
-  return h("td", { class: cls, title: tip }, `${cardTrendPp(item.diff)} ${cardTrendInterval(item.ci_low, item.ci_high)}`);
+    + `${context} · Datenstand ${trendState.data_as_of || "unbekannt"} · `
+    + "Viele Karten werden ohne Mehrfachtest-Korrektur geprüft: ein Pfeil kann Zufall sein · Verbreitung ist nicht Stärke"
+    + (bracketWarning ? ` · ${bracketWarning}` : "");
+  const arrow = item.direction === "rising" ? "▲ " : item.direction === "falling" ? "▼ " : "";
+  const cls = item.direction === "rising" || item.direction === "falling" ? "num" : "num muted";
+  return h("td", { class: cls, title: tip }, `${arrow}${cardTrendPp(item.diff)} ${cardTrendInterval(item.ci_low, item.ci_high)}`);
+}
+
+function cardTrendMinPp(trendState) {
+  const value = trendState && typeof trendState.min_arrow_diff === "number" ? trendState.min_arrow_diff * 100 : 2;
+  return StudioUI.num(value, 0);
 }
 
 async function renderCardTrendBox(slot, card, deps) {
@@ -95,7 +138,7 @@ async function renderCardTrendBox(slot, card, deps) {
       "aria-label": "Fenstergrenze für den Trend",
       onchange: (event) => {
         const days = Number(event.target.value);
-        deps.onSettingsChange(days, data.bracket || "");
+        deps.onSettingsChange(days, data.bracket || "", data.source || "edhrec");
         renderCardTrendBox(slot, card, deps);
       },
     },
@@ -107,7 +150,7 @@ async function renderCardTrendBox(slot, card, deps) {
     {
       "aria-label": "Bracket-Filter für den Trend",
       onchange: (event) => {
-        deps.onSettingsChange(data.recent_days, event.target.value);
+        deps.onSettingsChange(data.recent_days, event.target.value, data.source || "edhrec");
         renderCardTrendBox(slot, card, deps);
       },
     },
@@ -115,11 +158,25 @@ async function renderCardTrendBox(slot, card, deps) {
       h("option", { value: opt.value, selected: opt.value === (data.bracket || "") }, opt.label)),
   );
 
+  const sourceSelect = h(
+    "select",
+    {
+      "aria-label": "Quelle für den Trend (nie gemischt)",
+      onchange: (event) => {
+        deps.onSettingsChange(data.recent_days, data.bracket || "", event.target.value);
+        renderCardTrendBox(slot, card, deps);
+      },
+    },
+    CARD_TREND_SOURCES.map((opt) =>
+      h("option", { value: opt.value, selected: opt.value === (data.source || "edhrec") }, opt.label)),
+  );
+
   const controls = h(
     "div",
     { class: "actions" },
     h("label", {}, "Jung-Fenster ", windowSelect),
-    h("label", {}, "Korpus ", bracketSelect),
+    h("label", {}, "Quelle ", sourceSelect),
+    h("label", {}, "Bracket ", bracketSelect),
   );
 
   let diffText;
@@ -133,14 +190,21 @@ async function renderCardTrendBox(slot, card, deps) {
     diffText = "zu wenig Daten";
     intervalText = "zu wenig Daten";
     statusNote = `Unter der Mindestzahl von ${StudioUI.num(data.min_decks_per_window, 0)} Decks je Fenster.`;
+  } else if (item.status === "new_in_recent_window") {
+    diffText = "neu (im alten Fenster nicht erschienen)";
+    intervalText = "kein Pfeil";
+    statusNote = "Im alten Fenster nicht erschienen / neue Karte: ein Erscheinungstermin, kein Trend.";
   } else {
     diffText = cardTrendPp(item.diff);
     intervalText = cardTrendInterval(item.ci_low, item.ci_high);
+    const minPp = cardTrendMinPp(data);
     statusNote = item.direction === "rising"
-      ? "95 %-Intervall (Newcombe) liegt vollständig über 0 (steigend)."
+      ? `▲ steigend: 95 %-Intervall (Newcombe) liegt vollständig über 0 und der Unterschied beträgt mindestens ${minPp} Prozentpunkte.`
       : item.direction === "falling"
-        ? "95 %-Intervall (Newcombe) liegt vollständig unter 0 (fallend)."
-        : "95 %-Intervall (Newcombe) schließt 0 ein (kein eindeutiger Unterschied).";
+        ? `▼ fallend: 95 %-Intervall (Newcombe) liegt vollständig unter 0 und der Unterschied beträgt mindestens ${minPp} Prozentpunkte.`
+        : item.excludes_zero
+          ? `Kein Pfeil: Das Intervall schließt 0 aus, der Unterschied liegt aber unter ${minPp} Prozentpunkten.`
+          : "Kein Pfeil: 95 %-Intervall (Newcombe) schließt 0 ein (kein eindeutiger Unterschied).";
   }
 
   const recentHits = item ? item.recent_hits : 0;
@@ -198,7 +262,7 @@ async function renderCardTrendBox(slot, card, deps) {
   const provenance = h(
     "p",
     { class: "note" },
-    `${data.origin_note} Datenstand: ${data.data_as_of || "unbekannt"}`
+    `${data.origin_note} Quelle: ${cardTrendSourceLabel(data.source)} (nie mit der anderen Quelle gemischt), ${cardTrendBracketLabel(data.bracket)}. Datenstand: ${data.data_as_of || "unbekannt"}`
     + (data.cutoff_date ? ` · Fenstergrenze: ${data.cutoff_date} (${StudioUI.num(data.recent_days, 0)} Tage)` : "")
     + ` · Mindestzahl je Fenster: ${StudioUI.num(data.min_decks_per_window, 0)}. ${statusNote}`,
   );
