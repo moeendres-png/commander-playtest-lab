@@ -246,11 +246,28 @@ def _corpus(db: sqlite3.Connection) -> dict[str, object]:
             _scalar(
                 db,
                 "SELECT COUNT(*) FROM (SELECT deck_id FROM corpus_deck_card "
-                "GROUP BY deck_id HAVING SUM(CASE WHEN LOWER(section) = 'mainboard' "
+                "GROUP BY deck_id HAVING SUM(CASE WHEN LOWER(section) IN ('main', 'mainboard') "
                 "THEN quantity ELSE 0 END) != 99)",
             ),
             with_rows,
         ),
+        "deck_not_100_cards": {
+            **_share(
+                _scalar(
+                    db,
+                    "SELECT COUNT(*) FROM (SELECT deck_id FROM corpus_deck_card "
+                    "GROUP BY deck_id HAVING SUM(CASE "
+                    "WHEN LOWER(section) IN ('commander', 'main', 'mainboard') "
+                    "THEN quantity ELSE 0 END) != 100)",
+                ),
+                with_rows,
+            ),
+            "counted_sections": ["commander", "main", "mainboard"],
+            "provenance": (
+                "gezählt aus corpus_deck_card (Sektionen commander + main/mainboard; "
+                "ohne Sideboard/Maybeboard)"
+            ),
+        },
         "by_cohort": _counter(db, "SELECT cohort, COUNT(*) FROM corpus_deck GROUP BY cohort"),
         "fingerprint_missing": _share(
             _scalar(db, "SELECT COUNT(*) FROM corpus_deck WHERE fingerprint = ''"), decks
