@@ -649,6 +649,9 @@ class PairedSeriesJob:
                     **self.execution_metadata(),
                 },
             )
+            pool_summary = player.pool_summary()
+            if pool_summary is not None:
+                result["execution"] = {**result["execution"], "pool": pool_summary}
             with self._lock:
                 self.result = result
                 self.pairs_attempted = int(result.get("pairs_played") or self.pairs_attempted)
@@ -665,6 +668,7 @@ class PairedSeriesJob:
                 self.error = str(exc)
                 self.ended_at = now_utc()
         finally:
+            player.close()  # the worker processes and their bridge JVMs end with the series
             self._release_lock()
             self.persist()
 

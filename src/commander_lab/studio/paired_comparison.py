@@ -28,7 +28,7 @@ from collections import Counter
 from collections.abc import Callable, Mapping, Sequence
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
-from typing import Literal, TypedDict
+from typing import TYPE_CHECKING, Literal, TypedDict
 
 from commander_lab.bridge_qualification import BRIDGE_AHEAD, BRIDGE_ALIGNED
 from commander_lab.engine.rules.full_game_comparison import (
@@ -46,6 +46,9 @@ from commander_lab.qualification.current_boundary.bridge_launcher import (
 
 from .card_outcomes import GameExposure, LoadReport, game_exposures, load_exposures
 from .games import games_folder
+
+if TYPE_CHECKING:
+    from .game_pool import GamePool
 
 SCHEMA = "studio-paired-comparison-1"
 DATA_CLASS = "SIMULATED_RESULT"
@@ -804,6 +807,33 @@ def plan_look_window_chunks(
     return chunks
 
 
+class WindowPlayer:
+    """The :data:`PairPlayer` of ``parallel_window_player``, with the pool it owns.
+
+    ``close`` ends the worker processes (and their bridge JVMs) of a series that plays on
+    long-lived JVMs; without a pool it does nothing. Call it when the series is over.
+    """
+
+    def __init__(
+        self,
+        play: PairPlayer,
+        pool_holder: list[GamePool],
+    ) -> None:
+        self._play = play
+        self._pool_holder = pool_holder
+
+    def __call__(self, arm: str, seed: int, seat: int) -> PlayedGame:
+        return self._play(arm, seed, seat)
+
+    def pool_summary(self) -> dict[str, object] | None:
+        """What the worker pool did (n of N games, each JVM life), or ``None`` without one."""
+        return self._pool_holder[0].summary() if self._pool_holder else None
+
+    def close(self) -> None:
+        for pool in self._pool_holder:
+            pool.close()
+
+
 def parallel_window_player(
     data_folder: str | Path,
     *,
@@ -826,13 +856,24 @@ def parallel_window_player(
     preloaded: Mapping[tuple[str, int, int], PlayedGame] | None = None,
     on_game_result: Callable[[str, int, int, PlayedGame], None] | None = None,
     on_game_played: Callable[[str, int, int], None] | None = None,
-) -> PairPlayer:
+    series_pool: bool | None = None,
+    pool: GamePool | None = None,
+) -> WindowPlayer:
     """Execute each O'Brien-Fleming look window in parallel without changing sequential outcomes.
 
     ``on_game_played`` (arm, seed, seat) is a progress signal only: it fires when the engine has
     played a game to its end, before the chunk returns. Results, their order and the pair
     counting (``on_pair_done``) do not depend on it.
+
+    With ``series_pool`` true (default: the environment switch ``COMMANDER_LAB_STUDIO_SERIES_POOL``)
+    or a ``pool``, the games of every window go to worker processes whose bridge JVMs live across
+    all windows of the series (#1585): there are no chunks, a free worker takes the next game of
+    any table, and the games of a window are the same games with the same seeds, decks and ids as
+    on the chunked path. The window is still a barrier: the next one starts when all games of this
+    one have a result, so the looks see exactly what they saw before.
     """
+    from .game_pool import GamePool as _GamePool
+    from .game_pool import GameTask, series_pool_enabled
     from .play_batch import SeriesGame, play_recorded_games
 
     planned_units = [(seed, seat) for seed in seeds for seat in tested_seats][:budget_pairs]
@@ -848,6 +889,10 @@ def parallel_window_player(
     contenders = {"base": base_deck, "variant": variant_deck}
     used_workers = max(1, int(workers))
     used_batch = max(1, int(games_per_jvm))
+    use_pool = play_single is None and (
+        pool is not None or (series_pool if series_pool is not None else series_pool_enabled())
+    )
+    pool_holder: list[GamePool] = [pool] if pool is not None else []
 
     lock = threading.Lock()
     cache: dict[tuple[str, int, int], PlayedGame] = dict(preloaded) if preloaded else {}
@@ -877,6 +922,61 @@ def parallel_window_player(
                 new_count = len(completed_pairs)
         if new_count is not None and on_pair_done is not None:
             on_pair_done(new_count)
+
+    def _run_window_on_pool(missing_units: list[tuple[int, int]]) -> None:
+        """Play the missing games of one window on the worker pool (long-lived JVMs)."""
+        if not pool_holder:
+            pool_holder.append(
+                _GamePool(
+                    Path(data_folder),
+                    workers=used_workers,
+                    command=command,
+                    private_card_repository=used_workers > 1,
+                )
+            )
+        tasks: list[GameTask] = []
+        keys: dict[str, tuple[str, int, int]] = {}
+        with lock:
+            wanted = [
+                (arm, seed, seat)
+                for seed, seat in missing_units
+                for arm in ARMS
+                if (arm, seed, seat) not in cache
+            ]
+        for arm, seed, seat in wanted:
+            ordered = pod_decks(contenders[arm], opponents, seat + 1)
+            task_id = f"{arm}:{seed}:{seat}"
+            keys[task_id] = (arm, seed, seat)
+            tasks.append(
+                GameTask(
+                    task_id=task_id,
+                    seed=seed,
+                    game_id=f"{series_id}-{arm}-s{seed}-t{seat}",
+                    deck_paths=tuple(str(paths_by_deck_id[deck.deck_id]) for deck in ordered),
+                )
+            )
+
+        def _on_played(task: GameTask) -> None:
+            if on_game_played is not None:
+                on_game_played(*keys[task.task_id])
+
+        def _on_done(task: GameTask, summary: Mapping[str, object]) -> None:
+            arm, seed, seat = keys[task.task_id]
+            played = _summary_to_played_game(summary)
+            if on_game_result is not None:
+                on_game_result(arm, seed, seat, played)
+            with lock:
+                cache[(arm, seed, seat)] = played
+            _mark_game_done(arm, seed, seat)
+
+        pool_holder[0].run(
+            tasks, on_played=_on_played, on_done=_on_done, should_cancel=is_cancelled
+        )
+        _raise_if_cancelled()
+        with lock:
+            lacking = [key for key in wanted if key not in cache]
+        if lacking:
+            raise RuntimeError(f"the game pool ended without a result for {len(lacking)} games")
 
     def _run_window(window_units: list[tuple[int, int]]) -> None:
         if play_single is not None:
@@ -926,6 +1026,9 @@ def parallel_window_player(
                 if ("base", seed, seat) not in cache or ("variant", seed, seat) not in cache
             ]
         if not missing_units:
+            return
+        if use_pool:
+            _run_window_on_pool(missing_units)
             return
         raw_chunks = plan_look_window_chunks(
             missing_units, workers=used_workers, games_per_jvm=used_batch
@@ -1008,7 +1111,7 @@ def parallel_window_player(
         with lock:
             return cache[(arm, seed, seat)]
 
-    return play
+    return WindowPlayer(play, pool_holder)
 
 
 def format_comparison(result: PairedComparison) -> str:

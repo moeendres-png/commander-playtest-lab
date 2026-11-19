@@ -1115,3 +1115,249 @@ def test_play_recorded_games_forwards_explicit_series_engine_command(
     )
     assert seen_commands == [custom_cmd]
     assert summaries == [{"game_id": "g1", "status": "failed", "failure_class": "Stopped"}]
+
+
+# --- the series pool: long-lived JVMs across look windows (#1585) ---------------------------
+
+
+class _FakePool:
+    """Stands in for ``GamePool``: plays each task with a scripted player, in a chosen order."""
+
+    def __init__(self, player: _ScriptedPlayer, *, reverse: bool = False) -> None:
+        self.player = player
+        self.reverse = reverse
+        self.runs: list[list[object]] = []
+        self.closed = False
+        self.results: dict[str, PlayedGame] = {}
+
+    def run(self, tasks, *, on_played=None, on_done=None, should_cancel=None):  # type: ignore[no-untyped-def]
+        self.runs.append(list(tasks))
+        out = {}
+        for task in reversed(tasks) if self.reverse else tasks:
+            if should_cancel is not None and should_cancel():
+                break
+            arm, seed, seat = task.task_id.split(":")
+            played = self.player(arm, int(seed), int(seat))
+            self.results[task.game_id] = played
+            if on_played is not None and played["failure_class"] is None:
+                on_played(task)
+            summary = {"game_id": task.game_id, "status": "finished"}
+            out[task.task_id] = summary
+            if on_done is not None:
+                on_done(task, summary)
+        return out
+
+    def summary(self) -> dict[str, object]:
+        return {"executor": "fake-pool"}
+
+    def close(self) -> None:
+        self.closed = True
+
+
+def _pool_player(
+    tmp_path: Path, pool: _FakePool, monkeypatch: pytest.MonkeyPatch, **overrides: object
+) -> paired_comparison.WindowPlayer:
+    monkeypatch.setattr(
+        paired_comparison,
+        "_summary_to_played_game",
+        lambda summary: pool.results[summary["game_id"]],
+    )
+    options: dict[str, object] = {
+        "series_id": "pl",
+        "base_deck": SimpleNamespace(deck_id=BASE),
+        "variant_deck": SimpleNamespace(deck_id=VARIANT),
+        "opponents": [SimpleNamespace(deck_id=OPP1), SimpleNamespace(deck_id=OPP2)],
+        "paths_by_deck_id": {
+            d: tmp_path / f"{d.split('/')[1]}.json" for d in (BASE, VARIANT, OPP1, OPP2)
+        },
+        "seeds": list(range(1, 21)),
+        "tested_seats": [0, 1],
+        "budget_pairs": 40,
+        "look_every_pairs": 10,
+        "workers": 4,
+        "games_per_jvm": 6,
+        "pool": pool,
+    }
+    options.update(overrides)
+    return paired_comparison.parallel_window_player(tmp_path, **options)  # type: ignore[arg-type]
+
+
+@pytest.mark.parametrize("reverse", [False, True])
+def test_the_pool_gives_the_series_of_the_sequential_player_whatever_the_completion_order(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, reverse: bool
+) -> None:
+    fail = lambda arm, seed, seat: "EngineError" if (arm, seed, seat) == ("base", 3, 0) else None  # noqa: E731
+    seq_player = _ScriptedPlayer(tmp_path / "seq", _variant_sweeps, fail=fail)
+    pool = _FakePool(
+        _ScriptedPlayer(tmp_path / "pool", _variant_sweeps, fail=fail), reverse=reverse
+    )
+    progress: list[int] = []
+    player = _pool_player(tmp_path, pool, monkeypatch, on_pair_done=progress.append)
+
+    common = {
+        "base_deck_id": BASE,
+        "variant_deck_id": VARIANT,
+        "seeds": list(range(1, 21)),
+        "tested_seats": [0, 1],
+        "budget_pairs": 40,
+        "look_every_pairs": 10,
+    }
+    seq_res = run_comparison_series(**common, play=seq_player)  # type: ignore[arg-type]
+    pool_res = run_comparison_series(**common, play=player)  # type: ignore[arg-type]
+
+    for key in (
+        "status", "answer", "stop_reason", "pairs_played", "pairs_completed", "pairs_censored",
+        "looks_used", "looks_planned", "base_rate", "variant_rate", "difference_pp",
+        "difference_ci95_pp", "decision_ci_pp", "sign_test_p_value", "seeds", "failure_classes",
+    ):  # fmt: skip
+        assert pool_res[key] == seq_res[key], key  # type: ignore[literal-required]
+    # the series stopped at look {looks_used}: the pool was asked for one run per window played
+    # and never for a game beyond the stop
+    assert len(pool.runs) == seq_res["looks_used"] < seq_res["looks_planned"]
+    assert [len(run) for run in pool.runs] == [20] * len(pool.runs)
+    assert sum(len(run) for run in pool.runs) == seq_res["pairs_played"] * 2
+    assert progress[-1] == seq_res["pairs_played"]
+    # the pool belongs to the player: it stays open between windows and ends with close()
+    assert pool.closed is False
+    assert player.pool_summary() == {"executor": "fake-pool"}
+    player.close()
+    assert pool.closed is True
+
+
+def test_the_pool_is_given_the_games_of_a_window_with_their_seeds_ids_and_tables(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    pool = _FakePool(_ScriptedPlayer(tmp_path / "p", _variant_sweeps))
+    player = _pool_player(
+        tmp_path,
+        pool,
+        monkeypatch,
+        seeds=[10, 11],
+        tested_seats=[0, 1],
+        budget_pairs=4,
+        look_every_pairs=4,
+    )
+    player("base", 10, 0)
+    (window,) = pool.runs
+    # base and variant of a unit sit next to each other; no chunk by (arm, seat), all in one list
+    assert [(t.task_id, t.game_id) for t in window] == [
+        ("base:10:0", "pl-base-s10-t0"),
+        ("variant:10:0", "pl-variant-s10-t0"),
+        ("base:10:1", "pl-base-s10-t1"),
+        ("variant:10:1", "pl-variant-s10-t1"),
+        ("base:11:0", "pl-base-s11-t0"),
+        ("variant:11:0", "pl-variant-s11-t0"),
+        ("base:11:1", "pl-base-s11-t1"),
+        ("variant:11:1", "pl-variant-s11-t1"),
+    ]
+    names = lambda task: [Path(p).stem for p in task.deck_paths]  # noqa: E731
+    by_id = {t.task_id: t for t in window}
+    # the contender sits in the tested seat, the opponents keep their order around it
+    assert names(by_id["base:10:0"]) == ["base", "opp1", "opp2"]
+    assert names(by_id["variant:10:1"]) == ["opp2", "variant", "opp1"]
+    assert {t.seed for t in window} == {10, 11}
+
+
+def test_a_series_resumed_in_the_middle_of_a_window_asks_the_pool_for_the_missing_games_only(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    pool = _FakePool(_ScriptedPlayer(tmp_path / "p", _variant_sweeps))
+    done = {
+        (arm, seed, 0): {"exposure": None, "failure_class": None}
+        for seed in (1, 2)
+        for arm in ("base", "variant")
+    }
+    player = _pool_player(
+        tmp_path,
+        pool,
+        monkeypatch,
+        seeds=[1, 2, 3, 4],
+        tested_seats=[0],
+        budget_pairs=4,
+        look_every_pairs=4,
+        preloaded=done,
+    )
+    player("base", 3, 0)
+    assert [t.task_id for t in pool.runs[0]] == [
+        "base:3:0",
+        "variant:3:0",
+        "base:4:0",
+        "variant:4:0",
+    ]
+
+
+def test_cancelling_a_pool_series_raises_the_cancel_error_and_stops_handing_out_games(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    pool = _FakePool(_ScriptedPlayer(tmp_path / "p", _variant_sweeps))
+    flag = {"stop": False}
+
+    class Stopped(Exception):
+        pass
+
+    player = _pool_player(
+        tmp_path,
+        pool,
+        monkeypatch,
+        is_cancelled=lambda: flag["stop"],
+        cancel_error_factory=Stopped,
+        on_game_result=lambda *_a: flag.update(stop=True),
+    )
+    with pytest.raises(Stopped):
+        player("base", 1, 0)
+    assert len(pool.player.calls) == 1  # the pool saw the flag after the first game ended
+
+
+def test_the_pool_is_off_by_default_and_a_switch_turns_it_on(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    created: list[dict[str, object]] = []
+
+    class _Recorded:
+        def __init__(self, folder: object, **kwargs: object) -> None:
+            created.append({"folder": folder, **kwargs})
+
+        def run(self, tasks, *, on_done=None, **_kwargs):  # type: ignore[no-untyped-def]
+            for task in tasks:
+                on_done(task, {"game_id": task.game_id, "status": "failed"})
+            return {}
+
+        def summary(self) -> dict[str, object]:
+            return {}
+
+        def close(self) -> None:
+            created.append({"closed": True})
+
+    monkeypatch.setattr("commander_lab.studio.game_pool.GamePool", _Recorded)
+    monkeypatch.delenv("COMMANDER_LAB_STUDIO_SERIES_POOL", raising=False)
+    options = {
+        "series_id": "sw",
+        "base_deck": SimpleNamespace(deck_id=BASE),
+        "variant_deck": SimpleNamespace(deck_id=VARIANT),
+        "opponents": [SimpleNamespace(deck_id=OPP1), SimpleNamespace(deck_id=OPP2)],
+        "paths_by_deck_id": {d: tmp_path / "x.json" for d in (BASE, VARIANT, OPP1, OPP2)},
+        "seeds": [1],
+        "tested_seats": [0],
+        "budget_pairs": 1,
+        "look_every_pairs": 1,
+        "workers": 3,
+        "games_per_jvm": 6,
+        "command": ("java", "-jar", "b.jar", "full-game"),
+    }
+    off = paired_comparison.parallel_window_player(tmp_path, **options)  # type: ignore[arg-type]
+    assert off.pool_summary() is None and created == []
+
+    monkeypatch.setenv("COMMANDER_LAB_STUDIO_SERIES_POOL", "1")
+    monkeypatch.setattr(
+        paired_comparison,
+        "_summary_to_played_game",
+        lambda _s: {"exposure": None, "failure_class": "X"},
+    )
+    on = paired_comparison.parallel_window_player(tmp_path, **options)  # type: ignore[arg-type]
+    assert created == []  # nothing starts before the first window
+    on("base", 1, 0)
+    assert created[0]["workers"] == 3
+    assert created[0]["private_card_repository"] is True  # parallel JVMs: own card repository
+    assert created[0]["command"] == ("java", "-jar", "b.jar", "full-game")
+    on.close()
+    assert created[-1] == {"closed": True}

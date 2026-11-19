@@ -344,6 +344,13 @@ def _parser() -> argparse.ArgumentParser:
     chunk.add_argument("--max-decisions", type=int, default=50_000)
     chunk.add_argument("--style", type=float, default=None)
     chunk.add_argument("--private-card-repository", action="store_true")
+    pool_worker = commands.add_parser(
+        "pool-worker",
+        help="worker of a series game pool: one long-lived rules-engine process, JSON lines on "
+        "stdin and stdout (started by the series, not by hand)",
+    )
+    pool_worker.add_argument("--label", default="w1")
+    pool_worker.add_argument("--private-card-repository", action="store_true")
     sim = commands.add_parser(
         "simulate",
         help="run a batch simulation series of several games, several per engine process",
@@ -601,6 +608,7 @@ def _compare_decks(args: argparse.Namespace) -> int:
         series_id = args.series_id or f"cmp-{int(time.time())}"
         paths_by_deck_id = dict(zip(deck_ids, paths, strict=True))
         engine = series_engine(folder, used_batch)
+        play: paired_comparison.PairPlayer
         if engine is not None and (used_workers > 1 or engine.games_per_jvm > 1):
             play = paired_comparison.parallel_window_player(
                 folder,
@@ -626,27 +634,31 @@ def _compare_decks(args: argparse.Namespace) -> int:
                 opponents=opponents,
                 paths_by_deck_id=paths_by_deck_id,
             )
-        result = paired_comparison.run_comparison_series(
-            base_deck_id=base.deck_id,
-            variant_deck_id=variant.deck_id,
-            seeds=seeds,
-            tested_seats=tested_seats,
-            budget_pairs=args.pairs,
-            look_every_pairs=args.look_every,
-            threshold_pp=args.threshold_pp,
-            allow_mixed=args.allow_mixed,
-            play=play,
-            execution={
-                "series_id": series_id,
-                "command": "studio compare-decks",
-                "rotate_seats": args.rotate_seats,
-                "look_every_pairs": args.look_every,
-                "budget_pairs": args.pairs,
-                "workers": used_workers,
-                "games_per_jvm": engine.games_per_jvm if engine is not None else used_batch,
-                "games_dir": str(games_folder(folder)),
-            },
-        )
+        try:
+            result = paired_comparison.run_comparison_series(
+                base_deck_id=base.deck_id,
+                variant_deck_id=variant.deck_id,
+                seeds=seeds,
+                tested_seats=tested_seats,
+                budget_pairs=args.pairs,
+                look_every_pairs=args.look_every,
+                threshold_pp=args.threshold_pp,
+                allow_mixed=args.allow_mixed,
+                play=play,
+                execution={
+                    "series_id": series_id,
+                    "command": "studio compare-decks",
+                    "rotate_seats": args.rotate_seats,
+                    "look_every_pairs": args.look_every,
+                    "budget_pairs": args.pairs,
+                    "workers": used_workers,
+                    "games_per_jvm": engine.games_per_jvm if engine is not None else used_batch,
+                    "games_dir": str(games_folder(folder)),
+                },
+            )
+        finally:
+            if isinstance(play, paired_comparison.WindowPlayer):
+                play.close()  # ends the worker processes of a pooled series
     except ValueError as error:
         print(f"refused: {error}", file=sys.stderr)
         return 2
@@ -690,6 +702,16 @@ def _games(args: argparse.Namespace) -> int:
         ]
     print(json.dumps(result, indent=2, ensure_ascii=False))
     return 0
+
+
+def _pool_worker(args: argparse.Namespace) -> int:
+    from .game_pool import run_worker_process
+    from .store import studio_data_dir
+
+    folder = Path(args.data).resolve() if args.data else studio_data_dir()
+    return run_worker_process(
+        folder, label=args.label, private_card_repository=args.private_card_repository
+    )
 
 
 def _play_batch(args: argparse.Namespace) -> int:
@@ -1070,6 +1092,8 @@ def main(argv: list[str] | None = None) -> int:
         return _games(args)
     if args.command == "play-batch":
         return _play_batch(args)
+    if args.command == "pool-worker":
+        return _pool_worker(args)
     if args.command == "simulate":
         import time
 
