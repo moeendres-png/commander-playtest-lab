@@ -964,6 +964,34 @@ def test_server_refuses_five_and_six_seat_tables_with_a_clear_reason(
         store.close()
 
 
+def test_snapshot_names_the_forced_ai_passes_the_engine_answered_or_unknown(
+    tmp_path: Path,
+) -> None:
+    """#1591: with the pass skipping on, the AI passes the engine answers never reach Python as
+    frames. The live snapshot carries the engine's own count; before the engine has reported one
+    it is unknown (None), never 0."""
+    decks = (
+        _make_deck("own", "Chulane, Teller of Tales"),
+        _make_deck("opp", "Kinnan, Bonder Prodigy"),
+    )
+    prepared = play.prepare_game(
+        decks, seed=1, game_id="g-live", human_seats=[0], decision_timeout_seconds=0
+    )
+    session = play.InteractiveGameSession(
+        tmp_path, prepared, human_seats=[0], decision_timeout_seconds=0
+    )
+    assert session.snapshot()["forced_passes_answered_by_engine"] is None
+    session._publish_status({"terminal": False, "decision": None}, object())
+    assert session.snapshot()["forced_passes_answered_by_engine"] is None
+    for bad in ("7", 7.0, True, -1, None):
+        session._publish_status({"forced_decisions_skipped": bad}, object())
+        assert session.snapshot()["forced_passes_answered_by_engine"] is None
+    session._publish_status({"forced_decisions_skipped": 7}, object())
+    assert session.snapshot()["forced_passes_answered_by_engine"] == 7
+    session._publish_status({"terminal": False, "decision": None}, object())
+    assert session.snapshot()["forced_passes_answered_by_engine"] == 7
+
+
 # ---- the real engine: a scripted human seat plays a whole game through the PLAY routes ----------
 
 ENGINE_ENV = "COMMANDER_LAB_XMAGE_FULL_GAME_BRIDGE_CMD"
@@ -1091,7 +1119,21 @@ def test_real_engine_human_seat_plays_a_game_to_its_end_through_the_play_routes(
     assert answered.get("mulligan", 0) >= 1 and answered.get("priority", 0) >= 10, answered
     # the engine's end is recorded, and the hands of the AI seat open up only now
     assert state.get("hands_revealed") is True
-    print("real-engine human game ended:", result, "answered:", answered, "conceded:", conceded)
+    # #1591: interactive games start the bridge with the pass skipping on, so the engine answered
+    # the forced AI passes itself; the closing entry counts them (a run without the switch says 0)
+    skipped = result.get("forced_decisions_skipped")
+    assert isinstance(skipped, int) and skipped > 0, result
+    assert state.get("forced_passes_answered_by_engine") == skipped
+    print(
+        "real-engine human game ended:",
+        result,
+        "answered:",
+        answered,
+        "forced AI passes answered by the engine:",
+        skipped,
+        "conceded:",
+        conceded,
+    )
 
 
 class _ActiveScript:

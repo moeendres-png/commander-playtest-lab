@@ -203,10 +203,21 @@ def list_commanders(
 
 def cohort_sizes(store: StudioStore, commander_names: Sequence[str]) -> dict[str, int]:
     """Distinct source decks of the commander per group: all, each play group, each named
-    cohort. ``all`` means all decks bound to this commander, never all decks of the store."""
-    db = store.connection
+    cohort. ``all`` means all decks bound to this commander, never all decks of the store.
+    Remembered per store state and commanders (#1563); the caller gets its own dict."""
     if not commander_names:
         return {}
+    return dict(
+        cache.cached(
+            store,
+            ("cohort_sizes", tuple(commander_names)),
+            lambda: _cohort_sizes_uncached(store, commander_names),
+        )
+    )
+
+
+def _cohort_sizes_uncached(store: StudioStore, commander_names: Sequence[str]) -> dict[str, int]:
+    db = store.connection
     bound, bound_args = bound_to("corpus_deck", "d.deck_id", commander_names)
     sizes = {
         ALL_DECKS: int(
