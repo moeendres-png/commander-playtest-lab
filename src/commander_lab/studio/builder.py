@@ -28,7 +28,7 @@ from commander_lab.deck_variant import compare_variant, comparison_to_dict
 from commander_lab.models import RulesDeckInput
 
 from . import cache
-from .decks import RevisionCard, color_set, list_rows
+from .decks import RevisionCard, color_set, ensure_scryfall_cards, list_rows
 from .german_names import load_german_names
 from .store import BINDING_KINDS, StudioStore, now_utc
 
@@ -620,11 +620,16 @@ def _unowned_pool_cards(
         ):
             relevant_names_cf.add(str(sig["card_name"]).casefold())
 
+    from .labels import card_labels as _card_labels
+
+    card_labels_map = _card_labels(store)
     unowned: list[dict[str, object]] = []
     for row in db.execute(
-        "SELECT s.*, c.card_id AS existing_card_id "
+        "SELECT s.*, c.card_id AS existing_card_id, "
+        "m.favorite AS mark_favorite, m.excluded AS mark_excluded, m.note AS mark_note "
         "FROM scryfall_card s "
         "LEFT JOIN card c ON c.oracle_id = s.oracle_id "
+        "LEFT JOIN card_mark m ON m.card_id = c.card_id "
         "WHERE s.commander_legality = 'legal' "
         "ORDER BY s.name"
     ):
@@ -684,10 +689,10 @@ def _unowned_pool_cards(
                 "owned": 0,
                 "available": 0,
                 "reserved": 0,
-                "favorite": False,
-                "excluded": False,
-                "note": "",
-                "labels": [],
+                "favorite": bool(row["mark_favorite"]),
+                "excluded": bool(row["mark_excluded"]),
+                "note": str(row["mark_note"] or ""),
+                "labels": card_labels_map.get(card_id, []),
                 "roles": roles.get(oracle_id, []),
                 "decks": card_hits,
                 "decks_known": decks_known,
@@ -1603,10 +1608,17 @@ def deck_roles(store: StudioStore, cards: Iterable[RevisionCard]) -> dict[str, i
     for card in cards:
         if card.zone != "main":
             continue
-        for row in db.execute(
+        rows = db.execute(
             "SELECT r.role FROM card c JOIN card_role r USING (oracle_id) WHERE c.card_id = ?",
             (card.card_id,),
-        ):
+        ).fetchall()
+        if not rows and card.card_id.startswith("scryfall:"):
+            oracle_id = card.card_id.removeprefix("scryfall:")
+            rows = db.execute(
+                "SELECT r.role FROM card_role r WHERE r.oracle_id = ?",
+                (oracle_id,),
+            ).fetchall()
+        for row in rows:
             counts[str(row["role"])] += card.quantity
     return dict(counts)
 
@@ -2104,6 +2116,8 @@ def _change_draft_card(
 def set_favorite(store: StudioStore, card_id: str, favorite: bool) -> dict[str, object]:
     """Set or clear only the favorite mark of a card; its exclusion and note stay as stored.
     Returns the whole mark. ``KeyError`` for an unknown card."""
+    if card_id.startswith("scryfall:"):
+        ensure_scryfall_cards(store, [card_id])
     with store.connection as db:
         if db.execute("SELECT 1 FROM card WHERE card_id = ?", (card_id,)).fetchone() is None:
             raise KeyError(card_id)
@@ -2133,6 +2147,8 @@ def set_mark(
     store: StudioStore, card_id: str, *, favorite: bool, excluded: bool, note: str
 ) -> None:
     """The Owner's own marks on a card: favorite, excluded from suggestions, a note."""
+    if card_id.startswith("scryfall:"):
+        ensure_scryfall_cards(store, [card_id])
     with store.connection as db:
         if db.execute("SELECT 1 FROM card WHERE card_id = ?", (card_id,)).fetchone() is None:
             raise KeyError(card_id)

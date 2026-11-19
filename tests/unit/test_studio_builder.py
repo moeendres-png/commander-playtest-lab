@@ -1015,3 +1015,123 @@ def test_api_pool_caches_include_unowned_separately(studio: StudioStore) -> None
         assert r_false_2.status_code == 200
         names_false_2 = {c["name"] for c in r_false_2.json()["cards"]}
         assert "Teferi, Time Raveler" not in names_false_2
+
+
+def test_unowned_scryfall_card_check_revision_and_marks(studio: StudioStore) -> None:
+    """Unowned scryfall:<oracle_id> cards must work in /api/check, revision saves, marks and labels
+    without leaking into the owned-only pool, while bogus scryfall IDs still fail closed (422)."""
+    _insert_scryfall(
+        studio,
+        oracle_id="oracle-teferi-save",
+        name="Teferi, Hero of Dominaria",
+        colors="WU",
+        type_line="Legendary Planeswalker — Teferi",
+        oracle_text="+1: Draw a card.",
+    )
+    source_id = str(
+        studio.connection.execute("SELECT source_id FROM scryfall_card LIMIT 1").fetchone()[0]
+    )
+    studio.connection.execute(
+        "INSERT OR IGNORE INTO card_role(oracle_id, role, source_id) VALUES (?, ?, ?)",
+        ("oracle-teferi-save", "card-draw", source_id),
+    )
+    studio.connection.commit()
+    cmd_row = studio.connection.execute(
+        "SELECT card_id FROM card WHERE oracle_name = 'Test Commander'"
+    ).fetchone()
+    assert cmd_row is not None
+    cmd_id = str(cmd_row["card_id"])
+    unowned_id = "scryfall:oracle-teferi-save"
+    assert studio.path is not None
+    folder = studio.path.parent
+    studio.close()
+
+    marker = {"X-Studio": "1"}
+    with TestClient(create_app(folder)) as client:
+        # 1. /api/check resolves scryfall:<oracle_id> read-only (shape, roles, owned_only toggle)
+        check_cards = [
+            {"card_id": cmd_id, "zone": "commander", "quantity": 1},
+            {"card_id": unowned_id, "zone": "main", "quantity": 1},
+        ]
+        r_check_owned = client.post(
+            "/api/check", json={"cards": check_cards, "owned_only": True}, headers=marker
+        )
+        assert r_check_owned.status_code == 200
+        body_owned = r_check_owned.json()
+        assert body_owned["shape"]["cards"] == 2
+        assert body_owned["shape"]["types"].get("Planeswalker") == 1
+        assert body_owned["roles"].get("card-draw") == 1
+        assert any(
+            i["code"] == "not_owned" and i["card_id"] == unowned_id for i in body_owned["issues"]
+        )
+
+        r_check_wishlist = client.post(
+            "/api/check", json={"cards": check_cards, "owned_only": False}, headers=marker
+        )
+        assert r_check_wishlist.status_code == 200
+        assert not any(i["code"] == "not_owned" for i in r_check_wishlist.json()["issues"])
+
+        # 2. Saving a revision with a known scryfall:<oracle_id> succeeds and preserves card
+        r_deck = client.post(
+            "/api/decks",
+            json={"name": "Wishlist Test Deck", "commander_card_ids": [cmd_id]},
+            headers=marker,
+        )
+        assert r_deck.status_code == 200
+        deck_id = r_deck.json()["deck_id"]
+
+        r_rev = client.post(
+            f"/api/decks/{deck_id}/revisions",
+            json={"cards": check_cards, "branch": "main", "note": "with wishlist card"},
+            headers=marker,
+        )
+        assert r_rev.status_code == 200
+        rev_id = r_rev.json()["revision_id"]
+
+        r_get_rev = client.get(f"/api/revisions/{rev_id}")
+        assert r_get_rev.status_code == 200
+        rev_card_ids = {c["card_id"] for c in r_get_rev.json()["cards"]}
+        assert unowned_id in rev_card_ids
+
+        # 3. Bogus scryfall:<unknown> still fails closed with HTTP 422
+        r_bad = client.post(
+            f"/api/decks/{deck_id}/revisions",
+            json={
+                "cards": [
+                    {"card_id": cmd_id, "zone": "commander", "quantity": 1},
+                    {"card_id": "scryfall:does-not-exist", "zone": "main", "quantity": 1},
+                ],
+                "branch": "main",
+            },
+            headers=marker,
+        )
+        assert r_bad.status_code == 422
+
+        # 4. Marks and labels work for scryfall:<oracle_id> and show up in include_unowned=true
+        r_mark = client.put(
+            f"/api/cards/{unowned_id}/mark",
+            json={"favorite": True, "excluded": False, "note": "Zukauf Prio 1"},
+            headers=marker,
+        )
+        assert r_mark.status_code == 200
+        r_lbl = client.put(
+            f"/api/cards/{unowned_id}/labels",
+            json={"labels": ["Superfriends"]},
+            headers=marker,
+        )
+        assert r_lbl.status_code == 200
+
+        # 5. Materialized unowned card must NOT leak into default include_unowned=false pool
+        r_pool_owned = client.get("/api/pool", params={"commander": "Test Commander"})
+        assert r_pool_owned.status_code == 200
+        assert all(c["card_id"] != unowned_id for c in r_pool_owned.json()["cards"])
+
+        r_pool_unowned = client.get(
+            "/api/pool", params={"commander": "Test Commander", "include_unowned": "true"}
+        )
+        assert r_pool_unowned.status_code == 200
+        teferi = next(c for c in r_pool_unowned.json()["cards"] if c["card_id"] == unowned_id)
+        assert teferi["in_collection"] is False
+        assert teferi["favorite"] is True
+        assert teferi["note"] == "Zukauf Prio 1"
+        assert teferi["labels"] == ["Superfriends"]

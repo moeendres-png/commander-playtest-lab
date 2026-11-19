@@ -61,6 +61,71 @@ def _merge(cards: Iterable[RevisionCard]) -> list[RevisionCard]:
     return [RevisionCard(card_id, qty, zone) for (zone, card_id), qty in sorted(merged.items())]
 
 
+def ensure_scryfall_cards(store: StudioStore, card_ids: Iterable[str]) -> int:
+    """Materialize ``scryfall:<oracle_id>`` catalog entries into ``card`` without touching
+    ``inventory``.
+
+    Used when saving a revision or user mark that references an unowned Scryfall card
+    (Zukauf-Modus, #1636). Unknown ``oracle_id`` values are never inserted so callers still
+    fail closed on bogus IDs.
+    """
+    prefix = "scryfall:"
+    oracle_ids = sorted(
+        {
+            cid[len(prefix) :]
+            for cid in card_ids
+            if cid.startswith(prefix) and len(cid) > len(prefix)
+        }
+    )
+    if not oracle_ids:
+        return 0
+    db = store.connection
+    placeholders = ",".join("?" for _ in oracle_ids)
+    rows = db.execute(
+        "SELECT s.oracle_id, s.name, s.color_identity, s.mana_cost, s.mana_value, "
+        "s.type_line, s.oracle_text, s.commander_legality, s.source_id "
+        "FROM scryfall_card s "
+        f"WHERE s.oracle_id IN ({placeholders}) "
+        "AND NOT EXISTS (SELECT 1 FROM card c WHERE c.card_id = ? || s.oracle_id)",
+        [*oracle_ids, prefix],
+    ).fetchall()
+    if not rows:
+        return 0
+    to_insert: list[tuple[object, ...]] = []
+    for row in rows:
+        type_line = str(row["type_line"] or "")
+        is_basic = 1 if type_line.startswith("Basic ") and "Land" in type_line else 0
+        legality = row["commander_legality"]
+        legal_flag = None if legality is None else (1 if str(legality) == "legal" else 0)
+        to_insert.append(
+            (
+                f"{prefix}{row['oracle_id']}",
+                row["oracle_id"],
+                row["name"],
+                row["color_identity"],
+                row["mana_cost"],
+                row["mana_value"],
+                row["type_line"],
+                row["oracle_text"],
+                is_basic,
+                legal_flag,
+                None,
+                "scryfall_catalog",
+                row["source_id"],
+            )
+        )
+    with db:
+        db.executemany(
+            "INSERT OR IGNORE INTO card("
+            "card_id, oracle_id, oracle_name, color_identity, mana_cost, mana_value, "
+            "type_line, oracle_text, is_basic_land, commander_legal, legality_verified_at, "
+            "identity_evidence, source_id"
+            ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            to_insert,
+        )
+    return len(to_insert)
+
+
 def create_revision(
     store: StudioStore,
     *,
@@ -82,6 +147,7 @@ def create_revision(
     digest = deck_hash(merged)
     revision_id = f"{deck_id}@{digest[:16]}"
     db = store.connection
+    ensure_scryfall_cards(store, (card.card_id for card in merged))
     known = {str(row[0]) for row in db.execute("SELECT card_id FROM card")}
     missing = sorted({card.card_id for card in merged} - known)
     if missing:
@@ -236,8 +302,26 @@ def list_rows(store: StudioStore, cards: Iterable[RevisionCard]) -> list[sqlite3
     if not was_open:
         db.commit()
     return db.execute(
-        f"SELECT {_ROW_COLUMNS} FROM work_list rc JOIN card_fact c USING (card_id) "
-        "LEFT JOIN inventory i USING (card_id) ORDER BY rc.zone, c.oracle_name"
+        "SELECT "
+        "rc.card_id, rc.zone, rc.quantity, "
+        "COALESCE(c.oracle_name, s.name) AS oracle_name, "
+        "COALESCE(c.engine_name, CASE WHEN s.layout = 'split' THEN s.name ELSE COALESCE(s.front_name, s.name) END) AS engine_name, "
+        "COALESCE(c.color_identity, s.color_identity) AS color_identity, "
+        "COALESCE(c.is_basic_land, CASE WHEN s.type_line LIKE 'Basic %Land%' THEN 1 ELSE 0 END) AS is_basic_land, "
+        "COALESCE(c.commander_legal, CASE WHEN s.commander_legality IS NULL THEN NULL WHEN s.commander_legality = 'legal' THEN 1 ELSE 0 END) AS commander_legal, "
+        "COALESCE(c.type_line, s.type_line) AS type_line, "
+        "COALESCE(c.oracle_text, s.oracle_text) AS oracle_text, "
+        "COALESCE(c.mana_cost, s.mana_cost) AS mana_cost, "
+        "COALESCE(c.mana_value, s.mana_value) AS mana_value, "
+        "COALESCE(c.produced_mana, s.produced_mana) AS produced_mana, "
+        "COALESCE(c.layout, s.layout) AS layout, "
+        "i.available_lower_bound, i.reserved "
+        "FROM work_list rc "
+        "LEFT JOIN card_fact c USING (card_id) "
+        "LEFT JOIN scryfall_card s ON c.card_id IS NULL AND rc.card_id = 'scryfall:' || s.oracle_id "
+        "LEFT JOIN inventory i USING (card_id) "
+        "WHERE c.card_id IS NOT NULL OR s.oracle_id IS NOT NULL "
+        "ORDER BY rc.zone, COALESCE(c.oracle_name, s.name)"
     ).fetchall()
 
 

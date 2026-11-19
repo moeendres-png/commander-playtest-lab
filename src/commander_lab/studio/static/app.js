@@ -454,7 +454,7 @@ async function syncDraftNow() {
     const cards = entries();
     const shouldPut = state.needsDraftPut && state.dirty;
     const [result, putRes] = await Promise.all([
-      api("/api/check", "POST", { cards, owned_only: true }),
+      api("/api/check", "POST", { cards, owned_only: !state.includeUnowned }),
       shouldPut
         ? api(`/api/decks/${encodeURIComponent(state.deckId)}/branches/${encodeURIComponent(state.branch)}/draft`, "PUT", {
             cards,
@@ -502,6 +502,7 @@ async function adoptForeignDraft() {
     state.draftUpdatedAt = found.draft.updated_at || "";
     state.draftConflict = false;
     state.needsDraftPut = false;
+    await ensureUnownedLoadedFor(found.draft.cards);
     useCards(found.draft.cards); state.dirty = true; renderAll(); await syncDraft();
     toast("Das Deck wurde auf einer anderen Seite geändert (zum Beispiel in der Tierliste). Die Liste hier ist jetzt aktuell.");
   } catch (error) { /* the next look at the tab tries again */ }
@@ -2794,7 +2795,12 @@ function renderBracketBar() {
   );
 }
 function applyPool(pool) {
-  state.pool = pool.cards; state.byId = new Map(pool.cards.map((card) => [card.card_id, card]));
+  const previous = state.byId || new Map();
+  const nextById = new Map(pool.cards.map((card) => [card.card_id, card]));
+  for (const id of state.list.keys()) {
+    if (!nextById.has(id) && previous.has(id)) nextById.set(id, previous.get(id));
+  }
+  state.pool = pool.cards; state.byId = nextById;
   state.roles = (pool.roles || []).sort((x, y) => roleName(x).localeCompare(roleName(y)));
   state.cohorts = pool.cohorts; state.small = pool.small_denominator; state.commanderIds = pool.commander_ids;
   state.universeInfo = pool.universe || null;
@@ -3186,7 +3192,7 @@ function setupControls() {
   const views = [["grid", "Bilder"], ["table", "Tabelle"]];
   const drawViews = () => $("view-toggle").replaceChildren(...views.map(([key, label]) => h("button", { type: "button", class: "chip" + (state.view === key ? " on" : ""), "aria-pressed": state.view === key, onclick: () => { state.view = key; drawViews(); renderPool(); } }, label)));
   drawViews();
-  const applyBuilderFilterPreset = (cfg) => {
+  const applyBuilderFilterPreset = async (cfg) => {
     $("q").value = cfg.q || "";
     $("type-filter").value = cfg.type || "";
     $("role-filter").value = cfg.role || "";
@@ -3199,21 +3205,33 @@ function setupControls() {
     state.superfriendsFilter = cfg.superfriends || "";
     state.colors = new Set(Array.isArray(cfg.colors) ? cfg.colors : []);
     for (const btn of $("color-filter").querySelectorAll("button")) btn.classList.toggle("on", state.colors.has(btn.textContent));
-    state.shown = 120; renderPool();
+    state.shown = 120;
+    if (state.superfriendsFilter === "missing") {
+      $("f-free").checked = false;
+      if (!state.includeUnowned) {
+        state.includeUnowned = true;
+        if ($("f-unowned")) $("f-unowned").checked = true;
+        try { await loadPool(); renderAll(); } catch (error) { fail(error); }
+        return;
+      }
+    }
+    renderPool();
   };
   const renderQuickFilterPresets = () => {
     if (!$("quick-filter-presets")) return;
     const toggleSuperfriends = async (kind) => {
       const next = state.superfriendsFilter === kind ? "" : kind;
       state.superfriendsFilter = next;
-      if (next === "missing" && !state.includeUnowned) {
-        state.includeUnowned = true;
-        if ($("f-unowned")) $("f-unowned").checked = true;
+      if (next === "missing") {
         $("f-free").checked = false;
-        state.shown = 120;
-        renderQuickFilterPresets();
-        try { await loadPool(); renderAll(); } catch (error) { fail(error); }
-        return;
+        if (!state.includeUnowned) {
+          state.includeUnowned = true;
+          if ($("f-unowned")) $("f-unowned").checked = true;
+          state.shown = 120;
+          renderQuickFilterPresets();
+          try { await loadPool(); renderAll(); } catch (error) { fail(error); }
+          return;
+        }
       }
       state.shown = 120;
       renderQuickFilterPresets();
