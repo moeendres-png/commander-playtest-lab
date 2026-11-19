@@ -1282,14 +1282,18 @@ def test_gc_band_switches_dynamically_when_game_changer_list_and_date_change(
     )
     store.connection.commit()
 
-    # Without snapshot_date -> provenance says "unbekannt" (never guessed) and deck is in gc_band:0.
+    # No card marked as Game Changer: the list is missing, so the band is unknown, never 0.
     meta0 = gc_band.gc_band_metadata(store)
     assert meta0["list_date"] is None
-    assert (
-        meta0["provenance"] == "regelabgeleitet aus Deckliste und Game-Changer-Liste vom unbekannt"
+    assert meta0["marking_status"] == gc_band.MARKING_MISSING
+    assert meta0["provenance"] == (
+        "regelabgeleitet aus Deckliste und Game-Changer-Liste: "
+        "keine Game-Changer-Markierung gespeichert, Band unbekannt"
     )
+    assert "vom unbekannt" not in meta0["provenance"]
     assert "kein Bracket" in meta0["disclaimer"]
-    assert universe.resolve_universe(store, {"gc_band": ["gc_band:0"]}) == ["dyn1"]
+    assert gc_band.deck_gc_bands(store, ["dyn1"]) == {"dyn1": gc_band.GC_BAND_UNKNOWN}
+    assert universe.resolve_universe(store, {"gc_band": ["gc_band:0"]}) == []
     assert universe.resolve_universe(store, {"gc_band": ["gc_band:1-3"]}) == []
 
     # Flip 2 cards to game_changer = 1 and stamp snapshot_date -> deck moves to gc_band:1-3.
@@ -1302,8 +1306,9 @@ def test_gc_band_switches_dynamically_when_game_changer_list_and_date_change(
     store.connection.commit()
     meta1 = gc_band.gc_band_metadata(store)
     assert meta1["list_date"] == "2026-11-16"
-    assert (
-        meta1["provenance"] == "regelabgeleitet aus Deckliste und Game-Changer-Liste vom 2026-11-16"
+    assert meta1["marking_status"] == gc_band.MARKING_COMPLETE
+    assert meta1["provenance"] == (
+        "regelabgeleitet aus Deckliste und Game-Changer-Liste (Markierung vom 2026-11-16)"
     )
     assert universe.resolve_universe(store, {"gc_band": ["gc_band:0"]}) == []
     assert universe.resolve_universe(store, {"gc_band": ["gc_band:1-3"]}) == ["dyn1"]
@@ -1313,3 +1318,176 @@ def test_gc_band_switches_dynamically_when_game_changer_list_and_date_change(
     store.connection.commit()
     assert universe.resolve_universe(store, {"gc_band": ["gc_band:1-3"]}) == []
     assert universe.resolve_universe(store, {"gc_band": ["gc_band:4+"]}) == ["dyn1"]
+
+
+def _gc_crosstab_rows(store: StudioStore) -> dict[str, tuple[int, int, int]]:
+    from commander_lab.studio import gc_band
+
+    table = gc_band.gc_band_crosstab(store, deck_ids=universe.resolve_universe(store, {}))
+    rows = table["rows"]
+    assert sum(rows[band]["total"] for band in gc_band.GC_BAND_ROWS) == table["total_decks"]
+    return {
+        band: (row["total"], row["decks_with_unresolved"], row["unresolved_cards"])
+        for band, row in rows.items()
+    }
+
+
+def test_gc_band_null_or_missing_markings_are_unknown_never_zero(store: StudioStore) -> None:
+    from commander_lab.studio import gc_band
+
+    # Every marking NULL (an older Scryfall cache): no deck may land in gc_band:0.
+    for idx in range(1, 4):
+        _insert_scryfall_gc(store, f"oid:n{idx}", f"Null Card {idx}", None)
+    for idx in range(3):
+        _raw_deck(store, f"n{idx}", [("Null Card 1", "main", 1)], fingerprint=f"fpn{idx}")
+    store.connection.commit()
+    meta = gc_band.gc_band_metadata(store)
+    assert meta["marking_status"] == gc_band.MARKING_MISSING
+    assert meta["game_changer_cards_marked"] == 0 and meta["game_changer_cards_unknown"] == 3
+    rows = _gc_crosstab_rows(store)
+    assert rows[gc_band.GC_BAND_UNKNOWN][0] == 3
+    assert rows[gc_band.GC_BAND_0][0] == 0
+    assert universe.resolve_universe(store, {"gc_band": [gc_band.GC_BAND_0]}) == []
+    # "unknown" is a report row, never a selectable band.
+    with pytest.raises(ValueError, match="unknown universe gc_band"):
+        universe.resolve_universe(store, {"gc_band": [gc_band.GC_BAND_UNKNOWN]})
+
+    # All markings 0 (no Game Changer list at all): still unknown, never 0.
+    store.connection.execute("UPDATE scryfall_card SET game_changer = 0")
+    store.connection.commit()
+    assert gc_band.gc_band_metadata(store)["marking_status"] == gc_band.MARKING_MISSING
+    assert _gc_crosstab_rows(store)[gc_band.GC_BAND_UNKNOWN][0] == 3
+
+    # Partial marking: one card marked, one NULL. A deck holding the NULL card is unknown.
+    store.connection.execute("UPDATE scryfall_card SET game_changer = 1 WHERE oracle_id = 'oid:n2'")
+    store.connection.execute(
+        "UPDATE scryfall_card SET game_changer = NULL WHERE oracle_id = 'oid:n3'"
+    )
+    _raw_deck(store, "p1", [("Null Card 3", "main", 1)], fingerprint="fpp1")
+    store.connection.commit()
+    assert gc_band.gc_band_metadata(store)["marking_status"] == gc_band.MARKING_PARTIAL
+    bands = gc_band.deck_gc_bands(store, ["n0", "p1"])
+    assert bands == {"n0": gc_band.GC_BAND_0, "p1": gc_band.GC_BAND_UNKNOWN}
+    detail = gc_band.deck_gc_details(store, ["p1"])["p1"]
+    assert detail["marking_unknown"] == 1 and detail["unresolved"] == 0
+
+
+def test_gc_band_unresolved_cards_are_counted_and_make_the_band_unknown(
+    store: StudioStore,
+) -> None:
+    from commander_lab.studio import gc_band
+
+    _insert_scryfall_gc(store, "oid:g1", "GC Card 1", 1)
+    _insert_scryfall_gc(store, "oid:plain", "Sol Ring", 0)
+    _raw_deck(store, "ok", [("Sol Ring", "main", 1)], fingerprint="fp-ok")
+    _raw_deck(
+        store,
+        "open",
+        [("GC Card 1", "main", 1), ("Mystery Card", "main", 1), ("Other Mystery", "main", 1)],
+        fingerprint="fp-open",
+    )
+    store.connection.commit()
+
+    detail = gc_band.deck_gc_details(store, ["ok", "open"])
+    assert detail["ok"] == {
+        "band": gc_band.GC_BAND_0,
+        "game_changers": 0,
+        "unresolved": 0,
+        "marking_unknown": 0,
+    }
+    assert detail["open"] == {
+        "band": gc_band.GC_BAND_UNKNOWN,
+        "game_changers": 1,
+        "unresolved": 2,
+        "marking_unknown": 0,
+    }
+    rows = _gc_crosstab_rows(store)
+    assert rows[gc_band.GC_BAND_0] == (1, 0, 0)
+    assert rows[gc_band.GC_BAND_1_3] == (0, 0, 0)
+    assert rows[gc_band.GC_BAND_UNKNOWN] == (1, 1, 2)
+    table = gc_band.gc_band_crosstab(store, deck_ids=["ok", "open"])
+    assert table["decks_with_unresolved"] == 1 and table["unresolved_cards"] == 2
+    assert universe.resolve_universe(store, {"gc_band": [gc_band.GC_BAND_1_3]}) == []
+
+
+def test_gc_band_counts_front_faces_commander_companion_and_oracle_ids(
+    store: StudioStore,
+) -> None:
+    from commander_lab.studio import gc_band
+
+    assert [gc_band.band_for_count(n) for n in (0, 1, 2, 3, 4, 9)] == [
+        gc_band.GC_BAND_0,
+        gc_band.GC_BAND_1_3,
+        gc_band.GC_BAND_1_3,
+        gc_band.GC_BAND_1_3,
+        gc_band.GC_BAND_4_PLUS,
+        gc_band.GC_BAND_4_PLUS,
+    ]
+    _insert_scryfall_gc(store, "oid:cmd", "Commander GC", 1)
+    _insert_scryfall_gc(store, "oid:comp", "Companion GC", 1)
+    _insert_scryfall_gc(store, "oid:ora", "Oracle GC", 1)
+    _insert_scryfall_gc(store, "oid:side", "Sideboard GC", 1)
+    _insert_scryfall_gc(store, "oid:dfc", "Alpha // Beta", 1)
+    store.connection.execute(
+        "UPDATE scryfall_card SET front_name = 'Alpha' WHERE oracle_id = 'oid:dfc'"
+    )
+    # Exactly three Game Changers: commander section, front face only, oracle id only (the
+    # printed name matches no scryfall row). The sideboard Game Changer does not count.
+    _raw_deck(
+        store,
+        "three",
+        [
+            ("Commander GC", "commander", 1),
+            ("Alpha", "main", 1),
+            ("Oracle GC (Showcase)", "main", 1),
+            ("Sideboard GC", "sideboard", 1),
+        ],
+        fingerprint="fp-three",
+    )
+    store.connection.execute(
+        "UPDATE corpus_deck_card SET oracle_id = 'oid:ora' "
+        "WHERE deck_id = 'three' AND card_name = 'Oracle GC (Showcase)'"
+    )
+    # Four: the same three plus a companion.
+    _raw_deck(
+        store,
+        "four",
+        [
+            ("Commander GC", "commander", 1),
+            ("Alpha", "main", 1),
+            ("Oracle GC", "main", 1),
+            ("Companion GC", "companion", 1),
+        ],
+        fingerprint="fp-four",
+    )
+    store.connection.commit()
+
+    detail = gc_band.deck_gc_details(store, ["three", "four"])
+    assert detail["three"]["game_changers"] == 3 and detail["three"]["unresolved"] == 0
+    assert detail["three"]["band"] == gc_band.GC_BAND_1_3
+    assert detail["four"]["game_changers"] == 4 and detail["four"]["band"] == gc_band.GC_BAND_4_PLUS
+    assert universe.resolve_universe(store, {"gc_band": [gc_band.GC_BAND_1_3]}) == ["three"]
+    assert universe.resolve_universe(store, {"gc_band": [gc_band.GC_BAND_4_PLUS]}) == ["four"]
+
+
+def test_gc_band_list_date_comes_from_the_marking_source_only(store: StudioStore) -> None:
+    from commander_lab.studio import gc_band
+
+    # The marking source has no snapshot date; another Scryfall source (no marks) is newer.
+    _insert_scryfall_gc(store, "oid:m", "Marked GC", 1, snapshot_date=None, source_id="src:mark")
+    _insert_scryfall_gc(
+        store, "oid:o", "Other Card", 0, snapshot_date="2026-11-18", source_id="src:other"
+    )
+    store.connection.commit()
+    meta = gc_band.gc_band_metadata(store)
+    assert meta["list_date"] is None
+    assert meta["list_imported_at"] == "2026-11-16"
+    assert meta["provenance"] == (
+        "regelabgeleitet aus Deckliste und Game-Changer-Liste; "
+        "Datum der Markierung unbekannt (Import 2026-11-16)"
+    )
+    store.connection.execute(
+        "UPDATE source SET snapshot_date = '2026-11-10' WHERE source_id = 'src:mark'"
+    )
+    store.connection.commit()
+    assert gc_band.game_changer_list_date(store) == "2026-11-10"

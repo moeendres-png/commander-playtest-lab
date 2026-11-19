@@ -685,8 +685,12 @@ def pool_cards(
             "meaning": spread["meaning"],
         }
         if gc_band is not None:
+            meta = gc_band_mod.gc_band_metadata(store.connection)
             universe_payload["gc_band"] = gc_band
-            universe_payload["gc_band_meta"] = gc_band_mod.gc_band_metadata(store.connection)
+            universe_payload["gc_band_meta"] = meta
+            if meta["marking_status"] == gc_band_mod.MARKING_MISSING:
+                # No marked card in the store: no deck has a known band (unknown, never 0).
+                universe_payload["empty_reason"] = gc_band_mod.MARKING_MISSING_REASON
         result["universe"] = universe_payload
     return result
 

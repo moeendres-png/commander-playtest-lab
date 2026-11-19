@@ -337,6 +337,8 @@ def test_data_report_includes_exact_gc_band_crosstab_and_declared_bracket_origin
         "UPDATE source SET snapshot_date = '2026-11-16' "
         "WHERE source_id IN (SELECT DISTINCT source_id FROM scryfall_card)"
     )
+    # A complete list: every card is marked (0 or 1), so no deck is unknown for NULLs.
+    db.execute("UPDATE scryfall_card SET game_changer = 0")
     db.execute(
         "UPDATE scryfall_card SET game_changer = 1 "
         "WHERE name IN ('Filler 01', 'Filler 02', 'Filler 03', 'Filler 04')"
@@ -372,17 +374,27 @@ def test_data_report_includes_exact_gc_band_crosstab_and_declared_bracket_origin
     ct = _section(report, "gc_band_crosstab")
     assert ct["total_decks"] == 3
     assert ct["list_date"] == "2026-11-16"
-    assert ct["provenance"] == "regelabgeleitet aus Deckliste und Game-Changer-Liste vom 2026-11-16"
+    assert ct["provenance"] == (
+        "regelabgeleitet aus Deckliste und Game-Changer-Liste (Markierung vom 2026-11-16)"
+    )
+    assert ct["marking_status"] == "complete"
     assert "kein Bracket" in str(ct["disclaimer"])
     rows = ct["rows"]
     assert isinstance(rows, dict)
-    assert sum(int(rows[band]["total"]) for band in ("gc_band:0", "gc_band:1-3", "gc_band:4+")) == 3
+    every_row = ("gc_band:0", "gc_band:1-3", "gc_band:4+", "gc_band:unknown")
+    assert sum(int(rows[band]["total"]) for band in every_row) == 3
     assert rows["gc_band:0"]["total"] == 1
     assert rows["gc_band:0"]["by_bracket"]["bracket:2"] == 1
     assert rows["gc_band:1-3"]["total"] == 1
     assert rows["gc_band:1-3"]["by_bracket"]["bracket:4"] == 1
-    assert rows["gc_band:4+"]["total"] == 1
-    assert rows["gc_band:4+"]["by_bracket"]["ohne_bracket"] == 1
+    # deck_ids[2] holds four Game Changers but also the fixture's "Unknown Card", which no
+    # scryfall row resolves: its band is unknown (counted as unresolved), never silently 4+.
+    assert rows["gc_band:4+"]["total"] == 0
+    assert rows["gc_band:unknown"]["total"] == 1
+    assert rows["gc_band:unknown"]["by_bracket"]["ohne_bracket"] == 1
+    assert rows["gc_band:unknown"]["decks_with_unresolved"] == 1
+    assert rows["gc_band:unknown"]["unresolved_cards"] == 1
+    assert ct["decks_with_unresolved"] == 1 and ct["unresolved_cards"] == 1
     origins = ct["declared_bracket_origins"]
     assert isinstance(origins, dict) and origins
     assert sum(int(item["decks_total"]) for item in origins.values()) == 3
@@ -392,3 +404,12 @@ def test_data_report_includes_exact_gc_band_crosstab_and_declared_bracket_origin
     text = json.dumps(report)
     for forbidden in ("Filler 00", "Filler 01", "http"):
         assert forbidden not in text
+
+    # NULL markings (an older cache): every deck is unknown in the report, never gc_band:0.
+    db.execute("UPDATE scryfall_card SET game_changer = NULL")
+    db.commit()
+    unknown = _section(data_report(studio, today=TODAY), "gc_band_crosstab")
+    assert unknown["marking_status"] == "missing"
+    assert unknown["rows"]["gc_band:unknown"]["total"] == 3  # type: ignore[index]
+    assert unknown["rows"]["gc_band:0"]["total"] == 0  # type: ignore[index]
+    assert "keine Game-Changer-Markierung" in str(unknown["provenance"])
