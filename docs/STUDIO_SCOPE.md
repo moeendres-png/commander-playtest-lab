@@ -28,8 +28,10 @@ Datei widersprechen, gilt diese Datei.
 - XMage ist die alleinige Regelautorität; keine Erste-, Zufalls- oder Standard-Option
   (`AGENTS.md` §2).
 - Jede Zahl mit n/N und Herkunft, „unbekannt“ statt 0, Kohorten nie gemischt (A4, A5).
-- Chulane ist das einzige aktive Owner-Deck (`docs/OWNER_DECK_FOCUS_CURRENT.md`).
-- Keine Preise, kein Kaufmodus, keine Bezahldienste (A1, B1).
+- Chulane ist das Standard-Owner-Deck und der Fokus (`docs/OWNER_DECK_FOCUS_CURRENT.md`); TAM ist
+  als zweiter Commander im BUILD erlaubt (E14, Owner 2026-11-19).
+- Keine Preise und keine Bezahldienste (A1, B1). Der Zukauf-Modus im BUILD ohne Preise ist seit
+  2026-11-19 erlaubt (E14); Preisdaten dafür bleiben Owner-Vorbehalt (T3).
 - Keine neue Abhängigkeit und keine Änderung an `pyproject.toml` ohne Owner-Go.
 - Sitze: Höchstzahl 6, Standard 4. Aktiv sind 2 bis 4 Sitze; 5 und 6 sind nicht freigegeben
   (eigene Qualifikation und Owner-Freigabe, A3, A8). Die Engine nimmt 2 bis 6 Sitze an
@@ -265,6 +267,6 @@ Ergebnis-Rückfluss getrennt von der Tierliste, Release-Paket mit Bridge-JAR). N
 | Rundenlimit, „6-Turn-Goldfish“ | keine Owner-Quelle; als A3-Option mit vollen Piloten nur nach Owner-Entscheid. |
 | Pilot-Fehlentscheidungsberichte | Lesart der Lead-Sitzung: fällt unter S2 (Einfrierung vom 2026-11-10); O4 hob S2 nur für die Zählung von Auslassungen auf (E3). Eine manuelle Stichprobe (G-SIM Punkt 2) braucht eine eigene Owner-Bestätigung. |
 | „Resolve All“ | nur in der Form der Yield-Modi oben: ausschließlich die Pass-Option der Engine, jede andere Entscheidung hält an. |
-| Multi-Commander | über den Chulane-Fokus hinaus (B2); keine Owner-Quelle. |
+| Multi-Commander | für BUILD überholt: TAM als zweiter Commander und Zukauf-Modus ohne Preise sind seit 2026-11-19 erlaubt (E14, E10). Für PLAY und Serien bleibt es über den Chulane-Fokus hinaus (B2) ohne Owner-Quelle. |
 | Spaltenansicht im Deckbauer | keine Owner-Quelle; als BUILD-Wunsch dem Owner vorzulegen (der Deckbauer bleibt hier, E1). |
 | Schlanke Bridge S4 als Meilenstein | #1264 ohne gemessenen Gewinn geparkt; nur als neuer Messversuch unter dem Studio-Bridge-Gate. |

@@ -800,3 +800,250 @@ def test_mainboard_and_deck_card_count_metrics_use_real_main_and_commander_secti
         assert "corpus_deck_card" in str(not_100["provenance"])
     finally:
         store.close()
+
+
+def test_readme_source_url_is_read_only_when_the_row_names_exactly_one_address(
+    tmp_path: Path,
+) -> None:
+    from commander_lab.studio.provenance import README_NAME, readme_source_url
+
+    (tmp_path / README_NAME).write_text(
+        "| Datei | Inhalt | Quelle |\n|---|---|---|\n"
+        "| `one.csv` | x (https://not-the-source.example/x) | API, Abruf 2026-11-12. Data by A (https://a.example). |\n"
+        "| `two.csv` | x | https://a.example und https://b.example |\n"
+        "| `same.csv` | x | https://a.example, https://a.example |\n"
+        "| `none.csv` | x | Seite ohne Adresse, Abruf 2026-11-12 |\n",
+        encoding="utf-8",
+    )
+    # only the last cell counts; a full stop after the address is not part of it
+    assert readme_source_url(tmp_path / "one.csv") == "https://a.example"
+    assert readme_source_url(tmp_path / "two.csv") is None  # two addresses: unknown
+    assert readme_source_url(tmp_path / "same.csv") == "https://a.example"
+    assert readme_source_url(tmp_path / "none.csv") is None
+    assert readme_source_url(tmp_path / "unlisted.csv") is None
+    assert readme_source_url(tmp_path / "sub" / "one.csv") is None  # no README there
+
+
+def test_readme_source_url_is_a_http_or_https_address_with_a_host_and_no_markup(
+    tmp_path: Path,
+) -> None:
+    from commander_lab.studio.provenance import README_NAME, readme_source_url
+
+    rows = {
+        # trailing punctuation, quotation and emphasis marks are not part of the address
+        "bold.csv": ("**https://a.example**", "https://a.example"),
+        "quoted.csv": ('"https://a.example", Abruf 2026-11-12', "https://a.example"),
+        "stop.csv": ("https://a.example/x?q=1.", "https://a.example/x?q=1"),
+        "port.csv": ("https://a.example:8080/x", "https://a.example:8080/x"),
+        "plain_http.csv": ("http://a.example", "http://a.example"),
+        # not an address: unknown, never a repaired guess
+        "dot.csv": ("https://.", None),
+        "empty_label.csv": ("https://a..example", None),
+        "dash.csv": ("https://-a.example", None),
+        "inner_star.csv": ("https://a*b.example", None),
+        "inner_quote.csv": ('https://a"b.example', None),
+        "inner_bracket.csv": ("https://a.example/x(y", None),
+        "credentials.csv": ("https://user:secret@a.example", None),
+        "bad_port.csv": ("https://a.example:99999", None),
+        "ftp.csv": ("ftp://a.example", None),
+        "no_host.csv": ("https:// ohne Host", None),
+        # a malformed address next to a valid one: the cell is not a clear statement
+        "mixed.csv": ("https://a.example und https://.", None),
+    }
+    (tmp_path / README_NAME).write_text(
+        "| Datei | Inhalt | Quelle |\n|---|---|---|\n"
+        + "".join(f"| `{name}` | x | {cell} |\n" for name, (cell, _) in rows.items()),
+        encoding="utf-8",
+    )
+    assert {name: readme_source_url(tmp_path / name) for name in rows} == {
+        name: expected for name, (_, expected) in rows.items()
+    }
+
+
+def test_committed_readme_names_an_address_only_for_the_tournament_files() -> None:
+    from commander_lab.studio.provenance import readme_source_url
+
+    folder = Path(__file__).resolve().parents[2] / "data" / "research" / "deckbuilder_1655"
+    expected = {
+        "topdeck_chulane_decks.csv": "https://topdeck.gg",
+        "topdeck_commander_presence.csv": "https://topdeck.gg",
+        "commander_card_signals_2.csv": None,  # names a site, not an address
+        "card_rulings_1655.jsonl": None,
+    }
+    assert {name: readme_source_url(folder / name) for name in expected} == expected
+
+
+def _source_rows(store: StudioStore) -> list[tuple[object, ...]]:
+    return [
+        tuple(row) for row in store.connection.execute("SELECT * FROM source ORDER BY source_id")
+    ]
+
+
+def _readme(folder: Path, rows: str) -> None:
+    from commander_lab.studio.provenance import README_NAME
+
+    (folder / README_NAME).write_text(
+        "| Datei | Inhalt | Quelle |\n|---|---|---|\n" + rows, encoding="utf-8"
+    )
+
+
+def test_a_stated_date_and_address_replace_what_an_older_rule_stored(tmp_path: Path) -> None:
+    from commander_lab.studio.signals import _register
+    from commander_lab.studio.store import sha256_file
+
+    store = StudioStore.open(tmp_path / "studio")
+    data = tmp_path / "data"
+    data.mkdir()
+    _readme(
+        data,
+        "| `stated.csv` | x | API, Abruf 2026-11-12 (https://a.example) |\n"
+        "| `date_only.csv` | x | API, Abruf 2026-11-12 |\n"
+        "| `address_only.csv` | x | Seite https://c.example |\n"
+        "| `silent.csv` | x | Seite ohne Datum |\n",
+    )  # unlisted.csv has no row at all
+    # a store imported before the rule: an id fragment or a tournament date, and an address (or
+    # none); (old date, old address) per file
+    old = {
+        "stated.csv": ("20261115", None),
+        "date_only.csv": ("20261115", "https://stored.example/date"),
+        "address_only.csv": ("2026-09-18", "https://stored.example/address"),
+        "silent.csv": ("2026-09-17", "https://stored.example/silent"),
+        "unlisted.csv": ("2026-09-16", "https://stored.example/unlisted"),
+    }
+    for name, (old_date, old_url) in old.items():
+        (data / name).write_text(f"card_name\n{name}\n", encoding="utf-8")
+        digest = sha256_file(data / name)
+        store.connection.execute(
+            "INSERT INTO source(source_id, data_class, title, sha256, snapshot_date, url, "
+            "imported_at) VALUES (?, 'NORMALIZED_SOURCE', ?, ?, ?, ?, '2026-11-16')",
+            (f"src:{digest[:16]}", name, digest, old_date, old_url),
+        )
+
+    def run() -> dict[str, tuple[object, object]]:
+        for name in old:
+            _register(store, [data / name])
+        return {
+            title: (date, url)
+            for title, date, url in store.connection.execute(
+                "SELECT title, snapshot_date, url FROM source"
+            )
+        }
+
+    rows = run()
+    # a stated value replaces the stored one, field by field ...
+    assert rows["stated.csv"] == ("2026-11-12", "https://a.example")
+    assert rows["date_only.csv"] == ("2026-11-12", "https://stored.example/date")
+    assert rows["address_only.csv"] == ("2026-09-18", "https://c.example")
+    # ... a file that states nothing keeps what is stored, address included: nothing is
+    # estimated or erased (a README without a row for the file, or a row without an address)
+    assert rows["silent.csv"] == ("2026-09-17", "https://stored.example/silent")
+    assert rows["unlisted.csv"] == ("2026-09-16", "https://stored.example/unlisted")
+    # a second run leaves every column of every row as it is, not only the number of rows
+    before = _source_rows(store)
+    assert len(before) == len(old)
+    assert run() == rows
+    assert _source_rows(store) == before
+
+
+def test_a_multi_part_source_has_an_address_only_when_every_part_names_the_same_one(
+    tmp_path: Path,
+) -> None:
+    from commander_lab.studio.signals import _register
+
+    store = StudioStore.open(tmp_path / "studio")
+    data = tmp_path / "data"
+    data.mkdir()
+    stems = ("same", "gap", "split")  # all parts name one address / one part names none / two
+    parts = {
+        stem: [data / f"{stem}_1.csv", data / f"{stem}_2.csv"] for stem in stems
+    }  # own contents per case, so no case sees the address another one stored
+    for files in parts.values():
+        for file in files:
+            file.write_text(f"card_name\n{file.name}\n", encoding="utf-8")
+
+    _readme(
+        data,
+        "| `same_{1..2}.csv` | x | Abruf 2026-11-11, https://a.example |\n"
+        "| `gap_1.csv` | x | Abruf 2026-11-11, https://a.example |\n"
+        "| `gap_2.csv` | x | Abruf 2026-11-11 |\n"
+        "| `split_1.csv` | x | Abruf 2026-11-11, https://a.example |\n"
+        "| `split_2.csv` | x | Abruf 2026-11-11, https://b.example |\n",
+    )
+
+    def addresses() -> dict[str, object]:
+        return dict(store.connection.execute("SELECT title, url FROM source"))
+
+    combined = {stem: _register(store, files) for stem, files in parts.items()}
+    shown = addresses()
+    assert shown["same_1.csv"] == shown["same_2.csv"] == "https://a.example"
+    assert shown["gap_1.csv"] == "https://a.example" and shown["gap_2.csv"] is None
+    assert shown["split_1.csv"] == "https://a.example"
+    assert shown["split_2.csv"] == "https://b.example"
+    # the whole file carries an address only when every part names the same one: not the first
+    # part's address when the parts differ, none when one part names none
+    assert shown["same_1.csv (+1 parts)"] == "https://a.example"
+    assert shown["gap_1.csv (+1 parts)"] is None
+    assert shown["split_1.csv (+1 parts)"] is None
+
+    # an address stored for the whole file stays when the parts do not state one clearly
+    stored = "https://stored.example"
+    store.connection.execute("UPDATE source SET url = ?", (stored,))
+    for stem, files in parts.items():
+        assert _register(store, files) == combined[stem]
+    kept = addresses()
+    assert kept["gap_1.csv (+1 parts)"] == kept["split_1.csv (+1 parts)"] == stored
+    # parts that agree on one address replace the stored one
+    assert kept["same_1.csv (+1 parts)"] == "https://a.example"
+    # a part without a README row at all is no statement either: the address stays as it is
+    _readme(data, "| `other.csv` | x | Abruf 2026-11-11, https://c.example |\n")
+    assert _register(store, parts["same"]) == combined["same"]
+    assert addresses()["same_1.csv (+1 parts)"] == "https://a.example"
+
+
+def test_a_rulings_source_has_an_address_only_when_the_readme_names_one(tmp_path: Path) -> None:
+    from commander_lab.studio.rulings import import_rulings
+    from commander_lab.studio.store import sha256_file
+    from tests.unit.test_studio_rulings import _file as ruling_file
+    from tests.unit.test_studio_rulings import _line
+
+    store = StudioStore.open(tmp_path / "studio")
+    data = tmp_path / "data"
+    data.mkdir()
+    _readme(
+        data,
+        "| `named.jsonl` | x | Abruf 2026-11-12, https://a.example |\n"
+        "| `silent.jsonl` | x | Abruf 2026-11-12 |\n"
+        "| `kept.jsonl` | x | Abruf 2026-11-12 |\n",
+    )  # unlisted.jsonl has no row
+    names = ("named.jsonl", "silent.jsonl", "unlisted.jsonl", "kept.jsonl")
+    for name in names:
+        line = _line("00000000-0000-0000-0000-000000000001", "2020-01-01", f"Ruling {name}.")
+        ruling_file(data / name, [line])
+    # an older import stored one default address for every rulings file
+    old = "https://default.example/rulings"
+    for name in ("named.jsonl", "kept.jsonl"):
+        digest = sha256_file(data / name)
+        store.connection.execute(
+            "INSERT INTO source(source_id, data_class, title, sha256, snapshot_date, url, "
+            "imported_at) VALUES (?, 'NORMALIZED_SOURCE', ?, ?, NULL, ?, '2026-11-16')",
+            (f"src:{digest[:16]}", name, digest, old),
+        )
+    import_rulings(store, [data / name for name in names])
+    urls = dict(store.connection.execute("SELECT title, url FROM source"))
+    # the README statement wins over what was stored; without one the address is unknown, never
+    # a default for rulings files; an older stored address stays (nothing is erased)
+    assert urls == {
+        "named.jsonl": "https://a.example",
+        "silent.jsonl": None,
+        "unlisted.jsonl": None,
+        "kept.jsonl": old,
+    }
+    status = _section(data_report(store, today=TODAY), "source_status")
+    shown = {str(item["title"]): item["address_stored"] for item in status["details"]}  # type: ignore[attr-defined]
+    assert shown == {
+        "named.jsonl": True,
+        "silent.jsonl": False,
+        "unlisted.jsonl": False,
+        "kept.jsonl": True,
+    }
+    assert status["address_stored"] == {"count": 2, "of": 4}

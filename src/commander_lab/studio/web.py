@@ -13,7 +13,7 @@ import copy
 import json
 import re
 import threading
-from collections.abc import AsyncIterator, Awaitable, Callable
+from collections.abc import AsyncIterator, Awaitable, Callable, Iterable
 from contextlib import asynccontextmanager
 from dataclasses import asdict
 from datetime import UTC, datetime
@@ -38,6 +38,7 @@ from . import (
     card_understanding,
     castability,
     combos,
+    corpus_audit,
     cut_lab,
     data_report,
     deck_diff,
@@ -52,6 +53,7 @@ from . import (
     labels,
     land_advisor,
     launch,
+    memo,
     overall_rating,
     packages,
     paired_comparison,
@@ -72,6 +74,7 @@ from . import (
     universe_view,
 )
 from . import evidence as evidence_model
+from .decklist_import import COMMANDER_NAME
 from .decks import (
     EXPORT_TEXT_FORMATS,
     MAX_PRIMER_CHARS,
@@ -98,6 +101,25 @@ from .source_layers import recent_dated_sources, source_layers
 from .sources import source_inventory_payload
 from .store import StudioStore, studio_data_dir
 from .universe import UnknownUniverseCards
+
+# What the write routes declare to the cache (``cache.write``). The cache also watches what each
+# write really changes; a write outside its declaration drops every remembered figure.
+_MARKS = frozenset({cache.Group.MARKS})
+_DECKS = frozenset({cache.Group.DECKS})
+_PROFILES = frozenset({cache.Group.PROFILES})
+_CATALOG = frozenset({cache.Group.IMPORT})
+
+
+def _with_catalog(
+    groups: frozenset[cache.Group], card_ids: Iterable[str]
+) -> frozenset[cache.Group]:
+    """``groups``, plus IMPORT when a ``scryfall:`` card is among ``card_ids``: saving a mark,
+    label or revision of such a card first adds its catalog entry to ``card``
+    (``store.ensure_scryfall_cards``, Zukauf-Modus)."""
+    if any(card_id.startswith("scryfall:") for card_id in card_ids):
+        return groups | _CATALOG
+    return groups
+
 
 STATIC = Path(__file__).resolve().parent / "static"
 _LOCAL_HOSTS = frozenset({"127.0.0.1", "localhost", "[::1]", "testserver"})
@@ -639,6 +661,24 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         finally:
             store.close()
 
+    @app.get("/api/corpus-audit")
+    def corpus_audit_route() -> Response:
+        """The counts-only formal audit of the counted corpus decks (#1549), the same section
+        as ``corpus_audit`` in the data report, without the rest of the report. Read only,
+        remembered per store state, UTC day and the commander it is bound to (the cache lives
+        in this process only, so no answer of an earlier version is served)."""
+        store = open_store()
+        try:
+            day = datetime.now(UTC).date()
+            return answer_cache.json_answer(
+                store,
+                "corpus_audit",
+                (COMMANDER_NAME, day.isoformat()),
+                lambda: corpus_audit.corpus_audit(store.connection, today=day),
+            )
+        finally:
+            store.close()
+
     @app.get("/api/layers")
     def layers(commander: str = Query(min_length=1, max_length=200)) -> dict[str, object]:
         """Per data layer of one commander: rows, pool cards covered, status and the exact
@@ -656,11 +696,13 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         gc_band_key: str | None = Query(default=None, alias="gc_band", max_length=20),
         strength_universe: str | None = Query(default=None, max_length=120),
         strength_bracket: str | None = Query(default=None, max_length=20),
+        include_unowned: bool = Query(default=False),
     ) -> Response:
         """The pool. ``strength_universe`` and ``strength_bracket`` are the universe source and
         bracket of the tier list's settings: the builder then shows the same counted universe
-        the tier list takes (the recommended settings when they are not given). Remembered per
-        store state and parameters (#1563)."""
+        the tier list takes (the recommended settings when they are not given). ``include_unowned``
+        adds relevant Commander-legal Scryfall cards outside the collection (no prices).
+        Remembered per store state and parameters (#1563)."""
         store = open_store()
 
         def compute() -> dict[str, object]:
@@ -678,14 +720,26 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
                 except ValueError:
                     settings = None  # a stale remembered value must not block the builder
             return builder.pool_cards(
-                store, commander, profile=profile, gc_band=gc_band_key, strength=settings
+                store,
+                commander,
+                profile=profile,
+                gc_band=gc_band_key,
+                strength=settings,
+                include_unowned=include_unowned,
             )
 
         try:
             return answer_cache.json_answer(
                 store,
                 "pool",
-                (tuple(commander), profile, gc_band_key, strength_universe, strength_bracket),
+                (
+                    tuple(commander),
+                    profile,
+                    gc_band_key,
+                    strength_universe,
+                    strength_bracket,
+                    include_unowned,
+                ),
                 compute,
             )
         except ValueError as error:
@@ -903,7 +957,9 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
             settings = strength_view.resolve_settings(
                 store, preset=None, profile=None, settings=body.settings
             )
-            return dict(strength_view.save_profile(store, name, settings))
+            with cache.write(store, _PROFILES):
+                saved = strength_view.save_profile(store, name, settings)
+            return dict(saved)
         except ValueError as error:
             raise HTTPException(422, str(error)) from error
         finally:
@@ -915,7 +971,8 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
     ) -> dict[str, object]:
         store = open_store()
         try:
-            strength_view.delete_profile(store, name)
+            with cache.write(store, _PROFILES):
+                strength_view.delete_profile(store, name)
             return {"deleted": name}
         except KeyError as error:
             raise HTTPException(404, "unknown strength profile") from error
@@ -1016,8 +1073,9 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
                     422,
                     f"the universe is defined for {sorted(body.commanders)}, not for {commander}",
                 )
-            universe.save_profile(store, name, body.model_dump(exclude_none=True))
-            cache.invalidate()
+            with cache.write(store, _PROFILES):
+                universe.save_profile(store, name, body.model_dump(exclude_none=True))
+            memo.clear()  # the data-epoch memo (``memo.py``) as before; the cache saw the write
             return dict(universe_view.profile_summary(store, name, commander_names=[commander]))
         except ValueError as error:
             raise HTTPException(422, _german(error)) from error
@@ -1030,8 +1088,9 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
     ) -> dict[str, object]:
         store = open_store()
         try:
-            universe.delete_profile(store, name)
-            cache.invalidate()
+            with cache.write(store, _PROFILES):
+                universe.delete_profile(store, name)
+            memo.clear()
             return {"deleted": name}
         except KeyError as error:
             raise HTTPException(404, "unknown universe profile") from error
@@ -1533,7 +1592,7 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         """Only the favorite mark; the exclusion and the note of the card stay as stored."""
         store = open_store()
         try:
-            with cache.user_state_write(store):
+            with cache.write(store, _with_catalog(_MARKS, [card_id])):
                 return builder.set_favorite(store, card_id, body.favorite)
         except KeyError as error:
             raise HTTPException(404, "unknown card") from error
@@ -1544,7 +1603,7 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
     def mark(card_id: str, body: MarkBody) -> dict[str, object]:
         store = open_store()
         try:
-            with cache.user_state_write(store):
+            with cache.write(store, _with_catalog(_MARKS, [card_id])):
                 builder.set_mark(
                     store, card_id, favorite=body.favorite, excluded=body.excluded, note=body.note
                 )
@@ -1567,7 +1626,7 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         """The Owner's archetype labels of a card. Never an input of a tier or the index."""
         store = open_store()
         try:
-            with cache.user_state_write(store):
+            with cache.write(store, _with_catalog(_MARKS, [card_id])):
                 found = labels.set_card_labels(store, card_id, body.labels)
             return {"card_id": card_id, "labels": found}
         except KeyError as error:
@@ -1581,7 +1640,7 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
     def deck_labels(deck_id: str, body: LabelsBody) -> dict[str, object]:
         store = open_store()
         try:
-            with cache.user_state_write(store):
+            with cache.write(store, _DECKS):
                 found = labels.set_deck_labels(store, deck_id, body.labels)
             return {"deck_id": deck_id, "labels": found}
         except KeyError as error:
@@ -1622,7 +1681,7 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
                 deck_id = f"{base}-{number}"
                 number += 1
             cards = [RevisionCard(card_id, 1, "commander") for card_id in body.commander_card_ids]
-            with cache.user_state_write(store):
+            with cache.write(store, _with_catalog(_DECKS, body.commander_card_ids)):
                 revision_id = create_revision(store, deck_id=deck_id, name=body.name, cards=cards)
             return {"deck_id": deck_id, "revision_id": revision_id}
         except ValueError as error:
@@ -1661,7 +1720,7 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         list's "ins Deck"). Writes a draft, never a saved state."""
         store = open_store()
         try:
-            with cache.user_state_write(store):
+            with cache.write(store, _DECKS):
                 return builder.change_draft_card(store, deck_id, branch, body.card_id, body.delta)
         except KeyError as error:
             raise HTTPException(404, "unknown deck, variant or card") from error
@@ -1692,7 +1751,7 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
                 "SELECT 1 FROM deck WHERE deck_id = ?", (deck_id,)
             ).fetchone():
                 raise HTTPException(404, "unknown deck")
-            with cache.user_state_write(store):
+            with cache.write(store, _DECKS):
                 updated_at = builder.write_draft(
                     store,
                     deck_id,
@@ -1715,7 +1774,7 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
     ) -> dict[str, object]:
         store = open_store()
         try:
-            with cache.user_state_write(store):
+            with cache.write(store, _DECKS):
                 builder.drop_draft(store, deck_id, branch)
             return {"dropped": True}
         finally:
@@ -1730,7 +1789,7 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
             ).fetchone()
             if deck is None:
                 raise HTTPException(404, "unknown deck")
-            with cache.user_state_write(store):
+            with cache.write(store, _with_catalog(_DECKS, [card.card_id for card in body.cards])):
                 revision_id = create_revision(
                     store,
                     deck_id=deck_id,
@@ -1765,15 +1824,16 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
     def save_deck_module(deck_id: str, body: ModuleSaveBody) -> dict[str, object]:
         store = open_store()
         try:
-            saved = deck_modules.save_module(
-                store,
-                deck_id=deck_id,
-                name=body.name,
-                role=body.role,
-                cards=_cards(body.cards),
-                module_id=body.module_id,
-                sort_order=body.sort_order,
-            )
+            with cache.write(store, _DECKS):
+                saved = deck_modules.save_module(
+                    store,
+                    deck_id=deck_id,
+                    name=body.name,
+                    role=body.role,
+                    cards=_cards(body.cards),
+                    module_id=body.module_id,
+                    sort_order=body.sort_order,
+                )
             return {"module": saved}
         except KeyError as error:
             raise HTTPException(404, "unknown deck or module") from error
@@ -1786,7 +1846,8 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
     def remove_deck_module(deck_id: str, module_id: str) -> dict[str, object]:
         store = open_store()
         try:
-            deck_modules.delete_module(store, deck_id, module_id)
+            with cache.write(store, _DECKS):
+                deck_modules.delete_module(store, deck_id, module_id)
             return {"deleted": True, "module_id": module_id}
         except KeyError as error:
             raise HTTPException(404, "unknown deck or module") from error
@@ -1797,14 +1858,15 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
     def seed_deck_modules(deck_id: str, body: ModuleSeedBody) -> dict[str, object]:
         store = open_store()
         try:
-            created = deck_modules.seed_modules_from_cards(
-                store,
-                deck_id=deck_id,
-                cards=_cards(body.cards),
-                core_card_ids=body.core_card_ids,
-                core_name=body.core_name,
-                package_name=body.package_name,
-            )
+            with cache.write(store, _DECKS):
+                created = deck_modules.seed_modules_from_cards(
+                    store,
+                    deck_id=deck_id,
+                    cards=_cards(body.cards),
+                    core_card_ids=body.core_card_ids,
+                    core_name=body.core_name,
+                    package_name=body.package_name,
+                )
             return {"modules": created}
         except KeyError as error:
             raise HTTPException(404, "unknown deck") from error
@@ -1817,15 +1879,18 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
     def compile_deck_modules(deck_id: str, body: ModuleCompileBody) -> dict[str, object]:
         store = open_store()
         try:
-            return deck_modules.compile_modules(
-                store,
-                deck_id,
-                body.module_ids,
-                owned_only=body.owned_only,
-                save=body.save,
-                branch=body.branch,
-                note=body.note,
-            )
+            # the module cards are read inside: a ``scryfall:`` card among them may add its
+            # catalog entry (IMPORT); declared always, only what is seen written is raised
+            with cache.write(store, _DECKS | _CATALOG):
+                return deck_modules.compile_modules(
+                    store,
+                    deck_id,
+                    body.module_ids,
+                    owned_only=body.owned_only,
+                    save=body.save,
+                    branch=body.branch,
+                    note=body.note,
+                )
         except KeyError as error:
             raise HTTPException(404, "unknown deck or module") from error
         except ValueError as error:
@@ -1847,7 +1912,7 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
     def write_primer(deck_id: str, body: PrimerBody) -> dict[str, object]:
         store = open_store()
         try:
-            with cache.user_state_write(store):
+            with cache.write(store, _DECKS):
                 return set_deck_primer(store, deck_id, body.content)
         except KeyError as error:
             raise HTTPException(404, "unknown deck") from error
@@ -2519,9 +2584,20 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         game_id: str,
         start: int = Query(default=0, ge=0),
         count: int = Query(default=200, ge=0, le=1000),
+        since: int | None = Query(default=None, ge=0),
+        wait_ms: int = Query(default=0, ge=0, le=60_000),
     ) -> dict[str, object]:
+        # With ``since`` (the ``revision`` of the last state the page holds) and ``wait_ms`` the
+        # request is held until the live game changed, at most MAX_LONG_POLL_SECONDS (#1593).
         try:
-            return play_manager.snapshot(games_home(), game_id, start=start, count=count)
+            return play_manager.snapshot(
+                games_home(),
+                game_id,
+                start=start,
+                count=count,
+                since=since,
+                wait_seconds=wait_ms / 1000.0,
+            )
         except (KeyError, ValueError) as error:
             raise HTTPException(404, "unknown game") from error
 

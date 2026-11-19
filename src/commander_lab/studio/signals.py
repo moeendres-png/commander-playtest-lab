@@ -126,7 +126,7 @@ from .field_read import (
     read_str,
     record_store_fallbacks,
 )
-from .provenance import readme_retrieval_date
+from .provenance import readme_retrieval_date, readme_source_url, register_stated_source
 from .store import DataClass, StudioStore, sha256_file
 
 CARD_FILE = "commander_card_signals"
@@ -1089,11 +1089,13 @@ def _import_decklists(
         known = known_card_names(store)
         for (source, bracket), universe in usable.items():
             signal = decklist_signal(source, bracket)
-            source_id = store.register_source(
+            source_id = register_stated_source(
+                store,
                 data_class=DataClass.NORMALIZED_SOURCE,
                 title=f"{paths[0].name}#{universe.snapshot}",
                 sha256=hashlib.sha256(f"{file_hash}:{signal}".encode()).hexdigest(),
                 snapshot_date=_decklist_snapshot_date(universe.snapshot, paths[0]),
+                url=readme_source_url(paths[0]),
             )
             rows: list[_Row] = [
                 (commander, signal, card, decks / total, decks, total)
@@ -1236,11 +1238,13 @@ def _register(store: StudioStore, paths: list[Path]) -> str | None:
         digest = sha256_file(path)
         snap = _snapshot_from_signal_path(path)
         dates.append(snap)
-        store.register_source(
+        register_stated_source(
+            store,
             data_class=DataClass.NORMALIZED_SOURCE,
             title=path.name,
             sha256=digest,
             snapshot_date=snap,
+            url=readme_source_url(path),
         )
         ids.append((path.name, digest))
     if len(ids) <= 1:
@@ -1249,13 +1253,17 @@ def _register(store: StudioStore, paths: list[Path]) -> str | None:
         "".join(f"{name}:{digest}\n" for name, digest in ids).encode("utf-8")
     ).hexdigest()
     stated = [d for d in dates if d]
-    return store.register_source(
+    part_urls = {readme_source_url(path) for path in paths}
+    return register_stated_source(
+        store,
         data_class=DataClass.NORMALIZED_SOURCE,
         title=f"{ids[0][0]} (+{len(ids) - 1} parts)",
         sha256=combined,
         # One date for the whole file only when every part states one: the oldest (all parts are
         # at least that fresh); a part without a date leaves the combined source unknown.
         snapshot_date=min(stated) if stated and len(stated) == len(dates) else None,
+        # One address for the whole file only when every part names the same one.
+        url=next(iter(part_urls)) if len(part_urls) == 1 else None,
     )
 
 
