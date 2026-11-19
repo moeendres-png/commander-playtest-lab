@@ -57,6 +57,9 @@ incomplete, or the run ends without resumable state.
 **Habits.**
 - `gh_ops.py brief` is the one-screen status; `status`, `queue`, `threads`, `wait`, `run`,
   `errors` and `rerun-cancelled` cover single PRs, CI and logs.
+- Reports other agents need go to GitHub at once, not only scratchpad or chat: a short comment
+  plus the full file under `docs/analysis-reports/`; a chat-only handoff is not handed over
+  (`AGENTS.md` §11).
 - Helper reports ≤40 lines; routine user status ≤8 lines.
 - Test narrow while iterating; run the full suite once at the integration boundary (local
   testing: `AGENTS.md` §10).
