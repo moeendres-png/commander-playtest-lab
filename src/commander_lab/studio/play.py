@@ -1045,21 +1045,20 @@ class InteractiveGameSession:
             # has its closing result.
             revealed = not self._running and self._result is not None
             source = self._raw_frames if revealed else self._frames
-            sliced = [copy.deepcopy(frame) for frame in source[start : start + count]]
-            pending = copy.deepcopy(self._pending_decision)
-            if isinstance(pending, dict):
-                raw_state = pending.get("pilot_state")
-                if isinstance(raw_state, Mapping):
-                    pending["pilot_state"] = redact_pilot_state_for_human_seats(
-                        raw_state, self.human_seats
-                    )
+            # No copies and no second redaction (#1578): everything held here is written once and
+            # never changed afterwards. A frame is redacted when it is recorded
+            # (``_record_decision``), a pending decision when it is published
+            # (``_sanitize_decision``), and the header and the closing result are set once. The
+            # only reader is the web route, which serialises the answer and changes nothing.
+            sliced = source[start : start + count]
+            pending = self._pending_decision
             return {
                 "game_id": self.game_id,
                 "interactive": True,
                 "running": self._running,
                 # Counts visible state changes; the page sends it back as ``since`` (#1593).
                 "revision": self._revision,
-                "header": copy.deepcopy(self.prepared.header),
+                "header": self.prepared.header,
                 "human_seats": sorted(self.human_seats),
                 "decision_timeout_seconds": self.decision_timeout_seconds,
                 "ai_delay_ms": self.ai_delay_ms,
@@ -1073,7 +1072,7 @@ class InteractiveGameSession:
                 "total": len(self._frames),
                 "hands_revealed": revealed,
                 "forced_passes_answered_by_engine": self._forced_passes_answered,
-                "result": copy.deepcopy(self._result),
+                "result": self._result,
             }
 
     def submit_decision(self, payload: Mapping[str, object]) -> dict[str, object]:
