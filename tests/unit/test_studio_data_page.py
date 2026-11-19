@@ -82,6 +82,19 @@ def test_daten_js_renders_counts_only_without_unsafe_html_or_pricing(tmp_path: P
     assert "inventory_rows" in report["collection"]
     for key in ("identities", "inventory_rows", "ALIGNED_WITH_SEALED_EPOCH"):
         assert key in js
+    # #1545: the per-source status is shown on the page, not only in the JSON report
+    source_status = report["source_status"]
+    for key in (
+        "date_known",
+        "date_unknown_titles",
+        "deck_file_sources",
+        "snapshot_date_origin",
+        "licence_and_access",
+        "details",
+    ):
+        assert key in source_status and f"ss.{key}" in js, key
+    for key in ("rows_in_store", "snapshot_date", "age_days", "address_stored"):
+        assert key in source_status["details"][0] and f"src.{key}" in js, key
 
     layers = client.get("/api/layers?commander=Chulane,%20Teller%20of%20Tales").json()
     assert layers["layers"] and "covered" in layers["layers"][0] and "pool" in layers["layers"][0]

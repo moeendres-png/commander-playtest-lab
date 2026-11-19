@@ -9,6 +9,22 @@ own denominator; they are never added together. The header carries the generatio
 size, the denominators and a fingerprint of the store state the figures were read from.
 
 Reads only; the store must be a copy or the Owner's own store, never written here.
+
+Not the same matrix as ``sources.calculate_pool_gap_matrix`` (``studio sources --gap-report``),
+and deliberately not merged with it:
+
+* ``sources.calculate_pool_gap_matrix`` grades each pool card's evidence over all layers (facts,
+  rules, corpus hits, EDHREC, Spellbook) into a coverage grade and a research-priority score, one
+  record per card with its name, against the legacy corpus cohort (``ALL_DECKS``) as denominator.
+  It answers "which cards should be researched next".
+* This module counts the pool in deck-frequency classes over the deduplicated local deck-list
+  universe (the one the tier list uses), one matrix per universe, each with its own denominator,
+  counts only. It answers "how thin is the deck data under the pool" and is rebuilt from the
+  current store by ``scripts/build_gap_matrix_from_store.py``.
+
+The two use different per-card measures and denominators, so merging would change the existing
+grades and figures; they share the pool itself (``builder.pool_cards``). Neither replaces the
+other, and neither figure may be quoted without its denominator.
 """
 
 from __future__ import annotations
@@ -65,8 +81,10 @@ def _matrix(
     hits: list[int | None] = []
     for item in cards:
         if item["filter_card"]:
-            continue
-        if item["hits"] is not None:
+            # A card the universe itself requires stands in every deck of the subset by
+            # definition: it has no count (and no level), so it is unknown here, never "in no deck".
+            hits.append(None)
+        elif item["hits"] is not None:
             hits.append(int(item["hits"]))
         else:
             hits.append(None if item.get("ambiguous_front_face") else 0)

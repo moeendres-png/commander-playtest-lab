@@ -767,7 +767,12 @@ def calculate_pool_gap_matrix(
     commander_names: Sequence[str] = ("Chulane, Teller of Tales",),
     combos_path: str | Path | None = None,
 ) -> PoolGapMatrixPayload:
-    """Calculate the 927-card data gap matrix and research priority scores (P0 Deliverable 2)."""
+    """Calculate the 927-card data gap matrix and research priority scores (P0 Deliverable 2).
+
+    Per-card evidence grades against the legacy corpus cohort (``ALL_DECKS``) as denominator, for
+    research prioritisation. The deck-frequency class counts over the deduplicated local deck-list
+    universe (counts only, own denominator per universe) are a different matrix:
+    ``gap_matrix.build_gap_matrix``; see its module docstring for why the two are not merged."""
     pool = pool_cards(store, commander_names)
     raw_cards = pool.get("cards", [])
     if not isinstance(raw_cards, list):

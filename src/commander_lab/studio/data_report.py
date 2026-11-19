@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 import sqlite3
 from datetime import UTC, date, datetime
 from typing import cast
@@ -162,39 +163,69 @@ def _scryfall(db: sqlite3.Connection, today: date) -> dict[str, object]:
     }
 
 
-# Tables whose rows carry a ``source_id``; the rows of one source are counted over these.
-_SOURCE_ROW_TABLES = (
-    "card",
-    "inventory",
-    "card_location",
-    "deck_revision",
-    "observation",
-    "scryfall_card",
-    "card_role",
-    "card_role_claim",
-    "playgroup_card_atlas",
-    "card_signal",
-    "commander_combo",
-    "card_ruling_source",
-)
 UNKNOWN = "unbekannt"
+_ISO_DATE = re.compile(r"\d{4}-\d{2}-\d{2}(?:[T ].*)?")
+SNAPSHOT_DATE_ORIGIN = (
+    "source.snapshot_date, written at import and only from a stated retrieval date (a date field "
+    "of the file, a date in the file or folder name, or a README cell 'Abruf <Datum>'); a count, "
+    "build, creation or import date is never taken, a missing date stays unbekannt"
+)
+
+
+def _quote(name: str) -> str:
+    return '"' + name.replace('"', '""') + '"'
+
+
+def source_row_columns(db: sqlite3.Connection) -> list[tuple[str, str]]:
+    """Every (table, column) of the store that points at ``source``: a column called
+    ``source_id`` or a foreign key to ``source``. Derived from the schema of the connection, so a
+    table added later is counted without touching this module. ``source`` itself is not a
+    pointer."""
+    pairs: list[tuple[str, str]] = []
+    names = sorted(
+        str(r[0])
+        for r in db.execute(
+            "SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%'"
+        )
+    )
+    for name in names:
+        if name == "source":
+            continue
+        columns = {str(r[1]) for r in db.execute(f"PRAGMA table_info({_quote(name)})")}
+        pointing = {"source_id"} & columns
+        for fk in db.execute(f"PRAGMA foreign_key_list({_quote(name)})"):
+            if str(fk[2]) == "source":
+                pointing.add(str(fk[3]))
+        pairs.extend((name, column) for column in sorted(pointing))
+    return pairs
+
+
+def _valid_retrieval_age(snapshot: str | None, today: date) -> int | None:
+    """Age in days of a stored retrieval date, or ``None`` when the value is not a valid
+    calendar date (ISO form, optionally followed by a time) or lies in the future."""
+    if not snapshot or not _ISO_DATE.fullmatch(snapshot):
+        return None
+    age = _age_days(snapshot, today)
+    return age if age is not None and age >= 0 else None
 
 
 def _source_status(db: sqlite3.Connection, today: date) -> dict[str, object]:
     """Per source (a single deck file excluded, those are counted as one group): rows the store
     holds from it, its date and age in days, or "unbekannt", and whether an address is stored.
-    No network access: everything is read from ``source`` and the tables pointing at it.
-    A source that no stored row points at is shown with 0 rows in the store (a part file
-    registered next to its combined source); that 0 is a count, not a missing value.
+    No network access: everything is read from ``source`` and from every table column that
+    points at it (:func:`source_row_columns`, derived from the schema, listed in
+    ``tables_counted``). ``rows_in_store`` is a count over exactly those tables; a source no
+    row points at has a counted 0 (for example a part file registered next to its combined
+    source), which is a count, not a missing value.
+    The date is ``source.snapshot_date`` (see ``snapshot_date_origin``); it counts as known only
+    when it is a valid calendar date that is not in the future.
     Licence and access terms have no column in the store and are therefore listed as not
     recorded, never as free or open."""
     rows_of: dict[str, int] = {}
-    present = {str(r[0]) for r in db.execute("SELECT name FROM sqlite_master WHERE type = 'table'")}
-    for table in _SOURCE_ROW_TABLES:
-        if table not in present:
-            continue
+    pairs = source_row_columns(db)
+    for table, column in pairs:
         for source_id, count in db.execute(
-            f"SELECT source_id, COUNT(*) FROM {table} GROUP BY source_id"
+            f"SELECT {_quote(column)}, COUNT(*) FROM {_quote(table)} GROUP BY {_quote(column)}"
         ):
             if source_id is not None:
                 rows_of[str(source_id)] = rows_of.get(str(source_id), 0) + int(count)
@@ -205,7 +236,7 @@ def _source_status(db: sqlite3.Connection, today: date) -> dict[str, object]:
         "ORDER BY s.title, s.source_id"
     ):
         snapshot = str(row["snapshot_date"]) if row["snapshot_date"] else None
-        age = _age_days(snapshot, today)
+        age = _valid_retrieval_age(snapshot, today)
         entries.append(
             {
                 "title": row["title"],
@@ -220,12 +251,15 @@ def _source_status(db: sqlite3.Connection, today: date) -> dict[str, object]:
         )
     total = len(entries)
     unknown = sorted(str(e["title"]) for e in entries if e["snapshot_date"] == UNKNOWN)
-    deck_files = db.execute(
-        "SELECT COUNT(*), SUM(s.snapshot_date IS NULL OR s.snapshot_date = '') "
-        "FROM source s WHERE s.source_id IN (SELECT source_id FROM corpus_deck)"
-    ).fetchone()
-    deck_total = int(deck_files[0])
-    deck_unknown = int(deck_files[1] or 0)
+    deck_dates = [
+        _valid_retrieval_age(str(r[0]) if r[0] else None, today) is not None
+        for r in db.execute(
+            "SELECT s.snapshot_date FROM source s "
+            "WHERE s.source_id IN (SELECT source_id FROM corpus_deck)"
+        )
+    ]
+    deck_total = len(deck_dates)
+    deck_known = sum(deck_dates)
     return {
         "scope": "sources that are not a single deck file; deck files are counted as one group",
         "date_known": _share(total - len(unknown), total),
@@ -234,16 +268,19 @@ def _source_status(db: sqlite3.Connection, today: date) -> dict[str, object]:
             1 for e in entries if e["snapshot_value_not_a_date"]
         ),
         "date_unknown_titles": unknown,
+        "snapshot_date_origin": SNAPSHOT_DATE_ORIGIN,
         "address_stored": _share(sum(1 for e in entries if e["address_stored"]), total),
         "deck_file_sources": {
             "total": deck_total,
-            "date_unknown": deck_unknown,
-            "date_known": deck_total - deck_unknown,
+            "date_unknown": deck_total - deck_known,
+            "date_known": deck_known,
         },
         "licence_and_access": "nicht im Store erfasst (keine Spalte); weder frei noch offen belegt",
         "imported_at_note": (
             "imported_at is the import day, not the retrieval day; only snapshot_date is a retrieval date"
         ),
+        "rows_in_store_origin": "sum of rows over all tables_counted that point at the source",
+        "tables_counted": sorted({f"{t}.{c}" for t, c in pairs}),
         "details": entries,
     }
 

@@ -3,16 +3,25 @@
 Several research files carry no date inside the file (signal CSVs, the rulings file, the spellbook
 files). The folder README names the retrieval date per file in its table. This module reads that
 statement and nothing else: no network, no estimate. A file the README does not list, or lists
-without a date, stays undated (the caller leaves ``snapshot_date`` empty, shown as unknown).
+without a retrieval date, stays undated (the caller leaves ``snapshot_date`` empty, shown as
+unknown).
+
+Only a date that directly follows the word ``Abruf`` (or ``Abrufdatum``) in the last cell of the
+row is a retrieval date. A date that stands for a count (``Zählung``), a build (``Build``), a
+filtering step or a re-fetch of part of the data is not, and an ``Erstabruf`` is not the current
+retrieval either. A window such as ``Abruf 2026-11-11/12`` yields its first day: everything in the
+file is at least that fresh, which is the statement the data supports. Two different retrieval
+dates in one cell are ambiguous and yield nothing.
 """
 
 from __future__ import annotations
 
 import re
+from datetime import date
 from pathlib import Path
 
 README_NAME = "README.md"
-_DATE = re.compile(r"(20\d{2})-(\d{2})-(\d{2})(?:/(\d{1,2}))?")
+_RETRIEVAL = re.compile(r"\bAbruf(?:datum)?\s*:?\s*(20\d{2})-(\d{2})-(\d{2})(?:/\d{1,2})?")
 _TOKEN = re.compile(r"\{(\d+)\.\.(\d+)\}|\{([^{}]+)\}|\*")
 
 
@@ -34,20 +43,23 @@ def _pattern_regex(pattern: str) -> re.Pattern[str]:
     return re.compile("".join(out))
 
 
-def _row_dates(text: str) -> list[str]:
-    found: list[str] = []
-    for year, month, day, day_to in _DATE.findall(text):
-        last_day = int(day_to) if day_to else int(day)
-        found.append(f"{year}-{month}-{last_day:02d}")
+def _retrieval_dates(cell: str) -> set[str]:
+    """The valid calendar dates a cell names as ``Abruf <Datum>`` (a window: its first day)."""
+    found: set[str] = set()
+    for year, month, day in _RETRIEVAL.findall(cell):
+        try:
+            found.add(date(int(year), int(month), int(day)).isoformat())
+        except ValueError:
+            continue
     return found
 
 
 def readme_retrieval_date(path: Path) -> str | None:
-    """The latest date in the README table row that lists ``path``'s file name, or ``None``.
+    """The retrieval date in the README table row that lists ``path``'s file name, or ``None``.
 
     Only the last cell of the row (source / retrieval) is read, so a date inside a content
-    description is never taken for a retrieval date. A window such as ``2026-11-11/12`` yields
-    its last day."""
+    description is never taken for a retrieval date, and only a date marked ``Abruf`` counts
+    (see the module docstring). Anything else is ``None``: unknown, never an estimate."""
     readme = path.parent / README_NAME
     try:
         lines = readme.read_text(encoding="utf-8").splitlines()
@@ -62,6 +74,6 @@ def readme_retrieval_date(path: Path) -> str | None:
         listed = re.findall(r"`([^`]+)`", cells[0])
         if not any(_pattern_regex(item).fullmatch(path.name) for item in listed):
             continue
-        dates = _row_dates(cells[-1])
-        return max(dates) if dates else None
+        dates = _retrieval_dates(cells[-1])
+        return next(iter(dates)) if len(dates) == 1 else None
     return None

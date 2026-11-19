@@ -110,6 +110,7 @@ import math
 import re
 from collections.abc import Callable, Iterator, Mapping, Sequence
 from dataclasses import dataclass, field
+from datetime import date
 from pathlib import Path
 from typing import TypedDict
 
@@ -125,6 +126,7 @@ from .field_read import (
     read_str,
     record_store_fallbacks,
 )
+from .provenance import readme_retrieval_date
 from .store import DataClass, StudioStore, sha256_file
 
 CARD_FILE = "commander_card_signals"
@@ -1179,36 +1181,47 @@ def _kept_decklist_rows(store: StudioStore, commander: str) -> int:
     )
 
 
-def _snapshot_from_signal_path(path: Path) -> str | None:
-    import re
+def _calendar_date(year: str, month: str, day: str) -> str | None:
+    try:
+        return date(int(year), int(month), int(day)).isoformat()
+    except ValueError:
+        return None
 
+
+def _snapshot_from_signal_path(path: Path) -> str | None:
+    """The retrieval date a signal file states, or ``None`` (shown as unknown, never estimated).
+
+    In this order: a date in the file or folder name; a retrieval field of the first CSV row
+    (``snapshot_utc``, ``retrieved_at``, ``snapshot_date``; a ``date`` column is not read: in the
+    tournament lists it is the tournament date); the ``Abruf`` date of the folder README row
+    (``provenance``). Every value must be a valid calendar date (#1545)."""
     for candidate in (path.name, path.parent.name):
         m = re.search(r"(20\d{2})[-_]?(\d{2})[-_]?(\d{2})", candidate)
-        if m:
-            return f"{m.group(1)}-{m.group(2)}-{m.group(3)}"
+        if m and (found := _calendar_date(m.group(1), m.group(2), m.group(3))):
+            return found
     if path.suffix.lower() == ".csv" and path.is_file():
         try:
             with path.open(encoding="utf-8-sig", newline="") as handle:
                 reader = csv.DictReader(handle)
                 first = next(reader, None)
                 if first:
-                    for key in ("snapshot_utc", "retrieved_at", "snapshot_date", "date"):
-                        val = (first.get(key) or "").strip()
-                        if len(val) >= 10 and val[:4].isdigit():
-                            return val[:10]
+                    for key in ("snapshot_utc", "retrieved_at", "snapshot_date"):
+                        m = re.fullmatch(
+                            r"(20\d{2})-(\d{2})-(\d{2})(?:[T ].*)?", (first.get(key) or "").strip()
+                        )
+                        if m and (found := _calendar_date(m.group(1), m.group(2), m.group(3))):
+                            return found
         except OSError:
             pass
-    from .provenance import readme_retrieval_date
-
     return readme_retrieval_date(path)
 
 
 def _decklist_snapshot_date(snapshot: object, path: Path) -> str | None:
     """A date for a counted deck-list source: the snapshot when it is a date, otherwise the date
     the file name or its folder README states; never an id fragment (#1545)."""
-    text = str(snapshot or "")[:10]
-    if re.fullmatch(r"20\d{2}-\d{2}-\d{2}", text):
-        return text
+    m = re.fullmatch(r"(20\d{2})-(\d{2})-(\d{2})", str(snapshot or "")[:10])
+    if m and (found := _calendar_date(m.group(1), m.group(2), m.group(3))):
+        return found
     return _snapshot_from_signal_path(path)
 
 
@@ -1216,12 +1229,11 @@ def _register(store: StudioStore, paths: list[Path]) -> str | None:
     """Register every part of a file; the rows carry the source of the whole file: its only
     part, or (several parts) one source whose hash covers all parts, not just the first."""
     ids: list[tuple[str, str]] = []
-    dates: list[str] = []
+    dates: list[str | None] = []
     for path in paths:
         digest = sha256_file(path)
         snap = _snapshot_from_signal_path(path)
-        if snap:
-            dates.append(snap)
+        dates.append(snap)
         store.register_source(
             data_class=DataClass.NORMALIZED_SOURCE,
             title=path.name,
@@ -1234,11 +1246,14 @@ def _register(store: StudioStore, paths: list[Path]) -> str | None:
     combined = hashlib.sha256(
         "".join(f"{name}:{digest}\n" for name, digest in ids).encode("utf-8")
     ).hexdigest()
+    stated = [d for d in dates if d]
     return store.register_source(
         data_class=DataClass.NORMALIZED_SOURCE,
         title=f"{ids[0][0]} (+{len(ids) - 1} parts)",
         sha256=combined,
-        snapshot_date=max(dates) if dates else None,
+        # One date for the whole file only when every part states one: the oldest (all parts are
+        # at least that fresh); a part without a date leaves the combined source unknown.
+        snapshot_date=min(stated) if stated and len(stated) == len(dates) else None,
     )
 
 
