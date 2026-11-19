@@ -154,6 +154,32 @@ def test_each_universe_is_stored_as_its_own_signal_with_counts_and_snapshot(
     assert _import_counted(store, folder)["rows_replaced"] == _stored(store)  # idempotent
 
 
+def test_counted_universe_source_date_is_a_readme_retrieval_date_never_the_file_name(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    """#1545: the date in the name of an inclusion file is when it was generated."""
+    from commander_lab.studio.provenance import README_NAME
+
+    def dates() -> list[object]:
+        return [
+            r[0]
+            for r in store.connection.execute(
+                "SELECT snapshot_date FROM source WHERE title LIKE ? ORDER BY title",
+                (f"{FILE}#%",),
+            )
+        ]
+
+    folder = _write_counted(tmp_path / "counted", _both())
+    _import_counted(store, folder)
+    assert dates() == [None, None]  # "20261112" in the name is not a retrieval date
+    (folder / README_NAME).write_text(
+        f"| Datei | Inhalt | Quelle |\n|---|---|---|\n| `{FILE}` | x | Abruf 2026-11-13 |\n",
+        encoding="utf-8",
+    )
+    _import_counted(store, folder)
+    assert dates() == ["2026-11-13", "2026-11-13"]
+
+
 def test_numbered_parts_are_read_in_order(store: StudioStore, tmp_path: Path) -> None:
     rows = _both()
     folder = tmp_path / "parts"

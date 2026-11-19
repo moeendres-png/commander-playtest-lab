@@ -42,6 +42,7 @@ import mage.constants.MultiAmountType;
 import mage.constants.Outcome;
 import mage.constants.RangeOfInfluence;
 import mage.constants.Zone;
+import mage.filter.common.FilterCreatureForCombatBlock;
 import mage.game.Game;
 import mage.game.combat.CombatGroup;
 import mage.game.stack.Spell;
@@ -3054,7 +3055,18 @@ final class XmageFullGamePlayer extends PlayerImpl {
             UUID defendingPlayerId
     ) {
         witness("declare_blocker");
-        List<Permanent> blockers = new ArrayList<>(getAvailableBlockers(game));
+        // #1584: the creatures that may block are the defending player's
+        // (CR 509.1a). XMage asks the player who controls how they block:
+        // normally the defender itself, but a block controller other than the
+        // defender (ChooseBlockersEffect: Brutal Hordechief, Master Warcraft,
+        // Odric; Invasion Plans) is asked once per defender, with that
+        // defender's id. Its own creatures can never block here, so taking
+        // them (getAvailableBlockers) offered nothing, an unmet "blocks if
+        // able" was re-asked without end, and a block the defender could have
+        // made was silently skipped. Same set as getAvailableBlockers(game)
+        // when the defender is this player; HumanPlayer filters the same way.
+        List<Permanent> blockers = new ArrayList<>(game.getBattlefield().getAllActivePermanents(
+                new FilterCreatureForCombatBlock(), defendingPlayerId, game));
         // WS92-D5 twin-stable frame sequence (see selectAttackers):
         // declaration order among co-blockers carries no Rules content itself.
         blockers.sort(stablePermanentOrder(game));
@@ -3064,8 +3076,9 @@ final class XmageFullGamePlayer extends PlayerImpl {
 
         for (Permanent blocker : blockers) {
             if (!isInGame()) {
-                // F-42: a defending player who left the game declares nothing
-                // more; its permanents left with it (CR 800.4a).
+                // F-42: the player asked (the defender, or the block
+                // controller of #1584) left the game and declares nothing
+                // more; a defender's permanents left with it (CR 800.4a).
                 return;
             }
             JsonArray options = new JsonArray();
@@ -3110,9 +3123,11 @@ final class XmageFullGamePlayer extends PlayerImpl {
                         source
                 );
             } catch (XmageFullGameDecisionController.DecisionCancelledException cancelled) {
-                // F-42: the defending player left while its block frame was
-                // open. Its creatures left the game with it (CR 800.4a), so
-                // "no block" is the only outcome, not a choice made for it.
+                // F-42: the player asked left while its block frame was open.
+                // A defender's creatures left the game with it (CR 800.4a), so
+                // "no block" is the only outcome, not a choice made for it. A
+                // block controller of #1584 leaving here is not covered by a
+                // test (listed as UNKNOWN in #1584).
                 return;
             }
             List<UUID> declared = new ArrayList<>();

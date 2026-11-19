@@ -45,7 +45,41 @@ function renderBridge(report) {
   ].filter(Boolean));
 }
 
-function renderSources(status) {
+function sourceStatusNodes(report) {
+  const ss = report.source_status;
+  if (!ss) return [];
+  const details = Array.isArray(ss.details) ? ss.details : [];
+  const decks = ss.deck_file_sources || {};
+  const unknownTitles = Array.isArray(ss.date_unknown_titles) ? ss.date_unknown_titles : [];
+  const rows = details.map((src) => [
+    src.title || "–",
+    src.data_class || "–",
+    nf(src.rows_in_store),
+    src.snapshot_date === "unbekannt" ? unknown("unbekannt") : src.snapshot_date,
+    src.age_days === "unbekannt" ? unknown("unbekannt") : `${nf(src.age_days)} Tage`,
+    src.address_stored ? "ja" : "nein",
+  ]);
+  return [
+    h("h3", {}, "Datenstand je Quelle"),
+    kvTable([
+      ["Quellen mit Abrufdatum (ohne einzelne Deck-Dateien)", shareText(ss.date_known)],
+      ["Davon Wert kein gültiges Datum", nf(ss.date_unknown_of_which_value_not_a_date)],
+      ["Quellen mit gespeicherter Adresse", shareText(ss.address_stored)],
+      ["Deck-Dateien: Abrufdatum (als eine Gruppe)", `${decks.retrieval_date || "unbekannt"} (${nf(decks.total)} Dateien)`],
+      ["Deck-Dateien: Speicherdatum des Autors (kein Abrufdatum)", `${nf(decks.author_save_date_known)} / ${nf(decks.total)}`],
+      ["Lizenz und Zugang", ss.licence_and_access || "unbekannt"],
+    ]),
+    h("p", { class: "rule" }, `Herkunft des Datums: ${ss.snapshot_date_origin || "unbekannt"}. Zeilen: ${ss.rows_in_store_origin || "unbekannt"}.`),
+    unknownTitles.length
+      ? h("details", {}, h("summary", {}, `Datum unbekannt (${nf(unknownTitles.length)})`), h("ul", {}, ...unknownTitles.map((title) => h("li", {}, title))))
+      : null,
+    rows.length
+      ? h("details", {}, h("summary", {}, `Alle Quellen (${nf(rows.length)})`), simpleTable(["Quelle", "Datenklasse", "Zeilen im Store", "Abrufdatum", "Alter", "Adresse"], rows))
+      : null,
+  ].filter(Boolean);
+}
+
+function renderSources(status, report) {
   const host = $("data-sources");
   const inv = status.source_inventory || {};
   const sc = inv.status_counts || {};
@@ -101,6 +135,7 @@ function renderSources(status) {
       ? h("details", {}, h("summary", {}, `Letzte Importe (${nf(recent.length)})`), simpleTable(["Quelle", "Datenklasse", "Snapshot", "Importiert (UTC)"], recentRows))
       : null,
     freshLine,
+    ...sourceStatusNodes(report || {}),
   ].filter(Boolean));
 }
 
@@ -314,7 +349,7 @@ async function loadAll() {
       StudioUI.request(`/api/tournament-conversion?commander=${encodeURIComponent(commander)}`).catch(() => null),
     ]);
     renderBridge(report);
-    renderSources(status);
+    renderSources(status, report);
     renderCollection(report);
     renderRoles(report, roleAudit);
     renderCorpus(report);
