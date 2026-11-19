@@ -8,7 +8,7 @@ from __future__ import annotations
 import json
 import random
 import sqlite3
-from collections.abc import Sequence
+from collections.abc import Iterator, Sequence
 from pathlib import Path
 from statistics import median
 
@@ -570,3 +570,304 @@ def _preset_items(presets: dict[str, object]) -> list[tuple[str, dict[str, objec
         if isinstance(item, dict) and isinstance(item.get("settings"), dict):
             found.append((str(item["name"]), dict(item["settings"])))
     return found
+
+
+# -- remembered answers of the read routes (#1563) ---------------------------------------
+
+
+@pytest.fixture
+def _fresh_answers() -> Iterator[None]:
+    """Module-level memories must not leak from one test into the next."""
+    from commander_lab.studio import answer_cache, sources
+
+    def clear() -> None:
+        cache.invalidate()
+        answer_cache.clear()
+        with sources._combo_cards_lock:
+            sources._combo_cards.clear()
+
+    clear()
+    yield
+    clear()
+
+
+_ANSWER_ROUTES: list[tuple[str, dict[str, object], str]] = [
+    ("/api/pool", {"commander": COMMANDER}, "object"),
+    ("/api/pool", {"commander": COMMANDER, "strength_bracket": "3"}, "object"),
+    ("/api/evidence", {"view": "commander", "commander": COMMANDER}, "object"),
+    ("/api/evidence", {"view": "global"}, "object"),
+    ("/api/rating-layers", {"commander": COMMANDER, "pod_size": 4}, "object"),
+    ("/api/rating-layers", {"commander": COMMANDER, "pod_size": 3}, "object"),
+    ("/api/roles/audit", {"commander": COMMANDER}, "object"),
+    ("/api/roles/audit", {}, "object"),
+    ("/api/universe/counted", {"commander": COMMANDER}, "list"),
+    ("/api/deck-browser", {"commander": COMMANDER}, "object"),
+    ("/api/deck-browser", {"q": "d", "origin": "source", "limit_decks": 5}, "object"),
+    (
+        "/api/deck-browser",
+        {"must_contain": ["Sol Ring"], "must_not_contain": ["Forest"], "include_unowned": True},
+        "object",
+    ),
+    ("/api/tournament-conversion", {"commander": "Test Commander"}, "object"),
+]
+
+
+def _plain_bytes(value: object, shape: str) -> bytes:
+    """What a FastAPI route with the original return annotation sends for ``value``."""
+    from fastapi import FastAPI
+    from fastapi.testclient import TestClient
+
+    reference = FastAPI()
+    if shape == "list":
+
+        @reference.get("/plain")
+        def plain_list() -> list[dict[str, object]]:
+            return value  # type: ignore[return-value]
+
+    else:
+
+        @reference.get("/plain")
+        def plain_object() -> dict[str, object]:
+            return value  # type: ignore[return-value]
+
+    return TestClient(reference).get("/plain").content
+
+
+def test_remembered_answers_are_the_bytes_the_plain_routes_send(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, _fresh_answers: None
+) -> None:
+    """Every remembered route answer equals, byte for byte, what the route with its original
+    return type sends for the same computed value, on the first call and from memory."""
+    from fastapi.testclient import TestClient
+
+    from commander_lab.studio import answer_cache
+    from commander_lab.studio.web import create_app
+
+    _big_store(tmp_path).close()
+    monkeypatch.setenv("COMMANDER_LAB_TOPDECK_DIR", str(tmp_path / "topdeck"))
+    computed: list[object] = []
+    real_dump = answer_cache.dump
+
+    def recording(value: object, shape: answer_cache.Shape = "object") -> bytes:
+        computed.append(value)
+        return real_dump(value, shape)
+
+    monkeypatch.setattr(answer_cache, "dump", recording)
+    client = TestClient(create_app(tmp_path / "studio"), headers={"X-Studio": "1"})
+    for path, params, shape in _ANSWER_ROUTES:
+        computed.clear()
+        first = client.get(path, params=params)
+        assert first.status_code == 200, (path, params, first.text[:200])
+        assert first.headers["content-type"] == "application/json"
+        assert len(computed) == 1, (path, params)
+        assert first.content == _plain_bytes(computed[0], shape), (path, params)
+        again = client.get(path, params=params)
+        assert computed[1:] == [], (path, params)  # served from memory
+        assert again.content == first.content, (path, params)
+    # Errors are not remembered and keep their status.
+    assert client.get("/api/rating-layers", params={"commander": "Nobody"}).status_code == 404
+    assert client.get("/api/rating-layers", params={"commander": "Nobody"}).status_code == 404
+    assert client.get("/api/evidence", params={"view": "commander"}).status_code == 422
+
+
+def test_a_remembered_answer_cannot_be_changed_by_what_its_computation_returned(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, _fresh_answers: None
+) -> None:
+    """The answer is kept as bytes: changing the computed object afterwards changes nothing."""
+    from fastapi.testclient import TestClient
+
+    from commander_lab.studio import evidence as evidence_model
+    from commander_lab.studio.web import create_app
+
+    _big_store(tmp_path).close()
+    handed_out: list[dict[str, object]] = []
+    real = evidence_model.pool_evidence
+
+    def keeping(*args: object, **kwargs: object) -> dict[str, object]:
+        found = real(*args, **kwargs)  # type: ignore[arg-type]
+        handed_out.append(found)
+        return found
+
+    monkeypatch.setattr(evidence_model, "pool_evidence", keeping)
+    client = TestClient(create_app(tmp_path / "studio"), headers={"X-Studio": "1"})
+    params = {"view": "commander", "commander": COMMANDER}
+    first = client.get("/api/evidence", params=params).content
+    handed_out[0]["cards"] = []
+    handed_out[0]["extra"] = True
+    first_json = client.get("/api/evidence", params=params).json()
+    first_json["cards"] = []  # what a reader does with its answer stays its own
+    assert client.get("/api/evidence", params=params).content == first
+    assert len(handed_out) == 1
+
+
+def test_the_remembered_figures_hand_out_copies(tmp_path: Path, _fresh_answers: None) -> None:
+    """Status part, cohort sizes, combo cards and the slot catalog: changing what a caller got
+    back never changes what the next caller gets."""
+    from commander_lab.studio import combos, sources
+    from commander_lab.studio.web import _status_store_part
+
+    store = _big_store(tmp_path)
+    status = _status_store_part(store)
+    reference = json.loads(json.dumps(status))
+    status["cards"] = -1
+    status["source_layers"].append({"x": 1})  # type: ignore[attr-defined]
+    status["freshness"]["total_sources"] = -1  # type: ignore[index]
+    assert _status_store_part(store) == reference
+
+    sizes = builder.cohort_sizes(store, [COMMANDER])
+    expected_sizes = dict(sizes)
+    sizes["all"] = -1
+    sizes["new"] = 1
+    assert builder.cohort_sizes(store, [COMMANDER]) == expected_sizes
+
+    combo_file = tmp_path / "combos.json"
+    combo_file.write_text(
+        json.dumps({"combos": [{"commander": "Cmdr", "cards": ["Alpha", "Beta"]}]}),
+        encoding="utf-8",
+    )
+    cards = sources.load_spellbook_combo_cards(combo_file, commander="Cmdr")
+    cards.add("Intruder")
+    cards.discard("Alpha")
+    assert sources.load_spellbook_combo_cards(combo_file, commander="Cmdr") == {"Alpha", "Beta"}
+
+    deck_ids = {"card:project:0001"}
+    first = combos._card_catalog_for_slots(store, [COMMANDER], deck_ids)
+    snapshot = json.loads(json.dumps(first, default=sorted))
+    for items in first:
+        for item in items:
+            item["name"] = "changed"
+            item["in_deck"] = None
+        items.clear()
+    second = combos._card_catalog_for_slots(store, [COMMANDER], deck_ids)
+    assert json.loads(json.dumps(second, default=sorted)) == snapshot
+
+
+def test_the_catalog_equals_the_plain_read(tmp_path: Path, _fresh_answers: None) -> None:
+    from commander_lab.studio import combos
+
+    store = _big_store(tmp_path)
+    deck_ids = {"card:project:0001", "card:project:0101"}
+    store.connection.execute("INSERT INTO meta(key, value) VALUES ('pending', 'x')")
+    plain = combos._card_catalog_for_slots(store, [COMMANDER], deck_ids)  # cache stands aside
+    store.connection.rollback()
+    for _ in range(2):
+        assert combos._card_catalog_for_slots(store, [COMMANDER], deck_ids) == plain
+    assert combos._card_catalog_for_slots(store, [], set()) != plain
+
+
+def test_a_write_is_seen_by_the_next_remembered_answer(
+    tmp_path: Path, _fresh_answers: None
+) -> None:
+    from fastapi.testclient import TestClient
+
+    from commander_lab.studio.decks import create_revision
+    from commander_lab.studio.web import create_app
+    from tests.unit.test_studio_builder import _deck
+
+    _big_store(tmp_path).close()
+    client = TestClient(create_app(tmp_path / "studio"), headers={"X-Studio": "1"})
+    pool = client.get("/api/pool", params={"commander": COMMANDER}).json()
+    card_id = next(card["card_id"] for card in pool["cards"] if not card["favorite"])
+    browser = client.get("/api/deck-browser").json()
+    status = client.get("/api/status").json()
+    assert client.put(f"/api/cards/{card_id}/favorite", json={"favorite": True}).status_code == 200
+    after = client.get("/api/pool", params={"commander": COMMANDER}).json()
+    assert next(card for card in after["cards"] if card["card_id"] == card_id)["favorite"]
+    store = StudioStore.open(tmp_path / "studio")
+    create_revision(store, deck_id="cache-test", name="Cache Test", cards=_deck())
+    store.close()
+    changed = client.get("/api/deck-browser").json()
+    assert changed != browser
+    assert any(deck["deck_id"] == "cache-test" for deck in changed["decks"])
+    assert client.get("/api/status").json()["decks"] == status["decks"] + 1
+
+
+def test_a_changed_data_file_is_seen_by_the_next_remembered_answer(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, _fresh_answers: None
+) -> None:
+    from fastapi.testclient import TestClient
+
+    from commander_lab.studio import evidence as evidence_model
+    from commander_lab.studio.web import create_app
+    from tests.unit.test_tournament_conversion_1412 import _write_deck_csv
+
+    _big_store(tmp_path).close()
+    combo_file = tmp_path / "spellbook_combos.json"
+    combo_file.write_text(json.dumps({"combos": []}), encoding="utf-8")
+    monkeypatch.setattr(evidence_model, "_COMBOS_PATH", combo_file)
+    monkeypatch.setattr(evidence_model, "ANSWER_FILES", (combo_file,))
+    topdeck = tmp_path / "topdeck"
+    topdeck.mkdir()
+    monkeypatch.setenv("COMMANDER_LAB_TOPDECK_DIR", str(topdeck))
+    client = TestClient(create_app(tmp_path / "studio"), headers={"X-Studio": "1"})
+    params = {"view": "commander", "commander": COMMANDER}
+    before = client.get("/api/evidence", params=params).content
+    assert client.get("/api/evidence", params=params).content == before
+    pool = client.get("/api/pool", params={"commander": COMMANDER}).json()
+    name = str(pool["cards"][0]["name"])
+    combo_file.write_text(
+        json.dumps({"combos": [{"commander": COMMANDER, "cards": [name]}]}) + "\n",
+        encoding="utf-8",
+    )
+    assert client.get("/api/evidence", params=params).content != before
+
+    empty = client.get("/api/tournament-conversion", params={"commander": "Test Commander"})
+    assert empty.json()["total_decks"] == 0
+    _write_deck_csv(
+        topdeck / "topdeck_test_decks.csv",
+        [{"tournament": "T1", "date": "2026-01-01", "player": "P1", "cards": ["Sol Ring"]}],
+    )
+    filled = client.get("/api/tournament-conversion", params={"commander": "Test Commander"})
+    assert filled.json()["total_decks"] == 1
+
+
+def test_the_status_route_reads_the_bridge_state_on_every_call(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, _fresh_answers: None
+) -> None:
+    from fastapi.testclient import TestClient
+
+    import commander_lab.bridge_qualification as bridge
+    from commander_lab.studio.web import create_app
+
+    _big_store(tmp_path).close()
+    state = ["STATE_1"]
+    monkeypatch.setattr(bridge, "bridge_qualification", lambda: {"state": state[0]})
+    client = TestClient(create_app(tmp_path / "studio"), headers={"X-Studio": "1"})
+    first = client.get("/api/status").json()
+    state[0] = "STATE_2"
+    second = client.get("/api/status").json()
+    assert first["bridge_qualification"] == {"state": "STATE_1"}
+    assert second["bridge_qualification"] == {"state": "STATE_2"}
+    assert list(first) == list(second) == [
+        "bridge_qualification", "cards", "public_cards", "source_decks", "neutral_board_rows",
+        "simulation_runs", "source_data_binding", "decks", "universe_profiles",
+        "source_inventory", "freshness", "source_layers", "image_cache", "sources",
+    ]  # fmt: skip
+    assert {k: v for k, v in first.items() if k != "bridge_qualification"} == {
+        k: v for k, v in second.items() if k != "bridge_qualification"
+    }
+
+
+def test_route_answers_have_their_own_size_limit(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, _fresh_answers: None
+) -> None:
+    """Many distinct answers push out older answers, never the warm figures; a byte budget
+    caps their total size."""
+    from commander_lab.studio import answer_cache
+
+    store = _big_store(tmp_path)
+    monkeypatch.setitem(cache.KIND_LIMITS, "answer", (16, 10_000))
+    cache.cached(store, ("figure", 1), lambda: "warm")
+    for number in range(17):
+        answer_cache.json_answer(store, "probe", (number,), lambda number=number: {"n": number})
+    answers = [key for key in cache._entries if key[1] == "answer"]
+    assert len(answers) == 16
+    assert [key[3] for key in answers] == [(number,) for number in range(1, 17)]
+    assert any(key[1:] == ("figure", 1) for key in cache._entries)
+    big = "x" * 4_000
+    for number in range(3):
+        answer_cache.json_answer(store, "big", (number,), lambda: {"text": big})
+    sizes = [len(value) for key, value in cache._entries.items() if key[1] == "answer"]
+    assert sum(sizes) <= 10_000
+    assert any(key[1:3] == ("answer", "big") and key[3] == (2,) for key in cache._entries)
+    assert any(key[1:] == ("figure", 1) for key in cache._entries)

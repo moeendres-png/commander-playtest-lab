@@ -1625,3 +1625,25 @@ async function runOrder(delays) {{
         "strengthReady": True,
     }
     assert slow["finalSnap"] == fast["finalSnap"] == expected_snap
+
+
+def test_home_page_reserves_layout_space_against_cls() -> None:
+    """#1567: app.css reserves dimensions for async headers, filters, data-state and deck tabs
+    so populating the home page does not cause large layout shifts, with no inline styles."""
+    css = (STATIC / "app.css").read_text(encoding="utf-8")
+    for required in (
+        "#brand{min-height:",
+        "#brand #commander-select{min-width:",
+        "#brand #theme-toggle{min-width:",
+        "#top{min-height:",
+        "#data-state{min-height:",
+        "#color-filter{min-width:",
+        "#bracket-bar{flex:1 0 100%;min-height:",
+        "#quick-filter-presets{flex:1 0 100%;min-height:",
+        "#view-toggle{min-width:",
+        "#deck-tabs{min-height:",
+        "#pool>#filters{min-height:",
+    ):
+        assert required in css, f"missing CLS layout reservation rule: {required}"
+    html = (STATIC / "index.html").read_text(encoding="utf-8")
+    assert "style=" not in html

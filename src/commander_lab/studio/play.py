@@ -54,7 +54,7 @@ from .games import (
     redact_frame_for_human_seats,
     redact_pilot_state_for_human_seats,
 )
-from .launch import bridge_jar_sha256, engine_command
+from .launch import bridge_jar_sha256, engine_command, interactive_bridge_command
 
 PILOT_IDENTITY = "GenericCommanderPilot"
 PILOT_VERSION = "1.0.0"
@@ -474,6 +474,9 @@ class InteractiveGameSession:
         self._shutdown_event = threading.Event()
         self._active_client: object | None = None
         self._result: dict[str, object] | None = None
+        # Forced AI priority passes the engine answered itself (#1591), as the engine's status
+        # reports them; None until the engine has said so (unknown, not zero).
+        self._forced_passes_answered: int | None = None
         self._thread = threading.Thread(
             target=self._run,
             name=f"interactive-play-{self.game_id}",
@@ -550,6 +553,9 @@ class InteractiveGameSession:
         decision = status.get("decision")
         with self._lock:
             self._update_outcomes_locked(status)
+            answered = status.get("forced_decisions_skipped")
+            if type(answered) is int and answered >= 0:
+                self._forced_passes_answered = answered
             if isinstance(decision, Mapping):
                 seat = decision.get("seat")
                 if type(seat) is int and seat in self.human_seats:
@@ -930,6 +936,7 @@ class InteractiveGameSession:
                 "start": start,
                 "total": len(self._frames),
                 "hands_revealed": revealed,
+                "forced_passes_answered_by_engine": self._forced_passes_answered,
                 "result": copy.deepcopy(self._result),
             }
 
@@ -1053,7 +1060,8 @@ class InteractivePlayManager:
         resolved_id = game_id or free_game_id(
             data_folder, f"{decks[0].deck_id}-{len(decks)}p-seed{seed}"
         )
-        cmd = engine_command(data_folder)
+        # the fast JVM options of a series, the pass skipping of AI seats included (#1591)
+        cmd = interactive_bridge_command(engine_command(data_folder))
         sha = bridge_jar_sha256(data_folder, cmd)
         prepared = prepare_game(
             decks,
