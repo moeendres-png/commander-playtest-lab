@@ -255,7 +255,7 @@ class GameBody(BaseModel):
     seat_styles: list[float] | None = None
     human_seats: list[int] | None = None
     decision_timeout_seconds: int = Field(default=0, ge=0, le=86_400)
-    ai_delay_ms: int = Field(default=250, ge=0, le=5_000)
+    ai_delay_ms: int = Field(default=play.DEFAULT_AI_DELAY_MS, ge=0, le=5_000)
 
 
 class PlayDecisionBody(BaseModel):
