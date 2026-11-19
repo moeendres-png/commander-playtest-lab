@@ -57,8 +57,7 @@ function seatLabel(seat) {
   const info = seatInfo(seat);
   return info.commanders && info.commanders.length ? info.commanders.join(" + ") : (info.deck_id || seatName(seat));
 }
-const isPass = (frame) => frame.decision_class === "priority" && frame.chosen.length === 1 && frame.chosen[0] === "Pass priority";
-const isMinor = (frame) => isPass(frame) || frame.decision_class === "mana_payment";
+const { isPass, isMinor } = StudioReplay; // one definition, shared with replay.js
 function isLand(name) { const fact = state.facts[name]; return Boolean(fact && fact.type_line && fact.type_line.split("//")[0].includes("Land")); }
 function isCreature(name, card) {
   const fact = state.facts[name];
@@ -1231,6 +1230,8 @@ function renderReplayControls() {
   $("next-turn").disabled = atEnd;
   $("skip").disabled = !available;
   $("position").disabled = !available;
+  const note = $("replay-note");
+  if (note) note.hidden = !(available && state.interactive);
   if (!available && state.playing) setPlaying(false);
 }
 function go(index) { state.index = Math.max(0, Math.min(state.frames.length - 1, index)); render(); }
@@ -1259,8 +1260,10 @@ function setPlaying(on) {
 }
 function tick() {
   if (!state.playing || !StudioReplay.isReplayAvailable(state)) { setPlaying(false); return; }
-  if (state.index >= state.frames.length - 1) { setPlaying(false); return; }
-  step(1);
+  if (state.index >= state.frames.length - 1) {
+    // a running AI game keeps playing as frames arrive; a finished one stops at its end
+    if (!state.running) { setPlaying(false); return; }
+  } else step(1);
   state.timer = setTimeout(tick, Number($("speed").value));
 }
 

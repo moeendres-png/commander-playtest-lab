@@ -1,7 +1,8 @@
 "use strict";
 // Pure replay navigation helpers for a finished game in Commander Studio (Issue #1530).
 // Operates strictly on the frames already loaded in the page: no network calls, no DOM access,
-// no rules computation, and never available while a game is still running.
+// no rules computation. Available for finished games and for running AI-vs-AI games; never while
+// a game with human seats is still running (the AI hands are hidden until it ends).
 const StudioReplay = (() => {
   function isPass(frame) {
     return Boolean(
@@ -23,13 +24,16 @@ const StudioReplay = (() => {
     return Math.max(0, Math.min(frames.length - 1, raw));
   }
 
-  // Replay controls are available only for finished games with at least one loaded frame.
-  // While a game is running (state.running === true), this always returns false.
+  // Replay controls need at least one loaded frame. A running game with human seats never offers
+  // them (hidden information: the AI hands are revealed only once the game has ended). A running
+  // AI-vs-AI game keeps them (nothing hidden). A finished game needs its result; one with human
+  // seats additionally needs the server's reveal of the AI hands.
   function isReplayAvailable(state) {
     if (!state || typeof state !== "object") return false;
-    if (state.running) return false;
     if (!Array.isArray(state.frames) || state.frames.length === 0) return false;
-    return Boolean(state.result || !state.interactive);
+    if (state.running) return !state.interactive;
+    if (!state.result) return false;
+    return state.interactive ? Boolean(state.handsRevealed) : true;
   }
 
   // Unique turn numbers in order of first appearance, each paired with its start frame index.
@@ -114,6 +118,8 @@ const StudioReplay = (() => {
   }
 
   return {
+    isPass,
+    isMinor,
     isReplayAvailable,
     listTurns,
     stepForward,
