@@ -252,6 +252,307 @@ def test_a_batch_writes_one_log_per_game_with_its_own_seed_and_status(tmp_path: 
             assert result["decision_count"] == seed  # type: ignore[index]
 
 
+class _Client:
+    """The engine side of one game as the shared drive loop sees it: no decisions, a scripted end."""
+
+    def __init__(self, *, fails: bool = False, terminal: bool = True) -> None:
+        self.fails = fails
+        self.terminal = terminal
+
+    def request(self, op: str, payload: object = None) -> dict[str, object]:
+        if op == "start_full_game":
+            if self.fails:
+                raise RuntimeError("engine failed")
+            return {"terminal": self.terminal}
+        return {}
+
+
+class _DrivingRunner(BatchRecordingRunner):
+    """Like ``_FakeEngineRunner``, but each game goes through the real ``_drive`` override, one
+    after the other, and the result of every game exists only when ``run_batch`` returns."""
+
+    fail: frozenset[int] = frozenset()
+    not_terminal: frozenset[int] = frozenset()
+    twice: frozenset[int] = frozenset()
+    events: list[str]
+
+    def run_batch(self, games):  # type: ignore[no-untyped-def]
+        outcomes: list[object] = []
+        for scenario, _decks, _pilots in games:
+            seed = scenario.seed
+            self.events.append(f"start-{seed}")
+            recorder = self._recorder_for(scenario)
+            recorder.record(
+                {"decision_class": "priority", "seat": 0, "legal_options": [], "pilot_state": {}},
+                {},
+            )
+            try:
+                for _ in range(2 if seed in self.twice else 1):
+                    client = _Client(
+                        fails=seed in self.fail, terminal=seed not in self.not_terminal
+                    )
+                    _count, _classes, terminal = self._drive(client, None, stop_after=0)
+                if terminal is not True:
+                    raise RuntimeError("full game ended without game over")
+            except RuntimeError as error:
+                outcomes.append(error)
+                continue
+            outcomes.append(
+                SimpleNamespace(
+                    winner_seats=(seed % 4 + 1,),
+                    decision_count=seed,
+                    engine_version="fake",
+                    semantic_transcript_sha256=f"hash-{seed}",
+                )
+            )
+        return outcomes
+
+
+def _play_driving(
+    tmp_path: Path,
+    seeds: Sequence[int],
+    *,
+    on_played: object = None,
+    on_game: object = None,
+    fail: frozenset[int] = frozenset(),
+    not_terminal: frozenset[int] = frozenset(),
+    twice: frozenset[int] = frozenset(),
+) -> tuple[list[dict[str, object]], list[str]]:
+    events: list[str] = []
+
+    def factory(data, headers, max_decisions, timeout, private):  # type: ignore[no-untyped-def]
+        runner = _DrivingRunner(
+            data,
+            headers,
+            command=("java", "-Dcommanderlab.fullGame.gamesPerJvm=8", "-jar", "x"),
+            max_decisions=max_decisions,
+            request_timeout_seconds=timeout,
+            private_card_repository=private,
+        )
+        runner.fail, runner.not_terminal, runner.twice = fail, not_terminal, twice
+        runner.events = events
+        return runner
+
+    def played(game_id: str) -> None:
+        events.append(f"played-{game_id}")
+        if callable(on_played):
+            on_played(game_id)
+
+    def closed(summary: dict[str, object]) -> None:
+        events.append(f"closed-{summary['game_id']}")
+        if callable(on_game):
+            on_game(summary)
+
+    summaries = play_recorded_games(
+        tmp_path,
+        [DECK, *PRECONS],
+        [SeriesGame(seed, f"g-s{seed}") for seed in seeds],
+        on_played=played,
+        on_game=closed,
+        runner_factory=factory,
+    )
+    return summaries, events
+
+
+def test_progress_is_announced_per_game_before_the_chunk_returns(tmp_path: Path) -> None:
+    summaries, events = _play_driving(tmp_path, (1, 2, 3), fail=frozenset({2}))
+    # each finished game is announced as soon as it is played, not when the chunk is over; the
+    # failed game is never announced; logs close and results appear only after the chunk
+    assert events == [
+        "start-1",
+        "played-g-s1",
+        "start-2",
+        "start-3",
+        "played-g-s3",
+        "closed-g-s1",
+        "closed-g-s2",
+        "closed-g-s3",
+    ]
+    assert [s["status"] for s in summaries] == ["finished", "failed", "finished"]
+
+
+def test_a_game_that_does_not_reach_its_end_is_not_announced(tmp_path: Path) -> None:
+    _summaries, events = _play_driving(tmp_path, (1, 2), not_terminal=frozenset({1}))
+    assert [e for e in events if e.startswith("played")] == ["played-g-s2"]
+
+
+def test_a_game_played_again_is_announced_once(tmp_path: Path) -> None:
+    _summaries, events = _play_driving(tmp_path, (1, 2), twice=frozenset({1}))
+    assert events.count("played-g-s1") == 1 and events.count("played-g-s2") == 1
+
+
+def test_progress_changes_no_result(tmp_path: Path) -> None:
+    """Same seeds: same transcript hash, winner and decision count with or without the signal, and
+    with a signal that raises."""
+
+    def raises(_game_id: str) -> None:
+        raise BrokenPipeError("the reader is gone")
+
+    def keyed(folder: Path, summaries: list[dict[str, object]]) -> list[tuple[object, ...]]:
+        rows: list[tuple[object, ...]] = []
+        for s in summaries:
+            result = games.read_game(folder, str(s["game_id"]), start=0, count=1)["result"]
+            rows.append(
+                (
+                    s["game_id"],
+                    s["status"],
+                    s.get("winner_seats"),
+                    s.get("decision_count"),
+                    result.get("semantic_transcript_sha256"),  # type: ignore[union-attr]
+                )
+            )
+        return rows
+
+    plain, _ = _play_driving(tmp_path / "a", (1, 2, 3, 4), fail=frozenset({3}))
+    marked, _ = _play_driving(
+        tmp_path / "b", (1, 2, 3, 4), on_played=lambda _g: None, fail=frozenset({3})
+    )
+    broken, _ = _play_driving(tmp_path / "c", (1, 2, 3, 4), on_played=raises, fail=frozenset({3}))
+    rows = keyed(tmp_path / "a", plain)
+    assert rows == keyed(tmp_path / "b", marked) == keyed(tmp_path / "c", broken)
+    assert [row[4] for row in rows] == ["hash-1", "hash-2", None, "hash-4"]
+    assert [row[3] for row in rows] == [1, 2, None, 4]
+
+
+def test_the_batch_cli_prints_a_progress_line_that_is_not_a_result_line() -> None:
+    from commander_lab.studio.simulations import _played_game, _reported_game
+
+    progress = json.dumps({"event": "played", "played_game_id": "batch-t1-s1"})
+    result = json.dumps({"game_id": "batch-t1-s1", "status": "finished"})
+    assert _played_game(progress) == "batch-t1-s1"
+    assert _reported_game(progress) is None  # a played game is not a closed game
+    assert _reported_game(result) == "batch-t1-s1"
+    assert _played_game(result) is None
+    assert _played_game("not json") is None and _played_game('{"event": "played"}') is None
+
+
+def test_the_batch_cli_prints_progress_before_results(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    from commander_lab.studio import play_batch
+
+    def fake(_folder, _decks, series_games, *, on_game, on_played, **_kwargs):  # type: ignore[no-untyped-def]
+        for game in series_games:
+            on_played(game.game_id)
+        summaries = [{"game_id": g.game_id, "status": "finished"} for g in series_games]
+        for summary in summaries:
+            on_game(summary)
+        return summaries
+
+    monkeypatch.setattr(play_batch, "play_recorded_games", fake)
+    code = studio_main(
+        [
+            "--data",
+            str(tmp_path),
+            "play-batch",
+            "--deck",
+            "a.json",
+            "--game",
+            "1:g1",
+            "--game",
+            "2:g2",
+        ]
+    )
+    lines = [json.loads(line) for line in capsys.readouterr().out.splitlines()]
+    assert code == 0
+    assert lines == [
+        {"event": "played", "played_game_id": "g1"},
+        {"event": "played", "played_game_id": "g2"},
+        {"game_id": "g1", "status": "finished"},
+        {"game_id": "g2", "status": "finished"},
+    ]
+
+
+class _FakeProcess:
+    """A ``play-batch`` child: the lines it printed, in order."""
+
+    def __init__(self, lines: list[str]) -> None:
+        self.stdout = iter(lines)
+
+    def wait(self) -> int:
+        return 0
+
+    def poll(self) -> int:
+        return 0
+
+    def terminate(self) -> None:  # pragma: no cover - not reached
+        pass
+
+    def kill(self) -> None:  # pragma: no cover - not reached
+        pass
+
+
+def test_a_series_counts_played_games_before_their_results_exist(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from commander_lab.studio import simulations
+
+    batch = _batch(tmp_path, [1, 2, 3, 4], lambda seeds: iter(()), workers=1, games_per_jvm=4)
+    lines = [
+        json.dumps({"event": "played", "played_game_id": "batch-t1-s1"}),
+        json.dumps({"event": "played", "played_game_id": "batch-t1-s2"}),
+        json.dumps({"event": "played", "played_game_id": "batch-other-s9"}),  # not this series
+        json.dumps({"game_id": "batch-t1-s1", "status": "finished"}),
+        json.dumps({"game_id": "batch-t1-s2", "status": "finished"}),
+    ]
+    monkeypatch.setattr(simulations.subprocess, "Popen", lambda *_a, **_k: _FakeProcess(lines))
+    monkeypatch.setattr(
+        simulations,
+        "extract_game_log_telemetry",
+        lambda _folder, game_id, candidate_seat=0: GameSummary(
+            game_id=game_id, seed=int(game_id.rsplit("-s", 1)[1]), status="finished"
+        ),
+    )
+    stream = batch._process_chunk([1, 2, 3, 4], tmp_path / "deck.json")
+    first = next(stream)  # the first result line comes after both progress lines
+    data = batch.to_dict()
+    assert first.game_id == "batch-t1-s1"
+    assert data["games_played"] == 2 and data["games_completed"] == 0
+    assert data["games_planned"] == 4
+    list(stream)  # the rest of the chunk: seeds 3 and 4 never reported, so they fail
+    assert batch.to_dict()["games_played"] == 2
+
+
+def test_a_played_game_that_ends_as_a_failed_row_is_not_counted_twice(tmp_path: Path) -> None:
+    """A cancelled series leaves the logs of announced games open: they end as ``Cancelled`` rows."""
+    batch = _batch(
+        tmp_path, list(range(1, 11)), lambda seeds: iter(()), workers=1, games_per_jvm=10
+    )
+    for seed in range(1, 6):
+        batch.mark_played(batch.game_id_of(seed))
+    for seed in range(1, 7):  # the five announced games and the one in progress
+        batch._add_game(batch._failed(seed, "Cancelled", "The series was cancelled"))
+    data = batch.to_dict()
+    assert data["games_played"] == 0 and data["games_failed"] == 6
+    assert data["games_played"] + data["games_failed"] <= data["games_planned"]  # type: ignore[operator]
+    # a game that has a finished row stays played even if an id also has a failed row
+    batch.mark_played(batch.game_id_of(7))
+    batch._add_game(_finished(batch, 7, [0]))
+    assert batch.to_dict()["games_played"] == 1
+
+
+def test_games_played_covers_resumed_games_and_never_counts_failures(tmp_path: Path) -> None:
+    done = GameSummary(game_id="batch-t1-s1", seed=1, status="finished", winner_seats=[0])
+    broken = GameSummary(game_id="batch-t1-s2", seed=2, status="failed", failure_class="X")
+    batch = _batch(
+        tmp_path,
+        [1, 2, 3],
+        lambda seeds: iter(()),
+        workers=1,
+        games_per_jvm=3,
+        initial_games=[done, broken],
+    )
+    assert (
+        batch.to_dict()["games_played"] == 1
+    )  # resumed finished game; the failed one was not played
+    batch.mark_played("batch-t1-s3")
+    batch.mark_played("batch-t1-s3")  # announced twice: counted once
+    batch.mark_played("batch-t1-s99")  # not a game of this series
+    data = batch.to_dict()
+    assert data["games_played"] == 2 and data["games_failed"] == 1
+    assert data["games_played"] <= data["games_planned"]
+
+
 def test_stored_seed_list_in_series_record(tmp_path: Path) -> None:
     """The saved series record stores the explicit seed list in top-level seeds field."""
     batch = _batch(tmp_path, [10, 20, 30], lambda seeds: iter(()), workers=1, games_per_jvm=3)

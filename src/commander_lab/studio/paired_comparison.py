@@ -825,8 +825,14 @@ def parallel_window_player(
     cancel_error_factory: Callable[[], BaseException] | None = None,
     preloaded: Mapping[tuple[str, int, int], PlayedGame] | None = None,
     on_game_result: Callable[[str, int, int, PlayedGame], None] | None = None,
+    on_game_played: Callable[[str, int, int], None] | None = None,
 ) -> PairPlayer:
-    """Execute each O'Brien-Fleming look window in parallel without changing sequential outcomes."""
+    """Execute each O'Brien-Fleming look window in parallel without changing sequential outcomes.
+
+    ``on_game_played`` (arm, seed, seat) is a progress signal only: it fires when the engine has
+    played a game to its end, before the chunk returns. Results, their order and the pair
+    counting (``on_pair_done``) do not depend on it.
+    """
     from .play_batch import SeriesGame, play_recorded_games
 
     planned_units = [(seed, seat) for seed in seeds for seat in tested_seats][:budget_pairs]
@@ -888,6 +894,8 @@ def parallel_window_player(
                 w_arm, w_seed, w_seat = item
                 _raise_if_cancelled()
                 res = play_single(w_arm, w_seed, w_seat)
+                if on_game_played is not None and res.get("failure_class") is None:
+                    on_game_played(w_arm, w_seed, w_seat)
                 if on_game_result is not None:
                     on_game_result(w_arm, w_seed, w_seat, res)
                 _mark_game_done(w_arm, w_seed, w_seat)
@@ -947,6 +955,10 @@ def parallel_window_player(
                 if isinstance(gid, str) and gid in by_game_id:
                     _mark_game_done(w_arm, by_game_id[gid], w_seat)
 
+            def _on_played(gid: str) -> None:
+                if on_game_played is not None and gid in by_game_id:
+                    on_game_played(w_arm, by_game_id[gid], w_seat)
+
             summaries = play_recorded_games(
                 data_folder,
                 deck_paths,
@@ -954,6 +966,7 @@ def parallel_window_player(
                 command=command,
                 private_card_repository=(used_workers > 1),
                 on_game=_on_game,
+                on_played=_on_played,
             )
             results: list[tuple[tuple[str, int, int], PlayedGame]] = []
             for w_seed, summary in zip(chunk_seeds, summaries, strict=True):
