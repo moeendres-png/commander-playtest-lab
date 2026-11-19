@@ -42,7 +42,7 @@ from . import (
     universe_choice,
     universe_view,
 )
-from .builder import pool_cards
+from .builder import commander_identity, pool_cards, pool_members
 from .store import StudioStore, now_utc
 from .strength import (
     BRACKET_INCLUSION,
@@ -565,15 +565,16 @@ def signal_coverage(
     value (the same name matching as the index). Counts only. A signal without rows for
     this commander is listed with 0 rows: missing, not a weak signal. Raises KeyError when
     the commander is not in the collection."""
-    pool = pool_cards(store, [commander], with_signals=False)
-    raw_cards = pool["cards"]
-    if not isinstance(raw_cards, list):
-        raise TypeError("pool_cards returned an unexpected shape")
-    commander_ids = _strings(pool["commander_ids"])
+    # Only the pool's card ids and names are read here: the light pool (the same cards in the
+    # same order as ``pool_cards``) skips the builder's per-card figures, which cost a quarter
+    # second per commander in the data report's sweep over every commander.
+    _identity, commander_list = commander_identity(store, [commander])
+    raw_cards = pool_members(store, [commander])
+    commander_ids = set(commander_list)
     ids = [str(card["card_id"]) for card in raw_cards]
-    display = {str(card["card_id"]): str(card["name"]) for card in raw_cards}
+    display = {str(card["card_id"]): str(card["oracle_name"]) for card in raw_cards}
     non_cmd_cards = [card for card in raw_cards if str(card["card_id"]) not in commander_ids]
-    display_non_cmd = {str(card["card_id"]): str(card["name"]) for card in non_cmd_cards}
+    display_non_cmd = {str(card["card_id"]): str(card["oracle_name"]) for card in non_cmd_cards}
     claims = _claim_index(store, ids)
     db = store.connection
     result: dict[str, SignalCoverage] = {}

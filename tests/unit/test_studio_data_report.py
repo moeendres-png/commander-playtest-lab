@@ -247,3 +247,82 @@ def test_report_gives_pool_sizes_unknown_legality_and_signal_coverage_per_comman
     text = json.dumps(after)
     for card_name in ("Filler 00", "Forest", "Swarm Rat", "Unchecked Card"):
         assert card_name not in text  # counts only, no collection card name
+
+
+def test_commander_sweep_reads_the_light_pool_and_the_signal_rows_once(
+    studio: StudioStore, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """#1562: the per-commander sweep gives the same figures without rebuilding the builder
+    pool or re-reading the signal rows per commander."""
+    from commander_lab.studio import builder, signals, strength_view
+    from tests.unit.test_studio_strength import COMMANDER, _write_signals
+
+    _write_signals(tmp_path / "signals")
+    signals.import_signals(studio, tmp_path / "signals", commander=COMMANDER)
+    db = studio.connection
+    source = db.execute("SELECT source_id FROM source LIMIT 1").fetchone()[0]
+    # Rows that raise alarms: a commander-scoped signal without values, an independent one
+    # whose counts are all zero, and a commander only reachable with surrounding spaces.
+    db.executemany(
+        "INSERT OR REPLACE INTO card_signal(commander_name, signal, card_name, value, numerator, "
+        "denominator, source_id) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        [
+            *(
+                (COMMANDER, signals.SIGNAL_SYNERGY, f"Nul {i}", None, None, None, source)
+                for i in range(12)
+            ),
+            *(("", signals.SIGNAL_GLOBAL, f"Zero {i}", 0.0, 0, 50, source) for i in range(120)),
+            *(
+                ("Spaced One", signals.SIGNAL_INCLUSION, f"Nul {i}", None, None, 9, source)
+                for i in range(3)
+            ),
+        ],
+    )
+    db.commit()
+
+    # The light pool is the builder pool's card set (ids, names, order) and commander ids.
+    full = builder.pool_cards(studio, [COMMANDER], with_signals=False)
+    light = builder.pool_members(studio, [COMMANDER])
+    cards = full["cards"]
+    assert isinstance(cards, list) and cards
+    assert [(c["card_id"], c["name"]) for c in cards] == [
+        (row["card_id"], row["oracle_name"]) for row in light
+    ]
+    assert full["commander_ids"] == builder.commander_identity(studio, [COMMANDER])[1]
+
+    # The shared rows give the alarms the per-commander read gives, for every name.
+    shared = signals.store_signal_rows_by_commander(studio)
+    names = [*report_names(studio), " Spaced One ", "", "  ", "Nobody"]
+    fired = 0
+    for name in names:
+        alone = signals.compute_store_signal_rate_alarms(studio, commander=name)
+        assert (
+            signals.compute_store_signal_rate_alarms(
+                studio, commander=name, rows_by_commander=shared
+            )
+            == alone
+        ), name
+        fired += len(alone)
+    assert fired > len(names)  # the independent alarm for every name, plus own ones
+
+    expected = data_report(studio, today=TODAY)
+    sent: list[str] = []
+    db.set_trace_callback(sent.append)
+
+    def no_full_pool(*_args: object, **_kwargs: object) -> dict[str, object]:
+        raise AssertionError("signal_coverage must not build the builder pool")
+
+    monkeypatch.setattr(strength_view, "pool_cards", no_full_pool)
+    try:
+        again = data_report(studio, today=TODAY)
+    finally:
+        db.set_trace_callback(None)
+    assert json.dumps(again, sort_keys=True) == json.dumps(expected, sort_keys=True)
+    assert not [sql for sql in sent if "FROM card_signal WHERE commander_name IN" in sql]
+    assert not [sql for sql in sent if "FROM card_role ORDER BY role" in sql]
+
+
+def report_names(store: StudioStore) -> list[str]:
+    from commander_lab.studio.data_report import _commander_names
+
+    return _commander_names(store.connection)
