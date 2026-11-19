@@ -34,6 +34,7 @@ from . import (
     cache,
     card_duel,
     card_outcomes,
+    card_trend,
     card_understanding,
     castability,
     combos,
@@ -1050,6 +1051,36 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
             raise HTTPException(422, str(error)) from error
         except KeyError as error:
             raise HTTPException(404, "unknown universe profile") from error
+        finally:
+            store.close()
+
+    @app.get("/api/card-trend")
+    def card_trend_view(
+        commander: list[str] = Query(min_length=1, max_length=2),
+        recent_days: int = Query(default=card_trend.DEFAULT_RECENT_DAYS, ge=1, le=3650),
+        min_decks_per_window: int = Query(
+            default=card_trend.DEFAULT_MIN_DECKS_PER_WINDOW, ge=1, le=10000
+        ),
+        bracket: str | None = Query(default=None, max_length=32),
+        source: str | None = Query(default=None, max_length=32),
+    ) -> dict[str, object]:
+        """Per-card corpus trend (recent vs. older deduplicated decks) of ONE source (default
+        ``edhrec``, never mixed with the other). An unknown bracket or source is a 422. No
+        weight in strength."""
+        store = open_store()
+        try:
+            return dict(
+                card_trend.card_trend(
+                    store,
+                    commander,
+                    recent_days=recent_days,
+                    min_decks_per_window=min_decks_per_window,
+                    bracket=bracket,
+                    source=source,
+                )
+            )
+        except ValueError as error:
+            raise HTTPException(422, str(error)) from error
         finally:
             store.close()
 
