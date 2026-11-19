@@ -242,7 +242,10 @@ reused.
 
 **Cleanups.** Code or a document is kept because something machine-read, imported or executed needs
 it, or a JSON/manifest record under `qualification/` names it by path; a mention in prose does not
-keep it. A document that records an Owner decision is archived, never deleted. A test is deleted
+keep it. A document that records an Owner decision is archived, not silently deleted; outdated
+wording may be replaced or removed in a pull request that states reason, date and the Owner
+decision (Owner, 2026-11-19, `docs/OWNER_DECISIONS_STUDIO_20261118.md` E10); the §8 reservations
+stay. A test is deleted
 only when its subject is gone; a test of living code that merely used removed helpers for setup is
 re-hosted, not deleted.
 
