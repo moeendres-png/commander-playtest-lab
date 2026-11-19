@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import json
-from datetime import date
+from datetime import UTC, date, datetime
 from pathlib import Path
 
 import pytest
@@ -11,6 +11,7 @@ import pytest
 from commander_lab.studio import StudioStore, roles
 from commander_lab.studio.__main__ import main
 from commander_lab.studio.data_report import data_report, role_fingerprint
+from commander_lab.studio.store import DataClass
 from tests.unit.test_studio_builder import _fill
 from tests.unit.test_studio_roles_import import FILLER, FOREST, RAT, _file
 
@@ -326,3 +327,111 @@ def report_names(store: StudioStore) -> list[str]:
     from commander_lab.studio.data_report import _commander_names
 
     return _commander_names(store.connection)
+
+
+def test_source_status_shows_each_non_deck_source_with_a_date_or_unknown(
+    studio: StudioStore,
+) -> None:
+    """#1545: every source that is not a single deck file shows a date and age or "unbekannt"."""
+    studio.register_source(
+        data_class=DataClass.NORMALIZED_SOURCE,
+        title="dated.csv",
+        sha256="a" * 64,
+        snapshot_date="2026-11-01",
+    )
+    studio.register_source(
+        data_class=DataClass.NORMALIZED_SOURCE, title="undated.csv", sha256="b" * 64
+    )
+    studio.register_source(
+        data_class=DataClass.NORMALIZED_SOURCE,
+        title="not-a-date.csv",
+        sha256="c" * 64,
+        snapshot_date="universe:abc:12",
+    )
+    studio.connection.commit()
+    status = _section(data_report(studio, today=TODAY), "source_status")
+    details = {str(item["title"]): item for item in status["details"]}  # type: ignore[attr-defined]
+    assert details["dated.csv"]["snapshot_date"] == "2026-11-01"
+    assert details["dated.csv"]["age_days"] == 10
+    assert details["undated.csv"]["snapshot_date"] == "unbekannt"
+    assert details["undated.csv"]["age_days"] == "unbekannt"
+    assert details["not-a-date.csv"]["snapshot_date"] == "unbekannt"
+    assert details["not-a-date.csv"]["snapshot_value_not_a_date"] is True
+    for item in status["details"]:  # type: ignore[attr-defined]
+        assert item["snapshot_date"] and item["age_days"] != ""  # never an empty output
+    total = status["date_known"]["of"]  # type: ignore[index]
+    assert total == len(status["details"])  # type: ignore[arg-type]
+    assert status["date_known"]["count"] + status["date_unknown"] == total  # type: ignore[index,operator]
+    assert {"undated.csv", "not-a-date.csv"} <= set(status["date_unknown_titles"])  # type: ignore[arg-type]
+    deck_sources = studio.connection.execute(
+        "SELECT COUNT(DISTINCT source_id) FROM corpus_deck"
+    ).fetchone()[0]
+    assert status["deck_file_sources"]["total"] == deck_sources > 0  # type: ignore[index]
+    assert "nicht im Store erfasst" in str(status["licence_and_access"])
+    assert "url" not in json.dumps(status).lower().replace("address_stored", "")
+
+
+def test_readme_retrieval_date_is_read_from_the_folder_readme(tmp_path: Path) -> None:
+    from commander_lab.studio.provenance import README_NAME, readme_retrieval_date
+
+    (tmp_path / README_NAME).write_text(
+        "| Datei | Inhalt | Quelle |\n|---|---|---|\n"
+        "| `sig_{1..2}.csv` | 5 Zeilen, Stand 2026-01-01 | Abruf 2026-11-11/12 |\n"
+        "| `glob_{core,cedh}_*.csv` | x | Abruf 2026-11-12, Erneuerung 2026-11-15 |\n"
+        "| `nodate.csv` | x | Seite ohne Datum |\n",
+        encoding="utf-8",
+    )
+    assert readme_retrieval_date(tmp_path / "sig_2.csv") == "2026-11-12"
+    assert readme_retrieval_date(tmp_path / "sig_3.csv") is None
+    assert readme_retrieval_date(tmp_path / "glob_cedh_2.csv") == "2026-11-15"
+    assert readme_retrieval_date(tmp_path / "nodate.csv") is None
+    assert readme_retrieval_date(tmp_path / "unlisted.csv") is None
+    assert readme_retrieval_date(tmp_path / "sub" / "sig_1.csv") is None  # no README there
+
+
+def test_gap_matrix_classes_sum_to_the_pool_and_name_denominators(
+    studio: StudioStore, tmp_path: Path
+) -> None:
+    from commander_lab.studio.gap_matrix import build_gap_matrix, classify
+    from tests.unit.test_studio_strength import COMMANDER
+
+    assert classify([0, 1, 4, 5, 29, 30, 99, 100, None]) == {
+        "in_no_deck": 1,
+        "in_1_to_4_decks": 2,
+        "in_5_to_29_decks": 2,
+        "in_30_to_99_decks": 2,
+        "in_100_or_more_decks": 1,
+        "unknown": 1,
+    }
+    matrix = build_gap_matrix(studio, COMMANDER, now=datetime(2026, 11, 19, 12, tzinfo=UTC))
+    assert matrix["generated_at_utc"] == "2026-11-19T12:00:00Z"
+    assert len(str(matrix["store_fingerprint"])) == 64
+    pool = matrix["pool_size"]
+    assert isinstance(pool, int) and pool > 0
+    parts = [matrix["all_local_decks"], *matrix["cohort_groups_not_added_together"].values()]  # type: ignore[union-attr]
+    for part in parts:
+        assert part["pool"] == pool and part["classes_sum"] == pool  # type: ignore[index]
+        assert isinstance(part["denominator_decks"], int)  # type: ignore[index]
+    assert matrix == build_gap_matrix(studio, COMMANDER, now=datetime(2026, 11, 19, 12, tzinfo=UTC))
+    assert "Filler 00" not in json.dumps(matrix)  # counts only
+
+
+def test_signal_source_dates_come_from_the_readme_never_from_an_id_fragment(
+    tmp_path: Path,
+) -> None:
+    from commander_lab.studio.provenance import README_NAME
+    from commander_lab.studio.signals import _decklist_snapshot_date, _snapshot_from_signal_path
+
+    (tmp_path / README_NAME).write_text(
+        "| Datei | Inhalt | Quelle |\n|---|---|---|\n| `card_x.csv` | x | Abruf 2026-11-12 |\n",
+        encoding="utf-8",
+    )
+    path = tmp_path / "card_x.csv"
+    path.write_text("card_name\nA\n", encoding="utf-8")
+    assert _snapshot_from_signal_path(path) == "2026-11-12"
+    other = tmp_path / "card_y.csv"
+    other.write_text("card_name\nA\n", encoding="utf-8")
+    assert _snapshot_from_signal_path(other) is None  # unlisted: stays unknown
+    assert _decklist_snapshot_date("universe:abc:12", other) is None
+    assert _decklist_snapshot_date("universe:abc:12", path) == "2026-11-12"
+    assert _decklist_snapshot_date("2026-11-15T10:00", other) == "2026-11-15"

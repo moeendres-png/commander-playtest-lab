@@ -161,6 +161,92 @@ def _scryfall(db: sqlite3.Connection, today: date) -> dict[str, object]:
     }
 
 
+# Tables whose rows carry a ``source_id``; the rows of one source are counted over these.
+_SOURCE_ROW_TABLES = (
+    "card",
+    "inventory",
+    "card_location",
+    "deck_revision",
+    "observation",
+    "scryfall_card",
+    "card_role",
+    "card_role_claim",
+    "playgroup_card_atlas",
+    "card_signal",
+    "commander_combo",
+    "card_ruling_source",
+)
+UNKNOWN = "unbekannt"
+
+
+def _source_status(db: sqlite3.Connection, today: date) -> dict[str, object]:
+    """Per source (a single deck file excluded, those are counted as one group): rows the store
+    holds from it, its date and age in days, or "unbekannt", and whether an address is stored.
+    No network access: everything is read from ``source`` and the tables pointing at it.
+    A source that no stored row points at is shown with 0 rows in the store (a part file
+    registered next to its combined source); that 0 is a count, not a missing value.
+    Licence and access terms have no column in the store and are therefore listed as not
+    recorded, never as free or open."""
+    rows_of: dict[str, int] = {}
+    present = {str(r[0]) for r in db.execute("SELECT name FROM sqlite_master WHERE type = 'table'")}
+    for table in _SOURCE_ROW_TABLES:
+        if table not in present:
+            continue
+        for source_id, count in db.execute(
+            f"SELECT source_id, COUNT(*) FROM {table} GROUP BY source_id"
+        ):
+            if source_id is not None:
+                rows_of[str(source_id)] = rows_of.get(str(source_id), 0) + int(count)
+    entries: list[dict[str, object]] = []
+    for row in db.execute(
+        "SELECT s.source_id, s.title, s.data_class, s.snapshot_date, s.url, s.imported_at "
+        "FROM source s WHERE s.source_id NOT IN (SELECT source_id FROM corpus_deck) "
+        "ORDER BY s.title, s.source_id"
+    ):
+        snapshot = str(row["snapshot_date"]) if row["snapshot_date"] else None
+        age = _age_days(snapshot, today)
+        entries.append(
+            {
+                "title": row["title"],
+                "data_class": row["data_class"],
+                "rows_in_store": rows_of.get(str(row["source_id"]), 0),
+                "snapshot_date": snapshot if age is not None else UNKNOWN,
+                "snapshot_value_not_a_date": snapshot is not None and age is None,
+                "age_days": age if age is not None else UNKNOWN,
+                "address_stored": bool(row["url"]),
+                "imported_at": row["imported_at"],
+            }
+        )
+    total = len(entries)
+    unknown = sorted(str(e["title"]) for e in entries if e["snapshot_date"] == UNKNOWN)
+    deck_files = db.execute(
+        "SELECT COUNT(*), SUM(s.snapshot_date IS NULL OR s.snapshot_date = '') "
+        "FROM source s WHERE s.source_id IN (SELECT source_id FROM corpus_deck)"
+    ).fetchone()
+    deck_total = int(deck_files[0])
+    deck_unknown = int(deck_files[1] or 0)
+    return {
+        "scope": "sources that are not a single deck file; deck files are counted as one group",
+        "date_known": _share(total - len(unknown), total),
+        "date_unknown": len(unknown),
+        "date_unknown_of_which_value_not_a_date": sum(
+            1 for e in entries if e["snapshot_value_not_a_date"]
+        ),
+        "date_unknown_titles": unknown,
+        "address_stored": _share(sum(1 for e in entries if e["address_stored"]), total),
+        "deck_file_sources": {
+            "total": deck_total,
+            "date_unknown": deck_unknown,
+            "date_known": deck_total - deck_unknown,
+        },
+        "licence_and_access": "nicht im Store erfasst (keine Spalte); weder frei noch offen belegt",
+        "imported_at_note": (
+            "imported_at is the import day, not the retrieval day; only snapshot_date is a retrieval date"
+        ),
+        "details": entries,
+    }
+
+
 def _roles(db: sqlite3.Connection) -> dict[str, object]:
     with_oracle = _scalar(db, "SELECT COUNT(*) FROM card_fact WHERE oracle_id IS NOT NULL")
     with_claim = _scalar(
@@ -512,6 +598,7 @@ def data_report(
         "bridge_qualification": bridge_qualification(),
         "collection": _collection(db),
         "scryfall_facts": _scryfall(db, moment),
+        "source_status": _source_status(db, moment),
         "roles": _roles(db),
         "rulings": _rulings(db),
         "corpus": _corpus(db),

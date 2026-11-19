@@ -1091,7 +1091,7 @@ def _import_decklists(
                 data_class=DataClass.NORMALIZED_SOURCE,
                 title=f"{paths[0].name}#{universe.snapshot}",
                 sha256=hashlib.sha256(f"{file_hash}:{signal}".encode()).hexdigest(),
-                snapshot_date=str(universe.snapshot)[:10] if universe.snapshot else None,
+                snapshot_date=_decklist_snapshot_date(universe.snapshot, paths[0]),
             )
             rows: list[_Row] = [
                 (commander, signal, card, decks / total, decks, total)
@@ -1198,7 +1198,18 @@ def _snapshot_from_signal_path(path: Path) -> str | None:
                             return val[:10]
         except OSError:
             pass
-    return None
+    from .provenance import readme_retrieval_date
+
+    return readme_retrieval_date(path)
+
+
+def _decklist_snapshot_date(snapshot: object, path: Path) -> str | None:
+    """A date for a counted deck-list source: the snapshot when it is a date, otherwise the date
+    the file name or its folder README states; never an id fragment (#1545)."""
+    text = str(snapshot or "")[:10]
+    if re.fullmatch(r"20\d{2}-\d{2}-\d{2}", text):
+        return text
+    return _snapshot_from_signal_path(path)
 
 
 def _register(store: StudioStore, paths: list[Path]) -> str | None:
