@@ -10,6 +10,7 @@ from __future__ import annotations
 import csv
 import hashlib
 import json
+import sqlite3
 from collections.abc import Iterable, Iterator, Mapping, Sequence
 from functools import partial
 from pathlib import Path
@@ -706,6 +707,30 @@ def _number(value: str) -> float | None:
     return float(value) if value.strip() else None
 
 
+def _insert_observation_once(
+    db: sqlite3.Connection, seen: set[tuple[object, ...]], row: tuple[object, ...]
+) -> bool:
+    """Write one ``observation`` row unless the same source already wrote an exact duplicate.
+
+    ``row`` holds the eleven columns after ``observation_id`` in INSERT order (card_id,
+    card_name, cohort, metric, value, ...) and ends with the source id. A duplicate has the same
+    values in all of them (NULL equals NULL, a NaN value is NULL as the store keeps it); ``seen``
+    is the set of rows of this import and this source.
+    Returns False for a dropped duplicate."""
+    value = row[4]
+    key = (*row[:4], None if isinstance(value, float) and value != value else value, *row[5:])
+    if key in seen:
+        return False
+    seen.add(key)
+    db.execute(
+        "INSERT INTO observation(card_id, card_name, cohort, metric, value, "
+        "numerator, denominator, data_class, url, snapshot, source_id) "
+        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        row,
+    )
+    return True
+
+
 def import_edhrec_table(store: StudioStore, path: str | Path) -> dict[str, object]:
     """Read EDHREC card rows: one observation per card and theme page, with numerator,
     denominator, page address and snapshot note. An empty lift stays unknown."""
@@ -724,6 +749,8 @@ def import_edhrec_table(store: StudioStore, path: str | Path) -> dict[str, objec
     )
     known = {str(row[0]) for row in store.connection.execute("SELECT card_id FROM card")}
     count = 0
+    dropped = 0
+    seen: set[tuple[object, ...]] = set()
     tracker = FallbackTracker()
     with store.connection as db:
         db.execute("DELETE FROM observation WHERE source_id = ?", (source_id,))
@@ -746,10 +773,9 @@ def import_edhrec_table(store: StudioStore, path: str | Path) -> dict[str, objec
                 ("inclusion_pct", _number(raw_inc), numerator, denominator),
                 ("lift", _number(raw_lift), None, None),
             ):
-                db.execute(
-                    "INSERT INTO observation(card_id, card_name, cohort, metric, value, "
-                    "numerator, denominator, data_class, url, snapshot, source_id) "
-                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                written = _insert_observation_once(
+                    db,
+                    seen,
                     (
                         *base,
                         metric,
@@ -762,11 +788,12 @@ def import_edhrec_table(store: StudioStore, path: str | Path) -> dict[str, objec
                         *tail,
                     ),
                 )
+                dropped += 0 if written else 1
             count += 1
         fallbacks = tracker.to_dict()
         if fallbacks:
             record_store_fallbacks(store, fallbacks)
-    result: dict[str, object] = {"rows": count}
+    result: dict[str, object] = {"rows": count, "duplicate_observations_dropped": dropped}
     if fallbacks:
         result["fallbacks_used"] = fallbacks
     return result
@@ -1031,7 +1058,8 @@ def import_edhrec_cardrecs_csv(store: StudioStore, path: str | Path) -> dict[str
     return {"rows": count}
 
 
-def _import_one_edhrec_delta_file(store: StudioStore, file_path: Path) -> int:
+def _import_one_edhrec_delta_file(store: StudioStore, file_path: Path) -> tuple[int, int]:
+    """Rows read and duplicate observation rows dropped."""
     source_id = store.register_source(
         data_class=DataClass.NORMALIZED_SOURCE,
         title=file_path.name,
@@ -1039,6 +1067,8 @@ def _import_one_edhrec_delta_file(store: StudioStore, file_path: Path) -> int:
         snapshot_date="2026-11-10",
     )
     count = 0
+    dropped = 0
+    seen: set[tuple[object, ...]] = set()
     with store.connection as db, file_path.open(encoding="utf-8") as handle:
         db.execute("DELETE FROM observation WHERE source_id = ?", (source_id,))
         for line in handle:
@@ -1126,10 +1156,9 @@ def _import_one_edhrec_delta_file(store: StudioStore, file_path: Path) -> int:
             if syn is not None:
                 metrics.append(("synergy_pct", syn, None, None))
             for metric, value, m_num, m_den in metrics:
-                db.execute(
-                    "INSERT INTO observation(card_id, card_name, cohort, metric, value, "
-                    "numerator, denominator, data_class, url, snapshot, source_id) "
-                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                written = _insert_observation_once(
+                    db,
+                    seen,
                     (
                         card_id,
                         card_name,
@@ -1146,8 +1175,9 @@ def _import_one_edhrec_delta_file(store: StudioStore, file_path: Path) -> int:
                         source_id,
                     ),
                 )
+                dropped += 0 if written else 1
             count += 1
-    return count
+    return count, dropped
 
 
 def import_edhrec_delta_jsonl(store: StudioStore, path: str | Path) -> dict[str, int]:
@@ -1158,8 +1188,12 @@ def import_edhrec_delta_jsonl(store: StudioStore, path: str | Path) -> dict[str,
     )
     if not files:
         raise ValueError(f"{target}: no 10_EDHREC_STATISTICS_DELTA_*.jsonl files found")
-    total = sum(_import_one_edhrec_delta_file(store, file_path) for file_path in files)
-    return {"files": len(files), "rows": total}
+    results = [_import_one_edhrec_delta_file(store, file_path) for file_path in files]
+    return {
+        "files": len(files),
+        "rows": sum(rows for rows, _ in results),
+        "duplicate_observations_dropped": sum(dropped for _, dropped in results),
+    }
 
 
 def _import_one_simulation_file(

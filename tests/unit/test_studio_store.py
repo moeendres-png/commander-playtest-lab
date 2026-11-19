@@ -416,8 +416,9 @@ def test_edhrec_import_keeps_denominators_and_marks_missing_lift_unknown(
     table = _write_csv(
         tmp_path / "edhrec.csv", [row("general", "1.5", 50, 1000), row("tiny", "", 3, 12)]
     )
-    assert importers.import_edhrec_table(store, table) == {"rows": 2}
-    assert importers.import_edhrec_table(store, table) == {"rows": 2}
+    expected = {"rows": 2, "duplicate_observations_dropped": 0}
+    assert importers.import_edhrec_table(store, table) == expected
+    assert importers.import_edhrec_table(store, table) == expected
     assert store.count("observation") == 4
     unknown = store.connection.execute(
         "SELECT cohort, metric, value FROM observation WHERE data_class = 'UNKNOWN'"
@@ -428,6 +429,195 @@ def test_edhrec_import_keeps_denominators_and_marks_missing_lift_unknown(
         "WHERE cohort = 'edhrec:tiny' AND metric = 'inclusion_pct'"
     ).fetchone()
     assert tuple(tiny) == (3, 12, "ORIGINAL_SOURCE")
+
+
+_EDHREC_ROW = {
+    "card_id": "card:project:0007",
+    "oracle_id": "",
+    "card_name": "Swarm Rat",
+    "theme": "general",
+    "inclusion_pct": 5.0,
+    "lift": "1.5",
+    "num_decks": 50,
+    "potential_decks": 1000,
+    "url": "https://example.invalid/general",
+    "category": "creatures",
+    "status": "ok",
+    "snapshot_utc": "2026-11-09T00:00:00Z",
+}
+
+
+def test_edhrec_import_drops_only_exact_duplicates_of_one_source(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    """Exact duplicate: the same values in every column but ``observation_id``, same source."""
+    base = dict(_EDHREC_ROW)
+    unknown_lift = {**base, "card_name": "Bird", "lift": ""}  # NULL equals NULL
+    near = [  # each differs from ``base`` in exactly one stored column
+        {**base, "card_name": "Other"},
+        {**base, "theme": "other"},
+        {**base, "lift": "1.6"},
+        {**base, "num_decks": 51},
+        {**base, "potential_decks": 1001},
+        {**base, "url": "https://example.invalid/other"},
+        {**base, "snapshot_utc": "2026-11-10T00:00:00Z"},
+    ]
+    rows = [base, dict(base), unknown_lift, dict(unknown_lift), *near]
+    table = _write_csv(tmp_path / "edhrec.csv", rows)
+    # The rule works on observation rows, not CSV rows: the 2 repeated CSV rows are 4 duplicates
+    # (inclusion_pct and lift each); a changed lift, numerator or denominator leaves the other
+    # metric's row identical to ``base``, which is 3 more.
+    dropped = 7
+    expected = {"rows": len(rows), "duplicate_observations_dropped": dropped}
+    assert importers.import_edhrec_table(store, table) == expected
+    assert store.count("observation") == 2 * len(rows) - dropped
+    assert importers.import_edhrec_table(store, table) == expected  # replace, not append
+    assert store.count("observation") == 2 * len(rows) - dropped
+    groups = store.connection.execute(
+        "SELECT COUNT(*) FROM (SELECT 1 FROM observation GROUP BY card_id, card_name, metric, "
+        "cohort, value, numerator, denominator, data_class, url, snapshot, source_id "
+        "HAVING COUNT(*) > 1)"
+    ).fetchone()[0]
+    assert groups == 0
+    # the same row under another source (another file) is not a duplicate of the first one
+    second = _write_csv(tmp_path / "edhrec_2.csv", [base])
+    assert importers.import_edhrec_table(store, second) == {
+        "rows": 1,
+        "duplicate_observations_dropped": 0,
+    }
+    same = store.connection.execute(
+        "SELECT COUNT(*) FROM observation WHERE card_name = 'Swarm Rat' "
+        "AND cohort = 'edhrec:general' AND metric = 'inclusion_pct' AND value = 5.0 "
+        "AND numerator = 50 AND denominator = 1000 AND snapshot = '2026-11-09T00:00:00Z' "
+        "AND url = 'https://example.invalid/general'"
+    ).fetchone()[0]
+    assert same == 2
+
+
+def test_duplicate_rule_treats_nan_as_null(store: StudioStore) -> None:
+    source_id = store.register_source(
+        data_class=DataClass.ORIGINAL_SOURCE, title="n", sha256="cd" * 32
+    )
+
+    def row(value: float | None) -> tuple[object, ...]:
+        return (
+            None,
+            "Swarm Rat",
+            "edhrec:x",
+            "lift",
+            value,
+            None,
+            None,
+            "UNKNOWN",
+            None,
+            None,
+            source_id,
+        )
+
+    seen: set[tuple[object, ...]] = set()
+    with store.connection as db:
+        assert importers._insert_observation_once(db, seen, row(float("nan")))
+        assert not importers._insert_observation_once(db, seen, row(float("nan")))  # other object
+        assert not importers._insert_observation_once(db, seen, row(None))
+    assert store.count("observation") == 1
+    stored = store.connection.execute("SELECT value FROM observation").fetchone()[0]
+    assert stored is None  # SQLite keeps NaN as NULL
+
+
+def test_edhrec_delta_import_drops_exact_duplicates(store: StudioStore, tmp_path: Path) -> None:
+    line = json.dumps(
+        {
+            "data_kind": "EDHREC_CARDRECS_BRACKET2_CORE",
+            "oracle_name": "Swarm Rat",
+            "decks_with_card_reported": 187,
+            "inclusion_pct_reported": 33.0,
+            "lift_reported": 0.78,
+            "eligible_decks_per_card": None,
+            "original_url": "https://example.invalid/core",
+            "source_index_crawled_date": "2026-11-09",
+        }
+    )
+    changed = line.replace("0.78", "0.79")
+    delta = tmp_path / "10_EDHREC_STATISTICS_DELTA_001.jsonl"
+    delta.write_text("\n".join([line, line, changed]) + "\n", encoding="utf-8")
+    result = importers.import_edhrec_delta_jsonl(store, delta)
+    # per row: inclusion_pct and lift (no synergy). The second ``line`` repeats both; ``changed``
+    # has another lift but the same inclusion_pct row.
+    assert result == {"files": 1, "rows": 3, "duplicate_observations_dropped": 3}
+    assert store.count("observation") == 3
+
+
+_IMPORT_INDEX_QUERIES = {
+    "corpus_cohort_deck": "DELETE FROM corpus_cohort WHERE deck_id = ?",
+    "observation_source": "DELETE FROM observation WHERE source_id = ?",
+}
+
+
+def _plan(connection: sqlite3.Connection, sql: str) -> str:
+    return " | ".join(
+        str(row[3]) for row in connection.execute(f"EXPLAIN QUERY PLAN {sql}", ("x",))
+    )
+
+
+def _import_index_names(connection: sqlite3.Connection) -> set[str]:
+    return {
+        str(row[0])
+        for row in connection.execute(
+            "SELECT name FROM sqlite_master WHERE type = 'index' AND name IN (?, ?)",
+            tuple(_IMPORT_INDEX_QUERIES),
+        )
+    }
+
+
+def test_import_delete_queries_search_by_index_on_every_open(tmp_path: Path) -> None:
+    folder = tmp_path / "studio"
+    first = StudioStore.open(folder)
+    for index, sql in _IMPORT_INDEX_QUERIES.items():
+        plan = _plan(first.connection, sql)
+        assert f"SEARCH {sql.split()[2]} USING" in plan and f"INDEX {index}" in plan
+    # an existing store without the indexes (as every store of schema 21 before this change)
+    first.connection.execute("DROP INDEX corpus_cohort_deck")
+    first.connection.execute("DROP INDEX observation_source")
+    first.connection.commit()
+    first.close()
+    bare = sqlite3.connect(folder / "studio.sqlite3")  # a fresh connection: no cached plans
+    assert _import_index_names(bare) == set()
+    for sql in _IMPORT_INDEX_QUERIES.values():
+        assert f"SCAN {sql.split()[2]}" in _plan(bare, sql)
+    bare.close()
+    reopened = StudioStore.open(folder)  # opening alone runs the schema text again
+    assert _import_index_names(reopened.connection) == set(_IMPORT_INDEX_QUERIES)
+    for index, sql in _IMPORT_INDEX_QUERIES.items():
+        assert f"SEARCH {sql.split()[2]} USING" in (plan := _plan(reopened.connection, sql))
+        assert f"INDEX {index}" in plan
+    version = reopened.connection.execute(
+        "SELECT value FROM meta WHERE key = 'schema_version'"
+    ).fetchone()[0]
+    assert version == str(SCHEMA_VERSION) == "21"  # additive: the schema version does not move
+    reopened.close()
+
+
+def test_schema_17_rebuild_of_corpus_cohort_keeps_the_deck_index(tmp_path: Path) -> None:
+    folder = tmp_path / "studio"
+    folder.mkdir()
+    raw = sqlite3.connect(folder / "studio.sqlite3")
+    raw.execute("CREATE TABLE meta (key TEXT PRIMARY KEY, value TEXT NOT NULL)")
+    raw.execute("INSERT INTO meta(key, value) VALUES ('schema_version', '16')")
+    raw.execute(
+        "CREATE TABLE corpus_cohort (cohort TEXT NOT NULL, deck_id TEXT NOT NULL, "
+        "PRIMARY KEY (cohort, deck_id))"
+    )
+    raw.execute("INSERT INTO corpus_cohort VALUES ('commander:x', 'deck:1')")
+    raw.commit()
+    raw.close()
+    store = StudioStore.open(folder)
+    ddl = store.connection.execute(
+        "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'corpus_cohort'"
+    ).fetchone()[0]
+    assert "WITHOUT ROWID" in ddl  # the rebuild ran
+    assert _import_index_names(store.connection) == set(_IMPORT_INDEX_QUERIES)
+    assert store.count("corpus_cohort") == 1
+    store.close()
 
 
 def test_command_line_round_trip(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
@@ -671,7 +861,11 @@ def test_edhrec_delta_and_cardrecs_preserve_null_denominators_and_synergy(
         + "\n",
         encoding="utf-8",
     )
-    assert importers.import_edhrec_delta_jsonl(store, delta) == {"files": 1, "rows": 2}
+    assert importers.import_edhrec_delta_jsonl(store, delta) == {
+        "files": 1,
+        "rows": 2,
+        "duplicate_observations_dropped": 0,
+    }
     core_idx = store.connection.execute(
         "SELECT numerator, denominator, snapshot FROM observation "
         "WHERE cohort = 'edhrec:core_b2_563_index' AND metric = 'inclusion_pct'"
