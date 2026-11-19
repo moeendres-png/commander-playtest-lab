@@ -282,13 +282,16 @@ def read_only() -> Iterator[None]:
 
 def store_stamp(store: StudioStore) -> Stamp | None:
     """Identity of the committed state of the store file, or ``None`` when it cannot be
-    vouched for (in-memory store, open transaction, unreadable file)."""
+    vouched for (in-memory store, open transaction, unreadable file, a file in WAL mode: its
+    header bytes 18/19 are 2 and its stamp would hang on the ``-wal`` file's size and time)."""
     path = store.path
     if path is None or store.connection.in_transaction:
         return None
     try:
         with Path(path).open("rb") as handle:
             header = handle.read(100)
+        if len(header) < 28 or header[18] == 2 or header[19] == 2:
+            return None
         counter = int.from_bytes(header[24:28], "big")
         stat = os.stat(path)
         wal = Path(f"{path}-wal")

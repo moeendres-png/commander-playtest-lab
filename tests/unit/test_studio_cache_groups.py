@@ -377,6 +377,55 @@ def test_a_figure_in_flight_survives_a_write_to_a_group_it_does_not_read(
     assert cache._flights == {}
 
 
+def test_a_figure_in_flight_is_not_kept_over_a_write_to_a_group_it_reads(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The mirror of the test above: a proven window writes the group the figure reads while it
+    is being computed. The value of the old state is handed to its caller but not remembered:
+    the next call computes again (only the raised generation of the written group can tell)."""
+    _probe_kinds(monkeypatch)
+    store = _store(tmp_path)
+    started, written = threading.Event(), threading.Event()
+
+    def compute() -> list[str]:
+        started.set()
+        assert written.wait(timeout=10)
+        return ["old"]
+
+    results: list[object] = []
+
+    def ask() -> None:
+        reader = StudioStore.open(tmp_path / "studio")
+        results.append(cache.cached(reader, ("probe_meta",), compute))
+        reader.close()
+
+    thread = threading.Thread(target=ask)
+    thread.start()
+    assert started.wait(timeout=10)
+    with cache.write(store, {cache.Group.META}):
+        store.connection.execute("INSERT INTO meta(key, value) VALUES ('mirror', 'x')")
+        store.connection.commit()
+    written.set()
+    thread.join(timeout=10)
+    assert results == [["old"]]
+    assert cache.counters()["* window_proven"] == 1
+    assert cache.cached(store, ("probe_meta",), lambda: ["new"]) == ["new"]
+    assert cache.counters()["probe_meta not_kept_changed"] == 1
+
+
+def test_nothing_is_remembered_from_a_store_in_wal_mode(tmp_path: Path) -> None:
+    """In WAL mode the file stamp would hang on the ``-wal`` file's size and time: nothing is
+    remembered at all, every call computes."""
+    store = _store(tmp_path)
+    assert store.connection.execute("PRAGMA journal_mode=WAL").fetchone()[0] == "wal"
+    assert cache.store_stamp(store) is None
+    calls: list[int] = []
+    for _ in range(2):
+        cache.cached(store, ("figure",), lambda: calls.append(1))
+    assert calls == [1, 1]
+    assert cache.snapshot(store) == []
+
+
 def test_check_mode_catches_a_caller_that_changes_a_remembered_value(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
