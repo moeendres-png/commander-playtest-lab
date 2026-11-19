@@ -979,14 +979,24 @@ def test_existing_quality_gates_are_preserved() -> None:
         "tests",
         "packaging",
         "quality",
+        "security-audit",
+        "security-secret-scan",
         "security",
     }
     for context in ("quality", "security"):
         assert workflow["jobs"][context].get("continue-on-error") is None
         assert workflow["jobs"][context].get("name") in (None, context)
         assert workflow["jobs"][context].get("strategy") is None
-    assert workflow["jobs"]["security"].get("if") is None
-    assert workflow["jobs"]["security"].get("needs") is None
+        assert workflow["jobs"][context].get("if") == "always()"
+    assert set(workflow["jobs"]["security"].get("needs") or ()) == {
+        "changes",
+        "security-audit",
+        "security-secret-scan",
+    }
+    for job_id in ("security-audit", "security-secret-scan"):
+        assert workflow["jobs"][job_id].get("if") is None
+        assert workflow["jobs"][job_id].get("needs") is None
+        assert workflow["jobs"][job_id].get("continue-on-error") is None
 
 
 def test_required_check_static_invariants_still_hold_for_the_candidate() -> None:

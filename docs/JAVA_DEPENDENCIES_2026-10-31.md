@@ -5,7 +5,7 @@ bridge, fork, pin or sealed record changes, nothing goes into CI.
 
 ## 1. Why
 
-`pip-audit` (the `security` job) reads Python packages. The bridge jar carries about twenty Java
+`pip-audit` (job `security-audit`, part of the `security` gate) reads Python packages. The bridge jar carries about twenty Java
 libraries shaded into it, and nothing compared them with any advisory list. A review on
 2026-10-30/31 read the jar and the public advisory databases once by hand; this change keeps the
 result in the repository and makes the comparison repeatable.

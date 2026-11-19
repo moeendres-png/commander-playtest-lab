@@ -42,7 +42,7 @@ def _config() -> dict:
 
 def _security_steps() -> list[dict]:
     workflow = yaml.safe_load((REPO / ".github/workflows/ci.yml").read_text(encoding="utf-8"))
-    return workflow["jobs"]["security"]["steps"]
+    return workflow["jobs"]["security-secret-scan"]["steps"]
 
 
 def test_the_scanner_is_pinned_by_version_and_digest() -> None:
@@ -107,17 +107,52 @@ def test_red_controls_are_deterministic_and_never_committed() -> None:
 
 
 def test_the_required_security_job_runs_the_scan_fail_closed() -> None:
-    steps = _security_steps()
-    scan = [step for step in steps if "run_broad_secret_scan.py" in (step.get("run") or "")]
-    assert len(scan) == 1
-    step = scan[0]
-    assert "--install-dir" in step["run"]
-    assert "|| true" not in step["run"]
-    assert "continue-on-error" not in step
-    assert step.get("if") == "${{ success() || failure() }}"
+    workflow = yaml.safe_load((REPO / ".github/workflows/ci.yml").read_text(encoding="utf-8"))
+    scan_job = workflow["jobs"]["security-secret-scan"]
+    assert scan_job.get("if") is None
+    assert scan_job.get("needs") is None
+    assert "continue-on-error" not in scan_job
+
+    steps = scan_job["steps"]
+    matches = [
+        (idx, step)
+        for idx, step in enumerate(steps)
+        if "run_broad_secret_scan.py" in (step.get("run") or "")
+    ]
+    assert len(matches) == 1
+    scan_idx, scan_step = matches[0]
+    assert "--install-dir" in scan_step["run"]
+    assert "|| true" not in scan_step["run"]
+    assert "continue-on-error" not in scan_step
+    assert scan_step.get("if") is None
+
     upload = steps[-1]
+    assert scan_idx < len(steps) - 1
     assert upload["uses"].startswith("actions/upload-artifact@")
     assert upload["with"]["path"] == "artifacts/security/"
+
+    gate = workflow["jobs"]["security"]
+    assert gate.get("if") == "always()"
+    assert "continue-on-error" not in gate
+    assert set(gate.get("needs") or ()) == {"changes", "security-audit", "security-secret-scan"}
+    gate_step = gate["steps"][-1]
+    assert "scripts/ci_gate.py" in str(gate_step.get("run", ""))
+    assert "--allow-skipped" not in str(gate_step.get("run", ""))
+    env = gate_step.get("env") or {}
+    run = str(gate_step.get("run", ""))
+    # Every env var is bound to exactly one needed job's result, and each --job flag
+    # reads the variable bound to that same job (a swapped pair must fail).
+    bound = {}
+    for var, expr in env.items():
+        found = re.findall(r"needs\.([A-Za-z0-9_-]+)\.result", str(expr))
+        assert len(found) == 1, (var, expr)
+        assert re.fullmatch(r"\$\{\{\s*needs\.[A-Za-z0-9_-]+\.result\s*\}\}", str(expr).strip())
+        bound[found[0]] = var
+    assert set(bound) == {"changes", "security-audit", "security-secret-scan"}
+    assert len(env) == 3
+    for needed, var in bound.items():
+        assert re.search(rf'--job {re.escape(needed)}="\${var}"', run), (needed, var)
+    assert len(re.findall(r"--job ", run)) == 3
 
 
 def test_the_project_sentinel_is_retained_as_a_separate_signal() -> None:
@@ -305,15 +340,16 @@ def test_security_scan_uses_the_exact_event_head() -> None:
     import yaml
 
     workflow = yaml.safe_load((REPO / ".github/workflows/ci.yml").read_text())
-    checkout = next(
-        step
-        for step in workflow["jobs"]["security"]["steps"]
-        if step.get("uses", "").startswith("actions/checkout@")
-    )
-    assert checkout.get("with", {}).get("ref") == (
-        "${{ github.event.pull_request.head.sha || github.sha }}"
-    )
-    assert checkout["with"]["persist-credentials"] is False
+    for job_id in ("security-audit", "security-secret-scan"):
+        checkout = next(
+            step
+            for step in workflow["jobs"][job_id]["steps"]
+            if step.get("uses", "").startswith("actions/checkout@")
+        )
+        assert checkout.get("with", {}).get("ref") == (
+            "${{ github.event.pull_request.head.sha || github.sha }}"
+        ), job_id
+        assert checkout["with"]["persist-credentials"] is False, job_id
 
 
 def test_root_configuration_bytes_are_scanned_outside_filename_allowlist(tmp_path, monkeypatch):
@@ -341,3 +377,36 @@ def test_root_configuration_bytes_are_scanned_outside_filename_allowlist(tmp_pat
     assert len(calls) == 2
     assert rows[0]["file"] == ".gitleaks.toml"
     assert rows[0]["fingerprint"] == ".gitleaks.toml:github-pat:1"
+
+
+@pytest.mark.parametrize(
+    ("changes", "audit", "secret_scan", "expected"),
+    [
+        ("success", "success", "success", 0),
+        ("success", "success", "failure", 1),
+        ("success", "success", "cancelled", 1),
+        ("success", "success", "skipped", 1),
+        ("success", "failure", "success", 1),
+        ("success", "skipped", "success", 1),
+        ("failure", "success", "success", 1),
+    ],
+)
+def test_security_gate_fails_closed_on_any_non_success_job(
+    changes: str, audit: str, secret_scan: str, expected: int
+) -> None:
+    completed = subprocess.run(
+        [
+            sys.executable,
+            str(REPO / "scripts" / "ci_gate.py"),
+            "--job",
+            f"changes={changes}",
+            "--job",
+            f"security-audit={audit}",
+            "--job",
+            f"security-secret-scan={secret_scan}",
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert completed.returncode == expected, completed.stdout + completed.stderr
