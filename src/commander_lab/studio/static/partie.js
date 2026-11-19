@@ -9,7 +9,8 @@ const CLASSES = { priority: "Aktion", mana_payment: "Mana zahlen", choose_object
 // and an explicit Owner decision (AGENTS.md); the server refuses them too (launch.MAX_RELEASED_SEATS).
 // Freigabe nur per Owner-Entscheid.
 const OPPONENT_COUNTS = [1, 2, 3];
-const SPEEDS = [[2000, "langsam"], [1000, "1 pro Sekunde"], [500, "2 pro Sekunde"], [250, "4 pro Sekunde"], [120, "8 pro Sekunde"], [50, "sehr schnell"]];
+const DEFAULT_AI_DELAY_MS = 250;
+const SPEEDS = [[2000, "langsam"], [1000, "1 pro Sekunde"], [500, "2 pro Sekunde"], [250, "250 ms (sichtbare KI-Schritte)"], [120, "8 pro Sekunde"], [50, "sehr schnell"], [0, "ohne Pause"]];
 
 const POOL_COLORS = { white: "Weiß", blue: "Blau", black: "Schwarz", red: "Rot", green: "Grün", colorless: "Farblos" };
 const OPTION_TYPES = { pass_priority: "Passen", play_land: "Land spielen", cast_spell: "Zauber wirken", activated_ability: "Fähigkeit aktivieren", mana_ability: "Mana-Fähigkeit", special_action: "Sonderaktion", target: "Ziel", choose_object: "Objekt wählen", attacker: "Angreifer", blocker: "Blocker", mode: "Modus", choice: "Auswahl", mana_payment: "Mana", trigger_order: "Auslöser", yes: "Ja", no: "Nein" };
@@ -1618,7 +1619,8 @@ async function listGames(wanted) {
 }
 async function start() {
   for (const [delay, label] of SPEEDS) $("speed").append(h("option", { value: String(delay) }, label));
-  $("speed").value = "500";
+  $("speed").value = String(DEFAULT_AI_DELAY_MS);
+  $("speed").title = "Pause vor sichtbaren KI-Schritten (erzwungene Schritte und Prioritäts-Pässe laufen ohne Pause)";
   $("speed").addEventListener("change", async () => {
     // While fast-forwarding the AI delay stays 0; the chosen value is restored when it ends.
     if (state.ff.boosted) return;

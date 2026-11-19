@@ -1606,7 +1606,34 @@ def test_dead_bridge_while_the_human_thinks_fails_the_game(
 
 
 def test_speed_zero_hurries_the_ai_but_never_answers_the_human(tmp_path: Path) -> None:
-    fake = _FakeInteractiveClient()
+    class _VisibleAiClient(_FakeInteractiveClient):
+        def _status(self) -> dict[str, object]:
+            payload = super()._status()
+            if self.phase == 1:
+                decision = payload["decision"]
+                assert isinstance(decision, dict)
+                decision["decision_class"] = "choose_use"
+                decision["prompt"] = "Use optional trigger?"
+                pilot_state = decision["pilot_state"]
+                assert isinstance(pilot_state, dict)
+                pilot_state["actor_id"] = "p1"
+                decision["legal_options"] = [
+                    {
+                        "option_id": "yes-ai",
+                        "option_type": "yes",
+                        "label": "Yes",
+                        "metadata": {"value": True},
+                    },
+                    {
+                        "option_id": "no-ai",
+                        "option_type": "no",
+                        "label": "No",
+                        "metadata": {"value": False},
+                    },
+                ]
+            return payload
+
+    fake = _VisibleAiClient()
     app, client = _start_fake_session(tmp_path, "hurry", fake, ai_delay_ms=5_000)
     try:
         _wait_for_pending(client, "hurry", "dec-h-1")
@@ -2597,3 +2624,323 @@ console.log(JSON.stringify({boxStack, boxMy, boxEot, noWatchOpp, toStack, toEot,
     assert out["toMy"]["mode"] == "until_my_turn" and out["toMy"]["watchStackObjectId"] is None
     assert out["toStackEmpty"]["watchStackObjectId"] is None
     assert out["base"]["watchStackObjectId"] is None and out["base"]["mode"] == "until_my_turn"
+
+
+def test_should_pause_for_ai_step_distinguishes_visible_and_invisible_steps() -> None:
+    pass_opt = {"option_id": "pass-1", "option_type": "pass_priority", "label": "Pass priority"}
+    cast_opt = {"option_id": "cast-1", "option_type": "cast_spell", "label": "Cast Sol Ring"}
+    land_opt = {"option_id": "land-1", "option_type": "play_land", "label": "Play Forest"}
+    act_opt = {
+        "option_id": "act-1",
+        "option_type": "activated_ability",
+        "label": "Activate: Draw a card",
+    }
+
+    # Forced decisions (at most 1 legal option): never pause.
+    assert (
+        play.should_pause_for_ai_step(
+            {"decision_class": "priority", "legal_options": [pass_opt]},
+            {"selected_option_ids": ["pass-1"]},
+        )
+        is False
+    )
+    assert (
+        play.should_pause_for_ai_step(
+            {
+                "decision_class": "mana_payment",
+                "legal_options": [
+                    {"option_id": "m1", "option_type": "mana_payment", "label": "Tap Forest"}
+                ],
+            },
+            {"selected_option_ids": ["m1"]},
+        )
+        is False
+    )
+    assert (
+        play.should_pause_for_ai_step(
+            {
+                "decision_class": "target",
+                "legal_options": [
+                    {"option_id": "t1", "option_type": "target", "label": "Llanowar Elves"}
+                ],
+            },
+            {"selected_option_ids": ["t1"]},
+        )
+        is False
+    )
+    assert play.should_pause_for_ai_step({"decision_class": "choice", "legal_options": []}) is False
+
+    # Priority pass without an action (even with multiple legal options): never pause.
+    assert (
+        play.should_pause_for_ai_step(
+            {"decision_class": "priority", "legal_options": [pass_opt, cast_opt]},
+            {"selected_option_ids": ["pass-1"]},
+        )
+        is False
+    )
+    assert (
+        play.should_pause_for_ai_step(
+            {
+                "decision_class": "priority",
+                "legal_options": [
+                    {"option_id": "p-label", "label": "Pass priority"},
+                    cast_opt,
+                ],
+            },
+            {"selected_option_ids": ["p-label"]},
+        )
+        is False
+    )
+
+    # Visible priority actions: pause.
+    for chosen in (cast_opt, land_opt, act_opt):
+        assert (
+            play.should_pause_for_ai_step(
+                {"decision_class": "priority", "legal_options": [pass_opt, chosen]},
+                {"selected_option_ids": [chosen["option_id"]]},
+            )
+            is True
+        )
+
+    # Combat, targets, multi-option mana payment, and other 2+-option choices: pause.
+    for dc in (
+        "declare_attacker",
+        "declare_blocker",
+        "target",
+        "mana_payment",
+        "mode",
+        "choose_use",
+        "choice",
+        "choose_object",
+        "mulligan",
+        "order",
+        "trigger_order",
+    ):
+        assert (
+            play.should_pause_for_ai_step(
+                {
+                    "decision_class": dc,
+                    "legal_options": [
+                        {"option_id": "o1", "label": "Option A"},
+                        {"option_id": "o2", "label": "Option B"},
+                    ],
+                },
+                {"selected_option_ids": ["o1"]},
+            )
+            is True
+        ), dc
+
+    # Numeric choices: pause when a real range exists, skip when forced (min == max).
+    assert (
+        play.should_pause_for_ai_step(
+            {
+                "decision_class": "announce_x",
+                "legal_options": [],
+                "context": {"numeric_min": 0, "numeric_max": 4},
+            },
+            {"selected_option_ids": [], "numeric_choice": 2},
+        )
+        is True
+    )
+    assert (
+        play.should_pause_for_ai_step(
+            {
+                "decision_class": "announce_x",
+                "legal_options": [],
+                "context": {"numeric_min": 0, "numeric_max": 0},
+            },
+            {"selected_option_ids": [], "numeric_choice": 0},
+        )
+        is False
+    )
+    assert (
+        play.should_pause_for_ai_step(
+            {
+                "decision_class": "multi_amount",
+                "legal_options": [],
+                "context": {"numeric_legs": [{"min": 0, "max": 3}, {"min": 0, "max": 3}]},
+            },
+            {"selected_option_ids": [], "numeric_choices": [2, 1]},
+        )
+        is True
+    )
+    assert (
+        play.should_pause_for_ai_step(
+            {
+                "decision_class": "multi_amount",
+                "legal_options": [],
+                "context": {"numeric_legs": [{"min": 1, "max": 1}, {"min": 2, "max": 2}]},
+            },
+            {"selected_option_ids": [], "numeric_choices": [1, 2]},
+        )
+        is False
+    )
+
+
+def test_ai_tempo_default_250_and_zero_no_pause_server_and_ui(tmp_path: Path) -> None:
+    assert play.DEFAULT_AI_DELAY_MS == 250
+
+    decks = (
+        _make_deck("own", "Chulane, Teller of Tales"),
+        _make_deck("opp", "Kinnan, Bonder Prodigy"),
+    )
+    prep = play.prepare_game(
+        decks, seed=11, game_id="tempo-default", human_seats=[0], decision_timeout_seconds=0
+    )
+    session = play.InteractiveGameSession(
+        tmp_path,
+        prep,
+        human_seats=[0],
+        decision_timeout_seconds=0,
+        command=("fake-bridge",),
+    )
+    try:
+        assert session.ai_delay_ms == 250
+        assert session.set_speed(0) == 0
+        assert session.ai_delay_ms == 0
+        assert session.set_speed(-50) == 0
+        assert session.set_speed(9_999) == 5_000
+    finally:
+        session._recorder.discard()
+
+    js_text = (STATIC / "partie.js").read_text(encoding="utf-8")
+    m_default = re.search(r"const DEFAULT_AI_DELAY_MS = (\d+);", js_text)
+    assert m_default is not None and int(m_default.group(1)) == 250
+    m_speeds = re.search(r"const SPEEDS = (\[.*?\]);", js_text)
+    assert m_speeds is not None
+    speeds = json.loads(m_speeds.group(1))
+    delays = [entry[0] for entry in speeds]
+    assert delays == [2000, 1000, 500, 250, 120, 50, 0]
+    labels_by_delay = {entry[0]: entry[1] for entry in speeds}
+    assert "ohne Pause" in labels_by_delay[0]
+    assert "250 ms" in labels_by_delay[250]
+    assert '$("speed").value = String(DEFAULT_AI_DELAY_MS);' in js_text
+
+
+def test_ai_tempo_visible_only_pause_and_delay_equivalence(tmp_path: Path) -> None:
+    class _TempoEquivalenceClient(_FakeInteractiveClient):
+        def _status(self) -> dict[str, object]:
+            base_outcomes = [
+                {"seat": 0, "player_id": "p0", "life": 40, "can_concede": True},
+                {"seat": 1, "player_id": "p1", "life": 40, "can_concede": True},
+            ]
+            if self.phase == 0:
+                return super()._status()
+            if 1 <= self.phase <= 6:
+                # 6 forced 1-option AI priority passes: 0 ms pause
+                return {
+                    "terminal": False,
+                    "outcomes": base_outcomes,
+                    "decision": {
+                        "decision_id": f"dec-ai-forced-{self.phase}",
+                        "decision_offset": self.phase + 1,
+                        "actor_id": "p1",
+                        "seat": 1,
+                        "acting_for_seat": 1,
+                        "decision_class": "priority",
+                        "prompt": "Pass priority",
+                        "minimum_selections": 1,
+                        "maximum_selections": 1,
+                        "legal_options": [
+                            {
+                                "option_id": f"forced-{self.phase}",
+                                "option_type": "pass_priority",
+                                "label": "Pass priority",
+                            }
+                        ],
+                        "pilot_state": _pilot_state(
+                            seat=1, turn=2, active_player_id="p1", secret_opp_card=self.SECRET_CARD
+                        ),
+                    },
+                }
+            if self.phase == 7:
+                # 1 visible AI step (2-option choose_use): observes ai_delay_ms
+                return {
+                    "terminal": False,
+                    "outcomes": base_outcomes,
+                    "decision": {
+                        "decision_id": "dec-ai-visible-1",
+                        "decision_offset": 8,
+                        "actor_id": "p1",
+                        "seat": 1,
+                        "acting_for_seat": 1,
+                        "decision_class": "choose_use",
+                        "prompt": "Use optional trigger?",
+                        "minimum_selections": 1,
+                        "maximum_selections": 1,
+                        "legal_options": [
+                            {
+                                "option_id": "vis-yes",
+                                "option_type": "yes",
+                                "label": "Yes",
+                                "metadata": {"value": True},
+                            },
+                            {
+                                "option_id": "vis-no",
+                                "option_type": "no",
+                                "label": "No",
+                                "metadata": {"value": False},
+                            },
+                        ],
+                        "pilot_state": _pilot_state(
+                            seat=1, turn=2, active_player_id="p1", secret_opp_card=self.SECRET_CARD
+                        )
+                        | {"actor_id": "p1"},
+                    },
+                }
+            return {
+                "terminal": False,
+                "outcomes": base_outcomes,
+                "decision": {
+                    "decision_id": "dec-h-2",
+                    "decision_offset": 9,
+                    "actor_id": "p0",
+                    "seat": 0,
+                    "acting_for_seat": 0,
+                    "decision_class": "target",
+                    "prompt": "Choose up to 1 target",
+                    "minimum_selections": 0,
+                    "maximum_selections": 1,
+                    "legal_options": [
+                        {"option_id": "tgt-1", "option_type": "target", "label": "Llanowar Elves"}
+                    ],
+                    "pilot_state": _pilot_state(
+                        seat=0, turn=2, active_player_id="p1", secret_opp_card=self.SECRET_CARD
+                    ),
+                },
+            }
+
+    def _run_with_delay(
+        delay_ms: int, subdir: str
+    ) -> tuple[list[dict[str, object]], list[object], float]:
+        folder = tmp_path / subdir
+        folder.mkdir(parents=True, exist_ok=True)
+        fake = _TempoEquivalenceClient()
+        app, client = _start_fake_session(folder, f"eq-{delay_ms}", fake, ai_delay_ms=delay_ms)
+        try:
+            _wait_for_pending(client, f"eq-{delay_ms}", "dec-h-1")
+            t0 = time.monotonic()
+            resp = client.post(
+                f"/api/play/eq-{delay_ms}/decision",
+                json={"decision_id": "dec-h-1", "selected_option_ids": ["pass-1"], "ordering": []},
+            )
+            assert resp.status_code == 200
+            snap = _wait_for_pending(client, f"eq-{delay_ms}", "dec-h-2")
+            elapsed = time.monotonic() - t0
+            frames = snap["frames"]
+            assert isinstance(frames, list)
+            return list(fake.submitted_responses), list(frames), elapsed
+        finally:
+            app.state.play_manager.shutdown_all()  # type: ignore[attr-defined]
+
+    responses_0, frames_0, elapsed_0 = _run_with_delay(0, "d0")
+    responses_250, frames_250, elapsed_250 = _run_with_delay(250, "d250")
+
+    # Pause must never alter the decision sequence or the recorded frames.
+    assert responses_0 == responses_250
+    assert frames_0 == frames_250
+    assert len(responses_0) == 8  # 1 human + 6 forced AI + 1 visible AI
+    # With 6 forced + 1 visible step at 250 ms, only the 1 visible step pauses (~0.25 s, not 1.75 s).
+    assert elapsed_250 >= 0.20
+    assert elapsed_250 < 1.25
+    assert elapsed_0 < 1.0
