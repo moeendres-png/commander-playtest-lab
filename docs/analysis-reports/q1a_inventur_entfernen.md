@@ -27,7 +27,7 @@ Hinweis zum Dateinamen: das Issue nennt `q1_removal_inventory.md`; auf Anweisung
    Tabelle `tier_snapshot` (Schema, K-2; B1 #1657 schreibt gerade neue Spalten in `simulation_run`),
    `memo.py` (D-1) und die alten Orchestrierer (D-2 P5, #1652 offen). `subarchetypes.py` ist ein
    unabhängiges Blatt und kann jederzeit separat gehen.
-4. **Umfang K1 bis K7:** etwa 7.700 Zeilen (rund 3.750 Quelltext, rund 4.000 Tests), Schätzung nach 5.
+4. **Umfang K1 bis K7:** etwa 7.750 Zeilen (rund 3.750 Quelltext, rund 4.000 Tests), Schätzung nach 5.
    Das ist etwa das Fünffache der 1.500-Zeilen-Grenze aus dem Issue; Empfehlung: sechs PRs (9).
 5. **Größtes fachliches Risiko:** `StrengthSettings` wirft bei unbekanntem Komponenten-Schlüssel
    (`strength.py:653`, `ValueError("unknown component")`). Jedes gespeicherte `strength_profile.spec` enthält
@@ -51,7 +51,10 @@ Hinweis zum Dateinamen: das Issue nennt `q1_removal_inventory.md`; auf Anweisung
 
 ## 2. Methode und Reproduzierbarkeit
 
-- Stand: `git rev-parse HEAD` ergibt `0fb8fce19a3c88167bb9a7c6188aff9de00dee1c` (flacher Klon von `origin/main`).
+- Stand: Commit `0fb8fce19a3c88167bb9a7c6188aff9de00dee1c` (`origin/main` am 2026-11-20, nach dem Merge von #1669; der
+  erste Messlauf auf `724ce682` ergab dieselben Treffer- und Dateizahlen, nur Zeilennummern in `builder.py`,
+  `test_studio_static_guards.py` und `test_studio_builder.py` haben sich verschoben und sind neu gemessen). Nachlauf immer
+  gegen diesen Commit (Anhang A), nicht gegen den späteren Stand von `main`.
 - Je Ziel ein Suchmuster `K1` bis `K11` (Anhang A, Befehl `git grep -n -I -E '<Muster>' -- <Pfad>`). Die
   Treffer- und Dateizahlen in 5 stammen aus `git grep -n | wc -l` und `git grep -l | wc -l` über
   `src/commander_lab/studio`, `scripts`, `tests`, `docs`. Trefferzeilen sind **Fundstellen, kein Löschumfang**;
@@ -96,7 +99,7 @@ Stärke-Index umfasst):
 
 ```
 ALL='overall_rating|layers_view|rating[-_]layers|tournament[_-]conversion|tier_snapshot|subarchetypes|studio[./]memo|prefilter_lists|HEURISTIC_MODEL|simulation_run|simulation_card|import_rubric|SIGNAL_RUBRIC|Gesamtrating|Tierliste|tierliste|commander_lab[./]studio|StudioStore|Stärke-Index|strength_index'
-git grep -n -I -E "$ALL" -- <Pfad> | wc -l
+git grep -n -I -E "$ALL" 0fb8fce1 -- <Pfad> | wc -l
 ```
 
 | Pfad | Dateien im Baum | Treffer |
@@ -132,8 +135,9 @@ Die Gegenrichtung ist real: `studio/` verwendet die Qualifikation lesend (siehe 
 | S5 | **`game_pool.py:138` importiert `play_batch`**; der Pool steht hinter einem Schalter, der Echt-Engine-Beleg ist offen (#1652) | `game_pool.py:48,138`; `paired_comparison.py:877`; `__main__.py:720,1093,1100`; `scripts/check_studio_series_identity.py:50` (`BatchSimulation`), `scripts/measure_throughput_steady_state.py:40` (`BatchRecordingRunner`) | alte Orchestrierer | Erst nach D-2 P5 und Owner-PC-Lauf; nicht in Q1 |
 
 Weitere Hindernisse, die keine Sperre im strengen Sinn sind, aber im selben PR zu ändern sind: das
-Antwort-Manifest-Skript (Routenliste, 4 Stellen: `scripts/studio_response_manifest.py:138,143,144,148`) samt
-`test_studio_response_manifest.py:42-62` (fest 30 Routen); `tests/pytest_shard_weights.json` (veraltete Einträge
+Antwort-Manifest-Skript (nur zwei Zeilen fallen: `scripts/studio_response_manifest.py:144` `/api/rating-layers` und
+`:148` `/api/tournament-conversion`; `:138` `/api/layers` ist eine Datenebene und `:143` `POST /api/strength` bleibt, nur
+seine Antwort ändert sich) samt `test_studio_response_manifest.py:42-62` (fest 30 Routen, danach 28); `tests/pytest_shard_weights.json` (veraltete Einträge
 kosten nur Balance, `tests/pytest_shards.py:13-15,31`; die Datei ist laut `test_ci_definition_integrity.py:806-811`
 eine „benign test change“) und `scripts/verify_required_check_definitions.py:1110` (nennt die Datei nur als
 Pfad).
@@ -292,7 +296,7 @@ Funktion“ (`rank_group = "function"`) steht nur in der Lane-Liste, **nicht** i
 
 | Aspekt | Befund |
 |---|---|
-| Quellcode | `S/builder.py:2054-2105` (`_to_rules_deck` 2054-2078 und `prefilter_lists` 2080-2105, rund 52 Z.), `:27` (Import `compare_variant`); `S/web.py:379-383` (`PrefilterBody`), `:1580-1592` (Route) |
+| Quellcode | `S/builder.py:2054-2105` (`_to_rules_deck` 2054-2078 und `prefilter_lists` 2080-2105, rund 52 Z.), `:27` (Import `compare_variant`); `S/web.py:381-384` (`PrefilterBody`), `:1580-1592` (Route) |
 | UI | `static/app.js:1352-1410` (Knopf „Vorfilter & Commander-Castability berechnen“, 59 Z., 1 Aufruf `:1359`) |
 | Route | `POST /api/prefilter` (1 UI-Aufrufer) |
 | Bleibt | `S/castability.py`, `deck_variant.py`, `scripts/deck_variant_prefilter.py`, `DataClass.HEURISTIC_MODEL`; nur die Studio-Oberfläche geht (Sperre S3, 3.3). Die Lane-Zeilenangabe `builder.py:1605-1630` stimmt auf `main` nicht mehr; richtig ist `:2080-2105` (Stand `0fb8fce1`) |
@@ -377,7 +381,7 @@ Urteile: **löschen** (ganze Datei), **Abschnitt löschen**, **umschreiben**, **
 | `test_studio_import_from_repo.py` (313) | K2 | `:241-281` löschen/umschreiben | `find_rubric_folders` |
 | `test_studio_signals_conversion.py` (309) | K4B | behalten bis Entscheid K4B; sonst löschen | Signal-Import `topdeck_card_conversions` |
 | `test_studio_perf_equivalence.py` (1.527) | K3, K4, K8 | anpassen (`:599,600,611,668,669,792,814,820`) | Routenlisten; `:843` (K8) behalten |
-| `test_studio_response_manifest.py` (397) | alle Routen | anpassen (`:42-62`) | fest 30 Routen; gleichzeitig `scripts/studio_response_manifest.py:138-148` |
+| `test_studio_response_manifest.py` (397) | alle Routen | anpassen (`:42-62`) | fest 30 Routen; gleichzeitig `scripts/studio_response_manifest.py:144,148` (nicht `:138`, das ist `/api/layers`) |
 | `test_studio_cache_groups.py` (475) | K1, K3, K6 | anpassen (`_kinds_in_source` `:109-158`: `strength_overall`, `answer:rating_layers`); `:64-98` (Tabelle→Gruppe) nur bei K8/K9 | |
 | `test_studio_labels.py` (200) | K3 | anpassen (`:102-119`) | ruft `rating_layers` |
 | `test_studio_data_page.py` (198), `test_role_audit_1413.py` (182) | K4, K5a | anpassen | UI-Marker der Seiten |
@@ -534,7 +538,7 @@ K10 memo\.(cached|clear)|import memo|[ ,]memo,|studio import .*memo
 K11 subarchetypes|subarchetype_analysis
 ```
 
-Zahl je Bereich: `git grep -n -I -E "<Muster>" -- src/commander_lab/studio | wc -l` (Zeilen) und `git grep -l …| wc -l` (Dateien); entsprechend für `scripts`, `tests` und `docs`. Für `docs` den Bericht selbst ausschließen (er enthält die Muster): `-- docs ':!docs/analysis-reports/q1a_inventur_entfernen.md'`. Gemessen am eingecheckten Stand `0fb8fce1`, vor dem Hinzufügen dieser Datei.
+Zahl je Bereich, gegen den festen Commit (so enthält der Baum diesen Bericht nicht, und spätere Änderungen an `main` ändern nichts): `git grep -n -I -E "<Muster>" 0fb8fce1 -- src/commander_lab/studio | wc -l` (Zeilen) und `git grep -l -I -E "<Muster>" 0fb8fce1 -- src/commander_lab/studio | wc -l` (Dateien); entsprechend für `scripts`, `tests` und `docs`. Die Ausgabe trägt das Präfix `0fb8fce1:`; die Zählung ist davon unabhängig. Zeilenzahlen einer Datei: `git show 0fb8fce1:<Datei> | wc -l`.
 
 Ergebnis (Zeilen / Dateien):
 
@@ -556,12 +560,13 @@ Ergebnis (Zeilen / Dateien):
 Weitere Kommandos:
 
 ```
-git rev-parse HEAD                                   # 0fb8fce19a3c88167bb9a7c6188aff9de00dee1c
+git rev-parse 0fb8fce1                               # 0fb8fce19a3c88167bb9a7c6188aff9de00dee1c
+# die folgenden Zeilen mit ausgechecktem Stand 0fb8fce1 ausführen (git checkout 0fb8fce1)
 wc -l src/commander_lab/studio/{overall_rating,layers,layers_view,tournament_conversion,tiers,tier_snapshot,memo,subarchetypes,simulations,play_batch,paired_comparison}.py
 grep -cE '^\s+@app\.(get|post|put|delete|patch)\(' src/commander_lab/studio/web.py            # 117
-git grep -n -I -E "$ALL" -- qualification src/commander_lab/qualification tests/qualification candidate-qualification engine-bridge .github/workflows/pb03-runtime-qualification.yml .github/workflows/production-qualification.yml WS17_SHA256SUMS   # 0 (Abschnitt 3.1)
-git grep -n -E "commander_lab\.qualification" -- src/commander_lab/studio        # Gegenrichtung (S1)
-git grep -n -i holm -- src/commander_lab/studio                                   # 1 Treffer, nur Text (card_trend.py)
+git grep -n -I -E "$ALL" 0fb8fce1 -- qualification src/commander_lab/qualification tests/qualification candidate-qualification engine-bridge .github/workflows/pb03-runtime-qualification.yml .github/workflows/production-qualification.yml WS17_SHA256SUMS   # 0 (Abschnitt 3.1)
+git grep -n -E "commander_lab\.qualification" 0fb8fce1 -- src/commander_lab/studio        # Gegenrichtung (S1)
+git grep -n -i holm 0fb8fce1 -- src/commander_lab/studio                                   # 1 Treffer, nur Text (card_trend.py)
 ```
 
 ## Anhang B: Fundstellen je Ziel (Datei [Anzahl]: Zeilen; `S/` = `src/commander_lab/studio/`, `U/` = `tests/unit/`)
