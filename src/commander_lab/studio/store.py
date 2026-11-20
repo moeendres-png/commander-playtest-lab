@@ -824,14 +824,25 @@ def _migrate_schema_18(connection: sqlite3.Connection) -> None:
 # schema bump (schema 22 is reserved for the file split, E15 Q9). Rows written before stay NULL,
 # which reads as "Stand unbekannt"; nothing is backfilled.
 SIMULATION_RUN_STATE_COLUMNS = ("revision_id", "deck_hash")
+# The table a series played against (#1688), added the same way: ``opponent_ids`` (JSON list in
+# seat order, the candidate in seat 0), ``opponent_set_hash`` (the key the evidence groups by)
+# and ``table_size`` (seats including the candidate). Rows written before stay NULL, which reads
+# as "Gegnersatz unbekannt"; nothing is backfilled (series before #1658 may have played a
+# stand-in table, which no stored field proves).
+SIMULATION_RUN_TABLE_COLUMNS = (
+    ("opponent_ids", "TEXT"),
+    ("opponent_set_hash", "TEXT"),
+    ("table_size", "INTEGER"),
+)
 
 
 def _ensure_simulation_run_state_columns(connection: sqlite3.Connection) -> None:
     columns = {str(row["name"]) for row in connection.execute("PRAGMA table_info(simulation_run)")}
-    for column in SIMULATION_RUN_STATE_COLUMNS:
+    wanted = [(column, "TEXT") for column in SIMULATION_RUN_STATE_COLUMNS]
+    for column, sql_type in [*wanted, *SIMULATION_RUN_TABLE_COLUMNS]:
         if column not in columns:
             try:
-                connection.execute(f"ALTER TABLE simulation_run ADD COLUMN {column} TEXT")
+                connection.execute(f"ALTER TABLE simulation_run ADD COLUMN {column} {sql_type}")
             except sqlite3.OperationalError as error:
                 # another process opening the same store added it between PRAGMA and ALTER
                 if "duplicate column" not in str(error).lower():

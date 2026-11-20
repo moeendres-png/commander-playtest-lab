@@ -425,8 +425,12 @@ function gameCell(card) {
 function simCell(card) {
   const sim = layer(card, "simulated_result");
   if (sim.status === "NOT_APPLICABLE") return unknown("–");
-  if (!sim.totals) return unknown("nicht simuliert");
-  return `${nf(sim.totals.games_cast_after_offer)}/${nf(sim.totals.games_offered)} Partien`;
+  const groups = sim.groups || [];
+  if (!groups.length) return unknown("nicht simuliert");
+  // one line per opponent set and table size (#1688): every group on its own, never a total;
+  // a group of unknown opponents carries its reservation visibly, also without a figure
+  return h("span", {}, groups.length > 1 ? h("div", {}, `${nf(groups.length)} Gegnersätze (getrennt)`) : null,
+    ...groups.map((g) => h("div", { title: g.label }, `${nf(g.games_cast_after_offer)}/${nf(g.games_offered)} Partien`, g.vorbehalt ? ` (${g.vorbehalt})` : "")));
 }
 function strengthItem(card) { const map = state.strength.map; return map ? map.get(card.card_id) || null : null; }
 const neutral = (text, title) => h("span", { class: "badge-neutral", title }, text);
@@ -831,7 +835,10 @@ function drawer(card) {
   const combo = layer(card, "combo_verified");
   box.push(h("div", { class: "layer" }, heading("combo_verified", combo.status), combo.note ? h("p", {}, "Eine gelistete Kombo ist kein Beleg für Stärke und kein bestandener Engine-Test.") : null));
   const sim = layer(card, "simulated_result");
-  box.push(h("div", { class: "layer" }, heading("simulated_result", sim.status), sim.totals ? h("p", {}, `${nf(sim.totals.runs)} Läufe: in ${nf(sim.totals.games_cast_after_offer)} von ${nf(sim.totals.games_offered)} Partien nach dem Angebot gespielt (${nf(sim.totals.cast_count)} Zauber). Simulierte Ergebnisse stehen für sich und werden nie mit echten Spielen verrechnet.`) : null));
+  const simGroups = sim.groups || [];
+  box.push(h("div", { class: "layer" }, heading("simulated_result", sim.status),
+    simGroups.length ? h("p", {}, `${nf(simGroups.length)} ${simGroups.length === 1 ? "Gruppe" : "Gruppen"} je Gegnersatz und Tischgröße, jede für sich gezählt: Läufe gegen verschiedene Tische werden nie zusammengezählt, Läufe ohne gespeicherten Gegnersatz stehen unter „Gegnersatz unbekannt“. Simulierte Ergebnisse stehen für sich und werden nie mit echten Spielen verrechnet.`) : null,
+    ...simGroups.map((g) => h("p", {}, h("b", {}, g.label), `: ${nf(g.runs)} Läufe, in ${nf(g.games_cast_after_offer)} von ${nf(g.games_offered)} Partien nach dem Angebot gespielt (${nf(g.cast_count)} Zauber). `, g.zahl ? StudioZahl.knoten(h, g.zahl) : null))));
 
   const cov = card.coverage;
   box.push(h("div", { class: "layer" }, h("h3", {}, "Abdeckung und Forschungsbedarf"),
