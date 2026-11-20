@@ -45,16 +45,6 @@ has its own header and the parts are read one after another in number order):
   Per-card conversion is not published by the source either and is never stored.
   Rows the fetch did not attribute to the commander (``fetch_status`` other than
   AVAILABLE, e.g. the API's global-staples fallback rows) are not imported.
-- ``topdeck_card_conversions``: per commander and card, the TopDeck conversion:
-  decks with the card that reached the tournament's top cut over the decks
-  whose top-cut outcome is known at all (``sample_size_base``); that base is
-  the stored denominator, so the strength component's Wilson bound is computed
-  from the same figures the source published. The source publishes the rate
-  only from a base of 10 (below it the file carries the literal ``NULL``);
-  the numerator and denominator are stored anyway and the value stays NULL.
-  ``appearances`` (every deck with the card, outcome known or not) is not
-  stored: no strength component reads it, and the figure stays available in
-  the source file.
 - ``playgroup_card_atlas_signals``: the observed win-rate gap of the Playgroup card
   atlas (commander independent): how much more often players won when they cast a card
   than when it never left their library, in percentage points, as published by the
@@ -136,7 +126,6 @@ SPELLBOOK_FILE = "spellbook_card_links"
 SHELLS_FILE = "spellbook_shells"
 TOURNAMENT_FILE = "topdeck_chulane_decks"
 EDHTOP16_FILE = "edhtop16_commander_signals"
-CONVERSION_FILE = "topdeck_card_conversions"
 ATLAS_FILE = "playgroup_card_atlas_signals"
 BRACKET_VARIANTS = ("core", "upgraded", "optimized", "cedh")
 AVAILABLE = "AVAILABLE"
@@ -165,7 +154,6 @@ SIGNAL_COMBO_DECKS = "edhrec_combo_decks"
 SALT_FILE = "edhrec_salt"
 COMBOS_FILE = "edhrec_chulane_combos"
 SIGNAL_EDHTOP16 = "edhtop16_commander_play_rate"
-SIGNAL_CONVERSION = "topdeck_card_conversion"
 SIGNAL_DECKLIST = "decklist_universe"
 REFUSED = "REFUSED"
 COMMANDER_NOT_IN_EVERY_DECK = "COMMANDER_NOT_IN_EVERY_DECK"
@@ -174,13 +162,14 @@ INVALID_UNIVERSE_NAME = "INVALID_UNIVERSE_NAME"  # a ":" in the source or bracke
 INVALID_COUNT = "INVALID_COUNT"
 DECKLIST_COLUMNS = {"card_name", "source", "bracket", "decks_with_card", "universe_decks"}
 SIGNAL_PLAYGROUP = "playgroup_observed_winrate_gap"
-# The rubric (research_import.import_rubric): mean H of the raters, its spread and the number
-# of raters, one stored signal each. Only the first one is a strength component; the other two
-# are companion rows that give the figures behind it.
-SIGNAL_RUBRIC = "rubric_h_mean"
-SIGNAL_RUBRIC_SD = "rubric_h_sd"
-SIGNAL_RUBRIC_RATERS = "rubric_raters"
-RUBRIC_COMPANIONS = frozenset({SIGNAL_RUBRIC_SD, SIGNAL_RUBRIC_RATERS})
+# Q1-b4 (#1679, E15 Q1): stored signals no importer writes and no component reads any more, the
+# rubric v1 rows (mean H, its spread, the rater count) and the TopDeck conversion. Rows a store
+# already holds stay as they are (no migration, nothing deleted); the signal listings
+# (``strength_view.signal_coverage``, the data layers) leave them out, because nothing can
+# refill or use them. Rubric v2 ("Kartenverständnis") is a data file, never a stored signal.
+RETIRED_SIGNALS = frozenset(
+    {"rubric_h_mean", "rubric_h_sd", "rubric_raters", "topdeck_card_conversion"}
+)
 
 CORE_RATE_ALARM_SIGNALS: frozenset[str] = frozenset(
     {
@@ -722,80 +711,6 @@ def _read_edhtop16(paths: list[Path], report: FileReport, commanders: _Commander
     return list(_first_wins(iter(pairs), report).values())
 
 
-def _read_topdeck_conversion(
-    paths: list[Path], report: FileReport, commanders: _Commanders
-) -> list[_Row]:
-    """TopDeck conversion per commander and card, from the counted research file.
-
-    The published rate is the conversions over the decks whose top-cut outcome
-    is known at all (``sample_size_base``), and that base is the stored
-    denominator — not ``appearances``, which also counts decks whose outcome
-    is unknown, so a Wilson bound from it would rate a different figure than
-    the one the source published. The source publishes the rate only from a
-    base of 10; below it the file carries the literal ``NULL`` and the value
-    stays NULL, while numerator and denominator are stored as counted, so the
-    strength component's own minimum decides from real figures. A published
-    rate that disagrees with its own numerator and denominator is refused,
-    never silently trusted."""
-    required = {
-        "commander",
-        "card_name",
-        "appearances",
-        "conversions",
-        "conversion_rate",
-        "sample_size_base",
-    }
-    pairs: list[tuple[tuple[str, str, str], _Row]] = []
-    for row in _rows(paths, required):
-        report["rows_read"] += 1
-        commander, card = row["commander"].strip(), row["card_name"].strip()
-        if not commander or not card:
-            report["rows_skipped"] += 1
-            report["skipped_reasons"]["NAME_MISSING"] = (
-                report["skipped_reasons"].get("NAME_MISSING", 0) + 1
-            )
-            continue
-        appearances = _count(row.get("appearances"))
-        conversions = _count(row.get("conversions"))
-        base = _count(row.get("sample_size_base"))
-        if (
-            appearances is None
-            or conversions is None
-            or base is None
-            or conversions > base
-            or base > appearances
-        ):
-            report["rows_skipped"] += 1
-            report["skipped_reasons"]["CONVERSION_FIGURES_INVALID"] = (
-                report["skipped_reasons"].get("CONVERSION_FIGURES_INVALID", 0) + 1
-            )
-            continue
-        raw_rate = row.get("conversion_rate", "").strip()
-        value: float | None = None
-        if raw_rate and raw_rate != "NULL":
-            rate = _number(raw_rate)
-            if rate is None or base == 0 or abs(rate - conversions / base) > 1e-6:
-                report["rows_skipped"] += 1
-                report["skipped_reasons"]["INCONSISTENT_RATE"] = (
-                    report["skipped_reasons"].get("INCONSISTENT_RATE", 0) + 1
-                )
-                continue
-            value = rate
-        else:
-            reasons = report["null_value_reasons"]
-            reasons["RATE_NOT_PUBLISHED"] = reasons.get("RATE_NOT_PUBLISHED", 0) + 1
-        item: _Row = (
-            commanders.resolve(commander),
-            SIGNAL_CONVERSION,
-            card,
-            value,
-            conversions,
-            base,
-        )
-        pairs.append(((item[0], item[1], item[2]), item))
-    return list(_first_wins(iter(pairs), report).values())
-
-
 def _read_atlas(paths: list[Path], report: FileReport) -> list[_Row]:
     """Rows of the Playgroup card atlas: the published observed win-rate gap per card.
 
@@ -1281,8 +1196,6 @@ def _file_signals(file_name: str, variant: str | None) -> list[str]:
         return [SIGNAL_SHELLS, SIGNAL_TWO_CARD_SHELLS, SIGNAL_COMMANDER_SHELLS]
     if file_name == EDHTOP16_FILE:
         return [SIGNAL_EDHTOP16]
-    if file_name == CONVERSION_FILE:
-        return [SIGNAL_CONVERSION]
     if file_name == ATLAS_FILE:
         return [SIGNAL_PLAYGROUP]
     if file_name == SALT_FILE:
@@ -1323,8 +1236,6 @@ def _read_file(
         return _read_shells(paths, report, commanders)
     if file_name == EDHTOP16_FILE:
         return _read_edhtop16(paths, report, commanders)
-    if file_name == CONVERSION_FILE:
-        return _read_topdeck_conversion(paths, report, commanders)
     if file_name == ATLAS_FILE:
         return _read_atlas(paths, report)
     if file_name == SALT_FILE:
@@ -1382,7 +1293,6 @@ def has_signal_files(folder: str | Path) -> bool:
         SPELLBOOK_FILE,
         SHELLS_FILE,
         EDHTOP16_FILE,
-        CONVERSION_FILE,
         ATLAS_FILE,
         SALT_FILE,
         COMBOS_FILE,
@@ -1844,7 +1754,6 @@ def import_signal_file(
         EDHTOP16_FILE,
         ATLAS_FILE,
         SALT_FILE,
-        CONVERSION_FILE,
     )
     base = inferred_name if inferred_name in independent else None
     kind = base or BRACKET_FILE
@@ -1898,7 +1807,6 @@ def import_signals(
     plan += [(GLOBAL_FILE, None), (SPELLBOOK_FILE, None), (SHELLS_FILE, None)]
     plan += [(EDHTOP16_FILE, None), (SALT_FILE, None)]
     plan += [(ATLAS_FILE, None)]
-    plan += [(CONVERSION_FILE, None)]
     commanders = _Commanders(store)
     preferred = commanders.resolve(name)
     commanders.imported.discard(preferred)  # only commanders the files name are "imported"
@@ -1920,7 +1828,6 @@ def import_signals(
                 EDHTOP16_FILE,
                 ATLAS_FILE,
                 SALT_FILE,
-                CONVERSION_FILE,
             )
             base = file_name if file_name in independent else None
             kind = base or BRACKET_FILE

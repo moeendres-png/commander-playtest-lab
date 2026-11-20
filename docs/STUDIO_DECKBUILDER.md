@@ -230,16 +230,23 @@ replaced the status is `NOTHING_REPLACED`. Signals are stored in
 per commander of the files, `edhrec_global_inclusion`, `spellbook_variants`,
 `spellbook_two_card_variants` and `spellbook_partners_in_collection` commander
 independent (commander name empty), the rubric (`rubric_h_mean`, `rubric_h_sd`, `rubric_raters`;
-imported by `import-all --from-repo`, below) under the commander of its folder, and
+imported by `import-all --from-repo` until Q1-b4, see the note below) under the commander of its
+folder, and
 `tournament_lists` (lists of the commander that contain the card over all its lists, main and
 commander section only) under `--commander` (default: the standard commander). The counted
-research file `topdeck_card_conversions.csv` stores `topdeck_card_conversion` under each
+research file `topdeck_card_conversions.csv` stored `topdeck_card_conversion` under each
 commander of its own commander column: the value is the published conversion rate (decks
 with the card that reached the top cut over the decks whose top-cut outcome is known), the
 stored denominator is that known-outcome base — never the appearances, which also count
 decks of unknown outcome — and where the source publishes no rate (base below 10, the
 literal `NULL` in the file) the value stays NULL while numerator and denominator are
-stored as counted. Tournament
+stored as counted. **Q1-b4 (#1679, Owner decision E15 Q1):** the rubric v1 importer, the
+TopDeck conversion import and the components `rubric`, `simulation` and `tournament_conversion`
+were removed; rows a store already holds stay untouched (no migration) and are not listed as
+signals any more (`signals.RETIRED_SIGNALS`); stored profiles with these weights or the
+conversion minimum stay valid (`strength.RETIRED_SETTING_KEYS`). The data folders
+(`chulane_rubric_20261114/`, `topdeck_*`) and `scripts/compute_topdeck_conversion.py` stay.
+Tournament
 files are any `topdeck_*_decks.csv` (split parts `_1`, `_2` allowed); the commander of a
 file is taken from its commander section and matched case-insensitively against the commander
 names of the store, so a file of another commander is never stored under the wrong name. The commander
@@ -343,8 +350,8 @@ commander-specific source. The Playgroup observation (`playgroup_observed`, impo
 25 games, index minimum 200 games, shrunk towards zero via $n / (n + 200)$) is commander
 independent: it is not one of the signals `require_commander_signal` asks for. Owner settings are saved by name. Simulation results
 do not count in the tier list and are for now neither collected nor processed for it (Owner
-decision B11, 2026-11-12): the `simulation` weight stays as an option, is 0 in the defaults
-and in every preset, and the component is `NOT_COLLECTED`. The page's layer count ("Schichten",
+decision B11, 2026-11-12; since Q1-b4, #1679, E15 Q1, the index has no `simulation` component
+at all). The page's layer count ("Schichten",
 sort key and coverage list) does not count the simulation layer either.
 
 The Owner's marks (favorite, excluded, note) never enter the index (Owner decision B4;
@@ -825,7 +832,8 @@ had no EDHREC row, so the weight of that signal simply vanished for them (`skip`
 (65 ranked) shared the scale of the spells, so the land with the most decks (`Command Tower`)
 set $v_{\max}$ for everybody. Four changes, one PR; the cuts were re-derived once at the end.
 
-**1. Rubric component (`rubric`, "Raster-Bewertung (Chulane)", #1358).** A structured, subjective
+**1. Rubric component (`rubric`, "Raster-Bewertung (Chulane)", #1358; removed in Q1-b4, #1679,
+the data stays as an archive; rubric v2 is the column "Kartenverständnis (Modellurteil)").** A structured, subjective
 rating of every rankable Chulane card, frozen in `data/research/chulane_rubric_20261114/`
 (`GUIDE.md`, `ratings.csv`, `summary.csv`, `README.md`). The question: how much better does a
 tuned Chulane deck (Bracket 3, four players) get when the card takes a slot, as a holistic value
@@ -1030,9 +1038,9 @@ universe is never an option of `universe_source`. Duplicate
 card rows keep the first and are counted. `expected_signals()`, the completeness table and
 `/api/layers` list the stored universes, or one generic row `Signal decklist_universe` as
 `MISSING` while none exists.
-`expected_signals(commander)` lists the rubric signal `rubric_h_mean` only for a commander that
-has a rubric file (`RUBRIC_COMMANDERS`, today Chulane); for every other commander the rubric is
-neither a missing layer in the completeness table nor an import command offered.
+Since Q1-b4 (#1679) `expected_signals(commander)` lists no rubric v1 or TopDeck conversion signal,
+and stored rows of them (`signals.RETIRED_SIGNALS`) are neither listed nor offered an import
+command.
 
 The deck-universe component takes its counts from ONE universe, chosen by the setting
 `universe_source` (`universe_choice.choose`, the one place that decides; the builder asks the
@@ -1352,7 +1360,7 @@ is built into a temporary file from `data/research/collection_1655`; `--inventor
 Scryfall card facts, roles (`roles_1655`; `--roles` replaces them), rulings, the deck list corpus
 (`chulane_corpus`, all ten folders, then the oracle id mapping of its card rows; `--decklists`
 replaces the corpus step), EDHREC observations (`edhrec_observations_chulane`, three parts),
-Playgroup atlas (`playgroup`, three parts), the rating rubric (`chulane_rubric_<date>`, step
+Playgroup atlas (`playgroup`, three parts), until Q1-b4 (#1679, removed) the rating rubric (`chulane_rubric_<date>`, step
 "Raster-Bewertung (Repo)": `summary.csv` as three signals of the commander the folder name
 stands for, recorded as a source with its SHA-256, idempotent, replacing only its own signals
 of that commander; the folder name is looked up in an explicit table

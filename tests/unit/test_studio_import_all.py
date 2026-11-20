@@ -225,7 +225,6 @@ _SIGNAL_LAYERS = {
     "signal:spellbook_partners_in_collection",
     "signal:tournament_lists",
     "signal:edhtop16_commander_play_rate",
-    "signal:topdeck_card_conversion",
     "signal:decklist_universe",
     "signal:playgroup_observed_winrate_gap",
 }
@@ -251,11 +250,9 @@ def test_every_signal_layer_is_listed_as_missing_in_a_store_without_signals(
         body = client.get("/api/layers", params={"commander": COMMANDER}).json()
     api_rows = {item["key"]: item for item in body["layers"] if item["key"].startswith("signal:")}
     assert set(api_rows) == _SIGNAL_LAYERS
-    # the rubric comes from the repository folder (``--from-repo``), every other one from a folder
-    assert all(
-        ("--from-repo" if key == "signal:rubric_h_mean" else "--signals") in item["command"]
-        for key, item in api_rows.items()
-    )
+    # every signal layer is filled from a folder (Q1-b4 #1679: the rubric v1 layer and its
+    # ``--from-repo`` call fell with the component)
+    assert all("--signals" in item["command"] for item in api_rows.values())
     assert "--signals" in body["signals_command"]
     script = (Path(import_all.__file__).parent / "static" / "ui.js").read_text(encoding="utf-8")
     assert "overview.signals_command" in script

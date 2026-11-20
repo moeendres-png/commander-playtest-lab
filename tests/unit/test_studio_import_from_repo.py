@@ -10,8 +10,16 @@ from pathlib import Path
 import pytest
 from openpyxl import load_workbook
 
-from commander_lab.studio import StudioStore, import_all, importers, repo_import
+from commander_lab.studio import (
+    StudioStore,
+    import_all,
+    importers,
+    repo_import,
+    signals,
+    strength_view,
+)
 from commander_lab.studio.__main__ import main
+from commander_lab.studio.store import DataClass
 from tests.unit.test_studio_builder import _fill, _public_file
 from tests.unit.test_studio_counted_universe import FIELDS, _both
 from tests.unit.test_studio_import_all import _decklists
@@ -238,9 +246,13 @@ def test_repo_files_are_found_from_a_root_folder(tmp_path: Path) -> None:
         repo_import.build_inventory_workbook(tmp_path / "nothing", tmp_path / "out.xlsx")
 
 
-def test_from_repo_imports_the_rubric_once_and_reports_its_step(
+def test_from_repo_no_longer_imports_the_rubric_v1_and_leaves_stored_rows_alone(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, scryfall: str
 ) -> None:
+    """Rewritten from ``test_from_repo_imports_the_rubric_once_and_reports_its_step`` (Q1-b4,
+    #1679, E3): the rubric v1 folder stays in the repository as an archive, but no step imports
+    it. Rows an earlier version stored (rubric v1, TopDeck conversion) stay untouched, and the
+    data layers do not list them (nothing can refill or use them)."""
     research = _research(tmp_path)
     folder = research / "chulane_rubric_20261114"
     folder.mkdir()
@@ -255,28 +267,41 @@ def test_from_repo_imports_the_rubric_once_and_reports_its_step(
     )
     monkeypatch.setattr(import_all, "_RESEARCH", research)
     store = StudioStore.open(tmp_path / "studio")
+    source = store.register_source(
+        data_class=DataClass.HEURISTIC_MODEL, title="alt", sha256="ab" * 32
+    )
+    orphans = [
+        (COMMANDER, "rubric_h_mean", "Filler 00", 6.0, None, None),
+        (COMMANDER, "rubric_raters", "Filler 00", 3.0, None, None),
+        (COMMANDER, "topdeck_card_conversion", "Filler 00", 0.5, 10, 20),
+    ]
+    with store.connection as db:
+        db.executemany(
+            "INSERT INTO card_signal(commander_name, signal, card_name, value, numerator, "
+            "denominator, source_id) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            [(*row, source) for row in orphans],
+        )
     result = import_all.run(_args(scryfall=scryfall), store)
-    step = _steps(result)["Raster-Bewertung (Repo)"]
-    assert step["status"] == "IMPORTED" and "rows_written=3" in step["detail"], step
-    again = _steps(import_all.run(_args(scryfall=scryfall), store))["Raster-Bewertung (Repo)"]
-    assert "rows_replaced=3" in again["detail"]
-    rows = store.connection.execute(
-        "SELECT commander_name, value FROM card_signal WHERE signal = 'rubric_h_mean'"
+    assert "Raster-Bewertung (Repo)" not in _steps(result)
+    assert not [name for name in _steps(result) if "Raster" in name or "Rubrik" in name]
+    stored = store.connection.execute(
+        "SELECT signal, value FROM card_signal WHERE signal IN "
+        "('rubric_h_mean', 'rubric_raters', 'topdeck_card_conversion') ORDER BY signal"
     ).fetchall()
-    assert [(row[0], row[1]) for row in rows] == [("Chulane, Teller of Tales", 6.0)]
-    layers = {layer["key"]: layer for layer in result["layers"]}
-    # the rows belong to Chulane: another commander has no rubric file, so the layer is not
-    # listed for it at all (no missing layer with an import call that cannot help)
-    assert "signal:rubric_h_mean" not in layers
-    assert "--from-repo" in import_all.import_command("signal:rubric_h_mean", COMMANDER)
+    assert [(row[0], row[1]) for row in stored] == [
+        ("rubric_h_mean", 6.0),
+        ("rubric_raters", 3.0),
+        ("topdeck_card_conversion", 0.5),
+    ]  # no migration, nothing deleted
+    layers = {layer["key"] for layer in result["layers"]}
+    assert layers  # positive case: the other layers are listed
+    for signal in signals.RETIRED_SIGNALS:
+        assert f"signal:{signal}" not in layers
+    coverage = strength_view.signal_coverage(store, COMMANDER)
+    assert not set(coverage) & signals.RETIRED_SIGNALS
+    assert "edhrec_commander_inclusion" in coverage  # an expected signal stays listed
+    assert "--signals" in import_all.import_command("signal:rubric_h_mean", COMMANDER)
     store.close()
-    # without a rubric folder the step is reported as not provided
-    (tmp_path / "plain").mkdir()
-    monkeypatch.setattr(import_all, "_RESEARCH", _research(tmp_path / "plain"))
-    plain = StudioStore.open(tmp_path / "plain-studio")
-    step = _steps(import_all.run(_args(scryfall=scryfall), plain))["Raster-Bewertung (Repo)"]
-    assert step["status"] == "NOT_PROVIDED"
-    plain.close()
 
 
 def test_the_workbook_built_from_csvs_is_the_one_the_importer_reads(tmp_path: Path) -> None:

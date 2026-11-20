@@ -52,25 +52,27 @@ PRESET_WEIGHTS = {
 
 
 @pytest.mark.parametrize("name", sorted(PRESET_WEIGHTS))
-def test_presets_carry_the_owner_weights_and_a_zero_rubric(name: str) -> None:
+def test_presets_carry_the_owner_weights_and_no_removed_component(name: str) -> None:
     weights = strength.PRESETS[name].weights
     for component, value in PRESET_WEIGHTS[name].items():
         assert weights[component] == value, (name, component)
-    for component in ("rubric", "simulation", "playgroup_observed", "synergy"):
+    for component in ("playgroup_observed", "synergy"):
         assert weights[component] == 0.0, (name, component)
-    # the TopDeck components stay as columns, with weight 0
+    # the TopDeck lists stay as a column, with weight 0
     assert weights["tournament_lists"] == 0.0
-    assert weights["tournament_conversion"] == 0.0
+    # Q1-b4 (#1679, E15 Q1): rubric v1, simulation and the TopDeck conversion left the index
+    for component in ("rubric", "simulation", "tournament_conversion"):
+        assert component not in weights, (name, component)
 
 
-def test_default_weights_are_the_ausgewogen_preset_and_the_rubric_is_zero() -> None:
-    assert strength.DEFAULT_WEIGHTS["rubric"] == 0.0
+def test_default_weights_are_the_ausgewogen_preset_and_hold_no_subjective_component() -> None:
+    """Q1-b4 (#1679): E1.a kept the rubric v1 as a weight-0 component; E15 Q1 removed it. No
+    component is a subjective rating any more (rubric v2 is a column beside the index)."""
     assert StrengthSettings().weights == strength.PRESETS["Ausgewogen"].weights
-    # the component, its label and its data class stay: it is subjective, not an objective signal
-    assert strength.RUBRIC in strength.COMPONENTS
-    assert "subjektiv" in strength.LABELS[strength.RUBRIC]
-    assert "Gewicht 0" in strength.LABELS[strength.RUBRIC]
-    assert strength.COMPONENT_DATA_CLASS[strength.RUBRIC] == "SUBJECTIVE_RATING"
+    assert "rubric" not in strength.DEFAULT_WEIGHTS
+    assert not hasattr(strength, "RUBRIC")
+    assert "SUBJECTIVE_RATING" not in strength.COMPONENT_DATA_CLASS.values()
+    assert not [label for label in strength.LABELS.values() if "subjektiv" in label]
 
 
 def test_the_new_defaults_of_the_empirical_index() -> None:
@@ -119,9 +121,10 @@ def test_settings_validate_the_new_keys_and_round_trip() -> None:
 
 
 def test_a_profile_saved_before_v3_keeps_its_values_and_takes_new_defaults_for_new_keys() -> None:
-    """What changes on reload: every stored value stays (the rubric weight, the sqrt scale, the
-    cuts); keys the profile lacks (the new components, ``zero_count_tier``,
-    ``edhrec_with_corpus``) take the new defaults, so the E2.a rule applies to the old profile."""
+    """What changes on reload: every stored value stays (the sqrt scale, the cuts); keys the
+    profile lacks (the new components, ``zero_count_tier``, ``edhrec_with_corpus``) take the new
+    defaults, so the E2.a rule applies to the old profile. The stored rubric weight is a retired
+    key since Q1-b4 (#1679): dropped, never an error."""
     old = {
         "weights": {"commander_inclusion": 3.0, "deck_universe": 2.0, "rubric": 3.5},
         "share_scale": "share",
@@ -130,7 +133,7 @@ def test_a_profile_saved_before_v3_keeps_its_values_and_takes_new_defaults_for_n
     }
     settings, ignored = StrengthSettings.from_stored(old)
     assert ignored == []
-    assert settings.weights["rubric"] == 3.5
+    assert "rubric" not in settings.weights
     assert settings.weights["deck_universe"] == 2.0
     assert settings.share_scale == "share"
     assert settings.tier_cuts["S"] == 47.0
@@ -143,8 +146,9 @@ def test_a_profile_saved_before_v3_keeps_its_values_and_takes_new_defaults_for_n
 # ---------- Q1-b0 (#1675): retired settings keys are accepted and dropped ----------
 
 # Probe keys for the filter sites; the real retired keys enter the list with the packages that
-# remove them (Q1-b2: ``layer_weights``, ``pod_size``; Q1-b4 next). One probe per group, so a
-# mutation at one filter site fails one case.
+# remove them (Q1-b2: ``layer_weights``, ``pod_size``; Q1-b4: the components ``rubric``,
+# ``simulation``, ``tournament_conversion`` and the minimum ``conversion``). One probe per
+# group, so a mutation at one filter site fails one case.
 RETIRED_PROBES = {
     strength.RETIRED_WEIGHTS: "retired_component_probe",
     strength.RETIRED_MIN_DENOMINATORS: "retired_minimum_probe",
@@ -178,13 +182,17 @@ SAVED = {
 
 def test_the_retired_list_names_what_fell_and_never_names_a_live_key() -> None:
     """A key moves to the list only in the change that removes it: Q1-b2 (#1677) retired the
-    top-level ``layer_weights`` and ``pod_size``; nothing else is retired yet."""
+    top-level ``layer_weights`` and ``pod_size``, Q1-b4 (#1679) the component weights
+    ``rubric``, ``simulation``, ``tournament_conversion`` and the minimum ``conversion``."""
     assert set(strength.RETIRED_SETTING_KEYS) == set(RETIRED_PROBES)
     assert {
-        strength.RETIRED_WEIGHTS: frozenset(),
-        strength.RETIRED_MIN_DENOMINATORS: frozenset(),
+        strength.RETIRED_WEIGHTS: frozenset({"rubric", "simulation", "tournament_conversion"}),
+        strength.RETIRED_MIN_DENOMINATORS: frozenset({"conversion"}),
         strength.RETIRED_TOP_LEVEL: frozenset({"layer_weights", "pod_size"}),
     } == strength.RETIRED_SETTING_KEYS
+    # every retired nested key has the default it had when it fell (for the calm notice)
+    for group in (strength.RETIRED_WEIGHTS, strength.RETIRED_MIN_DENOMINATORS):
+        assert set(strength.RETIRED_NESTED_DEFAULTS[group]) == strength.RETIRED_SETTING_KEYS[group]
     live = {
         strength.RETIRED_WEIGHTS: set(strength.DEFAULT_WEIGHTS),
         strength.RETIRED_MIN_DENOMINATORS: set(strength.MIN_DENOMINATOR_KEYS),
@@ -253,6 +261,18 @@ def test_a_retired_key_is_only_dropped_where_it_is_listed(monkeypatch: pytest.Mo
         ({"layer_weights": {"tempo": False}}, ["layer_weights"]),  # false is not the weight 0
         ({"layer_weights": "x"}, ["layer_weights"]),
         ({"layer_weights": {"tempo": 1}, "pod_size": 6}, ["layer_weights", "pod_size"]),
+        # Q1-b4 (#1679): the nested keys, named with their group; defaults 0.0 and 20
+        ({"weights": {"rubric": 0, "simulation": 0.0, "tournament_conversion": 0}}, []),
+        ({"min_denominators": {"conversion": 20}}, []),
+        ({"weights": {"rubric": 3.5}}, ["weights.rubric"]),
+        ({"weights": {"simulation": 0.5, "deck_universe": 2}}, ["weights.simulation"]),
+        ({"weights": {"tournament_conversion": True}}, ["weights.tournament_conversion"]),
+        ({"min_denominators": {"conversion": 10}}, ["min_denominators.conversion"]),
+        ({"weights": "x", "min_denominators": None}, []),  # not a map: nothing to name
+        (
+            {"pod_size": 3, "weights": {"rubric": 1}, "min_denominators": {"conversion": 5}},
+            ["min_denominators.conversion", "pod_size", "weights.rubric"],
+        ),
     ],
 )
 def test_retired_deviations_name_a_dropped_value_only_when_it_was_not_the_default(

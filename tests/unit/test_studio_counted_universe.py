@@ -508,11 +508,11 @@ def test_unlisted_card_coverage_with_the_new_default_reaches_the_minimum(
     _import_counted(store, _write_counted(tmp_path / "counted", _both()))
     without = _by_name(_compute(store, universe_source="none"))
     with_universe = _by_name(_compute(store))  # the recommended "auto" picks the counted file
-    # Weights 3 + 2 + 4 + 0 (synergy) + 1 + 0.5 (combos) + 0 (playgroup, sim, TopDeck) = 10.5.
+    # Weights 3 + 2 + 4 + 0 (synergy) + 1 + 0.5 (combos) + 0 (playgroup, TopDeck lists) = 10.5.
     # Filler 09 is in no commander signal, no EDHREC combo row and has no playgroup
     # observation; only global inclusion (1) exists.
-    # (the rubric and the corpus signals have no source for this commander and leave the
-    # denominator: they exist for commanders with the file or the counted corpus only)
+    # (the corpus signals have no source for this commander and leave the denominator: they
+    # exist for commanders with the counted corpus only)
     total = sum(
         w
         for name, w in strength.DEFAULT_WEIGHTS.items()

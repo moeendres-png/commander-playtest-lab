@@ -11,7 +11,7 @@ import hashlib
 import json
 import sqlite3
 import sys
-from collections.abc import Iterator
+from collections.abc import Iterator, Mapping
 from itertools import pairwise
 from pathlib import Path
 from typing import cast
@@ -359,8 +359,10 @@ def test_missing_components_renormalise_the_weights_and_lower_coverage() -> None
     assert scored["c"]["index"] == 0.0
     synergy = next(c for c in scored["b"]["components"] if c["component"] == "synergy")
     assert synergy["status"] == strength.NO_VALUE and synergy["percentile"] is None
-    simulation = next(c for c in scored["b"]["components"] if c["component"] == "simulation")
-    assert simulation["status"] == strength.NOT_COLLECTED
+    # Q1-b4 (#1679): a component without any collected source (formerly ``simulation``, now the
+    # Playgroup observation) is NOT_COLLECTED, never 0
+    playgroup = next(c for c in scored["b"]["components"] if c["component"] == "playgroup_observed")
+    assert playgroup["status"] == strength.NOT_COLLECTED
 
 
 def test_low_coverage_or_few_components_give_tier_u_not_a_weak_tier() -> None:
@@ -393,6 +395,39 @@ def test_low_coverage_or_few_components_give_tier_u_not_a_weak_tier() -> None:
     assert strength.score_pool(strict_count, observations, collected)["c"]["tier"] == "D"
 
 
+def test_global_inclusion_alone_gives_no_tier_under_the_default_settings() -> None:
+    """Moved unchanged from ``test_studio_rubric.py`` (Q1-b4, #1679, deleted with rubric v1):
+    the invariant does not depend on the rubric."""
+    # DEFAULT weights with missing_value "lowest" switched on (no default since E4.b of #1364):
+    # an unlisted card gets a lowest value, which must not count as commander-specific evidence
+    settings = StrengthSettings(
+        missing_value={
+            strength.COMMANDER_INCLUSION: strength.MISSING_LOWEST,
+            strength.BRACKET_INCLUSION: strength.MISSING_LOWEST,
+        }
+    )
+    assert settings.require_commander_signal
+    assert settings.missing_value[strength.COMMANDER_INCLUSION] == strength.MISSING_LOWEST
+    observations: dict[str, dict[str, Observation]] = {}
+    for n in range(10):
+        observations[f"c{n}"] = {
+            strength.COMMANDER_INCLUSION: Observation(0.9 - n * 0.05, 900 - n * 50, 1000),
+            strength.BRACKET_INCLUSION: Observation(0.9 - n * 0.05, 900 - n * 50, 1000),
+            strength.GLOBAL_INCLUSION: Observation(0.5, 500, 1000),
+        }
+    observations["only global"] = {strength.GLOBAL_INCLUSION: Observation(0.9, 900, 1000)}
+    collected = {
+        strength.COMMANDER_INCLUSION,
+        strength.BRACKET_INCLUSION,
+        strength.GLOBAL_INCLUSION,
+    }
+    scored = strength.score_pool(settings, observations, collected)
+    odd = scored["only global"]
+    assert odd["tier"] == strength.TIER_UNKNOWN and odd["reason"] == strength.NO_COMMANDER_SIGNAL
+    assert odd["index"] is not None  # the lowest value still counts for the index
+    assert scored["c0"]["reason"] == "ENOUGH_DATA"
+
+
 def test_settings_are_validated_and_round_trip() -> None:
     settings = StrengthSettings.from_dict({"weights": {"synergy": 4}, "bracket": "cedh"})
     assert StrengthSettings.from_dict(settings.to_dict()) == settings
@@ -421,13 +456,10 @@ def test_settings_are_validated_and_round_trip() -> None:
         strength.SYNERGY: 0.0,
         strength.TOURNAMENT: 0.0,
         strength.TOURNAMENT_LISTS: 0.0,
-        strength.TOURNAMENT_CONVERSION: 0.0,
         strength.EDHREC_THEME_REACH: 1.0,
         strength.GLOBAL_INCLUSION: 0.5,
         strength.COMBOS: 0.5,
         strength.PLAYGROUP_OBSERVED: 0.0,
-        strength.RUBRIC: 0.0,
-        strength.SIMULATION: 0.0,
     }
     tournament = strength.PRESETS["Turniernah"]
     assert tournament.bracket == "cedh"
@@ -441,13 +473,10 @@ def test_settings_are_validated_and_round_trip() -> None:
         strength.SYNERGY: 0.0,
         strength.TOURNAMENT: 2.0,
         strength.TOURNAMENT_LISTS: 0.0,
-        strength.TOURNAMENT_CONVERSION: 0.0,
         strength.EDHREC_THEME_REACH: 0.0,
         strength.GLOBAL_INCLUSION: 0.5,
         strength.COMBOS: 1.0,
         strength.PLAYGROUP_OBSERVED: 0.0,
-        strength.RUBRIC: 0.0,
-        strength.SIMULATION: 0.0,
     }
     assert strength.DEFAULT_WEIGHTS[strength.SYNERGY] == 0.0
     assert strength.DEFAULT_WEIGHTS[strength.PLAYGROUP_OBSERVED] == 0.0
@@ -1042,12 +1071,7 @@ def test_new_settings_are_validated_serialised_and_round_trip() -> None:
         "log",
     )
     assert default.combo_source == strength.COMBO_COMMANDER
-    assert default.min_denominators == {
-        "edhrec": 30,
-        "tournament": 20,
-        "conversion": 20,
-        "playgroup": 200,
-    }
+    assert default.min_denominators == {"edhrec": 30, "tournament": 20, "playgroup": 200}
     assert default.rank_commander_and_basics is False
     # nothing a source does not list is filled with 0 (E4.b of #1364): every default is "skip";
     # the deck universe has counted zeros instead (0 of N is a finding)
@@ -1494,16 +1518,33 @@ def test_tier_page_text_filters_and_recommendations_are_wired() -> None:
     assert "if (x === null) return 1;" in builder
 
 
+def test_settings_without_a_minimum_key_use_the_default_minimum() -> None:
+    """Rewritten from ``test_settings_without_the_conversion_key_use_the_default_minimum``
+    (Q1-b4, #1679: the conversion minimum fell with its component); the other minimums keep
+    their defaults, an unknown key still fails."""
+    settings = StrengthSettings(min_denominators={"edhrec": 30, "tournament": 5})
+    assert settings.min_denominators == {"edhrec": 30, "tournament": 5, "playgroup": 200}
+    assert settings.minimum_denominator(strength.PLAYGROUP_OBSERVED, 0) == 200
+    loaded = StrengthSettings.from_dict({"min_denominators": {"tournament": 7}})
+    assert loaded.min_denominators["playgroup"] == 200
+    assert "conversion" not in loaded.min_denominators
+    with pytest.raises(ValueError):
+        StrengthSettings(min_denominators={"bogus": 1})
+    with pytest.raises(ValueError, match="conversion"):
+        StrengthSettings(min_denominators={"conversion": 20})  # in code: strict
+
+
 def test_the_server_serves_the_recommendations_the_page_shows(tmp_path: Path) -> None:
     client = TestClient(create_app(tmp_path / "studio.db"))
     meta = client.get("/api/strength/presets").json()
-    assert meta["recommended"]["weights"]["simulation"] == 0.0
+    assert meta["recommended"]["weights"] == strength.DEFAULT_WEIGHTS
     assert meta["panel"]["labels"]["min_coverage"] == "Mindest-Datenlage in % (empfohlen: 25)"
-    assert (
-        meta["panel"]["labels"]["weights.simulation"]
-        == "Simulation (empfohlen: 0, derzeit ohne Daten)"
-    )
-    assert all(item["settings"]["weights"]["simulation"] == 0.0 for item in meta["presets"])
+    # Q1-b4 (#1679): the removed components are neither recommended nor offered in the panel
+    for removed in ("simulation", "rubric", "tournament_conversion"):
+        assert removed not in meta["recommended"]["weights"]
+        assert f"weights.{removed}" not in meta["panel"]["labels"]
+        assert all(removed not in item["settings"]["weights"] for item in meta["presets"])
+    assert "min_denominators.conversion" not in meta["panel"]["labels"]
 
 
 # ---------- pooled tournament files and the exact commander set (Refs #1205) ----------
@@ -1697,10 +1738,12 @@ def test_a_component_without_any_data_is_not_part_of_the_coverage_denominator() 
         observations,
         collected,
     )
+    # Q1-b4 (#1679): the example source is a commander-only one (EDHREC themes), formerly the
+    # never-collected simulation component, which left the index
+    theme = strength.EDHREC_THEME_REACH
+    assert theme in strength.COMMANDER_ONLY_SOURCES
     weighted = strength.score_pool(
-        StrengthSettings(
-            weights={**weights, strength.SIMULATION: 5.0}, min_coverage=0.0, min_components=1
-        ),
+        StrengthSettings(weights={**weights, theme: 5.0}, min_coverage=0.0, min_components=1),
         observations,
         collected,
     )
@@ -1712,22 +1755,25 @@ def test_a_component_without_any_data_is_not_part_of_the_coverage_denominator() 
         )
     # once the source has data the weight counts in the denominator again
     with_data = strength.score_pool(
-        StrengthSettings(
-            weights={**weights, strength.SIMULATION: 5.0}, min_coverage=0.0, min_components=1
-        ),
-        {**observations, "a": {**observations["a"], "simulation": Observation(1.0)}},
-        {*collected, strength.SIMULATION},
+        StrengthSettings(weights={**weights, theme: 5.0}, min_coverage=0.0, min_components=1),
+        {**observations, "a": {**observations["a"], theme: _share(100, 1000)}},
+        {*collected, theme},
     )
     assert with_data["b"]["coverage"] < plain["b"]["coverage"]
 
 
-def test_the_result_notes_name_a_weight_without_data(store: StudioStore, tmp_path: Path) -> None:
+def test_a_remembered_simulation_weight_gives_no_weight_without_data_notice(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    """Q1-b4 (#1679): the notice "keine Daten, Gewicht ohne Wirkung" existed only for the
+    simulation weight; the component fell, a remembered weight is dropped on reading and the
+    answer is the default one, without that notice."""
     _import(store, tmp_path)
-    weighted = StrengthSettings(weights={**strength.DEFAULT_WEIGHTS, strength.SIMULATION: 4.0})
-    result = strength_view.compute(store, COMMANDER, weighted)
-    assert "Simulation: keine Daten, Gewicht ohne Wirkung" in result["notices"]
-    default = strength_view.compute(store, COMMANDER, StrengthSettings())
-    assert not any("Gewicht ohne Wirkung" in text for text in default["notices"])
+    remembered = StrengthSettings.from_dict({"weights": {"simulation": 4.0}})
+    assert remembered == StrengthSettings()
+    result = strength_view.compute(store, COMMANDER, remembered)
+    assert not any("Gewicht ohne Wirkung" in text for text in result["notices"])
+    assert result == strength_view.compute(store, COMMANDER, StrengthSettings())
 
 
 def test_a_stored_profile_with_unknown_keys_is_accepted_and_names_them(
@@ -1933,6 +1979,126 @@ def test_a_retired_value_that_differed_from_its_default_gives_one_calm_notice(
         return
     assert len(found) == 1
     assert all(name in found[0] for name in named)
+    assert f"„{profile}“" in found[0]
+    assert not any(word in found[0] for word in ("Fehler", "Warnung", "ungültig"))
+
+
+# ---------- Q1-b4 (#1679): profiles with the removed components stay valid ----------
+
+Q1B4_PLAIN = {"bracket": "cedh", "weights": {"synergy": 2}, "min_denominators": {"edhrec": 40}}
+Q1B4_PROFILES: dict[str, dict[str, object]] = {
+    "ohne": Q1B4_PLAIN,
+    # the keys every profile saved before Q1-b4 carried (``to_dict``), at their defaults
+    "alt-standard": {
+        **Q1B4_PLAIN,
+        "weights": {"synergy": 2, "rubric": 0.0, "simulation": 0.0, "tournament_conversion": 0.0},
+        "min_denominators": {"edhrec": 40, "conversion": 20},
+    },
+    "alt-rubrik": {**Q1B4_PLAIN, "weights": {"synergy": 2, "rubric": 3.5}},
+    "alt-alles": {
+        **Q1B4_PLAIN,
+        "weights": {"synergy": 2, "rubric": 1.0, "simulation": 4.0, "tournament_conversion": 2.0},
+        "min_denominators": {"edhrec": 40, "conversion": 5},
+    },
+    # min_components above the 13 live components: the bound stays at the former 16
+    "alt-viele": {**Q1B4_PLAIN, "min_components": 16},
+}
+
+
+def _store_profiles(tmp_path: Path, profiles: Mapping[str, object]) -> None:
+    store = StudioStore.open(tmp_path / "studio")
+    try:
+        for name, spec in profiles.items():
+            store.connection.execute(
+                "INSERT INTO strength_profile(name, spec, created_at) VALUES (?, ?, 'x')",
+                (name, json.dumps(spec)),
+            )
+        store.connection.commit()
+    finally:
+        store.close()
+
+
+def test_a_profile_from_before_q1b4_with_the_removed_components_stays_valid(
+    client: TestClient, tmp_path: Path
+) -> None:
+    """Abnahme of #1679: a stored profile with ``weights.simulation``, ``weights.rubric``,
+    ``weights.tournament_conversion`` and ``min_denominators.conversion`` loads, ``valid: true``,
+    and computes like the same settings without them; another unknown key still fails."""
+    _store_profiles(tmp_path, Q1B4_PROFILES)
+    listed = {item["name"]: item for item in client.get("/api/strength/profiles").json()}
+    for name in Q1B4_PROFILES:
+        assert listed[name]["valid"] is True and listed[name]["reason"] is None, name
+        assert listed[name]["ignored_keys"] == [], name  # dropped, not named as unknown
+        weights = listed[name]["settings"]["weights"]
+        for removed in ("rubric", "simulation", "tournament_conversion"):
+            assert removed not in weights, (name, removed)
+        assert "conversion" not in listed[name]["settings"]["min_denominators"], name
+    for name in ("alt-standard", "alt-rubrik", "alt-alles"):
+        assert listed[name]["settings"] == listed["ohne"]["settings"], name
+    assert listed["alt-viele"]["settings"]["min_components"] == 16
+    expected = client.post(
+        "/api/strength", json={"commander": COMMANDER, "settings": Q1B4_PLAIN}, headers=HEADER
+    ).json()["settings"]
+    for name in ("alt-standard", "alt-alles"):
+        # a remembered browser setting or an API body with the retired keys
+        answer = client.post(
+            "/api/strength",
+            json={"commander": COMMANDER, "settings": Q1B4_PROFILES[name]},
+            headers=HEADER,
+        )
+        assert answer.status_code == 200, name
+        assert answer.json()["settings"] == expected, name
+    for typo, token in (
+        ({**Q1B4_PLAIN, "weights": {"synergy": 2, "simulations": 1.0}}, "simulations"),
+        ({**Q1B4_PLAIN, "min_denominators": {"conversions": 20}}, "conversions"),
+    ):
+        answer = client.post(
+            "/api/strength", json={"commander": COMMANDER, "settings": typo}, headers=HEADER
+        )
+        assert answer.status_code == 422 and token in answer.text, token
+    with pytest.raises(ValueError, match="min_components"):
+        StrengthSettings(min_components=17)
+
+
+@pytest.mark.parametrize(
+    ("profile", "named"),
+    [
+        ("alt-standard", []),
+        ("alt-rubrik", ["Gewicht Raster-Bewertung (Rubrik v1)"]),
+        (
+            "alt-alles",
+            [
+                "Mindest-Nenner Turnier-Conversion",
+                "Gewicht Raster-Bewertung (Rubrik v1)",
+                "Gewicht Simulation",
+                "Gewicht Turnier-Conversion (TopDeck)",
+            ],
+        ),
+    ],
+)
+def test_a_removed_component_weight_that_was_not_zero_gives_one_calm_notice(
+    client: TestClient, tmp_path: Path, profile: str, named: list[str]
+) -> None:
+    """Auflage from the review of #1682 for Q1-b4: one notice, only when a dropped value
+    differed from its default (weights 0, conversion minimum 20), never a warning or error."""
+    _store_profiles(tmp_path, {profile: Q1B4_PROFILES[profile]})
+    store = StudioStore.open(tmp_path / "studio")
+    try:
+        direct = strength_view.profile_notices(store, profile)
+    finally:
+        store.close()
+    answer = client.post(
+        "/api/strength", json={"commander": COMMANDER, "profile": profile}, headers=HEADER
+    )
+    assert answer.status_code == 200
+    found = [text for text in answer.json()["notices"] if RETIRED_NOTICE in text]
+    assert found == [text for text in direct if RETIRED_NOTICE in text]
+    if not named:
+        assert found == []
+        return
+    assert len(found) == 1
+    positions = [found[0].index(name) for name in named]
+    assert positions == sorted(positions)  # one sentence, in a fixed order
     assert f"„{profile}“" in found[0]
     assert not any(word in found[0] for word in ("Fehler", "Warnung", "ungültig"))
     if len(named) == 1:
@@ -2501,166 +2667,6 @@ def test_shells_downgrade_import_drops_the_stale_breakdown_rows(
     assert _signal(store, signals.SIGNAL_SHELLS, "Filler 00", commander=COMMANDER) is not None
     assert _signal(store, signals.SIGNAL_TWO_CARD_SHELLS, "Filler 00", commander=COMMANDER) is None
     assert _signal(store, signals.SIGNAL_COMMANDER_SHELLS, "Filler 00", commander=COMMANDER) is None
-
-
-# ---------- tournament conversion (#1261 P1.1) ----------
-
-
-def test_conversion_below_the_minimum_denominator_is_not_used() -> None:
-    """Thin data of the Chulane shape (every base <= 3): the rows exist, and the
-    minimum denominator of 20 keeps the component out of the index for every card,
-    listed or not — the same protection the tournament lists have."""
-    observations = {
-        "a": {"tournament_conversion": Observation(1 / 3, 1, 3)},
-        "b": {"tournament_conversion": Observation(0.0, 0, 3)},
-        "c": {},
-    }
-    scored = strength.score_pool(
-        _only("tournament_conversion"), observations, {"tournament_conversion"}
-    )
-    for card in observations:
-        row = _row(scored, card, "tournament_conversion")
-        assert row["status"] == strength.NO_VALUE and row["percentile"] is None
-        assert row["reason"] == strength.BELOW_MIN_DENOMINATOR
-        assert "Mindest-Nenner 20" in row["note"]
-    assert scored["a"]["index"] is None and scored["a"]["tier"] == "U"
-
-
-def test_conversion_ranks_by_the_wilson_bound_of_its_base() -> None:
-    observations = {
-        "high": {"tournament_conversion": Observation(0.5, 20, 40)},
-        "mid": {"tournament_conversion": Observation(0.25, 10, 40)},
-    }
-    scored = strength.score_pool(
-        _only("tournament_conversion"), observations, {"tournament_conversion"}
-    )
-    row = _row(scored, "high", "tournament_conversion")
-    assert row["status"] == strength.PRESENT
-    assert row["wilson"] == strength.wilson_lower(20, 40)
-    w_high = strength.wilson_lower(20, 40)
-    w_mid = strength.wilson_lower(10, 40)
-    assert w_high is not None and w_mid is not None
-    assert scored["high"]["index"] == 100.0 and scored["mid"]["index"] == round(
-        100 * (w_mid / w_high) ** 0.5, 1
-    )
-    ranked = strength.score_pool(
-        _only("tournament_conversion", share_scale="rank"),
-        observations,
-        {"tournament_conversion"},
-    )
-    assert ranked["high"]["index"] == 100.0 and ranked["mid"]["index"] == 0.0
-
-
-def test_conversion_the_same_rate_ranks_higher_on_the_larger_base() -> None:
-    observations = {
-        "wide": {"tournament_conversion": Observation(0.5, 50, 100)},
-        "narrow": {"tournament_conversion": Observation(0.5, 10, 20)},
-    }
-    scored = strength.score_pool(
-        _only("tournament_conversion"), observations, {"tournament_conversion"}
-    )
-    assert scored["wide"]["index"] == 100.0 and scored["narrow"]["index"] < 100.0
-    ranked = strength.score_pool(
-        _only("tournament_conversion", share_scale="rank"),
-        observations,
-        {"tournament_conversion"},
-    )
-    assert ranked["wide"]["index"] == 100.0 and ranked["narrow"]["index"] == 0.0
-
-
-def test_conversion_a_card_below_the_minimum_drops_out_alone() -> None:
-    """The gate is per card once the signal as a whole clears it: a perfect rate on
-    a base of 19 counts nothing while a base of exactly 20 counts."""
-    observations = {
-        "in": {"tournament_conversion": Observation(0.5, 10, 20)},
-        "out": {"tournament_conversion": Observation(1.0, 19, 19)},
-    }
-    scored = strength.score_pool(
-        _only("tournament_conversion"), observations, {"tournament_conversion"}
-    )
-    assert _row(scored, "in", "tournament_conversion")["status"] == strength.PRESENT
-    out = _row(scored, "out", "tournament_conversion")
-    assert out["status"] == strength.NO_VALUE
-    assert out["reason"] == strength.BELOW_MIN_DENOMINATOR
-
-
-def test_conversion_a_counted_zero_is_a_value_not_an_unknown() -> None:
-    observations = {
-        "zero": {"tournament_conversion": Observation(0.0, 0, 25)},
-        "some": {"tournament_conversion": Observation(0.25, 10, 40)},
-    }
-    scored = strength.score_pool(
-        _only("tournament_conversion", require_commander_signal=False),
-        observations,
-        {"tournament_conversion"},
-    )
-    row = _row(scored, "zero", "tournament_conversion")
-    assert row["status"] == strength.PRESENT and row["percentile"] == 0.0
-    assert scored["zero"]["index"] == 0.0 and scored["zero"]["tier"] == "D"
-
-
-def test_conversion_alone_does_not_satisfy_the_commander_signal_rule() -> None:
-    """The conversion rows of a commander are that commander's tournament figures,
-    but the component is not in COMMANDER_SPECIFIC: it never earns a tier alone."""
-    observations = {"a": {"tournament_conversion": Observation(0.5, 20, 40)}}
-    scored = strength.score_pool(
-        _only("tournament_conversion"), observations, {"tournament_conversion"}
-    )
-    assert scored["a"]["index"] == 50.0  # the only valued card takes the mean rank
-    assert scored["a"]["tier"] == "U"
-    assert scored["a"]["reason"] == strength.NO_COMMANDER_SIGNAL
-
-
-def test_conversion_weight_counts_in_coverage_only_once_its_rows_exist() -> None:
-    """The A/B of a conversion weight of 1.0 (total weight 10.5 -> 11.5): without conversion rows
-    a card's coverage drops by that share; with rows the share is earned back and the
-    component ranks. (Conversion has the default weight 0 since #1364: the weight is set here.)"""
-    observations = {
-        "a": {"commander_inclusion": _share(90, 100)},
-        "b": {"commander_inclusion": _share(50, 100)},
-    }
-    before = StrengthSettings(min_coverage=0.0, min_components=1, require_commander_signal=False)
-    after = StrengthSettings(
-        weights={**strength.DEFAULT_WEIGHTS, strength.TOURNAMENT_CONVERSION: 1.0},
-        min_coverage=0.0,
-        min_components=1,
-        require_commander_signal=False,
-    )
-    scored_before = strength.score_pool(before, observations, {"commander_inclusion"})
-    scored_after = strength.score_pool(after, observations, {"commander_inclusion"})
-    assert scored_before["a"]["coverage"] == round(3 / 10.5, 4)
-    assert scored_after["a"]["coverage"] == round(3 / 11.5, 4)
-    assert scored_after["a"]["index"] == scored_before["a"]["index"] == 100.0
-    with_rows = {
-        "a": {
-            "commander_inclusion": _share(90, 100),
-            "tournament_conversion": Observation(0.5, 20, 40),
-        },
-        "b": {"commander_inclusion": _share(50, 100)},
-    }
-    scored_rows = strength.score_pool(
-        after, with_rows, {"commander_inclusion", "tournament_conversion"}
-    )
-    assert scored_rows["a"]["coverage"] == round(4 / 11.5, 4)
-    row = _row(scored_rows, "a", "tournament_conversion")
-    assert row["status"] == strength.PRESENT and row["percentile"] == 0.5
-
-
-def test_settings_without_the_conversion_key_use_the_default_minimum() -> None:
-    settings = StrengthSettings(min_denominators={"edhrec": 30, "tournament": 5})
-    assert settings.min_denominators == {
-        "edhrec": 30,
-        "tournament": 5,
-        "conversion": 20,
-        "playgroup": 200,
-    }
-    assert settings.minimum_denominator(strength.TOURNAMENT_CONVERSION, 0) == 20
-    assert settings.minimum_denominator(strength.PLAYGROUP_OBSERVED, 0) == 200
-    loaded = StrengthSettings.from_dict({"min_denominators": {"tournament": 7}})
-    assert loaded.min_denominators["conversion"] == 20
-    assert loaded.min_denominators["playgroup"] == 200
-    with pytest.raises(ValueError):
-        StrengthSettings(min_denominators={"bogus": 1})
 
 
 # ---------- share_scale: preserve share magnitude vs rank (#1351) ----------

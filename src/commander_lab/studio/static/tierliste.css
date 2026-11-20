@@ -71,7 +71,6 @@ table.dist th[scope=row],table.dist thead th:first-child{text-align:left}
 .borderline,.unsharp{display:inline-block;padding:0 var(--s2);border-radius:var(--radius-s);border:1px solid var(--warn);color:var(--warn);font-size:11px;cursor:help;white-space:nowrap}
 .tier-badge.t-E .level,.tier-badge.t-F .level{background:var(--muted,#64748b);color:#fff}
 .layer h4{margin:var(--s2) 0 var(--s1);font-size:13px}
-.block-subjective,.block-simulation{border-top:1px dashed var(--muted);margin-top:var(--s3);padding-top:var(--s1)}
 .layer table{display:block;overflow-x:auto}
 #data-state .badge{display:block;margin:var(--s1) var(--s3)}
 #role-audit-panel{padding:var(--s2) var(--s4);border-bottom:1px solid var(--line);font-size:13px}

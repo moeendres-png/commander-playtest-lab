@@ -9,9 +9,7 @@ objective diagnostic figures defined in #1349:
    ranked cards and separately for non-lands (and lands). Because the counted lists are
    themselves one component of the index, this figure is explicitly labelled as a
    plausibility anchor ("wird für diesen Commander wirklich gespielt"), never as a proof
-   of causal card strength. When a rubric source exists for the commander (#1358) the same
-   block adds ``vs_rubric``: the correlation of the index with the rubric rating, which says
-   how much of the order the rubric sets (it is a component of the index itself).
+   of causal card strength.
 2. **Marginal cards at the top ("Randkarten oben"):** cards in tier ``S`` or ``A`` whose
    share in the counted lists is below 5 % (count, denominator = all cards in ``S`` or ``A``,
    and card names).
@@ -104,10 +102,6 @@ SENSITIVITY_NOTE = (
     "Standard ist k = 150, Stufen-Grenzen bleiben unverändert."
 )
 
-RUBRIC_AGREEMENT_NOTE = (
-    "Übereinstimmung mit der Raster-Bewertung (H): die Bewertung ist selbst ein Signal des "
-    "Index, die Zahl zeigt, wie stark sie die Reihenfolge bestimmt, nicht ob diese stimmt."
-)
 PLAUSIBILITY_ANCHOR_NOTE = (
     "Plausibilitäts-Anker („wird für diesen Commander wirklich gespielt“), kein Beweis "
     "für Stärke: die gezählten Listen sind selbst ein Signal des Index."
@@ -120,17 +114,6 @@ class CorrelationEntry(TypedDict):
     of_ranked: int
 
 
-class RubricAgreement(TypedDict):
-    """Spearman correlation of the index with the rubric rating (``H_mean``; the component value
-    ``(H - 1) / 9`` has the same order). The rubric is itself a component of the index, so this
-    says how much of the order the rubric sets, not that the order is right."""
-
-    note: str
-    all_ranked: CorrelationEntry
-    non_lands: CorrelationEntry
-    lands: CorrelationEntry
-
-
 class SpearmanBlock(TypedDict):
     note: str
     counted_lists_label: str
@@ -138,7 +121,6 @@ class SpearmanBlock(TypedDict):
     all_ranked: CorrelationEntry
     non_lands: CorrelationEntry
     lands: CorrelationEntry
-    vs_rubric: RubricAgreement | None
 
 
 class ShareCardEntry(TypedDict):
@@ -389,31 +371,12 @@ def check_ranking(
     non_land_shared = sum(1 for card in non_land_indices if card in shares)
     land_shared = sum(1 for card in land_indices if card in shares)
 
-    rubric_scores: dict[str, float] = {
-        card: float(obs.value)
-        for card, per_card in observations.items()
-        if strength.RUBRIC in collected
-        and (obs := per_card.get(strength.RUBRIC)) is not None
-        and obs.value is not None
-    }
-
     def _entry(indices: Mapping[str, float], other: Mapping[str, float]) -> CorrelationEntry:
         return {
             "spearman_rho": spearman_correlation(indices, other),
             "compared": sum(1 for card in indices if card in other),
             "of_ranked": len(indices),
         }
-
-    vs_rubric: RubricAgreement | None = (
-        {
-            "note": RUBRIC_AGREEMENT_NOTE,
-            "all_ranked": _entry(ranked_indices, rubric_scores),
-            "non_lands": _entry(non_land_indices, rubric_scores),
-            "lands": _entry(land_indices, rubric_scores),
-        }
-        if rubric_scores
-        else None
-    )
 
     spearman_block: SpearmanBlock = {
         "note": PLAUSIBILITY_ANCHOR_NOTE,
@@ -434,7 +397,6 @@ def check_ranking(
             "compared": land_shared,
             "of_ranked": len(land_indices),
         },
-        "vs_rubric": vs_rubric,
     }
 
     top_cards = [card for card, item in base_scored.items() if item["tier"] in TOP_TIERS]
@@ -834,22 +796,6 @@ def _table(headers: Sequence[str], rows: Sequence[Sequence[object]]) -> str:
     return "\n".join([line(headers), line(["-" * w for w in widths]), *(line(r) for r in cells)])
 
 
-def _rubric_lines(block: RubricAgreement | None) -> list[str]:
-    if block is None:
-        return []
-    return [
-        "",
-        "1b. Übereinstimmung mit der Raster-Bewertung (H)",
-        f"   Hinweis: {block['note']}",
-        f"   Alle gerankten Karten:  Spearman r = {_fmt_rho(block['all_ranked']['spearman_rho'])} "
-        f"({block['all_ranked']['compared']} / {block['all_ranked']['of_ranked']} Karten)",
-        f"   Nicht-Länder:           Spearman r = {_fmt_rho(block['non_lands']['spearman_rho'])} "
-        f"({block['non_lands']['compared']} / {block['non_lands']['of_ranked']} Karten)",
-        f"   Länder:                 Spearman r = {_fmt_rho(block['lands']['spearman_rho'])} "
-        f"({block['lands']['compared']} / {block['lands']['of_ranked']} Karten)",
-    ]
-
-
 def render_ranking_check(report: RankingCheckReport) -> str:
     """Format a ``RankingCheckReport`` as a concise German diagnostic text report."""
     sp = report["spearman"]
@@ -875,7 +821,6 @@ def render_ranking_check(report: RankingCheckReport) -> str:
         f"   Länder:                 Spearman r = {_fmt_rho(sp['lands']['spearman_rho'])} "
         f"({sp['lands']['compared']} / {sp['lands']['of_ranked']} Karten)",
         "",
-        *_rubric_lines(sp["vs_rubric"]),
         f"2. Randkarten oben (Stufe S oder A mit < {marginal['threshold_max_share'] * 100:.0f} % "
         f"Anteil in den gezählten Listen): {marginal['count']} / {marginal['of_s_and_a']}",
         "   Namen: " + (", ".join(marginal["names"]) if marginal["names"] else "keine"),
@@ -1085,12 +1030,10 @@ __all__ = [
     "MARGINAL_MAX_SHARE",
     "MIN_STRONG_SIGNALS",
     "PLAUSIBILITY_ANCHOR_NOTE",
-    "RUBRIC_AGREEMENT_NOTE",
     "SCHEMA",
     "STAPLE_MIN_SHARE",
     "TOP_TIERS",
     "RankingCheckReport",
-    "RubricAgreement",
     "check_ranking",
     "render_ranking_check",
     "run_command",

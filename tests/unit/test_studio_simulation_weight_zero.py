@@ -1,6 +1,9 @@
-"""Simulation results do not count in the tier list and are for now neither collected nor
-processed for it; the ``simulation`` weight stays as an option at 0 in the defaults and in every
-preset (Owner decision 2026-11-12, Refs #1205). Nothing else on the tier page is fed by them.
+"""The strength index knows no simulation component (Q1-b4, #1679, Owner decision E15 Q1).
+
+Before Q1-b4 the ``simulation`` weight stayed as an option at 0 (Owner decision 2026-11-12,
+Refs #1205); E15 Q1 removed the component from the index together with rubric v1 and the
+TopDeck conversion. Simulation results never feed the index or the tier page counts; a stored
+profile that still holds ``weights.simulation`` loads (``RETIRED_SETTING_KEYS``).
 """
 
 from __future__ import annotations
@@ -14,82 +17,83 @@ from commander_lab.studio.strength import Observation, StrengthSettings
 from tests.unit.test_studio_builder import _fill
 
 COMMANDER = "Test Commander"
+REMOVED = ("simulation", "rubric", "tournament_conversion")
 
 
-def test_default_and_every_preset_give_simulation_the_weight_zero() -> None:
-    """Also carries the simulation statement of the former ``test_studio_layer_weight_zero.py``
-    (Q1-b2 #1677): default and every preset keep ``simulation`` at 0."""
-    assert StrengthSettings().weights[strength.SIMULATION] == 0.0
-    assert strength.DEFAULT_WEIGHTS[strength.SIMULATION] == 0.0
-    assert set(strength.PRESETS) == {"Ausgewogen", "Commander-nah", "Turniernah"}
-    for name, preset in strength.PRESETS.items():
-        assert preset.weights[strength.SIMULATION] == 0.0, name
-    meta = strength_view.presets()
-    assert meta["recommended"]["weights"][strength.SIMULATION] == 0.0  # type: ignore[index]
-    label = meta["panel"]["labels"]["weights.simulation"]  # type: ignore[index]
-    assert label == "Simulation (empfohlen: 0, derzeit ohne Daten)"
-
-
-def test_no_component_but_the_adjustable_simulation_weight_is_simulation_derived() -> None:
+def test_the_index_knows_no_simulation_component() -> None:
+    """M1 probe of #1665: no component, weight, label, data class or signal of the index is
+    simulation derived, and the settings panel offers no simulation weight."""
     derived = {
         name
         for name in strength.COMPONENTS
-        if "sim" in name or "sim" in strength.signal_for(name, "upgraded")
+        if "sim" in name
+        or "sim" in strength.signal_for(name, "upgraded")
+        or strength.COMPONENT_DATA_CLASS.get(name) == "SIMULATED_RESULT"
     }
-    assert derived == {strength.SIMULATION}
-    assert strength.signal_for(strength.SIMULATION, "upgraded") == ""  # no stored signal feeds it
-    for component in strength_view.presets()["components"]:  # type: ignore[attr-defined]
-        if component["key"] not in (
-            strength.SIMULATION,
-            strength.SYNERGY,
-            strength.PLAYGROUP_OBSERVED,
-            strength.RUBRIC,  # subjective, weight 0 (E1.a of #1364)
-            strength.TOURNAMENT_LISTS,  # TopDeck columns stay with weight 0
-            strength.TOURNAMENT_CONVERSION,
+    assert derived == set()
+    assert not hasattr(strength, "SIMULATION")
+    assert "simulation" not in strength.DEFAULT_WEIGHTS
+    assert "simulation" not in strength.LABELS
+    assert "SIMULATED_RESULT" not in strength.COMPONENT_DATA_CLASS.values()
+    meta = strength_view.presets()
+    keys = [item["key"] for item in meta["components"]]  # type: ignore[attr-defined]
+    assert "simulation" not in keys
+    assert "simulation" not in meta["recommended"]["weights"]  # type: ignore[index]
+    panel = meta["panel"]  # type: ignore[index]
+    assert not [key for key in panel["labels"] if "simulation" in key]  # type: ignore[index]
+    assert not [key for key in panel["help"] if "simulation" in key]  # type: ignore[index]
+    grouped = [key for group in panel["groups"] for key in group["keys"]]  # type: ignore[index]
+    assert not [key for key in grouped if "simulation" in key]
+    # constructing settings with the component in code fails: it is not a component any more
+    with pytest.raises(ValueError, match="unknown component"):
+        StrengthSettings(weights={"simulation": 0.0})
+
+
+def test_no_preset_and_no_component_list_names_a_removed_component() -> None:
+    """Carries the core of the former ``test_every_preset_keeps_the_rubric_at_zero_and_
+    simulation_too`` (``test_studio_rubric.py``): rubric v1, simulation and the TopDeck
+    conversion are gone from the default, every preset and every component list."""
+    assert set(strength.PRESETS) == {"Ausgewogen", "Commander-nah", "Turniernah"}
+    assert strength.PRESETS["Ausgewogen"] == StrengthSettings()
+    for name in REMOVED:
+        assert name not in strength.COMPONENTS
+        assert name not in strength.DEFAULT_WEIGHTS
+        for preset_name, preset in strength.PRESETS.items():
+            assert name not in preset.weights, (preset_name, name)
+            assert name not in preset.to_dict()["weights"], (preset_name, name)  # type: ignore[operator]
+        for group in (
+            strength.SHARE_COMPONENTS,
+            strength.COMMANDER_ONLY_SOURCES,
+            strength.COMMANDER_SPECIFIC,
+            strength.DIRECT_COMPONENTS,
         ):
-            assert component["default_weight"] > 0
-        else:
-            assert component["default_weight"] == 0.0
+            assert name not in group
+    assert "conversion" not in strength.MIN_DENOMINATOR_KEYS
+    assert "conversion" not in StrengthSettings().min_denominators
+    # Playgroup stays a weight-0 column (not removed)
+    for name, preset in strength.PRESETS.items():
+        assert preset.weights[strength.PLAYGROUP_OBSERVED] == 0.0, name
 
 
-def _observations(with_simulation: bool) -> dict[str, dict[str, Observation]]:
+def test_a_simulation_observation_is_not_read_by_the_index() -> None:
+    """A stray ``simulation`` observation (or one of the other removed components) changes no
+    index, tier, coverage or row: ``score_pool`` only reads the live components."""
     observations: dict[str, dict[str, Observation]] = {}
     for index, name in enumerate("abcdef"):
-        per_card = {
+        observations[name] = {
             "commander_inclusion": Observation(index / 10, index * 10, 100),
             "synergy": Observation(0.1 * (6 - index)),
         }
-        if with_simulation:
-            per_card["simulation"] = Observation(float(index * index))
-        observations[name] = per_card
-    return observations
-
-
-def test_with_weight_zero_a_simulation_value_changes_no_index_tier_or_coverage() -> None:
+    with_values = {
+        card: {**per_card, **{name: Observation(float(i + 1)) for i, name in enumerate(REMOVED)}}
+        for card, per_card in observations.items()
+    }
     collected = {"commander_inclusion", "synergy"}
-    without = strength.score_pool(StrengthSettings(), _observations(False), collected)
-    with_values = strength.score_pool(
-        StrengthSettings(), _observations(True), {*collected, "simulation"}
-    )
-    assert len(without) == 6 and without.keys() == with_values.keys()
-    for card, result in without.items():
-        other = with_values[card]
-        assert (result["index"], result["tier"], result["coverage"], result["present"]) == (
-            other["index"],
-            other["tier"],
-            other["coverage"],
-            other["present"],
-        )
-
-
-def test_the_weight_is_adjustable_and_then_counts() -> None:
-    settings = StrengthSettings(weights={**strength.DEFAULT_WEIGHTS, "simulation": 4.0})
-    collected = {"commander_inclusion", "synergy", "simulation"}
-    default = strength.score_pool(StrengthSettings(), _observations(True), collected)
-    weighted = strength.score_pool(settings, _observations(True), collected)
-    assert [weighted[card]["index"] for card in "abcdef"] != [
-        default[card]["index"] for card in "abcdef"
-    ]
+    without = strength.score_pool(StrengthSettings(), observations, collected)
+    stray = strength.score_pool(StrengthSettings(), with_values, {*collected, *REMOVED})
+    assert without == stray
+    for result in stray.values():
+        assert not [row for row in result["components"] if row["component"] in REMOVED]
 
 
 @pytest.fixture
@@ -120,16 +124,20 @@ def _store_simulation(store: StudioStore) -> None:
 def test_stored_simulation_runs_feed_neither_the_index_nor_the_tier_page_counts(
     store: StudioStore,
 ) -> None:
-    weighted = StrengthSettings(weights={**strength.DEFAULT_WEIGHTS, "simulation": 5.0})
+    # a remembered setting that still carries a positive simulation weight is read without it
+    weighted = StrengthSettings.from_dict({"weights": {"simulation": 5.0}})
+    assert weighted == StrengthSettings()
     before = strength_view.compute(store, COMMANDER, weighted)
     evidence_before = evidence.pool_evidence(store, [COMMANDER])
     _store_simulation(store)
     after = strength_view.compute(store, COMMANDER, weighted)
-    assert after == before  # not even with a positive weight: no outcome model reads the rows
-    row = next(
-        item for item in after["cards"][0]["components"] if item["component"] == "simulation"
-    )
-    assert row["status"] == strength.NOT_COLLECTED
+    assert after == before  # no component reads the rows
+    assert not [
+        item
+        for card in after["cards"]
+        for item in card["components"]
+        if item["component"] == "simulation"
+    ]
     evidence_after = evidence.pool_evidence(store, [COMMANDER])
     cards_before = {str(c["name"]): c for c in evidence_before["cards"]}  # type: ignore[attr-defined]
     cards_after = {str(c["name"]): c for c in evidence_after["cards"]}  # type: ignore[attr-defined]

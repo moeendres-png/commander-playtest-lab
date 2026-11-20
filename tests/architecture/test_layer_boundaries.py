@@ -464,7 +464,9 @@ def test_studio_baseline_history_problems_report_an_unreviewed_raise() -> None:
     raised = {**baseline, **{k: bigger[k] for k in _STUDIO_RATCHET_FIELDS}}
     raised["history"] = [*history, bigger]
     problems = studio_baseline_history_problems(raised)
-    assert len(problems) == 1 and "max_largest_cyclic_component 13 -> 14" in problems[0]
+    # the step from the recorded value (12 since #1679, 13 before) to 14 is named
+    step = f"max_largest_cyclic_component {last['max_largest_cyclic_component']} -> 14"
+    assert len(problems) == 1 and step in problems[0]
     raised["history"] = [*history, {**bigger, "raise_review": "#1699"}]
     assert studio_baseline_history_problems(raised) == []
 
