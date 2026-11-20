@@ -593,6 +593,21 @@ def aggregate_batch_results(
     return result_payload
 
 
+def opponent_table(
+    opponent_ids: Sequence[str] | None,
+) -> tuple[str | None, str | None, int | None]:
+    """The table a series played (#1688): ``opponent_ids`` as JSON in seat order, its hash
+    and the table size (the candidate's seat included); ``(None, None, None)`` when the
+    opponents are not known. The hash keeps the seat order: the seats do not rotate between
+    games (the candidate sits in seat 0, the opponents follow in this order), so the same
+    decks in another order are another table."""
+    if opponent_ids is None:
+        return None, None, None
+    ids = [str(oid) for oid in opponent_ids]
+    encoded = json.dumps(ids, ensure_ascii=False, separators=(",", ":"))
+    return encoded, hashlib.sha256(encoded.encode("utf-8")).hexdigest(), 1 + len(ids)
+
+
 def save_batch_to_store(
     store: StudioStore,
     batch: BatchSimulation,
@@ -699,15 +714,17 @@ def save_batch_to_store(
         db.execute("DELETE FROM simulation_card WHERE run_id = ?", (run_id,))
         db.execute(
             "INSERT OR REPLACE INTO simulation_run(run_id, deck_id, revision_id, deck_hash, "
+            "opponent_ids, opponent_set_hash, table_size, "
             "pod, engine_pin, bridge_jar_sha256, bridge_qualification_state, "
             "pilot_policy, seeds, games_planned, games_completed, games_failed, "
             "wins_fractional, win_rate, mean_rounds, hand_dwell_status, source_id) "
-            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             (
                 run_id,
                 batch.deck_id,
                 batch.revision_id or None,
                 getattr(batch, "deck_hash", None),
+                *opponent_table(batch.opponent_ids),
                 batch.pod_name,
                 engine_pin,
                 bridge_jar_sha256,

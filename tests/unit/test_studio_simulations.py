@@ -16,6 +16,7 @@ import json
 import re
 import sqlite3
 import time
+from collections.abc import Iterator, Sequence
 from pathlib import Path
 
 import pytest
@@ -24,11 +25,13 @@ from starlette.testclient import TestClient
 from commander_lab.studio import builder, games, play
 from commander_lab.studio import store as store_module
 from commander_lab.studio.decks import RevisionCard, create_revision
+from commander_lab.studio.launch import POD_PRESETS
 from commander_lab.studio.simulations import (
     GameSummary,
     SimulationBatchManager,
     aggregate_batch_results,
     extract_game_log_telemetry,
+    opponent_table,
     wilson_score_interval,
 )
 from commander_lab.studio.store import DataClass, StudioStore
@@ -586,7 +589,8 @@ def test_schema_21_store_without_state_columns_gains_them_and_stays_21(tmp_path:
     raw = sqlite3.connect(path)
     raw.executescript(store_module._SCHEMA)
     columns = {row[1] for row in raw.execute("PRAGMA table_info(simulation_run)")}
-    assert not columns & {"revision_id", "deck_hash"}  # the fixture is the old layout
+    table_columns = {"opponent_ids", "opponent_set_hash", "table_size"}
+    assert not columns & {"revision_id", "deck_hash", *table_columns}  # the old layout
     raw.execute("INSERT INTO meta(key, value) VALUES ('schema_version', '21')")
     raw.execute(
         "INSERT INTO source(source_id, data_class, title, sha256, imported_at) "
@@ -610,6 +614,18 @@ def test_schema_21_store_without_state_columns_gains_them_and_stays_21(tmp_path:
                 for row in store.connection.execute("PRAGMA table_info(simulation_run)")
             ]
             assert columns.count("revision_id") == 1 and columns.count("deck_hash") == 1
+            # #1688: the table the series played, added the same way, old rows NULL
+            assert all(columns.count(name) == 1 for name in table_columns)
+            types = {
+                str(row["name"]): str(row["type"])
+                for row in store.connection.execute("PRAGMA table_info(simulation_run)")
+            }
+            assert types["table_size"] == "INTEGER" and types["opponent_ids"] == "TEXT"
+            unknown = store.connection.execute(
+                "SELECT opponent_ids, opponent_set_hash, table_size FROM simulation_run "
+                "WHERE run_id = 'old-run'"
+            ).fetchone()
+            assert tuple(unknown) == (None, None, None)  # "Gegnersatz unbekannt", no backfill
             version = store.connection.execute(
                 "SELECT value FROM meta WHERE key = 'schema_version'"
             ).fetchone()
@@ -642,5 +658,119 @@ def test_a_column_added_by_another_process_between_check_and_alter_is_no_error()
             for row in store.connection.execute("PRAGMA table_info(simulation_run)")
         ]
         assert columns.count("revision_id") == 1 and columns.count("deck_hash") == 1
+        assert columns.count("opponent_set_hash") == 1 and columns.count("table_size") == 1
+    finally:
+        store.close()
+
+
+# --- #1688: the opponent set is a feature of the series, the evidence never adds two up ------
+
+PRESET_IDS = list(POD_PRESETS["precon"])
+
+
+def _cards_runner(seeds: Sequence[int]) -> Iterator[GameSummary]:
+    for seed in seeds:
+        yield GameSummary(
+            game_id=f"g-{seed}",
+            seed=seed,
+            status="finished",
+            winner_seats=[0],
+            rounds=5,
+            observed_cards={
+                "Forest": {"offered": True, "cast": seed % 2 == 0, "cast_count": seed % 2},
+            },
+        )
+
+
+def _next_second() -> None:
+    # the batch id carries the start second; two series in one second would share a run id
+    start = int(time.time())
+    while int(time.time()) == start:
+        time.sleep(0.02)
+
+
+def test_opponent_table_keeps_the_seat_order_and_knows_unknown() -> None:
+    encoded, set_hash, size = opponent_table(PRESET_IDS)
+    assert json.loads(str(encoded)) == PRESET_IDS and size == 4
+    assert re.fullmatch(r"[0-9a-f]{64}", str(set_hash))
+    assert opponent_table(list(reversed(PRESET_IDS)))[1] != set_hash  # another seat order
+    assert opponent_table(PRESET_IDS[:2])[2] == 3
+    assert opponent_table(None) == (None, None, None)
+
+
+def test_two_series_under_one_pod_name_with_different_tables_stay_apart(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Saved series carry their opponent set; evidence and pod matrix never add two tables up,
+    and the remembered evidence answer is renewed by the declared series write."""
+    from commander_lab.studio import cache
+    from tests.unit.test_studio_builder import _deck, _fill
+
+    monkeypatch.setattr(cache, "CHECK", True)  # an undeclared write fails the series
+    store = StudioStore.open(tmp_path / "studio")
+    _fill(store, tmp_path)
+    client = TestClient(create_app(tmp_path / "studio"))
+    commander = {"commander": "Test Commander"}
+    try:
+        rev_id = create_revision(store, deck_id="test", name="Test Deck", cards=_deck())
+        before = client.get("/api/evidence", params=commander).json()  # remembered answer
+        sol = next(c for c in before["cards"] if c["name"] == "Forest")
+        assert sol["layers"]["simulated_result"]["groups"] == []
+        manager = SimulationBatchManager()
+        for opponents, base in ((None, 10), (list(reversed(PRESET_IDS)), 20)):
+            _next_second()
+            batch = manager.start_batch(
+                store,
+                tmp_path,
+                revision_id=rev_id,
+                pod="precon",
+                opponent_ids=opponents,
+                games_count=4,
+                base_seed=base,
+                chunk_runner=_cards_runner,
+            )
+            _wait(batch)
+            assert batch.status == "completed" and batch.run_id is not None
+        rows = store.connection.execute(
+            "SELECT pod, opponent_ids, opponent_set_hash, table_size FROM simulation_run "
+            "ORDER BY run_id"
+        ).fetchall()
+        assert [r["pod"] for r in rows] == ["precon", "precon"]
+        assert [json.loads(r["opponent_ids"]) for r in rows] == [
+            PRESET_IDS,
+            list(reversed(PRESET_IDS)),
+        ]
+        assert [r["opponent_set_hash"] for r in rows] == [
+            opponent_table(PRESET_IDS)[1],
+            opponent_table(list(reversed(PRESET_IDS)))[1],
+        ]
+        assert [r["table_size"] for r in rows] == [4, 4]
+
+        after = client.get("/api/evidence", params=commander).json()
+        sol = next(c for c in after["cards"] if c["name"] == "Forest")
+        groups = sol["layers"]["simulated_result"]["groups"]
+        assert len(groups) == 2  # one pod name, two tables
+        assert [(g["runs"], g["games_offered"], g["games_cast_after_offer"]) for g in groups] == [
+            (1, 4, 2),
+            (1, 4, 2),
+        ]
+        assert {tuple(g["opponent_ids"]) for g in groups} == {
+            tuple(PRESET_IDS),
+            tuple(reversed(PRESET_IDS)),
+        }
+
+        matrix = builder.pod_matchup_matrix(store, ["Test Commander"])
+        assert matrix["schema"] == "studio-pod-matrix-2"
+        pods = matrix["pods"]
+        assert isinstance(pods, list) and len(pods) == 2
+        assert [(p["pod"], p["runs_count"], p["games_completed"]) for p in pods] == [
+            ("precon", 1, 4),
+            ("precon", 1, 4),
+        ]
+        assert all(p["opponent_set_known"] and p["table_size"] == 4 for p in pods)
+        listed = builder.list_simulations(store, ["Test Commander"])
+        assert sorted(tuple(run["opponent_ids"]) for run in listed) == sorted(
+            [tuple(PRESET_IDS), tuple(reversed(PRESET_IDS))]
+        )
     finally:
         store.close()

@@ -1464,8 +1464,8 @@ def card_simulations(
         raise KeyError(card_id)
     bound, bound_args = bound_to("simulation_run", "r.run_id", commander_names)
     rows = db.execute(
-        "SELECT r.run_id, r.pod, r.engine_pin, r.bridge_jar_sha256, "
-        "r.bridge_qualification_state, r.pilot_policy, r.hand_dwell_status, "
+        "SELECT r.run_id, r.pod, r.opponent_set_hash, r.table_size, r.engine_pin, "
+        "r.bridge_jar_sha256, r.bridge_qualification_state, r.pilot_policy, r.hand_dwell_status, "
         "sc.games_completed, sc.games_offered, sc.games_cast_after_offer, sc.games_rotted, "
         "sc.offered_castable, sc.cast_count, sc.mean_first_cast_round "
         "FROM simulation_card sc JOIN simulation_run r USING (run_id) "
@@ -1493,8 +1493,8 @@ def list_simulations(store: StudioStore, commander_names: Sequence[str]) -> list
     runs: list[dict[str, object]] = []
     bound, bound_args = bound_to("simulation_run", "r.run_id", commander_names)
     for run in db.execute(
-        "SELECT r.run_id, r.deck_id, r.pod, r.engine_pin, r.bridge_jar_sha256, "
-        "r.bridge_qualification_state, r.pilot_policy, r.seeds, "
+        "SELECT r.run_id, r.deck_id, r.pod, r.opponent_ids, r.opponent_set_hash, r.table_size, "
+        "r.engine_pin, r.bridge_jar_sha256, r.bridge_qualification_state, r.pilot_policy, r.seeds, "
         "r.games_planned, r.games_completed, r.games_failed, r.wins_fractional, r.win_rate, "
         f"r.mean_rounds, r.hand_dwell_status FROM simulation_run r WHERE 1{bound} "
         "ORDER BY r.pod, r.run_id",
@@ -1512,12 +1512,16 @@ def list_simulations(store: StudioStore, commander_names: Sequence[str]) -> list
         ]
         qual_state = run["bridge_qualification_state"] or "UNKNOWN"
         covered = qual_state == "ALIGNED_WITH_SEALED_EPOCH" and bool(run["bridge_jar_sha256"])
+        opponents = _run_opponents(run["opponent_ids"], run["opponent_set_hash"])
         runs.append(
             {
                 **dict(run),
                 "bridge_qualification_state": qual_state,
                 "covered_by_sealed_epoch": covered,
                 "seeds": json.loads(str(run["seeds"])),
+                # the table the run played (#1688); None = "Gegnersatz unbekannt"
+                "opponent_ids": opponents,
+                "opponent_set_hash": run["opponent_set_hash"] if opponents is not None else None,
                 "data_class": "SIMULATED_RESULT",
                 "cards": cards,
             }
@@ -1525,17 +1529,39 @@ def list_simulations(store: StudioStore, commander_names: Sequence[str]) -> list
     return runs
 
 
+def _run_opponents(raw: object, set_hash: object) -> list[str] | None:
+    """The stored opponents of a run in seat order; None when not stored or unreadable."""
+    if not set_hash or raw is None:
+        return None
+    try:
+        decoded = json.loads(str(raw))
+    except ValueError:
+        return None
+    return [str(item) for item in decoded] if isinstance(decoded, list) else None
+
+
 def pod_matchup_matrix(store: StudioStore, commander_names: Sequence[str]) -> dict[str, object]:
-    """Aggregate stored simulation runs of the commander by pod (#1404)."""
+    """Aggregate stored simulation runs of the commander by pod, opponent set and table size
+    (#1404, #1688). Two runs under one pod name that played different tables are two rows; runs
+    without a stored opponent set form their own row "Gegnersatz unbekannt" and are never added
+    to a known one."""
     runs = list_simulations(store, commander_names)
-    by_pod: dict[str, list[dict[str, object]]] = {}
+    by_pod: dict[tuple[str, str | None, int | None], list[dict[str, object]]] = {}
     for run in runs:
         pod_name = str(run.get("pod") or "unknown")
-        by_pod.setdefault(pod_name, []).append(run)
+        set_hash = run["opponent_set_hash"]
+        size = run.get("table_size")
+        key = (
+            pod_name,
+            str(set_hash) if set_hash is not None else None,
+            int(str(size)) if size is not None else None,
+        )
+        by_pod.setdefault(key, []).append(run)
 
     pods_out: list[dict[str, object]] = []
-    for pod_name in sorted(by_pod):
-        pod_runs = by_pod[pod_name]
+    for key in sorted(by_pod, key=lambda k: (k[0], k[1] is None, k[2] or 0, k[1] or "")):
+        pod_name, set_hash, size = key
+        pod_runs = by_pod[key]
         planned = sum(int(str(r.get("games_planned") or 0)) for r in pod_runs)
         completed = sum(int(str(r.get("games_completed") or 0)) for r in pod_runs)
         failed = sum(int(str(r.get("games_failed") or 0)) for r in pod_runs)
@@ -1560,6 +1586,10 @@ def pod_matchup_matrix(store: StudioStore, commander_names: Sequence[str]) -> di
         pods_out.append(
             {
                 "pod": pod_name,
+                "opponent_set_known": set_hash is not None,
+                "opponent_set_hash": set_hash,
+                "opponent_ids": pod_runs[0]["opponent_ids"] if set_hash is not None else None,
+                "table_size": size,
                 "runs_count": len(pod_runs),
                 "games_planned": planned,
                 "games_completed": completed,
@@ -1573,7 +1603,8 @@ def pod_matchup_matrix(store: StudioStore, commander_names: Sequence[str]) -> di
             }
         )
     return {
-        "schema": "studio-pod-matrix-1",
+        "schema": "studio-pod-matrix-2",
+        "grouping": "pod_opponent_set_and_table_size",
         "data_class": "SIMULATED_RESULT",
         "commander": list(commander_names),
         "total_runs": len(runs),

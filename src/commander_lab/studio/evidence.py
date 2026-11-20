@@ -15,16 +15,18 @@ the evidence.
 
 from __future__ import annotations
 
+import json
 import re
 import sqlite3
 from collections.abc import Sequence
 from pathlib import Path
 
+from . import number_contract
 from .builder import ALL_DECKS, SMALL_DENOMINATOR, bound_to, pool_cards
 from .sources import calculate_card_coverage_record, load_spellbook_combo_cards
 from .store import StudioStore
 
-EVIDENCE_SCHEMA = "studio-evidence-1"
+EVIDENCE_SCHEMA = "studio-evidence-2"
 MECHANICAL_RULES_VERSION = "mechanical-1"
 
 VIEW_GLOBAL = "global"
@@ -184,32 +186,143 @@ def _observations(
     return rows
 
 
+# The simulated layer groups the runs by the table they played (#1688): one group per opponent
+# set (``simulation_run.opponent_set_hash``, the opponents in seat order) and table size. Runs of
+# two groups are never added up; runs without a stored opponent set form their own group
+# "Gegnersatz unbekannt", which is never added to a known group and never shown as 0.
+SIM_GROUPING = "opponent_set_and_table_size"
+SIM_UNKNOWN_SET = "Gegnersatz unbekannt"
+_SIM_BEZUG = "Partien (nach dem Angebot gespielt / angeboten)"
+_SIM_QUELLE = "Studio-Simulation (XMage), Läufe dieses Commanders"
+
+type _SimKey = tuple[str | None, int | None]
+
+
+def _sim_label(opponent_ids: list[str] | None, table_size: int | None) -> str:
+    table = "Tischgröße unbekannt" if table_size is None else f"Tisch mit {table_size} Sitzen"
+    if opponent_ids is None:
+        return f"{SIM_UNKNOWN_SET} · {table}"
+    return f"Gegnersatz {', '.join(opponent_ids)} · {table}"
+
+
+def _sim_opponents(raw: object) -> list[str] | None:
+    try:
+        decoded = json.loads(str(raw)) if raw is not None else None
+    except ValueError:
+        return None
+    return [str(item) for item in decoded] if isinstance(decoded, list) else None
+
+
+def _sim_zahl(group: dict[str, object], key: _SimKey) -> dict[str, object] | None:
+    """The group's figure in the number contract (B3): n/N games, origin, opponent set."""
+    offered = int(str(group["games_offered"]))
+    cast = int(str(group["games_cast_after_offer"]))
+    opponents = group["opponent_ids"]
+    known = isinstance(opponents, list)
+    stands = group.pop("_stands")
+    stand_hash = next(iter(stands)) if isinstance(stands, set) and len(stands) == 1 else None
+    hinweise = [
+        f"{group['runs']} Läufe gegen genau diesen Tisch; nie mit einem anderen Gegnersatz "
+        "oder einer anderen Tischgröße summiert."
+        if known
+        else f"{group['runs']} Läufe ohne gespeicherten Gegnersatz (vor #1688 gespeichert; Läufe "
+        "vor #1658 spielten möglicherweise gegen einen Ersatz-Tisch). Eigene Gruppe, nie zu "
+        "einem bekannten Gegnersatz addiert; ihre Läufe können untereinander verschiedene "
+        "Tische gespielt haben.",
+    ]
+    if stand_hash is None:
+        hinweise.append("Deck-Stand unbekannt oder mehrere Deck-Stände in dieser Gruppe.")
+    if offered == 0:
+        hinweise.append("Karte in keiner Partie angeboten: Anteil unbekannt.")
+    hash_key, size = key
+    suffix = (hash_key or "unbekannt")[:16] + ("" if size is None else f".t{size}")
+    try:
+        return number_contract.zahl(
+            f"evidence.sim.cast_after_offer.{suffix}",
+            "Nach dem Angebot gespielt",
+            cast / offered if offered > 0 else None,
+            klasse=number_contract.SIMULIERT,
+            einheit="Anteil",
+            quelle=_SIM_QUELLE,
+            n=cast,
+            N=offered,
+            bezug=_SIM_BEZUG,
+            kohorte=str(group["label"]),
+            stand_hash=stand_hash,
+            pilot=number_contract.PILOT_KONSTANTE,
+            hinweise=hinweise,
+        )
+    except ValueError:
+        # inconsistent source rows (more casts than offers): the figure is left out, the
+        # counts of the group stay visible
+        return None
+
+
 def _simulations(
     db: sqlite3.Connection, name_to_id: dict[str, str], commander_names: Sequence[str]
-) -> dict[str, dict[str, object]]:
-    """Cast totals per card over the simulation runs bound to the commander."""
-    totals: dict[str, dict[str, object]] = {}
+) -> dict[str, list[dict[str, object]]]:
+    """Cast counts per card over the simulation runs bound to the commander, one group per
+    opponent set and table size (#1688): never one total over different tables."""
+    by_card: dict[str, dict[_SimKey, dict[str, object]]] = {}
     bound, bound_args = bound_to("simulation_run", "sc.run_id", commander_names)
     for row in db.execute(
         "SELECT sc.card_id, sc.card_name, sc.run_id, sc.games_offered, "
-        f"sc.games_cast_after_offer, sc.cast_count FROM simulation_card sc WHERE 1{bound} "
-        "ORDER BY sc.run_id",
+        "sc.games_cast_after_offer, sc.cast_count, r.opponent_ids, r.opponent_set_hash, "
+        "r.table_size, r.deck_hash FROM simulation_card sc "
+        f"JOIN simulation_run r ON r.run_id = sc.run_id WHERE 1{bound} ORDER BY sc.run_id",
         bound_args,
     ):
         card_id = row["card_id"] or name_to_id.get(str(row["card_name"]))
         if card_id is None:
             continue
-        entry = totals.setdefault(
-            str(card_id),
-            {"runs": 0, "games_offered": 0, "games_cast_after_offer": 0, "cast_count": 0},
-        )
-        entry["runs"] = int(str(entry["runs"])) + 1
-        entry["games_offered"] = int(str(entry["games_offered"])) + int(row["games_offered"])
-        entry["games_cast_after_offer"] = int(str(entry["games_cast_after_offer"])) + int(
+        set_hash = row["opponent_set_hash"] or None
+        opponents = _sim_opponents(row["opponent_ids"]) if set_hash is not None else None
+        if opponents is None:
+            set_hash = None  # no readable opponent list: the set is unknown, not a guess
+        size = int(row["table_size"]) if row["table_size"] is not None else None
+        key: _SimKey = (set_hash, size)
+        groups = by_card.setdefault(str(card_id), {})
+        group = groups.get(key)
+        if group is None:
+            group = groups[key] = {
+                "opponent_set_known": set_hash is not None,
+                "opponent_set_hash": set_hash,
+                "opponent_ids": opponents,
+                "table_size": size,
+                "label": _sim_label(opponents, size),
+                "runs": 0,
+                "games_offered": 0,
+                "games_cast_after_offer": 0,
+                "cast_count": 0,
+                "_stands": set(),
+            }
+        group["runs"] = int(str(group["runs"])) + 1
+        group["games_offered"] = int(str(group["games_offered"])) + int(row["games_offered"])
+        group["games_cast_after_offer"] = int(str(group["games_cast_after_offer"])) + int(
             row["games_cast_after_offer"]
         )
-        entry["cast_count"] = int(str(entry["cast_count"])) + int(row["cast_count"])
-    return totals
+        group["cast_count"] = int(str(group["cast_count"])) + int(row["cast_count"])
+        stands = group["_stands"]
+        if isinstance(stands, set):
+            stands.add(row["deck_hash"])
+    result: dict[str, list[dict[str, object]]] = {}
+    for card_id, groups in by_card.items():
+        ordered = sorted(
+            groups.items(),
+            key=lambda item: (
+                item[0][0] is None,
+                item[0][1] is None,
+                item[0][1] or 0,
+                str(item[1]["label"]),
+            ),
+        )
+        out: list[dict[str, object]] = []
+        for key, group in ordered:
+            group["zahl"] = _sim_zahl(group, key)
+            group["cast_after_offer_of"] = group["games_offered"]
+            out.append(group)
+        result[card_id] = out
+    return result
 
 
 def _figure_row(figure: dict[str, object]) -> dict[str, object]:
@@ -279,7 +392,7 @@ def _card_evidence(
     cohorts: dict[str, int],
     roles: dict[str, list[dict[str, object]]],
     observations: dict[str, list[dict[str, object]]],
-    simulations: dict[str, dict[str, object]],
+    simulations: dict[str, list[dict[str, object]]],
     combo_cards: set[str],
     atlas_collected: bool,
     detail: bool,
@@ -411,16 +524,14 @@ def _card_evidence(
             "data_class": "COMBO_VERIFIED",
             "note": "a listed combo is not proof of strength or of an engine pass",
         }
-        sim = simulations.get(card_id)
+        sim = simulations.get(card_id) or []
         sim_layer: dict[str, object] = {
             "status": PRESENT if sim else NONE_RECORDED if simulations else NOT_COLLECTED,
             "data_class": "SIMULATED_RESULT",
-            "totals": None
-            if sim is None
-            else {
-                **sim,
-                "cast_after_offer_of": sim["games_offered"],
-            },
+            # one entry per opponent set and table size, never a total over them (#1688)
+            "grouping": SIM_GROUPING,
+            "group_count": len(sim),
+            "groups": sim,
         }
     else:
         combo_layer = {"status": NOT_APPLICABLE, "data_class": "COMBO_VERIFIED"}

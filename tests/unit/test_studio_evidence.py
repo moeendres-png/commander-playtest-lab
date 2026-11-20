@@ -8,9 +8,10 @@ from pathlib import Path
 import pytest
 from fastapi.testclient import TestClient
 
-from commander_lab.studio import StudioStore, roles
+from commander_lab.studio import StudioStore, number_contract, roles
 from commander_lab.studio.evidence import (
     ABSENT_IN_KNOWN_CORPUS,
+    EVIDENCE_SCHEMA,
     NOT_APPLICABLE,
     NOT_COLLECTED,
     PRESENT,
@@ -154,7 +155,8 @@ def test_game_combo_and_simulation_layers_say_what_is_missing(studio: StudioStor
     assert game["atlas"] is None
     sim = _layer(forest, "simulated_result")
     assert sim["status"] == NOT_COLLECTED  # no simulation stored at all
-    assert sim["totals"] is None
+    assert sim["groups"] == [] and sim["group_count"] == 0
+    assert "totals" not in sim  # no total over all runs exists (#1688)
     _add_atlas(studio, "Forest", insufficient=1)
     cards = _cards(studio)
     game = _layer(cards["Forest"], "observed_game")
@@ -342,3 +344,135 @@ def test_a_global_rank_or_a_row_without_value_is_no_observation_for_the_commande
     assert _layer(filler, "observed_deck")["status"] == PRESENT
     # without any stored simulation the layer says so instead of "nothing recorded"
     assert _layer(cards["Forest"], "simulated_result")["status"] == NOT_COLLECTED
+
+
+# --- #1688: the simulated layer per opponent set and table size, never one total ----------
+
+
+def _add_run(
+    store: StudioStore,
+    run_id: str,
+    *,
+    offered: int,
+    cast: int,
+    opponents: list[str] | None,
+    pod: str = "precon",
+    deck_hash: str | None = "a" * 64,
+) -> None:
+    """One stored series under ``pod`` with Forest's counts; ``opponents=None`` is a row of
+    before #1688 (no opponent set stored)."""
+    from commander_lab.studio.simulations import opponent_table
+
+    source = store.connection.execute("SELECT source_id FROM source LIMIT 1").fetchone()[0]
+    encoded, set_hash, size = opponent_table(opponents)
+    with store.connection as db:
+        db.execute(
+            "INSERT INTO simulation_run(run_id, deck_id, deck_hash, opponent_ids, "
+            "opponent_set_hash, table_size, pod, engine_pin, pilot_policy, seeds, games_planned, "
+            "games_completed, games_failed, wins_fractional, hand_dwell_status, source_id) "
+            "VALUES (?, 'x', ?, ?, ?, ?, ?, 'pin', 'tuned', '[]', 9, 9, 0, 3.0, 'OK', ?)",
+            (run_id, deck_hash, encoded, set_hash, size, pod, source),
+        )
+        db.execute(
+            "INSERT INTO simulation_card(run_id, card_id, card_name, games_completed, "
+            "games_offered, games_cast_after_offer, games_rotted, offered_castable, cast_count) "
+            "VALUES (?, 'card:project:0002', 'Forest', 9, ?, ?, 0, ?, ?)",
+            (run_id, offered, cast, offered, cast),
+        )
+    store.bind_unbound(COMMANDER[0])
+
+
+PRESET = ["precon/2026/lorehold_spirit", "precon/2024/animated_army", "precon/2022/token_triumph"]
+STAND_IN = ["precon/2026/lorehold_spirit"] * 3
+
+
+def _groups(store: StudioStore) -> list[dict[str, object]]:
+    sim = _layer(_cards(store)["Forest"], "simulated_result")
+    groups = sim["groups"]
+    assert isinstance(groups, list) and sim["group_count"] == len(groups)
+    assert "totals" not in sim
+    return groups
+
+
+def test_two_opponent_sets_under_one_pod_name_give_separate_figures(studio: StudioStore) -> None:
+    _add_run(studio, "r-preset-1", offered=10, cast=4, opponents=PRESET)
+    _add_run(studio, "r-stand-in", offered=6, cast=6, opponents=STAND_IN)
+    _add_run(studio, "r-preset-2", offered=2, cast=1, opponents=PRESET, deck_hash="b" * 64)
+    groups = _groups(studio)
+    assert pool_evidence(studio, COMMANDER)["schema"] == EVIDENCE_SCHEMA == "studio-evidence-2"
+    assert len(groups) == 2  # one pod name, two tables: two groups
+    by_ids = {tuple(g["opponent_ids"]): g for g in groups}  # type: ignore[arg-type]
+    preset, stand_in = by_ids[tuple(PRESET)], by_ids[tuple(STAND_IN)]
+    # runs of one table add up; the other table is never part of that figure
+    assert (preset["runs"], preset["games_cast_after_offer"], preset["games_offered"]) == (2, 5, 12)
+    assert (stand_in["runs"], stand_in["games_cast_after_offer"], stand_in["games_offered"]) == (
+        1,
+        6,
+        6,
+    )
+    assert all(g["games_offered"] != 18 for g in groups)  # never the sum over all runs
+    assert preset["table_size"] == stand_in["table_size"] == 4
+    assert preset["opponent_set_hash"] != stand_in["opponent_set_hash"]
+    # each group carries its figure in the number contract: n/N, origin, opponent set
+    for group in groups:
+        zahl = group["zahl"]
+        assert number_contract.check(zahl) == []
+        assert isinstance(zahl, dict)
+        assert (zahl["n"], zahl["N"]) == (group["games_cast_after_offer"], group["games_offered"])
+        assert zahl["klasse"] == "SIMULIERT" and zahl["data_class"] == "SIMULATED_RESULT"
+        assert zahl["bezug"] == "Partien (nach dem Angebot gespielt / angeboten)"
+        assert "Tisch mit 4 Sitzen" in str(zahl["kohorte"])
+    assert preset["zahl"]["wert"] == pytest.approx(5 / 12)  # type: ignore[index]
+    # two deck states in the preset group: the state is not claimed
+    assert preset["zahl"]["stand_hash"] is None  # type: ignore[index]
+    assert stand_in["zahl"]["stand_hash"] == "a" * 64  # type: ignore[index]
+    assert len({g["zahl"]["id"] for g in groups}) == 2  # type: ignore[index]
+
+
+def test_a_run_without_an_opponent_set_is_only_in_the_unknown_group(studio: StudioStore) -> None:
+    _add_run(studio, "r-old", offered=5, cast=1, opponents=None)
+    groups = _groups(studio)
+    assert len(groups) == 1
+    unknown = groups[0]
+    assert unknown["opponent_set_known"] is False
+    assert unknown["opponent_ids"] is None and unknown["opponent_set_hash"] is None
+    assert unknown["table_size"] is None
+    assert (unknown["games_cast_after_offer"], unknown["games_offered"]) == (1, 5)  # never 0
+    zahl = unknown["zahl"]
+    assert isinstance(zahl, dict) and number_contract.check(zahl) == []
+    assert str(zahl["kohorte"]).startswith("Gegnersatz unbekannt")
+    assert any("#1658" in hint for hint in zahl["hinweise"])  # type: ignore[union-attr]
+    # next to a known table the unknown group stays its own, is never added and comes last
+    _add_run(studio, "r-new", offered=3, cast=3, opponents=PRESET)
+    groups = _groups(studio)
+    assert [g["opponent_set_known"] for g in groups] == [True, False]
+    assert [(g["games_cast_after_offer"], g["games_offered"]) for g in groups] == [(3, 3), (1, 5)]
+
+
+def test_the_table_size_is_an_axis_of_its_own(studio: StudioStore) -> None:
+    _add_run(studio, "r-three", offered=4, cast=2, opponents=PRESET[:2])
+    _add_run(studio, "r-four", offered=4, cast=4, opponents=PRESET)
+    groups = _groups(studio)
+    assert [g["table_size"] for g in groups] == [3, 4]
+    assert [(g["games_cast_after_offer"], g["games_offered"]) for g in groups] == [(2, 4), (4, 4)]
+
+
+def test_the_evidence_route_shows_the_groups(studio: StudioStore, tmp_path: Path) -> None:
+    _add_run(studio, "r-preset", offered=10, cast=4, opponents=PRESET)
+    _add_run(studio, "r-old", offered=5, cast=1, opponents=None)
+    studio.close()
+    client = TestClient(create_app(tmp_path / "studio"))
+    body = client.get("/api/evidence", params={"commander": COMMANDER[0]}).json()
+    assert body["schema"] == "studio-evidence-2"
+    forest = next(c for c in body["cards"] if c["name"] == "Forest")
+    groups = forest["layers"]["simulated_result"]["groups"]
+    assert [(g["games_cast_after_offer"], g["games_offered"]) for g in groups] == [(4, 10), (1, 5)]
+
+
+def test_the_tier_page_shows_the_groups_and_never_adds_them_up() -> None:
+    script = (
+        Path(__file__).resolve().parents[2] / "src/commander_lab/studio/static/tierliste.js"
+    ).read_text(encoding="utf-8")
+    assert "sim.totals" not in script  # the total over all runs is gone (#1688)
+    assert "Gegnersätze (getrennt)" in script
+    assert "StudioZahl.knoten(h, g.zahl)" in script

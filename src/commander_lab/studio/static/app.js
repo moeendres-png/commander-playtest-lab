@@ -1626,8 +1626,11 @@ function renderSimulations(body) {
   }
   const byPod = new Map();
   for (const run of state.simulations) {
-    const pKey = String(run.pod || "unbekannt");
-    if (!byPod.has(pKey)) byPod.set(pKey, { pod: pKey, runs: 0, planned: 0, completed: 0, wins: 0, roundsNum: 0, roundsDen: 0, allSealed: true, states: new Set() });
+    // one row per pod, opponent set and table size (#1688): two tables under one pod name are two rows
+    const pod = String(run.pod || "unbekannt");
+    const pKey = JSON.stringify([pod, run.opponent_set_hash || null, run.table_size ?? null]);
+    const table = run.opponent_set_hash ? `${(run.opponent_ids || []).join(", ")} · ${run.table_size ?? "?"} Sitze` : "Gegnersatz unbekannt";
+    if (!byPod.has(pKey)) byPod.set(pKey, { pod, table, known: Boolean(run.opponent_set_hash), runs: 0, planned: 0, completed: 0, wins: 0, roundsNum: 0, roundsDen: 0, allSealed: true, states: new Set() });
     const agg = byPod.get(pKey);
     agg.runs += 1;
     agg.planned += Number(run.games_planned || 0);
@@ -1638,12 +1641,12 @@ function renderSimulations(body) {
     if (!run.covered_by_sealed_epoch) agg.allSealed = false;
     agg.states.add(String(run.bridge_qualification_state || "UNKNOWN"));
   }
-  const podRows = [...byPod.values()].sort((a, b) => a.pod.localeCompare(b.pod, "de")).map((agg) => {
+  const podRows = [...byPod.values()].sort((a, b) => a.pod.localeCompare(b.pod, "de") || Number(b.known) - Number(a.known) || a.table.localeCompare(b.table, "de")).map((agg) => {
     const wr = agg.completed > 0 ? `${StudioUI.num((100 * agg.wins) / agg.completed, 1)} %` : "unbekannt";
     const mr = agg.roundsDen > 0 ? StudioUI.numFlex(agg.roundsNum / agg.roundsDen, 1) : "unbekannt";
     const ep = agg.allSealed ? "versiegelt" : (agg.states.has("BRIDGE_AHEAD_OF_QUALIFICATION") ? "Engine-Stand noch nicht qualifiziert" : [...agg.states].join(", "));
     return h("tr", {},
-      h("td", {}, h("b", {}, agg.pod)),
+      h("td", {}, h("b", {}, agg.pod), " · ", agg.table),
       h("td", { class: "num" }, StudioUI.num(agg.runs, 0)),
       h("td", { class: "num" }, `${StudioUI.num(agg.completed, 0)} / ${StudioUI.num(agg.planned, 0)}`),
       h("td", { class: "num" }, StudioUI.numFlex(agg.wins, 1)),
@@ -1654,7 +1657,8 @@ function renderSimulations(body) {
   const podMatrixTable = h("div", { class: "table-wrap" }, h("table", { id: "pod-matchup-matrix" },
     h("thead", {}, h("tr", {}, h("th", {}, "Pod / Tisch"), h("th", { class: "num" }, "Läufe"), h("th", { class: "num" }, "Spiele (n / N)"), h("th", { class: "num" }, "Siege"), h("th", { class: "num" }, "Siegrate"), h("th", { class: "num" }, "Ø Runden"), h("th", {}, "Epochen-Stand"))),
     h("tbody", {}, podRows)));
-  body.append(h("h3", {}, "Pod-Matchup-Übersicht (aggregiert je Tisch)"), podMatrixTable);
+  body.append(h("h3", {}, "Pod-Matchup-Übersicht (aggregiert je Tisch)"), podMatrixTable,
+    h("p", { class: "note" }, "Eine Zeile je Pod, Gegnersatz und Tischgröße: Läufe gegen verschiedene Tische werden nie zusammengezählt. Läufe ohne gespeicherten Gegnersatz (vor #1688) stehen in einer eigenen Zeile „Gegnersatz unbekannt“; Läufe vor #1658 spielten möglicherweise gegen einen Ersatz-Tisch."));
   const runTable = h("div", { class: "table-wrap" }, h("table", {},
     h("thead", {}, h("tr", {}, h("th", {}, "Pod"), h("th", {}, "Engine-Pin"), h("th", {}, "Bridge-JAR"), h("th", {}, "Epoche"), h("th", {}, "Pilot"), h("th", { class: "num" }, "Spiele"), h("th", { class: "num" }, "Siege"), h("th", { class: "num" }, "Siegrate"), h("th", { class: "num" }, "Ø Runden"))),
     h("tbody", {}, state.simulations.map((run) => h("tr", {},
