@@ -2935,7 +2935,17 @@ async function ensureUnownedLoadedFor(cards) {
 }
 function useCards(cards) {
   state.list = new Map();
-  for (const entry of cards) if (entry.zone === "main" && state.byId.has(entry.card_id)) state.list.set(entry.card_id, entry.quantity);
+  let mainEntries = 0;
+  let dropped = 0;
+  for (const entry of cards) {
+    if (entry.zone !== "main") continue;
+    mainEntries += 1;
+    if (state.byId.has(entry.card_id)) state.list.set(entry.card_id, entry.quantity);
+    else dropped += 1;
+  }
+  // A card outside the pool (not owned and below the Zukauf selection) is not taken over; say so
+  // instead of dropping it silently (#1648).
+  if (dropped) toast(`${StudioUI.num(dropped, 0)} von ${StudioUI.num(mainEntries, 0)} Karten sind nicht im Pool (Sammlung oder Zukauf-Auswahl) und wurden nicht übernommen.`);
 }
 async function loadBranch() {
   const deck = state.decks.find((item) => item.deck_id === state.deckId);
@@ -3202,6 +3212,9 @@ function setupControls() {
       h("button", { type: "button", class: "chip", onclick: () => { applyBuilderFilterPreset({ free: true, role: "-" }); renderQuickFilterPresets(); } }, "Ohne Rollenmarke"),
       sfChip("planeswalker", "Planeswalker", "Filtert wörtlich nach Typzeile „Planeswalker“."),
       sfChip("proliferate", "Proliferate", "Filtert wörtlich nach „Proliferate“ im Oracle-Text."),
+      sfChip("counters", "Counter/Loyalty", "Filtert wörtlich nach „counter(s)“ als Marke (nicht das Kartenwort „counter target spell“) oder „loyalty“ im Oracle-Text."),
+      sfChip("boardwipe", "Boardwipes", "Filtert nach der Tagger-Rolle „board_wipe“ (öffentliche Scryfall-Tagger-Marke, nicht vollständig). Karten ohne Rollendaten sind unbekannt und erscheinen hier nicht."),
+      sfChip("fixing5c", "5C-Fixierung", "Filtert nach Karten, deren erzeugtes Mana (Scryfall „produced_mana“) alle fünf Farben W, U, B, R und G enthält."),
       sfChip("missing", "Nur Zukauf (fehlt)", "Zeigt nur fehlende Karten außerhalb deiner Sammlung (aktiviert den Zukauf-Pool)."),
       h("button", { type: "button", class: "chip", onclick: () => {
         const snapshot = { q: $("q").value, type: $("type-filter").value, role: $("role-filter").value, mvMin: $("mv-min").value, mvMax: $("mv-max").value, free: $("f-free").checked, notin: $("f-notin").checked, fav: $("f-fav").checked, excl: $("f-excl").checked, superfriends: state.superfriendsFilter, colors: [...state.colors] };

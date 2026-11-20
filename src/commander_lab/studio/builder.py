@@ -1087,16 +1087,20 @@ def pool_cards(
         # the cards): it would resolve and count a universe nobody reads.
         from . import strength_view
 
+        # Only Studio catalog cards are counted here: a Zukauf card without a catalog row
+        # (``scryfall:<oracle_id>``) is no card of the counted spread (it would raise KeyError)
+        # and stays without a count: unknown, never 0 (#1648).
+        counted_cards = [card for card in cards if not str(card["card_id"]).startswith("scryfall:")]
         found = strength_view.builder_counted_universe(
             store,
             commander_names[0],
-            [str(card["card_id"]) for card in cards],
-            {str(card["card_id"]): str(card["name"]) for card in cards},
+            [str(card["card_id"]) for card in counted_cards],
+            {str(card["card_id"]): str(card["name"]) for card in counted_cards},
             strength,
         )
         if found is not None:
             choice, observed = found
-            for card in cards:
+            for card in counted_cards:
                 count = observed.get(str(card["card_id"]))
                 if count is not None and count.numerator is not None and count.denominator:
                     card["counted"] = {

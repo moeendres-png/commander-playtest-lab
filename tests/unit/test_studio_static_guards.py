@@ -1670,6 +1670,23 @@ const deck = [
   { card_id: 'c3', quantity: 1 },
   { card_id: 'c4', quantity: 4 },
 ];
+const extra = new Map(Object.entries({
+  k1: { text: 'Put a +1/+1 counter on target creature.' },
+  k2: { oracle_text: 'Teferi enters with five loyalty counters.' },
+  k3: { text: 'Remove a counter from target permanent.' },
+  k4: { text: 'Counter target spell.' },
+  k5: { text: 'Counter that spell unless its controller pays {1}. Counter a spell.' },
+  k6: { text: 'Whenever you cast a spell, counter it. Then put two charge counters on this.' },
+  k7: { text: '' },
+  k15: { text: 'Loyalty abilities of planeswalkers you control cost {1} less.' },
+  k8: { roles: ['ramp', 'board_wipe'] },
+  k9: { roles: ['removal'] },
+  k10: { roles: [] },
+  k11: { produced_mana: 'WUBRG' },
+  k12: { produced_mana: 'WUBR' },
+  k13: { produced_mana: 'C' },
+  k14: {},
+}));
 const summary = W.summarizeDeckOwnership(deck, pool);
 const text = W.formatWishlistText(summary.missingCards);
 console.log(JSON.stringify({
@@ -1685,6 +1702,13 @@ console.log(JSON.stringify({
   prolifNonMatch: W.matchesSuperfriendsFilter(pool.get('c2'), 'proliferate'),
   missingMatch: W.matchesSuperfriendsFilter(pool.get('c2'), 'missing'),
   missingNonMatch: W.matchesSuperfriendsFilter(pool.get('c1'), 'missing'),
+  counters: Object.fromEntries(['k1', 'k2', 'k3', 'k4', 'k5', 'k6', 'k7', 'k15'].map(
+    (id) => [id, W.matchesSuperfriendsFilter(extra.get(id), 'counters')])),
+  wipes: Object.fromEntries(['k8', 'k9', 'k10'].map(
+    (id) => [id, W.matchesSuperfriendsFilter(extra.get(id), 'boardwipe')])),
+  fiveColor: Object.fromEntries(['k11', 'k12', 'k13', 'k14'].map(
+    (id) => [id, W.matchesSuperfriendsFilter(extra.get(id), 'fixing5c')])),
+  unknownKind: W.matchesSuperfriendsFilter(pool.get('c1'), 'nonsense'),
 }));
 """
     result = _node_json(script)
@@ -1701,7 +1725,28 @@ console.log(JSON.stringify({
         "prolifNonMatch": False,
         "missingMatch": True,
         "missingNonMatch": False,
+        # the noun "counter" and "loyalty" match; the verb "counter target spell" does not
+        "counters": {
+            "k1": True,
+            "k2": True,
+            "k3": True,
+            "k4": False,
+            "k5": False,
+            "k6": True,
+            "k7": False,
+            "k15": True,
+        },
+        # the tagger role only; a card without role data is unknown and does not match
+        "wipes": {"k8": True, "k9": False, "k10": False},
+        # all five letters; four colors, colorless and a missing field do not match
+        "fiveColor": {"k11": True, "k12": False, "k13": False, "k14": False},
+        "unknownKind": True,
     }
+    for chip in ("counters", "boardwipe", "fixing5c"):
+        assert f'sfChip("{chip}"' in app_js, chip
+    assert (
+        "if (dropped) toast(`${StudioUI.num(dropped, 0)} von" in app_js
+    )  # useCards says what it left out (#1648)
     app_js = (STATIC / "app.js").read_text(encoding="utf-8")
     assert "async function ensureUnownedLoadedFor(" in app_js
     assert app_js.count("await ensureUnownedLoadedFor(") >= 4

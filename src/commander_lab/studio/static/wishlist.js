@@ -72,15 +72,42 @@ const StudioWishlist = (() => {
       .join("\n");
   }
 
+  function oracleOf(card) {
+    return String(card.oracle_text !== undefined ? card.oracle_text : card.text || "");
+  }
+
+  // The verb "counter" (counter target spell ...) is no counter on a permanent: it is taken
+  // out of the text before the word is looked for (#1648).
+  const COUNTER_VERB = /\bcounter (?:target|that|it\b|them\b|this|those|up to|another|all\b|each\b|a |an |the )/gi;
+
+  function mentionsCounterOrLoyalty(card) {
+    const rest = oracleOf(card).replace(COUNTER_VERB, " ");
+    return /\bcounters?\b|\bloyalty\b/i.test(rest);
+  }
+
+  // A card that makes mana of all five colors, read from the public "produced mana" letters.
+  function producesAllFiveColors(card) {
+    const letters = String(card.produced_mana || "").toUpperCase();
+    return ["W", "U", "B", "R", "G"].every((letter) => letters.includes(letter));
+  }
+
+  // The Scryfall tagger role "board_wipe": a public community label, not complete. A card
+  // without role data is unknown, not "no board wipe"; it simply does not match here.
+  function hasBoardWipeRole(card) {
+    return Array.isArray(card.roles) && card.roles.includes("board_wipe");
+  }
+
   function matchesSuperfriendsFilter(card, kind) {
     if (!card || !kind) return true;
     if (kind === "planeswalker") {
       return /planeswalker/i.test(String(card.type_line || ""));
     }
     if (kind === "proliferate") {
-      const oracle = String(card.oracle_text !== undefined ? card.oracle_text : card.text || "");
-      return /proliferate/i.test(oracle);
+      return /proliferate/i.test(oracleOf(card));
     }
+    if (kind === "counters") return mentionsCounterOrLoyalty(card);
+    if (kind === "boardwipe") return hasBoardWipeRole(card);
+    if (kind === "fixing5c") return producesAllFiveColors(card);
     if (kind === "missing") {
       return isUnowned(card);
     }

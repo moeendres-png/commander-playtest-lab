@@ -1425,3 +1425,34 @@ def test_saved_deck_criterion_is_bound_to_the_commander_and_ignores_history(
     assert "Old Pick" not in _unowned(after)
     assert after["unowned_selection"] == before["unowned_selection"]
     assert len(_unowned(after)) == len(_unowned(before))
+
+
+def test_unowned_cards_do_not_break_the_counted_universe_of_the_collection(
+    studio: StudioStore,
+) -> None:
+    """A counted deck-list universe is stored for the commander: its counts are read for the
+    Studio cards only. A Zukauf card (``scryfall:<oracle_id>``, no catalog row) used to raise a
+    KeyError there (#1648, finding 4 of the #1669 review)."""
+    _insert_scryfall(
+        studio, oracle_id="o-cu", name="Counted Walker", colors="G",
+        type_line="Legendary Planeswalker — Counted",
+    )  # fmt: skip
+    owned = str(
+        studio.connection.execute(
+            "SELECT oracle_name FROM card WHERE oracle_name <> ? ORDER BY card_id LIMIT 1",
+            (COMMANDER,),
+        ).fetchone()[0]
+    )
+    studio.connection.execute(
+        "INSERT INTO card_signal(commander_name, signal, card_name, value, numerator, "
+        "denominator, source_id) VALUES (?, 'decklist_universe:edhrec:3', ?, 0.4, 40, 100, ?)",
+        (COMMANDER, owned, _source_id(studio)),
+    )
+    studio.connection.commit()
+    pool = builder.pool_cards(studio, [COMMANDER], include_unowned=True)
+    assert pool["counted_universe"]["counted"] == "counted:edhrec:3"  # type: ignore[index]
+    by_name = {str(c["name"]): c for c in pool["cards"]}  # type: ignore[union-attr]
+    assert by_name[owned]["counted"] == {"hits": 40, "denominator": 100, "share": 0.4}
+    # the Zukauf card has no count in that universe: unknown (no entry), never 0
+    assert "counted" not in by_name["Counted Walker"]
+    assert by_name["Counted Walker"]["in_collection"] is False
