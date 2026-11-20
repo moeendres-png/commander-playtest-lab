@@ -102,7 +102,23 @@ _WORKER = textwrap.dedent(
                 self.life["end"] = "series_closed"
                 self.life["disposition"] = "graceful_shutdown"
 
-    sys.exit(worker_main(stdin=sys.stdin, stdout=sys.stdout, label=sys.argv[1],
+    class Out:
+        """The protocol stream; dies right after the ``done`` of an ``idle`` game (idle death)."""
+
+        def __init__(self, stream):
+            self.stream = stream
+            self.last = ""
+
+        def write(self, text):
+            self.last = text
+            return self.stream.write(text)
+
+        def flush(self):
+            self.stream.flush()
+            if '"ev":"done"' in self.last and "idle" in self.last:
+                os._exit(3)  # between two games: no task in flight, no ``bye``
+
+    sys.exit(worker_main(stdin=sys.stdin, stdout=Out(sys.stdout), label=sys.argv[1],
                          engine_factory=Engine))
     '''
 )
@@ -480,11 +496,187 @@ def test_a_worker_that_dies_on_its_own_does_not_leave_its_jvm_running(tmp_path: 
     assert pool.summary()["jvm_lives_lost"] == 1
 
 
+# --- P2-A (#1652): a worker that dies while idle does not leave its JVM running -----------------
+
+
+def _wait_zombie(pid: int) -> None:
+    """Until the worker that died on its own is a zombie (ended, not yet reaped)."""
+    import time
+
+    deadline = time.monotonic() + 10.0
+    while time.monotonic() < deadline and not _process_gone(pid):
+        time.sleep(0.02)
+    if not _process_gone(pid):
+        pytest.fail(f"worker {pid} did not die after its idle game")
+
+
+def _idle_lost(pool: GamePool) -> list[dict[str, object]]:
+    lives = pool.summary()["jvm_lives"]
+    return [life for life in lives if life["end"] == "worker_lost"]  # type: ignore[union-attr]
+
+
+@posix_only
+def test_a_worker_that_dies_between_two_windows_takes_its_jvm_with_it(tmp_path: Path) -> None:
+    pool, _ = _pool(tmp_path, workers=1, budget=8)
+
+    def run() -> object:
+        with pool:
+            first = pool.run([_tasks(range(1, 2), "idlekid")[0]])
+            _wait_zombie(int(str(first["idlekid:1"]["pid"])))
+            # the next window finds the worker ended before any event of it was read
+            return first, pool.run(_tasks(range(2, 3)))
+
+    outcome, gone = _grandchild_after(run, tmp_path)
+    first, second = outcome  # type: ignore[misc]
+    assert first["idlekid:1"]["status"] == "finished"
+    assert second["t:2"]["status"] == "finished"
+    assert second["t:2"]["pid"] != first["idlekid:1"]["pid"], "a fresh worker plays the next game"
+    assert gone, "the process the idle worker started survived it"
+    lost = _idle_lost(pool)
+    assert pool.summary()["jvm_lives_lost"] == 1
+    assert lost[0]["reason"] == "WorkerExited" and lost[0]["games"] is None
+
+
+@posix_only
+def test_a_worker_that_dies_just_after_its_game_in_a_window_takes_its_jvm_with_it(
+    tmp_path: Path,
+) -> None:
+    pool, _ = _pool(tmp_path, workers=1, budget=8)
+
+    def hold_until_dead(task: GameTask, summary: game_pool.GameSummary) -> None:
+        # the hand-out of the next game meets the worker dead before its end of stdout is read
+        if task.task_id == "idlekid:1":
+            _wait_zombie(int(str(summary["pid"])))
+
+    def run() -> object:
+        with pool:
+            tasks = [_tasks(range(1, 2), "idlekid")[0], *_tasks(range(2, 3))]
+            return pool.run(tasks, on_done=hold_until_dead)
+
+    results, gone = _grandchild_after(run, tmp_path)
+    assert results["idlekid:1"]["status"] == "finished"  # type: ignore[index]
+    assert results["t:2"]["status"] == "finished"  # type: ignore[index]
+    assert gone, "the process the worker started survived its death within the window"
+    assert pool.summary()["jvm_lives_lost"] == 1
+    assert pool.summary()["worker_processes_started"] == 2
+
+
+@posix_only
+def test_a_worker_that_dies_after_the_last_window_takes_its_jvm_with_it_on_close(
+    tmp_path: Path,
+) -> None:
+    pool, _ = _pool(tmp_path, workers=1, budget=8)
+
+    def run() -> object:
+        first = pool.run([_tasks(range(1, 2), "idlekid")[0]])
+        _wait_zombie(int(str(first["idlekid:1"]["pid"])))
+        pool.close()
+        return first
+
+    results, gone = _grandchild_after(run, tmp_path)
+    assert results["idlekid:1"]["status"] == "finished"  # type: ignore[index]
+    assert gone, "closing the pool reaped the dead worker and left its JVM running"
+    lost = _idle_lost(pool)
+    assert pool.summary()["jvm_lives_lost"] == 1 and lost[0]["reason"] == "WorkerExited"
+
+
+@posix_only
+def test_a_clean_retire_counts_no_lost_life(tmp_path: Path) -> None:
+    pool, _ = _pool(tmp_path, workers=2, budget=8)
+    with pool:
+        pool.run(_tasks(range(1, 5)))
+    info = pool.summary()
+    assert info["jvm_lives_lost"] == 0
+    assert {life["end"] for life in info["jvm_lives"]} == {"series_closed"}  # type: ignore[union-attr]
+
+
+def test_an_ended_worker_is_seen_without_reaping_then_its_group_killed_then_reaped(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import os
+    import signal
+
+    order: list[object] = []
+
+    def waitid(idtype: int, pid: int, options: int) -> object:
+        order.append(("waitid", pid, options))
+        return SimpleNamespace(si_pid=pid)  # ended, still a zombie
+
+    monkeypatch.setattr(os, "waitid", waitid, raising=False)
+    monkeypatch.setattr(os, "P_PID", 1, raising=False)
+    monkeypatch.setattr(os, "WEXITED", 4, raising=False)
+    monkeypatch.setattr(os, "WNOHANG", 1, raising=False)
+    monkeypatch.setattr(os, "WNOWAIT", 0x1000000, raising=False)
+    monkeypatch.setattr(
+        os, "killpg", lambda pid, sig: order.append(("killpg", pid, sig)), raising=False
+    )
+    proc = _FakeProc(log=order)
+    assert game_pool.reap_ended_process(proc, windows=False) is True  # type: ignore[arg-type]
+    assert order == [
+        ("waitid", 4242, 4 | 1 | 0x1000000),
+        ("killpg", 4242, signal.SIGKILL),
+        "kill",
+        "wait",
+    ]
+    # still running: neither signalled nor reaped
+    order.clear()
+    monkeypatch.setattr(os, "waitid", lambda *a: order.append("waitid") or None, raising=False)
+    assert game_pool.reap_ended_process(_FakeProc(log=order), windows=False) is False  # type: ignore[arg-type]
+    assert order == ["waitid"]
+
+
+def test_a_worker_reaped_elsewhere_gets_no_group_signal(monkeypatch: pytest.MonkeyPatch) -> None:
+    import os
+
+    killed: list[object] = []
+
+    def waitid(*_a: object) -> object:
+        raise ChildProcessError("no such child")
+
+    monkeypatch.setattr(os, "waitid", waitid, raising=False)
+    monkeypatch.setattr(os, "P_PID", 1, raising=False)
+    monkeypatch.setattr(os, "WNOWAIT", 0x1000000, raising=False)
+    monkeypatch.setattr(os, "killpg", lambda *a: killed.append(a), raising=False)
+    proc = _FakeProc(polled=0)  # ``Popen.poll`` sets 0 when the child was reaped elsewhere
+    assert game_pool.reap_ended_process(proc, windows=False) is True  # type: ignore[arg-type]
+    assert killed == [], "its id may name another group by now"
+    assert proc.calls[0] == "poll"
+
+
+def test_the_windows_branch_ends_the_tree_of_an_ended_worker_with_taskkill(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import os
+
+    order: list[object] = []
+    monkeypatch.setattr(os, "waitid", lambda *a: order.append("waitid"), raising=False)
+    monkeypatch.setattr(game_pool.subprocess, "run", lambda argv, **_k: order.append(list(argv)))
+    proc = _FakeProc(log=order, polled=0)
+    assert game_pool.reap_ended_process(proc, windows=True) is True  # type: ignore[arg-type]
+    assert order == ["poll", ["taskkill", "/T", "/F", "/PID", "4242"], "kill", "wait"]
+    order.clear()
+    assert game_pool.reap_ended_process(_FakeProc(log=order), windows=True) is False  # type: ignore[arg-type]
+    assert order == ["poll"]
+
+
 class _FakeProc:
-    def __init__(self, returncode: int | None = None) -> None:
+    def __init__(
+        self,
+        returncode: int | None = None,
+        *,
+        log: list[object] | None = None,
+        polled: int | None = None,
+    ) -> None:
         self.pid = 4242
         self.returncode = returncode
-        self.calls: list[str] = []
+        self.calls: list[object] = log if log is not None else []
+        self._polled = polled
+
+    def poll(self) -> int | None:
+        self.calls.append("poll")
+        if self.returncode is None:
+            self.returncode = self._polled
+        return self.returncode
 
     def kill(self) -> None:
         self.calls.append("kill")
