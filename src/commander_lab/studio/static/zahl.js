@@ -6,7 +6,8 @@
 //   EXAKT      computed from the list (hypergeometry, castability, list counts)
 //   GEZÄHLT    counted in a cohort: always N and a cohort
 //   SIMULIERT  SIMULATED_RESULT: always N, the deck state (stand_hash, null = unknown) and the
-//              pilot origin (until B2 the constant "Konstante")
+//              pilot origin (card outcomes: the pilot fingerprint of the stratum, #1687;
+//              elsewhere still the constant "Konstante")
 //   URTEIL     a model judgement; never in the same column as GEZÄHLT
 // VORSCHLAG is no number class and is refused. A missing wert is "unbekannt", never 0; n without
 // N is refused; every N names what n and N count (bezug: "Paare (abgeschlossen / geplant)"); a share

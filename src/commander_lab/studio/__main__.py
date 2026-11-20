@@ -393,7 +393,10 @@ def _parser() -> argparse.ArgumentParser:
     outcomes.add_argument("--min-exposed", type=int, default=100)
     outcomes.add_argument("--out", help="write the full table as JSON to this file")
     outcomes.add_argument(
-        "--allow-mixed", action="store_true", help="pool mixed engine commits or pilots"
+        "--allow-mixed",
+        action="store_true",
+        help="pool mixed engine commits or pilot versions of logs without a pilot fingerprint "
+        "(fingerprints are separate strata and never pooled)",
     )
     compare = commands.add_parser(
         "compare-decks",
