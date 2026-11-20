@@ -342,14 +342,16 @@ class PairedSeriesBody(BaseModel):
     games_per_jvm: int | None = Field(default=None, ge=MIN_GAMES_PER_JVM, le=MAX_GAMES_PER_JVM)
 
 
-#: What the card evaluation says when one deck state holds games of two pilots (#1658).
+#: What the card evaluation says when games without a pilot fingerprint name two pilot versions
+#: at one deck state (#1658); a change of the fingerprint gives separate strata since #1687.
 MIXED_PILOT_TEXT = (
-    "Die Partien dieses Deck-Stands stammen von verschiedenen Piloten: der Pilot-Fingerabdruck "
-    "hat gewechselt (nach einer Änderung am Piloten, oder Partien von vor dem Fingerabdruck "
-    "liegen neben neuen). Partien verschiedener Piloten werden nie zusammengezählt, deshalb "
-    "zeigt die Auswertung keine Zahlen (unbekannt, nicht 0). Ausweg: mit dem aktuellen "
-    "Piloten neu spielen und die älteren Protokolle dieses Stands aus dem Spiele-Ordner "
-    "verschieben; eine getrennte Anzeige je Fingerabdruck folgt."
+    "Partien ohne Pilot-Fingerabdruck (aus der Zeit vor dem Fingerabdruck) nennen an einem "
+    "Deck-Stand verschiedene Pilot-Versionen. Ohne Fingerabdruck lassen sie sich nicht in "
+    "Schichten je Pilot trennen, und Partien verschiedener Piloten werden nie zusammengezählt. "
+    "Deshalb zeigt die Auswertung für dieses Deck gar keine Zahlen, auch nicht für die Schichten "
+    "mit Fingerabdruck (unbekannt, nicht 0). Ausweg: die älteren Protokolle ohne Fingerabdruck "
+    "aus dem Spiele-Ordner verschieben oder mit dem aktuellen Piloten neu spielen; danach zeigt "
+    "die Auswertung jeden Fingerabdruck als eigene Schicht."
 )
 
 
