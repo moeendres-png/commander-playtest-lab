@@ -889,8 +889,10 @@ def parallel_window_player(
     one have a result, so the looks see exactly what they saw before.
     """
     from .game_pool import GamePool as _GamePool
-    from .game_pool import GameTask, series_pool_enabled
+    from .game_pool import GameTask, plan_task, series_pool_enabled, skip_forced_decisions_of
     from .play_batch import SeriesGame, play_recorded_games
+    from .series_record import SeriesRecord
+    from .table_spec import DEFAULT_STYLE, game_wall_limit_seconds
 
     planned_units = [(seed, seat) for seed in seeds for seat in tested_seats][:budget_pairs]
     look_counts = sequential_look_seed_counts(budget_pairs, look_every_pairs)
@@ -939,8 +941,54 @@ def parallel_window_player(
         if new_count is not None and on_pair_done is not None:
             on_pair_done(new_count)
 
+    planned_tasks: dict[tuple[str, int, int], GameTask] = {}
+    record_holder: list[SeriesRecord] = []
+
+    def _plan_series_on_pool() -> None:
+        """Every game of the series as a complete task, and the manifest (S1, #1660).
+
+        Written once before the first game; a resumed series must plan the same games (same
+        decks, JAR, pilot), otherwise the manifest refuses it. The pool series plays the
+        default style 0.5 on every seat, as the chunked path does (``TableSpec.ensure_runnable``).
+        """
+        from .launch import bridge_jar_sha256, engine_command
+
+        used_command = command if command is not None else engine_command(data_folder)
+        jar = bridge_jar_sha256(data_folder, used_command)
+        pin = canonical_xmage_engine_pin()
+        skip_forced = skip_forced_decisions_of(used_command)
+        deck_hashes: dict[str, str] = {}
+        for seed, seat in planned_units:
+            for arm in ARMS:
+                ordered = pod_decks(contenders[arm], opponents, seat + 1)
+                planned_tasks[(arm, seed, seat)] = plan_task(
+                    task_id=f"{arm}:{seed}:{seat}",
+                    seed=seed,
+                    game_id=f"{series_id}-{arm}-s{seed}-t{seat}",
+                    deck_paths=[str(paths_by_deck_id[deck.deck_id]) for deck in ordered],
+                    seat_styles=[DEFAULT_STYLE] * len(ordered),
+                    jar_sha256=jar,
+                    engine_pin=pin,
+                    skip_forced_decisions=skip_forced,
+                    deck_hashes=deck_hashes,
+                )
+        record_holder.append(
+            SeriesRecord.open(
+                data_folder,
+                series_id,
+                games=[
+                    {"task_id": t.task_id, "game_id": t.game_id, "game_key": t.game_key}
+                    for t in planned_tasks.values()
+                ],
+                table_hash=None,
+                table=None,
+            )
+        )
+
     def _run_window_on_pool(missing_units: list[tuple[int, int]]) -> None:
         """Play the missing games of one window on the worker pool (long-lived JVMs)."""
+        if not planned_tasks:
+            _plan_series_on_pool()
         if not pool_holder:
             pool_holder.append(
                 _GamePool(
@@ -948,6 +996,7 @@ def parallel_window_player(
                     workers=used_workers,
                     command=command,
                     private_card_repository=used_workers > 1,
+                    game_wall_limit_seconds=game_wall_limit_seconds(len(opponents) + 1),
                 )
             )
         tasks: list[GameTask] = []
@@ -960,17 +1009,9 @@ def parallel_window_player(
                 if (arm, seed, seat) not in cache
             ]
         for arm, seed, seat in wanted:
-            ordered = pod_decks(contenders[arm], opponents, seat + 1)
-            task_id = f"{arm}:{seed}:{seat}"
-            keys[task_id] = (arm, seed, seat)
-            tasks.append(
-                GameTask(
-                    task_id=task_id,
-                    seed=seed,
-                    game_id=f"{series_id}-{arm}-s{seed}-t{seat}",
-                    deck_paths=tuple(str(paths_by_deck_id[deck.deck_id]) for deck in ordered),
-                )
-            )
+            task = planned_tasks[(arm, seed, seat)]
+            keys[task.task_id] = (arm, seed, seat)
+            tasks.append(task)
 
         def _on_played(task: GameTask) -> None:
             if on_game_played is not None:
@@ -986,7 +1027,11 @@ def parallel_window_player(
             _mark_game_done(arm, seed, seat)
 
         pool_holder[0].run(
-            tasks, on_played=_on_played, on_done=_on_done, should_cancel=is_cancelled
+            tasks,
+            on_played=_on_played,
+            on_done=_on_done,
+            should_cancel=is_cancelled,
+            record=record_holder[0],
         )
         _raise_if_cancelled()
         with lock:

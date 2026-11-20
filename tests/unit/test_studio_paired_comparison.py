@@ -1184,8 +1184,9 @@ class _FakePool:
         self.closed = False
         self.results: dict[str, PlayedGame] = {}
 
-    def run(self, tasks, *, on_played=None, on_done=None, should_cancel=None):  # type: ignore[no-untyped-def]
+    def run(self, tasks, *, on_played=None, on_done=None, should_cancel=None, record=None):  # type: ignore[no-untyped-def]
         self.runs.append(list(tasks))
+        self.record = record
         out = {}
         for task in reversed(tasks) if self.reverse else tasks:
             if should_cancel is not None and should_cancel():
@@ -1216,6 +1217,9 @@ def _pool_player(
         "_summary_to_played_game",
         lambda summary: pool.results[summary["game_id"]],
     )
+    for deck_id in (BASE, VARIANT, OPP1, OPP2):
+        # the pool plans every game with the hash of its deck files (S1, #1660)
+        tmp_path.joinpath(f"{deck_id.split('/')[1]}.json").write_text(deck_id, encoding="utf-8")
     options: dict[str, object] = {
         "series_id": "pl",
         "base_deck": SimpleNamespace(deck_id=BASE),
@@ -1362,6 +1366,82 @@ def test_cancelling_a_pool_series_raises_the_cancel_error_and_stops_handing_out_
     assert len(pool.player.calls) == 1  # the pool saw the flag after the first game ended
 
 
+def test_a_pool_series_plans_complete_tasks_and_a_manifest_and_journals_through_the_pool(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """S1 (#1660): every planned game is in the manifest before the first one is played."""
+    from commander_lab.studio import series_record
+
+    pool = _FakePool(_ScriptedPlayer(tmp_path / "p", _variant_sweeps))
+    player = _pool_player(
+        tmp_path,
+        pool,
+        monkeypatch,
+        seeds=[10, 11],
+        tested_seats=[0, 1],
+        budget_pairs=4,
+        look_every_pairs=2,
+    )
+    player("base", 10, 0)
+    record = pool.record
+    assert isinstance(record, series_record.SeriesRecord)
+    manifest = json.loads(record.manifest_path.read_text(encoding="utf-8"))
+    assert record.manifest_path.parent.name == "pl"
+    # both windows (4 pairs, 8 games) are in the manifest, not only the first one
+    assert len(manifest["games"]) == 8 and len(pool.runs[0]) == 4
+    task = pool.runs[0][0]
+    assert task.seat_styles == (0.5, 0.5, 0.5) and len(set(task.deck_sha256)) == 3
+    assert task.deck_sha256[0] == series_record.file_sha256(task.deck_paths[0])
+    # no bridge JAR in this folder: no key, recorded as such, never one over an empty field
+    assert task.game_key is None and manifest["games"][0]["game_key"] is None
+
+
+def test_a_pool_series_takes_the_wall_limit_of_its_seat_count(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from commander_lab.studio import table_spec
+
+    created: list[dict[str, object]] = []
+
+    class _Recorded:
+        def __init__(self, folder: object, **kwargs: object) -> None:
+            created.append(kwargs)
+
+        def run(self, tasks, *, on_done=None, **_kwargs):  # type: ignore[no-untyped-def]
+            for task in tasks:
+                on_done(task, {"game_id": task.game_id, "status": "failed"})
+            return {}
+
+        def close(self) -> None:
+            pass
+
+    monkeypatch.setattr("commander_lab.studio.game_pool.GamePool", _Recorded)
+    monkeypatch.setattr(table_spec, "game_wall_limit_seconds", lambda seats: 100.0 * seats)
+    monkeypatch.setattr(
+        paired_comparison,
+        "_summary_to_played_game",
+        lambda _s: {"exposure": None, "failure_class": "X"},
+    )
+    tmp_path.joinpath("x.json").write_text("{}", encoding="utf-8")
+    player = paired_comparison.parallel_window_player(
+        tmp_path,
+        series_id="wl",
+        base_deck=SimpleNamespace(deck_id=BASE),  # type: ignore[arg-type]
+        variant_deck=SimpleNamespace(deck_id=VARIANT),  # type: ignore[arg-type]
+        opponents=[SimpleNamespace(deck_id=OPP1), SimpleNamespace(deck_id=OPP2)],  # type: ignore[list-item]
+        paths_by_deck_id={d: tmp_path / "x.json" for d in (BASE, VARIANT, OPP1, OPP2)},
+        seeds=[1],
+        tested_seats=[0],
+        budget_pairs=1,
+        look_every_pairs=1,
+        workers=1,
+        games_per_jvm=6,
+        series_pool=True,
+    )
+    player("base", 1, 0)
+    assert created[0]["game_wall_limit_seconds"] == 300.0  # three seats
+
+
 def test_the_pool_is_off_by_default_and_a_switch_turns_it_on(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -1384,6 +1464,7 @@ def test_the_pool_is_off_by_default_and_a_switch_turns_it_on(
 
     monkeypatch.setattr("commander_lab.studio.game_pool.GamePool", _Recorded)
     monkeypatch.delenv("COMMANDER_LAB_STUDIO_SERIES_POOL", raising=False)
+    tmp_path.joinpath("x.json").write_text("{}", encoding="utf-8")
     options = {
         "series_id": "sw",
         "base_deck": SimpleNamespace(deck_id=BASE),
