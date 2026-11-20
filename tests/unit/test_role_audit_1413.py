@@ -172,10 +172,9 @@ def test_tierliste_csp_quick_toggle_and_audit_ui_markers() -> None:
     assert "rank_group" in tier_js
     assert "refreshStrength()" in tier_js
 
-    # Role audit & TopDeck Mit/Ohne descriptive summary markers
+    # Role audit descriptive summary markers (the TopDeck Mit/Ohne panel left with Q1-b1, #1676)
     assert "/api/roles/audit" in tier_js
-    assert "/api/tournament-conversion" in tier_js
+    assert "/api/tournament-conversion" not in tier_js
     assert "pool_tagged" in tier_js
     assert "pool_total" in tier_js
-    assert "Bracket 5 (Turnier)" in tier_js
     assert "zu wenig Daten" in tier_js

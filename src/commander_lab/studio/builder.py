@@ -24,8 +24,6 @@ from commander_lab.deck_readiness import (
     _PILOT_KNOWLEDGE_PATH,
     _CardData,
 )
-from commander_lab.deck_variant import compare_variant, comparison_to_dict
-from commander_lab.models import RulesDeckInput
 
 from . import cache
 from .decks import RevisionCard, color_set, list_rows
@@ -2048,60 +2046,6 @@ def diff_lists(
         "base_shape": base_shape,
         "target_shape": target_shape,
         "role_deltas": role_deltas,
-    }
-
-
-def _to_rules_deck(
-    store: StudioStore, cards: Sequence[RevisionCard], deck_id: str
-) -> RulesDeckInput | None:
-    rows = list_rows(store, cards)
-    cmds: list[str] = []
-    main: list[str] = []
-    for row in rows:
-        name = str(row["engine_name"] or row["oracle_name"])
-        qty = int(row["quantity"])
-        if row["zone"] == "commander":
-            cmds.extend([name] * qty)
-        else:
-            main.extend([name] * qty)
-    if not cmds or len(cmds) + len(main) != 100:
-        return None
-    try:
-        return RulesDeckInput(
-            deck_id=deck_id,
-            name=deck_id,
-            commander_names=tuple(cmds),
-            mainboard=tuple(main),
-        )
-    except ValueError:
-        return None
-
-
-def prefilter_lists(
-    store: StudioStore,
-    base_cards: Sequence[RevisionCard],
-    target_cards: Sequence[RevisionCard],
-    *,
-    trials: int = 2000,
-) -> dict[str, object]:
-    """Compare ``target_cards`` against ``base_cards`` using the simulator prefilter and
-    commander castability model (``HEURISTIC_MODEL``, seed 20261016).
-
-    Requires two valid 100-card Commander lists; returns ``comparable: False`` otherwise.
-    """
-    base_deck = _to_rules_deck(store, base_cards, "baseline")
-    target_deck = _to_rules_deck(store, target_cards, "variant")
-    if base_deck is None or target_deck is None:
-        return {
-            "data_class": "HEURISTIC_MODEL",
-            "comparable": False,
-            "reason": "Vorfilter benötigt zwei vollständige 100-Karten-Commander-Listen.",
-        }
-    comp = compare_variant(base_deck, target_deck, trials=trials)
-    return {
-        "data_class": "HEURISTIC_MODEL",
-        "comparable": True,
-        **comparison_to_dict(comp),
     }
 
 

@@ -75,17 +75,16 @@ table.dist th[scope=row],table.dist thead th:first-child{text-align:left}
 .block-subjective,.block-simulation{border-top:1px dashed var(--muted);margin-top:var(--s3);padding-top:var(--s1)}
 .layer table{display:block;overflow-x:auto}
 #data-state .badge{display:block;margin:var(--s1) var(--s3)}
-#role-audit-panel,#topdeck-conversion-panel{padding:var(--s2) var(--s4);border-bottom:1px solid var(--line);font-size:13px}
-#role-audit-panel .facts,#topdeck-conversion-panel .facts{display:flex;gap:var(--s2) var(--s3);flex-wrap:wrap;align-items:center}
-#role-audit-panel details,#topdeck-conversion-panel details{margin-top:4px}
-#role-audit-panel summary,#topdeck-conversion-panel summary{cursor:pointer;font-weight:600}
+#role-audit-panel{padding:var(--s2) var(--s4);border-bottom:1px solid var(--line);font-size:13px}
+#role-audit-panel .facts{display:flex;gap:var(--s2) var(--s3);flex-wrap:wrap;align-items:center}
+#role-audit-panel details{margin-top:4px}
+#role-audit-panel summary{cursor:pointer;font-weight:600}
 .audit-table-wrap{max-height:280px;overflow:auto;margin-top:var(--s2)}
-.conv-filter-row{display:flex;gap:var(--s2);align-items:center;margin-top:var(--s2)}
 .quick-toggle{display:inline-flex;gap:4px;align-items:center;padding:2px 6px;border:1px solid var(--line);border-radius:var(--radius-s);background:var(--panel2)}
 .quick-toggle .toggle-label{font-size:12px;color:var(--muted);margin-right:2px}
 .quick-toggle button.chip{font-size:12px;cursor:pointer}
 .quick-toggle button.chip.on{font-weight:600}
-@media (max-width:600px){#modal{width:100vw}table.dist{font-size:11px}#universe-panel,#strength-panel,#role-audit-panel,#topdeck-conversion-panel,#pool-body,#notice{padding-left:var(--s2);padding-right:var(--s2);max-width:100%}body>*{min-width:0;max-width:100%}.setting{grid-template-columns:minmax(0,1fr)}.layer-controls,.quick-toggle,.conv-filter-row,.strength-form label,.strength-form select,#universe-panel label,.layer{max-width:100%;min-width:0;flex-wrap:wrap}#data-state .badge{margin:var(--s1) var(--s2)}.badge,.pill,.tier-badge,.badge-neutral{max-width:100%;overflow-wrap:anywhere}}
+@media (max-width:600px){#modal{width:100vw}table.dist{font-size:11px}#universe-panel,#strength-panel,#role-audit-panel,#pool-body,#notice{padding-left:var(--s2);padding-right:var(--s2);max-width:100%}body>*{min-width:0;max-width:100%}.setting{grid-template-columns:minmax(0,1fr)}.layer-controls,.quick-toggle,.strength-form label,.strength-form select,#universe-panel label,.layer{max-width:100%;min-width:0;flex-wrap:wrap}#data-state .badge{margin:var(--s1) var(--s2)}.badge,.pill,.tier-badge,.badge-neutral{max-width:100%;overflow-wrap:anywhere}}
 /* Abnahme 2026-11-17 (B2): Status-Badges mit Satz-Text muessen umbrechen statt
    auf Mobilgeraeten einzeilig aus dem Bild zu laufen. Die Klasse badge-text
    tragen alle Satz-Badges der Tierliste (Oracle-Banner, Universum-Hinweise,

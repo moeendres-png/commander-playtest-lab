@@ -39,11 +39,11 @@ def _json(value: object) -> bytes:
     return json.dumps(value, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
 
 
-def test_studio_manifest_asks_thirty_distinct_read_routes_without_writes() -> None:
+def test_studio_manifest_asks_twenty_nine_distinct_read_routes_without_writes() -> None:
     requests = tool.read_requests(INPUTS)
     keys = [request.key for request in requests]
-    assert len(keys) == 30
-    assert len(set(keys)) == 30
+    assert len(keys) == 29
+    assert len(set(keys)) == 29
     assert {request.method for request in requests} == {"GET", "POST"}
     paths = {request.path.split("?")[0] for request in requests}
     for route in (
@@ -268,7 +268,7 @@ def test_studio_two_runs_on_fresh_copies_give_the_same_manifest(tmp_path: Path) 
         assert not (tmp_path / f"work_{run}" / "store").exists(), "the copy is removed"
         manifests.append(json.loads(out.read_text(encoding="utf-8")))
     first, second = manifests
-    assert len(first["requests"]) == 30
+    assert len(first["requests"]) == 29
     status = next(r for r in first["requests"] if r["key"] == "GET /api/status")
     assert status["normalized"] == ["image_cache.folder"]
     assert (
@@ -320,7 +320,7 @@ def test_studio_write_matrix_compares_running_and_restarted_server(tmp_path: Pat
     assert result["ok"] is True
     assert [step["write"] for step in result["steps"]] == ["favorite", "primer"]
     assert all(step["differences"] == [] for step in result["steps"])
-    assert len(result["steps"][0]["warm"]) == 33
+    assert len(result["steps"][0]["warm"]) == 32  # 29 read routes + 3 observer reads
     assert result["steps"][0]["warm"][-3]["key"] == "GET /api/decks/chulane/primer"
 
 
