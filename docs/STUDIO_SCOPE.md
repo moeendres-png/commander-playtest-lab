@@ -47,9 +47,9 @@ Datei widersprechen, gilt diese Datei.
 | Punkt | Scope | Quelle |
 |---|---|---|
 | Deckbauer | Der Studio-BUILD dieses Repositorys bleibt der Deckbauer des Projekts. `deckbuild-studio` ist eine eigene Ausgründung außerhalb der PLAY/SIMULATE-Pipeline; kein Austauschvertrag, kein Einfrieren des Deckbauers hier. Der generische Text-Import `scripts/import_deck.py` bleibt, wie er ist. | E1 |
-| Tierliste | Standardansicht ist der Nutzungsindex (objektiv, Schnitte 54/35/20/5). Das Kartenverständnis-Gesamtrating (#1369) ist eine wählbare, gekennzeichnete, generierte Zweitansicht; Standard erst nach der Validierung aus E6. Standard bleibt „Nutzung“; Guide v2.2 wird nicht ausgerollt; Ankerfrage 7 gilt als gewolltes Urteil; eine menschliche Referenz ist optional. | B10, E6, E7 (C6) |
-| Simulation in der Tierliste | Gewicht `simulation` = 0 in Code und Test, bis G-SIM erfüllt ist und der Owner Gewicht und Darstellung bestätigt. K5: gemessene Partie-Ergebnisebenen ohne Gewicht. | B11 (bedingt), E2 |
-| Offene Punkte | Folgepunkte des Gesamtratings (#1369); Validierung vor einem Standardwechsel; Datenlücken für eine objektivere Bewertung (#1261). Pausiert und owner-vorbehalten: #1210, #1187/#1176. | Issues |
+| Tierliste | Standardansicht ist der Nutzungsindex (objektiv, Schnitte 54/35/20/5). Das Gesamtrating v1 ist seit E15 Q1 (2026-11-20) entfernt (#1691); es bleibt nur das Feld „Kartenverständnis (Modellurteil)“ (Rubrik v2, Klasse URTEIL) für Chulane, nicht sortierbar. Standard bleibt „Nutzung“; Guide v2.2 wird nicht ausgerollt. | B10, E6 (überholt durch E15 Q1), E7 (C6) |
+| Simulation in der Tierliste | Das Gewicht `simulation` ist seit E15 Q1 entfernt (#1696); die Komponente existiert nicht mehr (Test: „Komponente existiert nicht mehr“). Simulation erscheint als Evidenz mit Reifegrad R0-R3 im Deckbauer (Q1-c, #1666), nie als Tierlisten-Gewicht. | B11, E2 (überholt durch E15 Q1) |
+| Offene Punkte | Entfernen der Rating-Teile (E15 Q1: #1684, #1686, #1691, #1696 gemergt, #1680 offen); Datenlücken für eine objektivere Bewertung (#1261). Pausiert und owner-vorbehalten: #1210, #1187/#1176. | Issues |
 
 ## PLAY
 
@@ -92,11 +92,9 @@ Option A2 „Deck-Labor mit Messprotokoll“, geliefert in zwei Schritten.
   als eigene Kohorte `SIMULATED_RESULT`, nie in einer Spalte mit EDHREC-, Playgroup- oder
   TopDeck-Zahlen, nie über Commander oder Deck-Stände summiert. Eine Serie zu einem anderen
   Deck-Stand wird nie als Ergebnis des aktuellen Standes gezeigt.
-- **Weg in die Tierliste:** in Stufen (E2, E7/C3). Stufe 0: heute, Gewicht 0, nichts aus
-  Simulation auf der Tierliste. Stufe 1, nach G-SIM 1 bis 6 und Owner-Go zur Darstellung:
-  getrennte Markierung ohne Gewicht und ohne Sortierung, mit Intervall, n und Aussagegrenze.
-  Stufe 2: Gewicht größer 0 erst nach Hold-out- und Halbierungs-Prüfung, gedeckelt
-  (`docs/OWNER_DECISIONS_STUDIO_20261118.md`). K5 und B11 gelten bis einschließlich Stufe 1.
+- **Weg in die Tierliste:** überholt durch E15 Q1 (2026-11-20): Es gibt kein Gewicht `simulation`
+  und keine Stufen 0 bis 2 mehr. Simulation zeigt der Deckbauer als Evidenz mit Reifegrad R0-R3
+  (Intervall, n/N, Aussagegrenze, `SIMULATED_RESULT`); G-SIM wird vom Tor zum Reifegrad.
 - **Ehrliche Reichweite:** SIMULATE entscheidet Pakete und Bauachsen (Landzahl, Ramp-, Schutzpaket),
   nicht einzelne Kartentausche; die Oberfläche sagt das.
 - **Später, nur bei Bedarf (A3):** rundenbegrenzte Serien mit vollen Piloten, Kontrollgrößen,
@@ -191,9 +189,8 @@ Das Projekt ist abgeschlossen, wenn:
 2. SIMULATE: Eine vom Owner gestellte Chulane-Frage ist mit Serienplan, Ergebnis, Intervall,
    nachweisbarer Differenz und Gültigkeitsblock beantwortet und im Deck-Verlauf sichtbar.
 3. BUILD: Ein Deck geht ohne Handarbeit aus dem Deckbauer in Partie und Serie; die Tierliste
-   (#1369) ist vom Owner abgenommen.
-4. Regeln: `simulation`-Gewicht 0 durch Test gesichert, solange G-SIM nicht erfüllt und bestätigt
-   ist; 5 und 6 Sitze technisch gesperrt oder vom Owner freigegeben; keine Zahl ohne n/N.
+   (#1369) ist vom Owner abgenommen (das Gesamtrating daraus ist seit E15 Q1 entfernt).
+4. Regeln: Komponente `simulation` existiert nicht mehr (E15 Q1), durch Test gesichert; 5 und 6 Sitze technisch gesperrt oder vom Owner freigegeben; keine Zahl ohne n/N.
 5. Doku: diese Datei, die Entscheidungsdatei und keine offenen Widersprüche in den Studio-Dokumenten.
 6. Betrieb: Einrichtung am Owner-PC aus dem Release-Paket nachvollzogen; Zustand der Bridge
    gegenüber dem Siegel ehrlich ausgewiesen.
@@ -248,8 +245,9 @@ So wird der Scope oben abgearbeitet, von jedem Agenten gleich.
 7. **Belege:** Was nicht belegt ist, heißt `UNKNOWN`, nie PASS. Punkte, die eine echte Engine oder
    den Owner-PC brauchen, werden als solche ausgewiesen und nicht durch Tests mit nachgebautem
    Client als erledigt gemeldet.
-8. **Simulation:** Ergebnisse nur als `SIMULATED_RESULT` mit Herkunft; kein Einfluss auf die
-   Tierliste, bevor G-SIM erfüllt und vom Owner bestätigt ist (E2).
+8. **Simulation:** Ergebnisse nur als `SIMULATED_RESULT` mit Herkunft; kein Gewicht in der
+   Tierliste (seit E15 Q1 entfernt; die Fassung „bevor G-SIM erfüllt ist (E2)“ ist überholt),
+   Evidenz mit Reifegrad R0-R3 im Deckbauer (Q1-c, #1666, noch nicht gebaut).
 
 Regeln für Hilfs-Agenten (keine rekursiven Teams, kurze Berichte) stehen in `CLAUDE.md`.
 
@@ -258,7 +256,7 @@ Regeln für Hilfs-Agenten (keine rekursiven Teams, kurze Berichte) stehen in `CL
 Empfehlung der Lead-Sitzung. Falls der Owner „S-B, O1-A bis O4-A“ doch in einer anderen Sitzung
 freigegeben hat, entscheidet er die strittigen Einzelpunkte unten neu; bis dahin wird aus ihnen
 nichts gebaut. Übernommen sind die Teile, die mit den Owner-Entscheiden übereinstimmen (Herkunftsfelder,
-`simulation`-Gewicht 0 bis G-SIM, 2 bis 4 Sitze aktiv, kein Fork-Push, parallele gepaarte Serien,
+Gewicht `simulation` entfernt (E15 Q1), 2 bis 4 Sitze aktiv, kein Fork-Push, parallele gepaarte Serien,
 Ergebnis-Rückfluss getrennt von der Tierliste, Release-Paket mit Bridge-JAR). Nicht übernommen:
 
 | Punkt | Grund |
