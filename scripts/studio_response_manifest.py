@@ -14,18 +14,24 @@ before and after a change.
             primer, universe profile) the read routes plus ``observer_requests`` of the running
             server must equal those of a freshly started server on the same written copy.
 ``compare`` two ``run`` manifests; exit 0 if the inputs and every answer agree, 1 otherwise.
+            Only manifests of the same ``format`` are comparable; an older one is refused (exit 2).
 ``fields``  two JSON answers of one route (before and after a change that removes fields,
             Q1-b2 #1677, inventory R5): exit 0 only if the key paths "before minus after" are
             exactly the declared ``--removed`` paths and no key path was added; with
             ``--values`` the answers must also be equal once the declared paths are pruned.
             Key paths join object keys with ``/`` and write a list item as ``[]``
-            (``cards[]/layers``). A declared path counts with everything below it.
+            (``cards[]/layers``). A declared path counts with everything below it. It reads answer
+            bodies, not manifests, so it does not depend on the manifest ``format`` (/2).
 
 Normalisation: only for fields shown to depend on the run, listed in ``NORMALIZATIONS``. Today
 that is ``image_cache.folder`` of ``GET /api/status``: the server reports the absolute folder of
 the store copy, which differs between two runs by construction. It is replaced by
 ``<STUDIO_DATA>/images`` only when it is exactly the folder of this run's copy; the raw length
 and hash stay in the manifest. Every other byte is compared as served.
+
+Limits of the cleanup guard (Refs #1650): ``_inside`` compares ``Path.resolve()`` results, which
+follows symlinks (tested on POSIX); Windows 8.3 short names and junctions are reasoned about, not
+executed, and CI runs the tests of this tool on Linux only (the Windows lane runs other tests).
 
 Portability: standard library only, no shell, no ``/proc``; the server is started with
 ``subprocess.Popen`` and stopped through that handle (its own PID) only; HTTP goes to
@@ -64,8 +70,10 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-FORMAT = "studio-response-manifest/1"
-WRITES_FORMAT = "studio-response-writes/1"
+# /2 (Refs #1650): ``inputs`` gained ``environment`` (the COMMANDER_LAB_* variables). A /1 manifest
+# has no such field, so it cannot be compared with a /2 manifest without a false "inputs differ".
+FORMAT = "studio-response-manifest/2"
+WRITES_FORMAT = "studio-response-writes/2"
 DEFAULT_COMMANDER = "Chulane, Teller of Tales"
 DEFAULT_DECK = "chulane"
 DATABASE = "studio.sqlite3"
@@ -682,7 +690,10 @@ def compare_records(
 def compare_manifests(left: Mapping[str, object], right: Mapping[str, object]) -> list[str]:
     for name, manifest in (("A", left), ("B", right)):
         if manifest.get("format") != FORMAT:
-            raise ManifestError(f"manifest {name} is not {FORMAT}")
+            raise ManifestError(
+                f"manifest {name} is {manifest.get('format')!r}, not {FORMAT}: only manifests of "
+                "the same format are comparable (/2 records inputs.environment); record it again"
+            )
     differences: list[str] = []
     left_inputs, right_inputs = left.get("inputs"), right.get("inputs")
     if left_inputs != right_inputs:

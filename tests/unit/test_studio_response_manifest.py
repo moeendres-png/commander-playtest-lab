@@ -154,6 +154,24 @@ def test_studio_compare_reports_every_kind_of_difference() -> None:
         tool.compare_manifests({"format": "x"}, _manifest(base))
 
 
+def test_studio_compare_refuses_manifests_of_another_format(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """/1 manifests have no ``inputs.environment`` (Refs #1650): not comparable with /2."""
+    assert tool.FORMAT == "studio-response-manifest/2"
+    assert tool.WRITES_FORMAT == "studio-response-writes/2"
+    current = _manifest([_record("GET /a")])
+    legacy = {**current, "format": "studio-response-manifest/1"}
+    for left, right in ((legacy, current), (current, legacy), (legacy, dict(legacy))):
+        with pytest.raises(tool.ManifestError, match="not studio-response-manifest/2"):
+            tool.compare_manifests(left, right)
+    a, b = tmp_path / "a.json", tmp_path / "b.json"
+    a.write_text(json.dumps(legacy), encoding="utf-8")
+    b.write_text(json.dumps(current), encoding="utf-8")
+    assert tool.main(["compare", str(a), str(b)]) == 2
+    assert "record it again" in capsys.readouterr().err
+
+
 def test_studio_compare_command_exits_zero_or_one(tmp_path: Path) -> None:
     a, b, c = tmp_path / "a.json", tmp_path / "b.json", tmp_path / "c.json"
     a.write_text(json.dumps(_manifest([_record("GET /a")])), encoding="utf-8")
@@ -229,6 +247,22 @@ def test_studio_values_outside_the_removed_paths_must_stay_equal() -> None:
     assert tool.value_differences(1, 1.0) == ["<root>"]  # the JSON type counts
 
 
+def test_studio_fields_run_with_manifest_format_2(tmp_path: Path) -> None:
+    """The field comparison reads answer bodies and does not check the manifest ``format``; on
+    /2 manifests themselves it sees the field /2 added (``inputs/environment``, Refs #1650)."""
+    assert tool.FORMAT == "studio-response-manifest/2"
+    current = {**_manifest([_record("GET /a")]), "inputs": {"deck_id": "c", "environment": {}}}
+    legacy = {**current, "format": "studio-response-manifest/1", "inputs": {"deck_id": "c"}}
+    assert tool.field_check(current, dict(current), []) == []
+    assert tool.field_check(legacy, current, []) == ["added: inputs/environment"]
+    assert tool.field_check(current, legacy, ["inputs/environment"]) == []
+    before, after = tmp_path / "b.json", tmp_path / "a.json"
+    before.write_text(json.dumps(BEFORE), encoding="utf-8")
+    after.write_text(json.dumps(AFTER), encoding="utf-8")
+    declared = [arg for path in REMOVED for arg in ("--removed", path)]
+    assert tool.main(["fields", str(before), str(after), *declared, "--values"]) == 0
+
+
 def test_studio_fields_command_exits_zero_or_one(tmp_path: Path) -> None:
     before, after, extra = tmp_path / "b.json", tmp_path / "a.json", tmp_path / "x.json"
     before.write_text(json.dumps(BEFORE), encoding="utf-8")
@@ -262,6 +296,21 @@ def test_studio_store_copy_refuses_overlap_and_leaves_the_template_alone(tmp_pat
     assert tool.template_fingerprint(template) != before
     with pytest.raises(tool.ManifestError):
         tool.copy_store(tmp_path / "missing", tmp_path / "x")
+
+
+def test_studio_store_copy_refuses_overlap_through_a_symlink(tmp_path: Path) -> None:
+    """The overlap guard resolves links (POSIX). Windows short names and junctions are not run."""
+    template = tmp_path / "template"
+    template.mkdir()
+    (template / "studio.sqlite3").write_bytes(b"database")
+    link = tmp_path / "link"
+    try:
+        link.symlink_to(template, target_is_directory=True)
+    except (OSError, NotImplementedError):
+        pytest.skip("symlinks not available")
+    with pytest.raises(tool.ManifestError, match="overlap"):
+        tool.copy_store(template, link / "copy")
+    assert not (template / "copy").exists()
 
 
 _FAKE_SERVER = """
