@@ -400,6 +400,54 @@ def test_batch_series_rejects_five_and_six_seats_via_api_and_manager(tmp_path: P
         assert f"tables of {seats} seats are locked" in res.json()["detail"]
 
 
+def test_batch_never_seats_a_stand_in_opponent_and_refuses_seed_step(tmp_path: Path) -> None:
+    """B2 (#1658): an unknown opponent or pod is an error, never another precon in its seat;
+    the preset seats exactly its three named decks; ``seed_step`` is no longer accepted."""
+    from commander_lab.studio import launch
+
+    store = StudioStore.open(tmp_path)
+    try:
+        rev_id = _seed_test_deck(store)
+        mgr = SimulationBatchManager()
+
+        def executor(**kwargs: object) -> dict[str, object]:
+            return {"status": "finished", "winner_seats": [0], "decision_count": 5, "rounds": 3}
+
+        for pod, opponents, message in (
+            ("precon", ["precon/does-not-exist"], "Unbekanntes Gegner-Deck"),
+            ("precon", ["lorehold"], "Unbekanntes Gegner-Deck"),  # no substring match
+            ("no-such-pod", None, "Unbekannter Gegnertisch"),
+        ):
+            with pytest.raises(ValueError, match=message):
+                mgr.start_batch(
+                    store,
+                    tmp_path,
+                    revision_id=rev_id,
+                    pod=pod,
+                    opponent_ids=opponents,
+                    games_count=1,
+                    game_executor=executor,
+                )
+        batch = mgr.start_batch(
+            store, tmp_path, revision_id=rev_id, pod="precon", games_count=1, game_executor=executor
+        )
+        _wait(batch)
+        by_id = {deck_id: path for deck_id, *_r, path in launch._precons()}
+        assert batch.opponent_paths == [by_id[oid] for oid in launch.POD_PRESETS["precon"]]
+        assert batch.seeds == [1000]
+    finally:
+        store.close()
+
+    client = TestClient(create_app(tmp_path))
+    res = client.post(
+        "/api/simulations/batch",
+        headers={"X-Studio": "1"},
+        json={"revision_id": rev_id, "games_count": 2, "base_seed": 100, "seed_step": 4},
+    )
+    assert res.status_code == 422
+    assert "seed_step" in res.text
+
+
 def test_paired_series_rejects_five_and_six_seats_via_api_and_manager(tmp_path: Path) -> None:
     from commander_lab.studio.paired_series import PairedSeriesManager
     from commander_lab.studio.web import PairedSeriesBody

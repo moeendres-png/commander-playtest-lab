@@ -41,14 +41,14 @@ from commander_lab.models import RulesDeckInput
 from . import builder, decks, paired_comparison, strength_view
 from .decks import RevisionCard, lab_snapshot, list_rows, resolve_repo_baseline_cards
 from .games import games_folder
+from .launch import POD_PRESETS as POD_PRESETS  # re-exported for callers and tests
 from .launch import (
-    POD_PRESETS,
     SeriesEngine,
-    _precons,
     cards_unknown_to_pilots,
     cards_unsupported_by_engine,
     checked_series_settings,
     engine_state,
+    resolve_opponent_paths,
     series_engine,
     validate_released_seat_count,
 )
@@ -196,34 +196,8 @@ def estimate_series_duration(
     return payload
 
 
-def _resolve_opponent_paths(
-    pod: str,
-    opponent_ids: Sequence[str] | None,
-    *,
-    allow_unreleased_seats: bool = False,
-) -> list[Path]:
-    by_id = {deck_id: path for deck_id, _name, _cmds, _year, path in _precons()}
-    if opponent_ids is not None:
-        validate_released_seat_count(
-            len(opponent_ids), allow_unreleased_seats=allow_unreleased_seats
-        )
-        opp_list = [str(oid).strip() for oid in opponent_ids]
-    elif pod in POD_PRESETS:
-        opp_list = list(POD_PRESETS[pod])
-        validate_released_seat_count(len(opp_list), allow_unreleased_seats=allow_unreleased_seats)
-    else:
-        raise ValueError(f"Unbekannter Gegnertisch (pod): {pod!r}")
-
-    if len(set(opp_list)) != len(opp_list):
-        raise ValueError("Gegner-Decks dürfen nicht doppelt vorkommen")
-
-    opp_paths: list[Path] = []
-    for oid in opp_list:
-        path = by_id.get(oid)
-        if path is None:
-            raise ValueError(f"Unbekanntes Gegner-Deck: {oid!r}")
-        opp_paths.append(path)
-    return opp_paths
+#: One resolver for every surface (batch, series, experiment): unknown is an error.
+_resolve_opponent_paths = resolve_opponent_paths
 
 
 def _snapshot_for_ref(store: StudioStore, ref_id: str) -> dict[str, object]:

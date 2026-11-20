@@ -301,12 +301,15 @@ class PlaySpeedBody(BaseModel):
 
 
 class BatchSimulationBody(BaseModel):
+    # Unknown fields are refused: ``seed_step`` is gone (B2, #1658), consecutive seeds only,
+    # because the engine starts at seat ``seed % players`` and a step can pin the start seat.
+    model_config = ConfigDict(extra="forbid")
+
     revision_id: str = Field(min_length=1, max_length=200)
     pod: str = Field(default="precon", max_length=50)
     opponent_ids: list[str] | None = None
     games_count: int = Field(default=10, ge=1, le=100)
     base_seed: int = Field(default=1000, ge=0, le=2_000_000_000)
-    seed_step: int = Field(default=1, ge=1, le=1000)
     style: float | None = Field(default=None, ge=0.0, le=1.0)
     workers: int | None = Field(default=None, ge=MIN_WORKERS, le=MAX_WORKERS)
     games_per_jvm: int | None = Field(default=None, ge=MIN_GAMES_PER_JVM, le=MAX_GAMES_PER_JVM)
@@ -1298,7 +1301,6 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
                 opponent_ids=body.opponent_ids,
                 games_count=body.games_count,
                 base_seed=body.base_seed,
-                seed_step=body.seed_step,
                 style=body.style,
                 workers=body.workers,
                 games_per_jvm=body.games_per_jvm,

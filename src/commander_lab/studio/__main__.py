@@ -367,7 +367,6 @@ def _parser() -> argparse.ArgumentParser:
     )
     sim.add_argument("--count", type=int, default=10, help="number of games to simulate")
     sim.add_argument("--base-seed", type=int, default=1000, help="starting random seed")
-    sim.add_argument("--seed-step", type=int, default=1, help="seed increment per game")
     sim.add_argument("--style", type=float, default=None, help="AI pilot style from 0.0 to 1.0")
     sim.add_argument(
         "--workers",
@@ -1131,7 +1130,6 @@ def main(argv: list[str] | None = None) -> int:
                     pod=args.pod,
                     games_count=args.count,
                     base_seed=args.base_seed,
-                    seed_step=args.seed_step,
                     style=args.style,
                     workers=args.workers,
                     games_per_jvm=args.games_per_jvm,
