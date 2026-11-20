@@ -797,3 +797,53 @@ def test_series_dialog_lock_line_follows_the_server_constant_and_the_script_stay
     assert re.search(r"const PAIRED_MAX_SEATS = (\d+);", js).group(1) == str(launch.MAX_SEATS)  # type: ignore[union-attr]
     for banned in (".innerHTML", ".outerHTML", "eval(", ".toFixed(", "style:", "style =", "style="):
         assert banned not in js, banned
+
+
+@pytest.mark.parametrize("mixed", [False, True], ids=["precons", "precons-and-deck-state"])
+def test_a_five_seat_series_started_with_the_switch_does_not_resume_under_the_lock(
+    lab: dict[str, object], monkeypatch: pytest.MonkeyPatch, mixed: bool
+) -> None:
+    """Review #1708 (P2): a five-seat series started with the switch and then interrupted is not
+    resumed while the lock is 4, also when one opponent is a Studio deck state (the precons alone
+    are only three, the table is five): the whole table is checked, before the split."""
+    client = lab["client"]
+    revs = lab["revs"]
+    folder = Path(str(lab["folder"]))
+    assert isinstance(client, TestClient) and isinstance(revs, dict)
+    opponents = list(launch.pod_opponent_ids("precon", 4))
+    if mixed:
+        res = client.post(
+            "/api/decks/other-b2/revisions",
+            headers=HEADERS,
+            json={"cards": _cards(45), "note": "opp", "branch": "main"},
+        )
+        assert res.status_code == 200, res.text
+        opponents = [*opponents[:3], res.json()["revision_id"]]
+    store = StudioStore.open(folder)
+    try:
+        job = paired_series.paired_series_manager.start_series(
+            store,
+            folder,
+            base_revision_id=revs["base"],
+            variant_revision_id=revs["variant"],
+            pod="precon",
+            opponent_ids=opponents,
+            budget_pairs=25,
+            look_every_pairs=100,
+            allow_unreleased_seats=True,
+        )
+    finally:
+        store.close()
+    assert job.tested_seats == [0, 1, 2, 3, 4]
+    _finished(lab, job.series_id)
+    path = folder / "games" / f"{job.series_id}.paired.json"
+    raw = json.loads(path.read_text(encoding="utf-8"))
+    raw["status"] = "cancelled"
+    path.write_text(json.dumps(raw), encoding="utf-8")
+    assert launch.MAX_RELEASED_SEATS == 4
+    with pytest.raises(ValueError, match="tables of 5 seats are locked"):
+        paired_series.paired_series_manager.resume_series(
+            folder,
+            job.series_id,
+            play_override=lambda *_a: {"exposure": None, "failure_class": None},
+        )

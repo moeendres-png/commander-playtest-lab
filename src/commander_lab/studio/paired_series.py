@@ -346,6 +346,8 @@ def _table_opponent_paths(
             pod, opponent_ids, allow_unreleased_seats=allow_unreleased_seats
         )
     ids = [str(o).strip() for o in opponent_ids]
+    # the whole table against the lock, before the split: the precons alone are fewer (#1708)
+    validate_released_seat_count(len(ids), allow_unreleased_seats=allow_unreleased_seats)
     if len(set(ids)) != len(ids):
         raise ValueError("Gegner-Decks dürfen nicht doppelt vorkommen")
     precons = [o for o in ids if not is_revision_ref(o)]
