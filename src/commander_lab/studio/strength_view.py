@@ -7,8 +7,8 @@ and commander-independent signals are stored under the empty commander name. The
 Playgroup atlas signal is one of them: an observed win-rate correlation from multiplayer
 games, published per card, not per commander.
 
-The Owner's marks are not read here. The simulation component is ``NOT_COLLECTED``: the
-stored simulation rows are per deck and per card cast statistics, not an outcome model.
+The Owner's marks are not read here. Stored simulation rows are never read here: the index
+has no simulation component (Q1-b4, #1679, E15 Q1).
 
 Matching a stored card name to a pool card is deterministic and follows the counted
 spread's name discipline (``universe_view.name_claims``): a name belongs to the card whose
@@ -32,7 +32,6 @@ from typing import TypedDict, cast
 from . import (
     chulane_textfit,
     corpus_signals,
-    research_import,
     roles,
     signals,
     strength,
@@ -50,10 +49,8 @@ from .strength import (
     EDHREC_THEME_REACH,
     GLOBAL_INCLUSION,
     PLAYGROUP_OBSERVED,
-    RUBRIC,
     SYNERGY,
     TOURNAMENT,
-    TOURNAMENT_CONVERSION,
     TOURNAMENT_LISTS,
     Observation,
     PoolContext,
@@ -452,55 +449,6 @@ def _number_text(value: float) -> str:
     return (f"{value:g}").replace(".", ",")
 
 
-def rubric_note(h_mean: float, h_sd: float | None, raters: float | None) -> str:
-    """The row text of a rubric value: H, the spread of the raters and their number. A card
-    with no rater is an anchor of the guide (a fixed value, not a rating)."""
-    if raters is not None and raters <= 0:
-        return f"H {_number_text(h_mean)} (fester Ankerwert des Leitfadens, kein Rating)"
-    spread = "" if h_sd is None else f", Streuung {_number_text(h_sd)}"
-    count = "" if raters is None else f", {_number_text(raters)} Bewerter"
-    return f"H {_number_text(h_mean)} von 10{spread}{count}"
-
-
-def _rubric_observations(
-    store: StudioStore,
-    commander: str,
-    claims: _Claims,
-    display: Mapping[str, str],
-    ambiguous: dict[tuple[str, str], list[str]],
-) -> tuple[dict[str, Observation], bool]:
-    """The rubric observations: the value is ``strength.rubric_value`` of the mean rating H
-    (used directly as the 0..1 score), the note names H, its spread and the raters. Whether the
-    source exists is decided by the H signal alone; the spread and the rater count only add
-    to the note. A card the file does not list has no observation (unknown, never 0)."""
-    means, exists = _signal_observations(
-        store, commander, signals.SIGNAL_RUBRIC, claims, display, ambiguous
-    )
-    spreads, _found = _signal_observations(
-        store, commander, signals.SIGNAL_RUBRIC_SD, claims, display, {}
-    )
-    raters, _found = _signal_observations(
-        store, commander, signals.SIGNAL_RUBRIC_RATERS, claims, display, {}
-    )
-    result: dict[str, Observation] = {}
-    for card_id, item in means.items():
-        if item.value is None:
-            continue
-        value = strength.rubric_value(item.value)
-        if value is None:
-            continue
-        spread, count = spreads.get(card_id), raters.get(card_id)
-        result[card_id] = Observation(
-            value,
-            note=rubric_note(
-                item.value,
-                spread.value if spread is not None else None,
-                count.value if count is not None else None,
-            ),
-        )
-    return result, exists
-
-
 def _strings(value: object) -> set[str]:
     if not isinstance(value, list):
         raise TypeError("pool_cards returned an unexpected shape")
@@ -517,8 +465,7 @@ class SignalCoverage(TypedDict):
 
 def expected_signals(commander: str = "") -> list[str]:
     """The usage signals the importers can store, a fixed list from the code (not from what
-    happens to be stored): a signal without rows is then shown as missing, never left out.
-    The rubric is expected only for the commanders that have a rubric file."""
+    happens to be stored): a signal without rows is then shown as missing, never left out."""
     names = [
         strength.signal_for(COMMANDER_INCLUSION, strength.BRACKET_NONE),
         *(f"{signals.SIGNAL_BRACKET}:{variant}" for variant in signals.BRACKET_VARIANTS),
@@ -529,7 +476,6 @@ def expected_signals(commander: str = "") -> list[str]:
         signals.SIGNAL_PARTNERS,
         strength.signal_for(TOURNAMENT_LISTS, strength.BRACKET_NONE),
         signals.SIGNAL_EDHTOP16,
-        signals.SIGNAL_CONVERSION,
         # One generic row: the counted universes are named by the file (source, bracket); the
         # stored ones are listed under their own names, this row stays while none exists.
         signals.SIGNAL_DECKLIST,
@@ -537,11 +483,6 @@ def expected_signals(commander: str = "") -> list[str]:
         signals.SIGNAL_SALT,
         signals.SIGNAL_COMBO_DECKS,
     ]
-    if commander in research_import.RUBRIC_COMMANDERS.values():
-        names.insert(
-            names.index(strength.signal_for(COMBOS, strength.BRACKET_NONE)) + 1,
-            strength.signal_for(RUBRIC, strength.BRACKET_NONE),
-        )
     return names
 
 
@@ -579,11 +520,7 @@ def signal_coverage(
     names = expected_signals(commander)
     if counted_signals:
         names.remove(signals.SIGNAL_DECKLIST)
-    rubric_signals = {
-        strength.signal_for(RUBRIC, strength.BRACKET_NONE),
-        *signals.RUBRIC_COMPANIONS,
-    }
-    for signal in sorted(set(stored) - set(names) - rubric_signals):
+    for signal in sorted(set(stored) - set(names) - signals.RETIRED_SIGNALS):
         if signal.startswith(f"{signals.SIGNAL_DECKLIST}:") and signal not in counted_signals:
             continue  # a counted universe of another commander
         if signal in strength.COMBO_SHELL_PARTS and signal not in own_stored:
@@ -908,11 +845,9 @@ def prepare(
         BRACKET_INCLUSION,
         SYNERGY,
         TOURNAMENT_LISTS,
-        TOURNAMENT_CONVERSION,
         GLOBAL_INCLUSION,
         COMBOS,
         PLAYGROUP_OBSERVED,
-        RUBRIC,
     ):
         signal = strength.signal_for(
             component, settings.bracket, combo_source=settings.combo_source
@@ -923,8 +858,6 @@ def prepare(
             observed, exists, spellbook_shells_used = _combo_observations(
                 store, commander, claims, display, ambiguous
             )
-        elif component == RUBRIC:
-            observed, exists = _rubric_observations(store, commander, claims, display, ambiguous)
         else:
             observed, exists = _signal_observations(
                 store, commander, signal, claims, display, ambiguous
@@ -1081,7 +1014,6 @@ def compute(
         diagnostics=diagnostics,
     )
     notices_out = prepared.notices
-    notices_out.extend(strength.weights_without_effect(prepared.effective, prepared.collected))
     notices_out.extend(_weight_notices(settings, prepared.weight_rule, saved_weights or {}))
     roles_by_id: dict[str, list[str]] = {
         str(card["card_id"]): [str(r) for r in card["roles"]]  # type: ignore[attr-defined]
@@ -1364,15 +1296,9 @@ def _entry(store: StudioStore, row: Mapping[str, object]) -> ProfileEntry:
 def _weight_notices(
     settings: StrengthSettings, rule: strength.WeightRule, saved: Mapping[str, float]
 ) -> list[str]:
-    """Notices on weights that do not act as the person may expect: a positive rubric weight
-    (the rubric is a subjective signal) and stored EDHREC weights the E2.a rule sets to 0."""
+    """Notices on weights that do not act as the person may expect: stored EDHREC weights the
+    E2.a rule sets to 0."""
     found: list[str] = []
-    rubric = settings.weights.get(strength.RUBRIC, 0.0)
-    if rubric > 0:
-        found.append(
-            f"Raster-Bewertung: subjektives Signal aktiv (Gewicht {rubric:g}); es ist kein "
-            "objektives Signal und zählt nur auf ausdrücklichen Wunsch."
-        )
     if rule["rule"] == strength.RULE_CORPUS_ZERO:
         zeroed = [
             f"{strength.LABELS[name]} (gespeichert {saved[name]:g}, wirksam 0)"
@@ -1401,8 +1327,16 @@ def profile_saved_weights(store: StudioStore, name: str) -> dict[str, float]:
     }
 
 
-# Q1-b2 (#1677): the German names of the retired settings a profile notice may name.
-_RETIRED_NAMES = {"layer_weights": "Gewichte der Bewertungsebenen", "pod_size": "Pod-Größe"}
+# Q1-b2 (#1677), Q1-b4 (#1679): the German names of the retired settings a profile notice may
+# name.
+_RETIRED_NAMES = {
+    "layer_weights": "Gewichte der Bewertungsebenen",
+    "pod_size": "Pod-Größe",
+    "weights.rubric": "Gewicht Raster-Bewertung (Rubrik v1)",
+    "weights.simulation": "Gewicht Simulation",
+    "weights.tournament_conversion": "Gewicht Turnier-Conversion (TopDeck)",
+    "min_denominators.conversion": "Mindest-Nenner Turnier-Conversion",
+}
 
 
 def _retired_notice(store: StudioStore, name: str) -> list[str]:
@@ -1429,7 +1363,7 @@ def _retired_notice(store: StudioStore, name: str) -> list[str]:
 def profile_notices(store: StudioStore, name: str) -> list[str]:
     """Notices for computing with a stored profile: keys of the profile this version does not
     know are ignored, not an error; a retired setting whose stored value differed from its
-    default is named once (Q1-b2)."""
+    default is named once (Q1-b2, Q1-b4)."""
     ignored = get_profile(store, name)["ignored_keys"]
     found = (
         [
@@ -1535,14 +1469,6 @@ def _panel_texts() -> dict[str, object]:
         "aus dem Index genommen (Gewicht 0) und als Spalte „Passt zum Commander“ gezeigt. "
         "Bei positivem Gewicht wirkt negative Synergie (< 0) neutral (kein Abzug)."
     )
-    labels[f"weights.{strength.SIMULATION}"] = (
-        f"{strength.LABELS[strength.SIMULATION]} (empfohlen: "
-        f"{_number_text(rec.weights[strength.SIMULATION])}, derzeit ohne Daten)"
-    )
-    helps[f"weights.{strength.SIMULATION}"] = (
-        "Simulationsergebnisse zählen nicht in die Tierliste und werden dafür vorerst weder "
-        "eingeholt noch verarbeitet. Das Gewicht bleibt als Option bestehen und steht auf 0."
-    )
     helps[f"weights.{strength.PLAYGROUP_OBSERVED}"] = (
         "Beobachteter Unterschied der Siegrate, wenn die Karte gewirkt wurde (Playgroup-Live-"
         f"Partien, alle Commander). Zählt erst ab {rec.min_denominators['playgroup']} Partien "
@@ -1550,16 +1476,6 @@ def _panel_texts() -> dict[str, object]:
         f"n / (n + {strength.OBSERVED_SHRINKAGE}) zur Null hin gedämpft. Standardmäßig nur "
         "als Spalte „Sieg-Abstand“ gezeigt (Gewicht 0). Gilt für jeden Commander und reicht "
         "für eine Stufe allein nicht. 0 schaltet das Signal ab."
-    )
-    helps[f"weights.{strength.RUBRIC}"] = (
-        "Bewertung nach festem Leitfaden von drei Bewertern (nur für Chulane), subjektiv und "
-        "kein objektives Signal. Das Gewicht steht auf 0 (Owner-Entscheidung E1.a); die "
-        "Bewertung bleibt als Spalte und Komponente erhalten, wer ihr ein Gewicht gibt, "
-        "mischt Meinung in einen empirischen Index."
-    )
-    labels[f"weights.{strength.RUBRIC}"] = (
-        f"{strength.LABELS[strength.RUBRIC]} (empfohlen: "
-        f"{_number_text(rec.weights[strength.RUBRIC])})"
     )
     helps[f"weights.{strength.DECK_UNIVERSE}"] = (
         "Wie stark die Verbreitung in gezählten Decklisten zählt. 0 schaltet sie ab."
@@ -1598,9 +1514,6 @@ def _panel_texts() -> dict[str, object]:
     helps[f"weights.{strength.TOURNAMENT_LISTS}"] = (
         "TopDeck-Turnierlisten des Commanders: derzeit nur wenige Listen (Mindest-Nenner nicht "
         "erreicht). Standardmäßig 0, die Spalte bleibt."
-    )
-    helps[f"weights.{strength.TOURNAMENT_CONVERSION}"] = (
-        "TopDeck-Conversion: derzeit ohne Werte. Standardmäßig 0, die Spalte bleibt."
     )
     helps[f"weights.{strength.EDHREC_THEME_REACH}"] = (
         "Höchster Anteil der Karte über die EDHREC-Themen des Commanders (nur Themen mit "
@@ -1697,15 +1610,6 @@ def _panel_texts() -> dict[str, object]:
     helps["min_denominators.tournament"] = (
         "Gibt es weniger Turnierlisten des Commanders, wird das Signal nicht verwendet. "
         "0 = kein Minimum."
-    )
-    labels["min_denominators.conversion"] = (
-        "Mindest-Nenner Turnier-Conversion (empfohlen: "
-        f"{rec.min_denominators['conversion']} Decks mit bekanntem Top-Cut-Ausgang)"
-    )
-    helps["min_denominators.conversion"] = (
-        "Liegt der größte Nenner des Signals (Decks mit bekanntem Top-Cut-Ausgang) unter "
-        "dem Minimum, wird das Signal für alle Karten nicht verwendet; liegt nur der eigene "
-        "Nenner einer Karte darunter, entfällt es nur für diese Karte. 0 = kein Minimum."
     )
     labels["min_denominators.playgroup"] = (
         f"Mindest-Nenner Playgroup (empfohlen: {rec.min_denominators['playgroup']} Partien)"
@@ -1819,7 +1723,6 @@ def _panel_texts() -> dict[str, object]:
                 "min_denominators.edhrec",
                 "min_denominators.deck_universe",
                 "min_denominators.tournament",
-                "min_denominators.conversion",
                 "min_denominators.playgroup",
             ],
         },
@@ -1922,7 +1825,6 @@ def presets() -> dict[str, object]:
                 "label": strength.LABELS[key],
                 "default_weight": weight,
                 "data_class": strength.COMPONENT_DATA_CLASS[key],
-                "subjective": key == strength.RUBRIC,
                 "commander_only": key in strength.COMMANDER_ONLY_SOURCES,
             }
             for key, weight in strength.DEFAULT_WEIGHTS.items()

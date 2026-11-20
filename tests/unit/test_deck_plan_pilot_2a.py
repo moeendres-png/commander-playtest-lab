@@ -624,8 +624,9 @@ def test_simulation_plan_telemetry_and_batch_aggregation(tmp_path: Path) -> None
     assert ps["combo_assembly_rate"] == 0.5
     assert ps["combo_deployment_rate"] == 0.5
 
-    # Tierliste simulation weight must stay 0 in default and all presets
-    assert strength.DEFAULT_WEIGHTS[strength.SIMULATION] == 0.0
+    # The tier list index knows no simulation component (Q1-b4, #1679, E15 Q1): simulation
+    # telemetry never reaches the default, a preset or the recommended weights
+    assert "simulation" not in strength.DEFAULT_WEIGHTS
     for preset in strength.PRESETS.values():
-        assert preset.weights[strength.SIMULATION] == 0.0
-    assert strength_view.presets()["recommended"]["weights"][strength.SIMULATION] == 0.0  # type: ignore[index]
+        assert "simulation" not in preset.weights
+    assert "simulation" not in strength_view.presets()["recommended"]["weights"]  # type: ignore[operator]

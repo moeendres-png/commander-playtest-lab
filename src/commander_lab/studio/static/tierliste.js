@@ -40,7 +40,7 @@ const NEED_NAMES = {
 // stays readable in the title of the node (codeNode), never as the label.
 const CODE_NAMES = {
   ORIGINAL_SOURCE: "Originalquelle", NORMALIZED_SOURCE: "Quelle, vereinheitlicht", DERIVED_DESCRIPTIVE: "abgeleitet, beschreibend",
-  SUBJECTIVE_RATING: "subjektive Einschätzung", SIMULATED_RESULT: "Simulation", OBSERVED_GAME: "beobachtete Spiele",
+  SIMULATED_RESULT: "Simulation", OBSERVED_GAME: "beobachtete Spiele",
   COMPLETE: "vollständig", PARTIAL: "teilweise", SPARSE: "dünn belegt", UNOBSERVED_IN_CORPUS: "im Korpus nicht beobachtet",
   BELOW_MIN_DENOMINATOR: "Nenner unter dem Mindestwert", NEGATIVE_NEUTRAL: "negativer Wert, neutral gewertet", NOT_LISTED: "von der Quelle nicht gelistet",
   GROUP_TOO_SMALL: "Vergleichsgruppe zu klein", ZERO_COUNT: "gezählt: 0", VALUE_UNKNOWN: "Quelle nennt keinen Wert", MISSING_AS_LOWEST: "als niedrigster Rang gezählt",

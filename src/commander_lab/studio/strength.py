@@ -3,8 +3,7 @@
 ``score_pool`` is a pure function: settings and per-card observations in, index and tier
 per card out. No I/O, no clock, no store. The store side lives in ``strength_view.py``.
 
-Tierliste v3 (#1364): the index is purely empirical. The rubric has weight 0 (subjective),
-the EDHREC commander and bracket inclusion weights are 0 while a counted local corpus exists
+Tierliste v3 (#1364): the index is purely empirical. The EDHREC commander and bracket inclusion weights are 0 while a counted local corpus exists
 (``apply_corpus_rule``, rule E2.a), shares with a denominator below ``EB_MAX_DENOMINATOR`` are
 shrunk by empirical Bayes (``beta_binomial_prior``), a counted 0 of N is ``ZERO_COUNT``
 (tier D, setting ``zero_count_tier``) and the share scale is logarithmic with
@@ -37,10 +36,6 @@ How it is computed, per commander and per signal:
    percentage points, not a share: it counts only from a minimum sample of games in
    which the card was cast, and the published gap is shrunk towards zero by that sample
    (``n / (n + k)``), so a small sample does not rank high by chance either.
-   The ``rubric`` component (#1358, Chulane only) is neither a share nor a rank: its value
-   ``(H_mean - 1) / 9`` of a frozen rating file is used directly as the 0..1 score, so the
-   magnitude of the rating is kept. It is commander specific and, for a commander without
-   the file, a missing source (``NOT_COLLECTED``) that does not lower any coverage.
 2. The value becomes a percentile rank (0..1) among the cards of the commander's legal pool
    that have a value for that signal and are ranked at all. The comparison group is the
    whole pool (default), the cards of the same main type or of the same mana value band
@@ -70,9 +65,10 @@ How it is computed, per commander and per signal:
    ``min_coverage`` or fewer than ``min_components`` components with a weight are present;
    otherwise the tier follows the index cuts.
 
-Simulation results are not an input by default: the ``simulation`` component exists and the
-Owner can weight it, but its weight is 0 in the defaults and in every preset (Owner decision
-2026-11-12), and with weight 0 it changes neither the index nor the tier nor the coverage.
+Simulation results are never an input: the index has no simulation component (Q1-b4, #1679,
+Owner decision E15 Q1). Nor are the rubric v1 rating and the TopDeck conversion components
+(removed in the same package); rubric v2 is shown beside the index as a model judgement
+(``understanding_field``), never inside it.
 The Owner's marks (favorite, excluded, note) are never an input.
 """
 
@@ -163,9 +159,8 @@ MISSING_LOWEST = "lowest"
 MISSING_CHOICES = (MISSING_SKIP, MISSING_LOWEST)
 MIN_EDHREC = "edhrec"
 MIN_TOURNAMENT = "tournament"
-MIN_CONVERSION = "conversion"
 MIN_PLAYGROUP = "playgroup"
-MIN_DENOMINATOR_KEYS = (MIN_EDHREC, MIN_TOURNAMENT, MIN_CONVERSION, MIN_PLAYGROUP)
+MIN_DENOMINATOR_KEYS = (MIN_EDHREC, MIN_TOURNAMENT, MIN_PLAYGROUP)
 MAX_MIN_DENOMINATOR = 100000
 
 COMBO_COMMANDER = "commander"
@@ -199,13 +194,10 @@ CORPUS_BRACKET_SLOPE = "corpus_bracket_slope"
 SYNERGY = "synergy"
 TOURNAMENT = "tournament"
 TOURNAMENT_LISTS = "tournament_lists"
-TOURNAMENT_CONVERSION = "tournament_conversion"
 EDHREC_THEME_REACH = "edhrec_theme_reach"
 GLOBAL_INCLUSION = "global_inclusion"
 COMBOS = "combos"
 PLAYGROUP_OBSERVED = "playgroup_observed"
-RUBRIC = "rubric"
-SIMULATION = "simulation"
 
 COMPONENTS = (
     COMMANDER_INCLUSION,
@@ -217,13 +209,10 @@ COMPONENTS = (
     SYNERGY,
     TOURNAMENT,
     TOURNAMENT_LISTS,
-    TOURNAMENT_CONVERSION,
     EDHREC_THEME_REACH,
     GLOBAL_INCLUSION,
     COMBOS,
     PLAYGROUP_OBSERVED,
-    RUBRIC,
-    SIMULATION,
 )
 LABELS: dict[str, str] = {
     COMMANDER_INCLUSION: "Aufnahme beim Commander (EDHREC)",
@@ -235,17 +224,12 @@ LABELS: dict[str, str] = {
     SYNERGY: "Synergie (EDHREC)",
     TOURNAMENT: "Turnier (EDHTop16 und Korpus Bracket 5)",
     TOURNAMENT_LISTS: "Turnierlisten des Commanders (TopDeck)",
-    TOURNAMENT_CONVERSION: "Turnier-Conversion (TopDeck)",
     EDHREC_THEME_REACH: "Reichweite in EDHREC-Themen (Maximum)",
     GLOBAL_INCLUSION: "Aufnahme überhaupt (EDHREC)",
     COMBOS: "Kombos",
     PLAYGROUP_OBSERVED: "Beobachtete Sieg-Korrelation (Playgroup)",
-    RUBRIC: "Raster-Bewertung (subjektiv, Gewicht 0, kein objektives Signal)",
-    SIMULATION: "Simulation",
 }
-# Where a component's value comes from (the ``data_class`` of its row). The rubric is a
-# subjective rating, never an objective signal (Owner decision E1.a): the label says so.
-SUBJECTIVE_RATING = "SUBJECTIVE_RATING"
+# Where a component's value comes from (the ``data_class`` of its row).
 COMPONENT_DATA_CLASS: dict[str, str] = {
     COMMANDER_INCLUSION: "NORMALIZED_SOURCE",
     BRACKET_INCLUSION: "NORMALIZED_SOURCE",
@@ -256,18 +240,11 @@ COMPONENT_DATA_CLASS: dict[str, str] = {
     SYNERGY: "NORMALIZED_SOURCE",
     TOURNAMENT: DATA_CLASS,
     TOURNAMENT_LISTS: DATA_CLASS,
-    TOURNAMENT_CONVERSION: "NORMALIZED_SOURCE",
     EDHREC_THEME_REACH: DATA_CLASS,
     GLOBAL_INCLUSION: "NORMALIZED_SOURCE",
     COMBOS: "NORMALIZED_SOURCE",
     PLAYGROUP_OBSERVED: "OBSERVED_GAME",
-    RUBRIC: SUBJECTIVE_RATING,
-    SIMULATION: "SIMULATED_RESULT",
 }
-# Components the tier list collects no data for at all, for now (Owner decision B11: simulation
-# results are not collected for it). Their weight stays adjustable, but while no card has a value
-# it adds nothing and must not lower any card's coverage.
-UNCOLLECTED_BY_DESIGN = frozenset({SIMULATION})
 # Components whose value is a share with a numerator and a denominator (Wilson bound).
 SHARE_COMPONENTS = frozenset(
     {
@@ -277,7 +254,6 @@ SHARE_COMPONENTS = frozenset(
         CORPUS_TUNED,
         TOURNAMENT,
         TOURNAMENT_LISTS,
-        TOURNAMENT_CONVERSION,
         EDHREC_THEME_REACH,
         GLOBAL_INCLUSION,
     }
@@ -294,9 +270,9 @@ ZERO_COUNT_COMPONENTS = frozenset({DECK_UNIVERSE, CORPUS_TUNED, TOURNAMENT})
 OBSERVED_MIN_SAMPLE = 25
 OBSERVED_SHRINKAGE = 200
 # Components whose value is already a 0..1 score and is used as it is (no percentile rank, no
-# share scale): the magnitude is kept. The rubric value is ``(H_mean - 1) / 9``; the corpus lift
-# and slope are ``(clip(damped log10 ratio, +-2) + 2) / 4``.
-DIRECT_COMPONENTS = frozenset({RUBRIC, CORPUS_LOG_LIFT, CORPUS_BRACKET_SLOPE})
+# share scale): the magnitude is kept. The corpus lift and slope are
+# ``(clip(damped log10 ratio, +-2) + 2) / 4``.
+DIRECT_COMPONENTS = frozenset({CORPUS_LOG_LIFT, CORPUS_BRACKET_SLOPE})
 # Signed log ratios mapped to 0..1 with 0.5 = neutral (ratio 1). In the weighted mean a value
 # below neutral would still raise a card whose other scores are near 0, so the index score is
 # ``max(0, 2 v - 1)``: only an above-neutral lift or slope adds, neutral or negative is 0. The
@@ -314,7 +290,6 @@ def above_neutral_score(value: float) -> float:
 # imported yet, they do not lower the coverage: the source cannot exist for that commander.
 COMMANDER_ONLY_SOURCES = frozenset(
     {
-        RUBRIC,
         CORPUS_TUNED,
         CORPUS_LOG_LIFT,
         CORPUS_BRACKET_SLOPE,
@@ -326,7 +301,7 @@ COMMANDER_ONLY_SOURCES = frozenset(
 # card be counted as the lowest rank (Owner decision B5 keeps "absent" a missing observation).
 MISSING_CAPABLE = (COMMANDER_INCLUSION, BRACKET_INCLUSION, DECK_UNIVERSE)
 # Components that say something about THIS commander (global inclusion, spellbook combos, the
-# Playgroup observation and simulation are independent of the commander): the rule
+# Playgroup observation are independent of the commander): the rule
 # "require_commander_signal" asks for at least one of them (or commander-sourced combos)
 # with a ranked value before a card gets a tier.
 COMMANDER_SPECIFIC = (
@@ -340,7 +315,6 @@ COMMANDER_SPECIFIC = (
     TOURNAMENT,
     TOURNAMENT_LISTS,
     EDHREC_THEME_REACH,
-    RUBRIC,
 )
 
 
@@ -349,20 +323,6 @@ def is_commander_specific(component: str, combo_source: str = COMBO_COMMANDER) -
     return component in COMMANDER_SPECIFIC or (
         component == COMBOS and combo_source == COMBO_COMMANDER
     )
-
-
-# The rubric rates every card with a holistic value H from 1 to 10; the component value is the
-# fraction of that range, so 1 is 0.0 and 10 is 1.0 (a magnitude, not a share and not a rank).
-RUBRIC_H_MIN = 1.0
-RUBRIC_H_MAX = 10.0
-
-
-def rubric_value(h_mean: float) -> float | None:
-    """The rubric component value ``(H - 1) / 9`` of a mean rating, ``None`` when it lies
-    outside 1..10 or is not a finite number (unknown, never clipped to a bound)."""
-    if not math.isfinite(h_mean) or not RUBRIC_H_MIN <= h_mean <= RUBRIC_H_MAX:
-        return None
-    return (h_mean - RUBRIC_H_MIN) / (RUBRIC_H_MAX - RUBRIC_H_MIN)
 
 
 _EDHREC_SHARES = frozenset({COMMANDER_INCLUSION, BRACKET_INCLUSION, GLOBAL_INCLUSION})
@@ -383,15 +343,15 @@ DEFAULT_MISSING_VALUE: dict[str, str] = {
 # place in Python. ``strength_view.presets`` serves them, the page never hard-codes them.
 #
 # Owner decisions of #1364 (Tierliste v3, E1.a to E5.a): the index is purely empirical.
-# - E1.a: the rubric is subjective, its weight is 0 here and in every preset (the component, its
-#   importer and its column stay).
+# - E1.a (superseded by E15 Q1, Q1-b4 #1679): the rubric v1 component, its importer and its
+#   column were removed, together with the simulation and the TopDeck conversion components.
 # - E2.a: while a counted local corpus of at least ``min_universe`` decks exists for the commander,
 #   the weights of ``commander_inclusion`` and ``bracket_inclusion`` below are NOT used (rule
 #   ``CORPUS_ZERO``, ``apply_corpus_rule``); without such a corpus they are the fallback weights
 #   (3 and 2, as before) and the EDHREC inclusion carries the index.
 # - E3.a: corpus_tuned, corpus_log_lift, corpus_bracket_slope, tournament and edhrec_theme_reach
-#   come from the counted corpus and the sources around it. The TopDeck components stay as
-#   columns with weight 0: their data is empty (7 lists, no conversion).
+#   come from the counted corpus and the sources around it. The TopDeck lists component stays as
+#   a column with weight 0: its data is thin (7 lists).
 DEFAULT_WEIGHTS: dict[str, float] = {
     COMMANDER_INCLUSION: 3.0,
     BRACKET_INCLUSION: 2.0,
@@ -402,13 +362,10 @@ DEFAULT_WEIGHTS: dict[str, float] = {
     SYNERGY: 0.0,
     TOURNAMENT: 0.5,
     TOURNAMENT_LISTS: 0.0,
-    TOURNAMENT_CONVERSION: 0.0,
     EDHREC_THEME_REACH: 0.5,
     GLOBAL_INCLUSION: 1.0,
     COMBOS: 0.5,
     PLAYGROUP_OBSERVED: 0.0,
-    RUBRIC: 0.0,
-    SIMULATION: 0.0,
 }
 # Tier cuts of the purely empirical index, derived once (#1366) from the default ``Ausgewogen``
 # index with a rule fixed in advance: C is the smallest whole number above the highest index of
@@ -421,7 +378,6 @@ DEFAULT_CUTS: dict[str, float] = {"S": 54.0, "A": 35.0, "B": 20.0, "C": 5.0}
 DEFAULT_MIN_DENOMINATORS: dict[str, int] = {
     MIN_EDHREC: 30,
     MIN_TOURNAMENT: 20,
-    MIN_CONVERSION: 20,
     MIN_PLAYGROUP: 200,
 }
 DEFAULT_BRACKET = "upgraded"
@@ -445,6 +401,11 @@ DEFAULT_SEPARATE_LANDS = True
 DEFAULT_MIN_COVERAGE = 0.25
 DEFAULT_REQUIRE_COMMANDER_SIGNAL = True
 DEFAULT_MIN_COMPONENTS = 2
+# Upper bound of ``min_components``, frozen at the 16 components the index had before Q1-b4
+# (#1679) removed three: a stored profile that asked for up to 16 stays valid. A value above the
+# number of weighted components acts like that number (``needed`` in ``score_pool``), so the
+# frozen bound changes no result.
+MAX_MIN_COMPONENTS = 16
 MAX_WEIGHT = 100.0
 
 _SETTINGS_KEYS = frozenset(
@@ -483,8 +444,10 @@ RETIRED_WEIGHTS = "weights"
 RETIRED_MIN_DENOMINATORS = "min_denominators"
 RETIRED_TOP_LEVEL = "top_level"
 RETIRED_SETTING_KEYS: Mapping[str, frozenset[str]] = {
-    RETIRED_WEIGHTS: frozenset(),
-    RETIRED_MIN_DENOMINATORS: frozenset(),
+    # Q1-b4 (#1679): the components rubric (rubric v1), simulation and tournament_conversion
+    # (TopDeck conversion) fell, and with the last one its minimum denominator.
+    RETIRED_WEIGHTS: frozenset({"rubric", "simulation", "tournament_conversion"}),
+    RETIRED_MIN_DENOMINATORS: frozenset({"conversion"}),
     # Q1-b2 (#1677): the rating layers (``layer_weights``) and their pod size fell.
     RETIRED_TOP_LEVEL: frozenset({"layer_weights", "pod_size"}),
 }
@@ -492,6 +455,12 @@ RETIRED_SETTING_KEYS: Mapping[str, frozenset[str]] = {
 # different value gets one calm notice that the value no longer acts (``retired_deviations``).
 # ``layer_weights``: every layer weight 0; ``pod_size``: 4 players.
 RETIRED_TOP_LEVEL_DEFAULTS: Mapping[str, object] = {"layer_weights": 0.0, "pod_size": 4}
+# The same for the retired keys inside ``weights`` and ``min_denominators`` (Q1-b4): the three
+# component weights were 0 in the defaults and in every preset, the conversion minimum was 20.
+RETIRED_NESTED_DEFAULTS: Mapping[str, Mapping[str, object]] = {
+    RETIRED_WEIGHTS: {"rubric": 0.0, "simulation": 0.0, "tournament_conversion": 0.0},
+    RETIRED_MIN_DENOMINATORS: {"conversion": 20},
+}
 
 
 def _retired(group: str) -> frozenset[str]:
@@ -500,9 +469,11 @@ def _retired(group: str) -> frozenset[str]:
 
 
 def retired_deviations(raw: Mapping[str, object]) -> list[str]:
-    """The retired top-level keys of ``raw`` (a stored settings spec) whose value differed from
-    the default it had when the key fell, sorted. ``layer_weights`` differs when any weight is
-    not 0; an unreadable value counts as differing (it was not the default)."""
+    """The retired keys of ``raw`` (a stored settings spec) whose value differed from the
+    default it had when the key fell, sorted. A top-level key is named as it is
+    (``layer_weights`` differs when any weight is not 0), a key inside ``weights`` or
+    ``min_denominators`` with its group (``weights.rubric``). An unreadable value counts as
+    differing (it was not the default)."""
     found: list[str] = []
     for key in sorted(_retired(RETIRED_TOP_LEVEL) & set(RETIRED_TOP_LEVEL_DEFAULTS)):
         if key not in raw:
@@ -512,7 +483,17 @@ def retired_deviations(raw: Mapping[str, object]) -> list[str]:
         not_a_map = key == "layer_weights" and not isinstance(value, Mapping)
         if not_a_map or any(isinstance(item, bool) or item != default for item in values):
             found.append(key)
-    return found
+    for group, defaults in RETIRED_NESTED_DEFAULTS.items():
+        nested = raw.get(group)
+        if not isinstance(nested, Mapping):
+            continue
+        for key in sorted(_retired(group) & set(defaults)):
+            if key not in nested:
+                continue
+            item = nested[key]
+            if isinstance(item, bool) or item != defaults[key]:
+                found.append(f"{group}.{key}")
+    return sorted(found)
 
 
 def _without_retired(values: Mapping[str, object], group: str) -> dict[str, object]:
@@ -565,11 +546,8 @@ def signal_for(
         EDHREC_THEME_REACH: "edhrec_theme_inclusion_max",
         SYNERGY: "edhrec_commander_synergy",
         TOURNAMENT_LISTS: "tournament_lists",
-        TOURNAMENT_CONVERSION: "topdeck_card_conversion",
         GLOBAL_INCLUSION: "edhrec_global_inclusion",
         PLAYGROUP_OBSERVED: "playgroup_observed_winrate_gap",
-        RUBRIC: "rubric_h_mean",
-        SIMULATION: "",
     }[component]
 
 
@@ -670,9 +648,9 @@ class StrengthSettings:
         if (
             isinstance(self.min_components, bool)
             or not isinstance(self.min_components, int)
-            or not 0 <= self.min_components <= len(COMPONENTS)
+            or not 0 <= self.min_components <= MAX_MIN_COMPONENTS
         ):
-            raise ValueError(f"min_components must be an integer from 0 to {len(COMPONENTS)}")
+            raise ValueError(f"min_components must be an integer from 0 to {MAX_MIN_COMPONENTS}")
         if set(self.tier_cuts) != set(DEFAULT_CUTS):
             raise ValueError("tier_cuts needs exactly S, A, B and C")
         cuts = {tier: _number(self.tier_cuts[tier], f"cut {tier}") for tier in DEFAULT_CUTS}
@@ -753,8 +731,6 @@ class StrengthSettings:
             return self.min_denominators[MIN_EDHREC]
         if component == CORPUS_TUNED:
             return universe_minimum
-        if component == TOURNAMENT_CONVERSION:
-            return self.min_denominators[MIN_CONVERSION]
         if component == PLAYGROUP_OBSERVED:
             return self.min_denominators[MIN_PLAYGROUP]
         if component == DECK_UNIVERSE:
@@ -929,13 +905,10 @@ PRESETS: dict[str, StrengthSettings] = dict(
                 SYNERGY: 0.0,
                 TOURNAMENT: 0.0,
                 TOURNAMENT_LISTS: 0.0,
-                TOURNAMENT_CONVERSION: 0.0,
                 EDHREC_THEME_REACH: 1.0,
                 GLOBAL_INCLUSION: 0.5,
                 COMBOS: 0.5,
                 PLAYGROUP_OBSERVED: 0.0,
-                RUBRIC: 0.0,
-                SIMULATION: 0.0,
             },
             DEFAULT_BRACKET,
         ),
@@ -951,13 +924,10 @@ PRESETS: dict[str, StrengthSettings] = dict(
                 SYNERGY: 0.0,
                 TOURNAMENT: 2.0,
                 TOURNAMENT_LISTS: 0.0,
-                TOURNAMENT_CONVERSION: 0.0,
                 EDHREC_THEME_REACH: 0.0,
                 GLOBAL_INCLUSION: 0.5,
                 COMBOS: 1.0,
                 PLAYGROUP_OBSERVED: 0.0,
-                RUBRIC: 0.0,
-                SIMULATION: 0.0,
             },
             "cedh",
         ),
@@ -984,7 +954,7 @@ class Observation:
     value: float | None
     numerator: int | None = None
     denominator: int | None = None
-    # Free text a source adds to the row of a present value (the rubric: H, spread, raters).
+    # Free text a source adds to the row of a present value.
     note: str = ""
     # A producer that picks one value among several shares (the highest EDHREC theme) shrinks
     # each share first and takes the maximum of the posterior means: ``shrunk`` is that value,
@@ -1589,7 +1559,7 @@ def _scale_component_values(
     log_k: float = LOG_SHARE_K,
 ) -> dict[str, float]:
     """Convert component values to 0..1 scores: share components use ``settings.share_scale``,
-    direct components (the rubric) keep their 0..1 value, the other non-share components
+    direct components keep their 0..1 value, the other non-share components
     (synergy, combos, playgroup) always use ``percentile_ranks``."""
     if component in SHARE_COMPONENTS:
         return share_scale_values(values, settings.share_scale, log_k)
@@ -1792,17 +1762,6 @@ def component_label(component: str, *, combo_source: str = COMBO_COMMANDER) -> s
             else "Kombos (Commander Spellbook)"
         )
     return LABELS[component]
-
-
-def weights_without_effect(settings: StrengthSettings, collected: Collection[str]) -> list[str]:
-    """Notes for a positive weight on a source that has no data at all (it cannot act)."""
-    return [
-        f"{LABELS[name]}: keine Daten, Gewicht ohne Wirkung"
-        for name in COMPONENTS
-        if name in UNCOLLECTED_BY_DESIGN
-        and name not in collected
-        and settings.effective_weight(name) > 0
-    ]
 
 
 def _component_parts(observation: Observation | None, status: str) -> list[ComponentPart]:
@@ -2056,7 +2015,7 @@ def relative_tiers(
 #   strength_view.py:1066) adds EDHTop16 and the corpus bracket 5 (a subset of the source decks)
 #   to one n / N (D5).
 # - combos: ``_combo_observations`` (strength_view.py:392) / the stored EDHREC combo signal.
-# - everything else (Playgroup, rubric, simulation, the TopDeck lists and conversion): other,
+# - everything else (Playgroup, the TopDeck lists): other,
 #   weight 0 in the defaults.
 FAMILY_SOURCE_DECKS = "source_decks"
 FAMILY_EDHREC = "edhrec"
@@ -2068,7 +2027,7 @@ TOURNAMENT_FAMILY_NOTE = (
     "EDHTop16 und Korpus-Bracket 5 (Teilmenge der Quelldecks) zu einem n/N addiert (E3.a)"
 )
 EDHREC_FAMILY_NOTE = "veröffentlichte EDHREC-Zahlen (Seiten, Themen, Gesamtaufnahme)"
-OTHER_FAMILY_NOTE = "Playgroup, Rubrik, Simulation und TopDeck-Listen"
+OTHER_FAMILY_NOTE = "Playgroup und TopDeck-Listen"
 WEIGHT_FAMILIES: tuple[tuple[str, str, tuple[str, ...], str], ...] = (
     (
         FAMILY_SOURCE_DECKS,
@@ -2176,16 +2135,13 @@ def score_pool(
         if settings.effective_weight(name) > 0 and name in collected and rankings[name].usable
     }
     # The coverage denominator stays main's rule (Owner-visible numbers such as "4 of 13"): every
-    # weighted component counts, except the by-design uncollected ones that were not
-    # collected. A source never imported still counts against a card.
+    # weighted component counts, except a commander-only source that was not collected for this
+    # commander. A source never imported still counts against a card.
     denominator_weight = {
         name: settings.effective_weight(name)
         for name in rated
         if settings.effective_weight(name) > 0
-        and not (
-            (name in UNCOLLECTED_BY_DESIGN or name in COMMANDER_ONLY_SOURCES)
-            and name not in collected
-        )
+        and not (name in COMMANDER_ONLY_SOURCES and name not in collected)
     }
     any_positive_weight = any(settings.effective_weight(name) > 0 for name in rated)
     if diagnostics is not None:

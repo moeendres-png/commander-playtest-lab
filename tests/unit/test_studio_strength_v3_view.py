@@ -389,21 +389,6 @@ def _saved(store: StudioStore, name: str, **weights: float) -> StrengthSettings:
     return strength_view.resolve_settings(store, preset=None, profile=name, settings=None)
 
 
-def test_a_loaded_profile_with_a_rubric_weight_says_the_subjective_signal_is_active() -> None:
-    store = _store()
-    loaded = _saved(store, "mit Raster", rubric=2.0)
-    result = strength_view.compute(
-        store,
-        CMD,
-        loaded,
-        dangling_universe_ok=True,
-        saved_weights=strength_view.profile_saved_weights(store, "mit Raster"),
-    )
-    assert any("subjektives Signal aktiv" in note for note in result["notices"])
-    plain = strength_view.compute(store, CMD, StrengthSettings())
-    assert not any("subjektives Signal" in note for note in plain["notices"])
-
-
 def test_the_corpus_rule_names_the_saved_edhrec_weights_it_zeroes() -> None:
     store = _store()
     loaded = _saved(store, "alt")

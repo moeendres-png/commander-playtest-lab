@@ -521,18 +521,16 @@ def test_cli_ranking_check_renders_text_and_json(
         )
 
 
-def test_agreement_with_the_rubric_is_reported_only_when_the_rubric_is_collected() -> None:
+def test_the_ranking_check_has_no_rubric_block_any_more() -> None:
+    """Rewritten from ``test_agreement_with_the_rubric_is_reported_only_when_the_rubric_is_
+    collected`` (Q1-b4, #1679: the rubric v1 component and ``vs_rubric`` fell). The Spearman
+    block keeps its three entries; neither the report nor its text name the rubric."""
     cards = ["a", "b", "c", "d", "e", "f"]
     shares = {
         card: Observation(share / 100, share, 100)
         for card, share in zip(cards, (40, 30, 20, 10, 5, 1), strict=True)
     }
-    # the rubric orders the cards the other way round: H 1..6 for a..f is the reverse of the shares
-    rubric = {card: Observation((6 - index) / 9) for index, card in enumerate(cards)}
     weights = {name: 0.0 for name in strength.COMPONENTS} | {DECK_UNIVERSE: 1.0}
-    settings = StrengthSettings(
-        weights=weights | {strength.RUBRIC: 1.0}, min_coverage=0.0, min_components=1
-    )
     context = PoolContext(
         type_group={
             "a": "Land",
@@ -543,38 +541,19 @@ def test_agreement_with_the_rubric_is_reported_only_when_the_rubric_is_collected
             "f": "Creature",
         }
     )
-    observations = _obs(cards, {DECK_UNIVERSE: shares, strength.RUBRIC: rubric})
+    stray = {card: Observation(0.5) for card in cards}  # a stored rubric row is never read
+    observations = _obs(cards, {DECK_UNIVERSE: shares, "rubric": stray})
     report = check_ranking(
-        settings,
-        observations,
-        {DECK_UNIVERSE, strength.RUBRIC},
-        context=context,
-        counted_lists=shares,
-    )
-    block = report["spearman"]["vs_rubric"]
-    assert block is not None and "Raster-Bewertung" in block["note"]
-    assert block["all_ranked"]["compared"] == block["all_ranked"]["of_ranked"] == 6
-    assert block["lands"]["of_ranked"] == 2 and block["non_lands"]["of_ranked"] == 4
-    # the index is the mean of two opposite orders: its correlation with the rubric is a number
-    # in -1..1, and with the rubric alone it is exactly 1
-    assert block["all_ranked"]["spearman_rho"] is not None
-    only = StrengthSettings(
-        weights=dict.fromkeys(strength.COMPONENTS, 0.0) | {strength.RUBRIC: 1.0},
-        min_coverage=0.0,
-        min_components=1,
-    )
-    alone = check_ranking(
-        only, observations, {DECK_UNIVERSE, strength.RUBRIC}, context=context, counted_lists=shares
-    )
-    assert alone["spearman"]["vs_rubric"]["all_ranked"]["spearman_rho"] == 1.0  # type: ignore[index]
-    assert "1b. Übereinstimmung mit der Raster-Bewertung" in render_ranking_check(alone)
-    # without a rubric source the block is absent, not 0
-    plain = check_ranking(
         StrengthSettings(weights=weights, min_coverage=0.0, min_components=1),
         observations,
-        {DECK_UNIVERSE},
+        {DECK_UNIVERSE, "rubric"},
         context=context,
         counted_lists=shares,
     )
-    assert plain["spearman"]["vs_rubric"] is None
-    assert "Raster-Bewertung" not in render_ranking_check(plain)
+    block = report["spearman"]
+    assert "vs_rubric" not in block
+    assert block["all_ranked"]["compared"] == block["all_ranked"]["of_ranked"] == 6
+    assert block["lands"]["of_ranked"] == 2 and block["non_lands"]["of_ranked"] == 4
+    assert block["all_ranked"]["spearman_rho"] == 1.0  # the deck universe alone: same order
+    text = render_ranking_check(report)
+    assert "Raster-Bewertung" not in text and "1b." not in text
