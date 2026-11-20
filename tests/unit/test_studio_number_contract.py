@@ -291,6 +291,26 @@ def test_inconsistent_source_data_leave_the_figure_out_instead_of_failing() -> N
     assert "outcome.Odd.rate_not" in kept  # the other figures of the card stay
 
 
+def test_pooled_outcomes_carry_no_single_state_but_the_strata() -> None:
+    card = {"card": "X", "status": "MEASURED", "reason": None, "games_total": 10}
+    card |= {"games_in_first_hand": 4, "rate_in": 0.5, "games_not_in_first_hand": 6}
+    stand = {"deck_id": "d", "cards": [card], "pilots": ["P"], "warnings": []}
+    table = {
+        **stand,
+        "pooling": {"status": "POOLED", "method": "mantel_haenszel"},
+        "strata": 2,
+        "deck_hash": "h1",  # even a stray hash at the top never names a combined answer
+        "stands": [{**stand, "deck_hash": "h1"}, {**stand, "deck_hash": "h2"}],
+        "unknown_stand": None,
+    }
+    zahlen = {item["id"]: item for item in nc.outcomes_zahlen(table)}
+    pooled = zahlen["outcome.X.rate_in"]
+    assert pooled["stand_hash"] is None
+    assert "geschichtet über 2 Stände (mantel_haenszel)" in pooled["hinweise"]
+    assert zahlen["outcome.stand.h1.X.rate_in"]["stand_hash"] == "h1"
+    assert zahlen["outcome.stand.h2.X.rate_in"]["stand_hash"] == "h2"
+
+
 def test_series_without_planned_pairs_or_result_gets_no_contract() -> None:
     base = {"series_id": "s", "counts_as_result": True, "pairs_completed": 4, "pilots": []}
     payload = {
@@ -337,7 +357,7 @@ def test_what_if_route_only_gains_zahlen(tmp_path: Path) -> None:
     assert json.dumps(old, sort_keys=True) == json.dumps(direct, sort_keys=True, default=list)
 
 
-def test_outcomes_route_sends_simulated_contracts_with_state_and_pilot(tmp_path: Path) -> None:
+def test_outcomes_route_sends_simulated_contracts_per_deck_state(tmp_path: Path) -> None:
     store = StudioStore.open(tmp_path / "studio")
     _fill(store, tmp_path)
     assert store.path is not None
@@ -345,17 +365,32 @@ def test_outcomes_route_sends_simulated_contracts_with_state_and_pilot(tmp_path:
     store.close()
     _write_log(folder / "games", "g1", _simple_frames(["Forest", "Spell"]))
     _write_log(folder / "games", "g2", _simple_frames(["Forest", "Other"]), winners=(1,), seed=2)
+    old_log = _simple_frames(["Forest", "Spell"])
+    _write_log(folder / "games", "g3", old_log, seed=3, deck_hashes=None)
     with TestClient(create_app(folder), headers={"X-Studio": "1"}) as client:
         body = client.get("/api/outcomes", params={"deck_id": DECK, "min_exposed": 1}).json()
     zahlen = _assert_all_valid(body["zahlen"])
-    assert len(zahlen) == 3 * len(body["cards"])
+    stand_hash = body["deck_hash"]
+    assert body["pooling"]["status"] == "SINGLE_STAND" and stand_hash
+    unknown = body["unknown_stand"]
+    top = [
+        item for item in zahlen if item["id"].startswith("outcome.") and item["id"].count(".") == 2
+    ]
+    per_stand = [item for item in zahlen if item["id"].startswith(f"outcome.stand.{stand_hash}.")]
+    apart = [item for item in zahlen if item["id"].startswith("outcome.unknown.")]
+    assert len(top) == len(per_stand) == 3 * len(body["cards"])
+    assert len(apart) == 3 * len(unknown["cards"]) > 0
+    assert len(zahlen) == len(top) + len(per_stand) + len(apart)
     for item in zahlen:
         assert item["klasse"] == "SIMULIERT" and item["data_class"] == "SIMULATED_RESULT"
-        assert item["stand_hash"] is None  # the logs carry no deck hash per seat before B1
         assert item["pilot"] == "Konstante" and item["piloten"] == ["Pilot 1.0.0"]
-        assert item["N"] == body["games_total"]
         assert item["hinweise"][0].startswith("Status ")
         assert item["bezug"].startswith("Partien (")
+    for item in [*top, *per_stand]:
+        assert item["stand_hash"] == stand_hash and item["N"] == body["games_total"]
+    for item in apart:  # logs before #1657: their own n/N, never added to the known stand
+        assert item["stand_hash"] is None and item["N"] == unknown["games_total"]
+        assert "Stand unbekannt (Protokoll ohne Deck-Hash)" in item["hinweise"]
     by_id = {item["id"]: item for item in zahlen}
     forest = next(card for card in body["cards"] if card["card"] == "Forest")
     assert by_id["outcome.Forest.rate_in"]["n"] == forest["games_in_first_hand"]

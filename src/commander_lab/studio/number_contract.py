@@ -10,7 +10,7 @@ Classes (``klasse``):
 * ``EXAKT``: computed from the list itself (hypergeometry, castability, counts of the list).
 * ``GEZÄHLT``: counted in a cohort (corpus, playgroup); always with ``N`` and ``kohorte``.
 * ``SIMULIERT``: a simulated result (``data_class`` ``SIMULATED_RESULT``); always with ``N``,
-  the deck state (``stand_hash``, ``None`` = unknown) and the pilot origin (``pilot``; until the
+  the deck state (``stand_hash``, ``None`` = unknown or several states combined) and the pilot origin (``pilot``; until the
   experiment object B2 it is the constant ``"Konstante"``).
 * ``URTEIL``: a model judgement (for example rubric v2 "Kartenverständnis").
 
@@ -369,15 +369,50 @@ def diff_zahlen(diff: Mapping[str, object]) -> list[dict[str, object]]:
 
 
 def outcomes_zahlen(table: Mapping[str, object]) -> list[dict[str, object]]:
-    """Contracts for ``/api/outcomes``: per card of the table the rate with and without the card
-    in the first dealt hand and their difference (SIMULIERT), with the card's status and reason
-    and the table's warnings as ``hinweise``. The deck state is unknown (``None``) until the
-    game logs carry the deck hash per seat (B1, #1657)."""
+    """Contracts for ``/api/outcomes`` (per deck state since B1, #1657): per card the rate with
+    and without the card in the first dealt hand and their difference (SIMULIERT), with the
+    card's status and reason and the table's warnings as ``hinweise``.
+
+    * top level (``outcome.<card>.<key>``): one known stand carries its ``deck_hash``; several
+      stands combined stratified carry ``stand_hash`` ``None`` and the number of strata as a
+      note (no single state); ``NOT_POOLED`` has no card rows and so no figures;
+    * every known stand (``outcome.stand.<hash>.<card>.<key>``) with its own hash;
+    * the logs without a deck state (``outcome.unknown.<card>.<key>``), ``stand_hash`` ``None``,
+      never added to a known stand."""
     out: list[dict[str, object]] = []
+    pooling = _mapping(table.get("pooling"))
+    top_hash = table.get("deck_hash") if _text(table.get("deck_hash")) else None
+    top_notes: list[str] = []
+    if pooling.get("status") == "POOLED":
+        top_hash = None
+        top_notes.append(f"geschichtet über {table.get('strata')} Stände ({pooling.get('method')})")
+    _outcome_table(
+        out, table, "outcome", top_hash if isinstance(top_hash, str) else None, top_notes
+    )
+    for item in _list(table.get("stands")):
+        stand = _mapping(item)
+        deck_hash = stand.get("deck_hash")
+        if isinstance(deck_hash, str) and _text(deck_hash):
+            _outcome_table(out, stand, f"outcome.stand.{deck_hash}", deck_hash, [])
+    unknown = _mapping(table.get("unknown_stand"))
+    if unknown:
+        _outcome_table(
+            out, unknown, "outcome.unknown", None, ["Stand unbekannt (Protokoll ohne Deck-Hash)"]
+        )
+    return out
+
+
+def _outcome_table(
+    out: list[dict[str, object]],
+    table: Mapping[str, object],
+    prefix: str,
+    stand_hash: str | None,
+    extra_notes: list[str],
+) -> None:
     deck_id = str(table.get("deck_id") or "")
     pilots = _names(table.get("pilots"))
     source = "Studio-Spielprotokolle (erste gezogene Hand)"
-    table_notes = _names(table.get("warnings"))
+    table_notes = [*extra_notes, *_names(table.get("warnings"))]
     states = _names(table.get("bridge_qualification_states"))
     if states:
         table_notes.append(f"Bridge-Zustand: {', '.join(states)}")
@@ -396,14 +431,14 @@ def outcomes_zahlen(table: Mapping[str, object]) -> list[dict[str, object]]:
             "quelle": source,
             "N": total,
             "kohorte": f"Deck {deck_id}" if deck_id else None,
-            "stand_hash": None,
+            "stand_hash": stand_hash,
             "pilot": PILOT_KONSTANTE,
             "piloten": pilots,
             "hinweise": notes,
         }
         _try(
             out,
-            f"outcome.{name}.rate_in",
+            f"{prefix}.{name}.rate_in",
             f"Siegquote mit {name} in der ersten Hand",
             _float_or_none(card.get("rate_in")),
             einheit="Anteil",
@@ -414,7 +449,7 @@ def outcomes_zahlen(table: Mapping[str, object]) -> list[dict[str, object]]:
         )
         _try(
             out,
-            f"outcome.{name}.rate_not",
+            f"{prefix}.{name}.rate_not",
             f"Siegquote ohne {name} in der ersten Hand",
             _float_or_none(card.get("rate_not")),
             einheit="Anteil",
@@ -426,7 +461,7 @@ def outcomes_zahlen(table: Mapping[str, object]) -> list[dict[str, object]]:
         difference = _float_or_none(card.get("difference_pp"))
         _try(
             out,
-            f"outcome.{name}.difference_pp",
+            f"{prefix}.{name}.difference_pp",
             f"Differenz mit/ohne {name} in der ersten Hand",
             difference,
             einheit="pp",
@@ -435,7 +470,6 @@ def outcomes_zahlen(table: Mapping[str, object]) -> list[dict[str, object]]:
             intervall=_interval(card.get("difference_ci95_pp")),
             **common,
         )
-    return out
 
 
 def series_zahlen(
