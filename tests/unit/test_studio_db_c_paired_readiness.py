@@ -1049,7 +1049,7 @@ def test_paired_js_renders_the_backend_plan_and_honest_sentences() -> None:
     # the history table carries the slot column for every stored series
     assert 'h("th", {}, "Plätze")' in paired_js
     assert "pairedAlignmentShort(item.slot_alignment)" in paired_js
-    assert "loadPairedPlanLines(deps.api," in paired_js
+    assert "loadPairedTablePlan(deps.api," in paired_js
 
 
 def test_series_progress_text_counts_played_games_and_says_unknown_when_absent() -> None:
