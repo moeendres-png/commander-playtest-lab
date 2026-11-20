@@ -94,16 +94,13 @@ def test_pool_cards_carry_their_labels(store: StudioStore) -> None:
     assert any(card["labels"] == [] for card in pool)
 
 
-def test_labels_never_change_tier_index_layers_or_evidence(
-    store: StudioStore, tmp_path: Path
-) -> None:
+def test_labels_never_change_tier_index_or_evidence(store: StudioStore, tmp_path: Path) -> None:
     _import(store, tmp_path)
 
     def snapshot() -> str:
         index = strength_view.compute(store, COMMANDER, StrengthSettings())
-        layers = strength_view.rating_layers(store, COMMANDER, 4)
         evidence = evidence_model.pool_evidence(store, [COMMANDER])["cards"]
-        return json.dumps([index, layers, evidence], sort_keys=True, default=str)
+        return json.dumps([index, evidence], sort_keys=True, default=str)
 
     before = snapshot()
     pool = builder.pool_cards(store, [COMMANDER])["cards"]

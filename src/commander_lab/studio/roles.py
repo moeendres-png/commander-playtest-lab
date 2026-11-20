@@ -571,8 +571,8 @@ _TEMP_BOOST_RE = re.compile(
 )
 # Parenthesised reminder text explains an ability of another object (a token
 # the card creates) or of a keyword; the mana and search rules below read the
-# text with it removed, the same convention as layers.py: the token has the
-# ability, not the card that creates it.
+# text with it removed: the token has the ability, not the card that creates
+# it.
 _REMINDER = re.compile(r"\([^()]*\)")
 # A draw whose drawer is not the card's controller ("that player draws", "each
 # player draws", "its controller draws"). "Target player draws" stays: the

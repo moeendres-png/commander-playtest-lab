@@ -17,6 +17,8 @@ COMMANDER = "Test Commander"
 
 
 def test_default_and_every_preset_give_simulation_the_weight_zero() -> None:
+    """Also carries the simulation statement of the former ``test_studio_layer_weight_zero.py``
+    (Q1-b2 #1677): default and every preset keep ``simulation`` at 0."""
     assert StrengthSettings().weights[strength.SIMULATION] == 0.0
     assert strength.DEFAULT_WEIGHTS[strength.SIMULATION] == 0.0
     assert set(strength.PRESETS) == {"Ausgewogen", "Commander-nah", "Turniernah"}

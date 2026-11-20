@@ -159,10 +159,6 @@ const CONFIDENCE_TEXT = "Konfidenz = Datenlage mal Verlässlichkeit des Zählers
 const REASON_SHORT = { ZERO_COUNT_ONLY: "nur gezählte Nullen", TOO_LITTLE_DATA: "zu wenig Daten", NO_COMMANDER_SIGNAL: "kein Commander-Signal", NO_SOURCE_FOR_COMMANDER: "keine Quelle für den Commander", NO_POSITIVE_WEIGHT: "alle Gewichte 0" };
 const TIER_FILTER_NAMES = { U: "zu wenig Daten", N: "nicht bewertet" };
 const PERCENTILE_SORT = "pct:";
-const LAYER_SORT = "layer:";
-const LAYER_COLUMNS_KEY = "studio.tier.layer-columns";
-const LAYER_KIND_SHORT = { measured: "gemessen", derived: "abgeleitet" };
-const LAYER_NOTE = "Bewertungsebenen sind eigene Spalten neben dem Stärke-Index. Sie ändern die Stufe nur, wenn du ihnen unter „Zusätzliche Ebenen“ ein Gewicht gibst (empfohlen: 0). Ein unbekannter Wert steht als „–“ mit Grund und ist nie 0.";
 const SMALL_FIRST = new Set(["name", "mv", "rolerank", "overall_rank"]);
 
 const state = {
@@ -170,7 +166,7 @@ const state = {
   universe: { profiles: [], name: "", summary: null, spread: null, options: null },
   strength: { meta: null, settings: null, profiles: [], counted: [], result: null, map: null, ticket: 0, tiers: new Set(), selectedProfile: "", good: null, note: "", draft: { fields: {}, name: "" }, status: "loading" },
   deckCards: new Map(), deckRoles: {}, pool: new Map(), ticket: 0, need: "", sortKey: "strength", sortDir: -1, shown: 150,
-  layerCols: new Set(), podFilter: "", roleAudit: null,
+  roleAudit: null,
   cohortShapes: [], roleGapOnly: false,
   preset: "detail", funcMode: false, lastFocus: null, lastFocusCard: "", ranking: DEFAULT_RANKING,
 };
@@ -329,10 +325,6 @@ function sortValue(card, key) {
     const row = item ? item.components.find((c) => c.component === key.slice(PERCENTILE_SORT.length)) : null;
     return row && row.percentile !== null && row.percentile !== undefined ? row.percentile : null;
   }
-  if (key.startsWith(LAYER_SORT)) { // percentile of one rating layer; no value sorts last
-    const item = layerItem(card, key.slice(LAYER_SORT.length));
-    return item && item.status === "OK" && item.percentile !== null ? item.percentile : null;
-  }
   if (key === "overall") { const overall = overallOf(card); return overall && overall.score !== null && overall.score !== undefined ? overall.score : null; } // unknown sorts last, never 0
   if (key === "overall_rank") { const overall = overallOf(card); return overall && overall.rank !== null && overall.rank !== undefined ? overall.rank : null; }
   if (key.startsWith(CRIT_SORT)) return overallCriterion(overallOf(card), key.slice(CRIT_SORT.length));
@@ -346,11 +338,6 @@ function sortValue(card, key) {
   return null;
 }
 
-// ---------- rating layers (Bewertungsebenen) ----------
-const layerMetas = () => (state.strength.meta ? state.strength.meta.layers : []);
-function layerItem(card, key) { const item = strengthItem(card); return item && item.layers ? item.layers[key] || null : null; }
-function podClass(card) { const item = layerItem(card, "pod_scaling"); return item && item.status === "OK" ? item.detail.class : null; }
-const shownLayers = () => layerMetas().filter((meta) => state.layerCols.has(meta.key));
 function sortBy(key) {
   if (state.sortKey === key) state.sortDir = -state.sortDir;
   else { state.sortKey = key; state.sortDir = SMALL_FIRST.has(key) ? 1 : -1; }
@@ -368,59 +355,23 @@ function sortHead(label, key, cls = "", title = "", aria = "") {
     h("button", { type: "button", class: "th-sort", "data-sort-key": key, "aria-label": aria || null, onclick: () => sortBy(key) }, label, h("span", { "aria-hidden": "true" }, arrow)));
 }
 const plainHead = (label, cls = "", title = "") => h("th", { scope: "col", class: cls, title }, label);
-function layerHead(meta) {
-  return sortHead(`${meta.label} (${LAYER_KIND_SHORT[meta.kind] || meta.kind})`, LAYER_SORT + meta.key, "layer-head", `${meta.description} Quelle: ${meta.source}. Nenner: ${meta.denominator}. Klicken sortiert nach dem Perzentil.`);
-}
-function layerCell(card, meta) {
-  if (state.view === "global") return h("span", { class: "unknown", title: "Die Ebenen werden je Commander berechnet." }, "–");
-  return StudioUI.layerNode(meta, layerItem(card, meta.key));
-}
-function rememberLayerColumns() { StudioUI.remember(LAYER_COLUMNS_KEY, JSON.stringify([...state.layerCols])); }
-function recallLayerColumns(metas) {
-  const all = metas.map((meta) => meta.key);
-  try {
-    const stored = JSON.parse(StudioUI.recall(LAYER_COLUMNS_KEY, "null"));
-    if (Array.isArray(stored)) return new Set(stored.filter((key) => all.includes(key)));
-  } catch (error) { /* unreadable memory: show every layer */ }
-  return new Set(all);
-}
-// Column menu (preset Kompakt/Detail and the rating-layer columns) and the Großpod filter. The host span sits
-// in the filter bar from the start, so nothing moves when the strength metadata arrives.
+// Column menu (preset Kompakt/Detail). The host span sits in the filter bar from the start.
 function setPreset(preset) {
   state.preset = preset === "compact" ? "compact" : "detail";
   StudioUI.remember(PRESET_KEY, state.preset);
-  renderLayerControls();
+  renderColumnControls();
   render();
 }
-function renderLayerControls() {
-  const host = $("layer-controls");
+function renderColumnControls() {
+  const host = $("col-controls");
   if (!host) return;
-  const metas = layerMetas();
   const compact = state.preset === "compact";
   const presetButtons = [["compact", "Kompakt"], ["detail", "Detail"]].map(([key, label]) => h("button", { type: "button", class: "chip" + (state.preset === key ? " on" : ""), "aria-pressed": String(state.preset === key), onclick: () => setPreset(key), title: key === "compact" ? "Stufe, Karte, Rolle, Manawert und Quelldecks" : "Alle Spalten" }, label));
-  const layerChecks = metas.length
-    ? h("div", { class: "col-layers", title: LAYER_NOTE },
-      h("div", { class: "muted" }, compact ? "Bewertungsebenen (nur in der Ansicht Detail)" : "Bewertungsebenen als Spalten"),
-      metas.map((meta) => h("label", { title: `${meta.description} (${LAYER_KIND_SHORT[meta.kind] || meta.kind})` },
-        h("input", { type: "checkbox", value: meta.key, checked: state.layerCols.has(meta.key), disabled: compact, onchange: (event) => { if (event.target.checked) state.layerCols.add(meta.key); else state.layerCols.delete(meta.key); rememberLayerColumns(); render(); } }), ` ${meta.label}`)))
-    : null;
   const menu = h("details", { class: "col-menu", id: "col-menu" },
     h("summary", {}, `Spalten: ${compact ? "Kompakt" : "Detail"}`),
-    h("div", { class: "col-menu-body" }, h("div", { class: "chips", role: "group", "aria-label": "Spaltenauswahl" }, ...presetButtons), layerChecks));
-  const nodes = [menu];
-  if (!metas.length) nodes.push(h("select", { id: "pod-filter", "aria-label": "Großpod-Wirkung filtern", title: "wird geladen", disabled: true }, h("option", {}, "Großpod-Wirkung: alle Klassen"))); // keeps the place until the metadata is there
-  if (metas.length) {
-    const classes = state.strength.meta.pod_classes;
-    const filter = h("select", { id: "pod-filter", "aria-label": "Großpod-Wirkung filtern", title: `Nach Großpod-Wirkung filtern. ${state.strength.meta.pod_derived_note}.` },
-      h("option", { value: "" }, "Großpod-Wirkung: alle Klassen"),
-      classes.map((item) => h("option", { value: item.key, title: item.help }, `Großpod-Wirkung: ${item.label}`)),
-      h("option", { value: "NONE" }, "Großpod-Wirkung: unbekannt"));
-    filter.value = state.podFilter;
-    filter.addEventListener("input", () => { state.podFilter = filter.value; state.shown = 150; render(false); });
-    nodes.push(filter);
-  }
+    h("div", { class: "col-menu-body" }, h("div", { class: "chips", role: "group", "aria-label": "Spaltenauswahl" }, ...presetButtons)));
   const wasOpen = $("col-menu") ? $("col-menu").open : false;
-  host.replaceChildren(...nodes);
+  host.replaceChildren(menu);
   if (wasOpen) $("col-menu").open = true;
 }
 
@@ -479,7 +430,6 @@ function visibleCards() {
     if (landKind === "spells" && card.group === "Land") return false;
     if (role && !cardRoles(card).includes(role)) return false;
     if (gapRoles && (state.deckCards.has(card.card_id) || !cardRoles(card).some((r) => gapRoles.has(r)))) return false;
-    if (state.podFilter && state.view !== "global") { const cls = podClass(card); if (state.podFilter === "NONE" ? cls !== null : cls !== state.podFilter) return false; }
     if (state.strength.tiers.size && state.strength.map) { const item = state.strength.map.get(card.card_id); if (!item || !state.strength.tiers.has(item.tier)) return false; }
     if (spreadLevel && state.universe.spread) { const item = state.universe.spread.get(card.card_id); if (!item || item.level !== spreadLevel) return false; }
     if (free && state.view !== "deck" && !(card.available > 0)) return false; // a deck is always shown whole
@@ -513,7 +463,6 @@ function activeFilterNames() {
   if (landKind) out.push(landKind === "lands" ? "nur Länder" : "nur Zauber");
   if (role) out.push(`Rolle ${roleName(role)}`);
   if (state.roleGapOnly) out.push("Schließt offenen Deck-Bedarf");
-  if (state.podFilter && state.view !== "global") out.push("Großpod-Wirkung");
   if (state.strength.tiers.size) out.push(`Stufe ${[...state.strength.tiers].join(", ")}`);
   if (spreadLevel) out.push(`Verbreitung ${spreadLevel}`);
   const base = baseCards();
@@ -872,11 +821,10 @@ function needBadges(card) {
 
 // ---------- tables ----------
 // Columns of the card table. "Kompakt" keeps the tier, card, marks, rank, mana value, roles and source decks;
-// "Detail" adds the rating layers, spread, mechanics, EDHREC, games and layers. Tier and card stay sticky.
+// "Detail" adds the spread, mechanics, EDHREC, games and layers. Tier and card stay sticky.
 function tableColumns() {
   const commander = state.view !== "global";
   const compact = state.preset === "compact";
-  const metas = compact ? [] : shownLayers();
   // The counted spread is its own column only while a stored universe is chosen. There is no
   // outcome column: no card has a result from games ("Unbewertet"), the pill above says so.
   const spread = !compact && Boolean(state.universe.name && state.universe.spread);
@@ -891,7 +839,6 @@ function tableColumns() {
     { head: () => plainHead("Favorit / Deck"), cell: cell("acts", markButtons) },
     ...(state.funcMode && commander ? [{ head: () => sortHead("Rang in Funktion", "rolerank", "", "Rang k von n Karten mit Stufe in der gleichen Funktion (Rolle), nach dem Index im Gesamtpool. Die Stufe bleibt die Stufe im Gesamtpool."), cell: cell("", functionRankCell) }] : []),
     ...(compact || !commander ? [] : [{ head: () => sortHead("Datenlage", "confidence", "", CONFIDENCE_TEXT), cell: cell("", datenlageCell) }]),
-    ...metas.map((meta) => ({ head: () => layerHead(meta), cell: cell("", (card) => layerCell(card, meta)) })),
     ...(spread ? [{ head: () => sortHead(SPREAD_LABEL, "spread"), cell: cell("", spreadCell) }] : []),
     { head: () => sortHead("MW", "mv", "num", "Manawert"), cell: (card) => h("td", { class: "num" }, StudioUI.numFlex(card.mana_value, 2)) },
     ...(compact ? [] : [{ head: () => plainHead("Mechanik"), cell: cell("", featureBadges) }]),
@@ -921,7 +868,7 @@ function hiddenSortNote() {
     return overallAvailable() ? `Sortiert nach „${label}“ (Spalte im Ranking „Nutzung“ ausgeblendet)` : `Sortiert nach „${label}“: das Gesamtrating ist nicht verfügbar, alle Karten stehen als unbekannt am Ende`;
   }
   if (key.startsWith(CRIT_SORT) && state.preset === "compact") return `Sortiert nach „${label}“ (Spalte im Kompakt ausgeblendet)`;
-  const detailOnly = key === "confidence" || key === "spread" || key === "edhrec" || key === "games" || key === "layers" || key === "textfit" || key.startsWith(LAYER_SORT);
+  const detailOnly = key === "confidence" || key === "spread" || key === "edhrec" || key === "games" || key === "layers" || key === "textfit";
   if (detailOnly && state.preset === "compact") return `Sortiert nach „${label}“ (Spalte im Kompakt ausgeblendet)`;
   return "";
 }
@@ -967,8 +914,7 @@ function resetFilters() {
   if ($("land-filter")) $("land-filter").value = "";
   if ($("spread-filter")) $("spread-filter").value = "";
   $("f-fav").checked = false; $("f-free").checked = true; $("f-excl").checked = false;
-  state.podFilter = ""; state.strength.tiers.clear();
-  if ($("pod-filter")) $("pod-filter").value = "";
+  state.strength.tiers.clear();
   state.shown = 150;
   renderTierBar();
   render(false);
@@ -1202,16 +1148,6 @@ function groupLabel(group) {
   if (!settings || settings.rank_group !== "function") return group;
   return group.split(" + ").map((part) => roleName(part)).join(" + ");
 }
-function layersBox(card) {
-  const box = h("div", { class: "layer" }, h("h3", {}, "Bewertungsebenen"));
-  const item = strengthItem(card), result = state.strength.result;
-  if (state.view === "global" || !item || !item.layers) { box.append(h("p", {}, "Die Ebenen werden je Commander berechnet.")); return box; }
-  box.append(h("p", {}, LAYER_NOTE), StudioUI.layerTable(item.layers, layerMetas()));
-  const pod = item.layers.pod_scaling;
-  if (pod && pod.status === "OK") box.append(h("p", { class: "rule" }, `Großpod-Wirkung ${pod.detail.label}${pod.detail.phrases.length ? `: erkannt an ${pod.detail.phrases.map((phrase) => `„${phrase}“`).join(", ")}` : ""}${pod.detail.flag_label ? `; ${pod.detail.flag_label}` : ""}. ${pod.detail.help} Aus dem Regeltext abgeleitet, keine Messung.`));
-  if (result && result.layer_summary) box.append(h("p", { class: "rule" }, `${result.layer_summary.measured_note} ${result.layer_summary.pod_note}`));
-  return box;
-}
 async function alternativesBox(card) {
   const inDeck = state.view === "deck" && state.deckCards ? [...state.deckCards.keys()] : [];
   const data = await api(`/api/cards/${encodeURIComponent(card.card_id)}/alternatives`, { commander: [COMMANDER], in_deck: inDeck, skip: [...state.marks].filter(([, mark]) => mark.excluded).map(([id]) => id) });
@@ -1379,7 +1315,6 @@ async function openCard(card) {
       picBox,
       h("div", { class: "policy" }, h("b", {}, `${OUTCOME_HEADING}. `), "Es gibt kein geprüftes Modell mit Partiedaten. Fehlende Beobachtung ist nie ein niedriger Tier. Favoriten, Ausschlüsse und Notizen fließen nicht ein."),
       strengthSection,
-      layersBox(card),
       ...drawer(full));
     if (!hadFocus) content.focus();
     try { content.append(await universeBox(full)); } catch (error) { content.append(h("p", {}, `Verbreitung nicht ladbar: ${StudioUI.germanError(error)}`)); }
@@ -1567,8 +1502,7 @@ function withDefaults(settings) {
 }
 function fieldKind(key) {
   const meta = state.strength.meta;
-  if (key.startsWith("weights.") || key.startsWith("layer_weights.")) return { type: "number", min: 0, max: 100, step: 0.5, scale: 1 };
-  if (key === "pod_size") return { type: "number", min: 2, max: 6, step: 1, scale: 1, integer: true };
+  if (key.startsWith("weights.")) return { type: "number", min: 0, max: 100, step: 0.5, scale: 1 };
   if (key === "min_denominators.deck_universe") return { type: "readonly" };
   if (key.startsWith("min_denominators.")) return { type: "number", min: 0, max: 100000, step: 1, scale: 1 };
   if (key === "min_coverage") return { type: "number", min: 0, max: 100, step: 5, scale: 100 };
@@ -1721,8 +1655,6 @@ function renderStrengthSummary() {
     h("span", { class: "muted" }, `von ${nf(result.cards.length)} Karten · ${universeText} · Quellen vorhanden: ${nf(result.collected.length)}/${nf(possible)}`),
     ...(families.length ? [h("div", { class: "rule", id: "weight-families-line" }, `Gewichtungs-Familien: ${families.map((f) => `${f.label} ${StudioUI.pct(f.share, 0)}`).join(" · ")}`)] : []),
     ...notices,
-    ...(result.layer_summary ? result.layer_summary.layers.filter((item) => item.source_discrepancies > 0).map((item) => h("div", { class: "rule" }, `${item.label}: bei ${nf(item.source_discrepancies)} Karten nennt die Quelle einen anderen Prozentwert als Zähler/Nenner; die Zelle zeigt Zähler/Nenner, der genannte Wert steht im Tooltip.`)) : []),
-    ...(result.layer_summary ? [h("div", { class: "rule", title: `${result.layer_summary.measured_note} ${result.layer_summary.pod_note}` }, `Ebenen (eigene Spalten): ${result.layer_summary.layers.map((item) => `${item.label} ${nf(item.with_value)}/${nf(item.pool_cards)} (${LAYER_KIND_SHORT[item.kind] || item.kind})`).join(" · ")}${result.layer_summary.weighted.length ? `. Im Index mit Gewicht: ${result.layer_summary.weighted.map((key) => (layerMetas().find((meta) => meta.key === key) || { label: key }).label).join(", ")}` : ". Keine Ebene hat ein Gewicht: die Stufen entsprechen dem Index ohne Ebenen"}`)] : []),
     ...(ambiguous.length ? [h("div", { class: "rule" }, `Mehrdeutige Namen in den Quelldaten, keiner Karte zugeordnet: ${shown}${ambiguous.length > 10 ? ` und ${nf(ambiguous.length - 10)} weitere` : ""}`)] : []));
   updateMethodHint();
 }
@@ -1797,7 +1729,6 @@ function updateDeviations() {
 }
 const SETTING_GROUPS = [
   ["Gewichte", (key) => key.startsWith("weights.")],
-  ["Zusätzliche Ebenen", (key) => key.startsWith("layer_weights.") || key === "pod_size"],
   ["Decklisten-Universum", (key) => key === "universe_source" || key === "edhrec_with_corpus"],
   ["Vergleich", (key) => key === "bracket" || key === "combo_source" || key === "rank_group" || key === "separate_lands" || key === "share_measure" || key === "share_scale" || key === "rank_commander_and_basics" || key === "rank_other_commanders" || key.startsWith("missing_value.")],
   ["Mindestdaten", (key) => key.startsWith("min_denominators.") || key === "min_coverage" || key === "min_components" || key === "require_commander_signal" || key === "zero_count_tier"],
@@ -1853,8 +1784,7 @@ function fillSortOptions() {
   const meta = state.strength.meta;
   const previous = $("sort").value;
   const percentile = meta ? meta.components.map((c) => [PERCENTILE_SORT + c.key, `Teil-Score 0 bis 100: ${c.label}`]) : [];
-  const rating = meta ? meta.layers.map((c) => [LAYER_SORT + c.key, `Ebene: ${c.label} (Perzentil, ${LAYER_KIND_SHORT[c.kind] || c.kind})`]) : [];
-  $("sort").replaceChildren(...[...SORTS, ...percentile, ...rating].map(([key, label]) => h("option", { value: key }, label)));
+  $("sort").replaceChildren(...[...SORTS, ...percentile].map(([key, label]) => h("option", { value: key }, label)));
   $("sort").value = [...$("sort").options].some((option) => option.value === previous) ? previous : state.sortKey;
 }
 function renderStrengthPanel() {
@@ -1955,8 +1885,6 @@ async function initStrength() {
     ]);
   } catch (error) { toast(`Stärke-Index nicht verfügbar: ${StudioUI.germanError(error)}`); s.status = "error"; renderTierBar(); syncRankGroupToggle(); syncRanking(); render(); return; }
   fillSortOptions();
-  state.layerCols = recallLayerColumns(s.meta.layers);
-  renderLayerControls();
   if (state.universe.ready) await state.universe.ready.catch(() => {});
   const wanted = rememberedStrength();
   // An earlier version of the quick toggle stored "function" as the setting and so inflated the tiers: that
@@ -2271,11 +2199,11 @@ async function init() {
   method.open = StudioUI.recall(METHOD_KEY, "") === "1";
   method.addEventListener("toggle", () => StudioUI.remember(METHOD_KEY, method.open ? "1" : ""));
   syncRanking();
-  renderLayerControls();
+  renderColumnControls();
   renderTierBar();
   syncRankGroupToggle();
   const savedSort = StudioUI.recall(SORT_KEY, "");
-  if (savedSort && (SORTS.some((item) => item[0] === savedSort) || savedSort.startsWith(PERCENTILE_SORT) || savedSort.startsWith(LAYER_SORT))) { state.sortKey = savedSort; state.sortDir = SMALL_FIRST.has(savedSort) ? 1 : -1; $("sort").value = savedSort; }
+  if (savedSort && (SORTS.some((item) => item[0] === savedSort) || savedSort.startsWith(PERCENTILE_SORT))) { state.sortKey = savedSort; state.sortDir = SMALL_FIRST.has(savedSort) ? 1 : -1; $("sort").value = savedSort; }
   $("sort").addEventListener("change", () => { state.sortKey = $("sort").value; state.sortDir = SMALL_FIRST.has(state.sortKey) ? 1 : -1; StudioUI.remember(SORT_KEY, state.sortKey); render(false); });
   for (const id of ["q", "type-filter", "land-filter", "role-filter", "spread-filter", "f-free", "f-fav", "f-excl"]) $(id).addEventListener("input", () => { state.shown = 150; if (id === "role-filter") renderTierBar(); render(false); });
   if (typeof StudioSearch !== "undefined" && StudioSearch.attachSyntaxHelper && $("q")) {

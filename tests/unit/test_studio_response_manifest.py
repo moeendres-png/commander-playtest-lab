@@ -39,11 +39,12 @@ def _json(value: object) -> bytes:
     return json.dumps(value, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
 
 
-def test_studio_manifest_asks_twenty_nine_distinct_read_routes_without_writes() -> None:
+def test_studio_manifest_asks_twenty_eight_distinct_read_routes_without_writes() -> None:
+    """30 read routes until Q1-b1 (#1676) and Q1-b2 (#1677) removed two."""
     requests = tool.read_requests(INPUTS)
     keys = [request.key for request in requests]
-    assert len(keys) == 29
-    assert len(set(keys)) == 29
+    assert len(keys) == 28
+    assert len(set(keys)) == 28
     assert {request.method for request in requests} == {"GET", "POST"}
     paths = {request.path.split("?")[0] for request in requests}
     for route in (
@@ -58,6 +59,8 @@ def test_studio_manifest_asks_twenty_nine_distinct_read_routes_without_writes() 
     ):
         assert route in paths, route
     assert "commander=Chulane%2C%20Teller%20of%20Tales" in keys[4]
+    assert "/api/rating-layers" not in paths
+    assert "/api/layers" in paths  # data layers, a name trap: stays
 
 
 def test_studio_write_matrix_covers_every_kind_of_user_state() -> None:
@@ -176,6 +179,99 @@ def test_studio_compare_command_exits_zero_or_one(tmp_path: Path) -> None:
     c.write_text(json.dumps(_manifest([_record("GET /a", sha="c" * 64)])), encoding="utf-8")
     assert tool.main(["compare", str(a), str(b)]) == 0
     assert tool.main(["compare", str(a), str(c)]) == 1
+
+
+# ---------- field comparison: answers that lose declared fields (Q1-b2 #1677, R5) ----------
+
+BEFORE = {
+    "cards": [{"id": "a", "tier": "S", "layers": {"tempo": 1}}, {"id": "b", "tier": "A"}],
+    "layer_summary": {"pod_size": 4, "layers": []},
+    "settings": {"bracket": "cedh", "layer_weights": {"tempo": 0.0}, "pod_size": 4},
+    "notices": [],
+}
+AFTER = {
+    "cards": [{"id": "a", "tier": "S"}, {"id": "b", "tier": "A"}],
+    "settings": {"bracket": "cedh"},
+    "notices": [],
+}
+REMOVED = ["cards[]/layers", "layer_summary", "settings/layer_weights", "settings/pod_size"]
+
+
+def test_studio_key_paths_join_keys_and_merge_list_items() -> None:
+    assert tool.key_paths(BEFORE) >= {
+        "cards",
+        "cards[]/id",
+        "cards[]/layers",
+        "cards[]/layers/tempo",
+        "layer_summary/pod_size",
+        "settings/layer_weights/tempo",
+    }
+    assert tool.key_paths([1, {"x": [{"y": 2}]}]) == {"[]/x", "[]/x[]/y"}
+    assert tool.key_paths(3) == set()
+
+
+def test_studio_fields_pass_when_exactly_the_declared_paths_are_removed() -> None:
+    assert tool.field_check(BEFORE, AFTER, REMOVED) == []
+    assert tool.value_differences(tool.prune(BEFORE, REMOVED), AFTER) == []
+
+
+def test_studio_fields_fail_on_an_added_field() -> None:
+    """The fixture pair with one extra field is red (acceptance of #1677)."""
+    added = {**AFTER, "settings": {"bracket": "cedh", "new_flag": True}}
+    assert tool.field_check(BEFORE, added, REMOVED) == ["added: settings/new_flag"]
+
+
+def test_studio_fields_fail_on_an_undeclared_or_a_still_present_field() -> None:
+    assert tool.field_check(BEFORE, AFTER, REMOVED[:-1]) == [
+        "removed, not declared: settings/pod_size"
+    ]
+    kept = {**AFTER, "layer_summary": {"pod_size": 4, "layers": []}}
+    assert tool.field_check(BEFORE, kept, REMOVED) == ["declared, still present: layer_summary"]
+    assert tool.field_check(BEFORE, AFTER, [*REMOVED, "nowhere"]) == [
+        "declared, not in the answer before: nowhere"
+    ]
+    # a field removed from one list item only is still present in the merged path
+    partly = {**AFTER, "cards": [{"id": "a", "tier": "S", "layers": {}}, {"id": "b", "tier": "A"}]}
+    assert tool.field_check(BEFORE, partly, REMOVED) == [
+        "removed, not declared: cards[]/layers/tempo",
+        "declared, still present: cards[]/layers",
+    ]
+
+
+def test_studio_values_outside_the_removed_paths_must_stay_equal() -> None:
+    changed = {**AFTER, "cards": [{"id": "a", "tier": "A"}, {"id": "b", "tier": "A"}]}
+    assert tool.field_check(BEFORE, changed, REMOVED) == []  # keys alone cannot see it
+    assert tool.value_differences(tool.prune(BEFORE, REMOVED), changed) == ["cards[0]/tier"]
+    shorter = {**AFTER, "cards": AFTER["cards"][:1]}
+    assert tool.value_differences(tool.prune(BEFORE, REMOVED), shorter) == ["cards (length 2 != 1)"]
+    assert tool.value_differences(1, 1.0) == ["<root>"]  # the JSON type counts
+
+
+def test_studio_fields_run_with_manifest_format_2(tmp_path: Path) -> None:
+    """The field comparison reads answer bodies and does not check the manifest ``format``; on
+    /2 manifests themselves it sees the field /2 added (``inputs/environment``, Refs #1650)."""
+    assert tool.FORMAT == "studio-response-manifest/2"
+    current = {**_manifest([_record("GET /a")]), "inputs": {"deck_id": "c", "environment": {}}}
+    legacy = {**current, "format": "studio-response-manifest/1", "inputs": {"deck_id": "c"}}
+    assert tool.field_check(current, dict(current), []) == []
+    assert tool.field_check(legacy, current, []) == ["added: inputs/environment"]
+    assert tool.field_check(current, legacy, ["inputs/environment"]) == []
+    before, after = tmp_path / "b.json", tmp_path / "a.json"
+    before.write_text(json.dumps(BEFORE), encoding="utf-8")
+    after.write_text(json.dumps(AFTER), encoding="utf-8")
+    declared = [arg for path in REMOVED for arg in ("--removed", path)]
+    assert tool.main(["fields", str(before), str(after), *declared, "--values"]) == 0
+
+
+def test_studio_fields_command_exits_zero_or_one(tmp_path: Path) -> None:
+    before, after, extra = tmp_path / "b.json", tmp_path / "a.json", tmp_path / "x.json"
+    before.write_text(json.dumps(BEFORE), encoding="utf-8")
+    after.write_text(json.dumps(AFTER), encoding="utf-8")
+    extra.write_text(json.dumps({**AFTER, "more": 1}), encoding="utf-8")
+    declared = [arg for path in REMOVED for arg in ("--removed", path)]
+    assert tool.main(["fields", str(before), str(after), *declared, "--values"]) == 0
+    assert tool.main(["fields", str(before), str(extra), *declared]) == 1
+    assert tool.main(["fields", str(before), str(after), *declared[:-2]]) == 1
 
 
 def test_studio_manifest_never_lands_in_the_repository(tmp_path: Path) -> None:
@@ -301,7 +397,7 @@ def test_studio_two_runs_on_fresh_copies_give_the_same_manifest(tmp_path: Path) 
         assert not (tmp_path / f"work_{run}" / "store").exists(), "the copy is removed"
         manifests.append(json.loads(out.read_text(encoding="utf-8")))
     first, second = manifests
-    assert len(first["requests"]) == 29
+    assert len(first["requests"]) == 28
     status = next(r for r in first["requests"] if r["key"] == "GET /api/status")
     assert status["normalized"] == ["image_cache.folder"]
     assert (
@@ -353,7 +449,7 @@ def test_studio_write_matrix_compares_running_and_restarted_server(tmp_path: Pat
     assert result["ok"] is True
     assert [step["write"] for step in result["steps"]] == ["favorite", "primer"]
     assert all(step["differences"] == [] for step in result["steps"])
-    assert len(result["steps"][0]["warm"]) == 32  # 29 read routes + 3 observer reads
+    assert len(result["steps"][0]["warm"]) == 31  # 28 read routes + 3 observer reads
     assert result["steps"][0]["warm"][-3]["key"] == "GET /api/decks/chulane/primer"
 
 

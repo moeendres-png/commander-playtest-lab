@@ -571,6 +571,22 @@ def test_engine_check_and_json_export_labels_say_what_they_do() -> None:
     assert "für Simulation (" not in app and "als Lab-Datei" in app
 
 
+def test_the_column_menu_host_id_is_the_same_in_html_and_js() -> None:
+    """Q1-b2 (#1677): the host of the Kompakt/Detail menu was renamed from ``layer-controls``;
+    the id the script looks up must be the id the page has, and the old one is gone."""
+    import re
+
+    html = (STATIC / "tierliste.html").read_text(encoding="utf-8")
+    js = (STATIC / "tierliste.js").read_text(encoding="utf-8")
+    body = js[js.index("function renderColumnControls() {") :]
+    looked_up = re.search(r'const host = \$\("([^"]+)"\);', body)
+    assert looked_up is not None
+    assert f'id="{looked_up.group(1)}"' in html
+    assert looked_up.group(1) == "col-controls"
+    for name in ("tierliste.html", "tierliste.js", "tierliste.css", "app.css"):
+        assert "layer-controls" not in (STATIC / name).read_text(encoding="utf-8"), name
+
+
 def test_tierliste_ux_batch_1_contract() -> None:
     """UX batch 1 (#1369): one labelled scroll region with a skip link, the method panels behind one
     closed details, a dialog window, table semantics, plain German instead of raw codes, and the
@@ -596,7 +612,7 @@ def test_tierliste_ux_batch_1_contract() -> None:
     for panel_id in panel_ids:
         assert f'id="{panel_id}"' in method, panel_id  # behind the one details, not above the table
         assert f'id="{panel_id}"' in html.split('<div id="filters">', 1)[0]
-    assert 'id="tier-bar"' in html and 'id="layer-controls"' in html
+    assert 'id="tier-bar"' in html and 'id="col-controls"' in html
     # table semantics, sticky columns, one scroll area
     for token in (
         'scope: "col"',
@@ -959,9 +975,7 @@ def test_overall_global_view_and_profile_loading_sync() -> None:
     toggle state, core-line, panel and sortKey stay consistent across bracket transitions."""
     js = (STATIC / "tierliste.js").read_text(encoding="utf-8")
     state_part = js[js.index("const overallMeta = ") : js.index("function overallUnknownCell")]
-    sort_part = js[
-        js.index("function sortValue(card, key) {") : js.index("// ---------- rating layers")
-    ]
+    sort_part = js[js.index("function sortValue(card, key) {") : js.index("function sortBy(key) {")]
     strength_item_line = next(
         line for line in js.splitlines() if line.startswith("function strengthItem(card)")
     )
@@ -978,7 +992,7 @@ def test_overall_global_view_and_profile_loading_sync() -> None:
     ]
     sort_constants = "\n".join(
         next(line for line in js.splitlines() if line.startswith(prefix))
-        for prefix in ("const PERCENTILE_SORT", "const LAYER_SORT")
+        for prefix in ("const PERCENTILE_SORT",)
     )
     script = (
         _overall_node_prelude()
@@ -1083,9 +1097,9 @@ def _render_node_prelude() -> str:
     cells = js[js.index("const overallMeta = ") : js.index("function overallColumns")]
     why = js[js.index("function overallWhyBox(card) {") : js.index("// The method panel")]
     sort_at = js.index("function sortValue(card, key) {")
-    sort_value = js[sort_at : js.index("// ---------- rating layers", sort_at)]
+    sort_value = js[sort_at : js.index("function sortBy(key) {", sort_at)]
     stub = """
-const PERCENTILE_SORT = 'pct:', LAYER_SORT = 'layer:';
+const PERCENTILE_SORT = 'pct:';
 const h = (tag, props, ...kids) => { const node = {tag, props: props || {}, kids: [],
   append(...more) { this.kids.push(...more.flat(Infinity).filter((k) => k !== null && k !== undefined && k !== false)); }};
   node.append(...kids); return node; };
@@ -1696,11 +1710,11 @@ async function runOrder(delays) {{
       res(replies[key] ? replies[key]() : key.startsWith("/api/universe/profiles/") ? {{ decks: 50 }} : key.endsWith("/draft") ? {{ draft: null }} : []);
     }}, delays[key] !== undefined ? delays[key] : 5));
   }};
-  const names = "COMMANDER,state,$,StudioCommander,StudioUI,h,nf,typeLabel,cardRoles,roleName,rememberedUniverse,rememberUniverse,fillUniverseSelect,renderUniversePanel,fillSortOptions,recallLayerColumns,renderLayerControls,rememberedStrength,rememberStrength,withDefaults,renderStrengthPanel,renderTierBar,syncRankGroupToggle,syncRanking,renderNotice,renderRoleAuditPanel,updateMethodHint,fillBranches,toast,fail,render,refreshStrength,api".split(",");
+  const names = "COMMANDER,state,$,StudioCommander,StudioUI,h,nf,typeLabel,cardRoles,roleName,rememberedUniverse,rememberUniverse,fillUniverseSelect,renderUniversePanel,fillSortOptions,rememberedStrength,rememberStrength,withDefaults,renderStrengthPanel,renderTierBar,syncRankGroupToggle,syncRanking,renderNotice,renderRoleAuditPanel,updateMethodHint,fillBranches,toast,fail,render,refreshStrength,api".split(",");
   const fn = new Function(...names, harness + "\\nreturn (async () => {{\\n" + tailCode + "\\n}})();");
   await fn(COMMANDER, state, $, {{ fill: async () => {{}} }}, {{ recall: () => "", remember: noop, germanError: String, dataState: async () => {{}} }},
     (tag, props, ...kids) => ({{ tag, props, kids }}), String, (x) => x, (c) => c.roles || [], (x) => x,
-    () => "u1", noop, noop, noop, noop, () => [], noop, () => null, noop, (x) => ({{ ...x }}),
+    () => "u1", noop, noop, noop, noop, () => null, noop, (x) => ({{ ...x }}),
     noop, noop, noop, noop, noop, noop, noop,
     () => {{ $("branch-select").options = [{{ value: "main" }}]; $("branch-select").value = "main"; }},
     noop, (e) => {{ throw e; }}, render, refreshStrength, api);
