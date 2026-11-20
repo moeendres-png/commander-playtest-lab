@@ -75,14 +75,14 @@ def test_every_table_of_the_schema_is_in_exactly_one_group() -> None:
     finally:
         memory.close()
     assert tables == named == set(cache.TABLE_GROUP)
-    assert len(tables) == 44
+    assert len(tables) == 46
     sizes = {group: sum(g is group for g in cache.TABLE_GROUP.values()) for group in cache.Group}
     assert sizes == {
         cache.Group.IMPORT: 27,
         cache.Group.DECKS: 9,
         cache.Group.MARKS: 2,
         cache.Group.PROFILES: 2,
-        cache.Group.SIMULATION: 2,
+        cache.Group.SIMULATION: 4,
         cache.Group.SNAPSHOT: 1,
         cache.Group.META: 1,
     }

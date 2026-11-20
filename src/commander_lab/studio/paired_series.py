@@ -39,22 +39,24 @@ from commander_lab.engine.rules.project import load_rules_deck_snapshot
 from commander_lab.models import RulesDeckInput
 
 from . import builder, decks, paired_comparison, strength_view
+from .card_outcomes import pilot_identity
 from .decks import RevisionCard, lab_snapshot, list_rows, resolve_repo_baseline_cards
 from .games import games_folder
+from .launch import POD_PRESETS as POD_PRESETS  # re-exported for callers and tests
 from .launch import (
-    POD_PRESETS,
     SeriesEngine,
-    _precons,
     cards_unknown_to_pilots,
     cards_unsupported_by_engine,
     checked_series_settings,
     engine_state,
+    resolve_opponent_paths,
     series_engine,
     validate_released_seat_count,
 )
 from .launch import (
     bridge_jar_sha256 as command_bridge_jar_sha256,
 )
+from .play import header_pilot_fingerprint
 from .store import StudioStore, now_utc
 from .strength import StrengthSettings
 
@@ -77,7 +79,7 @@ THROUGHPUT_SOURCE = (
 #: Assumed block correlation of the seat rotations of one seed, as in ``power_table`` (#1043).
 PLANNING_BLOCK_CORRELATION = 0.25
 PLANNING_REFERENCE_EFFECT_PP = 5.0
-SERIES_PURPOSES = ("unspecified", "exploration", "confirmation")
+SERIES_PURPOSES = ("unspecified", "exploration", "confirmation", "control")
 _SAFE_SERIES_ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_-]{0,95}$")
 
 
@@ -196,34 +198,51 @@ def estimate_series_duration(
     return payload
 
 
-def _resolve_opponent_paths(
+#: One resolver for every surface (batch, series, experiment): unknown is an error.
+_resolve_opponent_paths = resolve_opponent_paths
+
+
+def is_revision_ref(ref: str) -> bool:
+    """A Studio deck state (``<deck>@<hash>`` or ``repo:<stem>``), not a repository precon."""
+    return "@" in ref or ref.startswith("repo:")
+
+
+def _table_opponent_paths(
+    store: StudioStore | None,
+    deck_dir: Path,
     pod: str,
     opponent_ids: Sequence[str] | None,
-    *,
-    allow_unreleased_seats: bool = False,
+    taken_deck_ids: set[str],
 ) -> list[Path]:
-    by_id = {deck_id: path for deck_id, _name, _cmds, _year, path in _precons()}
-    if opponent_ids is not None:
-        validate_released_seat_count(
-            len(opponent_ids), allow_unreleased_seats=allow_unreleased_seats
-        )
-        opp_list = [str(oid).strip() for oid in opponent_ids]
-    elif pod in POD_PRESETS:
-        opp_list = list(POD_PRESETS[pod])
-        validate_released_seat_count(len(opp_list), allow_unreleased_seats=allow_unreleased_seats)
-    else:
-        raise ValueError(f"Unbekannter Gegnertisch (pod): {pod!r}")
-
-    if len(set(opp_list)) != len(opp_list):
+    """The opponents' deck files: precons from the repository, Studio deck states (E15 Q6)
+    as snapshot files in the series folder. With ``store`` the snapshots are written (start);
+    without, they must already be there (resume). Unknown is an error, never a stand-in."""
+    if opponent_ids is None or not any(is_revision_ref(str(o)) for o in opponent_ids):
+        return resolve_opponent_paths(pod, opponent_ids)
+    ids = [str(o).strip() for o in opponent_ids]
+    if len(set(ids)) != len(ids):
         raise ValueError("Gegner-Decks dürfen nicht doppelt vorkommen")
-
-    opp_paths: list[Path] = []
-    for oid in opp_list:
-        path = by_id.get(oid)
-        if path is None:
-            raise ValueError(f"Unbekanntes Gegner-Deck: {oid!r}")
-        opp_paths.append(path)
-    return opp_paths
+    precons = [o for o in ids if not is_revision_ref(o)]
+    precon_paths = iter(resolve_opponent_paths(pod, precons) if precons else [])
+    paths: list[Path] = []
+    for index, oid in enumerate(ids):
+        if not is_revision_ref(oid):
+            paths.append(next(precon_paths))
+            continue
+        safe = re.sub(r"[^A-Za-z0-9_.-]+", "-", oid)[:80]
+        path = deck_dir / f"opponent-{index}-{safe}.json"
+        if store is None:
+            if not path.is_file():
+                raise FileNotFoundError(f"Gegner-Snapshot {path.name} fehlt (nicht fortsetzbar)")
+        else:
+            snap = _snapshot_for_ref(store, oid)
+            _preflight_snapshot_cards(f"Gegner-Deck {oid}", snap)
+            if str(snap["deck_id"]) in taken_deck_ids:  # e.g. another state of the same deck
+                snap["deck_id"] = f"{snap['deck_id']}--opp{index}"
+            _write_json_atomic(path, snap)
+        paths.append(path)
+        taken_deck_ids.add(load_rules_deck_snapshot(path).deck_id)
+    return paths
 
 
 def _snapshot_for_ref(store: StudioStore, ref_id: str) -> dict[str, object]:
@@ -332,6 +351,28 @@ def _write_json_atomic(path: Path, payload: Mapping[str, object]) -> None:
                 tmp.unlink()
 
 
+def pilot_change_message(
+    preloaded: Mapping[tuple[str, int, int], paired_comparison.PlayedGame], current: str
+) -> str | None:
+    """Why an interrupted series cannot go on with the current pilot, or None (#1658).
+
+    Games already played with another pilot (or before the fingerprint existed) would meet
+    games of the current pilot in one comparison; that is never counted together."""
+    others = [
+        str(pilot_identity(exposure))
+        for played in preloaded.values()
+        if (exposure := played.get("exposure")) is not None and pilot_identity(exposure) != current
+    ]
+    if not others:
+        return None
+    return (
+        f"nicht fortsetzbar: {len(others)} gespeicherte Partien dieser Serie stammen von einem "
+        f"anderen Piloten ({', '.join(o[:20] for o in sorted(set(others)))}) als dem aktuellen "
+        f"({current[:20]}); Partien verschiedener Piloten werden nie zusammengezählt. "
+        "Bitte die Serie neu starten."
+    )
+
+
 class PairedSeriesJob:
     """In-memory + on-disk handle for one background paired A-vs-B comparison series."""
 
@@ -366,8 +407,11 @@ class PairedSeriesJob:
         raw_slot_alignment: dict[str, object] | None = None,
         created_at: str | None = None,
         preloaded_games: dict[tuple[str, int, int], paired_comparison.PlayedGame] | None = None,
+        experiment: Mapping[str, object] | None = None,
     ) -> None:
         self.series_id = series_id
+        #: The experiment this series plays (B2, #1658): id, plan SHA and table hash.
+        self.experiment = dict(experiment) if experiment is not None else None
         self.data_folder = data_folder
         self.base_ref = base_ref
         self.variant_ref = variant_ref
@@ -583,6 +627,7 @@ class PairedSeriesJob:
                 "bridge_qualification_states": qual_states,
                 "bridge_qualification": self.bridge_qualification,
                 "covered_by_sealed_epoch": covered,
+                "experiment": self.experiment,
                 "result": res,
             }
 
@@ -701,6 +746,7 @@ class PairedSeriesManager:
         play_override: paired_comparison.PairPlayer | None = None,
         purpose: str = "unspecified",
         allow_unreleased_seats: bool = False,
+        experiment: Mapping[str, object] | None = None,
     ) -> PairedSeriesJob:
         data_path = Path(data_folder).resolve()
         if purpose not in SERIES_PURPOSES:
@@ -736,10 +782,11 @@ class PairedSeriesManager:
         _preflight_snapshot_cards("Basis-Deck", base_snap)
         _preflight_snapshot_cards("Varianten-Deck", variant_snap)
 
-        opp_paths = _resolve_opponent_paths(
-            pod, opponent_ids, allow_unreleased_seats=allow_unreleased_seats
-        )
-        opponents = [load_rules_deck_snapshot(p) for p in opp_paths]
+        if opponent_ids is None or not any(is_revision_ref(str(o)) for o in opponent_ids):
+            # precons only: checked before anything is written
+            _resolve_opponent_paths(
+                pod, opponent_ids, allow_unreleased_seats=allow_unreleased_seats
+            )
 
         with self._lock:
             self._seq += 1
@@ -765,6 +812,10 @@ class PairedSeriesManager:
         variant_deck, alignment = _align_variant_file(
             base_deck, variant_deck, variant_snap, variant_path
         )
+        opp_paths = _table_opponent_paths(
+            store, deck_dir, pod, opponent_ids, {base_deck.deck_id, variant_deck.deck_id}
+        )
+        opponents = [load_rules_deck_snapshot(p) for p in opp_paths]
 
         paths_by_deck_id: dict[str, Path] = {
             base_deck.deck_id: base_path,
@@ -807,6 +858,7 @@ class PairedSeriesManager:
             purpose=purpose,
             player_count=table_size,
             opponent_ids=opponent_ids,
+            experiment=experiment,
         )
         job.persist()
         with self._lock:
@@ -1018,7 +1070,9 @@ class PairedSeriesManager:
             ):
                 raise ValueError(f"Ungültige opponent_ids in Serie {safe_id} (nicht fortsetzbar)")
             opp_ids = list(raw_opp_ids) if isinstance(raw_opp_ids, list) else None
-            opp_paths = _resolve_opponent_paths(pod, opp_ids)
+            opp_paths = _table_opponent_paths(
+                None, deck_dir, pod, opp_ids, {base_deck.deck_id, variant_deck.deck_id}
+            )
             opponents = [load_rules_deck_snapshot(path) for path in opp_paths]
 
             raw_opp_deck_ids = raw.get("opponent_deck_ids")
@@ -1118,6 +1172,10 @@ class PairedSeriesManager:
                 raw.get("slot_alignment") if isinstance(raw.get("slot_alignment"), dict) else None
             )
             preloaded = self._load_progress_jsonl(deck_dir / "progress.jsonl")
+            if play_override is None:  # games the engine played, not stand-ins of a test
+                stale = pilot_change_message(preloaded, f"fp:{header_pilot_fingerprint()}")
+                if stale is not None:
+                    raise ValueError(stale)
 
             job = PairedSeriesJob(
                 series_id=safe_id,
@@ -1147,6 +1205,7 @@ class PairedSeriesManager:
                 opponent_ids=opp_ids,
                 created_at=str(raw.get("created_at")) if raw.get("created_at") else None,
                 preloaded_games=preloaded,
+                experiment=raw_exp if isinstance(raw_exp := raw.get("experiment"), dict) else None,
             )
             job.persist()
             job._write_lock()
@@ -1176,6 +1235,11 @@ class PairedSeriesManager:
             if isinstance(raw, dict):
                 return self._normalize_disk_series(raw, target_folder)
         return None
+
+    def get_job(self, series_id: str) -> PairedSeriesJob | None:
+        """The running (or finished) job of this process, if it started here."""
+        with self._lock:
+            return self._jobs.get(validate_series_id(series_id))
 
     def cancel_series(self, series_id: str) -> bool:
         safe_id = validate_series_id(series_id)

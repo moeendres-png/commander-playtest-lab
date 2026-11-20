@@ -44,7 +44,13 @@ from commander_lab.qualification.current_boundary.bridge_launcher import (
     canonical_xmage_engine_pin,
 )
 
-from .card_outcomes import GameExposure, LoadReport, game_exposures, load_exposures
+from .card_outcomes import (
+    GameExposure,
+    LoadReport,
+    game_exposures,
+    load_exposures,
+    pilot_identity,
+)
 from .games import games_folder
 
 if TYPE_CHECKING:
@@ -312,7 +318,7 @@ def _check_provenance(
         (
             "pilot versions",
             "pilot",
-            sorted({v for v in (game["pilot"] for game in exposures) if v}),
+            sorted({v for v in (pilot_identity(game) for game in exposures) if v}),
         ),
         (
             "decision policies",

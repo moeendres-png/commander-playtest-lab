@@ -699,7 +699,9 @@ def _write_game_log(data: Path, batch_id: str, seed: int, status: str) -> None:
     )
 
 
-def _write_series_record(data: Path, batch_id: str, *, with_seeds: bool) -> None:
+def _write_series_record(
+    data: Path, batch_id: str, *, with_seeds: bool, with_opponents: bool = True
+) -> None:
     folder = data / "games"
     folder.mkdir(parents=True, exist_ok=True)
     record: dict[str, object] = {
@@ -716,6 +718,8 @@ def _write_series_record(data: Path, batch_id: str, *, with_seeds: bool) -> None
     }
     if with_seeds:
         record["seeds"] = [1, 2, 3]
+    if with_opponents:  # since #1658 a record names its opponents
+        record["opponent_ids"] = list(launch.POD_PRESETS["precon"])
     (folder / f"{batch_id}.series.json").write_text(json.dumps(record), encoding="utf-8")
 
 
@@ -747,6 +751,14 @@ def test_from_saved_series_reads_legacy_record_without_seeds_field(tmp_path: Pat
 def test_from_saved_series_unknown_batch_raises_key_error(tmp_path: Path) -> None:
     with pytest.raises(KeyError):
         BatchSimulation.from_saved_series(tmp_path, "nope", chunk_runner=lambda seeds: iter(()))
+
+
+def test_from_saved_series_refuses_a_record_without_its_opponents(tmp_path: Path) -> None:
+    """#1658: a record of before the opponent fix (its games ran against a stand-in table)
+    is not resumed against another table; one series never mixes two tables."""
+    _write_series_record(tmp_path, "d0", with_seeds=True, with_opponents=False)
+    with pytest.raises(ValueError, match="nicht fortsetzbar"):
+        BatchSimulation.from_saved_series(tmp_path, "d0", chunk_runner=lambda seeds: iter(()))
 
 
 def test_from_saved_series_rejects_a_corrupt_record(tmp_path: Path) -> None:
