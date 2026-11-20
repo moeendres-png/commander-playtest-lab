@@ -435,6 +435,8 @@ def test_batch_never_seats_a_stand_in_opponent_and_refuses_seed_step(tmp_path: P
         by_id = {deck_id: path for deck_id, *_r, path in launch._precons()}
         assert batch.opponent_paths == [by_id[oid] for oid in launch.POD_PRESETS["precon"]]
         assert batch.seeds == [1000]
+        # the record names its table, so a resume plays exactly this table again
+        assert batch.to_dict()["opponent_ids"] == list(launch.POD_PRESETS["precon"])
     finally:
         store.close()
 

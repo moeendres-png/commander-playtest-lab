@@ -52,6 +52,7 @@ _PILOT_FILES = sorted(
             p.relative_to(REPO).as_posix()
             for p in (REPO / "src/commander_lab/engine/rules").glob("full_game_pilot_*.py")
         ),
+        "src/commander_lab/models/pilots.py",
         "data/cards/pilot_card_knowledge.json",
         "data/cards/structural_role_profiles.json",
         "data/meta/spellbook_combos.json",
@@ -110,6 +111,17 @@ def test_a_file_outside_the_pilot_leaves_the_fingerprint(pilot_root: Path, rel: 
     try:
         path.write_bytes(original + b"changed\n")
         assert _fp(pilot_root) == before
+    finally:
+        path.write_bytes(original)
+
+
+def test_a_missing_pilot_file_is_an_error_not_left_out(pilot_root: Path) -> None:
+    path = pilot_root / "src/commander_lab/models/pilots.py"
+    original = path.read_bytes()
+    path.unlink()
+    try:
+        with pytest.raises(FileNotFoundError, match=r"models/pilots\.py"):
+            _fp(pilot_root)
     finally:
         path.write_bytes(original)
 
@@ -596,5 +608,131 @@ def test_experiment_routes_declare_their_cache_writes(
     assert counters.get("* window_proven", 0) == proven + 3  # start, decision, rebuild
     assert "* window_undeclared" not in counters
     assert "* window_unproven" not in counters
+    # plan files gone: the rebuild reads first and refuses instead of dropping the index
     shutil.rmtree(Path(str(lab["folder"])) / "games" / "experiments")
-    assert client.post("/api/experiments/rebuild-index", headers=HEADERS).json()["experiments"] == 0
+    refused = client.post("/api/experiments/rebuild-index", headers=HEADERS)
+    assert refused.status_code == 409 and "Plan-Datei" in refused.json()["detail"]
+    assert len(_index_rows(Path(str(lab["folder"])))) == 1
+
+
+def _main_branch(folder: Path) -> str:
+    store = StudioStore.open(folder)
+    try:
+        row = store.connection.execute(
+            "SELECT revision_id FROM deck_branch WHERE deck_id = 'chulane-b2' AND branch = 'main'"
+        ).fetchone()
+        return str(row[0])
+    finally:
+        store.close()
+
+
+def test_adopt_refuses_a_moved_base_and_can_be_undone(lab: dict[str, object]) -> None:
+    """Review #1685 P2-1: adopting never overwrites a ``main`` that moved since the plan; the
+    previous ``main`` is stored, and undo restores it only while ``main`` is the variant."""
+    revs = lab["revs"]
+    assert isinstance(revs, dict)
+    client = lab["client"]
+    assert isinstance(client, TestClient)
+    folder = Path(str(lab["folder"]))
+    first = _start(lab, _plan(revs))
+    second = _start(lab, _plan(revs, variants=[{"revision_id": revs["variant2"]}], first_seed=200))
+
+    def post(experiment: dict[str, object], action: str, **body: object) -> object:
+        return client.post(
+            f"/api/experiments/{experiment['experiment_id']}/{action}", headers=HEADERS, json=body
+        )
+
+    adopted = post(first, "decision", decision="adopted")
+    assert adopted.status_code == 200 and adopted.json()["previous_revision_id"] == revs["base"]  # type: ignore[attr-defined]
+    assert _main_branch(folder) == revs["variant"]
+    # the second experiment was planned on the old base: no silent overwrite
+    stale = post(second, "decision", decision="adopted")
+    assert stale.status_code == 409 and "nicht mehr auf der Basis" in stale.json()["detail"]  # type: ignore[attr-defined]
+    assert _main_branch(folder) == revs["variant"]
+    undone = post(first, "undo")
+    assert undone.status_code == 200 and undone.json()["restored_revision_id"] == revs["base"]  # type: ignore[attr-defined]
+    assert _main_branch(folder) == revs["base"]
+    rows = {r["experiment_id"]: r for r in _index_rows(folder)}
+    assert rows[first["experiment_id"]]["decision"] == "open"
+    decision = json.loads(
+        (folder / "games/experiments" / first["experiment_id"] / "decision.json").read_text()
+    )
+    assert decision["decision"] == "undone" and decision["undone"]["decision"] == "adopted"
+    assert post(first, "undo").status_code == 409  # nothing to undo any more
+    # now the second may be adopted; after main moves away, its undo is refused
+    assert post(second, "decision", decision="adopted").status_code == 200  # type: ignore[attr-defined]
+    store = StudioStore.open(folder)
+    try:
+        with store.connection:
+            store.connection.execute(
+                "UPDATE deck_branch SET revision_id = ? WHERE deck_id = 'chulane-b2' "
+                "AND branch = 'main'",
+                (revs["variant"],),
+            )
+    finally:
+        store.close()
+    refused = post(second, "undo")
+    assert refused.status_code == 409  # type: ignore[attr-defined]
+    assert _main_branch(folder) == revs["variant"]
+    # the rebuilt index keeps the stored previous main of an adoption
+    assert client.post("/api/experiments/rebuild-index", headers=HEADERS).status_code == 200
+    rows = {r["experiment_id"]: r for r in _index_rows(folder)}
+    assert rows[second["experiment_id"]]["decision_previous_revision_id"] == revs["base"]
+
+
+def test_a_series_with_a_foreign_or_missing_plan_sha_never_counts(lab: dict[str, object]) -> None:
+    """Review #1685 P2-3: the result side of the binding (the series names the plan SHA)."""
+    revs = lab["revs"]
+    assert isinstance(revs, dict)
+    folder = Path(str(lab["folder"]))
+    started = _start(lab, _plan(revs))
+    path = folder / "games" / f"{started['series_id']}.paired.json"
+    original = json.loads(path.read_text(encoding="utf-8"))
+    for experiment in ({**original["experiment"], "plan_sha": "0" * 64}, None):
+        path.write_text(json.dumps({**original, "experiment": experiment}), encoding="utf-8")
+        entry = next(s for s in _history(lab)["series"] if s["series_id"] == started["series_id"])
+        assert entry["status"] == "plan_mismatch" and entry["counts_as_result"] is False
+    path.write_text(json.dumps(original), encoding="utf-8")
+    entry = next(s for s in _history(lab)["series"] if s["series_id"] == started["series_id"])
+    assert entry["counts_as_result"] is True
+
+
+def test_a_style_other_than_the_series_style_is_refused(lab: dict[str, object]) -> None:
+    revs = lab["revs"]
+    assert isinstance(revs, dict)
+    client = lab["client"]
+    assert isinstance(client, TestClient)
+    table = {"seats": 4, "opponents": _precons(), "pilot": {"style": 0.7}}
+    res = client.post("/api/experiments", headers=HEADERS, json={"plan": _plan(revs, table=table)})
+    assert res.status_code == 422 and "Stil" in res.json()["detail"]
+    assert _index_rows(Path(str(lab["folder"]))) == []
+
+
+def test_resume_after_a_pilot_change_says_so_instead_of_mixing() -> None:
+    """Review #1685 P2-2: stored games of another pilot (or without a fingerprint) stop the
+    resume with an honest German reason; the same pilot goes on."""
+    current = "fp:" + "a" * 64
+
+    def played(fingerprint: str | None) -> paired_comparison.PlayedGame:
+        return {
+            "exposure": {
+                "game_id": "g",
+                "seed": 1,
+                "engine_commit": "c",
+                "pilot": "GenericCommanderPilot 1.0.0",
+                "pilot_fingerprint": fingerprint,
+                "decision_policy": "p",
+                "winner_seats": [0],
+                "seats": [],
+            },
+            "failure_class": None,
+        }
+
+    same = {("base", 1, 0): played("a" * 64), ("variant", 1, 0): played("a" * 64)}
+    assert paired_series.pilot_change_message(same, current) is None
+    for other in (None, "b" * 64):
+        message = paired_series.pilot_change_message(
+            {**same, ("base", 2, 0): played(other)}, current
+        )
+        assert message is not None
+        assert message.startswith("nicht fortsetzbar: 1 gespeicherte Partien")

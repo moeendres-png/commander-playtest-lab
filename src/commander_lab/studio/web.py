@@ -340,6 +340,17 @@ class PairedSeriesBody(BaseModel):
     games_per_jvm: int | None = Field(default=None, ge=MIN_GAMES_PER_JVM, le=MAX_GAMES_PER_JVM)
 
 
+#: What the card evaluation says when one deck state holds games of two pilots (#1658).
+MIXED_PILOT_TEXT = (
+    "Die Partien dieses Deck-Stands stammen von verschiedenen Piloten: der Pilot-Fingerabdruck "
+    "hat gewechselt (nach einer Änderung am Piloten, oder Partien von vor dem Fingerabdruck "
+    "liegen neben neuen). Partien verschiedener Piloten werden nie zusammengezählt, deshalb "
+    "zeigt die Auswertung keine Zahlen (unbekannt, nicht 0). Ausweg: mit dem aktuellen "
+    "Piloten neu spielen und die älteren Protokolle dieses Stands aus dem Spiele-Ordner "
+    "verschieben; eine getrennte Anzeige je Fingerabdruck folgt."
+)
+
+
 class ExperimentBody(BaseModel):
     """The plan file's content as ``plan``; execution settings never enter the plan SHA."""
 
@@ -1415,14 +1426,19 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         """Write the plan file, index it and start its paired series (B2, #1658)."""
         store = open_store()
         try:
-            with cache.write(store, _EXPERIMENTS):
-                return experiments.start_experiment(
+            home = games_home()
+
+            def start(settings: dict[str, object]) -> paired_series.PairedSeriesJob:
+                return paired_series.paired_series_manager.start_series(
                     store,
-                    games_home(),
-                    body.plan,
+                    home,
+                    **settings,  # type: ignore[arg-type]
                     workers=body.workers,
                     games_per_jvm=body.games_per_jvm,
                 )
+
+            with cache.write(store, _EXPERIMENTS):
+                return experiments.start_experiment(store, home, body.plan, start_series=start)
         except KeyError as error:
             raise HTTPException(404, f"unknown deck revision: {error}") from error
         except ValueError as error:
@@ -1439,6 +1455,8 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         try:
             with cache.write(store, _EXPERIMENTS):
                 return dict(experiments.rebuild_index(store, games_home()))
+        except experiments.RebuildRefused as error:
+            raise HTTPException(409, str(error)) from error
         finally:
             store.close()
 
@@ -1452,6 +1470,23 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
                 return experiments.decide(
                     store, games_home(), experiment_id, body.decision, body.note
                 )
+        except KeyError as error:
+            raise HTTPException(404, "unknown experiment") from error
+        except ValueError as error:
+            raise HTTPException(422, str(error)) from error
+        except experiments.DecisionRefused as error:
+            raise HTTPException(409, str(error)) from error
+        finally:
+            store.close()
+
+    @app.post("/api/experiments/{experiment_id}/undo")
+    def undo_experiment_decision(experiment_id: str) -> dict[str, object]:
+        """Take a decision back; after an adoption ``main`` returns to the stored previous
+        state, only while ``main`` still is the adopted variant."""
+        store = open_store()
+        try:
+            with cache.write(store, _EXPERIMENT_DECISION):
+                return experiments.undo_decision(store, games_home(), experiment_id)
         except KeyError as error:
             raise HTTPException(404, "unknown experiment") from error
         except ValueError as error:
@@ -2508,6 +2543,8 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
                 games.games_folder(games_home()), deck_id=deck_id, min_exposed=min_exposed
             )
         except ValueError as error:
+            if "mixed pilot versions" in str(error):
+                raise HTTPException(409, MIXED_PILOT_TEXT) from error
             raise HTTPException(409, str(error)) from error
         result: dict[str, object] = dict(table)
         result["zahlen"] = number_contract.outcomes_zahlen(result)

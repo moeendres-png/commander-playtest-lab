@@ -39,6 +39,7 @@ from commander_lab.engine.rules.project import load_rules_deck_snapshot
 from commander_lab.models import RulesDeckInput
 
 from . import builder, decks, paired_comparison, strength_view
+from .card_outcomes import pilot_identity
 from .decks import RevisionCard, lab_snapshot, list_rows, resolve_repo_baseline_cards
 from .games import games_folder
 from .launch import POD_PRESETS as POD_PRESETS  # re-exported for callers and tests
@@ -55,6 +56,7 @@ from .launch import (
 from .launch import (
     bridge_jar_sha256 as command_bridge_jar_sha256,
 )
+from .play import header_pilot_fingerprint
 from .store import StudioStore, now_utc
 from .strength import StrengthSettings
 
@@ -347,6 +349,28 @@ def _write_json_atomic(path: Path, payload: Mapping[str, object]) -> None:
         with contextlib.suppress(OSError):
             if tmp.exists():
                 tmp.unlink()
+
+
+def pilot_change_message(
+    preloaded: Mapping[tuple[str, int, int], paired_comparison.PlayedGame], current: str
+) -> str | None:
+    """Why an interrupted series cannot go on with the current pilot, or None (#1658).
+
+    Games already played with another pilot (or before the fingerprint existed) would meet
+    games of the current pilot in one comparison; that is never counted together."""
+    others = [
+        str(pilot_identity(exposure))
+        for played in preloaded.values()
+        if (exposure := played.get("exposure")) is not None and pilot_identity(exposure) != current
+    ]
+    if not others:
+        return None
+    return (
+        f"nicht fortsetzbar: {len(others)} gespeicherte Partien dieser Serie stammen von einem "
+        f"anderen Piloten ({', '.join(o[:20] for o in sorted(set(others)))}) als dem aktuellen "
+        f"({current[:20]}); Partien verschiedener Piloten werden nie zusammengezählt. "
+        "Bitte die Serie neu starten."
+    )
 
 
 class PairedSeriesJob:
@@ -1148,6 +1172,10 @@ class PairedSeriesManager:
                 raw.get("slot_alignment") if isinstance(raw.get("slot_alignment"), dict) else None
             )
             preloaded = self._load_progress_jsonl(deck_dir / "progress.jsonl")
+            if play_override is None:  # games the engine played, not stand-ins of a test
+                stale = pilot_change_message(preloaded, f"fp:{header_pilot_fingerprint()}")
+                if stale is not None:
+                    raise ValueError(stale)
 
             job = PairedSeriesJob(
                 series_id=safe_id,

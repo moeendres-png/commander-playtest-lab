@@ -35,6 +35,7 @@ from .decks import lab_snapshot
 from .games import games_folder, read_game
 from .launch import (
     ENGINE_COMMAND_ENV,
+    POD_PRESETS,
     SeriesEngine,
     checked_series_settings,
     command_text,
@@ -965,10 +966,10 @@ class BatchSimulation:
         """Construct a BatchSimulation from a saved series record for resumption.
 
         Raises KeyError when no record exists for ``batch_id`` and ValueError
-        when the stored record is not valid JSON. The original opponents are
-        not part of the record; without explicit ``opponent_paths`` they are
-        re-derived heuristically from the pod preset and the precon deck
-        folder, which can differ from the pod the series originally ran with.
+        when the stored record is not valid JSON. Without explicit ``opponent_paths`` the
+        opponents are the ``opponent_ids`` the record stores (since #1658). A record without
+        them was written before the fix of the opponent lookup (whose games ran against a
+        stand-in table) and is refused: one series never mixes two tables.
         """
         data_path = Path(data_folder)
         folder = games_folder(data_path)
@@ -1010,6 +1011,11 @@ class BatchSimulation:
         stored_ids = [str(oid) for oid in raw_ids] if isinstance(raw_ids, list) else None
         opp_paths = list(opponent_paths or [])
         if not opp_paths:
+            if stored_ids is None:
+                raise ValueError(
+                    f"Serie {batch_id} nennt ihre Gegner nicht (vor #1658 gestartet, ihre Partien "
+                    "liefen gegen einen Ersatz-Tisch); nicht fortsetzbar, bitte neu starten"
+                )
             opp_paths = resolve_opponent_paths(str(raw.get("pod") or "precon"), stored_ids)
 
         deck_id = str(raw.get("deck_id") or "chulane")
@@ -1443,7 +1449,7 @@ class SimulationBatchManager:
             revision_id=revision_id,
             pod_name=pod,
             opponent_paths=opp_paths,
-            opponent_ids=opponent_ids,
+            opponent_ids=opponent_ids if opponent_ids is not None else list(POD_PRESETS[pod]),
             seeds=seeds,
             style=style,
             game_executor=game_executor,

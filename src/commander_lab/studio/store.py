@@ -386,6 +386,7 @@ CREATE TABLE IF NOT EXISTS experiment (
     decision_at TEXT,
     decision_note TEXT,
     decision_tested INTEGER,
+    decision_previous_revision_id TEXT,
     created_at TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS experiment_deck ON experiment(deck_id);

@@ -29,8 +29,11 @@ CODE_DIRS = (
 )
 #: Single pilot code modules next to the package (``full_game_pilot_*.py``).
 CODE_GLOB = "src/commander_lab/engine/rules/full_game_pilot_*.py"
-#: Data files the pilot reads (``card_knowledge``, ``deck_plan``).
+#: Single files that must exist: the pilot settings and their defaults (``PilotConfig``,
+#: ``PilotUtilityWeights``) and the data files the pilot reads (``card_knowledge``,
+#: ``deck_plan``). A missing one is an error, never left out of the hash.
 DATA_FILES = (
+    "src/commander_lab/models/pilots.py",
     "data/cards/pilot_card_knowledge.json",
     "data/cards/structural_role_profiles.json",
     "data/meta/spellbook_combos.json",
@@ -51,6 +54,9 @@ def pilot_files(root: Path | None = None) -> list[Path]:
         found.update(p for p in (base / folder).rglob("*.py") if "__pycache__" not in p.parts)
     found.update(base.glob(CODE_GLOB))
     found.update(base.glob(GUIDES_GLOB))
+    missing = [name for name in DATA_FILES if not (base / name).is_file()]
+    if missing:
+        raise FileNotFoundError(f"pilot file missing, no fingerprint: {', '.join(missing)}")
     found.update(base / name for name in DATA_FILES)
     return sorted((p for p in found if p.is_file()), key=lambda p: p.relative_to(base).as_posix())
 

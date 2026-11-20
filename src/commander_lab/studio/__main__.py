@@ -1047,7 +1047,11 @@ def _experiment(args: argparse.Namespace) -> int:
     store = StudioStore.open(folder)
     try:
         if args.rebuild_index:
-            print(json.dumps(experiments.rebuild_index(store, folder), indent=2))
+            try:
+                print(json.dumps(experiments.rebuild_index(store, folder), indent=2))
+            except experiments.RebuildRefused as error:
+                print(f"error: {error}", file=sys.stderr)
+                return 2
             return 0
         if not args.plan:
             print("error: --plan FILE or --rebuild-index is required", file=sys.stderr)
@@ -1055,9 +1059,17 @@ def _experiment(args: argparse.Namespace) -> int:
         try:
             raw = json.loads(Path(args.plan).read_text(encoding="utf-8"))
             plan = experiments.ExperimentPlan.model_validate(raw)
-            started = experiments.start_experiment(
-                store, folder, plan, workers=args.workers, games_per_jvm=args.games_per_jvm
-            )
+
+            def start(settings: dict[str, object]) -> paired_series.PairedSeriesJob:
+                return paired_series.paired_series_manager.start_series(
+                    store,
+                    folder,
+                    **settings,  # type: ignore[arg-type]
+                    workers=args.workers,
+                    games_per_jvm=args.games_per_jvm,
+                )
+
+            started = experiments.start_experiment(store, folder, plan, start_series=start)
         except (OSError, ValueError, ValidationError, KeyError, RuntimeError) as error:
             print(f"error: {error}", file=sys.stderr)
             return 2

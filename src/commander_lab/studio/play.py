@@ -207,6 +207,13 @@ def _with_hash(deck: RulesDeckInput) -> RulesDeckInput:
     return deck.model_copy(update={"deck_hash": derived})
 
 
+def header_pilot_fingerprint() -> str:
+    """The pilot fingerprint every game log header of this code names (#1658)."""
+    return pilot_fingerprint(
+        policy_version=POLICY_VERSION, strength=PilotStrength.NEAR_OPTIMAL_HEURISTIC.value
+    )
+
+
 def snapshot_deck_hash(path: Path) -> str | None:
     """The ``deck_hash`` a game log header names for the deck snapshot at ``path`` (#1657).
 
@@ -389,9 +396,7 @@ def prepare_game(
         "pilot": f"{PILOT_IDENTITY} {PILOT_VERSION}",
         # The identity the mixing checks compare (B2, #1658): code and data of the pilot,
         # policy and strength; the style of each seat is in its seat header.
-        "pilot_fingerprint": pilot_fingerprint(
-            policy_version=POLICY_VERSION, strength=PilotStrength.NEAR_OPTIMAL_HEURISTIC.value
-        ),
+        "pilot_fingerprint": header_pilot_fingerprint(),
         "decision_policy": POLICY_VERSION,
         "strategy": strategy,
         "seats": [

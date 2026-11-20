@@ -355,6 +355,21 @@ def test_the_pilot_fingerprint_is_the_identity_and_unknown_never_pools(tmp_path:
             outcomes_for_folder(tmp_path, deck_id=DECK, min_exposed=1)
 
 
+def test_the_card_page_explains_a_pilot_change_in_german(tmp_path: Path) -> None:
+    """Review #1685 P2-2: the 409 names cause and way out in German, and counts nothing."""
+    games_dir = tmp_path / "studio" / "games"
+    games_dir.mkdir(parents=True)
+    frames = [_frame(1, 0, "mulligan", hand=["A"], chosen=["Keep hand"])]
+    _write_log(games_dir, "g1", frames, seed=1, fingerprint=_hash("pilot-a"))
+    _write_log(games_dir, "g2", frames, seed=2, fingerprint=None)
+    with TestClient(create_app(tmp_path / "studio")) as client:
+        response = client.get("/api/outcomes", params={"deck_id": DECK, "min_exposed": 1})
+    assert response.status_code == 409
+    detail = response.json()["detail"]
+    assert "Pilot-Fingerabdruck" in detail and "nie zusammengezählt" in detail
+    assert "unbekannt, nicht 0" in detail and "mixed" not in detail
+
+
 # --- API and CLI -----------------------------------------------------------------------
 
 

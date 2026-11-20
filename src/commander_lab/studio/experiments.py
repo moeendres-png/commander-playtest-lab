@@ -26,7 +26,7 @@ import re
 import shutil
 import threading
 import time
-from collections.abc import Mapping, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from pathlib import Path
 from typing import Final, Literal, cast
 
@@ -215,10 +215,12 @@ def _insert(
         "INSERT INTO experiment(experiment_id, deck_id, question, question_kind, purpose, "
         "base_revision_id, plan_sha, table_hash, first_seed, last_seed, series_id, engine_pin, "
         "bridge_jar_sha256, bridge_state, pilot_fingerprint, decision, decision_at, "
-        "decision_note, decision_tested, created_at) VALUES (:experiment_id, :deck_id, "
+        "decision_note, decision_tested, decision_previous_revision_id, created_at) "
+        "VALUES (:experiment_id, :deck_id, "
         ":question, :question_kind, :purpose, :base_revision_id, :plan_sha, :table_hash, "
         ":first_seed, :last_seed, :series_id, :engine_pin, :bridge_jar_sha256, :bridge_state, "
         ":pilot_fingerprint, :decision, :decision_at, :decision_note, :decision_tested, "
+        ":decision_previous_revision_id, "
         ":created_at)",
         {
             "question_kind": None,
@@ -233,6 +235,7 @@ def _insert(
             "decision_at": None,
             "decision_note": None,
             "decision_tested": None,
+            "decision_previous_revision_id": None,
             **row,
         },
     )
@@ -277,17 +280,29 @@ def _row_from_record(
     return row, arms
 
 
+#: Starts the paired series of a plan from its settings (keyword arguments of ``start_series``).
+SeriesStarter = Callable[[dict[str, object]], paired_series.PairedSeriesJob]
+
+
+def _default_starter(store: StudioStore, data_path: Path) -> SeriesStarter:
+    def start(settings: dict[str, object]) -> paired_series.PairedSeriesJob:
+        return paired_series.paired_series_manager.start_series(store, data_path, **settings)  # type: ignore[arg-type]
+
+    return start
+
+
 def start_experiment(
     store: StudioStore,
     data_folder: str | Path,
     plan: ExperimentPlan,
     *,
-    manager: paired_series.PairedSeriesManager | None = None,
-    play_override: paired_comparison.PairPlayer | None = None,
-    workers: int | None = None,
-    games_per_jvm: int | None = None,
+    start_series: SeriesStarter | None = None,
 ) -> dict[str, object]:
     """Resolve and write the plan, index it, then start its paired series.
+
+    ``start_series`` gets the series settings of the plan and starts the series; the caller
+    (web route, CLI) adds its execution settings there, so this module never sets how many
+    games share an engine process (the reviewed list of batch callers, #1170).
 
     The plan file exists before the first game; a start that fails removes the plan and its
     index rows again. The caller declares the write to the cache (``cache.write``)."""
@@ -325,28 +340,26 @@ def start_experiment(
     try:
         _insert(store, row, arms)
         store.connection.commit()
-        job = (manager or paired_series.paired_series_manager).start_series(
-            store,
-            data_path,
-            base_revision_id=str(arms[0]["revision_id"]),
-            variant_revision_id=str(arms[1]["revision_id"]),
-            pod="table",
-            opponent_ids=list(plan.table.opponents),
-            budget_pairs=plan.budget_pairs,
-            look_every_pairs=plan.look_every_pairs,
-            base_seed=plan.first_seed,
-            rotate_seats=plan.table.seat_policy == "rotate",
-            threshold_pp=plan.threshold_pp,
-            significance_level=plan.significance_level,
-            workers=workers,
-            games_per_jvm=games_per_jvm,
-            play_override=play_override,
-            purpose=plan.purpose,
-            experiment={
-                "experiment_id": experiment_id,
-                "plan_sha": sha,
-                "table_hash": resolved["table_hash"],
-            },
+        starter = start_series or _default_starter(store, data_path)
+        job = starter(
+            dict(
+                base_revision_id=str(arms[0]["revision_id"]),
+                variant_revision_id=str(arms[1]["revision_id"]),
+                pod="table",
+                opponent_ids=list(plan.table.opponents),
+                budget_pairs=plan.budget_pairs,
+                look_every_pairs=plan.look_every_pairs,
+                base_seed=plan.first_seed,
+                rotate_seats=plan.table.seat_policy == "rotate",
+                threshold_pp=plan.threshold_pp,
+                significance_level=plan.significance_level,
+                purpose=plan.purpose,
+                experiment={
+                    "experiment_id": experiment_id,
+                    "plan_sha": sha,
+                    "table_hash": resolved["table_hash"],
+                },
+            )
         )
     except Exception:
         store.connection.rollback()
@@ -403,6 +416,13 @@ def decide(
     found = _revision_deck(store, variant_id)
     if decision == "adopted" and (found is None or found[0] != row["deck_id"]):
         raise DecisionRefused(f"{variant_id} ist kein Stand des Decks {row['deck_id']}")
+    previous = _main_revision(store, str(row["deck_id"]))
+    if decision == "adopted" and previous != row["base_revision_id"]:
+        # never overwrite a base that moved since the plan (another adoption, a saved state)
+        raise DecisionRefused(
+            f"main steht nicht mehr auf der Basis des Experiments ({row['base_revision_id']}), "
+            f"sondern auf {previous}; nichts wurde überschrieben"
+        )
     entry = entry_for_experiment(data_folder, row)
     tested = bool(entry["counts_as_result"])
     decided_at = now_utc()
@@ -415,12 +435,20 @@ def decide(
         "tested": tested,
         "branch": "main" if decision == "adopted" else None,
         "revision_id": variant_id,
+        "previous_revision_id": previous if decision == "adopted" else None,
     }
     with db:
         db.execute(
             "UPDATE experiment SET decision = ?, decision_at = ?, decision_note = ?, "
-            "decision_tested = ? WHERE experiment_id = ?",
-            (decision, decided_at, note, int(tested), experiment_id),
+            "decision_tested = ?, decision_previous_revision_id = ? WHERE experiment_id = ?",
+            (
+                decision,
+                decided_at,
+                note,
+                int(tested),
+                payload["previous_revision_id"],
+                experiment_id,
+            ),
         )
         if decision == "adopted":
             db.execute(
@@ -430,6 +458,60 @@ def decide(
             )
         # inside the transaction: a decision file that cannot be written undoes the row
         _write_json(experiments_folder(data_folder) / experiment_id / "decision.json", payload)
+    return payload
+
+
+def _main_revision(store: StudioStore, deck_id: str) -> str | None:
+    row = store.connection.execute(
+        "SELECT revision_id FROM deck_branch WHERE deck_id = ? AND branch = 'main'", (deck_id,)
+    ).fetchone()
+    return None if row is None else str(row[0])
+
+
+def undo_decision(
+    store: StudioStore, data_folder: str | Path, experiment_id: str
+) -> dict[str, object]:
+    """Take a decision back: after an adoption ``main`` returns to the stored previous state,
+    but only while ``main`` still is the adopted variant. The experiment is open again; the
+    undone decision stays in ``decision.json``. The caller declares the write."""
+    validate_experiment_id(experiment_id)
+    db = store.connection
+    row = db.execute(f"{EXPERIMENT_SELECT} WHERE e.experiment_id = ?", (experiment_id,)).fetchone()
+    if row is None:
+        raise KeyError(experiment_id)
+    if row["decision"] not in ("adopted", "rejected"):
+        raise DecisionRefused("Experiment ist nicht entschieden, nichts zurückzunehmen")
+    previous = row["decision_previous_revision_id"]
+    if row["decision"] == "adopted":
+        current = _main_revision(store, str(row["deck_id"]))
+        if current != row["variant_revision_id"] or previous is None:
+            raise DecisionRefused(
+                f"main steht nicht mehr auf der übernommenen Variante (jetzt {current}); "
+                "nichts wurde zurückgesetzt"
+            )
+    folder = experiments_folder(data_folder) / experiment_id
+    undone = _read_json(folder / "decision.json")
+    payload: dict[str, object] = {
+        "schema": SCHEMA_DECISION,
+        "experiment_id": experiment_id,
+        "decision": "undone",
+        "undone_at": now_utc(),
+        "undone": undone,
+        "restored_revision_id": previous if row["decision"] == "adopted" else None,
+    }
+    with db:
+        db.execute(
+            "UPDATE experiment SET decision = 'open', decision_at = NULL, decision_note = NULL, "
+            "decision_tested = NULL, decision_previous_revision_id = NULL "
+            "WHERE experiment_id = ?",
+            (experiment_id,),
+        )
+        if row["decision"] == "adopted":
+            db.execute(
+                "UPDATE deck_branch SET revision_id = ? WHERE deck_id = ? AND branch = 'main'",
+                (previous, row["deck_id"]),
+            )
+        _write_json(folder / "decision.json", payload)
     return payload
 
 
@@ -461,57 +543,77 @@ def _legacy_row(
     return row, arms
 
 
+class RebuildRefused(RuntimeError):
+    """A rebuild would lose indexed experiments whose plan files are gone."""
+
+
 def rebuild_index(store: StudioStore, data_folder: str | Path) -> dict[str, int]:
     """Rebuild ``experiment``/``experiment_arm`` from the files (plan, run, decision; old
-    ``*.paired.json`` without a plan as legacy rows). The caller declares the write."""
+    ``*.paired.json`` without a plan as legacy rows). Everything is read first; when an indexed
+    experiment has no readable plan file any more, nothing is replaced (``RebuildRefused``).
+    The caller declares the write."""
     data_path = Path(data_folder).resolve()
     counts = {"experiments": 0, "legacy": 0, "skipped": 0}
     linked: set[str] = set()
+    rows: list[tuple[dict[str, object], list[dict[str, object]]]] = []
+    folder = experiments_folder(data_path)
+    for plan_file in sorted(folder.glob("exp-*/plan.json")) if folder.is_dir() else []:
+        record = _read_json(plan_file)
+        try:
+            if record is None or record.get("schema") != SCHEMA_RECORD:
+                raise ValueError("not a plan record")
+            validate_experiment_id(str(record["experiment_id"]))
+            if plan_file.parent.name != record["experiment_id"]:
+                raise ValueError("folder and id differ")
+            row, arms = _row_from_record(record)
+        except (KeyError, TypeError, ValueError):
+            counts["skipped"] += 1
+            continue
+        run = _read_json(plan_file.parent / "run.json") or {}
+        series_id = run.get("series_id")
+        if isinstance(series_id, str):
+            row["series_id"] = series_id
+            linked.add(series_id)
+            series_raw = read_series_file(games_folder(data_path) / f"{series_id}.paired.json")
+            if series_raw is not None:
+                jar = series_raw.get("bridge_jar_sha256")
+                row["bridge_jar_sha256"] = jar if isinstance(jar, str) else None
+        decision = _read_json(plan_file.parent / "decision.json") or {}
+        if decision.get("schema") == SCHEMA_DECISION and decision.get("decision") in (
+            "adopted",
+            "rejected",
+        ):
+            row["decision"] = decision["decision"]
+            row["decision_at"] = decision.get("decided_at")
+            row["decision_note"] = decision.get("note")
+            row["decision_tested"] = int(bool(decision.get("tested")))
+            row["decision_previous_revision_id"] = decision.get("previous_revision_id")
+        rows.append((row, arms))
+        counts["experiments"] += 1
+    games = games_folder(data_path)
+    for path in sorted(games.glob("paired-*.paired.json")) if games.is_dir() else []:
+        raw = read_series_file(path)
+        if raw is None:
+            continue
+        if raw["series_id"] in linked or isinstance(raw.get("experiment"), dict):
+            continue
+        rows.append(_legacy_row(store, raw))
+        counts["legacy"] += 1
     db = store.connection
+    found = {str(row["experiment_id"]) for row, _arms in rows}
+    lost = [
+        str(r[0])
+        for r in db.execute("SELECT experiment_id FROM experiment WHERE plan_sha IS NOT NULL")
+        if str(r[0]) not in found
+    ]
+    if lost:
+        raise RebuildRefused(
+            f"{len(lost)} Experiment(e) im Index haben keine lesbare Plan-Datei mehr "
+            f"(z. B. {lost[0]}); der Index bleibt unverändert"
+        )
     with db:
         db.execute("DELETE FROM experiment_arm")
         db.execute("DELETE FROM experiment")
-        folder = experiments_folder(data_path)
-        for plan_file in sorted(folder.glob("exp-*/plan.json")) if folder.is_dir() else []:
-            record = _read_json(plan_file)
-            try:
-                if record is None or record.get("schema") != SCHEMA_RECORD:
-                    raise ValueError("not a plan record")
-                validate_experiment_id(str(record["experiment_id"]))
-                if plan_file.parent.name != record["experiment_id"]:
-                    raise ValueError("folder and id differ")
-                row, arms = _row_from_record(record)
-            except (KeyError, TypeError, ValueError):
-                counts["skipped"] += 1
-                continue
-            run = _read_json(plan_file.parent / "run.json") or {}
-            series_id = run.get("series_id")
-            if isinstance(series_id, str):
-                row["series_id"] = series_id
-                linked.add(series_id)
-                series_raw = read_series_file(games_folder(data_path) / f"{series_id}.paired.json")
-                if series_raw is not None:
-                    jar = series_raw.get("bridge_jar_sha256")
-                    row["bridge_jar_sha256"] = jar if isinstance(jar, str) else None
-            decision = _read_json(plan_file.parent / "decision.json") or {}
-            if decision.get("schema") == SCHEMA_DECISION and decision.get("decision") in (
-                "adopted",
-                "rejected",
-            ):
-                row["decision"] = decision["decision"]
-                row["decision_at"] = decision.get("decided_at")
-                row["decision_note"] = decision.get("note")
-                row["decision_tested"] = int(bool(decision.get("tested")))
+        for row, arms in rows:
             _insert(store, row, arms)
-            counts["experiments"] += 1
-        games = games_folder(data_path)
-        for path in sorted(games.glob("paired-*.paired.json")) if games.is_dir() else []:
-            raw = read_series_file(path)
-            if raw is None:
-                continue
-            if raw["series_id"] in linked or isinstance(raw.get("experiment"), dict):
-                continue
-            row, arms = _legacy_row(store, raw)
-            _insert(store, row, arms)
-            counts["legacy"] += 1
     return counts
