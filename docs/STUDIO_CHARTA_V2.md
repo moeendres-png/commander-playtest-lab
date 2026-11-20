@@ -1,6 +1,6 @@
 # Studio-Charta v2 (Brownfield 2)
 
-Stand 2026-11-20. **Vom Owner am 2026-11-20 angenommen sind nur die Entscheidungen Q1–Q11 (§5, „Go Q1–Q11“), Entscheid-Register: `docs/OWNER_DECISIONS_STUDIO_20261118.md` E15; der Rest (Zielbild, §4 Paketplan, §6) ist die Planung des Co-Lead im Rahmen von `AGENTS.md` §8, kein Owner-Entscheid.** Grundlagen: vier Analyse-Lanes (`charter_builder.md`, `charter_simulate.md`, `charter_play.md`, `charter_architecture.md` als Commit 13a836a462cf im Remote, Zweig unter `docs/*`, Ordner `docs/analysis-reports/`) und das Owner-Zielbild vom 2026-11-19. Die Owner-Vorbehalte aus `AGENTS.md` §8 gelten unverändert; Abschnitt 5 unten ist jetzt als Entscheid-Register E15 maßgeblich (Wortlaut dort).
+Stand 2026-11-20. **Vom Owner am 2026-11-20 angenommen sind nur die Entscheidungen Q1–Q11 (§5, „Go Q1–Q11“), Entscheid-Register: `docs/OWNER_DECISIONS_STUDIO_20261118.md` E15; der Rest (Zielbild, §4 Paketplan, §6) ist die Planung des Co-Lead im Rahmen von `AGENTS.md` §8, kein Owner-Entscheid.** Grundlagen: vier Analyse-Lanes (`charter_builder.md`, `charter_simulate.md`, `charter_play.md`, `charter_architecture.md` als Commit 13a836a462cf im Remote, Zweig unter `docs/*`, Ordner `docs/analysis-reports/`) und das Owner-Zielbild vom 2026-11-19. Die Owner-Vorbehalte aus `AGENTS.md` §8 gelten unverändert; Abschnitt 5 unten ist jetzt als Entscheid-Register E15 maßgeblich (Wortlaut dort). Nach dem Go korrigiert (nur Fakten, kein Inhalt): Zeilenangabe in Q3, „mit #1646 erledigt“, „lange Pflichtlektüre“ statt einer Zeilenzahl in Q10.
 
 ## 1. Zielbild (Owner, 2026-11-19) in einem Satz
 Ein lokales Studio für den Windows-PC, in dem der Owner ein Commander-Deck (jetzt Chulane, dazu TAM) baut, es mit Tischen und Settings seiner Wahl (2–6 Spieler, gern 8) regelkonform und schnell simuliert, die Ergebnisse gespeichert dem Deckbau zurückspielt („diese Änderung bringt x, n von N“) und das Deck selbst spielen kann. Kreislauf: Deck bearbeiten → Experiment planen → simulieren → Ergebnis am Diff sehen → übernehmen/verwerfen → spielen → Notiz zurück ins Deck.
@@ -20,7 +20,7 @@ Ein lokales Studio für den Windows-PC, in dem der Owner ein Commander-Deck (jet
 5. **Simulations-Gewicht:** BUILDER und SIMULATE wollen `simulation` aus dem Tierlisten-Index streichen; zusammen mit dem Entfernen von Gesamtrating v1/Rating-Layers wird die Tierliste zur Pool-Ansicht „Nutzung n/N“. Simulation erscheint sofort als Evidenz mit Reifegrad R0–R3 im Deckbauer; G-SIM wird vom Tor zum Reifegrad (ändert O3/E2/B11).
 
 ## 4. Paketplan (grob; Agent-Tage ±40 %)
-**Phase 0 (Stand 2026-11-20 gemergt):** #1638 (Pool, hinter Schalter; Echt-Engine-Beleg und Einschalten in #1652), D-1 P1 (#1649), TAM T2/T4 (#1643, #1647), PLAY-Snapshot (#1644); kleine Folge-PRs laufen weiter.
+**Phase 0 (Stand 2026-11-20 gemergt):** #1638 (Pool, hinter Schalter; Echt-Engine-Beleg und Einschalten offen in #1652), D-1 P1 (#1649), TAM T2/T4 (#1643, #1647), PLAY-Snapshot (#1644); kleine Folge-PRs laufen weiter.
 **Phase 1: Kreislauf-Minimum (etwa 25–32 Tage, 4–6 Lanes parallel):**
 - B1 Deck-Hash im Spielprotokoll, Revisionsspalte, Auswertung je Stand (BUILDER-P1, ohne Bridge) – 3–4
 - B2 Experiment-Objekt + Plan-Datei + Tisch-Einstellung (BUILDER/SIMULATE A) – 6–8
