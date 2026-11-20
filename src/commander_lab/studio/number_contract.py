@@ -35,8 +35,9 @@ GEZAEHLT = "GEZÄHLT"
 SIMULIERT = "SIMULIERT"
 URTEIL = "URTEIL"
 KLASSEN = (EXAKT, GEZAEHLT, SIMULIERT, URTEIL)
-#: Units the display knows: a share 0..1 (shown as %), percentage points, a plain count.
-EINHEITEN = ("Anteil", "pp", "Anzahl")
+#: Units the display knows: a share 0..1 (shown as %), percentage points, a plain count, and the
+#: points of a score (Q1-b5, #1680: the 0..100 score of a model judgement is no count).
+EINHEITEN = ("Anteil", "pp", "Anzahl", "Punkte")
 SIMULATED_RESULT = "SIMULATED_RESULT"
 #: Pilot origin of every simulated figure until B2 (#1658) brings a pilot fingerprint.
 PILOT_KONSTANTE = "Konstante"

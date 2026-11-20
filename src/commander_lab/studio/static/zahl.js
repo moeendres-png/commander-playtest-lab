@@ -15,7 +15,7 @@
 // numbers only through StudioUI (read at call time, so the node tests use the real ui.js helpers).
 const StudioZahl = (() => {
   const KLASSEN = ["EXAKT", "GEZÄHLT", "SIMULIERT", "URTEIL"];
-  const EINHEITEN = ["Anteil", "pp", "Anzahl"];
+  const EINHEITEN = ["Anteil", "pp", "Anzahl", "Punkte"]; // Punkte: the score of a judgement (Q1-b5), no count
   const KEYS = ["id", "bezeichnung", "wert", "einheit", "n", "N", "bezug", "intervall", "klasse", "kohorte", "quelle",
     "stand_datum", "stand_hash", "basis_hash", "pilot", "piloten", "data_class", "hinweise"];
   const LABEL = { EXAKT: "exakt", "GEZÄHLT": "gezählt", SIMULIERT: "simuliert", URTEIL: "Modellurteil" };

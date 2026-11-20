@@ -113,6 +113,7 @@ CASES: list[tuple[str, dict[str, object], bool]] = [
     ("simulated without data class", _simulated(data_class=None), False),
     ("simulated without pilot", _simulated(pilot=None), False),
     ("judgement", _exakt(klasse="URTEIL", einheit="Anzahl", wert=71), True),
+    ("judgement in points", _exakt(klasse="URTEIL", einheit="Punkte", wert=71.5), True),
     ("judgement with data class", _exakt(klasse="URTEIL", data_class="SIMULATED_RESULT"), False),
     ("value is a bool", _exakt(wert=True), False),
     ("value is text", _exakt(wert="0"), False),
@@ -120,7 +121,9 @@ CASES: list[tuple[str, dict[str, object], bool]] = [
     ("interval reversed", _exakt(intervall=[0.5, 0.1]), False),
     ("unknown key", _exakt(score=1), False),
     ("no source", _exakt(quelle=""), False),
-    ("no unit", _exakt(einheit="Punkte"), False),
+    ("no unit", _exakt(einheit="Meter"), False),
+    ("unit missing", {k: v for k, v in _exakt().items() if k != "einheit"}, False),
+    ("unit spelled lower case", _exakt(einheit="punkte"), False),
 ]
 
 
@@ -736,6 +739,19 @@ def test_python_and_javascript_judge_every_case_alike() -> None:
 
 def test_zahl_js_static_contract() -> None:
     js = (STATIC / "zahl.js").read_text(encoding="utf-8")
+    # The two twins know the same units in the same order (Q1-b5 added "Punkte" to both).
+    units = re.search(r"const EINHEITEN = \[([^\]]*)\];", js)
+    assert units is not None
+    assert (
+        tuple(json.loads(f"[{units.group(1)}]"))
+        == nc.EINHEITEN
+        == (
+            "Anteil",
+            "pp",
+            "Anzahl",
+            "Punkte",
+        )
+    )
     index = (STATIC / "index.html").read_text(encoding="utf-8")
     assert '<script src="zahl.js"></script>' in index
     assert index.index("ui.js") < index.index("zahl.js") < index.index("diffimpact.js")

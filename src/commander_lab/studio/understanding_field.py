@@ -81,7 +81,7 @@ def card_figure(card_id: str, row: UnderstandingRow) -> dict[str, object]:
         f"{CRITERION} {CRITERION_NAME} (0 bis 100)",
         float(row["scores"][CRITERION]),
         klasse=number_contract.URTEIL,
-        einheit="Anzahl",
+        einheit="Punkte",
         quelle=(
             f"Rubrik {row['version']} ({row['rubric']}), Modell-Rater Stufe "
             f"{row['rater_tier']}, {rater_text}"
