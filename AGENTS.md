@@ -23,7 +23,7 @@ plays real 100-card Commander decks rules-correctly, so simulated games can stan
   `docs/STUDIO_PLAN_SIMULATOR.md`; read them before any Studio work. Binding in short: only
   objective data with provenance; every count with its denominator; cohorts never added; source
   data bound to one commander; no guessed tier. Since the Owner decision of 2026-11-20
-  (`docs/OWNER_DECISIONS_STUDIO_20261118.md` E15 Q1) the tier list is the usage view (the second tier scale is removed in #1680); the
+  (`docs/OWNER_DECISIONS_STUDIO_20261118.md` E15 Q1) the tier list is the usage view (the second tier scale is still to be removed: #1680); the
   generated overall rating, the rating layers, the tournament-conversion component, the rubric-v1
   signals and the `simulation` weight were removed (#1684, #1686, #1691, #1696). The one labelled
   model judgement is "Kartenverständnis (Modellurteil)" (rubric v2, class URTEIL), for Chulane
