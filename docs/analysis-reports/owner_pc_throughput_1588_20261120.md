@@ -5,7 +5,7 @@
 - **Messstand:** Lab `0fb8fce19a3c88167bb9a7c6188aff9de00dee1c` (Release-Artefakt `14605622120`, Workflow-Run `44684028692`), Engine-Pin `f4d12f6e8066203fba7aa38bd35ea3358117393d`, `bridge_jar_sha256` `840e50abefdaa023072c8c03953e8689a6189a96d3837c5f0c72baf6f8086f6f`, Zustand `BRIDGE_AHEAD_OF_QUALIFICATION` (Epoche `5bd29ab6f318-c6942825587a`).
 - **Gerät & Laufzeit (WSL2):** `AMD Ryzen 7 7700 8-Core Processor` (`K = 8` physische / `16` logische Kerne, `3792,8 MHz` Basistakt), `15.992,19 MB` (`15,6 GiB`) WSL2-RAM, `8,0 GiB` Swap, `Linux 6.6.87.2-microsoft-standard-WSL2`, `OpenJDK 21.0.13.1`, `Python 3.14.4`. Nativer Windows-Host-RAM und native Windows-Laufzeit: `UNKNOWN`.
 - **Bridge-Start:** `--fast` (SerialGC + AppCDS `xmage-engine-bridge.jsa`, `308 MB`, SHA-256 `f36ee5ed47382681d54be2949e1fb1e136bdbe74dd72dfeaa9585547b892ea87`), `--private-card-repository`, `-Dcommanderlab.fullGame.skipForcedDecisions=true`, `--frame-digest-skip-forced`.
-- **Tisch (4 Precons):** `open_hostility`, `lorehold_spirit`, `animated_army`, `token_triumph` (`scripts/run_real_4p_full_game_smoke.py`).
+- **Tisch (`pod="real"`, 2 Custom-/Turnier-Decks + 2 Precons):** `rogshai_current` (`data/decks/rogshai_current.json`), `kaervek/current` (`data/decks/opponents/kaervek/current/deck.json`), `hosts_of_mordor_precon`, `lorehold_spirit_precon` (`scripts/run_real_4p_full_game_smoke.py`; Hinweis: in `#1588` standen abweichend 4 Precons, `benchmark_xmage_full_games.py run` ohne `--coverage-pods` spielt diesen `real`-Tisch).
 - **Vorab-Smoke (`smoke_s1.json`, Seed 1, `W=1, G=1`):** `1/1` ok, `14,09 s`, `2488` Entscheidungen, `1533` Frames (`5` Zwangs-Frames übersprungen).
 
 ## 1. Exaktes `#1588`-Protokoll (48 Seeds, 7 Läufe, `336/336` Partien ok)
@@ -26,15 +26,15 @@
 
 | Zelle | Worker (angef. / max. aktiv) | G | Seeds | `n/N` | Wandzeit (s) | Partien/h | Peak-RSS Summe / Max JVM (MB) | Swap-Delta (MB) | CPU vorher (%) | Identität Überlapp (Transkript / Frames) |
 |---|---|---|---|---|---|---|---|---|---|---|
-| `s1_w4_g8_s64` | 4 / 4 | 8 | `1–64` | `64/64` | `328,91` | `700,50` | `4004,89` / `1084,41` | `0,0` | `0,19` | `48/48` / `48/48` (gegen `c1..s2`) |
-| `s2_w6_g8_s48` | 6 / 6 | 8 | `1–48` | `48/48` | `242,77` | `711,78` | `5924,83` / `1065,32` | `0,0` | `0,34` | `48/48` / `48/48` (`compare` gegen `c1`) |
+| `s1_w4_g8_s64` | 4 / 4 | 8 | `1–64` | `64/64` | `328,91` | `700,50` | `4004,89` / `1084,41` | `0,0` | `0,19` | `64/64` / `64/64` |
+| `s2_w6_g8_s48` | 6 / 6 | 8 | `1–48` | `48/48` | `242,77` | `711,78` | `5924,83` / `1065,32` | `0,0` | `0,34` | `48/48` / `48/48` (`compare` vs. `c1`) |
 | `s3_w7_g8_s56` | 7 / 7 | 8 | `1–56` | `56/56` | `281,10` | `717,18` | `6881,92` / `1051,23` | `0,0` | `0,16` | `56/56` / `56/56` |
 | `s4_w8_g8_s64` | 8 / 8 | 8 | `1–64` | `64/64` | `323,22` | `712,83` | `7846,08` / `1035,57` | `0,0` | `0,34` | `64/64` / `64/64` |
 | `s5_w6_g16_s96` | 6 / 6 | 16 | `1–96` | `96/96` | `439,39` | `786,54` | `6079,14` / `1059,95` | `0,0` | `0,47` | `96/96` / `95/96` (Seed `94`) |
-| `s6_w7_g16_s112` | 7 / 7 | 16 | `1–112` | `112/112` | `495,11` | `814,36` | `7122,01` / `1082,30` | `0,0` | `0,38` | `96/96` / `95/96` (Seed `94`) |
-| `s7_w6_g24_s144` | 6 / 6 | 24 | `1–144` | `144/144` | `605,18` | `856,60` | `6122,07` / `1069,86` | `0,0` | `0,38` | `112/112` / `111/112` (Seed `94`) |
-| `s8_w7_g24_s168` | 7 / 7 | 24 | `1–168` | `168/168` | `705,05` | `857,81` | `7160,47` / `1053,02` | `0,0` | `0,41` | `144/144` / `142/144` (Seeds `94, 123`) |
-| `s9_w8_g24_s192` | 8 / 8 | 24 | `1–192` | `192/192` | `789,04` | `876,00` | `8243,92` / `1097,54` | `0,0` | `0,50` | `168/168` / `165/168` (Seeds `94, 123, 147`) |
+| `s6_w7_g16_s112` | 7 / 7 | 16 | `1–112` | `112/112` | `495,11` | `814,36` | `7122,01` / `1082,30` | `0,0` | `0,38` | `112/112` / `111/112` (Seed `94`) |
+| `s7_w6_g24_s144` | 6 / 6 | 24 | `1–144` | `144/144` | `605,18` | `856,60` | `6122,07` / `1069,86` | `0,0` | `0,38` | `144/144` / `142/144` (Seeds `94, 123`) |
+| `s8_w7_g24_s168` | 7 / 7 | 24 | `1–168` | `168/168` | `705,05` | `857,81` | `7160,47` / `1053,02` | `0,0` | `0,41` | `168/168` / `165/168` (Seeds `94, 123, 147`) |
+| `s9_w8_g24_s192` | 8 / 8 | 24 | `1–192` | `192/192` | `789,04` | `876,00` | `8243,92` / `1097,54` | `0,0` | `0,50` | `168/168` / `165/168` (Seeds `94, 123, 147`; `169–192` einmalig) |
 
 ## 3. Auswertung, `#1587` und Nebenbefund (`frame_digest`)
 
