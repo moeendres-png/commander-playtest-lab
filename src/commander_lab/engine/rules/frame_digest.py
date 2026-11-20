@@ -15,7 +15,10 @@ Normalization of one request (documented here because it is the proof obligation
   version fields: the same key with another type stays in the digest.
 * Run identity becomes ``id#<n>``, numbered by first appearance within the game, so "the same
   object twice" stays visible and only the arbitrary value disappears:
-  UUID-shaped text anywhere (the same pattern the transcript normalization uses), and the values
+  UUID-shaped text anywhere (8-4-4-4-12 hex groups, bounded by non-hex characters on both
+  sides, so ``_`` and the letters g-z next to a UUID, as in ``<uuid>_<uuid>`` keys, do not
+  hide it; this is broader than the ``\\b`` pattern of the transcript normalization
+  ``_semantic_text``, which stays as it is and does not match a UUID next to ``_``), and the values
   of ``option_id``, ``decision_id``, ``public_state_reference`` and
   ``private_actor_state_reference`` when they are 64-hex hashes (the bridge derives these over
   the UUID-bearing views, so they differ in every run); any other value is digested as text.
@@ -77,9 +80,12 @@ UNORDERED_LISTS: frozenset[tuple[str, ...]] = frozenset(
     {("pilot_state", "commander_status"), ("pilot_state", "players", "exile")}
 )
 
-# The pattern of ``XmageFullGameRunner._semantic_text`` for engine object ids; a test pins that
-# both agree.
-_UUID_RE = re.compile(r"(?i)\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b")
+# Engine object ids, including compound keys such as ``<uuid>_<uuid>`` in
+# ``replacement_effect`` metadata (#1692): bounded by non-hex characters so
+# ``_`` (a regex word character) does not block matching while longer hex strings stay intact.
+_UUID_RE = re.compile(
+    r"(?i)(?<![0-9a-f])[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}(?![0-9a-f])"
+)
 
 
 # A bridge-derived hash, optionally with the view prefix the state references carry.
