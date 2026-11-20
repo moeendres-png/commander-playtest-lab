@@ -6,6 +6,7 @@ from __future__ import annotations
 import copy
 import json
 import math
+from collections.abc import Mapping
 from itertools import pairwise
 from pathlib import Path
 
@@ -16,9 +17,11 @@ from scripts import import_card_understanding as importer
 from commander_lab.studio import (
     StudioStore,
     card_understanding,
+    number_contract,
     overall_rating,
     strength,
     strength_view,
+    understanding_field,
     universe,
 )
 from commander_lab.studio.strength import Observation, PoolContext, StrengthSettings
@@ -284,6 +287,248 @@ def _scored_answer() -> tuple[StudioStore, strength_view.StrengthResult]:
     store = _store()
     _with_oracle_ids(store, CARDS)
     return store, strength_view.compute(store, CMD, StrengthSettings())
+
+
+# ---------- rubric v2 field "Kartenverständnis (Modellurteil)" (Q1-b3, #1678, E5) ----------
+
+
+def _field(
+    store: StudioStore,
+    answer: Mapping[str, object],
+    data: dict[str, card_understanding.UnderstandingRow],
+    monkeypatch: pytest.MonkeyPatch,
+) -> dict[str, object]:
+    monkeypatch.setattr(card_understanding, "DATASET_COMMANDER", CMD)
+    return understanding_field.with_understanding(store, answer, dataset=data)
+
+
+def test_the_field_only_adds_one_key_and_leaves_the_answer_as_it_was(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    store, answer = _scored_answer()
+    before = copy.deepcopy(answer)
+    data = _dataset([_row("o-Card 00", scores=SCORES | {"H": 90}), _row("o-Card 03")])
+    after = _field(store, answer, data, monkeypatch)
+    assert answer == before  # the given (possibly remembered) answer is not modified
+    assert set(after) - set(before) == {understanding_field.FIELD}
+    assert {key: value for key, value in after.items() if key != "kartenverstaendnis"} == before
+    field = after["kartenverstaendnis"]
+    assert isinstance(field, dict)
+    assert field["verfuegbar"] is True and field["grund"] is None
+    assert field["name"] == "Kartenverständnis (Modellurteil)" and field["kriterium"] == "H"
+    assert field["n_bewertet"] == 2 and field["n_gesamt"] == len(before["cards"])
+    assert field["herkunft"] == {
+        "version": "v2.1",
+        "rubric": "chulane-rubric-v2.1",
+        "commander": CMD,
+        "rows": 2,
+        "matched": 2,
+        "rater_tiers": {"large": 2},
+    }
+
+
+def test_every_figure_is_a_valid_judgement_and_an_unrated_card_has_none(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    store, answer = _scored_answer()
+    data = _dataset(
+        [
+            _row("o-Card 00", scores=SCORES | {"H": 90}, confidence="low", raters=3),
+            _row("o-Card 03", scores=SCORES | {"H": 0}),
+        ]
+    )
+    field = _field(store, answer, data, monkeypatch)["kartenverstaendnis"]
+    assert isinstance(field, dict)
+    figures = field["zahlen"]
+    ids = {card["name"]: card["card_id"] for card in answer["cards"]}
+    by_id = {figure["id"]: figure for figure in figures}
+    assert set(by_id) == {
+        f"kartenverstaendnis:{ids['Card 00']}",
+        f"kartenverstaendnis:{ids['Card 03']}",
+    }
+    for figure in figures:
+        assert number_contract.check(figure) == []
+        assert figure["klasse"] == number_contract.URTEIL == "URTEIL"
+        assert figure["einheit"] == "Anzahl" and figure["n"] is None and figure["N"] is None
+        assert "data_class" not in figure  # never a simulated result
+        assert figure["kohorte"] == f"{CMD} · Bracket 3 (Annahme der Rater)"
+        assert "nicht gegen Spielergebnisse validiert" in figure["hinweise"]
+    high = by_id[f"kartenverstaendnis:{ids['Card 00']}"]
+    assert high["wert"] == 90.0 and high["bezeichnung"] == "H Gesamtwert (0 bis 100)"
+    assert (
+        high["quelle"] == "Rubrik v2.1 (chulane-rubric-v2.1), Modell-Rater Stufe large, 3 Bewerter"
+    )
+    assert high["hinweise"][0] == "Rater-Vertrauen low (Selbstauskunft)"
+    zero = by_id[f"kartenverstaendnis:{ids['Card 03']}"]
+    assert zero["wert"] == 0.0 and "1 Bewerter" in zero["quelle"]  # a real 0 stays a real 0
+    # a card the data set does not list has no figure at all: "unbekannt", never 0
+    assert f"kartenverstaendnis:{ids['Card 01']}" not in by_id
+
+
+def test_another_commander_gets_no_field(monkeypatch: pytest.MonkeyPatch) -> None:
+    store, answer = _scored_answer()
+    data = _dataset([_row(f"o-{name}") for name in CARDS])
+    monkeypatch.setattr(card_understanding, "DATASET_COMMANDER", "Someone Else")
+    after = understanding_field.with_understanding(store, answer, dataset=data)
+    assert "kartenverstaendnis" not in after and after == answer
+    # positive case: the data set's commander matches regardless of case and spaces
+    renamed = answer | {"commander": f" {CMD.lower()}"}
+    monkeypatch.setattr(card_understanding, "DATASET_COMMANDER", CMD.upper())
+    found = understanding_field.with_understanding(store, renamed, dataset=data)  # type: ignore[arg-type]
+    assert found["kartenverstaendnis"]["n_bewertet"] == len(CARDS)  # type: ignore[index]
+
+
+def test_the_field_is_only_offered_for_the_bracket_the_raters_judged(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    store, answer = _scored_answer()
+    data = _dataset([_row(f"o-{name}") for name in CARDS])
+    assert answer["settings"]["bracket"] == "upgraded"
+    for bracket in ("cedh", "core", "optimized", "none", None):
+        changed = answer | {"settings": {**answer["settings"], "bracket": bracket}}
+        field = _field(store, changed, data, monkeypatch)["kartenverstaendnis"]  # type: ignore[arg-type]
+        assert isinstance(field, dict)
+        assert field["verfuegbar"] is False and "Bracket 3" in field["grund"]
+        assert field["zahlen"] == [] and field["n_bewertet"] == 0 and field["herkunft"] is None
+    no_settings = {k: v for k, v in answer.items() if k != "settings"}
+    field = _field(store, no_settings, data, monkeypatch)["kartenverstaendnis"]
+    assert field["verfuegbar"] is False  # type: ignore[index]
+
+
+def test_a_broken_data_file_makes_the_field_unavailable_not_wrong(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    store, answer = _scored_answer()
+    path = tmp_path / "bad.jsonl"
+    path.write_text("{}\n", encoding="utf-8")
+    monkeypatch.setattr(card_understanding, "DATASET_PATH", path)
+    monkeypatch.setattr(card_understanding, "DATASET_COMMANDER", CMD)
+    field = understanding_field.with_understanding(store, answer)["kartenverstaendnis"]
+    assert isinstance(field, dict)
+    assert field["verfuegbar"] is False and "nicht lesbar" in field["grund"]
+    assert field["zahlen"] == []
+
+
+def _judgement_route(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, path: Path, settings: object = None
+) -> tuple[dict[str, object], dict[str, object]]:
+    """The answer of ``/api/strength`` with the data file ``path``, and the index answer."""
+    folder = tmp_path / "studio"
+    store = _store(folder)
+    _with_oracle_ids(store, CARDS)
+    store.connection.commit()
+    expected = strength_view.compute(store, CMD, StrengthSettings())
+    store.close()
+    monkeypatch.setattr(card_understanding, "DATASET_PATH", path)
+    monkeypatch.setattr(card_understanding, "DATASET_COMMANDER", CMD)
+    body: dict[str, object] = {"commander": CMD}
+    if settings is not None:
+        body["settings"] = settings
+    with TestClient(create_app(folder)) as client:
+        response = client.post("/api/strength", json=body, headers={"X-Studio": "1"})
+    assert response.status_code == 200
+    return response.json(), json.loads(json.dumps(expected))
+
+
+def test_the_strength_route_sends_the_judgement_field(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    path = tmp_path / "cu.jsonl"
+    path.write_text(
+        "\n".join(json.dumps(_row(f"o-{name}", name)) for name in CARDS[:4]) + "\n",
+        encoding="utf-8",
+    )
+    body, expected = _judgement_route(tmp_path, monkeypatch, path)
+    field = body["kartenverstaendnis"]
+    assert isinstance(field, dict)
+    assert field["verfuegbar"] is True and field["n_bewertet"] == 4
+    assert all(number_contract.check(figure) == [] for figure in field["zahlen"])
+    assert body["tier_counts"] == expected["tier_counts"]
+
+
+@pytest.mark.parametrize(
+    ("content", "reason"),
+    [
+        (b"\xff\xfe not utf-8\n", "nicht lesbar"),
+        (
+            json.dumps(_row("o-Card 00", scores=SCORES | {"H": 10**400})).encode() + b"\n",
+            "nicht lesbar",
+        ),
+        (json.dumps(_row("o-Card 00", version="v2")).encode() + b"\n", "nicht lesbar"),
+        (
+            json.dumps(_row("o-Card 00", rubric="chulane-rubric-v1")).encode() + b"\n",
+            "nicht lesbar",
+        ),
+        (b"[" * 100000 + b"\n", "nicht lesbar"),
+        (None, "Datensatz nicht gefunden"),
+    ],
+)
+def test_a_defective_data_file_never_breaks_the_strength_judgement_route(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, content: bytes | None, reason: str
+) -> None:
+    path = tmp_path / "cu.jsonl"
+    if content is not None:
+        path.write_bytes(content)
+    body, expected = _judgement_route(tmp_path, monkeypatch, path)
+    field = body["kartenverstaendnis"]
+    assert isinstance(field, dict)
+    assert field["verfuegbar"] is False and reason in field["grund"]
+    assert field["zahlen"] == []
+    assert body["tier_counts"] == expected["tier_counts"]
+
+
+def test_a_changed_data_file_invalidates_the_remembered_judgement(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    folder = tmp_path / "studio"
+    store = _store(folder)
+    _with_oracle_ids(store, CARDS)
+    store.connection.commit()
+    store.close()
+    path = tmp_path / "cu.jsonl"
+    monkeypatch.setattr(card_understanding, "DATASET_PATH", path)
+    monkeypatch.setattr(card_understanding, "DATASET_COMMANDER", CMD)
+    head = {"X-Studio": "1"}
+    with TestClient(create_app(folder)) as client:
+        counts = []
+        for rows in (CARDS[:2], CARDS[:3]):
+            path.write_text(
+                "\n".join(json.dumps(_row(f"o-{name}", name)) for name in rows) + "\n",
+                encoding="utf-8",
+            )
+            body = client.post("/api/strength", json={"commander": CMD}, headers=head).json()
+            counts.append(body["kartenverstaendnis"]["n_bewertet"])
+    assert counts == [2, 3]
+
+
+def test_the_strength_route_withholds_the_judgement_for_another_bracket(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    path = tmp_path / "cu.jsonl"
+    path.write_text(json.dumps(_row("o-Card 00", "Card 00")) + "\n", encoding="utf-8")
+    body, _ = _judgement_route(tmp_path, monkeypatch, path, settings={"bracket": "cedh"})
+    field = body["kartenverstaendnis"]
+    assert isinstance(field, dict)
+    assert field["verfuegbar"] is False and field["zahlen"] == []
+
+
+def test_the_strength_route_sends_no_field_for_another_commander(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    folder = tmp_path / "studio"
+    store = _store(folder)
+    _with_oracle_ids(store, CARDS)
+    store.connection.commit()
+    store.close()
+    path = tmp_path / "cu.jsonl"
+    path.write_text(json.dumps(_row("o-Card 00", "Card 00")) + "\n", encoding="utf-8")
+    monkeypatch.setattr(card_understanding, "DATASET_PATH", path)
+    monkeypatch.setattr(card_understanding, "DATASET_COMMANDER", "Other Cmd")
+    with TestClient(create_app(folder)) as client:
+        body = client.post(
+            "/api/strength", json={"commander": CMD}, headers={"X-Studio": "1"}
+        ).json()
+    assert "kartenverstaendnis" not in body and body["cards"]
 
 
 def test_the_overall_rating_only_adds_fields_and_leaves_the_usage_index_as_it_was() -> None:
