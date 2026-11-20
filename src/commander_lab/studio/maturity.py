@@ -25,8 +25,11 @@ discordant pairs, seed-cluster t test, ``effective_p_value``) and the Holm step 
 ``_apply_holm`` on the same result model, so the Studio gives the same adjusted p-values. The
 level is the stored ``decision_alpha`` of the series (the level its last look spent under the
 O'Brien-Fleming plan), never the nominal level. The Holm family is every confirmation of the
-same deck with the same base state and the same ``table_hash`` (a choice of this package; a
+same deck with the same base state and the same ``table_hash``, decided by the plan, never
+by the result: a member without a usable result enters with p = 1 (a choice of this package; a
 later confirmation of the same family can withhold an earlier verdict, the finding says so).
+The family level is the smallest ``decision_alpha`` of its members: approximately conservative,
+no proven error-rate guarantee over the O'Brien-Fleming looks.
 
 ``empfehlungsfähig`` needs R2, a finding about the current state (``main``) or its direct
 predecessor, and the pilot fingerprint and bridge JAR of the series equal to the current ones.
@@ -84,7 +87,10 @@ METHOD = (
     "Ergebnis bei Schwelle 0, zweiseitig, aus den gespeicherten Paaren: Vorzeichentest über die "
     "diskordanten Paare und Seed-Cluster-t-Test (full_game_comparison.effective_p_value) auf "
     "dem Niveau decision_alpha der Serie; Holm (full_game_comparison._apply_holm) über alle "
-    "Bestätigungen desselben Decks mit derselben Basis und demselben Tisch-Hash."
+    "indizierten Bestätigungen desselben Decks mit derselben Basis und demselben Tisch-Hash "
+    "(nicht auswertbare Mitglieder zählen mit p = 1), Familienniveau = kleinstes decision_alpha. "
+    "Näherungsweise konservativ: eine strenge Garantie der Fehlerrate über die "
+    "O'Brien-Fleming-Looks ist nicht bewiesen."
 )
 GAPS = (
     "Positiv-/Negativkontrolle, Karten-Kompetenzprüfung, Pilot-Audit und Owner-Annahme "
@@ -94,13 +100,14 @@ GAPS = (
 
 @dataclass(frozen=True)
 class Checks:
-    """Proofs for R2/R3 for one finding; the Studio records none of them yet."""
+    """Proofs for R2/R3 for one finding, three-valued: ``True`` passed, ``False`` failed,
+    ``None`` not recorded (UNKNOWN). The Studio records none of them yet."""
 
-    positive_control: bool = False
-    negative_control: bool = False
-    card_competence: bool = False
-    pilot_audit: bool = False
-    owner_accepts_bridge: bool = False
+    positive_control: bool | None = None
+    negative_control: bool | None = None
+    card_competence: bool | None = None
+    pilot_audit: bool | None = None
+    owner_accepts_bridge: bool | None = None
 
 
 NO_CHECKS = Checks()
@@ -127,8 +134,30 @@ def _float(value: object) -> float | None:
     return float(value)
 
 
+PASSED, FAILED, UNRECORDED = "bestanden", "durchgefallen", "nicht erfasst (UNKNOWN)"
+
+
 def _condition(level: str, name: str, met: bool, reason: str) -> dict[str, object]:
-    return {"stufe": level, "name": name, "erfuellt": met, "grund": "" if met else reason}
+    return {
+        "stufe": level,
+        "name": name,
+        "erfuellt": met,
+        "zustand": PASSED if met else "nicht erfüllt",
+        "grund": "" if met else reason,
+    }
+
+
+def _proof(level: str, name: str, value: bool | None) -> dict[str, object]:
+    """A recorded proof (passed or failed) or one that is not recorded: UNKNOWN, never failed."""
+    state = UNRECORDED if value is None else PASSED if value else FAILED
+    reason = {PASSED: "", FAILED: "Nachweis durchgefallen", UNRECORDED: "Nachweis nicht erfasst"}
+    return {
+        "stufe": level,
+        "name": name,
+        "erfuellt": value is True,
+        "zustand": state,
+        "grund": reason[state],
+    }
 
 
 def _clustered(result: Mapping[str, object]) -> list[tuple[int, float]] | None:
@@ -202,6 +231,32 @@ def decide(basis: PairedVariantResult, level: float) -> PairedVariantResult:
     return result
 
 
+def _placeholder(series_id: str) -> PairedVariantResult:
+    """A family member without a usable result: p = 1, no verdict (it counts, it never helps)."""
+    return PairedVariantResult(
+        variant_deck_id=f"{series_id}:variant",
+        baseline_deck_id=f"{series_id}:base",
+        pairs_completed=0,
+        pairs_censored=0,
+        variant_win_share=None,
+        baseline_win_share=None,
+        win_share_difference=None,
+        variant_only_wins=0,
+        baseline_only_wins=0,
+        sign_test_p_value=1.0,
+        verdict="NO_CLEAR_DIFFERENCE",
+        effective_p_value=1.0,
+    )
+
+
+def _redecide(basis: PairedVariantResult | None, level: float) -> PairedVariantResult:
+    """The member's verdict at the family level. That level is the smallest of the family, so a
+    verdict not decided at the member's own level stays undecided; one decided may fall back."""
+    if basis is None:
+        raise ValueError("no basis")
+    return decide(basis, level)
+
+
 def holm(family: Sequence[PairedVariantResult], level: float) -> list[PairedVariantResult]:
     """Holm over ``family`` exactly as the engine lane applies it to the variants of a run."""
     return _apply_holm(list(family), [entry.effective_p_value for entry in family], level)
@@ -263,6 +318,15 @@ def _fresh_seeds(
     return True
 
 
+def _played_seeds(finding: Finding) -> list[int]:
+    """Every seed the series names (stored result and history entry), counted or not."""
+    found: set[int] = set()
+    for raw in (finding.result.get("seeds"), finding.entry.get("seeds")):
+        if isinstance(raw, list):
+            found.update(seed for seed in raw if _int(seed) is not None)
+    return sorted(found)
+
+
 @dataclass(frozen=True)
 class Finding:
     """One series as maturity reads it (built by :func:`deck_maturity` or by tests)."""
@@ -294,28 +358,49 @@ def assess(
         level = level if level is not None and 0.0 < level < 1.0 else None
         bases[finding.series_id] = None if basis is None or level is None else decide(basis, level)
         levels[finding.series_id] = level
-    families: dict[tuple[str, str], list[str]] = {}
+    # The family hangs on the plan, never on the result: every indexed confirmation with the same
+    # base and table is a member; one without a usable result (cancelled, censored, broken plan,
+    # no verdict basis) enters as a placeholder with p = 1 and never gives the others credit.
+    families: dict[tuple[str, str], list[Finding]] = {}
     for finding in findings:
         exp = finding.entry.get("experiment")
-        if not isinstance(exp, dict) or exp.get("purpose") != "confirmation" or not finding.plan_ok:
+        if not isinstance(exp, dict) or exp.get("purpose") != "confirmation":
             continue
-        if bases[finding.series_id] is None or not exp.get("table_hash"):
+        if not exp.get("table_hash"):
             continue
         key = (str(finding.entry.get("base_ref")), str(exp.get("table_hash")))
-        families.setdefault(key, []).append(finding.series_id)
+        families.setdefault(key, []).append(finding)
     corrected: dict[str, tuple[PairedVariantResult, int, float]] = {}
     for members in families.values():
-        family_level = min(levels[m] or 1.0 for m in members)
-        entries = [bases[m] for m in members]
-        adjusted = holm([e for e in entries if e is not None], family_level)
+        known = [lv for lv in (levels[f.series_id] for f in members) if lv is not None]
+        if not known:
+            continue  # no member has a level: nothing to decide, nothing to correct
+        family_level = min(known)
+        entries = [
+            _placeholder(f.series_id)
+            if bases[f.series_id] is None or not f.plan_ok
+            else _redecide(bases[f.series_id], family_level)
+            for f in members
+        ]
+        adjusted = holm(entries, family_level)
         for member, entry in zip(members, adjusted, strict=True):
+            if bases[member.series_id] is None or not member.plan_ok:
+                continue  # a placeholder shows nothing of its own
             if len(members) == 1:  # Holm over one test is the test itself (adjusted p = p)
                 entry = entry.model_copy(update={"holm_adjusted_p_value": entry.effective_p_value})
-            corrected[member] = (entry, len(members), family_level)
+            corrected[member.series_id] = (entry, len(members), family_level)
+    # Seeds a confirmation must avoid: the indexed explorations plus the played seeds of every
+    # other series that is not an indexed confirmation (legacy series, explorations, controls).
+    used = list(explorations)
+    for finding in findings:
+        exp = finding.entry.get("experiment")
+        if isinstance(exp, dict) and exp.get("purpose") == "confirmation":
+            continue
+        used.extend((seed, seed) for seed in _played_seeds(finding))
     out: dict[str, object] = {}
     for finding in findings:
         out[finding.series_id] = _one(
-            finding, bases, levels, corrected, explorations, hashes, current, tam, proofs
+            finding, bases, levels, corrected, used, hashes, current, tam, proofs
         )
     return {
         "schema": SCHEMA,
@@ -345,6 +430,13 @@ def _one(
     shown = holm_entry[0] if holm_entry else bases.get(sid)
     y_pp = _float(res.get("detectable_difference_pp"))
     verdict, verdict_text = verdict_of(shown, _float(entry.get("difference_pp")), y_pp)
+    withheld = holm_entry is not None and holm_entry[0].holm_withheld_verdict is not None
+    if withheld and verdict == NO_DIFFERENCE:
+        # y belongs to the uncorrected single test; after Holm the sensitivity is not known
+        verdict_text = (
+            "kein nachweisbarer Unterschied nach Holm (Empfindlichkeit nach Korrektur unbekannt)"
+        )
+        y_pp = None
     counted = bool(entry.get("counts_as_result"))
     raw_seeds = res.get("seeds") if counted else None
     seeds = [s for s in raw_seeds if _int(s) is not None] if isinstance(raw_seeds, list) else []
@@ -374,15 +466,14 @@ def _one(
             holm_entry is not None and holm_entry[0].holm_adjusted_p_value is not None,
             "kein Holm-Schritt für diesen Befund",
         ),
-        _condition(R2, "Positivkontrolle bestanden", check.positive_control, "kein Nachweis"),
-        _condition(R2, "Negativkontrolle bestanden", check.negative_control, "kein Nachweis"),
-        _condition(R2, "Karten-Kompetenzprüfung bestanden", check.card_competence, "kein Nachweis"),
-        _condition(R3, "Pilot-Audit für diesen Fingerabdruck", check.pilot_audit, "kein Nachweis"),
-        _condition(
+        _proof(R2, "Positivkontrolle bestanden", check.positive_control),
+        _proof(R2, "Negativkontrolle bestanden", check.negative_control),
+        _proof(R2, "Karten-Kompetenzprüfung bestanden", check.card_competence),
+        _proof(R3, "Pilot-Audit für diesen Fingerabdruck", check.pilot_audit),
+        _proof(
             R3,
             "Bridge durch Siegel gedeckt oder vom Owner angenommen",
-            entry.get("covered_by_sealed_epoch") is True or check.owner_accepts_bridge,
-            "Bridge nicht versiegelt und keine Owner-Annahme",
+            True if entry.get("covered_by_sealed_epoch") is True else check.owner_accepts_bridge,
         ),
     ]
     level: str | None = None
@@ -422,7 +513,7 @@ def _one(
         notes.append("Alt-Serie ohne Plan: höchstens R0")
     return {
         "stufe": level,
-        "stufe_text": LEVEL_TEXT[level] if level else "kein Reifegrad (Beleg fehlt)",
+        "stufe_text": _level_text(level, exp_view.get("purpose")),
         "bedingungen": conditions,
         "urteil": verdict,
         "urteil_text": verdict_text,
@@ -439,6 +530,14 @@ def _one(
         "hinweise": notes,
         "data_class": DATA_CLASS,
     }
+
+
+def _level_text(level: str | None, purpose: object) -> str:
+    if level is None:
+        return "kein Reifegrad (Beleg fehlt)"
+    if level == R0 and purpose == "control":
+        return "R0 (Kontrolle, keine Bestätigung)"
+    return LEVEL_TEXT[level]
 
 
 def _current_main(store: StudioStore, deck_id: str) -> tuple[str | None, str | None]:

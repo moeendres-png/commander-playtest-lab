@@ -18,6 +18,7 @@ import pytest
 from commander_lab.engine.rules.full_game_comparison import PairedVariantResult, _apply_holm
 from commander_lab.studio import maturity as m
 from commander_lab.studio import number_contract as nc
+from commander_lab.studio.store import StudioStore
 from tests.unit import test_studio_experiments as tx
 from tests.unit.test_studio_experiments import lab  # noqa: F401  (the experiment lab fixture)
 
@@ -59,6 +60,8 @@ def _finding(
     fingerprint: str | None = FP,
     fingerprint_now: str | None = FP,
     difference_pp: float | None = None,
+    stop_reason: str = "BUDGET_EXHAUSTED",
+    extra_seeds: list[int] | None = None,
 ) -> m.Finding:
     pairs = _pairs(wins, losses, ties, first_seed)
     n = len(pairs)
@@ -89,11 +92,11 @@ def _finding(
     }
     result = {
         "pairs": pairs,
-        "seeds": seeds,
+        "seeds": seeds + (extra_seeds or []),
         "pairs_censored": 0,
         "decision_alpha": alpha,
         "detectable_difference_pp": detectable,
-        "stop_reason": "BUDGET_EXHAUSTED",
+        "stop_reason": stop_reason,
     }
     return m.Finding(sid, entry, result, plan_ok, fingerprint_now)
 
@@ -133,6 +136,7 @@ def test_r0_exploration_control_and_legacy_never_reach_r1() -> None:
     )
     for sid in ("explo", "ctrl", "legacy", "broken"):
         assert got[sid]["stufe"] == m.R0, sid
+    assert got["ctrl"]["stufe_text"] == "R0 (Kontrolle, keine Bestätigung)"
     assert "Alt-Serie ohne Plan: höchstens R0" in got["legacy"]["hinweise"]  # type: ignore[operator]
 
 
@@ -225,6 +229,72 @@ def test_a_later_confirmation_of_the_same_family_withholds_the_verdict() -> None
         _finding("a"), _finding("b", variant="rev-var2", first_seed=600, table_hash="t2")
     )
     assert apart["a"]["urteil"] == m.BETTER
+
+
+@pytest.mark.parametrize(
+    "sibling",
+    [
+        {"counts": False},
+        {"stop_reason": "CENSORING_LIMIT"},
+        {"plan_ok": False},
+        {"alpha": None},
+    ],
+    ids=["cancelled", "censored", "plan_broken", "no_level"],
+)
+def test_the_family_hangs_on_the_plan_an_unusable_sibling_never_gives_credit(
+    sibling: dict[str, object],
+) -> None:
+    alone = _assess(_finding("a"))
+    assert alone["a"]["stufe"] == m.R1 and alone["a"]["urteil"] == m.BETTER
+    b = _finding("b", variant="rev-var2", first_seed=600, **sibling)  # type: ignore[arg-type]
+    got = _assess(_finding("a"), b)
+    assert got["a"]["holm_p"] == pytest.approx(2 * 2 * 0.5**6)  # placeholder p = 1
+    assert got["a"]["urteil"] != m.BETTER
+    assert any("Holm-Familie: 2" in h for h in got["a"]["hinweise"])  # type: ignore[union-attr]
+    assert got["b"]["holm_p"] is None  # the placeholder shows nothing of its own
+
+
+def test_without_table_hash_no_holm_and_no_r1() -> None:
+    got = _assess(_finding("c", table_hash=None))  # type: ignore[arg-type]
+    assert got["c"]["stufe"] == m.R0 and got["c"]["holm_p"] is None
+
+
+def test_the_family_level_is_the_smallest_alpha() -> None:
+    # a alone: p = 2 * 0.5**8 = 0.0078; with b (p = 1) Holm gives 0.0156: kept at 0.05, not at 0.01
+    a = _finding("a", wins=8, alpha=0.05)
+    b = _finding("b", variant="rev-var2", first_seed=600, wins=1, losses=1, ties=4, alpha=0.01)
+    got = _assess(a, b)
+    assert got["a"]["niveau"] == 0.01
+    assert got["a"]["holm_p"] == pytest.approx(2 * 2 * 0.5**8)
+    assert got["a"]["urteil"] == m.NO_DIFFERENCE
+
+
+def test_seeds_of_a_legacy_series_or_a_played_overlap_block_r1() -> None:
+    legacy = _finding("legacy", purpose=None, variant="rev-old-var")
+    assert _assess(_finding("c"))["c"]["stufe"] == m.R1
+    assert _assess(_finding("c"), legacy)["c"]["stufe"] == m.R0  # same seeds 500..505
+    played = _finding("c", extra_seeds=[150])  # plan range fresh, a played seed is not
+    assert _assess(played)["c"]["stufe"] == m.R0
+
+
+def test_unrecorded_proofs_are_unknown_not_failed() -> None:
+    def states(checks: m.Checks) -> dict[str, object]:
+        got = _assess(_finding("c"), checks={"c": checks})
+        return {c["name"]: c["zustand"] for c in got["c"]["bedingungen"]}  # type: ignore[attr-defined]
+
+    unknown = states(m.NO_CHECKS)
+    assert unknown["Positivkontrolle bestanden"] == "nicht erfasst (UNKNOWN)"
+    assert unknown["Pilot-Audit für diesen Fingerabdruck"] == "nicht erfasst (UNKNOWN)"
+    failed = states(replace(ALL_R2, negative_control=False))
+    assert failed["Negativkontrolle bestanden"] == "durchgefallen"
+    assert failed["Positivkontrolle bestanden"] == "bestanden"
+
+
+def test_after_holm_the_text_claims_no_uncorrected_sensitivity() -> None:
+    both = _assess(_finding("a"), _finding("b", variant="rev-var2", first_seed=600))
+    assert both["a"]["urteil"] == m.NO_DIFFERENCE
+    assert "nach Holm" in str(both["a"]["urteil_text"])
+    assert "ab 20.0 pp" not in str(both["a"]["urteil_text"]) and both["a"]["y_pp"] is None
 
 
 # -- verdict in four steps ---------------------------------------------------------------------
@@ -338,6 +408,27 @@ def test_route_gives_r0_and_r1_and_only_simulated_figures(
     assert met["Positivkontrolle bestanden"] is False  # production records no controls
     explo_met = {c["name"]: c["erfuellt"] for c in explo["bedingungen"]}
     assert explo_met["Bestätigung mit intaktem Plan"] is False
+    # re-checked when read: an exploration indexed after the confirmation on its seeds
+    store = StudioStore.open(Path(str(lab["folder"])))
+    try:
+        with store.connection:
+            store.connection.execute(
+                "INSERT INTO experiment(experiment_id, deck_id, question, purpose, "
+                "base_revision_id, first_seed, last_seed, created_at) VALUES "
+                "('exp-late', 'chulane-b2', 'spät', 'exploration', ?, 900, 900, '2026-11-20')",
+                (revs["base"],),
+            )
+    finally:
+        store.close()
+    again = tx._history(lab)
+    conf_again = next(
+        again["reifegrad"]["befunde"][item["series_id"]]
+        for item in again["series"]
+        if item["experiment"] and item["experiment"]["purpose"] == "confirmation"
+    )
+    late = {c["name"]: c["erfuellt"] for c in conf_again["bedingungen"]}
+    assert late["frische Seeds (disjunkt von jeder Erkundung des Decks)"] is False
+    assert conf_again["stufe"] not in (m.R1, m.R2, m.R3)
     # never mixed: every figure of the answer is one simulated class, no sum of classes
     assert body["zahlen"], "the series carry their SIMULIERT figure"
     for zahl in body["zahlen"]:
