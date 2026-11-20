@@ -10,8 +10,9 @@ Classes (``klasse``):
 * ``EXAKT``: computed from the list itself (hypergeometry, castability, counts of the list).
 * ``GEZÄHLT``: counted in a cohort (corpus, playgroup); always with ``N`` and ``kohorte``.
 * ``SIMULIERT``: a simulated result (``data_class`` ``SIMULATED_RESULT``); always with ``N``,
-  the deck state (``stand_hash``, ``None`` = unknown or several states combined) and the pilot origin (``pilot``; until the
-  experiment object B2 it is the constant ``"Konstante"``).
+  the deck state (``stand_hash``, ``None`` = unknown or several states combined) and the pilot origin (``pilot``: for card
+  outcomes the pilot fingerprint of the stratum since #1687, "Pilot unbekannt" without one; elsewhere still the constant
+  ``"Konstante"``).
 * ``URTEIL``: a model judgement (for example rubric v2 "Kartenverständnis").
 
 ``VORSCHLAG`` (E15 Q2) is not a number class and is refused. A missing ``wert`` is "unbekannt",
@@ -39,7 +40,8 @@ KLASSEN = (EXAKT, GEZAEHLT, SIMULIERT, URTEIL)
 #: points of a score (Q1-b5, #1680: the 0..100 score of a model judgement is no count).
 EINHEITEN = ("Anteil", "pp", "Anzahl", "Punkte")
 SIMULATED_RESULT = "SIMULATED_RESULT"
-#: Pilot origin of every simulated figure until B2 (#1658) brings a pilot fingerprint.
+#: Pilot origin of a simulated figure that names no pilot fingerprint (the paired series);
+#: card outcomes name the fingerprint of their stratum since #1687.
 PILOT_KONSTANTE = "Konstante"
 SCHEMA = "studio-zahl-1"
 
@@ -369,25 +371,73 @@ def diff_zahlen(diff: Mapping[str, object]) -> list[dict[str, object]]:
     return out
 
 
-def outcomes_zahlen(table: Mapping[str, object]) -> list[dict[str, object]]:
-    """Contracts for ``/api/outcomes`` (per stratum since B1, #1657, and #1683): per card the rate
-    with and without the card in the first dealt hand and their difference (SIMULIERT), with the
-    card's status and reason, the table's warnings and its table size as ``hinweise``.
+#: The strata axes of ``card_outcomes.STRATUM_AXES`` in its order (#1687; a test pins field,
+#: order and ``pooled`` to it): field, ``pooled``, id prefix, id text of an unknown value and
+#: the note of an unknown value. Read by every outcome figure id, ``bezug``, ``kohorte`` and note.
+_STRATUM_PARTS: tuple[tuple[str, bool, str, str, str], ...] = (
+    ("deck_hash", True, "", "ohne-hash", "Stand unbekannt (Protokoll ohne Deck-Hash)"),
+    (
+        "table_size",
+        False,
+        "t",
+        "unbekannt",
+        "Tischgröße unbekannt (Protokollkopf ohne vollständige Sitzliste)",
+    ),
+    (
+        "pilot_fingerprint",
+        False,
+        "p",
+        "unbekannt",
+        "Pilot unbekannt (Protokollkopf ohne Pilot-Fingerabdruck)",
+    ),
+)
+#: What the strata of one combined table share: one value of every axis that is not pooled.
+_CELL_TEXT = "Deck-Stände einer Tischgröße und eines Pilot-Fingerabdrucks"
 
-    A stratum is (deck state, table size); the table size is named in ``bezug``, ``kohorte`` and
-    ``hinweise`` of every figure, so figures of two table sizes never read as one cohort.
+
+def _axis_value(table: Mapping[str, object], field: str) -> str | int | None:
+    value = table.get(field)
+    if field == "table_size":
+        return _int_or_none(value)
+    return value if isinstance(value, str) and _text(value) else None
+
+
+def _stratum_id(table: Mapping[str, object], *, pooled_too: bool = True) -> str:
+    """The id part of a stratum (or a cohort, ``pooled_too=False``): one segment per axis."""
+    parts = []
+    for field, pooled, prefix, unknown, _note in _STRATUM_PARTS:
+        if pooled and not pooled_too:
+            continue
+        value = _axis_value(table, field)
+        parts.append(f"{prefix}{unknown if value is None else value}")
+    return ".".join(parts)
+
+
+def outcomes_zahlen(table: Mapping[str, object]) -> list[dict[str, object]]:
+    """Contracts for ``/api/outcomes`` (per stratum since B1, #1657, #1683 and #1687): per card the
+    rate with and without the card in the first dealt hand and their difference (SIMULIERT), with
+    the card's status and reason, the table's warnings, its table size and its pilot fingerprint
+    as ``hinweise``.
+
+    A stratum is (deck state, table size, pilot fingerprint); table size and pilot fingerprint
+    are named in ``bezug``, ``kohorte`` and ``hinweise`` of every figure and the fingerprint is
+    the ``pilot`` of every figure, so figures of two table sizes or two pilots never read as one
+    cohort. Ids carry one segment per axis (``_STRATUM_PARTS``):
 
     * top level (``outcome.<card>.<key>``): one known stratum carries its ``deck_hash``; several
-      strata of one table size combined stratified carry ``stand_hash`` ``None`` and the number
-      of strata as a note (no single state); ``NOT_POOLED`` has no card rows and so no figures;
-    * every known stratum (``outcome.stand.<hash>.t<size>.<card>.<key>``) with its own hash;
-    * every stratum with an unknown axis
-      (``outcome.unknown.<hash|ohne-hash>.t<size|unbekannt>.<card>.<key>``): "Stand unbekannt" with ``stand_hash`` ``None``, "Tischgröße unbekannt" with its own n/N,
-      never added to a known stratum;
-    * every table size whose deck states are combined stratified on their own (``cohorts``,
-      #1694; ``outcome.kohorte.t<size>.<card>.<key>``) with ``stand_hash`` ``None`` and the number
-      of strata as a note. A table size of one stratum (``SINGLE_STAND``) or one not combined has
-      no figures of its own: its numbers are those of its strata."""
+      strata of one cell combined stratified carry ``stand_hash`` ``None`` and the number of
+      strata as a note (no single state); ``NOT_POOLED`` has no card rows and so no figures;
+    * every known stratum (``outcome.stand.<hash>.t<size>.p<fingerprint>.<card>.<key>``) with
+      its own hash;
+    * every stratum with an unknown axis (``outcome.unknown.<hash|ohne-hash>.t<size|unbekannt>
+      .p<fingerprint|unbekannt>.<card>.<key>``): "Stand unbekannt" with ``stand_hash`` ``None``,
+      "Tischgröße unbekannt" and "Pilot unbekannt" with their own n/N, never added to a known
+      stratum;
+    * every cell of table size and pilot fingerprint whose deck states are combined stratified on
+      their own (``cohorts``, #1694; ``outcome.kohorte.t<size>.p<fingerprint>.<card>.<key>``)
+      with ``stand_hash`` ``None`` and the number of strata as a note. A cell of one stratum
+      (``SINGLE_STAND``) or one not combined has no figures of its own: its numbers are those of
+      its strata."""
     out: list[dict[str, object]] = []
     pooling = _mapping(table.get("pooling"))
     top_hash = table.get("deck_hash") if _text(table.get("deck_hash")) else None
@@ -395,7 +445,7 @@ def outcomes_zahlen(table: Mapping[str, object]) -> list[dict[str, object]]:
     if pooling.get("status") == "POOLED":
         top_hash = None
         top_notes.append(
-            f"geschichtet über {table.get('strata')} Schichten (Deck-Stände einer Tischgröße; "
+            f"geschichtet über {table.get('strata')} Schichten ({_CELL_TEXT}; "
             f"{pooling.get('method')})"
         )
     _outcome_table(
@@ -403,33 +453,42 @@ def outcomes_zahlen(table: Mapping[str, object]) -> list[dict[str, object]]:
     )
     for item in _list(table.get("stands")):
         stand = _mapping(item)
-        deck_hash = stand.get("deck_hash")
-        size = _int_or_none(stand.get("table_size"))
-        if isinstance(deck_hash, str) and _text(deck_hash) and size is not None:
-            _outcome_table(out, stand, f"outcome.stand.{deck_hash}.t{size}", deck_hash, [])
+        if all(_axis_value(stand, field) is not None for field, *_rest in _STRATUM_PARTS):
+            known_hash = str(stand.get("deck_hash"))
+            _outcome_table(out, stand, f"outcome.stand.{_stratum_id(stand)}", known_hash, [])
     for item in _list(table.get("cohorts")):
         cohort = _mapping(item)
-        size = _int_or_none(cohort.get("table_size"))
         cohort_pooling = _mapping(cohort.get("pooling"))
-        if size is None or cohort_pooling.get("status") != "POOLED":
+        cell_known = all(
+            _axis_value(cohort, field) is not None
+            for field, pooled, *_rest in _STRATUM_PARTS
+            if not pooled
+        )
+        if not cell_known or cohort_pooling.get("status") != "POOLED":
             continue
         notes = [
-            f"geschichtet über {cohort.get('strata')} Schichten (Deck-Stände einer Tischgröße; "
+            f"geschichtet über {cohort.get('strata')} Schichten ({_CELL_TEXT}; "
             f"{cohort_pooling.get('method')})",
-            "eigene Tabelle je Tischgröße, nie mit einer anderen Tischgröße zusammengefasst",
+            "eigene Tabelle je Tischgröße und Pilot-Fingerabdruck, nie mit einer anderen "
+            "Tischgröße oder einem anderen Piloten zusammengefasst",
         ]
-        _outcome_table(out, cohort, f"outcome.kohorte.t{size}", None, notes)
+        prefix = f"outcome.kohorte.{_stratum_id(cohort, pooled_too=False)}"
+        _outcome_table(out, cohort, prefix, None, notes)
     for item in _list(table.get("unknown_strata")):
         apart = _mapping(item)
         deck_hash = apart.get("deck_hash") if _text(apart.get("deck_hash")) else None
-        size = _int_or_none(apart.get("table_size"))
-        notes = [] if deck_hash else ["Stand unbekannt (Protokoll ohne Deck-Hash)"]
-        if size is None:
-            notes.append("Tischgröße unbekannt (Protokollkopf ohne vollständige Sitzliste)")
-        prefix = (
-            f"outcome.unknown.{deck_hash or 'ohne-hash'}.t{'unbekannt' if size is None else size}"
+        notes = [
+            note
+            for field, _pooled, _prefix, _unknown, note in _STRATUM_PARTS
+            if _axis_value(apart, field) is None
+        ]
+        _outcome_table(
+            out,
+            apart,
+            f"outcome.unknown.{_stratum_id(apart)}",
+            deck_hash if isinstance(deck_hash, str) else None,
+            notes,
         )
-        _outcome_table(out, apart, prefix, deck_hash if isinstance(deck_hash, str) else None, notes)
     return out
 
 
@@ -438,6 +497,12 @@ def _table_size_text(table: Mapping[str, object]) -> str:
     if size is None:
         return "Tischgröße unbekannt"
     return "Tisch mit 1 Sitz" if size == 1 else f"Tisch mit {size} Sitzen"
+
+
+def _pilot_text(table: Mapping[str, object]) -> str:
+    """The pilot origin of a stratum (#1687): its fingerprint, short, or "Pilot unbekannt"."""
+    fingerprint = _axis_value(table, "pilot_fingerprint")
+    return f"Pilot-Fingerabdruck {str(fingerprint)[:12]}" if fingerprint else "Pilot unbekannt"
 
 
 def _outcome_table(
@@ -451,9 +516,13 @@ def _outcome_table(
     pilots = _names(table.get("pilots"))
     source = "Studio-Spielprotokolle (erste gezogene Hand)"
     size_text = _table_size_text(table)
-    # an unknown size is already named by the stratum's own note ("Tischgröße unbekannt (…)")
+    pilot_text = _pilot_text(table)
+    cell_text = f"{size_text}, {pilot_text}"
+    # an unknown size or pilot is already named by the stratum's own note ("… unbekannt (…)")
     size_note = [f"Tischgröße: {size_text}"] if _int_or_none(table.get("table_size")) else []
-    table_notes = [*extra_notes, *size_note, *_names(table.get("warnings"))]
+    fingerprint = _axis_value(table, "pilot_fingerprint")
+    pilot_note = [f"Pilot-Fingerabdruck: {fingerprint}"] if fingerprint else []
+    table_notes = [*extra_notes, *size_note, *pilot_note, *_names(table.get("warnings"))]
     states = _names(table.get("bridge_qualification_states"))
     if states:
         table_notes.append(f"Bridge-Zustand: {', '.join(states)}")
@@ -471,9 +540,9 @@ def _outcome_table(
             "klasse": SIMULIERT,
             "quelle": source,
             "N": total,
-            "kohorte": f"Deck {deck_id} · {size_text}" if deck_id else None,
+            "kohorte": f"Deck {deck_id} · {size_text} · {pilot_text}" if deck_id else None,
             "stand_hash": stand_hash,
-            "pilot": PILOT_KONSTANTE,
+            "pilot": pilot_text,
             "piloten": pilots,
             "hinweise": notes,
         }
@@ -484,7 +553,7 @@ def _outcome_table(
             _float_or_none(card.get("rate_in")),
             einheit="Anteil",
             n=_int_or_none(card.get("games_in_first_hand")),
-            bezug=f"Partien (mit der Karte in der ersten Hand / alle), {size_text}",
+            bezug=f"Partien (mit der Karte in der ersten Hand / alle), {cell_text}",
             intervall=_interval(card.get("rate_in_ci95")),
             **common,
         )
@@ -495,7 +564,7 @@ def _outcome_table(
             _float_or_none(card.get("rate_not")),
             einheit="Anteil",
             n=_int_or_none(card.get("games_not_in_first_hand")),
-            bezug=f"Partien (ohne die Karte in der ersten Hand / alle), {size_text}",
+            bezug=f"Partien (ohne die Karte in der ersten Hand / alle), {cell_text}",
             intervall=_interval(card.get("rate_not_ci95")),
             **common,
         )
@@ -507,7 +576,7 @@ def _outcome_table(
             difference,
             einheit="pp",
             n=total if difference is not None else None,
-            bezug=f"Partien (verglichen / alle), {size_text}",
+            bezug=f"Partien (verglichen / alle), {cell_text}",
             intervall=_interval(card.get("difference_ci95_pp")),
             **common,
         )

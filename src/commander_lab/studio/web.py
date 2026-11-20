@@ -342,14 +342,16 @@ class PairedSeriesBody(BaseModel):
     games_per_jvm: int | None = Field(default=None, ge=MIN_GAMES_PER_JVM, le=MAX_GAMES_PER_JVM)
 
 
-#: What the card evaluation says when one deck state holds games of two pilots (#1658).
+#: What the card evaluation says when games without a pilot fingerprint name two pilot versions
+#: at one deck state (#1658); a change of the fingerprint gives separate strata since #1687.
 MIXED_PILOT_TEXT = (
-    "Die Partien dieses Deck-Stands stammen von verschiedenen Piloten: der Pilot-Fingerabdruck "
-    "hat gewechselt (nach einer Änderung am Piloten, oder Partien von vor dem Fingerabdruck "
-    "liegen neben neuen). Partien verschiedener Piloten werden nie zusammengezählt, deshalb "
-    "zeigt die Auswertung keine Zahlen (unbekannt, nicht 0). Ausweg: mit dem aktuellen "
-    "Piloten neu spielen und die älteren Protokolle dieses Stands aus dem Spiele-Ordner "
-    "verschieben; eine getrennte Anzeige je Fingerabdruck folgt."
+    "Partien ohne Pilot-Fingerabdruck (aus der Zeit vor dem Fingerabdruck) nennen an einem "
+    "Deck-Stand verschiedene Pilot-Versionen. Ohne Fingerabdruck lassen sie sich nicht in "
+    "Schichten je Pilot trennen, und Partien verschiedener Piloten werden nie zusammengezählt. "
+    "Deshalb zeigt die Auswertung für dieses Deck gar keine Zahlen, auch nicht für die Schichten "
+    "mit Fingerabdruck (unbekannt, nicht 0). Ausweg: die älteren Protokolle ohne Fingerabdruck "
+    "aus dem Spiele-Ordner verschieben oder mit dem aktuellen Piloten neu spielen; danach zeigt "
+    "die Auswertung jeden Fingerabdruck als eigene Schicht."
 )
 
 
@@ -1484,13 +1486,25 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         seats_per_seed: int = Query(default=4, ge=1, le=6),
         table_size: int | None = Query(default=None, ge=launch.MIN_SEATS, le=launch.MAX_SEATS),
         rotate_seats: bool = True,
+        pod: str | None = None,
     ) -> dict[str, object]:
         """Pre-run plan of a paired series: detectable difference and its assumptions.
 
         With ``table_size`` the plan is the one of that table (rotation, effort, whether the
-        seat lock lets it start), also for the locked sizes (#1702); it starts nothing."""
+        seat lock lets it start), also for the locked sizes (#1702); it starts nothing.
+        With ``pod`` it also names the opponents of that table (``table.opponent_ids``); a pod
+        with too few decks for the table is a 422 with the reason, nothing is filled up."""
+        if pod is not None and table_size is None:
+            raise HTTPException(422, "pod gehört zu einer Tischgröße: table_size fehlt")
         if table_size is not None:
-            return paired_series.table_plan(table_size, budget_pairs, rotate_seats=rotate_seats)
+            plan = paired_series.table_plan(table_size, budget_pairs, rotate_seats=rotate_seats)
+            if pod is not None:
+                try:
+                    opponents = launch.pod_opponent_ids(pod, table_size - 1)
+                except ValueError as error:
+                    raise HTTPException(422, str(error)) from error
+                cast(dict[str, object], plan["table"])["opponent_ids"] = list(opponents)
+            return plan
         return paired_series.planned_detectable_difference_pp(budget_pairs, seats_per_seed)
 
     @app.get("/api/simulations/paired")

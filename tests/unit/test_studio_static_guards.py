@@ -1199,9 +1199,12 @@ def test_kartenauswertung_names_deck_states_strata_and_the_unknown_stand() -> No
     """#1657: the page shows each deck state (hash), the strata count of the stratified table
     and "Stand unbekannt" with its own n; a not-pooled answer shows no combined row.
     #1683: every stratum names its table size; strata of 2, 3 and 4 seats stand apart and a
-    stratum without a table size is shown as "Tischgröße unbekannt" with its own n."""
+    stratum without a table size is shown as "Tischgröße unbekannt" with its own n.
+    #1687: every stratum also names its pilot fingerprint (short hash)."""
     from commander_lab.studio.card_outcomes import stand_tables
-    from tests.unit.test_studio_card_outcomes import STATE_A, _simpson, _stated, _with
+    from tests.unit.test_studio_card_outcomes import PILOT_FP, STATE_A, _simpson, _stated, _with
+
+    pilot = f"Pilot-Fingerabdruck {PILOT_FP[:12]}…"
 
     a, b = _simpson()
     old = _stated([(["A"], i < 4) for i in range(7)] + [(["F"], False)] * 5, None, prefix="o")
@@ -1259,13 +1262,14 @@ const render = async (payload) => {{
     assert isinstance(r, dict)
     text = r["pooled"]["text"]
     assert "2 Deck-Stände geschichtet" in text
-    assert "Schichten (Deck-Stand und Tischgröße): 2" in text
+    assert "Schichten (Deck-Stand, Tischgröße und Pilot-Fingerabdruck): 2" in text
     assert (
-        "Stand unbekannt · Tischgröße: 2 Sitze: 12 Partien (getrennt gezählt, nie addiert)" in text
+        f"Stand unbekannt · Tischgröße: 2 Sitze · {pilot}: 12 Partien (getrennt gezählt, nie addiert)"
+        in text
     )
     assert (
         "geschichtet (je Stand eigene Differenz, gewichtet zusammengeführt) · Tischgröße: 2 Sitze"
-        in text
+        f" · {pilot}" in text
     )
     assert "geschichtet über 2 Deck-Stände" in text
     assert "Anteil nur je Deck-Stand" in text
@@ -1276,9 +1280,15 @@ const render = async (payload) => {{
     # every stand, "Stand unbekannt" included, names its provenance and qualification
     assert text.count("Qualifizierung:") == 4 and text.count("Piloten:") == 4
     assert "BRIDGE_AHEAD_OF_QUALIFICATION (Bridge neuer als Qualifizierung)" in text
-    assert "Stand unbekannt · 2 seats: BRIDGE_AHEAD_OF_QUALIFICATION" in text  # warning at the top
+    # warning at the top, named by its stratum
+    assert (
+        f"Stand unbekannt · 2 seats · pilot {PILOT_FP[:12]}: BRIDGE_AHEAD_OF_QUALIFICATION" in text
+    )
     old_text = r["onlyOld"]["text"]
-    assert "keine Partien mit bekanntem Deck-Stand" in old_text
+    assert (
+        "liegen keine Partien vor, in denen Deck-Stand, Tischgröße und Pilot-Fingerabdruck "
+        "bekannt sind" in old_text
+    )
     assert "noch keine abgeschlossenen Partien" not in old_text
     assert old_text.count("Qualifizierung:") == 2 and r["onlyOld"]["details"] == 1
     nt = r["notPooled"]["text"]
@@ -1286,15 +1296,21 @@ const render = async (payload) => {{
     assert "geschichtet über" not in nt
     assert r["notPooled"]["details"] == 2 and r["notPooled"]["tables"] == 2
     st = r["bySize"]["text"]
-    assert "3 Schichten (Deck-Stand und Tischgröße) nicht zusammengeführt" in st
-    assert "Schichten (Deck-Stand und Tischgröße): 3" in st
-    for size, games in ((2, 6), (3, 4), (4, 5)):
-        assert f"Deck-Stand {STATE_A[:12]}… · Tischgröße: {size} Sitze · {games} Partien" in st
     assert (
-        f"Deck-Stand {STATE_A[:12]}… · Tischgröße unbekannt: 7 Partien (getrennt gezählt, nie addiert)"
+        "3 Schichten (Deck-Stand, Tischgröße und Pilot-Fingerabdruck) nicht zusammengeführt" in st
+    )
+    assert "Schichten (Deck-Stand, Tischgröße und Pilot-Fingerabdruck): 3" in st
+    for size, games in ((2, 6), (3, 4), (4, 5)):
+        line = f"Deck-Stand {STATE_A[:12]}… · Tischgröße: {size} Sitze · {pilot} · {games} Partien"
+        assert line in st
+    assert (
+        f"Deck-Stand {STATE_A[:12]}… · Tischgröße unbekannt · {pilot}: 7 Partien "
+        "(getrennt gezählt, nie addiert)"
+    ) in st
+    assert (
+        f"Tischgröße unbekannt (Protokollkopf ohne vollständige Sitzliste) · {pilot} · 7 Partien"
         in st
     )
-    assert "Tischgröße unbekannt (Protokollkopf ohne vollständige Sitzliste) · 7 Partien" in st
     assert "nie zu einer bekannten Schicht addiert" in st and "table size" in st
     # the reason in German: different table sizes, different base win rates, never combined
     assert (
@@ -1305,10 +1321,18 @@ const render = async (payload) => {{
     assert "Jede Schicht steht unten einzeln mit n/N und Herkunft" in st
     # #1694: one section per table size replaces the former "Folgepaket" note
     assert "diese Ansicht kommt als Folgepaket" not in st
-    assert "werden unten je Tischgröße in einem eigenen Abschnitt geschichtet" in st
+    assert (
+        "Deck-Stände derselben Kombination aus Tischgröße und Pilot-Fingerabdruck werden unten "
+        "in einem eigenen Abschnitt geschichtet"
+    ) in st
     assert "Nicht zusammengeführt: the strata" not in st
     assert r["sizeTexts"] == ["Tischgröße: 1 Sitz", "Tischgröße: 4 Sitze", "Tischgröße unbekannt"]
-    assert "Nicht zusammengeführt: the deck states were played" in r["notPooled"]["text"]
+    # the reason in German (#1687 review P3-3); the raw reason stays among the warnings
+    assert (
+        "Nicht zusammengeführt: Die Deck-Stände wurden gegen verschiedene Gegner-Tische (Pods) "
+        "gespielt" in r["notPooled"]["text"]
+    )
+    assert "Nicht zusammengeführt: the deck states were played" not in r["notPooled"]["text"]
     assert "geschichtet über" not in st
     # three known strata and "Tischgröße unbekannt", each with its own table and provenance
     assert r["bySize"]["details"] == 4 and r["bySize"]["tables"] == 4
