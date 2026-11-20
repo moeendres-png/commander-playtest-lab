@@ -493,6 +493,25 @@ def _parser() -> argparse.ArgumentParser:
         help="destination folder outside the repository and outside the Studio data folder",
     )
     backup_cmd.add_argument("--json", action="store_true", help="print backup manifest as JSON")
+    export_state_cmd = commands.add_parser(
+        "export-state",
+        help="write the user state (decks, revisions, marks, profiles) as studio-user-state-1",
+    )
+    export_state_cmd.add_argument(
+        "--to", help="file or folder (outside the repository); default: <data>/state-exports/"
+    )
+    export_state_cmd.add_argument(
+        "--check", action="store_true", help="only report what would block the export"
+    )
+    export_state_cmd.add_argument("--json", action="store_true", help="print the header as JSON")
+    import_state_cmd = commands.add_parser(
+        "import-state", help="read a studio-user-state-1 file into a fresh data folder"
+    )
+    import_state_cmd.add_argument("file")
+    import_state_cmd.add_argument(
+        "--verify", action="store_true", help="check the SHA-256 and list rows per table only"
+    )
+    import_state_cmd.add_argument("--json", action="store_true", help="print the report as JSON")
     commands.add_parser(
         "data-report", help="counts-only report on what the store has, lacks and does not know"
     )
@@ -817,16 +836,28 @@ def _serve(data: str | None, port: int, open_browser: bool) -> int:
 
     import uvicorn
 
+    from .instance_lock import InstanceAlreadyRunning, InstanceLock, resolve_data_folder
+    from .state_export import start_copy_best_effort
     from .web import create_app
 
-    StudioStore.open(data).close()
-    threading.Thread(target=_warm_caches, args=(data,), daemon=True).start()
-    address = f"http://127.0.0.1:{port}/"
-    print(f"Commander Studio: {address}  (stop with Ctrl+C)")
-    if open_browser:
-        threading.Timer(1.0, webbrowser.open, args=(address,)).start()
-    uvicorn.run(create_app(data), host="127.0.0.1", port=port, log_level="warning")
-    return 0
+    lock = InstanceLock(resolve_data_folder(data))
+    try:
+        lock.acquire()
+    except InstanceAlreadyRunning as error:
+        print(f"error: {error}", file=sys.stderr)
+        return 3
+    try:
+        StudioStore.open(data).close()
+        start_copy_best_effort(data)
+        threading.Thread(target=_warm_caches, args=(data,), daemon=True).start()
+        address = f"http://127.0.0.1:{port}/"
+        print(f"Commander Studio: {address}  (stop with Ctrl+C)")
+        if open_browser:
+            threading.Timer(1.0, webbrowser.open, args=(address,)).start()
+        uvicorn.run(create_app(data), host="127.0.0.1", port=port, log_level="warning")
+        return 0
+    finally:
+        lock.release()
 
 
 def _read_labels(path: str) -> list[str]:
@@ -1076,6 +1107,14 @@ def main(argv: list[str] | None = None) -> int:
         else:
             print(str(manifest["backup_dir"]))
         return 0
+    if args.command == "export-state":
+        from .state_export import run_export_command
+
+        return run_export_command(args)
+    if args.command == "import-state":
+        from .state_export import run_import_command
+
+        return run_import_command(args)
     if args.command == "import-all":
         from .import_all import run_command
 
