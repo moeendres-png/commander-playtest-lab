@@ -17,6 +17,13 @@ unbekannt" with its own n/N and are never added to a known stand. Several known 
 deck are combined only stratified (one difference per stand, Mantel-Haenszel weights), with the
 number of strata in the answer, and never across a change of engine, bridge jar, pilot, decision
 policy or pod set.
+
+Since #1683 a stratum is (deck state, table size): the table size is the number of seats in the
+log header (``seats``), read as written and never invented. A log whose header names no complete
+seat list forms the stratum "Tischgröße unbekannt" with its own n/N; it is never added to a known
+table size, and unknown is never equal to unknown. Strata of different table sizes are never
+combined. Both axes come from one axis list (``STRATUM_AXES``), so a further axis (the pilot
+fingerprint of #1687) joins the same grouping and the same mixing check.
 """
 
 from __future__ import annotations
@@ -28,17 +35,18 @@ import re
 import threading
 import zlib
 from collections import Counter, defaultdict
-from collections.abc import Iterable, Sequence
+from collections.abc import Callable, Iterable, Sequence
 from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
-from typing import Literal, NotRequired, TypedDict, cast
+from typing import Literal, NamedTuple, NotRequired, TypedDict, cast
 
 from commander_lab.bridge_qualification import BRIDGE_AHEAD, BRIDGE_ALIGNED
 
 from .games import LOG_SCHEMA
 from .simulations import wilson_score_interval
 
-SCHEMA = "studio-card-outcomes-2"
+# 3 since #1683: strata of deck state and table size; ``unknown_strata`` replaces ``unknown_stand``.
+SCHEMA = "studio-card-outcomes-3"
 DATA_CLASS = "SIMULATED_RESULT"
 ESTIMAND = (
     "win rate with the card in the first dealt hand minus without; "
@@ -53,15 +61,17 @@ EXPECTED_EXPOSURE = 7 / 99
 CACHE_DIR = ".outcomes-cache"
 # 3 since #1657: a seat carries the deck state (``deck_hash``, ``revision_id``) of the header;
 # a version-2 entry knows no hash and is read again from its log. 4 since #1658: a game
-# carries the pilot fingerprint of the header.
-CACHE_VERSION = 4
+# carries the pilot fingerprint of the header. 5 since #1683: a game carries the table size of
+# the header; a version-4 entry knows none and is read again from its log.
+CACHE_VERSION = 5
 PARALLEL_MIN_LOGS = 8  # cold logs before a process pool pays for itself
 MAX_WORKERS = 4
 CHANCE_RATE = 0.05
 _DECK_HASH = re.compile(r"[0-9a-f]{64}")
 POOLING_METHOD = (
-    "stratified by deck state: Mantel-Haenszel risk difference (weights n_in*n_not/n per "
-    "stand), 95 % Wald interval with the Sato variance; rates are given per stand only"
+    "stratified by deck state (one table size only): Mantel-Haenszel risk difference (weights "
+    "n_in*n_not/n per stand), 95 % Wald interval with the Sato variance; rates are given per "
+    "stand only"
 )
 # The scalar keys that open every frame line; None groups mean JSON ``null``.
 _FRAME_HEAD = re.compile(
@@ -98,6 +108,9 @@ class GameExposure(TypedDict):
     pilot: str | None
     # The pilot fingerprint of the header (#1658); missing or None in a log without one.
     pilot_fingerprint: NotRequired[str | None]
+    # The number of seats of the header (#1683); missing or None when the header names no
+    # complete seat list ("Tischgröße unbekannt").
+    table_size: NotRequired[int | None]
     decision_policy: str | None
     winner_seats: list[int]
     seats: list[SeatExposure]
@@ -125,7 +138,8 @@ class CardOutcome(TypedDict):
     difference_pp: float | None
     difference_ci95_pp: list[float] | None
     secondary: SecondaryCount
-    # Pooled row only: the number of deck states whose own difference enters this row.
+    # Pooled row only: the number of strata (deck states of one table size) whose own
+    # difference enters this row.
     strata: NotRequired[int]
 
 
@@ -138,6 +152,10 @@ class Pooling(TypedDict):
     status: Literal["NO_KNOWN_STAND", "SINGLE_STAND", "POOLED", "NOT_POOLED"]
     reason: str | None
     method: str | None
+    # NOT_POOLED because an axis that must be equal differs (#1683): its field ("table_size")
+    # and its values, so the page can explain it in German; None otherwise.
+    differing_axis: NotRequired[str | None]
+    differing_values: NotRequired[list[str | int | None]]
 
 
 class CardOutcomeTable(TypedDict):
@@ -168,15 +186,17 @@ class CardOutcomeTable(TypedDict):
     commanders_excluded: list[str]
     warnings: list[str]
     cards: list[CardOutcome]
-    # One deck state (#1657): its hash (None = "Stand unbekannt") and the Studio revisions
-    # the logs name for it.
+    # One stratum (#1657, #1683): its deck state (None = "Stand unbekannt"), its table size
+    # (None = "Tischgröße unbekannt") and the Studio revisions the logs name for it.
     deck_hash: NotRequired[str | None]
+    table_size: NotRequired[int | None]
     revision_ids: NotRequired[list[str]]
-    # The answer for a deck (``stand_tables``): the known stands, the unknown stand apart.
+    # The answer for a deck (``stand_tables``): the strata whose every axis is known, the
+    # strata with an unknown axis apart, each with its own n/N.
     strata: NotRequired[int]
     pooling: NotRequired[Pooling]
     stands: NotRequired[list[CardOutcomeTable]]
-    unknown_stand: NotRequired[CardOutcomeTable | None]
+    unknown_strata: NotRequired[list[CardOutcomeTable]]
 
 
 class UnrankedCard(TypedDict):
@@ -225,6 +245,24 @@ def _credit(seat: int, winners: Sequence[int]) -> tuple[Result, float]:
 def _deck_hash(value: object) -> str | None:
     """A header hash names a deck state only as 64 lowercase hex digits; else unknown."""
     return value if isinstance(value, str) and _DECK_HASH.fullmatch(value) else None
+
+
+def _table_size(seat_rows: object) -> int | None:
+    """The table size a header names: the number of its seat rows, or None (#1683).
+
+    Only a complete seat list counts: a non-empty list of rows that each carry an integer seat,
+    numbered 0 .. n-1 without gaps or repeats. Anything else is "Tischgröße unbekannt": the
+    size is never guessed from the seats that happen to be readable.
+    """
+    if not isinstance(seat_rows, list) or not seat_rows:
+        return None
+    seats: list[int] = []
+    for row in seat_rows:
+        seat = _int(row.get("seat")) if isinstance(row, dict) else None
+        if seat is None:
+            return None
+        seats.append(seat)
+    return len(seats) if sorted(seats) == list(range(len(seats))) else None
 
 
 def _seat_exposure(
@@ -421,6 +459,7 @@ def _read_log(path: Path, *, fast: bool = True) -> tuple[GameExposure | None, li
         "covered_by_sealed_epoch": covered,
         "pilot": _str(header.get("pilot")),
         "pilot_fingerprint": _deck_hash(header.get("pilot_fingerprint")),
+        "table_size": _table_size(seats_raw),
         "decision_policy": _str(header.get("decision_policy")),
         "winner_seats": winners,
         "seats": seats,
@@ -475,6 +514,7 @@ def _valid_exposure(exposure: object) -> bool:
     winners = exposure.get("winner_seats")
     seats = exposure.get("seats")
     covered = exposure.get("covered_by_sealed_epoch")
+    size = exposure.get("table_size")
     return (
         isinstance(exposure.get("game_id"), str)
         and (exposure.get("seed") is None or type(exposure.get("seed")) is int)
@@ -490,6 +530,9 @@ def _valid_exposure(exposure: object) -> bool:
             )
         )
         and (covered is None or isinstance(covered, bool))
+        # A missing key reads as "Tischgröße unbekannt"; only CACHE_VERSION keeps an entry
+        # written before #1683 from passing as such (it is read again from its log).
+        and (size is None or (type(size) is int and size >= 1))
         and isinstance(winners, list)
         and all(type(w) is int for w in winners)
         and isinstance(seats, list)
@@ -911,6 +954,81 @@ def own_seat(game: GameExposure, deck_id: str) -> SeatExposure | None:
     return own[0] if own else None
 
 
+def table_size_of(game: GameExposure) -> int | None:
+    """The table size a game is counted under (#1683): the seats of its header, or None.
+
+    ``None`` is the stratum "Tischgröße unbekannt"; it is never equal to a known size or to
+    another unknown one.
+    """
+    return game.get("table_size")
+
+
+StratumValue = str | int | None
+
+
+class StratumAxis(NamedTuple):
+    """One axis of the stratification (#1683): how a game and a stratum table name its value.
+
+    ``pooled`` axes may differ between strata that are combined stratified (the deck state);
+    every other axis must be known and equal, or the strata are not combined. ``unknown`` is
+    the label of the stratum whose value is missing, ``shown`` names a known value, ``field``
+    is the key of the stratum table that carries the value. A further axis (the pilot fingerprint of
+    #1687) is one more entry here, read by the same grouping and the same mixing check.
+    """
+
+    field: str
+    label: str
+    unknown: str
+    of_game: Callable[[GameExposure, SeatExposure], StratumValue]
+    of_table: Callable[[CardOutcomeTable], StratumValue]
+    shown: Callable[[StratumValue], str]
+    pooled: bool
+
+
+STRATUM_AXES: tuple[StratumAxis, ...] = (
+    StratumAxis(
+        "deck_hash",
+        "deck state",
+        "Stand unbekannt",
+        lambda _game, seat: stand_of(seat),
+        lambda table: table.get("deck_hash"),
+        lambda value: f"deck state {str(value)[:12]}",
+        pooled=True,
+    ),
+    StratumAxis(
+        "table_size",
+        "table size",
+        "Tischgröße unbekannt",
+        lambda game, _seat: table_size_of(game),
+        lambda table: table.get("table_size"),
+        lambda value: f"{value} seat" if value == 1 else f"{value} seats",
+        pooled=False,
+    ),
+)
+StratumKey = tuple[StratumValue, ...]
+
+
+def stratum_of(game: GameExposure, seat: SeatExposure) -> StratumKey:
+    """The stratum a seat is counted under, one value per entry of ``STRATUM_AXES``."""
+    return tuple(axis.of_game(game, seat) for axis in STRATUM_AXES)
+
+
+def stratum_label(table: CardOutcomeTable) -> str:
+    """A stratum named for warnings: one part per axis, an unknown value by its label."""
+    parts = []
+    for axis in STRATUM_AXES:
+        value = axis.of_table(table)
+        parts.append(axis.unknown if value is None else axis.shown(value))
+    return " · ".join(parts)
+
+
+def _stratum_order(key: StratumKey) -> tuple[tuple[bool, int, str], ...]:
+    """A total order over keys that may hold None, ints and strings: unknown values last."""
+    return tuple(
+        (v is None, v if isinstance(v, int) else 0, v if isinstance(v, str) else "") for v in key
+    )
+
+
 def _usable_counts(
     games: Iterable[GameExposure], deck_id: str, commander_set: set[str]
 ) -> tuple[
@@ -1028,12 +1146,36 @@ def _pod_set(table: CardOutcomeTable) -> tuple[tuple[str, ...], ...]:
     return tuple(sorted(tuple(pod["opponents"]) for pod in table["pods"]))
 
 
-def _not_poolable(stands: Sequence[CardOutcomeTable]) -> str | None:
-    """Why the stands of one deck may not be combined, or None when they may.
+def _differing_axis(
+    stands: Sequence[CardOutcomeTable],
+) -> tuple[StratumAxis, list[StratumValue]] | None:
+    """The first axis that must be equal but differs between the strata, with its values in
+    order (numbers numerically), or None."""
+    for axis in STRATUM_AXES:
+        seen = {axis.of_table(stand) for stand in stands}
+        if not axis.pooled and len(seen) > 1:
+            return axis, sorted(seen, key=lambda v: _stratum_order((v,)))
+    return None
 
-    An unknown value is never equal to another unknown value: a stand whose games (or some
-    of them) carry no engine commit, bridge jar, pilot or decision policy is not pooled.
+
+def _not_poolable(stands: Sequence[CardOutcomeTable]) -> str | None:
+    """Why the strata of one deck may not be combined, or None when they may.
+
+    An unknown value is never equal to another unknown value: a stratum with an unknown axis
+    (deck state, table size), or whose games (or some of them) carry no engine commit, bridge
+    jar, pilot or decision policy is not pooled. Strata are combined only across deck states:
+    every other axis of ``STRATUM_AXES`` (the table size) must be equal; that is checked first,
+    so the reason names the axis even when the pod sets differ as well.
     """
+    for stand in stands:
+        axes = [f"{axis.label} unknown" for axis in STRATUM_AXES if axis.of_table(stand) is None]
+        if axes:
+            return f"a stratum has {'; '.join(axes)}: unknown is not equal, not pooled"
+    differing = _differing_axis(stands)
+    if differing is not None:
+        axis, seen = differing
+        shown = ", ".join(str(v) for v in seen)
+        return f"the strata differ in {axis.label} ({shown}): never combined, not pooled"
     for stand in stands:
         unknown = [
             label
@@ -1068,12 +1210,14 @@ def _stand_table(
     games: list[GameExposure],
     *,
     deck_id: str,
-    deck_hash: str | None,
+    key: StratumKey,
     min_exposed: int,
     allow_mixed: bool,
 ) -> CardOutcomeTable:
     table = aggregate(games, deck_id=deck_id, min_exposed=min_exposed, allow_mixed=allow_mixed)
-    table["deck_hash"] = deck_hash
+    fields = cast(dict[str, object], table)
+    for axis, value in zip(STRATUM_AXES, key, strict=True):
+        fields[axis.field] = value  # every axis value of the stratum, None when unknown
     revisions = (own_seat(game, deck_id) for game in games)
     table["revision_ids"] = _distinct(seat.get("revision_id") for seat in revisions if seat)
     return table
@@ -1089,43 +1233,36 @@ def stand_tables(
     games_skipped_unreadable: int = 0,
     duplicate_logs_ignored: int = 0,
 ) -> CardOutcomeTable:
-    """The card answer for one deck, counted per deck state (#1657).
+    """The card answer for one deck, counted per stratum (deck state #1657, table size #1683).
 
-    ``stands`` holds one :func:`aggregate` table per known ``deck_hash``; ``unknown_stand``
-    holds the logs without a hash, with their own n/N, never added to a known stand. The top
-    level counts the known stands only: one stand is shown as it is; several are combined only
-    stratified (``strata`` = number of stands, rows from :func:`mantel_haenszel_difference`)
-    and only when engine, bridge jar, pilot, decision policy and pod set agree; otherwise the
-    top level carries no card rows (``NOT_POOLED``) and a reason. Mixed values inside one
-    stand raise as in :func:`aggregate` unless allowed.
+    ``stands`` holds one :func:`aggregate` table per stratum whose every axis is known (a
+    ``deck_hash`` and a ``table_size``); ``unknown_strata`` holds one table per stratum with an
+    unknown axis ("Stand unbekannt", "Tischgröße unbekannt"), each with its own n/N, never
+    added to a known stratum. The top level counts the known strata only: one is shown as it
+    is; several are combined only stratified (``strata`` = number of known strata, rows from
+    :func:`mantel_haenszel_difference`) and only when table size, engine, bridge jar, pilot,
+    decision policy and pod set agree; otherwise the top level carries no card rows
+    (``NOT_POOLED``) and a reason. Mixed values inside one stratum raise as in
+    :func:`aggregate` unless allowed.
     """
-    groups: dict[str | None, list[GameExposure]] = {}
+    groups: dict[StratumKey, list[GameExposure]] = {}
     for game in exposures:
         seat = own_seat(game, deck_id)
         if seat is not None:
-            groups.setdefault(stand_of(seat), []).append(game)
-    known = sorted((key for key in groups if key is not None), key=lambda k: (-len(groups[k]), k))
-    stands = [
-        _stand_table(
-            groups[key],
-            deck_id=deck_id,
-            deck_hash=key,
-            min_exposed=min_exposed,
-            allow_mixed=allow_mixed,
-        )
-        for key in known
-    ]
-    unknown = (
-        _stand_table(
-            groups[None],
-            deck_id=deck_id,
-            deck_hash=None,
-            min_exposed=min_exposed,
-            allow_mixed=allow_mixed,
-        )
-        if None in groups
-        else None
+            groups.setdefault(stratum_of(game, seat), []).append(game)
+    known = sorted(
+        (key for key in groups if all(v is not None for v in key)),
+        key=lambda k: (-len(groups[k]), _stratum_order(k)),
     )
+    apart = sorted((key for key in groups if key not in known), key=_stratum_order)
+
+    def table_of(key: StratumKey) -> CardOutcomeTable:
+        return _stand_table(
+            groups[key], deck_id=deck_id, key=key, min_exposed=min_exposed, allow_mixed=allow_mixed
+        )
+
+    stands = [table_of(key) for key in known]
+    unknown = [table_of(key) for key in apart]
     if len(stands) == 1:
         top = cast(CardOutcomeTable, dict(stands[0]))
         pooling: Pooling = {"status": "SINGLE_STAND", "reason": None, "method": None}
@@ -1133,7 +1270,7 @@ def stand_tables(
         top = empty_table(deck_id, min_exposed=min_exposed)
         pooling = {
             "status": "NO_KNOWN_STAND",
-            "reason": "no game names the deck state of this deck",
+            "reason": "no game names both the deck state and the table size of this deck",
             "method": None,
         }
     else:
@@ -1146,12 +1283,18 @@ def stand_tables(
             "reason": reason,
             "method": None if reason else POOLING_METHOD,
         }
+        differing = _differing_axis(stands) if reason else None
+        if differing is not None and reason and reason.startswith("the strata differ in"):
+            pooling["differing_axis"] = differing[0].field
+            pooling["differing_values"] = differing[1]
         if reason:
             top["status"] = "NOT_POOLED"
             top["cards"] = []
             top["comparisons"] = 0
             top["expected_chance_findings"] = 0.0
+    sizes = {stand.get("table_size") for stand in stands}
     top["deck_hash"] = stands[0]["deck_hash"] if len(stands) == 1 else None
+    top["table_size"] = sizes.pop() if len(sizes) == 1 else None
     top["revision_ids"] = _distinct(r for stand in stands for r in stand.get("revision_ids", []))
     top["games_skipped"] = games_skipped
     top["games_skipped_unreadable"] = games_skipped_unreadable
@@ -1159,24 +1302,29 @@ def stand_tables(
     top["strata"] = len(stands)
     top["pooling"] = pooling
     top["stands"] = stands
-    top["unknown_stand"] = unknown
+    top["unknown_strata"] = unknown
     warnings = list(top["warnings"])
     if len(stands) > 1:
-        # the top level of several stands repeats every stand's own warnings, named
+        # the top level of several strata repeats every stratum's own warnings, named
         for stand in stands:
-            warnings += [
-                f"deck state {str(stand['deck_hash'])[:12]}: {w}" for w in stand["warnings"]
-            ]
-    if unknown is not None:
-        warnings += [f"Stand unbekannt: {w}" for w in unknown["warnings"]]
+            warnings += [f"{stratum_label(stand)}: {w}" for w in stand["warnings"]]
+    for table in unknown:
+        warnings += [f"{stratum_label(table)}: {w}" for w in table["warnings"]]
     if duplicate_logs_ignored:
         warnings.append(
             f"{duplicate_logs_ignored} duplicate log(s) with an already counted game_id ignored"
         )
-    if unknown is not None and unknown["games_total"]:
+    no_stand = sum(t["games_total"] for t in unknown if t.get("deck_hash") is None)
+    if no_stand:
         warnings.append(
-            f"{unknown['games_total']} game(s) without a deck state (Stand unbekannt) are "
-            "shown apart and never added to a known deck state"
+            f"{no_stand} game(s) without a deck state (Stand unbekannt) are shown apart and "
+            "never added to a known deck state"
+        )
+    no_size = sum(t["games_total"] for t in unknown if t.get("table_size") is None)
+    if no_size:
+        warnings.append(
+            f"{no_size} game(s) without a table size (Tischgröße unbekannt) are shown apart and "
+            "never added to a known table size"
         )
     if pooling["reason"]:
         warnings.append(pooling["reason"])
@@ -1340,18 +1488,19 @@ def format_table(table: CardOutcomeTable, *, limit: int = 15) -> str:
         f"{len(ranking['unranked'])}",
     ]
     if "strata" in table:
-        unknown = table.get("unknown_stand")
         pooling = table.get("pooling")
-        stand_line = (
-            f"deck states {table['strata']} ({pooling['status'] if pooling else '-'})  "
-            f"Stand unbekannt: "
-            + (f"{unknown['games_total']} games, never added" if unknown else "none")
+        lines.append(
+            f"strata (deck state x table size) {table['strata']} "
+            f"({pooling['status'] if pooling else '-'})"
         )
-        lines.append(stand_line)
         for stand in table.get("stands", []):
             lines.append(
-                f"  state {str(stand.get('deck_hash'))[:12]}  games {stand['games_total']}  "
+                f"  {stratum_label(stand)}  games {stand['games_total']}  "
                 f"revisions {', '.join(stand.get('revision_ids', [])) or '-'}"
+            )
+        for apart in table.get("unknown_strata", []):
+            lines.append(
+                f"  {stratum_label(apart)}  games {apart['games_total']}, apart, never added"
             )
     lines.append(
         f"{table['comparisons']} cards compared at 95 %: about "

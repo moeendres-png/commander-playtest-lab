@@ -1052,9 +1052,11 @@ const emptyPayload = {json.dumps(empty_payload)};
 
 def test_kartenauswertung_names_deck_states_strata_and_the_unknown_stand() -> None:
     """#1657: the page shows each deck state (hash), the strata count of the stratified table
-    and "Stand unbekannt" with its own n; a not-pooled answer shows no combined row."""
+    and "Stand unbekannt" with its own n; a not-pooled answer shows no combined row.
+    #1683: every stratum names its table size; strata of 2, 3 and 4 seats stand apart and a
+    stratum without a table size is shown as "Tischgröße unbekannt" with its own n."""
     from commander_lab.studio.card_outcomes import stand_tables
-    from tests.unit.test_studio_card_outcomes import STATE_A, _simpson, _stated
+    from tests.unit.test_studio_card_outcomes import STATE_A, _simpson, _stated, _with
 
     a, b = _simpson()
     old = _stated([(["A"], i < 4) for i in range(7)] + [(["F"], False)] * 5, None, prefix="o")
@@ -1064,6 +1066,13 @@ def test_kartenauswertung_names_deck_states_strata_and_the_unknown_stand() -> No
     only_old = stand_tables(old, deck_id="deck/a", min_exposed=5)
     b_pod = _stated([(["A"], i < 5) for i in range(20)], STATE_A[::-1], prefix="p", opponent="x")
     not_pooled = stand_tables([*a, *b_pod], deck_id="deck/a", min_exposed=5)
+    sizes = [
+        *_with(_stated([(["A"], i < 2) for i in range(4)], STATE_A, prefix="s3"), table_size=3),
+        *_with(_stated([(["A"], i < 2) for i in range(5)], STATE_A, prefix="s4"), table_size=4),
+        *_stated([(["A"], i < 2) for i in range(6)], STATE_A, prefix="s2"),
+        *_with(_stated([(["A"], i < 2) for i in range(7)], STATE_A, prefix="su"), table_size=None),
+    ]
+    by_size = stand_tables(sizes, deck_id="deck/a", min_exposed=1)
     script = f"""
 global.StudioUI = {{
   num: (n, d = 0) => Number(n).toFixed(d).replace('.', ','),
@@ -1096,15 +1105,23 @@ const render = async (payload) => {{
   const pooled = await render({json.dumps(pooled)});
   const notPooled = await render({json.dumps(not_pooled)});
   const onlyOld = await render({json.dumps(only_old)});
-  console.log(JSON.stringify({{ pooled, notPooled, onlyOld }}));
+  const bySize = await render({json.dumps(by_size)});
+  const sizeTexts = [1, 4, null].map((v) => mod.outcomesTableSize(v));
+  console.log(JSON.stringify({{ pooled, notPooled, onlyOld, bySize, sizeTexts }}));
 }})();
 """
     r = _node_json(script)
     assert isinstance(r, dict)
     text = r["pooled"]["text"]
     assert "2 Deck-Stände geschichtet" in text
-    assert "Schichten (Deck-Stände): 2" in text
-    assert "Stand unbekannt: 12 Partien (getrennt gezählt, nie addiert)" in text
+    assert "Schichten (Deck-Stand und Tischgröße): 2" in text
+    assert (
+        "Stand unbekannt · Tischgröße: 2 Sitze: 12 Partien (getrennt gezählt, nie addiert)" in text
+    )
+    assert (
+        "geschichtet (je Stand eigene Differenz, gewichtet zusammengeführt) · Tischgröße: 2 Sitze"
+        in text
+    )
     assert "geschichtet über 2 Deck-Stände" in text
     assert "Anteil nur je Deck-Stand" in text
     assert f"Deck-Stand {STATE_A[:12]}…" in text
@@ -1114,7 +1131,7 @@ const render = async (payload) => {{
     # every stand, "Stand unbekannt" included, names its provenance and qualification
     assert text.count("Qualifizierung:") == 4 and text.count("Piloten:") == 4
     assert "BRIDGE_AHEAD_OF_QUALIFICATION (Bridge neuer als Qualifizierung)" in text
-    assert "Stand unbekannt: BRIDGE_AHEAD_OF_QUALIFICATION" in text  # warning at the top
+    assert "Stand unbekannt · 2 seats: BRIDGE_AHEAD_OF_QUALIFICATION" in text  # warning at the top
     old_text = r["onlyOld"]["text"]
     assert "keine Partien mit bekanntem Deck-Stand" in old_text
     assert "noch keine abgeschlossenen Partien" not in old_text
@@ -1123,6 +1140,32 @@ const render = async (payload) => {{
     assert "nicht zusammengeführt" in nt and "pod sets" in nt
     assert "geschichtet über" not in nt
     assert r["notPooled"]["details"] == 2 and r["notPooled"]["tables"] == 2
+    st = r["bySize"]["text"]
+    assert "3 Schichten (Deck-Stand und Tischgröße) nicht zusammengeführt" in st
+    assert "Schichten (Deck-Stand und Tischgröße): 3" in st
+    for size, games in ((2, 6), (3, 4), (4, 5)):
+        assert f"Deck-Stand {STATE_A[:12]}… · Tischgröße: {size} Sitze · {games} Partien" in st
+    assert (
+        f"Deck-Stand {STATE_A[:12]}… · Tischgröße unbekannt: 7 Partien (getrennt gezählt, nie addiert)"
+        in st
+    )
+    assert "Tischgröße unbekannt (Protokollkopf ohne vollständige Sitzliste) · 7 Partien" in st
+    assert "nie zu einer bekannten Schicht addiert" in st and "table size" in st
+    # the reason in German: different table sizes, different base win rates, never combined
+    assert (
+        "Nicht zusammengeführt: Die Partien stammen von verschiedenen Tischgrößen (2, 3, 4 Sitze)"
+        in st
+    )
+    assert "(bei 2 Sitzen 1/2, bei 3 Sitzen 1/3, bei 4 Sitzen 1/4)" in st
+    assert "Jede Schicht steht unten einzeln mit n/N und Herkunft" in st
+    assert "diese Ansicht kommt als Folgepaket" in st
+    assert "Nicht zusammengeführt: the strata" not in st
+    assert r["sizeTexts"] == ["Tischgröße: 1 Sitz", "Tischgröße: 4 Sitze", "Tischgröße unbekannt"]
+    assert "Nicht zusammengeführt: the deck states were played" in r["notPooled"]["text"]
+    assert "geschichtet über" not in st
+    # three known strata and "Tischgröße unbekannt", each with its own table and provenance
+    assert r["bySize"]["details"] == 4 and r["bySize"]["tables"] == 4
+    assert st.count("Qualifizierung:") == 5
 
 
 def test_static_files_send_cache_control_no_cache_and_keep_security_headers(tmp_path: Path) -> None:
