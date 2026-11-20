@@ -1049,6 +1049,11 @@ class InteractiveGameSession:
         since: int | None = None,
         wait_seconds: float = 0.0,
     ) -> dict[str, object]:
+        """The principal-scoped state of the live game, frames from ``start`` on.
+
+        The answer shares its contents with the session (no copies, #1578): do not change it. The
+        web routes serialise it outside the state lock.
+        """
         if since is not None and wait_seconds > 0.0:
             self.wait_for_change(since, wait_seconds)
         with self._lock:

@@ -42,6 +42,35 @@ const StudioFollow = (() => {
     return Math.max(0, MIN_GAP_MS - info.elapsedMs);
   }
 
-  return { LONG_POLL_WAIT_MS, MIN_GAP_MS, legacyIntervalMs, parseRevision, statePath, nextDelayMs };
+  // What the page shows, as one comparable value (#1578). The follow loop draws the table again only
+  // when this differs from the value of the last drawing: an answer that brought nothing new (same
+  // revision, same frames, same decision) leaves the board as it is. Everything a drawing reads to
+  // decide what it shows (the open decision, fast-forward, a pass already sent) is part of it.
+  // view: {gameId, revision, frames (count), index, running, interactive, pendingDecisionId,
+  // handsRevealed, canConcede, resultStatus, fastForward, autoPassAttempt, submitting, playing}.
+  function viewKey(view) {
+    const v = view || {};
+    const pick = (value) => (value === undefined ? null : value);
+    return JSON.stringify([
+      pick(v.gameId), pick(v.revision), pick(v.frames), pick(v.index), Boolean(v.running),
+      Boolean(v.interactive), pick(v.pendingDecisionId), Boolean(v.handsRevealed), Boolean(v.canConcede),
+      pick(v.resultStatus), Boolean(v.fastForward), pick(v.autoPassAttempt), Boolean(v.submitting),
+      Boolean(v.playing)
+    ]);
+  }
+
+  // The state an own answer brought back (POST /decision with start, #1578) replaces the next state
+  // request only if it is the very page that request would ask for: the same game, frames from the
+  // number the page holds, and not older than the revision the page already has. Anything else (or
+  // nothing) and the page asks the server as before.
+  function usableAnswerState(page, gameId, heldFrames, heldRevision) {
+    if (!page || typeof page !== "object" || page.game_id !== gameId) return false;
+    if (!Array.isArray(page.frames) || page.start !== heldFrames) return false;
+    const revision = parseRevision(page);
+    if (revision === null) return false;
+    return heldRevision === null || revision >= heldRevision;
+  }
+
+  return { LONG_POLL_WAIT_MS, MIN_GAP_MS, legacyIntervalMs, parseRevision, statePath, nextDelayMs, viewKey, usableAnswerState };
 })();
 if (typeof module !== "undefined") module.exports = StudioFollow;
