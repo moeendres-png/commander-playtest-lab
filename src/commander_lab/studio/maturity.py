@@ -197,7 +197,9 @@ def decide(basis: PairedVariantResult, level: float) -> PairedVariantResult:
     engine lane's sign test plus cluster confirmation in one number)."""
     p = basis.effective_p_value
     decided = p is not None and p < level and basis.verdict != "NO_CLEAR_DIFFERENCE"
-    return basis.model_copy(update={"verdict": basis.verdict if decided else "NO_CLEAR_DIFFERENCE"})
+    verdict = basis.verdict if decided else "NO_CLEAR_DIFFERENCE"
+    result: PairedVariantResult = basis.model_copy(update={"verdict": verdict})
+    return result
 
 
 def holm(family: Sequence[PairedVariantResult], level: float) -> list[PairedVariantResult]:
