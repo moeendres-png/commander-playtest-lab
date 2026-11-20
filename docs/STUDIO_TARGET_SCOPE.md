@@ -20,7 +20,7 @@ Git, Tests und versiegelte Belege sind Source Truth (`AGENTS.md` §3).
 
 - **Tierliste (`#1369`, Gesamtrating, Bracket-/Nutzungsachsen, Rater-Kalibrierung — eigene parallele Lane):**
   bleibt ein eigenes Arbeitspaket getrennt vom Simulator. Simulationsergebnisse fließen **nicht** in
-  den Tierliste-Gesamtscore (`simulation`-Gewicht bleibt überall `0`, `AGENTS.md` §1, Option O2-A).
+  den Tierliste-Gesamtscore (`simulation`-Gewicht bleibt überall `0`, `AGENTS.md` §1, Option O2-A). *(Überholt 2026-11-20, E15 Q1: Gesamtrating und Gewicht sind entfernt.)*
 - **BUILD, PLAY, SIMULATE, Bridge & Bereitstellung:** folgen den Meilensteinen dieses
   Zielumfangs. XMage bleibt die alleinige Regel-Autorität (`AGENTS.md` §2, Option O1-A); in BUILD
   sind ausschließlich exakte kombinatorische Zug-/Manarechnungen ohne Regelbehauptung zulässig.

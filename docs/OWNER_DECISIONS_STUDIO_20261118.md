@@ -79,6 +79,9 @@ berichtete Zusatz „(Commander)“ im Kartennamen wird nicht entfernt.
 
 ### E2 (O3): B11 wird bedingt, Reife-Tor G-SIM
 
+> **Überholt für Gewicht und Stufen (2026-11-20, E15 Q1):** das Gewicht `simulation` und die Stufen 0 bis 2
+> sind entfernt; G-SIM wird vom Tor zum Reifegrad R0-R3. Der Text unten bleibt als Verlauf.
+
 Simulationsergebnisse dürfen in die Tierliste fließen, aber erst, wenn das Reife-Tor G-SIM erfüllt
 ist **und** der Owner das konkrete Gewicht und die Darstellung bestätigt hat. Bis dahin gilt:
 
@@ -417,7 +420,7 @@ Owner-Entscheid; Owner-Vorbehalte (Abschnitt 5 dieser Datei, `AGENTS.md` §8) bl
   unverändert**: jeder MATERIAL-PR braucht weiter ein Frischkontext-Review (bei zwei parallel
   arbeitenden Agenten zusätzlich ein Kreuz-Review); ob Klasse B das Frischkontext-Review behält, legt
   der Governance-PR fest. Auch die Texte zu Q1 (Gesamtrating, Gewicht `simulation`) ändern sich in
-  `AGENTS.md` §1 erst mit dem jeweiligen Paket.
+  `AGENTS.md` §1 erst mit dem jeweiligen Paket. **Umgesetzt (Doku-Wahrheits-Pass, Refs #1667):** `AGENTS.md` §1 (Q1 nach #1684/#1686/#1691/#1696) und §10 (Klassen A/B; die Klasse B behält das Frischkontext-Review und verliert nur das Kreuz-Review); das „Studio-Daten-Gate“ für Schema-Änderungen und die Ablösung der Pflichtlektüre durch die Charta bleiben offen (#1667).
 - **Q11 Ältere Lanes** werden erst mit der Abschluss-Epoche entfernt (PB-03, `qualification/`);
   Release-Archiv lokal ablegen statt dauerhaftem GitHub-Release, solange #1108 offen ist.
 
