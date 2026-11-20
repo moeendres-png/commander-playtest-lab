@@ -142,8 +142,9 @@ def test_a_profile_saved_before_v3_keeps_its_values_and_takes_new_defaults_for_n
 
 # ---------- Q1-b0 (#1675): retired settings keys are accepted and dropped ----------
 
-# Probe keys only: the real retired keys enter the list with the packages that remove them
-# (Q1-b2, Q1-b4). One probe per group, so a mutation at one filter site fails one case.
+# Probe keys for the filter sites; the real retired keys enter the list with the packages that
+# remove them (Q1-b2: ``layer_weights``, ``pod_size``; Q1-b4 next). One probe per group, so a
+# mutation at one filter site fails one case.
 RETIRED_PROBES = {
     strength.RETIRED_WEIGHTS: "retired_component_probe",
     strength.RETIRED_MIN_DENOMINATORS: "retired_minimum_probe",
@@ -175,10 +176,15 @@ SAVED = {
 }
 
 
-def test_the_retired_list_starts_empty_and_never_names_a_live_key() -> None:
-    """b0 retires nothing; a key moves to the list only in the change that removes it."""
+def test_the_retired_list_names_what_fell_and_never_names_a_live_key() -> None:
+    """A key moves to the list only in the change that removes it: Q1-b2 (#1677) retired the
+    top-level ``layer_weights`` and ``pod_size``; nothing else is retired yet."""
     assert set(strength.RETIRED_SETTING_KEYS) == set(RETIRED_PROBES)
-    assert all(not keys for keys in strength.RETIRED_SETTING_KEYS.values())
+    assert {
+        strength.RETIRED_WEIGHTS: frozenset(),
+        strength.RETIRED_MIN_DENOMINATORS: frozenset(),
+        strength.RETIRED_TOP_LEVEL: frozenset({"layer_weights", "pod_size"}),
+    } == strength.RETIRED_SETTING_KEYS
     live = {
         strength.RETIRED_WEIGHTS: set(strength.DEFAULT_WEIGHTS),
         strength.RETIRED_MIN_DENOMINATORS: set(strength.MIN_DENOMINATOR_KEYS),
@@ -233,6 +239,26 @@ def test_a_retired_key_is_only_dropped_where_it_is_listed(monkeypatch: pytest.Mo
     # constructing settings in code stays strict: the list is for reading only
     with pytest.raises(ValueError, match="unknown component"):
         StrengthSettings(weights={weight_probe: 1.0})
+
+
+@pytest.mark.parametrize(
+    ("raw", "deviating"),
+    [
+        ({}, []),
+        ({"layer_weights": {}, "pod_size": 4}, []),
+        ({"layer_weights": {"tempo": 0, "staying": 0.0}, "pod_size": 4.0}, []),
+        ({"layer_weights": {"tempo": 0.5}}, ["layer_weights"]),
+        ({"pod_size": 3}, ["pod_size"]),
+        ({"pod_size": True}, ["pod_size"]),
+        ({"layer_weights": "x"}, ["layer_weights"]),
+        ({"layer_weights": {"tempo": 1}, "pod_size": 6}, ["layer_weights", "pod_size"]),
+    ],
+)
+def test_retired_deviations_name_a_dropped_value_only_when_it_was_not_the_default(
+    raw: dict[str, object], deviating: list[str]
+) -> None:
+    """Defaults when the keys fell: every layer weight 0, pod size 4 (Q1-b2)."""
+    assert strength.retired_deviations(raw) == deviating
 
 
 def test_rank_group_function_stays_a_valid_value() -> None:

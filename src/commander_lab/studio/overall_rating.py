@@ -293,20 +293,17 @@ def confidence_of(row: UnderstandingRow) -> OverallConfidence:
 
 def usage_blocked(answer: Mapping[str, object]) -> str | None:
     """Why the usage index of this answer may not be an axis (None: it may). An index that
-    weights simulation, the rubric itself or a measured result layer would carry a locked or
-    double-counted signal into the overall rating. Without the weights the answer cannot be
-    vouched for: the axis is blocked (fail closed)."""
+    weights simulation or the rubric itself would carry a locked or double-counted signal into
+    the overall rating. Without the weights the answer cannot be vouched for: the axis is
+    blocked (fail closed). The measured result layers fell with Q1-b2 (#1677): the index can no
+    longer weight them."""
     weights = answer.get("effective_weights")
-    summary = answer.get("layer_summary")
-    weighted = summary.get("weighted") if isinstance(summary, dict) else None
-    if not isinstance(weights, dict) or not isinstance(weighted, list):
+    if not isinstance(weights, dict):
         return "die Gewichte des Nutzungs-Index fehlen in der Antwort"
     for name in _BLOCKED_COMPONENTS:
         value = weights.get(name)
         if isinstance(value, (int, float)) and value > 0:
             return f"der Nutzungs-Index gewichtet {name}"
-    if weighted:
-        return "der Nutzungs-Index gewichtet gemessene Ergebnisschichten"
     return None
 
 

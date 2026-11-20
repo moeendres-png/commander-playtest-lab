@@ -32,8 +32,6 @@ from typing import TypedDict, cast
 from . import (
     chulane_textfit,
     corpus_signals,
-    layers,
-    layers_view,
     research_import,
     roles,
     signals,
@@ -92,7 +90,6 @@ class StrengthCard(TypedDict):
     # decks: confidence in an absence), else "zaehler"; None without a confidence.
     confidence_basis: str | None
     is_land: bool
-    layers: dict[str, layers.LayerValue]
     role_ranks: dict[str, dict[str, int]]
     # D3: the number of ranked cards per role (the ``total`` of ``role_ranks``), by role.
     role_totals: dict[str, int]
@@ -155,15 +152,6 @@ class RelativeTiersInfo(TypedDict):
     counts: dict[str, dict[str, int]]
 
 
-class LayerSummaryBlock(TypedDict):
-    schema: str
-    pod_size: int
-    pod_note: str
-    measured_note: str
-    weighted: list[str]
-    layers: list[layers.LayerSummary]
-
-
 class AmbiguousName(TypedDict):
     signal: str
     name: str
@@ -186,7 +174,6 @@ class StrengthResult(TypedDict):
     unknown_breakdown: UnknownBreakdown
     borderline_count: int
     ambiguous_names: list[AmbiguousName]
-    layer_summary: LayerSummaryBlock
     # #1364: the rule of the EDHREC weights (E2.a), the weights actually used, the counted corpus
     # and the empirical Bayes priors of the components with small denominators
     weight_rule: strength.WeightRule
@@ -760,82 +747,10 @@ def card_signal_values(
     return result
 
 
-def _layer_result(
-    store: StudioStore,
-    raw_cards: Sequence[Mapping[str, object]],
-    display: Mapping[str, str],
-    claims: _Claims,
-    unranked: Mapping[str, str],
-    per_card: Mapping[str, Mapping[str, Observation]],
-    pod_size: int,
-) -> layers.LayerResult:
-    """The rating layers of the pool cards. ``per_card`` carries the Playgroup gap and EDHREC
-    synergy observations the index reads (the layers "Sieg-Abstand" and "Passt zum Commander"
-    reuse them)."""
-    return layers.compute_layers(
-        layers_view.layer_cards(
-            store,
-            display,
-            {str(card["card_id"]): str(card["type_line"]) for card in raw_cards},
-            unranked,
-        ),
-        layers_view.atlas_records(
-            store,
-            {str(card["card_id"]): _optional_text(card["oracle_id"]) for card in raw_cards},
-            claims,
-        ),
-        {
-            card_id: observation
-            for card_id, per in per_card.items()
-            if (observation := per.get(PLAYGROUP_OBSERVED)) is not None
-        },
-        pod_size,
-        synergy={
-            card_id: observation
-            for card_id, per in per_card.items()
-            if (observation := per.get(SYNERGY)) is not None
-        },
-    )
-
-
-def rating_layers(store: StudioStore, commander: str, pod_size: int) -> layers.LayerResult:
-    """The rating layers of ``commander``'s legal pool without the strength index (the card
-    window of the builder). Raises KeyError when the commander is not in the collection."""
-    pool = pool_cards(store, [commander], with_signals=False)
-    raw_cards = pool["cards"]
-    if not isinstance(raw_cards, list):
-        raise TypeError("pool_cards returned an unexpected shape")
-    ids = [str(card["card_id"]) for card in raw_cards]
-    display = {str(card["card_id"]): str(card["name"]) for card in raw_cards}
-    commander_ids = _strings(pool["commander_ids"])
-    claims = _claim_index(store, ids)
-    per_card: dict[str, dict[str, Observation]] = {card_id: {} for card_id in ids}
-    for component in (PLAYGROUP_OBSERVED, SYNERGY):
-        observed, _exists = _signal_observations(
-            store,
-            commander,
-            strength.signal_for(component, strength.BRACKET_NONE),
-            claims,
-            display,
-            {},
-        )
-        for card_id, observation in observed.items():
-            per_card[card_id][component] = observation
-    return _layer_result(
-        store,
-        raw_cards,
-        display,
-        claims,
-        _unranked_cards(raw_cards, commander_ids),
-        per_card,
-        pod_size,
-    )
-
-
 def _unranked_cards(
     raw_cards: Sequence[Mapping[str, object]], commander_ids: set[str]
 ) -> dict[str, str]:
-    """The cards that get no tier and no layer value: the commander and basic lands."""
+    """The cards that get no tier: the commander and basic lands."""
     unranked: dict[str, str] = {}
     for card in raw_cards:
         card_id = str(card["card_id"])
@@ -935,8 +850,6 @@ class Prepared:
     universe_missing: str | None
     notices: list[str]
     ambiguous: dict[tuple[str, str], list[str]]
-    layer_result: layers.LayerResult | None
-    weighted_layers: list[str]
     corpus: corpus_signals.CorpusInfo
     corpus_counts: corpus_signals.CorpusCounts | None
     edhtop16: dict[str, Observation]
@@ -949,14 +862,12 @@ def prepare(
     *,
     dangling_universe_ok: bool = False,
     notices: Sequence[str] = (),
-    with_layers: bool = True,
 ) -> Prepared:
     """Read the observations of ``commander``'s legal pool and the rule-adjusted settings.
 
     Raises KeyError when the commander is not in the collection or the universe profile of the
     settings is unknown; with ``dangling_universe_ok`` a deleted profile gives a notice and the
-    automatic choice instead. ``with_layers`` False computes the rating layers only when a layer
-    has a weight (the ranking check does not need the page columns)."""
+    automatic choice instead."""
     pool = pool_cards(store, [commander], with_signals=False)
     raw_cards = pool["cards"]
     if not isinstance(raw_cards, list):
@@ -1096,22 +1007,6 @@ def prepare(
         group = str(card["group"])
         type_group[card_id] = group
         bands[card_id] = strength.mana_band(_float(card["mana_value"]), is_land=group == "Land")
-    # Rating layers (Bewertungsebenen): always computed for the page; they join the index only
-    # with a positive weight (default 0), as one more rank-based component each.
-    weighted = [key for key in strength.LAYER_KEYS if settings.layer_weights[key] > 0]
-    layer_result: layers.LayerResult | None = None
-    if with_layers or weighted:
-        layer_result = _layer_result(
-            store, raw_cards, display, claims, unranked, per_card, settings.pod_size
-        )
-        for card_id, found in layers.index_observations(layer_result, weighted).items():
-            per_card[card_id].update(found)
-        for key in weighted:
-            if any(item[key]["status"] == layers.OK for item in layer_result["cards"].values()):
-                collected.add(strength.layer_component(key))
-            else:
-                notices.append(f"{strength.LAYER_LABELS[key]}: keine Daten, Gewicht ohne Wirkung")
-
     # Other commanders known to the store are not ranked in this commander's pool (tier N).
     others = _other_commander_names(store, commander)
     tier_unranked = dict(unranked)
@@ -1149,8 +1044,6 @@ def prepare(
         universe_missing,
         notices,
         ambiguous,
-        layer_result,
-        weighted,
         corpus,
         counts,
         top16,
@@ -1190,9 +1083,6 @@ def compute(
     notices_out = prepared.notices
     notices_out.extend(strength.weights_without_effect(prepared.effective, prepared.collected))
     notices_out.extend(_weight_notices(settings, prepared.weight_rule, saved_weights or {}))
-    layer_result = prepared.layer_result
-    if layer_result is None:  # prepare computes the layers when asked to (the default)
-        raise TypeError("the layer result is missing")
     roles_by_id: dict[str, list[str]] = {
         str(card["card_id"]): [str(r) for r in card["roles"]]  # type: ignore[attr-defined]
         for card in prepared.raw_cards
@@ -1263,7 +1153,6 @@ def compute(
                 "name": prepared.display[card_id],
                 **result,
                 "is_land": prepared.context.type_group.get(card_id) == "Land",
-                "layers": layer_result["cards"][card_id],
                 "role_ranks": ranks_for_card.get(card_id, {}),
                 "role_totals": {
                     role: info["total"] for role, info in ranks_for_card.get(card_id, {}).items()
@@ -1329,10 +1218,7 @@ def compute(
         "universe_choice": prepared.choice,
         "universe_missing": prepared.universe_missing,
         "notices": notices_out,
-        # the index sources; a weighted layer is listed in ``layer_summary.weighted`` instead
-        "collected": sorted(
-            name for name in prepared.collected if not name.startswith(strength.LAYER_PREFIX)
-        ),
+        "collected": sorted(prepared.collected),
         "tier_counts": {tier: tiers.get(tier, 0) for tier in tier_order},
         "tier_counts_by_kind": by_kind,
         "unknown_breakdown": breakdown,
@@ -1341,14 +1227,6 @@ def compute(
             {"signal": signal, "name": name, "candidates": candidates}
             for (signal, name), candidates in sorted(prepared.ambiguous.items())
         ],
-        "layer_summary": {
-            "schema": layer_result["schema"],
-            "pod_size": layer_result["pod_size"],
-            "pod_note": layer_result["pod_note"],
-            "measured_note": layer_result["measured_note"],
-            "weighted": prepared.weighted_layers,
-            "layers": layer_result["layers"],
-        },
         "weight_rule": prepared.weight_rule,
         "effective_weights": dict(prepared.effective.weights),
         "corpus": prepared.corpus,
@@ -1400,7 +1278,6 @@ def compute_with_snapshot(
     settings: StrengthSettings,
     *,
     profile_name: str | None = None,
-    with_layers: bool = True,
     dangling_universe_ok: bool = False,
     notices: Sequence[str] = (),
     saved_weights: Mapping[str, float] | None = None,
@@ -1413,7 +1290,6 @@ def compute_with_snapshot(
         commander,
         settings,
         profile_name=profile_name,
-        with_layers=with_layers,
         dangling_universe_ok=dangling_universe_ok,
         notices=notices,
         saved_weights=saved_weights,
@@ -1525,16 +1401,45 @@ def profile_saved_weights(store: StudioStore, name: str) -> dict[str, float]:
     }
 
 
-def profile_notices(store: StudioStore, name: str) -> list[str]:
-    """Notices for computing with a stored profile: keys of the profile this version does not
-    know are ignored, not an error."""
-    ignored = get_profile(store, name)["ignored_keys"]
-    if not ignored:
+# Q1-b2 (#1677): the German names of the retired settings a profile notice may name.
+_RETIRED_NAMES = {"layer_weights": "Gewichte der Bewertungsebenen", "pod_size": "Pod-Größe"}
+
+
+def _retired_notice(store: StudioStore, name: str) -> list[str]:
+    """One calm notice when the stored profile ``name`` holds a value of a retired setting that
+    differed from its default (``strength.retired_deviations``); none otherwise."""
+    row = store.connection.execute(
+        "SELECT spec FROM strength_profile WHERE name = ?", (name,)
+    ).fetchone()
+    try:
+        raw = _as_mapping(json.loads(str(row["spec"]))) if row is not None else {}
+    except (ValueError, TypeError):
+        return []
+    deviating = strength.retired_deviations(raw)
+    if not deviating:
         return []
     return [
-        f"Die Einstellung „{name}“ enthält unbekannte Schlüssel, sie werden ignoriert: "
-        + ", ".join(ignored)
+        f"Hinweis: Die Einstellung „{name}“ enthält einen Wert für "
+        + " und ".join(_RETIRED_NAMES.get(key, key) for key in deviating)
+        + ". Diese Einstellung gibt es nicht mehr; der Wert wird nicht verwendet, alles andere "
+        "gilt wie gespeichert."
     ]
+
+
+def profile_notices(store: StudioStore, name: str) -> list[str]:
+    """Notices for computing with a stored profile: keys of the profile this version does not
+    know are ignored, not an error; a retired setting whose stored value differed from its
+    default is named once (Q1-b2)."""
+    ignored = get_profile(store, name)["ignored_keys"]
+    found = (
+        [
+            f"Die Einstellung „{name}“ enthält unbekannte Schlüssel, sie werden ignoriert: "
+            + ", ".join(ignored)
+        ]
+        if ignored
+        else []
+    )
+    return found + _retired_notice(store, name)
 
 
 def get_profile(store: StudioStore, name: str) -> ProfileEntry:
@@ -1711,24 +1616,6 @@ def _panel_texts() -> dict[str, object]:
         "dieses Commanders die Karte in Kombinationen spielen) oder Commander Spellbook "
         "(Qualitäts-Mix aus distinkten Combo-Shells beim Commander, falls importiert, sonst aus "
         "globalen Varianten über alle Commander). 0 schaltet das Signal ab."
-    )
-    for key in strength.LAYER_KEYS:
-        labels[f"layer_weights.{key}"] = (
-            f"{strength.LAYER_LABELS[key]} (empfohlen: {_number_text(rec.layer_weights[key])})"
-        )
-        helps[f"layer_weights.{key}"] = (
-            f"{layers.DESCRIPTIONS[key]} Gewicht im Mittel der Ränge; 0 (empfohlen) lässt die "
-            "Ebene aus dem Index heraus, sie bleibt eine Spalte. Ein leeres Feld nimmt den "
-            "empfohlenen Wert."
-        )
-    helps[f"layer_weights.{strength.LAYER_KEYS[0]}"] += (
-        " Aus dem Regeltext abgeleitet, keine Messung."
-    )
-    labels["pod_size"] = f"Pod-Größe (empfohlen: {rec.pod_size})"
-    helps["pod_size"] = (
-        f"Anzahl der Spieler von {strength.POD_SIZE_MIN} bis {strength.POD_SIZE_MAX}. Ändert nur "
-        "die angezeigte Zahl („wirkt auf N-1 Gegner“) bei „Großpod-Wirkung“, keinen Rang und "
-        "keinen Index."
     )
     labels["bracket"] = (
         "Bracket-Signal (empfohlen: upgraded, passend zum Bracket 3; bei Turnierausrichtung cedh)"
@@ -1923,10 +1810,6 @@ def _panel_texts() -> dict[str, object]:
         )
     groups = [
         {"title": "Gewichte je Signal", "keys": [f"weights.{key}" for key in rec.weights]},
-        {
-            "title": "Zusätzliche Ebenen",
-            "keys": [*(f"layer_weights.{key}" for key in strength.LAYER_KEYS), "pod_size"],
-        },
         {"title": "Bracket", "keys": ["bracket", "combo_source"]},
         {"title": "Vergleichsgruppe für den Rang", "keys": ["rank_group", "separate_lands"]},
         {"title": "Anteil messen als", "keys": ["share_measure", "share_scale"]},
@@ -2044,29 +1927,6 @@ def presets() -> dict[str, object]:
             }
             for key, weight in strength.DEFAULT_WEIGHTS.items()
         ],
-        "layers": [
-            {
-                "key": key,
-                "label": layers.LABELS[key],
-                "kind": layers.KINDS[key],
-                "source": layers.SOURCES[key],
-                "denominator": layers.DENOMINATORS[key],
-                "description": layers.DESCRIPTIONS[key],
-                "weight_allowed": key in strength.LAYER_KEYS,
-                "default_weight": strength.DEFAULT_LAYER_WEIGHTS.get(key),
-            }
-            for key in layers.ALL_LAYER_KEYS
-        ],
-        "pod_classes": [
-            {
-                "key": key,
-                "label": layers.POD_CLASS_LABELS[key],
-                "help": layers.POD_CLASS_HELP[key],
-                "rank": layers.POD_CLASS_RANK[key],
-            }
-            for key in layers.POD_CLASSES
-        ],
-        "pod_derived_note": layers.POD_DERIVED_NOTE,
         "brackets": [*strength.BRACKETS, strength.BRACKET_NONE],
         "defaults": recommended,
         "recommended": recommended,
@@ -2130,7 +1990,6 @@ __all__ = [
     "list_profiles",
     "presets",
     "profile_notices",
-    "rating_layers",
     "resolve_settings",
     "save_profile",
     "signal_coverage",

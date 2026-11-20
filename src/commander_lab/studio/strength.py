@@ -74,12 +74,6 @@ Simulation results are not an input by default: the ``simulation`` component exi
 Owner can weight it, but its weight is 0 in the defaults and in every preset (Owner decision
 2026-11-12), and with weight 0 it changes neither the index nor the tier nor the coverage.
 The Owner's marks (favorite, excluded, note) are never an input.
-
-Rating layers (``layers.py``, "Bewertungsebenen") are separate columns, not index components.
-Each of four of them may join the index with an optional weight (``layer_weights``, 0 by default
-and in every preset): then it is one more rank-based component, counted in the coverage, and
-never commander specific. With weight 0 it is no component at all and the result is the same as
-without layers.
 """
 
 from __future__ import annotations
@@ -270,37 +264,6 @@ COMPONENT_DATA_CLASS: dict[str, str] = {
     RUBRIC: SUBJECTIVE_RATING,
     SIMULATION: "SIMULATED_RESULT",
 }
-# Additional rating layers (``layers.py``) that may join the index as one more rank-based
-# component each. Their weight lives in ``StrengthSettings.layer_weights``, is 0 by default and
-# in every preset, and with weight 0 the layer is not a component at all: the result is the
-# same as without layers. ``win_gap`` has no weight: the index already counts the Playgroup gap
-# as ``playgroup_observed`` and a second weight would count it twice. No layer is specific to
-# the commander (``COMMANDER_SPECIFIC``), so none of them can satisfy "require_commander_signal".
-LAYER_PREFIX = "layer_"
-LAYER_KEYS = ("pod_scaling", "tempo", "playability", "staying")
-LAYER_LABELS: dict[str, str] = {
-    "pod_scaling": "Großpod-Wirkung",
-    "tempo": "Tempo",
-    "playability": "Ausspielquote",
-    "staying": "Standfestigkeit",
-}
-LAYER_SIGNALS: dict[str, str] = {
-    "pod_scaling": "oracle_text_pod_scaling",
-    "tempo": "playgroup_on_curve_pct",
-    "playability": "playgroup_drawn_to_played_pct",
-    "staying": "playgroup_battlefield_survival_pct",
-}
-DEFAULT_LAYER_WEIGHTS: dict[str, float] = {key: 0.0 for key in LAYER_KEYS}
-POD_SIZE_MIN = 2
-POD_SIZE_MAX = 6
-DEFAULT_POD_SIZE = 4
-
-
-def layer_component(key: str) -> str:
-    """The component name of a layer in the index rows."""
-    return f"{LAYER_PREFIX}{key}"
-
-
 # Components the tier list collects no data for at all, for now (Owner decision B11: simulation
 # results are not collected for it). Their weight stays adjustable, but while no card has a value
 # it adds nothing and must not lower any card's coverage.
@@ -501,8 +464,6 @@ _SETTINGS_KEYS = frozenset(
         "rank_other_commanders",
         "universe_source",
         "require_commander_signal",
-        "layer_weights",
-        "pod_size",
         "combo_source",
         "separate_lands",
         "zero_count_tier",
@@ -524,13 +485,34 @@ RETIRED_TOP_LEVEL = "top_level"
 RETIRED_SETTING_KEYS: Mapping[str, frozenset[str]] = {
     RETIRED_WEIGHTS: frozenset(),
     RETIRED_MIN_DENOMINATORS: frozenset(),
-    RETIRED_TOP_LEVEL: frozenset(),
+    # Q1-b2 (#1677): the rating layers (``layer_weights``) and their pod size fell.
+    RETIRED_TOP_LEVEL: frozenset({"layer_weights", "pod_size"}),
 }
+# The value a retired top-level key had by default when it fell: a stored profile that held a
+# different value gets one calm notice that the value no longer acts (``retired_deviations``).
+# ``layer_weights``: every layer weight 0; ``pod_size``: 4 players.
+RETIRED_TOP_LEVEL_DEFAULTS: Mapping[str, object] = {"layer_weights": 0.0, "pod_size": 4}
 
 
 def _retired(group: str) -> frozenset[str]:
     """The retired keys of one group, read at call time."""
     return RETIRED_SETTING_KEYS.get(group, frozenset())
+
+
+def retired_deviations(raw: Mapping[str, object]) -> list[str]:
+    """The retired top-level keys of ``raw`` (a stored settings spec) whose value differed from
+    the default it had when the key fell, sorted. ``layer_weights`` differs when any weight is
+    not 0; an unreadable value counts as differing (it was not the default)."""
+    found: list[str] = []
+    for key in sorted(_retired(RETIRED_TOP_LEVEL) & set(RETIRED_TOP_LEVEL_DEFAULTS)):
+        if key not in raw:
+            continue
+        value, default = raw[key], RETIRED_TOP_LEVEL_DEFAULTS[key]
+        values = list(value.values()) if isinstance(value, Mapping) else [value]
+        not_a_map = key == "layer_weights" and not isinstance(value, Mapping)
+        if not_a_map or any(isinstance(item, bool) or item != default for item in values):
+            found.append(key)
+    return found
 
 
 def _without_retired(values: Mapping[str, object], group: str) -> dict[str, object]:
@@ -572,8 +554,6 @@ def signal_for(
         if combo_source == COMBO_COMMANDER:
             return SIGNAL_COMBO_COMMANDER
         return COMBO_PART_SHELLS if spellbook_shells else COMBO_PART_VARIANTS
-    if component.startswith(LAYER_PREFIX):
-        return LAYER_SIGNALS[component[len(LAYER_PREFIX) :]]
     return {
         COMMANDER_INCLUSION: "edhrec_commander_inclusion",
         DECK_UNIVERSE: "deck_list_share",
@@ -659,8 +639,6 @@ class StrengthSettings:
     rank_other_commanders: bool = True
     universe_source: str = DEFAULT_UNIVERSE_SOURCE
     require_commander_signal: bool = DEFAULT_REQUIRE_COMMANDER_SIGNAL
-    layer_weights: dict[str, float] = field(default_factory=lambda: dict(DEFAULT_LAYER_WEIGHTS))
-    pod_size: int = DEFAULT_POD_SIZE
     combo_source: str = DEFAULT_COMBO_SOURCE
     separate_lands: bool = DEFAULT_SEPARATE_LANDS
     # E4: what a card whose only evidence about this commander is counted zeros (0 of N) gets:
@@ -753,21 +731,6 @@ class StrengthSettings:
             raise ValueError(
                 "universe_source must be auto, profile, none or counted:<source>:<bracket>"
             )
-        layer_weights = dict(DEFAULT_LAYER_WEIGHTS)
-        for name, value in self.layer_weights.items():
-            if name not in DEFAULT_LAYER_WEIGHTS:
-                raise ValueError(f"unknown layer: {name}")
-            weight = _number(value, f"layer weight {name}")
-            if weight < 0 or weight > MAX_WEIGHT:
-                raise ValueError(f"layer weight {name} must be between 0 and {MAX_WEIGHT:g}")
-            layer_weights[name] = weight
-        if (
-            isinstance(self.pod_size, bool)
-            or not isinstance(self.pod_size, int)
-            or not POD_SIZE_MIN <= self.pod_size <= POD_SIZE_MAX
-        ):
-            raise ValueError(f"pod_size must be an integer from {POD_SIZE_MIN} to {POD_SIZE_MAX}")
-        object.__setattr__(self, "layer_weights", layer_weights)
         object.__setattr__(self, "weights", weights)
         object.__setattr__(self, "min_coverage", coverage)
         object.__setattr__(self, "tier_cuts", cuts)
@@ -778,13 +741,7 @@ class StrengthSettings:
         """Weight used in the index: the bracket component is off without a bracket."""
         if component == BRACKET_INCLUSION and self.bracket == BRACKET_NONE:
             return 0.0
-        if component.startswith(LAYER_PREFIX):
-            return self.layer_weights[component[len(LAYER_PREFIX) :]]
         return self.weights[component]
-
-    def active_layers(self) -> tuple[str, ...]:
-        """The layers with a positive weight, as component names: only these join the index."""
-        return tuple(layer_component(key) for key in LAYER_KEYS if self.layer_weights[key] > 0)
 
     def minimum_denominator(self, component: str, universe_minimum: int) -> int:
         """The smallest denominator a signal needs to be used (0 = no minimum)."""
@@ -826,8 +783,6 @@ class StrengthSettings:
             "rank_other_commanders": self.rank_other_commanders,
             "universe_source": self.universe_source,
             "require_commander_signal": self.require_commander_signal,
-            "layer_weights": dict(self.layer_weights),
-            "pod_size": self.pod_size,
             "combo_source": self.combo_source,
             "separate_lands": self.separate_lands,
             "zero_count_tier": self.zero_count_tier,
@@ -895,12 +850,6 @@ class StrengthSettings:
         require = raw.get("require_commander_signal", defaults.require_commander_signal)
         if not isinstance(require, bool):
             raise ValueError("require_commander_signal must be true or false")
-        layer_weights = raw.get("layer_weights", {})
-        if not isinstance(layer_weights, Mapping):
-            raise ValueError("layer_weights must be an object")
-        pod_size = raw.get("pod_size", defaults.pod_size)
-        if isinstance(pod_size, bool) or not isinstance(pod_size, int):
-            raise ValueError("pod_size must be an integer")
         separate = raw.get("separate_lands", defaults.separate_lands)
         if not isinstance(separate, bool):
             raise ValueError("separate_lands must be true or false")
@@ -943,11 +892,6 @@ class StrengthSettings:
             rank_other_commanders=other_ranked,
             universe_source=universe_source,
             require_commander_signal=require,
-            layer_weights={
-                **DEFAULT_LAYER_WEIGHTS,
-                **{str(k): _number(v, f"layer weight {k}") for k, v in layer_weights.items()},
-            },
-            pod_size=pod_size,
             combo_source=combo_source,
             separate_lands=separate,
             zero_count_tier=zero_tier,
@@ -1548,8 +1492,7 @@ def _share_values(
 def observed_gap(observation: Observation) -> float | None:
     """The Playgroup gap as the index reads it: the published gap in percentage points, shrunk
     towards zero by the sample (``gap * n / (n + k)``); ``None`` below ``OBSERVED_MIN_SAMPLE``
-    games in which the card was cast or without a value. The denominator is that sample. The
-    layer "Sieg-Abstand" uses this function too: there is one implementation."""
+    games in which the card was cast or without a value. The denominator is that sample."""
     if observation.value is None or not math.isfinite(observation.value):
         return None
     sample = observation.denominator
@@ -1647,7 +1590,7 @@ def _scale_component_values(
 ) -> dict[str, float]:
     """Convert component values to 0..1 scores: share components use ``settings.share_scale``,
     direct components (the rubric) keep their 0..1 value, the other non-share components
-    (synergy, combos, playgroup, layers) always use ``percentile_ranks``."""
+    (synergy, combos, playgroup) always use ``percentile_ranks``."""
     if component in SHARE_COMPONENTS:
         return share_scale_values(values, settings.share_scale, log_k)
     if component in ABOVE_NEUTRAL_COMPONENTS:
@@ -1841,9 +1784,7 @@ def _component_note(
 
 
 def component_label(component: str, *, combo_source: str = COMBO_COMMANDER) -> str:
-    """The German label of an index component or of a layer component."""
-    if component.startswith(LAYER_PREFIX):
-        return LAYER_LABELS[component[len(LAYER_PREFIX) :]]
+    """The German label of an index component."""
     if component == COMBOS:
         return (
             "Kombos (EDHREC, beim Commander)"
@@ -2115,8 +2056,8 @@ def relative_tiers(
 #   strength_view.py:1066) adds EDHTop16 and the corpus bracket 5 (a subset of the source decks)
 #   to one n / N (D5).
 # - combos: ``_combo_observations`` (strength_view.py:392) / the stored EDHREC combo signal.
-# - everything else (Playgroup, rubric, simulation, the TopDeck lists and conversion, the rating
-#   layers): other, weight 0 in the defaults.
+# - everything else (Playgroup, rubric, simulation, the TopDeck lists and conversion): other,
+#   weight 0 in the defaults.
 FAMILY_SOURCE_DECKS = "source_decks"
 FAMILY_EDHREC = "edhrec"
 FAMILY_TOURNAMENT = "tournament"
@@ -2127,7 +2068,7 @@ TOURNAMENT_FAMILY_NOTE = (
     "EDHTop16 und Korpus-Bracket 5 (Teilmenge der Quelldecks) zu einem n/N addiert (E3.a)"
 )
 EDHREC_FAMILY_NOTE = "veröffentlichte EDHREC-Zahlen (Seiten, Themen, Gesamtaufnahme)"
-OTHER_FAMILY_NOTE = "Playgroup, Rubrik, Simulation, TopDeck-Listen und Bewertungsebenen"
+OTHER_FAMILY_NOTE = "Playgroup, Rubrik, Simulation und TopDeck-Listen"
 WEIGHT_FAMILIES: tuple[tuple[str, str, tuple[str, ...], str], ...] = (
     (
         FAMILY_SOURCE_DECKS,
@@ -2157,13 +2098,13 @@ class WeightFamily(TypedDict):
 
 def weight_families(settings: StrengthSettings) -> list[WeightFamily]:
     """The effective weight of ``settings`` per source family (D2), as the index uses it: the
-    weights after rule E2.a, the bracket switch and the layer weights (field ``effective_weight``).
+    weights after rule E2.a and the bracket switch (field ``effective_weight``).
     ``deck_universe`` counts as source-deck corpus because the index reads the commander's local
     decks (hard-coded: with a stored universe profile or a counted repo universe it would read
     another deck set). Every component belongs to
     exactly one family; ``share_of_total`` is the family weight over the total weight (0 without
     any positive weight). Display only: no weight changes."""
-    all_components = (*COMPONENTS, *(layer_component(key) for key in LAYER_KEYS))
+    all_components = COMPONENTS
     named = {name for _key, _label, names, _note in WEIGHT_FAMILIES for name in names}
     rest = tuple(name for name in all_components if name not in named)
     groups = (
@@ -2220,7 +2161,7 @@ def score_pool(
         )
     }
     filter_cards = frozenset(ctx.filter_cards)
-    rated = (*COMPONENTS, *settings.active_layers())
+    rated = COMPONENTS
     rankings: dict[str, _ComponentRanking] = {}
     for component in rated:
         skipped = set(unranked) | (filter_cards if component == DECK_UNIVERSE else set())
@@ -2235,18 +2176,14 @@ def score_pool(
         if settings.effective_weight(name) > 0 and name in collected and rankings[name].usable
     }
     # The coverage denominator stays main's rule (Owner-visible numbers such as "4 of 13"): every
-    # weighted component counts, except the by-design uncollected ones and layers that were
-    # not collected. A source never imported still counts against a card.
+    # weighted component counts, except the by-design uncollected ones that were not
+    # collected. A source never imported still counts against a card.
     denominator_weight = {
         name: settings.effective_weight(name)
         for name in rated
         if settings.effective_weight(name) > 0
         and not (
-            (
-                name in UNCOLLECTED_BY_DESIGN
-                or name in COMMANDER_ONLY_SOURCES
-                or name.startswith(LAYER_PREFIX)
-            )
+            (name in UNCOLLECTED_BY_DESIGN or name in COMMANDER_ONLY_SOURCES)
             and name not in collected
         )
     }

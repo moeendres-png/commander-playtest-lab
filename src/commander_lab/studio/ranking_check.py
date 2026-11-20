@@ -62,7 +62,6 @@ from . import corpus_signals, strength, strength_view, tier_snapshot, universe_c
 from .store import LEGACY_COMMANDER, StudioStore
 from .strength import (
     DECK_UNIVERSE,
-    LAYER_PREFIX,
     TIERS,
     CardStrength,
     Observation,
@@ -319,9 +318,6 @@ def spearman_correlation(
 
 def _without_component(settings: StrengthSettings, component: str) -> StrengthSettings:
     """Copy of ``settings`` with ``component``'s weight set to 0.0."""
-    if component.startswith(LAYER_PREFIX):
-        key = component[len(LAYER_PREFIX) :]
-        return replace(settings, layer_weights={**settings.layer_weights, key: 0.0})
     return replace(settings, weights={**settings.weights, component: 0.0})
 
 
@@ -514,7 +510,7 @@ def check_ranking(
             }
         )
 
-    rated_components = (*strength.COMPONENTS, *settings.active_layers())
+    rated_components = strength.COMPONENTS
     stability_rows: list[SignalStabilityRow] = []
     for component in rated_components:
         weight = settings.effective_weight(component)
@@ -639,7 +635,7 @@ def _redundancy(
     ``MISSING_AS_LOWEST``, is not an observation)."""
     active = [
         name
-        for name in (*strength.COMPONENTS, *settings.active_layers())
+        for name in strength.COMPONENTS
         if settings.effective_weight(name) > 0 and name in collected
     ]
     values: dict[str, dict[str, float]] = {name: {} for name in active}
@@ -769,9 +765,7 @@ def run_ranking_check(
         store, preset=preset, profile=profile, settings=settings
     )
     label = profile or preset or "Ausgewogen"
-    prepared = strength_view.prepare(
-        store, commander, resolved, dangling_universe_ok=True, with_layers=False
-    )
+    prepared = strength_view.prepare(store, commander, resolved, dangling_universe_ok=True)
     ids = prepared.ids
     display = prepared.display
     per_card = prepared.per_card

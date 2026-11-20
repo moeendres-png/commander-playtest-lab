@@ -1,6 +1,6 @@
 """Remembered answers of expensive read routes (#1563).
 
-Several read routes (``/api/evidence``, ``/api/pool``, ``/api/rating-layers`` and others)
+Several read routes (``/api/evidence``, ``/api/pool``, ``/api/roles/audit`` and others)
 recomputed the same answer on every call although nothing had changed. Here an answer is kept
 as the JSON bytes the route would send, keyed by
 

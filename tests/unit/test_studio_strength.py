@@ -1836,6 +1836,118 @@ def test_retired_keys_keep_a_stored_profile_and_explicit_settings_valid(
     assert typo.status_code == 422
 
 
+# Q1-b2 (#1677): the real retired keys of the rating layers.
+LAYERS_OFF = {"pod_scaling": 0.0, "tempo": 0.0, "playability": 0.0, "staying": 0.0}
+RETIRED_NOTICE = "gibt es nicht mehr"
+
+
+def test_a_profile_from_before_q1b2_with_layer_weights_and_pod_size_stays_valid(
+    client: TestClient, tmp_path: Path
+) -> None:
+    """Profiles and remembered settings saved with ``layer_weights`` / ``pod_size`` stay valid
+    and compute like the same settings without them; a different unknown key still fails."""
+    plain = {"bracket": "cedh", "weights": {"synergy": 2}}
+    profiles = {
+        "ohne": plain,
+        "standard": {**plain, "layer_weights": LAYERS_OFF, "pod_size": 4},
+        "tempo": {**plain, "layer_weights": {**LAYERS_OFF, "tempo": 1.5}},
+        "pod": {**plain, "pod_size": 3},
+        "beide": {**plain, "layer_weights": {**LAYERS_OFF, "staying": 2.0}, "pod_size": 5},
+    }
+    store = StudioStore.open(tmp_path / "studio")
+    try:
+        for name, spec in profiles.items():
+            store.connection.execute(
+                "INSERT INTO strength_profile(name, spec, created_at) VALUES (?, ?, 'x')",
+                (name, json.dumps(spec)),
+            )
+        store.connection.commit()
+    finally:
+        store.close()
+    listed = {item["name"]: item for item in client.get("/api/strength/profiles").json()}
+    for name in profiles:
+        assert listed[name]["valid"] is True and listed[name]["reason"] is None, name
+        assert listed[name]["ignored_keys"] == [], name  # dropped, not named as unknown
+        assert listed[name]["settings"] == listed["ohne"]["settings"], name
+        assert "layer_weights" not in listed[name]["settings"], name
+        assert "pod_size" not in listed[name]["settings"], name
+    expected = client.post(
+        "/api/strength", json={"commander": COMMANDER, "settings": plain}, headers=HEADER
+    ).json()["settings"]
+    for key, value in (("layer_weights", {**LAYERS_OFF, "tempo": 1.5}), ("pod_size", 3)):
+        # a remembered browser setting or an API body with one retired key
+        answer = client.post(
+            "/api/strength",
+            json={"commander": COMMANDER, "settings": {**plain, key: value}},
+            headers=HEADER,
+        )
+        assert answer.status_code == 200, key
+        assert answer.json()["settings"] == expected, key
+    typo = client.post(
+        "/api/strength",
+        json={"commander": COMMANDER, "settings": {**plain, "layer_weight": LAYERS_OFF}},
+        headers=HEADER,
+    )
+    assert typo.status_code == 422 and "layer_weight" in typo.text
+
+
+@pytest.mark.parametrize(
+    ("profile", "named"),
+    [
+        ("standard", []),
+        ("tempo", ["Gewichte der Bewertungsebenen"]),
+        ("pod", ["Pod-Größe"]),
+        ("beide", ["Gewichte der Bewertungsebenen", "Pod-Größe"]),
+    ],
+)
+def test_a_retired_value_that_differed_from_its_default_gives_one_calm_notice(
+    client: TestClient, tmp_path: Path, profile: str, named: list[str]
+) -> None:
+    """Auflage from the review of #1682: one notice, only when the dropped value differed from
+    its default (all layer weights 0, pod size 4), never a warning or an error."""
+    spec = {
+        "standard": {"layer_weights": LAYERS_OFF, "pod_size": 4},
+        "tempo": {"layer_weights": {**LAYERS_OFF, "tempo": 1.5}, "pod_size": 4},
+        "pod": {"layer_weights": LAYERS_OFF, "pod_size": 3},
+        "beide": {"layer_weights": {**LAYERS_OFF, "staying": 2.0}, "pod_size": 5},
+    }[profile]
+    store = StudioStore.open(tmp_path / "studio")
+    try:
+        store.connection.execute(
+            "INSERT INTO strength_profile(name, spec, created_at) VALUES (?, ?, 'x')",
+            (profile, json.dumps({"bracket": "cedh", **spec})),
+        )
+        store.connection.commit()
+        direct = strength_view.profile_notices(store, profile)
+    finally:
+        store.close()
+    answer = client.post(
+        "/api/strength", json={"commander": COMMANDER, "profile": profile}, headers=HEADER
+    )
+    assert answer.status_code == 200
+    found = [text for text in answer.json()["notices"] if RETIRED_NOTICE in text]
+    assert found == [text for text in direct if RETIRED_NOTICE in text]
+    if not named:
+        assert found == []
+        return
+    assert len(found) == 1
+    assert all(name in found[0] for name in named)
+    assert f"„{profile}“" in found[0]
+    assert not any(word in found[0] for word in ("Fehler", "Warnung", "ungültig"))
+    if len(named) == 1:
+        other = {"Gewichte der Bewertungsebenen", "Pod-Größe"} - set(named)
+        assert not any(name in found[0] for name in other)
+
+
+def test_the_rating_layers_route_is_gone_and_the_data_layers_stay(client: TestClient) -> None:
+    """Q1-b2 (#1677): ``/api/rating-layers`` answers 404; ``/api/layers`` (data layers, a
+    name trap) still answers."""
+    gone = client.get("/api/rating-layers", params={"commander": COMMANDER, "pod_size": 4})
+    assert gone.status_code == 404
+    data = client.get("/api/layers", params={"commander": COMMANDER})
+    assert data.status_code == 200 and data.json()["layers"]
+
+
 def test_the_page_names_a_pool_fallback_instead_of_a_null_group_size() -> None:
     from commander_lab.studio.web import STATIC
 
@@ -3390,8 +3502,7 @@ def test_the_weight_per_source_family_covers_every_component_exactly_once() -> N
     )
     families = strength.weight_families(settings)
     components = [name for family in families for name in family["components"]]
-    layer_components = [strength.layer_component(key) for key in strength.LAYER_KEYS]
-    assert sorted(components) == sorted([*strength.COMPONENTS, *layer_components])
+    assert sorted(components) == sorted(strength.COMPONENTS)
     assert len(components) == len(set(components))
     weighted = {name for name in components if settings.effective_weight(name) > 0}
     assert weighted
@@ -3420,9 +3531,9 @@ def test_the_weight_per_source_family_covers_every_component_exactly_once() -> N
     grown = {f["family"]: f for f in strength.weight_families(fallback)}
     assert grown["edhrec"]["effective_weight"] == 6.5
     assert grown["source_decks"]["share_of_total"] == pytest.approx(7.5 / 15.0, abs=1e-4)
-    # a rating layer with a weight is "other", never lost; no weight at all gives shares of 0
-    layered = StrengthSettings(layer_weights={**settings.layer_weights, "tempo": 1.0})
-    assert {f["family"]: f for f in strength.weight_families(layered)}["other"][
+    # a weighted "other" component is never lost; no weight at all gives shares of 0
+    other = StrengthSettings(weights={**settings.weights, strength.PLAYGROUP_OBSERVED: 1.0})
+    assert {f["family"]: f for f in strength.weight_families(other)}["other"][
         "effective_weight"
     ] == 1.0
     none = StrengthSettings(weights={name: 0.0 for name in strength.COMPONENTS})

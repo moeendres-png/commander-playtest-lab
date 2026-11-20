@@ -7,13 +7,19 @@ before and after a change.
 ``run``     copies the store template into a work folder (the template is only read; its files
             are hashed before and after and the run fails if anything changed), starts
             ``python -m commander_lab.studio serve`` from ``--src`` on a free local port against
-            the copy, asks the 30 read routes in ``read_requests`` ``--repeat`` times each and
+            the copy, asks the 29 read routes in ``read_requests`` ``--repeat`` times each and
             writes status, length and SHA-256 per answer as a manifest JSON. The manifest must
             lie outside the repository. The copy is deleted afterwards (``--keep-work`` keeps it).
 ``writes``  the optional write matrix: after each write (favorite, mark, label, draft, revision,
             primer, universe profile) the read routes plus ``observer_requests`` of the running
             server must equal those of a freshly started server on the same written copy.
 ``compare`` two ``run`` manifests; exit 0 if the inputs and every answer agree, 1 otherwise.
+``fields``  two JSON answers of one route (before and after a change that removes fields,
+            Q1-b2 #1677, inventory R5): exit 0 only if the key paths "before minus after" are
+            exactly the declared ``--removed`` paths and no key path was added; with
+            ``--values`` the answers must also be equal once the declared paths are pruned.
+            Key paths join object keys with ``/`` and write a list item as ``[]``
+            (``cards[]/layers``). A declared path counts with everything below it.
 
 Normalisation: only for fields shown to depend on the run, listed in ``NORMALIZATIONS``. Today
 that is ``image_cache.folder`` of ``GET /api/status``: the server reports the absolute folder of
@@ -32,6 +38,8 @@ Usage::
         [--src <checkout>/src] [--commander NAME] [--deck-id ID] [--repeat 2]
     python scripts/studio_response_manifest.py writes --store <template folder> --out <file>
     python scripts/studio_response_manifest.py compare <manifest A> <manifest B>
+    python scripts/studio_response_manifest.py fields <before.json> <after.json>
+        --removed <path> [--removed <path> ...] [--values]
 """
 
 from __future__ import annotations
@@ -122,7 +130,7 @@ def _q(value: str) -> str:
 
 
 def read_requests(inputs: DeckInputs) -> list[Request]:
-    """The 30 read routes (2 pages, 28 API answers). POST routes here compute and never write."""
+    """The 29 read routes (2 pages, 27 API answers). POST routes here compute and never write."""
     c = _q(inputs.commander)
     cards = inputs.card_entries()
     main = inputs.main_ids()
@@ -141,7 +149,6 @@ def read_requests(inputs: DeckInputs) -> list[Request]:
         Request("GET", f"/api/evidence?view=commander&commander={c}"),
         Request("GET", "/api/data-report"),
         Request("POST", "/api/strength", {"commander": inputs.commander}),
-        Request("GET", f"/api/rating-layers?commander={c}&pod_size=4"),
         Request("GET", f"/api/universe/options?commander={c}"),
         Request("GET", f"/api/universe/counted?commander={c}"),
         Request("GET", f"/api/roles/audit?commander={c}"),
@@ -178,7 +185,7 @@ def read_requests(inputs: DeckInputs) -> list[Request]:
 
 def observer_requests(inputs: DeckInputs) -> list[Request]:
     """Extra reads of the write matrix only: the routes that show the primer, the universe
-    profiles and the label list, which none of the 30 read routes reflects."""
+    profiles and the label list, which none of the 29 read routes reflects."""
     return [
         Request("GET", f"/api/decks/{_q(inputs.deck_id)}/primer"),
         Request("GET", "/api/universe/profiles"),
@@ -688,6 +695,87 @@ def compare_manifests(left: Mapping[str, object], right: Mapping[str, object]) -
     return differences
 
 
+# --- field comparison (answers that lose declared fields) -----------------------------------
+
+
+def key_paths(value: object, prefix: str = "") -> set[str]:
+    """Every key path of a JSON value: object keys joined by ``/``, a list item as ``[]`` (the
+    paths of all items are merged). Leaves have no path of their own."""
+    found: set[str] = set()
+    if isinstance(value, Mapping):
+        for key, item in value.items():
+            path = f"{prefix}/{key}" if prefix else str(key)
+            found.add(path)
+            found |= key_paths(item, path)
+    elif isinstance(value, list):
+        for item in value:
+            found |= key_paths(item, f"{prefix}[]")
+    return found
+
+
+def _top_paths(paths: set[str]) -> set[str]:
+    """The paths of ``paths`` none of whose ancestors is in ``paths`` too."""
+    return {
+        path
+        for path in paths
+        if not any(
+            path.startswith(other) and path[len(other) : len(other) + 1] in ("/", "[")
+            for other in paths
+            if other != path
+        )
+    }
+
+
+def field_check(before: object, after: object, removed: Sequence[str]) -> list[str]:
+    """Problems of a change that should only remove the ``removed`` key paths: a path added, a
+    path removed without being declared, a declared path still present or never there."""
+    old, new = key_paths(before), key_paths(after)
+    problems = [f"added: {path}" for path in sorted(_top_paths(new - old))]
+    gone = _top_paths(old - new)
+    declared = set(removed)
+    problems.extend(f"removed, not declared: {path}" for path in sorted(gone - declared))
+    for path in sorted(declared - gone):
+        state = "still present" if path in new else "not in the answer before"
+        problems.append(f"declared, {state}: {path}")
+    return problems
+
+
+def prune(value: object, removed: Sequence[str], prefix: str = "") -> object:
+    """``value`` without the key paths ``removed`` (and everything below them)."""
+    if isinstance(value, Mapping):
+        kept: dict[str, object] = {}
+        for key, item in value.items():
+            path = f"{prefix}/{key}" if prefix else str(key)
+            if path not in removed:
+                kept[str(key)] = prune(item, removed, path)
+        return kept
+    if isinstance(value, list):
+        return [prune(item, removed, f"{prefix}[]") for item in value]
+    return value
+
+
+def value_differences(left: object, right: object, prefix: str = "") -> list[str]:
+    """The paths where two JSON values differ (a list of another length counts once)."""
+    where = prefix or "<root>"
+    if isinstance(left, Mapping) and isinstance(right, Mapping):
+        found: list[str] = []
+        for key in sorted(set(left) | set(right), key=str):
+            path = f"{prefix}/{key}" if prefix else str(key)
+            if key not in left or key not in right:
+                found.append(path)
+            else:
+                found.extend(value_differences(left[key], right[key], path))
+        return found
+    if isinstance(left, list) and isinstance(right, list):
+        if len(left) != len(right):
+            return [f"{where} (length {len(left)} != {len(right)})"]
+        found = []
+        for index, (a, b) in enumerate(zip(left, right, strict=True)):
+            found.extend(value_differences(a, b, f"{prefix}[{index}]"))
+        return found
+    return [] if left == right and type(left) is type(right) else [where]
+
+
 def run_writes(
     context: RunContext, commander: str, deck_id: str, selected: Sequence[str]
 ) -> dict[str, object]:
@@ -827,8 +915,30 @@ def main(argv: list[str] | None = None) -> int:
     compare = commands.add_parser("compare", help="compare two run manifests (exit 1 if different)")
     compare.add_argument("left")
     compare.add_argument("right")
+    fields = commands.add_parser(
+        "fields", help="two answers differ only by the declared removed key paths (exit 1 if not)"
+    )
+    fields.add_argument("before")
+    fields.add_argument("after")
+    fields.add_argument("--removed", action="append", default=[], help="removed key path")
+    fields.add_argument(
+        "--values", action="store_true", help="also compare the values outside the removed paths"
+    )
     args = parser.parse_args(argv)
     try:
+        if args.command == "fields":
+            before = json.loads(Path(args.before).read_text(encoding="utf-8"))
+            after = json.loads(Path(args.after).read_text(encoding="utf-8"))
+            problems = field_check(before, after, args.removed)
+            if args.values:
+                pruned = prune(before, args.removed)
+                problems.extend(
+                    f"value differs: {path}" for path in value_differences(pruned, after)
+                )
+            for line in problems:
+                print(line)
+            print(f"{len(args.removed)} declared path(s), {len(problems)} problem(s)")
+            return 1 if problems else 0
         if args.command == "compare":
             left = json.loads(Path(args.left).read_text(encoding="utf-8"))
             right = json.loads(Path(args.right).read_text(encoding="utf-8"))

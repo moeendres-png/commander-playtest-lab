@@ -457,8 +457,6 @@ def test_the_usage_axis_is_dropped_when_the_index_carries_a_locked_signal() -> N
         {"effective_weights": {**answer["effective_weights"], "rubric": 1.0}},
         {"effective_weights": {**answer["effective_weights"], "simulation": 0.2}},
         {"effective_weights": None},
-        {"layer_summary": None},
-        {"layer_summary": {**answer["layer_summary"], "weighted": ["tempo"]}},
     ):
         after = overall_rating.with_overall(store, answer | patch, dataset=data, commander=CMD)  # type: ignore[arg-type]
         usage = after["overall_meta"]["usage_axis"]  # type: ignore[index]

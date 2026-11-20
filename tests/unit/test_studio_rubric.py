@@ -364,13 +364,12 @@ def test_rubric_rows_of_another_commander_are_not_read(store: StudioStore, tmp_p
 # ---------- defaults, presets and the rules that hold ----------
 
 
-def test_every_preset_keeps_the_rubric_at_zero_and_simulation_and_layers_too() -> None:
+def test_every_preset_keeps_the_rubric_at_zero_and_simulation_too() -> None:
     """E1.a of #1364: the rubric is subjective, its weight is 0 in the default and in every
     preset; the component, its importer and its column stay."""
     for name, settings in strength.PRESETS.items():
         assert settings.weights[strength.RUBRIC] == 0.0, name
         assert settings.weights[strength.SIMULATION] == 0.0, name
-        assert all(weight == 0.0 for weight in settings.layer_weights.values()), name
         assert settings.weights[strength.PLAYGROUP_OBSERVED] == 0.0, name
     assert strength.PRESETS["Ausgewogen"] == StrengthSettings()
     assert strength.DEFAULT_WEIGHTS[strength.RUBRIC] == 0.0

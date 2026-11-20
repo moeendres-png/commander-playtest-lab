@@ -184,7 +184,6 @@ KINDS: Final[Mapping[str, Kind]] = MappingProxyType(
         "answer:deck_browser": _ANSWER,
         "answer:evidence": _ANSWER,
         "answer:pool": _ANSWER,
-        "answer:rating_layers": _ANSWER,
         "answer:role_audit": _ANSWER,
         "answer:universe_counted": _ANSWER,
     }

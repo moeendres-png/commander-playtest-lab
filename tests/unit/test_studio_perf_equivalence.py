@@ -596,8 +596,6 @@ _ANSWER_ROUTES: list[tuple[str, dict[str, object], str]] = [
     ("/api/pool", {"commander": COMMANDER, "strength_bracket": "3"}, "object"),
     ("/api/evidence", {"view": "commander", "commander": COMMANDER}, "object"),
     ("/api/evidence", {"view": "global"}, "object"),
-    ("/api/rating-layers", {"commander": COMMANDER, "pod_size": 4}, "object"),
-    ("/api/rating-layers", {"commander": COMMANDER, "pod_size": 3}, "object"),
     ("/api/roles/audit", {"commander": COMMANDER}, "object"),
     ("/api/roles/audit", {}, "object"),
     ("/api/universe/counted", {"commander": COMMANDER}, "list"),
@@ -665,8 +663,8 @@ def test_remembered_answers_are_the_bytes_the_plain_routes_send(
         assert computed[1:] == [], (path, params)  # served from memory
         assert again.content == first.content, (path, params)
     # Errors are not remembered and keep their status.
-    assert client.get("/api/rating-layers", params={"commander": "Nobody"}).status_code == 404
-    assert client.get("/api/rating-layers", params={"commander": "Nobody"}).status_code == 404
+    assert client.get("/api/roles/audit", params={"commander": "Nobody"}).status_code == 404
+    assert client.get("/api/roles/audit", params={"commander": "Nobody"}).status_code == 404
     assert client.get("/api/evidence", params={"view": "commander"}).status_code == 422
 
 
