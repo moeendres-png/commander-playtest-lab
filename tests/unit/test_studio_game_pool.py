@@ -1110,6 +1110,9 @@ def test_a_failed_game_or_a_game_without_key_never_trips_the_guard(tmp_path: Pat
     record.record(task.game_id, {"status": "failed", "semantic_transcript_sha256": "c" * 64})
     record.record(unkeyed.game_id, {"status": "finished", "semantic_transcript_sha256": "d" * 64})
     record.record(unkeyed.game_id, {"status": "finished", "semantic_transcript_sha256": "e" * 64})
+    lines = record.journal_path.read_text(encoding="utf-8").splitlines()
+    assert len(lines) == 4  # all four results journaled, none of them a violation
+    assert set(_record(tmp_path, [task, unkeyed]).results()) == {task.game_id, unkeyed.game_id}
 
 
 def test_the_journal_counts_only_manifest_members_and_survives_a_cut_off_line(
