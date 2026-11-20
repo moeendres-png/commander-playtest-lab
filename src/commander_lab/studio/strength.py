@@ -81,7 +81,9 @@ from dataclasses import dataclass, field, replace
 from itertools import pairwise
 from typing import TypedDict
 
-SCHEMA = "studio-strength-1"
+# 2 (Q1-b5, #1680): the answer lost the relative tiers; a stored tier snapshot of schema 1 still
+# carries them, so it is part of the snapshot hash and comes back STALE, never as a HIT.
+SCHEMA = "studio-strength-2"
 DATA_CLASS = "DERIVED_DESCRIPTIVE"
 MEANING = (
     "Stärke-Index: eine Schätzung aus Nutzungssignalen (wie oft eine Karte bei diesem "
@@ -1919,79 +1921,6 @@ def tier_stability(
                 )
             ],
         }
-    return result
-
-
-# ---------- relative tiers inside the pool (an additional view, never the default) ----------
-
-# A SETTING, not a measurement: the percentile rank inside the ranked cards of the group decides
-# the relative tier. S is the top 3 %, A up to 10 %, B up to 25 %, C up to 50 %, D up to 75 %,
-# E up to 90 %, F the lowest 10 % by rank position. Lands and spells are ranked apart; only ranked
-# cards (tier S to D) count; cards with the same index share the tier of the best rank position of
-# their group of ties, so F can turn out smaller than 10 %. A group of fewer than
-# ``RELATIVE_MIN_GROUP`` ranked cards has no relative tier (a single card would be "F").
-RELATIVE_TIER_PERCENTILES: tuple[tuple[str, int], ...] = (
-    ("S", 3),
-    ("A", 10),
-    ("B", 25),
-    ("C", 50),
-    ("D", 75),
-    ("E", 90),
-)
-RELATIVE_TIER_LAST = "F"
-RELATIVE_TIERS = (*(name for name, _percent in RELATIVE_TIER_PERCENTILES), RELATIVE_TIER_LAST)
-RELATIVE_TIER_NOTE = "relativ im Pool, keine Aussage über Spielstärke"
-RELATIVE_TIER_F_NOTE = (
-    "F = die untersten 10 % nach Rangposition; bei Gleichstand teilt die ganze Gruppe die Stufe "
-    "der besten Rangposition, daher kann F kleiner ausfallen"
-)
-RELATIVE_MIN_GROUP = 10
-RELATIVE_GROUP_SPELLS = "spells"
-RELATIVE_GROUP_LANDS = "lands"
-
-
-class RelativeRank(TypedDict):
-    """Rank ``rank`` of ``total`` ranked cards of the group (``spells`` or ``lands``)."""
-
-    rank: int
-    total: int
-    group: str
-
-
-def relative_tier_for(rank: int, total: int) -> str | None:
-    """The relative tier of a card at ``rank`` (1 = best) of ``total``: the first tier whose
-    percentage covers ``rank / total`` (integer arithmetic, so a limit is exact). ``None`` for a
-    group of fewer than ``RELATIVE_MIN_GROUP`` ranked cards."""
-    if total < RELATIVE_MIN_GROUP:
-        return None
-    for name, percent in RELATIVE_TIER_PERCENTILES:
-        if rank * 100 <= percent * total:
-            return name
-    return RELATIVE_TIER_LAST
-
-
-def relative_tiers(
-    entries: Mapping[str, tuple[float, bool]],
-) -> dict[str, tuple[str | None, RelativeRank]]:
-    """Per card of ``entries`` (card -> (index, is land); only ranked cards) its relative tier and
-    ``RelativeRank``. Lands and spells are ranked apart; equal indexes share the best rank of
-    their group of ties (competition ranking: 1, 2, 2, 4) and therefore the same tier."""
-    result: dict[str, tuple[str | None, RelativeRank]] = {}
-    for is_land, group in ((False, RELATIVE_GROUP_SPELLS), (True, RELATIVE_GROUP_LANDS)):
-        members = sorted(
-            ((index, card) for card, (index, land) in entries.items() if land == is_land),
-            key=lambda item: (-item[0], item[1]),
-        )
-        total = len(members)
-        rank = 0
-        previous: float | None = None
-        for position, (index, card) in enumerate(members, start=1):
-            if previous is None or index != previous:
-                rank, previous = position, index
-            result[card] = (
-                relative_tier_for(rank, total),
-                {"rank": rank, "total": total, "group": group},
-            )
     return result
 
 

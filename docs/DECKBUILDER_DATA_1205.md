@@ -28,7 +28,7 @@ vermischt.
   nie ein geratener Tier. Jede Tier-Zeile trägt Treffer, Nenner, Anteil, Snapshot-ID
   und Parametersatz (Aufschlüsselung). Die Default-Werte im Code sind Platzhalter,
   keine Befunde; Salt-Score und Preis sind keine Tier-Signale.
-- CLI: `import-decklists`, `save-profile`, `profiles`, `universe-inclusion`, `tiers`
+- CLI: `import-decklists`, `save-profile`, `profiles`, `universe-inclusion` (das frühere `tiers` entfiel mit den Verbreitungs-Buchstaben, Q1-b5 #1680)
   (`python -m commander_lab.studio …`).
 
 ## Datenbasis (lokal beschafft, Stand 2026-11-12)

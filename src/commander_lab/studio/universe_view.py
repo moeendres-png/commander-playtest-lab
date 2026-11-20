@@ -1,10 +1,11 @@
 """The deck universe as the browser shows it: per-card counted spread and co-occurrence.
 
 Everything here is a plain count over one stored universe profile (see ``universe.py``),
-with its denominator and its origin (profile, snapshot). The spread level (S-D, or U) is
-the tier function of ``tiers.py`` applied to the inclusion share. It measures how often a
-card is played in the chosen decks, not how strong it is: it does not touch the evidence
-model or its unrated policy, and favourites, excludes and notes are never read here.
+with its denominator and its origin (profile, snapshot): ``hits`` of ``denominator`` decks,
+the share and a mechanical reason code (``tiers.spread_reason``), no level letter (Q1-b5,
+#1680: the only lettered scale is the strength index). It measures how often a card is played
+in the chosen decks, not how strong it is: it does not touch the evidence model or its unrated
+policy, and favourites, excludes and notes are never read here.
 
 Name mapping: universe counts are keyed by the raw ``card_name`` of the imported decks.
 A Studio card's name keys are its oracle name and its engine name, plus the front face of
@@ -14,8 +15,8 @@ flagged ``ambiguous_front_face``). Keys are compared case-insensitively
 least one of its keys, so a deck listing two spellings counts once and spellings are never
 summed; every raw spelling is still listed with its own deck count, and ``matched_name`` is
 the spelling with the most decks. When no key occurs in the universe, absence cannot be
-told from a spelling mismatch, so the card is reported as unmatched: level ``U``, share
-``None``, never a zero.
+told from a spelling mismatch, so the card is reported as unmatched: share ``None``
+("unbekannt"), never a zero.
 """
 
 from __future__ import annotations
@@ -30,7 +31,7 @@ from typing import NotRequired, TypedDict, cast
 from .cache import cached
 from .sources import load_spellbook_combo_partners
 from .store import StudioStore
-from .tiers import LEVEL_NAMES, MODEL_VERSION, TierParams, TierParamsDict, tier_for_share
+from .tiers import MODEL_VERSION, TierParams, TierParamsDict, spread_reason
 from .universe import (
     UniverseDecks,
     UniverseSpec,
@@ -50,7 +51,6 @@ _COMBOS_PATH = Path(__file__).resolve().parents[3] / "data" / "meta" / "spellboo
 NAME_NOT_FOUND = "NAME_NOT_FOUND_IN_UNIVERSE"
 UNIVERSE_EMPTY = "UNIVERSE_EMPTY"
 FILTER_CARD = "FILTER_CARD"
-LEVEL_FILTER_CARD = "F"
 MEANING = (
     "Verbreitung (gezählt): in wie vielen Decks des gewählten Universums die Karte steht. "
     "Das ist keine Kartenstärke und kein Tier der Bewertung."
@@ -104,8 +104,6 @@ class CardSpread(TypedDict):
     hits: int | None
     denominator: int
     share: float | None
-    level: str
-    level_name: str
     reason: str
     spellings: list[Spelling]
     ambiguous_front_face: NotRequired[bool]
@@ -364,8 +362,6 @@ def _spread_of(entry: _Entry, context: _Context, params: TierParams) -> CardSpre
         "hits": len(union) if union else None,
         "denominator": denominator,
         "share": None,
-        "level": "U",
-        "level_name": LEVEL_NAMES["U"],
         "reason": UNIVERSE_EMPTY if denominator == 0 else NAME_NOT_FOUND,
         "spellings": entry.spellings,
     }
@@ -374,14 +370,13 @@ def _spread_of(entry: _Entry, context: _Context, params: TierParams) -> CardSpre
     if union:
         share = len(union) / denominator if denominator else None
         result["share"] = share
-        result["level"], result["reason"] = tier_for_share(share, denominator, params)
+        result["reason"] = spread_reason(share, denominator, params)
     if result["filter_card"]:
         # A card the universe requires is in every deck of the subset by definition
-        # (share 2/2): that is the filter speaking, not the decks, so it gets no share and
-        # no level. The deck count stays visible; the page labels it as a filter card.
+        # (share 2/2): that is the filter speaking, not the decks, so it gets no share.
+        # The deck count stays visible; the page labels it as a filter card.
         result["share"] = None
-        result["level"], result["reason"] = LEVEL_FILTER_CARD, FILTER_CARD
-    result["level_name"] = LEVEL_NAMES.get(result["level"], result["level"])
+        result["reason"] = FILTER_CARD
     return result
 
 
@@ -725,7 +720,6 @@ def card_cooccurrence(
 
 __all__ = [
     "FILTER_CARD",
-    "LEVEL_FILTER_CARD",
     "NAME_CLASS_ENGINE",
     "NAME_CLASS_FRONT_FACE",
     "NAME_CLASS_ORACLE",

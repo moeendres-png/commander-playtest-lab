@@ -375,10 +375,11 @@ def test_tierliste_and_builder_ui_contracts_for_issue_1307() -> None:
     assert "/api/pool?" not in tier_js
     assert 'apiView === "commander"' in tier_js
 
-    # tierliste.js shows German empty universe badge, level_name, deck summary, bodyless DELETE
+    # tierliste.js shows German empty universe badge, deck summary, bodyless DELETE; the spread
+    # has no level name any more (Q1-b5, #1680): it is n of N decks through zahl.js
     assert 'id: "universe-empty"' in tier_js
     assert "UNIVERSE_EMPTY" in tier_js and "NO_SOURCE_DECKS_FOR_COMMANDER" in tier_js
-    assert "item.level_name || item.level" in tier_js
+    assert "level_name" not in tier_js and "StudioZahl.knoten(h, spreadFigure(" in tier_js
     assert "im Deck von ${nf(summary.cards)} legalen Karten." in tier_js
     assert "Gespeicherte Einstellung „${p.name}“ geladen und berechnet" in tier_js
     assert (
@@ -388,17 +389,15 @@ def test_tierliste_and_builder_ui_contracts_for_issue_1307() -> None:
         'api(`/api/universe/profiles/${encodeURIComponent(name)}`, undefined, "DELETE")' in tier_js
     )
 
-    # tierliste.html uses German spread names
+    # tierliste.html filters the spread in German words, without level letters (Q1-b5, #1680)
     for expected in (
-        "Verbreitung: sehr häufig (S)",
-        "Verbreitung: häufig (A)",
-        "Verbreitung: gelegentlich (B)",
-        "Verbreitung: selten (C)",
-        "Verbreitung: sehr selten (D)",
-        "Verbreitung: unbekannt (U)",
+        "Verbreitung: alle",
+        "Verbreitung: gezählt",
+        "Verbreitung: unbekannt",
         "Verbreitung: Filterkarten",
     ):
         assert expected in html
+    assert "Verbreitung: sehr häufig (S)" not in html and "(U)</option>" not in html
 
     # app.js sends optimistic concurrency check and surfaces 409 conflict without inline styles
     assert "check_conflict: true" in app_js

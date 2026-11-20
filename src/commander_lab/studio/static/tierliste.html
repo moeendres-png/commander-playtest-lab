@@ -47,15 +47,11 @@
     <option value="lands">nur Länder</option>
   </select>
   <select id="role-filter" aria-label="Rolle"></select>
-  <select id="spread-filter" aria-label="Verbreitungs-Stufe" title="Nach gezählter Verbreitungs-Stufe im gewählten Universum filtern">
-    <option value="">Verbreitung: alle Stufen</option>
-    <option value="S">Verbreitung: sehr häufig (S)</option>
-    <option value="A">Verbreitung: häufig (A)</option>
-    <option value="B">Verbreitung: gelegentlich (B)</option>
-    <option value="C">Verbreitung: selten (C)</option>
-    <option value="D">Verbreitung: sehr selten (D)</option>
-    <option value="U">Verbreitung: unbekannt (U)</option>
-    <option value="F">Verbreitung: Filterkarten</option>
+  <select id="spread-filter" aria-label="Verbreitung" title="Nach der gezählten Verbreitung im gewählten Universum filtern (n von N Decks, keine Stufe)">
+    <option value="">Verbreitung: alle</option>
+    <option value="counted">Verbreitung: gezählt</option>
+    <option value="unknown">Verbreitung: unbekannt</option>
+    <option value="filter">Verbreitung: Filterkarten</option>
   </select>
   <span id="col-controls" class="col-controls"></span>
   <span id="ranking-toggle" class="quick-toggle" role="group" aria-label="Ranking der Tabelle">
@@ -66,11 +62,6 @@
     <span class="toggle-label">Vergleich:</span>
     <button id="rg-pool" type="button" class="chip" data-rank-group="pool" title="Stufe und Index gelten im gesamten legalen Pool des Commanders">Gesamtpool</button>
     <button id="rg-function" type="button" class="chip" data-rank-group="function" title="Zusätzlich den Rang innerhalb der gleichen Funktion (Rolle) zeigen: Rang k von n. Die Stufe bleibt die Stufe im Gesamtpool.">Gleiche Funktion</button>
-  </span>
-  <span id="tier-mode-toggle" class="quick-toggle" role="group" aria-label="Stufen-Bezug">
-    <span class="toggle-label">Stufe:</span>
-    <button id="tm-abs" type="button" class="chip" data-tier-mode="absolute" title="Absolute Stufen S bis D aus dem Stärke-Index">Absolut (S–D)</button>
-    <button id="tm-rel" type="button" class="chip" data-tier-mode="relative" title="Relative Stufen S bis F nach Perzentilen innerhalb des Commander-Pools">Relativ (S–F)</button>
   </span>
   <label><input id="f-free" type="checkbox" checked> nur freie</label>
   <label><input id="f-fav" type="checkbox"> Favoriten</label>

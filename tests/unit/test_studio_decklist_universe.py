@@ -5,6 +5,7 @@ All decks here are invented. No network, no engine.
 
 from __future__ import annotations
 
+import argparse
 import json
 import sqlite3
 from pathlib import Path
@@ -372,13 +373,14 @@ def test_snapshot_changes_when_a_decks_cards_change(store: StudioStore, tmp_path
 def test_tier_params_keep_an_explicitly_empty_cut_list() -> None:
     params = tiers.TierParams.from_dict({"cuts": [], "min_universe": 5})
     assert params.cuts == ()
-    tier, reason = tiers.tier_for_share(0.9, 10, params)
-    assert (tier, reason) == ("D", "BELOW_LOWEST_CUT")
+    assert tiers.spread_reason(0.9, 10, params) == "BELOW_LOWEST_CUT"
     defaulted = tiers.TierParams.from_dict({"min_universe": 5})
     assert defaulted.cuts == tiers.TierParams().cuts
 
 
-def test_tiers_are_pure_counts_with_a_u_state(store: StudioStore, tmp_path: Path) -> None:
+def test_spread_reasons_are_pure_counts_without_a_level(store: StudioStore, tmp_path: Path) -> None:
+    # Q1-b5 (#1680, E2): the counted spread has no level letters any more, only n of N with the
+    # mechanical reason code; below ``min_universe`` the share is unknown, nothing is guessed.
     for index in range(4):
         _edhrec_file(
             tmp_path,
@@ -389,24 +391,16 @@ def test_tiers_are_pure_counts_with_a_u_state(store: StudioStore, tmp_path: Path
     decklist_import.import_decklists(store, tmp_path, format="edhrec")
     counted = universe.inclusion(store, commander_names=None)
     snapshot = universe.snapshot_id(store, commander_names=None)
-    params = tiers.TierParams(min_universe=30)
-    result = {
-        row["card_name"]: row
-        for row in tiers.tiers_for_universe(counted, universe_snapshot=snapshot, params=params)
-    }
-    # Four decks are below the minimum universe of 30: everything is U, nothing guessed.
-    assert {row["tier"] for row in result.values()} == {"U"}
-    assert result["Sol Ring"]["reason"] == "UNIVERSE_TOO_SMALL"
-
+    rows = {row["card_name"]: row for row in counted["rows"]}
+    assert (rows["Sol Ring"]["hits"], rows["Sol Ring"]["denominator"]) == (4, 4)
+    assert (rows["Rare Card"]["hits"], rows["Rare Card"]["denominator"]) == (1, 4)
+    # Four decks are below the minimum universe of 30.
+    assert tiers.spread_reason(1.0, 4, tiers.TierParams(min_universe=30)) == "UNIVERSE_TOO_SMALL"
     params = tiers.TierParams(min_universe=4, cuts=(("S", 0.9), ("A", 0.5)))
-    result = {
-        row["card_name"]: row
-        for row in tiers.tiers_for_universe(counted, universe_snapshot=snapshot, params=params)
-    }
-    assert result["Sol Ring"]["tier"] == "S"  # 4/4 decks
-    assert result["Rare Card"]["tier"] == "D"  # 1/4 decks, below the lowest cut
-    assert result["Rare Card"]["share"] == 0.25
-    assert result["Rare Card"]["universe_snapshot"] == snapshot
+    assert tiers.spread_reason(1.0, 4, params) == "SHARE_CUT"
+    assert tiers.spread_reason(0.25, 4, params) == "BELOW_LOWEST_CUT"
+    assert tiers.spread_reason(None, 4, params) == "DENOMINATOR_MISSING"
+    assert not hasattr(tiers, "tiers_for_universe") and not hasattr(tiers, "LEVEL_NAMES")
 
     # A new deck changes the snapshot: figures counted later cite a different universe.
     _edhrec_file(tmp_path, "d4", [(CHULANE, 1)])
@@ -509,12 +503,6 @@ def test_pooled_universe_reports_its_composition(store: StudioStore, tmp_path: P
     counted = universe.inclusion(store, commander_names=None)
     assert counted["denominator_by_platform"] == {"archidekt": 1, "edhrec": 2}
     assert counted["denominator_by_bracket"] == {"bracket:3": 2, "bracket:4": 1}
-    snapshot = universe.snapshot_id(store, commander_names=None)
-    row = tiers.tiers_for_universe(
-        counted, universe_snapshot=snapshot, params=tiers.TierParams(min_universe=1)
-    )[0]
-    assert row["denominator_by_platform"] == {"archidekt": 1, "edhrec": 2}
-    assert row["denominator_by_bracket"] == {"bracket:3": 2, "bracket:4": 1}
     co = universe.cooccurrence(store, "Sol Ring", commander_names=None)
     assert co["denominator"] == 3
     assert co["denominator_by_platform"] == {"archidekt": 1, "edhrec": 2}
@@ -860,11 +848,13 @@ def test_a_profile_min_universe_grades_a_small_universe(store: StudioStore, tmp_
     loose = universe_view.pool_spread(store, "locker", commander_names=None)
     strict_sol = next(card for card in strict["cards"] if card["name"] == "Sol Ring")
     loose_sol = next(card for card in loose["cards"] if card["name"] == "Sol Ring")
-    # Three decks are below the model default of 30: U. The profile's own minimum of 3 grades.
-    assert strict_sol["level"] == "U" and strict_sol["reason"] == "UNIVERSE_TOO_SMALL"
+    # Three decks are below the model default of 30: unknown. The profile's own minimum of 3
+    # counts them. No level letter in either answer (Q1-b5, #1680).
+    assert strict_sol["reason"] == "UNIVERSE_TOO_SMALL"
     assert strict["universe"]["below_min_universe"] is True
     assert strict["params"]["min_universe"] == 30
-    assert loose_sol["level"] == "S" and loose_sol["hits"] == 3
+    assert loose_sol["reason"] == "SHARE_CUT" and loose_sol["hits"] == 3
+    assert "level" not in strict_sol and "level_name" not in loose_sol
     assert loose["universe"]["below_min_universe"] is False
     assert loose["params"]["min_universe"] == 3
     # The cuts are model constants: identical in both, and the model version is reported.
@@ -921,7 +911,7 @@ def test_cooccurrence_pairs_carry_lift_and_combo_partners(
     assert "Delta Card" not in pairs
 
 
-def test_cli_save_profile_flags_and_tiers_fallback(
+def test_cli_save_profile_flags_and_universe_inclusion(
     tmp_path: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
     from commander_lab.studio.__main__ import main
@@ -957,32 +947,31 @@ def test_cli_save_profile_flags_and_tiers_fallback(
     assert saved["spec"]["commanders"] == [CHULANE]
     assert saved["spec"]["min_universe"] == 3
 
-    # Without --min-universe the tiers command uses the profile's own minimum (3):
-    # three decks are enough, Sol Ring (3 of 3) is graded instead of U.
-    assert main(["--data", str(folder), "tiers", "--profile", "cli", "--commander", CHULANE]) == 0
-    result = json.loads(capsys.readouterr().out)
-    sol = next(row for row in result["tiers"] if row["card_name"] == "Sol Ring")
-    assert sol["tier"] == "S"
-    # An explicit flag wins over the profile value.
+    # The counted spread on the command line is n of N (universe-inclusion); the former
+    # ``tiers`` command with its level letters fell with Q1-b5 (#1680, E2).
     assert (
         main(
             [
                 "--data",
                 str(folder),
-                "tiers",
+                "universe-inclusion",
                 "--profile",
                 "cli",
                 "--commander",
                 CHULANE,
-                "--min-universe",
-                "30",
+                "--card",
+                "Sol Ring",
             ]
         )
         == 0
     )
     result = json.loads(capsys.readouterr().out)
-    sol = next(row for row in result["tiers"] if row["card_name"] == "Sol Ring")
-    assert sol["tier"] == "U"
+    sol = next(row for row in result["rows"] if row["card_name"] == "Sol Ring")
+    assert (sol["hits"], sol["denominator"]) == (3, 3)
+    assert "tier" not in sol
+    with pytest.raises((SystemExit, argparse.ArgumentError)):
+        main(["--data", str(folder), "tiers", "--profile", "cli", "--commander", CHULANE])
+    capsys.readouterr()
 
     with pytest.raises(ValueError, match="unknown universe platform"):
         main(["--data", str(folder), "save-profile", "bad", "--platform", "nope"])
