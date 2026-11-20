@@ -81,7 +81,7 @@ TAM_LOCK = (
     "TAM: kein Simulations-Abzeichen vor der Zählung der Sim-Bereitschaft je Kohorte (E15 Q3)"
 )
 METHOD = (
-    "Urteil bei Schwelle 0, zweiseitig, aus den gespeicherten Paaren: Vorzeichentest über die "
+    "Ergebnis bei Schwelle 0, zweiseitig, aus den gespeicherten Paaren: Vorzeichentest über die "
     "diskordanten Paare und Seed-Cluster-t-Test (full_game_comparison.effective_p_value) auf "
     "dem Niveau decision_alpha der Serie; Holm (full_game_comparison._apply_holm) über alle "
     "Bestätigungen desselben Decks mit derselben Basis und demselben Tisch-Hash."
@@ -211,13 +211,13 @@ def verdict_of(
     """The four-step verdict and its text; a decided verdict against the stored sign, or an
     unknown detectable difference, is not evaluable (never "ab 0 pp")."""
     if entry is None:
-        return NOT_EVALUABLE, "nicht auswertbar (keine Urteilsbasis)"
+        return NOT_EVALUABLE, "nicht auswertbar (keine Auswertungsbasis)"
     if entry.verdict in ("VARIANT_BETTER", "BASELINE_BETTER"):
         sign = 1.0 if entry.verdict == "VARIANT_BETTER" else -1.0
         if stored_difference_pp is None or stored_difference_pp * sign <= 0:
             return (
                 NOT_EVALUABLE,
-                "nicht auswertbar (Urteil widerspricht der gespeicherten Differenz)",
+                "nicht auswertbar (Ergebnis widerspricht der gespeicherten Differenz)",
             )
         if sign > 0:
             return BETTER, "belegt besser (B gegenüber A)"
@@ -353,7 +353,7 @@ def _one(
     jar_list = [s for s in shas if isinstance(s, str)] if isinstance(shas, list) else []
     conditions = [
         _condition(R0, "Serie zählt als Ergebnis", counted, "Serie zählt nicht als Ergebnis"),
-        _condition(R0, "Urteil auswertbar", verdict != NOT_EVALUABLE, verdict_text),
+        _condition(R0, "Ergebnis auswertbar", verdict != NOT_EVALUABLE, verdict_text),
         _condition(
             R1,
             "Bestätigung mit intaktem Plan",
@@ -412,10 +412,10 @@ def _one(
     if holm_entry is not None:
         notes.append(
             f"Holm-Familie: {holm_entry[1]} Bestätigung(en) mit derselben Basis und demselben "
-            "Tisch; eine spätere Bestätigung derselben Familie kann dieses Urteil zurückhalten"
+            "Tisch; eine spätere Bestätigung derselben Familie kann dieses Ergebnis zurückhalten"
         )
         if holm_entry[0].holm_withheld_verdict is not None:
-            notes.append("Urteil durch Holm zurückgehalten")
+            notes.append("Ergebnis durch Holm zurückgehalten")
     if entry.get("experiment") is None:
         notes.append("Alt-Serie ohne Plan: höchstens R0")
     return {

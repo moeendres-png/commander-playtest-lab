@@ -218,7 +218,7 @@ def test_a_later_confirmation_of_the_same_family_withholds_the_verdict() -> None
     assert alone["a"]["urteil"] == m.BETTER and alone["a"]["stufe"] == m.R1
     both = _assess(_finding("a"), _finding("b", variant="rev-var2", first_seed=600))
     assert both["a"]["urteil"] == m.NO_DIFFERENCE  # 2 * 0.03125 = 0.0625 >= 0.05
-    assert "Urteil durch Holm zurückgehalten" in both["a"]["hinweise"]  # type: ignore[operator]
+    assert "Ergebnis durch Holm zurückgehalten" in both["a"]["hinweise"]  # type: ignore[operator]
     assert any("Holm-Familie: 2" in h for h in both["a"]["hinweise"])  # type: ignore[union-attr]
     # another table is another family: never pooled
     apart = _assess(
@@ -379,7 +379,7 @@ const text = (n) => typeof n === "string" ? n : n.kids.map(text).join("");
 const pills = (n) => typeof n === "string" ? [] : [...(n.attrs.class === "pill good" ? [text(n)] : []), ...n.kids.flatMap(pills)];
 globalThis.StudioUI = { num: (v) => String(v) };
 vm.runInThisContext(fs.readFileSync(__SERIES__, "utf8"));
-const base = { stufe: null, stufe_text: "kein Reifegrad (Beleg fehlt)", urteil_text: "nicht auswertbar (keine Urteilsbasis)",
+const base = { stufe: null, stufe_text: "kein Reifegrad (Beleg fehlt)", urteil_text: "nicht auswertbar (keine Auswertungsbasis)",
   n: 4, N: 4, bezug: "Paare (abgeschlossen / geplant)", stand: { bezug: "anderer_stand", text: "Befund zu einem anderen Stand (nicht der aktuelle)" },
   empfehlungsfaehig: false, empfehlungsfaehig_gruende: ["Reifegrad unter R2"], hinweise: [] };
 const none = deckSeriesEvidence(h, base);

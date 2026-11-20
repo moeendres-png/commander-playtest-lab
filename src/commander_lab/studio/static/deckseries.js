@@ -19,7 +19,7 @@ function deckSeriesEvidence(h, befund) {
   const pairs = befund.n === null || befund.N === null ? "Paare unbekannt" : `n/N ${StudioUI.num(befund.n)} / ${StudioUI.num(befund.N)} ${befund.bezug}`;
   return h("div", { class: "evidence-row" },
     befund.stufe ? h("span", { class: "pill good" }, befund.stufe_text) : h("span", { class: "muted" }, befund.stufe_text),
-    h("div", {}, `Urteil (simuliert): ${befund.urteil_text} · ${pairs}`),
+    h("div", {}, `Ergebnis (simuliert): ${befund.urteil_text} · ${pairs}`),
     h("div", { class: befund.stand.bezug === "aktuell" ? "" : "muted" }, befund.stand.text),
     befund.empfehlungsfaehig
       ? h("div", {}, h("span", { class: "pill good" }, "empfehlungsfähig"))
@@ -118,7 +118,7 @@ async function renderDeckSeries(slot, historyRows, deps) {
     return;
   }
   const note = h("p", { class: "note note-compact" },
-    "SIMULATED_RESULT: Zählwerte gespeicherter Serien (gleiche Seeds, Sitze und Gegner-Tisch) mit Reifegrad R0–R3 und Urteil in vier Stufen je Serie (simuliert, nie mit EDHREC-, Playgroup- oder Turnier-Zahlen summiert), kein Teil der Tierliste. Nicht abgeschlossene oder abgebrochene Serien zählen nicht als Ergebnis und tragen keinen Reifegrad.",
+    "SIMULATED_RESULT: Zählwerte gespeicherter Serien (gleiche Seeds, Sitze und Gegner-Tisch) mit Reifegrad R0–R3 und Ergebnis in vier Stufen je Serie (simuliert, nie mit EDHREC-, Playgroup- oder Turnier-Zahlen summiert), kein Teil der Tierliste. Nicht abgeschlossene oder abgebrochene Serien zählen nicht als Ergebnis und tragen keinen Reifegrad.",
     data.reifegrad && data.reifegrad.tam_sperre ? ` ${data.reifegrad.tam_sperre}.` : "",
     data.reifegrad ? ` ${data.reifegrad.luecken.join(" ")}` : "",
     data.skipped ? ` ${StudioUI.num(data.skipped)} nicht lesbare oder fremde Ergebnisdateien übersprungen.` : "",
