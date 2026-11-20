@@ -55,6 +55,20 @@ def deck_revision_ids(store: StudioStore, deck_id: str) -> list[str] | None:
     ]
 
 
+def revision_hashes(store: StudioStore, revision_ids: list[str]) -> dict[str, str]:
+    """Deck hash of each of ``revision_ids`` (read-only); unknown ids are left out."""
+    found: dict[str, str] = {}
+    for start in range(0, len(revision_ids), 500):
+        chunk = revision_ids[start : start + 500]
+        marks = ",".join("?" * len(chunk))
+        for row in store.connection.execute(
+            f"SELECT revision_id, deck_hash FROM deck_revision WHERE revision_id IN ({marks})",
+            chunk,
+        ):
+            found[str(row[0])] = str(row[1])
+    return found
+
+
 def _as_int(value: object) -> int | None:
     return value if isinstance(value, int) and not isinstance(value, bool) else None
 

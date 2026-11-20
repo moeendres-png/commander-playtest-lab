@@ -6,6 +6,8 @@
 // unknown stays text, never 0. Simulation results are never part of the tier list.
 // DOM only through h() / StudioUI.h and text nodes; numbers only through StudioUI.num.
 // Rendered by app.js (history dialog) through renderDeckSeries(slot, rows, deps).
+// The difference B − A is shown through the number contract (zahl.js, #1659) as SIMULIERT, with
+// n/N pairs, the deck hashes of both states and the pilot origin; without a contract the old text.
 
 const DECK_SERIES_STATUS_CLASS = {
   completed: "good", stopped_early: "good", cancelled: "warn", failed: "bad", incomplete: "warn",
@@ -29,7 +31,8 @@ function deckSeriesRefLabel(ref, labels) {
   return "andere Revision";
 }
 
-function deckSeriesCells(h, item, role, deps, labels) {
+function deckSeriesCells(h, item, role, deps, labels, zahlen) {
+  const zahl = zahlen ? zahlen.get(`series.${item.series_id}.difference_pp`) : undefined;
   const other = role === "base" ? item.variant_ref : item.base_ref;
   const planned = item.pairs_planned === null ? "unbekannt" : StudioUI.num(item.pairs_planned);
   const counted = item.counts_as_result;
@@ -38,7 +41,7 @@ function deckSeriesCells(h, item, role, deps, labels) {
     : `kein Ergebnis (${StudioUI.num(item.pairs_attempted)} von ${planned} Paaren begonnen)`;
   const figures = counted
     ? [
-      h("div", {}, `Differenz (B − A): ${deckSeriesPp(item.difference_pp)}`),
+      zahl ? h("div", {}, "Differenz (B − A): ", StudioZahl.knoten(h, zahl)) : h("div", {}, `Differenz (B − A): ${deckSeriesPp(item.difference_pp)}`),
       h("div", {}, `95 %-Intervall: ${deckSeriesInterval(item.difference_ci95_pp)}`),
       h("div", {}, `Look-Intervall${item.decision_level_pct === null ? "" : ` (${StudioUI.num(item.decision_level_pct, 1)} %)`}: ${deckSeriesInterval(item.decision_ci_pp)}`),
       ...(item.pairs_censored ? [h("div", { class: "muted" }, `${StudioUI.num(item.pairs_censored)} Paare zensiert`)] : []),
@@ -64,6 +67,7 @@ function deckSeriesCells(h, item, role, deps, labels) {
 
 function deckSeriesTable(h, data, historyRows, deps) {
   const byId = new Map(data.series.map((item) => [item.series_id, item]));
+  const zahlen = StudioZahl.index(data.zahlen);
   const labels = new Map(historyRows.map((row) => [row.revision_id, `Stand ${deckSeriesDate(row.created_at)}${row.branch ? ` (${row.branch})` : ""}`]));
   const rows = [];
   for (const rev of historyRows) {
@@ -74,7 +78,7 @@ function deckSeriesTable(h, data, historyRows, deps) {
       continue;
     }
     refs.forEach((ref, index) => {
-      const cells = deckSeriesCells(h, byId.get(ref.series_id), ref.role, deps, labels);
+      const cells = deckSeriesCells(h, byId.get(ref.series_id), ref.role, deps, labels, zahlen);
       rows.push(h("tr", {}, ...(index === 0 ? [stand] : []), ...cells));
     });
   }

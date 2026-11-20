@@ -512,6 +512,33 @@ _SETTINGS_KEYS = frozenset(
 )
 
 
+# Q1-b (#1665, Charta v2 E15 Q1): settings keys a later version RETIRED. Reading settings
+# (``from_dict``, ``from_stored``: stored profiles, remembered browser settings, API bodies)
+# accepts and drops exactly these keys, so a profile saved before a key fell stays valid; every
+# OTHER unknown key still raises, so a typo stays visible. Grouped by where the key sits:
+# ``weights`` (component names), ``min_denominators`` and ``top_level`` (settings keys). A key
+# moves here in the same change that removes it from the live keys (never both at once).
+RETIRED_WEIGHTS = "weights"
+RETIRED_MIN_DENOMINATORS = "min_denominators"
+RETIRED_TOP_LEVEL = "top_level"
+RETIRED_SETTING_KEYS: Mapping[str, frozenset[str]] = {
+    RETIRED_WEIGHTS: frozenset(),
+    RETIRED_MIN_DENOMINATORS: frozenset(),
+    RETIRED_TOP_LEVEL: frozenset(),
+}
+
+
+def _retired(group: str) -> frozenset[str]:
+    """The retired keys of one group, read at call time."""
+    return RETIRED_SETTING_KEYS.get(group, frozenset())
+
+
+def _without_retired(values: Mapping[str, object], group: str) -> dict[str, object]:
+    """``values`` without the keys of ``group`` that a later version retired."""
+    retired = _retired(group)
+    return {key: value for key, value in values.items() if str(key) not in retired}
+
+
 # The combos component can read either the commander's EDHREC combo deck counts (default,
 # ``commander``) or the Spellbook quality mixture across the three commander-independent
 # signals below (``spellbook``). In Spellbook mode, the first part is the primary signal and
@@ -811,16 +838,18 @@ class StrengthSettings:
     @classmethod
     def from_stored(cls, raw: Mapping[str, object]) -> tuple[StrengthSettings, list[str]]:
         """Settings of a STORED profile: top-level keys this version does not know (a profile
-        written by another version) are ignored and returned, sorted; invalid VALUES still
+        written by another version) are ignored and returned, sorted; retired keys
+        (``RETIRED_SETTING_KEYS``) are dropped without being named; invalid VALUES still
         raise ValueError."""
-        unknown = sorted(set(raw) - _SETTINGS_KEYS)
+        unknown = sorted(set(raw) - _SETTINGS_KEYS - _retired(RETIRED_TOP_LEVEL))
         known = {key: value for key, value in raw.items() if key in _SETTINGS_KEYS}
         return cls.from_dict(known), unknown
 
     @classmethod
     def from_dict(cls, raw: Mapping[str, object]) -> StrengthSettings:
-        """Settings from a plain mapping; absent keys take the default, unknown keys fail."""
-        unknown = set(raw) - _SETTINGS_KEYS
+        """Settings from a plain mapping; absent keys take the default, retired keys
+        (``RETIRED_SETTING_KEYS``) are dropped, every other unknown key fails."""
+        unknown = set(raw) - _SETTINGS_KEYS - _retired(RETIRED_TOP_LEVEL)
         if unknown:
             raise ValueError(f"unknown settings: {', '.join(sorted(unknown))}")
         defaults = cls()
@@ -884,7 +913,10 @@ class StrengthSettings:
         return cls(
             weights={
                 **DEFAULT_WEIGHTS,
-                **{str(k): _number(v, f"weight {k}") for k, v in _mapping(weights).items()},
+                **{
+                    str(k): _number(v, f"weight {k}")
+                    for k, v in _without_retired(_mapping(weights), RETIRED_WEIGHTS).items()
+                },
             },
             bracket=bracket,
             universe_profile=profile or None,
@@ -901,7 +933,9 @@ class StrengthSettings:
                 **DEFAULT_MIN_DENOMINATORS,
                 **{
                     str(k): _count(v, f"min_denominators {k}")
-                    for k, v in _mapping(minimums).items()
+                    for k, v in _without_retired(
+                        _mapping(minimums), RETIRED_MIN_DENOMINATORS
+                    ).items()
                 },
             },
             missing_value={str(k): str(v) for k, v in _mapping(missing).items()},
