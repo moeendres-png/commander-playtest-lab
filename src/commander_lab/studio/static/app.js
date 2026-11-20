@@ -2426,7 +2426,6 @@ async function openCard(card) {
   const trendBox = h("div", { id: "card-trend-box" });
   const strengthBox = h("div", { id: "card-strength-box" });
   const extra = h("div", {}, h("p", { class: "muted" }, "Lädt EDHREC-Zeilen."));
-  const layerBox = h("div", {});
   const right = h("div", {},
     h("h2", {}, card.name, " ", tierMark(card)), h("div", {}, mana(card.mana_cost), " ", h("span", { class: "muted" }, card.type_line), card.power !== null ? ` · ${card.power}/${card.toughness}` : ""),
     h("p", { class: "pre-line" }, card.text),
@@ -2449,7 +2448,7 @@ async function openCard(card) {
     h("p", {}, h("a", { href: `decks.html?commander=${encodeURIComponent(COMMANDER)}&must=${encodeURIComponent(card.name)}`, class: "chip" }, "Quelldecks mit dieser Karte im Deck-Browser öffnen →")),
     trendBox,
     card.universe && activeScope() ? h("p", { class: "note" }, `Im ${activeScope().label}: ${card.universe.filter_card ? "Filterkarte des Universums (steht per Definition in jedem Deck der Teilmenge, ohne Zählung und ohne Stufe)" : card.universe.matched ? `${StudioUI.num(card.universe.hits, 0)}/${StudioUI.num(card.universe.denominator, 0)} Decks, Stufe ${card.universe.level} (Verbreitung gezählt, keine Stärke)` : card.in_collection === false ? `unbekannt (${card.universe.reason})` : "unbekannt (kein Deck des Universums nennt diese Karte unter einem bekannten Namen)"}`) : null,
-    card.universe && state.universeInfo && state.universeInfo.subset_note ? h("p", { class: "note" }, state.universeInfo.subset_note) : null, strengthBox, layerBox, extra);
+    card.universe && state.universeInfo && state.universeInfo.subset_note ? h("p", { class: "note" }, state.universeInfo.subset_note) : null, strengthBox, extra);
   box.append(left, right); $("modal").hidden = false;
   if (!state.commanderIds.includes(card.card_id) && !card.basic) renderSwapBox(swapBox, card, initialSwapMode);
   if (!state.commanderIds.includes(card.card_id) && !card.basic) renderDuelBox(duelBox, card, {
@@ -2473,7 +2472,6 @@ async function openCard(card) {
     },
   });
   showStrengthBreakdown(strengthBox, card);
-  showLayers(layerBox, card);
   try {
     const detail = await api(`/api/cards/${encodeURIComponent(card.card_id)}?${StudioCommander.query}&cohort=${encodeURIComponent(state.cohort)}`);
     const parts = [];
@@ -2638,27 +2636,6 @@ async function showStrengthBreakdown(into, card) {
   }
   nodes.push(h("p", { class: "note" }, "Schätzung aus Nutzungssignalen (keine Siegrate). Eigene Markierungen (Favorit/Ausschluss/Notiz) und Simulationen zählen mit Gewicht 0 / gar nicht."));
   into.replaceChildren(...nodes);
-}
-// The rating layers of one card as a small table; loaded on its own, so the slower detail request does not hold it back.
-async function showLayers(into, card) {
-  try {
-    const found = await ratingLayers();
-    const mine = found.cards[card.card_id];
-    if (mine) into.replaceChildren(h("h3", {}, "Bewertungsebenen"), StudioUI.layerTable(mine, found.layers),
-      h("p", { class: "note" }, `Eigene Spalten der Tierliste, kein Teil des Stärke-Index (nur mit Gewicht, empfohlen: 0). Ein unbekannter Wert steht als „–“ mit Grund und ist nie 0. ${found.measured_note} ${found.pod_note}`));
-  } catch (error) { into.replaceChildren(h("p", { class: "muted" }, "Bewertungsebenen nicht lesbar: " + StudioUI.germanError(error))); }
-}
-// The rating layers of the pool (one request per commander and pod size, kept while the page is open).
-function ratingLayers() {
-  let size = 4;
-  try { const saved = JSON.parse(StudioUI.recall("studio.strength.settings", "null")); if (saved && Number.isInteger(saved.pod_size) && saved.pod_size >= 2 && saved.pod_size <= 6) size = saved.pod_size; } catch (error) { /* view setting only */ }
-  const key = `${COMMANDER}|${size}`;
-  if (!state.ratingLayers || state.ratingLayers.key !== key) {
-    const promise = api(`/api/rating-layers?commander=${encodeURIComponent(COMMANDER)}&pod_size=${size}`);
-    state.ratingLayers = { key, promise };
-    promise.catch(() => { state.ratingLayers = null; });
-  }
-  return state.ratingLayers.promise;
 }
 
 // ---------- Stärke-Index for the sort (the tier page's function, never a copy of its scoring) ----------

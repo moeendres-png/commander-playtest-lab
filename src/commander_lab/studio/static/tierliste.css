@@ -43,8 +43,7 @@ button.small.indeck{border-color:var(--good);color:var(--good)}
 .setting input[type=number]{width:100%}
 .setting select{width:100%}
 .setting .help{font-size:11px;color:var(--muted)}
-.layer-controls{display:inline-flex;gap:var(--s2) var(--s3);align-items:center;flex-wrap:wrap}
-th.layer-head{white-space:normal;min-width:120px}
+.col-controls{display:inline-flex;gap:var(--s2) var(--s3);align-items:center;flex-wrap:wrap}
 .tier-filter{display:inline-flex;gap:6px;align-items:center;font-size:12px;color:var(--muted)}
 .tier-filter label{display:inline-flex;gap:2px;align-items:center}
 .badge.warn{border-color:var(--warn);color:var(--warn)}
@@ -118,8 +117,6 @@ table.dist th[scope=row],table.dist thead th:first-child{text-align:left}
 .col-menu{position:relative}
 .col-menu>summary{cursor:pointer;padding:2px var(--s3);border:1px solid var(--line);border-radius:var(--radius-s);background:var(--panel2);min-height:30px;display:inline-flex;align-items:center}
 .col-menu-body{position:absolute;left:0;top:100%;z-index:40;min-width:260px;margin-top:4px;padding:var(--s3);background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);display:grid;gap:var(--s2)}
-.col-layers{display:grid;gap:var(--s1)}
-.col-layers label{display:flex;gap:var(--s2);align-items:center}
 #pool-body .table-wrap{overflow:visible}
 #pool-body table{border-collapse:separate;border-spacing:0}
 #pool-body th{cursor:default}
@@ -154,7 +151,6 @@ body.modal-open,body.modal-open #pool-body{overflow:hidden}
 td.cardcell .thumb{width:36px;aspect-ratio:488/680;height:auto;background:var(--panel2)}
 #type-filter{min-width:140px}
 #role-filter{min-width:230px}
-#pod-filter{min-width:250px}
 #deck-pick.pending{visibility:hidden} /* keeps its place in the top bar until the decks are known */
 #deck-select{min-width:300px}
 #branch-select{min-width:72px}
@@ -165,7 +161,6 @@ td.cardcell .thumb{width:36px;aspect-ratio:488/680;height:auto;background:var(--
 /* the open method panel leaves the table at least its minimum height (desktop layout only) */
 @media (min-width:701px) and (min-height:521px){.method-body{max-height:min(45vh,max(120px,calc(100dvh - 520px)))}}
 #sort{width:600px;max-width:100%} /* the sort list grows when the signals arrive: the select must not */
-#pod-filter{width:28em;max-width:100%}
 /* phone width: the bars reach their loaded height before the data arrives (measured at 390 px) */
 @media (max-width:700px){#brand{min-height:144px}#top{min-height:195px}#tier-bar{min-height:85px}#filters{min-height:514px}}
 @media (max-width:420px){#brand{min-height:165px}} /* the commander select fills in and wraps the bar (measured at 390 px) */
