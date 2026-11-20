@@ -331,3 +331,55 @@ def test_deck_revision_to_game_and_paired_series_roundtrip(
     assert other_series_id in other_sids
     assert series_id not in other_sids
     assert other_snap["studio_deck_hash"] != base_snap["studio_deck_hash"]
+
+    # 5. B2 (#1658): draft -> variant -> plan -> series (fake engine) -> adopt. The plan file is
+    #    written before the first game, the history shows the experiment and its decision, and
+    #    adopting moves the deck's ``main`` branch to the variant.
+    plan = {
+        "question": "38 statt 40 Wälder",
+        "question_kind": "axis",
+        "deck_id": "chulane-rt",
+        "base": {"revision_id": base_rev},
+        "variants": [{"revision_id": var_rev}],
+        "table": {"seats": 4, "opponents": precon_ids},
+        "purpose": "exploration",
+        "budget_pairs": 4,
+        "look_every_pairs": 2,
+        "first_seed": 300,
+    }
+    res_exp = client.post("/api/experiments", headers=headers, json={"plan": plan})
+    assert res_exp.status_code == 200, res_exp.text
+    experiment = res_exp.json()
+    exp_dir = tmp_path / "games" / "experiments" / experiment["experiment_id"]
+    assert json.loads((exp_dir / "plan.json").read_text())["plan_sha"] == experiment["plan_sha"]
+    exp_file = tmp_path / "games" / f"{experiment['series_id']}.paired.json"
+    deadline = time.monotonic() + 10.0
+    while time.monotonic() < deadline:
+        if exp_file.is_file() and json.loads(exp_file.read_text())["status"] == "completed":
+            break
+        time.sleep(0.05)
+    else:  # pragma: no cover
+        pytest.fail("experiment series did not complete in time")
+    res_adopt = client.post(
+        f"/api/experiments/{experiment['experiment_id']}/decision",
+        headers=headers,
+        json={"decision": "adopted", "note": "Owner übernimmt"},
+    )
+    assert res_adopt.status_code == 200, res_adopt.text
+    assert res_adopt.json()["tested"] is True
+    store = StudioStore.open(tmp_path)
+    try:
+        main_now = store.connection.execute(
+            "SELECT revision_id FROM deck_branch WHERE deck_id = 'chulane-rt' AND branch = 'main'"
+        ).fetchone()[0]
+    finally:
+        store.close()
+    assert main_now == var_rev
+    hist = client.get("/api/decks/chulane-rt/series", headers=headers).json()
+    exp_entry = next(s for s in hist["series"] if s["series_id"] == experiment["series_id"])
+    assert exp_entry["counts_as_result"] is True and exp_entry["difference_pp"] == 100.0
+    assert exp_entry["experiment"]["decision"] == "adopted"
+    assert exp_entry["experiment"]["decision_text"] == "übernommen"
+    assert exp_entry["experiment"]["plan_sha"] == experiment["plan_sha"]
+    # the series played before B2 (no plan) is still in the history, unchanged
+    assert any(s["series_id"] == series_id and s["experiment"] is None for s in hist["series"])
