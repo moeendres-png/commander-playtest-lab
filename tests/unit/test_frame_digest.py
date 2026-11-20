@@ -494,55 +494,34 @@ def test_underscore_and_non_hex_delimited_uuids_are_normalized_without_matching_
     )
 
 
-_NEAR_UUIDS = [
-    # right length or shape, wrong grouping: none of these is a UUID (8-4-4-4-12)
-    "aaaaaaa-1111-4111-8111-111111111111",  # 7-4-4-4-12: first block one short
-    "aaaaaaaaa-1111-4111-8111-111111111111",  # 9-4-4-4-12: first block one long
-    "aaaaaaaa-111-4111-8111-111111111111",  # 8-3-4-4-12
-    "aaaaaaaa-1111-411-8111-111111111111",  # 8-4-3-4-12
-    "aaaaaaaa-1111-4111-811-111111111111",  # 8-4-4-3-12
-    "aaaaaaaa-1111-4111-8111-11111111111",  # 8-4-4-4-11
-    "111111111111-1111-4111-8111-aaaaaaaa",  # 12-4-4-4-8: 36 characters, reversed groups
-    "aaaaaaaa-aaaaaaaa-1111-4111-aaaaaaaa",  # 8-8-4-4-8
-    "aaaaaaaa-1111-4111-8111-1111-aaaaaaaa",  # 8-4-4-4-4-8
-    "aaaaaaaabbbbccccddddeeeeeeeeeeee",  # 32 hex digits without dashes
-    "aaaaaaaabbbbccccddddeeeeeeeeeeee-x",  # the same next to a dash (the dash guard is open)
-    "-" * 36,  # 36 characters of the right alphabet, no hex at all
-    "aaaaaaaa-1111-4111-8111-11111111111g",  # last block has a non-hex character
-]
-
-
 def test_near_uuid_strings_are_not_normalized_alone_or_in_a_compound_key() -> None:
     """Negative control for a broadened pattern: only 8-4-4-4-12 hex groups are run identity."""
-    for text in _NEAR_UUIDS:
+    near_uuids = [
+        # right length or shape, wrong grouping: none of these is a UUID (8-4-4-4-12)
+        "aaaaaaa-1111-4111-8111-111111111111",  # 7-4-4-4-12: first block one short
+        "aaaaaaaaa-1111-4111-8111-111111111111",  # 9-4-4-4-12: first block one long
+        "aaaaaaaa-111-4111-8111-111111111111",  # 8-3-4-4-12
+        "aaaaaaaa-1111-411-8111-111111111111",  # 8-4-3-4-12
+        "aaaaaaaa-1111-4111-811-111111111111",  # 8-4-4-3-12
+        "aaaaaaaa-1111-4111-8111-11111111111",  # 8-4-4-4-11
+        "111111111111-1111-4111-8111-aaaaaaaa",  # 12-4-4-4-8: 36 characters, reversed groups
+        "aaaaaaaa-aaaaaaaa-1111-4111-aaaaaaaa",  # 8-8-4-4-8
+        "aaaaaaaa-1111-4111-8111-1111-aaaaaaaa",  # 8-4-4-4-4-8
+        "aaaaaaaabbbbccccddddeeeeeeeeeeee",  # 32 hex digits without dashes
+        "aaaaaaaabbbbccccddddeeeeeeeeeeee-x",  # the same next to a dash (the dash guard is open)
+        "-" * 36,  # 36 characters of the right alphabet, no hex at all
+        "aaaaaaaa-1111-4111-8111-11111111111g",  # last block has a non-hex character
+    ]
+    for text in near_uuids:
         assert normalize_frame({"extra": text})["extra"] == text, text
         assert normalize_frame({"extra": f"{text}_{text}"})["extra"] == f"{text}_{text}", text
     # two different near-UUIDs stay different: nothing of them is masked away
-    for first, second in pairwise(_NEAR_UUIDS):
+    for first, second in pairwise(near_uuids):
         assert _digest({"extra": first}) != _digest({"extra": second})
     # a real UUID next to a near-UUID in one key: only the real one is numbered
     real = _UUIDS[0]
-    mixed = normalize_frame({"extra": f"{_NEAR_UUIDS[0]}_{real}"})["extra"]
-    assert mixed == f"{_NEAR_UUIDS[0]}_id#0"
-
-
-def _legal_options_after_sighting(
-    options: list[dict[str, object]],
-) -> list[dict[str, object]]:
-    """A frame whose objects were all shown earlier in a fixed order, then offered as options."""
-    seen = _frame(_UUIDS)
-    seen["pilot_state"]["players"][0]["battlefield"] = [  # type: ignore[index]
-        {"name": "Plains", "object_id": _TWIN_ONE},
-        {"name": "Plains", "object_id": _TWIN_TWO},
-    ]
-    seen["legal_options"] = [
-        {"option_id": "4" * 64, "label": "Plains", "metadata": {"object_id": _TWIN_ONE}},
-        {"option_id": "5" * 64, "label": "Plains", "metadata": {"object_id": _TWIN_TWO}},
-    ]
-    later = _frame(_UUIDS)
-    later["decision_class"] = "choose_object"
-    later["legal_options"] = options
-    return [seen, later]
+    mixed = normalize_frame({"extra": f"{near_uuids[0]}_{real}"})["extra"]
+    assert mixed == f"{near_uuids[0]}_id#0"
 
 
 def test_swapped_legal_options_give_a_different_digest() -> None:
@@ -553,7 +532,20 @@ def test_swapped_legal_options_give_a_different_digest() -> None:
     """
 
     def digest(options: list[dict[str, object]]) -> str:
-        return _digest(*_legal_options_after_sighting(options))
+        # both objects were shown earlier, in a fixed order, then offered as options
+        seen = _frame(_UUIDS)
+        seen["pilot_state"]["players"][0]["battlefield"] = [  # type: ignore[index]
+            {"name": "Plains", "object_id": _TWIN_ONE},
+            {"name": "Plains", "object_id": _TWIN_TWO},
+        ]
+        seen["legal_options"] = [
+            {"option_id": "4" * 64, "label": "Plains", "metadata": {"object_id": _TWIN_ONE}},
+            {"option_id": "5" * 64, "label": "Plains", "metadata": {"object_id": _TWIN_TWO}},
+        ]
+        later = _frame(_UUIDS)
+        later["decision_class"] = "choose_object"
+        later["legal_options"] = options
+        return _digest(seen, later)
 
     def option(option_id: str, object_id: str) -> dict[str, object]:
         return {"option_id": option_id, "label": "Plains", "metadata": {"object_id": object_id}}
