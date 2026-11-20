@@ -30,10 +30,12 @@ from .store import StudioStore
 ENGINE_COMMAND_ENV = "COMMANDER_LAB_XMAGE_FULL_GAME_BRIDGE_CMD"
 ENGINE_JAR = Path("engine") / "xmage-engine-bridge.jar"
 MIN_SEATS, MAX_SEATS = 2, 6  # what the engine can seat (series and the CLI comparison use this)
-# What the Studio lets someone start (PLAY, watched games): two to four seats. Five and six seats stay
-# locked until a qualification and an explicit Owner decision (AGENTS.md section 1); the engine
-# could seat them, so this is a rule, not a limit. Freigabe nur per Owner-Entscheid: raise this
-# constant (and the page's table-size list in partie.js) only when the Owner has released it.
+# What the Studio lets someone start (PLAY, watched games, series): two to four seats. Five and six
+# seats are not released: they stay locked until the qualification is shown and the Owner decides
+# (E15 Q5, AGENTS.md section 1); the engine could seat them, so this is a rule, not a limit. The
+# planning of five- and six-seat series (``pod_opponent_ids``, ``paired_series.rotation_plan``)
+# exists behind this lock and starts nothing. Freigabe nur per Owner-Entscheid: raise this
+# constant (and the table-size lists in partie.js and paired.js) only when the Owner has released it.
 MAX_RELEASED_SEATS = 4
 START_WAIT_SECONDS = 20.0
 MIN_WORKERS, MAX_WORKERS = 1, 16
@@ -62,6 +64,16 @@ POD_PRESETS: dict[str, tuple[str, str, str]] = {
         "kaervek/current",
         "opponent/hosts-of-mordor-precon",
     ),
+}
+# Seats five and six of the same presets (#1702): the opponents beyond the four-seat table, named
+# one by one. ``POD_PRESETS`` plus these are the opponents of a table of up to six seats in this
+# order; a table of ``n`` seats takes the first ``n - 1`` of them (``pod_opponent_ids``). Plain
+# repository precons, chosen for a distinct commander each; no strength claim, and the engine's
+# support for each of them at five or six seats is UNKNOWN until the real-engine part of #1661.
+POD_PRESET_EXTRA_OPPONENTS: dict[str, tuple[str, str]] = {
+    "precon": ("precon/2023/veloci_ramp_tor", "precon/2023/blood_rites"),
+    "mixed": ("precon/2022/token_triumph", "precon/2023/veloci_ramp_tor"),
+    "optimized": ("precon/2023/divine_convocation", "precon/2024/death_toll"),
 }
 _EXTRA_OPPONENT_PATHS = (
     Path("data/decks/opponents/kaervek/current/deck.json"),
@@ -776,6 +788,28 @@ def validate_released_seat_count(
             "Owner decision"
         )
     return 1 + opponent_count
+
+
+def pod_opponent_ids(pod: str, opponent_count: int) -> tuple[str, ...]:
+    """The opponents of a table of ``opponent_count + 1`` seats from a pod preset (#1702).
+
+    The preset names its opponents in a fixed order (``POD_PRESETS``, then
+    ``POD_PRESET_EXTRA_OPPONENTS``); a table takes the first ``opponent_count`` of them.
+    A preset with fewer decks than the table needs is an error: nothing is filled up with
+    another deck, no first option stands in (B2, #1658). The seat lock is not checked here
+    (``validate_released_seat_count`` does that); this only plans the table.
+    """
+    if pod not in POD_PRESETS:
+        raise ValueError(f"Unbekannter Gegnertisch (pod): {pod!r}")
+    if not MIN_SEATS - 1 <= opponent_count <= MAX_SEATS - 1:
+        raise ValueError("a game requires 1 to 5 opponents (zwischen 1 und 5)")
+    declared = (*POD_PRESETS[pod], *POD_PRESET_EXTRA_OPPONENTS.get(pod, ()))
+    if opponent_count > len(declared):
+        raise ValueError(
+            f"Der Gegnertisch {pod!r} nennt nur {len(declared)} Decks, ein Tisch mit "
+            f"{opponent_count + 1} Sitzen braucht {opponent_count}; es wird nichts aufgefüllt"
+        )
+    return declared[:opponent_count]
 
 
 def resolve_opponent_paths(

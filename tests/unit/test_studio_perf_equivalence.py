@@ -1021,7 +1021,36 @@ def _strength_kind(store: StudioStore) -> object:
     store.connection.execute("DELETE FROM tier_snapshot")
     store.connection.commit()
     body = StrengthBody(commander=COMMANDER)
-    return strength_answer(store, body), strength_answer(store, body)
+    first = strength_answer(store, body), strength_answer(store, body)
+    # The same kinds also remember the answer for a stored profile, a path of its own: the
+    # settings come from the profile, the notices and the saved weights are read from it
+    # (``profile_notices``, ``profile_saved_weights``) and the figure is computed live, not from
+    # the snapshot. A plain and a profile with a key this version does not know plus a retired
+    # setting hold every notice the path can read for.
+    names = _save_profiles(store)
+    return first, [
+        strength_answer(store, StrengthBody(commander=COMMANDER, profile=n)) for n in names
+    ]
+
+
+_PLAIN_PROFILE = "Tracer schlicht"
+_NOTICE_PROFILE = "Tracer mit Hinweisen"
+
+
+def _save_profiles(store: StudioStore) -> tuple[str, str]:
+    """Two stored strength profiles: one saved the usual way, one with an unknown key and a
+    retired setting that differs from its default (what a profile of an older or a newer
+    version holds). Returns their names."""
+    from commander_lab.studio import strength, strength_view
+
+    strength_view.save_profile(store, _PLAIN_PROFILE, strength.StrengthSettings.recommended())
+    spec = {**strength.StrengthSettings.recommended().to_dict(), "zukunft": 1, "pod_size": 3}
+    with store.connection as db:
+        db.execute(
+            "INSERT OR REPLACE INTO strength_profile(name, spec, created_at) VALUES (?, ?, ?)",
+            (_NOTICE_PROFILE, json.dumps(spec, sort_keys=True), "2026-11-20T00:00:00+00:00"),
+        )
+    return _PLAIN_PROFILE, _NOTICE_PROFILE
 
 
 # One tracer per kind: what computes exactly that figure. A narrowed kind (one that reads fewer
@@ -1088,6 +1117,26 @@ def test_every_narrowed_kind_reads_only_its_groups(tmp_path: Path) -> None:
     assert _declaration_violations(store, cache.KINDS, _KIND_TRACERS) == {}
 
 
+def test_the_strength_tracer_covers_the_stored_profile_path(tmp_path: Path) -> None:
+    """The tracer's strength run reaches the stored-profile branch of the route (the settings,
+    the notices and the saved weights come from the profile, the figure is computed live), so
+    that a read added there is seen: the profile tables are read, and the answers carry the
+    notices of the profile with the unknown and the retired key (#1561, review of #1711)."""
+    from commander_lab.studio.web import StrengthBody, strength_answer
+
+    store = _big_store(tmp_path)
+    reads = _trace_reads(store, lambda: _strength_kind(store))
+    assert "strength_profile" in reads
+    assert "card_mark" not in reads
+    plain, noted = (
+        strength_answer(store, StrengthBody(commander=COMMANDER, profile=name))
+        for name in (_PLAIN_PROFILE, _NOTICE_PROFILE)
+    )
+    assert not [n for n in plain["notices"] if "zukunft" in n or "Pod-Größe" in n]
+    notices = " ".join(map(str, noted["notices"]))
+    assert "zukunft" in notices and "Pod-Größe" in notices
+
+
 def _with_marks_read(monkeypatch: pytest.MonkeyPatch) -> None:
     """Mutation: the strength figures and the evidence answer read the marks again (the call
     before #1561), whatever the callers ask."""
@@ -1136,6 +1185,29 @@ def test_a_kind_wrongly_declared_narrow_is_caught(
     again = _declaration_violations(store, cache.KINDS, _KIND_TRACERS)
     for name in ("strength", "strength_understanding", "answer:evidence"):
         assert {"card_mark", "card_label"} <= set(again[name]), name
+
+
+@pytest.mark.parametrize("reader", ["profile_notices", "profile_saved_weights", "compute"])
+def test_a_mark_read_on_the_stored_profile_path_is_caught(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, reader: str
+) -> None:
+    """Mutation counter-test of the profile path (#1561, review of #1711): the three steps only
+    the stored-profile answer runs read the marks on top; the proof names the strength kinds."""
+    from commander_lab.studio import strength_view
+
+    store = _big_store(tmp_path)
+    real = getattr(strength_view, reader)
+
+    def reading(*args: object, **kwargs: object) -> object:
+        store.connection.execute("SELECT favorite FROM card_mark LIMIT 1").fetchall()
+        return real(*args, **kwargs)
+
+    monkeypatch.setattr(strength_view, reader, reading)
+    found = _declaration_violations(store, cache.KINDS, _KIND_TRACERS)
+    assert {"strength", "strength_understanding"} <= set(found)
+    for name in ("strength", "strength_understanding"):
+        assert "card_mark" in found[name], name
+    assert "answer:evidence" not in found
 
 
 def _marked_store(tmp_path: Path) -> StudioStore:

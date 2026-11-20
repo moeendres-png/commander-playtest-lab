@@ -543,6 +543,49 @@ class GamePool:
 
     # -- running games
 
+    def _consume_event(
+        self,
+        worker: _ProcessWorker,
+        message: dict[str, object] | None,
+        *,
+        on_played: Callable[[GameTask], None] | None,
+        finish: Callable[[_ProcessWorker, GameSummary], None],
+    ) -> None:
+        if worker not in self._workers:
+            return  # an event of a worker that was already given up
+        if message is None:
+            self._lose(worker, finish=finish)
+            return
+        kind = message.get("ev")
+        if kind == "ready":
+            worker.ready = True
+        elif kind == "bye":
+            worker.said_bye = True
+        elif kind == "played":
+            if worker.task is not None and on_played is not None:
+                on_played(worker.task)
+        elif kind == "jvm_exit":
+            self._jvm_lives.append({k: v for k, v in message.items() if k != "ev"})
+        elif kind == "done":
+            summary = message.get("summary")
+            if isinstance(summary, dict) and worker.task is not None:
+                finish(worker, summary)
+
+    def _drain_events(
+        self,
+        *,
+        on_played: Callable[[GameTask], None] | None,
+        finish: Callable[[_ProcessWorker, GameSummary], None],
+    ) -> None:
+        """Process already-queued worker events before ``_idle_worker`` checks the EOF grace
+        (#1652 P3-A), so a queued ``jvm_exit`` / ``bye`` emitted between windows is never lost."""
+        while True:
+            try:
+                worker, message = self._events.get_nowait()
+            except queue.Empty:
+                return
+            self._consume_event(worker, message, on_played=on_played, finish=finish)
+
     def run(
         self,
         tasks: Sequence[GameTask],
@@ -577,6 +620,7 @@ class GamePool:
                 on_done(task, summary)
 
         while True:
+            self._drain_events(on_played=on_played, finish=_finish)
             if not cancelled and should_cancel is not None and should_cancel():
                 cancelled = True
                 pending.clear()
@@ -599,25 +643,7 @@ class GamePool:
             except queue.Empty:
                 self._check_wall_limit(_finish)
                 continue
-            if worker not in self._workers:
-                continue  # an event of a worker that was already given up
-            if message is None:
-                self._lose(worker, finish=_finish)
-                continue
-            kind = message.get("ev")
-            if kind == "ready":
-                worker.ready = True
-            elif kind == "bye":
-                worker.said_bye = True
-            elif kind == "played":
-                if worker.task is not None and on_played is not None:
-                    on_played(worker.task)
-            elif kind == "jvm_exit":
-                self._jvm_lives.append({k: v for k, v in message.items() if k != "ev"})
-            elif kind == "done":
-                summary = message.get("summary")
-                if isinstance(summary, dict) and worker.task is not None:
-                    _finish(worker, summary)
+            self._consume_event(worker, message, on_played=on_played, finish=_finish)
             self._check_wall_limit(_finish)
 
     def _check_wall_limit(self, finish: Callable[[_ProcessWorker, GameSummary], None]) -> None:
