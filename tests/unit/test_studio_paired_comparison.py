@@ -8,6 +8,7 @@ does, so the tests cover the whole log path without an engine.
 from __future__ import annotations
 
 import ast
+import hashlib
 import json
 import math
 from collections.abc import Callable
@@ -1217,6 +1218,8 @@ def _pool_player(
         "_summary_to_played_game",
         lambda summary: pool.results[summary["game_id"]],
     )
+    jar = tmp_path / "bridge.jar"
+    jar.write_bytes(b"jar")  # the pool plans every game with the JAR's hash (S1, #1660)
     for deck_id in (BASE, VARIANT, OPP1, OPP2):
         # the pool plans every game with the hash of its deck files (S1, #1660)
         tmp_path.joinpath(f"{deck_id.split('/')[1]}.json").write_text(deck_id, encoding="utf-8")
@@ -1235,6 +1238,7 @@ def _pool_player(
         "workers": 4,
         "games_per_jvm": 6,
         "pool": pool,
+        "command": ("java", "-jar", str(jar), "full-game"),
     }
     options.update(overrides)
     return paired_comparison.parallel_window_player(tmp_path, **options)  # type: ignore[arg-type]
@@ -1392,8 +1396,36 @@ def test_a_pool_series_plans_complete_tasks_and_a_manifest_and_journals_through_
     task = pool.runs[0][0]
     assert task.seat_styles == (0.5, 0.5, 0.5) and len(set(task.deck_sha256)) == 3
     assert task.deck_sha256[0] == series_record.file_sha256(task.deck_paths[0])
-    # no bridge JAR in this folder: no key, recorded as such, never one over an empty field
-    assert task.game_key is None and manifest["games"][0]["game_key"] is None
+    assert task.jar_sha256 == hashlib.sha256(b"jar").hexdigest()
+    assert task.game_key is not None and manifest["games"][0]["game_key"] == task.game_key
+
+
+def test_a_pool_series_without_a_bridge_jar_plans_no_game(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from commander_lab.studio.game_pool import GamePoolError
+
+    pool = _FakePool(_ScriptedPlayer(tmp_path / "p", _variant_sweeps))
+    player = _pool_player(tmp_path, pool, monkeypatch, command=("wrapper", "full-game"))
+    with pytest.raises(GamePoolError, match="JAR"):
+        player("base", 1, 0)
+    assert pool.runs == []  # nothing handed to the pool
+
+
+def test_a_determinism_violation_ends_the_window_player(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from commander_lab.studio.series_record import DeterminismViolation
+
+    pool = _FakePool(_ScriptedPlayer(tmp_path / "p", _variant_sweeps))
+
+    def violating_run(tasks, **_kwargs):  # type: ignore[no-untyped-def]
+        raise DeterminismViolation(tasks[0].game_key, ["a" * 64, "b" * 64], ["g1", "g2"])
+
+    pool.run = violating_run  # type: ignore[method-assign]
+    player = _pool_player(tmp_path, pool, monkeypatch)
+    with pytest.raises(DeterminismViolation, match="DETERMINISM_VIOLATION"):
+        player("base", 1, 0)
 
 
 def test_a_pool_series_takes_the_wall_limit_of_its_seat_count(
@@ -1423,6 +1455,8 @@ def test_a_pool_series_takes_the_wall_limit_of_its_seat_count(
         lambda _s: {"exposure": None, "failure_class": "X"},
     )
     tmp_path.joinpath("x.json").write_text("{}", encoding="utf-8")
+    jar = tmp_path / "bridge.jar"
+    jar.write_bytes(b"jar")
     player = paired_comparison.parallel_window_player(
         tmp_path,
         series_id="wl",
@@ -1437,6 +1471,7 @@ def test_a_pool_series_takes_the_wall_limit_of_its_seat_count(
         workers=1,
         games_per_jvm=6,
         series_pool=True,
+        command=("java", "-jar", str(jar), "full-game"),
     )
     player("base", 1, 0)
     assert created[0]["game_wall_limit_seconds"] == 300.0  # three seats
@@ -1465,6 +1500,8 @@ def test_the_pool_is_off_by_default_and_a_switch_turns_it_on(
     monkeypatch.setattr("commander_lab.studio.game_pool.GamePool", _Recorded)
     monkeypatch.delenv("COMMANDER_LAB_STUDIO_SERIES_POOL", raising=False)
     tmp_path.joinpath("x.json").write_text("{}", encoding="utf-8")
+    tmp_path.joinpath("b.jar").write_bytes(b"jar")  # the pool plans with the JAR's hash
+    monkeypatch.chdir(tmp_path)
     options = {
         "series_id": "sw",
         "base_deck": SimpleNamespace(deck_id=BASE),

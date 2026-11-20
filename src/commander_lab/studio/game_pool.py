@@ -89,9 +89,9 @@ class GameTask:
     Every per-seat tuple is in seat order with one entry per seat: the deck file and its
     SHA-256, the style and the pilot fingerprint of that seat. The worker checks each deck file
     and each fingerprint before the game and plays nothing on a mismatch (an infrastructure
-    failure). ``game_key`` names the game for the determinism guard (``series_record``);
-    ``None`` when it could not be formed (no bridge JAR known), and the guard then has nothing
-    to compare. ``table`` is the canonical ``TableSpec`` and ``table_hash`` its hash, ``None``
+    failure). ``game_key`` names the game for the determinism guard (``series_record``); a
+    task without it or without ``jar_sha256`` is refused by the worker (``plan_task`` never
+    builds one). ``table`` is the canonical ``TableSpec`` and ``table_hash`` its hash, ``None``
     for a caller that has no table spec yet.
     """
 
@@ -159,7 +159,8 @@ def plan_task(
     """A complete task: deck hashes, seat pilots and ``game_key`` from its inputs (S1, #1660).
 
     ``deck_hashes`` caches file hashes by path across the tasks of a series. Without a bridge
-    JAR or engine pin there is no key (``None``), never a key over an empty field.
+    JAR or engine pin there is no task (``ValueError``): a pool game is never planned without
+    the key its worker and the determinism guard check.
     """
     from .series_record import game_key
 
@@ -171,21 +172,22 @@ def plan_task(
             cache[path] = file_sha256(path)
     hashes = tuple(cache[path] for path in deck_paths)
     fingerprints = tuple(seat_pilot_fingerprint(style) for style in seat_styles)
-    key = (
-        game_key(
-            jar_sha256=jar_sha256,
-            engine_pin=engine_pin,
-            pilot_fingerprints=fingerprints,
-            seat_styles=seat_styles,
-            deck_sha256=hashes,
-            seed=seed,
-            strategy=strategy,
-            table_options=table,
-            skip_forced_decisions=skip_forced_decisions,
-            round_limit=round_limit,
+    if not jar_sha256 or not engine_pin:
+        raise ValueError(
+            "kein Bridge-JAR-SHA oder Engine-Pin bekannt: eine Pool-Partie wird nicht ohne "
+            "Spielschlüssel geplant"
         )
-        if jar_sha256 and engine_pin
-        else None
+    key = game_key(
+        jar_sha256=jar_sha256,
+        engine_pin=engine_pin,
+        pilot_fingerprints=fingerprints,
+        seat_styles=seat_styles,
+        deck_sha256=hashes,
+        seed=seed,
+        strategy=strategy,
+        table_options=table,
+        skip_forced_decisions=skip_forced_decisions,
+        round_limit=round_limit,
     )
     return GameTask(
         task_id=task_id,
@@ -395,6 +397,11 @@ def task_refusal(message: Mapping[str, object]) -> GameSummary | None:
             game_id,
             "TaskIncomplete",
             "der Auftrag braucht je Sitz Deck-Hash, Stil und Pilot-Fingerabdruck",
+        )
+    if not message.get("jar_sha256") or not message.get("game_key"):
+        # without them the worker cannot check its JAR and the guard has nothing to compare
+        return refused_game_summary(
+            game_id, "TaskIncomplete", "der Auftrag braucht Bridge-JAR-SHA und Spielschlüssel"
         )
     for seat, (path, expected) in enumerate(zip(paths, hashes, strict=True)):
         try:

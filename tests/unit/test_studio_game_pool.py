@@ -1257,18 +1257,19 @@ def test_a_planned_task_carries_hashes_pilots_and_key_and_the_key_follows_the_pi
     # other pilot code (same styles, same decks) gives another key (M1)
     monkeypatch.setattr(game_pool, "seat_pilot_fingerprint", lambda style: f"other-{style}")
     assert _tasks(range(3, 4), "k", styles=(0.5, 0.8))[0].game_key != task.game_key
-    # without a bridge JAR there is no key, never one over an empty field
-    bare = game_pool.plan_task(
-        task_id="x",
-        seed=1,
-        game_id="x",
-        deck_paths=list(task.deck_paths),
-        seat_styles=[0.5, 0.5],
-        jar_sha256=None,
-        engine_pin=PIN,
-        skip_forced_decisions=None,
-    )
-    assert bare.game_key is None
+    # without a bridge JAR or engine pin there is no task, never one without its key
+    for jar, pin in ((None, PIN), ("", PIN), (JAR, None)):
+        with pytest.raises(ValueError, match="Spielschlüssel"):
+            game_pool.plan_task(
+                task_id="x",
+                seed=1,
+                game_id="x",
+                deck_paths=list(task.deck_paths),
+                seat_styles=[0.5, 0.5],
+                jar_sha256=jar,
+                engine_pin=pin,
+                skip_forced_decisions=None,
+            )
 
 
 def test_the_forced_pass_switch_is_read_from_the_command() -> None:
@@ -1299,6 +1300,13 @@ def test_a_missing_deck_file_an_incomplete_task_and_a_wrong_fingerprint_are_refu
     assert game_pool.task_refusal(task.to_wire()) is None
     bare = {"op": "play", "task_id": "t", "seed": 1, "game_id": "g", "deck_paths": ["a"]}
     assert game_pool.task_refusal(bare)["failure_class"] == "TaskIncomplete"  # type: ignore[index]
+    for field in ("deck_sha256", "seat_styles", "pilot_fingerprints"):
+        short = {**task.to_wire(), field: task.to_wire()[field][:1]}  # type: ignore[index]
+        assert game_pool.task_refusal(short)["failure_class"] == "TaskIncomplete"  # type: ignore[index]
+    for missing in ("jar_sha256", "game_key"):
+        # the worker cannot check its JAR, the guard has nothing to compare: no game
+        unkeyed = {**task.to_wire(), missing: None}
+        assert game_pool.task_refusal(unkeyed)["failure_class"] == "TaskIncomplete"  # type: ignore[index]
     gone = {**task.to_wire(), "deck_paths": [task.deck_paths[0], task.deck_paths[0] + ".gone"]}
     assert game_pool.task_refusal(gone)["failure_class"] == "DeckHashMismatch"  # type: ignore[index]
     wrong = {**task.to_wire(), "pilot_fingerprints": [task.pilot_fingerprints[0], "f" * 64]}
@@ -1431,6 +1439,27 @@ def test_a_foreign_log_is_not_counted_and_a_resumed_series_reads_its_journal(
         pool_x, _ = _pool(tmp_path, workers=1)
         with pool_x:
             pool_x.run(_tasks(range(9, 10), "stranger"), record=resumed)
+
+
+def test_an_infrastructure_failure_is_final_on_resume_like_in_the_progress_log(
+    tmp_path: Path,
+) -> None:
+    """A resumed series counts what an uninterrupted one counted: the failure is not replayed."""
+    tasks = _tasks(range(1, 3), "inf")
+    original = Path(tasks[0].deck_paths[0]).read_text(encoding="utf-8")
+    Path(tasks[0].deck_paths[0]).write_text('{"deck": "changed"}', encoding="utf-8")
+    record = _record(tmp_path, tasks)
+    pool, _ = _pool(tmp_path, workers=1)
+    with pool:
+        first = pool.run(tasks[:1], record=record)
+    assert first["inf:1"]["failure_class"] == "DeckHashMismatch"
+    Path(tasks[0].deck_paths[0]).write_text(original, encoding="utf-8")  # the file is repaired
+    pool, _ = _pool(tmp_path, workers=1)
+    with pool:
+        resumed = pool.run(tasks, record=_record(tmp_path, tasks))
+    assert resumed["inf:1"] == first["inf:1"]  # from the journal, not played again
+    assert resumed["inf:2"]["status"] == "finished"
+    assert pool.summary()["games_finished"] == 1
 
 
 def test_the_pool_default_wall_limit_is_the_four_seat_value() -> None:

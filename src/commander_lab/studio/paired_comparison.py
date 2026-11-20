@@ -889,7 +889,13 @@ def parallel_window_player(
     one have a result, so the looks see exactly what they saw before.
     """
     from .game_pool import GamePool as _GamePool
-    from .game_pool import GameTask, plan_task, series_pool_enabled, skip_forced_decisions_of
+    from .game_pool import (
+        GamePoolError,
+        GameTask,
+        plan_task,
+        series_pool_enabled,
+        skip_forced_decisions_of,
+    )
     from .play_batch import SeriesGame, play_recorded_games
     from .series_record import SeriesRecord
     from .table_spec import DEFAULT_STYLE, game_wall_limit_seconds
@@ -955,6 +961,11 @@ def parallel_window_player(
 
         used_command = command if command is not None else engine_command(data_folder)
         jar = bridge_jar_sha256(data_folder, used_command)
+        if jar is None:
+            raise GamePoolError(
+                "kein Bridge-JAR im Engine-Befehl: der Pool-Weg plant keine Partie ohne "
+                "JAR-SHA und Spielschlüssel (#1660)"
+            )
         pin = canonical_xmage_engine_pin()
         skip_forced = skip_forced_decisions_of(used_command)
         deck_hashes: dict[str, str] = {}
