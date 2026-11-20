@@ -8,6 +8,24 @@
 // Rendered by app.js (history dialog) through renderDeckSeries(slot, rows, deps).
 // The difference B − A is shown through the number contract (zahl.js, #1659) as SIMULIERT, with
 // n/N pairs, the deck hashes of both states and the pilot origin; without a contract the old text.
+// Q1-c (#1666): under the figures one evidence row per series from data.reifegrad (maturity.py):
+// the maturity R0-R3 only when the answer names one (no badge without proof), the four-step
+// verdict with n/N pairs, the state the finding is about (a finding of another state is named as
+// such, never as current) and "empfehlungsfähig" only when the answer says so. Nothing is added
+// to another figure; no EDHREC, Playgroup or tournament figure shares this row.
+
+function deckSeriesEvidence(h, befund) {
+  if (!befund) return h("div", { class: "muted evidence-row" }, "Reifegrad: kein Reifegrad (kein Befund)");
+  const pairs = befund.n === null || befund.N === null ? "Paare unbekannt" : `n/N ${StudioUI.num(befund.n)} / ${StudioUI.num(befund.N)} ${befund.bezug}`;
+  return h("div", { class: "evidence-row" },
+    befund.stufe ? h("span", { class: "pill good" }, befund.stufe_text) : h("span", { class: "muted" }, befund.stufe_text),
+    h("div", {}, `Urteil (simuliert): ${befund.urteil_text} · ${pairs}`),
+    h("div", { class: befund.stand.bezug === "aktuell" ? "" : "muted" }, befund.stand.text),
+    befund.empfehlungsfaehig
+      ? h("div", {}, h("span", { class: "pill good" }, "empfehlungsfähig"))
+      : h("div", { class: "muted" }, `nicht empfehlungsfähig: ${befund.empfehlungsfaehig_gruende.join("; ")}`),
+    ...befund.hinweise.map((note) => h("div", { class: "muted" }, note)));
+}
 
 const DECK_SERIES_STATUS_CLASS = {
   completed: "good", stopped_early: "good", cancelled: "warn", failed: "bad", incomplete: "warn",
@@ -31,7 +49,7 @@ function deckSeriesRefLabel(ref, labels) {
   return "andere Revision";
 }
 
-function deckSeriesCells(h, item, role, deps, labels, zahlen) {
+function deckSeriesCells(h, item, role, deps, labels, zahlen, befund) {
   const zahl = zahlen ? zahlen.get(`series.${item.series_id}.difference_pp`) : undefined;
   const other = role === "base" ? item.variant_ref : item.base_ref;
   const planned = item.pairs_planned === null ? "unbekannt" : StudioUI.num(item.pairs_planned);
@@ -47,6 +65,7 @@ function deckSeriesCells(h, item, role, deps, labels, zahlen) {
       ...(item.pairs_censored ? [h("div", { class: "muted" }, `${StudioUI.num(item.pairs_censored)} Paare zensiert`)] : []),
     ]
     : [h("div", { class: "muted" }, "nicht als Ergebnis gezählt")];
+  figures.push(deckSeriesEvidence(h, befund));
   const seeds = item.seeds.length ? item.seeds.map((s) => StudioUI.num(s)).join(", ") : "unbekannt";
   const seats = item.tested_seats.length ? item.tested_seats.map((s) => StudioUI.num(s + 1)).join(", ") : "unbekannt";
   const sha = item.bridge_jar_sha256s.length ? item.bridge_jar_sha256s.map((s) => s.slice(0, 12)).join(", ") : "unbekannt";
@@ -68,6 +87,7 @@ function deckSeriesCells(h, item, role, deps, labels, zahlen) {
 function deckSeriesTable(h, data, historyRows, deps) {
   const byId = new Map(data.series.map((item) => [item.series_id, item]));
   const zahlen = StudioZahl.index(data.zahlen);
+  const befunde = (data.reifegrad && data.reifegrad.befunde) || {};
   const labels = new Map(historyRows.map((row) => [row.revision_id, `Stand ${deckSeriesDate(row.created_at)}${row.branch ? ` (${row.branch})` : ""}`]));
   const rows = [];
   for (const rev of historyRows) {
@@ -78,7 +98,7 @@ function deckSeriesTable(h, data, historyRows, deps) {
       continue;
     }
     refs.forEach((ref, index) => {
-      const cells = deckSeriesCells(h, byId.get(ref.series_id), ref.role, deps, labels, zahlen);
+      const cells = deckSeriesCells(h, byId.get(ref.series_id), ref.role, deps, labels, zahlen, befunde[ref.series_id]);
       rows.push(h("tr", {}, ...(index === 0 ? [stand] : []), ...cells));
     });
   }
@@ -98,7 +118,9 @@ async function renderDeckSeries(slot, historyRows, deps) {
     return;
   }
   const note = h("p", { class: "note note-compact" },
-    "SIMULATED_RESULT: Zählwerte gespeicherter Serien (gleiche Seeds, Sitze und Gegner-Tisch), kein Urteil und kein Teil der Tierliste (Gewicht 0). Nicht abgeschlossene oder abgebrochene Serien zählen nicht als Ergebnis.",
+    "SIMULATED_RESULT: Zählwerte gespeicherter Serien (gleiche Seeds, Sitze und Gegner-Tisch) mit Reifegrad R0–R3 und Urteil in vier Stufen je Serie (simuliert, nie mit EDHREC-, Playgroup- oder Turnier-Zahlen summiert), kein Teil der Tierliste. Nicht abgeschlossene oder abgebrochene Serien zählen nicht als Ergebnis und tragen keinen Reifegrad.",
+    data.reifegrad && data.reifegrad.tam_sperre ? ` ${data.reifegrad.tam_sperre}.` : "",
+    data.reifegrad ? ` ${data.reifegrad.luecken.join(" ")}` : "",
     data.skipped ? ` ${StudioUI.num(data.skipped)} nicht lesbare oder fremde Ergebnisdateien übersprungen.` : "",
     data.truncated ? " Nur die neuesten 200 Serien." : "",
     data.scan_truncated ? ` Nur die neuesten ${StudioUI.num(data.scan_limit)} Dateien geprüft, ${StudioUI.num(data.scan_truncated)} ältere nicht: eine fehlende Serie ist dann unbekannt.` : "");
