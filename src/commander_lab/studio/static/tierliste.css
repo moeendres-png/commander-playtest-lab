@@ -174,16 +174,6 @@ td.cardcell .thumb{width:36px;aspect-ratio:488/680;height:auto;background:var(--
 .search-help-popover{position:absolute;top:calc(100% + 4px);left:0;z-index:40;min-width:280px;max-width:min(420px,90vw);padding:8px 10px;background:var(--surface,#fff);border:1px solid var(--border,#cbd5e1);border-radius:8px;box-shadow:0 6px 20px rgba(0,0,0,.14)}
 .search-help-title{font-size:12px;font-weight:600;margin-bottom:6px;color:var(--muted,#475569)}
 
-/* Gesamtrating (#1369): second ranking next to the usage index. The toggle is fixed in the page, so it reserves its own place. */
-#overall-panel{padding:var(--s2) var(--s4);border-bottom:1px solid var(--line);font-size:13px}
-#overall-panel:empty{display:none}
-#overall-panel p{margin:var(--s1) 0}
-#overall-panel .facts{display:flex;gap:var(--s2) var(--s4);flex-wrap:wrap;align-items:baseline}
-.ocell{display:inline-flex;gap:var(--s2);align-items:center;flex-wrap:wrap;justify-content:flex-end}
-.oscore{font-size:14px;font-variant-numeric:tabular-nums}
-.rank-cell{display:inline-flex;gap:var(--s2);align-items:center;flex-wrap:wrap}
-th.crit-head{min-width:34px}
-.overall-reason{margin:var(--s1) 0;padding-left:var(--s3);border-left:3px solid var(--line);color:var(--text);font-size:13px}
-@media (max-width:600px){#overall-panel{padding-left:var(--s2);padding-right:var(--s2);max-width:100%}}
-.oparts{display:inline-flex;flex-direction:column;align-items:flex-end;white-space:nowrap}
+/* Kartenverständnis (Modellurteil), Q1-b3 #1678: the URTEIL column (number contract, zahl.js) keeps its figures readable. */
+td.understanding{min-width:180px}
 @media (max-width:480px){#areas a{padding-left:var(--s2);padding-right:var(--s2)}} /* five area links (with "Daten") must fit 390 px without a horizontal page scroll */

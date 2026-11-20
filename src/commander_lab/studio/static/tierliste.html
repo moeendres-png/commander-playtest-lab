@@ -34,7 +34,6 @@
     <div id="notice"></div>
     <div id="universe-panel"></div>
     <div id="strength-panel"></div>
-    <div id="overall-panel"></div>
     <div id="role-audit-panel"></div>
   </div>
 </details>
@@ -62,7 +61,6 @@
   <span id="ranking-toggle" class="quick-toggle" role="group" aria-label="Ranking der Tabelle">
     <span class="toggle-label">Ranking:</span>
     <button id="rk-usage" type="button" class="chip on" data-ranking="usage" aria-pressed="true" disabled title="Nutzung: Stärke-Index mit Stufen S bis D aus Nutzungsdaten">Nutzung</button>
-    <button id="rk-overall" type="button" class="chip" data-ranking="overall" aria-pressed="false" disabled title="Das Gesamtrating wird berechnet …">Gesamtrating</button>
   </span>
   <span id="rank-group-toggle" class="quick-toggle" role="group" aria-label="Vergleichsgruppe für den Stärke-Index">
     <span class="toggle-label">Vergleich:</span>
@@ -88,6 +86,7 @@
 <div id="toast" hidden></div>
 <script src="commander.js"></script>
 <script src="search.js"></script>
+<script src="zahl.js"></script>
 <script src="tierliste.js"></script>
 </body>
 </html>

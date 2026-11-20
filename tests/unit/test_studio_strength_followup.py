@@ -6,7 +6,7 @@ from __future__ import annotations
 import copy
 import json
 import math
-from itertools import pairwise
+from collections.abc import Mapping
 from pathlib import Path
 
 import pytest
@@ -16,9 +16,10 @@ from scripts import import_card_understanding as importer
 from commander_lab.studio import (
     StudioStore,
     card_understanding,
-    overall_rating,
+    number_contract,
     strength,
     strength_view,
+    understanding_field,
     universe,
 )
 from commander_lab.studio.strength import Observation, PoolContext, StrengthSettings
@@ -248,7 +249,7 @@ def test_the_two_ranking_switches_are_independent() -> None:
     assert cards["Forest"]["tier"] != "N"
 
 
-# ---------- second overall rating: Kartenverständnis-Gesamtrating (#1369) ----------
+# ---------- rubric v2 data set (Kartenverständnis): helpers of the field and loader tests ----------
 
 SCORES = {"E": 60, "F": 70, "T": 40, "R": 50, "K": 20, "D": 80, "H": 65}
 
@@ -286,338 +287,128 @@ def _scored_answer() -> tuple[StudioStore, strength_view.StrengthResult]:
     return store, strength_view.compute(store, CMD, StrengthSettings())
 
 
-def test_the_overall_rating_only_adds_fields_and_leaves_the_usage_index_as_it_was() -> None:
+# ---------- rubric v2 field "Kartenverständnis (Modellurteil)" (Q1-b3, #1678, E5) ----------
+
+
+def _field(
+    store: StudioStore,
+    answer: Mapping[str, object],
+    data: dict[str, card_understanding.UnderstandingRow],
+    monkeypatch: pytest.MonkeyPatch,
+) -> dict[str, object]:
+    monkeypatch.setattr(card_understanding, "DATASET_COMMANDER", CMD)
+    return understanding_field.with_understanding(store, answer, dataset=data)
+
+
+def test_the_field_only_adds_one_key_and_leaves_the_answer_as_it_was(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     store, answer = _scored_answer()
     before = copy.deepcopy(answer)
+    data = _dataset([_row("o-Card 00", scores=SCORES | {"H": 90}), _row("o-Card 03")])
+    after = _field(store, answer, data, monkeypatch)
+    assert answer == before  # the given (possibly remembered) answer is not modified
+    assert set(after) - set(before) == {understanding_field.FIELD}
+    assert {key: value for key, value in after.items() if key != "kartenverstaendnis"} == before
+    field = after["kartenverstaendnis"]
+    assert isinstance(field, dict)
+    assert field["verfuegbar"] is True and field["grund"] is None
+    assert field["name"] == "Kartenverständnis (Modellurteil)" and field["kriterium"] == "H"
+    assert field["n_bewertet"] == 2 and field["n_gesamt"] == len(before["cards"])
+    assert field["herkunft"] == {
+        "version": "v2.1",
+        "rubric": "chulane-rubric-v2.1",
+        "commander": CMD,
+        "rows": 2,
+        "matched": 2,
+        "rater_tiers": {"large": 2},
+    }
+
+
+def test_every_figure_is_a_valid_judgement_and_an_unrated_card_has_none(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    store, answer = _scored_answer()
     data = _dataset(
         [
-            _row("o-Card 00", scores=SCORES | {"H": 90}),
-            _row("o-Card 01", scores=SCORES | {"H": 30}),
-            _row("o-Card 03"),
+            _row("o-Card 00", scores=SCORES | {"H": 90}, confidence="low", raters=3),
+            _row("o-Card 03", scores=SCORES | {"H": 0}),
         ]
     )
-    after = overall_rating.with_overall(store, answer, dataset=data, commander=CMD)
-    assert answer == before  # the given (possibly remembered) answer is not modified
-    assert set(after) - set(before) == {"overall_meta"}
-    stripped = [{k: v for k, v in card.items() if k != "overall"} for card in after["cards"]]  # type: ignore[attr-defined]
-    assert stripped == before["cards"]
-    assert all("overall" in card for card in after["cards"])  # type: ignore[attr-defined]
-    for key in before:
-        if key != "cards":
-            assert after[key] == before[key], key
-    meta = after["overall_meta"]
-    assert meta["n_rated"] == 3 and meta["n_total"] == len(before["cards"])  # type: ignore[index]
-    assert meta["version"] == overall_rating.OVERALL_RULES_VERSION  # type: ignore[index]
-    assert "große Stufe" in meta["caveat"] and meta["weights_note"] == "Setzung, keine Messung"  # type: ignore[index,operator]
-
-
-def test_the_breakdown_adds_up_to_the_score_exactly() -> None:
-    probes = [
-        {"usage": 83.3, "H": 65, "F": 70, "E": 60, "T": 40, "R": 50, "D": 80, "K": 20},
-        {"usage": 12.7, "H": 5, "F": 95, "E": 35, "T": 15, "R": 85, "D": 45, "K": 55},
-        {"usage": None, "H": 45, "F": 25, "E": 60, "T": 40, "R": 50, "D": 80, "K": 20},
-        {"usage": None, "H": 33, "F": 77, "E": 11, "T": 99, "R": 1, "D": 66, "K": 44},
-    ]
-    for values in probes:
-        found = overall_rating.decompose(values)
-        assert found is not None
-        total = sum(item["contribution"] for item in found["axes"])
-        assert total == pytest.approx(found["score"], abs=1e-9), values
-        assert sum(item["weight_effective"] for item in found["axes"]) == pytest.approx(1, abs=1e-3)
-    assert sum(overall_rating.OVERALL_WEIGHTS_V1.values()) == pytest.approx(1.0)
-    assert overall_rating.OVERALL_WEIGHTS_V1["usage"] == 0.30
-
-
-def test_a_card_without_a_rating_is_unknown_never_zero() -> None:
-    store, answer = _scored_answer()
-    data = _dataset([_row("o-Card 00"), _row("o-Card 01")])
-    after = overall_rating.with_overall(store, answer, dataset=data, commander=CMD)
-    by_name = {card["name"]: card["overall"] for card in after["cards"]}  # type: ignore[attr-defined]
-    missing = by_name["Card 05"]
-    assert missing["score"] is None and missing["rank"] is None and missing["axes"] == []
-    assert (
-        missing["status"] == "unbekannt" and "keine Kartenverständnis" in missing["unknown_reason"]
-    )
-    assert by_name["Card 00"]["score"] is not None
-    assert all(item["n_rated"] == 2 for item in by_name.values())
-    assert after["overall_meta"]["n_rated"] == 2  # type: ignore[index]
-
-
-def test_missing_axes_renormalise_and_report_the_coverage() -> None:
-    full = overall_rating.decompose({"usage": 50.0} | dict(SCORES))
-    without = overall_rating.decompose({"usage": None} | dict(SCORES))
-    assert full is not None and without is not None
-    assert full["coverage"] == 1.0 and without["coverage"] == pytest.approx(0.7)
-    by_axis = {item["axis"]: item for item in without["axes"]}
-    assert "usage" not in by_axis
-    assert by_axis["H"]["weight_effective"] == pytest.approx(0.3 / 0.7, abs=1e-4)
-    # too few axes: below the minimum coverage there is no score, never 0
-    assert overall_rating.decompose({"H": 80.0, "F": 80.0, "usage": 40.0}) is not None  # 0.75
-    assert overall_rating.decompose({"H": 80.0, "F": 80.0}) is None  # 0.45
-    assert overall_rating.decompose({"usage": 90.0}) is None
-    assert overall_rating.decompose({}) is None
-
-
-def test_usage_index_of_an_unranked_card_is_a_missing_axis_not_a_zero() -> None:
-    store, answer = _scored_answer()
-    data = _dataset([_row(f"o-{name}") for name in CARDS])
-    after = overall_rating.with_overall(store, answer, dataset=data, commander=CMD)
-    rated = [c for c in after["cards"] if c["name"] in CARDS]  # type: ignore[attr-defined]
-    assert len(rated) == len(CARDS)
-    for card in rated:
-        axes = {item["axis"] for item in card["overall"]["axes"]}
-        has_usage = card["tier"] in strength.TIERS and card["index"] is not None
-        assert ("usage" in axes) is has_usage, card["name"]
-        assert card["overall"]["coverage"] == (1.0 if has_usage else 0.7), card["name"]
-
-
-def test_ranks_share_the_best_rank_on_ties() -> None:
-    ranks = overall_rating.competition_ranks(
-        {"a": 50.0, "b": 50.0, "c": 40.0, "d": 60.0, "e": 50.04}
-    )
-    assert ranks == {"d": 1, "a": 2, "b": 2, "e": 2, "c": 5}
-    store, answer = _scored_answer()
-    data = _dataset(
-        [_row("o-Card 00", scores=SCORES | {"H": 100}), _row("o-Card 01"), _row("o-Card 02")]
-    )
-    after = overall_rating.with_overall(store, answer, dataset=data, commander=CMD)
-    rated = [c["overall"] for c in after["cards"] if c["overall"]["score"] is not None]  # type: ignore[attr-defined]
-    assert sorted(item["rank"] for item in rated)[0] == 1 and len(rated) == 3
-    for item in rated:
-        better = sum(1 for other in rated if other["score"] > item["score"])
-        assert item["rank"] == better + 1
-
-
-def test_the_stability_span_is_deterministic_and_contains_the_rank() -> None:
-    first = overall_rating.weight_variants()
-    assert first == overall_rating.weight_variants() and len(first) == 80
-    assert first[0]["usage"] == pytest.approx(0.30 * 1.2407571359998, abs=1e-9)
-    for variant in first:
-        for axis, weight in variant.items():
-            base = overall_rating.OVERALL_WEIGHTS_V1[axis]
-            assert 0.7 * base - 1e-12 <= weight <= 1.3 * base + 1e-12
-    values: dict[str, dict[str, float | None]] = {
-        f"c{index}": {"usage": 10.0 * index, "H": 100.0 - 7.0 * index, "F": 5.0 * (index % 4)}
-        | {axis: 50.0 for axis in "ETRDK"}
-        for index in range(12)
+    field = _field(store, answer, data, monkeypatch)["kartenverstaendnis"]
+    assert isinstance(field, dict)
+    figures = field["zahlen"]
+    ids = {card["name"]: card["card_id"] for card in answer["cards"]}
+    by_id = {figure["id"]: figure for figure in figures}
+    assert set(by_id) == {
+        f"kartenverstaendnis:{ids['Card 00']}",
+        f"kartenverstaendnis:{ids['Card 03']}",
     }
-    scores = {}
-    for card, axes in values.items():
-        found = overall_rating.decompose(axes)
-        assert found is not None
-        scores[card] = found["score"]
-    base = overall_rating.competition_ranks(scores)
-    spans = overall_rating.rank_spans(values, base)
-    assert spans == overall_rating.rank_spans(values, base)
-    assert any(low != high for low, high in spans.values())
-    for card, (low, high) in spans.items():
-        assert low <= base[card] <= high
-
-
-def test_unsharp_is_a_rank_span_of_ten_percent_of_the_rated_cards() -> None:
-    store = _store()
-    names = [f"Card {index:02d}" for index in range(6)]
-    _with_oracle_ids(store, names)
-    answer = strength_view.compute(store, CMD, StrengthSettings())
-    data = _dataset(
-        [_row(f"o-{name}", scores=SCORES | {"H": 10 * index}) for index, name in enumerate(names)]
+    for figure in figures:
+        assert number_contract.check(figure) == []
+        assert figure["klasse"] == number_contract.URTEIL == "URTEIL"
+        assert figure["einheit"] == "Anzahl" and figure["n"] is None and figure["N"] is None
+        assert "data_class" not in figure  # never a simulated result
+        assert figure["kohorte"] == f"{CMD} · Bracket 3 (Annahme der Rater)"
+        assert "nicht gegen Spielergebnisse validiert" in figure["hinweise"]
+    high = by_id[f"kartenverstaendnis:{ids['Card 00']}"]
+    assert high["wert"] == 90.0 and high["bezeichnung"] == "H Gesamtwert (0 bis 100)"
+    assert (
+        high["quelle"] == "Rubrik v2.1 (chulane-rubric-v2.1), Modell-Rater Stufe large, 3 Bewerter"
     )
-    after = overall_rating.with_overall(store, answer, dataset=data, commander=CMD)
-    n_rated = after["overall_meta"]["n_rated"]  # type: ignore[index]
-    flags = 0
-    for card in after["cards"]:  # type: ignore[attr-defined]
-        found = card["overall"]
-        if found["stability"] is None:
-            continue
-        span = found["stability"]["rank_max"] - found["stability"]["rank_min"]
-        assert found["stability"]["unscharf"] is (span >= 0.1 * n_rated)
-        flags += found["stability"]["unscharf"]
-    assert after["overall_meta"]["stability"]["unscharf_count"] == flags  # type: ignore[index]
+    assert high["hinweise"][0] == "Rater-Vertrauen low (Selbstauskunft)"
+    zero = by_id[f"kartenverstaendnis:{ids['Card 03']}"]
+    assert zero["wert"] == 0.0 and "1 Bewerter" in zero["quelle"]  # a real 0 stays a real 0
+    # a card the data set does not list has no figure at all: "unbekannt", never 0
+    assert f"kartenverstaendnis:{ids['Card 01']}" not in by_id
 
 
-def test_confidence_follows_the_rater_confidence_and_the_h_spread() -> None:
-    plain = _dataset([_row("a")])["a"]
-    assert overall_rating.confidence_of(plain)["level"] == "high"
-    assert overall_rating.confidence_of(plain)["h_sd"] is None  # one rater: unknown, not 0
-    low = _dataset([_row("b", confidence="low")])["b"]
-    assert overall_rating.confidence_of(low)["uncertain"] is True
-    wide_sd = dict.fromkeys(card_understanding.CRITERIA, 5.0) | {"H": 20.0}
-    wide = _dataset([_row("c", score_sd=wide_sd, raters=2)])["c"]
-    found = overall_rating.confidence_of(wide)
-    assert found["uncertain"] and found["level"] == "low" and found["rater_confidence"] == "high"
-    narrow = _dataset([_row("d", score_sd=wide_sd | {"H": 19.9}, raters=2)])["d"]
-    assert overall_rating.confidence_of(narrow)["uncertain"] is False
-
-
-def test_the_usage_axis_is_dropped_when_the_index_carries_a_locked_signal() -> None:
+def test_another_commander_gets_no_field(monkeypatch: pytest.MonkeyPatch) -> None:
     store, answer = _scored_answer()
     data = _dataset([_row(f"o-{name}") for name in CARDS])
-    for patch in (
-        {"effective_weights": {**answer["effective_weights"], "playgroup_observed": 0.5}},
-        {"effective_weights": {**answer["effective_weights"], "rubric": 1.0}},
-        {"effective_weights": {**answer["effective_weights"], "simulation": 0.2}},
-        {"effective_weights": None},
-    ):
-        after = overall_rating.with_overall(store, answer | patch, dataset=data, commander=CMD)  # type: ignore[arg-type]
-        usage = after["overall_meta"]["usage_axis"]  # type: ignore[index]
-        assert (
-            usage["included"] is False and usage["excluded_reason"] and usage["n_with_usage"] == 0
-        )
-        for card in (c for c in after["cards"] if c["name"] in CARDS):  # type: ignore[attr-defined]
-            assert card["overall"]["coverage"] == 0.7 and card["overall"]["score"] is not None
+    monkeypatch.setattr(card_understanding, "DATASET_COMMANDER", "Someone Else")
+    after = understanding_field.with_understanding(store, answer, dataset=data)
+    assert "kartenverstaendnis" not in after and after == answer
+    # positive case: the data set's commander matches regardless of case and spaces
+    renamed = answer | {"commander": f" {CMD.lower()}"}
+    monkeypatch.setattr(card_understanding, "DATASET_COMMANDER", CMD.upper())
+    found = understanding_field.with_understanding(store, renamed, dataset=data)  # type: ignore[arg-type]
+    assert found["kartenverstaendnis"]["n_bewertet"] == len(CARDS)  # type: ignore[index]
 
 
-def test_a_real_answer_without_layer_summary_keeps_the_usage_axis() -> None:
-    """Q1-b2 (#1677): the answer has no ``layer_summary`` any more; the usage axis must not be
-    blocked for its absence (fail closed only on missing weights or a locked signal)."""
-    store, answer = _scored_answer()
-    assert "layer_summary" not in answer
-    data = _dataset([_row(f"o-{name}") for name in CARDS])
-    assert overall_rating.usage_blocked(answer) is None  # type: ignore[arg-type]
-    after = overall_rating.with_overall(store, answer, dataset=data, commander=CMD)  # type: ignore[arg-type]
-    usage = after["overall_meta"]["usage_axis"]  # type: ignore[index]
-    assert usage["included"] is True and not usage["excluded_reason"]
-
-
-def test_a_non_finite_or_boolean_index_is_a_missing_axis() -> None:
-    store, answer = _scored_answer()
-    data = _dataset([_row(f"o-{name}") for name in CARDS])
-    for bad in (math.nan, math.inf, True):
-        cards = [{**card, "index": bad, "tier": "S"} for card in answer["cards"]]
-        after = overall_rating.with_overall(
-            store,
-            answer | {"cards": cards},
-            dataset=data,
-            commander=CMD,  # type: ignore[arg-type]
-        )
-        rated = [c["overall"] for c in after["cards"] if c["name"] in CARDS]  # type: ignore[attr-defined]
-        assert rated and all(
-            item["coverage"] == 0.7 and item["score"] is not None for item in rated
-        )
-
-
-def test_the_usage_axis_is_log_scaled_and_keeps_the_raw_index() -> None:
-    scale = overall_rating.usage_axis_value
-    assert scale(0) == 0.0 and scale(100) == pytest.approx(100.0)
-    assert scale(1) == pytest.approx(15.0, abs=0.1) and scale(5) == pytest.approx(38.8, abs=0.1)
-    assert scale(18) == pytest.approx(63.8, abs=0.2)
-    assert scale(-3) == 0.0 and scale(250) == pytest.approx(100.0)  # clamped to 0..100
-    values = [scale(float(index)) for index in range(101)]
-    assert all(low < high for low, high in pairwise(values))  # type: ignore[operator]
-    for bad in (math.nan, math.inf, -math.inf, True, None):
-        assert scale(bad) is None  # type: ignore[arg-type]
-    found = overall_rating.rate_pool(
-        {"a": 18.0, "b": 0.0, "c": None},
-        {"a": "x", "b": "y", "c": "z"},
-        _dataset([_row(oid) for oid in "xyz"]),
-    )
-    first = found["a"]["axes"][0]
-    assert first["axis"] == "usage" and first["raw_value"] == 18.0
-    assert first["value"] == pytest.approx(scale(18.0))
-    assert found["b"]["axes"][0]["value"] == 0.0 and found["b"]["axes"][0]["raw_value"] == 0.0
-    assert all(item["axis"] != "usage" for item in found["c"]["axes"])  # unknown, not 0
-
-
-def test_the_overall_rating_is_only_offered_for_the_bracket_the_raters_judged() -> None:
+def test_the_field_is_only_offered_for_the_bracket_the_raters_judged(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     store, answer = _scored_answer()
     data = _dataset([_row(f"o-{name}") for name in CARDS])
     assert answer["settings"]["bracket"] == "upgraded"
     for bracket in ("cedh", "core", "optimized", "none", None):
         changed = answer | {"settings": {**answer["settings"], "bracket": bracket}}
-        after = overall_rating.with_overall(store, changed, dataset=data, commander=CMD)  # type: ignore[arg-type]
-        meta = after["overall_meta"]
-        assert meta["available"] is False and "Bracket 3" in meta["unavailable_reason"]  # type: ignore[index,operator]
-        assert all("overall" not in card for card in after["cards"])  # type: ignore[attr-defined]
+        field = _field(store, changed, data, monkeypatch)["kartenverstaendnis"]  # type: ignore[arg-type]
+        assert isinstance(field, dict)
+        assert field["verfuegbar"] is False and "Bracket 3" in field["grund"]
+        assert field["zahlen"] == [] and field["n_bewertet"] == 0 and field["herkunft"] is None
     no_settings = {k: v for k, v in answer.items() if k != "settings"}
-    after = overall_rating.with_overall(store, no_settings, dataset=data, commander=CMD)  # type: ignore[arg-type]
-    assert after["overall_meta"]["available"] is False  # type: ignore[index]
+    field = _field(store, no_settings, data, monkeypatch)["kartenverstaendnis"]
+    assert field["verfuegbar"] is False  # type: ignore[index]
 
 
-def test_the_group_rank_of_lands_and_spells_shares_the_best_rank_on_ties() -> None:
-    data = _dataset(
-        [
-            _row("o-a", scores=SCORES | {"H": 80}),
-            _row("o-b", scores=SCORES | {"H": 80}),
-            _row("o-c", scores=SCORES | {"H": 40}),
-            _row("o-d", scores=SCORES | {"H": 60}),
-            _row("o-e", scores=SCORES | {"H": 90}),
-        ]
-    )
-    usage = {name: 10.0 for name in "abcde"}
-    oracle = {name: f"o-{name}" for name in "abcde"}
-    found = overall_rating.rate_pool(usage, oracle, data, lands=frozenset({"c", "d"}))
-    assert [(found[k]["group"], found[k]["rank_in_group"], found[k]["n_group"]) for k in "abe"] == [
-        ("spell", 2, 3),
-        ("spell", 2, 3),
-        ("spell", 1, 3),
-    ]
-    assert (found["d"]["rank_in_group"], found["c"]["rank_in_group"]) == (1, 2)
-    assert found["d"]["n_group"] == 2 and found["d"]["group"] == "land"
-    assert [found[k]["rank"] for k in "eabdc"] == [1, 2, 2, 4, 5]  # the pool rank is kept
-    unknown = overall_rating.rate_pool({"z": 1.0}, {"z": None}, data, lands=frozenset({"z"}))
-    assert unknown["z"]["group"] == "land" and unknown["z"]["rank_in_group"] is None
-
-
-def test_a_card_without_a_usage_axis_is_flagged_and_still_ranked() -> None:
-    data = _dataset([_row("o-a"), _row("o-b")])
-    found = overall_rating.rate_pool({"a": 12.0, "b": None}, {"a": "o-a", "b": "o-b"}, data)
-    assert found["a"]["flags"] == [] and found["b"]["flags"] == ["no_usage_axis"]
-    assert found["b"]["rank"] is not None and found["b"]["coverage"] == 0.7
-
-
-def test_the_meta_names_the_v2_rules_the_scale_the_groups_and_the_noise_limit() -> None:
-    store, answer = _scored_answer()
-    names = CARDS[:4]
-    data = _dataset([_row(f"o-{name}") for name in names])
-    meta = overall_rating.with_overall(store, answer, dataset=data, commander=CMD)["overall_meta"]
-    assert meta["version"] == "overall-v2" and meta["usage_scale"] == "log"  # type: ignore[index]
-    assert "unterhalb Stufe C" in meta["usage_scale_note"]  # type: ignore[index,operator]
-    assert meta["min_meaningful_diff"] == 5 and "5 Punkten" in meta["noise_note"]  # type: ignore[index,operator]
-    assert meta["rater_bracket"] == "upgraded" and "Betonung" in meta["weights_caveat"]  # type: ignore[index,operator]
-    assert sum(meta["groups"]["n_rated"].values()) == meta["n_rated"] == 4  # type: ignore[index]
-    flags = meta["flags"]["no_usage_axis"]  # type: ignore[index]
-    assert 0 <= flags["count"] <= 4 and "renormalisiert" in flags["note"]
-
-
-def test_another_commander_gets_no_overall_rating() -> None:
-    store, answer = _scored_answer()
-    data = _dataset([_row(f"o-{name}") for name in CARDS])
-    after = overall_rating.with_overall(store, answer, dataset=data, commander="Someone Else")
-    assert after["overall_meta"]["available"] is False  # type: ignore[index]
-    assert all("overall" not in card for card in after["cards"])  # type: ignore[attr-defined]
-    assert after["cards"] == answer["cards"]
-
-
-def test_the_strength_route_adds_the_overall_fields_and_nothing_else(
+def test_a_broken_data_file_makes_the_field_unavailable_not_wrong(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    folder = tmp_path / "studio"
-    store = _store(folder)
-    _with_oracle_ids(store, CARDS)
-    store.connection.commit()
-    expected = strength_view.compute(store, CMD, StrengthSettings())
-    store.close()
-    path = tmp_path / "cu.jsonl"
-    path.write_text(
-        "\n".join(json.dumps(_row(f"o-{name}", name)) for name in CARDS[:4]) + "\n",
-        encoding="utf-8",
-    )
+    store, answer = _scored_answer()
+    path = tmp_path / "bad.jsonl"
+    path.write_text("{}\n", encoding="utf-8")
     monkeypatch.setattr(card_understanding, "DATASET_PATH", path)
     monkeypatch.setattr(card_understanding, "DATASET_COMMANDER", CMD)
-    with TestClient(create_app(folder)) as client:
-        body = client.post(
-            "/api/strength", json={"commander": CMD}, headers={"X-Studio": "1"}
-        ).json()
-    assert body["overall_meta"]["n_rated"] == 4 and body["overall_meta"]["available"] is True
-    assert [{k: v for k, v in c.items() if k != "overall"} for c in body["cards"]] == json.loads(
-        json.dumps(expected["cards"])
-    )
-    assert body["tier_counts"] == expected["tier_counts"]
-    assert sum(1 for c in body["cards"] if c["overall"]["score"] is not None) == 4
+    field = understanding_field.with_understanding(store, answer)["kartenverstaendnis"]
+    assert isinstance(field, dict)
+    assert field["verfuegbar"] is False and "nicht lesbar" in field["grund"]
+    assert field["zahlen"] == []
 
 
-def _route(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, path: Path
+def _judgement_route(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, path: Path, settings: object = None
 ) -> tuple[dict[str, object], dict[str, object]]:
     """The answer of ``/api/strength`` with the data file ``path``, and the index answer."""
     folder = tmp_path / "studio"
@@ -628,10 +419,33 @@ def _route(
     store.close()
     monkeypatch.setattr(card_understanding, "DATASET_PATH", path)
     monkeypatch.setattr(card_understanding, "DATASET_COMMANDER", CMD)
+    body: dict[str, object] = {"commander": CMD}
+    if settings is not None:
+        body["settings"] = settings
     with TestClient(create_app(folder)) as client:
-        response = client.post("/api/strength", json={"commander": CMD}, headers={"X-Studio": "1"})
+        response = client.post("/api/strength", json=body, headers={"X-Studio": "1"})
     assert response.status_code == 200
     return response.json(), json.loads(json.dumps(expected))
+
+
+def test_the_strength_route_sends_the_judgement_field(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    path = tmp_path / "cu.jsonl"
+    path.write_text(
+        "\n".join(json.dumps(_row(f"o-{name}", name)) for name in CARDS[:4]) + "\n",
+        encoding="utf-8",
+    )
+    body, expected = _judgement_route(tmp_path, monkeypatch, path)
+    field = body["kartenverstaendnis"]
+    assert isinstance(field, dict)
+    assert field["verfuegbar"] is True and field["n_bewertet"] == 4
+    assert all(number_contract.check(figure) == [] for figure in field["zahlen"])
+    assert body["tier_counts"] == expected["tier_counts"]
+    # the overall rating v1 fell (Q1-b3, E15 Q1): no field of it is sent any more
+    assert not [key for key in body if key.startswith("overall")]
+    assert all(not key.startswith("overall") for card in body["cards"] for key in card)
+    assert body["cards"] == expected["cards"]
 
 
 @pytest.mark.parametrize(
@@ -651,19 +465,21 @@ def _route(
         (None, "Datensatz nicht gefunden"),
     ],
 )
-def test_a_defective_data_file_never_breaks_the_strength_route(
+def test_a_defective_data_file_never_breaks_the_strength_judgement_route(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, content: bytes | None, reason: str
 ) -> None:
     path = tmp_path / "cu.jsonl"
     if content is not None:
         path.write_bytes(content)
-    body, expected = _route(tmp_path, monkeypatch, path)
-    meta = body["overall_meta"]
-    assert meta["available"] is False and reason in meta["unavailable_reason"]  # type: ignore[index,operator]
-    assert body["cards"] == expected["cards"] and body["tier_counts"] == expected["tier_counts"]
+    body, expected = _judgement_route(tmp_path, monkeypatch, path)
+    field = body["kartenverstaendnis"]
+    assert isinstance(field, dict)
+    assert field["verfuegbar"] is False and reason in field["grund"]
+    assert field["zahlen"] == []
+    assert body["tier_counts"] == expected["tier_counts"]
 
 
-def test_a_changed_data_file_invalidates_the_remembered_answer(
+def test_a_changed_data_file_invalidates_the_remembered_judgement(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     folder = tmp_path / "studio"
@@ -683,11 +499,22 @@ def test_a_changed_data_file_invalidates_the_remembered_answer(
                 encoding="utf-8",
             )
             body = client.post("/api/strength", json={"commander": CMD}, headers=head).json()
-            counts.append(body["overall_meta"]["n_rated"])
+            counts.append(body["kartenverstaendnis"]["n_bewertet"])
     assert counts == [2, 3]
 
 
-def test_the_strength_route_withholds_the_overall_rating_for_another_bracket(
+def test_the_strength_route_withholds_the_judgement_for_another_bracket(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    path = tmp_path / "cu.jsonl"
+    path.write_text(json.dumps(_row("o-Card 00", "Card 00")) + "\n", encoding="utf-8")
+    body, _ = _judgement_route(tmp_path, monkeypatch, path, settings={"bracket": "cedh"})
+    field = body["kartenverstaendnis"]
+    assert isinstance(field, dict)
+    assert field["verfuegbar"] is False and field["zahlen"] == []
+
+
+def test_the_strength_route_sends_no_field_for_another_commander(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     folder = tmp_path / "studio"
@@ -698,15 +525,12 @@ def test_the_strength_route_withholds_the_overall_rating_for_another_bracket(
     path = tmp_path / "cu.jsonl"
     path.write_text(json.dumps(_row("o-Card 00", "Card 00")) + "\n", encoding="utf-8")
     monkeypatch.setattr(card_understanding, "DATASET_PATH", path)
-    monkeypatch.setattr(card_understanding, "DATASET_COMMANDER", CMD)
+    monkeypatch.setattr(card_understanding, "DATASET_COMMANDER", "Other Cmd")
     with TestClient(create_app(folder)) as client:
         body = client.post(
-            "/api/strength",
-            json={"commander": CMD, "settings": {"bracket": "cedh"}},
-            headers={"X-Studio": "1"},
+            "/api/strength", json={"commander": CMD}, headers={"X-Studio": "1"}
         ).json()
-    assert body["overall_meta"]["available"] is False
-    assert all("overall" not in card for card in body["cards"])
+    assert "kartenverstaendnis" not in body and body["cards"]
 
 
 # ---------- the data set loader ----------
@@ -801,18 +625,6 @@ def test_the_loader_fails_closed_and_names_the_lines() -> None:
     )
     with pytest.raises(card_understanding.UnderstandingDataError):
         card_understanding.parse_row([])
-
-
-def test_a_broken_data_file_makes_the_overall_rating_unavailable_not_wrong(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    store, answer = _scored_answer()
-    path = tmp_path / "bad.jsonl"
-    path.write_text("{}\n", encoding="utf-8")
-    monkeypatch.setattr(card_understanding, "DATASET_PATH", path)
-    after = overall_rating.with_overall(store, answer, commander=CMD)
-    assert after["overall_meta"]["available"] is False  # type: ignore[index]
-    assert all("overall" not in card for card in after["cards"])  # type: ignore[attr-defined]
 
 
 def test_the_checked_in_data_set_is_valid_and_matches_its_constants() -> None:
