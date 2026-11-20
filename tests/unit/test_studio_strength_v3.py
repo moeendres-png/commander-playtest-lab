@@ -140,6 +140,109 @@ def test_a_profile_saved_before_v3_keeps_its_values_and_takes_new_defaults_for_n
     assert settings.edhrec_with_corpus is False
 
 
+# ---------- Q1-b0 (#1675): retired settings keys are accepted and dropped ----------
+
+# Probe keys only: the real retired keys enter the list with the packages that remove them
+# (Q1-b2, Q1-b4). One probe per group, so a mutation at one filter site fails one case.
+RETIRED_PROBES = {
+    strength.RETIRED_WEIGHTS: "retired_component_probe",
+    strength.RETIRED_MIN_DENOMINATORS: "retired_minimum_probe",
+    strength.RETIRED_TOP_LEVEL: "retired_setting_probe",
+}
+
+
+def _retire_probes(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(
+        strength,
+        "RETIRED_SETTING_KEYS",
+        {group: frozenset({key}) for group, key in RETIRED_PROBES.items()},
+    )
+
+
+def _with_key(base: dict[str, object], group: str, key: str, value: object) -> dict[str, object]:
+    """``base`` with ``key`` added at the level of ``group``."""
+    if group == strength.RETIRED_TOP_LEVEL:
+        return {**base, key: value}
+    nested = base.get(group, {})
+    assert isinstance(nested, dict)
+    return {**base, group: {**nested, key: value}}
+
+
+SAVED = {
+    "weights": {"deck_universe": 2.0, "combos": 1.0},
+    "min_denominators": {"edhrec": 40},
+    "bracket": "optimized",
+}
+
+
+def test_the_retired_list_starts_empty_and_never_names_a_live_key() -> None:
+    """b0 retires nothing; a key moves to the list only in the change that removes it."""
+    assert set(strength.RETIRED_SETTING_KEYS) == set(RETIRED_PROBES)
+    assert all(not keys for keys in strength.RETIRED_SETTING_KEYS.values())
+    live = {
+        strength.RETIRED_WEIGHTS: set(strength.DEFAULT_WEIGHTS),
+        strength.RETIRED_MIN_DENOMINATORS: set(strength.MIN_DENOMINATOR_KEYS),
+        strength.RETIRED_TOP_LEVEL: set(StrengthSettings().to_dict()),
+    }
+    for group, keys in strength.RETIRED_SETTING_KEYS.items():
+        assert not keys & live[group]
+
+
+@pytest.mark.parametrize("group", list(RETIRED_PROBES))
+def test_a_profile_with_a_retired_key_loads_with_the_settings_it_has_without_it(
+    monkeypatch: pytest.MonkeyPatch, group: str
+) -> None:
+    _retire_probes(monkeypatch)
+    old = _with_key(SAVED, group, RETIRED_PROBES[group], 3)
+    expected, _ = StrengthSettings.from_stored(SAVED)
+    settings, ignored = StrengthSettings.from_stored(old)
+    assert settings == expected
+    assert ignored == []  # dropped, not reported as unknown
+    assert RETIRED_PROBES[group] not in settings.to_dict()
+    assert RETIRED_PROBES[group] not in settings.weights
+    assert RETIRED_PROBES[group] not in settings.min_denominators
+    # the strict reader (explicit settings, remembered browser settings) accepts it too
+    assert StrengthSettings.from_dict(old) == expected
+
+
+@pytest.mark.parametrize("group", list(RETIRED_PROBES))
+def test_an_unknown_key_that_is_not_retired_still_fails(
+    monkeypatch: pytest.MonkeyPatch, group: str
+) -> None:
+    """A typo stays visible: only listed keys are dropped."""
+    _retire_probes(monkeypatch)
+    typo = _with_key(SAVED, group, "deck_univers", 3)
+    with pytest.raises(ValueError, match="deck_univers"):
+        StrengthSettings.from_dict(typo)
+    if group == strength.RETIRED_TOP_LEVEL:
+        # a stored profile ignores and NAMES an unknown top-level key (another version wrote it)
+        assert StrengthSettings.from_stored(typo)[1] == ["deck_univers"]
+    else:
+        with pytest.raises(ValueError, match="deck_univers"):
+            StrengthSettings.from_stored(typo)
+
+
+def test_a_retired_key_is_only_dropped_where_it_is_listed(monkeypatch: pytest.MonkeyPatch) -> None:
+    """A weight probe is not a setting and the other way round: the groups do not mix."""
+    _retire_probes(monkeypatch)
+    weight_probe = RETIRED_PROBES[strength.RETIRED_WEIGHTS]
+    with pytest.raises(ValueError, match=weight_probe):
+        StrengthSettings.from_dict({weight_probe: 1})
+    with pytest.raises(ValueError, match=weight_probe):
+        StrengthSettings.from_dict({"min_denominators": {weight_probe: 1}})
+    # constructing settings in code stays strict: the list is for reading only
+    with pytest.raises(ValueError, match="unknown component"):
+        StrengthSettings(weights={weight_probe: 1.0})
+
+
+def test_rank_group_function_stays_a_valid_value() -> None:
+    """E2: "Gleiche Funktion" stays; the retired list does not touch values."""
+    assert StrengthSettings.from_dict({"rank_group": "function"}).rank_group == "function"
+    settings, ignored = StrengthSettings.from_stored({"rank_group": "function"})
+    assert settings.rank_group == strength.GROUP_FUNCTION == "function"
+    assert ignored == []
+
+
 # ---------- E5.a: the log share scale ----------
 
 

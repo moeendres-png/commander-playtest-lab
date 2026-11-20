@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import csv
 import hashlib
+import json
 import sqlite3
 from collections.abc import Iterator
 from itertools import pairwise
@@ -1771,6 +1772,68 @@ def test_a_stored_profile_with_unknown_keys_is_accepted_and_names_them(
         "/api/strength", json={"commander": COMMANDER, "profile": "neuer-kaputt"}, headers=HEADER
     )
     assert plain.status_code == 422
+
+
+def test_retired_keys_keep_a_stored_profile_and_explicit_settings_valid(
+    client: TestClient, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Q1-b0 (#1675): keys on ``strength.RETIRED_SETTING_KEYS`` (probe keys here) are dropped
+    when a profile is listed, used or sent as settings; a not-listed nested key still makes
+    the profile invalid and explicit settings with it are refused."""
+    monkeypatch.setattr(
+        strength,
+        "RETIRED_SETTING_KEYS",
+        {
+            strength.RETIRED_WEIGHTS: frozenset({"retired_component_probe"}),
+            strength.RETIRED_MIN_DENOMINATORS: frozenset({"retired_minimum_probe"}),
+            strength.RETIRED_TOP_LEVEL: frozenset({"retired_setting_probe"}),
+        },
+    )
+    plain = {"bracket": "cedh", "weights": {"synergy": 2}, "min_denominators": {"edhrec": 40}}
+    old = {
+        "bracket": "cedh",
+        "retired_setting_probe": 1,
+        "weights": {"synergy": 2, "retired_component_probe": 3},
+        "min_denominators": {"edhrec": 40, "retired_minimum_probe": 5},
+    }
+    store = StudioStore.open(tmp_path / "studio")
+    try:
+        for name, spec in (
+            ("alt", old),
+            ("ohne", plain),
+            ("vertippt", {**plain, "weights": {"synergie": 2}}),
+        ):
+            store.connection.execute(
+                "INSERT INTO strength_profile(name, spec, created_at) VALUES (?, ?, 'x')",
+                (name, json.dumps(spec)),
+            )
+        store.connection.commit()
+    finally:
+        store.close()
+    listed = {item["name"]: item for item in client.get("/api/strength/profiles").json()}
+    assert listed["alt"]["valid"] is True and listed["alt"]["reason"] is None
+    assert listed["alt"]["ignored_keys"] == []
+    assert listed["alt"]["settings"] == listed["ohne"]["settings"]
+    assert listed["vertippt"]["valid"] is False and "synergie" in listed["vertippt"]["reason"]
+    answers = {
+        source: client.post("/api/strength", json={"commander": COMMANDER, **body}, headers=HEADER)
+        for source, body in (
+            ("profile", {"profile": "alt"}),
+            ("settings", {"settings": old}),
+            ("plain", {"settings": plain}),
+        )
+    }
+    assert all(answer.status_code == 200 for answer in answers.values())
+    expected = answers["plain"].json()["settings"]
+    assert answers["profile"].json()["settings"] == expected
+    assert answers["settings"].json()["settings"] == expected
+    assert not any("ignoriert" in text for text in answers["profile"].json()["notices"])
+    typo = client.post(
+        "/api/strength",
+        json={"commander": COMMANDER, "settings": {**plain, "weights": {"synergie": 2}}},
+        headers=HEADER,
+    )
+    assert typo.status_code == 422
 
 
 def test_the_page_names_a_pool_fallback_instead_of_a_null_group_size() -> None:
