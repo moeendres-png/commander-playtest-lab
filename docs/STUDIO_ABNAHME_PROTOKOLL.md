@@ -133,7 +133,7 @@ Quelle der 17 Engine-Klassen: `XmageFullGameDecisionController.java` (`DECISION_
 | Kennzahl | Wert | Herkunft (`games\<batch_id>.series.json` / Befehl) | Urteil (`PASS` / `FAIL` / `UNKNOWN`) |
 |---|---|---|---|
 | Messbefehl | `[Platzhalter aus Paket #1521]` | Paket #1521 | `UNKNOWN` |
-| Durchsatz (Spiele/min, Kerne/RAM, `workers`, `games_per_jvm`) | | | `UNKNOWN` |
+| Durchsatz (Spiele/min, Kerne/RAM, `workers`, `games_per_jvm`) | Bestwert `14,60/min` (`876,00/h`, `8W/24G`, `192/192`); Sweet Spot `13,57/min` (`814,36/h`, `7W/16G`, `112/112`) bzw. `14,28/min` (`856,60/h`, `6W/24G`, `144/144`); `#1588`-48-Seed-Protokoll max. `11,81/min` (`708,75/h`, `48/48`, eff. `6` JVMs); WSL2 Ryzen 7 7700 (`8C/16T`, `15,6 GiB` RAM, `0,0 MB` Swap-Delta), JAR `840e50ab…` (`BRIDGE_AHEAD_OF_QUALIFICATION`) | `docs/analysis-reports/owner_pc_throughput_1588_20261120.md` | `PASS` (WSL2, 4-Precon-Tisch, `#1588`); natives Windows & Chulane-Pilotblock: `UNKNOWN` |
 | Diskordanz (`n_discordant / N_pairs`) neben Unabhängigkeitswert | | | `UNKNOWN` |
 | Paar-Streuung (Standardfehler / t-Intervall) | | | `UNKNOWN` |
 | Sitzkurve Sitz 1 (`n/N`, %) | | | `UNKNOWN` |
@@ -141,6 +141,20 @@ Quelle der 17 Engine-Klassen: `XmageFullGameDecisionController.java` (`DECISION_
 | Sitzkurve Sitz 3 (`n/N`, %) | | | `UNKNOWN` |
 | Sitzkurve Sitz 4 (`n/N`, %) | | | `UNKNOWN` |
 | Unentschieden / Timeouts / Abbrüche / Abstürze (`n/N`, eigene Klassen) | | | `UNKNOWN` |
+
+### Durchsatz-Messung am Owner-PC (Refs #1588, WSL2, 4-Precon-Tisch, `SIMULATED_RESULT`)
+
+Gemessen mit `benchmark_xmage_full_games.py run --fast --private-card-repository -Dcommanderlab.fullGame.skipForcedDecisions=true --frame-digest-skip-forced` (AppCDS `f36ee5ed…`, JAR `840e50ab…`, Pin `f4d12f6e8066203fba7aa38bd35ea3358117393d`, `SIMULATED_RESULT`, kein Qualifikationsbeleg). Gesättigte Vollbelegungs-Läufe `N = W × G` (inkl. `G=16` für `#1587` und Nebenbefund `#1692`) sowie SHA-256 der extern abgelegten JSON-Rohdaten: [owner_pc_throughput_1588_20261120.md](analysis-reports/owner_pc_throughput_1588_20261120.md).
+
+| Zelle | Worker (angef./eff.) | Partien je JVM | Wandzeit (s) | Partien/h | RAM Peak-RSS (Summe / JVM, MB) | Last vorher (%) | Identität (Transkript / Frames) |
+|---|---|---|---|---|---|---|---|
+| `c1_w1_g8_s48` (`48/48`) | 1 / 1 | 8 | `514,10` | `336,12` | `1028,58` / `1028,58` | `0,28` | Referenz (`48/48`) |
+| `c2_w4_g8_s48` (`48/48`) | 4 / 4 | 8 | `278,74` | `619,93` | `3876,60` / `1051,14` | `0,38` | `48/48` / `48/48` |
+| `c3a_w7_g8_s48_r1` (`48/48`) | 7 / 6 | 8 | `245,47` | `703,96` | `5982,64` / `1041,86` | `3,41` | `48/48` / `48/48` |
+| `c3b_w7_g8_s48_r2` (`48/48`) | 7 / 6 | 8 | `247,80` | `697,34` | `5844,57` / `1027,20` | `0,13` | `48/48` / `48/48` |
+| `c4_w8_g8_s48` (`48/48`) | 8 / 6 | 8 | `243,81` | `708,75` | `5885,96` / `1034,42` | `0,44` | `48/48` / `48/48` |
+| `c5_w7_g24_s48` (`48/48`) | 7 / 2 | 24 | `291,52` | `592,76` | `2016,95` / `1037,11` | `0,34` | `48/48` / `48/48` |
+| `c6_w8_g24_s48` (`48/48`) | 8 / 2 | 24 | `290,15` | `595,55` | `2092,93` / `1061,04` | `0,34` | `48/48` / `48/48` |
 
 ---
 
