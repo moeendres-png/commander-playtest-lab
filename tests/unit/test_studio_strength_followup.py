@@ -467,6 +467,18 @@ def test_the_usage_axis_is_dropped_when_the_index_carries_a_locked_signal() -> N
             assert card["overall"]["coverage"] == 0.7 and card["overall"]["score"] is not None
 
 
+def test_a_real_answer_without_layer_summary_keeps_the_usage_axis() -> None:
+    """Q1-b2 (#1677): the answer has no ``layer_summary`` any more; the usage axis must not be
+    blocked for its absence (fail closed only on missing weights or a locked signal)."""
+    store, answer = _scored_answer()
+    assert "layer_summary" not in answer
+    data = _dataset([_row(f"o-{name}") for name in CARDS])
+    assert overall_rating.usage_blocked(answer) is None  # type: ignore[arg-type]
+    after = overall_rating.with_overall(store, answer, dataset=data, commander=CMD)  # type: ignore[arg-type]
+    usage = after["overall_meta"]["usage_axis"]  # type: ignore[index]
+    assert usage["included"] is True and not usage["excluded_reason"]
+
+
 def test_a_non_finite_or_boolean_index_is_a_missing_axis() -> None:
     store, answer = _scored_answer()
     data = _dataset([_row(f"o-{name}") for name in CARDS])

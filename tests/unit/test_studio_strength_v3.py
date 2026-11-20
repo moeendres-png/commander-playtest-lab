@@ -250,6 +250,7 @@ def test_a_retired_key_is_only_dropped_where_it_is_listed(monkeypatch: pytest.Mo
         ({"layer_weights": {"tempo": 0.5}}, ["layer_weights"]),
         ({"pod_size": 3}, ["pod_size"]),
         ({"pod_size": True}, ["pod_size"]),
+        ({"layer_weights": {"tempo": False}}, ["layer_weights"]),  # false is not the weight 0
         ({"layer_weights": "x"}, ["layer_weights"]),
         ({"layer_weights": {"tempo": 1}, "pod_size": 6}, ["layer_weights", "pod_size"]),
     ],

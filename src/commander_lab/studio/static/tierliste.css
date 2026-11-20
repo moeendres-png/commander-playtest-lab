@@ -83,7 +83,7 @@ table.dist th[scope=row],table.dist thead th:first-child{text-align:left}
 .quick-toggle .toggle-label{font-size:12px;color:var(--muted);margin-right:2px}
 .quick-toggle button.chip{font-size:12px;cursor:pointer}
 .quick-toggle button.chip.on{font-weight:600}
-@media (max-width:600px){#modal{width:100vw}table.dist{font-size:11px}#universe-panel,#strength-panel,#role-audit-panel,#pool-body,#notice{padding-left:var(--s2);padding-right:var(--s2);max-width:100%}body>*{min-width:0;max-width:100%}.setting{grid-template-columns:minmax(0,1fr)}.layer-controls,.quick-toggle,.strength-form label,.strength-form select,#universe-panel label,.layer{max-width:100%;min-width:0;flex-wrap:wrap}#data-state .badge{margin:var(--s1) var(--s2)}.badge,.pill,.tier-badge,.badge-neutral{max-width:100%;overflow-wrap:anywhere}}
+@media (max-width:600px){#modal{width:100vw}table.dist{font-size:11px}#universe-panel,#strength-panel,#role-audit-panel,#pool-body,#notice{padding-left:var(--s2);padding-right:var(--s2);max-width:100%}body>*{min-width:0;max-width:100%}.setting{grid-template-columns:minmax(0,1fr)}.col-controls,.quick-toggle,.strength-form label,.strength-form select,#universe-panel label,.layer{max-width:100%;min-width:0;flex-wrap:wrap}#data-state .badge{margin:var(--s1) var(--s2)}.badge,.pill,.tier-badge,.badge-neutral{max-width:100%;overflow-wrap:anywhere}}
 /* Abnahme 2026-11-17 (B2): Status-Badges mit Satz-Text muessen umbrechen statt
    auf Mobilgeraeten einzeilig aus dem Bild zu laufen. Die Klasse badge-text
    tragen alle Satz-Badges der Tierliste (Oracle-Banner, Universum-Hinweise,

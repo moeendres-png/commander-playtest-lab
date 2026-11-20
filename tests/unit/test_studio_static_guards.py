@@ -571,6 +571,22 @@ def test_engine_check_and_json_export_labels_say_what_they_do() -> None:
     assert "für Simulation (" not in app and "als Lab-Datei" in app
 
 
+def test_the_column_menu_host_id_is_the_same_in_html_and_js() -> None:
+    """Q1-b2 (#1677): the host of the Kompakt/Detail menu was renamed from ``layer-controls``;
+    the id the script looks up must be the id the page has, and the old one is gone."""
+    import re
+
+    html = (STATIC / "tierliste.html").read_text(encoding="utf-8")
+    js = (STATIC / "tierliste.js").read_text(encoding="utf-8")
+    body = js[js.index("function renderColumnControls() {") :]
+    looked_up = re.search(r'const host = \$\("([^"]+)"\);', body)
+    assert looked_up is not None
+    assert f'id="{looked_up.group(1)}"' in html
+    assert looked_up.group(1) == "col-controls"
+    for name in ("tierliste.html", "tierliste.js", "tierliste.css", "app.css"):
+        assert "layer-controls" not in (STATIC / name).read_text(encoding="utf-8"), name
+
+
 def test_tierliste_ux_batch_1_contract() -> None:
     """UX batch 1 (#1369): one labelled scroll region with a skip link, the method panels behind one
     closed details, a dialog window, table semantics, plain German instead of raw codes, and the
