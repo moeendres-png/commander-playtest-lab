@@ -57,7 +57,7 @@ const typeLabel = (group) => TYPE_NAMES[group] || group;
 const SIGNAL_SHORT = {
   deck_universe: "Quelldecks", corpus_tuned: "getunte Decks (Bracket 4 und 5)", corpus_log_lift: "Korpus-Lift", corpus_bracket_slope: "Bracket-Neigung",
   tournament: "Turnier", edhrec_theme_reach: "EDHREC-Themen", global_inclusion: "EDHREC insgesamt", combos: "Kombos",
-  commander_inclusion: "EDHREC beim Commander", bracket_inclusion: "EDHREC im Bracket", synergy: "Synergie", playgroup_observed: "Playgroup", tournament_lists: "Turnierlisten", tournament_conversion: "Turnier-Conversion",
+  commander_inclusion: "EDHREC beim Commander", bracket_inclusion: "EDHREC im Bracket", synergy: "Synergie", playgroup_observed: "Playgroup", tournament_lists: "Turnierlisten",
 };
 const CONF_WORDS = { high: "solide", medium: "dünn", low: "sehr dünn" };
 // The rubric v2 column "Kartenverständnis (Modellurteil)" (Q1-b3, #1678, decision E5): the server sends the field
@@ -862,9 +862,9 @@ function signalRow(c) {
 }
 const SIGNAL_HEADS = ["Signal", "Rohwert", "Zähler/Nenner", "Score 0 bis 100", "Gewicht (wirksam)", "Status", "Datenklasse", "Hinweis"];
 function strengthDetail(item) {
-  const subjective = item.components.filter((c) => c.component === "rubric");
-  const simulation = item.components.filter((c) => c.component === "simulation");
-  const objective = item.components.filter((c) => c.component !== "rubric" && c.component !== "simulation");
+  // Q1-b4 (#1679, E15 Q1): the index has no rubric v1 and no simulation component any more; every row is a
+  // usage signal (rubric v2 is the separate column "Kartenverständnis (Modellurteil)", never a component).
+  const objective = item.components;
   const out = [];
   if (item.confidence !== null && item.confidence !== undefined) {
     const level = CONFIDENCE_NAMES[item.confidence_level] || item.confidence_level;
@@ -877,8 +877,6 @@ function strengthDetail(item) {
       ...roleRanks.map(([role, rInfo]) => h("span", { class: "badge mr-1", title: `Rang ${nf(rInfo.rank)} von ${nf(rInfo.total)} Karten mit Stufe in der Funktion ${roleName(role)}` }, `${roleName(role)}: Rang ${nf(rInfo.rank)} von ${nf(rInfo.total)}`))));
   }
   out.push(h("h4", {}, "Objektive Signale (zählen mit Gewicht)"), table(SIGNAL_HEADS, objective.map(signalRow)));
-  if (subjective.length) out.push(h("div", { class: "block-subjective", id: "block-subjective" }, h("h4", {}, subjective[0].weight > 0 ? `Subjektiv, Gewicht ${StudioUI.numFlex(subjective[0].weight, 2)}: zählt mit (Einstellung)` : "Subjektiv, Gewicht 0: zählt nicht"), h("p", {}, subjective[0].weight > 0 ? "Die Raster-Bewertung ist eine persönliche Einschätzung, kein objektives Signal. Dieses Profil gibt ihr ein Gewicht; die Empfehlung ist 0." : "Die Raster-Bewertung ist eine persönliche Einschätzung, kein objektives Signal. Sie fließt nicht in Index und Stufe ein."), table(SIGNAL_HEADS, subjective.map(signalRow))));
-  if (simulation.length) out.push(h("div", { class: "block-simulation", id: "block-simulation" }, h("h4", {}, "Simulation: Gewicht 0, nicht erhoben"), h("p", {}, "Ergebnisse aus Simulationen sind keine Beobachtung aus echten Partien und fließen nie in den Index."), table(SIGNAL_HEADS, simulation.map(signalRow))));
   return out;
 }
 // Comparison group of a signal row; under "gleiche Funktion" the role keys get German names.
@@ -1379,9 +1377,8 @@ function renderStrengthSummary() {
   const choice = result.universe_choice;
   const universeWeight = result.settings.weights.deck_universe;
   const universeText = `Index berechnet mit: ${choice ? universeLine(choice) : "kein Decklisten-Universum"}${universe && universe.subset_note ? `; ${universe.subset_note}` : ""}${choice && choice.kind !== "none" ? (universeWeight > 0 ? `; zählt in die Stufe mit Gewicht ${StudioUI.numFlex(universeWeight, 3)}` : "; Gewicht 0: zählt nicht in die Stufe") : ""}`;
-  // Sources that can exist for these settings: no simulation (not collected), no bracket source without a
-  // bracket, no deck universe without one.
-  const possible = s.meta.components.filter((c) => c.key !== "simulation" && !(c.key === "bracket_inclusion" && result.settings.bracket === "none") && !(c.key === "deck_universe" && !(result.universe_choice && result.universe_choice.kind !== "none")) && !(c.key === "rubric" && !result.collected.includes("rubric"))).length;
+  // Sources that can exist for these settings: no bracket source without a bracket, no deck universe without one.
+  const possible = s.meta.components.filter((c) => !(c.key === "bracket_inclusion" && result.settings.bracket === "none") && !(c.key === "deck_universe" && !(result.universe_choice && result.universe_choice.kind !== "none"))).length;
   const snapNode = snapshotBadge(result);
   const snapStale = result.snapshot && result.snapshot.status === "STALE";
   const notices = (result.notices || [])

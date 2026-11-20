@@ -319,6 +319,30 @@ def test_no_page_calls_the_removed_prefilter_or_tournament_conversion() -> None:
         assert hits == [], (token, hits)
 
 
+def test_the_tier_page_knows_no_rubric_v1_simulation_or_conversion_component() -> None:
+    """Q1-b4 (#1679, E15 Q1): the index lost the components ``rubric`` (rubric v1),
+    ``simulation`` and ``tournament_conversion``; the tier page names none of them as a
+    component any more. Rubric v2 stays as the column "Kartenverständnis (Modellurteil)"."""
+    sources = [*_files("*.js"), *_files("*.html"), *_files("*.css")]
+    assert len(sources) > 20
+    for token in (
+        "block-subjective",
+        "block-simulation",
+        'c.component === "rubric"',
+        'c.component === "simulation"',
+        'c.key !== "simulation"',
+        'c.key === "rubric"',
+        "tournament_conversion",
+        "Raster-Bewertung",
+    ):
+        hits = [path.name for path in sources if token in path.read_text(encoding="utf-8")]
+        assert hits == [], (token, hits)
+    # positive case: the rubric v2 column stays
+    js = (STATIC / "tierliste.js").read_text(encoding="utf-8")
+    assert "// ---------- rubric v2 judgement" in js
+    assert "Kartenverständnis (Modellurteil)" in js
+
+
 def test_partie_loads_one_page_at_a_time_and_reloads_when_hands_are_revealed() -> None:
     js = (STATIC / "partie.js").read_text(encoding="utf-8")
     # loads run one after the other, never two with the same start
