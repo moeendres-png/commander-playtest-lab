@@ -20,3 +20,24 @@ Lesereihenfolge: `CLAUDE.md`, `AGENTS.md` (§1, §8, §10, §11, §12), `docs/ST
 - **Offene Folgepakete (agent-ready oder nach Abhängigkeit):** Q1-c #1666 (Evidenz R0–R3, macht den „will appear“-Satz in `AGENTS.md` §1 wahr; nach #1706, weil `evidence.py`), B2b (Oberfläche für Experimente, #1658-Rest), #1662 Teil 1 (Kohorte Mensch-Partien; Teile 2–4 warten auf die Owner-Partie), #1707 (run_id-Kollision), #1648-Reste (Filter Counter/Loyalty, Boardwipes, 5C), #1561 (Cache Option A, alter Claim verfallen), #1553, #1586, #1576, #1577, #1591, #1593/#1578 P-C (Browser-Messung am Owner-PC), #1650-Rest, Governance-Rest #1667 (Studio-Daten-Gate, Pflichtlektüre durch Charta ersetzen).
 - **Owner-Entscheide 2026-11-20:** Go Q1–Q11 (E15); Kreuz-Review Option 1; Freigabe 5/6 Option B (finales Ja nach einseitiger Beleg-Zusammenfassung: Teil B Bericht, #1692 geklärt, #1702, Tischgröße/#1694 erledigt); Gate-Lesart in #1167. **Offen beim Owner:** eine ganze PLAY-Partie spielen (schaltet #1662 Teile 2–4), Export-Datei für Schema 22 (#1703; Empfehlung: Migrationsbeweis am Owner-PC ohne Upload, Repo ist öffentlich), Zurückgestelltes: #1672 (7/8 Sitze), #1557, #1628, #1637, #1533.
 - **Bekannte Grenzen/UNKNOWN:** echte Owner-DB und natives Windows nie geprüft; Browser-Klickproben `NOT_RUN`; Echt-Engine-Läufe nur über Gemini am Owner-PC (Bridge-Jar im Cloud-Container veraltet, älter als Fix #1625).
+
+## Nachtrag Stand 2026-11-20 abends (löst die Zeilen oben zum Stand ab)
+
+**Gemergt seit dem ersten Stand:** #1706 Gegnersatz-Merkmal (`93154893`), #1708 + #1709 SIMULATE 5/6 hinter der Sperre (`a91f3373`, `3de9ac88`; #1702 geschlossen; Folgepaket P3 in #1702 gelistet), #1712 Teil-B-Bericht Owner-PC (`986665b8`), #1704 Pool P3-A (`5d338376`; Schalter `COMMANDER_LAB_STUDIO_SERIES_POOL` bleibt AUS). #1710 (Doppel-Builder zu #1702) geschlossen, Branch bleibt als Fundgrube.
+
+**Parallele Sitzung:** Eine zweite Claude-Sitzung arbeitet ebenfalls als „Builder für Co-Lead“ (#1707 → PR #1713, #1561 → PRs #1711/#1714). Deren Flächen nicht anfassen; Claims in #1167 vor jedem Start lesen (früherer Claim gewinnt, `AGENTS.md` §11).
+
+**Offen / in Arbeit:**
+- **#1716 (#1692, Gemini, Klasse A):** Kreuz-Review gepostet, 3×P2 (Docstring, Negativkontrolle gegen verbreiternde Regex-Mutanten M3/M4, Test gegen Wegnormalisieren von `legal_options`, D1); Gemini überarbeitet; danach Delta-Review (derselbe Reviewer, resume) → CI auf exaktem Head → Merge durch Co-Lead.
+- **#1715 (neu):** Bridge-Determinismus (`trigger_order`-Gleichstand, Frames weichen zwischen JVMs ab; 2/24 bei 5, 1/20 bei 6 Sitzen, 4 Sitze ungemessen). Aufträge: Owner-PC/Gemini misst 4 Sitze (Tisch A4, `normalize_frame`, Rohlog-Digests), Co-Lead liest die Ursache (Bericht unter `docs/analysis-reports/`). Fork/Pin/Seals sind Owner-Sache (`AGENTS.md` §8).
+- **#1666 Q1-c (Reifegrad R0–R3):** Claim gepostet, Builder läuft (Branch `feat/q1c-maturity-r0-r3-1666`).
+- **Danach (nicht vorher):** B2b (#1658), #1662 Teil 1, #1648-Reste, #1553/#1586/#1576/#1577/#1591/#1593, Governance #1667, P3-Sammlungen (#1702, #1588, #1707).
+- **Gemini wartet auf:** #1660 (S1) und #1663 (D-3) dürfen nach dem Merge von #1704 starten.
+
+**Owner-Entscheide heute (2026-11-20):**
+1. **5/6: Option A = warten.** Sperre `launch.MAX_RELEASED_SEATS = 4` bleibt. Freigabe SIMULATE 5/6 frühestens nach (a) #1715 mit 4-Sitz-Vergleichsmessung geklärt, (b) F5/5-Sitz-Replay-Tape, (c) Owner-Entscheid F1. Dann finales Ja des Owners und ein Freigabe-PR.
+2. **Seed 123: keine Umklassifizierung** (FAIL bleibt FAIL; nichts in `UNORDERED_LISTS`, kein `legal_options`).
+3. **F1 (`ALL`/`MULTIPLE`, 6 Sitze ohne Replay-Anspruch) ist offen.**
+Der Eintrag in `docs/OWNER_DECISIONS_STUDIO_20261118.md` folgt in einem kleinen Klasse-A-Docs-PR. Ein-Seiten-Evidenz zu 5/6: Kommentar in #1661 (7043142024), Entscheide: 7043554602.
+
+**Merge-Verfahren, was heute neu auffiel:** (1) Gestapelte PRs: nach dem Squash von A die Basis von B per `PATCH pulls/N base=main` auf main setzen, dann main in B mergen (Konflikt nur in Dateien, die A und B beide anlegten: B-Stand behalten und `git diff origin/main` muss genau B's Dateien zeigen). (2) Draft-PRs lassen sich nicht mergen: `update_pull_request draft=false`. (3) Für Gemini-PRs gilt die Gegenrichtung des Kreuz-Reviews (Claude→Gemini), Delta-Review nach der Überarbeitung; nie auf Gemini-Branches pushen. (4) Review-Reihenfolge bei Klasse A: Claude-Fresh-Review → Autor-Fix → Delta → Gemini-Kreuz-Review auf gültiger SHA → `update-branch` → CI auf dem Merge-Head → Squash mit `sha`.
