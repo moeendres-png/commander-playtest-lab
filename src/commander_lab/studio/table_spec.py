@@ -17,15 +17,15 @@ from __future__ import annotations
 
 import hashlib
 import json
-from typing import Literal
+from typing import Final, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from .launch import MAX_SEATS, MIN_SEATS, validate_released_seat_count
 
-SCHEMA = "studio-table-spec-1"
+SCHEMA: Final = "studio-table-spec-1"
 DEFAULT_STYLE = 0.5
-STRENGTH = "near_optimal_heuristic"
+STRENGTH: Final = "near_optimal_heuristic"
 #: Opponent modes of the model; only ``fixed`` runs in B2a (#1658, comment of the builder).
 OPPONENT_MODES = ("fixed", "rotation", "draw")
 RUNNABLE_OPPONENT_MODES = ("fixed",)

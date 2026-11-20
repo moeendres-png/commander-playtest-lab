@@ -27,9 +27,9 @@ import shutil
 import sqlite3
 import threading
 import time
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from pathlib import Path
-from typing import Literal, cast
+from typing import Final, Literal, cast
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -41,7 +41,7 @@ from .play import POLICY_VERSION, snapshot_deck_hash
 from .store import StudioStore, now_utc
 from .table_spec import TableSpec, sha256_of, table_hash
 
-SCHEMA_PLAN = "studio-experiment-plan-1"
+SCHEMA_PLAN: Final = "studio-experiment-plan-1"
 SCHEMA_RECORD = "studio-experiment-record-1"
 SCHEMA_DECISION = "studio-experiment-decision-1"
 DATA_CLASS = "SIMULATED_RESULT"
@@ -210,7 +210,7 @@ def check_seed_register(
 
 
 def _insert(
-    store: StudioStore, row: Mapping[str, object], arms: list[Mapping[str, object]]
+    store: StudioStore, row: Mapping[str, object], arms: Sequence[Mapping[str, object]]
 ) -> None:
     db = store.connection
     db.execute(
@@ -509,7 +509,7 @@ def _legacy_row(
         "series_id": str(raw["series_id"]),
         "created_at": str(raw.get("created_at") or ""),
     }
-    arms = [
+    arms: list[dict[str, object]] = [
         {"role": "base", "revision_id": base, "deck_hash": None},
         {"role": "variant", "revision_id": variant, "deck_hash": None},
     ]
