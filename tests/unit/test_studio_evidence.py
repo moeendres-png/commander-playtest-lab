@@ -457,6 +457,25 @@ def test_the_table_size_is_an_axis_of_its_own(studio: StudioStore) -> None:
     assert [(g["games_cast_after_offer"], g["games_offered"]) for g in groups] == [(2, 4), (4, 4)]
 
 
+def test_unknown_opponents_at_two_table_sizes_stay_two_groups(studio: StudioStore) -> None:
+    """A row that names its table size but not its opponents (an import, say): the size is
+    still an axis; the unknown set is not merged across sizes, and no size is invented."""
+    _add_run(studio, "r-u3", offered=4, cast=1, opponents=None)
+    _add_run(studio, "r-u4", offered=6, cast=3, opponents=None)
+    _add_run(studio, "r-u?", offered=2, cast=2, opponents=None)
+    with studio.connection as db:
+        db.execute("UPDATE simulation_run SET table_size = 3 WHERE run_id = 'r-u3'")
+        db.execute("UPDATE simulation_run SET table_size = 4 WHERE run_id = 'r-u4'")
+    groups = _groups(studio)
+    assert [(g["table_size"], g["games_offered"]) for g in groups] == [(3, 4), (4, 6), (None, 2)]
+    assert not any(g["opponent_set_known"] for g in groups)
+    assert [str(g["label"]) for g in groups] == [
+        "Gegnersatz unbekannt · Tisch mit 3 Sitzen",
+        "Gegnersatz unbekannt · Tisch mit 4 Sitzen",
+        "Gegnersatz unbekannt · Tischgröße unbekannt",
+    ]
+
+
 def test_the_evidence_route_shows_the_groups(studio: StudioStore, tmp_path: Path) -> None:
     _add_run(studio, "r-preset", offered=10, cast=4, opponents=PRESET)
     _add_run(studio, "r-old", offered=5, cast=1, opponents=None)
