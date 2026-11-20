@@ -1125,3 +1125,16 @@ def test_cache_entry_of_before_table_sizes_is_read_again(tmp_path: Path) -> None
     stored = json.loads(card_outcomes._cache_file(path).read_text(encoding="utf-8"))
     assert stored["version"] == card_outcomes.CACHE_VERSION == 5
     assert stored["exposure"]["table_size"] == 3
+
+
+@pytest.mark.parametrize("damaged", [True, "3", 0, -2, 2.0])
+def test_damaged_cached_table_size_is_rebuilt_from_the_log(tmp_path: Path, damaged: object) -> None:
+    path = _write_log(tmp_path, "g1", _simple_frames(["X"]), extra_seats=_seats(1))
+    exposure = game_exposures(path)
+    assert exposure is not None
+    cache = card_outcomes._cache_file(path)
+    entry = json.loads(cache.read_text(encoding="utf-8"))
+    entry["exposure"]["table_size"] = damaged
+    cache.write_text(json.dumps(entry), encoding="utf-8")
+    again = game_exposures(path)
+    assert again is not None and again.get("table_size") == 3
