@@ -7,6 +7,7 @@ check is ``scripts/check_studio_series_identity.py``.
 from __future__ import annotations
 
 import json
+import re
 import threading
 import time
 from collections.abc import Iterator, Sequence
@@ -250,6 +251,27 @@ def test_a_batch_writes_one_log_per_game_with_its_own_seed_and_status(tmp_path: 
         if status == "finished":
             assert result["semantic_transcript_sha256"] == f"hash-{seed}"  # type: ignore[index]
             assert result["decision_count"] == seed  # type: ignore[index]
+
+
+def test_every_batch_log_names_the_deck_state_of_each_seat(tmp_path: Path) -> None:
+    """#1657: a batch game's header names a 64-hex ``deck_hash`` per seat, as a game alone."""
+
+    def factory(data, headers, max_decisions, timeout, private):  # type: ignore[no-untyped-def]
+        return _FakeEngineRunner(
+            data,
+            headers,
+            command=("java", "-jar", "x"),
+            max_decisions=max_decisions,
+            request_timeout_seconds=timeout,
+            private_card_repository=private,
+        )
+
+    play_recorded_games(tmp_path, [DECK, *PRECONS], [SeriesGame(1, "g-h1")], runner_factory=factory)
+    header = games.read_game(tmp_path, "g-h1", start=0, count=1)["header"]
+    seats = header["seats"]  # type: ignore[index]
+    assert len(seats) == 1 + len(PRECONS)
+    assert all(re.fullmatch(r"[0-9a-f]{64}", str(row["deck_hash"])) for row in seats)
+    assert len({row["deck_hash"] for row in seats}) == len(seats)
 
 
 class _Client:

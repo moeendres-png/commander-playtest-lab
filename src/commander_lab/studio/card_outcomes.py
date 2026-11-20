@@ -10,6 +10,13 @@ value arrives late.
 
 Cards seen by the end of the seat's third own turn are reported as a secondary count only:
 effect draws and mulligan bottoms depend on play, so that set is NOT randomised.
+
+Games are counted per deck state (#1657): a seat is grouped by (``deck_id``, ``deck_hash``) of
+the log header. Logs written before the header carried a hash form the visible stand "Stand
+unbekannt" with its own n/N and are never added to a known stand. Several known stands of one
+deck are combined only stratified (one difference per stand, Mantel-Haenszel weights), with the
+number of strata in the answer, and never across a change of engine, bridge jar, pilot, decision
+policy or pod set.
 """
 
 from __future__ import annotations
@@ -31,7 +38,7 @@ from commander_lab.bridge_qualification import BRIDGE_AHEAD, BRIDGE_ALIGNED
 from .games import LOG_SCHEMA
 from .simulations import wilson_score_interval
 
-SCHEMA = "studio-card-outcomes-1"
+SCHEMA = "studio-card-outcomes-2"
 DATA_CLASS = "SIMULATED_RESULT"
 ESTIMAND = (
     "win rate with the card in the first dealt hand minus without; "
@@ -44,10 +51,17 @@ OWN_TURNS_SECONDARY = 3
 # A typical card is in the first seven of a 99-card library about 7 % of the time.
 EXPECTED_EXPOSURE = 7 / 99
 CACHE_DIR = ".outcomes-cache"
-CACHE_VERSION = 2
+# 3 since #1657: a seat carries the deck state (``deck_hash``, ``revision_id``) of the header;
+# a version-2 entry knows no hash and is read again from its log.
+CACHE_VERSION = 3
 PARALLEL_MIN_LOGS = 8  # cold logs before a process pool pays for itself
 MAX_WORKERS = 4
 CHANCE_RATE = 0.05
+_DECK_HASH = re.compile(r"[0-9a-f]{64}")
+POOLING_METHOD = (
+    "stratified by deck state: Mantel-Haenszel risk difference (weights n_in*n_not/n per "
+    "stand), 95 % Wald interval with the Sato variance; rates are given per stand only"
+)
 # The scalar keys that open every frame line; None groups mean JSON ``null``.
 _FRAME_HEAD = re.compile(
     rb'\{\s*"kind"\s*:\s*"frame"\s*,[^{}\[\]]{0,300}?"turn"\s*:\s*(-?\d+|null)\s*,'
@@ -68,6 +82,9 @@ class SeatExposure(TypedDict):
     seen_by_own_turn_3: list[str]
     result: Result
     win_credit: float
+    # The deck state of the seat (#1657); missing or None in a log without one.
+    deck_hash: NotRequired[str | None]
+    revision_id: NotRequired[str | None]
 
 
 class GameExposure(TypedDict):
@@ -105,6 +122,8 @@ class CardOutcome(TypedDict):
     difference_pp: float | None
     difference_ci95_pp: list[float] | None
     secondary: SecondaryCount
+    # Pooled row only: the number of deck states whose own difference enters this row.
+    strata: NotRequired[int]
 
 
 class PodCount(TypedDict):
@@ -112,9 +131,15 @@ class PodCount(TypedDict):
     games: int
 
 
+class Pooling(TypedDict):
+    status: Literal["NO_KNOWN_STAND", "SINGLE_STAND", "POOLED", "NOT_POOLED"]
+    reason: str | None
+    method: str | None
+
+
 class CardOutcomeTable(TypedDict):
     schema: str
-    status: Literal["OK", "NO_GAMES"]
+    status: Literal["OK", "NO_GAMES", "NOT_POOLED"]
     deck_id: str
     data_class: str
     estimand: str
@@ -140,6 +165,15 @@ class CardOutcomeTable(TypedDict):
     commanders_excluded: list[str]
     warnings: list[str]
     cards: list[CardOutcome]
+    # One deck state (#1657): its hash (None = "Stand unbekannt") and the Studio revisions
+    # the logs name for it.
+    deck_hash: NotRequired[str | None]
+    revision_ids: NotRequired[list[str]]
+    # The answer for a deck (``stand_tables``): the known stands, the unknown stand apart.
+    strata: NotRequired[int]
+    pooling: NotRequired[Pooling]
+    stands: NotRequired[list[CardOutcomeTable]]
+    unknown_stand: NotRequired[CardOutcomeTable | None]
 
 
 class UnrankedCard(TypedDict):
@@ -185,12 +219,20 @@ def _credit(seat: int, winners: Sequence[int]) -> tuple[Result, float]:
     return ("draw", 0.0) if not winners else ("loss", 0.0)
 
 
+def _deck_hash(value: object) -> str | None:
+    """A header hash names a deck state only as 64 lowercase hex digits; else unknown."""
+    return value if isinstance(value, str) and _DECK_HASH.fullmatch(value) else None
+
+
 def _seat_exposure(
     seat: int,
     deck_id: str,
     commanders: list[str],
     frames: Sequence[dict[str, object]],
     winners: Sequence[int],
+    *,
+    deck_hash: str | None = None,
+    revision_id: str | None = None,
 ) -> SeatExposure:
     first: list[str] | None = None
     taken = 0
@@ -221,6 +263,8 @@ def _seat_exposure(
         "seen_by_own_turn_3": sorted(seen),
         "result": result,
         "win_credit": credit,
+        "deck_hash": deck_hash,
+        "revision_id": revision_id,
     }
 
 
@@ -345,7 +389,15 @@ def _read_log(path: Path, *, fast: bool = True) -> tuple[GameExposure | None, li
         if seat is None or deck_id is None:
             continue
         seats.append(
-            _seat_exposure(seat, deck_id, _names(row.get("commanders")) or [], frames, winners)
+            _seat_exposure(
+                seat,
+                deck_id,
+                _names(row.get("commanders")) or [],
+                frames,
+                winners,
+                deck_hash=_deck_hash(row.get("deck_hash")),
+                revision_id=_str(row.get("studio_revision_id")),
+            )
         )
     game_id = _str(header.get("game_id")) or path.name.split(".jsonl", 1)[0]
     bridge_sha = _str(header.get("bridge_jar_sha256")) or _str(result.get("bridge_jar_sha256"))
@@ -381,6 +433,8 @@ def _valid_seat(row: object) -> bool:
         return False
     hand = row.get("first_dealt_hand")
     credit = row.get("win_credit")
+    deck_hash = row.get("deck_hash")
+    revision_id = row.get("revision_id")
     return (
         type(row.get("seat")) is int
         and isinstance(row.get("deck_id"), str)
@@ -396,6 +450,10 @@ def _valid_seat(row: object) -> bool:
         # A NaN or infinite credit parses as a float and would sail through the
         # type check, then poison every rate of the table; it is a miss instead.
         and math.isfinite(credit)
+        # A missing key reads as "Stand unbekannt"; only CACHE_VERSION keeps an entry written
+        # before #1657 from passing as such (it is read again from its log).
+        and (deck_hash is None or _deck_hash(deck_hash) is not None)
+        and (revision_id is None or isinstance(revision_id, str))
     )
 
 
@@ -815,6 +873,354 @@ def aggregate(
     return table
 
 
+# --- deck states (#1657) ----------------------------------------------------------------
+
+
+def stand_of(seat: SeatExposure) -> str | None:
+    """The deck state a seat is counted under, inside its deck id: its header hash.
+
+    ``None`` is the stand "Stand unbekannt" (a log written before the header named a hash).
+    """
+    return seat.get("deck_hash")
+
+
+def own_seat(game: GameExposure, deck_id: str) -> SeatExposure | None:
+    """The seat of ``deck_id`` that counts in ``game``: the lowest, as in :func:`aggregate`."""
+    own = sorted((s for s in game["seats"] if s["deck_id"] == deck_id), key=lambda s: s["seat"])
+    return own[0] if own else None
+
+
+def _usable_counts(
+    games: Iterable[GameExposure], deck_id: str, commander_set: set[str]
+) -> tuple[
+    int, float, Counter[str], defaultdict[str, float], Counter[str], defaultdict[str, float]
+]:
+    """Games, wins and per-card first-hand / seen counts of one stand (as :func:`aggregate`)."""
+    total, total_wins = 0, 0.0
+    n_in: Counter[str] = Counter()
+    wins_in: defaultdict[str, float] = defaultdict(float)
+    seen_n: Counter[str] = Counter()
+    seen_w: defaultdict[str, float] = defaultdict(float)
+    for game in games:
+        seat = own_seat(game, deck_id)
+        if seat is None or seat["first_dealt_hand"] is None:
+            continue
+        total += 1
+        total_wins += seat["win_credit"]
+        for card in set(seat["first_dealt_hand"]) - commander_set:
+            n_in[card] += 1
+            wins_in[card] += seat["win_credit"]
+        for card in set(seat["seen_by_own_turn_3"]) - commander_set:
+            seen_n[card] += 1
+            seen_w[card] += seat["win_credit"]
+    return total, total_wins, n_in, wins_in, seen_n, seen_w
+
+
+def mantel_haenszel_difference(
+    strata: Sequence[tuple[int, float, int, float]],
+) -> tuple[float, float, float, int] | None:
+    """Stratified risk difference over ``(n_in, wins_in, n_not, wins_not)`` per stratum.
+
+    Mantel-Haenszel weights ``n_in * n_not / n``; the variance is Sato's estimator, which is
+    the Wald variance for one stratum. Returns ``(difference, lower, upper, strata used)`` with
+    95 % bounds, or None when no stratum has games on both sides. A stratum without games on
+    one side has weight 0 and does not count as used.
+    """
+    sum_w = sum_dw = sum_p = sum_q = 0.0
+    used = 0
+    for n1, y1, n0, y0 in strata:
+        n = n1 + n0
+        if n1 <= 0 or n0 <= 0:
+            continue
+        used += 1
+        sum_w += n1 * n0 / n
+        sum_dw += (y1 * n0 - y0 * n1) / n
+        sum_p += (n1 * n1 * y0 - n0 * n0 * y1 + n1 * n0 * (n0 - n1) / 2.0) / (n * n)
+        sum_q += (y1 * (n0 - y0) + y0 * (n1 - y1)) / (2.0 * n)
+    if not used:
+        return None
+    d = sum_dw / sum_w
+    spread = 1.95996 * math.sqrt(max(0.0, (d * sum_p + sum_q) / (sum_w * sum_w)))
+    return d, max(-1.0, d - spread), min(1.0, d + spread), used
+
+
+def _pooled_row(
+    card: str,
+    per_stand: Sequence[tuple[int, float, int, float, int, float]],
+    *,
+    min_exposed: int,
+) -> CardOutcome:
+    """One card over several stands: counts are n/N sums, the difference only stratified.
+
+    Only stands with games on both sides (weight > 0) enter the counts and the threshold: a
+    stand where the card was never (or always) in the first hand adds nothing to the
+    difference, so it adds nothing to n/N either. A stand with a rate of 0 or 1 on one side
+    makes the Wald interval too narrow at the edge; such a row is ``INSUFFICIENT_SAMPLE``
+    (never ranked) with that reason, its numbers kept for inspection.
+    """
+    used = [row for row in per_stand if 0 < row[2] < row[0]]
+    total = sum(row[0] for row in used)
+    n_in = sum(row[2] for row in used)
+    wins_in = sum(row[3] for row in used)
+    wins_total = sum(row[1] for row in used)
+    strata = [(ni, wi, n - ni, w - wi) for n, w, ni, wi, _sn, _sw in used]
+    pooled = mantel_haenszel_difference(strata)
+    n_not = total - n_in
+    reasons = []
+    if n_in < min_exposed:
+        reasons.append(f"first-hand games {n_in} < {min_exposed}")
+    if n_not < min_exposed:
+        reasons.append(f"games without the card in the first hand {n_not} < {min_exposed}")
+    if pooled is None:
+        reasons.append("no deck state has games with and without the card in the first hand")
+    elif any(y1 in (0, n1) or y0 in (0, n0) for n1, y1, n0, y0 in strata):
+        reasons.append(
+            "a deck state has a win share of 0 or 1 on one side: the stratified interval "
+            "would be too narrow there (too uncertain)"
+        )
+    return {
+        "card": card,
+        "status": "INSUFFICIENT_SAMPLE" if reasons else "MEASURED",
+        "reason": "; ".join(reasons) or None,
+        "games_total": total,
+        "games_in_first_hand": n_in,
+        "wins_in_first_hand": round(wins_in, 6),
+        "games_not_in_first_hand": n_not,
+        "wins_not_in_first_hand": round(wins_total - wins_in, 6),
+        # rates of different stands are never added: they are given per stand only
+        "rate_in": None,
+        "rate_in_ci95": None,
+        "rate_not": None,
+        "rate_not_ci95": None,
+        "difference_pp": None if pooled is None else _pp(pooled[0]),
+        "difference_ci95_pp": None if pooled is None else [_pp(pooled[1]), _pp(pooled[2])],
+        "secondary": {
+            "games_seen_by_own_turn_3": sum(row[4] for row in per_stand),
+            "wins_seen_by_own_turn_3": round(sum(row[5] for row in per_stand), 6),
+            "note": "NOT randomised: effect draws and mulligan bottoms depend on play",
+        },
+        "strata": 0 if pooled is None else pooled[3],
+    }
+
+
+def _pod_set(table: CardOutcomeTable) -> tuple[tuple[str, ...], ...]:
+    return tuple(sorted(tuple(pod["opponents"]) for pod in table["pods"]))
+
+
+def _not_poolable(stands: Sequence[CardOutcomeTable]) -> str | None:
+    """Why the stands of one deck may not be combined, or None when they may.
+
+    An unknown value is never equal to another unknown value: a stand whose games (or some
+    of them) carry no engine commit, bridge jar, pilot or decision policy is not pooled.
+    """
+    for stand in stands:
+        unknown = [
+            label
+            for label, values in (
+                ("engine commit", stand["engine_commits"]),
+                ("bridge jar SHA-256", stand["bridge_jar_sha256s"]),
+                ("pilot version", stand["pilots"]),
+                ("decision policy", stand["decision_policies"]),
+            )
+            if not values
+        ]
+        unknown += [w for w in stand["warnings"] if w.startswith("some games carry no")]
+        if unknown:
+            return (
+                f"a deck state has unknown provenance ({'; '.join(unknown)}): "
+                "unknown is not equal, not pooled"
+            )
+    for label, values in (
+        ("engine commit", [tuple(t["engine_commits"]) for t in stands]),
+        ("bridge jar SHA-256", [tuple(t["bridge_jar_sha256s"]) for t in stands]),
+        ("pilot version", [tuple(t["pilots"]) for t in stands]),
+        ("decision policy", [tuple(t["decision_policies"]) for t in stands]),
+    ):
+        if any(len(v) > 1 for v in values) or len(set(values)) > 1:
+            return f"the deck states differ in {label} (or mix it): not pooled"
+    if len({_pod_set(stand) for stand in stands}) > 1:
+        return "the deck states were played against different pod sets: not pooled"
+    return None
+
+
+def _stand_table(
+    games: list[GameExposure],
+    *,
+    deck_id: str,
+    deck_hash: str | None,
+    min_exposed: int,
+    allow_mixed: bool,
+) -> CardOutcomeTable:
+    table = aggregate(games, deck_id=deck_id, min_exposed=min_exposed, allow_mixed=allow_mixed)
+    table["deck_hash"] = deck_hash
+    revisions = (own_seat(game, deck_id) for game in games)
+    table["revision_ids"] = _distinct(seat.get("revision_id") for seat in revisions if seat)
+    return table
+
+
+def stand_tables(
+    exposures: Iterable[GameExposure],
+    *,
+    deck_id: str,
+    min_exposed: int = DEFAULT_MIN_EXPOSED,
+    allow_mixed: bool = False,
+    games_skipped: int = 0,
+    games_skipped_unreadable: int = 0,
+    duplicate_logs_ignored: int = 0,
+) -> CardOutcomeTable:
+    """The card answer for one deck, counted per deck state (#1657).
+
+    ``stands`` holds one :func:`aggregate` table per known ``deck_hash``; ``unknown_stand``
+    holds the logs without a hash, with their own n/N, never added to a known stand. The top
+    level counts the known stands only: one stand is shown as it is; several are combined only
+    stratified (``strata`` = number of stands, rows from :func:`mantel_haenszel_difference`)
+    and only when engine, bridge jar, pilot, decision policy and pod set agree; otherwise the
+    top level carries no card rows (``NOT_POOLED``) and a reason. Mixed values inside one
+    stand raise as in :func:`aggregate` unless allowed.
+    """
+    groups: dict[str | None, list[GameExposure]] = {}
+    for game in exposures:
+        seat = own_seat(game, deck_id)
+        if seat is not None:
+            groups.setdefault(stand_of(seat), []).append(game)
+    known = sorted((key for key in groups if key is not None), key=lambda k: (-len(groups[k]), k))
+    stands = [
+        _stand_table(
+            groups[key],
+            deck_id=deck_id,
+            deck_hash=key,
+            min_exposed=min_exposed,
+            allow_mixed=allow_mixed,
+        )
+        for key in known
+    ]
+    unknown = (
+        _stand_table(
+            groups[None],
+            deck_id=deck_id,
+            deck_hash=None,
+            min_exposed=min_exposed,
+            allow_mixed=allow_mixed,
+        )
+        if None in groups
+        else None
+    )
+    if len(stands) == 1:
+        top = cast(CardOutcomeTable, dict(stands[0]))
+        pooling: Pooling = {"status": "SINGLE_STAND", "reason": None, "method": None}
+    elif not stands:
+        top = empty_table(deck_id, min_exposed=min_exposed)
+        pooling = {
+            "status": "NO_KNOWN_STAND",
+            "reason": "no game names the deck state of this deck",
+            "method": None,
+        }
+    else:
+        top = _pooled_table(
+            [groups[key] for key in known], stands, deck_id=deck_id, min_exposed=min_exposed
+        )
+        reason = _not_poolable(stands)
+        pooling = {
+            "status": "NOT_POOLED" if reason else "POOLED",
+            "reason": reason,
+            "method": None if reason else POOLING_METHOD,
+        }
+        if reason:
+            top["status"] = "NOT_POOLED"
+            top["cards"] = []
+            top["comparisons"] = 0
+            top["expected_chance_findings"] = 0.0
+    top["deck_hash"] = stands[0]["deck_hash"] if len(stands) == 1 else None
+    top["revision_ids"] = _distinct(r for stand in stands for r in stand.get("revision_ids", []))
+    top["games_skipped"] = games_skipped
+    top["games_skipped_unreadable"] = games_skipped_unreadable
+    top["duplicate_logs_ignored"] = duplicate_logs_ignored
+    top["strata"] = len(stands)
+    top["pooling"] = pooling
+    top["stands"] = stands
+    top["unknown_stand"] = unknown
+    warnings = list(top["warnings"])
+    if len(stands) > 1:
+        # the top level of several stands repeats every stand's own warnings, named
+        for stand in stands:
+            warnings += [
+                f"deck state {str(stand['deck_hash'])[:12]}: {w}" for w in stand["warnings"]
+            ]
+    if unknown is not None:
+        warnings += [f"Stand unbekannt: {w}" for w in unknown["warnings"]]
+    if duplicate_logs_ignored:
+        warnings.append(
+            f"{duplicate_logs_ignored} duplicate log(s) with an already counted game_id ignored"
+        )
+    if unknown is not None and unknown["games_total"]:
+        warnings.append(
+            f"{unknown['games_total']} game(s) without a deck state (Stand unbekannt) are "
+            "shown apart and never added to a known deck state"
+        )
+    if pooling["reason"]:
+        warnings.append(pooling["reason"])
+    top["warnings"] = warnings
+    return top
+
+
+def _pooled_table(
+    groups: Sequence[list[GameExposure]],
+    stands: Sequence[CardOutcomeTable],
+    *,
+    deck_id: str,
+    min_exposed: int,
+) -> CardOutcomeTable:
+    """The top level over several known stands: n/N sums and stratified card rows."""
+    table = empty_table(deck_id, min_exposed=min_exposed)
+    commanders = sorted({name for stand in stands for name in stand["commanders_excluded"]})
+    counts = [_usable_counts(games, deck_id, set(commanders)) for games in groups]
+    names = sorted({card for c in counts for card in (*c[2], *c[4])})
+    rows = [
+        _pooled_row(
+            card,
+            [(c[0], c[1], c[2][card], c[3][card], c[4][card], c[5][card]) for c in counts],
+            min_exposed=min_exposed,
+        )
+        for card in names
+    ]
+    pods: Counter[tuple[str, ...]] = Counter()
+    for stand in stands:
+        for pod in stand["pods"]:
+            pods[tuple(pod["opponents"])] += pod["games"]
+    total = sum(stand["games_total"] for stand in stands)
+    table["status"] = "OK" if total else "NO_GAMES"
+    table["games_total"] = total
+    table["seats_without_opening_hand"] = sum(t["seats_without_opening_hand"] for t in stands)
+    table["draw_games"] = sum(t["draw_games"] for t in stands)
+    table["mulligans_taken"] = sum(t["mulligans_taken"] for t in stands)
+    table["multi_seat_games"] = sum(t["multi_seat_games"] for t in stands)
+    table["engine_commits"] = _distinct(v for t in stands for v in t["engine_commits"])
+    table["bridge_jar_sha256s"] = _distinct(v for t in stands for v in t["bridge_jar_sha256s"])
+    table["bridge_qualification_states"] = _distinct(
+        v for t in stands for v in t["bridge_qualification_states"]
+    )
+    table["pilots"] = _distinct(v for t in stands for v in t["pilots"])
+    table["decision_policies"] = _distinct(v for t in stands for v in t["decision_policies"])
+    table["covered_by_sealed_epoch"] = all(stand["covered_by_sealed_epoch"] for stand in stands)
+    table["seeds"] = len({g["seed"] for games in groups for g in games if g["seed"] is not None})
+    table["pods"] = [
+        {"opponents": list(pod), "games": count}
+        for pod, count in sorted(pods.items(), key=lambda kv: (-kv[1], kv[0]))
+    ]
+    table["commanders_excluded"] = commanders
+    warnings: list[str] = []
+    if total < math.ceil(min_exposed / EXPECTED_EXPOSURE):
+        warnings.append(
+            f"only {total} games: a typical card is in the first hand in about "
+            f"{EXPECTED_EXPOSURE:.0%} of games, so few cards can reach {min_exposed} exposed games"
+        )
+    table["warnings"] = warnings
+    table["cards"] = rows
+    table["comparisons"] = sum(1 for row in rows if row["status"] == "MEASURED")
+    table["expected_chance_findings"] = round(CHANCE_RATE * table["comparisons"], 1)
+    return table
+
+
 def ranked(table: CardOutcomeTable) -> Ranking:
     """MEASURED cards by the lower bound of the difference interval (best first), ties by name.
 
@@ -839,9 +1245,9 @@ def outcomes_for_folder(
     min_exposed: int = DEFAULT_MIN_EXPOSED,
     allow_mixed: bool = False,
 ) -> CardOutcomeTable:
-    """Read a games folder and build the table of one deck (``NO_GAMES`` when it has none)."""
+    """Read a games folder and build the answer of one deck, per deck state (``stand_tables``)."""
     report = load_exposures(games_dir)
-    return aggregate(
+    return stand_tables(
         report["exposures"],
         deck_id=deck_id,
         min_exposed=min_exposed,
@@ -878,7 +1284,7 @@ def outcomes_for_all_decks(
     """
     report = load_exposures(games_dir)
     return {
-        deck_id: aggregate(
+        deck_id: stand_tables(
             report["exposures"],
             deck_id=deck_id,
             min_exposed=min_exposed,
@@ -912,6 +1318,20 @@ def format_table(table: CardOutcomeTable, *, limit: int = 15) -> str:
         f"measured {len(ranking['ranked'])}  unmeasured (INSUFFICIENT_SAMPLE) "
         f"{len(ranking['unranked'])}",
     ]
+    if "strata" in table:
+        unknown = table.get("unknown_stand")
+        pooling = table.get("pooling")
+        stand_line = (
+            f"deck states {table['strata']} ({pooling['status'] if pooling else '-'})  "
+            f"Stand unbekannt: "
+            + (f"{unknown['games_total']} games, never added" if unknown else "none")
+        )
+        lines.append(stand_line)
+        for stand in table.get("stands", []):
+            lines.append(
+                f"  state {str(stand.get('deck_hash'))[:12]}  games {stand['games_total']}  "
+                f"revisions {', '.join(stand.get('revision_ids', [])) or '-'}"
+            )
     lines.append(
         f"{table['comparisons']} cards compared at 95 %: about "
         f"{table['expected_chance_findings']} will look different from 0 by chance; treat the "

@@ -2474,18 +2474,33 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         Owner's: this lists each deck id the logs name — opponents and precons
         included — so ``/api/outcomes`` can be asked for any of them (#1267).
         A deck seated twice in one game counts once for that game.
+
+        ``games`` counts finished logs of the deck over all its deck states; it is a log
+        count, not an evaluation. ``stands`` is the number of known deck states and
+        ``games_unknown_stand`` the logs without one (#1657), which ``/api/outcomes`` shows
+        apart and never adds to a known state.
         """
         report = card_outcomes.load_exposures(games.games_folder(games_home()))
         finished: dict[str, int] = {}
+        unknown: dict[str, int] = {}
+        stands: dict[str, set[str]] = {}
         for game in report["exposures"]:
             for deck_id in {seat["deck_id"] for seat in game["seats"]}:
                 finished[deck_id] = finished.get(deck_id, 0) + 1
+                own = card_outcomes.own_seat(game, deck_id)
+                stand = card_outcomes.stand_of(own) if own is not None else None
+                if stand is None:
+                    unknown[deck_id] = unknown.get(deck_id, 0) + 1
+                else:
+                    stands.setdefault(deck_id, set()).add(stand)
         return {
             "decks": [
                 {
                     "deck_id": deck_id,
                     "games": finished.get(deck_id, 0),
                     "games_skipped": report["skipped_with_deck"].get(deck_id, 0),
+                    "stands": len(stands.get(deck_id, ())),
+                    "games_unknown_stand": unknown.get(deck_id, 0),
                 }
                 for deck_id in card_outcomes.deck_ids_in(report)
             ]
