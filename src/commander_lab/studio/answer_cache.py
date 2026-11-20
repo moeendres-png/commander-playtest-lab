@@ -9,8 +9,9 @@ as the JSON bytes the route would send, keyed by
   makes the next request recompute; an open transaction or an in-memory store is never
   remembered),
 - the route name and all of its parameters, and
-- the identity (path, size, modification time) of every data file the answer reads per call
-  (``files``), so a changed repository file is seen at once, as before.
+- the identity (path, size, SHA-256 of the content) of every data file the answer reads per call
+  (``files``), so a changed repository file is seen at once, also when it was rewritten with the
+  same size inside the same clock tick (size and modification time alone miss that, #1615).
 
 The bytes are produced exactly as FastAPI produces them for the route's declared return type
 (``TypeAdapter.validate_python`` then ``dump_json``, the framework's own fast path), so a
@@ -29,6 +30,7 @@ behind them. ``file_answer`` holds at most ``_MAX_FILE_ANSWERS`` entries.
 
 from __future__ import annotations
 
+import hashlib
 import os
 import threading
 from collections import OrderedDict
@@ -50,6 +52,9 @@ _file_lock = threading.Lock()
 _file_answers: OrderedDict[tuple[Hashable, ...], bytes] = OrderedDict()
 
 type FileStamp = tuple[str, int, int] | tuple[str, None, None]
+type ContentStamp = tuple[str, int, str] | tuple[str, None, None]
+
+_HASH_CHUNK_BYTES = 1 << 20
 type Shape = Literal["object", "list"]
 
 
@@ -60,6 +65,22 @@ def file_stamp(path: str | Path) -> FileStamp:
     except OSError:
         return (str(path), None, None)
     return (str(path), found.st_size, found.st_mtime_ns)
+
+
+def content_stamp(path: str | Path) -> ContentStamp:
+    """Path, size and SHA-256 of the content of a data file (``None`` twice when it is absent
+    or cannot be read). The content is read on every call, so a rewrite that keeps size and
+    modification time still changes the stamp."""
+    digest = hashlib.sha256()
+    size = 0
+    try:
+        with open(path, "rb") as handle:
+            while chunk := handle.read(_HASH_CHUNK_BYTES):
+                digest.update(chunk)
+                size += len(chunk)
+    except OSError:
+        return (str(path), None, None)
+    return (str(path), size, digest.hexdigest())
 
 
 def folder_stamp(folder: str | Path) -> tuple[FileStamp, ...]:
@@ -97,7 +118,7 @@ def json_answer(
 ) -> Response:
     """The answer of route ``name`` for ``params``, remembered per store state and data files.
     ``compute`` may raise (the error reaches the route as before and nothing is kept)."""
-    key = ("answer", name, params, tuple(file_stamp(path) for path in files))
+    key = ("answer", name, params, tuple(content_stamp(path) for path in files))
     return _response(cache.cached(store, key, lambda: dump(compute(), shape)))
 
 
@@ -131,4 +152,13 @@ def clear() -> None:
         _file_answers.clear()
 
 
-__all__ = ["OBJECT", "OBJECT_LIST", "clear", "dump", "file_answer", "file_stamp", "json_answer"]
+__all__ = [
+    "OBJECT",
+    "OBJECT_LIST",
+    "clear",
+    "content_stamp",
+    "dump",
+    "file_answer",
+    "file_stamp",
+    "json_answer",
+]
