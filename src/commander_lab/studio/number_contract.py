@@ -369,37 +369,56 @@ def diff_zahlen(diff: Mapping[str, object]) -> list[dict[str, object]]:
 
 
 def outcomes_zahlen(table: Mapping[str, object]) -> list[dict[str, object]]:
-    """Contracts for ``/api/outcomes`` (per deck state since B1, #1657): per card the rate with
-    and without the card in the first dealt hand and their difference (SIMULIERT), with the
-    card's status and reason and the table's warnings as ``hinweise``.
+    """Contracts for ``/api/outcomes`` (per stratum since B1, #1657, and #1683): per card the rate
+    with and without the card in the first dealt hand and their difference (SIMULIERT), with the
+    card's status and reason, the table's warnings and its table size as ``hinweise``.
 
-    * top level (``outcome.<card>.<key>``): one known stand carries its ``deck_hash``; several
-      stands combined stratified carry ``stand_hash`` ``None`` and the number of strata as a
-      note (no single state); ``NOT_POOLED`` has no card rows and so no figures;
-    * every known stand (``outcome.stand.<hash>.<card>.<key>``) with its own hash;
-    * the logs without a deck state (``outcome.unknown.<card>.<key>``), ``stand_hash`` ``None``,
-      never added to a known stand."""
+    A stratum is (deck state, table size); the table size is named in ``bezug``, ``kohorte`` and
+    ``hinweise`` of every figure, so figures of two table sizes never read as one cohort.
+
+    * top level (``outcome.<card>.<key>``): one known stratum carries its ``deck_hash``; several
+      strata of one table size combined stratified carry ``stand_hash`` ``None`` and the number
+      of strata as a note (no single state); ``NOT_POOLED`` has no card rows and so no figures;
+    * every known stratum (``outcome.stand.<hash>.t<size>.<card>.<key>``) with its own hash;
+    * every stratum with an unknown axis
+      (``outcome.unknown.<hash|ohne-hash>.t<size|unbekannt>.<card>.<key>``): "Stand unbekannt" with ``stand_hash`` ``None``, "Tischgröße unbekannt" with its own n/N,
+      never added to a known stratum."""
     out: list[dict[str, object]] = []
     pooling = _mapping(table.get("pooling"))
     top_hash = table.get("deck_hash") if _text(table.get("deck_hash")) else None
     top_notes: list[str] = []
     if pooling.get("status") == "POOLED":
         top_hash = None
-        top_notes.append(f"geschichtet über {table.get('strata')} Stände ({pooling.get('method')})")
+        top_notes.append(
+            f"geschichtet über {table.get('strata')} Schichten (Deck-Stände einer Tischgröße; "
+            f"{pooling.get('method')})"
+        )
     _outcome_table(
         out, table, "outcome", top_hash if isinstance(top_hash, str) else None, top_notes
     )
     for item in _list(table.get("stands")):
         stand = _mapping(item)
         deck_hash = stand.get("deck_hash")
-        if isinstance(deck_hash, str) and _text(deck_hash):
-            _outcome_table(out, stand, f"outcome.stand.{deck_hash}", deck_hash, [])
-    unknown = _mapping(table.get("unknown_stand"))
-    if unknown:
-        _outcome_table(
-            out, unknown, "outcome.unknown", None, ["Stand unbekannt (Protokoll ohne Deck-Hash)"]
+        size = _int_or_none(stand.get("table_size"))
+        if isinstance(deck_hash, str) and _text(deck_hash) and size is not None:
+            _outcome_table(out, stand, f"outcome.stand.{deck_hash}.t{size}", deck_hash, [])
+    for item in _list(table.get("unknown_strata")):
+        apart = _mapping(item)
+        deck_hash = apart.get("deck_hash") if _text(apart.get("deck_hash")) else None
+        size = _int_or_none(apart.get("table_size"))
+        notes = [] if deck_hash else ["Stand unbekannt (Protokoll ohne Deck-Hash)"]
+        if size is None:
+            notes.append("Tischgröße unbekannt (Protokollkopf ohne vollständige Sitzliste)")
+        prefix = (
+            f"outcome.unknown.{deck_hash or 'ohne-hash'}.t{'unbekannt' if size is None else size}"
         )
+        _outcome_table(out, apart, prefix, deck_hash if isinstance(deck_hash, str) else None, notes)
     return out
+
+
+def _table_size_text(table: Mapping[str, object]) -> str:
+    size = _int_or_none(table.get("table_size"))
+    return "Tischgröße unbekannt" if size is None else f"Tisch mit {size} Sitzen"
 
 
 def _outcome_table(
@@ -412,7 +431,8 @@ def _outcome_table(
     deck_id = str(table.get("deck_id") or "")
     pilots = _names(table.get("pilots"))
     source = "Studio-Spielprotokolle (erste gezogene Hand)"
-    table_notes = [*extra_notes, *_names(table.get("warnings"))]
+    size_text = _table_size_text(table)
+    table_notes = [*extra_notes, f"Tischgröße: {size_text}", *_names(table.get("warnings"))]
     states = _names(table.get("bridge_qualification_states"))
     if states:
         table_notes.append(f"Bridge-Zustand: {', '.join(states)}")
@@ -430,7 +450,7 @@ def _outcome_table(
             "klasse": SIMULIERT,
             "quelle": source,
             "N": total,
-            "kohorte": f"Deck {deck_id}" if deck_id else None,
+            "kohorte": f"Deck {deck_id} · {size_text}" if deck_id else None,
             "stand_hash": stand_hash,
             "pilot": PILOT_KONSTANTE,
             "piloten": pilots,
@@ -443,7 +463,7 @@ def _outcome_table(
             _float_or_none(card.get("rate_in")),
             einheit="Anteil",
             n=_int_or_none(card.get("games_in_first_hand")),
-            bezug="Partien (mit der Karte in der ersten Hand / alle)",
+            bezug=f"Partien (mit der Karte in der ersten Hand / alle), {size_text}",
             intervall=_interval(card.get("rate_in_ci95")),
             **common,
         )
@@ -454,7 +474,7 @@ def _outcome_table(
             _float_or_none(card.get("rate_not")),
             einheit="Anteil",
             n=_int_or_none(card.get("games_not_in_first_hand")),
-            bezug="Partien (ohne die Karte in der ersten Hand / alle)",
+            bezug=f"Partien (ohne die Karte in der ersten Hand / alle), {size_text}",
             intervall=_interval(card.get("rate_not_ci95")),
             **common,
         )
@@ -466,7 +486,7 @@ def _outcome_table(
             difference,
             einheit="pp",
             n=total if difference is not None else None,
-            bezug="Partien (verglichen / alle)",
+            bezug=f"Partien (verglichen / alle), {size_text}",
             intervall=_interval(card.get("difference_ci95_pp")),
             **common,
         )

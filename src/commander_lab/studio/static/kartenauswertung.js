@@ -6,6 +6,9 @@
 // Rendered by app.js (Simulation tab) through renderCardOutcomes(slot, deps).
 // Per deck state (#1657): the answer names its known stands (deck_hash) and "Stand unbekannt"
 // apart; several stands are only shown stratified (strata = number of stands), never added.
+// Per table size (#1683): a stratum is (deck state, table size); every stratum names its table
+// size, strata of another table size are never combined, and logs without a table size stand
+// apart as "Tischgröße unbekannt" with their own n/N (unknown_strata).
 
 const OUTCOMES_CARD_ORDER = { MEASURED: 0, INSUFFICIENT_SAMPLE: 1 };
 
@@ -44,25 +47,39 @@ const outcomesInt = (value) => (typeof value === "number" ? StudioUI.num(value, 
 const outcomesShortHash = (value) =>
   typeof value === "string" && value ? (value.length > 12 ? `${value.slice(0, 12)}…` : value) : "unbekannt";
 
-// The label of an answer that carries deck states (schema 2): which stand(s) the top table is.
+// The table size of a stratum (#1683): read from the log header, never guessed.
+const outcomesTableSize = (value) =>
+  Number.isInteger(value) && value > 0 ? `Tischgröße: ${StudioUI.num(value, 0)} Sitze` : "Tischgröße unbekannt";
+
+const outcomesUnknownStrata = (data) => (Array.isArray(data.unknown_strata) ? data.unknown_strata : []);
+
+// The name of a stratum: its deck state (or "Stand unbekannt") and its table size.
+const outcomesStratumName = (stratum) => {
+  const known = typeof stratum.deck_hash === "string" && stratum.deck_hash;
+  return `${known ? `Deck-Stand ${outcomesShortHash(stratum.deck_hash)}` : "Stand unbekannt"} · ${outcomesTableSize(stratum.table_size)}`;
+};
+
+// The label of an answer that carries strata (schema 2+): which stratum or strata the top table is.
 function outcomesStandLabel(data, baseRevision) {
   const stands = Array.isArray(data.stands) ? data.stands : [];
   const current = (stand) => Array.isArray(stand.revision_ids) && baseRevision && stand.revision_ids.includes(baseRevision);
-  if (!stands.length) return "kein Deck-Stand bekannt (alle Partien: Stand unbekannt)";
+  if (!stands.length) return "keine Schicht mit bekanntem Deck-Stand und bekannter Tischgröße (alle Partien getrennt unten)";
   if (stands.length === 1) {
-    return `Deck-Stand (Hash): ${outcomesShortHash(stands[0].deck_hash)}${current(stands[0]) ? " (gewählter Stand)" : ""}`;
+    return `Deck-Stand (Hash): ${outcomesShortHash(stands[0].deck_hash)}${current(stands[0]) ? " (gewählter Stand)" : ""} · ${outcomesTableSize(stands[0].table_size)}`;
   }
   const pooled = data.pooling && data.pooling.status === "POOLED";
-  return `${StudioUI.num(stands.length, 0)} Deck-Stände ${pooled ? "geschichtet (je Stand eigene Differenz, gewichtet zusammengeführt)" : "nicht zusammengeführt"}`;
+  return pooled
+    ? `${StudioUI.num(stands.length, 0)} Deck-Stände geschichtet (je Stand eigene Differenz, gewichtet zusammengeführt) · ${outcomesTableSize(data.table_size)}`
+    : `${StudioUI.num(stands.length, 0)} Schichten (Deck-Stand und Tischgröße) nicht zusammengeführt`;
 }
 
 function outcomesStandNote(h, data) {
-  const unknown = data.unknown_stand;
-  const unknownText = unknown && typeof unknown.games_total === "number"
-    ? `Stand unbekannt: ${outcomesInt(unknown.games_total)} Partien (getrennt gezählt, nie addiert)`
-    : "Stand unbekannt: keine Partien";
+  const unknown = outcomesUnknownStrata(data);
+  const unknownTexts = unknown.length
+    ? unknown.map((t) => `${outcomesStratumName(t)}: ${outcomesInt(t.games_total)} Partien (getrennt gezählt, nie addiert)`)
+    : ["Stand oder Tischgröße unbekannt: keine Partien"];
   const pooling = data.pooling || {};
-  const parts = [`Schichten (Deck-Stände): ${outcomesInt(data.strata)}`, unknownText];
+  const parts = [`Schichten (Deck-Stand und Tischgröße): ${outcomesInt(data.strata)}`, ...unknownTexts];
   if (pooling.reason) parts.push(`Nicht zusammengeführt: ${pooling.reason}`);
   if (pooling.method) parts.push(`Verfahren: ${pooling.method}`);
   return h("p", { class: "muted" }, parts.join(" · "));
@@ -132,22 +149,31 @@ function outcomesCardTable(h, cards, deps, caption) {
     h("tbody", {}, sorted.map((card) => outcomesCardRow(h, card, deps)))));
 }
 
-// One deck state as its own section: its hash (or "Stand unbekannt"), its own n/N and table.
+// One stratum as its own section: its hash (or "Stand unbekannt"), its table size (or
+// "Tischgröße unbekannt"), its own n/N and table.
 function outcomesStandSection(h, stand, deps) {
   const known = typeof stand.deck_hash === "string" && stand.deck_hash;
+  const sized = Number.isInteger(stand.table_size) && stand.table_size > 0;
   const revisions = Array.isArray(stand.revision_ids) && stand.revision_ids.length ? stand.revision_ids.join(", ") : "unbekannt";
+  const sizeText = sized
+    ? outcomesTableSize(stand.table_size)
+    : "Tischgröße unbekannt (Protokollkopf ohne vollständige Sitzliste)";
   const head = known
-    ? `Deck-Stand ${outcomesShortHash(stand.deck_hash)} · ${outcomesInt(stand.games_total)} Partien · Stände im Deckbauer: ${revisions}`
-    : `Stand unbekannt (Partien ohne Deck-Hash im Protokoll) · ${outcomesInt(stand.games_total)} Partien · nie zu einem bekannten Stand addiert`;
+    ? `Deck-Stand ${outcomesShortHash(stand.deck_hash)} · ${sizeText} · ${outcomesInt(stand.games_total)} Partien · Stände im Deckbauer: ${revisions}`
+    : `Stand unbekannt (Partien ohne Deck-Hash im Protokoll) · ${sizeText} · ${outcomesInt(stand.games_total)} Partien`;
+  const apart = !known || !sized ? " · nie zu einer bekannten Schicht addiert" : "";
   const cards = Array.isArray(stand.cards) ? stand.cards : [];
-  // Every stand, "Stand unbekannt" included, names its own provenance, qualification and
-  // warnings (BRIDGE_AHEAD among them): its numbers are never shown without them.
-  const standLabel = known ? `Deck-Stand (Hash): ${outcomesShortHash(stand.deck_hash)}` : "Stand unbekannt";
+  // Every stratum, "Stand unbekannt" and "Tischgröße unbekannt" included, names its own
+  // provenance, qualification and warnings (BRIDGE_AHEAD among them): its numbers are never
+  // shown without them.
+  const standLabel = known
+    ? `Deck-Stand (Hash): ${outcomesShortHash(stand.deck_hash)} · ${outcomesTableSize(stand.table_size)}`
+    : `Stand unbekannt · ${outcomesTableSize(stand.table_size)}`;
   return h("details", {},
-    h("summary", {}, head),
+    h("summary", {}, head + apart),
     ...outcomesMetadataNodes(h, stand, standLabel, { skipped: false }),
     cards.length
-      ? outcomesCardTable(h, cards, deps, `Karten-Auswertung eines Deck-Stands (${known ? outcomesShortHash(stand.deck_hash) : "Stand unbekannt"})`)
+      ? outcomesCardTable(h, cards, deps, `Karten-Auswertung einer Schicht (${outcomesStratumName(stand)})`)
       : h("p", { class: "muted" }, "Keine Partien mit Starthand-Daten (zu wenig Daten, nicht 0)."));
 }
 
@@ -229,7 +255,7 @@ async function renderCardOutcomes(slot, deps) {
   const dirtyNote = deps.dirty
     ? h("p", { class: "note note-compact" }, "Hinweis: Der aktuelle Entwurf hat ungespeicherte Änderungen; die Auswertung bezieht sich nur auf den gespeicherten Stand.")
     : null;
-  // Schema 2 (#1657) names its deck states; an answer without them keeps the old label.
+  // Schema 2+ (#1657, #1683) names its strata; an answer without them keeps the old label.
   const perStand = Array.isArray(data.stands);
   const label = perStand ? `über Deck-ID ${queryId || "unbekannt"} · ${outcomesStandLabel(data, deps.baseRevision)}` : queryLabel;
   const meta = outcomesMetadataNodes(h, data, label);
@@ -237,13 +263,13 @@ async function renderCardOutcomes(slot, deps) {
   const sections = [];
   if (perStand) {
     if (data.stands.length > 1) data.stands.forEach((stand) => sections.push(outcomesStandSection(h, stand, deps)));
-    if (data.unknown_stand) sections.push(outcomesStandSection(h, data.unknown_stand, deps));
+    outcomesUnknownStrata(data).forEach((stratum) => sections.push(outcomesStandSection(h, stratum, deps)));
   }
 
   if (data.status === "NOT_POOLED") {
     slot.replaceChildren(...StudioUI.kids(
       h("h3", {}, title), fixedNote, dirtyNote, ...meta, standNote,
-      h("p", { class: "muted" }, "Die Deck-Stände werden nicht zusammengeführt (siehe Grund); jeder Stand steht unten mit eigener Zahl."),
+      h("p", { class: "muted" }, "Die Schichten (Deck-Stand und Tischgröße) werden nicht zusammengeführt (siehe Grund); jede Schicht steht unten mit eigener Zahl."),
       ...sections));
     return;
   }
@@ -251,8 +277,8 @@ async function renderCardOutcomes(slot, deps) {
   if (data.status === "NO_GAMES" || !Array.isArray(data.cards) || !data.cards.length) {
     slot.replaceChildren(...StudioUI.kids(
       h("h3", {}, title), fixedNote, dirtyNote, ...meta, standNote,
-      h("p", { class: "muted" }, perStand && data.unknown_stand
-        ? `Für ${label} liegen keine Partien mit bekanntem Deck-Stand vor; die Partien ohne Deck-Hash stehen unten unter „Stand unbekannt“ (getrennt gezählt, mit eigener Herkunft).`
+      h("p", { class: "muted" }, perStand && outcomesUnknownStrata(data).length
+        ? `Für ${label} liegen keine Partien mit bekanntem Deck-Stand und bekannter Tischgröße vor; die übrigen Partien stehen unten unter „Stand unbekannt“ bzw. „Tischgröße unbekannt“ (getrennt gezählt, mit eigener Herkunft).`
         : `Für ${label} liegen noch keine abgeschlossenen Partien mit Starthand-Daten vor (zu wenig Daten, nicht 0).`),
       ...sections));
     return;
@@ -271,6 +297,7 @@ if (typeof module !== "undefined" && module.exports) {
     outcomesRatio,
     outcomesShortHash,
     outcomesStandLabel,
+    outcomesTableSize,
     renderCardOutcomes,
   };
 }
