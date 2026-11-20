@@ -29,6 +29,7 @@ from commander_lab.studio.decks import (
     revision_rows,
     validate_rows,
 )
+from commander_lab.studio.gc_band import GC_BAND_0
 from commander_lab.studio.images import cached_image, image_address
 from commander_lab.studio.store import SCHEMA_VERSION
 from commander_lab.studio.web import create_app
@@ -909,9 +910,11 @@ def test_pool_include_unowned_tam_superfriends_and_color_identity(studio: Studio
     # Default include_unowned=False: strictly inventory cards only
     default_pool = builder.pool_cards(studio, ["Test Commander"])
     default_cards = {str(c["name"]): c for c in default_pool["cards"]}  # type: ignore[union-attr]
-    assert default_pool["include_unowned"] is False
+    # The Zukauf fields exist only on request (#1648): the default answer keeps its old form.
+    for key in ("include_unowned", "unowned_selection", "sim_readiness_unowned"):
+        assert key not in default_pool
     assert all(
-        c["in_collection"] is True and c["wishlist_candidate"] is False
+        "in_collection" not in c and "wishlist_candidate" not in c and "selected_by" not in c
         for c in default_cards.values()
     )
     assert "Teferi, Hero of Dominaria" not in default_cards
@@ -1189,3 +1192,203 @@ def test_unowned_commander_resolution_and_scryfall_card_detail(studio: StudioSto
 
         r_unknown = client.get("/api/pool", params={"commander": "Nonexistent Commander"})
         assert r_unknown.status_code == 404
+
+
+# ---------- Zukauf pool selection (#1648, Co-Lead decision 2026-11-20) ----------
+
+COMMANDER = "Test Commander"
+
+
+def _corpus_card(store: StudioStore, deck_id: str, name: str, oracle_id: str) -> None:
+    store.connection.execute(
+        "INSERT INTO corpus_deck_card(deck_id, card_name, oracle_id, quantity, section, "
+        "normalization_status) VALUES (?, ?, ?, 1, 'mainboard', 'exact')",
+        (deck_id, name, oracle_id),
+    )
+
+
+def _source_id(store: StudioStore) -> str:
+    return str(store.connection.execute("SELECT source_id FROM card LIMIT 1").fetchone()[0])
+
+
+def _bind_observation(store: StudioStore, cohort: str) -> None:
+    store.connection.execute(
+        "INSERT OR IGNORE INTO commander_binding(kind, key, commander_name, basis) "
+        "VALUES ('observation_cohort', ?, ?, 'IMPORT_DECLARED')",
+        (cohort, COMMANDER),
+    )
+
+
+def _observation(store: StudioStore, name: str, cohort: str, numerator: int, denominator: int):
+    store.connection.execute(
+        "INSERT INTO observation(card_id, card_name, metric, cohort, value, numerator, "
+        "denominator, data_class, source_id) VALUES (NULL, ?, 'inclusion_pct', ?, ?, ?, ?, "
+        "'OBSERVED_EXTERNAL', ?)",
+        (name, cohort, 100 * numerator / denominator, numerator, denominator, _source_id(store)),
+    )
+
+
+def _signal(
+    store: StudioStore, name: str, signal: str, value: float, num: int | None, den: int | None
+):
+    store.connection.execute(
+        "INSERT INTO card_signal(commander_name, signal, card_name, value, numerator, "
+        "denominator, source_id) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        (COMMANDER, signal, name, value, num, den, _source_id(store)),
+    )
+
+
+def _unowned(pool: dict[str, object]) -> dict[str, dict[str, object]]:
+    return {
+        str(c["name"]): c
+        for c in pool["cards"]  # type: ignore[union-attr]
+        if c.get("in_collection") is False
+    }
+
+
+def test_unowned_corpus_threshold_counts_decks_over_the_bound_corpus(
+    studio: StudioStore, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    assert builder.UNOWNED_MIN_CORPUS_PCT == 2  # Co-Lead decision 2026-11-20
+    assert builder.UNOWNED_MIN_EDHREC_DENOMINATOR == 30
+    _insert_scryfall(
+        studio, oracle_id="o-one", name="One Deck Card", colors="G", type_line="Instant"
+    )
+    _corpus_card(studio, "d1", "One Deck Card", "o-one")
+    studio.connection.commit()
+    total = builder.cohort_sizes(studio, [COMMANDER])[builder.ALL_DECKS]
+    assert total >= 2
+    # One deck of N: in exactly when 1 * 100 >= pct * N (integers, no rounding).
+    monkeypatch.setattr(builder, "UNOWNED_MIN_CORPUS_PCT", 100 // total)
+    pool = builder.pool_cards(studio, [COMMANDER], include_unowned=True)
+    card = _unowned(pool)["One Deck Card"]
+    assert card["selected_by"] == ["corpus"]
+    assert card["decks"][builder.ALL_DECKS] == 1  # type: ignore[index]
+    selection = pool["unowned_selection"]
+    assert selection["corpus_denominator"] == total  # type: ignore[index]
+    assert selection["min_corpus_pct"] == 100 // total  # type: ignore[index]
+    assert selection["counts"]["corpus"] >= 1  # type: ignore[index]
+    monkeypatch.setattr(builder, "UNOWNED_MIN_CORPUS_PCT", 100 // total + 1)
+    assert "One Deck Card" not in _unowned(
+        builder.pool_cards(studio, [COMMANDER], include_unowned=True)
+    )
+    # Exactly at the limit counts: a card in every bound deck meets 100 %.
+    _insert_scryfall(
+        studio, oracle_id="o-all", name="Every Deck Card", colors="U", type_line="Instant"
+    )
+    for deck_id in builder._corpus_deck_ids(studio, [COMMANDER]):
+        _corpus_card(studio, deck_id, "Every Deck Card", "o-all")
+    studio.connection.commit()
+    monkeypatch.setattr(builder, "UNOWNED_MIN_CORPUS_PCT", 100)
+    every = _unowned(builder.pool_cards(studio, [COMMANDER], include_unowned=True))
+    assert every["Every Deck Card"]["decks"][builder.ALL_DECKS] == total  # type: ignore[index]
+    assert "One Deck Card" not in every
+
+
+def test_unowned_edhrec_needs_a_denominator_of_thirty(studio: StudioStore) -> None:
+    cohort = "edhrec:test-commander"
+    _bind_observation(studio, cohort)
+    for oracle_id, name in (
+        ("o-obs29", "Obs Twentynine"),
+        ("o-obs30", "Obs Thirty"),
+        ("o-sig29", "Sig Twentynine"),
+        ("o-sig30", "Sig Thirty"),
+        ("o-syn", "Synergy Only"),
+    ):
+        _insert_scryfall(studio, oracle_id=oracle_id, name=name, colors="U", type_line="Sorcery")
+    _observation(studio, "Obs Twentynine", cohort, 10, 29)
+    _observation(studio, "Obs Thirty", cohort, 10, 30)
+    _signal(studio, "Sig Twentynine", "edhrec_commander_inclusion", 0.5, 14, 29)
+    _signal(studio, "Sig Thirty", "edhrec_commander_inclusion", 0.5, 15, 30)
+    _signal(studio, "Sig Thirty", "edhrec_commander_synergy", 0.25, None, None)
+    _signal(studio, "Synergy Only", "edhrec_commander_synergy", 0.9, None, None)
+    studio.connection.commit()
+    unowned = _unowned(builder.pool_cards(studio, [COMMANDER], include_unowned=True))
+    assert "Obs Twentynine" not in unowned
+    assert "Sig Twentynine" not in unowned
+    assert "Synergy Only" not in unowned  # only an inclusion figure selects a card
+    assert unowned["Obs Thirty"]["selected_by"] == ["edhrec"]
+    assert unowned["Obs Thirty"]["edhrec"]["denominator"] == 30  # type: ignore[index]
+    sig = unowned["Sig Thirty"]
+    assert sig["selected_by"] == ["edhrec"]
+    # Chosen through card_signal: the card carries the signal figures, with n/N.
+    assert sig["signals"]["inclusion"] == {"value": 0.5, "numerator": 15, "denominator": 30}  # type: ignore[index]
+    assert sig["signals"]["synergy"]["value"] == 0.25  # type: ignore[index]
+    assert sig["edhrec"]["origin"] == "signal"  # type: ignore[index]
+    assert sig["edhrec"]["denominator"] == 30  # type: ignore[index]
+
+
+def test_unowned_pool_splits_sim_readiness_and_keeps_saved_deck_cards(studio: StudioStore) -> None:
+    _insert_scryfall(
+        studio, oracle_id="o-kept", name="Kept Choice", colors="W", type_line="Instant"
+    )
+    _insert_scryfall(
+        studio, oracle_id="o-walker", name="Test Walker", colors="W",
+        type_line="Legendary Planeswalker — Test",
+    )  # fmt: skip
+    studio.connection.commit()
+    default = builder.pool_cards(studio, [COMMANDER])
+    assert "Kept Choice" not in _unowned(
+        builder.pool_cards(studio, [COMMANDER], include_unowned=True)
+    )
+    revision = create_revision(studio, deck_id="keep", name="Keep", cards=_deck())
+    builder.write_draft(
+        studio, "keep", "main", [*_deck(), RevisionCard("scryfall:o-kept", 1, "main")], revision
+    )
+    pool = builder.pool_cards(studio, [COMMANDER], include_unowned=True)
+    unowned = _unowned(pool)
+    assert unowned["Kept Choice"]["selected_by"] == ["in_saved_deck"]
+    assert unowned["Test Walker"]["selected_by"] == ["planeswalker"]
+    # the collection figure is the same as without the Zukauf cards; those are counted apart
+    assert pool["sim_readiness"] == default["sim_readiness"]
+    extra = pool["sim_readiness_unowned"]
+    assert extra["total"] == len(unowned)  # type: ignore[index]
+    assert pool["unowned_selection"]["total"] == len(unowned)  # type: ignore[index]
+    assert pool["unowned_selection"]["counts"]["in_saved_deck"] == 1  # type: ignore[index]
+
+
+def test_unowned_card_is_listed_once_when_catalog_cards_share_an_oracle_id(
+    studio: StudioStore,
+) -> None:
+    db = studio.connection
+    _insert_scryfall(
+        studio, oracle_id="o-twice", name="Twice Walker", colors="U",
+        type_line="Legendary Planeswalker — Twice",
+    )  # fmt: skip
+    for card_id in ("card:catalog:b", "card:catalog:a"):
+        db.execute(
+            "INSERT INTO card(card_id, oracle_name, oracle_id, color_identity, type_line, "
+            "is_basic_land, commander_legal, source_id) VALUES (?, 'Twice Walker', 'o-twice', "
+            "'U', 'Legendary Planeswalker — Twice', 0, 1, ?)",
+            (card_id, _source_id(studio)),
+        )
+    db.commit()
+    pool = builder.pool_cards(studio, [COMMANDER], include_unowned=True)
+    rows = [c for c in pool["cards"] if c["name"] == "Twice Walker"]  # type: ignore[union-attr]
+    assert len(rows) == 1
+    assert rows[0]["card_id"] == "card:catalog:a"
+
+
+def test_unowned_card_in_a_counted_scope_is_unknown_over_the_scope_denominator(
+    studio: StudioStore,
+) -> None:
+    _insert_scryfall(
+        studio, oracle_id="o-scope", name="Scope Walker", colors="G",
+        type_line="Legendary Planeswalker — Scope",
+    )  # fmt: skip
+    studio.connection.commit()
+    band = builder.pool_cards(studio, [COMMANDER], gc_band=GC_BAND_0, include_unowned=True)
+    card = _unowned(band)["Scope Walker"]
+    universe = card["universe"]
+    assert universe["matched"] is False  # type: ignore[index]
+    assert universe["hits"] is None  # type: ignore[index]
+    assert universe["share"] is None  # type: ignore[index]
+    assert universe["level"] == "U"  # type: ignore[index]
+    assert universe["denominator"] == band["universe"]["denominator"]  # type: ignore[index]
+    assert universe["reason"] == builder.UNOWNED_NOT_COUNTED  # type: ignore[index]
+    # collection cards keep their counted rows; the default pool never carries this entry
+    plain = builder.pool_cards(studio, [COMMANDER], gc_band=GC_BAND_0)
+    assert all(
+        c.get("universe", {}).get("reason") != builder.UNOWNED_NOT_COUNTED  # type: ignore[union-attr]
+        for c in plain["cards"]  # type: ignore[union-attr]
+    )

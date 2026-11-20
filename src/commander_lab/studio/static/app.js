@@ -574,7 +574,7 @@ function renderList(body) {
     const ownership = StudioWishlist.summarizeDeckOwnership(entries(), state.byId);
     if (ownership.missing > 0) {
       body.append(h("div", { class: "actions", id: "wishlist-summary" },
-        h("span", { class: "pill warn" }, `Im Besitz: ${StudioUI.num(ownership.owned, 0)} · Zukauf: ${StudioUI.num(ownership.missing, 0)}`),
+        h("span", { class: "pill warn", title: "Kopien dieser Deckliste samt Commander (ein Commander-Deck hat 100): im Besitz laut Sammlung (Untergrenze), Zukauf = fehlende Kopien" }, `Im Besitz: ${StudioUI.num(ownership.owned, 0)}/100 · Zukauf: ${StudioUI.num(ownership.missing, 0)}/100`),
         h("button", { type: "button", class: "small", id: "copy-wishlist", onclick: () => copyWishlist(ownership) }, "Zukauf-Liste kopieren")));
     }
   }
@@ -2448,7 +2448,7 @@ async function openCard(card) {
     h("h3", {}, "Häufigkeit in den Quelldecks"), frequencies, h("p", { class: "note" }, "Gelb: Gruppe mit weniger als 30 Decks."),
     h("p", {}, h("a", { href: `decks.html?commander=${encodeURIComponent(COMMANDER)}&must=${encodeURIComponent(card.name)}`, class: "chip" }, "Quelldecks mit dieser Karte im Deck-Browser öffnen →")),
     trendBox,
-    card.universe && activeScope() ? h("p", { class: "note" }, `Im ${activeScope().label}: ${card.universe.filter_card ? "Filterkarte des Universums (steht per Definition in jedem Deck der Teilmenge, ohne Zählung und ohne Stufe)" : card.universe.matched ? `${StudioUI.num(card.universe.hits, 0)}/${StudioUI.num(card.universe.denominator, 0)} Decks, Stufe ${card.universe.level} (Verbreitung gezählt, keine Stärke)` : "unbekannt (kein Deck des Universums nennt diese Karte unter einem bekannten Namen)"}`) : null,
+    card.universe && activeScope() ? h("p", { class: "note" }, `Im ${activeScope().label}: ${card.universe.filter_card ? "Filterkarte des Universums (steht per Definition in jedem Deck der Teilmenge, ohne Zählung und ohne Stufe)" : card.universe.matched ? `${StudioUI.num(card.universe.hits, 0)}/${StudioUI.num(card.universe.denominator, 0)} Decks, Stufe ${card.universe.level} (Verbreitung gezählt, keine Stärke)` : card.in_collection === false ? `unbekannt (${card.universe.reason})` : "unbekannt (kein Deck des Universums nennt diese Karte unter einem bekannten Namen)"}`) : null,
     card.universe && state.universeInfo && state.universeInfo.subset_note ? h("p", { class: "note" }, state.universeInfo.subset_note) : null, strengthBox, layerBox, extra);
   box.append(left, right); $("modal").hidden = false;
   if (!state.commanderIds.includes(card.card_id) && !card.basic) renderSwapBox(swapBox, card, initialSwapMode);
@@ -2714,10 +2714,20 @@ function renderSimReadiness() {
     $("f-sim-label").title = "Die Kartendaten des Simulators (xmage_card_facts.json, pilot_card_knowledge.json) sind hier nicht lesbar, deshalb gibt es keine Bereitschaft.";
     return;
   }
-  text.textContent = `Simulator-bereit (${StudioUI.num(info.ready, 0)} von ${StudioUI.num(info.total, 0)})`;
-  $("f-sim-label").title = info.ready === info.total
+  // Collection and Zukauf cards are counted separately (never one mixed figure, #1648).
+  const extra = state.simReadinessUnowned;
+  text.textContent = extra
+    ? `Simulator-bereit (Sammlung ${StudioUI.num(info.ready, 0)} von ${StudioUI.num(info.total, 0)} · außerhalb ${StudioUI.num(extra.ready, 0)} von ${StudioUI.num(extra.total, 0)})`
+    : `Simulator-bereit (${StudioUI.num(info.ready, 0)} von ${StudioUI.num(info.total, 0)})`;
+  const missing = info.total - info.ready + (extra ? extra.total - extra.ready : 0);
+  $("f-sim-label").title = !missing
     ? "Alle Karten des Pools sind für den Simulator bereit: der Filter ändert nichts."
-    : `${StudioUI.num(info.total - info.ready, 0)} Karten haben keine vollständigen Simulator-Kartendaten (Status laut deck_readiness).`;
+    : `${StudioUI.num(missing, 0)} Karten haben keine vollständigen Simulator-Kartendaten (Status laut deck_readiness).`;
+}
+// Every card of the pool, collection and Zukauf cards, is ready for the simulator.
+function simAllReady() {
+  const info = state.simReadiness, extra = state.simReadinessUnowned;
+  return Boolean(info && info.available && info.ready === info.total && (!extra || extra.ready === extra.total));
 }
 
 // ---------- pool loading (with the chosen universe profile) ----------
@@ -2810,6 +2820,7 @@ function applyPool(pool) {
   state.germanNames = pool.german_names_available !== false;
   state.countedUniverse = pool.counted_universe || null;
   state.simReadiness = pool.sim_readiness || null;
+  state.simReadinessUnowned = pool.sim_readiness_unowned || null;
   renderUniverseInfo(); renderBracketBar(); renderGcBandBar(); renderSimReadiness(); renderLabelFilter();
 }
 // Archetype labels are the Owner's own words for ordering cards and decks: a filter and a
@@ -3306,7 +3317,7 @@ function setupControls() {
   } }), " " + label)));
   $("f-sim").addEventListener("change", () => {
     const info = state.simReadiness;
-    if ($("f-sim").checked && info && info.available && info.ready === info.total) toast(`Alle ${StudioUI.num(info.total, 0)} Karten des Pools sind für den Simulator bereit: der Filter ändert nichts.`);
+    if ($("f-sim").checked && simAllReady()) toast(`Alle ${StudioUI.num(info.total + (state.simReadinessUnowned ? state.simReadinessUnowned.total : 0), 0)} Karten des Pools sind für den Simulator bereit: der Filter ändert nichts.`);
   });
   $("play-state").addEventListener("click", () => {
     if (state.dirty || !state.baseRevision) { toast("Der Entwurf ist noch nicht als Stand gespeichert. Speichere ihn zuerst mit „Als Stand speichern“; gespielt wird immer der gespeicherte Stand."); return; }

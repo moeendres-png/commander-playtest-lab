@@ -77,6 +77,19 @@ def _sim_readiness_summary(cards: list[dict[str, object]]) -> dict[str, object]:
 
 ALL_DECKS = "all"
 SMALL_DENOMINATOR = 30
+# Zukauf pool (#1648, Co-Lead decision 2026-11-20). A card outside the collection joins the
+# pool when it stands in at least this share (percent) of the counted source decks bound to the
+# commander (n/N, N = ``cohort_sizes`` "all"). One deck is noise, not relevance: for Chulane
+# 2,556 cards stand in exactly one of 10,128 decks; 2 % are about 200 of them. Adjustable
+# within 1-5 % with measured figures only.
+UNOWNED_MIN_CORPUS_PCT = 2
+# ... or when an EDHREC inclusion figure of this commander rests on at least this many decks
+# (the same limit under which the Studio calls a denominator small).
+UNOWNED_MIN_EDHREC_DENOMINATOR = SMALL_DENOMINATOR
+# Shown for a Zukauf card inside a counted universe: the spread counts collection cards only.
+UNOWNED_NOT_COUNTED = (
+    "nicht gezählt: Karte außerhalb der Sammlung (das Zählergebnis umfasst nur Sammlungskarten)"
+)
 _TYPE_ORDER = (
     "Land", "Creature", "Planeswalker", "Battle", "Artifact", "Enchantment", "Instant", "Sorcery",
 )  # fmt: skip
@@ -610,6 +623,68 @@ def build_wishlist(
     }
 
 
+def _saved_deck_card_ids(db: sqlite3.Connection) -> set[str]:
+    """Card ids in a deck draft or in the head revision of a deck branch (not the history):
+    cards the Owner already chose, which the Zukauf pool keeps so a draft never loses them."""
+    found = {
+        str(row[0])
+        for row in db.execute(
+            "SELECT DISTINCT rc.card_id FROM deck_branch b "
+            "JOIN deck_revision_card rc ON rc.revision_id = b.revision_id"
+        )
+    }
+    for (raw,) in db.execute("SELECT cards FROM deck_draft"):
+        try:
+            entries = json.loads(raw)
+        except (TypeError, ValueError):
+            continue
+        if isinstance(entries, list):
+            found.update(
+                str(entry["card_id"])
+                for entry in entries
+                if isinstance(entry, dict) and entry.get("card_id")
+            )
+    return found
+
+
+def _signals_by_name(
+    db: sqlite3.Connection, commander_names: Sequence[str]
+) -> dict[str, dict[str, dict[str, object]]]:
+    """The stored usage signals per casefolded card name, the same keys ``card_signal_values``
+    gives a collection card (``inclusion``, ``synergy``, ``global_inclusion``; a key without
+    a row is absent: unknown, never 0). One commander only, like the collection cards."""
+    found: dict[str, dict[str, dict[str, object]]] = {}
+    if len(commander_names) != 1:
+        return found
+    wanted = (
+        ("inclusion", commander_names[0], "edhrec_commander_inclusion"),
+        ("synergy", commander_names[0], "edhrec_commander_synergy"),
+        ("global_inclusion", "", "edhrec_global_inclusion"),
+    )
+    for key, owner, signal in wanted:
+        for row in db.execute(
+            "SELECT card_name, value, numerator, denominator FROM card_signal "
+            "WHERE commander_name = ? AND signal = ? AND value IS NOT NULL ORDER BY card_name",
+            (owner, signal),
+        ):
+            found.setdefault(str(row["card_name"]).casefold(), {}).setdefault(
+                key,
+                {
+                    "value": float(row["value"]),
+                    "numerator": row["numerator"],
+                    "denominator": row["denominator"],
+                },
+            )
+    return found
+
+
+def _first_found[T](table: Mapping[str, T], *keys: str) -> T | None:
+    for key in keys:
+        if key in table:
+            return table[key]
+    return None
+
+
 def _unowned_pool_cards(
     store: StudioStore,
     commander_names: Sequence[str],
@@ -618,17 +693,31 @@ def _unowned_pool_cards(
     owned_oracle_ids: set[str],
     owned_names_cf: set[str],
     hits: dict[str, dict[str, int]],
+    corpus_denominator: int,
     roles: dict[str, list[str]],
     playgroup: dict[str, sqlite3.Row],
-) -> list[dict[str, object]]:
-    """Commander-legal Scryfall cards outside the collection that match objective criteria:
-    (a) listed in a bound corpus deck or EDHREC observation/signal of this commander, OR
-    (b) Planeswalker (type_line contains 'Planeswalker'), OR
-    (c) literal 'Proliferate' in oracle_text. No prices, no subjective ratings."""
+    with_signals: bool,
+) -> tuple[list[dict[str, object]], dict[str, object]]:
+    """Commander-legal Scryfall cards outside the collection and inside the colour identity
+    that meet at least one objective criterion (#1648, Co-Lead decision 2026-11-20):
+
+    (a) ``corpus``: listed in at least ``UNOWNED_MIN_CORPUS_PCT`` % of the counted source
+        decks bound to the commander (n/N, N = ``corpus_denominator``);
+    (b) ``edhrec``: an EDHREC inclusion figure of this commander (bound observation or the
+        stored ``edhrec_commander_inclusion`` signal) over at least
+        ``UNOWNED_MIN_EDHREC_DENOMINATOR`` decks;
+    (c) ``planeswalker`` / ``proliferate``: the literal type line or Oracle text;
+    (d) ``in_saved_deck``: already in a deck draft or branch head (keeps the Owner's choice).
+
+    Returns the cards (each with ``selected_by``) and the ``unowned_selection`` block (the
+    limits, N and the number of cards per criterion). No prices, no subjective ratings."""
     from .images import valid_image_url
+    from .labels import card_labels as _card_labels
 
     db = store.connection
-    relevant_names_cf: set[str] = {name.casefold() for name in hits}
+    hits_cf: dict[str, dict[str, int]] = {}
+    for hit_name, group_counts in hits.items():
+        hits_cf.setdefault(hit_name.casefold(), group_counts)
     edhrec_by_name: dict[str, sqlite3.Row] = {}
     cohort_bound, cohort_args = bound_to("observation_cohort", "o.cohort", commander_names)
     for obs in db.execute(
@@ -636,26 +725,26 @@ def _unowned_pool_cards(
         f"WHERE o.metric = 'inclusion_pct'{cohort_bound} ORDER BY o.denominator DESC",
         cohort_args,
     ):
-        name_cf = str(obs["card_name"]).casefold()
-        relevant_names_cf.add(name_cf)
-        edhrec_by_name.setdefault(name_cf, obs)
-    if len(commander_names) == 1:
-        for sig in db.execute(
-            "SELECT DISTINCT card_name FROM card_signal WHERE commander_name = ?",
-            (commander_names[0],),
-        ):
-            relevant_names_cf.add(str(sig["card_name"]).casefold())
-
-    from .labels import card_labels as _card_labels
-
+        edhrec_by_name.setdefault(str(obs["card_name"]).casefold(), obs)
+    signals_by_name = _signals_by_name(db, commander_names)
+    saved_ids = _saved_deck_card_ids(db)
     card_labels_map = _card_labels(store)
+
+    def wide_enough(denominator: object) -> bool:
+        return isinstance(denominator, int) and denominator >= UNOWNED_MIN_EDHREC_DENOMINATOR
+
+    counts: Counter[str] = Counter()
+    seen: set[str] = set()
     unowned: list[dict[str, object]] = []
+    # One existing catalog card per oracle id (the lowest id), so the join cannot repeat a
+    # Scryfall row even if two catalog cards shared an oracle id.
     for row in db.execute(
-        "SELECT s.*, c.card_id AS existing_card_id, "
+        "SELECT s.*, x.existing_card_id, "
         "m.favorite AS mark_favorite, m.excluded AS mark_excluded, m.note AS mark_note "
         "FROM scryfall_card s "
-        "LEFT JOIN card c ON c.oracle_id = s.oracle_id "
-        "LEFT JOIN card_mark m ON m.card_id = c.card_id "
+        "LEFT JOIN (SELECT oracle_id, MIN(card_id) AS existing_card_id FROM card "
+        "WHERE oracle_id IS NOT NULL GROUP BY oracle_id) x ON x.oracle_id = s.oracle_id "
+        "LEFT JOIN card_mark m ON m.card_id = x.existing_card_id "
         "WHERE s.commander_legality = 'legal' "
         "ORDER BY s.name"
     ):
@@ -668,24 +757,44 @@ def _unowned_pool_cards(
             continue
         if not color_set(row["color_identity"]) <= identity:
             continue
+        card_id = str(row["existing_card_id"] or f"scryfall:{oracle_id}")
+        if card_id in seen:
+            continue
         type_line = str(row["type_line"] or "")
         oracle_text = str(row["oracle_text"] or "")
-        is_relevant = (
-            name_cf in relevant_names_cf
-            or front_cf in relevant_names_cf
-            or "planeswalker" in type_line.casefold()
-            or "proliferate" in oracle_text.casefold()
-        )
-        if not is_relevant:
+        # The deck count the threshold reads is the one the card shows (same name matching).
+        card_hits = _first_found(hits, name, front_name)
+        if card_hits is None:
+            card_hits = _first_found(hits_cf, name_cf, front_cf)
+        widest = _first_found(edhrec_by_name, name_cf, front_cf)
+        card_signals = _first_found(signals_by_name, name_cf, front_cf) or {}
+        inclusion = card_signals.get("inclusion")
+        selected_by: list[str] = []
+        if (
+            card_hits is not None
+            and corpus_denominator > 0
+            and card_hits.get(ALL_DECKS, 0) * 100 >= UNOWNED_MIN_CORPUS_PCT * corpus_denominator
+        ):
+            selected_by.append("corpus")
+        if (widest is not None and wide_enough(widest["denominator"])) or (
+            inclusion is not None and wide_enough(inclusion.get("denominator"))
+        ):
+            selected_by.append("edhrec")
+        if "planeswalker" in type_line.casefold():
+            selected_by.append("planeswalker")
+        if "proliferate" in oracle_text.casefold():
+            selected_by.append("proliferate")
+        if card_id in saved_ids or f"scryfall:{oracle_id}" in saved_ids:
+            selected_by.append("in_saved_deck")
+        if not selected_by:
             continue
-        card_id = str(row["existing_card_id"] or f"scryfall:{oracle_id}")
+        seen.add(card_id)
+        counts.update(selected_by)
         image_url_front = valid_image_url(row["image_front"])
         image_url_back = valid_image_url(row["image_back"])
         engine_name = name if row["layout"] == "split" else front_name
-        card_hits = hits.get(name) if name in hits else hits.get(front_name, {})
-        decks_known = name in hits or front_name in hits
-        widest = edhrec_by_name.get(name_cf) or edhrec_by_name.get(front_cf)
         pg = playgroup.get(oracle_id)
+        shown_signals = card_signals if with_signals else {}
         unowned.append(
             {
                 "card_id": card_id,
@@ -712,6 +821,7 @@ def _unowned_pool_cards(
                 "sim_status": sim_readiness_status(engine_name),
                 "in_collection": False,
                 "wishlist_candidate": True,
+                "selected_by": selected_by,
                 "owned": 0,
                 "available": 0,
                 "reserved": 0,
@@ -720,14 +830,27 @@ def _unowned_pool_cards(
                 "note": str(row["mark_note"] or ""),
                 "labels": card_labels_map.get(card_id, []),
                 "roles": roles.get(oracle_id, []),
-                "decks": card_hits,
-                "decks_known": decks_known,
-                "edhrec": _edhrec_entry(widest, None),
-                "signals": {},
+                "decks": card_hits or {},
+                "decks_known": card_hits is not None,
+                "edhrec": _edhrec_entry(widest, shown_signals.get("inclusion")),
+                "signals": shown_signals,
                 "playgroup": playgroup_entry(pg),
             }
         )
-    return unowned
+    selection: dict[str, object] = {
+        "min_corpus_pct": UNOWNED_MIN_CORPUS_PCT,
+        "corpus_denominator": corpus_denominator,
+        "min_corpus_decks": (
+            -(-UNOWNED_MIN_CORPUS_PCT * corpus_denominator // 100) if corpus_denominator else None
+        ),
+        "min_edhrec_denominator": UNOWNED_MIN_EDHREC_DENOMINATOR,
+        "counts": {
+            key: counts.get(key, 0)
+            for key in ("corpus", "edhrec", "planeswalker", "proliferate", "in_saved_deck")
+        },
+        "total": len(unowned),
+    }
+    return unowned, selection
 
 
 def pool_cards(
@@ -847,8 +970,6 @@ def pool_cards(
                 "image_url_back": image_url_back,
                 "fact_source": row["fact_source"],
                 "sim_status": sim_readiness_status(str(row["oracle_name"])),
-                "in_collection": True,
-                "wishlist_candidate": False,
                 "owned": row["owned_lower_bound"],
                 "available": row["available_lower_bound"],
                 "reserved": row["reserved"],
@@ -867,31 +988,47 @@ def pool_cards(
                 "playgroup": playgroup_entry(pg),
             }
         )
+    cohorts = cohort_sizes(store, commander_names)
+    # The simulator readiness counts the collection cards; the Zukauf cards get their own count
+    # (never mixed into one figure).
+    sim_readiness = _sim_readiness_summary(cards)
+    unowned_extra: dict[str, object] = {}
     if include_unowned:
-        cards.extend(
-            _unowned_pool_cards(
-                store,
-                commander_names,
-                identity,
-                owned_oracle_ids=owned_oracle_ids,
-                owned_names_cf=owned_names_cf,
-                hits=hits,
-                roles=roles,
-                playgroup=playgroup,
-            )
+        # The three Zukauf fields exist only on request (#1648): the default answer stays
+        # byte-identical to the one before the Zukauf mode.
+        for card in cards:
+            card["in_collection"] = True
+            card["wishlist_candidate"] = False
+        unowned, selection = _unowned_pool_cards(
+            store,
+            commander_names,
+            identity,
+            owned_oracle_ids=owned_oracle_ids,
+            owned_names_cf=owned_names_cf,
+            hits=hits,
+            corpus_denominator=cohorts.get(ALL_DECKS, 0),
+            roles=roles,
+            playgroup=playgroup,
+            with_signals=with_signals,
         )
+        unowned_extra = {
+            "sim_readiness_unowned": _sim_readiness_summary(unowned),
+            "include_unowned": True,
+            "unowned_selection": selection,
+        }
+        cards.extend(unowned)
         cards.sort(key=lambda item: str(item["name"]))
     result: dict[str, object] = {
         "commander_ids": commander_ids,
         # False: the German name files could not be read (the search then knows English only).
         "german_names_available": load_german_names().available,
         "identity": "".join(sorted(identity, key="WUBRG".index)),
-        "cohorts": cohort_sizes(store, commander_names),
+        "cohorts": cohorts,
         "corpus_binding": corpus_binding(store, commander_names),
         "small_denominator": SMALL_DENOMINATOR,
         "roles": [str(r[0]) for r in db.execute("SELECT DISTINCT role FROM card_role ORDER BY 1")],
-        "sim_readiness": _sim_readiness_summary(cards),
-        "include_unowned": include_unowned,
+        "sim_readiness": sim_readiness,
+        **unowned_extra,
         "cards": cards,
     }
     if profile is not None and gc_band is not None:
@@ -944,6 +1081,19 @@ def pool_cards(
         for card in cards:
             item = by_card.get(str(card["card_id"]))
             if item is None:
+                if card.get("in_collection") is False:
+                    # A Zukauf card: the spread counts collection cards only. It stays under
+                    # the universe's own denominator as unknown (never the cohort figure,
+                    # never 0), so one view never mixes two denominators (#1648).
+                    card["universe"] = {
+                        "matched": False,
+                        "hits": None,
+                        "denominator": spread["universe"]["denominator"],
+                        "share": None,
+                        "level": "U",
+                        "reason": UNOWNED_NOT_COUNTED,
+                        "filter_card": False,
+                    }
                 continue
             card["universe"] = {
                 "matched": item["matched"],
