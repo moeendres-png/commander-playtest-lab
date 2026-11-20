@@ -119,7 +119,11 @@ def _write_outcome_log(
         "engine_commit": commit,
         "pilot": "GenericCommanderPilot 1.0.0",
         "decision_policy": "xmage-full-game-policy-1.0.0",
-        "seats": [{"seat": i, "deck_id": d} for i, d in enumerate(decks)],
+        # each seat names its deck state, as every log since #1657 does
+        "seats": [
+            {"seat": i, "deck_id": d, "deck_hash": hashlib.sha256(d.encode()).hexdigest()}
+            for i, d in enumerate(decks)
+        ],
     }
     if bridge_sha is not None:
         header["bridge_jar_sha256"] = bridge_sha
