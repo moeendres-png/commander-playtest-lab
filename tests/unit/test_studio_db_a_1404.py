@@ -141,7 +141,7 @@ def test_parse_decklist_formats_buckets_and_no_purchase_terms(tmp_path: Path) ->
     store.close()
 
 
-def test_repo_baseline_diff_prefilter_and_seed_idempotency(tmp_path: Path, monkeypatch) -> None:
+def test_repo_baseline_diff_and_seed_idempotency(tmp_path: Path, monkeypatch) -> None:
     store = _seed_store(tmp_path)
     decks_dir = tmp_path / "decks"
     decks_dir.mkdir()
@@ -179,7 +179,7 @@ def test_repo_baseline_diff_prefilter_and_seed_idempotency(tmp_path: Path, monke
     # Unknown commander skips cleanly without crashing
     assert import_all._seed_repo_deck(store, "Unknown, Missing Hero") == {"seeded": 0}
 
-    # Test API endpoints (/api/diff-baselines, /api/diff, /api/prefilter) with repo: baseline
+    # Test API endpoints (/api/diff-baselines, /api/diff) with repo: baseline
     store_path = tmp_path / "studio"
     store.close()
     client = TestClient(create_app(store_path))
@@ -203,33 +203,13 @@ def test_repo_baseline_diff_prefilter_and_seed_idempotency(tmp_path: Path, monke
     assert diff_data["added"][0]["card_id"] == "c-counter"
     assert diff_data["removed"][0]["card_id"] == "c-forest"
 
+    # Q1-b1 (#1676): the heuristic prefilter route left the Studio
     resp_pre = client.post(
         "/api/prefilter",
         json={"base_revision_id": "repo:chulane_current", "cards": draft_cards, "trials": 50},
         headers=marker,
     )
-    assert resp_pre.status_code == 200
-    pre_data = resp_pre.json()
-    assert pre_data["data_class"] == "HEURISTIC_MODEL"
-    assert pre_data["comparable"] is False
-
-    # Full 100-card repo baseline makes prefilter comparable
-    (decks_dir / "chulane_full.txt").write_text(
-        "Commander\n1 Chulane, Teller of Tales\n\nDeck\n99 Forest\n",
-        encoding="utf-8",
-    )
-    full_draft = [
-        {"card_id": "cmd-chulane", "quantity": 1, "zone": "commander"},
-        {"card_id": "c-counter", "quantity": 1, "zone": "main"},
-        {"card_id": "c-forest", "quantity": 98, "zone": "main"},
-    ]
-    resp_pre_full = client.post(
-        "/api/prefilter",
-        json={"base_revision_id": "repo:chulane_full", "cards": full_draft, "trials": 50},
-        headers=marker,
-    )
-    assert resp_pre_full.status_code == 200
-    assert resp_pre_full.json()["comparable"] is True
+    assert resp_pre.status_code == 405  # no POST route there any more (page fallback)
 
     resp_missing = client.post(
         "/api/diff",

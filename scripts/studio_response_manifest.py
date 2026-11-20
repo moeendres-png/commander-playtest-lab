@@ -7,7 +7,7 @@ before and after a change.
 ``run``     copies the store template into a work folder (the template is only read; its files
             are hashed before and after and the run fails if anything changed), starts
             ``python -m commander_lab.studio serve`` from ``--src`` on a free local port against
-            the copy, asks the 30 read routes in ``read_requests`` ``--repeat`` times each and
+            the copy, asks the 29 read routes in ``read_requests`` ``--repeat`` times each and
             writes status, length and SHA-256 per answer as a manifest JSON. The manifest must
             lie outside the repository. The copy is deleted afterwards (``--keep-work`` keeps it).
 ``writes``  the optional write matrix: after each write (favorite, mark, label, draft, revision,
@@ -122,7 +122,7 @@ def _q(value: str) -> str:
 
 
 def read_requests(inputs: DeckInputs) -> list[Request]:
-    """The 30 read routes (2 pages, 28 API answers). POST routes here compute and never write."""
+    """The 29 read routes (2 pages, 27 API answers). POST routes here compute and never write."""
     c = _q(inputs.commander)
     cards = inputs.card_entries()
     main = inputs.main_ids()
@@ -145,7 +145,6 @@ def read_requests(inputs: DeckInputs) -> list[Request]:
         Request("GET", f"/api/universe/options?commander={c}"),
         Request("GET", f"/api/universe/counted?commander={c}"),
         Request("GET", f"/api/roles/audit?commander={c}"),
-        Request("GET", f"/api/tournament-conversion?commander={c}"),
         Request("GET", "/api/decks"),
         Request("GET", f"/api/revisions/{_q(inputs.revision_id)}"),
         Request("GET", f"/api/outcomes?deck_id={_q(inputs.deck_id)}"),
@@ -178,7 +177,7 @@ def read_requests(inputs: DeckInputs) -> list[Request]:
 
 def observer_requests(inputs: DeckInputs) -> list[Request]:
     """Extra reads of the write matrix only: the routes that show the primer, the universe
-    profiles and the label list, which none of the 30 read routes reflects."""
+    profiles and the label list, which none of the 29 read routes reflects."""
     return [
         Request("GET", f"/api/decks/{_q(inputs.deck_id)}/primer"),
         Request("GET", "/api/universe/profiles"),
