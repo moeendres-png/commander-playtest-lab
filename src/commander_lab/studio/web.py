@@ -54,6 +54,7 @@ from . import (
     labels,
     land_advisor,
     launch,
+    maturity,
     memo,
     number_contract,
     packages,
@@ -1778,7 +1779,8 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
     @app.get("/api/decks/{deck_id}/series")
     def deck_paired_series(deck_id: str) -> dict[str, object]:
         """Stored paired series in which a revision of this deck was base (A) or variant (B).
-        Read-only; counts and the stored intervals, no verdict, never part of the tier list."""
+        Read-only; counts and the stored intervals, and under ``reifegrad`` the maturity R0-R3
+        with the four-step verdict per series (#1666); never part of the tier list."""
         store = open_store()
         try:
             revision_ids = deck_series.deck_revision_ids(store, deck_id)
@@ -1793,6 +1795,16 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
                 for key in ("base_ref", "variant_ref")
             }
             hashes = deck_series.revision_hashes(store, sorted({*revision_ids, *refs}))
+            # Q1-c (#1666): maturity R0-R3 and the four-step verdict per series; reads only
+            # (no store write, so no cache group), never part of the tier list.
+            result["reifegrad"] = maturity.deck_maturity(
+                store,
+                games_home(),
+                deck_id,
+                result,
+                hashes,
+                bridge_jar_sha256=launch.bridge_jar_sha256(games_home()),
+            )
         finally:
             store.close()
         result["zahlen"] = number_contract.series_zahlen(result, hashes)
