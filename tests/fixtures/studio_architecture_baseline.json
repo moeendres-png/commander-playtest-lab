@@ -1,6 +1,6 @@
 {
   "definition": "Import graph of src/commander_lab/studio/*.py with every import statement found by ast.walk (function bodies and TYPE_CHECKING blocks included); see scripts/studio_architecture_counts.py and tests/architecture/test_layer_boundaries.py. Ratchet: the values may only go down. Every change of a ratchet value is a new entry in `history` (date, ref, reason), and the top-level values equal the last entry. From entry #1622 on the test checks monotonicity step by step: lowering needs nothing more, a raise (larger count, a module added to the cycle, a facade added, a larger or new import exception) passes only with `raise_review` in its entry (a #number or pull request link of the approving review, not the entry's own ref). A new entry with just any reason does not make a raise pass. Not checked by the test: removing or rewriting earlier entries (the pull request diff is the check). tests/architecture/test_layer_boundaries.py checks all of this.",
-  "measured_at": "branch feat/q1b5-single-tier-scale-1680 on main ad0a870a (2026-11-20, Refs #1680)",
+  "measured_at": "branch feat/q1b5-single-tier-scale-1680 with main d8d48634 merged (2026-11-20, Refs #1680)",
   "max_cyclic_components": 1,
   "max_largest_cyclic_component": 11,
   "cyclic_modules": [
