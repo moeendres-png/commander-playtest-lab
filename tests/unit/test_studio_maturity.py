@@ -419,6 +419,18 @@ def test_a_plan_range_overlapping_an_exploration_is_not_fresh() -> None:
     assert fresh["erfuellt"] is False
 
 
+def test_a_plan_range_touching_an_exploration_at_one_seed_is_not_fresh() -> None:
+    # the planned range 500..600 contains the exploration's first seed 600; the played seeds
+    # 500..505 do not, so only the closed range check sees it (#1666, lead review of #1717)
+    touching = _finding("t", plan_range=[500, 600])
+    got = _assess(touching, explorations=[(600, 650)])["t"]
+    assert got["stufe"] == m.R0
+    fresh = next(c for c in got["bedingungen"] if c["stufe"] == m.R1 and "frische" in c["name"])  # type: ignore[attr-defined]
+    assert fresh["erfuellt"] is False
+    # one seed further out is disjoint again
+    assert _assess(touching, explorations=[(601, 650)])["t"]["stufe"] == m.R1
+
+
 def test_decided_only_strictly_below_the_level() -> None:
     basis = m.verdict_basis("c", _finding("c").result)  # 6 : 0, p = 2 * 0.5**6 = 0.03125
     assert basis is not None and basis.effective_p_value == pytest.approx(0.03125)
