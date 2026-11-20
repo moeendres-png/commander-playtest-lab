@@ -118,6 +118,39 @@ function outcomesPilotReason(values) {
 
 const OUTCOMES_AXIS_REASONS = { table_size: outcomesTableSizeReason, pilot_fingerprint: outcomesPilotReason };
 
+// Why strata were not combined, in German (#1687 review P3-3): the reasons card_outcomes gives
+// for pods, provenance and unknown axes; an unforeseen reason is shown as it is.
+const OUTCOMES_REASONS_DE = [
+  [/^the deck states were played against different pod sets/,
+    () => "Die Deck-Stände wurden gegen verschiedene Gegner-Tische (Pods) gespielt; andere Gegner ergeben andere Siegraten, deshalb nicht zusammengeführt."],
+  [/^the deck states differ in (.+?) \(or mix it\)/,
+    (m) => `Die Deck-Stände unterscheiden sich in der Herkunft (${m[1]}) oder mischen sie; deshalb nicht zusammengeführt.`],
+  [/^a deck state has unknown provenance \((.+)\)/,
+    (m) => `Ein Deck-Stand hat unbekannte Herkunft (${m[1]}); unbekannt ist nicht gleich, deshalb nicht zusammengeführt.`],
+  [/^a stratum has (.+): unknown is not equal/,
+    (m) => `Eine Schicht hat eine unbekannte Achse (${m[1]}); unbekannt ist nicht gleich, deshalb nicht zusammengeführt.`],
+  [/^no game names /,
+    () => `Keine Partie nennt ${outcomesAxisNames()} zugleich; es gibt keine Schicht mit bekannten Achsen, alle Partien stehen unten getrennt.`],
+];
+function outcomesReasonText(reason) {
+  const text = String(reason);
+  for (const [pattern, german] of OUTCOMES_REASONS_DE) {
+    const match = text.match(pattern);
+    if (match) return `Nicht zusammengeführt: ${german(match)}`;
+  }
+  return `Nicht zusammengeführt: ${text}`;
+}
+
+// Logs without a pilot fingerprint (#1687 review P2-1): what happened, why not combining them is
+// more honest than before, and what to do.
+const OUTCOMES_PILOT_UNKNOWN_TEXT =
+  "Pilot unbekannt: Diese Partien wurden vor dem Pilot-Fingerabdruck aufgezeichnet. Welcher Stand des Piloten sie gespielt hat, "
+  + "ist nicht belegt: Die alte Pilot-Version blieb immer „1.0.0“, auch wenn sich der Pilot änderte. "
+  + "Unbekannt ist nicht gleich: Ihre Zahlen bleiben je Stand unten sichtbar (eigene n/N), sie werden aber nie zu einem bekannten "
+  + "Piloten addiert und nicht zu einer Zeile über mehrere Deck-Stände zusammengefasst, weil dabei verschiedene Piloten gemischt "
+  + "worden sein könnten. Was tun: mit dem aktuellen Piloten neu spielen; dann tragen die Partien einen Pilot-Fingerabdruck und "
+  + "die geschichtete Zeile erscheint wieder.";
+
 // The German reasons of a not-pooled answer whose cell axes differ, or [] (then the raw reason).
 function outcomesDifferingReasons(pooling) {
   const listed = Array.isArray(pooling.differing_axes) ? pooling.differing_axes : [];
@@ -139,8 +172,8 @@ const outcomesBaseRate = (size) =>
     : "Basis-Siegrate unbekannt";
 
 // One cell (table size and pilot fingerprint, #1694/#1687) as its own section: its own strata
-// only, combined stratified when they may be, never together with another cell. Every stratum of the table size keeps
-// its own section with n/N and provenance; a single stratum is not shown twice.
+// only, combined stratified when they may be, never together with another cell. Every stratum of
+// the cell keeps its own section with n/N and provenance; a single stratum is not shown twice.
 function outcomesCohortSection(h, cohort, deps) {
   const stands = Array.isArray(cohort.stands) ? cohort.stands : [];
   const pooling = cohort.pooling || {};
@@ -157,7 +190,7 @@ function outcomesCohortSection(h, cohort, deps) {
     `Partien: ${outcomesInt(cohort.games_total)}`,
     `${outcomesBaseRate(cohort.table_size)}, nie mit einer anderen Tischgröße oder einem anderen Pilot-Fingerabdruck gemischt`,
   ];
-  if (pooling.reason) parts.push(`Nicht zusammengeführt: ${pooling.reason}`);
+  if (pooling.reason) parts.push(outcomesReasonText(pooling.reason));
   if (pooling.method) parts.push(`Verfahren: ${pooling.method}`);
   const cards = Array.isArray(cohort.cards) ? cohort.cards : [];
   return h("section", {},
@@ -199,12 +232,11 @@ function outcomesStandNote(h, data) {
   const parts = [`Schichten (${outcomesAxisNames()}): ${outcomesInt(data.strata)}`, ...unknownTexts];
   const pilotAxis = OUTCOMES_AXES.find((axis) => axis.field === "pilot_fingerprint");
   if (unknown.some((t) => !outcomesAxisKnown(pilotAxis, t))) {
-    parts.push("Pilot unbekannt: Diese Partien tragen keinen Pilot-Fingerabdruck (aus der Zeit vor dem Fingerabdruck). "
-      + "Unbekannt ist nicht gleich: Sie werden nie zu einem bekannten Piloten addiert und stehen mit eigener n/N getrennt.");
+    parts.push(OUTCOMES_PILOT_UNKNOWN_TEXT);
   }
   const reasons = outcomesDifferingReasons(pooling);
   if (reasons.length) parts.push(...reasons);
-  else if (pooling.reason) parts.push(`Nicht zusammengeführt: ${pooling.reason}`);
+  else if (pooling.reason) parts.push(outcomesReasonText(pooling.reason));
   if (pooling.method) parts.push(`Verfahren: ${pooling.method}`);
   return h("p", { class: "muted" }, parts.join(" · "));
 }
@@ -426,6 +458,7 @@ if (typeof module !== "undefined" && module.exports) {
     outcomesBaseRate,
     outcomesStandLabel,
     outcomesStratumName,
+    outcomesReasonText,
     outcomesTableSize,
     OUTCOMES_AXES,
     renderCardOutcomes,

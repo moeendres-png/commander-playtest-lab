@@ -530,6 +530,8 @@ def test_logs_without_a_fingerprint_with_two_pilot_versions_still_refuse(tmp_pat
     assert "Pilot-Fingerabdruck" in detail and "nie zusammengezählt" in detail
     assert "unbekannt, nicht 0" in detail and "mixed" not in detail
     assert "eigene Schicht" in detail and "folgt" not in detail
+    # the whole answer is refused: no stratum is shown, the fingerprinted ones neither (P3-1)
+    assert "gar keine Zahlen, auch nicht für die Schichten mit Fingerabdruck" in detail
 
 
 # --- API and CLI -----------------------------------------------------------------------
@@ -1563,6 +1565,74 @@ const render = async (payload) => {{
     assert "Schichten (Deck-Stand, Tischgröße und Pilot-Fingerabdruck): 2" in pt
     assert len(r["pilots"]["sections"]) == 2 and r["pilots"]["details"] == 3
     assert pt.count("Qualifizierung:") == 4  # top and each of the three strata
+
+
+def test_a_deck_with_only_logs_before_the_fingerprint_explains_what_to_do() -> None:
+    """Review #1705 P2-1 (the Owner-PC case): a deck whose logs all carry a deck hash but no
+    pilot fingerprint has no known stratum. The page says in German what happened, why its
+    numbers are not combined any more, and what to do; no raw English reason is left."""
+    from tests.unit.test_studio_static_guards import _node_json
+
+    a = _stated(_block("A", 10, 6) + _block("F", 10, 4), STATE_A, prefix="a")
+    b = _stated(_block("A", 10, 5) + _block("F", 10, 3), STATE_B, prefix="b")
+    old = _with([*a, *b], pilot_fingerprint=None)
+    table = card_outcomes.stand_tables(old, deck_id=DECK, min_exposed=1)
+    assert table["pooling"]["status"] == "NO_KNOWN_STAND" and table["cards"] == []
+    assert [t["games_total"] for t in table["unknown_strata"]] == [20, 20]
+    script = f"""
+global.StudioUI = {{
+  num: (n, d = 0) => Number(n).toFixed(d).replace('.', ','),
+  pct: (r) => `${{(Number(r) * 100).toFixed(1).replace('.', ',')}} %`,
+  kids: (...a) => a.flat(Infinity).filter((x) => x !== null && x !== undefined && x !== false),
+}};
+const mod = require('./kartenauswertung.js');
+const textOf = (node) => {{
+  if (node === null || node === undefined) return '';
+  if (typeof node === 'string' || typeof node === 'number') return String(node);
+  if (Array.isArray(node)) return node.map(textOf).join('');
+  return (node.kids || []).map(textOf).join(' ');
+}};
+const count = (node, tag) => {{
+  if (!node || typeof node !== 'object') return 0;
+  if (Array.isArray(node)) return node.reduce((n, k) => n + count(k, tag), 0);
+  return (node.tag === tag ? 1 : 0) + count(node.kids || [], tag);
+}};
+const h = (tag, attrs, ...kids) => ({{ tag, attrs: attrs || {{}}, kids: kids.flat(Infinity) }});
+const slot = {{ children: [], replaceChildren(...kids) {{ this.children = kids; }} }};
+(async () => {{
+  await mod.renderCardOutcomes(slot, {{
+    h, deckId: 'deck/a', baseRevision: 'deck/a@aaaa', dirty: false,
+    api: async (url) => (url === '/api/outcomes/decks' ? {{ decks: [] }} : {json.dumps(table)}),
+  }});
+  const note = slot.children.filter((n) => n && n.tag === 'p').map(textOf).join(' || ');
+  console.log(JSON.stringify({{
+    text: textOf(slot.children), note, details: count(slot.children, 'details'),
+    other: mod.outcomesReasonText('something new'),
+  }}));
+}})();
+"""
+    r = _node_json(script)
+    assert isinstance(r, dict)
+    note = r["note"]
+    # what happened
+    assert "Diese Partien wurden vor dem Pilot-Fingerabdruck aufgezeichnet" in note
+    assert "Die alte Pilot-Version blieb immer „1.0.0“, auch wenn sich der Pilot änderte" in note
+    # why it is more honest than before
+    assert "Ihre Zahlen bleiben je Stand unten sichtbar (eigene n/N)" in note
+    assert "weil dabei verschiedene Piloten gemischt worden sein könnten" in note
+    # what to do
+    assert "Was tun: mit dem aktuellen Piloten neu spielen" in note
+    assert "die geschichtete Zeile erscheint wieder" in note
+    # the reason of NO_KNOWN_STAND in German, never the raw English one in the explanation
+    assert (
+        "Nicht zusammengeführt: Keine Partie nennt Deck-Stand, Tischgröße und "
+        "Pilot-Fingerabdruck zugleich" in note
+    )
+    assert "Nicht zusammengeführt: no game names" not in note
+    assert r["details"] == 2  # each deck state keeps its own section with n/N
+    for state in (STATE_A, STATE_B):
+        assert f"Deck-Stand {state[:12]}… · Tischgröße: 2 Sitze · Pilot unbekannt" in r["text"]
+    assert r["other"] == "Nicht zusammengeführt: something new"  # unforeseen: shown as it is
 
 
 def test_the_axes_of_page_and_number_contract_follow_stratum_axes() -> None:

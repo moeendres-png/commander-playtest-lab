@@ -1327,7 +1327,12 @@ const render = async (payload) => {{
     ) in st
     assert "Nicht zusammengeführt: the strata" not in st
     assert r["sizeTexts"] == ["Tischgröße: 1 Sitz", "Tischgröße: 4 Sitze", "Tischgröße unbekannt"]
-    assert "Nicht zusammengeführt: the deck states were played" in r["notPooled"]["text"]
+    # the reason in German (#1687 review P3-3); the raw reason stays among the warnings
+    assert (
+        "Nicht zusammengeführt: Die Deck-Stände wurden gegen verschiedene Gegner-Tische (Pods) "
+        "gespielt" in r["notPooled"]["text"]
+    )
+    assert "Nicht zusammengeführt: the deck states were played" not in r["notPooled"]["text"]
     assert "geschichtet über" not in st
     # three known strata and "Tischgröße unbekannt", each with its own table and provenance
     assert r["bySize"]["details"] == 4 and r["bySize"]["tables"] == 4

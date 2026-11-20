@@ -344,11 +344,12 @@ class PairedSeriesBody(BaseModel):
 #: at one deck state (#1658); a change of the fingerprint gives separate strata since #1687.
 MIXED_PILOT_TEXT = (
     "Partien ohne Pilot-Fingerabdruck (aus der Zeit vor dem Fingerabdruck) nennen an einem "
-    "Deck-Stand verschiedene Pilot-Versionen. Partien mit Pilot-Fingerabdruck zeigt die "
-    "Auswertung je Fingerabdruck als eigene Schicht; Partien ohne Fingerabdruck lassen sich so "
-    "nicht trennen, und Partien verschiedener Piloten werden nie zusammengezählt. Deshalb zeigt "
-    "die Auswertung keine Zahlen (unbekannt, nicht 0). Ausweg: die älteren Protokolle ohne "
-    "Fingerabdruck aus dem Spiele-Ordner verschieben oder mit dem aktuellen Piloten neu spielen."
+    "Deck-Stand verschiedene Pilot-Versionen. Ohne Fingerabdruck lassen sie sich nicht in "
+    "Schichten je Pilot trennen, und Partien verschiedener Piloten werden nie zusammengezählt. "
+    "Deshalb zeigt die Auswertung für dieses Deck gar keine Zahlen, auch nicht für die Schichten "
+    "mit Fingerabdruck (unbekannt, nicht 0). Ausweg: die älteren Protokolle ohne Fingerabdruck "
+    "aus dem Spiele-Ordner verschieben oder mit dem aktuellen Piloten neu spielen; danach zeigt "
+    "die Auswertung jeden Fingerabdruck als eigene Schicht."
 )
 
 
