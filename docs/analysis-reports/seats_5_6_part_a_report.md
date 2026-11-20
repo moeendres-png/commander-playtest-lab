@@ -344,3 +344,29 @@ B3b, B6, dann B3a und die 4-Sitz-Basis, wenn Zeit bleibt. Was offen bleibt, wird
 Alle Läufe mit `PYTHONPATH=<Clone>/src`; `commander_lab.__file__` zeigte auf `<Clone>/src`.
 Die Zahlen stehen im PR-Text. Nicht gelaufen: Echt-Engine (Teil B), Windows, echter Browser
 (der Brett-Test nutzt eine DOM-Attrappe in Node), echte Studio-Datenbank.
+
+## 7. Nachtrag #1702: SIMULATE-Weg für 5/6 hinter der Sperre (Freigabe-Diff Punkt 5)
+
+Stand 2026-11-20, Branch `feat/simulate-5-6-ui-behind-lock-1702`. Die Sperre bleibt:
+`launch.MAX_RELEASED_SEATS = 4`, `partie.js:11` `[1, 2, 3]`, `--allow-unreleased-seats` aus.
+Punkt 5 aus Abschnitt 4 ist damit gebaut, Punkt 6 (B-2) ist seit #1693/#1700 gelöst:
+
+- **Pod-Presets je Tischgröße:** `launch.POD_PRESETS_BY_SEATS` (2 bis 6 Sitze, je genau N−1
+  Gegner, wörtlich ausgeschrieben; 4 Sitze = `POD_PRESETS`) und `launch.pod_preset`. Eine
+  Größe ohne Preset und eine falsche Gegnerzahl sind ein Fehler, nie ein Auffüllen oder Kürzen.
+  Die Decks für 5/6 Sitze sind ein Vorschlag aus den Tischen in B0. Ob XMage sie bei 5/6 Sitzen
+  spielt, ist UNKNOWN bis Teil B.
+- **Serien-Route:** `POST /api/simulations/paired` nimmt `table_seats` (2–6, ohne
+  Freischalter). Die Sperre wird zuerst geprüft, das Preset dieser Größe wird gesetzt, und die
+  Fortsetzung läuft auf der gespeicherten Größe. Experimente reichen `TableSpec.seats` als
+  `table_seats` durch.
+- **Serien-Dialog:** `paired.js` liest Tischgrößen, Sperre und Presets aus
+  `GET /api/simulations/paired-tables` (zur Anfragezeit aus `launch`). Gesperrte Größen
+  erscheinen ausgegraut als „nicht freigegeben“. Der Plan rechnet mit N Sitzen je Seed. Bei N ≠ 4
+  sind die Budgets ganze Rotationsblöcke (N², also 25 bzw. 36 Paare je Arm). Die Dauer ist bei 5/6
+  eine Untergrenze mit Durchsatz UNKNOWN; bei 2/3 ist sie UNKNOWN.
+- **Freigabe-Diff danach:** Für SIMULATE bleibt nur die Konstante in `launch.py`. Der Dialog
+  folgt ihr ohne eigene Sperrzeile. Für PLAY bleibt `partie.js:11`. Dazu kommen die Tests, die
+  die Sperre festhalten (Abschnitt 4, Punkt 4, und die #1702-Tests „refuses … without the
+  switch“, „greys out … while locked“). Offen bleibt B-3: Der Planungstext nennt 25 % Siegrate;
+  das ist Owner-Sache (C).

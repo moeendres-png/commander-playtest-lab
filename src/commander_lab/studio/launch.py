@@ -30,9 +30,11 @@ from .store import StudioStore
 ENGINE_COMMAND_ENV = "COMMANDER_LAB_XMAGE_FULL_GAME_BRIDGE_CMD"
 ENGINE_JAR = Path("engine") / "xmage-engine-bridge.jar"
 MIN_SEATS, MAX_SEATS = 2, 6  # what the engine can seat (series and the CLI comparison use this)
-# What the Studio lets someone start (PLAY, watched games): two to four seats. Five and six seats stay
-# locked until a qualification and an explicit Owner decision (AGENTS.md section 1); the engine
-# could seat them, so this is a rule, not a limit. Freigabe nur per Owner-Entscheid: raise this
+# What the Studio lets someone start, in PLAY (watched and played games) and SIMULATE (batch, paired
+# series, experiments): two to four seats. Five and six seats stay locked until a qualification and
+# an explicit Owner decision (AGENTS.md section 1, E15 Q5); the engine could seat them, so this is a
+# rule, not a limit. The series dialog reads this constant from the server (``/api/simulations/
+# paired-tables``) and greys out bigger tables. Freigabe nur per Owner-Entscheid: raise this
 # constant (and the page's table-size list in partie.js) only when the Owner has released it.
 MAX_RELEASED_SEATS = 4
 START_WAIT_SECONDS = 20.0
@@ -62,6 +64,69 @@ POD_PRESETS: dict[str, tuple[str, str, str]] = {
         "kaervek/current",
         "opponent/hosts-of-mordor-precon",
     ),
+}
+#: Opponent presets of the paired series per table size (#1702): each tuple names exactly
+#: ``seats - 1`` opponents, written out literally; a size is never served by cutting or padding
+#: another size's preset (no silent approximation, no "first option" stand-in). The four-seat
+#: presets are ``POD_PRESETS`` itself. The decks added at five and six seats are a proposal taken
+#: from the tables of the 5/6 qualification (seats_5_6_part_a_report.md, B0); whether XMage plays
+#: them at five or six seats is unknown until #1661 part B. Five and six seats stay behind
+#: ``MAX_RELEASED_SEATS`` like every other table.
+POD_PRESETS_BY_SEATS: dict[int, dict[str, tuple[str, ...]]] = {
+    2: {
+        "precon": ("precon/2026/lorehold_spirit",),
+        "mixed": ("kaervek/current",),
+        "optimized": ("precon/2023/eldrazi_unbound",),
+    },
+    3: {
+        "precon": ("precon/2026/lorehold_spirit", "precon/2024/animated_army"),
+        "mixed": ("kaervek/current", "precon/2024/animated_army"),
+        "optimized": ("precon/2023/eldrazi_unbound", "kaervek/current"),
+    },
+    4: dict(POD_PRESETS),
+    5: {
+        "precon": (
+            "precon/2026/lorehold_spirit",
+            "precon/2024/animated_army",
+            "precon/2022/token_triumph",
+            "precon/2023/veloci_ramp_tor",
+        ),
+        "mixed": (
+            "kaervek/current",
+            "precon/2024/animated_army",
+            "precon/2026/lorehold_spirit",
+            "precon/2022/token_triumph",
+        ),
+        "optimized": (
+            "precon/2023/eldrazi_unbound",
+            "kaervek/current",
+            "opponent/hosts-of-mordor-precon",
+            "precon/2024/death_toll",
+        ),
+    },
+    6: {
+        "precon": (
+            "precon/2026/lorehold_spirit",
+            "precon/2024/animated_army",
+            "precon/2022/token_triumph",
+            "precon/2023/veloci_ramp_tor",
+            "precon/2023/blood_rites",
+        ),
+        "mixed": (
+            "kaervek/current",
+            "precon/2024/animated_army",
+            "precon/2026/lorehold_spirit",
+            "precon/2022/token_triumph",
+            "precon/2023/veloci_ramp_tor",
+        ),
+        "optimized": (
+            "precon/2023/eldrazi_unbound",
+            "kaervek/current",
+            "opponent/hosts-of-mordor-precon",
+            "precon/2024/death_toll",
+            "precon/2024/deep_clue_sea",
+        ),
+    },
 }
 _EXTRA_OPPONENT_PATHS = (
     Path("data/decks/opponents/kaervek/current/deck.json"),
@@ -778,23 +843,86 @@ def validate_released_seat_count(
     return 1 + opponent_count
 
 
+def pod_preset(pod: str, seats: int) -> tuple[str, ...]:
+    """The opponents of preset ``pod`` at a table of ``seats`` (#1702), exactly ``seats - 1``.
+
+    An unknown pod, or a pod without a preset for this size, is an error naming both; no other
+    preset or size takes its place. The release lock is checked by the caller."""
+    by_size = POD_PRESETS_BY_SEATS.get(seats)
+    if by_size is None or pod not in by_size:
+        known = any(pod in presets for presets in POD_PRESETS_BY_SEATS.values())
+        if not known:
+            raise ValueError(f"Unbekannter Gegnertisch (pod): {pod!r}")
+        raise ValueError(
+            f"Der Gegnertisch {pod!r} hat für {seats} Sitze kein Preset; "
+            "Gegner einzeln wählen (kein Auffüllen mit anderen Decks)"
+        )
+    opponents = by_size[pod]
+    if len(opponents) != seats - 1:  # a preset of the wrong length is a code error, not a fill
+        raise ValueError(
+            f"Preset {pod!r} für {seats} Sitze nennt {len(opponents)} statt {seats - 1} Gegner"
+        )
+    return opponents
+
+
+def paired_table_options() -> dict[str, object]:
+    """What the series dialog may offer (#1702): the table sizes, the released maximum and the
+    presets per size with their deck names. Read at request time, so the lock above is the one
+    source; sizes above it are listed as locked, never as startable."""
+    names = {deck_id: name for deck_id, name, _cmds, _year, _path in _precons()}
+    sizes = []
+    for seats in range(MIN_SEATS, MAX_SEATS + 1):
+        presets = POD_PRESETS_BY_SEATS.get(seats, {})
+        sizes.append(
+            {
+                "seats": seats,
+                "released": seats <= MAX_RELEASED_SEATS,
+                "pods": {
+                    pod: [{"deck_id": oid, "name": names.get(oid)} for oid in opponents]
+                    for pod, opponents in presets.items()
+                },
+            }
+        )
+    return {
+        "min_seats": MIN_SEATS,
+        "max_seats": MAX_SEATS,
+        "released_max_seats": MAX_RELEASED_SEATS,
+        "default_seats": 4,
+        "sizes": sizes,
+    }
+
+
 def resolve_opponent_paths(
     pod: str,
     opponent_ids: Sequence[str] | None,
     *,
     allow_unreleased_seats: bool = False,
+    table_seats: int | None = None,
 ) -> list[Path]:
     """The deck files of the opponents: the given precon ids, else the pod preset.
 
     An unknown pod or deck id is an error (B2, #1658); no other deck takes its seat.
+    ``table_seats`` (#1702) names the table size: the release lock is checked for it first, the
+    preset of that size is used, and given opponents must be exactly ``table_seats - 1`` (never
+    cut or filled up). Without it the table is the given opponents plus one, or four seats for a
+    preset, as before.
     """
+    if table_seats is not None:
+        if not MIN_SEATS <= table_seats <= MAX_SEATS:
+            raise ValueError(
+                f"ein Tisch hat {MIN_SEATS} bis {MAX_SEATS} Sitze, nicht {table_seats}"
+            )
+        validate_released_seat_count(table_seats - 1, allow_unreleased_seats=allow_unreleased_seats)
     by_id = {deck_id: path for deck_id, _name, _cmds, _year, path in _precons()}
     if opponent_ids is not None:
         opp_list = [str(oid).strip() for oid in opponent_ids]
-    elif pod in POD_PRESETS:
-        opp_list = list(POD_PRESETS[pod])
+        if table_seats is not None and len(opp_list) != table_seats - 1:
+            raise ValueError(
+                f"ein Tisch mit {table_seats} Sitzen braucht {table_seats - 1} Gegner, "
+                f"angegeben sind {len(opp_list)}"
+            )
     else:
-        raise ValueError(f"Unbekannter Gegnertisch (pod): {pod!r}")
+        opp_list = list(pod_preset(pod, 4 if table_seats is None else table_seats))
     validate_released_seat_count(len(opp_list), allow_unreleased_seats=allow_unreleased_seats)
     if len(set(opp_list)) != len(opp_list):
         raise ValueError("Gegner-Decks dürfen nicht doppelt vorkommen")

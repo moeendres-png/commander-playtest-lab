@@ -8,17 +8,109 @@
 // (paired_series.MEASURED_BATCH_GAMES_PER_HOUR, assumed_games_per_hour_unmeasured).
 const PAIRED_MEASURED_BATCH_GAMES_PER_HOUR = 541.2;
 const PAIRED_MEASURED_BATCH_WORKERS = 6;
-// Every pod preset of this dialog seats four players; with rotation each seed plays all four.
-const PAIRED_TABLE_SEATS = 4;
+// The table size of a series (#1702) is a setting of the dialog. Which sizes may start comes from
+// the server (GET /api/simulations/paired-tables, launch.MAX_RELEASED_SEATS): this file holds no
+// lock of its own. Before the server answers, or when it cannot, only this size is offered.
+const PAIRED_DEFAULT_TABLE_SEATS = 4;
+// Budgets of the dialog; at four seats this list is offered unchanged. At other sizes each budget
+// is rounded up to whole rotation blocks (N seeds x N seats = N^2 pairs per arm, 25 at five and
+// 36 at six seats), so a rotation is never cut off by the dialog.
+const PAIRED_BUDGETS = [20, 40, 60, 100, 200];
+const PAIRED_DEFAULT_BUDGET = 40;
+const PAIRED_POD_TITLES = { precon: "Precon", mixed: "Mixed", optimized: "Optimized" };
 
-function estimatePairedText(budgetPairs, workers = 4) {
+function estimatePairedText(budgetPairs, workers = 4, seats = PAIRED_DEFAULT_TABLE_SEATS) {
   const pairs = Math.max(0, Number(budgetPairs) || 0);
   const usedWorkers = Math.max(1, Math.min(16, Math.round(Number(workers) || 1)));
+  const tableSeats = Math.round(Number(seats) || PAIRED_DEFAULT_TABLE_SEATS);
   const maxGames = pairs * 2;
   const seconds = Math.round(maxGames * (3600.0 / PAIRED_MEASURED_BATCH_GAMES_PER_HOUR));
   const minutes = StudioUI.num(seconds / 60.0, 1);
   const floorNote = usedWorkers > PAIRED_MEASURED_BATCH_WORKERS ? " Mit mehr als 6 Workern ist das keine sichere Untergrenze." : "";
+  if (tableSeats < 4) {
+    // smaller tables play shorter games: the four-seat rate is no floor there
+    return `Dauer: unbekannt (UNKNOWN) für bis zu ${StudioUI.num(maxGames, 0)} Partien: gemessen sind nur 541 Partien/h für eine ganze Batch-Serie mit 6 Workern an Vierertischen (#1251). Bei ${StudioUI.num(tableSeats, 0)} Sitzen sind Partien kürzer, die Rate ist dort keine Untergrenze. Früher Stopp je nach Look möglich.`;
+  }
+  if (tableSeats > 4) {
+    return `Dauer: mindestens ~${minutes} min für bis zu ${StudioUI.num(maxGames, 0)} Partien, gerechnet mit den 541 Partien/h, die nur für eine ganze Batch-Serie mit 6 Workern an Vierertischen gemessen sind (#1251). Bei ${StudioUI.num(tableSeats, 0)} Sitzen ist der Durchsatz ungemessen (UNKNOWN); Partien mit mehr Sitzen dauern länger (ein Messpunkt: 6 Sitze brauchten das 3,2-Fache der Zeit von 4 Sitzen, n = 1, Qualifikationsplan 5/6), daher bleibt das nur eine Untergrenze.${floorNote} Früher Stopp je nach Look möglich.`;
+  }
   return `Dauer: mindestens ~${minutes} min für bis zu ${StudioUI.num(maxGames, 0)} Partien, gerechnet mit den 541 Partien/h, die nur für eine ganze Batch-Serie mit 6 Workern gemessen sind (#1251). Für gepaarte Serien ist der Durchsatz ungemessen; die Dauer ist vermutlich deutlich länger.${floorNote} Früher Stopp je nach Look möglich.`;
+}
+
+// Budget choices at a table size: [{value, label, selected}]. Seeds are ceil(pairs / N) with
+// rotation (each seed plays every seat), else one per pair.
+function pairedBudgetOptions(seats, rotate) {
+  const n = Math.max(1, Math.round(Number(seats) || PAIRED_DEFAULT_TABLE_SEATS));
+  const block = rotate ? n * n : 1;
+  const values = n === 4 || !rotate
+    ? PAIRED_BUDGETS.slice()
+    : [...new Set(PAIRED_BUDGETS.map((v) => Math.ceil(v / block) * block))];
+  const preferred = values.find((v) => v >= PAIRED_DEFAULT_BUDGET) ?? values[values.length - 1];
+  return values.map((value) => {
+    const seeds = rotate ? Math.ceil(value / n) : value;
+    return {
+      value,
+      label: `${StudioUI.num(value, 0)} Paare (bis ${StudioUI.num(2 * value, 0)} Partien · ${StudioUI.num(seeds, 0)} Seeds)`,
+      selected: value === preferred,
+    };
+  });
+}
+
+// What a series of `budget` pairs at N seats covers: whole rotation blocks or an honest note
+// that the last block is incomplete.
+function pairedBlockText(seats, rotate, budget) {
+  const n = Math.max(1, Math.round(Number(seats) || PAIRED_DEFAULT_TABLE_SEATS));
+  const pairs = Math.max(0, Math.round(Number(budget) || 0));
+  if (!rotate) {
+    return `Ohne Rotation sitzt das getestete Deck immer auf Sitz 1 eines Tischs mit ${StudioUI.num(n, 0)} Sitzen; der Sitzvorteil ist nicht ausgeglichen.`;
+  }
+  const block = n * n;
+  const full = Math.floor(pairs / block);
+  const head = `Rotationsblock bei ${StudioUI.num(n, 0)} Sitzen: ${StudioUI.num(n, 0)} Seeds × ${StudioUI.num(n, 0)} Sitze = ${StudioUI.num(block, 0)} Paare je Arm (${StudioUI.num(2 * block, 0)} Partien je Block, beide Arme). Startsitz ist Seed mod ${StudioUI.num(n, 0)}.`;
+  if (pairs % block === 0) {
+    return `${head} ${StudioUI.num(pairs, 0)} Paare sind ${StudioUI.num(full, 0)} ${full === 1 ? "voller Block" : "volle Blöcke"}: jede Kombination aus Startsitz und getestetem Sitz kommt gleich oft vor.`;
+  }
+  return `${head} ${StudioUI.num(pairs, 0)} Paare sind kein Vielfaches von ${StudioUI.num(block, 0)}: ${StudioUI.num(full, 0)} ${full === 1 ? "voller Block" : "volle Blöcke"}, der letzte Block ist unvollständig (nicht jede Kombination aus Startsitz und getestetem Sitz kommt gleich oft vor).`;
+}
+
+// Table sizes for the select: [{value, label, disabled, selected}]. Without server info only the
+// default size; sizes above the released maximum are shown greyed out, never startable.
+function pairedTableSizeOptions(info, selectedSeats) {
+  if (!info || !Array.isArray(info.sizes)) {
+    return [{ value: PAIRED_DEFAULT_TABLE_SEATS, label: `${PAIRED_DEFAULT_TABLE_SEATS} Sitze`, disabled: false, selected: true }];
+  }
+  const want = Number(selectedSeats) || Number(info.default_seats) || PAIRED_DEFAULT_TABLE_SEATS;
+  return info.sizes.map((size) => {
+    const released = size.released === true;
+    return {
+      value: size.seats,
+      label: released ? `${size.seats} Sitze` : `${size.seats} Sitze (nicht freigegeben)`,
+      disabled: !released,
+      selected: released && size.seats === want,
+    };
+  });
+}
+
+function pairedTableNote(info) {
+  if (!info || !Array.isArray(info.sizes)) {
+    return "Tischgrößen nicht geladen: angeboten sind nur 4 Sitze.";
+  }
+  const locked = info.sizes.filter((size) => size.released !== true).map((size) => String(size.seats));
+  const lockText = locked.length
+    ? `${locked.join(" und ")} Sitze sind nicht freigegeben: Qualifikation und Owner-Entscheid stehen aus, der Server lehnt sie ab. `
+    : "";
+  return `${lockText}Die Tischgröße ist eine eigene Schicht der Auswertung; Serien verschiedener Tischgrößen werden nie zusammengezählt.`;
+}
+
+// Opponent presets of one table size: [{value, label}], empty when the size has none (then the
+// dialog cannot start: no other preset or size takes its place).
+function pairedPodOptions(info, seats) {
+  const size = info && Array.isArray(info.sizes) ? info.sizes.find((s) => s.seats === Number(seats)) : null;
+  if (!size || !size.pods) return [];
+  return Object.entries(size.pods).map(([pod, decks]) => ({
+    value: pod,
+    label: `${PAIRED_POD_TITLES[pod] || pod} (${(decks || []).map((d) => d.name || d.deck_id).join(", ")})`,
+  }));
 }
 
 // The pre-run plan comes from the backend (paired_series.planned_detectable_difference_pp via
@@ -172,7 +264,7 @@ function renderPairedMonitor(h, job, deps) {
 
   const monitor = h("div", { class: "sim-monitor" },
     h("div", { class: "sim-monitor-head" },
-      h("b", {}, `Paar-Serie „${job.pod}“ (${job.series_id}): ${StudioUI.num(donePairs, 0)} / ${StudioUI.num(maxPairs, 0)} Paare (${StudioUI.num(pct, 0)} %)`),
+      h("b", {}, `Paar-Serie „${job.pod}“${job.seed_plan && job.seed_plan.player_count ? ` · ${StudioUI.num(job.seed_plan.player_count, 0)} Sitze` : ""} (${job.series_id}): ${StudioUI.num(donePairs, 0)} / ${StudioUI.num(maxPairs, 0)} Paare (${StudioUI.num(pct, 0)} %)`),
       h("span", { class: "pill " + (isRunning || isInterrupted ? "warn" : job.status === "completed" ? "good" : "bad") }, statusText)),
     h("progress", { value: donePairs, max: maxPairs }),
     h("p", { class: "note note-compact" }, seriesPlayedText(job.games_played, job.games_planned_max, null, true, isRunning)),
@@ -421,13 +513,12 @@ function renderPairedComparisonSection(body, deps) {
     h("option", { value: "mixed" }, "Mixed (Kaervek, Animated Army, Lorehold)"),
     h("option", { value: "optimized" }, "Optimized (Eldrazi, Kaervek, Hosts of Mordor)")
   );
+  const tableSelect = h("select", { id: "paired-table-select" },
+    ...pairedTableSizeOptions(null).map((o) => h("option", { value: String(o.value), selected: o.selected, disabled: o.disabled }, o.label)));
+  const tableNote = h("p", { class: "note note-compact", id: "paired-table-note" }, pairedTableNote(null));
+  const blockLine = h("p", { class: "note note-compact", id: "paired-block" });
   const budgetSelect = h("select", { id: "paired-budget-select" },
-    h("option", { value: "20" }, "20 Paare (bis 40 Partien)"),
-    h("option", { value: "40", selected: true }, "40 Paare (bis 80 Partien · 10 Seeds)"),
-    h("option", { value: "60" }, "60 Paare (bis 120 Partien)"),
-    h("option", { value: "100" }, "100 Paare (bis 200 Partien)"),
-    h("option", { value: "200" }, "200 Paare (bis 400 Partien)")
-  );
+    ...pairedBudgetOptions(PAIRED_DEFAULT_TABLE_SEATS, true).map((o) => h("option", { value: String(o.value), selected: o.selected }, o.label)));
   const lookSelect = h("select", { id: "paired-look-select" },
     h("option", { value: "4", selected: true }, "alle 4 Paare"),
     h("option", { value: "5" }, "alle 5 Paare"),
@@ -439,16 +530,20 @@ function renderPairedComparisonSection(body, deps) {
   const workersInput = h("input", { type: "number", value: "4", min: "1", max: "16", class: "seed-input", id: "paired-workers-input" });
   const gamesPerJvmInput = h("input", { type: "number", value: "16", min: "1", max: "24", class: "seed-input", id: "paired-games-per-jvm-input" });
   const rotateCheck = h("input", { type: "checkbox", checked: true, id: "paired-rotate-check" });
+  const rotateText = h("span", { id: "paired-rotate-text" }, `Sitze 1–${PAIRED_DEFAULT_TABLE_SEATS} rotieren`);
+  let tableInfo = null;
+  const tableSeats = () => Math.round(Number(tableSelect.value) || PAIRED_DEFAULT_TABLE_SEATS);
 
-  const estLine = h("p", { class: "note", id: "paired-estimate" }, estimatePairedText(budgetSelect.value, workersInput.value));
+  const estLine = h("p", { class: "note", id: "paired-estimate" }, estimatePairedText(budgetSelect.value, workersInput.value, tableSeats()));
   const planBox = h("div", { class: "note", id: "paired-plan" });
   const updateEstimate = () => {
-    estLine.textContent = estimatePairedText(budgetSelect.value, workersInput.value);
+    estLine.textContent = estimatePairedText(budgetSelect.value, workersInput.value, tableSeats());
+    blockLine.textContent = pairedBlockText(tableSeats(), rotateCheck.checked, budgetSelect.value);
   };
   let planRequest = 0;
   const refreshPlan = async () => {
     const mine = ++planRequest;
-    const seats = rotateCheck.checked ? PAIRED_TABLE_SEATS : 1;
+    const seats = rotateCheck.checked ? tableSeats() : 1;
     try {
       const lines = await loadPairedPlanLines(deps.api, budgetSelect.value, seats, thresholdInput.value);
       if (mine !== planRequest) return;
@@ -457,14 +552,42 @@ function renderPairedComparisonSection(body, deps) {
       if (mine === planRequest) planBox.replaceChildren(h("p", { class: "note note-compact" }, "Planung nicht verfügbar (unbekannt)."));
     }
   };
+  const startBtn = h("button", { type: "submit", class: "primary", id: "paired-start-btn" }, "Nachtlauf starten");
+  // Rebuild what depends on the table size: budgets (whole blocks), presets, rotation text.
+  const applyTableSize = () => {
+    const seats = tableSeats();
+    const keepPod = podSelect.value;
+    budgetSelect.replaceChildren(...pairedBudgetOptions(seats, rotateCheck.checked).map((o) => h("option", { value: String(o.value), selected: o.selected }, o.label)));
+    const chosenBudget = pairedBudgetOptions(seats, rotateCheck.checked).find((o) => o.selected);
+    if (chosenBudget) budgetSelect.value = String(chosenBudget.value);
+    if (tableInfo) {
+      const pods = pairedPodOptions(tableInfo, seats);
+      if (pods.length) {
+        const keep = pods.some((o) => o.value === keepPod) ? keepPod : pods[0].value;
+        podSelect.replaceChildren(...pods.map((o) => h("option", { value: o.value, selected: o.value === keep }, o.label)));
+        podSelect.value = keep;
+        podSelect.disabled = false;
+        startBtn.disabled = false;
+      } else {
+        podSelect.replaceChildren(h("option", { value: "" }, `kein Preset für ${seats} Sitze`));
+        podSelect.value = "";
+        podSelect.disabled = true;
+        startBtn.disabled = true;
+      }
+    }
+    rotateText.textContent = `Sitze 1–${seats} rotieren`;
+    updateEstimate();
+    refreshPlan();
+  };
+  tableSelect.addEventListener("change", applyTableSize);
   budgetSelect.addEventListener("change", () => { updateEstimate(); refreshPlan(); });
-  rotateCheck.addEventListener("change", refreshPlan);
+  rotateCheck.addEventListener("change", applyTableSize);
   thresholdInput.addEventListener("change", refreshPlan);
   workersInput.addEventListener("change", updateEstimate);
   workersInput.addEventListener("input", updateEstimate);
+  updateEstimate();
   refreshPlan();
 
-  const startBtn = h("button", { type: "submit", class: "primary", id: "paired-start-btn" }, "Nachtlauf starten");
   const form = h("form", {
     class: "sim-form",
     onsubmit: async (e) => {
@@ -477,12 +600,17 @@ function renderPairedComparisonSection(body, deps) {
         deps.toast("Basis (A) und Variante (B) müssen verschiedene Stände sein.");
         return;
       }
+      if (!podSelect.value) {
+        deps.toast(`Für ${tableSeats()} Sitze gibt es keinen Gegnertisch.`);
+        return;
+      }
       startBtn.disabled = true;
       try {
         const res = await deps.api("/api/simulations/paired", "POST", {
           base_revision_id: baseSelect.value,
           variant_revision_id: varSelect.value,
           pod: podSelect.value,
+          table_seats: tableSeats(),
           budget_pairs: parseInt(budgetSelect.value, 10),
           look_every_pairs: parseInt(lookSelect.value, 10),
           base_seed: parseInt(seedInput.value, 10),
@@ -503,6 +631,7 @@ function renderPairedComparisonSection(body, deps) {
   },
     h("label", {}, "Basis (A)", baseSelect),
     h("label", {}, "Variante (B)", varSelect),
+    h("label", {}, "Tischgröße", tableSelect),
     h("label", {}, "Gegnertisch", podSelect),
     h("label", {}, "Budget", budgetSelect),
     h("label", {}, "Sequential-Look", lookSelect),
@@ -510,18 +639,28 @@ function renderPairedComparisonSection(body, deps) {
     h("label", {}, "Basis-Seed", seedInput),
     h("label", {}, "Worker", workersInput),
     h("label", {}, "Partien / JVM", gamesPerJvmInput),
-    h("label", { class: "paired-check" }, rotateCheck, "Sitze 1–4 rotieren"),
+    h("label", { class: "paired-check" }, rotateCheck, rotateText),
     startBtn
   );
 
   const monSlot = h("div", { id: "paired-monitor-slot" });
   const histSlot = h("div", { id: "paired-history-slot" });
-  pBox.append(form, estLine, planBox, monSlot, histSlot);
+  pBox.append(form, tableNote, blockLine, estLine, planBox, monSlot, histSlot);
 
   body.append(pBox, renderReadinessAuditBox(h, deps));
   refreshPairedSlots(deps);
 
   const tok = deps.token();
+  deps.api("/api/simulations/paired-tables").then((info) => {
+    if (!deps.isCurrent(tok) || !info || !Array.isArray(info.sizes)) return;
+    tableInfo = info;
+    const options = pairedTableSizeOptions(info, tableSeats());
+    tableSelect.replaceChildren(...options.map((o) => h("option", { value: String(o.value), selected: o.selected, disabled: o.disabled }, o.label)));
+    const chosen = options.find((o) => o.selected);
+    tableSelect.value = String(chosen ? chosen.value : PAIRED_DEFAULT_TABLE_SEATS);
+    tableNote.textContent = pairedTableNote(info);
+    applyTableSize();
+  }).catch(() => {});
   loadPairedOptions(deps).then((opts) => {
     if (!deps.isCurrent(tok) || !opts.length) return;
     const defaultVar = (curRev && opts.some((o) => o.ref === curRev)) ? curRev : opts[0].ref;

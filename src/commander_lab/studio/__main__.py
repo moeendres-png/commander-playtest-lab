@@ -443,7 +443,10 @@ def _parser() -> argparse.ArgumentParser:
     compare.add_argument(
         "--allow-unreleased-seats",
         action="store_true",
-        help="allow 5 or 6 seats (unreleased outside Owner qualification)",
+        help=(
+            "allow 5 or 6 seats for an Owner qualification run only: the Studio has not released "
+            "them (launch.MAX_RELEASED_SEATS = 4), its pages and routes refuse them"
+        ),
     )
     compare.add_argument(
         "--workers",

@@ -351,6 +351,7 @@ def start_experiment(
                 look_every_pairs=plan.look_every_pairs,
                 base_seed=plan.first_seed,
                 rotate_seats=plan.table.seat_policy == "rotate",
+                table_seats=plan.table.seats,
                 threshold_pp=plan.threshold_pp,
                 significance_level=plan.significance_level,
                 purpose=plan.purpose,

@@ -42,8 +42,9 @@ from . import builder, decks, paired_comparison, strength_view
 from .card_outcomes import pilot_identity
 from .decks import RevisionCard, lab_snapshot, list_rows, resolve_repo_baseline_cards
 from .games import games_folder
-from .launch import POD_PRESETS as POD_PRESETS  # re-exported for callers and tests
 from .launch import (
+    MAX_SEATS,
+    MIN_SEATS,
     SeriesEngine,
     cards_unknown_to_pilots,
     cards_unsupported_by_engine,
@@ -53,6 +54,7 @@ from .launch import (
     series_engine,
     validate_released_seat_count,
 )
+from .launch import POD_PRESETS as POD_PRESETS  # re-exported for callers and tests
 from .launch import (
     bridge_jar_sha256 as command_bridge_jar_sha256,
 )
@@ -213,13 +215,22 @@ def _table_opponent_paths(
     pod: str,
     opponent_ids: Sequence[str] | None,
     taken_deck_ids: set[str],
+    table_seats: int | None = None,
 ) -> list[Path]:
     """The opponents' deck files: precons from the repository, Studio deck states (E15 Q6)
     as snapshot files in the series folder. With ``store`` the snapshots are written (start);
-    without, they must already be there (resume). Unknown is an error, never a stand-in."""
+    without, they must already be there (resume). Unknown is an error, never a stand-in.
+    ``table_seats`` (#1702) picks the preset of that size and is checked against the lock."""
     if opponent_ids is None or not any(is_revision_ref(str(o)) for o in opponent_ids):
-        return resolve_opponent_paths(pod, opponent_ids)
+        return resolve_opponent_paths(pod, opponent_ids, table_seats=table_seats)
     ids = [str(o).strip() for o in opponent_ids]
+    if table_seats is not None:
+        validate_released_seat_count(table_seats - 1)
+        if len(ids) != table_seats - 1:
+            raise ValueError(
+                f"ein Tisch mit {table_seats} Sitzen braucht {table_seats - 1} Gegner, "
+                f"angegeben sind {len(ids)}"
+            )
     if len(set(ids)) != len(ids):
         raise ValueError("Gegner-Decks dürfen nicht doppelt vorkommen")
     precons = [o for o in ids if not is_revision_ref(o)]
@@ -747,6 +758,7 @@ class PairedSeriesManager:
         purpose: str = "unspecified",
         allow_unreleased_seats: bool = False,
         experiment: Mapping[str, object] | None = None,
+        table_seats: int | None = None,
     ) -> PairedSeriesJob:
         data_path = Path(data_folder).resolve()
         if purpose not in SERIES_PURPOSES:
@@ -764,6 +776,20 @@ class PairedSeriesManager:
             )
         if look_every_pairs < 1:
             raise ValueError("look_every_pairs muss mindestens 1 sein")
+        if table_seats is not None:
+            # the table size of the series (#1702): the lock first, then exactly N - 1 opponents
+            if not MIN_SEATS <= table_seats <= MAX_SEATS:
+                raise ValueError(
+                    f"ein Tisch hat {MIN_SEATS} bis {MAX_SEATS} Sitze, nicht {table_seats}"
+                )
+            validate_released_seat_count(
+                table_seats - 1, allow_unreleased_seats=allow_unreleased_seats
+            )
+            if opponent_ids is not None and len(opponent_ids) != table_seats - 1:
+                raise ValueError(
+                    f"ein Tisch mit {table_seats} Sitzen braucht {table_seats - 1} Gegner, "
+                    f"angegeben sind {len(opponent_ids)}"
+                )
         if opponent_ids is not None:
             validate_released_seat_count(
                 len(opponent_ids), allow_unreleased_seats=allow_unreleased_seats
@@ -785,7 +811,10 @@ class PairedSeriesManager:
         if opponent_ids is None or not any(is_revision_ref(str(o)) for o in opponent_ids):
             # precons only: checked before anything is written
             _resolve_opponent_paths(
-                pod, opponent_ids, allow_unreleased_seats=allow_unreleased_seats
+                pod,
+                opponent_ids,
+                allow_unreleased_seats=allow_unreleased_seats,
+                table_seats=table_seats,
             )
 
         with self._lock:
@@ -813,7 +842,12 @@ class PairedSeriesManager:
             base_deck, variant_deck, variant_snap, variant_path
         )
         opp_paths = _table_opponent_paths(
-            store, deck_dir, pod, opponent_ids, {base_deck.deck_id, variant_deck.deck_id}
+            store,
+            deck_dir,
+            pod,
+            opponent_ids,
+            {base_deck.deck_id, variant_deck.deck_id},
+            table_seats,
         )
         opponents = [load_rules_deck_snapshot(p) for p in opp_paths]
 
@@ -1070,12 +1104,23 @@ class PairedSeriesManager:
             ):
                 raise ValueError(f"Ungültige opponent_ids in Serie {safe_id} (nicht fortsetzbar)")
             opp_ids = list(raw_opp_ids) if isinstance(raw_opp_ids, list) else None
+            raw_opp_deck_ids = raw.get("opponent_deck_ids")
+            # a preset series is resumed at its own table size (#1702), never at the default 4
+            resume_seats = (
+                1 + len(raw_opp_deck_ids)
+                if opp_ids is None and isinstance(raw_opp_deck_ids, list) and raw_opp_deck_ids
+                else None
+            )
             opp_paths = _table_opponent_paths(
-                None, deck_dir, pod, opp_ids, {base_deck.deck_id, variant_deck.deck_id}
+                None,
+                deck_dir,
+                pod,
+                opp_ids,
+                {base_deck.deck_id, variant_deck.deck_id},
+                resume_seats,
             )
             opponents = [load_rules_deck_snapshot(path) for path in opp_paths]
 
-            raw_opp_deck_ids = raw.get("opponent_deck_ids")
             if (
                 not isinstance(raw_opp_deck_ids, list)
                 or not raw_opp_deck_ids

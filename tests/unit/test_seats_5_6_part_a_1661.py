@@ -9,6 +9,13 @@ paired series plans a full seat rotation at five and six seats and censors faile
 (F8 planning), and (d) the play page draws five and six seats once the lock is lifted, and the
 lock is the only hurdle on the play route.
 
+Since #1702 the file also holds the SIMULATE way for five and six seats behind the same lock:
+pod presets per table size (an error, never a fill), the series route with ``table_seats``
+(refused without the switch; with the lock raised in memory it plans and plays the full rotation
+through a recording ``play_override`` in place of the bridge), the resume at the stored size, the
+table-size stratum of the card evaluation, and the series dialog (``paired.js``) under node with a
+DOM stand-in.
+
 All data is synthetic; the bridge is a scripted test bridge. Report:
 ``docs/analysis-reports/seats_5_6_part_a_report.md``.
 """
@@ -1284,3 +1291,515 @@ def test_identity_row_ignores_run_fields_and_catches_one_changed_frame(tmp_path:
     assert one["seats"] == 6 and one["winner_seats"] == [3] and one["frames"] == 1
     assert one["semantic_transcript_sha256"] == "c" * 64
     assert other["frame_digest"] != one["frame_digest"]
+
+
+# ---- #1702: the SIMULATE way for five and six seats, built behind the lock ----------------------
+# The release is not here either: ``launch.MAX_RELEASED_SEATS`` stays 4. The series route refuses
+# five and six seats without a switch; with the lock raised in memory it plans and plays them
+# (``play_override`` stands in for the bridge: no engine, no real game).
+
+
+def test_pod_presets_name_exactly_the_opponents_of_each_table_size() -> None:
+    """Every preset names exactly ``seats - 1`` different, known decks; the four-seat presets
+    are ``POD_PRESETS`` itself. A size or pod without a preset, and a wrong number of given
+    opponents, are errors: nothing is cut off, filled up or taken from another size."""
+    by_id = {deck_id: path for deck_id, *_rest, path in launch._precons()}
+    assert launch.POD_PRESETS_BY_SEATS[4] == launch.POD_PRESETS
+    assert sorted(launch.POD_PRESETS_BY_SEATS) == list(
+        range(launch.MIN_SEATS, launch.MAX_SEATS + 1)
+    )
+    for seats, presets in launch.POD_PRESETS_BY_SEATS.items():
+        assert set(presets) == set(launch.POD_PRESETS)
+        for pod in presets:
+            opponents = launch.pod_preset(pod, seats)
+            assert len(opponents) == seats - 1 == len(set(opponents))
+            paths = launch.resolve_opponent_paths(
+                pod, None, table_seats=seats, allow_unreleased_seats=True
+            )
+            assert paths == [by_id[oid] for oid in opponents]
+    for pod, seats, message in (
+        ("no-such-pod", 5, "Unbekannter Gegnertisch"),
+        ("precon", 7, "hat für 7 Sitze kein Preset"),
+    ):
+        with pytest.raises(ValueError, match=message):
+            launch.pod_preset(pod, seats)
+    four = list(launch.POD_PRESETS["precon"])
+    with pytest.raises(ValueError, match="braucht 4 Gegner, angegeben sind 3"):
+        launch.resolve_opponent_paths("precon", four, table_seats=5, allow_unreleased_seats=True)
+    with pytest.raises(ValueError, match="braucht 3 Gegner, angegeben sind 4"):
+        launch.resolve_opponent_paths(
+            "precon", [*four, "precon/2023/veloci_ramp_tor"], table_seats=4
+        )
+
+
+def test_a_size_without_its_preset_is_an_error_not_a_fill(monkeypatch: pytest.MonkeyPatch) -> None:
+    """With the five-seat presets missing, a five-seat series is refused by name; the four-seat
+    preset is never padded with a fifth deck (no "first option" stand-in)."""
+    monkeypatch.setattr(launch, "MAX_RELEASED_SEATS", 6)
+    monkeypatch.setitem(launch.POD_PRESETS_BY_SEATS, 5, {})
+    with pytest.raises(ValueError, match="hat für 5 Sitze kein Preset"):
+        launch.resolve_opponent_paths("precon", None, table_seats=5)
+    options = launch.paired_table_options()
+    five = next(size for size in options["sizes"] if size["seats"] == 5)  # type: ignore[union-attr]
+    assert five["pods"] == {}  # type: ignore[index]
+
+
+def test_paired_tables_route_reads_the_lock_at_request_time(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The series dialog learns the sizes from the server: today 2 to 4 released, 5 and 6 locked;
+    with only the constant raised (in memory) the same route offers 2 to 6."""
+    client = TestClient(create_app(tmp_path / "studio"))
+    locked = client.get("/api/simulations/paired-tables").json()
+    assert locked["released_max_seats"] == 4 and locked["default_seats"] == 4
+    assert [(s["seats"], s["released"]) for s in locked["sizes"]] == [
+        (2, True), (3, True), (4, True), (5, False), (6, False),
+    ]  # fmt: skip
+    for size in locked["sizes"]:
+        for pod, decks in size["pods"].items():
+            assert [d["deck_id"] for d in decks] == list(launch.pod_preset(pod, size["seats"]))
+            assert all(d["name"] for d in decks)
+    monkeypatch.setattr(launch, "MAX_RELEASED_SEATS", 6)
+    released = client.get("/api/simulations/paired-tables").json()
+    assert released["released_max_seats"] == 6
+    assert all(s["released"] for s in released["sizes"])
+
+
+@pytest.fixture
+def series_lab(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> dict[str, object]:
+    """Two deck revisions in a real store; the series start gets a recording ``play_override``
+    in place of the bridge, every other step (route, plan, presets, lock) is the real one."""
+    from commander_lab.studio import paired_series
+    from commander_lab.studio.store import StudioStore
+    from tests.unit.test_studio_experiments import HEADERS, _cards, _player, _seed
+
+    store = StudioStore.open(tmp_path)
+    try:
+        _seed(store)
+    finally:
+        store.close()
+    monkeypatch.setattr(paired_series, "_preflight_snapshot_cards", lambda *a, **k: None)
+    manager = paired_series.paired_series_manager
+    original = manager.start_series
+    calls: list[tuple[str, int, int]] = []
+
+    def start(*args: object, **kwargs: object) -> paired_series.PairedSeriesJob:
+        base = str(kwargs["base_revision_id"]).split("@", 1)[0]
+        play = _player(f"{base}--base", f"{base}--variant")
+
+        def recording(arm: str, seed: int, seat: int) -> PlayedGame:
+            calls.append((arm, seed, seat))
+            return play(arm, seed, seat)
+
+        kwargs["play_override"] = recording
+        return original(*args, **kwargs)  # type: ignore[arg-type]
+
+    monkeypatch.setattr(manager, "start_series", start)
+    client = TestClient(create_app(tmp_path))
+    revs: dict[str, str] = {}
+    for name, forests, parent in (("base", 40, None), ("variant", 38, "base")):
+        res = client.post(
+            "/api/decks/chulane-b2/revisions",
+            headers=HEADERS,
+            json={
+                "cards": _cards(forests),
+                "note": name,
+                "branch": "main" if parent is None else name,
+                **({"parent_revision_id": revs[parent]} if parent else {}),
+            },
+        )
+        assert res.status_code == 200, res.text
+        revs[name] = res.json()["revision_id"]
+    return {"client": client, "folder": tmp_path, "revs": revs, "calls": calls}
+
+
+def _series_body(lab: dict[str, object], **extra: object) -> dict[str, object]:
+    revs = lab["revs"]
+    assert isinstance(revs, dict)
+    return {
+        "base_revision_id": revs["base"],
+        "variant_revision_id": revs["variant"],
+        "look_every_pairs": 100,
+        "base_seed": 3000,
+        **extra,
+    }
+
+
+@pytest.mark.parametrize("seats", [5, 6])
+def test_series_route_refuses_five_and_six_seats_without_the_switch(
+    series_lab: dict[str, object], seats: int
+) -> None:
+    """Acceptance #1702: the series route has no unlock switch and answers 422 "locked" for a
+    table of five or six, by preset and by named opponents; nothing is played."""
+    from commander_lab.studio.web import PairedSeriesBody
+
+    assert "allow_unreleased_seats" not in PairedSeriesBody.model_fields
+    assert launch.MAX_RELEASED_SEATS == 4
+    client = series_lab["client"]
+    assert isinstance(client, TestClient)
+    for extra in (
+        {"pod": "precon", "table_seats": seats, "budget_pairs": seats * seats},
+        {
+            "opponent_ids": list(launch.POD_PRESETS_BY_SEATS[seats]["precon"]),
+            "table_seats": seats,
+            "budget_pairs": seats * seats,
+        },
+        {"opponent_ids": list(launch.POD_PRESETS_BY_SEATS[seats]["precon"]), "budget_pairs": 20},
+    ):
+        res = client.post(
+            "/api/simulations/paired",
+            headers={"X-Studio": "1"},
+            json=_series_body(series_lab, **extra),
+        )
+        assert res.status_code == 422, (extra, res.text)
+        assert f"tables of {seats} seats are locked" in res.json()["detail"]
+    assert series_lab["calls"] == []
+
+
+@pytest.mark.parametrize("seats", [5, 6])
+def test_series_route_plans_and_plays_five_and_six_seats_once_the_lock_is_raised(
+    series_lab: dict[str, object], seats: int, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """With only the constant raised (in memory) the real route seats the preset of that size,
+    plans N consecutive seeds for a budget of N^2 pairs and plays every (seed, seat) unit of the
+    full rotation once per arm, in plan order; the record names the table size."""
+    from tests.unit.test_studio_experiments import _wait
+
+    monkeypatch.setattr(launch, "MAX_RELEASED_SEATS", 6)
+    client = series_lab["client"]
+    assert isinstance(client, TestClient)
+    budget = seats * seats
+    res = client.post(
+        "/api/simulations/paired",
+        headers={"X-Studio": "1"},
+        json=_series_body(series_lab, pod="precon", table_seats=seats, budget_pairs=budget),
+    )
+    assert res.status_code == 200, res.text
+    started = res.json()
+    record = _wait(Path(str(series_lab["folder"])), started["series_id"])
+    assert record["opponent_deck_ids"] == list(launch.pod_preset("precon", seats))
+    plan = record["seed_plan"]
+    assert plan["player_count"] == seats and plan["seeds_planned"] == seats
+    assert plan["first_seed"] == 3000
+    expected = [
+        (arm, 3000 + k, seat)
+        for k in range(seats)
+        for seat in range(seats)
+        for arm in ("base", "variant")
+    ]
+    assert series_lab["calls"] == expected and len(expected) == 2 * budget
+    units = Counter(((seed % seats), seat) for _arm, seed, seat in expected)
+    assert len(units) == budget and set(units.values()) == {2}  # every unit once per arm
+    assert record["result"]["pairs_played"] == budget
+
+
+def test_a_five_seat_preset_series_resumes_at_five_seats(
+    series_lab: dict[str, object], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A preset series stores no opponent ids; its resume takes the table size from the stored
+    opponents (five seats), not the default four, and the lock applies again on resume."""
+    from commander_lab.studio import paired_series
+    from tests.unit.test_studio_experiments import _wait
+
+    monkeypatch.setattr(launch, "MAX_RELEASED_SEATS", 6)
+    client = series_lab["client"]
+    assert isinstance(client, TestClient)
+    res = client.post(
+        "/api/simulations/paired",
+        headers={"X-Studio": "1"},
+        json=_series_body(series_lab, pod="precon", table_seats=5, budget_pairs=25),
+    )
+    assert res.status_code == 200, res.text
+    folder = Path(str(series_lab["folder"]))
+    series_id = res.json()["series_id"]
+    _wait(folder, series_id)
+    path = folder / "games" / f"{series_id}.paired.json"
+    raw = json.loads(path.read_text(encoding="utf-8"))
+    assert raw["opponent_ids"] is None
+    raw["status"] = "interrupted"
+    path.write_text(json.dumps(raw), encoding="utf-8")
+    noop = lambda *_a: {"exposure": None, "failure_class": None}  # noqa: E731
+    job = paired_series.paired_series_manager.resume_series(folder, series_id, play_override=noop)
+    assert [d.deck_id for d in job.opponents] == list(launch.pod_preset("precon", 5))
+    monkeypatch.setattr(launch, "MAX_RELEASED_SEATS", 4)
+    _wait(folder, series_id)
+    raw = json.loads(path.read_text(encoding="utf-8"))
+    raw["status"] = "interrupted"
+    path.write_text(json.dumps(raw), encoding="utf-8")
+    with pytest.raises(ValueError, match="tables of 5 seats are locked"):
+        paired_series.paired_series_manager.resume_series(folder, series_id, play_override=noop)
+
+
+def test_experiment_plan_carries_its_seat_count_into_the_series() -> None:
+    """``TableSpec.seats`` reaches the series start as ``table_seats``: the series checks the
+    count against the lock and the opponents itself, not only the plan model."""
+    source = (ROOT / "src/commander_lab/studio/experiments.py").read_text(encoding="utf-8")
+    assert "table_seats=plan.table.seats," in source
+
+
+def _series_log(
+    folder: Path, game_id: str, seats: int, tested_seat: int, hand: list[str], won: bool
+) -> None:
+    """A finished game as a paired series writes it at ``seats`` seats: one deck state per
+    seat, a pilot fingerprint and a known bridge jar, the tested deck on ``tested_seat``."""
+    deck_ids = [f"deck/opp{k}" for k in range(1, seats)]
+    deck_ids.insert(tested_seat, "deck/a")
+    header = {
+        "kind": "header",
+        "schema": "studio-game-log-1",
+        "game_id": game_id,
+        "seed": int(game_id.rsplit("-s", 1)[1].split("-")[0]),
+        "engine_commit": "a" * 40,
+        "pilot": "Pilot 1.0.0",
+        "decision_policy": "policy-1",
+        "pilot_fingerprint": "f" * 64,
+        "bridge_jar_sha256": "d" * 64,
+        "seats": [
+            {
+                "seat": seat,
+                "deck_id": deck,
+                "deck_hash": hashlib.sha256(deck.encode()).hexdigest(),
+                "commanders": [f"Cmd {seat}"],
+            }
+            for seat, deck in enumerate(deck_ids)
+        ],
+    }
+    frame = {
+        "kind": "frame",
+        "n": 1,
+        "turn": 1,
+        "active_seat": None,
+        "seat": tested_seat,
+        "decision_class": "mulligan",
+        "chosen": ["Keep opening hand"],
+        "players": [
+            {"seat": s, "life": 40, **({"hand": hand} if s == tested_seat else {})}
+            for s in range(seats)
+        ],
+    }
+    winner = tested_seat if won else (tested_seat + 1) % seats
+    result = {"kind": "result", "status": "finished", "winner_seats": [winner]}
+    folder.mkdir(parents=True, exist_ok=True)
+    with gzip.open(folder / f"{game_id}.jsonl.gz", "wt", encoding="utf-8") as handle:
+        handle.write("".join(json.dumps(line) + "\n" for line in (header, frame, result)))
+
+
+def test_five_and_six_seat_series_are_their_own_table_size_strata(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """#1693/#1700 for #1702: games of a series at four, five and six seats of one deck state are
+    three strata of the card evaluation, each with its own n, never counted together."""
+    from commander_lab.studio import cache
+
+    monkeypatch.setenv("COMMANDER_LAB_CACHE_CHECK", "1")
+    monkeypatch.setattr(cache, "CHECK", True)
+    games_dir = tmp_path / "games"
+    counts = {4: 8, 5: 10, 6: 12}
+    for seats, total in counts.items():
+        for k in range(total):
+            seed, seat = 3000 + k // seats, k % seats
+            _series_log(
+                games_dir,
+                f"s1702-{seats}-base-s{seed}-t{seat}",
+                seats,
+                seat,
+                ["Sol Ring"] if k % 2 == 0 else ["Forest"],
+                won=k % 3 == 0,
+            )
+    with TestClient(create_app(tmp_path)) as client:
+        response = client.get("/api/outcomes", params={"deck_id": "deck/a", "min_exposed": 1})
+    assert response.status_code == 200, response.text
+    body = response.json()
+    assert body["strata"] == 3 and body["status"] == "NOT_POOLED" and body["cards"] == []
+    assert body["pooling"]["differing_axes"] == [{"field": "table_size", "values": [4, 5, 6]}]
+    cohorts = {c["table_size"]: c for c in body["cohorts"]}
+    assert {k: c["games_total"] for k, c in cohorts.items()} == counts
+    for size, cohort in cohorts.items():
+        assert {s["table_size"] for s in cohort["stands"]} == {size}
+    assert body["games_total"] == sum(counts.values())
+    assert body["unknown_strata"] == []
+
+
+# ---- #1702: the series dialog (paired.js) with a DOM stand-in ------------------------------------
+
+_PAIRED_DOM = r"""
+// A select reads its value from the selected option, else the first enabled one (as a browser).
+class Sel extends El {
+  constructor(tag, id) { super(tag, id); delete this.value; this._value = null; }
+  get value() {
+    const opts = this.children.filter((c) => c.tagName === 'OPTION');
+    if (this._value !== null && opts.some((o) => String(o.value) === this._value)) return this._value;
+    const sel = opts.find((o) => o.selected === true || 'selected' in o.attrs);
+    if (sel) return String(sel.value);
+    const first = opts.find((o) => !o.disabled);
+    return first ? String(first.value) : '';
+  }
+  set value(v) { this._value = String(v); }
+  replaceChildren(...xs) { this._value = null; super.replaceChildren(...xs); }
+}
+const baseCreate = document.createElement;
+document.createElement = (t) => (String(t).toLowerCase() === 'select' ? new Sel(t) : baseCreate(t));
+function h(tag, props, ...children) {
+  const el = document.createElement(tag);
+  for (const [key, value] of Object.entries(props || {})) {
+    if (value === null || value === undefined || value === false) continue;
+    if (key === 'class') el.className = value;
+    else if (key.startsWith('on')) el.addEventListener(key.slice(2), value);
+    else if (key === 'dataset') Object.assign(el.dataset, value);
+    else if (key in el && key !== 'list') el[key] = value;
+    else el.setAttribute(key, value);
+  }
+  for (const child of children.flat()) {
+    if (child === null || child === undefined || child === false) continue;
+    el.append(child.nodeType ? child : document.createTextNode(String(child)));
+  }
+  return el;
+}
+const StudioUI = { num: (v, d = 0) => Number(v).toLocaleString('de-DE', { minimumFractionDigits: d, maximumFractionDigits: d }), simStatusLabel: (s) => s };
+eval(fs.readFileSync('paired.js', 'utf8') + '\n;globalThis.renderPairedComparisonSection = renderPairedComparisonSection;');
+const tick = () => new Promise((r) => setTimeout(r, 0));
+async function dialog(tables) {
+  const plans = [], posted = [], toasts = [];
+  const api = async (url, method, body) => {
+    if (url === '/api/simulations/paired-tables') { if (tables === null) throw new Error('down'); return tables; }
+    if (url.startsWith('/api/simulations/paired-plan?')) { plans.push(url); return { budget_pairs: 1, detectable_pp_low: null, assumptions: {} }; }
+    if (url.startsWith('/api/diff-baselines')) return { baselines: [{ revision_id: 'repo:base', label: 'Basis' }] };
+    if (method === 'POST' && url === '/api/simulations/paired') { posted.push(body); return { series_id: 'p1', status: 'running' }; }
+    return {};
+  };
+  const deps = {
+    h, api, commanderQuery: 'c=x', decks: () => [{ name: 'D', branches: [{ revision_id: 'rev@var', branch: 'main', cards: 100 }] }], currentDeckId: () => null, currentRevision: () => 'rev@var',
+    token: () => 1, isCurrent: () => true, activePaired: () => null, pairedHistory: () => [], readinessAudit: () => null,
+    setActivePaired() {}, pollPaired() {}, toast: (t) => toasts.push(t), fail: (e) => String(e), entries: () => [], commander: 'x',
+  };
+  const body = new El('div');
+  renderPairedComparisonSection(body, deps);
+  for (let i = 0; i < 6; i++) await tick();
+  const all = body.all();
+  const byId = (id) => all.find((n) => n.id === id);
+  const form = all.find((n) => n.tagName === 'FORM');
+  const view = () => ({
+    sizes: byId('paired-table-select').children.map((o) => [o.textContent, Boolean(o.disabled)]),
+    seats: byId('paired-table-select').value,
+    note: byId('paired-table-note').textContent,
+    block: byId('paired-block').textContent,
+    estimate: byId('paired-estimate').textContent,
+    budgets: byId('paired-budget-select').children.map((o) => Number(o.value)),
+    budget: byId('paired-budget-select').value,
+    pods: byId('paired-pod-select').children.map((o) => o.textContent),
+    podDisabled: Boolean(byId('paired-pod-select').disabled),
+    startDisabled: Boolean(byId('paired-start-btn').disabled),
+    rotate: byId('paired-rotate-text').textContent,
+    plan: plans[plans.length - 1] || null,
+  });
+  const choose = async (id, value) => { const el = byId(id); el.value = String(value); el.fire('change'); await tick(); };
+  const toggle = async () => { const el = byId('paired-rotate-check'); el.checked = !el.checked; el.fire('change'); await tick(); };
+  const submit = async () => { for (const f of form.listeners.submit) await f({ preventDefault() {} }); return posted[posted.length - 1] || null; };
+  return { view, choose, toggle, submit, toasts };
+}
+"""
+
+
+def _paired_dialog(script: str) -> dict[str, object]:
+    out = _node(_PAIRED_DOM + "(async () => {" + script + "})();")
+    assert isinstance(out, dict)
+    return out
+
+
+def _tables_json(monkeypatch: pytest.MonkeyPatch, released: int) -> str:
+    monkeypatch.setattr(launch, "MAX_RELEASED_SEATS", released)
+    return json.dumps(launch.paired_table_options())
+
+
+def test_series_dialog_offers_the_table_size_and_greys_out_five_and_six_while_locked(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Today: sizes 2 to 4 selectable, 5 and 6 shown as "nicht freigegeben" and disabled, the note
+    names the lock, four seats is the default and the plan asks for four seats per seed. Without
+    the server's answer only four seats are offered. A size without a preset cannot start."""
+    tables = _tables_json(monkeypatch, 4)
+    out = _paired_dialog(
+        f"const locked = await dialog({tables}); const a = locked.view();"
+        "await locked.choose('paired-table-select', 3); const three = locked.view();"
+        "const body3 = await locked.submit();"
+        "const down = (await dialog(null)).view();"
+        f"const t = {tables}; t.sizes[1].pods = {{}};"
+        "const nopreset = await dialog(t); await nopreset.choose('paired-table-select', 3);"
+        "const np = nopreset.view(); const npBody = await nopreset.submit();"
+        "console.log(JSON.stringify({a, three, body3, down, np, npBody, npToasts: nopreset.toasts}));"
+    )
+    a = out["a"]
+    assert isinstance(a, dict)
+    assert a["sizes"] == [
+        ["2 Sitze", False], ["3 Sitze", False], ["4 Sitze", False],
+        ["5 Sitze (nicht freigegeben)", True], ["6 Sitze (nicht freigegeben)", True],
+    ]  # fmt: skip
+    assert a["seats"] == "4" and a["rotate"] == "Sitze 1\u20134 rotieren"
+    assert a["note"].startswith("5 und 6 Sitze sind nicht freigegeben")
+    assert "nie zusammengezählt" in a["note"]
+    assert a["plan"].endswith("seats_per_seed=4")
+    assert a["budgets"] == [20, 40, 60, 100, 200] and a["budget"] == "40"  # unchanged at four
+    assert a["pods"][0] == "Precon (Lorehold Spirit, Animated Army, Token Triumph)"
+    assert a["estimate"].startswith("Dauer: mindestens ~8,9 min für bis zu 80 Partien")
+    assert "Rotationsblock bei 4 Sitzen: 4 Seeds \u00d7 4 Sitze = 16 Paare je Arm" in a["block"]
+    assert "kein Vielfaches von 16" in a["block"]
+    three = out["three"]
+    assert isinstance(three, dict)
+    assert (
+        three["plan"].endswith("seats_per_seed=3") and three["rotate"] == "Sitze 1\u20133 rotieren"
+    )
+    assert three["budgets"] == [27, 45, 63, 108, 207] and three["budget"] == "45"
+    assert three["estimate"].startswith("Dauer: unbekannt (UNKNOWN) für bis zu 90 Partien")
+    assert three["pods"][0] == "Precon (Lorehold Spirit, Animated Army)"
+    body3 = out["body3"]
+    assert isinstance(body3, dict)
+    assert body3["table_seats"] == 3 and body3["pod"] == "precon" and body3["budget_pairs"] == 45
+    down = out["down"]
+    assert isinstance(down, dict)
+    assert down["sizes"] == [["4 Sitze", False]] and down["seats"] == "4"
+    assert down["note"] == "Tischgrößen nicht geladen: angeboten sind nur 4 Sitze."
+    np = out["np"]
+    assert isinstance(np, dict)
+    assert np["pods"] == ["kein Preset für 3 Sitze"] and np["podDisabled"] and np["startDisabled"]
+    assert out["npBody"] is None and out["npToasts"] == ["Für 3 Sitze gibt es keinen Gegnertisch."]
+
+
+def test_series_dialog_plans_five_and_six_seats_once_the_server_releases_them(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """With the constant raised (in memory, the server's answer changes, the page does not): five
+    and six seats are selectable, the plan asks for N seats per seed, budgets are whole rotation
+    blocks (25 or 36 pairs per arm), the duration is a floor with the throughput UNKNOWN, the
+    preset of that size is offered and the start sends ``table_seats``."""
+    tables = _tables_json(monkeypatch, 6)
+    out = _paired_dialog(
+        f"const d = await dialog({tables}); const r = {{}};"
+        "for (const n of [5, 6]) { await d.choose('paired-table-select', n); r[n] = d.view(); r[n].body = await d.submit(); }"
+        "await d.toggle(); r.off = d.view();"
+        "console.log(JSON.stringify(r));"
+    )
+    for seats, budgets, budget, deck in (
+        (5, [25, 50, 75, 100, 200], "50", "Veloci-Ramp-Tor"),
+        (6, [36, 72, 108, 216], "72", "Blood Rites"),
+    ):
+        view = out[str(seats)]
+        assert isinstance(view, dict)
+        assert [s for s, disabled in view["sizes"] if disabled] == []
+        assert view["plan"].endswith(f"seats_per_seed={seats}")
+        assert view["budgets"] == budgets and view["budget"] == budget
+        block = seats * seats
+        assert f"{seats} Seeds \u00d7 {seats} Sitze = {block} Paare je Arm" in view["block"]
+        assert "volle Blöcke" in view["block"] and "unvollständig" not in view["block"]
+        assert f"Bei {seats} Sitzen ist der Durchsatz ungemessen (UNKNOWN)" in view["estimate"]
+        assert "n = 1" in view["estimate"] and view["estimate"].startswith("Dauer: mindestens")
+        assert view["rotate"] == f"Sitze 1\u2013{seats} rotieren"
+        assert deck in view["pods"][0] and view["pods"][0].count(",") == seats - 2
+        assert view["note"].startswith("Die Tischgröße ist eine eigene Schicht")
+        body = view["body"]
+        assert body["table_seats"] == seats and body["budget_pairs"] == int(budget)
+        assert body["pod"] == "precon" and body["rotate_seats"] is True
+    off = out["off"]
+    assert isinstance(off, dict)
+    assert off["plan"].endswith("seats_per_seed=1")
+    assert off["block"].startswith("Ohne Rotation sitzt das getestete Deck immer auf Sitz 1")
+    assert off["budgets"] == [20, 40, 60, 100, 200]

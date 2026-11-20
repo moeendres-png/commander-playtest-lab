@@ -338,6 +338,9 @@ class PairedSeriesBody(BaseModel):
     )
     workers: int | None = Field(default=None, ge=MIN_WORKERS, le=MAX_WORKERS)
     games_per_jvm: int | None = Field(default=None, ge=MIN_GAMES_PER_JVM, le=MAX_GAMES_PER_JVM)
+    #: The table size of the series (#1702): 2 to 6 by shape, checked against the release lock
+    #: (``launch.MAX_RELEASED_SEATS``) by the series start; there is no unlock switch here.
+    table_seats: int | None = Field(default=None, ge=2, le=6)
 
 
 #: What the card evaluation says when games without a pilot fingerprint name two pilot versions
@@ -1389,6 +1392,7 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
                 significance_level=body.significance_level,
                 workers=body.workers,
                 games_per_jvm=body.games_per_jvm,
+                table_seats=body.table_seats,
             )
             return job.to_dict()
         except KeyError as error:
@@ -1474,6 +1478,11 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
             raise HTTPException(409, str(error)) from error
         finally:
             store.close()
+
+    @app.get("/api/simulations/paired-tables")
+    def paired_series_tables() -> dict[str, object]:
+        """Table sizes, release lock and opponent presets the series dialog may offer (#1702)."""
+        return launch.paired_table_options()
 
     @app.get("/api/simulations/paired-plan")
     def paired_series_plan(
