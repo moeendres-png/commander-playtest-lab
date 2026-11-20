@@ -3756,7 +3756,7 @@ const pending = (id) => ({{decision_id: id, seat: 0, decision_class: 'priority',
 const frame = (n) => ({{n, seat: 1, players: []}});
 // reply(body) builds what the server answers the POST; gets(path) what a state request returns
 async function run(opts) {{
-  const calls = {{requests: [], renders: 0, follows: 0, toasts: []}};
+  const calls = {{requests: [], renders: 0, follows: 0, toasts: [], followWhileSending: []}};
   const state = {{gameId: 'g', interactive: true, running: true, revision: 4, frames: [frame(1), frame(2)],
     index: 1, pendingDecision: pending('d1'), selectedOptions: [], orderList: [], submitting: false,
     ff: {{on: false}}, autoPassAttempt: null, foreground: 0, pollAbort: null, followGen: 0, poll: 0,
@@ -3775,7 +3775,8 @@ async function run(opts) {{
     body + '; return {{' + NAMES.join(',') + '}};');
   const fns = make(state, api, P1a, F, calls, () => ({{max: '0'}}), () => {{}}, () => {{}}, () => {{}},
     (text) => calls.toasts.push(text), () => {{}}, (i) => {{ state.index = i; fns.render(); }},
-    () => {{ calls.follows += 1; }}, () => {{ calls.renders += 1; }},
+    () => {{ calls.follows += 1; calls.followWhileSending.push(state.submitting); }},
+    () => {{ calls.renders += 1; if (opts.onRender) opts.onRender(state, fns); }},
     (next) => {{ state.pendingDecision = next; }}, async () => {{}}, () => {{}}, () => {{}}, () => {{}},
     () => {{}}, () => {{}}, {{now: () => 0}});
   return {{state, calls, fns}};
@@ -3893,3 +3894,43 @@ def test_follow_tick_draws_only_when_the_view_changed() -> None:
         "passCleared": 1,
         "ffOnly": 1,
     }
+
+
+def test_fast_forward_chain_sends_one_request_per_pass_and_follows_only_at_its_end() -> None:
+    script = (
+        _SUBMIT_PRELUDE
+        + """
+(async () => {
+  // fast-forward: the drawing after an accepted pass sends the next pass at once (as
+  // maybeAutoPassHuman does); the follow loop must stay off until the last answer is done
+  let nested = null;
+  const replies = {d1: 'd2', d2: 'd3'};
+  const page = await run({
+    reply: (body, state) => ({accepted: true, state: Object.assign(parked(state, body.start), {
+      pending_decision: pending(replies[body.decision_id]), revision: state.revision + 1,
+      total: state.frames.length + 1, frames: [frame(state.frames.length + 1)]})}),
+    get: (path, state) => parked(state, state.frames.length),
+    onRender: (state, fns) => {
+      if (!state.submitting && !nested && state.pendingDecision.decision_id === 'd2') {
+        nested = fns.submitHumanChoice({decision_id: 'd2', selected_option_ids: ['pass-d2'], ordering: []}, {});
+      }
+    }
+  });
+  await page.fns.submitHumanChoice({decision_id: 'd1', selected_option_ids: ['pass-d1'], ordering: []}, {});
+  await nested;
+  console.log(JSON.stringify({
+    requests: page.calls.requests.map((r) => r.method + ' ' + r.path),
+    starts: page.calls.requests.map((r) => r.body && r.body.start),
+    follows: page.calls.follows, whileSending: page.calls.followWhileSending,
+    frames: page.state.frames.map((f) => f.n), pending: page.state.pendingDecision.decision_id
+  }));
+})();
+"""
+    )
+    out = _node_json(script)
+    assert isinstance(out, dict)
+    post = "POST /api/play/g/decision"
+    assert out["requests"] == [post, post]  # two passes, two requests, no state request between
+    assert out["starts"] == [2, 3]
+    assert out["follows"] == 1 and out["whileSending"] == [False]
+    assert out["frames"] == [1, 2, 3, 4] and out["pending"] == "d3"

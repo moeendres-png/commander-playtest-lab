@@ -695,7 +695,8 @@ function pilotStateToFrame(pending) {
 // accepted the answer (play_p1a.js submitAnswer), a refused pass leaves no line.
 // The answer asks for the state from the frames the page holds (start, #1578): the server sends it
 // with its acceptance, built like a state request, so no second request follows. The follow loop is
-// stopped first, so its held request cannot take those frames in between; it starts again after.
+// stopped first, so its held request cannot take those frames in between; it starts again once no
+// further answer is on its way.
 async function submitHumanChoice(payload, opts) {
   if (!state.gameId || !state.pendingDecision || state.submitting) return;
   if (!state.ff.on) ffStatus("");
@@ -730,7 +731,9 @@ async function submitHumanChoice(payload, opts) {
   } finally {
     state.submitting = false;
     render();
-    follow();
+    // the drawing may already have sent the next answer (fast-forward, auto-pass): that answer
+    // starts the follow loop when it is done, a held request now would take its frames
+    if (!state.submitting) follow();
   }
 }
 
