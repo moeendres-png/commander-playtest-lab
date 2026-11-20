@@ -40,7 +40,8 @@ KLASSEN = (EXAKT, GEZAEHLT, SIMULIERT, URTEIL)
 #: points of a score (Q1-b5, #1680: the 0..100 score of a model judgement is no count).
 EINHEITEN = ("Anteil", "pp", "Anzahl", "Punkte")
 SIMULATED_RESULT = "SIMULATED_RESULT"
-#: Pilot origin of every simulated figure until B2 (#1658) brings a pilot fingerprint.
+#: Pilot origin of a simulated figure that names no pilot fingerprint (the paired series);
+#: card outcomes name the fingerprint of their stratum since #1687.
 PILOT_KONSTANTE = "Konstante"
 SCHEMA = "studio-zahl-1"
 
@@ -453,8 +454,8 @@ def outcomes_zahlen(table: Mapping[str, object]) -> list[dict[str, object]]:
     for item in _list(table.get("stands")):
         stand = _mapping(item)
         if all(_axis_value(stand, field) is not None for field, *_rest in _STRATUM_PARTS):
-            deck_hash = str(stand.get("deck_hash"))
-            _outcome_table(out, stand, f"outcome.stand.{_stratum_id(stand)}", deck_hash, [])
+            known_hash = str(stand.get("deck_hash"))
+            _outcome_table(out, stand, f"outcome.stand.{_stratum_id(stand)}", known_hash, [])
     for item in _list(table.get("cohorts")):
         cohort = _mapping(item)
         cohort_pooling = _mapping(cohort.get("pooling"))
