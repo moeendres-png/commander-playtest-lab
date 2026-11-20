@@ -17,6 +17,7 @@ import json
 import queue
 import sys
 import textwrap
+import threading
 from collections.abc import Callable, Mapping
 from pathlib import Path
 from types import SimpleNamespace
@@ -80,6 +81,15 @@ _WORKER = textwrap.dedent(
                 DATA.joinpath("grandchild.pid").write_text(str(kid.pid), encoding="utf-8")
                 if "crash" in game_id:
                     os._exit(3)  # ... and dies on its own, leaving it behind
+            if "holder" in game_id:
+                # a process in a session of its own that inherits the worker's stdout: the group
+                # kill does not reach it, so the supervisor never sees the end of that stdout
+                import subprocess
+                holder = subprocess.Popen(
+                    [sys.executable, "-c", "import time; time.sleep(3600)"],
+                    stdin=subprocess.DEVNULL, start_new_session=True,
+                )
+                DATA.joinpath("holder.pid").write_text(str(holder.pid), encoding="utf-8")
             if "hang" in game_id:
                 time.sleep(3600)
             digest = hashlib.sha256(
@@ -588,6 +598,98 @@ def test_a_clean_retire_counts_no_lost_life(tmp_path: Path) -> None:
     info = pool.summary()
     assert info["jvm_lives_lost"] == 0
     assert {life["end"] for life in info["jvm_lives"]} == {"series_closed"}  # type: ignore[union-attr]
+
+
+# --- #1652 (review of #1654): an ended worker whose end of stdout stays away is given up --------
+
+
+@posix_only
+def test_an_ended_idle_worker_whose_stdout_never_ends_is_given_up_after_the_grace(
+    tmp_path: Path,
+) -> None:
+    import os
+    import signal
+    import time
+
+    pool, _ = _pool(tmp_path, workers=1, budget=8)
+    pool.ended_eof_grace_seconds = 2.0
+    tasks = [_tasks(range(1, 2), "idleholder")[0], *_tasks(range(2, 3))]
+    marks: dict[str, float] = {}
+
+    def hold_until_dead(task: GameTask, summary: game_pool.GameSummary) -> None:
+        # the next hand-out meets the worker ended, while its stdout is still held open
+        if task.task_id == "idleholder:1":
+            _wait_zombie(int(str(summary["pid"])))
+        marks[task.task_id] = time.monotonic()
+
+    stop = threading.Event()
+    outcome: dict[str, object] = {}
+
+    def play() -> None:
+        try:
+            outcome["results"] = pool.run(tasks, on_done=hold_until_dead, should_cancel=stop.is_set)
+        except BaseException as exc:  # handed to the test thread below
+            outcome["error"] = exc
+
+    holder_file = tmp_path / "holder.pid"
+    thread = threading.Thread(target=play, daemon=True)
+    try:
+        thread.start()
+        # a limit of its own: without the grace ``run`` never ends, and the suite must not hang
+        thread.join(timeout=30)
+        hung = thread.is_alive()
+        holder_held = holder_file.is_file() and not _process_gone(
+            int(holder_file.read_text(encoding="utf-8"))
+        )
+        stop.set()  # a hung ``run`` stops handing out games and returns
+        thread.join(timeout=10)
+    finally:
+        pool.close()
+        if holder_file.is_file():
+            with contextlib.suppress(OSError, ValueError):
+                os.kill(int(holder_file.read_text(encoding="utf-8")), signal.SIGKILL)
+    assert not hung, "an ended worker whose stdout never ended held its place for good"
+    error = outcome.get("error")
+    if isinstance(error, BaseException):
+        raise error
+    # the setup really kept the end of stdout away: the holder outlived the pool's decision
+    assert holder_held, "the stdout holder was gone, so the end of stdout was not kept away"
+    results = outcome["results"]
+    assert isinstance(results, dict)
+    assert results["idleholder:1"]["status"] == "finished"
+    assert results["t:2"]["status"] == "finished", "the game waiting went to a fresh worker"
+    assert results["t:2"]["pid"] != results["idleholder:1"]["pid"]
+    # not given up at once: its queued events had the grace to be read
+    assert marks["t:2"] - marks["idleholder:1"] >= pool.ended_eof_grace_seconds
+    info = pool.summary()
+    assert info["worker_processes_started"] == 2
+    # given up like a worker whose stdout ended: its open JVM life is counted, never a result
+    assert info["jvm_lives_lost"] == 1
+    assert _idle_lost(pool)[0]["reason"] == "WorkerExited"
+
+
+def test_without_waitid_an_ended_worker_is_polled_and_its_group_killed(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import os
+    import signal
+
+    order: list[object] = []
+    # macOS without ``os.waitid`` (older Pythons): neither ``waitid`` nor its flags exist
+    monkeypatch.delattr(os, "waitid", raising=False)
+    monkeypatch.delattr(os, "WNOWAIT", raising=False)
+    monkeypatch.setattr(game_pool.sys, "platform", "darwin")
+    monkeypatch.setattr(
+        os, "killpg", lambda pid, sig: order.append(("killpg", pid, sig)), raising=False
+    )
+    proc = _FakeProc(log=order, polled=0)
+    assert game_pool.reap_ended_process(proc, windows=False) is True  # type: ignore[arg-type]
+    # the group is signalled where the end is first seen: after the reap no group signal follows
+    assert order == ["poll", ("killpg", 4242, signal.SIGKILL), "kill", "wait"]
+    # still running: polled, neither signalled nor killed
+    order.clear()
+    assert game_pool.reap_ended_process(_FakeProc(log=order), windows=False) is False  # type: ignore[arg-type]
+    assert order == ["poll"]
 
 
 def test_an_ended_worker_is_seen_without_reaping_then_its_group_killed_then_reaped(

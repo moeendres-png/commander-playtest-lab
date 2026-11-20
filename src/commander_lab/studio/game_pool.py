@@ -55,6 +55,14 @@ SERIES_POOL_ENV = "COMMANDER_LAB_STUDIO_SERIES_POOL"
 GAME_WALL_LIMIT_SECONDS = 1800.0
 #: How long a retiring worker may take to end its JVM cleanly before it is killed.
 RETIRE_WAIT_SECONDS = 30.0
+#: How long an idle worker that has ended (its tree killed, reaped) may keep its place while the
+#: end of its stdout is awaited. Once the worker and its group are gone, the kernel closes their
+#: ends of the pipe at once and the reader sees the end within milliseconds; the end stays away
+#: only while a process outside the group (one that started a session of its own) still holds
+#: the pipe. Without a limit such a worker would hold its place for good, and with one worker
+#: and games waiting ``run`` would never end (#1652). A few seconds are far beyond the normal
+#: delay and short against a game; the worker is then given up like one whose stdout ended.
+ENDED_EOF_GRACE_SECONDS = 5.0
 _POLL_SECONDS = 0.5
 _STDERR_TAIL_LINES = 40
 #: Windows has no process groups to signal; a worker's process tree is ended with ``taskkill``.
@@ -280,6 +288,9 @@ class _ProcessWorker:
         #: found ended while idle and already killed with its tree and reaped; its queued events
         #: (``jvm_exit``, ``bye``, the end of its stdout) are still read before it is given up
         self.ended = False
+        #: when it was first found ended (``time.monotonic``); the grace for its end of stdout
+        #: counts from here (``ENDED_EOF_GRACE_SECONDS``)
+        self.ended_at = 0.0
         # POSIX: the worker leads a process group of its own, which its bridge JVM joins (the
         # JVM is started without a session of its own), so killing the group ends both (#1584).
         # A worker started this way no longer gets the terminal's Ctrl+C; the supervisor ends it.
@@ -327,6 +338,8 @@ class _ProcessWorker:
         if self.ended:
             return True
         self.ended = reap_ended_process(self.proc, windows=_WINDOWS)
+        if self.ended:
+            self.ended_at = time.monotonic()
         return self.ended
 
     def send(self, message: Mapping[str, object]) -> bool:
@@ -367,12 +380,23 @@ def _exited(proc: subprocess.Popen[str], *, windows: bool) -> bool:
 
     POSIX: ``waitid`` with ``WNOWAIT`` leaves an ended worker a zombie, so its id still names
     its process group and ``killpg`` still reaches what it started. Windows: ``poll()``; the
-    ``Popen`` handle keeps the id from being reused.
+    ``Popen`` handle keeps the id from being reused. POSIX without ``os.waitid`` (older Pythons
+    on macOS; UNKNOWN, not run there): ``poll()`` reaps, so the group is signalled right here,
+    where the end is first seen, because ``kill_process_tree`` sends no group signal after the
+    reap. POSIX does not reuse a process group id while the group still has members, so the
+    signal reaches the JVM the worker left behind; only an empty group's id may meanwhile name
+    a new group (a narrow window, on this fallback only).
     """
     if proc.returncode is not None:
         return True
     if windows or sys.platform == "win32":
         return proc.poll() is not None
+    if not hasattr(os, "waitid"):
+        if proc.poll() is None:
+            return False
+        with contextlib.suppress(ProcessLookupError, PermissionError):
+            os.killpg(proc.pid, signal.SIGKILL)
+        return True
     try:
         state = os.waitid(os.P_PID, proc.pid, os.WEXITED | os.WNOHANG | os.WNOWAIT)
     except ChildProcessError:
@@ -447,6 +471,7 @@ class GamePool:
     #: ``pool-worker`` command of this package. A seam for tests of the process handling.
     worker_argv: Callable[[str], list[str]] | None = None
     game_wall_limit_seconds: float = GAME_WALL_LIMIT_SECONDS
+    ended_eof_grace_seconds: float = ENDED_EOF_GRACE_SECONDS
     _events: queue.Queue[tuple[_ProcessWorker, dict[str, object] | None]] = field(
         default_factory=queue.Queue, init=False
     )
@@ -506,7 +531,12 @@ class GamePool:
                 return worker
             # it ended while idle (between two windows, or just after its last game): its tree
             # is killed and it is reaped; the end of its stdout gives it up (``_lose``), and a
-            # fresh worker takes its place
+            # fresh worker takes its place. When that end stays away (a process outside its
+            # group holds the pipe), the grace gives it up instead, so it never holds its place
+            # for good. Its reader thread and pipe stay open until that holder ends; the pipe is
+            # not closed from here, under a thread that reads it.
+            if time.monotonic() - worker.ended_at >= self.ended_eof_grace_seconds:
+                self._lose(worker, finish=None)
         if len(self._workers) < limit:
             return self._spawn()
         return None
@@ -731,6 +761,7 @@ def _ends_with_newline(path: Path) -> bool:
 
 
 __all__ = [
+    "ENDED_EOF_GRACE_SECONDS",
     "GAME_WALL_LIMIT_SECONDS",
     "SERIES_POOL_ENV",
     "GamePool",
