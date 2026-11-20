@@ -1349,65 +1349,6 @@ async function renderDiff(body) {
       cohortLabel: cohortName(state.cohort), roleName,
       open: (cardId) => { const c = state.byId.get(cardId); if (c) openCard(c); },
     }));
-    const pfBox = h("div", {});
-    const pfBtn = h("button", {
-      type: "button",
-      onclick: async () => {
-        pfBtn.disabled = true;
-        pfBox.replaceChildren(h("p", { class: "muted" }, "Berechnet Commander-Castability & Manabasis-Vorfilter (2000 MC-Läufe, Seed 20261016)..."));
-        try {
-          const pf = await api("/api/prefilter", "POST", { base_revision_id: state.diffBaseRev, cards: entries(), trials: 2000 });
-          pfBox.replaceChildren();
-          if (!pf.comparable) {
-            pfBox.append(h("p", { class: "muted" }, pf.reason || "Vorfilter benötigt zwei vollständige 100-Karten-Listen."));
-          } else {
-            pfBox.append(h("h3", {}, "Vorfilter & Commander-Castability (Modellrechnung)"),
-              h("p", {}, h("b", {}, `Vorfilter-Beobachtung: ${pf.verdict}`), ` — ${pf.verdict_reason}`),
-              h("p", { class: "note" }, `Simulator-Bereitschaft: Basis=${pf.baseline_ready ? "OK" : "Lücken"}, Aktuell=${pf.variant_ready ? "OK" : "Lücken (" + (pf.variant_not_ready_cards || []).join(", ") + ")"} · Manabasis-Delta: Länder ${pf.land_count_delta >= 0 ? "+" : ""}${StudioUI.num(pf.land_count_delta, 0)}, sicher getappt ${pf.definitely_tapped_land_delta >= 0 ? "+" : ""}${StudioUI.num(pf.definitely_tapped_land_delta, 0)}, bedingt getappt ${pf.conditionally_tapped_land_delta >= 0 ? "+" : ""}${StudioUI.num(pf.conditionally_tapped_land_delta, 0)}`));
-            if (pf.castability && pf.castability.length) {
-              const fmtPct = (v) => (v === null || v === undefined ? "–" : StudioUI.pct(v, 1));
-              const fmtDelta = (v) => (v === null || v === undefined ? "–" : (v >= 0 ? "+" : "") + StudioUI.pct(v, 1));
-              const castRows = [];
-              for (const c of pf.castability) {
-                const bp = c.baseline_probability || {};
-                const vp = c.variant_probability || {};
-                const dp = c.probability_delta || {};
-                for (const t of ["3", "4", "5", "6"]) {
-                  const pB = bp.play ? bp.play[t] : null;
-                  const pV = vp.play ? vp.play[t] : null;
-                  const pD = dp.play ? dp.play[t] : null;
-                  const dB = bp.draw ? bp.draw[t] : null;
-                  const dV = vp.draw ? vp.draw[t] : null;
-                  const dD = dp.draw ? dp.draw[t] : null;
-                  castRows.push(h("tr", {},
-                    h("td", {}, `${c.name} (Zug ${t})`),
-                    h("td", { class: "num" }, `${fmtPct(pB)} → ${fmtPct(pV)} (${fmtDelta(pD)})`),
-                    h("td", { class: "num" }, `${fmtPct(dB)} → ${fmtPct(dV)} (${fmtDelta(dD)})`)));
-                }
-                const be = c.baseline_expected_turn || {}, ve = c.variant_expected_turn || {}, de = c.expected_turn_delta || {};
-                if (be.play !== undefined && ve.play !== undefined) {
-                  const fmtTurn = (v) => (v === null || v === undefined ? "–" : StudioUI.num(v, 2));
-                  const fmtTurnDelta = (v) => (v === null || v === undefined ? "–" : (v >= 0 ? "+" : "") + StudioUI.num(v, 2));
-                  castRows.push(h("tr", {},
-                    h("td", {}, `${c.name} (Ø Zug)`),
-                    h("td", { class: "num" }, `${fmtTurn(be.play)} → ${fmtTurn(ve.play)} (${fmtTurnDelta(de.play)})`),
-                    h("td", { class: "num" }, `${fmtTurn(be.draw)} → ${fmtTurn(ve.draw)} (${fmtTurnDelta(de.draw)})`)));
-                }
-              }
-              pfBox.append(h("div", { class: "table-wrap" }, h("table", {},
-                h("thead", {}, h("tr", {}, h("th", {}, "Commander / Zug"), h("th", { class: "num" }, "On the Play (Basis → Aktuell)"), h("th", { class: "num" }, "On the Draw (Basis → Aktuell)"))),
-                h("tbody", {}, castRows))),
-                h("p", { class: "note" }, "Modellrechnung (2000 Läufe, Seed 20261016): prüft Manabasis und Farbquellen ohne volle Spielsimulation."));
-            }
-          }
-        } catch (err) {
-          pfBox.replaceChildren(h("p", { class: "muted" }, "Vorfilter-Fehler: " + StudioUI.germanError(err)));
-        } finally {
-          pfBtn.disabled = false;
-        }
-      },
-    }, "Vorfilter & Commander-Castability berechnen (Modellrechnung)");
-    box.append(h("div", { class: "actions mt-2" }, pfBtn), pfBox);
   } catch (error) {
     box.replaceChildren(h("p", { class: "muted" }, "Differenz nicht lesbar: " + StudioUI.germanError(error)));
   }

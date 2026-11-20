@@ -301,7 +301,22 @@ def test_the_word_urteil_only_appears_in_negations() -> None:
                 if not allowed.search(line[max(0, match.start() - 24) : match.end()]):
                     offenders.append(f"{path.name}:{number}")
     assert offenders == []
-    assert "Vorfilter-Beobachtung" in (STATIC / "app.js").read_text(encoding="utf-8")
+
+
+def test_no_page_calls_the_removed_prefilter_or_tournament_conversion() -> None:
+    """Q1-b1 (#1676, E15 Q1): the heuristic prefilter button and the TopDeck Mit/Ohne panel
+    left the Studio; no page, script or style may still call or style them."""
+    sources = [*_files("*.js"), *_files("*.html"), *_files("*.css")]
+    assert len(sources) > 20
+    for token in (
+        "/api/prefilter",
+        "/api/tournament-conversion",
+        "topdeck-conversion-panel",
+        "conv-filter-row",
+        "loadTournamentConversion",
+    ):
+        hits = [path.name for path in sources if token in path.read_text(encoding="utf-8")]
+        assert hits == [], (token, hits)
 
 
 def test_partie_loads_one_page_at_a_time_and_reloads_when_hands_are_revealed() -> None:
@@ -576,7 +591,6 @@ def test_tierliste_ux_batch_1_contract() -> None:
         "universe-panel",
         "strength-panel",
         "role-audit-panel",
-        "topdeck-conversion-panel",
     ]
     assert "Methodik und Datenlage" in method
     for panel_id in panel_ids:
@@ -1640,7 +1654,7 @@ def test_tierliste_init_parallelizes_independent_requests_and_keeps_equivalence(
         ("async function initStrength() {", "// ---------- data state banner ----------"),
         ("async function dataBanner() {", "// ---------- loading ----------"),
         ("async function loadEvidence() {", "// ---------- marks and deck from the table"),
-        ("async function loadRoleAudit() {", "function formatGroupCell("),
+        ("async function loadRoleAudit() {", "async function setView(view) {"),
         ("async function setView(view) {", "function renderTabs() {"),
     ]
     parts = "\n".join(js[js.index(a) : js.index(b)] for a, b in slices)
@@ -1680,12 +1694,12 @@ async function runOrder(delays) {{
       res(replies[key] ? replies[key]() : key.startsWith("/api/universe/profiles/") ? {{ decks: 50 }} : key.endsWith("/draft") ? {{ draft: null }} : []);
     }}, delays[key] !== undefined ? delays[key] : 5));
   }};
-  const names = "COMMANDER,state,$,StudioCommander,StudioUI,h,nf,typeLabel,cardRoles,roleName,rememberedUniverse,rememberUniverse,fillUniverseSelect,renderUniversePanel,fillSortOptions,rememberedStrength,rememberStrength,withDefaults,renderStrengthPanel,renderTierBar,syncRankGroupToggle,syncRanking,renderNotice,renderRoleAuditPanel,updateMethodHint,loadTournamentConversion,fillBranches,toast,fail,render,refreshStrength,api".split(",");
+  const names = "COMMANDER,state,$,StudioCommander,StudioUI,h,nf,typeLabel,cardRoles,roleName,rememberedUniverse,rememberUniverse,fillUniverseSelect,renderUniversePanel,fillSortOptions,rememberedStrength,rememberStrength,withDefaults,renderStrengthPanel,renderTierBar,syncRankGroupToggle,syncRanking,renderNotice,renderRoleAuditPanel,updateMethodHint,fillBranches,toast,fail,render,refreshStrength,api".split(",");
   const fn = new Function(...names, harness + "\\nreturn (async () => {{\\n" + tailCode + "\\n}})();");
   await fn(COMMANDER, state, $, {{ fill: async () => {{}} }}, {{ recall: () => "", remember: noop, germanError: String, dataState: async () => {{}} }},
     (tag, props, ...kids) => ({{ tag, props, kids }}), String, (x) => x, (c) => c.roles || [], (x) => x,
     () => "u1", noop, noop, noop, noop, () => null, noop, (x) => ({{ ...x }}),
-    noop, noop, noop, noop, noop, noop, noop, async () => {{}},
+    noop, noop, noop, noop, noop, noop, noop,
     () => {{ $("branch-select").options = [{{ value: "main" }}]; $("branch-select").value = "main"; }},
     noop, (e) => {{ throw e; }}, render, refreshStrength, api);
   return {{ wave1: [...wave1].sort(), strengthCalls, strBeforeEv, strBeforeDecks, loadingPreserved: $("pool-body").children[0] === "LOADING", finalSnap: snaps[snaps.length - 1] }};

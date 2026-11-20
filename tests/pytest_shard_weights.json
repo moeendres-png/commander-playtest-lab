@@ -346,7 +346,6 @@
   "tests/unit/test_tier_snapshot_1420.py": 3.0,
   "tests/unit/test_topdeck_collector.py": 0.5,
   "tests/unit/test_topdeck_conversion.py": 0.1,
-  "tests/unit/test_tournament_conversion_1412.py": 1.8,
   "tests/unit/test_upstream_delta.py": 1.8,
   "tests/unit/test_validation_registry_external_outcomes.py": 0.1,
   "tests/unit/test_wave4_card_roles.py": 0.1,

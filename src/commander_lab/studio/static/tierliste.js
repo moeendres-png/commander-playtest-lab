@@ -166,7 +166,7 @@ const state = {
   universe: { profiles: [], name: "", summary: null, spread: null, options: null },
   strength: { meta: null, settings: null, profiles: [], counted: [], result: null, map: null, ticket: 0, tiers: new Set(), selectedProfile: "", good: null, note: "", draft: { fields: {}, name: "" }, status: "loading" },
   deckCards: new Map(), deckRoles: {}, pool: new Map(), ticket: 0, need: "", sortKey: "strength", sortDir: -1, shown: 150,
-  roleAudit: null, conversion: null, conversionFilter: "",
+  roleAudit: null,
   cohortShapes: [], roleGapOnly: false,
   preset: "detail", funcMode: false, lastFocus: null, lastFocusCard: "", ranking: DEFAULT_RANKING,
 };
@@ -2019,7 +2019,7 @@ function fillBranches() {
   const deck = state.decks.find((entry) => entry.deck_id === $("deck-select").value);
   $("branch-select").replaceChildren(...(deck ? deck.branches : []).map((entry) => h("option", { value: entry.branch }, entry.branch)));
 }
-// ---------- quick comparison toggle, role audit (#1413) & TopDeck Mit/Ohne (#1412) ----------
+// ---------- quick comparison toggle & role audit (#1413) ----------
 // "Gleiche Funktion" is a view mode: the index and the tier stay those of the whole pool (rank_group "pool"),
 // the table adds the rank k of n per function. Nothing is recalculated, so no tier is inflated.
 function syncRankGroupToggle() {
@@ -2101,82 +2101,6 @@ async function loadRoleAudit() {
     state.roleAudit = null;
   }
   renderRoleAuditPanel();
-}
-function formatGroupCell(converted, known, rate, low, high) {
-  const counts = `${nf(converted)}/${nf(known)}`;
-  if (rate === null || rate === undefined) {
-    return h("span", { title: `${counts}: unter dem Mindest-N, kein Prozentwert (nie 0)` }, `${counts} · `, h("span", { class: "badge warn" }, "zu wenig Daten"));
-  }
-  const ci = low !== null && low !== undefined && high !== null && high !== undefined
-    ? ` (95 %: ${StudioUI.num(100 * low, 1)}–${StudioUI.num(100 * high, 1)} %)`
-    : "";
-  return `${counts} · ${StudioUI.num(100 * rate, 1)} %${ci}`;
-}
-function renderTournamentConversionPanel() {
-  const panel = $("topdeck-conversion-panel");
-  if (!panel) return;
-  const data = state.conversion;
-  if (!data) { panel.replaceChildren(); return; }
-  const cohortLabel = data.cohort || "Bracket 5 (Turnier)";
-  const header = [
-    h("b", {}, `TopDeck Turnier-Conversion (Mit/Ohne · ${cohortLabel}):`),
-  ];
-  const cards = Array.isArray(data.cards) ? data.cards : [];
-  const comparableCount = cards.filter((c) => c.status === "OK").length;
-  if (data.status === "INSUFFICIENT_DATA") {
-    header.push(h("span", {}, `${nf(data.total_known_decks)} von ${nf(data.total_decks)} Listen mit bekanntem Top-Cut`));
-    header.push(h("span", { class: "badge warn", title: data.reason || "" }, `${data.reason ? codeLabel(data.reason) : "zu wenig Daten"} (Mindest-N: ${nf(data.min_sample)})`));
-  } else {
-    header.push(h("span", {}, `${nf(data.total_converted_decks)}/${nf(data.total_known_decks)} Top-Cut-Conversions (${StudioUI.num(100 * data.baseline_conversion_rate, 1)} %, 95-%-Wilson ${StudioUI.num(100 * data.baseline_ci_low, 1)}–${StudioUI.num(100 * data.baseline_ci_high, 1)} %)`));
-    header.push(h("span", { class: "muted", title: data.data_class }, `${nf(comparableCount)} Karten mit Mit/Ohne je ≥ ${nf(data.min_sample)} Listen · ${codeLabel(data.data_class)}`));
-  }
-  const countEl = h("span", { class: "muted" });
-  const tableWrap = h("div", { class: "audit-table-wrap" });
-  const updateFilteredRows = () => {
-    const q = (state.conversionFilter || "").trim().toLowerCase();
-    const filtered = q ? cards.filter((c) => c.card_name.toLowerCase().includes(q)) : cards;
-    countEl.textContent = `${nf(filtered.length)} von ${nf(cards.length)} Karten`;
-    tableWrap.replaceChildren(table(
-      ["Karte", "Mit Karte (n/N)", "Ohne Karte (n/N)", "Differenz (Pp)", "Status"],
-      filtered.slice(0, 120).map((row) => [
-        row.card_name,
-        formatGroupCell(row.with_converted, row.with_known, row.with_rate, row.with_ci_low, row.with_ci_high),
-        formatGroupCell(row.without_converted, row.without_known, row.without_rate, row.without_ci_low, row.without_ci_high),
-        row.diff_pp === null || row.diff_pp === undefined ? h("span", { class: "unknown" }, "zu wenig Daten") : `${row.diff_pp > 0 ? "+" : ""}${StudioUI.num(row.diff_pp, 1)} Pp`,
-        row.status === "OK" ? h("span", { class: "badge good", title: "OK" }, "auswertbar") : h("span", { class: "badge warn", title: row.reason || "" }, row.reason ? codeLabel(row.reason) : "zu wenig Daten"),
-      ]),
-    ));
-  };
-  const searchInput = h("input", {
-    type: "search",
-    placeholder: "Karte im Turnier-Vergleich filtern …",
-    "aria-label": "Karte im Turnier-Vergleich filtern",
-    value: state.conversionFilter,
-    oninput: (event) => {
-      state.conversionFilter = event.target.value;
-      updateFilteredRows();
-    },
-  });
-  updateFilteredRows();
-  const detailContent = cards.length
-    ? [
-      h("p", { class: "rule" }, `Kohorte: ${cohortLabel} (${codeLabel(data.data_class)}). Nur beschreibend, keine Kausalität. Unter ${nf(data.min_sample)} bekannten Listen bleibt das Feld „zu wenig Daten“ (nie 0).`),
-      h("div", { class: "conv-filter-row" }, searchInput, countEl),
-      tableWrap,
-    ]
-    : [h("p", { class: "muted" }, `Keine TopDeck-Turnierlisten für ${COMMANDER} in dieser Auswertung (${data.reason ? codeLabel(data.reason) : "zu wenig Daten"}).`)];
-  panel.replaceChildren(
-    h("div", { class: "facts" }, ...header),
-    h("details", {}, h("summary", {}, `TopDeck Mit/Ohne-Übersicht (${nf(cards.length)} Karten)`), ...detailContent),
-  );
-}
-async function loadTournamentConversion() {
-  try {
-    state.conversion = await api(`/api/tournament-conversion?commander=${encodeURIComponent(COMMANDER)}`);
-  } catch (error) {
-    state.conversion = null;
-  }
-  renderTournamentConversionPanel();
 }
 
 async function setView(view) {
@@ -2357,7 +2281,6 @@ async function init() {
   $("pool-body").replaceChildren(StudioUI.loading("Tierliste lädt …"));
   await StudioCommander.fill($("commander-select"));
   dataBanner().catch(() => {});
-  loadTournamentConversion().catch(() => {});
   api(`/api/cohorts?commander=${encodeURIComponent(COMMANDER)}`).then((shapes) => {
     state.cohortShapes = Array.isArray(shapes) ? shapes : [];
     if (state.data) { renderNotice(); render(false); }

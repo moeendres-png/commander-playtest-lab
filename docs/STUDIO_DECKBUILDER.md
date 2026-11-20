@@ -1723,9 +1723,9 @@ this; shipping the page inside a wheel is a later step.
   mixed with mainboard frequencies), EDHREC cohorts (keeping `lift` and `synergy_pct` separate
   and unverified per-card denominators `unbekannt`), and `SIMULATED_RESULT` cast statistics.
 - Exact hypergeometric land-draw probabilities (`DERIVED_DESCRIPTIVE`), variant/revision diffs
-  (`Varianten-Diff`, including land-draw probability deltas, role deltas, and on-demand
-  `HEURISTIC_MODEL` commander castability / mana-base pre-filtering via `POST /api/prefilter`),
-  and 4P XMage simulation run summaries (`Simulation`).
+  (`Varianten-Diff`, including land-draw probability deltas and role deltas; the on-demand
+  `HEURISTIC_MODEL` pre-filter button and `POST /api/prefilter` left the Studio with Q1-b1,
+  #1676, the offline workflow stays in `docs/DECK_VARIANT_WORKFLOW.md`), and 4P XMage simulation run summaries (`Simulation`).
 - Search ranks by fit (exact name, name prefix, word prefix, name contains, then type and
   text), alphabetical inside a rank. Sort options include EDHREC share (from the older
   tables, else the stored `import-signals` inclusion with numerator and denominator),

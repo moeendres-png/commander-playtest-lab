@@ -17,8 +17,9 @@ The bytes are produced exactly as FastAPI produces them for the route's declared
 remembered answer is byte-identical to a computed one. Bytes cannot be changed by a caller:
 the remembered value is safe by construction, whatever a reader does with what it gets.
 
-Answers that read no store at all (``/api/tournament-conversion`` reads only the TopDeck
-files) are kept per file state alone (``file_answer``).
+Answers that read no store at all are kept per file state alone (``file_answer``). No route
+uses it since its only caller, ``/api/tournament-conversion``, left with Q1-b1 (#1676); the
+helper stays for such answers.
 
 Size: the answers share the size limit of ``cache`` and have a limit of their own there (all
 ``answer:<route>`` kinds together: at most ``cache.KIND_LIMITS['answer']`` entries and bytes), so many distinct
