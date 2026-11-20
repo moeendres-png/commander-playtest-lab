@@ -395,6 +395,39 @@ def test_low_coverage_or_few_components_give_tier_u_not_a_weak_tier() -> None:
     assert strength.score_pool(strict_count, observations, collected)["c"]["tier"] == "D"
 
 
+def test_global_inclusion_alone_gives_no_tier_under_the_default_settings() -> None:
+    """Moved unchanged from ``test_studio_rubric.py`` (Q1-b4, #1679, deleted with rubric v1):
+    the invariant does not depend on the rubric."""
+    # DEFAULT weights with missing_value "lowest" switched on (no default since E4.b of #1364):
+    # an unlisted card gets a lowest value, which must not count as commander-specific evidence
+    settings = StrengthSettings(
+        missing_value={
+            strength.COMMANDER_INCLUSION: strength.MISSING_LOWEST,
+            strength.BRACKET_INCLUSION: strength.MISSING_LOWEST,
+        }
+    )
+    assert settings.require_commander_signal
+    assert settings.missing_value[strength.COMMANDER_INCLUSION] == strength.MISSING_LOWEST
+    observations: dict[str, dict[str, Observation]] = {}
+    for n in range(10):
+        observations[f"c{n}"] = {
+            strength.COMMANDER_INCLUSION: Observation(0.9 - n * 0.05, 900 - n * 50, 1000),
+            strength.BRACKET_INCLUSION: Observation(0.9 - n * 0.05, 900 - n * 50, 1000),
+            strength.GLOBAL_INCLUSION: Observation(0.5, 500, 1000),
+        }
+    observations["only global"] = {strength.GLOBAL_INCLUSION: Observation(0.9, 900, 1000)}
+    collected = {
+        strength.COMMANDER_INCLUSION,
+        strength.BRACKET_INCLUSION,
+        strength.GLOBAL_INCLUSION,
+    }
+    scored = strength.score_pool(settings, observations, collected)
+    odd = scored["only global"]
+    assert odd["tier"] == strength.TIER_UNKNOWN and odd["reason"] == strength.NO_COMMANDER_SIGNAL
+    assert odd["index"] is not None  # the lowest value still counts for the index
+    assert scored["c0"]["reason"] == "ENOUGH_DATA"
+
+
 def test_settings_are_validated_and_round_trip() -> None:
     settings = StrengthSettings.from_dict({"weights": {"synergy": 4}, "bracket": "cedh"})
     assert StrengthSettings.from_dict(settings.to_dict()) == settings
