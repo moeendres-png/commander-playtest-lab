@@ -1486,13 +1486,25 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         seats_per_seed: int = Query(default=4, ge=1, le=6),
         table_size: int | None = Query(default=None, ge=launch.MIN_SEATS, le=launch.MAX_SEATS),
         rotate_seats: bool = True,
+        pod: str | None = None,
     ) -> dict[str, object]:
         """Pre-run plan of a paired series: detectable difference and its assumptions.
 
         With ``table_size`` the plan is the one of that table (rotation, effort, whether the
-        seat lock lets it start), also for the locked sizes (#1702); it starts nothing."""
+        seat lock lets it start), also for the locked sizes (#1702); it starts nothing.
+        With ``pod`` it also names the opponents of that table (``table.opponent_ids``); a pod
+        with too few decks for the table is a 422 with the reason, nothing is filled up."""
+        if pod is not None and table_size is None:
+            raise HTTPException(422, "pod gehört zu einer Tischgröße: table_size fehlt")
         if table_size is not None:
-            return paired_series.table_plan(table_size, budget_pairs, rotate_seats=rotate_seats)
+            plan = paired_series.table_plan(table_size, budget_pairs, rotate_seats=rotate_seats)
+            if pod is not None:
+                try:
+                    opponents = launch.pod_opponent_ids(pod, table_size - 1)
+                except ValueError as error:
+                    raise HTTPException(422, str(error)) from error
+                cast(dict[str, object], plan["table"])["opponent_ids"] = list(opponents)
+            return plan
         return paired_series.planned_detectable_difference_pp(budget_pairs, seats_per_seed)
 
     @app.get("/api/simulations/paired")

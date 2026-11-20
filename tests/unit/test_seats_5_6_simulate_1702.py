@@ -385,6 +385,52 @@ def test_the_plan_route_plans_a_locked_table_and_says_it_starts_nothing(
     )
 
 
+@pytest.mark.parametrize("seats", [2, 4, 5, 6])
+def test_the_plan_route_names_the_opponents_of_the_pod_for_the_table(
+    lab: dict[str, object], seats: int
+) -> None:
+    client = lab["client"]
+    assert isinstance(client, TestClient)
+    res = client.get(
+        f"/api/simulations/paired-plan?budget_pairs=25&table_size={seats}&pod=precon",
+        headers=HEADERS,
+    )
+    assert res.status_code == 200, res.text
+    opponents = res.json()["table"]["opponent_ids"]
+    assert opponents == list(launch.pod_opponent_ids("precon", seats - 1))
+    assert len(opponents) == seats - 1 and len(set(opponents)) == seats - 1
+    # without a pod the plan names no opponents (nothing invented)
+    plain = client.get(
+        f"/api/simulations/paired-plan?budget_pairs=25&table_size={seats}", headers=HEADERS
+    ).json()
+    assert "opponent_ids" not in plain["table"]
+
+
+def test_the_plan_route_pod_errors_are_a_422_with_the_reason(
+    lab: dict[str, object], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    client = lab["client"]
+    assert isinstance(client, TestClient)
+    unknown = client.get(
+        "/api/simulations/paired-plan?budget_pairs=25&table_size=5&pod=no-such-pod",
+        headers=HEADERS,
+    )
+    assert unknown.status_code == 422 and "Unbekannter Gegnertisch" in unknown.text
+    no_size = client.get("/api/simulations/paired-plan?budget_pairs=25&pod=precon", headers=HEADERS)
+    assert no_size.status_code == 422 and "table_size" in no_size.text
+    # too few decks in the pod: honest error, no fill-up
+    monkeypatch.setattr(launch, "POD_PRESET_EXTRA_OPPONENTS", {})
+    short = client.get(
+        "/api/simulations/paired-plan?budget_pairs=25&table_size=5&pod=precon", headers=HEADERS
+    )
+    assert short.status_code == 422
+    assert "nennt nur 3 Decks" in short.text and "nichts aufgefüllt" in short.text
+    ok = client.get(
+        "/api/simulations/paired-plan?budget_pairs=16&table_size=4&pod=precon", headers=HEADERS
+    )
+    assert ok.status_code == 200 and len(ok.json()["table"]["opponent_ids"]) == 3
+
+
 def test_the_plan_route_reads_the_lock_at_call_time(
     lab: dict[str, object], monkeypatch: pytest.MonkeyPatch
 ) -> None:
