@@ -41,9 +41,14 @@ def test_architecture_layer_import_boundaries(repo_root: Path) -> None:
 #
 # The graph and the cycle search live in scripts/studio_architecture_counts.py (one definition for
 # the recorded counts and for this test). The recorded values are a ratchet in
-# tests/fixtures/studio_architecture_baseline.json: they may go down, never up. A drop fails too,
+# tests/fixtures/studio_architecture_baseline.json: they may go down, never up without a review
+# reference in the history entry (see studio_baseline_monotonicity_problems). A drop fails too,
 # with the value to write into the fixture, so a gain is locked (same convention as
 # tests/unit/test_any_usage_ratchet.py).
+#
+# Limits of this file (Refs #1650): CI runs it on Linux only (the Windows lane
+# .github/workflows/windows-runtime.yml selects other tests); the dynamic import forms that are
+# not seen are listed in the docstring of scripts/studio_architecture_counts.qualification_imports.
 
 _STUDIO_BASELINE = (
     Path(__file__).resolve().parents[1] / "fixtures" / "studio_architecture_baseline.json"
@@ -249,9 +254,70 @@ _STUDIO_RATCHET_FIELDS = (
 )
 
 
+# Monotonicity is checked from the entry of this issue on: the step to it (12 -> 13 modules) was
+# recorded, not newly allowed, and stays as the one grandfathered raise.
+_STUDIO_MONOTONE_AFTER = "#1622"
+_REVIEW_REFERENCE = re.compile(r"#\d+|https://github\.com/\S+/(?:pull|issues)/\d+\S*")
+
+
+def _raised_values(before: dict[str, object], after: dict[str, object]) -> list[str]:
+    """Ratchet values that went up (or were widened) from ``before`` to ``after``."""
+    raised: list[str] = []
+    for field in ("max_cyclic_components", "max_largest_cyclic_component"):
+        if cast(int, after[field]) > cast(int, before[field]):
+            raised.append(f"{field} {before[field]} -> {after[field]}")
+    new_modules = set(cast(list[str], after["cyclic_modules"])) - set(
+        cast(list[str], before["cyclic_modules"])
+    )
+    if new_modules:
+        raised.append(f"cyclic_modules added {sorted(new_modules)}")
+    new_facades = set(cast(list[str], after["qualification_facades"])) - set(
+        cast(list[str], before["qualification_facades"])
+    )
+    if new_facades:
+        raised.append(f"qualification_facades added {sorted(new_facades)}")
+    old_exceptions = cast(dict[str, int], before["qualification_import_exceptions"])
+    for key, count in sorted(
+        cast(dict[str, int], after["qualification_import_exceptions"]).items()
+    ):
+        if count > old_exceptions.get(key, 0):
+            raised.append(
+                f"qualification_import_exceptions {key}: {old_exceptions.get(key, 0)} -> {count}"
+            )
+    return raised
+
+
+def studio_baseline_monotonicity_problems(history: list[dict[str, object]]) -> list[str]:
+    """From the entry ``_STUDIO_MONOTONE_AFTER`` on, every step of the ratchet may only lower
+    values. A step that raises (or widens) a value needs ``raise_review`` in its entry: a
+    ``#<number>`` or a GitHub pull request / issue link that differs from the entry's own ``ref``,
+    i.e. the review that approved the raise. A new ``history`` entry with any reason alone does
+    not make a raise pass. Limit: the test sees the file, not git; removing or rewriting
+    earlier entries is a diff the pull request review has to catch."""
+    anchor = next(
+        (i for i, entry in enumerate(history) if entry.get("ref") == _STUDIO_MONOTONE_AFTER), None
+    )
+    if anchor is None:
+        return [f"history has no entry {_STUDIO_MONOTONE_AFTER}, the point monotonicity starts at"]
+    problems: list[str] = []
+    for index in range(anchor + 1, len(history)):
+        raised = _raised_values(history[index - 1], history[index])
+        if not raised:
+            continue
+        review = str(history[index].get("raise_review", ""))
+        if not _REVIEW_REFERENCE.fullmatch(review) or review == history[index].get("ref"):
+            problems.append(
+                f"history[{index}] ({history[index].get('ref')}) raises {raised} without a "
+                "`raise_review` (#number or pull request link of the approving review, not "
+                "its own ref)"
+            )
+    return problems
+
+
 def studio_baseline_history_problems(baseline: dict[str, object]) -> list[str]:
     """A ratchet value changes only together with a new ``history`` entry (date, issue or pull
-    request reference, reason), and the top-level values are those of the last entry."""
+    request reference, reason), and the top-level values are those of the last entry. Raises
+    need a review reference (``studio_baseline_monotonicity_problems``)."""
     history = baseline.get("history")
     if not isinstance(history, list) or not history:
         return ["no history"]
@@ -274,6 +340,10 @@ def studio_baseline_history_problems(baseline: dict[str, object]) -> list[str]:
         changed = [f for f in _STUDIO_RATCHET_FIELDS if baseline.get(f) != last.get(f)]
         if changed:
             problems.append(f"values changed without a history entry: {changed}")
+    if not problems:
+        problems.extend(
+            studio_baseline_monotonicity_problems(cast(list[dict[str, object]], history))
+        )
     return problems
 
 
@@ -333,3 +403,182 @@ def test_studio_private_override_count_follows_studio_subclasses(tmp_path: Path)
         "first.py:3 _drive",
         "second.py:3 _drive",
     ]
+
+
+def _history_entry(**changes: object) -> dict[str, object]:
+    entry: dict[str, object] = {
+        "date": "2026-11-20",
+        "ref": "#1700",
+        "reason": "a reason that is long enough to count",
+        "max_cyclic_components": 1,
+        "max_largest_cyclic_component": 13,
+        "cyclic_modules": ["a", "b"],
+        "qualification_facades": [],
+        "qualification_import_exceptions": {"doctor -> commander_lab.qualification.x": 1},
+    }
+    entry.update(changes)
+    return entry
+
+
+def test_studio_baseline_history_checks_monotonicity_from_1622_on() -> None:
+    anchor = _history_entry(ref="#1622", max_largest_cyclic_component=13)
+    first = _history_entry(ref="#1612", max_largest_cyclic_component=12)
+    # the recorded raise to the anchor (12 -> 13) is grandfathered
+    assert studio_baseline_monotonicity_problems([first, anchor]) == []
+    # lowering needs no extra approval
+    lower = _history_entry(ref="#1701", max_largest_cyclic_component=12, cyclic_modules=["a"])
+    assert studio_baseline_monotonicity_problems([first, anchor, lower]) == []
+    # a new entry with any reason is not enough to raise
+    raises: list[dict[str, object]] = [
+        _history_entry(max_cyclic_components=2),
+        _history_entry(max_largest_cyclic_component=14),
+        _history_entry(cyclic_modules=["a", "b", "c"]),
+        _history_entry(qualification_facades=["web"]),
+        _history_entry(
+            qualification_import_exceptions={"doctor -> commander_lab.qualification.x": 2}
+        ),
+        _history_entry(qualification_import_exceptions={"web -> commander_lab.qualification.y": 1}),
+    ]
+    for raised in raises:
+        problems = studio_baseline_monotonicity_problems([first, anchor, raised])
+        assert len(problems) == 1 and "without a `raise_review`" in problems[0], raised
+        reviewed = {**raised, "raise_review": "#1699"}
+        assert studio_baseline_monotonicity_problems([first, anchor, reviewed]) == []
+    # the review reference must be a reference, and not the entry's own issue
+    for bad in ("", "approved", "#abc", "#1700"):
+        raised = {**raises[0], "raise_review": bad}
+        assert studio_baseline_monotonicity_problems([first, anchor, raised]), bad
+    link = {**raises[0], "raise_review": "https://github.com/o/r/pull/1699#pullrequestreview-1"}
+    assert studio_baseline_monotonicity_problems([first, anchor, link]) == []
+    # without the anchor entry the check cannot tell where it starts
+    assert studio_baseline_monotonicity_problems([first, lower]) == [
+        "history has no entry #1622, the point monotonicity starts at"
+    ]
+
+
+def test_studio_baseline_history_problems_report_an_unreviewed_raise() -> None:
+    baseline = _studio_baseline()
+    history = cast(list[dict[str, object]], baseline["history"])
+    last = history[-1]
+    bigger = {**last, "ref": "#1700", "max_largest_cyclic_component": 14}
+    raised = {**baseline, **{k: bigger[k] for k in _STUDIO_RATCHET_FIELDS}}
+    raised["history"] = [*history, bigger]
+    problems = studio_baseline_history_problems(raised)
+    assert len(problems) == 1 and "max_largest_cyclic_component 13 -> 14" in problems[0]
+    raised["history"] = [*history, {**bigger, "raise_review": "#1699"}]
+    assert studio_baseline_history_problems(raised) == []
+
+
+_DYNAMIC_IMPORT_FORMS = {
+    "fromlist": "__import__('commander_lab', fromlist=['qualification'])",
+    "fromlist_positional": "__import__('commander_lab', None, None, ['qualification'])",
+    "fromlist_tuple": "__import__('commander_lab', fromlist=('qualification',))",
+    "fromlist_inside_package": "__import__('commander_lab.qualification', fromlist=['x'])",
+    "relative_with_package": "importlib.import_module('.qualification', 'commander_lab')",
+    "relative_package_keyword": "importlib.import_module('.qualification', package='commander_lab')",
+    "relative_name_keyword": "importlib.import_module(name='commander_lab.qualification')",
+    "relative_two_levels_package_dunder": "importlib.import_module('..qualification', __package__)",
+    "relative_from_the_qualification_package": (
+        "importlib.import_module('.', 'commander_lab.qualification')"
+    ),
+    "alias_from_import": "im('commander_lab.qualification')",
+    "alias_assignment": "again('commander_lab.qualification')",
+    "alias_builtins_import": "dunder('commander_lab.qualification')",
+    "alias_module": "il.import_module('commander_lab.qualification')",
+}
+
+_DYNAMIC_IMPORT_UNSEEN = {
+    "variable": "importlib.import_module(name)",
+    "f_string": "importlib.import_module(f'commander_lab.{name}')",
+    "relative_without_package": "importlib.import_module('.qualification')",
+    "relative_with_variable_package": "importlib.import_module('.qualification', pkg)",
+    "relative_above_the_root": "importlib.import_module('....qualification', 'commander_lab')",
+    "other_package": "importlib.import_module('.qualification', 'commander_lab.bridge')",
+    "bridge_qualification": "importlib.import_module('.bridge_qualification', 'commander_lab')",
+    "fromlist_other": "__import__('commander_lab', fromlist=['bridge_qualification'])",
+    "fromlist_variable": "__import__('commander_lab', fromlist=names)",
+    "getattr_indirection": "getattr(importlib, 'import_module')('commander_lab.qualification')",
+}
+
+_DYNAMIC_IMPORT_PRELUDE = (
+    "import importlib\n"
+    "import importlib as il\n"
+    "from importlib import import_module as im\n"
+    "from builtins import __import__ as dunder\n"
+    "again = importlib.import_module\n"
+)
+
+
+def _synthetic_studio(tmp_path: Path, statement: str) -> Path:
+    root = tmp_path / "studio"
+    root.mkdir(parents=True)
+    (root / "web.py").write_text(
+        _DYNAMIC_IMPORT_PRELUDE
+        + f"\n\ndef _mutation(name, pkg, names) -> None:\n    {statement}\n",
+        encoding="utf-8",
+    )
+    return root
+
+
+def test_studio_qualification_scan_sees_each_constant_dynamic_import_form(tmp_path: Path) -> None:
+    for form, statement in _DYNAMIC_IMPORT_FORMS.items():
+        found = _COUNTS.qualification_imports(_synthetic_studio(tmp_path / form, statement))
+        assert sum(found.values()) == 1, (form, found)
+        assert all(key.startswith("web -> commander_lab.qualification") for key in found), found
+    assert _COUNTS.qualification_imports(
+        _synthetic_studio(tmp_path / "fromlist_name", _DYNAMIC_IMPORT_FORMS["fromlist"])
+    ) == {"web -> commander_lab.qualification": 1}
+    assert _COUNTS.qualification_imports(
+        _synthetic_studio(tmp_path / "pkg_name", _DYNAMIC_IMPORT_FORMS["relative_with_package"])
+    ) == {"web -> commander_lab.qualification": 1}
+    assert _COUNTS.qualification_imports(
+        _synthetic_studio(
+            tmp_path / "dunder_pkg", _DYNAMIC_IMPORT_FORMS["relative_two_levels_package_dunder"]
+        )
+    ) == {"web -> commander_lab.qualification": 1}
+
+
+def test_studio_qualification_scan_documents_the_dynamic_imports_it_does_not_see(
+    tmp_path: Path,
+) -> None:
+    """The boundary named in the docstring of ``qualification_imports``: these stay invisible
+    (a run-time name or package) or are no import of the watched package at all."""
+    assert len(_DYNAMIC_IMPORT_UNSEEN) >= 8
+    for form, statement in _DYNAMIC_IMPORT_UNSEEN.items():
+        found = _COUNTS.qualification_imports(_synthetic_studio(tmp_path / form, statement))
+        assert found == {}, (form, found)
+
+
+def test_studio_qualification_check_turns_red_on_each_dynamic_import_form(
+    repo_root: Path, tmp_path: Path
+) -> None:
+    """Mutation check on a copy of the real package for the three forms of #1650."""
+    baseline = _studio_baseline()
+    forms = {
+        "fromlist": "__import__('commander_lab', fromlist=['qualification'])",
+        "relative_with_package": "import_module('.qualification', 'commander_lab')",
+        "alias": "im('commander_lab.qualification')",
+    }
+    assert len(forms) == 3
+    for form, call in forms.items():
+        copy = _studio_copy(repo_root, tmp_path / form)
+        assert studio_qualification_violations(_COUNTS.qualification_imports(copy), baseline) == (
+            [],
+            [],
+        )
+        web = copy / "web.py"
+        web.write_text(
+            web.read_text(encoding="utf-8") + "\n\ndef _mutation_1650() -> None:\n"
+            "    from importlib import import_module as im\n"
+            "    from importlib import import_module\n"
+            f"    {call}\n"
+            "    del im, import_module\n",
+            encoding="utf-8",
+        )
+        grown, _shrunk = studio_qualification_violations(
+            _COUNTS.qualification_imports(copy), baseline
+        )
+        assert grown == ["web -> commander_lab.qualification: 1 import statement(s), recorded 0"], (
+            form,
+            grown,
+        )

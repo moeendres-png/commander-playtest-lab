@@ -80,13 +80,36 @@ Messskripten nicht nachzubilden. Hier zählt eine Testfunktion, wenn sie selbst
   `simulations` 1, alle `current_boundary.bridge_launcher.canonical_xmage_engine_pin`).
 - Sinkt ein Wert, wird der Test ebenfalls rot und nennt den neuen Wert für die Fixture (Gewinn
   festschreiben, wie `test_any_usage_ratchet.py`).
-- Keine stille Erhöhung: Jede Änderung eines Ratschenwerts ist ein neuer Eintrag in `history` der
-  Fixture (Datum, `#Issue`, Begründung); die obersten Werte müssen dem letzten Eintrag gleichen,
-  sonst ist der Test rot. Heute zwei Einträge: Erstaufnahme (12 Module, #1612) und `gc_band`
-  (13 Module, #1622, vor der Ratsche gemergt, festgehalten, nicht neu erlaubt).
+- Keine stille Erhöhung, Monotonie ab Eintrag #1622 (Refs #1650): Jede Änderung eines
+  Ratschenwerts ist ein neuer Eintrag in `history` der Fixture (Datum, `#Issue`, Begründung); die
+  obersten Werte müssen dem letzten Eintrag gleichen, sonst ist der Test rot. Ab dem Eintrag
+  #1622 prüft der Test jeden Schritt auf Monotonie: Senken braucht nichts weiter; eine Erhöhung
+  (mehr Zyklen, größerer Zyklus, ein Modul mehr im Zyklus, eine zusätzliche Fassade, ein größerer
+  oder neuer Importausnahme-Zähler) besteht nur mit `raise_review` im Eintrag (`#Nummer` oder
+  Pull-Request-Link der freigebenden Prüfung, nicht die eigene `ref` des Eintrags). Ein neuer
+  Eintrag mit beliebiger Begründung macht eine Erhöhung nicht grün. Heute zwei Einträge:
+  Erstaufnahme (12 Module, #1612) und `gc_band` (13 Module, #1622, vor der Ratsche gemergt,
+  festgehalten, nicht neu erlaubt; der einzige freigestellte Schritt). Grenze: der Test sieht die
+  Datei, nicht git; das Entfernen oder Umschreiben früherer Einträge fängt nur der Review des
+  Diffs.
 - Erkannt werden auch `from commander_lab import qualification`, `from .. import qualification`
-  und `importlib.import_module("commander_lab.qualification…")`/`__import__` mit konstantem Text.
-  Statische Grenze: ein zur Laufzeit gebauter Modulname (Variable, f-String) bleibt unsichtbar.
+  und die dynamischen Formen mit konstanten Argumenten (je Form ein Mutationstest):
+  `importlib.import_module("commander_lab.qualification…")`, `__import__("…")`,
+  `__import__("commander_lab", fromlist=["qualification"])`,
+  `import_module(".qualification", "commander_lab")` (auch `package=`, `name=` und
+  `__package__`) und derselbe Aufruf über einen lokalen Alias (`from importlib import
+  import_module as im`, `import importlib as il`, `im2 = importlib.import_module`). Statische
+  Grenzen, nicht erkannt (im Test als Grenzfälle festgehalten): ein zur Laufzeit gebauter
+  Modulname oder Paketname (Variable, f-String), `getattr(importlib, "import_module")`, eine
+  weitergereichte Importfunktion, `exec`/`eval` von Importtext und Attributzugriff auf ein
+  importiertes Elternpaket. Der Importgraph (Zyklen) folgt nur Importanweisungen, keinen
+  dynamischen Importen.
+- Grenzen der Testdatei: CI führt sie auf Linux aus; die Windows-Spur
+  (`.github/workflows/windows-runtime.yml`) wählt andere Tests, und `test_studio_response_manifest.py`
+  läuft dort ebenfalls nicht. Ob sie dort laufen soll, ist eine Workflow-Änderung und steht beim
+  Lead; hier nicht geändert. Windows-Kurznamen (8.3) und Junctions im Überlappungs- und
+  Aufräumschutz des Manifestwerkzeugs sind durchdacht (`Path.resolve()` löst Links auf; per
+  Symlink auf POSIX getestet), nicht ausgeführt.
 - Mutationsprüfung im Test selbst: synthetischer Graph, und eine Kopie von `studio/` mit einem
   zusätzlichen Funktions-Import `store` → `builder` bzw. `web` → `..qualification` muss rot werden.
   Von Hand auf dem echten Baum geprüft (danach zurückgesetzt): ein Funktions-Import
@@ -113,7 +136,11 @@ python scripts/studio_response_manifest.py writes --store <Vorlage> --out <auße
   ohne etwas anzufassen. Die Vorlagenprüfung läuft auch nach einem Fehler (geänderte Vorlage →
   Exit 3). Eine Einzeldatei-Vorlage wird samt `-wal`/`-shm`/`-journal` kopiert und gehasht.
   `COMMANDER_LAB_*`-Variablen (z. B. `COMMANDER_LAB_TOPDECK_DIR`) stehen unter
-  `inputs.environment`; `compare` meldet abweichende Werte.
+  `inputs.environment`; `compare` meldet abweichende Werte. Seit dieser Spalte ist das Format
+  `studio-response-manifest/2` (Schreibmatrix `studio-response-writes/2`, Refs #1650): ein `/1`-Manifest
+  hat kein `inputs.environment` und ist mit einem `/2`-Manifest nicht vergleichbar; `compare`
+  weist es mit Exit 2 ab („record it again“), statt ein falsches „inputs differ“ zu melden.
+  Nur Manifeste gleichen Formats sind vergleichbar; ältere neu aufnehmen.
 - 30 Routen, je zweimal abgefragt (`stable` = beide Antworten byte-gleich): `/`, `/tierliste.html`,
   `status`, `commanders`, `pool`, `layers`, `cohorts`, `allocation`, `evidence`, `data-report`,
   `strength` (POST), `rating-layers`, `universe/options`, `universe/counted`, `roles/audit`,

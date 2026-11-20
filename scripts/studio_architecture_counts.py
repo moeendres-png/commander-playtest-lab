@@ -25,7 +25,7 @@ import re
 import subprocess
 import sys
 import tokenize
-from collections.abc import Iterable, Mapping
+from collections.abc import Iterable, Mapping, Sequence
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -186,15 +186,27 @@ def qualification_imports(
     submodules exactly; ``commander_lab.bridge_qualification`` is a different module and does
     not match. Also matched: ``from commander_lab import qualification`` (a parent package
     importing the name), the relative forms ``from ..qualification import x`` and
-    ``from .. import qualification``, and ``importlib.import_module("commander_lab.qualification…")``
-    / ``__import__(...)`` with a constant string. Static boundary: a module name built at run
-    time (a variable or an f-string passed to ``import_module``) is not seen.
+    ``from .. import qualification``, and the dynamic forms of ``_dynamic_import_names``:
+    ``importlib.import_module("commander_lab.qualification…")`` / ``__import__(...)`` with a
+    constant string, ``__import__("commander_lab", fromlist=["qualification"])``,
+    ``import_module(".qualification", "commander_lab")`` (relative name, constant or
+    ``__package__`` package) and the same calls through a local alias (``from importlib import
+    import_module as im``, ``import importlib as il``, ``im2 = importlib.import_module``).
+
+    Static boundaries, not seen: a module name or package built at run time (a variable or an
+    f-string), ``getattr(importlib, "import_module")``, an import function passed as an
+    argument or stored in a container, ``exec``/``eval`` of import text, and attribute access on
+    an imported parent package (``import commander_lab`` then ``commander_lab.qualification``).
+    The studio import
+    graph (``studio_import_graph``) follows import statements only, no dynamic import at all.
     """
     found: dict[str, int] = {}
     for path in sorted(studio_root.rglob("*.py")):
         module = _module_name(studio_root, path)
         full = f"{STUDIO_PACKAGE}.{module}".split(".")
-        for node in ast.walk(_parse(path)):
+        tree = _parse(path)
+        aliases = _import_function_aliases(tree)
+        for node in ast.walk(tree):
             names: list[str] = []
             if isinstance(node, ast.Import):
                 names = [alias.name for alias in node.names]
@@ -209,10 +221,8 @@ def qualification_imports(
                     names = [source]
                 elif source:
                     names = [f"{source}.{alias.name}" for alias in node.names]
-            elif isinstance(node, ast.Call) and _dynamic_import(node):
-                first = node.args[0]
-                if isinstance(first, ast.Constant) and isinstance(first.value, str):
-                    names = [first.value]
+            elif isinstance(node, ast.Call):
+                names = _dynamic_import_names(node, aliases, full[:-1], package)
             for name in names:
                 if name == package or name.startswith(package + "."):
                     key = f"{module} -> {name}"
@@ -220,12 +230,108 @@ def qualification_imports(
     return dict(sorted(found.items()))
 
 
-def _dynamic_import(node: ast.Call) -> bool:
-    func = node.func
-    named = (isinstance(func, ast.Attribute) and func.attr == "import_module") or (
-        isinstance(func, ast.Name) and func.id in {"import_module", "__import__"}
-    )
-    return named and bool(node.args) and isinstance(node.args[0], ast.Constant)
+IMPORT_FUNCTIONS = frozenset({"import_module", "__import__"})
+_IMPORT_FUNCTION_SOURCES = frozenset({"importlib", "builtins"})
+
+
+def _import_function_kind(expression: ast.expr, aliases: Mapping[str, str]) -> str | None:
+    """``"import_module"`` or ``"__import__"`` if the expression names one of them: the bare name
+    or an attribute of that name on any receiver, or a local alias from ``aliases``."""
+    if isinstance(expression, ast.Attribute) and expression.attr in IMPORT_FUNCTIONS:
+        return expression.attr
+    if isinstance(expression, ast.Name):
+        if expression.id in IMPORT_FUNCTIONS:
+            return expression.id
+        return aliases.get(expression.id)
+    return None
+
+
+def _import_function_aliases(tree: ast.Module) -> dict[str, str]:
+    """Local names bound to an import function of ``importlib``/``builtins``: ``from importlib
+    import import_module as im`` and plain assignments such as ``im = importlib.import_module``
+    (also ``a = b`` of an alias). Per file, not per scope."""
+    aliases: dict[str, str] = {}
+    assignments: list[ast.Assign] = []
+    for node in ast.walk(tree):
+        if (
+            isinstance(node, ast.ImportFrom)
+            and node.level == 0
+            and node.module in _IMPORT_FUNCTION_SOURCES
+        ):
+            for alias in node.names:
+                if alias.name in IMPORT_FUNCTIONS and alias.asname:
+                    aliases[alias.asname] = alias.name
+        elif isinstance(node, ast.Assign):
+            assignments.append(node)
+    changed = True
+    while changed:
+        changed = False
+        for assignment in assignments:
+            kind = _import_function_kind(assignment.value, aliases)
+            if kind is None:
+                continue
+            for target in assignment.targets:
+                if isinstance(target, ast.Name) and aliases.get(target.id) != kind:
+                    aliases[target.id] = kind
+                    changed = True
+    return aliases
+
+
+def _constant_text(node: ast.expr | None, package: Sequence[str]) -> str | None:
+    """The string a constant expression denotes; ``__package__`` is the package of the module
+    being read (``package``), everything else that is not a string constant is unknown."""
+    if isinstance(node, ast.Constant) and isinstance(node.value, str):
+        return node.value
+    if isinstance(node, ast.Name) and node.id == "__package__":
+        return ".".join(package)
+    return None
+
+
+def _call_argument(node: ast.Call, position: int, keyword: str) -> ast.expr | None:
+    if len(node.args) > position and not isinstance(node.args[position], ast.Starred):
+        return node.args[position]
+    return next((item.value for item in node.keywords if item.arg == keyword), None)
+
+
+def _dynamic_import_names(
+    node: ast.Call, aliases: Mapping[str, str], package: Sequence[str], watched: str
+) -> list[str]:
+    """Absolute module names a call of ``import_module`` / ``__import__`` with constant
+    arguments imports (empty: no such call, or an argument that is not constant).
+
+    ``import_module("a.b")`` and ``__import__("a.b")`` give ``a.b``; ``import_module(".b", "a")``
+    resolves the relative name against the constant package (``__package__`` means ``package``,
+    the package of the module being read); ``__import__("a", fromlist=["b"])`` gives ``a.b``
+    (``fromlist`` as constant list or tuple of strings), or ``a`` alone if ``a`` is already
+    ``watched`` or inside it, as ``from a import b`` counts there.
+    """
+    kind = _import_function_kind(node.func, aliases)
+    if kind is None:
+        return []
+    name = _constant_text(_call_argument(node, 0, "name"), package)
+    if name is None:
+        return []
+    if kind == "import_module":
+        if not name.startswith("."):
+            return [name]
+        anchor = _constant_text(_call_argument(node, 1, "package"), package)
+        level = len(name) - len(name.lstrip("."))
+        if not anchor or level > len(anchor.split(".")):
+            return []
+        parts = anchor.split(".")
+        base = parts[: len(parts) - (level - 1)]
+        rest = name[level:]
+        return [".".join([*base, rest]) if rest else ".".join(base)]
+    fromlist = _call_argument(node, 3, "fromlist")
+    if isinstance(fromlist, ast.List | ast.Tuple) and not (
+        name == watched or name.startswith(watched + ".")
+    ):
+        return [
+            f"{name}.{item.value}"
+            for item in fromlist.elts
+            if isinstance(item, ast.Constant) and isinstance(item.value, str)
+        ]
+    return [name]
 
 
 def any_uses(paths: Iterable[Path]) -> int:
