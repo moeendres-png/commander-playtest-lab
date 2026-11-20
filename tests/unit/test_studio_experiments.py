@@ -18,7 +18,7 @@ from pydantic import ValidationError
 from starlette.testclient import TestClient
 
 from commander_lab.studio import (
-    experiments,
+    deck_series,
     launch,
     paired_comparison,
     paired_series,
@@ -341,7 +341,7 @@ def test_one_plan_file_gives_the_same_series_over_web_and_cli(
         "rule": "consecutive",
         "starting_seat_rule": "seed % seats",
     }
-    record = experiments.plan_record(folder, web["experiment_id"])
+    record = deck_series.plan_record(folder, web["experiment_id"])
     assert record is not None and record["plan_sha"] == web["plan_sha"]
     assert record["data_class"] == "SIMULATED_RESULT"
     series = json.loads((folder / "games" / f"{web['series_id']}.paired.json").read_text())
@@ -377,7 +377,7 @@ def test_unknown_opponents_are_errors_and_studio_states_may_sit(
     deck_dir = folder / "games" / "paired_decks" / started["series_id"]
     snaps = sorted(p.name for p in deck_dir.glob("opponent-*.json"))
     assert len(snaps) == 2
-    record = experiments.plan_record(folder, started["experiment_id"])
+    record = deck_series.plan_record(folder, started["experiment_id"])
     assert record is not None
     resolved = record["resolved"]
     assert isinstance(resolved, dict)

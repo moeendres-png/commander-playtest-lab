@@ -24,7 +24,6 @@ import json
 import os
 import re
 import shutil
-import sqlite3
 import threading
 import time
 from collections.abc import Mapping, Sequence
@@ -34,12 +33,19 @@ from typing import Final, Literal, cast
 from pydantic import BaseModel, ConfigDict, Field
 
 from . import paired_comparison, paired_series
+from .deck_series import (
+    EXPERIMENT_SELECT,
+    entry_for_experiment,
+    experiments_folder,
+    plan_sha,
+    read_series_file,
+)
 from .games import games_folder
-from .launch import _precons
+from .launch import _precons, engine_state
 from .pilot_fingerprint import pilot_fingerprint
 from .play import POLICY_VERSION, snapshot_deck_hash
 from .store import StudioStore, now_utc
-from .table_spec import TableSpec, sha256_of, table_hash
+from .table_spec import TableSpec, table_hash
 
 SCHEMA_PLAN: Final = "studio-experiment-plan-1"
 SCHEMA_RECORD = "studio-experiment-record-1"
@@ -89,10 +95,6 @@ class SeedOverlap(ValueError):
 
 class DecisionRefused(RuntimeError):
     """The decision cannot be recorded (already decided, legacy series, foreign deck)."""
-
-
-def experiments_folder(data_folder: str | Path) -> Path:
-    return games_folder(Path(data_folder).resolve()) / "experiments"
 
 
 def validate_experiment_id(experiment_id: str) -> str:
@@ -183,10 +185,6 @@ def resolve_plan(store: StudioStore, plan: ExperimentPlan) -> dict[str, object]:
             "starting_seat_rule": "seed % seats",
         },
     }
-
-
-def plan_sha(plan: Mapping[str, object], resolved: Mapping[str, object]) -> str:
-    return sha256_of({"plan": plan, "resolved": resolved})
 
 
 def check_seed_register(
@@ -294,9 +292,6 @@ def start_experiment(
     The plan file exists before the first game; a start that fails removes the plan and its
     index rows again. The caller declares the write to the cache (``cache.write``)."""
     from commander_lab.bridge_qualification import bridge_qualification
-    from commander_lab.qualification.current_boundary.bridge_launcher import (
-        canonical_xmage_engine_pin,
-    )
 
     data_path = Path(data_folder).resolve()
     raw_plan = plan.model_dump(by_alias=True, mode="json")
@@ -319,7 +314,7 @@ def start_experiment(
         "resolved": resolved,
         "plan_sha": sha,
         "provenance": {
-            "engine_pin": canonical_xmage_engine_pin(),
+            "engine_pin": engine_state(data_path).get("pin"),
             "bridge_state": qualification.get("status"),
             "bridge_jar_sha256": None,  # the series records the JAR it played with
         },
@@ -382,54 +377,6 @@ def start_experiment(
     }
 
 
-def plan_record(data_folder: str | Path, experiment_id: str) -> dict[str, object] | None:
-    return _read_json(experiments_folder(data_folder) / experiment_id / "plan.json")
-
-
-def plan_intact(record: Mapping[str, object] | None, series_raw: Mapping[str, object]) -> bool:
-    """The result belongs to this plan: the plan file's own SHA is right and the series names
-    it (M2). A result whose plan does not match never counts."""
-    if record is None:
-        return False
-    plan, resolved = record.get("plan"), record.get("resolved")
-    if not isinstance(plan, dict) or not isinstance(resolved, dict):
-        return False
-    sha = record.get("plan_sha")
-    if sha != plan_sha(plan, resolved):
-        return False
-    experiment = series_raw.get("experiment")
-    return isinstance(experiment, dict) and experiment.get("plan_sha") == sha
-
-
-def experiment_view(data_folder: str | Path, row: sqlite3.Row) -> dict[str, object] | None:
-    """What the history shows about an experiment; None for a legacy series (no plan)."""
-    if row["plan_sha"] is None:
-        return None
-    decision = str(row["decision"])
-    tested = row["decision_tested"]
-    text = {"open": "offen", "adopted": "übernommen", "rejected": "verworfen"}[decision]
-    if decision == "adopted" and tested == 0:
-        text = "übernommen (ungetestet)"
-    return {
-        "experiment_id": str(row["experiment_id"]),
-        "question": str(row["question"]),
-        "question_kind": row["question_kind"],
-        "purpose": str(row["purpose"]),
-        "plan_sha": str(row["plan_sha"]),
-        "table_hash": row["table_hash"],
-        "seeds": [row["first_seed"], row["last_seed"]],
-        "pilot_fingerprint": row["pilot_fingerprint"],
-        "engine_pin": row["engine_pin"],
-        "bridge_jar_sha256": row["bridge_jar_sha256"],
-        "bridge_state": row["bridge_state"],
-        "decision": decision,
-        "decision_text": text,
-        "decision_at": row["decision_at"],
-        "decision_note": row["decision_note"],
-        "decision_tested": None if tested is None else bool(tested),
-    }
-
-
 def decide(
     store: StudioStore,
     data_folder: str | Path,
@@ -441,8 +388,6 @@ def decide(
 
     Adopting without a counted result is recorded as untested. The caller declares the write
     (``cache.write`` with DECKS and SIMULATION)."""
-    from .deck_series import EXPERIMENT_SELECT, entry_for_experiment
-
     validate_experiment_id(experiment_id)
     db = store.connection
     row = db.execute(f"{EXPERIMENT_SELECT} WHERE e.experiment_id = ?", (experiment_id,)).fetchone()
@@ -519,8 +464,6 @@ def _legacy_row(
 def rebuild_index(store: StudioStore, data_folder: str | Path) -> dict[str, int]:
     """Rebuild ``experiment``/``experiment_arm`` from the files (plan, run, decision; old
     ``*.paired.json`` without a plan as legacy rows). The caller declares the write."""
-    from .deck_series import read_series_file
-
     data_path = Path(data_folder).resolve()
     counts = {"experiments": 0, "legacy": 0, "skipped": 0}
     linked: set[str] = set()

@@ -23,6 +23,7 @@ from pathlib import Path
 from .games import games_folder
 from .paired_series import SCHEMA_PAIRED_JOB, validate_series_id
 from .store import StudioStore
+from .table_spec import sha256_of
 
 #: An index row with its variant (``variant_revision_id``), as every reader of the index needs.
 EXPERIMENT_SELECT = (
@@ -228,10 +229,74 @@ def read_series_file(path: Path) -> dict[str, object] | None:
     return raw
 
 
+# -- experiment index readers (B2, #1658); ``experiments`` writes, this module reads --
+
+
+def experiments_folder(data_folder: str | Path) -> Path:
+    return games_folder(Path(data_folder).resolve()) / "experiments"
+
+
+def plan_sha(plan: Mapping[str, object], resolved: Mapping[str, object]) -> str:
+    return sha256_of({"plan": plan, "resolved": resolved})
+
+
+def plan_record(data_folder: str | Path, experiment_id: str) -> dict[str, object] | None:
+    path = experiments_folder(data_folder) / experiment_id / "plan.json"
+    try:
+        if not path.is_file() or path.stat().st_size > MAX_FILE_BYTES:
+            return None
+        raw = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError, RecursionError):
+        return None
+    return raw if isinstance(raw, dict) else None
+
+
+def plan_intact(record: Mapping[str, object] | None, series_raw: Mapping[str, object]) -> bool:
+    """The result belongs to this plan: the plan file's own SHA is right and the series names
+    it (M2). A result whose plan does not match never counts."""
+    if record is None:
+        return False
+    plan, resolved = record.get("plan"), record.get("resolved")
+    if not isinstance(plan, dict) or not isinstance(resolved, dict):
+        return False
+    sha = record.get("plan_sha")
+    if sha != plan_sha(plan, resolved):
+        return False
+    experiment = series_raw.get("experiment")
+    return isinstance(experiment, dict) and experiment.get("plan_sha") == sha
+
+
+def experiment_view(row: sqlite3.Row) -> dict[str, object] | None:
+    """What the history shows about an experiment; None for a legacy series (no plan)."""
+    if row["plan_sha"] is None:
+        return None
+    decision = str(row["decision"])
+    tested = row["decision_tested"]
+    text = {"open": "offen", "adopted": "übernommen", "rejected": "verworfen"}[decision]
+    if decision == "adopted" and tested == 0:
+        text = "übernommen (ungetestet)"
+    return {
+        "experiment_id": str(row["experiment_id"]),
+        "question": str(row["question"]),
+        "question_kind": row["question_kind"],
+        "purpose": str(row["purpose"]),
+        "plan_sha": str(row["plan_sha"]),
+        "table_hash": row["table_hash"],
+        "seeds": [row["first_seed"], row["last_seed"]],
+        "pilot_fingerprint": row["pilot_fingerprint"],
+        "engine_pin": row["engine_pin"],
+        "bridge_jar_sha256": row["bridge_jar_sha256"],
+        "bridge_state": row["bridge_state"],
+        "decision": decision,
+        "decision_text": text,
+        "decision_at": row["decision_at"],
+        "decision_note": row["decision_note"],
+        "decision_tested": None if tested is None else bool(tested),
+    }
+
+
 def entry_for_experiment(data_folder: str | Path, row: sqlite3.Row) -> dict[str, object]:
     """The history entry of one indexed experiment (or legacy series) from its result file."""
-    from .experiments import experiment_view, plan_intact, plan_record
-
     folder = games_folder(Path(data_folder).resolve())
     series_id = row["series_id"]
     raw = read_series_file(folder / f"{series_id}.paired.json") if series_id else None
@@ -244,7 +309,7 @@ def entry_for_experiment(data_folder: str | Path, row: sqlite3.Row) -> dict[str,
         status = STATUS_INCOMPLETE
     else:
         status = series_status(raw)
-    experiment = experiment_view(data_folder, row)
+    experiment = experiment_view(row)
     if experiment is not None and not plan_intact(
         plan_record(data_folder, str(row["experiment_id"])), raw
     ):
