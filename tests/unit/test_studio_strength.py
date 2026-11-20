@@ -10,6 +10,7 @@ import csv
 import hashlib
 import json
 import sqlite3
+import sys
 from collections.abc import Iterator
 from itertools import pairwise
 from pathlib import Path
@@ -1946,6 +1947,44 @@ def test_the_rating_layers_route_is_gone_and_the_data_layers_stay(client: TestCl
     assert gone.status_code == 404
     data = client.get("/api/layers", params={"commander": COMMANDER})
     assert data.status_code == 200 and data.json()["layers"]
+
+
+def test_the_strength_answers_no_longer_carry_the_removed_layer_fields(
+    client: TestClient,
+) -> None:
+    """The fields Q1-b2 declares as removed are gone from the real answers, checked with the
+    key paths of the manifest's field comparison (``scripts/studio_response_manifest.py``)."""
+    import importlib.util
+
+    path = Path(__file__).resolve().parents[2] / "scripts" / "studio_response_manifest.py"
+    spec = importlib.util.spec_from_file_location("studio_manifest_fields", path)
+    assert spec and spec.loader
+    tool = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = tool
+    spec.loader.exec_module(tool)
+    answer = client.post("/api/strength", json={"commander": COMMANDER}, headers=HEADER).json()
+    keys = tool.key_paths(answer)
+    for removed in (
+        "cards[]/layers",
+        "layer_summary",
+        "settings/layer_weights",
+        "settings/pod_size",
+    ):
+        assert removed not in keys, removed
+    assert "cards[]/tier" in keys and "settings/bracket" in keys  # the paths are real
+    meta = tool.key_paths(client.get("/api/strength/presets").json())
+    for removed in (
+        "layers",
+        "pod_classes",
+        "pod_derived_note",
+        "recommended/layer_weights",
+        "recommended/pod_size",
+        "presets[]/settings/layer_weights",
+        "panel/labels/pod_size",
+        "panel/labels/layer_weights.tempo",
+    ):
+        assert removed not in meta, removed
+    assert "recommended/bracket" in meta
 
 
 def test_the_page_names_a_pool_fallback_instead_of_a_null_group_size() -> None:
