@@ -979,12 +979,20 @@ def _trace_reads(store: StudioStore, compute: Callable[[], object]) -> dict[str,
     figure dropped first so that nothing is served from memory (SQLite authorizer)."""
     reads: dict[str, set[str]] = {}
 
-    def authorizer(action: int, table: str | None, column: str | None, *_: object) -> int:
-        if action == sqlite3.SQLITE_READ and table:
+    def authorizer(
+        action: int, table: str | None, column: str | None, database: str | None, *_: object
+    ) -> int:
+        # the temporary tables of the connection (``universe_deck``) and ``json_each`` hold what
+        # the computation put there itself, not stored state
+        if action == sqlite3.SQLITE_READ and table and database != "temp" and table != "json_each":
             reads.setdefault(table, set()).add(str(column))
         return sqlite3.SQLITE_OK
 
     cache.invalidate()
+    # The store object remembers its data epoch (read from several tables, among them the
+    # universe profiles) until the file changes: forget it, or an earlier trace on this store
+    # would hide that read.
+    store._epoch_cache = None
     store.connection.set_authorizer(authorizer)
     try:
         compute()
@@ -1008,14 +1016,61 @@ def _tables_by_group(tables: Iterable[str]) -> dict[cache.Group | None, set[str]
 def _strength_kind(store: StudioStore) -> object:
     from commander_lab.studio.web import StrengthBody, strength_answer
 
-    return strength_answer(store, StrengthBody(commander=COMMANDER))
+    # the stored tier snapshot decides which tables a computation reads (a hit reads the
+    # snapshot, a miss computes live from the profiles): trace both, miss first
+    store.connection.execute("DELETE FROM tier_snapshot")
+    store.connection.commit()
+    body = StrengthBody(commander=COMMANDER)
+    first = strength_answer(store, body), strength_answer(store, body)
+    # The same kinds also remember the answer for a stored profile, a path of its own: the
+    # settings come from the profile, the notices and the saved weights are read from it
+    # (``profile_notices``, ``profile_saved_weights``) and the figure is computed live, not from
+    # the snapshot. A plain and a profile with a key this version does not know plus a retired
+    # setting hold every notice the path can read for.
+    names = _save_profiles(store)
+    return first, [
+        strength_answer(store, StrengthBody(commander=COMMANDER, profile=n)) for n in names
+    ]
+
+
+_PLAIN_PROFILE = "Tracer schlicht"
+_NOTICE_PROFILE = "Tracer mit Hinweisen"
+
+
+def _save_profiles(store: StudioStore) -> tuple[str, str]:
+    """Two stored strength profiles: one saved the usual way, one with an unknown key and a
+    retired setting that differs from its default (what a profile of an older or a newer
+    version holds). Returns their names."""
+    from commander_lab.studio import strength, strength_view
+
+    strength_view.save_profile(store, _PLAIN_PROFILE, strength.StrengthSettings.recommended())
+    spec = {**strength.StrengthSettings.recommended().to_dict(), "zukunft": 1, "pod_size": 3}
+    with store.connection as db:
+        db.execute(
+            "INSERT OR REPLACE INTO strength_profile(name, spec, created_at) VALUES (?, ?, ?)",
+            (_NOTICE_PROFILE, json.dumps(spec, sort_keys=True), "2026-11-20T00:00:00+00:00"),
+        )
+    return _PLAIN_PROFILE, _NOTICE_PROFILE
 
 
 # One tracer per kind: what computes exactly that figure. A narrowed kind (one that reads fewer
 # than all groups) without a tracer fails ``test_every_narrowed_kind_reads_only_its_groups``.
+def _evidence_kind(store: StudioStore) -> object:
+    from commander_lab.studio import evidence
+
+    # both views: the commander's and the global one (no commander, no colour filter)
+    return (
+        evidence.pool_evidence(store, [COMMANDER]),
+        evidence.pool_evidence(store, [], view=evidence.VIEW_GLOBAL),
+    )
+
+
 _KIND_TRACERS: dict[str, Callable[[StudioStore], object]] = {
     "land_source_groups": lambda store: land_advisor.source_deck_groups(store, [COMMANDER]),
     "strength": _strength_kind,
+    # the route remembers the strength figure first and the card-understanding field on top
+    "strength_understanding": _strength_kind,
+    "answer:evidence": _evidence_kind,
     "answer:pool": lambda store: builder.pool_cards(store, [COMMANDER]),
 }
 
@@ -1051,28 +1106,247 @@ def _declaration_violations(
 def test_every_narrowed_kind_reads_only_its_groups(tmp_path: Path) -> None:
     store = _big_store(tmp_path)
     narrowed = {name for name, kind in cache.KINDS.items() if kind.reads != cache.ALL}
-    assert narrowed == {"land_source_groups"}  # P1: only the kind proven in #1561
+    # the kinds proven so far (#1561); none of them reads the marks
+    assert narrowed == {
+        "land_source_groups",
+        "strength",
+        "strength_understanding",
+        "answer:evidence",
+    }
+    assert all(cache.Group.MARKS not in cache.KINDS[name].reads for name in narrowed)
     assert _declaration_violations(store, cache.KINDS, _KIND_TRACERS) == {}
 
 
-def test_a_kind_wrongly_declared_narrow_is_caught(tmp_path: Path) -> None:
-    """Mutation counter-test: ``strength`` and the ``pool`` answer read the marks (through
-    ``pool_cards``); declaring them import-only must make the proof fail, and so must a
-    declaration without a tracer (#1615: an answer kind is never narrowed unproven)."""
+def test_the_strength_tracer_covers_the_stored_profile_path(tmp_path: Path) -> None:
+    """The tracer's strength run reaches the stored-profile branch of the route (the settings,
+    the notices and the saved weights come from the profile, the figure is computed live), so
+    that a read added there is seen: the profile tables are read, and the answers carry the
+    notices of the profile with the unknown and the retired key (#1561, review of #1711)."""
+    from commander_lab.studio.web import StrengthBody, strength_answer
+
+    store = _big_store(tmp_path)
+    reads = _trace_reads(store, lambda: _strength_kind(store))
+    assert "strength_profile" in reads
+    assert "card_mark" not in reads
+    plain, noted = (
+        strength_answer(store, StrengthBody(commander=COMMANDER, profile=name))
+        for name in (_PLAIN_PROFILE, _NOTICE_PROFILE)
+    )
+    assert not [n for n in plain["notices"] if "zukunft" in n or "Pod-Größe" in n]
+    notices = " ".join(map(str, noted["notices"]))
+    assert "zukunft" in notices and "Pod-Größe" in notices
+
+
+def _with_marks_read(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Mutation: the strength figures and the evidence answer read the marks again (the call
+    before #1561), whatever the callers ask."""
+    from commander_lab.studio import evidence, strength_view
+
+    real = builder.pool_cards
+
+    def reading(*args: object, **kwargs: object) -> dict[str, object]:
+        return real(*args, **{**kwargs, "with_marks": True})  # type: ignore[arg-type]
+
+    monkeypatch.setattr(strength_view, "pool_cards", reading)
+    monkeypatch.setattr(evidence, "pool_cards", reading)
+
+
+def test_a_kind_wrongly_declared_narrow_is_caught(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Mutation counter-tests of the proof: the ``pool`` answer reads the marks (through
+    ``pool_cards``), the strength figures also the profiles and the snapshot, the evidence
+    answer the simulation tables; a declaration that leaves one out fails the proof, a
+    declaration without a tracer too (#1615), and so does a computation that reads the marks
+    again behind a correct declaration."""
     store = _big_store(tmp_path)
     import_only = cache.Kind(reads=frozenset({cache.Group.IMPORT}))
     kinds = {
         **cache.KINDS,
         "strength": import_only,
+        "strength_understanding": import_only,
+        "answer:evidence": import_only,
         "answer:pool": import_only,
         "undeclared": import_only,
     }
     violations = _declaration_violations(store, kinds, _KIND_TRACERS)
-    for name in ("strength", "answer:pool"):
-        assert "card_mark" in violations[name], name
-        assert "card_label" in violations[name], name
+    assert {"card_mark", "card_label"} <= set(violations["answer:pool"])
+    for name in ("strength", "strength_understanding"):
+        assert {"universe_profile", "tier_snapshot"} <= set(violations[name]), name
+        assert "card_mark" not in violations[name], name  # no longer read (#1561)
+    assert {"simulation_card", "simulation_run"} <= set(violations["answer:evidence"])
+    assert "card_mark" not in violations["answer:evidence"]
     assert violations["undeclared"] == ["<no tracer>"]
     assert "land_source_groups" not in violations
+    # the correct declarations hold ...
+    assert _declaration_violations(store, cache.KINDS, _KIND_TRACERS) == {}
+    # ... until the computation reads the marks again
+    _with_marks_read(monkeypatch)
+    again = _declaration_violations(store, cache.KINDS, _KIND_TRACERS)
+    for name in ("strength", "strength_understanding", "answer:evidence"):
+        assert {"card_mark", "card_label"} <= set(again[name]), name
+
+
+@pytest.mark.parametrize("reader", ["profile_notices", "profile_saved_weights", "compute"])
+def test_a_mark_read_on_the_stored_profile_path_is_caught(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, reader: str
+) -> None:
+    """Mutation counter-test of the profile path (#1561, review of #1711): the three steps only
+    the stored-profile answer runs read the marks on top; the proof names the strength kinds."""
+    from commander_lab.studio import strength_view
+
+    store = _big_store(tmp_path)
+    real = getattr(strength_view, reader)
+
+    def reading(*args: object, **kwargs: object) -> object:
+        store.connection.execute("SELECT favorite FROM card_mark LIMIT 1").fetchall()
+        return real(*args, **kwargs)
+
+    monkeypatch.setattr(strength_view, reader, reading)
+    found = _declaration_violations(store, cache.KINDS, _KIND_TRACERS)
+    assert {"strength", "strength_understanding"} <= set(found)
+    for name in ("strength", "strength_understanding"):
+        assert "card_mark" in found[name], name
+    assert "answer:evidence" not in found
+
+
+def _marked_store(tmp_path: Path) -> StudioStore:
+    """The big fixture with every kind of mark on some pool cards."""
+    from commander_lab.studio import labels
+
+    store = _big_store(tmp_path)
+    ids = [
+        str(row["card_id"])
+        for row in store.connection.execute(
+            "SELECT card_id FROM card_fact WHERE commander_legal = 1 ORDER BY oracle_name LIMIT 6"
+        )
+    ]
+    builder.set_favorite(store, ids[0], True)
+    builder.set_mark(store, ids[1], favorite=False, excluded=True, note="probe")
+    builder.set_mark(store, ids[2], favorite=True, excluded=True, note="")
+    labels.set_card_labels(store, ids[3], ["probe"])
+    return store
+
+
+def test_the_pool_without_marks_is_the_pool_minus_the_mark_fields(tmp_path: Path) -> None:
+    """Equivalence of the new read path: every other field of every card and of the pool is
+    unchanged, the four mark fields are absent (not ``False``), nothing of the marks is read."""
+    store = _marked_store(tmp_path)
+    full = builder.pool_cards(store, [COMMANDER], with_signals=False)
+    reads = _trace_reads(
+        store, lambda: builder.pool_cards(store, [COMMANDER], with_signals=False, with_marks=False)
+    )
+    assert "card_mark" not in reads and "card_label" not in reads
+    light = builder.pool_cards(store, [COMMANDER], with_signals=False, with_marks=False)
+    marked = ("favorite", "excluded", "note", "labels")
+    assert any(card["favorite"] or card["excluded"] or card["labels"] for card in full["cards"])  # type: ignore[attr-defined]
+    full_cards = full["cards"]
+    light_cards = light["cards"]
+    assert isinstance(full_cards, list) and isinstance(light_cards, list)
+    assert len(full_cards) == len(light_cards) > 0
+    for plain, lean in zip(full_cards, light_cards, strict=True):
+        assert not set(marked) & set(lean)
+        assert {k: v for k, v in plain.items() if k not in marked} == lean
+    assert {k: v for k, v in full.items() if k != "cards"} == {
+        k: v for k, v in light.items() if k != "cards"
+    }
+    with pytest.raises(ValueError):
+        builder.pool_cards(store, [COMMANDER], include_unowned=True, with_marks=False)
+
+
+def _plain_answers(store: StudioStore) -> tuple[bytes, bytes]:
+    """The strength figure and the evidence of the fixture commander as JSON bytes, computed
+    fresh (nothing remembered)."""
+    from commander_lab.studio import answer_cache, evidence
+    from commander_lab.studio.web import StrengthBody, strength_answer
+
+    cache.invalidate()
+    strength_bytes = answer_cache.dump(strength_answer(store, StrengthBody(commander=COMMANDER)))
+    evidence_bytes = answer_cache.dump(evidence.pool_evidence(store, [COMMANDER]))
+    return strength_bytes, evidence_bytes
+
+
+def test_strength_and_evidence_are_byte_identical_with_and_without_reading_the_marks(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Same input, same bytes: the answers computed without the marks equal the answers computed
+    the way they were before (marks read, then ignored) on an unmarked and on a marked store,
+    and neither changes when a mark is set."""
+    store = _big_store(tmp_path)
+    unmarked = _plain_answers(store)
+    with monkeypatch.context() as old:
+        _with_marks_read(old)
+        assert _plain_answers(store) == unmarked  # the old read path, unmarked
+    builder.set_favorite(store, "card:project:0101", True)
+    builder.set_mark(store, "card:project:0102", favorite=False, excluded=True, note="probe")
+    assert _plain_answers(store) == unmarked  # a mark changes neither answer
+    with monkeypatch.context() as old:
+        _with_marks_read(old)
+        assert _plain_answers(store) == unmarked  # the old read path, marked
+    assert len(unmarked[0]) > 1000 and len(unmarked[1]) > 1000
+
+
+def test_a_mark_click_keeps_strength_and_evidence_and_never_serves_a_stale_marked_route(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, _fresh_answers: None
+) -> None:
+    """Over real routes: a favorite and an exclusion keep the remembered strength and evidence
+    answers (computed once, the same bytes), while a route that does read the marks (the pool)
+    shows the new mark at once, and a write to a group the figures read (a universe profile)
+    drops them."""
+    from fastapi.testclient import TestClient
+
+    from commander_lab.studio import evidence, strength_view
+    from commander_lab.studio.web import create_app
+
+    _big_store(tmp_path).close()
+    calls = {"strength": 0, "evidence": 0}
+    real_strength = strength_view.compute_with_snapshot
+    real_evidence = evidence.pool_evidence
+
+    def counting_strength(*args: object, **kwargs: object) -> object:
+        calls["strength"] += 1
+        return real_strength(*args, **kwargs)  # type: ignore[arg-type]
+
+    def counting_evidence(*args: object, **kwargs: object) -> object:
+        calls["evidence"] += 1
+        return real_evidence(*args, **kwargs)  # type: ignore[arg-type]
+
+    monkeypatch.setattr(strength_view, "compute_with_snapshot", counting_strength)
+    monkeypatch.setattr(evidence, "pool_evidence", counting_evidence)
+    client = TestClient(create_app(tmp_path / "studio"), headers={"X-Studio": "1"})
+
+    def read() -> tuple[bytes, bytes, dict[str, object]]:
+        strength_response = client.post("/api/strength", json={"commander": COMMANDER})
+        evidence_response = client.get(
+            "/api/evidence", params={"view": "commander", "commander": COMMANDER}
+        )
+        pool = client.get("/api/pool", params={"commander": COMMANDER}).json()
+        assert strength_response.status_code == evidence_response.status_code == 200
+        return strength_response.content, evidence_response.content, pool
+
+    strength_before, evidence_before, pool_before = read()
+    assert calls == {"strength": 1, "evidence": 1}
+    card_id = "card:project:0101"
+    cards_before = {str(c["card_id"]): c for c in pool_before["cards"]}  # type: ignore[attr-defined]
+    assert cards_before[card_id]["favorite"] is False
+    assert client.put(f"/api/cards/{card_id}/favorite", json={"favorite": True}).status_code == 200
+    mark = {"favorite": False, "excluded": True, "note": "probe"}
+    assert client.put("/api/cards/card:project:0102/mark", json=mark).status_code == 200
+    strength_after, evidence_after, pool_after = read()
+    assert (strength_after, evidence_after) == (strength_before, evidence_before)
+    assert calls == {"strength": 1, "evidence": 1}  # kept: nothing computed again
+    cards_after = {str(c["card_id"]): c for c in pool_after["cards"]}  # type: ignore[attr-defined]
+    assert cards_after[card_id]["favorite"] is True  # the marked route is never stale
+    assert cards_after["card:project:0102"]["excluded"] is True
+    assert cards_after["card:project:0102"]["note"] == "probe"
+    # a written group the figures read drops them (and the fresh answer still equals the kept one)
+    universe = f"/api/universe/profiles/probe?commander={COMMANDER.replace(' ', '%20')}"
+    assert client.put(universe, json={}).status_code == 200
+    again_strength, again_evidence, _ = read()
+    assert calls["strength"] == 2
+    assert calls["evidence"] == 2  # the evidence pool's counted universe reads the profiles
+    assert again_evidence == evidence_before
+    assert again_strength  # recomputed under the profile write
 
 
 def _route_writes() -> list[
@@ -1239,6 +1513,8 @@ def _route_writes() -> list[
 
 # Unowned cards known only to the Scryfall catalog, one per write of the matrix that adds one.
 _UNOWNED = tuple(f"scryfall:probe-unowned-{n}" for n in range(4))
+# The kinds narrowed by #1561 besides the land figure: held over every write of the matrix too.
+_FIGURE_KINDS = ("strength", "strength_understanding", "answer:evidence")
 
 
 def test_the_write_matrix_keeps_exactly_the_kinds_that_read_no_written_group(
@@ -1345,7 +1621,7 @@ def test_the_write_matrix_keeps_exactly_the_kinds_that_read_no_written_group(
         land = land_advisor.source_deck_groups(reader, [COMMANDER])
         held = {
             kind: cache.cached(reader, (kind,), lambda kind=kind: [kind])
-            for kind in [*probes, "undeclared_probe"]
+            for kind in [*probes, "undeclared_probe", *_FIGURE_KINDS]
         }
         reader.close()
         before = calls["land"]
@@ -1387,6 +1663,16 @@ def test_the_write_matrix_keeps_exactly_the_kinds_that_read_no_written_group(
         if kind != "probe_meta":
             assert any(kind not in kept for kept in kept_over.values()), kind
     assert not any("undeclared_probe" in kept for kept in kept_over.values())
+    # the strength figures and the evidence answer survive every write of the marks, and only
+    # those groups they read drop them (profiles, snapshot, simulation, imports)
+    for name in ("favorite", "mark_excluded", "card_labels"):
+        assert set(_FIGURE_KINDS) <= kept_over[name], name
+    for name in ("deck_labels", "draft", "revision", "primer"):
+        assert set(_FIGURE_KINDS) <= kept_over[name], name  # the Owner's decks: no read either
+    for name in ("strength_profile", "universe_profile"):
+        assert not set(_FIGURE_KINDS) & kept_over[name], name  # the profiles group
+    assert "answer:evidence" not in kept_over["universe_profile"]  # the counted universe
+    assert not set(_FIGURE_KINDS) & kept_over["favorite_unowned"]  # a catalog write: imports
 
 
 def _plain_groups(folder: Path) -> list[dict[str, object]]:

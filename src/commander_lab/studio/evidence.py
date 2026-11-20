@@ -634,7 +634,7 @@ def pool_evidence(
     if view not in VIEWS:
         raise ValueError(view)
     names = tuple(commander_names) if view == VIEW_COMMANDER else ()
-    pool = pool_cards(store, names)
+    pool = pool_cards(store, names, with_marks=False)
     db = store.connection
     raw_cards = pool["cards"]
     cohorts = pool["cohorts"]
