@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import csv
 import json
+import os
 import random
 import sqlite3
 from collections.abc import Callable, Iterable, Iterator, Mapping, Sequence
@@ -882,6 +883,48 @@ def test_a_changed_data_file_is_seen_by_the_next_remembered_answer(
         encoding="utf-8",
     )
     assert client.get("/api/evidence", params=params).content != before
+
+
+def test_a_rewrite_with_the_same_size_and_time_is_seen_by_the_remembered_answer(
+    tmp_path: Path, _fresh_answers: None
+) -> None:
+    """#1615 point 4: a data file rewritten with the same size inside the same clock tick keeps
+    its size and modification time. The key of a remembered answer follows the content."""
+    from commander_lab.studio import answer_cache
+    from commander_lab.studio import evidence as evidence_model
+
+    assert evidence_model._COMBOS_PATH in evidence_model.ANSWER_FILES  # the real route reads it
+    store = _big_store(tmp_path)
+    combo_file = tmp_path / "spellbook_combos.json"
+    combo_file.write_text('{"combos": ["aaaa"]}', encoding="utf-8")
+    seen = combo_file.stat()
+    calls: list[int] = []
+
+    def ask() -> bytes:
+        def compute() -> dict[str, object]:
+            calls.append(1)
+            return {"combos": json.loads(combo_file.read_text(encoding="utf-8"))["combos"]}
+
+        return bytes(answer_cache.json_answer(store, "probe", (), compute, files=(combo_file,)).body)
+
+    first = ask()
+    assert ask() == first and len(calls) == 1
+    # touching the file without changing its content is no change
+    os.utime(combo_file, ns=(seen.st_atime_ns, seen.st_mtime_ns + 1_000))
+    assert ask() == first and len(calls) == 1
+    # same size, same modification time, other content
+    stamp_before = answer_cache.file_stamp(combo_file)
+    content_before = answer_cache.content_stamp(combo_file)
+    combo_file.write_text('{"combos": ["bbbb"]}', encoding="utf-8")
+    os.utime(combo_file, ns=(seen.st_atime_ns, seen.st_mtime_ns + 1_000))
+    assert answer_cache.file_stamp(combo_file) == stamp_before  # what the old key could not see
+    assert answer_cache.content_stamp(combo_file) != content_before
+    changed = ask()
+    assert changed != first and len(calls) == 2
+    assert json.loads(changed) == {"combos": ["bbbb"]}
+    # an absent file is a stamp of its own
+    combo_file.unlink()
+    assert answer_cache.content_stamp(combo_file) == (str(combo_file), None, None)
 
 
 def test_an_answer_kept_per_file_state_is_recomputed_when_a_file_changes(
