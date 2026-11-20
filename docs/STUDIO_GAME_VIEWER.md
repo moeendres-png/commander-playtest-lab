@@ -167,6 +167,14 @@ gets no rank. Ranking uses the lower bound of the difference interval, so a card
 cannot outrank a well-measured one on a lucky point estimate. Mixed engine commits or pilot
 versions are refused unless `--allow-mixed` is given, and then reported as warnings.
 
+Games are counted per stratum: the deck state (`deck_hash` of the seat, #1657) and the table
+size (the number of seats in the log header, #1683). Each stratum is its own table with its own
+n/N (`stands`); a log whose header names no deck state or no complete seat list stands apart as
+"Stand unbekannt" or "Tischgröße unbekannt" (`unknown_strata`), never added to a known stratum
+and never treated as equal to another unknown one. Several deck states are combined only
+stratified (Mantel-Haenszel, `strata` = number of strata) and only at one table size: strata of
+2, 3 and 4 seats are never combined, because their base win rates differ (1/2, 1/3, 1/4).
+
 What it does not say: how strong the pilots are or how a human would play the card (the pilot
 decides how the card is used); anything outside the pods that were simulated (the opponents
 are part of the experiment); a deck-building verdict for cards whose value comes late (a
