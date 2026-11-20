@@ -114,6 +114,8 @@ TABLE_GROUP: Final[Mapping[str, Group]] = MappingProxyType(
         "strength_profile": Group.PROFILES,
         "simulation_run": Group.SIMULATION,
         "simulation_card": Group.SIMULATION,
+        "experiment": Group.SIMULATION,
+        "experiment_arm": Group.SIMULATION,
         "tier_snapshot": Group.SNAPSHOT,
         "meta": Group.META,
     }

@@ -1361,3 +1361,24 @@ def test_the_pool_is_off_by_default_and_a_switch_turns_it_on(
     assert created[0]["command"] == ("java", "-jar", "b.jar", "full-game")
     on.close()
     assert created[-1] == {"closed": True}
+
+
+def test_a_series_refuses_games_of_two_pilot_fingerprints() -> None:
+    """#1658: the fingerprint, not the constant version string, is the pilot identity; a
+    game without one never pools with a game that has one."""
+    from commander_lab.studio import paired_comparison as pc
+
+    def game(fingerprint: str | None) -> dict[str, object]:
+        return {
+            "game_id": f"g-{fingerprint}",
+            "engine_commit": "c",
+            "pilot": "GenericCommanderPilot 1.0.0",
+            "pilot_fingerprint": fingerprint,
+            "decision_policy": "p",
+        }
+
+    same, _ = pc._check_provenance([game("a" * 64), game("a" * 64)], allow_mixed=False)  # type: ignore[list-item]
+    assert same["pilot"] == ["fp:" + "a" * 64]
+    for other in ("b" * 64, None):
+        with pytest.raises(ValueError, match="mixed pilot versions"):
+            pc._check_provenance([game("a" * 64), game(other)], allow_mixed=False)  # type: ignore[list-item]

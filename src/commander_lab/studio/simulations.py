@@ -40,8 +40,8 @@ from .launch import (
     checked_series_settings,
     command_text,
     engine_state,
+    resolve_opponent_paths,
     series_engine,
-    validate_released_seat_count,
 )
 from .launch import (
     bridge_jar_sha256 as command_bridge_jar_sha256,
@@ -800,8 +800,11 @@ class BatchSimulation:
         initial_games: Sequence[GameSummary] | None = None,
         bridge_jar_sha256: str | None = None,
         qualification: Mapping[str, object] | None = None,
+        opponent_ids: Sequence[str] | None = None,
     ) -> None:
         self.batch_id = batch_id
+        #: The opponents as asked for (None: the pod preset), so a resume plays the same table
+        self.opponent_ids = list(opponent_ids) if opponent_ids is not None else None
         self.data_folder = Path(data_folder)
         self.deck_id = deck_id
         self.revision_id = revision_id
@@ -925,6 +928,7 @@ class BatchSimulation:
                 "deck_id": self.deck_id,
                 "revision_id": self.revision_id,
                 "pod": self.pod_name,
+                "opponent_ids": self.opponent_ids,
                 "status": self.status,
                 "games_planned": len(self.seeds),
                 "games_completed": sum(1 for g in games if g.status == "finished"),
@@ -962,10 +966,10 @@ class BatchSimulation:
         """Construct a BatchSimulation from a saved series record for resumption.
 
         Raises KeyError when no record exists for ``batch_id`` and ValueError
-        when the stored record is not valid JSON. The original opponents are
-        not part of the record; without explicit ``opponent_paths`` they are
-        re-derived heuristically from the pod preset and the precon deck
-        folder, which can differ from the pod the series originally ran with.
+        when the stored record is not valid JSON. Without explicit ``opponent_paths`` the
+        opponents are the ``opponent_ids`` the record stores (since #1658). A record without
+        them was written before the fix of the opponent lookup (whose games ran against a
+        stand-in table) and is refused: one series never mixes two tables.
         """
         data_path = Path(data_folder)
         folder = games_folder(data_path)
@@ -1001,24 +1005,18 @@ class BatchSimulation:
                 except Exception:
                     pass
 
-        # Resolve opponents if needed
+        # Resolve opponents if needed: the stored ids, else the stored pod preset; an unknown
+        # one is an error, never a stand-in deck (B2, #1658)
+        raw_ids = raw.get("opponent_ids")
+        stored_ids = [str(oid) for oid in raw_ids] if isinstance(raw_ids, list) else None
         opp_paths = list(opponent_paths or [])
         if not opp_paths:
-            pod = str(raw.get("pod") or "precon")
-            root = Path(__file__).resolve().parents[3]
-            preset = POD_PRESETS.get(pod, POD_PRESETS["precon"])
-            for oid in preset:
-                cand = root / f"data/decks/precons/{oid}.json"
-                if cand.is_file():
-                    opp_paths.append(cand)
-                else:
-                    for p in (root / "data/decks/precons").glob("*.json"):
-                        if p.stem.endswith(oid) or oid in p.stem:
-                            opp_paths.append(p)
-                            break
-            if not opp_paths:
-                all_p = sorted((root / "data/decks/precons").glob("*.json"))
-                opp_paths = all_p[:3] if len(all_p) >= 3 else all_p
+            if stored_ids is None:
+                raise ValueError(
+                    f"Serie {batch_id} nennt ihre Gegner nicht (vor #1658 gestartet, ihre Partien "
+                    "liefen gegen einen Ersatz-Tisch); nicht fortsetzbar, bitte neu starten"
+                )
+            opp_paths = resolve_opponent_paths(str(raw.get("pod") or "precon"), stored_ids)
 
         deck_id = str(raw.get("deck_id") or "chulane")
         revision_id = str(raw.get("revision_id") or "current")
@@ -1046,6 +1044,7 @@ class BatchSimulation:
             revision_id=revision_id,
             pod_name=pod_name,
             opponent_paths=opp_paths,
+            opponent_ids=stored_ids,
             seeds=planned_seeds,
             game_executor=game_executor,
             workers=workers if workers is not None else saved_workers,
@@ -1396,7 +1395,6 @@ class SimulationBatchManager:
         opponent_ids: list[str] | None = None,
         games_count: int = 10,
         base_seed: int = 1000,
-        seed_step: int = 1,
         style: float | None = None,
         game_executor: Callable[..., dict[str, object]] | None = None,
         workers: int | None = None,
@@ -1412,16 +1410,11 @@ class SimulationBatchManager:
         data_path = Path(data_folder).resolve()
         used_workers, used_games_per_jvm = checked_series_settings(workers, games_per_jvm)
 
-        if opponent_ids is not None:
-            validate_released_seat_count(
-                len(opponent_ids), allow_unreleased_seats=allow_unreleased_seats
-            )
-            opp_list = list(opponent_ids)
-        elif pod in POD_PRESETS:
-            opp_list = list(POD_PRESETS[pod])
-        else:
-            opp_list = list(POD_PRESETS["precon"])
-        validate_released_seat_count(len(opp_list), allow_unreleased_seats=allow_unreleased_seats)
+        # Unknown pod or deck id is an error before anything starts (B2, #1658): no other deck
+        # takes the seat, so the series plays exactly the table that was asked for.
+        opp_paths = resolve_opponent_paths(
+            pod, opponent_ids, allow_unreleased_seats=allow_unreleased_seats
+        )
 
         # Engine preflight check
         engine: SeriesEngine | None = None
@@ -1430,32 +1423,6 @@ class SimulationBatchManager:
             if engine is None:
                 state = engine_state(data_path)
                 raise RuntimeError(str(state.get("reason") or "Engine is not ready"))
-
-        root = Path(__file__).resolve().parents[3]
-        opp_paths: list[Path] = []
-        for oid in opp_list:
-            # Check precon / opponent files
-            candidate = root / f"data/decks/precons/{oid}.json"
-            if candidate.is_file():
-                opp_paths.append(candidate)
-                continue
-            # Try searching precons
-            found = False
-            for p in (root / "data/decks/precons").glob("*.json"):
-                if p.stem.endswith(oid) or oid in p.stem:
-                    opp_paths.append(p)
-                    found = True
-                    break
-            if not found:
-                # Fallback to direct path or first precon
-                fallback = root / "data/decks/precons/2026_lorehold_spirit.json"
-                if fallback.is_file():
-                    opp_paths.append(fallback)
-
-        if not opp_paths:
-            # Default to three available precons
-            all_precons = sorted((root / "data/decks/precons").glob("*.json"))
-            opp_paths = all_precons[:3] if len(all_precons) >= 3 else all_precons
 
         # Snapshot the candidate deck
         snapshot = lab_snapshot(store, revision_id)
@@ -1469,7 +1436,7 @@ class SimulationBatchManager:
         )
 
         batch_id = f"batch-{int(time.time())}-{re.sub(r'[^a-z0-9]+', '-', deck_id.lower())[:16]}"
-        seeds = [base_seed + i * seed_step for i in range(games_count)]
+        seeds = [base_seed + i for i in range(games_count)]
         qual = bridge_qualification()
         jar_sha = (
             command_bridge_jar_sha256(data_path, engine.command) if engine is not None else None
@@ -1482,6 +1449,7 @@ class SimulationBatchManager:
             revision_id=revision_id,
             pod_name=pod,
             opponent_paths=opp_paths,
+            opponent_ids=opponent_ids if opponent_ids is not None else list(POD_PRESETS[pod]),
             seeds=seeds,
             style=style,
             game_executor=game_executor,

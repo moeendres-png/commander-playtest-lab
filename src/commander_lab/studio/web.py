@@ -47,6 +47,7 @@ from . import (
     deck_modules,
     deck_series,
     engine_check,
+    experiments,
     games,
     gc_band,
     import_all,
@@ -108,6 +109,9 @@ _MARKS = frozenset({cache.Group.MARKS})
 _DECKS = frozenset({cache.Group.DECKS})
 _PROFILES = frozenset({cache.Group.PROFILES})
 _CATALOG = frozenset({cache.Group.IMPORT})
+# The experiment index (B2, #1658); adopting a variant also moves the deck's ``main`` branch.
+_EXPERIMENTS = frozenset({cache.Group.SIMULATION})
+_EXPERIMENT_DECISION = frozenset({cache.Group.SIMULATION, cache.Group.DECKS})
 
 
 def _with_catalog(
@@ -301,12 +305,15 @@ class PlaySpeedBody(BaseModel):
 
 
 class BatchSimulationBody(BaseModel):
+    # Unknown fields are refused: ``seed_step`` is gone (B2, #1658), consecutive seeds only,
+    # because the engine starts at seat ``seed % players`` and a step can pin the start seat.
+    model_config = ConfigDict(extra="forbid")
+
     revision_id: str = Field(min_length=1, max_length=200)
     pod: str = Field(default="precon", max_length=50)
     opponent_ids: list[str] | None = None
     games_count: int = Field(default=10, ge=1, le=100)
     base_seed: int = Field(default=1000, ge=0, le=2_000_000_000)
-    seed_step: int = Field(default=1, ge=1, le=1000)
     style: float | None = Field(default=None, ge=0.0, le=1.0)
     workers: int | None = Field(default=None, ge=MIN_WORKERS, le=MAX_WORKERS)
     games_per_jvm: int | None = Field(default=None, ge=MIN_GAMES_PER_JVM, le=MAX_GAMES_PER_JVM)
@@ -331,6 +338,34 @@ class PairedSeriesBody(BaseModel):
     )
     workers: int | None = Field(default=None, ge=MIN_WORKERS, le=MAX_WORKERS)
     games_per_jvm: int | None = Field(default=None, ge=MIN_GAMES_PER_JVM, le=MAX_GAMES_PER_JVM)
+
+
+#: What the card evaluation says when one deck state holds games of two pilots (#1658).
+MIXED_PILOT_TEXT = (
+    "Die Partien dieses Deck-Stands stammen von verschiedenen Piloten: der Pilot-Fingerabdruck "
+    "hat gewechselt (nach einer Änderung am Piloten, oder Partien von vor dem Fingerabdruck "
+    "liegen neben neuen). Partien verschiedener Piloten werden nie zusammengezählt, deshalb "
+    "zeigt die Auswertung keine Zahlen (unbekannt, nicht 0). Ausweg: mit dem aktuellen "
+    "Piloten neu spielen und die älteren Protokolle dieses Stands aus dem Spiele-Ordner "
+    "verschieben; eine getrennte Anzeige je Fingerabdruck folgt."
+)
+
+
+class ExperimentBody(BaseModel):
+    """The plan file's content as ``plan``; execution settings never enter the plan SHA."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    plan: experiments.ExperimentPlan
+    workers: int | None = Field(default=None, ge=MIN_WORKERS, le=MAX_WORKERS)
+    games_per_jvm: int | None = Field(default=None, ge=MIN_GAMES_PER_JVM, le=MAX_GAMES_PER_JVM)
+
+
+class DecisionBody(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    decision: Literal["adopted", "rejected"]
+    note: str = Field(default="", max_length=1000)
 
 
 class ReadinessAuditBody(BaseModel):
@@ -1255,7 +1290,6 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
                 opponent_ids=body.opponent_ids,
                 games_count=body.games_count,
                 base_seed=body.base_seed,
-                seed_step=body.seed_step,
                 style=body.style,
                 workers=body.workers,
                 games_per_jvm=body.games_per_jvm,
@@ -1360,6 +1394,81 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         except ValueError as error:
             raise HTTPException(422, str(error)) from error
         except RuntimeError as error:
+            raise HTTPException(409, str(error)) from error
+        finally:
+            store.close()
+
+    @app.post("/api/experiments")
+    def start_experiment(body: ExperimentBody) -> dict[str, object]:
+        """Write the plan file, index it and start its paired series (B2, #1658)."""
+        store = open_store()
+        try:
+            home = games_home()
+
+            def start(settings: dict[str, object]) -> paired_series.PairedSeriesJob:
+                return paired_series.paired_series_manager.start_series(
+                    store,
+                    home,
+                    **settings,  # type: ignore[arg-type]
+                    workers=body.workers,
+                    games_per_jvm=body.games_per_jvm,
+                )
+
+            with cache.write(store, _EXPERIMENTS):
+                return experiments.start_experiment(store, home, body.plan, start_series=start)
+        except KeyError as error:
+            raise HTTPException(404, f"unknown deck revision: {error}") from error
+        except ValueError as error:
+            raise HTTPException(422, str(error)) from error
+        except RuntimeError as error:
+            raise HTTPException(409, str(error)) from error
+        finally:
+            store.close()
+
+    @app.post("/api/experiments/rebuild-index")
+    def rebuild_experiment_index() -> dict[str, object]:
+        """Rebuild the experiment index from plan, run, decision and old series files."""
+        store = open_store()
+        try:
+            with cache.write(store, _EXPERIMENTS):
+                return dict(experiments.rebuild_index(store, games_home()))
+        except experiments.RebuildRefused as error:
+            raise HTTPException(409, str(error)) from error
+        finally:
+            store.close()
+
+    @app.post("/api/experiments/{experiment_id}/decision")
+    def decide_experiment(experiment_id: str, body: DecisionBody) -> dict[str, object]:
+        """Adopt (``main`` becomes the variant) or reject; the decision is kept in the index
+        and in ``decision.json``. Adopting counts as the Owner's decision (E15 Q2)."""
+        store = open_store()
+        try:
+            with cache.write(store, _EXPERIMENT_DECISION):
+                return experiments.decide(
+                    store, games_home(), experiment_id, body.decision, body.note
+                )
+        except KeyError as error:
+            raise HTTPException(404, "unknown experiment") from error
+        except ValueError as error:
+            raise HTTPException(422, str(error)) from error
+        except experiments.DecisionRefused as error:
+            raise HTTPException(409, str(error)) from error
+        finally:
+            store.close()
+
+    @app.post("/api/experiments/{experiment_id}/undo")
+    def undo_experiment_decision(experiment_id: str) -> dict[str, object]:
+        """Take a decision back; after an adoption ``main`` returns to the stored previous
+        state, only while ``main`` still is the adopted variant."""
+        store = open_store()
+        try:
+            with cache.write(store, _EXPERIMENT_DECISION):
+                return experiments.undo_decision(store, games_home(), experiment_id)
+        except KeyError as error:
+            raise HTTPException(404, "unknown experiment") from error
+        except ValueError as error:
+            raise HTTPException(422, str(error)) from error
+        except experiments.DecisionRefused as error:
             raise HTTPException(409, str(error)) from error
         finally:
             store.close()
@@ -1649,12 +1758,19 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         store = open_store()
         try:
             revision_ids = deck_series.deck_revision_ids(store, deck_id)
-            hashes = deck_series.revision_hashes(store, revision_ids or [])
+            if revision_ids is None:
+                raise HTTPException(404, "unknown deck")
+            result = deck_series.deck_series(
+                games_home(), revision_ids, store=store, deck_id=deck_id
+            )
+            refs = {
+                str(item[key])
+                for item in cast(list[dict[str, object]], result["series"])
+                for key in ("base_ref", "variant_ref")
+            }
+            hashes = deck_series.revision_hashes(store, sorted({*revision_ids, *refs}))
         finally:
             store.close()
-        if revision_ids is None:
-            raise HTTPException(404, "unknown deck")
-        result = deck_series.deck_series(games_home(), revision_ids)
         result["zahlen"] = number_contract.series_zahlen(result, hashes)
         return result
 
@@ -2403,6 +2519,8 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
             table = card_outcomes.outcomes_for_folder(
                 games.games_folder(games_home()), deck_id=deck_id, min_exposed=min_exposed
             )
+        except card_outcomes.MixedPilotError as error:
+            raise HTTPException(409, MIXED_PILOT_TEXT) from error
         except ValueError as error:
             raise HTTPException(409, str(error)) from error
         result: dict[str, object] = dict(table)

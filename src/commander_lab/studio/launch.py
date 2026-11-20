@@ -770,6 +770,35 @@ def validate_released_seat_count(
     return 1 + opponent_count
 
 
+def resolve_opponent_paths(
+    pod: str,
+    opponent_ids: Sequence[str] | None,
+    *,
+    allow_unreleased_seats: bool = False,
+) -> list[Path]:
+    """The deck files of the opponents: the given precon ids, else the pod preset.
+
+    An unknown pod or deck id is an error (B2, #1658); no other deck takes its seat.
+    """
+    by_id = {deck_id: path for deck_id, _name, _cmds, _year, path in _precons()}
+    if opponent_ids is not None:
+        opp_list = [str(oid).strip() for oid in opponent_ids]
+    elif pod in POD_PRESETS:
+        opp_list = list(POD_PRESETS[pod])
+    else:
+        raise ValueError(f"Unbekannter Gegnertisch (pod): {pod!r}")
+    validate_released_seat_count(len(opp_list), allow_unreleased_seats=allow_unreleased_seats)
+    if len(set(opp_list)) != len(opp_list):
+        raise ValueError("Gegner-Decks dürfen nicht doppelt vorkommen")
+    paths: list[Path] = []
+    for oid in opp_list:
+        path = by_id.get(oid)
+        if path is None:
+            raise ValueError(f"Unbekanntes Gegner-Deck: {oid!r}")
+        paths.append(path)
+    return paths
+
+
 def prepare_table_deck_paths(
     store: StudioStore,
     data_folder: str | Path,

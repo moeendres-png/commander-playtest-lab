@@ -363,6 +363,41 @@ CREATE TABLE IF NOT EXISTS simulation_card (
     PRIMARY KEY (run_id, card_name)
 );
 CREATE INDEX IF NOT EXISTS simulation_card_id ON simulation_card(card_id);
+-- B2 (#1658): additive experiment index, no schema bump (22 is reserved for K-2, E15 Q9).
+-- Plan, result and decision files stay the source; ``experiments.rebuild_index`` rebuilds
+-- both tables from them. A decision is kept in the row and in its file.
+CREATE TABLE IF NOT EXISTS experiment (
+    experiment_id TEXT PRIMARY KEY,
+    deck_id TEXT NOT NULL,
+    question TEXT NOT NULL,
+    question_kind TEXT,
+    purpose TEXT NOT NULL,
+    base_revision_id TEXT NOT NULL,
+    plan_sha TEXT,
+    table_hash TEXT,
+    first_seed INTEGER,
+    last_seed INTEGER,
+    series_id TEXT,
+    engine_pin TEXT,
+    bridge_jar_sha256 TEXT,
+    bridge_state TEXT,
+    pilot_fingerprint TEXT,
+    decision TEXT NOT NULL DEFAULT 'open' CHECK (decision IN ('open', 'adopted', 'rejected')),
+    decision_at TEXT,
+    decision_note TEXT,
+    decision_tested INTEGER,
+    decision_previous_revision_id TEXT,
+    created_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS experiment_deck ON experiment(deck_id);
+CREATE TABLE IF NOT EXISTS experiment_arm (
+    experiment_id TEXT NOT NULL REFERENCES experiment(experiment_id),
+    role TEXT NOT NULL CHECK (role IN ('base', 'variant')),
+    revision_id TEXT NOT NULL,
+    deck_hash TEXT,
+    PRIMARY KEY (experiment_id, role, revision_id)
+);
+CREATE INDEX IF NOT EXISTS experiment_arm_revision ON experiment_arm(revision_id);
 CREATE TABLE IF NOT EXISTS source_capture_event (
     event_id TEXT PRIMARY KEY,
     source_url TEXT NOT NULL,
@@ -1094,6 +1129,7 @@ class StudioStore:
             "source_capture_event", "playgroup_card_atlas", "playgroup_top_commander", "playgroup_final_zone",
             "universe_profile", "commander_binding", "card_signal", "strength_profile", "tier_snapshot",
             "card_ruling", "card_ruling_source", "card_label", "deck_label", "card_printing",
+            "experiment", "experiment_arm",
         }:  # fmt: skip
             raise ValueError(table)
         return int(self.connection.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0])

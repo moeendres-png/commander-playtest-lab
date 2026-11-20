@@ -113,4 +113,21 @@ def test_one_revision_is_one_deck_state_and_another_revision_another(tmp_path: P
     assert hashes[0] == hashes[1]  # written twice, the same state
     assert hashes[0] != hashes[2]  # one card changed, another state
     assert play.snapshot_deck_hash(own) == hashes[0]
+
+
+def test_the_header_names_the_pilot_fingerprint_and_keeps_the_pilot_version(
+    tmp_path: Path,
+) -> None:
+    """#1658: the fingerprint is new in the header; scenario and bindings keep 1.0.0."""
+    from commander_lab.studio.pilot_fingerprint import pilot_fingerprint
+
+    _first, _second, own, _again, _other = _snapshot_paths(tmp_path)
+    prepared = _prepared(own)
+    assert prepared.header["pilot"] == "GenericCommanderPilot 1.0.0"
+    assert prepared.header["pilot_fingerprint"] == pilot_fingerprint(
+        policy_version=play.POLICY_VERSION, strength="near_optimal_heuristic"
+    )
+    assert HEX64.fullmatch(str(prepared.header["pilot_fingerprint"]))
+    assert prepared.scenario.pilot_version == play.PILOT_VERSION == "1.0.0"
+    assert {p.pilot_version for p in prepared.pilots} == {"1.0.0"}
     assert play.snapshot_deck_hash(tmp_path / "missing.json") is None

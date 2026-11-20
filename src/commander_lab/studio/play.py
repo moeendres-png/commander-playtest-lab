@@ -57,6 +57,7 @@ from .games import (
     redact_pilot_state_for_human_seats,
 )
 from .launch import bridge_jar_sha256, engine_command, interactive_bridge_command
+from .pilot_fingerprint import pilot_fingerprint
 
 PILOT_IDENTITY = "GenericCommanderPilot"
 PILOT_VERSION = "1.0.0"
@@ -204,6 +205,13 @@ def _with_hash(deck: RulesDeckInput) -> RulesDeckInput:
         }
     )
     return deck.model_copy(update={"deck_hash": derived})
+
+
+def header_pilot_fingerprint() -> str:
+    """The pilot fingerprint every game log header of this code names (#1658)."""
+    return pilot_fingerprint(
+        policy_version=POLICY_VERSION, strength=PilotStrength.NEAR_OPTIMAL_HEURISTIC.value
+    )
 
 
 def snapshot_deck_hash(path: Path) -> str | None:
@@ -386,6 +394,9 @@ def prepare_game(
         ),
         "bridge_sealed_epoch": qual.get("sealed_epoch"),
         "pilot": f"{PILOT_IDENTITY} {PILOT_VERSION}",
+        # The identity the mixing checks compare (B2, #1658): code and data of the pilot,
+        # policy and strength; the style of each seat is in its seat header.
+        "pilot_fingerprint": header_pilot_fingerprint(),
         "decision_policy": POLICY_VERSION,
         "strategy": strategy,
         "seats": [

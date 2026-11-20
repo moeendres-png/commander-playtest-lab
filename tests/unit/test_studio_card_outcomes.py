@@ -89,6 +89,7 @@ def _write_log(
     gz: bool = True,
     deck_hashes: object = _DEFAULT,
     revisions: tuple[str | None, str | None] = (None, None),
+    fingerprint: str | None = None,
 ) -> Path:
     """One game log. Every seat names a deck state derived from its deck id unless
     ``deck_hashes`` gives others; ``deck_hashes=None`` writes a log of before #1657."""
@@ -116,6 +117,8 @@ def _write_log(
         "decision_policy": "policy-1",
         "seats": seats,
     }
+    if fingerprint is not None:
+        header["pilot_fingerprint"] = fingerprint
     lines: list[dict[str, object]] = [header, *frames]
     if status is not None:
         lines.append({"kind": "result", "status": status, "winner_seats": list(winners)})
@@ -335,6 +338,36 @@ def test_mixed_engine_commits_or_pilots_are_refused_unless_allowed() -> None:
     pilots = _synthetic(_block("A", 3, 1)) + _synthetic(_block("A", 3, 1), pilot="P2")
     with pytest.raises(ValueError, match="mixed pilot versions"):
         aggregate(pilots, deck_id=DECK)
+
+
+def test_the_pilot_fingerprint_is_the_identity_and_unknown_never_pools(tmp_path: Path) -> None:
+    """#1658: games of one deck state with two fingerprints, or with and without one, are
+    refused like mixed pilot versions; the same fingerprint counts together."""
+    frames = [_frame(1, 0, "mulligan", hand=["A"], chosen=["Keep hand"])]
+    fp_a, fp_b = _hash("pilot-a"), _hash("pilot-b")
+    _write_log(tmp_path, "g1", frames, seed=1, fingerprint=fp_a)
+    _write_log(tmp_path, "g2", frames, seed=2, fingerprint=fp_a)
+    table = outcomes_for_folder(tmp_path, deck_id=DECK, min_exposed=1)
+    assert table["pilots"] == [f"fp:{fp_a}"]
+    for game_id, fingerprint in (("g3", None), ("g3", fp_b)):
+        _write_log(tmp_path, game_id, frames, seed=3, fingerprint=fingerprint)
+        with pytest.raises(ValueError, match="mixed pilot versions"):
+            outcomes_for_folder(tmp_path, deck_id=DECK, min_exposed=1)
+
+
+def test_the_card_page_explains_a_pilot_change_in_german(tmp_path: Path) -> None:
+    """Review #1685 P2-2: the 409 names cause and way out in German, and counts nothing."""
+    games_dir = tmp_path / "studio" / "games"
+    games_dir.mkdir(parents=True)
+    frames = [_frame(1, 0, "mulligan", hand=["A"], chosen=["Keep hand"])]
+    _write_log(games_dir, "g1", frames, seed=1, fingerprint=_hash("pilot-a"))
+    _write_log(games_dir, "g2", frames, seed=2, fingerprint=None)
+    with TestClient(create_app(tmp_path / "studio")) as client:
+        response = client.get("/api/outcomes", params={"deck_id": DECK, "min_exposed": 1})
+    assert response.status_code == 409
+    detail = response.json()["detail"]
+    assert "Pilot-Fingerabdruck" in detail and "nie zusammengezählt" in detail
+    assert "unbekannt, nicht 0" in detail and "mixed" not in detail
 
 
 # --- API and CLI -----------------------------------------------------------------------
