@@ -381,6 +381,16 @@ def _parser() -> argparse.ArgumentParser:
         help=f"games one engine process plays, {MIN_GAMES_PER_JVM} to {MAX_GAMES_PER_JVM} "
         f"(default: {DEFAULT_GAMES_PER_JVM})",
     )
+    experiment = commands.add_parser(
+        "experiment",
+        help="start a paired series from an experiment plan file (B2), or rebuild the index",
+    )
+    experiment.add_argument("--plan", default=None, help="plan JSON (the same as the web form)")
+    experiment.add_argument(
+        "--rebuild-index", action="store_true", help="rebuild the index from the files"
+    )
+    experiment.add_argument("--workers", type=int, default=None)
+    experiment.add_argument("--games-per-jvm", type=int, default=None)
     commands.add_parser("games")
     outcomes = commands.add_parser(
         "card-outcomes",
@@ -1024,6 +1034,47 @@ def _run(args: argparse.Namespace, store: StudioStore) -> object:
     return result
 
 
+def _experiment(args: argparse.Namespace) -> int:
+    """``experiment --plan FILE``: the same plan, plan SHA, seeds and arms as the web route."""
+    import time
+
+    from pydantic import ValidationError
+
+    from . import experiments, paired_series
+    from .store import studio_data_dir
+
+    folder = Path(args.data).resolve() if args.data else studio_data_dir()
+    store = StudioStore.open(folder)
+    try:
+        if args.rebuild_index:
+            print(json.dumps(experiments.rebuild_index(store, folder), indent=2))
+            return 0
+        if not args.plan:
+            print("error: --plan FILE or --rebuild-index is required", file=sys.stderr)
+            return 2
+        try:
+            raw = json.loads(Path(args.plan).read_text(encoding="utf-8"))
+            plan = experiments.ExperimentPlan.model_validate(raw)
+            started = experiments.start_experiment(
+                store, folder, plan, workers=args.workers, games_per_jvm=args.games_per_jvm
+            )
+        except (OSError, ValueError, ValidationError, KeyError, RuntimeError) as error:
+            print(f"error: {error}", file=sys.stderr)
+            return 2
+        job = paired_series.paired_series_manager.get_job(str(started["series_id"]))
+        try:
+            while job is not None and job.status in {"pending", "running"}:
+                time.sleep(0.5)
+        except KeyboardInterrupt:
+            if job is not None:
+                job.cancel()
+            raise
+        print(json.dumps({**started, "status": job.status if job else None}, indent=2))
+        return 0
+    finally:
+        store.close()
+
+
 def main(argv: list[str] | None = None) -> int:
     args = _parser().parse_args(argv)
     if args.command == "serve":
@@ -1093,6 +1144,8 @@ def main(argv: list[str] | None = None) -> int:
         return _play_batch(args)
     if args.command == "pool-worker":
         return _pool_worker(args)
+    if args.command == "experiment":
+        return _experiment(args)
     if args.command == "simulate":
         import time
 

@@ -52,8 +52,9 @@ OWN_TURNS_SECONDARY = 3
 EXPECTED_EXPOSURE = 7 / 99
 CACHE_DIR = ".outcomes-cache"
 # 3 since #1657: a seat carries the deck state (``deck_hash``, ``revision_id``) of the header;
-# a version-2 entry knows no hash and is read again from its log.
-CACHE_VERSION = 3
+# a version-2 entry knows no hash and is read again from its log. 4 since #1658: a game
+# carries the pilot fingerprint of the header.
+CACHE_VERSION = 4
 PARALLEL_MIN_LOGS = 8  # cold logs before a process pool pays for itself
 MAX_WORKERS = 4
 CHANCE_RATE = 0.05
@@ -95,6 +96,8 @@ class GameExposure(TypedDict):
     bridge_qualification_state: NotRequired[str | None]
     covered_by_sealed_epoch: NotRequired[bool]
     pilot: str | None
+    # The pilot fingerprint of the header (#1658); missing or None in a log without one.
+    pilot_fingerprint: NotRequired[str | None]
     decision_policy: str | None
     winner_seats: list[int]
     seats: list[SeatExposure]
@@ -417,6 +420,7 @@ def _read_log(path: Path, *, fast: bool = True) -> tuple[GameExposure | None, li
         "bridge_qualification_state": qual_state,
         "covered_by_sealed_epoch": covered,
         "pilot": _str(header.get("pilot")),
+        "pilot_fingerprint": _deck_hash(header.get("pilot_fingerprint")),
         "decision_policy": _str(header.get("decision_policy")),
         "winner_seats": winners,
         "seats": seats,
@@ -481,6 +485,7 @@ def _valid_exposure(exposure: object) -> bool:
                 "bridge_jar_sha256",
                 "bridge_qualification_state",
                 "pilot",
+                "pilot_fingerprint",
                 "decision_policy",
             )
         )
@@ -708,6 +713,17 @@ def _card_row(
     }
 
 
+def pilot_identity(game: GameExposure) -> str | None:
+    """The pilot a game was played with, as the mixing checks compare it (#1658).
+
+    The fingerprint when the header names one (``fp:<sha256>``); otherwise the old version
+    string, which a log without a fingerprint carries. The two never compare equal, so a game
+    without a fingerprint is never counted together with one that has it.
+    """
+    fingerprint = game.get("pilot_fingerprint")
+    return f"fp:{fingerprint}" if fingerprint else game["pilot"]
+
+
 def _distinct(values: Iterable[str | None]) -> list[str]:
     return sorted({v for v in values if v})
 
@@ -771,7 +787,7 @@ def aggregate(
     commits = _distinct(g["engine_commit"] for g, _ in units)
     bridge_shas = _distinct(g.get("bridge_jar_sha256") for g, _ in units)
     qual_states = _distinct(g.get("bridge_qualification_state") for g, _ in units)
-    pilots = _distinct(g["pilot"] for g, _ in units)
+    pilots = _distinct(pilot_identity(g) for g, _ in units)
     policies = _distinct(g["decision_policy"] for g, _ in units)
     warnings: list[str] = []
     for label, values in (

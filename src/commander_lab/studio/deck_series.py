@@ -6,17 +6,29 @@ counts with n/N, the stored difference and intervals, seeds, seats and provenanc
 no ranking, no weight: a simulation result never enters the tier list or the strength index.
 A series that is not completed (running, interrupted, cancelled, failed) never counts as a
 result; its numbers stay unknown instead of 0. A corrupt or foreign file is skipped and counted.
+
+Since B2 (#1658) the series of a deck come from the experiment index (``experiments``): every
+indexed series is delivered, with no scan limit; a series whose plan SHA does not match its plan
+file does not count. Files the index does not name (old series before an import) are still
+found by the bounded folder scan, so nothing the Owner played disappears.
 """
 
 from __future__ import annotations
 
 import json
+import sqlite3
 from collections.abc import Mapping
 from pathlib import Path
 
 from .games import games_folder
 from .paired_series import SCHEMA_PAIRED_JOB, validate_series_id
 from .store import StudioStore
+
+#: An index row with its variant (``variant_revision_id``), as every reader of the index needs.
+EXPERIMENT_SELECT = (
+    "SELECT e.*, (SELECT v.revision_id FROM experiment_arm v WHERE v.experiment_id = "
+    "e.experiment_id AND v.role = 'variant') AS variant_revision_id FROM experiment e"
+)
 
 #: Same bound as the revision chain of ``swap``; also the cap of the answer.
 SERIES_LIMIT = 200
@@ -30,6 +42,7 @@ STATUS_STOPPED_EARLY = "stopped_early"
 STATUS_CANCELLED = "cancelled"
 STATUS_FAILED = "failed"
 STATUS_INCOMPLETE = "incomplete"
+STATUS_PLAN_MISMATCH = "plan_mismatch"
 
 _STATUS_TEXT = {
     STATUS_COMPLETED: "abgeschlossen",
@@ -37,6 +50,7 @@ _STATUS_TEXT = {
     STATUS_CANCELLED: "abgebrochen",
     STATUS_FAILED: "fehlgeschlagen",
     STATUS_INCOMPLETE: "nicht abgeschlossen",
+    STATUS_PLAN_MISMATCH: "Plan-SHA passt nicht zum Ergebnis (zählt nicht)",
 }
 
 
@@ -172,7 +186,7 @@ def _entry(raw: Mapping[str, object], status: str) -> dict[str, object]:
     }
 
 
-def _read_series_file(path: Path) -> dict[str, object] | None:
+def read_series_file(path: Path) -> dict[str, object] | None:
     """The parsed series, or None for a file that is corrupt, foreign or not this format."""
     try:
         # Only regular files: opening a FIFO without a writer would block for good.
@@ -200,23 +214,104 @@ def _read_series_file(path: Path) -> dict[str, object] | None:
     return raw
 
 
-def deck_series(data_folder: str | Path, revision_ids: list[str]) -> dict[str, object]:
-    """Stored paired series whose A or B is one of ``revision_ids``, newest first."""
-    wanted = set(revision_ids)
+def entry_for_experiment(data_folder: str | Path, row: sqlite3.Row) -> dict[str, object]:
+    """The history entry of one indexed experiment (or legacy series) from its result file."""
+    from .experiments import experiment_view, plan_intact, plan_record
+
     folder = games_folder(Path(data_folder).resolve())
-    every = sorted(folder.glob("paired-*.paired.json"), reverse=True) if folder.is_dir() else []
+    series_id = row["series_id"]
+    raw = read_series_file(folder / f"{series_id}.paired.json") if series_id else None
+    if raw is None:  # no result file (yet): not a result, numbers unknown
+        raw = {
+            "series_id": str(series_id or row["experiment_id"]),
+            "base_ref": str(row["base_revision_id"]),
+            "variant_ref": str(row["variant_revision_id"] or ""),
+        }
+        status = STATUS_INCOMPLETE
+    else:
+        status = series_status(raw)
+    experiment = experiment_view(data_folder, row)
+    if experiment is not None and not plan_intact(
+        plan_record(data_folder, str(row["experiment_id"])), raw
+    ):
+        status = STATUS_PLAN_MISMATCH
+    entry = _entry(raw, status)
+    entry["experiment"] = experiment
+    return entry
+
+
+def _indexed(
+    store: StudioStore, data_folder: str | Path, deck_id: str
+) -> tuple[list[dict[str, object]], set[str], set[str]]:
+    """Every indexed series of the deck, the revisions it names, and every indexed series id."""
+    db = store.connection
+    rows = db.execute(
+        f"{EXPERIMENT_SELECT} WHERE e.experiment_id IN (SELECT a.experiment_id FROM "
+        "experiment_arm a JOIN deck_revision r ON r.revision_id = a.revision_id "
+        "WHERE r.deck_id = ?)",
+        (deck_id,),
+    ).fetchall()
+    revisions = {
+        str(r[0])
+        for r in db.execute(
+            "SELECT a.revision_id FROM experiment_arm a JOIN deck_revision r "
+            "ON r.revision_id = a.revision_id WHERE r.deck_id = ?",
+            (deck_id,),
+        )
+    }
+    every = {str(r[0]) for r in db.execute("SELECT series_id FROM experiment") if r[0]}
+    return [entry_for_experiment(data_folder, row) for row in rows], revisions, every
+
+
+def deck_series(
+    data_folder: str | Path,
+    revision_ids: list[str],
+    *,
+    store: StudioStore | None = None,
+    deck_id: str | None = None,
+) -> dict[str, object]:
+    """Stored paired series whose A or B is one of ``revision_ids``, newest first.
+
+    With ``store`` and ``deck_id`` the indexed series of the deck come from the index, all of
+    them; the folder scan then only looks at files the index does not name."""
+    wanted = set(revision_ids)
+    indexed: list[dict[str, object]] = []
+    known: set[str] = set()
+    if store is not None and deck_id is not None:
+        indexed, revisions, known = _indexed(store, data_folder, deck_id)
+        wanted |= revisions
+    folder = games_folder(Path(data_folder).resolve())
+    every = (
+        sorted(
+            (
+                p
+                for p in folder.glob("paired-*.paired.json")
+                if p.name.removesuffix(".paired.json") not in known
+            ),
+            reverse=True,
+        )
+        if folder.is_dir()
+        else []
+    )
     files = every[:SCAN_LIMIT]
     found: list[dict[str, object]] = []
     skipped = 0
     for path in files:
-        raw = _read_series_file(path)
+        raw = read_series_file(path)
         if raw is None:
             skipped += 1
             continue
         if raw["base_ref"] in wanted or raw["variant_ref"] in wanted:
-            found.append(_entry(raw, series_status(raw)))
+            entry = _entry(raw, series_status(raw))
+            entry["experiment"] = None
+            found.append(entry)
     found.sort(key=lambda item: str(item["created_at"] or ""), reverse=True)
-    series = found[:SERIES_LIMIT]
+    scanned = found[:SERIES_LIMIT]
+    series = sorted(
+        [*indexed, *scanned],
+        key=lambda item: (str(item["created_at"] or ""), str(item["series_id"])),
+        reverse=True,
+    )
     by_revision: dict[str, list[dict[str, str]]] = {}
     for item in series:
         for role, own, other in (
@@ -237,6 +332,7 @@ def deck_series(data_folder: str | Path, revision_ids: list[str]) -> dict[str, o
         "series": series,
         "by_revision": by_revision,
         "skipped": skipped,
+        "series_total": len(series),
         "truncated": len(found) > SERIES_LIMIT,
         "scan_limit": SCAN_LIMIT,
         "scan_truncated": max(0, len(every) - SCAN_LIMIT),

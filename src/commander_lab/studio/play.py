@@ -57,6 +57,7 @@ from .games import (
     redact_pilot_state_for_human_seats,
 )
 from .launch import bridge_jar_sha256, engine_command, interactive_bridge_command
+from .pilot_fingerprint import pilot_fingerprint
 
 PILOT_IDENTITY = "GenericCommanderPilot"
 PILOT_VERSION = "1.0.0"
@@ -386,6 +387,11 @@ def prepare_game(
         ),
         "bridge_sealed_epoch": qual.get("sealed_epoch"),
         "pilot": f"{PILOT_IDENTITY} {PILOT_VERSION}",
+        # The identity the mixing checks compare (B2, #1658): code and data of the pilot,
+        # policy and strength; the style of each seat is in its seat header.
+        "pilot_fingerprint": pilot_fingerprint(
+            policy_version=POLICY_VERSION, strength=PilotStrength.NEAR_OPTIMAL_HEURISTIC.value
+        ),
         "decision_policy": POLICY_VERSION,
         "strategy": strategy,
         "seats": [

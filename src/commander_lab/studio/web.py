@@ -47,6 +47,7 @@ from . import (
     deck_modules,
     deck_series,
     engine_check,
+    experiments,
     games,
     gc_band,
     import_all,
@@ -108,6 +109,9 @@ _MARKS = frozenset({cache.Group.MARKS})
 _DECKS = frozenset({cache.Group.DECKS})
 _PROFILES = frozenset({cache.Group.PROFILES})
 _CATALOG = frozenset({cache.Group.IMPORT})
+# The experiment index (B2, #1658); adopting a variant also moves the deck's ``main`` branch.
+_EXPERIMENTS = frozenset({cache.Group.SIMULATION})
+_EXPERIMENT_DECISION = frozenset({cache.Group.SIMULATION, cache.Group.DECKS})
 
 
 def _with_catalog(
@@ -334,6 +338,23 @@ class PairedSeriesBody(BaseModel):
     )
     workers: int | None = Field(default=None, ge=MIN_WORKERS, le=MAX_WORKERS)
     games_per_jvm: int | None = Field(default=None, ge=MIN_GAMES_PER_JVM, le=MAX_GAMES_PER_JVM)
+
+
+class ExperimentBody(BaseModel):
+    """The plan file's content as ``plan``; execution settings never enter the plan SHA."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    plan: experiments.ExperimentPlan
+    workers: int | None = Field(default=None, ge=MIN_WORKERS, le=MAX_WORKERS)
+    games_per_jvm: int | None = Field(default=None, ge=MIN_GAMES_PER_JVM, le=MAX_GAMES_PER_JVM)
+
+
+class DecisionBody(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    decision: Literal["adopted", "rejected"]
+    note: str = Field(default="", max_length=1000)
 
 
 class ReadinessAuditBody(BaseModel):
@@ -1409,6 +1430,57 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         finally:
             store.close()
 
+    @app.post("/api/experiments")
+    def start_experiment(body: ExperimentBody) -> dict[str, object]:
+        """Write the plan file, index it and start its paired series (B2, #1658)."""
+        store = open_store()
+        try:
+            with cache.write(store, _EXPERIMENTS):
+                return experiments.start_experiment(
+                    store,
+                    games_home(),
+                    body.plan,
+                    workers=body.workers,
+                    games_per_jvm=body.games_per_jvm,
+                )
+        except KeyError as error:
+            raise HTTPException(404, f"unknown deck revision: {error}") from error
+        except ValueError as error:
+            raise HTTPException(422, str(error)) from error
+        except RuntimeError as error:
+            raise HTTPException(409, str(error)) from error
+        finally:
+            store.close()
+
+    @app.post("/api/experiments/rebuild-index")
+    def rebuild_experiment_index() -> dict[str, object]:
+        """Rebuild the experiment index from plan, run, decision and old series files."""
+        store = open_store()
+        try:
+            with cache.write(store, _EXPERIMENTS):
+                return dict(experiments.rebuild_index(store, games_home()))
+        finally:
+            store.close()
+
+    @app.post("/api/experiments/{experiment_id}/decision")
+    def decide_experiment(experiment_id: str, body: DecisionBody) -> dict[str, object]:
+        """Adopt (``main`` becomes the variant) or reject; the decision is kept in the index
+        and in ``decision.json``. Adopting counts as the Owner's decision (E15 Q2)."""
+        store = open_store()
+        try:
+            with cache.write(store, _EXPERIMENT_DECISION):
+                return experiments.decide(
+                    store, games_home(), experiment_id, body.decision, body.note
+                )
+        except KeyError as error:
+            raise HTTPException(404, "unknown experiment") from error
+        except ValueError as error:
+            raise HTTPException(422, str(error)) from error
+        except experiments.DecisionRefused as error:
+            raise HTTPException(409, str(error)) from error
+        finally:
+            store.close()
+
     @app.get("/api/simulations/paired-plan")
     def paired_series_plan(
         budget_pairs: int = Query(
@@ -1701,11 +1773,11 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         store = open_store()
         try:
             revision_ids = deck_series.deck_revision_ids(store, deck_id)
+            if revision_ids is None:
+                raise HTTPException(404, "unknown deck")
+            return deck_series.deck_series(games_home(), revision_ids, store=store, deck_id=deck_id)
         finally:
             store.close()
-        if revision_ids is None:
-            raise HTTPException(404, "unknown deck")
-        return deck_series.deck_series(games_home(), revision_ids)
 
     @app.get("/api/decks/{deck_id}/history")
     def deck_history(deck_id: str) -> list[dict[str, object]]:
