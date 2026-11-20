@@ -1155,6 +1155,82 @@ def test_the_journal_counts_only_manifest_members_and_survives_a_cut_off_line(
     assert resumed.results()[games[0].game_id]["semantic_transcript_sha256"] == "a" * 64
 
 
+def test_a_last_line_without_its_line_end_is_never_a_result_even_when_it_parses(
+    tmp_path: Path,
+) -> None:
+    games = _games("tail", range(1, 3))
+    record = _record(tmp_path, games)
+    entry = {"game_id": games[1].game_id, "status": "finished", "summary": {"status": "finished"}}
+    record.journal_path.write_text(json.dumps(entry), encoding="utf-8")  # no line end: cut off
+    resumed = _record(tmp_path, games)
+    assert resumed.results() == {} and resumed.ignored_lines == 1
+    resumed.record(games[0].game_id, {"status": "finished", "semantic_transcript_sha256": "a" * 64})
+    lines = resumed.journal_path.read_text(encoding="utf-8").splitlines()
+    assert len(lines) == 2 and json.loads(lines[1])["game_id"] == games[0].game_id
+
+
+def test_a_violation_appended_after_a_cut_off_line_still_ends_the_resumed_series(
+    tmp_path: Path,
+) -> None:
+    first, second = _games("cut", range(1, 3))
+    twin = SimpleNamespace(task_id="twin", game_id="g-cut-twin", game_key=first.game_key)
+    record = _record(tmp_path, [first, second, twin])
+    record.record(first.game_id, {"status": "finished", "semantic_transcript_sha256": "a" * 64})
+    with record.journal_path.open("a", encoding="utf-8") as handle:
+        handle.write('{"game_id": "g-cut-s2", "sta')  # the run ended mid-line
+    resumed = _record(tmp_path, [first, second, twin])
+    assert resumed.ignored_lines == 1
+    with pytest.raises(DeterminismViolation):
+        resumed.record(twin.game_id, {"status": "finished", "semantic_transcript_sha256": "b" * 64})
+    # the violation is a line of its own, so opening the series again ends it the same way
+    with pytest.raises(DeterminismViolation) as caught:
+        _record(tmp_path, [first, second, twin])
+    assert caught.value.status == DETERMINISM_VIOLATION
+
+
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [
+        ("strategy", ""),
+        ("strategy", "  "),
+        ("pilot_fingerprints", ("f0", "", "f2", "f3")),
+        ("deck_sha256", ("d0", "d1", " ", "d3")),
+    ],
+)
+def test_an_empty_strategy_fingerprint_or_deck_hash_gives_no_key(field: str, value: object) -> None:
+    with pytest.raises(ValueError, match="leer"):
+        series_record.game_key(**{**_KEY_INPUT, field: value})  # type: ignore[arg-type]
+
+
+def test_two_close_styles_never_share_a_key() -> None:
+    near = {**_KEY_INPUT, "seat_styles": (0.5, 0.5000001, 0.5, 0.5)}
+    assert series_record.game_key(**near) != series_record.game_key(**_KEY_INPUT)  # type: ignore[arg-type]
+    coarse = {**_KEY_INPUT, "seat_styles": (0.2, 0.5, 0.5, 0.5)}
+    finer = {**_KEY_INPUT, "seat_styles": (0.3, 0.5, 0.5, 0.5)}
+    assert series_record.game_key(**coarse) != series_record.game_key(**finer)  # type: ignore[arg-type]
+    same = {**_KEY_INPUT, "seat_styles": (0.5, 0.5, 1 / 2, 0.5)}
+    assert series_record.game_key(**same) == series_record.game_key(**_KEY_INPUT)  # type: ignore[arg-type]
+
+
+def test_two_starts_of_one_series_never_overwrite_the_first_manifest(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    games = _games("race", range(1, 3))
+    real_link = series_record.os.link
+
+    def other_start_first(source: object, target: object) -> None:
+        # another process created the manifest of this series between the check and the link
+        Path(str(target)).write_text('{"schema": "studio-series-manifest-1", "games": []}')
+        raise FileExistsError(str(target))
+
+    monkeypatch.setattr(series_record.os, "link", other_start_first)
+    with pytest.raises(ManifestMismatch):
+        _record(tmp_path, games, series="race")
+    monkeypatch.setattr(series_record.os, "link", real_link)
+    folder = series_record.series_folder(tmp_path, "race")
+    assert sorted(p.name for p in folder.iterdir()) == ["manifest.json"]  # no temp file left
+
+
 def test_the_wall_limit_is_set_per_seat_count_without_changing_the_table_hash() -> None:
     assert [table_spec.game_wall_limit_seconds(n) for n in (2, 3, 4)] == [1800.0] * 3
     for seats in (5, 6):

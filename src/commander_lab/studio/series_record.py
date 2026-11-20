@@ -10,7 +10,13 @@ Per series there is ``games/series/<id>/manifest.json`` (``studio-series-manifes
 once when the series starts and never changed afterwards, and ``journal.jsonl`` with one line per
 final game result. Whether a game belongs to the series is decided by the manifest only: a log
 or journal line of a game the manifest does not name is never counted, whatever folder it is in.
-A cancelled series is resumed from its journal; a journal line cut off by the cancel is ignored.
+A cancelled series is resumed from its journal; a journal line cut off by the cancel is ignored,
+and the next line starts after it, so no later line (a violation least of all) is lost with it.
+Every final result is final, a failed one too (also an infrastructure failure): a resumed series
+does not replay it, as the progress log of ``paired_series`` does not, so a resumed series counts
+what an uninterrupted one would have counted. Journal and manifest are synced to disk after each
+write; two processes running one series at once are not locked against each other (the manifest
+is created once, by hard link, but journal appends of two processes may interleave).
 
 Nothing here reuses a game (that is #1589, Owner); S1 builds the key and the guard it needs.
 """
@@ -19,6 +25,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -43,7 +50,13 @@ INFRASTRUCTURE_FAILURES: Final = (
 
 
 class DeterminismViolation(RuntimeError):
-    """One game key with two transcript hashes: the series ends, nothing of it is evaluated."""
+    """One game key with two transcript hashes: the series ends without a comparison result.
+
+    Raised from the pool run, it ends the paired series like any error of its run: status
+    ``failed`` with this message (it starts with ``DETERMINISM_VIOLATION``) as its error, and no
+    comparison is computed. Games of the series that ended before were already reported to its
+    progress log; they stay there as they were, but no result of the series rests on them.
+    """
 
     status = DETERMINISM_VIOLATION
 
@@ -92,17 +105,22 @@ def game_key(
     """
     if not jar_sha256 or not engine_pin:
         raise ValueError("ein Spielschlüssel braucht Bridge-JAR-SHA und Engine-Pin")
+    if not strategy or not strategy.strip():
+        raise ValueError("ein Spielschlüssel braucht eine Strategie, kein leeres Feld")
     seats = len(deck_sha256)
     if not seats or len(pilot_fingerprints) != seats or len(seat_styles) != seats:
         raise ValueError(
             "Pilot-Fingerabdrücke, Stile und Deck-Hashes brauchen je einen Eintrag pro Sitz"
         )
+    if any(not value or not value.strip() for value in (*pilot_fingerprints, *deck_sha256)):
+        raise ValueError("leerer Pilot-Fingerabdruck oder Deck-Hash im Spielschlüssel")
     payload: dict[str, object] = {
         "schema": GAME_KEY_SCHEMA,
         "jar_sha256": jar_sha256,
         "engine_pin": engine_pin,
         "pilot_fingerprints": list(pilot_fingerprints),
-        "seat_styles": [format(float(style), ".6f") for style in seat_styles],
+        # exact (shortest round-trip form): two different styles never share a key
+        "seat_styles": [repr(float(style)) for style in seat_styles],
         "deck_sha256": list(deck_sha256),
         "seed": int(seed),
         "strategy": strategy,
@@ -185,9 +203,20 @@ class SeriesRecord:
         else:
             folder.mkdir(parents=True, exist_ok=True)
             manifest = {**manifest, "created_at": now_utc()}
-            temp = path.with_suffix(".json.tmp")
-            temp.write_bytes(canonical_json(manifest))
-            temp.replace(path)
+            temp = folder / f"manifest.{os.getpid()}.tmp"
+            with temp.open("wb") as handle:
+                handle.write(canonical_json(manifest))
+                handle.flush()
+                os.fsync(handle.fileno())
+            try:
+                # a hard link never replaces: of two starts of one series only one manifest wins
+                os.link(temp, path)
+            except FileExistsError:
+                temp.unlink()
+                return cls.open(
+                    data_folder, series_id, games=games, table_hash=table_hash, table=table
+                )
+            temp.unlink()
         record = cls(folder, manifest)
         record._read_journal()
         return record
@@ -198,10 +227,15 @@ class SeriesRecord:
         members = self.members()
         with self.journal_path.open(encoding="utf-8") as handle:
             for raw in handle:
+                if not raw.endswith("\n"):
+                    # the last line, cut off by a cancel: never a result (``record`` starts a
+                    # new line after it, so no later line is joined to it)
+                    self.ignored_lines += 1
+                    continue
                 try:
                     entry = json.loads(raw)
                 except ValueError:
-                    self.ignored_lines += 1  # cut off by a cancel: never a result
+                    self.ignored_lines += 1
                     continue
                 game_id = entry.get("game_id") if isinstance(entry, dict) else None
                 if not isinstance(game_id, str) or game_id not in members:
@@ -254,8 +288,18 @@ class SeriesRecord:
         finally:
             # a violating line is written too: the journal is the evidence of the violation
             self.folder.mkdir(parents=True, exist_ok=True)
-            with self.journal_path.open("a", encoding="utf-8") as handle:
-                handle.write(line + "\n")
+            with self.journal_path.open("ab") as handle:
+                if self.journal_path.stat().st_size and not _ends_with_newline(self.journal_path):
+                    handle.write(b"\n")  # end the cut-off line, never join this one to it
+                handle.write(line.encode("utf-8") + b"\n")
+                handle.flush()
+                os.fsync(handle.fileno())
+
+
+def _ends_with_newline(path: Path) -> bool:
+    with path.open("rb") as handle:
+        handle.seek(-1, os.SEEK_END)
+        return handle.read(1) == b"\n"
 
 
 __all__ = [
