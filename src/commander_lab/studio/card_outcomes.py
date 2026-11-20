@@ -713,6 +713,10 @@ def _card_row(
     }
 
 
+class MixedPilotError(ValueError):
+    """One aggregate would count games of two pilots (fingerprints) together (#1658)."""
+
+
 def pilot_identity(game: GameExposure) -> str | None:
     """The pilot a game was played with, as the mixing checks compare it (#1658).
 
@@ -798,7 +802,8 @@ def aggregate(
     ):
         if len(values) > 1:
             if not allow_mixed:
-                raise ValueError(f"mixed {label} in one aggregate: {', '.join(values)}")
+                error = MixedPilotError if label == "pilot versions" else ValueError
+                raise error(f"mixed {label} in one aggregate: {', '.join(values)}")
             warnings.append(f"mixed {label} pooled: {', '.join(values)}")
     if any(g["engine_commit"] is None for g, _ in units):
         warnings.append("some games carry no engine commit")

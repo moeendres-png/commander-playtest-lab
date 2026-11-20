@@ -438,9 +438,11 @@ def decide(
         "previous_revision_id": previous if decision == "adopted" else None,
     }
     with db:
-        db.execute(
+        # conditional writes: what was read above must still hold inside the transaction
+        changed = db.execute(
             "UPDATE experiment SET decision = ?, decision_at = ?, decision_note = ?, "
-            "decision_tested = ?, decision_previous_revision_id = ? WHERE experiment_id = ?",
+            "decision_tested = ?, decision_previous_revision_id = ? "
+            "WHERE experiment_id = ? AND decision = 'open'",
             (
                 decision,
                 decided_at,
@@ -449,13 +451,20 @@ def decide(
                 payload["previous_revision_id"],
                 experiment_id,
             ),
-        )
+        ).rowcount
+        if changed != 1:
+            raise DecisionRefused("Experiment wurde inzwischen entschieden; nichts geändert")
         if decision == "adopted":
-            db.execute(
-                "INSERT INTO deck_branch(deck_id, branch, revision_id) VALUES (?, 'main', ?) "
-                "ON CONFLICT(deck_id, branch) DO UPDATE SET revision_id = excluded.revision_id",
-                (row["deck_id"], variant_id),
-            )
+            moved = db.execute(
+                "UPDATE deck_branch SET revision_id = ? WHERE deck_id = ? AND branch = 'main' "
+                "AND revision_id = ?",
+                (variant_id, row["deck_id"], row["base_revision_id"]),
+            ).rowcount
+            if moved != 1:
+                raise DecisionRefused(
+                    "main hat sich inzwischen bewegt und steht nicht mehr auf der Basis; "
+                    "nichts wurde überschrieben"
+                )
         # inside the transaction: a decision file that cannot be written undoes the row
         _write_json(experiments_folder(data_folder) / experiment_id / "decision.json", payload)
     return payload
@@ -500,17 +509,24 @@ def undo_decision(
         "restored_revision_id": previous if row["decision"] == "adopted" else None,
     }
     with db:
-        db.execute(
+        changed = db.execute(
             "UPDATE experiment SET decision = 'open', decision_at = NULL, decision_note = NULL, "
             "decision_tested = NULL, decision_previous_revision_id = NULL "
-            "WHERE experiment_id = ?",
-            (experiment_id,),
-        )
+            "WHERE experiment_id = ? AND decision = ?",
+            (experiment_id, row["decision"]),
+        ).rowcount
+        if changed != 1:
+            raise DecisionRefused("Entscheidung wurde inzwischen geändert; nichts zurückgesetzt")
         if row["decision"] == "adopted":
-            db.execute(
-                "UPDATE deck_branch SET revision_id = ? WHERE deck_id = ? AND branch = 'main'",
-                (previous, row["deck_id"]),
-            )
+            moved = db.execute(
+                "UPDATE deck_branch SET revision_id = ? WHERE deck_id = ? AND branch = 'main' "
+                "AND revision_id = ?",
+                (previous, row["deck_id"], row["variant_revision_id"]),
+            ).rowcount
+            if moved != 1:
+                raise DecisionRefused(
+                    "main steht nicht mehr auf der übernommenen Variante; nichts zurückgesetzt"
+                )
         _write_json(folder / "decision.json", payload)
     return payload
 

@@ -2542,9 +2542,9 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
             table = card_outcomes.outcomes_for_folder(
                 games.games_folder(games_home()), deck_id=deck_id, min_exposed=min_exposed
             )
+        except card_outcomes.MixedPilotError as error:
+            raise HTTPException(409, MIXED_PILOT_TEXT) from error
         except ValueError as error:
-            if "mixed pilot versions" in str(error):
-                raise HTTPException(409, MIXED_PILOT_TEXT) from error
             raise HTTPException(409, str(error)) from error
         result: dict[str, object] = dict(table)
         result["zahlen"] = number_contract.outcomes_zahlen(result)

@@ -19,6 +19,7 @@ from starlette.testclient import TestClient
 
 from commander_lab.studio import (
     deck_series,
+    experiments,
     launch,
     paired_comparison,
     paired_series,
@@ -736,3 +737,81 @@ def test_resume_after_a_pilot_change_says_so_instead_of_mixing() -> None:
         )
         assert message is not None
         assert message.startswith("nicht fortsetzbar: 1 gespeicherte Partien")
+
+
+def test_resume_without_a_test_player_stops_on_a_pilot_change(
+    lab: dict[str, object], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Delta review #1685: the mixing guard runs on the real resume path (no play_override)."""
+    revs = lab["revs"]
+    assert isinstance(revs, dict)
+    folder = Path(str(lab["folder"]))
+    started = _start(lab, _plan(revs))  # its stored games carry no fingerprint (fake player)
+    path = folder / "games" / f"{started['series_id']}.paired.json"
+    raw = json.loads(path.read_text(encoding="utf-8"))
+    path.write_text(json.dumps({**raw, "status": "running"}), encoding="utf-8")  # a hard stop
+    monkeypatch.setattr(
+        paired_series,
+        "series_engine",
+        lambda *a, **k: launch.SeriesEngine(
+            command=("fake-java",), jvm_flags=(), games_per_jvm=1, serial_gc=False, appcds=False
+        ),
+    )
+    monkeypatch.setattr(paired_series, "command_bridge_jar_sha256", lambda *a, **k: None)
+    with pytest.raises(
+        ValueError, match=r"nicht fortsetzbar: \d+ gespeicherte Partien.*neu starten"
+    ):
+        paired_series.PairedSeriesManager().resume_series(folder, started["series_id"])
+
+
+def test_adopt_and_undo_write_only_what_they_read(
+    lab: dict[str, object], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Delta review #1685: ``main`` moves between the check and the write (a second adoption,
+    another window): the conditional write refuses with 409 and changes nothing."""
+    revs = lab["revs"]
+    assert isinstance(revs, dict)
+    client = lab["client"]
+    assert isinstance(client, TestClient)
+    folder = Path(str(lab["folder"]))
+    first = _start(lab, _plan(revs))
+
+    def move_main(to: str) -> None:
+        store = StudioStore.open(folder)
+        try:
+            with store.connection:
+                store.connection.execute(
+                    "UPDATE deck_branch SET revision_id = ? WHERE deck_id = 'chulane-b2' "
+                    "AND branch = 'main'",
+                    (to,),
+                )
+        finally:
+            store.close()
+
+    real_read = experiments._main_revision
+    move_main(revs["variant2"])  # someone else moved main; the stale read still sees the base
+    monkeypatch.setattr(experiments, "_main_revision", lambda *_a: revs["base"])
+    res = client.post(
+        f"/api/experiments/{first['experiment_id']}/decision",
+        headers=HEADERS,
+        json={"decision": "adopted"},
+    )
+    assert res.status_code == 409
+    assert _main_branch(folder) == revs["variant2"]
+    assert _index_rows(folder)[0]["decision"] == "open"
+    monkeypatch.setattr(experiments, "_main_revision", real_read)
+    move_main(revs["base"])
+    assert (
+        client.post(
+            f"/api/experiments/{first['experiment_id']}/decision",
+            headers=HEADERS,
+            json={"decision": "adopted"},
+        ).status_code
+        == 200
+    )
+    move_main(revs["variant2"])  # moved after the adoption; the stale read sees the variant
+    monkeypatch.setattr(experiments, "_main_revision", lambda *_a: revs["variant"])
+    res = client.post(f"/api/experiments/{first['experiment_id']}/undo", headers=HEADERS)
+    assert res.status_code == 409
+    assert _main_branch(folder) == revs["variant2"]
+    assert _index_rows(folder)[0]["decision"] == "adopted"
