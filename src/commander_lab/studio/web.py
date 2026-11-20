@@ -69,7 +69,6 @@ from . import (
     swap,
     tier_snapshot,
     tokens,
-    tournament_conversion,
     universe,
     universe_choice,
     universe_view,
@@ -377,12 +376,6 @@ class DiffBody(BaseModel):
     base_revision_id: str
     cards: list[CardEntry]
     cohort: str = Field(default="all", min_length=1, max_length=120)
-
-
-class PrefilterBody(BaseModel):
-    base_revision_id: str
-    cards: list[CardEntry]
-    trials: int = Field(default=2000, ge=50, le=20000)
 
 
 class AlternativesBody(BaseModel):
@@ -917,20 +910,6 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
             raise HTTPException(404, f"commander not in the collection: {error}") from error
         finally:
             store.close()
-
-    @app.get("/api/tournament-conversion")
-    def tournament_conversion_route(
-        commander: str = Query(min_length=1, max_length=200),
-    ) -> Response:
-        """TopDeck with-vs-without (mit/ohne) top-cut conversion rates per card (#1412).
-        Reads only the TopDeck files: remembered per state of their folder (#1563)."""
-        folder = tournament_conversion.research_dir()
-        return answer_cache.file_answer(
-            "tournament_conversion",
-            (commander, str(folder)),
-            answer_cache.folder_stamp(folder),
-            lambda: dict(tournament_conversion.analyze_commander_conversion(commander, folder)),
-        )
 
     @app.get("/api/strength/profiles")
     def strength_profiles() -> list[dict[str, object]]:
@@ -1581,19 +1560,6 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         store = open_store()
         try:
             return cut_lab.finish(store, _cards(body.start), _cards(body.cards))
-        finally:
-            store.close()
-
-    @app.post("/api/prefilter")
-    def prefilter(body: PrefilterBody) -> dict[str, object]:
-        store = open_store()
-        try:
-            base_cards = _resolve_base_cards(store, body.base_revision_id)
-            return builder.prefilter_lists(
-                store, base_cards, _cards(body.cards), trials=body.trials
-            )
-        except KeyError as error:
-            raise HTTPException(404, "unknown revision") from error
         finally:
             store.close()
 

@@ -41,7 +41,6 @@ def test_daten_js_renders_counts_only_without_unsafe_html_or_pricing(tmp_path: P
         "/api/data-report",
         "/api/layers",
         "/api/roles/audit",
-        "/api/tournament-conversion",
         "bridge_qualification",
         "fallbacks_used",
         "signal_rate_alarms",
@@ -110,10 +109,9 @@ def test_daten_js_renders_counts_only_without_unsafe_html_or_pricing(tmp_path: P
     assert "claims_by_origin" in audit
     assert "claims_by_origin" in js and "pool_total" in js
 
-    conv = client.get("/api/tournament-conversion?commander=Chulane,%20Teller%20of%20Tales").json()
-    assert "total_decks" in conv and "total_known_decks" in conv and "total_converted_decks" in conv
-    for key in ("total_decks", "total_known_decks", "total_converted_decks"):
-        assert key in js
+    # Q1-b1 (#1676): the TopDeck conversion summary and its route left the Studio
+    assert "/api/tournament-conversion" not in js
+    assert client.get("/api/tournament-conversion?commander=Chulane").status_code == 404
 
 
 def test_daten_js_renders_source_status_with_authors_save_date_apart_from_retrieval() -> None:

@@ -363,13 +363,14 @@ def test_web_application_round_trip(studio: StudioStore) -> None:
             headers=marker,
         ).json()
         assert diff_resp["added_slots"] == 0
+        # Q1-b1 (#1676): the heuristic prefilter route left the Studio
         pf_resp = client.post(
             "/api/prefilter",
             json={"base_revision_id": saved["revision_id"], "cards": cards, "trials": 100},
             headers=marker,
-        ).json()
-        assert pf_resp["comparable"] is True
-        assert pf_resp["data_class"] == "HEURISTIC_MODEL"
+        )
+        # no POST route there any more: the page fallback answers 405
+        assert pf_resp.status_code == 405
         assert client.get("/img/card:project:0002", params={"face": "side"}).status_code == 422
         redir = client.get("/img/card:project:0002", follow_redirects=False)
         assert redir.status_code == 302
@@ -583,24 +584,7 @@ def test_cooccurrence_neutral_boards_diff_and_draw_probabilities(
     assert cards_by_name["Swarm Rat"]["sim_status"] == "NO_CARD_FACTS"
     detail = builder.card_detail(studio, "card:project:0002", ["Test Commander"])
     assert detail["sim_status"] == "OK"
-    # prefilter_lists requires 100 cards in both lists, and returns HEURISTIC_MODEL when met
-    short_pf = builder.prefilter_lists(studio, base_cards[:10], target_cards, trials=100)
-    assert short_pf["comparable"] is False
-    assert short_pf["data_class"] == "HEURISTIC_MODEL"
-    pf = builder.prefilter_lists(studio, base_cards, target_cards, trials=100)
-    assert pf["comparable"] is True
-    assert pf["data_class"] == "HEURISTIC_MODEL"
-    assert pf["verdict"] in {"PASS_TO_GAMES", "WARN", "BLOCKED"}
-    assert pf["land_count_delta"] == -1
-    assert isinstance(pf["castability"], list)
-    assert len(pf["castability"]) == 1
-    cmd_cast = pf["castability"][0]
-    assert isinstance(cmd_cast, dict)
-    assert cmd_cast["name"] == "Test Commander"
-    assert "3" in cmd_cast["baseline_probability"]["play"]  # type: ignore[index]
-    assert "3" in cmd_cast["variant_probability"]["play"]  # type: ignore[index]
-    assert "3" in cmd_cast["probability_delta"]["play"]  # type: ignore[index]
-    assert "play" in cmd_cast["baseline_expected_turn"]  # type: ignore[operator]
+    assert not hasattr(builder, "prefilter_lists")  # Q1-b1 (#1676)
 
 
 def test_multipart_scryfall_folder_and_disambiguation(tmp_path: Path) -> None:

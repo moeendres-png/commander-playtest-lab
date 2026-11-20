@@ -304,7 +304,7 @@ function renderCorpus(report) {
   ].filter(Boolean));
 }
 
-function renderLayersAndRecipes(commander, layersPayload, conversion) {
+function renderLayersAndRecipes(commander, layersPayload) {
   const host = $("data-layers");
   const layerList = layersPayload && Array.isArray(layersPayload.layers) ? layersPayload.layers : [];
   const layerRows = layerList.map((item) => [
@@ -314,11 +314,6 @@ function renderLayersAndRecipes(commander, layersPayload, conversion) {
     item.status || "–",
     item.command || "–",
   ]);
-
-  const convSummary = conversion && conversion.total_decks !== undefined
-    ? h("p", { class: "rule" },
-        `TopDeck-Turnier-Umwandlung (${StudioCommander.shortName(commander)}, ${conversion.cohort || "Turnier"}): ${nf(conversion.total_converted_decks)}/${nf(conversion.total_known_decks)} bekannte Decks konvertiert (gesamt ${nf(conversion.total_decks)} Decks, Status: ${conversion.status || "–"}).`)
-    : null;
 
   const recipes = [
     ["Datenbericht (CLI)", "commander-lab studio data-report"],
@@ -331,7 +326,6 @@ function renderLayersAndRecipes(commander, layersPayload, conversion) {
     layerRows.length
       ? simpleTable(["Schicht", "Zeilen", "Pool abgedeckt", "Status", "Import-Befehl"], layerRows)
       : h("p", { class: "muted" }, "Keine Schicht-Übersicht für diesen Commander geladen."),
-    convSummary,
     h("h3", {}, "Offline-Aktualisierungs-Rezepte (für den Owner-PC)"),
     simpleTable(["Aufgabe", "CLI-Befehl"], recipes.map(([label, cmd]) => [label, h("code", {}, cmd)])),
   ].filter(Boolean));
@@ -341,19 +335,18 @@ async function loadAll() {
   const commander = $("commander-select").value || StudioCommander.current;
   $("data-summary").textContent = "Lade Datenlage …";
   try {
-    const [status, report, layersPayload, roleAudit, conversion] = await Promise.all([
+    const [status, report, layersPayload, roleAudit] = await Promise.all([
       StudioUI.request("/api/status"),
       StudioUI.request("/api/data-report"),
       StudioUI.request(`/api/layers?commander=${encodeURIComponent(commander)}`).catch(() => null),
       StudioUI.request(`/api/roles/audit?commander=${encodeURIComponent(commander)}`).catch(() => null),
-      StudioUI.request(`/api/tournament-conversion?commander=${encodeURIComponent(commander)}`).catch(() => null),
     ]);
     renderBridge(report);
     renderSources(status, report);
     renderCollection(report);
     renderRoles(report, roleAudit);
     renderCorpus(report);
-    renderLayersAndRecipes(commander, layersPayload, conversion);
+    renderLayersAndRecipes(commander, layersPayload);
     const alarmCount = Array.isArray(report.signal_rate_alarms) ? report.signal_rate_alarms.length : 0;
     $("data-summary").textContent = `Stand ${report.generated_on || "–"} · Sammlung ${nf((report.collection || {}).identities)} Karten · Korpus ${nf((report.corpus || {}).decks)} Decks · Alarme: ${nf(alarmCount)}`;
   } catch (err) {
