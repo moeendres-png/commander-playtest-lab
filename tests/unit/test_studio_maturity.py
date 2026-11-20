@@ -457,6 +457,37 @@ def test_a_member_undecided_at_the_family_level_is_not_withheld_by_holm() -> Non
     got = _assess(a, b)["a"]
     assert got["niveau"] == 0.01 and got["urteil"] == m.NO_DIFFERENCE
     assert "Ergebnis durch Holm zurückgehalten" not in got["hinweise"]  # type: ignore[operator]
+    # y (20 pp) holds at the own alpha 0.05 only: at 0.01 the sensitivity is unknown, and the
+    # visible note says the verdict decided at 0.05 is withheld at the family level
+    assert got["y_pp"] is None
+    assert got["urteil_text"] == (
+        "kein nachweisbarer Unterschied auf Familienniveau "
+        "(Empfindlichkeit auf diesem Niveau unbekannt)"
+    )
+    assert "ab 20.0 pp" not in str(got["urteil_text"])
+    assert (
+        "Ergebnis auf dem kleineren Familienniveau zurückgehalten "
+        "(auf dem eigenen Niveau der Serie entschieden)"
+    ) in got["hinweise"]  # type: ignore[operator]
+    # the member at the family level keeps its own y: its level is the family level
+    assert _assess(a, b)["b"]["y_pp"] == 20.0
+
+
+def test_mean_exactly_zero_with_a_leaning_sign_test_is_not_evaluable() -> None:
+    # 24 pairs B shares a win (+0.25), 6 pairs A wins alone (-1): mean 0, sign test 24 : 6
+    pairs = [{"seed": 500 + i, "difference": 0.25} for i in range(24)]
+    pairs += [{"seed": 524 + i, "difference": -1.0} for i in range(6)]
+    base = _finding("c", wins=30)
+    finding = replace(
+        base,
+        entry={**base.entry, "difference_pp": 0.0},
+        result={**base.result, "pairs": pairs, "seeds": [500 + i for i in range(30)]},
+    )
+    assert sum(float(str(p["difference"])) for p in pairs) == 0.0
+    assert m.directions_conflict(finding.result) is True
+    got = _assess(finding)["c"]
+    assert got["urteil"] == m.NOT_EVALUABLE and got["belegt"] is False
+    assert "verschiedene Richtungen" in str(got["urteil_text"])
 
 
 # -- the route: production wiring, no mixing, no store write ----------------------------------

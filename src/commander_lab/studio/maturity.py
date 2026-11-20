@@ -494,6 +494,27 @@ def _one(
             "kein nachweisbarer Unterschied nach Holm (Empfindlichkeit nach Korrektur unbekannt)"
         )
         y_pp = None
+    own_level = levels.get(sid)
+    family_lower = (
+        holm_entry is not None and own_level is not None and holm_entry[2] < own_level
+    )
+    own = bases.get(sid)
+    # decided at the member's own level, taken back only by the smaller family level
+    family_withheld = (
+        family_lower
+        and not withheld
+        and own is not None
+        and own.verdict != "NO_CLEAR_DIFFERENCE"
+        and verdict == NO_DIFFERENCE
+    )
+    if family_lower and not withheld and verdict == NO_DIFFERENCE:
+        # y belongs to the member's own decision_alpha; at the smaller family level the
+        # sensitivity is not known, so no "ab y pp"
+        verdict_text = (
+            "kein nachweisbarer Unterschied auf Familienniveau "
+            "(Empfindlichkeit auf diesem Niveau unbekannt)"
+        )
+        y_pp = None
     raw_seeds = res.get("seeds") if counted else None
     seeds = [s for s in raw_seeds if _int(s) is not None] if isinstance(raw_seeds, list) else []
     plan_seeds = exp_view.get("seeds")
@@ -571,6 +592,11 @@ def _one(
         )
         if holm_entry[0].holm_withheld_verdict is not None:
             notes.append("Ergebnis durch Holm zurückgehalten")
+        if family_withheld:
+            notes.append(
+                "Ergebnis auf dem kleineren Familienniveau zurückgehalten "
+                "(auf dem eigenen Niveau der Serie entschieden)"
+            )
     if entry.get("experiment") is None:
         notes.append("Alt-Serie ohne Plan: höchstens R0")
     effective_p = None if shown is None else shown.effective_p_value
