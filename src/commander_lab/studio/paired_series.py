@@ -1226,12 +1226,6 @@ class PairedSeriesManager:
             ):
                 raise ValueError(f"Ungültige opponent_ids in Serie {safe_id} (nicht fortsetzbar)")
             opp_ids = list(raw_opp_ids) if isinstance(raw_opp_ids, list) else None
-            if opp_ids is not None:
-                # The seat lock holds on a resume as on a start (#1702): the stored table is read
-                # from its opponents, and Studio deck states among them are not checked by the
-                # precon resolver. Same rule, same message; a lock never raised for a start is
-                # not lifted for a resume.
-                validate_released_seat_count(len(opp_ids))
             opp_paths = _table_opponent_paths(
                 None, deck_dir, pod, opp_ids, {base_deck.deck_id, variant_deck.deck_id}
             )
