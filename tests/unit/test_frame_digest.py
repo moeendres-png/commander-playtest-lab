@@ -431,3 +431,63 @@ def test_a_face_down_exiled_card_is_still_told_apart() -> None:
     plain = _with_exile([{"name": "Twin", "object_id": _TWIN_ONE}])
     hidden = _with_exile([{"name": "Twin", "object_id": _TWIN_ONE, "face_down": True}])
     assert _digest(plain) != _digest(hidden)
+
+
+def test_underscore_and_non_hex_delimited_uuids_are_normalized_without_matching_hex_substrings() -> (
+    None
+):
+    """Compound keys like ``<uuid1>_<uuid2>`` (#1692) normalize cleanly; hex runs stay untouched."""
+
+    def replacement_frame(uuids: list[str], extra_text: str | None = None) -> dict[str, object]:
+        u1, u2 = uuids[1], uuids[2]
+        frame = _frame(uuids)
+        frame["seat"] = 0
+        frame["decision_class"] = "replacement_effect"
+        frame["legal_options"] = [
+            {
+                "option_id": "3" * 64,
+                "option_type": "replacement_effect",
+                "label": "Replace",
+                "metadata": {
+                    "index": 0,
+                    "source_name": "Harmonic Prodigy",
+                    "xmage_key": f"{u1}_{u2}",
+                },
+            }
+        ]
+        frame["prompt"] = f"colon:{u1}:{u2}/slash/{u1}_{u2}"
+        if extra_text is not None:
+            frame["extra"] = extra_text
+        return frame
+
+    alt = [str(u).replace("1", "e").replace("a", "5") for u in _UUIDS]
+    norm_a = normalize_frame(replacement_frame(_UUIDS))
+    norm_b = normalize_frame(replacement_frame(alt))
+    opts_a, opts_b = norm_a["legal_options"], norm_b["legal_options"]
+    assert isinstance(opts_a, list) and isinstance(opts_b, list)
+    opt_a, opt_b = opts_a[0], opts_b[0]
+    assert isinstance(opt_a, dict) and isinstance(opt_b, dict)
+    meta_a, meta_b = opt_a["metadata"], opt_b["metadata"]
+    assert isinstance(meta_a, dict) and isinstance(meta_b, dict)
+    key_a, key_b = meta_a["xmage_key"], meta_b["xmage_key"]
+    assert key_a == key_b and "_" in str(key_a) and str(key_a).count("id#") == 2
+    assert re.search(r"[0-9a-f]{8}-[0-9a-f]{4}", str(norm_a)) is None
+    assert norm_a["prompt"] == norm_b["prompt"]
+
+    da, db = FrameDigest(), FrameDigest()
+    da.observe(replacement_frame(_UUIDS))
+    db.observe(replacement_frame(alt))
+    assert da.result() == db.result()
+
+    # Negative control: hex digits directly bordering a UUID prevent substring matching.
+    fresh_x = "aaaaaaaa-1111-4111-8111-111111111111"
+    fresh_y = "bbbbbbbb-2222-4222-8222-222222222222"
+    assert normalize_frame({"extra": f"a{fresh_x}"})["extra"] == f"a{fresh_x}"
+    assert normalize_frame({"extra": f"{fresh_x}f"})["extra"] == f"{fresh_x}f"
+    assert normalize_frame({"extra": f"A{fresh_x}F"})["extra"] == f"A{fresh_x}F"
+    assert _digest(replacement_frame(_UUIDS, extra_text=f"a{fresh_x}")) != _digest(
+        replacement_frame(_UUIDS, extra_text=f"a{fresh_y}")
+    )
+    assert _digest(replacement_frame(_UUIDS, extra_text=f"{fresh_x}f")) != _digest(
+        replacement_frame(_UUIDS, extra_text=f"{fresh_y}f")
+    )

@@ -77,9 +77,12 @@ UNORDERED_LISTS: frozenset[tuple[str, ...]] = frozenset(
     {("pilot_state", "commander_status"), ("pilot_state", "players", "exile")}
 )
 
-# The pattern of ``XmageFullGameRunner._semantic_text`` for engine object ids; a test pins that
-# both agree.
-_UUID_RE = re.compile(r"(?i)\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b")
+# Engine object ids, including compound keys such as ``<uuid>_<uuid>`` in
+# ``replacement_effect`` metadata (#1692): bounded by non-hex characters so
+# ``_`` (a regex word character) does not block matching while longer hex strings stay intact.
+_UUID_RE = re.compile(
+    r"(?i)(?<![0-9a-f])[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}(?![0-9a-f])"
+)
 
 
 # A bridge-derived hash, optionally with the view prefix the state references carry.
