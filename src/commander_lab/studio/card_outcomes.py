@@ -967,10 +967,12 @@ class StratumAxis(NamedTuple):
 
     ``pooled`` axes may differ between strata that are combined stratified (the deck state);
     every other axis must be known and equal, or the strata are not combined. ``unknown`` is
-    the label of the stratum whose value is missing, ``shown`` names a known value. A further axis (the pilot fingerprint of
+    the label of the stratum whose value is missing, ``shown`` names a known value, ``field``
+    is the key of the stratum table that carries the value. A further axis (the pilot fingerprint of
     #1687) is one more entry here, read by the same grouping and the same mixing check.
     """
 
+    field: str
     label: str
     unknown: str
     of_game: Callable[[GameExposure, SeatExposure], StratumValue]
@@ -981,6 +983,7 @@ class StratumAxis(NamedTuple):
 
 STRATUM_AXES: tuple[StratumAxis, ...] = (
     StratumAxis(
+        "deck_hash",
         "deck state",
         "Stand unbekannt",
         lambda _game, seat: stand_of(seat),
@@ -989,6 +992,7 @@ STRATUM_AXES: tuple[StratumAxis, ...] = (
         pooled=True,
     ),
     StratumAxis(
+        "table_size",
         "table size",
         "Tischgröße unbekannt",
         lambda game, _seat: table_size_of(game),
@@ -1195,9 +1199,9 @@ def _stand_table(
     allow_mixed: bool,
 ) -> CardOutcomeTable:
     table = aggregate(games, deck_id=deck_id, min_exposed=min_exposed, allow_mixed=allow_mixed)
-    deck_hash, size = key
-    table["deck_hash"] = deck_hash if isinstance(deck_hash, str) else None
-    table["table_size"] = size if isinstance(size, int) else None
+    fields = cast(dict[str, object], table)
+    for axis, value in zip(STRATUM_AXES, key, strict=True):
+        fields[axis.field] = value  # every axis value of the stratum, None when unknown
     revisions = (own_seat(game, deck_id) for game in games)
     table["revision_ids"] = _distinct(seat.get("revision_id") for seat in revisions if seat)
     return table
