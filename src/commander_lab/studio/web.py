@@ -56,7 +56,6 @@ from . import (
     launch,
     memo,
     number_contract,
-    overall_rating,
     packages,
     paired_comparison,
     paired_series,
@@ -562,15 +561,13 @@ def strength_answer(store: StudioStore, body: StrengthBody) -> dict[str, object]
         json.dumps(asdict(settings), sort_keys=True, default=str),
     )
     answer = cache.cached(store, ("strength", *key), compute)
-    # Additive: the second overall rating (Kartenverständnis) next to the usage index, and the
-    # rubric v2 field (Q1-b3, #1678). Added after the snapshot and the remembered answer, so
-    # neither of them changes; the data file's stamp is part of the key.
+    # Additive: the rubric v2 field "Kartenverständnis (Modellurteil)" (Q1-b3, #1678, E5), only
+    # for Chulane. Added after the snapshot and the remembered answer, so neither of them
+    # changes (``with_understanding`` copies the answer); the data file's stamp is part of the key.
     return cache.cached(
         store,
-        ("strength_overall", *key, card_understanding.stamp()),
-        lambda: understanding_field.with_understanding(
-            store, overall_rating.with_overall(store, answer)
-        ),
+        ("strength_understanding", *key, card_understanding.stamp()),
+        lambda: understanding_field.with_understanding(store, answer),
     )
 
 

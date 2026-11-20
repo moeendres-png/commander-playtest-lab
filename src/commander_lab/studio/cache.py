@@ -177,7 +177,7 @@ KINDS: Final[Mapping[str, Kind]] = MappingProxyType(
         "spelling_owners": Kind(),
         "status_store_part": Kind(seal="copy"),
         "strength": Kind(),
-        "strength_overall": Kind(),
+        "strength_understanding": Kind(),
         "universe_context": Kind(),
         # One kind per remembered route answer (``answer_cache.json_answer``): a shared kind
         # could never carry one declaration (``pool`` reads the marks, ``deck_browser`` the deck
