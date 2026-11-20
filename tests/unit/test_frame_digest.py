@@ -5,6 +5,7 @@ from __future__ import annotations
 import copy
 import re
 from collections.abc import Callable
+from itertools import pairwise
 
 from commander_lab.engine.rules.frame_digest import (
     EXCLUDED_TRANSPORT_FIELDS,
@@ -431,3 +432,130 @@ def test_a_face_down_exiled_card_is_still_told_apart() -> None:
     plain = _with_exile([{"name": "Twin", "object_id": _TWIN_ONE}])
     hidden = _with_exile([{"name": "Twin", "object_id": _TWIN_ONE, "face_down": True}])
     assert _digest(plain) != _digest(hidden)
+
+
+def test_underscore_and_non_hex_delimited_uuids_are_normalized_without_matching_hex_substrings() -> (
+    None
+):
+    """Compound keys like ``<uuid1>_<uuid2>`` (#1692) normalize cleanly; hex runs stay untouched."""
+
+    def replacement_frame(uuids: list[str], extra_text: str | None = None) -> dict[str, object]:
+        u1, u2 = uuids[1], uuids[2]
+        frame = _frame(uuids)
+        frame["seat"] = 0
+        frame["decision_class"] = "replacement_effect"
+        frame["legal_options"] = [
+            {
+                "option_id": "3" * 64,
+                "option_type": "replacement_effect",
+                "label": "Replace",
+                "metadata": {
+                    "index": 0,
+                    "source_name": "Harmonic Prodigy",
+                    "xmage_key": f"{u1}_{u2}",
+                },
+            }
+        ]
+        frame["prompt"] = f"colon:{u1}:{u2}/slash/{u1}_{u2}"
+        if extra_text is not None:
+            frame["extra"] = extra_text
+        return frame
+
+    alt = [str(u).replace("1", "e").replace("a", "5") for u in _UUIDS]
+    norm_a = normalize_frame(replacement_frame(_UUIDS))
+    norm_b = normalize_frame(replacement_frame(alt))
+    opts_a, opts_b = norm_a["legal_options"], norm_b["legal_options"]
+    assert isinstance(opts_a, list) and isinstance(opts_b, list)
+    opt_a, opt_b = opts_a[0], opts_b[0]
+    assert isinstance(opt_a, dict) and isinstance(opt_b, dict)
+    meta_a, meta_b = opt_a["metadata"], opt_b["metadata"]
+    assert isinstance(meta_a, dict) and isinstance(meta_b, dict)
+    key_a, key_b = meta_a["xmage_key"], meta_b["xmage_key"]
+    assert key_a == key_b and "_" in str(key_a) and str(key_a).count("id#") == 2
+    assert re.search(r"[0-9a-f]{8}-[0-9a-f]{4}", str(norm_a)) is None
+    assert norm_a["prompt"] == norm_b["prompt"]
+
+    da, db = FrameDigest(), FrameDigest()
+    da.observe(replacement_frame(_UUIDS))
+    db.observe(replacement_frame(alt))
+    assert da.result() == db.result()
+
+    # Negative control: hex digits directly bordering a UUID prevent substring matching.
+    fresh_x = "aaaaaaaa-1111-4111-8111-111111111111"
+    fresh_y = "bbbbbbbb-2222-4222-8222-222222222222"
+    assert normalize_frame({"extra": f"a{fresh_x}"})["extra"] == f"a{fresh_x}"
+    assert normalize_frame({"extra": f"{fresh_x}f"})["extra"] == f"{fresh_x}f"
+    assert normalize_frame({"extra": f"A{fresh_x}F"})["extra"] == f"A{fresh_x}F"
+    assert _digest(replacement_frame(_UUIDS, extra_text=f"a{fresh_x}")) != _digest(
+        replacement_frame(_UUIDS, extra_text=f"a{fresh_y}")
+    )
+    assert _digest(replacement_frame(_UUIDS, extra_text=f"{fresh_x}f")) != _digest(
+        replacement_frame(_UUIDS, extra_text=f"{fresh_y}f")
+    )
+
+
+def test_near_uuid_strings_are_not_normalized_alone_or_in_a_compound_key() -> None:
+    """Negative control for a broadened pattern: only 8-4-4-4-12 hex groups are run identity."""
+    near_uuids = [
+        # right length or shape, wrong grouping: none of these is a UUID (8-4-4-4-12)
+        "aaaaaaa-1111-4111-8111-111111111111",  # 7-4-4-4-12: first block one short
+        "aaaaaaaaa-1111-4111-8111-111111111111",  # 9-4-4-4-12: first block one long
+        "aaaaaaaa-111-4111-8111-111111111111",  # 8-3-4-4-12
+        "aaaaaaaa-1111-411-8111-111111111111",  # 8-4-3-4-12
+        "aaaaaaaa-1111-4111-811-111111111111",  # 8-4-4-3-12
+        "aaaaaaaa-1111-4111-8111-11111111111",  # 8-4-4-4-11
+        "111111111111-1111-4111-8111-aaaaaaaa",  # 12-4-4-4-8: 36 characters, reversed groups
+        "aaaaaaaa-aaaaaaaa-1111-4111-aaaaaaaa",  # 8-8-4-4-8
+        "aaaaaaaa-1111-4111-8111-1111-aaaaaaaa",  # 8-4-4-4-4-8
+        "aaaaaaaabbbbccccddddeeeeeeeeeeee",  # 32 hex digits without dashes
+        "aaaaaaaabbbbccccddddeeeeeeeeeeee-x",  # the same next to a dash (the dash guard is open)
+        "-" * 36,  # 36 characters of the right alphabet, no hex at all
+        "aaaaaaaa-1111-4111-8111-11111111111g",  # last block has a non-hex character
+    ]
+    for text in near_uuids:
+        assert normalize_frame({"extra": text})["extra"] == text, text
+        assert normalize_frame({"extra": f"{text}_{text}"})["extra"] == f"{text}_{text}", text
+    # two different near-UUIDs stay different: nothing of them is masked away
+    for first, second in pairwise(near_uuids):
+        assert _digest({"extra": first}) != _digest({"extra": second})
+    # a real UUID next to a near-UUID in one key: only the real one is numbered
+    real = _UUIDS[0]
+    mixed = normalize_frame({"extra": f"{near_uuids[0]}_{real}"})["extra"]
+    assert mixed == f"{near_uuids[0]}_id#0"
+
+
+def test_swapped_legal_options_give_a_different_digest() -> None:
+    """The order of legal options is observed (#1692, Owner 2026-11-20: no reclassification).
+
+    Two equal-looking options in swapped order, with ids numbered earlier, are a different
+    observation, so a bridge that swaps them is not EQUAL.
+    """
+
+    def digest(options: list[dict[str, object]]) -> str:
+        # both objects were shown earlier, in a fixed order, then offered as options
+        seen = _frame(_UUIDS)
+        seen["pilot_state"]["players"][0]["battlefield"] = [  # type: ignore[index]
+            {"name": "Plains", "object_id": _TWIN_ONE},
+            {"name": "Plains", "object_id": _TWIN_TWO},
+        ]
+        seen["legal_options"] = [
+            {"option_id": "4" * 64, "label": "Plains", "metadata": {"object_id": _TWIN_ONE}},
+            {"option_id": "5" * 64, "label": "Plains", "metadata": {"object_id": _TWIN_TWO}},
+        ]
+        later = _frame(_UUIDS)
+        later["decision_class"] = "choose_object"
+        later["legal_options"] = options
+        return _digest(seen, later)
+
+    def option(option_id: str, object_id: str) -> dict[str, object]:
+        return {"option_id": option_id, "label": "Plains", "metadata": {"object_id": object_id}}
+
+    one = option("4" * 64, _TWIN_ONE)
+    two = option("5" * 64, _TWIN_TWO)
+    assert digest([one, two]) == digest([one, two])
+    # swapped options: other option_ids and other object ids in each position
+    assert digest([one, two]) != digest([two, one])
+    # only the option_ids swapped, object ids kept
+    assert digest([one, two]) != digest([option("5" * 64, _TWIN_ONE), option("4" * 64, _TWIN_TWO)])
+    # only the object ids swapped, option_ids kept
+    assert digest([one, two]) != digest([option("4" * 64, _TWIN_TWO), option("5" * 64, _TWIN_ONE)])
