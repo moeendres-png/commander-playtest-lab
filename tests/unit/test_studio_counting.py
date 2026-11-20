@@ -264,23 +264,27 @@ def test_commander_inclusion_from_card_signal_reaches_the_tier_list_evidence(
 # ---------- group 3: one tier concept ----------
 
 
-def test_spread_levels_carry_their_own_names_next_to_the_stable_keys() -> None:
+def test_the_counted_spread_has_no_level_letters_only_n_of_n() -> None:
+    # Q1-b5 (#1680, E2): the spread levels S to D with their names ("sehr häufig" ...) fell; one
+    # tier concept is left, the strength index. The spread is n of N decks with its reason.
     from commander_lab.studio import tiers
 
-    assert [tiers.LEVEL_NAMES[k] for k in ("S", "A", "B", "C", "D", "U", "F")] == [
-        "sehr häufig", "häufig", "gelegentlich", "selten", "sehr selten", "unbekannt", "Filterkarte",
-    ]  # fmt: skip
+    assert not hasattr(tiers, "LEVEL_NAMES") and not hasattr(tiers, "card_tier")
     store = _bracket_store()
     universe.save_profile(store, "alle", {"min_universe": 1})
     spread = universe_view.pool_spread(store, "alle", commander_names=[CMD])
+    assert spread["cards"]
     for card in spread["cards"]:
-        assert card["level_name"] == tiers.LEVEL_NAMES[card["level"]]
-    rows = tiers.tiers_for_universe(
-        universe.inclusion(store, profile="alle", commander_names=[CMD]),
-        universe_snapshot="s",
-        params=tiers.TierParams(min_universe=1),
-    )
-    assert all(row["level_name"] == tiers.LEVEL_NAMES[row["tier"]] for row in rows)
+        assert "level" not in card and "level_name" not in card
+        assert card["denominator"] == spread["universe"]["denominator"]
+        assert card["reason"] in {
+            "SHARE_CUT",
+            "BELOW_LOWEST_CUT",
+            "NAME_NOT_FOUND_IN_UNIVERSE",
+            "FILTER_CARD",
+            "UNIVERSE_EMPTY",
+            "UNIVERSE_TOO_SMALL",
+        }
 
 
 def test_the_policy_text_does_not_contradict_the_page() -> None:

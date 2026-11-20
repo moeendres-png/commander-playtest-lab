@@ -8,11 +8,76 @@
 // (paired_series.MEASURED_BATCH_GAMES_PER_HOUR, assumed_games_per_hour_unmeasured).
 const PAIRED_MEASURED_BATCH_GAMES_PER_HOUR = 541.2;
 const PAIRED_MEASURED_BATCH_WORKERS = 6;
-// Every pod preset of this dialog seats four players; with rotation each seed plays all four.
-const PAIRED_TABLE_SEATS = 4;
+// Table sizes of a series (#1702): two to six seats. The seat lock (launch.MAX_RELEASED_SEATS) lets the
+// Studio start two to four; five and six can be planned here but not started, and the server refuses
+// them too. Freigabe nur per Owner-Entscheid: raise PAIRED_RELEASED_SEATS (and partie.js) only then.
+const PAIRED_MIN_SEATS = 2;
+const PAIRED_MAX_SEATS = 6;
+const PAIRED_RELEASED_SEATS = 4;
+const PAIRED_DEFAULT_SEATS = 4;
+// The one table size the rate above was measured at; for any other size the duration is UNKNOWN.
+const PAIRED_MEASURED_TABLE_SEATS = 4;
+const PAIRED_LEGACY_BUDGETS = [20, 40, 60, 100, 200];
 
-function estimatePairedText(budgetPairs, workers = 4) {
+function pairedTableOptions() {
+  const sizes = [];
+  for (let seats = PAIRED_MIN_SEATS; seats <= PAIRED_MAX_SEATS; seats += 1) {
+    sizes.push({ seats, locked: seats > PAIRED_RELEASED_SEATS, label: `${seats} Sitze${seats > PAIRED_RELEASED_SEATS ? " (nicht freigegeben)" : ""}` });
+  }
+  return sizes;
+}
+
+function pairedLockNote() {
+  return `${PAIRED_RELEASED_SEATS + 1} und ${PAIRED_MAX_SEATS} Sitze sind nicht freigegeben (Owner-Entscheid, E15 Q5): Sie lassen sich hier planen, aber nicht starten; der Server lehnt sie ab.`;
+}
+
+// Pairs of one block: every combination of starting seat (seed mod seats) and tested seat once.
+function pairedBlockPairs(seats, rotate) {
+  return rotate ? seats * seats : seats;
+}
+
+// The budgets offered at a table size: the usual ones plus whole blocks (complete rotations).
+function pairedBudgetOptions(seats, rotate) {
+  const block = pairedBlockPairs(seats, rotate);
+  const values = new Set(PAIRED_LEGACY_BUDGETS);
+  for (const k of [1, 2, 4]) values.add(k * block);
+  return [...values].sort((a, b) => a - b).map((pairs) => {
+    const blocks = pairs % block === 0 ? pairs / block : null;
+    const tail = blocks === null ? "" : ` · ${StudioUI.num(blocks, 0)} ${blocks === 1 ? "Block" : "Blöcke"}, vollständige Rotation`;
+    return { value: pairs, label: `${StudioUI.num(pairs, 0)} Paare (bis ${StudioUI.num(2 * pairs, 0)} Partien${tail})` };
+  });
+}
+
+// The default budget: the long-standing 40 at four seats, else one whole block.
+function pairedDefaultBudget(seats, rotate) {
+  return seats === PAIRED_DEFAULT_SEATS ? 40 : pairedBlockPairs(seats, rotate);
+}
+
+// What the backend plan (paired_series.table_plan) says about the table, in words. The page
+// computes none of it: counts, rotation and the lock come from the server.
+function pairedTableLines(table) {
+  const n = StudioUI.num;
+  const lines = [];
+  const tested = (table.tested_seats || []).length;
+  lines.push(`Tisch mit ${n(table.table_size, 0)} Sitzen: ${n(table.seeds_planned, 0)} Seeds mal ${n(tested, 0)} getestete(r) Sitz(e). Ein Block sind ${n(table.pairs_per_block, 0)} Paare, also ${n(table.games_per_arm_per_block, 0)} Partien je Arm: jede Kombination aus Startsitz (Seed mod ${n(table.table_size, 0)}) und getestetem Sitz einmal.`);
+  if (table.rotation_complete) {
+    lines.push(`Rotation vollständig: ${n(table.full_blocks, 0)} ${table.full_blocks === 1 ? "Block" : "Blöcke"}, jede Kombination ${n(table.cells_min_pairs, 0)}-mal.`);
+  } else {
+    lines.push(`Rotation unvollständig: ${n(table.full_blocks, 0)} volle Blöcke plus ${n(table.remainder_pairs, 0)} Paare; ${n(table.cells_missing, 0)} von ${n(table.cells_total, 0)} Kombinationen kommen nie vor, die übrigen ${n(table.cells_min_pairs, 0)} bis ${n(table.cells_max_pairs, 0)}-mal. Ein Vielfaches von ${n(table.pairs_per_block, 0)} Paaren schließt die Rotation.`);
+  }
+  lines.push(`Aufwand: bis zu ${n(table.max_games, 0)} Partien (${n(table.games_per_arm, 0)} je Arm).`);
+  if (Array.isArray(table.opponent_ids) && table.opponent_ids.length) {
+    lines.push(`Gegner (Sitz 2 bis ${n(table.table_size, 0)}): ${table.opponent_ids.join(", ")}.`);
+  }
+  if (table.locked_text) lines.push(table.locked_text);
+  return lines;
+}
+
+function estimatePairedText(budgetPairs, workers = 4, tableSeats = PAIRED_MEASURED_TABLE_SEATS) {
   const pairs = Math.max(0, Number(budgetPairs) || 0);
+  if (Number(tableSeats) !== PAIRED_MEASURED_TABLE_SEATS) {
+    return `Dauer: unbekannt (UNKNOWN). Für einen Tisch mit ${StudioUI.num(tableSeats, 0)} Sitzen ist kein Durchsatz gemessen (n = 0 Partien); gemessen sind nur Vierertische (541 Partien/h, ganze Batch-Serie mit 6 Workern, #1251; die Zahl der Partien dieser Messung ist im Repository nicht belegt). Aufwand: bis zu ${StudioUI.num(pairs * 2, 0)} Partien (${StudioUI.num(pairs, 0)} je Arm).`;
+  }
   const usedWorkers = Math.max(1, Math.min(16, Math.round(Number(workers) || 1)));
   const maxGames = pairs * 2;
   const seconds = Math.round(maxGames * (3600.0 / PAIRED_MEASURED_BATCH_GAMES_PER_HOUR));
@@ -39,6 +104,15 @@ function planPairedLines(plan, thresholdPp) {
     `Für ${StudioUI.num(plan.reference_effect_pp, 0)} pp bräuchte es etwa ${range(plan.pairs_needed_low, plan.pairs_needed_high, 0)} Paare. Referenz: ein einzelner Siegrate-Anteil braucht bei 25 % rund 800 Partien für ±3 pp.`,
     `Annahmen: Paar-Streuung ${StudioUI.num(a.pair_sd, 2)} als vorsichtiger Planungswert (exakt ${StudioUI.num(a.pair_sd_independent_exact, 3)} für unabhängige Partien mit 25 % Siegrate; gepaart: Korrelation ungemessen); Student-t mit ${StudioUI.num(a.degrees_of_freedom, 0)} Freiheitsgraden (Seeds − 1) wie in der Auswertung${a.seats_per_seed > 1 ? `; Sitzrotation mit ${StudioUI.num(a.seats_per_seed, 0)} Sitzen je Seed bis Design-Effekt ${StudioUI.num(a.design_effect, 2)} (Blockkorrelation ${StudioUI.num(a.block_correlation_assumed, 2)} angenommen)` : ""}; Zwischenblicke nicht eingerechnet. Ein Plan, keine Messung.`,
   ];
+}
+
+// The plan of a table (also a locked one): the usual plan lines and the table block of the backend.
+// A refusal (a preset with too few decks) is not caught here: the dialog shows its text.
+async function loadPairedTablePlan(api, budgetPairs, table, thresholdPp) {
+  const query = [`budget_pairs=${encodeURIComponent(budgetPairs)}`, `table_size=${encodeURIComponent(table.seats)}`, `rotate_seats=${table.rotate ? "true" : "false"}`];
+  if (table.pod) query.push(`pod=${encodeURIComponent(table.pod)}`);
+  const plan = await api(`/api/simulations/paired-plan?${query.join("&")}`);
+  return { lines: planPairedLines(plan, thresholdPp), table: plan.table || null };
 }
 
 // Ask the backend for the plan and format it; the dialog only shows what this returns.
@@ -154,6 +228,16 @@ function seriesPlayedText(played, planned, closed, atMost, running) {
   return `Gespielt: ${StudioUI.num(played, 0)} ${of} Partien${tail}.${note}`;
 }
 
+// The table of a recorded series: its seat count from the seed plan, "unbekannt" for an older record.
+function pairedMonitorTableText(job) {
+  const seats = job.seed_plan ? job.seed_plan.player_count : null;
+  const known = seats !== null && seats !== undefined && Number.isFinite(Number(seats));
+  const tested = Array.isArray(job.tested_seats) ? job.tested_seats.length : null;
+  return known
+    ? `Tisch: ${StudioUI.num(seats, 0)} Sitze, getestete Sitze: ${tested === null ? "unbekannt" : StudioUI.num(tested, 0)}.`
+    : "Tisch: Sitzzahl unbekannt (ältere Serie).";
+}
+
 function renderPairedMonitor(h, job, deps) {
   const isRunning = job.status === "running" || job.status === "pending";
   const isInterrupted = job.status === "interrupted";
@@ -176,7 +260,8 @@ function renderPairedMonitor(h, job, deps) {
       h("span", { class: "pill " + (isRunning || isInterrupted ? "warn" : job.status === "completed" ? "good" : "bad") }, statusText)),
     h("progress", { value: donePairs, max: maxPairs }),
     h("p", { class: "note note-compact" }, seriesPlayedText(job.games_played, job.games_planned_max, null, true, isRunning)),
-    h("p", { class: "note note-compact" }, `Basis (A): ${job.base_ref} · Variante (B): ${job.variant_ref}`));
+    h("p", { class: "note note-compact" }, `Basis (A): ${job.base_ref} · Variante (B): ${job.variant_ref}`),
+    h("p", { class: "note note-compact", id: "paired-monitor-table" }, pairedMonitorTableText(job)));
 
   const qualStates = job.bridge_qualification_states || (job.bridge_qualification && job.bridge_qualification.status ? [job.bridge_qualification.status] : []);
   if (qualStates.includes("BRIDGE_AHEAD_OF_QUALIFICATION")) {
@@ -417,17 +502,19 @@ function renderPairedComparisonSection(body, deps) {
   const varSelect = h("select", { id: "paired-variant-select" },
     curRev ? h("option", { value: curRev }, curRev) : h("option", { value: "" }, "Stände laden …"));
   const podSelect = h("select", { id: "paired-pod-select" },
-    h("option", { value: "precon" }, "Precon (Lorehold, Animated Army, Token Triumph)"),
-    h("option", { value: "mixed" }, "Mixed (Kaervek, Animated Army, Lorehold)"),
-    h("option", { value: "optimized" }, "Optimized (Eldrazi, Kaervek, Hosts of Mordor)")
+    h("option", { value: "precon" }, "Precon (Lorehold, Animated Army, Token Triumph, …)"),
+    h("option", { value: "mixed" }, "Mixed (Kaervek, Animated Army, Lorehold, …)"),
+    h("option", { value: "optimized" }, "Optimized (Eldrazi, Kaervek, Hosts of Mordor, …)")
   );
-  const budgetSelect = h("select", { id: "paired-budget-select" },
-    h("option", { value: "20" }, "20 Paare (bis 40 Partien)"),
-    h("option", { value: "40", selected: true }, "40 Paare (bis 80 Partien · 10 Seeds)"),
-    h("option", { value: "60" }, "60 Paare (bis 120 Partien)"),
-    h("option", { value: "100" }, "100 Paare (bis 200 Partien)"),
-    h("option", { value: "200" }, "200 Paare (bis 400 Partien)")
-  );
+  const tableSelect = h("select", { id: "paired-table-size-select" },
+    pairedTableOptions().map((opt) => h("option", { value: String(opt.seats), selected: opt.seats === PAIRED_DEFAULT_SEATS }, opt.label)));
+  tableSelect.value = String(PAIRED_DEFAULT_SEATS);
+  const budgetSelect = h("select", { id: "paired-budget-select" });
+  const fillBudgets = (seats, rotate) => {
+    const keep = pairedDefaultBudget(seats, rotate);
+    budgetSelect.replaceChildren(...pairedBudgetOptions(seats, rotate).map((opt) => h("option", { value: String(opt.value), selected: opt.value === keep }, opt.label)));
+    budgetSelect.value = String(keep);
+  };
   const lookSelect = h("select", { id: "paired-look-select" },
     h("option", { value: "4", selected: true }, "alle 4 Paare"),
     h("option", { value: "5" }, "alle 5 Paare"),
@@ -439,32 +526,44 @@ function renderPairedComparisonSection(body, deps) {
   const workersInput = h("input", { type: "number", value: "4", min: "1", max: "16", class: "seed-input", id: "paired-workers-input" });
   const gamesPerJvmInput = h("input", { type: "number", value: "16", min: "1", max: "24", class: "seed-input", id: "paired-games-per-jvm-input" });
   const rotateCheck = h("input", { type: "checkbox", checked: true, id: "paired-rotate-check" });
+  const rotateText = h("span", { id: "paired-rotate-text" }, `Sitze 1–${PAIRED_DEFAULT_SEATS} rotieren`);
+  const tableNote = h("p", { class: "note note-compact", id: "paired-table-note" }, pairedLockNote());
+  const startBtn = h("button", { type: "submit", class: "primary", id: "paired-start-btn" }, "Nachtlauf starten");
 
-  const estLine = h("p", { class: "note", id: "paired-estimate" }, estimatePairedText(budgetSelect.value, workersInput.value));
+  const tableSeats = () => Math.max(PAIRED_MIN_SEATS, Math.min(PAIRED_MAX_SEATS, parseInt(tableSelect.value, 10) || PAIRED_DEFAULT_SEATS));
+  const tableLocked = () => tableSeats() > PAIRED_RELEASED_SEATS;
+  fillBudgets(PAIRED_DEFAULT_SEATS, true);
+  const estLine = h("p", { class: "note", id: "paired-estimate" }, estimatePairedText(budgetSelect.value, workersInput.value, tableSeats()));
   const planBox = h("div", { class: "note", id: "paired-plan" });
   const updateEstimate = () => {
-    estLine.textContent = estimatePairedText(budgetSelect.value, workersInput.value);
+    estLine.textContent = estimatePairedText(budgetSelect.value, workersInput.value, tableSeats());
+  };
+  const updateTable = () => {
+    rotateText.textContent = `Sitze 1–${tableSeats()} rotieren`;
+    startBtn.disabled = tableLocked();
   };
   let planRequest = 0;
   const refreshPlan = async () => {
     const mine = ++planRequest;
-    const seats = rotateCheck.checked ? PAIRED_TABLE_SEATS : 1;
     try {
-      const lines = await loadPairedPlanLines(deps.api, budgetSelect.value, seats, thresholdInput.value);
+      const planned = await loadPairedTablePlan(deps.api, budgetSelect.value, { seats: tableSeats(), rotate: rotateCheck.checked, pod: podSelect.value }, thresholdInput.value);
       if (mine !== planRequest) return;
+      const lines = [...(planned.table ? pairedTableLines(planned.table) : []), ...planned.lines];
       planBox.replaceChildren(...lines.map((line) => h("p", { class: "note note-compact" }, line)));
     } catch (error) {
-      if (mine === planRequest) planBox.replaceChildren(h("p", { class: "note note-compact" }, "Planung nicht verfügbar (unbekannt)."));
+      if (mine === planRequest) planBox.replaceChildren(h("p", { class: "note note-compact" }, `Planung nicht verfügbar (unbekannt): ${deps.fail(error, true)}`));
     }
   };
+  tableSelect.addEventListener("change", () => { fillBudgets(tableSeats(), rotateCheck.checked); updateTable(); updateEstimate(); refreshPlan(); });
+  podSelect.addEventListener("change", refreshPlan);
   budgetSelect.addEventListener("change", () => { updateEstimate(); refreshPlan(); });
-  rotateCheck.addEventListener("change", refreshPlan);
+  rotateCheck.addEventListener("change", () => { fillBudgets(tableSeats(), rotateCheck.checked); updateEstimate(); refreshPlan(); });
   thresholdInput.addEventListener("change", refreshPlan);
   workersInput.addEventListener("change", updateEstimate);
   workersInput.addEventListener("input", updateEstimate);
+  updateTable();
   refreshPlan();
 
-  const startBtn = h("button", { type: "submit", class: "primary", id: "paired-start-btn" }, "Nachtlauf starten");
   const form = h("form", {
     class: "sim-form",
     onsubmit: async (e) => {
@@ -477,12 +576,18 @@ function renderPairedComparisonSection(body, deps) {
         deps.toast("Basis (A) und Variante (B) müssen verschiedene Stände sein.");
         return;
       }
+      if (tableLocked()) {
+        deps.toast(pairedLockNote());
+        return;
+      }
       startBtn.disabled = true;
       try {
         const res = await deps.api("/api/simulations/paired", "POST", {
           base_revision_id: baseSelect.value,
           variant_revision_id: varSelect.value,
           pod: podSelect.value,
+          // the usual four-seat table is named by its pod as before; another size is sent explicitly
+          ...(tableSeats() === PAIRED_DEFAULT_SEATS ? {} : { table_size: tableSeats() }),
           budget_pairs: parseInt(budgetSelect.value, 10),
           look_every_pairs: parseInt(lookSelect.value, 10),
           base_seed: parseInt(seedInput.value, 10),
@@ -497,26 +602,27 @@ function renderPairedComparisonSection(body, deps) {
       } catch (err) {
         deps.fail(err);
       } finally {
-        startBtn.disabled = false;
+        startBtn.disabled = tableLocked();
       }
     },
   },
     h("label", {}, "Basis (A)", baseSelect),
     h("label", {}, "Variante (B)", varSelect),
     h("label", {}, "Gegnertisch", podSelect),
+    h("label", {}, "Tischgröße", tableSelect),
     h("label", {}, "Budget", budgetSelect),
     h("label", {}, "Sequential-Look", lookSelect),
     h("label", {}, "Schwelle (pp)", thresholdInput),
     h("label", {}, "Basis-Seed", seedInput),
     h("label", {}, "Worker", workersInput),
     h("label", {}, "Partien / JVM", gamesPerJvmInput),
-    h("label", { class: "paired-check" }, rotateCheck, "Sitze 1–4 rotieren"),
+    h("label", { class: "paired-check" }, rotateCheck, rotateText),
     startBtn
   );
 
   const monSlot = h("div", { id: "paired-monitor-slot" });
   const histSlot = h("div", { id: "paired-history-slot" });
-  pBox.append(form, estLine, planBox, monSlot, histSlot);
+  pBox.append(form, tableNote, estLine, planBox, monSlot, histSlot);
 
   body.append(pBox, renderReadinessAuditBox(h, deps));
   refreshPairedSlots(deps);

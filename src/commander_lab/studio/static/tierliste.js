@@ -72,7 +72,6 @@ const SORTS = [
   ["strength", "Stärke-Index (Schätzung, zu wenig Daten zuletzt)"],
   ["confidence", "Datenlage-Konfidenz des Nutzungsindex (Zähler)"],
   ["spread", "Verbreitung (gezählt): Anteil im Universum"],
-  ["spread_level", "Verbreitung (gezählt): Stufe im Universum"],
   ["layers", "Anzahl vorhandener Schichten"],
   ["corpus", "Anteil in Quelldecks (nur Lesehilfe)"],
   ["edhrec", "Aufnahme in EDHREC (nur Lesehilfe)"],
@@ -100,17 +99,15 @@ function cohortName(cohort) {
 }
 // Server sentences carry bare digit runs (10128): group them the German way, dates stay as they are.
 const groupDigits = (text) => String(text).replace(/(?<![\d.,-])\d{4,}(?![\d-])/g, (digits) => nf(Number(digits)));
-const LEVEL_RANK = { S: 5, A: 4, B: 3, C: 2, D: 1, U: 0 };
 const NO_UNIVERSE = "kein Universum gewählt";
 const FILTER_LABEL = "Filterkarte";
 const SPREAD_NOTE = "Gezählt: in wie vielen Decks des gewählten Universums die Karte steht. Das ist keine Kartenstärke und kein Tier. Favoriten, Ausschlüsse und Notizen ändern keine Zählung.";
-const REASON_NAMES = { FILTER_CARD: "Filterkarte des Universums", SHARE_CUT: "Anteil erreicht die Schwelle", BELOW_LOWEST_CUT: "Anteil unter der niedrigsten Schwelle", UNIVERSE_TOO_SMALL: "Universum kleiner als das Minimum", DENOMINATOR_MISSING: "Nenner fehlt", NAME_NOT_FOUND_IN_UNIVERSE: "Name kommt im Universum nicht vor (unbekannt, nicht null)", UNIVERSE_EMPTY: "Universum ist leer (0 Decks)", NO_SOURCE_DECKS_FOR_COMMANDER: "Für diesen Commander sind keine Quelldecks importiert", FILTERS_EXCLUDE_ALL_DECKS: "Die Filter des Universums lassen kein Deck übrig" };
+const REASON_NAMES = { FILTER_CARD: "Filterkarte des Universums", SHARE_CUT: "gezählt", BELOW_LOWEST_CUT: "gezählt", UNIVERSE_TOO_SMALL: "Universum kleiner als das Minimum", DENOMINATOR_MISSING: "Nenner fehlt", NAME_NOT_FOUND_IN_UNIVERSE: "Name kommt im Universum nicht vor (unbekannt, nicht null)", UNIVERSE_EMPTY: "Universum ist leer (0 Decks)", NO_SOURCE_DECKS_FOR_COMMANDER: "Für diesen Commander sind keine Quelldecks importiert", FILTERS_EXCLUDE_ALL_DECKS: "Die Filter des Universums lassen kein Deck übrig" };
 const UNIVERSE_KEY = "studio.universe.profile";
 const STRENGTH_KEY = "studio.strength.settings";
 const SORT_KEY = "studio.tier.sort";
 const PRESET_KEY = "studio.tier.preset";
 const COMPARE_KEY = "studio.tier.compare";
-const TIER_MODE_KEY = "studio.tier.mode";
 const METHOD_KEY = "studio.tier.method-open";
 const COMPACT_BELOW = 1500; // px: narrower windows start with the compact column set
 const STRENGTH_NOTE = "Der Stärke-Index ist eine Schätzung aus Nutzungssignalen (wie oft die Karte bei diesem Commander, im Bracket, in den gewählten Decklisten und in Turnierlisten gespielt wird). Er ist keine gemessene Siegrate. Eine Karte, die eine Quelle nicht nennt, senkt die Datenlage, nie die Karte. Favoriten, Ausschlüsse und Notizen fließen nicht ein.";
@@ -188,8 +185,7 @@ function sortValue(card, key) {
   if (key === "name") return card.name.toLowerCase();
   if (key === "mv") return card.mana_value;
   if (key === "strength") { const item = strengthItem(card); return item && item.tier !== "U" && item.tier !== "N" ? item.index : null; } // tier U sorts last
-  if (key === "spread") { const item = state.universe.spread ? state.universe.spread.get(card.card_id) : undefined; return item && item.share !== null && item.share !== undefined ? item.share : null; }
-  if (key === "spread_level") { const item = state.universe.spread ? state.universe.spread.get(card.card_id) : undefined; return item && !item.filter_card ? (LEVEL_RANK[item.level] ?? 0) + (item.share || 0) : null; }
+  if (key === "spread") { const spread = state.universe.spread, item = spread ? spread.get(card.card_id) : undefined; return spreadKnown(item, spread && spread.universe) ? item.share : null; } // "unbekannt" sorts last
   if (key === "confidence") { const item = strengthItem(card); return item && item.confidence !== null && item.confidence !== undefined ? item.confidence : null; }
   if (key.startsWith(PERCENTILE_SORT)) { // percentile of one single component; no value sorts last
     const item = strengthItem(card);
@@ -287,7 +283,7 @@ function visibleCards() {
   if (state.searchErrors.length) return [];
   const type = $("type-filter").value, role = $("role-filter").value;
   const landKind = $("land-filter") ? $("land-filter").value : "";
-  const spreadLevel = $("spread-filter") ? $("spread-filter").value : "";
+  const spreadKind = $("spread-filter") ? $("spread-filter").value : "";
   const free = $("f-free").checked, fav = $("f-fav").checked, showExcluded = $("f-excl").checked;
   const gapRoles = state.roleGapOnly ? new Set(openRoleGaps().gaps.map((g) => g.role)) : null;
   let rows = state.data.cards.filter((card) => {
@@ -299,7 +295,7 @@ function visibleCards() {
     if (role && !cardRoles(card).includes(role)) return false;
     if (gapRoles && (state.deckCards.has(card.card_id) || !cardRoles(card).some((r) => gapRoles.has(r)))) return false;
     if (state.strength.tiers.size && state.strength.map) { const item = state.strength.map.get(card.card_id); if (!item || !state.strength.tiers.has(item.tier)) return false; }
-    if (spreadLevel && state.universe.spread) { const item = state.universe.spread.get(card.card_id); if (!item || item.level !== spreadLevel) return false; }
+    if (spreadKind && state.universe.spread) { const item = state.universe.spread.get(card.card_id); if (spreadKindOf(item, state.universe.spread.universe) !== spreadKind) return false; }
     if (free && state.view !== "deck" && !(card.available > 0)) return false; // a deck is always shown whole
     if (fav && !mark.favorite) return false;
     if (!showExcluded && mark.excluded) return false;
@@ -325,14 +321,14 @@ function visibleCards() {
 function activeFilterNames() {
   const out = [];
   const q = $("q").value.trim(), type = $("type-filter").value, role = $("role-filter").value;
-  const landKind = $("land-filter") ? $("land-filter").value : "", spreadLevel = $("spread-filter") ? $("spread-filter").value : "";
+  const landKind = $("land-filter") ? $("land-filter").value : "", spreadKind = $("spread-filter") ? $("spread-filter").value : "";
   if (q) out.push(`Suche „${q}“`);
   if (type) out.push(`Typ ${typeLabel(type)}`);
   if (landKind) out.push(landKind === "lands" ? "nur Länder" : "nur Zauber");
   if (role) out.push(`Rolle ${roleName(role)}`);
   if (state.roleGapOnly) out.push("Schließt offenen Deck-Bedarf");
   if (state.strength.tiers.size) out.push(`Stufe ${[...state.strength.tiers].join(", ")}`);
-  if (spreadLevel) out.push(`Verbreitung ${spreadLevel}`);
+  if (spreadKind) out.push(`Verbreitung ${SPREAD_KINDS[spreadKind] || spreadKind}`);
   const base = baseCards();
   if ($("f-free").checked && state.view !== "deck" && base.some((card) => !(card.available > 0))) out.push("nur freie");
   if ($("f-fav").checked) out.push("Favoriten");
@@ -429,8 +425,12 @@ function gameCell(card) {
 function simCell(card) {
   const sim = layer(card, "simulated_result");
   if (sim.status === "NOT_APPLICABLE") return unknown("–");
-  if (!sim.totals) return unknown("nicht simuliert");
-  return `${nf(sim.totals.games_cast_after_offer)}/${nf(sim.totals.games_offered)} Partien`;
+  const groups = sim.groups || [];
+  if (!groups.length) return unknown("nicht simuliert");
+  // one line per opponent set and table size (#1688): every group on its own, never a total;
+  // a group of unknown opponents carries its reservation visibly, also without a figure
+  return h("span", {}, groups.length > 1 ? h("div", {}, `${nf(groups.length)} Gegnersätze (getrennt)`) : null,
+    ...groups.map((g) => h("div", { title: g.label }, `${nf(g.games_cast_after_offer)}/${nf(g.games_offered)} Partien`, g.vorbehalt ? ` (${g.vorbehalt})` : "")));
 }
 function strengthItem(card) { const map = state.strength.map; return map ? map.get(card.card_id) || null : null; }
 const neutral = (text, title) => h("span", { class: "badge-neutral", title }, text);
@@ -478,7 +478,7 @@ function unsharpMark(item) {
 }
 // One plain sentence per row (tooltip of the tier badge): tier, source-deck share, best function rank, data situation.
 function rowSummary(item) {
-  const parts = [`Stufe ${item.tier}${item.relative_tier && item.relative_tier !== item.tier ? ` (relativ im Pool ${item.relative_tier})` : ""}, Index ${StudioUI.num(item.index, 1)}`];
+  const parts = [`Stufe ${item.tier}, Index ${StudioUI.num(item.index, 1)}`];
   const counts = deckCounts(item);
   if (counts) parts.push(`in ${nf(counts.n)} von ${nf(counts.N)} Quelldecks (${StudioUI.pct(counts.n / counts.N, 1)})`);
   const best = Object.entries(item.role_ranks || {}).sort((a, b) => a[1].rank - b[1].rank)[0];
@@ -496,9 +496,7 @@ function strengthCell(card) {
   const title = `${rowSummary(item)} Schätzung aus Nutzungssignalen, keine Siegrate. Abdeckung ${StudioUI.num(100 * item.coverage, 0)} %, ${nf(item.present)} Signale vorhanden.`;
   if (item.tier === "N") return neutral(item.note, `${item.note}: Commander und Standardländer bekommen keine Stufe.`);
   if (item.tier === "U") return unknownCell(card, item);
-  const shownTier = state.tierMode === "relative" && item.relative_tier ? item.relative_tier : item.tier;
-  const relNote = state.tierMode === "relative" && item.relative_tier ? h("span", { class: "rule", title: `Absolute Stufe: ${item.tier}` }, `abs ${item.tier}`) : null;
-  return h("span", { class: "tcell" }, tierBadge(shownTier, StudioUI.num(item.index, 1), title), relNote, confidenceMark(item), borderlineMark(item), unsharpMark(item));
+  return h("span", { class: "tcell" }, tierBadge(item.tier, StudioUI.num(item.index, 1), title), confidenceMark(item), borderlineMark(item), unsharpMark(item));
 }
 function datenlageCell(card) {
   const item = strengthItem(card);
@@ -538,6 +536,39 @@ function understandingHint() {
   return [h("div", { id: "understanding-hint", class: "hint", title: UNDERSTANDING_H },
     `${UNDERSTANDING_NAME}: Kriterium H der Rubrik ${origin.version || "unbekannt"} (${origin.rubric || "unbekannt"}), ${nf(field.n_bewertet)} von ${nf(field.n_gesamt)} Karten bewertet; Modell-Rater, nicht gegen Spielergebnisse validiert. Keine Stufe, kein Rang, nicht Teil des Stärke-Index.`)];
 }
+// ---------- pool view "Nutzung n/N" (Q1-b5, #1680) ----------
+// The counted spread of one card in the chosen universe as one number contract of class GEZÄHLT (zahl.js):
+// n of N decks with the universe as cohort and origin. It has no level letter: the only lettered scale of the page
+// is the strength index S to D. Below the universe minimum (min_universe) or without a counted name the share is
+// "unbekannt", never 0; a filter card of the universe gets no figure at all (the filter speaks, not the decks).
+const SPREAD_KINDS = { counted: "gezählt", unknown: "unbekannt", filter: "Filterkarte" };
+function spreadKnown(item, universe) {
+  return Boolean(item && item.matched && !item.filter_card && item.reason !== "UNIVERSE_TOO_SMALL" && !(universe && universe.below_min_universe)
+    && typeof item.share === "number");
+}
+// A remembered filter view from before Q1-b5 may hold a spread level letter (S to D, U, F): it falls back to "all".
+const spreadFilterValue = (value) => (Object.prototype.hasOwnProperty.call(SPREAD_KINDS, value) ? value : "");
+function spreadKindOf(item, universe) {
+  if (item && item.filter_card) return "filter";
+  return spreadKnown(item, universe) ? "counted" : "unknown";
+}
+function spreadFigure(item, universe) {
+  if (!item || item.filter_card) return null;
+  const known = spreadKnown(item, universe);
+  return {
+    id: `nutzung:${item.card_id}`,
+    bezeichnung: "Nutzung im Universum",
+    wert: known ? item.share : null,
+    einheit: "Anteil",
+    n: item.matched && Number.isInteger(item.hits) ? item.hits : null,
+    N: item.denominator,
+    bezug: "Decks (mit der Karte / im Universum)",
+    klasse: "GEZÄHLT",
+    kohorte: `Universum ${universe.profile}`,
+    quelle: `Universum ${universe.profile}, Stand ${universe.snapshot_id}`,
+    hinweise: [REASON_NAMES[item.reason] || item.reason, ...(universe.subset_note ? [universe.subset_note] : [])],
+  };
+}
 function spreadCell(card) {
   const uni = state.universe;
   if (!uni.name || !uni.spread) return neutral(NO_UNIVERSE, "Wähle oben ein Universum, um die gezählte Verbreitung zu sehen.");
@@ -548,13 +579,9 @@ function spreadCell(card) {
 function spreadBadge(item, universe) {
   const subset = universe.subset_note ? ` ${universe.subset_note}.` : "";
   if (item.filter_card) {
-    return neutral(FILTER_LABEL, `${FILTER_LABEL}: das Universum verlangt diese Karte, sie steht per Definition in jedem Deck der Teilmenge (ohne Zählung, ohne Stufe). Universum ${universe.profile}.${subset}`);
+    return neutral(FILTER_LABEL, `${FILTER_LABEL}: das Universum verlangt diese Karte, sie steht per Definition in jedem Deck der Teilmenge (ohne Zählung, ohne Anteil). Universum ${universe.profile}.${subset}`);
   }
-  const label = item.level_name || item.level;
-  const counted = item.matched ? `${nf(item.hits)}/${nf(item.denominator)}` : "unbekannt";
-  const title = `${SPREAD_LABEL}: ${label} (${REASON_NAMES[item.reason] || item.reason}). Universum ${universe.profile}, ${nf(universe.denominator)} Decks, Stand ${universe.snapshot_id}.${subset}`;
-  if (counted === "unbekannt") return neutral(item.level && item.level !== "U" ? `${label} (unbekannt)` : "unbekannt", title);
-  return neutral(`${label} · ${counted}`, title);
+  return StudioZahl.knoten(h, spreadFigure(item, universe));
 }
 function statusBadge(status) {
   const [text, kind] = STATUS_NAMES[status] || [status, "dim"];
@@ -584,7 +611,7 @@ function tableColumns() {
     { head: () => plainHead("Favorit / Deck"), cell: cell("acts", markButtons) },
     ...(state.funcMode && commander ? [{ head: () => sortHead("Rang in Funktion", "rolerank", "", "Rang k von n Karten mit Stufe in der gleichen Funktion (Rolle), nach dem Index im Gesamtpool. Die Stufe bleibt die Stufe im Gesamtpool."), cell: cell("", functionRankCell) }] : []),
     ...(compact || !commander ? [] : [{ head: () => sortHead("Datenlage", "confidence", "", CONFIDENCE_TEXT), cell: cell("", datenlageCell) }]),
-    ...(spread ? [{ head: () => sortHead(SPREAD_LABEL, "spread"), cell: cell("", spreadCell) }] : []),
+    ...(spread ? [{ head: () => sortHead(SPREAD_LABEL, "spread"), cell: cell("spread", spreadCell) }] : []),
     { head: () => sortHead("MW", "mv", "num", "Manawert"), cell: (card) => h("td", { class: "num" }, StudioUI.numFlex(card.mana_value, 2)) },
     ...(compact ? [] : [{ head: () => plainHead("Mechanik"), cell: cell("", featureBadges) }]),
     ...(compact || !(state.strength.result && state.strength.result.chulane_textfit_version)
@@ -808,7 +835,10 @@ function drawer(card) {
   const combo = layer(card, "combo_verified");
   box.push(h("div", { class: "layer" }, heading("combo_verified", combo.status), combo.note ? h("p", {}, "Eine gelistete Kombo ist kein Beleg für Stärke und kein bestandener Engine-Test.") : null));
   const sim = layer(card, "simulated_result");
-  box.push(h("div", { class: "layer" }, heading("simulated_result", sim.status), sim.totals ? h("p", {}, `${nf(sim.totals.runs)} Läufe: in ${nf(sim.totals.games_cast_after_offer)} von ${nf(sim.totals.games_offered)} Partien nach dem Angebot gespielt (${nf(sim.totals.cast_count)} Zauber). Simulierte Ergebnisse stehen für sich und werden nie mit echten Spielen verrechnet.`) : null));
+  const simGroups = sim.groups || [];
+  box.push(h("div", { class: "layer" }, heading("simulated_result", sim.status),
+    simGroups.length ? h("p", {}, `${nf(simGroups.length)} ${simGroups.length === 1 ? "Gruppe" : "Gruppen"} je Gegnersatz und Tischgröße, jede für sich gezählt: Läufe gegen verschiedene Tische werden nie zusammengezählt, Läufe ohne gespeicherten Gegnersatz stehen unter „Gegnersatz unbekannt“. Simulierte Ergebnisse stehen für sich und werden nie mit echten Spielen verrechnet.`) : null,
+    ...simGroups.map((g) => h("p", {}, h("b", {}, g.label), `: ${nf(g.runs)} Läufe, in ${nf(g.games_cast_after_offer)} von ${nf(g.games_offered)} Partien nach dem Angebot gespielt (${nf(g.cast_count)} Zauber). `, g.zahl ? StudioZahl.knoten(h, g.zahl) : null))));
 
   const cov = card.coverage;
   box.push(h("div", { class: "layer" }, h("h3", {}, "Abdeckung und Forschungsbedarf"),
@@ -922,10 +952,10 @@ async function universeBox(card) {
   const data = await api(`/api/cards/${encodeURIComponent(card.card_id)}/universe?profile=${encodeURIComponent(uni.name)}&commander=${encodeURIComponent(COMMANDER)}`);
   const item = data.cards[0], universe = data.universe;
   if (universe.subset_note) box.append(h("p", { class: "policy" }, `${universe.subset_note}. Der Nenner ${nf(universe.denominator)} ist diese Teilmenge, nicht alle Decks des Commanders.`));
-  if (item.filter_card) box.append(h("p", {}, h("b", {}, `${FILTER_LABEL}: `), "das Universum verlangt diese Karte; sie steht in jedem Deck der Teilmenge und bekommt deshalb keinen Anteil und keine Stufe."));
-  box.append(h("p", {}, spreadBadge(item, universe), " ", item.filter_card ? "" : item.matched ? `${nf(item.hits)} von ${nf(item.denominator)} Decks (${pct(item.hits, item.denominator)})` : "unbekannt: kein Deck des Universums nennt diese Karte unter einem bekannten Namen"));
+  if (item.filter_card) box.append(h("p", {}, h("b", {}, `${FILTER_LABEL}: `), "das Universum verlangt diese Karte; sie steht in jedem Deck der Teilmenge und bekommt deshalb keinen Anteil."));
+  box.append(h("p", {}, spreadBadge(item, universe), " ", item.filter_card || item.matched ? "" : "unbekannt: kein Deck des Universums nennt diese Karte unter einem bekannten Namen"));
   box.append(h("p", {}, `Grund: ${REASON_NAMES[item.reason] || item.reason}. Universum ${universe.profile} (${universe.data_class}), Stand ${universe.snapshot_id}.`));
-  box.append(h("p", {}, `Schwellen (Modell ${data.model_version || "unbekannt"}): Universum mindestens ${nf(data.params.min_universe)} Decks; ${data.params.cuts.map(([tier, cut]) => `${tier} ab ${StudioUI.num(100 * cut, 0)} %`).join(", ")}; darunter ${data.params.fallback_tier}; ohne Datenbasis U. Nur Lesehilfe für die Häufigkeit, keine Stärke.`));
+  box.append(h("p", {}, `Schwelle (Modell ${data.model_version || "unbekannt"}): ein Anteil erst ab ${nf(data.params.min_universe)} Decks im Universum, darunter „unbekannt“. Nur Lesehilfe für die Häufigkeit, keine Stärke.`));
   if (universe.excluded_by_card_filter) box.append(h("p", { class: "rule" }, `${nf(universe.excluded_by_card_filter)} Decks fallen durch den Kartenfilter heraus und zählen nicht im Nenner.`));
   if (universe.excluded_no_date) box.append(h("p", { class: "rule" }, `${nf(universe.excluded_no_date)} Decks ohne Zeitstempel fallen durch den Datumsfilter des Universums heraus und zählen nicht im Nenner.`));
   if (item.spellings.length > 1) box.append(h("p", { class: "spellings" }, "Mehrere Schreibweisen kommen vor und werden nie addiert; gezeigt wird die größte: ", item.spellings.map((s) => `${s.name}: ${nf(s.hits)}`).join(" · ")));
@@ -989,7 +1019,6 @@ function whyBox(card, heading = "Warum hier?") {
     lines.push(item.index < 5 ? `Index unter 5: die Aufteilung in Punkte wäre zu ungenau. Größte Beiträge, ohne Zahlen: ${order}.` : `Größte Beiträge, ohne Zahlen: ${order}.`);
   }
   lines.push(`Datenlage: ${confidenceText(item)}.${item.borderline ? ` Grenzwertig: ${StudioUI.num(item.cut_distance, 1)} Punkte von der Grenze ${StudioUI.numFlex(item.borderline_cut, 1)}.` : ""}`);
-  if (item.relative_tier) lines.push(`Relativ im Commander-Pool: Stufe ${item.relative_tier} (im Vergleich zu S–F nach Perzentilen im Pool).`);
   if (item.tier_stability !== null && item.tier_stability !== undefined) {
     const alts = (item.tier_alternatives || []).length > 1
       ? ` Alternativen: ${item.tier_alternatives.map((a) => `${a.tier} (${nf(a.count)}/${nf(item.tier_stability_variants)})`).join(", ")}.`
@@ -1902,7 +1931,7 @@ async function init() {
     $("type-filter").value = cfg.type || "";
     $("land-filter").value = cfg.land || "";
     $("role-filter").value = cfg.role || "";
-    $("spread-filter").value = cfg.spread || "";
+    $("spread-filter").value = spreadFilterValue(cfg.spread);
     $("f-free").checked = cfg.free !== false;
     $("f-fav").checked = Boolean(cfg.fav);
     $("f-excl").checked = Boolean(cfg.excl);
@@ -1920,7 +1949,7 @@ async function init() {
     $("tier-quick-presets").replaceChildren(
       h("button", { type: "button", class: "chip", onclick: () => applyTierFilterPreset({ free: true }) }, "Standardfilter"),
       h("button", { type: "button", class: "chip", onclick: () => applyTierFilterPreset({ free: true, land: "spells" }) }, "Nur Zauber (frei)"),
-      h("button", { type: "button", class: "chip", onclick: () => applyTierFilterPreset({ free: false, spread: "U" }) }, "Verbreitung unbekannt (U)"),
+      h("button", { type: "button", class: "chip", onclick: () => applyTierFilterPreset({ free: false, spread: "unknown" }) }, "Verbreitung unbekannt"),
       h("button", { type: "button", id: "chip-role-gap", class: "chip" + (state.roleGapOnly ? " on" : ""), "aria-pressed": String(state.roleGapOnly), title: "Filtert auf Poolkarten außerhalb des aktiven Decks, die eine im Deck unter p25 besetzte Rolle abdecken", onclick: (event) => {
         state.roleGapOnly = !state.roleGapOnly;
         event.currentTarget.classList.toggle("on", state.roleGapOnly);
@@ -1944,22 +1973,6 @@ async function init() {
   }
   for (const btn of document.querySelectorAll("#rank-group-toggle button[data-rank-group]")) {
     btn.addEventListener("click", () => setQuickRankGroup(btn.getAttribute("data-rank-group")).catch((error) => fail(error)));
-  }
-  const syncTierMode = () => {
-    for (const btn of document.querySelectorAll("#tier-mode-toggle button[data-tier-mode]")) {
-      const active = btn.getAttribute("data-tier-mode") === state.tierMode;
-      btn.classList.toggle("on", active);
-      btn.setAttribute("aria-pressed", String(active));
-    }
-  };
-  syncTierMode();
-  for (const btn of document.querySelectorAll("#tier-mode-toggle button[data-tier-mode]")) {
-    btn.addEventListener("click", () => {
-      state.tierMode = btn.getAttribute("data-tier-mode") === "relative" ? "relative" : "absolute";
-      StudioUI.remember(TIER_MODE_KEY, state.tierMode);
-      syncTierMode();
-      render(false);
-    });
   }
   document.addEventListener("keydown", trapModalFocus);
   renderTabs();

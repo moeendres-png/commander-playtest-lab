@@ -28,7 +28,7 @@ from commander_lab.studio import number_contract as nc
 from commander_lab.studio.decks import RevisionCard, create_revision, list_rows
 from commander_lab.studio.web import create_app
 from tests.unit.test_studio_builder import _fill
-from tests.unit.test_studio_card_outcomes import DECK, _simple_frames, _write_log
+from tests.unit.test_studio_card_outcomes import DECK, PILOT_FP, _simple_frames, _write_log
 from tests.unit.test_studio_db_c_paired_readiness import (
     _make_store,
     _stored_series,
@@ -113,6 +113,7 @@ CASES: list[tuple[str, dict[str, object], bool]] = [
     ("simulated without data class", _simulated(data_class=None), False),
     ("simulated without pilot", _simulated(pilot=None), False),
     ("judgement", _exakt(klasse="URTEIL", einheit="Anzahl", wert=71), True),
+    ("judgement in points", _exakt(klasse="URTEIL", einheit="Punkte", wert=71.5), True),
     ("judgement with data class", _exakt(klasse="URTEIL", data_class="SIMULATED_RESULT"), False),
     ("value is a bool", _exakt(wert=True), False),
     ("value is text", _exakt(wert="0"), False),
@@ -120,7 +121,9 @@ CASES: list[tuple[str, dict[str, object], bool]] = [
     ("interval reversed", _exakt(intervall=[0.5, 0.1]), False),
     ("unknown key", _exakt(score=1), False),
     ("no source", _exakt(quelle=""), False),
-    ("no unit", _exakt(einheit="Punkte"), False),
+    ("no unit", _exakt(einheit="Meter"), False),
+    ("unit missing", {k: v for k, v in _exakt().items() if k != "einheit"}, False),
+    ("unit spelled lower case", _exakt(einheit="punkte"), False),
 ]
 
 
@@ -295,6 +298,7 @@ def test_pooled_outcomes_carry_no_single_state_but_the_strata() -> None:
     card = {"card": "X", "status": "MEASURED", "reason": None, "games_total": 10}
     card |= {"games_in_first_hand": 4, "rate_in": 0.5, "games_not_in_first_hand": 6}
     stand = {"deck_id": "d", "cards": [card], "pilots": ["P"], "warnings": [], "table_size": 4}
+    stand["pilot_fingerprint"] = "f1"
     table = {
         **stand,
         "pooling": {"status": "POOLED", "method": "mantel_haenszel"},
@@ -305,13 +309,70 @@ def test_pooled_outcomes_carry_no_single_state_but_the_strata() -> None:
     }
     zahlen = {item["id"]: item for item in nc.outcomes_zahlen(table)}
     pooled = zahlen["outcome.X.rate_in"]
-    assert pooled["stand_hash"] is None
+    assert pooled["stand_hash"] is None and pooled["pilot"] == "Pilot-Fingerabdruck f1"
     assert (
-        "geschichtet über 2 Schichten (Deck-Stände einer Tischgröße; mantel_haenszel)"
-        in pooled["hinweise"]
+        "geschichtet über 2 Schichten (Deck-Stände einer Tischgröße und eines "
+        "Pilot-Fingerabdrucks; mantel_haenszel)"
+    ) in pooled["hinweise"]
+    assert zahlen["outcome.stand.h1.t4.pf1.X.rate_in"]["stand_hash"] == "h1"
+    assert zahlen["outcome.stand.h2.t4.pf1.X.rate_in"]["stand_hash"] == "h2"
+
+
+def test_each_pooled_table_size_has_its_own_figures_and_none_spans_two() -> None:
+    """#1694: a table size whose deck states are combined stratified gets its own figures
+    (``outcome.kohorte.t<size>``) without a single state; a table size of one stratum gets none
+    of its own; the top level over two table sizes (NOT_POOLED) has no figures."""
+    card = {"card": "X", "status": "MEASURED", "reason": None, "games_total": 10}
+    card |= {"games_in_first_hand": 4, "rate_in": 0.5, "games_not_in_first_hand": 6}
+    card |= {"difference_pp": 5.0, "difference_ci95_pp": [-10.0, 20.0]}
+    base = {"deck_id": "d", "cards": [card], "pilots": ["P"], "warnings": []}
+    base["pilot_fingerprint"] = "f1"
+    s1 = {**base, "deck_hash": "h1", "table_size": 2}
+    s2 = {**base, "deck_hash": "h2", "table_size": 2}
+    s3 = {**base, "deck_hash": "h1", "table_size": 3}
+    two = {
+        **base,
+        "deck_hash": None,
+        "table_size": 2,
+        "strata": 2,
+        "pooling": {"status": "POOLED", "method": "mantel_haenszel"},
+        "stands": [s1, s2],
+    }
+    three = {**s3, "strata": 1, "pooling": {"status": "SINGLE_STAND"}, "stands": [s3]}
+    table = {
+        **base,
+        "cards": [],
+        "deck_hash": "h1",
+        "table_size": None,
+        "pooling": {"status": "NOT_POOLED", "reason": "table size"},
+        "strata": 3,
+        "stands": [s1, s2, s3],
+        "unknown_strata": [],
+        "cohorts": [two, three],
+    }
+    zahlen = {item["id"]: item for item in nc.outcomes_zahlen(table)}
+    assert not [i for i in zahlen if i.count(".") == 2]  # the top level: nothing over two sizes
+    cohort = zahlen["outcome.kohorte.t2.pf1.X.difference_pp"]
+    assert cohort["stand_hash"] is None
+    assert cohort["bezug"] == (
+        "Partien (verglichen / alle), Tisch mit 2 Sitzen, Pilot-Fingerabdruck f1"
     )
-    assert zahlen["outcome.stand.h1.t4.X.rate_in"]["stand_hash"] == "h1"
-    assert zahlen["outcome.stand.h2.t4.X.rate_in"]["stand_hash"] == "h2"
+    assert "Tisch mit 2 Sitzen · Pilot-Fingerabdruck f1" in cohort["kohorte"]
+    assert (
+        "geschichtet über 2 Schichten (Deck-Stände einer Tischgröße und eines "
+        "Pilot-Fingerabdrucks; mantel_haenszel)"
+    ) in cohort["hinweise"]
+    assert (
+        "eigene Tabelle je Tischgröße und Pilot-Fingerabdruck, nie mit einer anderen "
+        "Tischgröße oder einem anderen Piloten zusammengefasst"
+    ) in cohort["hinweise"]
+    assert not [i for i in zahlen if i.startswith("outcome.kohorte.t3.")]
+    assert zahlen["outcome.stand.h1.t3.pf1.X.rate_in"]["bezug"].endswith(
+        "Tisch mit 3 Sitzen, Pilot-Fingerabdruck f1"
+    )
+    assert len(zahlen) == 3 * 4  # three strata and one pooled table size, three figures each
+    for item in zahlen.values():
+        assert nc.check(item) == []
 
 
 def test_outcome_figures_name_the_table_size_of_their_stratum() -> None:
@@ -321,6 +382,7 @@ def test_outcome_figures_name_the_table_size_of_their_stratum() -> None:
     card |= {"games_in_first_hand": 4, "rate_in": 0.5, "games_not_in_first_hand": 6}
     card |= {"difference_pp": 5.0, "difference_ci95_pp": [-10.0, 20.0]}
     base = {"deck_id": "d", "cards": [card], "pilots": ["P"], "warnings": []}
+    base["pilot_fingerprint"] = "f1"
     table = {
         **base,
         "cards": [],
@@ -336,23 +398,28 @@ def test_outcome_figures_name_the_table_size_of_their_stratum() -> None:
         ],
     }
     zahlen = {item["id"]: item for item in nc.outcomes_zahlen(table)}
-    two, four = zahlen["outcome.stand.h1.t2.X.rate_in"], zahlen["outcome.stand.h1.t4.X.rate_in"]
-    assert two["bezug"].endswith("Tisch mit 2 Sitzen")
-    assert four["bezug"].endswith("Tisch mit 4 Sitzen")
+    two = zahlen["outcome.stand.h1.t2.pf1.X.rate_in"]
+    four = zahlen["outcome.stand.h1.t4.pf1.X.rate_in"]
+    assert two["bezug"].endswith("Tisch mit 2 Sitzen, Pilot-Fingerabdruck f1")
+    assert four["bezug"].endswith("Tisch mit 4 Sitzen, Pilot-Fingerabdruck f1")
     assert two["kohorte"] != four["kohorte"] and "Tisch mit 4 Sitzen" in four["kohorte"]
     assert "Tischgröße: Tisch mit 2 Sitzen" in two["hinweise"]
-    diff_two = zahlen["outcome.stand.h1.t2.X.difference_pp"]
-    assert diff_two["bezug"] == "Partien (verglichen / alle), Tisch mit 2 Sitzen"
-    assert zahlen["outcome.stand.h1.t4.X.difference_pp"]["bezug"].endswith("Tisch mit 4 Sitzen")
-    no_size = zahlen["outcome.unknown.h1.tunbekannt.X.rate_in"]
+    diff_two = zahlen["outcome.stand.h1.t2.pf1.X.difference_pp"]
+    assert diff_two["bezug"] == (
+        "Partien (verglichen / alle), Tisch mit 2 Sitzen, Pilot-Fingerabdruck f1"
+    )
+    assert zahlen["outcome.stand.h1.t4.pf1.X.difference_pp"]["bezug"].endswith(
+        "Tisch mit 4 Sitzen, Pilot-Fingerabdruck f1"
+    )
+    no_size = zahlen["outcome.unknown.h1.tunbekannt.pf1.X.rate_in"]
     assert no_size["stand_hash"] == "h1" and no_size["N"] == 10
-    assert no_size["bezug"].endswith("Tischgröße unbekannt")
+    assert no_size["bezug"].endswith("Tischgröße unbekannt, Pilot-Fingerabdruck f1")
     assert any(h.startswith("Tischgröße unbekannt (") for h in no_size["hinweise"])
     assert not any(h.startswith("Tischgröße: ") for h in no_size["hinweise"])  # named once
-    assert zahlen["outcome.unknown.h1.tunbekannt.X.difference_pp"]["bezug"].endswith(
-        "Tischgröße unbekannt"
+    assert zahlen["outcome.unknown.h1.tunbekannt.pf1.X.difference_pp"]["bezug"].endswith(
+        "Tischgröße unbekannt, Pilot-Fingerabdruck f1"
     )
-    no_hash = zahlen["outcome.unknown.ohne-hash.t3.X.rate_in"]
+    no_hash = zahlen["outcome.unknown.ohne-hash.t3.pf1.X.rate_in"]
     assert no_hash["stand_hash"] is None
     assert "Stand unbekannt (Protokoll ohne Deck-Hash)" in no_hash["hinweise"]
     assert not any(i.startswith("outcome.X.") for i in zahlen)  # NOT_POOLED: no top figures
@@ -425,15 +492,24 @@ def test_outcomes_route_sends_simulated_contracts_per_deck_state(tmp_path: Path)
         item for item in zahlen if item["id"].startswith("outcome.") and item["id"].count(".") == 2
     ]
     per_stand = [
-        item for item in zahlen if item["id"].startswith(f"outcome.stand.{stand_hash}.t2.")
+        item
+        for item in zahlen
+        if item["id"].startswith(f"outcome.stand.{stand_hash}.t2.p{PILOT_FP}.")
     ]
-    apart = [item for item in zahlen if item["id"].startswith("outcome.unknown.ohne-hash.t2.")]
+    apart = [
+        item
+        for item in zahlen
+        if item["id"].startswith(f"outcome.unknown.ohne-hash.t2.p{PILOT_FP}.")
+    ]
     assert len(top) == len(per_stand) == 3 * len(body["cards"])
     assert len(apart) == 3 * len(unknown["cards"]) > 0
     assert len(zahlen) == len(top) + len(per_stand) + len(apart)
     for item in zahlen:
         assert item["klasse"] == "SIMULIERT" and item["data_class"] == "SIMULATED_RESULT"
-        assert item["pilot"] == "Konstante" and item["piloten"] == ["Pilot 1.0.0"]
+        # the pilot of the stratum (#1687), no longer the constant of before B2
+        assert item["pilot"] == f"Pilot-Fingerabdruck {PILOT_FP[:12]}"
+        assert item["piloten"] == [f"fp:{PILOT_FP}"]
+        assert f"Pilot-Fingerabdruck: {PILOT_FP}" in item["hinweise"]
         assert item["hinweise"][0].startswith("Status ")
         assert item["bezug"].startswith("Partien (")
     for item in [*top, *per_stand]:
@@ -736,6 +812,19 @@ def test_python_and_javascript_judge_every_case_alike() -> None:
 
 def test_zahl_js_static_contract() -> None:
     js = (STATIC / "zahl.js").read_text(encoding="utf-8")
+    # The two twins know the same units in the same order (Q1-b5 added "Punkte" to both).
+    units = re.search(r"const EINHEITEN = \[([^\]]*)\];", js)
+    assert units is not None
+    assert (
+        tuple(json.loads(f"[{units.group(1)}]"))
+        == nc.EINHEITEN
+        == (
+            "Anteil",
+            "pp",
+            "Anzahl",
+            "Punkte",
+        )
+    )
     index = (STATIC / "index.html").read_text(encoding="utf-8")
     assert '<script src="zahl.js"></script>' in index
     assert index.index("ui.js") < index.index("zahl.js") < index.index("diffimpact.js")
@@ -751,6 +840,27 @@ def test_zahl_js_static_contract() -> None:
         assert forbidden not in js, forbidden
     for user in ("diffimpact.js", "castability.js", "deckseries.js"):
         assert "StudioZahl." in (STATIC / user).read_text(encoding="utf-8"), user
+
+
+def test_a_stratum_without_a_pilot_fingerprint_is_pilot_unbekannt_never_a_constant() -> None:
+    """#1687: the pilot of an outcome figure is the fingerprint of its stratum; a stratum without
+    one says "Pilot unbekannt" with its reason and its own id segment, never "Konstante"."""
+    card = {"card": "X", "status": "MEASURED", "reason": None, "games_total": 10}
+    card |= {"games_in_first_hand": 4, "rate_in": 0.5, "games_not_in_first_hand": 6}
+    base = {"deck_id": "d", "cards": [card], "pilots": ["Pilot 1.0.0"], "warnings": []}
+    old = {**base, "deck_hash": "h1", "table_size": 2, "pilot_fingerprint": None}
+    new = {**base, "deck_hash": "h1", "table_size": 2, "pilot_fingerprint": "f" * 64}
+    table = {**base, "cards": [], "stands": [new], "unknown_strata": [old]}
+    zahlen = {item["id"]: item for item in nc.outcomes_zahlen(table)}
+    unknown = zahlen["outcome.unknown.h1.t2.punbekannt.X.rate_in"]
+    assert unknown["pilot"] == "Pilot unbekannt" and unknown["pilot"] != nc.PILOT_KONSTANTE
+    assert "Pilot unbekannt (Protokollkopf ohne Pilot-Fingerabdruck)" in unknown["hinweise"]
+    assert unknown["bezug"].endswith("Tisch mit 2 Sitzen, Pilot unbekannt")
+    assert not any(h.startswith("Pilot-Fingerabdruck: ") for h in unknown["hinweise"])
+    known = zahlen[f"outcome.stand.h1.t2.p{'f' * 64}.X.rate_in"]
+    assert known["pilot"] == f"Pilot-Fingerabdruck {'f' * 12}"
+    assert f"Pilot-Fingerabdruck: {'f' * 64}" in known["hinweise"]
+    _assert_all_valid(list(zahlen.values()))
 
 
 def test_a_one_seat_table_is_named_in_the_singular() -> None:

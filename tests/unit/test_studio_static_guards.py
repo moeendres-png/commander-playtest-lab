@@ -765,6 +765,15 @@ def test_the_tierliste_has_no_overall_rating_left() -> None:
     sorts = js[js.index("const SORTS = [") : js.index("];", js.index("const SORTS = ["))]
     for gone in ('"overall"', '"overall_rank"', "crit:"):
         assert gone not in sorts, gone
+    # No sort key for the model judgement "Kartenverständnis" either: sorting by it would be a
+    # rating through the back door (review of #1691/#1696). The keys are read from the array.
+    sort_keys = re.findall(r'^\s*\["([^"]+)",', sorts, flags=re.MULTILINE)
+    assert "strength" in sort_keys and "rolerank" in sort_keys and len(sort_keys) >= 10
+    for key in sort_keys:
+        for token in ("understanding", "kartenverst", "urteil", "rubric", "judgement"):
+            assert token not in key.casefold(), key
+    # positive case: the judgement column and its constants stay, they are only no sort key
+    assert "const UNDERSTANDING_NAME" in js and "understandingColumns()" in js
     # the judgement column uses the number contract component of B3
     assert html.index('<script src="zahl.js">') < html.index('<script src="tierliste.js">')
 
@@ -778,16 +787,14 @@ def _understanding_node_prelude() -> str:
     nf_line = next(line for line in lines if line.startswith("const nf = "))
     head_line = next(line for line in lines if line.startswith("const plainHead = "))
     constants = js[js.index("const UNDERSTANDING_NAME") : js.index("const SORTS = [")]
-    block = js[
-        js.index("// ---------- rubric v2 judgement") : js.index("function spreadCell(card) {")
-    ]
+    block = js[js.index("// ---------- rubric v2 judgement") : js.index("// ---------- pool view")]
     stub = """
 const h = (tag, props, ...kids) => { const node = {tag, props: props || {}, kids: [],
   append(...more) { this.kids.push(...more.flat(Infinity).filter((k) => k !== null && k !== undefined && k !== false)); }};
   node.append(...kids); return node; };
 const text = (n) => (n === null || n === undefined ? '' : typeof n === 'object' ? n.kids.map(text).join(' ') : String(n));
 const figure = (id, wert, klasse = 'URTEIL') => ({id: 'kartenverstaendnis:' + id, bezeichnung: 'H Gesamtwert (0 bis 100)', wert,
-  einheit: 'Anzahl', n: null, N: null, bezug: null, intervall: null, klasse, kohorte: 'Chulane, Teller of Tales · Bracket 3 (Annahme der Rater)',
+  einheit: 'Punkte', n: null, N: null, bezug: null, intervall: null, klasse, kohorte: 'Chulane, Teller of Tales · Bracket 3 (Annahme der Rater)',
   quelle: 'Rubrik v2.1 (chulane-rubric-v2.1), Modell-Rater Stufe large, 1 Bewerter', stand_datum: null,
   hinweise: ['Rater-Vertrauen high (Selbstauskunft)', 'nicht gegen Spielergebnisse validiert']});
 const field = (zahlen, extra) => ({verfuegbar: true, grund: null, name: 'Kartenverständnis (Modellurteil)', kriterium: 'H',
@@ -859,6 +866,144 @@ console.log(JSON.stringify(out));
     assert mixed[0] == "Klasse passt nicht zur Spalte" and not mixed[0].startswith("90")
     js = (STATIC / "tierliste.js").read_text(encoding="utf-8")
     assert 'StudioZahl.zelle(h, understandingFigure(card), "URTEIL"' in js
+
+
+def test_the_tierliste_shows_exactly_one_tier_scale() -> None:
+    """Q1-b5 (#1680, E2): the tier page has one lettered scale, the strength index S to D. The
+    toggle of the relative tiers S to F and the spread level letters (S to D, U, F, with their
+    names) are gone from page and script; the spread is n of N. "Gleiche Funktion" stays."""
+    html = (STATIC / "tierliste.html").read_text(encoding="utf-8")
+    js = (STATIC / "tierliste.js").read_text(encoding="utf-8")
+    for token in ("tier-mode-toggle", 'id="tm-rel"', 'id="tm-abs"', "data-tier-mode", "(S\u2013F)"):
+        assert token not in html, token
+    for token in (
+        "tier-mode-toggle",
+        "data-tier-mode",
+        "tierMode",
+        "TIER_MODE_KEY",
+        "studio.tier.mode",
+        "relative_tier",
+        "relative_rank",
+        "level_name",
+        "LEVEL_RANK",
+        "spread_level",
+        "item.level",
+        "S\u2013F",
+        "sehr häufig",
+        "Verbreitung unbekannt (U)",
+        "data.params.cuts",
+    ):
+        assert token not in js, token
+    spread_filter = html.split('<select id="spread-filter"', 1)[1].split("</select>", 1)[0]
+    assert re.findall(r'<option value="([^"]*)"', spread_filter) == [
+        "",
+        "counted",
+        "unknown",
+        "filter",
+    ]
+    # the one scale and the kept comparison
+    assert "Stärke-Index mit Stufen S bis D" in html and 'id="rk-usage"' in html
+    assert 'id="rank-group-toggle"' in html and 'id="rg-function"' in html
+    assert "tierBadge(item.tier, StudioUI.num(item.index, 1), title)" in js
+
+
+def _pool_view_node_prelude() -> str:
+    """The real zahl.js and ui.js helpers, the real reason names and the pool view block of
+    tierliste.js (cut out by its markers), with a small h() stub."""
+    js = (STATIC / "tierliste.js").read_text(encoding="utf-8")
+    zahl = (STATIC / "zahl.js").read_text(encoding="utf-8")
+    reasons = next(line for line in js.splitlines() if line.startswith("const REASON_NAMES = "))
+    block = js[js.index("// ---------- pool view") : js.index("function spreadCell(card) {")]
+    stub = """
+const h = (tag, props, ...kids) => ({tag, props: props || {}, kids: kids.flat(Infinity).filter((k) => k !== null && k !== undefined && k !== false)});
+const text = (n) => (n === null || n === undefined ? '' : typeof n === 'object' ? n.kids.map(text).join(' ') : String(n));
+const universe = {profile: 'alle', snapshot_id: 'universe:abc', denominator: 43, below_min_universe: false, subset_note: null};
+const item = (extra) => ({card_id: 'c1', matched: true, filter_card: false, hits: 20, denominator: 43, share: 20 / 43, reason: 'SHARE_CUT', ...extra});
+const show = (it, uni = universe) => { const figure = spreadFigure(it, uni);
+  return {kind: spreadKindOf(it, uni), figure, errors: figure ? StudioZahl.pruefe(figure) : null, text: figure ? text(StudioZahl.knoten(h, figure)) : null}; };
+"""
+    return _ui_helpers_prelude() + zahl + "\n" + reasons + "\n" + block + "\n" + stub
+
+
+def test_the_pool_view_shows_n_of_n_as_a_counted_number_contract() -> None:
+    """Q1-b5 (#1680): the pool view "Nutzung n/N" is one GEZÄHLT figure of the real zahl.js:
+    n of N decks with the universe as cohort and origin. Unmatched and below ``min_universe``
+    the share is "unbekannt", never 0 (n/N stays visible); a filter card gets no figure; a
+    remembered filter with a level letter falls back to "all"."""
+    script = (
+        _pool_view_node_prelude()
+        + """
+const out = {
+  counted: show(item()),
+  unmatched: show(item({matched: false, hits: null, share: null, reason: 'NAME_NOT_FOUND_IN_UNIVERSE'})),
+  small: show(item({hits: 20, denominator: 20, share: 1, reason: 'UNIVERSE_TOO_SMALL'}), {...universe, denominator: 20, below_min_universe: true}),
+  filter: show(item({filter_card: true, share: null, reason: 'FILTER_CARD'})),
+  empty: show(item({matched: false, hits: null, share: null, denominator: 0, reason: 'UNIVERSE_EMPTY'}), {...universe, denominator: 0}),
+  restore: ['S', 'U', 'F', 'unknown', 'counted', 'filter', '', undefined, 'toString'].map((v) => spreadFilterValue(v)),
+};
+console.log(JSON.stringify(out));
+"""
+    )
+    result = _node_json(script)
+    assert isinstance(result, dict)
+    counted = result["counted"]
+    assert counted["kind"] == "counted" and counted["errors"] == []
+    assert counted["figure"]["klasse"] == "GEZÄHLT" and counted["figure"]["einheit"] == "Anteil"
+    assert (counted["figure"]["n"], counted["figure"]["N"]) == (20, 43)
+    assert counted["text"].startswith("46,5 %") and "gezählt" in counted["text"]
+    assert "n/N 20 / 43 Decks" in counted["text"] and "Kohorte: Universum alle" in counted["text"]
+    assert "Stand universe:abc" in counted["text"]
+    for case in ("unmatched", "small", "empty"):
+        shown = result[case]
+        assert shown["kind"] == "unknown" and shown["errors"] == [], case
+        assert shown["figure"]["wert"] is None and shown["text"].startswith("unbekannt"), case
+        assert not shown["text"].startswith("0"), case
+    assert "n/N unbekannt / 43 Decks" in result["unmatched"]["text"]
+    assert "n/N 20 / 20 Decks" in result["small"]["text"]  # the count stays, the share is unknown
+    assert result["filter"] == {"kind": "filter", "figure": None, "errors": None, "text": None}
+    assert result["restore"] == ["", "", "", "unknown", "counted", "filter", "", "", ""]
+    js = (STATIC / "tierliste.js").read_text(encoding="utf-8")
+    assert "StudioZahl.knoten(h, spreadFigure(item, universe))" in js
+    assert '$("spread-filter").value = spreadFilterValue(cfg.spread);' in js
+
+
+def test_the_usage_ranking_button_is_only_enabled_for_a_ready_commander_index() -> None:
+    """The usage button ``rk-usage`` is fixed in the page; ``syncRankingToggle`` disables it while
+    the index loads, without an index map and in the global view (the check the removed toggle
+    test of Q1-b3 covered; review of #1691/#1696)."""
+    js = (STATIC / "tierliste.js").read_text(encoding="utf-8")
+    block = js[js.index("function syncRankingToggle() {") : js.index("function syncRanking() {")]
+    script = (
+        block
+        + """
+const buttons = [{disabled: null}];
+let present = true;
+const $ = (id) => (id === 'ranking-toggle' && present ? {querySelectorAll: (sel) => (sel === 'button[data-ranking]' ? buttons : [])} : null);
+const run = (status, map, view) => { globalThis.state = {view, strength: {status, map}}; buttons[0].disabled = null; syncRankingToggle(); return buttons[0].disabled; };
+const out = {
+  loading: run('loading', null, 'commander'),
+  ready: run('ready', new Map(), 'commander'),
+  readyDeck: run('ready', new Map(), 'deck'),
+  global: run('ready', new Map(), 'global'),
+  noMap: run('ready', null, 'commander'),
+  failed: run('error', new Map(), 'commander'),
+};
+present = false; globalThis.state = {view: 'commander', strength: {status: 'ready', map: new Map()}};
+syncRankingToggle(); out.noBox = 'no error';
+console.log(JSON.stringify(out));
+"""
+    )
+    assert _node_json(script) == {
+        "loading": True,
+        "ready": False,
+        "readyDeck": False,
+        "global": True,
+        "noMap": True,
+        "failed": True,
+        "noBox": "no error",
+    }
+    html = (STATIC / "tierliste.html").read_text(encoding="utf-8")
+    assert 'id="rk-usage"' in html and "disabled" in html.split('id="rk-usage"', 1)[1].split(">")[0]
 
 
 def test_kartenauswertung_renders_outcomes_cohort_and_few_data_honestly() -> None:
@@ -1054,9 +1199,12 @@ def test_kartenauswertung_names_deck_states_strata_and_the_unknown_stand() -> No
     """#1657: the page shows each deck state (hash), the strata count of the stratified table
     and "Stand unbekannt" with its own n; a not-pooled answer shows no combined row.
     #1683: every stratum names its table size; strata of 2, 3 and 4 seats stand apart and a
-    stratum without a table size is shown as "Tischgröße unbekannt" with its own n."""
+    stratum without a table size is shown as "Tischgröße unbekannt" with its own n.
+    #1687: every stratum also names its pilot fingerprint (short hash)."""
     from commander_lab.studio.card_outcomes import stand_tables
-    from tests.unit.test_studio_card_outcomes import STATE_A, _simpson, _stated, _with
+    from tests.unit.test_studio_card_outcomes import PILOT_FP, STATE_A, _simpson, _stated, _with
+
+    pilot = f"Pilot-Fingerabdruck {PILOT_FP[:12]}…"
 
     a, b = _simpson()
     old = _stated([(["A"], i < 4) for i in range(7)] + [(["F"], False)] * 5, None, prefix="o")
@@ -1114,13 +1262,14 @@ const render = async (payload) => {{
     assert isinstance(r, dict)
     text = r["pooled"]["text"]
     assert "2 Deck-Stände geschichtet" in text
-    assert "Schichten (Deck-Stand und Tischgröße): 2" in text
+    assert "Schichten (Deck-Stand, Tischgröße und Pilot-Fingerabdruck): 2" in text
     assert (
-        "Stand unbekannt · Tischgröße: 2 Sitze: 12 Partien (getrennt gezählt, nie addiert)" in text
+        f"Stand unbekannt · Tischgröße: 2 Sitze · {pilot}: 12 Partien (getrennt gezählt, nie addiert)"
+        in text
     )
     assert (
         "geschichtet (je Stand eigene Differenz, gewichtet zusammengeführt) · Tischgröße: 2 Sitze"
-        in text
+        f" · {pilot}" in text
     )
     assert "geschichtet über 2 Deck-Stände" in text
     assert "Anteil nur je Deck-Stand" in text
@@ -1131,9 +1280,15 @@ const render = async (payload) => {{
     # every stand, "Stand unbekannt" included, names its provenance and qualification
     assert text.count("Qualifizierung:") == 4 and text.count("Piloten:") == 4
     assert "BRIDGE_AHEAD_OF_QUALIFICATION (Bridge neuer als Qualifizierung)" in text
-    assert "Stand unbekannt · 2 seats: BRIDGE_AHEAD_OF_QUALIFICATION" in text  # warning at the top
+    # warning at the top, named by its stratum
+    assert (
+        f"Stand unbekannt · 2 seats · pilot {PILOT_FP[:12]}: BRIDGE_AHEAD_OF_QUALIFICATION" in text
+    )
     old_text = r["onlyOld"]["text"]
-    assert "keine Partien mit bekanntem Deck-Stand" in old_text
+    assert (
+        "liegen keine Partien vor, in denen Deck-Stand, Tischgröße und Pilot-Fingerabdruck "
+        "bekannt sind" in old_text
+    )
     assert "noch keine abgeschlossenen Partien" not in old_text
     assert old_text.count("Qualifizierung:") == 2 and r["onlyOld"]["details"] == 1
     nt = r["notPooled"]["text"]
@@ -1141,15 +1296,21 @@ const render = async (payload) => {{
     assert "geschichtet über" not in nt
     assert r["notPooled"]["details"] == 2 and r["notPooled"]["tables"] == 2
     st = r["bySize"]["text"]
-    assert "3 Schichten (Deck-Stand und Tischgröße) nicht zusammengeführt" in st
-    assert "Schichten (Deck-Stand und Tischgröße): 3" in st
-    for size, games in ((2, 6), (3, 4), (4, 5)):
-        assert f"Deck-Stand {STATE_A[:12]}… · Tischgröße: {size} Sitze · {games} Partien" in st
     assert (
-        f"Deck-Stand {STATE_A[:12]}… · Tischgröße unbekannt: 7 Partien (getrennt gezählt, nie addiert)"
+        "3 Schichten (Deck-Stand, Tischgröße und Pilot-Fingerabdruck) nicht zusammengeführt" in st
+    )
+    assert "Schichten (Deck-Stand, Tischgröße und Pilot-Fingerabdruck): 3" in st
+    for size, games in ((2, 6), (3, 4), (4, 5)):
+        line = f"Deck-Stand {STATE_A[:12]}… · Tischgröße: {size} Sitze · {pilot} · {games} Partien"
+        assert line in st
+    assert (
+        f"Deck-Stand {STATE_A[:12]}… · Tischgröße unbekannt · {pilot}: 7 Partien "
+        "(getrennt gezählt, nie addiert)"
+    ) in st
+    assert (
+        f"Tischgröße unbekannt (Protokollkopf ohne vollständige Sitzliste) · {pilot} · 7 Partien"
         in st
     )
-    assert "Tischgröße unbekannt (Protokollkopf ohne vollständige Sitzliste) · 7 Partien" in st
     assert "nie zu einer bekannten Schicht addiert" in st and "table size" in st
     # the reason in German: different table sizes, different base win rates, never combined
     assert (
@@ -1158,10 +1319,20 @@ const render = async (payload) => {{
     )
     assert "(bei 2 Sitzen 1/2, bei 3 Sitzen 1/3, bei 4 Sitzen 1/4)" in st
     assert "Jede Schicht steht unten einzeln mit n/N und Herkunft" in st
-    assert "diese Ansicht kommt als Folgepaket" in st
+    # #1694: one section per table size replaces the former "Folgepaket" note
+    assert "diese Ansicht kommt als Folgepaket" not in st
+    assert (
+        "Deck-Stände derselben Kombination aus Tischgröße und Pilot-Fingerabdruck werden unten "
+        "in einem eigenen Abschnitt geschichtet"
+    ) in st
     assert "Nicht zusammengeführt: the strata" not in st
     assert r["sizeTexts"] == ["Tischgröße: 1 Sitz", "Tischgröße: 4 Sitze", "Tischgröße unbekannt"]
-    assert "Nicht zusammengeführt: the deck states were played" in r["notPooled"]["text"]
+    # the reason in German (#1687 review P3-3); the raw reason stays among the warnings
+    assert (
+        "Nicht zusammengeführt: Die Deck-Stände wurden gegen verschiedene Gegner-Tische (Pods) "
+        "gespielt" in r["notPooled"]["text"]
+    )
+    assert "Nicht zusammengeführt: the deck states were played" not in r["notPooled"]["text"]
     assert "geschichtet über" not in st
     # three known strata and "Tischgröße unbekannt", each with its own table and provenance
     assert r["bySize"]["details"] == 4 and r["bySize"]["tables"] == 4

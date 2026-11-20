@@ -222,6 +222,26 @@ def test_mixed_engine_commits_are_refused_unless_allowed(tmp_path: Path) -> None
     assert any("mixed engine commits" in w for w in pooled["warnings"])
 
 
+def test_pairs_of_two_table_sizes_are_never_averaged_unless_allowed(tmp_path: Path) -> None:
+    """#1694: each pair has one table size, but pairs of 2 and 3 seats in one folder have other
+    base win rates; their differences are not averaged into one answer unless allowed."""
+    _write_log(tmp_path, "b1", decks=[BASE, OPP1, OPP2], winners=[0], seed=1)
+    _write_log(tmp_path, "v1", decks=[VARIANT, OPP1, OPP2], winners=[1], seed=1)
+    _write_log(tmp_path, "b2", decks=[BASE, OPP1], winners=[1], seed=2)
+    _write_log(tmp_path, "v2", decks=[VARIANT, OPP1], winners=[0], seed=2)
+    with pytest.raises(ValueError, match="mixed table sizes in one comparison: 2, 3"):
+        compare_logs(tmp_path, base_deck_id=BASE, variant_deck_id=VARIANT)
+    pooled = compare_logs(tmp_path, base_deck_id=BASE, variant_deck_id=VARIANT, allow_mixed=True)
+    assert pooled["pairs_completed"] == 2
+    assert "mixed table sizes pooled: 2, 3" in pooled["warnings"]
+    # one table size only: no refusal, no warning
+    (tmp_path / "b2.jsonl").unlink()
+    (tmp_path / "v2.jsonl").unlink()
+    single = compare_logs(tmp_path, base_deck_id=BASE, variant_deck_id=VARIANT)
+    assert single["pairs_completed"] == 1
+    assert not any("table sizes" in w for w in single["warnings"])
+
+
 # --- the series that stops by itself -----------------------------------------------------
 
 

@@ -403,7 +403,7 @@ def test_pod_matchup_matrix_aggregates_runs_by_pod_with_denominators_and_qualifi
                 (commander, commander),
             )
         mat = builder.pod_matchup_matrix(store, [commander])
-        assert mat["schema"] == "studio-pod-matrix-1"
+        assert mat["schema"] == "studio-pod-matrix-2"
         assert mat["data_class"] == "SIMULATED_RESULT"
         assert mat["total_runs"] == 2
         assert mat["total_games_completed"] == 20
@@ -411,6 +411,12 @@ def test_pod_matchup_matrix_aggregates_runs_by_pod_with_denominators_and_qualifi
         assert isinstance(pods, list) and len(pods) == 1
         p0 = pods[0]
         assert p0["pod"] == "precon"
+        # both rows predate #1688: one row "Gegnersatz unbekannt", no table claimed
+        assert p0["opponent_set_known"] is False
+        assert p0["opponent_ids"] is None and p0["table_size"] is None
+        assert p0["hinweise"] == [
+            "Gegnersatz unbekannt: mehrere Läufe, möglicherweise verschiedene Gegner"
+        ]
         assert p0["runs_count"] == 2
         assert p0["games_completed"] == 20
         assert p0["games_planned"] == 20
@@ -432,6 +438,41 @@ def test_pod_matchup_matrix_aggregates_runs_by_pod_with_denominators_and_qualifi
     assert body["total_games_completed"] == 20
     assert body["pods"][0]["win_rate"] == 0.4
 
+    # #1688: a run with a stored opponent set under the same pod name is a row of its own,
+    # never added to the unknown row
+    from commander_lab.studio.simulations import opponent_table
+
+    encoded, set_hash, size = opponent_table(["precon/2024/animated_army", "kaervek/current"])
+    store = StudioStore.open(tmp_path)
+    try:
+        with store.connection:
+            store.connection.execute(
+                "INSERT INTO simulation_run "
+                "(run_id, deck_id, pod, opponent_ids, opponent_set_hash, table_size, engine_pin, "
+                "bridge_jar_sha256, bridge_qualification_state, pilot_policy, seeds, "
+                "games_planned, games_completed, games_failed, wins_fractional, win_rate, "
+                "mean_rounds, hand_dwell_status, source_id) VALUES ('r3', 'chulane-current', "
+                "'precon', ?, ?, ?, 'pin-1', 'sha-a', 'ALIGNED_WITH_SEALED_EPOCH', "
+                "'heuristic_v1', '[5]', 4, 4, 0, 4.0, 1.0, 5.0, 'unknown', 'src-dbd')",
+                (encoded, set_hash, size),
+            )
+            store.connection.execute(
+                "INSERT INTO commander_binding (kind, key, commander_name, basis) "
+                "VALUES ('simulation_run', 'r3', ?, 'test')",
+                (commander,),
+            )
+        pods = builder.pod_matchup_matrix(store, [commander])["pods"]
+    finally:
+        store.close()
+    assert isinstance(pods, list)
+    assert [(p["opponent_set_known"], p["table_size"], p["games_completed"]) for p in pods] == [
+        (True, 3, 4),
+        (False, None, 20),
+    ]
+    assert pods[0]["win_rate"] == 1.0 and pods[1]["win_rate"] == 0.4
+    assert pods[0]["opponent_ids"] == ["precon/2024/animated_army", "kaervek/current"]
+    assert pods[0]["hinweise"] == []
+
 
 def test_saved_filter_presets_and_quick_chips_wired_in_builder_and_tierlist() -> None:
     index_html = (STATIC_DIR / "index.html").read_text(encoding="utf-8")
@@ -446,7 +487,7 @@ def test_saved_filter_presets_and_quick_chips_wired_in_builder_and_tierlist() ->
 
     assert 'id="tier-quick-presets"' in tier_html
     assert "studio.tierlist.savedPreset" in tier_js
-    assert "Verbreitung unbekannt (U)" in tier_js
+    assert 'Verbreitung unbekannt"' in tier_js and '(U)")' not in tier_js  # Q1-b5: no letter
 
 
 def test_export_deck_dossier_and_route_with_revision_changelog(tmp_path: Path) -> None:

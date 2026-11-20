@@ -347,7 +347,7 @@ def test_every_figure_is_a_valid_judgement_and_an_unrated_card_has_none(
     for figure in figures:
         assert number_contract.check(figure) == []
         assert figure["klasse"] == number_contract.URTEIL == "URTEIL"
-        assert figure["einheit"] == "Anzahl" and figure["n"] is None and figure["N"] is None
+        assert figure["einheit"] == "Punkte" and figure["n"] is None and figure["N"] is None
         assert "data_class" not in figure  # never a simulated result
         assert figure["kohorte"] == f"{CMD} · Bracket 3 (Annahme der Rater)"
         assert "nicht gegen Spielergebnisse validiert" in figure["hinweise"]

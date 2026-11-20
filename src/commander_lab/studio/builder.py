@@ -889,6 +889,7 @@ def pool_cards(
     with_signals: bool = True,
     strength: StrengthSettings | None = None,
     include_unowned: bool = False,
+    with_marks: bool = True,
 ) -> dict[str, object]:
     """The collection cards a deck under these commanders may use, with everything the
     builder shows per card. Without any commander the colour filter is off (all legal cards).
@@ -912,7 +913,17 @@ def pool_cards(
 
     ``with_signals`` adds the commander's stored usage signals (``card_signal``, one
     commander only) as ``signals`` per card. The older EDHREC value is used first; the
-    stored inclusion signal fills the card's ``edhrec`` entry only where that has no value."""
+    stored inclusion signal fills the card's ``edhrec`` entry only where that has no value.
+
+    ``with_marks`` False does not read the Owner's own state (``card_mark``, ``card_label``): the
+    collection cards then carry no ``favorite``, ``excluded``, ``note`` or ``labels`` key at all
+    (absent, never a false ``False``), so a reader that asks for one fails loudly instead of
+    showing an unmarked card. For callers whose answer never contains them (the strength index,
+    the evidence answer; #1561): their result depends only on imported data and the settings, so
+    a mark click does not drop their remembered answer. Not with ``include_unowned`` (the
+    unowned cards carry the marks of the wishlist and the saved decks); that raises ValueError."""
+    if include_unowned and not with_marks:
+        raise ValueError("include_unowned needs the marks")
     db = store.connection
     identity, commander_ids = commander_identity(store, commander_names)
     hits = _corpus_hits(store, commander_names)
@@ -937,7 +948,7 @@ def pool_cards(
     from .images import valid_image_url
     from .labels import card_labels as _card_labels
 
-    card_labels = _card_labels(store)
+    card_labels = _card_labels(store) if with_marks else {}
     printing_images: dict[str, tuple[str | None, str | None]] = {}
     for prow in db.execute(
         "SELECT card_id, image_front, image_back FROM card_printing WHERE image_front IS NOT NULL"
@@ -946,12 +957,14 @@ def pool_cards(
         if pf is not None:
             printing_images[str(prow["card_id"])] = (pf, valid_image_url(prow["image_back"]))
     cards: list[dict[str, object]] = []
+    mark_columns = "m.favorite, m.excluded, m.note" if with_marks else "NULL AS no_marks"
+    mark_join = "LEFT JOIN card_mark m USING (card_id) " if with_marks else ""
     owned_oracle_ids: set[str] = set()
     owned_names_cf: set[str] = set()
     for row in db.execute(
         "SELECT c.*, i.owned_lower_bound, i.available_lower_bound, i.reserved, "
-        "m.favorite, m.excluded, m.note "
-        "FROM card_fact c JOIN inventory i USING (card_id) LEFT JOIN card_mark m USING (card_id) "
+        f"{mark_columns} "
+        f"FROM card_fact c JOIN inventory i USING (card_id) {mark_join}"
         "WHERE c.commander_legal = 1 ORDER BY c.oracle_name"
     ):
         if row["oracle_id"]:
@@ -1000,10 +1013,16 @@ def pool_cards(
                 "owned": row["owned_lower_bound"],
                 "available": row["available_lower_bound"],
                 "reserved": row["reserved"],
-                "favorite": bool(row["favorite"]),
-                "excluded": bool(row["excluded"]),
-                "note": row["note"] or "",
-                "labels": card_labels.get(card_id, []),
+                **(
+                    {
+                        "favorite": bool(row["favorite"]),
+                        "excluded": bool(row["excluded"]),
+                        "note": row["note"] or "",
+                        "labels": card_labels.get(card_id, []),
+                    }
+                    if with_marks
+                    else {}
+                ),
                 "roles": roles.get(str(row["oracle_id"]), []),
                 # ``decks_known`` False: no source deck of the commander names the card under
                 # any spelling, so its count is unknown (``decks`` stays empty, kept for older
@@ -1118,7 +1137,6 @@ def pool_cards(
                         "hits": None,
                         "denominator": spread["universe"]["denominator"],
                         "share": None,
-                        "level": "U",
                         "reason": UNOWNED_NOT_COUNTED,
                         "filter_card": False,
                     }
@@ -1128,7 +1146,6 @@ def pool_cards(
                 "hits": item["hits"],
                 "denominator": item["denominator"],
                 "share": item["share"],
-                "level": item["level"],
                 "reason": item["reason"],
                 "filter_card": item["filter_card"],
             }
@@ -1466,8 +1483,8 @@ def card_simulations(
         raise KeyError(card_id)
     bound, bound_args = bound_to("simulation_run", "r.run_id", commander_names)
     rows = db.execute(
-        "SELECT r.run_id, r.pod, r.engine_pin, r.bridge_jar_sha256, "
-        "r.bridge_qualification_state, r.pilot_policy, r.hand_dwell_status, "
+        "SELECT r.run_id, r.pod, r.opponent_set_hash, r.table_size, r.engine_pin, "
+        "r.bridge_jar_sha256, r.bridge_qualification_state, r.pilot_policy, r.hand_dwell_status, "
         "sc.games_completed, sc.games_offered, sc.games_cast_after_offer, sc.games_rotted, "
         "sc.offered_castable, sc.cast_count, sc.mean_first_cast_round "
         "FROM simulation_card sc JOIN simulation_run r USING (run_id) "
@@ -1495,8 +1512,8 @@ def list_simulations(store: StudioStore, commander_names: Sequence[str]) -> list
     runs: list[dict[str, object]] = []
     bound, bound_args = bound_to("simulation_run", "r.run_id", commander_names)
     for run in db.execute(
-        "SELECT r.run_id, r.deck_id, r.pod, r.engine_pin, r.bridge_jar_sha256, "
-        "r.bridge_qualification_state, r.pilot_policy, r.seeds, "
+        "SELECT r.run_id, r.deck_id, r.pod, r.opponent_ids, r.opponent_set_hash, r.table_size, "
+        "r.engine_pin, r.bridge_jar_sha256, r.bridge_qualification_state, r.pilot_policy, r.seeds, "
         "r.games_planned, r.games_completed, r.games_failed, r.wins_fractional, r.win_rate, "
         f"r.mean_rounds, r.hand_dwell_status FROM simulation_run r WHERE 1{bound} "
         "ORDER BY r.pod, r.run_id",
@@ -1514,12 +1531,16 @@ def list_simulations(store: StudioStore, commander_names: Sequence[str]) -> list
         ]
         qual_state = run["bridge_qualification_state"] or "UNKNOWN"
         covered = qual_state == "ALIGNED_WITH_SEALED_EPOCH" and bool(run["bridge_jar_sha256"])
+        opponents = _run_opponents(run["opponent_ids"], run["opponent_set_hash"])
         runs.append(
             {
                 **dict(run),
                 "bridge_qualification_state": qual_state,
                 "covered_by_sealed_epoch": covered,
                 "seeds": json.loads(str(run["seeds"])),
+                # the table the run played (#1688); None = "Gegnersatz unbekannt"
+                "opponent_ids": opponents,
+                "opponent_set_hash": run["opponent_set_hash"] if opponents is not None else None,
                 "data_class": "SIMULATED_RESULT",
                 "cards": cards,
             }
@@ -1527,17 +1548,47 @@ def list_simulations(store: StudioStore, commander_names: Sequence[str]) -> list
     return runs
 
 
+def unknown_opponents_caveat(runs: int) -> str:
+    """The visible reservation of a group of runs without a stored opponent set (#1688): it
+    is no cohort; several such runs may have played different opponents."""
+    if runs == 1:
+        return "Gegnersatz unbekannt: ein Lauf, Gegner nicht gespeichert"
+    return "Gegnersatz unbekannt: mehrere Läufe, möglicherweise verschiedene Gegner"
+
+
+def _run_opponents(raw: object, set_hash: object) -> list[str] | None:
+    """The stored opponents of a run in seat order; None when not stored or unreadable."""
+    if not set_hash or raw is None:
+        return None
+    try:
+        decoded = json.loads(str(raw))
+    except ValueError:
+        return None
+    return [str(item) for item in decoded] if isinstance(decoded, list) else None
+
+
 def pod_matchup_matrix(store: StudioStore, commander_names: Sequence[str]) -> dict[str, object]:
-    """Aggregate stored simulation runs of the commander by pod (#1404)."""
+    """Aggregate stored simulation runs of the commander by pod, opponent set and table size
+    (#1404, #1688). Two runs under one pod name that played different tables are two rows; runs
+    without a stored opponent set form their own row "Gegnersatz unbekannt" and are never added
+    to a known one."""
     runs = list_simulations(store, commander_names)
-    by_pod: dict[str, list[dict[str, object]]] = {}
+    by_pod: dict[tuple[str, str | None, int | None], list[dict[str, object]]] = {}
     for run in runs:
         pod_name = str(run.get("pod") or "unknown")
-        by_pod.setdefault(pod_name, []).append(run)
+        set_hash = run["opponent_set_hash"]
+        size = run.get("table_size")
+        key = (
+            pod_name,
+            str(set_hash) if set_hash is not None else None,
+            int(str(size)) if size is not None else None,
+        )
+        by_pod.setdefault(key, []).append(run)
 
     pods_out: list[dict[str, object]] = []
-    for pod_name in sorted(by_pod):
-        pod_runs = by_pod[pod_name]
+    for key in sorted(by_pod, key=lambda k: (k[0], k[1] is None, k[2] or 0, k[1] or "")):
+        pod_name, set_hash, size = key
+        pod_runs = by_pod[key]
         planned = sum(int(str(r.get("games_planned") or 0)) for r in pod_runs)
         completed = sum(int(str(r.get("games_completed") or 0)) for r in pod_runs)
         failed = sum(int(str(r.get("games_failed") or 0)) for r in pod_runs)
@@ -1562,6 +1613,14 @@ def pod_matchup_matrix(store: StudioStore, commander_names: Sequence[str]) -> di
         pods_out.append(
             {
                 "pod": pod_name,
+                "opponent_set_known": set_hash is not None,
+                "opponent_set_hash": set_hash,
+                "opponent_ids": pod_runs[0]["opponent_ids"] if set_hash is not None else None,
+                "table_size": size,
+                # the row of unknown opponents is no cohort: its reservation travels with it
+                "hinweise": []
+                if set_hash is not None
+                else [unknown_opponents_caveat(len(pod_runs))],
                 "runs_count": len(pod_runs),
                 "games_planned": planned,
                 "games_completed": completed,
@@ -1575,7 +1634,8 @@ def pod_matchup_matrix(store: StudioStore, commander_names: Sequence[str]) -> di
             }
         )
     return {
-        "schema": "studio-pod-matrix-1",
+        "schema": "studio-pod-matrix-2",
+        "grouping": "pod_opponent_set_and_table_size",
         "data_class": "SIMULATED_RESULT",
         "commander": list(commander_names),
         "total_runs": len(runs),

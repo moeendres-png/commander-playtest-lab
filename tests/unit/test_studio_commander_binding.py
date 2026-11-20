@@ -133,7 +133,7 @@ def test_observations_and_simulations_follow_the_commander(studio: StudioStore) 
     cards = {str(c["name"]): c for c in evidence["cards"]}  # type: ignore[union-attr]
     layers = cards["Forest"]["layers"]
     assert layers["observed_deck"]["edhrec"]["widest_inclusion"] is None  # type: ignore[index]
-    assert layers["simulated_result"]["totals"] is None  # type: ignore[index]
+    assert layers["simulated_result"]["groups"] == []  # type: ignore[index]
     assert evidence["corpus_binding"]["bound_decks"] == 3  # type: ignore[index]
 
 

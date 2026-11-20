@@ -20,6 +20,7 @@ from commander_lab.studio import (
     StudioStore,
     builder,
     import_all,
+    strength,
     strength_view,
     tier_snapshot,
 )
@@ -435,6 +436,40 @@ def test_read_snapshot_stale_on_spec_mismatch(store_dir: tuple[Path, StudioStore
     assert stale_spec["snapshot"]["status"] == "STALE"  # type: ignore[index]
     assert "Snapshot veraltet, Neuberechnung läuft" in stale_spec["notices"]  # type: ignore[operator]
     assert stale_spec["settings"]["bracket"] == "cedh"  # type: ignore[index]
+
+
+def test_a_snapshot_of_strength_schema_1_with_relative_tiers_is_stale(
+    store_dir: tuple[Path, StudioStore], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Q1-b5 (#1680): the answer lost the relative tiers without losing a settings key, so the
+    strength schema went to 2. A snapshot written before (schema 1, payload with
+    ``relative_tier_info``) is STALE and recomputed, never served as a HIT with the old fields."""
+    _folder, store = store_dir
+    settings = StrengthSettings.recommended()
+    assert strength.SCHEMA == "studio-strength-2"
+    with store.connection as db:  # only the old snapshot below, not the one import-all wrote
+        db.execute("DELETE FROM tier_snapshot WHERE commander_name = ?", (COMMANDER,))
+    monkeypatch.setattr(strength, "SCHEMA", "studio-strength-1")
+    monkeypatch.setattr(tier_snapshot, "SPEC_VERSION", "studio-strength-1:tier-snapshot-2")
+    tier_snapshot.write_snapshot(store, COMMANDER, settings, profile_name="Ausgewogen")
+    (payload_json,) = store.connection.execute(
+        "SELECT payload_json FROM tier_snapshot WHERE commander_name = ?", (COMMANDER,)
+    ).fetchone()
+    old = json.loads(payload_json)
+    old["relative_tier_info"] = {"note": "relativ im Pool, keine Aussage über Spielstärke"}
+    for card in old["cards"]:
+        card["relative_tier"] = "S"
+    with store.connection as db:
+        db.execute(
+            "UPDATE tier_snapshot SET payload_json = ? WHERE commander_name = ?",
+            (json.dumps(old), COMMANDER),
+        )
+    monkeypatch.undo()
+    read = tier_snapshot.read_snapshot(store, COMMANDER, settings, profile_name="Ausgewogen")
+    assert read["snapshot"]["status"] == "STALE"  # type: ignore[index]
+    assert read["schema"] == "studio-strength-2"
+    assert "relative_tier_info" not in read
+    assert not any("relative_tier" in card for card in read["cards"])  # type: ignore[attr-defined]
 
 
 def test_read_snapshot_missing_fallback(store_dir: tuple[Path, StudioStore]) -> None:

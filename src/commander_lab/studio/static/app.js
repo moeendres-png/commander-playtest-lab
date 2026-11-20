@@ -1626,8 +1626,11 @@ function renderSimulations(body) {
   }
   const byPod = new Map();
   for (const run of state.simulations) {
-    const pKey = String(run.pod || "unbekannt");
-    if (!byPod.has(pKey)) byPod.set(pKey, { pod: pKey, runs: 0, planned: 0, completed: 0, wins: 0, roundsNum: 0, roundsDen: 0, allSealed: true, states: new Set() });
+    // one row per pod, opponent set and table size (#1688): two tables under one pod name are two rows
+    const pod = String(run.pod || "unbekannt");
+    const pKey = JSON.stringify([pod, run.opponent_set_hash || null, run.table_size ?? null]);
+    const table = run.opponent_set_hash ? `${(run.opponent_ids || []).join(", ")} · ${run.table_size ?? "?"} Sitze` : null;
+    if (!byPod.has(pKey)) byPod.set(pKey, { pod, table, known: Boolean(run.opponent_set_hash), runs: 0, planned: 0, completed: 0, wins: 0, roundsNum: 0, roundsDen: 0, allSealed: true, states: new Set() });
     const agg = byPod.get(pKey);
     agg.runs += 1;
     agg.planned += Number(run.games_planned || 0);
@@ -1638,12 +1641,12 @@ function renderSimulations(body) {
     if (!run.covered_by_sealed_epoch) agg.allSealed = false;
     agg.states.add(String(run.bridge_qualification_state || "UNKNOWN"));
   }
-  const podRows = [...byPod.values()].sort((a, b) => a.pod.localeCompare(b.pod, "de")).map((agg) => {
+  const podRows = [...byPod.values()].sort((a, b) => a.pod.localeCompare(b.pod, "de") || Number(b.known) - Number(a.known) || String(a.table || "").localeCompare(String(b.table || ""), "de")).map((agg) => {
     const wr = agg.completed > 0 ? `${StudioUI.num((100 * agg.wins) / agg.completed, 1)} %` : "unbekannt";
     const mr = agg.roundsDen > 0 ? StudioUI.numFlex(agg.roundsNum / agg.roundsDen, 1) : "unbekannt";
     const ep = agg.allSealed ? "versiegelt" : (agg.states.has("BRIDGE_AHEAD_OF_QUALIFICATION") ? "Engine-Stand noch nicht qualifiziert" : [...agg.states].join(", "));
     return h("tr", {},
-      h("td", {}, h("b", {}, agg.pod)),
+      h("td", {}, h("b", {}, agg.pod), " · ", agg.known ? agg.table : unknownOpponentsCaveat(agg.runs)),
       h("td", { class: "num" }, StudioUI.num(agg.runs, 0)),
       h("td", { class: "num" }, `${StudioUI.num(agg.completed, 0)} / ${StudioUI.num(agg.planned, 0)}`),
       h("td", { class: "num" }, StudioUI.numFlex(agg.wins, 1)),
@@ -1654,7 +1657,8 @@ function renderSimulations(body) {
   const podMatrixTable = h("div", { class: "table-wrap" }, h("table", { id: "pod-matchup-matrix" },
     h("thead", {}, h("tr", {}, h("th", {}, "Pod / Tisch"), h("th", { class: "num" }, "Läufe"), h("th", { class: "num" }, "Spiele (n / N)"), h("th", { class: "num" }, "Siege"), h("th", { class: "num" }, "Siegrate"), h("th", { class: "num" }, "Ø Runden"), h("th", {}, "Epochen-Stand"))),
     h("tbody", {}, podRows)));
-  body.append(h("h3", {}, "Pod-Matchup-Übersicht (aggregiert je Tisch)"), podMatrixTable);
+  body.append(h("h3", {}, "Pod-Matchup-Übersicht (aggregiert je Tisch)"), podMatrixTable,
+    h("p", { class: "note" }, "Eine Zeile je Pod, Gegnersatz und Tischgröße: Läufe gegen verschiedene Tische werden nie zusammengezählt. Läufe ohne gespeicherten Gegnersatz (vor #1688) stehen in einer eigenen Zeile „Gegnersatz unbekannt“: das ist keine Kohorte, ihre Läufe können gegen verschiedene Gegner gespielt haben; Läufe vor #1658 spielten möglicherweise gegen einen Ersatz-Tisch."));
   const runTable = h("div", { class: "table-wrap" }, h("table", {},
     h("thead", {}, h("tr", {}, h("th", {}, "Pod"), h("th", {}, "Engine-Pin"), h("th", {}, "Bridge-JAR"), h("th", {}, "Epoche"), h("th", {}, "Pilot"), h("th", { class: "num" }, "Spiele"), h("th", { class: "num" }, "Siege"), h("th", { class: "num" }, "Siegrate"), h("th", { class: "num" }, "Ø Runden"))),
     h("tbody", {}, state.simulations.map((run) => h("tr", {},
@@ -1682,6 +1686,10 @@ function renderSimulations(body) {
         h("td", { class: "num" }, c.mean_first_cast_round === null ? "–" : StudioUI.num(c.mean_first_cast_round, 1)))))));
     body.append(h("h3", {}, `Karten-Angebote im Pod „${run.pod}“ (${StudioUI.num(run.games_completed, 0)} Spiele)`), cTable);
   }
+}
+// the reservation of a row of runs without a stored opponent set (#1688; builder.unknown_opponents_caveat)
+function unknownOpponentsCaveat(runs) {
+  return runs === 1 ? "Gegnersatz unbekannt: ein Lauf, Gegner nicht gespeichert" : "Gegnersatz unbekannt: mehrere Läufe, möglicherweise verschiedene Gegner";
 }
 function renderDeck() {
   state.renderToken = (state.renderToken || 0) + 1;
@@ -2388,7 +2396,7 @@ async function openCard(card) {
     h("h3", {}, "Häufigkeit in den Quelldecks"), frequencies, h("p", { class: "note" }, "Gelb: Gruppe mit weniger als 30 Decks."),
     h("p", {}, h("a", { href: `decks.html?commander=${encodeURIComponent(COMMANDER)}&must=${encodeURIComponent(card.name)}`, class: "chip" }, "Quelldecks mit dieser Karte im Deck-Browser öffnen →")),
     trendBox,
-    card.universe && activeScope() ? h("p", { class: "note" }, `Im ${activeScope().label}: ${card.universe.filter_card ? "Filterkarte des Universums (steht per Definition in jedem Deck der Teilmenge, ohne Zählung und ohne Stufe)" : card.universe.matched ? `${StudioUI.num(card.universe.hits, 0)}/${StudioUI.num(card.universe.denominator, 0)} Decks, Stufe ${card.universe.level} (Verbreitung gezählt, keine Stärke)` : card.in_collection === false ? `unbekannt (${card.universe.reason})` : "unbekannt (kein Deck des Universums nennt diese Karte unter einem bekannten Namen)"}`) : null,
+    card.universe && activeScope() ? h("p", { class: "note" }, `Im ${activeScope().label}: ${card.universe.filter_card ? "Filterkarte des Universums (steht per Definition in jedem Deck der Teilmenge, ohne Zählung)" : card.universe.matched ? `${StudioUI.num(card.universe.hits, 0)}/${StudioUI.num(card.universe.denominator, 0)} Decks (Verbreitung gezählt, keine Stärke)` : card.in_collection === false ? `unbekannt (${card.universe.reason})` : "unbekannt (kein Deck des Universums nennt diese Karte unter einem bekannten Namen)"}`) : null,
     card.universe && state.universeInfo && state.universeInfo.subset_note ? h("p", { class: "note" }, state.universeInfo.subset_note) : null, strengthBox, extra);
   box.append(left, right); $("modal").hidden = false;
   if (!state.commanderIds.includes(card.card_id) && !card.basic) renderSwapBox(swapBox, card, initialSwapMode);

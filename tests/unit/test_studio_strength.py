@@ -1207,7 +1207,8 @@ def test_card_filter_marks_the_required_cards_and_names_the_subset(
     spread = universe_view.pool_spread(store, "filter", commander_names=[COMMANDER])
     flagged = {item["name"]: item for item in spread["cards"] if item["filter_card"]}
     assert set(flagged) == {"Filler 01"}
-    assert flagged["Filler 01"]["level"] == "F" and flagged["Filler 01"]["share"] is None
+    assert flagged["Filler 01"]["reason"] == "FILTER_CARD" and flagged["Filler 01"]["share"] is None
+    assert "level" not in flagged["Filler 01"]  # no level letter since Q1-b5 (#1680)
     assert spread["universe"]["subset_note"] == summary["subset_note"]
     assert spread["universe"]["must_contain"] == ["Filler 01"]
     co = universe_view.card_cooccurrence(
@@ -3483,62 +3484,20 @@ def test_a_weight_variant_reproduces_the_tiers_of_score_pool() -> None:
         }
 
 
-def test_relative_tier_limits_are_exact_percent_limits() -> None:
-    assert strength.RELATIVE_TIER_PERCENTILES == (
-        ("S", 3),
-        ("A", 10),
-        ("B", 25),
-        ("C", 50),
-        ("D", 75),
-        ("E", 90),
-    )
-    expected = {3: "S", 4: "A", 10: "A", 11: "B", 25: "B", 26: "C", 50: "C"}
-    expected |= {51: "D", 75: "D", 76: "E", 90: "E", 91: "F", 100: "F"}
-    for rank, tier in expected.items():
-        assert strength.relative_tier_for(rank, 100) == tier
-    assert strength.relative_tier_for(1, 1) is None  # a group below 10 cards has no tier
-    assert strength.relative_tier_for(10, 9) is None
-    assert strength.relative_tier_for(10, 10) == "F"
-    assert strength.relative_tier_for(1, 33) == "A"  # 3.03 % is not in the top 3 %
-    assert strength.relative_tier_for(1, 34) == "S"
-
-
-def test_relative_tiers_rank_lands_and_spells_apart_and_share_ties() -> None:
-    spells = {f"s{i:03d}": (100.0 - i * 0.5, False) for i in range(100)}
-    lands = {f"l{i:02d}": (90.0 - i, True) for i in range(20)}
-    result = strength.relative_tiers({**spells, **lands})
-    counts = {name: 0 for name in strength.RELATIVE_TIERS}
-    for card in spells:
-        counts[result[card][0]] += 1
-        assert result[card][1]["group"] == "spells" and result[card][1]["total"] == 100
-    assert counts == {"S": 3, "A": 7, "B": 15, "C": 25, "D": 25, "E": 15, "F": 10}
-    assert result["s000"][1]["rank"] == 1 and result["s099"][1]["rank"] == 100
-    # 20 lands: 5 % steps; the best land is 5 % (A), not S, and the lands do not move the spells
-    assert result["l00"] == ("A", {"rank": 1, "total": 20, "group": "lands"})
-    assert result["l19"][0] == "F"
-    # ties: one tier for the whole group, from the best rank position of the group
-    tied = strength.relative_tiers(
-        {
-            "a": (9.0, False),
-            "b": (8.0, False),
-            "c": (8.0, False),
-            "d": (8.0, False),
-            "e": (5.0, False),
-            **{f"x{i}": (1.0 + i / 100, False) for i in range(5)},
-        }
-    )
-    assert tied["a"] == ("A", {"rank": 1, "total": 10, "group": "spells"})
-    assert [tied[card] for card in "bcd"] == [
-        ("B", {"rank": 2, "total": 10, "group": "spells"})
-    ] * 3
-    assert tied["e"][1]["rank"] == 5 and tied["e"][0] == "C"
-    assert strength.relative_tiers({}) == {}
-    # a group of fewer than 10 ranked cards has a rank but no tier (a lone card would be "F")
-    lone = strength.relative_tiers(
-        {"only": (50.0, False), **{f"l{i}": (i, True) for i in range(10)}}
-    )
-    assert lone["only"] == (None, {"rank": 1, "total": 1, "group": "spells"})
-    assert lone["l9"][0] == "A" and lone["l0"][0] == "F"
+def test_the_strength_module_has_one_tier_scale_and_keeps_the_function_comparison() -> None:
+    # Q1-b5 (#1680, E2): the relative tiers S to F inside the pool fell; the one scale is the
+    # strength index S to D. The comparison "Gleiche Funktion" (rank_group "function") stays.
+    for name in (
+        "RELATIVE_TIER_PERCENTILES",
+        "RELATIVE_TIERS",
+        "RELATIVE_TIER_NOTE",
+        "relative_tier_for",
+        "relative_tiers",
+        "RelativeRank",
+    ):
+        assert not hasattr(strength, name), name
+    assert strength.TIERS == ("S", "A", "B", "C", "D")
+    assert strength.GROUP_FUNCTION in strength.RANK_GROUPS
 
 
 def test_the_weight_per_source_family_covers_every_component_exactly_once() -> None:

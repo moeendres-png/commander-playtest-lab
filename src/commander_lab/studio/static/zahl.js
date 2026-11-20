@@ -6,7 +6,8 @@
 //   EXAKT      computed from the list (hypergeometry, castability, list counts)
 //   GEZÄHLT    counted in a cohort: always N and a cohort
 //   SIMULIERT  SIMULATED_RESULT: always N, the deck state (stand_hash, null = unknown) and the
-//              pilot origin (until B2 the constant "Konstante")
+//              pilot origin (card outcomes: the pilot fingerprint of the stratum, #1687;
+//              elsewhere still the constant "Konstante")
 //   URTEIL     a model judgement; never in the same column as GEZÄHLT
 // VORSCHLAG is no number class and is refused. A missing wert is "unbekannt", never 0; n without
 // N is refused; every N names what n and N count (bezug: "Paare (abgeschlossen / geplant)"); a share
@@ -15,7 +16,7 @@
 // numbers only through StudioUI (read at call time, so the node tests use the real ui.js helpers).
 const StudioZahl = (() => {
   const KLASSEN = ["EXAKT", "GEZÄHLT", "SIMULIERT", "URTEIL"];
-  const EINHEITEN = ["Anteil", "pp", "Anzahl"];
+  const EINHEITEN = ["Anteil", "pp", "Anzahl", "Punkte"]; // Punkte: the score of a judgement (Q1-b5), no count
   const KEYS = ["id", "bezeichnung", "wert", "einheit", "n", "N", "bezug", "intervall", "klasse", "kohorte", "quelle",
     "stand_datum", "stand_hash", "basis_hash", "pilot", "piloten", "data_class", "hinweise"];
   const LABEL = { EXAKT: "exakt", "GEZÄHLT": "gezählt", SIMULIERT: "simuliert", URTEIL: "Modellurteil" };
