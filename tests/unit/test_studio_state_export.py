@@ -292,6 +292,7 @@ def test_import_refuses_a_conflicting_oracle_id_and_rolls_back(tmp_path: Path) -
     with pytest.raises(StateFileError, match="es wird nicht geraten"):
         import_state(target, tmp_path / "x.json.gz")
     assert target.connection.execute("SELECT COUNT(*) FROM deck").fetchone()[0] == 0
+    assert target.connection.execute("SELECT COUNT(*) FROM card").fetchone()[0] == 1  # only c_one
 
 
 def test_import_under_cache_check_mode_declares_its_writes(
@@ -462,6 +463,145 @@ def test_m3_a_rotation_that_keeps_15_is_caught(
     assert len(list((tmp_path / "data" / "state-exports").iterdir())) != 14
 
 
+# -- rollback, round-trip check, snapshot (F1, F3; probes N1, N3) -------------------------------
+
+
+def _row_counts(db: sqlite3.Connection) -> dict[str, int]:
+    tables = [r[0] for r in db.execute("SELECT name FROM sqlite_master WHERE type = 'table'")]
+    return {t: int(db.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]) for t in sorted(tables)}
+
+
+def _exported_file(tmp_path: Path) -> tuple[Path, StudioStore]:
+    store = _seed(tmp_path / "from")
+    export_state(store, tmp_path / "x.json.gz")
+    store.close()
+    return tmp_path / "x.json.gz", StudioStore.open(tmp_path / "to")
+
+
+def test_a_lossy_insert_is_caught_by_the_round_trip_check_and_rolled_back(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """N1 (drop the re-export hash check) lets this import commit; N3 (COMMIT for ROLLBACK)
+    leaves the rows in. Either mutation turns this test red."""
+    path, target = _exported_file(tmp_path)
+    before = _row_counts(target.connection)
+    real = state_export._insert
+
+    def lossy(
+        db: sqlite3.Connection, table: str, row: dict[str, object], allowed: set[str]
+    ) -> None:
+        real(db, table, {**row, "name": "Anders"} if table == "deck" else row, allowed)
+
+    monkeypatch.setattr(state_export, "_insert", lossy)
+    with pytest.raises(StateFileError, match="nicht verlustfrei"):
+        import_state(target, path)
+    assert not target.connection.in_transaction
+    assert _row_counts(target.connection) == before  # rows, card stubs, source stubs, meta
+
+
+def test_a_write_error_in_the_middle_of_the_import_rolls_everything_back(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    path, target = _exported_file(tmp_path)
+    before = _row_counts(target.connection)
+    real = state_export._insert
+
+    def fails_at_marks(
+        db: sqlite3.Connection, table: str, row: dict[str, object], allowed: set[str]
+    ) -> None:
+        if table == "card_mark":
+            raise StateFileError("injiziert")
+        real(db, table, row, allowed)
+
+    monkeypatch.setattr(state_export, "_insert", fails_at_marks)
+    with pytest.raises(StateFileError, match="injiziert"):
+        import_state(target, path)
+    assert not target.connection.in_transaction
+    assert _row_counts(target.connection) == before
+    monkeypatch.setattr(state_export, "_insert", real)
+    assert import_state(target, path)["rows"]["deck_revision"] == 2  # type: ignore[index]
+
+
+def test_a_file_that_breaks_a_foreign_key_exits_2_without_a_raw_integrity_error(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """A consistent hash over an inconsistent content (a revision card without its revision)."""
+    path, target = _exported_file(tmp_path)
+    target.close()
+
+    def drop_a_revision(envelope: dict[str, object]) -> None:
+        content = envelope["content"]
+        rows = content["tables"]["deck_revision_card"]  # type: ignore[index]
+        rows[0]["revision_id"] = "fehlt"
+        keys = ["revision_id", "card_id", "zone"]
+        rows.sort(key=lambda row: state_export._sort_key(row, keys))  # same order as an export
+        envelope["content_sha256"] = state_export.content_sha256(content)
+
+    _rewrite(path, drop_a_revision)
+    code = studio_cli.main(["--data", str(tmp_path / "to"), "import-state", str(path)])
+    assert code == 2
+    err = capsys.readouterr().err
+    assert "Fremdschlüssel" in err and "zurückgerollt" in err
+    reopened = StudioStore.open(tmp_path / "to")
+    assert _row_counts(reopened.connection)["deck"] == 0
+    assert _row_counts(reopened.connection)["card"] == 0
+
+
+def test_an_export_reads_one_snapshot_while_the_server_commits_in_between(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A commit between two table reads (a running server) must not reach the file. Without the
+    read transaction the file holds a card row of a revision that its ``deck_revision`` lacks."""
+    store = _seed(tmp_path / "data")
+    path = store.path
+    assert path is not None
+    real = state_export._fetch_rows
+    wrote: list[bool] = []
+
+    def commit_after_revisions(
+        db: sqlite3.Connection, table: state_export._Table
+    ) -> tuple[list[dict[str, object]], list[str]]:
+        result = real(db, table)
+        if table.name == "deck_revision":
+            other = sqlite3.connect(path, timeout=0.2)
+            try:
+                other.execute(
+                    "INSERT INTO deck_revision(revision_id, deck_id, deck_hash, created_at) "
+                    "VALUES ('rev-neu', 'deck-a', 'h', 'x')"
+                )
+                other.execute(
+                    "INSERT INTO deck_revision_card(revision_id, card_id, zone, quantity) "
+                    "VALUES ('rev-neu', 'c_one', 'main', 1)"
+                )
+                other.commit()
+                wrote.append(True)
+            except sqlite3.OperationalError:  # the snapshot holds the writer off (locked)
+                wrote.append(False)
+            finally:
+                other.close()
+        return result
+
+    monkeypatch.setattr(state_export, "_fetch_rows", commit_after_revisions)
+    export_state(store, tmp_path / "x.json.gz")
+    assert wrote, "the probe write never ran"
+    tables = read_state(tmp_path / "x.json.gz").content["tables"]
+    assert isinstance(tables, dict)
+    known = {r["revision_id"] for r in tables["deck_revision"]}
+    assert {r["revision_id"] for r in tables["deck_revision_card"]} <= known
+    assert "rev-neu" not in known  # the snapshot predates the commit
+
+
+def test_m4_without_the_read_transaction_the_export_is_inconsistent(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Mutation probe N-F1: the snapshot helper does nothing -> the test above would fail."""
+    import contextlib
+
+    monkeypatch.setattr(state_export, "_read_snapshot", lambda _db: contextlib.nullcontext())
+    with pytest.raises(AssertionError):
+        test_an_export_reads_one_snapshot_while_the_server_commits_in_between(tmp_path, monkeypatch)
+
+
 # -- instance lock -----------------------------------------------------------------------------
 
 
@@ -481,6 +621,28 @@ def test_a_stale_lock_is_taken_over(tmp_path: Path) -> None:
     with InstanceLock(tmp_path) as lock:
         assert lock.held
         assert json.loads((tmp_path / LOCK_NAME).read_text())["token"] != "old"
+
+
+def test_a_live_pid_with_an_old_heartbeat_is_taken_over_and_a_fresh_one_is_not(
+    tmp_path: Path,
+) -> None:
+    """N7 (drop the age rule) leaves a live PID with an hour-old heartbeat standing: red here.
+    The live PID is this process, so no platform probe decides the outcome."""
+    lock_file = tmp_path / LOCK_NAME
+    lock_file.write_text(
+        json.dumps({"pid": os.getpid(), "token": "old", "heartbeat_epoch": time.time() - 3600}),
+        encoding="utf-8",
+    )
+    with InstanceLock(tmp_path) as lock:
+        assert lock.held
+        assert json.loads(lock_file.read_text())["token"] != "old"
+    lock_file.write_text(
+        json.dumps({"pid": os.getpid(), "token": "old", "heartbeat_epoch": time.time() - 5}),
+        encoding="utf-8",
+    )
+    with pytest.raises(InstanceAlreadyRunning, match="läuft schon"):
+        InstanceLock(tmp_path).acquire()
+    assert json.loads(lock_file.read_text())["token"] == "old"  # not taken over
 
 
 def test_a_fresh_heartbeat_of_a_dead_pid_counts_as_stale(tmp_path: Path) -> None:
@@ -582,3 +744,57 @@ def test_cli_export_refuses_a_target_inside_the_repository(
             ]
         )
     assert not (repository / "x.json.gz").exists()
+
+
+# -- rows the format leaves out (F4) -----------------------------------------------------------
+
+
+def _add_simulation_rows(store: StudioStore) -> None:
+    db = store.connection
+    source = db.execute("SELECT source_id FROM source LIMIT 1").fetchone()[0]
+    db.execute(
+        "INSERT INTO simulation_run(run_id, deck_id, pod, engine_pin, pilot_policy, seeds, "
+        "games_planned, games_completed, games_failed, wins_fractional, hand_dwell_status, "
+        "source_id) VALUES ('r1', 'deck-a', 'p', 'e', 'pp', '[]', 4, 4, 0, 1.0, 'x', ?)",
+        (source,),
+    )
+    for name in ("A", "B"):
+        db.execute(
+            "INSERT INTO simulation_card(run_id, card_name, games_completed, games_offered, "
+            "games_cast_after_offer, games_rotted, offered_castable, cast_count) "
+            "VALUES ('r1', ?, 1, 1, 1, 0, 1, 1)",
+            (name,),
+        )
+    db.commit()
+
+
+def test_export_import_and_start_copy_name_the_rows_they_leave_out(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    store = _seed(tmp_path / "data")
+    _add_simulation_rows(store)
+    store.close()
+    out = tmp_path / "out.json.gz"
+    data = str(tmp_path / "data")
+    assert studio_cli.main(["--data", data, "export-state", "--check"]) == 0
+    assert studio_cli.main(["--data", data, "export-state", "--to", str(out)]) == 0
+    assert studio_cli.main(["--data", str(tmp_path / "new"), "import-state", str(out)]) == 0
+    assert studio_cli.main(["import-state", str(out), "--verify"]) == 0
+    expected = "Nicht exportierte Zeilen aus simulation_run/simulation_card: 3"
+    assert capsys.readouterr().out.count(expected) == 4
+    state_export.start_copy_best_effort(data)
+    assert expected in capsys.readouterr().out
+
+
+def test_a_file_without_the_count_and_an_uncountable_table_read_unbekannt(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    store = _seed(tmp_path / "data")
+    export_state(store, tmp_path / "x.json.gz")
+    _rewrite(tmp_path / "x.json.gz", lambda e: e.pop("not_exported_rows"))
+    assert studio_cli.main(["import-state", str(tmp_path / "x.json.gz"), "--verify"]) == 0
+    assert "simulation_run/simulation_card: unbekannt" in capsys.readouterr().out
+    store.connection.execute("DROP TABLE simulation_card")
+    counted = state_export.not_exported_rows(store.connection)
+    assert counted["simulation_card"] is None and counted["simulation_run"] == 0
+    assert state_export.not_exported_line(counted).endswith(": unbekannt")

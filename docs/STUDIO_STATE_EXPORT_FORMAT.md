@@ -29,6 +29,7 @@ gzip-komprimiertes JSON, UTF-8, ein Objekt:
 | `source_schema_version` | Schema des Stores, aus dem exportiert wurde (heute 21) |
 | `created_at` | UTC-Zeit des Exports; nicht Teil des SHA |
 | `content_sha256` | SHA-256 über die kanonische Form von `content` (unten) |
+| `not_exported_rows` | Zeilen je Tabelle in `simulation_run`, `simulation_card`, die das Format auslässt (Zahl, oder `null` = nicht zählbar); nicht Teil des SHA; fehlt das Feld, gilt es als unbekannt |
 | `content` | `tables` und `not_in_schema` |
 
 **Kanonische Form**: `json.dumps(content, sort_keys=True, ensure_ascii=False,
@@ -72,7 +73,10 @@ Ziel findet, bricht ab und lässt ihn nie still fallen.
 - `simulation_run`, `simulation_card` (Ergebnisse, `SIMULATED_RESULT`) und `games/`: nicht im
   Umfang von Q9 genannt; E-A4 will die Zeilen als Altbestand in den Index übernehmen. **Offener
   Entscheid** (Issue #1668): Abschnitt `simulation` vor K-2c nachziehen oder den Altbestand aus der
-  Sicherung `studio backup` übernehmen. Bis dahin sichert nur `backup.py` sie.
+  Sicherung `studio backup` übernehmen. Bis dahin sichert nur `backup.py` sie. Export, Import,
+  `--verify`, `--check` und die Start-Kopie melden dazu eine Zeile `Nicht exportierte Zeilen aus
+  simulation_run/simulation_card: n` (Summe beider Tabellen; `unbekannt`, wenn eine Tabelle nicht
+  zählbar ist oder die Datei die Zahl nicht trägt; nie 0 für unbekannt).
 - `meta`, `commander_binding` und was der Import schreibt.
 
 ## 3. Befehle
@@ -82,7 +86,9 @@ python -m commander_lab.studio [--data ORDNER] export-state [--to DATEI|ORDNER] 
 python -m commander_lab.studio [--data ORDNER] import-state DATEI [--verify] [--json]
 ```
 
-- `export-state` schreibt atomar (Temporärdatei, dann Umbenennen). Ohne `--to` geht die Datei nach
+- `export-state` liest alle Tabellen in **einer Lese-Transaktion** (`BEGIN`): ein Commit eines
+  laufenden Servers zwischen zwei Tabellen kann die Datei nicht uneinheitlich machen. Schreibt atomar
+  (Temporärdatei, dann Umbenennen). Ohne `--to` geht die Datei nach
   `<Datenordner>/state-exports/studio-state-<UTC>.json.gz`. Exit 0 ok, 2 bei blockiertem Export,
   keine Datei bei einem Abbruch.
 - `export-state --check` meldet vorab: blockierende Verweise (Liste) und Sammlungskarten ohne
@@ -96,7 +102,9 @@ python -m commander_lab.studio [--data ORDNER] import-state DATEI [--verify] [--
   Datenklasse `UNKNOWN`; die Kartenfakten liefert der nächste Import der Kartendaten über die
   `oracle_id`). Kennt der Zielstore `card_id` mit anderer `oracle_id`, bricht der Import ab. Am Ende
   wird in der Transaktion erneut exportiert; weicht der Hash vom Hash des Dateiinhalts ab, wird
-  alles zurückgerollt und die abweichenden Tabellen werden genannt. In `meta` steht danach
+  alles zurückgerollt und die abweichenden Tabellen werden genannt. Bricht ein Fremdschlüssel erst
+  beim Commit (Datei mit gültiger SHA, aber uneinheitlichem Inhalt), ist das ein `StateFileError`
+  mit Rollback und Exit 2, kein roher `IntegrityError`. In `meta` steht danach
   `user_state_import_sha256`.
 
 ## 4. Fehlerfälle (kein Raten)
@@ -109,6 +117,24 @@ python -m commander_lab.studio [--data ORDNER] import-state DATEI [--verify] [--
 | SHA stimmt nicht, kein gz/JSON, falsches `format` | Import und `--verify` brechen ab, nichts geschrieben |
 | Tabelle oder Spalte ohne Ziel | Abbruch |
 | Zielstore hat Nutzerzustand | Abbruch |
+| Fremdschlüsselbruch beim Commit (Datei in sich uneinheitlich) | Rollback, Exit 2, nichts importiert |
+| Zielstore hat dieselbe `card_id` mit anderer `oracle_id`, oder mit anderem Namen | Abbruch, Rollback, Exit 2 (siehe 4.1) |
+
+### 4.1 Bekannte Grenzen (dokumentiert, nicht behoben)
+
+- **Gleiche `oracle_id`, umbenannte Karte** (F5): Kennt der Zielstore eine Karte unter derselben
+  `card_id` und `oracle_id`, aber mit anderem Namen, fällt das erst bei der Rückexport-Prüfung auf
+  (der Name der Datei weicht vom Namen im Zielstore ab, "nicht verlustfrei", die Tabellen werden
+  genannt); der Import bricht ab und schreibt nichts (fail-closed, kein Verlust). Eine umbenannte
+  Karte stoppt damit die Migration, bis Quelle oder Ziel abgeglichen sind; es wird nicht geraten.
+- **Race beim Übernehmen einer verwaisten Sperre** (F2): Lesen zwei Starter gleichzeitig dieselbe
+  verwaiste Sperre, kann der zweite die frische Datei des ersten löschen und seine anlegen; dann
+  halten beide die Sperre. Das Zeitfenster ist klein (Einzelnutzer, ein Start von Hand); die Sperre
+  ist ein Schutz gegen versehentlichen Doppelstart, keine Garantie gegen gleichzeitige Starter.
+- **Eingefrorener Server** (F2/F5): Ein Server, der länger als 30 s keinen Herzschlag schreibt
+  (Ruhezustand, angehaltener Prozess), gilt als verwaist und wird übernommen, auch wenn sein Prozess
+  lebt. Der alte Server merkt es beim nächsten Herzschlag (Token fremd) und schreibt die Sperre nicht
+  mehr, läuft aber weiter und kann den Store beschreiben.
 
 ## 5. Kopie beim Start und eine Instanz je Ordner
 
@@ -133,10 +159,19 @@ python -m commander_lab.studio [--data ORDNER] import-state DATEI [--verify] [--
   mit einer unabhängigen SQL-Abfrage (nicht mit dem Exporter).
 - Karte ohne `oracle_id`: Abbruch mit Liste; Sammlungskarten ohne `oracle_id` als n von N.
 - Zweiter Start endet mit Meldung (Sperre, und `serve` zweimal im Test); verwaiste Sperre wird
-  übernommen; Rotation behält genau 14.
+  übernommen, auch bei lebender PID mit altem Herzschlag (und umgekehrt: frischer Herzschlag mit
+  lebender PID wird nicht übernommen); Rotation behält genau 14.
+- Import: injizierter Fehler mitten im Schreiben und ein verlustbehafteter Einfügeschritt bringen
+  den Store auf den Stand davor zurück (Zeilen aller Tabellen gezählt, keine offene Transaktion);
+  Fremdschlüsselbruch beim Commit endet mit Exit 2.
+- Export unter laufendem Schreiber: ein Commit zwischen zwei Tabellenlesevorgängen erreicht die
+  Datei nicht (Test `test_an_export_reads_one_snapshot_while_the_server_commits_in_between`).
 - **Mutationsproben** (jede muss die zugehörige Prüfung rot machen): M1 ein Feld (Entwürfe) beim
   Export weglassen, M2 SHA nicht prüfen (manipulierte Datei wird importiert), M3 Rotation behält 15.
-  Ergebnis im PR: n/3 rot.
+  Zusätzlich (Review F3, von Hand an den Quellen nachgespielt, je rot): N1 Rückexport-Hashprüfung
+  entfernen, N3 `ROLLBACK` durch `COMMIT` ersetzen, N7 Altersregel der Sperre entfernen, N-F1 die
+  Lese-Transaktion entfernen (Test `test_m4_...` hält das als Mutationsprobe im Test fest).
+  Ergebnis im PR: n/n rot.
 - Import unter `COMMANDER_LAB_CACHE_CHECK=1`-Modus (Schreibfenster deklariert, `cache.write`).
 
 Nicht geprüft, `UNKNOWN`: Rundlauf an der echten Export-Datei des Owner-PCs (der Owner schickt sie

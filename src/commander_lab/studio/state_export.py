@@ -17,6 +17,7 @@ catalogue, corpus, observations, ...) are never part of it. A card that is refer
 from __future__ import annotations
 
 import argparse
+import contextlib
 import gzip
 import hashlib
 import json
@@ -24,6 +25,7 @@ import os
 import re
 import sqlite3
 import sys
+from collections.abc import Iterator
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
@@ -43,6 +45,9 @@ META_IMPORT_KEY = "user_state_import_sha256"
 # table for: they are listed, never written as an empty section (absent is unknown, not zero).
 NOT_IN_SCHEMA = ("setting", "table_preset")
 BLOCKED_SHOWN = 50
+# Tables that hold user-produced rows but are not part of the format (``docs/STUDIO_STATE_EXPORT_FORMAT.md``
+# §2.3, open decision #1668): export, import and the start copy name how many rows they leave out.
+NOT_EXPORTED = ("simulation_run", "simulation_card")
 
 _COPY_NAME = re.compile(r"^studio-state-(\d{8}-\d{6})(?:-(\d+))?\.json\.gz$")
 
@@ -169,8 +174,49 @@ def _draft_entries(raw: object) -> list[dict[str, object]] | None:
     return [{str(k): v for k, v in entry.items()} for entry in loaded]
 
 
+@contextlib.contextmanager
+def _read_snapshot(db: sqlite3.Connection) -> Iterator[None]:
+    """One read transaction around every table read, so a commit of a running server between two
+    reads cannot give a file with a valid SHA but an inconsistent content. Inside an open
+    transaction (the import's re-export) it changes nothing."""
+    if db.in_transaction:
+        yield
+        return
+    db.execute("BEGIN")
+    try:
+        yield
+    finally:
+        db.execute("ROLLBACK")
+
+
+def not_exported_rows(db: sqlite3.Connection) -> dict[str, int | None]:
+    """Rows per table that the format leaves out; ``None`` (unknown, never 0) if not countable."""
+    counted: dict[str, int | None] = {}
+    for name in NOT_EXPORTED:
+        try:
+            counted[name] = int(db.execute(f"SELECT COUNT(*) FROM {name}").fetchone()[0])
+        except (sqlite3.Error, TypeError, ValueError):
+            counted[name] = None
+    return counted
+
+
+def not_exported_line(value: object) -> str:
+    """The one report line; a missing or uncountable number reads ``unbekannt``."""
+    numbers = [value.get(name) if isinstance(value, dict) else None for name in NOT_EXPORTED]
+    known = all(isinstance(n, int) and not isinstance(n, bool) for n in numbers)
+    shown = str(sum(n for n in numbers if isinstance(n, int))) if known else "unbekannt"
+    return f"Nicht exportierte Zeilen aus {'/'.join(NOT_EXPORTED)}: {shown}"
+
+
 def build_content(db: sqlite3.Connection) -> tuple[dict[str, object], list[dict[str, object]]]:
-    """The content of the export and the list of references that block it."""
+    """The content of the export and the list of references that block it (one read snapshot)."""
+    with _read_snapshot(db):
+        return _build_content(db)
+
+
+def _build_content(
+    db: sqlite3.Connection,
+) -> tuple[dict[str, object], list[dict[str, object]]]:
     blocked: list[dict[str, object]] = []
     fetched: dict[str, tuple[list[dict[str, object]], list[str]]] = {}
     wanted: set[str] = set()
@@ -242,6 +288,7 @@ class Preflight:
     blocked: list[dict[str, object]]
     collection_total: int
     collection_missing: list[dict[str, object]]
+    not_exported: dict[str, int | None]
 
     @property
     def ok(self) -> bool:
@@ -252,16 +299,18 @@ def preflight(store: StudioStore) -> Preflight:
     """Report before exporting. Collection cards (a row in ``inventory``) without
     ``oracle_id`` are counted n of N; they block only when the user state references them."""
     db = store.connection
-    _content, blocked = build_content(db)
-    total = int(db.execute("SELECT COUNT(*) FROM inventory").fetchone()[0])
-    missing: list[dict[str, object]] = [
-        {"card_id": str(row[0]), "name": str(row[1])}
-        for row in db.execute(
-            "SELECT c.card_id, c.oracle_name FROM card c JOIN inventory i USING (card_id) "
-            "WHERE c.oracle_id IS NULL OR c.oracle_id = '' ORDER BY c.card_id"
-        )
-    ]
-    return Preflight(blocked, total, missing)
+    with _read_snapshot(db):
+        _content, blocked = build_content(db)
+        total = int(db.execute("SELECT COUNT(*) FROM inventory").fetchone()[0])
+        missing: list[dict[str, object]] = [
+            {"card_id": str(row[0]), "name": str(row[1])}
+            for row in db.execute(
+                "SELECT c.card_id, c.oracle_name FROM card c JOIN inventory i USING (card_id) "
+                "WHERE c.oracle_id IS NULL OR c.oracle_id = '' ORDER BY c.card_id"
+            )
+        ]
+        not_exported = not_exported_rows(db)
+    return Preflight(blocked, total, missing, not_exported)
 
 
 def counts(content: dict[str, object]) -> dict[str, int]:
@@ -291,22 +340,30 @@ def export_state(store: StudioStore, path: Path) -> dict[str, object]:
     """Write the user state to ``path`` (atomically) and return the header facts.
 
     Raises ``ExportBlocked`` with the list when a referenced card has no ``oracle_id``."""
-    content, blocked = build_content(store.connection)
-    if blocked:
-        raise ExportBlocked(blocked)
-    schema = store.connection.execute("SELECT value FROM meta WHERE key='schema_version'")
-    version_row = schema.fetchone()
+    db = store.connection
+    with _read_snapshot(db):
+        content, blocked = build_content(db)
+        if blocked:
+            raise ExportBlocked(blocked)
+        version_row = db.execute("SELECT value FROM meta WHERE key='schema_version'").fetchone()
+        not_exported = not_exported_rows(db)
     sha = content_sha256(content)
     envelope: dict[str, object] = {
         "format": FORMAT,
         "source_schema_version": int(version_row[0]) if version_row else None,
         "created_at": _now().strftime("%Y-%m-%dT%H:%M:%SZ"),
         "content_sha256": sha,
+        "not_exported_rows": not_exported,
         "content": content,
     }
     path.parent.mkdir(parents=True, exist_ok=True)
     _write_gzip(path, envelope)
-    return {"path": str(path), "content_sha256": sha, "rows": counts(content)}
+    return {
+        "path": str(path),
+        "content_sha256": sha,
+        "rows": counts(content),
+        "not_exported_rows": not_exported,
+    }
 
 
 # -- reading the file --------------------------------------------------------------------------
@@ -318,6 +375,7 @@ class StateFile:
     source_schema_version: object
     created_at: object
     content: dict[str, object]
+    not_exported_rows: object = None
 
     @property
     def computed_sha256(self) -> str:
@@ -351,6 +409,7 @@ def read_state(path: Path, *, verify: bool = True) -> StateFile:
         envelope.get("source_schema_version"),
         envelope.get("created_at"),
         _as_dict(envelope.get("content"), "content"),
+        envelope.get("not_exported_rows"),
     )
     if verify:
         _check_sha(state)
@@ -371,6 +430,7 @@ def verify_state_file(path: Path) -> dict[str, object]:
         "source_schema_version": state.source_schema_version,
         "rows": counts(state.content),
         "not_in_schema": state.content.get("not_in_schema"),
+        "not_exported_rows": state.not_exported_rows,
     }
 
 
@@ -507,11 +567,23 @@ def import_state(store: StudioStore, path: Path) -> dict[str, object]:
                     "Der Import ist nicht verlustfrei (erneuter Export ≠ Datei); zurückgerollt. "
                     f"Abweichende Tabellen: {differing}"
                 )
-            db.execute("COMMIT")
+            try:
+                db.execute("COMMIT")
+            except sqlite3.IntegrityError as error:
+                raise StateFileError(
+                    "Die Datei ist in sich nicht schlüssig (Fremdschlüssel beim Abschluss: "
+                    f"{error}); zurückgerollt, nichts importiert."
+                ) from error
         except BaseException:
-            db.execute("ROLLBACK")
+            if db.in_transaction:
+                db.execute("ROLLBACK")
             raise
-    return {"content_sha256": expected, "rows": counts(state.content), "card_stubs": stubs}
+    return {
+        "content_sha256": expected,
+        "rows": counts(state.content),
+        "card_stubs": stubs,
+        "not_exported_rows": state.not_exported_rows,
+    }
 
 
 # -- copies at server start ---------------------------------------------------------------------
@@ -550,16 +622,20 @@ def _new_copy_path(folder: Path) -> Path:
     return folder / f"{COPY_PREFIX}{stamp}{suffix}{COPY_SUFFIX}"
 
 
+def _start_copy(store: StudioStore, data_folder: Path) -> dict[str, object]:
+    folder = data_folder / EXPORT_SUBFOLDER
+    folder.mkdir(parents=True, exist_ok=True)
+    path = _new_copy_path(folder)
+    header = export_state(store, path)
+    rotate_copies(folder)
+    return header
+
+
 def write_start_copy(store: StudioStore, data_folder: Path) -> Path:
     """One export copy in ``<data>/state-exports/``, then rotation to the last ``KEEP_COPIES``.
 
     A blocked export writes nothing and rotates nothing (``ExportBlocked``): the older copies stay."""
-    folder = data_folder / EXPORT_SUBFOLDER
-    folder.mkdir(parents=True, exist_ok=True)
-    path = _new_copy_path(folder)
-    export_state(store, path)
-    rotate_copies(folder)
-    return path
+    return Path(str(_start_copy(store, data_folder)["path"]))
 
 
 def start_copy_best_effort(data: str | Path | None) -> None:
@@ -568,10 +644,11 @@ def start_copy_best_effort(data: str | Path | None) -> None:
         folder = resolve_data_folder(data)
         store = StudioStore.open(folder)
         try:
-            path = write_start_copy(store, folder)
+            header = _start_copy(store, folder)
         finally:
             store.close()
-        print(f"Zustands-Kopie: {path}")
+        print(f"Zustands-Kopie: {header['path']}")
+        print(not_exported_line(header["not_exported_rows"]))
     except ExportBlocked as error:
         print(
             f"Zustands-Kopie nicht angelegt: {len(error.blocked)} Verweis(e) ohne oracle_id "
@@ -619,6 +696,7 @@ def run_export_command(args: argparse.Namespace) -> int:
                 _print_blocked(report.blocked)
                 return 2
             print("Export möglich: keine Verweise ohne oracle_id.")
+            print(not_exported_line(report.not_exported))
             return 0
         target = _outside_repository(Path(args.to) if args.to else folder / EXPORT_SUBFOLDER)
         if target.is_dir() or not target.suffix:
@@ -634,6 +712,7 @@ def run_export_command(args: argparse.Namespace) -> int:
             print(json.dumps(header, indent=2, ensure_ascii=False))
         else:
             print(f"{header['path']}\ncontent_sha256 {header['content_sha256']}")
+            print(not_exported_line(header["not_exported_rows"]))
         return 0
     finally:
         store.close()
@@ -664,4 +743,5 @@ def run_import_command(args: argparse.Namespace) -> int:
                 print(f"  {name}: {number}")
         if "card_stubs" in report:
             print(f"Karten-Stubs angelegt: {report['card_stubs']}")
+        print(not_exported_line(report.get("not_exported_rows")))
     return 0
