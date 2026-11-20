@@ -8,6 +8,8 @@ five- or six-seat series lifts it in memory only (``monkeypatch``). The bridge i
 from __future__ import annotations
 
 import json
+import shutil
+import subprocess
 import time
 from collections import Counter
 from pathlib import Path
@@ -481,3 +483,252 @@ def test_five_and_six_seat_games_of_one_stand_land_in_their_own_strata(tmp_path:
     assert table["status"] == "NOT_POOLED" and table["cards"] == []
     assert table["pooling"].get("differing_axis") == "table_size"
     assert table["games_total"] == 15
+
+
+# -- the series dialog (paired.js) under node with a DOM stand-in -----------------------------
+# Release only in memory (the constant line of the page and the lock of the server); no browser.
+
+STATIC = Path(__file__).resolve().parents[2] / "src/commander_lab/studio/static"
+
+_PAIRED_HARNESS = r"""
+const StudioUI = { num: (v, d = 0) => Number(v).toLocaleString('de-DE', { minimumFractionDigits: d, maximumFractionDigits: d }) };
+function loadPaired(release) {
+  let src = fs.readFileSync('paired.js', 'utf8');
+  if (release) {
+    const locked = 'const PAIRED_RELEASED_SEATS = 4;';
+    if (!src.includes(locked)) throw new Error('lock line changed');
+    src = src.replace(locked, 'const PAIRED_RELEASED_SEATS = 6;');
+  }
+  return new Function('document', 'StudioUI', src + '\n;return {renderPairedComparisonSection, estimatePairedText, pairedMonitorTableText, pairedTableOptions, pairedBudgetOptions};')(document, StudioUI);
+}
+function h(tag, props, ...children) {
+  const el = document.createElement(tag);
+  for (const [key, value] of Object.entries(props || {})) {
+    if (value === null || value === undefined || value === false) continue;
+    if (key === 'class') el.className = value;
+    else if (key.startsWith('on')) el.addEventListener(key.slice(2), value);
+    else if (key === 'dataset') Object.assign(el.dataset, value);
+    else if (key in el && key !== 'list') el[key] = value;
+    else el.setAttribute(key, value);
+  }
+  for (const child of children.flat()) {
+    if (child === null || child === undefined || child === false) continue;
+    el.append(child.nodeType ? child : document.createTextNode(String(child)));
+  }
+  return el;
+}
+const flush = () => new Promise((r) => setImmediate(r));
+function mount(release, plans, failing) {
+  const paired = loadPaired(release);
+  const body = new El('div');
+  const calls = [], toasts = [];
+  const deps = {
+    h, token: () => 1, isCurrent: () => true, toast: (t) => toasts.push(t),
+    fail: (e, asText) => (asText ? e.message : e.message),
+    api: async (path, method, payload) => {
+      calls.push({ path, method: method || 'GET', payload });
+      if (method === 'POST') return { series_id: 'paired-x' };
+      if (path.startsWith('/api/simulations/paired-plan?')) {
+        if (failing && path.includes(failing.match)) throw new Error(failing.text);
+        const q = Object.fromEntries(new URLSearchParams(path.split('?')[1]));
+        const key = [q.table_size, q.budget_pairs, q.rotate_seats, q.pod].join('|');
+        if (!(key in plans)) throw new Error('no stored plan for ' + key);
+        return plans[key];
+      }
+      return {};
+    },
+    currentRevision: () => 'rev@one', commanderQuery: '', decks: () => [], currentDeckId: () => null,
+    activePaired: () => null, setActivePaired() {}, pairedHistory: () => [], readinessAudit: () => null,
+    setReadinessAudit() {}, pollPaired() {}, entries: () => [], commander: ['x'], poolCardById: () => null, openCard() {},
+  };
+  paired.renderPairedComparisonSection(body, deps);
+  const byId = (id) => body.all().find((n) => n.id === id);
+  return { paired, body, byId, calls, toasts };
+}
+function opts(select) { return select.children.filter((c) => c.tagName === 'OPTION').map((o) => ({ value: o.value || o.attrs.value, text: o.textContent })); }
+async function pick(page, id, value) { const el = page.byId(id); el.value = String(value); el.fire('change'); await flush(); }
+"""
+
+
+def _paired_node(script: str, plans: dict[str, object], *, release: bool = False) -> object:
+    from tests.unit.test_seats_5_6_part_a_1661 import _DOM
+
+    node = shutil.which("node")
+    if node is None:
+        pytest.skip("node is not installed")  # NOT_RUN, never PASS
+    prelude = (
+        f"const PLANS = {json.dumps(plans)}; const RELEASE = {json.dumps(release)};\n"
+        + _PAIRED_HARNESS
+    )
+    done = subprocess.run(
+        [node, "-e", _DOM + prelude + f"(async () => {{ {script} }})();"],
+        capture_output=True,
+        text=True,
+        check=True,
+        cwd=STATIC,
+        timeout=60,
+    )
+    return json.loads(done.stdout)
+
+
+def _plans(
+    client: TestClient, combos: list[tuple[int, int, bool, str]]
+) -> dict[str, object]:
+    plans: dict[str, object] = {}
+    for seats, budget, rotate, pod in combos:
+        url = (
+            f"/api/simulations/paired-plan?budget_pairs={budget}&table_size={seats}"
+            f"&rotate_seats={'true' if rotate else 'false'}&pod={pod}"
+        )
+        res = client.get(url, headers=HEADERS)
+        assert res.status_code == 200, res.text
+        plans[f"{seats}|{budget}|{'true' if rotate else 'false'}|{pod}"] = res.json()
+    return plans
+
+
+def test_series_dialog_offers_two_to_six_seats_locks_five_and_six_and_says_why(
+    lab: dict[str, object],
+) -> None:
+    client = lab["client"]
+    assert isinstance(client, TestClient)
+    plans = _plans(client, [(4, 40, True, "precon"), (6, 36, True, "precon"), (6, 40, True, "precon")])
+    out = _paired_node(
+        """
+const page = mount(RELEASE, PLANS);
+await flush();
+const first = { sizes: opts(page.byId('paired-table-size-select')), note: page.byId('paired-table-note').textContent,
+  rotate: page.byId('paired-rotate-text').textContent, disabled: page.byId('paired-start-btn').disabled,
+  budget: page.byId('paired-budget-select').value, url: page.calls.map((c) => c.path)[0] };
+await pick(page, 'paired-table-size-select', 6);
+const six = { rotate: page.byId('paired-rotate-text').textContent, disabled: page.byId('paired-start-btn').disabled,
+  budgets: opts(page.byId('paired-budget-select')), budget: page.byId('paired-budget-select').value,
+  plan: page.byId('paired-plan').textContent, estimate: page.byId('paired-estimate').textContent };
+page.byId('paired-start-btn').parent.fire('submit');
+await flush();
+await pick(page, 'paired-budget-select', 40);
+const sixIncomplete = page.byId('paired-plan').textContent;
+console.log(JSON.stringify({ first, six, sixIncomplete, posts: page.calls.filter((c) => c.method === 'POST').length, toasts: page.toasts }));
+""",
+        plans,
+    )
+    assert isinstance(out, dict)
+    first, six = out["first"], out["six"]
+    assert [o["text"] for o in first["sizes"]] == [
+        "2 Sitze",
+        "3 Sitze",
+        "4 Sitze",
+        "5 Sitze (nicht freigegeben)",
+        "6 Sitze (nicht freigegeben)",
+    ]
+    assert "5 und 6 Sitze sind nicht freigegeben" in first["note"]
+    assert first["rotate"] == "Sitze 1–4 rotieren" and first["disabled"] is False
+    assert first["budget"] == "40"
+    assert first["url"] == (
+        "/api/simulations/paired-plan?budget_pairs=40&table_size=4&rotate_seats=true&pod=precon"
+    )
+    # six seats: plannable, not startable
+    assert six["rotate"] == "Sitze 1–6 rotieren" and six["disabled"] is True
+    values = [o["value"] for o in six["budgets"]]
+    assert {"36", "72", "144"} <= set(values) and six["budget"] == "36"
+    assert "Tisch mit 6 Sitzen" in six["plan"]
+    assert "36 Paare, also 36 Partien je Arm" in six["plan"]
+    assert "Rotation vollständig: 1 Block" in six["plan"]
+    assert "Aufwand: bis zu 72 Partien (36 je Arm)" in six["plan"]
+    opponents = ", ".join(launch.pod_opponent_ids("precon", 5))
+    assert f"Gegner (Sitz 2 bis 6): {opponents}" in six["plan"]
+    assert "Tische mit 6 Sitzen sind nicht freigegeben" in six["plan"]  # the server's own text
+    est = six["estimate"]
+    assert est.startswith("Dauer: unbekannt (UNKNOWN)") and "n = 0 Partien" in est
+    assert "bis zu 72 Partien (36 je Arm)" in est and "mindestens" not in est
+    # a locked table never posts
+    assert out["posts"] == 0 and any("nicht freigegeben" in t for t in out["toasts"])
+    assert "Rotation unvollständig: 1 volle Blöcke plus 4 Paare" in out["sixIncomplete"]
+
+
+def test_series_dialog_posts_the_table_size_only_when_released_and_not_the_usual_four(
+    lab: dict[str, object], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(launch, "MAX_RELEASED_SEATS", 6)  # the server lock, in memory
+    client = lab["client"]
+    assert isinstance(client, TestClient)
+    plans = _plans(client, [(4, 40, True, "precon"), (5, 25, True, "precon")])
+    out = _paired_node(
+        """
+const page = mount(RELEASE, PLANS);
+await flush();
+page.byId('paired-base-select').value = 'rev@base';
+page.byId('paired-variant-select').value = 'rev@one';
+const form = page.byId('paired-start-btn').parent;
+form.fire('submit'); await flush();
+await pick(page, 'paired-table-size-select', 5);
+const five = { disabled: page.byId('paired-start-btn').disabled, plan: page.byId('paired-plan').textContent };
+form.fire('submit'); await flush();
+console.log(JSON.stringify({ five, posts: page.calls.filter((c) => c.method === 'POST').map((c) => c.payload) }));
+""",
+        plans,
+        release=True,
+    )
+    assert isinstance(out, dict)
+    assert out["five"]["disabled"] is False
+    assert "nicht freigegeben" not in out["five"]["plan"]  # released: the server says no lock text
+    four, five = out["posts"]
+    assert "table_size" not in four and four["pod"] == "precon" and four["budget_pairs"] == 40
+    assert five["table_size"] == 5 and five["budget_pairs"] == 25 and five["rotate_seats"] is True
+
+
+def test_series_dialog_shows_the_servers_refusal_instead_of_a_plan(lab: dict[str, object]) -> None:
+    client = lab["client"]
+    assert isinstance(client, TestClient)
+    plans = _plans(client, [(4, 40, True, "precon")])
+    out = _paired_node(
+        """
+const page = mount(RELEASE, PLANS, { match: 'table_size=5', text: 'Der Gegnertisch mixed nennt nur 3 Decks' });
+await flush();
+await pick(page, 'paired-table-size-select', 5);
+console.log(JSON.stringify({ plan: page.byId('paired-plan').textContent }));
+""",
+        plans,
+    )
+    assert isinstance(out, dict)
+    assert out["plan"] == "Planung nicht verfügbar (unbekannt): Der Gegnertisch mixed nennt nur 3 Decks"
+
+
+def test_series_dialog_duration_is_measured_for_four_seats_only_and_monitor_names_the_table() -> (
+    None
+):
+    out = _paired_node(
+        """
+const p = loadPaired(false);
+console.log(JSON.stringify({
+  four: p.estimatePairedText(40, 4), fourDefault: p.estimatePairedText(40, 4, 4),
+  five: p.estimatePairedText(25, 4, 5), two: p.estimatePairedText(10, 4, 2),
+  mon5: p.pairedMonitorTableText({ seed_plan: { player_count: 5 }, tested_seats: [0, 1, 2, 3, 4] }),
+  monOld: p.pairedMonitorTableText({}),
+  opts: p.pairedTableOptions().map((o) => [o.seats, o.locked]),
+  b5: p.pairedBudgetOptions(5, true).map((o) => o.value), b4: p.pairedBudgetOptions(4, true).map((o) => o.value),
+}));
+""",
+        {},
+    )
+    assert isinstance(out, dict)
+    assert out["four"].startswith("Dauer: mindestens ~8,9 min für bis zu 80 Partien")
+    assert out["fourDefault"] == out["four"]
+    for key, games in (("five", "50"), ("two", "20")):
+        assert out[key].startswith("Dauer: unbekannt (UNKNOWN)")
+        assert f"bis zu {games} Partien" in out[key] and "mindestens" not in out[key]
+    assert out["mon5"] == "Tisch: 5 Sitze, getestete Sitze: 5."
+    assert out["monOld"] == "Tisch: Sitzzahl unbekannt (ältere Serie)."
+    assert out["opts"] == [[2, False], [3, False], [4, False], [5, True], [6, True]]
+    assert out["b5"] == [20, 25, 40, 50, 60, 100, 200] and out["b4"] == [16, 20, 32, 40, 60, 64, 100, 200]
+
+
+def test_series_dialog_lock_line_follows_the_server_constant_and_the_script_stays_clean() -> None:
+    import re
+
+    js = (STATIC / "paired.js").read_text(encoding="utf-8")
+    declared = re.search(r"const PAIRED_RELEASED_SEATS = (\d+);", js)
+    assert declared is not None and int(declared.group(1)) == launch.MAX_RELEASED_SEATS
+    assert re.search(r"const PAIRED_MIN_SEATS = (\d+);", js).group(1) == str(launch.MIN_SEATS)  # type: ignore[union-attr]
+    assert re.search(r"const PAIRED_MAX_SEATS = (\d+);", js).group(1) == str(launch.MAX_SEATS)  # type: ignore[union-attr]
+    for banned in (".innerHTML", ".outerHTML", "eval(", ".toFixed(", "style:", "style =", "style="):
+        assert banned not in js, banned
