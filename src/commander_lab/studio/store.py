@@ -785,6 +785,19 @@ def _migrate_schema_18(connection: sqlite3.Connection) -> None:
     connection.commit()
 
 
+# The deck state a simulation series played (#1657): nullable, added on every open without a
+# schema bump (schema 22 is reserved for the file split, E15 Q9). Rows written before stay NULL,
+# which reads as "Stand unbekannt"; nothing is backfilled.
+SIMULATION_RUN_STATE_COLUMNS = ("revision_id", "deck_hash")
+
+
+def _ensure_simulation_run_state_columns(connection: sqlite3.Connection) -> None:
+    columns = {str(row["name"]) for row in connection.execute("PRAGMA table_info(simulation_run)")}
+    for column in SIMULATION_RUN_STATE_COLUMNS:
+        if column not in columns:
+            connection.execute(f"ALTER TABLE simulation_run ADD COLUMN {column} TEXT")
+
+
 # True inside the corpus_deck binding trigger when the new deck already has a commander
 # section that does not name the commander of the running import.
 _NAMES_OTHER_COMMANDER = (
@@ -859,6 +872,7 @@ class StudioStore:
             connection.execute(
                 "UPDATE meta SET value = ? WHERE key = 'schema_version'", (str(SCHEMA_VERSION),)
             )
+        _ensure_simulation_run_state_columns(connection)
         connection.commit()
         return connection
 

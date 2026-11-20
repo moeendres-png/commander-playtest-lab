@@ -698,14 +698,16 @@ def save_batch_to_store(
     with store.connection as db:
         db.execute("DELETE FROM simulation_card WHERE run_id = ?", (run_id,))
         db.execute(
-            "INSERT OR REPLACE INTO simulation_run(run_id, deck_id, pod, engine_pin, "
-            "bridge_jar_sha256, bridge_qualification_state, "
+            "INSERT OR REPLACE INTO simulation_run(run_id, deck_id, revision_id, deck_hash, "
+            "pod, engine_pin, bridge_jar_sha256, bridge_qualification_state, "
             "pilot_policy, seeds, games_planned, games_completed, games_failed, "
             "wins_fractional, win_rate, mean_rounds, hand_dwell_status, source_id) "
-            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             (
                 run_id,
                 batch.deck_id,
+                batch.revision_id or None,
+                getattr(batch, "deck_hash", None),
                 batch.pod_name,
                 engine_pin,
                 bridge_jar_sha256,
@@ -825,6 +827,9 @@ class BatchSimulation:
         self.bridge_qualification: dict[str, object] = (
             dict(qualification) if qualification is not None else bridge_qualification()
         )
+        # The deck state the series plays (#1657): the seat's ``deck_hash`` of the game log
+        # header, set from the own deck snapshot in ``run_worker``; None reads "Stand unbekannt".
+        self.deck_hash: str | None = None
 
         # Track completed vs remaining seeds for resumable execution
         self._games: list[GameSummary] = list(initial_games or [])
@@ -1058,6 +1063,10 @@ class BatchSimulation:
         own_deck_path: Path | None = None,
     ) -> None:
         """Main execution loop running in a background thread."""
+        if own_deck_path is not None:
+            from .play import snapshot_deck_hash
+
+            self.deck_hash = snapshot_deck_hash(own_deck_path)
         self.started_at = self.started_at or now_utc()
         self.status = "running"
 

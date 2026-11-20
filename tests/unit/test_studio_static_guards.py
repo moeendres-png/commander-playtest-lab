@@ -1428,6 +1428,69 @@ const emptyPayload = {json.dumps(empty_payload)};
     assert r["zeroRatio"] == "unbekannt"
 
 
+def test_kartenauswertung_names_deck_states_strata_and_the_unknown_stand() -> None:
+    """#1657: the page shows each deck state (hash), the strata count of the stratified table
+    and "Stand unbekannt" with its own n; a not-pooled answer shows no combined row."""
+    from commander_lab.studio.card_outcomes import stand_tables
+    from tests.unit.test_studio_card_outcomes import STATE_A, _simpson, _stated
+
+    a, b = _simpson()
+    old = _stated([(["A"], i < 4) for i in range(7)] + [(["F"], False)] * 5, None, prefix="o")
+    pooled = stand_tables([*a, *b, *old], deck_id="deck/a", min_exposed=5)
+    b_pod = _stated([(["A"], i < 5) for i in range(20)], STATE_A[::-1], prefix="p", opponent="x")
+    not_pooled = stand_tables([*a, *b_pod], deck_id="deck/a", min_exposed=5)
+    script = f"""
+global.StudioUI = {{
+  num: (n, d = 0) => Number(n).toFixed(d).replace('.', ','),
+  pct: (r) => `${{(Number(r) * 100).toFixed(1).replace('.', ',')}} %`,
+  kids: (...a) => a.flat(Infinity).filter((x) => x !== null && x !== undefined && x !== false),
+}};
+const mod = require('./kartenauswertung.js');
+const textOf = (node) => {{
+  if (node === null || node === undefined) return '';
+  if (typeof node === 'string' || typeof node === 'number') return String(node);
+  if (Array.isArray(node)) return node.map(textOf).join('');
+  return (node.kids || []).map(textOf).join(' ');
+}};
+const count = (node, tag) => {{
+  if (!node || typeof node !== 'object') return 0;
+  if (Array.isArray(node)) return node.reduce((n, k) => n + count(k, tag), 0);
+  return (node.tag === tag ? 1 : 0) + count(node.kids || [], tag);
+}};
+const h = (tag, attrs, ...kids) => ({{ tag, attrs: attrs || {{}}, kids: kids.flat(Infinity) }});
+const slot = {{ children: [], replaceChildren(...kids) {{ this.children = kids; }} }};
+const render = async (payload) => {{
+  await mod.renderCardOutcomes(slot, {{
+    h, deckId: 'deck/a', baseRevision: 'deck/a@aaaa', dirty: false,
+    api: async (url) => (url === '/api/outcomes/decks' ? {{ decks: [] }} : payload),
+  }});
+  return {{ text: textOf(slot.children), details: count(slot.children, 'details'),
+            tables: count(slot.children, 'table') }};
+}};
+(async () => {{
+  const pooled = await render({json.dumps(pooled)});
+  const notPooled = await render({json.dumps(not_pooled)});
+  console.log(JSON.stringify({{ pooled, notPooled }}));
+}})();
+"""
+    r = _node_json(script)
+    assert isinstance(r, dict)
+    text = r["pooled"]["text"]
+    assert "2 Deck-Stände geschichtet" in text
+    assert "Schichten (Deck-Stände): 2" in text
+    assert "Stand unbekannt: 12 Partien (getrennt gezählt, nie addiert)" in text
+    assert "geschichtet über 2 Deck-Stände" in text
+    assert "Anteil nur je Deck-Stand" in text
+    assert f"Deck-Stand {STATE_A[:12]}…" in text
+    assert "deck/a@aaaa" in text
+    assert r["pooled"]["details"] == 3  # two known states and "Stand unbekannt"
+    assert r["pooled"]["tables"] == 4  # the stratified table and one per state
+    nt = r["notPooled"]["text"]
+    assert "nicht zusammengeführt" in nt and "pod sets" in nt
+    assert "geschichtet über" not in nt
+    assert r["notPooled"]["details"] == 2 and r["notPooled"]["tables"] == 2
+
+
 def test_static_files_send_cache_control_no_cache_and_keep_security_headers(tmp_path: Path) -> None:
     from fastapi.testclient import TestClient
 

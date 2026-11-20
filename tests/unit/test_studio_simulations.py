@@ -13,13 +13,16 @@ Verifies:
 from __future__ import annotations
 
 import json
+import re
+import sqlite3
 import time
 from pathlib import Path
 
 import pytest
 from starlette.testclient import TestClient
 
-from commander_lab.studio import builder, games
+from commander_lab.studio import builder, games, play
+from commander_lab.studio import store as store_module
 from commander_lab.studio.decks import RevisionCard, create_revision
 from commander_lab.studio.simulations import (
     GameSummary,
@@ -286,6 +289,10 @@ def test_save_batch_to_store(tmp_path: Path) -> None:
         assert run["wins_fractional"] == 2.0
         assert run["win_rate"] == 0.5
         assert run["mean_rounds"] == 10.0
+        # #1657: the revision the series played; this 37-card test deck cannot be loaded as a
+        # Commander deck, so its played deck state is unknown (NULL), never guessed
+        assert run["revision_id"] == rev_id
+        assert run["deck_hash"] is None
 
         # Verify list_simulations readback
         # the series is bound to the commander of the deck revision it played
@@ -471,3 +478,95 @@ def test_compare_decks_cli_rejects_five_and_six_seats_by_default(
         argv_opt.extend(["--opponent", str(tmp_path / f"opp{idx}.json")])
     with pytest.raises(FileNotFoundError):
         studio_main(argv_opt)
+
+
+# --- deck state of a series (#1657) ------------------------------------------------------
+
+
+def _wait(batch: object) -> None:
+    deadline = time.monotonic() + 5.0
+    while batch.status in {"pending", "running"} and time.monotonic() < deadline:
+        time.sleep(0.05)
+
+
+def test_save_batch_to_store_records_the_revision_and_deck_state(tmp_path: Path) -> None:
+    store = StudioStore.open(tmp_path)
+    try:
+        _seed_test_deck(store)
+        rev_id = create_revision(
+            store,
+            deck_id="chulane",
+            name="Test Chulane Deck",
+            cards=[
+                RevisionCard("c_chulane", 1, "commander"),
+                RevisionCard("c_sol_ring", 1, "main"),
+                RevisionCard("c_forest", 98, "main"),
+            ],
+        )
+
+        def executor(**kwargs: object) -> dict[str, object]:
+            return {"status": "finished", "winner_seats": [0], "decision_count": 5, "rounds": 3}
+
+        batch = SimulationBatchManager().start_batch(
+            store,
+            tmp_path,
+            revision_id=rev_id,
+            pod="precon",
+            games_count=2,
+            base_seed=7,
+            game_executor=executor,
+        )
+        _wait(batch)
+        assert batch.status == "completed" and batch.run_id is not None
+        run = store.connection.execute(
+            "SELECT revision_id, deck_hash FROM simulation_run WHERE run_id = ?", (batch.run_id,)
+        ).fetchone()
+        own = games.games_folder(tmp_path) / "decks" / (rev_id.replace("@", "-") + ".json")
+        assert run["revision_id"] == rev_id
+        # the hash the game log headers name for this snapshot (``play.load_decks``)
+        assert re.fullmatch(r"[0-9a-f]{64}", str(run["deck_hash"]))
+        assert run["deck_hash"] == play.snapshot_deck_hash(own)
+    finally:
+        store.close()
+
+
+def test_schema_21_store_without_state_columns_gains_them_and_stays_21(tmp_path: Path) -> None:
+    """A schema-21 store of before #1657: the columns are added, old rows stay NULL."""
+    path = tmp_path / store_module.DATABASE_NAME
+    raw = sqlite3.connect(path)
+    raw.executescript(store_module._SCHEMA)
+    columns = {row[1] for row in raw.execute("PRAGMA table_info(simulation_run)")}
+    assert not columns & {"revision_id", "deck_hash"}  # the fixture is the old layout
+    raw.execute("INSERT INTO meta(key, value) VALUES ('schema_version', '21')")
+    raw.execute(
+        "INSERT INTO source(source_id, data_class, title, sha256, imported_at) "
+        "VALUES ('src:old', 'SIMULATED_RESULT', 'old', ?, '2026-01-01T00:00:00Z')",
+        ("0" * 64,),
+    )
+    raw.execute(
+        "INSERT INTO simulation_run(run_id, deck_id, pod, engine_pin, pilot_policy, seeds, "
+        "games_planned, games_completed, games_failed, wins_fractional, hand_dwell_status, "
+        "source_id) VALUES ('old-run', 'chulane', 'precon', 'pin', 'p', '[]', 1, 1, 0, 1.0, "
+        "'NOT_MEASURED', 'src:old')"
+    )
+    raw.commit()
+    raw.close()
+    assert store_module.SCHEMA_VERSION == 21
+    for _ in range(2):  # the second open finds the columns and changes nothing
+        store = StudioStore.open(tmp_path)
+        try:
+            columns = [
+                str(row["name"])
+                for row in store.connection.execute("PRAGMA table_info(simulation_run)")
+            ]
+            assert columns.count("revision_id") == 1 and columns.count("deck_hash") == 1
+            version = store.connection.execute(
+                "SELECT value FROM meta WHERE key = 'schema_version'"
+            ).fetchone()
+            assert version["value"] == "21"
+            old = store.connection.execute(
+                "SELECT revision_id, deck_hash FROM simulation_run WHERE run_id = 'old-run'"
+            ).fetchone()
+            assert (old["revision_id"], old["deck_hash"]) == (None, None)
+        finally:
+            store.close()

@@ -4,6 +4,8 @@
 // mixed with usage/tournament figures and never part of the tier list (weight 0).
 // DOM only through h() and text nodes; numbers only through StudioUI.num / StudioUI.pct.
 // Rendered by app.js (Simulation tab) through renderCardOutcomes(slot, deps).
+// Per deck state (#1657): the answer names its known stands (deck_hash) and "Stand unbekannt"
+// apart; several stands are only shown stratified (strata = number of stands), never added.
 
 const OUTCOMES_CARD_ORDER = { MEASURED: 0, INSUFFICIENT_SAMPLE: 1 };
 
@@ -39,6 +41,33 @@ const outcomesRatio = (wins, games) => {
 
 const outcomesInt = (value) => (typeof value === "number" ? StudioUI.num(value, 0) : "unbekannt");
 
+const outcomesShortHash = (value) =>
+  typeof value === "string" && value ? (value.length > 12 ? `${value.slice(0, 12)}…` : value) : "unbekannt";
+
+// The label of an answer that carries deck states (schema 2): which stand(s) the top table is.
+function outcomesStandLabel(data, baseRevision) {
+  const stands = Array.isArray(data.stands) ? data.stands : [];
+  const current = (stand) => Array.isArray(stand.revision_ids) && baseRevision && stand.revision_ids.includes(baseRevision);
+  if (!stands.length) return "kein Deck-Stand bekannt (alle Partien: Stand unbekannt)";
+  if (stands.length === 1) {
+    return `Deck-Stand (Hash): ${outcomesShortHash(stands[0].deck_hash)}${current(stands[0]) ? " (gewählter Stand)" : ""}`;
+  }
+  const pooled = data.pooling && data.pooling.status === "POOLED";
+  return `${StudioUI.num(stands.length, 0)} Deck-Stände ${pooled ? "geschichtet (je Stand eigene Differenz, gewichtet zusammengeführt)" : "nicht zusammengeführt"}`;
+}
+
+function outcomesStandNote(h, data) {
+  const unknown = data.unknown_stand;
+  const unknownText = unknown && typeof unknown.games_total === "number"
+    ? `Stand unbekannt: ${outcomesInt(unknown.games_total)} Partien (getrennt gezählt, nie addiert)`
+    : "Stand unbekannt: keine Partien";
+  const pooling = data.pooling || {};
+  const parts = [`Schichten (Deck-Stände): ${outcomesInt(data.strata)}`, unknownText];
+  if (pooling.reason) parts.push(`Nicht zusammengeführt: ${pooling.reason}`);
+  if (pooling.method) parts.push(`Verfahren: ${pooling.method}`);
+  return h("p", { class: "muted" }, parts.join(" · "));
+}
+
 const outcomesQueryLabel = (queryId, baseRevision, revHash) =>
   baseRevision && queryId === baseRevision
     ? `Deck-Stand (Hash): ${revHash}`
@@ -49,6 +78,8 @@ function outcomesCardRow(h, card, deps) {
   const reasonText = card && card.status === "INSUFFICIENT_SAMPLE"
     ? (card.reason || "zu wenig Daten")
     : "unbekannter Status (zu wenig Daten)";
+  // A row over several deck states (#1657): counts are sums, rates exist only per stand.
+  const pooledRow = card && typeof card.strata === "number";
 
   let diffCell;
   if (!isMeasured) {
@@ -62,22 +93,60 @@ function outcomesCardRow(h, card, deps) {
     diffCell = h("div", {},
       h("div", {}, outcomesPp(card.difference_pp)),
       h("div", { class: "muted" }, `95 %-Intervall: ${outcomesPpInterval(ci)}`),
+      pooledRow ? h("div", { class: "muted" }, `geschichtet über ${StudioUI.num(card.strata, 0)} Deck-Stände`) : null,
       includesZero ? h("div", { class: "muted" }, `kein Unterschied nachweisbar bei n=${StudioUI.num(totalN, 0)}`) : null);
   }
 
-  const inCell = !isMeasured
-    ? h("div", {}, h("div", {}, outcomesRatio(card.wins_in_first_hand, card.games_in_first_hand)), h("div", { class: "muted" }, "zu wenig Daten"))
-    : h("div", {}, h("div", {}, outcomesRatio(card.wins_in_first_hand, card.games_in_first_hand)), h("div", { class: "muted" }, outcomesPctInterval(card.rate_in, card.rate_in_ci95)));
-
-  const notCell = !isMeasured
-    ? h("div", {}, h("div", {}, outcomesRatio(card.wins_not_in_first_hand, card.games_not_in_first_hand)), h("div", { class: "muted" }, "zu wenig Daten"))
-    : h("div", {}, h("div", {}, outcomesRatio(card.wins_not_in_first_hand, card.games_not_in_first_hand)), h("div", { class: "muted" }, outcomesPctInterval(card.rate_not, card.rate_not_ci95)));
+  const rateNote = (rate, ci) => {
+    if (!isMeasured) return "zu wenig Daten";
+    if (pooledRow) return "Anteil nur je Deck-Stand";
+    return outcomesPctInterval(rate, ci);
+  };
+  const inCell = h("div", {},
+    h("div", {}, outcomesRatio(card.wins_in_first_hand, card.games_in_first_hand)),
+    h("div", { class: "muted" }, rateNote(card.rate_in, card.rate_in_ci95)));
+  const notCell = h("div", {},
+    h("div", {}, outcomesRatio(card.wins_not_in_first_hand, card.games_not_in_first_hand)),
+    h("div", { class: "muted" }, rateNote(card.rate_not, card.rate_not_ci95)));
 
   const nameNode = deps.openCard
     ? h("button", { type: "button", class: "ghost", onclick: () => deps.openCard(card.card) }, card.card)
     : card.card;
 
   return h("tr", {}, h("td", {}, nameNode), h("td", {}, inCell), h("td", {}, notCell), h("td", {}, diffCell));
+}
+
+function outcomesCardTable(h, cards, deps, caption) {
+  const sorted = cards.slice().sort((a, b) => {
+    const oa = OUTCOMES_CARD_ORDER[a.status] ?? 9;
+    const ob = OUTCOMES_CARD_ORDER[b.status] ?? 9;
+    return oa !== ob ? oa - ob : String(a.card).localeCompare(String(b.card));
+  });
+  return h("div", { class: "table-wrap deck-series-scroll" }, h("table", {},
+    h("caption", { class: "visually-hidden" }, caption),
+    h("thead", {}, h("tr", {},
+      h("th", { scope: "col" }, "Karte"),
+      h("th", { scope: "col" }, "In Starthand (Siege inkl. Remis / n)"),
+      h("th", { scope: "col" }, "Nicht in Starthand (Siege inkl. Remis / n)"),
+      h("th", { scope: "col" }, "Differenz & 95 %-Intervall"))),
+    h("tbody", {}, sorted.map((card) => outcomesCardRow(h, card, deps)))));
+}
+
+// One deck state as its own section: its hash (or "Stand unbekannt"), its own n/N and table.
+function outcomesStandSection(h, stand, deps) {
+  const known = typeof stand.deck_hash === "string" && stand.deck_hash;
+  const revisions = Array.isArray(stand.revision_ids) && stand.revision_ids.length ? stand.revision_ids.join(", ") : "unbekannt";
+  const head = known
+    ? `Deck-Stand ${outcomesShortHash(stand.deck_hash)} · ${outcomesInt(stand.games_total)} Partien · Stände im Deckbauer: ${revisions}`
+    : `Stand unbekannt (Partien ohne Deck-Hash im Protokoll) · ${outcomesInt(stand.games_total)} Partien · nie zu einem bekannten Stand addiert`;
+  const cards = Array.isArray(stand.cards) ? stand.cards : [];
+  return h("details", {},
+    h("summary", {}, head),
+    h("p", { class: "muted" },
+      `Partien: ${outcomesInt(stand.games_total)} ausgewertet, ohne Starthand: ${outcomesInt(stand.seats_without_opening_hand)} · Seeds: ${outcomesInt(stand.seeds)}`),
+    cards.length
+      ? outcomesCardTable(h, cards, deps, `Karten-Auswertung eines Deck-Stands (${known ? outcomesShortHash(stand.deck_hash) : "Stand unbekannt"})`)
+      : h("p", { class: "muted" }, "Keine Partien mit Starthand-Daten (zu wenig Daten, nicht 0)."));
 }
 
 function outcomesMetadataNodes(h, data, queryLabel) {
@@ -157,31 +226,35 @@ async function renderCardOutcomes(slot, deps) {
   const dirtyNote = deps.dirty
     ? h("p", { class: "note note-compact" }, "Hinweis: Der aktuelle Entwurf hat ungespeicherte Änderungen; die Auswertung bezieht sich nur auf den gespeicherten Stand.")
     : null;
-  const meta = outcomesMetadataNodes(h, data, queryLabel);
+  // Schema 2 (#1657) names its deck states; an answer without them keeps the old label.
+  const perStand = Array.isArray(data.stands);
+  const label = perStand ? `über Deck-ID ${queryId || "unbekannt"} · ${outcomesStandLabel(data, deps.baseRevision)}` : queryLabel;
+  const meta = outcomesMetadataNodes(h, data, label);
+  const standNote = perStand ? outcomesStandNote(h, data) : null;
+  const sections = [];
+  if (perStand) {
+    if (data.stands.length > 1) data.stands.forEach((stand) => sections.push(outcomesStandSection(h, stand, deps)));
+    if (data.unknown_stand) sections.push(outcomesStandSection(h, data.unknown_stand, deps));
+  }
 
-  if (data.status === "NO_GAMES" || !Array.isArray(data.cards) || !data.cards.length) {
+  if (data.status === "NOT_POOLED") {
     slot.replaceChildren(...StudioUI.kids(
-      h("h3", {}, title), fixedNote, dirtyNote, ...meta,
-      h("p", { class: "muted" }, `Für ${queryLabel} liegen noch keine abgeschlossenen Partien mit Starthand-Daten vor (zu wenig Daten, nicht 0).`)));
+      h("h3", {}, title), fixedNote, dirtyNote, ...meta, standNote,
+      h("p", { class: "muted" }, "Die Deck-Stände werden nicht zusammengeführt (siehe Grund); jeder Stand steht unten mit eigener Zahl."),
+      ...sections));
     return;
   }
 
-  const cards = data.cards.slice().sort((a, b) => {
-    const oa = OUTCOMES_CARD_ORDER[a.status] ?? 9;
-    const ob = OUTCOMES_CARD_ORDER[b.status] ?? 9;
-    return oa !== ob ? oa - ob : String(a.card).localeCompare(String(b.card));
-  });
+  if (data.status === "NO_GAMES" || !Array.isArray(data.cards) || !data.cards.length) {
+    slot.replaceChildren(...StudioUI.kids(
+      h("h3", {}, title), fixedNote, dirtyNote, ...meta, standNote,
+      h("p", { class: "muted" }, `Für ${label} liegen noch keine abgeschlossenen Partien mit Starthand-Daten vor (zu wenig Daten, nicht 0).`),
+      ...sections));
+    return;
+  }
 
-  const table = h("div", { class: "table-wrap deck-series-scroll" }, h("table", {},
-    h("caption", { class: "visually-hidden" }, "Karten-Auswertung aus simulierten Partien (Starthand gegen nicht in Starthand)"),
-    h("thead", {}, h("tr", {},
-      h("th", { scope: "col" }, "Karte"),
-      h("th", { scope: "col" }, "In Starthand (Siege inkl. Remis / n)"),
-      h("th", { scope: "col" }, "Nicht in Starthand (Siege inkl. Remis / n)"),
-      h("th", { scope: "col" }, "Differenz & 95 %-Intervall"))),
-    h("tbody", {}, cards.map((card) => outcomesCardRow(h, card, deps)))));
-
-  slot.replaceChildren(...StudioUI.kids(h("h3", {}, title), fixedNote, dirtyNote, ...meta, table));
+  const table = outcomesCardTable(h, data.cards, deps, "Karten-Auswertung aus simulierten Partien (Starthand gegen nicht in Starthand)");
+  slot.replaceChildren(...StudioUI.kids(h("h3", {}, title), fixedNote, dirtyNote, ...meta, standNote, table, ...sections));
 }
 
 if (typeof module !== "undefined" && module.exports) {
@@ -191,6 +264,8 @@ if (typeof module !== "undefined" && module.exports) {
     outcomesPpInterval,
     outcomesPctInterval,
     outcomesRatio,
+    outcomesShortHash,
+    outcomesStandLabel,
     renderCardOutcomes,
   };
 }
