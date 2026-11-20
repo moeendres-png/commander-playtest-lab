@@ -109,6 +109,7 @@ def _write_outcome_log(
     qual_state: str | None,
     covered: bool,
     commit: str = "f" * 40,
+    with_deck_hash: bool = True,
 ) -> Path:
     path = folder / f"{game_id}.jsonl.gz"
     header: dict[str, object] = {
@@ -119,9 +120,12 @@ def _write_outcome_log(
         "engine_commit": commit,
         "pilot": "GenericCommanderPilot 1.0.0",
         "decision_policy": "xmage-full-game-policy-1.0.0",
-        # each seat names its deck state, as every log since #1657 does
+        # each seat names its deck state, as every log since #1657 does; with_deck_hash=False
+        # writes a log of before #1657 ("Stand unbekannt")
         "seats": [
             {"seat": i, "deck_id": d, "deck_hash": hashlib.sha256(d.encode()).hexdigest()}
+            if with_deck_hash
+            else {"seat": i, "deck_id": d}
             for i, d in enumerate(decks)
         ],
     }
@@ -763,3 +767,54 @@ def test_fail_closed_bridge_qualification_and_missing_sha_regressions(tmp_path: 
     res_no_sha = card_outcomes.outcomes_for_folder(no_sha_dir, deck_id="base")
     assert res_no_sha["covered_by_sealed_epoch"] is False
     assert any("no bridge jar SHA-256" in w for w in res_no_sha["warnings"])
+
+
+def test_logs_without_deck_hash_keep_bridge_provenance_and_warnings(tmp_path: Path) -> None:
+    """#1657 review P1: the stand "Stand unbekannt" (logs of before #1657) is refused when its
+    jars are mixed, names jar, qualification and BRIDGE_AHEAD, and warns on a missing SHA."""
+    decks = ["base", "o1", "o2"]
+    for game_id, seed, sha, state, covered in (
+        ("g1", 1, "a" * 64, BRIDGE_ALIGNED, True),
+        ("g2", 2, "b" * 64, BRIDGE_AHEAD, False),
+    ):
+        _write_outcome_log(
+            tmp_path,
+            game_id,
+            decks=decks,
+            winners=[seed - 1],
+            seed=seed,
+            hand_cards=["Sol Ring"] if seed == 1 else ["Forest"],
+            bridge_sha=sha,
+            qual_state=state,
+            covered=covered,
+            with_deck_hash=False,
+        )
+    with pytest.raises(ValueError, match="mixed bridge jar SHA-256"):
+        card_outcomes.outcomes_for_folder(tmp_path, deck_id="base")
+    mixed = card_outcomes.outcomes_for_folder(tmp_path, deck_id="base", allow_mixed=True)
+    unknown = mixed["unknown_stand"]
+    assert unknown is not None and unknown["games_total"] == 2
+    assert set(unknown["bridge_jar_sha256s"]) == {"a" * 64, "b" * 64}
+    assert BRIDGE_AHEAD in unknown["bridge_qualification_states"]
+    assert unknown["covered_by_sealed_epoch"] is False
+    assert any("BRIDGE_AHEAD_OF_QUALIFICATION" in w for w in unknown["warnings"])
+    assert any(w.startswith("Stand unbekannt: BRIDGE_AHEAD") for w in mixed["warnings"])
+
+    no_sha = tmp_path / "no_sha"
+    no_sha.mkdir()
+    _write_outcome_log(
+        no_sha,
+        "g3",
+        decks=decks,
+        winners=[0],
+        seed=3,
+        hand_cards=["Sol Ring"],
+        bridge_sha=None,
+        qual_state=None,
+        covered=False,
+        with_deck_hash=False,
+    )
+    res = card_outcomes.outcomes_for_folder(no_sha, deck_id="base")
+    assert any(
+        "Stand unbekannt: some games carry no bridge jar SHA-256" in w for w in res["warnings"]
+    )

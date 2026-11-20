@@ -140,16 +140,18 @@ function outcomesStandSection(h, stand, deps) {
     ? `Deck-Stand ${outcomesShortHash(stand.deck_hash)} · ${outcomesInt(stand.games_total)} Partien · Stände im Deckbauer: ${revisions}`
     : `Stand unbekannt (Partien ohne Deck-Hash im Protokoll) · ${outcomesInt(stand.games_total)} Partien · nie zu einem bekannten Stand addiert`;
   const cards = Array.isArray(stand.cards) ? stand.cards : [];
+  // Every stand, "Stand unbekannt" included, names its own provenance, qualification and
+  // warnings (BRIDGE_AHEAD among them): its numbers are never shown without them.
+  const standLabel = known ? `Deck-Stand (Hash): ${outcomesShortHash(stand.deck_hash)}` : "Stand unbekannt";
   return h("details", {},
     h("summary", {}, head),
-    h("p", { class: "muted" },
-      `Partien: ${outcomesInt(stand.games_total)} ausgewertet, ohne Starthand: ${outcomesInt(stand.seats_without_opening_hand)} · Seeds: ${outcomesInt(stand.seeds)}`),
+    ...outcomesMetadataNodes(h, stand, standLabel, { skipped: false }),
     cards.length
       ? outcomesCardTable(h, cards, deps, `Karten-Auswertung eines Deck-Stands (${known ? outcomesShortHash(stand.deck_hash) : "Stand unbekannt"})`)
       : h("p", { class: "muted" }, "Keine Partien mit Starthand-Daten (zu wenig Daten, nicht 0)."));
 }
 
-function outcomesMetadataNodes(h, data, queryLabel) {
+function outcomesMetadataNodes(h, data, queryLabel, options = {}) {
   const pilots = Array.isArray(data.pilots) && data.pilots.length ? data.pilots.join(", ") : "unbekannt";
   const policies = Array.isArray(data.decision_policies) && data.decision_policies.length ? data.decision_policies.join(", ") : "unbekannt";
   const engines = Array.isArray(data.engine_commits) && data.engine_commits.length ? data.engine_commits.join(", ") : "unbekannt";
@@ -170,7 +172,8 @@ function outcomesMetadataNodes(h, data, queryLabel) {
   const nodes = [
     h("p", { class: "muted" },
       `Kohorte: ${data.data_class || "unbekannt"} · ${queryLabel} · Deck-ID im Log: ${data.deck_id || "unbekannt"} · `,
-      `Partien: ${outcomesInt(data.games_total)} ausgewertet, ${outcomesInt(data.games_skipped)} übersprungen, ohne Starthand: ${outcomesInt(data.seats_without_opening_hand)} · `,
+      // skipped logs cannot be told apart by deck state: they are counted for the deck only
+      `Partien: ${outcomesInt(data.games_total)} ausgewertet, ${options.skipped === false ? "" : `${outcomesInt(data.games_skipped)} übersprungen, `}ohne Starthand: ${outcomesInt(data.seats_without_opening_hand)} · `,
       `Seeds: ${outcomesInt(data.seeds)} · Mindestzahl je Seite: ${outcomesInt(data.min_exposed)}${chanceNote}`),
     h("p", { class: "muted" },
       `Piloten: ${pilots} · Policies: ${policies} · Pods: ${pods} · Engine: ${engines} · Bridge-JAR: ${jars} · Qualifizierung: ${qual} · Siegel-Epoche: ${sealed}`),
@@ -248,7 +251,9 @@ async function renderCardOutcomes(slot, deps) {
   if (data.status === "NO_GAMES" || !Array.isArray(data.cards) || !data.cards.length) {
     slot.replaceChildren(...StudioUI.kids(
       h("h3", {}, title), fixedNote, dirtyNote, ...meta, standNote,
-      h("p", { class: "muted" }, `Für ${label} liegen noch keine abgeschlossenen Partien mit Starthand-Daten vor (zu wenig Daten, nicht 0).`),
+      h("p", { class: "muted" }, perStand && data.unknown_stand
+        ? `Für ${label} liegen keine Partien mit bekanntem Deck-Stand vor; die Partien ohne Deck-Hash stehen unten unter „Stand unbekannt“ (getrennt gezählt, mit eigener Herkunft).`
+        : `Für ${label} liegen noch keine abgeschlossenen Partien mit Starthand-Daten vor (zu wenig Daten, nicht 0).`),
       ...sections));
     return;
   }

@@ -1438,7 +1438,10 @@ def test_kartenauswertung_names_deck_states_strata_and_the_unknown_stand() -> No
 
     a, b = _simpson()
     old = _stated([(["A"], i < 4) for i in range(7)] + [(["F"], False)] * 5, None, prefix="o")
+    for game in old:
+        game["bridge_qualification_state"] = "BRIDGE_AHEAD_OF_QUALIFICATION"
     pooled = stand_tables([*a, *b, *old], deck_id="deck/a", min_exposed=5)
+    only_old = stand_tables(old, deck_id="deck/a", min_exposed=5)
     b_pod = _stated([(["A"], i < 5) for i in range(20)], STATE_A[::-1], prefix="p", opponent="x")
     not_pooled = stand_tables([*a, *b_pod], deck_id="deck/a", min_exposed=5)
     script = f"""
@@ -1472,7 +1475,8 @@ const render = async (payload) => {{
 (async () => {{
   const pooled = await render({json.dumps(pooled)});
   const notPooled = await render({json.dumps(not_pooled)});
-  console.log(JSON.stringify({{ pooled, notPooled }}));
+  const onlyOld = await render({json.dumps(only_old)});
+  console.log(JSON.stringify({{ pooled, notPooled, onlyOld }}));
 }})();
 """
     r = _node_json(script)
@@ -1487,6 +1491,14 @@ const render = async (payload) => {{
     assert "deck/a@aaaa" in text
     assert r["pooled"]["details"] == 3  # two known states and "Stand unbekannt"
     assert r["pooled"]["tables"] == 4  # the stratified table and one per state
+    # every stand, "Stand unbekannt" included, names its provenance and qualification
+    assert text.count("Qualifizierung:") == 4 and text.count("Piloten:") == 4
+    assert "BRIDGE_AHEAD_OF_QUALIFICATION (Bridge neuer als Qualifizierung)" in text
+    assert "Stand unbekannt: BRIDGE_AHEAD_OF_QUALIFICATION" in text  # warning at the top
+    old_text = r["onlyOld"]["text"]
+    assert "keine Partien mit bekanntem Deck-Stand" in old_text
+    assert "noch keine abgeschlossenen Partien" not in old_text
+    assert old_text.count("Qualifizierung:") == 2 and r["onlyOld"]["details"] == 1
     nt = r["notPooled"]["text"]
     assert "nicht zusammengeführt" in nt and "pod sets" in nt
     assert "geschichtet über" not in nt

@@ -950,12 +950,20 @@ def _pooled_row(
     *,
     min_exposed: int,
 ) -> CardOutcome:
-    """One card over several stands: counts are n/N sums, the difference only stratified."""
-    total = sum(n for n, *_ in per_stand)
-    n_in = sum(row[2] for row in per_stand)
-    wins_in = sum(row[3] for row in per_stand)
-    wins_total = sum(row[1] for row in per_stand)
-    strata = [(ni, wi, n - ni, w - wi) for n, w, ni, wi, _sn, _sw in per_stand]
+    """One card over several stands: counts are n/N sums, the difference only stratified.
+
+    Only stands with games on both sides (weight > 0) enter the counts and the threshold: a
+    stand where the card was never (or always) in the first hand adds nothing to the
+    difference, so it adds nothing to n/N either. A stand with a rate of 0 or 1 on one side
+    makes the Wald interval too narrow at the edge; such a row is ``INSUFFICIENT_SAMPLE``
+    (never ranked) with that reason, its numbers kept for inspection.
+    """
+    used = [row for row in per_stand if 0 < row[2] < row[0]]
+    total = sum(row[0] for row in used)
+    n_in = sum(row[2] for row in used)
+    wins_in = sum(row[3] for row in used)
+    wins_total = sum(row[1] for row in used)
+    strata = [(ni, wi, n - ni, w - wi) for n, w, ni, wi, _sn, _sw in used]
     pooled = mantel_haenszel_difference(strata)
     n_not = total - n_in
     reasons = []
@@ -965,6 +973,11 @@ def _pooled_row(
         reasons.append(f"games without the card in the first hand {n_not} < {min_exposed}")
     if pooled is None:
         reasons.append("no deck state has games with and without the card in the first hand")
+    elif any(y1 in (0, n1) or y0 in (0, n0) for n1, y1, n0, y0 in strata):
+        reasons.append(
+            "a deck state has a win share of 0 or 1 on one side: the stratified interval "
+            "would be too narrow there (too uncertain)"
+        )
     return {
         "card": card,
         "status": "INSUFFICIENT_SAMPLE" if reasons else "MEASURED",
@@ -995,7 +1008,28 @@ def _pod_set(table: CardOutcomeTable) -> tuple[tuple[str, ...], ...]:
 
 
 def _not_poolable(stands: Sequence[CardOutcomeTable]) -> str | None:
-    """Why the stands of one deck may not be combined, or None when they may."""
+    """Why the stands of one deck may not be combined, or None when they may.
+
+    An unknown value is never equal to another unknown value: a stand whose games (or some
+    of them) carry no engine commit, bridge jar, pilot or decision policy is not pooled.
+    """
+    for stand in stands:
+        unknown = [
+            label
+            for label, values in (
+                ("engine commit", stand["engine_commits"]),
+                ("bridge jar SHA-256", stand["bridge_jar_sha256s"]),
+                ("pilot version", stand["pilots"]),
+                ("decision policy", stand["decision_policies"]),
+            )
+            if not values
+        ]
+        unknown += [w for w in stand["warnings"] if w.startswith("some games carry no")]
+        if unknown:
+            return (
+                f"a deck state has unknown provenance ({'; '.join(unknown)}): "
+                "unknown is not equal, not pooled"
+            )
     for label, values in (
         ("engine commit", [tuple(t["engine_commits"]) for t in stands]),
         ("bridge jar SHA-256", [tuple(t["bridge_jar_sha256s"]) for t in stands]),
@@ -1106,6 +1140,14 @@ def stand_tables(
     top["stands"] = stands
     top["unknown_stand"] = unknown
     warnings = list(top["warnings"])
+    if len(stands) > 1:
+        # the top level of several stands repeats every stand's own warnings, named
+        for stand in stands:
+            warnings += [
+                f"deck state {str(stand['deck_hash'])[:12]}: {w}" for w in stand["warnings"]
+            ]
+    if unknown is not None:
+        warnings += [f"Stand unbekannt: {w}" for w in unknown["warnings"]]
     if duplicate_logs_ignored:
         warnings.append(
             f"{duplicate_logs_ignored} duplicate log(s) with an already counted game_id ignored"

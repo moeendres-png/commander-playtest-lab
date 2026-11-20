@@ -667,6 +667,7 @@ def _stated(
     for index, game in enumerate(out):
         game["game_id"] = f"{prefix}{index}"
         game["seed"] = sum(map(ord, prefix)) * 1000 + index
+        game["bridge_jar_sha256"] = "d" * 64  # a known jar: unknown provenance is not pooled
         game["seats"][0]["deck_hash"] = deck_hash
         game["seats"][0]["revision_id"] = revision
         game["seats"][1]["deck_id"] = opponent
@@ -832,3 +833,110 @@ def test_api_answers_per_deck_state(tmp_path: Path, monkeypatch: pytest.MonkeyPa
     assert decks[DECK]["games"] == 3
     assert (decks[DECK]["stands"], decks[DECK]["games_unknown_stand"]) == (2, 1)
     assert (decks[OTHER]["stands"], decks[OTHER]["games_unknown_stand"]) == (0, 3)
+
+
+# --- review #1671: provenance per stand, unknown is not equal, mix axes, edge rows ---------
+
+
+def _with(games: list[GameExposure], **fields: object) -> list[GameExposure]:
+    for game in games:
+        game.update(fields)  # type: ignore[typeddict-item]
+    return games
+
+
+def test_unknown_stand_names_its_provenance_and_bridge_ahead() -> None:
+    old = _with(
+        _stated(_block("A", 6, 3) + _block("F", 6, 3), None, prefix="o"),
+        bridge_jar_sha256="c" * 64,
+        bridge_qualification_state="BRIDGE_AHEAD_OF_QUALIFICATION",
+    )
+    table = card_outcomes.stand_tables(old, deck_id=DECK, min_exposed=1)
+    unknown = table["unknown_stand"]
+    assert unknown is not None
+    assert unknown["pilots"] == ["P1"] and unknown["engine_commits"] == [COMMIT]
+    assert unknown["bridge_jar_sha256s"] == ["c" * 64]
+    assert unknown["bridge_qualification_states"] == ["BRIDGE_AHEAD_OF_QUALIFICATION"]
+    assert any(w.startswith("BRIDGE_AHEAD_OF_QUALIFICATION") for w in unknown["warnings"])
+    # the top level (no known stand) repeats the unknown stand's warnings, named
+    assert any(
+        w.startswith("Stand unbekannt: BRIDGE_AHEAD_OF_QUALIFICATION") for w in table["warnings"]
+    )
+
+
+def test_unknown_provenance_is_never_equal_and_warnings_reach_the_top() -> None:
+    a = _with(
+        _stated(_block("A", 10, 5) + _block("F", 10, 5), STATE_A, prefix="a", commit=""),
+        engine_commit=None,
+        bridge_qualification_state="BRIDGE_AHEAD_OF_QUALIFICATION",
+    )
+    b = _with(
+        _stated(_block("A", 10, 5) + _block("F", 10, 5), STATE_B, prefix="b", commit=""),
+        engine_commit=None,
+        bridge_qualification_state="BRIDGE_AHEAD_OF_QUALIFICATION",
+    )
+    table = card_outcomes.stand_tables([*a, *b], deck_id=DECK, min_exposed=1)
+    assert table["status"] == "NOT_POOLED" and table["cards"] == []
+    assert "unknown provenance" in str(table["pooling"]["reason"])
+    assert any("BRIDGE_AHEAD_OF_QUALIFICATION" in w for w in table["warnings"])
+    assert any(f"deck state {STATE_A[:12]}:" in w for w in table["warnings"])
+
+
+@pytest.mark.parametrize(
+    ("field", "other", "label"),
+    [
+        ("pilot", "P2", "pilot version"),
+        ("engine_commit", "b" * 40, "engine commit"),
+        ("bridge_jar_sha256", "e" * 64, "bridge jar SHA-256"),
+        ("decision_policy", "policy-2", "decision polic"),
+    ],
+)
+def test_every_mix_axis_refuses_pooling_and_raises_inside_a_stand(
+    field: str, other: str, label: str
+) -> None:
+    def games(deck_hash: str, prefix: str, value: str | None = None) -> list[GameExposure]:
+        out = _with(
+            _stated(_block("A", 10, 5) + _block("F", 10, 5), deck_hash, prefix=prefix),
+            bridge_jar_sha256="d" * 64,
+        )
+        return _with(out, **{field: value}) if value is not None else out
+
+    across = card_outcomes.stand_tables(
+        [*games(STATE_A, "a"), *games(STATE_B, "b", other)], deck_id=DECK, min_exposed=1
+    )
+    assert across["status"] == "NOT_POOLED" and across["cards"] == []
+    assert label.split()[0] in str(across["pooling"]["reason"])
+    inside = [*games(STATE_A, "a"), *games(STATE_A, "c", other)]
+    with pytest.raises(ValueError, match="mixed"):
+        card_outcomes.stand_tables(inside, deck_id=DECK, min_exposed=1)
+    same = card_outcomes.stand_tables(
+        [*games(STATE_A, "a"), *games(STATE_B, "b")], deck_id=DECK, min_exposed=1
+    )
+    assert same["pooling"]["status"] == "POOLED"
+
+
+def test_edge_rate_in_a_stand_is_too_uncertain_and_never_ranked() -> None:
+    """3/3 with the card against 0/40 without: Wald would give [100; 100] pp."""
+    a = _stated([(["A"], True)] * 3 + [(["F"], False)] * 40, STATE_A, prefix="a")
+    b = _stated(_block("A", 20, 10) + _block("F", 20, 10), STATE_B, prefix="b")
+    table = card_outcomes.stand_tables([*a, *b], deck_id=DECK, min_exposed=1)
+    row = {r["card"]: r for r in table["cards"]}["A"]
+    assert row["status"] == "INSUFFICIENT_SAMPLE"
+    assert "too uncertain" in str(row["reason"])
+    assert "A" not in [r["card"] for r in ranked(table)["ranked"]]
+
+
+def test_a_stand_without_the_card_on_one_side_adds_nothing_to_its_counts() -> None:
+    a = _stated(_block("F", 30, 15), STATE_A, prefix="a")  # "A" never in the first hand
+    b = _stated(_block("A", 10, 6) + _block("F", 10, 4), STATE_B, prefix="b")
+    table = card_outcomes.stand_tables([*a, *b], deck_id=DECK, min_exposed=10)
+    row = {r["card"]: r for r in table["cards"]}["A"]
+    assert row["strata"] == 1
+    assert (row["games_total"], row["games_not_in_first_hand"]) == (20, 10)
+    assert row["status"] == "MEASURED"
+
+
+def test_api_refuses_mixed_commits_inside_the_unknown_stand_with_409(tmp_path: Path) -> None:
+    _write_log(tmp_path / "games", "g1", _simple_frames(["X"]), deck_hashes=None)
+    _write_log(tmp_path / "games", "g2", _simple_frames(["X"]), commit="b" * 40, deck_hashes=None)
+    with TestClient(create_app(tmp_path)) as client:
+        assert client.get("/api/outcomes", params={"deck_id": DECK}).status_code == 409

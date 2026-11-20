@@ -570,3 +570,27 @@ def test_schema_21_store_without_state_columns_gains_them_and_stays_21(tmp_path:
             assert (old["revision_id"], old["deck_hash"]) == (None, None)
         finally:
             store.close()
+
+
+def test_a_column_added_by_another_process_between_check_and_alter_is_no_error() -> None:
+    """Two processes opening one store for the first time: the second ALTER finds the column."""
+    store = StudioStore.in_memory()
+    try:
+
+        class StalePragma:
+            def __init__(self, inner: sqlite3.Connection) -> None:
+                self.inner = inner
+
+            def execute(self, sql: str, *args: object) -> object:
+                if sql.startswith("PRAGMA table_info"):
+                    return []  # what the other process saw before its own ALTER
+                return self.inner.execute(sql, *args)
+
+        store_module._ensure_simulation_run_state_columns(StalePragma(store.connection))  # type: ignore[arg-type]
+        columns = [
+            str(row["name"])
+            for row in store.connection.execute("PRAGMA table_info(simulation_run)")
+        ]
+        assert columns.count("revision_id") == 1 and columns.count("deck_hash") == 1
+    finally:
+        store.close()

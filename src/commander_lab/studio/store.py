@@ -795,7 +795,12 @@ def _ensure_simulation_run_state_columns(connection: sqlite3.Connection) -> None
     columns = {str(row["name"]) for row in connection.execute("PRAGMA table_info(simulation_run)")}
     for column in SIMULATION_RUN_STATE_COLUMNS:
         if column not in columns:
-            connection.execute(f"ALTER TABLE simulation_run ADD COLUMN {column} TEXT")
+            try:
+                connection.execute(f"ALTER TABLE simulation_run ADD COLUMN {column} TEXT")
+            except sqlite3.OperationalError as error:
+                # another process opening the same store added it between PRAGMA and ALTER
+                if "duplicate column" not in str(error).lower():
+                    raise
 
 
 # True inside the corpus_deck binding trigger when the new deck already has a commander
