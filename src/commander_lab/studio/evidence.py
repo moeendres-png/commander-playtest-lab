@@ -22,7 +22,7 @@ from collections.abc import Sequence
 from pathlib import Path
 
 from . import number_contract
-from .builder import ALL_DECKS, SMALL_DENOMINATOR, bound_to, pool_cards
+from .builder import ALL_DECKS, SMALL_DENOMINATOR, bound_to, pool_cards, unknown_opponents_caveat
 from .sources import calculate_card_coverage_record, load_spellbook_combo_cards
 from .store import StudioStore
 
@@ -198,11 +198,14 @@ _SIM_QUELLE = "Studio-Simulation (XMage), Läufe dieses Commanders"
 type _SimKey = tuple[str | None, int | None]
 
 
+def _sim_table(table_size: int | None) -> str:
+    return "Tischgröße unbekannt" if table_size is None else f"Tisch mit {table_size} Sitzen"
+
+
 def _sim_label(opponent_ids: list[str] | None, table_size: int | None) -> str:
-    table = "Tischgröße unbekannt" if table_size is None else f"Tisch mit {table_size} Sitzen"
     if opponent_ids is None:
-        return f"{SIM_UNKNOWN_SET} · {table}"
-    return f"Gegnersatz {', '.join(opponent_ids)} · {table}"
+        return f"{SIM_UNKNOWN_SET} · {_sim_table(table_size)}"
+    return f"Gegnersatz {', '.join(opponent_ids)} · {_sim_table(table_size)}"
 
 
 def _sim_opponents(raw: object) -> list[str] | None:
@@ -318,6 +321,13 @@ def _simulations(
         )
         out: list[dict[str, object]] = []
         for key, group in ordered:
+            runs = int(str(group["runs"]))
+            # unknown opponents are no cohort: the label and the cell say so, also when the
+            # figure itself is left out (#1688)
+            caveat = None if group["opponent_set_known"] else unknown_opponents_caveat(runs)
+            group["vorbehalt"] = caveat
+            if caveat is not None:
+                group["label"] = f"{caveat} · {_sim_table(key[1])}"
             group["zahl"] = _sim_zahl(group, key)
             group["cast_after_offer_of"] = group["games_offered"]
             out.append(group)

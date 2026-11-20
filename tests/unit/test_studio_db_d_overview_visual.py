@@ -414,6 +414,9 @@ def test_pod_matchup_matrix_aggregates_runs_by_pod_with_denominators_and_qualifi
         # both rows predate #1688: one row "Gegnersatz unbekannt", no table claimed
         assert p0["opponent_set_known"] is False
         assert p0["opponent_ids"] is None and p0["table_size"] is None
+        assert p0["hinweise"] == [
+            "Gegnersatz unbekannt: mehrere Läufe, möglicherweise verschiedene Gegner"
+        ]
         assert p0["runs_count"] == 2
         assert p0["games_completed"] == 20
         assert p0["games_planned"] == 20
@@ -468,6 +471,7 @@ def test_pod_matchup_matrix_aggregates_runs_by_pod_with_denominators_and_qualifi
     ]
     assert pods[0]["win_rate"] == 1.0 and pods[1]["win_rate"] == 0.4
     assert pods[0]["opponent_ids"] == ["precon/2024/animated_army", "kaervek/current"]
+    assert pods[0]["hinweise"] == []
 
 
 def test_saved_filter_presets_and_quick_chips_wired_in_builder_and_tierlist() -> None:

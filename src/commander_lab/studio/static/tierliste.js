@@ -427,10 +427,10 @@ function simCell(card) {
   if (sim.status === "NOT_APPLICABLE") return unknown("–");
   const groups = sim.groups || [];
   if (!groups.length) return unknown("nicht simuliert");
-  // one group per opponent set and table size (#1688): never a total over several groups
-  if (groups.length > 1) return h("span", { title: groups.map((g) => `${g.label}: ${nf(g.games_cast_after_offer)}/${nf(g.games_offered)} Partien`).join(" · ") }, `${nf(groups.length)} Gegnersätze (getrennt)`);
-  const only = groups[0];
-  return h("span", { title: only.label }, `${nf(only.games_cast_after_offer)}/${nf(only.games_offered)} Partien`, only.opponent_set_known ? "" : " (Gegnersatz unbekannt)");
+  // one line per opponent set and table size (#1688): every group on its own, never a total;
+  // a group of unknown opponents carries its reservation visibly, also without a figure
+  return h("span", {}, groups.length > 1 ? h("div", {}, `${nf(groups.length)} Gegnersätze (getrennt)`) : null,
+    ...groups.map((g) => h("div", { title: g.label }, `${nf(g.games_cast_after_offer)}/${nf(g.games_offered)} Partien`, g.vorbehalt ? ` (${g.vorbehalt})` : "")));
 }
 function strengthItem(card) { const map = state.strength.map; return map ? map.get(card.card_id) || null : null; }
 const neutral = (text, title) => h("span", { class: "badge-neutral", title }, text);

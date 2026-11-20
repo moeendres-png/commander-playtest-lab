@@ -442,11 +442,32 @@ def test_a_run_without_an_opponent_set_is_only_in_the_unknown_group(studio: Stud
     assert isinstance(zahl, dict) and number_contract.check(zahl) == []
     assert str(zahl["kohorte"]).startswith("Gegnersatz unbekannt")
     assert any("#1658" in hint for hint in zahl["hinweise"])  # type: ignore[union-attr]
+    assert unknown["vorbehalt"] == "Gegnersatz unbekannt: ein Lauf, Gegner nicht gespeichert"
     # next to a known table the unknown group stays its own, is never added and comes last
     _add_run(studio, "r-new", offered=3, cast=3, opponents=PRESET)
     groups = _groups(studio)
     assert [g["opponent_set_known"] for g in groups] == [True, False]
     assert [(g["games_cast_after_offer"], g["games_offered"]) for g in groups] == [(3, 3), (1, 5)]
+    assert groups[0]["vorbehalt"] is None
+
+
+def test_unknown_opponents_are_no_cohort_and_say_so_even_without_a_figure(
+    studio: StudioStore,
+) -> None:
+    """P2-2 (#1706): the group of unknown opponents names its reservation in ``kohorte``,
+    ``label`` and ``vorbehalt``; the reservation stays when the figure is left out."""
+    caveat = "Gegnersatz unbekannt: mehrere Läufe, möglicherweise verschiedene Gegner"
+    _add_run(studio, "r-old-1", offered=5, cast=1, opponents=None)
+    _add_run(studio, "r-old-2", offered=4, cast=2, opponents=None)
+    (unknown,) = _groups(studio)
+    assert unknown["vorbehalt"] == caveat
+    assert str(unknown["label"]).startswith(caveat)
+    assert str(unknown["zahl"]["kohorte"]).startswith(caveat)  # type: ignore[index]
+    # inconsistent rows (more casts than offers): no figure, the reservation stays visible
+    _add_run(studio, "r-old-3", offered=1, cast=9, opponents=None)
+    (unknown,) = _groups(studio)
+    assert unknown["zahl"] is None
+    assert unknown["vorbehalt"] == caveat
 
 
 def test_the_table_size_is_an_axis_of_its_own(studio: StudioStore) -> None:
@@ -469,10 +490,11 @@ def test_unknown_opponents_at_two_table_sizes_stay_two_groups(studio: StudioStor
     groups = _groups(studio)
     assert [(g["table_size"], g["games_offered"]) for g in groups] == [(3, 4), (4, 6), (None, 2)]
     assert not any(g["opponent_set_known"] for g in groups)
+    one = "Gegnersatz unbekannt: ein Lauf, Gegner nicht gespeichert"
     assert [str(g["label"]) for g in groups] == [
-        "Gegnersatz unbekannt · Tisch mit 3 Sitzen",
-        "Gegnersatz unbekannt · Tisch mit 4 Sitzen",
-        "Gegnersatz unbekannt · Tischgröße unbekannt",
+        f"{one} · Tisch mit 3 Sitzen",
+        f"{one} · Tisch mit 4 Sitzen",
+        f"{one} · Tischgröße unbekannt",
     ]
 
 
@@ -488,6 +510,57 @@ def test_the_evidence_route_shows_the_groups(studio: StudioStore, tmp_path: Path
     assert [(g["games_cast_after_offer"], g["games_offered"]) for g in groups] == [(4, 10), (1, 5)]
 
 
+def _sim_cell_text(groups: list[dict[str, object]]) -> str:
+    """Run ``simCell`` of tierliste.js in node with a text-only ``h`` and return its text."""
+    import re
+    import shutil
+    import subprocess
+
+    node = shutil.which("node")
+    if node is None:
+        pytest.skip("node is not installed")
+    static = Path(__file__).resolve().parents[2] / "src/commander_lab/studio/static"
+    script = (static / "tierliste.js").read_text(encoding="utf-8")
+    found = re.search(r"^function simCell\(card\) \{.*?^\}$", script, re.M | re.S)
+    assert found is not None
+    program = (
+        "const text = (x) => x === null || x === undefined ? '' : Array.isArray(x) ? "
+        "x.map(text).join('') : typeof x === 'object' ? x.t : String(x);\n"
+        "const h = (tag, props, ...kids) => ({ t: `<${tag}>` + kids.map(text).join('') });\n"
+        "const nf = (n) => String(n);\n"
+        "const unknown = (t) => ({ t: `?${t}` });\n"
+        "const layer = (card, name) => card.layers[name];\n"
+        f"{found.group(0)}\n"
+        "const card = { layers: { simulated_result: { status: 'PRESENT', groups: "
+        f"{json.dumps(groups)} }} }} }};\n"
+        "process.stdout.write(text(simCell(card)));\n"
+    )
+    done = subprocess.run([node, "-e", program], capture_output=True, text=True, check=True)
+    return done.stdout
+
+
+def test_the_tier_cell_shows_every_group_on_its_own_and_never_a_total() -> None:
+    """P2-1 (#1706): simCell lists each group with its own n/N, no sum over the groups."""
+    caveat = "Gegnersatz unbekannt: mehrere Läufe, möglicherweise verschiedene Gegner"
+    groups: list[dict[str, object]] = [
+        {"label": "A", "games_cast_after_offer": 4, "games_offered": 10, "vorbehalt": None},
+        {"label": "B", "games_cast_after_offer": 6, "games_offered": 6, "vorbehalt": None},
+        {"label": caveat, "games_cast_after_offer": 1, "games_offered": 5, "vorbehalt": caveat},
+    ]
+    text = _sim_cell_text(groups)
+    lines = text.split("<div>")[1:]
+    assert lines == [
+        "3 Gegnersätze (getrennt)",
+        "4/10 Partien",
+        "6/6 Partien",
+        f"1/5 Partien ({caveat})",
+    ]
+    assert "11/21" not in text and "10/16" not in text  # never a total
+    # a single group of unknown opponents carries its reservation in the cell itself
+    one = [{"label": caveat, "games_cast_after_offer": 2, "games_offered": 3, "vorbehalt": caveat}]
+    assert _sim_cell_text(one).split("<div>")[1:] == [f"2/3 Partien ({caveat})"]
+
+
 def test_the_tier_page_shows_the_groups_and_never_adds_them_up() -> None:
     script = (
         Path(__file__).resolve().parents[2] / "src/commander_lab/studio/static/tierliste.js"
@@ -495,3 +568,16 @@ def test_the_tier_page_shows_the_groups_and_never_adds_them_up() -> None:
     assert "sim.totals" not in script  # the total over all runs is gone (#1688)
     assert "Gegnersätze (getrennt)" in script
     assert "StudioZahl.knoten(h, g.zahl)" in script
+
+
+def test_the_pod_row_of_unknown_opponents_names_its_reservation() -> None:
+    """P2-2 (#1706): app.js shows the same reservation as builder.unknown_opponents_caveat."""
+    from commander_lab.studio.builder import unknown_opponents_caveat
+
+    script = (
+        Path(__file__).resolve().parents[2] / "src/commander_lab/studio/static/app.js"
+    ).read_text(encoding="utf-8")
+    for runs in (1, 2):
+        assert f'"{unknown_opponents_caveat(runs)}"' in script
+    assert "agg.known ? agg.table : unknownOpponentsCaveat(agg.runs)" in script
+    assert "das ist keine Kohorte" in script

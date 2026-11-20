@@ -1667,7 +1667,7 @@ colored mana sources held by that turn.
 ### Pod matchup matrix ("Simulation", #1404)
 
 In the "Simulation" tab (`GET /api/simulations/pod-matrix`, `studio/builder.py`, schema
-`studio-pod-matrix-1`, `SIMULATED_RESULT`), imported simulation runs in `simulation_run` and
+`studio-pod-matrix-2`, `SIMULATED_RESULT`), imported simulation runs in `simulation_run` and
 `simulation_card` are aggregated by `(engine_pin, pilot_policy)` into a pod table with run count,
 total games (`games_denominator`), cards tracked, and top cast-rate cards (`total_casts / games_with_card`).
 Like all simulation outputs, it never enters the tier list or the strength index (`simulation` weight 0).

@@ -1529,6 +1529,14 @@ def list_simulations(store: StudioStore, commander_names: Sequence[str]) -> list
     return runs
 
 
+def unknown_opponents_caveat(runs: int) -> str:
+    """The visible reservation of a group of runs without a stored opponent set (#1688): it
+    is no cohort; several such runs may have played different opponents."""
+    if runs == 1:
+        return "Gegnersatz unbekannt: ein Lauf, Gegner nicht gespeichert"
+    return "Gegnersatz unbekannt: mehrere Läufe, möglicherweise verschiedene Gegner"
+
+
 def _run_opponents(raw: object, set_hash: object) -> list[str] | None:
     """The stored opponents of a run in seat order; None when not stored or unreadable."""
     if not set_hash or raw is None:
@@ -1590,6 +1598,10 @@ def pod_matchup_matrix(store: StudioStore, commander_names: Sequence[str]) -> di
                 "opponent_set_hash": set_hash,
                 "opponent_ids": pod_runs[0]["opponent_ids"] if set_hash is not None else None,
                 "table_size": size,
+                # the row of unknown opponents is no cohort: its reservation travels with it
+                "hinweise": []
+                if set_hash is not None
+                else [unknown_opponents_caveat(len(pod_runs))],
                 "runs_count": len(pod_runs),
                 "games_planned": planned,
                 "games_completed": completed,
