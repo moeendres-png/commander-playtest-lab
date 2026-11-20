@@ -22,13 +22,15 @@ plays real 100-card Commander decks rules-correctly, so simulated games can stan
   `docs/OWNER_DECISIONS_STUDIO_20261112.md`, `docs/OWNER_DECISIONS_STUDIO_20261118.md` and
   `docs/STUDIO_PLAN_SIMULATOR.md`; read them before any Studio work. Binding in short: only
   objective data with provenance; every count with its denominator; cohorts never added; source
-  data bound to one commander; no guessed tier. The one exception to objective data is the
-  labelled, generated overall rating of the tier list, a second view next to the usage index,
-  which stays the default until the Owner decides otherwise after validation. The Owner's marks
-  (favorites, exclusions, notes) never count as a rating. Simulation results enter the tier list
-  only once the maturity gate G-SIM in `docs/OWNER_DECISIONS_STUDIO_20261118.md` (a proposal,
-  thresholds open) is met and the Owner confirms weight and display;
-  until then the `simulation` weight stays 0 in the default and in every preset.
+  data bound to one commander; no guessed tier. Since the Owner decision of 2026-11-20
+  (`docs/OWNER_DECISIONS_STUDIO_20261118.md` E15 Q1) the tier list is the usage view (the second tier scale is still to be removed: #1680); the
+  generated overall rating, the rating layers, the tournament-conversion component, the rubric-v1
+  signals and the `simulation` weight were removed (#1684, #1686, #1691, #1696). The one labelled
+  model judgement is "Kartenverständnis (Modellurteil)" (rubric v2, class URTEIL), for Chulane
+  only (code state: not sortable, no tier, no rank, not part of the index). The Owner's marks (favorites, exclusions,
+  notes) never count as a rating. Simulation results never enter the tier list as a weight; they
+  will appear as evidence with maturity R0-R3 in the deck builder (not yet built: package
+  Q1-c, #1666), and the `SIMULATED_RESULT` rules stay.
 - Chulane, Teller of Tales is the only active owner deck for optimization
   (`docs/OWNER_DECK_FOCUS_CURRENT.md`). RogShai data is historical and regression data only.
 
@@ -294,8 +296,13 @@ before that review is recorded on the pull request with its verdict and the exac
 reviewed, and that SHA is the head being merged; green required checks alone are not enough. The
 review record names the reviewing session in neutral words, the exact head SHA, the commands it
 ran and its verdict; "neutral" only means without personal names, and §7 (record the actual
-identity and level, never relabel) still applies. Where two agents work in parallel, a session of
-the other agent reviews a MATERIAL pull request, and the author, where §6 lets it merge at all,
+identity and level, never relabel) still applies. Since the Owner decision of 2026-11-20 (E15 Q10)
+MATERIAL has two classes: class A is a change that is MATERIAL because of a category listed above
+(engine, bridge, qualification, gates, pilot decision logic, Rules/evidence/privacy text, policy
+text, containment and security configuration, workflow files), even if it also exceeds 300
+changed lines; class B is a change that is MATERIAL only because it exceeds 300 changed lines. Both classes need the fresh-context review described above; only class A needs, where two
+agents work in parallel, the cross-review: a session of the other agent reviews a class A
+MATERIAL pull request, and the author, where §6 lets it merge at all,
 merges no earlier than that review comment (Owner decision 2026-11-18,
 `docs/OWNER_DECISIONS_STUDIO_20261118.md` E7); who is Development Lead and merges other agents'
 pull requests stays an Owner matter. One review per head; after fixes the same reviewer re-checks

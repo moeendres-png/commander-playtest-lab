@@ -117,8 +117,9 @@ geplant.
 - Der Echt-Engine-Test des Mensch-Sitzes überspringt ohne Engine. Übersprungen ist nicht
   bestanden: als `NOT_RUN` melden.
 - Neue Repository-Inhalte nennen kein KI-Modell und keinen Anbieter (`AGENTS.md` §12).
-- Ergebnisse aus Simulation heißen `SIMULATED_RESULT` und stehen nicht auf der Tierliste, bevor
-  G-SIM erfüllt und vom Owner bestätigt ist.
+- Ergebnisse aus Simulation heißen `SIMULATED_RESULT` und haben kein Gewicht in der Tierliste
+  (seit E15 Q1, 2026-11-20, entfernt; die Fassung „bevor G-SIM erfüllt ist“ ist überholt); sie
+  erscheinen als Evidenz mit Reifegrad R0-R3 im Deckbauer (Q1-c, #1666, noch nicht gebaut).
 - Jede Zahl mit n/N und Herkunft. Was nicht belegt ist, heißt `UNKNOWN`, nie PASS.
 
 ## 8. Übergabe

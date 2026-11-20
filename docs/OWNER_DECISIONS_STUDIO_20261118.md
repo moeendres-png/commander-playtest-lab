@@ -79,6 +79,9 @@ berichtete Zusatz „(Commander)“ im Kartennamen wird nicht entfernt.
 
 ### E2 (O3): B11 wird bedingt, Reife-Tor G-SIM
 
+> **Überholt für Gewicht und Stufen (2026-11-20, E15 Q1):** das Gewicht `simulation` und die Stufen 0 bis 2
+> sind entfernt; G-SIM wird vom Tor zum Reifegrad R0-R3. Der Text unten bleibt als Verlauf.
+
 Simulationsergebnisse dürfen in die Tierliste fließen, aber erst, wenn das Reife-Tor G-SIM erfüllt
 ist **und** der Owner das konkrete Gewicht und die Darstellung bestätigt hat. Bis dahin gilt:
 
@@ -417,7 +420,7 @@ Owner-Entscheid; Owner-Vorbehalte (Abschnitt 5 dieser Datei, `AGENTS.md` §8) bl
   unverändert**: jeder MATERIAL-PR braucht weiter ein Frischkontext-Review (bei zwei parallel
   arbeitenden Agenten zusätzlich ein Kreuz-Review); ob Klasse B das Frischkontext-Review behält, legt
   der Governance-PR fest. Auch die Texte zu Q1 (Gesamtrating, Gewicht `simulation`) ändern sich in
-  `AGENTS.md` §1 erst mit dem jeweiligen Paket.
+  `AGENTS.md` §1 erst mit dem jeweiligen Paket. **Umgesetzt (Doku-Wahrheits-Pass, Refs #1667):** `AGENTS.md` §1 (Q1 nach #1684/#1686/#1691/#1696) und §10 (Klassen A/B; die Klasse B behält das Frischkontext-Review und verliert nur das Kreuz-Review); das „Studio-Daten-Gate“ für Schema-Änderungen und die Ablösung der Pflichtlektüre durch die Charta bleiben offen (#1667).
 - **Q11 Ältere Lanes** werden erst mit der Abschluss-Epoche entfernt (PB-03, `qualification/`);
   Release-Archiv lokal ablegen statt dauerhaftem GitHub-Release, solange #1108 offen ist.
 
@@ -442,7 +445,7 @@ Abbruchkriterien in der Charta §6.
 | Review eines MATERIAL-PR aus frischem Kontext | zusätzlich Kreuz-Review durch den jeweils anderen Agenten, soweit zwei parallel arbeiten | E7, C7 |
 | Owner-Entscheidung 2026-10-15 (`owner_decision_20261015_batch_games_per_jvm`): jedes Ergebnis ruht auf dem sauberen Herunterfahren des Prozesses | gilt nur für `run_batch` und die Konformanz-Evidenz; für Studio-Serien ruht das Ergebnis auf dem bestätigten `shutdown_game` je Partie in eigenem Ergebnistyp (E9) | Owner 2026-11-19, #1612 |
 | „Keine Preise, kein Kaufmodus“ (B1) und „kein Multi-Commander über den Chulane-Fokus hinaus“ (B2), soweit BUILD betroffen | Zukauf-Modus im BUILD ohne Preise und TAM als zweiter Commander im BUILD erlaubt; Preise bleiben Owner-Vorbehalt, Chulane bleibt Standard (E14) | Owner 2026-11-19, #1187 |
-| E6 (Gesamtrating mit Rubrik und Tierlisten-Gewichte), B11/E2 (Gewicht `simulation` 0 bis G-SIM), A4 („nur objektive Daten“), E7/C7 (jeder MATERIAL-PR mit Kreuz-Review), Rundenlimit nur nach Owner-Entscheid (`STUDIO_SCOPE.md:103`, `:267`), 5/6 Sitze (E15 Q5), Datei-Schnitt Schema 21 → 22 | beschlossen, aber erst mit den jeweiligen Paketen wirksam: Gesamtrating v1/Layers/Tierlisten-Skala entfallen und Simulation wird Evidenz R0–R3 (Q1), Vorschläge als eigene Klasse (Q2), MATERIAL in A/B (Q10, erst nach Governance-PR), rundenbegrenzte Frühphasen-Serie als Experiment-Typ nach Messversuch (Q4: gilt als Owner-Entscheid für dieses Rundenlimit, weiterhin mit vollen Piloten, kein Goldfish-/Passiv-Modus, `STUDIO_SCOPE.md:266-267`), Qualifikation 5/6 (Q5, Sperre bleibt), Gegner aus Studio-Deck-Ständen (Q6), Pilot-Regeln (Q8), drei Dateien (Q9), Ältere Lanes bleiben (Q11) | Owner 2026-11-20 (E15) |
+| E6 (Gesamtrating mit Rubrik und Tierlisten-Gewichte), B11/E2 (Gewicht `simulation` 0 bis G-SIM), A4 („nur objektive Daten“), E7/C7 (jeder MATERIAL-PR mit Kreuz-Review), Rundenlimit nur nach Owner-Entscheid (`STUDIO_SCOPE.md:103`, `:267`), 5/6 Sitze (E15 Q5), Datei-Schnitt Schema 21 → 22 | beschlossen; wirksam sind schon Gesamtrating v1, Layers, Rubrik v1, Turnier-Signal und Gewicht `simulation` entfernt (#1684, #1686, #1691, #1696), offen sind die zweite Tierlisten-Skala (#1680) und die Evidenz R0–R3 (Q1-c, #1666) (Q1), Vorschläge als eigene Klasse (Q2), MATERIAL in A/B (Q10, umgesetzt in `AGENTS.md` §10 mit dem Doku-Wahrheits-Pass #1697), rundenbegrenzte Frühphasen-Serie als Experiment-Typ nach Messversuch (Q4: gilt als Owner-Entscheid für dieses Rundenlimit, weiterhin mit vollen Piloten, kein Goldfish-/Passiv-Modus, `STUDIO_SCOPE.md:266-267`), Qualifikation 5/6 (Q5, Sperre bleibt), Gegner aus Studio-Deck-Ständen (Q6), Pilot-Regeln (Q8), drei Dateien (Q9), Ältere Lanes bleiben (Q11) | Owner 2026-11-20 (E15) |
 | Entscheid-Dokumente: „fortgeschrieben, nie gelöscht“ (diese Datei, `AGENTS.md` §9 „archived, never deleted“) | überholter Wortlaut darf mit Begründung, Datum und Verweis im PR ersetzt oder entfernt werden; Git-Historie bleibt Quelle (E10) | Owner 2026-11-19, #1612 |
 
 ## 4. Gilt unverändert
