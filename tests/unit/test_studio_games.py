@@ -787,3 +787,79 @@ def test_buffered_fast_gzip_recorder_matches_flushed_level9_byte_for_byte(tmp_pa
         assert batch_rec.gzip_compresslevel == 1
     finally:
         batch_rec.discard()
+
+
+def test_face_down_target_and_blank_uuid_option_resolve_without_leaking_uuid_or_secret() -> None:
+    """#1651: targeting a face-down permanent (XMage name '') must not emit a raw UUID in chosen
+    or targets and must never expose private_identity."""
+    target_uuid = "28380eaa-653b-40c1-9513-c81053483489"
+    face_up_uuid = "11111111-2222-4333-8444-555555555555"
+    unlisted_uuid = "aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee"
+
+    decision = _decision()
+    decision["decision_class"] = "target"
+    decision["prompt"] = "Select a creature you control"
+    decision["legal_options"] = [
+        {
+            "option_id": target_uuid,
+            "label": "",
+            "option_type": "target",
+            "metadata": {"object_id": target_uuid, "name": "", "zone": "battlefield"},
+        },
+        {
+            "option_id": face_up_uuid,
+            "label": face_up_uuid,
+            "option_type": "target",
+            "metadata": {"object_id": face_up_uuid, "name": "", "zone": "battlefield"},
+        },
+        {
+            "option_id": unlisted_uuid,
+            "label": "",
+            "option_type": "target",
+            "metadata": {"object_id": unlisted_uuid, "name": "", "zone": "battlefield"},
+        },
+    ]
+    players = decision["pilot_state"]["players"]
+    assert isinstance(players, list)
+    players[0]["battlefield"] = [
+        {
+            "object_id": target_uuid,
+            "name": "",
+            "face_down": True,
+            "private_identity": "Den Protector",
+            "tapped": False,
+            "power": 2,
+            "toughness": 2,
+            "damage": 0,
+        },
+        {
+            "object_id": face_up_uuid,
+            "name": "Grizzly Bears",
+            "face_down": False,
+            "tapped": False,
+            "power": 2,
+            "toughness": 2,
+            "damage": 0,
+        },
+    ]
+
+    frame_face_down = games.frame_of(602, decision, {"selected_option_ids": [target_uuid]})
+    assert frame_face_down["chosen"] == ["(verdeckt)"]
+    assert frame_face_down["targets"] == ["(verdeckt)"]
+    assert "Den Protector" not in str(frame_face_down)
+    assert target_uuid not in str(frame_face_down)
+
+    frame_face_up = games.frame_of(603, decision, {"selected_option_ids": [face_up_uuid]})
+    assert frame_face_up["chosen"] == ["Grizzly Bears"]
+    assert frame_face_up["targets"] == ["Grizzly Bears"]
+
+    frame_unknown = games.frame_of(604, decision, {"selected_option_ids": [unlisted_uuid]})
+    assert frame_unknown["chosen"] == ["?"]
+    assert unlisted_uuid not in str(frame_unknown)
+
+    # Non-UUID synthetic option IDs keep existing fallback behavior.
+    non_uuid_decision = _decision()
+    non_uuid_decision["legal_options"] = [{"option_id": "keep", "label": ""}]
+    assert games.frame_of(1, non_uuid_decision, {"selected_option_ids": ["keep"]})["chosen"] == [
+        "keep"
+    ]

@@ -34,6 +34,7 @@ STALE_SECONDS = 600.0
 _GAME_ID = re.compile(r"[a-z0-9][a-z0-9_-]{0,79}")
 _TAG = re.compile(r"<[^>]{0,400}>")
 _SPACE = re.compile(r"\s+")
+_UUID = re.compile(r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}", re.IGNORECASE)
 _COLORS = ("white", "blue", "black", "red", "green", "colorless")
 
 
@@ -206,12 +207,63 @@ SERIES_GZIP_COMPRESSLEVEL = 1
 DEFAULT_GZIP_COMPRESSLEVEL = 9
 
 
+def _published_object_labels(decision: Mapping[str, object]) -> dict[str, str]:
+    """Display labels for published ``pilot_state`` objects indexed by engine ``object_id``.
+
+    Reads only public card characteristics (``face_down`` and ``name`` via :func:`_card_name`),
+    never ``private_identity``.
+    """
+    raw_state = decision.get("pilot_state")
+    if not isinstance(raw_state, Mapping):
+        return {}
+    labels: dict[str, str] = {}
+    for item in _items(raw_state.get("stack")):
+        oid = _text(item.get("object_id"))
+        if oid:
+            labels.setdefault(oid, _card_name(item))
+    for player in _items(raw_state.get("players")):
+        for zone in ("battlefield", "graveyard", "command", "exile", "hand"):
+            for item in _items(player.get(zone)):
+                oid = _text(item.get("object_id"))
+                if oid:
+                    labels.setdefault(oid, _card_name(item))
+    return labels
+
+
+def _fallback_option_label(
+    oid: str,
+    raw_label: str,
+    option: Mapping[str, object] | None,
+    published: Mapping[str, str],
+) -> str:
+    """Resolve a readable label when an engine option carries an empty string or raw UUID (#1651)."""
+    if option is not None:
+        metadata = option.get("metadata")
+        if isinstance(metadata, Mapping):
+            if metadata.get("face_down") is True:
+                return "(verdeckt)"
+            meta_name = _plain(metadata.get("name"))
+            if meta_name and not _UUID.fullmatch(meta_name):
+                return meta_name
+            meta_oid = _text(metadata.get("object_id"))
+            if meta_oid and meta_oid in published:
+                return published[meta_oid]
+    if oid in published:
+        return published[oid]
+    if _UUID.fullmatch(raw_label):
+        return published.get(raw_label, "?")
+    if _UUID.fullmatch(oid):
+        return "?"
+    return oid
+
+
 def _resolve_options(
     decision: Mapping[str, object], response: Mapping[str, object]
 ) -> tuple[int, list[str]]:
     by_id = {
         str(option.get("option_id")): option for option in _items(decision.get("legal_options"))
     }
+    published: dict[str, str] | None = None
     chosen: list[str] = []
     for key in ("selected_option_ids", "ordering"):
         picked = response.get(key)
@@ -219,7 +271,11 @@ def _resolve_options(
             oid = str(option_id)
             option = by_id.get(oid)
             label = _plain(option.get("label")) if option is not None else ""
-            chosen.append(label or oid)
+            if not label or _UUID.fullmatch(label):
+                if published is None:
+                    published = _published_object_labels(decision)
+                label = _fallback_option_label(oid, label, option, published)
+            chosen.append(label or ("?" if _UUID.fullmatch(oid) else oid))
     return len(by_id), chosen
 
 
