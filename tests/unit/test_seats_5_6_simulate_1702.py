@@ -198,7 +198,7 @@ def lab(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> dict[str, object]:
         )
         assert res.status_code == 200, res.text
         revs[name] = res.json()["revision_id"]
-    return {"client": client, "folder": tmp_path, "revs": revs, "calls": calls}
+    return {"client": client, "folder": tmp_path, "revs": revs, "calls": calls, "player": player}
 
 
 def _body(lab: dict[str, object], **over: object) -> dict[str, object]:
@@ -339,6 +339,79 @@ def test_a_series_started_by_manager_with_the_switch_plays_five_seats(
         store.close()
     done = _finished(lab, job.series_id)
     assert done["seed_plan"]["player_count"] == 5  # type: ignore[index]
+
+
+def _stored_locked_table_series(
+    lab: dict[str, object], monkeypatch: pytest.MonkeyPatch, seats: int
+) -> str:
+    """A series of ``seats`` seats with two Studio deck states among its opponents, started with
+    the lock lifted locally, then marked interrupted so that it can be resumed."""
+    revs = lab["revs"]
+    assert isinstance(revs, dict)
+    precons = list(launch.pod_opponent_ids("precon", seats - 1))[: seats - 3]
+    monkeypatch.setattr(launch, "MAX_RELEASED_SEATS", 6)
+    res = _post(
+        lab,
+        table_size=seats,
+        budget_pairs=seats * seats,
+        opponent_ids=[revs["base"], revs["variant"], *precons],
+    )
+    assert res.status_code == 200, res.text  # type: ignore[attr-defined]
+    series_id = str(res.json()["series_id"])  # type: ignore[attr-defined]
+    _finished(lab, series_id)
+    path = Path(str(lab["folder"])) / "games" / f"{series_id}.paired.json"
+    raw = json.loads(path.read_text(encoding="utf-8"))
+    assert raw["seed_plan"]["player_count"] == seats and len(raw["opponent_ids"]) == seats - 1
+    raw["status"] = "interrupted"
+    path.write_text(json.dumps(raw), encoding="utf-8")
+    monkeypatch.setattr(launch, "MAX_RELEASED_SEATS", 4)  # the lock as shipped
+    return series_id
+
+
+@pytest.mark.parametrize("seats", [5, 6])
+def test_resume_refuses_a_stored_five_or_six_seat_table_and_plays_nothing(
+    lab: dict[str, object], monkeypatch: pytest.MonkeyPatch, seats: int
+) -> None:
+    """The review of #1708: a resume read the table size from the stored opponents and never
+    asked the lock. Studio deck states among the opponents slipped past the precon resolver."""
+    series_id = _stored_locked_table_series(lab, monkeypatch, seats)
+    calls = lab["calls"]
+    assert isinstance(calls, list)
+    played = len(calls)
+    client = lab["client"]
+    assert isinstance(client, TestClient)
+    res = client.post(f"/api/simulations/paired/{series_id}/resume", headers=HEADERS)
+    assert res.status_code == 422, res.text
+    assert f"tables of {seats} seats are locked" in res.json()["detail"]  # as on a start
+    with pytest.raises(ValueError, match=f"tables of {seats} seats are locked"):
+        paired_series.paired_series_manager.resume_series(
+            Path(str(lab["folder"])),
+            series_id,
+            play_override=lambda *a, **k: {},  # type: ignore[arg-type,return-value]
+        )
+    assert len(calls) == played  # no game was asked for
+    path = Path(str(lab["folder"])) / "games" / f"{series_id}.paired.json"
+    assert json.loads(path.read_text(encoding="utf-8"))["status"] == "interrupted"
+
+
+@pytest.mark.parametrize("seats", [5, 6])
+def test_resume_of_a_stored_five_or_six_seat_table_runs_with_the_lock_lifted_locally(
+    lab: dict[str, object], monkeypatch: pytest.MonkeyPatch, seats: int
+) -> None:
+    series_id = _stored_locked_table_series(lab, monkeypatch, seats)
+    revs = lab["revs"]
+    player = lab["player"]
+    assert isinstance(revs, dict) and callable(player)
+    base = str(revs["base"]).split("@", 1)[0]
+    monkeypatch.setattr(launch, "MAX_RELEASED_SEATS", 6)  # in memory, this test only
+    job = paired_series.paired_series_manager.resume_series(
+        Path(str(lab["folder"])),
+        series_id,
+        play_override=player(seats, f"{base}--base", f"{base}--variant"),
+    )
+    assert len(job.opponents) == seats - 1
+    done = _finished(lab, series_id)
+    assert done["seed_plan"]["player_count"] == seats  # type: ignore[index]
 
 
 @pytest.mark.parametrize(("seats", "released"), [(4, True), (5, False), (6, False)])
