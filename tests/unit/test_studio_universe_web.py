@@ -740,8 +740,9 @@ def test_the_tier_page_carries_the_steps_4_to_7_controls() -> None:
     script = (STATIC / "tierliste.js").read_text(encoding="utf-8")
     builder_script = (STATIC / "app.js").read_text(encoding="utf-8")
     assert 'id="spread-filter"' in page
-    assert '"spread"' in script and '"spread_level"' in script
-    assert "LEVEL_RANK" in script and "spread-filter" in script
+    # the spread filter and sort work without level letters since Q1-b5 (#1680)
+    assert '"spread"' in script and '"spread_level"' not in script
+    assert "LEVEL_RANK" not in script and "spread-filter" in script
     assert "must_contain" in script and "u-card-list" in script
     assert "Universum löschen" in script and '"DELETE"' in script
     # the excluded count is part of the shared subset note since the review of #1205

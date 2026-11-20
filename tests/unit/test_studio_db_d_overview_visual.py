@@ -446,7 +446,7 @@ def test_saved_filter_presets_and_quick_chips_wired_in_builder_and_tierlist() ->
 
     assert 'id="tier-quick-presets"' in tier_html
     assert "studio.tierlist.savedPreset" in tier_js
-    assert "Verbreitung unbekannt (U)" in tier_js
+    assert 'Verbreitung unbekannt"' in tier_js and '(U)")' not in tier_js  # Q1-b5: no letter
 
 
 def test_export_deck_dossier_and_route_with_revision_changelog(tmp_path: Path) -> None:

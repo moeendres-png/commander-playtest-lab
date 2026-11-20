@@ -765,6 +765,15 @@ def test_the_tierliste_has_no_overall_rating_left() -> None:
     sorts = js[js.index("const SORTS = [") : js.index("];", js.index("const SORTS = ["))]
     for gone in ('"overall"', '"overall_rank"', "crit:"):
         assert gone not in sorts, gone
+    # No sort key for the model judgement "Kartenverständnis" either: sorting by it would be a
+    # rating through the back door (review of #1691/#1696). The keys are read from the array.
+    sort_keys = re.findall(r'^\s*\["([^"]+)",', sorts, flags=re.MULTILINE)
+    assert "strength" in sort_keys and "rolerank" in sort_keys and len(sort_keys) >= 10
+    for key in sort_keys:
+        for token in ("understanding", "kartenverst", "urteil", "rubric", "judgement"):
+            assert token not in key.casefold(), key
+    # positive case: the judgement column and its constants stay, they are only no sort key
+    assert "const UNDERSTANDING_NAME" in js and "understandingColumns()" in js
     # the judgement column uses the number contract component of B3
     assert html.index('<script src="zahl.js">') < html.index('<script src="tierliste.js">')
 
@@ -778,16 +787,14 @@ def _understanding_node_prelude() -> str:
     nf_line = next(line for line in lines if line.startswith("const nf = "))
     head_line = next(line for line in lines if line.startswith("const plainHead = "))
     constants = js[js.index("const UNDERSTANDING_NAME") : js.index("const SORTS = [")]
-    block = js[
-        js.index("// ---------- rubric v2 judgement") : js.index("function spreadCell(card) {")
-    ]
+    block = js[js.index("// ---------- rubric v2 judgement") : js.index("// ---------- pool view")]
     stub = """
 const h = (tag, props, ...kids) => { const node = {tag, props: props || {}, kids: [],
   append(...more) { this.kids.push(...more.flat(Infinity).filter((k) => k !== null && k !== undefined && k !== false)); }};
   node.append(...kids); return node; };
 const text = (n) => (n === null || n === undefined ? '' : typeof n === 'object' ? n.kids.map(text).join(' ') : String(n));
 const figure = (id, wert, klasse = 'URTEIL') => ({id: 'kartenverstaendnis:' + id, bezeichnung: 'H Gesamtwert (0 bis 100)', wert,
-  einheit: 'Anzahl', n: null, N: null, bezug: null, intervall: null, klasse, kohorte: 'Chulane, Teller of Tales · Bracket 3 (Annahme der Rater)',
+  einheit: 'Punkte', n: null, N: null, bezug: null, intervall: null, klasse, kohorte: 'Chulane, Teller of Tales · Bracket 3 (Annahme der Rater)',
   quelle: 'Rubrik v2.1 (chulane-rubric-v2.1), Modell-Rater Stufe large, 1 Bewerter', stand_datum: null,
   hinweise: ['Rater-Vertrauen high (Selbstauskunft)', 'nicht gegen Spielergebnisse validiert']});
 const field = (zahlen, extra) => ({verfuegbar: true, grund: null, name: 'Kartenverständnis (Modellurteil)', kriterium: 'H',
@@ -859,6 +866,144 @@ console.log(JSON.stringify(out));
     assert mixed[0] == "Klasse passt nicht zur Spalte" and not mixed[0].startswith("90")
     js = (STATIC / "tierliste.js").read_text(encoding="utf-8")
     assert 'StudioZahl.zelle(h, understandingFigure(card), "URTEIL"' in js
+
+
+def test_the_tierliste_shows_exactly_one_tier_scale() -> None:
+    """Q1-b5 (#1680, E2): the tier page has one lettered scale, the strength index S to D. The
+    toggle of the relative tiers S to F and the spread level letters (S to D, U, F, with their
+    names) are gone from page and script; the spread is n of N. "Gleiche Funktion" stays."""
+    html = (STATIC / "tierliste.html").read_text(encoding="utf-8")
+    js = (STATIC / "tierliste.js").read_text(encoding="utf-8")
+    for token in ("tier-mode-toggle", 'id="tm-rel"', 'id="tm-abs"', "data-tier-mode", "(S\u2013F)"):
+        assert token not in html, token
+    for token in (
+        "tier-mode-toggle",
+        "data-tier-mode",
+        "tierMode",
+        "TIER_MODE_KEY",
+        "studio.tier.mode",
+        "relative_tier",
+        "relative_rank",
+        "level_name",
+        "LEVEL_RANK",
+        "spread_level",
+        "item.level",
+        "S\u2013F",
+        "sehr häufig",
+        "Verbreitung unbekannt (U)",
+        "data.params.cuts",
+    ):
+        assert token not in js, token
+    spread_filter = html.split('<select id="spread-filter"', 1)[1].split("</select>", 1)[0]
+    assert re.findall(r'<option value="([^"]*)"', spread_filter) == [
+        "",
+        "counted",
+        "unknown",
+        "filter",
+    ]
+    # the one scale and the kept comparison
+    assert "Stärke-Index mit Stufen S bis D" in html and 'id="rk-usage"' in html
+    assert 'id="rank-group-toggle"' in html and 'id="rg-function"' in html
+    assert "tierBadge(item.tier, StudioUI.num(item.index, 1), title)" in js
+
+
+def _pool_view_node_prelude() -> str:
+    """The real zahl.js and ui.js helpers, the real reason names and the pool view block of
+    tierliste.js (cut out by its markers), with a small h() stub."""
+    js = (STATIC / "tierliste.js").read_text(encoding="utf-8")
+    zahl = (STATIC / "zahl.js").read_text(encoding="utf-8")
+    reasons = next(line for line in js.splitlines() if line.startswith("const REASON_NAMES = "))
+    block = js[js.index("// ---------- pool view") : js.index("function spreadCell(card) {")]
+    stub = """
+const h = (tag, props, ...kids) => ({tag, props: props || {}, kids: kids.flat(Infinity).filter((k) => k !== null && k !== undefined && k !== false)});
+const text = (n) => (n === null || n === undefined ? '' : typeof n === 'object' ? n.kids.map(text).join(' ') : String(n));
+const universe = {profile: 'alle', snapshot_id: 'universe:abc', denominator: 43, below_min_universe: false, subset_note: null};
+const item = (extra) => ({card_id: 'c1', matched: true, filter_card: false, hits: 20, denominator: 43, share: 20 / 43, reason: 'SHARE_CUT', ...extra});
+const show = (it, uni = universe) => { const figure = spreadFigure(it, uni);
+  return {kind: spreadKindOf(it, uni), figure, errors: figure ? StudioZahl.pruefe(figure) : null, text: figure ? text(StudioZahl.knoten(h, figure)) : null}; };
+"""
+    return _ui_helpers_prelude() + zahl + "\n" + reasons + "\n" + block + "\n" + stub
+
+
+def test_the_pool_view_shows_n_of_n_as_a_counted_number_contract() -> None:
+    """Q1-b5 (#1680): the pool view "Nutzung n/N" is one GEZÄHLT figure of the real zahl.js:
+    n of N decks with the universe as cohort and origin. Unmatched and below ``min_universe``
+    the share is "unbekannt", never 0 (n/N stays visible); a filter card gets no figure; a
+    remembered filter with a level letter falls back to "all"."""
+    script = (
+        _pool_view_node_prelude()
+        + """
+const out = {
+  counted: show(item()),
+  unmatched: show(item({matched: false, hits: null, share: null, reason: 'NAME_NOT_FOUND_IN_UNIVERSE'})),
+  small: show(item({hits: 20, denominator: 20, share: 1, reason: 'UNIVERSE_TOO_SMALL'}), {...universe, denominator: 20, below_min_universe: true}),
+  filter: show(item({filter_card: true, share: null, reason: 'FILTER_CARD'})),
+  empty: show(item({matched: false, hits: null, share: null, denominator: 0, reason: 'UNIVERSE_EMPTY'}), {...universe, denominator: 0}),
+  restore: ['S', 'U', 'F', 'unknown', 'counted', 'filter', '', undefined, 'toString'].map((v) => spreadFilterValue(v)),
+};
+console.log(JSON.stringify(out));
+"""
+    )
+    result = _node_json(script)
+    assert isinstance(result, dict)
+    counted = result["counted"]
+    assert counted["kind"] == "counted" and counted["errors"] == []
+    assert counted["figure"]["klasse"] == "GEZÄHLT" and counted["figure"]["einheit"] == "Anteil"
+    assert (counted["figure"]["n"], counted["figure"]["N"]) == (20, 43)
+    assert counted["text"].startswith("46,5 %") and "gezählt" in counted["text"]
+    assert "n/N 20 / 43 Decks" in counted["text"] and "Kohorte: Universum alle" in counted["text"]
+    assert "Stand universe:abc" in counted["text"]
+    for case in ("unmatched", "small", "empty"):
+        shown = result[case]
+        assert shown["kind"] == "unknown" and shown["errors"] == [], case
+        assert shown["figure"]["wert"] is None and shown["text"].startswith("unbekannt"), case
+        assert not shown["text"].startswith("0"), case
+    assert "n/N unbekannt / 43 Decks" in result["unmatched"]["text"]
+    assert "n/N 20 / 20 Decks" in result["small"]["text"]  # the count stays, the share is unknown
+    assert result["filter"] == {"kind": "filter", "figure": None, "errors": None, "text": None}
+    assert result["restore"] == ["", "", "", "unknown", "counted", "filter", "", "", ""]
+    js = (STATIC / "tierliste.js").read_text(encoding="utf-8")
+    assert "StudioZahl.knoten(h, spreadFigure(item, universe))" in js
+    assert '$("spread-filter").value = spreadFilterValue(cfg.spread);' in js
+
+
+def test_the_usage_ranking_button_is_only_enabled_for_a_ready_commander_index() -> None:
+    """The usage button ``rk-usage`` is fixed in the page; ``syncRankingToggle`` disables it while
+    the index loads, without an index map and in the global view (the check the removed toggle
+    test of Q1-b3 covered; review of #1691/#1696)."""
+    js = (STATIC / "tierliste.js").read_text(encoding="utf-8")
+    block = js[js.index("function syncRankingToggle() {") : js.index("function syncRanking() {")]
+    script = (
+        block
+        + """
+const buttons = [{disabled: null}];
+let present = true;
+const $ = (id) => (id === 'ranking-toggle' && present ? {querySelectorAll: (sel) => (sel === 'button[data-ranking]' ? buttons : [])} : null);
+const run = (status, map, view) => { globalThis.state = {view, strength: {status, map}}; buttons[0].disabled = null; syncRankingToggle(); return buttons[0].disabled; };
+const out = {
+  loading: run('loading', null, 'commander'),
+  ready: run('ready', new Map(), 'commander'),
+  readyDeck: run('ready', new Map(), 'deck'),
+  global: run('ready', new Map(), 'global'),
+  noMap: run('ready', null, 'commander'),
+  failed: run('error', new Map(), 'commander'),
+};
+present = false; globalThis.state = {view: 'commander', strength: {status: 'ready', map: new Map()}};
+syncRankingToggle(); out.noBox = 'no error';
+console.log(JSON.stringify(out));
+"""
+    )
+    assert _node_json(script) == {
+        "loading": True,
+        "ready": False,
+        "readyDeck": False,
+        "global": True,
+        "noMap": True,
+        "failed": True,
+        "noBox": "no error",
+    }
+    html = (STATIC / "tierliste.html").read_text(encoding="utf-8")
+    assert 'id="rk-usage"' in html and "disabled" in html.split('id="rk-usage"', 1)[1].split(">")[0]
 
 
 def test_kartenauswertung_renders_outcomes_cohort_and_few_data_honestly() -> None:
