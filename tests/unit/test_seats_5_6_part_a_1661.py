@@ -592,7 +592,9 @@ def test_release_constant_is_the_only_seat_hurdle_on_the_play_route(
     assert [row["seat"] for row in snap["header"]["seats"]] == list(range(count))
 
 
-def test_studio_refuses_five_seats_without_the_switch_on_every_entry(tmp_path: Path) -> None:
+def test_studio_refuses_five_and_six_seats_at_the_seat_rule_and_the_play_route(
+    tmp_path: Path,
+) -> None:
     """Issue #1661 acceptance: without the Owner's release five (and six) seats stay refused, at
     the seat rule itself and on the play route; the CLI switch exists only for measurement."""
     assert launch.MAX_RELEASED_SEATS == 4

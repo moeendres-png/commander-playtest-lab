@@ -22,11 +22,11 @@ Regel selbst.
 | F1 | Festlegungen `ALL`/`MULTIPLE`, 6 ohne Replay-Anspruch | Entwurf (Owner) | Entwurf (Owner) | Entwurf (Owner) | Entwurf (Owner) | Drei Sätze in Abschnitt 4. Ist-Stand per Test festgehalten (`test_f5_4_…`). |
 | F2 | Vollständigkeit, 2 Tische × 12 Seeds | NOT_RUN | NOT_RUN | NOT_RUN | NOT_RUN | braucht Echt-Engine; Schritt B2 |
 | F3 | Identität 1 gegen W Worker, Position in der JVM, N ≥ 20 | NOT_RUN | NOT_RUN | NOT_RUN | NOT_RUN | braucht Echt-Engine; Schritt B3. Das Digest-Werkzeug `identity_row` ist an synthetischen Logs geprüft. |
-| F4 | Verdeckte Information je Sitz 5 und 6 | PASS (Test) | PASS (Test) | PASS (Test) | PASS (Test) | Test-Bridge, alle laufenden Antworten, Mensch auf Sitz 1/5 (5 Sitze) und Sitz 1/5/6 (6 Sitze); Mutationsproben 9 von 10 rot (Abschnitt 2). SIMULATE zeigt keine Hände live; geprüft ist die gemeinsame Schwärzung im Spielprotokoll (`read_game`). Ob die echte Bridge bei 5/6 nur Akteur-gebundene Zustände liefert: NOT_RUN (Teil B, Audit `audit_actor_scoped_frame` läuft in jeder Runner-Partie mit). |
+| F4 | Verdeckte Information je Sitz 5 und 6 | PASS (Test) | PASS (Test) | PASS (Test) | PASS (Test) | Test-Bridge, alle laufenden Antworten, Mensch auf Sitz 1/5 (5 Sitze) und Sitz 1/5/6 (6 Sitze); Mutationsproben 9 von 10 rot (Abschnitt 2). **SIMULATE:** belegt ist nur die gemeinsame Schwärzung im Spielprotokoll (`read_game`); SIMULATE zeigt keine Hände live, und einen 5/6-Weg für SIMULATE in der Oberfläche gibt es noch nicht (Abschnitt 4, Freigabe-Diff Punkt 3). Ob die echte Bridge bei 5/6 nur Akteur-gebundene Zustände liefert: NOT_RUN (Teil B, Audit `audit_actor_scoped_frame` läuft in jeder Runner-Partie mit). |
 | F5 | acht Regelpunkte aus Plan §2 | Schnittstelle PASS (Test), Regel NOT_RUN | wie links | wie links | wie links | Tabelle in Abschnitt 3: je Punkt zwei Spalten |
 | F6 | Laufzeit 4/5/6, 10 Seeds, eine JVM je Partie und Pool | NOT_RUN | NOT_RUN | NOT_RUN | NOT_RUN | Schritt B4. Die p99-Latenz je Entscheidung schreibt das Studio-Protokoll nicht mit: UNKNOWN, solange niemand sie misst. |
 | F7 | Piloten: Auslassungen, Angriffsziel-Verteilung | NOT_RUN | NOT_RUN | NOT_RUN | NOT_RUN | Schritt B5 (Auswertung der B2-Logs). Für 5/6 gibt es keine menschliche Referenz. |
-| F8 | gepaarte Serie mit voller Sitz-Rotation, 25 bzw. 36 je Block und Arm | Planung PASS (Test), Lauf NOT_RUN | nicht anwendbar | Planung PASS (Test), Lauf NOT_RUN | nicht anwendbar | Rotation vollständig (Latin Square), jede Einheit gespielt, Ausfälle und Fehlsitze zensiert und je Klasse gezählt; Lauf in Schritt B6 |
+| F8 | gepaarte Serie mit voller Sitz-Rotation, 25 bzw. 36 je Block und Arm | Planung PASS (Test), Lauf NOT_RUN | nicht anwendbar | Planung PASS (Test), Lauf NOT_RUN | nicht anwendbar | Rotation vollständig (Latin Square), jede Einheit gespielt, Ausfälle und Fehlsitze zensiert und je Klasse gezählt; Lauf in Schritt B6. **SIMULATE:** belegt ist nur der Planungs- und Auswertungscode (`run_comparison_series`, `pod_decks`, `start_series`); die Serien-Oberfläche kennt nur Vierertische (`POD_PRESETS`, `PAIRED_TABLE_SEATS = 4`), ein 5/6-Weg dort fehlt. |
 
 Zusatz (Kriterium 3 des Co-Leads): **Die Partie-Seite stellt 5 und 6 Sitze dar:** PASS (Test,
 Node mit DOM-Attrappe, Freigabe nur im Speicher simuliert). **Die Sperre ist die einzige Hürde
@@ -40,7 +40,7 @@ auf dem PLAY-Weg:** PASS (Test, echte Route `POST /api/games` mit Test-Bridge bi
 | `test_f4_no_running_response_carries_a_hidden_card_of_another_seat[5p-sitz1, 5p-sitz5, 6p-sitz1, 6p-sitz5, 6p-sitz6]` | Keine laufende Antwort enthält Handkarten (`hand`, `hand_cards`) eines anderen Sitzes. Die Test-Bridge legt jedem Zustand alle Hände bei. Das ist strenger als die echte Bridge, die KI-Zustände akteur-gebunden liefert. Mitgeprüft, aber schon durch die Bauart sicher und von keiner Mutationsprobe abgedeckt: das `context` einer KI-Entscheidung wird nie ausgeliefert und nie in einen Frame übernommen. Geprüft werden `GET /api/play`, die gehaltene Abfrage mit `since` (#1593), `GET /api/games` und der Zustand, den eine Antwort mit `start` trägt (#1578). Positivkontrolle: Die eigene Hand ist sichtbar. Nach Spielende sind alle Hände da, die Geheimnisse waren also zum Lecken vorhanden. |
 | `test_f4_hidden_pick_of_ai_seat_five_or_six_stays_hidden_while_running[5, 6]` | Eine verdeckte Wahl der KI-Sitze 2 bis 6 (Bottom/Tutor) bleibt bis Spielende ohne Kartennamen. |
 | `test_release_constant_is_the_only_seat_hurdle_on_the_play_route[5-0, 6-0, 6-5]` | Mit der Konstante 4 antwortet die Route mit 422 „locked“. Wird nur die Konstante (im Speicher) auf 6 gesetzt, spielt dieselbe Anfrage über die echte Route eine ganze Partie: 5 bzw. 6 Deck-Handles, Startsitz `seed % N`, Ergebnis, Sitze 0..N-1. |
-| `test_studio_refuses_five_seats_without_the_switch_on_every_entry` | Die Abnahme aus #1661: 5/6 werden ohne Schalter abgelehnt, 7 auch mit Schalter. |
+| `test_studio_refuses_five_and_six_seats_at_the_seat_rule_and_the_play_route` | Die Abnahme aus #1661, soweit hier geprüft: die Sitzregel (`validate_released_seat_count`) lehnt 5/6 ohne Schalter ab und lässt sie mit Schalter zu, 7 auch mit Schalter nicht; die PLAY-Route `POST /api/games` antwortet bei 5 Sitzen mit 422. Batch, Paired und `compare-decks` prüfen die bestehenden Tests `test_studio_simulations.py:372, 403, 443`. |
 | `test_f5_1` … `test_f5_8` | Abschnitt 3 |
 | `test_f8_rotation_plan_is_complete_at_five_and_six_seats[5, 6]` | 25/36 Einheiten. Jede Kombination (Startsitz `seed % N`, getesteter Sitz) kommt genau einmal vor, jede relative Position N-mal, jedes Deck sitzt N-mal auf jedem Sitz (`pod_decks`). |
 | `test_f8_series_plays_every_planned_unit_and_names_every_failure[5, 6]` | `run_comparison_series` spielt alle 2 × 25 bzw. 2 × 36 Partien in Planreihenfolge. Ein Ausfall auf Sitz 5 und ein Fehlsitz auf dem letzten Sitz zensieren je ein Paar, werden je Klasse gezählt (`EngineTimeout`, `Misseated`) und gewarnt. Keiner zählt als Niederlage. |
@@ -58,7 +58,7 @@ danach `git checkout`). Ergebnis: 9 von 10 rot.
 | Frame-Schwärzung der Hand für Sitz 5 aus (`games.redact_frame_for_human_seats`, `seat != 4`) | rot (11 Fälle) |
 | dasselbe für Sitz 6 (`seat != 5`) | rot (5) |
 | Pilot-State-Schwärzung für Sitz 5 aus (`redact_pilot_state_for_human_seats`) | rot (9) |
-| dasselbe für Sitz 6 | rot (5) |
+| dasselbe für Sitz 6 | rot (4) |
 | verdeckte Wahl (`private_selection`) für Sitz 5 sichtbar | rot (2) |
 | dasselbe für Sitz 6 | rot (1) |
 | Pilot-State behält `hand_cards` | rot (12) |
@@ -93,17 +93,26 @@ mehr Verteidigern wird er häufiger. Weiter offen (UNKNOWN): die Formen `Seat N`
 derselben Funktion sind ebenso doppeldeutig. Woher sie kommen, ist im Repo nicht belegt; sie
 sind unverändert.
 
-**B-2 (Befund, kein Fix):** `card_outcomes.build_table` trennt Partien nicht nach Tischgröße.
+**B-2 (Befund, kein Fix, Voraussetzung vor dem Freigabe-PR):** `card_outcomes.build_table` (`card_outcomes.py:812-837`) trennt Partien nicht nach Tischgröße.
 Das gilt schon heute für 2/3/4 Sitze. Mit 5/6 Sitzen mischt die Kartenauswertung Basis-
 Siegraten von 1/4, 1/5 und 1/6. Die gepaarte Serie ist nicht betroffen: Paare brauchen
-denselben Gegner-Tisch. Vorschlag für den Freigabe-PR: Tischgröße als Kohortenmerkmal oder
-mindestens als Warnung („Kohorten nie mischen“).
+denselben Gegner-Tisch. „Kohorten nie mischen“ ist harte Regel, deshalb ist die Trennung nach
+Tischgröße eine **Voraussetzung vor dem Freigabe-PR**, nicht ein Teil davon. Ansatz aus #1671:
+die geschichtete Risikodifferenz (`card_outcomes.py:922`) mit der Tischgröße als Schicht und
+„nicht zusammenfassen bei anderem Gegnertisch-Satz“ (`card_outcomes.py:1041`). Der Co-Lead
+legt dafür ein eigenes Issue an; dieser PR baut es nicht.
 
 **B-3 (Hinweis):** Der Planungstext im Serien-Dialog (`paired.js:40`) nennt „exakt 0,612 für
 unabhängige Partien mit 25 % Siegrate“. Bei 5/6 Sitzen ist die Basis 20 % bzw. 16,7 %
 (exakt 0,566 bzw. 0,527). Der Planungswert 0,63 bleibt vorsichtig, der Text sollte bei 5/6 die
 Sitzzahl nennen. Die Dauer-Untergrenze (541,2 Partien/h, gemessen bei 4 Sitzen) bleibt eine
 Untergrenze, weil 5/6-Partien länger dauern.
+
+**UNKNOWN (nicht 5/6-spezifisch):** Verdeckt Exiliertes. `face_down` wird nur beim Schreiben
+eines Frames zu „(verdeckt)“ (`games.py:93`); `redact_pilot_state_for_human_seats`
+(`games.py:579-598`) entfernt nur die Hand. Ob die Bridge verdeckt exilierte Karten anderer
+Sitze im Pilot-State mit Namen liefert, ist nicht geprüft; die Tests legen `exile: []` an.
+Ebenso UNKNOWN bleiben die Formen `Seat N`/`Seat N+1` im Brett (`partie.js:463-464`).
 
 **B-4 (Fakt):** Die CLI `python -m commander_lab.studio play` nimmt 2 bis 6 `--deck` ohne
 Sperre (Entwicklerweg). Teil B misst damit. `play-batch` ebenso.
@@ -136,19 +145,34 @@ Vorschlag Hinweistexte (nur Text):
 - Allgemein bis zur Freigabe (E15 Q5, schon so gewollt): „5 und 6 Sitze sind noch nicht
   freigegeben.“
 
-**Der Freigabe-PR als mechanischer Schritt** (Owner-Go vorausgesetzt):
-1. `src/commander_lab/studio/launch.py:37`: `MAX_RELEASED_SEATS = 6`.
-2. `src/commander_lab/studio/static/partie.js:11`: `const OPPONENT_COUNTS = [1, 2, 3, 4, 5];`.
-   Der Wächter `test_studio_static_guards.py:360` folgt der Konstante von selbst.
-3. Tests, die die Sperre festhalten und dann umgeschrieben werden:
+**Der Freigabe-PR** (Owner-Go vorausgesetzt). Für PLAY ist er mechanisch, für SIMULATE nicht:
+
+*A. Mechanisch (Konstanten und Texte):*
+1. `src/commander_lab/studio/launch.py:37`: `MAX_RELEASED_SEATS = 6`; der Kommentar
+   `launch.py:33-36` („two to four seats … locked“) wird angepasst.
+2. `src/commander_lab/studio/static/partie.js:11`: `const OPPONENT_COUNTS = [1, 2, 3, 4, 5];`;
+   der Kommentar `partie.js:8-10` wird angepasst. Der Wächter `test_studio_static_guards.py:361`
+   folgt der Konstante von selbst.
+3. Texte: Hilfe `--allow-unreleased-seats` (`__main__.py:442`, „unreleased outside Owner
+   qualification“; der Schalter wird nach der Freigabe überflüssig oder entfällt) und der
+   Bias-Hinweis in `sources.py:275` („seat 5 is not released for Studio play“).
+4. Tests, die die Sperre festhalten und dann umgeschrieben werden:
    `test_human_seat_play_1169.py:935` (`(2, 4)` und die 422 für 5/6),
-   `test_studio_simulations.py:365, 396, 436` (Batch, Paired, `compare-decks` lehnen 5/6 ab),
-   und in dieser Datei `test_studio_refuses_five_seats_without_the_switch_on_every_entry`,
+   `test_studio_simulations.py:372, 403, 443` (Batch, Paired, `compare-decks` lehnen 5/6 ab),
+   und in dieser Datei `test_studio_refuses_five_and_six_seats_at_the_seat_rule_and_the_play_route`,
    der erste Teil von `test_release_constant_is_the_only_seat_hurdle_on_the_play_route`
    (`== 4`, 422) und der `locked`-Teil von `test_new_game_dialog_…`.
-4. Hinweistexte (oben), B-2/B-3 nach Entscheid, Entscheid-Eintrag (E16) und die Owner-Texte
-   (`AGENTS.md` §1 „two to four seats are active“, `STUDIO_SCOPE.md`) durch den Owner bzw.
-   per Owner-Go.
+
+*B. Für SIMULATE zusätzlich zu bauen (keine Konstante, eigener Umfang):*
+5. Die Serien-Oberfläche kennt nur Vierertische: `POD_PRESETS: dict[str, tuple[str, str, str]]`
+   (`launch.py:41`, drei Gegner je Preset) und `PAIRED_TABLE_SEATS = 4` (`paired.js:11-12`,
+   Plan und Dauer rechnen mit 4 Sitzen). Nötig sind Presets oder eine Gegnerwahl mit 4 bzw. 5
+   Gegnern, die Sitzzahl im Serien-Dialog (`seats_per_seed` aus dem Tisch, nicht fest 4) und
+   Tests dazu. Ohne das ist SIMULATE bei 5/6 nur über die CLI (`compare-decks`) erreichbar.
+6. B-2 (Trennung der Kartenauswertung nach Tischgröße) muss **vorher** gelöst sein; eigenes Issue.
+
+*C. Owner-Sache:* Hinweistexte (oben), B-3 nach Entscheid, Entscheid-Eintrag (E16) und die
+Owner-Texte (`AGENTS.md` §1 „two to four seats are active“, `STUDIO_SCOPE.md`).
 
 ## 5. Teil B: Schrittliste für den Co-Lead (Echt-Engine, ca. 2–3 h)
 
