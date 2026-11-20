@@ -15,7 +15,9 @@ from __future__ import annotations
 import json
 import re
 import sqlite3
+import threading
 import time
+import types
 from collections.abc import Iterator, Sequence
 from pathlib import Path
 
@@ -23,10 +25,12 @@ import pytest
 from starlette.testclient import TestClient
 
 from commander_lab.studio import builder, games, play
+from commander_lab.studio import simulations as simulations_module
 from commander_lab.studio import store as store_module
 from commander_lab.studio.decks import RevisionCard, create_revision
 from commander_lab.studio.launch import POD_PRESETS
 from commander_lab.studio.simulations import (
+    BatchSimulation,
     GameSummary,
     SimulationBatchManager,
     aggregate_batch_results,
@@ -772,5 +776,228 @@ def test_two_series_under_one_pod_name_with_different_tables_stay_apart(
         assert sorted(tuple(run["opponent_ids"]) for run in listed) == sorted(
             [tuple(PRESET_IDS), tuple(reversed(PRESET_IDS))]
         )
+    finally:
+        store.close()
+
+
+# --- #1707: two series in one second never share a run id ------------------------------------
+
+FROZEN_SECOND = 1_800_000_000.0
+
+
+def _freeze_second(monkeypatch: pytest.MonkeyPatch) -> None:
+    """The batch id carries the start second: hold the clock still, as a fast double start does."""
+    monkeypatch.setattr(
+        simulations_module, "time", types.SimpleNamespace(time=lambda: FROZEN_SECOND)
+    )
+
+
+def _start(
+    manager: SimulationBatchManager, store: StudioStore, folder: Path, rev_id: str, base: int
+) -> BatchSimulation:
+    return manager.start_batch(
+        store,
+        folder,
+        revision_id=rev_id,
+        pod="precon",
+        games_count=4,
+        base_seed=base,
+        chunk_runner=_cards_runner,
+    )
+
+
+def test_two_series_started_in_one_second_keep_two_run_ids(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Before #1707 the second start took the first one's id: one run row, one record survived."""
+    from commander_lab.studio import cache
+
+    monkeypatch.setattr(cache, "CHECK", True)  # an undeclared write fails the series
+    _freeze_second(monkeypatch)
+    store = StudioStore.open(tmp_path)
+    try:
+        rev_id = _seed_test_deck(store)
+        manager = SimulationBatchManager()
+        first = _start(manager, store, tmp_path, rev_id, 10)
+        second = _start(manager, store, tmp_path, rev_id, 20)  # same second, same deck slug
+        _wait(first)
+        _wait(second)
+        assert first.status == "completed" and second.status == "completed"
+        # the first id of a second keeps its old form, the later one only gains a suffix
+        assert first.batch_id == "batch-1800000000-chulane"
+        assert second.batch_id == "batch-1800000000-chulane-2"
+        assert first.run_id != second.run_id and first.run_id and second.run_id
+        rows = store.connection.execute(
+            "SELECT run_id, seeds FROM simulation_run ORDER BY run_id"
+        ).fetchall()
+        assert {r["run_id"]: json.loads(r["seeds"]) for r in rows} == {
+            first.run_id: [10, 11, 12, 13],
+            second.run_id: [20, 21, 22, 23],
+        }
+        assert (
+            store.connection.execute("SELECT COUNT(*) FROM simulation_card").fetchone()[0] == 2
+        )  # Forest, one row per series
+        records = sorted(p.name for p in games.games_folder(tmp_path).glob("*.series.json"))
+        assert records == sorted(
+            [f"{first.batch_id}.series.json", f"{second.batch_id}.series.json"]
+        )
+        stored = json.loads(
+            (games.games_folder(tmp_path) / f"{second.batch_id}.series.json").read_text("utf-8")
+        )
+        assert stored["seeds"] == [20, 21, 22, 23] and stored["run_id"] == second.run_id
+        assert [b["batch_id"] for b in manager.list_batches()] == [
+            second.batch_id,
+            first.batch_id,
+        ]
+    finally:
+        store.close()
+
+
+def test_a_saved_series_of_the_same_second_is_never_overwritten(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """After a restart the manager is empty: the saved run row and record still hold the id."""
+    _freeze_second(monkeypatch)
+    store = StudioStore.open(tmp_path)
+    try:
+        rev_id = _seed_test_deck(store)
+        first = _start(SimulationBatchManager(), store, tmp_path, rev_id, 10)
+        _wait(first)
+        before = store.connection.execute("SELECT * FROM simulation_run").fetchall()
+        record = games.games_folder(tmp_path) / f"{first.batch_id}.series.json"
+        record_before = record.read_text("utf-8")
+
+        later = _start(SimulationBatchManager(), store, tmp_path, rev_id, 20)  # fresh manager
+        _wait(later)
+        assert later.batch_id == f"{first.batch_id}-2"
+        assert record.read_text("utf-8") == record_before
+        old_row = store.connection.execute(
+            "SELECT * FROM simulation_run WHERE run_id = ?", (first.run_id,)
+        ).fetchone()
+        assert tuple(old_row) == tuple(before[0])  # untouched: no rename, no rewrite
+
+        # only the series record exists (the run row was lost): the id is still taken
+        store.connection.execute("DELETE FROM simulation_card WHERE run_id = ?", (first.run_id,))
+        store.connection.execute("DELETE FROM simulation_run WHERE run_id = ?", (first.run_id,))
+        store.connection.commit()
+        again = _start(SimulationBatchManager(), store, tmp_path, rev_id, 30)
+        _wait(again)
+        assert again.batch_id == f"{first.batch_id}-3"
+
+        # only the run row exists (the record file was lost): the id is still taken
+        (games.games_folder(tmp_path) / f"{again.batch_id}.series.json").unlink()
+        row_only = _start(SimulationBatchManager(), store, tmp_path, rev_id, 40)
+        _wait(row_only)
+        assert row_only.batch_id == f"{first.batch_id}-4"
+    finally:
+        store.close()
+
+
+def test_a_taken_batch_id_is_refused_and_nothing_is_changed(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    _freeze_second(monkeypatch)
+    monkeypatch.setattr(simulations_module, "BATCH_ID_ATTEMPTS", 2)
+    store = StudioStore.open(tmp_path)
+    try:
+        rev_id = _seed_test_deck(store)
+        manager = SimulationBatchManager()
+        for base in (10, 20):
+            _wait(_start(manager, store, tmp_path, rev_id, base))
+        records = {
+            p.name: p.read_text("utf-8") for p in games.games_folder(tmp_path).glob("*.series.json")
+        }
+        rows = [tuple(r) for r in store.connection.execute("SELECT * FROM simulation_run")]
+        with pytest.raises(RuntimeError, match="no series was started"):
+            _start(manager, store, tmp_path, rev_id, 30)
+        assert len(manager.list_batches()) == 2  # the refused start left no batch behind
+        assert records == {
+            p.name: p.read_text("utf-8") for p in games.games_folder(tmp_path).glob("*.series.json")
+        }
+        assert rows == [tuple(r) for r in store.connection.execute("SELECT * FROM simulation_run")]
+    finally:
+        store.close()
+
+
+def test_a_new_second_keeps_the_plain_id_and_resume_reads_the_stored_id(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Equivalence: ids of other seconds are unchanged; resume takes the saved id, never a new one."""
+    store = StudioStore.open(tmp_path)
+    try:
+        rev_id = _seed_test_deck(store)
+        manager = SimulationBatchManager()
+        clock = {"now": FROZEN_SECOND}
+        monkeypatch.setattr(
+            simulations_module, "time", types.SimpleNamespace(time=lambda: clock["now"])
+        )
+        first = _start(manager, store, tmp_path, rev_id, 10)
+        clock["now"] += 1
+        second = _start(manager, store, tmp_path, rev_id, 20)
+        _wait(first)
+        _wait(second)
+        assert (first.batch_id, second.batch_id) == (
+            "batch-1800000000-chulane",
+            "batch-1800000001-chulane",
+        )
+        # a series that collided in its second keeps its suffixed id when read back from disk
+        clock["now"] = FROZEN_SECOND
+        third = _start(manager, store, tmp_path, rev_id, 30)
+        _wait(third)
+        assert third.batch_id == "batch-1800000000-chulane-2"
+        resumed = BatchSimulation.from_saved_series(
+            tmp_path, third.batch_id, chunk_runner=_cards_runner
+        )
+        assert resumed.batch_id == third.batch_id and resumed.seeds == [30, 31, 32, 33]
+    finally:
+        store.close()
+
+
+def test_parallel_starts_in_one_second_all_get_their_own_id(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    _freeze_second(monkeypatch)
+    in_use = simulations_module.batch_id_in_use
+
+    def slow_in_use(store: StudioStore, folder: Path, batch_id: str) -> bool:
+        taken = in_use(store, folder, batch_id)
+        time.sleep(0.02)  # widen the window between choosing an id and registering it
+        return taken
+
+    monkeypatch.setattr(simulations_module, "batch_id_in_use", slow_in_use)
+    store = StudioStore.open(tmp_path)
+    try:
+        rev_id = _seed_test_deck(store)
+        manager = SimulationBatchManager()
+        ids: list[str] = []
+        errors: list[str] = []
+        gate = threading.Barrier(8)
+
+        def go(base: int) -> None:
+            gate.wait()
+            own_store = StudioStore.open(
+                tmp_path
+            )  # one store per request thread, as the route does
+            try:
+                ids.append(_start(manager, own_store, tmp_path, rev_id, base).batch_id)
+            except Exception as exc:  # reported below, never swallowed
+                errors.append(repr(exc))
+            finally:
+                own_store.close()
+
+        threads = [threading.Thread(target=go, args=(100 * i,)) for i in range(8)]
+        for t in threads:
+            t.start()
+        for t in threads:
+            t.join(10)
+        assert errors == []
+        assert len(ids) == 8 and len(set(ids)) == 8
+        for batch in manager.list_batches():
+            deadline = time.monotonic() + 10
+            while batch["status"] in {"pending", "running"} and time.monotonic() < deadline:
+                time.sleep(0.05)
+                batch = next(
+                    b for b in manager.list_batches() if b["batch_id"] == batch["batch_id"]
+                )
     finally:
         store.close()

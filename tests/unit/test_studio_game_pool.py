@@ -889,3 +889,100 @@ def test_a_broken_engine_command_is_a_pool_error(tmp_path: Path) -> None:
         pool.run(_tasks(range(1, 4)))
     pool.close()
     assert pool.summary()["worker_processes_started"] == 1
+
+
+# --- P3-A (#1652): drain queued worker events before ended-idle grace drops the worker ----------
+
+
+@posix_only
+def test_p3a_queued_jvm_exit_and_bye_are_drained_before_idle_grace_drops_worker(
+    tmp_path: Path,
+) -> None:
+    pool, _ = _pool(tmp_path, workers=2, budget=8)
+    assert game_pool.ENDED_EOF_GRACE_SECONDS == 5.0
+    assert pool.ended_eof_grace_seconds == 5.0
+    pool.ended_eof_grace_seconds = 0.05
+    with pool:
+        first = pool.run(_tasks(range(1, 3), "p3a"))
+        assert len(first) == 2
+        worker_one = pool._workers[0]
+        # Worker 1 retires cleanly and finishes writing jvm_exit + bye + EOF before the next look
+        # window begins, while more than ended_eof_grace_seconds elapse between windows.
+        assert worker_one.send({"op": "retire"})
+        worker_one._out.join(timeout=5)
+        _wait_zombie(worker_one.proc.pid)
+        assert worker_one.end_if_exited() is True
+        worker_one.ended_at -= 10.0
+
+        second = pool.run(_tasks(range(3, 5), "p3a"))
+        assert len(second) == 2
+
+    info = pool.summary()
+    assert info["games_finished"] == 4
+    assert info["jvm_lives_lost"] == 0
+    lives = info["jvm_lives"]
+    assert isinstance(lives, list)
+    assert any(
+        life.get("life_id") == "w1-1" and life.get("end") == "series_closed" for life in lives
+    )
+    assert len(lives) == 3
+
+
+@posix_only
+def test_p3a_queued_eof_retires_worker_via_drain_even_when_grace_is_large(
+    tmp_path: Path,
+) -> None:
+    pool, _ = _pool(tmp_path, workers=2, budget=8)
+    pool.ended_eof_grace_seconds = 60.0
+    with pool:
+        first = pool.run(_tasks(range(1, 3), "p3a-eof"))
+        assert len(first) == 2
+        worker_one = pool._workers[0]
+        assert worker_one.send({"op": "retire"})
+        worker_one._out.join(timeout=5)
+        _wait_zombie(worker_one.proc.pid)
+        assert worker_one.end_if_exited() is True
+
+        second = pool.run(_tasks(range(3, 5), "p3a-eof"))
+        assert len(second) == 2
+        assert worker_one not in pool._workers
+
+    info = pool.summary()
+    assert info["games_finished"] == 4
+    assert info["jvm_lives_lost"] == 0
+    assert info["worker_processes_started"] == 3
+
+
+def test_p3a_queued_jvm_exit_without_eof_is_kept_when_grace_expires(tmp_path: Path) -> None:
+    import time
+
+    pool, _ = _pool(tmp_path, workers=2, budget=8)
+    pool.ended_eof_grace_seconds = 0.05
+    try:
+        pool.run(_tasks(range(1, 3), "p3a-noeof"))
+        worker_one = pool._workers[0]
+        # Synthetic probe (no held external pipe): marks the live worker ended with expired grace
+        # and enqueues jvm_exit without EOF; _idle_worker then calls _lose (known #1652 Pt. 4 count).
+        worker_one.ended = True
+        worker_one.ended_at = time.monotonic() - 10.0
+        pool._events.put(
+            (
+                worker_one,
+                {
+                    "ev": "jvm_exit",
+                    "life_id": "w1-1",
+                    "games": 1,
+                    "end": "budget",
+                    "disposition": "clean",
+                },
+            )
+        )
+        second = pool.run(_tasks(range(3, 5), "p3a-noeof"))
+        assert len(second) == 2
+        info = pool.summary()
+        assert info["jvm_lives_lost"] == 1
+        lives = info["jvm_lives"]
+        assert isinstance(lives, list)
+        assert any(life.get("life_id") == "w1-1" and life.get("end") == "budget" for life in lives)
+    finally:
+        pool.close()

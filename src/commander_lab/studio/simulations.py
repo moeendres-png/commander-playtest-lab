@@ -1395,6 +1395,35 @@ def _played_game(line: str) -> str | None:
     return None
 
 
+BATCH_ID_ATTEMPTS = 1000
+
+
+def batch_id_in_use(store: StudioStore, data_folder: Path, batch_id: str) -> bool:
+    """True when a saved series already owns ``batch_id``: its record file or its run row (#1707)."""
+    if (games_folder(data_folder) / f"{batch_id}.series.json").exists():
+        return True
+    row = store.connection.execute(
+        "SELECT 1 FROM simulation_run WHERE run_id = ?", (f"batch-{batch_id}",)
+    ).fetchone()
+    return row is not None
+
+
+def free_batch_id(base: str, in_use: Callable[[str], bool]) -> str:
+    """``base`` when free, else ``base-2``, ``base-3``, ...; a clear error, never an overwrite.
+
+    A series that is already saved keeps its id (resume reads it back); a new series never takes
+    an id that a run row, a series record or a running batch already holds (#1707).
+    """
+    for attempt in range(1, BATCH_ID_ATTEMPTS + 1):
+        candidate = base if attempt == 1 else f"{base}-{attempt}"
+        if not in_use(candidate):
+            return candidate
+    raise RuntimeError(
+        f"batch id {base!r} and its {BATCH_ID_ATTEMPTS - 1} suffixed variants are all taken; "
+        "no series was started and no existing one was changed"
+    )
+
+
 class SimulationBatchManager:
     """Session-level registry and controller for batch simulation jobs."""
 
@@ -1452,33 +1481,43 @@ class SimulationBatchManager:
             json.dumps(snapshot, indent=1, ensure_ascii=False) + "\n", encoding="utf-8"
         )
 
-        batch_id = f"batch-{int(time.time())}-{re.sub(r'[^a-z0-9]+', '-', deck_id.lower())[:16]}"
+        base_batch_id = (
+            f"batch-{int(time.time())}-{re.sub(r'[^a-z0-9]+', '-', deck_id.lower())[:16]}"
+        )
         seeds = [base_seed + i for i in range(games_count)]
         qual = bridge_qualification()
         jar_sha = (
             command_bridge_jar_sha256(data_path, engine.command) if engine is not None else None
         )
 
-        batch = BatchSimulation(
-            batch_id=batch_id,
-            data_folder=data_path,
-            deck_id=deck_id,
-            revision_id=revision_id,
-            pod_name=pod,
-            opponent_paths=opp_paths,
-            opponent_ids=opponent_ids if opponent_ids is not None else list(POD_PRESETS[pod]),
-            seeds=seeds,
-            style=style,
-            game_executor=game_executor,
-            workers=used_workers,
-            games_per_jvm=used_games_per_jvm,
-            engine=engine,
-            chunk_runner=chunk_runner,
-            bridge_jar_sha256=jar_sha,
-            qualification=qual,
-        )
-
+        # The id is chosen and registered under one lock: two series that start in the same second
+        # (#1707) never share an id, so neither overwrites the other's run row, series record or
+        # game logs. The first id of a second keeps its old form; only a later one gets a suffix.
         with self._lock:
+            batch_id = free_batch_id(
+                base_batch_id,
+                lambda candidate: (
+                    candidate in self._batches or batch_id_in_use(store, data_path, candidate)
+                ),
+            )
+            batch = BatchSimulation(
+                batch_id=batch_id,
+                data_folder=data_path,
+                deck_id=deck_id,
+                revision_id=revision_id,
+                pod_name=pod,
+                opponent_paths=opp_paths,
+                opponent_ids=opponent_ids if opponent_ids is not None else list(POD_PRESETS[pod]),
+                seeds=seeds,
+                style=style,
+                game_executor=game_executor,
+                workers=used_workers,
+                games_per_jvm=used_games_per_jvm,
+                engine=engine,
+                chunk_runner=chunk_runner,
+                bridge_jar_sha256=jar_sha,
+                qualification=qual,
+            )
             self._batches[batch_id] = batch
 
         # Store factory for persistence at end of run
