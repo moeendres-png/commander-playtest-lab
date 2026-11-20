@@ -27,7 +27,7 @@ Hinweis zum Dateinamen: das Issue nennt `q1_removal_inventory.md`; auf Anweisung
    Tabelle `tier_snapshot` (Schema, K-2; B1 #1657 schreibt gerade neue Spalten in `simulation_run`),
    `memo.py` (D-1) und die alten Orchestrierer (D-2 P5, #1652 offen). `subarchetypes.py` ist ein
    unabhängiges Blatt und kann jederzeit separat gehen.
-4. **Umfang K1 bis K7:** etwa 7.750 Zeilen (rund 3.750 Quelltext, rund 4.000 Tests), Schätzung nach 5.
+4. **Umfang K1 bis K7:** etwa 7.750 Zeilen (3.745 Quelltext + 4.000 Tests = 7.745, gerundet; mit Q1-b0 etwa 7.845), Schätzung nach 5.
    Das ist etwa das Fünffache der 1.500-Zeilen-Grenze aus dem Issue; Empfehlung: sechs PRs (9).
 5. **Größtes fachliches Risiko:** `StrengthSettings` wirft bei unbekanntem Komponenten-Schlüssel
    (`strength.py:653`, `ValueError("unknown component")`). Jedes gespeicherte `strength_profile.spec` enthält
@@ -128,7 +128,7 @@ Die Gegenrichtung ist real: `studio/` verwendet die Qualifikation lesend (siehe 
 
 | # | Sperre | Beleg | Betrifft | Folge |
 |---|---|---|---|---|
-| S1 | **Architektur-Ratsche.** Die Cycle-Liste und die erlaubten Importe von `commander_lab.qualification` stehen in einer Fixture; der Test schlägt auch bei **Abnahme** fehl (der neue Wert ist dann in die Fixture zu schreiben, mit `history`-Eintrag) | `tests/architecture/test_layer_boundaries.py:44`, `:122-160`; `tests/fixtures/studio_architecture_baseline.json:15` (`tier_snapshot`), `:16` (`tiers`), `:22-28` (`simulations -> …bridge_launcher: 1`, `paired_comparison -> …: 1`, `doctor`, `launch`, `play`) | K9 (`tier_snapshot` und `tiers` liegen im 13er-Zyklus), K5b (`tiers`), alte Orchestrierer (`simulations`, `paired_comparison`) | Jeder dieser Schnitte ändert die Fixture im selben PR; kein Löschen ohne diese Zeile |
+| S1 | **Architektur-Ratsche.** Die Cycle-Liste und die erlaubten Importe von `commander_lab.qualification` stehen in einer Fixture; der Test schlägt auch bei **Abnahme** fehl (der neue Wert ist dann in die Fixture zu schreiben, mit `history`-Eintrag) | `tests/architecture/test_layer_boundaries.py:44`, `:122-160`; `tests/fixtures/studio_architecture_baseline.json:15` (`tier_snapshot`), `:16` (`tiers`), `:22-28` (`simulations -> …bridge_launcher: 1`, `paired_comparison -> …: 1`, `doctor`, `launch`, `play`) | **K2** (`research_import` liegt im 13er-Zyklus; einzige Kante aus `strength_view` ist `strength_view.py:553` `research_import.RUBRIC_COMMANDERS`, mit `scripts/studio_architecture_counts.py` nachgerechnet: ohne diese Kante sinkt der größte Zyklus auf 12), K9 (`tier_snapshot` im Zyklus), alte Orchestrierer (`simulations`, `paired_comparison`). **K5b: unbelegt**, `tiers` liegt zwar im Zyklus, das Modul bleibt aber (nur Funktionen entfallen); ob sich die Zyklen ändern, ist nicht nachgerechnet | Jeder dieser Schnitte ändert die Fixture im selben PR (Zyklus 13 → 12 bei K2, `history`-Eintrag); kein Löschen ohne diese Zeile |
 | S2 | **`windows-runtime.yml`** nennt Studio-Dateien beim Namen | `.github/workflows/windows-runtime.yml:111` (`import commander_lab.studio.web, …play, …paired_series, …launch`), `:113` (`pytest tests/unit/test_studio_engine_provisioning.py tests/unit/test_studio_simulations.py`), `:24` (Pfadfilter `tests/unit/test_studio_*.py`) | alte Orchestrierer (`simulations.py`, `paired_series`), K8 | Wer `simulations.py` oder dessen Test entfernt, ändert diesen Workflow (MATERIAL, Workflow-Änderung) |
 | S3 | **Pfadfilter mit `deck_variant.py`** | `.github/workflows/studio-human-seat-real-engine.yml:24,56`, `windows-runtime.yml:36` | K7 | `deck_variant.py` bleibt (nur Studio-Aufrufer `builder.prefilter_lists` geht); wird es entfernt, ändern sich zwei Workflows |
 | S4 | **`simulation_run` trägt den Siegel-Stand der Bridge** (`bridge_jar_sha256`, `bridge_qualification_state`; „ALIGNED_WITH_SEALED_EPOCH“, `covered_by_sealed_epoch`) | `store.py:339-340`, `store.py:781-786` (Migration 17→18), `builder.py:1472-1522`, `importers.py:1235`, `tests/unit/test_bridge_qualification_and_studio_1401.py:293-348,434-440,665` (Migrationstest, Fail-closed-Rücklesen) | K8 | Streichen der Tabelle verlegt den Träger der Siegel-Deckung; das ist ein Schema- und Beweisthema (K-2/B2), nicht Q1-b. Der Stand steht daneben im Spiel-Protokoll (`card_outcomes.py:352-365`) |
@@ -164,7 +164,7 @@ Pfad).
 
 - **Rubrik v2 bleibt** (Q1, Issue-Hinweis): `src/commander_lab/studio/card_understanding.py` (237 Z.),
   `scripts/import_card_understanding.py` (228 Z.), Daten `data/card_understanding/` (1,8 MB), Rater-Rohdaten
-  `data/research/chulane_rubric_v2_20261118/` (6,0 MB). Tests: `test_studio_strength_followup.py:702-901`
+  `data/research/chulane_rubric_v2_20261118/` (6,0 MB). Tests: `test_studio_strength_followup.py:702-900`
   (Loader und Importer, rund 200 Zeilen) bleiben, nur `:251-701` gehen (6).
 - **Einziger heutiger Verbraucher** von `card_understanding`: `overall_rating.py` (Zeilen 6, 45-46, 324, 511-513,
   554-593) und `web.py:38,540` (Cache-Schlüssel `card_understanding.stamp()`). Nach K1 gibt es keinen
@@ -198,7 +198,7 @@ Zeilen / Dateien, jeweils src (nur `S/`), scripts, tests, docs. Einzelzeilen: An
 | Routen | keine eigene; Felder `overall`, `overall_meta`, `overall_rank` in der Antwort von `POST /api/strength` (Antwort-Manifest ändert sich) |
 | Store | keine Tabelle; Cache-Art `strength_overall` |
 | Daten | `data/card_understanding/*.jsonl` bleibt (Rubrik v2) |
-| Tests | `U/test_studio_strength_followup.py:251-701` (451 Z.) **löschen**; `:702-901` **behalten** (Rubrik-v2-Loader/Importer); `U/test_studio_static_guards.py:638-1262` (rund 625 Z.; Helfer `_overall_node_prelude`, `_render_node_prelude`, Tests der Umschalter, Zellen, Methode) **löschen**, aber `test_why_box_names_the_further_signals_and_never_shows_zero_percent` (`:782-806`, 25 Z.) **umschreiben**, denn er nutzt `_overall_node_prelude` (`:786`) und prüft `indexShares`, das bleibt |
+| Tests | `U/test_studio_strength_followup.py:251-701` (451 Z.) **löschen**; `:702-900` **behalten** (Rubrik-v2-Loader/Importer); `U/test_studio_static_guards.py:638-1262` (rund 625 Z.; Helfer `_overall_node_prelude`, `_render_node_prelude`, Tests der Umschalter, Zellen, Methode) **löschen**, aber `test_why_box_names_the_further_signals_and_never_shows_zero_percent` (`:782-806`, 25 Z.) **umschreiben**, denn er nutzt `_overall_node_prelude` (`:786`) und prüft `indexShares`, das bleibt |
 | Marker-Kopplung | Node-Tests schneiden `tierliste.js` per Textmarken: `js.index("// ---------- overall rating …")` (`static_guards:650`), `"const SORTS = ["` (`:648`), `"// ---------- rating layers"` als Endmarke (`:949,1072`), `"function indexShares(item) {"` (`:616,654`). Beim Streichen bleiben die Marken der Nachbar-Tests zu erhalten oder mit anzupassen |
 | Doku | `docs/OWNER_DECISIONS_STUDIO_20261118.md` (9), `docs/research/TIERLISTE_ZWEITER_INDEX_PLAN_20261118.md` (14), `docs/STUDIO_SCOPE.md` (2), `docs/STUDIO_CHARTA_V2.md` (3); `AGENTS.md:29` (G-SIM-Satz). Entscheid-Dokumente und `AGENTS.md`/`STUDIO_SCOPE.md` zieht der Governance-Pfad (#1667) nach, nicht der Builder |
 | Sperre | keine direkte; Pflicht: B3 liefert den Ersatzpfad für die Rubrik-v2-Spalte (4) |
@@ -215,7 +215,7 @@ Zeilen / Dateien, jeweils src (nur `S/`), scripts, tests, docs. Einzelzeilen: An
 | Store | Zeilen in `card_signal` (Signale `rubric_h_mean`, `rubric_h_sd`, `rubric_raters` je Commander) und je Import eine `source`-Zeile (Datenklasse `HEURISTIC_MODEL`, SHA-256); `strength_profile.spec` JSON mit `weights.rubric`. Ob der Owner-Store solche Zeilen hat: UNKNOWN (Owner-Store nicht geprüft) |
 | Daten | `data/research/chulane_rubric_20261114/` (4 Dateien, 276 KB; `summary.csv` 923 Z., `ratings.csv` 2.737 Z.) ist die Eingabe; **nicht** mit Rubrik v2 verwechseln (`chulane_rubric_v2_20261118/`) |
 | Tests | `U/test_studio_rubric.py` (416 Z.) **löschen**, Ausnahme `:367-381` (`…every_preset_keeps_the_rubric_at_zero_and_simulation_and_layers_too`): Kern geht in den neuen K6-Test; `U/test_studio_import_from_repo.py:241-281` (`test_from_repo_imports_the_rubric_once…`) **löschen/umschreiben**; `U/test_studio_ranking_check.py:524-581` (`agreement_with_the_rubric`) **umschreiben**, falls `vs_rubric` fällt; `U/test_studio_strength_v3.py:55-75` (Presets mit Rubrik 0) **umschreiben**; `U/test_studio_strength_v3_view.py:392-406` (Hinweis bei Rubrik-Gewicht) **löschen**; `U/test_studio_import_all.py:256` (eine Zeile) anpassen |
-| Sperre | keine direkte; Profil-Toleranz (R1) muss vorher stehen |
+| Sperre | **S1:** der Wegfall von `strength_view.py:553` senkt den Importzyklus von 13 auf 12, Fixture-`history`-Eintrag im selben PR (Q1-b4); Profil-Toleranz (R1) muss vorher stehen |
 | Schätzung | Quelltext **≈ 360** (167 + 26 + 70 + 7 + 4 + 75 + 12), Tests **≈ 535** (416 + 41 + 58 + 20) |
 
 ### K3 Rating-Layers (`layers.py`, `layers_view.py`, `/api/rating-layers`)
@@ -231,7 +231,7 @@ Zeilen / Dateien, jeweils src (nur `S/`), scripts, tests, docs. Einzelzeilen: An
 | Store | keine eigene Tabelle. Liest `playgroup_card_atlas` (`layers_view.py:43-88`), die Tabelle **bleibt**: die Komponente `playgroup_observed` braucht sie. `strength_profile.spec`: Top-Level-Schlüssel `layer_weights`, `pod_size` (`from_stored` ignoriert unbekannte Top-Level-Schlüssel, `strength.py:816-818`) |
 | Tests | ganz **löschen**: `U/test_studio_layers.py` (1.098 Z.), `U/test_studio_layers_view.py` (361), `U/test_studio_layer_weight_zero.py` (114; die eine `simulation`-Zeile `:85` zieht in den K6-Test). Anpassen: `U/test_studio_perf_equivalence.py:599,600,668,669` (Routenliste), `U/test_studio_labels.py:102-119` (ruft `rating_layers`), `U/test_studio_strength.py:3330,3331,3361`, `U/test_studio_static_guards.py:585` (`layer-controls`) und die Marke `// ---------- rating layers` (K1) |
 | Doku | `docs/STUDIO_DECKBUILDER.md` (3), `docs/research/studio_architecture_counts_20261119.md` (2) |
-| Sperre | keine; **UI zuerst, dann Route und Module** (7) |
+| Sperre | keine; **UI zuerst, dann Route und Module** (7). **Q1-b0 vor Q1-b2:** nach dem Streichen von `layer_weights` und `pod_size` lehnt das strikte `from_dict` (`strength_view.py:2101,2108`) alte Browser- und API-Einstellungen mit diesen Schlüsseln ab (R1) |
 | Schätzung | Quelltext **≈ 1.150 bis 1.230** (848 + ≈ 300 bis 380: strength 34, strength_view ≈ 96, web 21, ui.js 49, app.js 22, tierliste.js 79 bis 147, Rest), Tests **≈ 1.590** (1.573 + ≈ 15) |
 
 ### K4 Turnier-Conversion (`tournament_conversion.py`, Turnier-Panel)
@@ -245,7 +245,7 @@ Zeilen / Dateien, jeweils src (nur `S/`), scripts, tests, docs. Einzelzeilen: An
 | Routen | `GET /api/tournament-conversion` (2 UI-Aufrufer); Manifest-Skript `:148` |
 | Store | Kern A: keine (liest die CSV unter `data/research/topdeck_*`). Variante B: `card_signal`-Zeilen mit Signal `topdeck_card_conversion`; `strength_profile.spec`: `weights.tournament_conversion`, `min_denominators.conversion` |
 | Daten | `data/research/topdeck_20261112/`, `topdeck_20261115/` bleiben; `scripts/compute_topdeck_conversion.py` (311 Z.) und `scripts/collect_topdeck_decks.py:689` sind laut Architektur-Lane „Datensammel-Skripte bleiben“ (`charter_architecture.md` §5): **Widerspruch zu einem Entfernen der Auswertung, Entscheid Co-Lead** |
-| Tests | ganz **löschen** (Kern A): `U/test_tournament_conversion_1412.py` (460 Z.). Anpassen: `U/test_role_audit_1413.py:154-182` (UI-Marker, `:177`), `U/test_studio_data_page.py:34-118` (`:44,113`), `U/test_studio_perf_equivalence.py:611,792,814,820`, `U/test_studio_static_guards.py:1610`. Variante B zusätzlich: `U/test_studio_strength.py:2295-2454` (160 Z., acht `test_conversion_*`), `U/test_studio_signals_conversion.py` (309 Z.), `:422,442` und `U/test_studio_strength_v3.py:63` anpassen |
+| Tests | ganz **löschen** (Kern A): `U/test_tournament_conversion_1412.py` (460 Z.). Anpassen: `U/test_role_audit_1413.py:154-182` (UI-Marker, `:177`), `U/test_studio_data_page.py:34-118` (`:44,113`), `U/test_studio_perf_equivalence.py:611,792,814,820` (**`:792` importiert `_write_deck_csv` aus `test_tournament_conversion_1412.py`, das K4 ganz löscht: Helfer vorher in eine bleibende Datei verschieben**), `U/test_studio_static_guards.py:1610`. Variante B zusätzlich: `U/test_studio_strength.py:2295-2454` (160 Z., acht `test_conversion_*`), `U/test_studio_signals_conversion.py` (309 Z.), `:422,442` und `U/test_studio_strength_v3.py:63` anpassen |
 | Doku | `docs/research/DATA_CAPTURE_1377_20261115.md` (2), `DECKBUILDER_COMPARISON_RESEARCH_20261116.md` (2), `docs/research/studio_architecture_counts_20261119.md` (1); der Docstring von `tournament_conversion.py:5-7` verweist auf `docs/TOPDECK.md` §6, diese Datei gibt es auf `main` nicht (`ls docs/TOPDECK.md` schlägt fehl): UNKNOWN, wohin die Definition verschoben wurde |
 | Sperre | keine |
 | Schätzung | **Kern A:** Quelltext ≈ 475 (360 + 81 + 21 + 8 + Rest), Tests ≈ 470 (460 + ≈ 10). **Variante B zusätzlich:** Quelltext ≈ 90, Tests ≈ 470 (160 + 309) |
@@ -278,7 +278,7 @@ Funktion“ (`rank_group = "function"`) steht nur in der Lane-Liste, **nicht** i
 | Store | keine Buchstaben gespeichert (zur Laufzeit gerechnet). **`universe_profile.spec.min_universe` bleibt als Schwelle** (`universe.py:86,101,236-240`, `universe_view.py:84-85,125-126,174-200`), sonst entfällt `below_min_universe` |
 | Teil-Entfernung | die Spalte `level`/`level_name` entfällt; **n/N der Verbreitung (`/api/universe/spread`, `universe.denominator`) bleibt**: das ist die Pool-Ansicht „Nutzung n/N“, die Q1-b behält. `TierParams`/`MODEL_VERSION` (`tiers.py:15-59`) wird von `data_report.py:33,542` und `universe_choice.py:35,245` gelesen |
 | Tests | anpassen (Buchstaben-Behauptungen): `U/test_studio_counting.py:267-285` (`spread_levels_carry_their_own_names…`), `U/test_studio_decklist_universe.py:372-416,474-498,850-879`, `U/test_studio_universe_web.py:417-434` und weitere Treffer (Anhang B), `U/test_studio_deck_modules.py:218-254`, `U/test_studio_deck_primer.py:111-143`, `U/test_studio_tokens.py:205-233` (Invariante „berührt nie die Stufen“: **behalten**, nur Namen) |
-| Sperre | S1 (`tiers` liegt im Zyklus der Fixture) |
+| Sperre | S1 nur falls sich der Zyklus ändert: `tiers` bleibt als Modul, die Wirkung auf die Zyklus-Fixture ist **unbelegt** (nach dem Bau mit `scripts/studio_architecture_counts.py` messen) |
 | Schätzung | Quelltext ≈ 160 (≈ 100 + 10 + 30 + 11 + 7 + 3), Tests ≈ 60 |
 
 ### K6 Gewicht `simulation` im Tierlisten-Index und Stufe 2
@@ -353,7 +353,7 @@ Funktion“ (`rank_group = "function"`) steht nur in der Lane-Liste, **nicht** i
 ### Alte Orchestrierer (nach D-2 P5) (**nicht Q1**)
 
 `S/simulations.py` (1.604 Z.: `plan_chunks` `:753`, `BatchSimulation` `:773`, `SimulationBatchManager` `:1373`),
-`S/play_batch.py` (231 Z.), Kommando `play-batch` (`__main__.py:337,717-720,1093`), `S/paired_comparison.py`
+`S/play_batch.py` (231 Z.), Kommando `play-batch` (`__main__.py:337,717-720,1093-1094`), `S/paired_comparison.py`
 (1.172 Z., von `paired_series.py` genutzt: bleibt). Routen `POST /api/simulations/batch` und folgende
 (`web.py:1287-1373`). Sperren S1, S2, S5. Erst mit D-2 P5 und dem Owner-PC-Lauf; Q1-b fasst sie nicht an.
 
@@ -367,9 +367,9 @@ Urteile: **löschen** (ganze Datei), **Abschnitt löschen**, **umschreiben**, **
 | `test_studio_layers.py` (1.098) | K3 | löschen | testet `layers.py` rein; Zeilen 1034-1035 lesen den Quelltext von `layers.py`/`layers_view.py` |
 | `test_studio_layers_view.py` (361) | K3 | löschen | Route `/api/rating-layers`, Layer-Einstellungen im Panel |
 | `test_studio_layer_weight_zero.py` (114) | K3, K6 | löschen | Layer-Gewichte entfallen; Aussage zu `simulation` (`:85`) zieht in den K6-Test |
-| `test_tournament_conversion_1412.py` (460) | K4 | löschen | Modul und Route |
+| `test_tournament_conversion_1412.py` (460) | K4 | löschen, **erst `_write_deck_csv` (`:19`) verschieben** | Modul und Route; `test_studio_perf_equivalence.py:792,816` importiert den Helfer von dort |
 | `test_studio_rubric.py` (416) | K2 | löschen | Rubrik-v1-Import und -Komponente; `:367-381` Kern in K6-Test; `:182-194` liest `data/research/chulane_rubric_20261114/` |
-| `test_studio_strength_followup.py` (901) | K1 | Abschnitt 251-701 löschen; 702-901 behalten; Rest unberührt | `:251-701` Gesamtrating; `:702-901` Rubrik-v2-Loader/Importer; Hilfen `_row`, `SCORES` (`:255-285`) werden von `:705-790` mitbenutzt: beim Löschen verschieben |
+| `test_studio_strength_followup.py` (900) | K1 | Abschnitt 251-701 löschen; 702-900 behalten; Rest unberührt | `:251-701` Gesamtrating; `:702-900` Rubrik-v2-Loader/Importer; Hilfen `_row`, `SCORES` (`:255-285`) werden von `:705-790` mitbenutzt: beim Löschen verschieben |
 | `test_studio_static_guards.py` (1.817) | K1, K3, K5 | Abschnitt 638-1262 löschen, `:782-806` umschreiben; `:559-610` und `:1596-1600` anpassen | Gesamtrating-Node-Tests; Marker-Kopplung (siehe K1) |
 | `test_studio_simulation_weight_zero.py` (152) | K6 | umschreiben; `:118-152` behalten | M1-Probe aus #1665 |
 | `test_studio_strength.py` (3.367) | K4B, K5a, K6, K3 | `:2295-2454` (K4B) löschen; `:3266-3323` (K5a) löschen; `:394-462`, `:1495-1521`, `:1685-1730`, `:3324-3367` anpassen; Rest behalten | Komponenten-Listen, Presets, Gewichts-Familien |
@@ -410,6 +410,8 @@ Profil-Toleranz (R1) ──► K2, K6, K4B (Schlüssel in weights/min_denominato
 K1 (rk-overall) ──► K5 (gleiche Elemente in tierliste.html/js: Umschalter-Leiste)
 B3 (Zahlen-Vertrag, Pool-Ansicht Nutzung n/N) ──► K5
 K3-UI ──► K3-Backend;  K4-UI ──► K4-Route/Modul ──► K4B
+Profil-Toleranz (Q1-b0) ──► K3 (Schlüssel layer_weights/pod_size, strikter from_dict)
+Test-Helfer _write_deck_csv (aus test_tournament_conversion_1412.py) ──► vor K4 nach test_studio_perf_equivalence.py:792 verschieben
 K7 unabhängig;  K11 unabhängig
 K8, K9, K10, Orchestrierer: außerhalb Q1-b (K-2, K-2, D-1, D-2 P5)
 ```
@@ -461,7 +463,7 @@ K11 optional als eigener Mini-PR.
 | K5a/K5b zweite Skala | ≈ 360 | ≈ 190 | ≈ 550 |
 | K6 Gewicht `simulation` | ≈ 40 | ≈ 100 | ≈ 140 |
 | K7 Vorfilter | ≈ 130 | ≈ 55 | ≈ 185 |
-| **K1 bis K7 ohne K4B** | **≈ 3.745** | **≈ 4.000** | **≈ 7.750** |
+| **K1 bis K7 ohne K4B** | **≈ 3.745** | **≈ 4.000** | **≈ 7.750** (7.745; mit Q1-b0 ≈ 7.845) |
 
 Der Grenzwert aus dem Issue (etwa 1.500 Zeilen Diff) ist damit überschritten. Der Diff besteht überwiegend aus
 Löschungen ganzer Dateien (1.869 Zeilen Quelltext und 2.449 Zeilen Tests per `wc -l`), was den Prüfaufwand
@@ -472,8 +474,8 @@ senkt, aber nicht die MATERIAL-Einstufung (UI-Texte zu Rating, über 300 Zeilen)
 | PR | Inhalt | Schätzung | Braucht vorher |
 |---|---|---:|---|
 | Q1-b0 | Profil-Toleranz (`from_stored` ignoriert unbekannte `weights`-/`min_denominators`-/`layer_weights`-Schlüssel, `rank_group="function"` bleibt gültig oder wird abgebildet) mit Test nach dem Muster `test_studio_strength_v3.py:121-145` | ≈ 100 | nichts |
-| Q1-b1 | K7 Vorfilter und K4 Kern A (Turnier-Panel, Route, Modul; UI zuerst) | ≈ 1.130 | nichts |
-| Q1-b2 | K3 in zwei Commits: UI (tierliste, app.js, ui.js) dann Route, Module, Tests | ≈ 2.780 (überwiegend ganze Dateien) | nichts; Abstimmung #1369 für `tierliste.js` |
+| Q1-b1 | K7 Vorfilter und K4 Kern A (Turnier-Panel, Route, Modul; UI zuerst); vorher `_write_deck_csv` aus `test_tournament_conversion_1412.py` nach `test_studio_perf_equivalence.py` (`:792`) verschieben | ≈ 1.130 | nichts |
+| Q1-b2 | K3 in zwei Commits: UI (tierliste, app.js, ui.js) dann Route, Module, Tests | ≈ 2.780 (überwiegend ganze Dateien) | **Q1-b0** (strikter `from_dict` lehnt sonst alte `layer_weights`/`pod_size` ab); Abstimmung #1369 für `tierliste.js` |
 | Q1-b3 | K1 Gesamtrating | ≈ 2.250 | **B3 oder Ersatzpfad für die Rubrik-v2-Spalte** |
 | Q1-b4 | K2 Rubrik v1 + K6 Gewicht `simulation` (+ K4B, falls entschieden) | ≈ 1.035 (+ 560) | Q1-b0 |
 | Q1-b5 | K5a/K5b: eine Stufen-Skala, Pool-Ansicht „Nutzung n/N“ | ≈ 550 | B3, Q1-b3 (gleiche Umschalter-Leiste) |
