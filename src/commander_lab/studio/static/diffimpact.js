@@ -2,10 +2,12 @@
 // Counted deltas of the variant comparison (#1414, #1404 option 8): curve, colours, combos,
 // overlap and, per swapped card, roles, mana value and source-deck frequency with n/N.
 // No score and no verdict on a swap. Rendered from renderDiff in app.js.
+// The source-deck share is a GEZÄHLT column of the number contract (zahl.js, #1659): the figure
+// comes from diff.zahlen ("freq.<group>.<card_id>"); without a contract the old text stays.
 
 function diffSigned(value) { return (Number(value) > 0 ? "+" : "") + StudioUI.num(value, 0); }
 
-function diffCardTable(h, title, items, quantityText, deps) {
+function diffCardTable(h, title, items, quantityText, deps, group) {
   const freq = (item) => {
     if (item.of === null || item.of === undefined) return "keine Quelldecks";
     if (item.decks === null || item.decks === undefined) return `unbekannt / ${StudioUI.num(item.of, 0)}`;
@@ -21,12 +23,19 @@ function diffCardTable(h, title, items, quantityText, deps) {
         h("td", {}, h("a", { href: "#", class: "nm", onclick: (event) => { event.preventDefault(); deps.open(item.card_id); } }, item.name)),
         h("td", { class: "num" }, item.mana_value === null || item.mana_value === undefined ? "unbekannt" : StudioUI.numFlex(item.mana_value, 2)),
         h("td", {}, item.roles && item.roles.length ? item.roles.map(deps.roleName).join(", ") : h("span", { class: "muted" }, "keine Rolle")),
-        h("td", { class: "num" }, freq(item))))))),
+        diffFreqCell(h, item, group, deps, freq)))))),
   ];
+}
+
+function diffFreqCell(h, item, group, deps, freq) {
+  const zahl = deps.zahlen ? deps.zahlen.get(`freq.${group}.${item.card_id}`) : undefined;
+  if (!zahl) return h("td", { class: "num" }, freq(item));
+  return StudioZahl.zelle(h, zahl, "GEZÄHLT", { class: "num" });
 }
 
 function diffImpactNodes(h, diff, deps) {
   const nodes = [];
+  deps = { ...deps, zahlen: StudioZahl.index(diff.zahlen) };
   const overlap = diff.overlap;
   if (overlap) {
     nodes.push(h("p", { id: "diff-overlap" }, `Gemeinsame Kartenplätze: ${StudioUI.num(overlap.shared_slots, 0)} von ${StudioUI.num(overlap.base_slots, 0)} (Basis) bzw. ${StudioUI.num(overlap.target_slots, 0)} (aktuell).`));
@@ -66,9 +75,9 @@ function diffImpactNodes(h, diff, deps) {
     if (combo.now_complete.length) nodes.push(h("p", {}, "Neu vollständig: " + combo.now_complete.map((cards) => cards.join(" + ")).join(" · ")));
     if (combo.no_longer_complete.length) nodes.push(h("p", {}, "Nicht mehr vollständig: " + combo.no_longer_complete.map((cards) => cards.join(" + ")).join(" · ")));
   }
-  if (diff.added.length) nodes.push(...diffCardTable(h, `Hinzugefügt (+${StudioUI.num(diff.added.length, 0)})`, diff.added, (item) => "+" + StudioUI.num(item.quantity, 0), deps));
-  if (diff.removed.length) nodes.push(...diffCardTable(h, `Entfernt (−${StudioUI.num(diff.removed.length, 0)})`, diff.removed, (item) => "−" + StudioUI.num(item.quantity, 0), deps));
-  if (diff.changed.length) nodes.push(...diffCardTable(h, "Mengenänderung", diff.changed, (item) => `${StudioUI.num(item.base_quantity, 0)}→${StudioUI.num(item.target_quantity, 0)}`, deps));
+  if (diff.added.length) nodes.push(...diffCardTable(h, `Hinzugefügt (+${StudioUI.num(diff.added.length, 0)})`, diff.added, (item) => "+" + StudioUI.num(item.quantity, 0), deps, "added"));
+  if (diff.removed.length) nodes.push(...diffCardTable(h, `Entfernt (−${StudioUI.num(diff.removed.length, 0)})`, diff.removed, (item) => "−" + StudioUI.num(item.quantity, 0), deps, "removed"));
+  if (diff.changed.length) nodes.push(...diffCardTable(h, "Mengenänderung", diff.changed, (item) => `${StudioUI.num(item.base_quantity, 0)}→${StudioUI.num(item.target_quantity, 0)}`, deps, "changed"));
   if (diff.commanders && !diff.commanders.same) nodes.push(h("p", { class: "note" }, `Anderer Commander: Häufigkeiten hinzugefügter Karten aus den Quelldecks von ${diff.commanders.target.join(" + ") || "–"}, entfernter Karten aus denen von ${diff.commanders.base.join(" + ") || "–"}.`));
   if (diff.cohort && diff.cohort.small) nodes.push(h("p", { class: "note warn" }, "Kleine Vergleichsgruppe (unter 30 Decks): " + [diff.cohort.decks, diff.cohort.base_decks].filter((n) => n !== null && n !== undefined).map((n) => StudioUI.num(n, 0)).join(" bzw. ") + " Decks."));
   nodes.push(h("p", { class: "note" }, "Nur gezählte Größen: Spielhäufigkeit heißt, wie viele Quelldecks des Commanders die Karte spielen – keine Aussage, ob ein Tausch besser ist. „unbekannt“: kein Quelldeck nennt die Karte."));

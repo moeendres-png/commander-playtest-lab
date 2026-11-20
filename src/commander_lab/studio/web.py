@@ -54,6 +54,7 @@ from . import (
     land_advisor,
     launch,
     memo,
+    number_contract,
     overall_rating,
     packages,
     paired_comparison,
@@ -1504,7 +1505,11 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         store = open_store()
         try:
             base_cards = _resolve_base_cards(store, body.base_revision_id)
-            return deck_diff.diff_impact(store, base_cards, _cards(body.cards), cohort=body.cohort)
+            result = deck_diff.diff_impact(
+                store, base_cards, _cards(body.cards), cohort=body.cohort
+            )
+            result["zahlen"] = number_contract.diff_zahlen(result)
+            return result
         except KeyError as error:
             raise HTTPException(404, "unknown revision") from error
         finally:
@@ -1564,7 +1569,9 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
             if not removed:
                 raise HTTPException(422, "die zu kürzende Karte steht nicht im Deck")
             target.append(RevisionCard(body.add, 1, "main"))
-            return deck_diff.diff_impact(store, base, target, cohort=body.cohort)
+            result = deck_diff.diff_impact(store, base, target, cohort=body.cohort)
+            result["zahlen"] = number_contract.diff_zahlen(result)
+            return result
         finally:
             store.close()
 
@@ -1699,11 +1706,14 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         store = open_store()
         try:
             revision_ids = deck_series.deck_revision_ids(store, deck_id)
+            hashes = deck_series.revision_hashes(store, revision_ids or [])
         finally:
             store.close()
         if revision_ids is None:
             raise HTTPException(404, "unknown deck")
-        return deck_series.deck_series(games_home(), revision_ids)
+        result = deck_series.deck_series(games_home(), revision_ids)
+        result["zahlen"] = number_contract.series_zahlen(result, hashes)
+        return result
 
     @app.get("/api/decks/{deck_id}/history")
     def deck_history(deck_id: str) -> list[dict[str, object]]:
@@ -2094,10 +2104,12 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
                     chunk,
                 ):
                     role_map.setdefault(str(found["card_id"]), []).append(str(found["role"]))
-            return {
+            result = {
                 **castability.deck_castability(rows),
                 "hand_roles": castability.hand_roles(rows, role_map),
             }
+            result["zahlen"] = number_contract.castability_zahlen(result)
+            return result
         finally:
             store.close()
 
@@ -2450,7 +2462,9 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
             )
         except ValueError as error:
             raise HTTPException(409, str(error)) from error
-        return dict(table)
+        result: dict[str, object] = dict(table)
+        result["zahlen"] = number_contract.outcomes_zahlen(result)
+        return result
 
     @app.get("/api/outcomes/decks")
     def outcome_decks() -> dict[str, object]:
