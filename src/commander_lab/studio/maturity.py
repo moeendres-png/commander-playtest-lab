@@ -495,9 +495,7 @@ def _one(
         )
         y_pp = None
     own_level = levels.get(sid)
-    family_lower = (
-        holm_entry is not None and own_level is not None and holm_entry[2] < own_level
-    )
+    family_lower = holm_entry is not None and own_level is not None and holm_entry[2] < own_level
     own = bases.get(sid)
     # decided at the member's own level, taken back only by the smaller family level
     family_withheld = (
