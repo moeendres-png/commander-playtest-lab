@@ -1,18 +1,14 @@
-"""Card tiers as a pure function of counted signals and owner-set parameters.
+"""Model parameters of the counted spread ("Verbreitung (gezählt)") of one deck universe.
 
-A tier here is not a judgement stored anywhere: it is computed, on demand, from the
-inclusion share of a card in one deck universe (see ``universe.py``) and the parameters
-below. The cut *values* in ``TierParams`` are model constants of this module (version
-``MODEL_VERSION``), not settings: the only owner-set value a universe profile carries
-is ``min_universe``, the smallest denominator the function still grades. Changing a
-cut means changing this module and its model version, so a displayed level always
-names the exact model it was counted with.
-A card lands in tier ``U`` (insufficient data) — never in a guessed tier — when the
-universe is smaller than ``min_universe`` decks or the card has no counted denominator.
-
-The breakdown returned with every tier names the exact inputs: hits, denominator,
-share, the universe snapshot the count ran over, and the parameter set used, so any
-displayed tier can be recomputed and checked.
+The spread itself is ``hits`` of ``denominator`` decks with its origin (``universe_view.py``); it
+measures how often a card is played in the chosen decks, never how strong it is. Since Q1-b5
+(#1680, decision E2) it has no level letters any more: the only scale with letters on the tier
+page is the strength index S to D. What stays here is the parameter set the spread is read with:
+``min_universe``, the smallest denominator whose share is still shown (a smaller universe is
+"unbekannt", never 0), and the cut set of ``MODEL_VERSION``, which only still names the reason
+code of a counted share (``SHARE_CUT`` / ``BELOW_LOWEST_CUT``) and is reported with every answer
+so a figure can be checked. The cut *values* are model constants, not settings: the only
+owner-set value a universe profile carries is ``min_universe``.
 """
 
 from __future__ import annotations
@@ -23,26 +19,10 @@ from itertools import pairwise
 from typing import TypedDict
 
 from ._coerce import iterate, to_float, to_int
-from .universe import InclusionResult
 
 #: Version of the counted-spread model: the cut set and fallback of ``TierParams``.
 #: Bump it whenever the cuts change; views cite it next to the thresholds they show.
 MODEL_VERSION = "counted-spread-1"
-
-
-#: German names of the spread levels ("Verbreitung (gezählt)"): how often a card is played in the
-#: chosen decks, never how strong it is. The level letters S to D are kept as the stable keys
-#: of the API; the page shows the name, because the only thing called a Tier is the strength
-#: index. ``U`` has no counted base, ``F`` is a card the universe's card filter requires.
-LEVEL_NAMES: dict[str, str] = {
-    "S": "sehr häufig",
-    "A": "häufig",
-    "B": "gelegentlich",
-    "C": "selten",
-    "D": "sehr selten",
-    "U": "unbekannt",
-    "F": "Filterkarte",
-}
 
 
 class TierParamsDict(TypedDict):
@@ -51,23 +31,6 @@ class TierParamsDict(TypedDict):
     min_universe: int
     cuts: list[list[str | float]]
     fallback_tier: str
-
-
-class CardTier(TypedDict):
-    """One computed tier with the exact inputs it was computed from."""
-
-    card_name: str
-    tier: str
-    level_name: str
-    reason: str
-    hits: int
-    denominator: int
-    share: float | None
-    universe_snapshot: str
-    denominator_by_platform: dict[str, int]
-    denominator_by_bracket: dict[str, int]
-    params: TierParamsDict
-    data_class: str
 
 
 @dataclass(frozen=True)
@@ -123,59 +86,14 @@ def _cut(item: object) -> tuple[str, float]:
     return str(pair[0]), to_float(pair[1])
 
 
-def tier_for_share(share: float | None, denominator: int, params: TierParams) -> tuple[str, str]:
-    """The tier of one counted share, plus the mechanical reason code."""
+def spread_reason(share: float | None, denominator: int, params: TierParams) -> str:
+    """The mechanical reason code of one counted share; never a level letter. A denominator
+    below ``min_universe`` and a missing share are unknown (the view shows no share), a counted
+    share names whether it reaches the lowest model cut."""
     if denominator < params.min_universe:
-        return "U", "UNIVERSE_TOO_SMALL"
+        return "UNIVERSE_TOO_SMALL"
     if share is None:
-        return "U", "DENOMINATOR_MISSING"
-    for tier, cut in params.cuts:
-        if share >= cut:
-            return tier, "SHARE_CUT"
-    return params.fallback_tier, "BELOW_LOWEST_CUT"
-
-
-def card_tier(
-    *,
-    card_name: str,
-    hits: int,
-    denominator: int,
-    universe_snapshot: str,
-    params: TierParams,
-    denominator_by_platform: Mapping[str, int] | None = None,
-    denominator_by_bracket: Mapping[str, int] | None = None,
-) -> CardTier:
-    share = hits / denominator if denominator else None
-    tier, reason = tier_for_share(share, denominator, params)
-    return {
-        "card_name": card_name,
-        "tier": tier,
-        "level_name": LEVEL_NAMES.get(tier, tier),
-        "reason": reason,
-        "hits": hits,
-        "denominator": denominator,
-        "share": share,
-        "universe_snapshot": universe_snapshot,
-        "denominator_by_platform": dict(denominator_by_platform or {}),
-        "denominator_by_bracket": dict(denominator_by_bracket or {}),
-        "params": params.to_dict(),
-        "data_class": "DERIVED_DESCRIPTIVE",
-    }
-
-
-def tiers_for_universe(
-    inclusion_result: InclusionResult, *, universe_snapshot: str, params: TierParams
-) -> list[CardTier]:
-    """Tiers for every row of a ``universe.inclusion`` result, in the same order."""
-    return [
-        card_tier(
-            card_name=str(row["card_name"]),
-            hits=int(row["hits"]),
-            denominator=int(row["denominator"]),
-            universe_snapshot=universe_snapshot,
-            params=params,
-            denominator_by_platform=inclusion_result["denominator_by_platform"],
-            denominator_by_bracket=inclusion_result["denominator_by_bracket"],
-        )
-        for row in inclusion_result["rows"]
-    ]
+        return "DENOMINATOR_MISSING"
+    if any(share >= cut for _, cut in params.cuts):
+        return "SHARE_CUT"
+    return "BELOW_LOWEST_CUT"

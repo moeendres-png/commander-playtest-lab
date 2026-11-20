@@ -177,7 +177,9 @@ def test_card_spread_carries_hits_denominator_share_and_snapshot(client: TestCli
     card = next(item for item in forest["cards"] if item["name"] == "Forest")
     assert (card["hits"], card["denominator"]) == (42, 43)
     assert card["share"] == pytest.approx(42 / 43)
-    assert card["matched"] is True and card["level"] == "S" and card["reason"] == "SHARE_CUT"
+    assert card["matched"] is True and card["reason"] == "SHARE_CUT"
+    # n of N, no level letter (Q1-b5, #1680): the only lettered scale is the strength index
+    assert "level" not in card and "level_name" not in card
     assert forest["universe"]["snapshot_id"] == summary["snapshot_id"]
     assert forest["universe"]["data_class"] == "DERIVED_DESCRIPTIVE"
     assert forest["params"]["min_universe"] == 30
@@ -185,18 +187,18 @@ def test_card_spread_carries_hits_denominator_share_and_snapshot(client: TestCli
     assert one["cards"] == [card]
 
 
-def test_a_universe_below_the_minimum_is_level_u(client: TestClient) -> None:
+def test_a_universe_below_the_minimum_is_unknown(client: TestClient) -> None:
     _put(client, "klein", {"platforms": ["archidekt"]})
     card = _spread(client, "klein")["Forest"]
     assert (card["hits"], card["denominator"]) == (20, 20)
-    assert card["level"] == "U" and card["reason"] == "UNIVERSE_TOO_SMALL"
+    assert card["reason"] == "UNIVERSE_TOO_SMALL" and "level" not in card
 
 
 def test_an_unmatched_card_is_unknown_not_weak_and_not_zero(client: TestClient) -> None:
     _put(client, "alle", {})
     card = _spread(client, "alle")["Reserved Bear"]
     assert card["matched"] is False and card["share"] is None and card["hits"] is None
-    assert card["level"] == "U" and card["reason"] == "NAME_NOT_FOUND_IN_UNIVERSE"
+    assert card["reason"] == "NAME_NOT_FOUND_IN_UNIVERSE"
 
 
 def test_front_face_and_case_variants_map_to_the_card(client: TestClient) -> None:
@@ -427,7 +429,8 @@ def test_min_universe_is_a_strict_body_field_and_grades_the_spread(client: TestC
     assert spread["model_version"] == tiers.MODEL_VERSION
     assert spread["universe"]["below_min_universe"] is False
     card = next(item for item in spread["cards"] if item["name"] == "Forest")
-    assert card["level"] == "S"  # 20 of 20 decks, and 20 >= the profile minimum of 5
+    # 20 of 20 decks, and 20 >= the profile minimum of 5: counted, not "too small"
+    assert card["reason"] == "SHARE_CUT" and card["hits"] == card["denominator"] == 20
     small = _put(client, "klein", {"platforms": ["archidekt"]})
     assert small["min_universe"] == 30 and small["below_min_universe"] is True
 
@@ -442,13 +445,14 @@ def test_pool_with_a_profile_shows_the_same_spread_as_the_tier_list(
     forest = next(item for item in pool["cards"] if item["name"] == "Forest")
     assert forest["universe"]["hits"] == by_name["Forest"]["hits"] == 42
     assert forest["universe"]["denominator"] == 43
-    assert forest["universe"]["level"] == by_name["Forest"]["level"] == "S"
+    assert forest["universe"]["reason"] == by_name["Forest"]["reason"] == "SHARE_CUT"
+    assert "level" not in forest["universe"]
     # Every pool card the spread knows carries exactly the spread's figures.
     for item in pool["cards"]:
         if "universe" in item:
             ref = by_name[item["name"]]
             assert item["universe"]["hits"] == ref["hits"]
-            assert item["universe"]["level"] == ref["level"]
+            assert item["universe"]["reason"] == ref["reason"]
             assert item["universe"]["matched"] == ref["matched"]
     unmatched = [
         item for item in pool["cards"] if item.get("universe") and not item["universe"]["matched"]
@@ -587,12 +591,11 @@ def test_chulane_end_to_end_over_builder_and_tier_list_routes(tmp_path: Path) ->
             "hits": 30,
             "denominator": 30,
             "share": 1.0,
-            "level": "S",
             "reason": "SHARE_CUT",
             "filter_card": False,  # added with the filter-card marking (Refs #1205)
         }
         forest = next(item for item in pool["cards"] if item["name"] == "Forest")
-        assert forest["universe"]["hits"] == 15 and forest["universe"]["level"] == "S"
+        assert forest["universe"]["hits"] == 15 and forest["universe"]["reason"] == "SHARE_CUT"
         together = client.get(
             "/api/cards/card:t:sol/cooccurrence",
             params={"profile": "chulane-alle", **params},

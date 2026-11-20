@@ -1118,7 +1118,6 @@ def pool_cards(
                         "hits": None,
                         "denominator": spread["universe"]["denominator"],
                         "share": None,
-                        "level": "U",
                         "reason": UNOWNED_NOT_COUNTED,
                         "filter_card": False,
                     }
@@ -1128,7 +1127,6 @@ def pool_cards(
                 "hits": item["hits"],
                 "denominator": item["denominator"],
                 "share": item["share"],
-                "level": item["level"],
                 "reason": item["reason"],
                 "filter_card": item["filter_card"],
             }

@@ -1387,7 +1387,7 @@ def test_unowned_card_in_a_counted_scope_is_unknown_over_the_scope_denominator(
     assert universe["matched"] is False  # type: ignore[index]
     assert universe["hits"] is None  # type: ignore[index]
     assert universe["share"] is None  # type: ignore[index]
-    assert universe["level"] == "U"  # type: ignore[index]
+    assert "level" not in universe  # type: ignore[operator]  # no level letter since Q1-b5 (#1680)
     assert universe["denominator"] == band["universe"]["denominator"]  # type: ignore[index]
     assert universe["reason"] == builder.UNOWNED_NOT_COUNTED  # type: ignore[index]
     # collection cards keep their counted rows; the default pool never carries this entry

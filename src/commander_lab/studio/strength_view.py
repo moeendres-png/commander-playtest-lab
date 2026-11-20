@@ -98,11 +98,6 @@ class StrengthCard(TypedDict):
     tier_stability_variants: int | None
     tier_alternatives: list[strength.TierAlternative]
     unscharf: bool
-    # Additional view: tier by percentile rank inside the pool (S to F, lands and spells apart),
-    # and the rank k of n. None for a card without a tier, and ``relative_tier`` None in a group
-    # of fewer than ten ranked cards. Never replaces ``tier``.
-    relative_tier: str | None
-    relative_rank: strength.RelativeRank | None
     chulane_textfit: chulane_textfit.ChulaneTextfitResult | None
 
 
@@ -131,22 +126,6 @@ class StabilityInfo(TypedDict):
     evaluated_cards: int
     base: str
     note: str
-
-
-class RelativeTierPercent(TypedDict):
-    tier: str
-    up_to_percent: int
-
-
-class RelativeTiersInfo(TypedDict):
-    """The additional relative view (percentile tiers inside the pool)."""
-
-    note: str
-    f_note: str
-    min_group: int
-    percentiles: list[RelativeTierPercent]
-    totals: dict[str, int]
-    counts: dict[str, dict[str, int]]
 
 
 class AmbiguousName(TypedDict):
@@ -181,8 +160,6 @@ class StrengthResult(TypedDict):
     weight_families: list[strength.WeightFamily]
     # D6: how the stability of the tiers was derived
     stability: StabilityInfo
-    # the relative tiers (percentiles inside the pool): the hint, the limits and the counts
-    relative_tier_info: RelativeTiersInfo
     # D3: per role the number of ranked cards (the denominator of ``role_ranks``)
     role_totals: dict[str, int]
     chulane_textfit_version: str | None
@@ -1052,14 +1029,6 @@ def compute(
         tier_inputs,
         {card_id: scored[card_id]["tier"] for card_id in tier_inputs},
     )
-    relative = strength.relative_tiers(
-        {
-            card_id: (float(scored[card_id]["index"] or 0.0), is_land)
-            for card_id in prepared.ids
-            if scored[card_id]["tier"] in strength.TIERS and scored[card_id]["index"] is not None
-            for is_land in (prepared.context.type_group.get(card_id) == "Land",)
-        }
-    )
 
     raw_by_id = {str(card["card_id"]): card for card in prepared.raw_cards}
     show_chulane_textfit = chulane_textfit.is_chulane_commander(commander)
@@ -1067,7 +1036,6 @@ def compute(
     for card_id in prepared.ids:
         result = scored[card_id]
         found = stability.get(card_id)
-        rel = relative.get(card_id)
         raw_card = raw_by_id.get(card_id)
         textfit_val: chulane_textfit.ChulaneTextfitResult | None = None
         if show_chulane_textfit and raw_card is not None:
@@ -1094,8 +1062,6 @@ def compute(
                 "tier_stability_variants": found["variants"] if found else None,
                 "tier_alternatives": found["alternatives"] if found else [],
                 "unscharf": bool(found and found["stability"] < strength.STABILITY_UNSHARP_BELOW),
-                "relative_tier": rel[0] if rel else None,
-                "relative_rank": rel[1] if rel else None,
                 "chulane_textfit": textfit_val,
             }
         )
@@ -1130,13 +1096,6 @@ def compute(
         "denominator": next(iter(zero_denominators)) if len(zero_denominators) == 1 else None,
     }
     shrinkage = diagnostics["shrinkage"]
-    relative_counts: dict[str, dict[str, int]] = {
-        group: {name: 0 for name in strength.RELATIVE_TIERS}
-        for group in (strength.RELATIVE_GROUP_SPELLS, strength.RELATIVE_GROUP_LANDS)
-    }
-    for tier_name, rank_info in relative.values():
-        if tier_name is not None:
-            relative_counts[rank_info["group"]][tier_name] += 1
     variants = next(iter(stability.values()))["variants"] if stability else 0
     return {
         "schema": strength.SCHEMA,
@@ -1186,20 +1145,6 @@ def compute(
         "chulane_textfit_version": (
             chulane_textfit.CHULANE_TEXTFIT_RULES_VERSION if show_chulane_textfit else None
         ),
-        "relative_tier_info": {
-            "note": strength.RELATIVE_TIER_NOTE,
-            "f_note": strength.RELATIVE_TIER_F_NOTE,
-            "min_group": strength.RELATIVE_MIN_GROUP,
-            "percentiles": [
-                {"tier": name, "up_to_percent": percent}
-                for name, percent in (*strength.RELATIVE_TIER_PERCENTILES, ("F", 100))
-            ],
-            "totals": {
-                group: sum(1 for _tier, info in relative.values() if info["group"] == group)
-                for group in relative_counts
-            },
-            "counts": relative_counts,
-        },
         "cards": cards,
     }
 

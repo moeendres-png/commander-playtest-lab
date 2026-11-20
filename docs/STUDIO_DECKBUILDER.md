@@ -178,24 +178,28 @@ the header, fill the fields and save (`PUT /api/universe/profiles/{name}`; unkno
 dates are rejected). The page remembers the last choice in the browser only. Without a profile
 the column shows "kein Universum gewählt".
 
-For every card the column **Verbreitung (gezählt)** shows a level (S to D, or U) and
-`hits/denominator`: the number of distinct decks of the chosen universe that contain the
-card, over the number of decks in the universe. The panel shows the denominator with its
-split by platform and by bracket, and a short snapshot id of the exact decks counted. The
-card drawer repeats the numbers, the cut parameters, every spelling found, and loads
-"Zusammen gespielt mit" (co-occurrence) on demand.
+For every card the column **Verbreitung (gezählt)** shows the pool view "Nutzung n/N": the share
+and `hits/denominator`, the number of distinct decks of the chosen universe that contain the
+card over the number of decks in the universe, as one number contract of class GEZÄHLT
+(`zahl.js`, with the universe as cohort and origin). It has no level letter since Q1-b5 (#1680,
+decision E2): the only lettered scale of the tier list is the strength index S to D. The panel
+shows the denominator with its split by platform and by bracket, and a short snapshot id of the
+exact decks counted. The card drawer repeats the numbers, the universe minimum, every spelling
+found, and loads "Zusammen gespielt mit" (co-occurrence) on demand. The filter "Verbreitung"
+offers alle / gezählt / unbekannt / Filterkarten.
 
 - It is a count of how often a card is played. It says nothing about how strong a card is.
-  The "Unbewertet" tier cell and the evidence policy are unchanged, and the level is not an
+  The "Unbewertet" tier cell and the evidence policy are unchanged, and the count is not an
   input to them.
-- The level is computed from the share with the owner-set cuts (`tiers.py`); U means too few
-  decks in the universe or an unknown denominator. A card whose name occurs in no universe
-  deck is "unbekannt" (U, `NAME_NOT_FOUND_IN_UNIVERSE`), never a zero and never a low level,
-  because absence cannot be told from a name mismatch.
+- Below the universe minimum (`min_universe`, `tiers.TierParams`) or without a denominator the
+  share is "unbekannt" (`UNIVERSE_TOO_SMALL`, `DENOMINATOR_MISSING`); the count stays visible.
+  A card whose name occurs in no universe deck is "unbekannt" (`NAME_NOT_FOUND_IN_UNIVERSE`),
+  never a zero, because absence cannot be told from a name mismatch. The answer keeps the
+  mechanical reason code (`tiers.spread_reason`) and the model parameters (`params`).
 - Names are matched case-insensitively against the oracle name, the engine name and the
   front face. If several spellings occur, the largest count is shown and all are listed;
   they are never added.
-- Favourites, excludes and notes only filter the list. They change no count and no level.
+- Favourites, excludes and notes only filter the list. They change no count.
 - Platforms and brackets are always shown as separate breakdowns; cohorts are not merged
   silently.
 
@@ -667,20 +671,11 @@ that has a combo, like a card without an EDHREC combo row counts for nothing und
   (3.2 %) are `unscharf`, 853 keep their tier in all 80 variants. Computing time: 0.06 s on top of
   `score_pool` (0.07 s) and the 12 s cold `prepare`; it runs inside `compute`, so it is part of the
   snapshot and of the per-store-state cache of `/api/strength`.
-- **Relative tiers (additional view, never the default).** `relative_tier` (S to F) is the
-  percentile rank inside the pool, lands and spells ranked apart, ranked cards only (tier S to D;
-  U and N have `null`). The limits are a SETTING, not a measurement (`strength.RELATIVE_TIER_PERCENTILES`):
-  S the top 3 %, A up to 10 %, B up to 25 %, C up to 50 %, D up to 75 %, E up to 90 %, F the lowest
-  10 % by rank position. A group of fewer than 10 ranked cards has `relative_tier` `null` (shown
-  "—"); `relative_rank` stays.
-  A card at rank k of n belongs to the first tier with k / n at or below the limit (integer
-  arithmetic). Cards with the same index share the best rank of their group of ties (1, 2, 2, 4)
-  and therefore one tier, so F can turn out smaller than 10 % (QA store: 33 of 857 spells, because
-  the ties at index 0.0 and 0.1 take the tier of their best rank). `relative_rank` is `{rank, total, group}` with group `spells` or `lands`.
-  The header block `relative_tier_info` has the hint "relativ im Pool, keine Aussage über
-  Spielstärke", the F note (`f_note`: "F = die untersten 10 % nach Rangposition; bei Gleichstand
-  teilt die ganze Gruppe die Stufe der besten Rangposition, daher kann F kleiner ausfallen"),
-  `min_group` (10), the limits and the counts per group. The absolute tiers stay the default.
+- **Relative tiers (removed).** The relative tiers S to F (percentile rank inside the pool) and
+  their header block `relative_tier_info` fell with Q1-b5 (#1680, decision E2): the tier list has
+  one scale, the strength index S to D. The comparison "Gleiche Funktion" (`rank_group`
+  `function`, rank k of n per role) stays. `strength.SCHEMA` went to `studio-strength-2`, so a
+  stored tier snapshot of schema 1 (which still carries the relative fields) is `STALE`.
 - **Tournament cohorts (D5).** The `tournament` row pools EDHTop16 and the corpus bracket 5 into one
   n / N (E3.a); the rows now also list `parts` (`key` `edhtop16` / `corpus_bracket5`, `label`,
   `numerator`, `denominator`, which add up to the row) and `mixed_cohorts_note` ("zwei Kohorten
@@ -1164,8 +1159,8 @@ little data or not rated (commander, basic lands), never a low tier.
   known to the store are ordinary cards of the 99 and ranked by default; with
   `rank_other_commanders` off they are not ranked (tier `N`, `NOT_RANKED_OTHER_COMMANDER`).
 - The tier list's evidence reads the commander's EDHREC inclusion from `card_signal` when the
-  older table has no value (the same entry the builder shows); spread levels carry a German
-  `level_name` next to the stable level key.
+  older table has no value (the same entry the builder shows); the spread carries no level and
+  no `level_name` since Q1-b5 (#1680).
 - Derived figures are computed once per store state: `cache.py` keeps the resolved universe,
   the per-card spread and the builder counts keyed by the store file's change counter, so any
   committed write recomputes them. `GET /api/marks` reads the marks without building the pool.

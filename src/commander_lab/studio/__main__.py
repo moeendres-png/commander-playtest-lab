@@ -19,7 +19,6 @@ from . import (
     roles,
     rulings,
     signals,
-    tiers,
     universe,
 )
 from .builder import list_commanders
@@ -237,13 +236,6 @@ def _parser() -> argparse.ArgumentParser:
     universe_inclusion.add_argument("--profile")
     universe_inclusion.add_argument("--commander", default=LEGACY_COMMANDER)
     universe_inclusion.add_argument("--card", action="append", dest="cards")
-    tiers_cmd = commands.add_parser(
-        "tiers", help="card tiers as a pure function of one universe's inclusion counts"
-    )
-    tiers_cmd.add_argument("--profile")
-    tiers_cmd.add_argument("--commander", default=LEGACY_COMMANDER)
-    tiers_cmd.add_argument("--min-universe", type=int)
-    tiers_cmd.add_argument("--limit", type=int, default=50)
     ranking_check_cmd = commands.add_parser(
         "ranking-check",
         help="objective quality figures for the strength-index ranking of one commander",
@@ -1026,29 +1018,6 @@ def _run(args: argparse.Namespace, store: StudioStore) -> object:
             card_names=args.cards,
             commander_names=[args.commander],
         )
-    elif args.command == "tiers":
-        if args.limit < 0:
-            raise ValueError("--limit must not be negative")
-        counted = universe.inclusion(store, profile=args.profile, commander_names=[args.commander])
-        params = tiers.TierParams(
-            min_universe=args.min_universe
-            if args.min_universe is not None
-            else counted["spec"].get("min_universe", tiers.TierParams().min_universe)
-        )
-        snapshot = universe.snapshot_id(
-            store, profile=args.profile, commander_names=[args.commander]
-        )
-        result = {
-            "profile": args.profile,
-            "commander": args.commander,
-            "universe_snapshot": snapshot,
-            "denominator": counted["denominator"],
-            "denominator_by_platform": counted["denominator_by_platform"],
-            "denominator_by_bracket": counted["denominator_by_bracket"],
-            "tiers": tiers.tiers_for_universe(counted, universe_snapshot=snapshot, params=params)[
-                : args.limit
-            ],
-        }
     else:
         from commander_lab.bridge_qualification import bridge_qualification
 

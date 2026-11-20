@@ -441,13 +441,8 @@ def test_index_and_tiers_stay_identical_to_the_frozen_reference() -> None:
         assert {card["name"]: (card["index"], card["tier"]) for card in result["cards"]} == expected
         assert result["tier_counts"] == counts
         for card in result["cards"]:
-            if card["tier"] in ("U", "N"):  # only ranked cards get stability and a relative tier
-                assert card["tier_stability"] is None and card["relative_tier"] is None
-                assert card["relative_rank"] is None and card["unscharf"] is False
-        spells = result["relative_tier_info"]["totals"]["spells"]
-        assert spells == sum(
-            1 for card in result["cards"] if card["tier"] in strength.TIERS and not card["is_land"]
-        )
+            if card["tier"] in ("U", "N"):  # only ranked cards get stability
+                assert card["tier_stability"] is None and card["unscharf"] is False
 
 
 def test_the_tournament_row_shows_its_two_cohorts_with_their_own_n_of_n() -> None:
@@ -481,7 +476,7 @@ def _parts_add_up(cards: dict[str, strength_view.StrengthCard]) -> int:
     return checked
 
 
-def test_the_payload_carries_stability_relative_tiers_and_weight_families() -> None:
+def test_the_payload_carries_stability_and_weight_families_and_no_relative_tier() -> None:
     result = _compute(_store())
     cards = _cards(result)
     info = result["stability"]
@@ -494,9 +489,8 @@ def test_the_payload_carries_stability_relative_tiers_and_weight_families() -> N
         )
         assert card["tier_stability_variants"] == info["variants"]
         assert card["unscharf"] == (card["tier_stability"] < strength.STABILITY_UNSHARP_BELOW)
-        # both groups of this fixture hold fewer than 10 ranked cards: a rank, but no tier
-        assert card["relative_tier"] is None
-        assert card["relative_rank"] is not None
+        # one tier scale (Q1-b5, #1680): no relative tier S to F next to the strength tier
+        assert "relative_tier" not in card and "relative_rank" not in card
         assert card["confidence_basis"] in ("gezaehlte_null", "zaehler")
         assert card["tier_stability"] is not None
         if card["tier_stability"] == 1.0:
@@ -508,16 +502,9 @@ def test_the_payload_carries_stability_relative_tiers_and_weight_families() -> N
     unranked = cards[CMD]
     assert unranked["tier"] == "N"
     assert unranked["tier_stability"] is None and unranked["unscharf"] is False
-    assert unranked["relative_tier"] is None and unranked["relative_rank"] is None
     assert unranked["tier_alternatives"] == []
-    assert result["relative_tier_info"]["note"] == "relativ im Pool, keine Aussage über Spielstärke"
-    assert result["relative_tier_info"]["totals"] == {"spells": 8, "lands": 1}
-    assert result["relative_tier_info"]["min_group"] == 10
-    assert result["relative_tier_info"]["f_note"].startswith("F = die untersten 10 %")
-    assert sum(sum(c.values()) for c in result["relative_tier_info"]["counts"].values()) == 0
-    # a land is ranked with the lands only: the only land is rank 1 of 1, the best spell 1 of 8
-    assert cards[LAND]["relative_rank"] == {"rank": 1, "total": 1, "group": "lands"}
-    assert cards["Card 00"]["relative_rank"] == {"rank": 1, "total": 8, "group": "spells"}
+    assert "relative_tier_info" not in result
+    assert result["schema"] == strength.SCHEMA == "studio-strength-2"
     shares = {item["family"]: item["share_of_total"] for item in result["weight_families"]}
     assert shares["source_decks"] == pytest.approx(0.75)  # 7.5 of 10 once E2.a zeroes EDHREC
     assert sum(shares.values()) == pytest.approx(1.0)

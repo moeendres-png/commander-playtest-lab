@@ -14,7 +14,6 @@ from commander_lab.studio import (
     decks,
     strength,
     strength_view,
-    tiers,
     universe,
 )
 from commander_lab.studio.decks import list_rows
@@ -116,9 +115,6 @@ def test_primer_never_affects_tiers_strength_or_evidence(tmp_path: Path) -> None
         create_revision(store, deck_id="chulane", name="Chulane", cards=full_cards)
 
         inc_before = universe.inclusion(store, commander_names=[COMMANDER])
-        tiers_before = tiers.tiers_for_universe(
-            inc_before, universe_snapshot="snap-1", params=tiers.TierParams()
-        )
         strength_before = strength_view.compute(store, COMMANDER, strength.StrengthSettings())
         evidence_before = deck_evidence.deck_evidence(store, list_rows(store, full_cards))
 
@@ -129,10 +125,9 @@ def test_primer_never_affects_tiers_strength_or_evidence(tmp_path: Path) -> None
         )
 
         inc_after = universe.inclusion(store, commander_names=[COMMANDER])
-        tiers_after = tiers.tiers_for_universe(
-            inc_after, universe_snapshot="snap-1", params=tiers.TierParams()
-        )
-        assert tiers_after == tiers_before
+        # the counted spread (n of N per card) the strength tiers read is unchanged; it has no level
+        # letters since Q1-b5 (#1680), so the counts themselves are the invariant
+        assert inc_after == inc_before
         assert (
             strength_view.compute(store, COMMANDER, strength.StrengthSettings()) == strength_before
         )
