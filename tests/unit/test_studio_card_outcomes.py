@@ -91,6 +91,7 @@ def _write_log(
     revisions: tuple[str | None, str | None] = (None, None),
     fingerprint: str | None = None,
     extra_seats: Sequence[object] = (),
+    bridge_jar: str | None = None,
 ) -> Path:
     """One game log. Every seat names a deck state derived from its deck id unless
     ``deck_hashes`` gives others; ``deck_hashes=None`` writes a log of before #1657.
@@ -122,6 +123,8 @@ def _write_log(
     }
     if fingerprint is not None:
         header["pilot_fingerprint"] = fingerprint
+    if bridge_jar is not None:
+        header["bridge_jar_sha256"] = bridge_jar
     lines: list[dict[str, object]] = [header, *frames]
     if status is not None:
         lines.append({"kind": "result", "status": status, "winner_seats": list(winners)})
@@ -863,7 +866,7 @@ def test_api_answers_per_deck_state(tmp_path: Path, monkeypatch: pytest.MonkeyPa
     with TestClient(create_app(tmp_path)) as client:
         body = client.get("/api/outcomes", params={"deck_id": DECK, "min_exposed": 1}).json()
         decks = {r["deck_id"]: r for r in client.get("/api/outcomes/decks").json()["decks"]}
-    assert body["schema"] == "studio-card-outcomes-3"
+    assert body["schema"] == "studio-card-outcomes-4"
     assert body["strata"] == 2 and body["games_total"] == 2
     assert sorted(s["deck_hash"] for s in body["stands"]) == sorted([STATE_A, STATE_B])
     assert [t["games_total"] for t in body["unknown_strata"]] == [1]
@@ -1151,3 +1154,204 @@ def test_damaged_cached_table_size_is_rebuilt_from_the_log(tmp_path: Path, damag
     cache.write_text(json.dumps(entry), encoding="utf-8")
     again = game_exposures(path)
     assert again is not None and again.get("table_size") == 3
+
+
+# --- #1694: one combined table per table size ----------------------------------------------
+
+
+def _acceptance_1694() -> list[GameExposure]:
+    """A@2 (20 games), B@2 (20 games), A@3 (8 games) with equal pods and provenance: only the
+    table size tells the third stratum apart."""
+    a2 = _stated(_block("A", 10, 6) + _block("F", 10, 4), STATE_A, prefix="a")
+    b2 = _stated(_block("A", 10, 5) + _block("F", 10, 3), STATE_B, prefix="b")
+    a3 = _with(_stated(_block("A", 4, 1) + _block("F", 4, 2), STATE_A, prefix="c"), table_size=3)
+    return [*a2, *b2, *a3]
+
+
+def test_one_table_size_is_pooled_in_its_own_table_and_another_stands_apart() -> None:
+    """Acceptance #1694: A@2 + B@2 + A@3 gives a stratified table for 2 seats AND a table of
+    its own for 3 seats; the top level never combines the two table sizes."""
+    table = card_outcomes.stand_tables(_acceptance_1694(), deck_id=DECK, min_exposed=1)
+    # the top level: never across table sizes, the reason names the axis
+    assert table["strata"] == 3
+    assert table["status"] == "NOT_POOLED" and table["cards"] == []
+    assert table["pooling"]["status"] == "NOT_POOLED"
+    assert "table size (2, 3)" in str(table["pooling"]["reason"])
+    assert table["pooling"].get("differing_axis") == "table_size"
+    assert table["pooling"].get("differing_values") == [2, 3]
+    assert table["table_size"] is None
+    # one table per table size, each from its own strata only
+    two, three = table["cohorts"]
+    assert (two["table_size"], three["table_size"]) == (2, 3)
+    assert two["pooling"]["status"] == "POOLED" and two["strata"] == 2
+    assert two["pooling"]["method"] == card_outcomes.POOLING_METHOD
+    assert two["games_total"] == 40 and two["status"] == "OK"
+    assert sorted(str(s["deck_hash"]) for s in two["stands"]) == sorted([STATE_A, STATE_B])
+    assert {s["table_size"] for s in two["stands"]} == {2}
+    row = {r["card"]: r for r in two["cards"]}["A"]
+    assert row["strata"] == 2
+    assert (row["games_in_first_hand"], row["games_not_in_first_hand"]) == (20, 20)
+    expected = card_outcomes.mantel_haenszel_difference([(10, 6, 10, 4), (10, 5, 10, 3)])
+    assert expected is not None
+    assert row["difference_pp"] == pytest.approx(round(expected[0] * 100, 3))
+    assert row["rate_in"] is None  # rates per deck state only
+    # the 3-seat table: its own stratum, its own n/N, never part of the 2-seat rows
+    assert three["pooling"]["status"] == "SINGLE_STAND" and three["strata"] == 1
+    assert three["games_total"] == 8 and three["deck_hash"] == STATE_A
+    (alone,) = three["stands"]
+    assert alone["table_size"] == 3 and alone["games_total"] == 8
+    three_row = {r["card"]: r for r in three["cards"]}["A"]
+    assert (three_row["games_in_first_hand"], three_row["games_not_in_first_hand"]) == (4, 4)
+    assert three_row["difference_pp"] == pytest.approx(-25.0)
+    # every known stratum sits in exactly one table size, never in two
+    in_cohorts = sorted(
+        (str(s["deck_hash"]), s["table_size"]) for c in table["cohorts"] for s in c["stands"]
+    )
+    assert in_cohorts == sorted((str(s["deck_hash"]), s["table_size"]) for s in table["stands"])
+    # the text view prints both tables apart
+    text = format_table(table)
+    assert "cohort 2 seats: strata 2 (POOLED)  games 40" in text
+    assert "cohort 3 seats: strata 1 (SINGLE_STAND)  games 8" in text
+
+
+def test_one_table_size_gives_no_cohorts_and_a_cohort_keeps_its_own_reason() -> None:
+    """All strata of one table size: the answer is as before (``cohorts`` empty). A table size
+    whose deck states were played against other pods stays NOT_POOLED inside its own table."""
+    a, b = _simpson()
+    same_size = card_outcomes.stand_tables([*a, *b], deck_id=DECK, min_exposed=5)
+    assert same_size["pooling"]["status"] == "POOLED" and same_size["cohorts"] == []
+    b_pod = _stated(_block("A", 10, 5) + _block("F", 10, 5), STATE_B, prefix="p", opponent="x")
+    c3 = _with(_stated(_block("A", 4, 2) + _block("F", 4, 2), STATE_A, prefix="c"), table_size=3)
+    table = card_outcomes.stand_tables([*a, *b_pod, *c3], deck_id=DECK, min_exposed=1)
+    two, three = table["cohorts"]
+    assert two["pooling"]["status"] == "NOT_POOLED" and two["cards"] == []
+    assert "pod sets" in str(two["pooling"]["reason"])
+    assert "differing_axis" not in two["pooling"]
+    assert three["pooling"]["status"] == "SINGLE_STAND"
+    # nothing known: the reason names every axis, derived from STRATUM_AXES
+    old = _stated(_block("A", 3, 1), None, prefix="o")
+    none_known = card_outcomes.stand_tables(old, deck_id=DECK, min_exposed=1)
+    assert none_known["pooling"]["reason"] == (
+        "no game names both the deck state and the table size of this deck"
+    )
+    assert none_known["cohorts"] == []
+
+
+def test_api_pools_each_table_size_on_its_own_from_real_logs(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Acceptance #1694 over the route: real logs A@2, B@2 and A@3 give a stratified table for
+    2 seats, a table of its own for 3 seats and figures that never span two table sizes."""
+    monkeypatch.setenv("COMMANDER_LAB_CACHE_CHECK", "1")
+    games = tmp_path / "games"
+    jar = "d" * 64
+    for state, size, count, extra in (
+        (STATE_A, 2, 6, []),
+        (STATE_B, 2, 6, []),
+        (STATE_A, 3, 4, _seats(1)),
+    ):
+        for n in range(count):
+            _write_log(
+                games,
+                f"{state[:4]}-t{size}-{n}",
+                _simple_frames(["Sol Ring"] if n % 2 == 0 else ["Forest"]),
+                winners=(0,) if n % 3 == 0 else (1,),
+                seed=size * 1000 + n + (500 if state == STATE_B else 0),
+                deck_hashes=(state, None),
+                extra_seats=extra,
+                bridge_jar=jar,
+            )
+    with TestClient(create_app(tmp_path)) as client:
+        body = client.get("/api/outcomes", params={"deck_id": DECK, "min_exposed": 1}).json()
+    assert body["schema"] == "studio-card-outcomes-4"
+    assert body["status"] == "NOT_POOLED" and body["cards"] == [] and body["strata"] == 3
+    two, three = body["cohorts"]
+    assert (two["table_size"], two["pooling"]["status"], two["games_total"]) == (2, "POOLED", 12)
+    assert (three["table_size"], three["pooling"]["status"]) == (3, "SINGLE_STAND")
+    assert three["games_total"] == 4
+    assert {r["card"]: r for r in two["cards"]}["Sol Ring"]["strata"] == 2
+    ids = [item["id"] for item in body["zahlen"]]
+    assert any(i.startswith("outcome.kohorte.t2.Sol Ring.") for i in ids)
+    assert not any(i.startswith("outcome.kohorte.t3.") for i in ids)  # its stratum's figures
+    assert any(i.startswith(f"outcome.stand.{STATE_A}.t3.Sol Ring.") for i in ids)
+    assert not [i for i in ids if i.count(".") == 2]  # no figure over two table sizes
+    for item in body["zahlen"]:
+        if item["id"].startswith("outcome.kohorte.t2."):
+            assert item["stand_hash"] is None and item["bezug"].endswith("Tisch mit 2 Sitzen")
+            assert "Tisch mit 2 Sitzen" in item["kohorte"]
+
+
+def test_card_page_shows_one_section_per_table_size_never_one_table() -> None:
+    """#1694 in the page: A@2 + B@2 + A@3 gives a section per table size; the 2-seat section
+    has the stratified table and both deck states, the 3-seat section only its own stratum."""
+    from tests.unit.test_studio_static_guards import _node_json
+
+    table = card_outcomes.stand_tables(_acceptance_1694(), deck_id=DECK, min_exposed=1)
+    script = f"""
+global.StudioUI = {{
+  num: (n, d = 0) => Number(n).toFixed(d).replace('.', ','),
+  pct: (r) => `${{(Number(r) * 100).toFixed(1).replace('.', ',')}} %`,
+  kids: (...a) => a.flat(Infinity).filter((x) => x !== null && x !== undefined && x !== false),
+}};
+const mod = require('./kartenauswertung.js');
+const textOf = (node) => {{
+  if (node === null || node === undefined) return '';
+  if (typeof node === 'string' || typeof node === 'number') return String(node);
+  if (Array.isArray(node)) return node.map(textOf).join('');
+  return (node.kids || []).map(textOf).join(' ');
+}};
+const count = (node, tag) => {{
+  if (!node || typeof node !== 'object') return 0;
+  if (Array.isArray(node)) return node.reduce((n, k) => n + count(k, tag), 0);
+  return (node.tag === tag ? 1 : 0) + count(node.kids || [], tag);
+}};
+const h = (tag, attrs, ...kids) => ({{ tag, attrs: attrs || {{}}, kids: kids.flat(Infinity) }});
+const slot = {{ children: [], replaceChildren(...kids) {{ this.children = kids; }} }};
+(async () => {{
+  await mod.renderCardOutcomes(slot, {{
+    h, deckId: 'deck/a', baseRevision: 'deck/a@aaaa', dirty: false,
+    api: async (url) => (url === '/api/outcomes/decks' ? {{ decks: [] }} : {json.dumps(table)}),
+  }});
+  const sections = slot.children.filter((n) => n && n.tag === 'section');
+  console.log(JSON.stringify({{
+    text: textOf(slot.children),
+    details: count(slot.children, 'details'),
+    tables: count(slot.children, 'table'),
+    sections: sections.map((s) => ({{
+      text: textOf(s), details: count(s, 'details'), tables: count(s, 'table'),
+    }})),
+    base: [2, 1, null].map((v) => mod.outcomesBaseRate(v)),
+  }}));
+}})();
+"""
+    r = _node_json(script)
+    assert isinstance(r, dict)
+    text = r["text"]
+    assert "Die Tischgrößen werden nie zusammengeführt" in text
+    assert "(bei 2 Sitzen 1/2, bei 3 Sitzen 1/3)" in text
+    assert "diese Ansicht kommt als Folgepaket" not in text
+    two, three = r["sections"]
+    assert two["text"].startswith(
+        "Tischgröße: 2 Sitze · 2 Deck-Stände geschichtet (je Stand eigene Differenz"
+    )
+    assert (
+        "Basis-Siegrate bei 2 Sitzen: 1/2, nie mit einer anderen Tischgröße gemischt"
+        in (two["text"])
+    )
+    assert "geschichtet über 2 Deck-Stände" in two["text"]
+    assert two["details"] == 2 and two["tables"] == 3  # stratified table and one per state
+    assert f"Deck-Stand {STATE_A[:12]}… · Tischgröße: 2 Sitze · 20 Partien" in two["text"]
+    assert f"Deck-Stand {STATE_B[:12]}… · Tischgröße: 2 Sitze · 20 Partien" in two["text"]
+    assert "Tischgröße: 3 Sitze" not in two["text"]
+    assert three["text"].startswith("Tischgröße: 3 Sitze · 1 Deck-Stand")
+    assert three["details"] == 1 and three["tables"] == 1  # a single stratum is shown once
+    assert f"Deck-Stand {STATE_A[:12]}… · Tischgröße: 3 Sitze · 8 Partien" in three["text"]
+    assert "Tischgröße: 2 Sitze" not in three["text"] and STATE_B[:12] not in three["text"]
+    # every stratum once in the page, each with its own provenance
+    assert r["details"] == 3 and r["tables"] == 4
+    assert text.count("Qualifizierung:") == 5  # top, 2-seat table, three strata
+    assert r["base"] == [
+        "Basis-Siegrate bei 2 Sitzen: 1/2",
+        "Basis-Siegrate bei 1 Sitz: 1/1",
+        "Basis-Siegrate unbekannt",
+    ]

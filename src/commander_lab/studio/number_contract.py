@@ -383,7 +383,11 @@ def outcomes_zahlen(table: Mapping[str, object]) -> list[dict[str, object]]:
     * every known stratum (``outcome.stand.<hash>.t<size>.<card>.<key>``) with its own hash;
     * every stratum with an unknown axis
       (``outcome.unknown.<hash|ohne-hash>.t<size|unbekannt>.<card>.<key>``): "Stand unbekannt" with ``stand_hash`` ``None``, "Tischgröße unbekannt" with its own n/N,
-      never added to a known stratum."""
+      never added to a known stratum;
+    * every table size whose deck states are combined stratified on their own (``cohorts``,
+      #1694; ``outcome.kohorte.t<size>.<card>.<key>``) with ``stand_hash`` ``None`` and the number
+      of strata as a note. A table size of one stratum (``SINGLE_STAND``) or one not combined has
+      no figures of its own: its numbers are those of its strata."""
     out: list[dict[str, object]] = []
     pooling = _mapping(table.get("pooling"))
     top_hash = table.get("deck_hash") if _text(table.get("deck_hash")) else None
@@ -403,6 +407,18 @@ def outcomes_zahlen(table: Mapping[str, object]) -> list[dict[str, object]]:
         size = _int_or_none(stand.get("table_size"))
         if isinstance(deck_hash, str) and _text(deck_hash) and size is not None:
             _outcome_table(out, stand, f"outcome.stand.{deck_hash}.t{size}", deck_hash, [])
+    for item in _list(table.get("cohorts")):
+        cohort = _mapping(item)
+        size = _int_or_none(cohort.get("table_size"))
+        cohort_pooling = _mapping(cohort.get("pooling"))
+        if size is None or cohort_pooling.get("status") != "POOLED":
+            continue
+        notes = [
+            f"geschichtet über {cohort.get('strata')} Schichten (Deck-Stände einer Tischgröße; "
+            f"{cohort_pooling.get('method')})",
+            "eigene Tabelle je Tischgröße, nie mit einer anderen Tischgröße zusammengefasst",
+        ]
+        _outcome_table(out, cohort, f"outcome.kohorte.t{size}", None, notes)
     for item in _list(table.get("unknown_strata")):
         apart = _mapping(item)
         deck_hash = apart.get("deck_hash") if _text(apart.get("deck_hash")) else None
