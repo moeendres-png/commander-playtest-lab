@@ -260,7 +260,7 @@ const StudioPlayP1a = (() => {
 
   // Sends one answer of the human and keeps the books about it. io carries the page side:
   //   getPendingDecision(), post(payload) (rejects when the engine refuses), getLedger(),
-  //   setLedger(ledger), logAutoPass(line).
+  //   setLedger(ledger), logAutoPass(line), optionally keepReply(reply) (what the post returned).
   // The decision answered is the one that was pending when the answer was sent (a poll may replace
   // the pending decision while the post is in flight). Ledger and auto-pass line are written only
   // after the post was accepted: a refused answer leaves no trace (the rejection propagates).
@@ -268,7 +268,9 @@ const StudioPlayP1a = (() => {
   async function submitAnswer(io, payload, opts) {
     const submitted = io.getPendingDecision();
     if (!submitted) return null;
-    await io.post(payload);
+    const reply = await io.post(payload);
+    // the page may keep what the engine answered (the state after the answer, #1578)
+    if (typeof io.keepReply === "function") io.keepReply(reply);
     io.setLedger(
       recordOwnCombatAnswer(
         io.getLedger(),
