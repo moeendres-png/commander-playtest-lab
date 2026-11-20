@@ -782,7 +782,7 @@ def prepare(
     Raises KeyError when the commander is not in the collection or the universe profile of the
     settings is unknown; with ``dangling_universe_ok`` a deleted profile gives a notice and the
     automatic choice instead."""
-    pool = pool_cards(store, [commander], with_signals=False)
+    pool = pool_cards(store, [commander], with_signals=False, with_marks=False)
     raw_cards = pool["cards"]
     if not isinstance(raw_cards, list):
         raise TypeError("pool_cards returned an unexpected shape")
