@@ -92,7 +92,7 @@ Git, Tests und versiegelte Belege sind Source Truth (`AGENTS.md` §3).
 - **Ergebnis-Rückfluss (`/api/outcomes` & Serien-Historie):** Anzeige objektiver
   Öffnungshand-/Karten-Outcomes (`SIMULATED_RESULT`, n/N, Wilson-CI) und gespeicherter gepaarter
   Serien direkt in SIMULATE und im Deckbuilder, strikt getrennt vom Tierliste-Score
-  (`simulation`-Gewicht bleibt `0`).
+  (`simulation`-Gewicht bleibt `0`; *überholt 2026-11-20, E15 Q1: Gewicht entfernt*).
 
 ## 5. Gepinnte Architektur & Grenzen
 

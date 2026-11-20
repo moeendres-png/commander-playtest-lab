@@ -88,7 +88,7 @@ The plan that follows from these decisions, with recommendations, is
 - **2026-11-18:** `docs/OWNER_DECISIONS_STUDIO_20261118.md` records the Owner answers of that
   day and changes rows here: B11 becomes conditional (weight 0 until the maturity gate G-SIM is
   met and the Owner confirms weight and display); S2 is lifted only for counting pilot omissions;
-  A4 has one exception, the labelled, generated overall rating of the tier list. It also records
+  A4 has one exception, the labelled, generated overall rating of the tier list (*superseded 2026-11-20, E15 Q1: the overall rating was removed; only the model judgement "Kartenverständnis (Modellurteil)" for Chulane remains*). It also records
   the PLAY decisions of 2026-11-17 and the tier-list decisions of 2026-11-18 verbatim. On A3: two
   to four seats are active; five and six stay locked until their own qualification and the Owner's
   release (A8). The binding scope is `docs/STUDIO_SCOPE.md`.

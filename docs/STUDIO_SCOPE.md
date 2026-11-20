@@ -189,7 +189,7 @@ Das Projekt ist abgeschlossen, wenn:
 2. SIMULATE: Eine vom Owner gestellte Chulane-Frage ist mit Serienplan, Ergebnis, Intervall,
    nachweisbarer Differenz und Gültigkeitsblock beantwortet und im Deck-Verlauf sichtbar.
 3. BUILD: Ein Deck geht ohne Handarbeit aus dem Deckbauer in Partie und Serie; die Tierliste
-   (#1369) ist vom Owner abgenommen.
+   (#1369) ist vom Owner abgenommen (das Gesamtrating daraus ist seit E15 Q1 entfernt).
 4. Regeln: Komponente `simulation` existiert nicht mehr (E15 Q1), durch Test gesichert; 5 und 6 Sitze technisch gesperrt oder vom Owner freigegeben; keine Zahl ohne n/N.
 5. Doku: diese Datei, die Entscheidungsdatei und keine offenen Widersprüche in den Studio-Dokumenten.
 6. Betrieb: Einrichtung am Owner-PC aus dem Release-Paket nachvollzogen; Zustand der Bridge
@@ -245,8 +245,9 @@ So wird der Scope oben abgearbeitet, von jedem Agenten gleich.
 7. **Belege:** Was nicht belegt ist, heißt `UNKNOWN`, nie PASS. Punkte, die eine echte Engine oder
    den Owner-PC brauchen, werden als solche ausgewiesen und nicht durch Tests mit nachgebautem
    Client als erledigt gemeldet.
-8. **Simulation:** Ergebnisse nur als `SIMULATED_RESULT` mit Herkunft; kein Einfluss auf die
-   Tierliste, bevor G-SIM erfüllt und vom Owner bestätigt ist (E2).
+8. **Simulation:** Ergebnisse nur als `SIMULATED_RESULT` mit Herkunft; kein Gewicht in der
+   Tierliste (seit E15 Q1 entfernt; die Fassung „bevor G-SIM erfüllt ist (E2)“ ist überholt),
+   Evidenz mit Reifegrad R0-R3 im Deckbauer (Q1-c, #1666, noch nicht gebaut).
 
 Regeln für Hilfs-Agenten (keine rekursiven Teams, kurze Berichte) stehen in `CLAUDE.md`.
 
