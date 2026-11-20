@@ -11,9 +11,12 @@ from pathlib import Path
 import pytest
 
 STATIC = Path(__file__).resolve().parents[2] / "src" / "commander_lab" / "studio" / "static"
-# Owner decision 2026-11-19 (#1187, #1636): "Zukauf" (missing-card wishlist without prices) is
-# allowed in BUILD; all price and buy wording remains strictly forbidden.
+# Price and buy wording is forbidden in every page and script (B1, AGENTS.md §12).
 PRICE_WORDS = re.compile(r"\b(preis\w*|kaufen|price\w*|buy)\b|€", re.IGNORECASE)
+# Owner decision 2026-11-19 (E14, #1187, #1636): the word "Zukauf" (missing-card wishlist
+# without prices) is allowed in BUILD only: its wishlist helpers and the BUILD page (#1648).
+ZUKAUF_WORDS = re.compile(r"\bzuk[aä]u[fe]\w*", re.IGNORECASE)
+ZUKAUF_FILES = frozenset({"wishlist.js", "app.js", "index.html"})
 
 
 def _files(pattern: str) -> list[Path]:
@@ -71,6 +74,22 @@ def test_no_price_wording_in_pages_and_scripts() -> None:
         text = path.read_text(encoding="utf-8")
         hits = PRICE_WORDS.findall(text)
         assert not hits, f"{path.name}: {hits}"
+
+
+def test_zukauf_wording_only_on_the_build_page() -> None:
+    # E14 frees "Zukauf" for BUILD, not for the other pages; price words stay forbidden in the
+    # BUILD files too (previous test).
+    offenders: dict[str, list[str]] = {}
+    allowed_seen = 0
+    for path in [*_files("*.html"), *_files("*.js")]:
+        found = ZUKAUF_WORDS.findall(path.read_text(encoding="utf-8"))
+        if path.name in ZUKAUF_FILES:
+            allowed_seen += len(found)
+        elif found:
+            offenders[path.name] = found
+    assert offenders == {}
+    assert allowed_seen > 0  # the pattern still finds the BUILD texts
+    assert ZUKAUF_WORDS.search("Zukäufe") and ZUKAUF_WORDS.search("Zukauf-Liste")
 
 
 def test_every_text_input_and_select_has_a_name() -> None:
@@ -1732,6 +1751,14 @@ def test_wishlist_js_behavior_and_static_guards() -> None:
     assert "include_unowned=true" in app_js
     assert "Zukauf (0 im Besitz)" in app_js
     assert "Zukauf-Liste kopieren" in app_js
+    # n/N (#1648): both counts over the 100 cards of a Commander deck, with their origin.
+    assert (
+        "`Im Besitz: ${StudioUI.num(ownership.owned, 0)}/100 · "
+        "Zukauf: ${StudioUI.num(ownership.missing, 0)}/100`"
+    ) in app_js
+    assert "ein Commander-Deck hat 100" in app_js
+    # Collection and Zukauf cards are counted apart for the simulator readiness.
+    assert "pool.sim_readiness_unowned" in app_js
 
     for name, src in (("wishlist.js", wishlist_js), ("index.html", html)):
         for forbidden in ("innerHTML", "outerHTML", "style=", 'setAttribute("style"', ".toFixed("):
