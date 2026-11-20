@@ -25,6 +25,7 @@ import threading
 import time
 from collections.abc import Callable, Mapping, Sequence
 from pathlib import Path
+from typing import cast
 
 from commander_lab.agents.card_knowledge import CardCatalogError, card_facts
 from commander_lab.bridge_qualification import bridge_qualification
@@ -38,21 +39,24 @@ from commander_lab.engine.rules.full_game_comparison import (
 from commander_lab.engine.rules.project import load_rules_deck_snapshot
 from commander_lab.models import RulesDeckInput
 
-from . import builder, decks, paired_comparison, strength_view
+from . import builder, decks, launch, paired_comparison, strength_view
 from .card_outcomes import pilot_identity
 from .decks import RevisionCard, lab_snapshot, list_rows, resolve_repo_baseline_cards
 from .games import games_folder
-from .launch import POD_PRESETS as POD_PRESETS  # re-exported for callers and tests
 from .launch import (
+    MAX_SEATS,
+    MIN_SEATS,
     SeriesEngine,
     cards_unknown_to_pilots,
     cards_unsupported_by_engine,
     checked_series_settings,
     engine_state,
+    pod_opponent_ids,
     resolve_opponent_paths,
     series_engine,
     validate_released_seat_count,
 )
+from .launch import POD_PRESETS as POD_PRESETS  # re-exported for callers and tests
 from .launch import (
     bridge_jar_sha256 as command_bridge_jar_sha256,
 )
@@ -72,6 +76,10 @@ ESTIMATED_GAMES_PER_HOUR = 540.0
 #: at this rate, a lower bound while no more than 6 workers run; paired series are unmeasured.
 MEASURED_BATCH_GAMES_PER_HOUR = 541.2
 MEASURED_BATCH_WORKERS = 6
+#: The table size the measured rate belongs to (four seats). For any other table size the
+#: duration is UNKNOWN: no throughput is measured for it (n = 0 games), and a rate of another
+#: table size is not a floor for it (smaller tables play faster, larger ones are unmeasured).
+MEASURED_TABLE_SEATS = 4
 THROUGHPUT_SOURCE = (
     "gemessen sind nur 541 Partien/h für eine ganze Batch-Serie mit 6 Workern und 8 Partien je "
     "JVM (#1251), also etwa 90 je Worker; für gepaarte Serien ist der Durchsatz ungemessen"
@@ -149,6 +157,98 @@ def planned_detectable_difference_pp(budget_pairs: int, seats_per_seed: int) -> 
     }
 
 
+def rotation_plan(
+    table_size: int, budget_pairs: int, *, rotate_seats: bool = True, first_seed: int = 0
+) -> dict[str, object]:
+    """The seat rotation of a paired series before a game is played (#1702).
+
+    One unit is one pair at one tested seat of one seed, seed by seed and seat by seat, cut at
+    the budget, exactly as ``run_comparison_series`` plays them. The engine starts the game at
+    seat ``seed % table_size`` (consecutive seeds), so a **block** of ``table_size`` consecutive
+    seeds at ``table_size`` tested seats (``table_size ** 2`` pairs) plays every combination of
+    starting seat and tested seat exactly once: 25 pairs at five seats, 36 at six, which is 25
+    or 36 games per arm. A budget that is not a whole number of blocks leaves the rotation
+    incomplete; this says so (``rotation_complete`` false, the cells that are missing) and
+    never rounds the budget on its own.
+    """
+    seats = int(table_size)
+    if not MIN_SEATS <= seats <= MAX_SEATS:
+        raise ValueError(f"Tischgröße muss zwischen {MIN_SEATS} und {MAX_SEATS} liegen")
+    pairs = int(budget_pairs)
+    if pairs < 1:
+        raise ValueError("budget_pairs muss mindestens 1 sein")
+    tested = list(range(seats)) if rotate_seats else [0]
+    seeds_planned = -(-pairs // len(tested))
+    units = [(first_seed + i, seat) for i in range(seeds_planned) for seat in tested][:pairs]
+    cells: dict[tuple[int, int], int] = {
+        (start, seat): 0 for start in range(seats) for seat in tested
+    }
+    for seed, seat in units:
+        cells[(seed % seats, seat)] += 1
+    block_pairs = seats * len(tested)
+    full_blocks, remainder = divmod(pairs, block_pairs)
+    counts = sorted(cells.values())
+    return {
+        "table_size": seats,
+        "rotate_seats": bool(rotate_seats),
+        "tested_seats": tested,
+        "budget_pairs": pairs,
+        "seeds_planned": seeds_planned,
+        "seed_rule": "consecutive",
+        "starting_seat_rule": "seed % table_size",
+        "pairs_per_block": block_pairs,
+        "games_per_arm_per_block": block_pairs,
+        "full_blocks": full_blocks,
+        "remainder_pairs": remainder,
+        "rotation_complete": remainder == 0,
+        "cells_total": len(cells),
+        "cells_missing": sum(1 for count in cells.values() if count == 0),
+        "cells_min_pairs": counts[0],
+        "cells_max_pairs": counts[-1],
+        "max_games": 2 * pairs,
+        "games_per_arm": pairs,
+    }
+
+
+def table_plan(
+    table_size: int, budget_pairs: int, *, rotate_seats: bool = True
+) -> dict[str, object]:
+    """The plan of a series at ``table_size`` seats, also behind the seat lock (#1702).
+
+    The usual plan (detectable difference at the seats per seed) plus ``table``: the rotation
+    (``rotation_plan``), the effort (games, duration: UNKNOWN where nothing is measured) and
+    whether the Studio may start this table at all. Planning a locked table starts nothing;
+    ``released`` false and ``locked_text`` say why.
+    """
+    rotation = rotation_plan(table_size, budget_pairs, rotate_seats=rotate_seats)
+    seats_per_seed = len(cast(list[int], rotation["tested_seats"]))
+    plan = planned_detectable_difference_pp(budget_pairs, seats_per_seed)
+    effort = estimate_series_duration(
+        budget_pairs, seats_per_seed=seats_per_seed, table_size=table_size
+    )
+    effort.pop("planning", None)
+    released = table_size <= launch.MAX_RELEASED_SEATS  # read at call time: one lock line
+    locked_text = (
+        None
+        if released
+        else (
+            f"Tische mit {table_size} Sitzen sind nicht freigegeben: Das Studio startet "
+            f"{MIN_SEATS} bis {launch.MAX_RELEASED_SEATS} Sitze. Die Planung zeigt, was eine Serie "
+            "wäre; gestartet wird sie erst nach Qualifikation und Owner-Freigabe (E15 Q5)."
+        )
+    )
+    return {
+        **plan,
+        "table": {
+            **rotation,
+            "released": released,
+            "max_released_seats": launch.MAX_RELEASED_SEATS,
+            "locked_text": locked_text,
+            "effort": effort,
+        },
+    }
+
+
 def estimate_series_duration(
     budget_pairs: int,
     *,
@@ -156,8 +256,13 @@ def estimate_series_duration(
     workers: int | None = None,
     games_per_jvm: int | None = None,
     seats_per_seed: int = 4,
+    table_size: int = MEASURED_TABLE_SEATS,
 ) -> dict[str, object]:
     """Pre-run duration floor and plan for a paired A-vs-B comparison series.
+
+    The measured rate belongs to a table of ``MEASURED_TABLE_SEATS`` seats. For any other
+    ``table_size`` the duration is UNKNOWN (``duration_known`` false, no seconds, no minutes):
+    nothing is measured for that table, so no figure is given and none is called a floor.
 
     The duration is the time at the one measured rate (``MEASURED_BATCH_GAMES_PER_HOUR``, a
     whole 6-worker batch series): a lower bound, not a forecast, while no more than 6 workers
@@ -171,25 +276,42 @@ def estimate_series_duration(
     seconds = round(max_games * (3600.0 / MEASURED_BATCH_GAMES_PER_HOUR))
     minutes = round(seconds / 60.0, 1)
     floor_holds = used_workers <= MEASURED_BATCH_WORKERS
+    known = int(table_size) == MEASURED_TABLE_SEATS
     payload: dict[str, object] = {
         "budget_pairs": int(budget_pairs),
+        "table_size": int(table_size),
+        "duration_known": known,
+        "measured_table_seats": MEASURED_TABLE_SEATS,
+        "measured_games": None,  # the number of games behind the 541.2 is not in the repository
         "max_games": max_games,
         "measured_batch_games_per_hour": MEASURED_BATCH_GAMES_PER_HOUR,
-        "minimum_seconds": seconds,
-        "minimum_minutes": minutes,
-        "minimum_is_lower_bound": floor_holds,
-        "estimated_seconds": seconds,
-        "estimated_minutes": minutes,
+        "minimum_seconds": seconds if known else None,
+        "minimum_minutes": minutes if known else None,
+        "minimum_is_lower_bound": floor_holds and known,
+        "estimated_seconds": seconds if known else None,
+        "estimated_minutes": minutes if known else None,
         "assumed_games_per_hour_unmeasured": int(assumed_rate),
         "workers": used_workers,
         "throughput_measured_for_paired_series": False,
         "throughput_source": THROUGHPUT_SOURCE,
         "basis": (
-            f"mindestens ~{minutes} min bei der gemessenen Rate von "
-            f"{MEASURED_BATCH_GAMES_PER_HOUR:.0f} Partien/h; {THROUGHPUT_SOURCE}, die Dauer ist "
-            "vermutlich deutlich länger"
-            + ("" if floor_holds else " (mit mehr als 6 Workern keine sichere Untergrenze)")
-            + ". 2 Partien je Paar; früher Stopp je nach Look möglich."
+            (
+                f"mindestens ~{minutes} min bei der gemessenen Rate von "
+                f"{MEASURED_BATCH_GAMES_PER_HOUR:.0f} Partien/h; {THROUGHPUT_SOURCE}, die Dauer "
+                "ist vermutlich deutlich länger"
+                + ("" if floor_holds else " (mit mehr als 6 Workern keine sichere Untergrenze)")
+                + ". 2 Partien je Paar; früher Stopp je nach Look möglich."
+            )
+            if known
+            else (
+                f"unbekannt (UNKNOWN): für einen Tisch mit {int(table_size)} Sitzen ist kein "
+                "Durchsatz gemessen (n = 0 Partien). Gemessen ist nur der Vierertisch "
+                f"({MEASURED_BATCH_GAMES_PER_HOUR:.0f} Partien/h, ganze Batch-Serie, 6 Worker, "
+                "8 Partien je JVM, #1251, Zahl der Partien im Repository nicht belegt); ein "
+                "Wert eines anderen Tisches ist hier weder Schätzung noch Untergrenze. "
+                f"Der Aufwand ist die Zahl der Partien: bis zu {max_games} "
+                f"({pairs} je Arm), 2 Partien je Paar."
+            )
         ),
         "planning": planned_detectable_difference_pp(max(2, pairs), seats_per_seed),
     }
@@ -213,17 +335,25 @@ def _table_opponent_paths(
     pod: str,
     opponent_ids: Sequence[str] | None,
     taken_deck_ids: set[str],
+    *,
+    allow_unreleased_seats: bool = False,
 ) -> list[Path]:
     """The opponents' deck files: precons from the repository, Studio deck states (E15 Q6)
     as snapshot files in the series folder. With ``store`` the snapshots are written (start);
     without, they must already be there (resume). Unknown is an error, never a stand-in."""
     if opponent_ids is None or not any(is_revision_ref(str(o)) for o in opponent_ids):
-        return resolve_opponent_paths(pod, opponent_ids)
+        return resolve_opponent_paths(
+            pod, opponent_ids, allow_unreleased_seats=allow_unreleased_seats
+        )
     ids = [str(o).strip() for o in opponent_ids]
     if len(set(ids)) != len(ids):
         raise ValueError("Gegner-Decks dürfen nicht doppelt vorkommen")
     precons = [o for o in ids if not is_revision_ref(o)]
-    precon_paths = iter(resolve_opponent_paths(pod, precons) if precons else [])
+    precon_paths = iter(
+        resolve_opponent_paths(pod, precons, allow_unreleased_seats=allow_unreleased_seats)
+        if precons
+        else []
+    )
     paths: list[Path] = []
     for index, oid in enumerate(ids):
         if not is_revision_ref(oid):
@@ -440,6 +570,7 @@ class PairedSeriesJob:
             workers=self.workers,
             games_per_jvm=self.games_per_jvm,
             seats_per_seed=len(tested_seats),
+            table_size=player_count if player_count is not None else 1 + len(self.opponents),
         )
         table_size = player_count if player_count is not None else 1 + len(self.opponents)
         #: Consecutive seeds on purpose: the engine starts the game at seat ``seed % players``
@@ -747,7 +878,12 @@ class PairedSeriesManager:
         purpose: str = "unspecified",
         allow_unreleased_seats: bool = False,
         experiment: Mapping[str, object] | None = None,
+        table_size: int | None = None,
     ) -> PairedSeriesJob:
+        """Start a paired series. ``table_size`` (seats, 2 to 6) sizes a pod preset's table:
+        the preset's first ``table_size - 1`` opponents sit down, and the series records them
+        by id. Without it a preset seats its four-seat table as before. With explicit
+        ``opponent_ids`` it must match their count. The seat lock applies in every case."""
         data_path = Path(data_folder).resolve()
         if purpose not in SERIES_PURPOSES:
             raise ValueError(f"purpose muss eines von {', '.join(SERIES_PURPOSES)} sein")
@@ -764,6 +900,17 @@ class PairedSeriesManager:
             )
         if look_every_pairs < 1:
             raise ValueError("look_every_pairs muss mindestens 1 sein")
+        if table_size is not None:
+            validate_released_seat_count(
+                table_size - 1, allow_unreleased_seats=allow_unreleased_seats
+            )
+            if opponent_ids is None:
+                opponent_ids = list(pod_opponent_ids(pod, table_size - 1))
+            elif len(opponent_ids) + 1 != table_size:
+                raise ValueError(
+                    f"ein Tisch mit {table_size} Sitzen braucht {table_size - 1} Gegner, "
+                    f"angegeben sind {len(opponent_ids)}"
+                )
         if opponent_ids is not None:
             validate_released_seat_count(
                 len(opponent_ids), allow_unreleased_seats=allow_unreleased_seats
@@ -813,7 +960,12 @@ class PairedSeriesManager:
             base_deck, variant_deck, variant_snap, variant_path
         )
         opp_paths = _table_opponent_paths(
-            store, deck_dir, pod, opponent_ids, {base_deck.deck_id, variant_deck.deck_id}
+            store,
+            deck_dir,
+            pod,
+            opponent_ids,
+            {base_deck.deck_id, variant_deck.deck_id},
+            allow_unreleased_seats=allow_unreleased_seats,
         )
         opponents = [load_rules_deck_snapshot(p) for p in opp_paths]
 
@@ -825,9 +977,11 @@ class PairedSeriesManager:
             paths_by_deck_id[deck.deck_id] = path
 
         table_size = 1 + len(opponents)
-        tested_seats = list(range(table_size)) if rotate_seats else [0]
-        needed_seeds = -(-budget_pairs // len(tested_seats))
-        seeds = [int(base_seed) + i for i in range(needed_seeds)]
+        rotation = rotation_plan(
+            table_size, budget_pairs, rotate_seats=rotate_seats, first_seed=int(base_seed)
+        )
+        tested_seats = [int(seat) for seat in cast(list[int], rotation["tested_seats"])]
+        seeds = [int(base_seed) + i for i in range(cast(int, rotation["seeds_planned"]))]
 
         jar_sha = (
             command_bridge_jar_sha256(data_path, engine.command) if engine is not None else None
@@ -1469,6 +1623,7 @@ def simulator_readiness_audit(
 __all__ = [
     "ESTIMATED_GAMES_PER_HOUR",
     "MEASURED_BATCH_GAMES_PER_HOUR",
+    "MEASURED_TABLE_SEATS",
     "SCHEMA_PAIRED_JOB",
     "SCHEMA_READINESS_AUDIT",
     "SERIES_PURPOSES",
@@ -1478,6 +1633,8 @@ __all__ = [
     "estimate_series_duration",
     "paired_series_manager",
     "planned_detectable_difference_pp",
+    "rotation_plan",
     "simulator_readiness_audit",
+    "table_plan",
     "validate_series_id",
 ]
